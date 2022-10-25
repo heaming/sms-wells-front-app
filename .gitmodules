@@ -1,0 +1,9 @@
+[submodule "src/modules/common"]
+	path = src/modules/common
+	url = http://gitlab.kyowon.co.kr/pjt/imp/sflex/sflex-front-common.git
+[submodule "src/modules/collaboration"]
+	path = src/modules/collaboration
+	url = http://gitlab.kyowon.co.kr/pjt/imp/sflex/sflex-front-collaboration.git
+[submodule "src/modules/sms-common"]
+	path = src/modules/sms-common
+	url = http://gitlab.kyowon.co.kr/pjt/bsp/sms/sms-common-front-mod.git

@@ -1,0 +1,58 @@
+{
+  "private": true,
+  "workspaces": [
+    "src/modules/*"
+  ],
+  "scripts": {
+    "build": "vite build",
+    "lint": "eslint --ext .js,.jsx,.vue . --fix && stylelint **/*.{css,scss,vue} --fix",
+    "lint-staged": "lint-staged",
+    "prepare": "husky install",
+    "prettier": "prettier --write **/*.ts **/*.html",
+    "preview": "vite preview",
+    "serve": "vite serve",
+    "sort-package-json": "sort-package-json package.json"
+  },
+  "lint-staged": {
+    "*.{js,jsx,vue}": [
+      "eslint --fix",
+      "git add"
+    ],
+    "*.{css,scss,vue}": [
+      "stylelint --fix",
+      "git add"
+    ],
+    "*.{ts,tsx,html}": [
+      "prettier --write",
+      "git add"
+    ],
+    "package.json": [
+      "sort-package-json",
+      "git add"
+    ]
+  },
+  "dependencies": {
+    "axios": "^0.27.2",
+    "dayjs": "^1.11.4",
+    "kw-lib": "^0.1.85",
+    "lodash-es": "^4.17.21",
+    "realgrid": "^2.5.4",
+    "vue": "^3.2.25",
+    "vue-i18n": "^9.1.10",
+    "vue-router": "^4.0.15",
+    "vuex": "^4.0.2"
+  },
+  "devDependencies": {
+    "eslint": "^8.15.0",
+    "husky": "^8.0.0",
+    "lint-staged": "^12.4.1",
+    "prettier": "^2.7.1",
+    "sort-package-json": "^1.57.0",
+    "stylelint": "^14.8.2"
+  },
+  "bundledDependencies": [
+    "~collaboration",
+    "~common",
+    "~sms-common"
+  ]
+}
