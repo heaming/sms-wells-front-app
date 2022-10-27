@@ -17,6 +17,9 @@
       ],
       "~sms-common/*": [
         "src/modules/sms-common/*"
+      ],
+      "~sms-wells/*": [
+        "src/project/wells/web/*"
       ]
     },
     "lib": [
