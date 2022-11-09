@@ -9,7 +9,7 @@
 ****************************************************************************************************
 * 프로그램 설명
 ****************************************************************************************************
-- AS코드관리
+- AS코드관리 (http://localhost:3000/#/service/wwsny-after-service-code-mgt)
 ****************************************************************************************************
 --->
 <template>
@@ -21,11 +21,51 @@
       <kw-search-row>
         <kw-search-item :label="$t('MSG_TXT_PD_GRP')">
           <kw-select
-            :key="codes.PD_GRP_CD"
             v-model="searchParams.pdGrpCd"
             :options="codes.PD_GRP_CD"
             first-option="all"
             first-option-label="- 전체 -"
+          />
+        </kw-search-item>
+        <kw-search-item :label="$t('MSG_TXT_PD_NM')">
+          <kw-select
+            v-model="searchParams.pdGrpCd"
+            :options="codes.PD_GRP_CD"
+            first-option="all"
+            first-option-label="- 전체 -"
+          />
+        </kw-search-item>
+        <kw-search-item :label="$t('MSG_TXT_PD_NM')">
+          <kw-option-group
+            v-model="searchParams.pdGrpCd"
+            type="checkbox"
+            :options="codes.PD_GRP_CD"
+          />
+        </kw-search-item>
+      </kw-search-row>
+      <kw-search-row>
+        <kw-search-item :label="$t('MSG_TXT_SV_TP')">
+          <kw-select
+            v-model="searchParams.pdGrpCd"
+            :options="codes.PD_GRP_CD"
+            first-option="all"
+            first-option-label="- 전체 -"
+          />
+        </kw-search-item>
+        <kw-search-item :label="$t('MSG_TXT_SV_TP')">
+          <kw-select
+            v-model="searchParams.pdGrpCd"
+            :options="codes.PD_GRP_CD"
+            first-option="all"
+            first-option-label="- 전체 -"
+          />
+        </kw-search-item>
+        <kw-search-item :label="$t('MSG_TXT_MDFC_DTM')">
+          <kw-date-range-picker
+            v-model:from="searchParams.startDt"
+            v-model:to="searchParams.endDt"
+            :min-date="minDate"
+            :max-date="maxDate"
           />
         </kw-search-item>
       </kw-search-row>
@@ -38,16 +78,17 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { codeUtil } from 'kw-lib';
+// -------------------------------------------------------------------------------------------------
+// Function & Event
+// -------------------------------------------------------------------------------------------------
+const searchParams = ref({
+  pdGrpCd: '',
+});
 
 const codes = await codeUtil.getMultiCodes(
   'PD_GRP_CD',
 );
-const searchParams = ref({
-  pdGrpCd: '',
-});
-// -------------------------------------------------------------------------------------------------
-// Function & Event
-// -------------------------------------------------------------------------------------------------
+
 async function onClickSearch() {
   console.log(codes);
 }
