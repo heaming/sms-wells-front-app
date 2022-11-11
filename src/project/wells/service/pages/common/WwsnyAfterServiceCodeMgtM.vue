@@ -10,6 +10,7 @@
 * 프로그램 설명
 ****************************************************************************************************
 - AS코드관리 (http://localhost:3000/#/service/wwsny-after-service-code-mgt)
+- ZwcmwProductMgtM.vue 참고
 ****************************************************************************************************
 --->
 <template>
@@ -85,6 +86,7 @@
             v-model:page-size="pageInfo.pageSize"
             :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
             :total-count="pageInfo.totalCount"
+            @change="fetchData"
           />
         </template>
       </kw-action-top>
@@ -128,13 +130,12 @@ const dataService = useDataService();
 
 const { getConfig } = useMeta();
 
-let cachedParams;
-
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 const grdMainRef = ref(getComponentType('KwGrid'));
 
+let cachedParams;
 const searchParams = ref({
   pdGrpCd: '',
   pdCd: '',
@@ -158,8 +159,8 @@ const codes = await codeUtil.getMultiCodes(
 const codes2 = [{ code: '1', name: t('MSG_TXT_APPLY_DT') }];
 
 async function fetchData() {
-  const res = await dataService.get('/sms/wells/service/after-service-code-mngt/getAfterServiceCodeMngtPages', {
-    params: { ...cachedParams, ...pageInfo.value } });
+  const res = await dataService.get('/sms/wells/service/after-service-code-mngt/getAfterServiceCodeMngtPages', { params: { ...cachedParams, ...pageInfo.value } });
+  console.log(res.data);
   const { list: products, pageInfo: pagingResult } = res.data;
   pageInfo.value = pagingResult;
   const view = grdMainRef.value.getView();
@@ -184,7 +185,7 @@ async function onClickSearch() {
 // -------------------------------------------------------------------------------------------------
 const initGrdMain = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'prdtUid' },
+    { fieldName: 'svTpCd' },
     { fieldName: 'prdtNm' },
     { fieldName: 'storeUid' },
     { fieldName: 'storeNm' },
@@ -202,7 +203,7 @@ const initGrdMain = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'prdtNm', header: t('MSG_TXT_PRDT_NM'), width: '150', styleName: 'rg-button-link', renderer: { type: 'button' } },
+    { fieldName: 'svTpCd', header: t('MSG_TXT_PRDT_NM'), width: '150', styleName: 'rg-button-link', renderer: { type: 'button' } },
     { fieldName: 'storeNm', header: t('MSG_TXT_STORE_NM'), width: '150' },
     { fieldName: 'prdtTypeNm', header: t('MSG_TXT_PRDT_TYPE_CD'), width: '120' },
     { fieldName: 'sleYnNm', header: t('MSG_TXT_SLE_YN'), width: '60' },
@@ -214,7 +215,7 @@ const initGrdMain = defineGrid((data, view) => {
   ];
 
   const columnLayout = [
-    'prdtNm',
+    'svTpCd',
     'storeNm',
     'prdtTypeNm',
     'sleYnNm',
