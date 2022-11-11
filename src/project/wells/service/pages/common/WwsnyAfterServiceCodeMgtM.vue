@@ -96,18 +96,6 @@
         @init="initGrdMain"
       />
 
-      <kw-action-bottom>
-        <kw-btn
-          v-permission:delete
-          :label="$t('MSG_BTN_DEL')"
-          primary
-        />
-        <kw-btn
-          v-permission:update
-          :label="$t('MSG_BTN_MDFC')"
-        />
-      </kw-action-bottom>
-
       <kw-pagination
         v-model:page-index="pageInfo.pageIndex"
         v-model:page-size="pageInfo.pageSize"
@@ -169,12 +157,6 @@ async function fetchData() {
 }
 
 async function onClickSearch() {
-  console.log(`pdGrpCd = ${searchParams.value.pdGrpCd}`);
-  console.log(`apyChk = ${searchParams.value.apyChk[0]}`);
-  console.log(`applyDate = ${searchParams.value.applyDate}`);
-  console.log(`svTpCd = ${searchParams.value.svTpCd}`);
-  console.log(`asLctCd = ${searchParams.value.asLctCd}`);
-
   pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
@@ -186,52 +168,32 @@ async function onClickSearch() {
 const initGrdMain = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'svTpCd' },
-    { fieldName: 'prdtNm' },
-    { fieldName: 'storeUid' },
-    { fieldName: 'storeNm' },
-    { fieldName: 'prdtCntn' },
-    { fieldName: 'prdtTypeCd' },
-    { fieldName: 'prdtTypeNm' },
-    { fieldName: 'sleYn' },
-    { fieldName: 'sleYnNm' },
-    { fieldName: 'sleStartDt' },
-    { fieldName: 'sleFinsDt' },
-    { fieldName: 'prdtPrc', dataType: 'number' },
-    { fieldName: 'fnlMdfcUsrId' },
-    { fieldName: 'fnlMdfcUsrNm' },
-    { fieldName: 'fnlMdfcDtm' },
+    { fieldName: 'asLctCd' },
+    { fieldName: 'asPhnCd' },
+    { fieldName: 'asCausCd' },
+    { fieldName: 'siteAwAtcCd' },
+    { fieldName: 'fuleyAwAmt' },
+    { fieldName: 'svAnaHclsfCd' },
   ];
 
   const columns = [
-    { fieldName: 'svTpCd', header: t('MSG_TXT_PRDT_NM'), width: '150', styleName: 'rg-button-link', renderer: { type: 'button' } },
-    { fieldName: 'storeNm', header: t('MSG_TXT_STORE_NM'), width: '150' },
-    { fieldName: 'prdtTypeNm', header: t('MSG_TXT_PRDT_TYPE_CD'), width: '120' },
-    { fieldName: 'sleYnNm', header: t('MSG_TXT_SLE_YN'), width: '60' },
-    { fieldName: 'sleStartDt', header: t('MSG_TXT_START_DATE'), width: '80', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'sleFinsDt', header: t('MSG_TXT_END_DATE'), width: '80', datetimeFormat: 'date' },
-    { fieldName: 'prdtPrc', header: t('MSG_TXT_PRICE'), width: '60', styleName: 'text-right' },
-    { fieldName: 'fnlMdfcUsrNm', header: t('MSG_TXT_MDFC_USR'), width: '120', styleName: 'rg-button-link', renderer: { type: 'button' }, preventCellItemFocus: true },
-    { fieldName: 'fnlMdfcDtm', header: t('MSG_TXT_MDFC_DTM'), width: '120', styleName: 'text-center', datetimeFormat: 'datetime' },
+    { fieldName: 'svTpCd', header: t('MSG_TXT_SV_TP'), width: '150' },
+    { fieldName: 'asLctCd', header: t('MSG_TXT_AS_LCT'), width: '150' },
+    { fieldName: 'asPhnCd', header: t('MSG_TXT_PRDT_TYPE_CD'), width: '120' },
+    { fieldName: 'asCausCd', header: t('MSG_TXT_SLE_YN'), width: '60' },
+    { fieldName: 'siteAwAtcCd', header: t('MSG_TXT_START_DATE'), width: '80' },
+    { fieldName: 'fuleyAwAmt', header: t('MSG_TXT_END_DATE'), width: '80' },
+    { fieldName: 'svAnaHclsfCd', header: t('MSG_TXT_PRICE'), width: '60' },
   ];
 
   const columnLayout = [
     'svTpCd',
-    'storeNm',
-    'prdtTypeNm',
-    'sleYnNm',
-    {
-      direction: 'horizontal',
-      items: [
-        'sleStartDt',
-        'sleFinsDt',
-      ],
-      header: {
-        text: t('MSG_TXT_PRDT_SLE_PRD'),
-      },
-    },
-    'prdtPrc',
-    'fnlMdfcUsrNm',
-    'fnlMdfcDtm',
+    'asLctCd',
+    'asPhnCd',
+    'asCausCd',
+    'siteAwAtcCd',
+    'fuleyAwAmt',
+    'svAnaHclsfCd',
   ];
 
   view.setColumnLayout(columnLayout);
@@ -239,7 +201,6 @@ const initGrdMain = defineGrid((data, view) => {
   data.setFields(fields);
   view.setColumns(columns);
 
-  view.checkBar.visible = true;
   view.displayOptions.emptyMessage = t('MSG_ALT_NO_INFO_SRCH');
 
   view.onCellItemClicked = async (g, { column, itemIndex }) => {
