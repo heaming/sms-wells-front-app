@@ -24,7 +24,9 @@
         <kw-search-item :label="$t('MSG_TXT_PD_GRP')">
           <kw-select
             v-model="searchParams.pdGrpCd"
-            :options="codes.PD_GRP_CD"
+            :options="codes2.SB01"
+            option-label="cdNm"
+            option-value="cd"
             first-option="all"
             first-option-label="- 전체 -"
           />
@@ -33,7 +35,9 @@
         <kw-search-item :label="$t('MSG_TXT_PD_NM')">
           <kw-select
             v-model="searchParams.pdCd"
-            :options="codes.PD_GRP_CD"
+            :options="pds"
+            option-label="cdNm"
+            option-value="cd"
             first-option="all"
             first-option-label="- 전체 -"
           />
@@ -44,7 +48,9 @@
         <kw-search-item :label="$t('MSG_TXT_SV_TP')">
           <kw-select
             v-model="searchParams.svTpCd"
-            :options="codes.PD_GRP_CD"
+            :options="codes2.SB21"
+            option-label="cdNm"
+            option-value="cd"
             first-option="all"
             first-option-label="- 전체 -"
           />
@@ -53,7 +59,9 @@
         <kw-search-item :label="$t('MSG_TXT_AS_LCT')">
           <kw-select
             v-model="searchParams.asLctCd"
-            :options="codes.PD_GRP_CD"
+            :options="codes2.SB31"
+            option-label="cdNm"
+            option-value="cd"
             first-option="all"
             first-option-label="- 전체 -"
           />
@@ -62,7 +70,7 @@
         <kw-search-item>
           <kw-option-group
             v-model="searchParams.apyChk"
-            :options="codes2"
+            :options="codesYn"
             option-label="name"
             option-value="code"
             type="toggle"
@@ -144,11 +152,28 @@ const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
 );
 
-const codes2 = [{ code: '1', name: t('MSG_TXT_APPLY_DT') }];
+const codesYn = [{ code: '1', name: t('MSG_TXT_APPLY_DT') }];
+
+async function getCodes() {
+  const { data } = await dataService.get('/sms/wells/common/common-mngt/lcCommoncodeCo110tb', {
+    params: { grpCd: '\'SB01\', \'SB21\', \'SB23\', \'SB31\', \'SB32\', \'SB33\', \'BA04\'' } });
+  return data.reduce((result, current) => {
+    result[current.grpCd] = result[current.grpCd] || [];
+    result[current.grpCd].push(current);
+    return result;
+  });
+}
+const codes2 = await getCodes();
+
+async function getPds() {
+  const { data } = await dataService.get('/sms/wells/common/common-mngt/lcStockSt101tb', {
+    params: { pdctClsf: '4' } });
+  return data;
+}
+const pds = await getPds();
 
 async function fetchData() {
   const res = await dataService.get('/sms/wells/service/after-service-code-mngt/getAfterServiceCodeMngtPages', { params: { ...cachedParams, ...pageInfo.value } });
-  console.log(res.data);
   const { list: products, pageInfo: pagingResult } = res.data;
   pageInfo.value = pagingResult;
   const view = grdMainRef.value.getView();
