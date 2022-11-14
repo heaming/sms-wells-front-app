@@ -102,7 +102,25 @@
         :visible-rows="pageInfo.pageSize"
         @init="initGrdMain"
       />
-
+      <kw-action-bottom>
+        <kw-btn
+          v-permission:create
+          :label="$t('MSG_TXT_AS_CD_RGST')"
+          primary
+          @click="onClickAsCdRgst"
+        />
+        <kw-btn
+          v-permission:create
+          :label="$t('MSG_TXT_SITE_AW_RGST')"
+          primary
+          @click="onClickSiteAwRgst"
+        />
+        <kw-btn
+          v-permission:delete
+          :label="$t('MSG_BTN_DEL')"
+          @click="onClickRemove"
+        />
+      </kw-action-bottom>
       <kw-pagination
         v-model:page-index="pageInfo.pageIndex"
         v-model:page-size="pageInfo.pageSize"
@@ -117,13 +135,21 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, defineGrid, getComponentType, useDataService, useMeta } from 'kw-lib';
+import {
+  codeUtil,
+  defineGrid,
+  getComponentType,
+  useDataService,
+  useGlobal,
+  useMeta,
+} from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 
 const { t } = useI18n();
 const dataService = useDataService();
 
 const { getConfig } = useMeta();
+const { notify, alert, modal } = useGlobal();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -153,6 +179,7 @@ const codes = await codeUtil.getMultiCodes(
 
 const codesYn = [{ code: '1', name: t('MSG_TXT_APPLY_DT') }];
 
+/* 공통코드 조회(임시) */
 async function getCodes() {
   const { data } = await dataService.get('/sms/wells/common/common-mngt/lcCommoncodeCo110tb', {
     params: { grpCd: '\'SB01\', \'SB21\', \'SB23\', \'SB31\', \'SB32\', \'SB33\', \'BA04\'' } });
@@ -167,6 +194,7 @@ async function getCodes() {
 }
 const codes2 = await getCodes();
 
+/* 상품명 조회 */
 async function getPds() {
   const { data } = await dataService.get('/sms/wells/common/common-mngt/lcStockSt101tb', {
     params: { pdctClsf: '4' } });
@@ -187,6 +215,28 @@ async function onClickSearch() {
   pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
+}
+
+/* AS 코드등록 */
+async function onClickAsCdRgst() {
+  const { result: isChanged } = await modal({
+    component: 'WwsnyAfterServiceCodeMgtP',
+  });
+
+  if (isChanged) {
+    notify(t('MSG_ALT_SAVE_DATA'));
+    await fetchData();
+  }
+}
+
+/* 현장수당등록 */
+async function onClickSiteAwRgst() {
+  await alert(t('MSG_ALT_NOT_SEL_ITEM'));
+}
+
+/* 삭제 */
+async function onClickRemove() {
+  await alert(t('MSG_ALT_NOT_SEL_ITEM'));
 }
 
 // -------------------------------------------------------------------------------------------------
@@ -328,6 +378,7 @@ const initGrdMain = defineGrid((data, view) => {
 
   data.setFields(fields);
   view.setColumns(columns);
+  view.checkBar.visible = true;
 
   view.displayOptions.emptyMessage = t('MSG_ALT_NO_INFO_SRCH');
 
