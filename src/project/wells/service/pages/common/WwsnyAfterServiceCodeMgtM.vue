@@ -25,10 +25,10 @@
           <kw-select
             v-model="searchParams.pdGrpCd"
             :options="codes2.SB01"
-            option-label="cdNm"
-            option-value="cd"
             first-option="all"
             first-option-label="- 전체 -"
+            option-label="label"
+            option-value="value"
           />
         </kw-search-item>
         <!--상품명-->
@@ -36,10 +36,10 @@
           <kw-select
             v-model="searchParams.pdCd"
             :options="pds"
-            option-label="cdNm"
-            option-value="cd"
             first-option="all"
             first-option-label="- 전체 -"
+            option-label="cdNm"
+            option-value="cd"
           />
         </kw-search-item>
       </kw-search-row>
@@ -49,10 +49,10 @@
           <kw-select
             v-model="searchParams.svTpCd"
             :options="codes2.SB21"
-            option-label="cdNm"
-            option-value="cd"
             first-option="all"
             first-option-label="- 전체 -"
+            option-label="label"
+            option-value="value"
           />
         </kw-search-item>
         <!--AS위치-->
@@ -60,10 +60,10 @@
           <kw-select
             v-model="searchParams.asLctCd"
             :options="codes2.SB31"
-            option-label="cdNm"
-            option-value="cd"
             first-option="all"
             first-option-label="- 전체 -"
+            option-label="label"
+            option-value="value"
           />
         </kw-search-item>
         <!--적용일자-->
@@ -159,7 +159,10 @@ async function getCodes() {
     params: { grpCd: '\'SB01\', \'SB21\', \'SB23\', \'SB31\', \'SB32\', \'SB33\', \'BA04\'' } });
   return data.reduce((result, current) => {
     result[current.grpCd] = result[current.grpCd] || [];
-    result[current.grpCd].push(current);
+    result[current.grpCd].push({
+      value: current.cd,
+      label: current.cdNm,
+    });
     return result;
   });
 }
@@ -194,31 +197,86 @@ const initGrdMain = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'svTpCd' },
     { fieldName: 'asLctCd' },
+    { fieldName: 'asLctNm' },
     { fieldName: 'asPhnCd' },
+    { fieldName: 'asPhnNm' },
     { fieldName: 'asCausCd' },
+    { fieldName: 'asCausNm' },
     { fieldName: 'siteAwAtcCd' },
-    { fieldName: 'fuleyAwAmt' },
+    { fieldName: 'siteAwAtcNm' },
+    { fieldName: 'fuleyAwAmt', dataType: 'number' },
     { fieldName: 'svAnaHclsfCd' },
+    { fieldName: 'svAnaHclsfNm' },
   ];
 
   const columns = [
-    { fieldName: 'svTpCd', header: t('MSG_TXT_SV_TP'), width: '150' },
-    { fieldName: 'asLctCd', header: t('MSG_TXT_AS_LCT'), width: '150' },
-    { fieldName: 'asPhnCd', header: t('MSG_TXT_PRDT_TYPE_CD'), width: '120' },
-    { fieldName: 'asCausCd', header: t('MSG_TXT_SLE_YN'), width: '60' },
-    { fieldName: 'siteAwAtcCd', header: t('MSG_TXT_START_DATE'), width: '80' },
-    { fieldName: 'fuleyAwAmt', header: t('MSG_TXT_END_DATE'), width: '80' },
-    { fieldName: 'svAnaHclsfCd', header: t('MSG_TXT_PRICE'), width: '60' },
+    { fieldName: 'svTpCd', header: t('MSG_TXT_SV_TP'), width: '30', lookupDisplay: true, lookupData: codes2.SB21, styleName: 'text-center' },
+    { fieldName: 'asLctCd', header: t('MSG_TXT_CODE_ID'), width: '30', styleName: 'text-center' },
+    { fieldName: 'asLctNm', header: t('MSG_TXT_CODE_NAME'), width: '100', lookupDisplay: true, lookupData: codes2.SB31 },
+    { fieldName: 'asPhnCd', header: t('MSG_TXT_CODE_ID'), width: '30', styleName: 'text-center' },
+    { fieldName: 'asPhnNm', header: t('MSG_TXT_CODE_NAME'), width: '100', lookupDisplay: true, lookupData: codes2.SB32 },
+    { fieldName: 'asCausCd', header: t('MSG_TXT_CODE_ID'), width: '30', styleName: 'text-center' },
+    { fieldName: 'asCausNm', header: t('MSG_TXT_CODE_NAME'), width: '100', lookupDisplay: true, lookupData: codes2.SB33 },
+    { fieldName: 'siteAwAtcCd', header: t('MSG_TXT_CODE_ID'), width: '30', styleName: 'text-center' },
+    { fieldName: 'siteAwAtcNm', header: t('MSG_TXT_CODE_NAME'), width: '50', lookupDisplay: true, lookupData: codes2.SB23 },
+    { fieldName: 'fuleyAwAmt', header: t('MSG_TXT_FULEY_AW_AMT'), width: '50' },
+    { fieldName: 'svAnaHclsfCd', header: t('MSG_TXT_CODE_ID'), width: '30', styleName: 'text-center' },
+    { fieldName: 'svAnaHclsfNm', header: t('MSG_TXT_CODE_NAME'), width: '100', lookupDisplay: true, lookupData: codes2.BA04 },
   ];
 
   const columnLayout = [
     'svTpCd',
-    'asLctCd',
-    'asPhnCd',
-    'asCausCd',
-    'siteAwAtcCd',
-    'fuleyAwAmt',
-    'svAnaHclsfCd',
+    {
+      direction: 'horizontal',
+      items: [
+        'asLctCd',
+        'asLctNm',
+      ],
+      header: {
+        text: t('MSG_TXT_AS_LCT'),
+      },
+    },
+    {
+      direction: 'horizontal',
+      items: [
+        'asPhnCd',
+        'asPhnNm',
+      ],
+      header: {
+        text: t('MSG_TXT_AS_PHN'),
+      },
+    },
+    {
+      direction: 'horizontal',
+      items: [
+        'asCausCd',
+        'asCausNm',
+      ],
+      header: {
+        text: t('MSG_TXT_AS_CAUS'),
+      },
+    },
+    {
+      direction: 'horizontal',
+      items: [
+        'siteAwAtcCd',
+        'siteAwAtcNm',
+        'fuleyAwAmt',
+      ],
+      header: {
+        text: t('MSG_TXT_SITE_AW'),
+      },
+    },
+    {
+      direction: 'horizontal',
+      items: [
+        'svAnaHclsfCd',
+        'svAnaHclsfNm',
+      ],
+      header: {
+        text: t('MSG_TXT_SV_ANA_HCLSF_CD'),
+      },
+    },
   ];
 
   view.setColumnLayout(columnLayout);
