@@ -10,7 +10,6 @@
 * 프로그램 설명
 ****************************************************************************************************
 - AS코드관리 (http://localhost:3000/#/service/wwsny-after-service-code-mgt)
-- ZwcmwProductMgtM.vue 참고
 ****************************************************************************************************
 --->
 <template>
@@ -210,18 +209,64 @@ const initGrdMain = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'svTpCd', header: t('MSG_TXT_SV_TP'), width: '30', lookupDisplay: true, lookupData: codes2.SB21, styleName: 'text-center' },
-    { fieldName: 'asLctCd', header: t('MSG_TXT_CODE_ID'), width: '30', styleName: 'text-center' },
-    { fieldName: 'asLctNm', header: t('MSG_TXT_CODE_NAME'), width: '100', lookupDisplay: true, lookupData: codes2.SB31 },
+    {
+      fieldName: 'svTpCd',
+      header: t('MSG_TXT_SV_TP'),
+      width: '30',
+      lookupDisplay: true,
+      lookupData: codes2.SB21,
+      styleName: 'text-center',
+    },
+    { fieldName: 'asLctCd', header: t('MSG_TXT_CODE_ID'), width: '50', styleName: 'text-center' },
+    {
+      fieldName: 'asLctNm',
+      header: t('MSG_TXT_CODE_NAME'),
+      width: '100',
+      lookupDisplay: true,
+      lookupData: codes2.SB31,
+    },
     { fieldName: 'asPhnCd', header: t('MSG_TXT_CODE_ID'), width: '30', styleName: 'text-center' },
-    { fieldName: 'asPhnNm', header: t('MSG_TXT_CODE_NAME'), width: '100', lookupDisplay: true, lookupData: codes2.SB32 },
+    {
+      fieldName: 'asPhnNm',
+      header: t('MSG_TXT_CODE_NAME'),
+      width: '100',
+      lookupDisplay: true,
+      lookupData: codes2.SB32,
+    },
     { fieldName: 'asCausCd', header: t('MSG_TXT_CODE_ID'), width: '30', styleName: 'text-center' },
-    { fieldName: 'asCausNm', header: t('MSG_TXT_CODE_NAME'), width: '100', lookupDisplay: true, lookupData: codes2.SB33 },
-    { fieldName: 'siteAwAtcCd', header: t('MSG_TXT_CODE_ID'), width: '30', styleName: 'text-center' },
-    { fieldName: 'siteAwAtcNm', header: t('MSG_TXT_CODE_NAME'), width: '50', lookupDisplay: true, lookupData: codes2.SB23 },
-    { fieldName: 'fuleyAwAmt', header: t('MSG_TXT_FULEY_AW_AMT'), width: '50' },
-    { fieldName: 'svAnaHclsfCd', header: t('MSG_TXT_CODE_ID'), width: '30', styleName: 'text-center' },
-    { fieldName: 'svAnaHclsfNm', header: t('MSG_TXT_CODE_NAME'), width: '100', lookupDisplay: true, lookupData: codes2.BA04 },
+    {
+      fieldName: 'asCausNm',
+      header: t('MSG_TXT_CODE_NAME'),
+      width: '100',
+      lookupDisplay: true,
+      lookupData: codes2.SB33,
+    },
+    {
+      fieldName: 'siteAwAtcCd',
+      header: t('MSG_TXT_CODE_ID'),
+      width: '30',
+      styleName: 'text-center' },
+    {
+      fieldName: 'siteAwAtcNm',
+      header: t('MSG_TXT_CODE_NAME'),
+      width: '50',
+      lookupDisplay: true,
+      lookupData: codes2.SB23,
+    },
+    { fieldName: 'fuleyAwAmt', header: t('MSG_TXT_FULEY_AW_AMT'), width: '80' },
+    {
+      fieldName: 'svAnaHclsfCd',
+      header: t('MSG_TXT_CODE_ID'),
+      width: '30',
+      styleName: 'text-center',
+    },
+    {
+      fieldName: 'svAnaHclsfNm',
+      header: t('MSG_TXT_CODE_NAME'),
+      width: '100',
+      lookupDisplay: true,
+      lookupData: codes2.BA04,
+    },
   ];
 
   const columnLayout = [
