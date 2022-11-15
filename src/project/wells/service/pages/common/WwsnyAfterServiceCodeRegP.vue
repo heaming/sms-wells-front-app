@@ -13,7 +13,12 @@
 ****************************************************************************************************
 --->
 <template>
-  <kw-popup size="xl" />
+  <kw-popup size="xl">
+    <kw-separator />
+    <kw-action-top>
+      asdfasf
+    </kw-action-top>
+  </kw-popup>
 </template>
 
 <script setup>

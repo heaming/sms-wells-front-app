@@ -220,7 +220,7 @@ async function onClickSearch() {
 /* AS 코드등록 */
 async function onClickAsCdRgst() {
   const { result: isChanged } = await modal({
-    component: 'WwsnyAfterServiceCodeMgtP',
+    component: 'WwsnyAfterServiceCodeRegP',
   });
 
   if (isChanged) {
