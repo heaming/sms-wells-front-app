@@ -29,6 +29,10 @@
             option-label="label"
             option-value="value"
           />
+          <kw-btn
+            label="test"
+            @click="test"
+          />
         </kw-search-item>
         <!--상품명-->
         <kw-search-item :label="$t('MSG_TXT_PD_NM')">
@@ -144,6 +148,7 @@ import {
   useMeta,
 } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
+import { getCodes, getPds } from '../../../utils/common';
 
 const { t } = useI18n();
 const dataService = useDataService();
@@ -179,28 +184,13 @@ const codes = await codeUtil.getMultiCodes(
 
 const codesYn = [{ code: '1', name: t('MSG_TXT_APPLY_DT') }];
 
-/* 공통코드 조회(임시) */
-async function getCodes() {
-  const { data } = await dataService.get('/sms/wells/common/common-mngt/lcCommoncodeCo110tb', {
-    params: { grpCd: '\'SB01\', \'SB21\', \'SB23\', \'SB31\', \'SB32\', \'SB33\', \'BA04\'' } });
-  return data.reduce((result, current) => {
-    result[current.grpCd] = result[current.grpCd] || [];
-    result[current.grpCd].push({
-      value: current.cd,
-      label: current.cdNm,
-    });
-    return result;
-  });
-}
 const codes2 = await getCodes();
 
-/* 상품명 조회 */
-async function getPds() {
-  const { data } = await dataService.get('/sms/wells/common/common-mngt/lcStockSt101tb', {
-    params: { pdctClsf: '4' } });
-  return data;
-}
 const pds = await getPds();
+
+async function test() {
+  await getPds();
+}
 
 async function fetchData() {
   const res = await dataService.get('/sms/wells/service/after-service-code-mngt/getAfterServiceCodeMngtPages', { params: { ...cachedParams, ...pageInfo.value } });
