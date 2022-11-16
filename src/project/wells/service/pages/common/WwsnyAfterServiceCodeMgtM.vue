@@ -87,7 +87,6 @@
         </kw-search-item>
       </kw-search-row>
     </kw-search>
-
     <div class="result-area">
       <h3>{{ $t('MSG_TXT_SRCH_RSLT') }}</h3>
       <kw-action-top>
@@ -148,7 +147,7 @@ import {
   useMeta,
 } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
-import { getCodes, getPds } from '../../../utils/common';
+import { getLcCommoncodeCo110tb, getLcStockSt101tb, getLcAllocateAc125tb } from '../../../utils/common';
 
 const { t } = useI18n();
 const dataService = useDataService();
@@ -176,20 +175,17 @@ const pageInfo = ref({
   pageIndex: 1,
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
 });
-
 const codes = await codeUtil.getMultiCodes(
   'PD_GRP_CD',
   'COD_PAGE_SIZE_OPTIONS',
 );
-
 const codesYn = [{ code: '1', name: t('MSG_TXT_APPLY_DT') }];
-
-const codes2 = await getCodes();
-
-const pds = await getPds();
+const codes2 = await getLcCommoncodeCo110tb();
+const pds = await getLcStockSt101tb();
+const lcAlllocate = await getLcAllocateAc125tb();
 
 async function test() {
-  await getPds();
+  console.log(lcAlllocate);
 }
 
 async function fetchData() {

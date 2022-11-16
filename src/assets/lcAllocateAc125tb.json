@@ -1,0 +1,415 @@
+[
+  {
+    "OG_CD": "75041",
+    "OG_NM": "북부서비스센터",
+    "MNGT_WIDA_DV_CD": "",
+    "ACNO": "56206597577832",
+    "UP_CODE": "71314"
+  },
+  {
+    "OG_CD": "75042",
+    "OG_NM": "서부서비스센터",
+    "MNGT_WIDA_DV_CD": "",
+    "ACNO": "79016620209177",
+    "UP_CODE": "71314"
+  },
+  {
+    "OG_CD": "75043",
+    "OG_NM": "남부서비스센터",
+    "MNGT_WIDA_DV_CD": "",
+    "ACNO": "79016620209165",
+    "UP_CODE": "71314"
+  },
+  {
+    "OG_CD": "75044",
+    "OG_NM": "동부서비스센터",
+    "MNGT_WIDA_DV_CD": "",
+    "ACNO": "79016620209153",
+    "UP_CODE": "71314"
+  },
+  {
+    "OG_CD": "75045",
+    "OG_NM": "충청서비스센터",
+    "MNGT_WIDA_DV_CD": "",
+    "ACNO": "06359012387519",
+    "UP_CODE": "71314"
+  },
+  {
+    "OG_CD": "75046",
+    "OG_NM": "호남서비스센터",
+    "MNGT_WIDA_DV_CD": "",
+    "ACNO": "79016620209141",
+    "UP_CODE": "71314"
+  },
+  {
+    "OG_CD": "75047",
+    "OG_NM": "경북서비스센터",
+    "MNGT_WIDA_DV_CD": "",
+    "ACNO": "79016620209130",
+    "UP_CODE": "71314"
+  },
+  {
+    "OG_CD": "75048",
+    "OG_NM": "경남서비스센터",
+    "MNGT_WIDA_DV_CD": "",
+    "ACNO": "79016620209128",
+    "UP_CODE": "71314"
+  },
+  {
+    "OG_CD": "70569",
+    "OG_NM": "인천공장서비스센터",
+    "MNGT_WIDA_DV_CD": "14",
+    "ACNO": "",
+    "UP_CODE": "71314"
+  },
+  {
+    "OG_CD": "71782",
+    "OG_NM": "원주서비스센터",
+    "MNGT_WIDA_DV_CD": "",
+    "ACNO": "79003750986178",
+    "UP_CODE": "71314"
+  },
+  {
+    "OG_CD": "71783",
+    "OG_NM": "광양서비스센터",
+    "MNGT_WIDA_DV_CD": "",
+    "ACNO": "79003750986210",
+    "UP_CODE": "71314"
+  },
+  {
+    "OG_CD": "71351",
+    "OG_NM": "성수지점",
+    "MNGT_WIDA_DV_CD": "10",
+    "ACNO": "79016620212281",
+    "UP_CODE": "75044"
+  },
+  {
+    "OG_CD": "71350",
+    "OG_NM": "의정부지점",
+    "MNGT_WIDA_DV_CD": "10",
+    "ACNO": "06359012623549",
+    "UP_CODE": "75041"
+  },
+  {
+    "OG_CD": "71367",
+    "OG_NM": "하남지점",
+    "MNGT_WIDA_DV_CD": "10",
+    "ACNO": "79003750930756",
+    "UP_CODE": "75044"
+  },
+  {
+    "OG_CD": "71359",
+    "OG_NM": "원주지점",
+    "MNGT_WIDA_DV_CD": "10",
+    "ACNO": "79003750930677",
+    "UP_CODE": "71782"
+  },
+  {
+    "OG_CD": "71356",
+    "OG_NM": "수원지점",
+    "MNGT_WIDA_DV_CD": "10",
+    "ACNO": "06359012623523",
+    "UP_CODE": "75043"
+  },
+  {
+    "OG_CD": "71354",
+    "OG_NM": "안양지점",
+    "MNGT_WIDA_DV_CD": "20",
+    "ACNO": "79003750930665",
+    "UP_CODE": "75043"
+  },
+  {
+    "OG_CD": "71353",
+    "OG_NM": "광명지점",
+    "MNGT_WIDA_DV_CD": "20",
+    "ACNO": "79003750930744",
+    "UP_CODE": "75042"
+  },
+  {
+    "OG_CD": "71355",
+    "OG_NM": "인천지점",
+    "MNGT_WIDA_DV_CD": "20",
+    "ACNO": "79003750930641",
+    "UP_CODE": "75042"
+  },
+  {
+    "OG_CD": "71448",
+    "OG_NM": "강서지점",
+    "MNGT_WIDA_DV_CD": "20",
+    "ACNO": "56206597530973",
+    "UP_CODE": "75042"
+  },
+  {
+    "OG_CD": "71352",
+    "OG_NM": "일산지점",
+    "MNGT_WIDA_DV_CD": "20",
+    "ACNO": "79003750930653",
+    "UP_CODE": "75041"
+  },
+  {
+    "OG_CD": "71360",
+    "OG_NM": "청주지점",
+    "MNGT_WIDA_DV_CD": "30",
+    "ACNO": "79003750930800",
+    "UP_CODE": "75045"
+  },
+  {
+    "OG_CD": "71362",
+    "OG_NM": "대전지점",
+    "MNGT_WIDA_DV_CD": "30",
+    "ACNO": "79003750930689",
+    "UP_CODE": "75045"
+  },
+  {
+    "OG_CD": "71368",
+    "OG_NM": "천안지점",
+    "MNGT_WIDA_DV_CD": "30",
+    "ACNO": "79003750930770",
+    "UP_CODE": "75045"
+  },
+  {
+    "OG_CD": "71364",
+    "OG_NM": "전주지점",
+    "MNGT_WIDA_DV_CD": "30",
+    "ACNO": "79003750930691",
+    "UP_CODE": "75046"
+  },
+  {
+    "OG_CD": "71363",
+    "OG_NM": "광주지점",
+    "MNGT_WIDA_DV_CD": "30",
+    "ACNO": "79003750930707",
+    "UP_CODE": "75046"
+  },
+  {
+    "OG_CD": "71784",
+    "OG_NM": "광양지점",
+    "MNGT_WIDA_DV_CD": "30",
+    "ACNO": "79003750986221",
+    "UP_CODE": "71783"
+  },
+  {
+    "OG_CD": "71386",
+    "OG_NM": "순천지점",
+    "MNGT_WIDA_DV_CD": "30",
+    "ACNO": "79003750930793",
+    "UP_CODE": "75046"
+  },
+  {
+    "OG_CD": "71361",
+    "OG_NM": "서대구지점",
+    "MNGT_WIDA_DV_CD": "40",
+    "ACNO": "79003750930781",
+    "UP_CODE": "75047"
+  },
+  {
+    "OG_CD": "71369",
+    "OG_NM": "동대구지점",
+    "MNGT_WIDA_DV_CD": "40",
+    "ACNO": "79003750930768",
+    "UP_CODE": "75047"
+  },
+  {
+    "OG_CD": "71387",
+    "OG_NM": "포항지점",
+    "MNGT_WIDA_DV_CD": "40",
+    "ACNO": "79003750930811",
+    "UP_CODE": "75047"
+  },
+  {
+    "OG_CD": "71357",
+    "OG_NM": "부산지점",
+    "MNGT_WIDA_DV_CD": "40",
+    "ACNO": "79003750930719",
+    "UP_CODE": "75048"
+  },
+  {
+    "OG_CD": "71366",
+    "OG_NM": "김해지점",
+    "MNGT_WIDA_DV_CD": "40",
+    "ACNO": "79003750930732",
+    "UP_CODE": "75048"
+  },
+  {
+    "OG_CD": "71358",
+    "OG_NM": "창원지점",
+    "MNGT_WIDA_DV_CD": "40",
+    "ACNO": "79003750930721",
+    "UP_CODE": "75048"
+  },
+  {
+    "OG_CD": "71447",
+    "OG_NM": "진주지점",
+    "MNGT_WIDA_DV_CD": "40",
+    "ACNO": "79003751138229",
+    "UP_CODE": "75048"
+  },
+  {
+    "OG_CD": "71365",
+    "OG_NM": "제주지점",
+    "MNGT_WIDA_DV_CD": "40",
+    "ACNO": "06359012623536",
+    "UP_CODE": "75042"
+  },
+  {
+    "OG_CD": "91358",
+    "OG_NM": "진주출장소",
+    "MNGT_WIDA_DV_CD": "40",
+    "ACNO": "",
+    "UP_CODE": ""
+  },
+  {
+    "OG_CD": "71314",
+    "OG_NM": "Wells서비스관리팀",
+    "MNGT_WIDA_DV_CD": "10",
+    "ACNO": "06359012623552",
+    "UP_CODE": ""
+  },
+  {
+    "OG_CD": "99001",
+    "OG_NM": "라피네타",
+    "MNGT_WIDA_DV_CD": "10",
+    "ACNO": "",
+    "UP_CODE": ""
+  },
+  {
+    "OG_CD": "99050",
+    "OG_NM": "택배발송",
+    "MNGT_WIDA_DV_CD": "10",
+    "ACNO": "",
+    "UP_CODE": ""
+  },
+  {
+    "OG_CD": "99040",
+    "OG_NM": "도원산업",
+    "MNGT_WIDA_DV_CD": "10",
+    "ACNO": "",
+    "UP_CODE": ""
+  },
+  {
+    "OG_CD": "99010",
+    "OG_NM": "성우메디텍",
+    "MNGT_WIDA_DV_CD": "10",
+    "ACNO": "",
+    "UP_CODE": ""
+  },
+  {
+    "OG_CD": "99003",
+    "OG_NM": "베스트",
+    "MNGT_WIDA_DV_CD": "10",
+    "ACNO": "",
+    "UP_CODE": ""
+  },
+  {
+    "OG_CD": "99020",
+    "OG_NM": "BMB",
+    "MNGT_WIDA_DV_CD": "10",
+    "ACNO": "",
+    "UP_CODE": ""
+  },
+  {
+    "OG_CD": "99030",
+    "OG_NM": "삼성A/S",
+    "MNGT_WIDA_DV_CD": "10",
+    "ACNO": "",
+    "UP_CODE": "71507"
+  },
+  {
+    "OG_CD": "71507",
+    "OG_NM": "홈케어서비스센터",
+    "MNGT_WIDA_DV_CD": "99",
+    "ACNO": "",
+    "UP_CODE": "71314"
+  },
+  {
+    "OG_CD": "V910110",
+    "OG_NM": "(홈)부천/서부지점-사업자",
+    "MNGT_WIDA_DV_CD": "",
+    "ACNO": "",
+    "UP_CODE": "71507"
+  },
+  {
+    "OG_CD": "V910120",
+    "OG_NM": "(홈)성수/동부지점-사업자",
+    "MNGT_WIDA_DV_CD": "",
+    "ACNO": "",
+    "UP_CODE": "71507"
+  },
+  {
+    "OG_CD": "V910130",
+    "OG_NM": "(홈)세종/충청지점-사업자",
+    "MNGT_WIDA_DV_CD": "",
+    "ACNO": "",
+    "UP_CODE": "71507"
+  },
+  {
+    "OG_CD": "V910140",
+    "OG_NM": "(홈)장성/호남지점-사업자",
+    "MNGT_WIDA_DV_CD": "",
+    "ACNO": "",
+    "UP_CODE": "71507"
+  },
+  {
+    "OG_CD": "V910150",
+    "OG_NM": "(홈)칠곡/경북지점-사업자",
+    "MNGT_WIDA_DV_CD": "",
+    "ACNO": "",
+    "UP_CODE": "71507"
+  },
+  {
+    "OG_CD": "V910160",
+    "OG_NM": "(홈)강서/경남지점-사업자",
+    "MNGT_WIDA_DV_CD": "",
+    "ACNO": "",
+    "UP_CODE": "71507"
+  },
+  {
+    "OG_CD": "71394",
+    "OG_NM": "Wells생산관리",
+    "MNGT_WIDA_DV_CD": "",
+    "ACNO": "",
+    "UP_CODE": ""
+  },
+  {
+    "OG_CD": "70631",
+    "OG_NM": "(홈)경남지점",
+    "MNGT_WIDA_DV_CD": "",
+    "ACNO": "",
+    "UP_CODE": "71507"
+  },
+  {
+    "OG_CD": "70630",
+    "OG_NM": "홈케어경상권지점",
+    "MNGT_WIDA_DV_CD": "",
+    "ACNO": "",
+    "UP_CODE": "71507"
+  },
+  {
+    "OG_CD": "70629",
+    "OG_NM": "(홈)호남지점",
+    "MNGT_WIDA_DV_CD": "",
+    "ACNO": "",
+    "UP_CODE": "71507"
+  },
+  {
+    "OG_CD": "70627",
+    "OG_NM": "홈케어수도권지점",
+    "MNGT_WIDA_DV_CD": "",
+    "ACNO": "",
+    "UP_CODE": "71507"
+  },
+  {
+    "OG_CD": "70626",
+    "OG_NM": "(홈)서부지점",
+    "MNGT_WIDA_DV_CD": "",
+    "ACNO": "",
+    "UP_CODE": "71507"
+  },
+  {
+    "OG_CD": "70628",
+    "OG_NM": "홈케어중부권지점",
+    "MNGT_WIDA_DV_CD": "",
+    "ACNO": "",
+    "UP_CODE": "71507"
+  }
+]
