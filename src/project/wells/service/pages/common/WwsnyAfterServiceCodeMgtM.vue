@@ -147,7 +147,11 @@ import {
   useMeta,
 } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
-import { getLcCommoncodeCo110tb, getLcStockSt101tb, getLcAllocateAc112tb } from '../../../utils/common';
+import {
+  getLcCommoncodeCo110tb,
+  getLcStockSt101tb,
+  getLcAllocateAc112tb,
+} from '../../../utils/common';
 
 const { t } = useI18n();
 const dataService = useDataService();
@@ -181,6 +185,7 @@ const codes = await codeUtil.getMultiCodes(
 );
 const codesYn = [{ code: '1', name: t('MSG_TXT_APPLY_DT') }];
 const codes2 = await getLcCommoncodeCo110tb();
+
 const pds = await getLcStockSt101tb();
 
 async function test() {
