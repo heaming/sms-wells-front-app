@@ -29,10 +29,6 @@
             option-label="label"
             option-value="value"
           />
-          <kw-btn
-            label="test"
-            @click="test"
-          />
         </kw-search-item>
         <!--상품명-->
         <kw-search-item :label="$t('MSG_TXT_PD_NM')">
@@ -150,7 +146,6 @@ import { cloneDeep } from 'lodash-es';
 import {
   getLcCommoncodeCo110tb,
   getLcStockSt101tb,
-  getLcAllocateAc112tb,
 } from '../../../utils/common';
 
 const { t } = useI18n();
@@ -187,13 +182,6 @@ const codesYn = [{ code: '1', name: t('MSG_TXT_APPLY_DT') }];
 const codes2 = await getLcCommoncodeCo110tb();
 
 const pds = await getLcStockSt101tb();
-
-async function test() {
-  console.log(await getLcAllocateAc112tb('sido'));
-  console.log(await getLcAllocateAc112tb('gu', '11'));
-  console.log(await getLcAllocateAc112tb('gu', '26'));
-  console.log(await getLcAllocateAc112tb());
-}
 
 async function fetchData() {
   const res = await dataService.get('/sms/wells/service/after-service-code-mngt/getAfterServiceCodeMngtPages', { params: { ...cachedParams, ...pageInfo.value } });
