@@ -328,7 +328,7 @@ export async function getLcAllocateAc112tb(type, fr2pLgldCd) {
       { fr2pLgldCd: '50', tryNm: '제주특별자치도', sggNm: '서귀포시' },
       { fr2pLgldCd: '50', tryNm: '제주특별자치도', sggNm: '제주시' },
     ];
-    ret = ret.filter((obj) => obj.fr2pLgldCd === fr2pLgldCd);
+    ret = fr2pLgldCd ? ret.filter((obj) => obj.fr2pLgldCd === fr2pLgldCd) : ret;
   }
   return ret;
 }
