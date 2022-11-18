@@ -1,17 +1,17 @@
-<!----
-****************************************************************************************************
-* 프로그램 개요
-****************************************************************************************************
-1. 모듈 : SNC (배정관리)
-2. 프로그램 ID : WwsncResponsibilityLocalAreaZipMgtM - 책임지역 우편번호 관리
-3. 작성자 : gs.piit130
-4. 작성일 : 2022.11.17
-****************************************************************************************************
-* 프로그램 설명
-****************************************************************************************************
-- 책임지역 우편번호 관리 (http://localhost:3000/#/service/wwsnc-responsibility-local-area-zip-mgt)
-****************************************************************************************************
---->
+<!--
+ ****************************************************************************************************
+ * 프로그램 개요
+ ****************************************************************************************************
+ 1. 모듈 : SNC (배정관리)
+ 2. 프로그램 ID : W-SV-U-0036M01 AS 책임지역 우편번호 관리
+ 3. 작성자 : gs.piit130
+ 4. 작성일 : 2022.11.17
+ ****************************************************************************************************
+ * 프로그램 설명
+ ****************************************************************************************************
+ - 책임지역 우편번호 관리 (http://localhost:3000/#/service/wwsnc-responsibility-local-area-zip-mgt)
+ ****************************************************************************************************
+-->
 <template>
   <kw-page>
     <template #header>
@@ -31,13 +31,13 @@
         <kw-search-item :label="$t('MSG_TXT_ZIP')">
           <kw-input
             v-model="searchParams.zipFrom"
-            type="number"
+            type="text"
             maxlength="3"
           />
           <span>~</span>
           <kw-input
             v-model="searchParams.zipTo"
-            type="number"
+            type="text"
             maxlength="3"
           />
         </kw-search-item>
@@ -174,15 +174,12 @@ const pageInfo = ref({
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
 });
 
-const codes = await codeUtil.getMultiCodes(
-  'COD_PAGE_SIZE_OPTIONS',
-);
+const codes = await codeUtil.getMultiCodes('COD_PAGE_SIZE_OPTIONS');
 
 const commonCode = await getLcCommoncodeCo110tb();
 const ac112tb = await getLcAllocateAc112tb();
 const sidos = await getLcAllocateAc112tb('sido');
-const gus = await getLcAllocateAc112tb('gu');
-const sggs = ref(gus.map((v) => ({ sgg: v.sggNm, sggNm: v.sggNm })));
+const sggs = ref((await getLcAllocateAc112tb('gu')).map((v) => ({ sgg: v.sggNm, sggNm: v.sggNm })));
 
 async function fetchData() {
   const res = await dataService.get('/sms/wells/service/rpb-locara-zip-mngt', { params: { ...cachedParams, ...pageInfo.value } });
@@ -242,31 +239,21 @@ const initGrdMain = defineGrid((data, view) => {
       width: '150',
       optionLabel: 'label',
       optionValue: 'value',
-      editor: {
-        type: 'list',
-      },
+      editor: { type: 'list' },
       editable: true,
+      styleName: 'text-center',
       styleCallback: (grid, dataCell) => {
         const sggNm = grid.getValue(dataCell.index.itemIndex, 'sggNm');
-
-        const ret = {};
-
         const ac112MgtHemdNm = ac112tb
           .filter((v) => v.sggNm === sggNm)
           .map((v) => v.ac112MgtHemdNm)
           .reduce((a, v) => (a.includes(v) ? a : [...a, v]), []);
 
-        ret.editor = {
-          type: 'list',
-          labels: ac112MgtHemdNm,
-          values: ac112MgtHemdNm,
-        };
-
-        return ret;
+        return { editor: { type: 'list', labels: ac112MgtHemdNm, values: ac112MgtHemdNm } };
       },
     },
     { fieldName: 'rpbLocaraCd', header: t('MSG_TXT_LOCARA_CMN_CD'), width: '100', styleName: 'text-center' },
-    { fieldName: 'rpbLocaraGrpCd', header: t('MSG_TXT_LOCARA_GRP_CD'), width: '100', styleName: 'text-left' },
+    { fieldName: 'rpbLocaraGrpCd', header: t('MSG_TXT_LOCARA_GRP_CD'), width: '100', styleName: 'text-center' },
     { fieldName: 'ogNm', header: t('MSG_TXT_CENTER_DIVISION'), width: '120', styleName: 'text-center' },
     { fieldName: 'ichrPrtnrNo', header: t('MSG_TXT_RPB_PRTNR_NO'), width: '120', styleName: 'text-center' },
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_RPB_ICHR_NM'), width: '100', styleName: 'text-center' },
@@ -303,8 +290,8 @@ const initGrdMain = defineGrid((data, view) => {
   data.setFields(fields);
   view.setColumns(columns);
 
-  view.checkBar.visible = true; // create checkbox column
-  view.rowIndicator.visible = true; // create number indicator column
+  view.checkBar.visible = true;
+  view.rowIndicator.visible = true;
   view.editOptions.columnEditableFirst = true;
 
   view.displayOptions.emptyMessage = t('MSG_ALT_NO_INFO_SRCH');
