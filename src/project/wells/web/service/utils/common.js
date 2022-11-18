@@ -43,7 +43,7 @@ export async function getLcAllocateAc125tb() {
 /* 광역시도, 시군구 */
 export async function getLcAllocateAc112tb(type, fr2pLgldCd) {
   let ret;
-  if (type === undefined) {
+  if (type === undefined && fr2pLgldCd === undefined) {
     ret = lcAllocateAc112tb.map((x) => ({
       fr2pLgldCd: x.fr2pLgldCd ? x.fr2pLgldCd.source : '',
       tryNm: x.tryNm ? x.tryNm.source : '',

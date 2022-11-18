@@ -170,7 +170,7 @@ import {
   getLcAllocateAc112tb,
   // getLcStockSt101tb,
   // getLcAllocateAc112tb,
-} from '../../../utils/common';
+} from '~sms-wells/web/service/utils/common';
 
 const { t } = useI18n();
 

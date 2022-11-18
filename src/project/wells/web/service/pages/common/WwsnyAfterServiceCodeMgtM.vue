@@ -124,7 +124,7 @@ import {
   useMeta,
 } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
-import { getLcCommoncodeCo110tb, getLcStockSt101tb } from '~sms-wells/utils/common';
+import { getLcCommoncodeCo110tb, getLcStockSt101tb } from '~sms-wells/web/service/utils/common';
 // -------------------------------------------------------------------------------------------------
 // Declaration
 // -------------------------------------------------------------------------------------------------
