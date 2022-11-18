@@ -170,7 +170,7 @@ import {
   getLcAllocateAc112tb,
   // getLcStockSt101tb,
   // getLcAllocateAc112tb,
-} from '../../../utils/common';
+} from '~sms-wells/web/service/utils/common';
 
 const { t } = useI18n();
 
@@ -196,18 +196,8 @@ const selectData = { model: '10',
 const codes2 = await getLcCommoncodeCo110tb();
 const svcCode = await getLcAllocateAc125tb();
 const sido = await getLcAllocateAc112tb('sido');
-// const pds = await getLcStockSt101tb();
 
-// let sigungu = [{ fr2pLgldCd: '', tryNm: '', sggNm: '' }];
 let sigungu = [];
-async function test() {
-  console.log(searchParams.value);
-  console.log(searchParams.value.fr2pLgldCd);
-  console.log(searchParams.value.tryNm);
-  // console.log(await getLcAllocateAc112tb('gu', searchParams.value.fr2pLgldCd));
-  // console.log(searchParams.value.oggNm);
-  // console.log(sigungu);
-}
 
 async function changeSido() {
   console.log('change');

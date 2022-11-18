@@ -3,7 +3,10 @@ import lcStockSt101tb from '~/assets/lcStockSt101tb.json';
 import lcAllocateAc125tb from '~/assets/lcAllocateAc125tb.json';
 import lcAllocateAc112tb from '~/assets/lcAllocateAc112tb.json';
 
-/* 공통코드조회 */
+/*
+  공통코드조회
+  ASIS의 데이터가 ToBe로 이관되면 사용하지 않을 예정
+*/
 export async function getLcCommoncodeCo110tb() {
   return lcCommoncodeCo110tb.reduce((result, current) => {
     result[current.grpCd.source] = result[current.grpCd.source] || [];
@@ -15,7 +18,10 @@ export async function getLcCommoncodeCo110tb() {
   });
 }
 
-/* 상품기본조회 */
+/*
+  상품기본조회
+  ASIS의 데이터가 ToBe로 이관되면 사용하지 않을 예정
+*/
 export async function getLcStockSt101tb() {
   return lcStockSt101tb.map((x) => ({
     cd: x.cd ? x.cd.source : '',
@@ -29,7 +35,10 @@ export async function getLcStockSt101tb() {
   }));
 }
 
-/* 서비스센터 */
+/*
+  서비스센터
+  ASIS의 데이터가 ToBe로 이관되면 사용하지 않을 예정
+*/
 export async function getLcAllocateAc125tb() {
   return lcAllocateAc125tb.map((x) => ({
     ogCd: x.OG_CD ? x.OG_CD.source : '',
@@ -40,10 +49,13 @@ export async function getLcAllocateAc125tb() {
   }));
 }
 
-/* 광역시도, 시군구 */
+/*
+  광역시도, 시군구
+  ASIS의 데이터가 ToBe로 이관되면 사용하지 않을 예정
+*/
 export async function getLcAllocateAc112tb(type, fr2pLgldCd) {
   let ret;
-  if (type === undefined) {
+  if (type === undefined && fr2pLgldCd === undefined) {
     ret = lcAllocateAc112tb.map((x) => ({
       fr2pLgldCd: x.fr2pLgldCd ? x.fr2pLgldCd.source : '',
       tryNm: x.tryNm ? x.tryNm.source : '',
