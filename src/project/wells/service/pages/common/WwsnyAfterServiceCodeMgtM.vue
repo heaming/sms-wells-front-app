@@ -101,25 +101,7 @@
         :visible-rows="pageInfo.pageSize"
         @init="initGrdMain"
       />
-      <kw-action-bottom>
-        <kw-btn
-          v-permission:create
-          :label="$t('MSG_TXT_AS_CD_RGST')"
-          primary
-          @click="onClickAsCdRgst"
-        />
-        <kw-btn
-          v-permission:create
-          :label="$t('MSG_TXT_SITE_AW_RGST')"
-          primary
-          @click="onClickSiteAwRgst"
-        />
-        <kw-btn
-          v-permission:delete
-          :label="$t('MSG_BTN_DEL')"
-          @click="onClickRemove"
-        />
-      </kw-action-bottom>
+      <kw-action-bottom />
       <kw-pagination
         v-model:page-index="pageInfo.pageIndex"
         v-model:page-size="pageInfo.pageSize"
@@ -132,33 +114,24 @@
 
 <script setup>
 // -------------------------------------------------------------------------------------------------
-// Import & Declaration
+// Import
 // -------------------------------------------------------------------------------------------------
 import {
   codeUtil,
   defineGrid,
   getComponentType,
   useDataService,
-  useGlobal,
   useMeta,
 } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
-import {
-  getLcCommoncodeCo110tb,
-  getLcStockSt101tb,
-} from '../../../utils/common';
-
+import { getLcCommoncodeCo110tb, getLcStockSt101tb } from '~sms-wells/utils/common';
+// -------------------------------------------------------------------------------------------------
+// Declaration
+// -------------------------------------------------------------------------------------------------
 const { t } = useI18n();
 const dataService = useDataService();
-
 const { getConfig } = useMeta();
-const { notify, alert, modal } = useGlobal();
-
-// -------------------------------------------------------------------------------------------------
-// Function & Event
-// -------------------------------------------------------------------------------------------------
 const grdMainRef = ref(getComponentType('KwGrid'));
-
 let cachedParams;
 const searchParams = ref({
   pdGrpCd: '',
@@ -168,7 +141,6 @@ const searchParams = ref({
   svTpCd: '',
   asLctCd: '',
 });
-
 const pageInfo = ref({
   totalCount: 0,
   pageIndex: 1,
@@ -180,9 +152,10 @@ const codes = await codeUtil.getMultiCodes(
 );
 const codesYn = [{ code: '1', name: t('MSG_TXT_APPLY_DT') }];
 const codes2 = await getLcCommoncodeCo110tb();
-
 const pds = await getLcStockSt101tb();
-
+// -------------------------------------------------------------------------------------------------
+// Function & Event
+// -------------------------------------------------------------------------------------------------
 async function fetchData() {
   const res = await dataService.get('/sms/wells/service/after-service-code-mngt/getAfterServiceCodeMngtPages', { params: { ...cachedParams, ...pageInfo.value } });
   const { list: products, pageInfo: pagingResult } = res.data;
@@ -196,28 +169,6 @@ async function onClickSearch() {
   pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
-}
-
-/* AS 코드등록 */
-async function onClickAsCdRgst() {
-  const { result: isChanged } = await modal({
-    component: 'WwsnyAfterServiceCodeRegP',
-  });
-
-  if (isChanged) {
-    notify(t('MSG_ALT_SAVE_DATA'));
-    await fetchData();
-  }
-}
-
-/* 현장수당등록 */
-async function onClickSiteAwRgst() {
-  await alert(t('MSG_ALT_NOT_SEL_ITEM'));
-}
-
-/* 삭제 */
-async function onClickRemove() {
-  await alert(t('MSG_ALT_NOT_SEL_ITEM'));
 }
 
 // -------------------------------------------------------------------------------------------------

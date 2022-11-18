@@ -1,4 +1,4 @@
-<!----
+<!--
 ****************************************************************************************************
 * 프로그램 개요
 ****************************************************************************************************
@@ -10,8 +10,9 @@
 * 프로그램 설명
 ****************************************************************************************************
 - AS코드관리 (http://localhost:3000/#/service/wwsny-after-service-code-mgt)
+- 사용하지 않음 (excel upload 형태로 변경한다고 함)
 ****************************************************************************************************
---->
+-->
 <template>
   <kw-popup size="2xl">
     <kw-search
@@ -24,8 +25,6 @@
           <kw-select
             v-model="searchParams.pdGrpCd"
             :options="codes2.SB01"
-            first-option="all"
-            first-option-label="- 전체 -"
             option-label="label"
             option-value="value"
           />
@@ -35,8 +34,6 @@
           <kw-select
             v-model="searchParams.svTpCd"
             :options="codes2.SB21"
-            first-option="all"
-            first-option-label="- 전체 -"
             option-label="label"
             option-value="value"
           />
@@ -48,8 +45,6 @@
           <kw-select
             v-model="searchParams.asLctCd"
             :options="codes2.SB31"
-            first-option="all"
-            first-option-label="- 전체 -"
             option-label="label"
             option-value="value"
           />
@@ -59,8 +54,6 @@
           <kw-select
             v-model="searchParams.asPhnCd"
             :options="codes2.SB32"
-            first-option="all"
-            first-option-label="- 전체 -"
             option-label="label"
             option-value="value"
           />
@@ -81,7 +74,7 @@
       </kw-action-top>
       <kw-grid
         ref="grdRef"
-        :visible-rows="10"
+        :visible-rows="pageInfo.pageSize"
         @init="initGrd"
       />
     </div>
@@ -103,26 +96,36 @@
 
 <script setup>
 // -------------------------------------------------------------------------------------------------
-// Import & Declaration
+// Import
 // -------------------------------------------------------------------------------------------------
 import {
   codeUtil,
   defineGrid,
   useMeta,
+  useDataService,
+  getComponentType,
+  gridUtil,
 } from 'kw-lib';
+import { cloneDeep } from 'lodash-es';
 import { getLcCommoncodeCo110tb } from '~sms-wells/utils/common';
 
+// -------------------------------------------------------------------------------------------------
+// Declaration
+// -------------------------------------------------------------------------------------------------
 const { t } = useI18n();
+const dataService = useDataService();
+const { getConfig } = useMeta();
+const grdRef = ref(getComponentType('KwGrid'));
 const codes = await codeUtil.getMultiCodes(
   'PD_GRP_CD',
   'COD_PAGE_SIZE_OPTIONS',
 );
-const { getConfig } = useMeta();
+let cachedParams;
 const searchParams = ref({
-  pdGrpCd: '',
-  svTpCd: '',
-  asLctCd: '',
-  asPhnCd: '',
+  pdGrpCd: '1',
+  svTpCd: '1',
+  asLctCd: 'A801',
+  asPhnCd: 'B731',
 });
 const pageInfo = ref({
   totalCount: 0,
@@ -133,20 +136,39 @@ const codes2 = await getLcCommoncodeCo110tb();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
-
+async function fetchData() {
+  const res = await dataService.get('/sms/wells/service/after-service-code-mngt/getAfterServiceCodeRgstPages', { params: { ...cachedParams, ...pageInfo.value } });
+  const { list: products, pageInfo: pagingResult } = res.data;
+  pageInfo.value = pagingResult;
+  const view = grdRef.value.getView();
+  view.getDataSource().setRows(products);
+  view.resetCurrent();
+  if (gridUtil.getCheckedRowValues(view).length === pageInfo.value.pageSize) {
+    view.checkAll(true);
+  }
+}
+async function onClickSearch() {
+  pageInfo.value.pageIndex = 1;
+  cachedParams = cloneDeep(searchParams.value);
+  await fetchData();
+}
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
 const initGrd = defineGrid((data, view) => {
-  const fields = [
-    { fieldName: 'asCausCd' },
-    { fieldName: 'asCausNm' },
-  ];
-
+  const fields = [{ fieldName: 'chk' }, { fieldName: 'cd' }, { fieldName: 'cdNm' }];
   const columns = [
-    { fieldName: 'asCausCd', header: t('MSG_TXT_CODE_ID'), width: '30', styleName: 'text-center' },
     {
-      fieldName: 'asCausNm',
+      fieldName: 'chk',
+      renderer: {
+        type: 'check',
+        trueValues: '1',
+        falseValues: '0',
+      },
+    },
+    { fieldName: 'cd', header: t('MSG_TXT_CODE_ID'), width: '30', styleName: 'text-center' },
+    {
+      fieldName: 'cdNm',
       header: t('MSG_TXT_CODE_NAME'),
       width: '100',
       lookupDisplay: true,
@@ -158,8 +180,8 @@ const initGrd = defineGrid((data, view) => {
     {
       direction: 'horizontal',
       items: [
-        'asCausCd',
-        'asCausNm',
+        'cd',
+        'cdNm',
       ],
       header: {
         text: t('MSG_TXT_AS_CAUS'),
@@ -172,11 +194,15 @@ const initGrd = defineGrid((data, view) => {
   data.setFields(fields);
   view.setColumns(columns);
   view.checkBar.visible = true;
+  view.checkBar.fieldName = 'chk';
+  view.checkBar.syncHeadCheck = true;
 
   view.displayOptions.emptyMessage = t('MSG_ALT_NO_INFO_SRCH');
 
   view.onCellItemClicked = async (g, { column, itemIndex }) => {
     console.log(g, column, itemIndex);
+    view.checkRow(0, true);
   };
+  view.editOptions.editable = true;
 });
 </script>
