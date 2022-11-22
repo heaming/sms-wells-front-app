@@ -145,13 +145,12 @@
 // -------------------------------------------------------------------------------------------------
 import { codeUtil, defineGrid, getComponentType, useDataService, useMeta } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
-import { getLcCommoncodeCo110tb, getLcAllocateAc112tb } from '~sms-wells/web/service/utils/common';
+import { getLcCommonCodeCo110tb, getLcAllocateAc112tb } from '~sms-wells/web/service/utils/common';
 
 const { t } = useI18n();
 const dataService = useDataService();
 
 const { getConfig } = useMeta();
-// const { notify, alert, modal } = useGlobal();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -176,7 +175,7 @@ const pageInfo = ref({
 
 const codes = await codeUtil.getMultiCodes('COD_PAGE_SIZE_OPTIONS');
 
-const commonCode = await getLcCommoncodeCo110tb();
+const commonCode = await getLcCommonCodeCo110tb();
 const ac112tb = await getLcAllocateAc112tb();
 const sidos = await getLcAllocateAc112tb('sido');
 const sggs = ref((await getLcAllocateAc112tb('gu')).map((v) => ({ sgg: v.sggNm, sggNm: v.sggNm })));

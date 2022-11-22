@@ -107,7 +107,7 @@ import {
   gridUtil,
 } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
-import { getLcCommoncodeCo110tb } from '~sms-wells/web/service/utils/common';
+import { getLcCommonCodeCo110tb } from '~sms-wells/web/service/utils/common';
 
 // -------------------------------------------------------------------------------------------------
 // Declaration
@@ -132,7 +132,7 @@ const pageInfo = ref({
   pageIndex: 1,
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
 });
-const codes2 = await getLcCommoncodeCo110tb();
+const codes2 = await getLcCommonCodeCo110tb();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------

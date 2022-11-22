@@ -165,7 +165,7 @@
 // import { codeUtil } from 'kw-lib';
 
 import {
-  getLcCommoncodeCo110tb,
+  getLcCommonCodeCo110tb,
   getLcAllocateAc125tb,
   getLcAllocateAc112tb,
   // getLcStockSt101tb,
@@ -193,7 +193,7 @@ const selectData = { model: '10',
 //   'PD_GRP_CD',
 //   'COD_PAGE_SIZE_OPTIONS',
 // );
-const codes2 = await getLcCommoncodeCo110tb();
+const codes2 = await getLcCommonCodeCo110tb();
 const svcCode = await getLcAllocateAc125tb();
 const sido = await getLcAllocateAc112tb('sido');
 

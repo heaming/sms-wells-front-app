@@ -124,7 +124,7 @@ import {
   useMeta,
 } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
-import { getLcCommoncodeCo110tb, getLcStockSt101tb } from '~sms-wells/web/service/utils/common';
+import { getLcCommonCodeCo110tb, getLcStockSt101tb } from '~sms-wells/web/service/utils/common';
 // -------------------------------------------------------------------------------------------------
 // Declaration
 // -------------------------------------------------------------------------------------------------
@@ -151,7 +151,7 @@ const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
 );
 const codesYn = [{ code: '1', name: t('MSG_TXT_APPLY_DT') }];
-const codes2 = await getLcCommoncodeCo110tb();
+const codes2 = await getLcCommonCodeCo110tb();
 const pds = await getLcStockSt101tb();
 // -------------------------------------------------------------------------------------------------
 // Function & Event

@@ -1,4 +1,4 @@
-import lcCommoncodeCo110tb from '~/assets/lcCommoncodeCo110tb.json';
+import lcCommonCodeCo110tb from '~/assets/lcCommonCodeCo110tb.json';
 import lcStockSt101tb from '~/assets/lcStockSt101tb.json';
 import lcAllocateAc125tb from '~/assets/lcAllocateAc125tb.json';
 import lcAllocateAc112tb from '~/assets/lcAllocateAc112tb.json';
@@ -7,8 +7,8 @@ import lcAllocateAc112tb from '~/assets/lcAllocateAc112tb.json';
   공통코드조회
   ASIS의 데이터가 ToBe로 이관되면 사용하지 않을 예정
 */
-export async function getLcCommoncodeCo110tb() {
-  return lcCommoncodeCo110tb.reduce((result, current) => {
+export async function getLcCommonCodeCo110tb() {
+  return lcCommonCodeCo110tb.reduce((result, current) => {
     result[current.grpCd.source] = result[current.grpCd.source] || [];
     result[current.grpCd.source].push({
       value: current.cd.source,
