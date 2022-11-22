@@ -183,7 +183,7 @@ const ctpvs = ref((await getLcAllocateAc112tb('sido')).map((v) => ({ ctpv: v.try
 const ctctys = ref((await getLcAllocateAc112tb('gu')).map((v) => ({ ctcty: v.sggNm, ctctyNm: v.sggNm })));
 
 async function fetchData() {
-  const res = await dataService.get('/sms/wells/service/rpb-locara-zip-mngt', { params: { ...cachedParams, ...pageInfo.value } });
+  const res = await dataService.get('/sms/wells/service/rpb-locara-zip-mngt/paging', { params: { ...cachedParams, ...pageInfo.value } });
   const { list: zips, pageInfo: pagingResult } = res.data;
   pageInfo.value = pagingResult;
   const view = grdMainRef.value.getView();
@@ -201,15 +201,23 @@ async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
   if (view.getItemCount() === 0) {
     await alert(t('MSG_ALT_NO_INFO_SRCH'));
+    return;
   }
+
+  const res = await dataService.get('/sms/wells/service/rpb-locara-zip-mngt/excel-download', { params: cachedParams });
+  await gridUtil.exportView(view, {
+    fileName: 'rpbLocaraZipList',
+    timePostfix: true,
+    exportData: res.data,
+  });
 }
 
-const onUpdateCtcty = async (val) => {
+async function onUpdateCtcty(val) {
   if (val) {
     const { ctpvCd } = ctpvs.value.find((v) => v.ctpvNm === val);
     ctctys.value = (await getLcAllocateAc112tb('gu', ctpvCd)).map((v) => ({ ctcty: v.sggNm, ctctyNm: v.sggNm }));
   }
-};
+}
 
 async function onClickSave() {
   const view = grdMainRef.value.getView();
@@ -218,6 +226,7 @@ async function onClickSave() {
     await notify(t('MSG_ALT_NO_APPY_OBJ_DT'));
     return;
   }
+
   if (!await gridUtil.alertIfIsNotModified(view)) {
     // await dataService.post('/sms/wells/service/rpb-locara-zip-mngt', )
     await notify(t('MSG_ALT_SAVE_DATA'));
