@@ -1,4 +1,4 @@
-<!--
+<!----
  ****************************************************************************************************
  * 프로그램 개요
  ****************************************************************************************************
@@ -11,7 +11,7 @@
  ****************************************************************************************************
  - 책임지역 우편번호 관리 (http://localhost:3000/#/service/wwsnc-responsibility-local-area-zip-mgt)
  ****************************************************************************************************
--->
+--->
 <template>
   <kw-page>
     <template #header>
@@ -47,8 +47,6 @@
             v-model="searchParams.ctpvNm"
             :options="ctpvs"
             first-option="all"
-            :first-option-label="$t('MSG_TXT_ALL')"
-            first-option-value=""
             option-label="ctpv"
             option-value="ctpvNm"
             @update:model-value="onUpdateCtcty"
@@ -60,8 +58,6 @@
             v-model="searchParams.ctctyNm"
             :options="ctctys"
             first-option="all"
-            :first-option-label="$t('MSG_TXT_ALL')"
-            first-option-value=""
             option-label="ctcty"
             option-value="ctctyNm"
           />
@@ -228,8 +224,16 @@ async function onClickSave() {
   }
 
   if (!await gridUtil.alertIfIsNotModified(view)) {
-    // await dataService.post('/sms/wells/service/rpb-locara-zip-mngt', )
+    const changedRows = gridUtil.getChangedRowValues(view).map((v) => {
+      const mngtAmtds = v.mngtAmtd.split(' / ');
+      return { ...v, lawcEmdNm: mngtAmtds[0], amtdNm: mngtAmtds[1] };
+    });
+    console.log('=== updatedRows ===');
+    console.log(changedRows);
+    await dataService.post('/sms/wells/service/rpb-locara-zip-mngt', changedRows);
+
     await notify(t('MSG_ALT_SAVE_DATA'));
+    await fetchData();
   }
 }
 
@@ -252,6 +256,12 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'ichrPrtnrNo' },
     { fieldName: 'prtnrKnm' },
     { fieldName: 'vstDowVal' },
+    { fieldName: 'emdSn' },
+    { fieldName: 'fr2pLgldCd' },
+    { fieldName: 'kynorLocaraYn' },
+    { fieldName: 'ildYn' },
+    { fieldName: 'pdlvNo' },
+    { fieldName: 'dtaDlYn' },
   ];
 
   const columns = [
@@ -321,10 +331,9 @@ const initGrdMain = defineGrid((data, view) => {
   view.setFixedOptions({ colCount: 1 });
 
   view.checkBar.visible = true;
+  view.setCheckableCallback(() => false);
   view.rowIndicator.visible = true;
   view.editOptions.columnEditableFirst = true;
-
-  view.displayOptions.emptyMessage = t('MSG_ALT_NO_INFO_SRCH');
 
   view.onCellEdited = (grid, itemIndex) => {
     grid.checkItem(itemIndex, true);
