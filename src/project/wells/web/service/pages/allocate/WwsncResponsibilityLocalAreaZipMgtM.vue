@@ -179,7 +179,7 @@ const ctpvs = ref((await getLcAllocateAc112tb('sido')).map((v) => ({ ctpv: v.try
 const ctctys = ref((await getLcAllocateAc112tb('gu')).map((v) => ({ ctcty: v.sggNm, ctctyNm: v.sggNm })));
 
 async function fetchData() {
-  const res = await dataService.get('/sms/wells/service/rpb-locara-zip-mngt/paging', { params: { ...cachedParams, ...pageInfo.value } });
+  const res = await dataService.get('/sms/wells/service/responsible-area-zipnos/paging', { params: { ...cachedParams, ...pageInfo.value } });
   const { list: zips, pageInfo: pagingResult } = res.data;
   pageInfo.value = pagingResult;
   const view = grdMainRef.value.getView();
@@ -200,7 +200,7 @@ async function onClickExcelDownload() {
     return;
   }
 
-  const res = await dataService.get('/sms/wells/service/rpb-locara-zip-mngt/excel-download', { params: cachedParams });
+  const res = await dataService.get('/sms/wells/service/responsible-area-zipnos/excel-download', { params: cachedParams });
   await gridUtil.exportView(view, {
     fileName: 'rpbLocaraZipList',
     timePostfix: true,
@@ -230,7 +230,7 @@ async function onClickSave() {
     });
     console.log('=== updatedRows ===');
     console.log(changedRows);
-    await dataService.post('/sms/wells/service/rpb-locara-zip-mngt', changedRows);
+    await dataService.post('/sms/wells/service/responsible-area-zipnos', changedRows);
 
     await notify(t('MSG_ALT_SAVE_DATA'));
     await fetchData();
@@ -328,7 +328,6 @@ const initGrdMain = defineGrid((data, view) => {
 
   data.setFields(fields);
   view.setColumns(columns);
-  view.setFixedOptions({ colCount: 1 });
 
   view.checkBar.visible = true;
   view.setCheckableCallback(() => false);
