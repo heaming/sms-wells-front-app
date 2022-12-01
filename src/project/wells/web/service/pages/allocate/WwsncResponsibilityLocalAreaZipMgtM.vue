@@ -63,14 +63,13 @@
           />
         </kw-search-item>
       </kw-search-row>
+
       <kw-search-row>
         <!-- 작업그룹 -->
         <kw-search-item :label="$t('MSG_TXT_WK_GRP')">
           <kw-select
             v-model="searchParams.wkGrpCd"
-            :options="codeBd10"
-            option-label="label"
-            option-value="value"
+            :options="codes.WK_GRP_CD"
           />
         </kw-search-item>
         <!-- 적용일자 -->
@@ -139,7 +138,7 @@
 // -------------------------------------------------------------------------------------------------
 import { codeUtil, defineGrid, getComponentType, gridUtil, useDataService, useGlobal, useMeta } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
-import { getLcCommonCodeCo110tb, getLcAllocateAc112tb } from '~sms-wells/web/service/utils/common';
+import { getLcAllocateAc112tb } from '~sms-wells/web/service/utils/common';
 import dayjs from 'dayjs';
 
 const { t } = useI18n();
@@ -169,10 +168,10 @@ const pageInfo = ref({
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
 });
 
-const codes = await codeUtil.getMultiCodes('COD_PAGE_SIZE_OPTIONS');
-
-const commonCode = await getLcCommonCodeCo110tb();
-const codeBd10 = commonCode.BD10.sort((a, b) => Number(a.value) - Number(b.value));
+const codes = await codeUtil.getMultiCodes(
+  'COD_PAGE_SIZE_OPTIONS',
+  'WK_GRP_CD',
+);
 
 const ac112tb = await getLcAllocateAc112tb();
 const ctpvs = ref((await getLcAllocateAc112tb('sido')).map((v) => ({ ctpv: v.tryNm, ctpvNm: v.tryNm, ctpvCd: v.fr2pLgldCd })));
@@ -228,14 +227,25 @@ async function onClickSave() {
       const mngtAmtds = v.mngtAmtd.split(' / ');
       return { ...v, lawcEmdNm: mngtAmtds[0], amtdNm: mngtAmtds[1] };
     });
-    console.log('=== updatedRows ===');
-    console.log(changedRows);
+
     await dataService.post('/sms/wells/service/responsible-area-zipnos', changedRows);
 
     await notify(t('MSG_ALT_SAVE_DATA'));
     await fetchData();
   }
 }
+
+/**
+ * TODO: TB_SVPD_EGER_ASN_ADR_IZ (엔지니어배정주소내역) 테이블 데이터 적재 후 사용 예정
+async function fetchDefaultData() {
+  const res = dataService.get('sms/wells/service/responsible-area-zipnos/lgldAmtds');
+  console.log(res.data);
+}
+
+onMounted(async () => {
+  await fetchDefaultData();
+});
+*/
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
