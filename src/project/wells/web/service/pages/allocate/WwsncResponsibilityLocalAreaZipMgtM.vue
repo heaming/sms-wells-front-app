@@ -145,7 +145,7 @@ const { t } = useI18n();
 const dataService = useDataService();
 
 const { getConfig } = useMeta();
-const { alert, notify } = useGlobal();
+const { notify } = useGlobal();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -195,7 +195,7 @@ async function onClickSearch() {
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
   if (view.getItemCount() === 0) {
-    await alert(t('MSG_ALT_NO_INFO_SRCH'));
+    await notify(t('MSG_ALT_NO_INFO_SRCH'));
     return;
   }
 
