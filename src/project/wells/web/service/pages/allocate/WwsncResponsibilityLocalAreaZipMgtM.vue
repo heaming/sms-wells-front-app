@@ -3,7 +3,7 @@
  * 프로그램 개요
  ****************************************************************************************************
  1. 모듈 : SNC (배정관리)
- 2. 프로그램 ID : W-SV-U-0036M01 AS 책임지역 우편번호 관리
+ 2. 프로그램 ID : W-SV-U-0036M01 - 책임지역 우편번호 관리
  3. 작성자 : gs.piit130
  4. 작성일 : 2022.11.17
  ****************************************************************************************************
@@ -14,15 +14,6 @@
 --->
 <template>
   <kw-page>
-    <template #header>
-      <kw-page-header
-        :options="[
-          $t('MSG_TIT_HOM'),
-          $t('MSG_TIT_ASN_MNGT'),
-          $t('MSG_TIT_ASN_BASE_MNGT'),
-          $t('MSG_TIT_RPB_LOCARA_ZIP_MNGT')]"
-      />
-    </template>
     <kw-search
       @search="onClickSearch"
     >
@@ -112,6 +103,7 @@
           dense
           secondary
           :label="$t('MSG_BTN_EXCEL_DOWN')"
+          :disable="pageInfo.totalCount === 0"
           @click="onClickExcelDownload"
         />
       </kw-action-top>
@@ -138,7 +130,7 @@
 // -------------------------------------------------------------------------------------------------
 import { codeUtil, defineGrid, getComponentType, gridUtil, useDataService, useGlobal, useMeta } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
-import { getLcAllocateAc112tb } from '~sms-wells/web/service/utils/common';
+import { getDistricts } from '~sms-wells/web/service/composables/useSnDistrict';
 import dayjs from 'dayjs';
 
 const { t } = useI18n();
@@ -173,9 +165,9 @@ const codes = await codeUtil.getMultiCodes(
   'WK_GRP_CD',
 );
 
-const ac112tb = await getLcAllocateAc112tb();
-const ctpvs = ref((await getLcAllocateAc112tb('sido')).map((v) => ({ ctpv: v.tryNm, ctpvNm: v.tryNm, ctpvCd: v.fr2pLgldCd })));
-const ctctys = ref((await getLcAllocateAc112tb('gu')).map((v) => ({ ctcty: v.sggNm, ctctyNm: v.sggNm })));
+const ac112tb = await getDistricts();
+const ctpvs = ref((await getDistricts('sido')).map((v) => ({ ctpv: v.tryNm, ctpvNm: v.tryNm, ctpvCd: v.fr2pLgldCd })));
+const ctctys = ref((await getDistricts('gu')).map((v) => ({ ctcty: v.sggNm, ctctyNm: v.sggNm })));
 
 async function fetchData() {
   const res = await dataService.get('/sms/wells/service/responsible-area-zipnos/paging', { params: { ...cachedParams, ...pageInfo.value } });
@@ -194,10 +186,6 @@ async function onClickSearch() {
 
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
-  if (view.getItemCount() === 0) {
-    await notify(t('MSG_ALT_NO_INFO_SRCH'));
-    return;
-  }
 
   const res = await dataService.get('/sms/wells/service/responsible-area-zipnos/excel-download', { params: cachedParams });
   await gridUtil.exportView(view, {
@@ -210,7 +198,7 @@ async function onClickExcelDownload() {
 async function onUpdateCtcty(val) {
   if (val) {
     const { ctpvCd } = ctpvs.value.find((v) => v.ctpvNm === val);
-    ctctys.value = (await getLcAllocateAc112tb('gu', ctpvCd)).map((v) => ({ ctcty: v.sggNm, ctctyNm: v.sggNm }));
+    ctctys.value = (await getDistricts('gu', ctpvCd)).map((v) => ({ ctcty: v.sggNm, ctctyNm: v.sggNm }));
   }
 }
 
@@ -278,10 +266,10 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'newAdrZip', header: t('MSG_TXT_ZIP'), width: '100', styleName: 'text-center' },
     { fieldName: 'mgtCnt', header: t('MSG_TXT_SV_ACC'), width: '100', styleName: 'text-right' },
     { fieldName: 'wrkCnt', header: t('MSG_TXT_MLMN_ACTCS'), width: '100', styleName: 'text-right' },
-    { fieldName: 'ctpvNm', header: t('MSG_TXT_CTPV_NM'), width: '150', styleName: 'text-left' },
-    { fieldName: 'ctctyNm', header: t('MSG_TXT_CTCTY_NM'), width: '150', styleName: 'text-left' },
-    { fieldName: 'lawcEmdNm', header: t('MSG_TXT_EMD_NM'), width: '150', styleName: 'text-left' },
-    { fieldName: 'amtdNm', header: t('MSG_TXT_AMTD_NM'), width: '150', styleName: 'text-left' },
+    { fieldName: 'ctpvNm', header: t('MSG_TXT_CTPV_NM'), width: '150' },
+    { fieldName: 'ctctyNm', header: t('MSG_TXT_CTCTY_NM'), width: '150' },
+    { fieldName: 'lawcEmdNm', header: t('MSG_TXT_EMD_NM'), width: '150' },
+    { fieldName: 'amtdNm', header: t('MSG_TXT_AMTD_NM'), width: '150' },
     {
       fieldName: 'mngtAmtd',
       header: t('MSG_TXT_MNGT_AMTD'),
@@ -290,7 +278,6 @@ const initGrdMain = defineGrid((data, view) => {
       optionValue: 'value',
       editor: { type: 'list' },
       editable: true,
-      styleName: 'text-left',
       styleCallback: (grid, dataCell) => {
         const ctctyNm = grid.getValue(dataCell.index.itemIndex, 'ctctyNm');
         const ac112MgtHemdNm = ac112tb
@@ -303,10 +290,10 @@ const initGrdMain = defineGrid((data, view) => {
     },
     { fieldName: 'rpbLocaraCd', header: t('MSG_TXT_LOCARA_CMN_CD'), width: '100', styleName: 'text-center' },
     { fieldName: 'rpbLocaraGrpCd', header: t('MSG_TXT_LOCARA_GRP_CD'), width: '100', styleName: 'text-center' },
-    { fieldName: 'ogNm', header: t('MSG_TXT_CENTER_DIVISION'), width: '120', styleName: 'text-left' },
+    { fieldName: 'ogNm', header: t('MSG_TXT_CENTER_DIVISION'), width: '120' },
     { fieldName: 'ichrPrtnrNo', header: t('MSG_TXT_RPB_PRTNR_NO'), width: '120', styleName: 'text-center' },
-    { fieldName: 'prtnrKnm', header: t('MSG_TXT_RPB_ICHR_NM'), width: '100', styleName: 'text-left' },
-    { fieldName: 'vstDowVal', header: t('MSG_TXT_VST_DOW'), width: '100', styleName: 'text-left' },
+    { fieldName: 'prtnrKnm', header: t('MSG_TXT_RPB_ICHR_NM'), width: '100' },
+    { fieldName: 'vstDowVal', header: t('MSG_TXT_VST_DOW'), width: '100' },
   ];
 
   const columnLayout = [

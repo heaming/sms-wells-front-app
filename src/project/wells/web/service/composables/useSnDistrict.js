@@ -1,59 +1,10 @@
-import lcCommonCodeCo110tb from '~/assets/lcCommonCodeCo110tb.json';
-import lcStockSt101tb from '~/assets/lcStockSt101tb.json';
-import lcAllocateAc125tb from '~/assets/lcAllocateAc125tb.json';
 import lcAllocateAc112tb from '~/assets/lcAllocateAc112tb.json';
-
-/*
-  공통코드조회
-  ASIS의 데이터가 ToBe로 이관되면 사용하지 않을 예정
-*/
-export async function getLcCommonCodeCo110tb() {
-  return lcCommonCodeCo110tb.reduce((result, current) => {
-    result[current.grpCd.source] = result[current.grpCd.source] || [];
-    result[current.grpCd.source].push({
-      value: current.cd.source,
-      label: current.cdNm.source,
-    });
-    return result;
-  });
-}
-
-/*
-  상품기본조회
-  ASIS의 데이터가 ToBe로 이관되면 사용하지 않을 예정
-*/
-export async function getLcStockSt101tb() {
-  return lcStockSt101tb.map((x) => ({
-    cd: x.cd ? x.cd.source : '',
-    cdNm: x.cdNm ? x.cdNm.source : '',
-    gr: x.gr ? x.gr.source : '',
-    knd: x.knd ? x.knd.source : '',
-    pdctClsf: x.pdctClsf ? x.pdctClsf.source : '',
-    abbrNm: x.abbrNm ? x.abbrNm.source : '',
-    apyDtEnd: x.apyDtEnd ? x.apyDtEnd.source : '',
-    apyDtStrt: x.apyDtStrt ? x.apyDtStrt.source : '',
-  }));
-}
-
-/*
-  서비스센터
-  ASIS의 데이터가 ToBe로 이관되면 사용하지 않을 예정
-*/
-export async function getLcAllocateAc125tb() {
-  return lcAllocateAc125tb.map((x) => ({
-    ogCd: x.OG_CD ? x.OG_CD.source : '',
-    ogNm: x.OG_NM ? x.OG_NM.source : '',
-    mngtWidaDvCd: x.MNGT_WIDA_DV_CD ? x.MNGT_WIDA_DV_CD.source : '',
-    acno: x.ACNO ? x.ACNO.source : '',
-    upCode: x.UP_CODE ? x.UP_CODE.source : '',
-  }));
-}
 
 /*
   광역시도, 시군구
   ASIS의 데이터가 ToBe로 이관되면 사용하지 않을 예정
 */
-export async function getLcAllocateAc112tb(type, fr2pLgldCd) {
+export async function getDistricts(type, fr2pLgldCd) {
   let ret;
   if (type === undefined && fr2pLgldCd === undefined) {
     ret = lcAllocateAc112tb.map((x) => ({
