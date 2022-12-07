@@ -1,4 +1,6 @@
-import lcAllocateAc112tb from '~/assets/lcAllocateAc112tb.json';
+// hotfix
+// 서버 빌드 시 메모리 초과 원인이 됩니다.
+const lcAllocateAc112tb = [];
 
 /*
   광역시도, 시군구
