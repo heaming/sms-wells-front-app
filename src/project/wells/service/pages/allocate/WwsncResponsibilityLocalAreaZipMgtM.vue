@@ -132,8 +132,10 @@
 // -------------------------------------------------------------------------------------------------
 import { codeUtil, defineGrid, getComponentType, gridUtil, useDataService, useGlobal, useMeta } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
-import { getDistricts } from '~sms-wells/service/composables/common';
+import smsCommon from '~sms-wells/service/composables/common';
 import dayjs from 'dayjs';
+
+const { getDistricts } = smsCommon();
 
 const { t } = useI18n();
 const dataService = useDataService();
@@ -169,6 +171,7 @@ const codes = await codeUtil.getMultiCodes(
 
 const ctpvs = ref((await getDistricts('sido')).map((v) => ({ ctpv: v.ctpvNm, ctpvNm: v.ctpvNm, ctpvCd: v.fr2pLgldCd })));
 const ctctys = ref((await getDistricts('guAll')).map((v) => ({ ctcty: v.ctctyNm, ctctyNm: v.ctctyNm })));
+const cachedCtctys = cloneDeep(ctctys.value);
 
 async function fetchData() {
   const res = await dataService.get('/sms/wells/service/responsible-area-zipnos/paging', { params: { ...cachedParams, ...pageInfo.value } });
@@ -199,10 +202,9 @@ async function onClickExcelDownload() {
 async function onUpdateCtcty(val) {
   if (val) {
     const { ctpvCd } = ctpvs.value.find((v) => v.ctpvNm === val);
-    console.log(ctpvCd);
-    // ctctys.value = (await getDistricts('gu', ctpvCd)).map((v) => ({ ctcty: v.ctctyNm, ctctyNm: v.ctctyNm }));
-    const res = await getDistricts('gu', '28');
-    console.log(res);
+    ctctys.value = (await getDistricts('gu', ctpvCd)).map((v) => ({ ctcty: v.ctctyNm, ctctyNm: v.ctctyNm }));
+  } else {
+    ctctys.value = cachedCtctys;
   }
 }
 
