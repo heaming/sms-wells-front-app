@@ -24,12 +24,14 @@
             v-model="searchParams.zipFrom"
             type="text"
             maxlength="3"
+            :regex="/^[0-9]*$/i"
           />
           <span>~</span>
           <kw-input
             v-model="searchParams.zipTo"
             type="text"
             maxlength="3"
+            :regex="/^[0-9]*$/i"
           />
         </kw-search-item>
         <!-- 광역시/도 -->
@@ -130,7 +132,7 @@
 // -------------------------------------------------------------------------------------------------
 import { codeUtil, defineGrid, getComponentType, gridUtil, useDataService, useGlobal, useMeta } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
-import { getDistricts } from '~sms-wells/web/service/composables/useSnDistrict';
+import { getDistricts } from '~sms-wells/service/composables/common';
 import dayjs from 'dayjs';
 
 const { t } = useI18n();
@@ -165,9 +167,8 @@ const codes = await codeUtil.getMultiCodes(
   'WK_GRP_CD',
 );
 
-const ac112tb = await getDistricts();
-const ctpvs = ref((await getDistricts('sido')).map((v) => ({ ctpv: v.tryNm, ctpvNm: v.tryNm, ctpvCd: v.fr2pLgldCd })));
-const ctctys = ref((await getDistricts('gu')).map((v) => ({ ctcty: v.sggNm, ctctyNm: v.sggNm })));
+const ctpvs = ref((await getDistricts('sido')).map((v) => ({ ctpv: v.ctpvNm, ctpvNm: v.ctpvNm, ctpvCd: v.fr2pLgldCd })));
+const ctctys = ref((await getDistricts('guAll')).map((v) => ({ ctcty: v.ctctyNm, ctctyNm: v.ctctyNm })));
 
 async function fetchData() {
   const res = await dataService.get('/sms/wells/service/responsible-area-zipnos/paging', { params: { ...cachedParams, ...pageInfo.value } });
@@ -198,7 +199,10 @@ async function onClickExcelDownload() {
 async function onUpdateCtcty(val) {
   if (val) {
     const { ctpvCd } = ctpvs.value.find((v) => v.ctpvNm === val);
-    ctctys.value = (await getDistricts('gu', ctpvCd)).map((v) => ({ ctcty: v.sggNm, ctctyNm: v.sggNm }));
+    console.log(ctpvCd);
+    // ctctys.value = (await getDistricts('gu', ctpvCd)).map((v) => ({ ctcty: v.ctctyNm, ctctyNm: v.ctctyNm }));
+    const res = await getDistricts('gu', '28');
+    console.log(res);
   }
 }
 
@@ -223,17 +227,15 @@ async function onClickSave() {
   }
 }
 
-/**
- * TODO: TB_SVPD_EGER_ASN_ADR_IZ (엔지니어배정주소내역) 테이블 데이터 적재 후 사용 예정
+let districts;
 async function fetchDefaultData() {
-  const res = dataService.get('sms/wells/service/responsible-area-zipnos/lgldAmtds');
-  console.log(res.data);
+  const res = await dataService.get('sms/wells/service/responsible-area-zipnos/districts');
+  districts = res.data;
 }
 
 onMounted(async () => {
   await fetchDefaultData();
 });
-*/
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
@@ -279,13 +281,14 @@ const initGrdMain = defineGrid((data, view) => {
       editor: { type: 'list' },
       editable: true,
       styleCallback: (grid, dataCell) => {
+        const ctpvNm = grid.getValue(dataCell.index.itemIndex, 'ctpvNm');
         const ctctyNm = grid.getValue(dataCell.index.itemIndex, 'ctctyNm');
-        const ac112MgtHemdNm = ac112tb
-          .filter((v) => v.sggNm === ctctyNm)
-          .map((v) => v.ac112MgtHemdNm)
+        const mngtAmtd = districts
+          .filter((v) => v.ctpvNm === ctpvNm && v.ctctyNm === ctctyNm)
+          .map((v) => v.mngtAmtd)
           .reduce((a, v) => (a.includes(v) ? a : [...a, v]), []);
 
-        return { editor: { type: 'list', labels: ac112MgtHemdNm, values: ac112MgtHemdNm } };
+        return { editor: { type: 'list', labels: mngtAmtd, values: mngtAmtd } };
       },
     },
     { fieldName: 'rpbLocaraCd', header: t('MSG_TXT_LOCARA_CMN_CD'), width: '100', styleName: 'text-center' },
