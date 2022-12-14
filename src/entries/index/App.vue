@@ -4,8 +4,8 @@
       <web-header>
         <template #logo>
           <img
-            src="~~@assets/images/logo_wells.svg"
-            alt="KSS빨간펜"
+            src="~~@assets/images/kstation_wells.svg"
+            alt="K-Station Wells"
           >
         </template>
       </web-header>
