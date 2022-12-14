@@ -20,44 +20,27 @@
     >
       <kw-form-row>
         <kw-form-item
-          :label="$t('게시기간')"
+          :label="$t('MSG_TXT_NOTICE_PERIOD')"
           :colspan="2"
           required
         >
-          <!--          <kw-date-picker-->
-          <!--            v-model="workNotice.vlStrtDate"-->
-          <!--            rules="required"-->
-          <!--          />-->
-          <!--          <kw-time-picker-->
-          <!--            v-model="workNotice.vlStrtTime"-->
-          <!--            rules="required"-->
-          <!--          />-->
-          <!--          <span>~</span>-->
-          <!--          <kw-date-picker-->
-          <!--            v-model="workNotice.vlEndDate"-->
-          <!--            rules="required"-->
-          <!--          />-->
-          <!--          <kw-time-picker-->
-          <!--            v-model="workNotice.vlEndTime"-->
-          <!--            rules="required"-->
-          <!--          />-->
           <kw-date-range-picker
             v-model:from="workNotice.vlStrtdt"
             v-model:to="workNotice.vlEnddt"
-            :name="$t('등록기간')"
+            :name="$t('MSG_TXT_NOTICE_PERIOD')"
             rules="date_range_required"
           />
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
         <kw-form-item
-          :label="$t('상품그룹')"
+          :label="$t('MSG_TXT_PD_GRP')"
           required
         >
           <kw-field-wrap>
             <kw-select
               v-model="workNotice.pdGrpCd"
-              :name="$t('상품그룹')"
+              :name="$t('MSG_TXT_PD_GRP')"
               :options="codes.PD_GRP_CD"
               rules="required"
             />
@@ -67,29 +50,29 @@
               option-value="pdCd"
               option-label="pdNm"
               first-option="select"
-              first-option-label="선택안함"
+              :first-option-label="$t('MSG_TXT_SOMETHING_NO_SELECT', [$t('MSG_TXT_PRDT')])"
             />
           </kw-field-wrap>
         </kw-form-item>
         <kw-form-item
-          :label="$t('작업유형')"
+          :label="$t('MSG_TXT_WORK_TYPE')"
         >
           <kw-field>
             <kw-checkbox
               v-model="workNotice.istWkYn"
-              :label="$t('설치')"
+              :label="$t('MSG_TXT_INSTALLATION')"
               true-value="1"
               false-value="0"
             />
             <kw-checkbox
               v-model="workNotice.asWkYn"
-              :label="$t('A/S')"
+              :label="$t('MSG_TXT_AFTER_SERVICE')"
               true-value="1"
               false-value="0"
             />
             <kw-checkbox
               v-model="workNotice.bfsvcWkYn"
-              :label="$t('B/S')"
+              :label="$t('MSG_TXT_BEFORE_SERVICE')"
               true-value="1"
               false-value="0"
             />
@@ -110,27 +93,13 @@
       </kw-form-row>
       <kw-form-row>
         <kw-form-item
-          :label="$t('제목')"
-          :colspan="2"
-          required
-        >
-          <kw-input
-            v-model="workNotice.ntccnTitNm"
-            :name="$t('제목')"
-            :placeholder="$t('제목 입력')"
-            rules="required"
-          />
-        </kw-form-item>
-      </kw-form-row>
-      <kw-form-row>
-        <kw-form-item
-          :label="$t('관리구분')"
+          :label="$t('MSG_TXT_MNGT_DV')"
           :colspan="2"
           required
         >
           <kw-select
             v-model="workNotice.mngrDvCd"
-            :name="$t('관리구분')"
+            :name="$t('MSG_TXT_MNGT_DV')"
             :options="codes.MNGR_DV_CD"
             :disable="!isEmpty(deptMngrDvCd)"
             rules="required"
@@ -139,7 +108,21 @@
       </kw-form-row>
       <kw-form-row>
         <kw-form-item
-          :label="$t('비고사항')"
+          :label="$t('MSG_TXT_TITLE')"
+          :colspan="2"
+          required
+        >
+          <kw-input
+            v-model="workNotice.ntccnTitNm"
+            :name="$t('MSG_TXT_TITLE')"
+            :placeholder="$t('MSG_TXT_ENTER_SOMETHING', [$t('MSG_TXT_TITLE')])"
+            rules="required"
+          />
+        </kw-form-item>
+      </kw-form-row>
+      <kw-form-row>
+        <kw-form-item
+          :label="$t('MSG_TXT_CNTN')"
           :colspan="2"
         >
           <kw-input
@@ -148,7 +131,7 @@
             :maxlength="1000"
             rules="max:1000"
             :rows="3"
-            :placeholder="$t('비고사항 입력')"
+            :placeholder="$t('MSG_TXT_ENTER_SOMETHING', [$t('MSG_TXT_CNTN')])"
           />
         </kw-form-item>
       </kw-form-row>
@@ -162,7 +145,7 @@
       <kw-btn
         primary
         :label="$t('MSG_BTN_SAVE')"
-        @click="onClickSave()"
+        @click="onClickSave"
       />
     </template>
   </kw-popup>
@@ -237,7 +220,7 @@ const deptMngrDvCd = computed(() => {
 });
 
 async function fetchWorkNoticeDetail(params) {
-  return await dataService.get('/sms/wells/service/work-notices/detail?', params);
+  return await dataService.get('/sms/wells/service/work-notices/detail', params);
 }
 
 async function getWorkNoticeDetail() {

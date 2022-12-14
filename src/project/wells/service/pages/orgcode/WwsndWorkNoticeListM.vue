@@ -20,18 +20,18 @@
     >
       <kw-search-row>
         <kw-search-item
-          :label="$t('등록기간')"
+          :label="$t('MSG_TXT_REG_PERIOD')"
           required
         >
           <kw-date-range-picker
             v-model:from="searchParams.stRgstDt"
             v-model:to="searchParams.edRgstDt"
-            :name="$t('등록기간')"
+            :name="$t('MSG_TXT_REG_PERIOD')"
             rules="date_range_required"
           />
         </kw-search-item>
         <kw-search-item
-          :label="$t('관리구분')"
+          :label="$t('MSG_TXT_MNGT_DV')"
         >
           <kw-select
             v-model="searchParams.mngrDvCd"
@@ -41,12 +41,12 @@
           />
         </kw-search-item>
         <kw-search-item
-          :label="$t('제목')"
+          :label="$t('MSG_TXT_TITLE')"
         >
           <kw-input
             v-model="searchParams.ntccnTitNm"
             :maxlength="300"
-            :placeholder="$t('제목 입력')"
+            :placeholder="$t('MSG_TXT_ENTER_SOMETHING', [$t('MSG_TXT_TITLE')])"
           />
         </kw-search-item>
       </kw-search-row>
@@ -66,6 +66,7 @@
         </template>
         <kw-btn
           :label="$t('MSG_BTN_EXCEL_DOWN')"
+          :disable="isEmpty(pageInfo.totalCount) || pageInfo.totalCount === 0"
           icon="download_on"
           dense
           secondary
@@ -77,7 +78,7 @@
           spaced
         />
         <kw-btn
-          :label="$t('등록')"
+          :label="$t('MSG_BTN_RGST')"
           primary
           dense
           @click="onClickWorkNoticeRegBtn"
@@ -154,15 +155,10 @@ searchParams.value.edRgstDt = dayjs().add(7, 'day').format('YYYYMMDD');
 searchParams.value.mngrDvCd = deptMngrDvCd.value;
 
 async function fetchWorkNoticePages(params) {
-  return await dataService.get('/sms/wells/service/work-notices/paging?', params);
+  return await dataService.get('/sms/wells/service/work-notices/paging', params);
 }
 
-async function getWorkNoticePages(pageNo) {
-  if (pageNo === 1) {
-    pageInfo.value.pageIndex = 1;
-    cachedParams = cloneDeep(searchParams.value);
-  }
-
+async function getWorkNoticePages() {
   const res = await fetchWorkNoticePages({ params: { ...cachedParams, ...pageInfo.value } });
   const { list: workNotices, pageInfo: pagingResult } = res.data;
 
@@ -175,17 +171,14 @@ async function getWorkNoticePages(pageNo) {
 }
 
 async function onClickSearch() {
-  await getWorkNoticePages(1);
+  pageInfo.value.pageIndex = 1;
+  cachedParams = cloneDeep(searchParams.value);
+  await getWorkNoticePages();
 }
 
 async function onClickExportView() {
   const view = grdMainRef.value.getView();
-  if (view.getItemCount() === 0) {
-    await alert(t('MSG_ALT_NO_INFO_SRCH'));
-    return;
-  }
-
-  const res = await dataService.get('/sms/wells/service/work-notices?', { params: cachedParams });
+  const res = await dataService.get('/sms/wells/service/work-notices', { params: cachedParams });
 
   await gridUtil.exportView(view, {
     fileName: 'Work Notice',
@@ -229,7 +222,7 @@ const initGrdMain = defineGrid((data, view) => {
   const columns = [
     {
       fieldName: 'fstRgstDtm',
-      header: t('등록일자'),
+      header: t('MSG_TXT_FST_RGST_DT'),
       width: '150',
       styleName: 'text-center',
       displayCallback(grid, index, value) {
@@ -238,7 +231,7 @@ const initGrdMain = defineGrid((data, view) => {
     },
     {
       fieldName: 'ntccnTitNm',
-      header: t('제목'),
+      header: t('MSG_TXT_TITLE'),
       width: '539',
       styleName: 'rg-button-link',
       renderer: { type: 'button' },
@@ -247,23 +240,21 @@ const initGrdMain = defineGrid((data, view) => {
     },
     {
       fieldName: 'pdNm',
-      header: t('모델명'),
+      header: t('MSG_TXT_MDL_NM'),
       width: '350',
       displayCallback(grid, index, value) {
         const pdCd = grid.getValue(index.itemIndex, 'pdCd');
         if (isEmpty(pdCd)) {
           return codes.PD_GRP_CD.find((obj) => obj.codeId === grid.getValue(index.itemIndex, 'pdGrpCd')).codeName;
         }
-        if (isEmpty(value)) {
-          return pdCd;
-        }
-        return value;
+
+        return isEmpty(value) ? pdCd : value;
       },
     },
     {
       fieldName: 'vlStrtdt',
       name: 'vlPeriod',
-      header: t('게시기간'),
+      header: t('MSG_TXT_NOTICE_PERIOD'),
       width: '200',
       styleName: 'text-center',
       displayCallback(grid, index, value) {
@@ -272,11 +263,11 @@ const initGrdMain = defineGrid((data, view) => {
         return `${vlStrtdt} ~ ${vlEnddt}`;
       },
     },
-    { fieldName: 'fstRgstUsrNm', header: t('등록자'), width: '100', styleName: 'text-center' },
+    { fieldName: 'fstRgstUsrNm', header: t('MSG_TXT_FST_RGST_USR'), width: '100', styleName: 'text-center' },
     {
       fieldName: 'istWkYn',
       name: 'workType',
-      header: t('작업유형'),
+      header: t('MSG_TXT_WORK_TYPE'),
       width: '150',
       styleName: 'text-center',
       displayCallback(grid, index, value) {
@@ -286,13 +277,13 @@ const initGrdMain = defineGrid((data, view) => {
 
         const rtn = [];
         if (tWk === '1') {
-          rtn.push(t('설치'));
+          rtn.push(t('MSG_TXT_INSTALLATION'));
         }
         if (asWk === '1') {
-          rtn.push(t('A/S'));
+          rtn.push(t('MSG_TXT_AFTER_SERVICE'));
         }
         if (bsWk === '1') {
-          rtn.push(t('B/S'));
+          rtn.push(t('MSG_TXT_BEFORE_SERVICE'));
         }
 
         return rtn.join(', ');
@@ -315,7 +306,6 @@ const initGrdMain = defineGrid((data, view) => {
 
   view.checkBar.visible = true;
   view.rowIndicator.visible = true;
-  view.displayOptions.emptyMessage = t('MSG_ALT_NO_INFO_SRCH');
 
   view.onCellItemClicked = async (g, { column, dataRow }) => {
     if (column === 'ntccnTitNm') {
@@ -324,7 +314,7 @@ const initGrdMain = defineGrid((data, view) => {
         component: 'WwsndWorkNoticeMgtP',
         componentProps: { mngtYm, ntcId, ntcSn },
       });
-      if (result) await getWorkNoticePages(pageInfo.pageIndex);
+      if (result) await getWorkNoticePages();
     }
   };
 });
