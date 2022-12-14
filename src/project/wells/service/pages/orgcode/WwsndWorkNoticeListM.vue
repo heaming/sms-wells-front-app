@@ -191,7 +191,7 @@ async function onClickWorkNoticeRegBtn() {
   const { result } = await modal({
     component: 'WwsndWorkNoticeMgtP',
   });
-  if (result) await getWorkNoticePages(pageInfo.pageIndex);
+  if (result) await onClickSearch();
 }
 
 // -------------------------------------------------------------------------------------------------
