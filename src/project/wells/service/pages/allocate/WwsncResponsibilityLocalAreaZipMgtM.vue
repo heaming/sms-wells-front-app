@@ -132,10 +132,10 @@
 // -------------------------------------------------------------------------------------------------
 import { codeUtil, defineGrid, getComponentType, gridUtil, useDataService, useGlobal, useMeta } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
-import smsCommon from '~sms-wells/service/composables/common';
+import useSnCode from '~sms-wells/service/composables/useSnCode';
 import dayjs from 'dayjs';
 
-const { getDistricts } = smsCommon();
+const { getDistricts } = useSnCode();
 
 const { t } = useI18n();
 const dataService = useDataService();
@@ -178,14 +178,13 @@ async function fetchData() {
   const { list: zips, pageInfo: pagingResult } = res.data;
   pageInfo.value = pagingResult;
 
-  if (pageInfo.value.totalCount === 0) {
-    await notify(t('MSG_ALT_NO_INFO_SRCH'));
-    return;
-  }
-
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(zips);
   view.resetCurrent();
+
+  if (pageInfo.value.totalCount === 0) {
+    await notify(t('MSG_ALT_NO_INFO_SRCH'));
+  }
 }
 
 async function onClickSearch() {
