@@ -37,7 +37,7 @@
             v-model="searchParams.mngrDvCd"
             :options="codes.MNGR_DV_CD"
             first-option="all"
-            :disable="!isEmpty(deptMngrDvCd)"
+            :readonly="!isEmpty(deptMngrDvCd)"
           />
         </kw-search-item>
         <kw-search-item
@@ -53,7 +53,6 @@
     </kw-search>
 
     <div class="result-area">
-      <h3>{{ $t('MSG_TXT_SRCH_RSLT') }}</h3>
       <kw-action-top>
         <template #left>
           <kw-paging-info
@@ -66,7 +65,7 @@
         </template>
         <kw-btn
           :label="$t('MSG_BTN_EXCEL_DOWN')"
-          :disable="isEmpty(pageInfo.totalCount) || pageInfo.totalCount === 0"
+          :disable="pageInfo.totalCount === 0"
           icon="download_on"
           dense
           secondary
@@ -82,6 +81,12 @@
           primary
           dense
           @click="onClickWorkNoticeRegBtn"
+        />
+        <!-- TODO: 인사기본정보 테스트 완료 후 삭제 필요 -->
+        <kw-btn
+          :label="$t('테스트')"
+          dense
+          @click="onClickTest"
         />
       </kw-action-top>
       <kw-grid
@@ -194,6 +199,15 @@ async function onClickWorkNoticeRegBtn() {
   if (result) await onClickSearch();
 }
 
+// TODO: 인사기본정보 테스트 완료 후 삭제 필요
+async function onClickTest() {
+  const { result, payload } = await modal({
+    component: 'WwsndHumanResourcesListP',
+    componentProps: { mngrDvCd: '2', deptCd: '', cnrCd: 'TEST11', searchText: 'ZZZ' },
+  });
+  if (result) payload.forEach((obj) => { console.log(obj); });
+}
+
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
@@ -304,7 +318,6 @@ const initGrdMain = defineGrid((data, view) => {
   view.setColumns(columns);
   view.setColumnLayout(layouts);
 
-  view.checkBar.visible = true;
   view.rowIndicator.visible = true;
 
   view.onCellItemClicked = async (g, { column, dataRow }) => {

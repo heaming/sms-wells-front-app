@@ -101,7 +101,7 @@
             v-model="workNotice.mngrDvCd"
             :name="$t('MSG_TXT_MNGT_DV')"
             :options="codes.MNGR_DV_CD"
-            :disable="!isEmpty(deptMngrDvCd)"
+            :readonly="!isEmpty(deptMngrDvCd)"
             rules="required"
           />
         </kw-form-item>
