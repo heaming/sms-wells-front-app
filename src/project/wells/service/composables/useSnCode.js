@@ -117,7 +117,7 @@ export default () => {
 
   async function getMcbyCstSvOjIz(mngtYm, pdGdCd) {
     const result = await dataService.get(
-      '/sms/wells/common/sms-com-codes/mcby-cst-sv-oj-iz',
+      '/sms/wells/common/sms-com-codes/month-customer-service-target-item',
       { params: { mngtYm, pdGdCd } },
     );
     return result.data.map((x) => ({
