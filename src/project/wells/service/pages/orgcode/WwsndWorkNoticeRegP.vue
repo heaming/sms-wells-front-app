@@ -13,7 +13,10 @@
 ****************************************************************************************************
 --->
 <template>
-  <kw-popup class="kw-popup--xl">
+  <kw-popup
+    class="kw-popup--xl"
+    :title="isEmpty(props.ntcId) ? undefined : $t('MSG_TIT_WORK_NOTICE_MOD')"
+  >
     <kw-form
       ref="workNoticeFormRef"
       :cols="2"

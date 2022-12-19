@@ -194,7 +194,7 @@ async function onClickExportView() {
 
 async function onClickWorkNoticeRegBtn() {
   const { result } = await modal({
-    component: 'WwsndWorkNoticeMgtP',
+    component: 'WwsndWorkNoticeRegP',
   });
   if (result) await onClickSearch();
 }
@@ -324,7 +324,7 @@ const initGrdMain = defineGrid((data, view) => {
     if (column === 'ntccnTitNm') {
       const { mngtYm, ntcId, ntcSn } = gridUtil.getRowValue(g, dataRow);
       const { result } = await modal({
-        component: 'WwsndWorkNoticeMgtP',
+        component: 'WwsndWorkNoticeRegP',
         componentProps: { mngtYm, ntcId, ntcSn },
       });
       if (result) await getWorkNoticePages();
