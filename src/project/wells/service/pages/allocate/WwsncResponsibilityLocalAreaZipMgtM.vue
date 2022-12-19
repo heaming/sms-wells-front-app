@@ -177,6 +177,12 @@ async function fetchData() {
   const res = await dataService.get('/sms/wells/service/responsible-area-zipnos/paging', { params: { ...cachedParams, ...pageInfo.value } });
   const { list: zips, pageInfo: pagingResult } = res.data;
   pageInfo.value = pagingResult;
+
+  if (pageInfo.value.totalCount === 0) {
+    await notify(t('MSG_ALT_NO_INFO_SRCH'));
+    return;
+  }
+
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(zips);
   view.resetCurrent();
@@ -230,13 +236,13 @@ async function onClickSave() {
 }
 
 let districts;
-async function fetchDefaultData() {
+async function fetchBaseData() {
   const res = await dataService.get('sms/wells/service/responsible-area-zipnos/districts');
   districts = res.data;
 }
 
 onMounted(async () => {
-  await fetchDefaultData();
+  await fetchBaseData();
 });
 
 // -------------------------------------------------------------------------------------------------
