@@ -196,7 +196,7 @@ async function onClickExcelDownload() {
 
   const res = await dataService.get('/sms/wells/service/region-level-zipnos/excel-download', { params: cachedParams });
   await gridUtil.exportView(view, {
-    fileName: 'rpbLocaraZipList',
+    fileName: 'regionLevelZipList',
     timePostfix: true,
     exportData: res.data,
   });
@@ -278,7 +278,6 @@ const initGrdMain = defineGrid((data, view) => {
       editable: true,
       styleCallback: (grid, dataCell) => {
         const { placeOfDeliveries: pdlvs } = cachedZips[dataCell.index.itemIndex];
-        // const pdlvNo = pdlvs.map((v) => v.pdlvNo);
         const pdlvNm = pdlvs.map((v) => v.pdlvNm);
 
         return { editor: { type: 'list', labels: pdlvNm, values: pdlvNm } };
@@ -342,8 +341,6 @@ const initGrdMain = defineGrid((data, view) => {
     grid.setValue(index.dataRow, index.fieldName, editResult.value);
     grid.setValue(index.dataRow, 'pdlvNo', pdlvNo);
     grid.setValue(index.dataRow, 'pdlvAdr', pdlvAdr);
-
-    console.log(data.getJsonRow(index.dataRow));
   };
 });
 
