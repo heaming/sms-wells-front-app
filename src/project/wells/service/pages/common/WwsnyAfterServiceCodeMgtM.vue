@@ -25,8 +25,6 @@
             v-model="searchParams.pdGrpCd"
             :options="codes.PD_GRP_CD"
             first-option="all"
-            option-label="codeName"
-            option-value="codeId"
           />
         </kw-search-item>
         <!--상품명-->
@@ -35,7 +33,7 @@
             v-model="searchParams.pdCd"
             :options="pds"
             first-option="all"
-            first-option-label="- 전체 -"
+            :first-option-label="$t('MSG_TXT_ALL')"
             option-label="cdNm"
             option-value="cd"
           />
@@ -48,8 +46,6 @@
             v-model="searchParams.svTpCd"
             :options="codes.SV_TP_CD"
             first-option="all"
-            option-label="codeName"
-            option-value="codeId"
           />
         </kw-search-item>
         <!--AS위치-->
@@ -58,8 +54,6 @@
             v-model="searchParams.asLctCd"
             :options="codes.AS_LCT_CD"
             first-option="all"
-            option-label="codeName"
-            option-value="codeId"
           />
         </kw-search-item>
         <!--적용일자-->
@@ -268,8 +262,6 @@ const initGrdMain = defineGrid((data, view) => {
   data.setFields(fields);
   view.setColumns(columns);
   view.checkBar.visible = true;
-
-  view.displayOptions.emptyMessage = t('MSG_ALT_NO_INFO_SRCH');
 
   view.onCellItemClicked = async (g, { column, itemIndex }) => {
     console.log(g, column, itemIndex);
