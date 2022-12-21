@@ -3,8 +3,8 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : SNY (기준정보)
-2. 프로그램 ID : W-SV-U-0016M01 AS 코드관리
-3. 작성자 : gs.piit122
+2. 프로그램 ID : WwsnyAfterServiceCodeMgtM - AS 코드관리(W-SV-U-0016M01 )
+3. 작성자 : gs.piit122 김동엽
 4. 작성일 : 2022.11.08
 ****************************************************************************************************
 * 프로그램 설명
@@ -31,9 +31,9 @@
         <kw-search-item :label="$t('MSG_TXT_PD_NM')">
           <kw-select
             v-model="searchParams.pdCd"
+            :first-option-label="$t('MSG_TXT_ALL')"
             :options="pds"
             first-option="all"
-            :first-option-label="$t('MSG_TXT_ALL')"
             option-label="cdNm"
             option-value="cd"
           />
@@ -147,6 +147,7 @@ const codes = await codeUtil.getMultiCodes(
   'SITE_AW_ATC_CD', // SB23
   'SV_BIZ_DCLSF_CD', // BA04
 );
+console.log(codes);
 const codesYn = [{ code: '1', name: t('MSG_TXT_APPLY_DT') }];
 const pds = await getLcStockSt101tb();
 // -------------------------------------------------------------------------------------------------
@@ -191,8 +192,7 @@ const initGrdMain = defineGrid((data, view) => {
       fieldName: 'svTpCd',
       header: t('MSG_TXT_SV_TP'),
       width: '30',
-      lookupDisplay: true,
-      lookupData: codes.SV_TP_CD.map((x) => ({ value: x.codeId ? x.codeId : '', label: x.codeName ? x.codeName : '' })),
+      options: codes.SV_TP_CD,
       styleName: 'text-center',
     },
     { fieldName: 'asLctCd', header: t('MSG_TXT_CODE_ID'), width: '50', styleName: 'text-center' },
@@ -200,24 +200,21 @@ const initGrdMain = defineGrid((data, view) => {
       fieldName: 'asLctNm',
       header: t('MSG_TXT_CODE_NAME'),
       width: '100',
-      lookupDisplay: true,
-      lookupData: codes.AS_LCT_CD.map((x) => ({ value: x.codeId ? x.codeId : '', label: x.codeName ? x.codeName : '' })),
+      options: codes.AS_LCT_CD,
     },
     { fieldName: 'asPhnCd', header: t('MSG_TXT_CODE_ID'), width: '30', styleName: 'text-center' },
     {
       fieldName: 'asPhnNm',
       header: t('MSG_TXT_CODE_NAME'),
       width: '100',
-      lookupDisplay: true,
-      lookupData: codes.AS_PHN_CD.map((x) => ({ value: x.codeId ? x.codeId : '', label: x.codeName ? x.codeName : '' })),
+      options: codes.AS_PHN_CD,
     },
     { fieldName: 'asCausCd', header: t('MSG_TXT_CODE_ID'), width: '30', styleName: 'text-center' },
     {
       fieldName: 'asCausNm',
       header: t('MSG_TXT_CODE_NAME'),
       width: '100',
-      lookupDisplay: true,
-      lookupData: codes.AS_CAUS_CD.map((x) => ({ value: x.codeId ? x.codeId : '', label: x.codeName ? x.codeName : '' })),
+      options: codes.AS_CAUS_CD,
     },
     {
       fieldName: 'siteAwAtcCd',
@@ -229,8 +226,7 @@ const initGrdMain = defineGrid((data, view) => {
       fieldName: 'siteAwAtcNm',
       header: t('MSG_TXT_CODE_NAME'),
       width: '50',
-      lookupDisplay: true,
-      lookupData: codes.SITE_AW_ATC_CD.map((x) => ({ value: x.codeId ? x.codeId : '', label: x.codeName ? x.codeName : '' })),
+      options: codes.SITE_AW_ATC_CD,
     },
     { fieldName: 'fuleyAwAmt', header: t('MSG_TXT_FULEY_AW_AMT'), width: '80' },
     {
@@ -243,8 +239,7 @@ const initGrdMain = defineGrid((data, view) => {
       fieldName: 'svAnaHclsfNm',
       header: t('MSG_TXT_CODE_NAME'),
       width: '100',
-      lookupDisplay: true,
-      lookupData: codes.SV_BIZ_DCLSF_CD.map((x) => ({ value: x.codeId ? x.codeId : '', label: x.codeName ? x.codeName : '' })),
+      options: codes.SV_BIZ_DCLSF_CD,
     },
   ];
 
