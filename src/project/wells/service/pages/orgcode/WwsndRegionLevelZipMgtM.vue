@@ -335,7 +335,7 @@ const initGrdMain = defineGrid((data, view) => {
   view.onGetEditValue = async (grid, index, editResult) => {
     grid.checkItem(index.itemIndex, true);
 
-    const { placeOfDeliveries: pdlvs } = cachedZips[index.itemIndex];
+    const { placeOfDeliveries: pdlvs } = cachedZips[index.dataRow];
     const { pdlvNo, pdlvAdr } = pdlvs.find((v) => v.pdlvNm === editResult.value);
 
     grid.setValue(index.dataRow, index.fieldName, editResult.value);
