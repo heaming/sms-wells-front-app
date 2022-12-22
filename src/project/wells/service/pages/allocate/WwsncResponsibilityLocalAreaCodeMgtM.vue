@@ -251,7 +251,7 @@ async function fetchData() {
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(products);
   view.resetCurrent();
-  if (pagingResult.totalCount === 0) { notify(t('MSG_ALT_NO_INFO_SRCH')); }
+  if (pagingResult.totalCount === 0) { await notify(t('MSG_ALT_NO_INFO_SRCH')); }
 }
 
 async function onClickSearch() {
