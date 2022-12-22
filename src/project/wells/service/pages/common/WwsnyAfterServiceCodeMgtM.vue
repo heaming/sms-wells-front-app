@@ -31,7 +31,6 @@
         <kw-search-item :label="$t('MSG_TXT_PD_NM')">
           <kw-select
             v-model="searchParams.pdCd"
-            :first-option-label="$t('MSG_TXT_ALL')"
             :options="pds"
             first-option="all"
             option-label="cdNm"
