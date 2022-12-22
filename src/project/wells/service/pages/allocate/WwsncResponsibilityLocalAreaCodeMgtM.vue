@@ -3,8 +3,8 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : SNC (배정관리)
-2. 프로그램 ID : W-SV-U-0035M01 - 책임지역 지역코드 관리
-3. 작성자 : gs.piit129
+2. 프로그램 ID : WwsncResponsibilityLocalAreaCodeMgtM - 책임지역 지역코드 관리
+3. 작성자 : yeonghwa.cheon
 4. 작성일 : 2022.11.16
 ****************************************************************************************************
 * 프로그램 설명
@@ -144,7 +144,7 @@
           icon="download_on"
           dense
           secondary
-          :disable="(pageInfo.totalCount === 0)"
+          :disable="pageInfo.totalCount === 0"
           :label="$t('MSG_BTN_EXCEL_DOWN')"
           @click="onClickExcelDownload"
         />
@@ -182,14 +182,10 @@ import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
 import smsCommon from '~sms-wells/service/composables/useSnCode';
 
-// -------------------------------------------------------------------------------------------------
-// Function & Event
-// -------------------------------------------------------------------------------------------------
 const { t } = useI18n();
 const dataService = useDataService();
 const { getConfig } = useMeta();
-const grdMainRef = ref(getComponentType('KwGrid'));
-const now = dayjs();
+
 const {
   getDistricts,
   getServiceCenters,
@@ -201,6 +197,13 @@ const {
   // confirm,
   notify,
 } = useGlobal();
+
+// -------------------------------------------------------------------------------------------------
+// Function & Event
+// -------------------------------------------------------------------------------------------------
+
+const grdMainRef = ref(getComponentType('KwGrid'));
+const now = dayjs();
 
 /* 공통코드 가져오기(임시) */
 const svcCode = await getServiceCenters();
