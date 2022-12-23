@@ -54,7 +54,7 @@
 
         <kw-search-item :label="$t('MSG_TXT_EPNO')">
           <kw-input
-            v-model="searchParams.epNo"
+            v-model="searchParams.wareMngtPrtnrNo"
             type="text"
           />
         </kw-search-item>
@@ -158,7 +158,7 @@ const searchParams = ref({
   wareDv: '',
   codeUseYn: '',
   wareLocaraCd: '', // 창고지역코드
-  epNo: '',
+  wareMngtPrtnrNo: '',
 });
 
 const totalCount = ref(0);
@@ -198,18 +198,30 @@ async function fetchData() {
   const res = await dataService.get('/sms/wells/service/warehouse-og', { params: cachedParams });
   const wareOg = res.data;
   totalCount.value = wareOg.length;
-  console.log(res);
-  console.log(wareOg);
 
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(wareOg);
   view.resetCurrent();
+  if (totalCount.value === 0) {
+    await notify(t('MSG_ALT_NO_INFO_SRCH'));
+  }
 }
 
 async function onClickSearch() {
   pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
+}
+
+async function onClickExcelDownload() {
+  const view = grdMainRef.value.getView();
+
+  const res = await dataService.get('/sms/wells/service/warehouse-og/excel-download', { params: cachedParams });
+  await gridUtil.exportView(view, {
+    fileName: 'warehouseOgList',
+    timePostfix: true,
+    exportData: res.data,
+  });
 }
 
 async function onClickWareOgCrdovr() {
