@@ -3,13 +3,13 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : SNC (배정관리)
-2. 프로그램 ID : W-SV-U-0228M01 총 관리고객 집계
-3. 작성자 : gs.piit122
+2. 프로그램 ID : WwsncTotalManagementCustomerAgrgListM - 총 관리고객 집계 (W-SV-U-0228M01)
+3. 작성자 : gs.piit122 김동엽
 4. 작성일 : 2022-12-06
 ****************************************************************************************************
 * 프로그램 설명
 ****************************************************************************************************
-- AS코드관리 (http://localhost:3000/#/service/wwsnc-total-management-customer-agrg-list)
+- 총 관리고객 집계 (http://localhost:3000/#/service/wwsnc-total-management-customer-agrg-list)
 ****************************************************************************************************
 -->
 <template>
@@ -33,10 +33,7 @@
             v-model="searchParams.pdGdCd"
             :label="$t('MSG_TXT_PD_GRD')"
             :options="codes.PD_GD_CD"
-            option-label="codeName"
-            option-value="codeId"
             rules="required"
-            @update:model-value="onUpdate"
           />
         </kw-search-item>
         <kw-search-item :label="$t('MSG_TXT_PRDT')">
@@ -44,8 +41,6 @@
             v-model="searchParams.pdCd"
             :options="productCode"
             first-option="all"
-            option-label="codeName"
-            option-value="codeId"
           />
         </kw-search-item>
       </kw-search-row>
@@ -65,23 +60,21 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import {
-  stringUtil,
-  codeUtil,
-  defineGrid,
-  getComponentType,
-  useDataService,
-} from 'kw-lib';
+import { stringUtil, codeUtil, defineGrid, getComponentType, useDataService } from 'kw-lib';
 import dayjs from 'dayjs';
-import { isEmpty, cloneDeep } from 'lodash-es';
+import { cloneDeep } from 'lodash-es';
 import smsCommon from '~sms-wells/service/composables/useSnCode';
 
 const { t } = useI18n();
-const grdMainRef = ref(getComponentType('KwGrid'));
-let cachedParams;
 const dataService = useDataService();
 
 const { getMcbyCstSvOjIz } = smsCommon();
+
+// -------------------------------------------------------------------------------------------------
+// Function & Event
+// -------------------------------------------------------------------------------------------------
+const grdMainRef = ref(getComponentType('KwGrid'));
+let cachedParams;
 const searchParams = ref({
   pdGdCd: 'A',
   pdCd: '',
@@ -93,26 +86,24 @@ const codes = await codeUtil.getMultiCodes(
 );
 const productCode = ref();
 productCode.value = await getMcbyCstSvOjIz(searchParams.value.year, searchParams.value.pdGdCd);
-// -------------------------------------------------------------------------------------------------
-// Function & Event
-// -------------------------------------------------------------------------------------------------
-async function onUpdate() {
-  if (!isEmpty(searchParams.value.year) && !isEmpty(searchParams.value.pdGdCd)) {
-    productCode.value = await getMcbyCstSvOjIz(searchParams.value.year, searchParams.value.pdGdCd);
-  }
-}
+
+watch(() => [searchParams.value.year, searchParams.value.pdGdCd], async () => {
+  productCode.value = await getMcbyCstSvOjIz(searchParams.value.year, searchParams.value.pdGdCd);
+}, { immediate: true });
 
 async function fetchData() {
   const res = await dataService.get('/sms/wells/service/total-customers', { params: { ...cachedParams } });
   const view = grdMainRef.value.getView();
   let tcntTotal = 0;
-  res.data.forEach((item) => {
+
+  const totalCustomers = res.data;
+  totalCustomers.forEach((item) => {
     tcntTotal += item.tcnt;
   });
-  res.data.forEach((item, idx) => {
-    res.data[idx].per = ((item.tcnt / tcntTotal) * 100).toFixed(2);
+  totalCustomers.forEach((item, idx) => {
+    totalCustomers[idx].per = ((item.tcnt / tcntTotal) * 100).toFixed(2);
   });
-  view.getDataSource().setRows(res.data);
+  view.getDataSource().setRows(totalCustomers);
   view.resetCurrent();
 }
 
@@ -264,7 +255,6 @@ const initGrdMain = defineGrid((data, view) => {
   });
   view.rowIndicator.visible = false; // create number indicator column
   view.editOptions.editable = false; // Grid Editable On
-  view.displayOptions.emptyMessage = t('MSG_ALT_NO_INFO_SRCH');
   view.setOptions({ summaryMode: 'statistical' });
 });
 </script>
