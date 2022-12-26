@@ -9,7 +9,7 @@
  ****************************************************************************************************
  * 프로그램 설명
  ****************************************************************************************************
- - 유상 AS 출장비 관리 (http://localhost:3000/#/service/recap-as-bstr-cost)
+ - 유상 AS 출장비 관리 (http://localhost:3000/#/service/recap-as-bstr-costs)
  ****************************************************************************************************
 -->
 <template>
@@ -111,7 +111,8 @@ const codes = await codeUtil.getMultiCodes(
 const pds = await getLcStockSt101tb();
 
 async function fetchData() {
-  const res = await dataService.get('/sms/wells/service/recap-as-bstr-cost/paging', { params: { ...cachedParams, ...pageInfo.value } });
+  const res = await dataService.get('/sms/wells/service/recap-as-bstr-costs/paging', { params: {
+    ...cachedParams, ...pageInfo.value } });
   const { list: products, pageInfo: pagingResult } = res.data;
   pageInfo.value = pagingResult;
   const view = grdMainRef.value.getView();
@@ -144,7 +145,7 @@ async function onClickSave() {
     item.oldVlEndDtm = oldData.vlEndDtm;
     item.oldRmkCn = oldData.rmkCn;
   });
-  await dataService.put('/sms/wells/service/recap-as-bstr-cost', modifedData);
+  await dataService.put('/sms/wells/service/recap-as-bstr-costs', modifedData);
   await notify(t('MSG_ALT_SAVE_DATA'));
   await fetchData();
 }
