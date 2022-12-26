@@ -3,7 +3,7 @@
  * 프로그램 개요
  ****************************************************************************************************
  1. 모듈 : SNY (기준정보)
- 2. 프로그램 ID : W-SV-U-0101M01 유상 AS 출장비 관리
+ 2. 프로그램 ID : WwsnyRecapitalizationAsBstrCostMgtM 유상 AS 출장비 관리 (W-SV-U-0101M01)
  3. 작성자 : gs.piit122
  4. 작성일 : 2022.11.18
  ****************************************************************************************************
@@ -24,7 +24,6 @@
             v-model="searchParams.pdCd"
             :options="pds"
             first-option="all"
-            first-option-label="- 전체 -"
             option-label="cdNm"
             option-value="cd"
           />
@@ -83,15 +82,19 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import smsCommon from '~sms-wells/service/composables/useSnCode';
-import { confirm, notify, gridUtil, defineGrid, useMeta, codeUtil, getComponentType, useDataService } from 'kw-lib';
+import { notify, gridUtil, defineGrid, useMeta, codeUtil, getComponentType, useDataService } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
+import smsCommon from '~sms-wells/service/composables/useSnCode';
 
 const { getLcStockSt101tb } = smsCommon();
 
 const { t } = useI18n();
 const { getConfig } = useMeta();
 const dataService = useDataService();
+
+// -------------------------------------------------------------------------------------------------
+// Function & Event
+// -------------------------------------------------------------------------------------------------
 const grdMainRef = ref(getComponentType('KwGrid'));
 let cachedParams;
 const searchParams = ref({
@@ -106,9 +109,7 @@ const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
 );
 const pds = await getLcStockSt101tb();
-// -------------------------------------------------------------------------------------------------
-// Function & Event
-// -------------------------------------------------------------------------------------------------
+
 async function fetchData() {
   const res = await dataService.get('/sms/wells/service/recap-as-bstr-cost/paging', { params: { ...cachedParams, ...pageInfo.value } });
   const { list: products, pageInfo: pagingResult } = res.data;
@@ -136,7 +137,6 @@ async function onClickSave() {
   const view = grdMainRef.value.getView();
   if (await gridUtil.alertIfIsNotModified(view)) { return; }
   if (!await gridUtil.validate(view)) { return; }
-  if (!await confirm(t('MSG_ALT_WANT_SAVE'))) { return; }
   const modifedData = gridUtil.getChangedRowValues(view);
   modifedData.forEach((item) => {
     const oldData = gridUtil.getOrigRowValue(view, item.dataRow);
@@ -167,8 +167,7 @@ const initGrdMain = defineGrid((data, view) => {
       width: '150',
       styleName: 'text-left',
       editor: { type: 'dropdown' },
-      lookupDisplay: true,
-      lookupData: pds.map((x) => ({ value: x.cd ? x.cd : '', label: x.cdNm ? x.cdNm : '' })),
+      options: pds.map((x) => ({ codeId: x.cd ? x.cd : '', codeName: x.cdNm ? x.cdNm : '' })),
       rules: 'required',
     },
     /* 출장비용금액 */
@@ -185,27 +184,29 @@ const initGrdMain = defineGrid((data, view) => {
       width: '50',
       styleName: 'text-center',
       editor: { type: 'date' },
-      rules: 'required' },
+      rules: 'required',
+    },
     /* 유효종료일시 */
     { fieldName: 'vlEndDtm',
       header: t('MSG_TXT_APY_ENDDT'),
       width: '50',
       styleName: 'text-center',
       editor: { type: 'date' },
-      rules: 'required' },
+      rules: 'required',
+    },
     /* 비고내용 */
     { fieldName: 'rmkCn',
       header: t('MSG_TXT_NOTE'),
       width: '350',
       styleName: 'text-left',
-      editor: { maxLength: 1000 } },
+      editor: { maxLength: 1000 },
+    },
   ];
 
   data.setFields(fields);
   view.setColumns(columns);
   view.checkBar.visible = true;
 
-  view.displayOptions.emptyMessage = t('MSG_ALT_NO_INFO_SRCH');
   view.setEditOptions({
     editable: true,
     updatable: true,
