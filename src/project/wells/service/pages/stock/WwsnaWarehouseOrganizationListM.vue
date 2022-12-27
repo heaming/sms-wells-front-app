@@ -3,8 +3,8 @@
  * 프로그램 개요
  ***************************************************************************************************
  1. 모듈 : SNA (재고관리)
- 2. 프로그램 ID : W-SV-U-0138M01 - 창고조직 관리
- 3. 작성자 : gs.piit58/송태성
+ 2. 프로그램 ID : WwsnaWarehouseOrganizationListM - 창고조직 관리
+ 3. 작성자 : taesung.Song
  4. 작성일 : 2022.12.01
  ***************************************************************************************************
  * 프로그램 설명
@@ -30,7 +30,6 @@
             v-model="searchParams.wareDv"
             :options="codes.WARE_DV_CD"
             first-option="all"
-            first-option-label="전체"
           />
         </kw-search-item>
 
@@ -125,14 +124,14 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useMeta, codeUtil, useGlobal, useDataService, getComponentType, gridUtil } from 'kw-lib';
+import { codeUtil, useGlobal, useDataService, getComponentType, gridUtil } from 'kw-lib';
 import dayjs from 'dayjs';
 import { cloneDeep } from 'lodash-es';
 
 const { t } = useI18n();
 
-const { getConfig } = useMeta();
-const { modal, alert, notify, confirm } = useGlobal();
+// const { getConfig } = useMeta();
+const { modal, alert, notify } = useGlobal();
 // const store = useStore();
 
 const emit = defineEmits([
@@ -168,12 +167,6 @@ const totalCount = ref(0);
 //   userId: store.getters['meta/getUserInfo'].userName,
 // });
 
-const pageInfo = ref({
-  totalCount: 0,
-  pageIndex: 1,
-  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
-});
-
 async function onClickCarriedOver() {
   const res = await dataService.get('/sms/wells/service/warehouse-og/carried-over', { params: { baseYm: searchParams.value.baseYm } });
 
@@ -187,11 +180,11 @@ async function onClickCarriedOver() {
 
   console.log(searchParams.value.baseYm);
 
-  if (await confirm(t('MSG_ALT_IS_SAV_DATA'))) {
-    await dataService.post('/sms/wells/service/warehouse-og', { baseYm: searchParams.value.baseYm });
-    await notify(t('MSG_ALT_CRDOVR_WK_FSH'));
-    emit('reloadPages');
-  }
+  // if (await confirm(t('MSG_ALT_IS_SAV_DATA'))) {
+  await dataService.post('/sms/wells/service/warehouse-og', { baseYm: searchParams.value.baseYm });
+  await notify(t('MSG_ALT_CRDOVR_WK_FSH'));
+  emit('reloadPages');
+  // }
 }
 
 async function fetchData() {
@@ -208,7 +201,6 @@ async function fetchData() {
 }
 
 async function onClickSearch() {
-  pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
 }
