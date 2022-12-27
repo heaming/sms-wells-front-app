@@ -168,7 +168,7 @@ const totalCount = ref(0);
 // });
 
 async function onClickCarriedOver() {
-  const res = await dataService.get('/sms/wells/service/warehouse-og/carried-over', { params: { baseYm: searchParams.value.baseYm } });
+  const res = await dataService.get('/sms/wells/service/warehouse-organizations/carried-over', { params: { baseYm: searchParams.value.baseYm } });
 
   console.log(res);
   console.log(res.data);
@@ -181,14 +181,14 @@ async function onClickCarriedOver() {
   console.log(searchParams.value.baseYm);
 
   // if (await confirm(t('MSG_ALT_IS_SAV_DATA'))) {
-  await dataService.post('/sms/wells/service/warehouse-og', { baseYm: searchParams.value.baseYm });
+  await dataService.post('/sms/wells/service/warehouse-organizations', { baseYm: searchParams.value.baseYm });
   await notify(t('MSG_ALT_CRDOVR_WK_FSH'));
   emit('reloadPages');
   // }
 }
 
 async function fetchData() {
-  const res = await dataService.get('/sms/wells/service/warehouse-og', { params: cachedParams });
+  const res = await dataService.get('/sms/wells/service/warehouse-organizations', { params: cachedParams });
   const wareOg = res.data;
   totalCount.value = wareOg.length;
 
@@ -208,7 +208,7 @@ async function onClickSearch() {
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
 
-  const res = await dataService.get('/sms/wells/service/warehouse-og/excel-download', { params: cachedParams });
+  const res = await dataService.get('/sms/wells/service/warehouse-organizations/excel-download', { params: cachedParams });
   await gridUtil.exportView(view, {
     fileName: 'warehouseOgList',
     timePostfix: true,
