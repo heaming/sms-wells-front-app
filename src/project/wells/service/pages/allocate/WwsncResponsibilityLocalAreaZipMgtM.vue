@@ -174,7 +174,7 @@ const ctctys = ref((await getDistricts('guAll')).map((v) => ({ ctcty: v.ctctyNm,
 const cachedCtctys = cloneDeep(ctctys.value);
 
 async function fetchData() {
-  const res = await dataService.get('/sms/wells/service/responsibility-local-areas/zip-nos/paging', { params: { ...cachedParams, ...pageInfo.value } });
+  const res = await dataService.get('/sms/wells/service/responsible-areas/zip-nos/paging', { params: { ...cachedParams, ...pageInfo.value } });
   const { list: zips, pageInfo: pagingResult } = res.data;
   pageInfo.value = pagingResult;
 
@@ -196,7 +196,7 @@ async function onClickSearch() {
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
 
-  const res = await dataService.get('/sms/wells/service/responsibility-local-areas/zip-nos/excel-download', { params: cachedParams });
+  const res = await dataService.get('/sms/wells/service/responsible-areas/zip-nos/excel-download', { params: cachedParams });
   await gridUtil.exportView(view, {
     fileName: 'rpbLocaraZipList',
     timePostfix: true,
@@ -227,7 +227,7 @@ async function onClickSave() {
       return { ...v, lawcEmdNm: mngtAmtds[0], amtdNm: mngtAmtds[1] };
     });
 
-    await dataService.post('/sms/wells/service/responsibility-local-areas/zip-nos', changedRows);
+    await dataService.post('/sms/wells/service/responsible-areas/zip-nos', changedRows);
 
     await notify(t('MSG_ALT_SAVE_DATA'));
     await fetchData();
@@ -236,7 +236,7 @@ async function onClickSave() {
 
 let districts;
 async function fetchBaseData() {
-  const res = await dataService.get('sms/wells/service/responsibility-local-areas/districts');
+  const res = await dataService.get('sms/wells/service/responsible-areas/districts');
   districts = res.data;
 }
 
