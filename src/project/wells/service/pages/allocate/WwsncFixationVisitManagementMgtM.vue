@@ -160,7 +160,7 @@ const pageInfo = ref({
  */
 let cachedParams;
 async function getFixationRegistrationPages() {
-  const res = await dataService.get('/sms/wells/service/fixation-visit/paging?', { params: { ...cachedParams, ...pageInfo.value } });
+  const res = await dataService.get('/sms/wells/service/fixation-visit/paging', { params: { ...cachedParams, ...pageInfo.value } });
   const { list: fixationVisits, pageInfo: pagingResult } = res.data;
 
   pageInfo.value = pagingResult;
