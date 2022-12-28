@@ -27,7 +27,6 @@
             v-model="searchParams.fxnPrtnrDvCd"
             :options="codes.MNGR_DV_CD"
             first-option="all"
-            first-option-value=""
           />
         </kw-search-item>
         <kw-search-item :label="'판매유형'">
@@ -35,7 +34,6 @@
             v-model="searchParams.sellTpCd"
             :options="codes.SELL_TP_CD"
             first-option="all"
-            first-option-value=""
           />
         </kw-search-item>
         <kw-search-item :label="'총괄단'">
@@ -158,14 +156,10 @@ const pageInfo = ref({
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 /*
- *  Search - 우편번호 조회
+ *  Search - 고정방문 관리 조회
  */
 let cachedParams;
-async function getFixationRegistrationPages(targetPage) {
-  if (targetPage === 1) {
-    pageInfo.value.pageIndex = 1;
-  }
-
+async function getFixationRegistrationPages() {
   const res = await dataService.get('/sms/wells/service/fixation-visit/paging?', { params: { ...cachedParams, ...pageInfo.value } });
   const { list: fixationVisits, pageInfo: pagingResult } = res.data;
 
@@ -180,8 +174,9 @@ async function getFixationRegistrationPages(targetPage) {
  *  Event - 조회 버튼 클릭
  */
 async function onClickSearch() {
+  pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
-  await getFixationRegistrationPages(1);
+  await getFixationRegistrationPages();
 }
 
 /*
