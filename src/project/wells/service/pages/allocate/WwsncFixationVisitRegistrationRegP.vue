@@ -14,7 +14,7 @@
 --->
 <template>
   <kw-popup
-    class="kw-popup--2xl"
+    size="2xl"
   >
     <kw-search
       one-row
@@ -137,7 +137,7 @@
         <kw-form-item
           :label="$t('활동중지일')"
         >
-          <p>{{ getDateFormat(contractInfo.rsgnDt) }}</p>
+          <p>{{ stringUtil.getDateFormat(contractInfo.rsgnDt) }}</p>
         </kw-form-item>
       </kw-form-row>
     </kw-form>
@@ -187,7 +187,7 @@
         <kw-form-item :label="$t('삭제여부')">
           <kw-select
             v-model="contractInfo.dtaDlYn"
-            :options="['Y', 'N']"
+            :options="codes.COD_YN"
           />
         </kw-form-item>
       </kw-form-row>
@@ -229,7 +229,7 @@ import { codeUtil, useModal, useGlobal, useDataService, stringUtil } from 'kw-li
 import { cloneDeep, isEmpty } from 'lodash-es';
 
 const { t } = useI18n();
-const { confirm, alert } = useGlobal();
+const { confirm, notify } = useGlobal();
 const { ok, cancel: onClickCancel } = useModal();
 const dataService = useDataService();
 
@@ -257,6 +257,7 @@ const codes = await codeUtil.getMultiCodes(
   'MNGR_DV_CD', // 관리구분
   // 'PD_USWY_CD', // 용도
   'FXN_MNGER_DSN_DV_CD', // 변경구분
+  'COD_YN',
 );
 
 // -------------------------------------------------------------------------------------------------
@@ -268,7 +269,7 @@ const codes = await codeUtil.getMultiCodes(
  */
 let cachedParams;
 async function fetchFixationRegistration() {
-  const res = await dataService.get('/sms/wells/service/fixation-visit?', { params: { ...cachedParams } });
+  const res = await dataService.get('/sms/wells/service/fixation-visit', { params: { ...cachedParams } });
   contractInfo.value = res.data;
 }
 
@@ -295,14 +296,6 @@ function getAddress(rnadr, rdadr) {
 }
 
 /*
- *  Format - Date
- */
-function getDateFormat(date) {
-  date = date ?? '';
-  return stringUtil.getDateFormat(date, 'YYYY-MM-DD');
-}
-
-/*
  *  Event - 저장 버튼 클릭
  */
 async function onClickSave() {
@@ -310,7 +303,7 @@ async function onClickSave() {
 
   await dataService.post('/sms/wells/service/fixation-visit', contractInfo.value);
 
-  await alert(t('MSG_ALT_SAVE_DATA'));
+  await notify(t('MSG_ALT_SAVE_DATA'));
   ok();
 }
 
