@@ -244,7 +244,7 @@ async function changeSido() {
 }
 
 async function fetchData() {
-  const res = await dataService.get('/sms/wells/service/responsible-areas/area-code/paging', { params: { ...cachedParams, ...pageInfo.value } });
+  const res = await dataService.get('/sms/wells/service/responsible-areas/area-codes/paging', { params: { ...cachedParams, ...pageInfo.value } });
   const { list: products, pageInfo: pagingResult } = res.data;
   pageInfo.value = pagingResult;
   const view = grdMainRef.value.getView();
@@ -262,7 +262,7 @@ async function onClickSearch() {
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
 
-  const response = await dataService.get('/sms/wells/service/responsible-areas/area-code/excel-download', { params: cachedParams });
+  const response = await dataService.get('/sms/wells/service/responsible-areas/area-codes/excel-download', { params: cachedParams });
 
   await gridUtil.exportView(view, {
     fileName: 'ResponsibleAreaCode',
