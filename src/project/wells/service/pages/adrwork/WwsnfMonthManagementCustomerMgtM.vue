@@ -55,7 +55,7 @@
 import dayjs from 'dayjs';
 import { useDataService, useGlobal } from 'kw-lib';
 
-const { confirm, notify } = useGlobal();
+const { confirm } = useGlobal();
 const { t } = useI18n();
 
 const dataService = useDataService();
@@ -86,7 +86,7 @@ const customCodes = {
 async function onClickCreate() {
   if (!await confirm(t('MSG_ALT_IS_CRT_DATA'))) { return; }
   await dataService.post('/sms/wells/service/month-management', searchParams.value);
-  await notify(t('MSG_ALT_CREATED'));
+  // await notify(t('MSG_ALT_CREATED'));
 }
 
 /*
@@ -95,7 +95,7 @@ async function onClickCreate() {
 async function onClickDelete() {
   if (!await confirm(t('MSG_ALT_DEL'))) { return; }
   await dataService.delete('/sms/wells/service/month-management', { data: searchParams.value });
-  await notify(t('MSG_ALT_DELETED'));
+  // await notify(t('MSG_ALT_DELETED'));
 }
 
 // -------------------------------------------------------------------------------------------------
