@@ -1,5 +1,5 @@
 <template>
-  <kw-page class="kw-page--md">
+  <kw-page size="md">
     <template #header />
 
     <div class="normal-area normal-area--button-set-bottom">
@@ -58,7 +58,7 @@ import dayjs from 'dayjs';
 import { useDataService, useGlobal } from 'kw-lib';
 
 const { t } = useI18n();
-const { confirm, notify } = useGlobal();
+const { confirm } = useGlobal();
 
 const dataService = useDataService();
 
@@ -93,7 +93,7 @@ const customCodes = {
 async function onClickCreate() {
   if (!await confirm(t('MSG_ALT_IS_CRT_DATA'))) { return; }
   await dataService.post('/sms/wells/service/regular-bs-object', searchParams.value);
-  await notify(t('MSG_ALT_CREATED'));
+  // await notify(t('MSG_ALT_CREATED'));
 }
 
 // -------------------------------------------------------------------------------------------------
