@@ -3,8 +3,8 @@
  * 프로그램 개요
  ****************************************************************************************************
  1. 모듈 : SNC (배정관리)
- 2. 프로그램 ID : W-SV-U-0036M01 - 책임지역 우편번호 관리
- 3. 작성자 : gs.piit130
+ 2. 프로그램 ID : WwsncResponsibleAreaZipMgtM - 책임지역 우편번호 관리
+ 3. 작성자 : hyewon.kim
  4. 작성일 : 2022.11.17
  ****************************************************************************************************
  * 프로그램 설명
@@ -174,7 +174,7 @@ const ctctys = ref((await getDistricts('guAll')).map((v) => ({ ctcty: v.ctctyNm,
 const cachedCtctys = cloneDeep(ctctys.value);
 
 async function fetchData() {
-  const res = await dataService.get('/sms/wells/service/responsible-area-zipnos/paging', { params: { ...cachedParams, ...pageInfo.value } });
+  const res = await dataService.get('/sms/wells/service/responsible-areas/zip-nos/paging', { params: { ...cachedParams, ...pageInfo.value } });
   const { list: zips, pageInfo: pagingResult } = res.data;
   pageInfo.value = pagingResult;
 
@@ -196,7 +196,7 @@ async function onClickSearch() {
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
 
-  const res = await dataService.get('/sms/wells/service/responsible-area-zipnos/excel-download', { params: cachedParams });
+  const res = await dataService.get('/sms/wells/service/responsible-areas/zip-nos/excel-download', { params: cachedParams });
   await gridUtil.exportView(view, {
     fileName: 'rpbLocaraZipList',
     timePostfix: true,
@@ -227,7 +227,7 @@ async function onClickSave() {
       return { ...v, lawcEmdNm: mngtAmtds[0], amtdNm: mngtAmtds[1] };
     });
 
-    await dataService.post('/sms/wells/service/responsible-area-zipnos', changedRows);
+    await dataService.post('/sms/wells/service/responsible-areas/zip-nos', changedRows);
 
     await notify(t('MSG_ALT_SAVE_DATA'));
     await fetchData();
@@ -236,7 +236,7 @@ async function onClickSave() {
 
 let districts;
 async function fetchBaseData() {
-  const res = await dataService.get('sms/wells/service/responsible-area-zipnos/districts');
+  const res = await dataService.get('sms/wells/service/responsible-areas/districts');
   districts = res.data;
 }
 
@@ -335,6 +335,7 @@ const initGrdMain = defineGrid((data, view) => {
 
   data.setFields(fields);
   view.setColumns(columns);
+  view.setFixedOptions({ colCount: 1 });
 
   view.checkBar.visible = true;
   view.setCheckableCallback(() => false);
