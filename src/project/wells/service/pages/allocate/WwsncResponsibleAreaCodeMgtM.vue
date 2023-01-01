@@ -3,7 +3,7 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : SNC (배정관리)
-2. 프로그램 ID : WwsncResponsibilityLocalAreaCodeMgtM - 책임지역 지역코드 관리
+2. 프로그램 ID : WwsncResponsibleAreaCodeMgtM - 책임지역 지역코드 관리
 3. 작성자 : yeonghwa.cheon
 4. 작성일 : 2022.11.16
 ****************************************************************************************************
@@ -189,6 +189,7 @@ const { getConfig } = useMeta();
 const {
   getDistricts,
   getServiceCenters,
+  getLgldCtpvLocaras,
 } = smsCommon();
 
 const {
@@ -211,9 +212,7 @@ const svcCode = await getServiceCenters();
 const sido = await getDistricts('sido');
 const sigungu = ref((await getDistricts('guAll')).map((v) => ({ sgg: v.ctctyNm, sggNm: v.ctctyNm })));
 
-// const locaraCds = ref(await getDistricts('prbLocaraCd'));
-const locaraCds = '';
-
+const locaraCds = ref(await getLgldCtpvLocaras());
 let cachedParams;
 const codes = await codeUtil.getMultiCodes(
   'WK_GRP_CD',
@@ -245,7 +244,7 @@ async function changeSido() {
 }
 
 async function fetchData() {
-  const res = await dataService.get('/sms/wells/service/responsible-area-codes/paging', { params: { ...cachedParams, ...pageInfo.value } });
+  const res = await dataService.get('/sms/wells/service/responsible-areas/area-codes/paging', { params: { ...cachedParams, ...pageInfo.value } });
   const { list: products, pageInfo: pagingResult } = res.data;
   pageInfo.value = pagingResult;
   const view = grdMainRef.value.getView();
@@ -263,7 +262,7 @@ async function onClickSearch() {
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
 
-  const response = await dataService.get('/sms/wells/service/responsible-area-codes/excel-download', { params: cachedParams });
+  const response = await dataService.get('/sms/wells/service/responsible-areas/area-codes/excel-download', { params: cachedParams });
 
   await gridUtil.exportView(view, {
     fileName: 'ResponsibleAreaCode',
@@ -276,18 +275,14 @@ async function onClickExcelDownload() {
 async function onClickSave() {
   const view = grdMainRef.value.getView();
   const chkRows = gridUtil.getCheckedRowValues(view);
-  console.log(searchParams.value.wrkGrpCd);
   if (chkRows.length === 0) {
     await notify(t('MSG_ALT_NOT_SEL_ITEM'));
+  } else {
+    await dataService.post('/sms/wells/service/responsible-areas/area-codes', chkRows);
   }
-  // await dataService.post('/sms/wells/service/rpb-locara-cd-mngt/createRpbLocaraCdMngt', chkRows);
 
-  // if (await gridUtil.alertIfIsNotModified(view)) { }
-  // if (!await gridUtil.validate(view)) { }
-  // if (!await confirm(t('MSG_ALT_WANT_SAVE'))) { }
-
-  //  await notify(t('MSG_ALT_SAVE_DATA'));
-  // await fetchData();
+  await notify(t('MSG_ALT_SAVE_DATA'));
+  await fetchData();
 }
 
 // -------------------------------------------------------------------------------------------------
@@ -295,6 +290,7 @@ async function onClickSave() {
 // -------------------------------------------------------------------------------------------------
 const initGrdMain = defineGrid((data, view) => {
   const fields = [
+    { fieldName: 'fr2pLgldCd' },
     { fieldName: 'newAdrZip' },
     { fieldName: 'mgtCnt' },
     { fieldName: 'wrkCnt' },
@@ -324,37 +320,33 @@ const initGrdMain = defineGrid((data, view) => {
       fieldName: 'mgtCnt',
       header: t('MSG_TXT_SV_ACC'),
       width: '100',
-      styleName: 'text-center',
+      styleName: 'text-right',
     },
     {
       fieldName: 'wrkCnt',
       header: t('MSG_TXT_MLMN_ACTCS'),
       width: '100',
-      styleName: 'text-center',
+      styleName: 'text-right',
     },
     {
       fieldName: 'ctpvNm',
       header: t('MSG_TXT_CTPV_NM'),
       width: '150',
-      styleName: 'text-center',
     },
     {
       fieldName: 'ctctyNm',
       header: t('MSG_TXT_CTCTY_NM'),
       width: '150',
-      styleName: 'text-center',
     },
     {
       fieldName: 'lawcEmdNm',
       header: t('MSG_TXT_EMD_NM'),
       width: '150',
-      styleName: 'text-center',
     },
     {
       fieldName: 'amtdNm',
       header: t('MSG_TXT_AMTD_NM'),
       width: '150',
-      styleName: 'text-center',
     },
     {
       fieldName: 'rpbLocaraCd',
@@ -371,16 +363,16 @@ const initGrdMain = defineGrid((data, view) => {
       editable: true,
       styleCallback: (grid, dataCell) => {
         const ctpvNm = grid.getValue(dataCell.index.itemIndex, 'ctpvNm');
-        const prbLocaraCd = locaraCds.value
-          .filter((v) => v.tryNm === ctpvNm)
-          .map((v) => v.prbLocaraCd)
+        const rpbLocaraCd = locaraCds.value
+          .filter((v) => v.ctpvNm === ctpvNm)
+          .map((v) => v.rpbLocaraCd)
           .reduce((a, v) => (a.includes(v) ? a : [...a, v]), []);
-        return { editor: { type: 'list', labels: prbLocaraCd, values: prbLocaraCd } };
+        return { editor: { type: 'list', labels: rpbLocaraCd, values: rpbLocaraCd } };
       },
     },
     {
       fieldName: 'apyStrtdt',
-      header: t('MSG_TXT_APY_STRT_D'),
+      header: t('MSG_TXT_APY_STRT_DAY'),
       width: '120',
       styleName: 'text-center',
       editable: true,
@@ -404,7 +396,6 @@ const initGrdMain = defineGrid((data, view) => {
       fieldName: 'ogNm',
       header: t('MSG_TXT_SRVC_CNTR'),
       width: '100',
-      styleName: 'text-center',
     },
     {
       fieldName: 'ichrPrtnrNo',
@@ -416,13 +407,11 @@ const initGrdMain = defineGrid((data, view) => {
       fieldName: 'prtnrKnm',
       header: t('MSG_TXT_RPB_ICHR_NM'),
       width: '100',
-      styleName: 'text-center',
     },
     {
       fieldName: 'vstDowVal',
       header: t('MSG_TXT_VST_DOW'),
       width: '100',
-      styleName: 'text-center',
     },
   ];
 
