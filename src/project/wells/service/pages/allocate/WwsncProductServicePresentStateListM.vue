@@ -43,6 +43,7 @@
             v-model="searchParams.pdCd"
             :options="subCodes"
             first-option="all"
+            :label="$t('MSG_TXT_PD_GRP')"
           />
         </kw-search-item>
       </kw-search-row>
@@ -75,6 +76,7 @@ import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
 import useSnCode from '~sms-wells/service/composables/useSnCode';
 
+const { t } = useI18n();
 const dataService = useDataService();
 
 const { getLcStockSt101tb } = useSnCode();
@@ -100,14 +102,50 @@ const codes = await codeUtil.getMultiCodes(
 );
 
 async function fetchData() {
-  console.log(2);
   const res = await dataService.get(
     '/sms/wells/service/as-assign-state/product-service-states',
     { params: { ...cachedParams } },
   );
-
   const view = grdMainRef.value.getView();
-  view.getDataSource().setRows(res.data);
+  // let tcntTotal = 0;
+  let totalSum = 0;
+  let rowSum = 0;
+
+  const totalCustomers = res.data;
+  totalCustomers.forEach((item) => {
+    totalSum += item.acol1;
+    totalSum += item.acol2;
+    totalSum += item.acol3;
+    totalSum += item.acol4;
+    totalSum += item.acol5;
+    totalSum += item.acol6;
+    totalSum += item.acol7;
+    totalSum += item.acol8;
+    totalSum += item.acol9;
+    totalSum += item.acol10;
+    totalSum += item.acol11;
+    totalSum += item.acol12;
+  });
+  console.log(totalSum);
+  totalCustomers.forEach((item, idx) => {
+    rowSum = 0;
+    rowSum += item.acol1;
+    rowSum += item.acol2;
+    rowSum += item.acol3;
+    rowSum += item.acol4;
+    rowSum += item.acol5;
+    rowSum += item.acol6;
+    rowSum += item.acol7;
+    rowSum += item.acol8;
+    rowSum += item.acol9;
+    rowSum += item.acol10;
+    rowSum += item.acol11;
+    rowSum += item.acol12;
+    totalCustomers[idx].totalCount = rowSum;
+    totalCustomers[idx].per = ((rowSum / totalSum) * 100).toFixed(2);
+  });
+  view.getDataSource().setRows(totalCustomers);
+
   view.resetCurrent();
 }
 
@@ -121,42 +159,133 @@ async function onClickSearch() {
 // -------------------------------------------------------------------------------------------------
 const initGrdMain = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'acol1' },
-    { fieldName: 'acol2' },
-    { fieldName: 'acol3' },
-    { fieldName: 'acol4' },
-    { fieldName: 'acol5' },
-    { fieldName: 'acol6' },
-    { fieldName: 'acol7' },
-    { fieldName: 'acol8' },
-    { fieldName: 'acol9' },
-    { fieldName: 'acol10' },
-    { fieldName: 'acol11' },
-    { fieldName: 'acol12' },
-    { fieldName: 'totalCount' },
-    { fieldName: 'svBizHclsfCd' },
+    { fieldName: 'acol1', dataType: 'number' },
+    { fieldName: 'acol2', dataType: 'number' },
+    { fieldName: 'acol3', dataType: 'number' },
+    { fieldName: 'acol4', dataType: 'number' },
+    { fieldName: 'acol5', dataType: 'number' },
+    { fieldName: 'acol6', dataType: 'number' },
+    { fieldName: 'acol7', dataType: 'number' },
+    { fieldName: 'acol8', dataType: 'number' },
+    { fieldName: 'acol9', dataType: 'number' },
+    { fieldName: 'acol10', dataType: 'number' },
+    { fieldName: 'acol11', dataType: 'number' },
+    { fieldName: 'acol12', dataType: 'number' },
+    { fieldName: 'totalCount', dataType: 'number' },
+    { fieldName: 'per', dataType: 'number' },
     { fieldName: 'wkExcnDt' },
+    { fieldName: 'svBizHclsfNm' },
   ];
   const columns = [
-    { fieldName: 'acol1', header: 'undefined', width: '100', styleName: 'text-left' },
-    { fieldName: 'acol2', header: 'undefined', width: '100', styleName: 'text-left' },
-    { fieldName: 'acol3', header: 'undefined', width: '100', styleName: 'text-left' },
-    { fieldName: 'acol4', header: 'undefined', width: '100', styleName: 'text-left' },
-    { fieldName: 'acol5', header: 'undefined', width: '100', styleName: 'text-left' },
-    { fieldName: 'acol6', header: 'undefined', width: '100', styleName: 'text-left' },
-    { fieldName: 'acol7', header: 'undefined', width: '100', styleName: 'text-left' },
-    { fieldName: 'acol8', header: 'undefined', width: '100', styleName: 'text-left' },
-    { fieldName: 'acol9', header: 'undefined', width: '100', styleName: 'text-left' },
-    { fieldName: 'acol10', header: 'undefined', width: '100', styleName: 'text-left' },
-    { fieldName: 'acol11', header: 'undefined', width: '100', styleName: 'text-left' },
-    { fieldName: 'acol12', header: 'undefined', width: '100', styleName: 'text-left' },
-    { fieldName: 'totalCount', header: 'undefined', width: '100', styleName: 'text-left' },
-    { fieldName: 'svBizHclsfCd', header: '서비스업무대분류코드', width: '100', styleName: 'text-left' },
-    { fieldName: 'wkExcnDt', header: '기준년도', width: '100', styleName: 'text-left' },
+    { fieldName: 'wkExcnDt',
+      header: t('MSG_TXT_BASE_YEAR'),
+      width: '50',
+      styleName: 'text-center',
+      mergeRule: {
+        criteria: 'value',
+      } },
+    { fieldName: 'svBizHclsfNm',
+      header: t('MSG_TXT_PD_GRP'),
+      width: '100',
+      styleName: 'text-left',
+      footer: {
+        text: t('MSG_TXT_SUM'),
+      } },
+    { fieldName: 'totalCount',
+      header: t('MSG_TXT_SUM'),
+      width: '50',
+      styleName: 'text-right',
+      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
+    { fieldName: 'per',
+      header: '비율(%)',
+      width: '50',
+      styleName: 'text-right',
+      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
+    { fieldName: 'acol1',
+      header: `1${t('MSG_TXT_MON')}`,
+      width: '50',
+      styleName: 'text-right',
+      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
+    { fieldName: 'acol2',
+      header: `2${t('MSG_TXT_MON')}`,
+      width: '50',
+      styleName: 'text-right',
+      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
+    { fieldName: 'acol3',
+      header: `3${t('MSG_TXT_MON')}`,
+      width: '50',
+      styleName: 'text-right',
+      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
+    { fieldName: 'acol4',
+      header: `4${t('MSG_TXT_MON')}`,
+      width: '50',
+      styleName: 'text-right',
+      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
+    { fieldName: 'acol5',
+      header: `5${t('MSG_TXT_MON')}`,
+      width: '50',
+      styleName: 'text-right',
+      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
+    { fieldName: 'acol6',
+      header: `6${t('MSG_TXT_MON')}`,
+      width: '50',
+      styleName: 'text-right',
+      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
+    { fieldName: 'acol7',
+      header: `7${t('MSG_TXT_MON')}`,
+      width: '50',
+      styleName: 'text-right',
+      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
+    { fieldName: 'acol8',
+      header: `8${t('MSG_TXT_MON')}`,
+      width: '50',
+      styleName: 'text-right',
+      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
+    { fieldName: 'acol9',
+      header: `9${t('MSG_TXT_MON')}`,
+      width: '50',
+      styleName: 'text-right',
+      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
+    { fieldName: 'acol10',
+      header: `10${t('MSG_TXT_MON')}`,
+      width: '50',
+      styleName: 'text-right',
+      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
+    { fieldName: 'acol11',
+      header: `11${t('MSG_TXT_MON')}`,
+      width: '50',
+      styleName: 'text-right',
+      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
+    { fieldName: 'acol12',
+      header: `12${t('MSG_TXT_MON')}`,
+      width: '50',
+      styleName: 'text-right',
+      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
   ];
-
+  const columnLayout = [
+    { direction: 'horizontal', items: ['wkExcnDt', 'svBizHclsfNm', 'totalCount'], header: { text: t('MSG_TXT_SUM') } },
+    'per',
+    'acol1',
+    'acol2',
+    'acol3',
+    'acol4',
+    'acol5',
+    'acol6',
+    'acol7',
+    'acol8',
+    'acol9',
+    'acol10',
+    'acol11',
+    'acol12',
+  ];
+  view.setFooters({
+    visible: true,
+    items: [{ height: 30 }],
+  });
+  view.setColumnLayout(columnLayout);
   data.setFields(fields);
   view.setColumns(columns);
+  view.setOptions({ summaryMode: 'statistical' });
 });
 
 </script>
