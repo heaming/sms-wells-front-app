@@ -22,28 +22,28 @@
         <kw-search-item :label="$t('MSG_TXT_BASE_YEAR')">
           <kw-date-picker
             v-model="searchParams.wkExcnDt"
-            type="year"
             :label="$t('MSG_TXT_BASE_YEAR')"
+            type="year"
           />
         </kw-search-item>
         <kw-search-item :label="$t('MSG_TXT_LOCARA_MNGT_DV_CD')">
           <kw-select
             v-model="searchParams.mngrDvCd"
-            :options="codes.LOCARA_MNGT_DV_CD"
             :label="$t('MSG_TXT_LOCARA_MNGT_DV_CD')"
+            :options="codes.LOCARA_MNGT_DV_CD"
           />
         </kw-search-item>
         <kw-search-item :label="$t('MSG_TXT_PD_GRP')">
           <kw-select
             v-model="searchParams.pdPrpVal20"
-            :options="codes.PD_GRP_CD"
             :label="$t('MSG_TXT_PD_GRP')"
+            :options="codes.PD_GRP_CD"
           />
           <kw-select
             v-model="searchParams.pdCd"
+            :label="$t('MSG_TXT_PD_GRP')"
             :options="subCodes"
             first-option="all"
-            :label="$t('MSG_TXT_PD_GRP')"
           />
         </kw-search-item>
       </kw-search-row>
@@ -52,15 +52,24 @@
       <h3>{{ $t('MSG_TXT_SRCH_RSLT') }}</h3>
       <kw-action-top>
         <kw-btn
+          :disable="pageInfo.totalCount === 0"
           :label="$t('MSG_BTN_PRTG')"
           dense
           icon="print"
           secondary
         />
+        <kw-btn
+          :disable="pageInfo.totalCount === 0"
+          :label="$t('MSG_BTN_EXCEL_DOWN')"
+          dense
+          icon="download_on"
+          secondary
+          @click="onClickExcelDownload"
+        />
       </kw-action-top>
       <kw-grid
         ref="grdMainRef"
-        :visible-rows="10"
+        :visible-rows="pageInfo.pageSize"
         @init="initGrdMain"
       />
     </div>
@@ -71,13 +80,15 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, defineGrid, getComponentType, useDataService } from 'kw-lib';
+import { codeUtil, defineGrid, getComponentType, gridUtil, useDataService, useMeta } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
 import useSnCode from '~sms-wells/service/composables/useSnCode';
 
 const { t } = useI18n();
 const dataService = useDataService();
+
+const { getConfig } = useMeta();
 
 const { getLcStockSt101tb } = useSnCode();
 
@@ -95,24 +106,23 @@ const searchParams = ref({
   pdCd: '',
 });
 
+const pageInfo = ref({
+  totalCount: 0,
+  pageIndex: 1,
+  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
+});
+
 const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
   'LOCARA_MNGT_DV_CD',
   'PD_GRP_CD',
 );
 
-async function fetchData() {
-  const res = await dataService.get(
-    '/sms/wells/service/as-assign-state/product-service-states',
-    { params: { ...cachedParams } },
-  );
-  const view = grdMainRef.value.getView();
-  // let tcntTotal = 0;
+function calcData(data) {
   let totalSum = 0;
   let rowSum = 0;
 
-  const totalCustomers = res.data;
-  totalCustomers.forEach((item) => {
+  data.forEach((item) => {
     totalSum += item.acol1;
     totalSum += item.acol2;
     totalSum += item.acol3;
@@ -126,8 +136,7 @@ async function fetchData() {
     totalSum += item.acol11;
     totalSum += item.acol12;
   });
-  console.log(totalSum);
-  totalCustomers.forEach((item, idx) => {
+  data.forEach((item, idx) => {
     rowSum = 0;
     rowSum += item.acol1;
     rowSum += item.acol2;
@@ -141,9 +150,20 @@ async function fetchData() {
     rowSum += item.acol10;
     rowSum += item.acol11;
     rowSum += item.acol12;
-    totalCustomers[idx].totalCount = rowSum;
-    totalCustomers[idx].per = ((rowSum / totalSum) * 100).toFixed(2);
+    data[idx].totalCount = rowSum;
+    data[idx].per = ((rowSum / totalSum) * 100).toFixed(2);
   });
+  return data;
+}
+
+async function fetchData() {
+  const res = await dataService.get(
+    '/sms/wells/service/as-assign-state/product-service-states',
+    { params: { ...cachedParams } },
+  );
+  const view = grdMainRef.value.getView();
+  const totalCustomers = calcData(res.data);
+  pageInfo.value.totalCount = totalCustomers.length;
   view.getDataSource().setRows(totalCustomers);
 
   view.resetCurrent();
@@ -154,6 +174,15 @@ async function onClickSearch() {
   await fetchData();
 }
 
+async function onClickExcelDownload() {
+  const view = grdMainRef.value.getView();
+  const res = await dataService.get('/sms/wells/service/as-assign-state/product-service-states', { params: cachedParams });
+  await gridUtil.exportView(view, {
+    fileName: 'productServiceStates',
+    timePostfix: true,
+    exportData: calcData(res.data),
+  });
+}
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
@@ -181,16 +210,12 @@ const initGrdMain = defineGrid((data, view) => {
       header: t('MSG_TXT_BASE_YEAR'),
       width: '50',
       styleName: 'text-center',
-      mergeRule: {
-        criteria: 'value',
-      } },
+      mergeRule: { criteria: 'value' } },
     { fieldName: 'svBizHclsfNm',
       header: t('MSG_TXT_PD_GRP'),
       width: '100',
       styleName: 'text-left',
-      footer: {
-        text: t('MSG_TXT_SUM'),
-      } },
+      footer: { text: t('MSG_TXT_SUM') } },
     { fieldName: 'totalCount',
       header: t('MSG_TXT_SUM'),
       width: '50',
