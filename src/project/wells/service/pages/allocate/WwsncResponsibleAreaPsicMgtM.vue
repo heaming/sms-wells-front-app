@@ -238,7 +238,6 @@ const codes = await codeUtil.getMultiCodes(
 
 const serviceCenter = await getServiceCenterOrgs();
 const { G_ONLY_ENG: engineers } = await getWorkingEngineers();
-console.log(engineers);
 
 const ctpvs = ref((await getDistricts('sido')).map((v) => ({ ctpv: v.ctpvNm, ctpvNm: v.ctpvNm, ctpvCd: v.fr2pLgldCd })));
 const ctctys = ref((await getDistricts('guAll')).map((v) => ({ ctcty: v.ctctyNm, ctctyNm: v.ctctyNm })));
@@ -314,8 +313,7 @@ async function validateApplyDate() {
 function setPersonInChargeCellData(view, row, value, column) {
   const matchedEngineer = engineers.find((v) => v.codeId === value);
   if (matchedEngineer) {
-    const { codeNm, ogCd, ogNm } = matchedEngineer;
-    console.log(`codeNm: ${codeNm}, ogCd: ${ogCd}, ogNm: ${ogNm}`);
+    const { codeNm, ogNm } = matchedEngineer;
     view.setValue(row, `${column[0]}`, ogNm);
     view.setValue(row, `${column[1]}`, codeNm);
   }
@@ -327,7 +325,6 @@ async function onClickEmpNoBulkApply() {
   if (await validateIsApplyRowExists() === false) return;
 
   const view = grdMainRef.value.getView();
-  console.log(view.getCheckedItems());
 
   for (let i = 0; i < view.getItemCount(); i += 1) {
     setPersonInChargeCellData(view, i, baseInfo.value.ichrPrtnrNo, ['ogNm', 'prtnrKnm']);
@@ -340,7 +337,6 @@ async function onClickApplyDateBulkApply() {
   if (await validateIsApplyRowExists() === false) return;
 
   const view = grdMainRef.value.getView();
-  console.log(view.getCheckedItems());
 
   for (let i = 0; i < view.getItemCount(); i += 1) {
     view.setValue(i, 'apyStrtdt', baseInfo.value.applyDateFrom);
@@ -361,9 +357,10 @@ async function onClickSave() {
       return matchedEngineer === null;
     });
 
-    console.log(notMatched);
-
-    // TODO: notMatched에 값이 있는 경우 책임사번을 확인하시기 바랍니다.
+    if (notMatched) {
+      await notify(t('MSG_TXT_RPB_EMPNO_CONF'));
+      return;
+    }
 
     await dataService.post('/sms/wells/service/responsible-areas/person-in-charges', changedRows);
 
