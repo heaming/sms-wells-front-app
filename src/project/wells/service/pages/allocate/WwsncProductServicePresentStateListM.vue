@@ -197,7 +197,7 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-right',
       footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
     { fieldName: 'per',
-      header: '비율(%)',
+      header: `${t('MSG_TXT_RAT')}(%)`,
       width: '50',
       styleName: 'text-right',
       footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },

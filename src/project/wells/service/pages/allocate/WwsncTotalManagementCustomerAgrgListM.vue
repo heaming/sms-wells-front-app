@@ -137,7 +137,7 @@ const initGrdMain = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'yyyy', header: '년도', width: '50', styleName: 'text-center' },
     { fieldName: 'typNm',
-      header: '구분명',
+      header: t('MSG_TXT_DV_NM'),
       width: '100',
       styleName: 'text-center',
       footer: {
@@ -221,7 +221,7 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-right',
       footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
     { fieldName: 'per',
-      header: '비율(%)',
+      header: `${t('MSG_TXT_RAT')}(%)`,
       width: '50',
       styleName: 'text-right',
       footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
