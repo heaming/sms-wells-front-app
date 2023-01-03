@@ -25,14 +25,14 @@
             v-model="searchParams.zipFrom"
             type="text"
             maxlength="3"
-            :regex="/^[0-9]*$/i"
+            regex="num"
           />
           <span>~</span>
           <kw-input
             v-model="searchParams.zipTo"
             type="text"
             maxlength="3"
-            :regex="/^[0-9]*$/i"
+            regex="num"
           />
         </kw-search-item>
         <!-- 광역시/도 -->
@@ -86,14 +86,14 @@
             v-model="searchParams.rpbLocaraCdFrom"
             type="text"
             maxlength="4"
-            :regex="/^[0-9A-Za-z]*$/i"
+            regex="alpha_num"
           />
           <span>~</span>
           <kw-input
             v-model="searchParams.rpbLocaraCdTo"
             type="text"
             maxlength="4"
-            :regex="/^[0-9A-Za-z]*$/i"
+            regex="alpha_num"
           />
         </kw-search-item>
       </kw-search-row>
