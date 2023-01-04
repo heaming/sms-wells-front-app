@@ -24,15 +24,13 @@
           <kw-input
             v-model="searchParams.zipFrom"
             type="text"
-            maxlength="3"
-            regex="num"
+            mask="###"
           />
           <span>~</span>
           <kw-input
             v-model="searchParams.zipTo"
             type="text"
-            maxlength="3"
-            regex="num"
+            mask="###"
           />
         </kw-search-item>
         <!-- 광역시/도 -->
@@ -85,15 +83,13 @@
           <kw-input
             v-model="searchParams.rpbLocaraCdFrom"
             type="text"
-            maxlength="4"
-            regex="alpha_num"
+            mask="NNNN"
           />
           <span>~</span>
           <kw-input
             v-model="searchParams.rpbLocaraCdTo"
             type="text"
-            maxlength="4"
-            regex="alpha_num"
+            mask="NNNN"
           />
         </kw-search-item>
       </kw-search-row>
@@ -140,9 +136,7 @@
         <kw-input
           v-model="baseInfo.ichrPrtnrNo"
           dense
-          type="text"
-          maxlength="5"
-          :regex="/^[0-9]*$/i"
+          mask="#####"
         />
         <kw-btn
           dense
@@ -220,7 +214,7 @@ const searchParams = ref({
 const baseInfo = ref({
   ichrPrtnrNo: '',
   applyDateFrom: '',
-  applyDateTo: '',
+  applyDateTo: '99991231',
 });
 
 const pageInfo = ref({
@@ -251,10 +245,6 @@ async function fetchData() {
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(personInCharges);
   view.resetCurrent();
-
-  if (pageInfo.value.totalCount === 0) {
-    await notify(t('MSG_ALT_NO_INFO_SRCH'));
-  }
 }
 
 async function onClickSearch() {
@@ -283,31 +273,35 @@ async function onUpdateCtcty(val) {
   }
 }
 
-async function validateIsApplyRowExists() {
+function validateIsApplyRowExists() {
   const view = grdMainRef.value.getView();
   if (view.getCheckedItems().length === 0) {
-    await notify(t('MSG_ALT_NO_APPY_OBJ_DT'));
+    notify(t('MSG_ALT_NO_APPY_OBJ_DT'));
     return false;
   }
+  return true;
 }
 
-async function validateIchrPrtnrNo() {
+function validateIchrPrtnrNo() {
   if (baseInfo.value.ichrPrtnrNo === '') {
-    await notify(t('MSG_TXT_RPB_EMPNO_CONF'));
+    notify(t('MSG_TXT_RPB_EMPNO_CONF'));
     return false;
   }
+  return true;
 }
 
-async function validateApplyDate() {
+function validateApplyDate() {
   if (baseInfo.value.applyDateFrom === '') {
-    await notify(t('MSG_TXT_APY_DT_CONF'));
+    notify(t('MSG_TXT_APY_DT_CONF'));
     return false;
   }
 
   if (baseInfo.value.applyDateTo === '') {
-    await notify(t('MSG_TXT_APY_DT_CONF'));
+    notify(t('MSG_TXT_APY_DT_CONF'));
     return false;
   }
+
+  return true;
 }
 
 function setPersonInChargeCellData(view, row, value, column) {
@@ -315,56 +309,59 @@ function setPersonInChargeCellData(view, row, value, column) {
   if (matchedEngineer) {
     const { codeNm, ogNm } = matchedEngineer;
     view.setValue(row, `${column[0]}`, ogNm);
-    view.setValue(row, `${column[1]}`, codeNm);
+    view.setValue(row, `${column[1]}`, value);
+    view.setValue(row, `${column[2]}`, codeNm);
   }
 }
 
 // 책임사번 일괄입력
-async function onClickEmpNoBulkApply() {
-  if (await validateIchrPrtnrNo() === false) return;
-  if (await validateIsApplyRowExists() === false) return;
+function onClickEmpNoBulkApply() {
+  if (!validateIchrPrtnrNo()) return;
+  if (!validateIsApplyRowExists()) return;
 
   const view = grdMainRef.value.getView();
+  const checkedRows = gridUtil.getCheckedRowValues(view);
 
-  for (let i = 0; i < view.getItemCount(); i += 1) {
-    setPersonInChargeCellData(view, i, baseInfo.value.ichrPrtnrNo, ['ogNm', 'prtnrKnm']);
+  for (let i = 0; i < checkedRows.length; i += 1) {
+    setPersonInChargeCellData(view, checkedRows[i].dataRow, baseInfo.value.ichrPrtnrNo, ['ogNm', 'ichrPrtnrNo', 'prtnrKnm']);
   }
 }
 
 // 적용일자 일괄입력
 async function onClickApplyDateBulkApply() {
-  if (await validateApplyDate() === false) return;
-  if (await validateIsApplyRowExists() === false) return;
+  if (!validateApplyDate()) return;
+  if (!validateIsApplyRowExists()) return;
 
   const view = grdMainRef.value.getView();
+  const checkedRows = gridUtil.getCheckedRowValues(view);
 
-  for (let i = 0; i < view.getItemCount(); i += 1) {
-    view.setValue(i, 'apyStrtdt', baseInfo.value.applyDateFrom);
-    view.setValue(i, 'apyEnddt', baseInfo.value.applyDateTo);
+  for (let i = 0; i < checkedRows.length; i += 1) {
+    view.setValue(checkedRows[i].dataRow, 'apyStrtdt', baseInfo.value.applyDateFrom);
+    view.setValue(checkedRows[i].dataRow, 'apyEnddt', baseInfo.value.applyDateTo);
   }
 }
 
 async function onClickSave() {
-  if (await validateIsApplyRowExists() === false) return;
+  if (!validateIsApplyRowExists()) return;
 
   const view = grdMainRef.value.getView();
 
   if (!await gridUtil.alertIfIsNotModified(view)) {
     const changedRows = gridUtil.getChangedRowValues(view);
 
-    const notMatched = changedRows.find((v) => {
+    const isNotMatched = changedRows.find((v) => {
       const matchedEngineer = engineers.find((x) => x.codeId === v.ichrPrtnrNo);
       return matchedEngineer === null;
     });
 
-    if (notMatched) {
-      await notify(t('MSG_TXT_RPB_EMPNO_CONF'));
+    if (isNotMatched) {
+      notify(t('MSG_TXT_RPB_EMPNO_CONF'));
       return;
     }
 
     await dataService.post('/sms/wells/service/responsible-areas/person-in-charges', changedRows);
 
-    await notify(t('MSG_ALT_SAVE_DATA'));
+    notify(t('MSG_ALT_SAVE_DATA'));
     await fetchData();
   }
 }
@@ -404,20 +401,20 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'rpbLocaraGrpCd' },
     { fieldName: 'vstDowValNm' },
     { fieldName: 'vstDowVal' },
-    { fieldName: 'izSn' },
+    { fieldName: 'izSn', dataType: 'number' },
     { fieldName: 'rstrCndtUseYn' },
     { fieldName: 'udsnUseYn' },
-    { fieldName: 'mmtAvLdtm' },
+    { fieldName: 'mmtAvLdtm', dataType: 'number' },
     { fieldName: 'locaraCenStruAdr' },
   ];
 
   const codeYn = codes.COD_YN.map((v) => v.codeId);
   const columns = [
-    { fieldName: 'zipList', header: t('MSG_TXT_ZIP'), width: '100', styleName: 'text-left' },
+    { fieldName: 'zipList', header: t('MSG_TXT_ZIP'), width: '100', styleName: 'text-center' },
     { fieldName: 'hemdList', header: t('MSG_TXT_LAWC_ADM'), width: '150' },
-    { fieldName: 'mgtCnt', header: t('MSG_TXT_SV_ACC'), width: '100', styleName: 'text-left' },
-    { fieldName: 'wrkCnt', header: t('MSG_TXT_MLMN_ACTCS'), width: '100', styleName: 'text-left' },
-    { fieldName: 'rpbLocaraCd', header: t('MSG_TXT_LOCARA_CD'), width: '100', styleName: 'text-left' },
+    { fieldName: 'mgtCnt', header: t('MSG_TXT_SV_ACC'), width: '100', styleName: 'text-right' },
+    { fieldName: 'wrkCnt', header: t('MSG_TXT_MLMN_ACTCS'), width: '100', styleName: 'text-right' },
+    { fieldName: 'rpbLocaraCd', header: t('MSG_TXT_LOCARA_CD'), width: '100', styleName: 'text-center' },
     { fieldName: 'w1W3SatWrkYn',
       header: t('MSG_TXT_SAT_IST_LOCARA'),
       width: '110',
@@ -427,17 +424,17 @@ const initGrdMain = defineGrid((data, view) => {
     },
     { fieldName: 'apyStrtdt',
       header: t('MSG_TXT_APY_STRT_DAY'),
-      width: '100',
-      styleName: 'text-right',
-      datetimeFormat: 'yyyy-MM-dd',
+      width: '120',
+      styleName: 'text-center',
+      datetimeFormat: 'date',
       editable: true,
       editor: { type: 'btdate' },
     },
     { fieldName: 'apyEnddt',
       header: t('MSG_TXT_APY_END_DAY'),
-      width: '100',
-      styleName: 'text-right',
-      datetimeFormat: 'yyyy-MM-dd',
+      width: '120',
+      styleName: 'text-center',
+      datetimeFormat: 'date',
       editable: true,
       editor: { type: 'btdate' },
     },
@@ -445,8 +442,7 @@ const initGrdMain = defineGrid((data, view) => {
       header: t('MSG_TXT_WK_GRP'),
       width: '100',
       styleName: 'text-center',
-      lookupDisplay: true,
-      lookupData: { value: 'codeId', label: 'codeName', list: codes.WK_GRP_CD },
+      options: codes.WK_GRP_CD,
     },
     { fieldName: 'ogNm', header: t('MSG_TXT_CENTER_DIVISION'), width: '99' },
     { fieldName: 'ichrPrtnrNo',
@@ -474,11 +470,10 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'rpbLocaraGrpCd', header: t('MSG_TXT_LOCARA_GRP_CD'), width: '99', styleName: 'text-center' },
     { fieldName: 'vstDowVal',
       header: t('MSG_TXT_VST_DOW'),
-      width: '99',
+      width: '130',
       editable: true,
-      editor: { type: 'dropdown' },
-      lookupDisplay: true,
-      lookupData: { value: 'codeId', label: 'codeName', list: codes.LOCARA_VST_PRD_CD },
+      editor: { type: 'list' },
+      options: codes.LOCARA_VST_PRD_CD,
     },
   ];
 
@@ -521,7 +516,6 @@ const initGrdMain = defineGrid((data, view) => {
   view.setFixedOptions({ colCount: 1 });
 
   view.checkBar.visible = true;
-  view.setCheckableCallback(() => false);
   view.rowIndicator.visible = true;
   view.editOptions.columnEditableFirst = true;
 
@@ -532,10 +526,10 @@ const initGrdMain = defineGrid((data, view) => {
     const matchedIndex = index.column.search(regExp);
 
     if (matchedIndex === 0) { // 책임담당사번
-      setPersonInChargeCellData(grid, index.dataRow, editResult.value, ['ogNm', 'prtnrKnm']);
+      setPersonInChargeCellData(grid, index.dataRow, editResult.value, ['ogNm', 'ichrPrtnrNo', 'prtnrKnm']);
     } else if (matchedIndex > 0) { // 예비담당사번
       const columnSlices = index.column.split(regExp);
-      const column = [`ogNm${columnSlices[1]}`, `pprnIchrPrtnrKnm${columnSlices[1]}`];
+      const column = [`ogNm${columnSlices[1]}`, `pprnIchrPrtnrNo4${columnSlices[1]}`, `pprnIchrPrtnrKnm${columnSlices[1]}`];
 
       setPersonInChargeCellData(grid, index.dataRow, editResult.value, column);
     }
