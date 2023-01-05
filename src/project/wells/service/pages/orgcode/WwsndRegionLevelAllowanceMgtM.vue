@@ -370,14 +370,13 @@ function onClickMovementBulkApply() {
   }
 
   const view = grdMovementLevelRef.value.getView();
-  const count = view.getItemCount();
+  const rowCount = view.getItemCount();
 
-  for (let i = 0; i < count; i += 1) {
-    const rglvlGdCd = gridUtil.getCellValue(view, i, 'rglvlGdCd'); // 급지등급코드
-    const mmtDstn = gridUtil.getCellValue(view, i, 'mmtDstn'); // 이동거리
-    const mmtLdtm = getMoveTime(view, i, rglvlGdCd, mmtDstn); // 이동시간
+  for (let dataRow = 0; dataRow < rowCount; dataRow += 1) {
+    const { rglvlGdCd, mmtDstn } = gridUtil.getRowValue(view, dataRow); // 급지등급코드, 이동거리
+    const mmtLdtm = getMoveTime(view, dataRow, rglvlGdCd, mmtDstn); // 이동시간
 
-    setAllowance(view, i, mmtLdtm);
+    setAllowance(view, dataRow, mmtLdtm);
   }
 }
 
@@ -388,10 +387,10 @@ function setApplyDates(view, type) {
   if (!validateOriginDate(type, applyDate)) return;
   if (!validateToday(applyDate)) return;
 
-  const count = view.getItemCount();
+  const rowCount = view.getItemCount();
 
-  for (let i = 0; i < count; i += 1) {
-    view.setValue(i, 'apyStrtdt', applyDate);
+  for (let dataRow = 0; dataRow < rowCount; dataRow += 1) {
+    view.setValue(dataRow, 'apyStrtdt', applyDate);
   }
 }
 
@@ -403,11 +402,11 @@ async function onClickMovementBulkApplyDate() {
 // 업무급지 - 분당공수, 급지비중, 급지공수
 function onClickBizBulkApply() {
   const view = grdBizLevelRef.value.getView();
-  const count = view.getItemCount();
+  const rowCount = view.getItemCount();
 
-  for (let i = 0; i < count; i += 1) {
-    const rglvlGdCd = gridUtil.getCellValue(view, i, 'rglvlGdCd'); // 급지등급코드
-    let mmtLdtm = gridUtil.getCellValue(view, i, 'mmtLdtm'); // 이동시간
+  for (let dataRow = 0; dataRow < rowCount; dataRow += 1) {
+    const rglvlGdCd = gridUtil.getCellValue(view, dataRow, 'rglvlGdCd'); // 급지등급코드
+    let mmtLdtm = gridUtil.getCellValue(view, dataRow, 'mmtLdtm'); // 이동시간
 
     if (rglvlGdCd === '24') {
       mmtLdtm = '260'; // [업무급지] 급지등급 24등급은 "섬"으로 이동시간 260으로 계산
@@ -419,7 +418,7 @@ function onClickBizBulkApply() {
     baseInfo.value.bizFieldAirlift = fieldAirlift;
 
     const rglvlAwAmt = Number(mmtLdtm) * fieldAirlift;
-    view.setValue(i, 'rglvlAwAmt', rglvlAwAmt);
+    view.setValue(dataRow, 'rglvlAwAmt', rglvlAwAmt);
   }
 }
 
@@ -450,10 +449,10 @@ async function onClickSearch() {
 }
 
 function validateApplyDate(view) {
-  const originapyStrtdt = gridUtil.getOrigCellValue(view, 0, 'apyStrtdt');
+  const originApyStrtdt = gridUtil.getOrigCellValue(view, 0, 'apyStrtdt');
   const apyStrtdt = gridUtil.getCellValue(view, 0, 'apyStrtdt');
 
-  if (originapyStrtdt === apyStrtdt) {
+  if (originApyStrtdt === apyStrtdt) {
     notify(t('MSG_ALT_APY_STRT_D_CH_NCST'));
     return false;
   }
@@ -504,8 +503,8 @@ const initGrdMovementLevel = defineGrid((data, view) => {
     { fieldName: 'rglvlGdCd' },
     { fieldName: 'mmtLdtm' },
     { fieldName: 'rglvlAwAmt', dataType: 'number' },
-    { fieldName: 'apyStrtdt', dataType: 'datetime' },
-    { fieldName: 'apyEnddt', dataType: 'datetime' },
+    { fieldName: 'apyStrtdt' },
+    { fieldName: 'apyEnddt' },
     { fieldName: 'fstRgstUsrId' },
     { fieldName: 'rgstNm' },
   ];
@@ -523,24 +522,14 @@ const initGrdMovementLevel = defineGrid((data, view) => {
         inputCharacters: '0-9',
       },
       styleName: 'text-right',
-      displayCallback: (grid, index, value) => {
-        if (value === '9999') {
-          return '섬';
-        }
-        return value;
-      },
+      displayCallback: (grid, index, value) => (value === '9999' ? '섬' : value),
     },
     { fieldName: 'rglvlGdCd', header: t('MSG_TXT_GD'), width: '100', suffix: ' 급지' },
     { fieldName: 'mmtLdtm',
       header: t('MSG_TXT_MMT_HH_M'),
       width: '100',
       styleName: 'text-right',
-      displayCallback: (grid, index, value) => {
-        if (value === '9999') {
-          return '섬';
-        }
-        return value;
-      },
+      displayCallback: (grid, index, value) => (value === '9999' ? '섬' : value),
     },
     { fieldName: 'rglvlAwAmt', header: t('MSG_TXT_RGLVL_AW_WON'), width: '100', styleName: 'text-right' },
     { fieldName: 'apyStrtdt',
@@ -598,8 +587,8 @@ const initGrdBizLevel = defineGrid((data, view) => {
     { fieldName: 'mmtLdtm' },
     { fieldName: 'rglvlGdCd' },
     { fieldName: 'rglvlAwAmt', dataType: 'number' },
-    { fieldName: 'apyStrtdt', dataType: 'datetime' },
-    { fieldName: 'apyEnddt', dataType: 'datetime' },
+    { fieldName: 'apyStrtdt' },
+    { fieldName: 'apyEnddt' },
     { fieldName: 'fstRgstUsrId' },
     { fieldName: 'rgstNm' },
   ];
@@ -624,14 +613,14 @@ const initGrdBizLevel = defineGrid((data, view) => {
       },
       width: '100',
       styleName: 'text-center',
-      datetimeFormat: 'yyyy-MM-dd' },
+      datetimeFormat: 'date' },
     { fieldName: 'apyEnddt',
       header: {
         text: t('MSG_TXT_APY_END_DAY'),
       },
       width: '100',
       styleName: 'text-center',
-      datetimeFormat: 'yyyy-MM-dd' },
+      datetimeFormat: 'date' },
     { fieldName: 'fstRgstUsrId', header: t('MSG_TXT_CH_EMPNO'), width: '100', styleName: 'text-center' },
     { fieldName: 'rgstNm', header: t('MSG_TXT_CH_FNM'), width: '100' },
   ];
