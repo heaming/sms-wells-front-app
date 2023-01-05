@@ -301,48 +301,48 @@ async function onClickSelect() {
 // TODO: 조직쪽 테이블 및 로직 확정되면 수정 필요
 const initGrdMain = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'col1' },
-    { fieldName: 'col2' },
-    { fieldName: 'col3' },
-    { fieldName: 'col4' },
-    { fieldName: 'col5' },
-    { fieldName: 'col6' },
-    { fieldName: 'col7' },
-    { fieldName: 'col8' },
-    { fieldName: 'col9' },
-    { fieldName: 'col10' },
+    { fieldName: 'cnrCd' },
+    { fieldName: 'cnrNm' },
+    { fieldName: 'empId' },
+    { fieldName: 'empNm' },
+    { fieldName: 'brchCd' },
+    { fieldName: 'brchNm' },
+    { fieldName: 'pstnDvCd' },
+    { fieldName: 'rolDvCd' },
+    { fieldName: 'entcoDt' },
+    { fieldName: 'rsgnDt' },
   ];
 
   const columns = [
-    { fieldName: 'col1', header: t('MSG_TXT_CODE'), width: '100', styleName: 'text-center' },
-    { fieldName: 'col2', header: t('MSG_TXT_SOMETHING_NAME', [t('MSG_TXT_CENTER_DIVISION')]), width: '250', styleName: 'text-left' },
-    { fieldName: 'col3', header: t('MSG_TXT_EPNO'), width: '150', styleName: 'text-center' },
-    { fieldName: 'col4', header: t('MSG_TXT_EMPL_NM'), width: '150', styleName: 'text-center' },
-    { fieldName: 'col5', header: t('MSG_TXT_CODE'), width: '100', styleName: 'text-center' },
-    { fieldName: 'col6', header: t('MSG_TXT_SOMETHING_NAME', [t('MSG_TXT_BRANCH')]), width: '250', styleName: 'text-left' },
-    { fieldName: 'col7', header: t('MSG_TXT_PSTN'), width: '117', styleName: 'text-center' },
-    { fieldName: 'col8', header: t('MSG_TXT_ROLE_1'), width: '150', styleName: 'text-center' },
-    { fieldName: 'col9', header: t('MSG_TXT_SOMETHING_DATE', [t('MSG_TXT_ENTCO')]), width: '150', styleName: 'text-center', datetimeFormat: 'YYYY-MM-DD' },
-    { fieldName: 'col10', header: t('MSG_TXT_SOMETHING_DATE', [t('MSG_TXT_RSGN')]), width: '150', styleName: 'text-center', datetimeFormat: 'YYYY-MM-DD' },
+    { fieldName: 'cnrCd', header: t('MSG_TXT_CODE'), width: '100', styleName: 'text-center' },
+    { fieldName: 'cnrNm', header: t('MSG_TXT_SOMETHING_NAME', [t('MSG_TXT_CENTER_DIVISION')]), width: '250', styleName: 'text-left' },
+    { fieldName: 'empId', header: t('MSG_TXT_EPNO'), width: '150', styleName: 'text-center' },
+    { fieldName: 'empNm', header: t('MSG_TXT_EMPL_NM'), width: '150', styleName: 'text-center' },
+    { fieldName: 'brchCd', header: t('MSG_TXT_CODE'), width: '100', styleName: 'text-center' },
+    { fieldName: 'brchNm', header: t('MSG_TXT_SOMETHING_NAME', [t('MSG_TXT_BRANCH')]), width: '250', styleName: 'text-left' },
+    { fieldName: 'pstnDvCd', header: t('MSG_TXT_PSTN'), width: '117', styleName: 'text-center' },
+    { fieldName: 'rolDvCd', header: t('MSG_TXT_ROLE_1'), width: '150', styleName: 'text-center' },
+    { fieldName: 'entcoDt', header: t('MSG_TXT_SOMETHING_DATE', [t('MSG_TXT_ENTCO')]), width: '150', styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'rsgnDt', header: t('MSG_TXT_SOMETHING_DATE', [t('MSG_TXT_RSGN')]), width: '150', styleName: 'text-center', datetimeFormat: 'date' },
   ];
 
   const layouts = [
     {
       header: t('MSG_TXT_BELONG_SOMETHING', [t('MSG_TXT_CENTER_DIVISION')]),
       direction: 'horizontal',
-      items: ['col1', 'col2'],
+      items: ['cnrCd', 'cnrNm'],
     },
-    'col3',
-    'col4',
+    'empId',
+    'empNm',
     {
       header: t('MSG_TXT_BELONG_SOMETHING', [t('MSG_TXT_BRANCH')]),
       direction: 'horizontal',
-      items: ['col5', 'col6'],
+      items: ['brchCd', 'brchNm'],
     },
-    'col7',
-    'col8',
-    'col9',
-    'col10',
+    'pstnDvCd',
+    'rolDvCd',
+    'entcoDt',
+    'rsgnDt',
   ];
 
   data.setFields(fields);

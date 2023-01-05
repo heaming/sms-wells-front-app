@@ -3,8 +3,8 @@
  * 프로그램 개요
  ****************************************************************************************************
  1. 모듈 : SND (조직관리)
- 2. 프로그램 ID : W-SV-U-0145M01 - 급지 우편번호 관리
- 3. 작성자 : gs.piit130
+ 2. 프로그램 ID : WwsndRegionLevelZipMgtM - 급지 우편번호 관리
+ 3. 작성자 : hyewon.kim
  4. 작성일 : 2022.12.06
  ****************************************************************************************************
  * 프로그램 설명
@@ -161,7 +161,10 @@ const pageInfo = ref({
 const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
   'WK_GRP_CD',
+  'LOCARA_MNGT_DV_CD',
 );
+
+// console.log(codes.LOCARA_MNGT_DV_CD);
 
 const serviceCenter = (await getServiceCenters()).filter((v) => v.ogNm !== null);
 const ctpvs = ref((await getDistricts('sido')).map((v) => ({ ctpv: v.ctpvNm, ctpvNm: v.ctpvNm, ctpvCd: v.fr2pLgldCd })));
@@ -170,7 +173,7 @@ const cachedCtctys = cloneDeep(ctctys.value);
 
 let cachedZips;
 async function fetchData() {
-  const res = await dataService.get('/sms/wells/service/region-level-zipnos/paging', { params: { ...cachedParams, ...pageInfo.value } });
+  const res = await dataService.get('/sms/wells/service/region-levels/zip-nos/paging', { params: { ...cachedParams, ...pageInfo.value } });
   const { list: zips, pageInfo: pagingResult } = res.data;
 
   cachedZips = cloneDeep(zips);
@@ -194,7 +197,7 @@ async function onClickSearch() {
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
 
-  const res = await dataService.get('/sms/wells/service/region-level-zipnos/excel-download', { params: cachedParams });
+  const res = await dataService.get('/sms/wells/service/region-levels/zip-nos/excel-download', { params: cachedParams });
   await gridUtil.exportView(view, {
     fileName: 'regionLevelZipList',
     timePostfix: true,
@@ -222,7 +225,7 @@ async function onClickSave() {
   if (!await gridUtil.alertIfIsNotModified(view)) {
     const changedRows = gridUtil.getChangedRowValues(view);
 
-    await dataService.put('/sms/wells/service/region-level-zipnos', changedRows);
+    await dataService.put('/sms/wells/service/region-levels/zip-nos', changedRows);
 
     await notify(t('MSG_ALT_SAVE_DATA'));
     await fetchData();

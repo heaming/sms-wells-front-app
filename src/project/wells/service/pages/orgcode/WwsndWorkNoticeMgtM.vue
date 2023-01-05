@@ -3,7 +3,7 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : SND
-2. 프로그램 ID : WwsndWorkNoticeListM - 작업공지 관리
+2. 프로그램 ID : WwsndWorkNoticeMgtM - 작업공지 관리
 3. 작성자 : KJ
 4. 작성일 : 2022.12.08
 ****************************************************************************************************
@@ -203,7 +203,7 @@ async function onClickWorkNoticeRegBtn() {
 async function onClickTest() {
   const { result, payload } = await modal({
     component: 'WwsndHumanResourcesListP',
-    componentProps: { mngrDvCd: '2', deptCd: '', cnrCd: 'TEST11', searchText: 'ZZZ' },
+    // componentProps: { mngrDvCd: '2', deptCd: '', cnrCd: 'TEST11', searchText: 'ZZZ' },
   });
   if (result) payload.forEach((obj) => { console.log(obj); });
 }
