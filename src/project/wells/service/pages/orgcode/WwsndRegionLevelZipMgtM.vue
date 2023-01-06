@@ -185,7 +185,7 @@ if (isManagementDepartment()) {
 
 let cachedZips;
 async function fetchData() {
-  const res = await dataService.get('/sms/wells/service/region-levels/zip-nos/paging', { params: { ...cachedParams, ...pageInfo.value } });
+  const res = await dataService.get('/sms/wells/service/region-level-zips/paging', { params: { ...cachedParams, ...pageInfo.value } });
   const { list: zips, pageInfo: pagingResult } = res.data;
 
   cachedZips = cloneDeep(zips);
@@ -194,10 +194,6 @@ async function fetchData() {
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(zips);
   view.resetCurrent();
-
-  if (pageInfo.value.totalCount === 0) {
-    notify(t('MSG_ALT_NO_INFO_SRCH'));
-  }
 }
 
 async function onClickSearch() {
@@ -209,7 +205,7 @@ async function onClickSearch() {
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
 
-  const res = await dataService.get('/sms/wells/service/region-levels/zip-nos/excel-download', { params: cachedParams });
+  const res = await dataService.get('/sms/wells/service/region-level-zips/excel-download', { params: cachedParams });
   await gridUtil.exportView(view, {
     fileName: 'regionLevelZipList',
     timePostfix: true,
@@ -237,7 +233,7 @@ async function onClickSave() {
   if (!await gridUtil.alertIfIsNotModified(view)) {
     const changedRows = gridUtil.getChangedRowValues(view);
 
-    await dataService.put('/sms/wells/service/region-levels/zip-nos', changedRows);
+    await dataService.put('/sms/wells/service/region-level-zips', changedRows);
 
     notify(t('MSG_ALT_SAVE_DATA'));
     await fetchData();
