@@ -110,7 +110,7 @@
                     v-model:from="applyDates.movementApplyDate"
                     dense
                     to="99991231"
-                    to-readonly="true"
+                    :to-disable="true"
                   />
                 </td>
                 <td class="text-right">
@@ -227,7 +227,7 @@
                     v-model:from="applyDates.bizApplyDate"
                     dense
                     to="99991231"
-                    to-readonly="true"
+                    :to-disable="true"
                   />
                 </td>
                 <td class="text-right">
@@ -427,7 +427,7 @@ function onClickBizBulkApplyDate() {
 }
 
 async function fetchData() {
-  const res = await dataService.get('/sms/wells/service/region-levels/allowances', { params: { ...cachedParams } });
+  const res = await dataService.get('/sms/wells/service/region-level-allowances', { params: { ...cachedParams } });
   const { movementAllowances, bizAllowances } = res.data;
 
   const movementLevelView = grdMovementLevelRef.value.getView();
@@ -469,7 +469,7 @@ async function saveData(view) {
 
   const changedRows = gridUtil.getChangedRowValues(view);
 
-  await dataService.post('/sms/wells/service/region-levels/allowances', changedRows);
+  await dataService.post('/sms/wells/service/region-level-allowances', changedRows);
 
   notify(t('MSG_ALT_SAVE_DATA'));
   await fetchData();
@@ -484,7 +484,7 @@ async function onClickBizSave() {
 }
 
 async function fetchBaseData() {
-  const res = await dataService.get('/sms/wells/service/region-levels/allowances/bases');
+  const res = await dataService.get('/sms/wells/service/region-level-allowances/bases');
   baseInfo.value = res.data;
 }
 
