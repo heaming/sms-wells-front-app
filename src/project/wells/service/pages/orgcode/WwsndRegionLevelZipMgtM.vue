@@ -23,15 +23,13 @@
           <kw-input
             v-model="searchParams.zipFrom"
             type="text"
-            maxlength="3"
-            :regex="/^[0-9]*$/i"
+            mask="###"
           />
           <span>~</span>
           <kw-input
             v-model="searchParams.zipTo"
             type="text"
-            maxlength="3"
-            :regex="/^[0-9]*$/i"
+            mask="###"
           />
         </kw-search-item>
         <!-- 광역시/도 -->
@@ -72,7 +70,8 @@
             :options="serviceCenter"
             first-option="all"
             option-label="ogNm"
-            option-value="ogCd"
+            option-value="ogId"
+            :readonly="isManagementDepartment()"
           />
         </kw-search-item>
       </kw-search-row>
@@ -129,13 +128,18 @@ import { codeUtil, defineGrid, getComponentType, gridUtil, useDataService, useMe
 import { cloneDeep } from 'lodash-es';
 import useSnCode from '~sms-wells/service/composables/useSnCode';
 
-const { getDistricts, getServiceCenters } = useSnCode();
+const { getDistricts, getServiceCenterOrgs } = useSnCode();
 
 const { t } = useI18n();
 const dataService = useDataService();
 
 const { getConfig } = useMeta();
 const { notify } = useGlobal();
+
+const { getters } = useStore();
+const userInfo = getters['meta/getUserInfo'];
+
+const { departmentId } = userInfo;
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -164,16 +168,24 @@ const codes = await codeUtil.getMultiCodes(
   'LOCARA_MNGT_DV_CD',
 );
 
-// console.log(codes.LOCARA_MNGT_DV_CD);
-
-const serviceCenter = (await getServiceCenters()).filter((v) => v.ogNm !== null);
+const serviceCenter = await getServiceCenterOrgs();
 const ctpvs = ref((await getDistricts('sido')).map((v) => ({ ctpv: v.ctpvNm, ctpvNm: v.ctpvNm, ctpvCd: v.fr2pLgldCd })));
 const ctctys = ref((await getDistricts('guAll')).map((v) => ({ ctcty: v.ctctyNm, ctctyNm: v.ctctyNm })));
 const cachedCtctys = cloneDeep(ctctys.value);
 
+// 관리부서 여부 체크 TODO: 부서ID와 조직ID 일치 여부 확인 필요
+function isManagementDepartment() {
+  return departmentId !== '71314' && departmentId !== '71399' && departmentId !== '70526';
+}
+
+// 관리부서 로그인시 서비스센터 콤보활성화
+if (isManagementDepartment()) {
+  searchParams.value.ogId = departmentId;
+}
+
 let cachedZips;
 async function fetchData() {
-  const res = await dataService.get('/sms/wells/service/region-levels/zip-nos/paging', { params: { ...cachedParams, ...pageInfo.value } });
+  const res = await dataService.get('/sms/wells/service/region-level-zips/paging', { params: { ...cachedParams, ...pageInfo.value } });
   const { list: zips, pageInfo: pagingResult } = res.data;
 
   cachedZips = cloneDeep(zips);
@@ -182,10 +194,6 @@ async function fetchData() {
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(zips);
   view.resetCurrent();
-
-  if (pageInfo.value.totalCount === 0) {
-    await notify(t('MSG_ALT_NO_INFO_SRCH'));
-  }
 }
 
 async function onClickSearch() {
@@ -197,7 +205,7 @@ async function onClickSearch() {
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
 
-  const res = await dataService.get('/sms/wells/service/region-levels/zip-nos/excel-download', { params: cachedParams });
+  const res = await dataService.get('/sms/wells/service/region-level-zips/excel-download', { params: cachedParams });
   await gridUtil.exportView(view, {
     fileName: 'regionLevelZipList',
     timePostfix: true,
@@ -218,16 +226,16 @@ async function onClickSave() {
   const view = grdMainRef.value.getView();
 
   if (view.getCheckedItems().length === 0) {
-    await notify(t('MSG_ALT_NO_APPY_OBJ_DT'));
+    notify(t('MSG_ALT_NO_APPY_OBJ_DT'));
     return;
   }
 
   if (!await gridUtil.alertIfIsNotModified(view)) {
     const changedRows = gridUtil.getChangedRowValues(view);
 
-    await dataService.put('/sms/wells/service/region-levels/zip-nos', changedRows);
+    await dataService.put('/sms/wells/service/region-level-zips', changedRows);
 
-    await notify(t('MSG_ALT_SAVE_DATA'));
+    notify(t('MSG_ALT_SAVE_DATA'));
     await fetchData();
   }
 }
@@ -277,13 +285,13 @@ const initGrdMain = defineGrid((data, view) => {
       fieldName: 'pdlvNm',
       header: t('MSG_TXT_AMTD_RSDT_CNR'),
       width: '100',
-      editor: { type: 'list' },
       editable: true,
+      editor: { type: 'list' },
       styleCallback: (grid, dataCell) => {
         const { placeOfDeliveries: pdlvs } = cachedZips[dataCell.index.itemIndex];
         const pdlvNm = pdlvs.map((v) => v.pdlvNm);
 
-        return { editor: { type: 'list', labels: pdlvNm, values: pdlvNm } };
+        return { editor: { type: 'list', labels: pdlvNm, values: pdlvNm }, editable: true };
       },
     },
     { fieldName: 'pdlvAdr', header: t('MSG_TXT_RSDT_CNR_ADR'), width: '100' },
