@@ -4,8 +4,8 @@
 ****************************************************************************************************
 1. 모듈 : PDC (상품운영관리)
 2. 프로그램 ID : WwpdcStandardMgtM - (판매) 상품목록 - 상세조회 ( Z-PD-U-0011M01 )
-3. 작성자 : gs.piit141
-4. 작성일 : 2023.06.30
+3. 작성자 : jintae.choi
+4. 작성일 : 2022.12.31
 ****************************************************************************************************
 * 프로그램 설명
 ****************************************************************************************************
@@ -158,8 +158,11 @@ const route = useRoute();
 const router = useRouter();
 const { t } = useI18n();
 const dataService = useDataService();
-const { alert, confirm } = useGlobal();
+const { notify, confirm } = useGlobal();
 
+// -------------------------------------------------------------------------------------------------
+// Function & Event
+// -------------------------------------------------------------------------------------------------
 const isTempSaveBtn = ref(true);
 const regSteps = ref([pdConst.STANDARD_STEP_BASIC, pdConst.STANDARD_STEP_REL_PROD,
   pdConst.STANDARD_STEP_MANAGE, pdConst.STANDARD_STEP_PRICE, pdConst.STANDARD_STEP_CHECK]);
@@ -169,9 +172,6 @@ const prevStepData = ref({});
 const currentPdCd = ref();
 const isCreate = ref(false);
 
-// -------------------------------------------------------------------------------------------------
-// Function & Event
-// -------------------------------------------------------------------------------------------------
 watch(() => props.pdCd, (val) => { currentPdCd.value = val; });
 watch(() => props.tempSaveYn, (val) => { isTempSaveBtn.value = val !== 'Y'; });
 
@@ -232,7 +232,7 @@ async function onClickPrevStep() {
 
 async function fetchProduct() {
   if (currentPdCd.value) {
-    const res = await dataService.get(`/sms/common/product/${currentPdCd.value}`);
+    const res = await dataService.get(`/sms/common/product/standards/${currentPdCd.value}`);
     prevStepData.value[bas] = res.data[bas];
     prevStepData.value[ecom] = res.data[ecom];
     prevStepData.value[prcd] = res.data[prcd];
@@ -275,14 +275,14 @@ async function onClickSave(tempSaveYn) {
   const { pdCd } = props;
   let rtn;
   if (!isCreate.value) {
-    rtn = await dataService.post(`/sms/common/product/standards/${pdCd}`, subList);
+    rtn = await dataService.put(`/sms/common/product/standards/${pdCd}`, subList);
   } else {
-    rtn = await dataService.put('/sms/common/product/standards', subList);
+    rtn = await dataService.post('/sms/common/product/standards', subList);
   }
 
   // 5. 생성 이후 Step 설정
   if (rtn) {
-    await alert(t('MSG_ALT_SAVE_DATA'));
+    notify(t('MSG_ALT_SAVE_DATA'));
     if (isTempSaveBtn) {
       // 임시저장
       currentPdCd.value = rtn.data?.data?.pdCd;

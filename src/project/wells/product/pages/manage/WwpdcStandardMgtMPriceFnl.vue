@@ -4,8 +4,8 @@
 ****************************************************************************************************
 1. 모듈 : PDC (상품운영관리)
 2. 프로그램 ID : WwpdcStandardMgtMPrice - 기준상품 등록/변경 - 가격정보 - 최종가격 조정 (  )
-3. 작성자 : gs.piit141
-4. 작성일 : 2023.06.30
+3. 작성자 : jintae.choi
+4. 작성일 : 2022.12.31
 ****************************************************************************************************
 * 프로그램 설명
 ****************************************************************************************************
@@ -59,6 +59,9 @@ const props = defineProps({
   codes: { type: Object, default: null },
 });
 
+// -------------------------------------------------------------------------------------------------
+// Function & Event
+// -------------------------------------------------------------------------------------------------
 const grdMainRef = ref(getComponentType('KwGrid'));
 
 const prcd = pdConst.TBL_PD_PRC_DTL;
@@ -67,35 +70,6 @@ const currentPdCd = ref();
 const currentInitData = ref(null);
 const priceFieldData = ref({});
 const currentMetaInfos = ref();
-
-// -------------------------------------------------------------------------------------------------
-// Function & Event
-// -------------------------------------------------------------------------------------------------
-async function initGrid(data, view) {
-  const { metaInfos } = props;
-  currentMetaInfos.value = metaInfos;
-  const { fields, columns } = await getPdMetaToGridInfos(
-    currentMetaInfos.value,
-    props.codes,
-    ['pdCd', 'pdPrcDtlId', 'verSn'],
-  );
-  data.setFields(fields);
-  view.setColumns(columns);
-  view.checkBar.visible = true;
-  view.rowIndicator.visible = true;
-  view.editOptions.editable = true;
-  await initDataToGridRow();
-}
-
-async function initDataToGridRow() {
-  if (await currentInitData.value?.[prcd]) {
-    const rows = cloneDeep(await getPropInfosToGridRows(currentInitData.value?.[prcd], currentMetaInfos.value, prcd));
-    console.log('Rows : ', rows);
-    const view = grdMainRef.value.getView();
-    view.getDataSource().setRows(rows);
-    view.resetCurrent();
-  }
-}
 
 async function onClickMidify() {
   const view = grdMainRef.value.getView();
@@ -139,6 +113,35 @@ async function fetchData() {
 }
 
 await fetchData();
+
+// -------------------------------------------------------------------------------------------------
+// Initialize Grid
+// -------------------------------------------------------------------------------------------------
+async function initGrid(data, view) {
+  const { metaInfos } = props;
+  currentMetaInfos.value = metaInfos;
+  const { fields, columns } = await getPdMetaToGridInfos(
+    currentMetaInfos.value,
+    props.codes,
+    ['pdCd', 'pdPrcDtlId', 'verSn'],
+  );
+  data.setFields(fields);
+  view.setColumns(columns);
+  view.checkBar.visible = true;
+  view.rowIndicator.visible = true;
+  view.editOptions.editable = true;
+  await initDataToGridRow();
+}
+
+async function initDataToGridRow() {
+  if (await currentInitData.value?.[prcd]) {
+    const rows = cloneDeep(await getPropInfosToGridRows(currentInitData.value?.[prcd], currentMetaInfos.value, prcd));
+    console.log('Rows : ', rows);
+    const view = grdMainRef.value.getView();
+    view.getDataSource().setRows(rows);
+    view.resetCurrent();
+  }
+}
 
 watch(() => props.pdCd, (val) => { currentPdCd.value = val; });
 watch(() => props.initData, (val) => { currentInitData.value = val; initDataToGridRow(); }, { deep: true });
