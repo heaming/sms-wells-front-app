@@ -50,7 +50,7 @@
         >
           <kw-select
             v-model="searchParams.egerId"
-            :options="Engineers"
+            :options="engineers"
             first-option="all"
             class="w200"
           />
@@ -224,7 +224,8 @@ const {
 
 const svcCode = await getServiceCenterOrgs();
 // eslint-disable-next-line max-len
-const Engineers = ref(((await getAllEngineers('G_ONLY_ENG')).G_ONLY_ENG).map((v) => ({ codeId: v.codeId, codeName: v.codeNm1 })));
+const engineers = ref();
+engineers.value = ((await getAllEngineers('G_ONLY_ENG')).G_ONLY_ENG).map((v) => ({ codeId: v.codeId, codeName: v.codeNm1 }));
 const dvCd = [{ codeId: '1', codeName: t('MSG_TXT_EGER') }];
 const codes = await codeUtil.getMultiCodes(
   // 'CST_DV_CD',
@@ -280,7 +281,6 @@ async function fetchData() {
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(locations);
   view.resetCurrent();
-  if (pagingResult.totalCount === 0) { notify(t('MSG_ALT_NO_INFO_SRCH')); }
 }
 
 async function onClickSearch() {
@@ -304,9 +304,11 @@ async function onClickSave() {
 
 async function onUpdateSvcCode() {
   if (searchParams.value.ogId === '') {
-    Engineers.value = ((await getAllEngineers('G_ONLY_ENG')).G_ONLY_ENG).map((v) => ({ codeId: v.codeId, codeName: v.codeNm1 }));
+    const eng = ((await getAllEngineers('G_ONLY_ENG')).G_ONLY_ENG);
+    engineers.value = eng.map((v) => ({ codeId: v.codeId, codeName: v.codeNm1 }));
   } else {
-    Engineers.value = ((await getAllEngineers('G_ONLY_ENG', searchParams.value.ogId)).G_ONLY_ENG).map((v) => ({ codeId: v.codeId, codeName: v.codeNm1 }));
+    const engByOgId = ((await getAllEngineers('G_ONLY_ENG', searchParams.value.ogId)).G_ONLY_ENG);
+    engineers.value = engByOgId.map((v) => ({ codeId: v.codeId, codeName: v.codeNm1 }));
   }
 }
 
