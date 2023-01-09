@@ -2,14 +2,14 @@
 ****************************************************************************************************
 * 프로그램 개요
 ****************************************************************************************************
-1. 모듈 : SNC (배정관리)
-2. 프로그램 ID : WwsncTotalManagementCustomerAgrgListM - 총 관리고객 집계 (W-SV-U-0228M01)
+1. 모듈 : [WSNC] allocate(배정관리)
+2. 프로그램 ID : WwsncProductServicePresentStateListM - 제품 서비스 현황 (W-SV-U-0229M01)
 3. 작성자 : gs.piit122 김동엽
-4. 작성일 : 2022-12-06
+4. 작성일 : 2023-01-02
 ****************************************************************************************************
 * 프로그램 설명
 ****************************************************************************************************
-- 총 관리고객 집계 (http://localhost:3000/#/service/wwsnc-total-management-customer-agrg-list)
+- 조회조건에 일치하는 상품별, 작업유형별 서비스 처리 정보를 조회한다.
 ****************************************************************************************************
 -->
 <template>
@@ -19,27 +19,30 @@
       @search="onClickSearch"
     >
       <kw-search-row>
-        <kw-search-item :label="$t('MSG_TXT_BASE_YM')">
-          <kw-field-wrap>
-            <kw-date-picker
-              v-model="searchParams.year"
-              type="year"
-              rules="required"
-            />
-          </kw-field-wrap>
-        </kw-search-item>
-        <kw-search-item :label="$t('MSG_TXT_PD_GRD')">
-          <kw-select
-            v-model="searchParams.pdGdCd"
-            :label="$t('MSG_TXT_PD_GRD')"
-            :options="codes.PD_GD_CD"
-            rules="required"
+        <kw-search-item :label="$t('MSG_TXT_BASE_YEAR')">
+          <kw-date-picker
+            v-model="searchParams.wkExcnDt"
+            :label="$t('MSG_TXT_BASE_YEAR')"
+            type="year"
           />
         </kw-search-item>
-        <kw-search-item :label="$t('MSG_TXT_PRDT')">
+        <kw-search-item :label="$t('MSG_TXT_LOCARA_MNGT_DV_CD')">
+          <kw-select
+            v-model="searchParams.mngrDvCd"
+            :label="$t('MSG_TXT_LOCARA_MNGT_DV_CD')"
+            :options="codes.LOCARA_MNGT_DV_CD"
+          />
+        </kw-search-item>
+        <kw-search-item :label="$t('MSG_TXT_PD_GRP')">
+          <kw-select
+            v-model="searchParams.pdPrpVal20"
+            :label="$t('MSG_TXT_PD_GRP')"
+            :options="codes.PD_GRP_CD"
+          />
           <kw-select
             v-model="searchParams.pdCd"
-            :options="productCode"
+            :label="$t('MSG_TXT_PD_GRP')"
+            :options="subCodes"
             first-option="all"
           />
         </kw-search-item>
@@ -47,63 +50,122 @@
     </kw-search>
     <div class="result-area">
       <h3>{{ $t('MSG_TXT_SRCH_RSLT') }}</h3>
+      <kw-action-top>
+        <kw-btn
+          :disable="pageInfo.totalCount === 0"
+          :label="$t('MSG_BTN_PRTG')"
+          dense
+          icon="print"
+          secondary
+        />
+        <kw-btn
+          :disable="pageInfo.totalCount === 0"
+          :label="$t('MSG_BTN_EXCEL_DOWN')"
+          dense
+          icon="download_on"
+          secondary
+          @click="onClickExcelDownload"
+        />
+      </kw-action-top>
       <kw-grid
         ref="grdMainRef"
-        :visible-rows="5"
+        :visible-rows="pageInfo.pageSize"
         @init="initGrdMain"
       />
-      <kw-action-bottom />
     </div>
   </kw-page>
 </template>
+
 <script setup>
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { stringUtil, codeUtil, defineGrid, getComponentType, useDataService } from 'kw-lib';
-import dayjs from 'dayjs';
+import { codeUtil, defineGrid, getComponentType, gridUtil, useDataService, useMeta } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
-import smsCommon from '~sms-wells/service/composables/useSnCode';
+import dayjs from 'dayjs';
+import useSnCode from '~sms-wells/service/composables/useSnCode';
 
 const { t } = useI18n();
 const dataService = useDataService();
 
-const { getMcbyCstSvOjIz } = smsCommon();
+const { getConfig } = useMeta();
+
+const { getLcStockSt101tb } = useSnCode();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
+const subCodes = ref((await getLcStockSt101tb()).map((v) => ({ codeId: v.cd, codeName: v.cdNm })));
 const grdMainRef = ref(getComponentType('KwGrid'));
+
 let cachedParams;
 const searchParams = ref({
-  pdGdCd: 'A',
+  wkExcnDt: dayjs().format('YYYY'),
+  mngrDvCd: '',
+  pdPrpVal20: '',
   pdCd: '',
-  year: stringUtil.getDateFormat(dayjs().format(), 'yyyyMMdd').substring(0, 4),
 });
+
+const pageInfo = ref({
+  totalCount: 0,
+  pageIndex: 1,
+  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
+});
+
 const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
-  'PD_GD_CD',
+  'LOCARA_MNGT_DV_CD',
+  'PD_GRP_CD',
 );
-const productCode = ref();
-productCode.value = await getMcbyCstSvOjIz(searchParams.value.year, searchParams.value.pdGdCd);
 
-watch(() => [searchParams.value.year, searchParams.value.pdGdCd], async () => {
-  productCode.value = await getMcbyCstSvOjIz(searchParams.value.year, searchParams.value.pdGdCd);
-}, { immediate: true });
+function calcData(data) {
+  let totalSum = 0;
+  let rowSum = 0;
+
+  data.forEach((item) => {
+    totalSum += item.acol1;
+    totalSum += item.acol2;
+    totalSum += item.acol3;
+    totalSum += item.acol4;
+    totalSum += item.acol5;
+    totalSum += item.acol6;
+    totalSum += item.acol7;
+    totalSum += item.acol8;
+    totalSum += item.acol9;
+    totalSum += item.acol10;
+    totalSum += item.acol11;
+    totalSum += item.acol12;
+  });
+  data.forEach((item, idx) => {
+    rowSum = 0;
+    rowSum += item.acol1;
+    rowSum += item.acol2;
+    rowSum += item.acol3;
+    rowSum += item.acol4;
+    rowSum += item.acol5;
+    rowSum += item.acol6;
+    rowSum += item.acol7;
+    rowSum += item.acol8;
+    rowSum += item.acol9;
+    rowSum += item.acol10;
+    rowSum += item.acol11;
+    rowSum += item.acol12;
+    data[idx].totalCount = rowSum;
+    data[idx].per = ((rowSum / totalSum) * 100).toFixed(2);
+  });
+  return data;
+}
 
 async function fetchData() {
-  const res = await dataService.get('/sms/wells/service/total-customers', { params: { ...cachedParams } });
+  const res = await dataService.get(
+    '/sms/wells/service/as-assign-state/product-service-states',
+    { params: { ...cachedParams } },
+  );
   const view = grdMainRef.value.getView();
-  let tcntTotal = 0;
-
-  const totalCustomers = res.data;
-  totalCustomers.forEach((item) => {
-    tcntTotal += item.tcnt;
-  });
-  totalCustomers.forEach((item, idx) => {
-    totalCustomers[idx].per = ((item.tcnt / tcntTotal) * 100).toFixed(2);
-  });
+  const totalCustomers = calcData(res.data);
+  pageInfo.value.totalCount = totalCustomers.length;
   view.getDataSource().setRows(totalCustomers);
+
   view.resetCurrent();
 }
 
@@ -111,13 +173,22 @@ async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
 }
+
+async function onClickExcelDownload() {
+  const view = grdMainRef.value.getView();
+  const res = await dataService.get('/sms/wells/service/as-assign-state/product-service-states', { params: cachedParams });
+  await gridUtil.exportView(view, {
+    fileName: 'productServiceStates',
+    timePostfix: true,
+    exportData: calcData(res.data),
+  });
+}
+
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
 const initGrdMain = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'yyyy' },
-    { fieldName: 'typNm' },
     { fieldName: 'acol1', dataType: 'number' },
     { fieldName: 'acol2', dataType: 'number' },
     { fieldName: 'acol3', dataType: 'number' },
@@ -130,92 +201,23 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'acol10', dataType: 'number' },
     { fieldName: 'acol11', dataType: 'number' },
     { fieldName: 'acol12', dataType: 'number' },
-    { fieldName: 'tcnt', dataType: 'number' },
+    { fieldName: 'totalCount', dataType: 'number' },
     { fieldName: 'per', dataType: 'number' },
+    { fieldName: 'wkExcnDt' },
+    { fieldName: 'svBizHclsfNm' },
   ];
-
   const columns = [
-    { fieldName: 'yyyy', header: '년도', width: '50', styleName: 'text-center' },
-    { fieldName: 'typNm',
-      header: t('MSG_TXT_DV_NM'),
-      width: '100',
+    { fieldName: 'wkExcnDt',
+      header: t('MSG_TXT_BASE_YEAR'),
+      width: '50',
       styleName: 'text-center',
-      footer: {
-        text: t('MSG_TXT_SUM'),
-      } },
-    { fieldName: 'acol1',
-      header: `1${t('MSG_TXT_MON')}`,
-      width: '50',
-      styleName: 'text-right',
-      numberFormat: '#,##0' },
-    { fieldName: 'acol2',
-      header: `2${t('MSG_TXT_MON')}`,
-      width: '50',
-      styleName: 'text-right',
-      numberFormat: '#,##0',
-      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
-    { fieldName: 'acol3',
-      header: `3${t('MSG_TXT_MON')}`,
-      width: '50',
-      styleName: 'text-right',
-      numberFormat: '#,##0',
-      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
-    { fieldName: 'acol4',
-      header: `4${t('MSG_TXT_MON')}`,
-      width: '50',
-      styleName: 'text-right',
-      numberFormat: '#,##0',
-      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
-    { fieldName: 'acol5',
-      header: `5${t('MSG_TXT_MON')}`,
-      width: '50',
-      styleName: 'text-right',
-      numberFormat: '#,##0',
-      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
-    { fieldName: 'acol6',
-      header: `6${t('MSG_TXT_MON')}`,
-      width: '50',
-      styleName: 'text-right',
-      numberFormat: '#,##0',
-      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
-    { fieldName: 'acol7',
-      header: `7${t('MSG_TXT_MON')}`,
-      width: '50',
-      styleName: 'text-right',
-      numberFormat: '#,##0',
-      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
-    { fieldName: 'acol8',
-      header: `8${t('MSG_TXT_MON')}`,
-      width: '50',
-      styleName: 'text-right',
-      numberFormat: '#,##0',
-      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
-    { fieldName: 'acol9',
-      header: `9${t('MSG_TXT_MON')}`,
-      width: '50',
-      styleName: 'text-right',
-      numberFormat: '#,##0',
-      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
-    { fieldName: 'acol10',
-      header: `10${t('MSG_TXT_MON')}`,
-      width: '50',
-      styleName: 'text-right',
-      numberFormat: '#,##0',
-      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
-    { fieldName: 'acol11',
-      header: `11${t('MSG_TXT_MON')}`,
-      width: '50',
-      styleName: 'text-right',
-      numberFormat: '#,##0',
-      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' },
-    },
-    { fieldName: 'acol12',
-      header: `12${t('MSG_TXT_MON')}`,
-      width: '50',
-      styleName: 'text-right',
-      numberFormat: '#,##0',
-      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
-    { fieldName: 'tcnt',
+      mergeRule: { criteria: 'value' } },
+    { fieldName: 'svBizHclsfNm',
+      header: t('MSG_TXT_PD_GRP'),
+      width: '100',
+      styleName: 'text-left',
+      footer: { text: t('MSG_TXT_SUM') } },
+    { fieldName: 'totalCount',
       header: t('MSG_TXT_SUM'),
       width: '50',
       styleName: 'text-right',
@@ -225,10 +227,70 @@ const initGrdMain = defineGrid((data, view) => {
       width: '50',
       styleName: 'text-right',
       footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
+    { fieldName: 'acol1',
+      header: `1${t('MSG_TXT_MON')}`,
+      width: '50',
+      styleName: 'text-right',
+      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
+    { fieldName: 'acol2',
+      header: `2${t('MSG_TXT_MON')}`,
+      width: '50',
+      styleName: 'text-right',
+      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
+    { fieldName: 'acol3',
+      header: `3${t('MSG_TXT_MON')}`,
+      width: '50',
+      styleName: 'text-right',
+      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
+    { fieldName: 'acol4',
+      header: `4${t('MSG_TXT_MON')}`,
+      width: '50',
+      styleName: 'text-right',
+      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
+    { fieldName: 'acol5',
+      header: `5${t('MSG_TXT_MON')}`,
+      width: '50',
+      styleName: 'text-right',
+      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
+    { fieldName: 'acol6',
+      header: `6${t('MSG_TXT_MON')}`,
+      width: '50',
+      styleName: 'text-right',
+      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
+    { fieldName: 'acol7',
+      header: `7${t('MSG_TXT_MON')}`,
+      width: '50',
+      styleName: 'text-right',
+      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
+    { fieldName: 'acol8',
+      header: `8${t('MSG_TXT_MON')}`,
+      width: '50',
+      styleName: 'text-right',
+      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
+    { fieldName: 'acol9',
+      header: `9${t('MSG_TXT_MON')}`,
+      width: '50',
+      styleName: 'text-right',
+      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
+    { fieldName: 'acol10',
+      header: `10${t('MSG_TXT_MON')}`,
+      width: '50',
+      styleName: 'text-right',
+      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
+    { fieldName: 'acol11',
+      header: `11${t('MSG_TXT_MON')}`,
+      width: '50',
+      styleName: 'text-right',
+      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
+    { fieldName: 'acol12',
+      header: `12${t('MSG_TXT_MON')}`,
+      width: '50',
+      styleName: 'text-right',
+      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
   ];
-
   const columnLayout = [
-    { direction: 'horizontal', items: ['yyyy', 'typNm'], header: { text: t('MSG_TXT_DIV') } },
+    { direction: 'horizontal', items: ['wkExcnDt', 'svBizHclsfNm', 'totalCount'], header: { text: t('MSG_TXT_SUM') } },
+    'per',
     'acol1',
     'acol2',
     'acol3',
@@ -241,20 +303,15 @@ const initGrdMain = defineGrid((data, view) => {
     'acol10',
     'acol11',
     'acol12',
-    'tcnt',
-    'per',
   ];
-  view.setColumnLayout(columnLayout);
-
-  data.setFields(fields);
-  view.setColumns(columns);
-  view.checkBar.visible = false; // create checkbox column
   view.setFooters({
     visible: true,
     items: [{ height: 30 }],
   });
-  view.rowIndicator.visible = false; // create number indicator column
-  view.editOptions.editable = false; // Grid Editable On
+  view.setColumnLayout(columnLayout);
+  data.setFields(fields);
+  view.setColumns(columns);
   view.setOptions({ summaryMode: 'statistical' });
 });
+
 </script>
