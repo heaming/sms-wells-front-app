@@ -155,7 +155,7 @@ function onUpdateProductGroupCode(val) {
 }
 
 async function fetchData() {
-  const res = await dataService.get('/sms/wells/service/as-visit-state/service-aggregates', { params: searchParams.value });
+  const res = await dataService.get('/sms/wells/service/as-visit-state/product-services', { params: searchParams.value });
 
   pageInfo.value.totalCount = res.data.length;
 
