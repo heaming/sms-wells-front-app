@@ -263,7 +263,7 @@ async function onClickSave() {
 
   if (chkRows.length === 0) {
     notify(t('MSG_ALT_NOT_SEL_ITEM'));
-  } else if (await gridUtil.validate(view)) {
+  } else if (await gridUtil.validate(view, { isCheckedOnly: true })) {
     await dataService.post('/sms/wells/service/region-levels/place-of-deliverys', chkRows);
     notify(t('MSG_ALT_SAVE_DATA'));
     await fetchData();
@@ -417,13 +417,14 @@ const initGrdMain = defineGrid((data, view) => {
     const { result, payload } = await modal({
       component: 'ZwcmzAddressInfoP',
     });
-
+    console.log(index);
+    debugger;
     if (result) {
       const { address } = payload;
-      data.setValue(index.itemIndex, 'zip', address.zipCode);
-      data.setValue(index.itemIndex, 'pdlvAdr', address.add1);
-      data.setValue(index.itemIndex, 'pdlvDtlAdr', address.add2);
-      data.setValue(index.itemIndex, 'pdlvNo', address.bldMngtNo);
+      data.setValue(index.dataRow, 'zip', address.zipCode);
+      data.setValue(index.dataRow, 'pdlvAdr', address.add1);
+      data.setValue(index.dataRow, 'pdlvDtlAdr', address.add2);
+      data.setValue(index.dataRow, 'pdlvNo', address.bldMngtNo);
     }
   };
 
