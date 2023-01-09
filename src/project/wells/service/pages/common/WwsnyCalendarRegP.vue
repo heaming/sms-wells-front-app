@@ -59,7 +59,7 @@ import { codeUtil, useModal, useGlobal, useDataService } from 'kw-lib';
 import { toInteger } from 'lodash-es';
 
 const { t } = useI18n();
-const { confirm, notify } = useGlobal();
+const { notify } = useGlobal();
 const { ok, cancel: onClickCancel } = useModal();
 const dataService = useDataService();
 
@@ -134,7 +134,7 @@ getCalendarDay();
  *  Event - 저장 버튼 클릭
  */
 async function onClickSave() {
-  if (!await confirm(t('MSG_ALT_WANT_SAVE'))) { return; }
+  // if (!await confirm(t('MSG_ALT_WANT_SAVE'))) { return; }
 
   await dataService.post('/sms/wells/service/calendar-management', calendarInfo.value);
 
