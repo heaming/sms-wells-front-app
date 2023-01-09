@@ -92,10 +92,10 @@ const { getConfig } = useMeta();
 
 const { getLcStockSt101tb } = useSnCode();
 
-const subCodes = ref((await getLcStockSt101tb()).map((v) => ({ codeId: v.cd, codeName: v.cdNm })));
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
+const subCodes = ref((await getLcStockSt101tb()).map((v) => ({ codeId: v.cd, codeName: v.cdNm })));
 const grdMainRef = ref(getComponentType('KwGrid'));
 
 let cachedParams;
@@ -183,6 +183,7 @@ async function onClickExcelDownload() {
     exportData: calcData(res.data),
   });
 }
+
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
