@@ -3,7 +3,7 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : SNY (기준정보)
-2. 프로그램 ID : WwsnyAsCodeMgtM - AS 코드관리(W-SV-U-0016M01 )
+2. 프로그램 ID : PGE_SNY_00002 - AS 코드관리(W-SV-U-0016M01)
 3. 작성자 : gs.piit122 김동엽
 4. 작성일 : 2022.11.08
 ****************************************************************************************************
@@ -146,7 +146,6 @@ const codes = await codeUtil.getMultiCodes(
   'SITE_AW_ATC_CD', // SB23
   'SV_BIZ_DCLSF_CD', // BA04
 );
-console.log(codes);
 const codesYn = [{ code: '1', name: t('MSG_TXT_APPLY_DT') }];
 const pds = await getLcStockSt101tb();
 // -------------------------------------------------------------------------------------------------
@@ -257,8 +256,8 @@ const initGrdMain = defineGrid((data, view) => {
   view.setColumns(columns);
   view.checkBar.visible = true;
 
-  view.onCellItemClicked = async (g, { column, itemIndex }) => {
-    console.log(g, column, itemIndex);
-  };
+  // view.onCellItemClicked = async (g, { column, itemIndex }) => {
+  //   console.log(g, column, itemIndex);
+  // };
 });
 </script>

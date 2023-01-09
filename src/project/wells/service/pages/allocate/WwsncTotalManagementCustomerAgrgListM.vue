@@ -92,7 +92,7 @@ watch(() => [searchParams.value.year, searchParams.value.pdGdCd], async () => {
 }, { immediate: true });
 
 async function fetchData() {
-  const res = await dataService.get('/sms/wells/service/total-customers', { params: { ...cachedParams } });
+  const res = await dataService.get('/sms/wells/service/as-assign-state/total-customers', { params: { ...cachedParams } });
   const view = grdMainRef.value.getView();
   let tcntTotal = 0;
 
