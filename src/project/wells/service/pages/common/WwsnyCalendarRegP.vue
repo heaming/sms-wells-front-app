@@ -1,7 +1,20 @@
+<!----
+****************************************************************************************************
+* 프로그램 개요
+****************************************************************************************************
+1. 모듈 : SNY
+2. 프로그램 ID : WwsnyCalendarRegP - Calendar 등록
+3. 작성자 : juno.cha
+4. 작성일 : 2023.01.10
+****************************************************************************************************
+* 프로그램 설명
+****************************************************************************************************
+- Calendar 등록 화면
+****************************************************************************************************
+--->
 <template>
   <kw-popup
     size="md"
-    title="Calendar 등록"
   >
     <kw-form :cols="1">
       <kw-form-row>
@@ -55,11 +68,13 @@
 </template>
 
 <script setup>
-import { codeUtil, useModal, useGlobal, useDataService } from 'kw-lib';
+// -------------------------------------------------------------------------------------------------
+// Import & Declaration
+// -------------------------------------------------------------------------------------------------
+import { codeUtil, useModal, useDataService } from 'kw-lib';
 import { toInteger } from 'lodash-es';
 
 const { t } = useI18n();
-const { notify } = useGlobal();
 const { ok, cancel: onClickCancel } = useModal();
 const dataService = useDataService();
 
@@ -138,7 +153,7 @@ async function onClickSave() {
 
   await dataService.post('/sms/wells/service/calendar-management', calendarInfo.value);
 
-  await notify(t('MSG_ALT_SAVE_DATA'));
+  // await notify(t('MSG_ALT_SAVE_DATA'));
   ok();
 }
 
