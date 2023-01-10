@@ -9,7 +9,7 @@
  ****************************************************************************************************
  * 프로그램 설명
  ****************************************************************************************************
- - 책임지역 우편번호 관리 (http://localhost:3000/#/service/wwsnc-responsibility-local-area-zip-mgt)
+ - 책임지역 우편번호 관리 (http://localhost:3000/#/service/wwsnc-responsible-area-zip-mgt)
  ****************************************************************************************************
 --->
 <template>
@@ -59,10 +59,15 @@
 
       <kw-search-row>
         <!-- 작업그룹 -->
-        <kw-search-item :label="$t('MSG_TXT_WK_GRP')">
+        <kw-search-item
+          :label="$t('MSG_TXT_WK_GRP')"
+          required
+        >
           <kw-select
             v-model="searchParams.wkGrpCd"
             :options="codes.WK_GRP_CD"
+            :label="$t('MSG_TXT_WK_GRP')"
+            rules="required"
           />
         </kw-search-item>
         <!-- 적용일자 -->
@@ -169,12 +174,15 @@ const codes = await codeUtil.getMultiCodes(
   'WK_GRP_CD',
 );
 
-const ctpvs = ref((await getDistricts('sido')).map((v) => ({ ctpv: v.ctpvNm, ctpvNm: v.ctpvNm, ctpvCd: v.fr2pLgldCd })));
-const ctctys = ref((await getDistricts('guAll')).map((v) => ({ ctcty: v.ctctyNm, ctctyNm: v.ctctyNm })));
-const cachedCtctys = cloneDeep(ctctys.value);
+const ctpvs = ref();
+const ctctys = ref();
+const cachedCtctys = ref();
+ctpvs.value = (await getDistricts('sido')).map((v) => ({ ctpv: v.ctpvNm, ctpvNm: v.ctpvNm, ctpvCd: v.fr2pLgldCd }));
+ctctys.value = (await getDistricts('guAll')).map((v) => ({ ctcty: v.ctctyNm, ctctyNm: v.ctctyNm }));
+cachedCtctys.value = cloneDeep(ctctys.value);
 
 async function fetchData() {
-  const res = await dataService.get('/sms/wells/service/responsible-areas/zip-nos/paging', { params: { ...cachedParams, ...pageInfo.value } });
+  const res = await dataService.get('/sms/wells/service/responsible-area-zips/paging', { params: { ...cachedParams, ...pageInfo.value } });
   const { list: zips, pageInfo: pagingResult } = res.data;
   pageInfo.value = pagingResult;
 
@@ -196,7 +204,7 @@ async function onClickSearch() {
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
 
-  const res = await dataService.get('/sms/wells/service/responsible-areas/zip-nos/excel-download', { params: cachedParams });
+  const res = await dataService.get('/sms/wells/service/responsible-area-zips/excel-download', { params: cachedParams });
   await gridUtil.exportView(view, {
     fileName: 'rpbLocaraZipList',
     timePostfix: true,
@@ -209,7 +217,8 @@ async function onUpdateCtcty(val) {
     const { ctpvCd } = ctpvs.value.find((v) => v.ctpvNm === val);
     ctctys.value = (await getDistricts('gu', ctpvCd)).map((v) => ({ ctcty: v.ctctyNm, ctctyNm: v.ctctyNm }));
   } else {
-    ctctys.value = cachedCtctys;
+    ctctys.value = cachedCtctys.value;
+    searchParams.value.ctctyNm = '';
   }
 }
 
@@ -227,7 +236,7 @@ async function onClickSave() {
       return { ...v, lawcEmdNm: mngtAmtds[0], amtdNm: mngtAmtds[1] };
     });
 
-    await dataService.post('/sms/wells/service/responsible-areas/zip-nos', changedRows);
+    await dataService.post('/sms/wells/service/responsible-area-zips', changedRows);
 
     await notify(t('MSG_ALT_SAVE_DATA'));
     await fetchData();
@@ -236,7 +245,7 @@ async function onClickSave() {
 
 let districts;
 async function fetchBaseData() {
-  const res = await dataService.get('sms/wells/service/responsible-areas/districts');
+  const res = await dataService.get('sms/wells/service/responsible-area-zips/districts');
   districts = res.data;
 }
 
