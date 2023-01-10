@@ -3,7 +3,7 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : [WSNC] allocate(배정관리)
-2. 프로그램 ID : WwsncProductServicePresentStateListM - 제품 서비스 현황 (W-SV-U-0229M01)
+2. 프로그램 ID : WwsncProductServicePresentStateListM  - 제품 서비스 현황 (W-SV-U-0229M01)
 3. 작성자 : gs.piit122 김동엽
 4. 작성일 : 2023-01-02
 ****************************************************************************************************
@@ -158,7 +158,7 @@ function calcData(data) {
 
 async function fetchData() {
   const res = await dataService.get(
-    '/sms/wells/service/as-assign-state/product-service-states',
+    '/sms/wells/service/as-assign-state/product-services',
     { params: { ...cachedParams } },
   );
   const view = grdMainRef.value.getView();
@@ -176,7 +176,7 @@ async function onClickSearch() {
 
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
-  const res = await dataService.get('/sms/wells/service/as-assign-state/product-service-states', { params: cachedParams });
+  const res = await dataService.get('/sms/wells/service/as-assign-state/product-services', { params: cachedParams });
   await gridUtil.exportView(view, {
     fileName: 'productServiceStates',
     timePostfix: true,

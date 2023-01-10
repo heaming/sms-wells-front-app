@@ -3,7 +3,7 @@
  * 프로그램 개요
  ****************************************************************************************************
  1. 모듈 : SNY (기준정보)
- 2. 프로그램 ID : WwsnyRecapitalizationAsBstrCostMgtM 유상 AS 출장비 관리 (W-SV-U-0101M01)
+ 2. 프로그램 ID : PGE_SNY_00005 - 유상 AS 출장비 관리 (W-SV-U-0101M01)
  3. 작성자 : gs.piit122
  4. 작성일 : 2022.11.18
  ****************************************************************************************************
@@ -111,7 +111,7 @@ const codes = await codeUtil.getMultiCodes(
 const pds = await getLcStockSt101tb();
 
 async function fetchData() {
-  const res = await dataService.get('/sms/wells/service/recap-as-bstr-costs/paging', { params: {
+  const res = await dataService.get('/sms/wells/service/as-visit-costs/paging', { params: {
     ...cachedParams, ...pageInfo.value } });
   const { list: products, pageInfo: pagingResult } = res.data;
   pageInfo.value = pagingResult;
@@ -141,11 +141,11 @@ async function onClickSave() {
   const modifedData = gridUtil.getChangedRowValues(view);
   modifedData.forEach((item) => {
     const oldData = gridUtil.getOrigRowValue(view, item.dataRow);
-    item.oldVlStrtDtm = oldData.vlStrtDtm;
-    item.oldVlEndDtm = oldData.vlEndDtm;
+    item.oldApyStrtdt = oldData.apyStrtdt;
+    item.oldApyEnddt = oldData.apyEnddt;
     item.oldRmkCn = oldData.rmkCn;
   });
-  await dataService.put('/sms/wells/service/recap-as-bstr-costs', modifedData);
+  await dataService.put('/sms/wells/service/as-visit-costs', modifedData);
   await notify(t('MSG_ALT_SAVE_DATA'));
   await fetchData();
 }
@@ -157,8 +157,8 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'pdCd' }, /* 상품코드 */
     { fieldName: 'izSn' }, /* 내역일련번호 */
     { fieldName: 'bstrCsAmt', dataType: 'number' }, /* 출장비용금액 */
-    { fieldName: 'vlStrtDtm', dataType: 'date' }, /* 유효시작일시 */
-    { fieldName: 'vlEndDtm', dataType: 'date' }, /* 유효종료일시 */
+    { fieldName: 'apyStrtdt', dataType: 'date' }, /* 유효시작일시 */
+    { fieldName: 'apyEnddt', dataType: 'date' }, /* 유효종료일시 */
     { fieldName: 'rmkCn' }, /* 비고내용 */
   ];
   const columns = [
@@ -180,7 +180,7 @@ const initGrdMain = defineGrid((data, view) => {
       rules: 'required',
     },
     /* 유효시작일시 */
-    { fieldName: 'vlStrtDtm',
+    { fieldName: 'apyStrtdt',
       header: t('MSG_TXT_APY_STRTDT'),
       width: '50',
       styleName: 'text-center',
@@ -188,7 +188,7 @@ const initGrdMain = defineGrid((data, view) => {
       rules: 'required',
     },
     /* 유효종료일시 */
-    { fieldName: 'vlEndDtm',
+    { fieldName: 'apyEnddt',
       header: t('MSG_TXT_APY_ENDDT'),
       width: '50',
       styleName: 'text-center',
