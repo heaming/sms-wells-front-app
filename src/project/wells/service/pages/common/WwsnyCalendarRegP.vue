@@ -139,7 +139,7 @@ const codes = await codeUtil.getMultiCodes(
  *  해당 일자의 데이터를 조회
  */
 async function getCalendarDay() {
-  const res = await dataService.get('/sms/wells/service/calendar-management/day', { params: { ...calendarInfo.value } });
+  const res = await dataService.get('/sms/wells/service/calendars/day', { params: { ...calendarInfo.value } });
   res.data.dfYn = res.data.dfYn ?? 'N';
   calendarInfo.value = res.data;
 }
@@ -151,7 +151,7 @@ getCalendarDay();
 async function onClickSave() {
   // if (!await confirm(t('MSG_ALT_WANT_SAVE'))) { return; }
 
-  await dataService.post('/sms/wells/service/calendar-management', calendarInfo.value);
+  await dataService.post('/sms/wells/service/calendars', calendarInfo.value);
 
   // await notify(t('MSG_ALT_SAVE_DATA'));
   ok();
