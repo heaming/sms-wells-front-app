@@ -150,7 +150,7 @@ const searchParams = ref({
  */
 let cachedParams;
 async function getCalendarMgt() {
-  const res = await dataService.get('/sms/wells/service/calendar-management', { params: { ...cachedParams } });
+  const res = await dataService.get('/sms/wells/service/calendars', { params: { ...cachedParams } });
   calendarList.value = res.data;
 
   // 조회 후 calendar setting
