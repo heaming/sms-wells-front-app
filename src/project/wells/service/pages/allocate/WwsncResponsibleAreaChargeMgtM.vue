@@ -3,13 +3,13 @@
  * 프로그램 개요
  ****************************************************************************************************
  1. 모듈 : SNC (배정관리)
- 2. 프로그램 ID : WwsncResponsibleAreaPsicMgtM - 책임지역 담당자 관리
+ 2. 프로그램 ID : WwsncResponsibleAreaChargeMgtM - 책임지역 담당자 관리
  3. 작성자 : hyewon.kim
  4. 작성일 : 2022.12.13
  ****************************************************************************************************
  * 프로그램 설명
  ****************************************************************************************************
- - 책임지역 담당자 관리 (http://localhost:3000/#/service/wwsnc-responsible-area-psic-mgt)
+ - 책임지역 담당자 관리 (http://localhost:3000/#/service/wwsnc-responsible-area-charge-mgt)
  ****************************************************************************************************
 --->
 <template>
@@ -75,8 +75,15 @@
           />
         </kw-search-item>
         <!-- 적용일자 -->
-        <kw-search-item :label="$t('MSG_TXT_APPLY_DT')">
-          <kw-date-picker v-model="searchParams.applyDate" />
+        <kw-search-item
+          :label="$t('MSG_TXT_APPLY_DT')"
+          required
+        >
+          <kw-date-picker
+            v-model="searchParams.applyDate"
+            :label="$t('MSG_TXT_APPLY_DT')"
+            rules="date_range_required"
+          />
         </kw-search-item>
         <!-- 지역코드 -->
         <kw-search-item :label="$t('MSG_TXT_LOCARA_CD')">
@@ -233,18 +240,25 @@ const codes = await codeUtil.getMultiCodes(
 const serviceCenter = await getServiceCenterOrgs();
 const { G_ONLY_ENG: engineers } = await getWorkingEngineers();
 
-const ctpvs = ref((await getDistricts('sido')).map((v) => ({ ctpv: v.ctpvNm, ctpvNm: v.ctpvNm, ctpvCd: v.fr2pLgldCd })));
-const ctctys = ref((await getDistricts('guAll')).map((v) => ({ ctcty: v.ctctyNm, ctctyNm: v.ctctyNm })));
-const cachedCtctys = cloneDeep(ctctys.value);
+const ctpvs = ref();
+const ctctys = ref();
+const cachedCtctys = ref();
+ctpvs.value = (await getDistricts('sido')).map((v) => ({ ctpv: v.ctpvNm, ctpvNm: v.ctpvNm, ctpvCd: v.fr2pLgldCd }));
+ctctys.value = (await getDistricts('guAll')).map((v) => ({ ctcty: v.ctctyNm, ctctyNm: v.ctctyNm }));
+cachedCtctys.value = cloneDeep(ctctys.value);
 
 async function fetchData() {
-  const res = await dataService.get('/sms/wells/service/responsible-areas/person-in-charges/paging', { params: { ...cachedParams, ...pageInfo.value } });
+  const res = await dataService.get('/sms/wells/service/responsible-area-charges/paging', { params: { ...cachedParams, ...pageInfo.value } });
   const { list: personInCharges, pageInfo: pagingResult } = res.data;
   pageInfo.value = pagingResult;
 
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(personInCharges);
   view.resetCurrent();
+
+  baseInfo.value.ichrPrtnrNo = '';
+  baseInfo.value.applyDateFrom = '';
+  baseInfo.value.applyDateTo = '99991231';
 }
 
 async function onClickSearch() {
@@ -256,7 +270,7 @@ async function onClickSearch() {
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
 
-  const res = await dataService.get('/sms/wells/service/responsible-areas/person-in-charges/excel-download', { params: cachedParams });
+  const res = await dataService.get('/sms/wells/service/responsible-area-charges/excel-download', { params: cachedParams });
   await gridUtil.exportView(view, {
     fileName: 'rpbLocaraPersonInChargeList',
     timePostfix: true,
@@ -269,7 +283,8 @@ async function onUpdateCtcty(val) {
     const { ctpvCd } = ctpvs.value.find((v) => v.ctpvNm === val);
     ctctys.value = (await getDistricts('gu', ctpvCd)).map((v) => ({ ctcty: v.ctctyNm, ctctyNm: v.ctctyNm }));
   } else {
-    ctctys.value = cachedCtctys;
+    ctctys.value = cachedCtctys.value;
+    searchParams.value.ctctyNm = '';
   }
 }
 
@@ -359,7 +374,7 @@ async function onClickSave() {
       return;
     }
 
-    await dataService.post('/sms/wells/service/responsible-areas/person-in-charges', changedRows);
+    await dataService.post('/sms/wells/service/responsible-area-charges', changedRows);
 
     notify(t('MSG_ALT_SAVE_DATA'));
     await fetchData();
