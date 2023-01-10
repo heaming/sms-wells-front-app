@@ -30,11 +30,13 @@
         <!-- 처리일자 -->
         <kw-search-item
           :label="$t('MSG_TXT_PRCSDT')"
+          required
         >
           <kw-date-range-picker
             v-model:from="searchParams.wkExcnDtFrom"
             v-model:to="searchParams.wkExcnDtTo"
-            rules="required"
+            rules="date_range_required"
+            :label="$t('MSG_TXT_PRCSDT')"
           />
         </kw-search-item>
 
@@ -219,7 +221,7 @@ const initGrdMain = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'pdNm', header: t('MSG_TXT_PD_NM'), width: '200', footer: { text: '합계' } },
+    { fieldName: 'pdNm', header: t('MSG_TXT_PD_NM'), width: '200', footer: { text: t('MSG_TXT_SUM') } },
     { fieldName: 'pdCd', header: t('MSG_TXT_PRDT_CODE'), width: '150', styleName: 'text-center' },
     { fieldName: 'siteAwPdGrpCd', header: '상품구분코드', width: '150', visible: false, autoFilter: false },
     { fieldName: 'cnt1110', header: t('MSG_TXT_NW_IST'), width: '96', styleName: 'text-right', footer: { text: '합계', expression: 'sum' } },
