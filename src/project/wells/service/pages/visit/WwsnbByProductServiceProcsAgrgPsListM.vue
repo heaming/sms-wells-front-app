@@ -1,0 +1,287 @@
+<!----
+ ****************************************************************************************************
+ * 프로그램 개요
+ ****************************************************************************************************
+ 1. 모듈 : SNB (방문관리)
+ 2. 프로그램 ID : WwsnbByProductServiceProcsAgrgPsListM - 상품별 서비스 처리 집계 현황
+ 3. 작성자 : hyewon.kim
+ 4. 작성일 : 2022.12.30
+ ****************************************************************************************************
+ * 프로그램 설명
+ ****************************************************************************************************
+ - 상품별 서비스 처리 집계 현황 (http://localhost:3000/#/service/wwsnb-by-product-service-procs-agrg-ps-list)
+ ****************************************************************************************************
+--->
+<template>
+  <kw-page>
+    <kw-search @search="onClickSearch">
+      <kw-search-row>
+        <!-- 서비스센터 -->
+        <kw-search-item :label="$t('MSG_TXT_SV_CNR')">
+          <kw-select
+            v-model="searchParams.ogId"
+            :options="serviceCenter"
+            first-option="all"
+            option-label="ogNm"
+            option-value="ogId"
+          />
+        </kw-search-item>
+
+        <!-- 처리일자 -->
+        <kw-search-item
+          :label="$t('MSG_TXT_PRCSDT')"
+          required
+        >
+          <kw-date-range-picker
+            v-model:from="searchParams.wkExcnDtFrom"
+            v-model:to="searchParams.wkExcnDtTo"
+            rules="date_range_required"
+            :label="$t('MSG_TXT_PRCSDT')"
+          />
+        </kw-search-item>
+
+        <!-- 유/무상 구분 -->
+        <kw-search-item
+          :label="$t('MSG_TXT_RECAP_FRISU_DV')"
+        >
+          <kw-select
+            v-model="searchParams.refriDvCd"
+            first-option="all"
+            :options="codes.REFRI_DV_CD"
+          />
+        </kw-search-item>
+      </kw-search-row>
+    </kw-search>
+
+    <div class="result-area">
+      <kw-action-top>
+        <template #left>
+          <kw-paging-info
+            v-model:page-index="pageInfo.pageIndex"
+            :total-count="pageInfo.totalCount"
+          />
+        </template>
+
+        <kw-btn
+          icon="print"
+          dense
+          secondary
+          :label="$t('MSG_BTN_PRTG')"
+        />
+        <kw-btn
+          icon="download_on"
+          dense
+          secondary
+          :label="$t('MSG_BTN_EXCEL_DOWN')"
+          :disable="pageInfo.totalCount === 0"
+          @click="onClickExcelDownload"
+        />
+      </kw-action-top>
+
+      <ul class="filter-box">
+        <li class="filter-box__item">
+          <p class="filter-box__item-label">
+            {{ $t('MSG_TXT_PDGRP') }}
+          </p>
+          <kw-select
+            v-model="searchParams.pdGrpCd"
+            dense
+            first-option="all"
+            :options="codes.PD_GRP_CD"
+            @update:model-value="onUpdateProductGroupCode"
+          />
+        </li>
+      </ul>
+
+      <kw-grid
+        ref="grdMainRef"
+        :visible-rows="pageInfo.pageSize"
+        @init="initGrdMain"
+      />
+    </div>
+  </kw-page>
+</template>
+
+<script setup>
+// -------------------------------------------------------------------------------------------------
+// Import & Declaration
+// -------------------------------------------------------------------------------------------------
+import { codeUtil, defineGrid, getComponentType, gridUtil, useDataService, useMeta } from 'kw-lib';
+import useSnCode from '~sms-wells/service/composables/useSnCode';
+import dayjs from 'dayjs';
+
+const { getServiceCenterOrgs } = useSnCode();
+
+const { t } = useI18n();
+const dataService = useDataService();
+
+const { getConfig } = useMeta();
+
+// -------------------------------------------------------------------------------------------------
+// Function & Event
+// -------------------------------------------------------------------------------------------------
+const grdMainRef = ref(getComponentType('KwGrid'));
+
+const searchParams = ref({
+  ogId: '',
+  wkExcnDtFrom: dayjs().format('YYYYMM').concat('01'),
+  wkExcnDtTo: dayjs().format('YYYYMMDD'),
+  refriDvCd: '',
+  pdGrpCd: '',
+});
+
+const pageInfo = ref({
+  totalCount: 0,
+  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
+});
+
+const codes = await codeUtil.getMultiCodes(
+  'REFRI_DV_CD',
+  'PD_GRP_CD',
+);
+
+const serviceCenter = await getServiceCenterOrgs();
+const filters = codes.PD_GRP_CD.map((v) => ({ name: v.codeId, criteria: `value = '${v.codeId}'` }));
+
+function onUpdateProductGroupCode(val) {
+  const view = grdMainRef.value.getView();
+  view.activateAllColumnFilters('siteAwPdGrpCd', false);
+
+  if (val === '') {
+    pageInfo.value.totalCount = view.getItemCount();
+    return;
+  }
+
+  view.activateColumnFilters('siteAwPdGrpCd', [val], true);
+  pageInfo.value.totalCount = view.getItemCount();
+}
+
+async function fetchData() {
+  const res = await dataService.get('/sms/wells/service/as-visit-state/product-services', { params: searchParams.value });
+
+  pageInfo.value.totalCount = res.data.length;
+
+  const view = grdMainRef.value.getView();
+  view.getDataSource().setRows(res.data);
+  view.resetCurrent();
+
+  searchParams.value.pdGrpCd = '';
+
+  view.autoFiltersRefresh('siteAwPdGrpCd', false);
+  view.setColumnFilters('siteAwPdGrpCd', filters, true);
+}
+
+async function onClickSearch() {
+  await fetchData();
+}
+
+async function onClickExcelDownload() {
+  const view = grdMainRef.value.getView();
+
+  await gridUtil.exportView(view, {
+    fileName: 'serviceProcAggrByPrdtList',
+    timePostfix: true,
+  });
+}
+
+// -------------------------------------------------------------------------------------------------
+// Initialize Grid
+// -------------------------------------------------------------------------------------------------
+const initGrdMain = defineGrid((data, view) => {
+  const fields = [
+    { fieldName: 'pdNm' },
+    { fieldName: 'pdCd' },
+    { fieldName: 'siteAwPdGrpCd' },
+    { fieldName: 'cnt1110', dataType: 'number' },
+    { fieldName: 'cnt1111', dataType: 'number' },
+    { fieldName: 'cnt1122', dataType: 'number' },
+    { fieldName: 'cnt1121', dataType: 'number' },
+    { fieldName: 'cnt1124', dataType: 'number' },
+    { fieldName: 'cnt1123', dataType: 'number' },
+    { fieldName: 'cnt1125', dataType: 'number' },
+    { fieldName: 'cnt1100', dataType: 'number' },
+    { fieldName: 'cnt3420', dataType: 'number' },
+    { fieldName: 'cnt3410', dataType: 'number' },
+    { fieldName: 'cnt3310', dataType: 'number' },
+    { fieldName: 'cnt3320', dataType: 'number' },
+    { fieldName: 'cnt3210', dataType: 'number' },
+    { fieldName: 'cnt3230', dataType: 'number' },
+    { fieldName: 'cnt3110', dataType: 'number' },
+    { fieldName: 'cnt3112', dataType: 'number' },
+    { fieldName: 'cnt3121', dataType: 'number' },
+    { fieldName: 'cnt3122', dataType: 'number' },
+    { fieldName: 'cnt3130', dataType: 'number' },
+    { fieldName: 'cnt3460', dataType: 'number' },
+    { fieldName: 'cnt3440', dataType: 'number' },
+    { fieldName: 'cnt3199', dataType: 'number' },
+    { fieldName: 'cnt3100', dataType: 'number' },
+    { fieldName: 'cnt1390', dataType: 'number' },
+    { fieldName: 'cnt2100', dataType: 'number' },
+    { fieldName: 'cntt', dataType: 'number' },
+  ];
+
+  const columns = [
+    { fieldName: 'pdNm', header: t('MSG_TXT_PD_NM'), width: '200', footer: { text: t('MSG_TXT_SUM') } },
+    { fieldName: 'pdCd', header: t('MSG_TXT_PRDT_CODE'), width: '150', styleName: 'text-center' },
+    { fieldName: 'siteAwPdGrpCd', header: t('MSG_TXT_PD_DV_CD'), width: '150', visible: false, autoFilter: false },
+    { fieldName: 'cnt1110', header: t('MSG_TXT_NW_IST'), width: '96', styleName: 'text-right', footer: { text: t('MSG_TXT_SUM'), expression: 'sum' } },
+    { fieldName: 'cnt1111', header: t('MSG_TXT_IST_REQD'), width: '96', styleName: 'text-right', footer: { text: t('MSG_TXT_SUM'), expression: 'sum' } },
+    { fieldName: 'cnt1122', header: t('MSG_TXT_MYCO_NCLT'), width: '96', styleName: 'text-right', footer: { text: t('MSG_TXT_SUM'), expression: 'sum' } },
+    { fieldName: 'cnt1121', header: t('MSG_TXT_MYCO_CLN'), width: '96', styleName: 'text-right', footer: { text: t('MSG_TXT_SUM'), expression: 'sum' } },
+    { fieldName: 'cnt1124', header: t('MSG_TXT_OCO_NCLT'), width: '96', styleName: 'text-right', footer: { text: t('MSG_TXT_SUM'), expression: 'sum' } },
+    { fieldName: 'cnt1123', header: t('MSG_TXT_OCO_CLN'), width: '96', styleName: 'text-right', footer: { text: t('MSG_TXT_SUM'), expression: 'sum' } },
+    { fieldName: 'cnt1125', header: t('MSG_TXT_MYCO_SEP'), width: '96', styleName: 'text-right', footer: { text: t('MSG_TXT_SUM'), expression: 'sum' } },
+    { fieldName: 'cnt1100', header: t('MSG_TXT_SBSUM'), width: '96', styleName: 'text-right', footer: { text: t('MSG_TXT_SUM'), expression: 'sum' } },
+    { fieldName: 'cnt3420', header: t('MSG_TXT_SL_CAN'), width: '96', styleName: 'text-right', footer: { text: t('MSG_TXT_SUM'), expression: 'sum' } },
+    { fieldName: 'cnt3410', header: t('MSG_TXT_PD_CAN'), width: '96', styleName: 'text-right', footer: { text: t('MSG_TXT_SUM'), expression: 'sum' } },
+    { fieldName: 'cnt3310', header: t('MSG_TXT_RELO_SEP'), width: '96', styleName: 'text-right', footer: { text: t('MSG_TXT_SUM'), expression: 'sum' } },
+    { fieldName: 'cnt3320', header: t('MSG_TXT_RELO_REIST'), width: '96', styleName: 'text-right', footer: { text: t('MSG_TXT_SUM'), expression: 'sum' } },
+    { fieldName: 'cnt3210', header: t('MSG_TXT_PDCT_CAUS'), width: '96', styleName: 'text-right', footer: { text: t('MSG_TXT_SUM'), expression: 'sum' } },
+    { fieldName: 'cnt3230', header: t('MSG_TXT_CST_CAUS'), width: '96', styleName: 'text-right', footer: { text: t('MSG_TXT_SUM'), expression: 'sum' } },
+    { fieldName: 'cnt3110', header: t('MSG_TXT_PDCT_AS'), width: '96', styleName: 'text-right', footer: { text: t('MSG_TXT_SUM'), expression: 'sum' } },
+    { fieldName: 'cnt3112', header: t('MSG_TXT_SPC_AS'), width: '96', styleName: 'text-right', footer: { text: t('MSG_TXT_SUM'), expression: 'sum' } },
+    { fieldName: 'cnt3121', header: t('MSG_TXT_FILT_BFSVC'), width: '96', styleName: 'text-right', footer: { text: t('MSG_TXT_SUM'), expression: 'sum' } },
+    { fieldName: 'cnt3122', header: t('MSG_TXT_FILT_VST_SELL'), width: '96', styleName: 'text-right', footer: { text: t('MSG_TXT_SUM'), expression: 'sum' } },
+    { fieldName: 'cnt3130', header: t('MSG_TXT_ENVR_CHK'), width: '96', styleName: 'text-right', footer: { text: t('MSG_TXT_SUM'), expression: 'sum' } },
+    { fieldName: 'cnt3460', header: t('MSG_TXT_PCSV_RTNGD'), width: '96', styleName: 'text-right', footer: { text: t('MSG_TXT_SUM'), expression: 'sum' } },
+    { fieldName: 'cnt3440', header: t('MSG_TXT_CO_IST'), width: '96', styleName: 'text-right', footer: { text: t('MSG_TXT_SUM'), expression: 'sum' } },
+    { fieldName: 'cnt3199', header: t('MSG_TXT_ETC'), width: '96', styleName: 'text-right', footer: { text: t('MSG_TXT_SUM'), expression: 'sum' } },
+    { fieldName: 'cnt3100', header: t('MSG_TXT_SBSUM'), width: '96', styleName: 'text-right', footer: { text: t('MSG_TXT_SUM'), expression: 'sum' } },
+    { fieldName: 'cnt1390', header: t('MSG_TXT_SBSUM'), width: '96', styleName: 'text-right', footer: { text: t('MSG_TXT_SUM'), expression: 'sum' } },
+    { fieldName: 'cnt2100', header: t('MSG_TXT_SBSUM'), width: '96', styleName: 'text-right', footer: { text: t('MSG_TXT_SUM'), expression: 'sum' } },
+    { fieldName: 'cntt', header: t('MSG_TXT_TOT_SUM'), width: '96', styleName: 'text-right', footer: { text: t('MSG_TXT_SUM'), expression: 'sum' } },
+  ];
+
+  view.setColumnLayout([
+    {
+      header: t('MSG_TXT_DIV'), // 구분
+      direction: 'horizontal',
+      items: [{ column: 'pdNm', footerUserSpans: [{ colspan: 2 }] }, 'pdCd', 'siteAwPdGrpCd'],
+    },
+    {
+      header: t('MSG_TXT_INSTALLATION'), // 설치
+      direction: 'horizontal',
+      items: ['cnt1110', 'cnt1111', 'cnt1122', 'cnt1121', 'cnt1124', 'cnt1123', 'cnt1125', 'cnt1100'],
+    },
+    {
+      header: t('MSG_TXT_AFTER_SERVICE'), // A/S
+      direction: 'horizontal',
+      items: ['cnt3420', 'cnt3410', 'cnt3310', 'cnt3320', 'cnt3210', 'cnt3230', 'cnt3110', 'cnt3112', 'cnt3121', 'cnt3122', 'cnt3130', 'cnt3460', 'cnt3440', 'cnt3199', 'cnt3100'],
+    },
+    {
+      header: t('MSG_TXT_FILT_SELL_BFSVC'), // 필터판매 B/S
+      direction: 'horizontal',
+      items: ['cnt1390', 'cnt2100'],
+    },
+    'cntt',
+  ]);
+
+  data.setFields(fields);
+  view.setColumns(columns);
+  view.checkBar.visible = false;
+  view.rowIndicator.visible = true;
+  view.setFixedOptions({ colCount: 1 });
+  view.setFooters({ visible: true });
+  view.filteringOptions.enabled = false;
+});
+</script>
