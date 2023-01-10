@@ -1,3 +1,17 @@
+<!----
+****************************************************************************************************
+* 프로그램 개요
+****************************************************************************************************
+1. 모듈 : SNY
+2. 프로그램 ID : WwsnyCalendarMgtM - Calendar 관리
+3. 작성자 : juno.cha
+4. 작성일 : 2023.01.10
+****************************************************************************************************
+* 프로그램 설명
+****************************************************************************************************
+- Calendar 관리 화면
+****************************************************************************************************
+--->
 <template>
   <kw-page>
     <kw-search
@@ -196,16 +210,29 @@ async function onClickSearch() {
  *  Event - Calendar 더블 클릭
  */
 async function onDbClickCalendar(dayCnt) {
+  // const { result: isChanged } = await modal({
+  //   component: 'WwsnyCalendarRegP',
+  //   componentProps: {
+  //     svCnrOgId: calendarList.value[dayCnt - 1]?.svCnrOgId,
+  //     baseY: calendarList.value[dayCnt - 1]?.baseY,
+  //     baseMm: calendarList.value[dayCnt - 1]?.baseMm,
+  //     baseD: calendarList.value[dayCnt - 1]?.baseD,
+  //     dfYn: calendarList.value[dayCnt - 1]?.dfYn,
+  //     bndtWrkPsicNo: calendarList.value[dayCnt - 1]?.bndtWrkPsicNo,
+  //     rmkCn: calendarList.value[dayCnt - 1]?.rmkCn,
+  //   },
+  // });
+  const { svCnrOgId, baseY, baseMm, baseD, dfYn, bndtWrkPsicNo, rmkCn } = calendarList.value[dayCnt - 1];
   const { result: isChanged } = await modal({
     component: 'WwsnyCalendarRegP',
     componentProps: {
-      svCnrOgId: calendarList.value[dayCnt - 1]?.svCnrOgId,
-      baseY: calendarList.value[dayCnt - 1]?.baseY,
-      baseMm: calendarList.value[dayCnt - 1]?.baseMm,
-      baseD: calendarList.value[dayCnt - 1]?.baseD,
-      dfYn: calendarList.value[dayCnt - 1]?.dfYn,
-      bndtWrkPsicNo: calendarList.value[dayCnt - 1]?.bndtWrkPsicNo,
-      rmkCn: calendarList.value[dayCnt - 1]?.rmkCn,
+      svCnrOgId,
+      baseY,
+      baseMm,
+      baseD,
+      dfYn,
+      bndtWrkPsicNo,
+      rmkCn,
     },
   });
 
