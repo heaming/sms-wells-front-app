@@ -58,15 +58,6 @@
         </kw-search-item>
       </kw-search-row>
       <kw-search-row>
-        <kw-search-item :label="'방문주기'">
-          <kw-select
-            v-model="searchParams.vstPrdVal"
-            :options="customCodes.LOCARA_VST_PRD_CD"
-            first-option="all"
-            first-option-value=""
-          />
-        </kw-search-item>
-
         <kw-search-item :label="'급지'">
           <kw-select
             v-model="searchParams.mngerRglvlDvCd"
@@ -151,7 +142,6 @@ const searchParams = ref({
   ctpvCtctyEmdDvCd: '',
   ctpvCtctyEmdNm: '',
   mngrDvCd: '',
-  vstPrdVal: '',
   mngerRglvlDvCd: '',
 });
 
@@ -289,10 +279,7 @@ const initGridMain = defineGrid((data, view) => {
     { fieldName: 'ctctyNm' },
     { fieldName: 'emdNm' },
     { fieldName: 'mngrDvCd' },
-    { fieldName: 'col4' },
-    { fieldName: 'col5' },
     { fieldName: 'brchOgId' },
-    { fieldName: 'vstPrdVal' },
     { fieldName: 'mngerRglvlDvCd' },
     { fieldName: 'fnlMdfcDtm' },
   ];
@@ -316,10 +303,7 @@ const initGridMain = defineGrid((data, view) => {
       },
     },
     { fieldName: 'mngrDvCd', header: '관리구분', width: '150', styleName: 'text-center', options: codes.MNGR_DV_CD, editor: { type: 'list' }, rules: 'required' },
-    { fieldName: 'col4', header: '관리실장', width: '150', styleName: 'text-center', editable: false },
-    { fieldName: 'col5', header: '총괄단', width: '150', styleName: 'text-center', editable: false },
     { fieldName: 'brchOgId', header: '지역단', width: '150', styleName: 'text-center', editable: false },
-    { fieldName: 'vstPrdVal', header: '방문주기', width: '150', styleName: 'text-center', options: codes.LOCARA_VST_PRD_CD, editor: { type: 'list' } },
     { fieldName: 'mngerRglvlDvCd', header: '급지', width: '100', styleName: 'text-center', options: codes.RGLVL_DV_CD, editor: { type: 'list' } },
     { fieldName: 'fnlMdfcDtm', header: '최종수정일자', width: '100', styleName: 'text-center', editable: false, datetimeFormat: 'datetime' },
   ];
@@ -335,12 +319,7 @@ const initGridMain = defineGrid((data, view) => {
     'newAdrZip',
     'emdNm',
     'mngrDvCd',
-    {
-      header: '매니저', // colspan title
-      direction: 'horizontal', // merge type
-      items: ['col4', 'col5', 'brchOgId'],
-    },
-    'vstPrdVal', // 방문주기
+    'brchOgId',
     'mngerRglvlDvCd', // 급지
     'fnlMdfcDtm', // 최종수정일자
   ]);
