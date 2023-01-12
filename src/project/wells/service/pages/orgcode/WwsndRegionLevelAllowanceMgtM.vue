@@ -562,10 +562,9 @@ const initGrdMovementLevel = defineGrid((data, view) => {
     'rgstNm',
   ];
 
-  view.setColumnLayout(columnLayout);
-
   data.setFields(fields);
   view.setColumns(columns);
+  view.setColumnLayout(columnLayout);
 
   view.rowIndicator.visible = true;
   view.editOptions.columnEditableFirst = true;
@@ -598,12 +597,7 @@ const initGrdBizLevel = defineGrid((data, view) => {
       header: t('MSG_TXT_MMT_HH_M'),
       width: '100',
       styleName: 'text-right',
-      displayCallback: (grid, index, value) => {
-        if (value === '9999') {
-          return '섬';
-        }
-        return value;
-      },
+      displayCallback: (grid, index, value) => (value === '9999' ? '섬' : value),
     },
     { fieldName: 'rglvlGdCd', header: t('MSG_TXT_GD'), width: '100', suffix: ' 급지' },
     { fieldName: 'rglvlAwAmt', header: t('MSG_TXT_RGLVL_AW_WON'), width: '100', styleName: 'text-right' },
@@ -635,10 +629,10 @@ const initGrdBizLevel = defineGrid((data, view) => {
     'rgstNm',
   ];
 
-  view.setColumnLayout(columnLayout);
-
   data.setFields(fields);
   view.setColumns(columns);
+
+  view.setColumnLayout(columnLayout);
 
   view.rowIndicator.visible = true;
   view.editOptions.columnEditableFirst = true;

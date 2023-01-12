@@ -252,6 +252,9 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'cntt', header: t('MSG_TXT_TOT_SUM'), width: '96', styleName: 'text-right', footer: { text: t('MSG_TXT_SUM'), expression: 'sum' } },
   ];
 
+  data.setFields(fields);
+  view.setColumns(columns);
+
   view.setColumnLayout([
     {
       header: t('MSG_TXT_DIV'), // 구분
@@ -276,8 +279,6 @@ const initGrdMain = defineGrid((data, view) => {
     'cntt',
   ]);
 
-  data.setFields(fields);
-  view.setColumns(columns);
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
   view.setFixedOptions({ colCount: 1 });
