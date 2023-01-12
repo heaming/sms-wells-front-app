@@ -562,10 +562,9 @@ const initGrdMovementLevel = defineGrid((data, view) => {
     'rgstNm',
   ];
 
-  view.setColumnLayout(columnLayout);
-
   data.setFields(fields);
   view.setColumns(columns);
+  view.setColumnLayout(columnLayout);
 
   view.rowIndicator.visible = true;
   view.editOptions.columnEditableFirst = true;
@@ -635,10 +634,10 @@ const initGrdBizLevel = defineGrid((data, view) => {
     'rgstNm',
   ];
 
-  view.setColumnLayout(columnLayout);
-
   data.setFields(fields);
   view.setColumns(columns);
+
+  view.setColumnLayout(columnLayout);
 
   view.rowIndicator.visible = true;
   view.editOptions.columnEditableFirst = true;

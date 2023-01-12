@@ -524,10 +524,10 @@ const initGrdMain = defineGrid((data, view) => {
     'vstDowVal',
   ];
 
-  view.setColumnLayout(columnLayout);
-
   data.setFields(fields);
   view.setColumns(columns);
+  view.setColumnLayout(columnLayout);
+
   view.setFixedOptions({ colCount: 1 });
 
   view.checkBar.visible = true;
