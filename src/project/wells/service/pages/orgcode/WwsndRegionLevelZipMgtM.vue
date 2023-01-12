@@ -169,9 +169,12 @@ const codes = await codeUtil.getMultiCodes(
 );
 
 const serviceCenter = await getServiceCenterOrgs();
-const ctpvs = ref((await getDistricts('sido')).map((v) => ({ ctpv: v.ctpvNm, ctpvNm: v.ctpvNm, ctpvCd: v.fr2pLgldCd })));
-const ctctys = ref((await getDistricts('guAll')).map((v) => ({ ctcty: v.ctctyNm, ctctyNm: v.ctctyNm })));
-const cachedCtctys = cloneDeep(ctctys.value);
+const ctpvs = ref();
+const ctctys = ref();
+const cachedCtctys = ref();
+ctpvs.value = (await getDistricts('sido')).map((v) => ({ ctpv: v.ctpvNm, ctpvNm: v.ctpvNm, ctpvCd: v.fr2pLgldCd }));
+ctctys.value = (await getDistricts('guAll')).map((v) => ({ ctcty: v.ctctyNm, ctctyNm: v.ctctyNm }));
+cachedCtctys.value = cloneDeep(ctctys.value);
 
 // 관리부서 여부 체크 TODO: 부서ID와 조직ID 일치 여부 확인 필요
 function isManagementDepartment() {
