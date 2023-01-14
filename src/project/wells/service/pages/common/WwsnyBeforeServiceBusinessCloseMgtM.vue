@@ -92,10 +92,10 @@ const searchParams = ref({
 // );
 const customCodes = {
   MNGT_ITM: [
-    { codeId: '0', codeName: 'BS업무 시간관리' },
-    { codeId: '1', codeName: '매니저 등록기간(신입)' },
-    { codeId: '2', codeName: '매니저 등록기간(해약)' },
-    { codeId: '3', codeName: '접수마감일 관리' },
+    { codeId: '0', codeName: t('BS업무 시간관리') },
+    { codeId: '1', codeName: t('매니저 등록기간(신입)') },
+    { codeId: '2', codeName: t('매니저 등록기간(해약)') },
+    { codeId: '3', codeName: t('접수마감일 관리') },
   ],
 };
 
@@ -166,7 +166,7 @@ function initGrid(data, view) {
   const columns = [
     {
       fieldName: 'mngtYm',
-      header: '관리년월',
+      header: t('관리년월'),
       width: '150',
       styleName: 'text-center',
       datetimeFormat: 'yyyy-MM',
@@ -174,7 +174,7 @@ function initGrid(data, view) {
     },
     {
       fieldName: 'strtdt',
-      header: '시작일자',
+      header: t('시작일자'),
       width: '150',
       styleName: 'text-center',
       datetimeFormat: 'yyyy-MM-dd',
@@ -194,7 +194,7 @@ function initGrid(data, view) {
     },
     {
       fieldName: 'strtHh',
-      header: '시작시간',
+      header: t('시작시간'),
       width: '150',
       styleName: 'text-center',
       datetimeFormat: 'HH:mm:ss',
@@ -206,7 +206,7 @@ function initGrid(data, view) {
     },
     {
       fieldName: 'enddt',
-      header: '종료일자',
+      header: t('종료일자'),
       width: '150',
       styleName: 'text-center',
       datetimeFormat: 'yyyy-MM-dd',
@@ -226,7 +226,7 @@ function initGrid(data, view) {
     },
     {
       fieldName: 'endHh',
-      header: '종료시간',
+      header: t('종료시간'),
       width: '150',
       styleName: 'text-center',
       datetimeFormat: 'HH:mm:ss',
