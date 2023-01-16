@@ -19,7 +19,10 @@
       @search="onClickSearch"
     >
       <kw-search-row>
-        <kw-search-item :label="$t('기준년월')">
+        <kw-search-item
+          :label="$t('기준년월')"
+          required
+        >
           <kw-date-picker
             v-model="searchParams.baseYm"
             type="month"
@@ -27,7 +30,10 @@
           />
         </kw-search-item>
 
-        <kw-search-item :label="$t('서비스센터')">
+        <kw-search-item
+          :label="$t('서비스센터')"
+          required
+        >
           <kw-select
             v-model="searchParams.serviceCenterCd"
             :options="['B','C']"
