@@ -116,7 +116,7 @@
 // -------------------------------------------------------------------------------------------------
 
 // import { codeUtil, defineGrid, getComponentType, gridUtil, useDataService, useGlobal, useMeta } from 'kw-lib';
-import { codeUtil, getComponentType, useDataService } from 'kw-lib';
+import { codeUtil, getComponentType, useDataService, defineGrid } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
 // const { getters } = useStore();
@@ -161,8 +161,6 @@ async function fetchData() {
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(etcValue);
   view.resetCurrent();
-
-  view.displayOptions.emptyMessage = t('MSG_ALT_NO_INFO_SRCH');
 }
 
 async function onClickSearch() {
@@ -182,7 +180,7 @@ onMounted(async () => {
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
 
-function initGrdMain(data, view) {
+const initGrdMain = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'sapMatCd' },
     { fieldName: 'itmPdCd' },
@@ -213,25 +211,9 @@ function initGrdMain(data, view) {
     { fieldName: 'rmkCn', header: t('MSG_TXT_NOTE'), width: '140' },
   ];
 
-  const layouts = [
-    'sapMatCd',
-    'itmPdCd',
-    'itmNm',
-    'itmGdCd',
-    'ostrDt',
-    'ostrQty',
-    'whlsUprcAmt',
-    'totalAmt',
-    'deptNm2',
-    'ostrRsonCd',
-    'wareNm',
-    'rmkCn',
-  ];
-
   data.setFields(fields);
   view.setColumns(columns);
-  view.setColumnLayout(layouts);
   view.checkBar.visible = false; // create checkbox column
   view.rowIndicator.visible = true; // create number indicator column
-}
+});
 </script>
