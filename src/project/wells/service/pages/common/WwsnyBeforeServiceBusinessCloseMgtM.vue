@@ -21,6 +21,7 @@
       <kw-search-row>
         <kw-search-item
           :label="$t('관리년도')"
+          required
         >
           <kw-date-picker
             v-model="searchParams.managementYear"
@@ -31,6 +32,7 @@
 
         <kw-search-item
           :label="$t('관리항목')"
+          required
         >
           <kw-select
             v-model="searchParams.managementItem"
@@ -143,8 +145,9 @@ async function onClickSave() {
   if (await gridUtil.alertIfIsNotModified(view)) { return; }
   if (!await gridUtil.validate(view)) { return; }
 
-  const changedRows = gridUtil.getChangedRowValues(view);
-  await dataService.post('/sms/wells/service/business-closes', changedRows);
+  // const changedRows = gridUtil.getChangedRowValues(view);
+  const allRows = gridUtil.getAllRowValues(view);
+  await dataService.post('/sms/wells/service/business-closes', allRows);
 
   await notify(t('MSG_ALT_SAVE_DATA'));
   await getBusinessClosePages();
@@ -241,7 +244,7 @@ function initGrid(data, view) {
   data.setFields(fields);
   view.setColumns(columns);
 
-  view.checkBar.visible = true;
+  // view.checkBar.visible = true;
   view.rowIndicator.visible = true;
   view.editOptions.editable = true; // Grid Editable On
 
