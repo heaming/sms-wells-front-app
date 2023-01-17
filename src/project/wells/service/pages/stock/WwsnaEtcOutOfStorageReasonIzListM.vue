@@ -194,10 +194,10 @@ searchParams.value.edOstrDt = dayjs().format('YYYYMMDD');
 const center = ref();
 async function fetchDefalutData() {
   if (deptId === '2') {
-    const res = await dataService.get('/sms/wells/service/etc-out-of-storage-resons/service-center', { params: { stOstrDt: searchParams.value.stOstrDt } });
+    const res = await dataService.get('/sms/wells/service/etc-out-of-storage-resons/service-centers', { params: { stOstrDt: searchParams.value.stOstrDt } });
     center.value = res.data;
   } else {
-    const res = await dataService.get('/sms/wells/service/etc-out-of-storage-resons/business-center', { params: { stOstrDt: searchParams.value.stOstrDt } });
+    const res = await dataService.get('/sms/wells/service/etc-out-of-storage-resons/business-centers', { params: { stOstrDt: searchParams.value.stOstrDt } });
     center.value = res.data;
   }
 }
