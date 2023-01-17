@@ -37,8 +37,6 @@
           <kw-select
             v-model="searchParams.ostrWareNo"
             :options="center"
-            option-label="codeName"
-            option-value="code"
             first-option="all"
           />
         </kw-search-item>
@@ -125,8 +123,7 @@ import dayjs from 'dayjs';
 
 const { getters } = useStore();
 
-const { userId: sessionUserId } = getters['meta/getUserInfo'];
-const { employeeIDNumber: epNo } = getters['meta/getUserInfo'];
+const { userId: sessionUserId, employeeIDNumber: epNo } = getters['meta/getUserInfo'];
 // TODO: 현재 세션값으로 부서ID가 아닌 조직코드로 변경되거나 해야하는 과정이므로 강제로 값을 넣어 테스트진행중
 let { departmentId: deptId } = getters['meta/getUserInfo'];
 // const { departmentId: deptId } = getters['meta/getUserInfo'];
@@ -197,10 +194,10 @@ searchParams.value.edOstrDt = dayjs().format('YYYYMMDD');
 const center = ref();
 async function fetchDefalutData() {
   if (deptId === '2') {
-    const res = await dataService.get('/sms/wells/service/etc-out-of-storage-resons/serviceCenter', { params: { stOstrDt: searchParams.value.stOstrDt } });
+    const res = await dataService.get('/sms/wells/service/etc-out-of-storage-resons/service-Center', { params: { stOstrDt: searchParams.value.stOstrDt } });
     center.value = res.data;
   } else {
-    const res = await dataService.get('/sms/wells/service/etc-out-of-storage-resons/businessCenter', { params: { stOstrDt: searchParams.value.stOstrDt } });
+    const res = await dataService.get('/sms/wells/service/etc-out-of-storage-resons/business-Center', { params: { stOstrDt: searchParams.value.stOstrDt } });
     center.value = res.data;
   }
 }
