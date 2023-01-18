@@ -35,7 +35,9 @@
         <!-- 서비스센터 -->
         <kw-search-item :label="$t('MSG_TXT_SV_CNR')">
           <kw-select
-            :options="['A','2','3']"
+            v-model="searchParams.ostrWareNo"
+            :options="center"
+            first-option="all"
           />
         </kw-search-item>
         <!-- 청구사유 -->
@@ -115,11 +117,21 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 
-// import { codeUtil, defineGrid, getComponentType, gridUtil, useDataService, useGlobal, useMeta } from 'kw-lib';
 import { codeUtil, getComponentType, useDataService, defineGrid } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
-// const { getters } = useStore();
+
+const { getters } = useStore();
+
+const { userId: sessionUserId, employeeIDNumber: epNo } = getters['meta/getUserInfo'];
+// TODO: 현재 세션값으로 부서ID가 아닌 조직코드로 변경되거나 해야하는 과정이므로 강제로 값을 넣어 테스트진행중
+let { departmentId: deptId } = getters['meta/getUserInfo'];
+// const { departmentId: deptId } = getters['meta/getUserInfo'];
+
+console.log(sessionUserId);
+console.log(epNo);
+// console.log(deptId);
+console.log(getters['meta/getUserInfo']);
 
 const { t } = useI18n();
 const dataService = useDataService();
@@ -147,17 +159,25 @@ const searchParams = ref({
   itmKndCd: '',
   startItemCd: '',
   endItemCd: '',
+  ostrWareNo: '',
 });
 
 const totalCount = ref(0);
 
 let cachedParams;
 async function fetchData() {
-  console.log(cachedParams);
-  const res = await dataService.get('/sms/wells/service/etc-out-of-storage-resons', { params: cachedParams });
-  const etcValue = res.data;
+  let etcValue;
+  if (deptId === '2') {
+    const res = await dataService.get('/sms/wells/service/etc-out-of-storage-resons', { params: cachedParams });
+    etcValue = res.data;
+  } else {
+    const res = await dataService.get(
+      '/sms/wells/service/etc-out-of-storage-resons/business',
+      { params: cachedParams },
+    );
+    etcValue = res.data;
+  }
   totalCount.value = etcValue.length;
-
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(etcValue);
   view.resetCurrent();
@@ -171,9 +191,21 @@ async function onClickSearch() {
 searchParams.value.stOstrDt = dayjs().set('date', 1).format('YYYYMMDD');
 searchParams.value.edOstrDt = dayjs().format('YYYYMMDD');
 
+const center = ref();
+async function fetchDefalutData() {
+  if (deptId === '2') {
+    const res = await dataService.get('/sms/wells/service/etc-out-of-storage-resons/service-centers', { params: { stOstrDt: searchParams.value.stOstrDt } });
+    center.value = res.data;
+  } else {
+    const res = await dataService.get('/sms/wells/service/etc-out-of-storage-resons/business-centers', { params: { stOstrDt: searchParams.value.stOstrDt } });
+    center.value = res.data;
+  }
+}
+
 // TODO: 사용자 세션에 따라 분기처리로 서비스센터, 영업센터 두개의 쿼리를 조회해 와야함(창고테이블변경 후 작업예정)
 onMounted(async () => {
-  // await fetch();
+  deptId = '2';
+  await fetchDefalutData();
 });
 
 // -------------------------------------------------------------------------------------------------
