@@ -14,10 +14,7 @@
 --->
 
 <template>
-  <kw-popup
-    class="kw-popup--lg"
-    :title="$t('MSG_TIT_MATERIAL_SUMMARY_SRCH')"
-  >
+  <kw-popup class="lg">
     <kw-chip
       :label="pdBas.sellYn === 'Y' ? $t('MSG_TXT_PD_SELLING') : $t('MSG_TXT_PD_NOT_SELLING') "
       color="primary"

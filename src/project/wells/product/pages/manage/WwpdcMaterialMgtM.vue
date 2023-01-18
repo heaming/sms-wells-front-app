@@ -333,23 +333,23 @@ async function onClickSave(tempSaveYn) {
   // 1. Step별 수정여부 확인
   // '임시저장 ==> 저장' 경우를 제외하고 수정여부 체크
   if (!(isTempSaveBtn.value && tempSaveYn === 'N')) {
-    let modifiedOk = true;
+    let isModifiedOk = true;
     await Promise.all(cmpStepRefs.value.map(async (item) => {
-      if (modifiedOk) {
-        modifiedOk = await item.value.isModifiedProps(false);
+      if (isModifiedOk) {
+        isModifiedOk = await item.value.isModifiedProps(false);
       }
     }));
   }
 
   // 2. Step별 필수여부 확인
-  let validOk = true;
+  let isValidOk = true;
   await Promise.all(cmpStepRefs.value.map(async (item, idx) => {
     if (!await item.value.validateProps()) {
-      validOk = false;
+      isValidOk = false;
       currentStep.value = regSteps.value[idx];
     }
   }));
-  if (!validOk) return;
+  if (!isValidOk) return;
 
   // 3. Step별 저장 데이터 확인
   const subList = await getSaveData(tempSaveYn);
@@ -361,7 +361,7 @@ async function onClickSave(tempSaveYn) {
 
   // 5. 생성 이후 Step 설정
   if (rtn) {
-    await notify(t('MSG_ALT_SAVE_DATA'));
+    notify(t('MSG_ALT_SAVE_DATA'));
 
     if (tempSaveYn === 'Y') {
       currentPdCd.value = rtn.data?.data?.pdCd;
@@ -376,8 +376,8 @@ async function onClickSave(tempSaveYn) {
 
 async function onClickNextStep() {
   // Validation Check 1- 현재 Step 필수여부 확인
-  const validOk = await (cmpStepRefs.value[currentStep.value.step - 1].value.validateProps());
-  if (!validOk) return false;
+  const isValidOk = await (cmpStepRefs.value[currentStep.value.step - 1].value.validateProps());
+  if (!isValidOk) return false;
 
   // Validation Check 2- 현재 Step 변경사항 유무 확인 (변경사항이 있으면 '임시저장' 버튼 기능 수행 후 다음으로!)
   // const isModify = await (cmpStepRefs.value[currentStep.value.step - 1].value.isModifiedProps(false));
