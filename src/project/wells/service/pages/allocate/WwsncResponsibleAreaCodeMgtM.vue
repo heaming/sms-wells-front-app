@@ -27,11 +27,13 @@
           <kw-input
             v-model="searchParams.zipFrom"
             maxlength="3"
+            :regex="/^[0-9]*$/i"
           />
           <span>~</span>
           <kw-input
             v-model="searchParams.zipTo"
             maxlength="3"
+            :regex="/^[0-9]*$/i"
           />
         </kw-search-item>
         <!--광역시/도-->
@@ -98,10 +100,14 @@
         >
           <kw-input
             v-model="searchParams.locaraCdFrom"
+            maxlength="3"
+            :regex="/^[0-9]*$/i"
           />
           <span>~</span>
           <kw-input
             v-model="searchParams.locaraCdTo"
+            maxlength="3"
+            :regex="/^[0-9]*$/i"
           />
         </kw-search-item>
       </kw-search-row>
@@ -188,7 +194,7 @@ const { getConfig } = useMeta();
 
 const {
   getDistricts,
-  getServiceCenters,
+  getServiceCenterOrgs,
   getLgldCtpvLocaras,
 } = smsCommon();
 
@@ -205,10 +211,8 @@ const {
 
 const grdMainRef = ref(getComponentType('KwGrid'));
 const now = dayjs();
-
 /* 공통코드 가져오기(임시) */
-const svcCode = await getServiceCenters();
-// const svcCode = '';
+const svcCode = await getServiceCenterOrgs();
 const sido = await getDistricts('sido');
 const sigungu = ref((await getDistricts('guAll')).map((v) => ({ sgg: v.ctctyNm, sggNm: v.ctctyNm })));
 
@@ -236,6 +240,7 @@ const pageInfo = ref({
 });
 
 async function changeSido() {
+  searchParams.value.ctctyNm = '';
   if (searchParams.value.fr2pLgldCd === '') {
     sigungu.value = (await getDistricts('guAll')).map((v) => ({ sgg: v.ctctyNm, sggNm: v.ctctyNm }));
   } else {
@@ -436,18 +441,25 @@ const initGrdMain = defineGrid((data, view) => {
     'vstDowVal',
   ];
 
-  view.setColumnLayout(columnLayout);
-
   data.setFields(fields);
   view.setColumns(columns);
+
+  view.setColumnLayout(columnLayout);
 
   view.setCheckBar({ visible: true, checkableExpression: "state = 'C'", checkableOnly: true });
   view.rowIndicator.visible = true;
   view.editOptions.columnEditableFirst = true;
   view.setFixedOptions({ colCount: 1, resizable: true });
 
-  view.onCellEdited = (grid, itemIndex) => {
+  view.onCellEdited = (grid, itemIndex, row, field) => {
     grid.checkItem(itemIndex, true);
+
+    const { apyStrtdt, apyEnddt } = grid.getValues(itemIndex);
+    if (field === 10 && apyStrtdt > apyEnddt) {
+      grid.setValue(itemIndex, 'apyEnddt', apyStrtdt);
+    } else if (field === 11 && apyStrtdt > apyEnddt) {
+      grid.setValue(itemIndex, 'apyStrtdt', apyEnddt);
+    }
   };
 });
 
