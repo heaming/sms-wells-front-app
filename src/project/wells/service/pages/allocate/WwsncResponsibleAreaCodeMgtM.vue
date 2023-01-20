@@ -26,13 +26,13 @@
         >
           <kw-input
             v-model="searchParams.zipFrom"
-            maxlength="3"
+            mask="###"
             :regex="/^[0-9]*$/i"
           />
           <span>~</span>
           <kw-input
             v-model="searchParams.zipTo"
-            maxlength="3"
+            mask="###"
             :regex="/^[0-9]*$/i"
           />
         </kw-search-item>
@@ -100,13 +100,13 @@
         >
           <kw-input
             v-model="searchParams.locaraCdFrom"
-            maxlength="3"
+            mask="###"
             :regex="/^[0-9]*$/i"
           />
           <span>~</span>
           <kw-input
             v-model="searchParams.locaraCdTo"
-            maxlength="3"
+            mask="###"
             :regex="/^[0-9]*$/i"
           />
         </kw-search-item>
