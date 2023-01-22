@@ -15,6 +15,7 @@
 <template>
   <kw-page>
     <kw-search
+      :modified-targets="['gridMainRef']"
       @search="onClickSearch"
     >
       <kw-search-row>
@@ -101,6 +102,7 @@
         <kw-btn
           icon="download_on"
           dense
+          :disable="pageInfo.totalCount === 0"
           secondary
           :label="$t('엑셀다운로드')"
           @click="onClickExcelDownload"
@@ -119,7 +121,7 @@
           dense
           secondary
           :label="$t('이관지역단 일괄변경')"
-          @click="setWareAreaCd"
+          @click="onClickSetWareAreaCd"
         />
         <kw-separator
           spaced
@@ -135,7 +137,7 @@
           dense
           secondary
           :label="$t('이관사유 일괄변경')"
-          @click="setRsonCd"
+          @click="onClickSetRsonCd"
         />
       </kw-action-top>
       <kw-grid
@@ -156,7 +158,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, getComponentType, gridUtil, useMeta, useDataService, useGlobal } from 'kw-lib';
+import { codeUtil, getComponentType, gridUtil, useMeta, useDataService, useGlobal, defineGrid } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 
 const { t } = useI18n();
@@ -222,7 +224,7 @@ const pageInfo = ref({
  */
 let cachedParams;
 async function getCenterAreaPages() {
-  const res = await dataService.get('/sms/wells/service/center-area/paging', { params: { ...cachedParams, ...pageInfo.value } });
+  const res = await dataService.get('/sms/wells/service/center-areas/paging', { params: { ...cachedParams, ...pageInfo.value } });
   const { list: centerAreas, pageInfo: pagingResult } = res.data;
 
   pageInfo.value = pagingResult;
@@ -271,14 +273,14 @@ function setGridValueForChecked(columnName, setValue) {
 /*
  *  이관지역단 일괄변경
  */
-function setWareAreaCd() {
+function onClickSetWareAreaCd() {
   setGridValueForChecked('mdfcBrchOgId', gridParams.value.wareAreaCd);
 }
 
 /*
  *  이관사유 일괄변경
  */
-function setRsonCd() {
+function onClickSetRsonCd() {
   setGridValueForChecked('mdfcIchrLocaraCtrRsonCd', gridParams.value.rsonCd);
 }
 
@@ -312,7 +314,7 @@ async function onClickSave() {
   if (!await gridUtil.validate(view)) { return; }
 
   const changedRows = gridUtil.getChangedRowValues(view);
-  await dataService.post('/sms/wells/service/center-area', changedRows);
+  await dataService.post('/sms/wells/service/center-areas', changedRows);
 
   await notify(t('MSG_ALT_SAVE_DATA'));
   await getCenterAreaPages();
@@ -320,7 +322,7 @@ async function onClickSave() {
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
-function initGrid(data, view) {
+const initGrid = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'newAdrZip' },
     { fieldName: 'ctpvNm' },
@@ -399,6 +401,6 @@ function initGrid(data, view) {
   view.checkBar.visible = true;
   view.rowIndicator.visible = true;
   view.editOptions.editable = true; // Grid Editable On
-}
+});
 
 </script>
