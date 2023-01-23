@@ -1,14 +1,9 @@
 <template>
   <kw-page>
-    <template #header>
-      <kw-page-header
-        :options="['홈','판매관리','리스크관리', '비정도영업조치사항관리']"
-      />
-    </template>
     <kw-search>
       <kw-search-row>
         <kw-search-item
-          label="적용기간"
+          :label="$t('MSG_TXT_ACEPT_PERIOD')"
           :colspan="2"
         >
           <kw-select
@@ -19,7 +14,7 @@
             rules="date_range_months:1"
           />
         </kw-search-item>
-        <kw-search-item label="총괄단">
+        <kw-search-item :label="$t('MSG_TXT_MANAGEMENT_DEPARTMENT')">
           <kw-select
             :model-value="[]"
             :options="['등록일자', 'B', 'C', 'D']"
@@ -27,13 +22,13 @@
         </kw-search-item>
       </kw-search-row>
       <kw-search-row>
-        <kw-search-item label="지역단">
+        <kw-search-item :label="$t('MSG_TXT_RGNL_GRP')">
           <kw-input />
         </kw-search-item>
-        <kw-search-item label="지점">
+        <kw-search-item :label="t('MSG_TXT_BRANCH')">
           <kw-input />
         </kw-search-item>
-        <kw-search-item label="사원검색">
+        <kw-search-item :label="$t('MSG_TXT_EMP_SRCH')">
           <kw-input icon="search_24" />
         </kw-search-item>
       </kw-search-row>
@@ -47,11 +42,11 @@
         </template>
         <kw-btn
           grid-action
-          label="수정"
+          :label="$t('MSG_BTN_MOD')"
         />
         <kw-btn
           grid-action
-          label="삭제"
+          :label="$t('MSG_BTN_DEL')"
         />
         <kw-separator
           spaced
@@ -61,12 +56,12 @@
         <kw-btn
           dense
           secondary
-          label="행추가"
+          :label="$t('MSG_BTN_ROW_ADD')"
         />
         <kw-btn
           dense
           secondary
-          label="저장"
+          :label="$t('MSG_BTN_SAVE')"
         />
         <kw-separator
           spaced
@@ -77,7 +72,7 @@
           icon="download_on"
           dense
           secondary
-          label="엑셀다운로드"
+          :label="$t('MSG_BTN_EXCEL_DOWN')"
           @click="onClickExcelDownload"
         />
       </kw-action-top>
@@ -91,7 +86,15 @@
 </template>
 
 <script setup>
+// -------------------------------------------------------------------------------------------------
+// Import & Declaration
+// -------------------------------------------------------------------------------------------------
 
+const { t } = useI18n();
+
+// -------------------------------------------------------------------------------------------------
+// Initialize Grid
+// -------------------------------------------------------------------------------------------------
 function initGrid4(data, view) {
   const fields = [
     { fieldName: 'col1' },
@@ -114,22 +117,22 @@ function initGrid4(data, view) {
   ];
 
   const columns = [
-    { fieldName: 'col1', header: '행위자사번', width: '180', styleName: 'text-center' },
-    { fieldName: 'col2', header: '발생년월', width: '165', datetimeFormat: 'yyyy-MM' },
-    { fieldName: 'col3', header: '발생년월', width: '129' },
-    { fieldName: 'col4', header: '성명', width: '129' },
-    { fieldName: 'col5', header: '직급', width: '129' },
-    { fieldName: 'col6', header: '총괄단', width: '129' },
-    { fieldName: 'col7', header: '지역단', width: '129' },
+    { fieldName: 'col1', header: t('MSG_TXT_EMP_NO'), width: '180', styleName: 'text-center' },
+    { fieldName: 'col2', header: t('MSG_TXT_YEAR_OCCURNCE'), width: '165', datetimeFormat: 'yyyy-MM' },
+    { fieldName: 'col3', header: t('MSG_TXT_BLG'), width: '129' },
+    { fieldName: 'col4', header: t('MSG_TXT_EMPL_NM'), width: '129' },
+    { fieldName: 'col5', header: t('MSG_TXT_CRLV'), width: '129' },
+    { fieldName: 'col6', header: t('MSG_TXT_MANAGEMENT_DEPARTMENT'), width: '129' },
+    { fieldName: 'col7', header: t('MSG_TXT_RGNL_GRP'), width: '129' },
     { fieldName: 'col8', header: 'BM', width: '129' },
-    { fieldName: 'col9', header: '지점', width: '129' },
-    { fieldName: 'col10', header: '부과내역', width: '306' },
-    { fieldName: 'col11', header: '조치항목', width: '306' },
-    { fieldName: 'col12', header: '부과대상건수', width: '129' },
-    { fieldName: 'col13', header: '조치결과 부과점수', width: '190', styleName: 'text-center' },
-    { fieldName: 'col14', header: '조치부서', width: '306' },
-    { fieldName: 'col15', header: '등록자', width: '146', styleName: 'text-center' },
-    { fieldName: 'col16', header: '등록일자', width: '165', datetimeFormat: 'yyyy-MM' },
+    { fieldName: 'col9', header: t('MSG_TXT_BRANCH'), width: '129' },
+    { fieldName: 'col10', header: t('MSG_TXT_CHRGS'), width: '306' },
+    { fieldName: 'col11', header: t('MSG_TXT_ACTN_ITM'), width: '306' },
+    { fieldName: 'col12', header: t('MSG_TXT_DUE_TRGT_NO'), width: '129' },
+    { fieldName: 'col13', header: t('MSG_TXT_ACTN_TM_PNLTY_PNT'), width: '190', styleName: 'text-center' },
+    { fieldName: 'col14', header: t('MSG_TXT_ACTN_DPT'), width: '306' },
+    { fieldName: 'col15', header: t('MSG_TXT_FST_RGST_USR'), width: '146', styleName: 'text-center' },
+    { fieldName: 'col16', header: t('MSG_TXT_FST_RGST_DT'), width: '165', datetimeFormat: 'yyyy-MM' },
 
   ];
 
@@ -142,17 +145,17 @@ function initGrid4(data, view) {
   view.setColumnLayout([
     // single
     {
-      header: '행위자사번', // colspan title
+      header: t('MSG_TXT_EMP_NO'), // colspan title
       direction: 'horizontal', // merge type
       items: ['col1', 'col2', 'col3', 'col4', 'col5'],
     },
     {
-      header: '소속',
+      header: t('MSG_TXT_BLG'),
       direction: 'horizontal',
       items: ['col6', 'col7', 'col8', 'col9'],
     },
     {
-      header: '벌점',
+      header: t('MSG_TXT_PNLTY'),
       direction: 'horizontal',
       items: ['col10', 'col11', 'col12', 'col13', 'col14'],
     },
