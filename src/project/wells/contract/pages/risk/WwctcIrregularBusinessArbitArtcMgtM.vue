@@ -79,7 +79,7 @@
 
       <kw-grid
         :visible-rows="10"
-        @init="initGrid4"
+        @init="initGrid"
       />
     </div>
   </kw-page>
@@ -89,50 +89,55 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
+import { defineGrid } from 'kw-lib';
 
 const { t } = useI18n();
+
+// Function & Event
+// -------------------------------------------------------------------------------------------------
+// const grdMainRef = ref(getComponentType('KwGrid'));
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
-function initGrid4(data, view) {
+const initGrid = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'col1' },
-    { fieldName: 'col2' },
-    { fieldName: 'col3' },
-    { fieldName: 'col4' },
-    { fieldName: 'col5' },
-    { fieldName: 'col6' },
-    { fieldName: 'col7' },
-    { fieldName: 'col8' },
-    { fieldName: 'col9' },
-    { fieldName: 'col10' },
-    { fieldName: 'col11' },
-    { fieldName: 'col12' },
-    { fieldName: 'col13' },
-    { fieldName: 'col14' },
-    { fieldName: 'col15' },
-    { fieldName: 'col16' },
+    { fieldName: 'dangOjPrtnrNo' },
+    { fieldName: 'dangOcStrtmm' },
+    { fieldName: 'dangOjPrtnrOgNm' },
+    { fieldName: 'dangOjPrtnrNm' },
+    { fieldName: 'dangOjPrtnrPstnDvNm' },
+    { fieldName: 'dgr1HgrDgPrtnrNm' },
+    { fieldName: 'dgr2HgrDgPrtnrNm' },
+    { fieldName: 'bznsSpptPrtnrNo' },
+    { fieldName: 'dgr3HgrDgPrtnrNm' },
+    { fieldName: 'dangChkNm' },
+    { fieldName: 'dangArbitCd' },
+    { fieldName: 'dangUncvrCt' },
+    { fieldName: 'dangArbitLvyPc' },
+    { fieldName: 'dangArbitOgId' },
+    { fieldName: 'fstRgstUsrId' },
+    { fieldName: 'fstRgstDtm' },
 
   ];
 
   const columns = [
-    { fieldName: 'col1', header: t('MSG_TXT_EMP_NO'), width: '180', styleName: 'text-center' },
-    { fieldName: 'col2', header: t('MSG_TXT_YEAR_OCCURNCE'), width: '165', datetimeFormat: 'yyyy-MM' },
-    { fieldName: 'col3', header: t('MSG_TXT_BLG'), width: '129' },
-    { fieldName: 'col4', header: t('MSG_TXT_EMPL_NM'), width: '129' },
-    { fieldName: 'col5', header: t('MSG_TXT_CRLV'), width: '129' },
-    { fieldName: 'col6', header: t('MSG_TXT_MANAGEMENT_DEPARTMENT'), width: '129' },
-    { fieldName: 'col7', header: t('MSG_TXT_RGNL_GRP'), width: '129' },
-    { fieldName: 'col8', header: 'BM', width: '129' },
-    { fieldName: 'col9', header: t('MSG_TXT_BRANCH'), width: '129' },
-    { fieldName: 'col10', header: t('MSG_TXT_CHRGS'), width: '306' },
-    { fieldName: 'col11', header: t('MSG_TXT_ACTN_ITM'), width: '306' },
-    { fieldName: 'col12', header: t('MSG_TXT_DUE_TRGT_NO'), width: '129' },
-    { fieldName: 'col13', header: t('MSG_TXT_ACTN_TM_PNLTY_PNT'), width: '190', styleName: 'text-center' },
-    { fieldName: 'col14', header: t('MSG_TXT_ACTN_DPT'), width: '306' },
-    { fieldName: 'col15', header: t('MSG_TXT_FST_RGST_USR'), width: '146', styleName: 'text-center' },
-    { fieldName: 'col16', header: t('MSG_TXT_FST_RGST_DT'), width: '165', datetimeFormat: 'yyyy-MM' },
+    { fieldName: 'dangOjPrtnrNo', header: t('MSG_TXT_EMP_NO'), width: '180', styleName: 'text-center' },
+    { fieldName: 'dangOcStrtmm', header: t('MSG_TXT_YEAR_OCCURNCE'), width: '165', datetimeFormat: 'yyyy-MM' },
+    { fieldName: 'dangOjPrtnrOgNm', header: t('MSG_TXT_BLG'), width: '129' },
+    { fieldName: 'dangOjPrtnrNm', header: t('MSG_TXT_EMPL_NM'), width: '129' },
+    { fieldName: 'dangOjPrtnrPstnDvNm', header: t('MSG_TXT_CRLV'), width: '129' },
+    { fieldName: 'dgr1HgrDgPrtnrNm', header: t('MSG_TXT_MANAGEMENT_DEPARTMENT'), width: '129' },
+    { fieldName: 'dgr2HgrDgPrtnrNm', header: t('MSG_TXT_RGNL_GRP'), width: '129' },
+    { fieldName: 'bznsSpptPrtnrNo', header: 'BM', width: '129' },
+    { fieldName: 'dgr3HgrDgPrtnrNm', header: t('MSG_TXT_BRANCH'), width: '129' },
+    { fieldName: 'dangChkNm', header: t('MSG_TXT_CHRGS'), width: '306' },
+    { fieldName: 'dangArbitCd', header: t('MSG_TXT_ACTN_ITM'), width: '306' },
+    { fieldName: 'dangUncvrCt', header: t('MSG_TXT_DUE_TRGT_NO'), width: '129' },
+    { fieldName: 'dangArbitLvyPc', header: t('MSG_TXT_ACTN_TM_PNLTY_PNT'), width: '190', styleName: 'text-center' },
+    { fieldName: 'dangArbitOgId', header: t('MSG_TXT_ACTN_DPT'), width: '306' },
+    { fieldName: 'fstRgstUsrId', header: t('MSG_TXT_FST_RGST_USR'), width: '146', styleName: 'text-center' },
+    { fieldName: 'fstRgstDtm', header: t('MSG_TXT_FST_RGST_DT'), width: '165', datetimeFormat: 'yyyy-MM' },
 
   ];
 
@@ -147,35 +152,35 @@ function initGrid4(data, view) {
     {
       header: t('MSG_TXT_EMP_NO'), // colspan title
       direction: 'horizontal', // merge type
-      items: ['col1', 'col2', 'col3', 'col4', 'col5'],
+      items: ['dangOjPrtnrNo', 'dangOcStrtmm', 'dangOjPrtnrOgNm', 'dangOjPrtnrNm', 'dangOjPrtnrPstnDvNm'],
     },
     {
       header: t('MSG_TXT_BLG'),
       direction: 'horizontal',
-      items: ['col6', 'col7', 'col8', 'col9'],
+      items: ['dgr1HgrDgPrtnrNm', 'dgr2HgrDgPrtnrNm', 'bznsSpptPrtnrNo', 'dgr3HgrDgPrtnrNm'],
     },
     {
       header: t('MSG_TXT_PNLTY'),
       direction: 'horizontal',
-      items: ['col10', 'col11', 'col12', 'col13', 'col14'],
+      items: ['dangChkNm', 'dangArbitCd', 'dangUncvrCt', 'dangArbitLvyPc', 'dangArbitOgId'],
     },
-    'col15', 'col16',
+    'fstRgstUsrId', 'fstRgstDtm',
 
   ]);
 
-  data.setRows([{ col1: '사번입력', col2: '2022-05', col3: '', col4: '', col5: '', col6: '', col7: '', col8: '', col9: '', col10: '', col11: '1-개인정보 도용에 의한 판매계약', col12: '', col13: '★★★', col14: '71401-Wells경영지원팀', col15: '', col16: '2022-05' },
-    { col1: '123456', col2: '2022-05', col3: 'P123456', col4: '김교원', col5: '김교원', col6: '김총괄', col7: '김지역', col8: '김BM', col9: '김지점', col10: '부과내역', col11: '부과내역', col12: '1', col13: '★', col14: '71401-Wells 경영지원팀', col15: '김직원', col16: '2022-05' },
-    { col1: '123456', col2: '2022-05', col3: 'P123456', col4: '김교원', col5: '김교원', col6: '김총괄', col7: '김지역', col8: '김BM', col9: '김지점', col10: '부과내역', col11: '부과내역', col12: '1', col13: '★', col14: '71401-Wells 경영지원팀', col15: '김직원', col16: '2022-05' },
-    { col1: '123456', col2: '2022-05', col3: 'P123456', col4: '김교원', col5: '김교원', col6: '김총괄', col7: '김지역', col8: '김BM', col9: '김지점', col10: '부과내역', col11: '부과내역', col12: '1', col13: '★', col14: '71401-Wells 경영지원팀', col15: '김직원', col16: '2022-05' },
-    { col1: '123456', col2: '2022-05', col3: 'P123456', col4: '김교원', col5: '김교원', col6: '김총괄', col7: '김지역', col8: '김BM', col9: '김지점', col10: '부과내역', col11: '부과내역', col12: '1', col13: '★', col14: '71401-Wells 경영지원팀', col15: '김직원', col16: '2022-05' },
-    { col1: '123456', col2: '2022-05', col3: 'P123456', col4: '김교원', col5: '김교원', col6: '김총괄', col7: '김지역', col8: '김BM', col9: '김지점', col10: '부과내역', col11: '부과내역', col12: '1', col13: '★', col14: '71401-Wells 경영지원팀', col15: '김직원', col16: '2022-05' },
-    { col1: '123456', col2: '2022-05', col3: 'P123456', col4: '김교원', col5: '김교원', col6: '김총괄', col7: '김지역', col8: '김BM', col9: '김지점', col10: '부과내역', col11: '부과내역', col12: '1', col13: '★', col14: '71401-Wells 경영지원팀', col15: '김직원', col16: '2022-05' },
-    { col1: '123456', col2: '2022-05', col3: 'P123456', col4: '김교원', col5: '김교원', col6: '김총괄', col7: '김지역', col8: '김BM', col9: '김지점', col10: '부과내역', col11: '부과내역', col12: '1', col13: '★', col14: '71401-Wells 경영지원팀', col15: '김직원', col16: '2022-05' },
-    { col1: '123456', col2: '2022-05', col3: 'P123456', col4: '김교원', col5: '김교원', col6: '김총괄', col7: '김지역', col8: '김BM', col9: '김지점', col10: '부과내역', col11: '부과내역', col12: '1', col13: '★', col14: '71401-Wells 경영지원팀', col15: '김직원', col16: '2022-05' },
-    { col1: '123456', col2: '2022-05', col3: 'P123456', col4: '김교원', col5: '김교원', col6: '김총괄', col7: '김지역', col8: '김BM', col9: '김지점', col10: '부과내역', col11: '부과내역', col12: '1', col13: '★', col14: '71401-Wells 경영지원팀', col15: '김직원', col16: '2022-05' },
-    { col1: '123456', col2: '2022-05', col3: 'P123456', col4: '김교원', col5: '김교원', col6: '김총괄', col7: '김지역', col8: '김BM', col9: '김지점', col10: '부과내역', col11: '부과내역', col12: '1', col13: '★', col14: '71401-Wells 경영지원팀', col15: '김직원', col16: '2022-05' },
+  data.setRows([{ dangOjPrtnrNo: '사번입력', dangOcStrtmm: '2022-05', dangOjPrtnrOgNm: '', dangOjPrtnrNm: '', dangOjPrtnrPstnDvNm: '', dgr1HgrDgPrtnrNm: '', dgr2HgrDgPrtnrNm: '', bznsSpptPrtnrNo: '', dgr3HgrDgPrtnrNm: '', dangChkNm: '', dangArbitCd: '1-개인정보 도용에 의한 판매계약', dangUncvrCt: '', dangArbitLvyPc: '★★★', dangArbitOgId: '71401-Wells경영지원팀', fstRgstUsrId: '', fstRgstDtm: '2022-05' },
+    { dangOjPrtnrNo: '123456', dangOcStrtmm: '2022-05', dangOjPrtnrOgNm: 'P123456', dangOjPrtnrNm: '김교원', dangOjPrtnrPstnDvNm: '김교원', dgr1HgrDgPrtnrNm: '김총괄', dgr2HgrDgPrtnrNm: '김지역', bznsSpptPrtnrNo: '김BM', dgr3HgrDgPrtnrNm: '김지점', dangChkNm: '부과내역', dangArbitCd: '부과내역', dangUncvrCt: '1', dangArbitLvyPc: '★', dangArbitOgId: '71401-Wells 경영지원팀', fstRgstUsrId: '김직원', fstRgstDtm: '2022-05' },
+    { dangOjPrtnrNo: '123456', dangOcStrtmm: '2022-05', dangOjPrtnrOgNm: 'P123456', dangOjPrtnrNm: '김교원', dangOjPrtnrPstnDvNm: '김교원', dgr1HgrDgPrtnrNm: '김총괄', dgr2HgrDgPrtnrNm: '김지역', bznsSpptPrtnrNo: '김BM', dgr3HgrDgPrtnrNm: '김지점', dangChkNm: '부과내역', dangArbitCd: '부과내역', dangUncvrCt: '1', dangArbitLvyPc: '★', dangArbitOgId: '71401-Wells 경영지원팀', fstRgstUsrId: '김직원', fstRgstDtm: '2022-05' },
+    { dangOjPrtnrNo: '123456', dangOcStrtmm: '2022-05', dangOjPrtnrOgNm: 'P123456', dangOjPrtnrNm: '김교원', dangOjPrtnrPstnDvNm: '김교원', dgr1HgrDgPrtnrNm: '김총괄', dgr2HgrDgPrtnrNm: '김지역', bznsSpptPrtnrNo: '김BM', dgr3HgrDgPrtnrNm: '김지점', dangChkNm: '부과내역', dangArbitCd: '부과내역', dangUncvrCt: '1', dangArbitLvyPc: '★', dangArbitOgId: '71401-Wells 경영지원팀', fstRgstUsrId: '김직원', fstRgstDtm: '2022-05' },
+    { dangOjPrtnrNo: '123456', dangOcStrtmm: '2022-05', dangOjPrtnrOgNm: 'P123456', dangOjPrtnrNm: '김교원', dangOjPrtnrPstnDvNm: '김교원', dgr1HgrDgPrtnrNm: '김총괄', dgr2HgrDgPrtnrNm: '김지역', bznsSpptPrtnrNo: '김BM', dgr3HgrDgPrtnrNm: '김지점', dangChkNm: '부과내역', dangArbitCd: '부과내역', dangUncvrCt: '1', dangArbitLvyPc: '★', dangArbitOgId: '71401-Wells 경영지원팀', fstRgstUsrId: '김직원', fstRgstDtm: '2022-05' },
+    { dangOjPrtnrNo: '123456', dangOcStrtmm: '2022-05', dangOjPrtnrOgNm: 'P123456', dangOjPrtnrNm: '김교원', dangOjPrtnrPstnDvNm: '김교원', dgr1HgrDgPrtnrNm: '김총괄', dgr2HgrDgPrtnrNm: '김지역', bznsSpptPrtnrNo: '김BM', dgr3HgrDgPrtnrNm: '김지점', dangChkNm: '부과내역', dangArbitCd: '부과내역', dangUncvrCt: '1', dangArbitLvyPc: '★', dangArbitOgId: '71401-Wells 경영지원팀', fstRgstUsrId: '김직원', fstRgstDtm: '2022-05' },
+    { dangOjPrtnrNo: '123456', dangOcStrtmm: '2022-05', dangOjPrtnrOgNm: 'P123456', dangOjPrtnrNm: '김교원', dangOjPrtnrPstnDvNm: '김교원', dgr1HgrDgPrtnrNm: '김총괄', dgr2HgrDgPrtnrNm: '김지역', bznsSpptPrtnrNo: '김BM', dgr3HgrDgPrtnrNm: '김지점', dangChkNm: '부과내역', dangArbitCd: '부과내역', dangUncvrCt: '1', dangArbitLvyPc: '★', dangArbitOgId: '71401-Wells 경영지원팀', fstRgstUsrId: '김직원', fstRgstDtm: '2022-05' },
+    { dangOjPrtnrNo: '123456', dangOcStrtmm: '2022-05', dangOjPrtnrOgNm: 'P123456', dangOjPrtnrNm: '김교원', dangOjPrtnrPstnDvNm: '김교원', dgr1HgrDgPrtnrNm: '김총괄', dgr2HgrDgPrtnrNm: '김지역', bznsSpptPrtnrNo: '김BM', dgr3HgrDgPrtnrNm: '김지점', dangChkNm: '부과내역', dangArbitCd: '부과내역', dangUncvrCt: '1', dangArbitLvyPc: '★', dangArbitOgId: '71401-Wells 경영지원팀', fstRgstUsrId: '김직원', fstRgstDtm: '2022-05' },
+    { dangOjPrtnrNo: '123456', dangOcStrtmm: '2022-05', dangOjPrtnrOgNm: 'P123456', dangOjPrtnrNm: '김교원', dangOjPrtnrPstnDvNm: '김교원', dgr1HgrDgPrtnrNm: '김총괄', dgr2HgrDgPrtnrNm: '김지역', bznsSpptPrtnrNo: '김BM', dgr3HgrDgPrtnrNm: '김지점', dangChkNm: '부과내역', dangArbitCd: '부과내역', dangUncvrCt: '1', dangArbitLvyPc: '★', dangArbitOgId: '71401-Wells 경영지원팀', fstRgstUsrId: '김직원', fstRgstDtm: '2022-05' },
+    { dangOjPrtnrNo: '123456', dangOcStrtmm: '2022-05', dangOjPrtnrOgNm: 'P123456', dangOjPrtnrNm: '김교원', dangOjPrtnrPstnDvNm: '김교원', dgr1HgrDgPrtnrNm: '김총괄', dgr2HgrDgPrtnrNm: '김지역', bznsSpptPrtnrNo: '김BM', dgr3HgrDgPrtnrNm: '김지점', dangChkNm: '부과내역', dangArbitCd: '부과내역', dangUncvrCt: '1', dangArbitLvyPc: '★', dangArbitOgId: '71401-Wells 경영지원팀', fstRgstUsrId: '김직원', fstRgstDtm: '2022-05' },
+    { dangOjPrtnrNo: '123456', dangOcStrtmm: '2022-05', dangOjPrtnrOgNm: 'P123456', dangOjPrtnrNm: '김교원', dangOjPrtnrPstnDvNm: '김교원', dgr1HgrDgPrtnrNm: '김총괄', dgr2HgrDgPrtnrNm: '김지역', bznsSpptPrtnrNo: '김BM', dgr3HgrDgPrtnrNm: '김지점', dangChkNm: '부과내역', dangArbitCd: '부과내역', dangUncvrCt: '1', dangArbitLvyPc: '★', dangArbitOgId: '71401-Wells 경영지원팀', fstRgstUsrId: '김직원', fstRgstDtm: '2022-05' },
 
   ]);
-}
+});
 
 </script>
