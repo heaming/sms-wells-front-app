@@ -1,6 +1,24 @@
+<!----
+****************************************************************************************************
+* 프로그램 개요
+****************************************************************************************************
+1. 모듈 : CTC
+2. 프로그램 ID : WwctcIrregularBusinessArbitArtcMgtM - 비정도 영업 조치 사항 관리
+3. 작성자 : gs.nidhi.d
+4. 작성일 : 2023.01.23
+****************************************************************************************************
+* 프로그램 설명
+****************************************************************************************************
+- 비정도 영업 조치 사항 관리
+****************************************************************************************************
+--->
+
 <template>
   <kw-page>
-    <kw-search>
+    <kw-search
+      :modified-targets="['grdMain']"
+      @search="onClickSearch"
+    >
       <kw-search-row>
         <kw-search-item
           :label="$t('MSG_TXT_ACEPT_PERIOD')"
@@ -16,17 +34,17 @@
         </kw-search-item>
         <kw-search-item :label="$t('MSG_TXT_MANAGEMENT_DEPARTMENT')">
           <kw-select
-            :model-value="[]"
+            v-model="searchParams.dgr1HgrDgPrtnrNm"
             :options="['등록일자', 'B', 'C', 'D']"
           />
         </kw-search-item>
       </kw-search-row>
       <kw-search-row>
         <kw-search-item :label="$t('MSG_TXT_RGNL_GRP')">
-          <kw-input />
+          <kw-input v-model="searchParams.dgr2HgrDgPrtnrNm" />
         </kw-search-item>
         <kw-search-item :label="t('MSG_TXT_BRANCH')">
-          <kw-input />
+          <kw-input v-model="searchParams.dgr3HgrDgPrtnrNm" />
         </kw-search-item>
         <kw-search-item :label="$t('MSG_TXT_EMP_SRCH')">
           <kw-input icon="search_24" />
@@ -78,6 +96,7 @@
       </kw-action-top>
 
       <kw-grid
+        name="grdMain"
         :visible-rows="10"
         @init="initGrid"
       />
@@ -89,13 +108,51 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { defineGrid } from 'kw-lib';
+import { defineGrid, getComponentType, useDataService, useMeta } from 'kw-lib';
+import { cloneDeep } from 'lodash-es';
 
 const { t } = useI18n();
 
+const { getConfig } = useMeta();
+const dataService = useDataService();
+
 // Function & Event
 // -------------------------------------------------------------------------------------------------
-// const grdMainRef = ref(getComponentType('KwGrid'));
+
+const grdMainRef = ref(getComponentType('KwGrid'));
+
+const searchParams = ref({
+  dgr1HgrDgPrtnrNm: '',
+  dgr2HgrDgPrtnrNm: '',
+  dgr3HgrDgPrtnrNm: '',
+
+});
+
+const pageInfo = ref({
+  totalCount: 0,
+  pageIndex: 1,
+  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
+});
+
+let cachedParams;
+
+async function fetchData() {
+  cachedParams = { ...cachedParams, ...pageInfo.value };
+  const res = await dataService.get('/sms/wells/contract/risk-audits/Irregular-Business-Arbitrations', { params: cachedParams });
+
+  const { list: arbitrations, pageInfo: pagingResult } = res.data;
+  pageInfo.value = pagingResult;
+
+  const view = grdMainRef.value.getView();
+  view.getDataSource().setRows(arbitrations);
+  view.resetCurrent();
+}
+
+async function onClickSearch() {
+  pageInfo.value.pageIndex = 1;
+  cachedParams = cloneDeep(searchParams.value);
+  await fetchData();
+}
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
