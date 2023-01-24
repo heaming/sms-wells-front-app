@@ -110,7 +110,8 @@
             <kw-btn
               primary
               dense
-              :label="t('MSG_TXT_CNFM_CRTR_MGT')"
+              :label="t('MSG_BTN_CNFM_CRTR_MGT')"
+              @click="onClickConfirmCriteriaMangement()"
             />
           </kw-action-top>
 
@@ -133,7 +134,7 @@
 import { gridUtil, getComponentType, useGlobal } from 'kw-lib';
 
 const { t } = useI18n();
-const { notify } = useGlobal();
+const { notify, modal, alert } = useGlobal();
 
 const grdMainRef = ref(getComponentType('KwGrid'));
 
@@ -147,18 +148,9 @@ const searchParams = ref({
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 
-async function onClickAdd() {
+function onClickAdd() {
   const view = grdMainRef.value.getView();
-  await gridUtil.insertRowAndFocus(view, 0, {
-    col1: '',
-    col2: '',
-    col3: '',
-    col4: '',
-    col5: '',
-    col6: '2023-01-23',
-    col7: '2023-01-23',
-    col8: '',
-  }, 'col1');
+  gridUtil.insertRowAndFocus(view, 0, {});
 }
 
 async function onClickSave() {
@@ -192,6 +184,19 @@ function fetchData() {
   ]);
 }
 
+const onClickConfirmCriteriaMangement = async () => {
+  const {
+    result,
+    payload,
+  } = await modal({
+    component: 'WwctcConfirmApprovalBaseListP',
+  });
+  await alert(JSON.stringify({
+    result,
+    payload,
+  }));
+};
+
 async function onClickRemove() {
   const view = grdMainRef.value.getView();
   if (!await gridUtil.confirmIfIsModified(view)) { return; }
@@ -209,7 +214,7 @@ function onClickSearch() {
 async function onClickModify() {
   const view = grdMainRef.value.getView();
   view.editOptions.editable = false;
-  const selectedData = await gridUtil.getCheckedRowValues(view);
+  const selectedData = gridUtil.getCheckedRowValues(view);
   if (selectedData.length !== 1) {
     notify(t('MSG_ALT_MOD_NO_DATA'));
     return;
@@ -238,7 +243,7 @@ function initGrid(data, view) {
 
   const columns = [
     { fieldName: 'col1', header: t('MSG_TXT_APR_REQ_CAT'), width: '142', styleName: 'text-center', editable: false },
-    { fieldName: 'col2', header: t('MSG_TXT_RSPBL_CHNL'), width: '180', styleName: 'text-center', editor: { type: 'text' } },
+    { fieldName: 'col2', header: t('MSG_TXT_RSPBL_CHNL'), width: '180', styleName: 'text-center', editor: { type: 'text' }, editable: true },
     { fieldName: 'col3', header: t('MSG_TXT_ICHR_DV'), width: '142', styleName: 'text-center', editor: { type: 'text' } },
     { fieldName: 'col4', header: t('MSG_TXT_CNT_PER'), width: '180', styleName: 'text-center', editor: { type: 'text' } },
     { fieldName: 'col5', header: t('MSG_TXT_PIC_NM'), width: '180', styleName: 'text-center', editor: { type: 'text' } },
