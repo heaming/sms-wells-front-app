@@ -104,6 +104,7 @@
 // import { gridUtil, defineGrid, getComponentType, useDataService, useMeta, codeUtil, useGlobal } from 'kw-lib';
 import { defineGrid, useMeta, getComponentType, useDataService, gridUtil } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
+import dayjs from 'dayjs';
 
 const { getConfig } = useMeta();
 const dataService = useDataService();
@@ -115,6 +116,8 @@ const { t } = useI18n();
 
 const grdMainRef = ref(getComponentType('KwGrid'));
 
+const now = dayjs();
+
 const pageInfo = ref({
   totalCount: 0,
   pageIndex: 1,
@@ -123,29 +126,14 @@ const pageInfo = ref({
 
 const searchParams = ref({
   cntrPdEndDt: {
-    startDt: '',
-    endDt: '',
+    startDt: now.startOf('month').format('YYYYMMDD'),
+    endDt: now.format('YYYYMMDD'),
   },
   basePdGrp: '',
   basePdCd: '',
   pdNm: '',
   cntrDtlStatCd: [],
 });
-function initDate() {
-  const today = new Date();
-  let date = today.getDate();
-  let month = today.getMonth() + 1;
-  const year = today.getFullYear();
-  if (month < 10) {
-    month = `0${month}`;
-  }
-  if (date < 10) {
-    date = `0${date}`;
-  }
-  searchParams.value.cntrPdEndDt.startDt = `${year}${month}01`;
-  searchParams.value.cntrPdEndDt.endDt = year + month + date;
-}
-
 let cachedParams;
 
 async function onClickExcelDownload() {
@@ -176,10 +164,6 @@ async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
 }
-
-onMounted(async () => {
-  await initDate();
-});
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
