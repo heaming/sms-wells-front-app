@@ -1,12 +1,22 @@
+<!----
+****************************************************************************************************
+* 프로그램 개요
+****************************************************************************************************
+1. 모듈 : CTA
+2. 프로그램 ID : WwctaRentalAccountMgtM - 렌탈 계정 관리 현황
+3. 작성자 : gs.nidhi.d
+4. 작성일 : 2023.01.24
+****************************************************************************************************
+* 프로그램 설명
+****************************************************************************************************
+- 렌탈 계정 관리 현황
+****************************************************************************************************
+--->
 <template>
   <kw-page>
-    <template #header>
-      <kw-page-header :options="['홈', '판매', '계약관리', '렌탈 계정 관리 현황']" />
-    </template>
-
     <kw-search>
       <kw-search-row>
-        <kw-search-item label="조회구분">
+        <kw-search-item :label="$t('MSG_TXT_INQR_DV')">
           <kw-option-group
             type="radio"
             :options="['상품별', '관리조직별']"
@@ -15,7 +25,7 @@
         </kw-search-item>
 
         <kw-search-item
-          label="설치년월"
+          :label="$t('MSG_TXT_YR_INSTALLATION')"
           required
         >
           <kw-date-range-picker
@@ -23,7 +33,7 @@
             type="month"
           />
         </kw-search-item>
-        <kw-search-item label="상품군">
+        <kw-search-item :label="$t('MSG_TXT_PDGRP')">
           <kw-select
             :model-value="[]"
             :options="['BO등록일', '입찰예정일']"
@@ -32,10 +42,10 @@
         </kw-search-item>
       </kw-search-row>
       <kw-search-row>
-        <kw-search-item label="상품코드">
+        <kw-search-item :label="$t('MSG_TXT_PRDT_CODE')">
           <kw-input />
         </kw-search-item>
-        <kw-search-item label="고객구분">
+        <kw-search-item :label="$t('MSG_TXT_CST_DV')">
           <kw-select
             :model-value="[]"
             :options="['BO등록일', '입찰예정일']"
@@ -54,7 +64,7 @@
           icon="download_on"
           dense
           secondary
-          label="엑셀 다운로드"
+          :label="$t('MSG_BTN_EXCEL_DOWN')"
           @click="onClickExcelDownload"
         />
       </kw-action-top>
@@ -67,6 +77,12 @@
 </template>
 
 <script setup>
+
+// -------------------------------------------------------------------------------------------------
+// Import & Declaration
+// -------------------------------------------------------------------------------------------------
+
+const { t } = useI18n();
 
 function initGrid(data, view) {
   const fields = [
@@ -86,19 +102,19 @@ function initGrid(data, view) {
   ];
 
   const columns = [
-    { fieldName: 'col1', header: '상품군', width: '178' },
-    { fieldName: 'col2', header: '상품명', width: '295' },
-    { fieldName: 'col3', header: '상품코드', width: '125', styleName: 'text-center' },
-    { fieldName: 'col4', header: '설치년월', width: '125', styleName: 'text-center' },
-    { fieldName: 'col5', header: '재약정여부', width: '125', styleName: 'text-center' },
-    { fieldName: 'col6', header: '기압건수', width: '139', styleName: 'text-right' },
-    { fieldName: 'col7', header: '기변', width: '139', styleName: 'text-right' },
-    { fieldName: 'col8', header: '재렌탈', width: '139', styleName: 'text-right' },
-    { fieldName: 'col9', header: '멤버십', width: '139', styleName: 'text-right' },
-    { fieldName: 'col10', header: '렌탈유지', width: '139', styleName: 'text-right' },
+    { fieldName: 'col1', header: t('PDGRP'), width: '178' },
+    { fieldName: 'col2', header: t('PD_NM'), width: '295' },
+    { fieldName: 'col3', header: t('PRDT_CODE'), width: '125', styleName: 'text-center' },
+    { fieldName: 'col4', header: t('YR_INSTALLATION'), width: '125', styleName: 'text-center' },
+    { fieldName: 'col5', header: t('Recommitment'), width: '125', styleName: 'text-center' },
+    { fieldName: 'col6', header: t('SUBSCRPTN_NO'), width: '139', styleName: 'text-right' },
+    { fieldName: 'col7', header: t('CHNG'), width: '139', styleName: 'text-right' },
+    { fieldName: 'col8', header: t('RE_RENTAL'), width: '139', styleName: 'text-right' },
+    { fieldName: 'col9', header: t('MEMBERSHIP'), width: '139', styleName: 'text-right' },
+    { fieldName: 'col10', header: t('RNTL_MNTENC'), width: '139', styleName: 'text-right' },
     { fieldName: 'col11', header: '이탈(만료→자가)', width: '171', styleName: 'text-right' },
     { fieldName: 'col12', header: '이탈(철거→후속계약X)', width: '194', styleName: 'text-right' },
-    { fieldName: 'col13', header: '이탈율', width: '139', styleName: 'text-right' },
+    { fieldName: 'col13', header: t('WTHDRWL_RT'), width: '139', styleName: 'text-right' },
   ];
 
   data.setFields(fields);
