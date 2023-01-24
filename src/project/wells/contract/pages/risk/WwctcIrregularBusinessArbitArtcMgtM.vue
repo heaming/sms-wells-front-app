@@ -29,6 +29,7 @@
             :options="['등록일자', 'B', 'C', 'D']"
           />
           <kw-date-range-picker
+            v-model:from="searchParams.dangOcStrtmm"
             rules="date_range_months:1"
           />
         </kw-search-item>
@@ -47,7 +48,10 @@
           <kw-input v-model="searchParams.dgr3HgrDgPrtnrNm" />
         </kw-search-item>
         <kw-search-item :label="$t('MSG_TXT_EMP_SRCH')">
-          <kw-input icon="search_24" />
+          <kw-input
+            v-model="searchParams.dangOjPrtnrNo"
+            icon="search_24"
+          />
         </kw-search-item>
       </kw-search-row>
     </kw-search>
@@ -55,16 +59,22 @@
       <kw-action-top>
         <template #left>
           <kw-paging-info
-            :total-count="7"
+            v-model:page-index="pageInfo.pageIndex"
+            v-model:page-size="pageInfo.pageSize"
+            :total-count="pageInfo.totalCount"
+            :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
+            @change="fetchData"
           />
         </template>
         <kw-btn
           grid-action
           :label="$t('MSG_BTN_MOD')"
+          @click="onClickModify"
         />
         <kw-btn
           grid-action
           :label="$t('MSG_BTN_DEL')"
+          @click="onClickRemove"
         />
         <kw-separator
           spaced
@@ -75,11 +85,13 @@
           dense
           secondary
           :label="$t('MSG_BTN_ROW_ADD')"
+          @click="onClickAdd"
         />
         <kw-btn
           dense
           secondary
           :label="$t('MSG_BTN_SAVE')"
+          @click="onClickSave"
         />
         <kw-separator
           spaced
@@ -90,12 +102,14 @@
           icon="download_on"
           dense
           secondary
+          :disable="pageInfo.totalCount === 0"
           :label="$t('MSG_BTN_EXCEL_DOWN')"
           @click="onClickExcelDownload"
         />
       </kw-action-top>
 
       <kw-grid
+        ref="grdMainRef"
         name="grdMain"
         :visible-rows="10"
         @init="initGrid"
@@ -108,23 +122,31 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { defineGrid, getComponentType, useDataService, useMeta } from 'kw-lib';
+import { codeUtil, defineGrid, getComponentType, gridUtil, useDataService, useGlobal, useMeta } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 
+const { notify } = useGlobal();
 const { t } = useI18n();
 
 const { getConfig } = useMeta();
 const dataService = useDataService();
 
+// -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 
 const grdMainRef = ref(getComponentType('KwGrid'));
 
+const codes = await codeUtil.getMultiCodes(
+  'COD_PAGE_SIZE_OPTIONS',
+);
+
 const searchParams = ref({
+  dangOcStrtmm: '',
   dgr1HgrDgPrtnrNm: '',
   dgr2HgrDgPrtnrNm: '',
   dgr3HgrDgPrtnrNm: '',
+  dangOjPrtnrNo: '',
 
 });
 
@@ -152,6 +174,66 @@ async function onClickSearch() {
   pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
+}
+
+async function onClickRemove() {
+  const view = grdMainRef.value.getView();
+  if (!await gridUtil.confirmIfIsModified(view)) { return; }
+  const deletedRows = await gridUtil.confirmDeleteCheckedRows(view);
+
+  // deleteKeys needs to be updated as per API
+  const deleteKeys = deletedRows.map((row) => row.dataRow);
+
+  if (deleteKeys.length) {
+    await dataService.delete('/sms/wells/contract/risk-audits/Irregular-Business-Arbitrations', { data: deleteKeys });
+    await fetchData();
+  }
+}
+
+async function onClickSave() {
+  const view = grdMainRef.value.getView();
+  if (await gridUtil.alertIfIsNotModified(view)) { return; }
+  if (!gridUtil.validate(view, {})) { return; }
+
+  const changedRows = gridUtil.getChangedRowValues(view);
+  await dataService.post('/sms/wells/contract/risk-audits/Irregular-Business-Arbitrations', changedRows);
+
+  notify(t('MSG_ALT_SAVE_DATA'));
+  await fetchData();
+}
+
+const onClickModify = async () => {
+  const view = grdMainRef.value.getView();
+  view.editOptions.editable = false;
+  const selectedData = await gridUtil.getCheckedRowValues(view);
+  if (selectedData.length === 0) {
+    notify(t('MSG_ALT_MOD_NO_DATA'));
+  } else if (selectedData.length > 1) {
+    notify(t('MSG_ALT_SELT_ONE_ITEM'));
+  } else {
+    const selectedDataRow = selectedData[0].dataRow;
+    view.editOptions.editable = true;
+    view.onCellEditable = (grid, index) => {
+      if (index.itemIndex !== selectedDataRow) { return false; }
+    };
+  }
+};
+
+async function onClickAdd() {
+  const view = grdMainRef.value.getView();
+  await gridUtil.insertRowAndFocus(view, 0, {});
+  view.editOptions.editable = true;
+  view.onCellEditable = (grid, { itemIndex }) => {
+    if (itemIndex !== 0) return false;
+  };
+}
+
+async function onClickExcelDownload() {
+  const view = grdMainRef.value.getView();
+  await gridUtil.exportView(view, {
+    fileName: 'dataServiceManageList',
+    timePostfix: true,
+  });
 }
 
 // -------------------------------------------------------------------------------------------------
@@ -200,15 +282,14 @@ const initGrid = defineGrid((data, view) => {
 
   data.setFields(fields);
   view.setColumns(columns);
-  view.checkBar.visible = true; // create checkbox column
-  view.rowIndicator.visible = true; // create number indicator column
+  view.checkBar.visible = true;
+  view.rowIndicator.visible = true;
 
   // multi row header setting
   view.setColumnLayout([
-    // single
     {
-      header: t('MSG_TXT_EMP_NO'), // colspan title
-      direction: 'horizontal', // merge type
+      header: t('MSG_TXT_EMP_NO'),
+      direction: 'horizontal',
       items: ['dangOjPrtnrNo', 'dangOcStrtmm', 'dangOjPrtnrOgNm', 'dangOjPrtnrNm', 'dangOjPrtnrPstnDvNm'],
     },
     {
