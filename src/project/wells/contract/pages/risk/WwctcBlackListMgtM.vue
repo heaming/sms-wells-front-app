@@ -1,3 +1,18 @@
+<!----
+****************************************************************************************************
+* 프로그램 개요
+****************************************************************************************************
+1. 모듈 : CTC
+2. 프로그램 ID : WwctcBlackListMgtM - 블랙리스트 관리
+3. 작성자 : gs.bhavesh.n
+4. 작성일 : 2023.01.16
+****************************************************************************************************
+* 프로그램 설명
+****************************************************************************************************
+-블랙리스트 관리
+****************************************************************************************************
+--->
+
 <template>
   <kw-page>
     <kw-tabs
@@ -118,9 +133,9 @@
 
           <kw-grid
             ref="grdMainRef"
-            :name="blackListGrid"
+            name="blackListGrid"
             :visible-rows="10"
-            @init="initGrid4"
+            @init="initGrid"
           />
           <kw-action-bottom>
             <kw-btn
@@ -176,8 +191,6 @@ const searchParams = ref({
 
 const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
-  'HDG_RGST_RSON_CD',
-  'PRTNR_WRK_STAT_CD',
 );
 
 const pageInfo = ref({
@@ -277,7 +290,7 @@ async function onClickDelete() {
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
 
-const initGrid4 = defineGrid((data, view) => {
+const initGrid = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'cont_class' },
     { fieldName: 'custNum' },
@@ -327,9 +340,9 @@ const initGrid4 = defineGrid((data, view) => {
     { fieldName: 'sellerName', header: t('MSG_TXT_SELL_NM'), width: '180' },
     { fieldName: 'sellerCompany', header: t('MSG_TXT_COMPANY'), width: '180' },
     { fieldName: 'sellerPhNum', header: t('MSG_TXT_MPNO'), width: '180' },
-    { fieldName: 'propDateTime', header: t('MSG_TXT_INP_DATE'), width: '169' },
+    { fieldName: 'propDateTime', header: t('MSG_TXT_INP_DATE'), width: '169', datetimeFormat: 'datetime' },
     { fieldName: 'propTyper', header: t('MSG_TXT_TYPER'), width: '131', styleName: 'text-center' },
-    { fieldName: 'propModDateTime', header: t('MSG_TXT_MDFC_DTM'), width: '169' },
+    { fieldName: 'propModDateTime', header: t('MSG_TXT_MDFC_DTM'), width: '169', datetimeFormat: 'datetime' },
     { fieldName: 'propModifier', header: t('MSG_TXT_MDFC_USR'), width: '131', styleName: 'text-center' },
     { fieldName: 'propDelDate', header: t('MSG_TXT_DEL_DATE'), width: '169' },
     { fieldName: 'propDeleter', header: t('MSG_TXT_DLT_USR'), width: '131', styleName: 'text-center' },
