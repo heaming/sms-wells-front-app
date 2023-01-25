@@ -253,7 +253,7 @@ function onClickAddRow() {
     notify(t('MSG_ALT_CHK_PDLV_DV'));
   } else {
     const view = grdMainRef.value.getView();
-    gridUtil.insertRowAndFocus(view, 0, { apyEnddt: '99991231' });
+    gridUtil.insertRowAndFocus(view, 0, { apyStrtdt: now.format('YYYYMMDD'), apyEnddt: '99991231' });
   }
 }
 
@@ -278,7 +278,6 @@ async function onClickDelete() {
   const pdlvNos = deletedRows.map(({ pdlvNo }) => pdlvNo);
   // eslint-disable-next-line no-shadow
   const pdlvDvCds = deletedRows.map(({ pdlvDvCd }) => pdlvDvCd);
-  console.log(deletedRows);
   if (deletedRows.length > 0) {
     // 삭제 controller
     await dataService.delete('/sms/wells/service/region-levels/place-of-deliverys', { params: { pdlvNos, pdlvDvCds } });
@@ -309,10 +308,10 @@ async function onClickApplyDateBulkChange() {
     for (let i = 0; i < chkRows.length; i += 1) {
       data.setValue(chkRows[i].dataRow, 'apyStrtdt', chgApyDt.value.apyStrtdt);
       data.setValue(chkRows[i].dataRow, 'apyEnddt', chgApyDt.value.apyEnddt);
-      debugger;
     }
   }
 }
+
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
@@ -403,10 +402,10 @@ const initGrdMain = defineGrid((data, view) => {
     'cnrOgId',
   ];
 
-  view.setColumnLayout(columnLayout);
-
   data.setFields(fields);
   view.setColumns(columns);
+
+  view.setColumnLayout(columnLayout);
 
   view.checkBar.visible = true;
   view.rowIndicator.visible = true;
@@ -417,8 +416,7 @@ const initGrdMain = defineGrid((data, view) => {
     const { result, payload } = await modal({
       component: 'ZwcmzAddressInfoP',
     });
-    console.log(index);
-    debugger;
+
     if (result) {
       const { address } = payload;
       data.setValue(index.dataRow, 'zip', address.zipCode);
@@ -429,13 +427,12 @@ const initGrdMain = defineGrid((data, view) => {
   };
 
   view.onCellEdited = async (grid, itemIndex, row, field) => {
-    if (field === 7) {
-      const { apyStrtdt, apyStrtdtOrigin } = grid.getValues(itemIndex);
+    const { apyStrtdt, apyEnddt } = grid.getValues(itemIndex);
 
-      if (apyStrtdtOrigin > apyStrtdt) {
-        notify(t('MSG_ALT_APY_STRT_D_CONF_BF_DT'));
-        grid.setValue(itemIndex, 'apyStrtdt', apyStrtdtOrigin);
-      }
+    if (field === 7 && apyStrtdt > apyEnddt) {
+      grid.setValue(itemIndex, 'apyEnddt', apyStrtdt);
+    } else if (field === 8 && apyStrtdt > apyEnddt) {
+      grid.setValue(itemIndex, 'apyStrtdt', apyEnddt);
     }
   };
 });

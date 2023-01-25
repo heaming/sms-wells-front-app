@@ -56,13 +56,13 @@
           />
           <kw-field
             v-model="searchParams.rgsnYn"
+            @update:model-value="onUpdateRgsnYn"
           >
             <!-- 퇴사자제외 -->
             <template #default="{ field }">
               <kw-checkbox
                 v-bind="field"
                 :label="$t('MSG_TXT_RGSN_EXCD')"
-                @update:model-value="onUpdateRgsnYn"
               />
             </template>
           </kw-field>
@@ -216,6 +216,7 @@ const router = useRouter();
 const {
   getAllEngineers,
   getServiceCenterOrgs,
+  getWorkingEngineers,
 } = smsCommon();
 
 // -------------------------------------------------------------------------------------------------
@@ -223,15 +224,20 @@ const {
 // -------------------------------------------------------------------------------------------------
 
 const svcCode = await getServiceCenterOrgs();
-// eslint-disable-next-line max-len
+
 const engineers = ref();
-engineers.value = ((await getAllEngineers('G_ONLY_ENG')).G_ONLY_ENG).map((v) => ({ codeId: v.codeId, codeName: v.codeNm1 }));
+// 기획서 기준
+const eng = (await getAllEngineers('G_ONLY_ENG')).G_ONLY_ENG;
+const wrkEng = (await getWorkingEngineers('G_ONLY_ENG')).G_ONLY_ENG;
+engineers.value = eng.map((v) => ({ codeId: v.codeId, codeName: v.codeNm1 }));
+
 const dvCd = [{ codeId: '1', codeName: t('MSG_TXT_EGER') }];
 const codes = await codeUtil.getMultiCodes(
   // 'CST_DV_CD',
   'CRP_DSC_ANA_CST_DV_CD',
   'COD_PAGE_SIZE_OPTIONS',
   'PD_GRP_CD',
+  'PRD_MNGT_TP_CD',
 );
 const now = dayjs();
 
@@ -286,6 +292,7 @@ async function fetchData() {
 async function onClickSearch() {
   pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
+
   await fetchData();
 }
 
@@ -302,19 +309,32 @@ async function onClickSave() {
   await fetchData();
 }
 
-async function onUpdateSvcCode() {
+function setEngineers() {
   if (searchParams.value.ogId === '') {
-    const eng = ((await getAllEngineers('G_ONLY_ENG')).G_ONLY_ENG);
+    if (searchParams.value.rgsnYn === 'Y') {
+      engineers.value = wrkEng.map((v) => ({ codeId: v.codeId, codeName: v.codeNm1 }));
+      return;
+    }
     engineers.value = eng.map((v) => ({ codeId: v.codeId, codeName: v.codeNm1 }));
   } else {
-    const engByOgId = ((await getAllEngineers('G_ONLY_ENG', searchParams.value.ogId)).G_ONLY_ENG);
+    if (searchParams.value.rgsnYn === 'Y') {
+      const wrkEngByOdId = wrkEng.filter((v) => v.ogCd === searchParams.value.ogId);
+      engineers.value = wrkEngByOdId.map((v) => ({ codeId: v.codeId, codeName: v.codeNm1 }));
+      return;
+    }
+    const engByOgId = eng.filter((v) => v.ogCd === searchParams.value.ogId);
     engineers.value = engByOgId.map((v) => ({ codeId: v.codeId, codeName: v.codeNm1 }));
   }
 }
 
+async function onUpdateSvcCode() {
+  searchParams.value.egerId = '';
+  setEngineers();
+}
+
 async function onUpdateRgsnYn() {
-  console.log(searchParams.value);
-  // TODO : 퇴사자제외 chk 되면, 엔지니어 목록 다시 조회.
+  searchParams.value.egerId = '';
+  setEngineers();
 }
 
 // -------------------------------------------------------------------------------------------------
@@ -448,10 +468,10 @@ const initGrdMain = defineGrid((data, view) => {
     'fstRgstDtm',
   ];
 
-  view.setColumnLayout(columnLayout);
-
   data.setFields(fields);
   view.setColumns(columns);
+
+  view.setColumnLayout(columnLayout);
 
   view.checkBar.visible = true;
   view.rowIndicator.visible = true;
@@ -467,7 +487,7 @@ const initGrdMain = defineGrid((data, view) => {
   /* TODO : 연결페이지 개발전. 개발완료 시 변경. */
   view.onCellItemClicked = (/* grid, index */) => {
     router.push({
-      path: '/service/wwsnc-responsibility-local-area-code-mgt',
+      path: '/service/wwsnc-responsible-area-code-mgt',
       // query: {
       //   value: 'value1'
       // },
