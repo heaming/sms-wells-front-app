@@ -360,17 +360,14 @@ async function onClickSave(tempSaveYn) {
     : await dataService.post(`${baseUrl}`, subList);
 
   // 5. 생성 이후 Step 설정
-  if (rtn) {
-    notify(t('MSG_ALT_SAVE_DATA'));
-
-    if (tempSaveYn === 'Y') {
-      currentPdCd.value = rtn.data?.data?.pdCd;
-      isCreate.value = isEmpty(currentPdCd.value);
-      await fetchData();
-    } else {
-      // TODO 경로 관련 여타와 동일하게 push,close-go, go 방식들 내재한 문제 처리 필요.
-      router.push({ path: materialMainPage, query: {} });
-    }
+  notify(t('MSG_ALT_SAVE_DATA'));
+  if (tempSaveYn === 'Y') {
+    currentPdCd.value = rtn.data?.data?.pdCd;
+    isCreate.value = isEmpty(currentPdCd.value);
+    await fetchData();
+  } else {
+    // TODO 경로 관련 여타와 동일하게 push,close-go, go 방식들 내재한 문제 처리 필요.
+    router.push({ path: materialMainPage, query: {} });
   }
 }
 
@@ -411,7 +408,6 @@ async function setInitCondition() {
 }
 
 onMounted(async () => {
-  debugger;
   await setInitCondition();
 });
 
