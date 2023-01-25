@@ -134,7 +134,7 @@
 import { gridUtil, getComponentType, useGlobal } from 'kw-lib';
 
 const { t } = useI18n();
-const { notify, modal, alert } = useGlobal();
+const { notify, modal } = useGlobal();
 
 const grdMainRef = ref(getComponentType('KwGrid'));
 
@@ -151,6 +151,10 @@ const searchParams = ref({
 function onClickAdd() {
   const view = grdMainRef.value.getView();
   gridUtil.insertRowAndFocus(view, 0, {});
+  view.editOptions.editable = true;
+  view.onCellEditable = (grid, { itemIndex }) => {
+    if (itemIndex !== 0) return false;
+  };
 }
 
 async function onClickSave() {
@@ -191,7 +195,7 @@ const onClickConfirmCriteriaMangement = async () => {
   } = await modal({
     component: 'WwctcConfirmApprovalBaseListP',
   });
-  await alert(JSON.stringify({
+  notify(JSON.stringify({
     result,
     payload,
   }));
@@ -217,13 +221,15 @@ async function onClickModify() {
   const selectedData = gridUtil.getCheckedRowValues(view);
   if (selectedData.length !== 1) {
     notify(t('MSG_ALT_MOD_NO_DATA'));
-    return;
+  } else if (selectedData.length > 1) {
+    notify(t('MSG_ALT_SELT_ONE_ITEM'));
+  } else {
+    const selectedDataRow = selectedData[0].dataRow;
+    view.editOptions.editable = true;
+    view.onCellEditable = (grid, index) => {
+      if (index.itemIndex !== selectedDataRow) { return false; }
+    };
   }
-  const selectedDataRow = selectedData[0].dataRow;
-  view.editOptions.editable = true;
-  view.onCellEditable = (grid, index) => {
-    if (index.itemIndex !== selectedDataRow) { return false; }
-  };
 }
 
 // -------------------------------------------------------------------------------------------------
@@ -258,5 +264,4 @@ function initGrid(data, view) {
   view.checkBar.visible = true;
   view.rowIndicator.visible = true;
 }
-
 </script>
