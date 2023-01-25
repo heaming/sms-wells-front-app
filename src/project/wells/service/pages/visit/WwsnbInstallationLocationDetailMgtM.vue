@@ -116,7 +116,6 @@
         >
           <kw-input
             v-model="searchParams.cstNm"
-            mask="#################"
           />
         </kw-form-item>
         <!-- 고객번호 -->

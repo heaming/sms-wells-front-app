@@ -27,13 +27,11 @@
           <kw-input
             v-model="searchParams.zipFrom"
             mask="###"
-            :regex="/^[0-9]*$/i"
           />
           <span>~</span>
           <kw-input
             v-model="searchParams.zipTo"
             mask="###"
-            :regex="/^[0-9]*$/i"
           />
         </kw-search-item>
         <!--광역시/도-->
@@ -101,13 +99,11 @@
           <kw-input
             v-model="searchParams.locaraCdFrom"
             mask="###"
-            :regex="/^[0-9]*$/i"
           />
           <span>~</span>
           <kw-input
             v-model="searchParams.locaraCdTo"
             mask="###"
-            :regex="/^[0-9]*$/i"
           />
         </kw-search-item>
       </kw-search-row>
