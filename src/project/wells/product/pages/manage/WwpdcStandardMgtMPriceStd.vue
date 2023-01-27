@@ -3,7 +3,7 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : PDC (상품운영관리)
-2. 프로그램 ID : WwpdcStandardMgtMPrice - 기준상품 등록/변경- 가격정보 - 기준가 등록 ( W-PD-U-0010M01 )
+2. 프로그램 ID : WwpdcStandardMgtMPriceStd - 기준상품 등록/변경- 가격정보 - 기준가 등록 ( W-PD-U-0010M01 )
 3. 작성자 : jintae.choi
 4. 작성일 : 2022.12.31
 ****************************************************************************************************
@@ -16,16 +16,17 @@
   <div class="normal-area">
     <!-- 기준가(고정변수) 등록 -->
     <h3>{{ $t('MSG_TXT_PD_STD_PRC_FIX_VAL') }}</h3>
+    <!-- v-model:init-data="priceFieldData" -->
     <zwpdc-prop-meta
       ref="priceStdRef"
       v-model:pd-cd="currentPdCd"
-      v-model:init-data="priceFieldData"
       :pd-prc-tp-cd="pdConst.PD_PRC_TP_CD_BASIC"
-      :readonly-fields="['pdCd', 'pdPrcDtlId', 'verSn']"
+      :readonly-fields="pdConst.DEFAULT_READ_ONLY_FIELDS"
     />
     <kw-separator />
     <kw-action-bottom class="mb30">
       <kw-btn
+        v-show="!props.readonly"
         :label="$t('MSG_BTN_ADD')"
         dense
         @click="onClickAdd"
@@ -34,6 +35,7 @@
 
     <kw-action-top>
       <kw-btn
+        v-show="!props.readonly"
         :label="$t('MSG_BTN_MDFC')"
         dense
         @click="onClickMidify"
@@ -60,7 +62,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { gridUtil, getComponentType } from 'kw-lib';
+import { gridUtil, stringUtil, getComponentType } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 import pdConst from '~sms-common/product/constants/pdConst';
 import ZwpdcPropMeta from '~sms-common/product/pages/manage/components/ZwpdcPropMeta.vue';
@@ -76,6 +78,7 @@ const props = defineProps({
   initData: { type: Object, default: null },
   metaInfos: { type: Object, default: null },
   codes: { type: Object, default: null },
+  readonly: { type: Boolean, default: false },
 });
 
 // -------------------------------------------------------------------------------------------------
@@ -89,11 +92,21 @@ const currentPdCd = ref();
 const currentInitData = ref(null);
 const priceFieldData = ref({});
 const currentMetaInfos = ref();
+const removeObjects = reactive([]);
 
-async function initDataToGridRow() {
+async function resetInitData() {
+  Object.assign(removeObjects, []);
+  await initGridRows();
+}
+
+async function initGridRows() {
   if (await currentInitData.value?.[prcd]) {
     const rows = cloneDeep(await getPropInfosToGridRows(currentInitData.value?.[prcd], currentMetaInfos.value, prcd));
-    console.log('Rows : ', rows);
+    rows?.map((row) => {
+      row[pdConst.PRC_STD_ROW_ID] = row.pdPrcDtlId;
+      return row;
+    });
+    // console.log('Rows : ', rows);
     const view = grdMainRef.value.getView();
     view.getDataSource().setRows(rows);
     view.resetCurrent();
@@ -108,6 +121,7 @@ async function onClickAdd() {
     rtn[item.colNm] = item.initValue;
     return rtn;
   }, {});
+  rowItem[pdConst.PRC_STD_ROW_ID] = stringUtil.getUid('STD');
   // console.log('rowItem : ', rowItem);
   gridUtil.insertRowAndFocus(view, 0, rowItem);
 }
@@ -124,12 +138,28 @@ async function onClickMidify() {
 }
 
 async function onClickRemove() {
-  gridUtil.deleteSelectedRows(grdMainRef.value.getView());
+  const deletedRowValues = gridUtil.deleteCheckedRows(grdMainRef.value.getView());
+  if (deletedRowValues && deletedRowValues.length) {
+    removeObjects.push(...deletedRowValues.reduce((rtn, item) => {
+      if (item[pdConst.PRC_STD_ROW_ID]) {
+        rtn.push({ [pdConst.PRC_STD_ROW_ID]: item[pdConst.PRC_STD_ROW_ID] });
+      }
+      return rtn;
+    }, []));
+  }
 }
 
 async function getSaveData() {
   const rowValues = gridUtil.getAllRowValues(grdMainRef.value.getView());
-  const rtnValues = getGridRowsToSavePdProps(rowValues, currentMetaInfos.value, pdConst.TBL_PD_PRC_DTL);
+  const rtnValues = getGridRowsToSavePdProps(
+    rowValues,
+    currentMetaInfos.value,
+    pdConst.TBL_PD_PRC_DTL,
+    [pdConst.PRC_STD_ROW_ID],
+  );
+  if (removeObjects.length) {
+    rtnValues[pdConst.REMOVE_ROWS] = cloneDeep(removeObjects);
+  }
   console.log('WwpdcStandardMgtMPriceStd - getSaveData - rtnValues : ', rtnValues);
   return rtnValues;
 }
@@ -142,7 +172,7 @@ function validateProps() {
   return true;
 }
 
-async function fetchData() {
+async function initProps() {
   const { pdCd, initData, metaInfos } = props;
   currentPdCd.value = pdCd;
   currentInitData.value = initData;
@@ -150,10 +180,10 @@ async function fetchData() {
   priceFieldData.value[pdConst.TBL_PD_PRC_DTL] = [];
   priceFieldData.value[pdConst.TBL_PD_PRC_DTL]
     .push({ pdExtsPrpGrpCd: pdConst.PD_PRP_GRP_CD_CMN, pdCd: currentPdCd.value });
-  console.log(`WwpdcStandardMgtMPriceStd - fetchData - pdCd : ${currentPdCd.value}, initData : `, currentInitData.value);
+  console.log(`WwpdcStandardMgtMPriceStd - initProps - pdCd : ${currentPdCd.value}, initData : `, currentInitData.value);
 }
 
-await fetchData();
+await initProps();
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
@@ -163,17 +193,20 @@ async function initGrid(data, view) {
   currentMetaInfos.value = metaInfos;
   const { fields, columns } = await getPdMetaToGridInfos(
     currentMetaInfos.value,
+    [pdConst.PD_PRC_TP_CD_BASIC],
     props.codes,
-    ['pdCd', 'pdPrcDtlId', 'verSn'],
+    pdConst.DEFAULT_READ_ONLY_FIELDS,
   );
+  // Grid 내부키 - '신규 Row 추가' 대응
+  fields.push({ fieldName: pdConst.PRC_STD_ROW_ID });
   data.setFields(fields);
   view.setColumns(columns);
   view.checkBar.visible = true;
   view.rowIndicator.visible = true;
   view.editOptions.editable = true;
-  await initDataToGridRow();
+  await initGridRows();
 }
 
 watch(() => props.pdCd, (val) => { currentPdCd.value = val; });
-watch(() => props.initData, (val) => { currentInitData.value = val; initDataToGridRow(); }, { deep: true });
+watch(() => props.initData, (val) => { currentInitData.value = val; resetInitData(); }, { deep: true });
 </script>
