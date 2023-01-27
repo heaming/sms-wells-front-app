@@ -149,9 +149,6 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 
-// -------------------------------------------------------------------------------------------------
-// Function & Event
-// -------------------------------------------------------------------------------------------------
 // import { codeUtil, getComponentType, useDataService, defineGrid } from 'kw-lib';
 import { codeUtil, getComponentType, defineGrid, useDataService, gridUtil } from 'kw-lib';
 
@@ -163,6 +160,10 @@ const grdMainRef = ref(getComponentType('KwGrid'));
 const dataService = useDataService();
 
 const { t } = useI18n();
+
+// -------------------------------------------------------------------------------------------------
+// Function & Event
+// -------------------------------------------------------------------------------------------------
 
 const searchParams = ref({
   stStrDt: '',
@@ -194,7 +195,7 @@ searchParams.value.edStrDt = dayjs().format('YYYYMMDD');
 
 let cachedParams;
 async function fetchData() {
-  const res = await dataService.get('/sms/wells/service/store-detail-itemization', { params: cachedParams });
+  const res = await dataService.get('/sms/wells/service/store-detail-itemizations', { params: cachedParams });
   console.log(res);
   const store = res.data;
   console.log(store.length);
@@ -241,7 +242,7 @@ const initGrdMain = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'strRgstDt', header: t('MSG_TXT_STR_DT'), datetimeFormat: 'yyyy-mm-dd', width: '150', styleName: 'text-center' },
+    { fieldName: 'strRgstDt', header: t('MSG_TXT_STR_DT'), datetimeFormat: 'date', width: '150', styleName: 'text-center' },
     { fieldName: 'sapMatCd', header: t('MSG_TXT_SAP_CD'), width: '150', styleName: 'text-center' },
     { fieldName: 'itmPdCd', header: t('MSG_TXT_ITM_CD'), width: '150', styleName: 'text-center' },
     { fieldName: 'pdAbbrNm', header: t('MSG_TXT_ITM_NM'), width: '300' },
