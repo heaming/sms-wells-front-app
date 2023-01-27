@@ -225,8 +225,8 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'col8', header: t('MSG_TXT_RE_RENTAL'), width: '139', styleName: 'text-right' },
     { fieldName: 'col9', header: t('MSG_TXT_MEMBERSHIP'), width: '139', styleName: 'text-right' },
     { fieldName: 'col10', header: t('MSG_TXT_RNTL_MNTENC'), width: '139', styleName: 'text-right' },
-    { fieldName: 'col11', header: '이탈(만료→자가)', width: '171', styleName: 'text-right' },
-    { fieldName: 'col12', header: '이탈(철거→후속계약X)', width: '194', styleName: 'text-right' },
+    { fieldName: 'col11', header: t('WTHDRWL_SLF'), width: '171', styleName: 'text-right' },
+    { fieldName: 'col12', header: t('WTHDRWL_CNCL'), width: '194', styleName: 'text-right' },
     { fieldName: 'col13', header: t('MSG_TXT_WTHDRWL_RT'), width: '139', styleName: 'text-right' },
   ];
 
