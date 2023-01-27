@@ -3,7 +3,7 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : PDC (상품운영관리)
-2. 프로그램 ID : WwpdcStandardMgtMPrice - 기준상품 등록/변경 - 가격정보 - 수수료 등록 ( W-PD-U-0010M01 )
+2. 프로그램 ID : WwpdcStandardMgtMPriceFee - 기준상품 등록/변경 - 가격정보 - 수수료 등록 ( W-PD-U-0010M01 )
 3. 작성자 : jintae.choi
 4. 작성일 : 2022.12.31
 ****************************************************************************************************
@@ -22,6 +22,7 @@
         <span>({{ $t('MSG_TXT_UNIT') }}:{{ $t('MSG_TXT_CUR_WON') }})</span>
       </template>
       <kw-btn
+        v-show="!props.readonly"
         :label="$t('MSG_BTN_DEL')"
         secondary
         dense
@@ -54,6 +55,7 @@ const props = defineProps({
   initData: { type: Object, default: null },
   metaInfos: { type: Object, default: null },
   codes: { type: Object, default: null },
+  readonly: { type: Boolean, default: false },
 });
 
 // -------------------------------------------------------------------------------------------------
@@ -61,16 +63,30 @@ const props = defineProps({
 // -------------------------------------------------------------------------------------------------
 const grdMainRef = ref(getComponentType('KwGrid'));
 
-const prcd = pdConst.TBL_PD_PRC_DTL;
+const prcfd = pdConst.TBL_PD_PRC_FNL_DTL;
 const currentPdCd = ref();
 const currentInitData = ref(null);
-const priceFieldData = ref({});
 const currentMetaInfos = ref();
+const removeObjects = reactive([]);
 
-async function initDataToGridRow() {
-  if (await currentInitData.value?.[prcd]) {
-    const rows = cloneDeep(await getPropInfosToGridRows(currentInitData.value?.[prcd], currentMetaInfos.value, prcd));
-    console.log('Rows : ', rows);
+async function resetInitData() {
+  Object.assign(removeObjects, []);
+  await initGridRows();
+}
+
+async function initGridRows() {
+  if (await currentInitData.value?.[prcfd]) {
+    const rows = cloneDeep(await getPropInfosToGridRows(
+      currentInitData.value?.[prcfd],
+      currentMetaInfos.value,
+      prcfd,
+      [pdConst.PRC_FNL_ROW_ID],
+    ));
+    rows?.map((row) => {
+      row[pdConst.PRC_FNL_ROW_ID] = row[pdConst.PRC_FNL_ROW_ID] ?? row.pdPrcFnlDtlId;
+      return row;
+    });
+    // console.log('Rows : ', rows);
     const view = grdMainRef.value.getView();
     view.getDataSource().setRows(rows);
     view.resetCurrent();
@@ -78,13 +94,29 @@ async function initDataToGridRow() {
 }
 
 async function onClickRemove() {
-  gridUtil.deleteSelectedRows(grdMainRef.value.getView());
+  const deletedRowValues = gridUtil.deleteCheckedRows(grdMainRef.value.getView());
+  if (deletedRowValues && deletedRowValues.length) {
+    removeObjects.push(...deletedRowValues.reduce((rtn, item) => {
+      if (item[pdConst.PRC_FNL_ROW_ID]) {
+        rtn.push({ [pdConst.PRC_FNL_ROW_ID]: item[pdConst.PRC_FNL_ROW_ID] });
+      }
+      return rtn;
+    }, []));
+  }
 }
 
 async function getSaveData() {
   const rowValues = gridUtil.getAllRowValues(grdMainRef.value.getView());
-  const rtnValues = getGridRowsToSavePdProps(rowValues, currentMetaInfos.value, pdConst.TBL_PD_PRC_DTL);
-  console.log('WwpdcStandardMgtMPriceStd - getSaveData - rtnValues : ', rtnValues);
+  const rtnValues = await getGridRowsToSavePdProps(
+    rowValues,
+    currentMetaInfos.value,
+    prcfd,
+    [pdConst.PRC_FNL_ROW_ID],
+  );
+  if (removeObjects.length) {
+    rtnValues[pdConst.REMOVE_ROWS] = cloneDeep(removeObjects);
+  }
+  console.log('WwpdcStandardMgtMPriceFee - getSaveData - rtnValues : ', rtnValues);
   return rtnValues;
 }
 
@@ -96,18 +128,14 @@ function validateProps() {
   return true;
 }
 
-async function fetchData() {
+async function initProps() {
   const { pdCd, initData, metaInfos } = props;
   currentPdCd.value = pdCd;
   currentInitData.value = initData;
   currentMetaInfos.value = metaInfos;
-  priceFieldData.value[pdConst.TBL_PD_PRC_DTL] = [];
-  priceFieldData.value[pdConst.TBL_PD_PRC_DTL]
-    .push({ pdExtsPrpGrpCd: pdConst.PD_PRP_GRP_CD_CMN, pdCd: currentPdCd.value });
-  console.log(`WwpdcStandardMgtMPriceStd - fetchData - pdCd : ${currentPdCd.value}, initData : `, currentInitData.value);
 }
 
-await fetchData();
+await initProps();
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
@@ -117,17 +145,23 @@ async function initGrid(data, view) {
   currentMetaInfos.value = metaInfos;
   const { fields, columns } = await getPdMetaToGridInfos(
     currentMetaInfos.value,
+    [pdConst.PD_PRC_TP_CD_BASIC,
+      pdConst.PD_PRC_TP_CD_VARIABLE,
+      pdConst.PD_PRC_TP_CD_FINAL,
+      pdConst.PD_PRC_TP_CD_FEE],
     props.codes,
-    ['pdCd', 'pdPrcDtlId', 'verSn'],
+    pdConst.DEFAULT_READ_ONLY_FIELDS,
   );
+  // Grid 내부키 - '신규 Row 추가' 대응
+  fields.push({ fieldName: pdConst.PRC_FNL_ROW_ID });
   data.setFields(fields);
   view.setColumns(columns);
   view.checkBar.visible = true;
   view.rowIndicator.visible = true;
   view.editOptions.editable = true;
-  await initDataToGridRow();
+  await initGridRows();
 }
 
 watch(() => props.pdCd, (val) => { currentPdCd.value = val; });
-watch(() => props.initData, (val) => { currentInitData.value = val; initDataToGridRow(); }, { deep: true });
+watch(() => props.initData, (val) => { currentInitData.value = val; resetInitData(); }, { deep: true });
 </script>

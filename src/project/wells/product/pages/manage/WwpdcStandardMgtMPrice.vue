@@ -48,7 +48,8 @@
         v-model:pd-cd="currentPdCd"
         v-model:init-data="currentInitData"
         :meta-infos="metaInfos"
-        :codes="codes"
+        :codes="currentCodes"
+        :readonly="props.readonly"
       />
     </kw-tab-panel>
     <kw-tab-panel name="val">
@@ -57,7 +58,8 @@
         v-model:pd-cd="currentPdCd"
         v-model:init-data="currentInitData"
         :meta-infos="metaInfos"
-        :codes="codes"
+        :codes="currentCodes"
+        :readonly="props.readonly"
       />
     </kw-tab-panel>
     <kw-tab-panel name="fnl">
@@ -66,7 +68,8 @@
         v-model:pd-cd="currentPdCd"
         v-model:init-data="currentInitData"
         :meta-infos="metaInfos"
-        :codes="codes"
+        :codes="currentCodes"
+        :readonly="props.readonly"
       />
     </kw-tab-panel>
     <kw-tab-panel name="fee">
@@ -75,7 +78,8 @@
         v-model:pd-cd="currentPdCd"
         v-model:init-data="currentInitData"
         :meta-infos="metaInfos"
-        :codes="codes"
+        :codes="currentCodes"
+        :readonly="props.readonly"
       />
     </kw-tab-panel>
   </kw-tab-panels>
@@ -85,9 +89,9 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { useDataService, codeUtil } from 'kw-lib';
-import { isEmpty, merge, unionBy } from 'lodash-es';
+import { isEmpty, merge } from 'lodash-es';
 import pdConst from '~sms-common/product/constants/pdConst';
-import { getPdMetaToCodeNames } from '~sms-common/product/utils/pdUtil';
+import { pdMergeBy, getPdMetaToCodeNames } from '~sms-common/product/utils/pdUtil';
 import WwpdcStandardMgtMPriceStd from './WwpdcStandardMgtMPriceStd.vue';
 import WwpdcStandardMgtMPriceVal from './WwpdcStandardMgtMPriceVal.vue';
 import WwpdcStandardMgtMPriceFnl from './WwpdcStandardMgtMPriceFnl.vue';
@@ -101,6 +105,8 @@ defineExpose({
 const props = defineProps({
   pdCd: { type: String, default: null },
   initData: { type: Object, default: null },
+  codes: { type: Object, default: null },
+  readonly: { type: Boolean, default: false },
 });
 
 const dataService = useDataService();
@@ -109,6 +115,7 @@ const dataService = useDataService();
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 const prcd = pdConst.TBL_PD_PRC_DTL;
+const prcfd = pdConst.TBL_PD_PRC_FNL_DTL;
 
 const cmpStdRef = ref();
 const cmpValRef = ref();
@@ -118,24 +125,33 @@ const currentPdCd = ref();
 const metaInfos = ref({});
 const currentInitData = ref({});
 const selectedTab = ref('std');
-const codes = ref({});
+const currentCodes = ref({});
 
 async function getSaveData() {
   const subList = {};
   subList[prcd] = [];
+  subList[prcfd] = [];
+  subList[pdConst.REMOVE_ROWS] = [];
   const stds = await cmpStdRef.value.getSaveData();
-  subList[prcd] = unionBy(stds?.[prcd], subList[prcd], 'pdPrcDtlId');
+  subList[pdConst.REMOVE_ROWS] = pdMergeBy(subList[pdConst.REMOVE_ROWS], stds[pdConst.REMOVE_ROWS]);
+  subList[prcd] = pdMergeBy(subList[prcd], stds?.[prcd], pdConst.PRC_STD_ROW_ID);
   const vals = await cmpValRef.value.getSaveData();
-  subList[prcd] = unionBy(vals?.[prcd], subList[prcd], 'pdPrcDtlId');
+  subList[pdConst.REMOVE_ROWS] = pdMergeBy(subList[pdConst.REMOVE_ROWS], vals[pdConst.REMOVE_ROWS]);
+  subList[prcfd] = pdMergeBy(subList[prcfd], vals?.[prcfd], pdConst.PRC_FNL_ROW_ID);
   const fnls = await cmpFnlRef.value.getSaveData();
-  subList[prcd] = unionBy(fnls?.[prcd], subList[prcd], 'pdPrcDtlId');
-  const fees = await cmpFnlRef.value.getSaveData();
-  subList[prcd] = unionBy(fees?.[prcd], subList[prcd], 'pdPrcDtlId');
+  subList[pdConst.REMOVE_ROWS] = pdMergeBy(subList[pdConst.REMOVE_ROWS], fnls[pdConst.REMOVE_ROWS]);
+  subList[prcfd] = pdMergeBy(subList[prcfd], fnls?.[prcfd], pdConst.PRC_FNL_ROW_ID, pdConst.PRC_STD_ROW_ID);
+  const fees = await cmpFeeRef.value.getSaveData();
+  subList[pdConst.REMOVE_ROWS] = pdMergeBy(subList[pdConst.REMOVE_ROWS], fees[pdConst.REMOVE_ROWS]);
+  subList[prcfd] = pdMergeBy(subList[prcfd], fees?.[prcfd], pdConst.PRC_FNL_ROW_ID, pdConst.PRC_STD_ROW_ID);
+  console.log('WwpdcStandardMgtMPrice - subList : ', subList);
   return subList;
 }
 
 async function initCurrentData() {
-  currentInitData.value[prcd] = await getSaveData()[prcd];
+  const saveData = await getSaveData();
+  currentInitData.value[prcd] = saveData[prcd];
+  currentInitData.value[prcfd] = saveData[prcfd];
   console.log('WwpdcStandardMgtMPrice - initCurrentData - : ', currentInitData.value);
 }
 
@@ -148,18 +164,19 @@ function validateProps() {
 }
 
 async function fetchData() {
-  const { pdCd, initData } = props;
+  const { pdCd, initData, codes } = props;
   currentPdCd.value = pdCd;
   currentInitData.value = initData;
-  const res = await dataService.get('/sms/common/product/meta-properties', { params: { pdPrcTpCd: pdConst.PD_PRC_TP_CD_BASIC } });
+  const res = await dataService.get('/sms/common/product/meta-properties', { params: { pdPrcTpCd: pdConst.PD_PRC_TP_CD_ALL } });
   if (isEmpty(res.data)) {
     return;
   }
   metaInfos.value = res.data;
   console.log('WwpdcStandardMgtMPrice - fetchData - metaInfos.value : ', metaInfos.value);
-  const codeNames = await getPdMetaToCodeNames(metaInfos.value);
-  codeNames.push('SELL_CHNL_DV_CD');
-  codes.value = merge(codes.value, await codeUtil.getMultiCodes(...codeNames));
+  const codeNames = await getPdMetaToCodeNames(metaInfos.value, props.codes);
+  if (!isEmpty(codeNames)) {
+    currentCodes.value = merge(codes, await codeUtil.getMultiCodes(...codeNames));
+  }
 }
 
 await fetchData();
