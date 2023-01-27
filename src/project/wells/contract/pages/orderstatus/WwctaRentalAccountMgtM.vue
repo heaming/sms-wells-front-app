@@ -119,6 +119,7 @@ const { t } = useI18n();
 const dataService = useDataService();
 
 const now = dayjs();
+// @todo: update to 0 on api integration
 const totalCount = ref(10);
 const srchOptions = ref([{
   codeId: 100,
