@@ -25,18 +25,21 @@
           :colspan="2"
         >
           <kw-select
-            :model-value="[]"
-            :options="['등록일자', 'B', 'C', 'D']"
+            v-model="searchParams.srchGbn"
+            :options="prdDivOption"
           />
           <kw-date-range-picker
-            v-model:from="searchParams.dangOcStrtmm"
+            :key="isRegistration"
+            v-model:from="searchParams.dangOcStrtmm[0]"
+            v-model:to="searchParams.dangOcStrtmm[1]"
+            :type="isRegistration"
             rules="date_range_months:1"
           />
         </kw-search-item>
         <kw-search-item :label="$t('MSG_TXT_MANAGEMENT_DEPARTMENT')">
           <kw-select
             v-model="searchParams.dgr1HgrDgPrtnrNm"
-            :options="['등록일자', 'B', 'C', 'D']"
+            :options="gnrlMngTeamOptions"
           />
         </kw-search-item>
       </kw-search-row>
@@ -67,11 +70,7 @@
           />
         </template>
         <kw-btn
-          grid-action
-          :label="$t('MSG_BTN_MOD')"
-          @click="onClickModify"
-        />
-        <kw-btn
+          v-permission:delete
           grid-action
           :label="$t('MSG_BTN_DEL')"
           @click="onClickRemove"
@@ -82,12 +81,14 @@
           inset
         />
         <kw-btn
+          v-permission:create
           dense
           secondary
           :label="$t('MSG_BTN_ROW_ADD')"
           @click="onClickAdd"
         />
         <kw-btn
+          v-permission:update
           dense
           secondary
           :label="$t('MSG_BTN_SAVE')"
@@ -99,6 +100,7 @@
           inset
         />
         <kw-btn
+          v-permission:download
           icon="download_on"
           dense
           secondary
@@ -131,18 +133,31 @@ const { t } = useI18n();
 const { getConfig } = useMeta();
 const dataService = useDataService();
 
-// -------------------------------------------------------------------------------------------------
-// Function & Event
-// -------------------------------------------------------------------------------------------------
-
-const grdMainRef = ref(getComponentType('KwGrid'));
-
 const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
+  'PNTSC_ARBIT_ATC_CD',
+  'PNTSC_ARBIT_DEPT_CD',
 );
 
+const prdDivOption = ref([{ codeId: 1, codeName: '등록일자' },
+  { codeId: 2, codeName: '발생년월' }]);
+const gnrlMngTeamOptions = ref([
+  { codeId: '', codeName: '전체' },
+  { codeId: 'A', codeName: '총괄단' },
+  { codeId: 'B', codeName: '총괄단' },
+  { codeId: 'C', codeName: '총괄단' },
+  { codeId: 'D', codeName: '총괄단' },
+  { codeId: 'E', codeName: '총괄단' },
+  { codeId: 'F', codeName: '총괄단' },
+  { codeId: 'G', codeName: '총괄단' },
+  { codeId: 'H', codeName: '총괄단' },
+  { codeId: 'P', codeName: '총괄단' },
+]);
+
+let cachedParams;
 const searchParams = ref({
-  dangOcStrtmm: '',
+  srchGbn: 1,
+  dangOcStrtmm: ['', ''],
   dgr1HgrDgPrtnrNm: '',
   dgr2HgrDgPrtnrNm: '',
   dgr3HgrDgPrtnrNm: '',
@@ -156,11 +171,17 @@ const pageInfo = ref({
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
 });
 
-let cachedParams;
+// -------------------------------------------------------------------------------------------------
+// Function & Event
+// -------------------------------------------------------------------------------------------------
+
+const grdMainRef = ref(getComponentType('KwGrid'));
+
+const isRegistration = computed(() => (searchParams.value.srchGbn === 1 ? 'date' : 'month'));
 
 async function fetchData() {
   cachedParams = { ...cachedParams, ...pageInfo.value };
-  const res = await dataService.get('/sms/wells/contract/risk-audits/Irregular-Business-Arbitrations', { params: cachedParams });
+  const res = await dataService.get('/sms/wells/contract/risk-audits/irregular-sales-actions/managerial-tasks', { params: cachedParams });
 
   const { list: arbitrations, pageInfo: pagingResult } = res.data;
   pageInfo.value = pagingResult;
@@ -185,7 +206,7 @@ async function onClickRemove() {
   const deleteKeys = deletedRows.map((row) => row.dataRow);
 
   if (deleteKeys.length) {
-    await dataService.delete('/sms/wells/contract/risk-audits/Irregular-Business-Arbitrations', { data: deleteKeys });
+    await dataService.delete('/sms/wells/contract/risk-audits/irregular-sales-actions/managerial-tasks', { data: deleteKeys });
     await fetchData();
   }
 }
@@ -196,36 +217,16 @@ async function onClickSave() {
   if (!gridUtil.validate(view, {})) { return; }
 
   const changedRows = gridUtil.getChangedRowValues(view);
-  await dataService.post('/sms/wells/contract/risk-audits/Irregular-Business-Arbitrations', changedRows);
+  await dataService.post('/sms/wells/contract/risk-audits/irregular-sales-actions/managerial-tasks', changedRows);
 
   notify(t('MSG_ALT_SAVE_DATA'));
   await fetchData();
 }
 
-const onClickModify = async () => {
-  const view = grdMainRef.value.getView();
-  view.editOptions.editable = false;
-  const selectedData = await gridUtil.getCheckedRowValues(view);
-  if (selectedData.length === 0) {
-    notify(t('MSG_ALT_MOD_NO_DATA'));
-  } else if (selectedData.length > 1) {
-    notify(t('MSG_ALT_SELT_ONE_ITEM'));
-  } else {
-    const selectedDataRow = selectedData[0].dataRow;
-    view.editOptions.editable = true;
-    view.onCellEditable = (grid, index) => {
-      if (index.itemIndex !== selectedDataRow) { return false; }
-    };
-  }
-};
-
 async function onClickAdd() {
   const view = grdMainRef.value.getView();
   await gridUtil.insertRowAndFocus(view, 0, {});
-  view.editOptions.editable = true;
-  view.onCellEditable = (grid, { itemIndex }) => {
-    if (itemIndex !== 0) return false;
-  };
+  view.showEditor();
 }
 
 async function onClickExcelDownload() {
@@ -261,22 +262,56 @@ const initGrid = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'dangOjPrtnrNo', header: t('MSG_TXT_EMP_NO'), width: '180', styleName: 'text-center' },
-    { fieldName: 'dangOcStrtmm', header: t('MSG_TXT_YEAR_OCCURNCE'), width: '165', datetimeFormat: 'yyyy-MM' },
-    { fieldName: 'dangOjPrtnrOgNm', header: t('MSG_TXT_BLG'), width: '129' },
-    { fieldName: 'dangOjPrtnrNm', header: t('MSG_TXT_EMPL_NM'), width: '129' },
-    { fieldName: 'dangOjPrtnrPstnDvNm', header: t('MSG_TXT_CRLV'), width: '129' },
-    { fieldName: 'dgr1HgrDgPrtnrNm', header: t('MSG_TXT_MANAGEMENT_DEPARTMENT'), width: '129' },
-    { fieldName: 'dgr2HgrDgPrtnrNm', header: t('MSG_TXT_RGNL_GRP'), width: '129' },
-    { fieldName: 'bznsSpptPrtnrNo', header: 'BM', width: '129' },
-    { fieldName: 'dgr3HgrDgPrtnrNm', header: t('MSG_TXT_BRANCH'), width: '129' },
-    { fieldName: 'dangChkNm', header: t('MSG_TXT_CHRGS'), width: '306' },
-    { fieldName: 'dangArbitCd', header: t('MSG_TXT_ACTN_ITM'), width: '306' },
-    { fieldName: 'dangUncvrCt', header: t('MSG_TXT_DUE_TRGT_NO'), width: '129' },
-    { fieldName: 'dangArbitLvyPc', header: t('MSG_TXT_ACTN_TM_PNLTY_PNT'), width: '190', styleName: 'text-center' },
-    { fieldName: 'dangArbitOgId', header: t('MSG_TXT_ACTN_DPT'), width: '306' },
-    { fieldName: 'fstRgstUsrId', header: t('MSG_TXT_FST_RGST_USR'), width: '146', styleName: 'text-center' },
-    { fieldName: 'fstRgstDtm', header: t('MSG_TXT_FST_RGST_DT'), width: '165', datetimeFormat: 'yyyy-MM' },
+    { fieldName: 'dangOjPrtnrNo', header: t('MSG_TXT_EMP_NO'), width: '180', styleName: 'text-center', rules: 'required' },
+    { fieldName: 'dangOcStrtmm',
+      header: t('MSG_TXT_YEAR_OCCURNCE'),
+      width: '165',
+      editor: {
+        type: 'btdate',
+      } },
+    { fieldName: 'dangOjPrtnrOgNm', header: t('MSG_TXT_BLG'), width: '129', editable: false },
+    { fieldName: 'dangOjPrtnrNm', header: t('MSG_TXT_EMPL_NM'), width: '129', editable: false },
+    { fieldName: 'dangOjPrtnrPstnDvNm', header: t('MSG_TXT_CRLV'), width: '129', editable: false },
+    { fieldName: 'dgr1HgrDgPrtnrNm', header: t('MSG_TXT_MANAGEMENT_DEPARTMENT'), width: '129', editable: false },
+    { fieldName: 'dgr2HgrDgPrtnrNm', header: t('MSG_TXT_RGNL_GRP'), width: '129', editable: false },
+    { fieldName: 'bznsSpptPrtnrNo', header: 'BM', width: '129', editable: false },
+    { fieldName: 'dgr3HgrDgPrtnrNm', header: t('MSG_TXT_BRANCH'), width: '129', editable: false },
+    { fieldName: 'dangChkNm', header: t('MSG_TXT_CHRGS'), width: '306', rules: 'required' },
+    { fieldName: 'dangArbitCd',
+      header: t('MSG_TXT_ACTN_ITM'),
+      width: '306',
+      options: codes.PNTSC_ARBIT_ATC_CD,
+      editor: { type: 'list' },
+      rules: 'required',
+    },
+    { fieldName: 'dangUncvrCt', header: t('MSG_TXT_DUE_TRGT_NO'), width: '129', rules: 'required' },
+    { fieldName: 'dangArbitLvyPc',
+      header: t('MSG_TXT_ACTN_TM_PNLTY_PNT'),
+      width: '190',
+      styleName: 'text-center',
+      options: [
+        { codeId: '5', codeName: '★' },
+        { codeId: '10', codeName: '★★' },
+        { codeId: '15', codeName: '★★★' },
+        { codeId: '20', codeName: '★★★★' },
+        { codeId: '25', codeName: '★★★★★' },
+        { codeId: '30', codeName: '★★★★★★' },
+        { codeId: '35', codeName: '★★★★★★★' },
+        { codeId: '40', codeName: '★★★★★★★★' },
+        { codeId: '45', codeName: '★★★★★★★★★' },
+        { codeId: '50', codeName: '★★★★★★★★★★' },
+      ],
+      editor: { type: 'list' },
+      rules: 'required' },
+    { fieldName: 'dangArbitOgId',
+      header: t('MSG_TXT_ACTN_DPT'),
+      width: '306',
+      options: codes.PNTSC_ARBIT_DEPT_CD,
+      editor: { type: 'list' },
+      rules: 'required',
+    },
+    { fieldName: 'fstRgstUsrId', header: t('MSG_TXT_FST_RGST_USR'), width: '146', styleName: 'text-center', editable: false },
+    { fieldName: 'fstRgstDtm', header: t('MSG_TXT_FST_RGST_DT'), width: '165', datetimeFormat: 'yyyy-MM', editable: false },
 
   ];
 
@@ -284,6 +319,7 @@ const initGrid = defineGrid((data, view) => {
   view.setColumns(columns);
   view.checkBar.visible = true;
   view.rowIndicator.visible = true;
+  view.editOptions.editable = true;
 
   // multi row header setting
   view.setColumnLayout([
