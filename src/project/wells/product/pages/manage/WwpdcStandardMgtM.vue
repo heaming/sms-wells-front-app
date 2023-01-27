@@ -53,7 +53,6 @@
               v-model:init-data="prevStepData"
               :pd-tp-cd="pdConst.PD_TP_CD_STANDARD"
               :pd-grp-dv-cd="pdConst.PD_PRP_GRP_DV_CD_BASIC"
-              :props-title="$t('MSG_TXT_BAS_ATTR')"
             />
           </kw-step-panel>
           <kw-step-panel :name="pdConst.STANDARD_STEP_REL_PROD.name">
@@ -61,6 +60,7 @@
               :ref="cmpStepRefs[1]"
               v-model:pd-cd="currentPdCd"
               v-model:init-data="prevStepData"
+              :codes="codes"
             />
           </kw-step-panel>
           <kw-step-panel :name="pdConst.STANDARD_STEP_MANAGE.name">
@@ -70,7 +70,6 @@
               v-model:init-data="prevStepData"
               :pd-tp-cd="pdConst.PD_TP_CD_STANDARD"
               :pd-grp-dv-cd="pdConst.PD_PRP_GRP_DV_CD_MANUAL"
-              :props-title="$t('MSG_TXT_MGT_ATTR')"
             />
           </kw-step-panel>
           <kw-step-panel :name="pdConst.STANDARD_STEP_PRICE.name">
@@ -78,14 +77,15 @@
               :ref="cmpStepRefs[3]"
               v-model:pd-cd="currentPdCd"
               v-model:init-data="prevStepData"
+              :codes="codes"
             />
           </kw-step-panel>
           <kw-step-panel :name="pdConst.STANDARD_STEP_CHECK.name">
-            <zwpdc-prop-groups-dtl
-              :ref="cmpStepRefs[4]"
-              v-model:pd-cd="currentPdCd"
-              v-model:init-data="prevStepData"
-              :pd-tp-cd="pdConst.PD_TP_CD_STANDARD"
+            <wwpdc-standard-dtl-m-contents
+              :pd-cd="currentPdCd"
+              :init-data="prevStepData"
+              :temp-save-yn="props.tempSaveYn"
+              :is-history-tab="false"
             />
           </kw-step-panel>
         </kw-stepper>
@@ -138,21 +138,19 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService, useGlobal } from 'kw-lib';
-import { isEmpty, merge, unionBy } from 'lodash-es';
+import { useDataService, codeUtil, useGlobal } from 'kw-lib';
+import { isEmpty } from 'lodash-es';
 import pdConst from '~sms-common/product/constants/pdConst';
+import { pdMergeBy, pdRemoveBy } from '~sms-common/product/utils/pdUtil';
 import ZwpdcPropGroupsMgt from '~sms-common/product/pages/manage/components/ZwpdcPropGroupsMgt.vue';
-import ZwpdcPropGroupsDtl from '~sms-common/product/pages/manage/components/ZwpdcPropGroupsDtl.vue';
 import WwpdcStandardMgtMPrice from './WwpdcStandardMgtMPrice.vue';
 import WwpdcStandardMgtMRel from './WwpdcStandardMgtMRel.vue';
+import WwpdcStandardDtlMContents from './WwpdcStandardDtlMContents.vue';
 
 const props = defineProps({
   pdCd: { type: String, default: null },
   tempSaveYn: { type: String, default: 'Y' },
 });
-const bas = pdConst.TBL_PD_BAS;
-const ecom = pdConst.TBL_PD_ECOM_PRP_DTL;
-const prcd = pdConst.TBL_PD_PRC_DTL;
 
 const route = useRoute();
 const router = useRouter();
@@ -163,14 +161,34 @@ const { notify, confirm } = useGlobal();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
+const bas = pdConst.TBL_PD_BAS;
+const dtl = pdConst.TBL_PD_DTL;
+const ecom = pdConst.TBL_PD_ECOM_PRP_DTL;
+const prcd = pdConst.TBL_PD_PRC_DTL;
+const prcfd = pdConst.TBL_PD_PRC_FNL_DTL;
+const rel = pdConst.TBL_PD_PRC_REL;
+
 const isTempSaveBtn = ref(true);
 const regSteps = ref([pdConst.STANDARD_STEP_BASIC, pdConst.STANDARD_STEP_REL_PROD,
   pdConst.STANDARD_STEP_MANAGE, pdConst.STANDARD_STEP_PRICE, pdConst.STANDARD_STEP_CHECK]);
 const currentStep = ref(pdConst.STANDARD_STEP_BASIC);
-const cmpStepRefs = ref([ref(), ref(), ref(), ref(), ref()]);
+const cmpStepRefs = ref([ref(), ref(), ref(), ref()]);
 const prevStepData = ref({});
 const currentPdCd = ref();
 const isCreate = ref(false);
+
+const codes = await codeUtil.getMultiCodes(
+  'PD_TP_CD',
+  'COD_PRDT_STT',
+  'SELL_CHNL_DV_CD',
+  'SELL_TP_CD',
+  'COD_YN',
+  'COD_PAGE_SIZE_OPTIONS',
+  'PD_REL_TP_CD',
+  'PD_TEMP_SAVE_CD',
+  'SV_PRD_UNIT_CD',
+  'SV_VST_PRD_CD',
+);
 
 watch(() => props.pdCd, (val) => { currentPdCd.value = val; });
 watch(() => props.tempSaveYn, (val) => { isTempSaveBtn.value = val !== 'Y'; });
@@ -201,15 +219,26 @@ async function getSaveData() {
         if (subList[bas]?.cols) {
           saveData[bas].cols += subList[bas].cols;
         }
-        subList[bas] = merge(subList[bas] ?? {}, saveData[bas]);
+        subList[bas] = pdMergeBy(subList[bas], saveData[bas]);
+      }
+      if (saveData[dtl]) {
+        subList[dtl] = pdMergeBy(subList[dtl], saveData[dtl], 'pdDtlDvCd');
       }
       if (saveData[ecom]) {
-        subList[ecom] = unionBy(saveData[ecom], subList[ecom], 'pdExtsPrpGrpCd');
+        subList[ecom] = pdMergeBy(subList[ecom], saveData[ecom], 'pdExtsPrpGrpCd');
       }
       if (saveData[prcd]) {
-        subList[prcd] = unionBy(saveData[prcd], subList[prcd], 'pdPrcDtlId');
+        subList[prcd] = pdMergeBy(subList[prcd], saveData[prcd], pdConst.PRC_STD_ROW_ID);
+        subList[prcd] = pdRemoveBy(subList[prcd], saveData[pdConst.REMOVE_ROWS]);
       }
-      // console.log(`${idx}subList : `, subList);
+      if (saveData[prcfd]) {
+        subList[prcfd] = pdMergeBy(subList[prcfd], saveData[prcfd], pdConst.PRC_FNL_ROW_ID);
+        subList[prcfd] = pdRemoveBy(subList[prcfd], saveData[pdConst.REMOVE_ROWS]);
+      }
+      if (saveData[rel]) {
+        subList[rel] = pdMergeBy(subList[rel], saveData[rel]);
+      }
+      console.log(`${idx}subList : `, subList);
     }
   }));
   console.log('subList : ', subList);
@@ -218,8 +247,8 @@ async function getSaveData() {
 
 async function onClickNextStep() {
   // 현재 Step 필수여부 확인
-  const validOk = await (cmpStepRefs.value[currentStep.value.step - 1].value.validateProps());
-  if (!validOk) {
+  const isValidOk = await (cmpStepRefs.value[currentStep.value.step - 1].value.validateProps());
+  if (!isValidOk) {
     return;
   }
   prevStepData.value = await getSaveData();
@@ -227,15 +256,19 @@ async function onClickNextStep() {
 }
 
 async function onClickPrevStep() {
+  prevStepData.value = await getSaveData();
   currentStep.value = regSteps.value[(currentStep.value.step - 1) - 1];
 }
 
 async function fetchProduct() {
   if (currentPdCd.value) {
     const res = await dataService.get(`/sms/common/product/standards/${currentPdCd.value}`);
+    console.log('WwpdcStandardMgtM - fetchProduct - res.data', res.data);
     prevStepData.value[bas] = res.data[bas];
+    prevStepData.value[dtl] = res.data[dtl];
     prevStepData.value[ecom] = res.data[ecom];
     prevStepData.value[prcd] = res.data[prcd];
+    prevStepData.value[prcfd] = res.data[prcfd];
     console.log('res.data : ', res.data);
   }
 }
@@ -257,14 +290,14 @@ async function onClickSave(tempSaveYn) {
   }
 
   // 2. Step별 필수여부 확인
-  let validOk = true;
+  let isValidOk = true;
   await Promise.all(cmpStepRefs.value.map(async (item, idx) => {
     if (!await item.value.validateProps()) {
-      validOk = false;
+      isValidOk = false;
       currentStep.value = regSteps.value[idx];
     }
   }));
-  if (!validOk) {
+  if (!isValidOk) {
     return;
   }
 
@@ -294,7 +327,7 @@ async function onClickSave(tempSaveYn) {
   }
 }
 
-async function fetchData() {
+async function initProps() {
   const { pdCd, tempSaveYn } = props;
   currentPdCd.value = pdCd;
   if (currentPdCd.value) {
@@ -304,7 +337,7 @@ async function fetchData() {
   isTempSaveBtn.value = tempSaveYn !== 'N';
 }
 
-await fetchData();
+await initProps();
 
 watch(() => route.params.pdCd, async (pdCd) => {
   if (pdCd && currentPdCd.value !== pdCd) {
