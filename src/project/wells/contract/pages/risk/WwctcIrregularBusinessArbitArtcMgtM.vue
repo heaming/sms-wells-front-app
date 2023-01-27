@@ -262,7 +262,13 @@ const initGrid = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'dangOjPrtnrNo', header: t('MSG_TXT_EMP_NO'), width: '180', styleName: 'text-center', rules: 'required' },
+    { fieldName: 'dangOjPrtnrNo',
+      header: t('MSG_TXT_EMP_NO'),
+      width: '180',
+      styleName: 'text-center rg-button-icon--search',
+      button: 'action',
+      rules: 'required',
+    },
     { fieldName: 'dangOcStrtmm',
       header: t('MSG_TXT_YEAR_OCCURNCE'),
       width: '165',
