@@ -66,13 +66,13 @@
               :label="t('MSG_BTN_MOD')"
               grid-action
               dense
-              @click="onClickModify()"
+              @click="onClickModify"
             />
             <kw-btn
               :label="t('MSG_BTN_DEL')"
               grid-action
               dense
-              @click="onClickRemove()"
+              @click="onClickRemove"
             />
             <kw-separator
               spaced
@@ -82,13 +82,13 @@
             <kw-btn
               dense
               :label="t('MSG_BTN_ROW_ADD')"
-              @click="onClickAdd()"
+              @click="onClickAdd"
             />
 
             <kw-btn
               dense
               :label="t('MSG_BTN_SAVE')"
-              @click="onClickSave()"
+              @click="onClickSave"
             />
             <kw-separator
               spaced
@@ -99,6 +99,7 @@
               icon="download_on"
               dense
               secondary
+              :disable="pageInfo.totalCount === 0"
               :label="t('MSG_BTN_EXCEL_DOWN')"
               @click="onClickExcelDownload"
             />
@@ -111,7 +112,7 @@
               primary
               dense
               :label="t('MSG_BTN_CNFM_CRTR_MGT')"
-              @click="onClickConfirmCriteriaMangement()"
+              @click="onClickConfirmCriteriaMangement"
             />
           </kw-action-top>
 
@@ -131,12 +132,13 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { gridUtil, getComponentType, useGlobal } from 'kw-lib';
+import { gridUtil, getComponentType, useGlobal, useMeta } from 'kw-lib';
 
 const { t } = useI18n();
 const { notify, modal } = useGlobal();
 
 const grdMainRef = ref(getComponentType('KwGrid'));
+const { getConfig } = useMeta();
 
 const searchParams = ref({
   baseDt: '',
@@ -147,6 +149,12 @@ const searchParams = ref({
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
+
+const pageInfo = ref({
+  totalCount: 0,
+  pageIndex: 1,
+  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
+});
 
 function onClickAdd() {
   const view = grdMainRef.value.getView();
@@ -186,6 +194,7 @@ function fetchData() {
     { col1: '9-직원구매', col2: 'ETC', col3: '1-지정사번', col4: '123456', col5: '김직원', col6: '2022-05-20', col7: '2022-05-20', col8: 'N' },
     { col1: '9-직원구매', col2: 'ETC', col3: '1-지정사번', col4: '123456', col5: '김직원', col6: '2022-05-20', col7: '2022-05-20', col8: 'N' },
   ]);
+  pageInfo.value.totalCount = 10;
 }
 
 const onClickConfirmCriteriaMangement = async () => {
@@ -212,6 +221,7 @@ async function onClickRemove() {
 }
 
 function onClickSearch() {
+  pageInfo.value.pageIndex = 1;
   fetchData();
 }
 

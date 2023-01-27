@@ -81,7 +81,7 @@
         <kw-btn
           grid-action
           :label="t('MSG_BTN_DEL')"
-          @click="onClickDelete()"
+          @click="onClickDelete"
         />
         <kw-separator
           spaced
@@ -91,12 +91,12 @@
         <kw-btn
           grid-action
           :label="t('MSG_BTN_ROW_ADD')"
-          @click="onClickRowAdd()"
+          @click="onClickRowAdd"
         />
         <kw-btn
           grid-action
           :label="t('MSG_BTN_SAVE')"
-          @click="onClickSave()"
+          @click="onClickSave"
         />
         <kw-separator
           spaced
@@ -107,8 +107,9 @@
           icon="download_on"
           dense
           secondary
+          :disable="pageInfo.totalCount === 0"
           :label="t('MSG_BTN_EXCEL_DOWN')"
-          @click="onClickExcelDownload()"
+          @click="onClickExcelDownload"
         />
       </kw-action-top>
 
@@ -136,16 +137,23 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { getComponentType, gridUtil, useGlobal } from 'kw-lib';
+import { getComponentType, gridUtil, useGlobal, useMeta } from 'kw-lib';
 
 const grdMainRef = ref(getComponentType('KwGrid'));
 const { notify } = useGlobal();
+const { getConfig } = useMeta();
 
 const { t } = useI18n();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
+const pageInfo = ref({
+  totalCount: 0,
+  pageIndex: 1,
+  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
+});
+
 function fetchData() {
   const view = grdMainRef.value.getView();
   // TODO integrate Get api call.
@@ -162,6 +170,7 @@ function fetchData() {
     { col1: 'A-전체', col2: 'A-전체', col3: 'ALL', col4: 'ALL', col5: 'A-전체', col6: '123456789', col7: '123456789', col8: '123456789', col9: '환경가전', col10: '샤워기', col11: '실내설치키트', col12: 'ALL', col13: '2-렌탈', col14: '3-예외허용', col15: '2022-05-20', col16: '2022-05-20', col17: '실내설치키트', col18: '실내설치키트', col19: '실내설치키트', col20: '2022-05-20', col21: 'ALL', col22: '2022-05-20', col23: 'ALL' },
     { col1: 'A-전체', col2: 'A-전체', col3: 'ALL', col4: 'ALL', col5: 'A-전체', col6: '123456789', col7: '123456789', col8: '123456789', col9: '환경가전', col10: '샤워기', col11: '실내설치키트', col12: 'ALL', col13: '2-렌탈', col14: '3-예외허용', col15: '2022-05-20', col16: '2022-05-20', col17: '실내설치키트', col18: '실내설치키트', col19: '실내설치키트', col20: '2022-05-20', col21: 'ALL', col22: '2022-05-20', col23: 'ALL' },
   ]);
+  pageInfo.value.totalCount = 11;
 }
 
 function onClickSearch() {

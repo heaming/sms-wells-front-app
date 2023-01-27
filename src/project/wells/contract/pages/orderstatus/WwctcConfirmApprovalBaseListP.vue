@@ -1,7 +1,6 @@
 <template>
   <kw-popup
     class="kw-popup--2xl"
-    :title="t('MSG_TIT_CNFM_CRTR_MGT')"
   >
     <div>
       <kw-action-top>
@@ -12,7 +11,7 @@
           dense
           secondary
           :label="t('MSG_BTN_DEL')"
-          @click="onClickDelete()"
+          @click="onClickDelete"
         />
       </kw-action-top>
 
@@ -25,7 +24,7 @@
         <kw-btn
           :label="t('MSG_BTN_DEL')"
           grid-action
-          @click="onClickDelete()"
+          @click="onClickDelete"
         />
       </kw-action-bottom>
     </div>
