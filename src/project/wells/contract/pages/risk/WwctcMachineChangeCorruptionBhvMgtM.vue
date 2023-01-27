@@ -24,7 +24,7 @@
       <kw-search-row>
         <kw-search-item
           :colspan="2"
-          label="적용기간"
+          :label="$t('MSG_TXT_ACEPT_PERIOD')"
         >
           <kw-select
             v-model="searchParams.appPeriodType"
@@ -38,25 +38,25 @@
         </kw-search-item>
 
         <kw-search-item
-          label="계약번호"
+          :label="$t('MSG_TXT_CNTR_NO')"
         >
           <kw-input v-model="searchParams.contractNum " />
         </kw-search-item>
       </kw-search-row>
       <kw-search-row>
         <kw-search-item
-          label="지역단"
+          :label="$t('MSG_TXT_RGNL_GRP')"
         >
           <kw-input v-model="searchParams.region" />
         </kw-search-item>
 
         <kw-search-item
-          label="지점"
+          :label="$t('MSG_TXT_BRANCH')"
         >
           <kw-input v-model="searchParams.branch" />
         </kw-search-item>
         <kw-search-item
-          label="판매자검색"
+          :label="$t('MSG_TXT_SELL_NO')"
         >
           <kw-input
             v-model="searchParams.prtnrNo"
@@ -120,7 +120,7 @@
       </kw-action-top>
       <kw-grid
         ref="grdMainRef"
-        :visible-rows="10"
+        :visible-rows="pageInfo.pageSize"
         name="machineChangegrid"
         @init="initGrid"
       />
