@@ -31,11 +31,12 @@
           <kw-date-range-picker
             v-model:from="searchParams.dangOcStrtdt[0]"
             v-model:to="searchParams.dangOcStrtdt[1]"
+            type="month"
             rules="date_range_required|date_range_months:1"
           />
         </kw-search-item>
         <kw-search-item
-          v-if="srchSelection === 100"
+          v-if="isProd"
           :label="$t('MSG_TXT_PDGRP')"
         >
           <kw-select
@@ -57,7 +58,7 @@
       </kw-search-row>
       <kw-search-row>
         <kw-search-item
-          v-if="srchSelection === 100"
+          v-if="isProd"
           :label="$t('MSG_TXT_PRDT_CODE')"
         >
           <kw-input v-model="searchParams.prdCd" />
