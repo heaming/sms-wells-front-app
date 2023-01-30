@@ -57,7 +57,7 @@
       </kw-search-row>
       <kw-search-row>
         <kw-search-item
-          v-if="srchSelection ==='상품별'"
+          v-if="srchSelection === 100"
           :label="$t('MSG_TXT_PRDT_CODE')"
         >
           <kw-input v-model="searchParams.prdCd" />
@@ -119,14 +119,15 @@ const { t } = useI18n();
 const dataService = useDataService();
 
 const now = dayjs();
+
 // @todo: update to 0 on api integration
 const totalCount = ref(10);
 const srchOptions = ref([{
   codeId: 100,
-  codeName: '상품별' },
+  codeName: t('MSG_TXT_BY_PRD') },
 {
   codeId: 200,
-  codeName: '관리 조직별' }]);
+  codeName: t('MSG_TXT_BY_ORG') }]);
 const srchSelection = ref(100);
 
 let cachedParams;
@@ -140,15 +141,16 @@ const searchParams = ref({
 
 });
 
+// -------------------------------------------------------------------------------------------------
+// Function & Event
+// -------------------------------------------------------------------------------------------------
+
+const grdMainRef = ref(getComponentType('KwGrid'));
+
 const codes = await codeUtil.getMultiCodes(
   'COPN_DV_CD',
 );
 
-const grdMainRef = ref(getComponentType('KwGrid'));
-
-// -------------------------------------------------------------------------------------------------
-// Function & Event
-// -------------------------------------------------------------------------------------------------
 const isProd = computed(() => srchSelection.value === 100);
 
 // Updating the col visibility as per search classification
