@@ -113,7 +113,7 @@
       <kw-grid
         ref="grdMainRef"
         name="grdMain"
-        :visible-rows="10"
+        :visible-rows="pageInfo.pageSize"
         @init="initGrid"
       />
     </div>
@@ -127,7 +127,7 @@
 import { codeUtil, defineGrid, getComponentType, gridUtil, useDataService, useGlobal, useMeta } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 
-const { notify } = useGlobal();
+const { modal, notify } = useGlobal();
 const { t } = useI18n();
 
 const { getConfig } = useMeta();
@@ -139,19 +139,19 @@ const codes = await codeUtil.getMultiCodes(
   'PNTSC_ARBIT_DEPT_CD',
 );
 
-const prdDivOption = ref([{ codeId: 1, codeName: '등록일자' },
-  { codeId: 2, codeName: '발생년월' }]);
+const prdDivOption = ref([{ codeId: 1, codeName: t('MSG_TXT_FST_RGST_DT') },
+  { codeId: 2, codeName: t('MSG_TXT_YEAR_OCCURNCE') }]);
 const gnrlMngTeamOptions = ref([
-  { codeId: '', codeName: '전체' },
-  { codeId: 'A', codeName: '총괄단' },
-  { codeId: 'B', codeName: '총괄단' },
-  { codeId: 'C', codeName: '총괄단' },
-  { codeId: 'D', codeName: '총괄단' },
-  { codeId: 'E', codeName: '총괄단' },
-  { codeId: 'F', codeName: '총괄단' },
-  { codeId: 'G', codeName: '총괄단' },
-  { codeId: 'H', codeName: '총괄단' },
-  { codeId: 'P', codeName: '총괄단' },
+  { codeId: '', codeName: t('MSG_TXT_ALL') },
+  { codeId: 'A', codeName: `A${t('MSG_TXT_MANAGEMENT_DEPARTMENT')}` },
+  { codeId: 'B', codeName: `B${t('MSG_TXT_MANAGEMENT_DEPARTMENT')}` },
+  { codeId: 'C', codeName: `C${t('MSG_TXT_MANAGEMENT_DEPARTMENT')}` },
+  { codeId: 'D', codeName: `D${t('MSG_TXT_MANAGEMENT_DEPARTMENT')}` },
+  { codeId: 'E', codeName: `E${t('MSG_TXT_MANAGEMENT_DEPARTMENT')}` },
+  { codeId: 'F', codeName: `F${t('MSG_TXT_MANAGEMENT_DEPARTMENT')}` },
+  { codeId: 'G', codeName: `G${t('MSG_TXT_MANAGEMENT_DEPARTMENT')}` },
+  { codeId: 'H', codeName: `H${t('MSG_TXT_MANAGEMENT_DEPARTMENT')}` },
+  { codeId: 'P', codeName: `P${t('MSG_TXT_MANAGEMENT_DEPARTMENT')}` },
 ]);
 
 let cachedParams;
@@ -347,6 +347,13 @@ const initGrid = defineGrid((data, view) => {
     'fstRgstUsrId', 'fstRgstDtm',
 
   ]);
+
+  // Will update the fields when api available
+  view.onCellButtonClicked = async () => {
+    await modal({
+      component: 'ZwcsaCustomerListP',
+    });
+  };
 
   data.setRows([{ dangOjPrtnrNo: '사번입력', dangOcStrtmm: '2022-05', dangOjPrtnrOgNm: '', dangOjPrtnrNm: '', dangOjPrtnrPstnDvNm: '', dgr1HgrDgPrtnrNm: '', dgr2HgrDgPrtnrNm: '', bznsSpptPrtnrNo: '', dgr3HgrDgPrtnrNm: '', dangChkNm: '', dangArbitCd: '1-개인정보 도용에 의한 판매계약', dangUncvrCt: '', dangArbitLvyPc: '★★★', dangArbitOgId: '71401-Wells경영지원팀', fstRgstUsrId: '', fstRgstDtm: '2022-05' },
     { dangOjPrtnrNo: '123456', dangOcStrtmm: '2022-05', dangOjPrtnrOgNm: 'P123456', dangOjPrtnrNm: '김교원', dangOjPrtnrPstnDvNm: '김교원', dgr1HgrDgPrtnrNm: '김총괄', dgr2HgrDgPrtnrNm: '김지역', bznsSpptPrtnrNo: '김BM', dgr3HgrDgPrtnrNm: '김지점', dangChkNm: '부과내역', dangArbitCd: '부과내역', dangUncvrCt: '1', dangArbitLvyPc: '★', dangArbitOgId: '71401-Wells 경영지원팀', fstRgstUsrId: '김직원', fstRgstDtm: '2022-05' },
