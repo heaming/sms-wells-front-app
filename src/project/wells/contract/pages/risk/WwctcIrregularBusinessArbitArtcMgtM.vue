@@ -1,40 +1,60 @@
+<!----
+****************************************************************************************************
+* 프로그램 개요
+****************************************************************************************************
+1. 모듈 : CTC
+2. 프로그램 ID : WwctcIrregularBusinessArbitArtcMgtM - 비정도 영업 조치 사항 관리
+3. 작성자 : gs.nidhi.d
+4. 작성일 : 2023.01.23
+****************************************************************************************************
+* 프로그램 설명
+****************************************************************************************************
+- 비정도 영업 조치 사항 관리
+****************************************************************************************************
+--->
+
 <template>
   <kw-page>
-    <template #header>
-      <kw-page-header
-        :options="['홈','판매관리','리스크관리', '비정도영업조치사항관리']"
-      />
-    </template>
-    <kw-search>
+    <kw-search
+      :modified-targets="['grdMain']"
+      @search="onClickSearch"
+    >
       <kw-search-row>
         <kw-search-item
-          label="적용기간"
+          :label="$t('MSG_TXT_ACEPT_PERIOD')"
           :colspan="2"
         >
           <kw-select
-            :model-value="[]"
-            :options="['등록일자', 'B', 'C', 'D']"
+            v-model="searchParams.srchGbn"
+            :options="prdDivOption"
           />
           <kw-date-range-picker
+            :key="isRegistration"
+            v-model:from="searchParams.dangOcStrtmm[0]"
+            v-model:to="searchParams.dangOcStrtmm[1]"
+            :type="isRegistration"
             rules="date_range_months:1"
           />
         </kw-search-item>
-        <kw-search-item label="총괄단">
+        <kw-search-item :label="$t('MSG_TXT_MANAGEMENT_DEPARTMENT')">
           <kw-select
-            :model-value="[]"
-            :options="['등록일자', 'B', 'C', 'D']"
+            v-model="searchParams.dgr1HgrDgPrtnrNm"
+            :options="gnrlMngTeamOptions"
           />
         </kw-search-item>
       </kw-search-row>
       <kw-search-row>
-        <kw-search-item label="지역단">
-          <kw-input />
+        <kw-search-item :label="$t('MSG_TXT_RGNL_GRP')">
+          <kw-input v-model="searchParams.dgr2HgrDgPrtnrNm" />
         </kw-search-item>
-        <kw-search-item label="지점">
-          <kw-input />
+        <kw-search-item :label="t('MSG_TXT_BRANCH')">
+          <kw-input v-model="searchParams.dgr3HgrDgPrtnrNm" />
         </kw-search-item>
-        <kw-search-item label="사원검색">
-          <kw-input icon="search_24" />
+        <kw-search-item :label="$t('MSG_TXT_EMP_SRCH')">
+          <kw-input
+            v-model="searchParams.dangOjPrtnrNo"
+            icon="search_24"
+          />
         </kw-search-item>
       </kw-search-row>
     </kw-search>
@@ -42,16 +62,18 @@
       <kw-action-top>
         <template #left>
           <kw-paging-info
-            :total-count="7"
+            v-model:page-index="pageInfo.pageIndex"
+            v-model:page-size="pageInfo.pageSize"
+            :total-count="pageInfo.totalCount"
+            :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
+            @change="fetchData"
           />
         </template>
         <kw-btn
+          v-permission:delete
           grid-action
-          label="수정"
-        />
-        <kw-btn
-          grid-action
-          label="삭제"
+          :label="$t('MSG_BTN_DEL')"
+          @click="onClickRemove"
         />
         <kw-separator
           spaced
@@ -59,14 +81,18 @@
           inset
         />
         <kw-btn
+          v-permission:create
           dense
           secondary
-          label="행추가"
+          :label="$t('MSG_BTN_ROW_ADD')"
+          @click="onClickAdd"
         />
         <kw-btn
+          v-permission:update
           dense
           secondary
-          label="저장"
+          :label="$t('MSG_BTN_SAVE')"
+          @click="onClickSave"
         />
         <kw-separator
           spaced
@@ -74,105 +100,274 @@
           inset
         />
         <kw-btn
+          v-permission:download
           icon="download_on"
           dense
           secondary
-          label="엑셀다운로드"
+          :disable="pageInfo.totalCount === 0"
+          :label="$t('MSG_BTN_EXCEL_DOWN')"
           @click="onClickExcelDownload"
         />
       </kw-action-top>
 
       <kw-grid
-        :visible-rows="10"
-        @init="initGrid4"
+        ref="grdMainRef"
+        name="grdMain"
+        :visible-rows="pageInfo.pageSize"
+        @init="initGrid"
       />
     </div>
   </kw-page>
 </template>
 
 <script setup>
+// -------------------------------------------------------------------------------------------------
+// Import & Declaration
+// -------------------------------------------------------------------------------------------------
+import { codeUtil, defineGrid, getComponentType, gridUtil, useDataService, useGlobal, useMeta } from 'kw-lib';
+import { cloneDeep } from 'lodash-es';
 
-function initGrid4(data, view) {
+const { modal, notify } = useGlobal();
+const { t } = useI18n();
+
+const { getConfig } = useMeta();
+const dataService = useDataService();
+
+const prdDivOption = ref([{ codeId: 1, codeName: t('MSG_TXT_FST_RGST_DT') },
+  { codeId: 2, codeName: t('MSG_TXT_YEAR_OCCURNCE') }]);
+const gnrlMngTeamOptions = ref([
+  { codeId: '', codeName: t('MSG_TXT_ALL') },
+  { codeId: 'A', codeName: `A${t('MSG_TXT_MANAGEMENT_DEPARTMENT')}` },
+  { codeId: 'B', codeName: `B${t('MSG_TXT_MANAGEMENT_DEPARTMENT')}` },
+  { codeId: 'C', codeName: `C${t('MSG_TXT_MANAGEMENT_DEPARTMENT')}` },
+  { codeId: 'D', codeName: `D${t('MSG_TXT_MANAGEMENT_DEPARTMENT')}` },
+  { codeId: 'E', codeName: `E${t('MSG_TXT_MANAGEMENT_DEPARTMENT')}` },
+  { codeId: 'F', codeName: `F${t('MSG_TXT_MANAGEMENT_DEPARTMENT')}` },
+  { codeId: 'G', codeName: `G${t('MSG_TXT_MANAGEMENT_DEPARTMENT')}` },
+  { codeId: 'H', codeName: `H${t('MSG_TXT_MANAGEMENT_DEPARTMENT')}` },
+  { codeId: 'P', codeName: `P${t('MSG_TXT_MANAGEMENT_DEPARTMENT')}` },
+]);
+
+let cachedParams;
+const searchParams = ref({
+  srchGbn: 1,
+  dangOcStrtmm: ['', ''],
+  dgr1HgrDgPrtnrNm: '',
+  dgr2HgrDgPrtnrNm: '',
+  dgr3HgrDgPrtnrNm: '',
+  dangOjPrtnrNo: '',
+
+});
+
+const pageInfo = ref({
+  totalCount: 0,
+  pageIndex: 1,
+  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
+});
+
+// -------------------------------------------------------------------------------------------------
+// Function & Event
+// -------------------------------------------------------------------------------------------------
+
+const grdMainRef = ref(getComponentType('KwGrid'));
+
+const codes = await codeUtil.getMultiCodes(
+  'COD_PAGE_SIZE_OPTIONS',
+  'PNTSC_ARBIT_ATC_CD',
+  'PNTSC_ARBIT_DEPT_CD',
+);
+
+const isRegistration = computed(() => (searchParams.value.srchGbn === 1 ? 'date' : 'month'));
+
+async function fetchData() {
+  cachedParams = { ...cachedParams, ...pageInfo.value };
+  const res = await dataService.get('/sms/wells/contract/risk-audits/irregular-sales-actions/managerial-tasks', { params: cachedParams });
+
+  const { list: arbitrations, pageInfo: pagingResult } = res.data;
+  pageInfo.value = pagingResult;
+
+  const view = grdMainRef.value.getView();
+  view.getDataSource().setRows(arbitrations);
+  view.resetCurrent();
+}
+
+async function onClickSearch() {
+  pageInfo.value.pageIndex = 1;
+  cachedParams = cloneDeep(searchParams.value);
+  await fetchData();
+}
+
+async function onClickRemove() {
+  const view = grdMainRef.value.getView();
+  if (!await gridUtil.confirmIfIsModified(view)) { return; }
+  const deletedRows = await gridUtil.confirmDeleteCheckedRows(view);
+
+  // deleteKeys needs to be updated as per API
+  const deleteKeys = deletedRows.map((row) => row.dataRow);
+
+  if (deleteKeys.length) {
+    await dataService.delete('/sms/wells/contract/risk-audits/irregular-sales-actions/managerial-tasks', { data: deleteKeys });
+    await fetchData();
+  }
+}
+
+async function onClickSave() {
+  const view = grdMainRef.value.getView();
+  if (await gridUtil.alertIfIsNotModified(view)) { return; }
+  if (!gridUtil.validate(view)) { return; }
+
+  const changedRows = gridUtil.getChangedRowValues(view);
+  await dataService.post('/sms/wells/contract/risk-audits/irregular-sales-actions/managerial-tasks', changedRows);
+
+  notify(t('MSG_ALT_SAVE_DATA'));
+  await fetchData();
+}
+
+async function onClickAdd() {
+  const view = grdMainRef.value.getView();
+  await gridUtil.insertRowAndFocus(view, 0, {});
+  view.showEditor();
+}
+
+async function onClickExcelDownload() {
+  const view = grdMainRef.value.getView();
+  await gridUtil.exportView(view, {
+    fileName: 'dataServiceManageList',
+    timePostfix: true,
+  });
+}
+
+// -------------------------------------------------------------------------------------------------
+// Initialize Grid
+// -------------------------------------------------------------------------------------------------
+const initGrid = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'col1' },
-    { fieldName: 'col2' },
-    { fieldName: 'col3' },
-    { fieldName: 'col4' },
-    { fieldName: 'col5' },
-    { fieldName: 'col6' },
-    { fieldName: 'col7' },
-    { fieldName: 'col8' },
-    { fieldName: 'col9' },
-    { fieldName: 'col10' },
-    { fieldName: 'col11' },
-    { fieldName: 'col12' },
-    { fieldName: 'col13' },
-    { fieldName: 'col14' },
-    { fieldName: 'col15' },
-    { fieldName: 'col16' },
+    { fieldName: 'dangOjPrtnrNo' },
+    { fieldName: 'dangOcStrtmm' },
+    { fieldName: 'dangOjPrtnrOgNm' },
+    { fieldName: 'dangOjPrtnrNm' },
+    { fieldName: 'dangOjPrtnrPstnDvNm' },
+    { fieldName: 'dgr1HgrDgPrtnrNm' },
+    { fieldName: 'dgr2HgrDgPrtnrNm' },
+    { fieldName: 'bznsSpptPrtnrNo' },
+    { fieldName: 'dgr3HgrDgPrtnrNm' },
+    { fieldName: 'dangChkNm' },
+    { fieldName: 'dangArbitCd' },
+    { fieldName: 'dangUncvrCt' },
+    { fieldName: 'dangArbitLvyPc' },
+    { fieldName: 'dangArbitOgId' },
+    { fieldName: 'fstRgstUsrId' },
+    { fieldName: 'fstRgstDtm' },
 
   ];
 
   const columns = [
-    { fieldName: 'col1', header: '행위자사번', width: '180', styleName: 'text-center' },
-    { fieldName: 'col2', header: '발생년월', width: '165', datetimeFormat: 'yyyy-MM' },
-    { fieldName: 'col3', header: '발생년월', width: '129' },
-    { fieldName: 'col4', header: '성명', width: '129' },
-    { fieldName: 'col5', header: '직급', width: '129' },
-    { fieldName: 'col6', header: '총괄단', width: '129' },
-    { fieldName: 'col7', header: '지역단', width: '129' },
-    { fieldName: 'col8', header: 'BM', width: '129' },
-    { fieldName: 'col9', header: '지점', width: '129' },
-    { fieldName: 'col10', header: '부과내역', width: '306' },
-    { fieldName: 'col11', header: '조치항목', width: '306' },
-    { fieldName: 'col12', header: '부과대상건수', width: '129' },
-    { fieldName: 'col13', header: '조치결과 부과점수', width: '190', styleName: 'text-center' },
-    { fieldName: 'col14', header: '조치부서', width: '306' },
-    { fieldName: 'col15', header: '등록자', width: '146', styleName: 'text-center' },
-    { fieldName: 'col16', header: '등록일자', width: '165', datetimeFormat: 'yyyy-MM' },
+    { fieldName: 'dangOjPrtnrNo',
+      header: t('MSG_TXT_EMP_NO'),
+      width: '180',
+      styleName: 'text-center rg-button-icon--search',
+      button: 'action',
+      rules: 'required',
+    },
+    { fieldName: 'dangOcStrtmm',
+      header: t('MSG_TXT_YEAR_OCCURNCE'),
+      width: '165',
+      editor: {
+        type: 'btdate',
+      } },
+    { fieldName: 'dangOjPrtnrOgNm', header: t('MSG_TXT_BLG'), width: '129', editable: false },
+    { fieldName: 'dangOjPrtnrNm', header: t('MSG_TXT_EMPL_NM'), width: '129', editable: false },
+    { fieldName: 'dangOjPrtnrPstnDvNm', header: t('MSG_TXT_CRLV'), width: '129', editable: false },
+    { fieldName: 'dgr1HgrDgPrtnrNm', header: t('MSG_TXT_MANAGEMENT_DEPARTMENT'), width: '129', editable: false },
+    { fieldName: 'dgr2HgrDgPrtnrNm', header: t('MSG_TXT_RGNL_GRP'), width: '129', editable: false },
+    { fieldName: 'bznsSpptPrtnrNo', header: 'BM', width: '129', editable: false },
+    { fieldName: 'dgr3HgrDgPrtnrNm', header: t('MSG_TXT_BRANCH'), width: '129', editable: false },
+    { fieldName: 'dangChkNm', header: t('MSG_TXT_CHRGS'), width: '306', rules: 'required' },
+    { fieldName: 'dangArbitCd',
+      header: t('MSG_TXT_ACTN_ITM'),
+      width: '306',
+      options: codes.PNTSC_ARBIT_ATC_CD,
+      editor: { type: 'list' },
+      rules: 'required',
+    },
+    { fieldName: 'dangUncvrCt', header: t('MSG_TXT_DUE_TRGT_NO'), width: '129', rules: 'required' },
+    { fieldName: 'dangArbitLvyPc',
+      header: t('MSG_TXT_ACTN_TM_PNLTY_PNT'),
+      width: '190',
+      styleName: 'text-center',
+      options: [
+        { codeId: '5', codeName: '★' },
+        { codeId: '10', codeName: '★★' },
+        { codeId: '15', codeName: '★★★' },
+        { codeId: '20', codeName: '★★★★' },
+        { codeId: '25', codeName: '★★★★★' },
+        { codeId: '30', codeName: '★★★★★★' },
+        { codeId: '35', codeName: '★★★★★★★' },
+        { codeId: '40', codeName: '★★★★★★★★' },
+        { codeId: '45', codeName: '★★★★★★★★★' },
+        { codeId: '50', codeName: '★★★★★★★★★★' },
+      ],
+      editor: { type: 'list' },
+      rules: 'required' },
+    { fieldName: 'dangArbitOgId',
+      header: t('MSG_TXT_ACTN_DPT'),
+      width: '306',
+      options: codes.PNTSC_ARBIT_DEPT_CD,
+      editor: { type: 'list' },
+      rules: 'required',
+    },
+    { fieldName: 'fstRgstUsrId', header: t('MSG_TXT_FST_RGST_USR'), width: '146', styleName: 'text-center', editable: false },
+    { fieldName: 'fstRgstDtm', header: t('MSG_TXT_FST_RGST_DT'), width: '165', datetimeFormat: 'date', editable: false },
 
   ];
 
   data.setFields(fields);
   view.setColumns(columns);
-  view.checkBar.visible = true; // create checkbox column
-  view.rowIndicator.visible = true; // create number indicator column
+  view.checkBar.visible = true;
+  view.rowIndicator.visible = true;
+  view.editOptions.editable = true;
 
   // multi row header setting
   view.setColumnLayout([
-    // single
     {
-      header: '행위자사번', // colspan title
-      direction: 'horizontal', // merge type
-      items: ['col1', 'col2', 'col3', 'col4', 'col5'],
-    },
-    {
-      header: '소속',
+      header: t('MSG_TXT_EMP_NO'),
       direction: 'horizontal',
-      items: ['col6', 'col7', 'col8', 'col9'],
+      items: ['dangOjPrtnrNo', 'dangOcStrtmm', 'dangOjPrtnrOgNm', 'dangOjPrtnrNm', 'dangOjPrtnrPstnDvNm'],
     },
     {
-      header: '벌점',
+      header: t('MSG_TXT_BLG'),
       direction: 'horizontal',
-      items: ['col10', 'col11', 'col12', 'col13', 'col14'],
+      items: ['dgr1HgrDgPrtnrNm', 'dgr2HgrDgPrtnrNm', 'bznsSpptPrtnrNo', 'dgr3HgrDgPrtnrNm'],
     },
-    'col15', 'col16',
+    {
+      header: t('MSG_TXT_PNLTY'),
+      direction: 'horizontal',
+      items: ['dangChkNm', 'dangArbitCd', 'dangUncvrCt', 'dangArbitLvyPc', 'dangArbitOgId'],
+    },
+    'fstRgstUsrId', 'fstRgstDtm',
 
   ]);
 
-  data.setRows([{ col1: '사번입력', col2: '2022-05', col3: '', col4: '', col5: '', col6: '', col7: '', col8: '', col9: '', col10: '', col11: '1-개인정보 도용에 의한 판매계약', col12: '', col13: '★★★', col14: '71401-Wells경영지원팀', col15: '', col16: '2022-05' },
-    { col1: '123456', col2: '2022-05', col3: 'P123456', col4: '김교원', col5: '김교원', col6: '김총괄', col7: '김지역', col8: '김BM', col9: '김지점', col10: '부과내역', col11: '부과내역', col12: '1', col13: '★', col14: '71401-Wells 경영지원팀', col15: '김직원', col16: '2022-05' },
-    { col1: '123456', col2: '2022-05', col3: 'P123456', col4: '김교원', col5: '김교원', col6: '김총괄', col7: '김지역', col8: '김BM', col9: '김지점', col10: '부과내역', col11: '부과내역', col12: '1', col13: '★', col14: '71401-Wells 경영지원팀', col15: '김직원', col16: '2022-05' },
-    { col1: '123456', col2: '2022-05', col3: 'P123456', col4: '김교원', col5: '김교원', col6: '김총괄', col7: '김지역', col8: '김BM', col9: '김지점', col10: '부과내역', col11: '부과내역', col12: '1', col13: '★', col14: '71401-Wells 경영지원팀', col15: '김직원', col16: '2022-05' },
-    { col1: '123456', col2: '2022-05', col3: 'P123456', col4: '김교원', col5: '김교원', col6: '김총괄', col7: '김지역', col8: '김BM', col9: '김지점', col10: '부과내역', col11: '부과내역', col12: '1', col13: '★', col14: '71401-Wells 경영지원팀', col15: '김직원', col16: '2022-05' },
-    { col1: '123456', col2: '2022-05', col3: 'P123456', col4: '김교원', col5: '김교원', col6: '김총괄', col7: '김지역', col8: '김BM', col9: '김지점', col10: '부과내역', col11: '부과내역', col12: '1', col13: '★', col14: '71401-Wells 경영지원팀', col15: '김직원', col16: '2022-05' },
-    { col1: '123456', col2: '2022-05', col3: 'P123456', col4: '김교원', col5: '김교원', col6: '김총괄', col7: '김지역', col8: '김BM', col9: '김지점', col10: '부과내역', col11: '부과내역', col12: '1', col13: '★', col14: '71401-Wells 경영지원팀', col15: '김직원', col16: '2022-05' },
-    { col1: '123456', col2: '2022-05', col3: 'P123456', col4: '김교원', col5: '김교원', col6: '김총괄', col7: '김지역', col8: '김BM', col9: '김지점', col10: '부과내역', col11: '부과내역', col12: '1', col13: '★', col14: '71401-Wells 경영지원팀', col15: '김직원', col16: '2022-05' },
-    { col1: '123456', col2: '2022-05', col3: 'P123456', col4: '김교원', col5: '김교원', col6: '김총괄', col7: '김지역', col8: '김BM', col9: '김지점', col10: '부과내역', col11: '부과내역', col12: '1', col13: '★', col14: '71401-Wells 경영지원팀', col15: '김직원', col16: '2022-05' },
-    { col1: '123456', col2: '2022-05', col3: 'P123456', col4: '김교원', col5: '김교원', col6: '김총괄', col7: '김지역', col8: '김BM', col9: '김지점', col10: '부과내역', col11: '부과내역', col12: '1', col13: '★', col14: '71401-Wells 경영지원팀', col15: '김직원', col16: '2022-05' },
-    { col1: '123456', col2: '2022-05', col3: 'P123456', col4: '김교원', col5: '김교원', col6: '김총괄', col7: '김지역', col8: '김BM', col9: '김지점', col10: '부과내역', col11: '부과내역', col12: '1', col13: '★', col14: '71401-Wells 경영지원팀', col15: '김직원', col16: '2022-05' },
+  // Will update the fields when api available
+  view.onCellButtonClicked = async () => {
+    await modal({
+      component: 'ZwcsaCustomerListP',
+    });
+  };
+
+  data.setRows([{ dangOjPrtnrNo: '사번입력', dangOcStrtmm: '2022-05', dangOjPrtnrOgNm: '', dangOjPrtnrNm: '', dangOjPrtnrPstnDvNm: '', dgr1HgrDgPrtnrNm: '', dgr2HgrDgPrtnrNm: '', bznsSpptPrtnrNo: '', dgr3HgrDgPrtnrNm: '', dangChkNm: '', dangArbitCd: '1-개인정보 도용에 의한 판매계약', dangUncvrCt: '', dangArbitLvyPc: '★★★', dangArbitOgId: '71401-Wells경영지원팀', fstRgstUsrId: '', fstRgstDtm: '2022-05' },
+    { dangOjPrtnrNo: '123456', dangOcStrtmm: '2022-05', dangOjPrtnrOgNm: 'P123456', dangOjPrtnrNm: '김교원', dangOjPrtnrPstnDvNm: '김교원', dgr1HgrDgPrtnrNm: '김총괄', dgr2HgrDgPrtnrNm: '김지역', bznsSpptPrtnrNo: '김BM', dgr3HgrDgPrtnrNm: '김지점', dangChkNm: '부과내역', dangArbitCd: '부과내역', dangUncvrCt: '1', dangArbitLvyPc: '★', dangArbitOgId: '71401-Wells 경영지원팀', fstRgstUsrId: '김직원', fstRgstDtm: '2022-05' },
+    { dangOjPrtnrNo: '123456', dangOcStrtmm: '2022-05', dangOjPrtnrOgNm: 'P123456', dangOjPrtnrNm: '김교원', dangOjPrtnrPstnDvNm: '김교원', dgr1HgrDgPrtnrNm: '김총괄', dgr2HgrDgPrtnrNm: '김지역', bznsSpptPrtnrNo: '김BM', dgr3HgrDgPrtnrNm: '김지점', dangChkNm: '부과내역', dangArbitCd: '부과내역', dangUncvrCt: '1', dangArbitLvyPc: '★', dangArbitOgId: '71401-Wells 경영지원팀', fstRgstUsrId: '김직원', fstRgstDtm: '2022-05' },
+    { dangOjPrtnrNo: '123456', dangOcStrtmm: '2022-05', dangOjPrtnrOgNm: 'P123456', dangOjPrtnrNm: '김교원', dangOjPrtnrPstnDvNm: '김교원', dgr1HgrDgPrtnrNm: '김총괄', dgr2HgrDgPrtnrNm: '김지역', bznsSpptPrtnrNo: '김BM', dgr3HgrDgPrtnrNm: '김지점', dangChkNm: '부과내역', dangArbitCd: '부과내역', dangUncvrCt: '1', dangArbitLvyPc: '★', dangArbitOgId: '71401-Wells 경영지원팀', fstRgstUsrId: '김직원', fstRgstDtm: '2022-05' },
+    { dangOjPrtnrNo: '123456', dangOcStrtmm: '2022-05', dangOjPrtnrOgNm: 'P123456', dangOjPrtnrNm: '김교원', dangOjPrtnrPstnDvNm: '김교원', dgr1HgrDgPrtnrNm: '김총괄', dgr2HgrDgPrtnrNm: '김지역', bznsSpptPrtnrNo: '김BM', dgr3HgrDgPrtnrNm: '김지점', dangChkNm: '부과내역', dangArbitCd: '부과내역', dangUncvrCt: '1', dangArbitLvyPc: '★', dangArbitOgId: '71401-Wells 경영지원팀', fstRgstUsrId: '김직원', fstRgstDtm: '2022-05' },
+    { dangOjPrtnrNo: '123456', dangOcStrtmm: '2022-05', dangOjPrtnrOgNm: 'P123456', dangOjPrtnrNm: '김교원', dangOjPrtnrPstnDvNm: '김교원', dgr1HgrDgPrtnrNm: '김총괄', dgr2HgrDgPrtnrNm: '김지역', bznsSpptPrtnrNo: '김BM', dgr3HgrDgPrtnrNm: '김지점', dangChkNm: '부과내역', dangArbitCd: '부과내역', dangUncvrCt: '1', dangArbitLvyPc: '★', dangArbitOgId: '71401-Wells 경영지원팀', fstRgstUsrId: '김직원', fstRgstDtm: '2022-05' },
+    { dangOjPrtnrNo: '123456', dangOcStrtmm: '2022-05', dangOjPrtnrOgNm: 'P123456', dangOjPrtnrNm: '김교원', dangOjPrtnrPstnDvNm: '김교원', dgr1HgrDgPrtnrNm: '김총괄', dgr2HgrDgPrtnrNm: '김지역', bznsSpptPrtnrNo: '김BM', dgr3HgrDgPrtnrNm: '김지점', dangChkNm: '부과내역', dangArbitCd: '부과내역', dangUncvrCt: '1', dangArbitLvyPc: '★', dangArbitOgId: '71401-Wells 경영지원팀', fstRgstUsrId: '김직원', fstRgstDtm: '2022-05' },
+    { dangOjPrtnrNo: '123456', dangOcStrtmm: '2022-05', dangOjPrtnrOgNm: 'P123456', dangOjPrtnrNm: '김교원', dangOjPrtnrPstnDvNm: '김교원', dgr1HgrDgPrtnrNm: '김총괄', dgr2HgrDgPrtnrNm: '김지역', bznsSpptPrtnrNo: '김BM', dgr3HgrDgPrtnrNm: '김지점', dangChkNm: '부과내역', dangArbitCd: '부과내역', dangUncvrCt: '1', dangArbitLvyPc: '★', dangArbitOgId: '71401-Wells 경영지원팀', fstRgstUsrId: '김직원', fstRgstDtm: '2022-05' },
+    { dangOjPrtnrNo: '123456', dangOcStrtmm: '2022-05', dangOjPrtnrOgNm: 'P123456', dangOjPrtnrNm: '김교원', dangOjPrtnrPstnDvNm: '김교원', dgr1HgrDgPrtnrNm: '김총괄', dgr2HgrDgPrtnrNm: '김지역', bznsSpptPrtnrNo: '김BM', dgr3HgrDgPrtnrNm: '김지점', dangChkNm: '부과내역', dangArbitCd: '부과내역', dangUncvrCt: '1', dangArbitLvyPc: '★', dangArbitOgId: '71401-Wells 경영지원팀', fstRgstUsrId: '김직원', fstRgstDtm: '2022-05' },
+    { dangOjPrtnrNo: '123456', dangOcStrtmm: '2022-05', dangOjPrtnrOgNm: 'P123456', dangOjPrtnrNm: '김교원', dangOjPrtnrPstnDvNm: '김교원', dgr1HgrDgPrtnrNm: '김총괄', dgr2HgrDgPrtnrNm: '김지역', bznsSpptPrtnrNo: '김BM', dgr3HgrDgPrtnrNm: '김지점', dangChkNm: '부과내역', dangArbitCd: '부과내역', dangUncvrCt: '1', dangArbitLvyPc: '★', dangArbitOgId: '71401-Wells 경영지원팀', fstRgstUsrId: '김직원', fstRgstDtm: '2022-05' },
+    { dangOjPrtnrNo: '123456', dangOcStrtmm: '2022-05', dangOjPrtnrOgNm: 'P123456', dangOjPrtnrNm: '김교원', dangOjPrtnrPstnDvNm: '김교원', dgr1HgrDgPrtnrNm: '김총괄', dgr2HgrDgPrtnrNm: '김지역', bznsSpptPrtnrNo: '김BM', dgr3HgrDgPrtnrNm: '김지점', dangChkNm: '부과내역', dangArbitCd: '부과내역', dangUncvrCt: '1', dangArbitLvyPc: '★', dangArbitOgId: '71401-Wells 경영지원팀', fstRgstUsrId: '김직원', fstRgstDtm: '2022-05' },
 
   ]);
-}
+});
 
 </script>
