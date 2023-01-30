@@ -1,3 +1,18 @@
+<!----
+****************************************************************************************************
+* 프로그램 개요
+****************************************************************************************************
+1. 모듈 : CTC
+2. 프로그램 ID : WwctcConfirmApprovalBaseMgtM - 웰스 확인 승인 표준 관리
+3. 작성자 : gs.anil.rawat
+4. 작성일 : 2023.01.30
+****************************************************************************************************
+* 프로그램 설명
+****************************************************************************************************
+- 웰스 확인 승인 표준 관리
+****************************************************************************************************
+--->
+
 <template>
   <kw-page>
     <kw-tabs
@@ -60,14 +75,8 @@
         <div class="result-area">
           <kw-action-top>
             <template #left>
-              <kw-paging-info total-count="7" />
+              <kw-paging-info :total-count="pageInfo.totalCount " />
             </template>
-            <kw-btn
-              :label="t('MSG_BTN_MOD')"
-              grid-action
-              dense
-              @click="onClickModify"
-            />
             <kw-btn
               :label="t('MSG_BTN_DEL')"
               grid-action
@@ -140,15 +149,15 @@ const { notify, modal } = useGlobal();
 const grdMainRef = ref(getComponentType('KwGrid'));
 const { getConfig } = useMeta();
 
+// -------------------------------------------------------------------------------------------------
+// Function & Event
+// -------------------------------------------------------------------------------------------------
+
 const searchParams = ref({
   baseDt: '',
   approvalRequestCategory: '',
   isApprovalRequestCategoryValid: true,
 });
-
-// -------------------------------------------------------------------------------------------------
-// Function & Event
-// -------------------------------------------------------------------------------------------------
 
 const pageInfo = ref({
   totalCount: 0,
@@ -159,10 +168,7 @@ const pageInfo = ref({
 function onClickAdd() {
   const view = grdMainRef.value.getView();
   gridUtil.insertRowAndFocus(view, 0, {});
-  view.editOptions.editable = true;
-  view.onCellEditable = (grid, { itemIndex }) => {
-    if (itemIndex !== 0) return false;
-  };
+  view.showEditor();
 }
 
 async function onClickSave() {
@@ -184,15 +190,15 @@ function fetchData() {
   // TODO integrate Get api call.
   view.getDataSource().setRows([
     { col1: 'A-전체', col2: ' ', col3: '0-담당없음', col4: '사번입력', col5: ' ', col6: '2022-05-03', col7: '2022-05-03', col8: 'Y' },
-    { col1: '9-직원구매', col2: 'ETC', col3: '1-지정사번', col4: '123456', col5: '김직원', col6: '2022-05-20', col7: '2022-05-20', col8: 'N' },
-    { col1: '9-직원구매', col2: 'ETC', col3: '1-지정사번', col4: '123456', col5: '김직원', col6: '2022-05-20', col7: '2022-05-20', col8: 'N' },
-    { col1: '9-직원구매', col2: 'ETC', col3: '1-지정사번', col4: '123456', col5: '김직원', col6: '2022-05-20', col7: '2022-05-20', col8: 'N' },
-    { col1: '9-직원구매', col2: 'ETC', col3: '1-지정사번', col4: '123456', col5: '김직원', col6: '2022-05-20', col7: '2022-05-20', col8: 'N' },
-    { col1: '9-직원구매', col2: 'ETC', col3: '1-지정사번', col4: '123456', col5: '김직원', col6: '2022-05-20', col7: '2022-05-20', col8: 'N' },
-    { col1: '9-직원구매', col2: 'ETC', col3: '1-지정사번', col4: '123456', col5: '김직원', col6: '2022-05-20', col7: '2022-05-20', col8: 'N' },
-    { col1: '9-직원구매', col2: 'ETC', col3: '1-지정사번', col4: '123456', col5: '김직원', col6: '2022-05-20', col7: '2022-05-20', col8: 'N' },
-    { col1: '9-직원구매', col2: 'ETC', col3: '1-지정사번', col4: '123456', col5: '김직원', col6: '2022-05-20', col7: '2022-05-20', col8: 'N' },
-    { col1: '9-직원구매', col2: 'ETC', col3: '1-지정사번', col4: '123456', col5: '김직원', col6: '2022-05-20', col7: '2022-05-20', col8: 'N' },
+    { col1: '9-직원구매', col2: 'ETC', col3: '1-지정사번', col4: '123456', col5: '김직원', col6: '20220520', col7: '20220520', col8: 'N' },
+    { col1: '9-직원구매', col2: 'ETC', col3: '1-지정사번', col4: '123456', col5: '김직원', col6: '20220520', col7: '20220520', col8: 'N' },
+    { col1: '9-직원구매', col2: 'ETC', col3: '1-지정사번', col4: '123456', col5: '김직원', col6: '20220520', col7: '20220520', col8: 'N' },
+    { col1: '9-직원구매', col2: 'ETC', col3: '1-지정사번', col4: '123456', col5: '김직원', col6: '20220520', col7: '20220520', col8: 'N' },
+    { col1: '9-직원구매', col2: 'ETC', col3: '1-지정사번', col4: '123456', col5: '김직원', col6: '20220520', col7: '20220520', col8: 'N' },
+    { col1: '9-직원구매', col2: 'ETC', col3: '1-지정사번', col4: '123456', col5: '김직원', col6: '20220520', col7: '20220520', col8: 'N' },
+    { col1: '9-직원구매', col2: 'ETC', col3: '1-지정사번', col4: '123456', col5: '김직원', col6: '20220520', col7: '20220520', col8: 'N' },
+    { col1: '9-직원구매', col2: 'ETC', col3: '1-지정사번', col4: '123456', col5: '김직원', col6: '20220520', col7: '20220520', col8: 'N' },
+    { col1: '9-직원구매', col2: 'ETC', col3: '1-지정사번', col4: '123456', col5: '김직원', col6: '20220520', col7: '20220520', col8: 'N' },
   ]);
   pageInfo.value.totalCount = 10;
 }
@@ -225,23 +231,6 @@ function onClickSearch() {
   fetchData();
 }
 
-async function onClickModify() {
-  const view = grdMainRef.value.getView();
-  view.editOptions.editable = false;
-  const selectedData = gridUtil.getCheckedRowValues(view);
-  if (selectedData.length !== 1) {
-    notify(t('MSG_ALT_MOD_NO_DATA'));
-  } else if (selectedData.length > 1) {
-    notify(t('MSG_ALT_SELT_ONE_ITEM'));
-  } else {
-    const selectedDataRow = selectedData[0].dataRow;
-    view.editOptions.editable = true;
-    view.onCellEditable = (grid, index) => {
-      if (index.itemIndex !== selectedDataRow) { return false; }
-    };
-  }
-}
-
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
@@ -263,8 +252,8 @@ function initGrid(data, view) {
     { fieldName: 'col3', header: t('MSG_TXT_ICHR_DV'), width: '142', styleName: 'text-center', editor: { type: 'text' } },
     { fieldName: 'col4', header: t('MSG_TXT_CNT_PER'), width: '180', styleName: 'text-center', editor: { type: 'text' } },
     { fieldName: 'col5', header: t('MSG_TXT_PIC_NM'), width: '180', styleName: 'text-center', editor: { type: 'text' } },
-    { fieldName: 'col6', header: t('MSG_TXT_STRT_DT'), width: '196', styleName: 'text-center', editor: { type: 'date' }, datetimeFormat: 'yyyy-MM-dd' },
-    { fieldName: 'col7', header: t('MSG_TXT_END_DT'), width: '196', styleName: 'text-center', editor: { type: 'date' }, datetimeFormat: 'yyyy-MM-dd' },
+    { fieldName: 'col6', header: t('MSG_TXT_STRT_DT'), width: '196', styleName: 'text-center', datetimeFormat: 'date', editor: { type: 'btdate' } },
+    { fieldName: 'col7', header: t('MSG_TXT_END_DT'), width: '196', styleName: 'text-center', datetimeFormat: 'date', editor: { type: 'btdate' } },
     { fieldName: 'col8', header: t('MSG_TXT_K_TLK_MAIL_TAR'), width: '142', styleName: 'text-center' },
   ];
 
@@ -273,5 +262,6 @@ function initGrid(data, view) {
 
   view.checkBar.visible = true;
   view.rowIndicator.visible = true;
+  view.editOptions.editable = true;
 }
 </script>

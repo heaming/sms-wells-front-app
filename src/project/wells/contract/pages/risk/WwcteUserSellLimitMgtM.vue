@@ -1,3 +1,17 @@
+<!----
+****************************************************************************************************
+* 프로그램 개요
+****************************************************************************************************
+1. 모듈 : CTE
+2. 프로그램 ID : WwcteUserSellLimitMgtM - 사용자 판매 제한 관리
+3. 작성자 : gs.anil.rawat
+4. 작성일 : 2023.01.30
+****************************************************************************************************
+* 프로그램 설명
+****************************************************************************************************
+- 사용자 판매 제한 관리
+****************************************************************************************************
+--->
 <template>
   <kw-page>
     <kw-tabs
@@ -30,7 +44,7 @@
       <kw-tab-panel name="4">
         <kw-search
           :modified-targets="['userSellLimitGrid']"
-          @search="onClickSearch()"
+          @search="onClickSearch"
         >
           <kw-search-row>
             <kw-search-item :label="t('MSG_TXT_ACEPT_PERIOD')">
@@ -43,7 +57,7 @@
               :colspan="2"
             >
               <kw-select
-                :options="['전체', 'B', 'C', 'D']"
+                :options="orgOptions"
               />
               <kw-select
                 :options="['전체', 'B', 'C', 'D']"
@@ -61,12 +75,12 @@
             </kw-search-item>
             <kw-search-item :label="t('MSG_TXT_SEL_TYPE')">
               <kw-select
-                :options="['전체', 'B', 'C', 'D']"
+                :options="salesTypeOptions"
               />
             </kw-search-item>
             <kw-search-item :label="t('MSG_TXT_SLS_RSTR')">
               <kw-select
-                :options="['전체', 'B', 'C', 'D']"
+                :options="salesRestrictionOptions"
               />
             </kw-search-item>
           </kw-search-row>
@@ -154,21 +168,44 @@ const pageInfo = ref({
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
 });
 
+const orgOptions = ref([
+  { codeId: 'A', codeName: `A-${t('MSG_TXT_ALL')}` },
+  { codeId: '2', codeName: `2-P${t('MSG_TXT_OG')}` },
+  { codeId: '7', codeName: `7-M${t('MSG_TXT_OG')}` },
+  { codeId: '8', codeName: `8-${t('MSG_TXT_EMP_SLS')}` },
+  { codeId: '9', codeName: `9-${t('MSG_TXT_EMP_PRCH')}` },
+]);
+
+const salesTypeOptions = ref([
+  { codeId: '', codeName: t('MSG_TXT_ALL') },
+  { codeId: '2', codeName: `2-${t('MSG_TXT_LIMIT')}` },
+  { codeId: '3', codeName: `3-${t('MSG_TXT_EXP_GRNTD')}` },
+  { codeId: '4', codeName: `4-${t('MSG_TXT_NEW_RGLTD')}` },
+]);
+
+const salesRestrictionOptions = ref([
+  { codeId: '', codeName: `A-${t('MSG_TXT_ALL')}` },
+  { codeId: '2', codeName: `1-${t('MSG_TXT_SNGL_PMNT')}` },
+  { codeId: '3', codeName: `2-${t('MSG_TXT_RENTAL')}` },
+  { codeId: '4', codeName: `5-${t('MSG_TXT_HOME_CARE')}` },
+  { codeId: '5', codeName: `6-${t('MSG_TXT_REG_DLVR')}` },
+]);
+
 function fetchData() {
   const view = grdMainRef.value.getView();
   // TODO integrate Get api call.
   view.getDataSource().setRows([
-    { col1: 'A-전체', col2: 'A-전체', col3: 'ALL', col4: 'ALL', col5: 'A-전체', col6: '123456789', col7: '123456789', col8: '123456789', col9: '환경가전', col10: '샤워기', col11: '실내설치키트', col12: 'ALL', col13: '2-렌탈', col14: '3-예외허용', col15: '2022-05-20', col16: '2022-05-20', col17: '실내설치키트', col18: '실내설치키트', col19: '실내설치키트', col20: '2022-05-20', col21: 'ALL', col22: '2022-05-20', col23: 'ALL' },
-    { col1: 'A-전체', col2: 'A-전체', col3: 'ALL', col4: 'ALL', col5: 'A-전체', col6: '123456789', col7: '123456789', col8: '123456789', col9: '환경가전', col10: '샤워기', col11: '실내설치키트', col12: 'ALL', col13: '2-렌탈', col14: '3-예외허용', col15: '2022-05-20', col16: '2022-05-20', col17: '실내설치키트', col18: '실내설치키트', col19: '실내설치키트', col20: '2022-05-20', col21: 'ALL', col22: '2022-05-20', col23: 'ALL' },
-    { col1: 'A-전체', col2: 'A-전체', col3: 'ALL', col4: 'ALL', col5: 'A-전체', col6: '123456789', col7: '123456789', col8: '123456789', col9: '환경가전', col10: '샤워기', col11: '실내설치키트', col12: 'ALL', col13: '2-렌탈', col14: '3-예외허용', col15: '2022-05-20', col16: '2022-05-20', col17: '실내설치키트', col18: '실내설치키트', col19: '실내설치키트', col20: '2022-05-20', col21: 'ALL', col22: '2022-05-20', col23: 'ALL' },
-    { col1: 'A-전체', col2: 'A-전체', col3: 'ALL', col4: 'ALL', col5: 'A-전체', col6: '123456789', col7: '123456789', col8: '123456789', col9: '환경가전', col10: '샤워기', col11: '실내설치키트', col12: 'ALL', col13: '2-렌탈', col14: '3-예외허용', col15: '2022-05-20', col16: '2022-05-20', col17: '실내설치키트', col18: '실내설치키트', col19: '실내설치키트', col20: '2022-05-20', col21: 'ALL', col22: '2022-05-20', col23: 'ALL' },
-    { col1: 'A-전체', col2: 'A-전체', col3: 'ALL', col4: 'ALL', col5: 'A-전체', col6: '123456789', col7: '123456789', col8: '123456789', col9: '환경가전', col10: '샤워기', col11: '실내설치키트', col12: 'ALL', col13: '2-렌탈', col14: '3-예외허용', col15: '2022-05-20', col16: '2022-05-20', col17: '실내설치키트', col18: '실내설치키트', col19: '실내설치키트', col20: '2022-05-20', col21: 'ALL', col22: '2022-05-20', col23: 'ALL' },
-    { col1: 'A-전체', col2: 'A-전체', col3: 'ALL', col4: 'ALL', col5: 'A-전체', col6: '123456789', col7: '123456789', col8: '123456789', col9: '환경가전', col10: '샤워기', col11: '실내설치키트', col12: 'ALL', col13: '2-렌탈', col14: '3-예외허용', col15: '2022-05-20', col16: '2022-05-20', col17: '실내설치키트', col18: '실내설치키트', col19: '실내설치키트', col20: '2022-05-20', col21: 'ALL', col22: '2022-05-20', col23: 'ALL' },
-    { col1: 'A-전체', col2: 'A-전체', col3: 'ALL', col4: 'ALL', col5: 'A-전체', col6: '123456789', col7: '123456789', col8: '123456789', col9: '환경가전', col10: '샤워기', col11: '실내설치키트', col12: 'ALL', col13: '2-렌탈', col14: '3-예외허용', col15: '2022-05-20', col16: '2022-05-20', col17: '실내설치키트', col18: '실내설치키트', col19: '실내설치키트', col20: '2022-05-20', col21: 'ALL', col22: '2022-05-20', col23: 'ALL' },
-    { col1: 'A-전체', col2: 'A-전체', col3: 'ALL', col4: 'ALL', col5: 'A-전체', col6: '123456789', col7: '123456789', col8: '123456789', col9: '환경가전', col10: '샤워기', col11: '실내설치키트', col12: 'ALL', col13: '2-렌탈', col14: '3-예외허용', col15: '2022-05-20', col16: '2022-05-20', col17: '실내설치키트', col18: '실내설치키트', col19: '실내설치키트', col20: '2022-05-20', col21: 'ALL', col22: '2022-05-20', col23: 'ALL' },
-    { col1: 'A-전체', col2: 'A-전체', col3: 'ALL', col4: 'ALL', col5: 'A-전체', col6: '123456789', col7: '123456789', col8: '123456789', col9: '환경가전', col10: '샤워기', col11: '실내설치키트', col12: 'ALL', col13: '2-렌탈', col14: '3-예외허용', col15: '2022-05-20', col16: '2022-05-20', col17: '실내설치키트', col18: '실내설치키트', col19: '실내설치키트', col20: '2022-05-20', col21: 'ALL', col22: '2022-05-20', col23: 'ALL' },
-    { col1: 'A-전체', col2: 'A-전체', col3: 'ALL', col4: 'ALL', col5: 'A-전체', col6: '123456789', col7: '123456789', col8: '123456789', col9: '환경가전', col10: '샤워기', col11: '실내설치키트', col12: 'ALL', col13: '2-렌탈', col14: '3-예외허용', col15: '2022-05-20', col16: '2022-05-20', col17: '실내설치키트', col18: '실내설치키트', col19: '실내설치키트', col20: '2022-05-20', col21: 'ALL', col22: '2022-05-20', col23: 'ALL' },
-    { col1: 'A-전체', col2: 'A-전체', col3: 'ALL', col4: 'ALL', col5: 'A-전체', col6: '123456789', col7: '123456789', col8: '123456789', col9: '환경가전', col10: '샤워기', col11: '실내설치키트', col12: 'ALL', col13: '2-렌탈', col14: '3-예외허용', col15: '2022-05-20', col16: '2022-05-20', col17: '실내설치키트', col18: '실내설치키트', col19: '실내설치키트', col20: '2022-05-20', col21: 'ALL', col22: '2022-05-20', col23: 'ALL' },
+    { col1: 'A-전체', col2: 'A-전체', col3: 'ALL', col4: 'ALL', col5: 'A-전체', col6: '123456789', col7: '123456789', col8: '123456789', col9: '환경가전', col10: '샤워기', col11: '실내설치키트', col12: 'ALL', col13: '2-렌탈', col14: '3-예외허용', col15: '20220520', col16: '20220520', col17: '실내설치키트', col18: '실내설치키트', col19: '실내설치키트', col20: '20220520', col21: 'ALL', col22: '20220520', col23: 'ALL' },
+    { col1: 'A-전체', col2: 'A-전체', col3: 'ALL', col4: 'ALL', col5: 'A-전체', col6: '123456789', col7: '123456789', col8: '123456789', col9: '환경가전', col10: '샤워기', col11: '실내설치키트', col12: 'ALL', col13: '2-렌탈', col14: '3-예외허용', col15: '20220520', col16: '20220520', col17: '실내설치키트', col18: '실내설치키트', col19: '실내설치키트', col20: '20220520', col21: 'ALL', col22: '20220520', col23: 'ALL' },
+    { col1: 'A-전체', col2: 'A-전체', col3: 'ALL', col4: 'ALL', col5: 'A-전체', col6: '123456789', col7: '123456789', col8: '123456789', col9: '환경가전', col10: '샤워기', col11: '실내설치키트', col12: 'ALL', col13: '2-렌탈', col14: '3-예외허용', col15: '20220520', col16: '20220520', col17: '실내설치키트', col18: '실내설치키트', col19: '실내설치키트', col20: '20220520', col21: 'ALL', col22: '20220520', col23: 'ALL' },
+    { col1: 'A-전체', col2: 'A-전체', col3: 'ALL', col4: 'ALL', col5: 'A-전체', col6: '123456789', col7: '123456789', col8: '123456789', col9: '환경가전', col10: '샤워기', col11: '실내설치키트', col12: 'ALL', col13: '2-렌탈', col14: '3-예외허용', col15: '20220520', col16: '20220520', col17: '실내설치키트', col18: '실내설치키트', col19: '실내설치키트', col20: '20220520', col21: 'ALL', col22: '20220520', col23: 'ALL' },
+    { col1: 'A-전체', col2: 'A-전체', col3: 'ALL', col4: 'ALL', col5: 'A-전체', col6: '123456789', col7: '123456789', col8: '123456789', col9: '환경가전', col10: '샤워기', col11: '실내설치키트', col12: 'ALL', col13: '2-렌탈', col14: '3-예외허용', col15: '20220520', col16: '20220520', col17: '실내설치키트', col18: '실내설치키트', col19: '실내설치키트', col20: '20220520', col21: 'ALL', col22: '20220520', col23: 'ALL' },
+    { col1: 'A-전체', col2: 'A-전체', col3: 'ALL', col4: 'ALL', col5: 'A-전체', col6: '123456789', col7: '123456789', col8: '123456789', col9: '환경가전', col10: '샤워기', col11: '실내설치키트', col12: 'ALL', col13: '2-렌탈', col14: '3-예외허용', col15: '20220520', col16: '20220520', col17: '실내설치키트', col18: '실내설치키트', col19: '실내설치키트', col20: '20220520', col21: 'ALL', col22: '20220520', col23: 'ALL' },
+    { col1: 'A-전체', col2: 'A-전체', col3: 'ALL', col4: 'ALL', col5: 'A-전체', col6: '123456789', col7: '123456789', col8: '123456789', col9: '환경가전', col10: '샤워기', col11: '실내설치키트', col12: 'ALL', col13: '2-렌탈', col14: '3-예외허용', col15: '20220520', col16: '20220520', col17: '실내설치키트', col18: '실내설치키트', col19: '실내설치키트', col20: '20220520', col21: 'ALL', col22: '20220520', col23: 'ALL' },
+    { col1: 'A-전체', col2: 'A-전체', col3: 'ALL', col4: 'ALL', col5: 'A-전체', col6: '123456789', col7: '123456789', col8: '123456789', col9: '환경가전', col10: '샤워기', col11: '실내설치키트', col12: 'ALL', col13: '2-렌탈', col14: '3-예외허용', col15: '20220520', col16: '20220520', col17: '실내설치키트', col18: '실내설치키트', col19: '실내설치키트', col20: '20220520', col21: 'ALL', col22: '20220520', col23: 'ALL' },
+    { col1: 'A-전체', col2: 'A-전체', col3: 'ALL', col4: 'ALL', col5: 'A-전체', col6: '123456789', col7: '123456789', col8: '123456789', col9: '환경가전', col10: '샤워기', col11: '실내설치키트', col12: 'ALL', col13: '2-렌탈', col14: '3-예외허용', col15: '20220520', col16: '20220520', col17: '실내설치키트', col18: '실내설치키트', col19: '실내설치키트', col20: '20220520', col21: 'ALL', col22: '20220520', col23: 'ALL' },
+    { col1: 'A-전체', col2: 'A-전체', col3: 'ALL', col4: 'ALL', col5: 'A-전체', col6: '123456789', col7: '123456789', col8: '123456789', col9: '환경가전', col10: '샤워기', col11: '실내설치키트', col12: 'ALL', col13: '2-렌탈', col14: '3-예외허용', col15: '20220520', col16: '20220520', col17: '실내설치키트', col18: '실내설치키트', col19: '실내설치키트', col20: '20220520', col21: 'ALL', col22: '20220520', col23: 'ALL' },
+    { col1: 'A-전체', col2: 'A-전체', col3: 'ALL', col4: 'ALL', col5: 'A-전체', col6: '123456789', col7: '123456789', col8: '123456789', col9: '환경가전', col10: '샤워기', col11: '실내설치키트', col12: 'ALL', col13: '2-렌탈', col14: '3-예외허용', col15: '20220520', col16: '20220520', col17: '실내설치키트', col18: '실내설치키트', col19: '실내설치키트', col20: '20220520', col21: 'ALL', col22: '20220520', col23: 'ALL' },
   ]);
   pageInfo.value.totalCount = 11;
 }
@@ -194,10 +231,7 @@ async function onClickDelete() {
 function onClickRowAdd() {
   const view = grdMainRef.value.getView();
   gridUtil.insertRowAndFocus(view, 0, {});
-  view.editOptions.editable = true;
-  view.onCellEditable = (grid, { itemIndex }) => {
-    if (itemIndex !== 0) return false;
-  };
+  view.showEditor();
 }
 
 async function onClickSave() {
@@ -255,14 +289,14 @@ function initGrid(data, view) {
     { fieldName: 'col12', header: t('MSG_TXT_CYCL'), width: '131' },
     { fieldName: 'col13', header: t('MSG_TXT_SEL_TYPE'), width: '142' },
     { fieldName: 'col14', header: t('MSG_TXT_SLS_RSTR'), width: '142' },
-    { fieldName: 'col15', header: t('MSG_TXT_STRT_DT'), width: '196', styleName: 'text-right' },
-    { fieldName: 'col16', header: t('MSG_TXT_END_DT'), width: '196', styleName: 'text-right' },
+    { fieldName: 'col15', header: t('MSG_TXT_STRT_DT'), datetimeFormat: 'date', width: '196', styleName: 'text-right' },
+    { fieldName: 'col16', header: t('MSG_TXT_END_DT'), datetimeFormat: 'date', width: '196', styleName: 'text-right' },
     { fieldName: 'col17', header: `${t('MSG_TXT_NOTE')}1`, width: '220' },
     { fieldName: 'col18', header: `${t('MSG_TXT_NOTE')}2`, width: '220' },
     { fieldName: 'col19', header: `${t('MSG_TXT_NOTE')}3`, width: '220' },
-    { fieldName: 'col20', header: t('MSG_TXT_RGST_DT'), width: '196', styleName: 'text-right' },
+    { fieldName: 'col20', header: t('MSG_TXT_RGST_DT'), datetimeFormat: 'date', width: '196', styleName: 'text-right' },
     { fieldName: 'col21', header: t('MSG_TXT_FST_RGST_USR'), width: '131' },
-    { fieldName: 'col22', header: t('MSG_TXT_EDIT_DTM'), width: '196', styleName: 'text-right' },
+    { fieldName: 'col22', header: t('MSG_TXT_EDIT_DTM'), datetimeFormat: 'date', width: '196', styleName: 'text-right' },
     { fieldName: 'col23', header: t('MSG_TXT_MDFC_USR'), width: '131' },
   ];
 
