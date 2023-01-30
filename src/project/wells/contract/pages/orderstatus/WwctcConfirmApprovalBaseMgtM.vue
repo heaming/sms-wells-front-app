@@ -203,7 +203,7 @@ function fetchData() {
   pageInfo.value.totalCount = 10;
 }
 
-const onClickConfirmCriteriaMangement = async () => {
+async function onClickConfirmCriteriaMangement() {
   const {
     result,
     payload,
@@ -214,7 +214,7 @@ const onClickConfirmCriteriaMangement = async () => {
     result,
     payload,
   }));
-};
+}
 
 async function onClickRemove() {
   const view = grdMainRef.value.getView();
