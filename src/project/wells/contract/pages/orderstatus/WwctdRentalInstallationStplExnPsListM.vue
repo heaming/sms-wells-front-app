@@ -1,24 +1,37 @@
+<!----
+****************************************************************************************************
+* 프로그램 개요
+****************************************************************************************************
+1. 모듈 : CTD
+2. 프로그램 ID : WwctdRentalInstallationStplExnPsListM - 렌탈 약정 만료 및 멤버십 현황
+3. 작성자 : gs.rahul.n
+4. 작성일 : 2023.01.24
+****************************************************************************************************
+* 프로그램 설명
+****************************************************************************************************
+- 렌탈 약정 만료 및 멤버십 현황 화면
+****************************************************************************************************
+--->
 <template>
   <kw-page>
-    <template #header>
-      <kw-page-header
-        :options="['홈','판매','계약관리','렌탈 약정 만료 및 멤버십 현황']"
-      />
-    </template>
-
-    <kw-search :cols="3">
+    <kw-search
+      :cols="3"
+      @search="onClickSearch"
+    >
       <kw-search-row>
         <kw-search-item
-          label="만료일"
+          :label="$t('MSG_TXT_EXP_DT')"
         >
           <kw-date-range-picker
+            v-model:from="searchParams.cntrPdEndDt.startDt"
+            v-model:to="searchParams.cntrPdEndDt.endDt"
             rules="date_range_months:1"
           />
         </kw-search-item>
 
-        <kw-search-item label="상품군">
+        <kw-search-item :label="$t('MSG_TXT_PDGRP')">
           <kw-select
-            :model-value="['']"
+            v-model="searchParams.basePdGrp"
             :options="['대분류 전체','B','C']"
           />
           <span>/</span>
@@ -27,23 +40,27 @@
           />
         </kw-search-item>
 
-        <kw-search-item label="상품코드">
-          <kw-input />
+        <kw-search-item :label="$t('MSG_TXT_PRDT_CODE')">
+          <kw-input
+            v-model="searchParams.basePdCd"
+          />
         </kw-search-item>
       </kw-search-row>
       <kw-search-row>
-        <kw-search-item label="상품명">
-          <kw-input />
+        <kw-search-item :label="$t('MSG_TXT_PRDT_NM')">
+          <kw-input
+            v-model="searchParams.pdNm"
+          />
         </kw-search-item>
-        <kw-search-item label="취소제외">
+        <kw-search-item :label="$t('MSG_TXT_EXCLD_CANC')">
           <kw-field
-            :model-value="[]"
+            v-model="searchParams.cntrDtlStatCd"
           >
             <template #default="{ field }">
               <kw-checkbox
                 v-bind="field"
                 label=""
-                val=""
+                val="1"
               />
             </template>
           </kw-field>
@@ -54,26 +71,105 @@
     <div class="result-area">
       <kw-action-top>
         <template #left>
-          <span>총</span> <span class="accent pl4">156</span>
+          <kw-paging-info :total-count="pageInfo.totalCount" />
+          <span class="ml8">(단위:개월)</span>
         </template>
         <kw-btn
           icon="download_on"
+          :disable="pageInfo.totalCount === 0"
           dense
           secondary
-          label="엑셀 다운로드"
+          :label="$t('MSG_BTN_EXCEL_DOWN')"
+          @click="onClickExcelDownload"
         />
       </kw-action-top>
       <kw-grid
+        ref="grdMainRef"
         :visible-rows="10"
-        @init="initGrid"
+        @init="initGrdMain"
+      />
+      <kw-pagination
+        v-model:page-index="pageInfo.pageIndex"
+        v-model:page-size="pageInfo.pageSize"
+        :total-count="pageInfo.totalCount"
+        @change="fetchData"
       />
     </div>
   </kw-page>
 </template>
 
 <script setup>
+// -------------------------------------------------------------------------------------------------
+// Import & Declaration
+// -------------------------------------------------------------------------------------------------
+// import { gridUtil, defineGrid, getComponentType, useDataService, useMeta, codeUtil, useGlobal } from 'kw-lib';
+import { defineGrid, useMeta, getComponentType, useDataService, gridUtil } from 'kw-lib';
+import { cloneDeep } from 'lodash-es';
+import dayjs from 'dayjs';
 
-function initGrid(data, view) {
+const { getConfig } = useMeta();
+const dataService = useDataService();
+const { t } = useI18n();
+
+// -------------------------------------------------------------------------------------------------
+// Function & Event
+// -------------------------------------------------------------------------------------------------
+
+const grdMainRef = ref(getComponentType('KwGrid'));
+
+const now = dayjs();
+
+const pageInfo = ref({
+  totalCount: 0,
+  pageIndex: 1,
+  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
+});
+
+const searchParams = ref({
+  cntrPdEndDt: {
+    startDt: now.startOf('month').format('YYYYMMDD'),
+    endDt: now.format('YYYYMMDD'),
+  },
+  basePdGrp: '',
+  basePdCd: '',
+  pdNm: '',
+  cntrDtlStatCd: [],
+});
+let cachedParams;
+
+async function onClickExcelDownload() {
+  const view = grdMainRef.value.getView();
+
+  const response = await dataService.get('/sms/wells/contract/expired-retention-contracts/excel-download', { params: cachedParams });
+
+  await gridUtil.exportView(view, {
+    fileName: 'rentalInstallationStplExpList',
+    timePostfix: true,
+    exportData: response.data,
+  });
+}
+
+async function fetchData() {
+  cachedParams = { ...cachedParams, ...pageInfo.value };
+  const res = await dataService.get('/sms/wells/contract/expired-retention-contracts', { params: cachedParams });
+  const { list: rentalData, pageInfo: pagingResult } = res.data;
+  pageInfo.value = pagingResult;
+
+  const view = grdMainRef.value.getView();
+  view.getDataSource().setRows(rentalData);
+  view.resetCurrent();
+}
+
+async function onClickSearch() {
+  pageInfo.value.pageIndex = 1;
+  cachedParams = cloneDeep(searchParams.value);
+  await fetchData();
+}
+
+// -------------------------------------------------------------------------------------------------
+// Initialize Grid
+// -------------------------------------------------------------------------------------------------
+const initGrdMain = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'col1' },
     { fieldName: 'col2' },
@@ -96,23 +192,23 @@ function initGrid(data, view) {
   ];
 
   const columns = [
-    { fieldName: 'col1', header: '고객코드', width: '130', styleName: 'text-center' },
-    { fieldName: 'col2', header: '고객명', width: '120', styleName: 'text-left' },
-    { fieldName: 'col3', header: '상품코드', width: '100', styleName: 'text-center' },
-    { fieldName: 'col4', header: '상품명', width: '160', styleName: 'text-left' },
-    { fieldName: 'col5', header: '렌탈기간', width: '120', styleName: 'text-center' },
-    { fieldName: 'col6', header: '의무사용기간', width: '120', styleName: 'text-center' },
-    { fieldName: 'col7', header: '매출일자', width: '120', styleName: 'text-center' },
-    { fieldName: 'col8', header: '의무사용일자', width: '120', styleName: 'text-center' },
-    { fieldName: 'col9', header: '만료일자', width: '120', styleName: 'text-center' },
-    { fieldName: 'col10', header: '취소일자', width: '120', styleName: 'text-center' },
-    { fieldName: 'col11', header: '취소고객 의무사용만기여부', width: '200', styleName: 'text-center' },
-    { fieldName: 'col12', header: '멤버십계약일자', width: '120', styleName: 'text-center' },
-    { fieldName: 'col13', header: '멤버십가입일자', width: '120', styleName: 'text-center' },
-    { fieldName: 'col14', header: '멤버십취소일자', width: '120', styleName: 'text-center' },
-    { fieldName: 'col15', header: '멤버십탈퇴일자', width: '120', styleName: 'text-center' },
-    { fieldName: 'col16', header: '계약자번호', width: '160', styleName: 'text-center' },
-    { fieldName: 'col17', header: '설치자번호', width: '160', styleName: 'text-center' },
+    { fieldName: 'col1', header: t('MSG_TXT_CST_CD'), width: '130', styleName: 'text-center' },
+    { fieldName: 'col2', header: t('MSG_TXT_CST_NM'), width: '120', styleName: 'text-left' },
+    { fieldName: 'col3', header: t('MSG_TXT_PRDT_CODE'), width: '100', styleName: 'text-center' },
+    { fieldName: 'col4', header: t('MSG_TXT_PRDT_NM'), width: '160', styleName: 'text-left' },
+    { fieldName: 'col5', header: t('MSG_TXT_RENT_PRD_MN'), width: '120', styleName: 'text-center' },
+    { fieldName: 'col6', header: t('MSG_TXT_LCK_IN_PRD_MN'), width: '120', styleName: 'text-center' },
+    { fieldName: 'col7', header: t('MSG_TXT_DT_OF_SALE'), width: '120', styleName: 'text-center' },
+    { fieldName: 'col8', header: t('MSG_TXT_MAND_DAYS'), width: '120', styleName: 'text-center' },
+    { fieldName: 'col9', header: t('MSG_TXT_EXP_DT_1'), width: '120', styleName: 'text-center' },
+    { fieldName: 'col10', header: t('MSG_TXT_CANC_DT'), width: '120', styleName: 'text-center' },
+    { fieldName: 'col11', header: t('MSG_TXT_CAN_CST_MAND_PRD_EXP_STAT'), width: '200', styleName: 'text-center' },
+    { fieldName: 'col12', header: t('MSG_TXT_MEM_CNTR_DT'), width: '120', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd' },
+    { fieldName: 'col13', header: t('MSG_TXT_MEM_SUBS_DT'), width: '120', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd' },
+    { fieldName: 'col14', header: t('MSG_TXT_MEM_CANC_DT'), width: '120', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd' },
+    { fieldName: 'col15', header: t('MSG_TXT_MEM_WTD_DT'), width: '120', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd' },
+    { fieldName: 'col16', header: t('MSG_TXT_CNTOR_PHN_NUM'), width: '160', styleName: 'text-center' },
+    { fieldName: 'col17', header: t('MSG_TXT_INST_PHN_NUM'), width: '160', styleName: 'text-center' },
 
   ];
 
@@ -133,7 +229,7 @@ function initGrid(data, view) {
     { col1: '2017-5825112', col2: '김교원', col3: '4016', col4: '웰스(KW-P47F1)', col5: '', col6: '', col7: '20, 170, 707', col8: '', col9: '20, 170, 707', col10: '', col11: '', col12: '', col13: '', col14: '', col15: '', col16: '010-p-7764', col17: '010-p-7764' },
     { col1: '2017-5825112', col2: '김교원', col3: '4016', col4: '웰스(KW-P47F1)', col5: '', col6: '', col7: '20, 170, 707', col8: '', col9: '20, 170, 707', col10: '', col11: '', col12: '', col13: '', col14: '', col15: '', col16: '010-p-7764', col17: '010-p-7764' },
   ]);
-}
+});
 </script>
 
 <style scoped>
