@@ -65,7 +65,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { gridUtil, getComponentType } from 'kw-lib';
+import { defineGrid, gridUtil, getComponentType } from 'kw-lib';
 
 const { t } = useI18n();
 
@@ -87,7 +87,7 @@ async function onClickDelete() {
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
-function initGrid(data, view) {
+const initGrid = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'col1' },
     { fieldName: 'col2' },
@@ -127,5 +127,5 @@ function initGrid(data, view) {
     { col1: '9-직원구매', col2: '%s 플래너로부터 %s에 대한 승인 요청이 접수되었습니다.\n주문번호:%s', col3: '%s 플래너로부터 %s에 대한 승인 요청이 접수되었습니다.\n주문번호:%s', col4: '%s 플래너로부터 %s에 대한 승인 요청이 접수되었습니다.\n주문번호:%s', col5: '20220220', col6: '20220220' },
 
   ]);
-}
+});
 </script>

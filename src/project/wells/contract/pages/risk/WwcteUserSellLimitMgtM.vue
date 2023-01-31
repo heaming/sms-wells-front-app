@@ -237,7 +237,7 @@ function onClickRowAdd() {
 async function onClickSave() {
   const view = grdMainRef.value.getView();
   if (await gridUtil.alertIfIsNotModified(view)) { return; }
-  if (!gridUtil.validate(view, {})) { return; }
+  if (!gridUtil.validate(view)) { return; }
   notify('Data saved');
   const changedRows = gridUtil.getChangedRowValues(view);
   notify(changedRows);
