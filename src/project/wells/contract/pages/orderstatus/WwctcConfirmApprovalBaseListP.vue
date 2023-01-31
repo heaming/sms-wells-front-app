@@ -30,7 +30,7 @@
       </kw-action-top>
 
       <kw-grid
-        ref="grdCnfrmLst"
+        ref="grdConfirmRef"
         :visible-rows="12"
         @init="initGrid"
       />
@@ -69,13 +69,13 @@ import { gridUtil, getComponentType } from 'kw-lib';
 
 const { t } = useI18n();
 
-const grdCnfrmLst = ref(getComponentType('KwGrid'));
+const grdConfirmRef = ref(getComponentType('KwGrid'));
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 async function onClickDelete() {
-  const view = grdCnfrmLst.value.getView();
+  const view = grdConfirmRef.value.getView();
   if (!await gridUtil.confirmIfIsModified(view)) { return; }
   const deletedRows = await gridUtil.confirmDeleteCheckedRows(view);
 
