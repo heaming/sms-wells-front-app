@@ -27,7 +27,6 @@
             :options="codes.SELL_TP_CD.filter(v => v.codeId === '1' ||
               v.codeId === '2' || v.codeId === '3'|| v.codeId === '6')"
             first-option="all"
-            first-option-value="ALL"
           />
         </kw-search-item>
         <kw-search-item
@@ -85,6 +84,7 @@
           secondary
           :disable="totalCount === 0"
           label="엑셀다운로드"
+          @click="onClickExcelDownload"
         />
       </kw-action-top>
 
@@ -125,7 +125,7 @@ let initGridData = [];
 
 let cachedParams;
 const searchParams = ref({
-  sellTpCd: 'ALL',
+  sellTpCd: '',
   cntr: '',
   cntrNo: '',
   cntrSn: '',
@@ -219,6 +219,19 @@ async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
 }
+
+async function onClickExcelDownload() {
+  const view = grdRef.value.getView();
+
+  await gridUtil.exportView(view, {
+    fileName: '자동이체 지정 출금 고객 관리',
+    timePostfix: true,
+  });
+}
+
+//-------------------------------------------------------------------------------------------------
+// Initialize Grid
+//-------------------------------------------------------------------------------------------------
 
 const initGrid = defineGrid((data, view) => {
   const fields = [
