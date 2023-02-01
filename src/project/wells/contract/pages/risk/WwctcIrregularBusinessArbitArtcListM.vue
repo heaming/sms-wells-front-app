@@ -186,11 +186,11 @@ async function onClickExcelDownload() {
 async function fetchData() {
   cachedParams = { ...cachedParams, ...pageInfo.value };
   const res = await dataService.get('/api/v1/sms/wells/contract/irg-bzns-arbit-artc', { params: cachedParams });
-  const { list: organizations, pageInfo: pagingResult } = res.data;
+  const { list: irregularBusinessList, pageInfo: pagingResult } = res.data;
   pageInfo.value = pagingResult;
 
   const view = grdMainRef.value.getView();
-  view.getDataSource().setRows(organizations);
+  view.getDataSource().setRows(irregularBusinessList);
   view.resetCurrent();
 }
 
