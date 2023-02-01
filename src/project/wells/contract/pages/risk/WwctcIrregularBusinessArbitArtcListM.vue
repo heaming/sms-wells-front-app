@@ -5,7 +5,7 @@
 1. 모듈 : CTC
 2. 프로그램 ID : WwctcIrregularBusinessArbitArtcListM - 비정도영업조치사항조회
 3. 작성자 : gs.rahul.n
-4. 작성일 : 2023.01.24
+4. 작성일 : 2023.01.30
 ****************************************************************************************************
 * 프로그램 설명
 ****************************************************************************************************
@@ -174,7 +174,7 @@ let cachedParams;
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
 
-  const response = await dataService.get('/sms/edu/contract/monitor-contracts/detect-risks/excel-download', { params: cachedParams });
+  const response = await dataService.get('/api/v1/sms/wells/contract/irg-bzns-arbit-artc/excel-download', { params: cachedParams });
 
   await gridUtil.exportView(view, {
     fileName: 'monitorContractRiskList',
@@ -185,7 +185,7 @@ async function onClickExcelDownload() {
 
 async function fetchData() {
   cachedParams = { ...cachedParams, ...pageInfo.value };
-  const res = await dataService.get('/sms/edu/contract/monitor-contracts/detect-risks', { params: cachedParams });
+  const res = await dataService.get('/api/v1/sms/wells/contract/irg-bzns-arbit-artc', { params: cachedParams });
   const { list: organizations, pageInfo: pagingResult } = res.data;
   pageInfo.value = pagingResult;
 

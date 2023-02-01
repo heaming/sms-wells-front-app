@@ -31,11 +31,12 @@
 
         <kw-search-item :label="$t('MSG_TXT_PDGRP')">
           <kw-select
-            v-model="searchParams.basePdGrp"
+            v-model="searchParams.basePdGrp.startGp"
             :options="['대분류 전체','B','C']"
           />
           <span>/</span>
           <kw-select
+            v-model="searchParams.basePdGrp.endGp"
             :options="['중분류 전체','B','C']"
           />
         </kw-search-item>
@@ -102,7 +103,6 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-// import { gridUtil, defineGrid, getComponentType, useDataService, useMeta, codeUtil, useGlobal } from 'kw-lib';
 import { defineGrid, useMeta, getComponentType, useDataService, gridUtil } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
@@ -130,7 +130,10 @@ const searchParams = ref({
     startDt: now.startOf('month').format('YYYYMMDD'),
     endDt: now.format('YYYYMMDD'),
   },
-  basePdGrp: '',
+  basePdGrp: {
+    startGp: '',
+    endGp: '',
+  },
   basePdCd: '',
   pdNm: '',
   cntrDtlStatCd: [],
