@@ -21,21 +21,24 @@
       @search="onClickSearch"
     >
       <kw-search-row>
-        <kw-search-item label="업무유형">
+        <kw-search-item
+          :label="$t('MSG_TXT_TASK_TYPE')"
+        >
           <kw-select
             v-model="searchParams.sellTpCd"
             :options="codes.SELL_TP_CD.filter(v => v.codeId === '1' ||
               v.codeId === '2' || v.codeId === '3'|| v.codeId === '6')"
             first-option="all"
+            first-option-value="ALL"
           />
         </kw-search-item>
         <kw-search-item
-          label="고객코드"
+          :label="$t('MSG_TXT_CST_CD')"
           required
         >
           <kw-input
             v-model="searchParams.cntr"
-            placeholder="계약번호 13자리"
+            :placeholder="$t('MSG_TXT_CNTR_NO')"
             rules="required"
             type="number"
             maxlength="13"
@@ -50,12 +53,12 @@
           <kw-paging-info
             :total-count="totalCount"
           />
-          <span class="ml8">(단위:원)</span>
+          <span class="ml8">{{ t('MSG_TXT_UNIT_WON') }}</span>
         </template>
 
         <kw-btn
           grid-action
-          label="삭제"
+          :label="$t('MSG_TXT_DEL')"
           @click="onClickRemove"
         />
         <kw-separator
@@ -65,12 +68,12 @@
         />
         <kw-btn
           grid-action
-          label="행추가"
+          :label="$t('MSG_BTN_ROW_ADD')"
           @click="onClickAddRow"
         />
         <kw-btn
           grid-action
-          label="저장"
+          :label="$t('MSG_BTN_SAVE')"
           @click="onClickSave"
         />
         <kw-separator
@@ -83,13 +86,13 @@
           dense
           secondary
           :disable="totalCount === 0"
-          label="엑셀다운로드"
+          :label="$t('MSG_BTN_EXCEL_DOWN')"
           @click="onClickExcelDownload"
         />
       </kw-action-top>
 
       <kw-grid
-        ref="grdRef"
+        ref="grdMainRef"
         :visible-rows="10"
         @init="initGrid"
       />
@@ -102,7 +105,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 // eslint-disable-next-line no-unused-vars
-import { useGlobal, useDataService, codeUtil, gridUtil, defineGrid } from 'kw-lib';
+import { useGlobal, useDataService, codeUtil, gridUtil, defineGrid, getComponentType } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 // eslint-disable-next-line no-unused-vars
 const { notify, alert } = useGlobal();
@@ -114,31 +117,33 @@ const dataService = useDataService();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
-const grdRef = ref();
-const grdData = computed(() => grdRef.value?.getData());
+const grdMainRef = ref(getComponentType('KwGrid'));
+const grdData = computed(() => grdMainRef.value?.getData());
 // eslint-disable-next-line no-unused-vars
-const grdView = computed(() => grdRef.value?.getView());
+const grdView = computed(() => grdMainRef.value?.getView());
 
 const totalCount = ref(0);
 
 let initGridData = [];
 
+const codes = await codeUtil.getMultiCodes(
+  'SELL_TP_CD',
+  'DSN_WDRW_FNT_PRD_CD', // 1 : 지정일자 / 2 : 매회 추후에 수정
+  'AUTO_FNT_FTD_ACD', // 자동 이체 이체일 앱코드 추후에 수정
+);
+
 let cachedParams;
 const searchParams = ref({
-  sellTpCd: '',
+  sellTpCd: 'ALL',
   cntr: '',
   cntrNo: '',
   cntrSn: '',
 });
 
-const codes = await codeUtil.getMultiCodes(
-  'SELL_TP_CD',
-  'DSN_WDRW_FNT_PRD_CD', // 1 : 지정일자 / 2 : 매회 추후에 수정
+const possibleDay = codes.AUTO_FNT_FTD_ACD.map((v) => v.codeId).join(', '); // 가능한 이체일 추후에 수정
 
-);
 async function onClickAddRow() {
-  totalCount.value += 1;
-  const view = grdRef.value.getView();
+  const view = grdMainRef.value.getView();
   gridUtil.insertRowAndFocus(view, 0, {
     fntYn: 'Y',
     dsnWdrwFntPrdCd: '1',
@@ -146,7 +151,7 @@ async function onClickAddRow() {
 }
 
 function getSaveParams() {
-  const view = grdRef.value.getView();
+  const view = grdMainRef.value.getView();
 
   const changedRows = gridUtil.getChangedRowValues(view);
 
@@ -156,37 +161,14 @@ function getSaveParams() {
     cntrSn: Number(v.cntr.slice(11)) })); // 계약상세일련번호 4 - 7 - 1
 }
 
-function isValidateCheck(view) {
-  let result = true;
-  const rglD = ['10', '15', '20', '25', '27', '31']; // 정규일
-  const changedRows = gridUtil.getChangedRowValues(view);
-  changedRows.forEach((v, i) => {
-    if (isEmpty(v.cntr)) { // 계약번호 체크
-      alert(`${i + 1}번째 계약상세번호를 확인해 주세요`);
-      result = false;
-    } else if (isEmpty(v.dsnWdrwAmt)) { // 지정금액 체크
-      alert(`${i + 1}번째 지정금액을 확인해 주세요`);
-      result = false;
-    } else if (!rglD.includes(v.dsnWdrwFntD)) { // 계약번호 체크
-      alert(`${i + 1}번째 이체일을 확인해 주세요 \n ${rglD}일 만 가능`);
-      result = false;
-    } else if (+v.dsnWdrwAmt < +v.dpAmt) { // 입금금액이 지정금액보다 큰 경우
-      alert(`${i + 1}번째 번째 라인은 지정금액보다 입금금액이 큽니다！`);
-      result = false;
-    }
-  });
-  return result;
-}
-
 async function onClickRemove() {
-  const view = grdRef.value.getView();
+  const view = grdMainRef.value.getView();
   const checkedLength = gridUtil.getCheckedRowValues(view).length;
   if (checkedLength === 0) {
-    alert(t('행을 선택해 주세요'));
+    notify(t('MSG_ALT_NOT_SEL_ITEM'));
     return;
   }
   gridUtil.deleteCheckedRows(view);
-  totalCount.value -= checkedLength;
 }
 
 async function fetchData() {
@@ -203,13 +185,14 @@ async function fetchData() {
 }
 
 async function onClickSave() {
-  const view = grdRef.value.getView();
+  const view = grdMainRef.value.getView();
   if (await gridUtil.alertIfIsNotModified(view)) { return; }
   if (!await gridUtil.validate(view)) { return; }
-  if (!isValidateCheck(view)) return; // 이체일 체크
+
   const data = getSaveParams();
   await dataService.post('/sms/wells/withdrawal/w-aftn-dsn-wdrw-cst-rgst', data);
   notify(t('MSG_ALT_SAVE_DATA'));
+
   await fetchData();
 }
 
@@ -221,10 +204,10 @@ async function onClickSearch() {
 }
 
 async function onClickExcelDownload() {
-  const view = grdRef.value.getView();
+  const view = grdMainRef.value.getView();
 
   await gridUtil.exportView(view, {
-    fileName: '자동이체 지정 출금 고객 관리',
+    fileName: 'autoFntDsnWdrwCstMngt',
     timePostfix: true,
   });
 }
@@ -235,60 +218,56 @@ async function onClickExcelDownload() {
 
 const initGrid = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'cntr' },
-    { fieldName: 'cstKnm' },
-    { fieldName: 'sellTpCd' },
-    { fieldName: 'dsnWdrwAmt' },
-    { fieldName: 'dsnWdrwFntD' },
-    { fieldName: 'fntYn' },
-    { fieldName: 'dpAmt' },
-    { fieldName: 'ucAmt' },
-    { fieldName: 'dsnWdrwFntPrdCd' },
-    { fieldName: 'prtnrKnm' },
-    { fieldName: 'fnlMdfcUsrId' },
-    { fieldName: 'fnlMdfcDtm' },
+    { fieldName: 'cntr' }, // 계약번호
+    { fieldName: 'cstKnm' }, // 고객명
+    { fieldName: 'sellTpCd' }, // 업무유형
+    { fieldName: 'dsnWdrwAmt' }, // 지정금액
+    { fieldName: 'dsnWdrwFntD' }, // 이체일자
+    { fieldName: 'fntYn' }, // 이체구분
+    { fieldName: 'dpAmt' }, // 입금금액
+    { fieldName: 'ucAmt' }, // 잔액
+    { fieldName: 'dsnWdrwFntPrdCd' }, // 이체주기
+    { fieldName: 'prtnrKnm' }, // 등록담당자
+    { fieldName: 'fnlMdfcUsrId' }, // 등록자사번
+    { fieldName: 'fnlMdfcDtm' }, // 등록자일번
   ];
 
   const columns = [
     { fieldName: 'cntr',
-      header: '계약상세번호',
+      header: t('MSG_TXT_CNTR_DTL_NO'),
       width: '120',
       styleName: 'text-center',
       editor: {
         type: 'number',
       },
-      styleCallback: (grid, index) => {
-        if (gridUtil.isCreatedRow(grid, index.index.dataRow)) {
-          return {
-            editable: true,
-          };
-        }
-        return {
-          editable: false,
-        };
-      },
+      rules: 'required||digits:13',
+
     },
-    { fieldName: 'cstKnm', header: '고객성명', width: '80', styleName: 'text-center', editable: false },
-    { fieldName: 'sellTpCd', header: '업무유형', width: '80', styleName: 'text-center', editable: false, options: codes.SELL_TP_CD },
+    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '80', styleName: 'text-center', editable: false },
+    { fieldName: 'sellTpCd', header: t('MSG_TXT_TASK_TYPE'), width: '80', styleName: 'text-center', editable: false, options: codes.SELL_TP_CD },
     { fieldName: 'dsnWdrwAmt',
-      header: '지정금액',
+      header: t('MSG_TXT_DSN_AMT'),
       width: '120',
       styleName: 'text-right',
       editor: {
         type: 'number',
       },
+      rules: 'required',
     },
     { fieldName: 'dsnWdrwFntD',
-      header: '이체일',
+      header: t('MSG_TXT_FNT_DT'),
       width: '120',
       styleName: 'text-center',
       editor: {
         type: 'number',
         maxLength: 2,
       },
+      rules: `required||one_of:${possibleDay}`, // 정규일이 바뀔수도 있기 때문에 추후에 수정
+      customMessages: { one_of: t('MSG_ALT_FTD_CHECK', [possibleDay]) },
+
     },
     { fieldName: 'fntYn',
-      header: '이체구분',
+      header: t('MSG_TXT_FNT_DV'),
       width: '80',
       styleName: 'text-center',
       editor: { type: 'list' },
@@ -296,7 +275,7 @@ const initGrid = defineGrid((data, view) => {
       options: [{ codeId: 'Y', codeName: '이체' }, { codeId: 'N', codeName: '중단' }], // 추후에 수정 코드 못찾음
     },
     { fieldName: 'dpAmt',
-      header: '입금금액',
+      header: t('MSG_TXT_DP_AMT'),
       width: '120',
       styleName: 'text-right',
       editor: {
@@ -304,7 +283,7 @@ const initGrid = defineGrid((data, view) => {
       },
     },
     { fieldName: 'ucAmt',
-      header: '잔액',
+      header: t('MSG_TXT_BLAM'),
       width: '120',
       styleName: 'text-right',
       editable: false,
@@ -316,7 +295,7 @@ const initGrid = defineGrid((data, view) => {
       },
     },
     { fieldName: 'dsnWdrwFntPrdCd',
-      header: '이체주기',
+      header: t('MSG_TXT_FNT_PRD'),
       width: '80',
       styleName: 'text-center',
       editor: { type: 'list' },
@@ -324,9 +303,9 @@ const initGrid = defineGrid((data, view) => {
 
     },
 
-    { fieldName: 'prtnrKnm', header: '등록담당자', width: '100', styleName: 'text-center', editable: false },
-    { fieldName: 'fnlMdfcUsrId', header: '등록자 사번', width: '100', styleName: 'text-center', editable: false },
-    { fieldName: 'fnlMdfcDtm', header: '등록일시', width: '155', styleName: 'text-center', editable: false, datetimeFormat: 'yyyy-MM-dd hh:mm:ss' },
+    { fieldName: 'prtnrKnm', header: t('MSG_TXT_RGST_PSIC'), width: '100', styleName: 'text-center', editable: false },
+    { fieldName: 'fnlMdfcUsrId', header: t('MSG_TXT_RGR_EMPNO'), width: '100', styleName: 'text-center', editable: false },
+    { fieldName: 'fnlMdfcDtm', header: t('MSG_TXT_FST_RGST_DT'), width: '155', styleName: 'text-center', editable: false, datetimeFormat: 'datetime' },
 
   ];
 
@@ -339,26 +318,33 @@ const initGrid = defineGrid((data, view) => {
   // multi row header setting
 
   data.setRows(initGridData);
-  view.onEditCommit = (grid, index, oldValue, newValue) => {
-    let boolean = true;
+  view.onCellEditable = (grid, index) => {
+    if (!gridUtil.isCreatedRow(grid, index.dataRow) && index.column === 'cntr') {
+      return false;
+    }
+  };
+
+  view.onEditCommit = async (grid, index, oldValue, newValue) => {
+    let canEdit = true;
+    // const { dsnWdrwAmt, dpAmt } = gridUtil.getRowValue(grid, index.dataRow);
     const dsnWdrwAmt = gridUtil.getCellValue(grid, index.itemIndex, 'dsnWdrwAmt');
     const dpAmt = gridUtil.getCellValue(grid, index.itemIndex, 'dpAmt');
     if (index.column === 'dpAmt') {
       if (dsnWdrwAmt < newValue) {
-        alert(t('입금금액이 지정금액보다 클 순 없습니다.'));
-        boolean = false;
+        notify(t('MSG_ALT_DP_DSN_AMT_CMPR'));
+        canEdit = false;
         // grid.setValue(index.itemIndex, 'dpAmt', oldValue ? 0 : oldValue);
       }
     }
     if (index.column === 'dsnWdrwAmt') {
       if (newValue < dpAmt) {
-        alert(t('지정금액이 입금금액보다 작을 순 없습니다.'));
-        boolean = false;
+        notify(t('MSG_ALT_DSN_DP_AMT_CMPR'));
+        canEdit = false;
         // grid.setValue(index.itemIndex, 'dsnWdrwAmt', oldValue);
       }
     }
 
-    if (!boolean) view.cancel();
+    if (!canEdit) view.cancel();
   };
 });
 
