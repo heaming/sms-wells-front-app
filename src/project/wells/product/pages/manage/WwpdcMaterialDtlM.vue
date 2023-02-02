@@ -47,7 +47,7 @@
                 <!-- 확장속성 -->
                 <kw-tab
                   name="attributeExtr"
-                  :label="$t('MSG_TXT_MGT_ATTR_REG')"
+                  :label="$t('MSG_TXT_MGT_ATTR')"
                 />
                 <!-- 변경이력 -->
                 <kw-tab
@@ -65,7 +65,9 @@
                     v-model:init-data="prevStepData"
                     :pd-tp-cd="pdConst.PD_TP_CD_M"
                     :pd-grp-dv-cd="pdConst.PD_PRP_GRP_DV_CD_BASIC"
-                    :has-basic-title="false"
+                    :prefix-title="$t('MSG_TXT_BAS_ATTR')"
+                    :is-first-title="true"
+                    :pd-tp-dtl-cd="pdTpDtlCd"
                   />
                 </kw-tab-panel>
                 <!-- 연결상품 (Wells 특화) -->
@@ -86,7 +88,8 @@
                     v-model:init-data="prevStepData"
                     :pd-tp-cd="pdConst.PD_TP_CD_M"
                     :pd-grp-dv-cd="pdConst.PD_PRP_GRP_DV_CD_MANUAL"
-                    :has-basic-title="false"
+                    :prefix-title="$t('MSG_TXT_MGT_ATTR')"
+                    :is-first-title="true"
                   />
                 </kw-tab-panel>
                 <!-- 변경이력 -->
@@ -143,6 +146,7 @@ const page = ref({
   modify: '/product/wwpdc-material-mgt', // 등록/수정 UI
 });
 
+const pdTpDtlCd = ref('01');
 const prdPropGroups = ref({});
 const selectedTab = ref('attribute');
 
@@ -164,7 +168,7 @@ async function fetchData() {
   pdBas.value = res.data[pdConst.TBL_PD_BAS];
   prevStepData.value[pdConst.TBL_PD_BAS] = res.data[pdConst.TBL_PD_BAS];
   prevStepData.value[pdConst.TBL_PD_ECOM_PRP_DTL] = res.data[pdConst.TBL_PD_ECOM_PRP_DTL];
-  prevStepData.value[pdConst.TB_PDBS_PD_REL] = res.data[pdConst.TB_PDBS_PD_REL];
+  prevStepData.value[pdConst.TBL_PD_REL] = res.data[pdConst.TBL_PD_REL];
   prdPropGroups.value = res.data.groupCodes;
 }
 

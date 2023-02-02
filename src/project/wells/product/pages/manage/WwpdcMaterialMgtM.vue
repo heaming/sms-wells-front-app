@@ -55,6 +55,8 @@
                 v-model:init-data="prevStepData"
                 :pd-tp-cd="pdConst.PD_TP_CD_M"
                 :pd-grp-dv-cd="pdConst.PD_PRP_GRP_DV_CD_BASIC"
+                :pd-tp-dtl-cd="pdTpDtlCd"
+                @popup-callback="popupCallback"
               />
             </kw-step-panel>
             <!-- 2.연결상품 선택 -->
@@ -76,7 +78,7 @@
                 v-model:init-data="prevStepData"
                 :pd-tp-cd="pdConst.PD_TP_CD_M"
                 :pd-grp-dv-cd="pdConst.PD_PRP_GRP_DV_CD_MANUAL"
-                :props-title="$t('MSG_TXT_MGT_ATTR')"
+                :except-id="exceptPrpGrpCd"
               />
             </kw-step-panel>
             <!-- 4.등록정보 확인 -->
@@ -96,7 +98,7 @@
                 />
                 <kw-tab
                   name="attributeExtr"
-                  :label="$t('MSG_TXT_MGT_ATTR_REG')"
+                  :label="$t('MSG_TXT_MGT_ATTR')"
                 />
               </kw-tabs>
               <kw-tab-panels :model-value="selectedTab">
@@ -107,7 +109,9 @@
                     v-model:init-data="prevStepData"
                     :pd-tp-cd="pdConst.PD_TP_CD_M"
                     :pd-grp-dv-cd="pdConst.PD_PRP_GRP_DV_CD_BASIC"
-                    :has-basic-title="false"
+                    :prefix-title="$t('MSG_TXT_BAS_ATTR')"
+                    :is-first-title="true"
+                    :pd-tp-dtl-cd="pdTpDtlCd"
                   />
                 </kw-tab-panel>
                 <!-- 연결상품-->
@@ -125,7 +129,9 @@
                     v-model:init-data="prevStepData"
                     :pd-tp-cd="pdConst.PD_TP_CD_M"
                     :pd-grp-dv-cd="pdConst.PD_PRP_GRP_DV_CD_MANUAL"
-                    :has-basic-title="false"
+                    :prefix-title="$t('MSG_TXT_MGT_ATTR')"
+                    :is-first-title="true"
+                    :except-id="exceptPrpGrpCd"
                   />
                 </kw-tab-panel>
               </kw-tab-panels>
@@ -199,7 +205,8 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { useDataService, useGlobal } from 'kw-lib';
-import { isEmpty, merge, unionBy } from 'lodash-es';
+import { isEmpty } from 'lodash-es';
+import { pdMergeBy } from '~sms-common/product/utils/pdUtil';
 import pdConst from '~sms-common/product/constants/pdConst';
 
 import ZwpdcPropGroupsMgt from '~sms-common/product/pages/manage/components/ZwpdcPropGroupsMgt.vue'; /* 속성 등록/수정 */
@@ -224,6 +231,8 @@ const obsMainRef = ref();
 const baseUrl = '/sms/common/product/materials';
 const materialMainPage = '/product/zwpdc-material-list';
 
+const pdTpDtlCd = ref('01');
+
 const wellsStep = [
   pdConst.W_MATERIAL_STEP_BASIC,
   pdConst.W_MATERIAL_STEP_REL_PROD,
@@ -236,7 +245,7 @@ const cmpStepRefs = ref([ref(), ref(), ref()]);
 
 const bas = pdConst.TBL_PD_BAS;
 const ecom = pdConst.TBL_PD_ECOM_PRP_DTL;
-const rel = pdConst.TB_PDBS_PD_REL;
+const rel = pdConst.TBL_PD_REL;
 
 const prevStepData = ref({});
 const currentPdCd = ref();
@@ -249,6 +258,8 @@ const page = ref({
   reg: '/product/wwpdc-material-mgt', // 교재/자재 등록 UI
   dtl: '/product/wwpdc-material-dtl', // 교재/자재 상세보기 UI
 });
+
+const exceptPrpGrpCd = ref('PART');
 
 watch(() => props.pdCd, (val) => { currentPdCd.value = val; });
 watch(() => props.tempSaveYn, (val) => { isTempSaveBtn.value = val !== 'Y'; });
@@ -304,10 +315,12 @@ async function getSaveData(tempSaveYn) {
         if (subList[bas]?.cols) {
           saveData[bas].cols += subList[bas].cols;
         }
-        subList[bas] = merge(subList[bas] ?? {}, saveData[bas]);
+        // subList[bas] = merge(subList[bas] ?? {}, saveData[bas]);
+        subList[bas] = pdMergeBy(subList[bas], saveData[bas]);
       }
       if (saveData[ecom]) {
-        subList[ecom] = unionBy(saveData[ecom], subList[ecom], 'pdExtsPrpGrpCd');
+        // subList[ecom] = unionBy(saveData[ecom], subList[ecom], 'pdExtsPrpGrpCd');
+        subList[ecom] = pdMergeBy(subList[ecom], saveData[ecom], 'pdExtsPrpGrpCd');
       }
 
       if (saveData[rel]) {
@@ -411,5 +424,20 @@ onMounted(async () => {
   await setInitCondition();
 });
 
+async function popupCallback(payload) {
+  if (payload.fromUi === 'ZwpdcMaterialsCodeListP') {
+    if (isEmpty(prevStepData.value[bas])) {
+      prevStepData.value = await getSaveData();
+    }
+
+    prevStepData.value[bas].sapMatCd = payload.sapMatCd ?? '';
+    prevStepData.value[bas].modelNo = payload.modelNo ?? '';
+    prevStepData.value[bas].sapPdctSclsrtStrcVal = payload.sapPdctSclsrtStrcVal ?? '';
+    prevStepData.value[bas].sapPlntCd = payload.sapPlntCd ?? '';
+    prevStepData.value[bas].sapMatEvlClssVal = payload.sapMatEvlClssVal ?? '';
+    prevStepData.value[bas].sapMatGrpVal = payload.sapMatGrpVal ?? '';
+    prevStepData.value[bas].sapPlntCd = payload.sapPlntVal ?? '';
+  }
+}
 </script>
 <style lang="scss" scoped></style>
