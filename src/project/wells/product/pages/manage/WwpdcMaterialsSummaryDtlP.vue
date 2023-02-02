@@ -3,7 +3,7 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : PDY
-2. 프로그램 ID : WpdcMaterialsSummaryDtlP - 교재/자재 관리 -요약조회 (W-PD-U-0032P01)
+2. 프로그램 ID : WwpdcMaterialsSummaryDtlP - 교재/자재 관리 -요약조회 (W-PD-U-0032P01)
 3. 작성자 : junho.bae
 4. 작성일 : 2022.AA.BB
 ****************************************************************************************************
@@ -70,17 +70,14 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService, stringUtil, useModal, useGlobal } from 'kw-lib';
-import { isEmpty } from 'lodash-es';
+import { useDataService, stringUtil, useModal } from 'kw-lib';
 import pdConst from '~sms-common/product/constants/pdConst';
 
 const { ok } = useModal();
 const dataService = useDataService();
-const { notify } = useGlobal();
-const { t } = useI18n();
 
 const props = defineProps({
-  pdCd: { type: String, required: false, default: '' },
+  pdCd: { type: String, required: true, default: '' },
 });
 
 const baseUrl = '/sms/common/product/materials';
@@ -101,12 +98,7 @@ async function fetchData() {
 }
 
 onMounted(async () => {
-  if (!isEmpty(props.pdCd)) {
-    await fetchData(props.pdCd);
-  } else {
-    // 비정상적인 접근입니다. 관리자에 문의해주세요.
-    notify(t('MSG_ALT_ABNORMAL_ACCESS'));
-  }
+  await fetchData(props.pdCd);
 });
 </script>
 <style>
