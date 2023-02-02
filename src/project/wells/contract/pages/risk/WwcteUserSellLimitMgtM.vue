@@ -71,6 +71,7 @@
               <kw-input
                 icon="search"
                 clearable
+                @click-icon="openProductsSearchPopup"
               />
             </kw-search-item>
             <kw-search-item :label="t('MSG_TXT_SEL_TYPE')">
@@ -154,7 +155,7 @@
 import { getComponentType, gridUtil, useGlobal, useMeta } from 'kw-lib';
 
 const grdMainRef = ref(getComponentType('KwGrid'));
-const { notify } = useGlobal();
+const { notify, modal } = useGlobal();
 const { getConfig } = useMeta();
 
 const { t } = useI18n();
@@ -162,6 +163,13 @@ const { t } = useI18n();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
+
+async function openProductsSearchPopup() {
+  await modal({
+    component: 'ZpdcStandardProductListP',
+  });
+}
+
 const pageInfo = ref({
   totalCount: 0,
   pageIndex: 1,
