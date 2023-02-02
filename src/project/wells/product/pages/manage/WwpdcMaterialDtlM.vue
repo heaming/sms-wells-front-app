@@ -126,7 +126,7 @@ import { isEmpty } from 'lodash-es';
 import pdConst from '~sms-common/product/constants/pdConst';
 import ZwpdcPropGroupsDtl from '~sms-common/product/pages/manage/components/ZwpdcPropGroupsDtl.vue';
 import ZwpdcProdChangeHist from '~sms-common/product/pages/manage/components/ZwpdcProdChangeHist.vue';
-import WwpdcPropRelationDtl from './WwpdcPropRelationDtl.vue';
+import WwpdcPropRelationDtl from './WwpdcPropRelationDtlM.vue';
 
 const props = defineProps({
   pdCd: { type: String, default: null },

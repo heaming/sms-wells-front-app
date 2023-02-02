@@ -116,7 +116,7 @@
                 </kw-tab-panel>
                 <!-- 연결상품-->
                 <kw-tab-panel name="relation">
-                  <zwpdc-prop-relation-dtl
+                  <wwpdc-prop-relation-dtl
                     v-model:pd-cd="currentPdCd"
                     v-model:init-data="prevStepData"
                     :pd-tp-cd="pdConst.PD_TP_CD_M"
@@ -211,8 +211,8 @@ import pdConst from '~sms-common/product/constants/pdConst';
 
 import ZwpdcPropGroupsMgt from '~sms-common/product/pages/manage/components/ZwpdcPropGroupsMgt.vue'; /* 속성 등록/수정 */
 import ZwpdcPropGroupsDtl from '~sms-common/product/pages/manage/components/ZwpdcPropGroupsDtl.vue'; /* 속성 상세보기 */
-import ZwpdcPropRelationMgt from './WwpdcPropRelationMgt.vue'; /* 연결상품 등록/수정 */
-import ZwpdcPropRelationDtl from './WwpdcPropRelationDtl.vue'; /* 연결상품 상세보기 */
+import ZwpdcPropRelationMgt from './WwpdcPropRelationMgtM.vue'; /* 연결상품 등록/수정 */
+import WwpdcPropRelationDtl from './WwpdcPropRelationDtlM.vue'; /* 연결상품 상세보기 */
 
 const props = defineProps({
   pdCd: { type: String, default: null },
