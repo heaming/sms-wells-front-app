@@ -122,7 +122,7 @@
 // -------------------------------------------------------------------------------------------------
 
 import { codeUtil, defineGrid, useDataService, getComponentType, gridUtil } from 'kw-lib';
-
+import snConst from '~sms-wells/service/constants/snConst';
 // TODO: 추후 공통서비스 변경후 적용 예정 (조직창고 , 조직창고에 해당하는 엔지니어조회)
 // import ZwcmWareHouseSearchWithDate from '~sms-common/common/components/ZwcmWareHouseSearchWithDate.vue';
 import dayjs from 'dayjs';
@@ -199,23 +199,26 @@ async function fetchDefaultData() {
 }
 
 const divideData = (val) => {
-  // 221 : 정상출고
-  // 222 : 물량배정, 223 : 물량이동, 261 : 반품출고(내부)
-  // 262 : 반품출고(외부), 211 : 판매출고, 212 : 폐기출고, 217 : 기타출고
+  // OSTR_TP_CD_NOM : 정상출고(221)
+  // OSTR_TP_CD_QOM : 물량배정(222)
+  // OSTR_TP_CD_QOM_MMT : 물량이동 (223)
+  // OSTR_TP_CD_RTNGD_INSI : 반품(내부)(261)
+  // OSTR_TP_CD_RTNGD_OTSD : 반품(외부)(262)
+  // OSTR_TP_CD_DSU : 폐기출고(212)
+  // OSTR_TP_CD_ETC : 기타출고(217)
   console.log(val);
   switch (val) {
-    case '221':
+    case snConst.OSTR_TP_CD_NOM:
       searchParams.value.divide = '1';
       break;
-    case '222':
-    case '223':
-    case '261':
+    case snConst.OSTR_TP_CD_QOM:
+    case snConst.OSTR_TP_CD_QOM_MMT:
+    case snConst.OSTR_TP_CD_RTNGD_INSI:
       searchParams.value.divide = '2';
       break;
-    case '262':
-    case '211':
-    case '212':
-    case '217':
+    case snConst.OSTR_TP_CD_RTNGD_OTSD:
+    case snConst.OSTR_TP_CD_DSU:
+    case snConst.OSTR_TP_CD_ETC:
       searchParams.value.divide = '3';
       break;
     default:
@@ -263,14 +266,14 @@ const initGrdMain = defineGrid((data, view) => {
       },
       // displayCallback: () => t('MSG_TXT_OSTR_AK_CH'),
       displayCallback: (g, index, val) => {
-        const values = g.getValues(index.itemIndex);
+        const { ostrTpCd } = g.getValues(index.itemIndex);
         console.log(val);
         // 정상출고
-        if (values.ostrTpCd === '221' && values.ostrTpCd === '222' && values.ostrTpCd === '223') {
+        if (['221', '222', '223'].includes(ostrTpCd)) {
           return t('MSG_TXT_NOM_OSTR');
-        } if (values.ostrTpCd === '217') {
+        } if (ostrTpCd === '217') {
           return t('MSG_TXT_ETC_OSTR');
-        } if (values.ostrTpCd === '212' && values.ostrTpCd === '261' && values.ostrTpCd === '262') {
+        } if (['212', '261', '262'].includes(ostrTpCd)) {
           return t('MSG_TXT_RTNGD_OSTR');
         }
         return ' ';
