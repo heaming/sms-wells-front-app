@@ -372,7 +372,7 @@ async function getSaveData() {
   let rowValues = gridUtil.getAllRowValues(grdMaterialRef.value.getView());
   rowValues = pdMergeBy(rowValues, gridUtil.getAllRowValues(grdServiceRef.value.getView()));
   rowValues = pdMergeBy(rowValues, gridUtil.getAllRowValues(grdStandardRef.value.getView()));
-  const rtnValues = { [pdConst.TBL_PD_PRC_REL]: rowValues ?? [] };
+  const rtnValues = { [pdConst.TBL_PD_REL]: rowValues ?? [] };
   // console.log('WwpdcStandardMgtMRelPrd - getSaveData - rtnValues : ', rtnValues);
   return rtnValues;
 }
