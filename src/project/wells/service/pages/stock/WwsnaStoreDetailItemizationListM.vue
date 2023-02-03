@@ -209,7 +209,7 @@ async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
   const res = await dataService.get('/sms/wells/service/store-detail-itemization/excel-download', { params: cachedParams });
   await gridUtil.exportView(view, {
-    fileName: 'rpbLocaraPersonInChargeList',
+    fileName: 'storeDetailItemizationList',
     timePostfix: true,
     exportData: res.data,
   });
