@@ -14,18 +14,9 @@
 --->
 <template>
   <div class="normal-area">
+    <!-- 최종가격 조정 -->
+    <h3>{{ $t('MSG_TXT_PD_FNL_PRC_ADJ') }}</h3>
     <kw-action-top>
-      <kw-btn
-        v-show="!props.readonly"
-        :label="$t('MSG_BTN_MDFC')"
-        dense
-        @click="onClickMidify"
-      />
-      <kw-separator
-        vertical
-        inset
-        spaced
-      />
       <kw-btn
         v-show="!props.readonly"
         :label="$t('MSG_BTN_DEL')"
@@ -47,7 +38,7 @@
 import { gridUtil, getComponentType } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 import pdConst from '~sms-common/product/constants/pdConst';
-import { getGridRowsToSavePdProps, getPropInfosToGridRows, getPdMetaToGridInfos } from '~sms-common/product/utils/pdUtil';
+import { pdMergeBy, getGridRowsToSavePdProps, getPropInfosToGridRows, getPdMetaToGridInfos } from '~sms-common/product/utils/pdUtil';
 
 /* eslint-disable no-use-before-define */
 defineExpose({
@@ -67,8 +58,8 @@ const props = defineProps({
 // -------------------------------------------------------------------------------------------------
 const grdMainRef = ref(getComponentType('KwGrid'));
 
+const prcd = pdConst.TBL_PD_PRC_DTL;
 const prcfd = pdConst.TBL_PD_PRC_FNL_DTL;
-const priceStdRef = ref();
 const currentPdCd = ref();
 const currentInitData = ref(null);
 const currentMetaInfos = ref();
@@ -77,17 +68,6 @@ const removeObjects = reactive([]);
 async function resetInitData() {
   Object.assign(removeObjects, []);
   await initGridRows();
-}
-
-async function onClickMidify() {
-  const view = grdMainRef.value.getView();
-  const savFields = await priceStdRef.value.getSaveFields();
-  const rowItem = savFields?.reduce((rtn, item) => {
-    rtn[item.colNm] = item.initValue;
-    return rtn;
-  }, {});
-  const data = view.getDataSource();
-  data.updateRow(view.getSelectedRows()[0], rowItem);
 }
 
 async function onClickRemove() {
@@ -113,7 +93,7 @@ async function getSaveData() {
   if (removeObjects.length) {
     rtnValues[pdConst.REMOVE_ROWS] = cloneDeep(removeObjects);
   }
-  console.log('WwpdcStandardMgtMPriceFnl - getSaveData - rtnValues : ', rtnValues);
+  // console.log('WwpdcStandardMgtMPriceFnl - getSaveData - rtnValues : ', rtnValues);
   return rtnValues;
 }
 
@@ -140,27 +120,60 @@ await initProps();
 async function initGrid(data, view) {
   const { metaInfos } = props;
   currentMetaInfos.value = metaInfos;
+  const basicColNms = currentMetaInfos.value
+    ?.filter((item) => item.pdPrcMetaTpCd === pdConst.PD_PRC_TP_CD_BASIC)
+    ?.reduce((rtn, item) => { rtn.push(item.colNm); return rtn; }, []);
+  const valColNms = currentMetaInfos.value
+    ?.filter((item) => item.pdPrcMetaTpCd === pdConst.PD_PRC_TP_CD_VARIABLE)
+    ?.reduce((rtn, item) => { rtn.push(item.colNm); return rtn; }, []);
+  const readonlyFields = ['sellChnlCd', 'fnlVal', ...basicColNms, ...valColNms];
+
   const { fields, columns } = await getPdMetaToGridInfos(
     currentMetaInfos.value,
     [pdConst.PD_PRC_TP_CD_BASIC,
       pdConst.PD_PRC_TP_CD_VARIABLE,
       pdConst.PD_PRC_TP_CD_FINAL],
     props.codes,
-    pdConst.DEFAULT_READ_ONLY_FIELDS,
+    readonlyFields,
   );
+  columns.map((item) => {
+    if (item.fieldName === 'ctrVal') {
+      item.editor.showStepButton = true;
+    }
+    return item;
+  });
+
   // Grid 내부키 - '신규 Row 추가' 대응
   fields.push({ fieldName: pdConst.PRC_FNL_ROW_ID });
   data.setFields(fields);
-  view.setColumns(columns);
+  view.setColumns(columns.sort((item) => (item.fieldName === 'sellChnlCd' ? -1 : 0))
+    .map((item) => {
+      if (item.fieldName === 'ctrVal') {
+        item.editor.showStepButton = true;
+        item.editor.direction = 'horizontal';
+        item.editor.step = 1;
+        item.width = '200';
+      }
+      return item;
+    }));
   view.checkBar.visible = true;
-  view.rowIndicator.visible = true;
+  view.rowIndicator.visible = false;
   view.editOptions.editable = true;
+  view.setFixedOptions({ colCount: 9 });
   await initGridRows();
 }
 
 async function initGridRows() {
   removeObjects.value = [];
   if (await currentInitData.value?.[prcfd]) {
+    // 기준가 정보
+    const stdRows = cloneDeep(
+      await getPropInfosToGridRows(
+        currentInitData.value?.[prcd],
+        currentMetaInfos.value,
+        prcd,
+      ),
+    );
     const rows = cloneDeep(await getPropInfosToGridRows(
       currentInitData.value?.[prcfd],
       currentMetaInfos.value,
@@ -172,6 +185,14 @@ async function initGridRows() {
       row.pdPrcDtlIdRefFp = row.pdPrcDtlId;
       return row;
     });
+
+    rows.forEach((row) => {
+      const stdRow = stdRows?.find((item) => item[pdConst.PRC_STD_ROW_ID] === row[pdConst.PRC_STD_ROW_ID]
+                                            || item.pdPrcDtlId === row.pdPrcDtlId);
+      row = pdMergeBy(row, stdRow);
+      return row;
+    });
+
     // console.log('Rows : ', rows);
     const view = grdMainRef.value.getView();
     view.getDataSource().setRows(rows);

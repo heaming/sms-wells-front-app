@@ -99,6 +99,18 @@ async function insertReturnRows(view, rtn, pdRelTpCd) {
       const rows = rtn.payload.map((item) => ({
         ...item, [pdConst.REL_OJ_PD_CD]: item.pdCd, [pdConst.PD_REL_TP_CD]: pdRelTpCd }));
       await data.insertRows(0, rows);
+    } else if (rtn.payload.payload) {
+      // TODO 삭제 필요
+      const data = view.getDataSource();
+      const rows = rtn.payload.payload.map((item) => ({
+        ...item, [pdConst.REL_OJ_PD_CD]: item.pdCd, [pdConst.PD_REL_TP_CD]: pdRelTpCd }));
+      await data.insertRows(0, rows);
+    } else if (rtn.payload.checkedRows) {
+      // TODO 삭제 필요
+      const data = view.getDataSource();
+      const rows = rtn.payload.checkedRows.map((item) => ({
+        ...item, [pdConst.REL_OJ_PD_CD]: item.pdCd, [pdConst.PD_REL_TP_CD]: pdRelTpCd }));
+      await data.insertRows(0, rows);
     } else {
       const row = Array.isArray(rtn.payload) ? rtn.payload[0] : rtn.payload;
       row[pdConst.PD_REL_TP_CD] = pdRelTpCd;
@@ -114,16 +126,13 @@ async function deleteCheckedRows(view) {
 
 async function onClickProductSchPopup() {
   const view = grdChangePrdRef.value.getView();
-  const selValues = gridUtil.getSelectedRowValues(view);
   searchParams.value.searchType = productSearchType.value;
   searchParams.value.searchValue = productSearchValue.value;
-  if (!isEmpty(selValues)) {
-    const rtn = await modal({
-      component: 'ZwpdcMaterialsCodeListP',
-      componentProps: searchParams.value,
-    });
-    await insertReturnRows(view, rtn, pdConst.PD_REL_TP_CD_CHANGE);
-  }
+  const rtn = await modal({
+    component: 'ZpdcStandardProductListP',
+    componentProps: searchParams.value,
+  });
+  await insertReturnRows(view, rtn, pdConst.PD_REL_TP_CD_CHANGE);
 }
 
 async function onClickProductDelRows() {
@@ -179,7 +188,7 @@ async function initGridRows() {
 
 async function getSaveData() {
   const rowValues = gridUtil.getAllRowValues(grdChangePrdRef.value.getView());
-  const rtnValues = { [pdConst.TBL_PD_PRC_REL]: rowValues ?? [] };
+  const rtnValues = { [pdConst.TBL_PD_REL]: rowValues ?? [] };
   // console.log('WwpdcStandardMgtMRelPrd - getSaveData - rtnValues : ', rtnValues);
   return rtnValues;
 }
