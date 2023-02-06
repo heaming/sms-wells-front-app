@@ -166,6 +166,7 @@
 // -------------------------------------------------------------------------------------------------
 import { codeUtil, defineGrid, getComponentType, gridUtil, useDataService, useGlobal, useMeta } from 'kw-lib';
 import dayjs from 'dayjs';
+import { cloneDeep } from 'lodash-es';
 
 const dataService = useDataService();
 // console.log(dataService);
@@ -187,6 +188,7 @@ const codes = await codeUtil.getMultiCodes(
   // 'DTA_DL_YN',
 );
 
+let cachedParams;
 const searchParams = ref({
   startDt: now.startOf('month').format('YYYYMMDD'),
   endDt: now.format('YYYYMMDD'),
@@ -222,17 +224,21 @@ async function onClickOpenCustomerSearchPopup() {
 }
 
 async function fetchData() {
-  const res = await dataService.get('/sms/wells/contract/exception-handling', { params: searchParams.value });
-  const exceptionHandling = res.data;
+  const res = await dataService.get('/sms/wells/contract/exception-handling/paging', { params: { ...cachedParams, ...pageInfo.value } });
+  const { list: exceptions, pageInfo: pagingResult } = res.data;
 
-  pageInfo.value.totalCount = exceptionHandling.length;
+  pageInfo.value = pagingResult;
 
   const view = grdMainRef.value.getView();
-  view.getDataSource().setRows(exceptionHandling);
+  view.getDataSource().setRows(exceptions);
   view.resetCurrent();
 }
 
 async function onClickSearch() {
+  pageInfo.value.pageIndex = 1;
+
+  cachedParams = cloneDeep(searchParams.value);
+
   await fetchData();
 }
 
@@ -241,12 +247,13 @@ async function onClickRemove() {
   if (!await gridUtil.confirmIfIsModified(view)) { return; }
 
   const deletedRows = await gridUtil.confirmDeleteCheckedRows(view);
-  const storeUids = deletedRows.map((row) => row.storeUid);
+  console.log(deletedRows);
+  // const storeUids = deletedRows.map((row) => row.storeUid);
 
-  if (storeUids.length > 0) {
-    await dataService.delete('/sms/wells/contract/exception-handling', { params: { storeUids } });
-    await fetchData();
-  }
+  // if (storeUids.length > 0) {
+  //   await dataService.delete('/sms/wells/contract/exception-handling', { params: { storeUids } });
+  //   await fetchData();
+  // }
 }
 
 async function onClickAdd() {
