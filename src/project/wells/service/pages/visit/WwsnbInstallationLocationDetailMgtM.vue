@@ -391,13 +391,13 @@ const initGrdMain = defineGrid((data, view) => {
     },
     {
       fieldName: 'pdNm',
-      header: t('MSG_TXT_PD_NM'),
+      header: t('MSG_TXT_PRDT_NM'),
       width: '350',
       styleName: 'text-center',
     },
     {
       fieldName: 'telNo',
-      header: t('MSG_TXT_TEL'),
+      header: t('MSG_TXT_TEL_NO'),
       width: '150',
       styleName: 'text-center',
     },
@@ -415,7 +415,7 @@ const initGrdMain = defineGrid((data, view) => {
     },
     {
       fieldName: 'adr',
-      header: t('MSG_TXT_ADR'),
+      header: t('MSG_TXT_ADDR'),
       width: '248',
     },
     {
