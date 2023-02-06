@@ -64,7 +64,7 @@
                 icon="search"
                 rules="required"
                 clearable
-                @click-icon="openEmployeeSearchPopup"
+                @click-icon="onClickOpenEmployeeSearchPopup"
               />
             </kw-search-item>
           </kw-search-row>
@@ -79,7 +79,7 @@
                 icon="search"
                 rules="required"
                 clearable
-                @click-icon="openCustomerSearchPopup"
+                @click-icon="onClickOpenCustomerSearchPopup"
               />
             </kw-search-item>
 
@@ -98,7 +98,10 @@
         <div class="result-area">
           <kw-action-top>
             <template #left>
-              <kw-paging-info :total-count="pageInfo.totalCount" />
+              <kw-paging-info
+                :page-size="pageInfo.pageSize"
+                :total-count="pageInfo.totalCount"
+              />
             </template>
             <kw-btn
               dense
@@ -165,7 +168,7 @@ import { codeUtil, defineGrid, getComponentType, gridUtil, useDataService, useGl
 import dayjs from 'dayjs';
 
 const dataService = useDataService();
-console.log(dataService);
+// console.log(dataService);
 
 const { getConfig } = useMeta();
 const { t } = useI18n();
@@ -179,7 +182,7 @@ const grdMainRef = ref(getComponentType('KwGrid'));
 const now = dayjs();
 
 const codes = await codeUtil.getMultiCodes(
-  // 'COD_PAGE_SIZE_OPTIONS',
+  'COD_PAGE_SIZE_OPTIONS',
   'EX_PROCS_CD',
   // 'DTA_DL_YN',
 );
@@ -198,7 +201,7 @@ const pageInfo = ref({
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
 });
 
-async function openEmployeeSearchPopup() {
+async function onClickOpenEmployeeSearchPopup() {
   const { result: isChanged, payload: employeeDetails } = await modal({
     component: 'ZwogcPartnerListP',
   });
@@ -208,7 +211,7 @@ async function openEmployeeSearchPopup() {
   }
 }
 
-async function openCustomerSearchPopup() {
+async function onClickOpenCustomerSearchPopup() {
   const { result: isChanged, payload: customerDetails } = await modal({
     component: 'ZwcsaCustomerListP',
   });
@@ -324,10 +327,10 @@ const initGrid = defineGrid((data, view) => {
   view.editOptions.editable = true;
   view.onCellButtonClicked = async (g, { column }) => {
     if (column === 'col2') {
-      openEmployeeSearchPopup();
+      onClickOpenEmployeeSearchPopup();
     }
     if (column === 'col3') {
-      openCustomerSearchPopup();
+      onClickOpenCustomerSearchPopup();
     }
   };
 
