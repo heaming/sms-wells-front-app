@@ -181,7 +181,7 @@ const now = dayjs();
 const codes = await codeUtil.getMultiCodes(
   // 'COD_PAGE_SIZE_OPTIONS',
   'EX_PROCS_CD',
-  'DTA_DL_YN',
+  // 'DTA_DL_YN',
 );
 
 const searchParams = ref({
@@ -249,7 +249,8 @@ async function onClickRemove() {
 async function onClickAdd() {
   const view = grdMainRef.value.getView();
   gridUtil.insertRowAndFocus(view, 0, {
-    // storeTypeCd: searchParams.value.storeTypeCd,
+    col1: codes.EX_PROCS_CD,
+    col5: codes.DTA_DL_YN,
   });
 }
 
@@ -295,7 +296,7 @@ const initGrid = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'col1', header: t('MSG_TXT_SLS_CAT'), width: '289', editor: { type: 'list', options: codes.EX_PROCS_CD } },
+    { fieldName: 'col1', header: t('MSG_TXT_SLS_CAT'), width: '289', options: codes.EX_PROCS_CD, editor: { type: 'list' } },
     { fieldName: 'col2',
       header: t('MSG_TXT_CST_NO'),
       width: '180',
@@ -307,7 +308,7 @@ const initGrid = defineGrid((data, view) => {
       styleName: 'text-center rg-button-icon--search',
       button: 'action' },
     { fieldName: 'col4', header: t('MSG_TXT_CNTR_NO'), width: '180', styleName: 'text-center' },
-    { fieldName: 'col5', header: t('MSG_TXT_RESTRICTION_CLASSIFICATION'), width: '142', styleName: 'text-left', editor: { type: 'list', options: codes.DTA_DL_YN } },
+    { fieldName: 'col5', header: t('MSG_TXT_RESTRICTION_CLASSIFICATION'), width: '142', styleName: 'text-left', options: codes.DTA_DL_YN, editor: { type: 'list' } },
     { fieldName: 'col6', header: t('MSG_TXT_MEMO'), width: '404', styleName: 'text-center' },
     { fieldName: 'col7', header: t('MSG_TXT_STRT_DT'), width: '196', styleName: 'text-center', datetimeFormat: 'date', editor: { type: 'btdate' } },
     { fieldName: 'col8', header: t('MSG_TXT_END_DT'), width: '196', styleName: 'text-center', datetimeFormat: 'date', editor: { type: 'btdate' } },
