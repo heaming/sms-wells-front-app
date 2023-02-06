@@ -54,7 +54,7 @@
             <kw-search-item :label="t('MSG_TXT_APR_REQ_CAT')">
               <kw-select
                 v-model="searchParams.approvalRequestCategory"
-                :options="['승인요청구분을 선택헤주세요', 'B', 'C', 'D']"
+                :options="approvalClassificationList"
               />
             </kw-search-item>
             <kw-search-item :label="t('MSG_TXT_APR_REQ_CAT')">
@@ -141,10 +141,11 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { gridUtil, getComponentType, useGlobal, useMeta } from 'kw-lib';
+import { gridUtil, useDataService, getComponentType, useGlobal, useMeta } from 'kw-lib';
 
 const { t } = useI18n();
 const { notify, modal } = useGlobal();
+const dataService = useDataService();
 
 const grdMainRef = ref(getComponentType('KwGrid'));
 const { getConfig } = useMeta();
@@ -165,29 +166,23 @@ const pageInfo = ref({
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
 });
 
+const approvalClassificationList = ref([]);
+
+// TODO Uncomment when Api starts working
+// onMounted(async () => {
+//   approvalClassificationList.value = await dataService.get('/sms/wells/contract/contracts/approval-requests');
+// });
+
 function onClickAdd() {
   const view = grdMainRef.value.getView();
   gridUtil.insertRowAndFocus(view, 0, {});
   view.showEditor();
 }
 
-async function onClickSave() {
+async function fetchData() {
   const view = grdMainRef.value.getView();
-  if (await gridUtil.alertIfIsNotModified(view)) { return; }
-  if (!gridUtil.validate(view, {})) { return; }
-  notify('Data saved');
-  const changedRows = gridUtil.getChangedRowValues(view);
-  notify(changedRows);
-  // TODO integrate save api
-}
-
-function onClickExcelDownload() {
-  // TODO integrate excel download api
-}
-
-function fetchData() {
-  const view = grdMainRef.value.getView();
-  // TODO integrate Get api call.
+  // TODO uncomment api and replace dummy data by res.data.
+  // const res = await dataService.get('sms/wells/contract/cnfm-apr-base-mngts/paging');
   view.getDataSource().setRows([
     { col1: 'A-전체', col2: ' ', col3: '0-담당없음', col4: '사번입력', col5: ' ', col6: '2022-05-03', col7: '2022-05-03', col8: 'Y' },
     { col1: '9-직원구매', col2: 'ETC', col3: '1-지정사번', col4: '123456', col5: '김직원', col6: '20220520', col7: '20220520', col8: 'N' },
@@ -201,6 +196,25 @@ function fetchData() {
     { col1: '9-직원구매', col2: 'ETC', col3: '1-지정사번', col4: '123456', col5: '김직원', col6: '20220520', col7: '20220520', col8: 'N' },
   ]);
   pageInfo.value.totalCount = 10;
+}
+
+async function onClickSave() {
+  const view = grdMainRef.value.getView();
+  if (await gridUtil.alertIfIsNotModified(view)) { return; }
+  if (!gridUtil.validate(view, {})) { return; }
+  notify('Data saved');
+  const changedRows = gridUtil.getChangedRowValues(view);
+  await dataService.post('sms/wells/contract/cnfm-apr-base-mngts', changedRows);
+  fetchData();
+}
+
+async function onClickExcelDownload() {
+  const view = await dataService.get('sms/wells/contract/cnfm-apr-base-mngts/excel-download');
+
+  await gridUtil.exportView(view, {
+    fileName: 'postApprovalList',
+    timePostfix: true,
+  });
 }
 
 async function onClickConfirmCriteriaMangement() {
@@ -222,7 +236,8 @@ async function onClickRemove() {
   const deletedRows = await gridUtil.confirmDeleteCheckedRows(view);
 
   if (deletedRows.length > 0) {
-    // TODO integrate delete api
+    await dataService.delete('sms/wells/contract/cnfm-apr-base-mngts', deletedRows);
+    fetchData();
   }
 }
 
