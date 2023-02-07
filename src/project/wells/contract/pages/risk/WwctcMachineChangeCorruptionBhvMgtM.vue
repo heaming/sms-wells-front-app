@@ -78,6 +78,12 @@
           />
         </template>
         <kw-btn
+          primary
+          dense
+          :label="$t('MSG_BTN_OPEN_PIC_POP')"
+          @click="onClickOpenPsicPopup"
+        />
+        <kw-btn
           grid-action
           :label="$t('MSG_BTN_MOD')"
           @click="onClickEdit"
@@ -138,7 +144,7 @@ import { cloneDeep } from 'lodash-es';
 
 const { getConfig } = useMeta();
 const dataService = useDataService();
-const { notify } = useGlobal();
+const { notify, modal } = useGlobal();
 const { t } = useI18n();
 
 const grdMainRef = ref(getComponentType('KwGrid'));
@@ -165,6 +171,12 @@ const pageInfo = ref({
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
+
+async function onClickOpenPsicPopup() {
+  modal({
+    component: 'WwcteConfirmApprovalDividePsicListP',
+  });
+}
 
 async function onClickEdit() {
   const view = grdMainRef.value.getView();
