@@ -272,7 +272,7 @@ async function onClickSave() {
   const changedRows = gridUtil.getChangedRowValues(view);
   await dataService.post('/sms/wells/contract/exception-handling', changedRows);
 
-  await notify(t('MSG_ALT_SAVE_DATA'));
+  notify(t('MSG_ALT_SAVE_DATA'));
   await fetchData();
 }
 
