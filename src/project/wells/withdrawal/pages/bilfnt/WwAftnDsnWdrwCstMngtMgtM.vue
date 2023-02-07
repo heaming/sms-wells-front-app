@@ -68,6 +68,7 @@
         />
         <kw-btn
           grid-action
+          :disable="totalCount===0"
           :label="$t('MSG_BTN_ROW_ADD')"
           @click="onClickAddRow"
         />
@@ -161,7 +162,7 @@ function getSaveParams() {
     cntrSn: Number(v.cntr.slice(11)) })); // 계약상세일련번호 4 - 7 - 1
 }
 
-async function onClickRemove() {
+async function onClickRemove() { // 추후에 수정
   const view = grdMainRef.value.getView();
   const checkedLength = gridUtil.getCheckedRowValues(view).length;
   if (checkedLength === 0) {
@@ -240,7 +241,7 @@ const initGrid = defineGrid((data, view) => {
       editor: {
         type: 'number',
       },
-      rules: 'required||digits:13',
+      rules: 'required||digits:12',
 
     },
     { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '80', styleName: 'text-center', editable: false },
