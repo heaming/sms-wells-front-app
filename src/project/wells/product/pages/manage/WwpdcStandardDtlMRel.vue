@@ -129,7 +129,7 @@ async function initMaterialGrid(data, view) {
   data.setFields(fields);
   view.setColumns(columns);
 
-  view.checkBar.visible = true;
+  view.checkBar.visible = false;
   view.rowIndicator.visible = false;
 }
 
@@ -157,7 +157,7 @@ async function initServiceGrid(data, view) {
   data.setFields(fields);
   view.setColumns(columns);
 
-  view.checkBar.visible = true;
+  view.checkBar.visible = false;
   view.rowIndicator.visible = false;
 }
 async function initStandardGrid(data, view) {
@@ -182,7 +182,7 @@ async function initStandardGrid(data, view) {
   data.setFields(fields);
   view.setColumns(columns);
 
-  view.checkBar.visible = true;
+  view.checkBar.visible = false;
   view.rowIndicator.visible = false;
 }
 
@@ -210,7 +210,7 @@ async function initChangePrdGrid(data, view) {
   data.setFields(fields);
   view.setColumns(columns);
 
-  view.checkBar.visible = true;
+  view.checkBar.visible = false;
   view.rowIndicator.visible = false;
 
   await initGridRows();
@@ -222,7 +222,7 @@ async function fetchData() {
   if (currentPdCd.value) {
     const res = await dataService.get(`/sms/common/product/relations/products/${currentPdCd.value}`, { params: { } });
     currentInitData.value = pdMergeBy(initData, { [pdConst.RELATION_PRODUCTS]: res.data });
-    console.log('WwpdcStandardDtlMRel - fetchData - res : ', res);
+    // console.log('WwpdcStandardDtlMRel - fetchData - res : ', res);
   } else {
     currentInitData.value = initData;
   }

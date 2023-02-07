@@ -3,7 +3,7 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : 상품 - 상품운영관리(PDC)
-2. 프로그램 ID : ZwpdcPropRelationDtl - 교재/자재 - 연결상품 조회(TAB) (W-PD-U-0031M02)
+2. 프로그램 ID : WwpdcPropRelationDtlM - 교재/자재 - 연결상품 조회(TAB) (W-PD-U-0031M02)
 3. 작성자 : junho.bae
 4. 작성일 : 2022.AA.BB
 ****************************************************************************************************
@@ -133,7 +133,7 @@ async function setData() {
   grd2ndTit.value = codes.PD_REL_TP_CD.find((v) => v.codeId === '14');
   grd3rdTit.value = codes.PD_REL_TP_CD.find((v) => v.codeId === '15');
 
-  const relData = props.initData[pdConst.TB_PDBS_PD_REL];
+  const relData = props.initData[pdConst.TBL_PD_REL];
   if (isEmpty(relData)) return;
   if (isEmpty(grd1stRef.value)) return;
 
