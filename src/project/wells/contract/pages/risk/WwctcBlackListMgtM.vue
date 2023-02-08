@@ -52,7 +52,7 @@
               <kw-input
                 v-model="searchParams.contractNum"
                 icon="search_24"
-                @click-icon="openCustomerListPopUp"
+                @click-icon="onClickIconOpenCustomerListPopup"
               />
             </kw-search-item>
             <kw-search-item :label="$t('MSG_TXT_CST_NO')">
@@ -221,7 +221,7 @@ async function onClickEdit() {
   }
 }
 
-async function openCustomerListPopUp() {
+async function onClickIconOpenCustomerListPopup() {
   const {
     result,
     payload,
