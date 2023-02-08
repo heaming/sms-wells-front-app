@@ -3,7 +3,7 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : WDA
-2. 프로그램 ID : W-WD-U-0035M01 - 자동이체결과 체크리스트(청구완료 미수신건)
+2. 프로그램 ID : WwAftnNrcvCheckListM - 자동이체결과 체크리스트(청구완료 미수신건)
 3. 작성자 : donghyun.yoo
 4. 작성일 : 2023.02.07
 ****************************************************************************************************
@@ -108,26 +108,23 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-// eslint-disable-next-line no-unused-vars
-import { useGlobal, useDataService, codeUtil, gridUtil, defineGrid, useMeta, getComponentType } from 'kw-lib';
+import { useDataService, codeUtil, gridUtil, defineGrid, useMeta, getComponentType } from 'kw-lib';
 import dayjs from 'dayjs';
 
 const dataService = useDataService();
+const { getConfig } = useMeta();
+const { t } = useI18n();
 const now = dayjs();
+
+// -------------------------------------------------------------------------------------------------
+// Function & Event
+// -------------------------------------------------------------------------------------------------
 
 const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
   'BNK_CD',
 );
 const grdMainRef = ref(getComponentType('KwGrid'));
-// const grdData = computed(() => grdMainRef.value?.getData());
-// eslint-disable-next-line no-unused-vars
-const grdView = computed(() => grdMainRef.value?.getView());
-
-const { getConfig } = useMeta();
-const { t } = useI18n();
-
-// let initGridData = [];
 
 const selectedTab = ref('bilFshNrcvCt');
 
@@ -171,7 +168,7 @@ async function onClickExcelDownload() {
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
-function initGrid(data, view) {
+const initGrid = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'autoFntClsf' },
     { fieldName: 'bnkCd' },
@@ -193,6 +190,6 @@ function initGrid(data, view) {
 
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
-}
+});
 
 </script>

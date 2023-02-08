@@ -156,14 +156,13 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-// eslint-disable-next-line no-unused-vars
-import { useDataService, useGlobal, defineGrid, codeUtil, getComponentType } from 'kw-lib';
+import { useDataService, defineGrid, codeUtil, getComponentType } from 'kw-lib';
 import dayjs from 'dayjs';
-// eslint-disable-next-line no-unused-vars
-import { cloneDeep, isEmpty } from 'lodash-es';
+import { cloneDeep } from 'lodash-es';
 
 const dataService = useDataService();
 const { t } = useI18n();
+const now = dayjs();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -173,8 +172,6 @@ const grdData1 = computed(() => grdMainRef1.value?.getData());
 
 const grdMainRef2 = ref(getComponentType('KwGrid'));
 const grdData2 = computed(() => grdMainRef2.value?.getData());
-
-const now = dayjs();
 
 let initGridData1 = [];
 let initGridData2 = [];
