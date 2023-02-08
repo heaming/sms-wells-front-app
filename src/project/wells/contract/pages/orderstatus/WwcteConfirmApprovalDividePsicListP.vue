@@ -4,7 +4,6 @@
 ****************************************************************************************************
 1. 모듈 : CTC
 2. 프로그램 ID : WwcteConfirmApprovalDividePsicListP - 확인 승인 분류 PIC 목록
-
 3. 작성자 : gs.bhavesh.n
 4. 작성일 : 2023.01.25
 ****************************************************************************************************
@@ -130,16 +129,16 @@ const initGrid2 = defineGrid((data, view) => {
   view.rowIndicator.visible = true;
 
   data.setRows([
-    { contNum: '2019-0001234', contNm: '올뎃파크', custGrd: '-', custNm: '올뎃파크', instAddr: '경북 문정시 가은읍 왕능길 112 문경에코알라', prodNm: '안마의자(KW-H05B1)', instDt: '2022-09-03', usage: '관리', rentRd: '43', odAmt: '1/68,900' },
-    { contNum: '2019-0001234', contNm: '올뎃파크', custGrd: '-', custNm: '올뎃파크', instAddr: '경북 문정시 가은읍 왕능길 112 문경에코알라', prodNm: '안마의자(KW-H05B1)', instDt: '2022-09-03', usage: '관리', rentRd: '43', odAmt: '1/68,900' },
-    { contNum: '2019-0001234', contNm: '올뎃파크', custGrd: '-', custNm: '올뎃파크', instAddr: '경북 문정시 가은읍 왕능길 112 문경에코알라', prodNm: '안마의자(KW-H05B1)', instDt: '2022-09-03', usage: '관리', rentRd: '43', odAmt: '1/68,900' },
-    { contNum: '2019-0001234', contNm: '올뎃파크', custGrd: '-', custNm: '올뎃파크', instAddr: '경북 문정시 가은읍 왕능길 112 문경에코알라', prodNm: '안마의자(KW-H05B1)', instDt: '2022-09-03', usage: '관리', rentRd: '43', odAmt: '1/68,900' },
-    { contNum: '2019-0001234', contNm: '올뎃파크', custGrd: '-', custNm: '올뎃파크', instAddr: '경북 문정시 가은읍 왕능길 112 문경에코알라', prodNm: '안마의자(KW-H05B1)', instDt: '2022-09-03', usage: '관리', rentRd: '43', odAmt: '1/68,900' },
-    { contNum: '2019-0001234', contNm: '올뎃파크', custGrd: '-', custNm: '올뎃파크', instAddr: '경북 문정시 가은읍 왕능길 112 문경에코알라', prodNm: '안마의자(KW-H05B1)', instDt: '2022-09-03', usage: '관리', rentRd: '43', odAmt: '1/68,900' },
-    { contNum: '2019-0001234', contNm: '올뎃파크', custGrd: '-', custNm: '올뎃파크', instAddr: '경북 문정시 가은읍 왕능길 112 문경에코알라', prodNm: '안마의자(KW-H05B1)', instDt: '2022-09-03', usage: '관리', rentRd: '43', odAmt: '1/68,900' },
-    { contNum: '2019-0001234', contNm: '올뎃파크', custGrd: '-', custNm: '올뎃파크', instAddr: '경북 문정시 가은읍 왕능길 112 문경에코알라', prodNm: '안마의자(KW-H05B1)', instDt: '2022-09-03', usage: '관리', rentRd: '43', odAmt: '1/68,900' },
-    { contNum: '2019-0001234', contNm: '올뎃파크', custGrd: '-', custNm: '올뎃파크', instAddr: '경북 문정시 가은읍 왕능길 112 문경에코알라', prodNm: '안마의자(KW-H05B1)', instDt: '2022-09-03', usage: '관리', rentRd: '43', odAmt: '1/68,900' },
-    { contNum: '2019-0001234', contNm: '올뎃파크', custGrd: '-', custNm: '올뎃파크', instAddr: '경북 문정시 가은읍 왕능길 112 문경에코알라', prodNm: '안마의자(KW-H05B1)', instDt: '2022-09-03', usage: '관리', rentRd: '43', odAmt: '1/68,900' },
+    { contNum: '2019-0001234', contNm: '올뎃파크', custGrd: '-', custNm: '올뎃파크', instAddr: '경북 문정시 가은읍 왕능길 112 문경에코알라', prodNm: '안마의자(KW-H05B1)', instDt: '20220903', usage: '관리', rentRd: '43', odAmt: '1/68,900' },
+    { contNum: '2019-0001234', contNm: '올뎃파크', custGrd: '-', custNm: '올뎃파크', instAddr: '경북 문정시 가은읍 왕능길 112 문경에코알라', prodNm: '안마의자(KW-H05B1)', instDt: '20220903', usage: '관리', rentRd: '43', odAmt: '1/68,900' },
+    { contNum: '2019-0001234', contNm: '올뎃파크', custGrd: '-', custNm: '올뎃파크', instAddr: '경북 문정시 가은읍 왕능길 112 문경에코알라', prodNm: '안마의자(KW-H05B1)', instDt: '20220903', usage: '관리', rentRd: '43', odAmt: '1/68,900' },
+    { contNum: '2019-0001234', contNm: '올뎃파크', custGrd: '-', custNm: '올뎃파크', instAddr: '경북 문정시 가은읍 왕능길 112 문경에코알라', prodNm: '안마의자(KW-H05B1)', instDt: '20220903', usage: '관리', rentRd: '43', odAmt: '1/68,900' },
+    { contNum: '2019-0001234', contNm: '올뎃파크', custGrd: '-', custNm: '올뎃파크', instAddr: '경북 문정시 가은읍 왕능길 112 문경에코알라', prodNm: '안마의자(KW-H05B1)', instDt: '20220903', usage: '관리', rentRd: '43', odAmt: '1/68,900' },
+    { contNum: '2019-0001234', contNm: '올뎃파크', custGrd: '-', custNm: '올뎃파크', instAddr: '경북 문정시 가은읍 왕능길 112 문경에코알라', prodNm: '안마의자(KW-H05B1)', instDt: '20220903', usage: '관리', rentRd: '43', odAmt: '1/68,900' },
+    { contNum: '2019-0001234', contNm: '올뎃파크', custGrd: '-', custNm: '올뎃파크', instAddr: '경북 문정시 가은읍 왕능길 112 문경에코알라', prodNm: '안마의자(KW-H05B1)', instDt: '20220903', usage: '관리', rentRd: '43', odAmt: '1/68,900' },
+    { contNum: '2019-0001234', contNm: '올뎃파크', custGrd: '-', custNm: '올뎃파크', instAddr: '경북 문정시 가은읍 왕능길 112 문경에코알라', prodNm: '안마의자(KW-H05B1)', instDt: '20220903', usage: '관리', rentRd: '43', odAmt: '1/68,900' },
+    { contNum: '2019-0001234', contNm: '올뎃파크', custGrd: '-', custNm: '올뎃파크', instAddr: '경북 문정시 가은읍 왕능길 112 문경에코알라', prodNm: '안마의자(KW-H05B1)', instDt: '20220903', usage: '관리', rentRd: '43', odAmt: '1/68,900' },
+    { contNum: '2019-0001234', contNm: '올뎃파크', custGrd: '-', custNm: '올뎃파크', instAddr: '경북 문정시 가은읍 왕능길 112 문경에코알라', prodNm: '안마의자(KW-H05B1)', instDt: '20220903', usage: '관리', rentRd: '43', odAmt: '1/68,900' },
   ]);
 });
 </script>
