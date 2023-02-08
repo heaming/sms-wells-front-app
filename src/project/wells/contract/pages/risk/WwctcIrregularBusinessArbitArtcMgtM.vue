@@ -25,34 +25,34 @@
           :colspan="2"
         >
           <kw-select
-            v-model="searchParams.srchGbn"
+            v-model="searchParams.searchGubun"
             :options="prdDivOption"
           />
           <kw-date-range-picker
             :key="isRegistration"
-            v-model:from="searchParams.dangOcStrtmm[0]"
-            v-model:to="searchParams.dangOcStrtmm[1]"
+            v-model:from="searchParams.startDate"
+            v-model:to="searchParams.endDate"
             :type="isRegistration"
             rules="date_range_months:1"
           />
         </kw-search-item>
         <kw-search-item :label="$t('MSG_TXT_MANAGEMENT_DEPARTMENT')">
           <kw-select
-            v-model="searchParams.dgr1HgrDgPrtnrNm"
+            v-model="searchParams.generalDivision"
             :options="gnrlMngTeamOptions"
           />
         </kw-search-item>
       </kw-search-row>
       <kw-search-row>
         <kw-search-item :label="$t('MSG_TXT_RGNL_GRP')">
-          <kw-input v-model="searchParams.dgr2HgrDgPrtnrNm" />
+          <kw-input v-model="searchParams.regionalGroup" />
         </kw-search-item>
         <kw-search-item :label="t('MSG_TXT_BRANCH')">
-          <kw-input v-model="searchParams.dgr3HgrDgPrtnrNm" />
+          <kw-input v-model="searchParams.branchOffice" />
         </kw-search-item>
         <kw-search-item :label="$t('MSG_TXT_EMP_SRCH')">
           <kw-input
-            v-model="searchParams.dangOjPrtnrNo"
+            v-model="searchParams.employeeNo"
             icon="search_24"
           />
         </kw-search-item>
@@ -133,8 +133,8 @@ const { t } = useI18n();
 const { getConfig } = useMeta();
 const dataService = useDataService();
 
-const prdDivOption = ref([{ codeId: 1, codeName: t('MSG_TXT_FST_RGST_DT') },
-  { codeId: 2, codeName: t('MSG_TXT_YEAR_OCCURNCE') }]);
+const prdDivOption = ref([{ codeId: 'Y', codeName: t('MSG_TXT_FST_RGST_DT') },
+  { codeId: 'N', codeName: t('MSG_TXT_YEAR_OCCURNCE') }]);
 const gnrlMngTeamOptions = ref([
   { codeId: '', codeName: t('MSG_TXT_ALL') },
   { codeId: 'A', codeName: `A${t('MSG_TXT_MANAGEMENT_DEPARTMENT')}` },
@@ -150,12 +150,15 @@ const gnrlMngTeamOptions = ref([
 
 let cachedParams;
 const searchParams = ref({
-  srchGbn: 1,
-  dangOcStrtmm: ['', ''],
-  dgr1HgrDgPrtnrNm: '',
-  dgr2HgrDgPrtnrNm: '',
-  dgr3HgrDgPrtnrNm: '',
-  dangOjPrtnrNo: '',
+  searchGubun: 'Y',
+  startDate: '',
+  startMonth: '',
+  endDate: '',
+  endMonth: '',
+  generalDivision: '',
+  regionalGroup: '',
+  branchOffice: '',
+  employeeNo: '',
 
 });
 
@@ -177,10 +180,10 @@ const codes = await codeUtil.getMultiCodes(
   'PNTSC_ARBIT_DEPT_CD',
 );
 
-const isRegistration = computed(() => (searchParams.value.srchGbn === 1 ? 'date' : 'month'));
+const isRegistration = computed(() => (searchParams.value.searchGubun === 'Y' ? 'date' : 'month'));
 
 async function fetchData() {
-  cachedParams = { ...cachedParams, ...pageInfo.value };
+  cachedParams = { ...cachedParams };
   const res = await dataService.get('/sms/wells/contract/risk-audits/irregular-sales-actions/managerial-tasks', { params: cachedParams });
 
   const { list: arbitrations, pageInfo: pagingResult } = res.data;
@@ -242,20 +245,21 @@ async function onClickExcelDownload() {
 // -------------------------------------------------------------------------------------------------
 const initGrid = defineGrid((data, view) => {
   const fields = [
+    { fieldName: 'dangChkId' },
     { fieldName: 'dangOjPrtnrNo' },
-    { fieldName: 'dangOcStrtmm' },
-    { fieldName: 'dangOjPrtnrOgNm' },
+    { fieldName: 'dangOcStrtdt' },
+    { fieldName: 'dangOjOgId' },
     { fieldName: 'dangOjPrtnrNm' },
     { fieldName: 'dangOjPrtnrPstnDvNm' },
     { fieldName: 'dgr1HgrDgPrtnrNm' },
     { fieldName: 'dgr2HgrDgPrtnrNm' },
-    { fieldName: 'bznsSpptPrtnrNo' },
     { fieldName: 'dgr3HgrDgPrtnrNm' },
+    { fieldName: 'dgr4HgrDgPrtnrNm' },
     { fieldName: 'dangChkNm' },
-    { fieldName: 'dangArbitCd' },
+    { fieldName: 'dangArbitCdNm' },
     { fieldName: 'dangUncvrCt' },
     { fieldName: 'dangArbitLvyPc' },
-    { fieldName: 'dangArbitOgId' },
+    { fieldName: 'dangArbitOgNm' },
     { fieldName: 'fstRgstUsrId' },
     { fieldName: 'fstRgstDtm' },
 
@@ -269,21 +273,21 @@ const initGrid = defineGrid((data, view) => {
       button: 'action',
       rules: 'required',
     },
-    { fieldName: 'dangOcStrtmm',
+    { fieldName: 'dangOcStrtdt',
       header: t('MSG_TXT_YEAR_OCCURNCE'),
       width: '165',
       editor: {
         type: 'btdate',
       } },
-    { fieldName: 'dangOjPrtnrOgNm', header: t('MSG_TXT_BLG'), width: '129', editable: false },
+    { fieldName: 'dangOjOgId', header: t('MSG_TXT_BLG'), width: '129', editable: false },
     { fieldName: 'dangOjPrtnrNm', header: t('MSG_TXT_EMPL_NM'), width: '129', editable: false },
     { fieldName: 'dangOjPrtnrPstnDvNm', header: t('MSG_TXT_CRLV'), width: '129', editable: false },
     { fieldName: 'dgr1HgrDgPrtnrNm', header: t('MSG_TXT_MANAGEMENT_DEPARTMENT'), width: '129', editable: false },
     { fieldName: 'dgr2HgrDgPrtnrNm', header: t('MSG_TXT_RGNL_GRP'), width: '129', editable: false },
-    { fieldName: 'bznsSpptPrtnrNo', header: 'BM', width: '129', editable: false },
-    { fieldName: 'dgr3HgrDgPrtnrNm', header: t('MSG_TXT_BRANCH'), width: '129', editable: false },
+    { fieldName: 'dgr3HgrDgPrtnrNm', header: 'BM', width: '129', editable: false },
+    { fieldName: 'dgr4HgrDgPrtnrNm', header: t('MSG_TXT_BRANCH'), width: '129', editable: false },
     { fieldName: 'dangChkNm', header: t('MSG_TXT_CHRGS'), width: '306', rules: 'required' },
-    { fieldName: 'dangArbitCd',
+    { fieldName: 'dangArbitCdNm',
       header: t('MSG_TXT_ACTN_ITM'),
       width: '306',
       options: codes.PNTSC_ARBIT_ATC_CD,
@@ -309,7 +313,7 @@ const initGrid = defineGrid((data, view) => {
       ],
       editor: { type: 'list' },
       rules: 'required' },
-    { fieldName: 'dangArbitOgId',
+    { fieldName: 'dangArbitOgNm',
       header: t('MSG_TXT_ACTN_DPT'),
       width: '306',
       options: codes.PNTSC_ARBIT_DEPT_CD,
@@ -332,17 +336,17 @@ const initGrid = defineGrid((data, view) => {
     {
       header: t('MSG_TXT_EMP_NO'),
       direction: 'horizontal',
-      items: ['dangOjPrtnrNo', 'dangOcStrtmm', 'dangOjPrtnrOgNm', 'dangOjPrtnrNm', 'dangOjPrtnrPstnDvNm'],
+      items: ['dangOjPrtnrNo', 'dangOcStrtdt', 'dangOjOgId', 'dangOjPrtnrNm', 'dangOjPrtnrPstnDvNm'],
     },
     {
       header: t('MSG_TXT_BLG'),
       direction: 'horizontal',
-      items: ['dgr1HgrDgPrtnrNm', 'dgr2HgrDgPrtnrNm', 'bznsSpptPrtnrNo', 'dgr3HgrDgPrtnrNm'],
+      items: ['dgr1HgrDgPrtnrNm', 'dgr2HgrDgPrtnrNm', 'dgr3HgrDgPrtnrNm', 'dgr4HgrDgPrtnrNm'],
     },
     {
       header: t('MSG_TXT_PNLTY'),
       direction: 'horizontal',
-      items: ['dangChkNm', 'dangArbitCd', 'dangUncvrCt', 'dangArbitLvyPc', 'dangArbitOgId'],
+      items: ['dangChkNm', 'dangArbitCdNm', 'dangUncvrCt', 'dangArbitLvyPc', 'dangArbitOgNm'],
     },
     'fstRgstUsrId', 'fstRgstDtm',
 
@@ -354,20 +358,6 @@ const initGrid = defineGrid((data, view) => {
       component: 'ZwcsaCustomerListP',
     });
   };
-
-  data.setRows([{ dangOjPrtnrNo: '사번입력', dangOcStrtmm: '2022-05', dangOjPrtnrOgNm: '', dangOjPrtnrNm: '', dangOjPrtnrPstnDvNm: '', dgr1HgrDgPrtnrNm: '', dgr2HgrDgPrtnrNm: '', bznsSpptPrtnrNo: '', dgr3HgrDgPrtnrNm: '', dangChkNm: '', dangArbitCd: '1-개인정보 도용에 의한 판매계약', dangUncvrCt: '', dangArbitLvyPc: '★★★', dangArbitOgId: '71401-Wells경영지원팀', fstRgstUsrId: '', fstRgstDtm: '2022-05' },
-    { dangOjPrtnrNo: '123456', dangOcStrtmm: '2022-05', dangOjPrtnrOgNm: 'P123456', dangOjPrtnrNm: '김교원', dangOjPrtnrPstnDvNm: '김교원', dgr1HgrDgPrtnrNm: '김총괄', dgr2HgrDgPrtnrNm: '김지역', bznsSpptPrtnrNo: '김BM', dgr3HgrDgPrtnrNm: '김지점', dangChkNm: '부과내역', dangArbitCd: '부과내역', dangUncvrCt: '1', dangArbitLvyPc: '★', dangArbitOgId: '71401-Wells 경영지원팀', fstRgstUsrId: '김직원', fstRgstDtm: '2022-05' },
-    { dangOjPrtnrNo: '123456', dangOcStrtmm: '2022-05', dangOjPrtnrOgNm: 'P123456', dangOjPrtnrNm: '김교원', dangOjPrtnrPstnDvNm: '김교원', dgr1HgrDgPrtnrNm: '김총괄', dgr2HgrDgPrtnrNm: '김지역', bznsSpptPrtnrNo: '김BM', dgr3HgrDgPrtnrNm: '김지점', dangChkNm: '부과내역', dangArbitCd: '부과내역', dangUncvrCt: '1', dangArbitLvyPc: '★', dangArbitOgId: '71401-Wells 경영지원팀', fstRgstUsrId: '김직원', fstRgstDtm: '2022-05' },
-    { dangOjPrtnrNo: '123456', dangOcStrtmm: '2022-05', dangOjPrtnrOgNm: 'P123456', dangOjPrtnrNm: '김교원', dangOjPrtnrPstnDvNm: '김교원', dgr1HgrDgPrtnrNm: '김총괄', dgr2HgrDgPrtnrNm: '김지역', bznsSpptPrtnrNo: '김BM', dgr3HgrDgPrtnrNm: '김지점', dangChkNm: '부과내역', dangArbitCd: '부과내역', dangUncvrCt: '1', dangArbitLvyPc: '★', dangArbitOgId: '71401-Wells 경영지원팀', fstRgstUsrId: '김직원', fstRgstDtm: '2022-05' },
-    { dangOjPrtnrNo: '123456', dangOcStrtmm: '2022-05', dangOjPrtnrOgNm: 'P123456', dangOjPrtnrNm: '김교원', dangOjPrtnrPstnDvNm: '김교원', dgr1HgrDgPrtnrNm: '김총괄', dgr2HgrDgPrtnrNm: '김지역', bznsSpptPrtnrNo: '김BM', dgr3HgrDgPrtnrNm: '김지점', dangChkNm: '부과내역', dangArbitCd: '부과내역', dangUncvrCt: '1', dangArbitLvyPc: '★', dangArbitOgId: '71401-Wells 경영지원팀', fstRgstUsrId: '김직원', fstRgstDtm: '2022-05' },
-    { dangOjPrtnrNo: '123456', dangOcStrtmm: '2022-05', dangOjPrtnrOgNm: 'P123456', dangOjPrtnrNm: '김교원', dangOjPrtnrPstnDvNm: '김교원', dgr1HgrDgPrtnrNm: '김총괄', dgr2HgrDgPrtnrNm: '김지역', bznsSpptPrtnrNo: '김BM', dgr3HgrDgPrtnrNm: '김지점', dangChkNm: '부과내역', dangArbitCd: '부과내역', dangUncvrCt: '1', dangArbitLvyPc: '★', dangArbitOgId: '71401-Wells 경영지원팀', fstRgstUsrId: '김직원', fstRgstDtm: '2022-05' },
-    { dangOjPrtnrNo: '123456', dangOcStrtmm: '2022-05', dangOjPrtnrOgNm: 'P123456', dangOjPrtnrNm: '김교원', dangOjPrtnrPstnDvNm: '김교원', dgr1HgrDgPrtnrNm: '김총괄', dgr2HgrDgPrtnrNm: '김지역', bznsSpptPrtnrNo: '김BM', dgr3HgrDgPrtnrNm: '김지점', dangChkNm: '부과내역', dangArbitCd: '부과내역', dangUncvrCt: '1', dangArbitLvyPc: '★', dangArbitOgId: '71401-Wells 경영지원팀', fstRgstUsrId: '김직원', fstRgstDtm: '2022-05' },
-    { dangOjPrtnrNo: '123456', dangOcStrtmm: '2022-05', dangOjPrtnrOgNm: 'P123456', dangOjPrtnrNm: '김교원', dangOjPrtnrPstnDvNm: '김교원', dgr1HgrDgPrtnrNm: '김총괄', dgr2HgrDgPrtnrNm: '김지역', bznsSpptPrtnrNo: '김BM', dgr3HgrDgPrtnrNm: '김지점', dangChkNm: '부과내역', dangArbitCd: '부과내역', dangUncvrCt: '1', dangArbitLvyPc: '★', dangArbitOgId: '71401-Wells 경영지원팀', fstRgstUsrId: '김직원', fstRgstDtm: '2022-05' },
-    { dangOjPrtnrNo: '123456', dangOcStrtmm: '2022-05', dangOjPrtnrOgNm: 'P123456', dangOjPrtnrNm: '김교원', dangOjPrtnrPstnDvNm: '김교원', dgr1HgrDgPrtnrNm: '김총괄', dgr2HgrDgPrtnrNm: '김지역', bznsSpptPrtnrNo: '김BM', dgr3HgrDgPrtnrNm: '김지점', dangChkNm: '부과내역', dangArbitCd: '부과내역', dangUncvrCt: '1', dangArbitLvyPc: '★', dangArbitOgId: '71401-Wells 경영지원팀', fstRgstUsrId: '김직원', fstRgstDtm: '2022-05' },
-    { dangOjPrtnrNo: '123456', dangOcStrtmm: '2022-05', dangOjPrtnrOgNm: 'P123456', dangOjPrtnrNm: '김교원', dangOjPrtnrPstnDvNm: '김교원', dgr1HgrDgPrtnrNm: '김총괄', dgr2HgrDgPrtnrNm: '김지역', bznsSpptPrtnrNo: '김BM', dgr3HgrDgPrtnrNm: '김지점', dangChkNm: '부과내역', dangArbitCd: '부과내역', dangUncvrCt: '1', dangArbitLvyPc: '★', dangArbitOgId: '71401-Wells 경영지원팀', fstRgstUsrId: '김직원', fstRgstDtm: '2022-05' },
-    { dangOjPrtnrNo: '123456', dangOcStrtmm: '2022-05', dangOjPrtnrOgNm: 'P123456', dangOjPrtnrNm: '김교원', dangOjPrtnrPstnDvNm: '김교원', dgr1HgrDgPrtnrNm: '김총괄', dgr2HgrDgPrtnrNm: '김지역', bznsSpptPrtnrNo: '김BM', dgr3HgrDgPrtnrNm: '김지점', dangChkNm: '부과내역', dangArbitCd: '부과내역', dangUncvrCt: '1', dangArbitLvyPc: '★', dangArbitOgId: '71401-Wells 경영지원팀', fstRgstUsrId: '김직원', fstRgstDtm: '2022-05' },
-
-  ]);
 });
 
 </script>
