@@ -52,6 +52,7 @@
               <kw-input
                 v-model="searchParams.contractNum"
                 icon="search_24"
+                @click-icon="onClickIconOpenCustomerListPopup"
               />
             </kw-search-item>
             <kw-search-item :label="$t('MSG_TXT_CST_NO')">
@@ -175,7 +176,7 @@ import { cloneDeep } from 'lodash-es';
 
 const { getConfig } = useMeta();
 const dataService = useDataService();
-const { notify } = useGlobal();
+const { notify, modal } = useGlobal();
 const { t } = useI18n();
 
 const grdMainRef = ref(getComponentType('KwGrid'));
@@ -218,6 +219,19 @@ async function onClickEdit() {
       if (index.itemIndex !== selectedDataRow) { return false; }
     };
   }
+}
+
+async function onClickIconOpenCustomerListPopup() {
+  const {
+    result,
+    payload,
+  } = await modal({
+    component: 'ZwcsaCustomerListP',
+  });
+  notify(JSON.stringify({
+    result,
+    payload,
+  }));
 }
 
 let cachedParams;
