@@ -85,11 +85,6 @@
         />
         <kw-btn
           grid-action
-          :label="$t('MSG_BTN_MOD')"
-          @click="onClickEdit"
-        />
-        <kw-btn
-          grid-action
           :label="$t('MSG_BTN_DEL')"
           @click="onClickDelete"
         />
@@ -176,23 +171,6 @@ async function onClickOpenPsicPopup() {
   modal({
     component: 'WwcteConfirmApprovalDividePsicListP',
   });
-}
-
-async function onClickEdit() {
-  const view = grdMainRef.value.getView();
-  view.editOptions.editable = false;
-  const selectedData = await gridUtil.getCheckedRowValues(view);
-  if (selectedData.length === 0) {
-    notify(t('MSG_ALT_MOD_NO_DATA'));
-  } else if (selectedData.length > 1) {
-    notify(t('MSG_ALT_SELT_ONE_ITEM'));
-  } else {
-    const selectedDataRow = selectedData[0].dataRow;
-    view.editOptions.editable = true;
-    view.onCellEditable = (grid, index) => {
-      if (index.itemIndex !== selectedDataRow) { return false; }
-    };
-  }
 }
 
 let cachedParams;
@@ -344,6 +322,7 @@ const initGrid = defineGrid((data, view) => {
 
   data.setFields(fields);
   view.setColumns(columns);
+  view.editOptions.editable = true;
   view.checkBar.visible = true; // create checkbox column
   view.rowIndicator.visible = true; // create number indicator column
 
