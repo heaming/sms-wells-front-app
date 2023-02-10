@@ -369,7 +369,7 @@ async function onClickSave(tempSaveYn) {
 
   // 4. 생성 or 저장
   const rtn = currentPdCd.value
-    ? await dataService.put(`${baseUrl}/${currentPdCd.value}`, subList)
+    ? await dataService.put(baseUrl, subList)
     : await dataService.post(`${baseUrl}`, subList);
 
   // 5. 생성 이후 Step 설정
