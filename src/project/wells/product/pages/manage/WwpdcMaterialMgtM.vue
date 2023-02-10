@@ -53,7 +53,7 @@
                 :ref="cmpStepRefs[0]"
                 v-model:pd-cd="currentPdCd"
                 v-model:init-data="prevStepData"
-                :pd-tp-cd="pdConst.PD_TP_CD_M"
+                :pd-tp-cd="pdConst.PD_TP_CD_MATERIAL"
                 :pd-grp-dv-cd="pdConst.PD_PRP_GRP_DV_CD_BASIC"
                 :pd-tp-dtl-cd="pdTpDtlCd"
                 @popup-callback="popupCallback"
@@ -67,7 +67,7 @@
                 :ref="cmpStepRefs[1]"
                 v-model:pd-cd="currentPdCd"
                 v-model:init-data="prevStepData"
-                :pd-tp-cd="pdConst.PD_TP_CD_M"
+                :pd-tp-cd="pdConst.PD_TP_CD_MATERIAL"
               />
             </kw-step-panel>
             <!-- 3.관리속성 등록 -->
@@ -76,7 +76,7 @@
                 :ref="cmpStepRefs[2]"
                 v-model:pd-cd="currentPdCd"
                 v-model:init-data="prevStepData"
-                :pd-tp-cd="pdConst.PD_TP_CD_M"
+                :pd-tp-cd="pdConst.PD_TP_CD_MATERIAL"
                 :pd-grp-dv-cd="pdConst.PD_PRP_GRP_DV_CD_MANUAL"
                 :except-id="exceptPrpGrpCd"
               />
@@ -107,7 +107,7 @@
                   <zwpdc-prop-groups-dtl
                     v-model:pd-cd="currentPdCd"
                     v-model:init-data="prevStepData"
-                    :pd-tp-cd="pdConst.PD_TP_CD_M"
+                    :pd-tp-cd="pdConst.PD_TP_CD_MATERIAL"
                     :pd-grp-dv-cd="pdConst.PD_PRP_GRP_DV_CD_BASIC"
                     :prefix-title="$t('MSG_TXT_BAS_ATTR')"
                     :is-first-title="true"
@@ -119,7 +119,7 @@
                   <wwpdc-prop-relation-dtl
                     v-model:pd-cd="currentPdCd"
                     v-model:init-data="prevStepData"
-                    :pd-tp-cd="pdConst.PD_TP_CD_M"
+                    :pd-tp-cd="pdConst.PD_TP_CD_MATERIAL"
                   />
                 </kw-tab-panel>
                 <!--관리속성-->
@@ -127,7 +127,7 @@
                   <zwpdc-prop-groups-dtl
                     v-model:pd-cd="currentPdCd"
                     v-model:init-data="prevStepData"
-                    :pd-tp-cd="pdConst.PD_TP_CD_M"
+                    :pd-tp-cd="pdConst.PD_TP_CD_MATERIAL"
                     :pd-grp-dv-cd="pdConst.PD_PRP_GRP_DV_CD_MANUAL"
                     :prefix-title="$t('MSG_TXT_MGT_ATTR')"
                     :is-first-title="true"
@@ -228,7 +228,7 @@ const obsMainRef = ref();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
-const baseUrl = '/sms/common/product/materials';
+const baseUrl = '/sms/wells/product/materials';
 const materialMainPage = '/product/zwpdc-material-list';
 
 const pdTpDtlCd = ref('01');
@@ -255,8 +255,8 @@ const isCreate = ref(false);
 const selectedTab = ref('attribute');
 
 const page = ref({
-  reg: '/product/wwpdc-material-mgt', // 교재/자재 등록 UI
-  dtl: '/product/wwpdc-material-dtl', // 교재/자재 상세보기 UI
+  reg: '/product/zwpdc-material-list/wwpdc-material-mgt', // 교재/자재 등록 UI
+  detail: '/product/zwpdc-material-list/wwpdc-material-dtl', // 교재/자재 상세보기 UI
 });
 
 const exceptPrpGrpCd = ref('PART');
@@ -266,9 +266,9 @@ watch(() => props.tempSaveYn, (val) => { isTempSaveBtn.value = val !== 'Y'; });
 
 async function onClickReset() {
   notify('TBD Function..');
-  // await cmpStepRefs.value.forEach((item) => {
-  //   item.value.resetData();
-  // });
+  await cmpStepRefs.value.forEach((item) => {
+    item.value.resetData();
+  });
 }
 
 async function onClickRemove() {
@@ -369,7 +369,7 @@ async function onClickSave(tempSaveYn) {
 
   // 4. 생성 or 저장
   const rtn = currentPdCd.value
-    ? await dataService.put(`${baseUrl}/${currentPdCd.value}`, subList)
+    ? await dataService.put(baseUrl, subList)
     : await dataService.post(`${baseUrl}`, subList);
 
   // 5. 생성 이후 Step 설정

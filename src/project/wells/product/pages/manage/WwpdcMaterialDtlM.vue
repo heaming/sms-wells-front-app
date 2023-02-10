@@ -63,7 +63,7 @@
                     v-model:pd-cd="currentPdCd"
                     v-model:pd-group-cd="prdPropGroups"
                     v-model:init-data="prevStepData"
-                    :pd-tp-cd="pdConst.PD_TP_CD_M"
+                    :pd-tp-cd="pdConst.PD_TP_CD_MATERIAL"
                     :pd-grp-dv-cd="pdConst.PD_PRP_GRP_DV_CD_BASIC"
                     :prefix-title="$t('MSG_TXT_BAS_ATTR')"
                     :is-first-title="true"
@@ -77,7 +77,7 @@
                   <wwpdc-prop-relation-dtl
                     v-model:pd-cd="currentPdCd"
                     v-model:init-data="prevStepData"
-                    :pd-tp-cd="pdConst.PD_TP_CD_M"
+                    :pd-tp-cd="pdConst.PD_TP_CD_MATERIAL"
                   />
                 </kw-tab-panel>
                 <!-- 확장속성 -->
@@ -86,7 +86,7 @@
                     v-model:pd-cd="currentPdCd"
                     v-model:pd-group-cd="prdPropGroups"
                     v-model:init-data="prevStepData"
-                    :pd-tp-cd="pdConst.PD_TP_CD_M"
+                    :pd-tp-cd="pdConst.PD_TP_CD_MATERIAL"
                     :pd-grp-dv-cd="pdConst.PD_PRP_GRP_DV_CD_MANUAL"
                     :prefix-title="$t('MSG_TXT_MGT_ATTR')"
                     :is-first-title="true"
@@ -96,7 +96,7 @@
                 <kw-tab-panel name="hist">
                   <zwpdc-prod-change-hist
                     v-model:pd-cd="currentPdCd"
-                    :pd-tp-cd="pdConst.PD_TP_CD_M"
+                    :pd-tp-cd="pdConst.PD_TP_CD_MATERIAL"
                   />
                 </kw-tab-panel>
               </kw-tab-panels>
@@ -141,9 +141,9 @@ const obsMainRef = ref();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
-const baseUrl = '/sms/common/product/materials';
+const baseUrl = '/sms/wells/product/materials';
 const page = ref({
-  modify: '/product/wwpdc-material-mgt', // 등록/수정 UI
+  modify: '/product/zwpdc-material-list/wwpdc-material-mgt', // 등록/수정 UI
 });
 
 const pdTpDtlCd = ref('01');

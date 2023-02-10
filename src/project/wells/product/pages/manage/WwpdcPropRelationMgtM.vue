@@ -57,7 +57,7 @@ import pdConst from '~sms-common/product/constants/pdConst';
 
 /* eslint-disable no-use-before-define */
 defineExpose({
-  validateProps, getSaveData, isModifiedProps,
+  validateProps, getSaveData, isModifiedProps, resetData,
 });
 
 const { t } = useI18n();
@@ -89,6 +89,10 @@ const codes = await codeUtil.getMultiCodes(
   'PD_REL_TP_CD',
 );
 codes.PD_REL_TP_CD = codes.PD_REL_TP_CD.filter((v) => (['13', '14', '15'].includes(v.codeId)));
+
+async function resetData() {
+  // TODO Grid 에서 초기화버튼 기능을 어떻게 정의할지 확인필요.
+}
 
 async function fetchData() {
   if (isEmpty(searchParams.value.pdRelTpCd)) {

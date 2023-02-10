@@ -216,7 +216,7 @@ async function onClickMaterialSchPopup() {
   searchParams.value.searchValue = materialSearchValue.value;
   const rtn = await modal({
     component: 'ZpdcMaterialsSelectP',
-    componentProps: { ...searchParams.value, searchType: pdConst.PD_TP_CD_M },
+    componentProps: { ...searchParams.value, searchType: pdConst.PD_TP_CD_MATERIAL },
   });
   await insertReturnRows(view, rtn, pdConst.PD_REL_TP_CD_P_TO_PD);
 }

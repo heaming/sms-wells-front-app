@@ -44,7 +44,7 @@
       <kw-form-row>
         <!-- 제품분류 ex. 대분류 > 중분류-->
         <kw-form-item :label="$t('MSG_TXT_PRDT_CLSF')">
-          <p>{{ pdBas.pdHclsfNm }} > {{ pdBas.pdMclsfNm }}</p>
+          <p>{{ pdBas.pdClsfNm }} </p>
         </kw-form-item>
         <!-- 자재코드 -->
         <kw-form-item :label="$t('MSG_TXT_MATI_CODE')">
@@ -118,7 +118,7 @@ const grd3rdRef = ref(getComponentType('KwGrid'));
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
-const baseUrl = '/sms/common/product/materials';
+const baseUrl = '/sms/wells/product/materials';
 
 const pdBas = ref({}); // 상품기본
 const PdEcomPrpDtl = ref([]); // 상품각사속성상세
@@ -148,8 +148,6 @@ async function fetchData() {
   // 관리속성 - 판매제품
   PDCT.value = PdEcomPrpDtl.value[1];
   pdColoNm.value = PDCT.value.pdPrpVal02 ?? '';
-
-  console.log('pdRel', pdRel.value);
 }
 
 function showRowCnt(rowCnt) {
@@ -221,9 +219,9 @@ const initGrd3rd = defineGrid((data, view) => {
 
 async function setData() {
   // Grid Header Binding
-  grd1stTit.value = codes.PD_REL_TP_CD.find((v) => v.codeId === '13');
-  grd2ndTit.value = codes.PD_REL_TP_CD.find((v) => v.codeId === '14');
-  grd3rdTit.value = codes.PD_REL_TP_CD.find((v) => v.codeId === '15');
+  grd1stTit.value = codes.PD_REL_TP_CD.find((v) => v.codeId === pdConst.PD_REL_TP_CD_NO_MIX); // 13
+  grd2ndTit.value = codes.PD_REL_TP_CD.find((v) => v.codeId === pdConst.PD_REL_TP_CD_AS_PART); // 14
+  grd3rdTit.value = codes.PD_REL_TP_CD.find((v) => v.codeId === pdConst.PD_REL_TP_CD_CHG_MD); // 15
 
   // Grid Data Binding
   const relData = pdRel.value;
@@ -234,9 +232,9 @@ async function setData() {
   const grd2DataProvider = grd2ndRef.value.getView().getDataSource();
   const grd3DataProvider = grd3rdRef.value.getView().getDataSource();
 
-  grd1DataProvider.fillJsonData(relData.filter((v) => v.pdRelTpCd === '13'), { fillMode: 'set' });
-  grd2DataProvider.fillJsonData(relData.filter((v) => v.pdRelTpCd === '14'), { fillMode: 'set' });
-  grd3DataProvider.fillJsonData(relData.filter((v) => v.pdRelTpCd === '15'), { fillMode: 'set' });
+  grd1DataProvider.fillJsonData(relData.filter((v) => v.pdRelTpCd === pdConst.PD_REL_TP_CD_NO_MIX), { fillMode: 'set' });
+  grd2DataProvider.fillJsonData(relData.filter((v) => v.pdRelTpCd === pdConst.PD_REL_TP_CD_AS_PART), { fillMode: 'set' });
+  grd3DataProvider.fillJsonData(relData.filter((v) => v.pdRelTpCd === pdConst.PD_REL_TP_CD_CHG_MD), { fillMode: 'set' });
 
   visibleRowCnt1.value = showRowCnt(grd1stRef.value.getView().getItemCount());
   visibleRowCnt2.value = showRowCnt(grd2ndRef.value.getView().getItemCount());
