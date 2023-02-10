@@ -54,34 +54,21 @@
       </kw-search-row>
       <kw-search-row>
         <!-- 입고창고 -->
-        <kw-search-item
-          :label="$t('MSG_TXT_STR_WARE')"
+        <ZwcmWareHouseSearch
+          v-model:start-ym="searchParams.stOstrDt"
+          v-model:end-ym="searchParams.edOstrDt"
+          v-model:options-ware-dv-cd="strWareDvCd"
+          v-model:ware-dv-cd="searchParams.ostrWareDvCd"
+          v-model:ware-no-d="searchParams.ostrWareNoD"
+          v-model:ware-no-m="searchParams.ostrWareNoM"
+          first-option="all"
           :colspan="2"
-        >
-          <kw-select
-            :options="wareDvCd"
-            first-option="all"
-            class="w150"
-          /> <kw-select
-            :model-value="[]"
-            :options="['A', 'B', 'C', 'D']"
-          /> <kw-select
-            :model-value="['1','2']"
-            :options="['조직창고', '개인창고']"
-          />
-        </kw-search-item>
+          label1="출고기간"
+          label2="입고창고"
+          label3="창고"
+          label4="창고"
+        />
       </kw-search-row>
-      <!-- <ZwcmWareHouseSearchWithDate
-        v-model:ware-dv-cd="searchParams.wareDvCd2"
-        v-model:start-ym="searchParams.startYm2"
-        v-model:end-ym="searchParams.endYm2"
-        v-model:ware-no-m="searchParams.wareNoM2"
-        v-model:ware-no-d="searchParams.wareNoD2"
-        label1="입고기간"
-        label2="입고창고"
-        label3="창고"
-        label4="창고"
-      /> -->
     </kw-search>
     <div class="result-area">
       <kw-action-top>
@@ -90,7 +77,6 @@
             :total-count="totalCount"
           />
         </template>
-
         <kw-btn
           icon="print"
           dense
@@ -121,10 +107,10 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 
-import { codeUtil, defineGrid, useDataService, getComponentType, gridUtil } from 'kw-lib';
+import { useGlobal, codeUtil, defineGrid, useDataService, getComponentType, gridUtil } from 'kw-lib';
 import snConst from '~sms-wells/service/constants/snConst';
 // TODO: 추후 공통서비스 변경후 적용 예정 (조직창고 , 조직창고에 해당하는 엔지니어조회)
-// import ZwcmWareHouseSearchWithDate from '~sms-common/common/components/ZwcmWareHouseSearchWithDate.vue';
+import ZwcmWareHouseSearch from '~sms-common/service/components/ZwsnzWareHouseSearch.vue';
 import dayjs from 'dayjs';
 import { cloneDeep } from 'lodash-es';
 
@@ -133,6 +119,7 @@ const grdMainRef = ref(getComponentType('KwGrid'));
 const dataService = useDataService();
 
 const { t } = useI18n();
+const { alert } = useGlobal();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -144,7 +131,9 @@ const searchParams = ref({
   ostrTpCd: '',
   wareDvCd: '',
   strOjWareNo: '',
-  ostrWareDvCd: '',
+  ostrWareDvCd: '2',
+  ostrWareNoD: '',
+  ostrWareNoM: '',
   divide: '0',
 });
 
@@ -160,7 +149,11 @@ const codes = await codeUtil.getMultiCodes(
 const totalCount = ref(0);
 
 // 창고구분코드 필터링
-const wareDvCd = codes.WARE_DV_CD.filter((v) => v.codeId !== '1');
+// const wareDvCd = codes.WARE_DV_CD.filter((v) => v.codeId !== '1');
+const strWareDvCd = { WARE_DV_CD: [
+  { codeId: '2', codeName: '서비스센터' },
+  { codeId: '3', codeName: '영업센터' },
+] };
 
 searchParams.value.stOstrDt = dayjs().format('YYYYMMDD');
 searchParams.value.edOstrDt = dayjs().format('YYYYMMDD');
@@ -288,6 +281,23 @@ const initGrdMain = defineGrid((data, view) => {
   view.setColumns(columns);
   view.checkBar.visible = false;
   view.rowIndicator.visible = false;
+
+  view.onCellItemClicked = async (g, { column, dataRow }) => {
+    console.log(gridUtil.getRowValue(g, dataRow));
+    const { ostrTpCd } = gridUtil.getRowValue(g, dataRow);
+
+    if (column === 'txtNote') {
+      if (ostrTpCd === '217') {
+        alert('현재 단위 테스트 대상이 아닙니다.');
+      } if (['221', '222', '223'].includes(ostrTpCd)) {
+        alert('현재 단위 테스트 대상이 아닙니다.');
+      } if (ostrTpCd === '217') {
+        alert('현재 단위 테스트 대상이 아닙니다.');
+      } if (['212', '261', '262'].includes(ostrTpCd)) {
+        alert('현재 단위 테스트 대상이 아닙니다.');
+      }
+    }
+  };
 });
 
 </script>
