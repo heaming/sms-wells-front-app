@@ -17,8 +17,8 @@
   <h3>{{ $t('MSG_TXT_REP_PROD') }}</h3>
   <kw-action-top v-show="!props.readonly">
     <template #left>
-      <!--  제품 선택 -->
-      <span class="kw-fc--black1">{{ $t('MSG_TXT_PD_SELECT') }}</span>
+      <!--  기준상품 선택 -->
+      <span class="kw-fc--black1">{{ $t('MSG_TXT_PD_SEL_STD') }}</span>
       <kw-select
         v-model="productSearchType"
         dense
@@ -92,23 +92,26 @@ const searchParams = ref({
   searchValue: null,
 });
 
-async function insertReturnRows(view, rtn, pdRelTpCd) {
+async function getSaveData() {
+  const rowValues = gridUtil.getAllRowValues(grdChangePrdRef.value.getView());
+  const rtnValues = { [pdConst.TBL_PD_REL]: rowValues ?? [] };
+  // console.log('WwpdcStandardMgtMRelPrd - getSaveData - rtnValues : ', rtnValues);
+  return rtnValues;
+}
+
+function isModifiedProps() {
+  return true;
+}
+
+function validateProps() {
+  return true;
+}
+
+async function insertCallbackRows(view, rtn, pdRelTpCd) {
   if (rtn.result) {
     if (Array.isArray(rtn.payload) && rtn.payload.length > 1) {
       const data = view.getDataSource();
       const rows = rtn.payload.map((item) => ({
-        ...item, [pdConst.REL_OJ_PD_CD]: item.pdCd, [pdConst.PD_REL_TP_CD]: pdRelTpCd }));
-      await data.insertRows(0, rows);
-    } else if (rtn.payload.payload) {
-      // TODO 삭제 필요
-      const data = view.getDataSource();
-      const rows = rtn.payload.payload.map((item) => ({
-        ...item, [pdConst.REL_OJ_PD_CD]: item.pdCd, [pdConst.PD_REL_TP_CD]: pdRelTpCd }));
-      await data.insertRows(0, rows);
-    } else if (rtn.payload.checkedRows) {
-      // TODO 삭제 필요
-      const data = view.getDataSource();
-      const rows = rtn.payload.checkedRows.map((item) => ({
         ...item, [pdConst.REL_OJ_PD_CD]: item.pdCd, [pdConst.PD_REL_TP_CD]: pdRelTpCd }));
       await data.insertRows(0, rows);
     } else {
@@ -128,49 +131,17 @@ async function onClickProductSchPopup() {
   const view = grdChangePrdRef.value.getView();
   searchParams.value.searchType = productSearchType.value;
   searchParams.value.searchValue = productSearchValue.value;
+  searchParams.value.pdTpCd = pdConst.PD_TP_CD_STANDARD;
   const rtn = await modal({
-    component: 'ZpdcStandardProductListP',
+    component: 'ZwpdcStandardSimpleListP',
     componentProps: searchParams.value,
   });
-  await insertReturnRows(view, rtn, pdConst.PD_REL_TP_CD_CHANGE);
+  await insertCallbackRows(view, rtn, pdConst.PD_REL_TP_CD_CHANGE);
 }
 
 async function onClickProductDelRows() {
   const view = grdChangePrdRef.value.getView();
   await deleteCheckedRows(view);
-}
-
-//-------------------------------------------------------------------------------------------------
-// Initialize Grid
-//-------------------------------------------------------------------------------------------------
-async function initChangePrdGrid(data, view) {
-  const columns = [
-    // 제품분류
-    { fieldName: 'pdClsfNm', header: t('MSG_TXT_PRDT_CLSF'), width: '260' },
-    // 제품명
-    { fieldName: 'pdNm', header: t('MSG_TXT_GOODS_NM'), width: '311' },
-    // 제품코드
-    { fieldName: 'pdCd', header: t('MSG_TXT_PROD_CD'), width: '163', styleName: 'text-center ' },
-    // 자재코드
-    { fieldName: 'sapMatCd', header: t('MSG_TXT_MATI_CODE'), width: '163', styleName: 'text-center ' },
-    // 모델명
-    { fieldName: 'modelNm', header: t('MSG_TXT_MDL_NM'), width: '229' },
-    // 모델NO
-    { fieldName: 'modelNo', header: t('MSG_TXT_PD_MODEL_NO'), width: '187', styleName: 'text-center ' },
-    // 모델색상
-    { fieldName: 'pdColoNm', header: t('MSG_TXT_MODEL_COLOR'), width: '187' },
-  ];
-  const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
-  fields.push({ fieldName: pdConst.REL_PD_ID });
-  fields.push({ fieldName: pdConst.PD_REL_TP_CD });
-  fields.push({ fieldName: pdConst.REL_OJ_PD_CD });
-  data.setFields(fields);
-  view.setColumns(columns);
-
-  view.checkBar.visible = true;
-  view.rowIndicator.visible = false;
-
-  await initGridRows();
 }
 
 async function initGridRows() {
@@ -186,21 +157,6 @@ async function initGridRows() {
   }
 }
 
-async function getSaveData() {
-  const rowValues = gridUtil.getAllRowValues(grdChangePrdRef.value.getView());
-  const rtnValues = { [pdConst.TBL_PD_REL]: rowValues ?? [] };
-  // console.log('WwpdcStandardMgtMRelPrd - getSaveData - rtnValues : ', rtnValues);
-  return rtnValues;
-}
-
-function isModifiedProps() {
-  return true;
-}
-
-function validateProps() {
-  return true;
-}
-
 async function initProps() {
   const { pdCd, initData } = props;
   currentPdCd.value = pdCd;
@@ -212,4 +168,34 @@ await initProps();
 
 watch(() => props.pdCd, () => { initProps(); });
 watch(() => props.initData, () => { initProps(); }, { deep: true });
+
+//-------------------------------------------------------------------------------------------------
+// Initialize Grid
+//-------------------------------------------------------------------------------------------------
+async function initChangePrdGrid(data, view) {
+  const columns = [
+    // 기준상품 분류
+    { fieldName: 'pdClsfNm', header: t('MSG_TXT_PD_STD_TYPE'), width: '371' },
+    // 기준상품명
+    { fieldName: 'pdNm', header: t('MSG_TXT_PD_STD_NAME'), width: '306' },
+    // 기준상품코드
+    { fieldName: 'pdCd', header: t('MSG_TXT_PD_STD_CODE'), width: '185', styleName: 'text-center' },
+    // 판매유형
+    { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '187', styleName: 'text-center' },
+    // 판매기간
+    { fieldName: 'sellDurtion', header: t('MSG_TXT_PRDT_SLE_PRD'), width: '187', styleName: 'text-center' },
+  ];
+  const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
+  fields.push({ fieldName: pdConst.REL_PD_ID });
+  fields.push({ fieldName: pdConst.PD_REL_TP_CD });
+  fields.push({ fieldName: pdConst.REL_OJ_PD_CD });
+  data.setFields(fields);
+  view.setColumns(columns);
+
+  view.checkBar.visible = true;
+  view.rowIndicator.visible = false;
+
+  await initGridRows();
+}
+
 </script>

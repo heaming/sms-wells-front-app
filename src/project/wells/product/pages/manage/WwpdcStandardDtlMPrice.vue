@@ -17,6 +17,7 @@
     <kw-search
       one-row
       :cols="2"
+      class="mt24"
       @search="onClickSearch"
     >
       <kw-search-row>
@@ -122,6 +123,9 @@ async function initProps() {
 
 await initProps();
 
+watch(() => props.pdCd, (val) => { currentPdCd.value = val; });
+watch(() => props.initData, (val) => { currentInitData.value = val; resetInitData(); }, { deep: true });
+
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
@@ -130,7 +134,7 @@ async function initGrid(data, view) {
     // 판매채널
     { fieldName: 'avlChnlId', header: t('MSG_TXT_SEL_CHNL'), width: '178', options: props.codes?.SELL_CHNL_DV_CD },
     // 기준가 적용기간
-    { fieldName: 'stdAppDurtion', header: t('MSG_TXT_STD_APP_PERI'), width: '227', styleName: 'text-center' },
+    { fieldName: 'stdAppDurtion', header: t('MSG_TXT_STD_APP_PERI'), width: '167', styleName: 'text-center' },
     // 기준가코드
     { fieldName: 'pdCd', header: t('MSG_TXT_STD_PRC_CODE'), width: '120' },
     // 판매유형
@@ -160,7 +164,4 @@ async function initGrid(data, view) {
   view.checkBar.visible = false;
   view.rowIndicator.visible = false;
 }
-
-watch(() => props.pdCd, (val) => { currentPdCd.value = val; });
-watch(() => props.initData, (val) => { currentInitData.value = val; resetInitData(); }, { deep: true });
 </script>

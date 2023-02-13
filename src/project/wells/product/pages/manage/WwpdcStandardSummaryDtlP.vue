@@ -177,36 +177,6 @@ const codes = await codeUtil.getMultiCodes(
   'STPL_PRD_CD',
 );
 
-async function fetchData() {
-  const resPd = await dataService.get('/sms/common/product/products', { params: { pdTpCd: pdConst.PD_TP_CD_STANDARD, pdCd: currentPdCd.value } });
-  // console.log('WwpdcStandardSummaryDtlP - fetchData - res : ', res.data);
-  pdInfo.value = resPd.data?.products[0];
-
-  const resRel = await dataService.get(`/sms/common/product/relations/products/${currentPdCd.value}`, { params: { } });
-  pdRels.value = resRel.data;
-
-  const resPrc = await dataService.get('/sms/common/product/prices', { params: { pdTpCd: pdConst.PD_TP_CD_STANDARD, pdCd: currentPdCd.value } });
-  pdPrcs.value = resPrc.data;
-
-  const resCls = await dataService.get('/sms/common/product/classifications', { params: { hgrPdClsfId: '', pdTpCd: pdConst.PD_TP_CD_STANDARD } });
-  codes.clsfCodes = resCls.data?.map((item) => ({ ...item, codeId: item.pdClsfId, codeName: item.pdClsfNm }), []);
-}
-
-async function initProps() {
-  const { pdCd } = props;
-  currentPdCd.value = pdCd;
-  if (currentPdCd.value) {
-    await fetchData();
-  }
-}
-
-await initProps();
-
-watch(() => props.pdCd, () => { initProps(); });
-
-//-------------------------------------------------------------------------------------------------
-// Initialize Grid
-//-------------------------------------------------------------------------------------------------
 async function initGridRows() {
   const products = pdRels.value;
   if (isEmpty(await products)) {
@@ -248,6 +218,36 @@ async function initGridRows() {
   }
 }
 
+async function fetchData() {
+  const resPd = await dataService.get('/sms/common/product/products', { params: { pdTpCd: pdConst.PD_TP_CD_STANDARD, pdCd: currentPdCd.value } });
+  // console.log('WwpdcStandardSummaryDtlP - fetchData - res : ', res.data);
+  pdInfo.value = resPd.data?.products[0];
+
+  const resRel = await dataService.get(`/sms/common/product/relations/products/${currentPdCd.value}`, { params: { } });
+  pdRels.value = resRel.data;
+
+  const resPrc = await dataService.get('/sms/common/product/prices', { params: { pdTpCd: pdConst.PD_TP_CD_STANDARD, pdCd: currentPdCd.value } });
+  pdPrcs.value = resPrc.data;
+
+  const resCls = await dataService.get('/sms/common/product/classifications', { params: { hgrPdClsfId: '', pdTpCd: pdConst.PD_TP_CD_STANDARD } });
+  codes.clsfCodes = resCls.data?.map((item) => ({ ...item, codeId: item.pdClsfId, codeName: item.pdClsfNm }), []);
+}
+
+async function initProps() {
+  const { pdCd } = props;
+  currentPdCd.value = pdCd;
+  if (currentPdCd.value) {
+    await fetchData();
+  }
+}
+
+await initProps();
+
+watch(() => props.pdCd, () => { initProps(); });
+
+//-------------------------------------------------------------------------------------------------
+// Initialize Grid
+//-------------------------------------------------------------------------------------------------
 async function initMaterialGrid(data, view) {
   const columns = [
     // 교재/자재 분류
@@ -372,6 +372,5 @@ async function initGrid(data, view) {
 
   initGridRows();
 }
-
 </script>
 <style scoped></style>

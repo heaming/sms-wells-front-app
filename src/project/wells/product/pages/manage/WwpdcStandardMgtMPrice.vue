@@ -134,16 +134,24 @@ async function getSaveData() {
   const stds = await cmpStdRef.value.getSaveData();
   subList[pdConst.REMOVE_ROWS] = pdMergeBy(subList[pdConst.REMOVE_ROWS], stds[pdConst.REMOVE_ROWS]);
   subList[prcd] = pdMergeBy(subList[prcd], stds?.[prcd], pdConst.PRC_STD_ROW_ID);
+  // console.log('WwpdcStandardMgtMPrice - getSaveData - 1 - subList[prcd] : ', subList[prcd]);
+
   const vals = await cmpValRef.value.getSaveData();
   subList[pdConst.REMOVE_ROWS] = pdMergeBy(subList[pdConst.REMOVE_ROWS], vals[pdConst.REMOVE_ROWS]);
   subList[prcfd] = pdMergeBy(subList[prcfd], vals?.[prcfd], pdConst.PRC_FNL_ROW_ID);
   subList[pdConst.TBL_PD_DSC_PRUM_DTL] = vals?.[pdConst.TBL_PD_DSC_PRUM_DTL];
+  // console.log('WwpdcStandardMgtMPrice - getSaveData - 2 - subList[prcfd] : ', subList[prcfd]);
+
   const fnls = await cmpFnlRef.value.getSaveData();
   subList[pdConst.REMOVE_ROWS] = pdMergeBy(subList[pdConst.REMOVE_ROWS], fnls[pdConst.REMOVE_ROWS]);
-  subList[prcfd] = pdMergeBy(subList[prcfd], fnls?.[prcfd], pdConst.PRC_FNL_ROW_ID, pdConst.PRC_STD_ROW_ID);
+  subList[prcfd] = pdMergeBy(subList[prcfd], fnls?.[prcfd], pdConst.PRC_FNL_ROW_ID);
+  // console.log('WwpdcStandardMgtMPrice - getSaveData - 3 - subList[prcfd] : ', subList[prcfd]);
+
   const fees = await cmpFeeRef.value.getSaveData();
   subList[pdConst.REMOVE_ROWS] = pdMergeBy(subList[pdConst.REMOVE_ROWS], fees[pdConst.REMOVE_ROWS]);
-  subList[prcfd] = pdMergeBy(subList[prcfd], fees?.[prcfd], pdConst.PRC_FNL_ROW_ID, pdConst.PRC_STD_ROW_ID);
+  subList[prcfd] = pdMergeBy(subList[prcfd], fees?.[prcfd], pdConst.PRC_FNL_ROW_ID);
+  // console.log('WwpdcStandardMgtMPrice - getSaveData - 4 - subList[prcfd] : ', subList[prcfd]);
+
   // console.log('WwpdcStandardMgtMPrice - subList : ', subList);
   return subList;
 }
@@ -181,8 +189,29 @@ function isModifiedProps() {
   return true;
 }
 
-function validateProps() {
-  return true;
+async function validateProps() {
+  let isValidOk = true;
+  isValidOk = await cmpStdRef.value.validateProps();
+  if (!isValidOk) {
+    selectedTab.value = selectedTabs.value[0];
+    return isValidOk;
+  }
+  isValidOk = await cmpValRef.value.validateProps();
+  if (!isValidOk) {
+    selectedTab.value = selectedTabs.value[1];
+    return isValidOk;
+  }
+  isValidOk = await cmpFnlRef.value.validateProps();
+  if (!isValidOk) {
+    selectedTab.value = selectedTabs.value[2];
+    return isValidOk;
+  }
+  isValidOk = await cmpFeeRef.value.validateProps();
+  if (!isValidOk) {
+    selectedTab.value = selectedTabs.value[3];
+    return isValidOk;
+  }
+  return isValidOk;
 }
 
 async function fetchData() {
