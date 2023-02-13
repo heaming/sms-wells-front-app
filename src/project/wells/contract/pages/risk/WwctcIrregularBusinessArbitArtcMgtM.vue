@@ -33,7 +33,6 @@
             v-model:from="searchParams.startDate"
             v-model:to="searchParams.endDate"
             :type="isRegistration"
-            rules="date_range_months:1"
           />
         </kw-search-item>
         <kw-search-item :label="$t('MSG_TXT_MANAGEMENT_DEPARTMENT')">
@@ -62,11 +61,7 @@
       <kw-action-top>
         <template #left>
           <kw-paging-info
-            v-model:page-index="pageInfo.pageIndex"
-            v-model:page-size="pageInfo.pageSize"
-            :total-count="pageInfo.totalCount"
-            :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
-            @change="fetchData"
+            :total-count="totalCount"
           />
         </template>
         <kw-btn
@@ -104,7 +99,7 @@
           icon="download_on"
           dense
           secondary
-          :disable="pageInfo.totalCount === 0"
+          :disable="!totalCount"
           :label="$t('MSG_BTN_EXCEL_DOWN')"
           @click="onClickExcelDownload"
         />
@@ -113,7 +108,7 @@
       <kw-grid
         ref="grdMainRef"
         name="grdMain"
-        :visible-rows="pageInfo.pageSize"
+        :visible-rows="totalCount"
         @init="initGrid"
       />
     </div>
@@ -124,13 +119,12 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, defineGrid, getComponentType, gridUtil, useDataService, useGlobal, useMeta } from 'kw-lib';
+import { codeUtil, defineGrid, getComponentType, gridUtil, useDataService, useGlobal } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 
 const { modal, notify } = useGlobal();
 const { t } = useI18n();
 
-const { getConfig } = useMeta();
 const dataService = useDataService();
 
 const prdDivOption = ref([{ codeId: 'Y', codeName: t('MSG_TXT_FST_RGST_DT') },
@@ -149,6 +143,7 @@ const gnrlMngTeamOptions = ref([
 ]);
 
 let cachedParams;
+const totalCount = ref(0);
 const searchParams = ref({
   searchGubun: 'Y',
   startDate: '',
@@ -162,12 +157,6 @@ const searchParams = ref({
 
 });
 
-const pageInfo = ref({
-  totalCount: 0,
-  pageIndex: 1,
-  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
-});
-
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -175,28 +164,28 @@ const pageInfo = ref({
 const grdMainRef = ref(getComponentType('KwGrid'));
 
 const codes = await codeUtil.getMultiCodes(
-  'COD_PAGE_SIZE_OPTIONS',
   'PNTSC_ARBIT_ATC_CD',
   'PNTSC_ARBIT_DEPT_CD',
 );
 
-const isRegistration = computed(() => (searchParams.value.searchGubun === 'Y' ? 'date' : 'month'));
+const isRegistration = computed(() => {
+  searchParams.value.startDate = '';
+  searchParams.value.endDate = '';
+  return searchParams.value.searchGubun === 'Y' ? 'date' : 'month';
+});
 
 async function fetchData() {
-  cachedParams = { ...cachedParams };
   const res = await dataService.get('/sms/wells/contract/risk-audits/irregular-sales-actions/managerial-tasks', { params: cachedParams });
-
-  const { list: arbitrations, pageInfo: pagingResult } = res.data;
-  pageInfo.value = pagingResult;
-
+  totalCount.value = res.data.length;
   const view = grdMainRef.value.getView();
-  view.getDataSource().setRows(arbitrations);
+  view.getDataSource().setRows(res.data);
   view.resetCurrent();
 }
 
 async function onClickSearch() {
-  pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
+  cachedParams.startMonth = cachedParams.startDate;
+  cachedParams.endMonth = cachedParams.endDate;
   await fetchData();
 }
 
@@ -205,11 +194,9 @@ async function onClickRemove() {
   if (!await gridUtil.confirmIfIsModified(view)) { return; }
   const deletedRows = await gridUtil.confirmDeleteCheckedRows(view);
 
-  // deleteKeys needs to be updated as per API
-  const deleteKeys = deletedRows.map((row) => row.dataRow);
-
-  if (deleteKeys.length) {
-    await dataService.delete('/sms/wells/contract/risk-audits/irregular-sales-actions/managerial-tasks', { data: deleteKeys });
+  const dangChkIds = deletedRows.map((row) => row.dangChkId.toString());
+  if (dangChkIds.length) {
+    await dataService.delete('/sms/wells/contract/risk-audits/irregular-sales-actions/managerial-tasks', { params: { dangChkIds } });
     await fetchData();
   }
 }
@@ -229,7 +216,6 @@ async function onClickSave() {
 async function onClickAdd() {
   const view = grdMainRef.value.getView();
   await gridUtil.insertRowAndFocus(view, 0, {});
-  view.showEditor();
 }
 
 async function onClickExcelDownload() {
@@ -276,6 +262,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'dangOcStrtdt',
       header: t('MSG_TXT_YEAR_OCCURNCE'),
       width: '165',
+      datetimeFormat: 'date',
       editor: {
         type: 'btdate',
       } },
