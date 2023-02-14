@@ -17,7 +17,7 @@
   <kw-action-top>
     <template #left>
       <!--관계구분 선택-->
-      <span class="kw-fc--black1">{{ $t('MSG_TXT_RELATION_CLSF') }} {{ $t('MSG_TXT_SEL') }}</span>
+      <span class="kw-fc--black1">{{ $t('MSG_TXT_RELATION_CLSF') }} {{ $t('MSG_TXT_SELT') }}</span>
       <kw-select
         v-model="searchParams.pdRelTpCd"
         dense
@@ -168,8 +168,8 @@ const columns = [
   { fieldName: 'pdRelTpCd', header: t('MSG_TXT_RELATION_CLSF'), width: '106', styleName: 'text-center', options: codes.PD_REL_TP_CD }, /* 관계구분 */
   { fieldName: 'pdClsfNm', header: t('MSG_TXT_CLSF'), width: '176', styleName: 'text-left' }, /* 분류 */
   { fieldName: 'pdNm', header: t('MSG_TIT_MATERIAL_NM'), width: '382', styleName: 'text-left' }, /* 교재/자재명 */
-  { fieldName: 'sapPdctSclsrtStrcVal', header: t('MSG_TXT_MATI_CODE'), width: '121' }, /* 자재코드 교재/제재코드 */
-  { fieldName: 'modelNo', header: t('MSG_TXT_MODEL_NO'), width: '152', styleName: 'text-center' }, /* 모델No */
+  { fieldName: 'sapPdctSclsrtStrcVal', header: t('MSG_TXT_MATI_CD'), width: '121' }, /* 자재코드 교재/제재코드 */
+  { fieldName: 'modelNo', header: t('MSG_TXT_PD_MODEL_NO'), width: '152', styleName: 'text-center' }, /* 모델No */
   { fieldName: 'pdAbbrNm', header: t('MSG_TXT_ABBR'), width: '226', styleName: 'text-left' }, /* 약어 */
   { fieldName: 'ostrCnrCd', header: t('MSG_TIT_SHIPPING_CENTER'), width: '214', styleName: 'text-left' }, /* 출고센터 */
   { fieldName: 'pdTpCd', header: t('MSG_TIT_PRDT_TYPE'), width: '214', visible: false }, /* 상품종류 */

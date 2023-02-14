@@ -37,7 +37,7 @@
                 <!-- 기준속성 -->
                 <kw-tab
                   name="attribute"
-                  :label="$t('MSG_TXT_ATTRIBUTE')"
+                  :label="$t('MSG_TXT_BAS_ATTR')"
                 />
                 <!-- 확장속성 -->
                 <kw-tab
