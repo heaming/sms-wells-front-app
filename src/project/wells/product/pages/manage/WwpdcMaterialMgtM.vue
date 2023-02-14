@@ -89,12 +89,12 @@
               >
                 <kw-tab
                   name="attribute"
-                  :label="$t('MSG_TXT_ATTRIBUTE')"
+                  :label="$t('MSG_TXT_BAS_ATTR')"
                 />
                 <!-- 연결상품 -->
                 <kw-tab
                   name="relation"
-                  :label="$t('MSG_TXT_RLTN_PRDT')"
+                  :label="$t('MSG_TXT_REL_PRDT')"
                 />
                 <kw-tab
                   name="attributeExtr"
@@ -189,7 +189,7 @@
             <kw-btn
               v-show="currentStep.step === regSteps.length"
               v-permission:update
-              :label="$t('MSG_BTN_SVE')"
+              :label="$t('MSG_BTN_SAVE')"
               class="ml8"
               primary
               @click="onClickSave('N')"

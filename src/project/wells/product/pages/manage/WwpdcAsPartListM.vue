@@ -246,10 +246,10 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'pdClsfNm', header: t('MSG_TXT_CLSF'), width: '176' }, /* 분류 */
     { fieldName: 'pdNm', header: t('MSG_TIT_AS_PART_NM'), width: '195' }, /* 교재/자재명 */
     { fieldName: 'pdCd', header: t('MSG_TIT_AS_PART_CD'), width: '100', styleName: 'rg-button-link', renderer: { type: 'button' }, preventCellItemFocus: true }, /* 제품코드 */
-    { fieldName: 'sapMatCd', header: t('MSG_TXT_MATI_CODE'), width: '195' }, /* 자재코드 */
+    { fieldName: 'sapMatCd', header: t('MSG_TXT_MATI_CD'), width: '195' }, /* 자재코드 */
     { fieldName: 'pdAbbrNm', header: t('MSG_TXT_ABBR'), width: '195' }, /* 약어 */
     // 사용자 관련 공통 컬럼
-    { fieldName: 'fstRgstDtm', header: t('MSG_TXT_FST_RGST_DTM'), width: '110', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date' }, /* 등록일 */
+    { fieldName: 'fstRgstDtm', header: t('MSG_TXT_RGST_DTM'), width: '110', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date' }, /* 등록일 */
     { fieldName: 'fstRgstUsrNm', header: t('MSG_TXT_RGST_USR'), width: '80', styleName: 'rg-button-link text-center', renderer: { type: 'button' }, preventCellItemFocus: true }, /* 등록자 */
     { fieldName: 'fstRgstUsrId', header: 'RGST_ID', width: '50', visible: false },
     { fieldName: 'fnlMdfcDtm', header: t('MSG_TXT_FNL_MDFC_DTM'), width: '110', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date' }, /* 최종수정일 */

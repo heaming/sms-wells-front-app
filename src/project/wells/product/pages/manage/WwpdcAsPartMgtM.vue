@@ -73,7 +73,7 @@
               >
                 <kw-tab
                   name="attribute"
-                  :label="$t('MSG_TXT_ATTRIBUTE')"
+                  :label="$t('MSG_TXT_BAS_ATTR')"
                 />
                 <kw-tab
                   name="attributeExtr"
@@ -160,7 +160,7 @@
             <kw-btn
               v-show="currentStep.step === regSteps.length"
               v-permission:update
-              :label="$t('MSG_BTN_SVE')"
+              :label="$t('MSG_BTN_SAVE')"
               class="ml8"
               primary
               @click="onClickSave('N')"

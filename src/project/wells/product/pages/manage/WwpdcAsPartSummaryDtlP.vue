@@ -44,7 +44,7 @@
           <p>{{ pdBas.pdClsfNm }} </p>
         </kw-form-item>
         <!-- 자재코드 -->
-        <kw-form-item :label="$t('MSG_TXT_MATI_CODE')">
+        <kw-form-item :label="$t('MSG_TXT_MATI_CD')">
           <p>{{ pdBas.sapMatCd }}</p>
         </kw-form-item>
       </kw-form-row>
