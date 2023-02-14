@@ -141,7 +141,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { gridUtil, useDataService, getComponentType, useGlobal, useMeta } from 'kw-lib';
+import { gridUtil, useDataService, getComponentType, useGlobal, useMeta, codeUtil } from 'kw-lib';
 
 const { t } = useI18n();
 const { notify, modal } = useGlobal();
@@ -153,6 +153,10 @@ const { getConfig } = useMeta();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
+
+const codes = await codeUtil.getMultiCodes(
+  'USE_YN',
+);
 
 const searchParams = ref({
   baseDt: '',
@@ -167,8 +171,21 @@ const pageInfo = ref({
 });
 
 const approvalClassificationList = ref([]);
+const purchaseClassificationList = ref([
+  { codeName: '전체', codeId: 'A' },
+  { codeName: '영업부', codeId: '7' },
+  { codeName: '직원판매', codeId: '8' },
+  { codeName: '직원구매', codeId: '9' },
+]);
 
-// TODO Uncomment when Api starts working
+const picClassificationList = ref([
+  { codeName: '담당구분', codeId: '0' },
+  { codeName: '지정사번', codeId: '1' },
+  { codeName: 'BM', codeId: '2' },
+  { codeName: '업무담당', codeId: '3' },
+  { codeName: '지역단장', codeId: '4' },
+]);
+
 // onMounted(async () => {
 //   approvalClassificationList.value = await dataService.get('/sms/wells/contract/contracts/approval-requests');
 // });
@@ -182,19 +199,8 @@ function onClickAdd() {
 async function fetchData() {
   const view = grdMainRef.value.getView();
   // TODO uncomment api and replace dummy data by res.data.
-  // const res = await dataService.get('sms/wells/contract/cnfm-apr-base-mngts/paging');
-  view.getDataSource().setRows([
-    { col1: 'A-전체', col2: ' ', col3: '0-담당없음', col4: '사번입력', col5: ' ', col6: '2022-05-03', col7: '2022-05-03', col8: 'Y' },
-    { col1: '9-직원구매', col2: 'ETC', col3: '1-지정사번', col4: '123456', col5: '김직원', col6: '20220520', col7: '20220520', col8: 'N' },
-    { col1: '9-직원구매', col2: 'ETC', col3: '1-지정사번', col4: '123456', col5: '김직원', col6: '20220520', col7: '20220520', col8: 'N' },
-    { col1: '9-직원구매', col2: 'ETC', col3: '1-지정사번', col4: '123456', col5: '김직원', col6: '20220520', col7: '20220520', col8: 'N' },
-    { col1: '9-직원구매', col2: 'ETC', col3: '1-지정사번', col4: '123456', col5: '김직원', col6: '20220520', col7: '20220520', col8: 'N' },
-    { col1: '9-직원구매', col2: 'ETC', col3: '1-지정사번', col4: '123456', col5: '김직원', col6: '20220520', col7: '20220520', col8: 'N' },
-    { col1: '9-직원구매', col2: 'ETC', col3: '1-지정사번', col4: '123456', col5: '김직원', col6: '20220520', col7: '20220520', col8: 'N' },
-    { col1: '9-직원구매', col2: 'ETC', col3: '1-지정사번', col4: '123456', col5: '김직원', col6: '20220520', col7: '20220520', col8: 'N' },
-    { col1: '9-직원구매', col2: 'ETC', col3: '1-지정사번', col4: '123456', col5: '김직원', col6: '20220520', col7: '20220520', col8: 'N' },
-    { col1: '9-직원구매', col2: 'ETC', col3: '1-지정사번', col4: '123456', col5: '김직원', col6: '20220520', col7: '20220520', col8: 'N' },
-  ]);
+  const res = await dataService.get('sms/wells/contract/contracts/approval-standards/paging');
+  view.getDataSource().setRows(res.data.list);
   pageInfo.value.totalCount = 10;
 }
 
@@ -204,16 +210,23 @@ async function onClickSave() {
   if (!gridUtil.validate(view, {})) { return; }
   notify('Data saved');
   const changedRows = gridUtil.getChangedRowValues(view);
-  await dataService.post('sms/wells/contract/cnfm-apr-base-mngts', changedRows);
+  changedRows.map((ele) => {
+    ele.dtaDlYn = 'N';
+    ele.checkType = 'A';
+    return ele;
+  });
+  await dataService.post('sms/wells/contract/contracts/approval-standards', changedRows);
   fetchData();
 }
 
 async function onClickExcelDownload() {
-  const view = await dataService.get('sms/wells/contract/cnfm-apr-base-mngts/excel-download');
+  const view = grdMainRef.value.getView();
+  const res = await dataService.get('sms/wells/contract/contracts/approval-standards/excel-download');
 
   await gridUtil.exportView(view, {
-    fileName: 'postApprovalList',
+    fileName: 'approvalConfirmationList',
     timePostfix: true,
+    exportData: res.data,
   });
 }
 
@@ -234,9 +247,9 @@ async function onClickRemove() {
   const view = grdMainRef.value.getView();
   if (!await gridUtil.confirmIfIsModified(view)) { return; }
   const deletedRows = await gridUtil.confirmDeleteCheckedRows(view);
-
+  console.log(deletedRows);
   if (deletedRows.length > 0) {
-    await dataService.delete('sms/wells/contract/cnfm-apr-base-mngts', deletedRows);
+    await dataService.delete('sms/wells/contract/contracts/approval-standards', deletedRows);
     fetchData();
   }
 }
@@ -251,25 +264,28 @@ function onClickSearch() {
 // -------------------------------------------------------------------------------------------------
 function initGrid(data, view) {
   const fields = [
-    { fieldName: 'col1' },
-    { fieldName: 'col2' },
-    { fieldName: 'col3' },
-    { fieldName: 'col4' },
-    { fieldName: 'col5' },
-    { fieldName: 'col6' },
-    { fieldName: 'col7' },
-    { fieldName: 'col8' },
+    { fieldName: 'cntrAprAkDvCd' },
+    { fieldName: 'cntrAprSellDvCd' },
+    { fieldName: 'cntrAprChnlDvVal' },
+    { fieldName: 'cntrAprIchrDvCd' },
+    { fieldName: 'ichrUsrId' },
+    { fieldName: 'psicNm' },
+    { fieldName: 'vlStrtDtm' },
+    { fieldName: 'vlEndDtm' },
+    { fieldName: 'notyFwOjYn' },
+    { fieldName: 'dtaDlYn' },
   ];
 
   const columns = [
-    { fieldName: 'col1', header: t('MSG_TXT_APR_REQ_CAT'), width: '142', styleName: 'text-center', editable: false },
-    { fieldName: 'col2', header: t('MSG_TXT_RSPBL_CHNL'), width: '180', styleName: 'text-center', editor: { type: 'text' }, editable: true },
-    { fieldName: 'col3', header: t('MSG_TXT_ICHR_DV'), width: '142', styleName: 'text-center', editor: { type: 'text' } },
-    { fieldName: 'col4', header: t('MSG_TXT_CNT_PER'), width: '180', styleName: 'text-center', editor: { type: 'text' } },
-    { fieldName: 'col5', header: t('MSG_TXT_PIC_NM'), width: '180', styleName: 'text-center', editor: { type: 'text' } },
-    { fieldName: 'col6', header: t('MSG_TXT_STRT_DT'), width: '196', styleName: 'text-center', datetimeFormat: 'date', editor: { type: 'btdate' } },
-    { fieldName: 'col7', header: t('MSG_TXT_END_DT'), width: '196', styleName: 'text-center', datetimeFormat: 'date', editor: { type: 'btdate' } },
-    { fieldName: 'col8', header: t('MSG_TXT_K_TLK_MAIL_TAR'), width: '142', styleName: 'text-center' },
+    { fieldName: 'cntrAprAkDvCd', header: t('MSG_TXT_APR_REQ_CAT'), width: '142', styleName: 'text-center', editable: false },
+    { fieldName: 'cntrAprSellDvCd', header: t('MSG_TXT_SLS_CAT'), width: '142', styleName: 'text-center', editor: { type: 'list' }, options: purchaseClassificationList.value },
+    { fieldName: 'cntrAprChnlDvVal', header: t('MSG_TXT_RSPBL_CHNL'), width: '180', styleName: 'text-center', editor: { type: 'text' }, editable: true },
+    { fieldName: 'cntrAprIchrDvCd', header: t('MSG_TXT_ICHR_DV'), width: '142', styleName: 'text-center', editor: { type: 'list' }, options: picClassificationList.value },
+    { fieldName: 'ichrUsrId', header: t('MSG_TXT_CNT_PER'), width: '180', styleName: 'text-center', editor: { type: 'text' } },
+    { fieldName: 'psicNm', header: t('MSG_TXT_PIC_NM'), width: '180', styleName: 'text-center', editor: { type: 'text' } },
+    { fieldName: 'vlStrtDtm', header: t('MSG_TXT_STRT_DT'), width: '196', styleName: 'text-center', datetimeFormat: 'date', editor: { type: 'btdate' } },
+    { fieldName: 'vlEndDtm', header: t('MSG_TXT_END_DT'), width: '196', styleName: 'text-center', datetimeFormat: 'date', editor: { type: 'btdate' } },
+    { fieldName: 'notyFwOjYn', header: t('MSG_TXT_K_TLK_MAIL_TAR'), width: '142', styleName: 'text-center', editor: { type: 'list' }, options: codes.USE_YN },
   ];
 
   data.setFields(fields);

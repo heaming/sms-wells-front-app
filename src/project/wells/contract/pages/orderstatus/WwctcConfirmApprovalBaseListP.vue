@@ -66,10 +66,12 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { defineGrid, gridUtil, getComponentType, useDataService } from 'kw-lib';
+import dayjs from 'dayjs';
 
 const dataService = useDataService();
 
 const { t } = useI18n();
+const now = dayjs();
 
 const grdConfirmRef = ref(getComponentType('KwGrid'));
 
@@ -78,8 +80,12 @@ const grdConfirmRef = ref(getComponentType('KwGrid'));
 // -------------------------------------------------------------------------------------------------
 onMounted(async () => {
   const view = grdConfirmRef.value.getView();
-  // const res = await dataService.get('sms/wells/contract/cnfm-apr-bases');
-  // data.setRows(res.data);
+  const res = await dataService.get('/sms/wells/contract/contracts/approval-request-standards', {
+    params: {
+      standardDt: now.format('YYYYMMDD'),
+    },
+  });
+  view.getDataSource().setRows(res.data);
   view.getDataSource().setRows([
     { col1: '9-직원구매', col2: '%s 플래너로부터 %s에 대한 승인 요청이 접수되었습니다.\n주문번호:%s', col3: '%s 플래너로부터 %s에 대한 승인 요청이 접수되었습니다.\n주문번호:%s', col4: '%s 플래너로부터 %s에 대한 승인 요청이 접수되었습니다.\n주문번호:%s', col5: '20220220', col6: '20220220' },
     { col1: '9-직원구매', col2: '%s 플래너로부터 %s에 대한 승인 요청이 접수되었습니다.\n주문번호:%s', col3: '%s 플래너로부터 %s에 대한 승인 요청이 접수되었습니다.\n주문번호:%s', col4: '%s 플래너로부터 %s에 대한 승인 요청이 접수되었습니다.\n주문번호:%s', col5: '20220220', col6: '20220220' },
