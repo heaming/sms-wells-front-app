@@ -13,7 +13,7 @@
 ****************************************************************************************************
 --->
 <template>
-  <kw-page class="kw-page--md">
+  <kw-page>
     <wwpdc-standard-dtl-m-contents
       v-model:pd-cd="currentPdCd"
       v-model:init-data="initData"
@@ -79,7 +79,7 @@ async function fetchProduct() {
   initData.value[prcd] = res.data[prcd];
   initData.value[prcfd] = res.data[prcfd];
   initData.value[prumd] = res.data[prumd];
-  // console.log('res.data : ', res.data);
+  console.log('WwpdcStandardDtlM - fetchProduct - initData.value : ', initData.value);
   prdPropGroups.value = res.data.groupCodes;
 }
 
