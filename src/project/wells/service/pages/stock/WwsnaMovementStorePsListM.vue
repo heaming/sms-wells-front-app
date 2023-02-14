@@ -3,13 +3,13 @@
  * 프로그램 개요
  ****************************************************************************************************
  1. 모듈 : SNA (재고관리)
- 2. 프로그램 ID : W-SV-U-0109M01 - 이동입고 현황
+ 2. 프로그램 ID : WwsnaMovementStorePsListM(W-SV-U-0109M01) - 이동입고 현황
  3. 작성자 : songTaeSung
  4. 작성일 : 2023.02.11
  ****************************************************************************************************
  * 프로그램 설명
  ****************************************************************************************************
- - 기타출고등록 관리 (http://localhost:3000/#/service/wwsna-movement-store-ps-list)
+ - 이동입고현황 관리 (http://localhost:3000/#/service/wwsna-movement-store-ps-list)
  ****************************************************************************************************
 --->
 
@@ -25,8 +25,6 @@
           <kw-select
             v-model="searchParams.strOjWareNo"
             :options="warehouses"
-            option-label="codeName"
-            option-value="code"
           />
         </kw-search-item>
         <kw-search-item
@@ -57,10 +55,10 @@
           v-model:ware-no-m="searchParams.ostrWareNoM"
           v-model:ware-no-d="searchParams.ostrWareNoD"
           :colspan="2"
-          label1="출고기간"
+          :label1="$t('MSG_TXT_STR_DT')"
           :label2="$t('MSG_TXT_OSTR_WARE')"
-          label3="창고"
-          label4="창고"
+          :label3="$t('MSG_TXT_HGR_WARE')"
+          :label4="$t('MSG_TXT_WARE')"
         />
       </kw-search-row>
     </kw-search>
@@ -152,6 +150,7 @@ searchParams.value.stStrDt = dayjs().format('YYYYMMDD');
 searchParams.value.edStrDt = dayjs().format('YYYYMMDD');
 
 let cachedParams;
+
 async function fetchData() {
   console.log(cachedParams);
   const res = await dataService.get('/sms/wells/service/movement-store-pss', { params: cachedParams });
@@ -180,10 +179,12 @@ async function onClickSearch() {
 }
 
 const warehouses = ref();
+
 async function fetchDefaultData() {
   const res = await dataService.get('/sms/wells/service/out-of-storage-asks/warehouses', { params: wharehouseParams.value });
   warehouses.value = res.data;
-  searchParams.value.strOjWareNo = warehouses.value[0].code;
+  searchParams.value.strOjWareNo = warehouses.value[0].codeId;
+  console.log(searchParams.value.strOjWareNo);
 }
 
 onMounted(async () => {
