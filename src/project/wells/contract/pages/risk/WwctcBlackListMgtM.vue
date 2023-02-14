@@ -136,7 +136,6 @@
           <kw-pagination
             v-model:page-index="pageInfo.pageIndex"
             v-model:page-size="pageInfo.pageSize"
-            :model-value="1"
             :total-count="pageInfo.totalCount"
             @change="fetchData"
           />
@@ -223,7 +222,6 @@ let cachedParams;
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
   const response = await dataService.get('/sms/wells/contract/incomplete-sales/excel-download', { params: cachedParams });
-  console.log(response);
   await gridUtil.exportView(view, {
     fileName: 'incompleteSalesManageList',
     timePostfix: true,
