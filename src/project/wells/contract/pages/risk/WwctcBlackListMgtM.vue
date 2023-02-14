@@ -225,9 +225,10 @@ let cachedParams;
 
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
-  const response = await dataService.get('/sms/wells/contract/blacklists/excel-download', { params: cachedParams });
+  const response = await dataService.get('/sms/wells/contract/incomplete-sales/excel-download', { params: cachedParams });
+  console.log(response);
   await gridUtil.exportView(view, {
-    fileName: 'dataServiceManageList',
+    fileName: 'incompleteSalesManageList',
     timePostfix: true,
     exportData: response.data,
   });
