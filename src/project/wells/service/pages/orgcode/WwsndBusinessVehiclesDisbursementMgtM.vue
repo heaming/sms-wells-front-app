@@ -14,13 +14,8 @@
 --->
 <template>
   <kw-page>
-    <!-- <template #header>
-      <kw-page-header :options="['홈','조직관리','부가정보관리','업무차량 지급관리']" />
-    </template> -->
-
     <kw-search
       :cols="4"
-      :modified-targets="['grdMain']"
       @search="onClickSearch"
     >
       <kw-search-row>
@@ -287,7 +282,7 @@ const initGrdMain = defineGrid((data, view) => {
       const { ogCd, vhcMngtNo, vchMngtSn, prtnrNo } = gridUtil.getRowValue(grid, grid.getCurrent().dataRow);
 
       const { result } = await modal({
-        component: 'WwsndVehiclesDisbursementRgstRegP',
+        component: 'WwsndVehiclesDisbursementRegP',
         componentProps: { ogCd, vhcMngtNo, vchMngtSn, prtnrNo },
       });
 
