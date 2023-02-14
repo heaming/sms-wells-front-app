@@ -30,22 +30,20 @@
           />
         </kw-search-item>
         <!-- 입고창고 -->
-        <kw-search-item
-          :label="$t('MSG_TXT_STR_WARE')"
+        <ZwcmWareHouseSearch
+          v-model:start-ym="searchParams.stStrDt"
+          v-model:end-ym="searchParams.edStrDt"
+          v-model:options-ware-dv-cd="strWareDvCd"
+          v-model:ware-dv-cd="searchParams.strWareDvCd"
+          v-model:ware-no-m="searchParams.strWareNoM"
+          v-model:ware-no-d="searchParams.strWareNoD"
+          first-option="all"
           :colspan="2"
-        >
-          <kw-select
-            :options="wareDvCd"
-            first-option="all"
-            class="w150"
-          /> <kw-select
-            :model-value="[]"
-            :options="['A', 'B', 'C', 'D']"
-          /> <kw-select
-            :model-value="['1','2']"
-            :options="['조직창고', '개인창고']"
-          />
-        </kw-search-item>
+          label1="출고기간"
+          label2="입고창고"
+          label3="창고"
+          label4="창고"
+        />
       </kw-search-row>
       <kw-search-row>
         <!-- 입고유형 -->
@@ -57,24 +55,19 @@
           />
         </kw-search-item>
         <!-- 출고창고 -->
-        <kw-search-item
-          :label="$t('MSG_TXT_OSTR_WARE')"
+        <ZwcmWareHouseSearch
+          v-model:start-ym="searchParams.stStrDt"
+          v-model:end-ym="searchParams.edStrDt"
+          v-model:options-ware-dv-cd="ostrWareDvCd"
+          v-model:ware-dv-cd="searchParams.ostrWareDvCd"
+          v-model:ware-no-m="searchParams.ostrWareNoM"
+          v-model:ware-no-d="searchParams.ostrWareNoD"
           :colspan="2"
-        >
-          <!-- 출고창고구분 -->
-          <kw-select
-            v-model="searchParams.ostrWareDvCd"
-            :options="codes.WARE_DV_CD"
-            first-option="all"
-            class="w150"
-          /> <kw-select
-            :model-value="[]"
-            :options="['A', 'B', 'C', 'D']"
-          /> <kw-select
-            :model-value="[]"
-            :options="['A', 'B', 'C', 'D']"
-          />
-        </kw-search-item>
+          label1="출고기간"
+          label2="출고창고"
+          label3="창고"
+          label4="창고"
+        />
       </kw-search-row>
       <!-- 등급 -->
       <kw-search-row>
@@ -151,9 +144,9 @@
 
 // import { codeUtil, getComponentType, useDataService, defineGrid } from 'kw-lib';
 import { codeUtil, getComponentType, defineGrid, useDataService, gridUtil } from 'kw-lib';
-
 import dayjs from 'dayjs';
 import { cloneDeep } from 'lodash-es';
+import ZwcmWareHouseSearch from '~sms-common/service/components/ZwsnzWareHouseSearch.vue';
 
 const grdMainRef = ref(getComponentType('KwGrid'));
 
@@ -169,8 +162,12 @@ const searchParams = ref({
   stStrDt: '',
   edStrDt: '',
   strTpCd: '',
-  wareDvCd: '',
-  ostrWareDvCd: '',
+  strWareDvCd: '2',
+  strWareNoD: '',
+  strWareNoM: '',
+  ostrWareDvCd: '1',
+  ostrWareNoD: '',
+  ostrWareNoM: '',
   pgGdCd: '',
   itmKndCd: '',
   useYn: '',
@@ -184,9 +181,13 @@ const codes = await codeUtil.getMultiCodes(
   'USE_YN',
 );
 
-const wareDvCd = codes.WARE_DV_CD.filter((v) => v.codeId !== '1');
+// const wareDvCd = codes.WARE_DV_CD.filter((v) => v.codeId !== '1');
+const strWareDvCd = { WARE_DV_CD: [
+  { codeId: '2', codeName: '서비스센터' },
+  { codeId: '3', codeName: '영업센터' },
+] };
 
-console.log(wareDvCd);
+console.log(strWareDvCd);
 
 const totalCount = ref(0);
 
@@ -217,6 +218,7 @@ async function onClickExcelDownload() {
 
 async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
+  console.log(searchParams.value);
   await fetchData();
 }
 
