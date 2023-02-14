@@ -142,14 +142,10 @@
           />
           <kw-action-bottom>
             <kw-btn
-              label="수정"
+              :label="$t('MSG_BTN_DEL')"
               grid-action
               dense
-            />
-            <kw-btn
-              label="삭제"
-              grid-action
-              dense
+              @click="onClickDelete"
             />
             <kw-separator
               vertical
@@ -157,8 +153,9 @@
               spaced
             />
             <kw-btn
-              label="해제취소"
+              :label="$t('MSG_BTN_SAVE')"
               grid-action
+              @click="onClickSave"
             />
           </kw-action-bottom>
         </div>
@@ -196,7 +193,7 @@ const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
 );
 
-const postCodeOptions = ref([{ codeId: 1, codeName: '주소' }, { codeId: 2, codeName: '우편번호' }]);
+const postCodeOptions = ref([{ codeId: 1, codeName: t('MSG_TXT_ADDR') }, { codeId: 2, codeName: t('MSG_TXT_ZIP') }]);
 
 const pageInfo = ref({
   totalCount: 0,
@@ -348,13 +345,13 @@ const initGrid = defineGrid(async (data, view) => {
   ];
 
   data.setFields(fields);
-  await view.setColumns(columns);
+  view.setColumns(columns);
   view.checkBar.visible = true; // create checkbox column
   view.editOptions.editable = true;
   view.rowIndicator.visible = true; // create number indicator column
 
   // multi row header setting
-  await view.setColumnLayout([
+  view.setColumnLayout([
     'sellTpCd', 'cntrCstNo', 'sellLmRsonCn', 'sellLmCntrNo', 'dtaDlYn', // single
     {
       header: t('MSG_TXT_CNTR_INF'), // colspan title
