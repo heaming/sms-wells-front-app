@@ -146,7 +146,7 @@ async function fetchData() {
   pdRel.value = res.data[pdConst.TBL_PD_REL];
   PdEcomPrpDtl.value = res.data[pdConst.TBL_PD_ECOM_PRP_DTL];
   // 관리속성 - 판매제품
-  PDCT.value = PdEcomPrpDtl.value[1];
+  PDCT.value = PdEcomPrpDtl.value.find((element) => element.pdExtsPrpGrpCd === 'PDCT');
   pdColoNm.value = PDCT.value.pdPrpVal02 ?? '';
 }
 
