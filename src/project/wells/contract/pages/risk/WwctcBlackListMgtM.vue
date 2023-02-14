@@ -133,6 +133,13 @@
             :visible-rows="10"
             @init="initGrid"
           />
+          <kw-pagination
+            v-model:page-index="pageInfo.pageIndex"
+            v-model:page-size="pageInfo.pageSize"
+            :model-value="1"
+            :total-count="pageInfo.totalCount"
+            @change="fetchData"
+          />
           <kw-action-bottom>
             <kw-btn
               label="수정"
@@ -244,7 +251,6 @@ async function fetchData() {
 
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(partners);
-  // view.resetCurrent();
 }
 
 async function onClickSearch() {
@@ -260,7 +266,8 @@ async function onClickSave() {
   if (!gridUtil.validate(view)) { return; }
 
   const changedRows = gridUtil.getChangedRowValues(view);
-  await dataService.post('/sms/wells/contract/blacklists', changedRows);
+  changedRows[0].sellLmCntrSn = 1;
+  await dataService.post('/sms/wells/contract/sales-limits/blacklists', changedRows);
 
   notify(t('MSG_ALT_SAVE_DATA'));
   await fetchData();
@@ -317,7 +324,7 @@ const initGrid = defineGrid(async (data, view) => {
     { fieldName: 'cntrCstNo', header: t('MSG_TXT_CST_NO'), width: '180' },
     { fieldName: 'sellLmRsonCn', header: t('MSG_TXT_REASON'), width: '239' },
     { fieldName: 'sellLmCntrNo', header: t('MSG_TXT_KWK'), width: '180' },
-    { fieldName: 'dtaDlYn', header: 'Status', width: '126', styleName: 'text-center' },
+    { fieldName: 'dtaDlYn', header: t('MSG_TXT_ACC_STATUS'), width: '126', styleName: 'text-center' },
     { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '180' },
     { fieldName: 'bryyMmdd', header: t('MSG_TXT_BRYY_MMDD_ENTRP_NO'), width: '180' },
     { fieldName: 'cntrCralLocaraTno', header: t('MSG_TXT_MPNO'), width: '180' },
