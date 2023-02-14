@@ -153,7 +153,7 @@ let cachedParams;
 
 async function fetchData() {
   console.log(cachedParams);
-  const res = await dataService.get('/sms/wells/service/movement-store-pss', { params: cachedParams });
+  const res = await dataService.get('/sms/wells/service/movement-stores', { params: cachedParams });
   const moveMentItem = res.data;
   totalCount.value = moveMentItem.length;
   const view = grdMainRef.value.getView();
@@ -164,7 +164,7 @@ async function fetchData() {
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
 
-  const response = await dataService.get('/sms/wells/service/movement-store-pss/excel-download', { params: cachedParams });
+  const response = await dataService.get('/sms/wells/service/movement-stores/excel-download', { params: cachedParams });
 
   await gridUtil.exportView(view, {
     fileName: 'MovementStorePssList',
@@ -184,7 +184,6 @@ async function fetchDefaultData() {
   const res = await dataService.get('/sms/wells/service/out-of-storage-asks/warehouses', { params: wharehouseParams.value });
   warehouses.value = res.data;
   searchParams.value.strOjWareNo = warehouses.value[0].codeId;
-  console.log(searchParams.value.strOjWareNo);
 }
 
 onMounted(async () => {

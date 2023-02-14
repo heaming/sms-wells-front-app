@@ -37,12 +37,12 @@
                 <!-- 기준속성 -->
                 <kw-tab
                   name="attribute"
-                  :label="$t('MSG_TXT_ATTRIBUTE')"
+                  :label="$t('MSG_TXT_BAS_ATTR')"
                 />
                 <!-- 연결상품 (Wells 특화) -->
                 <kw-tab
                   name="relation"
-                  :label="t('MSG_TXT_RLTN_PRDT')"
+                  :label="t('MSG_TXT_REL_PRDT')"
                 />
                 <!-- 확장속성 -->
                 <kw-tab
