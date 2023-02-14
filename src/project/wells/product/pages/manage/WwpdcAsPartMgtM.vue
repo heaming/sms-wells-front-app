@@ -3,13 +3,13 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : 상품 - 상품운영관리(PDC)
-2. 프로그램 ID : WwpdcMaterialMgtM - 교재/자재 등록/변경
+2. 프로그램 ID : WwpdcAsPartMgtM - AS부품 등록/변경
 3. 작성자 : junho.bae
 4. 작성일 : 2022.AA.BB
 ****************************************************************************************************
 * 프로그램 설명
 ****************************************************************************************************
-- 상품 >> 교재/자재 등록/변경 프로그램 (Outer Frame Page)
+- 상품 >> AS부품 등록/변경 프로그램 (Outer Frame Page)
 ****************************************************************************************************
 -TODO :
 --->
@@ -28,23 +28,17 @@
               :title="$t('MSG_TXT_BAS_ATTR_REG')"
               :prefix="regSteps[0].step"
             />
-            <!-- 2.연결상품 선택 -->
-            <kw-step
-              :name="regSteps[1].name"
-              :title="$t('MSG_TXT_REL_PRDT_SEL')"
-              :prefix="regSteps[1].step"
-            />
             <!-- 3.관리속성 등록 -->
             <kw-step
-              :name="regSteps[2].name"
+              :name="regSteps[1].name"
               :title="$t('MSG_TXT_MGT_ATTR_REG')"
-              :prefix="regSteps[2].step"
+              :prefix="regSteps[1].step"
             />
             <!-- 4.등록정보 확인 -->
             <kw-step
-              :name="regSteps[3].name"
+              :name="regSteps[2].name"
               :title="$t('MSG_TXT_CHK_REG_INFO')"
-              :prefix="regSteps[3].step"
+              :prefix="regSteps[2].step"
             />
 
             <!-- 1. 기본속성 등록 -->
@@ -59,21 +53,11 @@
                 @popup-callback="popupCallback"
               />
             </kw-step-panel>
-            <!-- 2.연결상품 선택 -->
-            <kw-step-panel
-              :name="regSteps[1].name"
-            >
-              <zwpdc-prop-relation-mgt
-                :ref="cmpStepRefs[1]"
-                v-model:pd-cd="currentPdCd"
-                v-model:init-data="prevStepData"
-                :pd-tp-cd="pdConst.PD_TP_CD_MATERIAL"
-              />
-            </kw-step-panel>
+
             <!-- 3.관리속성 등록 -->
-            <kw-step-panel :name="regSteps[2].name">
+            <kw-step-panel :name="regSteps[1].name">
               <zwpdc-prop-groups-mgt
-                :ref="cmpStepRefs[2]"
+                :ref="cmpStepRefs[1]"
                 v-model:pd-cd="currentPdCd"
                 v-model:init-data="prevStepData"
                 :pd-tp-cd="pdConst.PD_TP_CD_MATERIAL"
@@ -82,7 +66,7 @@
               />
             </kw-step-panel>
             <!-- 4.등록정보 확인 -->
-            <kw-step-panel :name="regSteps[3].name">
+            <kw-step-panel :name="regSteps[2].name">
               <kw-tabs
                 v-model="selectedTab"
                 class="mt20"
@@ -90,11 +74,6 @@
                 <kw-tab
                   name="attribute"
                   :label="$t('MSG_TXT_ATTRIBUTE')"
-                />
-                <!-- 연결상품 -->
-                <kw-tab
-                  name="relation"
-                  :label="$t('MSG_TXT_RLTN_PRDT')"
                 />
                 <kw-tab
                   name="attributeExtr"
@@ -112,14 +91,6 @@
                     :prefix-title="$t('MSG_TXT_BAS_ATTR')"
                     :is-first-title="true"
                     :pd-tp-dtl-cd="pdTpDtlCd"
-                  />
-                </kw-tab-panel>
-                <!-- 연결상품-->
-                <kw-tab-panel name="relation">
-                  <wwpdc-prop-relation-dtl
-                    v-model:pd-cd="currentPdCd"
-                    v-model:init-data="prevStepData"
-                    :pd-tp-cd="pdConst.PD_TP_CD_MATERIAL"
                   />
                 </kw-tab-panel>
                 <!--관리속성-->
@@ -158,7 +129,7 @@
             <!-- 초기화 -->
             <kw-btn
               v-show="currentStep.step === 1 && isCreate"
-              :label="$t('MSG_BTN_INTL')"
+              :label="$t('MSG_BTN_RESET')"
               class="ml8"
               @click="onClickReset"
             />
@@ -211,8 +182,6 @@ import pdConst from '~sms-common/product/constants/pdConst';
 
 import ZwpdcPropGroupsMgt from '~sms-common/product/pages/manage/components/ZwpdcPropGroupsMgt.vue'; /* 속성 등록/수정 */
 import ZwpdcPropGroupsDtl from '~sms-common/product/pages/manage/components/ZwpdcPropGroupsDtl.vue'; /* 속성 상세보기 */
-import ZwpdcPropRelationMgt from './WwpdcPropRelationMgtM.vue'; /* 연결상품 등록/수정 */
-import WwpdcPropRelationDtl from './WwpdcPropRelationDtlM.vue'; /* 연결상품 상세보기 */
 
 const props = defineProps({
   pdCd: { type: String, default: null },
@@ -228,19 +197,18 @@ const obsMainRef = ref();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
-const baseUrl = '/sms/wells/product/materials';
-const materialMainPage = '/product/zwpdc-material-list';
+const baseUrl = '/sms/wells/product/as-parts';
+const asPartMainPage = '/product/wwpdc-as-part-list';
 
-const pdTpDtlCd = ref(pdConst.PD_TP_DTL_CD_MATERIAL);
+const pdTpDtlCd = ref(pdConst.PD_TP_DTL_CD_AS_PART);
 const wellsStep = [
-  pdConst.W_MATERIAL_STEP_BASIC,
-  pdConst.W_MATERIAL_STEP_REL_PROD,
-  pdConst.W_MATERIAL_STEP_MANAGE,
-  pdConst.W_MATERIAL_STEP_CHECK,
+  pdConst.W_AS_PART_STEP_BASIC,
+  pdConst.W_AS_PART_STEP_MANAGE,
+  pdConst.W_AS_PART_STEP_CHECK,
 ];
 const regSteps = ref(wellsStep);
 const currentStep = ref(wellsStep[0]);
-const cmpStepRefs = ref([ref(), ref(), ref()]);
+const cmpStepRefs = ref([ref(), ref()]);
 
 const bas = pdConst.TBL_PD_BAS;
 const ecom = pdConst.TBL_PD_ECOM_PRP_DTL;
@@ -254,11 +222,12 @@ const isCreate = ref(false);
 const selectedTab = ref('attribute');
 
 const page = ref({
-  reg: '/product/zwpdc-material-list/wwpdc-material-mgt', // 교재/자재 등록 UI
-  detail: '/product/zwpdc-material-list/wwpdc-material-dtl', // 교재/자재 상세보기 UI
+  reg: '/product/zwpdc-as-part-list/wwpdc-as-part-mgt', // AS부품 등록 UI
+  detail: '/product/zwpdc-as-part-list/wwpdc-as-part-dtl', // AS부품 상세보기 UI
 });
 
-const exceptPrpGrpCd = ref('PART');
+// const exceptPrpGrpCd = ref('PART');
+const exceptPrpGrpCd = ref('');
 
 watch(() => props.pdCd, (val) => { currentPdCd.value = val; });
 watch(() => props.tempSaveYn, (val) => { isTempSaveBtn.value = val !== 'Y'; });
@@ -279,14 +248,14 @@ async function onClickRemove() {
 
       // CASE -1 F5 keyPress 현상 발생 및 타겟화면 호출불가.
       // await router.go(
-      //   { path: materialMainPage,
+      //   { path: asPartMainPage,
       //     query: { isSearch: true, closeTargetUi: page.value.reg },
       //   },
       // );
       // CASE -2 창 닫고 이동은 하지만...파라미터 전달 불가.
       await router.close(
         {
-          to: materialMainPage,
+          to: asPartMainPage,
           params: { isSearch: true, closeTargetUi: page.value.reg },
           query: { isSearch: true, closeTargetUi: page.value.reg },
           refresh: false,
@@ -294,7 +263,7 @@ async function onClickRemove() {
       );
       // CASE -3 파라미터 전달하여 이동은 하지만, 현재 창 닫지못함. 또한 타겟 페이지의 grid 객체 null 에러남. (unMounted 타는 듯.)
       // await router.push(
-      //   { path: materialMainPage,
+      //   { path: asPartMainPage,
       //     query: { isSearch: true, closeTargetUi: page.value.reg },
       //   },
       // );
@@ -304,6 +273,7 @@ async function onClickRemove() {
 
 async function getSaveData(tempSaveYn) {
   const subList = {};
+  console.log('cmpStepRefs', cmpStepRefs.value);
   // eslint-disable-next-line no-unused-vars
   await Promise.all(cmpStepRefs.value.map(async (item, idx) => {
     const saveData = await item.value.getSaveData();
@@ -379,7 +349,7 @@ async function onClickSave(tempSaveYn) {
     await fetchData();
   } else {
     // TODO 경로 관련 여타와 동일하게 push,close-go, go 방식들 내재한 문제 처리 필요.
-    router.push({ path: materialMainPage, query: {} });
+    router.push({ path: asPartMainPage, query: {} });
   }
 }
 
@@ -407,7 +377,7 @@ async function onClickPrevStep() {
 }
 
 async function onClickCancel() {
-  await router.close({ to: materialMainPage });
+  await router.close({ to: asPartMainPage });
 }
 
 async function setInitCondition() {
@@ -421,6 +391,7 @@ async function setInitCondition() {
 
 onMounted(async () => {
   await setInitCondition();
+  console.log('as-partas-partas-part MGT');
 });
 
 async function popupCallback(payload) {

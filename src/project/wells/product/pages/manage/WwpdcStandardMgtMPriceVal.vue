@@ -85,7 +85,7 @@
 import { useDataService, stringUtil, gridUtil, getComponentType } from 'kw-lib';
 import { isEmpty, cloneDeep } from 'lodash-es';
 import pdConst from '~sms-common/product/constants/pdConst';
-import { getGridRowsToSavePdProps, getPropInfosToGridRows, getPdMetaToGridInfos } from '~sms-common/product/utils/pdUtil';
+import { pdMergeBy, getGridRowsToSavePdProps, getPropInfosToGridRows, getPdMetaToGridInfos } from '~sms-common/product/utils/pdUtil';
 
 /* eslint-disable no-use-before-define */
 defineExpose({
@@ -109,6 +109,8 @@ const grdMainRef = ref(getComponentType('KwGrid'));
 
 const prcd = pdConst.TBL_PD_PRC_DTL;
 const prcfd = pdConst.TBL_PD_PRC_FNL_DTL;
+const prumd = pdConst.TBL_PD_DSC_PRUM_DTL;
+const defaultFields = ref([pdConst.PRC_STD_ROW_ID, pdConst.PRC_FNL_ROW_ID, 'pdPrcDtlId', 'pdPrcFnlDtlId']);
 const currentPdCd = ref();
 const currentInitData = ref(null);
 const currentMetaInfos = ref();
@@ -116,10 +118,46 @@ const usedChannelCds = ref([]);
 const addChannelId = ref();
 const checkedSelVals = ref([]);
 const selectionVariables = ref([]);
-const removeObjects = reactive([]);
+const removeObjects = ref([]);
+
+async function getSaveData() {
+  const view = grdMainRef.value.getView();
+  const outKeys = view.getColumns().filter((item) => !item.editable).reduce((rtn, item) => {
+    rtn.push(item.fieldName);
+    return rtn;
+  }, []); /* 그리드에서 수정항목이 아닌 경우 제외 */
+  const rowValues = gridUtil.getAllRowValues(view);
+  const rtnValues = await getGridRowsToSavePdProps(
+    rowValues,
+    currentMetaInfos.value,
+    prcfd,
+    ['sellChnlCd', 'pdCd', ...defaultFields.value],
+    outKeys,
+  );
+  if (removeObjects.value.length) {
+    rtnValues[pdConst.REMOVE_ROWS] = cloneDeep(removeObjects.value);
+  }
+  rtnValues[prumd] = checkedSelVals.value.reduce((rtn, item) => {
+    if (item) {
+      rtn.push({ pdCd: currentPdCd.value, pdDscPrumPrpVal01: item });
+    }
+    return rtn;
+  }, []);
+
+  // console.log('WwpdcStandardMgtMPriceVal - getSaveData - rtnValues : ', rtnValues);
+  return rtnValues;
+}
+
+function isModifiedProps() {
+  return true;
+}
+
+function validateProps() {
+  return true;
+}
 
 async function resetInitData() {
-  Object.assign(removeObjects, []);
+  Object.assign(removeObjects.value, []);
   // 기본 속성에서 등록 채널 목록
   const channels = currentInitData.value?.[pdConst.TBL_PD_DTL]
     ?.reduce((rtn, item) => {
@@ -131,25 +169,52 @@ async function resetInitData() {
     ?.join(',');
   // console.log(' channels : ', channels);
   if (channels) {
-    usedChannelCds.value = props.codes?.SELL_CHNL_DV_CD.filter((item) => channels.indexOf(item.codeId) > -1);
+    usedChannelCds.value = props.codes?.SELL_CHNL_DV_CD?.filter((item) => channels.indexOf(item.codeId) > -1);
+  }
+  const checkedVals = currentInitData.value?.[prumd]?.reduce((rtn, item) => {
+    if (item.pdDscPrumPrpVal01) {
+      rtn.push(item.pdDscPrumPrpVal01);
+    }
+    return rtn;
+  }, []);
+  if (checkedVals && checkedVals.length) {
+    selectionVariables.value?.forEach((item, idx) => {
+      checkedSelVals.value[idx] = checkedVals.includes(item.codeId) ? item.codeId : null;
+    });
   }
   await initGridRows();
 }
 
 async function initGridRows() {
   if (await currentInitData.value[prcfd]) {
+    // 판매유형
+    const sellTpCd = currentInitData.value[pdConst.TBL_PD_BAS]?.sellTpCd;
+    // 기준가 정보
+    const stdRows = cloneDeep(
+      await getPropInfosToGridRows(
+        currentInitData.value?.[prcd],
+        currentMetaInfos.value,
+        prcd,
+      ),
+    );
+    // 선택변수/최종가
     const rows = cloneDeep(await getPropInfosToGridRows(
       currentInitData.value?.[prcfd],
       currentMetaInfos.value,
-      '',
-      [pdConst.PRC_STD_ROW_ID, pdConst.PRC_FNL_ROW_ID],
+      prcfd,
+      defaultFields.value,
     ));
     rows?.map((row) => {
       row[pdConst.PRC_FNL_ROW_ID] = row[pdConst.PRC_FNL_ROW_ID] ?? row.pdPrcFnlDtlId;
-      row.pdPrcDtlIdRefVp = row.pdPrcDtlId;
+      row[pdConst.PRC_STD_ROW_ID] = row[pdConst.PRC_STD_ROW_ID] ?? row.pdPrcDtlId;
+      const stdRow = stdRows?.find((item) => item[pdConst.PRC_STD_ROW_ID] === row[pdConst.PRC_STD_ROW_ID]
+                                            || item.pdPrcDtlId === row.pdPrcDtlId);
+      // console.log('const stdRow : ', row);
+      row = pdMergeBy(row, stdRow);
+      row.sellTpCd = sellTpCd;
+      // console.log('WwpdcStandardMgtMPriceVal - initGridRows - row : ', row);
       return row;
     });
-    // console.log('Rows : ', rows);
     const view = grdMainRef.value.getView();
     view.getDataSource().setRows(rows);
     view.resetCurrent();
@@ -171,8 +236,8 @@ async function onClickAdd() {
       ),
     // 기존에 추가된 ROW가 없는 행만 추가
     );
-    console.log('rowValues : ', rowValues);
-    console.log('stdRows : ', stdRows);
+    // console.log('rowValues : ', rowValues);
+    // console.log('stdRows : ', stdRows);
     const view = grdMainRef.value.getView();
     const data = view.getDataSource();
     let insPosition = rowValues.findIndex((gridRow) => gridRow.sellChnlCd === addChannelId.value);
@@ -184,7 +249,8 @@ async function onClickAdd() {
         row.sellChnlCd = addChannelId.value;
         row[pdConst.PRC_FNL_ROW_ID] = stringUtil.getUid('FNL');
         row.pdPrcDtlIdRefVp = row.pdPrcDtlId;
-        console.log('row[pdConst.PRC_FNL_ROW_ID] : ', row[pdConst.PRC_FNL_ROW_ID]);
+        row.sellTpCd = currentInitData.value[pdConst.TBL_PD_BAS]?.sellTpCd;
+        // console.log('row[pdConst.PRC_FNL_ROW_ID] : ', row[pdConst.PRC_FNL_ROW_ID]);
         if (!rowValues.find((gridRow) => addChannelId.value === gridRow.sellChnlCd
         && row.pdPrcDtlId === gridRow.pdPrcDtlId)) {
           data.insertRow(insPosition, row);
@@ -197,7 +263,7 @@ async function onClickAdd() {
 async function onClickRemove() {
   const deletedRowValues = gridUtil.deleteCheckedRows(grdMainRef.value.getView());
   if (deletedRowValues && deletedRowValues.length) {
-    removeObjects.push(...deletedRowValues.reduce((rtn, item) => {
+    removeObjects.value.push(...deletedRowValues.reduce((rtn, item) => {
       if (item[pdConst.PRC_FNL_ROW_ID]) {
         rtn.push({ [pdConst.PRC_FNL_ROW_ID]: item[pdConst.PRC_FNL_ROW_ID] });
       }
@@ -206,45 +272,14 @@ async function onClickRemove() {
   }
 }
 
-async function getSaveData() {
-  const rowValues = gridUtil.getAllRowValues(grdMainRef.value.getView());
-  const rtnValues = await getGridRowsToSavePdProps(
-    rowValues,
-    currentMetaInfos.value,
-    prcfd,
-    [pdConst.PRC_FNL_ROW_ID],
-  );
-  if (removeObjects.length) {
-    rtnValues[pdConst.REMOVE_ROWS] = cloneDeep(removeObjects);
-  }
-  // console.log('WwpdcStandardMgtMPriceVal - getSaveData - rtnValues : ', rtnValues);
-  return rtnValues;
-}
-
-function isModifiedProps() {
-  return true;
-}
-
-function validateProps() {
-  return true;
-}
-
-async function initProps() {
-  const { pdCd, initData, metaInfos } = props;
-  currentPdCd.value = pdCd;
-  currentInitData.value = initData;
-  currentMetaInfos.value = metaInfos;
-  await fetchSelVarData();
-}
-
 async function fetchSelVarData() {
   const res = await dataService.get('/sms/common/product/type-variables', { params: { sellTpCd: pdConst.W_SELL_TP_CD_LENT_OR_LEASS } });
-  console.log('selectionVariables.value : ', selectionVariables.value);
+  // console.log('selectionVariables.value : ', selectionVariables.value);
   selectionVariables.value = res.data;
 }
 
 async function resetVisibleChannelColumns() {
-  console.log('checkedSelVals : ', checkedSelVals.value);
+  // console.log('checkedSelVals : ', checkedSelVals.value);
   selectionVariables.value.forEach((field) => {
     const view = grdMainRef.value.getView();
     const column = view.columnByName(field.colNm);
@@ -258,7 +293,18 @@ async function resetVisibleChannelColumns() {
   });
 }
 
+async function initProps() {
+  const { pdCd, initData, metaInfos } = props;
+  currentPdCd.value = pdCd;
+  currentInitData.value = initData;
+  currentMetaInfos.value = metaInfos;
+  await fetchSelVarData();
+}
+
 await initProps();
+
+watch(() => props.pdCd, (val) => { currentPdCd.value = val; });
+watch(() => props.initData, (val) => { currentInitData.value = val; resetInitData(); }, { deep: true });
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
@@ -266,32 +312,31 @@ await initProps();
 async function initGrid(data, view) {
   const { metaInfos } = props;
   currentMetaInfos.value = metaInfos;
+  const basicColNms = currentMetaInfos.value
+    ?.filter((item) => item.pdPrcMetaTpCd === pdConst.PD_PRC_TP_CD_BASIC)
+    ?.reduce((rtn, item) => { rtn.push(item.colNm); return rtn; }, []);
+  // console.log('basicColNms : ', basicColNms);
+  const readonlyFields = ['sellChnlCd', ...basicColNms];
+  // console.log('currentMetaInfos.value : ', currentMetaInfos.value);
   const { fields, columns } = await getPdMetaToGridInfos(
     currentMetaInfos.value,
     [pdConst.PD_PRC_TP_CD_BASIC,
       pdConst.PD_PRC_TP_CD_VARIABLE],
     props.codes,
-    pdConst.DEFAULT_READ_ONLY_FIELDS,
+    readonlyFields,
+    [],
+    defaultFields.value,
   );
 
-  /* selectionVariables.value?.forEach((item) => {
-    // todo push
-    columns.unshift({ fieldName: item.codeId, header: item.codeName, width: '200' });
-    fields.unshift({ fieldName: item.codeId });
-  }); */
-
-  // Grid 내부키 - '신규 Row 추가' 대응
-  fields.push({ fieldName: pdConst.PRC_STD_ROW_ID });
-  fields.push({ fieldName: pdConst.PRC_FNL_ROW_ID });
+  fields.push({ fieldName: 'fixAmount', dataType: 'number' });
   data.setFields(fields);
-  view.setColumns(columns);
+  // 판매채널을 제일 앞으로
+  view.setColumns(columns.sort((item) => (item.fieldName === 'sellChnlCd' ? -1 : 0)));
   view.checkBar.visible = true;
-  view.rowIndicator.visible = true;
+  view.rowIndicator.visible = false;
   view.editOptions.editable = true;
+  view.setFixedOptions({ colCount: 10 });
   await resetInitData();
   await resetVisibleChannelColumns();
 }
-
-watch(() => props.pdCd, (val) => { currentPdCd.value = val; });
-watch(() => props.initData, (val) => { currentInitData.value = val; resetInitData(); }, { deep: true });
 </script>

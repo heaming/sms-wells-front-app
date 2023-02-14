@@ -20,8 +20,11 @@
     <zwpdc-prop-meta
       ref="priceStdRef"
       v-model:pd-cd="currentPdCd"
+      v-model:init-data="priceFieldData"
       :pd-prc-tp-cd="pdConst.PD_PRC_TP_CD_BASIC"
-      :readonly-fields="pdConst.DEFAULT_READ_ONLY_FIELDS"
+      :readonly-fields="readonlyFields"
+      :use-rule="false"
+      :codes="currentCodes"
     />
     <kw-separator />
     <kw-action-bottom class="mb30">
@@ -36,7 +39,7 @@
     <kw-action-top>
       <kw-btn
         v-show="!props.readonly"
-        :label="$t('MSG_BTN_MDFC')"
+        :label="$t('MSG_BTN_MOD')"
         dense
         @click="onClickMidify"
       />
@@ -66,7 +69,7 @@ import { gridUtil, stringUtil, getComponentType } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 import pdConst from '~sms-common/product/constants/pdConst';
 import ZwpdcPropMeta from '~sms-common/product/pages/manage/components/ZwpdcPropMeta.vue';
-import { getGridRowsToSavePdProps, getPropInfosToGridRows, getPdMetaToGridInfos } from '~sms-common/product/utils/pdUtil';
+import { getGridRowsToSavePdProps, getPropInfosToGridRows, getPdMetaToGridInfos, pdMergeBy } from '~sms-common/product/utils/pdUtil';
 
 /* eslint-disable no-use-before-define */
 defineExpose({
@@ -86,24 +89,71 @@ const props = defineProps({
 // -------------------------------------------------------------------------------------------------
 const grdMainRef = ref(getComponentType('KwGrid'));
 
+const readonlyFields = ref(['pdCd', 'pdPrcDtlId', 'verSn', 'crncyDvCd', 'sellTpCd']);
 const prcd = pdConst.TBL_PD_PRC_DTL;
 const priceStdRef = ref();
 const currentPdCd = ref();
 const currentInitData = ref(null);
 const priceFieldData = ref({});
 const currentMetaInfos = ref();
-const removeObjects = reactive([]);
+const removeObjects = ref([]);
+const currentCodes = ref({});
+
+async function getSaveData() {
+  const rowValues = gridUtil.getAllRowValues(grdMainRef.value.getView());
+  const rtnValues = getGridRowsToSavePdProps(
+    rowValues,
+    currentMetaInfos.value,
+    pdConst.TBL_PD_PRC_DTL,
+    [pdConst.PRC_STD_ROW_ID],
+  );
+  if (removeObjects.value.length) {
+    rtnValues[pdConst.REMOVE_ROWS] = cloneDeep(removeObjects.value);
+  }
+  // console.log('WwpdcStandardMgtMPriceStd - getSaveData - rtnValues : ', rtnValues);
+  return rtnValues;
+}
+
+function isModifiedProps() {
+  return true;
+}
+
+async function validateProps() {
+  const rtn = gridUtil.validate(grdMainRef.value.getView(), {
+    isChangedOnly: false,
+  });
+  // console.log('=-================', rtn);
+  return rtn;
+}
 
 async function resetInitData() {
-  Object.assign(removeObjects, []);
+  Object.assign(removeObjects.value, []);
   await initGridRows();
 }
 
 async function initGridRows() {
+  priceFieldData.value[prcd] = [{
+    pdExtsPrpGrpCd: 'PRC',
+    // 통화명
+    crncyDvCd: currentInitData.value[pdConst.TBL_PD_BAS]?.crncyDvCd,
+    // 판매유형
+    sellTpCd: currentInitData.value[pdConst.TBL_PD_BAS]?.sellTpCd,
+  }];
+  const currentSellTpCd = currentInitData.value[pdConst.TBL_PD_BAS]?.sellTpCd;
+  priceFieldData.value[pdConst.TBL_PD_BAS] = {
+    // 판매유형
+    sellTpCd: currentSellTpCd,
+  };
   if (await currentInitData.value?.[prcd]) {
-    const rows = cloneDeep(await getPropInfosToGridRows(currentInitData.value?.[prcd], currentMetaInfos.value, prcd));
+    const rows = cloneDeep(await getPropInfosToGridRows(
+      currentInitData.value?.[prcd],
+      currentMetaInfos.value,
+      prcd,
+      [pdConst.PRC_STD_ROW_ID, 'pdPrcDtlId'],
+    ));
     rows?.map((row) => {
       row[pdConst.PRC_STD_ROW_ID] = row.pdPrcDtlId;
+      row.sellTpCd = currentSellTpCd;
       return row;
     });
     // console.log('Rows : ', rows);
@@ -111,16 +161,30 @@ async function initGridRows() {
     view.getDataSource().setRows(rows);
     view.resetCurrent();
   }
+  const products = currentInitData.value?.[pdConst.RELATION_PRODUCTS];
+  if (await products) {
+    const services = products.filter((item) => item[pdConst.PD_REL_TP_CD] === pdConst.PD_REL_TP_CD_P_TO_S);
+    currentCodes.value.SV_PD_CDS = services.map(({ pdNm, pdCd }) => ({
+      codeId: pdCd, codeName: pdNm,
+    }));
+    const view = grdMainRef.value.getView();
+    const svPdCds = view.columnByName('svPdCd');
+    svPdCds.options = currentCodes.value.SV_PD_CDS;
+    svPdCds.labels = currentCodes.value.SV_PD_CDS?.map((item) => (item.codeName));
+    svPdCds.values = currentCodes.value.SV_PD_CDS?.map((item) => (item.codeId));
+    svPdCds.lookupDisplay = true;
+    // console.log('svPdCds.labels : ', svPdCds.labels);
+  }
 }
 
 async function onClickAdd() {
   const view = grdMainRef.value.getView();
   // console.log('priceStdRef.value : ', priceStdRef.value);
   const savFields = await priceStdRef.value.getSaveFields();
-  const rowItem = savFields?.reduce((rtn, item) => {
+  const rowItem = cloneDeep(savFields?.reduce((rtn, item) => {
     rtn[item.colNm] = item.initValue;
     return rtn;
-  }, {});
+  }, {}));
   rowItem[pdConst.PRC_STD_ROW_ID] = stringUtil.getUid('STD');
   // console.log('rowItem : ', rowItem);
   gridUtil.insertRowAndFocus(view, 0, rowItem);
@@ -140,7 +204,7 @@ async function onClickMidify() {
 async function onClickRemove() {
   const deletedRowValues = gridUtil.deleteCheckedRows(grdMainRef.value.getView());
   if (deletedRowValues && deletedRowValues.length) {
-    removeObjects.push(...deletedRowValues.reduce((rtn, item) => {
+    removeObjects.value.push(...deletedRowValues.reduce((rtn, item) => {
       if (item[pdConst.PRC_STD_ROW_ID]) {
         rtn.push({ [pdConst.PRC_STD_ROW_ID]: item[pdConst.PRC_STD_ROW_ID] });
       }
@@ -149,41 +213,23 @@ async function onClickRemove() {
   }
 }
 
-async function getSaveData() {
-  const rowValues = gridUtil.getAllRowValues(grdMainRef.value.getView());
-  const rtnValues = getGridRowsToSavePdProps(
-    rowValues,
-    currentMetaInfos.value,
-    pdConst.TBL_PD_PRC_DTL,
-    [pdConst.PRC_STD_ROW_ID],
-  );
-  if (removeObjects.length) {
-    rtnValues[pdConst.REMOVE_ROWS] = cloneDeep(removeObjects);
-  }
-  console.log('WwpdcStandardMgtMPriceStd - getSaveData - rtnValues : ', rtnValues);
-  return rtnValues;
-}
-
-function isModifiedProps() {
-  return true;
-}
-
-function validateProps() {
-  return true;
-}
-
 async function initProps() {
-  const { pdCd, initData, metaInfos } = props;
+  const { pdCd, initData, metaInfos, codes } = props;
   currentPdCd.value = pdCd;
   currentInitData.value = initData;
   currentMetaInfos.value = metaInfos;
+  currentCodes.value = pdMergeBy(currentCodes.value, codes);
   priceFieldData.value[pdConst.TBL_PD_PRC_DTL] = [];
   priceFieldData.value[pdConst.TBL_PD_PRC_DTL]
     .push({ pdExtsPrpGrpCd: pdConst.PD_PRP_GRP_CD_CMN, pdCd: currentPdCd.value });
-  console.log(`WwpdcStandardMgtMPriceStd - initProps - pdCd : ${currentPdCd.value}, initData : `, currentInitData.value);
+  // console.log(`WwpdcStandardMgtMPriceStd - initProps - pdCd : ${currentPdCd.value}
+  // , initData : `, currentInitData.value);
 }
 
 await initProps();
+
+watch(() => props.pdCd, (val) => { currentPdCd.value = val; });
+watch(() => props.initData, (val) => { currentInitData.value = val; resetInitData(); }, { deep: true });
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
@@ -194,19 +240,17 @@ async function initGrid(data, view) {
   const { fields, columns } = await getPdMetaToGridInfos(
     currentMetaInfos.value,
     [pdConst.PD_PRC_TP_CD_BASIC],
-    props.codes,
-    pdConst.DEFAULT_READ_ONLY_FIELDS,
+    currentCodes.value,
+    readonlyFields.value,
   );
+  // console.log('WwpdcStandardMgtMPriceStd - initGr id - columns : ', columns);
   // Grid 내부키 - '신규 Row 추가' 대응
   fields.push({ fieldName: pdConst.PRC_STD_ROW_ID });
   data.setFields(fields);
   view.setColumns(columns);
   view.checkBar.visible = true;
-  view.rowIndicator.visible = true;
+  view.rowIndicator.visible = false;
   view.editOptions.editable = true;
   await initGridRows();
 }
-
-watch(() => props.pdCd, (val) => { currentPdCd.value = val; });
-watch(() => props.initData, (val) => { currentInitData.value = val; resetInitData(); }, { deep: true });
 </script>

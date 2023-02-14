@@ -3,13 +3,13 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : 상품 - 상품운영관리(PDC)
-2. 프로그램 ID : WwpdcMaterialDtlM - 교재/자재 상세조회 ( W-PD-U-0031M07 )
+2. 프로그램 ID : WwpdcAsPartDtlM - AS부품 상세조회 ( W-PD-U-0042M01 )
 3. 작성자 : junho.bae
 4. 작성일 : 2022.AA.BB
 ****************************************************************************************************
 * 프로그램 설명
 ****************************************************************************************************
-- 상품 교재/자재 상세조회 프로그램 (Outer Frame W-PD-U-0031M07 - M10)
+- 상품 AS부품 상세조회 프로그램 (Outer Frame W-PD-U-0042M01 - M02)
 ****************************************************************************************************
 --->
 <template>
@@ -39,11 +39,6 @@
                   name="attribute"
                   :label="$t('MSG_TXT_ATTRIBUTE')"
                 />
-                <!-- 연결상품 (Wells 특화) -->
-                <kw-tab
-                  name="relation"
-                  :label="t('MSG_TXT_RLTN_PRDT')"
-                />
                 <!-- 확장속성 -->
                 <kw-tab
                   name="attributeExtr"
@@ -68,16 +63,6 @@
                     :prefix-title="$t('MSG_TXT_BAS_ATTR')"
                     :is-first-title="true"
                     :pd-tp-dtl-cd="pdTpDtlCd"
-                  />
-                </kw-tab-panel>
-                <!-- 연결상품 (Wells 특화) -->
-                <kw-tab-panel
-                  name="relation"
-                >
-                  <wwpdc-prop-relation-dtl
-                    v-model:pd-cd="currentPdCd"
-                    v-model:init-data="prevStepData"
-                    :pd-tp-cd="pdConst.PD_TP_CD_MATERIAL"
                   />
                 </kw-tab-panel>
                 <!-- 확장속성 -->
@@ -105,7 +90,7 @@
           <div class="button-set--bottom">
             <div class="button-set--bottom-right">
               <kw-btn
-                :label="$t('MSG_BTN_MOD')"
+                :label="$t('MSG_BTN_MOD ')"
                 class="ml8"
                 primary
                 @click="onClickModify"
@@ -126,14 +111,13 @@ import { isEmpty } from 'lodash-es';
 import pdConst from '~sms-common/product/constants/pdConst';
 import ZwpdcPropGroupsDtl from '~sms-common/product/pages/manage/components/ZwpdcPropGroupsDtl.vue';
 import ZwpdcProdChangeHist from '~sms-common/product/pages/manage/components/ZwpdcProdChangeHist.vue';
-import WwpdcPropRelationDtl from './WwpdcPropRelationDtlM.vue';
 
 const props = defineProps({
   pdCd: { type: String, default: null },
   tempSaveYn: { type: String, default: 'Y' },
 });
 
-const { t } = useI18n();
+// const { t } = useI18n();
 const route = useRoute();
 const router = useRouter();
 const dataService = useDataService();
@@ -141,12 +125,12 @@ const obsMainRef = ref();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
-const baseUrl = '/sms/wells/product/materials';
+const baseUrl = '/sms/wells/product/as-parts';
 const page = ref({
-  modify: '/product/zwpdc-material-list/wwpdc-material-mgt', // 등록/수정 UI
+  modify: '/product/wwpdc-as-part-list/wwpdc-as-part-mgt', // 등록/수정 UI
 });
 
-const pdTpDtlCd = ref(pdConst.PD_TP_DTL_CD_MATERIAL);
+const pdTpDtlCd = ref(pdConst.PD_TP_DTL_CD_AS_PART);
 const prdPropGroups = ref({});
 const selectedTab = ref('attribute');
 
@@ -183,6 +167,8 @@ async function fetchProps() {
 }
 
 await fetchProps();
+
+console.log('as-partas-partas-part DTL');
 
 watch(() => route.params.pdCd, async (pdCd) => {
   if (pdCd && currentPdCd.value !== pdCd) {

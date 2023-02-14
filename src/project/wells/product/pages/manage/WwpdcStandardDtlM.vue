@@ -14,42 +14,19 @@
 --->
 <template>
   <kw-page>
-    <div class="normal-area normal-area--button-set-bottom">
-      <div class="kw-stepper-headingtext">
-        <h2 class="h2-small">
-          {{ pdBas.pdNm }}({{ pdBas.pdCd }})
-          <p>
-            <span>{{ $t('MSG_TXT_RGST_DT') }} {{ stringUtil.getDateFormat(pdBas.fstRgstDtm) }}
-              /  {{ pdBas.fstRgstUsrNm }}</span><span>
-              {{ $t('MSG_TXT_L_UPDATED') }} {{ stringUtil.getDateFormat(pdBas.fnlMdfcDtm) }}
-              / {{ pdBas.fnlMdfcUsrNm }}</span>
-          </p>
-        </h2>
-        <wwpdc-standard-dtl-m-contents
-          v-model:pd-cd="currentPdCd"
-          v-model:init-data="initData"
-          :codes="codes"
-          :temp-save-yn="props.tempSaveYn"
-        />
-        <div class="button-set--bottom">
-          <div class="button-set--bottom-right">
-            <kw-btn
-              :label="$t('MSG_BTN_MOD')"
-              class="ml8"
-              primary
-              @click="onClickUpdate"
-            />
-          </div>
-        </div>
-      </div>
-    </div>
+    <wwpdc-standard-dtl-m-contents
+      v-model:pd-cd="currentPdCd"
+      v-model:init-data="initData"
+      :codes="codes"
+      :temp-save-yn="props.tempSaveYn"
+    />
   </kw-page>
 </template>
 <script setup>
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService, codeUtil, stringUtil } from 'kw-lib';
+import { useDataService, codeUtil } from 'kw-lib';
 import { isEmpty } from 'lodash-es';
 import pdConst from '~sms-common/product/constants/pdConst';
 import WwpdcStandardDtlMContents from './WwpdcStandardDtlMContents.vue';
@@ -71,6 +48,7 @@ const dtl = pdConst.TBL_PD_DTL;
 const ecom = pdConst.TBL_PD_ECOM_PRP_DTL;
 const prcd = pdConst.TBL_PD_PRC_DTL;
 const prcfd = pdConst.TBL_PD_PRC_FNL_DTL;
+const prumd = pdConst.TBL_PD_DSC_PRUM_DTL;
 
 const currentPdCd = ref();
 const prdPropGroups = ref({});
@@ -88,23 +66,20 @@ const codes = await codeUtil.getMultiCodes(
   'PD_TEMP_SAVE_CD',
   'SV_PRD_UNIT_CD',
   'SV_VST_PRD_CD',
+  'PD_TEMP_SAVE_CD',
 );
 
-async function onClickUpdate() {
-  const { pdCd } = props;
-  router.push({ path: '/product/wwpdc-standard-mgt', query: { pdCd, tempSaveYn: 'N' } });
-}
-
-async function fetchData() {
+async function fetchProduct() {
   const res = await dataService.get(`/sms/common/product/standards/${currentPdCd.value}`);
-  console.log('WwpdcStandardDtlM - fetchProduct - res.data', res.data);
+  // console.log('WwpdcStandardDtlM - fetchProduct - res.data', res.data);
   pdBas.value = res.data[pdConst.TBL_PD_BAS];
   initData.value[bas] = res.data[bas];
   initData.value[dtl] = res.data[dtl];
   initData.value[ecom] = res.data[ecom];
   initData.value[prcd] = res.data[prcd];
   initData.value[prcfd] = res.data[prcfd];
-  console.log('res.data : ', res.data);
+  initData.value[prumd] = res.data[prumd];
+  console.log('WwpdcStandardDtlM - fetchProduct - initData.value : ', initData.value);
   prdPropGroups.value = res.data.groupCodes;
 }
 
@@ -114,7 +89,7 @@ async function initProps() {
   if (isEmpty(currentPdCd.value)) {
     await router.close();
   } else {
-    await fetchData();
+    await fetchProduct();
   }
 }
 
@@ -123,7 +98,7 @@ await initProps();
 watch(() => route.params.pdCd, async (pdCd) => {
   if (pdCd && currentPdCd.value !== pdCd) {
     currentPdCd.value = pdCd;
-    await fetchData();
+    await fetchProduct();
   }
 }, { immediate: true });
 

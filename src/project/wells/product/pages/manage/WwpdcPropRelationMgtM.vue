@@ -3,7 +3,7 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : 상품 - 상품운영관리(PDC)
-2. 프로그램 ID : ZwpdcPropRelationList - 교재/자재 - 연결상품TAB (W-PD-U-0031M01)
+2. 프로그램 ID : WwpdcPropRelationMgtM - 교재/자재 - 연결상품TAB (W-PD-U-0031M01)
 3. 작성자 : junho.bae
 4. 작성일 : 2022.AA.BB
 ****************************************************************************************************
@@ -25,7 +25,7 @@
         :options="codes.PD_REL_TP_CD"
       />
       <kw-input
-        v-model="searchParams.searchWord"
+        v-model="searchParams.searchValue"
         dense
         clearable
         icon="search"
@@ -57,7 +57,7 @@ import pdConst from '~sms-common/product/constants/pdConst';
 
 /* eslint-disable no-use-before-define */
 defineExpose({
-  validateProps, getSaveData, isModifiedProps,
+  validateProps, getSaveData, isModifiedProps, resetData,
 });
 
 const { t } = useI18n();
@@ -82,7 +82,7 @@ const pageInfo = ref({
 // -------------------------------------------------------------------------------------------------
 const searchParams = ref({
   pdRelTpCd: '',
-  searchWord: '',
+  searchValue: '',
 });
 
 const codes = await codeUtil.getMultiCodes(
@@ -90,18 +90,27 @@ const codes = await codeUtil.getMultiCodes(
 );
 codes.PD_REL_TP_CD = codes.PD_REL_TP_CD.filter((v) => (['13', '14', '15'].includes(v.codeId)));
 
+async function resetData() {
+  // TODO Grid 에서 초기화버튼 기능을 어떻게 정의할지 확인필요.
+}
+
 async function fetchData() {
   if (isEmpty(searchParams.value.pdRelTpCd)) {
     // 관계구분 (을)를 먼저 선택해주세요.
     notify(t('MSG_ALT_CHK_ID', [t('MSG_TXT_RELATION_CLSF')]));
     return false;
   }
-  const { result, payload } = await modal({
-    // component: 'ZpdcMaterialsSelectListP', // 교재자재 팝업
-    component: 'ZpdcStandardProductListP', // 기준정보 팝업
-    componentProps: { pdRelTpCd: searchParams.value.pdRelTpCd },
-  });
 
+  console.log('검색값', searchParams.value.searchValue);
+  // component: 'ZpdcStandardProductListP', // 기준정보 팝업
+  const { result, payload } = await modal({
+    component: 'ZpdcMaterialsSelectListP', // 교재자재 팝업
+    componentProps: {
+      searchType: searchParams.value.pdRelTpCd,
+      searchValue: searchParams.value.searchValue,
+    },
+  });
+  // pdRelTpCd: searchParams.value.pdRelTpCd, searchValue: searchParams.value.searchValue
   if (result) {
     const view = grdMainRef.value.getView();
     payload.checkedRows.forEach((v) => {
@@ -146,7 +155,7 @@ async function isModifiedProps() {
 
 async function getSaveData() {
   const subList = { };
-  subList[pdConst.TB_PDBS_PD_REL] = gridUtil.getAllRowValues(grdMainRef.value.getView());
+  subList[pdConst.TBL_PD_REL] = gridUtil.getAllRowValues(grdMainRef.value.getView());
 
   return subList;
 }
@@ -202,14 +211,14 @@ const initGrdMain = defineGrid((data, view) => {
 });
 
 onMounted(async () => {
-  if (!isEmpty(props.initData[pdConst.TB_PDBS_PD_REL])) {
-    setData(props.initData[pdConst.TB_PDBS_PD_REL]);
+  if (!isEmpty(props.initData[pdConst.TBL_PD_REL])) {
+    setData(props.initData[pdConst.TBL_PD_REL]);
   }
 });
 
 async function setData(newInitData) {
   if (!isEmpty(newInitData)) {
-    const relData = props.initData[pdConst.TB_PDBS_PD_REL];
+    const relData = props.initData[pdConst.TBL_PD_REL];
     if (isEmpty(relData)) return;
 
     const grd1DataProvider = grdMainRef.value.getView().getDataSource();
@@ -217,7 +226,7 @@ async function setData(newInitData) {
   }
 }
 
-watch(() => props.initData[pdConst.TB_PDBS_PD_REL], setData, { deep: true });
+watch(() => props.initData[pdConst.TBL_PD_REL], setData, { deep: true });
 
 </script>
 <style scoped></style>

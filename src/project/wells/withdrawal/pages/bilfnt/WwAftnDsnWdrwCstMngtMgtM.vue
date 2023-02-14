@@ -68,6 +68,7 @@
         />
         <kw-btn
           grid-action
+          :disable="totalCount===0"
           :label="$t('MSG_BTN_ROW_ADD')"
           @click="onClickAddRow"
         />
@@ -104,27 +105,21 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-// eslint-disable-next-line no-unused-vars
 import { useGlobal, useDataService, codeUtil, gridUtil, defineGrid, getComponentType } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
-// eslint-disable-next-line no-unused-vars
-const { notify, alert } = useGlobal();
+
+const { notify } = useGlobal();
 const { t } = useI18n();
-// eslint-disable-next-line no-unused-vars
-const { modal } = useGlobal();
 const dataService = useDataService();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
+let initGridData = [];
 const grdMainRef = ref(getComponentType('KwGrid'));
 const grdData = computed(() => grdMainRef.value?.getData());
-// eslint-disable-next-line no-unused-vars
-const grdView = computed(() => grdMainRef.value?.getView());
 
 const totalCount = ref(0);
-
-let initGridData = [];
 
 const codes = await codeUtil.getMultiCodes(
   'SELL_TP_CD',
@@ -161,7 +156,7 @@ function getSaveParams() {
     cntrSn: Number(v.cntr.slice(11)) })); // 계약상세일련번호 4 - 7 - 1
 }
 
-async function onClickRemove() {
+async function onClickRemove() { // 추후에 수정
   const view = grdMainRef.value.getView();
   const checkedLength = gridUtil.getCheckedRowValues(view).length;
   if (checkedLength === 0) {
@@ -240,7 +235,7 @@ const initGrid = defineGrid((data, view) => {
       editor: {
         type: 'number',
       },
-      rules: 'required||digits:13',
+      rules: 'required||digits:12',
 
     },
     { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '80', styleName: 'text-center', editable: false },

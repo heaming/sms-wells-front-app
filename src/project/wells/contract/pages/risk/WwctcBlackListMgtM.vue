@@ -52,6 +52,7 @@
               <kw-input
                 v-model="searchParams.contractNum"
                 icon="search_24"
+                @click-icon="onClickIconOpenCustomerListPopup"
               />
             </kw-search-item>
             <kw-search-item :label="$t('MSG_TXT_CST_NO')">
@@ -90,11 +91,7 @@
                 @change="fetchData"
               />
             </template>
-            <kw-btn
-              grid-action
-              :label="$t('MSG_BTN_MOD')"
-              @click="onClickEdit"
-            />
+
             <kw-btn
               grid-action
               :label="$t('MSG_BTN_DEL')"
@@ -175,7 +172,7 @@ import { cloneDeep } from 'lodash-es';
 
 const { getConfig } = useMeta();
 const dataService = useDataService();
-const { notify } = useGlobal();
+const { notify, modal } = useGlobal();
 const { t } = useI18n();
 
 const grdMainRef = ref(getComponentType('KwGrid'));
@@ -203,21 +200,17 @@ const pageInfo = ref({
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 
-async function onClickEdit() {
-  const view = grdMainRef.value.getView();
-  view.editOptions.editable = false;
-  const selectedData = await gridUtil.getCheckedRowValues(view);
-  if (selectedData.length === 0) {
-    notify(t('MSG_ALT_MOD_NO_DATA'));
-  } else if (selectedData.length > 1) {
-    notify(t('MSG_ALT_SELT_ONE_ITEM'));
-  } else {
-    const selectedDataRow = selectedData[0].dataRow;
-    view.editOptions.editable = true;
-    view.onCellEditable = (grid, index) => {
-      if (index.itemIndex !== selectedDataRow) { return false; }
-    };
-  }
+async function onClickIconOpenCustomerListPopup() {
+  const {
+    result,
+    payload,
+  } = await modal({
+    component: 'ZwcsaCustomerListP',
+  });
+  notify(JSON.stringify({
+    result,
+    payload,
+  }));
 }
 
 let cachedParams;
@@ -351,6 +344,7 @@ const initGrid = defineGrid((data, view) => {
   data.setFields(fields);
   view.setColumns(columns);
   view.checkBar.visible = true; // create checkbox column
+  view.editOptions.editable = true;
   view.rowIndicator.visible = true; // create number indicator column
 
   // multi row header setting
