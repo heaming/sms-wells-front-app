@@ -25,33 +25,33 @@
           :colspan="2"
         >
           <kw-select
-            v-model="searchParams.searchGubun"
+            v-model="searchParams.srchGbn"
             :options="prdDivOption"
           />
           <kw-date-range-picker
             :key="isRegistration"
-            v-model:from="searchParams.startDate"
-            v-model:to="searchParams.endDate"
+            v-model:from="searchParams.dangOcStrtdt"
+            v-model:to="searchParams.dangOcEnddt"
             :type="isRegistration"
           />
         </kw-search-item>
         <kw-search-item :label="$t('MSG_TXT_MANAGEMENT_DEPARTMENT')">
           <kw-select
-            v-model="searchParams.generalDivision"
+            v-model="searchParams.gnrdv"
             :options="gnrlMngTeamOptions"
           />
         </kw-search-item>
       </kw-search-row>
       <kw-search-row>
         <kw-search-item :label="$t('MSG_TXT_RGNL_GRP')">
-          <kw-input v-model="searchParams.regionalGroup" />
+          <kw-input v-model="searchParams.rgrp" />
         </kw-search-item>
         <kw-search-item :label="t('MSG_TXT_BRANCH')">
-          <kw-input v-model="searchParams.branchOffice" />
+          <kw-input v-model="searchParams.brch" />
         </kw-search-item>
         <kw-search-item :label="$t('MSG_TXT_EMP_SRCH')">
           <kw-input
-            v-model="searchParams.employeeNo"
+            v-model="searchParams.dangOjPrtnrNo"
             icon="search_24"
           />
         </kw-search-item>
@@ -127,8 +127,8 @@ const { t } = useI18n();
 
 const dataService = useDataService();
 
-const prdDivOption = ref([{ codeId: 'Y', codeName: t('MSG_TXT_FST_RGST_DT') },
-  { codeId: 'N', codeName: t('MSG_TXT_YEAR_OCCURNCE') }]);
+const prdDivOption = ref([{ codeId: 1, codeName: t('MSG_TXT_FST_RGST_DT') },
+  { codeId: 2, codeName: t('MSG_TXT_YEAR_OCCURNCE') }]);
 const gnrlMngTeamOptions = ref([
   { codeId: '', codeName: t('MSG_TXT_ALL') },
   { codeId: 'A', codeName: `A${t('MSG_TXT_MANAGEMENT_DEPARTMENT')}` },
@@ -145,15 +145,13 @@ const gnrlMngTeamOptions = ref([
 let cachedParams;
 const totalCount = ref(0);
 const searchParams = ref({
-  searchGubun: 'Y',
-  startDate: '',
-  startMonth: '',
-  endDate: '',
-  endMonth: '',
-  generalDivision: '',
-  regionalGroup: '',
-  branchOffice: '',
-  employeeNo: '',
+  srchGbn: 1,
+  dangOcStrtdt: '',
+  dangOcEnddt: '',
+  gnrdv: '',
+  rgrp: '',
+  brch: '',
+  dangOjPrtnrNo: '',
 
 });
 
@@ -169,9 +167,9 @@ const codes = await codeUtil.getMultiCodes(
 );
 
 const isRegistration = computed(() => {
-  searchParams.value.startDate = '';
-  searchParams.value.endDate = '';
-  return searchParams.value.searchGubun === 'Y' ? 'date' : 'month';
+  searchParams.value.dangOcStrtdt = '';
+  searchParams.value.dangOcEnddt = '';
+  return searchParams.value.srchGbn !== 1 ? 'month' : 'date';
 });
 
 async function fetchData() {
@@ -184,8 +182,11 @@ async function fetchData() {
 
 async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
-  cachedParams.startMonth = cachedParams.startDate;
-  cachedParams.endMonth = cachedParams.endDate;
+  if (cachedParams.srchGbn !== 1) {
+    const { dangOcStrtdt, dangOcEnddt, ...restParams } = cachedParams;
+    cachedParams = { dangOcStrtMonth: dangOcStrtdt, dangOcEndMonth: dangOcEnddt, ...restParams };
+  }
+
   await fetchData();
 }
 
@@ -194,9 +195,8 @@ async function onClickRemove() {
   if (!await gridUtil.confirmIfIsModified(view)) { return; }
   const deletedRows = await gridUtil.confirmDeleteCheckedRows(view);
 
-  const dangChkIds = deletedRows.map((row) => row.dangChkId.toString());
-  if (dangChkIds.length) {
-    await dataService.delete('/sms/wells/contract/risk-audits/irregular-sales-actions/managerial-tasks', { params: { dangChkIds } });
+  if (deletedRows.length) {
+    await dataService.delete('/sms/wells/contract/risk-audits/irregular-sales-actions/managerial-tasks', { data: deletedRows });
     await fetchData();
   }
 }
@@ -231,23 +231,22 @@ async function onClickExcelDownload() {
 // -------------------------------------------------------------------------------------------------
 const initGrid = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'dangChkId' },
     { fieldName: 'dangOjPrtnrNo' },
-    { fieldName: 'dangOcStrtdt' },
+    { fieldName: 'dangOcStrtmm' },
     { fieldName: 'dangOjOgId' },
     { fieldName: 'dangOjPrtnrNm' },
     { fieldName: 'dangOjPrtnrPstnDvNm' },
-    { fieldName: 'dgr1HgrDgPrtnrNm' },
-    { fieldName: 'dgr2HgrDgPrtnrNm' },
-    { fieldName: 'dgr3HgrDgPrtnrNm' },
-    { fieldName: 'dgr4HgrDgPrtnrNm' },
+    { fieldName: 'dgr1LevlDgPrtnrNo' },
+    { fieldName: 'dgr2LevlDgPrtnrNo' },
+    { fieldName: 'dgr3LevlDgPrtnrNo' },
+    { fieldName: 'dgr4LevlDgPrtnrNo' },
     { fieldName: 'dangChkNm' },
     { fieldName: 'dangArbitCdNm' },
     { fieldName: 'dangUncvrCt' },
     { fieldName: 'dangArbitLvyPc' },
-    { fieldName: 'dangArbitOgNm' },
+    { fieldName: 'dangArbitOgId' },
     { fieldName: 'fstRgstUsrId' },
-    { fieldName: 'fstRgstDtm' },
+    { fieldName: 'fstRgstDt' },
 
   ];
 
@@ -259,7 +258,7 @@ const initGrid = defineGrid((data, view) => {
       button: 'action',
       rules: 'required',
     },
-    { fieldName: 'dangOcStrtdt',
+    { fieldName: 'dangOcStrtmm',
       header: t('MSG_TXT_YEAR_OCCURNCE'),
       width: '165',
       datetimeFormat: 'date',
@@ -269,10 +268,10 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'dangOjOgId', header: t('MSG_TXT_BLG'), width: '129', editable: false },
     { fieldName: 'dangOjPrtnrNm', header: t('MSG_TXT_EMPL_NM'), width: '129', editable: false },
     { fieldName: 'dangOjPrtnrPstnDvNm', header: t('MSG_TXT_CRLV'), width: '129', editable: false },
-    { fieldName: 'dgr1HgrDgPrtnrNm', header: t('MSG_TXT_MANAGEMENT_DEPARTMENT'), width: '129', editable: false },
-    { fieldName: 'dgr2HgrDgPrtnrNm', header: t('MSG_TXT_RGNL_GRP'), width: '129', editable: false },
-    { fieldName: 'dgr3HgrDgPrtnrNm', header: 'BM', width: '129', editable: false },
-    { fieldName: 'dgr4HgrDgPrtnrNm', header: t('MSG_TXT_BRANCH'), width: '129', editable: false },
+    { fieldName: 'dgr1LevlDgPrtnrNo', header: t('MSG_TXT_MANAGEMENT_DEPARTMENT'), width: '129', editable: false },
+    { fieldName: 'dgr2LevlDgPrtnrNo', header: t('MSG_TXT_RGNL_GRP'), width: '129', editable: false },
+    { fieldName: 'dgr3LevlDgPrtnrNo', header: 'BM', width: '129', editable: false },
+    { fieldName: 'dgr4LevlDgPrtnrNo', header: t('MSG_TXT_BRANCH'), width: '129', editable: false },
     { fieldName: 'dangChkNm', header: t('MSG_TXT_CHRGS'), width: '306', rules: 'required' },
     { fieldName: 'dangArbitCdNm',
       header: t('MSG_TXT_ACTN_ITM'),
@@ -300,7 +299,7 @@ const initGrid = defineGrid((data, view) => {
       ],
       editor: { type: 'list' },
       rules: 'required' },
-    { fieldName: 'dangArbitOgNm',
+    { fieldName: 'dangArbitOgId',
       header: t('MSG_TXT_ACTN_DPT'),
       width: '306',
       options: codes.PNTSC_ARBIT_DEPT_CD,
@@ -308,7 +307,7 @@ const initGrid = defineGrid((data, view) => {
       rules: 'required',
     },
     { fieldName: 'fstRgstUsrId', header: t('MSG_TXT_FST_RGST_USR'), width: '146', styleName: 'text-center', editable: false },
-    { fieldName: 'fstRgstDtm', header: t('MSG_TXT_FST_RGST_DT'), width: '165', datetimeFormat: 'date', editable: false },
+    { fieldName: 'fstRgstDt', header: t('MSG_TXT_FST_RGST_DT'), width: '165', datetimeFormat: 'date', editable: false },
 
   ];
 
@@ -323,26 +322,26 @@ const initGrid = defineGrid((data, view) => {
     {
       header: t('MSG_TXT_EMP_NO'),
       direction: 'horizontal',
-      items: ['dangOjPrtnrNo', 'dangOcStrtdt', 'dangOjOgId', 'dangOjPrtnrNm', 'dangOjPrtnrPstnDvNm'],
+      items: ['dangOjPrtnrNo', 'dangOcStrtmm', 'dangOjOgId', 'dangOjPrtnrNm', 'dangOjPrtnrPstnDvNm'],
     },
     {
       header: t('MSG_TXT_BLG'),
       direction: 'horizontal',
-      items: ['dgr1HgrDgPrtnrNm', 'dgr2HgrDgPrtnrNm', 'dgr3HgrDgPrtnrNm', 'dgr4HgrDgPrtnrNm'],
+      items: ['dgr1LevlDgPrtnrNo', 'dgr2LevlDgPrtnrNo', 'dgr3LevlDgPrtnrNo', 'dgr4LevlDgPrtnrNo'],
     },
     {
       header: t('MSG_TXT_PNLTY'),
       direction: 'horizontal',
-      items: ['dangChkNm', 'dangArbitCdNm', 'dangUncvrCt', 'dangArbitLvyPc', 'dangArbitOgNm'],
+      items: ['dangChkNm', 'dangArbitCdNm', 'dangUncvrCt', 'dangArbitLvyPc', 'dangArbitOgId'],
     },
-    'fstRgstUsrId', 'fstRgstDtm',
+    'fstRgstUsrId', 'fstRgstDt',
 
   ]);
 
   // Will update the fields when api available
   view.onCellButtonClicked = async () => {
     await modal({
-      component: 'ZwcsaCustomerListP',
+      component: 'ZwogcPartnerListP',
     });
   };
 });
