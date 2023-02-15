@@ -252,7 +252,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'fstRgstDtm', header: t('MSG_TXT_RGST_DTM'), width: '110', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date' }, /* 등록일 */
     { fieldName: 'fstRgstUsrNm', header: t('MSG_TXT_RGST_USR'), width: '80', styleName: 'rg-button-link text-center', renderer: { type: 'button' }, preventCellItemFocus: true }, /* 등록자 */
     { fieldName: 'fstRgstUsrId', header: 'RGST_ID', width: '50', visible: false },
-    { fieldName: 'fnlMdfcDtm', header: t('MSG_TXT_FNL_MDFC_DTM'), width: '110', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date' }, /* 최종수정일 */
+    { fieldName: 'fnlMdfcDtm', header: t('MSG_TXT_FNL_MDFC_D'), width: '110', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date' }, /* 최종수정일 */
     { fieldName: 'fnlMdfcUsrNm', header: t('MSG_TXT_FNL_MDFC_USR'), width: '80', styleName: 'rg-button-link text-center', renderer: { type: 'button' }, preventCellItemFocus: true }, /* 최종수정자 */
     { fieldName: 'fnlMdfcUsrId', header: 'MDFC_ID', width: '50', visible: false },
   ];
