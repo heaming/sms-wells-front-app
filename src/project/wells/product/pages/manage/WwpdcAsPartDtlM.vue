@@ -90,7 +90,7 @@
           <div class="button-set--bottom">
             <div class="button-set--bottom-right">
               <kw-btn
-                :label="$t('MSG_BTN_MOD ')"
+                :label="$t('MSG_BTN_MOD')"
                 class="ml8"
                 primary
                 @click="onClickModify"
