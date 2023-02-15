@@ -55,7 +55,7 @@
       />
       <kw-btn
         primary
-        :label="t('MSG_BTN_CFRM')"
+        :label="t('MSG_BTN_CONFIRM')"
         dense
       />
     </template>
@@ -86,21 +86,6 @@ onMounted(async () => {
     },
   });
   view.getDataSource().setRows(res.data);
-  view.getDataSource().setRows([
-    { col1: '9-직원구매', col2: '%s 플래너로부터 %s에 대한 승인 요청이 접수되었습니다.\n주문번호:%s', col3: '%s 플래너로부터 %s에 대한 승인 요청이 접수되었습니다.\n주문번호:%s', col4: '%s 플래너로부터 %s에 대한 승인 요청이 접수되었습니다.\n주문번호:%s', col5: '20220220', col6: '20220220' },
-    { col1: '9-직원구매', col2: '%s 플래너로부터 %s에 대한 승인 요청이 접수되었습니다.\n주문번호:%s', col3: '%s 플래너로부터 %s에 대한 승인 요청이 접수되었습니다.\n주문번호:%s', col4: '%s 플래너로부터 %s에 대한 승인 요청이 접수되었습니다.\n주문번호:%s', col5: '20220220', col6: '20220220' },
-    { col1: '9-직원구매', col2: '%s 플래너로부터 %s에 대한 승인 요청이 접수되었습니다.\n주문번호:%s', col3: '%s 플래너로부터 %s에 대한 승인 요청이 접수되었습니다.\n주문번호:%s', col4: '%s 플래너로부터 %s에 대한 승인 요청이 접수되었습니다.\n주문번호:%s', col5: '20220220', col6: '20220220' },
-    { col1: '9-직원구매', col2: '%s 플래너로부터 %s에 대한 승인 요청이 접수되었습니다.\n주문번호:%s', col3: '%s 플래너로부터 %s에 대한 승인 요청이 접수되었습니다.\n주문번호:%s', col4: '%s 플래너로부터 %s에 대한 승인 요청이 접수되었습니다.\n주문번호:%s', col5: '20220220', col6: '20220220' },
-    { col1: '9-직원구매', col2: '%s 플래너로부터 %s에 대한 승인 요청이 접수되었습니다.\n주문번호:%s', col3: '%s 플래너로부터 %s에 대한 승인 요청이 접수되었습니다.\n주문번호:%s', col4: '%s 플래너로부터 %s에 대한 승인 요청이 접수되었습니다.\n주문번호:%s', col5: '20220220', col6: '20220220' },
-    { col1: '9-직원구매', col2: '%s 플래너로부터 %s에 대한 승인 요청이 접수되었습니다.\n주문번호:%s', col3: '%s 플래너로부터 %s에 대한 승인 요청이 접수되었습니다.\n주문번호:%s', col4: '%s 플래너로부터 %s에 대한 승인 요청이 접수되었습니다.\n주문번호:%s', col5: '20220220', col6: '20220220' },
-    { col1: '9-직원구매', col2: '%s 플래너로부터 %s에 대한 승인 요청이 접수되었습니다.\n주문번호:%s', col3: '%s 플래너로부터 %s에 대한 승인 요청이 접수되었습니다.\n주문번호:%s', col4: '%s 플래너로부터 %s에 대한 승인 요청이 접수되었습니다.\n주문번호:%s', col5: '20220220', col6: '20220220' },
-    { col1: '9-직원구매', col2: '%s 플래너로부터 %s에 대한 승인 요청이 접수되었습니다.\n주문번호:%s', col3: '%s 플래너로부터 %s에 대한 승인 요청이 접수되었습니다.\n주문번호:%s', col4: '%s 플래너로부터 %s에 대한 승인 요청이 접수되었습니다.\n주문번호:%s', col5: '20220220', col6: '20220220' },
-    { col1: '9-직원구매', col2: '%s 플래너로부터 %s에 대한 승인 요청이 접수되었습니다.\n주문번호:%s', col3: '%s 플래너로부터 %s에 대한 승인 요청이 접수되었습니다.\n주문번호:%s', col4: '%s 플래너로부터 %s에 대한 승인 요청이 접수되었습니다.\n주문번호:%s', col5: '20220220', col6: '20220220' },
-    { col1: '9-직원구매', col2: '%s 플래너로부터 %s에 대한 승인 요청이 접수되었습니다.\n주문번호:%s', col3: '%s 플래너로부터 %s에 대한 승인 요청이 접수되었습니다.\n주문번호:%s', col4: '%s 플래너로부터 %s에 대한 승인 요청이 접수되었습니다.\n주문번호:%s', col5: '20220220', col6: '20220220' },
-    { col1: '9-직원구매', col2: '%s 플래너로부터 %s에 대한 승인 요청이 접수되었습니다.\n주문번호:%s', col3: '%s 플래너로부터 %s에 대한 승인 요청이 접수되었습니다.\n주문번호:%s', col4: '%s 플래너로부터 %s에 대한 승인 요청이 접수되었습니다.\n주문번호:%s', col5: '20220220', col6: '20220220' },
-    { col1: '9-직원구매', col2: '%s 플래너로부터 %s에 대한 승인 요청이 접수되었습니다.\n주문번호:%s', col3: '%s 플래너로부터 %s에 대한 승인 요청이 접수되었습니다.\n주문번호:%s', col4: '%s 플래너로부터 %s에 대한 승인 요청이 접수되었습니다.\n주문번호:%s', col5: '20220220', col6: '20220220' },
-
-  ]);
 });
 async function onClickDelete() {
   const view = grdConfirmRef.value.getView();
@@ -117,21 +102,21 @@ async function onClickDelete() {
 // -------------------------------------------------------------------------------------------------
 const initGrid = defineGrid(async (data, view) => {
   const fields = [
-    { fieldName: 'col1' },
-    { fieldName: 'col2' },
-    { fieldName: 'col3' },
-    { fieldName: 'col4' },
-    { fieldName: 'col5' },
-    { fieldName: 'col6' },
+    { fieldName: 'cntrAprAkDvCdNm' },
+    { fieldName: 'cntrAprAkMsgCn' },
+    { fieldName: 'cntrAprCanMsgCn' },
+    { fieldName: 'cntrAprConfMsgCn' },
+    { fieldName: 'vlStrtDtm' },
+    { fieldName: 'vlEndDtm' },
   ];
 
   const columns = [
-    { fieldName: 'col1', header: t('MSG_TXT_APR_REQ_CAT'), width: '142', styleName: 'text-center' },
-    { fieldName: 'col2', header: t('MSG_TXT_REQ_MSG'), width: '477' },
-    { fieldName: 'col3', header: t('MSG_TXT_REQ_CAN_MSG'), width: '477' },
-    { fieldName: 'col4', header: t('MSG_TXT_APR_CNFM_MSG'), width: '477' },
-    { fieldName: 'col5', header: t('MSG_TXT_STRT_DT'), width: '142', datetimeFormat: 'date', styleName: 'text-center' },
-    { fieldName: 'col6', header: t('MSG_TXT_END_DT'), width: '142', datetimeFormat: 'date', styleName: 'text-center' },
+    { fieldName: 'cntrAprAkDvCdNm', header: t('MSG_TXT_APR_REQ_CAT'), width: '142', styleName: 'text-center' },
+    { fieldName: 'cntrAprAkMsgCn', header: t('MSG_TXT_REQ_MSG'), width: '477' },
+    { fieldName: 'cntrAprCanMsgCn', header: t('MSG_TXT_REQ_CAN_MSG'), width: '477' },
+    { fieldName: 'cntrAprConfMsgCn', header: t('MSG_TXT_APR_CNFM_MSG'), width: '477' },
+    { fieldName: 'vlStrtDtm', header: t('MSG_TXT_STRT_DT'), width: '142', datetimeFormat: 'date', styleName: 'text-center' },
+    { fieldName: 'vlEndDtm', header: t('MSG_TXT_END_DT'), width: '142', datetimeFormat: 'date', styleName: 'text-center' },
 
   ];
 

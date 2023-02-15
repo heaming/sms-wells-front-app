@@ -131,6 +131,12 @@
             :visible-rows="10"
             @init="initGrid"
           />
+          <kw-pagination
+            v-model:page-index="pageInfo.pageIndex"
+            v-model:page-size="pageInfo.pageSize"
+            :total-count="pageInfo.totalCount"
+            @change="fetchData"
+          />
         </div>
       </kw-tab-panel>
     </kw-tab-panels>
@@ -142,9 +148,11 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { gridUtil, useDataService, getComponentType, useGlobal, useMeta, codeUtil } from 'kw-lib';
+import { cloneDeep } from 'lodash-es';
 
 const { t } = useI18n();
 const { notify, modal } = useGlobal();
+
 const dataService = useDataService();
 
 const grdMainRef = ref(getComponentType('KwGrid'));
@@ -157,6 +165,8 @@ const { getConfig } = useMeta();
 const codes = await codeUtil.getMultiCodes(
   'USE_YN',
 );
+
+let cachedParams;
 
 const searchParams = ref({
   baseDt: '',
@@ -172,20 +182,21 @@ const pageInfo = ref({
 
 const approvalClassificationList = ref([]);
 const purchaseClassificationList = ref([
-  { codeName: '전체', codeId: 'A' },
-  { codeName: '영업부', codeId: '7' },
-  { codeName: '직원판매', codeId: '8' },
-  { codeName: '직원구매', codeId: '9' },
+  { codeName: t('MSG_TXT_ALL'), codeId: 'A' },
+  { codeName: t('MSG_TXT_SLS'), codeId: '7' },
+  { codeName: t('MSG_TXT_EMP_SLS'), codeId: '8' },
+  { codeName: t('MSG_TXT_EMP_PRCH'), codeId: '9' },
 ]);
 
 const picClassificationList = ref([
-  { codeName: '담당구분', codeId: '0' },
-  { codeName: '지정사번', codeId: '1' },
-  { codeName: 'BM', codeId: '2' },
-  { codeName: '업무담당', codeId: '3' },
-  { codeName: '지역단장', codeId: '4' },
+  { codeName: t('MSG_TXT_ICHR_DV'), codeId: '0' },
+  { codeName: t('MSG_TXT_DSGNTD_CMPNY_NUM'), codeId: '1' },
+  { codeName: t('MSG_TXT_BM'), codeId: '2' },
+  { codeName: t('MSG_TXT_BIZ_ICHR'), codeId: '3' },
+  { codeName: t('MSG_TXT_REG_DIR'), codeId: '4' },
 ]);
 
+// TODO uncomment this.
 // onMounted(async () => {
 //   approvalClassificationList.value = await dataService.get('/sms/wells/contract/contracts/approval-requests');
 // });
@@ -197,11 +208,14 @@ function onClickAdd() {
 }
 
 async function fetchData() {
+  cachedParams = { ...cachedParams, ...pageInfo.value };
+  console.log(cachedParams, pageInfo.value);
+  const res = await dataService.get('sms/wells/contract/contracts/approval-standards/paging', { params: cachedParams });
+  const { list: approvals, pageInfo: pagingResult } = res.data;
   const view = grdMainRef.value.getView();
-  // TODO uncomment api and replace dummy data by res.data.
-  const res = await dataService.get('sms/wells/contract/contracts/approval-standards/paging');
-  view.getDataSource().setRows(res.data.list);
-  pageInfo.value.totalCount = 10;
+  pageInfo.value = pagingResult;
+  view.getDataSource().setRows(approvals);
+  view.resetCurrent();
 }
 
 async function onClickSave() {
@@ -249,13 +263,14 @@ async function onClickRemove() {
   const deletedRows = await gridUtil.confirmDeleteCheckedRows(view);
   console.log(deletedRows);
   if (deletedRows.length > 0) {
-    await dataService.delete('sms/wells/contract/contracts/approval-standards', deletedRows);
+    await dataService.delete('sms/wells/contract/contracts/approval-standards', { data: deletedRows });
     fetchData();
   }
 }
 
 function onClickSearch() {
   pageInfo.value.pageIndex = 1;
+  cachedParams = cloneDeep(searchParams.value);
   fetchData();
 }
 
@@ -264,6 +279,7 @@ function onClickSearch() {
 // -------------------------------------------------------------------------------------------------
 function initGrid(data, view) {
   const fields = [
+    { fieldName: 'cntrAprBaseId' },
     { fieldName: 'cntrAprAkDvCd' },
     { fieldName: 'cntrAprSellDvCd' },
     { fieldName: 'cntrAprChnlDvVal' },
@@ -273,7 +289,6 @@ function initGrid(data, view) {
     { fieldName: 'vlStrtDtm' },
     { fieldName: 'vlEndDtm' },
     { fieldName: 'notyFwOjYn' },
-    { fieldName: 'dtaDlYn' },
   ];
 
   const columns = [
