@@ -53,6 +53,7 @@
           <kw-input
             v-model="searchParams.dangOjPrtnrNo"
             icon="search_24"
+            @click-icon="onClickOpenPartnerListPopup"
           />
         </kw-search-item>
       </kw-search-row>
@@ -108,7 +109,7 @@
       <kw-grid
         ref="grdMainRef"
         name="grdMain"
-        :visible-rows="totalCount"
+        :visible-rows="totalCount || 1"
         @init="initGrid"
       />
     </div>
@@ -226,6 +227,15 @@ async function onClickExcelDownload() {
   });
 }
 
+async function onClickOpenPartnerListPopup() {
+  const { result, payload } = await modal({
+    component: 'ZwogcPartnerListP',
+  });
+  if (result) {
+    searchParams.value.dangOjPrtnrNo = payload.prtnrNo;
+  }
+}
+
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
@@ -261,9 +271,10 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'dangOcStrtmm',
       header: t('MSG_TXT_YEAR_OCCURNCE'),
       width: '165',
-      datetimeFormat: 'date',
+      datetimeFormat: 'yyyy-MM',
       editor: {
         type: 'btdate',
+        datetimeFormat: 'yyyy-MM',
       } },
     { fieldName: 'dangOjOgId', header: t('MSG_TXT_BLG'), width: '129', editable: false },
     { fieldName: 'dangOjPrtnrNm', header: t('MSG_TXT_EMPL_NM'), width: '129', editable: false },
@@ -306,8 +317,16 @@ const initGrid = defineGrid((data, view) => {
       editor: { type: 'list' },
       rules: 'required',
     },
-    { fieldName: 'fstRgstUsrId', header: t('MSG_TXT_FST_RGST_USR'), width: '146', styleName: 'text-center', editable: false },
-    { fieldName: 'fstRgstDt', header: t('MSG_TXT_FST_RGST_DT'), width: '165', datetimeFormat: 'date', editable: false },
+    { fieldName: 'fstRgstUsrId',
+      header: t('MSG_TXT_FST_RGST_USR'),
+      width: '146',
+      styleName: 'text-center',
+      editable: false },
+    { fieldName: 'fstRgstDt',
+      header: t('MSG_TXT_FST_RGST_DT'),
+      width: '165',
+      datetimeFormat: 'date',
+      editable: false },
 
   ];
 
@@ -338,11 +357,20 @@ const initGrid = defineGrid((data, view) => {
 
   ]);
 
-  // Will update the fields when api available
-  view.onCellButtonClicked = async () => {
-    await modal({
+  view.onCellButtonClicked = async (grid, index) => {
+    const { result, payload } = await modal({
       component: 'ZwogcPartnerListP',
     });
+    if (result) {
+      data.setValue(index.dataRow, 'dangOjPrtnrNo', payload.prtnrNo);
+      data.setValue(index.dataRow, 'dangOjPrtnrNm', payload.prtnrKnm);
+      // data.setValue(index.dataRow, 'dangOjOgId', payload.ogNm);
+      // data.setValue(index.dataRow, 'dangOjPrtnrPstnDvNm', payload.ogNM);
+      // data.setValue(index.dataRow, 'dgr1LevlDgPrtnrNo', payload.ogNM);
+      // data.setValue(index.dataRow, 'dgr2LevlDgPrtnrNo', payload.ogNM);
+      // data.setValue(index.dataRow, 'dgr3LevlDgPrtnrNo', payload.ogNM);
+      // data.setValue(index.dataRow, 'dgr4LevlDgPrtnrNo', payload.ogNM);
+    }
   };
 });
 
