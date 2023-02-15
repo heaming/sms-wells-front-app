@@ -23,8 +23,6 @@
           <kw-select
             v-model="searchParams.strOjWareNo"
             :options="warehouses"
-            option-label="codeName"
-            option-value="code"
           />
         </kw-search-item>
         <!-- 출고요청유형 -->
@@ -215,7 +213,7 @@ const warehouses = ref();
 async function fetchDefaultData() {
   const res = await dataService.get('/sms/wells/service/out-of-storage-asks/warehouses', { params: wharehouseParams.value });
   warehouses.value = res.data;
-  searchParams.value.strOjWareNo = warehouses.value[0].code;
+  searchParams.value.strOjWareNo = warehouses.value[0].codeId;
 }
 
 onMounted(async () => {

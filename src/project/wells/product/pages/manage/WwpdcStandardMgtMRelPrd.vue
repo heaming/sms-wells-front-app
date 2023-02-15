@@ -20,6 +20,7 @@
       <!-- 교재/자재 선택 -->
       <span class="kw-fc--black1">{{ $t('MSG_TXT_PD_MNL_MAT_SEL') }}</span>
       <kw-select
+        v-model="materialSearchType"
         dense
         class="ml12 w120"
         :options="materialSelectItems"
@@ -52,6 +53,7 @@
       <!-- 서비스 선택 -->
       <span class="kw-fc--black1">{{ $t('MSG_TXT_PD_SVC_SEL') }}</span>
       <kw-select
+        v-model="serviceSearchType"
         dense
         class="ml12 w120"
         :options="serviceSelectItems"
@@ -77,16 +79,19 @@
     :visible-rows="3"
     @init="initServiceGrid"
   />
-  <!-- 동시구매가능 기준상품 -->
-  <h3>{{ $t('MSG_TXT_PD_PUR_SIM') }}</h3>
+  <!-- 기준상품 관계설정 -->
+  <h3>{{ $t('MSG_TXT_STD_PRD_SET_REL') }}</h3>
   <kw-action-top v-show="!props.readonly">
     <template #left>
       <!-- 기준상품 선택 -->
       <span class="kw-fc--black1">{{ $t('MSG_TXT_PD_SEL_STD') }}</span>
+      <!-- 관계구분 선택 -->
       <kw-select
+        v-model="standardSearchType"
         dense
-        class="ml12 w120"
+        class="ml12 w140"
         :options="standardSelectItems"
+        :placeholder="$t('MSG_TXT_SEL_REL_TYPE')"
       />
       <kw-input
         v-model="standardSearchValue"
@@ -176,9 +181,27 @@ const standardSearchValue = ref();
 const searchParams = ref({
   searchType: null,
   searchValue: null,
+  pdTpCd: '',
 });
 
-async function insertReturnRows(view, rtn, pdRelTpCd) {
+async function getSaveData() {
+  let rowValues = gridUtil.getAllRowValues(grdMaterialRef.value.getView());
+  rowValues = pdMergeBy(rowValues, gridUtil.getAllRowValues(grdServiceRef.value.getView()));
+  rowValues = pdMergeBy(rowValues, gridUtil.getAllRowValues(grdStandardRef.value.getView()));
+  const rtnValues = { [pdConst.TBL_PD_REL]: rowValues ?? [] };
+  // console.log('WwpdcStandardMgtMRelPrd - getSaveData - rtnValues : ', rtnValues);
+  return rtnValues;
+}
+
+function isModifiedProps() {
+  return true;
+}
+
+function validateProps() {
+  return true;
+}
+
+async function insertCallbackRows(view, rtn, pdRelTpCd) {
   if (rtn.result) {
     if (Array.isArray(rtn.payload) && rtn.payload.length > 1) {
       const data = view.getDataSource();
@@ -214,33 +237,36 @@ async function onClickMaterialSchPopup() {
   const view = grdMaterialRef.value.getView();
   searchParams.value.searchType = materialSearchType.value;
   searchParams.value.searchValue = materialSearchValue.value;
+  searchParams.value.pdTpCd = 'M';
   const rtn = await modal({
     component: 'ZpdcMaterialsSelectP',
-    componentProps: { ...searchParams.value, searchType: pdConst.PD_TP_CD_M },
+    componentProps: { ...searchParams.value, searchType: pdConst.PD_TP_CD_MATERIAL },
   });
-  await insertReturnRows(view, rtn, pdConst.PD_REL_TP_CD_P_TO_PD);
+  await insertCallbackRows(view, rtn, pdConst.PD_REL_TP_CD_P_TO_PD);
 }
 
 async function onClickServiceSchPopup() {
   const view = grdServiceRef.value.getView();
   searchParams.value.searchType = serviceSearchType.value;
   searchParams.value.searchValue = serviceSearchValue.value;
+  searchParams.value.pdTpCd = pdConst.PD_TP_CD_SERVICE;
   const rtn = await modal({
-    component: 'ZwpdcServiceListP',
+    component: 'ZwpdcServiceSimpleListP',
     componentProps: searchParams.value,
   });
-  await insertReturnRows(view, rtn, pdConst.PD_REL_TP_CD_P_TO_S);
+  await insertCallbackRows(view, rtn, pdConst.PD_REL_TP_CD_P_TO_S);
 }
 
 async function onClickStandardSchPopup() {
   const view = grdStandardRef.value.getView();
   searchParams.value.searchType = standardSearchType.value;
   searchParams.value.searchValue = standardSearchValue.value;
+  searchParams.value.pdTpCd = pdConst.PD_TP_CD_STANDARD;
   const rtn = await modal({
-    component: 'ZpdcStandardProductListP',
+    component: 'ZwpdcStandardSimpleListP',
     componentProps: searchParams.value,
   });
-  await insertReturnRows(view, rtn, pdConst.PD_REL_TP_CD_P_TO_P);
+  await insertCallbackRows(view, rtn, pdConst.PD_REL_TP_CD_P_TO_P);
 }
 
 async function onClickMaterialDelRows() {
@@ -258,9 +284,6 @@ async function onClickStandardDelRows() {
   await deleteCheckedRows(view);
 }
 
-//-------------------------------------------------------------------------------------------------
-// Initialize Grid
-//-------------------------------------------------------------------------------------------------
 async function initGridRows() {
   const products = currentInitData.value[pdConst.RELATION_PRODUCTS];
   if (isEmpty(await products)) {
@@ -289,18 +312,45 @@ async function initGridRows() {
   }
 }
 
+async function initProps() {
+  const { pdCd, initData } = props;
+  currentPdCd.value = pdCd;
+  currentInitData.value = initData;
+  await initGridRows();
+}
+
+await initProps();
+
+watch(() => props.pdCd, () => { initProps(); });
+watch(() => props.initData, () => { initProps(); }, { deep: true });
+
+//-------------------------------------------------------------------------------------------------
+// Initialize Grid
+//-------------------------------------------------------------------------------------------------
 async function initMaterialGrid(data, view) {
   const columns = [
     // 상태
-    { fieldName: 'tempSaveYn', header: t('MSG_TXT_STATUS'), width: '135', styleName: 'text-center', options: props.codes?.PD_TEMP_SAVE_CD },
+    { fieldName: 'tempSaveYn', header: t('MSG_TXT_STT'), width: '105', styleName: 'text-center', options: props.codes?.PD_TEMP_SAVE_CD },
     // 교재/자재 분류
-    { fieldName: 'pdClsfNm', header: t('MSG_TXT_PD_BOK_MTR_TYPE'), width: '371' },
+    { fieldName: 'pdClsfNm', header: t('MSG_TXT_PD_BOK_MTR_TYPE'), width: '201' },
     // 교재/자재명
-    { fieldName: 'pdNm', header: t('MSG_TXT_PD_BOK_MTR_NAME'), width: '306' },
+    { fieldName: 'pdNm', header: t('MSG_TXT_PD_BOK_MTR_NAME'), width: '206' },
     // 제품코드
-    { fieldName: 'pdCd', header: t('MSG_TXT_PROD_CD'), width: '185', styleName: 'text-center' },
+    { fieldName: 'pdCd', header: t('MSG_TXT_PROD_CD'), width: '85', styleName: 'text-center' },
     // 자재코드
-    { fieldName: 'sapMatCd', header: t('MSG_TXT_MATI_CODE'), width: '187', styleName: 'text-center' },
+    { fieldName: 'sapMatCd', header: t('MSG_TXT_MATI_CODE'), width: '87', styleName: 'text-center' },
+    // 제품수량(개)
+    { fieldName: 'aaa', header: t('MSG_TXT_PRD_COUNT_EA'), width: '87', styleName: 'text-center' },
+    // 판매금액
+    { fieldName: 'bbb', header: t('MSG_TXT_SALE_PRICE'), width: '107', styleName: 'text-center' },
+    // 공급가액
+    { fieldName: 'ccc', header: t('MSG_TXT_SUPPLY_AMOUNT'), width: '107', styleName: 'text-center' },
+    // 부가세액
+    { fieldName: 'ddd', header: t('MSG_TXT_VAT_AMOUNT'), width: '107', styleName: 'text-center' },
+    // 안분비율(%)
+    { fieldName: 'eee', header: t('MSG_TXT_PROPORTIONAL_DV_RT'), width: '107', styleName: 'text-center' },
+    // 잔액산입
+    { fieldName: 'fff', header: t('MSG_TXT_CHANGE_COUNTING'), width: '87', styleName: 'text-center' },
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   fields.push({ fieldName: pdConst.REL_PD_ID });
@@ -318,7 +368,7 @@ async function initServiceGrid(data, view) {
     // 필수여부
     { fieldName: 'mndtSvYn', header: t('MSG_TXT_REQD_SVC'), width: '95', styleName: 'text-center' },
     // 상태
-    { fieldName: 'tempSaveYn', header: t('MSG_TXT_STATUS'), width: '135', styleName: 'text-center', options: props.codes?.PD_TEMP_SAVE_CD },
+    { fieldName: 'tempSaveYn', header: t('MSG_TXT_STT'), width: '135', styleName: 'text-center', options: props.codes?.PD_TEMP_SAVE_CD },
     // 서비스 분류
     { fieldName: 'pdClsfNm', header: t('MSG_TXT_SVC_CATG'), width: '371' },
     // 서비스명
@@ -342,18 +392,22 @@ async function initServiceGrid(data, view) {
 }
 async function initStandardGrid(data, view) {
   const columns = [
+    // 관계구분
+    { fieldName: 'relType', header: t('MSG_TXT_RELATION_CLSF'), width: '127', styleName: 'text-center' },
     // 상태
-    { fieldName: 'tempSaveYn', header: t('MSG_TXT_STATUS'), width: '135', styleName: 'text-center', options: props.codes?.PD_TEMP_SAVE_CD },
+    { fieldName: 'tempSaveYn', header: t('MSG_TXT_STT'), width: '135', styleName: 'text-center', options: props.codes?.PD_TEMP_SAVE_CD },
     // 기준상품 분류
     { fieldName: 'pdClsfNm', header: t('MSG_TXT_PD_STD_TYPE'), width: '371' },
     // 기준상품명
     { fieldName: 'pdNm', header: t('MSG_TXT_PD_STD_NAME'), width: '306' },
     // 기준상품코드
-    { fieldName: 'pdCd', header: t('MSG_TXT_PD_STD_CODE'), width: '185', styleName: 'text-center' },
+    { fieldName: 'pdCd', header: t('MSG_TXT_PD_STD_CODE'), width: '125', styleName: 'text-center' },
     // 판매유형
     { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '187', styleName: 'text-center' },
-    // 판매채널
-    { fieldName: 'channelId', header: t('MSG_TXT_SEL_CHNL'), width: '187', styleName: 'text-center', options: props.codes?.SELL_CHNL_DV_CD },
+    // 서비스명
+    { fieldName: 'pdServiceNm', header: t('MSG_TXT_SVC_NAME'), width: '306' },
+    // 서비스코드
+    { fieldName: 'pdServiceCd', header: t('MSG_TXT_SVC_CODE'), width: '125' },
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   fields.push({ fieldName: pdConst.REL_PD_ID });
@@ -367,33 +421,4 @@ async function initStandardGrid(data, view) {
 
   await initGridRows();
 }
-
-async function getSaveData() {
-  let rowValues = gridUtil.getAllRowValues(grdMaterialRef.value.getView());
-  rowValues = pdMergeBy(rowValues, gridUtil.getAllRowValues(grdServiceRef.value.getView()));
-  rowValues = pdMergeBy(rowValues, gridUtil.getAllRowValues(grdStandardRef.value.getView()));
-  const rtnValues = { [pdConst.TBL_PD_REL]: rowValues ?? [] };
-  // console.log('WwpdcStandardMgtMRelPrd - getSaveData - rtnValues : ', rtnValues);
-  return rtnValues;
-}
-
-function isModifiedProps() {
-  return true;
-}
-
-function validateProps() {
-  return true;
-}
-
-async function initProps() {
-  const { pdCd, initData } = props;
-  currentPdCd.value = pdCd;
-  currentInitData.value = initData;
-  await initGridRows();
-}
-
-await initProps();
-
-watch(() => props.pdCd, () => { initProps(); });
-watch(() => props.initData, () => { initProps(); }, { deep: true });
 </script>

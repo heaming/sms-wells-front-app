@@ -126,7 +126,7 @@
           />
           <kw-btn
             v-show="!isCreate || currentStep.step === regSteps.length"
-            :label="$t('MSG_BTN_SVE')"
+            :label="$t('MSG_BTN_SAVE')"
             class="ml8"
             primary
             @click="onClickSave('N')"
@@ -192,9 +192,6 @@ const codes = await codeUtil.getMultiCodes(
   'SV_PRD_UNIT_CD',
   'SV_VST_PRD_CD',
 );
-
-watch(() => props.pdCd, (val) => { currentPdCd.value = val; });
-watch(() => props.tempSaveYn, (val) => { isTempSaveBtn.value = val !== 'Y'; });
 
 async function onClickReset() {
   cmpStepRefs.value.forEach((item) => {
@@ -285,7 +282,7 @@ async function onClickPrevStep() {
 async function fetchProduct() {
   if (currentPdCd.value) {
     const res = await dataService.get(`/sms/common/product/standards/${currentPdCd.value}`);
-    // console.log('WwpdcStandardMgtM - fetchProduct - res.data', res.data);
+    console.log('WwpdcStandardMgtM - fetchProduct - res.data', res.data);
     prevStepData.value[bas] = res.data[bas];
     prevStepData.value[dtl] = res.data[dtl];
     prevStepData.value[ecom] = res.data[ecom];
@@ -326,6 +323,7 @@ async function onClickSave(tempSaveYn) {
 
   // 3. Step별 저장 데이터 확인
   const subList = await getSaveData();
+  console.log('WwpdcStandardMgtM - onClickSave - subList : ', subList);
 
   // 4. 생성 or 저장
   const { pdCd } = props;
@@ -337,16 +335,14 @@ async function onClickSave(tempSaveYn) {
   }
 
   // 5. 생성 이후 Step 설정
-  if (rtn) {
-    notify(t('MSG_ALT_SAVE_DATA'));
-    if (isTempSaveBtn) {
-      // 임시저장
-      currentPdCd.value = rtn.data?.data?.pdCd;
-      isCreate.value = isEmpty(currentPdCd.value);
-      fetchProduct();
-    } else {
-      router.push({ path: '/product/zwpdc-sale-product-list' });
-    }
+  notify(t('MSG_ALT_SAVE_DATA'));
+  if (isTempSaveBtn) {
+    // 임시저장
+    currentPdCd.value = rtn.data?.data?.pdCd;
+    isCreate.value = isEmpty(currentPdCd.value);
+    fetchProduct();
+  } else {
+    router.push({ path: '/product/zwpdc-sale-product-list' });
   }
 }
 
@@ -361,6 +357,9 @@ async function initProps() {
 }
 
 await initProps();
+
+watch(() => props.pdCd, (val) => { currentPdCd.value = val; });
+watch(() => props.tempSaveYn, (val) => { isTempSaveBtn.value = val !== 'Y'; });
 
 watch(() => route.params.pdCd, async (pdCd) => {
   if (route.params.pdCd !== pdCd) {

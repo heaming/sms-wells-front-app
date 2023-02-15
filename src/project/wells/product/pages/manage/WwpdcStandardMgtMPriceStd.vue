@@ -39,7 +39,7 @@
     <kw-action-top>
       <kw-btn
         v-show="!props.readonly"
-        :label="$t('MSG_BTN_MDFC')"
+        :label="$t('MSG_BTN_MOD')"
         dense
         @click="onClickMidify"
       />
@@ -96,11 +96,38 @@ const currentPdCd = ref();
 const currentInitData = ref(null);
 const priceFieldData = ref({});
 const currentMetaInfos = ref();
-const removeObjects = reactive([]);
+const removeObjects = ref([]);
 const currentCodes = ref({});
 
+async function getSaveData() {
+  const rowValues = gridUtil.getAllRowValues(grdMainRef.value.getView());
+  const rtnValues = getGridRowsToSavePdProps(
+    rowValues,
+    currentMetaInfos.value,
+    pdConst.TBL_PD_PRC_DTL,
+    [pdConst.PRC_STD_ROW_ID],
+  );
+  if (removeObjects.value.length) {
+    rtnValues[pdConst.REMOVE_ROWS] = cloneDeep(removeObjects.value);
+  }
+  // console.log('WwpdcStandardMgtMPriceStd - getSaveData - rtnValues : ', rtnValues);
+  return rtnValues;
+}
+
+function isModifiedProps() {
+  return true;
+}
+
+async function validateProps() {
+  const rtn = gridUtil.validate(grdMainRef.value.getView(), {
+    isChangedOnly: false,
+  });
+  // console.log('=-================', rtn);
+  return rtn;
+}
+
 async function resetInitData() {
-  Object.assign(removeObjects, []);
+  Object.assign(removeObjects.value, []);
   await initGridRows();
 }
 
@@ -118,7 +145,12 @@ async function initGridRows() {
     sellTpCd: currentSellTpCd,
   };
   if (await currentInitData.value?.[prcd]) {
-    const rows = cloneDeep(await getPropInfosToGridRows(currentInitData.value?.[prcd], currentMetaInfos.value, prcd));
+    const rows = cloneDeep(await getPropInfosToGridRows(
+      currentInitData.value?.[prcd],
+      currentMetaInfos.value,
+      prcd,
+      [pdConst.PRC_STD_ROW_ID, 'pdPrcDtlId'],
+    ));
     rows?.map((row) => {
       row[pdConst.PRC_STD_ROW_ID] = row.pdPrcDtlId;
       row.sellTpCd = currentSellTpCd;
@@ -172,36 +204,13 @@ async function onClickMidify() {
 async function onClickRemove() {
   const deletedRowValues = gridUtil.deleteCheckedRows(grdMainRef.value.getView());
   if (deletedRowValues && deletedRowValues.length) {
-    removeObjects.push(...deletedRowValues.reduce((rtn, item) => {
+    removeObjects.value.push(...deletedRowValues.reduce((rtn, item) => {
       if (item[pdConst.PRC_STD_ROW_ID]) {
         rtn.push({ [pdConst.PRC_STD_ROW_ID]: item[pdConst.PRC_STD_ROW_ID] });
       }
       return rtn;
     }, []));
   }
-}
-
-async function getSaveData() {
-  const rowValues = gridUtil.getAllRowValues(grdMainRef.value.getView());
-  const rtnValues = getGridRowsToSavePdProps(
-    rowValues,
-    currentMetaInfos.value,
-    pdConst.TBL_PD_PRC_DTL,
-    [pdConst.PRC_STD_ROW_ID],
-  );
-  if (removeObjects.length) {
-    rtnValues[pdConst.REMOVE_ROWS] = cloneDeep(removeObjects);
-  }
-  // console.log('WwpdcStandardMgtMPriceStd - getSaveData - rtnValues : ', rtnValues);
-  return rtnValues;
-}
-
-function isModifiedProps() {
-  return true;
-}
-
-function validateProps() {
-  return true;
 }
 
 async function initProps() {
@@ -218,6 +227,9 @@ async function initProps() {
 }
 
 await initProps();
+
+watch(() => props.pdCd, (val) => { currentPdCd.value = val; });
+watch(() => props.initData, (val) => { currentInitData.value = val; resetInitData(); }, { deep: true });
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
@@ -241,7 +253,4 @@ async function initGrid(data, view) {
   view.editOptions.editable = true;
   await initGridRows();
 }
-
-watch(() => props.pdCd, (val) => { currentPdCd.value = val; });
-watch(() => props.initData, (val) => { currentInitData.value = val; resetInitData(); }, { deep: true });
 </script>
