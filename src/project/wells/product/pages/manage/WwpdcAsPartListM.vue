@@ -42,7 +42,6 @@
         <!-- AS부품 분류 -->
         <kw-search-item
           :label="$t('MSG_TIT_AS_PART_CLASSIFICATION')"
-          :colspan="2"
         >
           <zwpd-product-classification-select
             ref="productSelRef"
