@@ -13,86 +13,98 @@
 ****************************************************************************************************
 --->
 <template>
-  <kw-tab-panels
-    model-value="contents"
-    class="mt20"
+  <kw-tabs
+    v-model="selectedTab"
+    class="mt24"
   >
-    <kw-tab-panel name="contents">
-      <kw-tabs
-        v-model="selectedTab"
-      >
-        <!-- 기본속성 -->
-        <kw-tab
-          :name="pdConst.STANDARD_STEP_BASIC.name"
-          :label="$t('MSG_TXT_BAS_ATTR')"
+    <!-- 기본속성 -->
+    <kw-tab
+      :name="pdConst.STANDARD_STEP_BASIC.name"
+      :label="$t('MSG_TXT_BAS_ATTR')"
+    />
+    <!-- 연결상품 -->
+    <kw-tab
+      :name="pdConst.STANDARD_STEP_REL_PROD.name"
+      :label="$t('MSG_TXT_REL_PRDT')"
+    />
+    <!-- 관리속성 -->
+    <kw-tab
+      :name="pdConst.STANDARD_STEP_MANAGE.name"
+      :label="$t('MSG_TXT_MGT_ATTR')"
+    />
+    <!-- 가격 -->
+    <kw-tab
+      :name="pdConst.STANDARD_STEP_PRICE.name"
+      :label="$t('MSG_TXT_PRICE')"
+    />
+    <!-- 변경이력 -->
+    <kw-tab
+      v-show="props.isHistoryTab"
+      name="hist"
+      :label="$t('MSG_TXT_REVS_HIST')"
+    />
+  </kw-tabs>
+  <div class="normal-area normal-area--button-set-bottom">
+    <kw-tab-panels
+      :model-value="selectedTab"
+    >
+      <kw-tab-panel :name="pdConst.STANDARD_STEP_BASIC.name">
+        <zwpdc-prop-groups-dtl
+          :ref="cmpStepRefs[0]"
+          v-model:pd-cd="currentPdCd"
+          v-model:init-data="currentInitData"
+          :pd-tp-cd="pdConst.PD_TP_CD_STANDARD"
+          :pd-grp-dv-cd="pdConst.PD_PRP_GRP_DV_CD_BASIC"
+          :is-first-title="true"
+          :prefix-title="$t('MSG_TXT_BAS_ATTR')"
         />
-        <!-- 연결상품 -->
-        <kw-tab
-          :name="pdConst.STANDARD_STEP_REL_PROD.name"
-          :label="$t('MSG_TXT_REL_PRDT')"
+      </kw-tab-panel>
+      <kw-tab-panel :name="pdConst.STANDARD_STEP_REL_PROD.name">
+        <wwpdc-standard-dtl-m-rel
+          :ref="cmpStepRefs[1]"
+          v-model:pd-cd="currentPdCd"
+          v-model:init-data="currentInitData"
+          :codes="props.codes"
         />
-        <!-- 관리속성 -->
-        <kw-tab
-          :name="pdConst.STANDARD_STEP_MANAGE.name"
-          :label="$t('MSG_TXT_MGT_ATTR_REG')"
+      </kw-tab-panel>
+      <kw-tab-panel :name="pdConst.STANDARD_STEP_MANAGE.name">
+        <zwpdc-prop-groups-dtl
+          :ref="cmpStepRefs[2]"
+          v-model:pd-cd="currentPdCd"
+          v-model:init-data="currentInitData"
+          :pd-tp-cd="pdConst.PD_TP_CD_STANDARD"
+          :pd-grp-dv-cd="pdConst.PD_PRP_GRP_DV_CD_MANUAL"
+          :is-first-title="true"
+          :prefix-title="$t('MSG_TXT_MGT_ATTR')"
         />
-        <!-- 가격 -->
-        <kw-tab
-          :name="pdConst.STANDARD_STEP_PRICE.name"
-          :label="$t('MSG_TXT_PRICE')"
+      </kw-tab-panel>
+      <kw-tab-panel :name="pdConst.STANDARD_STEP_PRICE.name">
+        <wwpdc-standard-dtl-m-price
+          :ref="cmpStepRefs[3]"
+          v-model:pd-cd="currentPdCd"
+          v-model:init-data="currentInitData"
+          :codes="props.codes"
         />
-        <!-- 변경이력 -->
-        <kw-tab
-          v-show="props.isHistoryTab"
-          name="hist"
-          :label="$t('MSG_TXT_REVS_HIST')"
+      </kw-tab-panel>
+      <kw-tab-panel name="hist">
+        <zwpdc-prod-change-hist
+          v-model:pd-cd="currentPdCd"
+          :pd-tp-cd="pdConst.PD_TP_CD_STANDARD"
         />
-      </kw-tabs>
-      <kw-tab-panels
-        :model-value="selectedTab"
-      >
-        <kw-tab-panel :name="pdConst.STANDARD_STEP_BASIC.name">
-          <zwpdc-prop-groups-dtl
-            :ref="cmpStepRefs[0]"
-            v-model:pd-cd="currentPdCd"
-            v-model:init-data="currentInitData"
-            :pd-tp-cd="pdConst.PD_TP_CD_STANDARD"
-            :pd-grp-dv-cd="pdConst.PD_PRP_GRP_DV_CD_BASIC"
-          />
-        </kw-tab-panel>
-        <kw-tab-panel :name="pdConst.STANDARD_STEP_REL_PROD.name">
-          <wwpdc-standard-dtl-m-rel
-            :ref="cmpStepRefs[1]"
-            v-model:pd-cd="currentPdCd"
-            v-model:init-data="currentInitData"
-          />
-        </kw-tab-panel>
-        <kw-tab-panel :name="pdConst.STANDARD_STEP_MANAGE.name">
-          <zwpdc-prop-groups-dtl
-            :ref="cmpStepRefs[2]"
-            v-model:pd-cd="currentPdCd"
-            v-model:init-data="currentInitData"
-            :pd-tp-cd="pdConst.PD_TP_CD_STANDARD"
-            :pd-grp-dv-cd="pdConst.PD_PRP_GRP_DV_CD_MANUAL"
-          />
-        </kw-tab-panel>
-        <kw-tab-panel :name="pdConst.STANDARD_STEP_PRICE.name">
-          <zwpdc-standard-dtl-m-price
-            :ref="cmpStepRefs[3]"
-            v-model:pd-cd="currentPdCd"
-            v-model:init-data="currentInitData"
-            :codes="currentCodes"
-          />
-        </kw-tab-panel>
-        <kw-tab-panel name="hist">
-          <zwpdc-prod-change-hist
-            v-model:pd-cd="currentPdCd"
-            :pd-tp-cd="pdConst.PD_TP_CD_STANDARD"
-          />
-        </kw-tab-panel>
-      </kw-tab-panels>
-    </kw-tab-panel>
-  </kw-tab-panels>
+      </kw-tab-panel>
+    </kw-tab-panels>
+    <div
+      v-show="isUpdateBtn"
+      class="button-set--bottom"
+    >
+      <div class="button-set--bottom-right">
+        <kw-btn
+          :label="$t('MSG_BTN_MOD')"
+          @click="onClickUpdate"
+        />
+      </div>
+    </div>
+  </div>
 </template>
 <script setup>
 // -------------------------------------------------------------------------------------------------
@@ -101,7 +113,7 @@
 import pdConst from '~sms-common/product/constants/pdConst';
 import ZwpdcPropGroupsDtl from '~sms-common/product/pages/manage/components/ZwpdcPropGroupsDtl.vue';
 import ZwpdcProdChangeHist from '~sms-common/product/pages/manage/components/ZwpdcProdChangeHist.vue';
-import ZwpdcStandardDtlMPrice from '~sms-common/product/pages/manage/ZwpdcStandardDtlMPrice.vue';
+import WwpdcStandardDtlMPrice from './WwpdcStandardDtlMPrice.vue';
 import WwpdcStandardDtlMRel from './WwpdcStandardDtlMRel.vue';
 
 const props = defineProps({
@@ -110,7 +122,10 @@ const props = defineProps({
   codes: { type: Object, default: null },
   tempSaveYn: { type: String, default: 'Y' },
   isHistoryTab: { type: Boolean, default: true },
+  isUpdateBtn: { type: Boolean, default: true },
 });
+
+const router = useRouter();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -118,14 +133,17 @@ const props = defineProps({
 const cmpStepRefs = ref([ref(), ref(), ref(), ref(), ref()]);
 const currentPdCd = ref();
 const currentInitData = ref({});
-const currentCodes = ref({});
 const selectedTab = ref(pdConst.STANDARD_STEP_BASIC.name);
 
+async function onClickUpdate() {
+  const { pdCd } = props;
+  router.push({ path: '/product/zwpdc-sale-product-list/wwpdc-standard-mgt', query: { pdCd, tempSaveYn: 'N' } });
+}
+
 async function initProps() {
-  const { pdCd, initData, codes } = props;
+  const { pdCd, initData } = props;
   currentPdCd.value = pdCd;
   currentInitData.value = initData;
-  currentCodes.value = codes;
 }
 
 await initProps();

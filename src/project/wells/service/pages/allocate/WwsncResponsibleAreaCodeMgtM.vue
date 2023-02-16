@@ -61,7 +61,7 @@
         </kw-search-item>
         <!--서비스센터-->
         <kw-search-item
-          :label="$t('MSG_TXT_SRVC_CNTR')"
+          :label="$t('MSG_TXT_SV_CNR')"
         >
           <kw-select
             v-model="searchParams.ogId"
@@ -395,7 +395,7 @@ const initGrdMain = defineGrid((data, view) => {
     },
     {
       fieldName: 'ogNm',
-      header: t('MSG_TXT_SRVC_CNTR'),
+      header: t('MSG_TXT_CENTER_DIVISION'),
       width: '100',
     },
     {

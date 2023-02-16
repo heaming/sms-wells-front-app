@@ -3,52 +3,51 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : PDC (상품운영관리)
-2. 프로그램 ID : WwpdcStandardMgtMPriceFee - 기준상품 등록/변경 - 가격정보 - 수수료 등록 ( W-PD-U-0010M01 )
+2. 프로그램 ID : WwpdcStandardDtlMPrice - 기준상품 상세조회 - 가격정보 ( W-PD-U-0010M01 )
 3. 작성자 : jintae.choi
 4. 작성일 : 2022.12.31
 ****************************************************************************************************
 * 프로그램 설명
 ****************************************************************************************************
-- 상품 기준상품 등록/변경 - 가격정보 - 수수료 등록 프로그램
+- 상품 기준상품 등록/변경 - 가격정보 프로그램
 ****************************************************************************************************
 --->
 <template>
-  <div class="result-area">
-    <!-- 법인별 현황 -->
-    <h3>{{ $t('MSG_TXT_PD_ST_BY_CORP') }}</h3>
-    <kw-action-top>
-      <template #left>
-        <!-- (단위:원) -->
-        <span>({{ $t('MSG_TXT_UNIT') }} : {{ $t('MSG_TXT_CUR_WON') }})</span>
-      </template>
-      <kw-btn
-        v-show="!props.readonly"
-        :label="$t('MSG_BTN_DEL')"
-        secondary
-        dense
-        @click="onClickRemove"
-      />
-    </kw-action-top>
-    <kw-grid
-      ref="grdMainRef"
-      :visible-rows="10"
-      @init="initGrid"
-    />
+  <div>
+    <kw-search
+      one-row
+      :cols="2"
+      class="mt24"
+      @search="onClickSearch"
+    >
+      <kw-search-row>
+        <kw-search-item :label="$t('MSG_TXT_SEL_CHNL')">
+          <kw-select
+            v-model="searchParams.avlChnlId"
+            first-option="all"
+            :options="usedChannelCds"
+          />
+        </kw-search-item>
+      </kw-search-row>
+    </kw-search>
   </div>
+  <kw-action-top class="mt40">
+    <span class="kw-fc---black3 text-weight-regular">(단위 : 원)</span>
+  </kw-action-top>
+  <kw-grid
+    ref="grdMainRef"
+    :visible-rows="10"
+    @init="initGrid"
+  />
 </template>
 <script setup>
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { gridUtil, getComponentType } from 'kw-lib';
-import { cloneDeep } from 'lodash-es';
+import { getComponentType, useDataService, codeUtil } from 'kw-lib';
+import { cloneDeep, isEmpty, merge } from 'lodash-es';
 import pdConst from '~sms-common/product/constants/pdConst';
-import { pdMergeBy, getGridRowsToSavePdProps, getPropInfosToGridRows, getPdMetaToGridInfos } from '~sms-common/product/utils/pdUtil';
-
-/* eslint-disable no-use-before-define */
-defineExpose({
-  getSaveData, isModifiedProps, validateProps,
-});
+import { pdMergeBy, getPropInfosToGridRows, getPdMetaToCodeNames, getPdMetaToGridInfos } from '~sms-common/product/utils/pdUtil';
 
 const props = defineProps({
   pdCd: { type: String, default: null },
@@ -58,7 +57,9 @@ const props = defineProps({
   readonly: { type: Boolean, default: false },
 });
 
+const dataService = useDataService();
 const { t } = useI18n();
+
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -66,49 +67,19 @@ const grdMainRef = ref(getComponentType('KwGrid'));
 
 const prcd = pdConst.TBL_PD_PRC_DTL;
 const prcfd = pdConst.TBL_PD_PRC_FNL_DTL;
-const defaultFields = ref([pdConst.PRC_STD_ROW_ID, pdConst.PRC_FNL_ROW_ID,
-  pdConst.PRC_DETAIL_ID, pdConst.PRC_DETAIL_FNL_ID]);
 const currentPdCd = ref();
 const currentInitData = ref(null);
 const currentMetaInfos = ref();
-const removeObjects = ref([]);
+const currentCodes = ref({});
+const usedChannelCds = ref([]);
 
-async function getSaveData() {
-  const view = grdMainRef.value.getView();
-  const outKeys = view.getColumns().filter((item) => !item.editable).reduce((rtn, item) => {
-    rtn.push(item.fieldName);
-    return rtn;
-  }, []); /* 그리드에서 수정항목이 아닌 경우 제외 */
-  const rowValues = gridUtil.getAllRowValues(view);
-  const rtnValues = await getGridRowsToSavePdProps(
-    rowValues,
-    currentMetaInfos.value,
-    prcfd,
-    defaultFields.value,
-    outKeys,
-  );
-  if (removeObjects.value.length) {
-    rtnValues[pdConst.REMOVE_ROWS] = cloneDeep(removeObjects.value);
-  }
-  // console.log('WwpdcStandardMgtMPriceFee - getSaveData - rtnValues : ', rtnValues);
-  return rtnValues;
-}
-
-function isModifiedProps() {
-  return true;
-}
-
-function validateProps() {
-  return true;
-}
-
-async function resetInitData() {
-  Object.assign(removeObjects.value, []);
-  await initGridRows();
-}
+const searchParams = ref({
+  pdTpCd: pdConst.PD_TP_CD_STANDARD,
+  pdCd: '',
+  avlChnlId: '',
+});
 
 async function initGridRows() {
-  removeObjects.value = [];
   if (await currentInitData.value?.[prcfd]) {
     // 기준가 정보
     const stdRows = cloneDeep(
@@ -122,7 +93,6 @@ async function initGridRows() {
       currentInitData.value?.[prcfd],
       currentMetaInfos.value,
       prcfd,
-      defaultFields.value,
     ));
     rows?.map((row) => {
       row[pdConst.PRC_FNL_ROW_ID] = row[pdConst.PRC_FNL_ROW_ID] ?? row.pdPrcFnlDtlId;
@@ -140,26 +110,56 @@ async function initGridRows() {
   }
 }
 
-async function onClickRemove() {
-  const deletedRowValues = gridUtil.deleteCheckedRows(grdMainRef.value.getView());
-  if (deletedRowValues && deletedRowValues.length) {
-    removeObjects.value.push(...deletedRowValues.reduce((rtn, item) => {
-      if (item[pdConst.PRC_FNL_ROW_ID]) {
-        rtn.push({ [pdConst.PRC_FNL_ROW_ID]: item[pdConst.PRC_FNL_ROW_ID] });
+async function resetInitData() {
+  const channels = currentInitData.value?.[pdConst.TBL_PD_DTL]
+    ?.reduce((rtn, item) => {
+      if (item.avlChnlId) {
+        rtn.push(item.avlChnlId);
       }
       return rtn;
-    }, []));
+    }, [])
+    ?.join(',');
+  if (channels) {
+    usedChannelCds.value = props.codes?.SELL_CHNL_DV_CD.filter((item) => channels.indexOf(item.codeId) > -1);
+  }
+  // await initGridRows();
+}
+
+async function setChannels() {
+  console.log('setChannels');
+}
+
+async function onClickSearch() {
+  searchParams.value.pdCd = currentPdCd.value;
+  await setChannels();
+}
+
+async function fetchData() {
+  const { codes } = props;
+  if (isEmpty(currentMetaInfos.value)) {
+    const res = await dataService.get('/sms/common/product/meta-properties', { params: { pdPrcTpCd: pdConst.PD_PRC_TP_CD_ALL } });
+    if (isEmpty(res.data)) {
+      return;
+    }
+    currentMetaInfos.value = res.data;
+  }
+  // console.log('WwpdcStandardMgtMPrice - fetchData - currentMetaInfos.value : ', currentMetaInfos.value);
+  const codeNames = await getPdMetaToCodeNames(currentMetaInfos.value, props.codes);
+  if (!isEmpty(codeNames)) {
+    currentCodes.value = merge(codes, await codeUtil.getMultiCodes(...codeNames));
   }
 }
 
 async function initProps() {
-  const { pdCd, initData, metaInfos } = props;
+  const { pdCd, initData, metaInfos, codes } = props;
   currentPdCd.value = pdCd;
   currentInitData.value = initData;
   currentMetaInfos.value = metaInfos;
+  currentCodes.value = codes;
 }
 
 await initProps();
+await fetchData();
 
 watch(() => props.pdCd, (val) => { currentPdCd.value = val; });
 watch(() => props.initData, (val) => { currentInitData.value = val; resetInitData(); }, { deep: true });
@@ -168,8 +168,6 @@ watch(() => props.initData, (val) => { currentInitData.value = val; resetInitDat
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
 async function initGrid(data, view) {
-  const { metaInfos } = props;
-  currentMetaInfos.value = metaInfos;
   currentMetaInfos.value.map((item) => {
     if (item.colNm === 'fnlVal') {
       // 최종가격
@@ -177,35 +175,20 @@ async function initGrid(data, view) {
     }
     return item;
   });
-  const basicColNms = currentMetaInfos.value
-    ?.filter((item) => item.pdPrcMetaTpCd === pdConst.PD_PRC_TP_CD_BASIC)
-    ?.reduce((rtn, item) => { rtn.push(item.colNm); return rtn; }, []);
-  const valColNms = currentMetaInfos.value
-    ?.filter((item) => item.pdPrcMetaTpCd === pdConst.PD_PRC_TP_CD_VARIABLE)
-    ?.reduce((rtn, item) => { rtn.push(item.colNm); return rtn; }, []);
-  const fnlColNms = currentMetaInfos.value
-    ?.filter((item) => item.pdPrcMetaTpCd === pdConst.PD_PRC_TP_CD_FINAL)
-    ?.reduce((rtn, item) => { rtn.push(item.colNm); return rtn; }, []);
-  const readonlyFields = ['sellChnlCd', 'fnlVal', ...basicColNms, ...valColNms, ...fnlColNms];
-
   const { fields, columns } = await getPdMetaToGridInfos(
     currentMetaInfos.value,
     [pdConst.PD_PRC_TP_CD_BASIC,
       pdConst.PD_PRC_TP_CD_VARIABLE,
       pdConst.PD_PRC_TP_CD_FINAL,
       pdConst.PD_PRC_TP_CD_FEE],
-    props.codes,
-    readonlyFields,
-    ['cndtFxamFxrtDvCd', 'cndtDscPrumVal', 'fxamFxrtDvCd', 'ctrVal'],
-    defaultFields.value,
+    currentCodes.value,
   );
   data.setFields(fields);
   view.setColumns(columns.sort((item) => (item.fieldName === 'sellChnlCd' ? -1 : 0)));
-  view.checkBar.visible = true;
-  view.rowIndicator.visible = true;
-  view.editOptions.editable = true;
-  view.setFixedOptions({ colCount: 11 });
+  view.checkBar.visible = false;
+  view.rowIndicator.visible = false;
+  view.editOptions.editable = false;
+  view.setFixedOptions({ colCount: 5 });
   await initGridRows();
 }
-
 </script>

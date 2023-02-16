@@ -52,6 +52,7 @@
               <kw-input
                 v-model="searchParams.contractNum"
                 icon="search_24"
+                @click-icon="onClickIconOpenCustomerListPopup"
               />
             </kw-search-item>
             <kw-search-item :label="$t('MSG_TXT_CST_NO')">
@@ -66,8 +67,7 @@
               <kw-select
                 v-model="searchParams.postCode"
                 class="w103"
-                :model-value="[]"
-                :options="['주소', 'B', 'C', 'D']"
+                :options="postCodeOptions"
               />
               <kw-input />
             </kw-search-item>
@@ -90,11 +90,7 @@
                 @change="fetchData"
               />
             </template>
-            <kw-btn
-              grid-action
-              :label="$t('MSG_BTN_MOD')"
-              @click="onClickEdit"
-            />
+
             <kw-btn
               grid-action
               :label="$t('MSG_BTN_DEL')"
@@ -137,16 +133,18 @@
             :visible-rows="10"
             @init="initGrid"
           />
+          <kw-pagination
+            v-model:page-index="pageInfo.pageIndex"
+            v-model:page-size="pageInfo.pageSize"
+            :total-count="pageInfo.totalCount"
+            @change="fetchData"
+          />
           <kw-action-bottom>
             <kw-btn
-              label="수정"
+              :label="$t('MSG_BTN_DEL')"
               grid-action
               dense
-            />
-            <kw-btn
-              label="삭제"
-              grid-action
-              dense
+              @click="onClickDelete"
             />
             <kw-separator
               vertical
@@ -154,8 +152,9 @@
               spaced
             />
             <kw-btn
-              label="해제취소"
+              :label="$t('MSG_BTN_SAVE')"
               grid-action
+              @click="onClickSave"
             />
           </kw-action-bottom>
         </div>
@@ -175,7 +174,7 @@ import { cloneDeep } from 'lodash-es';
 
 const { getConfig } = useMeta();
 const dataService = useDataService();
-const { notify } = useGlobal();
+const { notify, modal } = useGlobal();
 const { t } = useI18n();
 
 const grdMainRef = ref(getComponentType('KwGrid'));
@@ -193,6 +192,8 @@ const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
 );
 
+const postCodeOptions = ref([{ codeId: 1, codeName: t('MSG_TXT_ADDR') }, { codeId: 2, codeName: t('MSG_TXT_ZIP') }]);
+
 const pageInfo = ref({
   totalCount: 0,
   pageIndex: 1,
@@ -203,30 +204,26 @@ const pageInfo = ref({
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 
-async function onClickEdit() {
-  const view = grdMainRef.value.getView();
-  view.editOptions.editable = false;
-  const selectedData = await gridUtil.getCheckedRowValues(view);
-  if (selectedData.length === 0) {
-    notify(t('MSG_ALT_MOD_NO_DATA'));
-  } else if (selectedData.length > 1) {
-    notify(t('MSG_ALT_SELT_ONE_ITEM'));
-  } else {
-    const selectedDataRow = selectedData[0].dataRow;
-    view.editOptions.editable = true;
-    view.onCellEditable = (grid, index) => {
-      if (index.itemIndex !== selectedDataRow) { return false; }
-    };
-  }
+async function onClickIconOpenCustomerListPopup() {
+  const {
+    result,
+    payload,
+  } = await modal({
+    component: 'ZwcsaCustomerListP',
+  });
+  notify(JSON.stringify({
+    result,
+    payload,
+  }));
 }
 
 let cachedParams;
 
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
-  const response = await dataService.get('/sms/wells/contract/blacklists/excel-download', { params: cachedParams });
+  const response = await dataService.get('/sms/wells/contract/sales-limits/blacklists/excel-download', { params: cachedParams });
   await gridUtil.exportView(view, {
-    fileName: 'dataServiceManageList',
+    fileName: 'blacklistManageList',
     timePostfix: true,
     exportData: response.data,
   });
@@ -243,14 +240,13 @@ function onClickAdd() {
 
 async function fetchData() {
   cachedParams = { ...cachedParams, ...pageInfo.value };
-  const res = await dataService.get('/sms/wells/contract/blacklists', { params: cachedParams });
+  const res = await dataService.get('/sms/wells/contract/sales-limits/blacklists/paging', { params: cachedParams });
 
   const { list: partners, pageInfo: pagingResult } = res.data;
   pageInfo.value = pagingResult;
 
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(partners);
-  view.resetCurrent();
 }
 
 async function onClickSearch() {
@@ -266,7 +262,8 @@ async function onClickSave() {
   if (!gridUtil.validate(view)) { return; }
 
   const changedRows = gridUtil.getChangedRowValues(view);
-  await dataService.post('/sms/wells/contract/blacklists', changedRows);
+  changedRows[0].sellLmCntrSn = 1;
+  await dataService.post('/sms/wells/contract/sales-limits/blacklists', changedRows);
 
   notify(t('MSG_ALT_SAVE_DATA'));
   await fetchData();
@@ -290,18 +287,19 @@ async function onClickDelete() {
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
 
-const initGrid = defineGrid((data, view) => {
+const initGrid = defineGrid(async (data, view) => {
   const fields = [
-    { fieldName: 'cont_class' },
-    { fieldName: 'custNum' },
-    { fieldName: 'reason' },
-    { fieldName: 'contractNum' },
-    { fieldName: 'custName' },
-    { fieldName: 'birthDate' },
-    { fieldName: 'phNum' },
-    { fieldName: 'telNo' },
-    { fieldName: 'postCode' },
-    { fieldName: 'address' },
+    { fieldName: 'sellTpCd' },
+    { fieldName: 'cntrCstNo' },
+    { fieldName: 'sellLmRsonCn' },
+    { fieldName: 'sellLmCntrNo' },
+    { fieldName: 'dtaDlYn' },
+    { fieldName: 'cstKnm' },
+    { fieldName: 'bryyMmdd' },
+    { fieldName: 'cntrCralLocaraTno' },
+    { fieldName: 'cntrLocaraTno' },
+    { fieldName: 'cntrZip' },
+    { fieldName: 'cntrAdr' },
     { fieldName: 'instCustName' },
     { fieldName: 'instPhNum' },
     { fieldName: 'instTelNo' },
@@ -315,22 +313,20 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'propTyper' },
     { fieldName: 'propModDateTime' },
     { fieldName: 'propModifier' },
-    { fieldName: 'propDelDate' },
-    { fieldName: 'propDeleter' },
-
   ];
 
   const columns = [
-    { fieldName: 'cont_class', header: t('MSG_TXT_CONT_CLASS'), width: '142' },
-    { fieldName: 'custNum', header: t('MSG_TXT_CST_NO'), width: '180' },
-    { fieldName: 'reason', header: t('MSG_TXT_REASON'), width: '239' },
-    { fieldName: 'contractNum', header: t('MSG_TXT_KWK'), width: '180' },
-    { fieldName: 'custName', header: t('MSG_TXT_CST_NM'), width: '180' },
-    { fieldName: 'birthDate', header: t('MSG_TXT_BRYY_MMDD_ENTRP_NO'), width: '180' },
-    { fieldName: 'phNum', header: t('MSG_TXT_MPNO'), width: '180' },
-    { fieldName: 'telNo', header: t('MSG_TXT_TEL_NO'), width: '180' },
-    { fieldName: 'postCode', header: t('MSG_TXT_ZIP'), width: '126' },
-    { fieldName: 'address', header: t('MSG_TXT_ADDR'), width: '254', styleName: 'text-center' },
+    { fieldName: 'sellTpCd', header: t('MSG_TXT_CONT_CLASS'), width: '142' },
+    { fieldName: 'cntrCstNo', header: t('MSG_TXT_CST_NO'), width: '180' },
+    { fieldName: 'sellLmRsonCn', header: t('MSG_TXT_REASON'), width: '239' },
+    { fieldName: 'sellLmCntrNo', header: t('MSG_TXT_KWK'), width: '180' },
+    { fieldName: 'dtaDlYn', header: t('MSG_TXT_ACC_STATUS'), width: '126', styleName: 'text-center' },
+    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '180' },
+    { fieldName: 'bryyMmdd', header: t('MSG_TXT_BRYY_MMDD_ENTRP_NO'), width: '180' },
+    { fieldName: 'cntrCralLocaraTno', header: t('MSG_TXT_MPNO'), width: '180' },
+    { fieldName: 'cntrLocaraTno', header: t('MSG_TXT_TEL_NO'), width: '180' },
+    { fieldName: 'cntrZip', header: t('MSG_TXT_ZIP'), width: '126' },
+    { fieldName: 'cntrAdr', header: t('MSG_TXT_ADDR'), width: '254', styleName: 'text-center' },
     { fieldName: 'instCustName', header: t('MSG_TXT_CST_NM'), width: '180' },
     { fieldName: 'instPhNum', header: t('MSG_TXT_MPNO'), width: '180' },
     { fieldName: 'instTelNo', header: t('MSG_TXT_TEL_NO'), width: '180' },
@@ -344,22 +340,21 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'propTyper', header: t('MSG_TXT_TYPER'), width: '131', styleName: 'text-center' },
     { fieldName: 'propModDateTime', header: t('MSG_TXT_MDFC_DTM'), width: '169', datetimeFormat: 'datetime' },
     { fieldName: 'propModifier', header: t('MSG_TXT_MDFC_USR'), width: '131', styleName: 'text-center' },
-    { fieldName: 'propDelDate', header: t('MSG_TXT_DEL_DATE'), width: '169' },
-    { fieldName: 'propDeleter', header: t('MSG_TXT_DLT_USR'), width: '131', styleName: 'text-center' },
   ];
 
   data.setFields(fields);
   view.setColumns(columns);
   view.checkBar.visible = true; // create checkbox column
+  view.editOptions.editable = true;
   view.rowIndicator.visible = true; // create number indicator column
 
   // multi row header setting
   view.setColumnLayout([
-    'cont_class', 'custNum', 'reason', 'contractNum', // single
+    'sellTpCd', 'cntrCstNo', 'sellLmRsonCn', 'sellLmCntrNo', 'dtaDlYn', // single
     {
       header: t('MSG_TXT_CNTR_INF'), // colspan title
       direction: 'horizontal', // merge type
-      items: ['custName', 'birthDate', 'phNum', 'telNo', 'postCode', 'address'],
+      items: ['cstKnm', 'bryyMmdd', 'cntrCralLocaraTno', 'cntrLocaraTno', 'cntrZip', 'cntrAdr'],
     },
     {
       header: t('MSG_TXT_INST_INF'),
@@ -374,21 +369,9 @@ const initGrid = defineGrid((data, view) => {
     {
       header: t('MSG_TXT_CHK_REG_INFO'), // colspan title
       direction: 'horizontal', // merge type
-      items: ['propDateTime', 'propTyper', 'propModDateTime', 'propModifier', 'propDelDate', 'propDeleter'],
+      items: ['propDateTime', 'propTyper', 'propModDateTime', 'propModifier'],
     },
 
-  ]);
-
-  data.setRows([
-    { cont_class: '렌탈', custNum: '1234-1234567', reason: '판매자 불완전 판매 의심건수', contractNum: '123456789', custName: '123456789', birthDate: '123456789', phNum: '010-****-1234', telNo: '010-****-1234', postCode: '12345', address: '서울 중구 을지로 교원빌등...', instCustName: '123456789', instPhNum: '010-****-1234', instTelNo: '010-****-1234', instPostCode: '12345', instAddress: '서울 중구 을지로 교원빌등...', sellerBranch: '123456789', sellerName: '123456789', sellerCompany: '123456789', sellerPhNum: '010-****-1234', propDateTime: '2022-05-20', propTyper: '123456', propModDateTime: '2022-05-20', propModifier: '123456', propDelDate: '2022-05-20', propDeleter: '123456' },
-    { cont_class: '렌탈', custNum: '1234-1234567', reason: '판매자 불완전 판매 의심건수', contractNum: '123456789', custName: '123456789', birthDate: '123456789', phNum: '010-****-1234', telNo: '010-****-1234', postCode: '12345', address: '서울 중구 을지로 교원빌등...', instCustName: '123456789', instPhNum: '010-****-1234', instTelNo: '010-****-1234', instPostCode: '12345', instAddress: '서울 중구 을지로 교원빌등...', sellerBranch: '123456789', sellerName: '123456789', sellerCompany: '123456789', sellerPhNum: '010-****-1234', propDateTime: '2022-05-20', propTyper: '123456', propModDateTime: '2022-05-20', propModifier: '123456', propDelDate: '2022-05-20', propDeleter: '123456' },
-    { cont_class: '렌탈', custNum: '1234-1234567', reason: '판매자 불완전 판매 의심건수', contractNum: '123456789', custName: '123456789', birthDate: '123456789', phNum: '010-****-1234', telNo: '010-****-1234', postCode: '12345', address: '서울 중구 을지로 교원빌등...', instCustName: '123456789', instPhNum: '010-****-1234', instTelNo: '010-****-1234', instPostCode: '12345', instAddress: '서울 중구 을지로 교원빌등...', sellerBranch: '123456789', sellerName: '123456789', sellerCompany: '123456789', sellerPhNum: '010-****-1234', propDateTime: '2022-05-20', propTyper: '123456', propModDateTime: '2022-05-20', propModifier: '123456', propDelDate: '2022-05-20', propDeleter: '123456' },
-    { cont_class: '렌탈', custNum: '1234-1234567', reason: '판매자 불완전 판매 의심건수', contractNum: '123456789', custName: '123456789', birthDate: '123456789', phNum: '010-****-1234', telNo: '010-****-1234', postCode: '12345', address: '서울 중구 을지로 교원빌등...', instCustName: '123456789', instPhNum: '010-****-1234', instTelNo: '010-****-1234', instPostCode: '12345', instAddress: '서울 중구 을지로 교원빌등...', sellerBranch: '123456789', sellerName: '123456789', sellerCompany: '123456789', sellerPhNum: '010-****-1234', propDateTime: '2022-05-20', propTyper: '123456', propModDateTime: '2022-05-20', propModifier: '123456', propDelDate: '2022-05-20', propDeleter: '123456' },
-    { cont_class: '렌탈', custNum: '1234-1234567', reason: '판매자 불완전 판매 의심건수', contractNum: '123456789', custName: '123456789', birthDate: '123456789', phNum: '010-****-1234', telNo: '010-****-1234', postCode: '12345', address: '서울 중구 을지로 교원빌등...', instCustName: '123456789', instPhNum: '010-****-1234', instTelNo: '010-****-1234', instPostCode: '12345', instAddress: '서울 중구 을지로 교원빌등...', sellerBranch: '123456789', sellerName: '123456789', sellerCompany: '123456789', sellerPhNum: '010-****-1234', propDateTime: '2022-05-20', propTyper: '123456', propModDateTime: '2022-05-20', propModifier: '123456', propDelDate: '2022-05-20', propDeleter: '123456' },
-    { cont_class: '렌탈', custNum: '1234-1234567', reason: '판매자 불완전 판매 의심건수', contractNum: '123456789', custName: '123456789', birthDate: '123456789', phNum: '010-****-1234', telNo: '010-****-1234', postCode: '12345', address: '서울 중구 을지로 교원빌등...', instCustName: '123456789', instPhNum: '010-****-1234', instTelNo: '010-****-1234', instPostCode: '12345', instAddress: '서울 중구 을지로 교원빌등...', sellerBranch: '123456789', sellerName: '123456789', sellerCompany: '123456789', sellerPhNum: '010-****-1234', propDateTime: '2022-05-20', propTyper: '123456', propModDateTime: '2022-05-20', propModifier: '123456', propDelDate: '2022-05-20', propDeleter: '123456' },
-    { cont_class: '렌탈', custNum: '1234-1234567', reason: '판매자 불완전 판매 의심건수', contractNum: '123456789', custName: '123456789', birthDate: '123456789', phNum: '010-****-1234', telNo: '010-****-1234', postCode: '12345', address: '서울 중구 을지로 교원빌등...', instCustName: '123456789', instPhNum: '010-****-1234', instTelNo: '010-****-1234', instPostCode: '12345', instAddress: '서울 중구 을지로 교원빌등...', sellerBranch: '123456789', sellerName: '123456789', sellerCompany: '123456789', sellerPhNum: '010-****-1234', propDateTime: '2022-05-20', propTyper: '123456', propModDateTime: '2022-05-20', propModifier: '123456', propDelDate: '2022-05-20', propDeleter: '123456' },
-    { cont_class: '렌탈', custNum: '1234-1234567', reason: '판매자 불완전 판매 의심건수', contractNum: '123456789', custName: '123456789', birthDate: '123456789', phNum: '010-****-1234', telNo: '010-****-1234', postCode: '12345', address: '서울 중구 을지로 교원빌등...', instCustName: '123456789', instPhNum: '010-****-1234', instTelNo: '010-****-1234', instPostCode: '12345', instAddress: '서울 중구 을지로 교원빌등...', sellerBranch: '123456789', sellerName: '123456789', sellerCompany: '123456789', sellerPhNum: '010-****-1234', propDateTime: '2022-05-20', propTyper: '123456', propModDateTime: '2022-05-20', propModifier: '123456', propDelDate: '2022-05-20', propDeleter: '123456' },
-    { cont_class: '렌탈', custNum: '1234-1234567', reason: '판매자 불완전 판매 의심건수', contractNum: '123456789', custName: '123456789', birthDate: '123456789', phNum: '010-****-1234', telNo: '010-****-1234', postCode: '12345', address: '서울 중구 을지로 교원빌등...', instCustName: '123456789', instPhNum: '010-****-1234', instTelNo: '010-****-1234', instPostCode: '12345', instAddress: '서울 중구 을지로 교원빌등...', sellerBranch: '123456789', sellerName: '123456789', sellerCompany: '123456789', sellerPhNum: '010-****-1234', propDateTime: '2022-05-20', propTyper: '123456', propModDateTime: '2022-05-20', propModifier: '123456', propDelDate: '2022-05-20', propDeleter: '123456' },
   ]);
 });
 
