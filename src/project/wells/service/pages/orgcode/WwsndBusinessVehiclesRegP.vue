@@ -64,10 +64,10 @@
       <kw-separator />
       <h3>{{ $t('MSG_TXT_VHC_RGST_INF') }}</h3>
       <kw-form-row>
-        <!-- <kw-field-wrap> -->
         <!-- 지급시작일 -->
         <kw-form-item
           :label="$t('MSG_TXT_DSB_STRT_D')"
+          :colspan="1"
         >
           <kw-date-picker
             v-model="dataParams.vhcPymdt"
@@ -79,6 +79,7 @@
         <!-- 지급종료일 -->
         <kw-form-item
           :label="$t('MSG_TXT_DSB_END_D')"
+          :colspan="1"
         >
           <kw-date-picker
             v-model="dataParams.dsbEnddt"
@@ -87,7 +88,6 @@
             :rules="validateDsbDate"
           />
         </kw-form-item>
-        <!-- </kw-field-wrap> -->
       </kw-form-row>
       <kw-form-row>
         <!-- 차량번호 -->
