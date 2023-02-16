@@ -279,9 +279,9 @@ async function initServiceGrid(data, view) {
     // 서비스코드
     { fieldName: 'pdCd', header: t('MSG_TXT_SVC_CODE'), width: '185', styleName: 'text-center' },
     // 회수/기본주기 / 주기단위
-    { fieldName: 'recalDurUnit', header: t('MSG_TXT_PD_RECAL_DUR_UNIT'), width: '187', styleName: 'text-center', options: codes.SV_VST_PRD_CD },
+    { fieldName: 'recalDurUnit', header: t('MSG_TXT_PD_RECAL_DUR_UNIT'), width: '187', styleName: 'text-center' },
     // 학습시간+학습시간단위
-    { fieldName: 'lrnTmeUnt', header: t('MSG_TXT_PD_LRN_TME_N_UNT'), width: '187', styleName: 'text-center', options: codes.SV_PRD_UNIT_CD },
+    { fieldName: 'lrnTmeUnt', header: t('MSG_TXT_PD_LRN_TME_N_UNT'), width: '187', styleName: 'text-center' },
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   fields.push({ fieldName: pdConst.REL_PD_ID });
@@ -326,7 +326,7 @@ async function initChangePrdGrid(data, view) {
     // 제품코드
     { fieldName: 'pdCd', header: t('MSG_TXT_PROD_CD'), width: '163', styleName: 'text-center ' },
     // 자재코드
-    { fieldName: 'sapMatCd', header: t('MSG_TXT_MATI_CODE'), width: '163', styleName: 'text-center ' },
+    { fieldName: 'sapMatCd', header: t('MSG_TXT_MATI_CD'), width: '163', styleName: 'text-center ' },
     // 모델명
     { fieldName: 'modelNm', header: t('MSG_TXT_MDL_NM'), width: '229' },
     // 모델NO

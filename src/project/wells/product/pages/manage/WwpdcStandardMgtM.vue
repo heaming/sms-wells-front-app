@@ -89,6 +89,7 @@
             :temp-save-yn="props.tempSaveYn"
             :is-history-tab="false"
             :is-update-btn="false"
+            :codes="codes"
           />
         </kw-step-panel>
       </kw-stepper>
@@ -101,7 +102,7 @@
           />
           <kw-btn
             v-show="currentStep.step === 1 && isCreate"
-            :label="$t('MSG_BTN_RESET')"
+            :label="$t('MSG_BTN_INTL')"
             class="ml8"
             @click="onClickReset"
           />
@@ -200,7 +201,7 @@ async function onClickReset() {
 }
 
 async function onClickDelete() {
-  if (await confirm(t('MSG_ALT_DO_DELETE'))) {
+  if (await confirm(t('MSG_ALT_WANT_DEL_WCC'))) {
     await dataService.delete(`/sms/common/product/standards/${currentPdCd.value}`);
     // TODO 화면닫기
     router.push({ path: '/product/zwpdc-sale-product-list' });
@@ -288,6 +289,7 @@ async function fetchProduct() {
     prevStepData.value[ecom] = res.data[ecom];
     prevStepData.value[prcd] = res.data[prcd];
     prevStepData.value[prcfd] = res.data[prcfd];
+    prevStepData.value[rel] = res.data[rel];
     prevStepData.value[prumd] = res.data[prumd];
     // console.log('res.data : ', res.data);
   }

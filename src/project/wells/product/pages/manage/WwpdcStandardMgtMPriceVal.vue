@@ -82,7 +82,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService, stringUtil, gridUtil, getComponentType } from 'kw-lib';
+import { useDataService, stringUtil, gridUtil, getComponentType, useGlobal } from 'kw-lib';
 import { isEmpty, cloneDeep } from 'lodash-es';
 import pdConst from '~sms-common/product/constants/pdConst';
 import { pdMergeBy, getGridRowsToSavePdProps, getPropInfosToGridRows, getPdMetaToGridInfos } from '~sms-common/product/utils/pdUtil';
@@ -100,8 +100,9 @@ const props = defineProps({
   readonly: { type: Boolean, default: false },
 });
 
+const { t } = useI18n();
 const dataService = useDataService();
-
+const { alert } = useGlobal();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -110,7 +111,8 @@ const grdMainRef = ref(getComponentType('KwGrid'));
 const prcd = pdConst.TBL_PD_PRC_DTL;
 const prcfd = pdConst.TBL_PD_PRC_FNL_DTL;
 const prumd = pdConst.TBL_PD_DSC_PRUM_DTL;
-const defaultFields = ref([pdConst.PRC_STD_ROW_ID, pdConst.PRC_FNL_ROW_ID, 'pdPrcDtlId', 'pdPrcFnlDtlId']);
+const defaultFields = ref([pdConst.PRC_STD_ROW_ID, pdConst.PRC_FNL_ROW_ID,
+  pdConst.PRC_DETAIL_ID, pdConst.PRC_DETAIL_FNL_ID]);
 const currentPdCd = ref();
 const currentInitData = ref(null);
 const currentMetaInfos = ref();
@@ -327,7 +329,13 @@ async function initGrid(data, view) {
     [],
     defaultFields.value,
   );
-
+  columns.map((item) => {
+    if (item.fieldName === 'cndtDscPrumVal') {
+      item.sortable = false;
+      item.editor.positiveOnly = true;
+    }
+    return item;
+  });
   fields.push({ fieldName: 'fixAmount', dataType: 'number' });
   data.setFields(fields);
   // 판매채널을 제일 앞으로
@@ -336,6 +344,39 @@ async function initGrid(data, view) {
   view.rowIndicator.visible = false;
   view.editOptions.editable = true;
   view.setFixedOptions({ colCount: 10 });
+
+  // 조정 값 초기화
+  view.onCellEdited = async (grid, itemIndex, row, fieldIndex) => {
+    const changedFieldName = grid.getColumn(fieldIndex).fieldName;
+    if (changedFieldName === 'cndtFxamFxrtDvCd') {
+      view.setValue(itemIndex, 'cndtDscPrumVal', 0);
+      view.resetCurrent();
+    } else if (changedFieldName === 'cndtDscPrumVal') {
+      const fixDvCd = grid.getValue(itemIndex, 'cndtFxamFxrtDvCd');
+      const fixValue = grid.getValue(itemIndex, 'cndtDscPrumVal');
+      if (fixDvCd === '01') {
+        const basePrc = grid.getValue(itemIndex, 'ccamBasePrc');
+        if (fixValue > basePrc) {
+          /* {0}값이 {1}보다 큽니다. */
+          await alert(t('MSG_ALT_A_IS_GREAT_THEN_B', [
+            `${grid.columnByName('cndtDscPrumVal').header.text}(${fixValue})`,
+            `${grid.columnByName('ccamBasePrc').header.text}(${basePrc})`]));
+          view.setValue(itemIndex, 'cndtDscPrumVal', 0);
+          view.resetCurrent();
+        }
+      } else if (fixDvCd === '02') {
+        if (fixValue > 100) {
+          await alert(t('MSG_ALT_A_IS_GREAT_THEN_B', [
+            grid.columnByName('cndtDscPrumVal').header.text,
+            '100%']));
+          view.setValue(itemIndex, 'cndtDscPrumVal', 0);
+          view.resetCurrent();
+        }
+      }
+    }
+  };
+
+  // 그리드 마운트 시점과 컴포넌트 마운트 시점 불일지로 아래 로직 추가
   await resetInitData();
   await resetVisibleChannelColumns();
 }

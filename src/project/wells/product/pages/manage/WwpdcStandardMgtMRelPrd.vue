@@ -237,10 +237,10 @@ async function onClickMaterialSchPopup() {
   const view = grdMaterialRef.value.getView();
   searchParams.value.searchType = materialSearchType.value;
   searchParams.value.searchValue = materialSearchValue.value;
-  searchParams.value.pdTpCd = 'M';
+  // searchParams.value.pdTpCd = pdConst.PD_TP_CD_MATERIAL;
   const rtn = await modal({
     component: 'ZpdcMaterialsSelectP',
-    componentProps: { ...searchParams.value, searchType: pdConst.PD_TP_CD_MATERIAL },
+    componentProps: searchParams.value,
   });
   await insertCallbackRows(view, rtn, pdConst.PD_REL_TP_CD_P_TO_PD);
 }
@@ -338,7 +338,7 @@ async function initMaterialGrid(data, view) {
     // 제품코드
     { fieldName: 'pdCd', header: t('MSG_TXT_PROD_CD'), width: '85', styleName: 'text-center' },
     // 자재코드
-    { fieldName: 'sapMatCd', header: t('MSG_TXT_MATI_CODE'), width: '87', styleName: 'text-center' },
+    { fieldName: 'sapMatCd', header: t('MSG_TXT_MATI_CD'), width: '87', styleName: 'text-center' },
     // 제품수량(개)
     { fieldName: 'aaa', header: t('MSG_TXT_PRD_COUNT_EA'), width: '87', styleName: 'text-center' },
     // 판매금액
@@ -364,9 +364,10 @@ async function initMaterialGrid(data, view) {
 }
 
 async function initServiceGrid(data, view) {
+  // console.log('props.codes : ', props.codes.SV_VST_PRD_CD);
   const columns = [
     // 필수여부
-    { fieldName: 'mndtSvYn', header: t('MSG_TXT_REQD_SVC'), width: '95', styleName: 'text-center' },
+    { fieldName: 'mndtSvYn', header: t('MSG_TXT_NCSR_YN'), width: '95', styleName: 'text-center' },
     // 상태
     { fieldName: 'tempSaveYn', header: t('MSG_TXT_STT'), width: '135', styleName: 'text-center', options: props.codes?.PD_TEMP_SAVE_CD },
     // 서비스 분류
@@ -378,7 +379,7 @@ async function initServiceGrid(data, view) {
     // 주기단위/방문주기
     { fieldName: 'svVstPrdCd', header: t('MSG_TXT_PD_UNIT_VISIT_PERI'), width: '187', styleName: 'text-center', options: props.codes?.SV_VST_PRD_CD },
     // 주기단위/택배주기
-    { fieldName: 'pcsvPrdCd', header: t('MSG_TXT_PD_UNIT_PARCEL_PERI'), width: '187', styleName: 'text-center', options: props.codes?.SV_PRD_UNIT_CD },
+    { fieldName: 'pcsvPrdCd', header: t('MSG_TXT_PD_UNIT_PARCEL_PERI'), width: '187', styleName: 'text-center', options: props.codes?.SV_VST_PRD_CD },
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   fields.push({ fieldName: pdConst.REL_PD_ID });
@@ -403,7 +404,7 @@ async function initStandardGrid(data, view) {
     // 기준상품코드
     { fieldName: 'pdCd', header: t('MSG_TXT_PD_STD_CODE'), width: '125', styleName: 'text-center' },
     // 판매유형
-    { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '187', styleName: 'text-center' },
+    { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '187', styleName: 'text-center', options: props.codes?.SELL_TP_CD },
     // 서비스명
     { fieldName: 'pdServiceNm', header: t('MSG_TXT_SVC_NAME'), width: '306' },
     // 서비스코드
