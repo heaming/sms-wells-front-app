@@ -15,6 +15,8 @@
 <template>
   <kw-page>
     <kw-search
+      :cols="2"
+      one-row
       @search="onClickSearch"
     >
       <kw-search-row>
@@ -27,103 +29,7 @@
 
     <div class="result-area">
       <div class="grid-horizontal-wrap">
-        <div class="grid-horizontal-wrap__section w700">
-          <table class="kw-table--normal">
-            <colgroup>
-              <col style="width: 14.2%;">
-              <col style="width: 14.2%;">
-              <col style="width: 14.2%;">
-              <col style="width: 14.2%;">
-              <col style="width: 14.2%;">
-              <col style="width: 14.2%;">
-              <col style="width: 14.2%;">
-            </colgroup>
-            <!-- TODO: 퍼블리싱 수정 버전 나오면 변경 필요 -->
-            <tbody>
-              <tr>
-                <td class="text-left">
-                  <!-- 분당공수 -->
-                  {{ $t('MSG_TXT_AIRLIFT_PER_MIN') }}
-                </td>
-                <td class="text-left">
-                  <kw-input
-                    v-model="baseInfo.movementManHour"
-                    dense
-                    mask="#####"
-                  />
-                </td>
-                <td class="text-left">
-                  <!-- 급지비중 -->
-                  {{ $t('MSG_TXT_RGLVL_WEIT') }}
-                </td>
-                <td class="text-left">
-                  <kw-input
-                    v-model="baseInfo.movementFieldWeight"
-                    dense
-                    mask="#####"
-                  />
-                </td>
-                <td class="text-left">
-                  <!-- 평균시속 -->
-                  {{ $t('MSG_TXT_AV_HH_VE') }}
-                </td>
-                <td class="text-left">
-                  <kw-input
-                    v-model="baseInfo.movementAverageSpeed"
-                    dense
-                    mask="#####"
-                  />
-                </td>
-                <td class="text-right">
-                  <!-- 일괄적용 -->
-                  <kw-btn
-                    dense
-                    :label="$t('MSG_TIT_BK_APPLY')"
-                    :disable="countInfo.movementTotalCount === 0"
-                    @click="onClickMovementBulkApply"
-                  />
-                </td>
-              </tr>
-            </tbody>
-          </table>
-          <table class="kw-table--normal">
-            <colgroup>
-              <col style="width: 14.2%;">
-              <col style="width: 14.2%;">
-              <col style="width: 14.2%;">
-              <col style="width: 14.2%;">
-              <col style="width: 14.2%;">
-              <col style="width: 14.2%;">
-              <col style="width: 14.2%;">
-            </colgroup>
-            <tbody>
-              <tr>
-                <td class="text-left">
-                  <!-- 적용일자 -->
-                  {{ $t('MSG_TXT_APPLY_DT') }}
-                </td>
-                <td
-                  class="text-left"
-                  colspan="5"
-                >
-                  <kw-date-range-picker
-                    v-model:from="applyDates.movementApplyDate"
-                    dense
-                    to="99991231"
-                    :to-disable="true"
-                  />
-                </td>
-                <td class="text-right">
-                  <kw-btn
-                    dense
-                    :label="$t('MSG_TIT_BK_APPLY')"
-                    :disable="countInfo.movementTotalCount === 0"
-                    @click="onClickMovementBulkApplyDate"
-                  />
-                </td>
-              </tr>
-            </tbody>
-          </table>
+        <div class="grid-horizontal-wrap__section">
           <h3>{{ $t('MSG_TXT_MMT_RGLVL') }}</h3>
           <kw-action-top>
             <template #left>
@@ -131,12 +37,63 @@
                 :total-count="countInfo.movementTotalCount"
               />
             </template>
-
             <kw-btn
               dense
               secondary
               :label="$t('MSG_BTN_SAVE')"
               @click="onClickMovementSave"
+            />
+            <kw-separator
+              spaced
+              vertical
+              inset
+            />
+            <!-- 분당공수 입력 -->
+            <kw-input
+              v-model="baseInfo.movementManHour"
+              mask="#####"
+              dense
+              class="w150"
+              :placeholder="$t('MSG_TXT_ENTER_AIRSPEED_PER_MIN')"
+            />
+            <!-- 급지비중 입력 -->
+            <kw-input
+              v-model="baseInfo.movementFieldWeight"
+              mask="#####"
+              dense
+              class="w150"
+              :placeholder="$t('MSG_TXT_ENTER_FEED_WEIGHT')"
+            />
+            <!-- 평균시속 입력 -->
+            <kw-input
+              v-model="baseInfo.movementAverageSpeed"
+              mask="#####"
+              dense
+              class="w150"
+              :placeholder="$t('MSG_TXT_ENTER_AVERAGE_HOULY')"
+            />
+            <!-- 계산기준 변경 -->
+            <kw-btn
+              :disable="countInfo.movementTotalCount === 0"
+              :label="$t('MSG_TXT_CALC_BASE_CH')"
+              dense
+              @click="onClickMovementBulkApply"
+            />
+            <kw-date-range-picker
+              v-model:from="applyDates.movementApplyDate"
+              dense
+              class="w300"
+              :from-placeholder="$t('MSG_TXT_APY_STRT_D_CHO')"
+              :to-placeholder="$t('MSG_TXT_APY_END_D_CHO')"
+              to="99991231"
+              :to-disable="true"
+            />
+            <!-- 적용일자 일괄변경 -->
+            <kw-btn
+              :label="$t('MSG_TXT_APY_DT_BLK_CH')"
+              dense
+              :disable="countInfo.movementTotalCount === 0"
+              @click="onClickMovementBulkApplyDate"
             />
           </kw-action-top>
           <kw-grid
@@ -145,103 +102,7 @@
             @init="initGrdMovementLevel"
           />
         </div>
-        <div class="grid-horizontal-wrap__section w700">
-          <table class="kw-table--normal">
-            <colgroup>
-              <col style="width: 14.2%;">
-              <col style="width: 14.2%;">
-              <col style="width: 14.2%;">
-              <col style="width: 14.2%;">
-              <col style="width: 14.2%;">
-              <col style="width: 14.2%;">
-              <col style="width: 14.2%;">
-            </colgroup>
-            <tbody>
-              <tr>
-                <td class="text-left">
-                  <!-- 분당공수 -->
-                  {{ $t('MSG_TXT_AIRLIFT_PER_MIN') }}
-                </td>
-                <td class="text-left">
-                  <kw-input
-                    v-model="baseInfo.bizManHour"
-                    dense
-                    mask="#####"
-                  />
-                </td>
-                <td class="text-left">
-                  <!-- 급지비중 -->
-                  {{ $t('MSG_TXT_RGLVL_WEIT' ) }}
-                </td>
-                <td class="text-left">
-                  <kw-input
-                    v-model="baseInfo.bizFieldWeight"
-                    dense
-                    mask="#####"
-                  />
-                </td>
-                <td class="text-left">
-                  <!-- 급지공수 -->
-                  {{ $t('MSG_TXT_RGLVL_AIRLIFT') }}
-                </td>
-                <td class="text-left">
-                  <kw-input
-                    v-model="baseInfo.bizFieldAirlift"
-                    dense
-                    mask="#####"
-                  />
-                </td>
-                <td class="text-right">
-                  <!-- 일괄적용 -->
-                  <kw-btn
-                    dense
-                    :label="$t('MSG_TIT_BK_APPLY')"
-                    :disable="countInfo.bizTotalCount === 0"
-                    @click="onClickBizBulkApply"
-                  />
-                </td>
-              </tr>
-            </tbody>
-          </table>
-          <table class="kw-table--normal">
-            <colgroup>
-              <col style="width: 14.2%;">
-              <col style="width: 14.2%;">
-              <col style="width: 14.2%;">
-              <col style="width: 14.2%;">
-              <col style="width: 14.2%;">
-              <col style="width: 14.2%;">
-              <col style="width: 14.2%;">
-            </colgroup>
-            <tbody>
-              <tr>
-                <td class="text-left">
-                  <!-- 적용일자 -->
-                  {{ $t('MSG_TXT_APPLY_DT') }}
-                </td>
-                <td
-                  class="text-left"
-                  colspan="5"
-                >
-                  <kw-date-range-picker
-                    v-model:from="applyDates.bizApplyDate"
-                    dense
-                    to="99991231"
-                    :to-disable="true"
-                  />
-                </td>
-                <td class="text-right">
-                  <!-- 일괄적용 -->
-                  <kw-btn
-                    dense
-                    :label="$t('MSG_TIT_BK_APPLY')"
-                    :disable="countInfo.bizTotalCount === 0"
-                    @click="onClickBizBulkApplyDate"
-                  />
-                </td>
-              </tr>
-            </tbody>
-          </table>
+        <div class="grid-horizontal-wrap__section">
           <h3>{{ $t('MSG_TXT_BIZ_RGLVL') }}</h3>
           <kw-action-top>
             <template #left>
@@ -254,6 +115,58 @@
               secondary
               :label="$t('MSG_BTN_SAVE')"
               @click="onClickBizSave"
+            />
+            <kw-separator
+              spaced
+              vertical
+              inset
+            />
+            <!-- 분당공수 입력 -->
+            <kw-input
+              v-model="baseInfo.bizManHour"
+              mask="#####"
+              dense
+              class="w150"
+              :placeholder="$t('MSG_TXT_ENTER_AIRSPEED_PER_MIN')"
+            />
+            <!-- 급지비중 입력 -->
+            <kw-input
+              v-model="baseInfo.bizFieldWeight"
+              mask="#####"
+              dense
+              class="w150"
+              :placeholder="$t('MSG_TXT_ENTER_FEED_WEIGHT')"
+            />
+            <!-- 급지공수 입력 -->
+            <kw-input
+              v-model="baseInfo.bizFieldAirlift"
+              mask="#####"
+              dense
+              class="w150"
+              :placeholder="$t('MSG_TXT_ENTER_FEEDWATER')"
+            />
+            <!-- 계산기준 변경 -->
+            <kw-btn
+              :label="$t('MSG_TXT_CALC_BASE_CH')"
+              dense
+              :disable="countInfo.bizTotalCount === 0"
+              @click="onClickBizBulkApply"
+            />
+            <kw-date-range-picker
+              v-model:from="applyDates.bizApplyDate"
+              dense
+              class="w300"
+              :from-placeholder="$t('MSG_TXT_APY_STRT_D_CHO')"
+              :to-placeholder="$t('MSG_TXT_APY_END_D_CHO')"
+              to="99991231"
+              :to-disable="true"
+            />
+            <!-- 적용일자 일괄변경 -->
+            <kw-btn
+              :label="$t('MSG_TXT_APY_DT_BLK_CH')"
+              dense
+              :disable="countInfo.bizTotalCount === 0"
+              @click="onClickBizBulkApplyDate"
             />
           </kw-action-top>
           <kw-grid
