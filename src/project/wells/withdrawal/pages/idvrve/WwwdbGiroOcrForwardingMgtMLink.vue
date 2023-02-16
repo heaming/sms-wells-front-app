@@ -1,0 +1,257 @@
+<!----
+****************************************************************************************************
+* 프로그램 개요
+****************************************************************************************************
+1. 모듈 : withdrawal/idvrve
+2. 프로그램 ID : WwwdbGiroOcrForwardingMgtMLink - 지로 OCR 발송 관리 - 출력관리
+3. 작성자 : heungjun.lee
+4. 작성일 : 2023.01.25
+****************************************************************************************************
+* 프로그램 설명
+****************************************************************************************************
+-- 지로 OCR 발송 관리 - 출력관리 조회 및 저장 페이지
+****************************************************************************************************
+--->
+<template>
+  <kw-search
+    one-row
+    :cols="2"
+    :modified-targets="['grdPage']"
+    @search="onClickSearch"
+  >
+    <kw-search-row>
+      <kw-search-item
+        :label="t('MSG_TXT_FW_DAY')"
+        required
+      >
+        <!-- label="발송일" -->
+        <kw-date-picker
+          v-model="searchParams.giroOcrPblDtm"
+          rules="required"
+        />
+      </kw-search-item>
+      <kw-search-item
+        :label="t('MSG_TXT_PRNT_DV')"
+      >
+        <!-- label="출력구분" -->
+        <kw-select
+          v-model="searchParams.giroOcrPrntStatus"
+          :options="portalList"
+          first-option="all"
+        />
+      </kw-search-item>
+    </kw-search-row>
+  </kw-search>
+
+  <div class="result-area">
+    <kw-action-top>
+      <template #left>
+        <kw-paging-info :total-count="156" />
+      </template>
+      <kw-btn
+        grid-action
+        :label="t('MSG_BTN_DEL')"
+        @click="onClickRemove"
+      />
+      <!-- label="삭제" -->
+      <kw-separator
+        spaced
+        vertical
+        inset
+      />
+      <kw-btn
+        icon="download_on"
+        dense
+        secondary
+        :label="t('MSG_TXT_EXCEL_DOWNLOAD')"
+        @click="onClickExcelDownload"
+      />
+      <!-- label="엑셀다운로드" -->
+    </kw-action-top>
+    <kw-grid
+      ref="grdPageRef"
+      :visible-rows="10"
+      name="grdPage"
+      @init="initGrid"
+    />
+  </div>
+</template>
+
+<script setup>
+// -------------------------------------------------------------------------------------------------
+// Import & Declaration
+// -------------------------------------------------------------------------------------------------
+import { defineGrid, getComponentType, gridUtil, useDataService } from 'kw-lib';
+import { cloneDeep } from 'lodash-es';
+import dayjs from 'dayjs';
+import { openReportPopup } from '~/modules/common/utils/cmPopupUtil';
+
+const now = dayjs();
+const dataService = useDataService();
+const { t } = useI18n();
+
+// -------------------------------------------------------------------------------------------------
+// Function & Event
+// -------------------------------------------------------------------------------------------------
+const grdPageRef = ref(getComponentType('KwGrid'));
+
+// const codes = await codeUtil.getMultiCodes(
+//   'COD_PAGE_SIZE_OPTIONS',
+//   'GIRO_RGLR_DV_CD',
+// );
+
+const portalList = ref([
+  {
+    codeId: '01',
+    codeName: t('MSG_TXT_PRNT_FSH'),
+    // codeName: '출력완료',
+  },
+  {
+    codeId: '02',
+    codeName: t('MSG_TXT_PRNT_EXP'),
+    // codeName: '출력예정',
+  },
+]);
+
+const searchParams = ref({
+  giroOcrPblDtm: now.format('YYYYMMDD'),
+  giroOcrPrntStatus: '',
+});
+
+let cachedParams;
+
+async function fetchData() {
+  cachedParams = { ...cachedParams };
+
+  const res = await dataService.get('/sms/wells/withdrawal/idvrve/giro-ocr-forwardings/print', { params: cachedParams });
+  const { list: pages } = res.data;
+
+  const view = grdPageRef.value.getView();
+
+  const data = view.getDataSource();
+  data.checkRowStates(false);
+  data.setRows(pages);
+  data.checkRowStates(true);
+
+  view.resetCurrent();
+}
+
+async function onClickSearch() {
+  grdPageRef.value.getData().clearRows();
+
+  cachedParams = cloneDeep(searchParams.value);
+
+  await fetchData();
+}
+
+async function onClickExcelDownload() {
+  const view = grdPageRef.value.getView();
+  await gridUtil.exportView(view, {
+    fileName: `${t('MSG_TXT_GIRO')}OCR_Excel`,
+    // fileName: '지로 OCR 발송 관리-출력관리_Excel',
+    timePostfix: true,
+  });
+}
+
+// 행삭제
+async function onClickRemove() {
+  const view = grdPageRef.value.getView();
+  if (!await gridUtil.confirmIfIsModified(view)) { return; }
+
+  const deletedRows = await gridUtil.confirmDeleteCheckedRows(view);
+  if (deletedRows.length > 0) {
+    await dataService.put('/sms/wells/withdrawal/idvrve/giro-ocr-forwardings/print', deletedRows);
+    // notify(t('MSG_ALT_DELETED'));
+    // // notify(t('삭제되었습니다.'));
+    await fetchData();
+  }
+}
+
+// -------------------------------------------------------------------------------------------------
+// Initialize Grid
+// -------------------------------------------------------------------------------------------------
+
+const initGrid = defineGrid((data, view) => {
+  const fields = [
+    { fieldName: 'giroOcrPblDate' },
+    { fieldName: 'giroOcrPblTime' },
+    { fieldName: 'giroOcrPblDtm' },
+    { fieldName: 'giroOcrPblSeqn' },
+    { fieldName: 'giroOcrPblOjStrtdt' },
+    { fieldName: 'giroOcrPblOjEnddt' },
+    { fieldName: 'giroOcrPblTotQty' },
+    { fieldName: 'giroOcrPrntDt' },
+    { fieldName: 'giroOcrDlDt' },
+    { fieldName: 'giroOcrPblOj' },
+    { fieldName: 'col6' },
+    { fieldName: 'col7' },
+  ];
+
+  const columns = [
+    { fieldName: 'giroOcrPblDate',
+      header: t('MSG_TXT_FW_DT'),
+      // header: '발송일자',
+      width: '200',
+      styleName: 'text-center',
+      datetimeFormat: 'datetime' },
+    { fieldName: 'giroOcrPblTime',
+      header: t('MSG_TXT_FW_HH'),
+      // header: '발송시간',
+      width: '200',
+      styleName: 'text-center' },
+    { fieldName: 'giroOcrPblTotQty',
+      header: t('MSG_TXT_WK_QTY'),
+      // header: '작업수량',
+      width: '200',
+      styleName: 'text-right' },
+    { fieldName: 'giroOcrPblOj',
+      header: t('MSG_TXT_OJ_BCK'),
+      // header: '대상구간',
+      width: '338',
+      styleName: 'text-center' },
+    { fieldName: 'giroOcrPrntDt',
+      header: t('MSG_TXT_PRNT_DT'),
+      // header: '출력일자',
+      width: '250',
+      styleName: 'text-center',
+      datetimeFormat: 'datetime' },
+    { fieldName: 'col6',
+      header: t('MSG_TXT_PRNT'),
+      // header: '출력',
+      width: '130',
+      renderer: { type: 'button' } },
+    { fieldName: 'col7',
+      header: t('MSG_TXT_ONE_BRWS'),
+      // header: '한장씩 보기',
+      width: '130',
+      renderer: { type: 'button' } },
+  ];
+
+  data.setFields(fields);
+  view.setColumns(columns);
+
+  view.onCellItemClicked = async (g, { column, dataRow }) => {
+    console.log(dataRow);
+    if (column === 'col6') {
+      // eslint-disable-next-line no-use-before-define
+      openReportPopup('/eformsample.ozr', '/eformsample.odi', JSON.stringify({ param1: 'test1', param2: 'test2' }));
+    } else if (column === 'col7') {
+      // eslint-disable-next-line no-use-before-define
+      openReportPopup('/eformsample.ozr', '/eformsample.odi', JSON.stringify({ param1: 'test1', param2: 'test2' }));
+    }
+  };
+
+  view.checkBar.visible = true;
+  view.rowIndicator.visible = true;
+
+  // data.setRows([
+  //   { giroOcrPblDate: '2022-07-20'
+  // , giroOcrPblTime: '2022',
+  //  giroOcrPblTotQty: '1234567',
+  //   giroOcrPblOj: '9267', giroOcrPrntDt: '2022-07-20', col6: '출력', col7: '보기' },
+  // ]);
+});
+</script>
+
+<style scoped>
+</style>
