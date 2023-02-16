@@ -19,7 +19,7 @@
     <div>
       <kw-action-top>
         <template #left>
-          <kw-paging-info total-count="7" />
+          <kw-paging-info :total-count="totalCount" />
         </template>
         <kw-btn
           dense
@@ -78,22 +78,30 @@ const grdConfirmRef = ref(getComponentType('KwGrid'));
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
-onMounted(async () => {
+const totalCount = ref(0);
+async function fetchData() {
   const view = grdConfirmRef.value.getView();
   const res = await dataService.get('/sms/wells/contract/contracts/approval-request-standards', {
     params: {
       standardDt: now.format('YYYYMMDD'),
     },
   });
+  totalCount.value = res.data.length;
   view.getDataSource().setRows(res.data);
+}
+
+onMounted(async () => {
+  fetchData();
 });
+
 async function onClickDelete() {
   const view = grdConfirmRef.value.getView();
   if (!await gridUtil.confirmIfIsModified(view)) { return; }
   const deletedRows = await gridUtil.confirmDeleteCheckedRows(view);
 
   if (deletedRows.length > 0) {
-    await dataService.delete('sms/wells/contract/cnfm-apr-bases', deletedRows);
+    await dataService.delete('sms/wells/contract/contracts/approval-request-standards', { data: deletedRows });
+    fetchData();
   }
 }
 
@@ -108,6 +116,10 @@ const initGrid = defineGrid(async (data, view) => {
     { fieldName: 'cntrAprConfMsgCn' },
     { fieldName: 'vlStrtDtm' },
     { fieldName: 'vlEndDtm' },
+    { fieldName: 'cntrAprAkDvCd' },
+    { fieldName: 'cntrAprAkDvNm' },
+    { fieldName: 'cntrAprAkDvPk' },
+    { fieldName: 'vlStrtDtmPk' },
   ];
 
   const columns = [

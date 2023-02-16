@@ -128,7 +128,7 @@
           <kw-grid
             ref="grdMainRef"
             name="approvalBaseGrid"
-            :visible-rows="10"
+            :visible-rows="pageInfo.pageSize"
             @init="initGrid"
           />
           <kw-pagination
