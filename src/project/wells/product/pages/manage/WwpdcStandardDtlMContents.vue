@@ -64,7 +64,7 @@
           :ref="cmpStepRefs[1]"
           v-model:pd-cd="currentPdCd"
           v-model:init-data="currentInitData"
-          :codes="currentCodes"
+          :codes="props.codes"
         />
       </kw-tab-panel>
       <kw-tab-panel :name="pdConst.STANDARD_STEP_MANAGE.name">
@@ -83,7 +83,7 @@
           :ref="cmpStepRefs[3]"
           v-model:pd-cd="currentPdCd"
           v-model:init-data="currentInitData"
-          :codes="currentCodes"
+          :codes="props.codes"
         />
       </kw-tab-panel>
       <kw-tab-panel name="hist">
@@ -133,7 +133,6 @@ const router = useRouter();
 const cmpStepRefs = ref([ref(), ref(), ref(), ref(), ref()]);
 const currentPdCd = ref();
 const currentInitData = ref({});
-const currentCodes = ref({});
 const selectedTab = ref(pdConst.STANDARD_STEP_BASIC.name);
 
 async function onClickUpdate() {
@@ -142,10 +141,9 @@ async function onClickUpdate() {
 }
 
 async function initProps() {
-  const { pdCd, initData, codes } = props;
+  const { pdCd, initData } = props;
   currentPdCd.value = pdCd;
   currentInitData.value = initData;
-  currentCodes.value = codes;
 }
 
 await initProps();

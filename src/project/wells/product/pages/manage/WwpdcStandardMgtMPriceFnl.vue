@@ -35,7 +35,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { gridUtil, getComponentType } from 'kw-lib';
+import { gridUtil, getComponentType, useGlobal } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 import pdConst from '~sms-common/product/constants/pdConst';
 import { pdMergeBy, getGridRowsToSavePdProps, getPropInfosToGridRows, getPdMetaToGridInfos } from '~sms-common/product/utils/pdUtil';
@@ -54,6 +54,7 @@ const props = defineProps({
 });
 
 const { t } = useI18n();
+const { alert } = useGlobal();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -61,7 +62,8 @@ const grdMainRef = ref(getComponentType('KwGrid'));
 
 const prcd = pdConst.TBL_PD_PRC_DTL;
 const prcfd = pdConst.TBL_PD_PRC_FNL_DTL;
-const defaultFields = ref([pdConst.PRC_STD_ROW_ID, pdConst.PRC_FNL_ROW_ID, 'pdPrcDtlId', 'pdPrcFnlDtlId']);
+const defaultFields = ref([pdConst.PRC_STD_ROW_ID, pdConst.PRC_FNL_ROW_ID,
+  pdConst.PRC_DETAIL_ID, pdConst.PRC_DETAIL_FNL_ID]);
 const currentPdCd = ref();
 const currentInitData = ref(null);
 const currentMetaInfos = ref();
@@ -139,14 +141,21 @@ async function initGridRows() {
       const stdRow = stdRows?.find((item) => item[pdConst.PRC_STD_ROW_ID] === row[pdConst.PRC_STD_ROW_ID]
                                             || item.pdPrcDtlId === row.pdPrcDtlId);
       row = pdMergeBy(row, stdRow);
+      row.sellTpCd = currentInitData.value[pdConst.TBL_PD_BAS]?.sellTpCd;
       // 조정 전 가격 ( 01: 정액, 02: 정률)
       if (row.cndtFxamFxrtDvCd === '01') {
         // 조정 전 가격 = 기준가 + 조정가
-        row.prcBefAdj = Number(row.ccamBasePrc) + Number(row.cndtDscPrumVal);
+        row.prcBefAdj = Number(row.ccamBasePrc) - Number(row.cndtDscPrumVal);
       } else if (row.cndtFxamFxrtDvCd === '02') {
         // 조정 전 가격 = 기준가 + 조정률
-        const calPrc = Math.round((Number(row.ccamBasePrc) / Number(row.cndtDscPrumVal)) * 100, 2);
+        const calPrc = Math.round((Number(row.ccamBasePrc) * Number(row.cndtDscPrumVal)) / 100, 2);
         row.prcBefAdj = Number(row.ccamBasePrc) - calPrc;
+      }
+      if (row.fxamFxrtDvCd === '01') {
+        row.fnlVal = Number(row.prcBefAdj) - Number(row.ctrVal);
+      } else if (row.fxamFxrtDvCd === '02') {
+        const calPrc = Math.round((Number(row.prcBefAdj) * Number(row.ctrVal)) / 100, 2);
+        row.fnlVal = calPrc ? Number(row.prcBefAdj) - calPrc : Number(row.prcBefAdj);
       }
       return row;
     });
@@ -198,7 +207,7 @@ async function initGrid(data, view) {
     props.codes,
     readonlyFields,
     ['cndtFxamFxrtDvCd', 'cndtDscPrumVal'],
-    [pdConst.PRC_STD_ROW_ID, pdConst.PRC_FNL_ROW_ID, 'pdPrcDtlId', 'pdPrcFnlDtlId', 'prcBefAdj'], // 조정 전 가격
+    [pdConst.PRC_STD_ROW_ID, pdConst.PRC_FNL_ROW_ID, pdConst.PRC_DETAIL_ID, pdConst.PRC_DETAIL_FNL_ID, 'prcBefAdj'], // 조정 전 가격
   );
   // 조정 전 가격
   const prcBeforAdj = { fieldName: 'prcBefAdj', header: t('MSG_TXT_PRC_BEFORE_ADJ'), width: '120', styleName: 'text-right', numberFormat: '#,##0.##' };
@@ -206,10 +215,13 @@ async function initGrid(data, view) {
   columns.splice(columns.length - 3, 0, prcBeforAdj);
   columns.map((item) => {
     if (item.fieldName === 'ctrVal') {
+      item.sortable = false;
+      item.editButtonVisibility = 'always';
       item.editor.showStepButton = true;
+      item.editor.positiveOnly = true;
       item.editor.direction = 'horizontal';
       item.editor.step = 1;
-      item.width = '100';
+      item.width = 140;
     }
     return item;
   });
@@ -220,27 +232,48 @@ async function initGrid(data, view) {
   view.editOptions.editable = true;
   view.setFixedOptions({ colCount: 10 });
 
-  // 조직코드 변경 시 소속 조회
-  view.onCellEdited = async (grid, itemIndex) => {
-    const fxamFxrtDvCd = grid.getValue(itemIndex, 'fxamFxrtDvCd');
-    const prcBefAdj = Number(grid.getValue(itemIndex, 'prcBefAdj'));
-    const ctrVal = Number(grid.getValue(itemIndex, 'ctrVal'));
-    // console.log('WwpdcStandardMgtMPriceFnl - getFnlDisplayCallback - fxamFxrtDvCd', fxamFxrtDvCd);
-    let fnlVal = 0;
-    // 조정 전 가격 ( 01: 정액, 02: 정률)
-    if (fxamFxrtDvCd === '01') {
-    // 조정 전 가격 = 기준가 + 조정가
-      fnlVal = prcBefAdj + ctrVal;
-    } if (fxamFxrtDvCd === '02') {
-    // 조정 전 가격 = 기준가 + 조정률
-      const calPrc = Math.round((prcBefAdj / ctrVal) * 100, 2);
-      fnlVal = prcBefAdj - calPrc;
-    }
-    if (fnlVal) {
+  // 조정 값 초기화
+  view.onCellEdited = async (grid, itemIndex, row, fieldIndex) => {
+    // fieldIndex 값 이상함 +1해줘야 맞게 나옴
+    const changedFieldName = grid.getColumn((fieldIndex + 1)).fieldName;
+    if (changedFieldName === 'fxamFxrtDvCd') {
+      view.setValue(itemIndex, 'ctrVal', 0);
+      view.resetCurrent();
+    } else if (changedFieldName === 'ctrVal') {
+      const fxamFxrtDvCd = grid.getValue(itemIndex, 'fxamFxrtDvCd');
+      const prcBefAdj = Number(grid.getValue(itemIndex, 'prcBefAdj'));
+      let ctrVal = Number(grid.getValue(itemIndex, 'ctrVal'));
+      // console.log('WwpdcStandardMgtMPriceFnl - getFnlDisplayCallback - fxamFxrtDvCd', fxamFxrtDvCd);
+      let fnlVal = 0;
+      // 조정 전 가격 ( 01: 정액, 02: 정률)23
+      if (fxamFxrtDvCd === '01') {
+        if (ctrVal > prcBefAdj) {
+          /* {0}값이 {1}보다 큽니다. */
+          await alert(t('MSG_ALT_A_IS_GREAT_THEN_B', [
+            `${grid.columnByName('ctrVal').header.text}(${ctrVal})`,
+            `${grid.columnByName('prcBefAdj').header.text}(${prcBefAdj})`]));
+          ctrVal = 0;
+          view.setValue(itemIndex, 'ctrVal', ctrVal);
+        }
+        // 조정 전 가격 = 조정전가격 - 조정가
+        fnlVal = prcBefAdj - ctrVal;
+      } if (fxamFxrtDvCd === '02') {
+        if (ctrVal > 100) {
+          await alert(t('MSG_ALT_A_IS_GREAT_THEN_B', [
+            grid.columnByName('ctrVal').header.text,
+            '100%']));
+          ctrVal = 0;
+          view.setValue(itemIndex, 'ctrVal', ctrVal);
+        }
+        // 조정 전 가격 = 조정전가격 - 조정률
+        const calPrc = Math.round((prcBefAdj * ctrVal) / 100, 2);
+        fnlVal = calPrc ? prcBefAdj - calPrc : prcBefAdj;
+      }
       view.setValue(itemIndex, 'fnlVal', fnlVal);
       view.resetCurrent();
     }
   };
+  // 그리드 마운트 시점과 컴포넌트 마운트 시점 불일지로 아래 로직 추가
   await initGridRows();
 }
 </script>

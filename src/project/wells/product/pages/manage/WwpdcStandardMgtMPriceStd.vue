@@ -89,7 +89,7 @@ const props = defineProps({
 // -------------------------------------------------------------------------------------------------
 const grdMainRef = ref(getComponentType('KwGrid'));
 
-const readonlyFields = ref(['pdCd', 'pdPrcDtlId', 'verSn', 'crncyDvCd', 'sellTpCd']);
+const readonlyFields = ref(['pdCd', pdConst.PRC_DETAIL_ID, 'verSn', 'crncyDvCd', 'sellTpCd']);
 const prcd = pdConst.TBL_PD_PRC_DTL;
 const priceStdRef = ref();
 const currentPdCd = ref();
@@ -149,7 +149,7 @@ async function initGridRows() {
       currentInitData.value?.[prcd],
       currentMetaInfos.value,
       prcd,
-      [pdConst.PRC_STD_ROW_ID, 'pdPrcDtlId'],
+      [pdConst.PRC_STD_ROW_ID, pdConst.PRC_DETAIL_ID],
     ));
     rows?.map((row) => {
       row[pdConst.PRC_STD_ROW_ID] = row.pdPrcDtlId;
@@ -218,7 +218,7 @@ async function initProps() {
   currentPdCd.value = pdCd;
   currentInitData.value = initData;
   currentMetaInfos.value = metaInfos;
-  currentCodes.value = pdMergeBy(currentCodes.value, codes);
+  currentCodes.value = cloneDeep(pdMergeBy(currentCodes.value, codes));
   priceFieldData.value[pdConst.TBL_PD_PRC_DTL] = [];
   priceFieldData.value[pdConst.TBL_PD_PRC_DTL]
     .push({ pdExtsPrpGrpCd: pdConst.PD_PRP_GRP_CD_CMN, pdCd: currentPdCd.value });

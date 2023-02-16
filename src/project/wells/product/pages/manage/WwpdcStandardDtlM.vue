@@ -79,7 +79,7 @@ async function fetchProduct() {
   initData.value[prcd] = res.data[prcd];
   initData.value[prcfd] = res.data[prcfd];
   initData.value[prumd] = res.data[prumd];
-  console.log('WwpdcStandardDtlM - fetchProduct - initData.value : ', initData.value);
+  // console.log('WwpdcStandardDtlM - fetchProduct - initData.value : ', initData.value);
   prdPropGroups.value = res.data.groupCodes;
 }
 
