@@ -61,39 +61,33 @@
           />
         </kw-form-item>
       </kw-form-row>
-    </kw-form>
-    <kw-separator />
-    <h3>{{ $t('MSG_TXT_VHC_RGST_INF') }}</h3>
-    <kw-form :cols="2">
+      <kw-separator />
+      <h3>{{ $t('MSG_TXT_VHC_RGST_INF') }}</h3>
       <kw-form-row>
-        <kw-field-wrap
-          :rules="validateDsbDate"
+        <!-- <kw-field-wrap> -->
+        <!-- 지급시작일 -->
+        <kw-form-item
+          :label="$t('MSG_TXT_DSB_STRT_D')"
         >
-          <!-- 지급시작일 -->
-          <kw-form-item
+          <kw-date-picker
+            v-model="dataParams.vhcPymdt"
             :label="$t('MSG_TXT_DSB_STRT_D')"
-            rules="required"
-          >
-            <kw-date-picker
-              v-model="dataParams.vhcPymdt"
-              :label="$t('MSG_TXT_DSB_STRT_D')"
-              :disable="isModify && isBeforeVhcPymdt"
-              rules="required"
-            />
-          </kw-form-item>
-          <!-- 지급종료일 -->
-          <kw-form-item
+            :disable="isModify && isBeforeVhcPymdt"
+            :rules="validateDsbDate"
+          />
+        </kw-form-item>
+        <!-- 지급종료일 -->
+        <kw-form-item
+          :label="$t('MSG_TXT_DSB_END_D')"
+        >
+          <kw-date-picker
+            v-model="dataParams.dsbEnddt"
             :label="$t('MSG_TXT_DSB_END_D')"
-            rules="required"
-          >
-            <kw-date-picker
-              v-model="dataParams.dsbEnddt"
-              :label="$t('MSG_TXT_DSB_END_D')"
-              :disable="isModify && isBeforeDsbEnddt"
-              rules="required"
-            />
-          </kw-form-item>
-        </kw-field-wrap>
+            :disable="isModify && isBeforeDsbEnddt"
+            :rules="validateDsbDate"
+          />
+        </kw-form-item>
+        <!-- </kw-field-wrap> -->
       </kw-form-row>
       <kw-form-row>
         <!-- 차량번호 -->
@@ -144,10 +138,8 @@
           />
         </kw-form-item>
       </kw-form-row>
-    </kw-form>
-    <kw-separator />
-    <h3>{{ $t('MSG_TXT_DSB_CARD_INF') }}</h3>
-    <kw-form :cols="2">
+      <kw-separator />
+      <h3>{{ $t('MSG_TXT_DSB_CARD_INF') }}</h3>
       <kw-form-row>
         <!-- 주유카드 -->
         <kw-form-item
@@ -174,13 +166,14 @@
           />
         </kw-form-item>
       </kw-form-row>
-    </kw-form>
-    <kw-separator />
-    <h3>{{ $t('MSG_TXT_ETC_INF') }}</h3>
-    <kw-form :cols="1">
+      <kw-separator />
+      <h3>{{ $t('MSG_TXT_ETC_INF') }}</h3>
       <kw-form-row>
         <!-- 비고 -->
-        <kw-form-item :label="$t('MSG_TXT_NOTE')">
+        <kw-form-item
+          :label="$t('MSG_TXT_NOTE')"
+          :colspan="2"
+        >
           <kw-input
             v-model="dataParams.vhcDsbRmkCn"
             type="textarea"
@@ -209,7 +202,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 
-import { codeUtil, notify, useDataService, useModal, getComponentType } from 'kw-lib';
+import { codeUtil, notify, useDataService, useModal, getComponentType, validate } from 'kw-lib';
 import { isEmpty } from 'lodash-es';
 import useSnCode from '~sms-wells/service/composables/useSnCode';
 import dayjs from 'dayjs';
@@ -270,6 +263,20 @@ const dataParams = ref({
   vhcDsbRmkCn: '',
   carNm: '',
 });
+
+const validateDsbDate = async (val, options) => {
+  const errors = [];
+
+  errors.push(
+    ...(await validate(val, 'required', options)).errors,
+  );
+
+  if (Number(dataParams.value.vhcPymdt) >= Number(dataParams.value.dsbEnddt)) {
+    errors.push(t('MSG_TXT_END_GRTR_START_DTM'));
+  }
+
+  return errors[0] || true;
+};
 
 async function fetchAllVehicles() {
   return await dataService.get('/sms/wells/service/business-vehicles/all-vehicles');
@@ -337,29 +344,9 @@ if (isModify.value) { // 수정
 const isBeforeVhcPymdt = computed(() => Number(dataParams.value.vhcPymdt) < Number(dayjs().format('YYYYMMDD')));
 const isBeforeDsbEnddt = computed(() => Number(dataParams.value.dsbEnddt) < Number(dayjs().format('YYYYMMDD')));
 
-/* async function validateDsbDate() {
-  if (Number(dataParams.value.vhcPymdt) >= Number(dataParams.value.dsbEnddt)) {
-    await alert(t('MSG_TXT_END_GRTR_START_DTM'));
-    return true;
-  }
-
-  return false;
-} */
-
-const validateDsbDate = async () => {
-  const errors = [];
-
-  if (Number(dataParams.value.vhcPymdt) >= Number(dataParams.value.dsbEnddt)) {
-    errors.push(t('MSG_TXT_END_GRTR_START_DTM'));
-  }
-
-  return errors[0] || true;
-};
-
 async function onClickSaveBtn() {
   if (!await frmMainRef.value.validate()) { return; }
   if (await frmMainRef.value.alertIfIsNotModified()) { return; }
-  if (await validateDsbDate()) { return; }
 
   // TODO: 엔지니어 테이블 작업 완료 후 WsndVehiclesDsbRgstService.java 주석 해제
   if (isModify.value) {

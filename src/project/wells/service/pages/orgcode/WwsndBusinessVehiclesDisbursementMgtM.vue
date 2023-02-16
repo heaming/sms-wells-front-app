@@ -212,7 +212,7 @@ async function onClickSearch() {
 
 async function onClickVhcDsbRegBtn() {
   const { result } = await modal({
-    component: 'WwsndVehiclesDisbursementRgstRegP',
+    component: 'WwsndBusinessVehiclesRegP',
   });
 
   if (result) await getBusinessVehicles();
@@ -282,7 +282,7 @@ const initGrdMain = defineGrid((data, view) => {
       const { ogCd, vhcMngtNo, vchMngtSn, prtnrNo } = gridUtil.getRowValue(grid, grid.getCurrent().dataRow);
 
       const { result } = await modal({
-        component: 'WwsndVehiclesDisbursementRegP',
+        component: 'WwsndBusinessVehiclesRegP',
         componentProps: { ogCd, vhcMngtNo, vchMngtSn, prtnrNo },
       });
 
