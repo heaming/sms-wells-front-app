@@ -81,7 +81,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { defineGrid, getComponentType, gridUtil, notify, useDataService } from 'kw-lib';
+import { defineGrid, getComponentType, gridUtil, useDataService } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
 import { openReportPopup } from '~/modules/common/utils/cmPopupUtil';
@@ -120,23 +120,28 @@ const searchParams = ref({
 
 let cachedParams;
 
-async function onClickSearch() {
-  grdPageRef.value.getData().clearRows();
-  cachedParams = cloneDeep(searchParams.value);
-  // eslint-disable-next-line no-use-before-define
-  await fetchData();
-}
-
 async function fetchData() {
   cachedParams = { ...cachedParams };
+
   const res = await dataService.get('/sms/wells/withdrawal/idvrve/giro-ocr-forwardings/print', { params: cachedParams });
   const { list: pages } = res.data;
+
   const view = grdPageRef.value.getView();
+
   const data = view.getDataSource();
   data.checkRowStates(false);
   data.setRows(pages);
   data.checkRowStates(true);
+
   view.resetCurrent();
+}
+
+async function onClickSearch() {
+  grdPageRef.value.getData().clearRows();
+
+  cachedParams = cloneDeep(searchParams.value);
+
+  await fetchData();
 }
 
 async function onClickExcelDownload() {
@@ -156,8 +161,8 @@ async function onClickRemove() {
   const deletedRows = await gridUtil.confirmDeleteCheckedRows(view);
   if (deletedRows.length > 0) {
     await dataService.put('/sms/wells/withdrawal/idvrve/giro-ocr-forwardings/print', deletedRows);
-    notify(t('MSG_ALT_DELETED'));
-    // notify(t('삭제되었습니다.'));
+    // notify(t('MSG_ALT_DELETED'));
+    // // notify(t('삭제되었습니다.'));
     await fetchData();
   }
 }

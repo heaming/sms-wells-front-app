@@ -194,30 +194,36 @@ const searchParams = ref({
 
 let cachedParams;
 
-async function onClickSearch() {
-  grdLinkRef.value.getData().clearRows();
-  pageInfo.value.pageIndex = 1;
-  cachedParams = cloneDeep(searchParams.value);
-  // eslint-disable-next-line no-use-before-define
-  await fetchData();
-}
-
 async function fetchData() {
   cachedParams = { ...cachedParams, ...pageInfo.value };
+
   const res = await dataService.get('/sms/wells/withdrawal/idvrve/giro-ocr-forwardings/paging', { params: cachedParams });
   const { list: pages, pageInfo: pagingResult } = res.data;
   pageInfo.value = pagingResult;
+
   const view = grdLinkRef.value.getView();
+
   const data = view.getDataSource();
   data.checkRowStates(false);
   data.setRows(pages);
   data.checkRowStates(true);
+
   view.resetCurrent();
+}
+
+async function onClickSearch() {
+  grdLinkRef.value.getData().clearRows();
+
+  pageInfo.value.pageIndex = 1;
+  cachedParams = cloneDeep(searchParams.value);
+
+  await fetchData();
 }
 
 // 행추가
 async function onClickAdd() {
   const view = grdLinkRef.value.getView();
+
   gridUtil.insertRowAndFocus(view, 0, {
     wkDt: now.format('YYYYMMDD'),
     giroRglrDvCd: '02',
@@ -227,6 +233,7 @@ async function onClickAdd() {
 // 행삭제
 async function onClickRemove() {
   const view = grdLinkRef.value.getView();
+
   if (!await gridUtil.confirmIfIsModified(view)) { return; }
 
   await gridUtil.confirmDeleteCheckedRows(view);
@@ -244,7 +251,6 @@ async function onClickExcelDownload() {
 }
 // 대상조회
 async function onClickObjectSearch() {
-  console.log('대상조회');
   const res = await dataService.get('/sms/wells/withdrawal/idvrve/giro-ocr-forwardings/objects');
   console.log(res.data);
 }
@@ -252,27 +258,36 @@ async function onClickObjectSearch() {
 // 저장버튼
 async function onClickSave() {
   const view = grdLinkRef.value.getView();
+
   if (await gridUtil.alertIfIsNotModified(view)) { return; }
+
   if (!await gridUtil.validate(view)) { return; }
+
   const changedRows = gridUtil.getChangedRowValues(view);
-  console.log(changedRows);
+
   await dataService.post('/sms/wells/withdrawal/idvrve/giro-ocr-forwardings', changedRows);
 
   notify(t('MSG_ALT_SAVE_DATA'));
+
   fetchData();
 }
 
 // 출력관리 생성 버튼
 async function onClickPrintCreate() {
   if (!await confirm(t('MSG_ALT_PRNT_CRT'))) { return; }
+
   const paramData = {
     state: 'created',
     wkDt: searchParams.value.wkDt,
     giroOcrPblOjStrtdt: searchParams.value.giroOcrPblDtm,
   };
+
   console.log(paramData);
+
   await dataService.post('/sms/wells/withdrawal/idvrve/giro-ocr-forwardings/print', paramData);
+
   notify(t('MSG_ALT_CRT_FSH'));
+
   fetchData();
 }
 // -------------------------------------------------------------------------------------------------

@@ -167,24 +167,26 @@ let cachedParams;
 
 async function fetchGiroInfo() {
   cachedParams = cloneDeep(giroPlrcvProps.value);
+
   console.log(cachedParams);
+
   const res = await dataService.get('/sms/wells/withdrawal/idvrve/giro-placereceived', { params: cachedParams });
+
   giroPlrcv.value = res.data;
   giroPlrcv.value.state = 'updated';
+
   isDisableChk.value = true;
 }
 
 async function initProps() {
   const { cntrNo, cntrSn } = props;
-  console.log(cntrNo);
-  console.log(cntrSn);
+
   giroPlrcvProps.value.cntrNo = cntrNo;
   giroPlrcvProps.value.cntrSn = cntrSn;
   // giroPlrcvProps.value.cntrNo = 'E20206720744';
   // giroPlrcvProps.value.cntrSn = '6';
   giroPlrcv.value.state = 'created';
-  console.log(giroPlrcv.value.state);
-  console.log(giroPlrcvProps.value.cntrNo);
+
   if (giroPlrcvProps.value.cntrNo) {
     await fetchGiroInfo();
   }
