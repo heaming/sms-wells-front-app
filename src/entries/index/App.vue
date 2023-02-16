@@ -2,12 +2,7 @@
   <web-layout>
     <template #default>
       <web-header>
-        <template #logo>
-          <img
-            src="~~@assets/images/kstation_wells.svg"
-            alt="K-Station Wells"
-          >
-        </template>
+        <template #logo />
       </web-header>
 
       <web-left-drawer />
