@@ -148,8 +148,8 @@ async function initProps() {
 
 await initProps();
 
-watch(() => props.pdCd, (val) => { currentPdCd.value = val; });
-watch(() => props.initData, (val) => { currentInitData.value = val; }, { deep: true });
+watch(() => props.pdCd, () => { initProps(); });
+watch(() => props.initData, () => { initProps(); }, { deep: true });
 
 </script>
 <style scoped></style>

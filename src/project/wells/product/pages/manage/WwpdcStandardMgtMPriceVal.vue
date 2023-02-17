@@ -332,7 +332,12 @@ async function initGrid(data, view) {
   columns.map((item) => {
     if (item.fieldName === 'cndtDscPrumVal') {
       item.sortable = false;
+      item.editButtonVisibility = 'always';
+      item.editor.showStepButton = true;
       item.editor.positiveOnly = true;
+      item.editor.direction = 'horizontal';
+      item.editor.step = 1;
+      item.width = 140;
     }
     return item;
   });
