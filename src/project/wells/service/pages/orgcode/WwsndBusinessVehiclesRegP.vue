@@ -247,7 +247,7 @@ const vehicleInfos = ref();
 
 const dataParams = ref({
   ogCd: props.ogCd === '' ? undefined : props.ogCd,
-  ogTpCd: props.ogTpCd === '' ? undefined : props.ogTpCd,
+  vhcMngtOgTpCd: props.ogTpCd === '' ? undefined : props.ogTpCd,
   vhcMngtNo: props.vhcMngtNo === '' ? undefined : props.vhcMngtNo,
   vhcMngtSn: props.vhcMngtSn === '' ? undefined : props.vhcMngtSn,
   vhcMngtPrtnrNo: props.prtnrNo === '' ? undefined : props.prtnrNo,
