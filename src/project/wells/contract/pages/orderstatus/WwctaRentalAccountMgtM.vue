@@ -18,7 +18,7 @@
       <kw-search-row>
         <kw-search-item :label="$t('MSG_TXT_INQR_DV')">
           <kw-option-group
-            v-model="srchSelection"
+            v-model="searchParams.srchGbn"
             type="radio"
             :options="srchOptions"
             @change="onChangeSearch"
@@ -29,10 +29,9 @@
           required
         >
           <kw-date-range-picker
-            v-model:from="searchParams.dangOcStrtdt[0]"
-            v-model:to="searchParams.dangOcStrtdt[1]"
+            v-model:from="searchParams.istStartDt"
+            v-model:to="searchParams.istEndDt"
             type="month"
-            rules="date_range_required|date_range_months:1"
           />
         </kw-search-item>
         <kw-search-item
@@ -40,9 +39,8 @@
           :label="$t('MSG_TXT_PDGRP')"
         >
           <kw-select
-            v-model="searchParams.prdGrp"
-            :options="['BO등록일', '입찰예정일']"
-            rules="required"
+            v-model="searchParams.pdMclsfId"
+            :options="pdMclsfIdOptions"
           />
         </kw-search-item>
         <kw-search-item
@@ -50,9 +48,8 @@
           :label="$t('MSG_TXT_MANAGEMENT_DEPARTMENT')"
         >
           <kw-select
-            v-model="searchParams.mngmntGrp"
-            :options="['A-Team', 'B-Team']"
-            rules="required"
+            v-model="searchParams.dgr1LevlOgNm"
+            :options="gnrlDivOptions"
           />
         </kw-search-item>
       </kw-search-row>
@@ -61,21 +58,20 @@
           v-if="isProd"
           :label="$t('MSG_TXT_PRDT_CODE')"
         >
-          <kw-input v-model="searchParams.prdCd" />
+          <kw-input v-model="searchParams.basePdCd" />
         </kw-search-item>
         <kw-search-item
           v-else
           :label="$t('MSG_TXT_RGNL_GRP')"
         >
           <kw-select
-            v-model="searchParams.rgnlGrp"
-            :options="['Grp1', 'Grp2']"
-            rules="required"
+            v-model="searchParams.dgr2LevlOgNm"
+            :options="rgnlDivOptions"
           />
         </kw-search-item>
         <kw-search-item :label="$t('MSG_TXT_CST_DV')">
           <kw-select
-            v-model="searchParams.cstmrDiv"
+            v-model="searchParams.copnDvCd"
             :options="codes.COPN_DV_CD"
           />
         </kw-search-item>
@@ -100,7 +96,7 @@
       </kw-action-top>
       <kw-grid
         ref="grdMainRef"
-        :visible-rows="totalCount"
+        :visible-rows="10"
         @init="initGrid"
       />
     </div>
@@ -121,24 +117,24 @@ const dataService = useDataService();
 
 const now = dayjs();
 
-// @todo: update to 0 on api integration
-const totalCount = ref(10);
+const totalCount = ref(0);
 const srchOptions = ref([{
-  codeId: 100,
+  codeId: 1,
   codeName: t('MSG_TXT_BY_PRD') },
 {
-  codeId: 200,
+  codeId: 2,
   codeName: t('MSG_TXT_BY_ORG') }]);
-const srchSelection = ref(100);
 
 let cachedParams;
 const searchParams = ref({
-  dangOcStrtdt: [now.startOf('month').format('YYYYMMDD'), now.format('YYYYMMDD')],
-  prdGrp: '',
-  mngmntGrp: '',
-  prdCd: '',
-  rgnlGrp: '',
-  cstmrDiv: '',
+  srchGbn: 1,
+  istStartDt: now.startOf('month').format('YYYYMM'),
+  istEndDt: now.format('YYYYMM'),
+  pdMclsfId: '',
+  dgr1LevlOgNm: '',
+  basePdCd: '',
+  dgr2LevlOgNm: '',
+  copnDvCd: '',
 
 });
 
@@ -152,7 +148,11 @@ const codes = await codeUtil.getMultiCodes(
   'COPN_DV_CD',
 );
 
-const isProd = computed(() => srchSelection.value === 100);
+const pdMclsfIdOptions = await dataService.get('sms/wells/contract/product/middle-classes');
+const gnrlDivOptions = await dataService.get('sms/wells/contract/partners/general-divisions');
+const rgnlDivOptions = await dataService.get('sms/wells/contract/partners/regional-divisions');
+
+const isProd = computed(() => searchParams.value.srchGbn === 1);
 
 // Updating the col visibility as per search classification
 function onChangeSearch() {
@@ -165,11 +165,11 @@ async function fetchData() {
   // changing api & cacheparams according to search classification
   let res = '';
   if (isProd.value) {
-    const { mngmntGrp, rgnlGrp, ...prodParams } = cachedParams;
-    res = await dataService.get('/sms/wells/contract/product-rental-accounts', { params: prodParams });
+    const { dgr1LevlOgNm, dgr2LevlOgNm, ...prodParams } = cachedParams;
+    res = await dataService.get('/sms/wells/contract/rental-accounts/rental-accounts/products', { params: prodParams });
   } else {
-    const { prdGrp, prdCd, ...orgParams } = cachedParams;
-    res = await dataService.get('/sms/wells/contract/organization-rental-accounts', { params: orgParams });
+    const { pdMclsfId, basePdCd, ...orgParams } = cachedParams;
+    res = await dataService.get('/sms/wells/contract/rental-accounts/rental-accounts/organizations', { params: orgParams });
   }
 
   const { list: accounts } = res.data;
@@ -197,52 +197,45 @@ async function onClickExcelDownload() {
 // -------------------------------------------------------------------------------------------------
 const initGrid = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'col1' },
-    { fieldName: 'col2' },
-    { fieldName: 'col3' },
-    { fieldName: 'col4' },
-    { fieldName: 'col5' },
-    { fieldName: 'col6' },
-    { fieldName: 'col7' },
-    { fieldName: 'col8' },
-    { fieldName: 'col9' },
-    { fieldName: 'col10' },
-    { fieldName: 'col11' },
-    { fieldName: 'col12' },
-    { fieldName: 'col13' },
-    { fieldName: 'col14' },
-    { fieldName: 'col15' },
+    { fieldName: 'pdgrpNm' },
+    { fieldName: 'pdNM' },
+    { fieldName: 'basePdCd' },
+    { fieldName: 'istDt' },
+    { fieldName: 'rstlYn' },
+    { fieldName: 'jCnt' },
+    { fieldName: 'mchnChCnt' },
+    { fieldName: 'reRentalCnt' },
+    { fieldName: 'mshCnt' },
+    { fieldName: 'keepRentalCnt' },
+    { fieldName: 'sprExnCnt' },
+    { fieldName: 'sprReqdCnt' },
+    { fieldName: 'sprRat' },
+    { fieldName: 'dgr1LevlOgNm' },
+    { fieldName: 'dgr2LevlOgNm' },
 
   ];
 
   const columns = [
-    { fieldName: 'col1', header: t('MSG_TXT_PDGRP'), width: '178', visible: true, tag: 'prod' },
-    { fieldName: 'col2', header: t('MSG_TXT_PD_NM'), width: '295', visible: true, tag: 'prod' },
-    { fieldName: 'col3', header: t('MSG_TXT_PRDT_CODE'), width: '125', styleName: 'text-center', visible: true, tag: 'prod' },
-    { fieldName: 'col14', header: t('MSG_TXT_MANAGEMENT_DEPARTMENT'), width: '178', visible: false, tag: 'org' },
-    { fieldName: 'col15', header: t('MSG_TXT_RGNL_GRP'), width: '295', visible: false, tag: 'org' },
-    { fieldName: 'col4', header: t('MSG_TXT_YR_INSTALLATION'), width: '125', styleName: 'text-center' },
-    { fieldName: 'col5', header: t('MSG_TXT_RECOMMITMENT'), width: '125', styleName: 'text-center' },
-    { fieldName: 'col6', header: t('MSG_TXT_SUBSCRPTN_NO'), width: '139', styleName: 'text-right' },
-    { fieldName: 'col7', header: t('MSG_TXT_CHNG'), width: '139', styleName: 'text-right' },
-    { fieldName: 'col8', header: t('MSG_TXT_RE_RENTAL'), width: '139', styleName: 'text-right' },
-    { fieldName: 'col9', header: t('MSG_TXT_MEMBERSHIP'), width: '139', styleName: 'text-right' },
-    { fieldName: 'col10', header: t('MSG_TXT_RNTL_MNTENC'), width: '139', styleName: 'text-right' },
-    { fieldName: 'col11', header: t('WTHDRWL_SLF'), width: '171', styleName: 'text-right' },
-    { fieldName: 'col12', header: t('WTHDRWL_CNCL'), width: '194', styleName: 'text-right' },
-    { fieldName: 'col13', header: t('MSG_TXT_WTHDRWL_RT'), width: '139', styleName: 'text-right' },
+    { fieldName: 'pdgrpNm', header: t('MSG_TXT_PDGRP'), width: '178', visible: true, tag: 'prod' },
+    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '295', visible: true, tag: 'prod' },
+    { fieldName: 'basePdCd', header: t('MSG_TXT_PRDT_CODE'), width: '125', styleName: 'text-center', visible: true, tag: 'prod' },
+    { fieldName: 'dgr1LevlOgNm', header: t('MSG_TXT_MANAGEMENT_DEPARTMENT'), width: '178', visible: false, tag: 'org' },
+    { fieldName: 'dgr2LevlOgNm', header: t('MSG_TXT_RGNL_GRP'), width: '295', visible: false, tag: 'org' },
+    { fieldName: 'istDt', header: t('MSG_TXT_YR_INSTALLATION'), width: '125', styleName: 'text-center' },
+    { fieldName: 'rstlYn', header: t('MSG_TXT_RECOMMITMENT'), width: '125', styleName: 'text-center' },
+    { fieldName: 'jCnt', header: t('MSG_TXT_SUBSCRPTN_NO'), width: '139', styleName: 'text-right' },
+    { fieldName: 'mchnChCnt', header: t('MSG_TXT_CHNG'), width: '139', styleName: 'text-right' },
+    { fieldName: 'reRentalCnt', header: t('MSG_TXT_RE_RENTAL'), width: '139', styleName: 'text-right' },
+    { fieldName: 'mshCnt', header: t('MSG_TXT_MEMBERSHIP'), width: '139', styleName: 'text-right' },
+    { fieldName: 'keepRentalCnt', header: t('MSG_TXT_RNTL_MNTENC'), width: '139', styleName: 'text-right' },
+    { fieldName: 'sprExnCnt', header: t('MSG_TXT_WTHDRWL_SLF'), width: '171', styleName: 'text-right' },
+    { fieldName: 'sprReqdCnt', header: t('MSG_TXT_WTHDRWL_CNCL'), width: '194', styleName: 'text-right' },
+    { fieldName: 'sprRat', header: t('MSG_TXT_WTHDRWL_RT'), width: '139', styleName: 'text-right' },
   ];
 
   data.setFields(fields);
   view.setColumns(columns);
-
   view.rowIndicator.visible = true;
-
-  data.setRows([
-    { col1: '공기청정기', col2: '공기청정기AK316ESA', col3: '4375', col4: '2022-10', col5: 'N', col6: '1', col7: '0', col8: '0', col9: '0', col10: '0', col11: '0', col12: '0', col13: '0', col14: 'Business', col15: 'Grp1' },
-    { col1: '비데', col2: '비데(BM750RWA)', col3: '4416', col4: '2022-10', col5: 'N', col6: '6', col7: '0', col8: '0', col9: '0', col10: '0', col11: '0', col12: '0', col13: '0', col14: 'Business', col15: 'Grp2' },
-    { col1: '비데', col2: '비데(BM750RWA)', col3: '4416', col4: '2022-10', col5: 'N', col6: '6', col7: '0', col8: '0', col9: '0', col10: '0', col11: '0', col12: '0', col13: '0', col14: 'Business', col15: 'Grp2' },
-  ]);
 });
 
 </script>
