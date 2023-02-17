@@ -306,6 +306,7 @@ function setApplyDates(view, type) {
 
   for (let dataRow = 0; dataRow < rowCount; dataRow += 1) {
     view.setValue(dataRow, 'apyStrtdt', applyDate);
+    view.setValue(dataRow, 'apyEnddt', '99991231');
   }
 }
 
