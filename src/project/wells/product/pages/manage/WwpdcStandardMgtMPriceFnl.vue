@@ -151,12 +151,8 @@ async function initGridRows() {
         const calPrc = Math.round((Number(row.ccamBasePrc) * Number(row.cndtDscPrumVal)) / 100, 2);
         row.prcBefAdj = Number(row.ccamBasePrc) - calPrc;
       }
-      if (row.fxamFxrtDvCd === '01') {
-        row.fnlVal = Number(row.prcBefAdj) - Number(row.ctrVal);
-      } else if (row.fxamFxrtDvCd === '02') {
-        const calPrc = Math.round((Number(row.prcBefAdj) * Number(row.ctrVal)) / 100, 2);
-        row.fnlVal = calPrc ? Number(row.prcBefAdj) - calPrc : Number(row.prcBefAdj);
-      }
+      row.fnlVal = Number(row.prcBefAdj) - Number(row.ctrVal);
+
       return row;
     });
     // console.log('Rows : ', rows);
@@ -181,6 +177,25 @@ watch(() => props.initData, (val) => { currentInitData.value = val; resetInitDat
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
+async function setFinalVal(view, grid, itemIndex) {
+  const prcBefAdj = Number(grid.getValue(itemIndex, 'prcBefAdj'));
+  let ctrVal = Number(grid.getValue(itemIndex, 'ctrVal'));
+  let fnlVal = 0;
+  // 조정 전 가격 ( 01: 정액, 02: 정률)23
+  if (ctrVal > prcBefAdj) {
+    /* {0}값이 {1}보다 큽니다. */
+    await alert(t('MSG_ALT_A_IS_GREAT_THEN_B', [
+      `${grid.columnByName('ctrVal').header.text}(${ctrVal})`,
+      `${grid.columnByName('prcBefAdj').header.text}(${prcBefAdj})`]));
+    ctrVal = 0;
+    view.setValue(itemIndex, 'ctrVal', ctrVal);
+  }
+  // 조정 전 가격 = 조정전가격 - 조정가
+  fnlVal = prcBefAdj - ctrVal;
+  view.setValue(itemIndex, 'fnlVal', fnlVal);
+  view.resetCurrent();
+}
+
 async function initGrid(data, view) {
   const { metaInfos } = props;
   currentMetaInfos.value = metaInfos;
@@ -236,41 +251,14 @@ async function initGrid(data, view) {
   view.onCellEdited = async (grid, itemIndex, row, fieldIndex) => {
     // fieldIndex 값 이상함 +1해줘야 맞게 나옴
     const changedFieldName = grid.getColumn((fieldIndex + 1)).fieldName;
-    if (changedFieldName === 'fxamFxrtDvCd') {
-      view.setValue(itemIndex, 'ctrVal', 0);
-      view.resetCurrent();
-    } else if (changedFieldName === 'ctrVal') {
-      const fxamFxrtDvCd = grid.getValue(itemIndex, 'fxamFxrtDvCd');
-      const prcBefAdj = Number(grid.getValue(itemIndex, 'prcBefAdj'));
-      let ctrVal = Number(grid.getValue(itemIndex, 'ctrVal'));
-      // console.log('WwpdcStandardMgtMPriceFnl - getFnlDisplayCallback - fxamFxrtDvCd', fxamFxrtDvCd);
-      let fnlVal = 0;
-      // 조정 전 가격 ( 01: 정액, 02: 정률)23
-      if (fxamFxrtDvCd === '01') {
-        if (ctrVal > prcBefAdj) {
-          /* {0}값이 {1}보다 큽니다. */
-          await alert(t('MSG_ALT_A_IS_GREAT_THEN_B', [
-            `${grid.columnByName('ctrVal').header.text}(${ctrVal})`,
-            `${grid.columnByName('prcBefAdj').header.text}(${prcBefAdj})`]));
-          ctrVal = 0;
-          view.setValue(itemIndex, 'ctrVal', ctrVal);
-        }
-        // 조정 전 가격 = 조정전가격 - 조정가
-        fnlVal = prcBefAdj - ctrVal;
-      } if (fxamFxrtDvCd === '02') {
-        if (ctrVal > 100) {
-          await alert(t('MSG_ALT_A_IS_GREAT_THEN_B', [
-            grid.columnByName('ctrVal').header.text,
-            '100%']));
-          ctrVal = 0;
-          view.setValue(itemIndex, 'ctrVal', ctrVal);
-        }
-        // 조정 전 가격 = 조정전가격 - 조정률
-        const calPrc = Math.round((prcBefAdj * ctrVal) / 100, 2);
-        fnlVal = calPrc ? prcBefAdj - calPrc : prcBefAdj;
-      }
-      view.setValue(itemIndex, 'fnlVal', fnlVal);
-      view.resetCurrent();
+    if (changedFieldName === 'ctrVal') {
+      await setFinalVal(view, grid, itemIndex);
+    }
+  };
+
+  view.onCellClicked = async (grid, clickData) => {
+    if (clickData.column === 'ctrVal') {
+      await setFinalVal(view, grid, clickData.itemIndex);
     }
   };
   // 그리드 마운트 시점과 컴포넌트 마운트 시점 불일지로 아래 로직 추가

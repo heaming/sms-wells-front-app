@@ -87,7 +87,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { useDataService, codeUtil } from 'kw-lib';
-import { isEmpty, merge } from 'lodash-es';
+import { isEmpty, merge, cloneDeep } from 'lodash-es';
 import pdConst from '~sms-common/product/constants/pdConst';
 import { pdMergeBy, getPdMetaToCodeNames } from '~sms-common/product/utils/pdUtil';
 import WwpdcStandardMgtMPriceStd from './WwpdcStandardMgtMPriceStd.vue';
@@ -214,24 +214,31 @@ async function validateProps() {
   return isValidOk;
 }
 
-async function fetchData() {
+async function initProps() {
   const { pdCd, initData, codes } = props;
   currentPdCd.value = pdCd;
-  currentInitData.value = initData;
-  const res = await dataService.get('/sms/common/product/meta-properties', { params: { pdPrcTpCd: pdConst.PD_PRC_TP_CD_ALL } });
-  if (isEmpty(res.data)) {
-    return;
-  }
-  metaInfos.value = res.data;
-  // console.log('WwpdcStandardMgtMPrice - fetchData - metaInfos.value : ', metaInfos.value);
-  const codeNames = await getPdMetaToCodeNames(metaInfos.value, props.codes);
-  if (!isEmpty(codeNames)) {
-    currentCodes.value = merge(codes, await codeUtil.getMultiCodes(...codeNames));
+  currentInitData.value = cloneDeep(initData);
+  currentCodes.value = cloneDeep(codes);
+  await fetchData();
+}
+
+async function fetchData() {
+  if (isEmpty(metaInfos.value)) {
+    const res = await dataService.get('/sms/common/product/meta-properties', { params: { pdPrcTpCd: pdConst.PD_PRC_TP_CD_ALL } });
+    if (isEmpty(res.data)) {
+      return;
+    }
+    metaInfos.value = res.data;
+    // console.log('WwpdcStandardMgtMPrice - fetchData - metaInfos.value : ', metaInfos.value);
+    const codeNames = await getPdMetaToCodeNames(metaInfos.value, props.codes);
+    if (!isEmpty(codeNames)) {
+      currentCodes.value = merge(currentCodes.value, await codeUtil.getMultiCodes(...codeNames));
+    }
   }
 }
 
-await fetchData();
+await initProps();
 
-watch(() => props.pdCd, (val) => { currentPdCd.value = val; });
-watch(() => props.initData, (val) => { currentInitData.value = val; }, { deep: true });
+watch(() => props.pdCd, () => { initProps(); });
+watch(() => props.initData, () => { initProps(); }, { deep: true });
 </script>

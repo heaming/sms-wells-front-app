@@ -251,6 +251,17 @@ async function initGrid(data, view) {
   view.checkBar.visible = true;
   view.rowIndicator.visible = false;
   view.editOptions.editable = true;
+
+  view.onCellClicked = async (g, { column, dataRow }) => {
+    console.log(column);
+    priceFieldData.value[pdConst.TBL_PD_PRC_DTL] = pdMergeBy(
+      priceFieldData.value[pdConst.TBL_PD_PRC_DTL],
+      gridUtil.getRowValue(g, dataRow),
+      [],
+      [pdConst.PRC_DETAIL_ID, 'verSn', 'crncyDvCd'],
+    );
+  };
+
   await initGridRows();
 }
 </script>
