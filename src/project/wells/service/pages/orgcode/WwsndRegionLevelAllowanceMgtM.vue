@@ -51,7 +51,7 @@
             <!-- 분당공수 입력 -->
             <kw-input
               v-model="baseInfo.movementManHour"
-              mask="#####"
+              mask="###"
               dense
               class="w150"
               :placeholder="$t('MSG_TXT_ENTER_AIRSPEED_PER_MIN')"
@@ -59,7 +59,7 @@
             <!-- 급지비중 입력 -->
             <kw-input
               v-model="baseInfo.movementFieldWeight"
-              mask="#####"
+              mask="###"
               dense
               class="w150"
               :placeholder="$t('MSG_TXT_ENTER_FEED_WEIGHT')"
@@ -67,7 +67,7 @@
             <!-- 평균시속 입력 -->
             <kw-input
               v-model="baseInfo.movementAverageSpeed"
-              mask="#####"
+              mask="###"
               dense
               class="w150"
               :placeholder="$t('MSG_TXT_ENTER_AVERAGE_HOULY')"
@@ -124,25 +124,27 @@
             <!-- 분당공수 입력 -->
             <kw-input
               v-model="baseInfo.bizManHour"
-              mask="#####"
+              mask="###"
               dense
               class="w150"
               :placeholder="$t('MSG_TXT_ENTER_AIRSPEED_PER_MIN')"
+              @change="onChangebizFieldAirlift"
             />
             <!-- 급지비중 입력 -->
             <kw-input
               v-model="baseInfo.bizFieldWeight"
-              mask="#####"
+              mask="###"
               dense
               class="w150"
               :placeholder="$t('MSG_TXT_ENTER_FEED_WEIGHT')"
+              @change="onChangebizFieldAirlift"
             />
             <!-- 급지공수 입력 -->
             <kw-input
               v-model="baseInfo.bizFieldAirlift"
-              mask="#####"
               dense
               class="w150"
+              readonly
               :placeholder="$t('MSG_TXT_ENTER_FEEDWATER')"
             />
             <!-- 계산기준 변경 -->
@@ -312,6 +314,15 @@ async function onClickMovementBulkApplyDate() {
   await setApplyDates(grdMovementLevelRef.value.getView(), 'movementApplyDate');
 }
 
+// 급지공수 가져오기
+function getFieldAirlift(manHour, fieldWeight) {
+  return Math.round((Number(manHour) * (Number(fieldWeight) / 100)) / 10) * 10; // 급지공수
+}
+
+function onChangebizFieldAirlift() {
+  baseInfo.value.bizFieldAirlift = getFieldAirlift(baseInfo.value.bizManHour, baseInfo.value.bizFieldWeight);
+}
+
 // 업무급지 - 분당공수, 급지비중, 급지공수
 function onClickBizBulkApply() {
   const view = grdBizLevelRef.value.getView();
@@ -325,12 +336,9 @@ function onClickBizBulkApply() {
       mmtLdtm = '260'; // [업무급지] 급지등급 24등급은 "섬"으로 이동시간 260으로 계산
     }
 
-    const manHour = Number(baseInfo.value.bizManHour); // 분당공수
-    const fieldWeight = Number(baseInfo.value.bizFieldWeight); // 급지비중
-    const fieldAirlift = Math.round((manHour * (fieldWeight / 100)) / 10) * 10; // 급지공수
-    baseInfo.value.bizFieldAirlift = fieldAirlift;
+    baseInfo.value.bizFieldAirlift = getFieldAirlift(baseInfo.value.bizManHour, baseInfo.value.bizFieldWeight); // 급지공수
 
-    const rglvlAwAmt = Number(mmtLdtm) * fieldAirlift;
+    const rglvlAwAmt = Number(mmtLdtm) * baseInfo.value.bizFieldAirlift;
     view.setValue(dataRow, 'rglvlAwAmt', rglvlAwAmt);
   }
 }
@@ -347,17 +355,27 @@ async function fetchData() {
   countInfo.value.movementTotalCount = movementAllowances.length;
   movementLevelView.getDataSource().setRows(movementAllowances);
   movementLevelView.resetCurrent();
+
   originApplyDates.movementApplyDate = movementAllowances[0] ? movementAllowances[0].apyStrtdt : '';
+  const { minPerManho, rglvlWeit, avVe } = movementAllowances[0];
+  baseInfo.value.movementManHour = minPerManho;
+  baseInfo.value.movementFieldWeight = rglvlWeit;
+  baseInfo.value.movementAverageSpeed = avVe;
 
   const bizLevelview = grdBizLevelRef.value.getView();
   countInfo.value.bizTotalCount = bizAllowances.length;
   bizLevelview.getDataSource().setRows(bizAllowances);
   bizLevelview.resetCurrent();
+
   originApplyDates.bizApplyDate = bizAllowances[0] ? bizAllowances[0].apyStrtdt : '';
+  baseInfo.value.bizManHour = bizAllowances[0].minPerManho;
+  baseInfo.value.bizFieldWeight = bizAllowances[0].rglvlWeit;
+  baseInfo.value.bizFieldAirlift = getFieldAirlift(baseInfo.value.bizManHour, baseInfo.value.bizFieldWeight);
 }
 
 async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
+  isMovementChanged = false;
   await fetchData();
 }
 
@@ -372,7 +390,7 @@ function validateApplyDate(view) {
   return true;
 }
 
-async function saveData(view) {
+async function saveData(view, additionalInfo) {
   if (view.getItemCount() === 0) {
     notify(t('MSG_ALT_NO_APPY_OBJ_DT'));
     return;
@@ -382,28 +400,24 @@ async function saveData(view) {
 
   const changedRows = gridUtil.getChangedRowValues(view);
 
-  await dataService.post('/sms/wells/service/region-level-allowances', changedRows);
+  await dataService.post('/sms/wells/service/region-level-allowances', changedRows.map((v) => ({ ...v, ...additionalInfo })));
 
   notify(t('MSG_ALT_SAVE_DATA'));
   await fetchData();
 }
 
 async function onClickMovementSave() {
-  await saveData(grdMovementLevelRef.value.getView());
+  const { movementManHour, movementFieldWeight, movementAverageSpeed } = baseInfo.value;
+  const additionalInfo = { minPerManho: movementManHour, rglvlWeit: movementFieldWeight, avVe: movementAverageSpeed };
+  await saveData(grdMovementLevelRef.value.getView(), additionalInfo);
 }
 
 async function onClickBizSave() {
-  await saveData(grdBizLevelRef.value.getView());
+  const { bizManHour, bizFieldWeight } = baseInfo.value;
+  const avVe = getFieldAirlift(bizManHour, bizFieldWeight);
+  const additionalInfo = { minPerManho: bizManHour, rglvlWeit: bizFieldWeight, avVe };
+  await saveData(grdBizLevelRef.value.getView(), additionalInfo);
 }
-
-async function fetchBaseData() {
-  const res = await dataService.get('/sms/wells/service/region-level-allowances/bases');
-  baseInfo.value = res.data;
-}
-
-onMounted(async () => {
-  await fetchBaseData();
-});
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
@@ -420,6 +434,9 @@ const initGrdMovementLevel = defineGrid((data, view) => {
     { fieldName: 'apyEnddt' },
     { fieldName: 'fstRgstUsrId' },
     { fieldName: 'rgstNm' },
+    { fieldName: 'minPerManho', dataType: 'number' },
+    { fieldName: 'rglvlWeit', dataType: 'number' },
+    { fieldName: 'avVe', dataType: 'number' },
   ];
 
   const columns = [
@@ -462,6 +479,9 @@ const initGrdMovementLevel = defineGrid((data, view) => {
       datetimeFormat: 'date' },
     { fieldName: 'fstRgstUsrId', header: t('MSG_TXT_CH_EMPNO'), width: '100', styleName: 'text-center' },
     { fieldName: 'rgstNm', header: t('MSG_TXT_CH_FNM'), width: '100' },
+    { fieldName: 'minPerManho' },
+    { fieldName: 'rglvlWeit' },
+    { fieldName: 'avVe' },
   ];
 
   const columnLayout = [
@@ -503,6 +523,8 @@ const initGrdBizLevel = defineGrid((data, view) => {
     { fieldName: 'apyEnddt' },
     { fieldName: 'fstRgstUsrId' },
     { fieldName: 'rgstNm' },
+    { fieldName: 'minPerManho', dataType: 'number' },
+    { fieldName: 'rglvlWeit', dataType: 'number' },
   ];
 
   const columns = [
@@ -530,6 +552,8 @@ const initGrdBizLevel = defineGrid((data, view) => {
       datetimeFormat: 'date' },
     { fieldName: 'fstRgstUsrId', header: t('MSG_TXT_CH_EMPNO'), width: '100', styleName: 'text-center' },
     { fieldName: 'rgstNm', header: t('MSG_TXT_CH_FNM'), width: '100' },
+    { fieldName: 'minPerManho' },
+    { fieldName: 'rglvlWeit' },
   ];
 
   const columnLayout = [
