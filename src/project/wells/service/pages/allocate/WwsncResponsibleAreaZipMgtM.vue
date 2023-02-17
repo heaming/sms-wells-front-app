@@ -189,10 +189,6 @@ async function fetchData() {
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(zips);
   view.resetCurrent();
-
-  if (pageInfo.value.totalCount === 0) {
-    await notify(t('MSG_ALT_NO_INFO_SRCH'));
-  }
 }
 
 async function onClickSearch() {
