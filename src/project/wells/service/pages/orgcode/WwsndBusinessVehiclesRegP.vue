@@ -222,6 +222,7 @@ const { cancel: onClickCancel, ok } = useModal();
 
 const props = defineProps({
   ogCd: { type: String, default: '' },
+  ogTpCd: { type: String, default: '' },
   vhcMngtNo: { type: String, default: '' },
   vhcMngtSn: { type: String, default: '' },
   prtnrNo: { type: String, default: '' },
@@ -239,15 +240,14 @@ const codes = await codeUtil.getMultiCodes(
   'VHC_MNGT_TP_CD',
 );
 
-const isModify = computed(() => !(isEmpty(props.ogCd) || isEmpty(props.vhcMngtNo)
-  || isEmpty(props.vhcMngtSn) || isEmpty(props.vhcMngtPrtnrNo)));
-
+const isModify = computed(() => !(isEmpty(props.ogCd) || isEmpty(props.vhcMngtNo) || isEmpty(props.vhcMngtSn)));
 const centers = ref();
 const engineers = ref();
 const vehicleInfos = ref();
 
 const dataParams = ref({
   ogCd: props.ogCd === '' ? undefined : props.ogCd,
+  ogTpCd: props.ogTpCd === '' ? undefined : props.ogTpCd,
   vhcMngtNo: props.vhcMngtNo === '' ? undefined : props.vhcMngtNo,
   vhcMngtSn: props.vhcMngtSn === '' ? undefined : props.vhcMngtSn,
   vhcMngtPrtnrNo: props.prtnrNo === '' ? undefined : props.prtnrNo,
