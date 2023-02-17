@@ -279,11 +279,11 @@ const initGrdMain = defineGrid((data, view) => {
 
   view.onCellDblClicked = async (grid) => {
     if (pageInfo.value.totalCount > 0) {
-      const { ogCd, vhcMngtNo, vchMngtSn, prtnrNo } = gridUtil.getRowValue(grid, grid.getCurrent().dataRow);
+      const { ogCd, ogTpCd, vhcMngtNo, vchMngtSn, prtnrNo } = gridUtil.getRowValue(grid, grid.getCurrent().dataRow);
 
       const { result } = await modal({
         component: 'WwsndBusinessVehiclesRegP',
-        componentProps: { ogCd, vhcMngtNo, vchMngtSn, prtnrNo },
+        componentProps: { ogCd, ogTpCd, vhcMngtNo, vchMngtSn, prtnrNo },
       });
 
       if (result) await getBusinessVehicles();
