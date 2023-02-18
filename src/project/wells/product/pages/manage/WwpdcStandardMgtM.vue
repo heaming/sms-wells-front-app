@@ -101,7 +101,7 @@
           />
           <kw-btn
             v-show="currentStep.step === 1 && isCreate"
-            :label="$t('MSG_BTN_RESET')"
+            :label="$t('MSG_BTN_INTL')"
             class="ml8"
             @click="onClickReset"
           />
@@ -126,7 +126,7 @@
           />
           <kw-btn
             v-show="!isCreate || currentStep.step === regSteps.length"
-            :label="$t('MSG_BTN_SVE')"
+            :label="$t('MSG_BTN_SAVE')"
             class="ml8"
             primary
             @click="onClickSave('N')"
