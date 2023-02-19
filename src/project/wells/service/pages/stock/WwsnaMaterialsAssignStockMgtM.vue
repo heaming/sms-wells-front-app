@@ -3,7 +3,7 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : CMA
-2. 프로그램 ID : W-SV-U-0125M01 - 물량배정 입고창고관리
+2. 프로그램 ID : WwsnaMaterialsAssignStockMgtM - 물량배정 입고창고관리(W-SV-U-0125M01)
 3. 작성자 : inho.choi
 4. 작성일 : 2023.01.25
 ****************************************************************************************************
@@ -116,7 +116,7 @@
           grid-action
           :label="$t('MSG_BTN_SAVE')"
           dense
-          @click="onClickSave"
+          @click="onClickChangeRows"
         />
         <kw-separator
           spaced
@@ -141,6 +141,7 @@
 
       <kw-grid
         ref="grdMainRef"
+        name="grdMain"
         :visible-rows="pageInfo.pageSize"
         @init="initGrdMain"
       />
@@ -261,7 +262,7 @@ async function onClickExcelDownload() {
   });
 }
 
-async function onClickSave() {
+async function onClickChangeRows() {
   const view = grdMainRef.value.getView();
   const saveList = gridUtil.getChangedRowValues(view, false)
     .map((v) => ({ prtnrNo: v.prtnrNo, qomAsnApyYn: v.qomAsnApyYn }));
@@ -304,8 +305,6 @@ const initGrdMain = defineGrid((data, view) => {
   view.setColumns(columns);
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
-
-  view.displayOptions.emptyMessage = t('MSG_ALT_NO_INFO_SRCH');
 
   view.onCellDblClicked = (e, v) => {
     if (v.column === 'qomAsnApyYn') {
