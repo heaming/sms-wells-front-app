@@ -230,7 +230,7 @@ async function fetchData() {
     }
     metaInfos.value = res.data;
     // console.log('WwpdcStandardMgtMPrice - fetchData - metaInfos.value : ', metaInfos.value);
-    const codeNames = await getPdMetaToCodeNames(metaInfos.value, props.codes);
+    const codeNames = await getPdMetaToCodeNames(metaInfos.value, currentCodes.value);
     if (!isEmpty(codeNames)) {
       currentCodes.value = merge(currentCodes.value, await codeUtil.getMultiCodes(...codeNames));
     }

@@ -225,11 +225,12 @@ async function initGrid(data, view) {
     [pdConst.PRC_STD_ROW_ID, pdConst.PRC_FNL_ROW_ID, pdConst.PRC_DETAIL_ID, pdConst.PRC_DETAIL_FNL_ID, 'prcBefAdj'], // 조정 전 가격
   );
   // 조정 전 가격
-  const prcBeforAdj = { fieldName: 'prcBefAdj', header: t('MSG_TXT_PRC_BEFORE_ADJ'), width: '120', styleName: 'text-right', numberFormat: '#,##0.##' };
+  const prcBeforAdj = { fieldName: 'prcBefAdj', header: t('MSG_TXT_DIS_APP_PRC'), width: '120', styleName: 'text-right', numberFormat: '#,##0.##' };
   prcBeforAdj.editable = false;
   columns.splice(columns.length - 3, 0, prcBeforAdj);
-  columns.map((item) => {
+  /* columns.map((item) => {
     if (item.fieldName === 'ctrVal') {
+      item.styleName = 'rg-number-step';
       item.sortable = false;
       item.editButtonVisibility = 'always';
       item.editor.showStepButton = true;
@@ -239,7 +240,7 @@ async function initGrid(data, view) {
       item.width = 140;
     }
     return item;
-  });
+  }); */
   data.setFields(fields);
   view.setColumns(columns.sort((item) => (item.fieldName === 'sellChnlCd' ? -1 : 0)));
   view.checkBar.visible = true;
@@ -256,11 +257,11 @@ async function initGrid(data, view) {
     }
   };
 
-  view.onCellClicked = async (grid, clickData) => {
+  /* view.onCellClicked = async (grid, clickData) => {
     if (clickData.column === 'ctrVal') {
       await setFinalVal(view, grid, clickData.itemIndex);
     }
-  };
+  }; */
   // 그리드 마운트 시점과 컴포넌트 마운트 시점 불일지로 아래 로직 추가
   await initGridRows();
 }

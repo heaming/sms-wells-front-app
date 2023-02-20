@@ -174,7 +174,7 @@ const prumd = pdConst.TBL_PD_DSC_PRUM_DTL;
 const isTempSaveBtn = ref(true);
 const regSteps = ref([pdConst.STANDARD_STEP_BASIC, pdConst.STANDARD_STEP_REL_PROD,
   pdConst.STANDARD_STEP_MANAGE, pdConst.STANDARD_STEP_PRICE, pdConst.STANDARD_STEP_CHECK]);
-const currentStep = ref(pdConst.STANDARD_STEP_BASIC);
+const currentStep = ref(pdConst.STANDARD_STEP_PRICE);
 const cmpStepRefs = ref([ref(), ref(), ref(), ref()]);
 const prevStepData = ref({});
 const currentPdCd = ref();
