@@ -148,7 +148,9 @@ const pageInfo = ref({
 async function fetchData() {
   const res = await dataService.get('/sms/wells/contract/contracts/numbers/paging', { params: { ...cachedParams, ...pageInfo.value } });
   const { list: details, pageInfo: pagingResult } = res.data;
+
   pageInfo.value = pagingResult;
+
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(details);
   view.resetCurrent();
@@ -156,12 +158,7 @@ async function fetchData() {
 
 async function onClickSearch() {
   // 조회조건 검증
-  let allParamsEmpty = true;
-  Object.values(searchParams.value).forEach((val) => {
-    if (!isEmpty(val)) allParamsEmpty = false;
-  });
-  if (allParamsEmpty) {
-    // 모든 조회조건이 empty라면 에러
+  if (Object.values(searchParams.value).every((val) => isEmpty(val))) {
     await alert(t('MSG_ALT_INQR_CNDT_AT_LEAST_ONE'));
     return;
   }
