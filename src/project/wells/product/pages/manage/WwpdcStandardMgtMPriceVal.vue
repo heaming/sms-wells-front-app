@@ -320,6 +320,7 @@ async function initGrid(data, view) {
   // console.log('basicColNms : ', basicColNms);
   const readonlyFields = ['sellChnlCd', ...basicColNms];
   // console.log('currentMetaInfos.value : ', currentMetaInfos.value);
+  console.log(props.codes);
   const { fields, columns } = await getPdMetaToGridInfos(
     currentMetaInfos.value,
     [pdConst.PD_PRC_TP_CD_BASIC,
@@ -329,13 +330,19 @@ async function initGrid(data, view) {
     [],
     defaultFields.value,
   );
-  columns.map((item) => {
+  /* columns.map((item) => {
     if (item.fieldName === 'cndtDscPrumVal') {
+      item.styleName = 'rg-number-step';
       item.sortable = false;
+      item.editButtonVisibility = 'always';
+      item.editor.showStepButton = true;
       item.editor.positiveOnly = true;
+      item.editor.direction = 'horizontal';
+      item.editor.step = 1;
+      item.width = 140;
     }
     return item;
-  });
+  }); */
   fields.push({ fieldName: 'fixAmount', dataType: 'number' });
   data.setFields(fields);
   // 판매채널을 제일 앞으로

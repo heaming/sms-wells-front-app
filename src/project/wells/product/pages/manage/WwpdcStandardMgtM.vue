@@ -84,9 +84,8 @@
         </kw-step-panel>
         <kw-step-panel :name="pdConst.STANDARD_STEP_CHECK.name">
           <wwpdc-standard-dtl-m-contents
-            :pd-cd="currentPdCd"
-            :init-data="prevStepData"
-            :temp-save-yn="props.tempSaveYn"
+            v-model:pd-cd="currentPdCd"
+            v-model:init-data="prevStepData"
             :is-history-tab="false"
             :is-update-btn="false"
             :codes="codes"
@@ -175,7 +174,7 @@ const prumd = pdConst.TBL_PD_DSC_PRUM_DTL;
 const isTempSaveBtn = ref(true);
 const regSteps = ref([pdConst.STANDARD_STEP_BASIC, pdConst.STANDARD_STEP_REL_PROD,
   pdConst.STANDARD_STEP_MANAGE, pdConst.STANDARD_STEP_PRICE, pdConst.STANDARD_STEP_CHECK]);
-const currentStep = ref(pdConst.STANDARD_STEP_BASIC);
+const currentStep = ref(pdConst.STANDARD_STEP_PRICE);
 const cmpStepRefs = ref([ref(), ref(), ref(), ref()]);
 const prevStepData = ref({});
 const currentPdCd = ref();
@@ -196,7 +195,7 @@ const codes = await codeUtil.getMultiCodes(
 
 async function onClickReset() {
   cmpStepRefs.value.forEach((item) => {
-    item.value.resetData();
+    item.value?.resetData();
   });
 }
 
@@ -211,7 +210,7 @@ async function onClickDelete() {
 async function getSaveData() {
   const subList = {};
   await Promise.all(cmpStepRefs.value.map(async (item) => {
-    const saveData = await item.value.getSaveData();
+    const saveData = await item.value?.getSaveData();
     if (await saveData) {
       // console.log(`${idx}saveData : `, saveData);
       subList.pdCd = subList.pdCd ?? saveData.pdCd;
@@ -242,6 +241,9 @@ async function getSaveData() {
       if (saveData[prumd]) {
         subList[prumd] = saveData[prumd];
       }
+      if (saveData[pdConst.RELATION_PRODUCTS]) {
+        subList[pdConst.RELATION_PRODUCTS] = saveData[pdConst.RELATION_PRODUCTS];
+      }
       // console.log(`${idx}subList : `, subList);
     }
   }));
@@ -252,12 +254,17 @@ async function getSaveData() {
 async function onClickNextStep() {
   const currentStepIndex = currentStep.value.step - 1;
   // 현재 Step 필수여부 확인
-  const isValidOk = await (cmpStepRefs.value[currentStepIndex].value.validateProps());
+  const currentStepRef = await cmpStepRefs.value[currentStepIndex].value;
+  if (isEmpty(currentStepRef)) {
+    currentStep.value = regSteps.value[currentStepIndex + 1];
+    return;
+  }
+  const isValidOk = await (cmpStepRefs.value[currentStepIndex].value?.validateProps());
   if (!isValidOk) {
     return;
   }
   prevStepData.value = await getSaveData();
-  const currentStepRef = await cmpStepRefs.value[currentStepIndex].value;
+
   // Child 페이지 내에서 다음 스텝이 없으면(false), 현재 페이지에서 다음으로 진행
   const isMovedInnerStep = currentStepRef?.moveNextStep ? await currentStepRef?.moveNextStep() : false;
   if (!isMovedInnerStep) {
@@ -282,6 +289,7 @@ async function onClickPrevStep() {
 
 async function fetchProduct() {
   if (currentPdCd.value) {
+    prevStepData.value = {};
     const res = await dataService.get(`/sms/common/product/standards/${currentPdCd.value}`);
     console.log('WwpdcStandardMgtM - fetchProduct - res.data', res.data);
     prevStepData.value[bas] = res.data[bas];
@@ -302,7 +310,7 @@ async function onClickSave(tempSaveYn) {
     let modifiedOk = true;
     await Promise.all(cmpStepRefs.value.map(async (item) => {
       if (modifiedOk) {
-        modifiedOk = await item.value.isModifiedProps(false);
+        modifiedOk = await item.value?.isModifiedProps(false);
       }
     }));
     // if (!modifiedOk) {
