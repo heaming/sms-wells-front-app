@@ -116,7 +116,7 @@
           grid-action
           :label="$t('MSG_BTN_SAVE')"
           dense
-          @click="onClickChangeRows"
+          @click="onClickSave"
         />
         <kw-separator
           spaced
@@ -262,14 +262,14 @@ async function onClickExcelDownload() {
   });
 }
 
-async function onClickChangeRows() {
+async function onClickSave() {
   const view = grdMainRef.value.getView();
-  const saveList = gridUtil.getChangedRowValues(view, false)
+  const ChangeRows = gridUtil.getChangedRowValues(view, false)
     .map((v) => ({ prtnrNo: v.prtnrNo, qomAsnApyYn: v.qomAsnApyYn }));
 
   view.editOptions.editable = false;
 
-  await dataService.post(baseURI, saveList);
+  await dataService.post(baseURI, ChangeRows);
   await fetchData();
 }
 
