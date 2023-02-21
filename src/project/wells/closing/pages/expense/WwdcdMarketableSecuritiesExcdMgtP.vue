@@ -269,7 +269,7 @@ async function onClickObjectPersonAdd() {
   // gridUtil.insertRowAndFocus(view, 0, {
   //  status: 'new',
   // });
-  debugger;
+
   checkedRows.forEach((item) => {
     // 등록금액 + [대상자 조회결과 grid]의 금액합산 > 정산대상금액 인 경우
     const adjustObject = 0;
@@ -298,6 +298,7 @@ async function onClickObjectPersonDel() {
     await notify(t('MSG_ALT_NOT_SEL_ITEM'));
     return;
   }
+
   checkedRows.forEach((obj) => {
     // 등록금액 + [대상자 조회결과 grid]의 금액합산 > 정산대상금액 인 경우
     // 대상자추가
