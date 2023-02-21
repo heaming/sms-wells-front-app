@@ -261,11 +261,37 @@ const initGrdMain = defineGrid((data, view) => {
         return isEmpty(value) ? vhcMngtTpCd : value;
       },
     },
-    { fieldName: 'vhcPymdt', header: t('MSG_TXT_DSB_STRT_D'), width: '150', styleName: 'text-center' },
-    { fieldName: 'dsbEnddt', header: t('MSG_TXT_DSB_END_D'), width: '150', styleName: 'text-center' },
+    { fieldName: 'vhcPymdt', header: t('MSG_TXT_DSB_STRT_D'), width: '150', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd' },
+    { fieldName: 'dsbEnddt', header: t('MSG_TXT_DSB_END_D'), width: '150', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd' },
     { fieldName: 'insrAgeCd', header: t('MSG_TXT_INSR_AGE'), width: '100', styleName: 'text-center' },
-    { fieldName: 'rflngCdnoEncr', header: t('MSG_TXT_RFLNG_CARD'), width: '200', styleName: 'text-center' },
-    { fieldName: 'hipsCdnoEncr', header: t('MSG_TXT_HIPS'), width: '200', styleName: 'text-center' },
+    {
+      fieldName: 'rflngCdnoEncr',
+      header: t('MSG_TXT_RFLNG_CARD'),
+      width: '200',
+      styleName: 'text-center',
+      displayCallback(grid, index, value) {
+        const rflngCdno = grid.getValue(index.itemIndex, 'rflngCdnoEncr');
+        if (rflngCdno !== null) {
+          return rflngCdno?.replace(/^(\d{4})(\d{4})(\d{4})(\d{4})$/, '$1-$2-$3-$4');
+        }
+
+        return isEmpty(value) ? rflngCdno : value;
+      },
+    },
+    {
+      fieldName: 'hipsCdnoEncr',
+      header: t('MSG_TXT_HIPS'),
+      width: '200',
+      styleName: 'text-center',
+      displayCallback(grid, index, value) {
+        const hipsCdno = grid.getValue(index.itemIndex, 'hipsCdnoEncr');
+        if (hipsCdno !== null) {
+          return hipsCdno?.replace(/^(\d{4})(\d{4})(\d{4})(\d{4})$/, '$1-$2-$3-$4');
+        }
+
+        return isEmpty(value) ? hipsCdno : value;
+      },
+    },
     { fieldName: 'vhcDsbRmkCn', header: t('MSG_TXT_NOTE'), width: '300', styleName: 'text-left' },
   ];
 
