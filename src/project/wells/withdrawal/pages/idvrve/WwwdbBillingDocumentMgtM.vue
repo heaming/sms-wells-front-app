@@ -39,7 +39,7 @@
         >
           <!-- label="작성일" -->
           <kw-date-picker
-            v-model="searchParams.fstRgstDtm"
+            v-model="searchParams.bildcWrteDt"
           />
         </kw-search-item>
       </kw-search-row>
@@ -136,8 +136,8 @@ const codes = await codeUtil.getMultiCodes(
 
 const searchParams = ref({
   cstFnm: '',
-  fstRgstDtm: '',
-  fstRgstDtmTest: now.format('YYYYMMDD'),
+  bildcWrteDt: '',
+  bildcWrteDtTest: now.format('YYYYMMDD'),
 });
 
 const pageInfo = ref({
@@ -231,7 +231,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'pdSellAmt' }, // --판매금액
     { fieldName: 'pdSellAmtSum', dataType: 'number' }, // --총금액
     { fieldName: 'rmkCn' }, // --비고 이건 수정 가능성이 잇음
-    { fieldName: 'fstRgstDtm' }, // --작성일자
+    { fieldName: 'bildcWrteDt' }, // --작성일자
     { fieldName: 'dummyText' }, // --발송
 
   ];
@@ -241,7 +241,7 @@ const initGrid = defineGrid((data, view) => {
       header: t('MSG_TXT_CST_NM'),
       // , header: '고객명'
       width: '150' },
-    { fieldName: 'fstRgstDtm',
+    { fieldName: 'bildcWrteDt',
       header: t('MSG_TXT_WRTE_DT'),
       // , header: '작성일자'
       width: '200',
@@ -293,10 +293,10 @@ const initGrid = defineGrid((data, view) => {
     if (column === 'pdNm') {
       const bildcPblNo = g.getValue(itemIndex, 'bildcPblNo');
       const cstFnm = g.getValue(itemIndex, 'cstFnm');
-      const fstRgstDtm = g.getValue(itemIndex, 'fstRgstDtm');
+      const bildcWrteDt = g.getValue(itemIndex, 'bildcWrteDt');
       await modal({
         component: 'WwwdbBillingDocumentRegP',
-        componentProps: { bildcPblNo, cstFnm, fstRgstDtm },
+        componentProps: { bildcPblNo, cstFnm, bildcWrteDt },
       });
     }
 

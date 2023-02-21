@@ -34,6 +34,7 @@
             option-label="ogNm"
             option-value="ogCd"
             :disable="isModify"
+            @update:model-value="onChangeCenter"
           />
           <kw-select
             v-model="dataParams.vhcMngtPrtnrNo"
@@ -222,12 +223,12 @@ const { cancel: onClickCancel, ok } = useModal();
 
 const props = defineProps({
   ogCd: { type: String, default: '' },
-  ogTpCd: { type: String, default: '' },
   vhcMngtNo: { type: String, default: '' },
   vhcMngtSn: { type: String, default: '' },
   prtnrNo: { type: String, default: '' },
+  vhcMngtPrtnrNo: { type: String, default: '' },
 });
-
+console.log(props);
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -239,7 +240,6 @@ const codes = await codeUtil.getMultiCodes(
   'INSR_AGE_CD',
   'VHC_MNGT_TP_CD',
 );
-
 const isModify = computed(() => !(isEmpty(props.ogCd) || isEmpty(props.vhcMngtNo) || isEmpty(props.vhcMngtSn)));
 const centers = ref();
 const engineers = ref();
@@ -247,10 +247,10 @@ const vehicleInfos = ref();
 
 const dataParams = ref({
   ogCd: props.ogCd === '' ? undefined : props.ogCd,
-  vhcMngtOgTpCd: props.ogTpCd === '' ? undefined : props.ogTpCd,
   vhcMngtNo: props.vhcMngtNo === '' ? undefined : props.vhcMngtNo,
   vhcMngtSn: props.vhcMngtSn === '' ? undefined : props.vhcMngtSn,
   vhcMngtPrtnrNo: props.prtnrNo === '' ? undefined : props.prtnrNo,
+  vhcMngtOgTpCd: '',
   carno: '',
   entcoDt: '',
   rsgnDt: '',
@@ -295,7 +295,13 @@ async function onChangeEngineer() {
   engineerByPrtnrNo.forEach((e) => {
     dataParams.value.entcoDt = e.entcoDt;
     dataParams.value.rsgnDt = e.rsgnDt;
+    dataParams.value.vhcMngtOgTpCd = e.ogTpCd;
   });
+}
+
+async function onChangeCenter() {
+  const engineerByOgCd = engs.filter((v) => v.ogCd === dataParams.value.ogCd);
+  engineers.value = engineerByOgCd.map((v) => ({ codeId: v.codeId, codeName: v.codeNm }));
 }
 
 async function onChangeVehicle() {
@@ -328,17 +334,21 @@ if (isModify.value) { // 수정
   engineers.value = engineerByPrtnrNo.map((v) => ({ codeId: v.codeId, codeName: v.codeNm }));
   vehicleInfos.value = vehicleByCarno.map((v) => ({ codeId: v.carno, codeName: v.carno }));
 
+  await onChangeCenter();
   await onChangeEngineer();
   await getBusinessVehicle();
 } else { // 신규
   // TODO: 1. 권한 조회 후 서비스센터/지점 조회 or 특정 센터/지점 조회
   // TODO: 2. 엔지니어는 센터/지점 선택 시 해당 조직에 해당하는 엔지니어만 조회
   centers.value = svcCenters.map((v) => ({ ogNm: v.ogNm, ogCd: v.ogCd }));
-  engineers.value = engs.map((v) => ({ codeId: v.codeId, codeName: v.codeNm }));
+  // engineers.value = engs.map((v) => ({ codeId: v.codeId, codeName: v.codeNm }));
   vehicleInfos.value = vhcs.map((v) => ({ codeId: v.carno, codeName: v.carno }));
 
   dataParams.value.vhcPymdt = dayjs().format('YYYYMMDD');
   dataParams.value.dsbEnddt = '99991231';
+
+  await onChangeCenter();
+  await onChangeEngineer();
 }
 
 const isBeforeVhcPymdt = computed(() => Number(dataParams.value.vhcPymdt) < Number(dayjs().format('YYYYMMDD')));

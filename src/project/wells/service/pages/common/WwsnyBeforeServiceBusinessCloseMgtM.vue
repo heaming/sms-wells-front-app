@@ -253,7 +253,7 @@ function initGrid(data, view) {
     if (index.column !== 'strtHh' && index.column !== 'endHh') {
       return;
     }
-    const strDate = `${dayjs().format('YYYYMMDD')}${editResult.value}00`;
+    const strDate = `${dayjs().format('YYYYMMDD')}${editResult.value}`;
     if (!isEmpty(editResult.value) && !isDateValidate(strDate)) {
       editResult.value = gridUtil.getCurrentRowValue(gridMainRef.value.getView()).endHh;
     }
