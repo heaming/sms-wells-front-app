@@ -97,7 +97,7 @@
       <!-- label="취소" -->
       <kw-btn
         primary
-        :label="t('MSG_BTN_CANCEL')"
+        :label="t('MSG_BTN_SEND')"
         @click="onClickSend"
       />
       <!-- label="발송" -->

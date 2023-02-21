@@ -46,7 +46,12 @@
   <div class="result-area">
     <kw-action-top>
       <template #left>
-        <kw-paging-info :total-count="156" />
+        <kw-paging-info
+          v-model:page-index="pageInfo.pageIndex"
+          v-model:page-size="pageInfo.pageSize"
+          :total-count="pageInfo.totalCount"
+          @change="fetchData"
+        />
       </template>
       <kw-btn
         grid-action
@@ -64,6 +69,7 @@
         dense
         secondary
         :label="t('MSG_TXT_EXCEL_DOWNLOAD')"
+        :disable="pageInfo.totalCount === 0"
         @click="onClickExcelDownload"
       />
       <!-- label="엑셀다운로드" -->
@@ -74,6 +80,12 @@
       name="grdPage"
       @init="initGrid"
     />
+    <kw-pagination
+      v-model:page-index="pageInfo.pageIndex"
+      v-model:page-size="pageInfo.pageSize"
+      :total-count="pageInfo.totalCount"
+      @change="fetchData"
+    />
   </div>
 </template>
 
@@ -81,7 +93,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { defineGrid, getComponentType, gridUtil, useDataService } from 'kw-lib';
+import { codeUtil, defineGrid, getComponentType, gridUtil, useDataService } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
 import { openReportPopup } from '~/modules/common/utils/cmPopupUtil';
@@ -95,10 +107,16 @@ const { t } = useI18n();
 // -------------------------------------------------------------------------------------------------
 const grdPageRef = ref(getComponentType('KwGrid'));
 
-// const codes = await codeUtil.getMultiCodes(
-//   'COD_PAGE_SIZE_OPTIONS',
-//   'GIRO_RGLR_DV_CD',
-// );
+const codes = await codeUtil.getMultiCodes(
+  'COD_PAGE_SIZE_OPTIONS',
+);
+
+const pageInfo = ref({
+  totalCount: 0,
+  pageIndex: 1,
+  pageSize: Number(codes.COD_PAGE_SIZE_OPTIONS[0].codeName),
+  needTotalCount: true,
+});
 
 const portalList = ref([
   {
@@ -121,16 +139,27 @@ const searchParams = ref({
 let cachedParams;
 
 async function fetchData() {
-  cachedParams = { ...cachedParams };
+  cachedParams = { ...cachedParams, ...pageInfo.value };
 
   const res = await dataService.get('/sms/wells/withdrawal/idvrve/giro-ocr-forwardings/print', { params: cachedParams });
-  const { list: pages } = res.data;
+  const { list: pages, pageInfo: pagingResult } = res.data;
+  pageInfo.value = pagingResult;
 
   const view = grdPageRef.value.getView();
 
   const data = view.getDataSource();
   data.checkRowStates(false);
+
+  console.log(pages);
+  console.log(pages.length);
+
   data.setRows(pages);
+
+  // // 데이터필드 기본값 셋팅
+  for (let i = 0; i < pages.length; i += 1) {
+    data.setValue([i], 'giroOcrRead', '보기');
+  }
+
   data.checkRowStates(true);
 
   view.resetCurrent();
@@ -139,6 +168,8 @@ async function fetchData() {
 async function onClickSearch() {
   grdPageRef.value.getData().clearRows();
 
+  pageInfo.value.pageIndex = 1;
+
   cachedParams = cloneDeep(searchParams.value);
 
   await fetchData();
@@ -146,23 +177,42 @@ async function onClickSearch() {
 
 async function onClickExcelDownload() {
   const view = grdPageRef.value.getView();
+  const res = await dataService.get('/sms/wells/withdrawal/idvrve/giro-ocr-forwardings/print/excel-download', { params: cachedParams });
   await gridUtil.exportView(view, {
     fileName: `${t('MSG_TXT_GIRO')}OCR_Excel`,
     // fileName: '지로 OCR 발송 관리-출력관리_Excel',
     timePostfix: true,
+    exportData: res.data,
   });
 }
 
 // 행삭제
 async function onClickRemove() {
+  // const view = grdPageRef.value.getView();
+  // if (!await gridUtil.confirmIfIsModified(view)) { return; }
+
+  // const deletedRows = await gridUtil.confirmDeleteCheckedRows(view);
+
+  // console.log(deletedRows);
+
+  // if (deletedRows.length > 0) {
+  //   await dataService.delete('/sms/wells/withdrawal/idvrve/giro-ocr-forwardings/print', deletedRows);
+  //   // notify(t('MSG_ALT_DELETED'));
+  //   // // notify(t('삭제되었습니다.'));
+  //   await fetchData();
+  // }
   const view = grdPageRef.value.getView();
+
   if (!await gridUtil.confirmIfIsModified(view)) { return; }
 
   const deletedRows = await gridUtil.confirmDeleteCheckedRows(view);
+
+  console.log(deletedRows);
+
   if (deletedRows.length > 0) {
     await dataService.put('/sms/wells/withdrawal/idvrve/giro-ocr-forwardings/print', deletedRows);
+    // notify(t('삭제되었습니다.'));
     // notify(t('MSG_ALT_DELETED'));
-    // // notify(t('삭제되었습니다.'));
     await fetchData();
   }
 }
@@ -183,17 +233,18 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'giroOcrPrntDt' },
     { fieldName: 'giroOcrDlDt' },
     { fieldName: 'giroOcrPblOj' },
-    { fieldName: 'col6' },
-    { fieldName: 'col7' },
+    { fieldName: 'giroOcrPrnt' },
+    { fieldName: 'giroOcrRead' },
   ];
 
   const columns = [
     { fieldName: 'giroOcrPblDate',
       header: t('MSG_TXT_FW_DT'),
+      datetimeFormat: 'date',
       // header: '발송일자',
       width: '200',
       styleName: 'text-center',
-      datetimeFormat: 'datetime' },
+    },
     { fieldName: 'giroOcrPblTime',
       header: t('MSG_TXT_FW_HH'),
       // header: '발송시간',
@@ -203,7 +254,7 @@ const initGrid = defineGrid((data, view) => {
       header: t('MSG_TXT_WK_QTY'),
       // header: '작업수량',
       width: '200',
-      styleName: 'text-right' },
+      styleName: 'text-center' },
     { fieldName: 'giroOcrPblOj',
       header: t('MSG_TXT_OJ_BCK'),
       // header: '대상구간',
@@ -214,13 +265,13 @@ const initGrid = defineGrid((data, view) => {
       // header: '출력일자',
       width: '250',
       styleName: 'text-center',
-      datetimeFormat: 'datetime' },
-    { fieldName: 'col6',
+      datetimeFormat: 'date' },
+    { fieldName: 'giroOcrPrnt',
       header: t('MSG_TXT_PRNT'),
       // header: '출력',
       width: '130',
       renderer: { type: 'button' } },
-    { fieldName: 'col7',
+    { fieldName: 'giroOcrRead',
       header: t('MSG_TXT_ONE_BRWS'),
       // header: '한장씩 보기',
       width: '130',
@@ -232,10 +283,10 @@ const initGrid = defineGrid((data, view) => {
 
   view.onCellItemClicked = async (g, { column, dataRow }) => {
     console.log(dataRow);
-    if (column === 'col6') {
+    if (column === 'giroOcrPrnt') {
       // eslint-disable-next-line no-use-before-define
       openReportPopup('/eformsample.ozr', '/eformsample.odi', JSON.stringify({ param1: 'test1', param2: 'test2' }));
-    } else if (column === 'col7') {
+    } else if (column === 'giroOcrRead') {
       // eslint-disable-next-line no-use-before-define
       openReportPopup('/eformsample.ozr', '/eformsample.odi', JSON.stringify({ param1: 'test1', param2: 'test2' }));
     }
