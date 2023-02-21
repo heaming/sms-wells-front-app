@@ -47,7 +47,8 @@
           >
             <!-- label="작성일자" -->
             <kw-date-picker
-              v-model="regMainData.fstRgstDtm"
+              v-model="regMainData.bildcWrteDt"
+              :disable="true"
               :label="t('MSG_TXT_WRTE_DT')"
               rules="required"
             />
@@ -137,7 +138,7 @@ const props = defineProps({
     type: String,
     default: null,
   },
-  fstRgstDtm: {
+  bildcWrteDt: {
     type: String,
     default: null,
   },
@@ -148,7 +149,7 @@ const obsRef = ref();
 const regMainData = ref({
   bildcPblNo: '',
   cstFnm: '', // 고객명
-  fstRgstDtm: now.format('YYYYMMDD'), // 작성일자
+  bildcWrteDt: now.format('YYYYMMDD'), // 작성일자
   sellPrtnrNo: userId, // 이건 나중에 사번으로 바꿔야함
   sellPrtnrNm: userName,
   state: '',
@@ -204,6 +205,8 @@ async function onClickSave() {
     saveMainReq: mainData,
   };
 
+  console.log(cachedParams);
+
   await dataService.post('/sms/wells/withdrawal/idvrve/billing-document-orders/details', cachedParams);
 
   notify(t('MSG_ALT_SAVE_DATA'));
@@ -240,11 +243,11 @@ async function fetchData() {
 }
 
 async function initProps() {
-  const { bildcPblNo, cstFnm, fstRgstDtm } = props;
+  const { bildcPblNo, cstFnm, bildcWrteDt } = props;
 
   regMainData.value.bildcPblNo = bildcPblNo;
   regMainData.value.cstFnm = cstFnm;
-  regMainData.value.fstRgstDtm = fstRgstDtm;
+  regMainData.value.bildcWrteDt = bildcWrteDt;
   regMainData.value.state = 'created';
 
   if (regMainData.value.bildcPblNo) {
