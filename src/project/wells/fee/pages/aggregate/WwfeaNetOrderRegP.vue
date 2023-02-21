@@ -73,7 +73,7 @@ async function onClickCancel() {
 async function onClickSave() {
   if (!await confirm(t('MSG_ALT_AGRG'))) { return; }
 
-  const response = await dataService.post('/sms/wells/fee/net-orders', data.value);
+  const response = await dataService.post('/sms/wells/fee//monthly-net-order', data.value);
 
   ok(response.data);
 }

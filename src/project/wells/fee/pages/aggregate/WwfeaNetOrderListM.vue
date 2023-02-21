@@ -148,7 +148,7 @@ async function onClickExcelDownload() {
 }
 
 async function fetchData() {
-  const response = await dataService.get('/sms/wells/fee/net-orders', { params: cachedParams });
+  const response = await dataService.get('/sms/wells/fee//monthly-net-order', { params: cachedParams });
   const categories = response.data;
   totalCount.value = categories.length;
 
