@@ -2,14 +2,14 @@
 ****************************************************************************************************
 * 프로그램 개요
 ****************************************************************************************************
-1. 모듈 : WCOU
-2. 프로그램 ID : WELLS 수수료 기준금액 체크리스트
+1. 모듈 : FEA
+2. 프로그램 ID : WwfeaFeeBaseAmountListM - 수수료 기준금액 체크리스트
 3. 작성자 : gs.piit150
 4. 작성일 : 2023.02.17
 ****************************************************************************************************
 * 프로그램 설명
 ****************************************************************************************************
-- WELLS 수수료 기준금액 체크리스트 목록 조회 화면
+- 수수료 기준금액 체크리스트 목록 조회 화면
 ****************************************************************************************************
 --->
 <template>
@@ -59,12 +59,16 @@
           secondary
           icon="download_on"
           :label="$t('MSG_BTN_EXCEL_DOWN')"
+          :disable="pageInfo.totalCount === 0"
           @click="onClickExcelDownload"
+        />
+
         />
       </kw-action-top>
 
       <kw-grid
         ref="grdMainRef"
+        name="grdMain"
         :visible-rows="10"
         @init="initGrdMain"
       />
@@ -108,19 +112,19 @@ async function onClickExcelDownload() {
   });
 }
 
-async function fetchEvents() {
+async function fetchData() {
   const response = await dataService.get('/sms/wells/fee/fee-base-amounts', { params: cachedParams });
-  const categories = response.data;
-  totalCount.value = categories.length;
+  const dataList = response.data;
+  totalCount.value = dataList.length;
 
   const view = grdMainRef.value.getView();
-  view.getDataSource().setRows(categories);
+  view.getDataSource().setRows(dataList);
   view.resetCurrent();
 }
 
 async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
-  await fetchEvents();
+  await fetchData();
 }
 
 // -------------------------------------------------------------------------------------------------
@@ -156,7 +160,7 @@ function initGrdMain(data, view) {
 
   const columns = [
     { fieldName: 'col1', header: t('MSG_TXT_CNTR_NO'), width: '130', styleName: 'text-center' },
-    { fieldName: 'col2', header: t('MSG_TXT_RCPDT'), width: '104', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd' },
+    { fieldName: 'col2', header: t('MSG_TXT_RCPDT'), width: '104', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'col3', header: t('MSG_TXT_SEL_TYPE'), width: '100', styleName: 'text-center' },
     { fieldName: 'col4', header: t('MSG_TXT_INDV_DV'), width: '89', styleName: 'text-center ' },
     { fieldName: 'col5', header: t('MSG_TXT_SELL_OG'), width: '104', styleName: 'text-center' },
