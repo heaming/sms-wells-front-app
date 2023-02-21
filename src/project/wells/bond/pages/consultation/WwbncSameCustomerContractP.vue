@@ -477,7 +477,7 @@ const initMembershipGrid = defineGrid((data, view) => {
     { fieldName: 'dlqMcnt', header: t('MSG_TXT_DLQ_MCNT'), width: '144', styleName: 'text-center', dataType: 'number', numberFormat: '#,##0.##' },
     { fieldName: 'dlqAdamt', header: t('MSG_BTN_DLQ_ADAMT'), width: '144', styleName: 'text-right' },
     { fieldName: 'dlqAddDp', header: t('MSG_TXT_DLQ_ADD_DP'), width: '144', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0.##' },
-    { fieldName: 'dqlAddBlam', header: t('MSG_TXT_DLQ_ADD_BLAM'), width: '144', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0.##' },
+    { fieldName: 'dlqAddBlam', header: t('MSG_TXT_DLQ_ADD_BLAM'), width: '144', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0.##' },
   ];
 
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
