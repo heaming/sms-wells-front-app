@@ -77,11 +77,11 @@ const customCodes = {
   CRT_TRGT: [
     { codeId: 'A', codeName: '배정고객 생성' },
     { codeId: 'B', codeName: '투입자재 생성' },
-    { codeId: 'C', codeName: '주기표 추가' },
-    { codeId: 'D', codeName: '전월미처리고객' },
-    { codeId: 'E', codeName: '튜빙피팅체크' },
-    { codeId: 'F', codeName: '중복자재 처리' },
-    { codeId: 'G', codeName: '배정고객 정리' },
+    // { codeId: 'C', codeName: '주기표 추가' },
+    // { codeId: 'D', codeName: '전월미처리고객' },
+    // { codeId: 'E', codeName: '튜빙피팅체크' },
+    // { codeId: 'F', codeName: '중복자재 처리' },
+    // { codeId: 'G', codeName: '배정고객 정리' },
   ],
 };
 // -------------------------------------------------------------------------------------------------
