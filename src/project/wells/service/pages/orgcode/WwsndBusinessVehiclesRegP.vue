@@ -111,7 +111,7 @@
           :colspan="1"
         >
           <kw-input
-            v-model="dataParams.carNm"
+            v-model="dataParams.carnm"
             disable=""
           />
         </kw-form-item>
@@ -228,7 +228,7 @@ const props = defineProps({
   prtnrNo: { type: String, default: '' },
   vhcMngtPrtnrNo: { type: String, default: '' },
 });
-console.log(props);
+
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -261,7 +261,7 @@ const dataParams = ref({
   rflngCdnoEncr: '',
   hipsCdnoEncr: '',
   vhcDsbRmkCn: '',
-  carNm: '',
+  carnm: '',
 });
 
 const validateDsbDate = async (val, options) => {
@@ -309,7 +309,7 @@ async function onChangeVehicle() {
 
   vehicleBycarno.forEach((e) => {
     dataParams.value.vhcMngtNo = e.carseq;
-    dataParams.value.carNm = e.carnm;
+    dataParams.value.carnm = e.carnm;
     dataParams.value.vhcMngtTpCd = e.owstat;
     dataParams.value.rflngCdnoEncr = e.cardno1;
     dataParams.value.hipsCdnoEncr = e.cardno2;
@@ -335,8 +335,8 @@ if (isModify.value) { // 수정
   vehicleInfos.value = vehicleByCarno.map((v) => ({ codeId: v.carno, codeName: v.carno }));
 
   await onChangeCenter();
-  await onChangeEngineer();
   await getBusinessVehicle();
+  await onChangeEngineer();
 } else { // 신규
   // TODO: 1. 권한 조회 후 서비스센터/지점 조회 or 특정 센터/지점 조회
   // TODO: 2. 엔지니어는 센터/지점 선택 시 해당 조직에 해당하는 엔지니어만 조회
