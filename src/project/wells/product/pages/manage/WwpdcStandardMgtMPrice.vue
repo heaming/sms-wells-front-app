@@ -13,8 +13,6 @@
 ****************************************************************************************************
 --->
 <template>
-  <!-- 가격정보 -->
-  <h2>{{ $t('MSG_TXT_PRICE_INFO') }}</h2>
   <kw-tabs
     v-model="selectedTab"
     class="mt20"
@@ -22,27 +20,27 @@
   >
     <!-- 기준가 등록 -->
     <kw-tab
-      name="std"
+      :name="selectedTabs[0]"
       :label="$t('MSG_TXT_PD_STD_PRICE_REG')"
     />
     <!-- 선택변수 등록 -->
     <kw-tab
-      name="val"
+      :name="selectedTabs[1]"
       :label="$t('MSG_TXT_PD_REG_SEL_VAR')"
     />
     <!-- 최종가격 조정 -->
     <kw-tab
-      name="fnl"
+      :name="selectedTabs[2]"
       :label="$t('MSG_TXT_PD_FNL_PRC_ADJ')"
     />
     <!-- 수수료 등록 -->
     <kw-tab
-      name="fee"
+      :name="selectedTabs[3]"
       :label="$t('MSG_TXT_PD_REG_FEE')"
     />
   </kw-tabs>
   <kw-tab-panels :model-value="selectedTab">
-    <kw-tab-panel name="std">
+    <kw-tab-panel :name="selectedTabs[0]">
       <wwpdc-standard-mgt-m-price-std
         ref="cmpStdRef"
         v-model:pd-cd="currentPdCd"
@@ -52,7 +50,7 @@
         :readonly="props.readonly"
       />
     </kw-tab-panel>
-    <kw-tab-panel name="val">
+    <kw-tab-panel :name="selectedTabs[1]">
       <wwpdc-standard-mgt-m-price-val
         ref="cmpValRef"
         v-model:pd-cd="currentPdCd"
@@ -62,7 +60,7 @@
         :readonly="props.readonly"
       />
     </kw-tab-panel>
-    <kw-tab-panel name="fnl">
+    <kw-tab-panel :name="selectedTabs[2]">
       <wwpdc-standard-mgt-m-price-fnl
         ref="cmpFnlRef"
         v-model:pd-cd="currentPdCd"
@@ -72,7 +70,7 @@
         :readonly="props.readonly"
       />
     </kw-tab-panel>
-    <kw-tab-panel name="fee">
+    <kw-tab-panel :name="selectedTabs[3]">
       <wwpdc-standard-mgt-m-price-fee
         ref="cmpFeeRef"
         v-model:pd-cd="currentPdCd"
@@ -89,7 +87,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { useDataService, codeUtil } from 'kw-lib';
-import { isEmpty, merge } from 'lodash-es';
+import { isEmpty, merge, cloneDeep } from 'lodash-es';
 import pdConst from '~sms-common/product/constants/pdConst';
 import { pdMergeBy, getPdMetaToCodeNames } from '~sms-common/product/utils/pdUtil';
 import WwpdcStandardMgtMPriceStd from './WwpdcStandardMgtMPriceStd.vue';
@@ -99,7 +97,7 @@ import WwpdcStandardMgtMPriceFee from './WwpdcStandardMgtMPriceFee.vue';
 
 /* eslint-disable no-use-before-define */
 defineExpose({
-  getSaveData, isModifiedProps, validateProps,
+  getSaveData, isModifiedProps, validateProps, moveNextStep, movePrevStep, resetFirstStep,
 });
 
 const props = defineProps({
@@ -124,7 +122,8 @@ const cmpFeeRef = ref();
 const currentPdCd = ref();
 const metaInfos = ref({});
 const currentInitData = ref({});
-const selectedTab = ref('std');
+const selectedTabs = ref(['std', 'val', 'fnl', 'fee']);
+const selectedTab = ref(selectedTabs.value[0]);
 const currentCodes = ref({});
 
 async function getSaveData() {
@@ -135,52 +134,111 @@ async function getSaveData() {
   const stds = await cmpStdRef.value.getSaveData();
   subList[pdConst.REMOVE_ROWS] = pdMergeBy(subList[pdConst.REMOVE_ROWS], stds[pdConst.REMOVE_ROWS]);
   subList[prcd] = pdMergeBy(subList[prcd], stds?.[prcd], pdConst.PRC_STD_ROW_ID);
+  // console.log('WwpdcStandardMgtMPrice - getSaveData - 1 - subList[prcd] : ', subList[prcd]);
+
   const vals = await cmpValRef.value.getSaveData();
   subList[pdConst.REMOVE_ROWS] = pdMergeBy(subList[pdConst.REMOVE_ROWS], vals[pdConst.REMOVE_ROWS]);
   subList[prcfd] = pdMergeBy(subList[prcfd], vals?.[prcfd], pdConst.PRC_FNL_ROW_ID);
+  subList[pdConst.TBL_PD_DSC_PRUM_DTL] = vals?.[pdConst.TBL_PD_DSC_PRUM_DTL];
+  // console.log('WwpdcStandardMgtMPrice - getSaveData - 2 - subList[prcfd] : ', subList[prcfd]);
+
   const fnls = await cmpFnlRef.value.getSaveData();
   subList[pdConst.REMOVE_ROWS] = pdMergeBy(subList[pdConst.REMOVE_ROWS], fnls[pdConst.REMOVE_ROWS]);
-  subList[prcfd] = pdMergeBy(subList[prcfd], fnls?.[prcfd], pdConst.PRC_FNL_ROW_ID, pdConst.PRC_STD_ROW_ID);
+  subList[prcfd] = pdMergeBy(subList[prcfd], fnls?.[prcfd], pdConst.PRC_FNL_ROW_ID);
+  // console.log('WwpdcStandardMgtMPrice - getSaveData - 3 - subList[prcfd] : ', subList[prcfd]);
+
   const fees = await cmpFeeRef.value.getSaveData();
   subList[pdConst.REMOVE_ROWS] = pdMergeBy(subList[pdConst.REMOVE_ROWS], fees[pdConst.REMOVE_ROWS]);
-  subList[prcfd] = pdMergeBy(subList[prcfd], fees?.[prcfd], pdConst.PRC_FNL_ROW_ID, pdConst.PRC_STD_ROW_ID);
-  console.log('WwpdcStandardMgtMPrice - subList : ', subList);
+  subList[prcfd] = pdMergeBy(subList[prcfd], fees?.[prcfd], pdConst.PRC_FNL_ROW_ID);
+  // console.log('WwpdcStandardMgtMPrice - getSaveData - 4 - subList[prcfd] : ', subList[prcfd]);
+
+  // console.log('WwpdcStandardMgtMPrice - subList : ', subList);
   return subList;
+}
+
+async function moveNextStep() {
+  const currentTabIndex = selectedTabs.value.indexOf(selectedTab.value);
+  if (currentTabIndex < (selectedTabs.value.length - 1)) {
+    selectedTab.value = selectedTabs.value[currentTabIndex + 1];
+    return true;
+  }
+  return false;
+}
+
+async function movePrevStep() {
+  const currentTabIndex = selectedTabs.value.indexOf(selectedTab.value);
+  if (currentTabIndex > 0) {
+    selectedTab.value = selectedTabs.value[currentTabIndex - 1];
+    return true;
+  }
+  return false;
+}
+
+async function resetFirstStep() {
+  selectedTab.value = selectedTabs.value[0];
 }
 
 async function initCurrentData() {
   const saveData = await getSaveData();
   currentInitData.value[prcd] = saveData[prcd];
   currentInitData.value[prcfd] = saveData[prcfd];
-  console.log('WwpdcStandardMgtMPrice - initCurrentData - : ', currentInitData.value);
+  // console.log('WwpdcStandardMgtMPrice - initCurrentData - : ', currentInitData.value);
 }
 
 function isModifiedProps() {
   return true;
 }
 
-function validateProps() {
-  return true;
+async function validateProps() {
+  let isValidOk = true;
+  isValidOk = await cmpStdRef.value.validateProps();
+  if (!isValidOk) {
+    selectedTab.value = selectedTabs.value[0];
+    return isValidOk;
+  }
+  isValidOk = await cmpValRef.value.validateProps();
+  if (!isValidOk) {
+    selectedTab.value = selectedTabs.value[1];
+    return isValidOk;
+  }
+  isValidOk = await cmpFnlRef.value.validateProps();
+  if (!isValidOk) {
+    selectedTab.value = selectedTabs.value[2];
+    return isValidOk;
+  }
+  isValidOk = await cmpFeeRef.value.validateProps();
+  if (!isValidOk) {
+    selectedTab.value = selectedTabs.value[3];
+    return isValidOk;
+  }
+  return isValidOk;
+}
+
+async function initProps() {
+  const { pdCd, initData, codes } = props;
+  currentPdCd.value = pdCd;
+  currentInitData.value = cloneDeep(initData);
+  currentCodes.value = cloneDeep(codes);
+  await fetchData();
 }
 
 async function fetchData() {
-  const { pdCd, initData, codes } = props;
-  currentPdCd.value = pdCd;
-  currentInitData.value = initData;
-  const res = await dataService.get('/sms/common/product/meta-properties', { params: { pdPrcTpCd: pdConst.PD_PRC_TP_CD_ALL } });
-  if (isEmpty(res.data)) {
-    return;
-  }
-  metaInfos.value = res.data;
-  console.log('WwpdcStandardMgtMPrice - fetchData - metaInfos.value : ', metaInfos.value);
-  const codeNames = await getPdMetaToCodeNames(metaInfos.value, props.codes);
-  if (!isEmpty(codeNames)) {
-    currentCodes.value = merge(codes, await codeUtil.getMultiCodes(...codeNames));
+  if (isEmpty(metaInfos.value)) {
+    const res = await dataService.get('/sms/common/product/meta-properties', { params: { pdPrcTpCd: pdConst.PD_PRC_TP_CD_ALL } });
+    if (isEmpty(res.data)) {
+      return;
+    }
+    metaInfos.value = res.data;
+    // console.log('WwpdcStandardMgtMPrice - fetchData - metaInfos.value : ', metaInfos.value);
+    const codeNames = await getPdMetaToCodeNames(metaInfos.value, currentCodes.value);
+    if (!isEmpty(codeNames)) {
+      currentCodes.value = merge(currentCodes.value, await codeUtil.getMultiCodes(...codeNames));
+    }
   }
 }
 
-await fetchData();
+await initProps();
 
-watch(() => props.pdCd, (val) => { currentPdCd.value = val; });
-watch(() => props.initData, (val) => { currentInitData.value = val; }, { deep: true });
+watch(() => props.pdCd, () => { initProps(); });
+watch(() => props.initData, () => { initProps(); }, { deep: true });
 </script>

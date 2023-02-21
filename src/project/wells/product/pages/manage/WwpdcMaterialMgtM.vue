@@ -53,8 +53,10 @@
                 :ref="cmpStepRefs[0]"
                 v-model:pd-cd="currentPdCd"
                 v-model:init-data="prevStepData"
-                :pd-tp-cd="pdConst.PD_TP_CD_M"
+                :pd-tp-cd="pdConst.PD_TP_CD_MATERIAL"
                 :pd-grp-dv-cd="pdConst.PD_PRP_GRP_DV_CD_BASIC"
+                :pd-tp-dtl-cd="pdTpDtlCd"
+                @popup-callback="popupCallback"
               />
             </kw-step-panel>
             <!-- 2.연결상품 선택 -->
@@ -65,7 +67,7 @@
                 :ref="cmpStepRefs[1]"
                 v-model:pd-cd="currentPdCd"
                 v-model:init-data="prevStepData"
-                :pd-tp-cd="pdConst.PD_TP_CD_M"
+                :pd-tp-cd="pdConst.PD_TP_CD_MATERIAL"
               />
             </kw-step-panel>
             <!-- 3.관리속성 등록 -->
@@ -74,9 +76,9 @@
                 :ref="cmpStepRefs[2]"
                 v-model:pd-cd="currentPdCd"
                 v-model:init-data="prevStepData"
-                :pd-tp-cd="pdConst.PD_TP_CD_M"
+                :pd-tp-cd="pdConst.PD_TP_CD_MATERIAL"
                 :pd-grp-dv-cd="pdConst.PD_PRP_GRP_DV_CD_MANUAL"
-                :props-title="$t('MSG_TXT_MGT_ATTR')"
+                :except-id="exceptPrpGrpCd"
               />
             </kw-step-panel>
             <!-- 4.등록정보 확인 -->
@@ -87,16 +89,16 @@
               >
                 <kw-tab
                   name="attribute"
-                  :label="$t('MSG_TXT_ATTRIBUTE')"
+                  :label="$t('MSG_TXT_BAS_ATTR')"
                 />
                 <!-- 연결상품 -->
                 <kw-tab
                   name="relation"
-                  :label="$t('MSG_TXT_RLTN_PRDT')"
+                  :label="$t('MSG_TXT_REL_PRDT')"
                 />
                 <kw-tab
                   name="attributeExtr"
-                  :label="$t('MSG_TXT_MGT_ATTR_REG')"
+                  :label="$t('MSG_TXT_MGT_ATTR')"
                 />
               </kw-tabs>
               <kw-tab-panels :model-value="selectedTab">
@@ -105,17 +107,19 @@
                   <zwpdc-prop-groups-dtl
                     v-model:pd-cd="currentPdCd"
                     v-model:init-data="prevStepData"
-                    :pd-tp-cd="pdConst.PD_TP_CD_M"
+                    :pd-tp-cd="pdConst.PD_TP_CD_MATERIAL"
                     :pd-grp-dv-cd="pdConst.PD_PRP_GRP_DV_CD_BASIC"
-                    :has-basic-title="false"
+                    :prefix-title="$t('MSG_TXT_BAS_ATTR')"
+                    :is-first-title="true"
+                    :pd-tp-dtl-cd="pdTpDtlCd"
                   />
                 </kw-tab-panel>
                 <!-- 연결상품-->
                 <kw-tab-panel name="relation">
-                  <zwpdc-prop-relation-dtl
+                  <wwpdc-prop-relation-dtl
                     v-model:pd-cd="currentPdCd"
                     v-model:init-data="prevStepData"
-                    :pd-tp-cd="pdConst.PD_TP_CD_M"
+                    :pd-tp-cd="pdConst.PD_TP_CD_MATERIAL"
                   />
                 </kw-tab-panel>
                 <!--관리속성-->
@@ -123,9 +127,11 @@
                   <zwpdc-prop-groups-dtl
                     v-model:pd-cd="currentPdCd"
                     v-model:init-data="prevStepData"
-                    :pd-tp-cd="pdConst.PD_TP_CD_M"
+                    :pd-tp-cd="pdConst.PD_TP_CD_MATERIAL"
                     :pd-grp-dv-cd="pdConst.PD_PRP_GRP_DV_CD_MANUAL"
-                    :has-basic-title="false"
+                    :prefix-title="$t('MSG_TXT_MGT_ATTR')"
+                    :is-first-title="true"
+                    :except-id="exceptPrpGrpCd"
                   />
                 </kw-tab-panel>
               </kw-tab-panels>
@@ -152,7 +158,7 @@
             <!-- 초기화 -->
             <kw-btn
               v-show="currentStep.step === 1 && isCreate"
-              :label="$t('MSG_BTN_RESET')"
+              :label="$t('MSG_BTN_INTL')"
               class="ml8"
               @click="onClickReset"
             />
@@ -183,7 +189,7 @@
             <kw-btn
               v-show="currentStep.step === regSteps.length"
               v-permission:update
-              :label="$t('MSG_BTN_SVE')"
+              :label="$t('MSG_BTN_SAVE')"
               class="ml8"
               primary
               @click="onClickSave('N')"
@@ -199,13 +205,14 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { useDataService, useGlobal } from 'kw-lib';
-import { isEmpty, merge, unionBy } from 'lodash-es';
+import { isEmpty } from 'lodash-es';
+import { pdMergeBy } from '~sms-common/product/utils/pdUtil';
 import pdConst from '~sms-common/product/constants/pdConst';
 
 import ZwpdcPropGroupsMgt from '~sms-common/product/pages/manage/components/ZwpdcPropGroupsMgt.vue'; /* 속성 등록/수정 */
 import ZwpdcPropGroupsDtl from '~sms-common/product/pages/manage/components/ZwpdcPropGroupsDtl.vue'; /* 속성 상세보기 */
-import ZwpdcPropRelationMgt from './WwpdcPropRelationMgt.vue'; /* 연결상품 등록/수정 */
-import ZwpdcPropRelationDtl from './WwpdcPropRelationDtl.vue'; /* 연결상품 상세보기 */
+import ZwpdcPropRelationMgt from './WwpdcPropRelationMgtM.vue'; /* 연결상품 등록/수정 */
+import WwpdcPropRelationDtl from './WwpdcPropRelationDtlM.vue'; /* 연결상품 상세보기 */
 
 const props = defineProps({
   pdCd: { type: String, default: null },
@@ -221,9 +228,10 @@ const obsMainRef = ref();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
-const baseUrl = '/sms/common/product/materials';
+const baseUrl = '/sms/wells/product/materials';
 const materialMainPage = '/product/zwpdc-material-list';
 
+const pdTpDtlCd = ref(pdConst.PD_TP_DTL_CD_MATERIAL);
 const wellsStep = [
   pdConst.W_MATERIAL_STEP_BASIC,
   pdConst.W_MATERIAL_STEP_REL_PROD,
@@ -236,7 +244,7 @@ const cmpStepRefs = ref([ref(), ref(), ref()]);
 
 const bas = pdConst.TBL_PD_BAS;
 const ecom = pdConst.TBL_PD_ECOM_PRP_DTL;
-const rel = pdConst.TB_PDBS_PD_REL;
+const rel = pdConst.TBL_PD_REL;
 
 const prevStepData = ref({});
 const currentPdCd = ref();
@@ -246,18 +254,20 @@ const isCreate = ref(false);
 const selectedTab = ref('attribute');
 
 const page = ref({
-  reg: '/product/wwpdc-material-mgt', // 교재/자재 등록 UI
-  dtl: '/product/wwpdc-material-dtl', // 교재/자재 상세보기 UI
+  reg: '/product/zwpdc-material-list/wwpdc-material-mgt', // 교재/자재 등록 UI
+  detail: '/product/zwpdc-material-list/wwpdc-material-dtl', // 교재/자재 상세보기 UI
 });
+
+const exceptPrpGrpCd = ref('PART');
 
 watch(() => props.pdCd, (val) => { currentPdCd.value = val; });
 watch(() => props.tempSaveYn, (val) => { isTempSaveBtn.value = val !== 'Y'; });
 
 async function onClickReset() {
   notify('TBD Function..');
-  // await cmpStepRefs.value.forEach((item) => {
-  //   item.value.resetData();
-  // });
+  await cmpStepRefs.value.forEach((item) => {
+    item.value.resetData();
+  });
 }
 
 async function onClickRemove() {
@@ -304,10 +314,12 @@ async function getSaveData(tempSaveYn) {
         if (subList[bas]?.cols) {
           saveData[bas].cols += subList[bas].cols;
         }
-        subList[bas] = merge(subList[bas] ?? {}, saveData[bas]);
+        // subList[bas] = merge(subList[bas] ?? {}, saveData[bas]);
+        subList[bas] = pdMergeBy(subList[bas], saveData[bas]);
       }
       if (saveData[ecom]) {
-        subList[ecom] = unionBy(saveData[ecom], subList[ecom], 'pdExtsPrpGrpCd');
+        // subList[ecom] = unionBy(saveData[ecom], subList[ecom], 'pdExtsPrpGrpCd');
+        subList[ecom] = pdMergeBy(subList[ecom], saveData[ecom], 'pdExtsPrpGrpCd');
       }
 
       if (saveData[rel]) {
@@ -356,7 +368,7 @@ async function onClickSave(tempSaveYn) {
 
   // 4. 생성 or 저장
   const rtn = currentPdCd.value
-    ? await dataService.put(`${baseUrl}/${currentPdCd.value}`, subList)
+    ? await dataService.put(baseUrl, subList)
     : await dataService.post(`${baseUrl}`, subList);
 
   // 5. 생성 이후 Step 설정
@@ -411,5 +423,20 @@ onMounted(async () => {
   await setInitCondition();
 });
 
+async function popupCallback(payload) {
+  if (payload.fromUi === 'ZwpdcMaterialsCodeListP') {
+    if (isEmpty(prevStepData.value[bas])) {
+      prevStepData.value = await getSaveData();
+    }
+
+    prevStepData.value[bas].sapMatCd = payload.sapMatCd ?? '';
+    prevStepData.value[bas].modelNo = payload.modelNo ?? '';
+    prevStepData.value[bas].sapPdctSclsrtStrcVal = payload.sapPdctSclsrtStrcVal ?? '';
+    prevStepData.value[bas].sapPlntCd = payload.sapPlntCd ?? '';
+    prevStepData.value[bas].sapMatEvlClssVal = payload.sapMatEvlClssVal ?? '';
+    prevStepData.value[bas].sapMatGrpVal = payload.sapMatGrpVal ?? '';
+    prevStepData.value[bas].sapPlntCd = payload.sapPlntVal ?? '';
+  }
+}
 </script>
 <style lang="scss" scoped></style>

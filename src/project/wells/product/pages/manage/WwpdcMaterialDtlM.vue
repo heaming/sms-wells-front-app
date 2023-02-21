@@ -37,17 +37,17 @@
                 <!-- 기준속성 -->
                 <kw-tab
                   name="attribute"
-                  :label="$t('MSG_TXT_ATTRIBUTE')"
+                  :label="$t('MSG_TXT_BAS_ATTR')"
                 />
                 <!-- 연결상품 (Wells 특화) -->
                 <kw-tab
                   name="relation"
-                  :label="t('MSG_TXT_RLTN_PRDT')"
+                  :label="t('MSG_TXT_REL_PRDT')"
                 />
                 <!-- 확장속성 -->
                 <kw-tab
                   name="attributeExtr"
-                  :label="$t('MSG_TXT_MGT_ATTR_REG')"
+                  :label="$t('MSG_TXT_MGT_ATTR')"
                 />
                 <!-- 변경이력 -->
                 <kw-tab
@@ -63,9 +63,11 @@
                     v-model:pd-cd="currentPdCd"
                     v-model:pd-group-cd="prdPropGroups"
                     v-model:init-data="prevStepData"
-                    :pd-tp-cd="pdConst.PD_TP_CD_M"
+                    :pd-tp-cd="pdConst.PD_TP_CD_MATERIAL"
                     :pd-grp-dv-cd="pdConst.PD_PRP_GRP_DV_CD_BASIC"
-                    :has-basic-title="false"
+                    :prefix-title="$t('MSG_TXT_BAS_ATTR')"
+                    :is-first-title="true"
+                    :pd-tp-dtl-cd="pdTpDtlCd"
                   />
                 </kw-tab-panel>
                 <!-- 연결상품 (Wells 특화) -->
@@ -75,7 +77,7 @@
                   <wwpdc-prop-relation-dtl
                     v-model:pd-cd="currentPdCd"
                     v-model:init-data="prevStepData"
-                    :pd-tp-cd="pdConst.PD_TP_CD_M"
+                    :pd-tp-cd="pdConst.PD_TP_CD_MATERIAL"
                   />
                 </kw-tab-panel>
                 <!-- 확장속성 -->
@@ -84,16 +86,17 @@
                     v-model:pd-cd="currentPdCd"
                     v-model:pd-group-cd="prdPropGroups"
                     v-model:init-data="prevStepData"
-                    :pd-tp-cd="pdConst.PD_TP_CD_M"
+                    :pd-tp-cd="pdConst.PD_TP_CD_MATERIAL"
                     :pd-grp-dv-cd="pdConst.PD_PRP_GRP_DV_CD_MANUAL"
-                    :has-basic-title="false"
+                    :prefix-title="$t('MSG_TXT_MGT_ATTR')"
+                    :is-first-title="true"
                   />
                 </kw-tab-panel>
                 <!-- 변경이력 -->
                 <kw-tab-panel name="hist">
                   <zwpdc-prod-change-hist
                     v-model:pd-cd="currentPdCd"
-                    :pd-tp-cd="pdConst.PD_TP_CD_M"
+                    :pd-tp-cd="pdConst.PD_TP_CD_MATERIAL"
                   />
                 </kw-tab-panel>
               </kw-tab-panels>
@@ -123,7 +126,7 @@ import { isEmpty } from 'lodash-es';
 import pdConst from '~sms-common/product/constants/pdConst';
 import ZwpdcPropGroupsDtl from '~sms-common/product/pages/manage/components/ZwpdcPropGroupsDtl.vue';
 import ZwpdcProdChangeHist from '~sms-common/product/pages/manage/components/ZwpdcProdChangeHist.vue';
-import WwpdcPropRelationDtl from './WwpdcPropRelationDtl.vue';
+import WwpdcPropRelationDtl from './WwpdcPropRelationDtlM.vue';
 
 const props = defineProps({
   pdCd: { type: String, default: null },
@@ -138,11 +141,12 @@ const obsMainRef = ref();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
-const baseUrl = '/sms/common/product/materials';
+const baseUrl = '/sms/wells/product/materials';
 const page = ref({
-  modify: '/product/wwpdc-material-mgt', // 등록/수정 UI
+  modify: '/product/zwpdc-material-list/wwpdc-material-mgt', // 등록/수정 UI
 });
 
+const pdTpDtlCd = ref(pdConst.PD_TP_DTL_CD_MATERIAL);
 const prdPropGroups = ref({});
 const selectedTab = ref('attribute');
 
@@ -164,7 +168,7 @@ async function fetchData() {
   pdBas.value = res.data[pdConst.TBL_PD_BAS];
   prevStepData.value[pdConst.TBL_PD_BAS] = res.data[pdConst.TBL_PD_BAS];
   prevStepData.value[pdConst.TBL_PD_ECOM_PRP_DTL] = res.data[pdConst.TBL_PD_ECOM_PRP_DTL];
-  prevStepData.value[pdConst.TB_PDBS_PD_REL] = res.data[pdConst.TB_PDBS_PD_REL];
+  prevStepData.value[pdConst.TBL_PD_REL] = res.data[pdConst.TBL_PD_REL];
   prdPropGroups.value = res.data.groupCodes;
 }
 

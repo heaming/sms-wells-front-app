@@ -3,7 +3,7 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : PDC (상품운영관리)
-2. 프로그램 ID : WwpdcStandardMgtM - (판매) 상품목록 - 상세조회 ( Z-PD-U-0011M01 )
+2. 프로그램 ID : WwpdcStandardMgtM - (판매) 상품목록 - 기준상품 등록/변경 ( Z-PD-U-0010M01 )
 3. 작성자 : jintae.choi
 4. 작성일 : 2022.12.31
 ****************************************************************************************************
@@ -15,81 +15,83 @@
 <template>
   <kw-page>
     <div class="normal-area normal-area--button-set-bottom">
-      <div class="kw-stepper-headingtext">
-        <kw-stepper v-model="currentStep.name">
-          <kw-step
-            :name="pdConst.STANDARD_STEP_BASIC.name"
-            :title="$t('MSG_TXT_BAS_ATTR_REG')"
-            :prefix="pdConst.STANDARD_STEP_BASIC.step"
-            :done="currentStep.step > pdConst.STANDARD_STEP_BASIC.step"
+      <kw-stepper
+        v-model="currentStep.name"
+        heading-text
+      >
+        <kw-step
+          :name="pdConst.STANDARD_STEP_BASIC.name"
+          :title="$t('MSG_TXT_BAS_ATTR_REG')"
+          :prefix="pdConst.STANDARD_STEP_BASIC.step"
+          :done="currentStep.step > pdConst.STANDARD_STEP_BASIC.step"
+        />
+        <kw-step
+          :name="pdConst.STANDARD_STEP_REL_PROD.name"
+          :title="$t('MSG_TXT_REL_PRDT_SEL')"
+          :prefix="pdConst.STANDARD_STEP_REL_PROD.step"
+          :done="currentStep.step > pdConst.STANDARD_STEP_REL_PROD.step"
+        />
+        <kw-step
+          :name="pdConst.STANDARD_STEP_MANAGE.name"
+          :title="$t('MSG_TXT_MGT_ATTR_REG')"
+          :prefix="pdConst.STANDARD_STEP_MANAGE.step"
+          :done="currentStep.step > pdConst.STANDARD_STEP_MANAGE.step"
+        />
+        <kw-step
+          :name="pdConst.STANDARD_STEP_PRICE.name"
+          :title="$t('MSG_TXT_PRC_INFO_REG')"
+          :prefix="pdConst.STANDARD_STEP_PRICE.step"
+          :done="currentStep.step > pdConst.STANDARD_STEP_PRICE.step"
+        />
+        <kw-step
+          :name="pdConst.STANDARD_STEP_CHECK.name"
+          :title="$t('MSG_TXT_CHK_REG_INFO')"
+          :prefix="pdConst.STANDARD_STEP_CHECK.step"
+        />
+        <kw-step-panel :name="pdConst.STANDARD_STEP_BASIC.name">
+          <zwpdc-prop-groups-mgt
+            :ref="cmpStepRefs[0]"
+            v-model:pd-cd="currentPdCd"
+            v-model:init-data="prevStepData"
+            :pd-tp-cd="pdConst.PD_TP_CD_STANDARD"
+            :pd-grp-dv-cd="pdConst.PD_PRP_GRP_DV_CD_BASIC"
           />
-          <kw-step
-            :name="pdConst.STANDARD_STEP_REL_PROD.name"
-            :title="$t('MSG_TXT_REL_PRDT_SEL')"
-            :prefix="pdConst.STANDARD_STEP_REL_PROD.step"
-            :done="currentStep.step > pdConst.STANDARD_STEP_REL_PROD.step"
+        </kw-step-panel>
+        <kw-step-panel :name="pdConst.STANDARD_STEP_REL_PROD.name">
+          <wwpdc-standard-mgt-m-rel
+            :ref="cmpStepRefs[1]"
+            v-model:pd-cd="currentPdCd"
+            v-model:init-data="prevStepData"
+            :codes="codes"
           />
-          <kw-step
-            :name="pdConst.STANDARD_STEP_MANAGE.name"
-            :title="$t('MSG_TXT_MGT_ATTR_REG')"
-            :prefix="pdConst.STANDARD_STEP_MANAGE.step"
-            :done="currentStep.step > pdConst.STANDARD_STEP_MANAGE.step"
+        </kw-step-panel>
+        <kw-step-panel :name="pdConst.STANDARD_STEP_MANAGE.name">
+          <zwpdc-prop-groups-mgt
+            :ref="cmpStepRefs[2]"
+            v-model:pd-cd="currentPdCd"
+            v-model:init-data="prevStepData"
+            :pd-tp-cd="pdConst.PD_TP_CD_STANDARD"
+            :pd-grp-dv-cd="pdConst.PD_PRP_GRP_DV_CD_MANUAL"
           />
-          <kw-step
-            :name="pdConst.STANDARD_STEP_PRICE.name"
-            :title="$t('MSG_TXT_PRC_INFO_REG')"
-            :prefix="pdConst.STANDARD_STEP_PRICE.step"
-            :done="currentStep.step > pdConst.STANDARD_STEP_PRICE.step"
+        </kw-step-panel>
+        <kw-step-panel :name="pdConst.STANDARD_STEP_PRICE.name">
+          <wwpdc-standard-mgt-m-price
+            :ref="cmpStepRefs[3]"
+            v-model:pd-cd="currentPdCd"
+            v-model:init-data="prevStepData"
+            :codes="codes"
           />
-          <kw-step
-            :name="pdConst.STANDARD_STEP_CHECK.name"
-            :title="$t('MSG_TXT_CHK_REG_INFO')"
-            :prefix="pdConst.STANDARD_STEP_CHECK.step"
+        </kw-step-panel>
+        <kw-step-panel :name="pdConst.STANDARD_STEP_CHECK.name">
+          <wwpdc-standard-dtl-m-contents
+            v-model:pd-cd="currentPdCd"
+            v-model:init-data="prevStepData"
+            :is-history-tab="false"
+            :is-update-btn="false"
+            :codes="codes"
           />
-          <kw-step-panel :name="pdConst.STANDARD_STEP_BASIC.name">
-            <zwpdc-prop-groups-mgt
-              :ref="cmpStepRefs[0]"
-              v-model:pd-cd="currentPdCd"
-              v-model:init-data="prevStepData"
-              :pd-tp-cd="pdConst.PD_TP_CD_STANDARD"
-              :pd-grp-dv-cd="pdConst.PD_PRP_GRP_DV_CD_BASIC"
-            />
-          </kw-step-panel>
-          <kw-step-panel :name="pdConst.STANDARD_STEP_REL_PROD.name">
-            <wwpdc-standard-mgt-m-rel
-              :ref="cmpStepRefs[1]"
-              v-model:pd-cd="currentPdCd"
-              v-model:init-data="prevStepData"
-              :codes="codes"
-            />
-          </kw-step-panel>
-          <kw-step-panel :name="pdConst.STANDARD_STEP_MANAGE.name">
-            <zwpdc-prop-groups-mgt
-              :ref="cmpStepRefs[2]"
-              v-model:pd-cd="currentPdCd"
-              v-model:init-data="prevStepData"
-              :pd-tp-cd="pdConst.PD_TP_CD_STANDARD"
-              :pd-grp-dv-cd="pdConst.PD_PRP_GRP_DV_CD_MANUAL"
-            />
-          </kw-step-panel>
-          <kw-step-panel :name="pdConst.STANDARD_STEP_PRICE.name">
-            <wwpdc-standard-mgt-m-price
-              :ref="cmpStepRefs[3]"
-              v-model:pd-cd="currentPdCd"
-              v-model:init-data="prevStepData"
-              :codes="codes"
-            />
-          </kw-step-panel>
-          <kw-step-panel :name="pdConst.STANDARD_STEP_CHECK.name">
-            <wwpdc-standard-dtl-m-contents
-              :pd-cd="currentPdCd"
-              :init-data="prevStepData"
-              :temp-save-yn="props.tempSaveYn"
-              :is-history-tab="false"
-            />
-          </kw-step-panel>
-        </kw-stepper>
-      </div>
+        </kw-step-panel>
+      </kw-stepper>
       <div class="button-set--bottom">
         <div class="button-set--bottom-right">
           <kw-btn
@@ -99,7 +101,7 @@
           />
           <kw-btn
             v-show="currentStep.step === 1 && isCreate"
-            :label="$t('MSG_BTN_RESET')"
+            :label="$t('MSG_BTN_INTL')"
             class="ml8"
             @click="onClickReset"
           />
@@ -124,7 +126,7 @@
           />
           <kw-btn
             v-show="!isCreate || currentStep.step === regSteps.length"
-            :label="$t('MSG_BTN_SVE')"
+            :label="$t('MSG_BTN_SAVE')"
             class="ml8"
             primary
             @click="onClickSave('N')"
@@ -166,7 +168,8 @@ const dtl = pdConst.TBL_PD_DTL;
 const ecom = pdConst.TBL_PD_ECOM_PRP_DTL;
 const prcd = pdConst.TBL_PD_PRC_DTL;
 const prcfd = pdConst.TBL_PD_PRC_FNL_DTL;
-const rel = pdConst.TBL_PD_PRC_REL;
+const rel = pdConst.TBL_PD_REL;
+const prumd = pdConst.TBL_PD_DSC_PRUM_DTL;
 
 const isTempSaveBtn = ref(true);
 const regSteps = ref([pdConst.STANDARD_STEP_BASIC, pdConst.STANDARD_STEP_REL_PROD,
@@ -190,17 +193,14 @@ const codes = await codeUtil.getMultiCodes(
   'SV_VST_PRD_CD',
 );
 
-watch(() => props.pdCd, (val) => { currentPdCd.value = val; });
-watch(() => props.tempSaveYn, (val) => { isTempSaveBtn.value = val !== 'Y'; });
-
 async function onClickReset() {
   cmpStepRefs.value.forEach((item) => {
-    item.value.resetData();
+    item.value?.resetData();
   });
 }
 
 async function onClickDelete() {
-  if (await confirm(t('MSG_ALT_DO_DELETE'))) {
+  if (await confirm(t('MSG_ALT_WANT_DEL_WCC'))) {
     await dataService.delete(`/sms/common/product/standards/${currentPdCd.value}`);
     // TODO 화면닫기
     router.push({ path: '/product/zwpdc-sale-product-list' });
@@ -209,10 +209,10 @@ async function onClickDelete() {
 
 async function getSaveData() {
   const subList = {};
-  await Promise.all(cmpStepRefs.value.map(async (item, idx) => {
-    const saveData = await item.value.getSaveData();
+  await Promise.all(cmpStepRefs.value.map(async (item) => {
+    const saveData = await item.value?.getSaveData();
     if (await saveData) {
-      console.log(`${idx}saveData : `, saveData);
+      // console.log(`${idx}saveData : `, saveData);
       subList.pdCd = subList.pdCd ?? saveData.pdCd;
       subList.pdTpCd = subList.pdTpCd ?? saveData.pdTpCd;
       if (saveData[bas]) {
@@ -238,30 +238,58 @@ async function getSaveData() {
       if (saveData[rel]) {
         subList[rel] = pdMergeBy(subList[rel], saveData[rel]);
       }
-      console.log(`${idx}subList : `, subList);
+      if (saveData[prumd]) {
+        subList[prumd] = saveData[prumd];
+      }
+      if (saveData[pdConst.RELATION_PRODUCTS]) {
+        subList[pdConst.RELATION_PRODUCTS] = saveData[pdConst.RELATION_PRODUCTS];
+      }
+      // console.log(`${idx}subList : `, subList);
     }
   }));
-  console.log('subList : ', subList);
+  // console.log('subList : ', subList);
   return subList;
 }
 
 async function onClickNextStep() {
+  const currentStepIndex = currentStep.value.step - 1;
   // 현재 Step 필수여부 확인
-  const isValidOk = await (cmpStepRefs.value[currentStep.value.step - 1].value.validateProps());
+  const currentStepRef = await cmpStepRefs.value[currentStepIndex].value;
+  if (isEmpty(currentStepRef)) {
+    currentStep.value = regSteps.value[currentStepIndex + 1];
+    return;
+  }
+  const isValidOk = await (cmpStepRefs.value[currentStepIndex].value?.validateProps());
   if (!isValidOk) {
     return;
   }
   prevStepData.value = await getSaveData();
-  currentStep.value = regSteps.value[(currentStep.value.step - 1) + 1];
+
+  // Child 페이지 내에서 다음 스텝이 없으면(false), 현재 페이지에서 다음으로 진행
+  const isMovedInnerStep = currentStepRef?.moveNextStep ? await currentStepRef?.moveNextStep() : false;
+  if (!isMovedInnerStep) {
+    const nextStepRef = cmpStepRefs.value[currentStepIndex + 1]?.value;
+    if (nextStepRef && nextStepRef.resetFirstStep) {
+      await nextStepRef.resetFirstStep();
+    }
+    currentStep.value = regSteps.value[currentStepIndex + 1];
+  }
 }
 
 async function onClickPrevStep() {
+  const currentStepIndex = currentStep.value.step - 1;
   prevStepData.value = await getSaveData();
-  currentStep.value = regSteps.value[(currentStep.value.step - 1) - 1];
+  const currentStepRef = await cmpStepRefs.value[currentStepIndex]?.value;
+  // Child 페이지 내에서 이전 스텝이 없으면(false), 현재 페이지에서 이전으로 진행
+  const isMovedInnerStep = currentStepRef?.movePrevStep ? await currentStepRef?.movePrevStep() : false;
+  if (!isMovedInnerStep) {
+    currentStep.value = regSteps.value[currentStepIndex - 1];
+  }
 }
 
 async function fetchProduct() {
   if (currentPdCd.value) {
+    prevStepData.value = {};
     const res = await dataService.get(`/sms/common/product/standards/${currentPdCd.value}`);
     console.log('WwpdcStandardMgtM - fetchProduct - res.data', res.data);
     prevStepData.value[bas] = res.data[bas];
@@ -269,7 +297,9 @@ async function fetchProduct() {
     prevStepData.value[ecom] = res.data[ecom];
     prevStepData.value[prcd] = res.data[prcd];
     prevStepData.value[prcfd] = res.data[prcfd];
-    console.log('res.data : ', res.data);
+    prevStepData.value[rel] = res.data[rel];
+    prevStepData.value[prumd] = res.data[prumd];
+    // console.log('res.data : ', res.data);
   }
 }
 
@@ -280,7 +310,7 @@ async function onClickSave(tempSaveYn) {
     let modifiedOk = true;
     await Promise.all(cmpStepRefs.value.map(async (item) => {
       if (modifiedOk) {
-        modifiedOk = await item.value.isModifiedProps(false);
+        modifiedOk = await item.value?.isModifiedProps(false);
       }
     }));
     // if (!modifiedOk) {
@@ -303,6 +333,7 @@ async function onClickSave(tempSaveYn) {
 
   // 3. Step별 저장 데이터 확인
   const subList = await getSaveData();
+  console.log('WwpdcStandardMgtM - onClickSave - subList : ', subList);
 
   // 4. 생성 or 저장
   const { pdCd } = props;
@@ -314,16 +345,14 @@ async function onClickSave(tempSaveYn) {
   }
 
   // 5. 생성 이후 Step 설정
-  if (rtn) {
-    notify(t('MSG_ALT_SAVE_DATA'));
-    if (isTempSaveBtn) {
-      // 임시저장
-      currentPdCd.value = rtn.data?.data?.pdCd;
-      isCreate.value = isEmpty(currentPdCd.value);
-      fetchProduct();
-    } else {
-      router.push({ path: '/product/zwpdc-sale-product-list' });
-    }
+  notify(t('MSG_ALT_SAVE_DATA'));
+  if (isTempSaveBtn) {
+    // 임시저장
+    currentPdCd.value = rtn.data?.data?.pdCd;
+    isCreate.value = isEmpty(currentPdCd.value);
+    fetchProduct();
+  } else {
+    router.push({ path: '/product/zwpdc-sale-product-list' });
   }
 }
 
@@ -339,12 +368,21 @@ async function initProps() {
 
 await initProps();
 
+watch(() => props.pdCd, (val) => { currentPdCd.value = val; });
+watch(() => props.tempSaveYn, (val) => { isTempSaveBtn.value = val !== 'Y'; });
+
 watch(() => route.params.pdCd, async (pdCd) => {
-  if (pdCd && currentPdCd.value !== pdCd) {
-    currentPdCd.value = pdCd;
-    isCreate.value = isEmpty(currentPdCd.value);
+  if (route.params.pdCd !== pdCd) {
+    isCreate.value = isEmpty(pdCd);
     currentStep.value = pdConst.STANDARD_STEP_BASIC;
-    await fetchProduct();
+    if (isEmpty(pdCd)) {
+      isTempSaveBtn.value = true;
+    }
+    prevStepData.value = {};
+    if (pdCd !== currentStep.value) {
+      currentPdCd.value = pdCd;
+      await fetchProduct();
+    }
   }
 }, { immediate: true });
 
