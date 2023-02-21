@@ -261,8 +261,8 @@ const initGrdMain = defineGrid((data, view) => {
         return isEmpty(value) ? vhcMngtTpCd : value;
       },
     },
-    { fieldName: 'vhcPymdt', header: t('MSG_TXT_DSB_STRT_D'), width: '150', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd' },
-    { fieldName: 'dsbEnddt', header: t('MSG_TXT_DSB_END_D'), width: '150', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd' },
+    { fieldName: 'vhcPymdt', header: t('MSG_TXT_DSB_STRT_D'), width: '150', styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'dsbEnddt', header: t('MSG_TXT_DSB_END_D'), width: '150', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'insrAgeCd', header: t('MSG_TXT_INSR_AGE'), width: '100', styleName: 'text-center' },
     {
       fieldName: 'rflngCdnoEncr',
