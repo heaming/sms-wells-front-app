@@ -221,7 +221,6 @@ async function onClickOpenCustomerSearchPopup() {
 
   if (isChanged) {
     // to confirm
-    console.log(customerDetails);
     searchParams.value.cstmrNo = customerDetails.cstmrNo;
   }
 }
