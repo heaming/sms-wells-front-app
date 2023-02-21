@@ -169,7 +169,6 @@ import dayjs from 'dayjs';
 import { cloneDeep } from 'lodash-es';
 
 const dataService = useDataService();
-// console.log(dataService);
 
 const { getConfig } = useMeta();
 const { t } = useI18n();
@@ -251,13 +250,12 @@ async function onClickRemove() {
   if (!await gridUtil.confirmIfIsModified(view)) { return; }
 
   const deletedRows = await gridUtil.confirmDeleteCheckedRows(view);
-  console.log(deletedRows);
-  // const storeUids = deletedRows.map((row) => row.storeUid);
+  const exProcsIds = deletedRows.map((row) => row.exProcsId);
 
-  // if (storeUids.length > 0) {
-  //   await dataService.delete('/sms/wells/contract/exception-handling', { params: { storeUids } });
-  //   await fetchData();
-  // }
+  if (exProcsIds.length > 0) {
+    await dataService.delete('/sms/wells/contract/exception-handling', { params: { keys: exProcsIds } });
+    await fetchData();
+  }
 }
 
 async function onClickAdd() {
@@ -297,6 +295,7 @@ async function onClickExcelDownload() {
 // -------------------------------------------------------------------------------------------------
 const initGrid = defineGrid((data, view) => {
   const fields = [
+    { fieldName: 'exProcsId' },
     { fieldName: 'exProcsCd' },
     { fieldName: 'cstNo' },
     { fieldName: 'prtnrNo' },
@@ -310,6 +309,7 @@ const initGrid = defineGrid((data, view) => {
   ];
 
   const columns = [
+    { fieldName: 'exProcsId', visible: false },
     { fieldName: 'exProcsCd', header: t('MSG_TXT_SLS_CAT'), width: '289', options: codes.EX_PROCS_CD, editor: { type: 'list' } },
     { fieldName: 'cstNo',
       header: t('MSG_TXT_CST_NO'),
@@ -352,27 +352,10 @@ const initGrid = defineGrid((data, view) => {
       });
 
       if (isChanged) {
-        // to confirm
-        console.log(customerDetails);
         data.setValue(itemIndex, 'prtnrNo', customerDetails.cstmrNo);
       }
     }
   };
-
-  data.setRows([
-    { exProcsCd: '02-렌탈 기변 상태코드 연체건 접수허용', cstNo: '123456789', prtnrNo: '123456789', cntrNo: '123456789', dtaDlYn: '제한', exProcsDtlCn: '123456789', vlStrtDtm: '20220503', vlEndDtm: '20220503', fstRgstUsrId: '김직원', fnlMdfcUsrId: '김직원' },
-    { exProcsCd: '02-렌탈 기변 상태코드 연체건 접수허용', cstNo: '123456789', prtnrNo: '123456789', cntrNo: '123456789', dtaDlYn: '제한', exProcsDtlCn: '123456789', vlStrtDtm: '20220503', vlEndDtm: '20220503', fstRgstUsrId: '김직원', fnlMdfcUsrId: '김직원' },
-    { exProcsCd: '02-렌탈 기변 상태코드 연체건 접수허용', cstNo: '123456789', prtnrNo: '123456789', cntrNo: '123456789', dtaDlYn: '제한', exProcsDtlCn: '123456789', vlStrtDtm: '20220503', vlEndDtm: '20220503', fstRgstUsrId: '김직원', fnlMdfcUsrId: '김직원' },
-    { exProcsCd: '02-렌탈 기변 상태코드 연체건 접수허용', cstNo: '123456789', prtnrNo: '123456789', cntrNo: '123456789', dtaDlYn: '제한', exProcsDtlCn: '123456789', vlStrtDtm: '20220503', vlEndDtm: '20220503', fstRgstUsrId: '김직원', fnlMdfcUsrId: '김직원' },
-    { exProcsCd: '02-렌탈 기변 상태코드 연체건 접수허용', cstNo: '123456789', prtnrNo: '123456789', cntrNo: '123456789', dtaDlYn: '제한', exProcsDtlCn: '123456789', vlStrtDtm: '20220503', vlEndDtm: '20220503', fstRgstUsrId: '김직원', fnlMdfcUsrId: '김직원' },
-    { exProcsCd: '02-렌탈 기변 상태코드 연체건 접수허용', cstNo: '123456789', prtnrNo: '123456789', cntrNo: '123456789', dtaDlYn: '제한', exProcsDtlCn: '123456789', vlStrtDtm: '20220503', vlEndDtm: '20220503', fstRgstUsrId: '김직원', fnlMdfcUsrId: '김직원' },
-    { exProcsCd: '02-렌탈 기변 상태코드 연체건 접수허용', cstNo: '123456789', prtnrNo: '123456789', cntrNo: '123456789', dtaDlYn: '제한', exProcsDtlCn: '123456789', vlStrtDtm: '20220503', vlEndDtm: '20220503', fstRgstUsrId: '김직원', fnlMdfcUsrId: '김직원' },
-    { exProcsCd: '02-렌탈 기변 상태코드 연체건 접수허용', cstNo: '123456789', prtnrNo: '123456789', cntrNo: '123456789', dtaDlYn: '제한', exProcsDtlCn: '123456789', vlStrtDtm: '20220503', vlEndDtm: '20220503', fstRgstUsrId: '김직원', fnlMdfcUsrId: '김직원' },
-    { exProcsCd: '02-렌탈 기변 상태코드 연체건 접수허용', cstNo: '123456789', prtnrNo: '123456789', cntrNo: '123456789', dtaDlYn: '제한', exProcsDtlCn: '123456789', vlStrtDtm: '20220503', vlEndDtm: '20220503', fstRgstUsrId: '김직원', fnlMdfcUsrId: '김직원' },
-    { exProcsCd: '02-렌탈 기변 상태코드 연체건 접수허용', cstNo: '123456789', prtnrNo: '123456789', cntrNo: '123456789', dtaDlYn: '제한', exProcsDtlCn: '123456789', vlStrtDtm: '20220503', vlEndDtm: '20220503', fstRgstUsrId: '김직원', fnlMdfcUsrId: '김직원' },
-    { exProcsCd: '02-렌탈 기변 상태코드 연체건 접수허용', cstNo: '123456789', prtnrNo: '123456789', cntrNo: '123456789', dtaDlYn: '제한', exProcsDtlCn: '123456789', vlStrtDtm: '20220503', vlEndDtm: '20220503', fstRgstUsrId: '김직원', fnlMdfcUsrId: '김직원' },
-
-  ]);
 });
 </script>
 
