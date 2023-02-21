@@ -436,7 +436,9 @@ const initGrdMain = defineGrid((data, view) => {
 
   view.onCellEdited = async (grid, itemIndex, row, field) => {
     const { apyStrtdtOrigin, apyStrtdt, apyEnddt } = grid.getValues(itemIndex);
-    if (field === 8) {
+    const changedFieldName = grid.getDataSource().getOrgFieldName(field);
+
+    if (changedFieldName === 'apyStrtdt') {
       if (apyStrtdt > apyEnddt) {
         grid.setValue(itemIndex, 'apyEnddt', apyStrtdt);
       }
@@ -444,7 +446,7 @@ const initGrdMain = defineGrid((data, view) => {
         notify(t('MSG_ALT_APY_STRT_D_CONF_BF_DT'));
         grid.setValue(itemIndex, 'apyStrtdt', apyStrtdtOrigin);
       }
-    } else if (field === 9) {
+    } else if (changedFieldName === 'apyEnddt') {
       if (apyStrtdtOrigin > apyEnddt) {
         notify(t('MSG_ALT_APY_STRT_D_CONF_BF_DT'));
         grid.setValue(itemIndex, 'apyEnddt', 99991231);
