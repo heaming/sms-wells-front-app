@@ -3,7 +3,7 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : WDA
-2. 프로그램 ID : WwAftnNrcvCheckListM - 자동이체결과 체크리스트(청구완료 미수신건)
+2. 프로그램 ID : WwwdaNotReceivedCheckListM - 자동이체결과 체크리스트(청구완료 미수신건) (W-WD-U-0035M01)
 3. 작성자 : donghyun.yoo
 4. 작성일 : 2023.02.07
 ****************************************************************************************************
@@ -23,14 +23,14 @@
       />
       <kw-tab
         name="rcvFshDpCrtOmssnCt"
-        :label="t('MSG_TIT_BIL_FSH_NRCV_CT')"
+        :label="t('MSG_TIT_AFTN_CH_RJ_RSON')"
       />
       <kw-tab
-        name="page"
+        name="slPerfDpApyOmssnCt"
         :label="t('MSG_TIT_SL_PERF_DP_APY_OMSSN_CT')"
       />
       <kw-tab
-        name="link"
+        name="bndlWdrwUnrg"
         :label="t('MSG_TIT_BNDL_WDRW_ERR_RGST')"
       />
     </kw-tabs>
@@ -100,6 +100,15 @@
           />
         </div>
       </kw-tab-panel>
+      <kw-tab-panel name="rcvFshDpCrtOmssnCt">
+        <wwwda-fund-transfer-change-mgt-m />
+      </kw-tab-panel>
+      <kw-tab-panel name="slPerfDpApyOmssnCt">
+        <wwwda-deposit-apply-omission-m />
+      </kw-tab-panel>
+      <kw-tab-panel name="bndlWdrwUnrg">
+        <wwwda-result-bundle-error-m />
+      </kw-tab-panel>
     </kw-tab-panels>
   </kw-page>
 </template>
@@ -110,6 +119,9 @@
 // -------------------------------------------------------------------------------------------------
 import { useDataService, codeUtil, gridUtil, defineGrid, useMeta, getComponentType } from 'kw-lib';
 import dayjs from 'dayjs';
+import WwwdaFundTransferChangeMgtM from './WwwdaFundTransferChangeMgtM.vue';
+import WwwdaDepositApplyOmissionM from './WwwdaDepositApplyOmissionM.vue';
+import WwwdaResultBundleErrorM from './WwwdaResultBundleErrorM.vue';
 
 const dataService = useDataService();
 const { getConfig } = useMeta();
@@ -130,8 +142,8 @@ const selectedTab = ref('bilFshNrcvCt');
 
 let cachedParams;
 const searchParams = ref({
-  bilDt: now.format('YYYYMMDD'),
-  fntDvCd: '01',
+  bilDt: now.format('YYYYMMDD'), // 기준일자
+  fntDvCd: '01', // 이체구분
 });
 
 const pageInfo = ref({
@@ -141,7 +153,7 @@ const pageInfo = ref({
 });
 
 async function fetchData() {
-  const res = await dataService.get('/sms/wells/withdrawal/w-aftn-nrcv-check-list', { params: { ...cachedParams, ...pageInfo.value } });
+  const res = await dataService.get('/sms/wells/withdrawal/bilfnt/not-received-checks', { params: { ...cachedParams, ...pageInfo.value } });
   const { list: manuals, pageInfo: pagingResult } = res.data;
 
   pageInfo.value = pagingResult;

@@ -3,7 +3,7 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : WDA
-2. 프로그램 ID : WwAftnDsnWdrwCstMngtMgtM - 자동이체 지정 출금 고객 관리
+2. 프로그램 ID : WwwdaDesignationWithdrawalCstMgtM - 자동이체 지정 출금 고객 관리 (W-WD-U-0085M01)
 3. 작성자 : donghyun.yoo
 4. 작성일 : 2023.01.30
 ****************************************************************************************************
@@ -26,22 +26,21 @@
         >
           <kw-select
             v-model="searchParams.sellTpCd"
-            :options="codes.SELL_TP_CD.filter(v => v.codeId === '1' ||
-              v.codeId === '2' || v.codeId === '3'|| v.codeId === '6')"
+            :options="codes.SELL_TP_CD"
             first-option="all"
             first-option-value="ALL"
           />
         </kw-search-item>
         <kw-search-item
-          :label="$t('MSG_TXT_CST_CD')"
+          :label="$t('MSG_TXT_CNTR_DTL_NO')"
           required
         >
           <kw-input
             v-model="searchParams.cntr"
-            :placeholder="$t('MSG_TXT_CNTR_NO')"
+            :name="$t('MSG_TXT_CNTR_DTL_NO')"
             rules="required"
             type="number"
-            maxlength="13"
+            maxlength="12"
           />
         </kw-search-item>
       </kw-search-row>
@@ -68,7 +67,6 @@
         />
         <kw-btn
           grid-action
-          :disable="totalCount===0"
           :label="$t('MSG_BTN_ROW_ADD')"
           @click="onClickAddRow"
         />
@@ -108,7 +106,7 @@
 import { useGlobal, useDataService, codeUtil, gridUtil, defineGrid, getComponentType } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 
-const { notify } = useGlobal();
+const { notify, confirm } = useGlobal();
 const { t } = useI18n();
 const dataService = useDataService();
 
@@ -135,7 +133,7 @@ const searchParams = ref({
   cntrSn: '',
 });
 
-const possibleDay = codes.AUTO_FNT_FTD_ACD.map((v) => v.codeId).join(', '); // 가능한 이체일 추후에 수정
+const possibleDay = codes.AUTO_FNT_FTD_ACD.map((v) => v.codeId).join(','); // 가능한 이체일 추후에 수정
 
 async function onClickAddRow() {
   const view = grdMainRef.value.getView();
@@ -156,18 +154,8 @@ function getSaveParams() {
     cntrSn: Number(v.cntr.slice(11)) })); // 계약상세일련번호 4 - 7 - 1
 }
 
-async function onClickRemove() { // 추후에 수정
-  const view = grdMainRef.value.getView();
-  const checkedLength = gridUtil.getCheckedRowValues(view).length;
-  if (checkedLength === 0) {
-    notify(t('MSG_ALT_NOT_SEL_ITEM'));
-    return;
-  }
-  gridUtil.deleteCheckedRows(view);
-}
-
 async function fetchData() {
-  const res = await dataService.get('/sms/wells/withdrawal/w-aftn-dsn-wdrw-cst-inqr', { params: { ...cachedParams } });
+  const res = await dataService.get('/sms/wells/withdrawal/bilfnt/designation-wdrw-csts', { params: { ...cachedParams } });
   const person = res.data.list.map((v) => ({ ...v, cntr: v.cntr.replace('W', '') }));
 
   totalCount.value = person.length;
@@ -179,22 +167,38 @@ async function fetchData() {
   }
 }
 
+async function onClickSearch() {
+  searchParams.value.cntrNo = `W${searchParams.value.cntr.slice(0, 11)}`;
+  searchParams.value.cntrSn = searchParams.value.cntr.slice(11);
+  cachedParams = cloneDeep(searchParams.value);
+  await fetchData();
+}
+
+async function onClickRemove() {
+  const view = grdMainRef.value.getView();
+  const checkedRows = gridUtil.getCheckedRowValues(view);
+  const data = checkedRows.filter((v) => v.rowState === 'none').map((v) => ({ cntrNo: `W${v.cntr.slice(0, 11)}`, cntrSn: Number(v.cntr.slice(11)) }));
+
+  if (checkedRows.length === 0) {
+    notify(t('MSG_ALT_NOT_SEL_ITEM'));
+    return;
+  }
+
+  if (await confirm(t('MSG_ALT_WANT_DEL'))) {
+    await dataService.delete('/sms/wells/withdrawal/bilfnt/designation-wdrw-csts', { data });
+    await onClickSearch();
+  }
+}
+
 async function onClickSave() {
   const view = grdMainRef.value.getView();
   if (await gridUtil.alertIfIsNotModified(view)) { return; }
   if (!await gridUtil.validate(view)) { return; }
 
   const data = getSaveParams();
-  await dataService.post('/sms/wells/withdrawal/w-aftn-dsn-wdrw-cst-rgst', data);
+  await dataService.post('/sms/wells/withdrawal/bilfnt/designation-wdrw-csts', data);
   notify(t('MSG_ALT_SAVE_DATA'));
 
-  await fetchData();
-}
-
-async function onClickSearch() {
-  searchParams.value.cntrNo = `W${searchParams.value.cntr.slice(0, 11)}`;
-  searchParams.value.cntrSn = searchParams.value.cntr.slice(11);
-  cachedParams = cloneDeep(searchParams.value);
   await fetchData();
 }
 
