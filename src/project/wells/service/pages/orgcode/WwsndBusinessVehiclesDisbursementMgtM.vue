@@ -42,7 +42,7 @@
         <!-- 엔지니어 -->
         <kw-search-item :label="$t('MSG_TXT_EGER')">
           <kw-select
-            v-model="searchParams.egerId"
+            v-model="searchParams.prtnrNo"
             :options="engineers"
             first-option="all"
           />
@@ -69,15 +69,6 @@
             @change="fetchData"
           />
         </template>
-        <!-- <kw-btn
-          label="저장"
-          grid-action
-        />
-        <kw-separator
-          vertical
-          inset
-          spaced
-        /> -->
         <kw-btn
           dense
           icon="print"
@@ -124,7 +115,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { useMeta, getComponentType, defineGrid, codeUtil, useGlobal, gridUtil, useDataService } from 'kw-lib';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, isEmpty } from 'lodash-es';
 import useSnCode from '~sms-wells/service/composables/useSnCode';
 
 const { getServiceCenterOrgs, getAllEngineers } = useSnCode();
@@ -146,8 +137,7 @@ const pageInfo = ref({
 
 const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
-  // 'WK_GRP_CD',
-  // 'LOCARA_MNGT_DV_CD',
+  'VHC_MNGT_TP_CD',
 );
 
 const searchParams = ref({
@@ -166,14 +156,14 @@ const svcCenters = (await getServiceCenterOrgs());
 const engs = (await getAllEngineers('G_ONLY_ENG')).G_ONLY_ENG;
 
 centers.value = svcCenters.map((v) => ({ codeName: v.ogNm, codeId: v.ogId }));
-engineers.value = engs.map((v) => ({ codeId: v.codeId, codeName: v.codeNm }));
+// engineers.value = engs.map((v) => ({ codeId: v.codeId, codeName: v.codeNm }));
 
 async function onUpdateBranchs() {
   if (searchParams.value.ogCd === '') {
     searchParams.value.prtnrNo = '';
   } else {
     const engByOgCd = engs.filter((v) => v.ogCd === searchParams.value.ogCd);
-    engineers.value = engByOgCd.map((v) => ({ codeId: v.codeId, codeNm: v.codeNm }));
+    engineers.value = engByOgCd.map((v) => ({ codeId: v.codeId, codeName: v.codeNm }));
   }
 }
 
@@ -186,18 +176,12 @@ async function onUpdateCenters() {
   }
 }
 
-async function fetchBusinessVehicles(params) {
-  return await dataService.get('/sms/wells/service/business-vehicles/paging', params);
-}
-
-async function getBusinessVehicles() {
-  const res = await fetchBusinessVehicles({ params: { ...cachedParams, ...pageInfo.value } });
+async function fetchData() {
+  const res = await dataService.get('/sms/wells/service/business-vehicles/paging', { params: { ...cachedParams, ...pageInfo.value } });
   const { list: businessVehicles, pageInfo: pagingResult } = res.data;
 
   pageInfo.value = pagingResult;
-
   const view = grdMainRef.value.getView();
-
   view.getDataSource().setRows(businessVehicles);
   view.resetCurrent();
 }
@@ -207,7 +191,7 @@ async function onClickSearch() {
   pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
 
-  await getBusinessVehicles();
+  await fetchData();
 }
 
 async function onClickVhcDsbRegBtn() {
@@ -215,7 +199,7 @@ async function onClickVhcDsbRegBtn() {
     component: 'WwsndBusinessVehiclesRegP',
   });
 
-  if (result) await getBusinessVehicles();
+  if (result) await fetchData();
 }
 
 async function onClickExcelDownload() {
@@ -238,9 +222,10 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'prtnrNo' },
     { fieldName: 'prtnrKnm' },
     { fieldName: 'rol' },
-    { fieldName: 'entcoDt' },
+    { fieldName: 'cntrDt' },
     { fieldName: 'carno' },
     { fieldName: 'carnm' },
+    { fieldName: 'vhcMngtTpNm' },
     { fieldName: 'vhcMngtTpCd' },
     { fieldName: 'vhcPymdt' },
     { fieldName: 'dsbEnddt' },
@@ -259,10 +244,23 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'prtnrNo', header: t('MSG_TXT_EPNO'), width: '100', styleName: 'text-center' },
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '150', styleName: 'text-center' },
     { fieldName: 'rol', header: t('MSG_TXT_ROLE_1'), width: '100', styleName: 'text-center' },
-    { fieldName: 'entcoDt', header: t('MSG_TXT_ENTCO_D'), width: '100', styleName: 'text-center' },
+    { fieldName: 'cntrDt', header: t('MSG_TXT_ENTCO_D'), width: '100', styleName: 'text-center' },
     { fieldName: 'carno', header: t('MSG_TXT_CARNO'), width: '120', styleName: 'text-center' },
     { fieldName: 'carnm', header: t('MSG_TXT_VHC_KND'), width: '100', styleName: 'text-center' },
-    { fieldName: 'vhcMngtTpCd', header: t('MSG_TXT_J_TP'), width: '100', styleName: 'text-center' },
+    {
+      fieldName: 'vhcMngtTpNm',
+      header: t('MSG_TXT_J_TP'),
+      width: '100',
+      styleName: 'text-center',
+      displayCallback(grid, index, value) {
+        const vhcMngtTpCd = grid.getValue(index.itemIndex, 'vhcMngtTpCd');
+        if (vhcMngtTpCd !== null) {
+          return codes.VHC_MNGT_TP_CD.find((obj) => obj.codeId === grid.getValue(index.itemIndex, 'vhcMngtTpCd')).codeName;
+        }
+
+        return isEmpty(value) ? vhcMngtTpCd : value;
+      },
+    },
     { fieldName: 'vhcPymdt', header: t('MSG_TXT_DSB_STRT_D'), width: '150', styleName: 'text-center' },
     { fieldName: 'dsbEnddt', header: t('MSG_TXT_DSB_END_D'), width: '150', styleName: 'text-center' },
     { fieldName: 'insrAgeCd', header: t('MSG_TXT_INSR_AGE'), width: '100', styleName: 'text-center' },
@@ -279,14 +277,20 @@ const initGrdMain = defineGrid((data, view) => {
 
   view.onCellDblClicked = async (grid) => {
     if (pageInfo.value.totalCount > 0) {
-      const { ogCd, ogTpCd, vhcMngtNo, vchMngtSn, prtnrNo } = gridUtil.getRowValue(grid, grid.getCurrent().dataRow);
+      const {
+        ogCd,
+        vhcMngtNo,
+        vhcMngtSn,
+        prtnrNo,
+        vhcMngtPrtnrNo,
+      } = gridUtil.getRowValue(grid, grid.getCurrent().dataRow);
 
       const { result } = await modal({
         component: 'WwsndBusinessVehiclesRegP',
-        componentProps: { ogCd, ogTpCd, vhcMngtNo, vchMngtSn, prtnrNo },
+        componentProps: { ogCd, vhcMngtNo, vhcMngtSn, prtnrNo, vhcMngtPrtnrNo },
       });
 
-      if (result) await getBusinessVehicles();
+      if (result) await fetchData();
     }
   };
 });
