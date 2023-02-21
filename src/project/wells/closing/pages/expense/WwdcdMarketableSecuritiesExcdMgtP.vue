@@ -351,13 +351,13 @@ async function onClickSave() {
   const checkedRows = gridUtil.getCheckedRowValues(view);
 
   if (checkedRows.length === 0) {
-    await notify(t('MSG_ALT_NOT_SEL_ITEM'));
+    notify(t('MSG_ALT_NOT_SEL_ITEM'));
     return;
   } if (checkedRows.length > 1) {
-    await notify(t('MSG_ALT_PRGS_OK'));
+    notify(t('MSG_ALT_PRGS_OK'));
   }
   if (!await confirm(t('MSG_ALT_WANT_SAVE'))) { return; }
-  await notify(t('MSG_ALT_SAVE_DATA'));
+  notify(t('MSG_ALT_SAVE_DATA'));
   ok();
   /* TODO. 뒷단 완료되면 다시 살릴꺼
   await dataService.post('/sms/wells/expense/operating-cost/withholding-Tax-scr-excd', { params: checkedRows });
