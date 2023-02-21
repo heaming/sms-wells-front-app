@@ -202,7 +202,7 @@ async function initGrid(data, view) {
   data.setFields(fields);
   view.setColumns(columns.sort((item) => (item.fieldName === 'sellChnlCd' ? -1 : 0)));
   view.checkBar.visible = true;
-  view.rowIndicator.visible = true;
+  view.rowIndicator.visible = false;
   view.editOptions.editable = true;
   view.setFixedOptions({ colCount: 11 });
   await initGridRows();

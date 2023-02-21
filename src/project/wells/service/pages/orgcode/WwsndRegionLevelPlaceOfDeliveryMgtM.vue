@@ -26,7 +26,7 @@
         >
           <kw-select
             v-model="searchParams.pdlvDvCd"
-            :options="pdlvDvCds"
+            :options="codes.PDLV_DV_CD"
             first-option="all"
             @update:model-value="changePdlvDv"
           />
@@ -48,7 +48,7 @@
             :options="svcCode"
             first-option="all"
             option-label="ogNm"
-            option-value="ogCd"
+            option-value="ogId"
           />
         </kw-search-item>
         <!-- 적용일자 -->
@@ -117,15 +117,16 @@
         />
         <kw-date-picker
           v-model="chgApyDt.apyStrtdt"
+          dense
           class="w150"
         />
-        <span>~</span>
         <kw-date-picker
           v-model="chgApyDt.apyEnddt"
+          dense
           class="w150"
         />
         <kw-btn
-          primary
+          secondary
           dense
           :label="$t('MSG_TXT_APY_DT_BLK_CH')"
           @click="onClickApplyDateBulkChange"
@@ -159,7 +160,7 @@ import {
   gridUtil,
   useGlobal,
 } from 'kw-lib';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, replace } from 'lodash-es';
 import smsCommon from '~sms-wells/service/composables/useSnCode';
 import dayjs from 'dayjs';
 
@@ -185,10 +186,8 @@ const now = dayjs();
 
 /* 공통코드 가져오기 */
 const codes = await codeUtil.getMultiCodes(
-  // 'CST_DV_CD',
-  // 'CRP_DSC_ANA_CST_DV_CD',
   'COD_PAGE_SIZE_OPTIONS',
-  // 'PD_GRP_CD',
+  'PDLV_DV_CD',
 );
 
 const svcCode = await getServiceCenterOrgs();
@@ -201,10 +200,6 @@ const pageInfo = ref({
 
 let cachedParams;
 
-const pdlvDvCds = [
-  { codeId: 'E', codeName: t('MSG_TXT_EGER_BRCH') },
-  { codeId: 'Z', codeName: t('MSG_TXT_CST_ADR_RPLC') },
-];
 const chgApyDt = ref({
   apyStrtdt: now.format('YYYYMMDD'),
   apyEnddt: '99991231',
@@ -253,20 +248,25 @@ function onClickAddRow() {
     notify(t('MSG_ALT_CHK_PDLV_DV'));
   } else {
     const view = grdMainRef.value.getView();
-    gridUtil.insertRowAndFocus(view, 0, { apyStrtdt: now.format('YYYYMMDD'), apyEnddt: '99991231' });
+    gridUtil.insertRowAndFocus(view, 0, { pdlvDvCd: searchParams.value.pdlvDvCd, apyStrtdt: searchParams.value.applyDate, apyEnddt: '99991231' });
   }
 }
 
 async function onClickSave() {
   const view = grdMainRef.value.getView();
   const chkRows = gridUtil.getCheckedRowValues(view);
-
   if (chkRows.length === 0) {
     notify(t('MSG_ALT_NOT_SEL_ITEM'));
   } else if (await gridUtil.validate(view, { isCheckedOnly: true })) {
-    await dataService.post('/sms/wells/service/region-levels/place-of-deliverys', chkRows);
-    notify(t('MSG_ALT_SAVE_DATA'));
-    await fetchData();
+    const response = await dataService.post('/sms/wells/service/region-levels/place-of-deliverys', chkRows);
+    if (response.data.processCount === -2) {
+      notify(t('MSG_ALT_DUP_PDLV_DV'));
+    } else if (response.data.processCount === -1) {
+      notify(t('MSG_ALT_APY_STRT_D_CONF_BF_DT'));
+    } else {
+      notify(t('MSG_ALT_SAVE_DATA'));
+      await fetchData();
+    }
   }
 }
 
@@ -276,7 +276,6 @@ async function onClickDelete() {
 
   const deletedRows = await gridUtil.confirmDeleteCheckedRows(view);
   const pdlvNos = deletedRows.map(({ pdlvNo }) => pdlvNo);
-  // eslint-disable-next-line no-shadow
   const pdlvDvCds = deletedRows.map(({ pdlvDvCd }) => pdlvDvCd);
   if (deletedRows.length > 0) {
     // 삭제 controller
@@ -318,11 +317,12 @@ async function onClickApplyDateBulkChange() {
 const initGrdMain = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'pdlvNo' },
-    { fieldName: 'pdlvNm' },
     { fieldName: 'pdlvDvCd' },
+    { fieldName: 'pdlvNm' },
     { fieldName: 'zip' },
     { fieldName: 'pdlvAdr' },
     { fieldName: 'pdlvDtlAdr' },
+    { fieldName: 'pdlvAdrTot' },
     { fieldName: 'apyStrtdtOrigin' },
     { fieldName: 'apyStrtdt' },
     { fieldName: 'apyEnddt' },
@@ -347,15 +347,28 @@ const initGrdMain = defineGrid((data, view) => {
         const rowState = gridUtil.getRowState(grid, index.dataRow);
         return (rowState === 'created');
       },
-      rules: 'required',
     },
     {
       fieldName: 'pdlvAdr',
-      width: '250',
+      header: t('MSG_TXT_ADDR'),
+      rules: 'required',
     },
     {
       fieldName: 'pdlvDtlAdr',
-      width: '100',
+      header: t('MSG_TXT_ADDR'),
+      rules: 'required',
+    },
+    {
+      fieldName: 'pdlvAdrTot',
+      header: t('MSG_TXT_ADDR'),
+      width: '350',
+      displayCallback: (grid, index) => {
+        const adr = gridUtil.getCellValue(grid, index.dataRow, 'pdlvAdr');
+        const dtlAdr = (gridUtil.getCellValue(grid, index.dataRow, 'pdlvDtlAdr'));
+        const tot = `${replace(adr, null, ' ')} ${replace(dtlAdr, null, ' ')}`;
+
+        return tot;
+      },
     },
     {
       fieldName: 'apyStrtdt',
@@ -382,7 +395,7 @@ const initGrdMain = defineGrid((data, view) => {
       editor: { type: 'list' },
       editable: true,
       options: svcCode,
-      optionValue: 'ogCd',
+      optionValue: 'ogId',
       optionLabel: 'ogNm',
     },
 
@@ -391,12 +404,7 @@ const initGrdMain = defineGrid((data, view) => {
   const columnLayout = [
     'pdlvNm',
     'zip',
-    {
-      header: t('MSG_TXT_ADDR'),
-      direction: 'horizontal',
-      hideChildHeaders: true,
-      items: ['pdlvAdr', 'pdlvDtlAdr'],
-    },
+    'pdlvAdrTot',
     'apyStrtdt',
     'apyEnddt',
     'cnrOgId',
@@ -427,12 +435,24 @@ const initGrdMain = defineGrid((data, view) => {
   };
 
   view.onCellEdited = async (grid, itemIndex, row, field) => {
-    const { apyStrtdt, apyEnddt } = grid.getValues(itemIndex);
+    const { apyStrtdtOrigin, apyStrtdt, apyEnddt } = grid.getValues(itemIndex);
+    const changedFieldName = grid.getDataSource().getOrgFieldName(field);
 
-    if (field === 7 && apyStrtdt > apyEnddt) {
-      grid.setValue(itemIndex, 'apyEnddt', apyStrtdt);
-    } else if (field === 8 && apyStrtdt > apyEnddt) {
-      grid.setValue(itemIndex, 'apyStrtdt', apyEnddt);
+    if (changedFieldName === 'apyStrtdt') {
+      if (apyStrtdt > apyEnddt) {
+        grid.setValue(itemIndex, 'apyEnddt', apyStrtdt);
+      }
+      if (apyStrtdtOrigin > apyStrtdt) {
+        notify(t('MSG_ALT_APY_STRT_D_CONF_BF_DT'));
+        grid.setValue(itemIndex, 'apyStrtdt', apyStrtdtOrigin);
+      }
+    } else if (changedFieldName === 'apyEnddt') {
+      if (apyStrtdtOrigin > apyEnddt) {
+        notify(t('MSG_ALT_APY_STRT_D_CONF_BF_DT'));
+        grid.setValue(itemIndex, 'apyEnddt', 99991231);
+      } else if (apyStrtdt > apyEnddt) {
+        grid.setValue(itemIndex, 'apyStrtdt', apyEnddt);
+      }
     }
   };
 });

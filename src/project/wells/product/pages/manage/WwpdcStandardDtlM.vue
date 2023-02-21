@@ -27,7 +27,6 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { useDataService, codeUtil } from 'kw-lib';
-import { isEmpty } from 'lodash-es';
 import pdConst from '~sms-common/product/constants/pdConst';
 import WwpdcStandardDtlMContents from './WwpdcStandardDtlMContents.vue';
 
@@ -37,7 +36,6 @@ const props = defineProps({
 });
 
 const route = useRoute();
-const router = useRouter();
 const dataService = useDataService();
 
 // -------------------------------------------------------------------------------------------------
@@ -86,20 +84,13 @@ async function fetchProduct() {
 async function initProps() {
   const { pdCd } = props;
   currentPdCd.value = pdCd;
-  if (isEmpty(currentPdCd.value)) {
-    await router.close();
-  } else {
-    await fetchProduct();
-  }
+  await fetchProduct();
 }
 
 await initProps();
 
-watch(() => route.params.pdCd, async (pdCd) => {
-  if (pdCd && currentPdCd.value !== pdCd) {
-    currentPdCd.value = pdCd;
-    await fetchProduct();
-  }
+watch(() => route.params.pdCd, async () => {
+  await initProps();
 }, { immediate: true });
 
 </script>
