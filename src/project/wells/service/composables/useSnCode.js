@@ -169,6 +169,33 @@ export default () => {
 
   /**
    * <pre>
+   * 창고조직마감여부 체크
+   * </pre>
+   *
+   * @see common.js > gfn_isStockClose
+   * @see LC_STOCKINOUT_300_INS_S08
+   * @example
+   *     import useSnCode from '~sms-wells/service/composables/useSnCode';
+   *      const { getWarehouseCloseCheck } = useSnCode();
+   *      const chkOstrDt = searchParams.value.ostrDt;
+   *      const chkOjWareNo = searchParams.value.strOjWareNo;
+   *      const checkWarehouse = await getWarehouseCloseCheck(chkOstrDt, chkOjWareNo);
+   *
+   *
+
+   */
+  async function getWarehouseCloseCheck(apyYm, wareNo) {
+    const result = await dataService.get('/sms/wells/common/sms-com-codes/warehouse-close-check', { params: { apyYm, wareNo } });
+    console.log(result);
+    debugger;
+    if (result.data === '0') {
+      return false;
+    }
+    return true;
+  }
+
+  /**
+   * <pre>
    * 서비스센터, 전체 엔지니어
    * </pre>
    *
@@ -246,5 +273,6 @@ export default () => {
     getServiceCenterOrgs,
     getAllEngineers,
     getWorkingEngineers,
+    getWarehouseCloseCheck,
   };
 };
