@@ -25,6 +25,7 @@
       >
         <kw-option-group
           v-model="searchParams.mpyMthdTpCd"
+          :label="t('MSG_TXT_AUTO_FNT')"
           type="radio"
           rules="required"
           :options="[
@@ -59,7 +60,7 @@
 
     <kw-grid
       ref="grdMainRef"
-      name="grdMain4"
+      name="grdMain3"
       :visible-rows="10"
       @init="initGrid"
     />
@@ -107,11 +108,11 @@ const pageInfo = ref({
 
 async function fetchData() {
   const res = await dataService.get('/sms/wells/withdrawal/bilfnt/result-bundle-error', { params: { ...cachedParams, ...pageInfo.value } });
-  const { list: manuals, pageInfo: pagingResult } = res.data;
+  const { list, pageInfo: pagingResult } = res.data;
 
   pageInfo.value = pagingResult;
   const view = grdMainRef.value.getView();
-  view.getDataSource().setRows(manuals);
+  view.getDataSource().setRows(list);
   view.resetCurrent();
 }
 

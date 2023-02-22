@@ -114,7 +114,7 @@
 
       <kw-grid
         ref="grdMainRef1"
-        name="grdMain1"
+        name="grdMain"
         :visible-rows="10"
         @init="initGrid1"
       />

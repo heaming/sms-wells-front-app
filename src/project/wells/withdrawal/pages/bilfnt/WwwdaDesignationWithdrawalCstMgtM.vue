@@ -184,6 +184,11 @@ async function onClickRemove() {
     return;
   }
 
+  if (checkedRows.every((v) => v.rowState !== 'none')) {
+    gridUtil.deleteCheckedRows(view);
+    return;
+  }
+
   if (await confirm(t('MSG_ALT_WANT_DEL'))) {
     await dataService.delete('/sms/wells/withdrawal/bilfnt/designation-wdrw-csts', { data });
     await onClickSearch();

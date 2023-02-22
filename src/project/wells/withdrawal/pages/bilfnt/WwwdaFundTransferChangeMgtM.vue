@@ -24,6 +24,7 @@
       >
         <kw-date-picker
           v-model="searchParams.bilDt"
+          :label="t('MSG_TXT_BASE_DT')"
           rules="required"
         />
       </kw-search-item>
@@ -33,6 +34,7 @@
       >
         <kw-option-group
           v-model="searchParams.fntDvCd"
+          :label="t('MSG_TXT_AUTO_FNT')"
           rules="required"
           type="radio"
           :options="[{codeId: '01', codeName:$t('MSG_TXT_AC')},{codeId:'02',codeName:$t('MSG_TXT_CARD')}]"
@@ -113,11 +115,11 @@ const pageInfo = ref({
 
 async function fetchData() {
   const res = await dataService.get('/sms/wells/withdrawal/bilfnt/deposit-ncrt-check', { params: { ...cachedParams, ...pageInfo.value } });
-  const { list: manuals, pageInfo: pagingResult } = res.data;
+  const { list, pageInfo: pagingResult } = res.data;
 
   pageInfo.value = pagingResult;
   const view = grdMainRef.value.getView();
-  view.getDataSource().setRows(manuals);
+  view.getDataSource().setRows(list);
   view.resetCurrent();
 }
 
