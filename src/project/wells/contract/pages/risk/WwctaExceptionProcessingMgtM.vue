@@ -169,7 +169,6 @@ import dayjs from 'dayjs';
 import { cloneDeep } from 'lodash-es';
 
 const dataService = useDataService();
-// console.log(dataService);
 
 const { getConfig } = useMeta();
 const { t } = useI18n();
@@ -185,8 +184,10 @@ const now = dayjs();
 const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
   'EX_PROCS_CD',
-  // 'DTA_DL_YN',
 );
+const dtaDlYnList = [{ codeId: '', codeName: '전체' },
+  { codeId: 'Y', codeName: '등록' },
+  { codeId: 'N', codeName: '미등록' }];
 
 let cachedParams;
 const searchParams = ref({
@@ -209,7 +210,7 @@ async function onClickOpenEmployeeSearchPopup() {
   });
 
   if (isChanged) {
-    console.log(employeeDetails);
+    searchParams.value.prtnrNo = employeeDetails.prtnrNo;
   }
 }
 
@@ -219,7 +220,8 @@ async function onClickOpenCustomerSearchPopup() {
   });
 
   if (isChanged) {
-    console.log(customerDetails);
+    // to confirm
+    searchParams.value.cstmrNo = customerDetails.cstmrNo;
   }
 }
 
@@ -247,20 +249,19 @@ async function onClickRemove() {
   if (!await gridUtil.confirmIfIsModified(view)) { return; }
 
   const deletedRows = await gridUtil.confirmDeleteCheckedRows(view);
-  console.log(deletedRows);
-  // const storeUids = deletedRows.map((row) => row.storeUid);
+  const exProcsIds = deletedRows.map((row) => row.exProcsId);
 
-  // if (storeUids.length > 0) {
-  //   await dataService.delete('/sms/wells/contract/exception-handling', { params: { storeUids } });
-  //   await fetchData();
-  // }
+  if (exProcsIds.length > 0) {
+    await dataService.delete('/sms/wells/contract/exception-handling', { params: { keys: exProcsIds } });
+    await fetchData();
+  }
 }
 
 async function onClickAdd() {
   const view = grdMainRef.value.getView();
   gridUtil.insertRowAndFocus(view, 0, {
-    col1: codes.EX_PROCS_CD,
-    col5: codes.DTA_DL_YN,
+    exProcsCd: '',
+    dtaDlYn: '',
   });
 }
 
@@ -293,37 +294,39 @@ async function onClickExcelDownload() {
 // -------------------------------------------------------------------------------------------------
 const initGrid = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'col1' },
-    { fieldName: 'col2' },
-    { fieldName: 'col3' },
-    { fieldName: 'col4' },
-    { fieldName: 'col5' },
-    { fieldName: 'col6' },
-    { fieldName: 'col7' },
-    { fieldName: 'col8' },
-    { fieldName: 'col9' },
-    { fieldName: 'col10' },
+    { fieldName: 'exProcsId' },
+    { fieldName: 'exProcsCd' },
+    { fieldName: 'cstNo' },
+    { fieldName: 'prtnrNo' },
+    { fieldName: 'cntrNo' },
+    { fieldName: 'dtaDlYn' },
+    { fieldName: 'exProcsDtlCn' },
+    { fieldName: 'vlStrtDtm' },
+    { fieldName: 'vlEndDtm' },
+    { fieldName: 'fstRgstUsrId' },
+    { fieldName: 'fnlMdfcUsrId' },
   ];
 
   const columns = [
-    { fieldName: 'col1', header: t('MSG_TXT_SLS_CAT'), width: '289', options: codes.EX_PROCS_CD, editor: { type: 'list' } },
-    { fieldName: 'col2',
+    { fieldName: 'exProcsId', visible: false },
+    { fieldName: 'exProcsCd', header: t('MSG_TXT_SLS_CAT'), width: '289', options: codes.EX_PROCS_CD, editor: { type: 'list' } },
+    { fieldName: 'cstNo',
       header: t('MSG_TXT_CST_NO'),
       width: '180',
       styleName: 'text-center rg-button-icon--search',
       button: 'action' },
-    { fieldName: 'col3',
+    { fieldName: 'prtnrNo',
       header: t('MSG_TXT_PTNR_NO'),
       width: '180',
       styleName: 'text-center rg-button-icon--search',
       button: 'action' },
-    { fieldName: 'col4', header: t('MSG_TXT_CNTR_NO'), width: '180', styleName: 'text-center' },
-    { fieldName: 'col5', header: t('MSG_TXT_RESTRICTION_CLASSIFICATION'), width: '142', styleName: 'text-left', options: codes.DTA_DL_YN, editor: { type: 'list' } },
-    { fieldName: 'col6', header: t('MSG_TXT_MEMO'), width: '404', styleName: 'text-center' },
-    { fieldName: 'col7', header: t('MSG_TXT_STRT_DT'), width: '196', styleName: 'text-center', datetimeFormat: 'date', editor: { type: 'btdate' } },
-    { fieldName: 'col8', header: t('MSG_TXT_END_DT'), width: '196', styleName: 'text-center', datetimeFormat: 'date', editor: { type: 'btdate' } },
-    { fieldName: 'col9', header: t('MSG_TXT_FST_RGST_USR'), width: '180', styleName: 'text-center', editable: false },
-    { fieldName: 'col10', header: t('MSG_TXT_MDFC_USR'), width: '180', styleName: 'text-center', editable: false },
+    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_NO'), width: '180', styleName: 'text-center' },
+    { fieldName: 'dtaDlYn', header: t('MSG_TXT_RESTRICTION_CLASSIFICATION'), width: '142', styleName: 'text-left', options: dtaDlYnList, editor: { type: 'list' } },
+    { fieldName: 'exProcsDtlCn', header: t('MSG_TXT_MEMO'), width: '404', styleName: 'text-center' },
+    { fieldName: 'vlStrtDtm', header: t('MSG_TXT_STRT_DT'), width: '196', styleName: 'text-center', datetimeFormat: 'date', editor: { type: 'btdate' } },
+    { fieldName: 'vlEndDtm', header: t('MSG_TXT_END_DT'), width: '196', styleName: 'text-center', datetimeFormat: 'date', editor: { type: 'btdate' } },
+    { fieldName: 'fstRgstUsrId', header: t('MSG_TXT_FST_RGST_USR'), width: '180', styleName: 'text-center', editable: false },
+    { fieldName: 'fnlMdfcUsrId', header: t('MSG_TXT_MDFC_USR'), width: '180', styleName: 'text-center', editable: false },
   ];
 
   data.setFields(fields);
@@ -332,29 +335,26 @@ const initGrid = defineGrid((data, view) => {
   view.checkBar.visible = true;
   view.rowIndicator.visible = true;
   view.editOptions.editable = true;
-  view.onCellButtonClicked = async (g, { column }) => {
-    if (column === 'col2') {
-      onClickOpenEmployeeSearchPopup();
+  view.onCellButtonClicked = async (g, { column, itemIndex }) => {
+    if (column === 'cstNo') {
+      const { result: isChanged, payload: employeeDetails } = await modal({
+        component: 'ZwogcPartnerListP',
+      });
+
+      if (isChanged) {
+        data.setValue(itemIndex, 'cstNo', employeeDetails.prtnrNo);
+      }
     }
-    if (column === 'col3') {
-      onClickOpenCustomerSearchPopup();
+    if (column === 'prtnrNo') {
+      const { result: isChanged, payload: customerDetails } = await modal({
+        component: 'ZwcsaCustomerListP',
+      });
+
+      if (isChanged) {
+        data.setValue(itemIndex, 'prtnrNo', customerDetails.cstmrNo);
+      }
     }
   };
-
-  data.setRows([
-    { col1: '02-렌탈 기변 상태코드 연체건 접수허용', col2: '123456789', col3: '123456789', col4: '123456789', col5: '제한', col6: '123456789', col7: '20220503', col8: '20220503', col9: '김직원', col10: '김직원' },
-    { col1: '02-렌탈 기변 상태코드 연체건 접수허용', col2: '123456789', col3: '123456789', col4: '123456789', col5: '제한', col6: '123456789', col7: '20220503', col8: '20220503', col9: '김직원', col10: '김직원' },
-    { col1: '02-렌탈 기변 상태코드 연체건 접수허용', col2: '123456789', col3: '123456789', col4: '123456789', col5: '제한', col6: '123456789', col7: '20220503', col8: '20220503', col9: '김직원', col10: '김직원' },
-    { col1: '02-렌탈 기변 상태코드 연체건 접수허용', col2: '123456789', col3: '123456789', col4: '123456789', col5: '제한', col6: '123456789', col7: '20220503', col8: '20220503', col9: '김직원', col10: '김직원' },
-    { col1: '02-렌탈 기변 상태코드 연체건 접수허용', col2: '123456789', col3: '123456789', col4: '123456789', col5: '제한', col6: '123456789', col7: '20220503', col8: '20220503', col9: '김직원', col10: '김직원' },
-    { col1: '02-렌탈 기변 상태코드 연체건 접수허용', col2: '123456789', col3: '123456789', col4: '123456789', col5: '제한', col6: '123456789', col7: '20220503', col8: '20220503', col9: '김직원', col10: '김직원' },
-    { col1: '02-렌탈 기변 상태코드 연체건 접수허용', col2: '123456789', col3: '123456789', col4: '123456789', col5: '제한', col6: '123456789', col7: '20220503', col8: '20220503', col9: '김직원', col10: '김직원' },
-    { col1: '02-렌탈 기변 상태코드 연체건 접수허용', col2: '123456789', col3: '123456789', col4: '123456789', col5: '제한', col6: '123456789', col7: '20220503', col8: '20220503', col9: '김직원', col10: '김직원' },
-    { col1: '02-렌탈 기변 상태코드 연체건 접수허용', col2: '123456789', col3: '123456789', col4: '123456789', col5: '제한', col6: '123456789', col7: '20220503', col8: '20220503', col9: '김직원', col10: '김직원' },
-    { col1: '02-렌탈 기변 상태코드 연체건 접수허용', col2: '123456789', col3: '123456789', col4: '123456789', col5: '제한', col6: '123456789', col7: '20220503', col8: '20220503', col9: '김직원', col10: '김직원' },
-    { col1: '02-렌탈 기변 상태코드 연체건 접수허용', col2: '123456789', col3: '123456789', col4: '123456789', col5: '제한', col6: '123456789', col7: '20220503', col8: '20220503', col9: '김직원', col10: '김직원' },
-
-  ]);
 });
 </script>
 
