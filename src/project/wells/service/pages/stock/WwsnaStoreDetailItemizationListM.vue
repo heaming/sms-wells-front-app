@@ -37,12 +37,12 @@
           v-model:ware-dv-cd="searchParams.strWareDvCd"
           v-model:ware-no-m="searchParams.strWareNoM"
           v-model:ware-no-d="searchParams.strWareNoD"
-          first-option="all"
+          sub-first-option="all"
           :colspan="2"
-          label1="출고기간"
-          label2="입고창고"
-          label3="창고"
-          label4="창고"
+          :label1="$t('MSG_TXT_OSTR_PTRM')"
+          :label2="$t('MSG_TXT_STR_WARE')"
+          :label3="$t('MSG_TXT_WARE')"
+          :label4="$t('MSG_TXT_WARE')"
         />
       </kw-search-row>
       <kw-search-row>
@@ -62,11 +62,12 @@
           v-model:ware-dv-cd="searchParams.ostrWareDvCd"
           v-model:ware-no-m="searchParams.ostrWareNoM"
           v-model:ware-no-d="searchParams.ostrWareNoD"
+          sub-first-option="all"
           :colspan="2"
-          label1="출고기간"
-          label2="출고창고"
-          label3="창고"
-          label4="창고"
+          :label1="$t('MSG_TXT_OSTR_PTRM')"
+          :label2="$t('MSG_TXT_OSTR_WARE')"
+          :label3="$t('MSG_TXT_WARE')"
+          :label4="$t('MSG_TXT_WARE')"
         />
       </kw-search-row>
       <!-- 등급 -->
@@ -86,16 +87,17 @@
             v-model="searchParams.itmKndCd"
             :options="codes.ITM_KND_CD"
             first-option="all"
-            class="w150"
+            class="w140"
           />
           <kw-select
-            :model-value="[]"
-            :options="['A', 'B', 'C', 'D']"
-            class="w200"
+            v-model="searchParams.itmKndCdD"
+            :options="itemKndCdD"
+            first-option="all"
+            class="w220"
           />
         </kw-search-item>
         <!-- 사용여부 -->
-        <kw-search-item :label="$t('MSG_TXT_DTST_USE_YN')">
+        <kw-search-item :label="$t('MSG_TXT_USE_SEL')">
           <kw-select
             v-model="searchParams.useYn"
             :options="codes.USE_YN"
@@ -171,6 +173,7 @@ const searchParams = ref({
   pgGdCd: '',
   itmKndCd: '',
   useYn: '',
+  itmKndCdD: '',
 });
 
 const codes = await codeUtil.getMultiCodes(
@@ -191,10 +194,29 @@ console.log(strWareDvCd);
 
 const totalCount = ref(0);
 
+const itemKndCdD = ref();
+
 searchParams.value.stStrDt = dayjs().set('date', 1).format('YYYYMMDD');
 searchParams.value.edStrDt = dayjs().format('YYYYMMDD');
 
+const onChangeItmKndCd = async () => {
+  // const paramItmKndCd = searchParams.value.itmKndCd;
+  // const itmKndCd = cloneDeep(searchParams.value.itmKndCd);
+  // const res = await dataService.get(`/sms/wells/service/individual-ware-ostrs/${itmKndCd}`);
+  const res = await dataService.get('/sms/wells/service/individual-ware-ostrs/filter-items', { params: searchParams.value });
+  itemKndCdD.value = res.data;
+  searchParams.value.itmKndCdD = itemKndCdD.value[0].codeId;
+};
+
+watch(() => searchParams.value.itmKndCd, (val) => {
+  if (searchParams.value.itmKndCd !== val) {
+    searchParams.value.itmKndCd = val;
+  }
+  onChangeItmKndCd();
+});
+
 let cachedParams;
+
 async function fetchData() {
   const res = await dataService.get('/sms/wells/service/store-detail-itemizations', { params: cachedParams });
   console.log(res);

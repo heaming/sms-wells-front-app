@@ -277,25 +277,6 @@ function initGrid(data, view) {
     { fieldName: 'bldNm', header: t('MSG_TXT_BLD_NM'), width: '100', styleName: 'text-center' },
   ];
 
-  const columnLayout = [
-    'wareDvCd',
-    'wareCd',
-    'wareNo',
-    'wareNm',
-    'wareMngtPrtnrNo',
-    'wareMngtPrtnrNm',
-    'hgrWare',
-    'hgrWareNo',
-    'hgrWareNm',
-    'wareUseYn',
-    'didyDvCd',
-    'wareAdrId',
-    'ogCd',
-    'bldNm',
-  ];
-
-  view.setColumnLayout(columnLayout);
-
   data.setFields(fields);
   view.setColumns(columns);
 

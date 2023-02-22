@@ -60,9 +60,10 @@
           v-model:ware-no-d="searchParams.ostrWareNoD"
           v-model:ware-no-m="searchParams.ostrWareNoM"
           first-option="all"
+          sub-first-option="all"
           :colspan="2"
           label1="출고기간"
-          label2="입고창고"
+          :label2="$t('MSG_TXT_STR_WARE')"
           label3="창고"
           label4="창고"
         />
@@ -281,16 +282,20 @@ const initGrdMain = defineGrid((data, view) => {
   view.rowIndicator.visible = false;
 
   view.onCellItemClicked = async (g, { column, dataRow }) => {
+    debugger;
     console.log(gridUtil.getRowValue(g, dataRow));
     const { ostrTpCd } = gridUtil.getRowValue(g, dataRow);
 
     if (column === 'txtNote') {
       if (ostrTpCd === '217') {
         alert('현재 단위 테스트 대상이 아닙니다.');
+        return;
       } if (['221', '222', '223'].includes(ostrTpCd)) {
         alert('현재 단위 테스트 대상이 아닙니다.');
+        return;
       } if (ostrTpCd === '217') {
         alert('현재 단위 테스트 대상이 아닙니다.');
+        return;
       } if (['212', '261', '262'].includes(ostrTpCd)) {
         alert('현재 단위 테스트 대상이 아닙니다.');
       }
