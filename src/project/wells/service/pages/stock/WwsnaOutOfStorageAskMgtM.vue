@@ -3,7 +3,7 @@
  * 프로그램 개요
  ****************************************************************************************************
  1. 모듈 : SNA (재고관리)
- 2. 프로그램 ID : W-SV-U-0117M01 - 출고요청 관리
+ 2. 프로그램 ID : WwsnaOutOfStorageAskMgtM(W-SV-U-0117M01) - 출고요청 관리
  3. 작성자 : songTaeSung
  4. 작성일 : 2022.12.23
  ****************************************************************************************************
@@ -29,7 +29,7 @@
         <kw-search-item :label="$t('MSG_TXT_OSTR_AK_TP')">
           <kw-select
             v-model="searchParams.ostrAkTpCd"
-            :options="codes.OSTR_AK_TP_CD"
+            :options="filterCodes.filterOstrAkTpCd"
             first-option="all"
           />
         </kw-search-item>
@@ -152,6 +152,21 @@ const codes = await codeUtil.getMultiCodes(
   'ADM_ZN_CLSF_CD',
 );
 
+// 품목구분 필터링
+const filterCodes = ref({
+  filterOstrAkTpCd: [],
+});
+
+codes.OSTR_AK_TP_CD.forEach((e) => {
+  if (e.codeId === '310' || e.codeId === '320'
+    || e.codeId === '330') {
+    filterCodes.value.filterOstrAkTpCd.push({
+      codeId: e.codeId.trim(),
+      codeName: e.codeName.trim(),
+    });
+  }
+});
+
 async function fetchData() {
   const res = await dataService.get('/sms/wells/service/out-of-storage-asks', { params: cachedParams });
   const newOutOfStorageAsks = res.data.map((v) => {
@@ -254,18 +269,6 @@ function initGrdMain(data, view) {
       displayCallback: () => t('MSG_TXT_OSTR_AK_CH'),
     },
   ];
-
-  const columnLayout = [
-    'strHopDt',
-    'ostrAkTpNm',
-    'ostrAkNo',
-    'wareNm',
-    'rectOstrDt',
-    'itmNm',
-  ];
-
-  view.setColumnLayout(columnLayout);
-
   data.setFields(fields);
   view.setColumns(columns);
 

@@ -54,6 +54,7 @@
           v-model:ware-dv-cd="searchParams.ostrWareDvCd"
           v-model:ware-no-m="searchParams.ostrWareNoM"
           v-model:ware-no-d="searchParams.ostrWareNoD"
+          sub-first-option="all"
           :colspan="2"
           :label1="$t('MSG_TXT_STR_DT')"
           :label2="$t('MSG_TXT_OSTR_WARE')"
