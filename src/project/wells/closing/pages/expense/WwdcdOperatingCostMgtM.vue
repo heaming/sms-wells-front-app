@@ -120,7 +120,7 @@
               :ref="(vm) => tabRefs.securities = vm"
               v-model:selected-link-id="selectedLinkId"
               v-model:init-data="searchParams.useYearMonth"
-              @reload-pages="fetchTabs('sel')"
+              @reload-pages="fetchTabs('basic')"
             />
           </kw-tab-panel>
         </kw-tab-panels>
