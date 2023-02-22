@@ -126,12 +126,10 @@ async function initProps() {
   const { pdCd, initData } = props;
   currentPdCd.value = pdCd;
   currentInitData.value = initData;
-  if (currentPdCd.value) {
-    await fetchData();
-  }
 }
 
 await initProps();
+await fetchData();
 
 watch(() => props.pdCd, () => { initProps(); });
 watch(() => props.initData, () => { initProps(); }, { deep: true });

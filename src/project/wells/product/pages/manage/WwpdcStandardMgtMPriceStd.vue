@@ -21,10 +21,10 @@
       ref="priceStdRef"
       v-model:pd-cd="currentPdCd"
       v-model:init-data="priceFieldData"
+      v-model:codes="currentCodes"
       :pd-prc-tp-cd="pdConst.PD_PRC_TP_CD_BASIC"
       :readonly-fields="readonlyFields"
       :use-rule="false"
-      :codes="currentCodes"
     />
     <kw-separator />
     <kw-action-bottom class="mb30">
@@ -163,15 +163,11 @@ async function initGridRows() {
   }
   const products = currentInitData.value?.[pdConst.RELATION_PRODUCTS];
   if (await products) {
-    const services = products.filter((item) => item[pdConst.PD_REL_TP_CD] === pdConst.PD_REL_TP_CD_P_TO_S);
-    currentCodes.value.SV_PD_CDS = services.map(({ pdNm, pdCd }) => ({
-      codeId: pdCd, codeName: pdNm,
-    }));
     const view = grdMainRef.value.getView();
     const svPdCds = view.columnByName('svPdCd');
-    svPdCds.options = currentCodes.value.SV_PD_CDS;
-    svPdCds.labels = currentCodes.value.SV_PD_CDS?.map((item) => (item.codeName));
-    svPdCds.values = currentCodes.value.SV_PD_CDS?.map((item) => (item.codeId));
+    svPdCds.options = currentCodes.value.svPdCd;
+    svPdCds.labels = currentCodes.value.svPdCd?.map((item) => (item.codeName));
+    svPdCds.values = currentCodes.value.svPdCd?.map((item) => (item.codeId));
     svPdCds.lookupDisplay = true;
     // console.log('svPdCds.labels : ', svPdCds.labels);
   }
@@ -243,6 +239,13 @@ async function initGrid(data, view) {
     currentCodes.value,
     readonlyFields.value,
   );
+  columns.map((item) => {
+    if (item.fieldName === 'svPdCd') {
+      item.editor = 'list';
+      item.options = currentCodes.value.svPdCd;
+    }
+    return item;
+  });
   // console.log('WwpdcStandardMgtMPriceStd - initGr id - columns : ', columns);
   // Grid 내부키 - '신규 Row 추가' 대응
   fields.push({ fieldName: pdConst.PRC_STD_ROW_ID });

@@ -14,8 +14,8 @@
 --->
 <template>
   <div class="result-area">
-    <!-- 법인별 현황 -->
-    <h3>{{ $t('MSG_TXT_PD_ST_BY_CORP') }}</h3>
+    <!-- 수수료 등록 -->
+    <h3>{{ $t('MSG_TXT_PD_REG_FEE') }}</h3>
     <kw-action-top>
       <template #left>
         <!-- (단위:원) -->
@@ -199,12 +199,18 @@ async function initGrid(data, view) {
     ['cndtFxamFxrtDvCd', 'cndtDscPrumVal', 'fxamFxrtDvCd', 'ctrVal'],
     defaultFields.value,
   );
+  columns.map((item) => {
+    if (item.fieldName === 'svPdCd') {
+      item.options = props.codes.svPdCd;
+    }
+    return item;
+  });
   data.setFields(fields);
   view.setColumns(columns.sort((item) => (item.fieldName === 'sellChnlCd' ? -1 : 0)));
   view.checkBar.visible = true;
   view.rowIndicator.visible = false;
   view.editOptions.editable = true;
-  view.setFixedOptions({ colCount: 11 });
+  view.setFixedOptions({ colCount: 6 });
   await initGridRows();
 }
 

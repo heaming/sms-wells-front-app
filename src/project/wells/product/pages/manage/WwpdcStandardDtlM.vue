@@ -56,7 +56,7 @@ const initData = ref({});
 const codes = await codeUtil.getMultiCodes(
   'PD_TP_CD',
   'COD_PRDT_STT',
-  'SELL_CHNL_DV_CD',
+  'SELL_CHNL_DTL_CD',
   'SELL_TP_CD',
   'COD_YN',
   'COD_PAGE_SIZE_OPTIONS',

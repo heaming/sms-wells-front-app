@@ -171,7 +171,7 @@ async function resetInitData() {
     ?.join(',');
   // console.log(' channels : ', channels);
   if (channels) {
-    usedChannelCds.value = props.codes?.SELL_CHNL_DV_CD?.filter((item) => channels.indexOf(item.codeId) > -1);
+    usedChannelCds.value = props.codes?.SELL_CHNL_DTL_CD?.filter((item) => channels.indexOf(item.codeId) > -1);
   }
   const checkedVals = currentInitData.value?.[prumd]?.reduce((rtn, item) => {
     if (item.pdDscPrumPrpVal01) {
@@ -320,7 +320,7 @@ async function initGrid(data, view) {
   // console.log('basicColNms : ', basicColNms);
   const readonlyFields = ['sellChnlCd', ...basicColNms];
   // console.log('currentMetaInfos.value : ', currentMetaInfos.value);
-  console.log(props.codes);
+  // console.log(props.codes);
   const { fields, columns } = await getPdMetaToGridInfos(
     currentMetaInfos.value,
     [pdConst.PD_PRC_TP_CD_BASIC,
@@ -330,6 +330,12 @@ async function initGrid(data, view) {
     [],
     defaultFields.value,
   );
+  columns.map((item) => {
+    if (item.fieldName === 'svPdCd') {
+      item.options = props.codes.svPdCd;
+    }
+    return item;
+  });
   /* columns.map((item) => {
     if (item.fieldName === 'cndtDscPrumVal') {
       item.styleName = 'rg-number-step';
@@ -350,7 +356,7 @@ async function initGrid(data, view) {
   view.checkBar.visible = true;
   view.rowIndicator.visible = false;
   view.editOptions.editable = true;
-  view.setFixedOptions({ colCount: 10 });
+  view.setFixedOptions({ colCount: 6 });
 
   // 조정 값 초기화
   view.onCellEdited = async (grid, itemIndex, row, fieldIndex) => {

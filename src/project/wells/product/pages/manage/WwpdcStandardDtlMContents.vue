@@ -90,6 +90,7 @@
         <zwpdc-prod-change-hist
           v-model:pd-cd="currentPdCd"
           :pd-tp-cd="pdConst.PD_TP_CD_STANDARD"
+          :is-price="true"
         />
       </kw-tab-panel>
     </kw-tab-panels>
