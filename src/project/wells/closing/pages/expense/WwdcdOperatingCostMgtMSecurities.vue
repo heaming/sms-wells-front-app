@@ -40,10 +40,10 @@
     />
   </kw-action-top>
   <kw-grid
-    ref="grdMainRef"
+    ref="grdThirdRef"
     name="grdTabThird"
     :visible-rows="10"
-    @init="initGrdMain"
+    @init="initGrdThird"
   />
   <kw-separator />
   <h3>{{ t('MSG_TXT_WHTX_ADJ_IZ') }}</h3>
@@ -71,10 +71,10 @@
     />
   </kw-action-top>
   <kw-grid
-    ref="grdSubRef"
+    ref="grdFourthRef"
     name="grdTabFourth"
     :visible-rows="10"
-    @init="initGrdSub"
+    @init="initGrdSubFourth"
   />
 </template>
 <script setup>
@@ -120,8 +120,8 @@ const subPageInfo = ref({
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 
-const grdMainRef = ref(getComponentType('KwGrid'));
-const grdSubRef = ref(getComponentType('KwGrid'));
+const grdThirdRef = ref(getComponentType('KwGrid'));
+const grdFourthRef = ref(getComponentType('KwGrid'));
 
 async function onClickOpenReport() {
   const { initData } = props;
@@ -139,7 +139,7 @@ async function onClickOpenReport() {
 
 let cachedParams;
 async function adjustObject() {
-  const view = grdMainRef.value.getView();
+  const view = grdThirdRef.value.getView();
   const mainServices = ([
     { col1: '2022-08-09 오전 08:03', col2: '호평센터', col3: '1111-1111-1111-1111', col4: '주식회사에스씨', col5: '11111111', col6: '123,123', col7: '정산', col8: '선택', col9: '-', col10: '-', col11: '-', col12: '-', col13: '원천세 정산' },
   ]);
@@ -154,7 +154,7 @@ async function adjustObject() {
   const res = await dataService.get('/sms/wells/expense/operating-cost', { params: { ...cachedParams } });
   if (res.data) return;
   const { list: services } = res.data;
-  const view = grdMainRef.value.getView();
+  const view = grdThirdRef.value.getView();
   view.getDataSource().setRows(services);
   view.resetCurrent();
   */
@@ -167,7 +167,7 @@ async function withholdingTaxAdjustList() {
   const res = await dataService.get('/sms/wells/expense/operating-cost', { params: { ...cachedParams } });
   const { list: services } = res.data;
 
-  const view = grdSubRef.value.getView();
+  const view = grdFourthRef.value.getView();
   view.getDataSource().setRows(services);
   view.resetCurrent();
 }
@@ -183,14 +183,14 @@ async function setData() {
 
 async function onClickExcelDownload(flag) {
   if (flag === 'adjustObject') {
-    const view = grdMainRef.value.getView();
+    const view = grdThirdRef.value.getView();
 
     await gridUtil.exportView(view, {
       fileName: t('MSG_TXT_ADJ_OJ'),
       timePostfix: true,
     });
   } else if (flag === 'withholdingTaxAdjust') {
-    const view = grdSubRef.value.getView();
+    const view = grdFourthRef.value.getView();
     await gridUtil.exportView(view, {
       fileName: t('MSG_TXT_WHTX_ADJ_IZ'),
       timePostfix: true,
@@ -199,7 +199,7 @@ async function onClickExcelDownload(flag) {
 }
 
 async function onClickSave() {
-  const view = grdMainRef.value.getView();
+  const view = grdThirdRef.value.getView();
   const checkedRows = gridUtil.getCheckedRowValues(view);
 
   if (checkedRows.length === 0) {
@@ -220,7 +220,7 @@ async function onClickSave() {
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
-const initGrdMain = defineGrid((data, view) => {
+const initGrdThird = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'col1' },
     { fieldName: 'col2' },
@@ -294,7 +294,7 @@ const initGrdMain = defineGrid((data, view) => {
   ]);
 });
 
-function initGrdSub(data, view) {
+function initGrdSubFourth(data, view) {
   const fields = [
     { fieldName: 'col1' },
     { fieldName: 'col2' },
