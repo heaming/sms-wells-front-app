@@ -254,6 +254,7 @@ const initGrdThird = defineGrid((data, view) => {
     { fieldName: 'col13',
       header: t('MSG_TXT_WHTX_ADJ'),
       width: '100',
+      editable: false,
       styleName: 'text-center',
       renderer: {
         type: 'button',

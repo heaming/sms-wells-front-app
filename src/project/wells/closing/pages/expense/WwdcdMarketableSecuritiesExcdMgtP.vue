@@ -177,7 +177,7 @@ const props = defineProps({
   },
 });
 
-const searchParams = reactive({
+const searchParams = ref({
   objectPerson: '',
 });
 
@@ -343,7 +343,7 @@ async function fetchPages() {
 }
 
 async function onSearch() {
-  cachedParams = { ...searchParams };
+  cachedParams = cloneDeep(searchParams.value);
   await fetchPages();
 }
 

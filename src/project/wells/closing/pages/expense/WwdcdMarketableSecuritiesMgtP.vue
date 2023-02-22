@@ -162,7 +162,7 @@ const { t } = useI18n();
 const dataService = useDataService();
 const { confirm, notify } = useGlobal();
 const { ok } = useModal();
-const searchParams = reactive({
+const searchParams = ref({
 
 });
 const props = defineProps({
@@ -231,7 +231,7 @@ async function fetchPages() {
 }
 
 async function onSearch() {
-  cachedParams = { ...searchParams };
+  cachedParams = cloneDeep(searchParams.value);
   await fetchPages();
 }
 

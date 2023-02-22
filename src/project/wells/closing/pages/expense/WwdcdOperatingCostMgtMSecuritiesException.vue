@@ -260,6 +260,8 @@ const initGrdMain = defineGrid((data, view) => {
         styleName: 'essential',
       },
       width: '179',
+      editable: false,
+      styleName: 'text-center',
       renderer: {
         type: 'button',
       },
@@ -303,10 +305,6 @@ const initGrdMain = defineGrid((data, view) => {
       direction: 'horizontal', // merge type
       items: ['col12', 'col13'],
     },
-  ]);
-
-  data.setRows([
-    { col1: '2022-08-09 오전 08:03', col2: '호평센터', col3: '1111-1111-1111-1111', col4: '주식회사에스씨', col5: '11111111', col6: '123,123', col7: '정산', col8: '선택', col9: '-', col10: '-', col11: '-', col12: '원천세 정산', col13: '환불' },
   ]);
 });
 
