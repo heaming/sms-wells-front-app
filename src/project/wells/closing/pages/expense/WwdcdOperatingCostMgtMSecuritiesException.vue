@@ -335,9 +335,6 @@ const initGrdSub = defineGrid((data, view) => {
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
 });
-onMounted(async () => {
-  fetchData();
-});
 
 defineExpose({
   setData,
