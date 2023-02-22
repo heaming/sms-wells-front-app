@@ -31,13 +31,13 @@
           />
         </kw-search-item>
         <kw-search-item
-          :label="$t('MSG_TXT_DIV')"
+          :label="$t('MSG_TXT_DIV2')"
           required
         >
           <kw-select
             v-model="searchParams.bzHdqDvCd"
             :options="codes.DIV_DV_CD"
-            :label="$t('MSG_TXT_DIV')"
+            :label="$t('MSG_TXT_DIV2')"
             model-value="1000"
             rules="required"
             readonly
@@ -61,7 +61,7 @@
           <kw-select
             v-model="searchParams.nwYn"
             :model-value="[]"
-            :options="['A', 'B', 'C', 'D']"
+            :options="['Y', 'N']"
           />
         </kw-search-item>
       </kw-search-row>
@@ -101,7 +101,7 @@
           <kw-paging-info
             :total-count="totalCount"
           />
-          <span class="ml8">({{ $t('MSG_TXT_UNIT_WON') }})</span>
+          <span class="ml8">{{ $t('MSG_TXT_UNIT_WON') }}</span>
         </template>
         <kw-btn
           icon="download_on"
