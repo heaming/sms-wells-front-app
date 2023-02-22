@@ -183,7 +183,7 @@ const isCreate = ref(false);
 const codes = await codeUtil.getMultiCodes(
   'PD_TP_CD',
   'COD_PRDT_STT',
-  'SELL_CHNL_DV_CD',
+  'SELL_CHNL_DTL_CD',
   'SELL_TP_CD',
   'COD_YN',
   'COD_PAGE_SIZE_OPTIONS',
@@ -222,7 +222,7 @@ async function getSaveData() {
         subList[bas] = pdMergeBy(subList[bas], saveData[bas]);
       }
       if (saveData[dtl]) {
-        subList[dtl] = pdMergeBy(subList[dtl], saveData[dtl], 'pdDtlDvCd');
+        subList[dtl] = pdMergeBy(subList[dtl], saveData[dtl], pdConst.PD_DTL_GRP_ID);
       }
       if (saveData[ecom]) {
         subList[ecom] = pdMergeBy(subList[ecom], saveData[ecom], 'pdExtsPrpGrpCd');
@@ -243,6 +243,11 @@ async function getSaveData() {
       }
       if (saveData[pdConst.RELATION_PRODUCTS]) {
         subList[pdConst.RELATION_PRODUCTS] = saveData[pdConst.RELATION_PRODUCTS];
+        const services = saveData[pdConst.RELATION_PRODUCTS]
+          ?.filter((svcItem) => svcItem[pdConst.PD_REL_TP_CD] === pdConst.PD_REL_TP_CD_P_TO_S);
+        codes.svPdCd = services?.map(({ pdNm, pdCd }) => ({
+          codeId: pdCd, codeName: pdNm,
+        }));
       }
       // console.log(`${idx}subList : `, subList);
     }
@@ -299,7 +304,13 @@ async function fetchProduct() {
     prevStepData.value[prcfd] = res.data[prcfd];
     prevStepData.value[rel] = res.data[rel];
     prevStepData.value[prumd] = res.data[prumd];
+    prevStepData.value[pdConst.RELATION_PRODUCTS] = res.data[pdConst.RELATION_PRODUCTS];
     // console.log('res.data : ', res.data);
+    const services = prevStepData.value[pdConst.RELATION_PRODUCTS]
+      ?.filter((svcItem) => svcItem[pdConst.PD_REL_TP_CD] === pdConst.PD_REL_TP_CD_P_TO_S);
+    codes.svPdCd = services?.map(({ pdNm, pdCd }) => ({
+      codeId: pdCd, codeName: pdNm,
+    }));
   }
 }
 

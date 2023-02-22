@@ -228,6 +228,12 @@ async function initGrid(data, view) {
   const prcBeforAdj = { fieldName: 'prcBefAdj', header: t('MSG_TXT_DIS_APP_PRC'), width: '120', styleName: 'text-right', numberFormat: '#,##0.##' };
   prcBeforAdj.editable = false;
   columns.splice(columns.length - 3, 0, prcBeforAdj);
+  columns.map((item) => {
+    if (item.fieldName === 'svPdCd') {
+      item.options = props.codes.svPdCd;
+    }
+    return item;
+  });
   /* columns.map((item) => {
     if (item.fieldName === 'ctrVal') {
       item.styleName = 'rg-number-step';
@@ -246,7 +252,7 @@ async function initGrid(data, view) {
   view.checkBar.visible = true;
   view.rowIndicator.visible = false;
   view.editOptions.editable = true;
-  view.setFixedOptions({ colCount: 10 });
+  view.setFixedOptions({ colCount: 6 });
 
   // 조정 값 초기화
   view.onCellEdited = async (grid, itemIndex, row, fieldIndex) => {

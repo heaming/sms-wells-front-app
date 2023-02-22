@@ -120,7 +120,7 @@ async function resetInitData() {
     }, [])
     ?.join(',');
   if (channels) {
-    usedChannelCds.value = props.codes?.SELL_CHNL_DV_CD.filter((item) => channels.indexOf(item.codeId) > -1);
+    usedChannelCds.value = props.codes?.SELL_CHNL_DTL_CD.filter((item) => channels.indexOf(item.codeId) > -1);
   }
   // await initGridRows();
 }

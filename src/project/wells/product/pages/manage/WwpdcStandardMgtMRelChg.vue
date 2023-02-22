@@ -77,7 +77,7 @@ const grdChangePrdRef = ref(getComponentType('KwGrid'));
 const currentPdCd = ref();
 const currentInitData = ref({});
 
-const productSelectItems = reactive([
+const productSelectItems = ref([
   // 기준상품명
   { codeId: pdConst.PD_SEARCH_NAME, codeName: t('MSG_TXT_GOODS_NM') },
   // 기준상품코드
