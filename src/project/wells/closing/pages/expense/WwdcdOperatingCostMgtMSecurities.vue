@@ -186,13 +186,13 @@ async function onClickExcelDownload(flag) {
     const view = grdMainRef.value.getView();
 
     await gridUtil.exportView(view, {
-      fileName: t('MSG_TXT_MSCR_MSG_TXT_ADJ_OJ'),
+      fileName: t('MSG_TXT_ADJ_OJ'),
       timePostfix: true,
     });
   } else if (flag === 'withholdingTaxAdjust') {
     const view = grdSubRef.value.getView();
     await gridUtil.exportView(view, {
-      fileName: t('MSG_TXT_MSG_TXT_MSCR_MSG_TXT_WHTX_ADJ_IZ'),
+      fileName: t('MSG_TXT_WHTX_ADJ_IZ'),
       timePostfix: true,
     });
   }

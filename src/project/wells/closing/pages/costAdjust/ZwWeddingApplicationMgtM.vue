@@ -160,6 +160,8 @@ const searchParams = ref({
 
 });
 
+// 번호 사번 세션 employeeIDNumber 값이 없음
+
 async function fetchData() {
   // 상시 notify 메세지를 띄어 달라는 요구사항 퍼블을 고쳐야 할지 논의가 필요...
   await notify('·평일 야간 및 주말(공휴일 포함)은 교원라이프 고객센터 1588-0060 로 신청해 주시기 바랍니다.');
