@@ -154,14 +154,11 @@
 // -------------------------------------------------------------------------------------------------
 // Initialize Component
 // -------------------------------------------------------------------------------------------------
-import { getComponentType, gridUtil, useDataService, useGlobal, useModal, codeUtil } from 'kw-lib';
+import { defineGrid, getComponentType, gridUtil, useDataService, useGlobal, useModal, codeUtil } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 
 const { t } = useI18n();
 
-const grdMainRef = ref(getComponentType('KwGrid'));
-const grdSubRef = ref(getComponentType('KwGrid'));
-const grdThirdRef = ref(getComponentType('KwGrid'));
 const dataService = useDataService();
 const { confirm, notify } = useGlobal();
 const { ok } = useModal();
@@ -198,6 +195,9 @@ const thirdPageInfo = ref({
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 
+const grdMainRef = ref(getComponentType('KwGrid'));
+const grdSubRef = ref(getComponentType('KwGrid'));
+const grdThirdRef = ref(getComponentType('KwGrid'));
 let cachedParams;
 let mainParams;
 async function fetchData() {
@@ -278,7 +278,7 @@ async function onClickSave() {
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
-function initGrdMain(data, view) {
+const initGrdMain = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'col1' },
     { fieldName: 'col2' },
@@ -300,8 +300,9 @@ function initGrdMain(data, view) {
 
   view.checkBar.visible = false;
   view.rowIndicator.visible = false;
-}
-function initGrdSub(data, view) {
+});
+
+const initGrdSub = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'col1' },
     { fieldName: 'col2' },
@@ -335,8 +336,9 @@ function initGrdSub(data, view) {
 
   view.checkBar.visible = true;
   view.rowIndicator.visible = true;
-}
-function initGrdThird(data, view) {
+});
+
+const initGrdThird = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'col1' },
     { fieldName: 'col2' },
@@ -364,7 +366,7 @@ function initGrdThird(data, view) {
 
   view.checkBar.visible = true;
   view.rowIndicator.visible = true;
-}
+});
 onMounted(async () => {
   fetchData();
 });

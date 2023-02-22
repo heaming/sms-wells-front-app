@@ -1,7 +1,7 @@
 <!----
 ****************************************************************************************************
 1. 모듈 : DCD
-2. 프로그램 ID : WwdcdOperatingCostMgtMMscrExcd - 유가증권 제외
+2. 프로그램 ID : WwdcdOperatingCostMgtMSecuritiesException - 유가증권 제외
 3. 작성자 : gs.piit172 kim juhyun
 4. 작성일 : 2023.02.02
 ****************************************************************************************************
@@ -35,6 +35,7 @@
       dense
       secondary
       :label="$t('MSG_BTN_EXCEL_DOWN')"
+      :disable="mainPageInfo.totalCount === 0"
       @click="onClickExcelDownload('adjustObject')"
     />
   </kw-action-top>
@@ -60,6 +61,7 @@
       dense
       secondary
       :label="$t('MSG_BTN_EXCEL_DOWN')"
+      :disable="subPageInfo.totalCount === 0"
       @click="onClickExcelDownload('withholdingTaxAdjust')"
     />
   </kw-action-top>
@@ -80,12 +82,10 @@ import { cloneDeep } from 'lodash-es';
 const { modal, notify, confirm } = useGlobal();
 const { t } = useI18n();
 const { ok } = useModal();
-const grdMainRef = ref(getComponentType('KwGrid'));
-const grdSubRef = ref(getComponentType('KwGrid'));
 const dataService = useDataService();
-const store = useStore();
+// const store = useStore();
 
-defineEmits(['fetcData']);
+// defineEmits(['fetcData']);
 
 const codes = await codeUtil.getMultiCodes(
   'COD_NOTICOBJ_SRCH_DIV',
@@ -106,14 +106,16 @@ const subPageInfo = ref({
   needTotalCount: true,
 });
 
-// -------------------------------------------------------------------------------------------------
-// Function & Event
-// -------------------------------------------------------------------------------------------------
-
 const props = defineProps({
   initData: { type: String, default: null },
 });
 
+// -------------------------------------------------------------------------------------------------
+// Function & Event
+// -------------------------------------------------------------------------------------------------
+
+const grdMainRef = ref(getComponentType('KwGrid'));
+const grdSubRef = ref(getComponentType('KwGrid'));
 let cachedParams;
 async function adjustObject() {
   const view = grdMainRef.value.getView();
@@ -148,7 +150,6 @@ async function withholdingTaxAdjustList() {
 }
 
 async function fetchData() {
-  debugger;
   adjustObject();
   withholdingTaxAdjustList();
 }
@@ -177,26 +178,18 @@ async function onClickSave() {
   // await notify(t('MSG_ALT_SAVE_DATA'));
   // ok();
 }
-async function onClickExcelDownload(flage) {
-  if (flage === 'adjustObject') {
-    const params = cloneDeep(props.initData.value);
-    params.userId = store.getters['meta/getUserInfo'].userId;
+async function onClickExcelDownload(flag) {
+  if (flag === 'adjustObject') {
     const view = grdMainRef.value.getView();
-    const res = await dataService.get('/sms/wells/expense/operating-cost/excel-download', { params });
     await gridUtil.exportView(view, {
       fileName: t('MSG_TXT_ADJ_OJ'),
       timePostfix: true,
-      exportData: res.data,
     });
-  } else if (flage === 'withholdingTaxAdjust') {
-    const params = cloneDeep(props.initData.value);
-    params.userId = store.getters['meta/getUserInfo'].userId;
+  } else if (flag === 'withholdingTaxAdjust') {
     const view = grdMainRef.value.getView();
-    const res = await dataService.get('/sms/wells/expense/operating-cost/excel-download', { params });
     await gridUtil.exportView(view, {
       fileName: t('MSG_TXT_WHTX_ADJ_IZ'),
       timePostfix: true,
-      exportData: res.data,
     });
   }
 }

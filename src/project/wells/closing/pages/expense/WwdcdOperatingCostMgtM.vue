@@ -108,7 +108,7 @@
           keep-alive
         >
           <kw-tab-panel name="basic">
-            <wwdcd-operating-cost-mgt-m-mscr-excd
+            <wwdcd-operating-cost-mgt-m-securities-exception
               :ref="(vm) => tabRefs.mscrexcd = vm"
               v-model:selected-link-id="selectedLinkId"
               v-model:init-data="searchParams.useYearMonth"
@@ -137,15 +137,13 @@ import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
 
 // 유가증권 제외
-import WwdcdOperatingCostMgtMMscrExcd from './WwdcdOperatingCostMgtMMscrExcd.vue';
+import WwdcdOperatingCostMgtMSecuritiesException from './WwdcdOperatingCostMgtMSecuritiesException.vue';
 // 유가증권
 import WwdcdOperatingCostMgtMMarketableSecurities from './WwdcdOperatingCostMgtMMarketableSecurities.vue';
 
 // const store = useStore();
 // const { companyCode } = store.getters['meta/getUserInfo'];
 const selectedTab = ref('basic');
-const grdMainRef = ref(getComponentType('KwGrid'));
-const grdSubRef = ref(getComponentType('KwGrid'));
 const dataService = useDataService();
 const { t } = useI18n();
 const tabRefs = reactive({});
@@ -154,6 +152,8 @@ const tabRefs = reactive({});
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 
+const grdMainRef = ref(getComponentType('KwGrid'));
+const grdSubRef = ref(getComponentType('KwGrid'));
 let cachedParams;
 const searchParams = ref({
   useYearMonth: dayjs().format('YYYYMM'),

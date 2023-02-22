@@ -35,6 +35,7 @@
       dense
       secondary
       :label="$t('MSG_BTN_EXCEL_DOWN')"
+      :disable="mainPageInfo.totalCount === 0"
       @click="onClickExcelDownload('adjustObject')"
     />
   </kw-action-top>
@@ -65,6 +66,7 @@
       dense
       secondary
       :label="$t('MSG_BTN_EXCEL_DOWN')"
+      :disable="subPageInfo.totalCount === 0"
       @click="onClickExcelDownload('withholdingTaxAdjust')"
     />
   </kw-action-top>
@@ -91,8 +93,7 @@ const props = defineProps({
 const { t } = useI18n();
 const { modal, confirm, notify } = useGlobal();
 const { ok } = useModal();
-const grdMainRef = ref(getComponentType('KwGrid'));
-const grdSubRef = ref(getComponentType('KwGrid'));
+const store = useStore();
 
 defineEmits(['fetcData']);
 
@@ -118,7 +119,9 @@ const subPageInfo = ref({
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
-const store = useStore();
+
+const grdMainRef = ref(getComponentType('KwGrid'));
+const grdSubRef = ref(getComponentType('KwGrid'));
 
 async function onClickOpenReport() {
   const { initData } = props;
@@ -178,26 +181,19 @@ async function setData() {
   fetchData();
 }
 
-async function onClickExcelDownload(flage) {
-  if (flage === 'adjustObject') {
-    const params = cloneDeep(props.initData.value);
-    params.userId = store.getters['meta/getUserInfo'].userId;
+async function onClickExcelDownload(flag) {
+  if (flag === 'adjustObject') {
     const view = grdMainRef.value.getView();
-    const res = await dataService.get('/sms/wells/expense/operating-cost/excel-download', { params });
+
     await gridUtil.exportView(view, {
       fileName: t('SG_TXT_MSCR_MSG_TXT_ADJ_OJ'),
       timePostfix: true,
-      exportData: res.data,
     });
-  } else if (flage === 'withholdingTaxAdjust') {
-    const params = cloneDeep(props.initData.value);
-    params.userId = store.getters['meta/getUserInfo'].userId;
+  } else if (flag === 'withholdingTaxAdjust') {
     const view = grdSubRef.value.getView();
-    const res = await dataService.get('/sms/wells/expense/operating-cost/excel-download', { params });
     await gridUtil.exportView(view, {
       fileName: t('MSG_TXT_MSG_TXT_MSCR_MSG_TXT_WHTX_ADJ_IZ'),
       timePostfix: true,
-      exportData: res.data,
     });
   }
 }
