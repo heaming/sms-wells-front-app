@@ -14,7 +14,7 @@
 --->
 <template>
   <kw-popup
-    class="kw-popup--sm"
+    size="sm"
   >
     <kw-form :cols="1">
       <kw-form-row>
@@ -86,14 +86,14 @@ async function onClickCancel() {
 
 async function onClickCreate() {
   if (!await confirm(t('MSG_ALT_CREATED'))) { return; }
-  const response = await dataService.post('/sms/wells/fee/og-netorders/aggregates', params.value);
+  const response = await dataService.post('/sms/wells/fee/organiztion-netorders/aggregates', params.value);
   ok(response.data);
 }
 
 async function onClickConfirm() {
   // TODO: 수수료 미생성 시 클릭 : '시상수수료 생성을 진행 후 확정이 가능합니다.' 추가 필요
   if (!await confirm(t('MSG_ALT_DTRM'))) { return; }
-  const response = await dataService.put('/sms/wells/fee/og-netorders', params.value);
+  const response = await dataService.put('/sms/wells/fee/organiztion-netorders', params.value);
   ok(response.data);
 }
 </script>

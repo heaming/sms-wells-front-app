@@ -14,7 +14,7 @@
 --->
 <template>
   <kw-popup
-    class="kw-popup--sm"
+    size="sm"
   >
     <kw-form :cols="1">
       <kw-form-row>
@@ -69,7 +69,7 @@ async function onClickCancel() {
 
 async function onClickSave() {
   if (!await confirm(t('MSG_ALT_AGRG'))) { return; }
-  const response = dataService.post('/sms/wells/fee/og-netorders/bs-aggregates', params.value);
+  const response = dataService.post('/sms/wells/fee/organiztion-netorders/bs-aggregates', params.value);
   ok(response.data);
 }
 </script>
