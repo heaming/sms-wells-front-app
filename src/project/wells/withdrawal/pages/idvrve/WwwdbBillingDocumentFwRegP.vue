@@ -89,11 +89,11 @@
     />
 
     <template #action>
-      <kw-btn
+      <!-- <kw-btn
         negative
         :label="t('MSG_BTN_CANCEL')"
         @click="onClickCancel"
-      />
+      /> -->
       <!-- label="취소" -->
       <kw-btn
         primary
@@ -116,7 +116,7 @@ import ZwcmTelephoneNumber from '~common/components/ZwcmTelephoneNumber.vue';
 
 const dataService = useDataService();
 const { t } = useI18n();
-const { ok, cancel: onClickCancel } = useModal();
+const { ok } = useModal();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -129,6 +129,10 @@ const codes = await codeUtil.getMultiCodes(
 
 const props = defineProps({
   bildcPblNo: {
+    type: String,
+    default: null,
+  },
+  bildcPblSn: {
     type: String,
     default: null,
   },

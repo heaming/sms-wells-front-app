@@ -27,6 +27,7 @@
         <!-- label="발송일" -->
         <kw-date-picker
           v-model="searchParams.giroOcrPblDtm"
+          :label="t('MSG_TXT_FW_DAY')"
           rules="required"
         />
       </kw-search-item>

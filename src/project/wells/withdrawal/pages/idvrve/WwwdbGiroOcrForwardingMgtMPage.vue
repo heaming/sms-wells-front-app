@@ -38,6 +38,7 @@
       >
         <kw-date-picker
           v-model="searchParams.wkDt"
+          :label="t('MSG_TXT_WK_DAY')"
           rules="required"
         />
       </kw-search-item>
@@ -60,12 +61,12 @@
           @change="fetchData"
         />
       </template>
-      <!-- <kw-btn
+      <kw-btn
         :label="t('MSG_BTN_TEMP_GIRO_PLRCV_MNGT_POP')"
         negative
         dense
         @click="onClickPopup()"
-      /> -->
+      />
       <!-- label="임시 지로 수신처 관리 팝업" -->
       <kw-btn
         dense
@@ -116,10 +117,15 @@
       <kw-btn
         dense
         negative
-        :label="t('MSG_BTN_OJ_INQR')"
+        :label="t('대상추가')"
         @click="onClickObjectSearch"
       />
-      <!-- label="대상조회" -->
+      <!-- label="대상추가" -->
+      <kw-date-picker
+        v-model="searchParams.giroOcrPblDtm"
+        :placeholder="t('MSG_TXT_FW_DT')"
+        dense
+      />
       <kw-btn
         dense
         primary
@@ -128,18 +134,17 @@
       />
       <!-- label="출력관리 생성" -->
     </kw-action-top>
-    <ul class="filter-box mb12">
+    <!-- <ul class="filter-box mb12">
       <li class="filter-box__item">
         <p class="filter-box__item-label">
           {{ t('MSG_TXT_FW_DAY') }}
-          <!-- 발송일 -->
         </p>
         <kw-date-picker
           v-model="searchParams.giroOcrPblDtm"
           dense
         />
       </li>
-    </ul>
+    </ul> -->
     <kw-grid
       ref="grdLinkRef"
       name="grdLink"
@@ -159,7 +164,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, defineGrid, getComponentType, gridUtil, notify, useDataService, useGlobal } from 'kw-lib';
+import { codeUtil, defineGrid, getComponentType, gridUtil, modal, notify, useDataService, useGlobal } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
 
@@ -179,11 +184,11 @@ const codes = await codeUtil.getMultiCodes(
   'GIRO_RGLR_DV_CD',
 );
 // 임시 팝업 호출
-// async function onClickPopup() {
-//   await modal({
-//     component: 'WwwdbGiroPlrcvMgtP',
-//   });
-// }
+async function onClickPopup() {
+  await modal({
+    component: 'WwwdbGiroPlrcvMgtP',
+  });
+}
 
 const pageInfo = ref({
   totalCount: 0,
@@ -268,8 +273,9 @@ async function onClickExcelDownload() {
 }
 // 대상조회
 async function onClickObjectSearch() {
-  const res = await dataService.get('/sms/wells/withdrawal/idvrve/giro-ocr-forwardings/objects');
-  console.log(res.data);
+  notify(t('MSG_ALT_DEVELOPING'));
+  // const res = await dataService.get('/sms/wells/withdrawal/idvrve/giro-ocr-forwardings/objects');
+  // console.log(res.data);
 }
 
 // 저장버튼
@@ -291,6 +297,19 @@ async function onClickSave() {
 
 // 출력관리 생성 버튼
 async function onClickPrintCreate() {
+  if (!searchParams.value.giroOcrPblDtm) {
+    await notify(t('MSG_ALT_NCELL_REQUIRED_ITEM', [t('MSG_TXT_FW_DT')]));
+    return;
+  }
+  const view = grdLinkRef.value.getView();
+  // 그리드 리스트
+  const gridData = gridUtil.getAllRowValues(view);
+  if (gridData.length === 0) {
+    await notify(t('MSG_ALT_CRT_CANT_EMPTY'));
+    // await notify('생성 할 자료가 없습니다.');
+    return;
+  }
+
   if (!await confirm(t('MSG_ALT_PRNT_CRT'))) { return; }
 
   const paramData = {
@@ -369,24 +388,27 @@ const initGrid = defineGrid((data, view) => {
     {
       fieldName: 'cntrNo',
       header: {
-        text: t('MSG_TXT_CNTR_SN'),
-        // text: '계약일련번호',
+        text: t('MSG_TXT_CNTR_DTL_NO'),
+        // text: '계약상세번호',
         styleName: 'essential',
       },
       // editor: {
       //   type: 'line',
       // },
-      editable: false,
+      // editable: false,
       // styleCallback(grid, dataCell) {
       //   return dataCell.item.rowState === 'created' ? { editable: true,
       //     editor: {
       //       type: 'line',
       //     } } : { styleName: 'text-left' };
       // },
-      width: '117',
+      width: '125',
       styleName: 'text-left rg-button-icon--search',
       button: 'action',
-      rules: 'required|min:1',
+      rules: 'required|max:15',
+      buttonVisibleCallback(grid, index) {
+        return grid.getDataSource().getRowState(index.dataRow) === 'created';
+      },
     },
     { fieldName: 'cstFnm',
       header: t('MSG_TXT_CST_NM'),
@@ -571,22 +593,35 @@ const initGrid = defineGrid((data, view) => {
       direction: 'horizontal',
       items: ['strtGiroTn', 'endGiroTn'],
     },
-    'thm0Amt',
     {
-      header: t('MSG_TXT_RENTAL'),
-      // header: ' 렌탈',
+      header: t('MSG_TXT_RENTAL_AMT'),
+      // header: ' 렌탈금액',
       direction: 'horizontal',
-      items: ['istmMcn', 'istmAmt', 'istmDscAmt', 'pyAmt'],
+      items: ['istmMcn', 'thm0Amt', 'istmAmt', 'istmDscAmt', 'pyAmt'],
     },
     'stplNmnAmt',
     'exnNmnAmt', 'ltpayYn', 'giroRglrDvCd',
   ]);
 
   view.onCellEditable = (grid, index) => {
-    if (!gridUtil.isCreatedRow(grid, index.dataRow) && ['wkDt', 'giroRglrDvCd'].includes(index.column)) {
+    if (!gridUtil.isCreatedRow(grid, index.dataRow) && ['cntrNo', 'wkDt', 'giroRglrDvCd'].includes(index.column)) {
       return false;
     }
   };
+
+  // view.onCellButtonClicked = async (g, { column, itemIndex }) => {
+  //   if (column === 'cntrNo') {
+  //     // console.log(g);
+  //     // console.log(column);
+  //     console.log(itemIndex);
+
+  //     const { result, payload } = await modal({
+  //       component: 'WwctaContractNumberListP',
+  //     });
+  //     console.log(result);
+  //     console.log(payload);
+  //   }
+  // };
 
   // view.onScrollToBottom = async (g) => {
   //   if (pageInfo.value.pageIndex * pageInfo.value.pageSize <= g.getItemCount()) {
