@@ -27,7 +27,7 @@
           <kw-input
             v-model="searchParams.cntrCstKnm"
             icon="search"
-            :on-click-icon="onClickSearchCntrCstKnm"
+            :on-click-icon="onClickSearchCntrCst"
           />
         </kw-search-item>
         <kw-search-item
@@ -35,8 +35,6 @@
         >
           <kw-input
             v-model="searchParams.istCstKnm"
-            icon="search"
-            :on-click-icon="onClickSearchistCstKnm"
           />
         </kw-search-item>
       </kw-search-row>
@@ -56,7 +54,7 @@
           <kw-input
             v-model="searchParams.cntrCstNo"
             icon="search"
-            :on-click-icon="onClickSearchCntrCstNo"
+            :on-click-icon="onClickSearchCntrCst"
           />
         </kw-search-item>
       </kw-search-row>
@@ -168,19 +166,12 @@ async function onClickSearch() {
   await fetchData();
 }
 
-async function onClickSearchCntrCstKnm() {
+async function onClickSearchCntrCst() {
   const res = await modal({ component: 'ZwcsaCustomerListP' });
-  if (res.result && res.payload) searchParams.cntrCstKnm(res.payload.cstNm);
-}
-
-async function onClickSearchistCstKnm() {
-  const res = await modal({ component: 'ZwcsaCustomerListP' });
-  if (res.result && res.payload) searchParams.istCstKnm(res.payload.cstNm);
-}
-
-async function onClickSearchCntrCstNo() {
-  const res = await modal({ component: 'ZwcsaCustomerListP' });
-  if (res.result && res.payload) searchParams.cntrCstNo(res.payload.cstNo);
+  if (res.result && res.payload) {
+    searchParams.cntrCstKnm(res.payload.cstKnm);
+    searchParams.cntrCstNo(res.payload.cstNo);
+  }
 }
 
 // -------------------------------------------------------------------------------------------------
@@ -202,7 +193,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'cntrSn', header: t('MSG_TXT_CNTR_SN'), width: 100, styleName: 'text-center' },
     { fieldName: 'cntrCstKnm', header: t('MSG_TXT_CNTOR_NM'), width: 100, styleName: 'text-center' },
     { fieldName: 'istCstKnm', header: t('MSG_TXT_IST_NM'), width: 100, styleName: 'text-center' },
-    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: 400 },
+    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: 300 },
   ];
 
   data.setFields(fields);
