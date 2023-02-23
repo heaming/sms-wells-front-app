@@ -164,7 +164,7 @@ export default () => {
    *     const servierCenterOrg = await getServiceCenterOrgs();
    */
   async function getServiceCenterOrgs() {
-    return (await dataService.get('/sms/wells/common/sms-com-codes/service-center-orgs')).data;
+    return (await dataService.get('/sms/wells/common/sms-wells-codes/service-center-orgs')).data;
   }
 
   /**
@@ -212,8 +212,8 @@ export default () => {
    */
   async function getAllEngineers(gbn, gRootCenter) {
     const result = {};
-    const engs = (await dataService.get('/sms/wells/common/sms-com-codes/all-engineers', { params: { hgrDeptCd: gRootCenter } })).data;
-    const orgs = (await dataService.get('/sms/wells/common/sms-com-codes/service-center-orgs')).data;
+    const engs = (await dataService.get('/sms/wells/common/sms-wells-codes/all-engineers', { params: { hgrDeptCd: gRootCenter } })).data;
+    const orgs = (await dataService.get('/sms/wells/common/sms-wells-codes/service-center-orgs')).data;
     switch (gbn) {
       case 'G_ONLY_ENG':
         result.G_ONLY_ENG = engs;
@@ -247,8 +247,8 @@ export default () => {
    */
   async function getWorkingEngineers(gbn) {
     const result = {};
-    const engs = (await dataService.get('/sms/wells/common/sms-com-codes/working-engineers')).data;
-    const orgs = (await dataService.get('/sms/wells/common/sms-com-codes/service-center-orgs')).data;
+    const engs = (await dataService.get('/sms/wells/common/sms-wells-codes/working-engineers')).data;
+    const orgs = (await dataService.get('/sms/wells/common/sms-wells-codes/service-center-orgs')).data;
     switch (gbn) {
       case 'G_ONLY_ENG':
         result.G_ONLY_ENG = engs;
