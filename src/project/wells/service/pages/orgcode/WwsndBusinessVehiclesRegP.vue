@@ -209,7 +209,7 @@ import useSnCode from '~sms-wells/service/composables/useSnCode';
 import dayjs from 'dayjs';
 
 const dataService = useDataService();
-const { getServiceCenterOrgs, getAllEngineers } = useSnCode();
+const { getAllEngineers } = useSnCode();
 const { t } = useI18n();
 const { cancel: onClickCancel, ok } = useModal();
 
@@ -226,8 +226,9 @@ const props = defineProps({
 // -------------------------------------------------------------------------------------------------
 
 const frmMainRef = ref(getComponentType('KwObserver'));
-const svcCenters = (await getServiceCenterOrgs());
-const engs = (await getAllEngineers('G_ONLY_ENG')).G_ONLY_ENG;
+const engsAndSvcCenters = (await getAllEngineers());
+const svcCenters = engsAndSvcCenters.G_ONLY_SVC;
+const engs = engsAndSvcCenters.G_ONLY_ENG;
 const codes = await codeUtil.getMultiCodes(
   'INSR_AGE_CD',
   'VHC_MNGT_TP_CD',
@@ -259,20 +260,6 @@ const dataParams = ref({
   carnm: '',
 });
 
-const validateDsbDate = async (val, options) => {
-  const errors = [];
-
-  errors.push(
-    ...(await validate(val, 'required', options)).errors,
-  );
-
-  if (Number(dataParams.value.vhcPymdt) >= Number(dataParams.value.dsbEnddt)) {
-    errors.push(t('MSG_TXT_END_GRTR_START_DTM'));
-  }
-
-  return errors[0] || true;
-};
-
 async function fetchAllVehicles() {
   return await dataService.get('/sms/wells/service/business-vehicles/all-vehicles');
 }
@@ -299,18 +286,6 @@ async function onChangeEngineer() {
 async function onChangeCenter() {
   const engineerByOgCd = engs.filter((v) => v.ogCd === propsParam.value.ogCd);
   engineers.value = engineerByOgCd.map((v) => ({ codeId: v.codeId, codeName: v.codeNm }));
-}
-
-async function onChangeVehicle() {
-  const vehicleBycarno = vhcs.filter((v) => v.carno === dataParams.value.carno);
-
-  vehicleBycarno.forEach((e) => {
-    dataParams.value.vhcMngtNo = e.carseq;
-    dataParams.value.carnm = e.carnm;
-    dataParams.value.vhcMngtTpCd = e.owstat;
-    dataParams.value.rflngCdnoEncr = e.cardno1;
-    dataParams.value.hipsCdnoEncr = e.cardno2;
-  });
 }
 
 async function fetchBusinessVehicle(vhcMngtNo, vhcMngtSn) {
@@ -347,6 +322,18 @@ if (isModify.value) { // 수정
   await onChangeEngineer();
 }
 
+async function onChangeVehicle() {
+  const vehicleBycarno = vhcs.filter((v) => v.carno === dataParams.value.carno);
+
+  vehicleBycarno.forEach((e) => {
+    dataParams.value.vhcMngtNo = e.carseq;
+    dataParams.value.carnm = e.carnm;
+    dataParams.value.vhcMngtTpCd = e.owstat;
+    dataParams.value.rflngCdnoEncr = e.cardno1;
+    dataParams.value.hipsCdnoEncr = e.cardno2;
+  });
+}
+
 const isBeforeVhcPymdt = computed(() => Number(dataParams.value.vhcPymdt) < Number(dayjs().format('YYYYMMDD')));
 const isBeforeDsbEnddt = computed(() => Number(dataParams.value.dsbEnddt) < Number(dayjs().format('YYYYMMDD')));
 
@@ -364,4 +351,18 @@ async function onClickSaveBtn() {
   notify(t('MSG_ALT_SAVE_DATA'));
   ok();
 }
+
+const validateDsbDate = async (val, options) => {
+  const errors = [];
+
+  errors.push(
+    ...(await validate(val, 'required', options)).errors,
+  );
+
+  if (Number(dataParams.value.vhcPymdt) >= Number(dataParams.value.dsbEnddt)) {
+    errors.push(t('MSG_TXT_END_GRTR_START_DTM'));
+  }
+
+  return errors[0] || true;
+};
 </script>
