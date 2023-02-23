@@ -216,7 +216,7 @@ async function openWwctaHomeCareMgtP() {
     component: 'WwctaHomeCareMgtP',
     componentProps: { cntrs: JSON.parse(paramWwctaHomeCareMgtP.value.cntrs) },
   });
-  paramWwctaContractNumberListP.value.return = JSON.stringify(res);
+  paramWwctaHomeCareMgtP.value.return = JSON.stringify(res);
 }
 
 const paramWwctaContractDocumentMailForwardingP = ref({
@@ -229,7 +229,7 @@ async function openparamWwctaContractDocumentMailForwardingP() {
     component: 'WwctaContractDocumentMailForwardingP',
     componentProps: paramWwctaContractDocumentMailForwardingP.value,
   });
-  paramWwctaContractNumberListP.value.return = JSON.stringify(res);
+  paramWwctaContractDocumentMailForwardingP.value.return = JSON.stringify(res);
 }
 
 </script>
