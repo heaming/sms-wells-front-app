@@ -148,9 +148,9 @@ const codes = await codeUtil.getMultiCodes(
   'COPN_DV_CD',
 );
 
-const pdMclsfIdOptions = await dataService.get('sms/wells/contract/product/middle-classes');
-const gnrlDivOptions = await dataService.get('sms/wells/contract/partners/general-divisions');
-const rgnlDivOptions = await dataService.get('sms/wells/contract/partners/regional-divisions');
+// const pdMclsfIdOptions = await dataService.get('sms/wells/contract/product/middle-classes');
+// const gnrlDivOptions = await dataService.get('sms/wells/contract/partners/general-divisions');
+// const rgnlDivOptions = await dataService.get('sms/wells/contract/partners/regional-divisions');
 
 const isProd = computed(() => searchParams.value.srchGbn === 1);
 
