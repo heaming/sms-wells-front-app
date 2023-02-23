@@ -123,6 +123,56 @@
               </kw-form>
             </kw-expansion-item>
           </div>
+
+          <kw-separator class="my20" />
+          <div class="kw-guide-example">
+            <kw-expansion-item>
+              <template #header>
+                <kw-item-section>
+                  <kw-item-label>
+                    <span class="text-bold kw-font-pt18">WwctaContractDocumentMailForwardingP - wells 계약서 메일 발송</span>
+                  </kw-item-label>
+                </kw-item-section>
+              </template>
+              <kw-form cols="2">
+                <kw-form-row>
+                  <kw-form-item
+                    :label="$t('MSG_TXT_CNTOR_NM')"
+                  >
+                    <kw-input
+                      v-model="paramWwctaContractDocumentMailForwardingP.cntrNm"
+                    />
+                  </kw-form-item>
+                  <kw-form-item
+                    :label="$t('MSG_TXT_CNTR_NO')"
+                  >
+                    <kw-input
+                      v-model="paramWwctaContractDocumentMailForwardingP.cntrNo"
+                    />
+                  </kw-form-item>
+                </kw-form-row>
+                <kw-separator class="my20" />
+                <kw-btn
+                  class="mr8"
+                  min-width="100%"
+                  primary
+                  label="OPEN POPUP"
+                  @click="openparamWwctaContractDocumentMailForwardingP"
+                />
+                <kw-form-row>
+                  <kw-form-item
+                    label="popup return"
+                    :colspan="2"
+                  >
+                    <kw-input
+                      v-model="paramWwctaContractDocumentMailForwardingP.return"
+                      type="textarea"
+                    />
+                  </kw-form-item>
+                </kw-form-row>
+              </kw-form>
+            </kw-expansion-item>
+          </div>
         </div>
       </q-card>
     </div>
@@ -165,6 +215,19 @@ async function openWwctaHomeCareMgtP() {
   const res = await modal({
     component: 'WwctaHomeCareMgtP',
     componentProps: { cntrs: JSON.parse(paramWwctaHomeCareMgtP.value.cntrs) },
+  });
+  paramWwctaContractNumberListP.value.return = JSON.stringify(res);
+}
+
+const paramWwctaContractDocumentMailForwardingP = ref({
+  cntrNm: '테스트',
+  cntrNo: 'E0000000',
+  return: '',
+});
+async function openparamWwctaContractDocumentMailForwardingP() {
+  const res = await modal({
+    component: 'WwctaContractDocumentMailForwardingP',
+    componentProps: paramWwctaContractDocumentMailForwardingP.value,
   });
   paramWwctaContractNumberListP.value.return = JSON.stringify(res);
 }
