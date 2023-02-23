@@ -82,6 +82,47 @@
             </kw-form>
           </kw-expansion-item>
           <kw-separator class="my20" />
+          <div class="kw-guide-example">
+            <kw-expansion-item>
+              <template #header>
+                <kw-item-section>
+                  <kw-item-label>
+                    <span class="text-bold kw-font-pt18">WwctaHomeCareMgtP - wells 홈케어 관리</span>
+                  </kw-item-label>
+                </kw-item-section>
+              </template>
+              <kw-form cols="1">
+                <kw-form-row>
+                  <kw-form-item
+                    :label="$t('MSG_TXT_CNTOR_NM')"
+                  >
+                    <kw-input
+                      v-model="paramWwctaHomeCareMgtP.cntrs"
+                    />
+                  </kw-form-item>
+                </kw-form-row>
+                <kw-separator class="my20" />
+                <kw-btn
+                  class="mr8"
+                  min-width="100%"
+                  primary
+                  label="OPEN POPUP"
+                  @click="openWwctaHomeCareMgtP"
+                />
+                <kw-form-row>
+                  <kw-form-item
+                    label="popup return"
+                    :colspan="2"
+                  >
+                    <kw-input
+                      v-model="paramWwctaHomeCareMgtP.return"
+                      type="textarea"
+                    />
+                  </kw-form-item>
+                </kw-form-row>
+              </kw-form>
+            </kw-expansion-item>
+          </div>
         </div>
       </q-card>
     </div>
@@ -108,11 +149,22 @@ const paramWwctaContractNumberListP = ref({
   cntrCstNo: '',
   return: '',
 });
-
 async function openWwctaContractNumberListP() {
   const res = await modal({
     component: 'WwctaContractNumberListP',
     componentProps: paramWwctaContractNumberListP.value,
+  });
+  paramWwctaContractNumberListP.value.return = JSON.stringify(res);
+}
+
+const paramWwctaHomeCareMgtP = ref({
+  cntrs: '[{"cntrNo":"W20225866263","cntrSn":1},{"cntrNo":"W20225964208","cntrSn":1}]',
+  return: '',
+});
+async function openWwctaHomeCareMgtP() {
+  const res = await modal({
+    component: 'WwctaHomeCareMgtP',
+    componentProps: { cntrs: JSON.parse(paramWwctaHomeCareMgtP.value.cntrs) },
   });
   paramWwctaContractNumberListP.value.return = JSON.stringify(res);
 }
