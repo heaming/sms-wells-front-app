@@ -70,11 +70,6 @@
           />
         </template>
         <kw-btn
-          dense
-          icon="print"
-          label="인쇄"
-        />
-        <kw-btn
           icon="download_on"
           dense
           secondary
@@ -243,7 +238,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'ogNm', header: t('MSG_TXT_SV_CNR'), width: '150', styleName: 'text-center' },
     { fieldName: 'prtnrNo', header: t('MSG_TXT_EPNO'), width: '100', styleName: 'text-center' },
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '150', styleName: 'text-center' },
-    { fieldName: 'rol', header: t('MSG_TXT_ROLE_1'), width: '100', styleName: 'text-center' },
+    { fieldName: 'rol', header: t('MSG_TXT_ROLE_1'), width: '100', styleName: 'text-center' }, // TODO: 관련 데이터 작업 완료 시 수정 필요
     { fieldName: 'cntrDt', header: t('MSG_TXT_ENTCO_D'), width: '100', styleName: 'text-center' },
     { fieldName: 'carno', header: t('MSG_TXT_CARNO'), width: '120', styleName: 'text-center' },
     { fieldName: 'carnm', header: t('MSG_TXT_VHC_KND'), width: '100', styleName: 'text-center' },
