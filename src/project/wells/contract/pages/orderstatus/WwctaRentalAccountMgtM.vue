@@ -16,7 +16,10 @@
   <kw-page>
     <kw-search @search="onClickSearch">
       <kw-search-row>
-        <kw-search-item :label="$t('MSG_TXT_INQR_DV')">
+        <kw-search-item
+          :label="$t('MSG_TXT_INQR_DV')"
+          required
+        >
           <kw-option-group
             v-model="searchParams.srchGbn"
             type="radio"
@@ -31,24 +34,32 @@
           <kw-date-range-picker
             v-model:from="searchParams.istStartDt"
             v-model:to="searchParams.istEndDt"
+            :label="$t('MSG_TXT_YR_INSTALLATION')"
+            rules="required"
             type="month"
           />
         </kw-search-item>
         <kw-search-item
           v-if="isProd"
           :label="$t('MSG_TXT_PDGRP')"
+          required
         >
           <kw-select
             v-model="searchParams.pdMclsfId"
+            :label="$t('MSG_TXT_PDGRP')"
+            rules="required"
             :options="pdMclsfIdOptions"
           />
         </kw-search-item>
         <kw-search-item
           v-else
           :label="$t('MSG_TXT_MANAGEMENT_DEPARTMENT')"
+          required
         >
           <kw-select
             v-model="searchParams.dgr1LevlOgNm"
+            :label="$t('MSG_TXT_MANAGEMENT_DEPARTMENT')"
+            rules="required"
             :options="gnrlDivOptions"
           />
         </kw-search-item>
@@ -57,21 +68,34 @@
         <kw-search-item
           v-if="isProd"
           :label="$t('MSG_TXT_PRDT_CODE')"
+          required
         >
-          <kw-input v-model="searchParams.basePdCd" />
+          <kw-input
+            v-model="searchParams.basePdCd"
+            :label="$t('MSG_TXT_PRDT_CODE')"
+            rules="required"
+          />
         </kw-search-item>
         <kw-search-item
           v-else
           :label="$t('MSG_TXT_RGNL_GRP')"
+          required
         >
           <kw-select
             v-model="searchParams.dgr2LevlOgNm"
+            :label="$t('MSG_TXT_RGNL_GRP')"
             :options="rgnlDivOptions"
+            rules="required"
           />
         </kw-search-item>
-        <kw-search-item :label="$t('MSG_TXT_CST_DV')">
+        <kw-search-item
+          :label="$t('MSG_TXT_CST_DV')"
+          required
+        >
           <kw-select
             v-model="searchParams.copnDvCd"
+            :label="$t('MSG_TXT_CST_DV')"
+            rules="required"
             :options="codes.COPN_DV_CD"
           />
         </kw-search-item>

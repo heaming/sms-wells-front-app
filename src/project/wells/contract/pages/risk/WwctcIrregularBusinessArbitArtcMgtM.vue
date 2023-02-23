@@ -33,6 +33,7 @@
             v-model:from="searchParams.dangOcStrtdt"
             v-model:to="searchParams.dangOcEnddt"
             :type="isRegistration"
+            rules="required"
           />
         </kw-search-item>
         <kw-search-item :label="$t('MSG_TXT_MANAGEMENT_DEPARTMENT')">
@@ -44,7 +45,9 @@
       </kw-search-row>
       <kw-search-row>
         <kw-search-item :label="$t('MSG_TXT_RGNL_GRP')">
-          <kw-input v-model="searchParams.rgrp" />
+          <kw-input
+            v-model="searchParams.rgrp"
+          />
         </kw-search-item>
         <kw-search-item :label="t('MSG_TXT_BRANCH')">
           <kw-input v-model="searchParams.brch" />
