@@ -197,6 +197,7 @@ async function initGridRows() {
         currentInitData.value?.[prcd],
         currentMetaInfos.value,
         prcd,
+        [pdConst.PRC_STD_ROW_ID],
       ),
     );
     // 선택변수/최종가
@@ -213,6 +214,7 @@ async function initGridRows() {
                                             || item.pdPrcDtlId === row.pdPrcDtlId);
       // console.log('const stdRow : ', row);
       row = pdMergeBy(row, stdRow);
+      // console.log('WwpdcStandardMgtMPriceVal - initGridRows - row : ', row);
       row.sellTpCd = sellTpCd;
       // console.log('WwpdcStandardMgtMPriceVal - initGridRows - row : ', row);
       return row;
@@ -235,6 +237,7 @@ async function onClickAdd() {
         currentInitData.value?.[prcd],
         currentMetaInfos.value,
         prcd,
+        [pdConst.PRC_STD_ROW_ID],
       ),
     // 기존에 추가된 ROW가 없는 행만 추가
     );
@@ -258,6 +261,7 @@ async function onClickAdd() {
           data.insertRow(insPosition, row);
         }
       });
+      gridUtil.insertRowAndFocus(view, insPosition);
     }
   }
 }

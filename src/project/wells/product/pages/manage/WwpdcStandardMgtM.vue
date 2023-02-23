@@ -55,6 +55,7 @@
             v-model:init-data="prevStepData"
             :pd-tp-cd="pdConst.PD_TP_CD_STANDARD"
             :pd-grp-dv-cd="pdConst.PD_PRP_GRP_DV_CD_BASIC"
+            @update="onUpdateBasicValue"
           />
         </kw-step-panel>
         <kw-step-panel :name="pdConst.STANDARD_STEP_REL_PROD.name">
@@ -185,12 +186,15 @@ const codes = await codeUtil.getMultiCodes(
   'COD_PRDT_STT',
   'SELL_CHNL_DTL_CD',
   'SELL_TP_CD',
+  'SELL_TP_DTL_CD',
   'COD_YN',
   'COD_PAGE_SIZE_OPTIONS',
   'PD_REL_TP_CD',
   'PD_TEMP_SAVE_CD',
   'SV_PRD_UNIT_CD',
   'SV_VST_PRD_CD',
+  'RENTAL_SELL_DTL_TP_CD', // 렌탈 판매상세유형 : 판매유형 - 2
+  'MSH_SELL_DTL_TP_CD', // 멤버십 판매상세유형 : 판매유형 - 3
 );
 
 async function onClickReset() {
@@ -249,10 +253,9 @@ async function getSaveData() {
           codeId: pdCd, codeName: pdNm,
         }));
       }
-      // console.log(`${idx}subList : `, subList);
     }
   }));
-  // console.log('subList : ', subList);
+  console.log('subList : ', subList);
   return subList;
 }
 
@@ -367,6 +370,31 @@ async function onClickSave(tempSaveYn) {
   }
 }
 
+// 판매상세유형 코드 설정
+async function setSellDetailTypeCodes(sellTpCd, isReset = false) {
+  const mgtNameFields = await cmpStepRefs.value[0]?.value.getNameFields();
+  if (mgtNameFields.sellTpDtlCd) {
+    if (isReset) {
+      mgtNameFields.sellTpDtlCd.initValue = '';
+    }
+    if (sellTpCd === '2') {
+      mgtNameFields.sellTpDtlCd.readonly = false;
+      mgtNameFields.sellTpDtlCd.codes = codes.RENTAL_SELL_DTL_TP_CD;
+    } else if (sellTpCd === '3') {
+      mgtNameFields.sellTpDtlCd.readonly = false;
+      mgtNameFields.sellTpDtlCd.codes = codes.MSH_SELL_DTL_TP_CD;
+    } else {
+      mgtNameFields.sellTpDtlCd.readonly = true;
+    }
+  }
+}
+
+async function onUpdateBasicValue(field) {
+  if (field.colNm === 'sellTpCd') {
+    setSellDetailTypeCodes(field.initValue, true);
+  }
+}
+
 async function initProps() {
   const { pdCd, tempSaveYn } = props;
   currentPdCd.value = pdCd;
@@ -402,6 +430,11 @@ watch(() => route.params.tempSaveYn, async (tempSaveYn) => {
     isTempSaveBtn.value = tempSaveYn !== 'N';
   }
 }, { immediate: true });
+
+onMounted(async () => {
+  const mgtNameFields = await cmpStepRefs.value[0]?.value.getNameFields();
+  await setSellDetailTypeCodes(mgtNameFields.sellTpCd?.initValue);
+});
 
 </script>
 <style scoped></style>

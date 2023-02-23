@@ -329,8 +329,8 @@ async function initProps() {
 
 await initProps();
 
-watch(() => props.pdCd, () => { initProps(); });
-watch(() => props.initData, () => { initProps(); }, { deep: true });
+watch(() => props.pdCd, (pdCd) => { currentPdCd.value = pdCd; });
+watch(() => props.initData, (initData) => { currentInitData.value = initData; }, { deep: true });
 
 //-------------------------------------------------------------------------------------------------
 // Initialize Grid

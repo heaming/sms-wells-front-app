@@ -38,7 +38,7 @@
         <!-- 판매기간 -->
         <kw-form-item :label="$t('MSG_TXT_PRDT_SLE_PRD')">
           <p v-if="pdInfo.sellStrtdt || pdInfo.sellEnddt">
-            {{ pdInfo.sellStrtdt }} ~ {{ pdInfo.sellEnddt }}
+            {{ getDateValue(pdInfo.sellStrtdt) }} ~ {{ getDateValue(pdInfo.sellEnddt) }}
           </p>
         </kw-form-item>
         <!-- 상품분류 -->
@@ -146,7 +146,7 @@
 import { useDataService, codeUtil, stringUtil, getComponentType } from 'kw-lib';
 import { isEmpty } from 'lodash-es';
 import pdConst from '~sms-common/product/constants/pdConst';
-import { getCodeNames } from '~sms-common/product/utils/pdUtil';
+import { getDateValue, getCodeNames } from '~sms-common/product/utils/pdUtil';
 
 const props = defineProps({
   pdCd: { type: String, default: null },
