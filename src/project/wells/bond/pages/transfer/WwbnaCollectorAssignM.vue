@@ -35,6 +35,7 @@
         </kw-search-item>
         <kw-search-item
           :label="$t('MSG_TXT_CLCTAM_DV')"
+          required
         >
           <kw-select
             v-model="searchParams.clctamDvCd"
