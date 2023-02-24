@@ -116,6 +116,7 @@ async function initGridRows() {
         currentInitData.value?.[prcd],
         currentMetaInfos.value,
         prcd,
+        [pdConst.PRC_STD_ROW_ID],
       ),
     );
     const rows = cloneDeep(await getPropInfosToGridRows(
@@ -130,6 +131,7 @@ async function initGridRows() {
       const stdRow = stdRows?.find((item) => item[pdConst.PRC_STD_ROW_ID] === row[pdConst.PRC_STD_ROW_ID]
                                             || item.pdPrcDtlId === row.pdPrcDtlId);
       row = pdMergeBy(row, stdRow);
+      // console.log('WwpdcStandardMgtMPriceFee - initGridRows - row : ', row);
       row.sellTpCd = currentInitData.value[pdConst.TBL_PD_BAS]?.sellTpCd;
       return row;
     });

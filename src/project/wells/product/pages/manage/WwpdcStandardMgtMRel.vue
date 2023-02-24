@@ -53,7 +53,6 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 import { pdMergeBy } from '~sms-common/product/utils/pdUtil';
 import pdConst from '~sms-common/product/constants/pdConst';
@@ -72,7 +71,6 @@ const props = defineProps({
   readonly: { type: Boolean, default: false },
 });
 
-const dataService = useDataService();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -130,23 +128,14 @@ async function resetFirstStep() {
   selectedTab.value = selectedTabs.value[0];
 }
 
-async function fetchData() {
-  if (currentPdCd.value && !(pdConst.RELATION_PRODUCTS in currentInitData.value)) {
-    const res = await dataService.get(`/sms/common/product/relations/products/${currentPdCd.value}`, { params: { } });
-    currentInitData.value[pdConst.RELATION_PRODUCTS] = res.data;
-    // console.log('WwpdcStandardMgtMRel - fetchData - res : ', res);
-  }
-}
-
 async function initProps() {
   const { pdCd, initData } = props;
   currentPdCd.value = pdCd;
   currentInitData.value = cloneDeep(initData);
-  await fetchData();
 }
 
 await initProps();
 
-watch(() => props.pdCd, () => { initProps(); });
-watch(() => props.initData, () => { initProps(); }, { deep: true });
+watch(() => props.pdCd, (pdCd) => { currentPdCd.value = pdCd; });
+watch(() => props.initData, (initData) => { currentInitData.value = cloneDeep(initData); }, { deep: true });
 </script>

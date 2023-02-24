@@ -152,7 +152,7 @@ async function initGridRows() {
       [pdConst.PRC_STD_ROW_ID, pdConst.PRC_DETAIL_ID],
     ));
     rows?.map((row) => {
-      row[pdConst.PRC_STD_ROW_ID] = row.pdPrcDtlId;
+      row[pdConst.PRC_STD_ROW_ID] = row[pdConst.PRC_STD_ROW_ID] ?? row.pdPrcDtlId;
       row.sellTpCd = currentSellTpCd;
       return row;
     });
@@ -163,6 +163,15 @@ async function initGridRows() {
   }
   const products = currentInitData.value?.[pdConst.RELATION_PRODUCTS];
   if (await products) {
+    const services = products
+      ?.filter((svcItem) => svcItem[pdConst.PD_REL_TP_CD] === pdConst.PD_REL_TP_CD_P_TO_S);
+    currentCodes.value.svPdCd = services?.map(({ pdNm, pdCd }) => ({
+      codeId: pdCd, codeName: pdNm,
+    }));
+    const nameFields = await priceStdRef.value.getNameFields();
+    if (nameFields.svPdCd) {
+      nameFields.svPdCd.codes = currentCodes.value.svPdCd;
+    }
     const view = grdMainRef.value.getView();
     const svPdCds = view.columnByName('svPdCd');
     svPdCds.options = currentCodes.value.svPdCd;

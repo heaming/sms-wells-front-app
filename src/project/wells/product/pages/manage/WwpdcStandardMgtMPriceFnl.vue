@@ -126,6 +126,7 @@ async function initGridRows() {
         currentInitData.value?.[prcd],
         currentMetaInfos.value,
         prcd,
+        [pdConst.PRC_STD_ROW_ID],
       ),
     );
     // console.log('WwpdcStandardMgtMPriceFnl - initGridRows - ?.[prcfd]', currentInitData.value?.[prcfd]);
@@ -141,6 +142,7 @@ async function initGridRows() {
       const stdRow = stdRows?.find((item) => item[pdConst.PRC_STD_ROW_ID] === row[pdConst.PRC_STD_ROW_ID]
                                             || item.pdPrcDtlId === row.pdPrcDtlId);
       row = pdMergeBy(row, stdRow);
+      // console.log('WwpdcStandardMgtMPriceFnl - initGridRows - row : ', row);
       row.sellTpCd = currentInitData.value[pdConst.TBL_PD_BAS]?.sellTpCd;
       // 조정 전 가격 ( 01: 정액, 02: 정률)
       if (row.cndtFxamFxrtDvCd === '01') {

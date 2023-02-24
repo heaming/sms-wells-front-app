@@ -239,6 +239,7 @@ async function fetchData() {
 
 await initProps();
 
-watch(() => props.pdCd, () => { initProps(); });
-watch(() => props.initData, () => { initProps(); }, { deep: true });
+watch(() => props.pdCd, (pdCd) => { currentPdCd.value = pdCd; });
+watch(() => props.initData, (initData) => { currentInitData.value = cloneDeep(initData); }, { deep: true });
+watch(() => props.codes, (codes) => { currentCodes.value = cloneDeep(codes); }, { deep: true });
 </script>
