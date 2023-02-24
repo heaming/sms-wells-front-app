@@ -85,7 +85,6 @@
       />
       <!-- label="행 추가" -->
     </kw-action-top>
-
     <kw-grid
       ref="grdPageRef"
       :visible-rows="10"
@@ -247,8 +246,6 @@ async function fetchData() {
   data.checkRowStates(false);
   data.setRows(list);
   data.checkRowStates(true);
-
-  view.resetCurrent();
 }
 
 async function initProps() {
