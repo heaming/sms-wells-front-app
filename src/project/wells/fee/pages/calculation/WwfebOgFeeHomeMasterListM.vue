@@ -401,8 +401,8 @@ async function onClickExcelDownload() {
 async function setTitle() {
   const { perfYm } = searchParams.value;
   const { rsbDv } = searchParams.value;
-  const title = `${perfYm.substring(0, 4)}년 ${perfYm.substring(4, 6)}월 ${rsbDv} `;
-  searchParams.value.statTitle = title + t('MSG_TXT_PRGS_STE');
+  const title = `${perfYm.substring(0, 4) + t('MSG_TXT_YEAR')} ${perfYm.substring(4, 6)}${t('MSG_TXT_MON')} ${rsbDv} ${t('MSG_TXT_PRGS_STE')}`;
+  searchParams.value.statTitle = title;
 }
 
 async function fetchData() {
