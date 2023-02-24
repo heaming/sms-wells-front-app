@@ -67,7 +67,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 
-import { codeUtil, defineGrid, getComponentType, gridUtil, notify, useDataService } from 'kw-lib';
+import { codeUtil, defineGrid, getComponentType, gridUtil, modal, notify, useDataService } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 
 const dataService = useDataService();
@@ -279,6 +279,25 @@ const initGrid = defineGrid((data, view) => {
 
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
+
+  view.onCellButtonClicked = async (g, { column, itemIndex }) => {
+    if (column === 'cntr') {
+      console.log(itemIndex);
+
+      const { result, payload } = await modal({
+        component: 'WwctaContractNumberListP',
+      });
+
+      if (result) {
+        console.log(payload.cntrNo);
+        console.log(payload.cntrSn);
+        const cntr = payload.cntrNo + payload.cntrSn;
+        // const cntrSn = payload.cntrSn;
+
+        data.setValue(itemIndex, 'cntr', cntr);
+      }
+    }
+  };
 
   view.editOptions.editable = true;
 });

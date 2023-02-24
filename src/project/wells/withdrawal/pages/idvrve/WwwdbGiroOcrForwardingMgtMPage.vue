@@ -392,16 +392,6 @@ const initGrid = defineGrid((data, view) => {
         // text: '계약상세번호',
         styleName: 'essential',
       },
-      // editor: {
-      //   type: 'line',
-      // },
-      // editable: false,
-      // styleCallback(grid, dataCell) {
-      //   return dataCell.item.rowState === 'created' ? { editable: true,
-      //     editor: {
-      //       type: 'line',
-      //     } } : { styleName: 'text-left' };
-      // },
       width: '125',
       styleName: 'text-left rg-button-icon--search',
       button: 'action',
@@ -609,19 +599,24 @@ const initGrid = defineGrid((data, view) => {
     }
   };
 
-  // view.onCellButtonClicked = async (g, { column, itemIndex }) => {
-  //   if (column === 'cntrNo') {
-  //     // console.log(g);
-  //     // console.log(column);
-  //     console.log(itemIndex);
+  view.onCellButtonClicked = async (g, { column, itemIndex }) => {
+    if (column === 'cntrNo') {
+      console.log(itemIndex);
 
-  //     const { result, payload } = await modal({
-  //       component: 'WwctaContractNumberListP',
-  //     });
-  //     console.log(result);
-  //     console.log(payload);
-  //   }
-  // };
+      const { result, payload } = await modal({
+        component: 'WwctaContractNumberListP',
+      });
+
+      if (result) {
+        console.log(payload.cntrNo);
+        console.log(payload.cntrSn);
+        const cntrNo = payload.cntrNo + payload.cntrSn;
+        // const cntrSn = payload.cntrSn;
+
+        data.setValue(itemIndex, 'cntrNo', cntrNo);
+      }
+    }
+  };
 
   // view.onScrollToBottom = async (g) => {
   //   if (pageInfo.value.pageIndex * pageInfo.value.pageSize <= g.getItemCount()) {

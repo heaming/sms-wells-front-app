@@ -18,9 +18,9 @@
     class="kw-popup--2xl"
     :title="t('MSG_TIT_BILDC_WRTE')"
   >
+    <h3>{{ t('CST_INF_IN') }}</h3>
+    <!-- <h3>고객 정보</h3> -->
     <kw-observer ref="obsRef">
-      <h3>{{ t('CST_INF_IN') }}</h3>
-      <!-- <h3>고객 정보</h3> -->
       <kw-form
         :cols="2"
       >
@@ -49,47 +49,48 @@
             <!-- label="작성일자" -->
             <kw-date-picker
               v-model="regMainData.bildcWrteDt"
-              :disable="true"
               :label="t('MSG_TXT_WRTE_DT')"
               rules="required"
             />
+            <!-- :disable="true" -->
             <!-- :custom-messages="{ is: $t('MSG_ALT_CHK_DUP') }" -->
           </kw-form-item>
         </kw-form-row>
       </kw-form>
-    </kw-observer>
-    <kw-separator />
 
-    <kw-action-top>
-      <template #left>
-        <kw-paging-info />
-      </template>
-      <kw-btn
-        dense
-        secondary
-        :label="t('MSG_BTN_DEL')"
-        @click="onClickRemove"
-      />
-      <!-- label="삭제" -->
-      <kw-separator
-        vertical
-        inset
-        spaced
-      />
+      <kw-separator />
 
-      <kw-btn
-        :label="t('MSG_TXT_ROW_SPMT')"
-        dense
-        secondary
-        @click="onClickAddRow"
-      />
+      <kw-action-top>
+        <template #left>
+          <kw-paging-info />
+        </template>
+        <kw-btn
+          dense
+          secondary
+          :label="t('MSG_BTN_DEL')"
+          @click="onClickRemove"
+        />
+        <!-- label="삭제" -->
+        <kw-separator
+          vertical
+          inset
+          spaced
+        />
+
+        <kw-btn
+          :label="t('MSG_TXT_ROW_SPMT')"
+          dense
+          secondary
+          @click="onClickAddRow"
+        />
       <!-- label="행 추가" -->
-    </kw-action-top>
-    <kw-grid
-      ref="grdPageRef"
-      :visible-rows="10"
-      @init="initGrid"
-    />
+      </kw-action-top>
+      <kw-grid
+        ref="grdPageRef"
+        :visible-rows="10"
+        @init="initGrid"
+      />
+    </kw-observer>
     <template #action>
       <kw-btn
         negative
@@ -187,7 +188,7 @@ let cachedParams;
 async function onClickSave() {
   if (await obsRef.value.alertIfIsNotModified()) { return; }
 
-  if (!await obsRef.value.validate()) { return; }
+  // if (!await obsRef.value.validate()) { return; }
 
   const view = grdPageRef.value.getView();
 
@@ -199,9 +200,9 @@ async function onClickSave() {
     return;
   }
 
-  if (await gridUtil.alertIfIsNotModified(view)) { return; }
+  // if (await gridUtil.alertIfIsNotModified(view)) { return; }
 
-  if (!await gridUtil.validate(view)) { return; }
+  // if (!await gridUtil.validate(view)) { return; }
 
   const changedRows = gridUtil.getChangedRowValues(view);
   const mainData = cloneDeep(regMainData.value);
@@ -251,7 +252,6 @@ async function fetchData() {
 async function initProps() {
   if (props.bildcPblNo) {
     const { bildcPblNo, cstFnm, bildcWrteDt, bildcPblSn } = props;
-    console.log(bildcPblSn);
     regMainData.value.bildcPblNo = bildcPblNo;
     regMainData.value.cstFnm = cstFnm;
     regMainData.value.bildcWrteDt = bildcWrteDt;
@@ -259,6 +259,7 @@ async function initProps() {
     regMainData.value.state = 'updated';
     regMainData.value.isSearchChk = true;
 
+    await obsRef.value.init();
     await fetchData();
   } else {
     regMainData.value.state = 'created';
