@@ -28,9 +28,12 @@
             <!-- label="고객명 " -->
             <kw-input
               v-model="giroPlrcv.cstFnm"
+              :label="t('MSG_TXT_CST_NM')"
               rules="required"
               :disable="isDisableChk"
               maxlength="16"
+              icon="search"
+              @click-icon="onClickSearchUser"
             />
           </kw-form-item>
           <kw-form-item
@@ -40,6 +43,7 @@
             <!-- label="판매유형 " -->
             <kw-select
               v-model="giroPlrcv.giroBizTpCd"
+              :label="t('TXT_MSG_SELL_TP_CD')"
               :options="portalList"
               rules="required"
               :disable="isDisableChk"
@@ -74,11 +78,13 @@
           >
             <!-- label="주소" -->
             <zwcm-post-code
+              ref="adrRef"
               v-model:add-idx="giroPlrcv.adrDvCd"
               v-model:zipCode="giroPlrcv.zip"
               v-model:add1="giroPlrcv.basAdr"
               v-model:add2="giroPlrcv.dtlAdr"
               v-model:addKey="giroPlrcv.addKey"
+              class="kw-grow"
             />
           </kw-form-item>
         </kw-form-row>
@@ -98,7 +104,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import dayjs from 'dayjs';
-import { getComponentType, useDataService, useModal } from 'kw-lib';
+import { getComponentType, modal, useDataService, useModal, alert } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 import ZwcmPostCode from '~common/components/ZwcmPostCode.vue';
 
@@ -145,6 +151,15 @@ const giroPlrcvProps = ref({
   cntrNo: '',
   cntrSn: '',
 });
+
+// 고객명 찾기 이벤트
+async function onClickSearchUser() {
+  const { result, payload } = await modal({ component: 'ZwcsaCustomerListP' });
+
+  if (result) {
+    console.log(payload);
+  }
+}
 
 const giroPlrcv = ref({
   state: '',
@@ -202,6 +217,12 @@ async function onClickSave() {
   if (!await obsMainRef.value.validate()) { return; }
 
   saveParam = cloneDeep(giroPlrcv.value);
+
+  if (!saveParam.addKey) {
+    await alert(t('MSG_ALT_ENTR_DTL_ADR'));
+    return;
+  }
+
   console.log(saveParam);
 
   await dataService.post('/sms/wells/withdrawal/idvrve/giro-placereceived', saveParam);

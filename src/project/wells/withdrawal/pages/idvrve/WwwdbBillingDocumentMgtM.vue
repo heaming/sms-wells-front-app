@@ -67,11 +67,6 @@
           vertical
           inset
         />
-        <kw-separator
-          spaced
-          vertical
-          inset
-        />
         <kw-btn
           icon="download_on"
           dense
@@ -81,11 +76,11 @@
           @click="onClickExcelDownload"
         />
         <!-- label="엑셀다운로드" -->
-        <kw-separator
+        <!-- <kw-separator
           spaced
           vertical
           inset
-        />
+        /> -->
         <kw-btn
           :label="t('MSG_BTN_BILDC_WRTE')"
           primary
@@ -136,7 +131,7 @@ const codes = await codeUtil.getMultiCodes(
 
 const searchParams = ref({
   cstFnm: '',
-  bildcWrteDt: '',
+  bildcWrteDt: now.format('YYYYMMDD'),
   bildcWrteDtTest: now.format('YYYYMMDD'),
 });
 
@@ -203,17 +198,21 @@ async function onClickRemove() {
 
 // 청구서 작성
 async function onClickRegP() {
-  await modal({
-    component: 'WwwdbBillingDocumentRegP',
+  const { result } = await modal({ component: 'WwwdbBillingDocumentRegP' });
 
-  });
+  if (result) {
+    await fetchData();
+  }
 }
 
 // 고객명 찾기 이벤트
 async function onClickSearchUser() {
-  await modal({
-    component: 'ZwcsaCustomerListP',
-  });
+  const { result, payload } = await modal({ component: 'ZwcsaCustomerListP' });
+
+  if (result) {
+    console.log(payload);
+  // regMainData.value.cstFnm = payload.cstNm;
+  }
 }
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
@@ -294,22 +293,30 @@ const initGrid = defineGrid((data, view) => {
       const bildcPblNo = g.getValue(itemIndex, 'bildcPblNo');
       const cstFnm = g.getValue(itemIndex, 'cstFnm');
       const bildcWrteDt = g.getValue(itemIndex, 'bildcWrteDt');
-      await modal({
+      const bildcPblSn = g.getValue(itemIndex, 'bildcPblSn');
+      const { result } = await modal({
         component: 'WwwdbBillingDocumentRegP',
-        componentProps: { bildcPblNo, cstFnm, bildcWrteDt },
+        componentProps: { bildcPblNo, cstFnm, bildcWrteDt, bildcPblSn },
       });
-    }
 
+      if (result) {
+        fetchData();
+      }
+    }
     if (column === 'dummyText') {
       const bildcPblNo = g.getValue(itemIndex, 'bildcPblNo');
       const cstFnm = g.getValue(itemIndex, 'cstFnm');
       const pdNm = g.getValue(itemIndex, 'pdNm');
       const pdQtySum = g.getValue(itemIndex, 'pdQtySum');
       const pdSellAmtSum = g.getValue(itemIndex, 'pdSellAmtSum');
-      await modal({
+      const bildcPblSn = g.getValue(itemIndex, 'bildcPblSn');
+      const { result } = await modal({
         component: 'WwwdbBillingDocumentFwRegP',
-        componentProps: { bildcPblNo, cstFnm, pdNm, pdQtySum, pdSellAmtSum },
+        componentProps: { bildcPblNo, cstFnm, pdNm, pdQtySum, pdSellAmtSum, bildcPblSn },
       });
+      if (result) {
+        fetchData();
+      }
     }
   };
 });

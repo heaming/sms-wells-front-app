@@ -18,9 +18,9 @@
     class="kw-popup--2xl"
     :title="t('MSG_TIT_BILDC_WRTE')"
   >
+    <h3>{{ t('CST_INF_IN') }}</h3>
+    <!-- <h3>고객 정보</h3> -->
     <kw-observer ref="obsRef">
-      <h3>{{ t('CST_INF_IN') }}</h3>
-      <!-- <h3>고객 정보</h3> -->
       <kw-form
         :cols="2"
       >
@@ -36,9 +36,10 @@
               clearable
               :label="t('MSG_TXT_CUSTOMER')"
               rules="required|max:16"
-              :custom-messages="{ is: $t('MSG_ALT_CHK_DUP') }"
+              :disable="regMainData.isSearchChk"
               @click-icon="onClickSearchUser"
             />
+            <!-- :custom-messages="{ is: $t('MSG_ALT_CHK_DUP') }" -->
           </kw-form-item>
           <kw-form-item
             :label="t('MSG_TXT_WRTE_DT')"
@@ -48,14 +49,15 @@
             <!-- label="작성일자" -->
             <kw-date-picker
               v-model="regMainData.bildcWrteDt"
-              :disable="true"
               :label="t('MSG_TXT_WRTE_DT')"
               rules="required"
             />
+            <!-- :disable="true" -->
             <!-- :custom-messages="{ is: $t('MSG_ALT_CHK_DUP') }" -->
           </kw-form-item>
         </kw-form-row>
       </kw-form>
+
       <kw-separator />
 
       <kw-action-top>
@@ -81,15 +83,14 @@
           secondary
           @click="onClickAddRow"
         />
-        <!-- label="행 추가" -->
+      <!-- label="행 추가" -->
       </kw-action-top>
+      <kw-grid
+        ref="grdPageRef"
+        :visible-rows="10"
+        @init="initGrid"
+      />
     </kw-observer>
-
-    <kw-grid
-      ref="grdPageRef"
-      :visible-rows="10"
-      @init="initGrid"
-    />
     <template #action>
       <kw-btn
         negative
@@ -142,17 +143,23 @@ const props = defineProps({
     type: String,
     default: null,
   },
+  bildcPblSn: {
+    type: String,
+    default: null,
+  },
 });
 
 const obsRef = ref();
 
 const regMainData = ref({
   bildcPblNo: '',
+  bildcPblSn: '',
   cstFnm: '', // 고객명
   bildcWrteDt: now.format('YYYYMMDD'), // 작성일자
   sellPrtnrNo: userId, // 이건 나중에 사번으로 바꿔야함
   sellPrtnrNm: userName,
   state: '',
+  isSearchChk: false,
 });
 
 // 행추가
@@ -181,7 +188,7 @@ let cachedParams;
 async function onClickSave() {
   if (await obsRef.value.alertIfIsNotModified()) { return; }
 
-  if (!await obsRef.value.validate()) { return; }
+  // if (!await obsRef.value.validate()) { return; }
 
   const view = grdPageRef.value.getView();
 
@@ -193,12 +200,14 @@ async function onClickSave() {
     return;
   }
 
-  if (await gridUtil.alertIfIsNotModified(view)) { return; }
+  // if (await gridUtil.alertIfIsNotModified(view)) { return; }
 
-  if (!await gridUtil.validate(view)) { return; }
+  // if (!await gridUtil.validate(view)) { return; }
 
   const changedRows = gridUtil.getChangedRowValues(view);
   const mainData = cloneDeep(regMainData.value);
+
+  console.log(mainData);
 
   cachedParams = {
     saveDtlsReq: changedRows,
@@ -238,21 +247,22 @@ async function fetchData() {
   data.checkRowStates(false);
   data.setRows(list);
   data.checkRowStates(true);
-
-  view.resetCurrent();
 }
 
 async function initProps() {
-  const { bildcPblNo, cstFnm, bildcWrteDt } = props;
-
-  regMainData.value.bildcPblNo = bildcPblNo;
-  regMainData.value.cstFnm = cstFnm;
-  regMainData.value.bildcWrteDt = bildcWrteDt;
-  regMainData.value.state = 'created';
-
-  if (regMainData.value.bildcPblNo) {
+  if (props.bildcPblNo) {
+    const { bildcPblNo, cstFnm, bildcWrteDt, bildcPblSn } = props;
+    regMainData.value.bildcPblNo = bildcPblNo;
+    regMainData.value.cstFnm = cstFnm;
+    regMainData.value.bildcWrteDt = bildcWrteDt;
+    regMainData.value.bildcPblSn = bildcPblSn;
     regMainData.value.state = 'updated';
+    regMainData.value.isSearchChk = true;
+
+    await obsRef.value.init();
     await fetchData();
+  } else {
+    regMainData.value.state = 'created';
   }
 }
 

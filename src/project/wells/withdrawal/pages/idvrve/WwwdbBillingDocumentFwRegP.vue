@@ -89,11 +89,11 @@
     />
 
     <template #action>
-      <kw-btn
+      <!-- <kw-btn
         negative
         :label="t('MSG_BTN_CANCEL')"
         @click="onClickCancel"
-      />
+      /> -->
       <!-- label="취소" -->
       <kw-btn
         primary
@@ -109,14 +109,14 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 
-import { codeUtil, defineGrid, getComponentType, notify, useDataService, useModal } from 'kw-lib';
+import { codeUtil, defineGrid, getComponentType, notify, useDataService, useModal, alert } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 import ZwcmEmailAddress from '~common/components/ZwcmEmailAddress.vue';
 import ZwcmTelephoneNumber from '~common/components/ZwcmTelephoneNumber.vue';
 
 const dataService = useDataService();
 const { t } = useI18n();
-const { ok, cancel: onClickCancel } = useModal();
+const { ok } = useModal();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -129,6 +129,10 @@ const codes = await codeUtil.getMultiCodes(
 
 const props = defineProps({
   bildcPblNo: {
+    type: String,
+    default: null,
+  },
+  bildcPblSn: {
     type: String,
     default: null,
   },
@@ -169,8 +173,8 @@ const sendMainData = ref({
   pdNm: '',
   pdQtySum: '',
   pdSellAmtSum: '',
-  destInfo: telNos.value.telNo1 + telNos.value.telNo2 + telNos.value.telNo3, // 받는사람
-  callback: telNos2.value.telNo1 + telNos2.value.telNo2 + telNos2.value.telNo3, // 보내는사람
+  destInfo: '', // 받는사람
+  callback: '', // 보내는사람
   fromMail: '',
   toMail: '',
 
@@ -178,8 +182,34 @@ const sendMainData = ref({
 
 let paramData;
 async function onClickSend() {
+  sendMainData.value.destInfo = telNos.value.telNo1 + telNos.value.telNo2 + telNos.value.telNo3;
+  sendMainData.value.callback = telNos2.value.telNo1 + telNos2.value.telNo2 + telNos2.value.telNo3;
+
+  if (sendMainData.value.bildcFwTpCd === 'K') {
+    if (!telNos.value.telNo1 || !telNos.value.telNo2 || !telNos.value.telNo3) {
+      await alert(t('MSG_ALT_NCELL_REQUIRED_ITEM', [t('MSG_TXT_DSPH_NO')]));
+      return;
+    }
+
+    if (!telNos.value.telNo1 || !telNos.value.telNo2 || !telNos.value.telNo3) {
+      await alert(t('MSG_ALT_NCELL_REQUIRED_ITEM', [t('MSG_TXT_RECP_NO')]));
+      return;
+    }
+  } else {
+    if (!sendMainData.value.fromMail) {
+      await alert(t('MSG_ALT_NCELL_REQUIRED_ITEM', [t('MSG_TXT_DSPTR_EML')]));
+      return;
+    }
+
+    if (!sendMainData.value.toMail) {
+      await alert(t('MSG_ALT_NCELL_REQUIRED_ITEM', [t('MSG_TXT_RCVR_EML')]));
+      return;
+    }
+  }
+
   paramData = cloneDeep(sendMainData.value);
 
+  console.log(paramData);
   await dataService.post('/sms/wells/withdrawal/idvrve/billing-document-orders/forwardings', paramData);
 
   notify(t('MSG_ALT_SAVE_DATA')); // 메시지 자원 수정 필요

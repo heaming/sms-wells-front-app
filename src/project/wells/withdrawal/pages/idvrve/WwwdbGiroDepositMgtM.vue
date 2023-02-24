@@ -27,7 +27,7 @@
         >
           <!-- label="입금일자" -->
           <kw-date-picker
-            v-model="searchParams.rveDt"
+            v-model="searchParams.fntDt"
             :label="t('MSG_TXT_DP_DT')"
             rules="required"
           />
@@ -36,7 +36,15 @@
           :label="t('MSG_TXT_PERF_DT')"
         >
           <!-- label="실적일자" -->
-          <kw-date-picker v-model="searchParams.fntDt" />
+          <kw-date-picker v-model="searchParams.rveDt" />
+        </kw-search-item>
+        <kw-search-item :label="$t('입금오류')">
+          <!-- 입금오류 -->
+          <kw-option-group
+            v-model="searchParams.errorChk"
+            type="radio"
+            :options="serachStandardOptionList"
+          />
         </kw-search-item>
       </kw-search-row>
     </kw-search>
@@ -66,7 +74,6 @@
         <!-- :updatable="false" -->
         <kw-btn
           dense
-          icon="upload_on"
           :label="$t('MSG_BTN_GIRO_FILE_ULD')"
           @click="onClickExcelUpload"
         />
@@ -78,6 +85,17 @@
           :label="t('MSG_BTN_EXCEL_DOWN')"
           :disable="pageInfo.totalCount === 0"
           @click="onClickExcelDownload"
+        />
+        <kw-separator
+          spaced
+          vertical
+          inset
+        />
+        <kw-btn
+          secondary
+          dense
+          :label="t('저장')"
+          @click="onClickSave"
         />
         <!-- label="엑셀 다운로드" -->
         <kw-separator
@@ -91,6 +109,7 @@
           :label="t('MSG_TIT_ERR_PROCS')"
           @click="onClickErrProcs"
         />
+
         <!-- label="오류처리" -->
         <kw-separator
           spaced
@@ -152,16 +171,31 @@ const pageInfo = ref({
   needTotalCount: true,
 });
 
+// 오류유형
+const serachStandardOptionList = [
+  {
+    codeId: '1',
+    codeName: t('유'),
+    // codeName: '기준월',
+  },
+  {
+    codeId: '2',
+    // codeName: '적용월',
+    codeName: t('무'),
+  },
+];
+
 const searchParams = ref({
-  rveDt: now.format('YYYYMMDD'), // 입금일자
-  fntDt: now.format('YYYYMMDD'), // 실적일자
+  fntDt: now.format('YYYYMMDD'), // 입금일자
+  rveDt: now.format('YYYYMMDD'), // 실적일자
+  errorChk: '1',
 });
 
 let cachedParams;
 
 async function fetchData() {
   cachedParams = { ...cachedParams, ...pageInfo.value };
-
+  console.log(cachedParams);
   const res = await dataService.get('/sms/wells/withdrawal/idvrve/giro-deposits/paging', { params: cachedParams });
   const { list: pages, pageInfo: pagingResult } = res.data;
 
@@ -186,6 +220,8 @@ async function onClickSearch() {
   cachedParams = {
     rveDt: searchParams.value.rveDt,
     fntDt: searchParams.value.fntDt,
+    errorChk: searchParams.value.errorChk,
+
     giroOcrBndlYm: searchParams.value.rveDt.substring(0, 6),
   };
 
@@ -205,21 +241,41 @@ function nullDefaultValue(a, b) {
 
 const attachFileRef = ref();
 
-const fileData = [{}];
+const fileData = [];
 
 let paramData;
 
-async function giroSaveUpload() {
-  if (fileData.length < 0) {
-    notify(t('MSG_ALT_NO_DATA'));
-    return;
-  }
-
+async function rowAdd() {
+  const view = grdMainRef.value.getView();
   paramData = fileData;
 
-  await dataService.post('/sms/wells/withdrawal/idvrve/giro-deposits', paramData);
-  await fetchData();
-  notify(t('MSG_ALT_SAVE_DATA'));
+  console.log(paramData);
+  console.log(view);
+
+  paramData.forEach((data) => {
+    if (data.giroDpMtrDvCd === '22') {
+      gridUtil.insertRowAndFocus(view, 0, {
+        giroDpMtrDvCd: data.giroDpMtrDvCd, // 구분코드      2
+        dpSn: data.dpSn, // 일련번호      7
+        rveDt: data.fntDt, // 수납년        8
+        fntDt: data.rveDt, // 이체년        8
+        bnkCd: data.bnkcd, // 은행코드      7
+        bnkBrncCd: data.bnkBrncCd, // 정보작성점    7
+        giroIndxNo: data.giroIndxNo, // 색인번호      12
+        giroInqNo: data.giroInqNo, // 조회번호      2null
+        pyAmt: data.pyAmt, // 납입금액      13
+        giroRveDvCd: data.giroRveDvCd, // 수납구분      1
+        giroFeeDvCd: data.giroFeeDvCd, // 지로수수료    4
+        rmkCn: data.rmkCn, // 비고          31
+
+        cntrNo: `W${data.giroInqNo.substring(2, 13)}`,
+        perfDt: data.rveDt, // 실적일
+        rveAmt: data.pyAmt, // 납입금액
+        giroFee: data.giroFeeDvCd,
+
+      });
+    }
+  });
 }
 
 async function onClickExcelDownload() {
@@ -256,24 +312,52 @@ async function onUpdateFileUpload() {
       // console.log(array[i].substring(84, 85)); // 수납구분      1
       // console.log(array[i].substring(85, 89)); // 지로수수료    4
       // console.log(array[i].substring(89, 120)); // 비고          31
-      fileData[i] = {
-        giroDpMtrDvCd: nullDefaultValue(array[i].substring(0, 2).trim(), null), // 구분코드      2
-        dpSn: nullDefaultValue(array[i].substring(2, 9).trim(), null), // 일련번호      7
-        rveDt: nullDefaultValue(array[i].substring(9, 17).trim(), null), // 수납년        8
-        fntDt: nullDefaultValue(array[i].substring(17, 25).trim(), null), // 이체년        8
-        bnkcd: nullDefaultValue(array[i].substring(25, 32).trim(), null), // 은행코드      7
-        bnkBrncCd: nullDefaultValue(array[i].substring(32, 39).trim(), null), // 정보작성점    7
-        giroIndxNo: nullDefaultValue(array[i].substring(39, 51).trim(), null), // 색인번호      12
-        giroInqNo: nullDefaultValue(array[i].substring(51, 71).trim(), null), // 조회번호      2null
-        pyAmt: nullDefaultValue(array[i].substring(71, 84).trim(), null), // 납입금액      13
-        giroRveDvCd: nullDefaultValue(array[i].substring(84, 85).trim(), null), // 수납구분      1
-        giroFeeDvCd: nullDefaultValue(array[i].substring(85, 89).trim(), null), // 지로수수료    4
-        rmkCn: nullDefaultValue(array[i].substring(89, 120).trim(), null), // 비고          31
-      };
+      if (array[i].trim()) {
+        fileData[i] = {
+          giroDpMtrDvCd: nullDefaultValue(array[i].substring(0, 2).trim(), null), // 구분코드      2
+          dpSn: nullDefaultValue(array[i].substring(2, 9).trim(), null), // 일련번호      7
+          rveDt: nullDefaultValue(array[i].substring(9, 17).trim(), null), // 수납년        8
+          fntDt: nullDefaultValue(array[i].substring(17, 25).trim(), null), // 이체년        8
+          bnkCd: nullDefaultValue(array[i].substring(25, 32).trim(), null), // 은행코드      7
+          bnkBrncCd: nullDefaultValue(array[i].substring(32, 39).trim(), null), // 정보작성점    7
+          giroIndxNo: nullDefaultValue(array[i].substring(39, 51).trim(), null), // 색인번호      12
+          giroInqNo: nullDefaultValue(array[i].substring(51, 71).trim(), null), // 조회번호      2null
+          pyAmt: nullDefaultValue(array[i].substring(71, 84).trim(), null), // 납입금액      13
+          giroRveDvCd: nullDefaultValue(array[i].substring(84, 85).trim(), null), // 수납구분      1
+          giroFeeDvCd: nullDefaultValue(array[i].substring(85, 89).trim(), null), // 지로수수료    4
+          rmkCn: nullDefaultValue(array[i].substring(89, 120).trim(), null), // 비고          31
+        };
+      }
     }
-    giroSaveUpload();
+    // giroSaveUpload();
+    rowAdd();
   };
   reader.readAsText(file.value.nativeFile);
+}
+
+async function onClickSave() {
+  const view = grdMainRef.value.getView();
+  // 그리드 리스트
+  const gridData = gridUtil.getAllRowValues(view);
+
+  paramData = fileData;
+
+  console.log(paramData);
+  console.log(paramData.length);
+
+  if (paramData.length < 1) {
+    notify(t('업로드 진행 한 지로 파일이 없습니다.'));
+    return;
+  }
+
+  if (gridData.length < 1) {
+    notify(t('MSG_ALT_NO_DATA'));
+    return;
+  }
+
+  await dataService.post('/sms/wells/withdrawal/idvrve/giro-deposits', paramData);
+  await fetchData();
+  notify(t('MSG_ALT_SAVE_DATA'));
 }
 
 async function onClickExcelUpload() {
@@ -282,18 +366,23 @@ async function onClickExcelUpload() {
 
 // let createParam;
 // 생성버튼
-// async function onClickCreate() {
-//   notify(t('개발중입니다.'));
-//   // createParam = cloneDeep(searchParams.value);
+async function onClickCreate() {
+  notify(t('MSG_ALT_DEVELOPING'));
+  //   // createParam = cloneDeep(searchParams.value);
 
 //   // await dataService.post('/sms/wells/withdrawal/idvrve/giro-deposits/create', createParam);
 //   // notify(t('MSG_ALT_SAVE_DATA'));
-// }
+}
 
 // 오류 처리
 async function onClickErrProcs() {
+  if (!searchParams.value.fntDt) {
+    await notify(t('입금일자를 입력해주세요.'));
+    return;
+  }
   await modal({
     component: 'WwwdbGiroDepositErrorProcessingMgtP',
+    componentProps: { fntDt: searchParams.value.fntDt, rveDt: searchParams.value.rveDt },
   });
 }
 
@@ -302,6 +391,7 @@ async function onClickErrProcs() {
 // -------------------------------------------------------------------------------------------------
 function initGrid(data, view) {
   const fields = [
+    { fieldName: 'kwGrpCoCd' },
     { fieldName: 'cntrNo' },
     { fieldName: 'cstKnm' },
     { fieldName: 'rveDt' },
@@ -312,6 +402,7 @@ function initGrid(data, view) {
     { fieldName: 'dpMesCd' },
     { fieldName: 'procsErrTpCd' },
     { fieldName: 'dgCntrNo' },
+
   ];
 
   const columns = [
@@ -319,7 +410,12 @@ function initGrid(data, view) {
       header: t('MSG_TXT_CNTR_NO'),
       // header: '계약번호',
       width: '121',
-      styleName: 'text-left' },
+      styleName: 'text-left',
+      headerSummary: {
+        styleName: 'text-center',
+        text: t('MSG_TXT_SUM'),
+      },
+    },
     { fieldName: 'cstKnm',
       header: t('MSG_TXT_CST_NM'),
       // header: '고객명',
@@ -384,7 +480,24 @@ function initGrid(data, view) {
   data.setFields(fields);
   view.setColumns(columns);
 
-  view.checkBar.visible = true;
+  // summary 병합
+  view.layoutByColumn('cntrNo').summaryUserSpans = [{ colspan: 4 }];
+  view.layoutByColumn('sellTpCd').summaryUserSpans = [{ colspan: 4 }];
+
+  // 헤더쪽 합계 행고정, summary
+  // view.headerSummaries.visible = true;
+  // 헤더쪽 합계 행고정, summary
+  view.setHeaderSummaries({
+    visible: true,
+    items: [
+      {
+      // styleName: "blue-column",   개별 css 스타일 적용 필요시
+        height: 40,
+      },
+    ],
+  });
+
+  view.checkBar.visible = false;
   view.rowIndicator.visible = true;
 }
 
