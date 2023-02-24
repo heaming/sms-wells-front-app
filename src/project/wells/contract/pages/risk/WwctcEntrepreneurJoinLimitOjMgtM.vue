@@ -43,15 +43,14 @@
     >
       <kw-tab-panel name="3">
         <kw-search
-          modified-targets="[ 'grdMain' ]"
+          :modified-targets="['grdMain']"
           @search="onClickSearch"
         >
           <kw-search-row>
             <kw-search-item :label="$t('MSG_TXT_OCCUR_DATE')">
               <kw-date-range-picker
-                v-model:from="searchParams.sellLmOcDtm.from"
-                v-model:to="searchParams.sellLmOcDtm.to"
-                rules="date_range_months:1"
+                v-model:from="searchParams.sellLmOcStm"
+                v-model:to="searchParams.sellLmOcDtm"
               />
             </kw-search-item>
             <kw-search-item :label="$t('MSG_TXT_ENTRP_NO')">
@@ -105,12 +104,20 @@
               dense
               :label="$t('MSG_BTN_FILE_UPLOAD_FORM')"
             />
+            <kw-file
+              v-show="false"
+              ref="excelFileRef"
+              v-model="excelUploadfiles"
+              :updatable="false"
+              @update:model-value="onClickExcelUpload2"
+            />
             <kw-btn
               v-permission:create
               icon="upload_on"
               secondary
               dense
               :label="$t('MSG_BTN_FILE_UPLOAD')"
+              @click="onClickExcelUpload"
             />
             <kw-btn
               icon="download_on"
@@ -127,6 +134,12 @@
             name="grdMain"
             :visible-rows="10"
             @init="initGrdMain"
+          />
+          <kw-pagination
+            v-model:page-index="pageInfo.pageIndex"
+            v-model:page-size="pageInfo.pageSize"
+            :total-count="pageInfo.totalCount"
+            @change="fetchData"
           />
           <kw-action-bottom>
             <kw-btn
@@ -146,16 +159,19 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { getComponentType, gridUtil, defineGrid, codeUtil, useDataService, useGlobal } from 'kw-lib';
+import { getComponentType, gridUtil, defineGrid, codeUtil, useDataService, useGlobal, useMeta } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 
 const dataService = useDataService();
 const { t } = useI18n();
 const { notify } = useGlobal();
+const { getConfig } = useMeta();
+
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 const grdMainRef = ref(getComponentType('KwGrid'));
+const excelFileRef = ref(getComponentType('KwFile'));
 
 const codes = await codeUtil.getMultiCodes(
   'SELL_LM_RSON_CD',
@@ -163,45 +179,32 @@ const codes = await codeUtil.getMultiCodes(
 
 const pageInfo = ref({
   totalCount: 0,
+  pageIndex: 1,
+  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
 });
 
 const searchParams = ref({
-  sellLmOcDtm: {
-    from: '',
-    to: '',
-  },
+  sellLmOcDtm: '',
+  sellLmOcStm: '',
   sellLmBzrno: '',
   dlpnrNm: '',
 });
 
+let excelUploadfiles;
 let cachedParams;
 
 async function onClickAdd() {
   const view = grdMainRef.value.getView();
   await gridUtil.insertRowAndFocus(view, 0, {});
-  pageInfo.value.totalCount = view.getItemCount();
 }
 
 async function fetchData() {
-  // Fetch API
-  // const res = await dataService.get('sms/wells/contract/entrp-j-lm-oj-mngts/paging');
-  const res = [
-    { sellLmRlsDtm1: '3-등록', sellLmBzrno: ' ', dlpnrNm: ' ', dlgpsNm: ' ', bryyMmdd: '20220503', sellLmRsonCd: '01-대손처리자', sellLmOcDtm: '20220503', sellLmRlsDtm: '20220503', sellLmRsonCn: '', fnlMdfcUsrId: '', fnlMdfcUsrId1: '' },
-    { sellLmRlsDtm1: '3-등록', sellLmBzrno: '123456789', dlpnrNm: '상호명', dlgpsNm: '김대표', bryyMmdd: '20220520', sellLmRsonCd: '02-대손 처리 예정', sellLmOcDtm: '20220520', sellLmRlsDtm: '20220520', sellLmRsonCn: '발생사유 1', fnlMdfcUsrId: '김직원', fnlMdfcUsrId1: '김직원' },
-    { sellLmRlsDtm1: '3-등록', sellLmBzrno: '123456789', dlpnrNm: '상호명', dlgpsNm: '김대표', bryyMmdd: '20220520', sellLmRsonCd: '02-대손 처리 예정', sellLmOcDtm: '20220520', sellLmRlsDtm: '20220520', sellLmRsonCn: '발생사유 1', fnlMdfcUsrId: '김직원', fnlMdfcUsrId1: '김직원' },
-    { sellLmRlsDtm1: '3-등록', sellLmBzrno: '123456789', dlpnrNm: '상호명', dlgpsNm: '김대표', bryyMmdd: '20220520', sellLmRsonCd: '02-대손 처리 예정', sellLmOcDtm: '20220520', sellLmRlsDtm: '20220520', sellLmRsonCn: '발생사유 1', fnlMdfcUsrId: '김직원', fnlMdfcUsrId1: '김직원' },
-    { sellLmRlsDtm1: '3-등록', sellLmBzrno: '123456789', dlpnrNm: '상호명', dlgpsNm: '김대표', bryyMmdd: '20220520', sellLmRsonCd: '02-대손 처리 예정', sellLmOcDtm: '20220520', sellLmRlsDtm: '20220520', sellLmRsonCn: '발생사유 1', fnlMdfcUsrId: '김직원', fnlMdfcUsrId1: '김직원' },
-    { sellLmRlsDtm1: '3-등록', sellLmBzrno: '123456789', dlpnrNm: '상호명', dlgpsNm: '김대표', bryyMmdd: '20220520', sellLmRsonCd: '02-대손 처리 예정', sellLmOcDtm: '20220520', sellLmRlsDtm: '20220520', sellLmRsonCn: '발생사유 1', fnlMdfcUsrId: '김직원', fnlMdfcUsrId1: '김직원' },
-    { sellLmRlsDtm1: '3-등록', sellLmBzrno: '123456789', dlpnrNm: '상호명', dlgpsNm: '김대표', bryyMmdd: '20220520', sellLmRsonCd: '02-대손 처리 예정', sellLmOcDtm: '20220520', sellLmRlsDtm: '20220520', sellLmRsonCn: '발생사유 1', fnlMdfcUsrId: '김직원', fnlMdfcUsrId1: '김직원' },
-    { sellLmRlsDtm1: '3-등록', sellLmBzrno: '123456789', dlpnrNm: '상호명', dlgpsNm: '김대표', bryyMmdd: '20220520', sellLmRsonCd: '02-대손 처리 예정', sellLmOcDtm: '20220520', sellLmRlsDtm: '20220520', sellLmRsonCn: '발생사유 1', fnlMdfcUsrId: '김직원', fnlMdfcUsrId1: '김직원' },
-    { sellLmRlsDtm1: '3-등록', sellLmBzrno: '123456789', dlpnrNm: '상호명', dlgpsNm: '김대표', bryyMmdd: '20220520', sellLmRsonCd: '02-대손 처리 예정', sellLmOcDtm: '20220520', sellLmRlsDtm: '20220520', sellLmRsonCn: '발생사유 1', fnlMdfcUsrId: '김직원', fnlMdfcUsrId1: '김직원' },
-    { sellLmRlsDtm1: '3-등록', sellLmBzrno: '123456789', dlpnrNm: '상호명', dlgpsNm: '김대표', bryyMmdd: '20220520', sellLmRsonCd: '02-대손 처리 예정', sellLmOcDtm: '20220520', sellLmRlsDtm: '20220520', sellLmRsonCn: '발생사유 1', fnlMdfcUsrId: '김직원', fnlMdfcUsrId1: '김직원' },
-    { sellLmRlsDtm1: '3-등록', sellLmBzrno: '123456789', dlpnrNm: '상호명', dlgpsNm: '김대표', bryyMmdd: '20220520', sellLmRsonCd: '02-대손 처리 예정', sellLmOcDtm: '20220520', sellLmRlsDtm: '20220520', sellLmRsonCn: '발생사유 1', fnlMdfcUsrId: '김직원', fnlMdfcUsrId1: '김직원' },
-    { sellLmRlsDtm1: '3-등록', sellLmBzrno: '123456789', dlpnrNm: '상호명', dlgpsNm: '김대표', bryyMmdd: '20220520', sellLmRsonCd: '02-대손 처리 예정', sellLmOcDtm: '20220520', sellLmRlsDtm: '20220520', sellLmRsonCn: '발생사유 1', fnlMdfcUsrId: '김직원', fnlMdfcUsrId1: '김직원' },
-  ];
+  cachedParams = { ...cachedParams, ...pageInfo.value };
+  const res = await dataService.get('/sms/wells/contract/sales-limits/business-partners/paging', { params: cachedParams });
   const view = grdMainRef.value.getView();
-  view.getDataSource().setRows(res);
-  pageInfo.value.totalCount = view.getItemCount();
+  const { list: entrepreneurJoinLimits, pageInfo: pagingResult } = res.data;
+  pageInfo.value = pagingResult;
+  view.getDataSource().setRows(entrepreneurJoinLimits);
 }
 
 async function onClickDelete() {
@@ -209,22 +212,37 @@ async function onClickDelete() {
   if (!await gridUtil.confirmIfIsModified(view)) { return; }
   const deletedRows = await gridUtil.confirmDeleteCheckedRows(view);
 
-  const deleteKeys = deletedRows.map((row) => row.dataRow);
-  if (deleteKeys.length) {
-    await dataService.delete('sms/wells/contract/entrp-j-lm-oj-mngts', { data: deleteKeys });
-    await fetchData();
+  const sellLmIds = deletedRows.map((row) => row.sellLmIds);
+  if (sellLmIds.length) {
+    await dataService.delete('/sms/wells/contract/sales-limits/business-partners', { data: sellLmIds });
   }
+  await fetchData();
 }
 
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
 
-  const response = await dataService.get('sms/wells/contract/entrp-j-lm-oj-mngts/excel-download', { params: cachedParams });
+  const response = await dataService.get('/sms/wells/contract/sales-limits/business-partners/excel-download', { params: cachedParams });
 
   await gridUtil.exportView(view, {
     fileName: 'EntrepreneurJoinLimitOjMgmt',
     timePostfix: true,
     exportData: response.data,
+  });
+}
+
+async function onClickExcelUpload() {
+  excelFileRef.value.pickFiles();
+}
+
+async function onClickExcelUpload2() {
+  const formData = new FormData();
+  formData.append('file', excelFileRef.value.nativeFile);
+  // ToDo API URL FOR EXCEL UPLOAD
+  await dataService.post('', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
   });
 }
 
@@ -234,7 +252,7 @@ async function onClickSave() {
   if (!await gridUtil.validate(view)) { return; }
   const changedRows = gridUtil.getChangedRowValues(view);
   await dataService.post(
-    'sms/wells/contract/entrp-j-lm-oj-mngts',
+    '/sms/wells/contract/sales-limits/business-partners',
     changedRows,
   );
   notify(t('MSG_ALT_SAVE_DATA'));
@@ -243,7 +261,6 @@ async function onClickSave() {
 
 async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
-  console.log(cachedParams);
   await fetchData();
 }
 
@@ -255,7 +272,7 @@ onMounted(async () => {
 // -------------------------------------------------------------------------------------------------
 const initGrdMain = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'sellLmRlsDtm1' },
+    { fieldName: 'sellLmDv' },
     { fieldName: 'sellLmBzrno' },
     { fieldName: 'dlpnrNm' },
     { fieldName: 'dlgpsNm' },
@@ -263,13 +280,13 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'sellLmRsonCd' },
     { fieldName: 'sellLmOcDtm' },
     { fieldName: 'sellLmRlsDtm' },
-    { fieldName: 'sellLmRsonCn' },
-    { fieldName: 'fnlMdfcUsrId' },
-    { fieldName: 'fnlMdfcUsrId1' },
+    { fieldName: 'sellLmRson' },
+    { fieldName: 'sellLmPsicNm' },
+    { fieldName: 'sellLmRlsPsicNm' },
   ];
 
   const columns = [
-    { fieldName: 'sellLmRlsDtm1', header: t('MSG_TXT_INF_CLS'), width: '142', editable: true, editor: { type: 'list' }, options: [{ codeId: '3', codeName: '3-register' }, { codeId: '4', codeName: '4-restrict' }] },
+    { fieldName: 'sellLmDv', header: t('MSG_TXT_INF_CLS'), width: '142', editable: true, editor: { type: 'list' }, options: [{ codeId: '3', codeName: t('MSG_TXT_RGS') }, { codeId: '4', codeName: t('MSG_TXT_RSTRCT') }] },
     { fieldName: 'sellLmBzrno', header: t('MSG_TXT_ENTRP_NO'), width: '127', styleName: 'text-center', editable: true },
     { fieldName: 'dlpnrNm', header: t('MSG_TXT_BSN_NM'), width: '127', styleName: 'text-center', editable: false },
     { fieldName: 'dlgpsNm', header: t('MSG_TXT_RPRS_NM'), width: '127', styleName: 'text-center', editable: false },
@@ -277,9 +294,9 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'sellLmRsonCd', header: t('MSG_TXT_DFT_CD'), width: '211', editable: true, editor: { type: 'list' }, options: codes.SELL_LM_RSON_CD },
     { fieldName: 'sellLmOcDtm', header: t('MSG_TXT_OCCUR_DATE'), width: '196', styleName: 'text-center', datetimeFormat: 'date', editable: true, editor: { type: 'btdate' } },
     { fieldName: 'sellLmRlsDtm', header: t('MSG_TXT_CNC_DT'), width: '196', styleName: 'text-center', datetimeFormat: 'date', editable: true, editor: { type: 'btdate' } },
-    { fieldName: 'sellLmRsonCn', header: t('MSG_TXT_OCC_RSN'), width: '376', editable: true },
-    { fieldName: 'fnlMdfcUsrId', header: t('MSG_TXT_RGST_ICHR'), width: '180', styleName: 'text-center', editable: false },
-    { fieldName: 'fnlMdfcUsrId1', header: t('MSG_TXT_CNC_INCHR'), width: '180', styleName: 'text-center', editable: false },
+    { fieldName: 'sellLmRson', header: t('MSG_TXT_OCC_RSN'), width: '376', editable: true },
+    { fieldName: 'sellLmPsicNm', header: t('MSG_TXT_RGST_ICHR'), width: '180', styleName: 'text-center', editable: false },
+    { fieldName: 'sellLmRlsPsicNm', header: t('MSG_TXT_CNC_INCHR'), width: '180', styleName: 'text-center', editable: false },
   ];
 
   data.setFields(fields);
