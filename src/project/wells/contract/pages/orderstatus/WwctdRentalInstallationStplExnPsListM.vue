@@ -23,20 +23,19 @@
           :label="$t('MSG_TXT_EXP_DT')"
         >
           <kw-date-range-picker
-            v-model:from="searchParams.cntrPdEndDt.startDt"
-            v-model:to="searchParams.cntrPdEndDt.endDt"
-            rules="date_range_months:1"
+            v-model:from="searchParams.cntrPdEnddtStrtdt"
+            v-model:to="searchParams.cntrPdEnddtEnddt"
           />
         </kw-search-item>
 
         <kw-search-item :label="$t('MSG_TXT_PDGRP')">
           <kw-select
-            v-model="searchParams.basePdGrp.startGp"
+            v-model="searchParams.pdMclsfId"
             :options="['대분류 전체','B','C']"
           />
           <span>/</span>
           <kw-select
-            v-model="searchParams.basePdGrp.endGp"
+            v-model="searchParams.pdHclsfId"
             :options="['중분류 전체','B','C']"
           />
         </kw-search-item>
@@ -55,13 +54,13 @@
         </kw-search-item>
         <kw-search-item :label="$t('MSG_TXT_EXCLD_CANC')">
           <kw-field
-            v-model="searchParams.cntrDtlStatCd"
+            v-model="searchParams.isExcdCan"
           >
             <template #default="{ field }">
               <kw-checkbox
                 v-bind="field"
                 label=""
-                val="1"
+                val="Y"
               />
             </template>
           </kw-field>
@@ -126,24 +125,20 @@ const pageInfo = ref({
 });
 
 const searchParams = ref({
-  cntrPdEndDt: {
-    startDt: now.startOf('month').format('YYYYMMDD'),
-    endDt: now.format('YYYYMMDD'),
-  },
-  basePdGrp: {
-    startGp: '',
-    endGp: '',
-  },
   basePdCd: '',
+  cntrPdEnddtStrtdt: now.startOf('month').format('YYYYMMDD'),
+  cntrPdEnddtEnddt: now.format('YYYYMMDD'),
+  pdMclsfId: '',
+  pdHclsfId: '',
   pdNm: '',
-  cntrDtlStatCd: [],
+  isExcdCan: 'N',
 });
 let cachedParams;
 
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
 
-  const response = await dataService.get('/sms/wells/contract/expired-retention-contracts/excel-download', { params: cachedParams });
+  const response = await dataService.get('/sms/wells/contract/rental-renewals/excel-download', { params: cachedParams });
 
   await gridUtil.exportView(view, {
     fileName: 'rentalInstallationStplExpList',
@@ -154,7 +149,7 @@ async function onClickExcelDownload() {
 
 async function fetchData() {
   cachedParams = { ...cachedParams, ...pageInfo.value };
-  const res = await dataService.get('/sms/wells/contract/expired-retention-contracts', { params: cachedParams });
+  const res = await dataService.get('/sms/wells/contract/expired-retention-contracts/paging', { params: cachedParams });
   const { list: rentalData, pageInfo: pagingResult } = res.data;
   pageInfo.value = pagingResult;
 
@@ -166,6 +161,17 @@ async function fetchData() {
 async function onClickSearch() {
   pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
+  const view = grdMainRef.value.getView();
+  const col1 = view.columnByName('canDt');
+  const col2 = view.columnByName('canCstDutyUseExprYn');
+  if (cachedParams.isExcdCan.length) {
+    view.setColumnProperty(col1, 'visible', false);
+    view.setColumnProperty(col2, 'visible', false);
+  } else {
+    view.setColumnProperty(col1, 'visible', true);
+    view.setColumnProperty(col2, 'visible', true);
+  }
+  console.log(cachedParams);
   await fetchData();
 }
 
@@ -174,44 +180,51 @@ async function onClickSearch() {
 // -------------------------------------------------------------------------------------------------
 const initGrdMain = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'col1' },
-    { fieldName: 'col2' },
-    { fieldName: 'col3' },
-    { fieldName: 'col4' },
-    { fieldName: 'col5' },
-    { fieldName: 'col6' },
-    { fieldName: 'col7' },
-    { fieldName: 'col8' },
-    { fieldName: 'col9' },
-    { fieldName: 'col10' },
-    { fieldName: 'col11' },
-    { fieldName: 'col12' },
-    { fieldName: 'col13' },
-    { fieldName: 'col14' },
-    { fieldName: 'col15' },
-    { fieldName: 'col16' },
-    { fieldName: 'col17' },
-
+    { fieldName: 'basePdCd' },
+    { fieldName: 'canCstDutyUseExprYn' },
+    { fieldName: 'canDt' },
+    { fieldName: 'cntrCstNo' },
+    { fieldName: 'cntrNo' },
+    { fieldName: 'cntrSn' },
+    { fieldName: 'cntrtCralIdvTno' },
+    { fieldName: 'cntrtCralLocaraTno' },
+    { fieldName: 'cntrtMexnoEncr' },
+    { fieldName: 'cstKnm' },
+    { fieldName: 'dutyUseDt' },
+    { fieldName: 'exnDt' },
+    { fieldName: 'istllCralIdvTno' },
+    { fieldName: 'istllCralLocaraTno' },
+    { fieldName: 'istllMexnoEncr' },
+    { fieldName: 'istmMcn' },
+    { fieldName: 'mshCanDt' },
+    { fieldName: 'mshCntrDt' },
+    { fieldName: 'mshCntrNo' },
+    { fieldName: 'mshCntrSn' },
+    { fieldName: 'mshWdwalDt' },
+    { fieldName: 'pdNm' },
+    { fieldName: 'recapDutyPtrmN' },
+    { fieldName: 'slDt' },
   ];
 
   const columns = [
-    { fieldName: 'col1', header: t('MSG_TXT_CST_CD'), width: '130', styleName: 'text-center' },
-    { fieldName: 'col2', header: t('MSG_TXT_CST_NM'), width: '120', styleName: 'text-left' },
-    { fieldName: 'col3', header: t('MSG_TXT_PRDT_CODE'), width: '100', styleName: 'text-center' },
-    { fieldName: 'col4', header: t('MSG_TXT_PRDT_NM'), width: '160', styleName: 'text-left' },
-    { fieldName: 'col5', header: t('MSG_TXT_RENT_PRD_MN'), width: '120', styleName: 'text-center' },
-    { fieldName: 'col6', header: t('MSG_TXT_LCK_IN_PRD_MN'), width: '120', styleName: 'text-center' },
-    { fieldName: 'col7', header: t('MSG_TXT_DT_OF_SALE'), width: '120', styleName: 'text-center' },
-    { fieldName: 'col8', header: t('MSG_TXT_MAND_DAYS'), width: '120', styleName: 'text-center' },
-    { fieldName: 'col9', header: t('MSG_TXT_EXP_DT_1'), width: '120', styleName: 'text-center' },
-    { fieldName: 'col10', header: t('MSG_TXT_CANC_DT'), width: '120', styleName: 'text-center' },
-    { fieldName: 'col11', header: t('MSG_TXT_CAN_CST_MAND_PRD_EXP_STAT'), width: '200', styleName: 'text-center' },
-    { fieldName: 'col12', header: t('MSG_TXT_MEM_CNTR_DT'), width: '120', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'col13', header: t('MSG_TXT_MEM_SUBS_DT'), width: '120', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'col14', header: t('MSG_TXT_MEM_CANC_DT'), width: '120', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'col15', header: t('MSG_TXT_MEM_WTD_DT'), width: '120', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'col16', header: t('MSG_TXT_CNTOR_PHN_NUM'), width: '160', styleName: 'text-center' },
-    { fieldName: 'col17', header: t('MSG_TXT_INST_PHN_NUM'), width: '160', styleName: 'text-center' },
+    { fieldName: 'cntrNo', header: t('MSG_TXT_RNT_CNTR_NO'), width: '135', styleName: 'text-center' },
+    { fieldName: 'cstKnm', header: t('MSG_TXT_CNTOR_NM'), width: '101', styleName: 'text-center' },
+    { fieldName: 'basePdCd', header: t('MSG_TXT_PRDT_CODE'), width: '127', styleName: 'text-center' },
+    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '284', styleName: 'text-left' },
+    { fieldName: 'istmMcn', header: t('MSG_TXT_RENT_PRD_MN'), width: '143', styleName: 'text-right' },
+    { fieldName: 'recapDutyPtrmN', header: t('MSG_TXT_LCK_IN_PRD_MN'), width: '161', styleName: 'text-right' },
+    { fieldName: 'slDt', header: t('MSG_TXT_DT_OF_SALE'), width: '127', styleName: 'text-center' },
+    { fieldName: 'dutyUseDt', header: t('MSG_TXT_MAND_DAYS'), width: '127', styleName: 'text-center' },
+    { fieldName: 'exnDt', header: t('MSG_TXT_EXP_DT'), width: '127', styleName: 'text-center' },
+    { fieldName: 'canDt', header: t('MSG_TXT_CANC_D'), width: '127', styleName: 'text-left' },
+    { fieldName: 'canCstDutyUseExprYn', header: t('MSG_TXT_CAN_CST_MAND_PRD_EXP_STAT'), width: '230' },
+    { fieldName: 'mshCntrNo', header: t('MSG_TXT_MEM_CNTR_NO'), width: '135', styleName: 'text-center' },
+    { fieldName: 'mshCntrDt', header: t('MSG_TXT_MEM_CNTR_DT_1'), width: '127', styleName: 'text-center' },
+    { fieldName: 'mshCntrSn', header: t('MSG_TXT_MEM_SIGNUP'), width: '127', styleName: 'text-center' },
+    { fieldName: 'mshCanDt', header: t('MSG_TXT_MEM_CANC_DT_1'), width: '127', styleName: 'text-center' },
+    { fieldName: 'mshWdwalDt', header: t('MSG_TXT_MEM_WTDR_DT'), width: '127', styleName: 'text-center' },
+    { fieldName: 'istllCralIdvTno', header: t('MSG_TXT_CNTRR_VAC_PH_NO'), width: '193', styleName: 'text-center' },
+    { fieldName: 'istllCralLocaraTno', header: t('MSG_TXT_INSTR_PH_NO'), width: '176', styleName: 'text-center' },
 
   ];
 
@@ -219,19 +232,6 @@ const initGrdMain = defineGrid((data, view) => {
   view.setColumns(columns);
 
   view.rowIndicator.visible = true;
-
-  data.setRows([
-    { col1: '2017-5825112', col2: '김교원', col3: '4016', col4: '웰스(KW-P47F1)', col5: '60', col6: '36', col7: '20, 170, 707', col8: '20, 170, 707', col9: '20, 170, 707', col10: '', col11: '', col12: '', col13: '', col14: '', col15: '', col16: '010-p-7764', col17: '010-p-7764' },
-    { col1: '2017-5825112', col2: '김교원', col3: '4016', col4: '웰스(KW-P47F1)', col5: '', col6: '', col7: '20, 170, 707', col8: '', col9: '20, 170, 707', col10: '', col11: '', col12: '', col13: '', col14: '', col15: '', col16: '010-p-7764', col17: '010-p-7764' },
-    { col1: '2017-5825112', col2: '김교원', col3: '4016', col4: '웰스(KW-P47F1)', col5: '', col6: '', col7: '20, 170, 707', col8: '', col9: '20, 170, 707', col10: '', col11: '', col12: '', col13: '', col14: '', col15: '', col16: '010-p-7764', col17: '010-p-7764' },
-    { col1: '2017-5825112', col2: '김교원', col3: '4016', col4: '웰스(KW-P47F1)', col5: '', col6: '', col7: '20, 170, 707', col8: '', col9: '20, 170, 707', col10: '', col11: '', col12: '', col13: '', col14: '', col15: '', col16: '010-p-7764', col17: '010-p-7764' },
-    { col1: '2017-5825112', col2: '김교원', col3: '4016', col4: '웰스(KW-P47F1)', col5: '', col6: '', col7: '20, 170, 707', col8: '', col9: '20, 170, 707', col10: '', col11: '', col12: '', col13: '', col14: '', col15: '', col16: '010-p-7764', col17: '010-p-7764' },
-    { col1: '2017-5825112', col2: '김교원', col3: '4016', col4: '웰스(KW-P47F1)', col5: '', col6: '', col7: '20, 170, 707', col8: '', col9: '20, 170, 707', col10: '', col11: '', col12: '', col13: '', col14: '', col15: '', col16: '010-p-7764', col17: '010-p-7764' },
-    { col1: '2017-5825112', col2: '김교원', col3: '4016', col4: '웰스(KW-P47F1)', col5: '', col6: '', col7: '20, 170, 707', col8: '', col9: '20, 170, 707', col10: '', col11: '', col12: '', col13: '', col14: '', col15: '', col16: '010-p-7764', col17: '010-p-7764' },
-    { col1: '2017-5825112', col2: '김교원', col3: '4016', col4: '웰스(KW-P47F1)', col5: '', col6: '', col7: '20, 170, 707', col8: '', col9: '20, 170, 707', col10: '', col11: '', col12: '', col13: '', col14: '', col15: '', col16: '010-p-7764', col17: '010-p-7764' },
-    { col1: '2017-5825112', col2: '김교원', col3: '4016', col4: '웰스(KW-P47F1)', col5: '', col6: '', col7: '20, 170, 707', col8: '', col9: '20, 170, 707', col10: '', col11: '', col12: '', col13: '', col14: '', col15: '', col16: '010-p-7764', col17: '010-p-7764' },
-    { col1: '2017-5825112', col2: '김교원', col3: '4016', col4: '웰스(KW-P47F1)', col5: '', col6: '', col7: '20, 170, 707', col8: '', col9: '20, 170, 707', col10: '', col11: '', col12: '', col13: '', col14: '', col15: '', col16: '010-p-7764', col17: '010-p-7764' },
-  ]);
 });
 </script>
 
