@@ -116,7 +116,7 @@
             />
           </kw-tab-panel>
           <kw-tab-panel name="sel">
-            <wwdcd-operating-cost-mgt-m-marketable-securities
+            <wwdcd-operating-cost-mgt-m-securities
               :ref="(vm) => tabRefs.securities = vm"
               v-model:selected-link-id="selectedLinkId"
               v-model:init-data="searchParams.useYearMonth"
@@ -139,7 +139,7 @@ import dayjs from 'dayjs';
 // 유가증권 제외
 import WwdcdOperatingCostMgtMSecuritiesException from './WwdcdOperatingCostMgtMSecuritiesException.vue';
 // 유가증권
-import WwdcdOperatingCostMgtMMarketableSecurities from './WwdcdOperatingCostMgtMMarketableSecurities.vue';
+import WwdcdOperatingCostMgtMSecurities from './WwdcdOperatingCostMgtMSecurities.vue';
 
 // const store = useStore();
 // const { companyCode } = store.getters['meta/getUserInfo'];
