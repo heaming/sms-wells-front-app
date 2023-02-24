@@ -32,10 +32,6 @@
           <kw-select
             v-model="searchParams.cdpt"
             :options="cdptCodes"
-            option-label="ogNm"
-            option-value="ogCd"
-            first-option="all"
-            @change="onChangeCdpt"
           />
         </kw-search-item>
         <!-- //총괄단 -->
@@ -44,10 +40,6 @@
           <kw-select
             v-model="searchParams.bizCd"
             :options="bizCodes"
-            option-label="ogNm"
-            option-value="ogCd"
-            first-option="all"
-            @change="onChangeBizCd"
           />
         </kw-search-item>
         <!-- //지역단 -->
@@ -56,10 +48,7 @@
           <kw-select
             v-model="searchParams.brnhCd"
             :options="brnhCodes"
-            option-label="ogNm"
-            option-value="ogCd"
             first-option="all"
-            @change="onChangeBrnhCd"
           />
         </kw-search-item>
         <!-- //지점 -->
@@ -68,8 +57,6 @@
           <kw-select
             v-model="searchParams.prtnrNo"
             :options="prtnrCodes"
-            option-label="prtnrKnm"
-            option-value="prtnrNo"
             first-option="all"
           />
         </kw-search-item>
@@ -165,13 +152,9 @@ import { cloneDeep } from 'lodash-es';
 const dataService = useDataService();
 const { getConfig } = useMeta();
 const baseURI = '/sms/wells/service/materials-assign-stocks';
-const toMonth = dayjs().format('YYYYMM');
+// const toMonth = dayjs().format('YYYYMM');
 const { t } = useI18n();
 
-// TODO: CODE값이 정리되면 바꿔야함
-const ogLevlDvCdVal2 = '2';
-const ogLevlDvCdVal4 = '4';
-const ogLevlDvCdVal7 = '7';
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -181,19 +164,9 @@ const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
   'COD_YN',
 );
-
-const ogCodes = await dataService.get(`${baseURI}/organizations`, { params: { baseYm: toMonth } });
-const grdMainRef = ref(getComponentType('KwGrid'));
-let prtnrCodes;
-
-const pageInfo = ref({
-  totalCount: 0,
-  pageIndex: 1,
-  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
-});
-
+let cachedParams;
 const searchParams = ref({
-  baseYm: toMonth,
+  baseYm: '',
   ogId: '',
   prtnrNo: '',
   prtnrKnm: '',
@@ -205,34 +178,14 @@ const searchParams = ref({
   brnhCd: '',
 });
 
-function ogCodesFilter(_lev, _hgrCd) {
-  return ogCodes.data.filter((attr) => attr.ogLevlDvCd === _lev && attr.hgrOgCd === _hgrCd);
-}
+const grdMainRef = ref(getComponentType('KwGrid'));
 
-const cdptCodes = ogCodes.data.filter((attr) => attr.ogLevlDvCd === ogLevlDvCdVal2);
-const bizCodes = ref(ogCodesFilter(ogLevlDvCdVal4, searchParams.value.cdpt));
-const brnhCodes = ref(ogCodesFilter(ogLevlDvCdVal7, searchParams.value.bizCd));
+const pageInfo = ref({
+  totalCount: 0,
+  pageIndex: 1,
+  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
+});
 
-function onChangeCdpt() {
-  searchParams.value.bizCd = '';
-  searchParams.value.brnhCd = '';
-  searchParams.value.prtnrNo = '';
-  bizCodes.value = ogCodesFilter(ogLevlDvCdVal4, searchParams.value.cdpt);
-}
-
-function onChangeBizCd() {
-  searchParams.value.brnhCd = '';
-  searchParams.value.prtnrNo = '';
-  brnhCodes.value = ogCodesFilter(ogLevlDvCdVal7, searchParams.value.cdpt);
-}
-
-async function onChangeBrnhCd() {
-  searchParams.value.prtnrNo = '';
-  const res = await dataService.get(`${baseURI}/partners`, { params: { baseYm: toMonth, ogId: searchParams.value.brnhCd } });
-  prtnrCodes.value = res.data;
-}
-
-let cachedParams;
 async function fetchData() {
   const res = await dataService.get(baseURI, { params: { ...cachedParams, ...pageInfo.value } });
   const { list: searchData, pageInfo: pagingResult } = res.data;
@@ -248,6 +201,10 @@ async function fetchData() {
 async function onClickSearch() {
   pageInfo.value.pageIndex = 1;
 
+  searchParams.value.ogId = searchParams.value.cdpt || searchParams.value.ogId;
+  searchParams.value.ogId = searchParams.value.bizCd || searchParams.value.ogId;
+  searchParams.value.ogId = searchParams.value.brnhCd || searchParams.value.ogId;
+  console.log(`searchParams.value.ogId : ${searchParams.value.ogId}`);
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
 }
@@ -264,12 +221,12 @@ async function onClickExcelDownload() {
 
 async function onClickSave() {
   const view = grdMainRef.value.getView();
-  const ChangeRows = gridUtil.getChangedRowValues(view, false)
+  const saveList = gridUtil.getChangedRowValues(view, false)
     .map((v) => ({ prtnrNo: v.prtnrNo, qomAsnApyYn: v.qomAsnApyYn }));
 
   view.editOptions.editable = false;
 
-  await dataService.post(baseURI, ChangeRows);
+  await dataService.post(baseURI, saveList);
   await fetchData();
 }
 
@@ -326,4 +283,92 @@ const initGrdMain = defineGrid((data, view) => {
     }
   };
 });
+
+// TODO:총괄단 공통코드 만들어지면 삭제해야함.
+// -------------------------------------------------------------------------------------------------
+// 총괄단/지역단/지점/담당자명 selectbox 설정(공통코드 생성되면 삭제)
+// -------------------------------------------------------------------------------------------------
+// TODO: CODE값이 정리되면 바꿔야함
+const ogLevl1 = '1';// 2
+const ogLevl2 = '2';// 4
+const ogLevl3 = '3';// 7
+const orgParams = {
+  baseYm: searchParams.value.baseYm || dayjs().format('YYYYMM'),
+  ogTpCd: 'W02',
+};
+
+const ogCodesLv1 = ref();
+const ogCodesLv2 = ref();
+const ogCodesLv3 = ref();
+const ogCodesLv4 = ref();
+
+const cdptCodes = ref();
+const bizCodes = ref();
+const brnhCodes = ref();
+const prtnrCodes = ref();
+
+const setCodes = (_target, _lev) => _target.filter((obj) => obj.ogLevlDvCd === _lev)
+  .map((v) => ({ ...v, codeId: v.ogId, codeName: v.ogCd }));
+
+const filterHgrOgId = (_targetObj, _ogId) => _targetObj.filter((v) => v.hgrOgId === _ogId);
+
+const setCdptCodes = () => {
+  cdptCodes.value = ogCodesLv1.value;
+  searchParams.value.cdpt = cdptCodes.value[0].codeId;// 초기값 설정
+  searchParams.value.ogId = cdptCodes.value[0].codeId;
+};
+
+const getOgCodes = async () => {
+  const res = await dataService.get(`${baseURI}/organizations`, { params: orgParams });
+  if (res.data.length > 0) {
+    ogCodesLv1.value = setCodes(res.data, ogLevl1);
+    ogCodesLv2.value = setCodes(res.data, ogLevl2);
+    ogCodesLv3.value = setCodes(res.data, ogLevl3);
+    ogCodesLv4.value = res.data.filter((obj) => obj.ogLevlDvCd === ogLevl3)
+      .map((v) => ({ ...v, codeId: v.hooPrtnrNo, codeName: `${v.hooPrtnrNm}(${v.hooPrtnrNo})` }));
+
+    setCdptCodes();
+  }
+};
+
+watch(() => searchParams.value.baseYm, (res) => {
+  searchParams.value.cdpt = '';
+  searchParams.value.bizCd = '';
+  searchParams.value.brnhCd = '';
+  searchParams.value.prtnrNo = '';
+  searchParams.value.ogId = '';
+  // console.log(res);
+  getOgCodes();
+  console.log(`searchParams.value.baseYm : ${res}`);
+});
+
+watch(() => searchParams.value.cdpt, (res) => {
+  searchParams.value.bizCd = '';
+  searchParams.value.brnhCd = '';
+  searchParams.value.prtnrNo = '';
+  searchParams.value.ogId = '';
+
+  bizCodes.value = filterHgrOgId(ogCodesLv2.value, searchParams.value.cdpt);
+  searchParams.value.bizCd = bizCodes.value[0].codeId;
+  searchParams.value.ogId = bizCodes.value[0].codeId;
+
+  console.log(`searchParams.value.cdpt : ${res}`);
+});
+
+watch(() => searchParams.value.bizCd, (res) => {
+  searchParams.value.brnhCd = '';
+  searchParams.value.prtnrNo = '';
+  searchParams.value.ogId = '';
+
+  brnhCodes.value = filterHgrOgId(ogCodesLv3.value, searchParams.value.bizCd);
+  // searchParams.value.ogId = brnhCodes.value[0].codeId;
+  console.log(`searchParams.value.bizCd : ${res}`);
+});
+
+watch(() => searchParams.value.brnhCd, (res) => {
+  prtnrCodes.value = filterHgrOgId(ogCodesLv4.value, searchParams.value.bizCd);// brnhCd
+  console.log(`searchParams.value.brnhCd : ${res}`);
+});
+
+searchParams.value.baseYm = dayjs().format('YYYYMM');
 </script>
