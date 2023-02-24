@@ -113,7 +113,7 @@ import { useMeta, getComponentType, defineGrid, codeUtil, useGlobal, gridUtil, u
 import { cloneDeep, isEmpty } from 'lodash-es';
 import useSnCode from '~sms-wells/service/composables/useSnCode';
 
-const { getServiceCenterOrgs, getAllEngineers } = useSnCode();
+const { getAllEngineers } = useSnCode();
 const { getConfig } = useMeta();
 const { modal } = useGlobal();
 const { t } = useI18n();
@@ -147,8 +147,9 @@ let cachedParams;
 const centers = ref();
 const branchs = ref();
 const engineers = ref();
-const svcCenters = (await getServiceCenterOrgs());
-const engs = (await getAllEngineers('G_ONLY_ENG')).G_ONLY_ENG;
+const engsAndSvcCenters = (await getAllEngineers());
+const svcCenters = engsAndSvcCenters.G_ONLY_SVC;
+const engs = engsAndSvcCenters.G_ONLY_ENG;
 
 centers.value = svcCenters.map((v) => ({ codeName: v.ogNm, codeId: v.ogId }));
 // engineers.value = engs.map((v) => ({ codeId: v.codeId, codeName: v.codeNm }));
@@ -181,7 +182,6 @@ async function fetchData() {
   view.resetCurrent();
 }
 
-// TODO: 조회버튼 클릭(월파트너내역 작업 완료 후 mapper.xml 수정)
 async function onClickSearch() {
   pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
@@ -216,7 +216,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'ogNm' },
     { fieldName: 'prtnrNo' },
     { fieldName: 'prtnrKnm' },
-    { fieldName: 'rol' },
+    { fieldName: 'rolDvCd' },
     { fieldName: 'cntrDt' },
     { fieldName: 'carno' },
     { fieldName: 'carnm' },
@@ -238,7 +238,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'ogNm', header: t('MSG_TXT_SV_CNR'), width: '150', styleName: 'text-center' },
     { fieldName: 'prtnrNo', header: t('MSG_TXT_EPNO'), width: '100', styleName: 'text-center' },
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '150', styleName: 'text-center' },
-    { fieldName: 'rol', header: t('MSG_TXT_ROLE_1'), width: '100', styleName: 'text-center' }, // TODO: 관련 데이터 작업 완료 시 수정 필요
+    { fieldName: 'rolDvCd', header: t('MSG_TXT_ROLE_1'), width: '100', styleName: 'text-center' }, // TODO: 관련 데이터 작업 완료 시 수정 필요
     { fieldName: 'cntrDt', header: t('MSG_TXT_ENTCO_D'), width: '100', styleName: 'text-center' },
     { fieldName: 'carno', header: t('MSG_TXT_CARNO'), width: '120', styleName: 'text-center' },
     { fieldName: 'carnm', header: t('MSG_TXT_VHC_KND'), width: '100', styleName: 'text-center' },
@@ -316,4 +316,3 @@ const initGrdMain = defineGrid((data, view) => {
   };
 });
 </script>
-<style scoped> </style>
