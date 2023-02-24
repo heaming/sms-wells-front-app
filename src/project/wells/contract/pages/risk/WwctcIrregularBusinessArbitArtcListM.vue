@@ -36,15 +36,14 @@
               :label="$t('MSG_TXT_ACEPT_PERIOD')"
             >
               <kw-select
-                v-model="searchParams.actPrd"
+                v-model="searchParams.srchGbn "
                 :options="prdDivOption"
               />
               <kw-date-range-picker
                 :key="isRegistration"
-                v-model:from="searchParams.dangocstrdt.startDt"
-                v-model:to="searchParams.dangocstrdt.endDt"
+                v-model:from="searchParams.dangOcStrtdt"
+                v-model:to="searchParams.dangOcEnddt"
                 :type="isRegistration"
-                rules="date_range_months:1"
               />
             </kw-search-item>
 
@@ -52,7 +51,7 @@
               :label="$t('MSG_TXT_MANAGEMENT_DEPARTMENT')"
             >
               <kw-select
-                v-model="searchParams.mgmtDpt"
+                v-model="searchParams.gnrdv"
                 :options="gnrlMngTeamOptions"
               />
             </kw-search-item>
@@ -62,7 +61,7 @@
               :label="$t('MSG_TXT_RGNL_GRP')"
             >
               <kw-input
-                v-model="searchParams.rgnlGrp"
+                v-model="searchParams.rgrp"
               />
             </kw-search-item>
 
@@ -70,16 +69,16 @@
               :label="$t('MSG_TXT_BRANCH')"
             >
               <kw-input
-                v-model="searchParams.brnch"
+                v-model="searchParams.brch"
               />
             </kw-search-item>
             <kw-search-item
               :label="$t('MSG_TXT_EMP_SRCH')"
             >
               <kw-input
-                v-model="searchParams.dangOjPrntrNo"
+                v-model="searchParams.dangOjPrtnrNo"
                 icon="search"
-                clearable
+                @click-icon="onClickSearchPartnerId"
               />
             </kw-search-item>
           </kw-search-row>
@@ -98,7 +97,6 @@
             </template>
             <kw-btn
               :label="$t('MSG_BTN_DEL')"
-              grid-action
               @click="onClickDelete"
             />
             <kw-btn
@@ -111,6 +109,7 @@
             />
           </kw-action-top>
           <kw-grid
+            ref="grdMainRef"
             :visible-rows="pageInfo.pageSize"
             @init="initGrdMain"
           />
@@ -123,9 +122,10 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { gridUtil, defineGrid, getComponentType, useDataService, useMeta, codeUtil } from 'kw-lib';
+import { gridUtil, defineGrid, getComponentType, useDataService, useMeta, codeUtil, useGlobal } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 
+const { modal } = useGlobal();
 const { getConfig } = useMeta();
 const dataService = useDataService();
 const { t } = useI18n();
@@ -135,19 +135,17 @@ const { t } = useI18n();
 // -------------------------------------------------------------------------------------------------
 const grdMainRef = ref(getComponentType('KwGrid'));
 const searchParams = ref({
-  actPrd: '',
-  dangocstrdt: {
-    startDt: '',
-    endDt: '',
-  },
-  mgmtDpt: '',
-  rgnlGrp: '',
-  brnch: '',
-  dangOjPrntrNo: '',
+  srchGbn: 1,
+  dangOcStrtdt: '',
+  dangOcEnddt: '',
+  gnrdv: '',
+  rgrp: '',
+  brch: '',
+  dangOjPrtnrNo: '',
 });
 const prdDivOption = ref([{ codeId: 1, codeName: t('MSG_TXT_FST_RGST_DT') },
   { codeId: 2, codeName: t('MSG_TXT_YEAR_OCCURNCE') }]);
-const isRegistration = computed(() => (searchParams.value.actPrd === 1 ? 'date' : 'month'));
+const isRegistration = computed(() => (searchParams.value.srchGbn === 1 ? 'date' : 'month'));
 const gnrlMngTeamOptions = ref([
   { codeId: '', codeName: t('MSG_TXT_ALL') },
   { codeId: 'A', codeName: `A${t('MSG_TXT_MANAGEMENT_DEPARTMENT')}` },
@@ -174,7 +172,7 @@ let cachedParams;
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
 
-  const response = await dataService.get('/api/v1/sms/wells/contract/irg-bzns-arbit-artc/excel-download', { params: cachedParams });
+  const response = await dataService.get('/sms/wells/contract/risk-audits/irregular-sales-actions/excel-download', { params: cachedParams });
 
   await gridUtil.exportView(view, {
     fileName: 'monitorContractRiskList',
@@ -182,15 +180,35 @@ async function onClickExcelDownload() {
     exportData: response.data,
   });
 }
+async function onClickSearchPartnerId() {
+  const { result, payload } = await modal({
+    component: 'ZwogcPartnerListP',
+  });
+
+  if (result) {
+    searchParams.value.dangOjPrtnrNo = payload.prtnrNo;
+  }
+}
 
 async function fetchData() {
-  cachedParams = { ...cachedParams, ...pageInfo.value };
-  const res = await dataService.get('/api/v1/sms/wells/contract/irg-bzns-arbit-artc', { params: cachedParams });
-  const { list: irregularBusinesses, pageInfo: pagingResult } = res.data;
-  pageInfo.value = pagingResult;
+  if (searchParams.value.srchGbn === 1) {
+    cachedParams = { ...cachedParams, ...pageInfo.value };
+  } else {
+    const dangOcStrtMonth = cachedParams.dangOcStrtdt;
+    const dangOcEndMonth = cachedParams.dangOcEnddt;
+    const { dangOcStrtdt, dangOcEnddt, ...newCachedParams } = cachedParams;
+
+    cachedParams = { dangOcStrtMonth, dangOcEndMonth, ...newCachedParams, ...pageInfo.value };
+  }
+  const res = await dataService.get('sms/wells/contract/risk-audits/irregular-sales-actions', { params: cachedParams });
+  pageInfo.value = {
+    totalCount: res.data.length,
+    pageIndex: 1,
+    pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
+  };
 
   const view = grdMainRef.value.getView();
-  view.getDataSource().setRows(irregularBusinesses);
+  view.getDataSource().setRows(res.data);
   view.resetCurrent();
 }
 
@@ -206,7 +224,9 @@ async function onClickDelete() {
   const deletedRows = await gridUtil.confirmDeleteCheckedRows(view);
 
   if (deletedRows.length > 0) {
-    // TODO integrate delete api
+    const dangChkIds = deletedRows.map(({ dangChkId }) => dangChkId);
+    await dataService.delete('sms/wells/contract/risk-audits/irregular-sales-actions', { params: { dangChkIds } });
+    await fetchData();
   }
 }
 
@@ -215,23 +235,24 @@ async function onClickDelete() {
 // -------------------------------------------------------------------------------------------------
 const initGrdMain = defineGrid((data, view) => {
   const fields = [
+    { fieldName: 'dangChkId' },
     { fieldName: 'col1' },
     { fieldName: 'col2' },
     { fieldName: 'col3' },
     { fieldName: 'col4' },
     { fieldName: 'col5' },
-    { fieldName: 'col6' },
-    { fieldName: 'col7' },
-    { fieldName: 'col8' },
+    { fieldName: 'dangOjPrtnrNm' },
+    { fieldName: 'dangOjPrtnrNo' },
+    { fieldName: 'dangOjPrtnrPstnDvNm' },
     { fieldName: 'col9' },
     { fieldName: 'col10' },
     { fieldName: 'col11' },
-    { fieldName: 'col12' },
-    { fieldName: 'col13' },
-    { fieldName: 'col14' },
-    { fieldName: 'col15' },
-    { fieldName: 'col16' },
-    { fieldName: 'col17' },
+    { fieldName: 'dangArbitCd' },
+    { fieldName: 'dangUncvrCt' },
+    { fieldName: 'dangArbitLvyPc' },
+    { fieldName: 'dangArbitLvyPcSum' },
+    { fieldName: 'fnlMdfcUsrId' },
+    { fieldName: 'fstRgstDtm' },
   ];
 
   const columns = [
@@ -240,18 +261,18 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'col3', header: t('MSG_TXT_AFL_CD'), width: '129', styleName: 'text-left' },
     { fieldName: 'col4', header: t('MSG_TXT_EMPL_NM'), width: '129', styleName: 'text-left' },
     { fieldName: 'col5', header: t('MSG_TXT_EPNO'), width: '129', styleName: 'text-left' },
-    { fieldName: 'col6', header: t('MSG_TXT_EMPL_NM'), width: '129', styleName: 'text-left' },
-    { fieldName: 'col7', header: t('MSG_TXT_EPNO'), width: '129' },
-    { fieldName: 'col8', header: t('MSG_TXT_GRADE'), width: '129', styleName: 'text-left' },
+    { fieldName: 'dangOjPrtnrNm', header: t('MSG_TXT_EMPL_NM'), width: '129', styleName: 'text-left' },
+    { fieldName: 'dangOjPrtnrNo', header: t('MSG_TXT_EPNO'), width: '129' },
+    { fieldName: 'dangOjPrtnrPstnDvNm', header: t('MSG_TXT_GRADE'), width: '129', styleName: 'text-left' },
     { fieldName: 'col9', header: t('MSG_TXT_YEAR_OCCURNCE'), width: '129', styleName: 'text-left' },
     { fieldName: 'col10', header: t('MSG_TXT_ACTN_DPT'), width: '306', styleName: 'text-center' },
     { fieldName: 'col11', header: t('MSG_TXT_CHRGS'), width: '306', styleName: 'text-left' },
-    { fieldName: 'col12', header: t('MSG_TXT_ACTN_ITM'), width: '306', styleName: 'text-left' },
-    { fieldName: 'col13', header: t('MSG_TXT_DUE_TRGT_NO'), width: '129', styleName: 'text-left' },
-    { fieldName: 'col14', header: t('MSG_TXT_ACTN_TM_PNLTY_PNT'), width: '190', styleName: 'text-center' },
-    { fieldName: 'col15', header: t('MSG_TXT_TTL_PT'), width: '129', styleName: 'text-center' },
-    { fieldName: 'col16', header: t('MSG_TXT_FST_RGST_USR'), width: '146', styleName: 'text-center' },
-    { fieldName: 'col17', header: t('MSG_TXT_FST_RGST_DT'), width: '165', styleName: 'text-left', datetimeFormat: 'date' },
+    { fieldName: 'dangArbitCd', header: t('MSG_TXT_ACTN_ITM'), width: '306', styleName: 'text-left' },
+    { fieldName: 'dangUncvrCt', header: t('MSG_TXT_DUE_TRGT_NO'), width: '129', styleName: 'text-left' },
+    { fieldName: 'dangArbitLvyPc', header: t('MSG_TXT_ACTN_TM_PNLTY_PNT'), width: '190', styleName: 'text-center' },
+    { fieldName: 'dangArbitLvyPcSum', header: t('MSG_TXT_TTL_PT'), width: '129', styleName: 'text-center' },
+    { fieldName: 'fnlMdfcUsrId', header: t('MSG_TXT_FST_RGST_USR'), width: '146', styleName: 'text-center' },
+    { fieldName: 'fstRgstDtm', header: t('MSG_TXT_FST_RGST_DT'), width: '165', styleName: 'text-left', datetimeFormat: 'date' },
   ];
 
   data.setFields(fields);
@@ -265,27 +286,14 @@ const initGrdMain = defineGrid((data, view) => {
     {
       header: t('MSG_TXT_EMP_NO'), // colspan title
       direction: 'horizontal', // merge type
-      items: ['col6', 'col7', 'col8'],
+      items: ['dangOjPrtnrNm', 'dangOjPrtnrNo', 'dangOjPrtnrPstnDvNm'],
     },
     {
       header: t('MSG_TXT_PNLTY'), // colspan title
       direction: 'horizontal', // merge type
-      items: ['col9', 'col10', 'col11', 'col12', 'col13', 'col14', 'col15'],
+      items: ['col9', 'col10', 'col11', 'dangArbitCd', 'dangUncvrCt', 'dangArbitLvyPc', 'dangArbitLvyPcSum'],
     },
-    'col16', 'col17',
-  ]);
-
-  data.setRows([
-    { col1: '김총괄', col2: '김지역', col3: '김BM', col4: '김지점', col5: '123456', col6: '김교원', col7: '123456', col8: '김교원', col9: '2022-05', col10: '71401-Wells 경영지원팀', col11: '부과내역', col12: '부과내역', col13: '1', col14: '5', col15: '50', col16: '김직원', col17: '2022-05' },
-    { col1: '김총괄', col2: '김지역', col3: '김BM', col4: '김지점', col5: '123456', col6: '김교원', col7: '123456', col8: '김교원', col9: '2022-05', col10: '71401-Wells 경영지원팀', col11: '부과내역', col12: '부과내역', col13: '1', col14: '5', col15: '50', col16: '김직원', col17: '2022-05' },
-    { col1: '김총괄', col2: '김지역', col3: '김BM', col4: '김지점', col5: '123456', col6: '김교원', col7: '123456', col8: '김교원', col9: '2022-05', col10: '71401-Wells 경영지원팀', col11: '부과내역', col12: '부과내역', col13: '1', col14: '5', col15: '50', col16: '김직원', col17: '2022-05' },
-    { col1: '김총괄', col2: '김지역', col3: '김BM', col4: '김지점', col5: '123456', col6: '김교원', col7: '123456', col8: '김교원', col9: '2022-05', col10: '71401-Wells 경영지원팀', col11: '부과내역', col12: '부과내역', col13: '1', col14: '5', col15: '50', col16: '김직원', col17: '2022-05' },
-    { col1: '김총괄', col2: '김지역', col3: '김BM', col4: '김지점', col5: '123456', col6: '김교원', col7: '123456', col8: '김교원', col9: '2022-05', col10: '71401-Wells 경영지원팀', col11: '부과내역', col12: '부과내역', col13: '1', col14: '5', col15: '50', col16: '김직원', col17: '2022-05' },
-    { col1: '김총괄', col2: '김지역', col3: '김BM', col4: '김지점', col5: '123456', col6: '김교원', col7: '123456', col8: '김교원', col9: '2022-05', col10: '71401-Wells 경영지원팀', col11: '부과내역', col12: '부과내역', col13: '1', col14: '5', col15: '50', col16: '김직원', col17: '2022-05' },
-    { col1: '김총괄', col2: '김지역', col3: '김BM', col4: '김지점', col5: '123456', col6: '김교원', col7: '123456', col8: '김교원', col9: '2022-05', col10: '71401-Wells 경영지원팀', col11: '부과내역', col12: '부과내역', col13: '1', col14: '5', col15: '50', col16: '김직원', col17: '2022-05' },
-    { col1: '김총괄', col2: '김지역', col3: '김BM', col4: '김지점', col5: '123456', col6: '김교원', col7: '123456', col8: '김교원', col9: '2022-05', col10: '71401-Wells 경영지원팀', col11: '부과내역', col12: '부과내역', col13: '1', col14: '5', col15: '50', col16: '김직원', col17: '2022-05' },
-    { col1: '김총괄', col2: '김지역', col3: '김BM', col4: '김지점', col5: '123456', col6: '김교원', col7: '123456', col8: '김교원', col9: '2022-05', col10: '71401-Wells 경영지원팀', col11: '부과내역', col12: '부과내역', col13: '1', col14: '5', col15: '50', col16: '김직원', col17: '2022-05' },
-
+    'fnlMdfcUsrId', 'fstRgstDtm',
   ]);
 });
 </script>
