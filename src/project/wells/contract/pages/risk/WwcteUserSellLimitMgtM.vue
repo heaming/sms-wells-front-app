@@ -71,6 +71,7 @@
               <kw-input
                 icon="search"
                 clearable
+                @click-icon="openProductsSearchPopup"
               />
             </kw-search-item>
             <kw-search-item :label="t('MSG_TXT_SEL_TYPE')">
@@ -154,7 +155,7 @@
 import { getComponentType, gridUtil, useGlobal, useMeta } from 'kw-lib';
 
 const grdMainRef = ref(getComponentType('KwGrid'));
-const { notify } = useGlobal();
+const { notify, modal } = useGlobal();
 const { getConfig } = useMeta();
 
 const { t } = useI18n();
@@ -162,6 +163,13 @@ const { t } = useI18n();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
+
+async function openProductsSearchPopup() {
+  await modal({
+    component: 'ZpdcStandardProductListP',
+  });
+}
+
 const pageInfo = ref({
   totalCount: 0,
   pageIndex: 1,
@@ -249,55 +257,55 @@ async function onClickSave() {
 // -------------------------------------------------------------------------------------------------
 function initGrid(data, view) {
   const fields = [
-    { fieldName: 'col1' },
-    { fieldName: 'col2' },
-    { fieldName: 'col3' },
-    { fieldName: 'col4' },
+    { fieldName: 'sellBaseTp' },
+    { fieldName: 'sellBaseChnl' },
+    { fieldName: 'deptCd' },
+    { fieldName: 'sellBaseUsr' },
     { fieldName: 'col5' },
-    { fieldName: 'col6' },
+    { fieldName: 'zip' },
     { fieldName: 'col7' },
-    { fieldName: 'col8' },
-    { fieldName: 'col9' },
-    { fieldName: 'col10' },
-    { fieldName: 'col11' },
+    { fieldName: 'pdCd' },
+    { fieldName: 'pdLclsfNm' },
+    { fieldName: 'pdMclsfNm' },
+    { fieldName: 'pdNm' },
     { fieldName: 'col12' },
-    { fieldName: 'col13' },
+    { fieldName: 'sellBaseSellTp' },
     { fieldName: 'col14' },
-    { fieldName: 'col15' },
-    { fieldName: 'col16' },
+    { fieldName: 'vlStrtDtm' },
+    { fieldName: 'vlEndDtm' },
     { fieldName: 'col17' },
     { fieldName: 'col18' },
     { fieldName: 'col19' },
-    { fieldName: 'col20' },
-    { fieldName: 'col21' },
-    { fieldName: 'col22' },
-    { fieldName: 'col23' },
+    { fieldName: 'fstRgstDtm' },
+    { fieldName: 'fstRgstUsrId' },
+    { fieldName: 'fnlMdfcDtm' },
+    { fieldName: 'fnlMdfcUsrId' },
   ];
 
   const columns = [
-    { fieldName: 'col1', header: t('MSG_TXT_SLS_CAT'), width: '142' },
-    { fieldName: 'col2', header: t('MSG_TXT_CHNL'), width: '142' },
-    { fieldName: 'col3', header: t('MSG_TXT_OG'), width: '126', styleName: 'text-center' },
-    { fieldName: 'col4', header: t('MSG_TXT_USER'), width: '126', styleName: 'text-center' },
+    { fieldName: 'sellBaseTp', header: t('MSG_TXT_SLS_CAT'), width: '142' },
+    { fieldName: 'sellBaseChnl', header: t('MSG_TXT_CHNL'), width: '142' },
+    { fieldName: 'deptCd', header: t('MSG_TXT_OG'), width: '126', styleName: 'text-center' },
+    { fieldName: 'sellBaseUsr', header: t('MSG_TXT_USER'), width: '126', styleName: 'text-center' },
     { fieldName: 'col5', header: t('MSG_TXT_INDI_CORP'), width: '142' },
-    { fieldName: 'col6', header: t('MSG_TXT_PSTL_CD1'), width: '180', styleName: 'text-center' },
+    { fieldName: 'zip', header: t('MSG_TXT_PSTL_CD1'), width: '180', styleName: 'text-center' },
     { fieldName: 'col7', header: t('MSG_TXT_PSTL_CD1'), width: '180', styleName: 'text-center' },
-    { fieldName: 'col8', header: t('MSG_TXT_PRDT_CODE'), width: '180', styleName: 'text-center' },
-    { fieldName: 'col9', header: t('MSG_TXT_PRDT_CATE'), width: '142' },
-    { fieldName: 'col10', header: t('MSG_TXT_PRDT_TYPE'), width: '142' },
-    { fieldName: 'col11', header: t('MSG_TXT_PD_NM'), width: '220' },
+    { fieldName: 'pdCd', header: t('MSG_TXT_PRDT_CODE'), width: '180', styleName: 'text-center' },
+    { fieldName: 'pdLclsfNm', header: t('MSG_TXT_PRDT_CATE'), width: '142' },
+    { fieldName: 'pdMclsfNm', header: t('MSG_TXT_PRDT_TYPE'), width: '142' },
+    { fieldName: 'pdNm', header: t('MSG_TXT_PD_NM'), width: '220' },
     { fieldName: 'col12', header: t('MSG_TXT_CYCL'), width: '131' },
-    { fieldName: 'col13', header: t('MSG_TXT_SEL_TYPE'), width: '142' },
+    { fieldName: 'sellBaseSellTp', header: t('MSG_TXT_SEL_TYPE'), width: '142' },
     { fieldName: 'col14', header: t('MSG_TXT_SLS_RSTR'), width: '142' },
-    { fieldName: 'col15', header: t('MSG_TXT_STRT_DT'), datetimeFormat: 'date', width: '196', styleName: 'text-right' },
-    { fieldName: 'col16', header: t('MSG_TXT_END_DT'), datetimeFormat: 'date', width: '196', styleName: 'text-right' },
+    { fieldName: 'vlStrtDtm', header: t('MSG_TXT_STRT_DT'), datetimeFormat: 'date', width: '196', styleName: 'text-right' },
+    { fieldName: 'vlEndDtm', header: t('MSG_TXT_END_DT'), datetimeFormat: 'date', width: '196', styleName: 'text-right' },
     { fieldName: 'col17', header: `${t('MSG_TXT_NOTE')}1`, width: '220' },
     { fieldName: 'col18', header: `${t('MSG_TXT_NOTE')}2`, width: '220' },
     { fieldName: 'col19', header: `${t('MSG_TXT_NOTE')}3`, width: '220' },
-    { fieldName: 'col20', header: t('MSG_TXT_RGST_DT'), datetimeFormat: 'date', width: '196', styleName: 'text-right' },
-    { fieldName: 'col21', header: t('MSG_TXT_FST_RGST_USR'), width: '131' },
-    { fieldName: 'col22', header: t('MSG_TXT_EDIT_DTM'), datetimeFormat: 'date', width: '196', styleName: 'text-right' },
-    { fieldName: 'col23', header: t('MSG_TXT_MDFC_USR'), width: '131' },
+    { fieldName: 'fstRgstDtm', header: t('MSG_TXT_RGST_DT'), datetimeFormat: 'date', width: '196', styleName: 'text-right' },
+    { fieldName: 'fstRgstUsrId', header: t('MSG_TXT_FST_RGST_USR'), width: '131' },
+    { fieldName: 'fnlMdfcDtm', header: t('MSG_TXT_EDIT_DTM'), datetimeFormat: 'date', width: '196', styleName: 'text-right' },
+    { fieldName: 'fnlMdfcUsrId', header: t('MSG_TXT_MDFC_USR'), width: '131' },
   ];
 
   data.setFields(fields);

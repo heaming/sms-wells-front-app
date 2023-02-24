@@ -54,7 +54,7 @@
             <kw-search-item :label="t('MSG_TXT_APR_REQ_CAT')">
               <kw-select
                 v-model="searchParams.approvalRequestCategory"
-                :options="['승인요청구분을 선택헤주세요', 'B', 'C', 'D']"
+                :options="approvalClassificationList"
               />
             </kw-search-item>
             <kw-search-item :label="t('MSG_TXT_APR_REQ_CAT')">
@@ -128,8 +128,14 @@
           <kw-grid
             ref="grdMainRef"
             name="approvalBaseGrid"
-            :visible-rows="10"
+            :visible-rows="pageInfo.pageSize"
             @init="initGrid"
+          />
+          <kw-pagination
+            v-model:page-index="pageInfo.pageIndex"
+            v-model:page-size="pageInfo.pageSize"
+            :total-count="pageInfo.totalCount"
+            @change="fetchData"
           />
         </div>
       </kw-tab-panel>
@@ -141,10 +147,13 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { gridUtil, getComponentType, useGlobal, useMeta } from 'kw-lib';
+import { gridUtil, useDataService, getComponentType, useGlobal, useMeta, codeUtil } from 'kw-lib';
+import { cloneDeep } from 'lodash-es';
 
 const { t } = useI18n();
 const { notify, modal } = useGlobal();
+
+const dataService = useDataService();
 
 const grdMainRef = ref(getComponentType('KwGrid'));
 const { getConfig } = useMeta();
@@ -152,6 +161,12 @@ const { getConfig } = useMeta();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
+
+const codes = await codeUtil.getMultiCodes(
+  'USE_YN',
+);
+
+let cachedParams;
 
 const searchParams = ref({
   baseDt: '',
@@ -165,10 +180,42 @@ const pageInfo = ref({
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
 });
 
+const approvalClassificationList = ref([]);
+const purchaseClassificationList = ref([
+  { codeName: t('MSG_TXT_ALL'), codeId: 'A' },
+  { codeName: t('MSG_TXT_SLS'), codeId: '7' },
+  { codeName: t('MSG_TXT_EMP_SLS'), codeId: '8' },
+  { codeName: t('MSG_TXT_EMP_PRCH'), codeId: '9' },
+]);
+
+const picClassificationList = ref([
+  { codeName: t('MSG_TXT_ICHR_DV'), codeId: '0' },
+  { codeName: t('MSG_TXT_DSGNTD_CMPNY_NUM'), codeId: '1' },
+  { codeName: t('MSG_TXT_BM'), codeId: '2' },
+  { codeName: t('MSG_TXT_BIZ_ICHR'), codeId: '3' },
+  { codeName: t('MSG_TXT_REG_DIR'), codeId: '4' },
+]);
+
+// TODO uncomment this.
+// onMounted(async () => {
+//   approvalClassificationList.value = await dataService.get('/sms/wells/contract/contracts/approval-requests');
+// });
+
 function onClickAdd() {
   const view = grdMainRef.value.getView();
   gridUtil.insertRowAndFocus(view, 0, {});
   view.showEditor();
+}
+
+async function fetchData() {
+  cachedParams = { ...cachedParams, ...pageInfo.value };
+  console.log(cachedParams, pageInfo.value);
+  const res = await dataService.get('sms/wells/contract/contracts/approval-standards/paging', { params: cachedParams });
+  const { list: approvals, pageInfo: pagingResult } = res.data;
+  const view = grdMainRef.value.getView();
+  pageInfo.value = pagingResult;
+  view.getDataSource().setRows(approvals);
+  view.resetCurrent();
 }
 
 async function onClickSave() {
@@ -177,30 +224,24 @@ async function onClickSave() {
   if (!gridUtil.validate(view, {})) { return; }
   notify('Data saved');
   const changedRows = gridUtil.getChangedRowValues(view);
-  notify(changedRows);
-  // TODO integrate save api
+  changedRows.map((ele) => {
+    ele.dtaDlYn = 'N';
+    ele.checkType = 'A';
+    return ele;
+  });
+  await dataService.post('sms/wells/contract/contracts/approval-standards', changedRows);
+  fetchData();
 }
 
-function onClickExcelDownload() {
-  // TODO integrate excel download api
-}
-
-function fetchData() {
+async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
-  // TODO integrate Get api call.
-  view.getDataSource().setRows([
-    { col1: 'A-전체', col2: ' ', col3: '0-담당없음', col4: '사번입력', col5: ' ', col6: '2022-05-03', col7: '2022-05-03', col8: 'Y' },
-    { col1: '9-직원구매', col2: 'ETC', col3: '1-지정사번', col4: '123456', col5: '김직원', col6: '20220520', col7: '20220520', col8: 'N' },
-    { col1: '9-직원구매', col2: 'ETC', col3: '1-지정사번', col4: '123456', col5: '김직원', col6: '20220520', col7: '20220520', col8: 'N' },
-    { col1: '9-직원구매', col2: 'ETC', col3: '1-지정사번', col4: '123456', col5: '김직원', col6: '20220520', col7: '20220520', col8: 'N' },
-    { col1: '9-직원구매', col2: 'ETC', col3: '1-지정사번', col4: '123456', col5: '김직원', col6: '20220520', col7: '20220520', col8: 'N' },
-    { col1: '9-직원구매', col2: 'ETC', col3: '1-지정사번', col4: '123456', col5: '김직원', col6: '20220520', col7: '20220520', col8: 'N' },
-    { col1: '9-직원구매', col2: 'ETC', col3: '1-지정사번', col4: '123456', col5: '김직원', col6: '20220520', col7: '20220520', col8: 'N' },
-    { col1: '9-직원구매', col2: 'ETC', col3: '1-지정사번', col4: '123456', col5: '김직원', col6: '20220520', col7: '20220520', col8: 'N' },
-    { col1: '9-직원구매', col2: 'ETC', col3: '1-지정사번', col4: '123456', col5: '김직원', col6: '20220520', col7: '20220520', col8: 'N' },
-    { col1: '9-직원구매', col2: 'ETC', col3: '1-지정사번', col4: '123456', col5: '김직원', col6: '20220520', col7: '20220520', col8: 'N' },
-  ]);
-  pageInfo.value.totalCount = 10;
+  const res = await dataService.get('sms/wells/contract/contracts/approval-standards/excel-download');
+
+  await gridUtil.exportView(view, {
+    fileName: 'approvalConfirmationList',
+    timePostfix: true,
+    exportData: res.data,
+  });
 }
 
 async function onClickConfirmCriteriaMangement() {
@@ -220,14 +261,16 @@ async function onClickRemove() {
   const view = grdMainRef.value.getView();
   if (!await gridUtil.confirmIfIsModified(view)) { return; }
   const deletedRows = await gridUtil.confirmDeleteCheckedRows(view);
-
+  console.log(deletedRows);
   if (deletedRows.length > 0) {
-    // TODO integrate delete api
+    await dataService.delete('sms/wells/contract/contracts/approval-standards', { data: deletedRows });
+    fetchData();
   }
 }
 
 function onClickSearch() {
   pageInfo.value.pageIndex = 1;
+  cachedParams = cloneDeep(searchParams.value);
   fetchData();
 }
 
@@ -236,25 +279,28 @@ function onClickSearch() {
 // -------------------------------------------------------------------------------------------------
 function initGrid(data, view) {
   const fields = [
-    { fieldName: 'col1' },
-    { fieldName: 'col2' },
-    { fieldName: 'col3' },
-    { fieldName: 'col4' },
-    { fieldName: 'col5' },
-    { fieldName: 'col6' },
-    { fieldName: 'col7' },
-    { fieldName: 'col8' },
+    { fieldName: 'cntrAprBaseId' },
+    { fieldName: 'cntrAprAkDvCd' },
+    { fieldName: 'cntrAprSellDvCd' },
+    { fieldName: 'cntrAprChnlDvVal' },
+    { fieldName: 'cntrAprIchrDvCd' },
+    { fieldName: 'ichrUsrId' },
+    { fieldName: 'psicNm' },
+    { fieldName: 'vlStrtDtm' },
+    { fieldName: 'vlEndDtm' },
+    { fieldName: 'notyFwOjYn' },
   ];
 
   const columns = [
-    { fieldName: 'col1', header: t('MSG_TXT_APR_REQ_CAT'), width: '142', styleName: 'text-center', editable: false },
-    { fieldName: 'col2', header: t('MSG_TXT_RSPBL_CHNL'), width: '180', styleName: 'text-center', editor: { type: 'text' }, editable: true },
-    { fieldName: 'col3', header: t('MSG_TXT_ICHR_DV'), width: '142', styleName: 'text-center', editor: { type: 'text' } },
-    { fieldName: 'col4', header: t('MSG_TXT_CNT_PER'), width: '180', styleName: 'text-center', editor: { type: 'text' } },
-    { fieldName: 'col5', header: t('MSG_TXT_PIC_NM'), width: '180', styleName: 'text-center', editor: { type: 'text' } },
-    { fieldName: 'col6', header: t('MSG_TXT_STRT_DT'), width: '196', styleName: 'text-center', datetimeFormat: 'date', editor: { type: 'btdate' } },
-    { fieldName: 'col7', header: t('MSG_TXT_END_DT'), width: '196', styleName: 'text-center', datetimeFormat: 'date', editor: { type: 'btdate' } },
-    { fieldName: 'col8', header: t('MSG_TXT_K_TLK_MAIL_TAR'), width: '142', styleName: 'text-center' },
+    { fieldName: 'cntrAprAkDvCd', header: t('MSG_TXT_APR_REQ_CAT'), width: '142', styleName: 'text-center', editable: false },
+    { fieldName: 'cntrAprSellDvCd', header: t('MSG_TXT_SLS_CAT'), width: '142', styleName: 'text-center', editor: { type: 'list' }, options: purchaseClassificationList.value },
+    { fieldName: 'cntrAprChnlDvVal', header: t('MSG_TXT_RSPBL_CHNL'), width: '180', styleName: 'text-center', editor: { type: 'text' }, editable: true },
+    { fieldName: 'cntrAprIchrDvCd', header: t('MSG_TXT_ICHR_DV'), width: '142', styleName: 'text-center', editor: { type: 'list' }, options: picClassificationList.value },
+    { fieldName: 'ichrUsrId', header: t('MSG_TXT_CNT_PER'), width: '180', styleName: 'text-center', editor: { type: 'text' } },
+    { fieldName: 'psicNm', header: t('MSG_TXT_PIC_NM'), width: '180', styleName: 'text-center', editor: { type: 'text' } },
+    { fieldName: 'vlStrtDtm', header: t('MSG_TXT_STRT_DT'), width: '196', styleName: 'text-center', datetimeFormat: 'date', editor: { type: 'btdate' } },
+    { fieldName: 'vlEndDtm', header: t('MSG_TXT_END_DT'), width: '196', styleName: 'text-center', datetimeFormat: 'date', editor: { type: 'btdate' } },
+    { fieldName: 'notyFwOjYn', header: t('MSG_TXT_K_TLK_MAIL_TAR'), width: '142', styleName: 'text-center', editor: { type: 'list' }, options: codes.USE_YN },
   ];
 
   data.setFields(fields);
