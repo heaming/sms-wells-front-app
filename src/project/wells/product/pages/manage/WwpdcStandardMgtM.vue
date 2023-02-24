@@ -365,7 +365,7 @@ async function onClickSave(tempSaveYn) {
     // 임시저장
     currentPdCd.value = rtn.data?.data?.pdCd;
     isCreate.value = isEmpty(currentPdCd.value);
-    router.push({ path: '/product/zwpdc-sale-product-list/wwpdc-standard-mgt', replace: true, query: { pdCd: currentPdCd.value, tempSaveYn: isTempSaveBtn ? 'Y' : 'N' } });
+    router.push({ path: '/product/zwpdc-sale-product-list/wwpdc-standard-mgt', replace: true, query: { pdCd: currentPdCd.value, tempSaveYn: isTempSaveBtn.value ? 'Y' : 'N' } });
   } else {
     // router.close();
   }
