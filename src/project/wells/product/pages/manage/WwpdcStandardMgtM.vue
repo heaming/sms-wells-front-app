@@ -198,9 +198,11 @@ const codes = await codeUtil.getMultiCodes(
 );
 
 async function onClickReset() {
-  cmpStepRefs.value.forEach((item) => {
-    item.value?.resetData();
-  });
+  await Promise.all(cmpStepRefs.value.map(async (item) => {
+    if (item.value.resetData) {
+      await item.value?.resetData();
+    }
+  }));
 }
 
 async function onClickDelete() {
@@ -296,8 +298,8 @@ async function onClickPrevStep() {
 }
 
 async function fetchProduct() {
+  prevStepData.value = {};
   if (currentPdCd.value) {
-    prevStepData.value = {};
     const res = await dataService.get(`/sms/common/product/standards/${currentPdCd.value}`);
     console.log('WwpdcStandardMgtM - fetchProduct - res.data', res.data);
     prevStepData.value[bas] = res.data[bas];
@@ -350,23 +352,22 @@ async function onClickSave(tempSaveYn) {
   console.log('WwpdcStandardMgtM - onClickSave - subList : ', subList);
 
   // 4. 생성 or 저장
-  const { pdCd } = props;
   let rtn;
   if (!isCreate.value) {
-    rtn = await dataService.put(`/sms/common/product/standards/${pdCd}`, subList);
+    rtn = await dataService.put(`/sms/common/product/standards/${currentPdCd.value}`, subList);
   } else {
     rtn = await dataService.post('/sms/common/product/standards', subList);
   }
 
   // 5. 생성 이후 Step 설정
   notify(t('MSG_ALT_SAVE_DATA'));
-  if (isTempSaveBtn) {
+  if (isTempSaveBtn.value) {
     // 임시저장
     currentPdCd.value = rtn.data?.data?.pdCd;
     isCreate.value = isEmpty(currentPdCd.value);
-    fetchProduct();
+    router.push({ path: '/product/zwpdc-sale-product-list/wwpdc-standard-mgt', replace: true, query: { pdCd: currentPdCd.value, tempSaveYn: isTempSaveBtn ? 'Y' : 'N' } });
   } else {
-    router.push({ path: '/product/zwpdc-sale-product-list' });
+    // router.close();
   }
 }
 
@@ -407,29 +408,25 @@ async function initProps() {
 
 await initProps();
 
-watch(() => props.pdCd, (val) => { currentPdCd.value = val; });
-watch(() => props.tempSaveYn, (val) => { isTempSaveBtn.value = val !== 'Y'; });
-
 watch(() => route.params.pdCd, async (pdCd) => {
-  if (route.params.pdCd !== pdCd) {
+  console.log(`currentPdCd.value : ${currentPdCd.value}, route.params.pdCd : ${pdCd}`);
+  if (currentPdCd.value !== pdCd && pdCd) {
     isCreate.value = isEmpty(pdCd);
     currentStep.value = pdConst.STANDARD_STEP_BASIC;
-    if (isEmpty(pdCd)) {
+    if (isCreate.value) {
       isTempSaveBtn.value = true;
     }
-    prevStepData.value = {};
-    if (pdCd !== currentStep.value) {
-      currentPdCd.value = pdCd;
-      await fetchProduct();
-    }
+    currentPdCd.value = pdCd;
+    await fetchProduct();
   }
 }, { immediate: true });
 
-watch(() => route.params.tempSaveYn, async (tempSaveYn) => {
-  if (tempSaveYn && isTempSaveBtn.value !== (tempSaveYn !== 'N')) {
-    isTempSaveBtn.value = tempSaveYn !== 'N';
-  }
-}, { immediate: true });
+// watch(() => route.params.pdCd, async (pdCd) => {
+//   if (currentPdCd.value && isEmpty(pdCd)) {
+//     currentStep.value = pdConst.STANDARD_STEP_BASIC;
+//     await onClickReset();
+//   }
+// }, { immediate: true });
 
 onMounted(async () => {
   const mgtNameFields = await cmpStepRefs.value[0]?.value.getNameFields();

@@ -38,7 +38,7 @@
         <!-- 판매기간 -->
         <kw-form-item :label="$t('MSG_TXT_PRDT_SLE_PRD')">
           <p v-if="pdInfo.sellStrtdt || pdInfo.sellEnddt">
-            {{ getDateValue(pdInfo.sellStrtdt) }} ~ {{ getDateValue(pdInfo.sellEnddt) }}
+            {{ stringUtil.getDateFormat(pdInfo.sellStrtdt) }} ~ {{ stringUtil.getDateFormat(pdInfo.sellEnddt) }}
           </p>
         </kw-form-item>
         <!-- 상품분류 -->
@@ -146,7 +146,7 @@
 import { useDataService, codeUtil, stringUtil, getComponentType } from 'kw-lib';
 import { isEmpty } from 'lodash-es';
 import pdConst from '~sms-common/product/constants/pdConst';
-import { getDateValue, getCodeNames } from '~sms-common/product/utils/pdUtil';
+import { getCodeNames } from '~sms-common/product/utils/pdUtil';
 
 const props = defineProps({
   pdCd: { type: String, default: null },
@@ -225,9 +225,10 @@ async function initGridRows() {
 }
 
 async function fetchData() {
-  const resPd = await dataService.get('/sms/common/product/products', { params: { pdTpCd: pdConst.PD_TP_CD_STANDARD, pdCd: currentPdCd.value } });
-  // console.log('WwpdcStandardSummaryDtlP - fetchData - res : ', resPd.data);
-  pdInfo.value = resPd.data?.products[0];
+  // const resPd = await dataService.get('/sms/common/product/products', {
+  //  params: { pdTpCd: pdConst.PD_TP_CD_STANDARD, pdCd: currentPdCd.value } });
+  const resPd = await dataService.get(`/sms/common/product/${currentPdCd.value}`);
+  pdInfo.value = resPd.data?.product;
 
   const resRel = await dataService.get(`/sms/common/product/relations/products/${currentPdCd.value}`, { params: { } });
   pdRels.value = resRel.data;

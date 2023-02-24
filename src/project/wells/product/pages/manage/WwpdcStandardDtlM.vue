@@ -68,6 +68,7 @@ const codes = await codeUtil.getMultiCodes(
 );
 
 async function fetchProduct() {
+  initData.value = {};
   const res = await dataService.get(`/sms/common/product/standards/${currentPdCd.value}`);
   // console.log('WwpdcStandardDtlM - fetchProduct - res.data', res.data);
   pdBas.value = res.data[pdConst.TBL_PD_BAS];
@@ -90,8 +91,12 @@ async function initProps() {
 
 await initProps();
 
-watch(() => route.params.pdCd, async () => {
-  await initProps();
+watch(() => route.params.pdCd, async (pdCd) => {
+  console.log(`currentPdCd.value : ${currentPdCd.value}, route.params.pdCd : ${pdCd}`);
+  if (currentPdCd.value !== pdCd && pdCd) {
+    currentPdCd.value = pdCd;
+    fetchProduct();
+  }
 }, { immediate: true });
 
 </script>

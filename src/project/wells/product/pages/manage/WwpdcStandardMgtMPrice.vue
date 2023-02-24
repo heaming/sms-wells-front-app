@@ -232,7 +232,12 @@ async function fetchData() {
     // console.log('WwpdcStandardMgtMPrice - fetchData - metaInfos.value : ', metaInfos.value);
     const codeNames = await getPdMetaToCodeNames(metaInfos.value, currentCodes.value);
     if (!isEmpty(codeNames)) {
-      currentCodes.value = merge(currentCodes.value, await codeUtil.getMultiCodes(...codeNames));
+      try {
+        currentCodes.value = merge(currentCodes.value, await codeUtil.getMultiCodes(...codeNames));
+      } catch (e) {
+        console.log(e);
+      // 공통코드 없는 에러 때문에 임시 - 추후 Try catch 삭제
+      }
     }
   }
 }
