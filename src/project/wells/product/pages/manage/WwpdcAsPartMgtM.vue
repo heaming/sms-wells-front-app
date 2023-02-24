@@ -129,7 +129,7 @@
             <!-- 초기화 -->
             <kw-btn
               v-show="currentStep.step === 1 && isCreate"
-              :label="$t('MSG_BTN_RESET')"
+              :label="$t('MSG_BTN_INTL')"
               class="ml8"
               @click="onClickReset"
             />
@@ -226,7 +226,6 @@ const page = ref({
   detail: '/product/zwpdc-as-part-list/wwpdc-as-part-dtl', // AS부품 상세보기 UI
 });
 
-// const exceptPrpGrpCd = ref('PART');
 const exceptPrpGrpCd = ref('');
 
 watch(() => props.pdCd, (val) => { currentPdCd.value = val; });
@@ -284,11 +283,9 @@ async function getSaveData(tempSaveYn) {
         if (subList[bas]?.cols) {
           saveData[bas].cols += subList[bas].cols;
         }
-        // subList[bas] = merge(subList[bas] ?? {}, saveData[bas]);
         subList[bas] = pdMergeBy(subList[bas], saveData[bas]);
       }
       if (saveData[ecom]) {
-        // subList[ecom] = unionBy(saveData[ecom], subList[ecom], 'pdExtsPrpGrpCd');
         subList[ecom] = pdMergeBy(subList[ecom], saveData[ecom], 'pdExtsPrpGrpCd');
       }
 

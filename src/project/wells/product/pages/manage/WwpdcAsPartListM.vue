@@ -225,7 +225,7 @@ async function onClickSummarySearch() {
   }
 }
 
-async function openMaterialPopup(pdCd, tempSaveYn) {
+async function openAsPartPopup(pdCd, tempSaveYn) {
   const targetUrl = tempSaveYn === 'Y' ? page.value.reg : page.value.detail;
   await router.push({ path: targetUrl, query: { pdCd, tempSaveYn } });
 }
@@ -244,7 +244,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'pdTpCd', header: t('MSG_TXT_DIV'), width: '90', styleName: 'text-center', options: codes.PD_TP_CD }, /* 구분 */
     { fieldName: 'pdClsfNm', header: t('MSG_TXT_CLSF'), width: '176' }, /* 분류 */
     { fieldName: 'pdNm', header: t('MSG_TIT_AS_PART_NM'), width: '195' }, /* 교재/자재명 */
-    { fieldName: 'pdCd', header: t('MSG_TIT_AS_PART_CD'), width: '100', styleName: 'rg-button-link', renderer: { type: 'button' }, preventCellItemFocus: true }, /* 제품코드 */
+    { fieldName: 'pdCd', header: t('MSG_TIT_AS_PART_CD'), width: '100' }, /* 제품코드 */
     { fieldName: 'sapMatCd', header: t('MSG_TXT_MATI_CD'), width: '195' }, /* 자재코드 */
     { fieldName: 'pdAbbrNm', header: t('MSG_TXT_ABBR'), width: '195' }, /* 약어 */
     // 사용자 관련 공통 컬럼
@@ -266,16 +266,20 @@ const initGrdMain = defineGrid((data, view) => {
   view.displayOptions.selectionStyle = 'singleRow';
 
   view.onCellItemClicked = async (g, { column, itemIndex }) => {
-    if (column === 'pdCd') {
-      // [reg & detail] Link
-      const pdCd = g.getValue(itemIndex, 'pdCd');
-      const tempSaveYn = g.getValue(itemIndex, 'tempSaveYn');
-      openMaterialPopup(pdCd, tempSaveYn);
-    } else if (['fstRgstUsrNm', 'fnlMdfcUsrNm'].includes(column)) {
+    if (['fstRgstUsrNm', 'fnlMdfcUsrNm'].includes(column)) {
       // NameTag Link
       const { fstRgstUsrId, fnlMdfcUsrId } = gridUtil.getRowValue(g, itemIndex);
       const userId = column === 'fstRgstUsrNm' ? fstRgstUsrId : fnlMdfcUsrId;
       await modal({ component: 'ZwcmzUserDtlP', componentProps: { userId } });
+    }
+  };
+
+  view.onCellDblClicked = async (g, clickData) => {
+    if (clickData.cellType === 'data') {
+      // [reg & detail] Link
+      const pdCd = g.getValue(clickData.dataRow, 'pdCd');
+      const tempSaveYn = g.getValue(clickData.dataRow, 'tempSaveYn');
+      openAsPartPopup(pdCd, tempSaveYn);
     }
   };
 });
