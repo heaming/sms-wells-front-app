@@ -28,39 +28,15 @@
             <kw-form cols="2">
               <kw-form-row>
                 <kw-form-item
-                  :label="$t('MSG_TXT_CNTOR_NM')"
+                  label="param"
+                  :colspan="2"
                 >
                   <kw-input
-                    v-model="paramWwctaContractNumberListP.cntrCstKnm"
-                  />
-                </kw-form-item>
-                <kw-form-item
-                  :label="$t('MSG_TXT_IST_NM')"
-                >
-                  <kw-input
-                    v-model="paramWwctaContractNumberListP.istCstKnm"
+                    v-model="paramWwctaContractNumberListP.param"
+                    type="textarea"
                   />
                 </kw-form-item>
               </kw-form-row>
-              <kw-form-row>
-                <kw-form-item
-                  :label="$t('MSG_TXT_MPNO')"
-                >
-                  <zwcm-telephone-number
-                    v-model:tel-no1="paramWwctaContractNumberListP.cralLocaraTno"
-                    v-model:tel-no2="paramWwctaContractNumberListP.mexnoEncr"
-                    v-model:tel-no3="paramWwctaContractNumberListP.cralIdvTno"
-                  />
-                </kw-form-item>
-                <kw-form-item
-                  :label="$t('MSG_TXT_CST_NO')"
-                >
-                  <kw-input
-                    v-model="paramWwctaContractNumberListP.cntrCstNo"
-                  />
-                </kw-form-item>
-              </kw-form-row>
-              <kw-separator class="my20" />
               <kw-btn
                 class="mr8"
                 min-width="100%"
@@ -70,7 +46,7 @@
               />
               <kw-form-row>
                 <kw-form-item
-                  label="popup return"
+                  label="return"
                   :colspan="2"
                 >
                   <kw-input
@@ -91,17 +67,18 @@
                   </kw-item-label>
                 </kw-item-section>
               </template>
-              <kw-form cols="1">
+              <kw-form cols="2">
                 <kw-form-row>
                   <kw-form-item
-                    :label="$t('MSG_TXT_CNTOR_NM')"
+                    label="param"
+                    :colspan="2"
                   >
                     <kw-input
-                      v-model="paramWwctaHomeCareMgtP.cntrs"
+                      v-model="paramWwctaHomeCareMgtP.param"
+                      type="textarea"
                     />
                   </kw-form-item>
                 </kw-form-row>
-                <kw-separator class="my20" />
                 <kw-btn
                   class="mr8"
                   min-width="100%"
@@ -123,7 +100,6 @@
               </kw-form>
             </kw-expansion-item>
           </div>
-
           <kw-separator class="my20" />
           <div class="kw-guide-example">
             <kw-expansion-item>
@@ -137,27 +113,21 @@
               <kw-form cols="2">
                 <kw-form-row>
                   <kw-form-item
-                    :label="$t('MSG_TXT_CNTOR_NM')"
+                    label="param"
+                    :colspan="2"
                   >
                     <kw-input
-                      v-model="paramWwctaContractDocumentMailForwardingP.cntrNm"
-                    />
-                  </kw-form-item>
-                  <kw-form-item
-                    :label="$t('MSG_TXT_CNTR_NO')"
-                  >
-                    <kw-input
-                      v-model="paramWwctaContractDocumentMailForwardingP.cntrNo"
+                      v-model="paramWwctaContractDocumentMailForwardingP.param"
+                      type="textarea"
                     />
                   </kw-form-item>
                 </kw-form-row>
-                <kw-separator class="my20" />
                 <kw-btn
                   class="mr8"
                   min-width="100%"
                   primary
                   label="OPEN POPUP"
-                  @click="openparamWwctaContractDocumentMailForwardingP"
+                  @click="openWwctaContractDocumentMailForwardingP"
                 />
                 <kw-form-row>
                   <kw-form-item
@@ -184,50 +154,43 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { useGlobal } from 'kw-lib';
-import ZwcmTelephoneNumber from '~common/components/ZwcmTelephoneNumber.vue';
 
 const { modal } = useGlobal();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 const paramWwctaContractNumberListP = ref({
-  cntrCstKnm: '',
-  istCstKnm: '',
-  cralLocaraTno: '',
-  mexnoEncr: '',
-  cralIdvTno: '',
-  cntrCstNo: '',
+  param: '{"cntrCstKnm":"계약자","istCstKnm":"설치자","cralLocaraTno":"010","mexnoEncr":"1234","cralIdvTno":"5678","cntrCstNo":"00000"}',
   return: '',
 });
 async function openWwctaContractNumberListP() {
   const res = await modal({
     component: 'WwctaContractNumberListP',
-    componentProps: paramWwctaContractNumberListP.value,
+    componentProps: JSON.parse(paramWwctaContractNumberListP.value.param),
   });
   paramWwctaContractNumberListP.value.return = JSON.stringify(res);
 }
 
 const paramWwctaHomeCareMgtP = ref({
-  cntrs: '[{"cntrNo":"W20225866263","cntrSn":1},{"cntrNo":"W20225964208","cntrSn":1}]',
+  param: '{"cntrs":[{"cntrNo":"W20225866263","cntrSn":1},{"cntrNo":"W20225964208","cntrSn":1}]}',
   return: '',
 });
 async function openWwctaHomeCareMgtP() {
   const res = await modal({
     component: 'WwctaHomeCareMgtP',
-    componentProps: { cntrs: JSON.parse(paramWwctaHomeCareMgtP.value.cntrs) },
+    componentProps: JSON.parse(paramWwctaHomeCareMgtP.value.param),
   });
   paramWwctaHomeCareMgtP.value.return = JSON.stringify(res);
 }
 
 const paramWwctaContractDocumentMailForwardingP = ref({
-  cntrNm: '테스트',
-  cntrNo: 'E0000000',
+  param: '{"cntrNm":"테스트","cntrNo":"E0000000"}',
   return: '',
 });
-async function openparamWwctaContractDocumentMailForwardingP() {
+async function openWwctaContractDocumentMailForwardingP() {
   const res = await modal({
     component: 'WwctaContractDocumentMailForwardingP',
-    componentProps: paramWwctaContractDocumentMailForwardingP.value,
+    componentProps: JSON.parse(paramWwctaContractDocumentMailForwardingP.value.param),
   });
   paramWwctaContractDocumentMailForwardingP.value.return = JSON.stringify(res);
 }
