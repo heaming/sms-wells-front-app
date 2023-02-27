@@ -28,9 +28,7 @@
           <kw-select
             :v-model="searchParams.sellTpCd"
             :options="codes.SELL_TP_CD"
-            first-option
-            first-option-value=""
-            :first-option-label="$t('MSG_TXT_ALL')"
+            first-option="all"
           />
         </kw-search-item>
         <kw-search-item
@@ -100,18 +98,14 @@
         >
           <kw-select
             v-model="searchParams.pdHclsf"
-            :options="hclsfList"
-            first-option
-            first-option-value=""
-            :first-option-label="$t('MSG_TXT_ALL')"
+            :options="hclsfLists"
+            first-option="all"
             @change="onHclsfChanged"
           />
           <kw-select
             v-model="searchParams.pdMclsf"
-            :options="mclsfList"
-            first-option
-            first-option-value=""
-            :first-option-label="$t('MSG_TXT_ALL')"
+            :options="mclsfLists"
+            first-option="all"
           />
         </kw-search-item>
       </kw-search-row>
@@ -151,9 +145,7 @@
           <kw-select
             v-model="searchParams.fntGbn"
             :options="codes.FNT_DV_CD"
-            first-option
-            first-option-value=""
-            :first-option-label="$t('MSG_TXT_ALL')"
+            first-option="all"
           />
         </kw-search-item>
       </kw-search-row>
@@ -268,8 +260,8 @@ const codes = await codeUtil.getMultiCodes(
   'FNT_DV_CD',
 );
 
-const hclsfList = ref([]);
-const mclsfList = ref([]);
+const hclsfLists = ref([]);
+const mclsfLists = ref([]);
 
 const now = dayjs();
 
@@ -305,14 +297,14 @@ const pageInfo = ref({
 });
 
 async function onLoad() {
-  const response = await dataService.get('/sms/wells/contract/product-standards/high-levels');
+  const responses = await dataService.get('/sms/wells/contract/product-standards/high-levels');
 
-  const initHclsfList = [];
+  const initHclsfLists = [];
 
-  response.data.forEach((v) => {
-    if (!isEmpty(v.gnrCd)) initHclsfList.push({ codeId: v.pdClsfId, codeName: v.pdClsfNm });
+  responses.data.forEach((v) => {
+    if (!isEmpty(v.gnrCd)) initHclsfLists.push({ codeId: v.pdClsfId, codeName: v.pdClsfNm });
   });
-  hclsfList.value = uniqBy(initHclsfList, 'codeId');
+  hclsfLists.value = uniqBy(initHclsfLists, 'codeId');
 }
 
 async function fetchData() {
@@ -353,16 +345,16 @@ async function onClickExcelDownload() {
 }
 
 async function onHclsfChanged() {
-  const response = await dataService.get('/sms/wells/contract/product-standards/mid-levels', { params: {
+  const responses = await dataService.get('/sms/wells/contract/product-standards/mid-levels', { params: {
     pdHclsf: searchParams.value.pdHclsf,
   } });
 
-  const initMclsfList = [];
+  const initMclsfLists = [];
 
-  response.data.forEach((v) => {
-    if (!isEmpty(v.gnrCd)) initMclsfList.push({ codeId: v.pdClsfId, codeName: v.pdClsfNm });
+  responses.data.forEach((v) => {
+    if (!isEmpty(v.gnrCd)) initMclsfLists.push({ codeId: v.pdClsfId, codeName: v.pdClsfNm });
   });
-  mclsfList.value = uniqBy(initMclsfList, 'codeId');
+  mclsfLists.value = uniqBy(initMclsfLists, 'codeId');
 }
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
