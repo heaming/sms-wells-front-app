@@ -98,13 +98,13 @@
         >
           <kw-select
             v-model="searchParams.pdHclsf"
-            :options="hclsfLists"
+            :options="hclsfs"
             first-option="all"
             @change="onHclsfChanged"
           />
           <kw-select
             v-model="searchParams.pdMclsf"
-            :options="mclsfLists"
+            :options="mclsfs"
             first-option="all"
           />
         </kw-search-item>
@@ -260,8 +260,8 @@ const codes = await codeUtil.getMultiCodes(
   'FNT_DV_CD',
 );
 
-const hclsfLists = ref([]);
-const mclsfLists = ref([]);
+const hclsfs = ref([]);
+const mclsfs = ref([]);
 
 const now = dayjs();
 
@@ -299,12 +299,12 @@ const pageInfo = ref({
 async function onLoad() {
   const responses = await dataService.get('/sms/wells/contract/product-standards/high-levels');
 
-  const initHclsfLists = [];
+  const initHclsfs = [];
 
   responses.data.forEach((v) => {
-    if (!isEmpty(v.gnrCd)) initHclsfLists.push({ codeId: v.pdClsfId, codeName: v.pdClsfNm });
+    if (!isEmpty(v.gnrCd)) initHclsfs.push({ codeId: v.pdClsfId, codeName: v.pdClsfNm });
   });
-  hclsfLists.value = uniqBy(initHclsfLists, 'codeId');
+  hclsfs.value = uniqBy(initHclsfs, 'codeId');
 }
 
 async function fetchData() {
@@ -349,12 +349,12 @@ async function onHclsfChanged() {
     pdHclsf: searchParams.value.pdHclsf,
   } });
 
-  const initMclsfLists = [];
+  const initMclsfs = [];
 
   responses.data.forEach((v) => {
-    if (!isEmpty(v.gnrCd)) initMclsfLists.push({ codeId: v.pdClsfId, codeName: v.pdClsfNm });
+    if (!isEmpty(v.gnrCd)) initMclsfs.push({ codeId: v.pdClsfId, codeName: v.pdClsfNm });
   });
-  mclsfLists.value = uniqBy(initMclsfLists, 'codeId');
+  mclsfs.value = uniqBy(initMclsfs, 'codeId');
 }
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
