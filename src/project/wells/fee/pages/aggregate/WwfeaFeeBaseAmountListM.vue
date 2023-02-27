@@ -114,11 +114,11 @@ async function onClickExcelDownload() {
 
 async function fetchData() {
   const response = await dataService.get('/sms/wells/fee/fee-base-amounts', { params: cachedParams });
-  const dataList = response.data;
-  totalCount.value = dataList.length;
+  const feeAmounts = response.data;
+  totalCount.value = feeAmounts.length;
 
   const view = grdMainRef.value.getView();
-  view.getDataSource().setRows(dataList);
+  view.getDataSource().setRows(feeAmounts);
   view.resetCurrent();
 }
 
