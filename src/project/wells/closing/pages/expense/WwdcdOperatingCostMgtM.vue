@@ -147,6 +147,7 @@ const selectedTab = ref('basic');
 const dataService = useDataService();
 const { t } = useI18n();
 const tabRefs = reactive({});
+const selectedLinkId = ref(null);
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
