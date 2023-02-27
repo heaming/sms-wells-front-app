@@ -200,15 +200,12 @@ async function fetchData() {
 
     cachedParams = { dangOcStrtMonth, dangOcEndMonth, ...newCachedParams, ...pageInfo.value };
   }
-  const res = await dataService.get('sms/wells/contract/risk-audits/irregular-sales-actions', { params: cachedParams });
-  pageInfo.value = {
-    totalCount: res.data.length,
-    pageIndex: 1,
-    pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
-  };
+  const res = await dataService.get('sms/wells/contract/risk-audits/irregular-sales-actions/paging', { params: cachedParams });
+  const { list: details, pageInfo: pagingResult } = res.data;
+  pageInfo.value = pagingResult;
 
   const view = grdMainRef.value.getView();
-  view.getDataSource().setRows(res.data);
+  view.getDataSource().setRows(details);
   view.resetCurrent();
 }
 
@@ -236,17 +233,17 @@ async function onClickDelete() {
 const initGrdMain = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'dangChkId' },
-    { fieldName: 'col1' },
-    { fieldName: 'col2' },
-    { fieldName: 'col3' },
-    { fieldName: 'col4' },
-    { fieldName: 'col5' },
+    { fieldName: 'wellsOjPstnRankNm' },
+    { fieldName: 'dangMngtPntnrOgNm' },
+    { fieldName: 'dangMngtPntnrOgCd' },
+    { fieldName: 'dangMngtPntnrNm' },
+    { fieldName: 'dangMngtPrtnrNo' },
     { fieldName: 'dangOjPrtnrNm' },
     { fieldName: 'dangOjPrtnrNo' },
     { fieldName: 'dangOjPrtnrPstnDvNm' },
-    { fieldName: 'col9' },
-    { fieldName: 'col10' },
-    { fieldName: 'col11' },
+    { fieldName: 'dangOcStrtmm' },
+    { fieldName: 'dangArbitOgNm' },
+    { fieldName: 'dangChkNm' },
     { fieldName: 'dangArbitCd' },
     { fieldName: 'dangUncvrCt' },
     { fieldName: 'dangArbitLvyPc' },
@@ -256,17 +253,17 @@ const initGrdMain = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'col1', header: t('MSG_TXT_DIV'), width: '129', styleName: 'text-left' },
-    { fieldName: 'col2', header: t('MSG_TXT_BLG_NM'), width: '129', styleName: 'text-left' },
-    { fieldName: 'col3', header: t('MSG_TXT_AFL_CD'), width: '129', styleName: 'text-left' },
-    { fieldName: 'col4', header: t('MSG_TXT_EMPL_NM'), width: '129', styleName: 'text-left' },
-    { fieldName: 'col5', header: t('MSG_TXT_EPNO'), width: '129', styleName: 'text-left' },
+    { fieldName: 'wellsOjPstnRankNm', header: t('MSG_TXT_DIV'), width: '129', styleName: 'text-left' },
+    { fieldName: 'dangMngtPntnrOgNm', header: t('MSG_TXT_BLG_NM'), width: '129', styleName: 'text-left' },
+    { fieldName: 'dangMngtPntnrOgCd', header: t('MSG_TXT_AFL_CD'), width: '129', styleName: 'text-left' },
+    { fieldName: 'dangMngtPntnrNm', header: t('MSG_TXT_EMPL_NM'), width: '129', styleName: 'text-left' },
+    { fieldName: 'dangMngtPrtnrNo', header: t('MSG_TXT_EPNO'), width: '129', styleName: 'text-left' },
     { fieldName: 'dangOjPrtnrNm', header: t('MSG_TXT_EMPL_NM'), width: '129', styleName: 'text-left' },
     { fieldName: 'dangOjPrtnrNo', header: t('MSG_TXT_EPNO'), width: '129' },
     { fieldName: 'dangOjPrtnrPstnDvNm', header: t('MSG_TXT_GRADE'), width: '129', styleName: 'text-left' },
-    { fieldName: 'col9', header: t('MSG_TXT_YEAR_OCCURNCE'), width: '129', styleName: 'text-left' },
-    { fieldName: 'col10', header: t('MSG_TXT_ACTN_DPT'), width: '306', styleName: 'text-center' },
-    { fieldName: 'col11', header: t('MSG_TXT_CHRGS'), width: '306', styleName: 'text-left' },
+    { fieldName: 'dangOcStrtmm', header: t('MSG_TXT_YEAR_OCCURNCE'), width: '129', styleName: 'text-left' },
+    { fieldName: 'dangArbitOgNm', header: t('MSG_TXT_ACTN_DPT'), width: '306', styleName: 'text-center' },
+    { fieldName: 'dangChkNm', header: t('MSG_TXT_CHRGS'), width: '306', styleName: 'text-left' },
     { fieldName: 'dangArbitCd', header: t('MSG_TXT_ACTN_ITM'), width: '306', styleName: 'text-left' },
     { fieldName: 'dangUncvrCt', header: t('MSG_TXT_DUE_TRGT_NO'), width: '129', styleName: 'text-left' },
     { fieldName: 'dangArbitLvyPc', header: t('MSG_TXT_ACTN_TM_PNLTY_PNT'), width: '190', styleName: 'text-center' },
@@ -282,7 +279,7 @@ const initGrdMain = defineGrid((data, view) => {
 
   // multi row header setting
   view.setColumnLayout([
-    'col1', 'col2', 'col3', 'col4', 'col5',
+    'wellsOjPstnRankNm', 'dangMngtPntnrOgNm', 'dangMngtPntnrOgCd', 'dangMngtPntnrNm', 'dangMngtPrtnrNo',
     {
       header: t('MSG_TXT_EMP_NO'), // colspan title
       direction: 'horizontal', // merge type
@@ -291,7 +288,7 @@ const initGrdMain = defineGrid((data, view) => {
     {
       header: t('MSG_TXT_PNLTY'), // colspan title
       direction: 'horizontal', // merge type
-      items: ['col9', 'col10', 'col11', 'dangArbitCd', 'dangUncvrCt', 'dangArbitLvyPc', 'dangArbitLvyPcSum'],
+      items: ['dangOcStrtmm', 'dangArbitOgNm', 'dangChkNm', 'dangArbitCd', 'dangUncvrCt', 'dangArbitLvyPc', 'dangArbitLvyPcSum'],
     },
     'fnlMdfcUsrId', 'fstRgstDtm',
   ]);
