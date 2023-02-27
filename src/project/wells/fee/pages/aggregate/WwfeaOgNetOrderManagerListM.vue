@@ -496,18 +496,21 @@
       <kw-grid
         v-if="isGridVisile"
         ref="grdMainRef"
+        name="grd1Main"
         :visible-rows="10"
         @init="initGrdMain"
       />
       <kw-grid
         v-if="isGrid2Visile"
         ref="grdMainRef"
+        name="grd2Main"
         :visible-rows="10"
         @init="initGrd2Main"
       />
       <kw-grid
         v-if="isGrid3Visile"
         ref="grdMainRef"
+        name="grd3Main"
         :visible-rows="10"
         @init="initGrd3Main"
       />
