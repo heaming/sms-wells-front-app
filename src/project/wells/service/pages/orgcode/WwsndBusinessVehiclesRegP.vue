@@ -73,8 +73,9 @@
           <kw-date-picker
             v-model="dataParams.vhcPymdt"
             :label="$t('MSG_TXT_DSB_STRT_D')"
-            :disable="isModify && isBeforeVhcPymdt"
+            :disable="isDisableVhcPymdt"
             :rules="validateDsbDate"
+            @change="onChangeVhcPymdt"
           />
         </kw-form-item>
         <!-- 지급종료일 -->
@@ -85,8 +86,9 @@
           <kw-date-picker
             v-model="dataParams.dsbEnddt"
             :label="$t('MSG_TXT_DSB_END_D')"
-            :disable="isModify && isBeforeDsbEnddt"
+            :disable="isDisableDsbEnddt"
             :rules="validateDsbDate"
+            @change="onChangeDsbEnddt"
           />
         </kw-form-item>
       </kw-form-row>
@@ -334,8 +336,13 @@ async function onChangeVehicle() {
   });
 }
 
+let changeVhcPymdtYn = true;
+let changeDsbEnddtYn = true;
+
 const isBeforeVhcPymdt = computed(() => Number(dataParams.value.vhcPymdt) < Number(dayjs().format('YYYYMMDD')));
 const isBeforeDsbEnddt = computed(() => Number(dataParams.value.dsbEnddt) < Number(dayjs().format('YYYYMMDD')));
+const isDisableVhcPymdt = computed(() => isModify.value && isBeforeVhcPymdt.value && changeVhcPymdtYn);
+const isDisableDsbEnddt = computed(() => isModify.value && isBeforeDsbEnddt.value && changeDsbEnddtYn);
 
 async function onClickSaveBtn() {
   if (!await frmMainRef.value.validate()) { return; }
@@ -365,4 +372,17 @@ const validateDsbDate = async (val, options) => {
 
   return errors[0] || true;
 };
+
+function onChangeVhcPymdt() {
+  if (changeVhcPymdtYn) {
+    changeVhcPymdtYn = false;
+  }
+}
+
+function onChangeDsbEnddt() {
+  if (changeDsbEnddtYn) {
+    changeDsbEnddtYn = false;
+  }
+}
+
 </script>
