@@ -97,9 +97,10 @@
               />
             </template>
             <kw-btn
-              :label="t('MSG_BTN_DEL')"
+              v-permission:delete
               grid-action
               dense
+              :label="t('MSG_BTN_DEL')"
               @click="onClickRemove"
             />
             <kw-separator
@@ -114,6 +115,7 @@
             />
 
             <kw-btn
+              v-permission:create
               dense
               :label="t('MSG_BTN_SAVE')"
               @click="onClickSave"
