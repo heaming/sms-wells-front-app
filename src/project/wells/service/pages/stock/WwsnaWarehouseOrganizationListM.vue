@@ -22,31 +22,53 @@
           <kw-date-picker
             v-model="searchParams.baseYm"
             type="month"
+            @change="onChangeBaseYm"
           />
         </kw-search-item>
+        <ZwcmWareHouseSearch
+          v-model:start-ym="searchParams.baseYmd"
+          v-model:end-ym="searchParams.baseYmd"
+          v-model:options-ware-dv-cd="wareDvCd"
+          v-model:ware-dv-cd="searchParams.wareDvCd"
+          v-model:ware-no-m="searchParams.wareNoM"
+          v-model:ware-no-d="searchParams.wareNoD"
+          sub-first-option="all"
+          :colspan="2"
+          :label1="$t('MSG_TXT_OSTR_PTRM')"
+          :label2="$t('MSG_TXT_WARE')"
+          :label3="$t('MSG_TXT_WARE')"
+          :label4="$t('MSG_TXT_WARE')"
+        />
 
-        <kw-search-item :label="$t('MSG_TXT_WARE_DV')">
+        <!-- <kw-search-item :label="$t('MSG_TXT_WARE_DV')">
           <kw-select
             v-model="searchParams.wareDv"
             :options="codes.WARE_DV_CD"
             first-option="all"
           />
-        </kw-search-item>
+        </kw-search-item> -->
 
-        <kw-search-item :label="$t('MSG_TXT_WARE_LOCARA')">
+        <!-- <kw-search-item :label="$t('MSG_TXT_WARE_LOCARA')">
           <kw-select
             v-model="searchParams.wareLocaraCd"
             :options="codes.ADM_ZN_CLSF_CD"
             first-option="all"
           />
-        </kw-search-item>
+        </kw-search-item> -->
       </kw-search-row>
 
       <kw-search-row>
+        <kw-search-item :label="$t('MSG_TXT_WARE_DTL_DV')">
+          <kw-select
+            v-model="searchParams.wareDtlDvCd"
+            :options="filterCodes.filterWareDtlDvCd"
+            first-option="all"
+          />
+        </kw-search-item>
         <kw-search-item :label="$t('MSG_TXT_USE_YN')">
           <kw-select
             v-model="searchParams.codeUseYn"
-            :options="codes.COD_YN"
+            :options="codes.USE_YN"
             first-option="all"
           />
         </kw-search-item>
@@ -114,7 +136,7 @@
       <kw-grid
         ref="grdMainRef"
         :visible-rows="10"
-        @init="initGrid"
+        @init="initGrdMain"
       />
     </div>
   </kw-page>
@@ -124,14 +146,16 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, useGlobal, useDataService, getComponentType, gridUtil } from 'kw-lib';
+import { codeUtil, useGlobal, useDataService, getComponentType, gridUtil, defineGrid } from 'kw-lib';
 import dayjs from 'dayjs';
 import { cloneDeep } from 'lodash-es';
+import ZwcmWareHouseSearch from '~sms-common/service/components/ZwsnzWareHouseSearch.vue';
 
 const { t } = useI18n();
 
 // const { getConfig } = useMeta();
-const { modal, alert, notify } = useGlobal();
+// const { modal, alert, notify } = useGlobal();
+const { alert, notify } = useGlobal();
 // const store = useStore();
 
 const emit = defineEmits([
@@ -146,18 +170,54 @@ const dataService = useDataService();
 const grdMainRef = ref(getComponentType('KwGrid'));
 
 const codes = await codeUtil.getMultiCodes(
-  'WARE_DV_CD',
-  'COD_YN',
+  'WARE_DTL_DV_CD',
+  'USE_YN',
   'ADM_ZN_CLSF_CD',
 );
+
+// 창고상세구분 필터링
+const filterCodes = ref({
+  filterWareDtlDvCd: [],
+});
 
 let cachedParams;
 const searchParams = ref({
   baseYm: dayjs().format('YYYYMM'), // 기준년월
-  wareDv: '',
+  baseYmd: dayjs().format('YYYYMMDD'),
+  wareDvCd: '2',
+  wareDtlDvCd: '',
   codeUseYn: '',
-  wareLocaraCd: '', // 창고지역코드
   wareMngtPrtnrNo: '',
+  wareNoM: '',
+  wareNoD: '',
+});
+
+const wareDvCd = { WARE_DV_CD: [
+  { codeId: '2', codeName: '서비스센터' },
+  { codeId: '3', codeName: '영업센터' },
+] };
+
+// 기준년월이 변경되었을때
+function onChangeBaseYm() {
+  searchParams.value.baseYmd = `${searchParams.value.baseYm}01`;
+}
+
+// 창고구분이 변경되었을때
+const onChangeWareDvCd = async () => {
+  const strWareDvCd = searchParams.value.wareDvCd;
+
+  if (strWareDvCd === '2') {
+    filterCodes.value.filterWareDtlDvCd = codes.WARE_DTL_DV_CD.filter((v) => ['20', '21'].includes(v.codeId));
+  } else {
+    filterCodes.value.filterWareDtlDvCd = codes.WARE_DTL_DV_CD.filter((v) => ['30', '31', '32'].includes(v.codeId));
+  }
+};
+
+watch(() => searchParams.value.wareDvCd, (val) => {
+  if (searchParams.value.wareDvCd !== val) {
+    searchParams.value.wareDvCd = val;
+  }
+  onChangeWareDvCd();
 });
 
 const totalCount = ref(0);
@@ -217,31 +277,36 @@ async function onClickExcelDownload() {
 }
 
 async function onClickWareOgCrdovr() {
-  debugger;
-  const view = grdMainRef.value.getView();
-  const currentDataRow = view.getCurrent().dataRow;
-  const rowData = gridUtil.getRowValue(view, currentDataRow);
-  const today = dayjs().format('YYYYMM');
+  alert('현재 단위테스트 대상이 아닙니다.(개발진행)');
 
-  if (rowData.apyYm >= today) {
-    const { result: isChanged } = await modal({
-      component: 'WwsnaWarehouseOrganizationRegP',
-    });
+  // const view = grdMainRef.value.getView();
+  // const currentDataRow = view.getCurrent().dataRow;
+  // const rowData = gridUtil.getRowValue(view, currentDataRow);
+  // const today = dayjs().format('YYYYMM');
 
-    if (isChanged) {
-      notify(t('MSG_ALT_SAVE_DATA'));
-      await fetchData();
-    }
-  } else {
-    await alert(t('MSG_ALT_THM_BF_WAREINF_MDFC_IMP'));
-  }
+  // if (rowData.apyYm >= today) {
+  //   const { result: isChanged } = await modal({
+  //     component: 'WwsnaWarehouseOrganizationRegP',
+  //   });
+
+  //   if (isChanged) {
+  //     notify(t('MSG_ALT_SAVE_DATA'));
+  //     await fetchData();
+  //   }
+  // } else {
+  //   await alert(t('MSG_ALT_THM_BF_WAREINF_MDFC_IMP'));
+  // }
 }
+
+onMounted(async () => {
+  await onChangeWareDvCd();
+});
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
 
-function initGrid(data, view) {
+const initGrdMain = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'wareDvCd' },
     { fieldName: 'wareCd' },
@@ -290,7 +355,7 @@ function initGrid(data, view) {
   view.onCellDblClicked = (grid, clickData) => {
     onClickWareOgCrdovr();
   };
-}
+});
 
 </script>
 
