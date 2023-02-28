@@ -240,17 +240,10 @@ async function fetchAprCodes() {
 }
 
 async function onClickConfirmCriteriaMangement() {
-  const {
-    result,
-    payload,
-  } = await modal({
+  await modal({
     component: 'WwctcConfirmApprovalBaseListP',
     componentProps: { standardDt: searchParams.value.standardDt },
   });
-  notify(JSON.stringify({
-    result,
-    payload,
-  }));
 }
 
 async function onClickRemove() {

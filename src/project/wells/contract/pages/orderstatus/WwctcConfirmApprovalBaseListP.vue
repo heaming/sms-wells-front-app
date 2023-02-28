@@ -21,11 +21,6 @@
         <template #left>
           <kw-paging-info :total-count="totalCount" />
         </template>
-        <kw-btn
-          dense
-          secondary
-          :label="t('MSG_BTN_DEL')"
-          @click="onClickDelete"
         />
       </kw-action-top>
 
@@ -36,6 +31,7 @@
       />
       <kw-action-bottom>
         <kw-btn
+          v-permission:delete
           :label="t('MSG_BTN_DEL')"
           grid-action
           @click="onClickDelete"
@@ -52,11 +48,13 @@
         negative
         :label="t('MSG_BTN_CANCEL')"
         dense
+        @click="onClickCancel"
       />
       <kw-btn
         primary
         :label="t('MSG_BTN_CONFIRM')"
         dense
+        @click="onClickCancel"
       />
     </template>
   </kw-popup>
@@ -65,27 +63,40 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { defineGrid, gridUtil, getComponentType, useDataService } from 'kw-lib';
-import dayjs from 'dayjs';
+import { defineGrid, gridUtil, getComponentType, useDataService, useModal } from 'kw-lib';
+import { cloneDeep } from 'lodash-es';
 
 const dataService = useDataService();
-
 const { t } = useI18n();
-const now = dayjs();
 
+const { cancel: onClickCancel } = useModal();
 const grdConfirmRef = ref(getComponentType('KwGrid'));
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
+
+const props = defineProps({
+  standardDt: {
+    type: String,
+    default: null,
+  },
+});
+
+const searchParams = ref({
+  standardDt: props.standardDt,
+
+});
+
 const totalCount = ref(0);
+let cachedParams;
+
 async function fetchData() {
+  cachedParams = cloneDeep(searchParams.value);
+
   const view = grdConfirmRef.value.getView();
-  const res = await dataService.get('/sms/wells/contract/contracts/approval-request-standards', {
-    params: {
-      standardDt: now.format('YYYYMMDD'),
-    },
-  });
+  const res = await dataService.get('/sms/wells/contract/contracts/approval-request-standards', { params: cachedParams });
+
   totalCount.value = res.data.length;
   view.getDataSource().setRows(res.data);
 }
