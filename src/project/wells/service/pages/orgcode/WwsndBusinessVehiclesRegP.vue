@@ -314,7 +314,8 @@ if (isModify.value) { // 수정
 } else { // 신규
   // TODO: 1. 권한 조회 후 서비스센터/지점 조회 or 특정 센터/지점 조회
   // TODO: 2. 엔지니어는 센터/지점 선택 시 해당 조직에 해당하는 엔지니어만 조회
-  centers.value = svcCenters.map((v) => ({ ogNm: v.ogNm, ogCd: v.ogCd }));
+  const centerByOgTpCd = svcCenters.filter((v) => v.ogTpCd === 'W06' && v.ogLevlDvCd === '2');
+  centers.value = centerByOgTpCd.map((v) => ({ ogNm: v.ogNm, ogCd: v.ogCd }));
   vehicleInfos.value = vhcs.map((v) => ({ codeId: v.carno, codeName: v.carno }));
 
   dataParams.value.vhcPymdt = dayjs().format('YYYYMMDD');
