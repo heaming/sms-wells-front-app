@@ -105,7 +105,11 @@ async function initGridRows() {
     });
     // console.log('Fee Rows : ', rows);
     const view = grdMainRef.value.getView();
-    view.getDataSource().setRows(rows);
+    if (searchParams.value.avlChnlId) {
+      view.getDataSource().setRows(rows?.filter((item) => item.sellChnlCd === searchParams.value.avlChnlId));
+    } else {
+      view.getDataSource().setRows(rows);
+    }
     view.resetCurrent();
   }
 }
@@ -125,13 +129,8 @@ async function resetInitData() {
   // await initGridRows();
 }
 
-async function setChannels() {
-  console.log('setChannels');
-}
-
 async function onClickSearch() {
-  searchParams.value.pdCd = currentPdCd.value;
-  await setChannels();
+  await initGridRows();
 }
 
 async function fetchData() {
@@ -161,6 +160,7 @@ async function initProps() {
   currentInitData.value = initData;
   currentMetaInfos.value = metaInfos;
   currentCodes.value = codes;
+  await resetInitData();
 }
 
 await initProps();

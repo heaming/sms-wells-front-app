@@ -69,7 +69,7 @@ import { gridUtil, stringUtil, getComponentType } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 import pdConst from '~sms-common/product/constants/pdConst';
 import ZwpdcPropMeta from '~sms-common/product/pages/manage/components/ZwpdcPropMeta.vue';
-import { getGridRowsToSavePdProps, getPropInfosToGridRows, getPdMetaToGridInfos, pdMergeBy } from '~sms-common/product/utils/pdUtil';
+import { setPdGridRows, getGridRowsToSavePdProps, getPropInfosToGridRows, getPdMetaToGridInfos, pdMergeBy } from '~sms-common/product/utils/pdUtil';
 
 /* eslint-disable no-use-before-define */
 defineExpose({
@@ -101,7 +101,7 @@ const currentCodes = ref({});
 
 async function getSaveData() {
   const rowValues = gridUtil.getAllRowValues(grdMainRef.value.getView());
-  const rtnValues = getGridRowsToSavePdProps(
+  const rtnValues = await getGridRowsToSavePdProps(
     rowValues,
     currentMetaInfos.value,
     pdConst.TBL_PD_PRC_DTL,
@@ -158,8 +158,7 @@ async function initGridRows() {
     });
     // console.log('Rows : ', rows);
     const view = grdMainRef.value.getView();
-    view.getDataSource().setRows(rows);
-    view.resetCurrent();
+    setPdGridRows(view, rows, pdConst.PRC_STD_ROW_ID, [pdConst.PRC_STD_ROW_ID, pdConst.PRC_DETAIL_ID]);
   }
   const products = currentInitData.value?.[pdConst.RELATION_PRODUCTS];
   if (await products) {
@@ -264,14 +263,17 @@ async function initGrid(data, view) {
   view.rowIndicator.visible = false;
   view.editOptions.editable = true;
 
-  view.onCellClicked = async (g, { column, dataRow }) => {
-    console.log(column);
-    priceFieldData.value[pdConst.TBL_PD_PRC_DTL] = pdMergeBy(
-      priceFieldData.value[pdConst.TBL_PD_PRC_DTL],
-      gridUtil.getRowValue(g, dataRow),
-      [],
-      [pdConst.PRC_DETAIL_ID, 'verSn', 'crncyDvCd'],
-    );
+  view.onCellClicked = async (g, { dataRow }) => {
+    if (dataRow) {
+      const prcdValues = await getGridRowsToSavePdProps(
+        [gridUtil.getRowValue(g, dataRow)],
+        metaInfos.value,
+        prcd,
+        [],
+        [pdConst.PRC_DETAIL_ID, pdConst.PRC_STD_ROW_ID],
+      );
+      priceFieldData.value[prcd] = prcdValues[prcd]?.[0];
+    }
   };
 
   await initGridRows();
