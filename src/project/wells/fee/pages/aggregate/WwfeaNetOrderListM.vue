@@ -149,11 +149,11 @@ async function onClickExcelDownload() {
 
 async function fetchData() {
   const response = await dataService.get('/sms/wells/fee/monthly-net-order', { params: cachedParams });
-  const categories = response.data;
-  totalCount.value = categories.length;
+  const netOrders = response.data;
+  totalCount.value = netOrders.length;
 
   const view = grdMainRef.value.getView();
-  view.getDataSource().setRows(categories);
+  view.getDataSource().setRows(netOrders);
   view.resetCurrent();
 }
 
