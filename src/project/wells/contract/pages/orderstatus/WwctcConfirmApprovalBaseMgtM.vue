@@ -48,26 +48,39 @@
           @search="onClickSearch"
         >
           <kw-search-row>
-            <kw-search-item :label="t('MSG_TXT_BASE_DT')">
-              <kw-date-picker v-model="searchParams.baseDt" />
+            <kw-search-item
+              :label="t('MSG_TXT_BASE_DT')"
+              required
+            >
+              <kw-date-picker
+                v-model="searchParams.standardDt"
+                rules="required"
+                :name="t('MSG_TXT_BASE_DT')"
+                @change="fetchAprCodes"
+              />
             </kw-search-item>
-            <kw-search-item :label="t('MSG_TXT_APR_REQ_CAT')">
+            <kw-search-item
+              :label="t('MSG_TXT_APR_REQ_CAT')"
+              required
+            >
               <kw-select
-                v-model="searchParams.approvalRequestCategory"
-                :options="approvalClassificationList"
+                v-model="searchParams.cntrAprAkDvCd"
+                rules="required"
+                :name="t('MSG_TXT_APR_REQ_CAT')"
+                :options="aprAkDvcodes"
+                :placeholder="$t('MSG_TXT_BEFORE_SELECT_IT',[$t('MSG_TXT_APR_REQ_CAT')])"
+                option-value="cntrAprAkDvCd"
+                option-label="cntrAprAkDvCdNm"
               />
             </kw-search-item>
             <kw-search-item :label="t('MSG_TXT_APR_REQ_CAT')">
-              <kw-field
-                v-model="searchParams.isApprovalRequestCategoryValid"
-              >
-                <template #default="{ field }">
-                  <kw-checkbox
-                    v-bind="field"
-                    :label="t('MSG_TXT_LKUP_VLD_VAL')"
-                    val=""
-                  />
-                </template>
+              <kw-field>
+                <kw-checkbox
+                  v-model="searchParams.aprReqCtgValid"
+                  :label="t('MSG_TXT_LKUP_VLD_VAL')"
+                  :true-value="true"
+                  :false-value="false"
+                />
               </kw-field>
             </kw-search-item>
           </kw-search-row>
@@ -75,12 +88,19 @@
         <div class="result-area">
           <kw-action-top>
             <template #left>
-              <kw-paging-info :total-count="pageInfo.totalCount " />
+              <kw-paging-info
+                v-model:page-index="pageInfo.pageIndex"
+                v-model:page-size="pageInfo.pageSize"
+                :total-count="pageInfo.totalCount"
+                :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
+                @change="onClickSearch"
+              />
             </template>
             <kw-btn
-              :label="t('MSG_BTN_DEL')"
+              v-permission:delete
               grid-action
               dense
+              :label="t('MSG_BTN_DEL')"
               @click="onClickRemove"
             />
             <kw-separator
@@ -95,6 +115,7 @@
             />
 
             <kw-btn
+              v-permission:create
               dense
               :label="t('MSG_BTN_SAVE')"
               @click="onClickSave"
@@ -128,14 +149,8 @@
           <kw-grid
             ref="grdMainRef"
             name="approvalBaseGrid"
-            :visible-rows="pageInfo.pageSize"
+            :visible-rows="pageInfo.pageSize - 1"
             @init="initGrid"
-          />
-          <kw-pagination
-            v-model:page-index="pageInfo.pageIndex"
-            v-model:page-size="pageInfo.pageSize"
-            :total-count="pageInfo.totalCount"
-            @change="fetchData"
           />
         </div>
       </kw-tab-panel>
@@ -147,13 +162,14 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { gridUtil, useDataService, getComponentType, useGlobal, useMeta, codeUtil } from 'kw-lib';
-import { cloneDeep } from 'lodash-es';
+import { gridUtil, getComponentType, useGlobal, useMeta, useDataService, codeUtil } from 'kw-lib';
+import { cloneDeep, isEmpty } from 'lodash-es';
+import dayjs from 'dayjs';
 
+const now = dayjs();
+const dataService = useDataService();
 const { t } = useI18n();
 const { notify, modal } = useGlobal();
-
-const dataService = useDataService();
 
 const grdMainRef = ref(getComponentType('KwGrid'));
 const { getConfig } = useMeta();
@@ -162,16 +178,10 @@ const { getConfig } = useMeta();
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 
-const codes = await codeUtil.getMultiCodes(
-  'USE_YN',
-);
-
-let cachedParams;
-
 const searchParams = ref({
-  baseDt: '',
-  approvalRequestCategory: '',
-  isApprovalRequestCategoryValid: true,
+  standardDt: now.format('YYYYMMDD'),
+  cntrAprAkDvCd: '',
+  aprReqCtgValid: false,
 });
 
 const pageInfo = ref({
@@ -180,107 +190,120 @@ const pageInfo = ref({
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
 });
 
-const approvalClassificationList = ref([]);
-const purchaseClassificationList = ref([
-  { codeName: t('MSG_TXT_ALL'), codeId: 'A' },
-  { codeName: t('MSG_TXT_SLS'), codeId: '7' },
-  { codeName: t('MSG_TXT_EMP_SLS'), codeId: '8' },
-  { codeName: t('MSG_TXT_EMP_PRCH'), codeId: '9' },
+const codes = await codeUtil.getMultiCodes(
+  'CNTR_APR_SELL_DV_CD',
+  'CNTR_APR_ICHR_DV_CD',
+  'COD_PAGE_SIZE_OPTIONS',
+);
+
+const cntrYnCodes = ref([
+  { codeId: 'Y', codeName: 'Y' },
+  { codeId: 'N', codeName: 'N' },
 ]);
 
-const picClassificationList = ref([
-  { codeName: t('MSG_TXT_ICHR_DV'), codeId: '0' },
-  { codeName: t('MSG_TXT_DSGNTD_CMPNY_NUM'), codeId: '1' },
-  { codeName: t('MSG_TXT_BM'), codeId: '2' },
-  { codeName: t('MSG_TXT_BIZ_ICHR'), codeId: '3' },
-  { codeName: t('MSG_TXT_REG_DIR'), codeId: '4' },
-]);
+const aprAkDvcodes = ref();
 
-// TODO uncomment this.
-// onMounted(async () => {
-//   approvalClassificationList.value = await dataService.get('/sms/wells/contract/contracts/approval-requests');
-// });
+let cachedParams;
 
-function onClickAdd() {
+async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
-  gridUtil.insertRowAndFocus(view, 0, {});
-  view.showEditor();
+  const response = await dataService.get('/sms/wells/contract/contracts/approval-standards/excel-download', { params: cachedParams });
+
+  await gridUtil.exportView(view, {
+    fileName: 'confirmApprovalBaseManageList',
+    timePostfix: true,
+    exportData: response.data,
+  });
 }
 
 async function fetchData() {
   cachedParams = { ...cachedParams, ...pageInfo.value };
-  console.log(cachedParams, pageInfo.value);
-  const res = await dataService.get('sms/wells/contract/contracts/approval-standards/paging', { params: cachedParams });
-  const { list: approvals, pageInfo: pagingResult } = res.data;
-  const view = grdMainRef.value.getView();
+
+  const res = await dataService.get('/sms/wells/contract/contracts/approval-standards/paging', { params: cachedParams });
+  const { list: pages, pageInfo: pagingResult } = res.data;
+
+  // const pages = res.data.list;
+  // totalCount.value = res.data.pageInfo.totalCount;
+
   pageInfo.value = pagingResult;
-  view.getDataSource().setRows(approvals);
-  view.resetCurrent();
+
+  const view = grdMainRef.value.getView();
+  const dataSource = view.getDataSource();
+
+  dataSource.checkRowStates(false);
+  dataSource.addRows(pages);
+  dataSource.checkRowStates(true);
 }
 
-async function onClickSave() {
-  const view = grdMainRef.value.getView();
-  if (await gridUtil.alertIfIsNotModified(view)) { return; }
-  if (!gridUtil.validate(view, {})) { return; }
-  notify('Data saved');
-  const changedRows = gridUtil.getChangedRowValues(view);
-  changedRows.map((ele) => {
-    ele.dtaDlYn = 'N';
-    ele.checkType = 'A';
-    return ele;
-  });
-  await dataService.post('sms/wells/contract/contracts/approval-standards', changedRows);
-  fetchData();
-}
-
-async function onClickExcelDownload() {
-  const view = grdMainRef.value.getView();
-  const res = await dataService.get('sms/wells/contract/contracts/approval-standards/excel-download');
-
-  await gridUtil.exportView(view, {
-    fileName: 'approvalConfirmationList',
-    timePostfix: true,
-    exportData: res.data,
-  });
+async function fetchAprCodes() {
+  cachedParams = cloneDeep(searchParams.value);
+  const res = await dataService.get('/sms/wells/contract/contracts/approval-request-standards', { params: cachedParams });
+  aprAkDvcodes.value = res.data;
 }
 
 async function onClickConfirmCriteriaMangement() {
-  const {
-    result,
-    payload,
-  } = await modal({
+  await modal({
     component: 'WwctcConfirmApprovalBaseListP',
+    componentProps: { standardDt: searchParams.value.standardDt },
   });
-  notify(JSON.stringify({
-    result,
-    payload,
-  }));
 }
 
 async function onClickRemove() {
   const view = grdMainRef.value.getView();
   if (!await gridUtil.confirmIfIsModified(view)) { return; }
   const deletedRows = await gridUtil.confirmDeleteCheckedRows(view);
-  console.log(deletedRows);
-  if (deletedRows.length > 0) {
-    await dataService.delete('sms/wells/contract/contracts/approval-standards', { data: deletedRows });
-    fetchData();
+
+  // deleteKeys needs to be updated as per API
+  const deleteKeys = deletedRows.map((row) => row);
+
+  if (deleteKeys.length) {
+    await dataService.delete('/sms/wells/contract/contracts/approval-standards', { data: deleteKeys });
+    await fetchData();
   }
 }
 
-function onClickSearch() {
+async function onClickSearch() {
+  grdMainRef.value.getData().clearRows();
   pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
-  fetchData();
+  await fetchData();
 }
+
+async function onClickSave() {
+  const view = grdMainRef.value.getView();
+  const chkRows = gridUtil.getCheckedRowValues(view);
+
+  if (await gridUtil.alertIfIsNotModified(view)) { return; }
+  if (!await gridUtil.validate(view)) { return; }
+
+  if (chkRows.length === 0) {
+    notify(t('MSG_ALT_NOT_SEL_ITEM'));
+  } else {
+    await dataService.post('/sms/wells/contract/contracts/approval-standards', chkRows);
+  }
+
+  notify(t('MSG_ALT_SAVE_DATA'));
+  await fetchData();
+}
+
+function onClickAdd() {
+  if (isEmpty(searchParams.value.cntrAprAkDvCd)) { return; }
+
+  const view = grdMainRef.value.getView();
+  gridUtil.insertRowAndFocus(view, 0, {
+    cntrAprAkDvCd: searchParams.value.cntrAprAkDvCd,
+  });
+
+  view.showEditor();
+}
+
+await fetchAprCodes();
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
 function initGrid(data, view) {
   const fields = [
-    { fieldName: 'cntrAprBaseId' },
-    { fieldName: 'cntrAprAkDvCd' },
     { fieldName: 'cntrAprSellDvCd' },
     { fieldName: 'cntrAprChnlDvVal' },
     { fieldName: 'cntrAprIchrDvCd' },
@@ -289,18 +312,21 @@ function initGrid(data, view) {
     { fieldName: 'vlStrtDtm' },
     { fieldName: 'vlEndDtm' },
     { fieldName: 'notyFwOjYn' },
+    { fieldName: 'cntrAprBaseId' },
+    { fieldName: 'cntrAprAkDvCd' },
   ];
 
   const columns = [
-    { fieldName: 'cntrAprAkDvCd', header: t('MSG_TXT_APR_REQ_CAT'), width: '142', styleName: 'text-center', editable: false },
-    { fieldName: 'cntrAprSellDvCd', header: t('MSG_TXT_SLS_CAT'), width: '142', styleName: 'text-center', editor: { type: 'list' }, options: purchaseClassificationList.value },
-    { fieldName: 'cntrAprChnlDvVal', header: t('MSG_TXT_RSPBL_CHNL'), width: '180', styleName: 'text-center', editor: { type: 'text' }, editable: true },
-    { fieldName: 'cntrAprIchrDvCd', header: t('MSG_TXT_ICHR_DV'), width: '142', styleName: 'text-center', editor: { type: 'list' }, options: picClassificationList.value },
-    { fieldName: 'ichrUsrId', header: t('MSG_TXT_CNT_PER'), width: '180', styleName: 'text-center', editor: { type: 'text' } },
-    { fieldName: 'psicNm', header: t('MSG_TXT_PIC_NM'), width: '180', styleName: 'text-center', editor: { type: 'text' } },
+    { fieldName: 'cntrAprSellDvCd', header: t('MSG_TXT_APR_REQ_CAT'), width: '142', styleName: 'text-center', editor: { type: 'list' }, options: codes.CNTR_APR_SELL_DV_CD },
+    { fieldName: 'cntrAprChnlDvVal', header: t('MSG_TXT_RSPBL_CHNL'), width: '180', editor: { type: 'text' } },
+    { fieldName: 'cntrAprIchrDvCd', header: t('MSG_TXT_ICHR_DV'), width: '142', styleName: 'text-center', editor: { type: 'list' }, options: codes.CNTR_APR_ICHR_DV_CD },
+    { fieldName: 'ichrUsrId', header: t('MSG_TXT_CNT_PER'), width: '180', styleName: 'text-center rg-button-icon--search', button: 'action', editor: { type: 'text' } },
+    { fieldName: 'psicNm', header: t('MSG_TXT_PIC_NM'), width: '180', editor: { type: 'text' }, styleName: 'text-center', editable: false },
     { fieldName: 'vlStrtDtm', header: t('MSG_TXT_STRT_DT'), width: '196', styleName: 'text-center', datetimeFormat: 'date', editor: { type: 'btdate' } },
     { fieldName: 'vlEndDtm', header: t('MSG_TXT_END_DT'), width: '196', styleName: 'text-center', datetimeFormat: 'date', editor: { type: 'btdate' } },
-    { fieldName: 'notyFwOjYn', header: t('MSG_TXT_K_TLK_MAIL_TAR'), width: '142', styleName: 'text-center', editor: { type: 'list' }, options: codes.USE_YN },
+    { fieldName: 'notyFwOjYn', header: t('MSG_TXT_K_TLK_MAIL_TAR'), width: '142', styleName: 'text-center', editor: { type: 'list' }, options: cntrYnCodes.value },
+    { fieldName: 'cntrAprBaseId', visible: false },
+    { fieldName: 'cntrAprAkDvCd', visible: false },
   ];
 
   data.setFields(fields);
@@ -309,5 +335,23 @@ function initGrid(data, view) {
   view.checkBar.visible = true;
   view.rowIndicator.visible = true;
   view.editOptions.editable = true;
+
+  view.onScrollToBottom = (g) => {
+    if (pageInfo.value.pageIndex * pageInfo.value.pageSize <= g.getItemCount()) {
+      pageInfo.value.pageIndex += 1;
+      fetchData();
+    }
+  };
+  view.onCellButtonClicked = async (g, { column }) => {
+    if (column === 'ichrUsrId') {
+      alert('공통팝업(임직원 조회) 추가 후 수정예정');
+      /*
+      TODO: 공통팝업(임직원 조회) 추가 후 수정예정
+      await modal({
+        component: 'WwctaContractNumberListP',
+      });
+      */
+    }
+  };
 }
 </script>
