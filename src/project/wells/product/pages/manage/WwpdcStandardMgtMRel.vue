@@ -16,6 +16,7 @@
   <kw-tabs
     v-model="selectedTab"
     class="mt20"
+    @update:model-value="onClickTab(selectedTab)"
   >
     <!-- 판매상품 -->
     <kw-tab
@@ -71,6 +72,10 @@ const props = defineProps({
   readonly: { type: Boolean, default: false },
 });
 
+const emits = defineEmits([
+  'clickTab',
+]);
+
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -122,6 +127,10 @@ async function movePrevStep() {
     return true;
   }
   return false;
+}
+
+async function onClickTab(clickedTab) {
+  emits('clickTab', clickedTab);
 }
 
 async function resetFirstStep() {

@@ -22,10 +22,16 @@
     >
       <kw-form-row>
         <!-- 판매채널 -->
-        <kw-form-item :label="$t('MSG_TXT_SEL_CHNL')">
+        <kw-form-item
+          :label="$t('MSG_TXT_SEL_CHNL')"
+          required
+        >
           <kw-select
+            ref="usedChannelRef"
             v-model="addChannelId"
             :options="usedChannelCds"
+            rules="required"
+            :label="$t('MSG_TXT_SEL_CHNL')"
           />
         </kw-form-item>
       </kw-form-row>
@@ -83,9 +89,9 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { useDataService, stringUtil, gridUtil, getComponentType, useGlobal } from 'kw-lib';
-import { isEmpty, cloneDeep } from 'lodash-es';
+import { cloneDeep } from 'lodash-es';
 import pdConst from '~sms-common/product/constants/pdConst';
-import { pdMergeBy, getGridRowsToSavePdProps, getPropInfosToGridRows, getPdMetaToGridInfos } from '~sms-common/product/utils/pdUtil';
+import { setPdGridRows, pdMergeBy, getGridRowsToSavePdProps, getPropInfosToGridRows, getPdMetaToGridInfos } from '~sms-common/product/utils/pdUtil';
 
 /* eslint-disable no-use-before-define */
 defineExpose({
@@ -118,6 +124,7 @@ const currentInitData = ref(null);
 const currentMetaInfos = ref();
 const usedChannelCds = ref([]);
 const addChannelId = ref();
+const usedChannelRef = ref();
 const checkedSelVals = ref([]);
 const selectionVariables = ref([]);
 const removeObjects = ref([]);
@@ -220,13 +227,12 @@ async function initGridRows() {
       return row;
     });
     const view = grdMainRef.value.getView();
-    view.getDataSource().setRows(rows);
-    view.resetCurrent();
+    setPdGridRows(view, rows, pdConst.PRC_FNL_ROW_ID, defaultFields.value, true);
   }
 }
 
 async function onClickAdd() {
-  if (isEmpty(addChannelId.value)) {
+  if (!(await usedChannelRef.value.validate())) {
     return;
   }
 
