@@ -110,7 +110,7 @@
           </kw-action-top>
           <kw-grid
             ref="grdMainRef"
-            :visible-rows="pageInfo.pageSize"
+            :visible-rows="pageInfo.pageSize - 1"
             @init="initGrdMain"
           />
         </div>
@@ -205,8 +205,11 @@ async function fetchData() {
   pageInfo.value = pagingResult;
 
   const view = grdMainRef.value.getView();
-  view.getDataSource().setRows(details);
-  view.resetCurrent();
+  const dataSource = view.getDataSource();
+
+  dataSource.checkRowStates(false);
+  dataSource.addRows(details);
+  dataSource.checkRowStates(true);
 }
 
 async function onClickSearch() {
@@ -292,6 +295,13 @@ const initGrdMain = defineGrid((data, view) => {
     },
     'fnlMdfcUsrId', 'fstRgstDtm',
   ]);
+
+  view.onScrollToBottom = (g) => {
+    if (pageInfo.value.pageIndex * pageInfo.value.pageSize <= g.getItemCount()) {
+      pageInfo.value.pageIndex += 1;
+      fetchData();
+    }
+  };
 });
 </script>
 <style scoped>
