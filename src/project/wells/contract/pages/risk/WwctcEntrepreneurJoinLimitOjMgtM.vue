@@ -348,11 +348,11 @@ const initGrdMain = defineGrid((data, view) => {
       });
 
       const res = await dataService.get('/sms/wells/contract/partners', { params: searchOgParams.value });
-      const ogs = res.data;
+      const dlgpr = res.data;
 
-      view.setValue(itemIndex, 'dlpnrNm', ogs[0].dlpnrNm);
-      view.setValue(itemIndex, 'dlgpsNm', ogs[0].dlgpsNm);
-      view.setValue(itemIndex, 'bryyMmdd', ogs[0].bryyMmdd);
+      view.setValue(itemIndex, 'dlpnrNm', dlgpr[0].dlpnrNm);
+      view.setValue(itemIndex, 'dlgpsNm', dlgpr[0].dlgpsNm);
+      view.setValue(itemIndex, 'bryyMmdd', dlgpr[0].bryyMmdd);
     } else if (fieldName === 'sellLmRlsDtm') {
       if (grid.getValue(itemIndex, fieldIndex).length === 0) {
         grid.setValue(itemIndex, 'sellLmRlsDtm', null);
