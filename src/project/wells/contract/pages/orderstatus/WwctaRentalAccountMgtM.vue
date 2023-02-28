@@ -57,7 +57,7 @@
           required
         >
           <kw-select
-            v-model="searchParams.dgr1LevlOgNm"
+            v-model="searchParams.dgr1LevlOgCd"
             :label="$t('MSG_TXT_MANAGEMENT_DEPARTMENT')"
             rules="required"
             :options="gnrlDivOptions"
@@ -82,7 +82,7 @@
           required
         >
           <kw-select
-            v-model="searchParams.dgr2LevlOgNm"
+            v-model="searchParams.dgr2LevlOgCd"
             :label="$t('MSG_TXT_RGNL_GRP')"
             :options="rgnlDivOptions"
             rules="required"
@@ -133,7 +133,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { codeUtil, gridUtil, defineGrid, getComponentType, useDataService } from 'kw-lib';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, isEmpty, uniqBy } from 'lodash-es';
 import dayjs from 'dayjs';
 
 const { t } = useI18n();
@@ -155,9 +155,9 @@ const searchParams = ref({
   istStartDt: now.startOf('month').format('YYYYMM'),
   istEndDt: now.format('YYYYMM'),
   pdMclsfId: '',
-  dgr1LevlOgNm: '',
+  dgr1LevlOgCd: '',
   basePdCd: '',
-  dgr2LevlOgNm: '',
+  dgr2LevlOgCd: '',
   copnDvCd: '',
 
 });
@@ -172,9 +172,9 @@ const codes = await codeUtil.getMultiCodes(
   'COPN_DV_CD',
 );
 
-// const pdMclsfIdOptions = await dataService.get('sms/wells/contract/product/middle-classes');
-// const gnrlDivOptions = await dataService.get('sms/wells/contract/partners/general-divisions');
-// const rgnlDivOptions = await dataService.get('sms/wells/contract/partners/regional-divisions');
+const pdMclsfIdOptions = ref([]);
+const gnrlDivOptions = ref([]);
+const rgnlDivOptions = ref([]);
 
 const isProd = computed(() => searchParams.value.srchGbn === 1);
 
@@ -190,10 +190,10 @@ async function fetchData() {
   let res = '';
   if (isProd.value) {
     const { dgr1LevlOgNm, dgr2LevlOgNm, ...prodParams } = cachedParams;
-    res = await dataService.get('/sms/wells/contract/rental-accounts/rental-accounts/products', { params: prodParams });
+    res = await dataService.get('/sms/wells/contract/rental-accounts/products/paging', { params: prodParams });
   } else {
     const { pdMclsfId, basePdCd, ...orgParams } = cachedParams;
-    res = await dataService.get('/sms/wells/contract/rental-accounts/rental-accounts/organizations', { params: orgParams });
+    res = await dataService.get('/sms/wells/contract/rental-accounts/organizations/paging', { params: orgParams });
   }
 
   const { list: accounts } = res.data;
@@ -210,12 +210,53 @@ async function onClickSearch() {
 
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
+  let res = '';
+  if (isProd.value) {
+    res = await dataService.get('/sms/wells/contract/rental-accounts/products/excel-download', { params: cachedParams });
+  } else {
+    res = await dataService.get('/sms/wells/contract/rental-accounts/organizations/excel-download', { params: cachedParams });
+  }
+
   await gridUtil.exportView(view, {
     fileName: 'dataServiceManageList',
     timePostfix: true,
+    exportData: res.data,
   });
 }
 
+async function fetchDefaultData() {
+  const responseMclsfIdOptions = await dataService.get('sms/wells/contract/product/middle-classes');
+  const responseGnrlDivOptions = await dataService.get('sms/wells/contract/partners/general-divisions');
+  const responseRgnlDivOptions = await dataService.get('sms/wells/contract/partners/regional-divisions');
+
+  const initPdMclsfId = []; // 상품분류
+  const initGnrlDivOptions = []; // 총괄단
+  const initRgnlDivOptions = []; // 지역단
+  responseMclsfIdOptions.data.forEach((v) => {
+    if ((!isEmpty(v)) && (!isEmpty(v.pdClsfId))) {
+      initPdMclsfId.push({ codeId: v.pdClsfId, codeName: v.pdClsfNm });
+    }
+  });
+  responseGnrlDivOptions.data.forEach((v) => {
+    if ((!isEmpty(v)) && (!isEmpty(v.dgr1LevlOgCd))) {
+      initGnrlDivOptions.push({ codeId: v.dgr1LevlOgCd, codeName: v.dgr1LevlOgNm });
+    }
+  });
+  responseRgnlDivOptions.data.forEach((v) => {
+    if ((!isEmpty(v)) && (!isEmpty(v.dgr2LevlOgCd))) {
+      initRgnlDivOptions.push({ codeId: v.dgr2LevlOgCd, codeName: v.dgr2LevlOgNm });
+    }
+  });
+
+  pdMclsfIdOptions.value = uniqBy(initPdMclsfId, 'codeId'); // 중복제거
+  gnrlDivOptions.value = uniqBy(initGnrlDivOptions, 'codeId');
+  rgnlDivOptions.value = uniqBy(initRgnlDivOptions, 'codeId');
+  console.log(pdMclsfIdOptions);
+}
+
+onMounted(async () => {
+  await fetchDefaultData();
+});
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------

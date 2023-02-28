@@ -124,7 +124,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, defineGrid, getComponentType, gridUtil, useDataService, useGlobal } from 'kw-lib';
+import { codeUtil, defineGrid, getComponentType, gridUtil, useDataService, useGlobal, useMeta } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 
 const { modal, notify } = useGlobal();
@@ -165,11 +165,18 @@ const searchParams = ref({
 // -------------------------------------------------------------------------------------------------
 
 const grdMainRef = ref(getComponentType('KwGrid'));
+const { getConfig } = useMeta();
 
 const codes = await codeUtil.getMultiCodes(
   'PNTSC_ARBIT_ATC_CD',
   'PNTSC_ARBIT_DEPT_CD',
 );
+
+const pageInfo = ref({
+  totalCount: 0,
+  pageIndex: 1,
+  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
+});
 
 const isRegistration = computed(() => {
   searchParams.value.dangOcStrtdt = '';
@@ -178,10 +185,13 @@ const isRegistration = computed(() => {
 });
 
 async function fetchData() {
-  const res = await dataService.get('/sms/wells/contract/risk-audits/irregular-sales-actions/managerial-tasks', { params: cachedParams });
+  const res = await dataService.get('/sms/wells/contract/risk-audits/irregular-sales-actions/managerial-tasks/paging', { params: cachedParams });
+  const { list: details, pageInfo: pagingResult } = res.data;
+  pageInfo.value = pagingResult;
+
   totalCount.value = res.data.length;
   const view = grdMainRef.value.getView();
-  view.getDataSource().setRows(res.data);
+  view.getDataSource().setRows(details);
   view.resetCurrent();
 }
 
@@ -225,9 +235,11 @@ async function onClickAdd() {
 
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
+  const res = await dataService.get('/sms/wells/contract/risk-audits/irregular-sales-actions/managerial-tasks//excel-download', { params: cachedParams });
   await gridUtil.exportView(view, {
     fileName: 'dataServiceManageList',
     timePostfix: true,
+    exportData: res.data,
   });
 }
 
