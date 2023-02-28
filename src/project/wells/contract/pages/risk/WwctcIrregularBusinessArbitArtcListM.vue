@@ -208,7 +208,11 @@ async function fetchData() {
   const dataSource = view.getDataSource();
 
   dataSource.checkRowStates(false);
-  dataSource.addRows(details);
+  if (pageInfo.value.pageIndex === 1) {
+    dataSource.setRows(details);
+  } else {
+    dataSource.addRows(details);
+  }
   dataSource.checkRowStates(true);
 }
 

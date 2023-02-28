@@ -251,7 +251,6 @@ async function fetchDefaultData() {
   pdMclsfIdOptions.value = uniqBy(initPdMclsfId, 'codeId'); // 중복제거
   gnrlDivOptions.value = uniqBy(initGnrlDivOptions, 'codeId');
   rgnlDivOptions.value = uniqBy(initRgnlDivOptions, 'codeId');
-  console.log(pdMclsfIdOptions);
 }
 
 onMounted(async () => {
