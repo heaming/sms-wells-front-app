@@ -272,7 +272,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'dangOcStrtmm' },
     { fieldName: 'dangOjOgId' },
     { fieldName: 'dangOjPntnrNm' },
-    { fieldName: 'dangOjPrtnrPstnDvNm' },
+    { fieldName: 'dangOjPstnDvCd' },
     { fieldName: 'dgr1LevlDgPrtnrNo' },
     { fieldName: 'dgr1LevlDgPrtnrNm' },
     { fieldName: 'dgr2LevlDgPrtnrNo' },
@@ -309,7 +309,7 @@ const initGrid = defineGrid((data, view) => {
       } },
     { fieldName: 'dangOjOgId', header: t('MSG_TXT_BLG'), width: '129', editable: true },
     { fieldName: 'dangOjPntnrNm', header: t('MSG_TXT_EMPL_NM'), width: '129', editable: false },
-    { fieldName: 'dangOjPrtnrPstnDvNm', header: t('MSG_TXT_CRLV'), width: '129', editable: false },
+    { fieldName: 'dangOjPstnDvCd', header: t('MSG_TXT_CRLV'), width: '129', editable: false },
     { fieldName: 'dgr1LevlDgPrtnrNm', header: t('MSG_TXT_MANAGEMENT_DEPARTMENT'), width: '129', editable: false },
     { fieldName: 'dgr2LevlDgPrtnrNm', header: t('MSG_TXT_RGNL_GRP'), width: '129', editable: false },
     { fieldName: 'bznsSpptPrtnrNm', header: 'BM', width: '129', editable: false },
@@ -372,7 +372,7 @@ const initGrid = defineGrid((data, view) => {
     {
       header: t('MSG_TXT_EMP_NO'),
       direction: 'horizontal',
-      items: ['dangOjPrtnrNo', 'dangOcStrtmm', 'dangOjOgId', 'dangOjPntnrNm', 'dangOjPrtnrPstnDvNm'],
+      items: ['dangOjPrtnrNo', 'dangOcStrtmm', 'dangOjOgId', 'dangOjPntnrNm', 'dangOjPstnDvCd'],
     },
     {
       header: t('MSG_TXT_BLG'),
@@ -401,14 +401,15 @@ const initGrid = defineGrid((data, view) => {
         data.setValue(index.dataRow, 'dangOjPrtnrNo', v.prtnrNo);
         data.setValue(index.dataRow, 'dangOjPntnrNm', v.prtnrKnm);
         data.setValue(index.dataRow, 'dangOjOgId', v.ogCd);
-        data.setValue(index.dataRow, 'dgr1LevlDgPrtnrNo', v.dgr1LevlOgCd);
-        data.setValue(index.dataRow, 'dgr1LevlDgPrtnrNm', v.dgr1LevlOgNm);
-        data.setValue(index.dataRow, 'dgr2LevlDgPrtnrNo', v.dgr2LevlOgCd);
-        data.setValue(index.dataRow, 'dgr2LevlDgPrtnrNm', v.dgr2LevlOgNm);
+        data.setValue(index.dataRow, 'dangOjPstnDvCd', v.pstnDvCd);
+        data.setValue(index.dataRow, 'dgr1LevlDgPrtnrNo', v.dgr1LevlDgPrtnrNo);
+        data.setValue(index.dataRow, 'dgr1LevlDgPrtnrNm', v.dgr1LevlDgPrtnrNm);
+        data.setValue(index.dataRow, 'dgr2LevlDgPrtnrNo', v.dgr2LevlDgPrtnrNo);
+        data.setValue(index.dataRow, 'dgr2LevlDgPrtnrNm', v.dgr2LevlDgPrtnrNm);
         data.setValue(index.dataRow, 'bznsSpptPrtnrNo', v.bizSpptPrtnrCd);
         data.setValue(index.dataRow, 'bznsSpptPrtnrNm', v.bizSpptPrtnrNo);
-        data.setValue(index.dataRow, 'dgr3LevlDgPrtnrNo', v.dgr3LevlOgCd);
-        data.setValue(index.dataRow, 'dgr3LevlDgPrtnrNm', v.dgr3LevlOgNm);
+        data.setValue(index.dataRow, 'dgr3LevlDgPrtnrNo', v.dgr3LevlDgPrtnrNo);
+        data.setValue(index.dataRow, 'dgr3LevlDgPrtnrNm', v.dgr3LevlDgPrtnrNm);
       }
     });
   };
