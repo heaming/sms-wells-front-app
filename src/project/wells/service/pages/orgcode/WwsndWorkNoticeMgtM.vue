@@ -41,12 +41,12 @@
           />
         </kw-search-item>
         <kw-search-item
-          :label="$t('MSG_TXT_TITLE')"
+          :label="$t('MSG_TXT_TTL')"
         >
           <kw-input
             v-model="searchParams.ntccnTitNm"
             :maxlength="300"
-            :placeholder="$t('MSG_TXT_ENTER_SOMETHING', [$t('MSG_TXT_TITLE')])"
+            :placeholder="$t('MSG_TXT_ENTER_SOMETHING', [$t('MSG_TXT_TTL')])"
           />
         </kw-search-item>
       </kw-search-row>
@@ -84,7 +84,7 @@
         />
         <!-- TODO: 인사기본정보 테스트 완료 후 삭제 필요 -->
         <kw-btn
-          :label="$t('테스트')"
+          :label="$t('인사기본정보 팝업')"
           dense
           @click="onClickTest"
         />
@@ -108,7 +108,16 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, gridUtil, stringUtil, defineGrid, getComponentType, useDataService, useMeta, useGlobal } from 'kw-lib';
+import {
+  codeUtil,
+  defineGrid,
+  getComponentType,
+  gridUtil,
+  stringUtil,
+  useDataService,
+  useGlobal,
+  useMeta,
+} from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 
@@ -245,7 +254,7 @@ const initGrdMain = defineGrid((data, view) => {
     },
     {
       fieldName: 'ntccnTitNm',
-      header: t('MSG_TXT_TITLE'),
+      header: t('MSG_TXT_TTL'),
       width: '539',
       styleName: 'rg-button-link',
       renderer: { type: 'button' },

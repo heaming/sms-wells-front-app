@@ -45,6 +45,7 @@
               v-model="workNotice.pdGrpCd"
               :name="$t('MSG_TXT_PD_GRP')"
               :options="codes.PD_GRP_CD"
+              class="mr8"
               rules="required"
             />
             <kw-select
@@ -111,14 +112,14 @@
       </kw-form-row>
       <kw-form-row>
         <kw-form-item
-          :label="$t('MSG_TXT_TITLE')"
+          :label="$t('MSG_TXT_TTL')"
           :colspan="2"
           required
         >
           <kw-input
             v-model="workNotice.ntccnTitNm"
-            :name="$t('MSG_TXT_TITLE')"
-            :placeholder="$t('MSG_TXT_ENTER_SOMETHING', [$t('MSG_TXT_TITLE')])"
+            :name="$t('MSG_TXT_TTL')"
+            :placeholder="$t('MSG_TXT_ENTER_SOMETHING', [$t('MSG_TXT_TTL')])"
             rules="required"
           />
         </kw-form-item>
@@ -158,7 +159,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, useDataService, useModal, useGlobal } from 'kw-lib';
+import { codeUtil, useDataService, useGlobal, useModal } from 'kw-lib';
 import { isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 
