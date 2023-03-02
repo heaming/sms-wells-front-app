@@ -79,7 +79,7 @@
           />
         </kw-search-item>
         <kw-search-item
-          label="번호"
+          :label="$t('MSG_TXT_SEQUENCE_NUMBER')"
         >
           <kw-input
             clearable
@@ -111,12 +111,12 @@
         <kw-btn
           dense
           secondary
-          label="명세서 출력(본사)"
+          :label="$t('MSG_BTN_DSB_SPCSH_PRNT')+&quot;(&quot;+t('MSG_TXT_HDOF')+&quot;)&quot;"
         />
         <kw-btn
           dense
           secondary
-          label="명세서 출력"
+          :label="$t('MSG_BTN_DSB_SPCSH_PRNT')"
         />
       </kw-action-top>
       <kw-grid
