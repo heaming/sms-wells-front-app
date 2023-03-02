@@ -18,6 +18,8 @@
       <kw-stepper
         v-model="currentStep.name"
         heading-text
+        :header-nav="!isTempSaveBtn"
+        @update:model-value="onClickStep()"
       >
         <kw-step
           :name="pdConst.STANDARD_STEP_BASIC.name"
@@ -144,7 +146,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { useDataService, codeUtil, useGlobal } from 'kw-lib';
-import { isEmpty } from 'lodash-es';
+import { isEmpty, cloneDeep } from 'lodash-es';
 import pdConst from '~sms-common/product/constants/pdConst';
 import { pdMergeBy, pdRemoveBy } from '~sms-common/product/utils/pdUtil';
 import ZwpdcPropGroupsMgt from '~sms-common/product/pages/manage/components/ZwpdcPropGroupsMgt.vue';
@@ -177,7 +179,7 @@ const prumd = pdConst.TBL_PD_DSC_PRUM_DTL;
 const isTempSaveBtn = ref(true);
 const regSteps = ref([pdConst.STANDARD_STEP_BASIC, pdConst.STANDARD_STEP_REL_PROD,
   pdConst.STANDARD_STEP_MANAGE, pdConst.STANDARD_STEP_PRICE, pdConst.STANDARD_STEP_CHECK]);
-const currentStep = ref(pdConst.STANDARD_STEP_BASIC);
+const currentStep = ref(cloneDeep(pdConst.STANDARD_STEP_BASIC));
 const cmpStepRefs = ref([ref(), ref(), ref(), ref()]);
 const prevStepData = ref({});
 const currentPdCd = ref();
@@ -198,7 +200,11 @@ const codes = await codeUtil.getMultiCodes(
   'RENTAL_SELL_DTL_TP_CD', // 렌탈 판매상세유형 : 판매유형 - 2
   'MSH_SELL_DTL_TP_CD', // 멤버십 판매상세유형 : 판매유형 - 3
 );
-
+codes.COD_YN.map((item) => {
+  item.codeName = item.codeId;
+  item.changed = true;
+  return item;
+});
 async function onClickReset() {
   await Promise.all(cmpStepRefs.value.map(async (item) => {
     if (item.value.resetData) {
@@ -272,7 +278,7 @@ async function onClickNextStep() {
   // 현재 Step 필수여부 확인
   const currentStepRef = await cmpStepRefs.value[currentStepIndex].value;
   if (isEmpty(currentStepRef)) {
-    currentStep.value = regSteps.value[currentStepIndex + 1];
+    currentStep.value = cloneDeep(regSteps.value[currentStepIndex + 1]);
     return;
   }
   const isValidOk = await (cmpStepRefs.value[currentStepIndex].value?.validateProps());
@@ -288,7 +294,7 @@ async function onClickNextStep() {
     if (nextStepRef && nextStepRef.resetFirstStep) {
       await nextStepRef.resetFirstStep();
     }
-    currentStep.value = regSteps.value[currentStepIndex + 1];
+    currentStep.value = cloneDeep(regSteps.value[currentStepIndex + 1]);
   }
 }
 
@@ -299,8 +305,16 @@ async function onClickPrevStep() {
   // Child 페이지 내에서 이전 스텝이 없으면(false), 현재 페이지에서 이전으로 진행
   const isMovedInnerStep = currentStepRef?.movePrevStep ? await currentStepRef?.movePrevStep() : false;
   if (!isMovedInnerStep) {
-    currentStep.value = regSteps.value[currentStepIndex - 1];
+    currentStep.value = cloneDeep(regSteps.value[currentStepIndex - 1]);
   }
+}
+
+async function onClickStep() {
+  const stepName = currentStep.value?.name;
+  console.log('WwpdcStandardMgtM - onClickStep : ', stepName);
+  prevStepData.value = await getSaveData();
+  currentStep.value = cloneDeep(regSteps.value.find((item) => item.name === stepName));
+  console.log('WwpdcStandardMgtM - onClickStep : ', currentStep.value);
 }
 
 async function onClickSubTab() {
@@ -327,6 +341,7 @@ async function fetchProduct() {
     codes.svPdCd = services?.map(({ pdNm, pdCd }) => ({
       codeId: pdCd, codeName: pdNm,
     }));
+    isTempSaveBtn.value = prevStepData.value[bas].tempSaveYn === 'Y';
   }
 }
 
@@ -340,10 +355,6 @@ async function onClickSave(tempSaveYn) {
         modifiedOk = await item.value?.isModifiedProps(false);
       }
     }));
-    // if (!modifiedOk) {
-    //   await alert(t('MSG_ALT_NO_CHG_CNTN'));
-    //   return;
-    // }
   }
 
   // 2. Step별 필수여부 확인
@@ -351,7 +362,7 @@ async function onClickSave(tempSaveYn) {
   await Promise.all(cmpStepRefs.value.map(async (item, idx) => {
     if (!await item.value.validateProps()) {
       isValidOk = false;
-      currentStep.value = regSteps.value[idx];
+      currentStep.value = cloneDeep(regSteps.value[idx]);
     }
   }));
   if (!isValidOk) {
@@ -360,6 +371,13 @@ async function onClickSave(tempSaveYn) {
 
   // 3. Step별 저장 데이터 확인
   const subList = await getSaveData();
+  if (tempSaveYn === 'N' && isTempSaveBtn.value) {
+    subList[bas].tempSaveYn = tempSaveYn;
+  } else if (isEmpty(currentPdCd.value)) {
+    subList[bas].tempSaveYn = tempSaveYn;
+  } else if (isEmpty(subList[bas].tempSaveYn)) {
+    subList[bas].tempSaveYn = 'Y';
+  }
   console.log('WwpdcStandardMgtM - onClickSave - subList : ', subList);
 
   // 4. 생성 or 저장
@@ -376,9 +394,9 @@ async function onClickSave(tempSaveYn) {
     // 임시저장
     currentPdCd.value = rtn.data?.data?.pdCd;
     isCreate.value = isEmpty(currentPdCd.value);
-    router.push({ path: '/product/zwpdc-sale-product-list/wwpdc-standard-mgt', replace: true, query: { pdCd: currentPdCd.value, tempSaveYn: isTempSaveBtn.value ? 'Y' : 'N' } });
+    router.push({ path: '/product/zwpdc-sale-product-list/wwpdc-standard-mgt', replace: true, query: { pdCd: currentPdCd.value } });
   } else {
-    // router.close();
+    // router.push({ path: '/product/zwpdc-sale-product-list', replace: true, query: { searchYn: 'Y' } });
   }
 }
 
@@ -408,13 +426,14 @@ async function onUpdateBasicValue(field) {
 }
 
 async function initProps() {
-  const { pdCd, tempSaveYn } = props;
+  const { pdCd } = props;
   currentPdCd.value = pdCd;
   if (currentPdCd.value) {
     await fetchProduct();
+  } else {
+    isTempSaveBtn.value = true;
   }
   isCreate.value = isEmpty(currentPdCd.value);
-  isTempSaveBtn.value = tempSaveYn !== 'N';
 }
 
 await initProps();
@@ -423,7 +442,7 @@ watch(() => route.params.pdCd, async (pdCd) => {
   console.log(`currentPdCd.value : ${currentPdCd.value}, route.params.pdCd : ${pdCd}`);
   if (currentPdCd.value !== pdCd && pdCd) {
     isCreate.value = isEmpty(pdCd);
-    currentStep.value = pdConst.STANDARD_STEP_BASIC;
+    // currentStep.value = pdConst.STANDARD_STEP_BASIC;
     if (isCreate.value) {
       isTempSaveBtn.value = true;
     }

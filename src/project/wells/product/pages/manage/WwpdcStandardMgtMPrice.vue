@@ -135,23 +135,23 @@ async function getSaveData() {
   subList[prcd] = [];
   subList[prcfd] = [];
   subList[pdConst.REMOVE_ROWS] = [];
-  const stds = await cmpStdRef.value.getSaveData();
+  const stds = await cmpStdRef.value?.getSaveData();
   subList[pdConst.REMOVE_ROWS] = pdMergeBy(subList[pdConst.REMOVE_ROWS], stds[pdConst.REMOVE_ROWS]);
   subList[prcd] = pdMergeBy(subList[prcd], stds?.[prcd], pdConst.PRC_STD_ROW_ID);
   // console.log('WwpdcStandardMgtMPrice - getSaveData - 1 - subList[prcd] : ', subList[prcd]);
 
-  const vals = await cmpValRef.value.getSaveData();
+  const vals = await cmpValRef.value?.getSaveData();
   subList[pdConst.REMOVE_ROWS] = pdMergeBy(subList[pdConst.REMOVE_ROWS], vals[pdConst.REMOVE_ROWS]);
   subList[prcfd] = pdMergeBy(subList[prcfd], vals?.[prcfd], pdConst.PRC_FNL_ROW_ID);
   subList[pdConst.TBL_PD_DSC_PRUM_DTL] = vals?.[pdConst.TBL_PD_DSC_PRUM_DTL];
   // console.log('WwpdcStandardMgtMPrice - getSaveData - 2 - subList[prcfd] : ', subList[prcfd]);
 
-  const fnls = await cmpFnlRef.value.getSaveData();
+  const fnls = await cmpFnlRef.value?.getSaveData();
   subList[pdConst.REMOVE_ROWS] = pdMergeBy(subList[pdConst.REMOVE_ROWS], fnls[pdConst.REMOVE_ROWS]);
   subList[prcfd] = pdMergeBy(subList[prcfd], fnls?.[prcfd], pdConst.PRC_FNL_ROW_ID);
   // console.log('WwpdcStandardMgtMPrice - getSaveData - 3 - subList[prcfd] : ', subList[prcfd]);
 
-  const fees = await cmpFeeRef.value.getSaveData();
+  const fees = await cmpFeeRef.value?.getSaveData();
   subList[pdConst.REMOVE_ROWS] = pdMergeBy(subList[pdConst.REMOVE_ROWS], fees[pdConst.REMOVE_ROWS]);
   subList[prcfd] = pdMergeBy(subList[prcfd], fees?.[prcfd], pdConst.PRC_FNL_ROW_ID);
   // console.log('WwpdcStandardMgtMPrice - getSaveData - 4 - subList[prcfd] : ', subList[prcfd]);

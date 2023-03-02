@@ -66,6 +66,10 @@ const codes = await codeUtil.getMultiCodes(
   'SV_VST_PRD_CD',
   'PD_TEMP_SAVE_CD',
 );
+codes.COD_YN.map((item) => {
+  item.codeName = item.codeId;
+  return item;
+});
 
 async function fetchProduct() {
   initData.value = {};
@@ -79,7 +83,7 @@ async function fetchProduct() {
   initData.value[prcfd] = res.data[prcfd];
   initData.value[prumd] = res.data[prumd];
   initData.value[pdConst.RELATION_PRODUCTS] = res.data[pdConst.RELATION_PRODUCTS];
-  // console.log('WwpdcStandardDtlM - fetchProduct - initData.value : ', initData.value);
+  console.log('WwpdcStandardDtlM - fetchProduct - initData.value : ', initData.value);
   prdPropGroups.value = res.data.groupCodes;
 }
 

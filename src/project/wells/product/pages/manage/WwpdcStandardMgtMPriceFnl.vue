@@ -223,12 +223,18 @@ async function initGrid(data, view) {
     props.codes,
     readonlyFields,
     ['cndtFxamFxrtDvCd', 'cndtDscPrumVal'],
-    [pdConst.PRC_STD_ROW_ID, pdConst.PRC_FNL_ROW_ID, pdConst.PRC_DETAIL_ID, pdConst.PRC_DETAIL_FNL_ID, 'prcBefAdj'], // 조정 전 가격
+    [pdConst.PRC_STD_ROW_ID, pdConst.PRC_FNL_ROW_ID, pdConst.PRC_DETAIL_ID, pdConst.PRC_DETAIL_FNL_ID], // 조정 전 가격
   );
-  // 조정 전 가격
-  const prcBeforAdj = { fieldName: 'prcBefAdj', header: t('MSG_TXT_DIS_APP_PRC'), width: '120', styleName: 'text-right', numberFormat: '#,##0.##' };
+  // 할인적용가격
+  const prcBeforAdj = { fieldName: 'prcBefAdj',
+    header: t('MSG_TXT_DIS_APP_PRC'),
+    width: '120',
+    styleName: 'text-right',
+    dataType: 'number',
+    numberFormat: '#,##0.##' };
   prcBeforAdj.editable = false;
   columns.splice(columns.length - 3, 0, prcBeforAdj);
+  fields.push({ fieldName: 'prcBefAdj', dataType: 'number' });
   columns.map((item) => {
     if (item.fieldName === 'svPdCd') {
       item.options = props.codes.svPdCd;

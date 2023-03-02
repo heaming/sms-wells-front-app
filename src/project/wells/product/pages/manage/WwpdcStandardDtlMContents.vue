@@ -39,7 +39,7 @@
     />
     <!-- 변경이력 -->
     <kw-tab
-      v-show="props.isHistoryTab"
+      v-if="props.isHistoryTab"
       name="hist"
       :label="$t('MSG_TXT_REVS_HIST')"
     />
