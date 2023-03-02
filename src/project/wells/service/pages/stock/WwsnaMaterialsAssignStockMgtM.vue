@@ -15,7 +15,7 @@
 <template>
   <kw-page>
     <kw-search
-      :cols="5"
+      :cols="3"
       @search="onClickSearch"
     >
       <kw-search-row>
@@ -27,62 +27,48 @@
           />
         </kw-search-item>
         <!-- //기준년월 -->
-        <!-- 총괄단 -->
-        <kw-search-item :label="$t('MSG_TXT_MANAGEMENT_DEPARTMENT')">
-          <kw-select
-            v-model="searchParams.cdpt"
-            :options="cdptCodes"
-          />
-        </kw-search-item>
-        <!-- //총괄단 -->
-        <!-- 지역단 -->
-        <kw-search-item :label="$t('MSG_TXT_RGNL_GRP')">
-          <kw-select
-            v-model="searchParams.bizCd"
-            :options="bizCodes"
-          />
-        </kw-search-item>
-        <!-- //지역단 -->
-        <!-- 지점 -->
-        <kw-search-item :label="$t('MSG_TXT_BRANCH')">
-          <kw-select
-            v-model="searchParams.brnhCd"
-            :options="brnhCodes"
-            first-option="all"
-          />
-        </kw-search-item>
-        <!-- //지점 -->
-        <!-- 담당자명 -->
-        <kw-search-item :label="$t('MSG_TXT_PIC_NM')">
-          <kw-select
-            v-model="searchParams.prtnrNo"
-            :options="prtnrCodes"
-            first-option="all"
-          />
-        </kw-search-item>
-        <!-- //담당자명 -->
+        <ZwcmWareHouseSearch
+          v-model:start-ym="searchParams.baseYm"
+          v-model:end-ym="searchParams.baseYm"
+          v-model:options-ware-dv-cd="wareDvCd"
+          v-model:ware-dv-cd="searchParams.wareDvCd"
+          v-model:ware-no-m="searchParams.hgrWareNo"
+          v-model:ware-no-d="searchParams.wareNo"
+          name="wareSearchGroup"
+          :colspan="2"
+          :label1="$t('MSG_TXT_STR_DT')"
+          :label2="$t('MSG_TXT_WARE')"
+          :label3="$t('MSG_TXT_HGR_WARE')"
+          :label4="$t('MSG_TXT_WARE')"
+        />
       </kw-search-row>
       <kw-search-row>
-        <!-- 상위창고 -->
-        <kw-search-item
-          :label="$t('MSG_TXT_HGR_WARE')"
-          :colspan="2"
-        >
-          <kw-select
-            v-model="searchParams.wareDvCd"
-            :options="codes.WARE_DV_CD"
-            :disable="true"
-          />
+        <!-- 창고상세구분 -->
+        <kw-search-item :label="$t('MSG_TXT_WARE_DTL_DV')">
           <kw-select
             v-model="searchParams.wareDtlDvCd"
             :options="codes.WARE_DTL_DV_CD"
-            first-option="all"
           />
         </kw-search-item>
-        <!-- //상위창고 -->
+        <!-- //창고상세구분 -->
+        <!-- 담당자명 -->
+        <kw-search-item
+          :label="$t('MSG_TXT_PIC_NM')"
+        >
+          <kw-input
+            v-model="searchParams.prtnrKnm"
+            :disable="searchParams.wareNo.length > 0"
+          />
+        </kw-search-item>
+        <!-- //담당자명 -->
         <!-- 사번 -->
-        <kw-search-item :label="$t('MSG_TXT_EPNO')">
-          <kw-input />
+        <kw-search-item
+          :label="$t('MSG_TXT_EPNO')"
+        >
+          <kw-input
+            v-model="searchParams.prtnrNo"
+            :disable="searchParams.wareNo.length > 0"
+          />
         </kw-search-item>
         <!-- //사번 -->
       </kw-search-row>
@@ -146,36 +132,39 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { codeUtil, useDataService, getComponentType, useMeta, defineGrid, gridUtil } from 'kw-lib';
+import ZwcmWareHouseSearch from '~sms-common/service/components/ZwsnzWareHouseSearch.vue';
 import dayjs from 'dayjs';
 import { cloneDeep } from 'lodash-es';
 
 const dataService = useDataService();
 const { getConfig } = useMeta();
 const baseURI = '/sms/wells/service/materials-assign-stocks';
-// const toMonth = dayjs().format('YYYYMM');
 const { t } = useI18n();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 const codes = await codeUtil.getMultiCodes(
-  'WARE_DV_CD',
   'WARE_DTL_DV_CD',
   'COD_PAGE_SIZE_OPTIONS',
   'COD_YN',
 );
+
+const wareDvCd = { WARE_DV_CD: [
+  { codeId: '3', codeName: '영업센터' },
+] };
+
 let cachedParams;
+
 const searchParams = ref({
   baseYm: '',
   ogId: '',
   prtnrNo: '',
   prtnrKnm: '',
+  hgrWareNo: '',
   wareNo: '',
-  wareDvCd: '3', // 영업센터로 초기값 설정
+  wareDvCd: '',
   wareDtlDvCd: '',
-  cdpt: '',
-  bizCd: '',
-  brnhCd: '',
 });
 
 const grdMainRef = ref(getComponentType('KwGrid'));
@@ -187,6 +176,7 @@ const pageInfo = ref({
 });
 
 async function fetchData() {
+  console.log(`cachedParams : ${cachedParams}`);
   const res = await dataService.get(baseURI, { params: { ...cachedParams, ...pageInfo.value } });
   const { list: searchData, pageInfo: pagingResult } = res.data;
 
@@ -200,11 +190,6 @@ async function fetchData() {
 
 async function onClickSearch() {
   pageInfo.value.pageIndex = 1;
-
-  searchParams.value.ogId = searchParams.value.cdpt || searchParams.value.ogId;
-  searchParams.value.ogId = searchParams.value.bizCd || searchParams.value.ogId;
-  searchParams.value.ogId = searchParams.value.brnhCd || searchParams.value.ogId;
-  console.log(`searchParams.value.ogId : ${searchParams.value.ogId}`);
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
 }
@@ -235,25 +220,26 @@ async function onClickSave() {
 // -------------------------------------------------------------------------------------------------
 const initGrdMain = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'prtnrNo', header: t('MSG_TXT_EPNO'), width: '100', styleName: 'text-center' },
-    { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '100', styleName: 'text-center' },
-    { fieldName: 'ogNm', header: t('MSG_TXT_BLG'), width: '100', styleName: 'text-center' },
-    { fieldName: 'bldNm', header: t('MSG_TXT_BUILDING'), width: '200', styleName: 'text-left' },
-    { fieldName: 'wareNm', header: t('MSG_TXT_HGR_WARE'), width: '200', styleName: 'text-left' },
+    { fieldName: 'prtnrNo', header: t('MSG_TXT_EPNO'), width: '80', styleName: 'text-center' },
+    { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '70', styleName: 'text-center' },
+    { fieldName: 'ogNm', header: t('MSG_TXT_BLG'), width: '120', styleName: 'text-center' },
+    { fieldName: 'bldNm', header: t('MSG_TXT_BUILDING'), width: '120', styleName: 'text-left' },
+    { fieldName: 'wareDtlDvNm', header: t('MSG_TXT_WARE_DTL_DV'), width: '140', styleName: 'text-left' },
+    { fieldName: 'hgrWareNm', header: t('MSG_TXT_HGR_WARE'), width: '120', styleName: 'text-left' },
     { fieldName: 'qomAsnApyYn',
       header: t('MSG_TXT_QOM_ASN_APY_YN'),
-      width: '130',
+      width: '70',
       styleName: 'text-center',
       editor: { type: 'list' },
       options: codes.COD_YN,
       optionValue: 'codeId',
       optionLabel: 'codeId',
     },
-    { fieldName: 'bldCd', header: t('MSG_TXT_BLD_CD'), width: '80', styleName: 'text-center' },
-    { fieldName: 'didyDvCd', header: t('MSG_TXT_INDP_MNGER_YN'), width: '110', styleName: 'text-center' },
-    { fieldName: 'adrUseYn', header: t('MSG_TXT_DSN_ADR_YN'), width: '110', styleName: 'text-center' },
-    { fieldName: 'zipCd', header: t('MSG_TXT_ZIP'), width: '80', styleName: 'text-center' },
-    { fieldName: 'rmkCn', header: t('MSG_TXT_NOTE'), width: '180', styleName: 'text-left' },
+    { fieldName: 'bldCd', header: t('MSG_TXT_BLD_CD'), width: '70', styleName: 'text-center' },
+    { fieldName: 'didyDvNm', header: t('MSG_TXT_INDP_MNGER_YN'), width: '110', styleName: 'text-center' },
+    { fieldName: 'adrUseYn', header: t('MSG_TXT_DSN_ADR_YN'), width: '70', styleName: 'text-center' },
+    { fieldName: 'newAdrZip', header: t('MSG_TXT_ZIP'), width: '100', styleName: 'text-center' },
+    { fieldName: 'rdadr', header: t('MSG_TXT_ADDR'), width: '200', styleName: 'text-left' },
   ];
 
   const fields = columns.map((v) => ({ fieldName: v.fieldName }));
@@ -284,91 +270,19 @@ const initGrdMain = defineGrid((data, view) => {
   };
 });
 
-// TODO:총괄단 공통코드 만들어지면 삭제해야함.
 // -------------------------------------------------------------------------------------------------
-// 총괄단/지역단/지점/담당자명 selectbox 설정(공통코드 생성되면 삭제)
+// 검색조건 : 창고
 // -------------------------------------------------------------------------------------------------
-// TODO: CODE값이 정리되면 바꿔야함
-const ogLevl1 = '1';// 2
-const ogLevl2 = '2';// 4
-const ogLevl3 = '3';// 7
-const orgParams = {
-  baseYm: searchParams.value.baseYm || dayjs().format('YYYYMM'),
-  ogTpCd: 'W02',
-};
-
-const ogCodesLv1 = ref();
-const ogCodesLv2 = ref();
-const ogCodesLv3 = ref();
-const ogCodesLv4 = ref();
-
-const cdptCodes = ref();
-const bizCodes = ref();
-const brnhCodes = ref();
-const prtnrCodes = ref();
-
-const setCodes = (_target, _lev) => _target.filter((obj) => obj.ogLevlDvCd === _lev)
-  .map((v) => ({ ...v, codeId: v.ogId, codeName: v.ogCd }));
-
-const filterHgrOgId = (_targetObj, _ogId) => _targetObj.filter((v) => v.hgrOgId === _ogId);
-
-const setCdptCodes = () => {
-  cdptCodes.value = ogCodesLv1.value;
-  searchParams.value.cdpt = cdptCodes.value[0].codeId;// 초기값 설정
-  searchParams.value.ogId = cdptCodes.value[0].codeId;
-};
-
-const getOgCodes = async () => {
-  const res = await dataService.get(`${baseURI}/organizations`, { params: orgParams });
-  if (res.data.length > 0) {
-    ogCodesLv1.value = setCodes(res.data, ogLevl1);
-    ogCodesLv2.value = setCodes(res.data, ogLevl2);
-    ogCodesLv3.value = setCodes(res.data, ogLevl3);
-    ogCodesLv4.value = res.data.filter((obj) => obj.ogLevlDvCd === ogLevl3)
-      .map((v) => ({ ...v, codeId: v.hooPrtnrNo, codeName: `${v.hooPrtnrNm}(${v.hooPrtnrNo})` }));
-
-    setCdptCodes();
+watch(() => searchParams.value.wareDvCd, () => {
+  codes.WARE_DTL_DV_CD = codes.WARE_DTL_DV_CD.filter((v) => Number(v.codeId) > 29);
+});
+watch(() => searchParams.value.wareNo, (res) => {
+  if (res !== '') {
+    searchParams.value.prtnrKnm = '';
+    searchParams.value.prtnrNo = '';
   }
-};
-
-watch(() => searchParams.value.baseYm, (res) => {
-  searchParams.value.cdpt = '';
-  searchParams.value.bizCd = '';
-  searchParams.value.brnhCd = '';
-  searchParams.value.prtnrNo = '';
-  searchParams.value.ogId = '';
-  // console.log(res);
-  getOgCodes();
-  console.log(`searchParams.value.baseYm : ${res}`);
-});
-
-watch(() => searchParams.value.cdpt, (res) => {
-  searchParams.value.bizCd = '';
-  searchParams.value.brnhCd = '';
-  searchParams.value.prtnrNo = '';
-  searchParams.value.ogId = '';
-
-  bizCodes.value = filterHgrOgId(ogCodesLv2.value, searchParams.value.cdpt);
-  searchParams.value.bizCd = bizCodes.value[0].codeId;
-  searchParams.value.ogId = bizCodes.value[0].codeId;
-
-  console.log(`searchParams.value.cdpt : ${res}`);
-});
-
-watch(() => searchParams.value.bizCd, (res) => {
-  searchParams.value.brnhCd = '';
-  searchParams.value.prtnrNo = '';
-  searchParams.value.ogId = '';
-
-  brnhCodes.value = filterHgrOgId(ogCodesLv3.value, searchParams.value.bizCd);
-  // searchParams.value.ogId = brnhCodes.value[0].codeId;
-  console.log(`searchParams.value.bizCd : ${res}`);
-});
-
-watch(() => searchParams.value.brnhCd, (res) => {
-  prtnrCodes.value = filterHgrOgId(ogCodesLv4.value, searchParams.value.bizCd);// brnhCd
-  console.log(`searchParams.value.brnhCd : ${res}`);
 });
 
 searchParams.value.baseYm = dayjs().format('YYYYMM');
+searchParams.value.wareDvCd = '3';
 </script>
