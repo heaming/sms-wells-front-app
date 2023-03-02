@@ -171,6 +171,8 @@ const grdMainRef = ref(getComponentType('KwGrid'));
 
 const codes = await codeUtil.getMultiCodes(
   'WARE_DTL_DV_CD',
+  'WARE_DV_CD',
+  'DIDY_DV_CD',
   'USE_YN',
   'ADM_ZN_CLSF_CD',
   'DIDY_DV_CD',
