@@ -234,7 +234,7 @@ async function fetchData() {
 
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(places);
-  view.resetCurrent();
+  view.clearCurrent();
 }
 
 async function onClickSearch() {
@@ -249,12 +249,14 @@ function onClickAddRow() {
   } else {
     const view = grdMainRef.value.getView();
     gridUtil.insertRowAndFocus(view, 0, { pdlvDvCd: searchParams.value.pdlvDvCd, apyStrtdt: searchParams.value.applyDate, apyEnddt: '99991231' });
+    view.checkItem(0, true);
   }
 }
 
 async function onClickSave() {
   const view = grdMainRef.value.getView();
   const chkRows = gridUtil.getCheckedRowValues(view);
+
   if (chkRows.length === 0) {
     notify(t('MSG_ALT_NOT_SEL_ITEM'));
   } else if (await gridUtil.validate(view, { isCheckedOnly: true })) {
@@ -323,7 +325,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'pdlvAdr' },
     { fieldName: 'pdlvDtlAdr' },
     { fieldName: 'pdlvAdrTot' },
-    { fieldName: 'apyStrtdtOrigin' },
+    { fieldName: 'apyStrtdtMax' },
     { fieldName: 'apyStrtdt' },
     { fieldName: 'apyEnddt' },
     { fieldName: 'cnrOgId' },
@@ -356,7 +358,6 @@ const initGrdMain = defineGrid((data, view) => {
     {
       fieldName: 'pdlvDtlAdr',
       header: t('MSG_TXT_ADDR'),
-      rules: 'required',
     },
     {
       fieldName: 'pdlvAdrTot',
@@ -435,24 +436,34 @@ const initGrdMain = defineGrid((data, view) => {
   };
 
   view.onCellEdited = async (grid, itemIndex, row, field) => {
-    const { apyStrtdtOrigin, apyStrtdt, apyEnddt } = grid.getValues(itemIndex);
+    grid.checkItem(itemIndex, true);
+    const { apyStrtdtMax, apyStrtdt, apyEnddt } = grid.getValues(itemIndex);
     const changedFieldName = grid.getDataSource().getOrgFieldName(field);
 
     if (changedFieldName === 'apyStrtdt') {
       if (apyStrtdt > apyEnddt) {
         grid.setValue(itemIndex, 'apyEnddt', apyStrtdt);
       }
-      if (apyStrtdtOrigin > apyStrtdt) {
+      if (apyStrtdtMax >= apyStrtdt) {
         notify(t('MSG_ALT_APY_STRT_D_CONF_BF_DT'));
-        grid.setValue(itemIndex, 'apyStrtdt', apyStrtdtOrigin);
+        grid.setValue(itemIndex, 'apyStrtdt', apyStrtdtMax);
       }
     } else if (changedFieldName === 'apyEnddt') {
-      if (apyStrtdtOrigin > apyEnddt) {
+      if (apyStrtdtMax > apyEnddt) {
         notify(t('MSG_ALT_APY_STRT_D_CONF_BF_DT'));
         grid.setValue(itemIndex, 'apyEnddt', 99991231);
       } else if (apyStrtdt > apyEnddt) {
         grid.setValue(itemIndex, 'apyStrtdt', apyEnddt);
       }
+    }
+  };
+
+  view.onValidate = async (grid, index) => {
+    debugger;
+    const { apyStrtdtMax, apyStrtdt } = grid.getValues(index.dataRow);
+    debugger;
+    if (apyStrtdtMax >= apyStrtdt) {
+      return t('MSG_ALT_APY_STRT_D_CONF_BF_DT');
     }
   };
 });
