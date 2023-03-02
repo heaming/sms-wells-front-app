@@ -73,8 +73,9 @@
           <kw-date-picker
             v-model="dataParams.vhcPymdt"
             :label="$t('MSG_TXT_DSB_STRT_D')"
-            :disable="isModify && isBeforeVhcPymdt"
+            :disable="isDisableVhcPymdt"
             :rules="validateDsbDate"
+            @change="onChangeVhcPymdt"
           />
         </kw-form-item>
         <!-- 지급종료일 -->
@@ -85,8 +86,9 @@
           <kw-date-picker
             v-model="dataParams.dsbEnddt"
             :label="$t('MSG_TXT_DSB_END_D')"
-            :disable="isModify && isBeforeDsbEnddt"
+            :disable="isDisableDsbEnddt"
             :rules="validateDsbDate"
+            @change="onChangeDsbEnddt"
           />
         </kw-form-item>
       </kw-form-row>
@@ -312,7 +314,8 @@ if (isModify.value) { // 수정
 } else { // 신규
   // TODO: 1. 권한 조회 후 서비스센터/지점 조회 or 특정 센터/지점 조회
   // TODO: 2. 엔지니어는 센터/지점 선택 시 해당 조직에 해당하는 엔지니어만 조회
-  centers.value = svcCenters.map((v) => ({ ogNm: v.ogNm, ogCd: v.ogCd }));
+  const centerByOgTpCd = svcCenters.filter((v) => v.ogTpCd === 'W06' && v.ogLevlDvCd === '2');
+  centers.value = centerByOgTpCd.map((v) => ({ ogNm: v.ogNm, ogCd: v.ogCd }));
   vehicleInfos.value = vhcs.map((v) => ({ codeId: v.carno, codeName: v.carno }));
 
   dataParams.value.vhcPymdt = dayjs().format('YYYYMMDD');
@@ -334,8 +337,13 @@ async function onChangeVehicle() {
   });
 }
 
+let changeVhcPymdtYn = true;
+let changeDsbEnddtYn = true;
+
 const isBeforeVhcPymdt = computed(() => Number(dataParams.value.vhcPymdt) < Number(dayjs().format('YYYYMMDD')));
 const isBeforeDsbEnddt = computed(() => Number(dataParams.value.dsbEnddt) < Number(dayjs().format('YYYYMMDD')));
+const isDisableVhcPymdt = computed(() => isModify.value && isBeforeVhcPymdt.value && changeVhcPymdtYn);
+const isDisableDsbEnddt = computed(() => isModify.value && isBeforeDsbEnddt.value && changeDsbEnddtYn);
 
 async function onClickSaveBtn() {
   if (!await frmMainRef.value.validate()) { return; }
@@ -365,4 +373,17 @@ const validateDsbDate = async (val, options) => {
 
   return errors[0] || true;
 };
+
+function onChangeVhcPymdt() {
+  if (changeVhcPymdtYn) {
+    changeVhcPymdtYn = false;
+  }
+}
+
+function onChangeDsbEnddt() {
+  if (changeDsbEnddtYn) {
+    changeDsbEnddtYn = false;
+  }
+}
+
 </script>

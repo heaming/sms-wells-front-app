@@ -16,7 +16,7 @@
   <kw-tabs
     v-model="selectedTab"
     class="mt20"
-    @update:model-value="initCurrentData"
+    @update:model-value="onClickTab(selectedTab)"
   >
     <!-- 기준가 등록 -->
     <kw-tab
@@ -107,6 +107,10 @@ const props = defineProps({
   readonly: { type: Boolean, default: false },
 });
 
+const emits = defineEmits([
+  'clickTab',
+]);
+
 const dataService = useDataService();
 
 // -------------------------------------------------------------------------------------------------
@@ -151,7 +155,7 @@ async function getSaveData() {
   subList[pdConst.REMOVE_ROWS] = pdMergeBy(subList[pdConst.REMOVE_ROWS], fees[pdConst.REMOVE_ROWS]);
   subList[prcfd] = pdMergeBy(subList[prcfd], fees?.[prcfd], pdConst.PRC_FNL_ROW_ID);
   // console.log('WwpdcStandardMgtMPrice - getSaveData - 4 - subList[prcfd] : ', subList[prcfd]);
-
+  // console.log('WwpdcStandardMgtMPrice - getSaveData - REMOVE_ROWS : ', subList[pdConst.REMOVE_ROWS]);
   // console.log('WwpdcStandardMgtMPrice - subList : ', subList);
   return subList;
 }
@@ -178,11 +182,8 @@ async function resetFirstStep() {
   selectedTab.value = selectedTabs.value[0];
 }
 
-async function initCurrentData() {
-  const saveData = await getSaveData();
-  currentInitData.value[prcd] = saveData[prcd];
-  currentInitData.value[prcfd] = saveData[prcfd];
-  // console.log('WwpdcStandardMgtMPrice - initCurrentData - : ', currentInitData.value);
+async function onClickTab(clickedTab) {
+  emits('clickTab', clickedTab);
 }
 
 function isModifiedProps() {

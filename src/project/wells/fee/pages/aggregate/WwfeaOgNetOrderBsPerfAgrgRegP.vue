@@ -69,7 +69,7 @@ async function onClickCancel() {
 
 async function onClickSave() {
   if (!await confirm(t('MSG_ALT_AGRG'))) { return; }
-  const response = dataService.post('/sms/wells/fee/organiztion-netorders/bs-aggregates', params.value);
+  const response = dataService.post('/sms/wells/fee/organization-netorders/bs-aggregates', params.value);
   ok(response.data);
 }
 </script>

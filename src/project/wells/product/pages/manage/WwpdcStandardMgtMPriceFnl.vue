@@ -38,7 +38,7 @@
 import { gridUtil, getComponentType, useGlobal } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 import pdConst from '~sms-common/product/constants/pdConst';
-import { pdMergeBy, getGridRowsToSavePdProps, getPropInfosToGridRows, getPdMetaToGridInfos } from '~sms-common/product/utils/pdUtil';
+import { setPdGridRows, pdMergeBy, getGridRowsToSavePdProps, getPropInfosToGridRows, getPdMetaToGridInfos } from '~sms-common/product/utils/pdUtil';
 
 /* eslint-disable no-use-before-define */
 defineExpose({
@@ -157,10 +157,9 @@ async function initGridRows() {
 
       return row;
     });
-    // console.log('Rows : ', rows);
+    // console.log('WwpdcStandardMgtMPriceFnl - initGridRows - Rows : ', rows);
     const view = grdMainRef.value.getView();
-    view.getDataSource().setRows(rows);
-    view.resetCurrent();
+    setPdGridRows(view, rows, pdConst.PRC_FNL_ROW_ID, defaultFields.value, true);
   }
 }
 

@@ -242,6 +242,7 @@ const searchParams = ref({
   itmKndCd: '',
   asnTnN: '1',
   ostrOjWareNo: '',
+  ostrWareDvCd: '3',
   ostrWareNoM: '',
   ostrWareNoD: '',
   ostrDt: dayjs().format('YYYYMMDD'),
@@ -320,7 +321,7 @@ onMounted(async () => {
 const initGrdMain = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'wareNm' },
-    { fieldName: 'itemCd' },
+    { fieldName: 'itmPdCd' },
     { fieldName: 'pdAbbrNm' },
     { fieldName: 'mgtGdCd' },
     { fieldName: 'matGdCd' },
@@ -333,6 +334,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'strWareNo' },
     { fieldName: 'wareDvCd' },
     { fieldName: 'wareMngtPrtnrNo' },
+    { fieldName: 'asnIzOutBoxQty' },
     { fieldName: 'crtlStocQty' },
     { fieldName: 'itmQomAsnNo' },
     { fieldName: 'pdPrpVal19' },
@@ -351,10 +353,9 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'ostrIzItmOstrNo' },
     { fieldName: 'ostrIzOstrSn' },
     { fieldName: 'ostrIzSellRcpdt' },
-    { fieldName: 'col15' },
-    { fieldName: 'col18' },
-    { fieldName: 'col19' },
-    { fieldName: 'col20' },
+    { fieldName: 'cfrmQty' },
+    { fieldName: 'accBoxQty' },
+    { fieldName: 'outQty' },
     { fieldName: 'boxUnitQty1' },
 
   ];
@@ -362,7 +363,7 @@ const initGrdMain = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'wareNm', header: t('MSG_TXT_STR_WARE'), width: '160', styleName: 'text-left' },
     { fieldName: 'sapMatCd', header: t('MSG_TXT_SAP_CD'), width: '150', styleName: 'text-center' },
-    { fieldName: 'itemCd', header: t('MSG_TXT_ITM_CD'), width: '150', styleName: 'text-center' },
+    { fieldName: 'itmPdCd', header: t('MSG_TXT_ITM_CD'), width: '150', styleName: 'text-center' },
     { fieldName: 'pdAbbrNm', header: t('MSG_TXT_ITM_NM'), width: '230', styleName: 'text-left' },
     { fieldName: 'filtUseQty', header: t('MSG_TXT_FILT_NED_QTY'), width: '106', styleName: 'text-right' },
     { fieldName: 'under20per', header: t('MSG_TXT_ASN_QTY_CPR_STOC_QTY_STG'), width: '130', styleName: 'text-right' },
@@ -374,12 +375,12 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'boxUnitQty', header: t('MSG_TXT_UNIT_QTY'), width: '136', styleName: 'text-right' },
     { fieldName: 'crtlStocQty', header: t('MSG_TXT_STOC_QTY'), width: '100', styleName: 'text-right' },
     { fieldName: 'nedQty', header: t('MSG_TXT_NED_QTY'), width: '100', styleName: 'text-right' },
-    { fieldName: 'col15', header: t('MSG_TXT_QTY'), width: '84', styleName: 'text-right' },
+    { fieldName: 'cfrmQty', header: t('MSG_TXT_QTY'), width: '84', styleName: 'text-right' },
     { fieldName: 'boxUnitQty1', header: t('MSG_TXT_BOX'), width: '84', styleName: 'text-right' },
     { fieldName: 'mcbyAcuOstrQty', header: t('MSG_TXT_AGGS'), width: '84', styleName: 'text-right' },
-    { fieldName: 'col18', header: t('MSG_TXT_BOX'), width: '84', styleName: 'text-right' },
-    { fieldName: 'col19', header: t('MSG_TXT_FILT_BOX_QTY'), width: '130', styleName: 'text-right' },
-    { fieldName: 'col20', header: t('MSG_TXT_OSTR_QTY'), width: '110', styleName: 'text-right' },
+    { fieldName: 'accBoxQty', header: t('MSG_TXT_BOX'), width: '84', styleName: 'text-right' },
+    { fieldName: 'asnIzOutBoxQty', header: t('MSG_TXT_FILT_BOX_QTY'), width: '130', styleName: 'text-right' },
+    { fieldName: 'outQty', header: t('MSG_TXT_OSTR_QTY'), width: '110', styleName: 'text-right' },
     { fieldName: 'rmks', header: t('MSG_TXT_NOTE'), width: '240', styleName: 'text-left' },
 
   ];
@@ -392,7 +393,7 @@ const initGrdMain = defineGrid((data, view) => {
   view.setColumnLayout([
     'wareNm',
     'sapMatCd',
-    'itemCd',
+    'itmPdCd',
     'pdAbbrNm',
     'filtUseQty',
     'under20per',
@@ -407,14 +408,14 @@ const initGrdMain = defineGrid((data, view) => {
     {
       header: t('MSG_TXT_QOM_ASN_CNFM'), // colspan title
       direction: 'horizontal', // merge type
-      items: ['col15', 'boxUnitQty1'],
+      items: ['cfrmQty', 'boxUnitQty1'],
     },
     {
       header: t('MSG_TXT_QOM_ASN_OSTR'),
       direction: 'horizontal',
-      items: ['mcbyAcuOstrQty', 'col18'],
+      items: ['mcbyAcuOstrQty', 'accBoxQty'],
     },
-    'col19', 'col20', 'rmks',
+    'asnIzOutBoxQty', 'outQty', 'rmks',
   ]);
 });
 

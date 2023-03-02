@@ -68,7 +68,13 @@
         <div class="result-area">
           <kw-action-top>
             <template #left>
-              <kw-paging-info :total-count="pageInfo.totalCount" />
+              <kw-paging-info
+                v-model:page-index="pageInfo.pageIndex"
+                v-model:page-size="pageInfo.pageSize"
+                :total-count="pageInfo.totalCount"
+                :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
+                @change="onClickSearch"
+              />
             </template>
             <kw-btn
               v-permission:delete
@@ -132,14 +138,8 @@
           <kw-grid
             ref="grdMainRef"
             name="grdMain"
-            :visible-rows="10"
+            :visible-rows="pageInfo.pageSize - 1"
             @init="initGrdMain"
-          />
-          <kw-pagination
-            v-model:page-index="pageInfo.pageIndex"
-            v-model:page-size="pageInfo.pageSize"
-            :total-count="pageInfo.totalCount"
-            @change="fetchData"
           />
           <kw-action-bottom>
             <kw-btn
@@ -161,11 +161,14 @@
 // -------------------------------------------------------------------------------------------------
 import { getComponentType, gridUtil, defineGrid, codeUtil, useDataService, useGlobal, useMeta } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
+import dayjs from 'dayjs';
 
+const now = dayjs();
 const dataService = useDataService();
 const { t } = useI18n();
 const { notify } = useGlobal();
 const { getConfig } = useMeta();
+const { hasRoleNickName } = useMeta();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -175,6 +178,7 @@ const excelFileRef = ref(getComponentType('KwFile'));
 
 const codes = await codeUtil.getMultiCodes(
   'SELL_LM_RSON_CD',
+  'COD_PAGE_SIZE_OPTIONS',
 );
 
 const pageInfo = ref({
@@ -184,10 +188,11 @@ const pageInfo = ref({
 });
 
 const searchParams = ref({
-  sellLmOcDtm: '',
-  sellLmOcStm: '',
+  sellLmOcDtm: now.format('YYYYMMDD'),
+  sellLmOcStm: now.format('YYYYMMDD'),
   sellLmBzrno: '',
   dlpnrNm: '',
+  dlpnrCd: '',
 });
 
 let excelUploadfiles;
@@ -198,13 +203,21 @@ async function onClickAdd() {
   await gridUtil.insertRowAndFocus(view, 0, {});
 }
 
+console.log(hasRoleNickName);
+
 async function fetchData() {
   cachedParams = { ...cachedParams, ...pageInfo.value };
+
   const res = await dataService.get('/sms/wells/contract/sales-limits/business-partners/paging', { params: cachedParams });
+  const { list: pages, pageInfo: pagingResult } = res.data;
   const view = grdMainRef.value.getView();
-  const { list: entrepreneurJoinLimits, pageInfo: pagingResult } = res.data;
+  const dataSource = view.getDataSource();
+
   pageInfo.value = pagingResult;
-  view.getDataSource().setRows(entrepreneurJoinLimits);
+
+  dataSource.checkRowStates(false);
+  dataSource.addRows(pages);
+  dataSource.checkRowStates(true);
 }
 
 async function onClickDelete() {
@@ -212,11 +225,12 @@ async function onClickDelete() {
   if (!await gridUtil.confirmIfIsModified(view)) { return; }
   const deletedRows = await gridUtil.confirmDeleteCheckedRows(view);
 
-  const sellLmIds = deletedRows.map((row) => row.sellLmIds);
-  if (sellLmIds.length) {
-    await dataService.delete('/sms/wells/contract/sales-limits/business-partners', { data: sellLmIds });
+  const deleteKeys = deletedRows.map((row) => row.sellLmId);
+
+  if (deleteKeys.length) {
+    await dataService.delete('/sms/wells/contract/sales-limits/business-partners', { data: deleteKeys });
+    await fetchData();
   }
-  await fetchData();
 }
 
 async function onClickExcelDownload() {
@@ -246,6 +260,13 @@ async function onClickExcelUpload2() {
   });
 }
 
+async function onClickSearch() {
+  grdMainRef.value.getData().clearRows();
+  pageInfo.value.pageIndex = 1;
+  cachedParams = cloneDeep(searchParams.value);
+  await fetchData();
+}
+
 async function onClickSave() {
   const view = grdMainRef.value.getView();
   if (await gridUtil.alertIfIsNotModified(view)) { return; }
@@ -256,17 +277,14 @@ async function onClickSave() {
     changedRows,
   );
   notify(t('MSG_ALT_SAVE_DATA'));
-  await fetchData();
+  onClickSearch();
 }
 
-async function onClickSearch() {
-  cachedParams = cloneDeep(searchParams.value);
-  await fetchData();
-}
-
+/*
 onMounted(async () => {
   await fetchData();
 });
+*/
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
@@ -283,10 +301,11 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'sellLmRson' },
     { fieldName: 'sellLmPsicNm' },
     { fieldName: 'sellLmRlsPsicNm' },
+    { fieldName: 'sellLmId' },
   ];
 
   const columns = [
-    { fieldName: 'sellLmDv', header: t('MSG_TXT_INF_CLS'), width: '142', editable: true, editor: { type: 'list' }, options: [{ codeId: '3', codeName: t('MSG_TXT_RGS') }, { codeId: '4', codeName: t('MSG_TXT_RSTRCT') }] },
+    { fieldName: 'sellLmDv', header: t('MSG_TXT_INF_CLS'), width: '142', styleName: 'text-center', editable: true, editor: { type: 'list' }, options: [{ codeId: '3', codeName: t('MSG_TXT_RGS') }, { codeId: '4', codeName: t('MSG_TXT_RSTRCT') }] }, /* 공통코드 미존재로 하드코딩 설정 */
     { fieldName: 'sellLmBzrno', header: t('MSG_TXT_ENTRP_NO'), width: '127', styleName: 'text-center', editable: true },
     { fieldName: 'dlpnrNm', header: t('MSG_TXT_BSN_NM'), width: '127', styleName: 'text-center', editable: false },
     { fieldName: 'dlgpsNm', header: t('MSG_TXT_RPRS_NM'), width: '127', styleName: 'text-center', editable: false },
@@ -294,16 +313,52 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'sellLmRsonCd', header: t('MSG_TXT_DFT_CD'), width: '211', editable: true, editor: { type: 'list' }, options: codes.SELL_LM_RSON_CD },
     { fieldName: 'sellLmOcDtm', header: t('MSG_TXT_OCCUR_DATE'), width: '196', styleName: 'text-center', datetimeFormat: 'date', editable: true, editor: { type: 'btdate' } },
     { fieldName: 'sellLmRlsDtm', header: t('MSG_TXT_CNC_DT'), width: '196', styleName: 'text-center', datetimeFormat: 'date', editable: true, editor: { type: 'btdate' } },
-    { fieldName: 'sellLmRson', header: t('MSG_TXT_OCC_RSN'), width: '376', editable: true },
+    { fieldName: 'sellLmRson', header: t('MSG_TXT_OCC_RSN'), width: '376', styleName: 'text-center', editable: true },
     { fieldName: 'sellLmPsicNm', header: t('MSG_TXT_RGST_ICHR'), width: '180', styleName: 'text-center', editable: false },
     { fieldName: 'sellLmRlsPsicNm', header: t('MSG_TXT_CNC_INCHR'), width: '180', styleName: 'text-center', editable: false },
+    { fieldName: 'sellLmId', visible: false },
   ];
+
+  view.onScrollToBottom = (g) => {
+    if (pageInfo.value.pageIndex * pageInfo.value.pageSize <= g.getItemCount()) {
+      pageInfo.value.pageIndex += 1;
+      fetchData();
+    }
+  };
 
   data.setFields(fields);
   view.setColumns(columns);
   view.editOptions.editable = true;
   view.checkBar.visible = true;
   view.rowIndicator.visible = true;
+
+  view.onShowEditor = async (grid, index) => {
+    if (index.column === 'sellLmBzrno') {
+      view.setValue(index.itemIndex, 'dlpnrNm', '');
+      view.setValue(index.itemIndex, 'dlgpsNm', '');
+      view.setValue(index.itemIndex, 'bryyMmdd', '');
+    }
+  };
+
+  view.onCellEdited = async (grid, itemIndex, row, fieldIndex) => {
+    const { fieldName } = grid.getColumn(fieldIndex);
+    if (fieldName === 'sellLmBzrno') {
+      const searchOgParams = ref({
+        dlpnrCd: grid.getValue(itemIndex, fieldIndex),
+      });
+
+      const res = await dataService.get('/sms/wells/contract/partners', { params: searchOgParams.value });
+      const dlgpr = res.data;
+
+      view.setValue(itemIndex, 'dlpnrNm', dlgpr[0].dlpnrNm);
+      view.setValue(itemIndex, 'dlgpsNm', dlgpr[0].dlgpsNm);
+      view.setValue(itemIndex, 'bryyMmdd', dlgpr[0].bryyMmdd);
+    } else if (fieldName === 'sellLmRlsDtm') {
+      if (grid.getValue(itemIndex, fieldIndex).length === 0) {
+        grid.setValue(itemIndex, 'sellLmRlsDtm', null);
+      }
+    }
+  };
 });
 
 </script>

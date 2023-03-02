@@ -342,7 +342,7 @@ async function initMaterialGrid(data, view) {
     // 교재/자재 분류
     { fieldName: 'pdClsfNm', header: t('MSG_TXT_PD_BOK_MTR_TYPE'), width: '201', editable: false },
     // 교재/자재명
-    { fieldName: 'pdNm', header: t('MSG_TXT_PD_BOK_MTR_NAME'), width: '206, editable: false' },
+    { fieldName: 'pdNm', header: t('MSG_TXT_PD_BOK_MTR_NAME'), width: '206', editable: false },
     // 제품코드
     { fieldName: 'pdCd', header: t('MSG_TXT_PROD_CD'), width: '85', styleName: 'text-center', editable: false },
     // 자재코드

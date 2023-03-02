@@ -64,6 +64,7 @@
             v-model:pd-cd="currentPdCd"
             v-model:init-data="prevStepData"
             :codes="codes"
+            @click-tab="onClickSubTab"
           />
         </kw-step-panel>
         <kw-step-panel :name="pdConst.STANDARD_STEP_MANAGE.name">
@@ -81,6 +82,7 @@
             v-model:pd-cd="currentPdCd"
             v-model:init-data="prevStepData"
             :codes="codes"
+            @click-tab="onClickSubTab"
           />
         </kw-step-panel>
         <kw-step-panel :name="pdConst.STANDARD_STEP_CHECK.name">
@@ -235,11 +237,9 @@ async function getSaveData() {
       }
       if (saveData[prcd]) {
         subList[prcd] = pdMergeBy(subList[prcd], saveData[prcd], pdConst.PRC_STD_ROW_ID);
-        subList[prcd] = pdRemoveBy(subList[prcd], saveData[pdConst.REMOVE_ROWS]);
       }
       if (saveData[prcfd]) {
         subList[prcfd] = pdMergeBy(subList[prcfd], saveData[prcfd], pdConst.PRC_FNL_ROW_ID);
-        subList[prcfd] = pdRemoveBy(subList[prcfd], saveData[pdConst.REMOVE_ROWS]);
       }
       if (saveData[rel]) {
         subList[rel] = pdMergeBy(subList[rel], saveData[rel]);
@@ -254,6 +254,12 @@ async function getSaveData() {
         codes.svPdCd = services?.map(({ pdNm, pdCd }) => ({
           codeId: pdCd, codeName: pdNm,
         }));
+      }
+      if (saveData[pdConst.REMOVE_ROWS]) {
+        subList[pdConst.REMOVE_ROWS] = pdMergeBy(subList[pdConst.REMOVE_ROWS], saveData[pdConst.REMOVE_ROWS]);
+        // console.log('removeRows : ', subList[pdConst.REMOVE_ROWS]);
+        subList[prcd] = pdRemoveBy(subList[prcd], subList[pdConst.REMOVE_ROWS]);
+        subList[prcfd] = pdRemoveBy(subList[prcfd], subList[pdConst.REMOVE_ROWS]);
       }
     }
   }));
@@ -295,6 +301,11 @@ async function onClickPrevStep() {
   if (!isMovedInnerStep) {
     currentStep.value = regSteps.value[currentStepIndex - 1];
   }
+}
+
+async function onClickSubTab() {
+  // console.log('WwpdcStandardMgtM - onClickSubTab - ', clickedTab);
+  prevStepData.value = await getSaveData();
 }
 
 async function fetchProduct() {

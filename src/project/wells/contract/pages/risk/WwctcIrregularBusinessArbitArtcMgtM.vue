@@ -66,7 +66,11 @@
       <kw-action-top>
         <template #left>
           <kw-paging-info
-            :total-count="totalCount"
+            v-model:page-index="pageInfo.pageIndex"
+            v-model:page-size="pageInfo.pageSize"
+            :total-count="pageInfo.totalCount"
+            :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
+            @change="fetchData"
           />
         </template>
         <kw-btn
@@ -113,7 +117,7 @@
       <kw-grid
         ref="grdMainRef"
         name="grdMain"
-        visible-rows="10"
+        :visible-rows="pageInfo.pageSize - 1"
         @init="initGrid"
       />
     </div>
@@ -124,8 +128,8 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, defineGrid, getComponentType, gridUtil, useDataService, useGlobal } from 'kw-lib';
-import { cloneDeep } from 'lodash-es';
+import { codeUtil, defineGrid, getComponentType, gridUtil, useDataService, useGlobal, useMeta } from 'kw-lib';
+import { cloneDeep, isEmpty } from 'lodash-es';
 
 const { modal, notify } = useGlobal();
 const { t } = useI18n();
@@ -165,11 +169,18 @@ const searchParams = ref({
 // -------------------------------------------------------------------------------------------------
 
 const grdMainRef = ref(getComponentType('KwGrid'));
+const { getConfig } = useMeta();
 
 const codes = await codeUtil.getMultiCodes(
   'PNTSC_ARBIT_ATC_CD',
   'PNTSC_ARBIT_DEPT_CD',
 );
+
+const pageInfo = ref({
+  totalCount: 0,
+  pageIndex: 1,
+  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
+});
 
 const isRegistration = computed(() => {
   searchParams.value.dangOcStrtdt = '';
@@ -178,14 +189,25 @@ const isRegistration = computed(() => {
 });
 
 async function fetchData() {
-  const res = await dataService.get('/sms/wells/contract/risk-audits/irregular-sales-actions/managerial-tasks', { params: cachedParams });
+  const res = await dataService.get('/sms/wells/contract/risk-audits/irregular-sales-actions/managerial-tasks/paging', { params: { ...cachedParams, ...pageInfo.value } });
+  const { list: details, pageInfo: pagingResult } = res.data;
+  pageInfo.value = pagingResult;
+
   totalCount.value = res.data.length;
   const view = grdMainRef.value.getView();
-  view.getDataSource().setRows(res.data);
-  view.resetCurrent();
+  const dataSource = view.getDataSource();
+
+  dataSource.checkRowStates(false);
+  if (pageInfo.value.pageIndex === 1) {
+    dataSource.setRows(details);
+  } else {
+    dataSource.addRows(details);
+  }
+  dataSource.checkRowStates(true);
 }
 
 async function onClickSearch() {
+  pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
   if (cachedParams.srchGbn !== 1) {
     const { dangOcStrtdt, dangOcEnddt, ...restParams } = cachedParams;
@@ -202,7 +224,7 @@ async function onClickRemove() {
 
   if (deletedRows.length) {
     await dataService.delete('/sms/wells/contract/risk-audits/irregular-sales-actions/managerial-tasks', { data: deletedRows });
-    await fetchData();
+    await onClickSearch();
   }
 }
 
@@ -215,7 +237,7 @@ async function onClickSave() {
   await dataService.post('/sms/wells/contract/risk-audits/irregular-sales-actions/managerial-tasks', changedRows);
 
   notify(t('MSG_ALT_SAVE_DATA'));
-  await fetchData();
+  await onClickSearch();
 }
 
 async function onClickAdd() {
@@ -225,9 +247,11 @@ async function onClickAdd() {
 
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
+  const res = await dataService.get('/sms/wells/contract/risk-audits/irregular-sales-actions/managerial-tasks/excel-download', { params: cachedParams });
   await gridUtil.exportView(view, {
     fileName: 'dataServiceManageList',
     timePostfix: true,
+    exportData: res.data,
   });
 }
 
@@ -239,7 +263,6 @@ async function onClickOpenPartnerListPopup() {
     searchParams.value.dangOjPrtnrNo = payload.prtnrNo;
   }
 }
-
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
@@ -249,11 +272,15 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'dangOcStrtmm' },
     { fieldName: 'dangOjOgId' },
     { fieldName: 'dangOjPntnrNm' },
-    { fieldName: 'dangOjPrtnrPstnDvNm' },
+    { fieldName: 'dangOjPstnDvCd' },
     { fieldName: 'dgr1LevlDgPrtnrNo' },
+    { fieldName: 'dgr1LevlDgPrtnrNm' },
     { fieldName: 'dgr2LevlDgPrtnrNo' },
+    { fieldName: 'dgr2LevlDgPrtnrNm' },
     { fieldName: 'bznsSpptPrtnrNo' },
+    { fieldName: 'bznsSpptPrtnrNm' },
     { fieldName: 'dgr3LevlDgPrtnrNo' },
+    { fieldName: 'dgr3LevlDgPrtnrNm' },
     { fieldName: 'dangChkNm' },
     { fieldName: 'dangArbitCd' },
     { fieldName: 'dangUncvrCt' },
@@ -282,11 +309,11 @@ const initGrid = defineGrid((data, view) => {
       } },
     { fieldName: 'dangOjOgId', header: t('MSG_TXT_BLG'), width: '129', editable: true },
     { fieldName: 'dangOjPntnrNm', header: t('MSG_TXT_EMPL_NM'), width: '129', editable: false },
-    { fieldName: 'dangOjPrtnrPstnDvNm', header: t('MSG_TXT_CRLV'), width: '129', editable: false },
-    { fieldName: 'dgr1LevlDgPrtnrNo', header: t('MSG_TXT_MANAGEMENT_DEPARTMENT'), width: '129', editable: false },
-    { fieldName: 'dgr2LevlDgPrtnrNo', header: t('MSG_TXT_RGNL_GRP'), width: '129', editable: false },
-    { fieldName: 'bznsSpptPrtnrNo', header: 'BM', width: '129', editable: false },
-    { fieldName: 'dgr3LevlDgPrtnrNo', header: t('MSG_TXT_BRANCH'), width: '129', editable: false },
+    { fieldName: 'dangOjPstnDvCd', header: t('MSG_TXT_CRLV'), width: '129', editable: false },
+    { fieldName: 'dgr1LevlDgPrtnrNm', header: t('MSG_TXT_MANAGEMENT_DEPARTMENT'), width: '129', editable: false },
+    { fieldName: 'dgr2LevlDgPrtnrNm', header: t('MSG_TXT_RGNL_GRP'), width: '129', editable: false },
+    { fieldName: 'bznsSpptPrtnrNm', header: 'BM', width: '129', editable: false },
+    { fieldName: 'dgr3LevlDgPrtnrNm', header: t('MSG_TXT_BRANCH'), width: '129', editable: false },
     { fieldName: 'dangChkNm', header: t('MSG_TXT_CHRGS'), width: '306', rules: 'required' },
     { fieldName: 'dangArbitCd',
       header: t('MSG_TXT_ACTN_ITM'),
@@ -345,12 +372,12 @@ const initGrid = defineGrid((data, view) => {
     {
       header: t('MSG_TXT_EMP_NO'),
       direction: 'horizontal',
-      items: ['dangOjPrtnrNo', 'dangOcStrtmm', 'dangOjOgId', 'dangOjPntnrNm', 'dangOjPrtnrPstnDvNm'],
+      items: ['dangOjPrtnrNo', 'dangOcStrtmm', 'dangOjOgId', 'dangOjPntnrNm', 'dangOjPstnDvCd'],
     },
     {
       header: t('MSG_TXT_BLG'),
       direction: 'horizontal',
-      items: ['dgr1LevlDgPrtnrNo', 'dgr2LevlDgPrtnrNo', 'bznsSpptPrtnrNo', 'dgr3LevlDgPrtnrNo'],
+      items: ['dgr1LevlDgPrtnrNm', 'dgr2LevlDgPrtnrNm', 'bznsSpptPrtnrNm', 'dgr3LevlDgPrtnrNm'],
     },
     {
       header: t('MSG_TXT_PNLTY'),
@@ -362,20 +389,34 @@ const initGrid = defineGrid((data, view) => {
   ]);
 
   view.onCellButtonClicked = async (grid, index) => {
-    const { result, payload } = await modal({
-      component: 'ZwogcPartnerListP',
+    const res = await dataService.get('/sms/wells/contract/risk-audits/irregular-sales-actions/Organizations', {
+      params: {
+        baseYm: grid.getValues(index.dataRow).dangOcStrtmm,
+        pntnrNo: grid.getValues(index.dataRow).dangOjPrtnrNo,
+        ogTpCd: '',
+      },
     });
-    if (result) {
-      data.setValue(index.dataRow, 'dangOjPrtnrNo', payload.prtnrNo);
-      data.setValue(index.dataRow, 'dangOjPntnrNm', payload.prtnrKnm);
-
-      /** @todo: will update other values when popup updated
-      data.setValue(index.dataRow, 'dangOjOgId', payload.ogNm);
-      data.setValue(index.dataRow, 'dangOjPrtnrPstnDvNm', payload.ogNM);
-      data.setValue(index.dataRow, 'dgr1LevlDgPrtnrNo', payload.ogNM);
-      data.setValue(index.dataRow, 'dgr2LevlDgPrtnrNo', payload.ogNM);
-      data.setValue(index.dataRow, 'bznsSpptPrtnrNo', payload.ogNM);
-      data.setValue(index.dataRow, 'dgr3LevlDgPrtnrNo', payload.ogNM); */
+    res.data.forEach((v) => {
+      if ((!isEmpty(v))) {
+        data.setValue(index.dataRow, 'dangOjPrtnrNo', v.prtnrNo);
+        data.setValue(index.dataRow, 'dangOjPntnrNm', v.prtnrKnm);
+        data.setValue(index.dataRow, 'dangOjOgId', v.ogCd);
+        data.setValue(index.dataRow, 'dangOjPstnDvCd', v.pstnDvCd);
+        data.setValue(index.dataRow, 'dgr1LevlDgPrtnrNo', v.dgr1LevlDgPrtnrNo);
+        data.setValue(index.dataRow, 'dgr1LevlDgPrtnrNm', v.dgr1LevlDgPrtnrNm);
+        data.setValue(index.dataRow, 'dgr2LevlDgPrtnrNo', v.dgr2LevlDgPrtnrNo);
+        data.setValue(index.dataRow, 'dgr2LevlDgPrtnrNm', v.dgr2LevlDgPrtnrNm);
+        data.setValue(index.dataRow, 'bznsSpptPrtnrNo', v.bizSpptPrtnrCd);
+        data.setValue(index.dataRow, 'bznsSpptPrtnrNm', v.bizSpptPrtnrNo);
+        data.setValue(index.dataRow, 'dgr3LevlDgPrtnrNo', v.dgr3LevlDgPrtnrNo);
+        data.setValue(index.dataRow, 'dgr3LevlDgPrtnrNm', v.dgr3LevlDgPrtnrNm);
+      }
+    });
+  };
+  view.onScrollToBottom = (g) => {
+    if (pageInfo.value.pageIndex * pageInfo.value.pageSize <= g.getItemCount()) {
+      pageInfo.value.pageIndex += 1;
+      fetchData();
     }
   };
 });
