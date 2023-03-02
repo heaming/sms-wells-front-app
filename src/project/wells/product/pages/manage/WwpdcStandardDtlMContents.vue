@@ -143,13 +143,14 @@ async function onClickUpdate() {
 
 async function initProps() {
   const { pdCd, initData } = props;
+  selectedTab.value = pdConst.STANDARD_STEP_BASIC.name;
   currentPdCd.value = pdCd;
   currentInitData.value = initData;
 }
 
 await initProps();
 
-watch(() => props.pdCd, (pdCd) => { currentPdCd.value = pdCd; });
+watch(() => props.pdCd, (pdCd) => { currentPdCd.value = pdCd; selectedTab.value = pdConst.STANDARD_STEP_BASIC.name; });
 watch(() => props.initData, (initData) => { currentInitData.value = initData; }, { deep: true });
 
 </script>

@@ -39,7 +39,7 @@
         >
           <kw-select
             v-model="searchParams.clctamDvCd"
-            :options="codes.CLCTAM_DV_CD"
+            :options="filteredCodes.CLCTAM_DV_CD"
             :label="$t('MSG_TXT_CLCTAM_DV')"
             rules="required"
           />
@@ -47,7 +47,9 @@
         <kw-search-item
           :label="$t('MSG_TXT_CLCTAM_PSIC_NM')"
         >
+          <!-- TODO: 집금담당자 번호 입력시 정상 번호인지 확인 하는 작업 필요(집금담당자 조회 화면 개발 후 추가 작업 필요) -->
           <kw-input
+            v-model="showInfo.clctamPrtnrKnm"
             icon="search"
             clearable
           />
@@ -55,9 +57,12 @@
         <kw-search-item
           :label="$t('MSG_TXT_NW_DV')"
         >
+          <!-- TODO: 코드 정의 안되어 있음 정의 되면 코드보게 수정필요 -->
           <kw-select
+            v-model="searchParams.nwYn"
             :model-value="[]"
-            :options="['Y', 'N']"
+            :options="['신규', '기존']"
+            first-option="all"
           />
         </kw-search-item>
       </kw-search-row>
@@ -66,7 +71,7 @@
           :label="$t('MSG_TXT_CST_NM')"
         >
           <kw-input
-            v-model="searchParams.cstKnm"
+            v-model="showInfo.cstKnm"
             icon="search"
             clearable
           />
@@ -83,7 +88,7 @@
         <kw-search-item
           :label="$t('MSG_TXT_MPNO')"
         >
-          <kw-input />
+          <kw-input v-model="showInfo.phoneNumber" />
         </kw-search-item>
       </kw-search-row>
     </kw-search>
@@ -101,6 +106,7 @@
           :label="$t('MSG_TXT_EXCEL_UPLOAD')"
           secondary
           dense
+          @click="onClickExcelUpload"
         />
         <kw-btn
           icon="download_on"
@@ -167,6 +173,7 @@
           :label="$t('MSG_TXT_EXCEL_UPLOAD')"
           secondary
           dense
+          @click="onClickExcelUpload"
         />
         <kw-btn
           icon="download_on"
@@ -198,11 +205,12 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { useGlobal, codeUtil, getComponentType, useMeta, useDataService, defineGrid, gridUtil } from 'kw-lib';
+import dayjs from 'dayjs';
 import { cloneDeep } from 'lodash-es';
 
 const { t } = useI18n();
 const { getConfig } = useMeta();
-const { notify } = useGlobal();
+const { modal, notify } = useGlobal();
 const dataService = useDataService();
 
 // -------------------------------------------------------------------------------------------------
@@ -212,6 +220,8 @@ const codes = await codeUtil.getMultiCodes(
   'CLCTAM_DV_CD',
   'DIV_DV_CD',
 );
+const filteredCodes = ref({ CLCTAM_DV_CD: codes.CLCTAM_DV_CD.filter((obj) => (obj.codeId !== '09' && obj.codeId !== '10')) });
+
 const grdMainRef = ref(getComponentType('KwGrid'));
 const grdSubRef = ref(getComponentType('KwGrid'));
 const totalCount = ref(0);
@@ -221,14 +231,30 @@ const pageInfo = ref({
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
   needTotalCount: true,
 });
+
+// TODO: 기준년월을 여기에서 보낼지... 서비스에서 만들지 관련 화면들 전부 정리 되면 확인 필요 현재는 화면에서 보내는 걸로 작업
+const defaultDate = dayjs().format('YYYYMM');
+
 let cachedParams;
+let cachedDetailsParams;
 const searchParams = ref({
+  baseYm: defaultDate,
   bzHdqDvCd: '1000',
   clctamDvCd: '',
   nwYn: '',
   cstNo: '',
   clctamPrtnrNo: '',
+});
+const showInfo = ref({
+  phoneNumber: '',
+  clctamPrtnrKnm: '',
   cstKnm: '',
+});
+const searchDetailsParams = ref({
+  baseYm: defaultDate,
+  bzHdqDvCd: '',
+  clctamDvCd: '',
+  clctamPrtnrNo: '',
 });
 
 async function fetchData() {
@@ -246,8 +272,10 @@ async function onClickSearch() {
 }
 
 async function fetchDetailsData() {
-  cachedParams = cloneDeep(searchParams.value);
-  const res = await dataService.get('/sms/wells/bond/collector-assigns/details/paging', { params: cachedParams });
+  searchDetailsParams.value.bzHdqDvCd = searchParams.value.bzHdqDvCd;
+  searchDetailsParams.value.clctamDvCd = searchParams.value.clctamDvCd;
+  cachedDetailsParams = cloneDeep(searchDetailsParams.value);
+  const res = await dataService.get('/sms/wells/bond/collector-assigns/details/paging', { params: cachedDetailsParams });
   const { list: collectorAssigns, pageInfo: pagingResult } = res.data;
 
   pageInfo.value = pagingResult;
@@ -267,9 +295,23 @@ async function onClickExcelDownload() {
   });
 }
 
+async function onClickExcelUpload() {
+  // TODO: 엑셀 업로드 문서 양식이 없어 구현 하지 않음 화면은 나와야 한다고 해서 샘플 소스 추가
+  const apiUrl = '/sflex/common/common/excel-read/upload-test';
+  const templateId = 'FOM_MSG_RESO_XLS_UP';
+  const {
+    result,
+  } = await modal({
+    component: 'ZwcmzExcelUploadP',
+    componentProps: { apiUrl, templateId },
+  });
+  if (result.status === 'S') {
+    notify(t('MSG_ALT_SAVE_DATA'));
+  }
+}
+
 async function onClickDetailsExcelDownload() {
-  cachedParams = cloneDeep(searchParams.value);
-  const res = await dataService.get('/sms/wells/bond/collector-assigns/details/excel-download', { params: cachedParams });
+  const res = await dataService.get('/sms/wells/bond/collector-assigns/details/excel-download', { params: cachedDetailsParams });
 
   const view = grdSubRef.value.getView();
   await gridUtil.exportView(view, {
@@ -279,23 +321,33 @@ async function onClickDetailsExcelDownload() {
   });
 }
 
-function onClickSave() {
+async function onClickSave() {
   // TODO: 미완료 구현 필요
+  const view = grdSubRef.value.getView();
+  if (await gridUtil.alertIfIsNotModified(view)) { return; }
+  if (!await gridUtil.validate(view)) { return; }
+
+  const changedRows = gridUtil.getChangedRowValues(view);
+  await dataService.put('/sms/wells/bond/collector-assigns', changedRows);
+
   notify(t('MSG_ALT_SAVE_DATA'));
+  await fetchDetailsData();
 }
 
 function onClickCreate() {
   // TODO: 미완료 구현 필요
-  notify(t('MSG_ALT_CRT_FSH'));
+  notify(t('MSG_ALT_ALLO_OF_COLL_EXCN'));
 }
 
 function onClickUpdate() {
-  // TODO: 미완료 구현 필요
+  // TODO: 미완료 구현 필요(Z-BN-U-0066M01 화면으로 연결 필요)
   notify(t('MSG_ALT_MODIFIED'));
 }
 
-function onClickConfirm() {
+async function onClickConfirm() {
   // TODO: 미완료 구현 필요
+  cachedParams = cloneDeep(searchParams.value);
+  await dataService.put('/sms/wells/bond/collector-assigns/confirm', cachedParams);
   notify(t('MSG_ALT_MODIFIED'));
 }
 // -------------------------------------------------------------------------------------------------
@@ -461,13 +513,18 @@ const initGrdMain = defineGrid((data, view) => {
       items: ['rglrSppCstn', 'rglrSppCntrCt', 'rglrSppTrgAmt', 'rglrSppDlqAmt', 'rglrSppThmChramAmt', 'rglrSppDlqAddAmt', 'rglrSppRsgBorAmt'],
     },
   ]);
-  view.onCellDblClicked = async () => {
+  view.onCellDblClicked = async (g, { dataRow }) => {
     // TODO: 명세서에 맞게 항목 재정의 필요 화면 구현을 위해 임시 소스
+    const { clctamPrtnrNo } = gridUtil.getRowValue(g, dataRow);
+    searchDetailsParams.value.clctamPrtnrNo = clctamPrtnrNo;
     fetchDetailsData();
   };
 });
 const initGrdSub = defineGrid((data, view) => {
   const fields = [
+    { fieldName: 'baseYm' },
+    { fieldName: 'bzHdqDvCd' },
+    { fieldName: 'cntrSn' },
     { fieldName: 'clctamPrtnrNo' },
     { fieldName: 'clctamPrtnrKnm' },
     { fieldName: 'lstmmClctamDvCd' },
@@ -490,27 +547,31 @@ const initGrdSub = defineGrid((data, view) => {
   ];
   const columns = [
     { fieldName: 'clctamPrtnrKnm', header: t('MSG_TXT_PIC_NM'), width: '98', styleName: 'text-left' },
-    { fieldName: 'lstmmClctamDvCd', header: t('MSG_TXT_LSTMM_ICHR_CLCTAM_DV'), width: '130', styleName: 'text-left' },
-    { fieldName: 'lstmmClctamPrtnrKnm', header: t('MSG_TXT_LSTMM_PSIC'), width: '90', styleName: 'text-left' },
-    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_NO'), width: '160', styleName: 'text-center' },
-    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '90', styleName: 'text-left' },
-    { fieldName: 'cstNo', header: t('MSG_TXT_CST_NO'), width: '130', styleName: 'text-center' },
-    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_GUBUN'), width: '90', styleName: 'text-left' },
-    { fieldName: 'dlqMcn', header: t('MSG_TXT_DLQ_MCNT'), width: '86', styleName: 'text-center' },
-    { fieldName: 'trgAmt', header: t('MSG_TXT_OJ_AMT'), width: '110', styleName: 'text-right' },
-    { fieldName: 'dlqAmt', header: t('MSG_TXT_DLQ_AMT'), width: '110', styleName: 'text-right' },
-    { fieldName: 'thmChramAmt', header: t('MSG_TXT_THM_CHRAM'), width: '110', styleName: 'text-right' },
-    { fieldName: 'dlqAddAmt', header: t('MSG_TXT_DLQ_ADD_AMT'), width: '116', styleName: 'text-right' },
-    { fieldName: 'rsgBorAmt', header: t('MSG_TXT_BOR_AMT'), width: '110', styleName: 'text-right' },
-    { fieldName: 'lwmDtlTpCd', header: t('MSG_TXT_LWM_PS'), width: '110', styleName: 'text-center' },
-    { fieldName: 'lwmDt', header: t('MSG_TXT_LWM_PS_DT'), width: '110', styleName: 'text-center' },
-    { fieldName: 'dfltDt', header: t('MSG_TXT_DE_RGST_DT'), width: '110', styleName: 'text-center' },
-    { fieldName: 'addr', header: t('MSG_TXT_ADDR'), width: '200', styleName: 'text-left' },
+    { fieldName: 'lstmmClctamDvCd', header: t('MSG_TXT_LSTMM_ICHR_CLCTAM_DV'), width: '130', styleName: 'text-left', editable: false },
+    { fieldName: 'lstmmClctamPrtnrKnm', header: t('MSG_TXT_LSTMM_PSIC'), width: '90', styleName: 'text-left', editable: false },
+    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_NO'), width: '160', styleName: 'text-center', editable: false },
+    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '90', styleName: 'text-left', editable: false },
+    { fieldName: 'cstNo', header: t('MSG_TXT_CST_NO'), width: '130', styleName: 'text-center', editable: false },
+    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_GUBUN'), width: '90', styleName: 'text-left', editable: false },
+    { fieldName: 'dlqMcn', header: t('MSG_TXT_DLQ_MCNT'), width: '86', styleName: 'text-center', editable: false },
+    { fieldName: 'trgAmt', header: t('MSG_TXT_OJ_AMT'), width: '110', styleName: 'text-right', editable: false },
+    { fieldName: 'dlqAmt', header: t('MSG_TXT_DLQ_AMT'), width: '110', styleName: 'text-right', editable: false },
+    { fieldName: 'thmChramAmt', header: t('MSG_TXT_THM_CHRAM'), width: '110', styleName: 'text-right', editable: false },
+    { fieldName: 'dlqAddAmt', header: t('MSG_TXT_DLQ_ADD_AMT'), width: '116', styleName: 'text-right', editable: false },
+    { fieldName: 'rsgBorAmt', header: t('MSG_TXT_BOR_AMT'), width: '110', styleName: 'text-right', editable: false },
+    { fieldName: 'lwmDtlTpCd', header: t('MSG_TXT_LWM_PS'), width: '110', styleName: 'text-center', editable: false },
+    { fieldName: 'lwmDt', header: t('MSG_TXT_LWM_PS_DT'), width: '110', styleName: 'text-center', editable: false },
+    { fieldName: 'dfltDt', header: t('MSG_TXT_DE_RGST_DT'), width: '110', styleName: 'text-center', editable: false },
+    { fieldName: 'addr', header: t('MSG_TXT_ADDR'), width: '200', styleName: 'text-left', editable: false },
   ];
 
   data.setFields(fields);
   view.setColumns(columns);
   view.checkBar.visible = true;
   view.rowIndicator.visible = true;
+
+  view.onCellClicked = () => {
+    view.editOptions.editable = true;
+  };
 });
 </script>

@@ -224,6 +224,7 @@ const searchParams = ref({
 });
 const searchDetailsParams = ref({
   baseYm: defaultDate,
+  bzHdqDvCd: '1000',
   clctamDvCd: '',
 });
 

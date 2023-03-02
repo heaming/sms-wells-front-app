@@ -16,41 +16,11 @@ export default () => {
    *     const sido = await getLcStockSt101tb('sido');
    */
   async function getLcStockSt101tb() {
-    return [
-      {
-        cd: '4101000000',
-        cdNm: '비데(KWB-3100)',
-        abbrNm: '비데(KWB-3100)(41010-000000)',
-        englNm: 'KWB-3100',
-        knd: '4',
-        gr: '1',
-        pdctClsf: '4',
-        apyDtStrt: '20081117',
-        apyDtEnd: '99990101',
-      },
-      {
-        cd: '4102000000',
-        cdNm: '비데(KWB-7000)',
-        abbrNm: '비데(KWB-7000)(41020-000000)',
-        englNm: 'KWB-7000',
-        knd: '4',
-        gr: '1',
-        pdctClsf: '4',
-        apyDtStrt: '20081117',
-        apyDtEnd: '99991231',
-      },
-      {
-        cd: '4103000000',
-        cdNm: '비데(KWB-8100)',
-        abbrNm: '비데(KWB-8100)(41030-000000)',
-        englNm: 'KWB-8100',
-        knd: '4',
-        gr: '1',
-        pdctClsf: '4',
-        apyDtStrt: '20081117',
-        apyDtEnd: '99990101',
-      },
-    ];
+    const result = await dataService.get(
+      '/sms/wells/common/sms-com-codes/districts',
+      { params: { itemKnd: '4', itemGr: '1', pdTpCd: 'M' } },
+    );
+    return result.data;
   }
 
   /**
