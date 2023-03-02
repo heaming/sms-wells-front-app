@@ -21,8 +21,15 @@
     >
       <kw-search-row>
         <!-- 적용일자 -->
-        <kw-search-item :label="$t('MSG_TXT_APPLY_DT')">
-          <kw-date-picker v-model="searchParams.applyDate" />
+        <kw-search-item
+          :label="$t('MSG_TXT_APPLY_DT')"
+          required
+        >
+          <kw-date-picker
+            v-model="searchParams.applyDate"
+            :label="$t('MSG_TXT_APPLY_DT')"
+            rules="required"
+          />
         </kw-search-item>
       </kw-search-row>
     </kw-search>
@@ -252,6 +259,15 @@ function validateToday(val) {
   return true;
 }
 
+function validateMaxApplyStartDate(maxApyStrtdt, val) {
+  const maxApplyStartDate = dayjs(maxApyStrtdt).format('YYYYMMDD');
+  if (dayjs(val).isSameOrBefore(maxApplyStartDate)) {
+    notify(t('MSG_ALT_APY_STRT_D_CONF_MAX_DT', [maxApplyStartDate]));
+    return false;
+  }
+  return true;
+}
+
 function getMoveTime(view, row, rglvlGdCd, value) {
   let mmtLdtm = 360; // [이동급지] 급지등급 25등급은 '섬'으로 이동시간 360 고정
 
@@ -279,6 +295,11 @@ let isMovementChanged = false;
 
 // 이동급지 - 분당공수, 급지비중, 평균시속 일괄적용
 function onClickMovementBulkApply() {
+  if (baseInfo.value.movementManHour === '' || baseInfo.value.movementAverageSpeed === '' || baseInfo.value.movementFieldWeight === '') {
+    notify(t('MSG_ALT_NCELL_REQUIRED_ITEM', [t('MSG_TXT_CALC_BASE')]));
+    return;
+  }
+
   if (isMovementChanged) {
     notify(t('MSG_ALT_MDFC_CN_SAVE_AF_APY'));
     return;
@@ -312,7 +333,15 @@ function setApplyDates(view, type) {
 
 // 이동급지 - 적용일자 일괄적용
 async function onClickMovementBulkApplyDate() {
-  await setApplyDates(grdMovementLevelRef.value.getView(), 'movementApplyDate');
+  if (applyDates.value.movementApplyDate === '') {
+    notify(t('MSG_ALT_NCELL_REQUIRED_ITEM', [t('MSG_TXT_APY_STRT_DAY')]));
+    return;
+  }
+
+  const maxApyStrtdt = grdMovementLevelRef.value.getView().getValue(0, 'maxApyStrtdt');
+  if (!validateMaxApplyStartDate(maxApyStrtdt, applyDates.value.movementApplyDate)) return;
+
+  setApplyDates(grdMovementLevelRef.value.getView(), 'movementApplyDate');
 }
 
 // 급지공수 가져오기
@@ -326,6 +355,11 @@ function onChangebizFieldAirlift() {
 
 // 업무급지 - 분당공수, 급지비중, 급지공수
 function onClickBizBulkApply() {
+  if (baseInfo.value.bizManHour === '' || baseInfo.value.bizFieldWeight === '') {
+    notify(t('MSG_ALT_NCELL_REQUIRED_ITEM', [t('MSG_TXT_CALC_BASE')]));
+    return;
+  }
+
   const view = grdBizLevelRef.value.getView();
   const rowCount = view.getItemCount();
 
@@ -344,7 +378,16 @@ function onClickBizBulkApply() {
   }
 }
 
+// 업무급지 - 적용일자 일괄적용
 function onClickBizBulkApplyDate() {
+  if (applyDates.value.bizApplyDate === '') {
+    notify(t('MSG_ALT_NCELL_REQUIRED_ITEM', [t('MSG_TXT_APY_STRT_DAY')]));
+    return;
+  }
+
+  const maxApyStrtdt = grdBizLevelRef.value.getView().getValue(0, 'maxApyStrtdt');
+  if (!validateMaxApplyStartDate(maxApyStrtdt, applyDates.value.bizApplyDate)) return;
+
   setApplyDates(grdBizLevelRef.value.getView(), 'bizApplyDate');
 }
 
@@ -375,6 +418,12 @@ async function fetchData() {
 }
 
 async function onClickSearch() {
+  const movementView = grdMovementLevelRef.value.getView();
+  if (!await gridUtil.confirmIfIsModified(movementView)) return;
+
+  const bizView = grdBizLevelRef.value.getView();
+  if (!await gridUtil.confirmIfIsModified(bizView)) return;
+
   cachedParams = cloneDeep(searchParams.value);
   isMovementChanged = false;
   await fetchData();
@@ -438,6 +487,7 @@ const initGrdMovementLevel = defineGrid((data, view) => {
     { fieldName: 'minPerManho', dataType: 'number' },
     { fieldName: 'rglvlWeit', dataType: 'number' },
     { fieldName: 'avVe', dataType: 'number' },
+    { fieldName: 'maxApyStrtdt' },
   ];
 
   const columns = [
@@ -483,6 +533,7 @@ const initGrdMovementLevel = defineGrid((data, view) => {
     { fieldName: 'minPerManho' },
     { fieldName: 'rglvlWeit' },
     { fieldName: 'avVe' },
+    { fieldName: 'maxApyStrtdt' },
   ];
 
   const columnLayout = [
@@ -526,6 +577,7 @@ const initGrdBizLevel = defineGrid((data, view) => {
     { fieldName: 'rgstNm' },
     { fieldName: 'minPerManho', dataType: 'number' },
     { fieldName: 'rglvlWeit', dataType: 'number' },
+    { fieldName: 'maxApyStrtdt' },
   ];
 
   const columns = [
@@ -555,6 +607,7 @@ const initGrdBizLevel = defineGrid((data, view) => {
     { fieldName: 'rgstNm', header: t('MSG_TXT_CH_FNM'), width: '100' },
     { fieldName: 'minPerManho' },
     { fieldName: 'rglvlWeit' },
+    { fieldName: 'maxApyStrtdt' },
   ];
 
   const columnLayout = [
