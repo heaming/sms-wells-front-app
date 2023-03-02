@@ -169,6 +169,9 @@ const dataService = useDataService();
 const { t } = useI18n();
 const now = dayjs();
 
+const { getters } = useStore();
+const userInfo = getters['meta/getUserInfo'];
+const { tenantCd } = userInfo;
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -235,8 +238,8 @@ async function fetchData2() {
 async function onClickSearch() {
   if (!await searchRef.value.validate()) { return; }
   searchParams.value.unrgRs = selectedTab.value === 'unrgPs' ? searchParams.value.unrgRsCd : searchParams.value.unrgRsonCd;
-  searchParams.value.fullCntr = `W${searchParams.value.cntr}`;
-  searchParams.value.cntrNo = `W${searchParams.value.cntr.slice(0, 11)}`;
+  searchParams.value.fullCntr = tenantCd + searchParams.value.cntr;
+  searchParams.value.cntrNo = tenantCd + searchParams.value.cntr.slice(0, 11);
   searchParams.value.cntrSn = searchParams.value.cntr.slice(11);
   cachedParams = cloneDeep(searchParams.value);
   if (selectedTab.value === 'unrgPs') {

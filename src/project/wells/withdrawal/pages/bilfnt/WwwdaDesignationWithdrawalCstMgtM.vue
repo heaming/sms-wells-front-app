@@ -50,7 +50,10 @@
       <kw-action-top>
         <template #left>
           <kw-paging-info
-            :total-count="totalCount"
+            v-model:page-index="pageInfo.pageIndex"
+            v-model:page-size="pageInfo.pageSize"
+            :total-count="pageInfo.totalCount"
+            @change="fetchData"
           />
           <span class="ml8">{{ t('MSG_TXT_UNIT_WON') }}</span>
         </template>
@@ -84,7 +87,7 @@
           icon="download_on"
           dense
           secondary
-          :disable="totalCount === 0"
+          :disable="pageInfo.totalCount === 0"
           :label="$t('MSG_BTN_EXCEL_DOWN')"
           @click="onClickExcelDownload"
         />
@@ -92,7 +95,7 @@
 
       <kw-grid
         ref="grdMainRef"
-        :visible-rows="10"
+        :visible-rows="pageInfo.pageSize -1"
         @init="initGrid"
       />
     </div>
@@ -103,12 +106,17 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useGlobal, useDataService, codeUtil, gridUtil, defineGrid, getComponentType } from 'kw-lib';
+import { useGlobal, useDataService, codeUtil, gridUtil, defineGrid, getComponentType, useMeta } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 
 const { notify, confirm } = useGlobal();
 const { t } = useI18n();
+const { getConfig } = useMeta();
 const dataService = useDataService();
+
+const { getters } = useStore();
+const userInfo = getters['meta/getUserInfo'];
+const { tenantCd } = userInfo;
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -117,8 +125,6 @@ let initGridData = [];
 const grdMainRef = ref(getComponentType('KwGrid'));
 const grdData = computed(() => grdMainRef.value?.getData());
 
-const totalCount = ref(0);
-
 const codes = await codeUtil.getMultiCodes(
   'SELL_TP_CD',
   'DSN_WDRW_FNT_PRD_CD', // 1 : 지정일자 / 2 : 매회 추후에 수정
@@ -126,6 +132,12 @@ const codes = await codeUtil.getMultiCodes(
 );
 
 let cachedParams;
+const pageInfo = ref({
+  totalCount: 0,
+  pageIndex: 1,
+  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
+});
+
 const searchParams = ref({
   sellTpCd: 'ALL',
   cntr: '',
@@ -150,15 +162,15 @@ function getSaveParams() {
 
   return changedRows.map((v) => ({ ...v,
     dpAmt: isEmpty(v.dpAmt) ? 0 : Number(v.dpAmt),
-    cntrNo: `W${v.cntr.slice(0, 11)}`, //   계약상세 4 - 7 - 1
+    cntrNo: tenantCd + v.cntr.slice(0, 11), //   계약상세 4 - 7 - 1
     cntrSn: Number(v.cntr.slice(11)) })); // 계약상세일련번호 4 - 7 - 1
 }
 
 async function fetchData() {
-  const res = await dataService.get('/sms/wells/withdrawal/bilfnt/designation-wdrw-csts', { params: { ...cachedParams } });
+  const res = await dataService.get('/sms/wells/withdrawal/bilfnt/designation-wdrw-csts', { params: { ...cachedParams, ...pageInfo.value } });
   const person = res.data.list.map((v) => ({ ...v, cntr: v.cntr.replace('W', '') }));
-
-  totalCount.value = person.length;
+  const pageResult = res.data.pageInfo;
+  pageInfo.value = pageResult;
 
   if (grdData.value) {
     grdData.value.setRows(person);
@@ -168,7 +180,8 @@ async function fetchData() {
 }
 
 async function onClickSearch() {
-  searchParams.value.cntrNo = `W${searchParams.value.cntr.slice(0, 11)}`;
+  pageInfo.value.pageIndex = 1;
+  searchParams.value.cntrNo = tenantCd + searchParams.value.cntr.slice(0, 11);
   searchParams.value.cntrSn = searchParams.value.cntr.slice(11);
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
@@ -177,7 +190,7 @@ async function onClickSearch() {
 async function onClickRemove() {
   const view = grdMainRef.value.getView();
   const checkedRows = gridUtil.getCheckedRowValues(view);
-  const data = checkedRows.filter((v) => v.rowState === 'none').map((v) => ({ cntrNo: `W${v.cntr.slice(0, 11)}`, cntrSn: Number(v.cntr.slice(11)) }));
+  const data = checkedRows.filter((v) => v.rowState === 'none').map((v) => ({ cntrNo: tenantCd + v.cntr.slice(0, 11), cntrSn: Number(v.cntr.slice(11)) }));
 
   if (checkedRows.length === 0) {
     notify(t('MSG_ALT_NOT_SEL_ITEM'));
@@ -349,6 +362,13 @@ const initGrid = defineGrid((data, view) => {
     }
 
     if (!canEdit) view.cancel();
+  };
+
+  view.onScrollToBottom = async (g) => {
+    if (pageInfo.value.pageIndex * pageInfo.value.pageSize <= g.getItemCount()) {
+      pageInfo.value.pageIndex += 1;
+      await fetchData();
+    }
   };
 });
 
