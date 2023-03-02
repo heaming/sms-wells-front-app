@@ -96,22 +96,24 @@ import { cloneDeep } from 'lodash-es';
 const totalCount = ref(0);
 const dataService = useDataService();
 const { t } = useI18n();
+
+const grdMainRef = ref(getComponentType('KwGrid'));
+const codes = await codeUtil.getMultiCodes(
+  'RSB_DV_CD',
+);
+
+// -------------------------------------------------------------------------------------------------
+// Function & Event
+// -------------------------------------------------------------------------------------------------
+
+codes.RSB_DV_CD = codes.RSB_DV_CD.filter((v) => (v.codeId === 'W0102' || v.codeId === 'W0203'));
 const searchParams = ref({
   perfDt: '',
   leaderDiv: '',
   levelDiv: '',
 });
 
-const grdMainRef = ref(getComponentType('KwGrid'));
-const codes = await codeUtil.getMultiCodes(
-  'RSB_DV_CD',
-);
-codes.RSB_DV_CD = codes.RSB_DV_CD.filter((v) => (v.codeId === 'W0102' || v.codeId === 'W0203'));
 let cachedParams;
-
-// -------------------------------------------------------------------------------------------------
-// Function & Event
-// -------------------------------------------------------------------------------------------------
 
 async function fetchData() {
   const res = await dataService.get('/sms/wells/fee/outcome-allowances', { params: cachedParams });
@@ -121,10 +123,12 @@ async function fetchData() {
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(datas);
 }
+
 async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
   fetchData();
 }
+
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
 
