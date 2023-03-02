@@ -37,7 +37,7 @@
         >
           <kw-input
             v-model="searchParams.pdlvNm"
-            :maxlength="25"
+            :maxlength="50"
           />
         </kw-search-item>
         <!-- 서비스센터 -->
@@ -338,7 +338,7 @@ const initGrdMain = defineGrid((data, view) => {
       header: t('MSG_TXT_PDLV_NM'),
       width: '150',
       editable: true,
-      editor: { maxLength: 25 },
+      editor: { maxLength: 50 },
       rules: 'required',
     },
     {
