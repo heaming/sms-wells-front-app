@@ -122,6 +122,7 @@
         dense
         secondary
         :label="$t('MSG_TXT_EXCEL_DOWNLOAD')"
+        :disable="totalCount === 0"
         @click="onClickExcelDownload"
       />
     </kw-action-top>
@@ -138,11 +139,15 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService, getComponentType, codeUtil, modal, gridUtil, useGlobal } from 'kw-lib';
+import { useDataService, getComponentType, codeUtil, modal, gridUtil } from 'kw-lib';
 
 const { t } = useI18n();
 const dataService = useDataService();
-const { alert } = useGlobal();
+
+// -------------------------------------------------------------------------------------------------
+// Function & Event
+// -------------------------------------------------------------------------------------------------
+const grdMainRef = ref(getComponentType('KwGrid'));
 
 const searchParams = ref({
   bndClctnPrpDvCd: '',
@@ -169,18 +174,12 @@ const mpNo = ref('');
 const istMpNo = ref('');
 const telNo = ref('');
 const istTelNo = ref('');
+const totalCount = ref(0);
 
 const codes = await codeUtil.getMultiCodes(
   'BND_CLCTN_PRP_DV_CD',
   'BND_CLCTN_PRP_RSON_CD',
 );
-
-const totalCount = ref(0);
-
-// -------------------------------------------------------------------------------------------------
-// Function & Event
-// -------------------------------------------------------------------------------------------------
-const grdMainRef = ref(getComponentType('KwGrid'));
 
 function phoneFormat(type, phoneNumber) {
   const value = phoneNumber.replace(/[^0-9]/g, '');
@@ -260,10 +259,6 @@ async function onClickSearchCst() {
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
 
-  if (view.getItemCount() === 0) {
-    await alert(t('MSG_ALT_NO_INFO_SRCH'));
-    return;
-  }
   await gridUtil.exportView(view, {
     fileName: 'customerList',
     timePostfix: true,
@@ -321,8 +316,7 @@ function initGrid(data, view) {
       width: '100',
 
       displayCallback(grid, index) {
-        const cntrNo = grid.getValue(index.itemIndex, 'cntrNo');
-        const cntrSn = grid.getValue(index.itemIndex, 'cntrSn');
+        const { cntrNo, cntrSn } = grid.getValues(index.itemIndex);
         return `${cntrNo}${cntrSn}`;
       },
     },
@@ -338,10 +332,8 @@ function initGrid(data, view) {
       width: '100',
 
       displayCallback(grid, index) {
-        const mpno1 = grid.getValue(index.itemIndex, 'cntrLocaraTno');
-        const mpno2 = grid.getValue(index.itemIndex, 'cntrExnoEncr');
-        const mpno3 = grid.getValue(index.itemIndex, 'cntrIdvTno');
-        return `${mpno1}-${mpno2}-${mpno3}`;
+        const { cntrLocaraTno: no1, cntrExnoEncr: no2, cntrIdvTno: no3 } = grid.getValues(index.itemIndex);
+        return `${no1}-${no2}-${no3}`;
       },
     },
     {
@@ -351,10 +343,8 @@ function initGrid(data, view) {
       width: '100',
 
       displayCallback(grid, index) {
-        const mpno1 = grid.getValue(index.itemIndex, 'cntrCralLocaraTno');
-        const mpno2 = grid.getValue(index.itemIndex, 'cntrMexnoEncr');
-        const mpno3 = grid.getValue(index.itemIndex, 'cntrCralIdvTno');
-        return `${mpno1}-${mpno2}-${mpno3}`;
+        const { cntrCralLocaraTno: no1, cntrMexnoEncr: no2, cntrCralIdvTno: no3 } = grid.getValues(index.itemIndex);
+        return `${no1}-${no2}-${no3}`;
       },
     },
     { fieldName: 'cstNo', header: t('MSG_TXT_KWK'), width: '100', styleName: 'text-left' },
@@ -367,10 +357,8 @@ function initGrid(data, view) {
       width: '100',
 
       displayCallback(grid, index) {
-        const mpno1 = grid.getValue(index.itemIndex, 'istLocaraTno');
-        const mpno2 = grid.getValue(index.itemIndex, 'istExnoEncr');
-        const mpno3 = grid.getValue(index.itemIndex, 'istIdvTno');
-        return `${mpno1}-${mpno2}-${mpno3}`;
+        const { istLocaraTno: no1, istExnoEncr: no2, istIdvTno: no3 } = grid.getValues(index.itemIndex);
+        return `${no1}-${no2}-${no3}`;
       },
     },
     {
@@ -380,10 +368,8 @@ function initGrid(data, view) {
       width: '100',
 
       displayCallback(grid, index) {
-        const mpno1 = grid.getValue(index.itemIndex, 'istCralLocaraTno');
-        const mpno2 = grid.getValue(index.itemIndex, 'istMexnoEncr');
-        const mpno3 = grid.getValue(index.itemIndex, 'istCralIdvTno');
-        return `${mpno1}-${mpno2}-${mpno3}`;
+        const { istCralLocaraTno: no1, istMexnoEncr: no2, istCralIdvTno: no3 } = grid.getValues(index.itemIndex);
+        return `${no1}-${no2}-${no3}`;
       },
     },
     { fieldName: 'bndClctnPrpDvNm', header: t('MSG_TXT_BND_PRP'), width: '100', styleName: 'text-left' },
