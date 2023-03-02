@@ -39,11 +39,22 @@
           v-model:ware-no-d="searchParams.strWareNoD"
           sub-first-option="all"
           :colspan="2"
+          class="w600"
           :label1="$t('MSG_TXT_OSTR_PTRM')"
           :label2="$t('MSG_TXT_STR_WARE')"
           :label3="$t('MSG_TXT_WARE')"
           :label4="$t('MSG_TXT_WARE')"
         />
+        <!-- 입고창고상세구분 -->
+        <kw-search-item :label="$t('MSG_TXT_STR_WARE_DTL_DV')">
+          <kw-select
+            v-model="searchParams.strWareDtlDvCd"
+            :options="filterCodes.filterStrWareDtlDvCd"
+            first-option="all"
+            :disable="isStrOk"
+            class="w180"
+          />
+        </kw-search-item>
       </kw-search-row>
       <kw-search-row>
         <!-- 입고유형 -->
@@ -64,11 +75,22 @@
           v-model:ware-no-d="searchParams.ostrWareNoD"
           sub-first-option="all"
           :colspan="2"
+          class="w600"
           :label1="$t('MSG_TXT_OSTR_PTRM')"
           :label2="$t('MSG_TXT_OSTR_WARE')"
           :label3="$t('MSG_TXT_WARE')"
           :label4="$t('MSG_TXT_WARE')"
         />
+        <!-- 출고창고상세구분 -->
+        <kw-search-item :label="$t('MSG_TXT_OSTR_WARE_DTL_DV')">
+          <kw-select
+            v-model="searchParams.ostrWareDtlDvCd"
+            :options="filterCodes.filterOstrWareDtlDvCd"
+            first-option="all"
+            :disable="isOstrOk"
+            class="w180"
+          />
+        </kw-search-item>
       </kw-search-row>
       <!-- 등급 -->
       <kw-search-row>
@@ -174,7 +196,18 @@ const searchParams = ref({
   itmKndCd: '',
   useYn: '',
   itmKndCdD: '',
+  strWareDtlDvCd: '',
+  ostrWareDtlDvCd: '',
 });
+
+// 창고상세구분 필터링
+const filterCodes = ref({
+  filterStrWareDtlDvCd: [],
+  filterOstrWareDtlDvCd: [],
+});
+
+const isOstrOk = ref();
+const isStrOk = ref();
 
 const codes = await codeUtil.getMultiCodes(
   'STR_TP_CD',
@@ -182,6 +215,7 @@ const codes = await codeUtil.getMultiCodes(
   'PD_GD_CD',
   'ITM_KND_CD',
   'USE_YN',
+  'WARE_DTL_DV_CD',
 );
 
 // const wareDvCd = codes.WARE_DV_CD.filter((v) => v.codeId !== '1');
@@ -215,6 +249,76 @@ watch(() => searchParams.value.itmKndCd, (val) => {
   onChangeItmKndCd();
 });
 
+// 입고창고구분이 변경되었을때
+const onChangeStrWareDvCd = async () => {
+  const filterStrWareDvCd = searchParams.value.strWareDvCd;
+
+  if (filterStrWareDvCd === '2') {
+    filterCodes.value.filterStrWareDtlDvCd = codes.WARE_DTL_DV_CD.filter((v) => ['20', '21'].includes(v.codeId));
+  } else {
+    filterCodes.value.filterStrWareDtlDvCd = codes.WARE_DTL_DV_CD.filter((v) => ['30', '31', '32'].includes(v.codeId));
+  }
+};
+
+watch(() => searchParams.value.strWareDvCd, (val) => {
+  if (searchParams.value.strWareDvCd !== val) {
+    searchParams.value.strWareDvCd = val;
+  }
+  onChangeStrWareDvCd();
+});
+
+// 출고창고구분이 변경되었을때
+const onChangeOstrWareDvCd = async () => {
+  const filterOstrWareDvCd = searchParams.value.ostrWareDvCd;
+
+  if (filterOstrWareDvCd === '1') {
+    filterCodes.value.filterOstrWareDtlDvCd = codes.WARE_DTL_DV_CD.filter((v) => ['10'].includes(v.codeId));
+  } else if (filterOstrWareDvCd === '2') {
+    filterCodes.value.filterOstrWareDtlDvCd = codes.WARE_DTL_DV_CD.filter((v) => ['20', '21'].includes(v.codeId));
+  } else {
+    filterCodes.value.filterOstrWareDtlDvCd = codes.WARE_DTL_DV_CD.filter((v) => ['30', '31', '32'].includes(v.codeId));
+  }
+};
+
+watch(() => searchParams.value.ostrWareDvCd, (val) => {
+  if (searchParams.value.ostrWareDvCd !== val) {
+    searchParams.value.ostrWareDvCd = val;
+  }
+  onChangeOstrWareDvCd();
+});
+
+const onDisableStrChk = async () => {
+  const chkStrWareNoD = searchParams.value.strWareNoD;
+  if (chkStrWareNoD === undefined || chkStrWareNoD === null || chkStrWareNoD === '') {
+    isStrOk.value = false;
+  } else {
+    isStrOk.value = true;
+  }
+};
+
+const onDisableOstrChk = async () => {
+  const chkOstrWareNoD = searchParams.value.ostrWareNoD;
+  if (chkOstrWareNoD === undefined || chkOstrWareNoD === null || chkOstrWareNoD === '') {
+    isOstrOk.value = false;
+  } else {
+    isOstrOk.value = true;
+  }
+};
+
+watch(() => searchParams.value.strWareNoD, (val) => {
+  if (searchParams.value.strWareNoD !== val) {
+    searchParams.value.strWareNoD = val;
+  }
+  onDisableStrChk();
+});
+
+watch(() => searchParams.value.ostrWareNoD, (val) => {
+  if (searchParams.value.ostrWareNoD !== val) {
+    searchParams.value.ostrWareNoD = val;
+  }
+  onDisableOstrChk();
+});
+
 let cachedParams;
 
 async function fetchData() {
@@ -243,6 +347,11 @@ async function onClickSearch() {
   console.log(searchParams.value);
   await fetchData();
 }
+
+onMounted(async () => {
+  await onChangeStrWareDvCd();
+  await onChangeOstrWareDvCd();
+});
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid

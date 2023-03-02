@@ -171,6 +171,8 @@ const grdMainRef = ref(getComponentType('KwGrid'));
 
 const codes = await codeUtil.getMultiCodes(
   'WARE_DTL_DV_CD',
+  'WARE_DV_CD',
+  'DIDY_DV_CD',
   'USE_YN',
   'ADM_ZN_CLSF_CD',
 );
@@ -336,7 +338,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'hgrWareNo', header: t('MSG_TXT_HGR_WARE_NO'), width: '100', styleName: 'text-center' },
     { fieldName: 'hgrWareNm', header: t('MSG_TXT_HGR_WARE_NM'), width: '280' },
     { fieldName: 'wareUseYn', header: t('MSG_TXT_USE_EYN'), options: codes.COD_YN, width: '100', styleName: 'text-center' },
-    { fieldName: 'didyDvCd', header: t('MSG_TXT_DIDY_DV'), width: '100', styleName: 'text-center' },
+    { fieldName: 'didyDvCd', header: t('MSG_TXT_DIDY_DV'), options: codes.DIDY_DV_CD, width: '100', styleName: 'text-center' },
     { fieldName: 'wareAdrId', header: t('MSG_TXT_ADDR'), width: '280', styleName: 'text-left' },
     { fieldName: 'ogCd', header: t('MSG_TXT_OG_CD'), width: '100', styleName: 'text-center' },
     { fieldName: 'bldNm', header: t('MSG_TXT_BLD_NM'), width: '100', styleName: 'text-center' },
