@@ -16,6 +16,7 @@
   <kw-page>
     <kw-search
       @search="onClickSearch"
+      @reset="onClickReset"
     >
       <kw-search-row>
         <kw-search-item :label="$t('MSG_TXT_BASE_YM')">
@@ -299,6 +300,20 @@ async function onClickWareOgCrdovr() {
   // } else {
   //   await alert(t('MSG_ALT_THM_BF_WAREINF_MDFC_IMP'));
   // }
+}
+
+function searchConditionReset() {
+  searchParams.value.baseYm = dayjs().format('YYYYMM');
+  searchParams.value.baseYmd = dayjs().format('YYYYMMDD');
+  searchParams.value.wareDvCd = '2';
+  searchParams.value.wareDtlDvCd = '';
+  searchParams.value.codeUseYn = '';
+  searchParams.value.wareMngtPrtnrNo = '';
+  searchParams.value.wareNoM = '';
+  searchParams.value.wareNoD = '';
+}
+function onClickReset() {
+  searchConditionReset();
 }
 
 onMounted(async () => {
