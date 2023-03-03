@@ -132,13 +132,13 @@ async function resetInitData() {
 }
 
 async function initGridRows() {
-  priceFieldData.value[prcd] = [{
+  priceFieldData.value[prcd] = {
     pdExtsPrpGrpCd: 'PRC',
     // 통화명
     crncyDvCd: currentInitData.value[pdConst.TBL_PD_BAS]?.crncyDvCd,
     // 판매유형
     sellTpCd: currentInitData.value[pdConst.TBL_PD_BAS]?.sellTpCd,
-  }];
+  };
   const currentSellTpCd = currentInitData.value[pdConst.TBL_PD_BAS]?.sellTpCd;
   priceFieldData.value[pdConst.TBL_PD_BAS] = {
     // 판매유형
