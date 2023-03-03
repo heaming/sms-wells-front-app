@@ -59,6 +59,8 @@
           <kw-date-picker
             v-model="searchParams.applyDate"
             :readonly="isReadonly"
+            rules="required"
+            :custom-messages="{required:$t('MSG_ALT_NCELL_REQUIRED_VAL',[t('MSG_TXT_APPLY_DT')])}"
           />
         </kw-search-item>
       </kw-search-row>
@@ -123,6 +125,7 @@
         />
         <kw-date-picker
           v-model="chgApyDt.apyEnddt"
+          :readonly="true"
           dense
           class="w150"
         />
@@ -306,6 +309,8 @@ async function onClickApplyDateBulkChange() {
   const data = grdMainRef.value.getData();
   if (chkRows.length === 0) {
     notify(t('MSG_ALT_CHG_HLDY_DATA'));
+  } else if (!chgApyDt.value.apyStrtdt) {
+    notify(t('MSG_ALT_CHK_NCSR', [t('MSG_TXT_APY_STRTDT')]));
   } else {
     for (let i = 0; i < chkRows.length; i += 1) {
       data.setValue(chkRows[i].dataRow, 'apyStrtdt', chgApyDt.value.apyStrtdt);
@@ -387,9 +392,8 @@ const initGrdMain = defineGrid((data, view) => {
       header: t('MSG_TXT_APY_END_DAY'),
       width: '150',
       styleName: 'text-center',
-      editable: true,
+      editable: false,
       editor: { type: 'btdate' },
-      rules: 'required',
     },
     {
       fieldName: 'cnrOgId',
@@ -447,7 +451,7 @@ const initGrdMain = defineGrid((data, view) => {
         grid.setValue(itemIndex, 'apyEnddt', apyStrtdt);
       }
       if (apyStrtdtMax >= apyStrtdt) {
-        notify(t('MSG_ALT_APY_STRT_D_CONF_BF_DT'));
+        notify(t('MSG_ALT_APY_STRT_D_CONF_MAX_DT', [apyStrtdtMax]));
         grid.setValue(itemIndex, 'apyStrtdt', apyStrtdtMax);
       }
     } else if (changedFieldName === 'apyEnddt') {
@@ -461,11 +465,12 @@ const initGrdMain = defineGrid((data, view) => {
   };
 
   view.onValidate = async (grid, index) => {
-    debugger;
-    const { apyStrtdtMax, apyStrtdt } = grid.getValues(index.dataRow);
-    debugger;
+    const { apyStrtdtMax, apyStrtdt, apyEnddt } = grid.getValues(index.dataRow);
+    if (apyEnddt !== '99991231') {
+      return t('MSG_ALT_NOT_FINAL_APY_STRTDT');
+    }
     if (apyStrtdtMax >= apyStrtdt) {
-      return t('MSG_ALT_APY_STRT_D_CONF_BF_DT');
+      return t('MSG_ALT_APY_STRT_D_CONF_MAX_DT', [apyStrtdtMax]);
     }
   };
 });
