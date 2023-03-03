@@ -26,8 +26,10 @@
         >
           <kw-input
             v-model="searchParams.cntrCstKnm"
+            :label="$t('MSG_TXT_CNTOR_NM')"
             icon="search"
             :on-click-icon="onClickSearchCntrCst"
+            rules="max:50"
           />
         </kw-search-item>
         <kw-search-item
@@ -35,6 +37,8 @@
         >
           <kw-input
             v-model="searchParams.istCstKnm"
+            :label="$t('MSG_TXT_IST_NM')"
+            rules="max:50"
           />
         </kw-search-item>
       </kw-search-row>
@@ -53,8 +57,10 @@
         >
           <kw-input
             v-model="searchParams.cntrCstNo"
+            :label="$t('MSG_TXT_CST_NO')"
             icon="search"
             :on-click-icon="onClickSearchCntrCst"
+            rules="max:10|numeric"
           />
         </kw-search-item>
       </kw-search-row>
@@ -169,7 +175,7 @@ async function onClickSearch() {
 async function onClickSearchCntrCst() {
   const res = await modal({ component: 'ZwcsaCustomerListP' });
   if (res.result && res.payload) {
-    searchParams.cntrCstKnm(res.payload.cstKnm);
+    searchParams.cntrCstKnm(res.payload.name);
     searchParams.cntrCstNo(res.payload.cstNo);
   }
 }
@@ -182,6 +188,8 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'cntrCnfmDtm' },
     { fieldName: 'cntrNo' },
     { fieldName: 'cntrSn' },
+    { fieldName: 'prtnrNo' },
+    { fieldName: 'prtnrKnm' },
     { fieldName: 'cntrCstKnm' },
     { fieldName: 'istCstKnm' },
     { fieldName: 'pdNm' },
@@ -205,8 +213,7 @@ const initGrid = defineGrid((data, view) => {
 
   view.onCellDblClicked = (grid, clickData) => {
     if (clickData.cellType === 'data') {
-      const { cntrNo, cntrSn } = gridUtil.getCurrentRowValue(view);
-      ok({ cntrNo, cntrSn });
+      ok(gridUtil.getCurrentRowValue(view));
     }
   };
 });
