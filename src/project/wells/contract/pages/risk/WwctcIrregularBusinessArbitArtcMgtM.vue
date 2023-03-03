@@ -27,12 +27,21 @@
           <kw-select
             v-model="searchParams.srchGbn"
             :options="prdDivOption"
+            required
+            @change="calChange"
           />
           <kw-date-range-picker
-            :key="isRegistration"
+            v-if="searchParams.srchGbn===1"
             v-model:from="searchParams.dangOcStrtdt"
             v-model:to="searchParams.dangOcEnddt"
-            :type="isRegistration"
+            type="date"
+            rules="required"
+          />
+          <kw-date-range-picker
+            v-if="searchParams.srchGbn===2"
+            v-model:from="searchParams.dangOcStrtMonth"
+            v-model:to="searchParams.dangOcEndMonth"
+            type="month"
             rules="required"
           />
         </kw-search-item>
@@ -156,12 +165,13 @@ const totalCount = ref(0);
 const searchParams = ref({
   srchGbn: 1,
   dangOcStrtdt: '',
+  dangOcStrtMonth: '',
   dangOcEnddt: '',
+  dangOcEndMonth: '',
   gnrdv: '',
   rgrp: '',
   brch: '',
   dangOjPrtnrNo: '',
-
 });
 
 // -------------------------------------------------------------------------------------------------
@@ -182,11 +192,12 @@ const pageInfo = ref({
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
 });
 
-const isRegistration = computed(() => {
+async function calChange() {
   searchParams.value.dangOcStrtdt = '';
   searchParams.value.dangOcEnddt = '';
-  return searchParams.value.srchGbn !== 1 ? 'month' : 'date';
-});
+  searchParams.value.dangOcStrtMonth = '';
+  searchParams.value.dangOcEndMonth = '';
+}
 
 async function fetchData() {
   const res = await dataService.get('/sms/wells/contract/risk-audits/irregular-sales-actions/managerial-tasks/paging', { params: { ...cachedParams, ...pageInfo.value } });
@@ -305,9 +316,14 @@ const initGrid = defineGrid((data, view) => {
       datetimeFormat: 'yyyy-MM',
       editor: {
         type: 'btdate',
+        btOptions: {
+          minViewMode: 1,
+        },
         datetimeFormat: 'yyyy-MM',
-      } },
-    { fieldName: 'dangOjOgId', header: t('MSG_TXT_BLG'), width: '129', editable: true },
+      },
+
+    },
+    { fieldName: 'dangOjOgId', header: t('MSG_TXT_BLG'), width: '129', editable: false },
     { fieldName: 'dangOjPntnrNm', header: t('MSG_TXT_EMPL_NM'), width: '129', editable: false },
     { fieldName: 'dangOjPstnDvCd', header: t('MSG_TXT_CRLV'), width: '129', editable: false },
     { fieldName: 'dgr1LevlDgPrtnrNm', header: t('MSG_TXT_MANAGEMENT_DEPARTMENT'), width: '129', editable: false },
