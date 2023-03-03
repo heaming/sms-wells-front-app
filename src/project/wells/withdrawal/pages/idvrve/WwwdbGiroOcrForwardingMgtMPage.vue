@@ -164,7 +164,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, defineGrid, getComponentType, gridUtil, modal, notify, useDataService, useGlobal } from 'kw-lib';
+import { codeUtil, defineGrid, getComponentType, gridUtil, modal, notify, useDataService, useGlobal, alert } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
 
@@ -282,11 +282,25 @@ async function onClickObjectSearch() {
 async function onClickSave() {
   const view = grdLinkRef.value.getView();
 
+  const changedRows = gridUtil.getChangedRowValues(view);
+
+  let check = 0;
+
+  changedRows.forEach((data) => {
+    if (!data.cntr) {
+      alert(t('MSG_ALT_NCELL_REQUIRED_VAL', [t('MSG_TXT_CNTR_DTL_NO')]));
+      check = 1;
+      return false;
+    }
+  });
+
+  if (check > 0) {
+    return;
+  }
+
   if (await gridUtil.alertIfIsNotModified(view)) { return; }
 
   if (!await gridUtil.validate(view)) { return; }
-
-  const changedRows = gridUtil.getChangedRowValues(view);
 
   await dataService.post('/sms/wells/withdrawal/idvrve/giro-ocr-forwardings', changedRows);
 
@@ -400,6 +414,7 @@ const initGrid = defineGrid((data, view) => {
         type: 'line',
         maxLength: 17,
       },
+      editable: false,
       rules: 'required|min:12|max:17',
       buttonVisibleCallback(grid, index) {
         return grid.getDataSource().getRowState(index.dataRow) === 'created';
@@ -599,7 +614,7 @@ const initGrid = defineGrid((data, view) => {
   ]);
 
   view.onCellEditable = (grid, index) => {
-    if (!gridUtil.isCreatedRow(grid, index.dataRow) && ['cntr', 'wkDt', 'giroRglrDvCd'].includes(index.column)) {
+    if (!gridUtil.isCreatedRow(grid, index.dataRow) && ['wkDt', 'giroRglrDvCd'].includes(index.column)) {
       return false;
     }
   };
