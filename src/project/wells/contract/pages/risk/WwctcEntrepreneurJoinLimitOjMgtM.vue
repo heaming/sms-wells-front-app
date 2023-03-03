@@ -19,23 +19,23 @@
     >
       <kw-tab
         name="1"
-        label="확정승인기준관리"
+        :label="t('MSG_TXT_APRV_CRTE_MGT')"
       />
       <kw-tab
         name="2"
-        label="예외처리관리"
+        :label="t('MSG_TXT_EXCP_HAND_MGT')"
       />
       <kw-tab
         name="3"
-        label="사업자가입제한관리"
+        :label="t('MSG_TXT_BIZ_SUBS_RES_MGT')"
       />
       <kw-tab
         name="4"
-        label="사용자판매제한관리"
+        :label="t('MSG_TXT_USR_SLS_RES_MGT')"
       />
       <kw-tab
         name="5"
-        label="블랙리스트관리"
+        :label="t('MSG_TXT_BLKLST_MGT')"
       />
     </kw-tabs>
     <kw-tab-panels
@@ -220,6 +220,26 @@ async function fetchData() {
   dataSource.checkRowStates(true);
 }
 
+async function onClickSearch() {
+  grdMainRef.value.getData().clearRows();
+  pageInfo.value.pageIndex = 1;
+  cachedParams = cloneDeep(searchParams.value);
+  await fetchData();
+}
+
+async function onClickSave() {
+  const view = grdMainRef.value.getView();
+  if (await gridUtil.alertIfIsNotModified(view)) { return; }
+  if (!await gridUtil.validate(view)) { return; }
+  const changedRows = gridUtil.getChangedRowValues(view);
+  await dataService.post(
+    '/sms/wells/contract/sales-limits/business-partners',
+    changedRows,
+  );
+  notify(t('MSG_ALT_SAVE_DATA'));
+  onClickSearch();
+}
+
 async function onClickDelete() {
   const view = grdMainRef.value.getView();
   if (!await gridUtil.confirmIfIsModified(view)) { return; }
@@ -229,7 +249,7 @@ async function onClickDelete() {
 
   if (deleteKeys.length) {
     await dataService.delete('/sms/wells/contract/sales-limits/business-partners', { data: deleteKeys });
-    await fetchData();
+    onClickSearch();
   }
 }
 
@@ -258,26 +278,6 @@ async function onClickExcelUpload2() {
       'Content-Type': 'multipart/form-data',
     },
   });
-}
-
-async function onClickSearch() {
-  grdMainRef.value.getData().clearRows();
-  pageInfo.value.pageIndex = 1;
-  cachedParams = cloneDeep(searchParams.value);
-  await fetchData();
-}
-
-async function onClickSave() {
-  const view = grdMainRef.value.getView();
-  if (await gridUtil.alertIfIsNotModified(view)) { return; }
-  if (!await gridUtil.validate(view)) { return; }
-  const changedRows = gridUtil.getChangedRowValues(view);
-  await dataService.post(
-    '/sms/wells/contract/sales-limits/business-partners',
-    changedRows,
-  );
-  notify(t('MSG_ALT_SAVE_DATA'));
-  onClickSearch();
 }
 
 /*
