@@ -24,6 +24,7 @@
       >
         <kw-input
           v-model="searchParams.clctamPrtnrNo"
+          :label="$t('MSG_TXT_CLCTAM_NO')"
           :regex="/^[0-9]*$/i"
           rules="required"
         />
@@ -37,7 +38,8 @@
           icon="search"
           clearable
           rules="required"
-          @click-icon="onClickSearchCst"
+          :label="$t('MSG_TXT_CST_NM')"
+          @click-icon="onClickSelectCustomer"
         />
       </kw-search-item>
       <kw-search-item
@@ -47,6 +49,7 @@
         <kw-input
           v-model="mpNo"
           :maxlength="11"
+          :label="$t('MSG_TXT_MPNO')"
           :regex="/^[0-9]*$/i"
           :placeholder="$t('MSG_TXT_REPSN_DGT4_WO_NO_IN')"
           rules="required"
@@ -220,7 +223,6 @@ watch(istTelNo, (newVal) => {
 });
 
 async function fetchData() {
-  console.log(searchParams.value);
   const res = await dataService.get('/sms/wells/bond/customer-search', { params: searchParams.value });
   const customerList = res.data;
   totalCount.value = customerList.length;
@@ -244,15 +246,20 @@ async function onClickSearch() {
   await fetchData();
 }
 
-async function onClickSearchCst() {
-  const { result: isChanged, payload: customerDetails } = await modal({
+/** 고객조회(공통) */
+async function onClickSelectCustomer() {
+  let returnCustomInfo = await modal({
     component: 'ZwcsaCustomerListP',
   });
+  /* 단위 테스트를 위한 코딩 추후 고객조회(공통) 팝업이 완성되면 삭제 예정 */
+  returnCustomInfo = {
+    cstNo: '8956210254',
+    cstNm: '윤경숙',
+  };
 
-  if (isChanged) {
-    /* TODO: 테스트 데이터 확인 불가, 확인 필요 */
-    searchParams.value.cstNo = customerDetails.cstNo;
-    searchParams.value.cstKnm = customerDetails.cstKnm;
+  if (returnCustomInfo) {
+    searchParams.value.cstNo = returnCustomInfo.cstNo;
+    searchParams.value.cstKnm = returnCustomInfo.cstNm;
   }
 }
 
