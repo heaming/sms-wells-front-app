@@ -442,7 +442,7 @@ watch(() => route.params.pdCd, async (pdCd) => {
   console.log(`currentPdCd.value : ${currentPdCd.value}, route.params.pdCd : ${pdCd}`);
   if (currentPdCd.value !== pdCd && pdCd) {
     isCreate.value = isEmpty(pdCd);
-    // currentStep.value = pdConst.STANDARD_STEP_BASIC;
+    currentStep.value = cloneDeep(pdConst.STANDARD_STEP_BASIC);
     if (isCreate.value) {
       isTempSaveBtn.value = true;
     }
