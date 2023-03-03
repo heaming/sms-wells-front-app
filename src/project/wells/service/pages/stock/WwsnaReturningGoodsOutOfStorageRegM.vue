@@ -9,7 +9,7 @@
  ****************************************************************************************************
  * 프로그램 설명
  ****************************************************************************************************
- - 반품출고 등록 (http://localhost:3000/#/service/wwsnc-responsible-area-charge-mgt)
+ - 반품출고 등록 (http://localhost:3000/#/service/wwsna-returning-goods-out-of-storage-reg)
  ****************************************************************************************************
 --->
 <template>
@@ -96,7 +96,7 @@
           dense
           secondary
           :label="$t('MSG_BTN_ITM_SPMT')"
-          :disable="hasProps() && props.strWareDvCd !== '1'"
+          :disable="canEdit()"
           @click="onClickAddItems"
         />
         <kw-separator
@@ -110,14 +110,14 @@
           dense
           class="w150"
           :options="codes.PD_GD_CD"
-          :disable="hasProps() && props.strWareDvCd !== '1'"
+          :disable="canEdit()"
         />
         <!-- 등급 일괄변경 -->
         <kw-btn
           dense
           secondary
           :label="$t('MSG_BTN_GD_BLK_CH')"
-          :disable="hasProps() && props.strWareDvCd !== '1'"
+          :disable="canEdit()"
           @click="onClickGridBulkChange(baseInfo.pdGdCd, 'itmGdCd')"
         />
         <kw-separator
@@ -131,14 +131,14 @@
           dense
           class="w150"
           :options="ostrRsonCds"
-          :disable="hasProps() && props.strWareDvCd !== '1'"
+          :disable="canEdit()"
         />
         <!-- 사유 일괄변경 -->
         <kw-btn
           dense
           secondary
           :label="$t('MSG_BTN_RSON_BLK_CH')"
-          :disable="hasProps() && props.strWareDvCd !== '1'"
+          :disable="canEdit()"
           @click="onClickGridBulkChange(baseInfo.ostrRsonCd, 'ostrRsonCd')"
         />
         <kw-separator
@@ -151,7 +151,7 @@
           primary
           dense
           :label="$t('MSG_BTN_RTNGD_OSTR_RGST')"
-          :disable="hasProps() && props.strWareDvCd !== '1'"
+          :disable="canEdit()"
           @click="onClickSave"
         />
       </kw-action-top>
@@ -168,47 +168,48 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-// import { codeUtil, defineGrid, getComponentType, gridUtil, useDataService, useGlobal, useMeta } from 'kw-lib';
 import { codeUtil, defineGrid, getComponentType, gridUtil, useDataService, useGlobal, useMeta } from 'kw-lib';
 import useSnCode from '~sms-wells/service/composables/useSnCode';
 import dayjs from 'dayjs';
 
 const { t } = useI18n();
+const { getters } = useStore();
 const dataService = useDataService();
 
 const { getConfig } = useMeta();
 const { modal, notify } = useGlobal();
 
 const { getWarehouseCloseCheck } = useSnCode();
+const { userId: sessionUserId } = getters['meta/getUserInfo'];
 
 // TODO: 출고관리(W-SV-U-0141M01) 그리드 내부 버튼으로 호출된 경우 사용
 const props = defineProps({
   ostrTpCd: {
     type: String,
     required: true,
-    default: '212',
+    default: '',
   },
   ostrWareNo: {
     type: String,
     required: true,
-    default: '200005',
+    default: '',
   },
   ostrDt: {
     type: String,
     required: true,
-    default: '20230221',
+    default: '',
   },
   strWareNo: {
     type: String,
     default: '',
   },
-  strWareDvCd: { // TODO: 입고창고구분코드가 '1' (물류센터) 일 경우 수정 가능
+  strWareDvCd: { // 입고창고구분코드가 '1' (물류센터) 일 경우 수정 가능
     type: String,
-    default: '1',
+    default: '',
   },
   itmOstrNo: {
     type: String,
-    default: '212202302210000001',
+    default: '',
   },
 });
 
@@ -230,8 +231,6 @@ const codes = await codeUtil.getMultiCodes(
   'RTNGD_RSON_CD', // 반품사유 (출고사유코드)
   'DSU_RSON_CD', // 폐기사유 (출고사유코드)
 );
-
-console.log(codes.DSU_RSON_CD);
 
 function isReturingCode(codeId) {
   return codeId === DISUSE || codeId === RETURN_INSIDE || codeId === RETURN_OUTSIDE;
@@ -263,7 +262,7 @@ const ostrRsonCds = ref(codes.DSU_RSON_CD);
 function validateOstrQty(row, val) {
   const grid = grdMainRef.value.getView();
   const onQty = gridUtil.getCellValue(grid, row, 'onQty');
-  if (typeof onQty !== 'number') return false;
+
   if (onQty < val) {
     notify(t('MSG_ALT_OSTR_QTY_EXCEEDS_INVEN_QTY'));
     return false;
@@ -289,7 +288,6 @@ function validateIsApplyRowExists() {
 }
 
 function onClickGridBulkChange(val, type) {
-  console.log(`${val} - ${type}`);
   const inputType = type === 'itmGdCd' ? '등급' : '사유';
 
   if (!validateInputValueExists(val, inputType)) return;
@@ -304,18 +302,31 @@ function onClickGridBulkChange(val, type) {
   notify(t('MSG_ALT_BULK_APPLY_SUCCESS', [inputType]));
 }
 
-async function openItemBasePopup(itmCd) {
-  const result = await modal({
-    // component: 'WwsnaItemBaseInformationListP', // 품목기본정보 팝업 호출
-    component: 'WwsndWorkNoticeRegP', // TODO: 테스트용
-    componentProps: { itmCd },
+function getRowData(rowData) {
+  return { ...rowData, itmPdNm: rowData.itmNm, onQty: rowData.onQty || 0 };
+}
+
+async function openItemBasePopup(type, row) {
+  const { result, payload } = await modal({
+    component: 'WwsnaItemBaseInformationListP',
+    componentProps: { chk: '1' },
   });
 
-  console.log(result);
+  if (result) {
+    const view = grdMainRef.value.getView();
+    if (type === 'C') {
+      view.getDataSource().addRows(payload.map((v) => getRowData(v)));
+      view.checkAll(false);
+      view.resetCurrent();
+    } else if (type === 'U') {
+      const rowData = payload?.[0] || {};
+      view.setValues(row, getRowData(rowData), true);
+    }
+  }
 }
 
 async function onClickAddItems() {
-  await openItemBasePopup();
+  await openItemBasePopup('C');
 }
 
 function setReasonCellStyle() {
@@ -328,8 +339,6 @@ function setReasonCellStyle() {
 }
 
 function onChangeOstrTp(ostrTpCd) {
-  console.log(ostrTpCd);
-
   if (ostrTpCd === DISUSE) {
     ostrRsonCds.value = codes.DSU_RSON_CD;
     searchParams.value.strWareNm = '';
@@ -344,7 +353,6 @@ function onChangeOstrTp(ostrTpCd) {
   setReasonCellStyle();
 }
 
-// TODO: 수정 필요
 function setSearchParams() {
   const { ostrTpCd, ostrWareNo, ostrDt, strWareNo, itmOstrNo } = props;
   searchParams.value.ostrTpCd = ostrTpCd;
@@ -356,9 +364,9 @@ function setSearchParams() {
 
 const itemOutOfStorage = ref();
 async function fetchData() {
-  const res = await dataService.get(`/sms/wells/service/returning-goods-out-of-storages/${props.itmOstrNo}`);
+  const res = await dataService.get('/sms/wells/service/returning-goods-out-of-storages', { params: searchParams.value });
   const { itemOutOfStorage: itemOstr, returningGoods } = res.data;
-  console.log(res.data);
+
   itemOutOfStorage.value = itemOstr;
 
   const view = grdMainRef.value.getView();
@@ -367,20 +375,34 @@ async function fetchData() {
 }
 
 async function fetchDefaultData() {
-  const testUserId = '36631'; // TODO: 수정 필요
-  const res = await dataService.get('/sms/wells/service/returning-goods-out-of-storages/warehouses', { params: { userId: testUserId, apyYm: dayjs().format('YYYYMM') } });
+  console.log(sessionUserId); // TODO: 수정 필요
+  const res = await dataService.get('/sms/wells/service/returning-goods-out-of-storages/warehouses', { params: { userId: '36631', apyYm: dayjs().format('YYYYMM') } });
   warehouses.value = res.data;
+  if (!res.data[0]) return;
+
   const { codeId } = res.data[0];
   searchParams.value.ostrWareNo = codeId;
-  console.log(res.data);
+}
+
+function isNotEmpty(obj) {
+  return (obj !== undefined && obj !== null && obj !== '');
+}
+
+function hasProps() {
+  return isNotEmpty(props.ostrTpCd) && isNotEmpty(props.ostrWareNo) && isNotEmpty(props.ostrDt);
+}
+
+// 출고창고마감 여부 체크
+async function isWarehouseClosed() {
+  if (!await getWarehouseCloseCheck(searchParams.value.ostrDt, searchParams.value.ostrWareNo)) {
+    notify(t('MSG_ALT_DATE_EDIT_OUT_PUT'));
+    return true;
+  }
+  return false;
 }
 
 async function onClickDelete() {
-  // 출고창고마감 여부 체크
-  if (await getWarehouseCloseCheck(props.ostrDt, props.ostrWareNo)) {
-    notify(t('MSG_ALT_DATE_EDIT_OUT_PUT'));
-    return;
-  }
+  if (await isWarehouseClosed()) return;
 
   const view = grdMainRef.value.getView();
   const checkedRows = gridUtil.getCheckedRowValues(view);
@@ -391,7 +413,7 @@ async function onClickDelete() {
   }
 
   // 반품출고 여부 체크
-  const returnedGoods = checkedRows.filter((v) => (v.strConfDt !== '' || v.strConfDt !== null));
+  const returnedGoods = checkedRows.filter((v) => (v.strConfDt !== '' && v.strConfDt !== null && v.strConfDt !== undefined));
   if (returnedGoods.length > 0) {
     notify(t('MSG_ALT_RTNGD_OSTR_FINISH_DEL_IMPSB'));
     return;
@@ -399,8 +421,9 @@ async function onClickDelete() {
 
   const deletedRows = await gridUtil.confirmDeleteCheckedRows(view);
 
-  await dataService.delete('/sms/wells/service/returning-goods-out-of-storages', { data: deletedRows });
-  await fetchData();
+  if (deletedRows.length > 0) {
+    await dataService.delete('/sms/wells/service/returning-goods-out-of-storages', { data: deletedRows.map((v) => ({ ...searchParams.value, ...v })) });
+  }
 }
 
 // 입고마감 체크
@@ -411,14 +434,6 @@ async function validateClosed(itmOstrNo) {
     return false;
   }
   return true;
-}
-
-function isNotEmpty(obj) {
-  return (obj !== undefined && obj !== null && obj !== '');
-}
-
-function hasProps() {
-  return isNotEmpty(props.ostrTpCd) && isNotEmpty(props.ostrWareNo) && isNotEmpty(props.ostrDt);
 }
 
 async function onClickSave() {
@@ -444,11 +459,7 @@ async function onClickSave() {
     return;
   }
 
-  // 출고창고마감 여부 체크
-  if (await getWarehouseCloseCheck(props.ostrDt, props.ostrWareNo)) {
-    notify(t('MSG_ALT_DATE_EDIT_OUT_PUT'));
-    return;
-  }
+  if (await isWarehouseClosed()) return;
 
   const checkedRows = gridUtil.getCheckedRowValues(view);
   const itmOstrNo = checkedRows.map((v) => v.itmOstrNo)[0];
@@ -465,6 +476,7 @@ async function onClickSave() {
   await dataService.post('/sms/wells/service/returning-goods-out-of-storages', checkedRows.map((v) => ({ ...v, ...params })));
 
   notify(t('MSG_ALT_SAVE_DATA'));
+
   await fetchData();
 }
 
@@ -476,14 +488,25 @@ onMounted(async () => {
   }
 });
 
+function canEdit() {
+  return hasProps() && props.strWareDvCd !== '1';
+}
+
+function setCellEditableFalse() {
+  if (canEdit()) {
+    return { editable: false };
+  }
+}
+
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
 const initGrdMain = defineGrid((data, view) => {
   const fields = [
+    { fieldName: 'sapMatCd' },
     { fieldName: 'itmPdCd' },
     { fieldName: 'itmCd' },
-    { fieldName: 'itmNm' },
+    { fieldName: 'itmPdNm' },
     { fieldName: 'itmGdCd' },
     { fieldName: 'onQty', dataType: 'number' },
     { fieldName: 'mngtUnitCd' },
@@ -499,15 +522,20 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'strTpCd' },
   ];
 
-  // TODO: 다른 화면에서 호출한 경우(입고창고 물류센터인 경우 제외) 조회, 삭제만 가능. 추가, 수정 불가능.
   const columns = [
-    { fieldName: 'itmPdCd', header: t('MSG_TXT_SAP_CD'), width: '150', styleName: 'text-center' },
-    { fieldName: 'itmCd', header: t('MSG_TXT_ITM_CD'), width: '150', styleName: 'text-center' },
-    { fieldName: 'itmNm',
+    { fieldName: 'sapMatCd', header: t('MSG_TXT_SAP_CD'), width: '170', styleName: 'text-center' },
+    { fieldName: 'itmPdCd', header: t('MSG_TXT_ITM_CD'), width: '140', styleName: 'text-center' },
+    { fieldName: 'itmCd' },
+    { fieldName: 'itmPdNm',
       header: t('MSG_TXT_ITM_NM'),
-      width: '160',
-      styleName: 'rg-button-icon--search',
+      width: '200',
       button: 'action',
+      styleName: 'rg-button-icon--search',
+      styleCallback: () => {
+        if (canEdit()) {
+          return { styleName: 'rg-button-hide' };
+        }
+      },
     },
     { fieldName: 'itmGdCd',
       header: t('MSG_TXT_GD'),
@@ -516,7 +544,9 @@ const initGrdMain = defineGrid((data, view) => {
       editable: true,
       editor: { type: 'list' },
       options: codes.PD_GD_CD,
-      rules: 'required' },
+      rules: 'required',
+      styleCallback: setCellEditableFalse,
+    },
     { fieldName: 'onQty', header: t('MSG_TXT_STOC_QTY'), width: '100', styleName: 'text-right' },
     { fieldName: 'mngtUnitCd',
       header: t('MSG_TXT_MNGT_UNIT'),
@@ -534,6 +564,7 @@ const initGrdMain = defineGrid((data, view) => {
       },
       options: ostrRsonCds.value,
       rules: `required|one_of:${ostrRsonCds.value.map((v) => v.codeId)}`,
+      styleCallback: setCellEditableFalse,
     },
     { fieldName: 'ostrQty',
       header: t('MSG_TXT_OSTR_QTY'),
@@ -545,11 +576,14 @@ const initGrdMain = defineGrid((data, view) => {
       editor: {
         type: 'number',
       },
+      styleCallback: setCellEditableFalse,
     },
     { fieldName: 'rmkCn',
       header: t('MSG_TXT_NOTE'),
       width: '397',
-      editable: true },
+      editable: true,
+      styleCallback: setCellEditableFalse,
+    },
     { fieldName: 'strConfDt' },
     { fieldName: 'itmOstrNo' },
     { fieldName: 'ostrSn' },
@@ -560,9 +594,9 @@ const initGrdMain = defineGrid((data, view) => {
   ];
 
   const columnLayout = [
+    'sapMatCd',
     'itmPdCd',
-    'itmCd',
-    'itmNm',
+    'itmPdNm',
     'itmGdCd',
     'onQty',
     'mngtUnitCd',
@@ -579,12 +613,10 @@ const initGrdMain = defineGrid((data, view) => {
   view.rowIndicator.visible = true;
   view.editOptions.columnEditableFirst = true;
 
-  view.onCellClicked = async (grid, { column, itemIndex }) => {
-    if (column === 'itmNm') {
-      const itmCd = grid.getValue(itemIndex, 'itmCd');
-      console.log(itmCd);
-
-      await openItemBasePopup(itmCd);
+  view.onCellClicked = async (grid, { column, dataRow }) => {
+    if (canEdit()) return;
+    if (column === 'itmPdNm') {
+      await openItemBasePopup('U', dataRow);
     }
   };
 
@@ -600,5 +632,9 @@ const initGrdMain = defineGrid((data, view) => {
 <style>
 .kw-search-style .kw-search__action {
   display: none;
+}
+
+.rg-button-hide .rg-button-action {
+  display: none !important;
 }
 </style>
