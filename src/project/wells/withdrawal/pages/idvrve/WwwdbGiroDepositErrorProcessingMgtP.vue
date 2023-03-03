@@ -194,10 +194,14 @@ const initGrid = defineGrid((data, view) => {
         styleName: 'essential',
       },
       // editable: false,
-      rules: 'required|',
+      rules: 'required|min:12|max:17',
       width: '250',
       styleName: 'text-left rg-button-icon--search',
       button: 'action',
+      editor: {
+        type: 'line',
+        maxLength: 17,
+      },
     },
 
     { fieldName: 'cstKnm',
