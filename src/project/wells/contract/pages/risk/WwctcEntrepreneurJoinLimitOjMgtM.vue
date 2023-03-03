@@ -110,13 +110,6 @@
               dense
               :label="$t('MSG_BTN_FILE_UPLOAD_FORM')"
             />
-            <kw-file
-              v-show="false"
-              ref="excelFileRef"
-              v-model="excelUploadfiles"
-              :updatable="false"
-              @update:model-value="onClickExcelUpload2"
-            />
             <kw-btn
               v-permission:create
               icon="upload_on"
@@ -159,8 +152,8 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { getComponentType, gridUtil, defineGrid, codeUtil, useDataService, useGlobal, useMeta } from 'kw-lib';
-import { cloneDeep } from 'lodash-es';
+import { getComponentType, gridUtil, defineGrid, codeUtil, useDataService, useGlobal, useMeta, modal } from 'kw-lib';
+import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 
 const now = dayjs();
@@ -174,7 +167,6 @@ const { hasRoleNickName } = useMeta();
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 const grdMainRef = ref(getComponentType('KwGrid'));
-const excelFileRef = ref(getComponentType('KwFile'));
 
 const codes = await codeUtil.getMultiCodes(
   'SELL_LM_RSON_CD',
@@ -195,7 +187,6 @@ const searchParams = ref({
   dlpnrCd: '',
 });
 
-let excelUploadfiles;
 let cachedParams;
 
 async function onClickAdd() {
@@ -266,18 +257,23 @@ async function onClickExcelDownload() {
 }
 
 async function onClickExcelUpload() {
-  excelFileRef.value.pickFiles();
-}
+  const apiUrl = '/sms/wells/contract/sales-limits/business-partners/excel-upload';
+  const templateId = 'FOM_CTC_0001';
 
-async function onClickExcelUpload2() {
-  const formData = new FormData();
-  formData.append('file', excelFileRef.value.nativeFile);
-  // ToDo API URL FOR EXCEL UPLOAD
-  await dataService.post('', formData, {
-    headers: {
-      'Content-Type': 'multipart/form-data',
-    },
+  alert('엑셀 업로드 기능 구현중');
+
+  const { result } = await modal({
+    component: 'ZwcmzExcelUploadP',
+    componentProps: { apiUrl, templateId },
   });
+  if (result.status === 'S') {
+    notify(t('MSG_ALT_SAVE_DATA'));
+  } else if (result.status !== 'S' && result.errorInfo.length > 0) {
+    await modal({
+      component: 'ZwcmzExcelUploadErrorP',
+      componentProps: { errorInfo: result.errorInfo }, // errorInfo 는 서버에서 받은 List<ExcelUploadErrorDvo> 정보
+    });
+  }
 }
 
 /*
@@ -343,17 +339,42 @@ const initGrdMain = defineGrid((data, view) => {
   view.onCellEdited = async (grid, itemIndex, row, fieldIndex) => {
     const { fieldName } = grid.getColumn(fieldIndex);
     if (fieldName === 'sellLmBzrno') {
+      const sellLmBzrno = grid.getValue(itemIndex, fieldIndex);
       const searchOgParams = ref({
-        dlpnrCd: grid.getValue(itemIndex, fieldIndex),
+        dlpnrCd: isEmpty(sellLmBzrno) ? '' : sellLmBzrno,
       });
 
       const res = await dataService.get('/sms/wells/contract/partners', { params: searchOgParams.value });
       const dlgpr = res.data;
 
-      view.setValue(itemIndex, 'dlpnrNm', dlgpr[0].dlpnrNm);
-      view.setValue(itemIndex, 'dlgpsNm', dlgpr[0].dlgpsNm);
-      view.setValue(itemIndex, 'bryyMmdd', dlgpr[0].bryyMmdd);
+      if (dlgpr.length > 0) {
+        view.setValue(itemIndex, 'dlpnrNm', dlgpr[0].dlpnrNm);
+        view.setValue(itemIndex, 'dlgpsNm', dlgpr[0].dlgpsNm);
+        view.setValue(itemIndex, 'bryyMmdd', dlgpr[0].bryyMmdd);
+      }
     } else if (fieldName === 'sellLmRlsDtm') {
+      if (grid.getValue(itemIndex, fieldIndex).length === 0) {
+        grid.setValue(itemIndex, 'sellLmRlsDtm', null);
+      }
+    }
+  };
+
+  view.onEditCanceled = async (grid, { itemIndex, column, fieldIndex }) => {
+    if (column === 'sellLmBzrno') {
+      const sellLmBzrno = grid.getValue(itemIndex, fieldIndex);
+      const searchOgParams = ref({
+        dlpnrCd: isEmpty(sellLmBzrno) ? '' : sellLmBzrno,
+      });
+
+      const res = await dataService.get('/sms/wells/contract/partners', { params: searchOgParams.value });
+      const dlgpr = res.data;
+
+      if (dlgpr.length > 0) {
+        view.setValue(itemIndex, 'dlpnrNm', dlgpr[0].dlpnrNm);
+        view.setValue(itemIndex, 'dlgpsNm', dlgpr[0].dlgpsNm);
+        view.setValue(itemIndex, 'bryyMmdd', dlgpr[0].bryyMmdd);
+      }
+    } else if (column === 'sellLmRlsDtm') {
       if (grid.getValue(itemIndex, fieldIndex).length === 0) {
         grid.setValue(itemIndex, 'sellLmRlsDtm', null);
       }
