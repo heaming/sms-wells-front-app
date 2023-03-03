@@ -312,12 +312,10 @@ onMounted(async () => {
 const initGrdMain = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'wareDvCd' },
-    { fieldName: 'wareCd' },
     { fieldName: 'wareNo' },
     { fieldName: 'wareNm' },
     { fieldName: 'wareMngtPrtnrNo' },
     { fieldName: 'wareStocMgr' },
-    { fieldName: 'hgrWare' },
     { fieldName: 'hgrWareNo' },
     { fieldName: 'hgrWareNm' },
     { fieldName: 'wareUseYn' },
@@ -330,12 +328,10 @@ const initGrdMain = defineGrid((data, view) => {
 
   const columns = [
     { fieldName: 'wareDvCd', header: t('MSG_TXT_WARE_DV'), options: codes.WARE_DV_CD, width: '120', styleName: 'text-center' },
-    { fieldName: 'wareCd', header: t('MSG_TXT_WARE_CD'), width: '100', styleName: 'text-center' },
     { fieldName: 'wareNo', header: t('MSG_TXT_WARE_NO'), width: '100', styleName: 'text-center' },
     { fieldName: 'wareNm', header: t('MSG_TXT_WARE_NM'), width: '280' },
     { fieldName: 'wareMngtPrtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '100', styleName: 'text-center' },
     { fieldName: 'wareStocMgr', header: t('MSG_TXT_ADMIN'), width: '170' },
-    { fieldName: 'hgrWare', header: t('MSG_TXT_HGR_WARE'), width: '100', styleName: 'text-center' },
     { fieldName: 'hgrWareNo', header: t('MSG_TXT_HGR_WARE_NO'), width: '100', styleName: 'text-center' },
     { fieldName: 'hgrWareNm', header: t('MSG_TXT_HGR_WARE_NM'), width: '280' },
     { fieldName: 'wareUseYn', header: t('MSG_TXT_USE_EYN'), options: codes.USE_YN, width: '100', styleName: 'text-center' },
