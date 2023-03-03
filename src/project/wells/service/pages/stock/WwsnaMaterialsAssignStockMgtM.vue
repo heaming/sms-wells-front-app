@@ -17,6 +17,7 @@
     <kw-search
       :cols="3"
       @search="onClickSearch"
+      @reset="onClickReset"
     >
       <kw-search-row>
         <!-- 기준년월 -->
@@ -217,6 +218,21 @@ async function onClickSave() {
   await fetchData();
 }
 
+function searchConditionReset() {
+  searchParams.value.baseYm = dayjs().format('YYYYMM');
+  searchParams.value.ogId = '';
+  searchParams.value.prtnrNo = '';
+  searchParams.value.prtnrKnm = '';
+  searchParams.value.hgrWareNo = '';
+  searchParams.value.wareNo = '';
+  searchParams.value.wareDvCd = '3';
+  searchParams.value.wareDtlDvCd = '';
+}
+
+function onClickReset() {
+  console.log('onclickreset ~~~~~~');
+  searchConditionReset();
+}
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
@@ -286,6 +302,5 @@ watch(() => searchParams.value.wareNo, (res) => {
   }
 });
 
-searchParams.value.baseYm = dayjs().format('YYYYMM');
-searchParams.value.wareDvCd = '3';
+searchConditionReset();
 </script>
