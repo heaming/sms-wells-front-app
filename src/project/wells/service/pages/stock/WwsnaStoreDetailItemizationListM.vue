@@ -18,6 +18,7 @@
     <kw-search
       :cols="9"
       @search="onClickSearch"
+      @reset="onClickReset"
     >
       <kw-search-row>
         <!-- 입고기간 -->
@@ -359,6 +360,28 @@ async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
   console.log(searchParams.value);
   await fetchData();
+}
+
+function searchConditionReset() {
+  searchParams.value.stStrDt = dayjs().set('date', 1).format('YYYYMMDD');
+  searchParams.value.edStrDt = dayjs().format('YYYYMMDD');
+  searchParams.value.strTpCd = '';
+  searchParams.value.strWareDvCd = '2';
+  searchParams.value.strWareNoD = '';
+  searchParams.value.strWareNoM = '';
+  searchParams.value.ostrWareDvCd = '1';
+  searchParams.value.ostrWareNoD = '';
+  searchParams.value.ostrWareNoM = '';
+  searchParams.value.pgGdCd = '';
+  searchParams.value.itmKndCd = '';
+  searchParams.value.useYn = '';
+  searchParams.value.itmPdCd = '';
+  searchParams.value.strWareDtlDvCd = '';
+  searchParams.value.ostrWareDtlDvCd = '';
+}
+
+function onClickReset() {
+  searchConditionReset();
 }
 
 onMounted(async () => {

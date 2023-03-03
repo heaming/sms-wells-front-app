@@ -16,6 +16,7 @@
   <kw-page>
     <kw-search
       @search="onClickSearch"
+      @reset="onClickReset"
     >
       <kw-search-row>
         <!-- 출고요청창고 -->
@@ -117,7 +118,8 @@ const { t } = useI18n();
 const dataService = useDataService();
 
 const { getConfig } = useMeta();
-const { modal, notify } = useGlobal();
+// const { modal, notify, alert } = useGlobal();
+const { notify, alert } = useGlobal();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -214,14 +216,16 @@ async function onClickExcelDownload() {
 }
 
 async function onClickRegistration() {
-  const { result: isChanged } = await modal({
-    component: 'WwsnaOutOfStorageAskRegP',
-  });
+  // TODO: 현재 출고요청등록 팝업화면 개발진행 후 변경 예정
+  alert('현재 단위테스트 대상이아닙니다.');
+  // const { result: isChanged } = await modal({
+  //   component: 'WwsnaOutOfStorageAskRegP',
+  // });
 
-  if (isChanged) {
-    notify(t('MSG_ALT_REGISTERED'));
-    await fetchData();
-  }
+  // if (isChanged) {
+  //   notify(t('MSG_ALT_REGISTERED'));
+  //   await fetchData();
+  // }
 }
 
 const warehouses = ref();
@@ -229,6 +233,21 @@ async function fetchDefaultData() {
   const res = await dataService.get('/sms/wells/service/out-of-storage-asks/warehouses', { params: wharehouseParams.value });
   warehouses.value = res.data;
   searchParams.value.strOjWareNo = warehouses.value[0].codeId;
+}
+
+function searchConditionReset() {
+  fetchDefaultData();
+
+  searchParams.value.strOjWareNo = '';
+  searchParams.value.ostrAkTpCd = '';
+  searchParams.value.startStrHopDt = dayjs().format('YYYYMMDD');
+  searchParams.value.endStrHopDt = dayjs().format('YYYYMMDD');
+  searchParams.value.wareDvCd = '1';
+  searchParams.value.wareLocaraCd = '';
+}
+
+function onClickReset() {
+  searchConditionReset();
 }
 
 onMounted(async () => {
@@ -279,18 +298,21 @@ function initGrdMain(data, view) {
   };
 
   view.onCellItemClicked = async (g, { column, dataRow }) => {
+    // TODO: 현재 출고요청등록 팝업화면 개발진행 후 변경 예정
     console.log(gridUtil.getRowValue(g, dataRow));
-    const { ostrAkNo } = gridUtil.getRowValue(g, dataRow);
-    const { ostrAkTpCd } = gridUtil.getRowValue(g, dataRow);
-    const { ostrAkRgstDt } = gridUtil.getRowValue(g, dataRow);
-    const { strOjWareNo } = gridUtil.getRowValue(g, dataRow);
+    console.log(column);
+    alert('현재 단위테스트 대상이 아닙니다.');
+    // const { ostrAkNo } = gridUtil.getRowValue(g, dataRow);
+    // const { ostrAkTpCd } = gridUtil.getRowValue(g, dataRow);
+    // const { ostrAkRgstDt } = gridUtil.getRowValue(g, dataRow);
+    // const { strOjWareNo } = gridUtil.getRowValue(g, dataRow);
 
-    if (column === 'itmNm') {
-      await modal({
-        component: 'WwsnaOutOfStorageAskRegP',
-        componentProps: { ostrAkNo, ostrAkTpCd, ostrAkRgstDt, strOjWareNo },
-      });
-    }
+    // if (column === 'itmNm') {
+    //   await modal({
+    //     component: 'WwsnaOutOfStorageAskRegP',
+    //     componentProps: { ostrAkNo, ostrAkTpCd, ostrAkRgstDt, strOjWareNo },
+    //   });
+    // }
   };
 
   // eslint-disable-next-line no-unused-vars
