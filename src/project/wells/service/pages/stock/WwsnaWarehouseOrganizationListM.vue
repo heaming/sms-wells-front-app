@@ -330,7 +330,7 @@ const initGrdMain = defineGrid((data, view) => {
 
   const columns = [
     { fieldName: 'wareDvCd', header: t('MSG_TXT_WARE_DV'), options: codes.WARE_DV_CD, width: '120', styleName: 'text-center' },
-    { fieldName: 'wareCd', header: t('MSG_TXT_WARE_CD'), width: '100', styleName: 'text-center' },
+    // { fieldName: 'wareCd', header: t('MSG_TXT_WARE_CD'), width: '100', styleName: 'text-center' },
     { fieldName: 'wareNo', header: t('MSG_TXT_WARE_NO'), width: '100', styleName: 'text-center' },
     { fieldName: 'wareNm', header: t('MSG_TXT_WARE_NM'), width: '280' },
     { fieldName: 'wareMngtPrtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '100', styleName: 'text-center' },
