@@ -56,11 +56,14 @@
             <kw-search-item :label="$t('MSG_TXT_ENTRP_NO')">
               <kw-input
                 v-model="searchParams.sellLmBzrno"
+                type="number"
+                :maxlength="10"
               />
             </kw-search-item>
             <kw-search-item :label="$t('MSG_TXT_BSN_NM')">
               <kw-input
                 v-model="searchParams.dlpnrNm"
+                :maxlength="100"
               />
             </kw-search-item>
           </kw-search-row>
@@ -109,13 +112,7 @@
               secondary
               dense
               :label="$t('MSG_BTN_FILE_UPLOAD_FORM')"
-            />
-            <kw-file
-              v-show="false"
-              ref="excelFileRef"
-              v-model="excelUploadfiles"
-              :updatable="false"
-              @update:model-value="onClickExcelUpload2"
+              @click="onclickExcelTemplatDownload"
             />
             <kw-btn
               v-permission:create
@@ -159,22 +156,24 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { getComponentType, gridUtil, defineGrid, codeUtil, useDataService, useGlobal, useMeta } from 'kw-lib';
-import { cloneDeep } from 'lodash-es';
+import { getComponentType, gridUtil, defineGrid, codeUtil, useDataService, useGlobal, useMeta, modal } from 'kw-lib';
+import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
+import useCmUtil from '~common/composables/useCmFile';
 
+const { getStandardFormFile } = useCmUtil();
 const now = dayjs();
 const dataService = useDataService();
 const { t } = useI18n();
 const { notify } = useGlobal();
 const { getConfig } = useMeta();
 const { hasRoleNickName } = useMeta();
+const { alert } = useGlobal();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 const grdMainRef = ref(getComponentType('KwGrid'));
-const excelFileRef = ref(getComponentType('KwFile'));
 
 const codes = await codeUtil.getMultiCodes(
   'SELL_LM_RSON_CD',
@@ -195,7 +194,6 @@ const searchParams = ref({
   dlpnrCd: '',
 });
 
-let excelUploadfiles;
 let cachedParams;
 
 async function onClickAdd() {
@@ -221,9 +219,16 @@ async function fetchData() {
 }
 
 async function onClickSearch() {
+  const paramsValue = searchParams.value;
+
+  if ((isEmpty(paramsValue.sellLmOcStm) && isEmpty(paramsValue.sellLmOcDtm))
+     && isEmpty(paramsValue.dlpnrNm) && isEmpty(paramsValue.sellLmBzrno)) {
+    alert(t('MSG_ALT_REQ_INPUT_VAL', [t('MSG_TXT_OCCUR_DATE'), t('MSG_TXT_ENTRP_NO'), t('MSG_TXT_BSN_NM')]));
+    return;
+  }
   grdMainRef.value.getData().clearRows();
   pageInfo.value.pageIndex = 1;
-  cachedParams = cloneDeep(searchParams.value);
+  cachedParams = cloneDeep(paramsValue);
   await fetchData();
 }
 
@@ -252,6 +257,9 @@ async function onClickDelete() {
     onClickSearch();
   }
 }
+async function onclickExcelTemplatDownload() {
+  getStandardFormFile('FOM_CTC_0001');
+}
 
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
@@ -266,18 +274,23 @@ async function onClickExcelDownload() {
 }
 
 async function onClickExcelUpload() {
-  excelFileRef.value.pickFiles();
-}
+  const apiUrl = '/sms/wells/contract/sales-limits/business-partners/excel-upload';
+  const templateId = 'FOM_CTC_0001';
 
-async function onClickExcelUpload2() {
-  const formData = new FormData();
-  formData.append('file', excelFileRef.value.nativeFile);
-  // ToDo API URL FOR EXCEL UPLOAD
-  await dataService.post('', formData, {
-    headers: {
-      'Content-Type': 'multipart/form-data',
-    },
+  alert('엑셀 업로드 기능 구현중');
+
+  const { result } = await modal({
+    component: 'ZwcmzExcelUploadP',
+    componentProps: { apiUrl, templateId },
   });
+  if (result.status === 'S') {
+    notify(t('MSG_ALT_SAVE_DATA'));
+  } else if (result.status !== 'S' && result.errorInfo.length > 0) {
+    await modal({
+      component: 'ZwcmzExcelUploadErrorP',
+      componentProps: { errorInfo: result.errorInfo }, // errorInfo 는 서버에서 받은 List<ExcelUploadErrorDvo> 정보
+    });
+  }
 }
 
 /*
@@ -305,17 +318,17 @@ const initGrdMain = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'sellLmDv', header: t('MSG_TXT_INF_CLS'), width: '142', styleName: 'text-center', editable: true, editor: { type: 'list' }, options: [{ codeId: '3', codeName: t('MSG_TXT_RGS') }, { codeId: '4', codeName: t('MSG_TXT_RSTRCT') }] }, /* 공통코드 미존재로 하드코딩 설정 */
-    { fieldName: 'sellLmBzrno', header: t('MSG_TXT_ENTRP_NO'), width: '127', styleName: 'text-center', editable: true },
-    { fieldName: 'dlpnrNm', header: t('MSG_TXT_BSN_NM'), width: '127', styleName: 'text-center', editable: false },
-    { fieldName: 'dlgpsNm', header: t('MSG_TXT_RPRS_NM'), width: '127', styleName: 'text-center', editable: false },
+    { fieldName: 'sellLmDv', header: t('MSG_TXT_INF_CLS'), width: '142', styleName: 'text-center', editable: true, editor: { type: 'list' }, options: [{ codeId: '3', codeName: t('MSG_TXT_RGS') }, { codeId: '4', codeName: t('MSG_TXT_RSTRCT') }], rules: 'required' }, /* 공통코드 미존재로 하드코딩 설정 */
+    { fieldName: 'sellLmBzrno', header: t('MSG_TXT_ENTRP_NO'), width: '127', styleName: 'text-center', editable: true, editor: { type: 'number', maxLength: 10 }, rules: 'required' },
+    { fieldName: 'dlpnrNm', header: t('MSG_TXT_BSN_NM'), width: '127', styleName: 'text-left', editable: false },
+    { fieldName: 'dlgpsNm', header: t('MSG_TXT_RPRS_NM'), width: '127', styleName: 'text-left', editable: false },
     { fieldName: 'bryyMmdd', header: t('MSG_TXT_BIRTH_DATE'), width: '196', styleName: 'text-center', datetimeFormat: 'date', editable: false, editor: { type: 'btdate' } },
     { fieldName: 'sellLmRsonCd', header: t('MSG_TXT_DFT_CD'), width: '211', editable: true, editor: { type: 'list' }, options: codes.SELL_LM_RSON_CD },
-    { fieldName: 'sellLmOcDtm', header: t('MSG_TXT_OCCUR_DATE'), width: '196', styleName: 'text-center', datetimeFormat: 'date', editable: true, editor: { type: 'btdate' } },
+    { fieldName: 'sellLmOcDtm', header: t('MSG_TXT_OCCUR_DATE'), width: '196', styleName: 'text-center', datetimeFormat: 'date', editable: true, editor: { type: 'btdate' }, rules: 'required' },
     { fieldName: 'sellLmRlsDtm', header: t('MSG_TXT_CNC_DT'), width: '196', styleName: 'text-center', datetimeFormat: 'date', editable: true, editor: { type: 'btdate' } },
-    { fieldName: 'sellLmRson', header: t('MSG_TXT_OCC_RSN'), width: '376', styleName: 'text-center', editable: true },
-    { fieldName: 'sellLmPsicNm', header: t('MSG_TXT_RGST_ICHR'), width: '180', styleName: 'text-center', editable: false },
-    { fieldName: 'sellLmRlsPsicNm', header: t('MSG_TXT_CNC_INCHR'), width: '180', styleName: 'text-center', editable: false },
+    { fieldName: 'sellLmRson', header: t('MSG_TXT_OCC_RSN'), width: '376', styleName: 'text-left', editable: true },
+    { fieldName: 'sellLmPsicNm', header: t('MSG_TXT_RGST_ICHR'), width: '180', styleName: 'text-left', editable: false },
+    { fieldName: 'sellLmRlsPsicNm', header: t('MSG_TXT_CNC_INCHR'), width: '180', styleName: 'text-left', editable: false },
     { fieldName: 'sellLmId', visible: false },
   ];
 
@@ -343,17 +356,42 @@ const initGrdMain = defineGrid((data, view) => {
   view.onCellEdited = async (grid, itemIndex, row, fieldIndex) => {
     const { fieldName } = grid.getColumn(fieldIndex);
     if (fieldName === 'sellLmBzrno') {
+      const sellLmBzrno = grid.getValue(itemIndex, fieldIndex);
       const searchOgParams = ref({
-        dlpnrCd: grid.getValue(itemIndex, fieldIndex),
+        bzrno: isEmpty(sellLmBzrno) ? '' : sellLmBzrno,
       });
 
       const res = await dataService.get('/sms/wells/contract/partners', { params: searchOgParams.value });
-      const dlgpr = res.data;
+      const bzrno = res.data;
 
-      view.setValue(itemIndex, 'dlpnrNm', dlgpr[0].dlpnrNm);
-      view.setValue(itemIndex, 'dlgpsNm', dlgpr[0].dlgpsNm);
-      view.setValue(itemIndex, 'bryyMmdd', dlgpr[0].bryyMmdd);
+      if (bzrno.length > 0) {
+        view.setValue(itemIndex, 'dlpnrNm', bzrno[0].dlpnrNm);
+        view.setValue(itemIndex, 'dlgpsNm', bzrno[0].dlgpsNm);
+        view.setValue(itemIndex, 'bryyMmdd', bzrno[0].bryyMmdd);
+      }
     } else if (fieldName === 'sellLmRlsDtm') {
+      if (grid.getValue(itemIndex, fieldIndex).length === 0) {
+        grid.setValue(itemIndex, 'sellLmRlsDtm', null);
+      }
+    }
+  };
+
+  view.onEditCanceled = async (grid, { itemIndex, column, fieldIndex }) => {
+    if (column === 'sellLmBzrno') {
+      const sellLmBzrno = grid.getValue(itemIndex, fieldIndex);
+      const searchOgParams = ref({
+        bzrno: isEmpty(sellLmBzrno) ? '' : sellLmBzrno,
+      });
+
+      const res = await dataService.get('/sms/wells/contract/partners', { params: searchOgParams.value });
+      const bzrno = res.data;
+
+      if (bzrno.length > 0) {
+        view.setValue(itemIndex, 'dlpnrNm', bzrno[0].dlpnrNm);
+        view.setValue(itemIndex, 'dlgpsNm', bzrno[0].dlgpsNm);
+        view.setValue(itemIndex, 'bryyMmdd', bzrno[0].bryyMmdd);
+      }
+    } else if (column === 'sellLmRlsDtm') {
       if (grid.getValue(itemIndex, fieldIndex).length === 0) {
         grid.setValue(itemIndex, 'sellLmRlsDtm', null);
       }
