@@ -25,6 +25,7 @@
       >
         <kw-input
           v-model="searchParams.schClctamNo"
+          :label="$t('MSG_TXT_CLCTAM_PSIC')"
           clearable
           icon="search"
           rules="required"
@@ -37,6 +38,7 @@
           v-model="searchParams.schCstNm"
           clearable
           icon="search"
+          @click-icon="onClickSelectCustomer"
         />
       </kw-search-item>
       <kw-search-item
@@ -44,12 +46,14 @@
       >
         <kw-select
           v-model="searchParams.schDlqMcntStrt"
-          :options="[1,2,3,4,5]"
+          :options="[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18
+                     ,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,999]"
         />
         <span>-</span>
         <kw-select
           v-model="searchParams.schDlqMcntEnd"
-          :options="[1,2,3,4,5]"
+          :options="[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18
+                     ,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,999]"
         />
       </kw-search-item>
       <kw-search-item
@@ -68,7 +72,12 @@
       <kw-search-item
         :label="$t('MSG_TXT_CST_NO')"
       >
-        <kw-input v-model="searchParams.schKwK" />
+        <kw-input
+          v-model="searchParams.schCstNo"
+          icon="search"
+          clearable
+          @click-icon="onClickSelectCustomer"
+        />
       </kw-search-item>
       <kw-search-item
         :label="$t('MSG_TXT_TASK_DIV')"
@@ -131,9 +140,10 @@
         />
       </kw-search-item>
     </kw-search-row>
-    <kw-search-row :cols="2">
+    <kw-search-row>
       <kw-search-item
         :label="$t('MSG_TXT_FNT_DT')"
+        :colspan="2"
       >
         <!-- TODO: 코드관리 등록 안된 임시 소스 -->
         <kw-select
@@ -142,22 +152,24 @@
         />
         <kw-select
           v-model="searchParams.schFntDtStrt"
-          :options="[1,2,3,4,5]"
+          :options="[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18
+                     ,19,20,21,22,23,24,25,26,27,28,29,30,31]"
         />
         <span>-</span>
         <kw-select
           v-model="searchParams.schFntDtEnd"
-          :options="[1,2,3,4,5]"
+          :options="[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18
+                     ,19,20,21,22,23,24,25,26,27,28,29,30,31]"
         />
-        <kw-search-item
-          :label="$t('MSG_TXT_BIL_DV')"
-        >
-          <!-- TODO: 코드관리 등록 안된 임시 소스 -->
-          <kw-select
-            v-model="searchParams.schBilDv"
-            :options="['전체','카드이체','계좌이체','지로','가상','청구보류','어음']"
-          />
-        </kw-search-item>
+      </kw-search-item>
+      <kw-search-item
+        :label="$t('MSG_TXT_BIL_DV')"
+      >
+        <!-- TODO: 코드관리 등록 안된 임시 소스 -->
+        <kw-select
+          v-model="searchParams.schBilDv"
+          :options="['전체','카드이체','계좌이체','지로','가상','청구보류','어음']"
+        />
       </kw-search-item>
       <kw-search-item
         :label="$t('MSG_TXT_CST_THM_DP')"
@@ -186,7 +198,7 @@
   <div class="result-area">
     <kw-action-top>
       <template #left>
-        <kw-paging-info :total-count="156" />
+        <kw-paging-info :total-count="totalCount" />
         <span class="ml8">{{ $t('MSG_TXT_UNIT_WON') }}</span>
       </template>
       <kw-btn
@@ -221,6 +233,7 @@
         <!-- TODO: 코드관리 등록 안된 임시 소스 -->
         <kw-option-group
           v-model="searchParams.schDv"
+          :model-value="'연체잔액 0원 제외'"
           dense
           type="radio"
           :options="['연체잔액 0원 제외', '입금액 0원 제외', '대상잔액 0원 제외', '연체개월 0개월 제외']"
@@ -231,7 +244,7 @@
     <kw-grid
       ref="grdMainRef"
       name="grdMain2"
-      :visible-rows="5"
+      :visible-rows="10"
       @init="initGrdMain"
     />
   </div>
@@ -241,7 +254,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { defineGrid, gridUtil, getComponentType, useDataService } from 'kw-lib';
+import { defineGrid, gridUtil, getComponentType, modal, useDataService } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 
 const { t } = useI18n();
@@ -304,7 +317,34 @@ async function onClickExcelDownload() {
   });
 }
 
+/** 고객조회(공통) */
+async function onClickSelectCustomer() {
+  let returnCustomInfo = await modal({
+    component: 'ZwcsaCustomerListP',
+  });
+  /* 단위 테스트를 위한 코딩 추후 고객조회(공통) 팝업이 완성되면 삭제 예정 */
+  returnCustomInfo = {
+    cstNo: '015417731',
+    cstNm: '김지혜',
+  };
+
+  if (returnCustomInfo) {
+    searchParams.value.schCstNo = returnCustomInfo.cstNo;
+    searchParams.value.schCstNm = returnCustomInfo.cstNm;
+  }
+}
+
 async function onClickSearch() {
+  if (searchParams.value.schDv === '입금액 0원 제외') {
+    searchParams.value.schDv = '2';
+  } else if (searchParams.value.schDv === '대상잔액 0원 제외') {
+    searchParams.value.schDv = '3';
+  } else if (searchParams.value.schDv === '연체개월 0개월 제외') {
+    searchParams.value.schDv = '4';
+  } else {
+    searchParams.value.schDv = '1';
+  }
+
   cachedParams = cloneDeep(searchParams.value);
   await fetchContracts();
 }
@@ -320,32 +360,32 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'cntrNo' },
     { fieldName: 'cstNm' },
     { fieldName: 'dlqMcnt' },
-    { fieldName: 'ojAmt' },
-    { fieldName: 'ojDp' },
-    { fieldName: 'ojBlam' },
-    { fieldName: 'totDlqAmt' },
-    { fieldName: 'totDlqDp' },
-    { fieldName: 'totDlqBlam' },
-    { fieldName: 'dlqAmt' },
-    { fieldName: 'dlqDp' },
-    { fieldName: 'dlqBlam' },
-    { fieldName: 'mmChramAmt' },
-    { fieldName: 'mmChramDp' },
-    { fieldName: 'mmChramBlam' },
-    { fieldName: 'dlqAddAmt' },
-    { fieldName: 'dlqAddDp' },
-    { fieldName: 'dlqAddBlam' },
-    { fieldName: 'ucAmt' },
-    { fieldName: 'ucDp' },
-    { fieldName: 'ucBlam' },
-    { fieldName: 'totDpAmt' },
-    { fieldName: 'spmtSl' },
-    { fieldName: 'ccam' },
-    { fieldName: 'lsfe' },
-    { fieldName: 'rtlfe1' },
-    { fieldName: 'rtlfeIstm1' },
-    { fieldName: 'rtlfe2' },
-    { fieldName: 'rtlfeIstm2' },
+    { fieldName: 'ojAmt', dataType: 'number' },
+    { fieldName: 'ojDp', dataType: 'number' },
+    { fieldName: 'ojBlam', dataType: 'number' },
+    { fieldName: 'totDlqAmt', dataType: 'number' },
+    { fieldName: 'totDlqDp', dataType: 'number' },
+    { fieldName: 'totDlqBlam', dataType: 'number' },
+    { fieldName: 'dlqAmt', dataType: 'number' },
+    { fieldName: 'dlqDp', dataType: 'number' },
+    { fieldName: 'dlqBlam', dataType: 'number' },
+    { fieldName: 'mmChramAmt', dataType: 'number' },
+    { fieldName: 'mmChramDp', dataType: 'number' },
+    { fieldName: 'mmChramBlam', dataType: 'number' },
+    { fieldName: 'dlqAddAmt', dataType: 'number' },
+    { fieldName: 'dlqAddDp', dataType: 'number' },
+    { fieldName: 'dlqAddBlam', dataType: 'number' },
+    { fieldName: 'ucAmt', dataType: 'number' },
+    { fieldName: 'ucDp', dataType: 'number' },
+    { fieldName: 'ucBlam', dataType: 'number' },
+    { fieldName: 'totDpAmt', dataType: 'number' },
+    { fieldName: 'spmtSl', dataType: 'number' },
+    { fieldName: 'ccam', dataType: 'number' },
+    { fieldName: 'lsfe', dataType: 'number' },
+    { fieldName: 'rtlfe1', dataType: 'number' },
+    { fieldName: 'rtlfeIstm1', dataType: 'number' },
+    { fieldName: 'rtlfe2', dataType: 'number' },
+    { fieldName: 'rtlfeIstm2', dataType: 'number' },
     { fieldName: 'promDt' },
     { fieldName: 'dprNm' },
     { fieldName: 'cvcpInf' },
@@ -380,39 +420,39 @@ const initGrdMain = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'ctt', header: t('MSG_TXT_CTT'), width: '52', styleName: 'text-center' },
+    { fieldName: 'ctt', header: t('MSG_TXT_CTT'), width: '52', styleName: 'text-center', headerSummaries: { text: '합계', styleName: 'text-center' } },
     { fieldName: 'bizDv', header: t('MSG_TXT_TASK_DIV'), width: '100', styleName: 'text-left' },
     { fieldName: 'prdf', header: t('MSG_TXT_PRD_GRP'), width: '100', styleName: 'text-left' },
     { fieldName: 'pdctNm', header: t('MSG_TXT_GOODS_NM'), width: '130', styleName: 'text-left' },
     { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_NO'), width: '140', styleName: 'text-center' },
     { fieldName: 'cstNm', header: t('MSG_TXT_CST_NM'), width: '100', styleName: 'text-left' },
     { fieldName: 'dlqMcnt', header: t('MSG_TXT_DLQ_MCNT'), width: '70', styleName: 'text-center' },
-    { fieldName: 'ojAmt', header: t('MSG_TXT_OJ_AMT'), width: '100', styleName: 'text-right' },
-    { fieldName: 'ojDp', header: t('MSG_TXT_OJ_DP'), width: '100', styleName: 'text-right' },
-    { fieldName: 'ojBlam', header: t('MSG_TXT_OJ_BLAM'), width: '100', styleName: 'text-right' },
-    { fieldName: 'totDlqAmt', header: t('MSG_TXT_TOT_DLQ_AMT'), width: '100', styleName: 'text-right' },
-    { fieldName: 'totDlqDp', header: t('MSG_TXT_TOT_DLQ_DP'), width: '100', styleName: 'text-right' },
-    { fieldName: 'totDlqBlam', header: t('MSG_TXT_TOT_DLQ_BLAM'), width: '100', styleName: 'text-right' },
-    { fieldName: 'dlqAmt', header: t('MSG_TXT_DLQ_AMT'), width: '100', styleName: 'text-right' },
-    { fieldName: 'dlqDp', header: t('MSG_TXT_DLQ_DP'), width: '100', styleName: 'text-right' },
-    { fieldName: 'dlqBlam', header: t('MSG_TXT_DLQ_BLAM'), width: '100', styleName: 'text-right' },
-    { fieldName: 'mmChramAmt', header: t('MSG_TXT_MM_CHRAM_AMT'), width: '100', styleName: 'text-right' },
-    { fieldName: 'mmChramDp', header: t('MSG_TXT_MM_CHRAM_DP'), width: '100', styleName: 'text-right' },
-    { fieldName: 'mmChramBlam', header: t('MSG_TXT_MM_CHRAM_BLAM'), width: '100', styleName: 'text-right' },
-    { fieldName: 'dlqAddAmt', header: t('MSG_TXT_DLQ_ADD_AMT'), width: '100', styleName: 'text-right' },
-    { fieldName: 'dlqAddDp', header: t('MSG_TXT_DLQ_ADD_DP'), width: '100', styleName: 'text-right' },
-    { fieldName: 'dlqAddBlam', header: t('MSG_TXT_DLQ_ADD_BLAM'), width: '100', styleName: 'text-right' },
-    { fieldName: 'ucAmt', header: t('MSG_TXT_UC_AMT'), width: '100', styleName: 'text-right' },
-    { fieldName: 'ucDp', header: t('MSG_TXT_UC_DP'), width: '100', styleName: 'text-right' },
-    { fieldName: 'ucBlam', header: t('MSG_TXT_UC_BLAM'), width: '100', styleName: 'text-right' },
-    { fieldName: 'totDpAmt', header: t('MSG_TXT_TOT_DP_AMT'), width: '100', styleName: 'text-right' },
-    { fieldName: 'spmtSl', header: t('MSG_TXT_SPMT_SL'), width: '100', styleName: 'text-right' },
-    { fieldName: 'ccam', header: t('MSG_TXT_CCAM'), width: '100', styleName: 'text-right' },
-    { fieldName: 'lsfe', header: t('MSG_TXT_LSFE'), width: '100', styleName: 'text-right' },
-    { fieldName: 'rtlfe1', header: t('MSG_TXT_RTLFE1'), width: '100', styleName: 'text-right' },
-    { fieldName: 'rtlfeIstm1', header: t('MSG_TXT_RTLFE_1_ISTM'), width: '100', styleName: 'text-right' },
-    { fieldName: 'rtlfe2', header: t('MSG_TXT_RTLFE2'), width: '100', styleName: 'text-right' },
-    { fieldName: 'rtlfeIstm2', header: t('MSG_TXT_RTLFE_2_ISTM'), width: '100', styleName: 'text-right' },
+    { fieldName: 'ojAmt', header: t('MSG_TXT_OJ_AMT'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
+    { fieldName: 'ojDp', header: t('MSG_TXT_OJ_DP'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
+    { fieldName: 'ojBlam', header: t('MSG_TXT_OJ_BLAM'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
+    { fieldName: 'totDlqAmt', header: t('MSG_TXT_TOT_DLQ_AMT'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
+    { fieldName: 'totDlqDp', header: t('MSG_TXT_TOT_DLQ_DP'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
+    { fieldName: 'totDlqBlam', header: t('MSG_TXT_TOT_DLQ_BLAM'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
+    { fieldName: 'dlqAmt', header: t('MSG_TXT_DLQ_AMT'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
+    { fieldName: 'dlqDp', header: t('MSG_TXT_DLQ_DP'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
+    { fieldName: 'dlqBlam', header: t('MSG_TXT_DLQ_BLAM'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
+    { fieldName: 'mmChramAmt', header: t('MSG_TXT_MM_CHRAM_AMT'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
+    { fieldName: 'mmChramDp', header: t('MSG_TXT_MM_CHRAM_DP'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
+    { fieldName: 'mmChramBlam', header: t('MSG_TXT_MM_CHRAM_BLAM'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
+    { fieldName: 'dlqAddAmt', header: t('MSG_TXT_DLQ_ADD_AMT'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
+    { fieldName: 'dlqAddDp', header: t('MSG_TXT_DLQ_ADD_DP'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
+    { fieldName: 'dlqAddBlam', header: t('MSG_TXT_DLQ_ADD_BLAM'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
+    { fieldName: 'ucAmt', header: t('MSG_TXT_UC_AMT'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
+    { fieldName: 'ucDp', header: t('MSG_TXT_UC_DP'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
+    { fieldName: 'ucBlam', header: t('MSG_TXT_UC_BLAM'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
+    { fieldName: 'totDpAmt', header: t('MSG_TXT_TOT_DP_AMT'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
+    { fieldName: 'spmtSl', header: t('MSG_TXT_SPMT_SL'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
+    { fieldName: 'ccam', header: t('MSG_TXT_CCAM'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
+    { fieldName: 'lsfe', header: t('MSG_TXT_LSFE'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
+    { fieldName: 'rtlfe1', header: t('MSG_TXT_RTLFE1'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
+    { fieldName: 'rtlfeIstm1', header: t('MSG_TXT_RTLFE_1_ISTM'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
+    { fieldName: 'rtlfe2', header: t('MSG_TXT_RTLFE2'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
+    { fieldName: 'rtlfeIstm2', header: t('MSG_TXT_RTLFE_2_ISTM'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
     { fieldName: 'promDt', header: t('MSG_TXT_PROM_DT'), width: '100', styleName: 'text-center' },
     { fieldName: 'dprNm', header: t('MSG_TXT_DPR_NM'), width: '100', styleName: 'text-left' },
     { fieldName: 'cvcpInf', header: t('MSG_TXT_CVCP_INF'), width: '120', styleName: 'text-left' },
@@ -421,7 +461,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'cntrTno', header: t('MSG_TXT_CNTR_TNO'), width: '130', styleName: 'text-center' },
     { fieldName: 'istMpno', header: t('MSG_TXT_IST_MPNO'), width: '130', styleName: 'text-center' },
     { fieldName: 'istTno', header: t('MSG_TXT_IST_TNO'), width: '130', styleName: 'text-center' },
-    { fieldName: 'cstNo', header: t('MSG_TXT_KWK'), width: '100', styleName: 'text-center' },
+    { fieldName: 'cstNo', header: t('MSG_TXT_CST_NO'), width: '100', styleName: 'text-center' },
     { fieldName: 'tfDt', header: t('MSG_TXT_TF_DT'), width: '100', styleName: 'text-center' },
     { fieldName: 'buNotiDt', header: t('MSG_TXT_BU_NOTI_DT'), width: '100', styleName: 'text-center' },
     { fieldName: 'buNotiTp', header: t('MSG_TXT_BU_NOTI_TP'), width: '150', styleName: 'text-left' },
@@ -435,7 +475,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'hiDt', header: t('MSG_TXT_HI_DT'), width: '100', styleName: 'text-center' },
     { fieldName: 'ovrdDt', header: t('MSG_TXT_LCY_DT'), width: '100', styleName: 'text-center' },
     { fieldName: 'cpsnEfcm', header: t('MSG_TXT_CPSN_EFCM'), width: '100', styleName: 'text-center' },
-    { fieldName: 'dsbCmd', header: t('MSG_TXT_CPSN_EFCM'), width: '100', styleName: 'text-center' },
+    { fieldName: 'dsbCmd', header: t('MSG_TXT_DSB_CMD'), width: '100', styleName: 'text-center' },
     { fieldName: 'prtyClrs', header: t('MSG_TXT_PRTY_CLRS'), width: '100', styleName: 'text-center' },
     { fieldName: 'submCmd', header: t('MSG_TXT_SUBM_CMD'), width: '100', styleName: 'text-center' },
     { fieldName: 'crcCmd', header: t('MSG_TXT_CRC_CMD'), width: '100', styleName: 'text-center ' },
@@ -451,5 +491,12 @@ const initGrdMain = defineGrid((data, view) => {
 
   view.checkBar.visible = true;
   view.rowIndicator.visible = true;
+
+  view.setHeaderSummaries({
+    visible: true,
+    items: [{ height: 40 }],
+  });
+  view.layoutByColumn('ctt').summaryUserSpans = [{ colspan: 7 }];
+  view.layoutByColumn('promDt').summaryUserSpans = [{ colspan: 31 }];
 });
 </script>
