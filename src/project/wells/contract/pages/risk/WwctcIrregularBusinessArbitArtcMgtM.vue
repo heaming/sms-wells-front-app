@@ -140,7 +140,7 @@
 import { codeUtil, defineGrid, getComponentType, gridUtil, useDataService, useGlobal, useMeta } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 
-const { modal, notify } = useGlobal();
+const { notify } = useGlobal();
 const { t } = useI18n();
 
 const dataService = useDataService();
@@ -267,12 +267,7 @@ async function onClickExcelDownload() {
 }
 
 async function onClickOpenPartnerListPopup() {
-  const { result, payload } = await modal({
-    component: 'ZwogcPartnerListP',
-  });
-  if (result) {
-    searchParams.value.dangOjPrtnrNo = payload.prtnrNo;
-  }
+  notify(t('팝업 준비중 입니다.'));
 }
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
@@ -374,7 +369,6 @@ const initGrid = defineGrid((data, view) => {
       width: '165',
       datetimeFormat: 'date',
       editable: false },
-
   ];
 
   data.setFields(fields);
@@ -404,35 +398,53 @@ const initGrid = defineGrid((data, view) => {
 
   ]);
 
-  view.onCellButtonClicked = async (grid, index) => {
-    const res = await dataService.get('/sms/wells/contract/risk-audits/irregular-sales-actions/Organizations', {
-      params: {
-        baseYm: grid.getValues(index.dataRow).dangOcStrtmm,
-        pntnrNo: grid.getValues(index.dataRow).dangOjPrtnrNo,
-        ogTpCd: '',
-      },
-    });
-    res.data.forEach((v) => {
-      if ((!isEmpty(v))) {
-        data.setValue(index.dataRow, 'dangOjPrtnrNo', v.prtnrNo);
-        data.setValue(index.dataRow, 'dangOjPntnrNm', v.prtnrKnm);
-        data.setValue(index.dataRow, 'dangOjOgId', v.ogCd);
-        data.setValue(index.dataRow, 'dangOjPstnDvCd', v.pstnDvCd);
-        data.setValue(index.dataRow, 'dgr1LevlDgPrtnrNo', v.dgr1LevlDgPrtnrNo);
-        data.setValue(index.dataRow, 'dgr1LevlDgPrtnrNm', v.dgr1LevlDgPrtnrNm);
-        data.setValue(index.dataRow, 'dgr2LevlDgPrtnrNo', v.dgr2LevlDgPrtnrNo);
-        data.setValue(index.dataRow, 'dgr2LevlDgPrtnrNm', v.dgr2LevlDgPrtnrNm);
-        data.setValue(index.dataRow, 'bznsSpptPrtnrNo', v.bizSpptPrtnrCd);
-        data.setValue(index.dataRow, 'bznsSpptPrtnrNm', v.bizSpptPrtnrNo);
-        data.setValue(index.dataRow, 'dgr3LevlDgPrtnrNo', v.dgr3LevlDgPrtnrNo);
-        data.setValue(index.dataRow, 'dgr3LevlDgPrtnrNm', v.dgr3LevlDgPrtnrNm);
-      }
-    });
+  view.onCellButtonClicked = async () => {
+    notify(t('팝업 준비중 입니다.'));
   };
   view.onScrollToBottom = (g) => {
     if (pageInfo.value.pageIndex * pageInfo.value.pageSize <= g.getItemCount()) {
       pageInfo.value.pageIndex += 1;
       fetchData();
+    }
+  };
+  view.onCellEdited = async function Test(grid, index, dataRow, field) {
+    if (field === 1) {
+      const param = grid.getValue(index, 0);
+      if (!isEmpty(param)) {
+        const res = await dataService.get('/sms/wells/contract/risk-audits/irregular-sales-actions/Organizations', {
+          params: {
+            baseYm: grid.getValues(dataRow).dangOcStrtmm,
+            pntnrNo: grid.getValues(dataRow).dangOjPrtnrNo,
+            ogTpCd: '',
+          },
+        });
+        data.setValue(dataRow, 'dangOjPntnrNm', '');
+        data.setValue(dataRow, 'dangOjOgId', '');
+        data.setValue(dataRow, 'dangOjPstnDvCd', '');
+        data.setValue(dataRow, 'dgr1LevlDgPrtnrNo', '');
+        data.setValue(dataRow, 'dgr1LevlDgPrtnrNm', '');
+        data.setValue(dataRow, 'dgr2LevlDgPrtnrNo', '');
+        data.setValue(dataRow, 'dgr2LevlDgPrtnrNm', '');
+        data.setValue(dataRow, 'bznsSpptPrtnrNo', '');
+        data.setValue(dataRow, 'bznsSpptPrtnrNm', '');
+        data.setValue(dataRow, 'dgr3LevlDgPrtnrNo', '');
+        data.setValue(dataRow, 'dgr3LevlDgPrtnrNm', '');
+        res.data.forEach((v) => {
+          if ((!isEmpty(v))) {
+            data.setValue(dataRow, 'dangOjPntnrNm', v.prtnrKnm);
+            data.setValue(dataRow, 'dangOjOgId', v.ogCd);
+            data.setValue(dataRow, 'dangOjPstnDvCd', v.pstnDvCd);
+            data.setValue(dataRow, 'dgr1LevlDgPrtnrNo', v.dgr1LevlDgPrtnrNo);
+            data.setValue(dataRow, 'dgr1LevlDgPrtnrNm', v.dgr1LevlDgPrtnrNm);
+            data.setValue(dataRow, 'dgr2LevlDgPrtnrNo', v.dgr2LevlDgPrtnrNo);
+            data.setValue(dataRow, 'dgr2LevlDgPrtnrNm', v.dgr2LevlDgPrtnrNm);
+            data.setValue(dataRow, 'bznsSpptPrtnrNo', v.bizSpptPrtnrCd);
+            data.setValue(dataRow, 'bznsSpptPrtnrNm', v.bizSpptPrtnrNo);
+            data.setValue(dataRow, 'dgr3LevlDgPrtnrNo', v.dgr3LevlDgPrtnrNo);
+            data.setValue(dataRow, 'dgr3LevlDgPrtnrNm', v.dgr3LevlDgPrtnrNm);
+          }
+        });
+      }
     }
   };
 });
