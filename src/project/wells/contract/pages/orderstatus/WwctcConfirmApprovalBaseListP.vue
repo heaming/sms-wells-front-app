@@ -16,27 +16,42 @@
   <kw-popup
     class="kw-popup--2xl"
   >
+    <kw-search
+      :cols="1"
+      one-row
+      :modified-targets="['approvalBaseGrid']"
+      @search="fetchData"
+    >
+      <kw-search-row>
+        <kw-search-item
+          :label="t('MSG_TXT_BASE_DT')"
+          required
+        >
+          <kw-date-picker
+            v-model="searchParams.standardDt"
+            rules="required"
+            :name="t('MSG_TXT_BASE_DT')"
+          />
+        </kw-search-item>
+      </kw-search-row>
+    </kw-search>
     <div>
       <kw-action-top>
         <template #left>
           <kw-paging-info :total-count="totalCount" />
         </template>
+        <kw-btn
+          v-permission:delete
+          dense
+          :label="t('MSG_BTN_DEL')"
+          @click="onClickDelete"
         />
       </kw-action-top>
-
       <kw-grid
         ref="grdConfirmRef"
         :visible-rows="12"
         @init="initGrid"
       />
-      <kw-action-bottom>
-        <kw-btn
-          v-permission:delete
-          :label="t('MSG_BTN_DEL')"
-          grid-action
-          @click="onClickDelete"
-        />
-      </kw-action-bottom>
     </div>
     <kw-separator
       vertical
@@ -45,15 +60,8 @@
     />
     <template #action>
       <kw-btn
-        negative
-        :label="t('MSG_BTN_CANCEL')"
-        dense
-        @click="onClickCancel"
-      />
-      <kw-btn
         primary
-        :label="t('MSG_BTN_CONFIRM')"
-        dense
+        :label="t('MSG_BTN_CLOSE')"
         @click="onClickCancel"
       />
     </template>
@@ -69,7 +77,7 @@ import { cloneDeep } from 'lodash-es';
 const dataService = useDataService();
 const { t } = useI18n();
 
-const { cancel: onClickCancel } = useModal();
+const { ok, cancel: onClickCancel } = useModal();
 const grdConfirmRef = ref(getComponentType('KwGrid'));
 
 // -------------------------------------------------------------------------------------------------
@@ -85,7 +93,6 @@ const props = defineProps({
 
 const searchParams = ref({
   standardDt: props.standardDt,
-
 });
 
 const totalCount = ref(0);
@@ -93,6 +100,7 @@ let cachedParams;
 
 async function fetchData() {
   cachedParams = cloneDeep(searchParams.value);
+  grdConfirmRef.value.getData().clearRows();
 
   const view = grdConfirmRef.value.getView();
   const res = await dataService.get('/sms/wells/contract/contracts/approval-request-standards', { params: cachedParams });
@@ -107,7 +115,9 @@ onMounted(async () => {
 
 async function onClickDelete() {
   const view = grdConfirmRef.value.getView();
+
   if (!await gridUtil.confirmIfIsModified(view)) { return; }
+
   const deletedRows = await gridUtil.confirmDeleteCheckedRows(view);
 
   if (deletedRows.length > 0) {
@@ -134,18 +144,28 @@ const initGrid = defineGrid(async (data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'cntrAprAkDvCdNm', header: t('MSG_TXT_APR_REQ_CAT'), width: '142', styleName: 'text-center' },
+    { fieldName: 'cntrAprAkDvCdNm', header: t('MSG_TXT_APR_REQ_CAT'), width: '180', styleName: 'rg-button-link text-center', renderer: { type: 'button' } },
     { fieldName: 'cntrAprAkMsgCn', header: t('MSG_TXT_REQ_MSG'), width: '477' },
     { fieldName: 'cntrAprCanMsgCn', header: t('MSG_TXT_REQ_CAN_MSG'), width: '477' },
     { fieldName: 'cntrAprConfMsgCn', header: t('MSG_TXT_APR_CNFM_MSG'), width: '477' },
-    { fieldName: 'vlStrtDtm', header: t('MSG_TXT_STRT_DT'), width: '142', datetimeFormat: 'date', styleName: 'text-center' },
-    { fieldName: 'vlEndDtm', header: t('MSG_TXT_END_DT'), width: '142', datetimeFormat: 'date', styleName: 'text-center' },
-
+    { fieldName: 'vlStrtDtm', header: t('MSG_TXT_STRT_DT'), width: '180', datetimeFormat: 'date', styleName: 'text-center' },
+    { fieldName: 'vlEndDtm', header: t('MSG_TXT_END_DT'), width: '180', datetimeFormat: 'date', styleName: 'text-center' },
   ];
 
   data.setFields(fields);
   view.setColumns(columns);
   view.checkBar.visible = true; // create checkbox column
   view.rowIndicator.visible = true; // create number indicator column
+
+  view.onCellItemClicked = async (g, { column, itemIndex }) => {
+    if (column === 'cntrAprAkDvCdNm') {
+      const row = g.getValue(itemIndex, 'cntrAprAkDvCd');
+      const payload = {
+        cntrAprAkDvCd: row,
+        standardDt: searchParams.value.standardDt,
+      };
+      ok(payload);
+    }
+  };
 });
 </script>
