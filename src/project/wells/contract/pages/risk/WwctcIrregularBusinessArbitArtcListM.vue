@@ -15,107 +15,114 @@
 
 <template>
   <kw-page>
-    <kw-tabs model-value="2">
-      <kw-tab
-        name="1"
-        label="비정도영업조치사항관리"
-      />
-      <kw-tab
-        name="2"
-        label="비정도영업조치사항조회"
-      />
-    </kw-tabs>
-    <kw-tab-panels model-value="2">
-      <kw-tab-panel name="2">
-        <kw-search
-          @search="onClickSearch"
+    <kw-search
+      :cols="4"
+      :modified-targets="['grdMain']"
+      @search="onClickSearch"
+    >
+      <kw-search-row>
+        <kw-search-item
+          :colspan="3"
+          :label="$t('MSG_TXT_ACEPT_PERIOD')"
         >
-          <kw-search-row>
-            <kw-search-item
-              :colspan="2"
-              :label="$t('MSG_TXT_ACEPT_PERIOD')"
-            >
-              <kw-select
-                v-model="searchParams.srchGbn "
-                :options="prdDivOption"
-              />
-              <kw-date-range-picker
-                :key="isRegistration"
-                v-model:from="searchParams.dangOcStrtdt"
-                v-model:to="searchParams.dangOcEnddt"
-                :type="isRegistration"
-              />
-            </kw-search-item>
-
-            <kw-search-item
-              :label="$t('MSG_TXT_MANAGEMENT_DEPARTMENT')"
-            >
-              <kw-select
-                v-model="searchParams.gnrdv"
-                :options="gnrlMngTeamOptions"
-              />
-            </kw-search-item>
-          </kw-search-row>
-          <kw-search-row>
-            <kw-search-item
-              :label="$t('MSG_TXT_RGNL_GRP')"
-            >
-              <kw-input
-                v-model="searchParams.rgrp"
-              />
-            </kw-search-item>
-
-            <kw-search-item
-              :label="$t('MSG_TXT_BRANCH')"
-            >
-              <kw-input
-                v-model="searchParams.brch"
-              />
-            </kw-search-item>
-            <kw-search-item
-              :label="$t('MSG_TXT_EMP_SRCH')"
-            >
-              <kw-input
-                v-model="searchParams.dangOjPrtnrNo"
-                icon="search"
-                @click-icon="onClickSearchPartnerId"
-              />
-            </kw-search-item>
-          </kw-search-row>
-        </kw-search>
-
-        <div class="result-area">
-          <kw-action-top>
-            <template #left>
-              <kw-paging-info
-                v-model:page-index="pageInfo.pageIndex"
-                v-model:page-size="pageInfo.pageSize"
-                :total-count="pageInfo.totalCount"
-                :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
-                @change="fetchData"
-              />
-            </template>
-            <kw-btn
-              :label="$t('MSG_BTN_DEL')"
-              @click="onClickDelete"
-            />
-            <kw-btn
-              icon="download_on"
-              :disable="pageInfo.totalCount === 0"
-              dense
-              secondary
-              :label="$t('MSG_TXT_EXCEL_DOWNLOAD')"
-              @click="onClickExcelDownload"
-            />
-          </kw-action-top>
-          <kw-grid
-            ref="grdMainRef"
-            :visible-rows="pageInfo.pageSize - 1"
-            @init="initGrdMain"
+          <kw-select
+            v-model="searchParams.srchGbn "
+            :options="prdDivOption"
+            required
+            @change="calChange"
           />
-        </div>
-      </kw-tab-panel>
-    </kw-tab-panels>
+          <kw-date-range-picker
+            v-if="searchParams.srchGbn===1"
+            v-model:from="searchParams.dangOcStrtdt"
+            v-model:to="searchParams.dangOcEnddt"
+            type="date"
+            rules="required"
+          />
+          <kw-date-range-picker
+            v-if="searchParams.srchGbn===2"
+            v-model:from="searchParams.dangOcStrtMonth"
+            v-model:to="searchParams.dangOcEndMonth"
+            type="month"
+            rules="required"
+          />
+        </kw-search-item>
+        <kw-search-item
+          :label="$t('MSG_TXT_POSIT')"
+        >
+          <kw-select
+            v-model="searchParams.dangMngtPrtnrNo"
+            first-option="all"
+            :options="codes.PSTN_DV_CD"
+          />
+        </kw-search-item>
+      </kw-search-row>
+      <kw-search-row>
+        <kw-search-item
+          :label="$t('MSG_TXT_MANAGEMENT_DEPARTMENT')"
+        >
+          <kw-select
+            v-model="searchParams.gnrdv"
+            :options="gnrlMngTeamOptions"
+          />
+        </kw-search-item>
+        <kw-search-item
+          :label="$t('MSG_TXT_RGNL_GRP')"
+        >
+          <kw-input
+            v-model="searchParams.rgrp"
+          />
+        </kw-search-item>
+        <kw-search-item
+          :label="$t('MSG_TXT_BRANCH')"
+        >
+          <kw-input
+            v-model="searchParams.brch"
+          />
+        </kw-search-item>
+        <kw-search-item
+          :label="$t('MSG_TXT_EMP_SRCH')"
+        >
+          <kw-input
+            v-model="searchParams.dangOjPrtnrNo"
+            icon="search"
+            @click-icon="onClickSearchPartnerId"
+          />
+        </kw-search-item>
+      </kw-search-row>
+    </kw-search>
+    <div class="result-area">
+      <kw-action-top>
+        <template #left>
+          <kw-paging-info
+            v-model:page-index="pageInfo.pageIndex"
+            v-model:page-size="pageInfo.pageSize"
+            :total-count="pageInfo.totalCount"
+            :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
+            @change="fetchData"
+          />
+        </template>
+        <kw-btn
+          v-permission:delete
+          grid-action
+          :label="$t('MSG_BTN_DEL')"
+          @click="onClickDelete"
+        />
+        <kw-btn
+          icon="download_on"
+          :disable="pageInfo.totalCount === 0"
+          dense
+          secondary
+          :label="$t('MSG_TXT_EXCEL_DOWNLOAD')"
+          @click="onClickExcelDownload"
+        />
+      </kw-action-top>
+      <kw-grid
+        ref="grdMainRef"
+        name="grdMain"
+        :visible-rows="pageInfo.pageSize - 1"
+        @init="initGrdMain"
+      />
+    </div>
   </kw-page>
 </template>
 <script setup>
@@ -137,7 +144,9 @@ const grdMainRef = ref(getComponentType('KwGrid'));
 const searchParams = ref({
   srchGbn: 1,
   dangOcStrtdt: '',
+  dangOcStrtMonth: '',
   dangOcEnddt: '',
+  dangOcEndMonth: '',
   gnrdv: '',
   rgrp: '',
   brch: '',
@@ -145,7 +154,7 @@ const searchParams = ref({
 });
 const prdDivOption = ref([{ codeId: 1, codeName: t('MSG_TXT_FST_RGST_DT') },
   { codeId: 2, codeName: t('MSG_TXT_YEAR_OCCURNCE') }]);
-const isRegistration = computed(() => (searchParams.value.srchGbn === 1 ? 'date' : 'month'));
+
 const gnrlMngTeamOptions = ref([
   { codeId: '', codeName: t('MSG_TXT_ALL') },
   { codeId: 'A', codeName: `A${t('MSG_TXT_MANAGEMENT_DEPARTMENT')}` },
@@ -160,6 +169,7 @@ const gnrlMngTeamOptions = ref([
 ]);
 const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
+  'PSTN_DV_CD',
 );
 const pageInfo = ref({
   totalCount: 0,
@@ -234,6 +244,12 @@ async function onClickDelete() {
   }
 }
 
+async function calChange() {
+  searchParams.value.dangOcStrtdt = '';
+  searchParams.value.dangOcEnddt = '';
+  searchParams.value.dangOcStrtMonth = '';
+  searchParams.value.dangOcEndMonth = '';
+}
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
@@ -251,18 +267,18 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'dangOcStrtmm' },
     { fieldName: 'dangArbitOgNm' },
     { fieldName: 'dangChkNm' },
-    { fieldName: 'dangArbitCd' },
+    { fieldName: 'dangArbitCdNm' },
     { fieldName: 'dangUncvrCt' },
     { fieldName: 'dangArbitLvyPc' },
     { fieldName: 'dangArbitLvyPcSum' },
-    { fieldName: 'fnlMdfcUsrId' },
+    { fieldName: 'fstRgstUsrId' },
     { fieldName: 'fstRgstDtm' },
   ];
 
   const columns = [
-    { fieldName: 'wellsOjPstnRankNm', header: t('MSG_TXT_DIV'), width: '129', styleName: 'text-left' },
+    { fieldName: 'wellsOjPstnRankNm', header: t('MSG_TXT_POSIT'), width: '129', styleName: 'text-left' },
     { fieldName: 'dangMngtPntnrOgNm', header: t('MSG_TXT_BLG_NM'), width: '129', styleName: 'text-left' },
-    { fieldName: 'dangMngtPntnrOgCd', header: t('MSG_TXT_AFL_CD'), width: '129', styleName: 'text-left' },
+    { fieldName: 'dangMngtPntnrOgCd', header: t('MSG_TXT_RGNL_GRP'), width: '129', styleName: 'text-left' },
     { fieldName: 'dangMngtPntnrNm', header: t('MSG_TXT_EMPL_NM'), width: '129', styleName: 'text-left' },
     { fieldName: 'dangMngtPrtnrNo', header: t('MSG_TXT_EPNO'), width: '129', styleName: 'text-left' },
     { fieldName: 'dangOjPrtnrNm', header: t('MSG_TXT_EMPL_NM'), width: '129', styleName: 'text-left' },
@@ -271,12 +287,12 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'dangOcStrtmm', header: t('MSG_TXT_YEAR_OCCURNCE'), width: '129', styleName: 'text-left' },
     { fieldName: 'dangArbitOgNm', header: t('MSG_TXT_ACTN_DPT'), width: '306', styleName: 'text-center' },
     { fieldName: 'dangChkNm', header: t('MSG_TXT_CHRGS'), width: '306', styleName: 'text-left' },
-    { fieldName: 'dangArbitCd', header: t('MSG_TXT_ACTN_ITM'), width: '306', styleName: 'text-left' },
+    { fieldName: 'dangArbitCdNm', header: t('MSG_TXT_ACTN_ITM'), width: '306', styleName: 'text-left' },
     { fieldName: 'dangUncvrCt', header: t('MSG_TXT_DUE_TRGT_NO'), width: '129', styleName: 'text-left' },
     { fieldName: 'dangArbitLvyPc', header: t('MSG_TXT_ACTN_TM_PNLTY_PNT'), width: '190', styleName: 'text-center' },
     { fieldName: 'dangArbitLvyPcSum', header: t('MSG_TXT_TTL_PT'), width: '129', styleName: 'text-center' },
-    { fieldName: 'fnlMdfcUsrId', header: t('MSG_TXT_FST_RGST_USR'), width: '146', styleName: 'text-center' },
-    { fieldName: 'fstRgstDtm', header: t('MSG_TXT_FST_RGST_DT'), width: '165', styleName: 'text-left', datetimeFormat: 'date' },
+    { fieldName: 'fstRgstUsrId', header: t('MSG_TXT_FST_RGST_USR'), width: '146', styleName: 'text-center' },
+    { fieldName: 'fstRgstDtm', header: t('MSG_TXT_FST_RGST_DT'), width: '165', styleName: 'text-left', dataType: 'date', datetimeFormat: 'yyyy-MM-dd' },
   ];
 
   data.setFields(fields);
@@ -295,9 +311,9 @@ const initGrdMain = defineGrid((data, view) => {
     {
       header: t('MSG_TXT_PNLTY'), // colspan title
       direction: 'horizontal', // merge type
-      items: ['dangOcStrtmm', 'dangArbitOgNm', 'dangChkNm', 'dangArbitCd', 'dangUncvrCt', 'dangArbitLvyPc', 'dangArbitLvyPcSum'],
+      items: ['dangOcStrtmm', 'dangArbitOgNm', 'dangChkNm', 'dangArbitCdNm', 'dangUncvrCt', 'dangArbitLvyPc', 'dangArbitLvyPcSum'],
     },
-    'fnlMdfcUsrId', 'fstRgstDtm',
+    'fstRgstUsrId', 'fstRgstDtm',
   ]);
 
   view.onScrollToBottom = (g) => {
