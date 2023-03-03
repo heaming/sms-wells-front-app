@@ -72,10 +72,11 @@
                     class="ml8"
                   />
                   <kw-btn
-                    borderless
+                    :label="$t('MSG_BTN_TEL_REJ')"
                     dense
-                    icon="cellphone_reject"
-                    class="ml8"
+                    secondary
+                    class="kw-font-caption py2 ml4"
+                    style="min-height: 20px;"
                   />
                 </kw-form-item>
                 <kw-form-item
@@ -154,10 +155,11 @@
                     class="ml12"
                   />
                   <kw-btn
-                    borderless
+                    :label="$t('MSG_BTN_TEL_REJ')"
                     dense
-                    icon="cellphone_reject"
-                    class="ml8"
+                    secondary
+                    class="kw-font-caption py2 ml4"
+                    style="min-height: 20px;"
                   />
                 </kw-form-item>
                 <kw-form-item
@@ -180,10 +182,11 @@
                     style="font-size: 16px;"
                   />
                   <kw-btn
-                    borderless
+                    :label="$t('MSG_BTN_TEL_REJ')"
                     dense
-                    icon="cellphone_reject"
-                    class="ml8"
+                    secondary
+                    class="kw-font-caption py2 ml4"
+                    style="min-height: 20px;"
                   />
                 </kw-form-item>
               </kw-form-row>
@@ -498,19 +501,22 @@
                 </kw-form-item>
               </kw-form-row>
               <kw-form-row>
-                <kw-form-item
-                  :label="$t('MSG_TXT_ADN_SV')"
-                >
+                <kw-form-item :label="$t('MSG_TXT_AUTH_RSG')">
                   <p>
-                    {{ customer.adnSv }}
+                    {{ customer.authRsg }}
                   </p>
                 </kw-form-item>
-                <kw-form-item
-                  :label="$t('MSG_TXT_ADN_SV_CD')"
-                >
+                <kw-form-item :label="$t('MSG_TXT_AUTH_RSG_EXCD')">
                   <p>
-                    {{ customer.adnSvCd }}
+                    {{ customer.authRsgExcd }}
                   </p>
+                  <kw-btn
+                    :label="$t('MSG_BTN_EXCD_RGST')"
+                    dense
+                    secondary
+                    class="kw-font-caption py2 ml4"
+                    style="min-height: 20px;"
+                  />
                 </kw-form-item>
                 <kw-form-item
                   :label="$t('MSG_TXT_SL_STP')"
@@ -712,11 +718,12 @@
               :rows="3"
               :placeholder="$t('MSG_TXT_UNUITM_IN')"
             />
-            <div class="row justify-end full-size mt12 ">
+            <div class="row justify-end full-size mt12">
               <kw-btn
                 :label="$t('MSG_BTN_INTL')"
                 secondary
                 dense
+                @click="onClickUnuitmCnReset"
               />
               <kw-btn
                 :label="$t('MSG_BTN_SAVE')"
@@ -743,9 +750,10 @@
                   :label="$t('MSG_TXT_CNSL_PH')"
                   required
                 >
+                  <!-- TODO: 코드관리 등록 안된 임시 소스 -->
                   <kw-select
                     v-model="customer.cnslPh"
-                    :options="['A', 'B', 'C', 'D']"
+                    :options="[ '인바운드','아웃바운드']"
                     dense
                   />
                 </kw-form-item>
@@ -755,9 +763,11 @@
                   :label="$t('MSG_TXT_CRNCY_RS')"
                   required
                 >
+                  <!-- TODO: 코드관리 등록 안된 임시 소스 -->
                   <kw-select
                     v-model="customer.crncyRs"
-                    :options="['A', 'B', 'C', 'D']"
+                    :options="[ '(성공)입금성공','(성공)입금약속','(성공)단순문의','(성공)입금거부(민원)'
+                                ,'(성공)타인통화','(성공)기타','(실패)무응답','(실패)통화중','(실패)결번' ]"
                     dense
                   />
                 </kw-form-item>
@@ -767,9 +777,10 @@
                   :label="$t('MSG_TXT_CST_PRP')"
                   required
                 >
+                  <!-- TODO: 코드관리 등록 안된 임시 소스 -->
                   <kw-select
                     v-model="customer.cstPrp"
-                    :options="['A', 'B', 'C', 'D']"
+                    :options="['번호이상','주소이상','결번','미응답' ]"
                     dense
                   />
                 </kw-form-item>
@@ -789,9 +800,10 @@
                   :label="$t('MSG_TXT_CNSL_TP')"
                   required
                 >
+                  <!-- TODO: 코드관리 등록 안된 임시 소스 -->
                   <kw-select
                     v-model="customer.cnslTp"
-                    :options="['A', 'B', 'C', 'D']"
+                    :options="['전화','문자' ]"
                     dense
                   />
                 </kw-form-item>
@@ -801,9 +813,10 @@
                   :label="$t('MSG_TXT_CST_STAT')"
                   required
                 >
+                  <!-- TODO: 코드관리 등록 안된 임시 소스 -->
                   <kw-select
                     v-model="customer.cstStat"
-                    :options="['A', 'B', 'C', 'D']"
+                    :options="[ '분납','컨택불가','납부예정','납부거부' ]"
                     dense
                   />
                 </kw-form-item>
@@ -813,9 +826,10 @@
                   :label="$t('MSG_TXT_CLN_PSBL')"
                   required
                 >
+                  <!-- TODO: 코드관리 등록 안된 임시 소스 -->
                   <kw-select
-                    v-model="customer.clnPsbl2"
-                    :options="['A', 'B', 'C', 'D']"
+                    v-model="customer.clnPsbl"
+                    :options="[ '신규','상','중','하']"
                     dense
                   />
                 </kw-form-item>
@@ -825,9 +839,11 @@
                   :label="$t('MSG_TXT_CLN_PRCS')"
                   required
                 >
+                  <!-- TODO: 코드관리 등록 안된 임시 소스 -->
                   <kw-select
-                    v-model="customer.clnPrcs2"
-                    :options="['A', 'B', 'C', 'D']"
+                    v-model="customer.clnPrcs"
+                    :options="[ '전화문자','소송예정','소송접수','변론','판결','재산명시','압류접수'
+                                ,'압류완료','경매접수','경매완료' ]"
                     dense
                   />
                 </kw-form-item>
@@ -857,7 +873,6 @@
                     class="h2 mt0"
                     color="black1"
                   />
-
                   <kw-form
                     :label-size="100"
                     dense
@@ -887,9 +902,10 @@
                         :label="$t('MSG_TXT_PROM_TP')"
                         required
                       >
+                        <!-- TODO: 코드관리 등록 안된 임시 소스 -->
                         <kw-select
                           v-model="customer.promTp"
-                          :options="['A', 'B', 'C', 'D']"
+                          :options="[ '입금약속','재컨택약속','기타약속','강제집행','변론기일','보정명령']"
                           dense
                           :placeholder="$t('MSG_TXT_SELT')"
                         />
@@ -912,7 +928,7 @@
             </kw-list>
 
             <kw-input
-              v-model="customer.promCn"
+              v-model="customer.cnslCn"
               type="textarea"
               :rows="10"
               :placeholder="$t('MSG_TXT_CNSL_IN')"
@@ -927,6 +943,7 @@
               :label="$t('MSG_BTN_INTL')"
               secondary
               dense
+              @click="onClickCnslRgstReset"
             />
             <kw-btn
               :label="$t('MSG_BTN_SAVE')"
@@ -1013,6 +1030,28 @@ async function fetchData() {
   await fetchCustomerDetail();
 }
 
+// TODO: 특기사항 초기화 버튼 클릭 이벤트
+async function onClickUnuitmCnReset() {
+  customer.value.unuitmCn = '';
+}
+
+// TODO: 상담등록 초기화 버튼 클릭 이벤트
+async function onClickCnslRgstReset() {
+  customer.value.cnslPh = '';
+  customer.value.crncyRs = '';
+  customer.value.cstPrp = '';
+  customer.value.dpr = '';
+  customer.value.cnslTp = '';
+  customer.value.cstStat = '';
+  customer.value.clnPsbl = '';
+  customer.value.clnPrcs = '';
+  customer.value.promD = '';
+  customer.value.promHh = '';
+  customer.value.promTp = '';
+  customer.value.promAmt = '';
+  customer.value.cnslCn = '';
+}
+
 onMounted(async () => {
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
@@ -1023,43 +1062,43 @@ onMounted(async () => {
 const initGrdMain = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'fnt' },
-    { fieldName: 'bizDv' },
-    { fieldName: 'prdf' },
-    { fieldName: 'pdctNm' },
-    { fieldName: 'cntrNo' },
+    { fieldName: 'taskDiv' },
+    { fieldName: 'prdGrp' },
+    { fieldName: 'goodsNm' },
+    { fieldName: 'cntrDtlNo' },
     { fieldName: 'cstNm' },
     { fieldName: 'dlqMcnt' },
     { fieldName: 'authRsgDt' },
-    { fieldName: 'ojAmt' },
-    { fieldName: 'ojDp' },
-    { fieldName: 'ojBlam' },
-    { fieldName: 'totDlqAmt' },
-    { fieldName: 'totDlqDp' },
-    { fieldName: 'totDlqBlam' },
-    { fieldName: 'mmChramAmt' },
-    { fieldName: 'mmChramDp' },
-    { fieldName: 'mmChramBlam' },
-    { fieldName: 'dlqAddAmt' },
-    { fieldName: 'dlqAddDp' },
-    { fieldName: 'dlqAddBlam' },
-    { fieldName: 'svCs' },
-    { fieldName: 'svDp' },
-    { fieldName: 'svBlam' },
-    { fieldName: 'ucAmt' },
-    { fieldName: 'ucDp' },
-    { fieldName: 'ucBlam' },
-    { fieldName: 'totDpAmt' },
-    { fieldName: 'spmtSl' },
-    { fieldName: 'lsRntf' },
-    { fieldName: 'vacDv' },
-    { fieldName: 'vacBnk' },
-    { fieldName: 'vacNo' },
-    { fieldName: 'ccam' },
-    { fieldName: 'lsfe' },
-    { fieldName: 'rtlfe1' },
-    { fieldName: 'rtlfeIstm1' },
-    { fieldName: 'rtlfe2' },
-    { fieldName: 'rtlfeIstm2' },
+    { fieldName: 'ojAmt', dataType: 'number' },
+    { fieldName: 'ojDp', dataType: 'number' },
+    { fieldName: 'ojBlam', dataType: 'number' },
+    { fieldName: 'totDlqAmt', dataType: 'number' },
+    { fieldName: 'totDlqDp', dataType: 'number' },
+    { fieldName: 'totDlqBlam', dataType: 'number' },
+    { fieldName: 'mmChramAmt', dataType: 'number' },
+    { fieldName: 'mmChramDp', dataType: 'number' },
+    { fieldName: 'mmChramBlam', dataType: 'number' },
+    { fieldName: 'dlqAddAmt', dataType: 'number' },
+    { fieldName: 'dlqAddDp', dataType: 'number' },
+    { fieldName: 'dlqAddBlam', dataType: 'number' },
+    { fieldName: 'svCs', dataType: 'number' },
+    { fieldName: 'svDp', dataType: 'number' },
+    { fieldName: 'svBlam', dataType: 'number' },
+    { fieldName: 'ucAmt', dataType: 'number' },
+    { fieldName: 'ucDp', dataType: 'number' },
+    { fieldName: 'ucBlam', dataType: 'number' },
+    { fieldName: 'totDpAmt', dataType: 'number' },
+    { fieldName: 'spmtSl', dataType: 'number' },
+    { fieldName: 'pdLentLostLog', dataType: 'number' },
+    { fieldName: 'vtAcDv' },
+    { fieldName: 'vtAcBnk' },
+    { fieldName: 'vtAcNo' },
+    { fieldName: 'ccam', dataType: 'number' },
+    { fieldName: 'lsfe', dataType: 'number' },
+    { fieldName: 'rtlfe1', dataType: 'number' },
+    { fieldName: 'rtlfeIstm1', dataType: 'number' },
+    { fieldName: 'rtlfe2', dataType: 'number' },
+    { fieldName: 'rtlfeIstm2', dataType: 'number' },
     { fieldName: 'dpr' },
     { fieldName: 'clctamIchr' },
     { fieldName: 'tfDt' },
@@ -1067,44 +1106,44 @@ const initGrdMain = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'fnt', header: t('MSG_TXT_FNT'), width: '60', styleName: 'rg-button-link', renderer: { type: 'button' }, preventCellItemFocus: true },
-    { fieldName: 'bizDv', header: t('MSG_TXT_TASK_DIV'), width: '80', styleName: 'text-left' },
-    { fieldName: 'prdf', header: t('MSG_TXT_PRD_GRP'), width: '100', styleName: 'text-left' },
-    { fieldName: 'pdctNm', header: t('MSG_TXT_GOODS_NM'), width: '190', styleName: 'text-left' },
-    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_NO'), width: '150', styleName: 'text-center' },
+    { fieldName: 'fnt', header: t('MSG_TXT_FNT'), width: '60', styleName: 'text-left', headerSummaries: { text: '합계', styleName: 'text-center' } },
+    { fieldName: 'taskDiv', header: t('MSG_TXT_TASK_DIV'), width: '80', styleName: 'text-left' },
+    { fieldName: 'prdGrp', header: t('MSG_TXT_PRD_GRP'), width: '100', styleName: 'text-left' },
+    { fieldName: 'goodsNm', header: t('MSG_TXT_GOODS_NM'), width: '190', styleName: 'text-left' },
+    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '150', styleName: 'text-center' },
     { fieldName: 'cstNm', header: t('MSG_TXT_CST_NM'), width: '120', styleName: 'text-left' },
     { fieldName: 'dlqMcnt', header: t('MSG_TXT_DLQ_MCNT'), width: '80', styleName: 'text-right' },
     { fieldName: 'authRsgDt', header: t('MSG_TXT_AUTH_RSG_DT'), width: '130', styleName: 'text-right' },
-    { fieldName: 'ojAmt', header: t('MSG_TXT_OJ_AMT'), width: '100', styleName: 'text-right' },
-    { fieldName: 'ojDp', header: t('MSG_TXT_OJ_DP'), width: '100', styleName: 'text-right' },
-    { fieldName: 'ojBlam', header: t('MSG_TXT_OJ_BLAM'), width: '110', styleName: 'text-right' },
-    { fieldName: 'totDlqAmt', header: t('MSG_TXT_TOT_DLQ_AMT'), width: '110', styleName: 'text-right' },
-    { fieldName: 'totDlqDp', header: t('MSG_TXT_TOT_DLQ_DP'), width: '110', styleName: 'text-right' },
-    { fieldName: 'totDlqBlam', header: t('MSG_TXT_TOT_DLQ_BLAM'), width: '110', styleName: 'text-right' },
-    { fieldName: 'mmChramAmt', header: t('MSG_TXT_MM_CHRAM_AMT'), width: '130', styleName: 'text-right' },
-    { fieldName: 'mmChramDp', header: t('MSG_TXT_MM_CHRAM_DP'), width: '130', styleName: 'text-right' },
-    { fieldName: 'mmChramBlam', header: t('MSG_TXT_MM_CHRAM_BLAM'), width: '130', styleName: 'text-right' },
-    { fieldName: 'dlqAddAmt', header: t('MSG_TXT_DLQ_ADD_AMT'), width: '130', styleName: 'text-right' },
-    { fieldName: 'dlqAddDp', header: t('MSG_TXT_DLQ_ADD_DP'), width: '130', styleName: 'text-right' },
-    { fieldName: 'dlqAddBlam', header: t('MSG_TXT_DLQ_ADD_BLAM'), width: '130', styleName: 'text-right' },
-    { fieldName: 'svCs', header: t('MSG_TXT_SV_CS'), width: '130', styleName: 'text-right' },
-    { fieldName: 'svDp', header: t('MSG_TXT_SV_DP'), width: '100', styleName: 'text-right' },
-    { fieldName: 'svBlam', header: t('MSG_TXT_SV_BLAM'), width: '100', styleName: 'text-right' },
-    { fieldName: 'ucAmt', header: t('MSG_TXT_UC_AMT'), width: '100', styleName: 'text-right' },
-    { fieldName: 'ucDp', header: t('MSG_TXT_UC_DP'), width: '100', styleName: 'text-right' },
-    { fieldName: 'ucBlam', header: t('MSG_TXT_UC_BLAM'), styleName: 'text-right' },
-    { fieldName: 'totDpAmt', header: t('MSG_TXT_TOT_DP_AMT'), styleName: 'text-right' },
-    { fieldName: 'spmtSl', header: t('MSG_TXT_SPMT_SL'), width: '90', styleName: 'text-right' },
-    { fieldName: 'lsRntf', header: t('MSG_TXT_PD_LENT_LOST_LOG'), width: '90', styleName: 'text-right' },
-    { fieldName: 'vacDv', header: t('MSG_TXT_VT_AC_DV'), width: '100', styleName: 'text-left' },
-    { fieldName: 'vacBnk', header: t('MSG_TXT_VT_AC_BNK'), width: '120', styleName: 'text-left' },
-    { fieldName: 'vacNo', header: t('MSG_TXT_VT_AC_NO'), width: '160', styleName: 'text-left' },
-    { fieldName: 'ccam', header: t('MSG_TXT_CCAM'), styleName: 'text-right' },
-    { fieldName: 'lsfe', header: t('MSG_TXT_LSFE'), styleName: 'text-right' },
-    { fieldName: 'rtlfe1', header: t('MSG_TXT_RTLFE1'), styleName: 'text-right' },
-    { fieldName: 'rtlfeIstm1', header: t('MSG_TXT_RTLFE_1_ISTM'), styleName: 'text-right' },
-    { fieldName: 'rtlfe2', header: t('MSG_TXT_RTLFE2'), styleName: 'text-right' },
-    { fieldName: 'rtlfeIstm2', header: t('MSG_TXT_RTLFE_2_ISTM'), styleName: 'text-right' },
+    { fieldName: 'ojAmt', header: t('MSG_TXT_OJ_AMT'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
+    { fieldName: 'ojDp', header: t('MSG_TXT_OJ_DP'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
+    { fieldName: 'ojBlam', header: t('MSG_TXT_OJ_BLAM'), width: '110', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
+    { fieldName: 'totDlqAmt', header: t('MSG_TXT_TOT_DLQ_AMT'), width: '110', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
+    { fieldName: 'totDlqDp', header: t('MSG_TXT_TOT_DLQ_DP'), width: '110', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
+    { fieldName: 'totDlqBlam', header: t('MSG_TXT_TOT_DLQ_BLAM'), width: '110', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
+    { fieldName: 'mmChramAmt', header: t('MSG_TXT_MM_CHRAM_AMT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
+    { fieldName: 'mmChramDp', header: t('MSG_TXT_MM_CHRAM_DP'), width: '130', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
+    { fieldName: 'mmChramBlam', header: t('MSG_TXT_MM_CHRAM_BLAM'), width: '130', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
+    { fieldName: 'dlqAddAmt', header: t('MSG_TXT_DLQ_ADD_AMT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
+    { fieldName: 'dlqAddDp', header: t('MSG_TXT_DLQ_ADD_DP'), width: '130', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
+    { fieldName: 'dlqAddBlam', header: t('MSG_TXT_DLQ_ADD_BLAM'), width: '130', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
+    { fieldName: 'svCs', header: t('MSG_TXT_SV_CS'), width: '130', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
+    { fieldName: 'svDp', header: t('MSG_TXT_SV_DP'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
+    { fieldName: 'svBlam', header: t('MSG_TXT_SV_BLAM'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
+    { fieldName: 'ucAmt', header: t('MSG_TXT_UC_AMT'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
+    { fieldName: 'ucDp', header: t('MSG_TXT_UC_DP'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
+    { fieldName: 'ucBlam', header: t('MSG_TXT_UC_BLAM'), styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
+    { fieldName: 'totDpAmt', header: t('MSG_TXT_TOT_DP_AMT'), styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
+    { fieldName: 'spmtSl', header: t('MSG_TXT_SPMT_SL'), width: '90', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
+    { fieldName: 'pdLentLostLog', header: t('MSG_TXT_PD_LENT_LOST_LOG'), width: '90', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
+    { fieldName: 'vtAcDv', header: t('MSG_TXT_VT_AC_DV'), width: '100', styleName: 'text-left' },
+    { fieldName: 'vtAcBnk', header: t('MSG_TXT_VT_AC_BNK'), width: '120', styleName: 'text-left' },
+    { fieldName: 'vtAcNo', header: t('MSG_TXT_VT_AC_NO'), width: '160', styleName: 'text-left' },
+    { fieldName: 'ccam', header: t('MSG_TXT_CCAM'), styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
+    { fieldName: 'lsfe', header: t('MSG_TXT_LSFE'), styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
+    { fieldName: 'rtlfe1', header: t('MSG_TXT_RTLFE1'), styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
+    { fieldName: 'rtlfeIstm1', header: t('MSG_TXT_RTLFE_1_ISTM'), styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
+    { fieldName: 'rtlfe2', header: t('MSG_TXT_RTLFE2'), styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
+    { fieldName: 'rtlfeIstm2', header: t('MSG_TXT_RTLFE_2_ISTM'), styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
     { fieldName: 'dpr', header: t('MSG_TXT_DPR'), styleName: 'text-right' },
     { fieldName: 'clctamIchr', header: t('MSG_TXT_CLCTAM_ICHR'), styleName: 'text-left' },
     { fieldName: 'tfDt', header: t('MSG_TXT_TF_DT'), styleName: 'text-center' },
@@ -1118,15 +1157,24 @@ const initGrdMain = defineGrid((data, view) => {
   view.header.minRowHeight = 30;
   view.displayOptions.minTableRowHeight = 34;
 
+  view.setHeaderSummaries({
+    visible: true,
+    items: [{ height: 40 }],
+  });
+  view.layoutByColumn('fnt').summaryUserSpans = [{ colspan: 8 }];
+  view.layoutByColumn('vtAcDv').summaryUserSpans = [{ colspan: 3 }];
+  view.layoutByColumn('dpr').summaryUserSpans = [{ colspan: 4 }];
+
   view.onCurrentRowChanged = (grid, oldRow, newRow) => {
     const rowData = gridUtil.getRowValue(grid, newRow);
     selectedGridRow.value = null;
     selectedGridRow.value = rowData;
   };
 
-  view.onCellItemClicked = async (g, { column }) => {
-    if (column === 'fnt') {
-      await window.open('/popup/#/wwbnc-same-customer-contract', 'popup', 'width=1200, height=1100, menubar=no, location=no');
+  view.onCellDblClicked = async (g, { dataRow }) => {
+    const cntrDtlNo = g.getValue(dataRow, 'cntrDtlNo');
+    if (cntrDtlNo) {
+      await window.open(`/popup/#/wwbnc-same-customer-contract?cntrDtlNo=${cntrDtlNo}`, 'popup', 'width=1200, height=1100, menubar=no, location=no');
     }
   };
 });
