@@ -15,141 +15,149 @@
 
 <template>
   <kw-page>
-    <kw-tabs
-      model-value="1"
+    <kw-observer
+      ref="obsTabRef"
+      name="obsTab"
     >
-      <kw-tab
-        name="1"
-        :label="t('MSG_TXT_APRV_CRTE_MGT')"
-      />
-      <kw-tab
-        name="2"
-        :label="t('MSG_TXT_EXCP_HAND_MGT')"
-      />
-      <kw-tab
-        name="3"
-        :label="t('MSG_TXT_BIZ_SUBS_RES_MGT')"
-      />
-      <kw-tab
-        name="4"
-        :label="t('MSG_TXT_USR_SLS_RES_MGT')"
-      />
-      <kw-tab
-        name="5"
-        :label="t('MSG_TXT_BLKLST_MGT')"
-      />
-    </kw-tabs>
-    <kw-tab-panels
-      model-value="1"
-    >
-      <kw-tab-panel name="1">
-        <kw-search
-          :modified-targets="['approvalBaseGrid']"
-          @search="onClickSearch"
-        >
-          <kw-search-row>
-            <kw-search-item
-              :label="t('MSG_TXT_BASE_DT')"
-              required
-            >
-              <kw-date-picker
-                v-model="searchParams.standardDt"
-                rules="required"
-                :name="t('MSG_TXT_BASE_DT')"
-                @change="fetchAprCodes"
-              />
-            </kw-search-item>
-            <kw-search-item
-              :label="t('MSG_TXT_APR_REQ_CAT')"
-              required
-            >
-              <kw-select
-                v-model="searchParams.cntrAprAkDvCd"
-                rules="required"
-                :name="t('MSG_TXT_APR_REQ_CAT')"
-                :options="aprAkDvcodeOptions"
-                :placeholder="$t('MSG_TXT_BEFORE_SELECT_IT',[$t('MSG_TXT_APR_REQ_CAT')])"
-              />
-            </kw-search-item>
-            <kw-search-item :label="t('MSG_TXT_APR_REQ_CAT')">
-              <kw-field>
-                <kw-checkbox
-                  v-model="searchParams.aprReqCtgValid"
-                  :label="t('MSG_TXT_LKUP_VLD_VAL')"
-                  :true-value="true"
-                  :false-value="false"
+      <kw-tabs
+        model-value="1"
+      >
+        <kw-tab
+          name="1"
+          :label="t('MSG_TXT_APRV_CRTE_MGT')"
+        />
+        <kw-tab
+          name="2"
+          :label="t('MSG_TXT_EXCP_HAND_MGT')"
+        />
+        <kw-tab
+          name="3"
+          :label="t('MSG_TXT_BIZ_SUBS_RES_MGT')"
+        />
+        <kw-tab
+          name="4"
+          :label="t('MSG_TXT_USR_SLS_RES_MGT')"
+        />
+        <kw-tab
+          name="5"
+          :label="t('MSG_TXT_BLKLST_MGT')"
+        />
+      </kw-tabs>
+      <kw-tab-panels
+        model-value="1"
+      >
+        <kw-tab-panel name="1">
+          <kw-search
+            :modified-targets="['approvalBaseGrid']"
+            @search="onClickSearch"
+          >
+            <kw-search-row>
+              <kw-search-item
+                :label="t('MSG_TXT_BASE_DT')"
+                required
+              >
+                <kw-date-picker
+                  v-model="searchParams.standardDt"
+                  rules="required"
+                  :name="t('MSG_TXT_BASE_DT')"
+                  @change="fetchAprCodes"
                 />
-              </kw-field>
-            </kw-search-item>
-          </kw-search-row>
-        </kw-search>
-        <div class="result-area">
-          <kw-action-top>
-            <template #left>
-              <kw-paging-info
-                :total-count="pageInfo.totalCount"
-                @change="onClickSearch"
+              </kw-search-item>
+              <kw-search-item
+                :label="t('MSG_TXT_APR_REQ_CAT')"
+                required
+              >
+                <kw-select
+                  v-model="searchParams.cntrAprAkDvCd"
+                  rules="required"
+                  :name="t('MSG_TXT_APR_REQ_CAT')"
+                  :options="aprAkDvcodeOptions"
+                  :placeholder="$t('MSG_TXT_BEFORE_SELECT_IT',[$t('MSG_TXT_APR_REQ_CAT')])"
+                />
+              </kw-search-item>
+              <kw-search-item :label="t('MSG_TXT_APR_REQ_CAT')">
+                <kw-field>
+                  <kw-checkbox
+                    v-model="searchParams.aprReqCtgValid"
+                    :label="t('MSG_TXT_LKUP_VLD_VAL')"
+                    :true-value="true"
+                    :false-value="false"
+                  />
+                </kw-field>
+              </kw-search-item>
+            </kw-search-row>
+          </kw-search>
+          <div class="result-area">
+            <kw-action-top>
+              <template #left>
+                <kw-paging-info
+                  :total-count="pageInfo.totalCount"
+                  @change="onClickSearch"
+                />
+              </template>
+              <kw-btn
+                v-permission:delete
+                grid-action
+                dense
+                :label="t('MSG_BTN_DEL')"
+                @click="onClickRemove"
               />
-            </template>
-            <kw-btn
-              v-permission:delete
-              grid-action
-              dense
-              :label="t('MSG_BTN_DEL')"
-              @click="onClickRemove"
-            />
-            <kw-separator
-              spaced
-              vertical
-              inset
-            />
-            <kw-btn
-              dense
-              :label="t('MSG_BTN_ROW_ADD')"
-              @click="onClickAdd"
-            />
+              <kw-separator
+                spaced
+                vertical
+                inset
+              />
+              <kw-btn
+                dense
+                :label="t('MSG_BTN_ROW_ADD')"
+                @click="onClickAdd"
+              />
 
-            <kw-btn
-              v-permission:create
-              dense
-              :label="t('MSG_BTN_SAVE')"
-              @click="onClickSave"
-            />
-            <kw-separator
-              spaced
-              vertical
-              inset
-            />
-            <kw-btn
-              icon="download_on"
-              dense
-              secondary
-              :disable="pageInfo.totalCount === 0"
-              :label="t('MSG_BTN_EXCEL_DOWN')"
-              @click="onClickExcelDownload"
-            />
-            <kw-separator
-              spaced
-              vertical
-              inset
-            />
-            <kw-btn
-              primary
-              dense
-              :label="t('MSG_BTN_CNFM_CRTR_MGT')"
-              @click="onClickConfirmCriteriaMangement"
-            />
-          </kw-action-top>
+              <kw-btn
+                v-permission:create
+                dense
+                :label="t('MSG_BTN_SAVE')"
+                @click="onClickSave"
+              />
+              <kw-separator
+                spaced
+                vertical
+                inset
+              />
+              <kw-btn
+                icon="download_on"
+                dense
+                secondary
+                :disable="pageInfo.totalCount === 0"
+                :label="t('MSG_BTN_EXCEL_DOWN')"
+                @click="onClickExcelDownload"
+              />
+              <kw-separator
+                spaced
+                vertical
+                inset
+              />
+              <kw-btn
+                primary
+                dense
+                :label="t('MSG_BTN_CNFM_CRTR_MGT')"
+                @click="onClickConfirmCriteriaMangement"
+              />
+            </kw-action-top>
 
-          <kw-grid
-            ref="grdMainRef"
-            name="approvalBaseGrid"
-            :visible-rows="pageInfo.pageSize - 1"
-            @init="initGrid"
-          />
-        </div>
-      </kw-tab-panel>
-    </kw-tab-panels>
+            <kw-grid
+              ref="grdMainRef"
+              name="approvalBaseGrid"
+              :visible-rows="pageInfo.pageSize - 1"
+              @init="initGrid"
+            />
+          </div>
+        </kw-tab-panel>
+        <kw-tab-panel name="y21">
+          <wwcte-user-sell-lmit-mgt />
+        </kw-tab-panel>
+      </kw-tab-panels>
+    </kw-observer>
   </kw-page>
 </template>
 
@@ -160,7 +168,9 @@
 import { gridUtil, getComponentType, useGlobal, useMeta, useDataService, codeUtil } from 'kw-lib';
 import { cloneDeep, isEmpty, uniqBy } from 'lodash-es';
 import dayjs from 'dayjs';
+/* import WwcteUserSellLimitMgt from '../risk/WwcteUserSellLimitMgtM.vue'; */
 
+const { alert } = useGlobal();
 const now = dayjs();
 const dataService = useDataService();
 const { t } = useI18n();
@@ -241,12 +251,30 @@ async function onClickSearch() {
 async function onClickSave() {
   const view = grdMainRef.value.getView();
   const changedRows = gridUtil.getChangedRowValues(view);
+  const checkVaild = ref(true);
 
   if (await gridUtil.alertIfIsNotModified(view)) { return; }
   if (!await gridUtil.validate(view)) { return; }
 
   if (isEmpty(changedRows)) {
-    notify(t('MSG_ALT_NOT_SEL_ITEM'));
+    notify(t('MSG_ALT_NO_CHG_CNTN'));
+    return;
+  }
+
+  changedRows.forEach((v) => {
+    if (v.cntrAprIchrDvCd === '1') {
+      const cntrAprIchrDvCdOptions = ref([
+        codes.CNTR_APR_ICHR_DV_CD.filter((val) => v.cntrAprIchrDvCd === val.codeId)[0].codeName,
+      ]);
+      if (isEmpty(v.ichrUsrId)) {
+        alert(t('MSG_ALT_REQ_INPUT_SEL_VAL', [cntrAprIchrDvCdOptions.value[0], t('MSG_TXT_CNT_PER')]));
+        checkVaild.value = false;
+        return checkVaild.value;
+      }
+    }
+  });
+
+  if (!checkVaild.value) {
     return;
   }
 
@@ -266,6 +294,8 @@ async function onClickConfirmCriteriaMangement() {
     searchParams.value.cntrAprAkDvCd = payload.cntrAprAkDvCd;
     onClickSearch();
   }
+  aprAkDvcodeOptions.value = [];
+  fetchAprCodes();
 }
 
 async function onClickRemove() {
@@ -322,9 +352,9 @@ function initGrid(data, view) {
   const columns = [
     { fieldName: 'cntrAprAkDvCd', header: t('MSG_TXT_APR_REQ_CAT'), width: '142', styleName: 'text-center', editor: { type: 'list' }, options: aprAkDvcodeOptions.value, rules: 'required' },
     { fieldName: 'cntrAprSellDvCd', header: t('MSG_TXT_SLS_CAT'), width: '142', styleName: 'text-center', editor: { type: 'list' }, options: codes.CNTR_APR_SELL_DV_CD },
-    { fieldName: 'cntrAprChnlDvVal', header: t('MSG_TXT_RSPBL_CHNL'), width: '180', editor: { type: 'text' } },
+    { fieldName: 'cntrAprChnlDvVal', header: t('MSG_TXT_RSPBL_CHNL'), width: '180', styleName: 'text-center', editor: { type: 'text', maxLength: 10 } },
     { fieldName: 'cntrAprIchrDvCd', header: t('MSG_TXT_ICHR_DV'), width: '142', styleName: 'text-center', editor: { type: 'list' }, options: codes.CNTR_APR_ICHR_DV_CD },
-    { fieldName: 'ichrUsrId', header: t('MSG_TXT_CNT_PER'), width: '180', styleName: 'text-center rg-button-icon--search', button: 'action', editor: { type: 'text' } },
+    { fieldName: 'ichrUsrId', header: t('MSG_TXT_CNT_PER'), width: '180', styleName: 'text-center rg-button-icon--search', button: 'action', editor: { type: 'text', maxLength: 100 } },
     { fieldName: 'psicNm', header: t('MSG_TXT_PIC_NM'), width: '180', editor: { type: 'text' }, styleName: 'text-center', editable: false },
     { fieldName: 'vlStrtDtm', header: t('MSG_TXT_STRT_DT'), width: '196', styleName: 'text-center', datetimeFormat: 'date', editor: { type: 'btdate' }, rules: 'required' },
     { fieldName: 'vlEndDtm', header: t('MSG_TXT_END_DT'), width: '196', styleName: 'text-center', datetimeFormat: 'date', editor: { type: 'btdate' }, rules: 'required' },
@@ -344,6 +374,19 @@ function initGrid(data, view) {
       fetchData();
     }
   };
+  view.onCellEdited = async (grid, itemIndex, row, fieldIndex) => {
+    const { fieldName } = grid.getColumn(fieldIndex);
+    if (fieldName === 'cntrAprAkDvCd') {
+      const searchCntrAprAkDvCd = searchParams.value.cntrAprAkDvCd;
+      const cntrAprAkDvCd = grid.getValue(itemIndex, fieldIndex);
+      if (!isEmpty(searchCntrAprAkDvCd)) {
+        if (searchCntrAprAkDvCd !== cntrAprAkDvCd) {
+          grid.setValue(itemIndex, 'cntrAprAkDvCd', searchCntrAprAkDvCd);
+        }
+      }
+    }
+  };
+
   view.onCellButtonClicked = async (g, { column }) => {
     if (column === 'ichrUsrId') {
       alert('공통팝업(임직원 조회) 추가 후 수정예정');
