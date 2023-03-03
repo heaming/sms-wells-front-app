@@ -91,6 +91,10 @@ const customCodes = {
  *  Event - 생성 버튼 클릭
  */
 async function onClickCreate() {
+  if (true) {
+    await alert('배치 개발 중입니다.');
+    return;
+  }
   if (!await confirm(t('MSG_ALT_IS_CRT_DATA'))) { return; }
   await dataService.post('/sms/wells/service/regular-bs-object', searchParams.value);
   // await notify(t('MSG_ALT_CREATED'));
