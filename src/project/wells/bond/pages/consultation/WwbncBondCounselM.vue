@@ -46,7 +46,7 @@
         />
       </kw-tab-panel>
       <kw-tab-panel name="tab3">
-        <wwbnc-bond-counsel-list-m-customer-search
+        <wwbnc-bond-counsel-m-customer-search
           :ref="(vm) => tabRefs.tab3 = vm"
           v-model:items-checked="itemsChecked.tab3"
         />
@@ -65,6 +65,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
+import WwbncBondCounselMCustomerSearch from './WwbncBondCounselMCustomerSearch.vue';
 import WwbncBondCounselMCustomer from './WwbncBondCounselMCustomer.vue';
 import WwbncBondCounselMContract from './WwbncBondCounselMContract.vue';
 
