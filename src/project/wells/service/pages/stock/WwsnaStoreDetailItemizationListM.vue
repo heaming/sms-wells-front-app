@@ -16,12 +16,14 @@
 <template>
   <kw-page>
     <kw-search
+      :cols="9"
       @search="onClickSearch"
     >
       <kw-search-row>
         <!-- 입고기간 -->
         <kw-search-item
           :label="$t('MSG_TXT_STR_PTRM')"
+          :colspan="3"
         >
           <kw-date-range-picker
             v-model:from="searchParams.stStrDt"
@@ -38,30 +40,34 @@
           v-model:ware-no-m="searchParams.strWareNoM"
           v-model:ware-no-d="searchParams.strWareNoD"
           sub-first-option="all"
-          :colspan="2"
-          class="w600"
+          :colspan="4"
           :label1="$t('MSG_TXT_OSTR_PTRM')"
           :label2="$t('MSG_TXT_STR_WARE')"
           :label3="$t('MSG_TXT_WARE')"
           :label4="$t('MSG_TXT_WARE')"
         />
         <!-- 입고창고상세구분 -->
-        <kw-search-item :label="$t('MSG_TXT_STR_WARE_DTL_DV')">
+        <kw-search-item
+          :label="$t('MSG_TXT_STR_WARE_DTL_DV')"
+          :colspan="2"
+        >
           <kw-select
             v-model="searchParams.strWareDtlDvCd"
             :options="filterCodes.filterStrWareDtlDvCd"
             first-option="all"
             :disable="isStrOk"
-            class="w180"
           />
         </kw-search-item>
       </kw-search-row>
       <kw-search-row>
         <!-- 입고유형 -->
-        <kw-search-item :label="$t('MSG_TXT_STR_TP')">
+        <kw-search-item
+          :label="$t('MSG_TXT_STR_TP')"
+          :colspan="3"
+        >
           <kw-select
             v-model="searchParams.strTpCd"
-            :options="codes.STR_TP_CD"
+            :options="strTpCd"
             first-option="all"
           />
         </kw-search-item>
@@ -74,29 +80,33 @@
           v-model:ware-no-m="searchParams.ostrWareNoM"
           v-model:ware-no-d="searchParams.ostrWareNoD"
           sub-first-option="all"
-          :colspan="2"
-          class="w600"
+          :colspan="4"
           :label1="$t('MSG_TXT_OSTR_PTRM')"
           :label2="$t('MSG_TXT_OSTR_WARE')"
           :label3="$t('MSG_TXT_WARE')"
           :label4="$t('MSG_TXT_WARE')"
         />
         <!-- 출고창고상세구분 -->
-        <kw-search-item :label="$t('MSG_TXT_OSTR_WARE_DTL_DV')">
+        <kw-search-item
+          :label="$t('MSG_TXT_OSTR_WARE_DTL_DV')"
+          :colspan="2"
+        >
           <kw-select
             v-model="searchParams.ostrWareDtlDvCd"
             :options="filterCodes.filterOstrWareDtlDvCd"
             first-option="all"
             :disable="isOstrOk"
-            class="w180"
           />
         </kw-search-item>
       </kw-search-row>
       <!-- 등급 -->
       <kw-search-row>
-        <kw-search-item :label="$t('MSG_TXT_GD')">
+        <kw-search-item
+          :label="$t('MSG_TXT_GD')"
+          :colspan="3"
+        >
           <kw-select
-            v-model="pgGdCd"
+            v-model="searchParams.pgGdCd"
             :options="codes.PD_GD_CD"
             first-option="all"
           />
@@ -104,22 +114,24 @@
         <!-- 품목코드 -->
         <kw-search-item
           :label="$t('MSG_TXT_ITM_CD')"
+          :colspan="4"
         >
           <kw-select
             v-model="searchParams.itmKndCd"
             :options="codes.ITM_KND_CD"
             first-option="all"
-            class="w140"
           />
           <kw-select
-            v-model="searchParams.itmKndCdD"
+            v-model="searchParams.itmPdCd"
             :options="itemKndCdD"
             first-option="all"
-            class="w220"
           />
         </kw-search-item>
         <!-- 사용여부 -->
-        <kw-search-item :label="$t('MSG_TXT_USE_SEL')">
+        <kw-search-item
+          :label="$t('MSG_TXT_USE_SEL')"
+          :colspan="2"
+        >
           <kw-select
             v-model="searchParams.useYn"
             :options="codes.USE_YN"
@@ -195,7 +207,7 @@ const searchParams = ref({
   pgGdCd: '',
   itmKndCd: '',
   useYn: '',
-  itmKndCdD: '',
+  itmPdCd: '',
   strWareDtlDvCd: '',
   ostrWareDtlDvCd: '',
 });
@@ -219,6 +231,7 @@ const codes = await codeUtil.getMultiCodes(
 );
 
 // const wareDvCd = codes.WARE_DV_CD.filter((v) => v.codeId !== '1');
+const strTpCd = codes.STR_TP_CD.filter((v) => v.codeId !== '110');
 const strWareDvCd = { WARE_DV_CD: [
   { codeId: '2', codeName: '서비스센터' },
   { codeId: '3', codeName: '영업센터' },
@@ -239,7 +252,7 @@ const onChangeItmKndCd = async () => {
   // const res = await dataService.get(`/sms/wells/service/individual-ware-ostrs/${itmKndCd}`);
   const res = await dataService.get('/sms/wells/service/individual-ware-ostrs/filter-items', { params: searchParams.value });
   itemKndCdD.value = res.data;
-  searchParams.value.itmKndCdD = itemKndCdD.value[0].codeId;
+  // searchParams.value.itmPdCd = itemKndCdD.value[0].codeId;
 };
 
 watch(() => searchParams.value.itmKndCd, (val) => {
@@ -363,15 +376,14 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'sapMatCd' },
     { fieldName: 'itmPdCd' },
     { fieldName: 'pdAbbrNm' },
-    { fieldName: 'cdCntn' },
-    { fieldName: 'mngtUnitCd' },
-    { fieldName: 'itmGdCd' },
+    { fieldName: 'strTpNm' },
+    { fieldName: 'mngtUnitNm' },
+    { fieldName: 'itmGdNm' },
     { fieldName: 'strQty', dataType: 'number' },
     { fieldName: 'ostrWareNm' },
     { fieldName: 'strWareNm' },
     { fieldName: 'itmStrNo' },
     { fieldName: 'itmOstrNo' },
-
   ];
 
   const columns = [
@@ -379,9 +391,9 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'sapMatCd', header: t('MSG_TXT_SAP_CD'), width: '150', styleName: 'text-center' },
     { fieldName: 'itmPdCd', header: t('MSG_TXT_ITM_CD'), width: '150', styleName: 'text-center' },
     { fieldName: 'pdAbbrNm', header: t('MSG_TXT_ITM_NM'), width: '300' },
-    { fieldName: 'cdCntn', header: t('MSG_TXT_STR_TP'), width: '100', styleName: 'text-center' },
-    { fieldName: 'mngtUnitCd', header: t('MSG_TXT_MNGT_UNIT'), width: '100', styleName: 'text-center' },
-    { fieldName: 'itmGdCd', header: t('MSG_TXT_GD'), width: '100', styleName: 'text-center' },
+    { fieldName: 'strTpNm', header: t('MSG_TXT_STR_TP'), width: '100', styleName: 'text-center' },
+    { fieldName: 'mngtUnitNm', header: t('MSG_TXT_MNGT_UNIT'), width: '100', styleName: 'text-center' },
+    { fieldName: 'itmGdNm', header: t('MSG_TXT_GD'), width: '100', styleName: 'text-center' },
     { fieldName: 'strQty', header: t('MSG_TXT_QTY'), dataType: 'number', numberFormat: '#,##0', width: '100', styleName: 'text-right' },
     { fieldName: 'strWareNm', header: t('MSG_TXT_STR_WARE'), width: '150', styleName: 'text-center' },
     { fieldName: 'ostrWareNm', header: t('MSG_TXT_OSTR_WARE'), width: '150', styleName: 'text-center' },
