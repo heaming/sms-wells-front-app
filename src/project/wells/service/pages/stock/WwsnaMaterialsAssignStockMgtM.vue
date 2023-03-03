@@ -40,6 +40,7 @@
           :label2="$t('MSG_TXT_WARE')"
           :label3="$t('MSG_TXT_HGR_WARE')"
           :label4="$t('MSG_TXT_WARE')"
+          sub-first-option="all"
         />
       </kw-search-row>
       <kw-search-row>
@@ -48,6 +49,7 @@
           <kw-select
             v-model="searchParams.wareDtlDvCd"
             :options="codes.WARE_DTL_DV_CD"
+            first-option="all"
           />
         </kw-search-item>
         <!-- //창고상세구분 -->
@@ -248,6 +250,7 @@ const initGrdMain = defineGrid((data, view) => {
   view.setColumns(columns);
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
+  view.header.minRowHeight = 47;
 
   view.onCellDblClicked = (e, v) => {
     if (v.column === 'qomAsnApyYn') {
