@@ -28,10 +28,7 @@
           :label="t('MSG_TXT_AUTO_FNT')"
           type="radio"
           rules="required"
-          :options="[
-            {codeId : '01', codeName : t('MSG_TXT_AC')},
-            {codeId : '02', codeName : t('MSG_TXT_CARD')},
-          ]"
+          :options="codes.MPY_MTHD_TP_CD.filter(v => v.codeId === '110' || v.codeId === '120')"
         />
       </kw-search-item>
     </kw-search-row>
@@ -97,7 +94,7 @@ const grdMainRef = ref(getComponentType('KwGrid'));
 
 let cachedParams;
 const searchParams = ref({
-  mpyMthdTpCd: '01', // 자동이체 체크
+  mpyMthdTpCd: '110', // 자동이체 체크
 });
 
 const pageInfo = ref({

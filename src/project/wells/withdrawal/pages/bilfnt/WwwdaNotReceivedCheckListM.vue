@@ -62,7 +62,7 @@
                 :label="t('MSG_TXT_FNT_DV')"
                 rules="required"
                 type="radio"
-                :options="[{codeId: '01', codeName:$t('MSG_TXT_AC')},{codeId:'02',codeName:$t('MSG_TXT_CARD')}]"
+                :options="codes.FNT_DV_CD.filter(v => v.codeId !== '03')"
               />
             </kw-search-item>
           </kw-search-row>
@@ -137,6 +137,7 @@ const now = dayjs();
 const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
   'BNK_CD',
+  'FNT_DV_CD',
 );
 const grdMainRef = ref(getComponentType('KwGrid'));
 
