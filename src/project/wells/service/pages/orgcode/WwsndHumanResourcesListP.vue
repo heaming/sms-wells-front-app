@@ -24,36 +24,51 @@
           required
         >
           <kw-select
-            ref="selectMngrDvCdRef"
+            ref="cbMngrDvCdRef"
             v-model="searchParams.mngrDvCd"
             :options="codes.MNGR_DV_CD"
-            :readonly="!isEmpty(deptMngrDvCd)"
+            :readonly="!isEmpty(props.mngrDvCd)"
             rules="required"
-            @update:model-value="onUpdateMngrDvCd"
+            @change="onChangeMngrDvCd"
           />
         </kw-search-item>
         <kw-search-item
-          :label="$t('MSG_TXT_DEPTARTMENT_1')"
+          :label="isManagerSelected ? $t('MSG_TXT_MANAGEMENT_DEPARTMENT') : $t('MSG_TXT_CENTER_DIVISION')"
         >
           <kw-select
-            ref="selectDeptCdRef"
-            v-model="searchParams.deptCd"
-            :options="customCodes.deptCd"
-            option-value="deptCd"
-            option-label="deptNm"
+            ref="cbDgr1LevlOgIdRef"
+            v-model="searchParams.dgr1LevlOgId"
+            :options="dgr1LevlOgs"
+            option-value="ogId"
+            option-label="ogNm"
             first-option="all"
-            :readonly="!isManager(searchParams.mngrDvCd)"
-            @update:model-value="onUpdateDeptCd"
+            @change="onChangeDgr1LevlOgId"
           />
         </kw-search-item>
         <kw-search-item
-          :label="$t('MSG_TXT_CENTER_DIVISION', [$t('MSG_TXT_CENTER_DIVISION')])"
+          v-if="isManagerSelected"
+          :label="$t('MSG_TXT_RGNL_GRP')"
         >
           <kw-select
-            v-model="searchParams.cnrCd"
-            :options="customCodes.cnrCd"
-            option-value="cnrCd"
-            option-label="cnrNm"
+            ref="cbDgr2LevlOgIdRef"
+            v-model="searchParams.dgr2LevlOgId"
+            :options="dgr2LevlOgs"
+            option-value="ogId"
+            option-label="ogNm"
+            first-option="all"
+            @change="onChangeDgr2LevlOgId"
+          />
+        </kw-search-item>
+        <kw-search-item
+          v-if="isManagerSelected"
+          :label="$t('MSG_TXT_BRANCH')"
+        >
+          <kw-select
+            ref="cbDgr3LevlOgIdRef"
+            v-model="searchParams.dgr3LevlOgId"
+            :options="dgr3LevlOgs"
+            option-value="ogId"
+            option-label="ogNm"
             first-option="all"
           />
         </kw-search-item>
@@ -110,7 +125,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, gridUtil, defineGrid, useDataService, useModal, getComponentType, useMeta } from 'kw-lib';
+import { codeUtil, defineGrid, getComponentType, gridUtil, useDataService, useMeta, useModal } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import { onMounted } from 'vue';
 
@@ -118,22 +133,27 @@ const { t } = useI18n();
 const { getConfig } = useMeta();
 const { cancel: onClickCancel, ok } = useModal();
 const dataService = useDataService();
-const userInfo = useStore().getters['meta/getUserInfo'];
-const emit = defineEmits(['update:modelValue']);
 
-// TODO: 팝업 사용 요건에 따라 변경 필요
 const props = defineProps({
   mngrDvCd: {
     type: String,
+    default: '',
   },
-  deptCd: {
+  dgr1LevlOgId: {
     type: String,
+    default: '',
   },
-  cnrCd: {
+  dgr2LevlOgId: {
     type: String,
+    default: '',
+  },
+  dgr3LevlOgId: {
+    type: String,
+    default: '',
   },
   searchText: {
     type: String,
+    default: '',
   },
 });
 
@@ -141,35 +161,19 @@ const props = defineProps({
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 const grdMainRef = ref(getComponentType('KwGrid'));
-const selectMngrDvCdRef = ref(getComponentType('KwSelect'));
-const selectDeptCdRef = ref(getComponentType('KwSelect'));
+const cbMngrDvCdRef = ref(getComponentType('KwSelect'));
+const cbDgr1LevlOgIdRef = ref(getComponentType('KwSelect'));
+const cbDgr2LevlOgIdRef = ref(getComponentType('KwSelect'));
+const cbDgr3LevlOgIdRef = ref(getComponentType('KwSelect'));
 
 const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
   'MNGR_DV_CD',
+  'MNGER_PSTN_CD',
+  'EGER_ROL_CD',
 );
 
-const customCodes = ref({
-  deptCd: [],
-  cnrCd: [],
-});
-
-const managerCodes = {
-  deptCd: [],
-  cnrCd: [],
-};
-
-const engineerCodes = {
-  deptCd: [],
-  cnrCd: [],
-};
-
-const searchParams = ref({
-  mngrDvCd: '',
-  deptCd: '',
-  cnrCd: '',
-  searchText: '',
-});
+const organizations = ref([]);
 
 const pageInfo = ref({
   totalCount: 0,
@@ -177,22 +181,72 @@ const pageInfo = ref({
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
 });
 
-let cachedParams;
-
-// TODO: 부서 코드 정해지면 수정 필요
-const deptMngrDvCd = computed(() => {
-  if (userInfo.departmentId === '매니저') {
-    return '1';
-  }
-  if (userInfo.departmentId === '엔지니어') {
-    return '2';
-  }
-  return '';
+const searchParams = ref({
+  mngrDvCd: isEmpty(props.mngrDvCd) ? '1' : props.mngrDvCd,
+  dgr1LevlOgId: props.dgr1LevlOgId,
+  dgr2LevlOgId: props.dgr2LevlOgId,
+  dgr3LevlOgId: props.dgr3LevlOgId,
+  searchText: props.searchText,
 });
 
-function isManager(val) {
-  return val === '1';
+let cachedParams;
+
+const isManagerSelected = computed(() => searchParams.value.mngrDvCd === '1');
+
+const dgr1LevlOgs = computed(() => {
+  const ogTpCd = isManagerSelected.value ? 'W02' : 'W06';
+  return organizations.value.filter((og) => (og.ogTpCd === ogTpCd && og.ogLevlDvCd === '1'));
+});
+
+const dgr2LevlOgs = computed(() => {
+  if (isEmpty(searchParams.value.dgr1LevlOgId)) return [];
+  return organizations.value.filter((og) => (og.ogTpCd === 'W02' && og.ogLevlDvCd === '2' && og.hgrOgId === searchParams.value.dgr1LevlOgId));
+});
+
+const dgr3LevlOgs = computed(() => {
+  if (isEmpty(searchParams.value.dgr2LevlOgId)) return [];
+  return organizations.value.filter((og) => (og.ogTpCd === 'W02' && og.ogLevlDvCd === '3' && og.hgrOgId === searchParams.value.dgr2LevlOgId));
+});
+
+const layouts = computed(() => {
+  if (isManagerSelected.value) {
+    return [
+      {
+        header: t('MSG_TXT_BELONG_SOMETHING', [t('MSG_TXT_BRANCH')]),
+        direction: 'horizontal',
+        items: ['ogCd', 'ogNm1'],
+      },
+      'prtnrNo',
+      'prtnrKnm',
+      'pstnDvCd',
+      'cntrDt',
+      'cltnDt',
+    ];
+  }
+  return [
+    {
+      header: t('MSG_TXT_BELONG_SOMETHING', [t('MSG_TXT_CENTER_DIVISION')]),
+      direction: 'horizontal',
+      items: ['ogCd', 'ogNm2'],
+    },
+    'prtnrNo',
+    'prtnrKnm',
+    'rolDvCd',
+    'cntrDt',
+    'cltnDt',
+  ];
+});
+
+async function fetchOrganizations() {
+  return await dataService.get('/sms/wells/service/human-resources/organizations');
 }
+
+async function getOrganizations() {
+  const res = await fetchOrganizations();
+  organizations.value = res.data;
+}
+
+await getOrganizations();
 
 async function fetchHumanResourcesPages(params) {
   return await dataService.get('/sms/wells/service/human-resources/paging', params);
@@ -200,83 +254,31 @@ async function fetchHumanResourcesPages(params) {
 
 async function getHumanResourcesPages() {
   const res = await fetchHumanResourcesPages({ params: { ...cachedParams, ...pageInfo.value } });
-  const { list: workNotices, pageInfo: pagingResult } = res.data;
+  const { list: humanResources, pageInfo: pagingResult } = res.data;
 
   pageInfo.value = pagingResult;
 
   const view = grdMainRef.value.getView();
 
-  view.getDataSource().setRows(workNotices);
+  view.setColumnLayout(layouts.value);
+
+  view.getDataSource().setRows(humanResources);
   view.resetCurrent();
 }
 
-async function fetchManagerDepartmentCodes() {
-  return await dataService.get('/sms/wells/service/human-resources/manager-departments');
+function onChangeMngrDvCd() {
+  searchParams.value.dgr1LevlOgId = '';
+  searchParams.value.dgr2LevlOgId = '';
+  searchParams.value.dgr3LevlOgId = '';
 }
 
-async function fetchManagerCenterCodes(deptCd) {
-  return await dataService.get(`/sms/wells/service/human-resources/manager-centers/${deptCd}`);
+function onChangeDgr1LevlOgId() {
+  searchParams.value.dgr2LevlOgId = '';
+  searchParams.value.dgr3LevlOgId = '';
 }
 
-async function fetchEngineerCenterCodes() {
-  return await dataService.get('/sms/wells/service/human-resources/engineer-centers');
-}
-
-async function initManagerCodes() {
-  const res1 = await fetchManagerDepartmentCodes();
-  managerCodes.deptCd = res1.data;
-  const res2 = await fetchManagerCenterCodes('ALL');
-  managerCodes.cnrCd = res2.data;
-}
-
-async function initEngineerCodes() {
-  const res = await fetchEngineerCenterCodes();
-  engineerCodes.deptCd = [];
-  engineerCodes.cnrCd = res.data;
-}
-
-await initManagerCodes();
-await initEngineerCodes();
-searchParams.value.mngrDvCd = isEmpty(deptMngrDvCd.value) ? '1' : cloneDeep(deptMngrDvCd.value);
-
-watch(() => searchParams.value.mngrDvCd, (newVal) => {
-  if (isManager(newVal)) {
-    customCodes.value.deptCd = cloneDeep(managerCodes.deptCd);
-    customCodes.value.cnrCd = cloneDeep(managerCodes.cnrCd);
-  } else {
-    customCodes.value.deptCd = [];
-    customCodes.value.cnrCd = cloneDeep(engineerCodes.cnrCd);
-  }
-}, { immediate: true });
-
-watch(() => searchParams.value.deptCd, async (newVal) => {
-  if (isManager(searchParams.value.mngrDvCd)) {
-    if (isEmpty(newVal)) {
-      customCodes.value.cnrCd = cloneDeep(managerCodes.cnrCd);
-    } else {
-      const res = await fetchManagerCenterCodes(newVal);
-      customCodes.value.cnrCd = res.data;
-    }
-  }
-}, { immediate: true });
-
-function onUpdateMngrDvCd(val) {
-  if (selectMngrDvCdRef.value.pending) {
-    emit('update:modelValue', val);
-    return;
-  }
-  searchParams.value.deptCd = '';
-  searchParams.value.cnrCd = '';
-  emit('update:modelValue', val);
-}
-
-function onUpdateDeptCd(val) {
-  if (selectMngrDvCdRef.value.pending) {
-    emit('update:modelValue', val);
-    return;
-  }
-  searchParams.value.cnrCd = '';
-  emit('update:modelValue', val);
+function onChangeDgr2LevlOgId() {
+  searchParams.value.dgr3LevlOgId = '';
 }
 
 async function onClickSearch() {
@@ -301,71 +303,45 @@ async function onClickSelect() {
 // TODO: 조직쪽 테이블 및 로직 확정되면 수정 필요
 const initGrdMain = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'cnrCd' },
-    { fieldName: 'cnrNm' },
-    { fieldName: 'empId' },
-    { fieldName: 'empNm' },
-    { fieldName: 'brchCd' },
-    { fieldName: 'brchNm' },
-    { fieldName: 'pstnDvCd' },
-    { fieldName: 'rolDvCd' },
-    { fieldName: 'entcoDt' },
-    { fieldName: 'rsgnDt' },
+    { fieldName: 'ogId' }, // 조직ID
+    { fieldName: 'ogCd' }, // 조직코드
+    { fieldName: 'ogNm' }, // 조직명
+    { fieldName: 'prtnrNo' }, // 파트너번호
+    { fieldName: 'prtnrKnm' }, // 파트너한글명
+    { fieldName: 'pstnDvCd' }, // 직급구분코드
+    { fieldName: 'rolDvCd' }, // 직무구분코드
+    { fieldName: 'cntrDt' }, // 계약일자
+    { fieldName: 'cltnDt' }, // 해약일자
+    { fieldName: 'dgr1LevlOgId' }, // 1차레벨조직ID
+    { fieldName: 'dgr1LevlOgCd' }, // 1차레벨조직코드
+    { fieldName: 'dgr1LevlOgNm' }, // 1차레벨조직명
+    { fieldName: 'dgr2LevlOgId' }, // 2차레벨조직ID
+    { fieldName: 'dgr2LevlOgCd' }, // 2차레벨조직코드
+    { fieldName: 'dgr2LevlOgNm' }, // 2차레벨조직명
+    { fieldName: 'dgr3LevlOgId' }, // 3차레벨조직ID
   ];
 
   const columns = [
-    { fieldName: 'cnrCd', header: t('MSG_TXT_CODE'), width: '100', styleName: 'text-center' },
-    { fieldName: 'cnrNm', header: t('MSG_TXT_SOMETHING_NAME', [t('MSG_TXT_CENTER_DIVISION')]), width: '250', styleName: 'text-left' },
-    { fieldName: 'empId', header: t('MSG_TXT_EPNO'), width: '150', styleName: 'text-center' },
-    { fieldName: 'empNm', header: t('MSG_TXT_EMPL_NM'), width: '150', styleName: 'text-center' },
-    { fieldName: 'brchCd', header: t('MSG_TXT_CODE'), width: '100', styleName: 'text-center' },
-    { fieldName: 'brchNm', header: t('MSG_TXT_SOMETHING_NAME', [t('MSG_TXT_BRANCH')]), width: '250', styleName: 'text-left' },
-    { fieldName: 'pstnDvCd', header: t('MSG_TXT_PSTN'), width: '117', styleName: 'text-center' },
-    { fieldName: 'rolDvCd', header: t('MSG_TXT_ROLE_1'), width: '150', styleName: 'text-center' },
-    { fieldName: 'entcoDt', header: t('MSG_TXT_SOMETHING_DATE', [t('MSG_TXT_ENTCO')]), width: '150', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'rsgnDt', header: t('MSG_TXT_SOMETHING_DATE', [t('MSG_TXT_RSGN')]), width: '150', styleName: 'text-center', datetimeFormat: 'date' },
-  ];
-
-  const layouts = [
-    {
-      header: t('MSG_TXT_BELONG_SOMETHING', [t('MSG_TXT_CENTER_DIVISION')]),
-      direction: 'horizontal',
-      items: ['cnrCd', 'cnrNm'],
-    },
-    'empId',
-    'empNm',
-    {
-      header: t('MSG_TXT_BELONG_SOMETHING', [t('MSG_TXT_BRANCH')]),
-      direction: 'horizontal',
-      items: ['brchCd', 'brchNm'],
-    },
-    'pstnDvCd',
-    'rolDvCd',
-    'entcoDt',
-    'rsgnDt',
+    { fieldName: 'ogCd', header: t('MSG_TXT_CODE'), width: '100', styleName: 'text-center' },
+    { name: 'ogNm1', fieldName: 'ogNm', header: t('MSG_TXT_SOMETHING_NAME', [t('MSG_TXT_BRANCH')]), width: '250', styleName: 'text-left' },
+    { name: 'ogNm2', fieldName: 'ogNm', header: t('MSG_TXT_SOMETHING_NAME', [t('MSG_TXT_CENTER_DIVISION')]), width: '250', styleName: 'text-left' },
+    { fieldName: 'prtnrNo', header: t('MSG_TXT_EPNO'), width: '150', styleName: 'text-center' },
+    { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '150', styleName: 'text-center' },
+    { fieldName: 'pstnDvCd', header: t('MSG_TXT_CRLV'), options: codes.MNGER_PSTN_CD, width: '117', styleName: 'text-center' },
+    { fieldName: 'rolDvCd', header: t('MSG_TXT_ROLE_1'), options: codes.EGER_ROL_CD, width: '150', styleName: 'text-center' },
+    { fieldName: 'cntrDt', header: t('MSG_TXT_SOMETHING_DATE', [t('MSG_TXT_ENTCO')]), width: '150', styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'cltnDt', header: t('MSG_TXT_SOMETHING_DATE', [t('MSG_TXT_RSGN')]), width: '150', styleName: 'text-center', datetimeFormat: 'date' },
   ];
 
   data.setFields(fields);
   view.setColumns(columns);
-  view.setColumnLayout(layouts);
+  view.setColumnLayout(layouts.value);
 
   view.checkBar.visible = true;
   view.rowIndicator.visible = true;
 });
 
 onMounted(async () => {
-  // TODO: 팝업 사용 요건에 따라 변경 필요
-  let searchFlag = false;
-  if (!isEmpty(props.mngrDvCd)) {
-    searchParams.value.mngrDvCd = cloneDeep(props.mngrDvCd);
-    if (!isEmpty(props.deptCd)) searchParams.value.deptCd = cloneDeep(props.deptCd);
-    if (!isEmpty(props.cnrCd)) searchParams.value.cnrCd = cloneDeep(props.cnrCd);
-    searchFlag = true;
-  }
-  if (!isEmpty(props.searchText)) {
-    searchParams.value.searchText = cloneDeep(props.searchText);
-    searchFlag = true;
-  }
-  if (searchFlag) await onClickSearch();
+  if (!isEmpty(props.mngrDvCd) && !isEmpty(props.searchText)) await onClickSearch();
 });
 </script>
