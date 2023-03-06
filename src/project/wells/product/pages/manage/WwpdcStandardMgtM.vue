@@ -157,6 +157,7 @@ import WwpdcStandardDtlMContents from './WwpdcStandardDtlMContents.vue';
 const props = defineProps({
   pdCd: { type: String, default: null },
   tempSaveYn: { type: String, default: 'Y' },
+  newRegYn: { type: String, default: 'N' },
 });
 
 const route = useRoute();
@@ -205,13 +206,6 @@ codes.COD_YN.map((item) => {
   item.changed = true;
   return item;
 });
-async function onClickReset() {
-  await Promise.all(cmpStepRefs.value.map(async (item) => {
-    if (item.value.resetData) {
-      await item.value?.resetData();
-    }
-  }));
-}
 
 async function onClickDelete() {
   if (await confirm(t('MSG_ALT_WANT_DEL_WCC'))) {
@@ -311,10 +305,10 @@ async function onClickPrevStep() {
 
 async function onClickStep() {
   const stepName = currentStep.value?.name;
-  console.log('WwpdcStandardMgtM - onClickStep : ', stepName);
+  // console.log('WwpdcStandardMgtM - onClickStep : ', stepName);
   prevStepData.value = await getSaveData();
   currentStep.value = cloneDeep(regSteps.value.find((item) => item.name === stepName));
-  console.log('WwpdcStandardMgtM - onClickStep : ', currentStep.value);
+  // console.log('WwpdcStandardMgtM - onClickStep : ', currentStep.value);
 }
 
 async function onClickSubTab() {
@@ -375,8 +369,6 @@ async function onClickSave(tempSaveYn) {
     subList[bas].tempSaveYn = tempSaveYn;
   } else if (isEmpty(currentPdCd.value)) {
     subList[bas].tempSaveYn = tempSaveYn;
-  } else if (isEmpty(subList[bas].tempSaveYn)) {
-    subList[bas].tempSaveYn = 'Y';
   }
   console.log('WwpdcStandardMgtM - onClickSave - subList : ', subList);
 
@@ -392,11 +384,15 @@ async function onClickSave(tempSaveYn) {
   notify(t('MSG_ALT_SAVE_DATA'));
   if (isTempSaveBtn.value) {
     // 임시저장
-    currentPdCd.value = rtn.data?.data?.pdCd;
-    isCreate.value = isEmpty(currentPdCd.value);
-    router.push({ path: '/product/zwpdc-sale-product-list/wwpdc-standard-mgt', replace: true, query: { pdCd: currentPdCd.value } });
+    if (rtn.data?.data?.pdCd !== currentPdCd.value) {
+      currentPdCd.value = rtn.data?.data?.pdCd;
+      isCreate.value = isEmpty(currentPdCd.value);
+      router.push({ path: '/product/zwpdc-sale-product-list/wwpdc-standard-mgt', replace: true, query: { pdCd: currentPdCd.value } });
+    } else {
+      await fetchProduct();
+    }
   } else {
-    // router.push({ path: '/product/zwpdc-sale-product-list', replace: true, query: { searchYn: 'Y' } });
+    await fetchProduct();
   }
 }
 
@@ -425,6 +421,19 @@ async function onUpdateBasicValue(field) {
   }
 }
 
+async function onClickReset() {
+  currentPdCd.value = '';
+  isCreate.value = true;
+  isTempSaveBtn.value = true;
+  currentStep.value = cloneDeep(pdConst.STANDARD_STEP_BASIC);
+  await Promise.all(cmpStepRefs.value.map(async (item) => {
+    if (item.value.resetData) {
+      await item.value?.resetData();
+    }
+  }));
+  await fetchProduct();
+}
+
 async function initProps() {
   const { pdCd } = props;
   currentPdCd.value = pdCd;
@@ -451,12 +460,12 @@ watch(() => route.params.pdCd, async (pdCd) => {
   }
 }, { immediate: true });
 
-// watch(() => route.params.pdCd, async (pdCd) => {
-//   if (currentPdCd.value && isEmpty(pdCd)) {
-//     currentStep.value = pdConst.STANDARD_STEP_BASIC;
-//     await onClickReset();
-//   }
-// }, { immediate: true });
+watch(() => route.params.newRegYn, async (newRegYn) => {
+  if (newRegYn && newRegYn === 'Y') {
+    router.replace({ query: null });
+    await onClickReset();
+  }
+});
 
 onMounted(async () => {
   const mgtNameFields = await cmpStepRefs.value[0]?.value.getNameFields();

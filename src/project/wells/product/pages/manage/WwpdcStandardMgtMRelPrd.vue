@@ -348,7 +348,13 @@ async function initMaterialGrid(data, view) {
     // 자재코드
     { fieldName: 'sapMatCd', header: t('MSG_TXT_MATI_CD'), width: '87', styleName: 'text-center', editable: false },
     // 제품수량(개)
-    { fieldName: 'pdRelPrpVal01', header: t('MSG_TXT_PRD_COUNT_EA'), width: '87', styleName: 'text-right', editor: { type: 'number', editFormat: '#,##0.##' }, dataType: 'number' },
+    { fieldName: 'pdRelPrpVal01',
+      header: t('MSG_TXT_PRD_COUNT_EA'),
+      width: '87',
+      styleName: 'text-right',
+      editor: { type: 'number', editFormat: '#,##0.##' },
+      dataType: 'number',
+      suffix: ` ${t('MSG_TXT_GRD_CNT')}` },
     // 판매금액
     { fieldName: 'pdRelPrpVal02', header: t('MSG_TXT_SALE_PRICE'), width: '107', styleName: 'text-right', editor: { type: 'number', editFormat: '#,##0.##' }, dataType: 'number' },
     // 공급가액
@@ -356,7 +362,14 @@ async function initMaterialGrid(data, view) {
     // 부가세액
     { fieldName: 'pdRelPrpVal04', header: t('MSG_TXT_VAT_AMOUNT'), width: '107', styleName: 'text-right', editor: { type: 'number', editFormat: '#,##0.##' }, dataType: 'number' },
     // 안분비율(%)
-    { fieldName: 'diviRat', header: t('MSG_TXT_PROPORTIONAL_DV_RT'), width: '107', styleName: 'text-right', editor: { type: 'number', editFormat: '##0' }, dataType: 'number' },
+    { fieldName: 'diviRat',
+      header: t('MSG_TXT_PROPORTIONAL_DV_RT'),
+      width: '107',
+      styleName: 'text-right',
+      editor: { type: 'number', editFormat: '##0' },
+      dataType: 'number',
+      suffix: ' %',
+    },
     // 잔액산입
     { fieldName: 'blamInptYn', header: t('MSG_TXT_CHANGE_COUNTING'), width: '87', styleName: 'text-center', editor: 'list', options: props.codes?.COD_YN },
   ];
