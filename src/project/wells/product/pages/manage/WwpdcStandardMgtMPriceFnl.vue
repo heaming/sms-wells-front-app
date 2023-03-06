@@ -119,6 +119,7 @@ async function onClickRemove() {
 
 async function initGridRows() {
   removeObjects.value = [];
+  const view = grdMainRef.value.getView();
   if (await currentInitData.value?.[prcfd]) {
     // 기준가 정보
     const stdRows = cloneDeep(
@@ -158,8 +159,9 @@ async function initGridRows() {
       return row;
     });
     // console.log('WwpdcStandardMgtMPriceFnl - initGridRows - Rows : ', rows);
-    const view = grdMainRef.value.getView();
     setPdGridRows(view, rows, pdConst.PRC_FNL_ROW_ID, defaultFields.value, true);
+  } else {
+    view.getDataSource().clearRows();
   }
 }
 

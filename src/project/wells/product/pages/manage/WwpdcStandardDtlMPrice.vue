@@ -188,7 +188,7 @@ async function initGrid(data, view) {
       pdConst.PD_PRC_TP_CD_FEE],
     currentCodes.value,
   );
-  console.log('WwpdcStandardDtlMPrice - initGrid - columns : ', columns);
+  // console.log('WwpdcStandardDtlMPrice - initGrid - columns : ', columns);
   data.setFields(fields);
   view.setColumns(columns.sort((item) => (item.fieldName === 'sellChnlCd' ? -1 : 0)));
   view.checkBar.visible = false;

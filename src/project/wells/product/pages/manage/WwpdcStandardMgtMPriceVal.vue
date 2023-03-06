@@ -195,6 +195,7 @@ async function resetInitData() {
 }
 
 async function initGridRows() {
+  const view = grdMainRef.value.getView();
   if (await currentInitData.value[prcfd]) {
     // 판매유형
     const sellTpCd = currentInitData.value[pdConst.TBL_PD_BAS]?.sellTpCd;
@@ -226,8 +227,9 @@ async function initGridRows() {
       // console.log('WwpdcStandardMgtMPriceVal - initGridRows - row : ', row);
       return row;
     });
-    const view = grdMainRef.value.getView();
     setPdGridRows(view, rows, pdConst.PRC_FNL_ROW_ID, defaultFields.value, true);
+  } else {
+    view.getDataSource().clearRows();
   }
 }
 

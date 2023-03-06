@@ -132,6 +132,7 @@ async function resetInitData() {
 }
 
 async function initGridRows() {
+  const view = grdMainRef.value.getView();
   priceFieldData.value[prcd] = {
     pdExtsPrpGrpCd: 'PRC',
     // 통화명
@@ -157,9 +158,11 @@ async function initGridRows() {
       return row;
     });
     // console.log('Rows : ', rows);
-    const view = grdMainRef.value.getView();
     setPdGridRows(view, rows, pdConst.PRC_STD_ROW_ID, [pdConst.PRC_STD_ROW_ID, pdConst.PRC_DETAIL_ID]);
+  } else {
+    view.getDataSource().clearRows();
   }
+
   const products = currentInitData.value?.[pdConst.RELATION_PRODUCTS];
   if (await products) {
     const services = products
@@ -171,12 +174,13 @@ async function initGridRows() {
     if (nameFields.svPdCd) {
       nameFields.svPdCd.codes = currentCodes.value.svPdCd;
     }
-    const view = grdMainRef.value.getView();
     const svPdCds = view.columnByName('svPdCd');
-    svPdCds.options = currentCodes.value.svPdCd;
-    svPdCds.labels = currentCodes.value.svPdCd?.map((item) => (item.codeName));
-    svPdCds.values = currentCodes.value.svPdCd?.map((item) => (item.codeId));
-    svPdCds.lookupDisplay = true;
+    if (svPdCds?.options) {
+      svPdCds.options = currentCodes.value.svPdCd;
+      svPdCds.labels = currentCodes.value.svPdCd?.map((item) => (item.codeName));
+      svPdCds.values = currentCodes.value.svPdCd?.map((item) => (item.codeId));
+      svPdCds.lookupDisplay = true;
+    }
     // console.log('svPdCds.labels : ', svPdCds.labels);
   }
 }
