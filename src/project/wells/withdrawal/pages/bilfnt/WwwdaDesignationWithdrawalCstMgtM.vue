@@ -40,7 +40,7 @@
             :name="$t('MSG_TXT_CNTR_DTL_NO')"
             rules="required"
             type="number"
-            maxlength="12"
+            maxlength="16"
           />
         </kw-search-item>
       </kw-search-row>
@@ -149,7 +149,7 @@ const possibleDay = codes.AUTO_FNT_FTD_ACD.map((v) => v.codeId).join(','); // �
 
 async function onClickAddRow() {
   const view = grdMainRef.value.getView();
-  gridUtil.insertRowAndFocus(view, 0, {
+  gridUtil.insertRowAndFocus(view, 1, {
     fntYn: 'Y',
     dsnWdrwFntPrdCd: '1',
   });
@@ -190,8 +190,12 @@ async function onClickSearch() {
 async function onClickRemove() {
   const view = grdMainRef.value.getView();
   const checkedRows = gridUtil.getCheckedRowValues(view);
-  const data = checkedRows.filter((v) => v.rowState === 'none').map((v) => ({ cntrNo: tenantCd + v.cntr.slice(0, 11), cntrSn: Number(v.cntr.slice(11)) }));
-
+  const data = checkedRows.filter((v) => v.rowState === 'none').map((v) => ({
+    cntrNo: tenantCd + v.cntr.slice(0, 11),
+    cntrSn: Number(v.cntr.slice(11)),
+    dsnWdrwFntD: v.dsnWdrwFntD,
+  }));
+  console.log(data);
   if (checkedRows.length === 0) {
     notify(t('MSG_ALT_NOT_SEL_ITEM'));
     return;
@@ -288,6 +292,7 @@ const initGrid = defineGrid((data, view) => {
       width: '80',
       styleName: 'text-center',
       editor: { type: 'list' },
+      rules: 'required',
 
       options: [{ codeId: 'Y', codeName: '이체' }, { codeId: 'N', codeName: '중단' }], // 추후에 수정 코드 못찾음
     },
@@ -298,6 +303,7 @@ const initGrid = defineGrid((data, view) => {
       editor: {
         type: 'number',
       },
+      rules: 'required',
     },
     { fieldName: 'ucAmt',
       header: t('MSG_TXT_BLAM'),
@@ -317,6 +323,7 @@ const initGrid = defineGrid((data, view) => {
       styleName: 'text-center',
       editor: { type: 'list' },
       options: codes.DSN_WDRW_FNT_PRD_CD,
+      rules: 'required',
 
     },
 
@@ -368,6 +375,11 @@ const initGrid = defineGrid((data, view) => {
     if (pageInfo.value.pageIndex * pageInfo.value.pageSize <= g.getItemCount()) {
       pageInfo.value.pageIndex += 1;
       await fetchData();
+    }
+  };
+  view.onCellClicked = (grid, clickData) => {
+    if (clickData.cellType === 'data') {
+      grid.checkItem(clickData.itemIndex, !grid.isCheckedItem(clickData.itemIndex));
     }
   };
 });

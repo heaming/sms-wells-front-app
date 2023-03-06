@@ -3,7 +3,7 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : WDA
-2. 프로그램 ID : WwwdaResultBundleErrorM - 자동이체결과 체크리스트(묶음출금 오등록) (W-WD-U-0035M04)
+2. 프로그램 ID : WwwdaResultBundleErrorListM - 자동이체결과 체크리스트(묶음출금 오등록) (W-WD-U-0035M04)
 3. 작성자 : donghyun.yoo
 4. 작성일 : 2023.02.20
 ****************************************************************************************************
@@ -28,10 +28,7 @@
           :label="t('MSG_TXT_AUTO_FNT')"
           type="radio"
           rules="required"
-          :options="[
-            {codeId : '01', codeName : t('MSG_TXT_AC')},
-            {codeId : '02', codeName : t('MSG_TXT_CARD')},
-          ]"
+          :options="codes.MPY_MTHD_TP_CD.filter(v => v.codeId === '110' || v.codeId === '120')"
         />
       </kw-search-item>
     </kw-search-row>
@@ -97,7 +94,7 @@ const grdMainRef = ref(getComponentType('KwGrid'));
 
 let cachedParams;
 const searchParams = ref({
-  mpyMthdTpCd: '01', // 자동이체 체크
+  mpyMthdTpCd: '110', // 자동이체 체크
 });
 
 const pageInfo = ref({
