@@ -119,7 +119,7 @@ const dataService = useDataService();
 
 const { getConfig } = useMeta();
 // const { modal, notify, alert } = useGlobal();
-const { notify, alert } = useGlobal();
+const { alert } = useGlobal();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -182,9 +182,6 @@ async function fetchData() {
 
   view.getDataSource().setRows(newOutOfStorageAsks);
   view.resetCurrent();
-  if (totalCount.value === 0) {
-    await notify(t('MSG_ALT_NO_INFO_SRCH'));
-  }
 }
 
 async function onClickSearch() {
@@ -301,7 +298,7 @@ function initGrdMain(data, view) {
     // TODO: 현재 출고요청등록 팝업화면 개발진행 후 변경 예정
     console.log(gridUtil.getRowValue(g, dataRow));
     console.log(column);
-    alert('현재 단위테스트 대상이 아닙니다.');
+    alert('현재 단위테스트 대상이 아닙니다.(개발중)');
     // const { ostrAkNo } = gridUtil.getRowValue(g, dataRow);
     // const { ostrAkTpCd } = gridUtil.getRowValue(g, dataRow);
     // const { ostrAkRgstDt } = gridUtil.getRowValue(g, dataRow);

@@ -288,16 +288,16 @@ const initGrdMain = defineGrid((data, view) => {
 
     if (column === 'txtNote') {
       if (ostrTpCd === '217') {
-        alert('현재 단위 테스트 대상이 아닙니다.');
+        alert('현재 단위 테스트 대상이 아닙니다.(개발중)');
         return;
       } if (['221', '222', '223'].includes(ostrTpCd)) {
-        alert('현재 단위 테스트 대상이 아닙니다.');
+        alert('현재 단위 테스트 대상이 아닙니다.(개발중)');
         return;
       } if (ostrTpCd === '217') {
-        alert('현재 단위 테스트 대상이 아닙니다.');
+        alert('현재 단위 테스트 대상이 아닙니다.(개발중)');
         return;
       } if (['212', '261', '262'].includes(ostrTpCd)) {
-        alert('현재 단위 테스트 대상이 아닙니다.');
+        alert('현재 단위 테스트 대상이 아닙니다.(개발중)');
       }
     }
   };
