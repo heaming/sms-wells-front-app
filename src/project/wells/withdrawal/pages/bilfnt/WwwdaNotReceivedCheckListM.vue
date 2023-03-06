@@ -109,7 +109,7 @@
         <wwwda-deposit-apply-omission-m />
       </kw-tab-panel>
       <kw-tab-panel name="bndlWdrwUnrg">
-        <wwwda-result-bundle-error-m />
+        <wwwda-result-bundle-error-list-m />
       </kw-tab-panel>
     </kw-tab-panels>
   </kw-page>
@@ -123,7 +123,7 @@ import { useDataService, codeUtil, gridUtil, defineGrid, useMeta, getComponentTy
 import dayjs from 'dayjs';
 import WwwdaFundTransferChangeMgtM from './WwwdaFundTransferChangeMgtM.vue';
 import WwwdaDepositApplyOmissionM from './WwwdaDepositApplyOmissionM.vue';
-import WwwdaResultBundleErrorM from './WwwdaResultBundleErrorM.vue';
+import WwwdaResultBundleErrorListM from './WwwdaResultBundleErrorListM.vue';
 
 const dataService = useDataService();
 const { getConfig } = useMeta();
