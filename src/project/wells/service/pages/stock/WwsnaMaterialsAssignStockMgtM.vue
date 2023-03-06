@@ -242,7 +242,7 @@ async function onCellClickedPrtnrNo() {
       await fetchData();
     }
   } catch (e) {
-    alert('현재 단위테스트 대상이 아닙니다.');
+    alert('현재 단위 테스트 대상이 아닙니다.(개발중)');
   }
 }
 
