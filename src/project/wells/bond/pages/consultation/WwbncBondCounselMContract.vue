@@ -498,5 +498,12 @@ const initGrdMain = defineGrid((data, view) => {
   });
   view.layoutByColumn('ctt').summaryUserSpans = [{ colspan: 7 }];
   view.layoutByColumn('promDt').summaryUserSpans = [{ colspan: 31 }];
+
+  view.onCellDblClicked = async (g, { dataRow }) => {
+    const cstNo = g.getValue(dataRow, 'cstNo');
+    if (cstNo) {
+      await window.open(`/popup/#/wwbnc-customer-dtl?cstNo=${cstNo}`, 'POPUP', 'width=1540, height=1100, menubar=no, location=no');
+    }
+  };
 });
 </script>
