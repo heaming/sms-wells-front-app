@@ -14,9 +14,6 @@
 --->
 <template>
   <kw-page>
-    <template #header>
-      <kw-page-header :options="['홈', '판매', '계약관리', '서류접수현황']" />
-    </template>
     <kw-search @search="onClickSearch">
       <kw-search-row>
         <!-- 접수일자 -->
@@ -113,7 +110,6 @@ import dayjs from 'dayjs';
 const dataService = useDataService();
 const { t } = useI18n();
 
-// @todo: update to 0 on api integration
 let cachedParams;
 const now = dayjs();
 const searchParams = ref({
@@ -173,6 +169,9 @@ onMounted(async () => {
   // await fetchData();
 });
 
+// -------------------------------------------------------------------------------------------------
+// Initialize Grid
+// -------------------------------------------------------------------------------------------------
 const initGrid = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'cntrChRcpId' },
