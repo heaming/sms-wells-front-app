@@ -307,15 +307,18 @@ const onDisableStrChk = async () => {
     isStrOk.value = false;
   } else {
     isStrOk.value = true;
+    searchParams.value.strWareDtlDvCd = '';
   }
 };
 
 const onDisableOstrChk = async () => {
   const chkOstrWareNoD = searchParams.value.ostrWareNoD;
+  debugger;
   if (chkOstrWareNoD === undefined || chkOstrWareNoD === null || chkOstrWareNoD === '') {
     isOstrOk.value = false;
   } else {
     isOstrOk.value = true;
+    searchParams.value.ostrWareDtlDvCd = '';
   }
 };
 
@@ -426,8 +429,6 @@ const initGrdMain = defineGrid((data, view) => {
 
   data.setFields(fields);
   view.setColumns(columns);
-  view.checkBar.visible = true;
-  view.setCheckableCallback(() => false);
   view.rowIndicator.visible = true;
 });
 </script>
