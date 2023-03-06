@@ -558,10 +558,10 @@ async function openPnpyamControlPopup() {
   });
 }
 async function fetchData(type) {
-  const response = await dataService.get(`/sms/wells/fee/individual-fee-mgts/hmst-${type}`, { params: cachedParams });
+  const response = await dataService.get(`/sms/wells/fee/individual-fee/home-master/${type}`, { params: cachedParams });
   const resData = response.data;
   totalCount.value = resData.length;
-  if (type === 'entrepreneur') {
+  if (type === 'entrepreneurs') {
     info1.value = resData;
   } else if (type === 'basic') {
     info2.value = resData;
@@ -580,7 +580,7 @@ async function fetchData(type) {
 
 async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
-  await fetchData('entrepreneur');
+  await fetchData('entrepreneurs');
   await fetchData('basic');
   await fetchData('total-sum');
   await fetchData('fee');

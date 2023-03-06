@@ -80,7 +80,7 @@
             :label="t('MSG_TXT_FEE_SUM')"
             align-content="right"
           >
-            <p>{{ info.col3 }}</p>
+            <p>{{ stringUtil.getNumberWithComma(info.col3) }}</p>
           </kw-form-item>
         </kw-form-row>
         <kw-form-row>
@@ -100,7 +100,7 @@
             :label="t('MSG_TXT_DDTN_SUM')"
             align-content="right"
           >
-            <p>{{ info.col6 }}</p>
+            <p>{{ stringUtil.getNumberWithComma(info.col6) }}</p>
           </kw-form-item>
         </kw-form-row>
         <kw-form-row>
@@ -128,7 +128,7 @@
             :label="t('MSG_TXT_ACL_DSB')"
             align-content="right"
           >
-            <p>{{ info.col10 }}</p>
+            <p>{{ stringUtil.getNumberWithComma(info.col10) }}</p>
           </kw-form-item>
         </kw-form-row>
       </kw-form>
@@ -201,42 +201,42 @@
           <kw-form-item
             :label="t('MSG_TXT_ERNTX')"
           >
-            <p>{{ info2.col1 }}</p>
+            <p>{{ stringUtil.getNumberWithComma(info2.col1) }}</p>
           </kw-form-item>
           <kw-form-item
             :label="t('MSG_TXT_RSDNTX')"
           >
-            <p>{{ info2.col2 }}</p>
+            <p>{{ stringUtil.getNumberWithComma(info2.col2) }}</p>
           </kw-form-item>
           <kw-form-item
             :label="t('MSG_TXT_RDS')"
           >
-            <p>{{ info2.col3 }}</p>
+            <p>{{ stringUtil.getNumberWithComma(info2.col3) }}</p>
           </kw-form-item>
           <kw-form-item
             :label="t('MSG_TXT_HIR_INSR')"
           >
-            <p>{{ info2.col4 }}</p>
+            <p>{{ stringUtil.getNumberWithComma(info2.col4) }}</p>
           </kw-form-item>
         </kw-form-row>
         <kw-form-row>
           <kw-form-item :label="t('MSG_TXT_INDD_INSR')">
-            <p>{{ info2.col5 }}</p>
+            <p>{{ stringUtil.getNumberWithComma(info2.col5) }}</p>
           </kw-form-item>
           <kw-form-item
             :label="t('MSG_TXT_BU_DDTN')"
           >
-            <p>{{ info2.col6 }}</p>
+            <p>{{ stringUtil.getNumberWithComma(info2.col6) }}</p>
           </kw-form-item>
           <kw-form-item
             :label="t('MSG_TXT_REDF')"
           >
-            <p>{{ info2.col7 }}</p>
+            <p>{{ stringUtil.getNumberWithComma(info2.col7) }}</p>
           </kw-form-item>
           <kw-form-item
             :label="t('MSG_TXT_DLQ')+t('MSG_TXT_REDF')"
           >
-            <p>{{ info2.col8 }}</p>
+            <p>{{ stringUtil.getNumberWithComma(info2.col8) }}</p>
           </kw-form-item>
         </kw-form-row>
       </kw-form>
@@ -267,14 +267,24 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService, getComponentType, modal } from 'kw-lib';
+import { useDataService, getComponentType, stringUtil, modal } from 'kw-lib';
 import dayjs from 'dayjs';
 
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, isEmpty } from 'lodash-es';
 
 const { t } = useI18n();
 const dataService = useDataService();
 
+const props = defineProps({
+  perfYm: {
+    type: String,
+    required: true,
+  },
+  partnerNo: {
+    type: String,
+    required: true,
+  },
+});
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -288,6 +298,8 @@ const searchParams = ref({
 
   perfYm: now.format('YYYYMM'),
   no: '',
+  prPerfYm: props.perfYm,
+  prpartnerNo: props.partnerNo,
 
 });
 
@@ -314,6 +326,8 @@ const info2 = ref({
   col7: '',
   col8: '',
 });
+const { prPerfYm } = searchParams.value;
+const { prpartnerNo } = searchParams.value;
 
 let cachedParams;
 
@@ -452,17 +466,23 @@ async function onClickSearch() {
   await fetchData('pnpyam');
 }
 
+if (!isEmpty(prPerfYm) && !isEmpty(prpartnerNo)) {
+  searchParams.value.perfYm = prPerfYm;
+  searchParams.value.no = prpartnerNo;
+  onClickSearch();
+}
+
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
 function initGrd1Main(data, view) {
   const fields = [
     { fieldName: 'col1' },
-    { fieldName: 'col2' },
-    { fieldName: 'col3' },
-    { fieldName: 'col4' },
-    { fieldName: 'col5' },
-    { fieldName: 'col6' },
+    { fieldName: 'col2', dataType: 'number' },
+    { fieldName: 'col3', dataType: 'number' },
+    { fieldName: 'col4', dataType: 'number' },
+    { fieldName: 'col5', dataType: 'number' },
+    { fieldName: 'col6', dataType: 'number' },
 
   ];
 

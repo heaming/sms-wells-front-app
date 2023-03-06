@@ -512,7 +512,7 @@ async function openPnpyamControlPopup() {
   });
 }
 async function fetchData(type) {
-  const response = await dataService.get(`/sms/wells/fee/individual-fee-mgts/plar-${type}`, { params: cachedParams });
+  const response = await dataService.get(`/sms/wells/fee/individual-fee/plar-${type}`, { params: cachedParams });
   const resData = response.data;
   totalCount.value = resData.length;
   if (type === 'entrepreneur') {
