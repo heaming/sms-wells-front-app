@@ -39,7 +39,7 @@
     <kw-tab-panels model-value="exceptionHandling">
       <kw-tab-panel name="exceptionHandling">
         <kw-search
-          :cols="2"
+          :cols="3"
           :modified-targets="['grdMain']"
           @search="onClickSearch"
         >
@@ -49,20 +49,31 @@
               required
             >
               <kw-date-range-picker
-                v-model:from="searchParams.startDt"
+                v-model:from="searchParams.strtDt"
                 v-model:to="searchParams.endDt"
-                rules="date_range_required|date_range_months:1"
+                :label="$t('MSG_TXT_ACEPT_PERIOD')"
+                rules="date_range_required"
               />
             </kw-search-item>
 
             <kw-search-item
-              :label="$t('MSG_TXT_PTNR_NO')"
-              required
+              :label="$t('MSG_TXT_EX_PROCS_CD')"
+            >
+              <kw-select
+                v-model="searchParams.exProcsCd"
+                :options="codes.EX_PROCS_CD"
+                first-option="all"
+              />
+            </kw-search-item>
+
+            <kw-search-item
+              :label="$t('MSG_TXT_PRTNR_NO')"
             >
               <kw-input
                 v-model="searchParams.prtnrNo"
+                :label="$t('MSG_TXT_PRTNR_NO')"
                 icon="search"
-                rules="required"
+                rules="max:10|numeric"
                 clearable
                 @click-icon="onClickOpenEmployeeSearchPopup"
               />
@@ -72,12 +83,12 @@
           <kw-search-row>
             <kw-search-item
               :label="$t('MSG_TXT_CST_NO')"
-              required
             >
               <kw-input
-                v-model="searchParams.cstmrNo"
+                v-model="searchParams.cstNo"
+                :label="$t('MSG_TXT_CST_NO')"
                 icon="search"
-                rules="required"
+                rules="max:10|numeric"
                 clearable
                 @click-icon="onClickOpenCustomerSearchPopup"
               />
@@ -85,11 +96,10 @@
 
             <kw-search-item
               :label="$t('MSG_TXT_CNTR_NO')"
-              required
             >
               <kw-input
                 v-model="searchParams.cntrNo"
-                rules="required"
+                rules="max:15"
               />
             </kw-search-item>
           </kw-search-row>
@@ -174,9 +184,6 @@ const { getConfig } = useMeta();
 const { t } = useI18n();
 const { modal, notify } = useGlobal();
 
-// -------------------------------------------------------------------------------------------------
-// Function & Event
-// -------------------------------------------------------------------------------------------------
 const grdMainRef = ref(getComponentType('KwGrid'));
 
 const now = dayjs();
@@ -185,16 +192,15 @@ const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
   'EX_PROCS_CD',
 );
-const dtaDlYnList = [{ codeId: '', codeName: '전체' },
-  { codeId: 'Y', codeName: '등록' },
-  { codeId: 'N', codeName: '미등록' }];
+codes.STATUS = [{ codeId: 'N', codeName: t('MSG_TXT_LIMIT') }, { codeId: 'Y', codeName: t('MSG_TXT_PRMSN') }];
 
 let cachedParams;
 const searchParams = ref({
-  startDt: now.startOf('month').format('YYYYMMDD'),
+  strtDt: now.startOf('month').format('YYYYMMDD'),
   endDt: now.format('YYYYMMDD'),
+  exProcsCd: '',
   prtnrNo: '',
-  cstmrNo: '',
+  cstNo: '',
   cntrNo: '',
 });
 
@@ -204,36 +210,35 @@ const pageInfo = ref({
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
 });
 
+// -------------------------------------------------------------------------------------------------
+// Function & Event
+// -------------------------------------------------------------------------------------------------
 async function onClickOpenEmployeeSearchPopup() {
-  const { result: isChanged, payload: employeeDetails } = await modal({
-    component: 'ZwogcPartnerListP',
+  const { result, payload } = await modal({
+    component: 'ZwogzPartnerListP',
   });
-
-  if (isChanged) {
-    searchParams.value.prtnrNo = employeeDetails.prtnrNo;
+  if (result) {
+    searchParams.prtnrNo(payload.prtnrNo);
   }
 }
 
 async function onClickOpenCustomerSearchPopup() {
-  const { result: isChanged, payload: customerDetails } = await modal({
+  const { result, payload } = await modal({
     component: 'ZwcsaCustomerListP',
   });
-
-  if (isChanged) {
-    // to confirm
-    searchParams.value.cstmrNo = customerDetails.cstmrNo;
+  if (result) {
+    searchParams.cstNo(payload.cstNo);
   }
 }
 
 async function fetchData() {
-  const res = await dataService.get('/sms/wells/contract/exception-handling/paging', { params: { ...cachedParams, ...pageInfo.value } });
+  const res = await dataService.get('/sms/wells/contract/contract-exceptions/paging', { params: { ...cachedParams, ...pageInfo.value } });
   const { list: exceptions, pageInfo: pagingResult } = res.data;
 
   pageInfo.value = pagingResult;
 
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(exceptions);
-  view.resetCurrent();
 }
 
 async function onClickSearch() {
@@ -252,7 +257,7 @@ async function onClickRemove() {
   const exProcsIds = deletedRows.map((row) => row.exProcsId);
 
   if (exProcsIds.length > 0) {
-    await dataService.delete('/sms/wells/contract/exception-handling', { params: { keys: exProcsIds } });
+    await dataService.delete('/sms/wells/contract/contract-exceptions', { data: exProcsIds });
     await fetchData();
   }
 }
@@ -260,8 +265,8 @@ async function onClickRemove() {
 async function onClickAdd() {
   const view = grdMainRef.value.getView();
   gridUtil.insertRowAndFocus(view, 0, {
-    exProcsCd: '',
-    dtaDlYn: '',
+    dtaDlYn: 'N',
+    vlStrtDtm: now.format('YYYYMMDD'),
   });
 }
 
@@ -271,14 +276,14 @@ async function onClickSave() {
   if (!await gridUtil.validate(view)) { return; }
 
   const changedRows = gridUtil.getChangedRowValues(view);
-  await dataService.post('/sms/wells/contract/exception-handling', changedRows);
+  await dataService.post('/sms/wells/contract/contract-exceptions', changedRows);
 
   notify(t('MSG_ALT_SAVE_DATA'));
   await fetchData();
 }
 
 async function onClickExcelDownload() {
-  const res = await dataService.get('/sms/wells/contract/exception-handling/excel-download');
+  const res = await dataService.get('/sms/wells/contract/contract-exceptions/excel-download');
 
   const view = grdMainRef.value.getView();
 
@@ -298,35 +303,89 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'exProcsCd' },
     { fieldName: 'cstNo' },
     { fieldName: 'prtnrNo' },
+    { fieldName: 'ogTpCd' },
     { fieldName: 'cntrNo' },
     { fieldName: 'dtaDlYn' },
     { fieldName: 'exProcsDtlCn' },
     { fieldName: 'vlStrtDtm' },
     { fieldName: 'vlEndDtm' },
-    { fieldName: 'fstRgstUsrId' },
-    { fieldName: 'fnlMdfcUsrId' },
+    { fieldName: 'fstRgstUsrNm' },
+    { fieldName: 'fnlMdfcUsrNm' },
+    { fieldName: 'fnlMdfcDtm' },
   ];
 
   const columns = [
-    { fieldName: 'exProcsId', visible: false },
-    { fieldName: 'exProcsCd', header: t('MSG_TXT_SLS_CAT'), width: '289', options: codes.EX_PROCS_CD, editor: { type: 'list' } },
-    { fieldName: 'cstNo',
+    { fieldName: 'exProcsCd',
+      header: t('MSG_TXT_SLS_CAT'),
+      width: 250,
+      options: codes.EX_PROCS_CD,
+      required: true,
+      rules: 'required',
+      editor: {
+        type: 'list',
+      },
+    },
+    {
+      fieldName: 'cstNo',
       header: t('MSG_TXT_CST_NO'),
-      width: '180',
+      width: 150,
       styleName: 'text-center rg-button-icon--search',
-      button: 'action' },
-    { fieldName: 'prtnrNo',
-      header: t('MSG_TXT_PTNR_NO'),
-      width: '180',
+      button: 'action',
+      editor: {
+        maxLength: 10,
+      },
+    },
+    {
+      fieldName: 'prtnrNo',
+      header: t('MSG_TXT_PRTNR_NO'),
+      width: 150,
       styleName: 'text-center rg-button-icon--search',
-      button: 'action' },
-    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_NO'), width: '180', styleName: 'text-center' },
-    { fieldName: 'dtaDlYn', header: t('MSG_TXT_RESTRICTION_CLASSIFICATION'), width: '142', styleName: 'text-left', options: dtaDlYnList, editor: { type: 'list' } },
-    { fieldName: 'exProcsDtlCn', header: t('MSG_TXT_MEMO'), width: '404', styleName: 'text-center' },
-    { fieldName: 'vlStrtDtm', header: t('MSG_TXT_STRT_DT'), width: '196', styleName: 'text-center', datetimeFormat: 'date', editor: { type: 'btdate' } },
-    { fieldName: 'vlEndDtm', header: t('MSG_TXT_END_DT'), width: '196', styleName: 'text-center', datetimeFormat: 'date', editor: { type: 'btdate' } },
-    { fieldName: 'fstRgstUsrId', header: t('MSG_TXT_FST_RGST_USR'), width: '180', styleName: 'text-center', editable: false },
-    { fieldName: 'fnlMdfcUsrId', header: t('MSG_TXT_MDFC_USR'), width: '180', styleName: 'text-center', editable: false },
+      button: 'action',
+      editable: false,
+    },
+    {
+      fieldName: 'cntrNo',
+      header: t('MSG_TXT_CNTR_NO'),
+      width: 150,
+      styleName: 'text-center rg-button-icon--search',
+      button: 'action',
+      editor: {
+        maxLength: 12,
+      },
+    },
+    {
+      fieldName: 'dtaDlYn',
+      header: t('MSG_TXT_RESTRICTION_CLASSIFICATION'),
+      width: 80,
+      styleName: 'text-center',
+      options: codes.STATUS,
+      editor: {
+        type: 'list',
+      },
+    },
+    { fieldName: 'exProcsDtlCn', header: t('MSG_TXT_MEMO'), width: 300 },
+    {
+      fieldName: 'vlStrtDtm',
+      header: t('MSG_TXT_STRT_DT'),
+      width: 130,
+      styleName: 'text-center',
+      datetimeFormat: 'date',
+      editor: { type: 'btdate' },
+      required: true,
+      rules: 'required',
+    },
+    {
+      fieldName: 'vlEndDtm',
+      header: t('MSG_TXT_END_DT'),
+      width: 130,
+      styleName: 'text-center',
+      datetimeFormat: 'date',
+      editor: { type: 'btdate' },
+      required: true,
+      rules: 'required',
+    },
+    { fieldName: 'fstRgstUsrNm', header: t('MSG_TXT_FST_RGST_USR'), width: 120, styleName: 'text-center', editable: false },
+    { fieldName: 'fnlMdfcUsrNm', header: t('MSG_TXT_MDFC_USR'), width: 120, styleName: 'text-center', editable: false },
   ];
 
   data.setFields(fields);
@@ -346,17 +405,13 @@ const initGrid = defineGrid((data, view) => {
       }
     }
     if (column === 'prtnrNo') {
-      const { result: isChanged, payload: customerDetails } = await modal({
+      const { result, payload } = await modal({
         component: 'ZwcsaCustomerListP',
       });
-
-      if (isChanged) {
-        data.setValue(itemIndex, 'prtnrNo', customerDetails.cstmrNo);
+      if (result) {
+        data.setValue(itemIndex, 'prtnrNo', payload.cstNo);
       }
     }
   };
 });
 </script>
-
-<style scoped>
-</style>
