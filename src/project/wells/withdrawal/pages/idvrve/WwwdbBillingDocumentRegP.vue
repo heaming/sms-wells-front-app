@@ -202,7 +202,7 @@ async function onClickSave() {
 
   // if (await gridUtil.alertIfIsNotModified(view)) { return; }
 
-  // if (!await gridUtil.validate(view)) { return; }
+  if (!await gridUtil.validate(view)) { return; }
 
   const changedRows = gridUtil.getChangedRowValues(view);
   const mainData = cloneDeep(regMainData.value);
@@ -230,6 +230,7 @@ async function onClickSearchUser() {
   if (result) {
     console.log(payload);
     // regMainData.value.cstFnm = payload.cstNm;
+    regMainData.value.cstFnm = payload.name;
   }
 }
 
@@ -320,6 +321,13 @@ const initGrid = defineGrid((data, view) => {
 
   data.setFields(fields);
   view.setColumns(columns);
+
+  // 체크박스 설정
+  view.onCellClicked = (grid, clickData) => {
+    if (clickData.cellType === 'data') {
+      grid.checkItem(clickData.itemIndex, !grid.isCheckedItem(clickData.itemIndex));
+    }
+  };
 
   view.checkBar.visible = true;
   view.rowIndicator.visible = true;

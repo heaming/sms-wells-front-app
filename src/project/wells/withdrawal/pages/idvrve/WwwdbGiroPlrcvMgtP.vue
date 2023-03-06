@@ -152,15 +152,6 @@ const giroPlrcvProps = ref({
   cntrSn: '',
 });
 
-// 고객명 찾기 이벤트
-async function onClickSearchUser() {
-  const { result, payload } = await modal({ component: 'ZwcsaCustomerListP' });
-
-  if (result) {
-    console.log(payload);
-  }
-}
-
 const giroPlrcv = ref({
   state: '',
   cntrNo: '',
@@ -177,6 +168,16 @@ const giroPlrcv = ref({
   fnlMdfcDtm: now.format('YYYYMMDD'),
   addKey: '',
 });
+
+// 고객명 찾기 이벤트
+async function onClickSearchUser() {
+  const { result, payload } = await modal({ component: 'ZwcsaCustomerListP' });
+
+  if (result) {
+    console.log(payload);
+    giroPlrcv.value.cstFnm = payload.name;
+  }
+}
 
 let cachedParams;
 

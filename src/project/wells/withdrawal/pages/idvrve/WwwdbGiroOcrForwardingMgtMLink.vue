@@ -282,6 +282,13 @@ const initGrid = defineGrid((data, view) => {
   data.setFields(fields);
   view.setColumns(columns);
 
+  // 체크박스 설정
+  view.onCellClicked = (grid, clickData) => {
+    if (clickData.cellType === 'data') {
+      grid.checkItem(clickData.itemIndex, !grid.isCheckedItem(clickData.itemIndex));
+    }
+  };
+
   view.onCellItemClicked = async (g, { column, dataRow }) => {
     console.log(dataRow);
     if (column === 'giroOcrPrnt') {

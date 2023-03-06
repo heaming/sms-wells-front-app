@@ -211,7 +211,7 @@ async function onClickSearchUser() {
 
   if (result) {
     console.log(payload);
-  // regMainData.value.cstFnm = payload.cstNm;
+    searchParams.value.cstFnm = payload.name;
   }
 }
 // -------------------------------------------------------------------------------------------------
@@ -287,6 +287,12 @@ const initGrid = defineGrid((data, view) => {
 
   view.checkBar.visible = true;
   view.rowIndicator.visible = true;
+
+  view.onCellClicked = (grid, clickData) => {
+    if (clickData.cellType === 'data') {
+      grid.checkItem(clickData.itemIndex, !grid.isCheckedItem(clickData.itemIndex));
+    }
+  };
 
   view.onCellItemClicked = async (g, { column, itemIndex }) => {
     if (column === 'pdNm') {

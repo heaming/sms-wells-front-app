@@ -281,12 +281,11 @@ async function onClickObjectSearch() {
 // 저장버튼
 async function onClickSave() {
   const view = grdLinkRef.value.getView();
+  const changedRows = gridUtil.getChangedRowValues(view);
 
   if (await gridUtil.alertIfIsNotModified(view)) { return; }
 
   if (!await gridUtil.validate(view)) { return; }
-
-  const changedRows = gridUtil.getChangedRowValues(view);
 
   await dataService.post('/sms/wells/withdrawal/idvrve/giro-ocr-forwardings', changedRows);
 
@@ -337,6 +336,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'giroBizTpCd' }, // --지로업무유형코드
     { fieldName: 'cntrNo' }, // --
     { fieldName: 'cntrSn' }, // --
+    { fieldName: 'cntr' }, // --
     { fieldName: 'cstFnm' }, // --고객명
     { fieldName: 'slDt' }, // --매출일자
     { fieldName: 'recapDutyPtrmN' }, // --약정개월
@@ -386,7 +386,7 @@ const initGrid = defineGrid((data, view) => {
       rules: 'required',
     },
     {
-      fieldName: 'cntrNo',
+      fieldName: 'cntr',
       header: {
         text: t('MSG_TXT_CNTR_DTL_NO'),
         // text: '계약상세번호',
@@ -395,7 +395,12 @@ const initGrid = defineGrid((data, view) => {
       width: '125',
       styleName: 'text-left rg-button-icon--search',
       button: 'action',
-      rules: 'required|max:15',
+      editor: {
+        type: 'line',
+        maxLength: 17,
+      },
+      editable: false,
+      rules: 'required|min:12|max:17',
       buttonVisibleCallback(grid, index) {
         return grid.getDataSource().getRowState(index.dataRow) === 'created';
       },
@@ -567,8 +572,22 @@ const initGrid = defineGrid((data, view) => {
   view.rowIndicator.visible = true;
   view.editOptions.editable = true;
 
+  view.onValidate = async (grid, index) => {
+    const { cntr } = await grid.getValues(index.dataRow);
+    if (!cntr) {
+      return t('MSG_ALT_NCELL_REQUIRED_VAL', [t('MSG_TXT_CNTR_DTL_NO')]);
+    }
+  };
+
+  // 체크박스 설정
+  view.onCellClicked = (grid, clickData) => {
+    if (clickData.cellType === 'data') {
+      grid.checkItem(clickData.itemIndex, !grid.isCheckedItem(clickData.itemIndex));
+    }
+  };
+
   view.onCellButtonClicked = async (g, { column, itemIndex }) => {
-    if (column === 'cntrNo') {
+    if (column === 'cntr') {
       console.log(column);
       console.log(itemIndex);
     }
@@ -576,7 +595,7 @@ const initGrid = defineGrid((data, view) => {
 
   view.setColumnLayout([
     'wkDt', // single
-    'cntrNo', 'cstFnm', 'slDt', 'col2', 'recapDutyPtrmN',
+    'cntr', 'cstFnm', 'slDt', 'col2', 'recapDutyPtrmN',
     {
       header: t('MSG_TXT_GIRO_TN'),
       // header: '지로회차',
@@ -594,13 +613,13 @@ const initGrid = defineGrid((data, view) => {
   ]);
 
   view.onCellEditable = (grid, index) => {
-    if (!gridUtil.isCreatedRow(grid, index.dataRow) && ['cntrNo', 'wkDt', 'giroRglrDvCd'].includes(index.column)) {
+    if (!gridUtil.isCreatedRow(grid, index.dataRow) && ['wkDt', 'giroRglrDvCd'].includes(index.column)) {
       return false;
     }
   };
 
   view.onCellButtonClicked = async (g, { column, itemIndex }) => {
-    if (column === 'cntrNo') {
+    if (column === 'cntr') {
       console.log(itemIndex);
 
       const { result, payload } = await modal({
@@ -608,22 +627,13 @@ const initGrid = defineGrid((data, view) => {
       });
 
       if (result) {
-        console.log(payload.cntrNo);
-        console.log(payload.cntrSn);
-        const cntrNo = payload.cntrNo + payload.cntrSn;
+        const cntr = payload.cntrNo + payload.cntrSn;
         // const cntrSn = payload.cntrSn;
 
-        data.setValue(itemIndex, 'cntrNo', cntrNo);
+        data.setValue(itemIndex, 'cntr', cntr);
       }
     }
   };
-
-  // view.onScrollToBottom = async (g) => {
-  //   if (pageInfo.value.pageIndex * pageInfo.value.pageSize <= g.getItemCount()) {
-  //     pageInfo.value.pageIndex += 1;
-  //     await fetchData();
-  //   }
-  // };
 });
 
 </script>
