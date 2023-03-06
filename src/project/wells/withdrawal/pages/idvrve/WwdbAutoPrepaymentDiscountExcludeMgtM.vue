@@ -3,7 +3,7 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : withdrawal/idvrve
-2. 프로그램 ID : WwdbAutomaticPrepaymentDiscountExcludeMgtM - 자동 선납할인제외 관리
+2. 프로그램 ID : WwdbAutoPrepaymentDiscountExcludeMgtM - 자동 선납할인제외 관리
 3. 작성자 : heungjun.lee
 4. 작성일 : 2023.02.24
 ****************************************************************************************************
@@ -168,7 +168,7 @@ let cachedParams;
 async function fetchData() {
   cachedParams = { ...cachedParams, ...pageInfo.value };
   console.log(cachedParams);
-  const res = await dataService.get('/sms/wells/withdrawal/idvrve/automatic-prepayment-discount-exclude/paging', { params: cachedParams });
+  const res = await dataService.get('/sms/wells/withdrawal/idvrve/auto-prepayment-discount-exclude/paging', { params: cachedParams });
   const { list: pages, pageInfo: pagingResult } = res.data;
 
   pageInfo.value = pagingResult;
@@ -211,7 +211,7 @@ async function onClickAdd() {
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
 
-  const res = await dataService.get('/sms/wells/withdrawal/idvrve/automatic-prepayment-discount-exclude/excel-download', { params: cachedParams });
+  const res = await dataService.get('/sms/wells/withdrawal/idvrve/auto-prepayment-discount-exclude/excel-download', { params: cachedParams });
 
   await gridUtil.exportView(view, {
     fileName: `${t('MSG_TXT_AUTO_PRM_DSC_EXCD')}_Excel`,
@@ -231,33 +231,32 @@ async function onClickSave() {
   // 중복신청 체크
   const unique = [];
 
-  const gridData = gridUtil.getAllRowValues(view, false);
+  // const gridData = gridUtil.getAllRowValues(view, false);
 
-  const duplicates = gridData.filter((item) => {
+  const duplicates = gridUtil.some(view, (item) => {
     if (unique.find((i) => (i.cntr === item.cntr) && (i.prmDscExcdStrtYm === item.prmDscExcdStrtYm))) {
       return true;
     }
     unique.push(item);
     return false;
   });
-  if (duplicates.length > 0) {
+
+  if (duplicates.length) {
     await alert(t('MSG_ALT_DUPLICATE_EXISTS')); // 중복된 값이 존재합니다.
     return;
   }
 
   const changedRows = gridUtil.getChangedRowValues(view);
 
-  for (let index = 0; index < changedRows.length; index += 1) {
-    if (changedRows[index].prmDscExcdStrtYm > changedRows[index].prmDscExcdEndYm) {
-      alert(t('MSG_ALT_ABLE_START_DT_PREC_FINS_DT'));
-      // await alert(t('시작일자가 종료일자 보다 클 수 없습니다.'));
-      return;
-    }
-  }
+  // for (let index = 0; index < changedRows.length; index += 1) {
+  //   if (changedRows[index].prmDscExcdStrtYm > changedRows[index].prmDscExcdEndYm) {
+  //     alert(t('MSG_ALT_ABLE_START_DT_PREC_FINS_DT'));
+  //     // await alert(t('시작일자가 종료일자 보다 클 수 없습니다.'));
+  //     return;
+  //   }
+  // }
 
-  console.log(changedRows);
-
-  await dataService.post('/sms/wells/withdrawal/idvrve/automatic-prepayment-discount-exclude', changedRows);
+  await dataService.post('/sms/wells/withdrawal/idvrve/auto-prepayment-discount-exclude', changedRows);
 
   notify(t('MSG_ALT_SAVE_DATA'));
 
@@ -280,7 +279,7 @@ async function onClickRemove() {
   }
 
   if (deletedRows.length > 0) {
-    await dataService.post('/sms/wells/withdrawal/idvrve/automatic-prepayment-discount-exclude', deletedRows);
+    await dataService.post('/sms/wells/withdrawal/idvrve/auto-prepayment-discount-exclude', deletedRows);
     // notify(t('삭제되었습니다.'));
     // notify(t('MSG_ALT_DELETED'));
     await fetchData();
@@ -372,18 +371,25 @@ const initGrid = defineGrid((data, view) => {
         styleName: 'essential',
       },
       // datetimeFormat: 'date',
-      textFormat: '([0-9]{4})([0-9]{2})$;$1-$2',
+      // textFormat: '([0-9]{4})([0-9]{2})$;$1-$2',
+      // editor: {
+      //   type: 'btdate',
+      //   btOptions: {
+      //     startView: 1,
+      //     minViewMode: 1,
+      //     todayBtn: 'linked',
+      //     // language: 'kr',
+      //     todayHighlight: true,
+      //     language: 'ko',
+      //   },
+      //   datetimeFormat: 'yyyyMM',
+      // },
+      datetimeFormat: 'yyyy-MM',
       editor: {
         type: 'btdate',
         btOptions: {
-          startView: 1,
           minViewMode: 1,
-          todayBtn: 'linked',
-          // language: 'kr',
-          todayHighlight: true,
-          language: 'ko',
         },
-        datetimeFormat: 'yyyyMM',
       },
       width: '125',
       styleName: 'text-center',
@@ -396,19 +402,26 @@ const initGrid = defineGrid((data, view) => {
         // text: '선납제외종료월',
         styleName: 'essential',
       },
-      textFormat: '([0-9]{4})([0-9]{2})$;$1-$2',
+      // textFormat: '([0-9]{4})([0-9]{2})$;$1-$2',
       rules: 'required',
+      // editor: {
+      //   type: 'btdate',
+      //   btOptions: {
+      //     startView: 1,
+      //     minViewMode: 1,
+      //     todayBtn: 'linked',
+      //     // language: 'kr',
+      //     todayHighlight: true,
+      //     language: 'ko',
+      //   },
+      //   datetimeFormat: 'yyyyMM',
+      // },
+      datetimeFormat: 'yyyy-MM',
       editor: {
         type: 'btdate',
         btOptions: {
-          startView: 1,
           minViewMode: 1,
-          todayBtn: 'linked',
-          // language: 'kr',
-          todayHighlight: true,
-          language: 'ko',
         },
-        datetimeFormat: 'yyyyMM',
       },
       width: '125',
       styleName: 'text-center',
@@ -464,7 +477,7 @@ const initGrid = defineGrid((data, view) => {
           cntrSn: data.getValue(itemIndex, 'cntr').substring(12),
         };
 
-        const res = await dataService.get('/sms/wells/withdrawal/idvrve/automatic-prepayment-discount-exclude/contract-information', { params: cntrParam });
+        const res = await dataService.get('/sms/wells/withdrawal/idvrve/auto-prepayment-discount-exclude/contracts', { params: cntrParam });
 
         if (res.data) {
           const rowCtrnRes = res.data;
@@ -481,6 +494,13 @@ const initGrid = defineGrid((data, view) => {
         // alert('계약상세번호는 필수 값 입니다.');
         alert(t('MSG_ALT_NCELL_REQUIRED_VAL', [t('MSG_TXT_CNTR_DTL_NO')]));
       }
+
+      view.onValidate = async (grid, index) => {
+        const { prmDscExcdStrtYm, prmDscExcdEndYm } = grid.getValues(index.dataRow);
+        if (prmDscExcdStrtYm > prmDscExcdEndYm) {
+          return t('MSG_ALT_ABLE_START_DT_PREC_FINS_DT');
+        }
+      };
 
       // const { result, payload } = await modal({
       //   component: 'WwctaContractNumberListP',

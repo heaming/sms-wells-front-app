@@ -15,10 +15,10 @@
 <template>
   <kw-popup
     size="3xl"
-    :title="t('MSG_TIT_ITG_DP_LIST')"
   >
     <!-- 통합입금목록 -->
     <kw-search
+      :modified-targets="['grdMain']"
       @search="onClickSearch"
     >
       <kw-search-row>
@@ -136,6 +136,7 @@
 
     <kw-grid
       ref="grdMainRef"
+      name="grdMain"
       :visible-rows="10"
       @init="initGrid"
     />

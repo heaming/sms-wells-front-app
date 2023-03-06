@@ -322,6 +322,13 @@ const initGrid = defineGrid((data, view) => {
   data.setFields(fields);
   view.setColumns(columns);
 
+  // 체크박스 설정
+  view.onCellClicked = (grid, clickData) => {
+    if (clickData.cellType === 'data') {
+      grid.checkItem(clickData.itemIndex, !grid.isCheckedItem(clickData.itemIndex));
+    }
+  };
+
   view.checkBar.visible = true;
   view.rowIndicator.visible = true;
   view.editOptions.editable = true;

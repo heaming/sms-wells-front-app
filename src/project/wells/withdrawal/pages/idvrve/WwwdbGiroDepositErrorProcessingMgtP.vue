@@ -128,7 +128,7 @@ async function fetchData() {
 async function onClickExcelDownload() {
   const view = grdPageRef.value.getView();
 
-  const res = await dataService.get('/sms/wells/withdrawal/idvrve/giro-deposits/errors/excel-download');
+  const res = await dataService.get('/sms/wells/withdrawal/idvrve/giro-deposits/errors/excel-download', { params: dataParam });
 
   await gridUtil.exportView(view, {
     fileName: `${t('MSG_TXT_ERR_KR')}_Excel`,
@@ -283,6 +283,13 @@ const initGrid = defineGrid((data, view) => {
 
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
+
+  // 체크박스 설정
+  view.onCellClicked = (grid, clickData) => {
+    if (clickData.cellType === 'data') {
+      grid.checkItem(clickData.itemIndex, !grid.isCheckedItem(clickData.itemIndex));
+    }
+  };
 
   view.onCellButtonClicked = async (g, { column, itemIndex }) => {
     if (column === 'cntr') {

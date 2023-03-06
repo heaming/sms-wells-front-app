@@ -164,7 +164,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, defineGrid, getComponentType, gridUtil, modal, notify, useDataService, useGlobal, alert } from 'kw-lib';
+import { codeUtil, defineGrid, getComponentType, gridUtil, modal, notify, useDataService, useGlobal } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
 
@@ -281,22 +281,7 @@ async function onClickObjectSearch() {
 // 저장버튼
 async function onClickSave() {
   const view = grdLinkRef.value.getView();
-
   const changedRows = gridUtil.getChangedRowValues(view);
-
-  let check = 0;
-
-  changedRows.forEach((data) => {
-    if (!data.cntr) {
-      alert(t('MSG_ALT_NCELL_REQUIRED_VAL', [t('MSG_TXT_CNTR_DTL_NO')]));
-      check = 1;
-      return false;
-    }
-  });
-
-  if (check > 0) {
-    return;
-  }
 
   if (await gridUtil.alertIfIsNotModified(view)) { return; }
 
@@ -587,6 +572,20 @@ const initGrid = defineGrid((data, view) => {
   view.rowIndicator.visible = true;
   view.editOptions.editable = true;
 
+  view.onValidate = async (grid, index) => {
+    const { cntr } = await grid.getValues(index.dataRow);
+    if (!cntr) {
+      return t('MSG_ALT_NCELL_REQUIRED_VAL', [t('MSG_TXT_CNTR_DTL_NO')]);
+    }
+  };
+
+  // 체크박스 설정
+  view.onCellClicked = (grid, clickData) => {
+    if (clickData.cellType === 'data') {
+      grid.checkItem(clickData.itemIndex, !grid.isCheckedItem(clickData.itemIndex));
+    }
+  };
+
   view.onCellButtonClicked = async (g, { column, itemIndex }) => {
     if (column === 'cntr') {
       console.log(column);
@@ -635,13 +634,6 @@ const initGrid = defineGrid((data, view) => {
       }
     }
   };
-
-  // view.onScrollToBottom = async (g) => {
-  //   if (pageInfo.value.pageIndex * pageInfo.value.pageSize <= g.getItemCount()) {
-  //     pageInfo.value.pageIndex += 1;
-  //     await fetchData();
-  //   }
-  // };
 });
 
 </script>
