@@ -266,7 +266,7 @@ async function onClickExcelDownload() {
   const view = grdLinkRef.value.getView();
   const res = await dataService.get('/sms/wells/withdrawal/idvrve/giro-ocr-forwardings/excel-download', { params: cachedParams });
   await gridUtil.exportView(view, {
-    fileName: `${t('MSG_TXT_GIRO')}OCR_Excel`,
+    fileName: `${t('MSG_TXT_GIRO_OCR_FW_MGT_FW_OJ')}OCR_Excel`,
     timePostfix: true,
     exportData: res.data,
   });

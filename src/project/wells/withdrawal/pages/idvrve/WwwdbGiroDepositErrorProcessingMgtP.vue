@@ -131,7 +131,7 @@ async function onClickExcelDownload() {
   const res = await dataService.get('/sms/wells/withdrawal/idvrve/giro-deposits/errors/excel-download', { params: dataParam });
 
   await gridUtil.exportView(view, {
-    fileName: `${t('MSG_TXT_ERR_KR')}_Excel`,
+    fileName: `${t('MSG_TIT_ERR_PROCS')}_Excel`,
     timePostfix: true,
     exportData: res.data,
   });
