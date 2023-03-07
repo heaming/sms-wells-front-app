@@ -32,26 +32,21 @@
         </kw-search-item>
         <kw-search-item
           :label="$t('MSG_TXT_DIV2')"
-          required
         >
           <kw-select
             v-model="searchParams.bzHdqDvCd"
             :options="codes.DIV_DV_CD"
             :label="$t('MSG_TXT_DIV2')"
-            model-value="1000"
-            rules="required"
             readonly
           />
         </kw-search-item>
         <kw-search-item
           :label="$t('MSG_TXT_CLCTAM_DV')"
-          required
         >
           <kw-select
             v-model="searchParams.clctamDvCd"
             :options="filteredCodes.CLCTAM_DV_CD"
             :label="$t('MSG_TXT_CLCTAM_DV')"
-            rules="required"
           />
         </kw-search-item>
         <kw-search-item
@@ -186,6 +181,7 @@ import { cloneDeep } from 'lodash-es';
 const { t } = useI18n();
 const { getConfig } = useMeta();
 const { notify, alert, confirm } = useGlobal();
+const { getters } = useStore();
 const dataService = useDataService();
 
 // -------------------------------------------------------------------------------------------------
@@ -197,6 +193,7 @@ const codes = await codeUtil.getMultiCodes(
   'COD_YN',
   'CLCTAM_DV_CD',
   'DIV_DV_CD',
+  'COD_PAGE_SIZE_OPTIONS',
 );
 const filteredCodes = ref({ CLCTAM_DV_CD: codes.CLCTAM_DV_CD.filter((obj) => (obj.codeId !== '09' && obj.codeId !== '10')) });
 
@@ -215,13 +212,20 @@ const defaultDate = dayjs().format('YYYYMM');
 let cachedParams;
 const searchParams = ref({
   baseYm: defaultDate,
-  bzHdqDvCd: '1000',
+  bzHdqDvCd: '',
   clctamDvCd: '',
   nwYn: '',
   cstNo: '',
   phoneNumber: '',
   cstKnm: '',
 });
+
+const { tenantId } = getters['meta/getUserInfo'];
+watch(() => tenantId, (val) => {
+  if (val === 'TNT_EDU') { searchParams.value.bzHdqDvCd = '1000'; }
+  if (val === 'TNT_WELLS') { searchParams.value.bzHdqDvCd = '2000'; }
+}, { immediate: true });
+
 const searchDetailsParams = ref({
   baseYm: defaultDate,
   bzHdqDvCd: '1000',
@@ -325,10 +329,6 @@ async function onClickCreate() {
   }
   await dataService.post('/sms/wells/bond/part-transfers', cachedParams);
 }
-
-onMounted(() => {
-  hasPartTransfer();
-});
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
