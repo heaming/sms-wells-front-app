@@ -129,7 +129,7 @@
 // -------------------------------------------------------------------------------------------------
 
 import { codeUtil, defineGrid, getComponentType, gridUtil, useDataService, useGlobal, useMeta } from 'kw-lib';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, isEmpty } from 'lodash-es';
 import ZwcmTelephoneNumber from '~common/components/ZwcmTelephoneNumber.vue';
 
 const { getConfig } = useMeta();
@@ -339,19 +339,65 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'cntrCstNo', header: t('MSG_TXT_CST_NO'), width: 120, styleName: 'text-center' },
     { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: 100 },
     { fieldName: 'bryyMmdd', header: t('MSG_TXT_BRYY_MMDD_ENTRP_NO'), width: 140, styleName: 'text-center' },
-    { fieldName: 'cntrMpno', header: t('MSG_TXT_MPNO'), width: 120, styleName: 'text-center' },
-    { fieldName: 'cntrTno', header: t('MSG_TXT_TEL_NO'), width: 120, styleName: 'text-center' },
+    {
+      fieldName: 'cntrMpno',
+      header: t('MSG_TXT_MPNO'),
+      width: 120,
+      styleName: 'text-center',
+      displayCallback(grid, index) {
+        const { cntrCralLocaraTno, cntrMexnoEncr, cntrCralIdvTno } = grid.getValues(index.itemIndex);
+        return !isEmpty(cntrCralLocaraTno) && !isEmpty(cntrMexnoEncr) && !isEmpty(cntrCralIdvTno) ? `${cntrCralLocaraTno}-${cntrMexnoEncr}-${cntrCralIdvTno}` : '';
+      },
+    },
+    {
+      fieldName: 'cntrTno',
+      header: t('MSG_TXT_TEL_NO'),
+      width: 120,
+      styleName: 'text-center',
+      displayCallback(grid, index) {
+        const { cntrLocaraTno, cntrExnoEncr, cntrIdvTno } = grid.getValues(index.itemIndex);
+        return !isEmpty(cntrLocaraTno) && !isEmpty(cntrExnoEncr) && !isEmpty(cntrIdvTno) ? `${cntrLocaraTno}-${cntrExnoEncr}-${cntrIdvTno}` : '';
+      },
+    },
     { fieldName: 'cntrZip', header: t('MSG_TXT_ZIP'), width: 120, styleName: 'text-center' },
     { fieldName: 'cntrAdr', header: t('MSG_TXT_ADDR'), width: 300 },
     { fieldName: 'istllKnm', header: t('MSG_TXT_CST_NM'), width: 100 },
-    { fieldName: 'istllMpno', header: t('MSG_TXT_MPNO'), width: 120, styleName: 'text-center' },
-    { fieldName: 'istllTno', header: t('MSG_TXT_TEL_NO'), width: 120, styleName: 'text-center' },
+    {
+      fieldName: 'istllMpno',
+      header: t('MSG_TXT_MPNO'),
+      width: 120,
+      styleName: 'text-center',
+      displayCallback(grid, index) {
+        const { istllCralLocaraTno, istllMexnoEncr, istllCralIdvTno } = grid.getValues(index.itemIndex);
+        return !isEmpty(istllCralLocaraTno) && !isEmpty(istllMexnoEncr) && !isEmpty(istllCralIdvTno) ? `${istllCralLocaraTno}-${istllMexnoEncr}-${istllCralIdvTno}` : '';
+      },
+    },
+    {
+      fieldName: 'istllTno',
+      header: t('MSG_TXT_TEL_NO'),
+      width: 120,
+      styleName: 'text-center',
+
+      displayCallback(grid, index) {
+        const { istllLocaraTno, istllExnoEncr, istllIdvTno } = grid.getValues(index.itemIndex);
+        return !isEmpty(istllLocaraTno) && !isEmpty(istllExnoEncr) && !isEmpty(istllIdvTno) ? `${istllLocaraTno}-${istllExnoEncr}-${istllIdvTno}` : '';
+      },
+    },
     { fieldName: 'istllZip', header: t('MSG_TXT_ZIP'), width: 100, styleName: 'text-center' },
     { fieldName: 'istllAdr', header: t('MSG_TXT_ADDR'), width: 300 },
     { fieldName: 'ogNm', header: t('MSG_TXT_SLR_BRCH'), width: 120 },
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_PTNR_NAME'), width: 100 },
     { fieldName: 'prtnrNo', header: t('MSG_TXT_PRTNR_NO'), width: 120, styleName: 'text-center' },
-    { fieldName: 'prtnrMpno', header: t('MSG_TXT_MPNO'), width: 120, styleName: 'text-center' },
+    {
+      fieldName: 'prtnrMpno',
+      header: t('MSG_TXT_MPNO'),
+      width: 120,
+      styleName: 'text-center',
+      displayCallback(grid, index) {
+        const { prtnrCralLocaraTno, prtnrMexnoEncr, prtnrCralIdvTno } = grid.getValues(index.itemIndex);
+        return !isEmpty(prtnrCralLocaraTno) && !isEmpty(prtnrMexnoEncr) && !isEmpty(prtnrCralIdvTno) ? `${prtnrCralLocaraTno}-${prtnrMexnoEncr}-${prtnrCralIdvTno}` : '';
+      },
+    },
     { fieldName: 'fstRgstDtm', header: t('MSG_TXT_IN_DTM'), width: 160, datetimeFormat: 'datetime' },
     { fieldName: 'fstRgstUsrNm', header: t('MSG_TXT_TYPER'), width: 100, styleName: 'text-center' },
     { fieldName: 'fnlMdfcDtm', header: t('MSG_TXT_MDFC_DTM'), width: 160, datetimeFormat: 'datetime' },

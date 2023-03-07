@@ -16,6 +16,7 @@
   <kw-page>
     <kw-search
       :cols="3"
+      :modified-targets="['grdMain']"
       @search="onClickSearch"
     >
       <kw-search-row>
@@ -85,6 +86,7 @@
       </kw-action-top>
       <kw-grid
         ref="grdMainRef"
+        name="grdMain"
         :visible-rows="10"
         @init="initGrdMain"
       />
@@ -102,7 +104,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { defineGrid, useMeta, getComponentType, useDataService, gridUtil } from 'kw-lib';
+import { defineGrid, getComponentType, gridUtil, useDataService, useMeta } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
 
