@@ -52,7 +52,7 @@
         />
       </kw-tab-panel>
       <kw-tab-panel name="tab4">
-        <wwbnc-bond-counsel-list-m-promise-Customer-Search
+        <zwbnc-bond-counsel-m-promise-customer
           :ref="(vm) => tabRefs.tab4 = vm"
           v-model:items-checked="itemsChecked.tab4"
         />
@@ -65,6 +65,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
+import ZwbncBondCounselMPromiseCustomer from '~sms-common/bond/pages/consultation/ZwbncBondCounselMPromiseCustomer.vue';
 import WwbncBondCounselMCustomerSearch from './WwbncBondCounselMCustomerSearch.vue';
 import WwbncBondCounselMCustomer from './WwbncBondCounselMCustomer.vue';
 import WwbncBondCounselMContract from './WwbncBondCounselMContract.vue';
