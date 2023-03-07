@@ -120,14 +120,14 @@
       </kw-action-top>
       <kw-grid
         v-if="isSelectVisile"
-        ref="grdMainRef"
+        ref="grd1MainRef"
         name="grd1Main"
         :visible-rows="3"
         @init="initGrd1Main"
       />
       <kw-grid
         v-if="isSelectVisile2"
-        ref="grdMainRef"
+        ref="grd2MainRef"
         name="grd2Main"
         :visible-rows="3"
         @init="initGrd2Main"
@@ -140,7 +140,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService, getComponentType, modal } from 'kw-lib';
+import { useDataService, getComponentType, defineGrid, modal } from 'kw-lib';
 import dayjs from 'dayjs';
 
 import { cloneDeep } from 'lodash-es';
@@ -153,7 +153,8 @@ const dataService = useDataService();
 // -------------------------------------------------------------------------------------------------
 
 const now = dayjs();
-const grdMainRef = ref(getComponentType('KwGrid'));
+const grd1MainRef = ref(getComponentType('KwGrid'));
+const grd2MainRef = ref(getComponentType('KwGrid'));
 const isSelectVisile = ref(true);
 const isSelectVisile2 = ref(false);
 const totalCount = ref(0);
@@ -223,32 +224,40 @@ async function openReportPopup() {
     componentProps: param,
   });
 }
-async function fetchData() {
-  let uri = '';
-  if (isSelectVisile.value) {
-    uri = 'manager-planers';
-  } else if (isSelectVisile2.value) {
-    uri = '/home-masters';
-  }
+
+async function fetchData(uri) {
   const response = await dataService.get(`/sms/wells/fee/individual-fees/${uri}`, { params: cachedParams });
   const fees = response.data;
   searchParams.value.prPerfYm = searchParams.value.perfYm;
   searchParams.value.prOgTp = searchParams.value.ogTp;
   totalCount.value = fees.length;
-  const view = grdMainRef.value.getView();
-  view.getDataSource().setRows(fees);
-  view.resetCurrent();
+  cachedParams = cloneDeep(searchParams.value);
+  if (isSelectVisile.value) {
+    const managerView = grd1MainRef.value.getView();
+    managerView.getDataSource().setRows(fees);
+    managerView.resetCurrent();
+  } else if (isSelectVisile2.value) {
+    const homeMasterView = grd2MainRef.value.getView();
+    homeMasterView.getDataSource().setRows(fees);
+    homeMasterView.resetCurrent();
+  }
 }
 
 async function onClickSearch() {
+  let uri = '';
   cachedParams = cloneDeep(searchParams.value);
-  await fetchData();
+  if (isSelectVisile.value) {
+    uri = 'manager-planers';
+  } else if (isSelectVisile2.value) {
+    uri = 'home-masters';
+  }
+  await fetchData(uri);
 }
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
-function initGrd1Main(data, view) {
+const initGrd1Main = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'col1' },
     { fieldName: 'col2' },
@@ -297,9 +306,9 @@ function initGrd1Main(data, view) {
       movePage(g.getValue(dataRow, 'col5'));
     }
   };
-}
+});
 
-function initGrd2Main(data, view) {
+const initGrd2Main = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'col1' },
     { fieldName: 'col2' },
@@ -346,5 +355,5 @@ function initGrd2Main(data, view) {
       movePage(g.getValue(dataRow, 'col4'));
     }
   };
-}
+});
 </script>
