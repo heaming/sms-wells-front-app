@@ -36,7 +36,7 @@
     </template>
     <!-- 삭제 -->
     <kw-btn
-      grid-action
+      dense
       :label="$t('MSG_BTN_DEL')"
       @click="onClickMaterialDelRows"
     />
@@ -69,7 +69,7 @@
     </template>
     <!-- 삭제 -->
     <kw-btn
-      grid-action
+      dense
       :label="$t('MSG_BTN_DEL')"
       @click="onClickServiceDelRows"
     />
@@ -108,7 +108,7 @@
     <!-- 삭제 -->
     <kw-btn
       v-show="!props.readonly"
-      grid-action
+      dense
       :label="$t('MSG_BTN_DEL')"
       @click="onClickStandardDelRows"
     />
@@ -173,9 +173,9 @@ const serviceSelectItems = ref([
   { codeId: pdConst.PD_SEARCH_CODE, codeName: t('MSG_TXT_SVC_CODE') },
 ]);
 
-const materialSearchType = ref();
+const materialSearchType = ref(pdConst.PD_SEARCH_NAME);
 const materialSearchValue = ref();
-const serviceSearchType = ref();
+const serviceSearchType = ref(pdConst.PD_SEARCH_NAME);
 const serviceSearchValue = ref();
 const standardRelType = ref();
 const standardSearchValue = ref();
@@ -235,7 +235,7 @@ async function insertCallbackRows(view, rtn, pdRelTpCd) {
 }
 
 async function deleteCheckedRows(view) {
-  gridUtil.deleteCheckedRows(view);
+  await gridUtil.confirmDeleteCheckedRows(view);
 }
 
 async function onClickMaterialSchPopup() {

@@ -36,7 +36,7 @@
     </template>
     <kw-btn
       v-show="!props.readonly"
-      grid-action
+      dense
       :label="$t('MSG_BTN_DEL')"
       @click="onClickProductDelRows"
     />
@@ -84,7 +84,7 @@ const productSelectItems = ref([
   { codeId: pdConst.PD_SEARCH_CODE, codeName: t('MSG_TXT_PROD_CD') },
 ]);
 
-const productSearchType = ref();
+const productSearchType = ref(pdConst.PD_SEARCH_NAME);
 const productSearchValue = ref();
 
 const searchParams = ref({
@@ -124,7 +124,7 @@ async function insertCallbackRows(view, rtn, pdRelTpCd) {
 }
 
 async function deleteCheckedRows(view) {
-  gridUtil.deleteCheckedRows(view);
+  await gridUtil.confirmDeleteCheckedRows(view);
 }
 
 async function onClickProductSchPopup() {

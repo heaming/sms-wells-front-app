@@ -26,6 +26,7 @@
         :label="$t('MSG_BTN_DEL')"
         secondary
         dense
+        :disable="gridRowCount === 0"
         @click="onClickRemove"
       />
     </kw-action-top>
@@ -43,7 +44,7 @@
 import { gridUtil, getComponentType } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 import pdConst from '~sms-common/product/constants/pdConst';
-import { setPdGridRows, pdMergeBy, getGridRowsToSavePdProps, getPropInfosToGridRows, getPdMetaToGridInfos } from '~sms-common/product/utils/pdUtil';
+import { getGridRowCount, setPdGridRows, pdMergeBy, getGridRowsToSavePdProps, getPropInfosToGridRows, getPdMetaToGridInfos } from '~sms-common/product/utils/pdUtil';
 
 /* eslint-disable no-use-before-define */
 defineExpose({
@@ -59,6 +60,7 @@ const props = defineProps({
 });
 
 const { t } = useI18n();
+
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -72,6 +74,7 @@ const currentPdCd = ref();
 const currentInitData = ref(null);
 const currentMetaInfos = ref();
 const removeObjects = ref([]);
+const gridRowCount = ref(0);
 
 async function getSaveData() {
   const view = grdMainRef.value.getView();
@@ -141,10 +144,12 @@ async function initGridRows() {
   } else {
     view.getDataSource().clearRows();
   }
+  gridRowCount.value = getGridRowCount(view);
 }
 
 async function onClickRemove() {
-  const deletedRowValues = gridUtil.deleteCheckedRows(grdMainRef.value.getView());
+  const view = grdMainRef.value.getView();
+  const deletedRowValues = await gridUtil.confirmDeleteCheckedRows(view);
   if (deletedRowValues && deletedRowValues.length) {
     removeObjects.value.push(...deletedRowValues.reduce((rtn, item) => {
       if (item[pdConst.PRC_FNL_ROW_ID]) {
@@ -153,6 +158,7 @@ async function onClickRemove() {
       return rtn;
     }, []));
   }
+  gridRowCount.value = getGridRowCount(view);
 }
 
 async function initProps() {
