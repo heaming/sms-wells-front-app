@@ -47,20 +47,15 @@
         </kw-search-item>
       </kw-search-row>
       <kw-search-row>
-        <ZwcmWareHouseSearch
-          v-model:start-ym="searchParams.stStrDt"
-          v-model:end-ym="searchParams.edStrDt"
-          v-model:options-ware-dv-cd="ostrWareDvCd"
-          v-model:ware-dv-cd="searchParams.ostrWareDvCd"
-          v-model:ware-no-m="searchParams.ostrWareNoM"
-          v-model:ware-no-d="searchParams.ostrWareNoD"
-          sub-first-option="all"
-          :colspan="2"
-          :label1="$t('MSG_TXT_STR_DT')"
-          :label2="$t('MSG_TXT_OSTR_WARE')"
-          :label3="$t('MSG_TXT_HGR_WARE')"
-          :label4="$t('MSG_TXT_WARE')"
-        />
+        <kw-search-item
+          :label="$t('MSG_TXT_OSTR_WARE')"
+        >
+          <kw-select
+            v-model="searchParams.wareDvCd"
+            :options="codes.WARE_DV_CD"
+            first-option="all"
+          />
+        </kw-search-item>
       </kw-search-row>
     </kw-search>
 
@@ -105,7 +100,7 @@
 import { useDataService, codeUtil, defineGrid, getComponentType, gridUtil, useGlobal } from 'kw-lib';
 import dayjs from 'dayjs';
 import { cloneDeep } from 'lodash-es';
-import ZwcmWareHouseSearch from '~sms-common/service/components/ZwsnzWareHouseSearch.vue';
+// import ZwcmWareHouseSearch from '~sms-common/service/components/ZwsnzWareHouseSearch.vue';
 
 const grdMainRef = ref(getComponentType('KwGrid'));
 
@@ -123,9 +118,7 @@ const searchParams = ref({
   edStrDt: '',
   strOjWareNo: '',
   strTpCd: '',
-  ostrWareDvCd: '2',
-  ostrWareNoD: '',
-  ostrWareNoM: '',
+  wareDvCd: '2',
 });
 
 const totalCount = ref(0);
