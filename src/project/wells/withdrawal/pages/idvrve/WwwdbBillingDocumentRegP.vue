@@ -37,6 +37,8 @@
               :label="t('MSG_TXT_CUSTOMER')"
               rules="required|max:16"
               :disable="regMainData.isSearchChk"
+              maxlength="48"
+              counter
               @click-icon="onClickSearchUser"
             />
             <!-- :custom-messages="{ is: $t('MSG_ALT_CHK_DUP') }" -->
@@ -173,15 +175,6 @@ async function onClickAddRow() {
   gridUtil.insertRowAndFocus(view, 0, {});
 }
 
-// 행삭제
-async function onClickRemove() {
-  const view = grdPageRef.value.getView();
-
-  if (!await gridUtil.confirmIfIsModified(view)) { return; }
-
-  await gridUtil.confirmDeleteCheckedRows(view);
-}
-
 let cachedParams;
 
 // 저장 버튼
@@ -250,6 +243,37 @@ async function fetchData() {
   data.checkRowStates(true);
 }
 
+// 행삭제
+async function onClickRemove() {
+  const view = grdPageRef.value.getView();
+
+  if (!await gridUtil.confirmIfIsModified(view)) { return; }
+
+  const deletedRows = await gridUtil.confirmDeleteCheckedRows(view);
+
+  deletedRows.forEach((data) => {
+    if (data.rowState === 'none') {
+      data.rowState = 'deleted';
+    }
+  });
+
+  const mainData = cloneDeep(regMainData.value);
+
+  cachedParams = {
+    saveDtlsReq: deletedRows,
+    saveMainReq: mainData,
+  };
+
+  console.log(deletedRows);
+
+  if (deletedRows.length > 0) {
+    await dataService.post('/sms/wells/withdrawal/idvrve/billing-document-orders/details', cachedParams);
+    // notify(t('삭제되었습니다.'));
+    // notify(t('MSG_ALT_DELETED'));
+    await fetchData();
+  }
+}
+
 async function initProps() {
   if (props.bildcPblNo) {
     const { bildcPblNo, cstFnm, bildcWrteDt, bildcPblSn } = props;
@@ -296,7 +320,7 @@ const initGrid = defineGrid((data, view) => {
       header: t('MSG_TXT_QTY'),
       // header: '수량',
       width: '100',
-      styleName: 'text-left',
+      // styleName: 'text-right',
       rules: 'required|max:12',
       editor: {
         type: 'number',

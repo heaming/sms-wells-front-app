@@ -266,7 +266,7 @@ async function onClickExcelDownload() {
   const view = grdLinkRef.value.getView();
   const res = await dataService.get('/sms/wells/withdrawal/idvrve/giro-ocr-forwardings/excel-download', { params: cachedParams });
   await gridUtil.exportView(view, {
-    fileName: `${t('MSG_TXT_GIRO_OCR_FW_MGT_FW_OJ')}OCR_Excel`,
+    fileName: `${t('MSG_TXT_GIRO_OCR_FW_MGT_FW_OJ')}`,
     timePostfix: true,
     exportData: res.data,
   });
@@ -443,7 +443,7 @@ const initGrid = defineGrid((data, view) => {
       numberFormat: '#,##0',
       // , header: '시작'
       width: '70',
-      styleName: 'text-left',
+      styleName: 'text-right',
       editable: true },
     { fieldName: 'endGiroTn',
       header: t('MSG_TXT_SHUTDOWN'),
@@ -453,13 +453,13 @@ const initGrid = defineGrid((data, view) => {
       rules: 'required|max:5',
       // , header: '종료'
       width: '70',
-      styleName: 'text-left',
+      styleName: 'text-right',
       editable: true },
     { fieldName: 'thm0Amt',
       header: 0 + t('MSG_TXT_NMN'),
       width: '100',
       rules: 'required|max:20',
-      styleName: 'text-center',
+      styleName: 'text-right',
       editable: true,
       editor: {
         type: 'number',
@@ -470,7 +470,7 @@ const initGrid = defineGrid((data, view) => {
       header: t('MSG_TXT_RENT_PRD_MN'),
       // , header: '렌탈기간'
       width: '70',
-      styleName: 'text-left',
+      styleName: 'text-right',
       rules: 'required|max:12',
       editable: true,
       editor: {

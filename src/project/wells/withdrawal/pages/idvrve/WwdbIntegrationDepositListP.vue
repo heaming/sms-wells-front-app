@@ -268,7 +268,7 @@ async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
   const res = await dataService.get('/sms/wells/withdrawal/idvrve/integration-deposit/excel-download', { params: cachedParams });
   await gridUtil.exportView(view, {
-    fileName: `${t('MSG_TIT_ITG_DP_LIST')}_Excel`,
+    fileName: `${t('MSG_TIT_ITG_DP_LIST')}`,
     timePostfix: true,
     exportData: res.data,
   });
