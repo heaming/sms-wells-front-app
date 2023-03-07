@@ -15,138 +15,108 @@
 
 <template>
   <kw-page>
-    <kw-tabs
-      model-value="5"
+    <kw-search
+      @search="onClickSearch"
     >
-      <kw-tab
-        name="1"
-        :label="$t('MSG_TXT_APRV_CRTE_MGT')"
-      />
-      <kw-tab
-        name="2"
-        :label="$t('MSG_TXT_EXCP_HAND_MGT')"
-      />
-      <kw-tab
-        name="3"
-        :label="$t('MSG_TXT_BIZ_SUBS_RES_MGT')"
-      />
-      <kw-tab
-        name="4"
-        :label="$t('MSG_TXT_USR_SLS_RES_MGT')"
-      />
-      <kw-tab
-        name="5"
-        :label="$t('MSG_TXT_BLKLST_MGT')"
-      />
-    </kw-tabs>
-    <kw-tab-panels
-      model-value="5"
-    >
-      <kw-tab-panel name="5">
-        <kw-search
-          @search="onClickSearch"
-        >
-          <kw-search-row>
-            <kw-search-item :label="$t('MSG_TXT_CST_NO')">
-              <kw-input
-                v-model="searchParams.cntrCstNo"
-                icon="search_24"
-                @click-icon="onClickSearchCst"
-              />
-            </kw-search-item>
-            <kw-search-item :label="$t('MSG_TXT_CNTR_NO')">
-              <kw-input v-model="searchParams.cntrNo" />
-            </kw-search-item>
-            <kw-search-item :label="$t('MSG_TXT_CST_NM')">
-              <kw-input v-model="searchParams.cstKnm" />
-            </kw-search-item>
-          </kw-search-row>
-          <kw-search-row>
-            <kw-search-item :label="$t('MSG_TXT_ADD_PST_CD')">
-              <kw-select
-                v-model="searchParams.adrCl"
-                first-option="all"
-                class="w103"
-                :options="codes.ADR_CL"
-              />
-              <kw-input
-                v-model="searchParams.adr"
-              />
-            </kw-search-item>
-            <kw-search-item :label="$t('MSG_TXT_MPNO')">
-              <zwcm-telephone-number
-                v-model:tel-no1="searchParams.cralLocaraTno"
-                v-model:tel-no2="searchParams.mexnoEncr"
-                v-model:tel-no3="searchParams.cralIdvTno"
-              />
-            </kw-search-item>
-            <kw-search-item :label="$t('MSG_TXT_PRTNR')">
-              <kw-input v-model="searchParams.prtnrInfo" />
-            </kw-search-item>
-          </kw-search-row>
-        </kw-search>
-        <div class="result-area">
-          <kw-action-top>
-            <template #left>
-              <kw-paging-info
-                v-model:page-index="pageInfo.pageIndex"
-                v-model:page-size="pageInfo.pageSize"
-                :total-count="pageInfo.totalCount"
-                :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
-                @change="fetchData"
-              />
-            </template>
-
-            <kw-btn
-              grid-action
-              :label="$t('MSG_BTN_DEL')"
-              @click="onClickDelete"
-            />
-            <kw-separator
-              spaced
-              vertical
-              inset
-            />
-            <kw-btn
-              grid-action
-              :label="$t('MSG_BTN_ROW_ADD')"
-              @click="onClickAdd"
-            />
-            <kw-btn
-              grid-action
-              :label="$t('MSG_BTN_SAVE')"
-              @click="onClickSave"
-            />
-            <kw-separator
-              spaced
-              vertical
-              inset
-            />
-
-            <kw-btn
-              :label="$t('MSG_BTN_EXCEL_DOWN')"
-              :disable="pageInfo.totalCount === 0"
-              icon="download_on"
-              dense
-              secondary
-              @click="onClickExcelDownload"
-            />
-          </kw-action-top>
-
-          <kw-grid
-            ref="grdMainRef"
-            :visible-rows="10"
-            @init="initGrid"
+      <kw-search-row>
+        <kw-search-item :label="$t('MSG_TXT_CST_NO')">
+          <kw-input
+            v-model="searchParams.cntrCstNo"
+            icon="search_24"
+            @click-icon="onClickSearchCst"
           />
-          <kw-pagination
+        </kw-search-item>
+        <kw-search-item :label="$t('MSG_TXT_CNTR_NO')">
+          <kw-input v-model="searchParams.cntrNo" />
+        </kw-search-item>
+        <kw-search-item :label="$t('MSG_TXT_CST_NM')">
+          <kw-input v-model="searchParams.cstKnm" />
+        </kw-search-item>
+      </kw-search-row>
+      <kw-search-row>
+        <kw-search-item :label="$t('MSG_TXT_ADD_PST_CD')">
+          <kw-select
+            v-model="searchParams.adrCl"
+            first-option="all"
+            class="w103"
+            :options="codes.ADR_CL"
+          />
+          <kw-input
+            v-model="searchParams.adr"
+          />
+        </kw-search-item>
+        <kw-search-item :label="$t('MSG_TXT_MPNO')">
+          <zwcm-telephone-number
+            v-model:tel-no1="searchParams.cralLocaraTno"
+            v-model:tel-no2="searchParams.mexnoEncr"
+            v-model:tel-no3="searchParams.cralIdvTno"
+          />
+        </kw-search-item>
+        <kw-search-item :label="$t('MSG_TXT_PRTNR')">
+          <kw-input v-model="searchParams.prtnrInfo" />
+        </kw-search-item>
+      </kw-search-row>
+    </kw-search>
+    <div class="result-area">
+      <kw-action-top>
+        <template #left>
+          <kw-paging-info
             v-model:page-index="pageInfo.pageIndex"
             v-model:page-size="pageInfo.pageSize"
             :total-count="pageInfo.totalCount"
+            :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
             @change="fetchData"
           />
-        </div>
-      </kw-tab-panel>
-    </kw-tab-panels>
+        </template>
+
+        <kw-btn
+          grid-action
+          :label="$t('MSG_BTN_DEL')"
+          @click="onClickDelete"
+        />
+        <kw-separator
+          spaced
+          vertical
+          inset
+        />
+        <kw-btn
+          grid-action
+          :label="$t('MSG_BTN_ROW_ADD')"
+          @click="onClickAdd"
+        />
+        <kw-btn
+          grid-action
+          :label="$t('MSG_BTN_SAVE')"
+          @click="onClickSave"
+        />
+        <kw-separator
+          spaced
+          vertical
+          inset
+        />
+
+        <kw-btn
+          :label="$t('MSG_BTN_EXCEL_DOWN')"
+          :disable="pageInfo.totalCount === 0"
+          icon="download_on"
+          dense
+          secondary
+          @click="onClickExcelDownload"
+        />
+      </kw-action-top>
+
+      <kw-grid
+        ref="grdMainRef"
+        :visible-rows="10"
+        @init="initGrid"
+      />
+      <kw-pagination
+        v-model:page-index="pageInfo.pageIndex"
+        v-model:page-size="pageInfo.pageSize"
+        :total-count="pageInfo.totalCount"
+        @change="fetchData"
+      />
+    </div>
   </kw-page>
 </template>
 
@@ -243,7 +213,7 @@ async function onClickSearch() {
 async function onClickSave() {
   const view = grdMainRef.value.getView();
   if (await gridUtil.alertIfIsNotModified(view)) { return; }
-  if (!gridUtil.validate(view)) { return; }
+  if (!await gridUtil.validate(view)) { return; }
 
   const changedRows = gridUtil.getChangedRowValues(view);
   await dataService.post('/sms/wells/contract/sales-limits/blacklists', changedRows);

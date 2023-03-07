@@ -14,160 +14,134 @@
 --->
 <template>
   <kw-page>
-    <kw-tabs model-value="exceptionHandling">
-      <kw-tab
-        name="confirmCriteria"
-        :label="$t('MSG_TXT_APRV_CRTE_MGT')"
-      />
-      <kw-tab
-        name="exceptionHandling"
-        :label="$t('MSG_TXT_EXCP_HAND_MGT')"
-      />
-      <kw-tab
-        name="businessRestriction"
-        :label="$t('MSG_TXT_BIZ_SUBS_RES_MGT')"
-      />
-      <kw-tab
-        name="userRestriction"
-        :label="$t('MSG_TXT_USR_SLS_RES_MGT')"
-      />
-      <kw-tab
-        name="blackList"
-        :label="$t('MSG_TXT_BLKLST_MGT')"
-      />
-    </kw-tabs>
-    <kw-tab-panels model-value="exceptionHandling">
-      <kw-tab-panel name="exceptionHandling">
-        <kw-search
-          :cols="3"
-          :modified-targets="['grdMain']"
-          @search="onClickSearch"
+    <kw-search
+      :cols="3"
+      :modified-targets="['grdMain']"
+      @search="onClickSearch"
+    >
+      <kw-search-row>
+        <kw-search-item
+          :label="$t('MSG_TXT_ACEPT_PERIOD')"
+          required
         >
-          <kw-search-row>
-            <kw-search-item
-              :label="$t('MSG_TXT_ACEPT_PERIOD')"
-              required
-            >
-              <kw-date-range-picker
-                v-model:from="searchParams.strtDt"
-                v-model:to="searchParams.endDt"
-                :label="$t('MSG_TXT_ACEPT_PERIOD')"
-                rules="date_range_required"
-              />
-            </kw-search-item>
-
-            <kw-search-item
-              :label="$t('MSG_TXT_EX_PROCS_CD')"
-            >
-              <kw-select
-                v-model="searchParams.exProcsCd"
-                :options="codes.EX_PROCS_CD"
-                first-option="all"
-              />
-            </kw-search-item>
-
-            <kw-search-item
-              :label="$t('MSG_TXT_PRTNR_NO')"
-            >
-              <kw-input
-                v-model="searchParams.prtnrNo"
-                :label="$t('MSG_TXT_PRTNR_NO')"
-                icon="search"
-                rules="max:10|numeric"
-                clearable
-                @click-icon="onClickOpenEmployeeSearchPopup"
-              />
-            </kw-search-item>
-          </kw-search-row>
-
-          <kw-search-row>
-            <kw-search-item
-              :label="$t('MSG_TXT_CST_NO')"
-            >
-              <kw-input
-                v-model="searchParams.cstNo"
-                :label="$t('MSG_TXT_CST_NO')"
-                icon="search"
-                rules="max:10|numeric"
-                clearable
-                @click-icon="onClickOpenCustomerSearchPopup"
-              />
-            </kw-search-item>
-
-            <kw-search-item
-              :label="$t('MSG_TXT_CNTR_NO')"
-            >
-              <kw-input
-                v-model="searchParams.cntrNo"
-                rules="max:15"
-              />
-            </kw-search-item>
-          </kw-search-row>
-        </kw-search>
-
-        <div class="result-area">
-          <kw-action-top>
-            <template #left>
-              <kw-paging-info
-                :page-size="pageInfo.pageSize"
-                :total-count="pageInfo.totalCount"
-              />
-            </template>
-            <kw-btn
-              dense
-              grid-action
-              :label="$t('MSG_BTN_DEL')"
-              @click="onClickRemove"
-            />
-            <kw-separator
-              spaced
-              vertical
-              inset
-            />
-            <kw-btn
-              dense
-              grid-action
-              :label="$t('MSG_BTN_ROW_ADD')"
-              @click="onClickAdd"
-            />
-            <kw-btn
-              dense
-              grid-action
-              :label="$t('MSG_BTN_SAVE')"
-              @click="onClickSave"
-            />
-            <kw-separator
-              spaced
-              vertical
-              inset
-            />
-            <kw-btn
-              v-permission:download
-              icon="download_on"
-              dense
-              secondary
-              :disable="pageInfo.totalCount===0"
-              :label="$t('MSG_BTN_EXCEL_DOWN')"
-              @click="onClickExcelDownload"
-            />
-          </kw-action-top>
-
-          <kw-grid
-            ref="grdMainRef"
-            name="grdMain"
-            :visible-rows="pageInfo.pageSize"
-            @init="initGrid"
+          <kw-date-range-picker
+            v-model:from="searchParams.strtDt"
+            v-model:to="searchParams.endDt"
+            :label="$t('MSG_TXT_ACEPT_PERIOD')"
+            rules="date_range_required"
           />
+        </kw-search-item>
 
-          <kw-pagination
-            v-model:page-index="pageInfo.pageIndex"
-            v-model:page-size="pageInfo.pageSize"
+        <kw-search-item
+          :label="$t('MSG_TXT_EX_PROCS_CD')"
+        >
+          <kw-select
+            v-model="searchParams.exProcsCd"
+            :options="codes.EX_PROCS_CD"
+            first-option="all"
+          />
+        </kw-search-item>
+
+        <kw-search-item
+          :label="$t('MSG_TXT_PRTNR_NO')"
+        >
+          <kw-input
+            v-model="searchParams.prtnrNo"
+            :label="$t('MSG_TXT_PRTNR_NO')"
+            icon="search"
+            rules="max:10|numeric"
+            clearable
+            @click-icon="onClickOpenEmployeeSearchPopup"
+          />
+        </kw-search-item>
+      </kw-search-row>
+
+      <kw-search-row>
+        <kw-search-item
+          :label="$t('MSG_TXT_CST_NO')"
+        >
+          <kw-input
+            v-model="searchParams.cstNo"
+            :label="$t('MSG_TXT_CST_NO')"
+            icon="search"
+            rules="max:10|numeric"
+            clearable
+            @click-icon="onClickOpenCustomerSearchPopup"
+          />
+        </kw-search-item>
+
+        <kw-search-item
+          :label="$t('MSG_TXT_CNTR_NO')"
+        >
+          <kw-input
+            v-model="searchParams.cntrNo"
+            rules="max:15"
+          />
+        </kw-search-item>
+      </kw-search-row>
+    </kw-search>
+
+    <div class="result-area">
+      <kw-action-top>
+        <template #left>
+          <kw-paging-info
+            :page-size="pageInfo.pageSize"
             :total-count="pageInfo.totalCount"
-            @change="fetchData"
           />
-        </div>
-      </kw-tab-panel>
-    </kw-tab-panels>
+        </template>
+        <kw-btn
+          dense
+          grid-action
+          :label="$t('MSG_BTN_DEL')"
+          @click="onClickRemove"
+        />
+        <kw-separator
+          spaced
+          vertical
+          inset
+        />
+        <kw-btn
+          dense
+          grid-action
+          :label="$t('MSG_BTN_ROW_ADD')"
+          @click="onClickAdd"
+        />
+        <kw-btn
+          dense
+          grid-action
+          :label="$t('MSG_BTN_SAVE')"
+          @click="onClickSave"
+        />
+        <kw-separator
+          spaced
+          vertical
+          inset
+        />
+        <kw-btn
+          v-permission:download
+          icon="download_on"
+          dense
+          secondary
+          :disable="pageInfo.totalCount===0"
+          :label="$t('MSG_BTN_EXCEL_DOWN')"
+          @click="onClickExcelDownload"
+        />
+      </kw-action-top>
+
+      <kw-grid
+        ref="grdMainRef"
+        name="grdMain"
+        :visible-rows="pageInfo.pageSize"
+        @init="initGrid"
+      />
+
+      <kw-pagination
+        v-model:page-index="pageInfo.pageIndex"
+        v-model:page-size="pageInfo.pageSize"
+        :total-count="pageInfo.totalCount"
+        @change="fetchData"
+      />
+    </div>
   </kw-page>
 </template>
 <script setup>
