@@ -132,7 +132,7 @@
         dense
         secondary
         :label="$t('B/S 배정 이월')"
-        @click="onClickBSCarriedForward"
+        @click="onClickBsCarriedForward"
       />
       <kw-btn
         dense
@@ -210,6 +210,7 @@
         </kw-action-top>
         <kw-grid
           ref="gridMainRef1"
+          name="gridMain1"
           :visible-rows="10"
           @init="initGrid1"
         />
@@ -224,6 +225,7 @@
         </kw-action-top>
         <kw-grid
           ref="gridMainRef2"
+          name="gridMain2"
           :visible-rows="10"
           @init="initGrid2"
         />
@@ -344,11 +346,11 @@ const codes = await codeUtil.getMultiCodes(
  *  조회(고객정보, 방문현황, 주기표)
  */
 async function getCustomerVisitPeriod() {
-  const res = await dataService.get('/sms/wells/service/individual-visit-prds/getCustomerInfo', { params: { ...customerParam.value } });
+  const res = await dataService.get('/sms/wells/service/individual-visit-prds/customer-infos', { params: { ...customerParam.value } });
   customerInfo.value = res.data;
 
   // 방문현황 조회
-  const visitRes = await dataService.get('/sms/wells/service/individual-visit-prds/getVisits', { params: { ...customerParam.value } });
+  const visitRes = await dataService.get('/sms/wells/service/individual-visit-prds/visits', { params: { ...customerParam.value } });
   // visitList.value = visitRes.data;
   const view1 = gridMainRef1.value.getView();
   totalCountForLeft.value.totalCount = visitRes.data.length;
@@ -358,7 +360,7 @@ async function getCustomerVisitPeriod() {
   // 주기표 조회
   periodParam.value.svPdCd = customerInfo.value.svPdCd;
   periodParam.value.pdctPdCd = customerInfo.value.pdctPdCd;
-  const periodRes = await dataService.get('/sms/wells/service/individual-visit-prds/getPeriods', { params: { ...periodParam.value } });
+  const periodRes = await dataService.get('/sms/wells/service/individual-visit-prds/periods', { params: { ...periodParam.value } });
   // periodList.value = periodRes.data;
   const view2 = gridMainRef2.value.getView();
   totalCountForRight.value.totalCount = periodRes.data.length;
@@ -383,17 +385,14 @@ async function onClickBSAssign() {
     return;
   }
 
-  const res = await dataService.post('/sms/wells/service/individual-visit-prds/bs-assigns', processParam.value);
-
-  if (res.status === 200) {
-    await notify(t('MSG_ALT_SAVE_DATA'));
-  }
+  await dataService.post('/sms/wells/service/individual-visit-prds/bs-assigns', processParam.value);
+  notify(t('MSG_ALT_SAVE_DATA'));
 }
 
 /*
  *  Event - B/S 배정 이월 버튼 클릭
  */
-async function onClickBSCarriedForward() {
+async function onClickBsCarriedForward() {
   // 배정일자
   if (processParam.value.asnOjYmd === '') {
     await alert(t('MSG_ALT_NCELL_REQUIRED_ITEM', [t('배정일자')]));
@@ -412,11 +411,8 @@ async function onClickBSCarriedForward() {
     return;
   }
 
-  const res = await dataService.post('/sms/wells/service/individual-visit-prds/carried-forwards', processParam.value);
-
-  if (res.status === 200) {
-    await notify(t('MSG_ALT_SAVE_DATA'));
-  }
+  await dataService.post('/sms/wells/service/individual-visit-prds/carried-forwards', processParam.value);
+  notify(t('MSG_ALT_SAVE_DATA'));
 }
 
 /*
@@ -441,11 +437,8 @@ async function onClickBSDelete() {
     return;
   }
 
-  const res = await dataService.delete('/sms/wells/service/individual-visit-prds/bs-deletes', { params: { ...processParam.value } });
-
-  if (res.status === 200) {
-    await notify(t('MSG_ALT_DELETED'));
-  }
+  await dataService.delete('/sms/wells/service/individual-visit-prds/bs-deletes', { params: { ...processParam.value } });
+  notify(t('MSG_ALT_DELETED'));
 }
 
 /*
@@ -470,11 +463,8 @@ async function onClickBSForceAssign() {
     return;
   }
 
-  const res = await dataService.post('/sms/wells/service/individual-visit-prds/bs-force-assigns', processParam.value);
-
-  if (res.status === 200) {
-    await notify(t('MSG_ALT_SAVE_DATA'));
-  }
+  await dataService.post('/sms/wells/service/individual-visit-prds/bs-force-assigns', processParam.value);
+  notify(t('MSG_ALT_SAVE_DATA'));
 }
 
 /*
@@ -493,11 +483,8 @@ async function onClickVisitPeriodDelete() {
     return;
   }
 
-  const res = await dataService.delete('/sms/wells/service/individual-visit-prds/visit-period-deletes', { params: { ...processParam.value } });
-
-  if (res.status === 200) {
-    await notify(t('MSG_ALT_DELETED'));
-  }
+  await dataService.delete('/sms/wells/service/individual-visit-prds/visit-period-deletes', { params: { ...processParam.value } });
+  notify(t('MSG_ALT_DELETED'));
 }
 
 /*
@@ -516,11 +503,8 @@ async function onClickVisitPeriodRegen() {
     return;
   }
 
-  const res = await dataService.post('/sms/wells/service/individual-visit-prds/visit-period-regens', processParam.value);
-
-  if (res.status === 200) {
-    await notify(t('MSG_ALT_SAVE_DATA'));
-  }
+  await dataService.post('/sms/wells/service/individual-visit-prds/visit-period-regens', processParam.value);
+  notify(t('MSG_ALT_SAVE_DATA'));
 }
 
 /*
@@ -550,7 +534,7 @@ const initGrid1 = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'vstNmnN', header: '방문', width: '100', styleName: 'text-center' },
     { fieldName: 'istNmnN', header: '설치', width: '100', styleName: 'text-center' },
-    { fieldName: 'vstDuedt', header: '예정일자', datetimeFormat: 'yyyy-MM-dd', width: '100', styleName: 'text-center' },
+    { fieldName: 'vstDuedt', header: '예정일자', datetimeFormat: 'date', width: '100', styleName: 'text-center' },
     { fieldName: 'svBizDclsfCd', header: '작업구분', width: '100', styleName: 'text-left' },
     {
       fieldName: 'filtChngLvCd',
