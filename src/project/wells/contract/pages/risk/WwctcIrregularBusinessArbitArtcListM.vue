@@ -130,9 +130,9 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { gridUtil, defineGrid, getComponentType, useDataService, useMeta, codeUtil, useGlobal } from 'kw-lib';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, isEmpty } from 'lodash-es';
 
-const { modal } = useGlobal();
+const { notify } = useGlobal();
 const { getConfig } = useMeta();
 const dataService = useDataService();
 const { t } = useI18n();
@@ -185,19 +185,13 @@ async function onClickExcelDownload() {
   const response = await dataService.get('/sms/wells/contract/risk-audits/irregular-sales-actions/excel-download', { params: cachedParams });
 
   await gridUtil.exportView(view, {
-    fileName: 'monitorContractRiskList',
+    fileName: t('MSG_TXT_IRG_BZNS_ARBIT_LIST'),
     timePostfix: true,
     exportData: response.data,
   });
 }
 async function onClickSearchPartnerId() {
-  const { result, payload } = await modal({
-    component: 'ZwogcPartnerListP',
-  });
-
-  if (result) {
-    searchParams.value.dangOjPrtnrNo = payload.prtnrNo;
-  }
+  notify(t('팝업 준비중 입니다.'));
 }
 
 async function fetchData() {
@@ -227,6 +221,28 @@ async function fetchData() {
 }
 
 async function onClickSearch() {
+  if (searchParams.value.srchGbn === 1) {
+    if ((isEmpty(searchParams.value.dangOcStrtdt)) && (!isEmpty(searchParams.value.dangOcEnddt))) {
+      notify(t('MSG_ALT_CHK_DT_RLT'));
+      return;
+    }
+    if ((!isEmpty(searchParams.value.dangOcStrtdt)) && (isEmpty(searchParams.value.dangOcEnddt))) {
+      notify(t('MSG_ALT_CHK_DT_RLT'));
+      return;
+    }
+  }
+
+  if (searchParams.value.srchGbn === 2) {
+    if ((isEmpty(searchParams.value.dangOcStrtMonth)) && (!isEmpty(searchParams.value.dangOcEndMonth))) {
+      notify(t('MSG_ALT_CHK_DT_RLT'));
+      return;
+    }
+    if ((!isEmpty(searchParams.value.dangOcStrtMonth)) && (isEmpty(searchParams.value.dangOcEndMonth))) {
+      notify(t('MSG_ALT_CHK_DT_RLT'));
+      return;
+    }
+  }
+
   pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
@@ -235,6 +251,12 @@ async function onClickSearch() {
 async function onClickDelete() {
   const view = grdMainRef.value.getView();
   if (!await gridUtil.confirmIfIsModified(view)) { return; }
+  for (let i = 0; i < gridUtil.getCheckedRowValues(view).length; i += 1) {
+    if (isEmpty(gridUtil.getCheckedRowValues(view)[i].dangChkId)) {
+      notify(t('MSG_ALT_EXIST_BEAN_ID'));
+      return;
+    }
+  }
   const deletedRows = await gridUtil.confirmDeleteCheckedRows(view);
 
   if (deletedRows.length > 0) {

@@ -14,90 +14,75 @@
 --->
 <template>
   <kw-page>
-    <kw-tabs
-      model-value="4"
+    <kw-search
+      :modified-targets="['userSellLimitGrid']"
+      @search="onClickSearch"
     >
-      <kw-tab
-        name="1"
-        :label="t('MSG_TXT_APRV_CRTE_MGT')"
-      />
-      <kw-tab
-        name="2"
-        :label="t('MSG_TXT_EXCP_HAND_MGT')"
-      />
-      <kw-tab
-        name="3"
-        :label="t('MSG_TXT_BIZ_SUBS_RES_MGT')"
-      />
-      <kw-tab
-        name="4"
-        :label="t('MSG_TXT_USR_SLS_RES_MGT')"
-      />
-      <kw-tab
-        name="5"
-        :label="t('MSG_TXT_BLKLST_MGT')"
-      />
-    </kw-tabs>
-    <kw-tab-panels
-      model-value="4"
-    >
-      <kw-tab-panel name="4">
-        <kw-search
-          :modified-targets="['userSellLimitGrid']"
-          @search="onClickSearch"
+      <kw-search-row>
+        <kw-search-item :label="t('MSG_TXT_ACEPT_PERIOD')">
+          <kw-date-range-picker
+            v-model:from="searchParams.startDate"
+            v-model:to="searchParams.endDate"
+            type="date"
+            rules="date_range_months:1"
+          />
+        </kw-search-item>
+        <kw-search-item
+          :label="t('MSG_TXT_SLS_CHNL_ORG_USRS')"
+          :colspan="2"
         >
-          <kw-search-row>
-            <kw-search-item :label="t('MSG_TXT_ACEPT_PERIOD')">
-              <kw-date-range-picker
-                rules="date_range_months:1"
-              />
-            </kw-search-item>
-            <kw-search-item
-              :label="t('MSG_TXT_SLS_CHNL_ORG_USRS')"
-              :colspan="2"
-            >
-              <kw-select
-                :options="orgOptions"
-              />
-              <kw-select
-                :options="['전체', 'B', 'C', 'D']"
-              />
-              <kw-input />
-              <kw-input />
-            </kw-search-item>
-          </kw-search-row>
-          <kw-search-row>
-            <kw-search-item :label="t('MSG_TXT_PRDT_NM')">
-              <kw-input
-                icon="search"
-                clearable
-                @click-icon="openProductsSearchPopup"
-              />
-            </kw-search-item>
-            <kw-search-item :label="t('MSG_TXT_SEL_TYPE')">
-              <kw-select
-                :options="salesTypeOptions"
-              />
-            </kw-search-item>
-            <kw-search-item :label="t('MSG_TXT_SLS_RSTR')">
-              <kw-select
-                :options="salesRestrictionOptions"
-              />
-            </kw-search-item>
-          </kw-search-row>
-        </kw-search>
-      </kw-tab-panel>
-    </kw-tab-panels>
+          <kw-select
+            v-model="searchParams.sell"
+            :options="orgOptions"
+          />
+          <kw-select
+            v-model="searchParams.channel"
+            first-option="all"
+            :options="codes.PRTNR_CHNL_DV_ACD"
+          />
+          <kw-input
+            v-model="searchParams.organization"
+          />
+          <kw-input
+            v-model="searchParams.user"
+          />
+        </kw-search-item>
+      </kw-search-row>
+      <kw-search-row>
+        <kw-search-item :label="t('MSG_TXT_PRDT_NM')">
+          <kw-input
+            v-model="searchParams.productName"
+            icon="search"
+            clearable
+            @click-icon="openProductsSearchPopup"
+          />
+        </kw-search-item>
+        <kw-search-item :label="t('MSG_TXT_SEL_TYPE')">
+          <kw-select
+            v-model="searchParams.sellType"
+            first-option="all"
+            :options="codes.MSH_SELL_DTL_TP_CD"
+          />
+        </kw-search-item>
+        <kw-search-item :label="t('MSG_TXT_SLS_RSTR')">
+          <kw-select
+            v-model="searchParams.sellLimit"
+            :options="salesTypeOptions"
+          />
+        </kw-search-item>
+      </kw-search-row>
+    </kw-search>
     <div class="result-area">
       <kw-action-top>
         <template #left>
-          <kw-paging-info total-count="7" />
+          <kw-paging-info
+            v-model:page-index="pageInfo.pageIndex"
+            v-model:page-size="pageInfo.pageSize"
+            :total-count="pageInfo.totalCount"
+            :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
+            @change="fetchData"
+          />
         </template>
-        <kw-btn
-          grid-action
-          :label="t('MSG_BTN_DEL')"
-          @click="onClickDelete"
-        />
         <kw-separator
           spaced
           vertical
@@ -129,9 +114,9 @@
       </kw-action-top>
 
       <kw-grid
-        ref="grdMainRef"
+        ref="gridMainRef"
         name="userSellLimitGrid"
-        :visible-rows="11"
+        :visible-rows="pageInfo.pageSize - 1"
         @init="initGrid"
       />
 
@@ -141,8 +126,10 @@
           grid-action
         />
         <kw-btn
+          v-permission:delete
           :label="t('MSG_BTN_DEL')"
           grid-action
+          @click="onClickDelete"
         />
       </kw-action-bottom>
     </div>
@@ -152,22 +139,41 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { getComponentType, gridUtil, useGlobal, useMeta } from 'kw-lib';
+import { getComponentType, gridUtil, useGlobal, useMeta, codeUtil, useDataService } from 'kw-lib';
+import { cloneDeep } from 'lodash-es';
+import dayjs from 'dayjs';
 
-const grdMainRef = ref(getComponentType('KwGrid'));
-const { notify, modal } = useGlobal();
+const gridMainRef = ref(getComponentType('KwGrid'));
+const { notify } = useGlobal();
 const { getConfig } = useMeta();
 
 const { t } = useI18n();
 
+const now = dayjs();
+const dataService = useDataService();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
+const codes = await codeUtil.getMultiCodes(
+  'PRTNR_CHNL_DV_ACD',
+  'MSH_SELL_DTL_TP_CD',
+  'COPN_DV_CD',
+);
+
+const searchParams = ref({
+  startDate: now.format('YYYYMM01'),
+  endDate: now.format('YYYYMMDD'),
+  sell: 'A',
+  channel: '',
+  organization: '',
+  user: '',
+  productName: '',
+  sellType: '',
+  sellLimit: '',
+});
 
 async function openProductsSearchPopup() {
-  await modal({
-    component: 'ZpdcStandardProductListP',
-  });
+  notify(t('팝업 준비중 입니다.'));
 }
 
 const pageInfo = ref({
@@ -175,6 +181,8 @@ const pageInfo = ref({
   pageIndex: 1,
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
 });
+
+let cachedParams;
 
 const orgOptions = ref([
   { codeId: 'A', codeName: `A-${t('MSG_TXT_ALL')}` },
@@ -191,91 +199,89 @@ const salesTypeOptions = ref([
   { codeId: '4', codeName: `4-${t('MSG_TXT_NEW_RGLTD')}` },
 ]);
 
-const salesRestrictionOptions = ref([
-  { codeId: '', codeName: `A-${t('MSG_TXT_ALL')}` },
-  { codeId: '2', codeName: `1-${t('MSG_TXT_SNGL_PMNT')}` },
-  { codeId: '3', codeName: `2-${t('MSG_TXT_RENTAL')}` },
-  { codeId: '4', codeName: `5-${t('MSG_TXT_HOME_CARE')}` },
-  { codeId: '5', codeName: `6-${t('MSG_TXT_REG_DLVR')}` },
-]);
+async function fetchData() {
+  const res = await dataService.get('sms/wells/contract/sales-limits/users/paging', { params: { ...cachedParams, ...pageInfo.value } });
+  const { list: details, pageInfo: pagingResult } = res.data;
+  pageInfo.value = pagingResult;
 
-function fetchData() {
-  const view = grdMainRef.value.getView();
-  // TODO integrate Get api call.
-  view.getDataSource().setRows([
-    { col1: 'A-전체', col2: 'A-전체', col3: 'ALL', col4: 'ALL', col5: 'A-전체', col6: '123456789', col7: '123456789', col8: '123456789', col9: '환경가전', col10: '샤워기', col11: '실내설치키트', col12: 'ALL', col13: '2-렌탈', col14: '3-예외허용', col15: '20220520', col16: '20220520', col17: '실내설치키트', col18: '실내설치키트', col19: '실내설치키트', col20: '20220520', col21: 'ALL', col22: '20220520', col23: 'ALL' },
-    { col1: 'A-전체', col2: 'A-전체', col3: 'ALL', col4: 'ALL', col5: 'A-전체', col6: '123456789', col7: '123456789', col8: '123456789', col9: '환경가전', col10: '샤워기', col11: '실내설치키트', col12: 'ALL', col13: '2-렌탈', col14: '3-예외허용', col15: '20220520', col16: '20220520', col17: '실내설치키트', col18: '실내설치키트', col19: '실내설치키트', col20: '20220520', col21: 'ALL', col22: '20220520', col23: 'ALL' },
-    { col1: 'A-전체', col2: 'A-전체', col3: 'ALL', col4: 'ALL', col5: 'A-전체', col6: '123456789', col7: '123456789', col8: '123456789', col9: '환경가전', col10: '샤워기', col11: '실내설치키트', col12: 'ALL', col13: '2-렌탈', col14: '3-예외허용', col15: '20220520', col16: '20220520', col17: '실내설치키트', col18: '실내설치키트', col19: '실내설치키트', col20: '20220520', col21: 'ALL', col22: '20220520', col23: 'ALL' },
-    { col1: 'A-전체', col2: 'A-전체', col3: 'ALL', col4: 'ALL', col5: 'A-전체', col6: '123456789', col7: '123456789', col8: '123456789', col9: '환경가전', col10: '샤워기', col11: '실내설치키트', col12: 'ALL', col13: '2-렌탈', col14: '3-예외허용', col15: '20220520', col16: '20220520', col17: '실내설치키트', col18: '실내설치키트', col19: '실내설치키트', col20: '20220520', col21: 'ALL', col22: '20220520', col23: 'ALL' },
-    { col1: 'A-전체', col2: 'A-전체', col3: 'ALL', col4: 'ALL', col5: 'A-전체', col6: '123456789', col7: '123456789', col8: '123456789', col9: '환경가전', col10: '샤워기', col11: '실내설치키트', col12: 'ALL', col13: '2-렌탈', col14: '3-예외허용', col15: '20220520', col16: '20220520', col17: '실내설치키트', col18: '실내설치키트', col19: '실내설치키트', col20: '20220520', col21: 'ALL', col22: '20220520', col23: 'ALL' },
-    { col1: 'A-전체', col2: 'A-전체', col3: 'ALL', col4: 'ALL', col5: 'A-전체', col6: '123456789', col7: '123456789', col8: '123456789', col9: '환경가전', col10: '샤워기', col11: '실내설치키트', col12: 'ALL', col13: '2-렌탈', col14: '3-예외허용', col15: '20220520', col16: '20220520', col17: '실내설치키트', col18: '실내설치키트', col19: '실내설치키트', col20: '20220520', col21: 'ALL', col22: '20220520', col23: 'ALL' },
-    { col1: 'A-전체', col2: 'A-전체', col3: 'ALL', col4: 'ALL', col5: 'A-전체', col6: '123456789', col7: '123456789', col8: '123456789', col9: '환경가전', col10: '샤워기', col11: '실내설치키트', col12: 'ALL', col13: '2-렌탈', col14: '3-예외허용', col15: '20220520', col16: '20220520', col17: '실내설치키트', col18: '실내설치키트', col19: '실내설치키트', col20: '20220520', col21: 'ALL', col22: '20220520', col23: 'ALL' },
-    { col1: 'A-전체', col2: 'A-전체', col3: 'ALL', col4: 'ALL', col5: 'A-전체', col6: '123456789', col7: '123456789', col8: '123456789', col9: '환경가전', col10: '샤워기', col11: '실내설치키트', col12: 'ALL', col13: '2-렌탈', col14: '3-예외허용', col15: '20220520', col16: '20220520', col17: '실내설치키트', col18: '실내설치키트', col19: '실내설치키트', col20: '20220520', col21: 'ALL', col22: '20220520', col23: 'ALL' },
-    { col1: 'A-전체', col2: 'A-전체', col3: 'ALL', col4: 'ALL', col5: 'A-전체', col6: '123456789', col7: '123456789', col8: '123456789', col9: '환경가전', col10: '샤워기', col11: '실내설치키트', col12: 'ALL', col13: '2-렌탈', col14: '3-예외허용', col15: '20220520', col16: '20220520', col17: '실내설치키트', col18: '실내설치키트', col19: '실내설치키트', col20: '20220520', col21: 'ALL', col22: '20220520', col23: 'ALL' },
-    { col1: 'A-전체', col2: 'A-전체', col3: 'ALL', col4: 'ALL', col5: 'A-전체', col6: '123456789', col7: '123456789', col8: '123456789', col9: '환경가전', col10: '샤워기', col11: '실내설치키트', col12: 'ALL', col13: '2-렌탈', col14: '3-예외허용', col15: '20220520', col16: '20220520', col17: '실내설치키트', col18: '실내설치키트', col19: '실내설치키트', col20: '20220520', col21: 'ALL', col22: '20220520', col23: 'ALL' },
-    { col1: 'A-전체', col2: 'A-전체', col3: 'ALL', col4: 'ALL', col5: 'A-전체', col6: '123456789', col7: '123456789', col8: '123456789', col9: '환경가전', col10: '샤워기', col11: '실내설치키트', col12: 'ALL', col13: '2-렌탈', col14: '3-예외허용', col15: '20220520', col16: '20220520', col17: '실내설치키트', col18: '실내설치키트', col19: '실내설치키트', col20: '20220520', col21: 'ALL', col22: '20220520', col23: 'ALL' },
-  ]);
-  pageInfo.value.totalCount = 11;
+  const view = gridMainRef.value.getView();
+  const dataSource = view.getDataSource();
+
+  dataSource.checkRowStates(false);
+  if (pageInfo.value.pageIndex === 1) {
+    dataSource.setRows(details);
+  } else {
+    dataSource.addRows(details);
+  }
+  dataSource.checkRowStates(true);
 }
 
-function onClickSearch() {
-  fetchData();
+async function onClickSearch() {
+  pageInfo.value.pageIndex = 1;
+  cachedParams = cloneDeep(searchParams.value);
+  await fetchData();
 }
 
-function onClickExcelDownload() {
-  // TODO integrate excel download api
+async function onClickExcelDownload() {
+  const view = gridMainRef.value.getView();
+  const res = await dataService.get('sms/wells/contract/sales-limits/users/excel-download', { params: cachedParams });
+  await gridUtil.exportView(view, {
+    fileName: t('MSG_TXT_USR_SLS_RES_MGT'),
+    timePostfix: true,
+    exportData: res.data,
+  });
 }
 
 async function onClickDelete() {
-  const view = grdMainRef.value.getView();
+  const view = gridMainRef.value.getView();
   if (!await gridUtil.confirmIfIsModified(view)) { return; }
   const deletedRows = await gridUtil.confirmDeleteCheckedRows(view);
 
   if (deletedRows.length > 0) {
-    // TODO integrate delete api
+    const sellBaseIds = deletedRows.map(({ sellBaseId }) => sellBaseId);
+    await dataService.delete('sms/wells/contract/sales-limits/users', { params: { sellBaseIds } });
+    await onClickSearch();
   }
 }
 
-function onClickRowAdd() {
-  const view = grdMainRef.value.getView();
-  gridUtil.insertRowAndFocus(view, 0, {});
-  view.showEditor();
+async function onClickRowAdd() {
+  const view = gridMainRef.value.getView();
+  await gridUtil.insertRowAndFocus(view, 0, {});
 }
 
 async function onClickSave() {
-  const view = grdMainRef.value.getView();
+  const view = gridMainRef.value.getView();
   if (await gridUtil.alertIfIsNotModified(view)) { return; }
-  if (!gridUtil.validate(view)) { return; }
-  notify('Data saved');
-  const changedRows = gridUtil.getChangedRowValues(view);
-  notify(changedRows);
-  // TODO integrate save api
-}
+  if (!await gridUtil.validate(view)) { return; }
 
+  const changedRows = gridUtil.getChangedRowValues(view);
+  await dataService.post('sms/wells/contract/sales-limits/users', changedRows);
+
+  notify(t('MSG_ALT_SAVE_DATA'));
+  await onClickSearch();
+}
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
 function initGrid(data, view) {
   const fields = [
-    { fieldName: 'sellBaseTp' },
+    { fieldName: 'sellBaseId' },
+    { fieldName: 'sellBaseTpCd' },
     { fieldName: 'sellBaseChnl' },
     { fieldName: 'deptCd' },
     { fieldName: 'sellBaseUsr' },
-    { fieldName: 'col5' },
+    { fieldName: 'copnDvCd' },
     { fieldName: 'zip' },
-    { fieldName: 'col7' },
     { fieldName: 'pdCd' },
-    { fieldName: 'pdLclsfNm' },
     { fieldName: 'pdMclsfNm' },
+    { fieldName: 'pdLclsfNm' },
     { fieldName: 'pdNm' },
-    { fieldName: 'col12' },
+    { fieldName: 'sellBasePrd' },
     { fieldName: 'sellBaseSellTp' },
-    { fieldName: 'col14' },
+    { fieldName: 'sellPrmitDvCd' },
     { fieldName: 'vlStrtDtm' },
     { fieldName: 'vlEndDtm' },
-    { fieldName: 'col17' },
-    { fieldName: 'col18' },
-    { fieldName: 'col19' },
+    { fieldName: 'sellBaseApyCn' },
     { fieldName: 'fstRgstDtm' },
     { fieldName: 'fstRgstUsrId' },
     { fieldName: 'fnlMdfcDtm' },
@@ -283,34 +289,84 @@ function initGrid(data, view) {
   ];
 
   const columns = [
-    { fieldName: 'sellBaseTp', header: t('MSG_TXT_SLS_CAT'), width: '142' },
-    { fieldName: 'sellBaseChnl', header: t('MSG_TXT_CHNL'), width: '142' },
+    { fieldName: 'sellBaseTpCd',
+      header: t('MSG_TXT_SLS_CAT'),
+      width: '142',
+      options: orgOptions.value,
+      rules: 'required',
+      editor: { type: 'list' } },
+    { fieldName: 'sellBaseChnl',
+      header: t('MSG_TXT_CHNL'),
+      width: '142',
+      options: codes.PRTNR_CHNL_DV_ACD,
+      editor: { type: 'list' } },
     { fieldName: 'deptCd', header: t('MSG_TXT_OG'), width: '126', styleName: 'text-center' },
-    { fieldName: 'sellBaseUsr', header: t('MSG_TXT_USER'), width: '126', styleName: 'text-center' },
-    { fieldName: 'col5', header: t('MSG_TXT_INDI_CORP'), width: '142' },
-    { fieldName: 'zip', header: t('MSG_TXT_PSTL_CD1'), width: '180', styleName: 'text-center' },
-    { fieldName: 'col7', header: t('MSG_TXT_PSTL_CD1'), width: '180', styleName: 'text-center' },
-    { fieldName: 'pdCd', header: t('MSG_TXT_PRDT_CODE'), width: '180', styleName: 'text-center' },
-    { fieldName: 'pdLclsfNm', header: t('MSG_TXT_PRDT_CATE'), width: '142' },
-    { fieldName: 'pdMclsfNm', header: t('MSG_TXT_PRDT_TYPE'), width: '142' },
-    { fieldName: 'pdNm', header: t('MSG_TXT_PD_NM'), width: '220' },
-    { fieldName: 'col12', header: t('MSG_TXT_CYCL'), width: '131' },
-    { fieldName: 'sellBaseSellTp', header: t('MSG_TXT_SEL_TYPE'), width: '142' },
-    { fieldName: 'col14', header: t('MSG_TXT_SLS_RSTR'), width: '142' },
-    { fieldName: 'vlStrtDtm', header: t('MSG_TXT_STRT_DT'), datetimeFormat: 'date', width: '196', styleName: 'text-right' },
-    { fieldName: 'vlEndDtm', header: t('MSG_TXT_END_DT'), datetimeFormat: 'date', width: '196', styleName: 'text-right' },
-    { fieldName: 'col17', header: `${t('MSG_TXT_NOTE')}1`, width: '220' },
-    { fieldName: 'col18', header: `${t('MSG_TXT_NOTE')}2`, width: '220' },
-    { fieldName: 'col19', header: `${t('MSG_TXT_NOTE')}3`, width: '220' },
-    { fieldName: 'fstRgstDtm', header: t('MSG_TXT_RGST_DT'), datetimeFormat: 'date', width: '196', styleName: 'text-right' },
-    { fieldName: 'fstRgstUsrId', header: t('MSG_TXT_FST_RGST_USR'), width: '131' },
-    { fieldName: 'fnlMdfcDtm', header: t('MSG_TXT_EDIT_DTM'), datetimeFormat: 'date', width: '196', styleName: 'text-right' },
-    { fieldName: 'fnlMdfcUsrId', header: t('MSG_TXT_MDFC_USR'), width: '131' },
+    { fieldName: 'sellBaseUsr', header: t('MSG_TXT_USR'), width: '126', styleName: 'text-center' },
+    { fieldName: 'copnDvCd',
+      header: t('MSG_TXT_INDI_CORP'),
+      width: '142',
+      options: codes.COPN_DV_CD,
+      editor: { type: 'list' } },
+    { fieldName: 'zip', header: t('MSG_TXT_ZIP'), width: '180', styleName: 'text-center' },
+    { fieldName: 'pdCd',
+      header: t('MSG_TXT_PRDT_CODE'),
+      width: '180',
+      styleName: 'text-center rg-button-icon--search',
+      rules: 'required',
+      button: 'action' },
+    { fieldName: 'pdMclsfNm', header: t('MSG_TXT_PRDT_CATE'), width: '142', editable: false },
+    { fieldName: 'pdLclsfNm', header: t('MSG_TXT_PRDT_TYPE'), width: '142', editable: false },
+    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '220', editable: false },
+    { fieldName: 'sellBasePrd', header: t('MSG_TXT_CYCL'), width: '131' },
+    { fieldName: 'sellBaseSellTp',
+      header: t('MSG_TXT_SEL_TYPE'),
+      width: '142',
+      options: codes.MSH_SELL_DTL_TP_CD,
+      rules: 'required',
+      editor: { type: 'list' } },
+    { fieldName: 'sellPrmitDvCd',
+      header: t('MSG_TXT_SLS_RSTR'),
+      width: '142',
+      options: salesTypeOptions.value,
+      editor: { type: 'list' } },
+    { fieldName: 'vlStrtDtm',
+      header: t('MSG_TXT_STRT_DT'),
+      width: '196',
+      datetimeFormat: 'date',
+      editor: {
+        type: 'btdate',
+      },
+    },
+    { fieldName: 'vlEndDtm',
+      header: t('MSG_TXT_END_DT'),
+      width: '196',
+      datetimeFormat: 'date',
+      editor: {
+        type: 'btdate',
+      },
+    },
+    { fieldName: 'sellBaseApyCn', header: t('MSG_TXT_NOTE'), width: '220' },
+    { fieldName: 'fstRgstDtm', header: t('MSG_TXT_RGST_DT'), datetimeFormat: 'date', width: '196', styleName: 'text-right', editable: false },
+    { fieldName: 'fstRgstUsrId', header: t('MSG_TXT_FST_RGST_USR'), width: '131', editable: false },
+    { fieldName: 'fnlMdfcDtm', header: t('MSG_TXT_MDFC_DT'), datetimeFormat: 'date', width: '196', styleName: 'text-right', editable: false },
+    { fieldName: 'fnlMdfcUsrId', header: t('MSG_TXT_MDFC_USR'), width: '131', editable: false },
   ];
 
   data.setFields(fields);
   view.setColumns(columns);
   view.checkBar.visible = true; // create checkbox column
   view.rowIndicator.visible = true; // create number indicator column
+  view.editOptions.editable = true;
+
+  view.onCellButtonClicked = async () => {
+    notify(t('팝업 준비중 입니다.'));
+  };
+
+  view.onScrollToBottom = (g) => {
+    if (pageInfo.value.pageIndex * pageInfo.value.pageSize <= g.getItemCount()) {
+      pageInfo.value.pageIndex += 1;
+      fetchData();
+    }
+  };
 }
 </script>
