@@ -19,144 +19,119 @@
       ref="obsTabRef"
       name="obsTab"
     >
-      <kw-tabs
-        model-value="1"
+      <kw-search
+        :modified-targets="['approvalBaseGrid']"
+        @search="onClickSearch"
       >
-        <kw-tab
-          name="1"
-          :label="t('MSG_TXT_APRV_CRTE_MGT')"
-        />
-        <kw-tab
-          name="2"
-          :label="t('MSG_TXT_EXCP_HAND_MGT')"
-        />
-        <kw-tab
-          name="3"
-          :label="t('MSG_TXT_BIZ_SUBS_RES_MGT')"
-        />
-        <kw-tab
-          name="4"
-          :label="t('MSG_TXT_USR_SLS_RES_MGT')"
-        />
-        <kw-tab
-          name="5"
-          :label="t('MSG_TXT_BLKLST_MGT')"
-        />
-      </kw-tabs>
-      <kw-tab-panels
-        model-value="1"
-      >
-        <kw-tab-panel name="1">
-          <kw-search
-            :modified-targets="['approvalBaseGrid']"
-            @search="onClickSearch"
+        <kw-search-row>
+          <kw-search-item
+            :label="t('MSG_TXT_BASE_DT')"
+            required
           >
-            <kw-search-row>
-              <kw-search-item
-                :label="t('MSG_TXT_BASE_DT')"
-                required
-              >
-                <kw-date-picker
-                  v-model="searchParams.standardDt"
-                  rules="required"
-                  :name="t('MSG_TXT_BASE_DT')"
-                  @change="fetchAprCodes"
-                />
-              </kw-search-item>
-              <kw-search-item
-                :label="t('MSG_TXT_APR_REQ_CAT')"
-                required
-              >
-                <kw-select
-                  v-model="searchParams.cntrAprAkDvCd"
-                  rules="required"
-                  :name="t('MSG_TXT_APR_REQ_CAT')"
-                  :options="aprAkDvcodeOptions"
-                  :placeholder="$t('MSG_TXT_BEFORE_SELECT_IT',[$t('MSG_TXT_APR_REQ_CAT')])"
-                />
-              </kw-search-item>
-              <kw-search-item :label="t('MSG_TXT_APR_REQ_CAT')">
-                <kw-field>
-                  <kw-checkbox
-                    v-model="searchParams.aprReqCtgValid"
-                    :label="t('MSG_TXT_LKUP_VLD_VAL')"
-                    :true-value="true"
-                    :false-value="false"
-                  />
-                </kw-field>
-              </kw-search-item>
-            </kw-search-row>
-          </kw-search>
-          <div class="result-area">
-            <kw-action-top>
-              <template #left>
-                <kw-paging-info
-                  :total-count="pageInfo.totalCount"
-                  @change="onClickSearch"
-                />
-              </template>
-              <kw-btn
-                v-permission:delete
-                grid-action
-                dense
-                :label="t('MSG_BTN_DEL')"
-                @click="onClickRemove"
-              />
-              <kw-separator
-                spaced
-                vertical
-                inset
-              />
-              <kw-btn
-                dense
-                :label="t('MSG_BTN_ROW_ADD')"
-                @click="onClickAdd"
-              />
-
-              <kw-btn
-                v-permission:create
-                dense
-                :label="t('MSG_BTN_SAVE')"
-                @click="onClickSave"
-              />
-              <kw-separator
-                spaced
-                vertical
-                inset
-              />
-              <kw-btn
-                icon="download_on"
-                dense
-                secondary
-                :disable="pageInfo.totalCount === 0"
-                :label="t('MSG_BTN_EXCEL_DOWN')"
-                @click="onClickExcelDownload"
-              />
-              <kw-separator
-                spaced
-                vertical
-                inset
-              />
-              <kw-btn
-                primary
-                dense
-                :label="t('MSG_BTN_CNFM_CRTR_MGT')"
-                @click="onClickConfirmCriteriaMangement"
-              />
-            </kw-action-top>
-
-            <kw-grid
-              ref="grdMainRef"
-              name="approvalBaseGrid"
-              :visible-rows="pageInfo.pageSize - 1"
-              @init="initGrid"
+            <kw-date-picker
+              v-model="searchParams.standardDt"
+              rules="required"
+              :name="t('MSG_TXT_BASE_DT')"
+              @change="fetchAprCodes"
             />
-          </div>
-        </kw-tab-panel>
-        <kw-tab-panel name="y21">
-          <wwcte-user-sell-lmit-mgt />
-        </kw-tab-panel>
-      </kw-tab-panels>
+          </kw-search-item>
+          <kw-search-item
+            :label="t('MSG_TXT_APR_REQ_CAT')"
+            required
+          >
+            <kw-select
+              v-model="searchParams.cntrAprAkDvCd"
+              rules="required"
+              :name="t('MSG_TXT_APR_REQ_CAT')"
+              :options="aprAkDvcodeOptions"
+              :placeholder="$t('MSG_TXT_BEFORE_SELECT_IT',[$t('MSG_TXT_APR_REQ_CAT')])"
+            />
+          </kw-search-item>
+          <kw-search-item :label="t('MSG_TXT_BASE_DT_DV')">
+            <kw-field>
+              <!--
+              <kw-checkbox
+                v-model="searchParams.aprReqCtgValid"
+                :label="t('MSG_TXT_BASE_DT_IN')"
+                :true-value="true"
+                :false-value="false"
+              />
+              -->
+              <kw-option-group
+                v-model="searchParams.aprReqCtgValid"
+                type="checkbox"
+                :label="t('MSG_TXT_BASE_DT_IN')"
+                :options="aprReqCtCode"
+              />
+            </kw-field>
+          </kw-search-item>
+        </kw-search-row>
+      </kw-search>
+      <div class="result-area">
+        <kw-action-top>
+          <template #left>
+            <kw-paging-info
+              :total-count="pageInfo.totalCount"
+              @change="onClickSearch"
+            />
+          </template>
+          <kw-btn
+            v-permission:delete
+            grid-action
+            dense
+            :label="t('MSG_BTN_DEL')"
+            @click="onClickRemove"
+          />
+          <kw-separator
+            spaced
+            vertical
+            inset
+          />
+          <kw-btn
+            dense
+            :label="t('MSG_BTN_ROW_ADD')"
+            @click="onClickAdd"
+          />
+
+          <kw-btn
+            v-permission:create
+            dense
+            :label="t('MSG_BTN_SAVE')"
+            @click="onClickSave"
+          />
+          <kw-separator
+            spaced
+            vertical
+            inset
+          />
+          <kw-btn
+            icon="download_on"
+            dense
+            secondary
+            :disable="pageInfo.totalCount === 0"
+            :label="t('MSG_BTN_EXCEL_DOWN')"
+            @click="onClickExcelDownload"
+          />
+          <kw-separator
+            spaced
+            vertical
+            inset
+          />
+          <kw-btn
+            primary
+            dense
+            :label="t('MSG_BTN_CNFM_CRTR_MGT')"
+            @click="onClickConfirmCriteriaMangement"
+          />
+        </kw-action-top>
+
+        <kw-grid
+          ref="grdMainRef"
+          name="approvalBaseGrid"
+          :visible-rows="pageInfo.pageSize - 1"
+          @init="initGrid"
+        />
+      </div>
     </kw-observer>
   </kw-page>
 </template>
@@ -168,7 +143,6 @@
 import { gridUtil, getComponentType, useGlobal, useMeta, useDataService, codeUtil } from 'kw-lib';
 import { cloneDeep, isEmpty, uniqBy } from 'lodash-es';
 import dayjs from 'dayjs';
-/* import WwcteUserSellLimitMgt from '../risk/WwcteUserSellLimitMgtM.vue'; */
 
 const { alert } = useGlobal();
 const now = dayjs();
@@ -206,6 +180,10 @@ const cntrYnCodes = ref([
   { codeId: 'N', codeName: 'N' },
 ]);
 
+const aprReqCtCode = ref([
+  { codeId: true, codeName: t('MSG_TXT_BASE_DT_IN') },
+]);
+
 const aprAkDvcodes = [];
 const aprAkDvcodeOptions = ref([]);
 
@@ -233,12 +211,13 @@ async function fetchData() {
 async function fetchAprCodes() {
   cachedParams = cloneDeep(searchParams.value);
   const res = await dataService.get('/sms/wells/contract/contracts/approval-request-standards', { params: cachedParams });
+  aprAkDvcodes.value = [];
   res.data.forEach((v) => {
     if ((!isEmpty(v)) && (!isEmpty(v.cntrAprAkDvCd))) {
-      aprAkDvcodes.push({ codeId: v.cntrAprAkDvCd, codeName: v.cntrAprAkDvCdNm });
+      aprAkDvcodes.value.push({ codeId: v.cntrAprAkDvCd, codeName: v.cntrAprAkDvCdNm });
     }
   });
-  aprAkDvcodeOptions.value = uniqBy(aprAkDvcodes, 'codeId'); // 중복제거
+  aprAkDvcodeOptions.value = uniqBy(aprAkDvcodes.value, 'codeId'); // 중복제거
 }
 
 async function onClickSearch() {
