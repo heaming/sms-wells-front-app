@@ -49,6 +49,7 @@
             v-model="searchParams.prtnrNo"
             :label="$t('MSG_TXT_PRTNR_NO')"
             icon="search"
+            maxlength="10"
             rules="max:10|numeric"
             clearable
             @click-icon="onClickOpenEmployeeSearchPopup"
@@ -64,6 +65,7 @@
             v-model="searchParams.cstNo"
             :label="$t('MSG_TXT_CST_NO')"
             icon="search"
+            maxlength="10"
             rules="max:10|numeric"
             clearable
             @click-icon="onClickOpenCustomerSearchPopup"
@@ -75,6 +77,7 @@
         >
           <kw-input
             v-model="searchParams.cntrNo"
+            maxlength="15"
             rules="max:15"
           />
         </kw-search-item>

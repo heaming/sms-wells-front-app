@@ -16,6 +16,7 @@
 <template>
   <kw-page>
     <kw-search
+      :modified-targets="['grdMain']"
       @search="onClickSearch"
     >
       <kw-search-row>
@@ -107,6 +108,7 @@
 
       <kw-grid
         ref="grdMainRef"
+        name="grdMain"
         :visible-rows="10"
         @init="initGrid"
       />
