@@ -66,28 +66,29 @@
             <!-- label="일시 " -->
             <kw-date-picker
               v-model="giroPlrcv.fnlMdfcDtm"
-              :disable="true"
               rules="required"
+              class="w319"
             />
+            <!-- :disable="true" -->
           </kw-form-item>
         </kw-form-row>
-        <kw-form-row>
-          <kw-form-item
-            :label="t('MSG_TXT_ADDR')"
-            required
-          >
-            <!-- label="주소" -->
-            <zwcm-post-code
-              ref="adrRef"
-              v-model:add-idx="giroPlrcv.adrDvCd"
-              v-model:zipCode="giroPlrcv.zip"
-              v-model:add1="giroPlrcv.basAdr"
-              v-model:add2="giroPlrcv.dtlAdr"
-              v-model:addKey="giroPlrcv.addKey"
-              class="kw-grow"
-            />
-          </kw-form-item>
-        </kw-form-row>
+        <!-- <kw-form-row> -->
+        <kw-form-item
+          :label="t('MSG_TXT_ADDR')"
+          required
+        >
+          <!-- label="주소" -->
+          <zwcm-post-code
+            ref="adrRef"
+            v-model:add-idx="giroPlrcv.adrDvCd"
+            v-model:zipCode="giroPlrcv.zip"
+            v-model:add1="giroPlrcv.basAdr"
+            v-model:add2="giroPlrcv.dtlAdr"
+            v-model:addKey="giroPlrcv.addKey"
+            class="kw-grow"
+          />
+        </kw-form-item>
+        <!-- </kw-form-row> -->
       </kw-form>
     </kw-observer>
     <template #action>
