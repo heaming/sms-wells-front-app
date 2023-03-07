@@ -14,141 +14,110 @@
     --->
 <template>
   <kw-page>
-    <kw-tabs
-      model-value="3"
+    <kw-observer
+      ref="obsTabRef"
+      name="obsTab"
     >
-      <kw-tab
-        name="1"
-        :label="t('MSG_TXT_APRV_CRTE_MGT')"
-      />
-      <kw-tab
-        name="2"
-        :label="t('MSG_TXT_EXCP_HAND_MGT')"
-      />
-      <kw-tab
-        name="3"
-        :label="t('MSG_TXT_BIZ_SUBS_RES_MGT')"
-      />
-      <kw-tab
-        name="4"
-        :label="t('MSG_TXT_USR_SLS_RES_MGT')"
-      />
-      <kw-tab
-        name="5"
-        :label="t('MSG_TXT_BLKLST_MGT')"
-      />
-    </kw-tabs>
-    <kw-tab-panels
-      model-value="3"
-    >
-      <kw-tab-panel name="3">
-        <kw-search
-          :modified-targets="['grdMain']"
-          @search="onClickSearch"
-        >
-          <kw-search-row>
-            <kw-search-item :label="$t('MSG_TXT_OCCUR_DATE')">
-              <kw-date-range-picker
-                v-model:from="searchParams.sellLmOcStm"
-                v-model:to="searchParams.sellLmOcDtm"
-              />
-            </kw-search-item>
-            <kw-search-item :label="$t('MSG_TXT_ENTRP_NO')">
-              <kw-input
-                v-model="searchParams.sellLmBzrno"
-                type="number"
-                :maxlength="10"
-              />
-            </kw-search-item>
-            <kw-search-item :label="$t('MSG_TXT_BSN_NM')">
-              <kw-input
-                v-model="searchParams.dlpnrNm"
-                :maxlength="100"
-              />
-            </kw-search-item>
-          </kw-search-row>
-        </kw-search>
-        <div class="result-area">
-          <kw-action-top>
-            <template #left>
-              <kw-paging-info
-                v-model:page-index="pageInfo.pageIndex"
-                v-model:page-size="pageInfo.pageSize"
-                :total-count="pageInfo.totalCount"
-                :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
-                @change="onClickSearch"
-              />
-            </template>
-            <kw-btn
-              v-permission:delete
-              grid-action
-              :label="$t('MSG_BTN_DEL')"
-              @click="onClickDelete"
+      <kw-search
+        :modified-targets="['grdMain']"
+        @search="onClickSearch"
+      >
+        <kw-search-row>
+          <kw-search-item :label="$t('MSG_TXT_OCCUR_DATE')">
+            <kw-date-range-picker
+              v-model:from="searchParams.sellLmOcStm"
+              v-model:to="searchParams.sellLmOcDtm"
             />
-            <kw-separator
-              spaced
-              vertical
-              inset
+          </kw-search-item>
+          <kw-search-item :label="$t('MSG_TXT_ENTRP_NO')">
+            <kw-input
+              v-model="searchParams.sellLmBzrno"
+              type="number"
+              :maxlength="10"
             />
-            <kw-btn
-              v-permission:create
-              grid-action
-              :label="$t('MSG_BTN_ROW_ADD')"
-              @click="onClickAdd"
+          </kw-search-item>
+          <kw-search-item :label="$t('MSG_TXT_BSN_NM')">
+            <kw-input
+              v-model="searchParams.dlpnrNm"
+              :maxlength="100"
             />
-            <kw-btn
-              v-permission:update
-              grid-action
-              :label="$t('MSG_BTN_SAVE')"
-              @click="onClickSave"
+          </kw-search-item>
+        </kw-search-row>
+      </kw-search>
+      <div class="result-area">
+        <kw-action-top>
+          <template #left>
+            <kw-paging-info
+              v-model:page-index="pageInfo.pageIndex"
+              v-model:page-size="pageInfo.pageSize"
+              :total-count="pageInfo.totalCount"
+              :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
+              @change="onClickSearch"
             />
-            <kw-separator
-              spaced
-              vertical
-              inset
-            />
-            <kw-btn
-              icon="download_on"
-              secondary
-              dense
-              :label="$t('MSG_BTN_FILE_UPLOAD_FORM')"
-              @click="onclickExcelTemplatDownload"
-            />
-            <kw-btn
-              v-permission:create
-              icon="upload_on"
-              secondary
-              dense
-              :label="$t('MSG_BTN_FILE_UPLOAD')"
-              @click="onClickExcelUpload"
-            />
-            <kw-btn
-              icon="download_on"
-              dense
-              secondary
-              :label="$t('MSG_BTN_EXCEL_DOWN')"
-              :disable="(pageInfo.totalCount === 0)"
-              @click="onClickExcelDownload"
-            />
-          </kw-action-top>
-
-          <kw-grid
-            ref="grdMainRef"
-            name="grdMain"
-            :visible-rows="pageInfo.pageSize - 1"
-            @init="initGrdMain"
+          </template>
+          <kw-btn
+            v-permission:delete
+            grid-action
+            :label="$t('MSG_BTN_DEL')"
+            @click="onClickDelete"
           />
-          <kw-action-bottom>
-            <kw-btn
-              :label="$t('MSG_BTN_DEL')"
-              grid-action
-              dense
-              @click="onClickDelete"
-            />
-          </kw-action-bottom>
-        </div>
-      </kw-tab-panel>
-    </kw-tab-panels>
+          <kw-separator
+            spaced
+            vertical
+            inset
+          />
+          <kw-btn
+            v-permission:create
+            grid-action
+            :label="$t('MSG_BTN_ROW_ADD')"
+            @click="onClickAdd"
+          />
+          <kw-btn
+            v-permission:update
+            grid-action
+            :label="$t('MSG_BTN_SAVE')"
+            @click="onClickSave"
+          />
+          <kw-separator
+            spaced
+            vertical
+            inset
+          />
+          <!--
+          <kw-btn
+            icon="download_on"
+            secondary
+            dense
+            :label="$t('MSG_BTN_FILE_UPLOAD_FORM')"
+            @click="onclickExcelTemplatDownload"
+          />
+          -->
+          <kw-btn
+            v-permission:create
+            icon="upload_on"
+            secondary
+            dense
+            :label="$t('MSG_BTN_FILE_UPLOAD')"
+            @click="onClickExcelUpload"
+          />
+          <kw-btn
+            icon="download_on"
+            dense
+            secondary
+            :label="$t('MSG_BTN_EXCEL_DOWN')"
+            :disable="(pageInfo.totalCount === 0)"
+            @click="onClickExcelDownload"
+          />
+        </kw-action-top>
+
+        <kw-grid
+          ref="grdMainRef"
+          name="grdMain"
+          :visible-rows="pageInfo.pageSize - 1"
+          @init="initGrdMain"
+        />
+      </div>
+    </kw-observer>
   </kw-page>
 </template>
 
@@ -158,11 +127,7 @@
 // -------------------------------------------------------------------------------------------------
 import { getComponentType, gridUtil, defineGrid, codeUtil, useDataService, useGlobal, useMeta, modal } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
-import dayjs from 'dayjs';
-import useCmUtil from '~common/composables/useCmFile';
 
-const { getStandardFormFile } = useCmUtil();
-const now = dayjs();
 const dataService = useDataService();
 const { t } = useI18n();
 const { notify } = useGlobal();
@@ -187,8 +152,8 @@ const pageInfo = ref({
 });
 
 const searchParams = ref({
-  sellLmOcDtm: now.format('YYYYMMDD'),
-  sellLmOcStm: now.format('YYYYMMDD'),
+  sellLmOcDtm: '',
+  sellLmOcStm: '',
   sellLmBzrno: '',
   dlpnrNm: '',
   dlpnrCd: '',
@@ -257,17 +222,18 @@ async function onClickDelete() {
     onClickSearch();
   }
 }
+/*
 async function onclickExcelTemplatDownload() {
   getStandardFormFile('FOM_CTC_0001');
 }
-
+*/
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
 
   const response = await dataService.get('/sms/wells/contract/sales-limits/business-partners/excel-download', { params: cachedParams });
 
   await gridUtil.exportView(view, {
-    fileName: 'EntrepreneurJoinLimitOjMgmt',
+    fileName: '사업자 가입 제한 관리',
     timePostfix: true,
     exportData: response.data,
   });
@@ -277,7 +243,7 @@ async function onClickExcelUpload() {
   const apiUrl = '/sms/wells/contract/sales-limits/business-partners/excel-upload';
   const templateId = 'FOM_CTC_0001';
 
-  alert('엑셀 업로드 기능 구현중');
+  alert('[엑셀업로드 공통파트에서 작업중]');
 
   const { result } = await modal({
     component: 'ZwcmzExcelUploadP',
@@ -326,7 +292,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'sellLmRsonCd', header: t('MSG_TXT_DFT_CD'), width: '211', editable: true, editor: { type: 'list' }, options: codes.SELL_LM_RSON_CD },
     { fieldName: 'sellLmOcDtm', header: t('MSG_TXT_OCCUR_DATE'), width: '196', styleName: 'text-center', datetimeFormat: 'date', editable: true, editor: { type: 'btdate' }, rules: 'required' },
     { fieldName: 'sellLmRlsDtm', header: t('MSG_TXT_CNC_DT'), width: '196', styleName: 'text-center', datetimeFormat: 'date', editable: true, editor: { type: 'btdate' } },
-    { fieldName: 'sellLmRson', header: t('MSG_TXT_OCC_RSN'), width: '376', styleName: 'text-left', editable: true },
+    { fieldName: 'sellLmRson', header: t('MSG_TXT_OCC_RSN'), width: '376', styleName: 'text-left', editable: true, editor: { type: 'text', maxLength: 1000 } },
     { fieldName: 'sellLmPsicNm', header: t('MSG_TXT_RGST_ICHR'), width: '180', styleName: 'text-left', editable: false },
     { fieldName: 'sellLmRlsPsicNm', header: t('MSG_TXT_CNC_INCHR'), width: '180', styleName: 'text-left', editable: false },
     { fieldName: 'sellLmId', visible: false },
@@ -344,14 +310,6 @@ const initGrdMain = defineGrid((data, view) => {
   view.editOptions.editable = true;
   view.checkBar.visible = true;
   view.rowIndicator.visible = true;
-
-  view.onShowEditor = async (grid, index) => {
-    if (index.column === 'sellLmBzrno') {
-      view.setValue(index.itemIndex, 'dlpnrNm', '');
-      view.setValue(index.itemIndex, 'dlgpsNm', '');
-      view.setValue(index.itemIndex, 'bryyMmdd', '');
-    }
-  };
 
   view.onCellEdited = async (grid, itemIndex, row, fieldIndex) => {
     const { fieldName } = grid.getColumn(fieldIndex);
