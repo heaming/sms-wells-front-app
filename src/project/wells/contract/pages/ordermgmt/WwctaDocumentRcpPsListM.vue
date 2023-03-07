@@ -30,7 +30,7 @@
             v-model="searchParams.cntrChPrgsStatCd"
             :options="codes.CNTR_CH_PRGS_STAT_CD"
             first-option="all"
-            first-option-value="ALL"
+            first-option-value=""
           />
         </kw-search-item>
         <!-- 접수유형 -->
@@ -42,7 +42,7 @@
                        { codeId: '3', codeName: '명의 변경' },
                        { codeId: '4', codeName: '해지/철회신청' }]"
             first-option="all"
-            first-option-value="ALL"
+            first-option-value=""
           />
         </kw-search-item>
       </kw-search-row>
@@ -115,12 +115,12 @@ const now = dayjs();
 const searchParams = ref({
   cntrChRcpStrtDtm: now.subtract(7, 'day').format('YYYYMMDD'),
   cntrChRcpFinsDtm: now.format('YYYYMMDD'),
-  cntrChPrgsStatCd: 'ALL',
-  cntrChTpCd: 'ALL',
+  cntrChPrgsStatCd: '',
+  cntrChTpCd: '',
   cntrChRcpId: '',
   cstKnm: '',
   cralLocapaMexnoIdvTno: '',
-  cralLocapaTno: '010',
+  cralLocapaTno: '',
   cralMexnoIdvTno: '',
 });
 const pageInfo = ref({
