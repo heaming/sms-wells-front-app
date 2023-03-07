@@ -46,11 +46,11 @@
           <p v-if="pdInfo.pdHclsfId || pdInfo.pdMclsfId || pdInfo.pdLclsfId">
             {{ getCodeNames(codes, pdInfo.pdHclsfId, 'clsfCodes') }}
             <slot v-if="pdInfo.pdMclsfId">
-              >
+              {{ ' > ' }}
             </slot>
             {{ getCodeNames(codes, pdInfo.pdMclsfId, 'clsfCodes') }}
             <slot v-if="pdInfo.pdLclsfId">
-              >
+              {{ ' > ' }}
             </slot>
             {{ getCodeNames(codes, pdInfo.pdLclsfId, 'clsfCodes') }}
           </p>
@@ -125,11 +125,8 @@
       @init="initChangePrdGrid"
     />
     <kw-separator />
-    <kw-action-top>
-      <template #left>
-        <!-- (단위 : 원) -->
-        <span class="ml8">({{ $t('MSG_TXT_UNIT') }} : {{ $t('MSG_TXT_CUR_WON') }})</span>
-      </template>
+    <kw-action-top class="mt40">
+      <span class="kw-fc---black3 text-weight-regular">({{ $t('MSG_TXT_UNIT') }} : {{ $t('MSG_TXT_CUR_WON') }})</span>
     </kw-action-top>
 
     <kw-grid
