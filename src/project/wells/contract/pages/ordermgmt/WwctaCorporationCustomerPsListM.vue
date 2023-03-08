@@ -85,7 +85,6 @@
             v-model="searchParams.fromRental"
             rules="required"
           />
-          <span>~</span>
           <kw-input
             v-if="searchParams.dateGbn==3"
             v-model="searchParams.toRental"
@@ -209,7 +208,6 @@
             :total-count="pageInfo.totalCount"
             @change="fetchData"
           />
-          <span class="ml8">{{ t('MSG_TXT_UNIT_WON') }}</span>
         </template>
 
         <kw-btn
@@ -242,12 +240,13 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, useMeta, getComponentType, gridUtil, useDataService } from 'kw-lib';
+import { codeUtil, useMeta, getComponentType, gridUtil, useDataService, useGlobal } from 'kw-lib';
 import dayjs from 'dayjs';
 import { cloneDeep, isEmpty, uniqBy } from 'lodash-es';
 
 const dataService = useDataService();
 
+const { notify } = useGlobal();
 const { getConfig } = useMeta();
 const { t } = useI18n();
 // -------------------------------------------------------------------------------------------------
@@ -271,7 +270,7 @@ const searchParams = ref({
   perfGbn: '1',
   empGbn: '',
   canGbn: '',
-  dateGbn: '',
+  dateGbn: '1',
   fromDate: now.startOf('month').format('YYYYMMDD'),
   toDate: now.format('YYYYMMDD'),
   fromRental: '',
@@ -321,7 +320,7 @@ async function fetchData() {
 async function onClickSearch() {
   if (searchParams.value.dateGbn === '3') {
     if (parseInt(searchParams.value.toRental, 10) - parseInt(searchParams.value.fromRental, 10) > 3) {
-      alert(t('MSG_ALT_INP_RENTAL_3_MONTH'));
+      notify(t('MSG_ALT_INP_RENTAL_3_MONTH'));
       return false;
     }
   }
