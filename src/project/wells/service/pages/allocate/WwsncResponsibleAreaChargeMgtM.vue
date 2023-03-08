@@ -24,13 +24,13 @@
           <kw-input
             v-model="searchParams.zipFrom"
             type="text"
-            mask="###"
+            mask="#####"
           />
           <span>~</span>
           <kw-input
             v-model="searchParams.zipTo"
             type="text"
-            mask="###"
+            mask="#####"
           />
         </kw-search-item>
         <!-- 광역시/도 -->
@@ -138,19 +138,6 @@
           :label="$t('MSG_BTN_EXCEL_DOWN')"
           :disable="pageInfo.totalCount === 0"
           @click="onClickExcelDownload"
-        />
-        <!-- 책임사번 일괄입력 -->
-        <kw-input
-          v-model="baseInfo.ichrPrtnrNo"
-          dense
-          mask="#####"
-        />
-        <kw-btn
-          dense
-          secondary
-          :label="$t('MSG_BTN_RPB_EMPNO_BLK_IN')"
-          :disable="pageInfo.totalCount === 0"
-          @click="onClickEmpNoBulkApply"
         />
         <!-- 적용일자 일괄입력 -->
         <kw-date-range-picker
@@ -297,14 +284,6 @@ function validateIsApplyRowExists() {
   return true;
 }
 
-function validateIchrPrtnrNo() {
-  if (baseInfo.value.ichrPrtnrNo === '') {
-    notify(t('MSG_TXT_RPB_EMPNO_CONF'));
-    return false;
-  }
-  return true;
-}
-
 function validateApplyDate() {
   if (baseInfo.value.applyDateFrom === '') {
     notify(t('MSG_TXT_APY_DT_CONF'));
@@ -326,19 +305,6 @@ function setPersonInChargeCellData(view, row, value, column) {
     view.setValue(row, `${column[0]}`, ogNm);
     view.setValue(row, `${column[1]}`, value);
     view.setValue(row, `${column[2]}`, codeNm);
-  }
-}
-
-// 책임사번 일괄입력
-function onClickEmpNoBulkApply() {
-  if (!validateIchrPrtnrNo()) return;
-  if (!validateIsApplyRowExists()) return;
-
-  const view = grdMainRef.value.getView();
-  const checkedRows = gridUtil.getCheckedRowValues(view);
-
-  for (let i = 0; i < checkedRows.length; i += 1) {
-    setPersonInChargeCellData(view, checkedRows[i].dataRow, baseInfo.value.ichrPrtnrNo, ['ogNm', 'ichrPrtnrNo', 'prtnrKnm']);
   }
 }
 
@@ -482,7 +448,12 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'ogNm5', header: t('MSG_TXT_PPRN_5_CNR'), width: '99' },
     { fieldName: 'pprnIchrPrtnrNo5', header: t('MSG_TXT_PPRN_5_EMPNO'), width: '99', styleName: 'text-center', editable: true },
     { fieldName: 'pprnIchrPrtnrKnm5', header: t('MSG_TXT_PPRN_ICHR_NAME_5'), width: '99' },
-    { fieldName: 'rpbLocaraGrpCd', header: t('MSG_TXT_LOCARA_GRP_CD'), width: '99', styleName: 'text-center' },
+    { fieldName: 'rpbLocaraGrpCd',
+      header: t('MSG_TXT_LOCARA_GRP_CD'),
+      width: '99',
+      styleName: 'text-center',
+      editable: true,
+    },
     { fieldName: 'vstDowVal',
       header: t('MSG_TXT_VST_DOW'),
       width: '130',

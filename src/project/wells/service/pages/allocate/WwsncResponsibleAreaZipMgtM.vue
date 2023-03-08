@@ -23,15 +23,13 @@
           <kw-input
             v-model="searchParams.zipFrom"
             type="text"
-            maxlength="3"
-            :regex="/^[0-9]*$/i"
+            mask="#####"
           />
           <span>~</span>
           <kw-input
             v-model="searchParams.zipTo"
             type="text"
-            maxlength="3"
-            :regex="/^[0-9]*$/i"
+            mask="#####"
           />
         </kw-search-item>
         <!-- 광역시/도 -->
@@ -343,7 +341,6 @@ const initGrdMain = defineGrid((data, view) => {
   view.setFixedOptions({ colCount: 1 });
 
   view.checkBar.visible = true;
-  view.setCheckableCallback(() => false);
   view.rowIndicator.visible = true;
   view.editOptions.columnEditableFirst = true;
 
