@@ -51,14 +51,6 @@
             :options="codes.WARE_DV_CD"
           />
         </kw-search-item>
-        <!-- 지역 -->
-        <kw-search-item :label="$t('MSG_TXT_LOCARA')">
-          <kw-select
-            v-model="searchParams.wareLocaraCd"
-            :options="codes.ADM_ZN_CLSF_CD"
-            first-option="all"
-          />
-        </kw-search-item>
       </kw-search-row>
     </kw-search>
 
@@ -133,7 +125,6 @@ const searchParams = ref({
   startStrHopDt: dayjs().format('YYYYMMDD'), // 입고희망일자 시작일
   endStrHopDt: dayjs().format('YYYYMMDD'), // 입고희망일자 종료일
   wareDvCd: '1', // 출고요청 창고구분코드
-  wareLocaraCd: '', // 창고지역코드
 });
 const totalCount = ref(0);
 
@@ -288,7 +279,7 @@ function initGrdMain(data, view) {
   data.setFields(fields);
   view.setColumns(columns);
 
-  view.checkBar.visible = true;
+  view.rowIndicator.visible = true;
   view.setCheckableCallback(() => false);
   view.oncellEdited = (grid, itemIndex) => {
     grid.checkItem(itemIndex, true);

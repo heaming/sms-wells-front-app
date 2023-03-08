@@ -34,7 +34,7 @@
         >
           <kw-select
             v-model="searchParams.ostrTpCd"
-            :options="codes.OSTR_TP_CD"
+            :options="filterOstrTpCd"
             first-option="all"
             @change="divideData"
           />
@@ -146,6 +146,8 @@ const codes = await codeUtil.getMultiCodes(
 );
 
 const totalCount = ref(0);
+
+const filterOstrTpCd = codes.OSTR_TP_CD.filter((v) => v.codeId !== '211');
 
 // 창고구분코드 필터링
 // const wareDvCd = codes.WARE_DV_CD.filter((v) => v.codeId !== '1');
@@ -279,7 +281,7 @@ const initGrdMain = defineGrid((data, view) => {
   data.setFields(fields);
   view.setColumns(columns);
   view.checkBar.visible = false;
-  view.rowIndicator.visible = false;
+  view.rowIndicator.visible = true;
 
   view.onCellItemClicked = async (g, { column, dataRow }) => {
     debugger;
