@@ -131,7 +131,7 @@
     </kw-action-top>
     <kw-grid
       ref="grdMainRef"
-      name="grdMain"
+      name="grdMain3"
       :visible-rows="10"
       @init="initGrid"
     />

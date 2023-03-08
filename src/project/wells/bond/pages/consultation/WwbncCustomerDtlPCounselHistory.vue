@@ -16,8 +16,9 @@
 <template>
   <kw-grid
     ref="grdMainRef"
-    name="grdMain4"
-    :visible-rows="10"
+    name="grdMain5"
+    :visible-rows="5"
+    class="mt16"
     @init="initGrdMain"
   />
 </template>
@@ -94,8 +95,6 @@ function initGrdMain(data, view) {
 
   data.setFields(fields);
   view.setColumns(columns);
-
-  view.checkBar.visible = true;
   view.rowIndicator.visible = true;
 }
 </script>
