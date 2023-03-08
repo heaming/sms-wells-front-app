@@ -106,12 +106,11 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useGlobal, useDataService, codeUtil, gridUtil, defineGrid, getComponentType, useMeta } from 'kw-lib';
+import { useGlobal, useDataService, codeUtil, gridUtil, defineGrid, getComponentType } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 
 const { notify, confirm } = useGlobal();
 const { t } = useI18n();
-const { getConfig } = useMeta();
 const dataService = useDataService();
 
 const { getters } = useStore();
@@ -121,21 +120,20 @@ const { tenantCd } = userInfo;
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
-let initGridData = [];
 const grdMainRef = ref(getComponentType('KwGrid'));
-const grdData = computed(() => grdMainRef.value?.getData());
 
 const codes = await codeUtil.getMultiCodes(
   'SELL_TP_CD',
   'DSN_WDRW_FNT_PRD_CD', // 1 : 지정일자 / 2 : 매회 추후에 수정
   'AUTO_FNT_FTD_ACD', // 자동 이체 이체일 앱코드 추후에 수정
+  'DSN_WDRW_FNT_DV_CD',
 );
 
 let cachedParams;
 const pageInfo = ref({
   totalCount: 0,
   pageIndex: 1,
-  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
+  pageSize: 10,
 });
 
 const searchParams = ref({
@@ -149,8 +147,9 @@ const possibleDay = codes.AUTO_FNT_FTD_ACD.map((v) => v.codeId).join(','); // �
 
 async function onClickAddRow() {
   const view = grdMainRef.value.getView();
-  gridUtil.insertRowAndFocus(view, 1, {
-    fntYn: 'Y',
+  const dataRows = gridUtil.getChangedRowValues(view);
+  gridUtil.insertRowAndFocus(view, dataRows.length === 0 ? 0 : 1, {
+    fntYn: '1',
     dsnWdrwFntPrdCd: '1',
   });
 }
@@ -168,18 +167,23 @@ function getSaveParams() {
 
 async function fetchData() {
   const res = await dataService.get('/sms/wells/withdrawal/bilfnt/designation-wdrw-csts', { params: { ...cachedParams, ...pageInfo.value } });
-  const person = res.data.list.map((v) => ({ ...v, cntr: v.cntr.replace('W', '') }));
+  // const { list: person, pageInfo: pageResult } = res.data;
+
+  const person = res.data.list.map((v) => ({ ...v, cntr: v.cntr.replace(tenantCd, '') }));
   const pageResult = res.data.pageInfo;
   pageInfo.value = pageResult;
 
-  if (grdData.value) {
-    grdData.value.setRows(person);
-  } else {
-    initGridData = person;
-  }
+  const view = grdMainRef.value.getView();
+  const dataSource = view.getDataSource();
+
+  dataSource.checkRowStates(false);
+  dataSource.addRows(person);
+  dataSource.checkRowStates(true);
 }
 
 async function onClickSearch() {
+  grdMainRef.value.getData().clearRows();
+
   pageInfo.value.pageIndex = 1;
   searchParams.value.cntrNo = tenantCd + searchParams.value.cntr.slice(0, 11);
   searchParams.value.cntrSn = searchParams.value.cntr.slice(11);
@@ -195,7 +199,6 @@ async function onClickRemove() {
     cntrSn: Number(v.cntr.slice(11)),
     dsnWdrwFntD: v.dsnWdrwFntD,
   }));
-  console.log(data);
   if (checkedRows.length === 0) {
     notify(t('MSG_ALT_NOT_SEL_ITEM'));
     return;
@@ -228,7 +231,7 @@ async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
 
   await gridUtil.exportView(view, {
-    fileName: 'autoFntDsnWdrwCstMngt',
+    fileName: '자동이체 지정 출금 고객',
     timePostfix: true,
   });
 }
@@ -294,7 +297,8 @@ const initGrid = defineGrid((data, view) => {
       editor: { type: 'list' },
       rules: 'required',
 
-      options: [{ codeId: 'Y', codeName: '이체' }, { codeId: 'N', codeName: '중단' }], // 추후에 수정 코드 못찾음
+      options: codes.DSN_WDRW_FNT_DV_CD, // 추후에 수정 코드 못찾음
+      // options: [{ codeId: 'Y', codeName: '이체' }, { codeId: 'N', codeName: '중단' }], // 추후에 수정 코드 못찾음
     },
     { fieldName: 'dpAmt',
       header: t('MSG_TXT_DP_AMT'),
@@ -341,7 +345,6 @@ const initGrid = defineGrid((data, view) => {
 
   // multi row header setting
 
-  data.setRows(initGridData);
   view.onCellEditable = (grid, index) => {
     if (!gridUtil.isCreatedRow(grid, index.dataRow) && index.column === 'cntr') {
       return false;
