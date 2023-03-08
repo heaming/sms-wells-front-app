@@ -26,12 +26,12 @@
         >
           <kw-input
             v-model="searchParams.zipFrom"
-            mask="###"
+            mask="#####"
           />
           <span>~</span>
           <kw-input
             v-model="searchParams.zipTo"
-            mask="###"
+            mask="#####"
           />
         </kw-search-item>
         <!--광역시/도-->
@@ -251,7 +251,7 @@ async function fetchData() {
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(products);
   view.resetCurrent();
-  if (pagingResult.totalCount === 0) { await notify(t('MSG_ALT_NO_INFO_SRCH')); }
+  if (pagingResult.totalCount === 0) { notify(t('MSG_ALT_NO_INFO_SRCH')); }
 }
 
 async function onClickSearch() {
@@ -277,12 +277,12 @@ async function onClickSave() {
   const view = grdMainRef.value.getView();
   const chkRows = gridUtil.getCheckedRowValues(view);
   if (chkRows.length === 0) {
-    await notify(t('MSG_ALT_NOT_SEL_ITEM'));
-  } else {
-    await dataService.post('/sms/wells/service/responsible-area-codes', chkRows);
+    notify(t('MSG_ALT_NOT_SEL_ITEM'));
+    return;
   }
+  await dataService.post('/sms/wells/service/responsible-area-codes', chkRows.filter((v) => v.rowState === 'updated'));
 
-  await notify(t('MSG_ALT_SAVE_DATA'));
+  notify(t('MSG_ALT_SAVE_DATA'));
   await fetchData();
 }
 
@@ -442,7 +442,7 @@ const initGrdMain = defineGrid((data, view) => {
 
   view.setColumnLayout(columnLayout);
 
-  view.setCheckBar({ visible: true, checkableExpression: "state = 'C'", checkableOnly: true });
+  view.checkBar.visible = true;
   view.rowIndicator.visible = true;
   view.editOptions.columnEditableFirst = true;
   view.setFixedOptions({ colCount: 1, resizable: true });

@@ -79,7 +79,7 @@
         </template>
         <kw-btn
           dense
-          secondary
+          grid-action
           :label="$t('MSG_BTN_DEL')"
           @click="onClickDelete"
         />
@@ -90,13 +90,13 @@
         />
         <kw-btn
           dense
-          secondary
+          grid-action
           :label="$t('MSG_BTN_SAVE')"
           @click="onClickSave"
         />
         <kw-btn
           dense
-          secondary
+          grid-action
           :label="$t('MSG_BTN_ROW_ADD')"
           @click="onClickAddRow"
         />
