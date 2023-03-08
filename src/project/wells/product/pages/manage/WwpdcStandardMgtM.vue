@@ -130,7 +130,7 @@
             @click="onClickNextStep"
           />
           <kw-btn
-            v-show="!isCreate || currentStep.step === regSteps.length"
+            v-show="!isTempSaveBtn || currentStep.step === regSteps.length"
             :label="$t('MSG_BTN_SAVE')"
             class="ml8"
             primary
@@ -164,7 +164,7 @@ const route = useRoute();
 const router = useRouter();
 const { t } = useI18n();
 const dataService = useDataService();
-const { notify, confirm } = useGlobal();
+const { notify, confirm, alert } = useGlobal();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -216,13 +216,22 @@ async function onClickDelete() {
 }
 
 async function getSaveData() {
-  const subList = {};
-  await Promise.all(cmpStepRefs.value.map(async (item) => {
+  const subList = { isModifiedProp: false, isModifiedPrice: false };
+  await Promise.all(cmpStepRefs.value.map(async (item, idx) => {
     const saveData = await item.value?.getSaveData();
+    const isModified = await item.value.isModifiedProps();
     if (await saveData) {
       // console.log(`${idx}saveData : `, saveData);
       subList.pdCd = subList.pdCd ?? saveData.pdCd;
       subList.pdTpCd = subList.pdTpCd ?? saveData.pdTpCd;
+      // 기본속성, 관리 속성 수정여부
+      if (await isModified && (idx === 0 || idx === 2)) {
+        subList.isModifiedProp = true;
+      }
+      // 가격 수정여부
+      if (await isModified && idx === 3) {
+        subList.isModifiedPrice = true;
+      }
       if (saveData[bas]) {
         if (subList[bas]?.cols) {
           saveData[bas].cols += subList[bas].cols;
@@ -343,12 +352,18 @@ async function onClickSave(tempSaveYn) {
   // 1. Step별 수정여부 확인
   // '임시저장 ==> 저장' 경우를 제외하고 수정여부 체크
   if (!(isTempSaveBtn.value && tempSaveYn === 'N')) {
-    let modifiedOk = true;
+    let modifiedOk = false;
     await Promise.all(cmpStepRefs.value.map(async (item) => {
-      if (modifiedOk) {
-        modifiedOk = await item.value?.isModifiedProps(false);
+      if (!modifiedOk) {
+        if (await item.value.isModifiedProps()) {
+          modifiedOk = true;
+        }
       }
     }));
+    if (!modifiedOk) {
+      alert(t('MSG_ALT_NO_CHG_CNTN'));
+      return;
+    }
   }
 
   // 2. Step별 필수여부 확인
@@ -367,6 +382,7 @@ async function onClickSave(tempSaveYn) {
   const subList = await getSaveData();
   if (tempSaveYn === 'N' && isTempSaveBtn.value) {
     subList[bas].tempSaveYn = tempSaveYn;
+    subList.isModifiedProp = true;
   } else if (isEmpty(currentPdCd.value)) {
     subList[bas].tempSaveYn = tempSaveYn;
   }
@@ -394,6 +410,9 @@ async function onClickSave(tempSaveYn) {
   } else {
     await fetchProduct();
   }
+  await Promise.all(cmpStepRefs.value.map(async (item) => {
+    if (item.value.init) { await item.value.init(); }
+  }));
 }
 
 // 판매상세유형 코드 설정
@@ -429,6 +448,7 @@ async function onClickReset() {
   await Promise.all(cmpStepRefs.value.map(async (item) => {
     if (item.value.resetData) {
       await item.value?.resetData();
+      await item.value?.init();
     }
   }));
   await fetchProduct();

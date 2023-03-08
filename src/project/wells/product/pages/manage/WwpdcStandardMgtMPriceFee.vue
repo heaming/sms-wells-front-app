@@ -48,7 +48,7 @@ import { getGridRowCount, setPdGridRows, pdMergeBy, getGridRowsToSavePdProps, ge
 
 /* eslint-disable no-use-before-define */
 defineExpose({
-  getSaveData, isModifiedProps, validateProps,
+  init, getSaveData, isModifiedProps, validateProps,
 });
 
 const props = defineProps({
@@ -76,6 +76,14 @@ const currentMetaInfos = ref();
 const removeObjects = ref([]);
 const gridRowCount = ref(0);
 
+async function init() {
+  const view = grdMainRef.value.getView();
+  if (view) {
+    view.getDataSource().clearRows();
+  }
+  await initGridRows();
+}
+
 async function getSaveData() {
   const view = grdMainRef.value.getView();
   const outKeys = view.getColumns().filter((item) => !item.editable).reduce((rtn, item) => {
@@ -97,12 +105,15 @@ async function getSaveData() {
   return rtnValues;
 }
 
-function isModifiedProps() {
-  return true;
+async function isModifiedProps() {
+  return gridUtil.isModified(grdMainRef.value.getView());
 }
 
-function validateProps() {
-  return true;
+async function validateProps() {
+  const rtn = gridUtil.validate(grdMainRef.value.getView(), {
+    isChangedOnly: false,
+  });
+  return rtn;
 }
 
 async function resetInitData() {

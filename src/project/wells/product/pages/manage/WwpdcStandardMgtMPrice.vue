@@ -97,7 +97,7 @@ import WwpdcStandardMgtMPriceFee from './WwpdcStandardMgtMPriceFee.vue';
 
 /* eslint-disable no-use-before-define */
 defineExpose({
-  getSaveData, isModifiedProps, validateProps, moveNextStep, movePrevStep, resetFirstStep,
+  init, getSaveData, isModifiedProps, validateProps, moveNextStep, movePrevStep, resetFirstStep,
 });
 
 const props = defineProps({
@@ -129,6 +129,13 @@ const currentInitData = ref({});
 const selectedTabs = ref(['std', 'val', 'fnl', 'fee']);
 const selectedTab = ref(selectedTabs.value[0]);
 const currentCodes = ref({});
+
+async function init() {
+  await cmpStdRef.value.init();
+  await cmpValRef.value.init();
+  await cmpFnlRef.value.init();
+  await cmpFeeRef.value.init();
+}
 
 async function getSaveData() {
   const subList = {};
@@ -186,8 +193,20 @@ async function onClickTab(clickedTab) {
   emits('clickTab', clickedTab);
 }
 
-function isModifiedProps() {
-  return true;
+async function isModifiedProps() {
+  if (await cmpStdRef.value.isModifiedProps()) {
+    return true;
+  }
+  if (await cmpValRef.value.isModifiedProps()) {
+    return true;
+  }
+  if (await cmpFnlRef.value.isModifiedProps()) {
+    return true;
+  }
+  if (await cmpFeeRef.value.isModifiedProps()) {
+    return true;
+  }
+  return false;
 }
 
 async function validateProps() {
