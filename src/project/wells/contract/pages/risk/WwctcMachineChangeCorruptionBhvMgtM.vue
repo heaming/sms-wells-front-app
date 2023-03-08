@@ -15,6 +15,7 @@
 <template>
   <kw-page>
     <kw-search
+      :modified-targets="['grdMain']"
       @search="onClickSearch"
     >
       <kw-search-row>
@@ -142,6 +143,7 @@
       </kw-action-top>
       <kw-grid
         ref="grdMainRef"
+        name="grdMain"
         :visible-rows="pageInfo.pageSize"
         @init="initGrid"
       />
@@ -154,15 +156,7 @@
 // Import & Declaration
 // ------------------------------------------------------------------------------------------------
 
-import {
-  codeUtil,
-  defineGrid,
-  getComponentType,
-  gridUtil,
-  useDataService,
-  useGlobal,
-  useMeta,
-} from 'kw-lib';
+import { codeUtil, defineGrid, getComponentType, gridUtil, useDataService, useGlobal, useMeta } from 'kw-lib';
 import dayjs from 'dayjs';
 import { cloneDeep, isEmpty } from 'lodash-es';
 
@@ -170,9 +164,8 @@ const { getConfig } = useMeta();
 const dataService = useDataService();
 const { notify, modal } = useGlobal();
 const { t } = useI18n();
-
+const { currentRoute } = useRouter();
 const grdMainRef = ref(getComponentType('KwGrid'));
-
 const searchParams = ref({
   apyCls: 1,
   strtDt: dayjs().format('YYYYMMDD'),
@@ -184,13 +177,11 @@ const searchParams = ref({
   dgr2HgrOgCd: '',
   prtnrKnm: '',
 });
-
 const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
   'ICPT_SELL_PROCS_TP_CD',
 );
 codes.APY_CLS = [{ codeId: 1, codeName: t('MSG_TXT_FST_RGST_DT') }, { codeId: 2, codeName: t('MSG_TXT_YEAR_OCCURNCE') }];
-
 const pageInfo = ref({
   totalCount: 0,
   pageIndex: 1,
@@ -212,7 +203,7 @@ async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
   const response = await dataService.get('/sms/wells/contract/incomplete-sales/excel-download', { params: cachedParams });
   await gridUtil.exportView(view, {
-    fileName: 'dataServiceManageList',
+    fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
     exportData: response.data,
   });
