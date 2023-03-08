@@ -341,7 +341,6 @@ const initGrdMain = defineGrid((data, view) => {
   view.setColumnLayout(columnLayout);
 
   view.checkBar.visible = true;
-  view.setCheckableCallback(() => false);
   view.rowIndicator.visible = true;
   view.editOptions.columnEditableFirst = true;
 
