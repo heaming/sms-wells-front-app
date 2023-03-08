@@ -145,7 +145,7 @@ const { notify } = useGlobal();
 const { t } = useI18n();
 
 const dataService = useDataService();
-
+const { currentRoute } = useRouter();
 const prdDivOption = ref([{ codeId: 1, codeName: t('MSG_TXT_FST_RGST_DT') },
   { codeId: 2, codeName: t('MSG_TXT_YEAR_OCCURNCE') }]);
 const gnrlMngTeamOptions = ref([
@@ -299,7 +299,7 @@ async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
   const res = await dataService.get('/sms/wells/contract/risk-audits/irregular-sales-actions/managerial-tasks/excel-download', { params: cachedParams });
   await gridUtil.exportView(view, {
-    fileName: t('MSG_TXT_IRG_BZNS_ARBIT_MGT'),
+    fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
     exportData: res.data,
   });

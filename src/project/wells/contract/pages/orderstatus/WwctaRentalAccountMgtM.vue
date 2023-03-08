@@ -130,7 +130,7 @@ const { t } = useI18n();
 const dataService = useDataService();
 
 const now = dayjs();
-
+const { currentRoute } = useRouter();
 const totalCount = ref(0);
 const srchOptions = ref([{
   codeId: 1,
@@ -209,9 +209,8 @@ async function onClickExcelDownload() {
   } else {
     res = await dataService.get('/sms/wells/contract/rental-accounts/organizations/excel-download', { params: cachedParams });
   }
-
   await gridUtil.exportView(view, {
-    fileName: 'dataServiceManageList',
+    fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
     exportData: res.data,
   });

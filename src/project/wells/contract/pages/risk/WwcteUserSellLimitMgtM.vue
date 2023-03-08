@@ -146,6 +146,7 @@ import dayjs from 'dayjs';
 const gridMainRef = ref(getComponentType('KwGrid'));
 const { notify } = useGlobal();
 const { getConfig } = useMeta();
+const { currentRoute } = useRouter();
 
 const { t } = useI18n();
 
@@ -230,9 +231,10 @@ async function onClickSearch() {
 
 async function onClickExcelDownload() {
   const view = gridMainRef.value.getView();
+
   const res = await dataService.get('sms/wells/contract/sales-limits/users/excel-download', { params: cachedParams });
   await gridUtil.exportView(view, {
-    fileName: t('MSG_TXT_USR_SLS_RES_MGT'),
+    fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
     exportData: res.data,
   });
@@ -313,10 +315,12 @@ function initGrid(data, view) {
       width: '142',
       options: codes.PRTNR_CHNL_DV_ACD,
       firstOption: 'all',
+      firstOptionValue: '',
+      placeHolder: '전체',
       editor: { type: 'list' },
     },
-    { fieldName: 'deptCd', header: t('MSG_TXT_OG'), width: '126', styleName: 'text-center' },
-    { fieldName: 'sellBaseUsr', header: t('MSG_TXT_USR'), width: '126', styleName: 'text-center' },
+    { fieldName: 'deptCd', header: t('MSG_TXT_OG'), width: '126', styleName: 'text-center', placeHolder: 'ALL' },
+    { fieldName: 'sellBaseUsr', header: t('MSG_TXT_USR'), width: '126', styleName: 'text-center', placeHolder: 'ALL' },
     { fieldName: 'copnDvCd',
       header: t('MSG_TXT_INDI_CORP'),
       width: '142',
@@ -328,12 +332,11 @@ function initGrid(data, view) {
       header: t('MSG_TXT_PRDT_CODE'),
       width: '180',
       styleName: 'text-center rg-button-icon--search',
-      rules: 'required',
       button: 'action' },
     { fieldName: 'pdMclsfNm', header: t('MSG_TXT_PRDT_CATE'), width: '142', editable: false },
     { fieldName: 'pdLclsfNm', header: t('MSG_TXT_PRDT_TYPE'), width: '142', editable: false },
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '220', editable: false },
-    { fieldName: 'sellBasePrd', header: t('MSG_TXT_CYCL'), width: '131' },
+    { fieldName: 'sellBasePrd', header: t('MSG_TXT_CYCL'), width: '131', placeHolder: 'ALL' },
     { fieldName: 'sellBaseSellTp',
       header: t('MSG_TXT_SEL_TYPE'),
       width: '142',
@@ -349,6 +352,7 @@ function initGrid(data, view) {
       header: t('MSG_TXT_STRT_DT'),
       width: '196',
       datetimeFormat: 'date',
+      rules: 'required',
       editor: {
         type: 'btdate',
       },
@@ -357,6 +361,7 @@ function initGrid(data, view) {
       header: t('MSG_TXT_END_DT'),
       width: '196',
       datetimeFormat: 'date',
+      rules: 'required',
       editor: {
         type: 'btdate',
       },
