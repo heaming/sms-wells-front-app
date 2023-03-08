@@ -109,7 +109,7 @@
       <kw-grid
         ref="grdMainRef"
         name="grdMain"
-        :visible-rows="10"
+        :visible-rows="pageInfo.pageSize"
         @init="initGrid"
       />
       <kw-pagination
@@ -136,9 +136,8 @@ const { getConfig } = useMeta();
 const dataService = useDataService();
 const { notify, modal } = useGlobal();
 const { t } = useI18n();
-
+const { currentRoute } = useRouter();
 const grdMainRef = ref(getComponentType('KwGrid'));
-
 const searchParams = ref({
   cntrCstNo: '',
   cntrNo: '',
@@ -150,14 +149,12 @@ const searchParams = ref({
   cralIdvTno: '',
   prtnrInfo: '',
 });
-
 const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
   'SELL_TP_CD',
 );
 codes.STATUS = [{ codeId: 'N', codeName: t('MSG_TXT_NOM') }, { codeId: 'Y', codeName: t('MSG_TXT_RSTRCT') }];
 codes.ADR_CL = [{ codeId: 1, codeName: t('MSG_TXT_ADDR') }, { codeId: 2, codeName: t('MSG_TXT_ZIP') }];
-
 const pageInfo = ref({
   totalCount: 0,
   pageIndex: 1,
@@ -167,7 +164,6 @@ const pageInfo = ref({
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
-
 async function onClickSearchCst() {
   const { result, payload } = await modal({
     component: 'ZwcsaCustomerListP',
@@ -183,7 +179,7 @@ async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
   const response = await dataService.get('/sms/wells/contract/sales-limits/blacklists/excel-download', { params: cachedParams });
   await gridUtil.exportView(view, {
-    fileName: 'blacklistManageList',
+    fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
     exportData: response.data,
   });

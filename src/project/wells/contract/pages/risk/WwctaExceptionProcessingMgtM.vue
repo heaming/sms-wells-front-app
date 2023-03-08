@@ -161,6 +161,7 @@ const dataService = useDataService();
 const { getConfig } = useMeta();
 const { t } = useI18n();
 const { modal, notify } = useGlobal();
+const { currentRoute } = useRouter();
 const grdMainRef = ref(getComponentType('KwGrid'));
 const now = dayjs();
 const codes = await codeUtil.getMultiCodes(
@@ -261,7 +262,7 @@ async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
 
   await gridUtil.exportView(view, {
-    fileName: '예외 처리 관리',
+    fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
     exportData: res.data,
   });

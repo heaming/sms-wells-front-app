@@ -16,7 +16,6 @@
   <kw-page>
     <kw-search
       :cols="3"
-      :modified-targets="['grdMain']"
       @search="onClickSearch"
     >
       <kw-search-row>
@@ -103,6 +102,7 @@ import { isEmpty } from 'lodash-es';
 
 const dataService = useDataService();
 const { t } = useI18n();
+const { currentRoute } = useRouter();
 const grdMainRef = ref(getComponentType('KwGrid'));
 const now = dayjs();
 const codes = {
@@ -126,7 +126,7 @@ const searchParams = ref({
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
   await gridUtil.exportView(view, {
-    fileName: '렌탈 약정만료 및 멤버십 현황 조회',
+    fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
   });
 }
