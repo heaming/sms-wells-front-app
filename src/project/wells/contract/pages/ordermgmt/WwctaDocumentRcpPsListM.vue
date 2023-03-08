@@ -65,8 +65,9 @@
         <kw-search-item :label="$t('MSG_TXT_MPNO')">
           <kw-select
             v-model="searchParams.cralLocapaTno"
-            :model-value="[]"
-            :options="['선택', '010', '011', '017']"
+            :options="codes.COD_CARRIER_ID_TYPE"
+            first-option="select"
+            first-option-value=""
             class="w120"
           />
           <kw-input
@@ -133,6 +134,7 @@ const pageInfo = ref({
 const grdMainRef = ref(getComponentType('KwGrid'));
 const codes = await codeUtil.getMultiCodes(
   'CNTR_CH_PRGS_STAT_CD', // 계약변경진행상태코드
+  'COD_CARRIER_ID_TYPE', // 통신사 식별번호 유형
 );
 
 async function fetchData() {
@@ -160,7 +162,7 @@ async function onClickSearch() {
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
   await gridUtil.exportView(view, {
-    fileName: 'documentRcpPsList',
+    fileName: '서류접수현황',
     timePostfix: true,
   });
 }
