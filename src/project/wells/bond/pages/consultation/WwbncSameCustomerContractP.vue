@@ -27,7 +27,7 @@
 
     <kw-tabs
       v-model="selectedTab"
-      class="px0"
+      class="px0 pt16"
     >
       <kw-tab
         name="deposit"
