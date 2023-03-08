@@ -629,7 +629,8 @@ const initGrid = defineGrid((data, view) => {
       if (result) {
         const cntr = payload.cntrNo + payload.cntrSn;
         // const cntrSn = payload.cntrSn;
-
+        data.setValue(itemIndex, 'cntrNo', cntr);
+        data.setValue(itemIndex, 'cntrSn', cntr);
         data.setValue(itemIndex, 'cntr', cntr);
       }
     }
