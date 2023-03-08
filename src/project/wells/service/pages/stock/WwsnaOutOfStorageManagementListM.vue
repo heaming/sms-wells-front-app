@@ -279,7 +279,7 @@ const initGrdMain = defineGrid((data, view) => {
   data.setFields(fields);
   view.setColumns(columns);
   view.checkBar.visible = false;
-  view.rowIndicator.visible = false;
+  view.rowIndicator.visible = true;
 
   view.onCellItemClicked = async (g, { column, dataRow }) => {
     debugger;
