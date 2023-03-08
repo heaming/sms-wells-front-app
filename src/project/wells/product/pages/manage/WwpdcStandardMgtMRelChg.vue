@@ -57,7 +57,7 @@ import pdConst from '~sms-common/product/constants/pdConst';
 
 /* eslint-disable no-use-before-define */
 defineExpose({
-  getSaveData, isModifiedProps, validateProps,
+  init, getSaveData, isModifiedProps, validateProps,
 });
 
 const props = defineProps({
@@ -92,6 +92,10 @@ const searchParams = ref({
   searchValue: null,
 });
 
+async function init() {
+  await initGridRows();
+}
+
 async function getSaveData() {
   const rowValues = gridUtil.getAllRowValues(grdChangePrdRef.value.getView());
   const rtnValues = { [pdConst.TBL_PD_REL]: rowValues ?? [] };
@@ -99,11 +103,11 @@ async function getSaveData() {
   return rtnValues;
 }
 
-function isModifiedProps() {
-  return true;
+async function isModifiedProps() {
+  return gridUtil.isModified(grdChangePrdRef.value?.getView());
 }
 
-function validateProps() {
+async function validateProps() {
   return true;
 }
 

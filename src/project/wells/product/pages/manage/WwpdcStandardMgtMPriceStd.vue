@@ -70,7 +70,7 @@ import { getGridRowCount, setPdGridRows, getGridRowsToSavePdProps, getPropInfosT
 
 /* eslint-disable no-use-before-define */
 defineExpose({
-  getSaveData, isModifiedProps, validateProps,
+  init, getSaveData, isModifiedProps, validateProps,
 });
 
 const props = defineProps({
@@ -97,6 +97,14 @@ const removeObjects = ref([]);
 const currentCodes = ref({});
 const gridRowCount = ref(0);
 
+async function init() {
+  const view = grdMainRef.value.getView();
+  if (view) {
+    view.getDataSource().clearRows();
+  }
+  await initGridRows();
+}
+
 async function getSaveData() {
   const rowValues = gridUtil.getAllRowValues(grdMainRef.value.getView());
   const rtnValues = await getGridRowsToSavePdProps(
@@ -112,8 +120,8 @@ async function getSaveData() {
   return rtnValues;
 }
 
-function isModifiedProps() {
-  return true;
+async function isModifiedProps() {
+  return gridUtil.isModified(grdMainRef.value.getView());
 }
 
 async function validateProps() {
@@ -172,17 +180,16 @@ async function initGridRows() {
     currentCodes.value.svPdCd = services?.map(({ pdNm, pdCd }) => ({
       codeId: pdCd, codeName: pdNm,
     }));
+    console.log('currentCodes.value.svPdCd : ', currentCodes.value.svPdCd);
     const nameFields = await priceStdRef.value.getNameFields();
     if (nameFields.svPdCd) {
       nameFields.svPdCd.codes = currentCodes.value.svPdCd;
     }
     const svPdCds = view.columnByName('svPdCd');
-    if (svPdCds?.options) {
-      svPdCds.options = currentCodes.value.svPdCd;
-      svPdCds.labels = currentCodes.value.svPdCd?.map((item) => (item.codeName));
-      svPdCds.values = currentCodes.value.svPdCd?.map((item) => (item.codeId));
-      svPdCds.lookupDisplay = true;
-    }
+    svPdCds.options = currentCodes.value.svPdCd;
+    svPdCds.labels = currentCodes.value.svPdCd?.map((item) => (item.codeName));
+    svPdCds.values = currentCodes.value.svPdCd?.map((item) => (item.codeId));
+    svPdCds.lookupDisplay = true;
     // console.log('svPdCds.labels : ', svPdCds.labels);
   }
   gridRowCount.value = getGridRowCount(view);

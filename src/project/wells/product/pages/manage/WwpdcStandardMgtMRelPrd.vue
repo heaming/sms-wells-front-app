@@ -129,7 +129,7 @@ import pdConst from '~sms-common/product/constants/pdConst';
 
 /* eslint-disable no-use-before-define */
 defineExpose({
-  getSaveData, isModifiedProps, validateProps,
+  init, getSaveData, isModifiedProps, validateProps,
 });
 
 const props = defineProps({
@@ -186,6 +186,10 @@ const searchParams = ref({
   pdTpCd: '',
 });
 
+async function init() {
+  await initGridRows();
+}
+
 async function getSaveData() {
   let rowValues = gridUtil.getAllRowValues(grdMaterialRef.value.getView());
   rowValues = pdMergeBy(rowValues, gridUtil.getAllRowValues(grdServiceRef.value.getView()));
@@ -195,11 +199,13 @@ async function getSaveData() {
   return rtnValues;
 }
 
-function isModifiedProps() {
-  return true;
+async function isModifiedProps() {
+  return gridUtil.isModified(grdMaterialRef.value?.getView())
+          || gridUtil.isModified(grdServiceRef.value?.getView())
+          || gridUtil.isModified(grdStandardRef.value?.getView());
 }
 
-function validateProps() {
+async function validateProps() {
   return true;
 }
 
@@ -371,7 +377,7 @@ async function initMaterialGrid(data, view) {
       suffix: ' %',
     },
     // 잔액산입
-    { fieldName: 'blamInptYn', header: t('MSG_TXT_CHANGE_COUNTING'), width: '87', styleName: 'text-center', editor: 'list', options: props.codes?.COD_YN },
+    { fieldName: 'blamInptYn', header: t('MSG_TXT_CHANGE_COUNTING'), width: '87', styleName: 'text-center', editor: { type: 'list' }, options: props.codes?.COD_YN },
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   fields.push({ fieldName: pdConst.REL_PD_ID });

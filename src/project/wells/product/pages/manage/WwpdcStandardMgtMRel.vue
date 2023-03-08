@@ -62,7 +62,7 @@ import WwpdcStandardMgtMRelChg from './WwpdcStandardMgtMRelChg.vue';
 
 /* eslint-disable no-use-before-define */
 defineExpose({
-  getSaveData, isModifiedProps, validateProps, moveNextStep, movePrevStep, resetFirstStep,
+  init, getSaveData, isModifiedProps, validateProps, moveNextStep, movePrevStep, resetFirstStep,
 });
 
 const props = defineProps({
@@ -88,6 +88,11 @@ const currentInitData = ref();
 const cmpPrdRef = ref();
 const cmpChgRef = ref();
 
+async function init() {
+  await cmpPrdRef.value.init();
+  await cmpChgRef.value.init();
+}
+
 async function getSaveData() {
   const subList = {};
   subList[rel] = [];
@@ -103,11 +108,17 @@ async function getSaveData() {
   return subList;
 }
 
-function isModifiedProps() {
-  return true;
+async function isModifiedProps() {
+  if (await cmpPrdRef.value.isModifiedProps()) {
+    return true;
+  }
+  if (await cmpChgRef.value.isModifiedProps()) {
+    return true;
+  }
+  return false;
 }
 
-function validateProps() {
+async function validateProps() {
   return true;
 }
 
