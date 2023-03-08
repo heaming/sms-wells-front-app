@@ -174,7 +174,7 @@ async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
   const res = await dataService.get('/sms/wells/withdrawal/idvrve/billing-document-orders/excel-download', { params: cachedParams });
   await gridUtil.exportView(view, {
-    fileName: `${t('MSG_TXT_BILDC')}_Excel`,
+    fileName: `${t('MSG_TXT_BILDC')}`,
     timePostfix: true,
     exportData: res.data,
   });

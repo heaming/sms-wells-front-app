@@ -116,7 +116,7 @@
       <kw-grid
         ref="grdMainRef"
         name="grdMain"
-        :visible-rows="10"
+        :visible-rows="pageInfo.pageSize"
         @init="initGrid"
       />
       <kw-pagination
@@ -214,7 +214,7 @@ async function onClickExcelDownload() {
   const res = await dataService.get('/sms/wells/withdrawal/idvrve/auto-prepayment-discount-exclude/excel-download', { params: cachedParams });
 
   await gridUtil.exportView(view, {
-    fileName: `${t('MSG_TXT_AUTO_PRM_DSC_EXCD')}_Excel`,
+    fileName: `${t('MSG_TXT_AUTO_PRM_DSC_EXCD')}`,
     timePostfix: true,
     exportData: res.data,
   });

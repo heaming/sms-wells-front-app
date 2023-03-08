@@ -180,7 +180,7 @@ async function onClickExcelDownload() {
   const view = grdPageRef.value.getView();
   const res = await dataService.get('/sms/wells/withdrawal/idvrve/giro-ocr-forwardings/print/excel-download', { params: cachedParams });
   await gridUtil.exportView(view, {
-    fileName: `${t('MSG_TXT_GIRO_OCR_FW_MGT_PRNT_MGT')}OCR_Excel`,
+    fileName: `${t('MSG_TXT_GIRO_OCR_FW_MGT_PRNT_MGT')}`,
     // fileName: '지로 OCR 발송 관리-출력관리_Excel',
     timePostfix: true,
     exportData: res.data,
@@ -242,7 +242,7 @@ const initGrid = defineGrid((data, view) => {
       header: t('MSG_TXT_WK_QTY'),
       // header: '작업수량',
       width: '200',
-      styleName: 'text-center' },
+      styleName: 'text-right' },
     { fieldName: 'giroOcrPblOj',
       header: t('MSG_TXT_OJ_BCK'),
       // header: '대상구간',

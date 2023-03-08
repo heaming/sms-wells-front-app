@@ -298,7 +298,7 @@ async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
   const res = await dataService.get('/sms/wells/withdrawal/idvrve/giro-deposits/excel-download', { params: cachedParams });
   await gridUtil.exportView(view, {
-    fileName: `${t('MSG_TXT_GIRO_DP_MNGT')}OCR_Excel`,
+    fileName: `${t('MSG_TXT_GIRO_DP_MNGT')}`,
     timePostfix: true,
     exportData: res.data,
   });
