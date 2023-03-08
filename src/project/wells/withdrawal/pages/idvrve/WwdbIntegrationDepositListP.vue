@@ -443,7 +443,7 @@ const initGrid = defineGrid((data, view) => {
       width: '100',
       styleName: 'text-right' },
     { fieldName: 'alncmpDvCd',
-      header: t('ALNCMP_DV_CD'),
+      header: t('MSG_TXT_ALNCMP_DV_CD'),
       // , header: '제휴사구분코드'
       width: '171',
       styleName: 'text-center' },
