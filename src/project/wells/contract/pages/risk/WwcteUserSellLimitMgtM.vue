@@ -140,7 +140,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { getComponentType, gridUtil, useGlobal, useMeta, codeUtil, useDataService } from 'kw-lib';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 
 const gridMainRef = ref(getComponentType('KwGrid'));
@@ -199,6 +199,12 @@ const salesTypeOptions = ref([
   { codeId: '4', codeName: `4-${t('MSG_TXT_NEW_RGLTD')}` },
 ]);
 
+const copnDvCdOptions = ref([
+  { codeId: 'A', codeName: `A-${t('MSG_TXT_ALL')}` },
+  { codeId: '1', codeName: t('MSG_TXT_INDV') },
+  { codeId: '2', codeName: t('MSG_TXT_CRP') },
+]);
+
 async function fetchData() {
   const res = await dataService.get('sms/wells/contract/sales-limits/users/paging', { params: { ...cachedParams, ...pageInfo.value } });
   const { list: details, pageInfo: pagingResult } = res.data;
@@ -254,6 +260,13 @@ async function onClickSave() {
   if (await gridUtil.alertIfIsNotModified(view)) { return; }
   if (!await gridUtil.validate(view)) { return; }
 
+  for (let i = 0; i < gridUtil.getCheckedRowValues(view).length; i += 1) {
+    if (!isEmpty(gridUtil.getCheckedRowValues(view)[i].dangOjOgId)) {
+      notify(t('MSG_ALT_EXIST_BEAN_ID'));
+      return;
+    }
+  }
+
   const changedRows = gridUtil.getChangedRowValues(view);
   await dataService.post('sms/wells/contract/sales-limits/users', changedRows);
 
@@ -299,13 +312,16 @@ function initGrid(data, view) {
       header: t('MSG_TXT_CHNL'),
       width: '142',
       options: codes.PRTNR_CHNL_DV_ACD,
-      editor: { type: 'list' } },
+      firstOption: 'all',
+      editor: { type: 'list' },
+    },
     { fieldName: 'deptCd', header: t('MSG_TXT_OG'), width: '126', styleName: 'text-center' },
     { fieldName: 'sellBaseUsr', header: t('MSG_TXT_USR'), width: '126', styleName: 'text-center' },
     { fieldName: 'copnDvCd',
       header: t('MSG_TXT_INDI_CORP'),
       width: '142',
-      options: codes.COPN_DV_CD,
+      rules: 'required',
+      options: copnDvCdOptions.value,
       editor: { type: 'list' } },
     { fieldName: 'zip', header: t('MSG_TXT_ZIP'), width: '180', styleName: 'text-center' },
     { fieldName: 'pdCd',

@@ -255,13 +255,15 @@ async function onClickSearch() {
 async function onClickRemove() {
   const view = grdMainRef.value.getView();
   if (!await gridUtil.confirmIfIsModified(view)) { return; }
+
+  const deletedRows = await gridUtil.confirmDeleteCheckedRows(view);
+
   for (let i = 0; i < gridUtil.getCheckedRowValues(view).length; i += 1) {
-    if (isEmpty(gridUtil.getCheckedRowValues(view)[i].dgr1LevlDgPrtnrNo)) {
+    if (isEmpty(gridUtil.getCheckedRowValues(view)[i].dangOjOgId)) {
       notify(t('MSG_ALT_EXIST_BEAN_ID'));
       return;
     }
   }
-  const deletedRows = await gridUtil.confirmDeleteCheckedRows(view);
 
   if (deletedRows.length) {
     await dataService.delete('/sms/wells/contract/risk-audits/irregular-sales-actions/managerial-tasks', { data: deletedRows });
@@ -275,7 +277,7 @@ async function onClickSave() {
   if (!await gridUtil.validate(view)) { return; }
 
   for (let i = 0; i < gridUtil.getCheckedRowValues(view).length; i += 1) {
-    if (isEmpty(gridUtil.getCheckedRowValues(view)[i].dgr1LevlDgPrtnrNo)) {
+    if (isEmpty(gridUtil.getCheckedRowValues(view)[i].dangOjOgId)) {
       notify(t('MSG_ALT_EXIST_BEAN_ID'));
       return;
     }

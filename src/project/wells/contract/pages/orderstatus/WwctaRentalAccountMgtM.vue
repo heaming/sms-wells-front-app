@@ -173,6 +173,7 @@ function onChangeSearch() {
   const view = grdMainRef.value.getView();
   const data = view.getDataSource();
   data.clearRows();
+  totalCount.value = 0;
   view.columnsByTag('prod').forEach((col) => { col.visible = isProd.value; });
   view.columnsByTag('org').forEach((col) => { col.visible = !(isProd.value); });
 }
