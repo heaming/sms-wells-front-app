@@ -35,12 +35,15 @@
         <kw-search-item :label="$t('MSG_TXT_PDGRP')">
           <kw-select
             v-model="searchParams.pdHclsfId"
-            :options="['대분류 전체','B','C']"
+            :options="codes.PD_HCLSF"
+            first-option="all"
+            @change="onChangeHclsf"
           />
           <span>/</span>
           <kw-select
             v-model="searchParams.pdMclsfId"
-            :options="['중분류 전체','B','C']"
+            :options="codes.PD_MCLSF"
+            first-option="all"
           />
         </kw-search-item>
 
@@ -70,7 +73,7 @@
         <template #left>
           <span>{{ $t('MSG_TXT_COM_TOT') }}</span>
           <span class="accent pl4">{{ totalCount }}{{ $t('MSG_TXT_CNT') }}</span>
-          <span class="ml8">(단위:개월)</span>
+          <span class="ml8">({{ $t('MSG_TXT_UNIT') }}:{{ $t('MSG_TXT_MCNT') }})</span>
         </template>
         <kw-btn
           icon="download_on"
@@ -96,35 +99,35 @@
 // -------------------------------------------------------------------------------------------------
 import { defineGrid, getComponentType, gridUtil, useDataService } from 'kw-lib';
 import dayjs from 'dayjs';
+import { isEmpty } from 'lodash-es';
 
 const dataService = useDataService();
 const { t } = useI18n();
-
 const grdMainRef = ref(getComponentType('KwGrid'));
 const now = dayjs();
+const codes = {
+  PD_HCLSF: (await dataService.get('/sms/common/contract/products/hclsf')).data,
+  PD_MCLSF_ALL: (await dataService.get('/sms/common/contract/products/mclsf')).data,
+};
+codes.PD_MCLSF = codes.PD_MCLSF_ALL;
 const totalCount = ref(0);
 const searchParams = ref({
   basePdCd: '',
   cntrPdEnddtStrtdt: now.startOf('month').format('YYYYMMDD'),
   cntrPdEnddtEnddt: now.format('YYYYMMDD'),
-  pdMclsfId: '',
   pdHclsfId: '',
+  pdMclsfId: '',
   pdNm: '',
   isExcdCan: 'N',
 });
-let cachedParams;
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
-
-  const response = await dataService.get('/sms/wells/contract/rental-renewals/excel-download', { params: cachedParams });
-
   await gridUtil.exportView(view, {
-    fileName: 'rentalInstallationStplExpList',
+    fileName: '렌탈 약정만료 및 멤버십 현황 조회',
     timePostfix: true,
-    exportData: response.data,
   });
 }
 
@@ -134,6 +137,10 @@ async function fetchData() {
   totalCount.value = rentals.length;
 
   const view = grdMainRef.value.getView();
+  // 취소제외일 때 취소일, 취소고객 의무사용일자 컬럼 숨김
+  ['canDt', 'canCstDutyUseExprYn'].forEach((col) => {
+    view.columnByName(col).visible = searchParams.value.isExcdCan !== 'Y';
+  });
   view.getDataSource().setRows(rentals);
   view.resetCurrent();
 }
@@ -142,6 +149,14 @@ async function onClickSearch() {
   await fetchData();
 }
 
+async function onChangeHclsf(hclsf) {
+  if (isEmpty(hclsf)) {
+    codes.PD_MCLSF = codes.PD_MCLSF_ALL;
+  } else {
+    codes.PD_MCLSF = codes.PD_MCLSF_ALL.filter((code) => hclsf === code.hgrPdClsfId);
+    searchParams.value.pdMclsfId = '';
+  }
+}
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
@@ -164,6 +179,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'mshCntrNo' },
     { fieldName: 'mshCntrSn' },
     { fieldName: 'mshCntrDt' },
+    { fieldName: 'mshJoinDt' },
     { fieldName: 'mshCanDt' },
     { fieldName: 'mshWdwalDt' },
     { fieldName: 'cntrtMpno' },
@@ -180,21 +196,39 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: 250 },
     { fieldName: 'istmMcn', header: t('MSG_TXT_RENT_PRD_MN'), width: 100, styleName: 'text-right' },
     { fieldName: 'recapDutyPtrmN', header: t('MSG_TXT_LCK_IN_PRD_MN'), width: 100, styleName: 'text-right' },
-    { fieldName: 'canDt', header: t('MSG_TXT_CANC_D'), width: 120, styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'canCstDutyUseExprYn', header: t('MSG_TXT_CAN_CST_MAND_PRD_EXP_STAT'), width: 250 },
+    { fieldName: 'canDt', header: t('MSG_TXT_CAN_D'), width: 120, styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'canCstDutyUseExprYn', header: t('MSG_TXT_CAN_CST_MAND_PRD_EXP_STAT'), width: 200, styleName: 'text-center' },
     { fieldName: 'slDt', header: t('MSG_TXT_DT_OF_SALE'), width: 120, styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'dutyUseDt', header: t('MSG_TXT_MAND_DAYS'), width: 120, styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'mshCntrNo', header: t('MSG_TXT_CNTR_NO'), width: 120, styleName: 'text-center' },
     { fieldName: 'mshCntrSn', header: t('MSG_TXT_CNTR_SN'), width: 100, styleName: 'text-right' },
     { fieldName: 'mshCntrDt', header: t('MSG_TXT_MEM_CNTR_DT_1'), width: 120, styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'mshJoinDt', header: t('MSG_TXT_MEM_SIGNUP'), width: 120, styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'mshCanDt', header: t('MSG_TXT_MEM_CANC_DT_1'), width: 120, styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'mshWdwalDt', header: t('MSG_TXT_MEM_WTDR_DT'), width: 120, styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'cntrtMpno', header: t('MSG_TXT_CNTRR_VAC_PH_NO'), width: 150, styleName: 'text-center' },
     { fieldName: 'istllMpno', header: t('MSG_TXT_INSTR_PH_NO'), width: 150, styleName: 'text-center' },
   ];
 
+  const layouts = [
+    'exnDt',
+    {
+      header: t('MSG_TXT_RNT_CNTR_NO'),
+      direction: 'horizontal',
+      items: ['cntrNo', 'cntrSn'],
+    },
+    'cstKnm', 'pdClsf', 'basePdCd', 'pdNm', 'istmMcn', 'recapDutyPtrmN', 'canDt', 'canCstDutyUseExprYn', 'slDt', 'dutyUseDt',
+
+    {
+      header: t('MSG_TXT_MEM_CNTR_NO'),
+      direction: 'horizontal',
+      items: ['mshCntrNo', 'mshCntrSn'],
+    },
+    'mshCntrDt', 'mshJoinDt', 'mshCanDt', 'mshWdwalDt', 'cntrtMpno', 'istllMpno',
+  ];
   data.setFields(fields);
   view.setColumns(columns);
+  view.setColumnLayout(layouts);
   view.rowIndicator.visible = true;
 });
 </script>

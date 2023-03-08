@@ -88,8 +88,10 @@
       <kw-action-top>
         <template #left>
           <kw-paging-info
-            :page-size="pageInfo.pageSize"
+            v-model:page-index="pageInfo.pageIndex"
+            v-model:page-size="pageInfo.pageSize"
             :total-count="pageInfo.totalCount"
+            :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
           />
         </template>
         <kw-btn
@@ -156,21 +158,16 @@ import dayjs from 'dayjs';
 import { cloneDeep } from 'lodash-es';
 
 const dataService = useDataService();
-
 const { getConfig } = useMeta();
 const { t } = useI18n();
 const { modal, notify } = useGlobal();
-
 const grdMainRef = ref(getComponentType('KwGrid'));
-
 const now = dayjs();
-
 const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
   'EX_PROCS_CD',
 );
 codes.STATUS = [{ codeId: 'N', codeName: t('MSG_TXT_LIMIT') }, { codeId: 'Y', codeName: t('MSG_TXT_PRMSN') }];
-
 let cachedParams;
 const searchParams = ref({
   strtDt: now.startOf('month').format('YYYYMMDD'),
@@ -180,7 +177,6 @@ const searchParams = ref({
   cstNo: '',
   cntrNo: '',
 });
-
 const pageInfo = ref({
   totalCount: 0,
   pageIndex: 1,
@@ -195,7 +191,7 @@ async function onClickOpenEmployeeSearchPopup() {
     component: 'ZwogzPartnerListP',
   });
   if (result) {
-    searchParams.prtnrNo(payload.prtnrNo);
+    searchParams.value.prtnrNo = payload.prtnrNo;
   }
 }
 
@@ -204,7 +200,7 @@ async function onClickOpenCustomerSearchPopup() {
     component: 'ZwcsaCustomerListP',
   });
   if (result) {
-    searchParams.cstNo(payload.cstNo);
+    searchParams.value.cstNo = payload.cstNo;
   }
 }
 
@@ -265,7 +261,7 @@ async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
 
   await gridUtil.exportView(view, {
-    fileName: 'exceptionProcessingList',
+    fileName: '예외 처리 관리',
     timePostfix: true,
     exportData: res.data,
   });
