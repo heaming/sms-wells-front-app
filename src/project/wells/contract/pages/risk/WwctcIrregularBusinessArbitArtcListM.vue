@@ -136,7 +136,7 @@ const { notify } = useGlobal();
 const { getConfig } = useMeta();
 const dataService = useDataService();
 const { t } = useI18n();
-
+const { currentRoute } = useRouter();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -182,12 +182,11 @@ let cachedParams;
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
 
-  const response = await dataService.get('/sms/wells/contract/risk-audits/irregular-sales-actions/excel-download', { params: cachedParams });
-
+  const res = await dataService.get('/sms/wells/contract/risk-audits/irregular-sales-actions/excel-download', { params: cachedParams });
   await gridUtil.exportView(view, {
-    fileName: t('MSG_TXT_IRG_BZNS_ARBIT_LIST'),
+    fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
-    exportData: response.data,
+    exportData: res.data,
   });
 }
 async function onClickSearchPartnerId() {
