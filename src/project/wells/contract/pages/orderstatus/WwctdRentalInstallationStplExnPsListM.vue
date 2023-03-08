@@ -22,21 +22,24 @@
       <kw-search-row>
         <kw-search-item
           :label="$t('MSG_TXT_EXP_DT')"
+          required
         >
           <kw-date-range-picker
             v-model:from="searchParams.cntrPdEnddtStrtdt"
             v-model:to="searchParams.cntrPdEnddtEnddt"
+            :label="$t('MSG_TXT_EXP_DT')"
+            rules="date_range_required"
           />
         </kw-search-item>
 
         <kw-search-item :label="$t('MSG_TXT_PDGRP')">
           <kw-select
-            v-model="searchParams.pdMclsfId"
+            v-model="searchParams.pdHclsfId"
             :options="['대분류 전체','B','C']"
           />
           <span>/</span>
           <kw-select
-            v-model="searchParams.pdHclsfId"
+            v-model="searchParams.pdMclsfId"
             :options="['중분류 전체','B','C']"
           />
         </kw-search-item>
@@ -54,17 +57,10 @@
           />
         </kw-search-item>
         <kw-search-item :label="$t('MSG_TXT_EXCLD_CANC')">
-          <kw-field
+          <kw-checkbox
             v-model="searchParams.isExcdCan"
-          >
-            <template #default="{ field }">
-              <kw-checkbox
-                v-bind="field"
-                label=""
-                val="Y"
-              />
-            </template>
-          </kw-field>
+            val="Y"
+          />
         </kw-search-item>
       </kw-search-row>
     </kw-search>
@@ -72,12 +68,13 @@
     <div class="result-area">
       <kw-action-top>
         <template #left>
-          <kw-paging-info :total-count="pageInfo.totalCount" />
+          <span>{{ $t('MSG_TXT_COM_TOT') }}</span>
+          <span class="accent pl4">{{ totalCount }}{{ $t('MSG_TXT_CNT') }}</span>
           <span class="ml8">(단위:개월)</span>
         </template>
         <kw-btn
           icon="download_on"
-          :disable="pageInfo.totalCount === 0"
+          :disable="totalCount === 0"
           dense
           secondary
           :label="$t('MSG_BTN_EXCEL_DOWN')"
@@ -86,15 +83,8 @@
       </kw-action-top>
       <kw-grid
         ref="grdMainRef"
-        name="grdMain"
         :visible-rows="10"
         @init="initGrdMain"
-      />
-      <kw-pagination
-        v-model:page-index="pageInfo.pageIndex"
-        v-model:page-size="pageInfo.pageSize"
-        :total-count="pageInfo.totalCount"
-        @change="fetchData"
       />
     </div>
   </kw-page>
@@ -104,28 +94,15 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { defineGrid, getComponentType, gridUtil, useDataService, useMeta } from 'kw-lib';
-import { cloneDeep } from 'lodash-es';
+import { defineGrid, getComponentType, gridUtil, useDataService } from 'kw-lib';
 import dayjs from 'dayjs';
 
-const { getConfig } = useMeta();
 const dataService = useDataService();
 const { t } = useI18n();
 
-// -------------------------------------------------------------------------------------------------
-// Function & Event
-// -------------------------------------------------------------------------------------------------
-
 const grdMainRef = ref(getComponentType('KwGrid'));
-
 const now = dayjs();
-
-const pageInfo = ref({
-  totalCount: 0,
-  pageIndex: 1,
-  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
-});
-
+const totalCount = ref(0);
 const searchParams = ref({
   basePdCd: '',
   cntrPdEnddtStrtdt: now.startOf('month').format('YYYYMMDD'),
@@ -136,7 +113,9 @@ const searchParams = ref({
   isExcdCan: 'N',
 });
 let cachedParams;
-
+// -------------------------------------------------------------------------------------------------
+// Function & Event
+// -------------------------------------------------------------------------------------------------
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
 
@@ -150,30 +129,16 @@ async function onClickExcelDownload() {
 }
 
 async function fetchData() {
-  cachedParams = { ...cachedParams, ...pageInfo.value };
-  const res = await dataService.get('/sms/wells/contract/expired-retention-contracts/paging', { params: cachedParams });
-  const { list: rentalData, pageInfo: pagingResult } = res.data;
-  pageInfo.value = pagingResult;
+  const res = await dataService.get('/sms/wells/contract/expired-retention-contracts', { params: searchParams.value });
+  const rentals = res.data;
+  totalCount.value = rentals.length;
 
   const view = grdMainRef.value.getView();
-  view.getDataSource().setRows(rentalData);
+  view.getDataSource().setRows(rentals);
   view.resetCurrent();
 }
 
 async function onClickSearch() {
-  pageInfo.value.pageIndex = 1;
-  cachedParams = cloneDeep(searchParams.value);
-  const view = grdMainRef.value.getView();
-  const col1 = view.columnByName('canDt');
-  const col2 = view.columnByName('canCstDutyUseExprYn');
-  if (cachedParams.isExcdCan.length) {
-    view.setColumnProperty(col1, 'visible', false);
-    view.setColumnProperty(col2, 'visible', false);
-  } else {
-    view.setColumnProperty(col1, 'visible', true);
-    view.setColumnProperty(col2, 'visible', true);
-  }
-  console.log(cachedParams);
   await fetchData();
 }
 
@@ -182,60 +147,54 @@ async function onClickSearch() {
 // -------------------------------------------------------------------------------------------------
 const initGrdMain = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'basePdCd' },
-    { fieldName: 'canCstDutyUseExprYn' },
-    { fieldName: 'canDt' },
-    { fieldName: 'cntrCstNo' },
+    { fieldName: 'exnDt' },
     { fieldName: 'cntrNo' },
     { fieldName: 'cntrSn' },
-    { fieldName: 'cntrtCralIdvTno' },
-    { fieldName: 'cntrtCralLocaraTno' },
-    { fieldName: 'cntrtMexnoEncr' },
+    { fieldName: 'cntrCstNo' },
     { fieldName: 'cstKnm' },
+    { fieldName: 'pdClsf' },
+    { fieldName: 'basePdCd' },
+    { fieldName: 'pdNm' },
+    { fieldName: 'istmMcn', dataType: 'number' },
+    { fieldName: 'recapDutyPtrmN', dataType: 'number' },
+    { fieldName: 'canDt' },
+    { fieldName: 'canCstDutyUseExprYn' },
+    { fieldName: 'slDt' },
     { fieldName: 'dutyUseDt' },
-    { fieldName: 'exnDt' },
-    { fieldName: 'istllCralIdvTno' },
-    { fieldName: 'istllCralLocaraTno' },
-    { fieldName: 'istllMexnoEncr' },
-    { fieldName: 'istmMcn' },
-    { fieldName: 'mshCanDt' },
-    { fieldName: 'mshCntrDt' },
     { fieldName: 'mshCntrNo' },
     { fieldName: 'mshCntrSn' },
+    { fieldName: 'mshCntrDt' },
+    { fieldName: 'mshCanDt' },
     { fieldName: 'mshWdwalDt' },
-    { fieldName: 'pdNm' },
-    { fieldName: 'recapDutyPtrmN' },
-    { fieldName: 'slDt' },
+    { fieldName: 'cntrtMpno' },
+    { fieldName: 'istllMpno' },
   ];
 
   const columns = [
-    { fieldName: 'cntrNo', header: t('MSG_TXT_RNT_CNTR_NO'), width: '135', styleName: 'text-center' },
-    { fieldName: 'cstKnm', header: t('MSG_TXT_CNTOR_NM'), width: '101', styleName: 'text-center' },
-    { fieldName: 'basePdCd', header: t('MSG_TXT_PRDT_CODE'), width: '127', styleName: 'text-center' },
-    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '284', styleName: 'text-left' },
-    { fieldName: 'istmMcn', header: t('MSG_TXT_RENT_PRD_MN'), width: '143', styleName: 'text-right' },
-    { fieldName: 'recapDutyPtrmN', header: t('MSG_TXT_LCK_IN_PRD_MN'), width: '161', styleName: 'text-right' },
-    { fieldName: 'slDt', header: t('MSG_TXT_DT_OF_SALE'), width: '127', styleName: 'text-center' },
-    { fieldName: 'dutyUseDt', header: t('MSG_TXT_MAND_DAYS'), width: '127', styleName: 'text-center' },
-    { fieldName: 'exnDt', header: t('MSG_TXT_EXP_DT'), width: '127', styleName: 'text-center' },
-    { fieldName: 'canDt', header: t('MSG_TXT_CANC_D'), width: '127', styleName: 'text-left' },
-    { fieldName: 'canCstDutyUseExprYn', header: t('MSG_TXT_CAN_CST_MAND_PRD_EXP_STAT'), width: '230' },
-    { fieldName: 'mshCntrNo', header: t('MSG_TXT_MEM_CNTR_NO'), width: '135', styleName: 'text-center' },
-    { fieldName: 'mshCntrDt', header: t('MSG_TXT_MEM_CNTR_DT_1'), width: '127', styleName: 'text-center' },
-    { fieldName: 'mshCntrSn', header: t('MSG_TXT_MEM_SIGNUP'), width: '127', styleName: 'text-center' },
-    { fieldName: 'mshCanDt', header: t('MSG_TXT_MEM_CANC_DT_1'), width: '127', styleName: 'text-center' },
-    { fieldName: 'mshWdwalDt', header: t('MSG_TXT_MEM_WTDR_DT'), width: '127', styleName: 'text-center' },
-    { fieldName: 'istllCralIdvTno', header: t('MSG_TXT_CNTRR_VAC_PH_NO'), width: '193', styleName: 'text-center' },
-    { fieldName: 'istllCralLocaraTno', header: t('MSG_TXT_INSTR_PH_NO'), width: '176', styleName: 'text-center' },
-
+    { fieldName: 'exnDt', header: t('MSG_TXT_EXP_DT'), width: 120, styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_NO'), width: 120 },
+    { fieldName: 'cntrSn', header: t('MSG_TXT_CNTR_SN'), width: 100, styleName: 'text-right' },
+    { fieldName: 'cstKnm', header: t('MSG_TXT_CNTOR_NM'), width: 100 },
+    { fieldName: 'pdClsf', header: t('MSG_TXT_PRDT_CATE'), width: 100 },
+    { fieldName: 'basePdCd', header: t('MSG_TXT_PRDT_CODE'), width: 100, styleName: 'text-center' },
+    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: 250 },
+    { fieldName: 'istmMcn', header: t('MSG_TXT_RENT_PRD_MN'), width: 100, styleName: 'text-right' },
+    { fieldName: 'recapDutyPtrmN', header: t('MSG_TXT_LCK_IN_PRD_MN'), width: 100, styleName: 'text-right' },
+    { fieldName: 'canDt', header: t('MSG_TXT_CANC_D'), width: 120, styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'canCstDutyUseExprYn', header: t('MSG_TXT_CAN_CST_MAND_PRD_EXP_STAT'), width: 250 },
+    { fieldName: 'slDt', header: t('MSG_TXT_DT_OF_SALE'), width: 120, styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'dutyUseDt', header: t('MSG_TXT_MAND_DAYS'), width: 120, styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'mshCntrNo', header: t('MSG_TXT_CNTR_NO'), width: 120, styleName: 'text-center' },
+    { fieldName: 'mshCntrSn', header: t('MSG_TXT_CNTR_SN'), width: 100, styleName: 'text-right' },
+    { fieldName: 'mshCntrDt', header: t('MSG_TXT_MEM_CNTR_DT_1'), width: 120, styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'mshCanDt', header: t('MSG_TXT_MEM_CANC_DT_1'), width: 120, styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'mshWdwalDt', header: t('MSG_TXT_MEM_WTDR_DT'), width: 120, styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'cntrtMpno', header: t('MSG_TXT_CNTRR_VAC_PH_NO'), width: 150, styleName: 'text-center' },
+    { fieldName: 'istllMpno', header: t('MSG_TXT_INSTR_PH_NO'), width: 150, styleName: 'text-center' },
   ];
 
   data.setFields(fields);
   view.setColumns(columns);
-
   view.rowIndicator.visible = true;
 });
 </script>
-
-<style scoped>
-</style>
