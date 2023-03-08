@@ -17,7 +17,7 @@ export default () => {
    */
   async function getLcStockSt101tb() {
     const result = await dataService.get(
-      '/sms/wells/common/sms-com-codes/districts',
+      '/sms/wells/common/sms-wells-codes/districts',
       { params: { itemKnd: '4', itemGr: '1', pdTpCd: 'M' } },
     );
     return result.data;
@@ -34,7 +34,7 @@ export default () => {
    *     const sido = await getServiceCenters();
    */
   async function getServiceCenters() {
-    const result = await dataService.get('/sms/wells/common/sms-com-codes/service-centers');
+    const result = await dataService.get('/sms/wells/common/sms-wells-codes/service-centers');
     return result.data.map((x) => ({
       ogCd: x.ogCd,
       ogNm: x.ogNm,
@@ -58,7 +58,7 @@ export default () => {
    */
   async function getDistricts(type, fr2pLgldCd, ctctyNm, lawcEmdNm) {
     let result = await dataService.get(
-      '/sms/wells/common/sms-com-codes/districts',
+      '/sms/wells/common/sms-wells-codes/districts',
       { params: { searchType: type, fr2pLgldCd, ctctyNm, lawcEmdNm } },
     );
     result = result.data;
@@ -98,7 +98,7 @@ export default () => {
    */
   async function getMcbyCstSvOjIz(mngtYm, pdGdCd) {
     const result = await dataService.get(
-      '/sms/wells/common/sms-com-codes/month-customer-services',
+      '/sms/wells/common/sms-wells-codes/month-customer-services',
       { params: { mngtYm, pdGdCd } },
     );
     return result.data.map((x) => ({
@@ -119,7 +119,7 @@ export default () => {
    *     const lgldCtpLoc = await getLgldCtpvLocaras();
    */
   async function getLgldCtpvLocaras() {
-    return (await dataService.get('/sms/wells/common/sms-com-codes/lgld-ctpv-locaras')).data;
+    return (await dataService.get('/sms/wells/common/sms-wells-codes/lgld-ctpv-locaras')).data;
   }
 
   /**
@@ -155,13 +155,10 @@ export default () => {
 
    */
   async function getWarehouseCloseCheck(apyYm, wareNo) {
-    const result = await dataService.get('/sms/wells/common/sms-com-codes/warehouse-close-check', { params: { apyYm, wareNo } });
+    const result = await dataService.get('/sms/wells/common/sms-wells-codes/warehouse-close-check', { params: { apyYm, wareNo } });
     console.log(result);
     debugger;
-    if (result.data === '0') {
-      return false;
-    }
-    return true;
+    return result.data !== '0';
   }
 
   /**
