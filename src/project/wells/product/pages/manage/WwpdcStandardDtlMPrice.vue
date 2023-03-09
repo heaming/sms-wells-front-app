@@ -37,6 +37,7 @@
   <kw-grid
     ref="grdMainRef"
     :visible-rows="10"
+    ignore-on-modified
     @init="initGrid"
   />
 </template>

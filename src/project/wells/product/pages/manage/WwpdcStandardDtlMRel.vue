@@ -18,6 +18,7 @@
   <kw-grid
     ref="grdMaterialRef"
     :visible-rows="3"
+    ignore-on-modified
     @init="initMaterialGrid"
   />
   <!-- 서비스 -->
@@ -25,6 +26,7 @@
   <kw-grid
     ref="grdServiceRef"
     :visible-rows="3"
+    ignore-on-modified
     @init="initServiceGrid"
   />
   <!-- 동시구매가능 기준상품 -->
@@ -32,6 +34,7 @@
   <kw-grid
     ref="grdStandardRef"
     :visible-rows="3"
+    ignore-on-modified
     @init="initStandardGrid"
   />
 
@@ -40,6 +43,7 @@
   <kw-grid
     ref="grdChangePrdRef"
     :visible-rows="3"
+    ignore-on-modified
     @init="initChangePrdGrid"
   />
 </template>

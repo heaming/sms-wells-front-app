@@ -325,26 +325,33 @@ async function onClickSubTab() {
   prevStepData.value = await getSaveData();
 }
 
+async function initChild() {
+  await Promise.all(cmpStepRefs.value.map(async (item) => {
+    if (item.value?.init) await item.value?.init();
+  }));
+}
+
 async function fetchProduct() {
-  prevStepData.value = {};
   if (currentPdCd.value) {
+    const initData = {};
     const res = await dataService.get(`/sms/common/product/standards/${currentPdCd.value}`);
-    console.log('WwpdcStandardMgtM - fetchProduct - res.data', res.data);
-    prevStepData.value[bas] = res.data[bas];
-    prevStepData.value[dtl] = res.data[dtl];
-    prevStepData.value[ecom] = res.data[ecom];
-    prevStepData.value[prcd] = res.data[prcd];
-    prevStepData.value[prcfd] = res.data[prcfd];
-    prevStepData.value[rel] = res.data[rel];
-    prevStepData.value[prumd] = res.data[prumd];
-    prevStepData.value[pdConst.RELATION_PRODUCTS] = res.data[pdConst.RELATION_PRODUCTS];
-    // console.log('res.data : ', res.data);
-    const services = prevStepData.value[pdConst.RELATION_PRODUCTS]
+    // console.log('WwpdcStandardMgtM - fetchProduct - res.data', res.data);
+    initData[bas] = res.data[bas];
+    initData[dtl] = res.data[dtl];
+    initData[ecom] = res.data[ecom];
+    initData[prcd] = res.data[prcd];
+    initData[prcfd] = res.data[prcfd];
+    initData[rel] = res.data[rel];
+    initData[prumd] = res.data[prumd];
+    initData[pdConst.RELATION_PRODUCTS] = res.data[pdConst.RELATION_PRODUCTS];
+    const services = initData[pdConst.RELATION_PRODUCTS]
       ?.filter((svcItem) => svcItem[pdConst.PD_REL_TP_CD] === pdConst.PD_REL_TP_CD_P_TO_S);
     codes.svPdCd = services?.map(({ pdNm, pdCd }) => ({
       codeId: pdCd, codeName: pdNm,
     }));
-    isTempSaveBtn.value = prevStepData.value[bas].tempSaveYn === 'Y';
+    isTempSaveBtn.value = initData[bas].tempSaveYn === 'Y';
+    prevStepData.value = initData;
+    await initChild();
   }
 }
 
@@ -445,13 +452,11 @@ async function onClickReset() {
   isCreate.value = true;
   isTempSaveBtn.value = true;
   currentStep.value = cloneDeep(pdConst.STANDARD_STEP_BASIC);
+  prevStepData.value = {};
   await Promise.all(cmpStepRefs.value.map(async (item) => {
-    if (item.value.resetData) {
-      await item.value?.resetData();
-      await item.value?.init();
-    }
+    if (item.value?.resetData) await item.value?.resetData();
+    if (item.value?.init) await item.value?.init();
   }));
-  await fetchProduct();
 }
 
 async function initProps() {
@@ -470,8 +475,8 @@ await initProps();
 watch(() => route.params.pdCd, async (pdCd) => {
   console.log(`currentPdCd.value : ${currentPdCd.value}, route.params.pdCd : ${pdCd}`);
   if (currentPdCd.value !== pdCd && pdCd) {
+    await onClickReset();
     isCreate.value = isEmpty(pdCd);
-    currentStep.value = cloneDeep(pdConst.STANDARD_STEP_BASIC);
     if (isCreate.value) {
       isTempSaveBtn.value = true;
     }
