@@ -24,6 +24,7 @@
             v-model="searchParams.perfYm"
             type="month"
             rules="required"
+            :label="$t('MSG_TXT_PERF_YM')"
           />
         </kw-search-item>
         <kw-search-item
@@ -108,7 +109,7 @@ import dayjs from 'dayjs';
 const dataService = useDataService();
 const { modal } = useGlobal();
 const { t } = useI18n();
-
+const { currentRoute } = useRouter();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // ------------------------------------------------------------------------------------------------
@@ -118,9 +119,8 @@ const totalCount = ref(0);
 const isGrdIndvVisible = ref(true);
 const isGrdSumVisible = ref(false);
 
-// TODO: 실적년월은 전월로 세팅해야함. 수정 필요.
 const searchParams = ref({
-  perfYm: dayjs().format('YYYY-MM'),
+  perfYm: dayjs().subtract(1, 'month').format('YYYY-MM'),
   dv: t('MSG_TXT_ALL'),
   inqrDv: t('MSG_TXT_INDV'),
   no: '',
@@ -142,7 +142,7 @@ async function onClickExcelDownload() {
   const view = grdIndvRef.value.getView();
 
   await gridUtil.exportView(view, {
-    fileName: '관리자 수당 내역',
+    fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
   });
 }
@@ -178,88 +178,50 @@ async function onClickSearch() {
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
 const initGridIndv = defineGrid((data, view) => {
-  const fields = [
-    { fieldName: 'col1' },
-    { fieldName: 'col2' },
-    { fieldName: 'col3' },
-    { fieldName: 'col4' },
-    { fieldName: 'col5' },
-    { fieldName: 'col6' },
-    { fieldName: 'col7' },
-    { fieldName: 'col8' },
-    { fieldName: 'col9' },
-    { fieldName: 'col10' },
-    { fieldName: 'col11' },
-    { fieldName: 'col12' },
-    { fieldName: 'col13' },
-    { fieldName: 'col14' },
-    { fieldName: 'col15' },
-    { fieldName: 'col16' },
-    { fieldName: 'col17' },
-    { fieldName: 'col18' },
-    { fieldName: 'col19' },
-    { fieldName: 'col20' },
-    { fieldName: 'col21' },
-    { fieldName: 'col22' },
-    { fieldName: 'col23' },
-    { fieldName: 'col24' },
-    { fieldName: 'col25' },
-    { fieldName: 'col26' },
-    { fieldName: 'col27' },
-    { fieldName: 'col28' },
-    { fieldName: 'col29' },
-    { fieldName: 'col30' },
-    { fieldName: 'col31' },
-    { fieldName: 'col32' },
-    { fieldName: 'col33' },
-    { fieldName: 'col34' },
-    { fieldName: 'col35' },
-    { fieldName: 'col36' },
-    { fieldName: 'col37' },
-  ];
-
   const columns = [
     { fieldName: 'col1', header: t('MSG_TXT_PERF_YM'), width: '106', styleName: 'text-center' },
     { fieldName: 'col2', header: t('MSG_TXT_RSB_TP'), width: '96', styleName: 'text-left' },
     { fieldName: 'col3', header: t('MSG_TXT_BLG_NM'), width: '96', styleName: 'text-left' },
     { fieldName: 'col4', header: t('MSG_TXT_EMPL_NM'), width: '96', styleName: 'text-left' },
     { fieldName: 'col5', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '106', styleName: 'text-center' },
-    { fieldName: 'col6', header: t('MSG_TXT_BRCH_N'), width: '106', styleName: 'text-right' },
-    { fieldName: 'col7', header: t('MSG_TXT_BAS_SAL'), width: '120', styleName: 'text-right' },
-    { fieldName: 'col8', header: t('MSG_TXT_HH_EXCP_AW'), width: '120', styleName: 'text-right' },
-    { fieldName: 'col9', header: t('MSG_TXT_RSB') + t('MSG_TXT_AW'), width: '120', styleName: 'text-right' },
-    { fieldName: 'col10', header: t('MSG_TXT_FXN_SAL_SUM'), width: '120', styleName: 'text-right' },
-    { fieldName: 'col11', header: t('MSG_TXT_TRG'), width: '133', styleName: 'text-right' },
-    { fieldName: 'col12', header: t('MSG_TXT_PERF'), width: '133', styleName: 'text-right' },
-    { fieldName: 'col13', header: t('MSG_TXT_ACHV_RT'), width: '133', styleName: 'text-right' },
+    { fieldName: 'col6', header: t('MSG_TXT_BRCH_N'), width: '106', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'col7', header: t('MSG_TXT_BAS_SAL'), width: '120', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'col8', header: t('MSG_TXT_HH_EXCP_AW'), width: '120', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'col9', header: t('MSG_TXT_RSB') + t('MSG_TXT_AW'), width: '120', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'col10', header: t('MSG_TXT_FXN_SAL_SUM'), width: '120', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'col11', header: t('MSG_TXT_TRG'), width: '133', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'col12', header: t('MSG_TXT_PERF'), width: '133', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'col13', header: t('MSG_TXT_ACHV_RT'), width: '133', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
 
-    { fieldName: 'col14', header: t('MSG_TXT_TRG') + t('MSG_TXT_ACHV') + t('MSG_TXT_AW'), width: '133', styleName: 'text-right' },
-    { fieldName: 'col15', header: t('MSG_TXT_EVL') + t('MSG_TXT_AW'), width: '133', styleName: 'text-right' },
-    { fieldName: 'col16', header: t('MSG_TXT_ENRG') + t('MSG_TXT_AW'), width: '133', styleName: 'text-right' },
-    { fieldName: 'col17', header: t('MSG_TXT_OG') + t('MSG_TXT_AW'), width: '133', styleName: 'text-right' },
-    { fieldName: 'col18', header: t('MSG_TXT_OUTC_AW_SUM'), width: '133', styleName: 'text-right' },
-    { fieldName: 'col19', header: t('MSG_TXT_EXCL_DIV'), width: '133', styleName: 'text-right' },
-    { fieldName: 'col20', header: t('MSG_TXT_ICT'), width: '133', styleName: 'text-right' },
-    { fieldName: 'col21', header: t('MSG_TXT_LDSTC_ATDC_LVOF'), width: '133', sty기타leName: 'text-right' },
-    { fieldName: 'col22', header: t('MSG_TXT_MRNT_SPPT'), width: '133', styleName: 'text-right' },
-    { fieldName: 'col23', header: t('MSG_TXT_LECT_CHRAM'), width: '133', styleName: 'text-right' },
-    { fieldName: 'col24', header: t('MSG_TXT_ETC'), width: '133', styleName: 'text-right' },
+    { fieldName: 'col14', header: t('MSG_TXT_TRG') + t('MSG_TXT_ACHV') + t('MSG_TXT_AW'), width: '133', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'col15', header: t('MSG_TXT_EVL') + t('MSG_TXT_AW'), width: '133', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'col16', header: t('MSG_TXT_ENRG') + t('MSG_TXT_AW'), width: '133', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'col17', header: t('MSG_TXT_OG') + t('MSG_TXT_AW'), width: '133', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'col18', header: t('MSG_TXT_OUTC_AW_SUM'), width: '133', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'col19', header: t('MSG_TXT_EXCL_DIV'), width: '133', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'col20', header: t('MSG_TXT_ICT'), width: '133', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'col21', header: t('MSG_TXT_LDSTC_ATDC_LVOF'), width: '133', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'col22', header: t('MSG_TXT_MRNT_SPPT'), width: '133', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'col23', header: t('MSG_TXT_LECT_CHRAM'), width: '133', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'col24', header: t('MSG_TXT_ETC'), width: '133', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
 
-    { fieldName: 'col25', header: t('MSG_TXT_ETC') + t('MSG_TXT_AW_SUM'), width: '133', styleName: 'text-right' },
-    { fieldName: 'col26', header: `${t('MSG_TXT_FXN_SAL')}+${t('MSG_TXT_OUTC_AW')}`, width: '146', styleName: 'text-right' },
-    { fieldName: 'col27', header: t('MSG_TXT_DSB_SUM'), width: '146', styleName: 'text-right' },
-    { fieldName: 'col28', header: t('MSG_TXT_HL_INSR'), width: '133', styleName: 'text-right' },
-    { fieldName: 'col29', header: t('MSG_TXT_LTM_NRSN_INSR'), width: '133', styleName: 'text-right' },
-    { fieldName: 'col30', header: t('MSG_TXT_NTNL_INSR'), width: '133', styleName: 'text-right' },
-    { fieldName: 'col31', header: t('MSG_TXT_HIR_INSR'), width: '133', styleName: 'text-right' },
-    { fieldName: 'col32', header: t('MSG_TXT_ERNTX'), width: '133', styleName: 'text-right' },
-    { fieldName: 'col33', header: t('MSG_TXT_RSDNTX'), width: '133', styleName: 'text-right' },
-    { fieldName: 'col34', header: t('MSG_TXT_IRG_BZNS'), width: '133', styleName: 'text-right' },
-    { fieldName: 'col35', header: t('MSG_TXT_ETC'), width: '133', styleName: 'text-right' },
+    { fieldName: 'col25', header: t('MSG_TXT_ETC') + t('MSG_TXT_AW_SUM'), width: '133', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'col26', header: `${t('MSG_TXT_FXN_SAL')}+${t('MSG_TXT_OUTC_AW')}`, width: '146', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'col27', header: t('MSG_TXT_DSB_SUM'), width: '146', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'col28', header: t('MSG_TXT_HL_INSR'), width: '133', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'col29', header: t('MSG_TXT_LTM_NRSN_INSR'), width: '133', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'col30', header: t('MSG_TXT_NTNL_INSR'), width: '133', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'col31', header: t('MSG_TXT_HIR_INSR'), width: '133', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'col32', header: t('MSG_TXT_ERNTX'), width: '133', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'col33', header: t('MSG_TXT_RSDNTX'), width: '133', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'col34', header: t('MSG_TXT_IRG_BZNS'), width: '133', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'col35', header: t('MSG_TXT_ETC'), width: '133', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
 
-    { fieldName: 'col36', header: t('MSG_TXT_DDTN_SUM'), width: '146', styleName: 'text-right' },
-    { fieldName: 'col37', header: t('MSG_TXT_TOT_DSB_AMT'), width: '146', styleName: 'text-right' },
+    { fieldName: 'col36', header: t('MSG_TXT_DDTN_SUM'), width: '146', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'col37', header: t('MSG_TXT_TOT_DSB_AMT'), width: '146', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
   ];
+
+  const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
 
   data.setFields(fields);
   view.setColumns(columns);
