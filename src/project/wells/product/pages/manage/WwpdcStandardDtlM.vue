@@ -13,7 +13,7 @@
 ****************************************************************************************************
 --->
 <template>
-  <kw-page>
+  <kw-page ignore-on-modified>
     <wwpdc-standard-dtl-m-contents
       v-model:pd-cd="currentPdCd"
       v-model:init-data="initData"

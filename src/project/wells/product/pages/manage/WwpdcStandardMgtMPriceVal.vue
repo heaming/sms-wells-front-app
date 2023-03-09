@@ -90,13 +90,13 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { useDataService, stringUtil, gridUtil, getComponentType, useGlobal } from 'kw-lib';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, isEmpty } from 'lodash-es';
 import pdConst from '~sms-common/product/constants/pdConst';
 import { getGridRowCount, setPdGridRows, pdMergeBy, getGridRowsToSavePdProps, getPropInfosToGridRows, getPdMetaToGridInfos } from '~sms-common/product/utils/pdUtil';
 
 /* eslint-disable no-use-before-define */
 defineExpose({
-  init, getSaveData, isModifiedProps, validateProps,
+  resetData, init, getSaveData, isModifiedProps, validateProps,
 });
 
 const props = defineProps({
@@ -131,12 +131,19 @@ const selectionVariables = ref([]);
 const removeObjects = ref([]);
 const gridRowCount = ref(0);
 
+async function resetData() {
+  currentPdCd.value = '';
+  currentInitData.value = {};
+  usedChannelCds.value = [];
+  addChannelId.value = '';
+  removeObjects.value = [];
+  gridRowCount.value = 0;
+  grdMainRef.value?.getView()?.getDataSource().clearRows();
+}
+
 async function init() {
-  const view = grdMainRef.value.getView();
-  if (view) {
-    view.getDataSource().clearRows();
-  }
-  await initGridRows();
+  const view = grdMainRef.value?.getView();
+  if (view) gridUtil.init(view);
 }
 
 async function getSaveData() {
@@ -179,7 +186,6 @@ async function validateProps() {
 }
 
 async function resetInitData() {
-  Object.assign(removeObjects.value, []);
   // 기본 속성에서 등록 채널 목록
   const channels = currentInitData.value?.[pdConst.TBL_PD_DTL]
     ?.reduce((rtn, item) => {
@@ -208,7 +214,11 @@ async function resetInitData() {
 }
 
 async function initGridRows() {
-  const view = grdMainRef.value.getView();
+  removeObjects.value = [];
+  const view = grdMainRef.value?.getView();
+  if (isEmpty(view)) {
+    return;
+  }
   if (await currentInitData.value[prcfd]) {
     // 판매유형
     const sellTpCd = currentInitData.value[pdConst.TBL_PD_BAS]?.sellTpCd;

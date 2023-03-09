@@ -25,6 +25,7 @@
       :pd-prc-tp-cd="pdConst.PD_PRC_TP_CD_BASIC"
       :readonly-fields="readonlyFields"
       :use-rule="false"
+      ignore-on-modified
     />
     <kw-action-top class="mt30">
       <!-- <kw-btn
@@ -63,14 +64,14 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { gridUtil, stringUtil, getComponentType } from 'kw-lib';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, isEmpty } from 'lodash-es';
 import pdConst from '~sms-common/product/constants/pdConst';
 import ZwpdcPropMeta from '~sms-common/product/pages/manage/components/ZwpdcPropMeta.vue';
 import { getGridRowCount, setPdGridRows, getGridRowsToSavePdProps, getPropInfosToGridRows, getPdMetaToGridInfos, pdMergeBy } from '~sms-common/product/utils/pdUtil';
 
 /* eslint-disable no-use-before-define */
 defineExpose({
-  init, getSaveData, isModifiedProps, validateProps,
+  resetData, init, getSaveData, isModifiedProps, validateProps,
 });
 
 const props = defineProps({
@@ -97,12 +98,17 @@ const removeObjects = ref([]);
 const currentCodes = ref({});
 const gridRowCount = ref(0);
 
+async function resetData() {
+  currentPdCd.value = '';
+  currentInitData.value = {};
+  removeObjects.value = [];
+  gridRowCount.value = 0;
+  grdMainRef.value?.getView()?.getDataSource().clearRows();
+}
+
 async function init() {
-  const view = grdMainRef.value.getView();
-  if (view) {
-    view.getDataSource().clearRows();
-  }
-  await initGridRows();
+  const view = grdMainRef.value?.getView();
+  if (view) gridUtil.init(view);
 }
 
 async function getSaveData() {
@@ -136,13 +142,12 @@ async function validateProps() {
   return rtn;
 }
 
-async function resetInitData() {
-  Object.assign(removeObjects.value, []);
-  await initGridRows();
-}
-
 async function initGridRows() {
-  const view = grdMainRef.value.getView();
+  removeObjects.value = [];
+  const view = grdMainRef.value?.getView();
+  if (isEmpty(view)) {
+    return;
+  }
   priceFieldData.value[prcd] = {
     pdExtsPrpGrpCd: 'PRC',
     // 통화명
@@ -172,7 +177,6 @@ async function initGridRows() {
   } else {
     view.getDataSource().clearRows();
   }
-
   const products = currentInitData.value?.[pdConst.RELATION_PRODUCTS];
   if (await products) {
     const services = products
@@ -180,7 +184,7 @@ async function initGridRows() {
     currentCodes.value.svPdCd = services?.map(({ pdNm, pdCd }) => ({
       codeId: pdCd, codeName: pdNm,
     }));
-    console.log('currentCodes.value.svPdCd : ', currentCodes.value.svPdCd);
+    // console.log('currentCodes.value.svPdCd : ', currentCodes.value.svPdCd);
     const nameFields = await priceStdRef.value.getNameFields();
     if (nameFields.svPdCd) {
       nameFields.svPdCd.codes = currentCodes.value.svPdCd;
@@ -250,7 +254,7 @@ async function initProps() {
 await initProps();
 
 watch(() => props.pdCd, (val) => { currentPdCd.value = val; });
-watch(() => props.initData, (val) => { currentInitData.value = val; resetInitData(); }, { deep: true });
+watch(() => props.initData, (val) => { currentInitData.value = val; initGridRows(); }, { deep: true });
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
