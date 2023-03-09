@@ -17,11 +17,11 @@
     <kw-tabs v-model="selectedTab">
       <kw-tab
         name="page"
-        :label="$t('MSG_TXT_FW_OJ_MGT')"
+        :label="itemsChecked.page"
       />
       <kw-tab
         name="link"
-        :label="$t('MSG_TXT_PRNT_MGT')"
+        :label="itemsChecked.link"
       />
     </kw-tabs>
     <kw-observer
@@ -29,10 +29,14 @@
     >
       <kw-tab-panels v-model="selectedTab">
         <kw-tab-panel name="page">
-          <wwwdb-giro-ocr-fw-mgt-m-page />
+          <wwwdb-giro-ocr-fw-mgt-m-page
+            v-model:items-checked="itemsChecked.page"
+          />
         </kw-tab-panel>
         <kw-tab-panel name="link">
-          <wwwdb-giro-ocr-fw-mgt-m-link />
+          <wwwdb-giro-ocr-fw-mgt-m-link
+            v-model:items-checked="itemsChecked.link"
+          />
         </kw-tab-panel>
       </kw-tab-panels>
     </kw-observer>
@@ -47,11 +51,17 @@
 import WwwdbGiroOcrFwMgtMPage from './WwwdbGiroOcrForwardingMgtMPage.vue';
 import WwwdbGiroOcrFwMgtMLink from './WwwdbGiroOcrForwardingMgtMLink.vue';
 
+const { t } = useI18n();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 const selectedTab = ref('page');
 const obsTabRef = ref();
+
+const itemsChecked = ref({
+  page: t('MSG_TXT_FW_OJ_MGT'),
+  link: t('MSG_TXT_PRNT_MGT'),
+});
 
 </script>
 
