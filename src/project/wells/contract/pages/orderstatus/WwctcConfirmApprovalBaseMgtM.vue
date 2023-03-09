@@ -149,6 +149,7 @@ const now = dayjs();
 const dataService = useDataService();
 const { t } = useI18n();
 const { notify, modal } = useGlobal();
+const { currentRoute } = useRouter();
 
 const grdMainRef = ref(getComponentType('KwGrid'));
 const { getConfig } = useMeta();
@@ -304,7 +305,7 @@ async function onClickExcelDownload() {
   const response = await dataService.get('/sms/wells/contract/contracts/approval-standards/excel-download', { params: cachedParams });
 
   await gridUtil.exportView(view, {
-    fileName: 'confirmApprovalBaseManageList',
+    fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
     exportData: response.data,
   });
