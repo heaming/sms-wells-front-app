@@ -46,7 +46,7 @@
 
     <div class="result-area">
       <div class="row justify-end mt30 align-center">
-        <p class="calendar-legend ">
+        <p class="calendar-legend">
           {{ $t('휴무') }}
         </p>
         <p class="calendar-legend calendar-legend--blue">
@@ -72,11 +72,17 @@
             class="calendar-weeks__week"
           >
             <!-- 전월 익월 포함된 날짜인 경우 opacity 클래스 추가 -->
+            <!-- [23.0308] 공휴일 및 일요일인 경우 holiday 클래스 추가 -->
+            <!-- [23.0308] 당일인 경우 날짜에 today 클래스 추가  -->
             <div
               v-for="dayIdx of calendarInfo.dayCnt"
               :key="weekIdx*0 + dayIdx"
               class="calendar-weeks__day"
-              :class="{ opacity: isOpacity(((weekIdx - 1) * calendarInfo.dayCnt) + dayIdx) }"
+              :class="{
+                opacity: isOpacity(((weekIdx - 1) * calendarInfo.dayCnt) + dayIdx),
+                holiday: isHoliday(((weekIdx - 1) * calendarInfo.dayCnt) + dayIdx),
+                today: isToday(((weekIdx - 1) * calendarInfo.dayCnt) + dayIdx)
+              }"
               @dblclick="onDbClickCalendar(((weekIdx - 1) * calendarInfo.dayCnt) + dayIdx)"
             >
               <!-- day 클릭시 팝업페이지-->
@@ -193,6 +199,20 @@ function isOpacity(dayCnt) {
   return !(calendarList.value[dayCnt - 1]?.baseMm === cachedParams.baseYm.substr(4, 2));
 }
 
+/*
+ *  Holiday 판단을 위한 function
+ */
+function isHoliday(dayCnt) {
+  // calendarList.value[dayCnt - 1].dfYn; // 휴무 여부
+  // calendarList.value[dayCnt - 1].phldYn; // 공휴일 여부
+  return (calendarList.value[dayCnt - 1].phldYn === 'Y');
+}
+
+function isToday(dayCnt) {
+  const strDate = `${calendarList.value[dayCnt - 1].baseY}${calendarList.value[dayCnt - 1].baseMm}${calendarList.value[dayCnt - 1].baseD}`;
+  return (dayjs().format('YYYYMMDD') === strDate);
+}
+
 // function isDf(dayCnt) {
 //   if (calendarList.value[dayCnt - 1]?.dfYn === 'Y') {
 //     return true;
@@ -263,6 +283,7 @@ ul {
   }
 }
 
+// start [23.0308] 기획 디자인 수정사항 반영
 .calendar-day {
   display: flex;
   width: 100%;
@@ -272,7 +293,7 @@ ul {
     text-align: center;
     padding: 11px 12px;
     font-size: 14px;
-    font-weight: 500;
+    font-weight: 400;
     line-height: 1.43;
     background-color: $bg-box;
     border: 1px solid $line-bg;
@@ -301,25 +322,51 @@ ul {
     border-bottom: 1px solid $line-bg;
     border-right: 1px solid $line-bg;
     cursor: pointer;
+    text-align: right;
 
+    // [23.0308] holiday case 추가
     &.opacity {
       cursor: not-allowed;
 
-      .calendar-weeks__num {
-        color: $placeholder;
-      }
-
-      .calendar-weeks__infos {
+      > * {
         opacity: 0.3;
       }
     }
+
+    &.holiday {
+      .calendar-weeks__num {
+        color: $error;
+      }
+    }
+
+    &.today {
+      .calendar-weeks__num {
+        position: relative;
+
+        &::before {
+          content: "";
+          position: absolute;
+          left: 50%;
+          top: 50%;
+          transform: translate(-50%, -50%);
+          width: 28px;
+          height: 28px;
+          border-radius: 100%;
+          background-color: rgba($primary, 0.1);
+        }
+      }
+    }
+
+    // // end [23.0308] holiday case 추가
   }
 
   &__num {
+    display: inline-block;
+    width: 20px;
     font-size: 16px;
     font-weight: 500;
     line-height: 1.5;
-    text-align: right;
+    text-align: center;
   }
 
   &__infos {
@@ -332,6 +379,8 @@ ul {
   &__info {
     width: inherit;
     vertical-align: middle;
+    text-align: left;
+    font-size: 0;
 
     .kw-font--14 {
       width: 100%;
@@ -348,31 +397,33 @@ ul {
         content: "";
         display: inline-block;
         vertical-align: middle;
-        margin-left: 4px;
+        margin-right: 4px;
         width: 4px;
         height: 20px;
       }
     }
 
-    &:first-child {
+    &:first-of-type {
       .kw-font--14::before {
         background-color: $error;
       }
     }
 
-    &:nth-child(2) {
+    &:nth-of-type(2) {
       .kw-font--14::before {
         background-color: $primary;
       }
     }
 
-    &:last-child {
+    &:last-of-type {
       .kw-font--14::before {
         background-color: $placeholder;
       }
     }
   }
 }
+
+// end [23.0308] 기획 디자인 수정사항 반영
 
 .calendar-legend {
   position: relative;
