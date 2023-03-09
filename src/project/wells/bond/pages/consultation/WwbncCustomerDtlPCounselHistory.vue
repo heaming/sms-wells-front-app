@@ -27,15 +27,12 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService } from 'kw-lib';
+import { useDataService, useGlobal } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 
 const { t } = useI18n();
 const dataService = useDataService();
-
-// -------------------------------------------------------------------------------------------------
-// Function & Event
-// -------------------------------------------------------------------------------------------------
+const { modal } = useGlobal();
 
 const props = defineProps({
   cstNo: {
@@ -44,7 +41,9 @@ const props = defineProps({
   },
 
 });
-
+// -------------------------------------------------------------------------------------------------
+// Function & Event
+// -------------------------------------------------------------------------------------------------
 let cachedParams;
 const searchParams = ref({
   schBaseYm: '',
@@ -96,5 +95,13 @@ function initGrdMain(data, view) {
   data.setFields(fields);
   view.setColumns(columns);
   view.rowIndicator.visible = true;
+
+  view.onCellDblClicked = async (g, { dataRow }) => {
+    const inDt = g.getValue(dataRow, 'inDt');
+    await modal({
+      component: 'ZwbncCounselDtlP',
+      componentProps: { inDt },
+    });
+  };
 }
 </script>
