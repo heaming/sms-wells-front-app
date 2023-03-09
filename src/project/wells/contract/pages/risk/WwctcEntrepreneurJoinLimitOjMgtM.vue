@@ -134,6 +134,7 @@ const { notify } = useGlobal();
 const { getConfig } = useMeta();
 const { hasRoleNickName } = useMeta();
 const { alert } = useGlobal();
+const { currentRoute } = useRouter();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -233,7 +234,7 @@ async function onClickExcelDownload() {
   const response = await dataService.get('/sms/wells/contract/sales-limits/business-partners/excel-download', { params: cachedParams });
 
   await gridUtil.exportView(view, {
-    fileName: '사업자 가입 제한 관리',
+    fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
     exportData: response.data,
   });
