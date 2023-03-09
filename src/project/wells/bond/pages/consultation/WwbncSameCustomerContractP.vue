@@ -277,7 +277,11 @@
           @init="initMembershipGrid"
         />
       </kw-tab-panel>
-      <kw-tab-panel name="sales" />
+      <kw-tab-panel name="sales">
+        <wwbnc-same-customer-contract-p-sales
+          v-model:selected-grid-row="selectedGridRow"
+        />
+      </kw-tab-panel>
       <kw-tab-panel name="depositDetail" />
       <kw-tab-panel name="breachOfPromise">
         <wwbnc-same-customer-contract-p-breach-of-promise
@@ -294,6 +298,7 @@
 // -------------------------------------------------------------------------------------------------
 import { useDataService, getComponentType, defineGrid, stringUtil, codeUtil } from 'kw-lib';
 import WwbncSameCustomerContractPBreachOfPromise from './WwbncSameCustomerContractPBreachOfPromise.vue';
+import WwbncSameCustomerContractPSales from './WwbncSameCustomerContractPSales.vue';
 
 const dataService = useDataService();
 const { t } = useI18n();
