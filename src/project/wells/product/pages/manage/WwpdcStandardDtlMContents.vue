@@ -88,6 +88,7 @@
       </kw-tab-panel>
       <kw-tab-panel name="hist">
         <zwpdc-prod-change-hist
+          :ref="cmpStepRefs[4]"
           v-model:pd-cd="currentPdCd"
           :pd-tp-cd="pdConst.PD_TP_CD_STANDARD"
           :is-price="true"
@@ -117,6 +118,11 @@ import ZwpdcProdChangeHist from '~sms-common/product/pages/manage/components/Zwp
 import WwpdcStandardDtlMPrice from './WwpdcStandardDtlMPrice.vue';
 import WwpdcStandardDtlMRel from './WwpdcStandardDtlMRel.vue';
 
+/* eslint-disable no-use-before-define */
+defineExpose({
+  resetData, init,
+});
+
 const props = defineProps({
   pdCd: { type: String, default: null },
   initData: { type: Object, default: null },
@@ -135,6 +141,21 @@ const cmpStepRefs = ref([ref(), ref(), ref(), ref(), ref()]);
 const currentPdCd = ref();
 const currentInitData = ref({});
 const selectedTab = ref(pdConst.STANDARD_STEP_BASIC.name);
+
+async function resetData() {
+  selectedTab.value = pdConst.STANDARD_STEP_BASIC.name;
+  currentPdCd.value = '';
+  currentInitData.value = {};
+  await Promise.all(cmpStepRefs.value.map(async (item) => {
+    if (item.value?.resetData) await item.value?.resetData();
+  }));
+}
+
+async function init() {
+  await Promise.all(cmpStepRefs.value.map(async (item) => {
+    if (item.value?.init) await item.value?.init();
+  }));
+}
 
 async function onClickUpdate() {
   const { pdCd } = props;
