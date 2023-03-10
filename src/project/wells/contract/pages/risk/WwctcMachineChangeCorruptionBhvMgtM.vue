@@ -100,12 +100,6 @@
           />
         </template>
         <kw-btn
-          primary
-          dense
-          :label="$t('MSG_BTN_OPEN_PIC_POP')"
-          @click="onClickOpenPsicPopup"
-        />
-        <kw-btn
           grid-action
           :label="$t('MSG_BTN_DEL')"
           @click="onClickDelete"
@@ -116,14 +110,12 @@
           inset
         />
         <kw-btn
-          secondary
-          dense
+          grid-action
           :label="$t('MSG_BTN_ROW_ADD')"
           @click="onClickAdd"
         />
         <kw-btn
-          secondary
-          dense
+          grid-action
           :label="$t('MSG_BTN_SAVE')"
           @click="onClickSave"
         />
@@ -144,7 +136,7 @@
       <kw-grid
         ref="grdMainRef"
         name="grdMain"
-        :visible-rows="pageInfo.pageSize"
+        :visible-rows="10"
         @init="initGrid"
       />
     </div>
@@ -162,7 +154,7 @@ import { cloneDeep, isEmpty } from 'lodash-es';
 
 const { getConfig } = useMeta();
 const dataService = useDataService();
-const { notify, modal } = useGlobal();
+const { notify } = useGlobal();
 const { t } = useI18n();
 const { currentRoute } = useRouter();
 const grdMainRef = ref(getComponentType('KwGrid'));
@@ -191,12 +183,6 @@ const pageInfo = ref({
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
-async function onClickOpenPsicPopup() {
-  modal({
-    component: 'WwcteConfirmApprovalDividePsicListP',
-  });
-}
-
 let cachedParams;
 
 async function onClickExcelDownload() {
