@@ -14,6 +14,7 @@
 --->
 <template>
   <kw-popup
+    ref="popupRef"
     size="xl"
   >
     <!-- :title="t('MSG_TXT_ERR_KR')" -->
@@ -72,6 +73,7 @@ import { cloneDeep } from 'lodash-es';
 
 const dataService = useDataService();
 const { t } = useI18n();
+
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -85,6 +87,7 @@ const props = defineProps({
     default: null,
   },
 });
+const popupRef = ref();
 
 const grdPageRef = ref(getComponentType('KwGrid'));
 const codes = await codeUtil.getMultiCodes('COD_PAGE_SIZE_OPTIONS');
@@ -128,10 +131,10 @@ async function fetchData() {
 async function onClickExcelDownload() {
   const view = grdPageRef.value.getView();
 
-  const res = await dataService.get('/sms/wells/withdrawal/idvrve/giro-deposits/errors/excel-download');
+  const res = await dataService.get('/sms/wells/withdrawal/idvrve/giro-deposits/errors/excel-download', { params: dataParam });
 
   await gridUtil.exportView(view, {
-    fileName: `${t('MSG_TXT_ERR_KR')}_Excel`,
+    fileName: popupRef.value.pageCtxTitle,
     timePostfix: true,
     exportData: res.data,
   });
@@ -193,11 +196,15 @@ const initGrid = defineGrid((data, view) => {
         // text: '계약번호',
         styleName: 'essential',
       },
-      // editable: false,
-      rules: 'required|',
+      editable: false,
+      rules: 'required|min:12|max:17',
       width: '250',
       styleName: 'text-left rg-button-icon--search',
       button: 'action',
+      editor: {
+        type: 'line',
+        maxLength: 17,
+      },
     },
 
     { fieldName: 'cstKnm',
@@ -217,6 +224,7 @@ const initGrid = defineGrid((data, view) => {
         type: 'number',
         editFormat: '#,##0',
       },
+      rules: 'required|min_value:1',
       width: '130',
       styleName: 'text-right',
     },
@@ -279,6 +287,13 @@ const initGrid = defineGrid((data, view) => {
 
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
+
+  // 체크박스 설정
+  view.onCellClicked = (grid, clickData) => {
+    if (clickData.cellType === 'data') {
+      grid.checkItem(clickData.itemIndex, !grid.isCheckedItem(clickData.itemIndex));
+    }
+  };
 
   view.onCellButtonClicked = async (g, { column, itemIndex }) => {
     if (column === 'cntr') {

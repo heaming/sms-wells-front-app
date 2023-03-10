@@ -191,20 +191,30 @@ async function onClickSend() {
       return;
     }
 
-    if (!telNos.value.telNo1 || !telNos.value.telNo2 || !telNos.value.telNo3) {
+    if (!telNos2.value.telNo1 || !telNos2.value.telNo2 || !telNos2.value.telNo3) {
       await alert(t('MSG_ALT_NCELL_REQUIRED_ITEM', [t('MSG_TXT_RECP_NO')]));
       return;
     }
   } else {
-    if (!sendMainData.value.fromMail) {
+    // eslint-disable-next-line no-lonely-if
+    if (!sendMainData.value.toMail) {
       await alert(t('MSG_ALT_NCELL_REQUIRED_ITEM', [t('MSG_TXT_DSPTR_EML')]));
       return;
     }
-
-    if (!sendMainData.value.toMail) {
+    if (!sendMainData.value.fromMail) {
       await alert(t('MSG_ALT_NCELL_REQUIRED_ITEM', [t('MSG_TXT_RCVR_EML')]));
       return;
     }
+
+    // if (!sendMainData.value.fromMail) {
+    //   await alert(t('MSG_ALT_NCELL_REQUIRED_ITEM', [t('MSG_TXT_RCVR_EML')]));
+    //   return;
+    // }
+
+    // if (!sendMainData.value.toMail) {
+    //   await alert(t('MSG_ALT_NCELL_REQUIRED_ITEM', [t('MSG_TXT_DSPTR_EML')]));
+    //   return;
+    // }
   }
 
   paramData = cloneDeep(sendMainData.value);
@@ -223,6 +233,8 @@ async function fetchData() {
   cachedParams = cloneDeep(sendMainData.value);
 
   const res = await dataService.get('/sms/wells/withdrawal/idvrve/billing-document-orders/forwardings', { params: cachedParams });
+  console.log(res.data);
+
   const list = res.data;
 
   const view = grdPageRef.value.getView();
@@ -276,15 +288,16 @@ const initGrid = defineGrid((data, view) => {
       // header: '발신',
       width: '150',
       styleName: 'text-center',
-      displayCallback(grid, index, value) {
-        let tmp = '';
-        tmp += value.substr(0, 3);
-        tmp += '-';
-        tmp += value.substr(3, 4);
-        tmp += '-';
-        tmp += value.substr(4, 4);
-        return tmp;
-      } },
+      // displayCallback(grid, index, value) {
+      //   let tmp = '';
+      //   tmp += value.substr(0, 3);
+      //   tmp += '-';
+      //   tmp += value.substr(3, 4);
+      //   tmp += '-';
+      //   tmp += value.substr(4, 4);
+      //   return tmp;
+      // }
+    },
     { fieldName: 'recipientNum',
       header: t('MSG_TXT_RECP'),
       // header: '수신',

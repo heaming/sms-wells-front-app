@@ -36,7 +36,6 @@
         v-model:pd-cd="currentPdCd"
         v-model:init-data="currentInitData"
         :codes="props.codes"
-        :readonly="props.readonly"
       />
     </kw-tab-panel>
     <kw-tab-panel :name="selectedTabs[1]">
@@ -45,7 +44,6 @@
         v-model:pd-cd="currentPdCd"
         v-model:init-data="currentInitData"
         :codes="props.codes"
-        :readonly="props.readonly"
       />
     </kw-tab-panel>
   </kw-tab-panels>
@@ -62,14 +60,13 @@ import WwpdcStandardMgtMRelChg from './WwpdcStandardMgtMRelChg.vue';
 
 /* eslint-disable no-use-before-define */
 defineExpose({
-  getSaveData, isModifiedProps, validateProps, moveNextStep, movePrevStep, resetFirstStep,
+  resetData, init, getSaveData, isModifiedProps, validateProps, moveNextStep, movePrevStep, resetFirstStep,
 });
 
 const props = defineProps({
   pdCd: { type: String, default: null },
   initData: { type: Object, default: null },
   codes: { type: Object, default: null },
-  readonly: { type: Boolean, default: false },
 });
 
 const emits = defineEmits([
@@ -88,6 +85,18 @@ const currentInitData = ref();
 const cmpPrdRef = ref();
 const cmpChgRef = ref();
 
+async function resetData() {
+  selectedTab.value = selectedTabs.value[0];
+  if (cmpPrdRef.value.resetData) await cmpPrdRef.value.resetData();
+  if (cmpChgRef.value.resetData) await cmpChgRef.value.resetData();
+}
+
+async function init() {
+  selectedTab.value = selectedTabs.value[0];
+  if (cmpPrdRef.value.init) await cmpPrdRef.value.init();
+  if (cmpChgRef.value.init) await cmpChgRef.value.init();
+}
+
 async function getSaveData() {
   const subList = {};
   subList[rel] = [];
@@ -103,11 +112,17 @@ async function getSaveData() {
   return subList;
 }
 
-function isModifiedProps() {
-  return true;
+async function isModifiedProps() {
+  if (await cmpPrdRef.value.isModifiedProps()) {
+    return true;
+  }
+  if (await cmpChgRef.value.isModifiedProps()) {
+    return true;
+  }
+  return false;
 }
 
-function validateProps() {
+async function validateProps() {
   return true;
 }
 

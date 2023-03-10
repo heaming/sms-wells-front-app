@@ -94,7 +94,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, defineGrid, getComponentType, gridUtil, useDataService } from 'kw-lib';
+import { codeUtil, defineGrid, getComponentType, gridUtil, useDataService, alert } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
 import { openReportPopup } from '~/modules/common/utils/cmPopupUtil';
@@ -102,10 +102,18 @@ import { openReportPopup } from '~/modules/common/utils/cmPopupUtil';
 const now = dayjs();
 const dataService = useDataService();
 const { t } = useI18n();
+const { currentRoute } = useRouter();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
+const props = defineProps({
+  itemsChecked: {
+    type: Boolean,
+    required: true,
+  },
+});
+
 const grdPageRef = ref(getComponentType('KwGrid'));
 
 const codes = await codeUtil.getMultiCodes(
@@ -179,8 +187,9 @@ async function onClickSearch() {
 async function onClickExcelDownload() {
   const view = grdPageRef.value.getView();
   const res = await dataService.get('/sms/wells/withdrawal/idvrve/giro-ocr-forwardings/print/excel-download', { params: cachedParams });
+
   await gridUtil.exportView(view, {
-    fileName: `${t('MSG_TXT_GIRO')}OCR_Excel`,
+    fileName: `${currentRoute.value.meta.menuName}_${props.itemsChecked}`,
     // fileName: '지로 OCR 발송 관리-출력관리_Excel',
     timePostfix: true,
     exportData: res.data,
@@ -189,29 +198,28 @@ async function onClickExcelDownload() {
 
 // 행삭제
 async function onClickRemove() {
-  // const view = grdPageRef.value.getView();
-  // if (!await gridUtil.confirmIfIsModified(view)) { return; }
-
-  // const deletedRows = await gridUtil.confirmDeleteCheckedRows(view);
-
-  // console.log(deletedRows);
-
-  // if (deletedRows.length > 0) {
-  //   await dataService.delete('/sms/wells/withdrawal/idvrve/giro-ocr-forwardings/print', deletedRows);
-  //   // notify(t('MSG_ALT_DELETED'));
-  //   // // notify(t('삭제되었습니다.'));
-  //   await fetchData();
-  // }
   const view = grdPageRef.value.getView();
+  let rows;
 
-  if (!await gridUtil.confirmIfIsModified(view)) { return; }
+  if (!gridUtil.getCheckedRowValues(view).length > 0) {
+    alert(t('MSG_ALT_NOT_SEL_ITEM'));
+    return;
+  }
 
-  const deletedRows = await gridUtil.confirmDeleteCheckedRows(view);
+  if (gridUtil.isModified(view)) {
+    if (await gridUtil.confirmIfIsModified(view)) {
+      rows = gridUtil.deleteCheckedRows(view);
+    }
+  } else {
+    rows = await gridUtil.confirmDeleteCheckedRows(view);
+  }
 
-  console.log(deletedRows);
+  if (rows.length > 0) {
+    rows.forEach((data) => {
+      data.rowState = 'deleted';
+    });
 
-  if (deletedRows.length > 0) {
-    await dataService.put('/sms/wells/withdrawal/idvrve/giro-ocr-forwardings/print', deletedRows);
+    await dataService.delete('/sms/wells/withdrawal/idvrve/giro-ocr-forwardings/print', { data: rows });
     // notify(t('삭제되었습니다.'));
     // notify(t('MSG_ALT_DELETED'));
     await fetchData();
@@ -255,7 +263,7 @@ const initGrid = defineGrid((data, view) => {
       header: t('MSG_TXT_WK_QTY'),
       // header: '작업수량',
       width: '200',
-      styleName: 'text-center' },
+      styleName: 'text-right' },
     { fieldName: 'giroOcrPblOj',
       header: t('MSG_TXT_OJ_BCK'),
       // header: '대상구간',
@@ -281,6 +289,13 @@ const initGrid = defineGrid((data, view) => {
 
   data.setFields(fields);
   view.setColumns(columns);
+
+  // 체크박스 설정
+  view.onCellClicked = (grid, clickData) => {
+    if (clickData.cellType === 'data') {
+      grid.checkItem(clickData.itemIndex, !grid.isCheckedItem(clickData.itemIndex));
+    }
+  };
 
   view.onCellItemClicked = async (g, { column, dataRow }) => {
     console.log(dataRow);

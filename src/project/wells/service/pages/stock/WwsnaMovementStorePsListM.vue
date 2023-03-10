@@ -32,7 +32,7 @@
         >
           <kw-select
             v-model="searchParams.strTpCd"
-            :options="codes.STR_TP_CD"
+            :options="strTpCd"
             first-option="all"
           />
         </kw-search-item>
@@ -47,20 +47,15 @@
         </kw-search-item>
       </kw-search-row>
       <kw-search-row>
-        <ZwcmWareHouseSearch
-          v-model:start-ym="searchParams.stStrDt"
-          v-model:end-ym="searchParams.edStrDt"
-          v-model:options-ware-dv-cd="ostrWareDvCd"
-          v-model:ware-dv-cd="searchParams.ostrWareDvCd"
-          v-model:ware-no-m="searchParams.ostrWareNoM"
-          v-model:ware-no-d="searchParams.ostrWareNoD"
-          sub-first-option="all"
-          :colspan="2"
-          :label1="$t('MSG_TXT_STR_DT')"
-          :label2="$t('MSG_TXT_OSTR_WARE')"
-          :label3="$t('MSG_TXT_HGR_WARE')"
-          :label4="$t('MSG_TXT_WARE')"
-        />
+        <kw-search-item
+          :label="$t('MSG_TXT_OSTR_WARE')"
+        >
+          <kw-select
+            v-model="searchParams.wareDvCd"
+            :options="codes.WARE_DV_CD"
+            first-option="all"
+          />
+        </kw-search-item>
       </kw-search-row>
     </kw-search>
 
@@ -105,7 +100,7 @@
 import { useDataService, codeUtil, defineGrid, getComponentType, gridUtil, useGlobal } from 'kw-lib';
 import dayjs from 'dayjs';
 import { cloneDeep } from 'lodash-es';
-import ZwcmWareHouseSearch from '~sms-common/service/components/ZwsnzWareHouseSearch.vue';
+// import ZwcmWareHouseSearch from '~sms-common/service/components/ZwsnzWareHouseSearch.vue';
 
 const grdMainRef = ref(getComponentType('KwGrid'));
 
@@ -123,9 +118,7 @@ const searchParams = ref({
   edStrDt: '',
   strOjWareNo: '',
   strTpCd: '',
-  ostrWareDvCd: '2',
-  ostrWareNoD: '',
-  ostrWareNoM: '',
+  wareDvCd: '2',
 });
 
 const totalCount = ref(0);
@@ -138,10 +131,8 @@ const codes = await codeUtil.getMultiCodes(
   'USE_YN',
 );
 
-const ostrWareDvCd = { WARE_DV_CD: [
-  { codeId: '2', codeName: '서비스센터' },
-  { codeId: '3', codeName: '영업센터' },
-] };
+// 입고유형 필터링
+const strTpCd = codes.STR_TP_CD.filter((v) => v.codeId !== '110');
 
 const wharehouseParams = ref({
   apyYm: dayjs().format('YYYYMM'),
@@ -230,14 +221,14 @@ const initGrdMain = defineGrid((data, view) => {
   ];
   data.setFields(fields);
   view.setColumns(columns);
-  view.rowIndicator.visible = false;
+  view.rowIndicator.visible = true;
 
   // TODO: W-SV-U-0169P01 - 이관입고 팝업 개발 진행 후 반영 예정
   view.onCellItemClicked = async (g, { column, dataRow }) => {
     console.log(gridUtil.getRowValue(g, dataRow));
 
     if (column === 'strDelButn') {
-      alert('현재 단위 테스트 대상이 아닙니다.');
+      alert('현재 단위 테스트 대상이 아닙니다.(개발중)');
     }
   };
 });

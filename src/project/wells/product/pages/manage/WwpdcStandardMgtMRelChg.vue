@@ -15,7 +15,7 @@
 <template>
   <!-- 대체품 -->
   <h3>{{ $t('MSG_TXT_REP_PROD') }}</h3>
-  <kw-action-top v-show="!props.readonly">
+  <kw-action-top>
     <template #left>
       <!--  기준상품 선택 -->
       <span class="kw-fc--black1">{{ $t('MSG_TXT_PD_SEL_STD') }}</span>
@@ -35,9 +35,9 @@
       />
     </template>
     <kw-btn
-      v-show="!props.readonly"
-      grid-action
+      dense
       :label="$t('MSG_BTN_DEL')"
+      :disable="grdChangeRowCount === 0"
       @click="onClickProductDelRows"
     />
   </kw-action-top>
@@ -54,17 +54,17 @@
 import { gridUtil, useGlobal, getComponentType } from 'kw-lib';
 import { isEmpty } from 'lodash-es';
 import pdConst from '~sms-common/product/constants/pdConst';
+import { getGridRowCount } from '~sms-common/product/utils/pdUtil';
 
 /* eslint-disable no-use-before-define */
 defineExpose({
-  getSaveData, isModifiedProps, validateProps,
+  resetData, init, getSaveData, isModifiedProps, validateProps,
 });
 
 const props = defineProps({
   pdCd: { type: String, default: null },
   initData: { type: Object, default: null },
   codes: { type: Object, default: null },
-  readonly: { type: Boolean, default: false },
 });
 
 const { modal } = useGlobal();
@@ -74,9 +74,9 @@ const { t } = useI18n();
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 const grdChangePrdRef = ref(getComponentType('KwGrid'));
+const grdChangeRowCount = ref(0);
 const currentPdCd = ref();
 const currentInitData = ref({});
-
 const productSelectItems = ref([
   // 기준상품명
   { codeId: pdConst.PD_SEARCH_NAME, codeName: t('MSG_TXT_GOODS_NM') },
@@ -84,13 +84,24 @@ const productSelectItems = ref([
   { codeId: pdConst.PD_SEARCH_CODE, codeName: t('MSG_TXT_PROD_CD') },
 ]);
 
-const productSearchType = ref();
+const productSearchType = ref(pdConst.PD_SEARCH_NAME);
 const productSearchValue = ref();
 
 const searchParams = ref({
   searchType: null,
   searchValue: null,
 });
+
+async function resetData() {
+  currentPdCd.value = '';
+  currentInitData.value = {};
+  grdChangePrdRef.value?.getView()?.getDataSource().clearRows();
+}
+
+async function init() {
+  const view = grdChangePrdRef.value?.getView();
+  if (view) gridUtil.init(view);
+}
 
 async function getSaveData() {
   const rowValues = gridUtil.getAllRowValues(grdChangePrdRef.value.getView());
@@ -99,11 +110,11 @@ async function getSaveData() {
   return rtnValues;
 }
 
-function isModifiedProps() {
-  return true;
+async function isModifiedProps() {
+  return gridUtil.isModified(grdChangePrdRef.value?.getView());
 }
 
-function validateProps() {
+async function validateProps() {
   return true;
 }
 
@@ -124,7 +135,7 @@ async function insertCallbackRows(view, rtn, pdRelTpCd) {
 }
 
 async function deleteCheckedRows(view) {
-  gridUtil.deleteCheckedRows(view);
+  await gridUtil.confirmDeleteCheckedRows(view);
 }
 
 async function onClickProductSchPopup() {
@@ -137,11 +148,13 @@ async function onClickProductSchPopup() {
     componentProps: searchParams.value,
   });
   await insertCallbackRows(view, rtn, pdConst.PD_REL_TP_CD_CHANGE);
+  grdChangeRowCount.value = getGridRowCount(view);
 }
 
 async function onClickProductDelRows() {
   const view = grdChangePrdRef.value.getView();
   await deleteCheckedRows(view);
+  grdChangeRowCount.value = getGridRowCount(view);
 }
 
 async function initGridRows() {
@@ -155,6 +168,7 @@ async function initGridRows() {
       .filter((item) => item[pdConst.PD_REL_TP_CD] === pdConst.PD_REL_TP_CD_CHANGE));
     changeView.resetCurrent();
   }
+  grdChangeRowCount.value = getGridRowCount(changeView);
 }
 
 async function initProps() {
@@ -167,7 +181,7 @@ async function initProps() {
 await initProps();
 
 watch(() => props.pdCd, (pdCd) => { currentPdCd.value = pdCd; });
-watch(() => props.initData, (initData) => { currentInitData.value = initData; }, { deep: true });
+watch(() => props.initData, (initData) => { currentInitData.value = initData; initGridRows(); }, { deep: true });
 
 //-------------------------------------------------------------------------------------------------
 // Initialize Grid

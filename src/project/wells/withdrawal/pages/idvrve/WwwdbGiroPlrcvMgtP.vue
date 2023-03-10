@@ -65,29 +65,31 @@
           >
             <!-- label="일시 " -->
             <kw-date-picker
-              v-model="giroPlrcv.fnlMdfcDtm"
-              :disable="true"
+              v-model="giroPlrcv.giroPlrcvRgstDt"
               rules="required"
+              class="w319"
             />
+            <!-- :disable="true" -->
           </kw-form-item>
         </kw-form-row>
-        <kw-form-row>
-          <kw-form-item
-            :label="t('MSG_TXT_ADDR')"
-            required
-          >
-            <!-- label="주소" -->
-            <zwcm-post-code
-              ref="adrRef"
-              v-model:add-idx="giroPlrcv.adrDvCd"
-              v-model:zipCode="giroPlrcv.zip"
-              v-model:add1="giroPlrcv.basAdr"
-              v-model:add2="giroPlrcv.dtlAdr"
-              v-model:addKey="giroPlrcv.addKey"
-              class="kw-grow"
-            />
-          </kw-form-item>
-        </kw-form-row>
+        <!-- <kw-form-row> -->
+        <kw-form-item
+          :label="t('MSG_TXT_ADDR')"
+          required
+        >
+          <!-- label="주소" -->
+          <zwcm-post-code
+            ref="adrRef"
+            v-model:add-idx="giroPlrcv.adrDvCd"
+            v-model:zipCode="giroPlrcv.zip"
+            v-model:add1="giroPlrcv.basAdr"
+            v-model:add2="giroPlrcv.dtlAdr"
+            v-model:addKey="giroPlrcv.giroPlrcvAdrId"
+            readonly
+            class="kw-grow"
+          />
+        </kw-form-item>
+        <!-- </kw-form-row> -->
       </kw-form>
     </kw-observer>
     <template #action>
@@ -152,19 +154,10 @@ const giroPlrcvProps = ref({
   cntrSn: '',
 });
 
-// 고객명 찾기 이벤트
-async function onClickSearchUser() {
-  const { result, payload } = await modal({ component: 'ZwcsaCustomerListP' });
-
-  if (result) {
-    console.log(payload);
-  }
-}
-
 const giroPlrcv = ref({
   state: '',
-  cntrNo: '',
-  cntrSn: '',
+  cntrNo: `E2020672044${Math.floor(Math.random() * 10 + 1)}`,
+  cntrSn: Math.floor(Math.random() * 10 + 1),
   giroBizDvCd: '2', // 지로업무구분코드
   giroBizTpCd: '', // 지로업무유형코드 판매유형
   cstFnm: '', // 고객명
@@ -174,9 +167,19 @@ const giroPlrcv = ref({
   dtlAdr: '', // 상세주소
   dtaDlYn: '', // 삭제여부
   fstRgstUsrId: userName, // 업무담당
-  fnlMdfcDtm: now.format('YYYYMMDD'),
-  addKey: '',
+  giroPlrcvRgstDt: now.format('YYYYMMDD'),
+  giroPlrcvAdrId: '',
 });
+
+// 고객명 찾기 이벤트
+async function onClickSearchUser() {
+  const { result, payload } = await modal({ component: 'ZwcsaCustomerListP' });
+
+  if (result) {
+    console.log(payload);
+    giroPlrcv.value.cstFnm = payload.name;
+  }
+}
 
 let cachedParams;
 
@@ -199,7 +202,7 @@ async function initProps() {
   giroPlrcvProps.value.cntrNo = cntrNo;
   giroPlrcvProps.value.cntrSn = cntrSn;
   // giroPlrcvProps.value.cntrNo = 'E20206720744';
-  // giroPlrcvProps.value.cntrSn = '6';
+  // giroPlrcvProps.value.cntrSn = '1';
   giroPlrcv.value.state = 'created';
 
   if (giroPlrcvProps.value.cntrNo) {
@@ -217,8 +220,9 @@ async function onClickSave() {
   if (!await obsMainRef.value.validate()) { return; }
 
   saveParam = cloneDeep(giroPlrcv.value);
+  console.log(saveParam.giroPlrcvAdrId);
 
-  if (!saveParam.addKey) {
+  if (!saveParam.giroPlrcvAdrId) {
     await alert(t('MSG_ALT_ENTR_DTL_ADR'));
     return;
   }

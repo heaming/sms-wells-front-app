@@ -23,13 +23,13 @@
           <kw-input
             v-model="searchParams.zipFrom"
             type="text"
-            mask="###"
+            mask="#####"
           />
           <span>~</span>
           <kw-input
             v-model="searchParams.zipTo"
             type="text"
-            mask="###"
+            mask="#####"
           />
         </kw-search-item>
         <!-- 광역시/도 -->
@@ -90,7 +90,7 @@
         </template>
         <kw-btn
           dense
-          secondary
+          grid-action
           :label="$t('MSG_BTN_SAVE')"
           @click="onClickSave"
         />
@@ -341,7 +341,6 @@ const initGrdMain = defineGrid((data, view) => {
   view.setColumnLayout(columnLayout);
 
   view.checkBar.visible = true;
-  view.setCheckableCallback(() => false);
   view.rowIndicator.visible = true;
   view.editOptions.columnEditableFirst = true;
 

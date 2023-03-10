@@ -130,7 +130,7 @@ const { t } = useI18n();
 const dataService = useDataService();
 
 const now = dayjs();
-
+const { currentRoute } = useRouter();
 const totalCount = ref(0);
 const srchOptions = ref([{
   codeId: 1,
@@ -171,6 +171,9 @@ const isProd = computed(() => searchParams.value.srchGbn === 1);
 // Updating the col visibility as per search classification
 function onChangeSearch() {
   const view = grdMainRef.value.getView();
+  const data = view.getDataSource();
+  data.clearRows();
+  totalCount.value = 0;
   view.columnsByTag('prod').forEach((col) => { col.visible = isProd.value; });
   view.columnsByTag('org').forEach((col) => { col.visible = !(isProd.value); });
 }
@@ -206,9 +209,8 @@ async function onClickExcelDownload() {
   } else {
     res = await dataService.get('/sms/wells/contract/rental-accounts/organizations/excel-download', { params: cachedParams });
   }
-
   await gridUtil.exportView(view, {
-    fileName: 'dataServiceManageList',
+    fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
     exportData: res.data,
   });

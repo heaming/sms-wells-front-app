@@ -477,14 +477,13 @@ const initGrdMain = defineGrid((data, view) => {
   view.rowIndicator.visible = true;
   view.editOptions.columnEditableFirst = true;
 
-  view.setCheckBar({ visible: true, checkableExpression: "state = 'C'", checkableOnly: true });
   view.setFixedOptions({ colCount: 3, resizable: true });
 
   view.onCellEdited = (grid, itemIndex) => {
     grid.checkItem(itemIndex, true);
   };
 
-  /* TODO : 연결페이지 개발전. 개발완료 시 변경. */
+  /* TODO : 연결페이지(W-SV-U-0072M01) 개발전. 개발완료 시 변경. */
   view.onCellItemClicked = (/* grid, index */) => {
     router.push({
       path: '/service/wwsnc-responsible-area-code-mgt',

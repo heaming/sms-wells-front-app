@@ -117,7 +117,7 @@
           icon="download_on"
           dense
           secondary
-          :disable="!totalCount"
+          :disable="pageInfo.totalCount === 0"
           :label="$t('MSG_BTN_EXCEL_DOWN')"
           @click="onClickExcelDownload"
         />
@@ -139,12 +139,13 @@
 // -------------------------------------------------------------------------------------------------
 import { codeUtil, defineGrid, getComponentType, gridUtil, useDataService, useGlobal, useMeta } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
+import dayjs from 'dayjs';
 
 const { notify } = useGlobal();
 const { t } = useI18n();
 
 const dataService = useDataService();
-
+const { currentRoute } = useRouter();
 const prdDivOption = ref([{ codeId: 1, codeName: t('MSG_TXT_FST_RGST_DT') },
   { codeId: 2, codeName: t('MSG_TXT_YEAR_OCCURNCE') }]);
 const gnrlMngTeamOptions = ref([
@@ -180,6 +181,7 @@ const searchParams = ref({
 
 const grdMainRef = ref(getComponentType('KwGrid'));
 const { getConfig } = useMeta();
+const now = dayjs();
 
 const codes = await codeUtil.getMultiCodes(
   'PNTSC_ARBIT_ATC_CD',
@@ -218,6 +220,28 @@ async function fetchData() {
 }
 
 async function onClickSearch() {
+  if (searchParams.value.srchGbn === 1) {
+    if ((isEmpty(searchParams.value.dangOcStrtdt)) && (!isEmpty(searchParams.value.dangOcEnddt))) {
+      notify(t('MSG_ALT_CHK_DT_RLT'));
+      return;
+    }
+    if ((!isEmpty(searchParams.value.dangOcStrtdt)) && (isEmpty(searchParams.value.dangOcEnddt))) {
+      notify(t('MSG_ALT_CHK_DT_RLT'));
+      return;
+    }
+  }
+
+  if (searchParams.value.srchGbn === 2) {
+    if ((isEmpty(searchParams.value.dangOcStrtMonth)) && (!isEmpty(searchParams.value.dangOcEndMonth))) {
+      notify(t('MSG_ALT_CHK_DT_RLT'));
+      return;
+    }
+    if ((!isEmpty(searchParams.value.dangOcStrtMonth)) && (isEmpty(searchParams.value.dangOcEndMonth))) {
+      notify(t('MSG_ALT_CHK_DT_RLT'));
+      return;
+    }
+  }
+
   pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
   if (cachedParams.srchGbn !== 1) {
@@ -231,7 +255,15 @@ async function onClickSearch() {
 async function onClickRemove() {
   const view = grdMainRef.value.getView();
   if (!await gridUtil.confirmIfIsModified(view)) { return; }
+
   const deletedRows = await gridUtil.confirmDeleteCheckedRows(view);
+
+  for (let i = 0; i < gridUtil.getCheckedRowValues(view).length; i += 1) {
+    if (isEmpty(gridUtil.getCheckedRowValues(view)[i].dangOjOgId)) {
+      notify(t('MSG_ALT_EXIST_BEAN_ID'));
+      return;
+    }
+  }
 
   if (deletedRows.length) {
     await dataService.delete('/sms/wells/contract/risk-audits/irregular-sales-actions/managerial-tasks', { data: deletedRows });
@@ -242,7 +274,14 @@ async function onClickRemove() {
 async function onClickSave() {
   const view = grdMainRef.value.getView();
   if (await gridUtil.alertIfIsNotModified(view)) { return; }
-  if (!gridUtil.validate(view)) { return; }
+  if (!await gridUtil.validate(view)) { return; }
+
+  for (let i = 0; i < gridUtil.getCheckedRowValues(view).length; i += 1) {
+    if (isEmpty(gridUtil.getCheckedRowValues(view)[i].dangOjOgId)) {
+      notify(t('MSG_ALT_EXIST_BEAN_ID'));
+      return;
+    }
+  }
 
   const changedRows = gridUtil.getChangedRowValues(view);
   await dataService.post('/sms/wells/contract/risk-audits/irregular-sales-actions/managerial-tasks', changedRows);
@@ -260,7 +299,7 @@ async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
   const res = await dataService.get('/sms/wells/contract/risk-audits/irregular-sales-actions/managerial-tasks/excel-download', { params: cachedParams });
   await gridUtil.exportView(view, {
-    fileName: 'dataServiceManageList',
+    fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
     exportData: res.data,
   });
@@ -408,9 +447,14 @@ const initGrid = defineGrid((data, view) => {
     }
   };
   view.onCellEdited = async function Test(grid, index, dataRow, field) {
-    if (field === 1) {
-      const param = grid.getValue(index, 0);
-      if (!isEmpty(param)) {
+    if (field === 1 || field === 0) {
+      const prtnrNoParam = grid.getValue(index, 0);
+      const dateParam = grid.getValue(index, 1);
+      if (isEmpty(dateParam)) {
+        grid.commit();
+        data.setValue(dataRow, 'dangOcStrtmm', now.format('YYYYMM'));
+      }
+      if (!isEmpty(prtnrNoParam)) {
         const res = await dataService.get('/sms/wells/contract/risk-audits/irregular-sales-actions/Organizations', {
           params: {
             baseYm: grid.getValues(dataRow).dangOcStrtmm,

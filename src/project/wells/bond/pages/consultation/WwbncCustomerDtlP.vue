@@ -26,7 +26,7 @@
         >
           <div class="pr20">
             <h3 class="my0">
-              {{ $t('MSG_TXT_DIV') }}
+              {{ $t('MSG_TXT_CST_DTL') }}
             </h3>
             <kw-separator class="my8" />
 
@@ -608,7 +608,8 @@
 
             <kw-grid
               ref="grdMainRef"
-              name="grdMain3"
+              name="grdMain4"
+              class="mt16"
               :visible-rows="5"
               @init="initGrdMain"
             />
@@ -651,53 +652,30 @@
             </kw-tabs>
             <kw-tab-panels v-model="selectedTab">
               <kw-tab-panel name="tab1">
-                <wwbnc-customer-dtl-p-counsel-history
-                  :ref="(vm) => tabRefs.tab1 = vm"
-                  v-model:selected-grid-row="selectedGridRow"
-                  v-model:items-checked="itemsChecked.tab1"
-                />
+                <wwbnc-customer-dtl-p-counsel-history />
               </kw-tab-panel>
               <kw-tab-panel name="tab2">
-                <wwbna-counsel-wells-contract-list02
-                  :ref="(vm) => tabRefs.tab2 = vm"
-                  v-model:items-checked="itemsChecked.tab2"
-                />
+                <wwbna-counsel-wells-contract-list02 />
               </kw-tab-panel>
               <kw-tab-panel name="tab3">
                 <zwbnc-customer-dtl-p-sms
                   :ref="(vm) => tabRefs.tab3 = vm"
-                  v-model:items-checked="itemsChecked.tab3"
                 />
               </kw-tab-panel>
               <kw-tab-panel name="tab4">
-                <wwbna-counsel-wells-contract-list04
-                  :ref="(vm) => tabRefs.tab4 = vm"
-                  v-model:items-checked="itemsChecked.tab4"
-                />
+                <wwbna-counsel-wells-contract-list04 />
               </kw-tab-panel>
               <kw-tab-panel name="tab5">
-                <zwbnc-customer-dtl-p-law-measure
-                  :ref="(vm) => tabRefs.tab5 = vm"
-                  v-model:items-checked="itemsChecked.tab5"
-                />
+                <zwbnc-customer-dtl-p-law-measure />
               </kw-tab-panel>
               <kw-tab-panel name="tab6">
-                <wwbna-counsel-wells-contract-list06
-                  :ref="(vm) => tabRefs.tab6 = vm"
-                  v-model:items-checked="itemsChecked.tab6"
-                />
+                <wwbna-counsel-wells-contract-list06 />
               </kw-tab-panel>
               <kw-tab-panel name="tab7">
-                <wwbna-counsel-wells-contract-list07
-                  :ref="(vm) => tabRefs.tab7 = vm"
-                  v-model:items-checked="itemsChecked.tab7"
-                />
+                <wwbna-counsel-wells-contract-list07 />
               </kw-tab-panel>
               <kw-tab-panel name="tab8">
-                <wwbna-counsel-wells-contract-list08
-                  :ref="(vm) => tabRefs.tab8 = vm"
-                  v-model:items-checked="itemsChecked.tab8"
-                />
+                <wwbna-counsel-wells-contract-list08 />
               </kw-tab-panel>
             </kw-tab-panels>
           </div>
@@ -989,8 +967,6 @@ const tabRefs = reactive({});
 
 const selectedTab = ref('tab1');
 
-const itemsChecked = reactive({ page: false, link: false });
-
 const selectedGridRow = ref(null);
 
 watch(selectedGridRow, (newValue) => {
@@ -1224,5 +1200,9 @@ const initGrdMain = defineGrid((data, view) => {
       flex-basis: auto !important;
     }
   }
+}
+
+::v-deep(.q-btn--dense) {
+  min-height: 1em !important;
 }
 </style>

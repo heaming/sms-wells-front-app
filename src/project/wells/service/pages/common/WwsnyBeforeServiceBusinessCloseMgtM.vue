@@ -250,12 +250,21 @@ function initGrid(data, view) {
 
   // Data 변경 - 시간 변경 시, 해당 값의 Validation Check (Grid time picker가 없으므로 별도 Validation check)
   view.onGetEditValue = (grid, index, editResult) => {
-    if (index.column !== 'strtHh' && index.column !== 'endHh') {
+    // if (index.column !== 'strtHh' && index.column !== 'endHh') {
+    //   return;
+    // }
+    let orgValue = '';
+    if (index.column === 'strtHh') {
+      orgValue = gridUtil.getCurrentRowValue(gridMainRef.value.getView()).strtHh;
+    } else if (index.column === 'endHh') {
+      orgValue = gridUtil.getCurrentRowValue(gridMainRef.value.getView()).endHh;
+    } else {
       return;
     }
     const strDate = `${dayjs().format('YYYYMMDD')}${editResult.value}`;
     if (!isEmpty(editResult.value) && !isDateValidate(strDate)) {
-      editResult.value = gridUtil.getCurrentRowValue(gridMainRef.value.getView()).endHh;
+      // editResult.value = gridUtil.getCurrentRowValue(gridMainRef.value.getView()).endHh;
+      editResult.value = orgValue;
     }
   };
 }

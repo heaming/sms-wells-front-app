@@ -199,7 +199,7 @@ const initGrdMain = defineGrid((data, view) => {
       // const { fstRgstUsrId, fnlMdfcUsrId } = gridUtil.getRowValue(g, itemIndex);
       await modal({ component: 'WwConfirmApprovalAskIzListP', componentProps: { cntrNo: 'W20220497192' } }); // 확정 승인 요청 내역
     } else if (['col20'].includes(column)) {
-      await modal({ component: 'WwKakaotalkForwardingIzListP', componentProps: { mtPr: '407', concDiv: 'R' } }); // 카카오톡 발송 내역 조회
+      await modal({ component: 'WwKakaotalkSendListP', componentProps: { mtPr: '407', concDiv: 'R' } }); // 카카오톡 발송 내역 조회
     }
   };
 

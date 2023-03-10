@@ -256,10 +256,6 @@ const initGrdMain = defineGrid((data, view) => {
       fieldName: 'ntccnTitNm',
       header: t('MSG_TXT_TTL'),
       width: '539',
-      styleName: 'rg-button-link',
-      renderer: { type: 'button' },
-      preventCellItemFocus: true,
-      editable: false,
     },
     {
       fieldName: 'pdNm',
@@ -329,15 +325,13 @@ const initGrdMain = defineGrid((data, view) => {
 
   view.rowIndicator.visible = true;
 
-  view.onCellItemClicked = async (g, { column, dataRow }) => {
-    if (column === 'ntccnTitNm') {
-      const { mngtYm, ntcId, ntcSn } = gridUtil.getRowValue(g, dataRow);
-      const { result } = await modal({
-        component: 'WwsndWorkNoticeRegP',
-        componentProps: { mngtYm, ntcId, ntcSn },
-      });
-      if (result) await getWorkNoticePages();
-    }
+  view.onCellDblClicked = async (g, { dataRow }) => {
+    const { mngtYm, ntcId, ntcSn } = gridUtil.getRowValue(g, dataRow);
+    const { result } = await modal({
+      component: 'WwsndWorkNoticeRegP',
+      componentProps: { mngtYm, ntcId, ntcSn },
+    });
+    if (result) await getWorkNoticePages();
   };
 });
 

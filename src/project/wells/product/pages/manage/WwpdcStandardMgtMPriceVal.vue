@@ -74,6 +74,7 @@
         v-show="!props.readonly"
         :label="$t('MSG_BTN_DEL')"
         dense
+        :disable="gridRowCount === 0"
         @click="onClickRemove"
       />
     </kw-action-top>
@@ -89,13 +90,13 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { useDataService, stringUtil, gridUtil, getComponentType, useGlobal } from 'kw-lib';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, isEmpty } from 'lodash-es';
 import pdConst from '~sms-common/product/constants/pdConst';
-import { setPdGridRows, pdMergeBy, getGridRowsToSavePdProps, getPropInfosToGridRows, getPdMetaToGridInfos } from '~sms-common/product/utils/pdUtil';
+import { getGridRowCount, setPdGridRows, pdMergeBy, getGridRowsToSavePdProps, getPropInfosToGridRows, getPdMetaToGridInfos } from '~sms-common/product/utils/pdUtil';
 
 /* eslint-disable no-use-before-define */
 defineExpose({
-  getSaveData, isModifiedProps, validateProps,
+  resetData, init, getSaveData, isModifiedProps, validateProps,
 });
 
 const props = defineProps({
@@ -128,6 +129,22 @@ const usedChannelRef = ref();
 const checkedSelVals = ref([]);
 const selectionVariables = ref([]);
 const removeObjects = ref([]);
+const gridRowCount = ref(0);
+
+async function resetData() {
+  currentPdCd.value = '';
+  currentInitData.value = {};
+  usedChannelCds.value = [];
+  addChannelId.value = '';
+  removeObjects.value = [];
+  gridRowCount.value = 0;
+  grdMainRef.value?.getView()?.getDataSource().clearRows();
+}
+
+async function init() {
+  const view = grdMainRef.value?.getView();
+  if (view) gridUtil.init(view);
+}
 
 async function getSaveData() {
   const view = grdMainRef.value.getView();
@@ -157,16 +174,18 @@ async function getSaveData() {
   return rtnValues;
 }
 
-function isModifiedProps() {
-  return true;
+async function isModifiedProps() {
+  return gridUtil.isModified(grdMainRef.value.getView());
 }
 
-function validateProps() {
-  return true;
+async function validateProps() {
+  const rtn = gridUtil.validate(grdMainRef.value.getView(), {
+    isChangedOnly: false,
+  });
+  return rtn;
 }
 
 async function resetInitData() {
-  Object.assign(removeObjects.value, []);
   // 기본 속성에서 등록 채널 목록
   const channels = currentInitData.value?.[pdConst.TBL_PD_DTL]
     ?.reduce((rtn, item) => {
@@ -195,6 +214,11 @@ async function resetInitData() {
 }
 
 async function initGridRows() {
+  removeObjects.value = [];
+  const view = grdMainRef.value?.getView();
+  if (isEmpty(view)) {
+    return;
+  }
   if (await currentInitData.value[prcfd]) {
     // 판매유형
     const sellTpCd = currentInitData.value[pdConst.TBL_PD_BAS]?.sellTpCd;
@@ -226,16 +250,18 @@ async function initGridRows() {
       // console.log('WwpdcStandardMgtMPriceVal - initGridRows - row : ', row);
       return row;
     });
-    const view = grdMainRef.value.getView();
     setPdGridRows(view, rows, pdConst.PRC_FNL_ROW_ID, defaultFields.value, true);
+  } else {
+    view.getDataSource().clearRows();
   }
+  gridRowCount.value = getGridRowCount(view);
 }
 
 async function onClickAdd() {
   if (!(await usedChannelRef.value.validate())) {
     return;
   }
-
+  const view = grdMainRef.value.getView();
   if (await currentInitData.value[prcd]) {
     const rowValues = gridUtil.getAllRowValues(grdMainRef.value.getView());
     const stdRows = cloneDeep(
@@ -249,7 +275,6 @@ async function onClickAdd() {
     );
     // console.log('rowValues : ', rowValues);
     // console.log('stdRows : ', stdRows);
-    const view = grdMainRef.value.getView();
     const data = view.getDataSource();
     let insPosition = rowValues.findIndex((gridRow) => gridRow.sellChnlCd === addChannelId.value);
     if (!insPosition || insPosition < 0) {
@@ -270,10 +295,12 @@ async function onClickAdd() {
       gridUtil.insertRowAndFocus(view, insPosition);
     }
   }
+  gridRowCount.value = getGridRowCount(view);
 }
 
 async function onClickRemove() {
-  const deletedRowValues = gridUtil.deleteCheckedRows(grdMainRef.value.getView());
+  const view = grdMainRef.value.getView();
+  const deletedRowValues = await gridUtil.confirmDeleteCheckedRows(view);
   if (deletedRowValues && deletedRowValues.length) {
     removeObjects.value.push(...deletedRowValues.reduce((rtn, item) => {
       if (item[pdConst.PRC_FNL_ROW_ID]) {
@@ -282,6 +309,7 @@ async function onClickRemove() {
       return rtn;
     }, []));
   }
+  gridRowCount.value = getGridRowCount(view);
 }
 
 async function fetchSelVarData() {

@@ -17,6 +17,7 @@
     <kw-search
       :cols="3"
       @search="onClickSearch"
+      @reset="onClickReset"
     >
       <kw-search-row>
         <!-- 기준년월 -->
@@ -133,11 +134,12 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, useDataService, getComponentType, useMeta, defineGrid, gridUtil } from 'kw-lib';
+import { codeUtil, useDataService, getComponentType, useMeta, defineGrid, gridUtil, useGlobal } from 'kw-lib';
 import ZwcmWareHouseSearch from '~sms-common/service/components/ZwsnzWareHouseSearch.vue';
 import dayjs from 'dayjs';
 import { cloneDeep } from 'lodash-es';
 
+const { modal, alert, notify } = useGlobal();
 const dataService = useDataService();
 const { getConfig } = useMeta();
 const baseURI = '/sms/wells/service/materials-assign-stocks';
@@ -178,7 +180,6 @@ const pageInfo = ref({
 });
 
 async function fetchData() {
-  console.log(`cachedParams : ${cachedParams}`);
   const res = await dataService.get(baseURI, { params: { ...cachedParams, ...pageInfo.value } });
   const { list: searchData, pageInfo: pagingResult } = res.data;
 
@@ -217,17 +218,50 @@ async function onClickSave() {
   await fetchData();
 }
 
+// TODO: 단위테스트용 (단위테스트후 초기값 설정에 대해 확인 필요)
+function searchDefaultCondition() {
+  searchParams.value.baseYm = dayjs().format('YYYYMM');
+  searchParams.value.ogId = '';
+  searchParams.value.prtnrNo = '';
+  searchParams.value.prtnrKnm = '';
+  searchParams.value.hgrWareNo = '';
+  searchParams.value.wareNo = '';
+  searchParams.value.wareDvCd = '3';
+  searchParams.value.wareDtlDvCd = '';
+}
+
+// TODO: ALERT창 정리필요(단위테스트 후 정리필요 : 팝업페이지가 아직 개발되지 않음.)
+async function onCellClickedPrtnrNo() {
+  try {
+    const { result: isChanged } = await modal({
+      component: 'WwsnaWarehouseOrganizationRegP',
+    });
+
+    if (isChanged) {
+      notify(t('MSG_ALT_SAVE_DATA'));
+      await fetchData();
+    }
+  } catch (e) {
+    alert('현재 단위 테스트 대상이 아닙니다.(개발중)');
+  }
+}
+
+// TODO: 단위테스트용 (단위테스트후 초기값 설정에 대해 확인 필요)
+function onClickReset() {
+  searchDefaultCondition();
+}
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
 const initGrdMain = defineGrid((data, view) => {
   const columns = [
+    { fieldName: 'wareDtlDvNm', header: t('MSG_TXT_WARE_DTL_DV'), width: '140', styleName: 'text-left' },
     { fieldName: 'prtnrNo', header: t('MSG_TXT_EPNO'), width: '80', styleName: 'text-center' },
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '70', styleName: 'text-center' },
     { fieldName: 'ogNm', header: t('MSG_TXT_BLG'), width: '120', styleName: 'text-center' },
-    { fieldName: 'bldNm', header: t('MSG_TXT_BUILDING'), width: '120', styleName: 'text-left' },
-    { fieldName: 'wareDtlDvNm', header: t('MSG_TXT_WARE_DTL_DV'), width: '140', styleName: 'text-left' },
+    { fieldName: 'bldCd', header: t('MSG_TXT_BLD_CD'), width: '70', styleName: 'text-center' },
     { fieldName: 'hgrWareNm', header: t('MSG_TXT_HGR_WARE'), width: '120', styleName: 'text-left' },
+    { fieldName: 'bldNm', header: t('MSG_TXT_BUILDING'), width: '120', styleName: 'text-left' },
     { fieldName: 'qomAsnApyYn',
       header: t('MSG_TXT_QOM_ASN_APY_YN'),
       width: '70',
@@ -237,7 +271,6 @@ const initGrdMain = defineGrid((data, view) => {
       optionValue: 'codeId',
       optionLabel: 'codeId',
     },
-    { fieldName: 'bldCd', header: t('MSG_TXT_BLD_CD'), width: '70', styleName: 'text-center' },
     { fieldName: 'didyDvNm', header: t('MSG_TXT_INDP_MNGER_YN'), width: '110', styleName: 'text-center' },
     { fieldName: 'adrUseYn', header: t('MSG_TXT_DSN_ADR_YN'), width: '70', styleName: 'text-center' },
     { fieldName: 'newAdrZip', header: t('MSG_TXT_ZIP'), width: '100', styleName: 'text-center' },
@@ -252,17 +285,23 @@ const initGrdMain = defineGrid((data, view) => {
   view.rowIndicator.visible = true;
   view.header.minRowHeight = 47;
 
-  view.onCellDblClicked = (e, v) => {
+  // view.onCellDblClicked = (e, v) => {
+  //   if (v.column === 'qomAsnApyYn') {
+  //     view.editOptions.editable = true;
+  //   } else {
+  //     view.editOptions.editable = false;
+  //   }
+  // };
+
+  view.onCellClicked = (e, v) => {
     if (v.column === 'qomAsnApyYn') {
       view.editOptions.editable = true;
     } else {
       view.editOptions.editable = false;
     }
-  };
 
-  view.onCellClicked = (e, v) => {
-    if (v.column !== 'qomAsnApyYn') {
-      view.editOptions.editable = false;
+    if (v.column === 'prtnrNo') {
+      onCellClickedPrtnrNo();
     }
   };
 
@@ -286,6 +325,5 @@ watch(() => searchParams.value.wareNo, (res) => {
   }
 });
 
-searchParams.value.baseYm = dayjs().format('YYYYMM');
-searchParams.value.wareDvCd = '3';
+searchDefaultCondition();
 </script>

@@ -14,9 +14,9 @@
 --->
 <template>
   <kw-page>
+    <!-- one-row -->
+    <!-- :cols="2" -->
     <kw-search
-      one-row
-      :cols="2"
       :modified-targets="['grdMain']"
       @search="onClickSearch"
     >
@@ -74,7 +74,8 @@
         <!-- :updatable="false" -->
         <kw-btn
           dense
-          :label="$t('MSG_BTN_GIRO_FILE_ULD')"
+          icon="upload_on"
+          :label="$t('MSG_BTN_EXCEL_UP')"
           @click="onClickExcelUpload"
         />
         <!-- :label="$t('지로파일 업로드')" -->
@@ -147,12 +148,14 @@
 
 import { codeUtil, getComponentType, gridUtil, modal, notify, useDataService } from 'kw-lib';
 import dayjs from 'dayjs';
+
 // import { cloneDeep } from 'lodash-es';
 
 const dataService = useDataService();
 const { t } = useI18n();
 const now = dayjs();
 // const { t } = useI18n();
+const { currentRoute } = useRouter();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -193,9 +196,11 @@ const searchParams = ref({
 
 let cachedParams;
 
+let result = 0;
+let giroResult = 0;
 async function fetchData() {
   cachedParams = { ...cachedParams, ...pageInfo.value };
-  console.log(cachedParams);
+
   const res = await dataService.get('/sms/wells/withdrawal/idvrve/giro-deposits/paging', { params: cachedParams });
   const { list: pages, pageInfo: pagingResult } = res.data;
 
@@ -203,6 +208,18 @@ async function fetchData() {
 
   const view = grdMainRef.value.getView();
   const data = view.getDataSource();
+
+  const res2 = await dataService.get('/sms/wells/withdrawal/idvrve/giro-deposits/excel-download', { params: cachedParams });
+
+  console.log(res2.data);
+
+  result = 0;
+  giroResult = 0;
+
+  for (let index = 0; index < res2.data.length; index += 1) {
+    result += Number(res2.data[index].rveAmt);
+    giroResult += Number(res2.data[index].giroFee);
+  }
 
   data.checkRowStates(false);
   data.setRows(pages);
@@ -282,7 +299,7 @@ async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
   const res = await dataService.get('/sms/wells/withdrawal/idvrve/giro-deposits/excel-download', { params: cachedParams });
   await gridUtil.exportView(view, {
-    fileName: `${t('MSG_TXT_GIRO')}OCR_Excel`,
+    fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
     exportData: res.data,
   });
@@ -391,6 +408,7 @@ async function onClickErrProcs() {
 // -------------------------------------------------------------------------------------------------
 function initGrid(data, view) {
   const fields = [
+    { fieldName: 'sumMain' },
     { fieldName: 'kwGrpCoCd' },
     { fieldName: 'cntrNo' },
     { fieldName: 'cstKnm' },
@@ -437,7 +455,10 @@ function initGrid(data, view) {
       header: t('MSG_TXT_DP_AMT'),
       headerSummary: {
         numberFormat: '#,##0',
-        expression: 'sum',
+        valueCallback() {
+          // 표시하고 싶은 값을 return
+          return result;
+        },
       },
       // header: '입금금액',
       width: '211',
@@ -448,7 +469,10 @@ function initGrid(data, view) {
       // header: '수수료',
       headerSummary: {
         numberFormat: '#,##0',
-        expression: 'sum',
+        valueCallback() {
+          // 표시하고 싶은 값을 return
+          return giroResult;
+        },
       },
       numberFormat: '#,##0',
       width: '221',
@@ -480,6 +504,13 @@ function initGrid(data, view) {
   data.setFields(fields);
   view.setColumns(columns);
 
+  // 체크박스 설정
+  view.onCellClicked = (grid, clickData) => {
+    if (clickData.cellType === 'data') {
+      grid.checkItem(clickData.itemIndex, !grid.isCheckedItem(clickData.itemIndex));
+    }
+  };
+
   // summary 병합
   view.layoutByColumn('cntrNo').summaryUserSpans = [{ colspan: 4 }];
   view.layoutByColumn('sellTpCd').summaryUserSpans = [{ colspan: 4 }];
@@ -491,7 +522,7 @@ function initGrid(data, view) {
     visible: true,
     items: [
       {
-      // styleName: "blue-column",   개별 css 스타일 적용 필요시
+        // styleName: 'blue-column', //  개별 css 스타일 적용 필요시
         height: 40,
       },
     ],

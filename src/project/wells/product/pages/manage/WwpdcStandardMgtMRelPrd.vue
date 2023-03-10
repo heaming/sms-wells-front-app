@@ -15,7 +15,7 @@
 <template>
   <!-- 교재/자재 -->
   <h3>{{ $t('MSG_TXT_PD_MNL_MAT') }}</h3>
-  <kw-action-top v-show="!props.readonly">
+  <kw-action-top>
     <template #left>
       <!-- 교재/자재 선택 -->
       <span class="kw-fc--black1">{{ $t('MSG_TXT_PD_MNL_MAT_SEL') }}</span>
@@ -36,8 +36,9 @@
     </template>
     <!-- 삭제 -->
     <kw-btn
-      grid-action
+      dense
       :label="$t('MSG_BTN_DEL')"
+      :disable="grdMaterialRowCount === 0"
       @click="onClickMaterialDelRows"
     />
   </kw-action-top>
@@ -48,7 +49,7 @@
   />
   <!-- 서비스 -->
   <h3>{{ $t('MSG_TXT_SERVICE') }}</h3>
-  <kw-action-top v-show="!props.readonly">
+  <kw-action-top>
     <template #left>
       <!-- 서비스 선택 -->
       <span class="kw-fc--black1">{{ $t('MSG_TXT_PD_SVC_SEL') }}</span>
@@ -69,8 +70,9 @@
     </template>
     <!-- 삭제 -->
     <kw-btn
-      grid-action
+      dense
       :label="$t('MSG_BTN_DEL')"
+      :disable="grdServiceRowCount === 0"
       @click="onClickServiceDelRows"
     />
   </kw-action-top>
@@ -81,7 +83,7 @@
   />
   <!-- 기준상품 관계설정 -->
   <h3>{{ $t('MSG_TXT_STD_PRD_SET_REL') }}</h3>
-  <kw-action-top v-show="!props.readonly">
+  <kw-action-top>
     <template #left>
       <!-- 기준상품 선택 -->
       <span class="kw-fc--black1">{{ $t('MSG_TXT_PD_SEL_STD') }}</span>
@@ -107,9 +109,9 @@
     </template>
     <!-- 삭제 -->
     <kw-btn
-      v-show="!props.readonly"
-      grid-action
+      dense
       :label="$t('MSG_BTN_DEL')"
+      :disable="grdStandardRowCount === 0"
       @click="onClickStandardDelRows"
     />
   </kw-action-top>
@@ -124,19 +126,18 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { gridUtil, useGlobal, getComponentType, codeUtil } from 'kw-lib';
-import { pdMergeBy } from '~/modules/sms-common/product/utils/pdUtil';
+import { getGridRowCount, pdMergeBy } from '~/modules/sms-common/product/utils/pdUtil';
 import pdConst from '~sms-common/product/constants/pdConst';
 
 /* eslint-disable no-use-before-define */
 defineExpose({
-  getSaveData, isModifiedProps, validateProps,
+  resetData, init, getSaveData, isModifiedProps, validateProps,
 });
 
 const props = defineProps({
   pdCd: { type: String, default: null },
   initData: { type: Object, default: null },
   codes: { type: Object, default: null },
-  readonly: { type: Boolean, default: false },
 });
 
 const { modal } = useGlobal();
@@ -148,6 +149,9 @@ const { t } = useI18n();
 const grdMaterialRef = ref(getComponentType('KwGrid'));
 const grdServiceRef = ref(getComponentType('KwGrid'));
 const grdStandardRef = ref(getComponentType('KwGrid'));
+const grdMaterialRowCount = ref(0);
+const grdServiceRowCount = ref(0);
+const grdStandardRowCount = ref(0);
 
 const currentPdCd = ref();
 const currentInitData = ref({});
@@ -173,9 +177,9 @@ const serviceSelectItems = ref([
   { codeId: pdConst.PD_SEARCH_CODE, codeName: t('MSG_TXT_SVC_CODE') },
 ]);
 
-const materialSearchType = ref();
+const materialSearchType = ref(pdConst.PD_SEARCH_NAME);
 const materialSearchValue = ref();
-const serviceSearchType = ref();
+const serviceSearchType = ref(pdConst.PD_SEARCH_NAME);
 const serviceSearchValue = ref();
 const standardRelType = ref();
 const standardSearchValue = ref();
@@ -186,6 +190,23 @@ const searchParams = ref({
   pdTpCd: '',
 });
 
+async function resetData() {
+  currentPdCd.value = '';
+  currentInitData.value = {};
+  grdMaterialRef.value?.getView()?.getDataSource().clearRows();
+  grdServiceRef.value?.getView()?.getDataSource().clearRows();
+  grdStandardRef.value?.getView()?.getDataSource().clearRows();
+}
+
+async function init() {
+  const materialView = grdMaterialRef.value?.getView();
+  if (materialView) gridUtil.init(materialView);
+  const serviceView = grdServiceRef.value?.getView();
+  if (serviceView) gridUtil.init(serviceView);
+  const standardView = grdStandardRef.value?.getView();
+  if (standardView) gridUtil.init(standardView);
+}
+
 async function getSaveData() {
   let rowValues = gridUtil.getAllRowValues(grdMaterialRef.value.getView());
   rowValues = pdMergeBy(rowValues, gridUtil.getAllRowValues(grdServiceRef.value.getView()));
@@ -195,11 +216,13 @@ async function getSaveData() {
   return rtnValues;
 }
 
-function isModifiedProps() {
-  return true;
+async function isModifiedProps() {
+  return gridUtil.isModified(grdMaterialRef.value?.getView())
+          || gridUtil.isModified(grdServiceRef.value?.getView())
+          || gridUtil.isModified(grdStandardRef.value?.getView());
 }
 
-function validateProps() {
+async function validateProps() {
   return true;
 }
 
@@ -235,7 +258,7 @@ async function insertCallbackRows(view, rtn, pdRelTpCd) {
 }
 
 async function deleteCheckedRows(view) {
-  gridUtil.deleteCheckedRows(view);
+  await gridUtil.confirmDeleteCheckedRows(view);
 }
 
 async function onClickMaterialSchPopup() {
@@ -248,6 +271,7 @@ async function onClickMaterialSchPopup() {
     componentProps: searchParams.value,
   });
   await insertCallbackRows(view, rtn, pdConst.PD_REL_TP_CD_P_TO_PD);
+  grdMaterialRowCount.value = getGridRowCount(view);
 }
 
 async function onClickServiceSchPopup() {
@@ -260,6 +284,7 @@ async function onClickServiceSchPopup() {
     componentProps: searchParams.value,
   });
   await insertCallbackRows(view, rtn, pdConst.PD_REL_TP_CD_P_TO_S);
+  grdServiceRowCount.value = getGridRowCount(view);
 }
 
 async function onClickStandardSchPopup() {
@@ -275,21 +300,25 @@ async function onClickStandardSchPopup() {
     componentProps: searchParams.value,
   });
   await insertCallbackRows(view, rtn, standardRelType.value);
+  grdStandardRowCount.value = getGridRowCount(view);
 }
 
 async function onClickMaterialDelRows() {
   const view = grdMaterialRef.value.getView();
   await deleteCheckedRows(view);
+  grdMaterialRowCount.value = getGridRowCount(view);
 }
 
 async function onClickServiceDelRows() {
   const view = grdServiceRef.value.getView();
   await deleteCheckedRows(view);
+  grdServiceRowCount.value = getGridRowCount(view);
 }
 
 async function onClickStandardDelRows() {
   const view = grdStandardRef.value.getView();
   await deleteCheckedRows(view);
+  grdStandardRowCount.value = getGridRowCount(view);
 }
 
 async function initGridRows() {
@@ -301,6 +330,7 @@ async function initGridRows() {
     materialView.getDataSource().setRows(products
       ?.filter((item) => item[pdConst.PD_REL_TP_CD] === pdConst.PD_REL_TP_CD_P_TO_PD));
     materialView.resetCurrent();
+    grdMaterialRowCount.value = getGridRowCount(materialView);
   }
 
   const serviceView = grdServiceRef.value?.getView();
@@ -309,6 +339,7 @@ async function initGridRows() {
     serviceView.getDataSource().setRows(products
       ?.filter((item) => item[pdConst.PD_REL_TP_CD] === pdConst.PD_REL_TP_CD_P_TO_S));
     serviceView.resetCurrent();
+    grdServiceRowCount.value = getGridRowCount(serviceView);
   }
 
   const standardView = grdStandardRef.value?.getView();
@@ -317,6 +348,7 @@ async function initGridRows() {
     standardView.getDataSource().setRows(products
       ?.filter((item) => standardRelTypes.value.includes(item[pdConst.PD_REL_TP_CD])));
     standardView.resetCurrent();
+    grdStandardRowCount.value = getGridRowCount(standardView);
   }
 }
 
@@ -330,7 +362,7 @@ async function initProps() {
 await initProps();
 
 watch(() => props.pdCd, (pdCd) => { currentPdCd.value = pdCd; });
-watch(() => props.initData, (initData) => { currentInitData.value = initData; }, { deep: true });
+watch(() => props.initData, (initData) => { currentInitData.value = initData; initGridRows(); }, { deep: true });
 
 //-------------------------------------------------------------------------------------------------
 // Initialize Grid
@@ -348,7 +380,13 @@ async function initMaterialGrid(data, view) {
     // 자재코드
     { fieldName: 'sapMatCd', header: t('MSG_TXT_MATI_CD'), width: '87', styleName: 'text-center', editable: false },
     // 제품수량(개)
-    { fieldName: 'pdRelPrpVal01', header: t('MSG_TXT_PRD_COUNT_EA'), width: '87', styleName: 'text-right', editor: { type: 'number', editFormat: '#,##0.##' }, dataType: 'number' },
+    { fieldName: 'pdRelPrpVal01',
+      header: t('MSG_TXT_PRD_COUNT_EA'),
+      width: '87',
+      styleName: 'text-right',
+      editor: { type: 'number', editFormat: '#,##0.##' },
+      dataType: 'number',
+      suffix: ` ${t('MSG_TXT_GRD_CNT')}` },
     // 판매금액
     { fieldName: 'pdRelPrpVal02', header: t('MSG_TXT_SALE_PRICE'), width: '107', styleName: 'text-right', editor: { type: 'number', editFormat: '#,##0.##' }, dataType: 'number' },
     // 공급가액
@@ -356,9 +394,16 @@ async function initMaterialGrid(data, view) {
     // 부가세액
     { fieldName: 'pdRelPrpVal04', header: t('MSG_TXT_VAT_AMOUNT'), width: '107', styleName: 'text-right', editor: { type: 'number', editFormat: '#,##0.##' }, dataType: 'number' },
     // 안분비율(%)
-    { fieldName: 'diviRat', header: t('MSG_TXT_PROPORTIONAL_DV_RT'), width: '107', styleName: 'text-right', editor: { type: 'number', editFormat: '##0' }, dataType: 'number' },
+    { fieldName: 'diviRat',
+      header: t('MSG_TXT_PROPORTIONAL_DV_RT'),
+      width: '107',
+      styleName: 'text-right',
+      editor: { type: 'number', editFormat: '##0' },
+      dataType: 'number',
+      suffix: ' %',
+    },
     // 잔액산입
-    { fieldName: 'blamInptYn', header: t('MSG_TXT_CHANGE_COUNTING'), width: '87', styleName: 'text-center', editor: 'list', options: props.codes?.COD_YN },
+    { fieldName: 'blamInptYn', header: t('MSG_TXT_CHANGE_COUNTING'), width: '87', styleName: 'text-center', editor: { type: 'list' }, options: props.codes?.COD_YN },
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   fields.push({ fieldName: pdConst.REL_PD_ID });

@@ -294,7 +294,7 @@ const initGrdMain = defineGrid((data, view) => {
   view.setColumns(columns);
 
   view.checkBar.visible = false;
-  view.rowIndicator.visible = false;
+  view.rowIndicator.visible = true;
 
   view.onCellDblClicked = async (grid) => {
     if (pageInfo.value.totalCount > 0) {

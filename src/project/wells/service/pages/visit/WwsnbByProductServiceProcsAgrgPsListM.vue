@@ -95,6 +95,7 @@
 
       <kw-grid
         ref="grdMainRef"
+        class="mt12"
         :visible-rows="pageInfo.pageSize"
         @init="initGrdMain"
       />
@@ -189,8 +190,10 @@ async function onClickExcelDownload() {
 // -------------------------------------------------------------------------------------------------
 const initGrdMain = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'pdNm' },
+    { fieldName: 'sapMatCd' },
     { fieldName: 'pdCd' },
+    { fieldName: 'pdNm' },
+    { fieldName: 'cntt', dataType: 'number' },
     { fieldName: 'siteAwPdGrpCd' },
     { fieldName: 'cnt1110', dataType: 'number' },
     { fieldName: 'cnt1111', dataType: 'number' },
@@ -217,12 +220,13 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'cnt3100', dataType: 'number' },
     { fieldName: 'cnt1390', dataType: 'number' },
     { fieldName: 'cnt2100', dataType: 'number' },
-    { fieldName: 'cntt', dataType: 'number' },
   ];
 
   const columns = [
-    { fieldName: 'pdNm', header: t('MSG_TXT_PD_NM'), width: '200', footer: { text: t('MSG_TXT_SUM') } },
+    { fieldName: 'sapMatCd', header: t('MSG_TXT_SAP_CD'), width: '150', styleName: 'text-center', footer: { text: t('MSG_TXT_SUM') } },
     { fieldName: 'pdCd', header: t('MSG_TXT_PRDT_CODE'), width: '150', styleName: 'text-center' },
+    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '200' },
+    { fieldName: 'cntt', header: t('MSG_TXT_TOT_SUM'), width: '96', styleName: 'text-right', footer: { text: t('MSG_TXT_SUM'), expression: 'sum' } },
     { fieldName: 'siteAwPdGrpCd', header: t('MSG_TXT_PD_DV_CD'), width: '150', visible: false, autoFilter: false },
     { fieldName: 'cnt1110', header: t('MSG_TXT_NW_IST'), width: '96', styleName: 'text-right', footer: { text: t('MSG_TXT_SUM'), expression: 'sum' } },
     { fieldName: 'cnt1111', header: t('MSG_TXT_IST_REQD'), width: '96', styleName: 'text-right', footer: { text: t('MSG_TXT_SUM'), expression: 'sum' } },
@@ -249,7 +253,6 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'cnt3100', header: t('MSG_TXT_SBSUM'), width: '96', styleName: 'text-right', footer: { text: t('MSG_TXT_SUM'), expression: 'sum' } },
     { fieldName: 'cnt1390', header: t('MSG_TXT_SBSUM'), width: '96', styleName: 'text-right', footer: { text: t('MSG_TXT_SUM'), expression: 'sum' } },
     { fieldName: 'cnt2100', header: t('MSG_TXT_SBSUM'), width: '96', styleName: 'text-right', footer: { text: t('MSG_TXT_SUM'), expression: 'sum' } },
-    { fieldName: 'cntt', header: t('MSG_TXT_TOT_SUM'), width: '96', styleName: 'text-right', footer: { text: t('MSG_TXT_SUM'), expression: 'sum' } },
   ];
 
   data.setFields(fields);
@@ -259,7 +262,7 @@ const initGrdMain = defineGrid((data, view) => {
     {
       header: t('MSG_TXT_DIV'), // 구분
       direction: 'horizontal',
-      items: [{ column: 'pdNm', footerUserSpans: [{ colspan: 2 }] }, 'pdCd', 'siteAwPdGrpCd'],
+      items: [{ column: 'sapMatCd', footerUserSpans: [{ colspan: 3 }] }, 'pdCd', 'pdNm', 'cntt', 'siteAwPdGrpCd'],
     },
     {
       header: t('MSG_TXT_INSTALLATION'), // 설치
@@ -276,7 +279,6 @@ const initGrdMain = defineGrid((data, view) => {
       direction: 'horizontal',
       items: ['cnt1390', 'cnt2100'],
     },
-    'cntt',
   ]);
 
   view.checkBar.visible = false;

@@ -26,6 +26,7 @@
         :label="$t('MSG_BTN_DEL')"
         secondary
         dense
+        :disable="gridRowCount === 0"
         @click="onClickRemove"
       />
     </kw-action-top>
@@ -41,13 +42,13 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { gridUtil, getComponentType } from 'kw-lib';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, isEmpty } from 'lodash-es';
 import pdConst from '~sms-common/product/constants/pdConst';
-import { setPdGridRows, pdMergeBy, getGridRowsToSavePdProps, getPropInfosToGridRows, getPdMetaToGridInfos } from '~sms-common/product/utils/pdUtil';
+import { getGridRowCount, setPdGridRows, pdMergeBy, getGridRowsToSavePdProps, getPropInfosToGridRows, getPdMetaToGridInfos } from '~sms-common/product/utils/pdUtil';
 
 /* eslint-disable no-use-before-define */
 defineExpose({
-  getSaveData, isModifiedProps, validateProps,
+  resetData, init, getSaveData, isModifiedProps, validateProps,
 });
 
 const props = defineProps({
@@ -59,6 +60,7 @@ const props = defineProps({
 });
 
 const { t } = useI18n();
+
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -72,6 +74,20 @@ const currentPdCd = ref();
 const currentInitData = ref(null);
 const currentMetaInfos = ref();
 const removeObjects = ref([]);
+const gridRowCount = ref(0);
+
+async function resetData() {
+  currentPdCd.value = '';
+  currentInitData.value = {};
+  removeObjects.value = [];
+  gridRowCount.value = 0;
+  grdMainRef.value?.getView()?.getDataSource().clearRows();
+}
+
+async function init() {
+  const view = grdMainRef.value?.getView();
+  if (view) gridUtil.init(view);
+}
 
 async function getSaveData() {
   const view = grdMainRef.value.getView();
@@ -94,21 +110,23 @@ async function getSaveData() {
   return rtnValues;
 }
 
-function isModifiedProps() {
-  return true;
+async function isModifiedProps() {
+  return gridUtil.isModified(grdMainRef.value.getView());
 }
 
-function validateProps() {
-  return true;
-}
-
-async function resetInitData() {
-  Object.assign(removeObjects.value, []);
-  await initGridRows();
+async function validateProps() {
+  const rtn = gridUtil.validate(grdMainRef.value.getView(), {
+    isChangedOnly: false,
+  });
+  return rtn;
 }
 
 async function initGridRows() {
   removeObjects.value = [];
+  const view = grdMainRef.value?.getView();
+  if (isEmpty(view)) {
+    return;
+  }
   if (await currentInitData.value?.[prcfd]) {
     // 기준가 정보
     const stdRows = cloneDeep(
@@ -136,13 +154,16 @@ async function initGridRows() {
       return row;
     });
     // console.log('Fee Rows : ', rows);
-    const view = grdMainRef.value.getView();
     setPdGridRows(view, rows, pdConst.PRC_FNL_ROW_ID, defaultFields.value, true);
+  } else {
+    view.getDataSource().clearRows();
   }
+  gridRowCount.value = getGridRowCount(view);
 }
 
 async function onClickRemove() {
-  const deletedRowValues = gridUtil.deleteCheckedRows(grdMainRef.value.getView());
+  const view = grdMainRef.value.getView();
+  const deletedRowValues = await gridUtil.confirmDeleteCheckedRows(view);
   if (deletedRowValues && deletedRowValues.length) {
     removeObjects.value.push(...deletedRowValues.reduce((rtn, item) => {
       if (item[pdConst.PRC_FNL_ROW_ID]) {
@@ -151,6 +172,7 @@ async function onClickRemove() {
       return rtn;
     }, []));
   }
+  gridRowCount.value = getGridRowCount(view);
 }
 
 async function initProps() {
@@ -163,7 +185,7 @@ async function initProps() {
 await initProps();
 
 watch(() => props.pdCd, (val) => { currentPdCd.value = val; });
-watch(() => props.initData, (val) => { currentInitData.value = val; resetInitData(); }, { deep: true });
+watch(() => props.initData, (val) => { currentInitData.value = val; initGridRows(); }, { deep: true });
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid

@@ -15,6 +15,7 @@
 <template>
   <kw-popup
     size="3xl"
+    class="kw-popup--window-consult--style"
     no-action
   >
     <kw-grid
@@ -26,11 +27,23 @@
 
     <kw-tabs
       v-model="selectedTab"
-      class="px0"
+      class="px0 pt16"
     >
       <kw-tab
         name="deposit"
         :label="$t('MSG_TXT_DP_INF')"
+      />
+      <kw-tab
+        name="sales"
+        :label="$t('MSG_TXT_SL_INF')"
+      />
+      <kw-tab
+        name="depositDetail"
+        :label="$t('MSG_TXT_DP_IZ')"
+      />
+      <kw-tab
+        name="breachOfPromise"
+        :label="$t('MSG_TXT_BOR_INF')"
       />
     </kw-tabs>
     <kw-tab-panels v-model="selectedTab">
@@ -38,9 +51,7 @@
         <kw-action-top
           v-show="lental"
           class="mt20"
-        >
-          <span class="kw-fc--black3 text-weight-regular">{{ t('MSG_TXT_UNIT_WON') }}</span>
-        </kw-action-top>
+        />
         <kw-form
           v-show="lental"
           :cols="4"
@@ -146,9 +157,7 @@
         <kw-action-top
           v-show="lental"
           class="mt20"
-        >
-          <span class="kw-fc--black3 text-weight-regular">{{ t('MSG_TXT_UNIT_WON') }}</span>
-        </kw-action-top>
+        />
         <kw-grid
           v-show="lental"
           ref="grdLentalRef"
@@ -159,9 +168,7 @@
         <kw-action-top
           v-show="membership"
           class="mt20"
-        >
-          <span class="kw-fc--black3 text-weight-regular">{{ t('MSG_TXT_UNIT_WON') }}</span>
-        </kw-action-top>
+        />
         <kw-form
           v-show="membership"
           :cols="4"
@@ -261,15 +268,24 @@
         <kw-action-top
           v-show="membership"
           class="mt20"
-        >
-          <span class="kw-fc--black3 text-weight-regular">{{ t('MSG_TXT_UNIT_WON') }}</span>
-        </kw-action-top>
+        />
         <kw-grid
           v-show="membership"
           ref="grdMembershipRef"
           name="grdMembership"
           :visible-rows="5"
           @init="initMembershipGrid"
+        />
+      </kw-tab-panel>
+      <kw-tab-panel name="sales">
+        <wwbnc-same-customer-contract-p-sales
+          v-model:selected-grid-row="selectedGridRow"
+        />
+      </kw-tab-panel>
+      <kw-tab-panel name="depositDetail" />
+      <kw-tab-panel name="breachOfPromise">
+        <wwbnc-same-customer-contract-p-breach-of-promise
+          v-model:selected-grid-row="selectedGridRow"
         />
       </kw-tab-panel>
     </kw-tab-panels>
@@ -281,6 +297,8 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { useDataService, getComponentType, defineGrid, stringUtil, codeUtil } from 'kw-lib';
+import WwbncSameCustomerContractPBreachOfPromise from './WwbncSameCustomerContractPBreachOfPromise.vue';
+import WwbncSameCustomerContractPSales from './WwbncSameCustomerContractPSales.vue';
 
 const dataService = useDataService();
 const { t } = useI18n();
@@ -330,6 +348,11 @@ watch(selectedGridRow, (newValue) => {
   }
 });
 
+watch(() => selectedTab.value, () => {
+  grdLentalRef.value.getView().refresh();
+  grdMembershipRef.value.getView().refresh();
+});
+
 const deposit = ref({
   ojAmt: '',
   rsgBorAmt: '',
@@ -368,7 +391,7 @@ function setSellTpCd(sellTpCd) {
 async function fetchDeposits() {
   const { bndCntrRefId, sellTpCd } = selectedGridRow.value;
   const res = await dataService.get(`/sms/wells/bond/same-customer-contracts/${bndCntrRefId}/deposits`);
-  const depositList = res.data;
+  const deposits = res.data;
   let view;
   // TODO: 판매유형코드에 따라 수정 필요
   if (sellTpCd === codes.SELL_TP_CD[1].codeId) {
@@ -377,7 +400,7 @@ async function fetchDeposits() {
     view = grdMembershipRef.value.getView();
   }
 
-  view.getDataSource().setRows(depositList);
+  view.getDataSource().setRows(deposits);
   view.resetCurrent();
 }
 
@@ -394,10 +417,10 @@ async function fetchData() {
   selectedGridRow.value = props;
 
   const res = await dataService.get(`/sms/wells/bond/same-customer-contracts/${props.cstNo}-${props.safeKey}-${props.clctamPrtnrNo}`);
-  const sameCustomerList = res.data;
+  const sameCustomers = res.data;
   const view = grdMainRef.value.getView();
 
-  view.getDataSource().setRows(sameCustomerList);
+  view.getDataSource().setRows(sameCustomers);
   view.resetCurrent();
 
   await fetchDeposit();
@@ -442,7 +465,7 @@ const initMainGrid = defineGrid((data, view) => {
     selectedGridRow.value = clickDatas;
     selectedGridRow.value.checkSelectRow = 'Y';
 
-    fetchDeposit();
+    await fetchDeposit();
   };
 });
 

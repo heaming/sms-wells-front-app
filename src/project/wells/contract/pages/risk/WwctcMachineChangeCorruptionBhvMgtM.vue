@@ -3,63 +3,85 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : CTC
-2. 프로그램 ID : WwctcMachineChangeCorruptionBhvMgtM - 장치 변경 손상 관리
-
+2. 프로그램 ID : WwctcMachineChangeCorruptionBhvMgtM - 기기 변경 부정 행위 관리
 3. 작성자 : gs.bhavesh.n
 4. 작성일 : 2023.01.25
 ****************************************************************************************************
 * 프로그램 설명
 ****************************************************************************************************
--장치 변경 손상 관리
-
+- 기기 변경 부정 행위 관리
 ****************************************************************************************************
 --->
-
 <template>
   <kw-page>
     <kw-search
-      :modified-targets="['machineChangegrid']"
+      :modified-targets="['grdMain']"
       @search="onClickSearch"
     >
       <kw-search-row>
         <kw-search-item
           :colspan="2"
           :label="$t('MSG_TXT_ACEPT_PERIOD')"
+          required
         >
           <kw-select
-            v-model="searchParams.appPeriodType"
-            :model-value="['']"
-            :options="[$t('MSG_TXT_REG_DT'), $t('MSG_TXT_OCCR_DT') ]"
+            v-model="searchParams.apyCls"
+            :options="codes.APY_CLS"
+            :label="$t('MSG_TXT_ACEPT_PERIOD')"
+            rules="required"
           />
           <kw-date-range-picker
-            v-model="searchParams.appPeriod"
-            rules="date_range_months:1"
+            v-if="searchParams.apyCls === 1"
+            v-model:from="searchParams.strtDt"
+            v-model:to="searchParams.endDt"
+            :label="$t('MSG_TXT_ACEPT_PERIOD')"
+            rules="date_range_required"
+          />
+          <kw-date-range-picker
+            v-if="searchParams.apyCls === 2"
+            v-model:from="searchParams.strtYm"
+            v-model:to="searchParams.endYm"
+            :label="$t('MSG_TXT_ACEPT_PERIOD')"
+            type="month"
+            rules="date_range_required"
           />
         </kw-search-item>
 
         <kw-search-item
           :label="$t('MSG_TXT_CNTR_NO')"
         >
-          <kw-input v-model="searchParams.contractNum " />
+          <kw-input
+            v-model="searchParams.cntrNo "
+            icon="search"
+            maxlength="12"
+            clearable
+            @click-icon="onClickCntrNoPop"
+          />
         </kw-search-item>
       </kw-search-row>
       <kw-search-row>
         <kw-search-item
           :label="$t('MSG_TXT_RGNL_GRP')"
         >
-          <kw-input v-model="searchParams.region" />
+          <kw-input
+            v-model="searchParams.dgr1HgrOgCd"
+            maxlength="50"
+          />
         </kw-search-item>
 
         <kw-search-item
           :label="$t('MSG_TXT_BRANCH')"
         >
-          <kw-input v-model="searchParams.branch" />
+          <kw-input
+            v-model="searchParams.dgr2HgrOgCd"
+            maxlength="50"
+          />
         </kw-search-item>
         <kw-search-item
-          :label="$t('MSG_TXT_SELL_NO')"
+          :label="$t('MSG_TXT_PTNR_NAME')"
         >
           <kw-input
-            v-model="searchParams.prtnrNo"
+            v-model="searchParams.prtnrKnm"
             icon="search"
             clearable
           />
@@ -121,8 +143,8 @@
       </kw-action-top>
       <kw-grid
         ref="grdMainRef"
+        name="grdMain"
         :visible-rows="pageInfo.pageSize"
-        name="machineChangegrid"
         @init="initGrid"
       />
     </div>
@@ -134,29 +156,32 @@
 // Import & Declaration
 // ------------------------------------------------------------------------------------------------
 
-import { codeUtil, useDataService, defineGrid, gridUtil, useMeta, getComponentType, useGlobal } from 'kw-lib';
-import { cloneDeep } from 'lodash-es';
+import { codeUtil, defineGrid, getComponentType, gridUtil, useDataService, useGlobal, useMeta } from 'kw-lib';
+import dayjs from 'dayjs';
+import { cloneDeep, isEmpty } from 'lodash-es';
 
 const { getConfig } = useMeta();
 const dataService = useDataService();
 const { notify, modal } = useGlobal();
 const { t } = useI18n();
-
+const { currentRoute } = useRouter();
 const grdMainRef = ref(getComponentType('KwGrid'));
-
 const searchParams = ref({
-  appPeriodType: '',
-  appPeriod: [],
-  contractNum: '',
-  region: '',
-  branch: '',
-  prtnrNo: '',
+  apyCls: 1,
+  strtDt: dayjs().format('YYYYMMDD'),
+  endDt: '',
+  strtYm: dayjs().format('YYYYMM'),
+  endYm: '',
+  cntrNo: '',
+  dgr1HgrOgCd: '',
+  dgr2HgrOgCd: '',
+  prtnrKnm: '',
 });
-
 const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
+  'ICPT_SELL_PROCS_TP_CD',
 );
-
+codes.APY_CLS = [{ codeId: 1, codeName: t('MSG_TXT_FST_RGST_DT') }, { codeId: 2, codeName: t('MSG_TXT_YEAR_OCCURNCE') }];
 const pageInfo = ref({
   totalCount: 0,
   pageIndex: 1,
@@ -166,7 +191,6 @@ const pageInfo = ref({
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
-
 async function onClickOpenPsicPopup() {
   modal({
     component: 'WwcteConfirmApprovalDividePsicListP',
@@ -177,9 +201,9 @@ let cachedParams;
 
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
-  const response = await dataService.get('/sms/common/contract/device-change-corruptions/excel-download', { params: cachedParams });
+  const response = await dataService.get('/sms/wells/contract/incomplete-sales/excel-download', { params: cachedParams });
   await gridUtil.exportView(view, {
-    fileName: 'dataServiceManageList',
+    fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
     exportData: response.data,
   });
@@ -187,16 +211,12 @@ async function onClickExcelDownload() {
 
 function onClickAdd() {
   const view = grdMainRef.value.getView();
-  gridUtil.insertRowAndFocus(view, 0, {});
-  view.editOptions.editable = true;
-  view.onCellEditable = (grid, { itemIndex }) => {
-    if (itemIndex !== 0) return false;
-  };
+  gridUtil.insertRowAndFocus(view, 0, { icptSellExrDt: dayjs().format('YYYYMM') }, 'icptSellProcsTpCd');
 }
 
 async function fetchData() {
   cachedParams = { ...cachedParams, ...pageInfo.value };
-  const res = await dataService.get('/sms/common/contract/device-change-corruptions', { params: cachedParams });
+  const res = await dataService.get('/sms/wells/contract/incomplete-sales/paging', { params: cachedParams });
 
   const { list: partners, pageInfo: pagingResult } = res.data;
   pageInfo.value = pagingResult;
@@ -216,10 +236,10 @@ async function onClickSearch() {
 async function onClickSave() {
   const view = grdMainRef.value.getView();
   if (await gridUtil.alertIfIsNotModified(view)) { return; }
-  if (!gridUtil.validate(view)) { return; }
+  if (!await gridUtil.validate(view)) { return; }
 
   const changedRows = gridUtil.getChangedRowValues(view);
-  await dataService.post('sms/common/contract/device-change-corruptions', changedRows);
+  await dataService.post('sms/wells/contract/incomplete-sales', changedRows);
 
   notify(t('MSG_ALT_SAVE_DATA'));
   await fetchData();
@@ -229,12 +249,10 @@ async function onClickDelete() {
   const view = grdMainRef.value.getView();
   if (!await gridUtil.confirmIfIsModified(view)) { return; }
   const deletedRows = await gridUtil.confirmDeleteCheckedRows(view);
-
-  // deleteKeys needs to be updated as per API
-  const deleteKeys = deletedRows.map((row) => row.dataRow);
+  const deleteKeys = deletedRows.map((row) => row.icptSellId);
 
   if (deleteKeys.length) {
-    await dataService.delete('sms/common/contract/device-change-corruptions', { data: deleteKeys });
+    await dataService.delete('sms/wells/contract/incomplete-sales', { data: deleteKeys });
     await fetchData();
   }
 }
@@ -242,119 +260,174 @@ async function onClickDelete() {
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
-
 const initGrid = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'onHold' },
-    { fieldName: 'reason' },
-    { fieldName: 'newContraNum' },
-    { fieldName: 'existContraNum' },
-    { fieldName: 'availYearMon' },
-    { fieldName: 'change' },
-    { fieldName: 'secondHandComp' },
-    { fieldName: 'occurYearMon' },
-    { fieldName: 'instName' },
-    { fieldName: 'instDt' },
-    { fieldName: 'demolishDt' },
-    { fieldName: 'instOver' },
-    { fieldName: 'instContact' },
-    { fieldName: 'prdGrp' },
-    { fieldName: 'instAddr' },
-    { fieldName: 'prtnrName' },
-    { fieldName: 'prtnrNum' },
-    { fieldName: 'areaCd' },
-    { fieldName: 'branchCd' },
-    { fieldName: 'changePrev' },
-    { fieldName: 'instNamePrev' },
-    { fieldName: 'instDtPrev' },
-    { fieldName: 'demolishDtPrev' },
-    { fieldName: 'instOverPrev' },
-    { fieldName: 'prdGrpPrev' },
-    { fieldName: 'instAddrPrev' },
+    { fieldName: 'icptSellProcsTpCd' },
+    { fieldName: 'icptSellRsonCn' },
+    { fieldName: 'baseCntrNo' },
+    { fieldName: 'baseCntrSn' },
+    { fieldName: 'ojCntrNo' },
+    { fieldName: 'ojCntrSn' },
+    { fieldName: 'icptSellExrDt' },
+    { fieldName: 'cntrPdStrtDt' },
+    { fieldName: 'baseUsedCpsYn' },
+    { fieldName: 'baseChdvcRerntYn' },
+    { fieldName: 'baseRcgvpKnm' },
+    { fieldName: 'baseIstDt' },
+    { fieldName: 'baseReqdDt' },
+    { fieldName: 'baseIstGapMm' },
+    { fieldName: 'baseCralLocaraTno' },
+    { fieldName: 'baseMexnoEncr' },
+    { fieldName: 'baseCralIdvTno' },
+    { fieldName: 'baseMpno' },
+    { fieldName: 'basePdCd' },
+    { fieldName: 'baseAdr' },
+    { fieldName: 'prtnrKnm' },
+    { fieldName: 'prtnrNo' },
+    { fieldName: 'locaraCd' },
+    { fieldName: 'ogCd' },
+    { fieldName: 'ojChdvcRerntYn' },
+    { fieldName: 'ojRcgvpKnm' },
+    { fieldName: 'ojIstDt' },
+    { fieldName: 'ojReqdDt' },
+    { fieldName: 'ojIstGapMm' },
+    { fieldName: 'ojPdCd' },
+    { fieldName: 'ojAdr' },
+    { fieldName: 'fnlMdfcDtm' },
+    { fieldName: 'icptSellId' },
   ];
 
   const columns = [
-    { fieldName: 'onHold', header: t('MSG_TIT_HOLDON'), width: '123', styleName: 'text-center' },
-    { fieldName: 'reason', header: t('MSG_TXT_RSN'), width: '262', styleName: 'text-center' },
-    { fieldName: 'newContraNum',
-      header: {
-        text: t('MSG_TXT_NEW_CONTR'),
-        styleName: 'essential',
+    {
+      fieldName: 'icptSellProcsTpCd',
+      header: t('MSG_TIT_HOLDON'),
+      rules: 'required',
+      width: 120,
+      editable: true,
+      options: codes.ICPT_SELL_PROCS_TP_CD,
+      editor: {
+        type: 'list',
       },
-      width: '164',
-      styleName: 'text-center' },
-    { fieldName: 'existContraNum',
-      header: {
-        text: t('MSG_TXT_DEM_CONTR'),
-        styleName: 'essential',
+    },
+    {
+      fieldName: 'icptSellRsonCn',
+      header: t('MSG_TXT_RSN'),
+      width: 300,
+      editable: true,
+      editor: {
+        maxLength: 1000,
       },
-      width: '164',
-      styleName: 'text-center' },
-    { fieldName: 'availYearMon',
-      header: {
-        text: t('MSG_TXT_AVAIL_TM'),
-        styleName: 'essential',
+    },
+    {
+      fieldName: 'baseCntrNo',
+      header: t('MSG_TXT_CNTR_NO'),
+      width: 130,
+      editable: true,
+      editor: {
+        maxLength: 12,
       },
-      width: '165',
-      styleName: 'text-center' },
-    { fieldName: 'change', header: t('MSG_TXT_CHG_RLS'), width: '129', styleName: 'text-center' },
-    { fieldName: 'secondHandComp', header: t('MSG_TXT_SEC_HND_COMP'), width: '129', styleName: 'text-center' },
-    { fieldName: 'occurYearMon', header: t('MSG_TXT_YEAR_OCCURNCE'), width: '129', styleName: 'text-center' },
-    { fieldName: 'instName', header: t('MSG_TXT_IST_NM'), width: '129', styleName: 'text-center' },
-    { fieldName: 'instDt', header: t('MSG_TXT_IST_DT'), width: '129', styleName: 'text-center', datetimeFormat: 'datetime' },
-    { fieldName: 'demolishDt', header: t('MSG_TXT_DEM_DT'), width: '129', styleName: 'text-center', datetimeFormat: 'datetime' },
-    { fieldName: 'instOver', header: t('MSG_TXT_INST_OVER'), width: '129', styleName: 'text-center' },
-    { fieldName: 'instContact', header: t('MSG_TXT_INST_CON'), width: '129', styleName: 'text-center' },
-    { fieldName: 'prdGrp', header: t('MSG_TXT_PRD_GRP'), width: '129', styleName: 'text-center' },
-    { fieldName: 'instAddr', header: t('MSG_TXT_INST_ADDR'), width: '249', styleName: 'text-center' },
-    { fieldName: 'prtnrName', header: t('MSG_TXT_SELL_NM'), width: '129', styleName: 'text-center' },
-    { fieldName: 'prtnrNum', header: t('MSG_TXT_SELL_NO'), width: '129', styleName: 'text-center' },
-    { fieldName: 'areaCd', header: t('MSG_TXT_LOCARA_CD'), width: '129', styleName: 'text-center' },
-    { fieldName: 'branchCd', header: t('MSG_TXT_BRCH_CD'), width: '129', styleName: 'text-center' },
-    { fieldName: 'changePrev', header: t('MSG_TXT_CHG_RLS'), width: '129', styleName: 'text-center' },
-    { fieldName: 'instNamePrev', header: t('MSG_TXT_IST_NM'), width: '129', styleName: 'text-center' },
-    { fieldName: 'instDtPrev', header: t('MSG_TXT_IST_DT'), width: '129', styleName: 'text-center', datetimeFormat: 'datetime' },
-    { fieldName: 'demolishDtPrev', header: t('MSG_TXT_DEM_DT'), width: '129', styleName: 'text-center', datetimeFormat: 'datetime' },
-    { fieldName: 'instOverPrev', header: t('MSG_TXT_INST_OVER'), width: '129', styleName: 'text-center' },
-    { fieldName: 'prdGrpPrev', header: t('MSG_TXT_PRD_GRP'), width: '129', styleName: 'text-center' },
-    { fieldName: 'instAddrPrev', header: t('MSG_TXT_INST_ADDR'), width: '250', styleName: 'text-center' },
+      required: true,
+    },
+    {
+      fieldName: 'baseCntrSn',
+      header: t('MSG_TXT_CNTR_SN'),
+      width: 120,
+      editable: true,
+      styleName: 'text-right',
+      required: true,
+    },
+    {
+      fieldName: 'ojCntrNo',
+      header: t('MSG_TXT_CNTR_NO'),
+      width: 130,
+      editable: true,
+      editor: {
+        maxLength: 12,
+      },
+      required: true,
+    },
+    {
+      fieldName: 'ojCntrSn',
+      header: t('MSG_TXT_CNTR_SN'),
+      width: 120,
+      editable: true,
+      styleName: 'text-right',
+      required: true,
+    },
+    {
+      fieldName: 'icptSellExrDt',
+      header: t('MSG_TXT_AVAIL_TM'),
+      width: 120,
+      editable: true,
+      styleName: 'text-center',
+      datetimeFormat: 'YYYY-MM',
+      editor: { type: 'btdate' },
+      required: true,
+    },
+    { fieldName: 'baseUsedCpsYn', header: t('MSG_TXT_CHG_RLS'), width: 120, styleName: 'text-center' },
+    { fieldName: 'baseChdvcRerntYn', header: t('MSG_TXT_SEC_HND_COMP'), width: 120, styleName: 'text-center' },
+    { fieldName: 'cntrPdStrtdt', header: t('MSG_TXT_YEAR_OCCURNCE'), width: 120, styleName: 'text-center' },
+    { fieldName: 'baseRcgvpKnm', header: t('MSG_TXT_IST_NM'), width: 120, styleName: 'text-center' },
+    { fieldName: 'baseIstDt', header: t('MSG_TXT_IST_DT'), width: 120, styleName: 'text-center', datetimeFormat: 'datetime' },
+    { fieldName: 'baseReqdDt', header: t('MSG_TXT_DEM_DT'), width: 120, styleName: 'text-center', datetimeFormat: 'datetime' },
+    { fieldName: 'baseIstGapMm', header: t('MSG_TXT_INST_OVER'), width: 120, styleName: 'text-center' },
+    { fieldName: 'baseMpno', header: t('MSG_TXT_INST_CON'), width: 120, styleName: 'text-center' },
+    { fieldName: 'basePdCd', header: t('MSG_TXT_PRD_GRP'), width: 120, styleName: 'text-center' },
+    { fieldName: 'baseAdr', header: t('MSG_TXT_INST_ADDR'), width: 250 },
+    { fieldName: 'prtnrKnm', header: t('MSG_TXT_PTNR_NAME'), width: 120, styleName: 'text-center' },
+    { fieldName: 'locaraCd', header: t('MSG_TXT_LOCARA_CD'), width: 120, styleName: 'text-center' },
+    { fieldName: 'ogCd', header: t('MSG_TXT_BRCH_CD'), width: 120, styleName: 'text-center' },
+    { fieldName: 'ojChdvcRerntYn', header: t('MSG_TXT_CHG_RLS'), width: 120, styleName: 'text-center' },
+    { fieldName: 'ojRcgvpKnm', header: t('MSG_TXT_IST_NM'), width: 120, styleName: 'text-center' },
+    { fieldName: 'ojIstDt', header: t('MSG_TXT_IST_DT'), width: 120, styleName: 'text-center', datetimeFormat: 'datetime' },
+    { fieldName: 'ojReqdDt', header: t('MSG_TXT_DEM_DT'), width: 120, styleName: 'text-center', datetimeFormat: 'datetime' },
+    { fieldName: 'ojIstGapMm', header: t('MSG_TXT_INST_OVER'), width: 120, styleName: 'text-center' },
+    { fieldName: 'ojPdCd', header: t('MSG_TXT_PRD_GRP'), width: 120, styleName: 'text-center' },
+    { fieldName: 'ojAdr', header: t('MSG_TXT_INST_ADDR'), width: 250 },
+  ];
+
+  const layouts = [
+    'icptSellProcsTpCd', 'icptSellRsonCn',
+    {
+      header: t('MSG_TXT_NW_CNTR_NO'),
+      direction: 'horizontal',
+      items: ['baseCntrNo', 'baseCntrSn'],
+    },
+    {
+      header: t('MSG_TXT_BF_CNTR_NO'),
+      direction: 'horizontal',
+      items: ['ojCntrNo', 'ojCntrSn'],
+    },
+    'icptSellExrDt',
+    {
+      header: t('MSG_TXT_NEW_CONT_INFO'),
+      direction: 'horizontal',
+      items: ['baseUsedCpsYn', 'baseChdvcRerntYn', 'cntrPdStrtdt', 'baseRcgvpKnm', 'baseIstDt', 'baseReqdDt', 'baseIstGapMm', 'baseMpno', 'basePdCd', 'baseAdr', 'prtnrKnm', 'locaraCd', 'ogCd'],
+    },
+    {
+      header: t('MSG_TXT_PREV_CONT_INFO'),
+      direction: 'horizontal',
+      items: ['ojChdvcRerntYn', 'ojRcgvpKnm', 'ojIstDt', 'ojReqdDt', 'ojIstGapMm', 'ojPdCd', 'ojAdr'],
+    },
   ];
 
   data.setFields(fields);
   view.setColumns(columns);
-  view.editOptions.editable = true;
-  view.checkBar.visible = true; // create checkbox column
-  view.rowIndicator.visible = true; // create number indicator column
-
-  // multi row header setting
-  view.setColumnLayout([
-    'onHold', 'reason', 'newContraNum', 'existContraNum', 'availYearMon',
-    {
-      header: t('MSG_TXT_NEW_CONT_INFO'), // colspan title
-      direction: 'horizontal', // merge type
-      items: ['change', 'secondHandComp', 'occurYearMon', 'instName', 'instDt', 'demolishDt', 'instOver', 'instContact', 'prdGrp', 'instAddr', 'prtnrName', 'prtnrNum', 'areaCd', 'branchCd'],
-    },
-    {
-      header: t('MSG_TXT_PREV_CONT_INFO'), // colspan title
-      direction: 'horizontal', // merge type
-      items: ['changePrev', 'instNamePrev', 'instDtPrev', 'demolishDtPrev', 'instOverPrev', 'prdGrpPrev', 'instAddrPrev'],
-    },
-  ]);
-
-  data.setRows([
-    { onHold: 'Y', reason: '사유작성해요', newContraNum: '2022-4123456', existContraNum: '2022-4123456', availYearMon: '2022-05', change: 'N', secondHandComp: 'N', occurYearMon: 'N', instName: 'N', instDt: 'N', demolishDt: 'N', instOver: 'N', instContact: '010-****-1234', prdGrp: 'N', instAddr: '서울 중구 교원빌딩 프로...', prtnrName: '1234567', prtnrNum: '1234567', areaCd: 'E91', branchCd: 'C123456', changePrev: 'N', instNamePrev: '김판매', instDtPrev: '2022-04-26', demolishDtPrev: '2022-04-26', instOverPrev: '45', prdGrpPrev: 'N', instAddrPrev: '서울 중구 교원빌딩 프로...' },
-    { onHold: 'Y', reason: '사유작성해요', newContraNum: '2022-4123456', existContraNum: '2022-4123456', availYearMon: '2022-05', change: 'N', secondHandComp: 'N', occurYearMon: 'N', instName: 'N', instDt: 'N', demolishDt: 'N', instOver: 'N', instContact: '010-****-1234', prdGrp: 'N', instAddr: '서울 중구 교원빌딩 프로...', prtnrName: '1234567', prtnrNum: '1234567', areaCd: 'E91', branchCd: 'C123456', changePrev: 'N', instNamePrev: '김판매', instDtPrev: '2022-04-26', demolishDtPrev: '2022-04-26', instOverPrev: '45', prdGrpPrev: 'N', instAddrPrev: '서울 중구 교원빌딩 프로...' },
-    { onHold: 'Y', reason: '사유작성해요', newContraNum: '2022-4123456', existContraNum: '2022-4123456', availYearMon: '2022-05', change: 'N', secondHandComp: 'N', occurYearMon: 'N', instName: 'N', instDt: 'N', demolishDt: 'N', instOver: 'N', instContact: '010-****-1234', prdGrp: 'N', instAddr: '서울 중구 교원빌딩 프로...', prtnrName: '1234567', prtnrNum: '1234567', areaCd: 'E91', branchCd: 'C123456', changePrev: 'N', instNamePrev: '김판매', instDtPrev: '2022-04-26', demolishDtPrev: '2022-04-26', instOverPrev: '45', prdGrpPrev: 'N', instAddrPrev: '서울 중구 교원빌딩 프로...' },
-    { onHold: 'Y', reason: '사유작성해요', newContraNum: '2022-4123456', existContraNum: '2022-4123456', availYearMon: '2022-05', change: 'N', secondHandComp: 'N', occurYearMon: 'N', instName: 'N', instDt: 'N', demolishDt: 'N', instOver: 'N', instContact: '010-****-1234', prdGrp: 'N', instAddr: '서울 중구 교원빌딩 프로...', prtnrName: '1234567', prtnrNum: '1234567', areaCd: 'E91', branchCd: 'C123456', changePrev: 'N', instNamePrev: '김판매', instDtPrev: '2022-04-26', demolishDtPrev: '2022-04-26', instOverPrev: '45', prdGrpPrev: 'N', instAddrPrev: '서울 중구 교원빌딩 프로...' },
-    { onHold: 'Y', reason: '사유작성해요', newContraNum: '2022-4123456', existContraNum: '2022-4123456', availYearMon: '2022-05', change: 'N', secondHandComp: 'N', occurYearMon: 'N', instName: 'N', instDt: 'N', demolishDt: 'N', instOver: 'N', instContact: '010-****-1234', prdGrp: 'N', instAddr: '서울 중구 교원빌딩 프로...', prtnrName: '1234567', prtnrNum: '1234567', areaCd: 'E91', branchCd: 'C123456', changePrev: 'N', instNamePrev: '김판매', instDtPrev: '2022-04-26', demolishDtPrev: '2022-04-26', instOverPrev: '45', prdGrpPrev: 'N', instAddrPrev: '서울 중구 교원빌딩 프로...' },
-    { onHold: 'Y', reason: '사유작성해요', newContraNum: '2022-4123456', existContraNum: '2022-4123456', availYearMon: '2022-05', change: 'N', secondHandComp: 'N', occurYearMon: 'N', instName: 'N', instDt: 'N', demolishDt: 'N', instOver: 'N', instContact: '010-****-1234', prdGrp: 'N', instAddr: '서울 중구 교원빌딩 프로...', prtnrName: '1234567', prtnrNum: '1234567', areaCd: 'E91', branchCd: 'C123456', changePrev: 'N', instNamePrev: '김판매', instDtPrev: '2022-04-26', demolishDtPrev: '2022-04-26', instOverPrev: '45', prdGrpPrev: 'N', instAddrPrev: '서울 중구 교원빌딩 프로...' },
-    { onHold: 'Y', reason: '사유작성해요', newContraNum: '2022-4123456', existContraNum: '2022-4123456', availYearMon: '2022-05', change: 'N', secondHandComp: 'N', occurYearMon: 'N', instName: 'N', instDt: 'N', demolishDt: 'N', instOver: 'N', instContact: '010-****-1234', prdGrp: 'N', instAddr: '서울 중구 교원빌딩 프로...', prtnrName: '1234567', prtnrNum: '1234567', areaCd: 'E91', branchCd: 'C123456', changePrev: 'N', instNamePrev: '김판매', instDtPrev: '2022-04-26', demolishDtPrev: '2022-04-26', instOverPrev: '45', prdGrpPrev: 'N', instAddrPrev: '서울 중구 교원빌딩 프로...' },
-    { onHold: 'Y', reason: '사유작성해요', newContraNum: '2022-4123456', existContraNum: '2022-4123456', availYearMon: '2022-05', change: 'N', secondHandComp: 'N', occurYearMon: 'N', instName: 'N', instDt: 'N', demolishDt: 'N', instOver: 'N', instContact: '010-****-1234', prdGrp: 'N', instAddr: '서울 중구 교원빌딩 프로...', prtnrName: '1234567', prtnrNum: '1234567', areaCd: 'E91', branchCd: 'C123456', changePrev: 'N', instNamePrev: '김판매', instDtPrev: '2022-04-26', demolishDtPrev: '2022-04-26', instOverPrev: '45', prdGrpPrev: 'N', instAddrPrev: '서울 중구 교원빌딩 프로...' },
-    { onHold: 'Y', reason: '사유작성해요', newContraNum: '2022-4123456', existContraNum: '2022-4123456', availYearMon: '2022-05', change: 'N', secondHandComp: 'N', occurYearMon: 'N', instName: 'N', instDt: 'N', demolishDt: 'N', instOver: 'N', instContact: '010-****-1234', prdGrp: 'N', instAddr: '서울 중구 교원빌딩 프로...', prtnrName: '1234567', prtnrNum: '1234567', areaCd: 'E91', branchCd: 'C123456', changePrev: 'N', instNamePrev: '김판매', instDtPrev: '2022-04-26', demolishDtPrev: '2022-04-26', instOverPrev: '45', prdGrpPrev: 'N', instAddrPrev: '서울 중구 교원빌딩 프로...' },
-    { onHold: 'Y', reason: '사유작성해요', newContraNum: '2022-4123456', existContraNum: '2022-4123456', availYearMon: '2022-05', change: 'N', secondHandComp: 'N', occurYearMon: 'N', instName: 'N', instDt: 'N', demolishDt: 'N', instOver: 'N', instContact: '010-****-1234', prdGrp: 'N', instAddr: '서울 중구 교원빌딩 프로...', prtnrName: '1234567', prtnrNum: '1234567', areaCd: 'E91', branchCd: 'C123456', changePrev: 'N', instNamePrev: '김판매', instDtPrev: '2022-04-26', demolishDtPrev: '2022-04-26', instOverPrev: '45', prdGrpPrev: 'N', instAddrPrev: '서울 중구 교원빌딩 프로...' },
-
-  ]);
+  view.setColumnLayout(layouts);
+  view.editOptions.columnEditableFirst = true;
+  view.checkBar.visible = true;
+  view.rowIndicator.visible = true;
+  view.editOptions.editable = false;
+  view.onCellEdited = async (grid, itemIndex, row, field) => {
+    if (['baseCntrNo', 'baseCntrSn', 'ojCntrNo', 'ojCntrSn'].includes(grid.getColumn(field).name)) {
+      const { baseCntrNo, baseCntrSn, ojCntrNo, ojCntrSn } = grid.getValues(itemIndex);
+      if (!isEmpty(baseCntrNo) && !isEmpty(baseCntrSn) && !isEmpty(ojCntrNo) && !isEmpty(ojCntrSn)) {
+        const res = await dataService.get('/sms/wells/contract/incomplete-sales', { params: { baseCntrNo, baseCntrSn, ojCntrNo, ojCntrSn } });
+        const info = res.data;
+        ['icptSellProcsTpCd', 'icptSellRsonCn', 'icptSellExrDt'].forEach((col) => delete info[col]);
+        grid.setValues(itemIndex, res.data);
+      }
+    }
+  };
 });
 </script>
-<style scoped>
-</style>

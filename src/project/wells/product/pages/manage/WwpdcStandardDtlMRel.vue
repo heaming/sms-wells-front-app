@@ -18,6 +18,7 @@
   <kw-grid
     ref="grdMaterialRef"
     :visible-rows="3"
+    ignore-on-modified
     @init="initMaterialGrid"
   />
   <!-- 서비스 -->
@@ -25,6 +26,7 @@
   <kw-grid
     ref="grdServiceRef"
     :visible-rows="3"
+    ignore-on-modified
     @init="initServiceGrid"
   />
   <!-- 동시구매가능 기준상품 -->
@@ -32,6 +34,7 @@
   <kw-grid
     ref="grdStandardRef"
     :visible-rows="3"
+    ignore-on-modified
     @init="initStandardGrid"
   />
 
@@ -40,6 +43,7 @@
   <kw-grid
     ref="grdChangePrdRef"
     :visible-rows="3"
+    ignore-on-modified
     @init="initChangePrdGrid"
   />
 </template>
@@ -117,12 +121,14 @@ async function initProps() {
   const { pdCd, initData } = props;
   currentPdCd.value = pdCd;
   currentInitData.value = initData;
+
+  await initGridRows();
 }
 
 await initProps();
 
 watch(() => props.pdCd, (pdCd) => { currentPdCd.value = pdCd; });
-watch(() => props.initData, (initData) => { currentInitData.value = initData; }, { deep: true });
+watch(() => props.initData, (initData) => { currentInitData.value = initData; initGridRows(); }, { deep: true });
 
 //-------------------------------------------------------------------------------------------------
 // Initialize Grid
@@ -140,7 +146,12 @@ async function initMaterialGrid(data, view) {
     // 자재코드
     { fieldName: 'sapMatCd', header: t('MSG_TXT_MATI_CD'), width: '187', styleName: 'text-center' },
     // 제품수량(개)
-    { fieldName: 'pdRelPrpVal01', header: t('MSG_TXT_PRD_COUNT_EA'), width: '87', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'pdRelPrpVal01',
+      header: t('MSG_TXT_PRD_COUNT_EA'),
+      width: '87',
+      styleName: 'text-right',
+      dataType: 'number',
+      suffix: ` ${t('MSG_TXT_GRD_CNT')}` },
     // 판매금액
     { fieldName: 'pdRelPrpVal02', header: t('MSG_TXT_SALE_PRICE'), width: '107', styleName: 'text-right', dataType: 'number' },
     // 공급가액
@@ -148,9 +159,14 @@ async function initMaterialGrid(data, view) {
     // 부가세액
     { fieldName: 'pdRelPrpVal04', header: t('MSG_TXT_VAT_AMOUNT'), width: '107', styleName: 'text-right', dataType: 'number' },
     // 안분비율(%)
-    { fieldName: 'diviRat', header: t('MSG_TXT_PROPORTIONAL_DV_RT'), width: '107', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'diviRat',
+      header: t('MSG_TXT_PROPORTIONAL_DV_RT'),
+      width: '107',
+      styleName: 'text-right',
+      dataType: 'number',
+      suffix: ' %' },
     // 잔액산입
-    { fieldName: 'blamInptYn', header: t('MSG_TXT_CHANGE_COUNTING'), width: '87', styleName: 'text-center', editor: 'list', options: props.codes?.COD_YN },
+    { fieldName: 'blamInptYn', header: t('MSG_TXT_CHANGE_COUNTING'), width: '87', styleName: 'text-center', editor: { type: 'list' }, options: props.codes?.COD_YN },
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   data.setFields(fields);

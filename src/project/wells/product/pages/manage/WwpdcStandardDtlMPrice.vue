@@ -32,11 +32,12 @@
     </kw-search>
   </div>
   <kw-action-top class="mt40">
-    <span class="kw-fc---black3 text-weight-regular">(단위 : 원)</span>
+    <span class="kw-fc---black3 text-weight-regular">({{ $t('MSG_TXT_UNIT') }} : {{ $t('MSG_TXT_CUR_WON') }})</span>
   </kw-action-top>
   <kw-grid
     ref="grdMainRef"
     :visible-rows="10"
+    ignore-on-modified
     @init="initGrid"
   />
 </template>
@@ -44,7 +45,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { getComponentType, useDataService, codeUtil } from 'kw-lib';
+import { getComponentType, useDataService, codeUtil, stringUtil } from 'kw-lib';
 import { cloneDeep, isEmpty, merge } from 'lodash-es';
 import pdConst from '~sms-common/product/constants/pdConst';
 import { pdMergeBy, getPropInfosToGridRows, getPdMetaToCodeNames, getPdMetaToGridInfos } from '~sms-common/product/utils/pdUtil';
@@ -188,9 +189,34 @@ async function initGrid(data, view) {
       pdConst.PD_PRC_TP_CD_FEE],
     currentCodes.value,
   );
-  console.log('WwpdcStandardDtlMPrice - initGrid - columns : ', columns);
+
+  // 적용기간
+  const applyPeriodCol = { fieldName: 'applyPeriod',
+    header: t('MSG_TXT_ACEPT_PERIOD'),
+    width: '200',
+    styleName: 'text-center',
+    displayCallback(grid, index) {
+      const vlStrtDtm = grid.getValue(index.itemIndex, 'vlStrtDtm');
+      const vlEndDtm = grid.getValue(index.itemIndex, 'vlEndDtm');
+      if (vlStrtDtm || vlEndDtm) {
+        return `${stringUtil.getDateFormat(vlStrtDtm)} ~ ${stringUtil.getDateFormat(vlEndDtm)}`;
+      }
+      return '';
+    },
+  };
+  columns.splice(1, 0, applyPeriodCol);
+  fields.push({ fieldName: 'applyPeriod' });
+
+  // console.log('WwpdcStandardDtlMPrice - initGrid - columns : ', columns);
   data.setFields(fields);
-  view.setColumns(columns.sort((item) => (item.fieldName === 'sellChnlCd' ? -1 : 0)));
+  view.setColumns(columns.sort((item) => (item.fieldName === 'sellChnlCd' ? -1 : 0))
+    .map((item) => {
+      // 적용 시작일자, 종료일자 숨김
+      if (['vlStrtDtm', 'vlEndDtm'].includes(item.fieldName)) {
+        item.visible = false;
+      }
+      return item;
+    }));
   view.checkBar.visible = false;
   view.rowIndicator.visible = false;
   view.editOptions.editable = false;

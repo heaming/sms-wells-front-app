@@ -130,7 +130,7 @@
             @click="onClickNextStep"
           />
           <kw-btn
-            v-show="!isCreate || currentStep.step === regSteps.length"
+            v-show="!isTempSaveBtn || currentStep.step === regSteps.length"
             :label="$t('MSG_BTN_SAVE')"
             class="ml8"
             primary
@@ -157,13 +157,14 @@ import WwpdcStandardDtlMContents from './WwpdcStandardDtlMContents.vue';
 const props = defineProps({
   pdCd: { type: String, default: null },
   tempSaveYn: { type: String, default: 'Y' },
+  newRegYn: { type: String, default: 'N' },
 });
 
 const route = useRoute();
 const router = useRouter();
 const { t } = useI18n();
 const dataService = useDataService();
-const { notify, confirm } = useGlobal();
+const { notify, confirm, alert } = useGlobal();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -205,13 +206,6 @@ codes.COD_YN.map((item) => {
   item.changed = true;
   return item;
 });
-async function onClickReset() {
-  await Promise.all(cmpStepRefs.value.map(async (item) => {
-    if (item.value.resetData) {
-      await item.value?.resetData();
-    }
-  }));
-}
 
 async function onClickDelete() {
   if (await confirm(t('MSG_ALT_WANT_DEL_WCC'))) {
@@ -222,13 +216,22 @@ async function onClickDelete() {
 }
 
 async function getSaveData() {
-  const subList = {};
-  await Promise.all(cmpStepRefs.value.map(async (item) => {
+  const subList = { isModifiedProp: false, isModifiedPrice: false };
+  await Promise.all(cmpStepRefs.value.map(async (item, idx) => {
     const saveData = await item.value?.getSaveData();
+    const isModified = await item.value.isModifiedProps();
     if (await saveData) {
       // console.log(`${idx}saveData : `, saveData);
       subList.pdCd = subList.pdCd ?? saveData.pdCd;
       subList.pdTpCd = subList.pdTpCd ?? saveData.pdTpCd;
+      // 기본속성, 관리 속성 수정여부
+      if (await isModified && (idx === 0 || idx === 2)) {
+        subList.isModifiedProp = true;
+      }
+      // 가격 수정여부
+      if (await isModified && idx === 3) {
+        subList.isModifiedPrice = true;
+      }
       if (saveData[bas]) {
         if (subList[bas]?.cols) {
           saveData[bas].cols += subList[bas].cols;
@@ -311,10 +314,10 @@ async function onClickPrevStep() {
 
 async function onClickStep() {
   const stepName = currentStep.value?.name;
-  console.log('WwpdcStandardMgtM - onClickStep : ', stepName);
+  // console.log('WwpdcStandardMgtM - onClickStep : ', stepName);
   prevStepData.value = await getSaveData();
   currentStep.value = cloneDeep(regSteps.value.find((item) => item.name === stepName));
-  console.log('WwpdcStandardMgtM - onClickStep : ', currentStep.value);
+  // console.log('WwpdcStandardMgtM - onClickStep : ', currentStep.value);
 }
 
 async function onClickSubTab() {
@@ -322,26 +325,33 @@ async function onClickSubTab() {
   prevStepData.value = await getSaveData();
 }
 
+async function initChild() {
+  await Promise.all(cmpStepRefs.value.map(async (item) => {
+    if (item.value?.init) await item.value?.init();
+  }));
+}
+
 async function fetchProduct() {
-  prevStepData.value = {};
   if (currentPdCd.value) {
+    const initData = {};
     const res = await dataService.get(`/sms/common/product/standards/${currentPdCd.value}`);
-    console.log('WwpdcStandardMgtM - fetchProduct - res.data', res.data);
-    prevStepData.value[bas] = res.data[bas];
-    prevStepData.value[dtl] = res.data[dtl];
-    prevStepData.value[ecom] = res.data[ecom];
-    prevStepData.value[prcd] = res.data[prcd];
-    prevStepData.value[prcfd] = res.data[prcfd];
-    prevStepData.value[rel] = res.data[rel];
-    prevStepData.value[prumd] = res.data[prumd];
-    prevStepData.value[pdConst.RELATION_PRODUCTS] = res.data[pdConst.RELATION_PRODUCTS];
-    // console.log('res.data : ', res.data);
-    const services = prevStepData.value[pdConst.RELATION_PRODUCTS]
+    // console.log('WwpdcStandardMgtM - fetchProduct - res.data', res.data);
+    initData[bas] = res.data[bas];
+    initData[dtl] = res.data[dtl];
+    initData[ecom] = res.data[ecom];
+    initData[prcd] = res.data[prcd];
+    initData[prcfd] = res.data[prcfd];
+    initData[rel] = res.data[rel];
+    initData[prumd] = res.data[prumd];
+    initData[pdConst.RELATION_PRODUCTS] = res.data[pdConst.RELATION_PRODUCTS];
+    const services = initData[pdConst.RELATION_PRODUCTS]
       ?.filter((svcItem) => svcItem[pdConst.PD_REL_TP_CD] === pdConst.PD_REL_TP_CD_P_TO_S);
     codes.svPdCd = services?.map(({ pdNm, pdCd }) => ({
       codeId: pdCd, codeName: pdNm,
     }));
-    isTempSaveBtn.value = prevStepData.value[bas].tempSaveYn === 'Y';
+    isTempSaveBtn.value = initData[bas].tempSaveYn === 'Y';
+    prevStepData.value = initData;
+    await initChild();
   }
 }
 
@@ -349,12 +359,18 @@ async function onClickSave(tempSaveYn) {
   // 1. Step별 수정여부 확인
   // '임시저장 ==> 저장' 경우를 제외하고 수정여부 체크
   if (!(isTempSaveBtn.value && tempSaveYn === 'N')) {
-    let modifiedOk = true;
+    let modifiedOk = false;
     await Promise.all(cmpStepRefs.value.map(async (item) => {
-      if (modifiedOk) {
-        modifiedOk = await item.value?.isModifiedProps(false);
+      if (!modifiedOk) {
+        if (await item.value.isModifiedProps()) {
+          modifiedOk = true;
+        }
       }
     }));
+    if (!modifiedOk) {
+      alert(t('MSG_ALT_NO_CHG_CNTN'));
+      return;
+    }
   }
 
   // 2. Step별 필수여부 확인
@@ -373,10 +389,9 @@ async function onClickSave(tempSaveYn) {
   const subList = await getSaveData();
   if (tempSaveYn === 'N' && isTempSaveBtn.value) {
     subList[bas].tempSaveYn = tempSaveYn;
+    subList.isModifiedProp = true;
   } else if (isEmpty(currentPdCd.value)) {
     subList[bas].tempSaveYn = tempSaveYn;
-  } else if (isEmpty(subList[bas].tempSaveYn)) {
-    subList[bas].tempSaveYn = 'Y';
   }
   console.log('WwpdcStandardMgtM - onClickSave - subList : ', subList);
 
@@ -392,12 +407,19 @@ async function onClickSave(tempSaveYn) {
   notify(t('MSG_ALT_SAVE_DATA'));
   if (isTempSaveBtn.value) {
     // 임시저장
-    currentPdCd.value = rtn.data?.data?.pdCd;
-    isCreate.value = isEmpty(currentPdCd.value);
-    router.push({ path: '/product/zwpdc-sale-product-list/wwpdc-standard-mgt', replace: true, query: { pdCd: currentPdCd.value } });
+    if (rtn.data?.data?.pdCd !== currentPdCd.value) {
+      currentPdCd.value = rtn.data?.data?.pdCd;
+      isCreate.value = isEmpty(currentPdCd.value);
+      router.push({ path: '/product/zwpdc-sale-product-list/wwpdc-standard-mgt', replace: true, query: { pdCd: currentPdCd.value } });
+    } else {
+      await fetchProduct();
+    }
   } else {
-    // router.push({ path: '/product/zwpdc-sale-product-list', replace: true, query: { searchYn: 'Y' } });
+    await fetchProduct();
   }
+  await Promise.all(cmpStepRefs.value.map(async (item) => {
+    if (item.value.init) { await item.value.init(); }
+  }));
 }
 
 // 판매상세유형 코드 설정
@@ -425,6 +447,18 @@ async function onUpdateBasicValue(field) {
   }
 }
 
+async function onClickReset() {
+  currentPdCd.value = '';
+  isCreate.value = true;
+  isTempSaveBtn.value = true;
+  currentStep.value = cloneDeep(pdConst.STANDARD_STEP_BASIC);
+  prevStepData.value = {};
+  await Promise.all(cmpStepRefs.value.map(async (item) => {
+    if (item.value?.resetData) await item.value?.resetData();
+    if (item.value?.init) await item.value?.init();
+  }));
+}
+
 async function initProps() {
   const { pdCd } = props;
   currentPdCd.value = pdCd;
@@ -441,8 +475,8 @@ await initProps();
 watch(() => route.params.pdCd, async (pdCd) => {
   console.log(`currentPdCd.value : ${currentPdCd.value}, route.params.pdCd : ${pdCd}`);
   if (currentPdCd.value !== pdCd && pdCd) {
+    await onClickReset();
     isCreate.value = isEmpty(pdCd);
-    currentStep.value = cloneDeep(pdConst.STANDARD_STEP_BASIC);
     if (isCreate.value) {
       isTempSaveBtn.value = true;
     }
@@ -451,12 +485,12 @@ watch(() => route.params.pdCd, async (pdCd) => {
   }
 }, { immediate: true });
 
-// watch(() => route.params.pdCd, async (pdCd) => {
-//   if (currentPdCd.value && isEmpty(pdCd)) {
-//     currentStep.value = pdConst.STANDARD_STEP_BASIC;
-//     await onClickReset();
-//   }
-// }, { immediate: true });
+watch(() => route.params.newRegYn, async (newRegYn) => {
+  if (newRegYn && newRegYn === 'Y') {
+    router.replace({ query: null });
+    await onClickReset();
+  }
+});
 
 onMounted(async () => {
   const mgtNameFields = await cmpStepRefs.value[0]?.value.getNameFields();
