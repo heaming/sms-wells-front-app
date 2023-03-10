@@ -35,7 +35,7 @@
           secondary
           class="full-width"
           border-color="black-btn-line"
-          @click="onClickChange"
+          @click="onClickChange()"
         />
       </div>
     </div>
@@ -97,14 +97,22 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 
-// eslint-disable-next-line no-unused-vars
-import { modal, notify, router } from 'kw-lib';
+import { router, useGlobal } from 'kw-lib';
 import { isEmpty } from 'lodash-es';
+import dayjs from 'dayjs';
 
 const { t } = useI18n();
+const { alert, notify } = useGlobal();
+
+const { getters } = useStore();
+const { userId } = getters['meta/getUserInfo'];
+
+const now = dayjs();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
+
+const akChdt = now.format('YYYYMMDD');
 
 const inputParams = ref({
   name: '',
@@ -113,8 +121,8 @@ const inputParams = ref({
 
 const strDomain = window.location.host;
 
-const visitCocnMshCh = `${strDomain}/#/withdrawal/zmwda-make-a-payment-information-change`;
-const elsgLdstcCh = `${strDomain}/#/withdrawal/zmwda-make-a-payment-change-application`;
+const visitCocnMshCh = `${strDomain}/#/withdrawal/zmwda-auto-transfer-payment-change`;
+const elsgLdstcCh = `${strDomain}/#/withdrawal/zmwda-auto-transfer-payment-change`;
 
 async function onClickUrlCopy(no) {
   if (no === 1) {
@@ -126,9 +134,18 @@ async function onClickUrlCopy(no) {
 }
 
 async function onClickChange() {
-  const path = visitCocnMshCh.slice(visitCocnMshCh.indexOf('#') + 1);
+  const url = visitCocnMshCh;
+  const query = {
+    vstYn: 'Y',
+    chRqrDvCd: '20',
+    aftnThpChYn: 'N',
+    clctamMngtYn: 'N',
+    cntrChPrtnrNo: userId,
+    akChdt,
+  };
+  const path = url.slice(url.indexOf('#') + 1);
 
-  await router.push({ path, query: { vstYn: 'Y' } });
+  await router.push({ path, query });
 }
 
 async function onClickAlarmSend() {
@@ -140,7 +157,22 @@ async function onClickAlarmSend() {
     return;
   }
   // chRqrDvCd 방문 : '20' (교원) / 원거리 : '10' (고객)
+  await alert(t('준비중입니다.'));
   notify(t('MSG_ALT_BIZTALK_SEND_SUCCESS'));
+
+  const url = visitCocnMshCh;
+
+  const query = {
+    vstYn: 'N',
+    chRqrDvCd: '10',
+    aftnThpChYn: 'N',
+    clctamMngtYn: 'N',
+    cntrChPrtnrNo: '',
+    akChdt,
+  };
+  const path = url.slice(url.indexOf('#') + 1);
+
+  await router.push({ path, query });
 }
 
 </script>

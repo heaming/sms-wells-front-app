@@ -103,10 +103,17 @@
 // -------------------------------------------------------------------------------------------------
 
 // eslint-disable-next-line no-unused-vars
-import { modal, notify, router } from 'kw-lib';
+import { modal, router, useGlobal } from 'kw-lib';
 import { isEmpty } from 'lodash-es';
+import dayjs from 'dayjs';
 
 const { t } = useI18n();
+const { notify } = useGlobal();
+
+const { getters } = useStore();
+const { userId } = getters['meta/getUserInfo'];
+
+const now = dayjs();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -116,10 +123,12 @@ const inputParams = ref({
   phone: '',
 });
 
+const akChdt = now.format('YYYYMMDD');
+
 const strDomain = window.location.host;
 
-const visitCocnMshCh = `${strDomain}/#/withdrawal/ztwda-make-a-payment-change-application`;
-const elsgLdstcCh = `${strDomain}/#/withdrawal/ztwda-make-a-payment-information-change`;
+const visitCocnMshCh = `${strDomain}/#/withdrawal/ztwda-auto-transfer-payment-change`; // 방문
+const elsgLdstcCh = `${strDomain}/#/withdrawal/ztwda-auto-transfer-payment-change`; // 원거리 차이가 없음
 
 async function onClickUrlCopy(no) {
   if (no === 1) {
@@ -131,13 +140,19 @@ async function onClickUrlCopy(no) {
 }
 
 async function onClickChange(no) {
-  let url = visitCocnMshCh;
-  if (no === 2) {
-    url = elsgLdstcCh;
-  }
+  const query = {
+    vstYn: no === 1 ? 'Y' : 'N',
+    chRqrDvCd: no === 1 ? '20' : '10',
+    aftnThpChYn: 'N',
+    clctamMngtYn: 'N',
+    cntrChPrtnrNo: no === 1 ? userId : '',
+    akChdt,
+  };
+  const url = no === 1 ? visitCocnMshCh : elsgLdstcCh;
+
   const path = url.slice(url.indexOf('#') + 1);
 
-  await router.push({ path, query: { vstYn: 'Y' } });
+  await router.push({ path, query });
 }
 
 async function onClickAlarmSend() {
@@ -149,7 +164,21 @@ async function onClickAlarmSend() {
     return;
   }
   // chRqrDvCd 방문 : '20' (교원) / 원거리 : '10' (고객)
+  // notify(t('MSG_ALT_BIZTALK_SEND_SUCCESS'));
   notify(t('MSG_ALT_BIZTALK_SEND_SUCCESS'));
+
+  const query = {
+    vstYn: 'N',
+    chRqrDvCd: '10',
+    aftnThpChYn: 'N',
+    clctamMngtYn: 'N',
+    cntrChPrtnrNo: '',
+    akChdt,
+  };
+  const url = elsgLdstcCh;
+
+  const path = url.slice(url.indexOf('#') + 1);
+  await router.push({ path, query });
 }
 
 </script>
