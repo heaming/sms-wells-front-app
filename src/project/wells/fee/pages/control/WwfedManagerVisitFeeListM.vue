@@ -156,7 +156,7 @@ const initGridMain = defineGrid((data, view) => {
     { fieldName: 'col7', header: t('MSG_TXT_BAS_FEE'), width: '122', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
     { fieldName: 'col8', header: t('MSG_TXT_VST_FEE'), width: '122', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
     { fieldName: 'col9', header: t('MSG_TXT_VST_RGLVL'), width: '106', styleName: 'text-center' },
-    { fieldName: 'col10', header: t('MSG_TXT_VST_DT'), width: '130', styleName: 'text-center', dataType: 'date', datetimeFormat: 'yyyy-MM-dd' },
+    { fieldName: 'col10', header: t('MSG_TXT_VST_DT'), width: '130', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'col11', header: t('MSG_TXT_CNCL_YN'), width: '106', styleName: 'text-center' },
   ];
 

@@ -273,7 +273,7 @@ const initEgerMain = defineGrid((data, view) => {
     { fieldName: 'col8', header: t('MSG_TXT_QLF') + t('MSG_TXT_AW'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
     { fieldName: 'col9', header: t('MSG_TXT_CTR') + t('MSG_TXT_AW'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
     { fieldName: 'col10', header: t('MSG_TXT_AW') + t('MSG_TXT_SUM'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'col11', header: t('MSG_TXT_DTRM_DATE'), width: '126', styleName: 'text-center', dataType: 'date', datetimeFormat: 'yyyy-MM-dd' },
+    { fieldName: 'col11', header: t('MSG_TXT_DTRM_DATE'), width: '126', styleName: 'text-center', datetimeFormat: 'date' },
 
   ];
 
