@@ -173,10 +173,17 @@ const { confirm } = useGlobal();
 const dataService = useDataService();
 const now = dayjs();
 const { t } = useI18n();
-
+const { currentRoute } = useRouter();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
+const props = defineProps({
+  itemsChecked: {
+    type: Boolean,
+    required: true,
+  },
+});
+
 const grdLinkRef = ref(getComponentType('KwGrid'));
 
 const codes = await codeUtil.getMultiCodes(
@@ -247,17 +254,27 @@ async function onClickAdd() {
 // 행삭제
 async function onClickRemove() {
   const view = grdLinkRef.value.getView();
+  let rows;
 
-  if (!await gridUtil.confirmIfIsModified(view)) { return; }
+  if (!gridUtil.getCheckedRowValues(view).length > 0) {
+    notify(t('MSG_ALT_NOT_SEL_ITEM'));
+    return;
+  }
 
-  const deletedRows = await gridUtil.confirmDeleteCheckedRows(view);
+  if (gridUtil.isModified(view)) {
+    if (await gridUtil.confirmIfIsModified(view)) {
+      rows = gridUtil.deleteCheckedRows(view);
+    }
+  } else {
+    rows = await gridUtil.confirmDeleteCheckedRows(view);
+  }
 
-  console.log(deletedRows);
+  if (rows.length > 0) {
+    rows.forEach((data) => {
+      data.rowState = 'deleted';
+    });
 
-  if (deletedRows.length > 0) {
-    await dataService.post('/sms/wells/withdrawal/idvrve/giro-ocr-forwardings', deletedRows);
-    // notify(t('삭제되었습니다.'));
-    // notify(t('MSG_ALT_DELETED'));
+    await dataService.delete('/sms/wells/withdrawal/idvrve/giro-ocr-forwardings', { data: rows });
     await fetchData();
   }
 }
@@ -265,8 +282,9 @@ async function onClickRemove() {
 async function onClickExcelDownload() {
   const view = grdLinkRef.value.getView();
   const res = await dataService.get('/sms/wells/withdrawal/idvrve/giro-ocr-forwardings/excel-download', { params: cachedParams });
+  console.log(currentRoute.value.meta);
   await gridUtil.exportView(view, {
-    fileName: `${t('MSG_TXT_GIRO_OCR_FW_MGT_FW_OJ')}`,
+    fileName: `${currentRoute.value.meta.menuName}_${props.itemsChecked}`,
     timePostfix: true,
     exportData: res.data,
   });

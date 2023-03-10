@@ -14,6 +14,7 @@
 --->
 <template>
   <kw-popup
+    ref="popupRef"
     size="xl"
   >
     <!-- :title="t('MSG_TXT_ERR_KR')" -->
@@ -72,6 +73,7 @@ import { cloneDeep } from 'lodash-es';
 
 const dataService = useDataService();
 const { t } = useI18n();
+
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -85,6 +87,7 @@ const props = defineProps({
     default: null,
   },
 });
+const popupRef = ref();
 
 const grdPageRef = ref(getComponentType('KwGrid'));
 const codes = await codeUtil.getMultiCodes('COD_PAGE_SIZE_OPTIONS');
@@ -131,7 +134,7 @@ async function onClickExcelDownload() {
   const res = await dataService.get('/sms/wells/withdrawal/idvrve/giro-deposits/errors/excel-download', { params: dataParam });
 
   await gridUtil.exportView(view, {
-    fileName: `${t('MSG_TIT_ERR_PROCS')}`,
+    fileName: popupRef.value.pageCtxTitle,
     timePostfix: true,
     exportData: res.data,
   });

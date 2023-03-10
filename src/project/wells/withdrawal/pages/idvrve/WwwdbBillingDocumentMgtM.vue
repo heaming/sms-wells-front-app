@@ -120,6 +120,8 @@ const now = dayjs();
 const dataService = useDataService();
 const { t } = useI18n();
 
+const { currentRoute } = useRouter();
+
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -174,7 +176,7 @@ async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
   const res = await dataService.get('/sms/wells/withdrawal/idvrve/billing-document-orders/excel-download', { params: cachedParams });
   await gridUtil.exportView(view, {
-    fileName: `${t('MSG_TXT_BILDC')}`,
+    fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
     exportData: res.data,
   });
@@ -232,6 +234,8 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'rmkCn' }, // --비고 이건 수정 가능성이 잇음
     { fieldName: 'bildcWrteDt' }, // --작성일자
     { fieldName: 'dummyText' }, // --발송
+    { fieldName: 'sellPrtnrNo' }, /* 파트너번호 */
+    { fieldName: 'sellPrtnrNm' }, /* 파트너번호 */
 
   ];
 

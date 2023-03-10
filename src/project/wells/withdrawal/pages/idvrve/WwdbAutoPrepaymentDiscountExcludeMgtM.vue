@@ -140,6 +140,8 @@ import { cloneDeep } from 'lodash-es';
 const dataService = useDataService();
 const now = dayjs();
 const { t } = useI18n();
+const { currentRoute } = useRouter();
+
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -214,7 +216,7 @@ async function onClickExcelDownload() {
   const res = await dataService.get('/sms/wells/withdrawal/idvrve/auto-prepayment-discount-exclude/excel-download', { params: cachedParams });
 
   await gridUtil.exportView(view, {
-    fileName: `${t('MSG_TXT_AUTO_PRM_DSC_EXCD')}`,
+    fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
     exportData: res.data,
   });
@@ -267,19 +269,33 @@ async function onClickSave() {
 async function onClickRemove() {
   const view = grdMainRef.value.getView();
 
-  if (!await gridUtil.confirmIfIsModified(view)) { return; }
+  let rows;
 
-  const deletedRows = await gridUtil.confirmDeleteCheckedRows(view);
-
-  console.log(deletedRows);
-
-  // rowState 삭제상태 none 으로 나와 임시 set
-  for (let i = 0; i < deletedRows.length; i += 1) {
-    deletedRows[i].rowState = 'deleted';
+  if (!gridUtil.getCheckedRowValues(view).length > 0) {
+    alert(t('MSG_ALT_NOT_SEL_ITEM'));
+    return;
   }
 
-  if (deletedRows.length > 0) {
-    await dataService.post('/sms/wells/withdrawal/idvrve/auto-prepayment-discount-exclude', deletedRows);
+  // if (!await gridUtil.confirmIfIsModified(view)) { return; }
+
+  // const deletedRows = await gridUtil.confirmDeleteCheckedRows(view);
+  if (gridUtil.isModified(view)) {
+    if (await gridUtil.confirmIfIsModified(view)) {
+      rows = gridUtil.deleteCheckedRows(view);
+    }
+  } else {
+    rows = await gridUtil.confirmDeleteCheckedRows(view);
+  }
+
+  console.log(rows);
+
+  // rowState 삭제상태 none 으로 나와 임시 set
+  for (let i = 0; i < rows.length; i += 1) {
+    rows[i].rowState = 'deleted';
+  }
+
+  if (rows.length > 0) {
+    await dataService.delete('/sms/wells/withdrawal/idvrve/auto-prepayment-discount-exclude', { data: rows });
     // notify(t('삭제되었습니다.'));
     // notify(t('MSG_ALT_DELETED'));
     await fetchData();
