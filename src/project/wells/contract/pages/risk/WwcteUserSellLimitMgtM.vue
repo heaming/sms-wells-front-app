@@ -89,6 +89,12 @@
           inset
         />
         <kw-btn
+          v-permission:delete
+          :label="t('MSG_BTN_DEL')"
+          grid-action
+          @click="onClickDelete"
+        />
+        <kw-btn
           grid-action
           :label="t('MSG_BTN_ROW_ADD')"
           @click="onClickRowAdd"
@@ -119,19 +125,6 @@
         :visible-rows="pageInfo.pageSize - 1"
         @init="initGrid"
       />
-
-      <kw-action-bottom>
-        <kw-btn
-          :label="t('MSG_BTN_MOD')"
-          grid-action
-        />
-        <kw-btn
-          v-permission:delete
-          :label="t('MSG_BTN_DEL')"
-          grid-action
-          @click="onClickDelete"
-        />
-      </kw-action-bottom>
     </div>
   </kw-page>
 </template>

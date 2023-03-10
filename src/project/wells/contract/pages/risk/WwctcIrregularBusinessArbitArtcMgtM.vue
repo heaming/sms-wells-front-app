@@ -76,9 +76,7 @@
         <template #left>
           <kw-paging-info
             v-model:page-index="pageInfo.pageIndex"
-            v-model:page-size="pageInfo.pageSize"
             :total-count="pageInfo.totalCount"
-            :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
             @change="fetchData"
           />
         </template>
@@ -94,16 +92,12 @@
           inset
         />
         <kw-btn
-          v-permission:create
-          dense
-          secondary
+          grid-action
           :label="$t('MSG_BTN_ROW_ADD')"
           @click="onClickAdd"
         />
         <kw-btn
-          v-permission:update
-          dense
-          secondary
+          grid-action
           :label="$t('MSG_BTN_SAVE')"
           @click="onClickSave"
         />
