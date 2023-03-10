@@ -106,12 +106,15 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useGlobal, useDataService, codeUtil, gridUtil, defineGrid, getComponentType } from 'kw-lib';
+import { useGlobal, useDataService, codeUtil, gridUtil, defineGrid, getComponentType, useMeta } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 
 const { notify, confirm } = useGlobal();
 const { t } = useI18n();
 const dataService = useDataService();
+
+const { currentRoute } = useRouter();
+const { getConfig } = useMeta();
 
 const { getters } = useStore();
 const userInfo = getters['meta/getUserInfo'];
@@ -133,7 +136,7 @@ let cachedParams;
 const pageInfo = ref({
   totalCount: 0,
   pageIndex: 1,
-  pageSize: 10,
+  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
 });
 
 const searchParams = ref({
@@ -228,11 +231,13 @@ async function onClickSave() {
 }
 
 async function onClickExcelDownload() {
+  const res = await dataService.get('/sms/wells/withdrawal/bilfnt/designation-wdrw-csts/excel-download', { params: cachedParams });
   const view = grdMainRef.value.getView();
 
   await gridUtil.exportView(view, {
-    fileName: '자동이체 지정 출금 고객',
+    fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
+    exportData: res.data,
   });
 }
 

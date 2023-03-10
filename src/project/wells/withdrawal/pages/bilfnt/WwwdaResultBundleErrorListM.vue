@@ -58,7 +58,7 @@
     <kw-grid
       ref="grdMainRef"
       name="grdMain3"
-      :visible-rows="10"
+      :visible-rows="pageInfo.pageSize"
       @init="initGrid"
     />
     <kw-pagination
@@ -75,11 +75,11 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 
-import { useDataService, codeUtil, defineGrid, useMeta, getComponentType } from 'kw-lib';
+import { useDataService, codeUtil, defineGrid, getComponentType, gridUtil, useMeta } from 'kw-lib';
 
 const dataService = useDataService();
-const { getConfig } = useMeta();
 const { t } = useI18n();
+const { getConfig } = useMeta();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -117,6 +117,17 @@ async function onClickSearch() {
   pageInfo.value.pageIndex = 1;
   cachedParams = { ...searchParams.value };
   await fetchData();
+}
+
+async function onClickExcelDownload() {
+  const view = grdMainRef.value.getView();
+  const res = await dataService.get('/sms/wells/withdrawal/bilfnt/result-bundle-error/excel-download', { params: cachedParams });
+
+  await gridUtil.exportView(view, {
+    fileName: '묶음출금 오등록',
+    timePostfix: true,
+    exportData: res.data,
+  });
 }
 
 // -------------------------------------------------------------------------------------------------

@@ -66,7 +66,7 @@
           />
         </kw-search-item>
         <kw-search-item
-          :label="t('MSG_TXT_RCPDT')"
+          :label="selectedTab === 'unrgPs' ? t('MSG_TXT_RCPDT') : t('MSG_TXT_PRCSDT')"
         >
           <kw-date-range-picker
             v-model:from="searchParams.cntrPdStrtdt"
@@ -84,17 +84,21 @@
       <kw-action-top>
         <template #left>
           <kw-paging-info
-            :total-count="totalCount"
+            v-model:page-index="pageInfo.pageIndex"
+            v-model:page-size="pageInfo.pageSize"
+            :total-count="pageInfo.totalCount"
+            @change="fetchData1"
           />
           <span class="ml8">{{ t('MSG_TXT_UNIT_WON') }}</span>
         </template>
 
         <kw-btn
-          :disable="totalCount === 0"
+          :disable="pageInfo.totalCount === 0"
           icon="download_on"
           dense
           secondary
           :label="t('MSG_TXT_EXCEL_DOWNLOAD')"
+          @click="onClickExcelDownload(1)"
         />
         <kw-separator
           vertical
@@ -102,7 +106,7 @@
           spaced
         />
         <kw-btn
-          :disable="totalCount === 0"
+          :disable="pageInfo.totalCount === 0"
           grid-action
           :label="t('MSG_TXT_BNDL_RGST')"
           @click="alert('준비중입니다')"
@@ -112,7 +116,7 @@
       <kw-grid
         ref="grdMainRef1"
         name="grdMain"
-        :visible-rows="10"
+        :visible-rows="pageInfo.pageSize - 1"
         @init="initGrid1"
       />
     </div>
@@ -124,7 +128,10 @@
       <kw-action-top>
         <template #left>
           <kw-paging-info
-            :total-count="totalCount2"
+            v-model:page-index="pageInfo2.pageIndex"
+            v-model:page-size="pageInfo2.pageSize"
+            :total-count="pageInfo2.totalCount"
+            @change="fetchData2"
           />
           <span class="ml8">{{ t('MSG_TXT_UNIT_WON') }}</span>
         </template>
@@ -135,18 +142,19 @@
           spaced
         />
         <kw-btn
-          :disable="totalCount2 === 0"
+          :disable="pageInfo2.totalCount === 0"
           icon="download_on"
           dense
           secondary
           :label="t('MSG_TXT_EXCEL_DOWNLOAD')"
+          @click="onClickExcelDownload(2)"
         />
       </kw-action-top>
 
       <kw-grid
         ref="grdMainRef2"
         name="grdMain2"
-        :visible-rows="10"
+        :visible-rows="pageInfo2.pageSize - 1"
         @init="initGrid2"
       />
     </div>
@@ -158,7 +166,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 
-import { useDataService, defineGrid, codeUtil, getComponentType, useGlobal } from 'kw-lib';
+import { useDataService, defineGrid, codeUtil, getComponentType, useGlobal, gridUtil, useMeta } from 'kw-lib';
 import dayjs from 'dayjs';
 import { cloneDeep, isEmpty } from 'lodash-es';
 
@@ -168,9 +176,12 @@ const { t } = useI18n();
 
 const now = dayjs();
 
+const { getConfig } = useMeta();
+
 const { getters } = useStore();
 const userInfo = getters['meta/getUserInfo'];
 const { tenantCd } = userInfo;
+
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -178,16 +189,7 @@ const { tenantCd } = userInfo;
 const searchRef = ref(getComponentType('KwSearch'));
 
 const grdMainRef1 = ref(getComponentType('KwGrid'));
-const grdData1 = computed(() => grdMainRef1.value?.getData());
-
 const grdMainRef2 = ref(getComponentType('KwGrid'));
-const grdData2 = computed(() => grdMainRef2.value?.getData());
-
-let initGridData1 = [];
-let initGridData2 = [];
-
-const totalCount = ref(0);
-const totalCount2 = ref(0);
 
 let cachedParams;
 const searchParams = ref({
@@ -197,6 +199,18 @@ const searchParams = ref({
   cntr: '', // 계약번호
   cntrPdStrtdt: now.format('YYYYMMDD'), // 접수일자 시작일
   cntrPdEnddt: now.add('7', 'day').format('YYYYMMDD'), // 접수일자 종료일
+});
+
+const pageInfo = ref({
+  totalCount: 0,
+  pageIndex: 1,
+  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
+});
+
+const pageInfo2 = ref({
+  totalCount: 0,
+  pageIndex: 1,
+  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
 });
 
 const codes = await codeUtil.getMultiCodes(
@@ -212,40 +226,65 @@ const selectedTab = ref('unrgPs');
 
 async function fetchData1() {
   const res = await dataService.get('/sms/wells/withdrawal/bilfnt/bundle-withdrawal-unrgs', { params: { ...cachedParams } });
-  const lists = res.data.list;
+  const { list: lists, pageInfo: pageResult } = res.data;
+  pageInfo.value = pageResult;
 
-  totalCount.value = lists.length;
+  const view = grdMainRef1.value.getView();
+  const dataSource = view.getDataSource();
 
-  if (grdData1.value) {
-    grdData1.value.setRows(lists);
-  } else {
-    initGridData1 = lists;
-  }
+  dataSource.checkRowStates(false);
+  dataSource.addRows(lists);
+  dataSource.checkRowStates(true);
 }
 
 async function fetchData2() {
   const res = await dataService.get('/sms/wells/withdrawal/bilfnt/bundle-withdrawal-hist', { params: { ...cachedParams } });
-  const lists = res.data.list;
+  const { list: lists, pageInfo: pageResult } = res.data;
+  pageInfo2.value = pageResult;
 
-  totalCount2.value = lists.length;
+  const view = grdMainRef2.value.getView();
+  const dataSource = view.getDataSource();
 
-  if (grdData2.value) {
-    grdData2.value.setRows(lists);
-  } else {
-    initGridData2 = lists;
-  }
+  dataSource.checkRowStates(false);
+  dataSource.addRows(lists);
+  dataSource.checkRowStates(true);
 }
 async function onClickSearch() {
   if (!await searchRef.value.validate()) { return; }
+
   searchParams.value.unrgRs = selectedTab.value === 'unrgPs' ? searchParams.value.unrgRsCd : searchParams.value.unrgRsonCd;
   searchParams.value.fullCntr = !isEmpty(searchParams.value.cntr) ? tenantCd + searchParams.value.cntr : '';
   searchParams.value.cntrNo = !isEmpty(searchParams.value.cntr.slice(0, 11)) ? tenantCd + searchParams.value.cntr.slice(0, 11) : '';
   searchParams.value.cntrSn = searchParams.value.cntr.slice(11);
   cachedParams = cloneDeep(searchParams.value);
   if (selectedTab.value === 'unrgPs') {
+    grdMainRef1.value.getData().clearRows();
     await fetchData1();
   } else {
+    grdMainRef2.value.getData().clearRows();
     await fetchData2();
+  }
+}
+
+async function onClickExcelDownload(no) {
+  if (no === 1) {
+    const view = grdMainRef1.value.getView();
+    const res = await dataService.get('/sms/wells/withdrawal/bilfnt/bundle-withdrawal-unrgs/excel-download', { params: cachedParams });
+
+    await gridUtil.exportView(view, {
+      fileName: '미등록 현황',
+      timePostfix: true,
+      exportData: res.data,
+    });
+  } else {
+    const view = grdMainRef2.value.getView();
+    const res = await dataService.get('/sms/wells/withdrawal/bilfnt/bundle-withdrawal-hist/excel-download', { params: cachedParams });
+
+    await gridUtil.exportView(view, {
+      fileName: '묶음 등록 이력',
+      timePostfix: true,
+      exportData: res.data,
+    });
   }
 }
 
@@ -341,7 +380,12 @@ const initGrid1 = defineGrid((data, view) => {
     },
   ]);
 
-  data.setRows(initGridData1);
+  view.onScrollToBottom = async (g) => {
+    if (pageInfo.value.pageIndex * pageInfo.value.pageSize <= g.getItemCount()) {
+      pageInfo.value.pageIndex += 1;
+      await fetchData1();
+    }
+  };
 });
 
 const initGrid2 = defineGrid((data, view) => {
@@ -443,7 +487,12 @@ const initGrid2 = defineGrid((data, view) => {
     },
   ]);
 
-  data.setRows(initGridData2);
+  view.onScrollToBottom = async (g) => {
+    if (pageInfo2.value.pageIndex * pageInfo2.value.pageSize <= g.getItemCount()) {
+      pageInfo2.value.pageIndex += 1;
+      await fetchData2();
+    }
+  };
 });
 
 </script>

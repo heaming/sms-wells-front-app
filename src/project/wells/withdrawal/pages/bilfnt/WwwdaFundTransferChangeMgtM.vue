@@ -67,7 +67,7 @@
     <kw-grid
       ref="grdMainRef"
       name="grdMain2"
-      :visible-rows="10"
+      :visible-rows="pageInfo.pageSize"
       @init="initGrid"
     />
     <kw-pagination
@@ -84,13 +84,13 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 // eslint-disable-next-line no-unused-vars
-import { useDataService, codeUtil, gridUtil, defineGrid, useMeta, getComponentType } from 'kw-lib';
+import { useDataService, codeUtil, gridUtil, defineGrid, getComponentType, useMeta } from 'kw-lib';
 import dayjs from 'dayjs';
 
 const dataService = useDataService();
-const { getConfig } = useMeta();
 const { t } = useI18n();
 const now = dayjs();
+const { getConfig } = useMeta();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -131,11 +131,13 @@ async function onClickSearch() {
 }
 
 async function onClickExcelDownload() {
+  const res = await dataService.get('/sms/wells/withdrawal/bilfnt/deposit-ncrt-check/excel-download', { params: cachedParams });
   const view = grdMainRef.value.getView();
 
   await gridUtil.exportView(view, {
-    fileName: 'rcvFshDpCrtOmssnCt',
+    fileName: '자동이체변경 관리',
     timePostfix: true,
+    exportData: res.data,
   });
 }
 
