@@ -164,7 +164,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { alert, codeUtil, defineGrid, getComponentType, gridUtil, modal, notify, useDataService, useGlobal } from 'kw-lib';
+import { codeUtil, defineGrid, getComponentType, gridUtil, modal, notify, useDataService, useGlobal } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
 
@@ -257,7 +257,7 @@ async function onClickRemove() {
   let rows;
 
   if (!gridUtil.getCheckedRowValues(view).length > 0) {
-    alert(t('MSG_ALT_NOT_SEL_ITEM'));
+    notify(t('MSG_ALT_NOT_SEL_ITEM'));
     return;
   }
 
