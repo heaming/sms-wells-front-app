@@ -88,13 +88,16 @@
             inset
           />
           <kw-btn
+            v-permission:create
             dense
+            grid-action
             :label="t('MSG_BTN_ROW_ADD')"
             @click="onClickAdd"
           />
 
           <kw-btn
             v-permission:create
+            grid-action
             dense
             :label="t('MSG_BTN_SAVE')"
             @click="onClickSave"
@@ -128,7 +131,7 @@
         <kw-grid
           ref="grdMainRef"
           name="approvalBaseGrid"
-          :visible-rows="pageInfo.pageSize - 1"
+          :visible-rows="pageInfo.pageSize"
           @init="initGrid"
         />
       </div>
