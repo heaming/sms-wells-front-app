@@ -152,7 +152,7 @@ import { isEmpty } from 'lodash-es';
 const { modal } = useGlobal();
 const dataService = useDataService();
 const { t } = useI18n();
-
+const { currentRoute } = useRouter();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // ------------------------------------------------------------------------------------------------
@@ -164,9 +164,8 @@ const isGrdEgerVisible = ref(true);
 const isGrdEgerMngerVisible = ref(false);
 
 // 조회조건
-// TODO:실적년월은 전월로 세팅해야함. 수정 필요.
 const searchParams = ref({
-  perfYm: dayjs().format('YYYY-MM'),
+  perfYm: dayjs().subtract(1, 'month').format('YYYY-MM'),
   rsbTp: t('MSG_TXT_EGER'),
   blg: 'B',
   no: '',
@@ -216,7 +215,7 @@ async function onClickExcelDownload() {
   const view = grdEgerRef.value.getView();
 
   await gridUtil.exportView(view, {
-    fileName: '엔지니어 수당 내역',
+    fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
   });
 }
@@ -263,21 +262,6 @@ async function onClickPerformanceAggregate() {
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
 const initEgerMain = defineGrid((data, view) => {
-  const fields = [
-    { fieldName: 'col1' },
-    { fieldName: 'col2' },
-    { fieldName: 'col3' },
-    { fieldName: 'col4' },
-    { fieldName: 'col5' },
-    { fieldName: 'col6' },
-    { fieldName: 'col7' },
-    { fieldName: 'col8' },
-    { fieldName: 'col9' },
-    { fieldName: 'col10' },
-    { fieldName: 'col11' },
-
-  ];
-
   const columns = [
     { fieldName: 'col1', header: t('MSG_TXT_BLG'), width: '146', styleName: 'text-left' },
     { fieldName: 'col2', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '94', styleName: 'text-center' },
@@ -285,13 +269,15 @@ const initEgerMain = defineGrid((data, view) => {
     { fieldName: 'col4', header: t('MSG_TXT_WK_GRP'), width: '111', styleName: 'text-left' },
     { fieldName: 'col5', header: t('MSG_TXT_RSB'), width: '126', styleName: 'text-left' },
     { fieldName: 'col6', header: t('MSG_TXT_CRLV'), width: '90', styleName: 'text-left ' },
-    { fieldName: 'col7', header: t('MSG_TXT_OUTC_AW'), width: '180', styleName: 'text-right' },
-    { fieldName: 'col8', header: t('MSG_TXT_QLF') + t('MSG_TXT_AW'), width: '180', styleName: 'text-right' },
-    { fieldName: 'col9', header: t('MSG_TXT_CTR') + t('MSG_TXT_AW'), width: '180', styleName: 'text-right' },
-    { fieldName: 'col10', header: t('MSG_TXT_AW') + t('MSG_TXT_SUM'), width: '180', styleName: 'text-right' },
-    { fieldName: 'col11', header: t('MSG_TXT_DTRM_DATE'), width: '126', styleName: 'text-center' },
+    { fieldName: 'col7', header: t('MSG_TXT_OUTC_AW'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'col8', header: t('MSG_TXT_QLF') + t('MSG_TXT_AW'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'col9', header: t('MSG_TXT_CTR') + t('MSG_TXT_AW'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'col10', header: t('MSG_TXT_AW') + t('MSG_TXT_SUM'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'col11', header: t('MSG_TXT_DTRM_DATE'), width: '126', styleName: 'text-center', datetimeFormat: 'date' },
 
   ];
+
+  const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
 
   data.setFields(fields);
   view.setColumns(columns);
@@ -311,29 +297,19 @@ const initEgerMain = defineGrid((data, view) => {
 });
 
 const initEgerMnger = defineGrid((data, view) => {
-  const fields = [
-    { fieldName: 'col1' },
-    { fieldName: 'col2' },
-    { fieldName: 'col3' },
-    { fieldName: 'col4' },
-    { fieldName: 'col5' },
-    { fieldName: 'col6' },
-    { fieldName: 'col7' },
-    { fieldName: 'col8' },
-
-  ];
-
   const columns = [
     { fieldName: 'col1', header: t('MSG_TXT_CENTER_DIVISION'), width: '146', styleName: 'text-left' },
     { fieldName: 'col2', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '94', styleName: 'text-center' },
     { fieldName: 'col3', header: t('MSG_TXT_EMPL_NM'), width: '90', styleName: 'text-left' },
     { fieldName: 'col4', header: t('MSG_TXT_RSB'), width: '126', styleName: 'text-left' },
     { fieldName: 'col5', header: t('MSG_TXT_CRLV'), width: '90', styleName: 'text-left ' },
-    { fieldName: 'col6', header: t('MSG_TXT_OUTC_AW'), width: '180', styleName: 'text-right' },
-    { fieldName: 'col7', header: t('MSG_TXT_QLF') + t('MSG_TXT_AW'), width: '180', styleName: 'text-right' },
-    { fieldName: 'col8', header: t('MSG_TXT_AW') + t('MSG_TXT_SUM'), width: '180', styleName: 'text-right' },
+    { fieldName: 'col6', header: t('MSG_TXT_OUTC_AW'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'col7', header: t('MSG_TXT_QLF') + t('MSG_TXT_AW'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'col8', header: t('MSG_TXT_AW') + t('MSG_TXT_SUM'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
 
   ];
+
+  const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
 
   data.setFields(fields);
   view.setColumns(columns);
