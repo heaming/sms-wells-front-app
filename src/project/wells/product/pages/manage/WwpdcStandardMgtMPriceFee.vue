@@ -81,12 +81,11 @@ async function resetData() {
   currentInitData.value = {};
   removeObjects.value = [];
   gridRowCount.value = 0;
-  grdMainRef.value?.getView()?.getDataSource().clearRows();
+  if (grdMainRef.value?.getView()) gridUtil.reset(grdMainRef.value.getView());
 }
 
 async function init() {
-  const view = grdMainRef.value?.getView();
-  if (view) gridUtil.init(view);
+  if (grdMainRef.value?.getView()) gridUtil.init(grdMainRef.value.getView());
 }
 
 async function getSaveData() {
@@ -106,7 +105,7 @@ async function getSaveData() {
   if (removeObjects.value.length) {
     rtnValues[pdConst.REMOVE_ROWS] = cloneDeep(removeObjects.value);
   }
-  // console.log('WwpdcStandardMgtMPriceFee - getSaveData - rtnValues : ', rtnValues);
+  console.log('WwpdcStandardMgtMPriceFee - getSaveData - rtnValues : ', rtnValues);
   return rtnValues;
 }
 
@@ -234,6 +233,7 @@ async function initGrid(data, view) {
   view.rowIndicator.visible = false;
   view.editOptions.editable = true;
   view.setFixedOptions({ colCount: 6 });
+
   await initGridRows();
 }
 

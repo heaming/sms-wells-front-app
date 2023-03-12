@@ -138,12 +138,11 @@ async function resetData() {
   addChannelId.value = '';
   removeObjects.value = [];
   gridRowCount.value = 0;
-  grdMainRef.value?.getView()?.getDataSource().clearRows();
+  if (grdMainRef.value?.getView()) gridUtil.reset(grdMainRef.value.getView());
 }
 
 async function init() {
-  const view = grdMainRef.value?.getView();
-  if (view) gridUtil.init(view);
+  if (grdMainRef.value?.getView()) gridUtil.init(grdMainRef.value.getView());
 }
 
 async function getSaveData() {
@@ -153,6 +152,7 @@ async function getSaveData() {
     return rtn;
   }, []); /* 그리드에서 수정항목이 아닌 경우 제외 */
   const rowValues = gridUtil.getAllRowValues(view);
+  console.log('WwpdcStandardMgtMPriceVal - getSaveData - rowValues1 : ', rowValues);
   const rtnValues = await getGridRowsToSavePdProps(
     rowValues,
     currentMetaInfos.value,
@@ -170,7 +170,7 @@ async function getSaveData() {
     return rtn;
   }, []);
 
-  // console.log('WwpdcStandardMgtMPriceVal - getSaveData - rtnValues : ', rtnValues);
+  console.log('WwpdcStandardMgtMPriceVal - getSaveData - rtnValues2 : ', rtnValues);
   return rtnValues;
 }
 
@@ -426,9 +426,8 @@ async function initGrid(data, view) {
       }
     }
   };
-
-  // 그리드 마운트 시점과 컴포넌트 마운트 시점 불일지로 아래 로직 추가
   await resetInitData();
+  // 그리드 마운트 시점과 컴포넌트 마운트 시점 불일지로 아래 로직 추가
   await resetVisibleChannelColumns();
 }
 </script>

@@ -92,7 +92,6 @@ async function resetData() {
 }
 
 async function init() {
-  selectedTab.value = selectedTabs.value[0];
   if (cmpPrdRef.value.init) await cmpPrdRef.value.init();
   if (cmpChgRef.value.init) await cmpChgRef.value.init();
 }

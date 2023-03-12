@@ -193,9 +193,9 @@ const searchParams = ref({
 async function resetData() {
   currentPdCd.value = '';
   currentInitData.value = {};
-  grdMaterialRef.value?.getView()?.getDataSource().clearRows();
-  grdServiceRef.value?.getView()?.getDataSource().clearRows();
-  grdStandardRef.value?.getView()?.getDataSource().clearRows();
+  if (grdMaterialRef.value?.getView()) gridUtil.reset(grdMaterialRef.value.getView());
+  if (grdServiceRef.value?.getView()) gridUtil.reset(grdServiceRef.value.getView());
+  if (grdStandardRef.value?.getView()) gridUtil.reset(grdStandardRef.value.getView());
 }
 
 async function init() {
@@ -356,13 +356,16 @@ async function initProps() {
   const { pdCd, initData } = props;
   currentPdCd.value = pdCd;
   currentInitData.value = initData;
-  await initGridRows();
 }
 
 await initProps();
 
 watch(() => props.pdCd, (pdCd) => { currentPdCd.value = pdCd; });
 watch(() => props.initData, (initData) => { currentInitData.value = initData; initGridRows(); }, { deep: true });
+
+onMounted(async () => {
+  await initGridRows();
+});
 
 //-------------------------------------------------------------------------------------------------
 // Initialize Grid
@@ -495,7 +498,5 @@ async function initStandardGrid(data, view) {
       }
     }
   };
-
-  await initGridRows();
 }
 </script>
