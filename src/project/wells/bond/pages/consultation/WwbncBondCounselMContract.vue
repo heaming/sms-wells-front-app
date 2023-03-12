@@ -24,11 +24,12 @@
         required
       >
         <kw-input
-          v-model="searchParams.schClctamNo"
+          v-model="searchParams.schClctamPsic"
           :label="$t('MSG_TXT_CLCTAM_PSIC')"
           clearable
           icon="search"
           rules="required"
+          @click-icon="onClickClctamPsic"
         />
       </kw-search-item>
       <kw-search-item
@@ -59,7 +60,12 @@
       <kw-search-item
         :label="$t('MSG_TXT_IST_TNO')"
       >
-        <kw-input v-model="searchParams.schIstTno" />
+        <kw-input
+          v-model="searchParams.schIstTno"
+          :maxlength="11"
+          :regex="/^[0-9]*$/i"
+          :placeholder="$t('MSG_TXT_REPSN_DGT4_WO_NO_IN')"
+        />
       </kw-search-item>
     </kw-search-row>
 
@@ -91,7 +97,12 @@
       <kw-search-item
         :label="$t('MSG_TXT_IST_MPNO')"
       >
-        <kw-input v-model="searchParams.schIstMpno" />
+        <kw-input
+          v-model="searchParams.schIstMpno"
+          :maxlength="11"
+          :regex="/^[0-9]*$/i"
+          :placeholder="$t('MSG_TXT_REPSN_DGT4_WO_NO_IN')"
+        />
       </kw-search-item>
     </kw-search-row>
 
@@ -136,7 +147,7 @@
         <kw-date-range-picker
           v-model:from="searchParams.schTfDtStrt"
           v-model:to="searchParams.schTfDtEnd"
-          rules="date_range_months:1"
+          rules="date_range_required|date_range_months:1"
         />
       </kw-search-item>
     </kw-search-row>
@@ -256,8 +267,11 @@
 // -------------------------------------------------------------------------------------------------
 import { defineGrid, gridUtil, getComponentType, modal, useDataService } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
+import dayjs from 'dayjs';
 
 const { t } = useI18n();
+const now = dayjs();
+
 const dataService = useDataService();
 
 // -------------------------------------------------------------------------------------------------
@@ -269,7 +283,8 @@ const grdMainRef = ref(getComponentType('KwGrid'));
 // TODO: 계약리스트 검색조건
 let cachedParams;
 const searchParams = ref({
-  schClctamNo: '',
+  schClctamPsic: '',
+  schClctamPsicNo: '',
   schCstNm: '',
   schDlqMcntStrt: '',
   schDlqMcntEnd: '',
@@ -284,8 +299,8 @@ const searchParams = ref({
   schOjBlamStrt: '',
   schOjBlamEnd: '',
   schMpno: '',
-  schTfDtStrt: '',
-  schTfDtEnd: '',
+  schTfDtStrt: now.subtract(1, 'day').format('YYYYMMDD'),
+  schTfDtEnd: now.subtract(1, 'day').format('YYYYMMDD'),
   schFntDv: '',
   schFntDtStrt: '',
   schFntDtEnd: '',
@@ -333,6 +348,21 @@ async function onClickSelectCustomer() {
     searchParams.value.schCstNm = returnCustomInfo.cstNm;
   }
 }
+
+// TODO: 집금담당자 검색 팝업 호출
+const onClickClctamPsic = async () => {
+  const { result, payload } = await modal({
+    component: 'ZwbnyCollectorListP',
+    componentProps: {
+      clctamPrtnrNm: searchParams.value.schClctamPsic,
+    },
+  });
+  if (result) {
+    const { clctamPrtnrNm, clctamPrtnrNo } = payload;
+    searchParams.value.schClctamPsic = clctamPrtnrNm;
+    searchParams.value.schClctamPsicNo = clctamPrtnrNo;
+  }
+};
 
 async function onClickSearch() {
   if (searchParams.value.schDv === '입금액 0원 제외') {
