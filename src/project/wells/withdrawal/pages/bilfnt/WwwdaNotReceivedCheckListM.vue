@@ -119,16 +119,16 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService, codeUtil, gridUtil, defineGrid, useMeta, getComponentType } from 'kw-lib';
+import { useDataService, codeUtil, gridUtil, defineGrid, getComponentType, useMeta } from 'kw-lib';
 import dayjs from 'dayjs';
 import WwwdaFundTransferChangeMgtM from './WwwdaFundTransferChangeMgtM.vue';
 import WwwdaDepositApplyOmissionM from './WwwdaDepositApplyOmissionM.vue';
 import WwwdaResultBundleErrorListM from './WwwdaResultBundleErrorListM.vue';
 
 const dataService = useDataService();
-const { getConfig } = useMeta();
 const { t } = useI18n();
 const now = dayjs();
+const { getConfig } = useMeta();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -173,10 +173,12 @@ async function onClickSearch() {
 
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
+  const res = await dataService.get('/sms/wells/withdrawal/bilfnt/not-received-checks/excel-download', { params: cachedParams });
 
   await gridUtil.exportView(view, {
-    fileName: `bilFshNrcvCt_${now.format('YYYYMMDDHH24MMSS')}`,
+    fileName: '청구완료 미수신건',
     timePostfix: true,
+    exportData: res.data,
   });
 }
 

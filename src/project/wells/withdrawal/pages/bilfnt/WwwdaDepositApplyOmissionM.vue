@@ -57,7 +57,7 @@
     <kw-grid
       ref="grdMainRef"
       name="grdMain1"
-      :visible-rows="10"
+      :visible-rows="pageInfo.pageSize"
       @init="initGrid"
     />
 
@@ -75,13 +75,13 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 
-import { useDataService, codeUtil, defineGrid, useMeta, getComponentType } from 'kw-lib';
+import { useDataService, codeUtil, defineGrid, getComponentType, gridUtil, useMeta } from 'kw-lib';
 import dayjs from 'dayjs';
 
 const dataService = useDataService();
-const { getConfig } = useMeta();
 const { t } = useI18n();
 const now = dayjs();
+const { getConfig } = useMeta();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -118,6 +118,17 @@ async function onClickSearch() {
   pageInfo.value.pageIndex = 1;
   cachedParams = { ...searchParams.value };
   await fetchData();
+}
+
+async function onClickExcelDownload() {
+  const res = await dataService.get('/sms/wells/withdrawal/bilfnt/sales-perf-checks/excel-download', { params: cachedParams });
+  const view = grdMainRef.value.getView();
+
+  await gridUtil.exportView(view, {
+    fileName: '매출실적 입금 전용 누락건',
+    timePostfix: true,
+    exportData: res.data,
+  });
 }
 
 // -------------------------------------------------------------------------------------------------
