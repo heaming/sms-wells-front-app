@@ -415,7 +415,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'bcInMthdCd' },
     { fieldName: 'useMpno' },
 
-    { fieldName: 'col1' },
+    { fieldName: 'publishInfo' },
     { fieldName: 'col2' },
     { fieldName: 'col3' },
     { fieldName: 'col4' },
@@ -445,7 +445,7 @@ const initGrid = defineGrid((data, view) => {
     },
     { fieldName: 'vstYm', header: '발행월', width: '200', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
     { fieldName: 'bcNo', header: '발행 바코드', width: '200', styleName: 'text-center' },
-    { fieldName: 'col1', header: '발행정보', width: '200', styleName: 'text-center' },
+    { fieldName: 'publishInfo', header: '발행정보', width: '200', styleName: 'text-center' },
     { fieldName: 'col2', header: 'QR유형', width: '200', styleName: 'text-center' },
     { fieldName: 'col3', header: 'QR코드', width: '200', styleName: 'text-center' },
     {
@@ -473,6 +473,7 @@ const initGrid = defineGrid((data, view) => {
         type: 'button',
         hideWhenEmpty: false, // default value, 생략 가능
       },
+      displayCallback: () => '고객서명',
     },
 
   ];
@@ -482,70 +483,75 @@ const initGrid = defineGrid((data, view) => {
   view.checkBar.visible = true; // create checkbox column
   view.rowIndicator.visible = true; // create number indicator column
 
-  // data.setRows([
-  //   {
-  //     mngrDvCd: '1',
-  //     ogNm: 'A910000',
-  //     prtnrNo: '1344349',
-  //     prtnrKnm: '신재형',
-  //     pdNm: '에어드레서 대용량 크리스탈미러 DF10R9700CG _금융리스',
-  //     cntrNo: '2022-1323832',
-  //     rcgvpKnm: '신한은행',
-  //     newAdrZip: '12345',
-  //     rnadr: '서울시',
-  //     rdadr: '은평',
+  view.onCellItemClicked = (g, index) => {
+    console.log(JSON.stringify(index, null, '\t'));
+    alert('개발중인 기능입니다.');
+  };
 
-  //     vstYm: '202303',
-  //     bcNo: '123456',
+  data.setRows([
+    {
+      mngrDvCd: '1',
+      ogNm: 'A910000',
+      prtnrNo: '1344349',
+      prtnrKnm: '신재형',
+      pdNm: '에어드레서 대용량 크리스탈미러 DF10R9700CG _금융리스',
+      cntrNo: '2022-1323832',
+      rcgvpKnm: '신한은행',
+      newAdrZip: '12345',
+      rnadr: '서울시',
+      rdadr: '은평',
 
-  //     fnlMdfcDtm: '20230310123456',
-  //     vstFshDt: '20230310',
-  //     vstFshHh: '123456',
-  //     bcInMthdCd: 'aabbcc',
-  //     useMpno: '01012345678',
-  //   },
-  //   {
-  //     mngrDvCd: '1',
-  //     ogNm: 'A910000',
-  //     prtnrNo: '1344349',
-  //     prtnrKnm: '신재형',
-  //     pdNm: '에어드레서 대용량 크리스탈미러 DF10R9700CG _금융리스',
-  //     cntrNo: '2022-1323832',
-  //     rcgvpKnm: '신한은행',
-  //     newAdrZip: '12345',
-  //     rnadr: '서울시',
-  //     rdadr: '은평',
+      vstYm: '202303',
+      bcNo: '123456',
 
-  //     vstYm: '202303',
-  //     bcNo: '123456',
+      fnlMdfcDtm: '20230310123456',
+      vstFshDt: '20230310',
+      vstFshHh: '123456',
+      bcInMthdCd: 'aabbcc',
+      useMpno: '01012345678',
+    },
+    {
+      mngrDvCd: '1',
+      ogNm: 'A910000',
+      prtnrNo: '1344349',
+      prtnrKnm: '신재형',
+      pdNm: '에어드레서 대용량 크리스탈미러 DF10R9700CG _금융리스',
+      cntrNo: '2022-1323832',
+      rcgvpKnm: '신한은행',
+      newAdrZip: '12345',
+      rnadr: '서울시',
+      rdadr: '은평',
 
-  //     fnlMdfcDtm: '20230310123456',
-  //     vstFshDt: '20230310',
-  //     vstFshHh: '123456',
-  //     bcInMthdCd: 'aabbcc',
-  //     useMpno: '01012345678',
-  //   },
-  //   {
-  //     mngrDvCd: '1',
-  //     ogNm: 'A910000',
-  //     prtnrNo: '1344349',
-  //     prtnrKnm: '신재형',
-  //     pdNm: '에어드레서 대용량 크리스탈미러 DF10R9700CG _금융리스',
-  //     cntrNo: '2022-1323832',
-  //     rcgvpKnm: '신한은행',
-  //     newAdrZip: '12345',
-  //     rnadr: '서울시',
-  //     rdadr: '은평',
+      vstYm: '202303',
+      bcNo: '123456',
 
-  //     vstYm: '202303',
-  //     bcNo: '123456',
+      fnlMdfcDtm: '20230310123456',
+      vstFshDt: '20230310',
+      vstFshHh: '123456',
+      bcInMthdCd: 'aabbcc',
+      useMpno: '01012345678',
+    },
+    {
+      mngrDvCd: '1',
+      ogNm: 'A910000',
+      prtnrNo: '1344349',
+      prtnrKnm: '신재형',
+      pdNm: '에어드레서 대용량 크리스탈미러 DF10R9700CG _금융리스',
+      cntrNo: '2022-1323832',
+      rcgvpKnm: '신한은행',
+      newAdrZip: '12345',
+      rnadr: '서울시',
+      rdadr: '은평',
 
-  //     fnlMdfcDtm: '20230310123456',
-  //     vstFshDt: '20230310',
-  //     vstFshHh: '123456',
-  //     bcInMthdCd: 'aabbcc',
-  //     useMpno: '01012345678',
-  //   },
-  // ]);
+      vstYm: '202303',
+      bcNo: '123456',
+
+      fnlMdfcDtm: '20230310123456',
+      vstFshDt: '20230310',
+      vstFshHh: '123456',
+      bcInMthdCd: 'aabbcc',
+      useMpno: '01012345678',
+    },
+  ]);
 });
 </script>
