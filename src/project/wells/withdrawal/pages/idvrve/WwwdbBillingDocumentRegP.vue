@@ -145,17 +145,17 @@ const props = defineProps({
     type: String,
     default: null,
   },
-  bildcPblSn: {
-    type: String,
-    default: null,
-  },
+  // bildcPblSn: {
+  //   type: String,
+  //   default: null,
+  // },
 });
 
 const obsRef = ref();
 
 const regMainData = ref({
   bildcPblNo: '',
-  bildcPblSn: '',
+  // bildcPblSn: '',
   cstFnm: '', // 고객명
   bildcWrteDt: now.format('YYYYMMDD'), // 작성일자
   sellPrtnrNo: userId, // 이건 나중에 사번으로 바꿔야함
@@ -268,19 +268,24 @@ async function onClickRemove() {
 
   if (deletedRows.length > 0) {
     await dataService.post('/sms/wells/withdrawal/idvrve/billing-document-orders/details', cachedParams);
-    // notify(t('삭제되었습니다.'));
-    // notify(t('MSG_ALT_DELETED'));
     await fetchData();
+  }
+
+  const allCount = await gridUtil.getAllRowValues(view);
+
+  if (allCount === 0) {
+    await dataService.delete('/sms/wells/withdrawal/idvrve/billing-document-orders', { data: deletedRows });
+    ok();
   }
 }
 
 async function initProps() {
   if (props.bildcPblNo) {
-    const { bildcPblNo, cstFnm, bildcWrteDt, bildcPblSn } = props;
+    const { bildcPblNo, cstFnm, bildcWrteDt } = props;
     regMainData.value.bildcPblNo = bildcPblNo;
     regMainData.value.cstFnm = cstFnm;
     regMainData.value.bildcWrteDt = bildcWrteDt;
-    regMainData.value.bildcPblSn = bildcPblSn;
+    // regMainData.value.bildcPblSn = bildcPblSn;
     regMainData.value.state = 'updated';
     regMainData.value.isSearchChk = true;
 
@@ -300,6 +305,8 @@ onMounted(async () => {
 // -------------------------------------------------------------------------------------------------
 const initGrid = defineGrid((data, view) => {
   const fields = [
+    { fieldName: 'bildcPblSn' },
+    { fieldName: 'bildcPblNo' },
     { fieldName: 'pdNm' },
     { fieldName: 'pdQty' },
     { fieldName: 'pdUprc' },
