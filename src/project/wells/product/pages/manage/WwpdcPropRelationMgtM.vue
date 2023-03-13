@@ -104,7 +104,7 @@ async function fetchData() {
   console.log('검색값', searchParams.value.searchValue);
   // component: 'ZpdcStandardProductListP', // 기준정보 팝업
   const { result, payload } = await modal({
-    component: 'ZpdcMaterialsSelectListP', // 교재자재 팝업
+    component: 'ZwpdcMaterialsSelectListP', // 교재자재 팝업
     componentProps: {
       searchType: searchParams.value.pdRelTpCd,
       searchValue: searchParams.value.searchValue,
