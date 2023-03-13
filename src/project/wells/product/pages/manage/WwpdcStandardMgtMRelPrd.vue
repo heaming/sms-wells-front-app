@@ -418,6 +418,10 @@ async function initMaterialGrid(data, view) {
   view.checkBar.visible = true;
   view.rowIndicator.visible = false;
   view.editOptions.editable = true;
+
+  view.sortingOptions.enabled = false;
+  view.displayOptions.columnResizable = false;
+  view.filteringOptions.enabled = true;
 }
 
 async function initServiceGrid(data, view) {
@@ -483,6 +487,10 @@ async function initStandardGrid(data, view) {
   view.checkBar.visible = true;
   view.rowIndicator.visible = false;
   view.editOptions.editable = true;
+
+  view.sortingOptions.enabled = false;
+  view.displayOptions.columnResizable = false;
+  view.filteringOptions.enabled = true;
 
   view.onCellButtonClicked = async (grid, { column, itemIndex }) => {
     if (column === 'svPdNm') {

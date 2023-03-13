@@ -98,6 +98,14 @@
         </kw-step-panel>
       </kw-stepper>
       <div class="button-set--bottom">
+        <div class="button-set--bottom-left">
+          <kw-btn
+            v-show="currentStep.step > 1"
+            :label="$t('MSG_BTN_PREV')"
+            class="ml8"
+            @click="onClickPrevStep"
+          />
+        </div>
         <div class="button-set--bottom-right">
           <kw-btn
             v-show="!isCreate"
@@ -115,12 +123,6 @@
             :label="$t('MSG_BTN_TMP_SAVE')"
             class="ml8"
             @click="onClickSave('Y')"
-          />
-          <kw-btn
-            v-show="currentStep.step > 1"
-            :label="$t('MSG_BTN_PREV')"
-            class="ml8"
-            @click="onClickPrevStep"
           />
           <kw-btn
             v-show="currentStep.step < regSteps.length"
@@ -211,8 +213,7 @@ codes.COD_YN.map((item) => {
 async function onClickDelete() {
   if (await confirm(t('MSG_ALT_WANT_DEL_WCC'))) {
     await dataService.delete(`/sms/common/product/standards/${currentPdCd.value}`);
-    // TODO 화면닫기
-    router.push({ path: '/product/zwpdc-sale-product-list' });
+    router.push({ path: '/product/zwpdc-sale-product-list', replace: true, query: { onloadSearchYn: 'Y' } });
   }
 }
 
@@ -273,7 +274,7 @@ async function getSaveData() {
       }
     }
   }));
-  console.log('WwpdcStandardMgtM - getSaveData - subList : ', subList);
+  // console.log('WwpdcStandardMgtM - getSaveData - subList : ', subList);
   return subList;
 }
 
@@ -331,7 +332,7 @@ async function fetchProduct() {
   if (currentPdCd.value) {
     const initData = {};
     const res = await dataService.get(`/sms/common/product/standards/${currentPdCd.value}`);
-    console.log('WwpdcStandardMgtM - fetchProduct - res.data', res.data);
+    // console.log('WwpdcStandardMgtM - fetchProduct - res.data', res.data);
     initData[bas] = res.data[bas];
     initData[dtl] = res.data[dtl];
     initData[ecom] = res.data[ecom];
@@ -388,7 +389,7 @@ async function onClickSave(tempSaveYn) {
   } else if (isEmpty(currentPdCd.value)) {
     subList[bas].tempSaveYn = tempSaveYn;
   }
-  console.log('WwpdcStandardMgtM - onClickSave - subList : ', subList);
+  // console.log('WwpdcStandardMgtM - onClickSave - subList : ', subList);
 
   // 4. 생성 or 저장
   let rtn;
@@ -403,7 +404,7 @@ async function onClickSave(tempSaveYn) {
   }));
   if (tempSaveYn === 'N') {
     // 목록으로 이동
-    router.close();
+    router.push({ path: '/product/zwpdc-sale-product-list', replace: true, query: { onloadSearchYn: 'Y' } });
     return;
   }
   if (isTempSaveBtn.value) {
@@ -470,7 +471,7 @@ async function initProps() {
 await initProps();
 
 watch(() => route.params.pdCd, async (pdCd) => {
-  console.log(`WwpdcStandardMgtM - currentPdCd.value : ${currentPdCd.value}, route.params.pdCd : ${pdCd}`);
+  // console.log(`WwpdcStandardMgtM - currentPdCd.value : ${currentPdCd.value}, route.params.pdCd : ${pdCd}`);
   if (currentPdCd.value !== pdCd && pdCd) {
     await onClickReset();
     isCreate.value = isEmpty(pdCd);
@@ -483,7 +484,7 @@ watch(() => route.params.pdCd, async (pdCd) => {
 }, { immediate: true });
 
 watch(() => route.params.newRegYn, async (newRegYn) => {
-  console.log(`WwpdcStandardMgtM - newRegYn : ${newRegYn}`);
+  // console.log(`WwpdcStandardMgtM - newRegYn : ${newRegYn}`);
   if (newRegYn && newRegYn === 'Y') {
     router.replace({ query: null });
     await onClickReset();
