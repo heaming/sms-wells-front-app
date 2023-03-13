@@ -108,7 +108,7 @@ async function resetData() {
 
 async function init() {
   if (grdMainRef.value?.getView()) gridUtil.init(grdMainRef.value.getView());
-  console.log('WwpdcStandardMgtMPriceStd - init');
+  // console.log('WwpdcStandardMgtMPriceStd - init');
 }
 
 async function getSaveData() {
@@ -122,7 +122,7 @@ async function getSaveData() {
   if (removeObjects.value.length) {
     rtnValues[pdConst.REMOVE_ROWS] = cloneDeep(removeObjects.value);
   }
-  console.log('WwpdcStandardMgtMPriceStd - getSaveData - rtnValues : ', rtnValues);
+  // console.log('WwpdcStandardMgtMPriceStd - getSaveData - rtnValues : ', rtnValues);
   return rtnValues;
 }
 
@@ -173,8 +173,8 @@ async function initGridRows() {
       return row;
     });
     // console.log('Rows : ', rows);
-    setPdGridRows(view, rows, pdConst.PRC_STD_ROW_ID, [pdConst.PRC_STD_ROW_ID, pdConst.PRC_DETAIL_ID]);
-    console.log('WwpdcStandardMgtMPriceStd - initGridRows - rows : ', rows);
+    await setPdGridRows(view, rows, pdConst.PRC_STD_ROW_ID, [pdConst.PRC_STD_ROW_ID, pdConst.PRC_DETAIL_ID]);
+    // console.log('WwpdcStandardMgtMPriceStd - initGridRows - rows : ', rows);
   }
 
   const products = currentInitData.value?.[pdConst.RELATION_PRODUCTS];
@@ -284,6 +284,10 @@ async function initGrid(data, view) {
   view.rowIndicator.visible = false;
   view.editOptions.editable = true;
 
+  view.sortingOptions.enabled = false;
+  view.displayOptions.columnResizable = false;
+  view.filteringOptions.enabled = true;
+
   view.onCellClicked = async (g, { dataRow }) => {
     if (dataRow) {
       const prcdValues = await getGridRowsToSavePdProps(
@@ -298,5 +302,6 @@ async function initGrid(data, view) {
   };
 
   await initGridRows();
+  await init();
 }
 </script>

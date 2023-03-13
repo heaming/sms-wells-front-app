@@ -105,7 +105,7 @@ async function getSaveData() {
   if (removeObjects.value.length) {
     rtnValues[pdConst.REMOVE_ROWS] = cloneDeep(removeObjects.value);
   }
-  console.log('WwpdcStandardMgtMPriceFee - getSaveData - rtnValues : ', rtnValues);
+  // console.log('WwpdcStandardMgtMPriceFee - getSaveData - rtnValues : ', rtnValues);
   return rtnValues;
 }
 
@@ -153,7 +153,7 @@ async function initGridRows() {
       return row;
     });
     // console.log('Fee Rows : ', rows);
-    setPdGridRows(view, rows, pdConst.PRC_FNL_ROW_ID, defaultFields.value, true);
+    await setPdGridRows(view, rows, pdConst.PRC_FNL_ROW_ID, defaultFields.value, true);
   } else {
     view.getDataSource().clearRows();
   }
@@ -232,9 +232,15 @@ async function initGrid(data, view) {
   view.checkBar.visible = true;
   view.rowIndicator.visible = false;
   view.editOptions.editable = true;
+
+  view.sortingOptions.enabled = false;
+  view.displayOptions.columnResizable = false;
+  view.filteringOptions.enabled = true;
+
   view.setFixedOptions({ colCount: 6 });
 
   await initGridRows();
+  await init();
 }
 
 </script>

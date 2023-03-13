@@ -171,7 +171,7 @@ async function getSaveData() {
   subList[prcfd] = pdMergeBy(subList[prcfd], fees?.[prcfd], pdConst.PRC_FNL_ROW_ID);
   // console.log('WwpdcStandardMgtMPrice - getSaveData - 4 - subList[prcfd] : ', subList[prcfd]);
   // console.log('WwpdcStandardMgtMPrice - getSaveData - REMOVE_ROWS : ', subList[pdConst.REMOVE_ROWS]);
-  console.log('WwpdcStandardMgtMPrice - subList : ', subList);
+  // console.log('WwpdcStandardMgtMPrice - subList : ', subList);
   return subList;
 }
 

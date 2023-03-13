@@ -230,6 +230,11 @@ async function initGrid(data, view) {
   view.checkBar.visible = false;
   view.rowIndicator.visible = false;
   view.editOptions.editable = false;
+
+  view.sortingOptions.enabled = false;
+  view.displayOptions.columnResizable = false;
+  view.filteringOptions.enabled = true;
+
   view.setFixedOptions({ colCount: 5 });
 
   await resetInitData();
