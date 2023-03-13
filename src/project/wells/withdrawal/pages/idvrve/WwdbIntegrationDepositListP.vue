@@ -65,9 +65,9 @@
           <kw-select
             v-model="searchParams.dpTpCd"
             :options="DP_TP_CD"
-            rules="required"
             :label="t('MSG_TXT_DP_TP')"
           />
+          <!-- rules="required" -->
         </kw-search-item>
         <kw-search-item
           :label="t('MSG_TXT_AC_NO')"
@@ -181,7 +181,7 @@ const codes = await codeUtil.getMultiCodes(
   'DP_TP_CD',
 );
 
-const DP_TP_CD = codes.DP_TP_CD.filter((e) => ['01', '02', '03'].includes(e.codeId));
+const DP_TP_CD = codes.DP_TP_CD.filter((e) => ['0101', '0104', '0201'].includes(e.codeId));
 
 let cachedParams;
 
