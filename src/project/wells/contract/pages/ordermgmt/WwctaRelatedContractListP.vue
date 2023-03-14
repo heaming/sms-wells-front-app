@@ -15,7 +15,6 @@
 <template>
   <kw-popup
     size="2xl"
-    title="1+1 할인 상세조회"
   >
     <h3 class="mb10">
       {{ t('MSG_TXT_PEXT')+' '+t('MSG_TXT_CST_INF') }}

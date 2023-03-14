@@ -15,7 +15,6 @@
 <template>
   <kw-popup
     size="2xl"
-    title="계약상세정보"
   >
     <!-- 선택계약상품 -->
     <h3>{{ $t('MSG_TXT_SELT_CNTR_PD') }}</h3>
