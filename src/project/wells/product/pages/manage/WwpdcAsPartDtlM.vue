@@ -75,6 +75,7 @@
                     :pd-grp-dv-cd="pdConst.PD_PRP_GRP_DV_CD_MANUAL"
                     :prefix-title="$t('MSG_TXT_MGT_ATTR')"
                     :is-first-title="true"
+                    :pd-tp-dtl-cd="pdTpDtlCd"
                   />
                 </kw-tab-panel>
                 <!-- 변경이력 -->
