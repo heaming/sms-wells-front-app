@@ -34,6 +34,10 @@
         <kw-search-item :label="$t('MSG_TIT_AS_PART_CD')">
           <kw-input
             v-model.trim="searchParams.pdCd"
+            clearable
+            :readonly="true"
+            icon="search"
+            @click-icon="onClickProduct()"
           />
         </kw-search-item>
       </kw-search-row>
@@ -49,7 +53,6 @@
             v-model:product2-level="searchParams.prdtCateMid"
             v-model:pd-tp-cd="pdConst.PD_TP_CD_STANDARD"
             first-option="all"
-            first-option-value="ALL"
             search-lvl="2"
           />
         </kw-search-item>
@@ -173,6 +176,15 @@ const searchParams = ref({
   sapMatCd: '',
 });
 
+async function onClickProduct() {
+  const { result, payload } = await modal({
+    component: 'ZwpdcMaterialsSelectListP',
+    componentProps: { searchType: null, searchValue: null, selectType: pdConst.PD_SEARCH_SINGLE },
+  });
+
+  if (result) searchParams.value.pdCd = payload.checkedRows[0].pdCd;
+}
+
 async function fetchData() {
   const res = await dataService.get(`${baseUrl}/paging`, { params: { ...cachedParams, ...pageInfo.value } });
   const { list: material, pageInfo: pagingResult } = res.data;
@@ -239,8 +251,12 @@ watch(() => route.query, async (query) => {
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
 const initGrdMain = defineGrid((data, view) => {
+  codes.PD_TEMP_SAVE_YN = [
+    { codeId: 'Y', codeName: t('MSG_BTN_TMP_SAVE') },
+    { codeId: 'N', codeName: t('MSG_TXT_SAVE') },
+  ];
   const columns = [
-    { fieldName: 'tempSaveYn', header: t('MSG_TXT_STT'), width: '90', styleName: 'text-center', options: codes.PD_TEMP_SAVE_CD }, /* 상태 */
+    { fieldName: 'tempSaveYn', header: t('MSG_TXT_STT'), width: '90', styleName: 'text-center', options: codes.PD_TEMP_SAVE_YN }, /* 상태 */
     { fieldName: 'pdTpCd', header: t('MSG_TXT_DIV'), width: '90', styleName: 'text-center', options: codes.PD_TP_CD }, /* 구분 */
     { fieldName: 'pdClsfNm', header: t('MSG_TXT_CLSF'), width: '176' }, /* 분류 */
     { fieldName: 'pdNm', header: t('MSG_TIT_AS_PART_NM'), width: '195' }, /* 교재/자재명 */
