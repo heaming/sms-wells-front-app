@@ -182,6 +182,10 @@ async function validateProps() {
   const rtn = gridUtil.validate(grdMainRef.value.getView(), {
     isChangedOnly: false,
   });
+  if (rtn && !gridRowCount.value) {
+    await alert(t('MSG_ALT_ADD_SOME_ITEM', [t('MSG_TXT_PRICE_INFO')]));
+    return false;
+  }
   return rtn;
 }
 

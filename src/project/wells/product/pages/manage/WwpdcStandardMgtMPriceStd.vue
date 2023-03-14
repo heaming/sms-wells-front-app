@@ -63,11 +63,11 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { gridUtil, stringUtil, getComponentType } from 'kw-lib';
+import { useGlobal, gridUtil, stringUtil, getComponentType } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import pdConst from '~sms-common/product/constants/pdConst';
 import ZwpdcPropMeta from '~sms-common/product/pages/manage/components/ZwpdcPropMeta.vue';
-import { getGridRowCount, setPdGridRows, getGridRowsToSavePdProps, getPropInfosToGridRows, getPdMetaToGridInfos, pdMergeBy } from '~sms-common/product/utils/pdUtil';
+import { setGridDateFromTo, getGridRowCount, setPdGridRows, getGridRowsToSavePdProps, getPropInfosToGridRows, getPdMetaToGridInfos, pdMergeBy } from '~sms-common/product/utils/pdUtil';
 
 /* eslint-disable no-use-before-define */
 defineExpose({
@@ -82,6 +82,8 @@ const props = defineProps({
   readonly: { type: Boolean, default: false },
 });
 
+const { t } = useI18n();
+const { alert } = useGlobal();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -134,11 +136,10 @@ async function validateProps() {
   const rtn = gridUtil.validate(grdMainRef.value.getView(), {
     isChangedOnly: false,
   });
-  // if(rtn && !gridRowCount){
-  //   alert('행추가');
-  //   return false;
-  // }
-  // console.log('=-================', rtn);
+  if (rtn && !gridRowCount.value) {
+    await alert(t('MSG_ALT_ADD_SOME_ITEM', [t('MSG_TXT_STD_PRICE')]));
+    return false;
+  }
   return rtn;
 }
 
@@ -287,6 +288,11 @@ async function initGrid(data, view) {
   view.sortingOptions.enabled = false;
   view.displayOptions.columnResizable = false;
   view.filteringOptions.enabled = true;
+
+  view.onCellEdited = async (grid, itemIndex, row, fieldIndex) => {
+    // 날짜값 조정
+    await setGridDateFromTo(view, grid, itemIndex, fieldIndex, 'vlStrtDtm', 'vlEndDtm');
+  };
 
   view.onCellClicked = async (g, { dataRow }) => {
     if (dataRow) {

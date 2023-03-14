@@ -94,7 +94,7 @@
         dense
         class="ml12 w140"
         :label="$t('MSG_TXT_PD_SEL_STD')"
-        :options="stdRelCodes"
+        :options="stdRelCodes.PDCT_REL_DV_CD"
         :placeholder="$t('MSG_TXT_SEL_REL_TYPE')"
         rules="required"
       />
@@ -140,7 +140,7 @@ const props = defineProps({
   codes: { type: Object, default: null },
 });
 
-const { modal } = useGlobal();
+const { alert, modal } = useGlobal();
 const { t } = useI18n();
 
 // -------------------------------------------------------------------------------------------------
@@ -160,8 +160,7 @@ const standardRelTypes = ref([
   pdConst.PD_REL_TP_CD_CONTRACTED_PD,
   pdConst.PD_REL_TP_CD_REQ_PD]);
 const standardRelTypeRef = ref();
-const stdRelCodes = (await codeUtil.getMultiCodes('PD_REL_TP_CD')).PD_REL_TP_CD
-  .filter((item) => standardRelTypes.value.includes(item.codeId));
+const stdRelCodes = await codeUtil.getMultiCodes('PDCT_REL_DV_CD');
 
 const materialSelectItems = ref([
   // 교재/자재명
@@ -223,6 +222,11 @@ async function isModifiedProps() {
 }
 
 async function validateProps() {
+  const serviceRows = gridUtil.getAllRowValues(grdServiceRef.value.getView());
+  if (!serviceRows || !serviceRows.length) {
+    await alert(t('MSG_ALT_ADD_SOME_ITEM', [t('MSG_TXT_SERVICE')]));
+    return false;
+  }
   return true;
 }
 
@@ -455,7 +459,7 @@ async function initServiceGrid(data, view) {
 async function initStandardGrid(data, view) {
   const columns = [
     // 관계구분
-    { fieldName: 'pdRelTpCd', header: t('MSG_TXT_RELATION_CLSF'), width: '107', styleName: 'text-center', options: stdRelCodes, editable: false },
+    { fieldName: 'pdRelTpCd', header: t('MSG_TXT_RELATION_CLSF'), width: '107', styleName: 'text-center', options: stdRelCodes.PDCT_REL_DV_CD, editable: false },
     // 상태
     { fieldName: 'tempSaveYn', header: t('MSG_TXT_STT'), width: '105', styleName: 'text-center', options: props.codes?.PD_TEMP_SAVE_CD, editable: false },
     // 기준상품 분류
