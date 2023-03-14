@@ -197,7 +197,7 @@ async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
   const res = await dataService.get(`${baseUrl}/excel-download`, { params: cachedParams });
   await gridUtil.exportView(view, {
-    fileName: t('MSG_TIT_AS_PART_MGT'),
+    fileName: router.value.meta.menuName,
     timePostfix: true,
     exportData: res.data,
   });
@@ -249,10 +249,10 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'pdAbbrNm', header: t('MSG_TXT_ABBR'), width: '195' }, /* 약어 */
     // 사용자 관련 공통 컬럼
     { fieldName: 'fstRgstDtm', header: t('MSG_TXT_RGST_DTM'), width: '110', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date' }, /* 등록일 */
-    { fieldName: 'fstRgstUsrNm', header: t('MSG_TXT_RGST_USR'), width: '80', styleName: 'rg-button-link text-center', renderer: { type: 'button' }, preventCellItemFocus: true }, /* 등록자 */
+    { fieldName: 'fstRgstUsrNm', header: t('MSG_TXT_RGST_USR'), width: '80', styleName: 'text-center', editable: false },
     { fieldName: 'fstRgstUsrId', header: 'RGST_ID', width: '50', visible: false },
     { fieldName: 'fnlMdfcDtm', header: t('MSG_TXT_FNL_MDFC_D'), width: '110', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date' }, /* 최종수정일 */
-    { fieldName: 'fnlMdfcUsrNm', header: t('MSG_TXT_FNL_MDFC_USR'), width: '80', styleName: 'rg-button-link text-center', renderer: { type: 'button' }, preventCellItemFocus: true }, /* 최종수정자 */
+    { fieldName: 'fnlMdfcUsrNm', header: t('MSG_TXT_FNL_MDFC_USR'), width: '80', styleName: 'text-center', editable: false },
     { fieldName: 'fnlMdfcUsrId', header: 'MDFC_ID', width: '50', visible: false },
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }))

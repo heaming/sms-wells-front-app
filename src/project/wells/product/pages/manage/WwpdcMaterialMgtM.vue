@@ -140,6 +140,15 @@
         </div>
 
         <div class="button-set--bottom">
+          <div class="button-set--bottom-left">
+            <!-- 이전 -->
+            <kw-btn
+              v-show="currentStep.step > 1"
+              :label="$t('MSG_BTN_PREV')"
+              class="ml8"
+              @click="onClickPrevStep"
+            />
+          </div>
           <div class="button-set--bottom-right">
             <!-- 삭제 -->
             <kw-btn
@@ -169,13 +178,6 @@
               :label="$t('MSG_BTN_TMP_SAVE')"
               class="ml8"
               @click="onClickSave('Y')"
-            />
-            <!-- 이전 -->
-            <kw-btn
-              v-show="(currentStep.step > 1)"
-              :label="$t('MSG_BTN_PREV')"
-              class="ml8"
-              @click="onClickPrevStep"
             />
             <!-- 다음 -->
             <kw-btn
