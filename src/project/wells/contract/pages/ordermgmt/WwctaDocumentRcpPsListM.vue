@@ -110,6 +110,7 @@ import dayjs from 'dayjs';
 
 const dataService = useDataService();
 const { t } = useI18n();
+const { currentRoute } = useRouter();
 
 let cachedParams;
 const now = dayjs();
@@ -161,9 +162,11 @@ async function onClickSearch() {
 
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
+  const res = await dataService.get('/sms/wells/contract/document-receipts/excel-download', { params: cachedParams });
   await gridUtil.exportView(view, {
-    fileName: '서류접수현황',
+    fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
+    exportData: res.data,
   });
 }
 
