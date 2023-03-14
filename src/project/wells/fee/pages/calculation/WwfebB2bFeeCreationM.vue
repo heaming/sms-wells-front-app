@@ -1,28 +1,41 @@
+<!----
+****************************************************************************************************
+* 프로그램 개요
+****************************************************************************************************
+1. 모듈 : FEB
+2. 프로그램 ID : WwfebB2bFeeCreationM - B2B 수수료 생성관리
+3. 작성자 : gs.nidhi.d
+4. 작성일 : 2023.03.13
+****************************************************************************************************
+* 프로그램 설명
+****************************************************************************************************
+- B2B 수수료 생성관리
+****************************************************************************************************
+--->
 <template>
   <kw-page>
-    <template #header>
-      <kw-page-header :options="['홈', 'nav', 'nav','B2B 수수료 생성관리']" />
-    </template>
     <kw-search
       one-row
       :cols="2"
     >
       <kw-search-row>
         <kw-search-item
-          label="실적년월"
+          :label="$t('MSG_TXT_PERF_YM')"
           required
         >
           <kw-date-picker
+            :label="$t('MSG_TXT_PERF_YM')"
             type="month"
             rules="required"
           />
         </kw-search-item>
         <kw-search-item
-          label="업무구분"
+          :label="$t('MSG_TXT_TASK_DIV')"
           required
         >
           <kw-option-group
             :model-value="'순주문'"
+            :label="$t('MSG_TXT_TASK_DIV')"
             type="radio"
             :options="['순주문', '수수료']"
             rules="required"
@@ -37,7 +50,7 @@
           <kw-btn
             secondary
             dense
-            label="프로세스 재실행"
+            :label="$t('MSG_TXT_RERUN_PROC')"
             class="ml8"
           />
         </template>
@@ -48,13 +61,13 @@
       >
         <kw-step
           :name="1"
-          :title="`실적집계`"
+          :title="$t('MSG_TXT_PERF_AGRG')"
           :done="stepInitNum > 1"
           prefix="1"
         />
         <kw-step
           :name="2"
-          :title="`수수료\n생성`"
+          :title="`${t('MSG_TXT_FEE')}\n${t('MSG_TXT_CRT')}`"
           :done="stepInitNum > 2"
           prefix="2"
           :active-icon="'write'"
@@ -62,35 +75,32 @@
         />
         <kw-step
           :name="3"
-          :title="`보증예치금\n적립`"
+          :title="`${t('MSG_TXT_RDS')}\n${t('MSG_TXT_RV')}`"
           :done="stepInitNum > 7"
-          prefix="7"
-        />
-        <kw-step
-          :name="3"
-          :title="`이체자료\n생성`"
-          :done="stepInitNum > 8"
-          prefix="8"
+          prefix="3"
         />
 
         <kw-step-panel :name="2">
           <kw-action-top class="mt40">
             <template #left>
-              <kw-paging-info
-                :total-count="123456"
-              />
+              <kw-paging-info :total-count="123456" />
             </template>
+            <kw-btn
+              dense
+              secondary
+              :label="$t('MSG_BTN_HIS_MGT')"
+            />
             <kw-btn
               icon="download_on"
               dense
               secondary
-              label="엑셀다운로드"
+              :label="$t('MSG_BTN_EXCEL_DOWN')"
               @click="onClickExcelDownload"
             />
           </kw-action-top>
           <kw-grid
             :visible-rows="6"
-            @init="initGrid"
+            @init="initGrdMain"
           />
         </kw-step-panel>
       </kw-stepper>
@@ -99,9 +109,19 @@
 </template>
 
 <script setup>
+// -------------------------------------------------------------------------------------------------
+// Import & Declaration
+// -------------------------------------------------------------------------------------------------
+import { defineGrid } from 'kw-lib';
+
+const { t } = useI18n();
+
 const stepInitNum = ref(2);
 
-function initGrid(data, view) {
+// -------------------------------------------------------------------------------------------------
+// Initialize Grid
+// -------------------------------------------------------------------------------------------------
+const initGrdMain = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'col1' },
     { fieldName: 'col2' },
@@ -124,24 +144,24 @@ function initGrid(data, view) {
   ];
 
   const columns = [
-    { fieldName: 'col1', header: '소속코드', width: '127', styleName: 'text-center' },
-    { fieldName: 'col2', header: '판매자', width: '98', styleName: 'text-left ' },
-    { fieldName: 'col3', header: '번호', width: '127', styleName: 'text-center' },
-    { fieldName: 'col4', header: '고객코드', width: '127', styleName: 'text-center' },
-    { fieldName: 'col5', header: '고객성명', width: '98', styleName: 'text-left' },
-    { fieldName: 'col6', header: '상품코드', width: '127', styleName: 'text-center' },
-    { fieldName: 'col7', header: '상품명', width: '179', styleName: 'text-left' },
-    { fieldName: 'col8', header: '할인구분', width: '98', styleName: 'text-right' },
-    { fieldName: 'col9', header: '할인유형', width: '98', styleName: 'text-right' },
-    { fieldName: 'col10', header: '할인제도', width: '98', styleName: 'text-right' },
-    { fieldName: 'col11', header: '결합구분', width: '98', styleName: 'text-right' },
-    { fieldName: 'col12', header: '용도구분', width: '98', styleName: 'text-right' },
-    { fieldName: 'col13', header: '관리유형', width: '98', styleName: 'text-left' },
-    { fieldName: 'col14', header: '방문주기', width: '98', styleName: 'text-right' },
-    { fieldName: 'col15', header: '접수일자', width: '127', styleName: 'text-center' },
-    { fieldName: 'col16', header: '매출일자', width: '127', styleName: 'text-center' },
-    { fieldName: 'col17', header: '취소일자', width: '127', styleName: 'text-center' },
-    { fieldName: 'col18', header: '수수료', width: '127', styleName: 'text-right' },
+    { fieldName: 'col1', header: t('MSG_TXT_BLG'), width: '127', styleName: 'text-center' },
+    { fieldName: 'col2', header: t('MSG_TXT_SELLER_PERSON'), width: '98', styleName: 'text-left ' },
+    { fieldName: 'col3', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '127', styleName: 'text-center' },
+    { fieldName: 'col4', header: t('MSG_TXT_CNTR_DTL_NO'), width: '127', styleName: 'text-center' },
+    { fieldName: 'col5', header: t('MSG_TXT_CUST_STMT'), width: '98', styleName: 'text-left' },
+    { fieldName: 'col6', header: t('MSG_TXT_PRDT_CODE'), width: '127', styleName: 'text-center' },
+    { fieldName: 'col7', header: t('MSG_TXT_PRDT_NM'), width: '179', styleName: 'text-left' },
+    { fieldName: 'col8', header: t('MSG_TXT_PD_DC_CLASS'), width: '98', styleName: 'text-right' },
+    { fieldName: 'col9', header: t('MSG_TXT_DISC_CODE'), width: '98', styleName: 'text-right' },
+    { fieldName: 'col10', header: t('MSG_TXT_DSC_SYST'), width: '98', styleName: 'text-right' },
+    { fieldName: 'col11', header: t('MSG_TXT_COMBI_DV'), width: '98', styleName: 'text-right' },
+    { fieldName: 'col12', header: t('MSG_TXT_USWY_DV'), width: '98', styleName: 'text-right' },
+    { fieldName: 'col13', header: t('MSG_TXT_MGT_TYP'), width: '98', styleName: 'text-left' },
+    { fieldName: 'col14', header: t('MSG_TXT_VST_PRD'), width: '98', styleName: 'text-right' },
+    { fieldName: 'col15', header: t('MSG_TXT_RCPDT'), width: '127', styleName: 'text-center' },
+    { fieldName: 'col16', header: t('MSG_TXT_SL_DT'), width: '127', styleName: 'text-center' },
+    { fieldName: 'col17', header: t('MSG_TXT_CANC_DT'), width: '127', styleName: 'text-center' },
+    { fieldName: 'col18', header: t('MSG_TXT_NUM_OF_NEW_CASES'), width: '127', styleName: 'text-right' },
   ];
   data.setFields(fields);
   view.setColumns(columns);
@@ -157,10 +177,5 @@ function initGrid(data, view) {
     { col1: 'Z950010', col2: '총판10', col3: '1607624', col4: '2022-4640868', col5: '홍길동', col6: '4512', col7: 'WN652NWR', col8: '3', col9: '6', col10: '3', col11: '18', col12: '2', col13: '2-업소', col14: '3', col15: '22-10-24', col16: '22-10-24', col17: '22-10-25', col18: '123,450' },
     { col1: 'Z950010', col2: '총판10', col3: '1607624', col4: '2022-4640868', col5: '홍길동', col6: '4512', col7: 'WN652NWR', col8: '3', col9: '6', col10: '3', col11: '18', col12: '2', col13: '2-업소', col14: '3', col15: '22-10-24', col16: '22-10-24', col17: '22-10-25', col18: '123,450' },
   ]);
-}
-
+});
 </script>
-
-<style>
-
-</style>
