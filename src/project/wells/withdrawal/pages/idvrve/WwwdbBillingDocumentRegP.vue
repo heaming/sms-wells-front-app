@@ -179,9 +179,9 @@ let cachedParams;
 
 // 저장 버튼
 async function onClickSave() {
-  if (await obsRef.value.alertIfIsNotModified()) { return; }
+  if (!await obsRef.value.validate()) { return; }
 
-  // if (!await obsRef.value.validate()) { return; }
+  if (await obsRef.value.alertIfIsNotModified()) { return; }
 
   const view = grdPageRef.value.getView();
 
@@ -195,7 +195,7 @@ async function onClickSave() {
 
   // if (await gridUtil.alertIfIsNotModified(view)) { return; }
 
-  if (!await gridUtil.validate(view)) { return; }
+  // if (!await gridUtil.validate(view)) { return; }
 
   const changedRows = gridUtil.getChangedRowValues(view);
   const mainData = cloneDeep(regMainData.value);
