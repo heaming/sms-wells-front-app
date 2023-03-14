@@ -262,8 +262,9 @@ const initGrdMain = defineGrid((data, view) => {
     {
       header: t('MSG_TXT_DIV'), // 구분
       direction: 'horizontal',
-      items: [{ column: 'sapMatCd', footerUserSpans: [{ colspan: 3 }] }, 'pdCd', 'pdNm', 'cntt', 'siteAwPdGrpCd'],
+      items: [{ column: 'sapMatCd', footerUserSpans: [{ colspan: 3 }] }, 'pdCd', 'pdNm', 'siteAwPdGrpCd'],
     },
+    'cntt',
     {
       header: t('MSG_TXT_INSTALLATION'), // 설치
       direction: 'horizontal',
@@ -283,7 +284,7 @@ const initGrdMain = defineGrid((data, view) => {
 
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
-  view.setFixedOptions({ colCount: 1 });
+  view.setFixedOptions({ colCount: 2 });
   view.setFooters({ visible: true });
   view.filteringOptions.enabled = false;
 });
