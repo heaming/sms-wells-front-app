@@ -96,7 +96,7 @@
       </kw-action-top>
       <kw-grid
         :visible-rows="4"
-        @init="initGrdMain1"
+        @init="initGrdPerformanceDtl"
       />
       <kw-separator />
       <kw-action-top>
@@ -107,7 +107,7 @@
       </kw-action-top>
       <kw-grid
         :visible-rows="2"
-        @init="initGrdMain2"
+        @init="initGrdEstimatedFeeDtl"
       />
       <kw-separator />
       <kw-action-top>
@@ -117,7 +117,7 @@
       </kw-action-top>
       <kw-grid
         :visible-rows="3"
-        @init="initGrdMain3"
+        @init="initGrdSalesHist"
       />
     </div>
   </kw-page>
@@ -134,7 +134,7 @@ const { t } = useI18n();
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
-const initGrdMain1 = defineGrid((data, view) => {
+const initGrdPerformanceDtl = defineGrid((data, view) => {
   const fields = [{ fieldName: 'col1' }, { fieldName: 'col2' }, { fieldName: 'col3' }, { fieldName: 'col4' }, { fieldName: 'col5' }, { fieldName: 'col6' }, { fieldName: 'col7' }];
 
   const columns = [
@@ -177,7 +177,7 @@ const initGrdMain1 = defineGrid((data, view) => {
   ]);
 });
 
-const initGrdMain2 = defineGrid((data, view) => {
+const initGrdEstimatedFeeDtl = defineGrid((data, view) => {
   const fields = [{ fieldName: 'col1' }, { fieldName: 'col2' }, { fieldName: 'col3' }, { fieldName: 'col4' }, { fieldName: 'col5' }, { fieldName: 'col6' }, { fieldName: 'col7' }, { fieldName: 'col8' }, { fieldName: 'col9' }, { fieldName: 'col10' }];
 
   const columns = [
@@ -218,7 +218,7 @@ const initGrdMain2 = defineGrid((data, view) => {
     { col1: '합계', col2: '-', col3: '-', col4: '-', col5: '-', col6: '1,234,500', col7: '123,450', col8: '1,234,500', col9: '123,450', col10: '1,234,500' },
   ]);
 });
-const initGrdMain3 = defineGrid((data, view) => {
+const initGrdSalesHist = defineGrid((data, view) => {
   const fields = [{ fieldName: 'col1' }, { fieldName: 'col2' }, { fieldName: 'col3' }, { fieldName: 'col4' }, { fieldName: 'col5' }, { fieldName: 'col6' }, { fieldName: 'col7' }, { fieldName: 'col8' }, { fieldName: 'col9' }, { fieldName: 'col10' }, { fieldName: 'col11' }, { fieldName: 'col12' }, { fieldName: 'col13' }];
 
   const columns = [

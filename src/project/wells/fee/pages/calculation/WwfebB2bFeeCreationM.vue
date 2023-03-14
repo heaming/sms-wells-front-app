@@ -122,7 +122,26 @@ const stepInitNum = ref(2);
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
 const initGrdMain = defineGrid((data, view) => {
-  const fields = [{ fieldName: 'col1' }, { fieldName: 'col2' }, { fieldName: 'col3' }, { fieldName: 'col4' }, { fieldName: 'col5' }, { fieldName: 'col6' }, { fieldName: 'col7' }, { fieldName: 'col8' }, { fieldName: 'col9' }, { fieldName: 'col10' }, { fieldName: 'col11' }, { fieldName: 'col12' }, { fieldName: 'col13' }, { fieldName: 'col14' }, { fieldName: 'col15' }, { fieldName: 'col16' }, { fieldName: 'col17' }, { fieldName: 'col18' }];
+  const fields = [
+    { fieldName: 'col1' },
+    { fieldName: 'col2' },
+    { fieldName: 'col3' },
+    { fieldName: 'col4' },
+    { fieldName: 'col5' },
+    { fieldName: 'col6' },
+    { fieldName: 'col7' },
+    { fieldName: 'col8' },
+    { fieldName: 'col9' },
+    { fieldName: 'col10' },
+    { fieldName: 'col11' },
+    { fieldName: 'col12' },
+    { fieldName: 'col13' },
+    { fieldName: 'col14' },
+    { fieldName: 'col15' },
+    { fieldName: 'col16' },
+    { fieldName: 'col17' },
+    { fieldName: 'col18' },
+  ];
 
   const columns = [
     { fieldName: 'col1', header: t('MSG_TXT_BLG'), width: '127', styleName: 'text-center' },
