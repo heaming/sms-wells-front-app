@@ -32,6 +32,7 @@
     </kw-search>
   </div>
   <kw-action-top class="mt40">
+    <!-- (단위 : 원) -->
     <span class="kw-fc---black3 text-weight-regular">({{ $t('MSG_TXT_UNIT') }} : {{ $t('MSG_TXT_CUR_WON') }})</span>
   </kw-action-top>
   <kw-grid
@@ -179,6 +180,10 @@ await fetchData();
 
 watch(() => props.pdCd, (val) => { currentPdCd.value = val; });
 watch(() => props.initData, (val) => { currentInitData.value = val; resetInitData(); }, { deep: true });
+
+onMounted(async () => {
+  await onClickSearch();
+});
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid

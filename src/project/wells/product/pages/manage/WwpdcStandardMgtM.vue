@@ -286,7 +286,11 @@ async function onClickNextStep() {
     currentStep.value = cloneDeep(regSteps.value[currentStepIndex + 1]);
     return;
   }
-  const isValidOk = await (cmpStepRefs.value[currentStepIndex].value?.validateProps());
+
+  // 가격의 경우 별도 Step
+  const isValidOk = currentStepIndex === 3
+    ? await (cmpStepRefs.value[currentStepIndex].value?.validateStepProps())
+    : await (cmpStepRefs.value[currentStepIndex].value?.validateProps());
   if (!isValidOk) {
     return;
   }
@@ -371,12 +375,16 @@ async function onClickSave(tempSaveYn) {
 
   // 2. Step별 필수여부 확인
   let isValidOk = true;
-  await Promise.all(cmpStepRefs.value.map(async (item, idx) => {
-    if (!await item.value.validateProps()) {
-      isValidOk = false;
-      currentStep.value = cloneDeep(regSteps.value[idx]);
-    }
-  }));
+  if (tempSaveYn === 'Y' && isTempSaveBtn.value) {
+    isValidOk = await cmpStepRefs.value[0].value.validateProps();
+  } else {
+    await Promise.all(cmpStepRefs.value.map(async (item, idx) => {
+      if (isValidOk && !await item.value.validateProps()) {
+        isValidOk = false;
+        currentStep.value = cloneDeep(regSteps.value[idx]);
+      }
+    }));
+  }
   if (!isValidOk) {
     return;
   }
