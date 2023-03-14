@@ -22,7 +22,10 @@
       <kw-search-row
         v-if="searchCase1"
       >
-        <kw-search-item :label="$t('MSG_TXT_BASE_YM')">
+        <kw-search-item
+          :label="$t('MSG_TXT_BASE_YM')"
+          required
+        >
           <kw-date-picker
             v-model="searchParams.baseYm"
             type="month"
@@ -35,7 +38,6 @@
             v-model="searchParams.mngrDvCd"
             :options="codes.LOCARA_MNGT_DV_CD"
             first-option="all"
-            first-option-value=""
             @update:model-value="onChangeMngrDvCd"
           />
         </kw-search-item>
@@ -79,7 +81,6 @@
             v-model="searchParams.mngrDvCd"
             :options="codes.LOCARA_MNGT_DV_CD"
             first-option="all"
-            first-option-value=""
             @update:model-value="onChangeMngrDvCd"
           />
         </kw-search-item>
@@ -153,7 +154,6 @@
             v-model="searchParams.mngrDvCd"
             :options="codes.LOCARA_MNGT_DV_CD"
             first-option="all"
-            first-option-value=""
             @update:model-value="onChangeMngrDvCd"
           />
         </kw-search-item>
@@ -253,6 +253,7 @@
       </kw-action-top>
       <kw-grid
         ref="gridMainRef"
+        name="gridMain"
         :visible-rows="10"
         @init="initGrid"
       />
@@ -488,70 +489,70 @@ const initGrid = defineGrid((data, view) => {
     alert('개발중인 기능입니다.');
   };
 
-  // data.setRows([
-  //   {
-  //     mngrDvCd: '1',
-  //     ogNm: 'A910000',
-  //     prtnrNo: '1344349',
-  //     prtnrKnm: '신재형',
-  //     pdNm: '에어드레서 대용량 크리스탈미러 DF10R9700CG _금융리스',
-  //     cntrNo: '2022-1323832',
-  //     rcgvpKnm: '신한은행',
-  //     newAdrZip: '12345',
-  //     rnadr: '서울시',
-  //     rdadr: '은평',
+  data.setRows([
+    {
+      mngrDvCd: '1',
+      ogNm: 'A910000',
+      prtnrNo: '1344349',
+      prtnrKnm: '신재형',
+      pdNm: '에어드레서 대용량 크리스탈미러 DF10R9700CG _금융리스',
+      cntrNo: '2022-1323832',
+      rcgvpKnm: '신한은행',
+      newAdrZip: '12345',
+      rnadr: '서울시',
+      rdadr: '은평',
 
-  //     vstYm: '202303',
-  //     bcNo: '123456',
+      vstYm: '202303',
+      bcNo: '123456',
 
-  //     fnlMdfcDtm: '20230310123456',
-  //     vstFshDt: '20230310',
-  //     vstFshHh: '123456',
-  //     bcInMthdCd: 'aabbcc',
-  //     useMpno: '01012345678',
-  //   },
-  //   {
-  //     mngrDvCd: '1',
-  //     ogNm: 'A910000',
-  //     prtnrNo: '1344349',
-  //     prtnrKnm: '신재형',
-  //     pdNm: '에어드레서 대용량 크리스탈미러 DF10R9700CG _금융리스',
-  //     cntrNo: '2022-1323832',
-  //     rcgvpKnm: '신한은행',
-  //     newAdrZip: '12345',
-  //     rnadr: '서울시',
-  //     rdadr: '은평',
+      fnlMdfcDtm: '20230310123456',
+      vstFshDt: '20230310',
+      vstFshHh: '123456',
+      bcInMthdCd: 'aabbcc',
+      useMpno: '01012345678',
+    },
+    {
+      mngrDvCd: '1',
+      ogNm: 'A910000',
+      prtnrNo: '1344349',
+      prtnrKnm: '신재형',
+      pdNm: '에어드레서 대용량 크리스탈미러 DF10R9700CG _금융리스',
+      cntrNo: '2022-1323832',
+      rcgvpKnm: '신한은행',
+      newAdrZip: '12345',
+      rnadr: '서울시',
+      rdadr: '은평',
 
-  //     vstYm: '202303',
-  //     bcNo: '123456',
+      vstYm: '202303',
+      bcNo: '123456',
 
-  //     fnlMdfcDtm: '20230310123456',
-  //     vstFshDt: '20230310',
-  //     vstFshHh: '123456',
-  //     bcInMthdCd: 'aabbcc',
-  //     useMpno: '01012345678',
-  //   },
-  //   {
-  //     mngrDvCd: '1',
-  //     ogNm: 'A910000',
-  //     prtnrNo: '1344349',
-  //     prtnrKnm: '신재형',
-  //     pdNm: '에어드레서 대용량 크리스탈미러 DF10R9700CG _금융리스',
-  //     cntrNo: '2022-1323832',
-  //     rcgvpKnm: '신한은행',
-  //     newAdrZip: '12345',
-  //     rnadr: '서울시',
-  //     rdadr: '은평',
+      fnlMdfcDtm: '20230310123456',
+      vstFshDt: '20230310',
+      vstFshHh: '123456',
+      bcInMthdCd: 'aabbcc',
+      useMpno: '01012345678',
+    },
+    {
+      mngrDvCd: '1',
+      ogNm: 'A910000',
+      prtnrNo: '1344349',
+      prtnrKnm: '신재형',
+      pdNm: '에어드레서 대용량 크리스탈미러 DF10R9700CG _금융리스',
+      cntrNo: '2022-1323832',
+      rcgvpKnm: '신한은행',
+      newAdrZip: '12345',
+      rnadr: '서울시',
+      rdadr: '은평',
 
-  //     vstYm: '202303',
-  //     bcNo: '123456',
+      vstYm: '202303',
+      bcNo: '123456',
 
-  //     fnlMdfcDtm: '20230310123456',
-  //     vstFshDt: '20230310',
-  //     vstFshHh: '123456',
-  //     bcInMthdCd: 'aabbcc',
-  //     useMpno: '01012345678',
-  //   },
-  // ]);
+      fnlMdfcDtm: '20230310123456',
+      vstFshDt: '20230310',
+      vstFshHh: '123456',
+      bcInMthdCd: 'aabbcc',
+      useMpno: '01012345678',
+    },
+  ]);
 });
 </script>
