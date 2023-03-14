@@ -157,8 +157,8 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'col14', header: t('MSG_TXT_MGT_TYP'), width: '98', styleName: 'text-left' },
     { fieldName: 'col15', header: t('MSG_TXT_VST_PRD'), width: '98', styleName: 'text-right' },
     { fieldName: 'col16', header: t('MSG_TXT_RCPDT'), width: '127', styleName: 'text-center' },
-    { fieldName: 'col17', header: t('MSG_TXT_SL_DT'), width: '127', styleName: 'text-center', datetimeFormat: 'datetime' },
-    { fieldName: 'col18', header: t('MSG_TXT_CANC_DT'), width: '127', styleName: 'text-center', datetimeFormat: 'datetime' },
+    { fieldName: 'col17', header: t('MSG_TXT_SL_DT'), width: '127', styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'col18', header: t('MSG_TXT_CANC_DT'), width: '127', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'col19', header: t('MSG_TXT_FEE'), width: '127', styleName: 'text-right' },
     { fieldName: 'col20', header: t('MSG_TXT_NUM_OF_NEW_CASES'), width: '92', styleName: 'text-right' },
   ];

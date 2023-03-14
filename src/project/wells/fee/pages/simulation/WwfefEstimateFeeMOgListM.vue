@@ -294,8 +294,8 @@ const initGrid4 = defineGrid((data, view) => {
   const fields = [{ fieldName: 'col1' }, { fieldName: 'col2' }, { fieldName: 'col3' }, { fieldName: 'col4' }, { fieldName: 'col5' }, { fieldName: 'col6' }, { fieldName: 'col7' }, { fieldName: 'col8' }, { fieldName: 'col9' }, { fieldName: 'col10' }];
 
   const columns = [
-    { fieldName: 'col1', header: t('MSG_TXT_CONF_COMPL_DT'), width: '155', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd' },
-    { fieldName: 'col2', header: t('MSG_TXT_INST_COMP_DT'), width: '155', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd' },
+    { fieldName: 'col1', header: t('MSG_TXT_CONF_COMPL_DT'), width: '155', styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'col2', header: t('MSG_TXT_INST_COMP_DT'), width: '155', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'col3', header: t('MSG_TXT_CST_CD'), width: '155', styleName: 'text-center' },
     { fieldName: 'col4', header: t('MSG_TXT_CNTRT'), width: '155', styleName: 'text-left' },
     { fieldName: 'col5', header: t('MSG_TXT_PRDT_NM'), width: '155', styleName: 'text-left' },
