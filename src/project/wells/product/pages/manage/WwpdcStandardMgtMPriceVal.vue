@@ -152,7 +152,7 @@ async function getSaveData() {
     return rtn;
   }, []); /* 그리드에서 수정항목이 아닌 경우 제외 */
   const rowValues = gridUtil.getAllRowValues(view);
-  console.log('WwpdcStandardMgtMPriceVal - getSaveData - rowValues1 : ', rowValues);
+  // console.log('WwpdcStandardMgtMPriceVal - getSaveData - rowValues1 : ', rowValues);
   const rtnValues = await getGridRowsToSavePdProps(
     rowValues,
     currentMetaInfos.value,
@@ -160,6 +160,7 @@ async function getSaveData() {
     ['sellChnlCd', 'pdCd', ...defaultFields.value],
     outKeys,
   );
+  // console.log('WwpdcStandardMgtMPriceVal - getSaveData - rtnValues1.5 : ', rtnValues);
   if (removeObjects.value.length) {
     rtnValues[pdConst.REMOVE_ROWS] = cloneDeep(removeObjects.value);
   }
@@ -169,8 +170,7 @@ async function getSaveData() {
     }
     return rtn;
   }, []);
-
-  console.log('WwpdcStandardMgtMPriceVal - getSaveData - rtnValues2 : ', rtnValues);
+  // console.log('WwpdcStandardMgtMPriceVal - getSaveData - rtnValues2 : ', rtnValues);
   return rtnValues;
 }
 
@@ -250,7 +250,7 @@ async function initGridRows() {
       // console.log('WwpdcStandardMgtMPriceVal - initGridRows - row : ', row);
       return row;
     });
-    setPdGridRows(view, rows, pdConst.PRC_FNL_ROW_ID, defaultFields.value, true);
+    await setPdGridRows(view, rows, pdConst.PRC_FNL_ROW_ID, defaultFields.value, true);
   } else {
     view.getDataSource().clearRows();
   }
@@ -394,6 +394,11 @@ async function initGrid(data, view) {
   view.checkBar.visible = true;
   view.rowIndicator.visible = false;
   view.editOptions.editable = true;
+
+  view.sortingOptions.enabled = false;
+  view.displayOptions.columnResizable = false;
+  view.filteringOptions.enabled = true;
+
   view.setFixedOptions({ colCount: 6 });
 
   // 조정 값 초기화
@@ -427,6 +432,7 @@ async function initGrid(data, view) {
     }
   };
   await resetInitData();
+  await init();
   // 그리드 마운트 시점과 컴포넌트 마운트 시점 불일지로 아래 로직 추가
   await resetVisibleChannelColumns();
 }

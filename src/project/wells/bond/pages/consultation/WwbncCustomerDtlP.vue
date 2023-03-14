@@ -664,7 +664,7 @@
                 />
               </kw-tab-panel>
               <kw-tab-panel name="tab4">
-                <wwbna-counsel-wells-contract-list04 />
+                <zwbnc-customer-dtl-p-promise />
               </kw-tab-panel>
               <kw-tab-panel name="tab5">
                 <zwbnc-customer-dtl-p-law-measure />
@@ -946,6 +946,7 @@ import { cloneDeep } from 'lodash-es';
 
 import ZwbncCustomerDtlPSms from '~sms-common/bond/pages/consultation/ZwbncCustomerDtlPSms.vue';
 import ZwbncCustomerDtlPLawMeasure from '~sms-common/bond/pages/consultation/ZwbncCustomerDtlPLawMeasure.vue';
+import ZwbncCustomerDtlPPromise from '~sms-common/bond/pages/consultation/ZwbncCustomerDtlPPromise.vue';
 import WwbncCustomerDtlPCounselHistory from './WwbncCustomerDtlPCounselHistory.vue';
 
 const { t } = useI18n();

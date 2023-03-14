@@ -102,7 +102,7 @@ async function getSaveData() {
   if (removeObjects.value.length) {
     rtnValues[pdConst.REMOVE_ROWS] = cloneDeep(removeObjects.value);
   }
-  console.log('WwpdcStandardMgtMPriceFnl - getSaveData - rtnValues : ', rtnValues);
+  // console.log('WwpdcStandardMgtMPriceFnl - getSaveData - rtnValues : ', rtnValues);
   return rtnValues;
 }
 
@@ -176,7 +176,7 @@ async function initGridRows() {
       return row;
     });
     // console.log('WwpdcStandardMgtMPriceFnl - initGridRows - Rows : ', rows);
-    setPdGridRows(view, rows, pdConst.PRC_FNL_ROW_ID, defaultFields.value, true);
+    await setPdGridRows(view, rows, pdConst.PRC_FNL_ROW_ID, defaultFields.value, true);
   } else {
     view.getDataSource().clearRows();
   }
@@ -279,6 +279,11 @@ async function initGrid(data, view) {
   view.checkBar.visible = true;
   view.rowIndicator.visible = false;
   view.editOptions.editable = true;
+
+  view.sortingOptions.enabled = false;
+  view.displayOptions.columnResizable = false;
+  view.filteringOptions.enabled = true;
+
   view.setFixedOptions({ colCount: 6 });
 
   // 조정 값 초기화
@@ -297,5 +302,6 @@ async function initGrid(data, view) {
   }; */
   // 그리드 마운트 시점과 컴포넌트 마운트 시점 불일지로 아래 로직 추가
   await initGridRows();
+  await init();
 }
 </script>

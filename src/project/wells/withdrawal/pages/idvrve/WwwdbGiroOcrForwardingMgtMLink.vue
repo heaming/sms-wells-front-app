@@ -94,7 +94,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, defineGrid, getComponentType, gridUtil, useDataService, alert } from 'kw-lib';
+import { defineGrid, getComponentType, gridUtil, useDataService, alert, useMeta } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
 import { openReportPopup } from '~/modules/common/utils/cmPopupUtil';
@@ -103,7 +103,7 @@ const now = dayjs();
 const dataService = useDataService();
 const { t } = useI18n();
 const { currentRoute } = useRouter();
-
+const { getConfig } = useMeta();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -116,14 +116,14 @@ const props = defineProps({
 
 const grdPageRef = ref(getComponentType('KwGrid'));
 
-const codes = await codeUtil.getMultiCodes(
-  'COD_PAGE_SIZE_OPTIONS',
-);
+// const codes = await codeUtil.getMultiCodes(
+//   'COD_PAGE_SIZE_OPTIONS',
+// );
 
 const pageInfo = ref({
   totalCount: 0,
   pageIndex: 1,
-  pageSize: Number(codes.COD_PAGE_SIZE_OPTIONS[0].codeName),
+  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
   needTotalCount: true,
 });
 

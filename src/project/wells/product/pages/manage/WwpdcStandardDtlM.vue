@@ -25,14 +25,14 @@
               / {{ pdBas.fnlMdfcUsrNm }}</span>
           </p>
         </h2>
-        <wwpdc-standard-dtl-m-contents
-          ref="cmpRef"
-          v-model:pd-cd="currentPdCd"
-          v-model:init-data="prevStepData"
-          :codes="codes"
-          :temp-save-yn="props.tempSaveYn"
-        />
       </div>
+      <wwpdc-standard-dtl-m-contents
+        ref="cmpRef"
+        v-model:pd-cd="currentPdCd"
+        v-model:init-data="prevStepData"
+        :codes="codes"
+        :temp-save-yn="props.tempSaveYn"
+      />
     </div>
   </kw-page>
 </template>

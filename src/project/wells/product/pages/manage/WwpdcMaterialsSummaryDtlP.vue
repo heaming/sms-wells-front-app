@@ -14,12 +14,14 @@
 --->
 <template>
   <kw-popup size="lg">
+    <!--
     <kw-chip
       :label="pdBas.sellYn === 'Y' ? $t('MSG_TXT_PD_SELLING') : $t('MSG_TXT_PD_NOT_SELLING') "
       color="primary"
       outline
       class="ml0 mb8 pb2 pt1 px8 mt0"
     />
+     -->
 
     <h2 class="h2-small">
       {{ pdBas.pdNm }}({{ pdBas.pdCd }})
@@ -66,11 +68,11 @@
 
     <kw-separator />
     <!-- Grid Area -->
-    <h3>{{ grd1stTit.codeName }}</h3>
+    <h3>{{ grd3rdTit.codeName }}</h3>
     <kw-grid
-      ref="grd1stRef"
-      :visible-rows="visibleRowCnt1"
-      @init="initGrd1st"
+      ref="grd3rdRef"
+      :visible-rows="visibleRowCnt3"
+      @init="initGrd3rd"
     />
     <kw-separator />
     <h3>{{ grd2ndTit.codeName }}</h3>
@@ -80,20 +82,14 @@
       @init="initGrd2nd"
     />
     <kw-separator />
-    <h3>{{ grd3rdTit.codeName }}</h3>
+    <h3>{{ grd1stTit.codeName }}</h3>
     <kw-grid
-      ref="grd3rdRef"
-      :visible-rows="visibleRowCnt3"
-      @init="initGrd3rd"
+      ref="grd1stRef"
+      :visible-rows="visibleRowCnt1"
+      @init="initGrd1st"
     />
 
-    <template #action>
-      <kw-btn
-        primary
-        :label="$t('MSG_BTN_CONFIRM')"
-        @click="onClickConfirm"
-      />
-    </template>
+    <template #action />
   </kw-popup>
 </template>
 
@@ -101,11 +97,10 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService, stringUtil, useModal, getComponentType, defineGrid, codeUtil } from 'kw-lib';
+import { useDataService, stringUtil, getComponentType, defineGrid, codeUtil } from 'kw-lib';
 import pdConst from '~sms-common/product/constants/pdConst';
 import { isEmpty } from 'lodash-es';
 
-const { ok } = useModal();
 const dataService = useDataService();
 const { t } = useI18n();
 const props = defineProps({
@@ -135,10 +130,6 @@ const visibleRowCnt2 = ref(1);
 const visibleRowCnt3 = ref(1);
 
 const codes = await codeUtil.getMultiCodes('PD_REL_TP_CD');
-
-async function onClickConfirm() {
-  ok();
-}
 
 async function fetchData() {
   const res = await dataService.get(`${baseUrl}/${props.pdCd}`);
