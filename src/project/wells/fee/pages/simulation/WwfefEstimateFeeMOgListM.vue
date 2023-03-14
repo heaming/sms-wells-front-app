@@ -47,7 +47,7 @@
     <div class="result-area">
       <kw-action-top>
         <template #left>
-          <span class="accent">{{ t('MSG_TXT_DEFAULT_INFO') }}</span>
+          <span class="accent">{{ t('MSG_TIT_DEFAULT_INFO') }}</span>
         </template>
       </kw-action-top>
       <kw-form
