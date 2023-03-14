@@ -9,7 +9,7 @@
  ****************************************************************************************************
  * 프로그램 설명
  ****************************************************************************************************
- - 재고마스터갱신 (http://localhost:3000/#/service/wwsna-returning-goods-out-of-storage-reg)
+ - 재고마스터갱신 (http://localhost:3000/#/service/wwsna-stock-master-renewal-mgt)
  ****************************************************************************************************
 --->
 <template>
@@ -118,12 +118,9 @@ const searchParams = ref({
 async function onClickRenewal() {
   if (!await frmMainRef.value.validate()) return;
 
-  const res = await dataService.put('/sms/wells/service/stock-master-renewal', searchParams.value);
-  console.log(res.data);
+  await dataService.put('/sms/wells/service/stock-master-renewal', searchParams.value);
 
-  if (res.status === 200) {
-    notify(t('MSG_ALT_RENEW_DATA'));
-  }
+  notify(t('MSG_ALT_RENEW_DATA'));
 }
 
 </script>
