@@ -13,11 +13,11 @@
 ****************************************************************************************************
 --->
 <template>
-  <h3>{{ grd1stTit.codeName }}</h3>
+  <h3>{{ grd3rdTit.codeName }}</h3>
   <kw-grid
-    ref="grd1stRef"
+    ref="grd3rdRef"
     :visible-rows="visibleRowCnt"
-    @init="initGrd1st"
+    @init="initGrd3rd"
   />
   <kw-separator />
   <h3>{{ grd2ndTit.codeName }}</h3>
@@ -27,11 +27,11 @@
     @init="initGrd2nd"
   />
   <kw-separator />
-  <h3>{{ grd3rdTit.codeName }}</h3>
+  <h3>{{ grd1stTit.codeName }}</h3>
   <kw-grid
-    ref="grd3rdRef"
+    ref="grd1stRef"
     :visible-rows="visibleRowCnt"
-    @init="initGrd3rd"
+    @init="initGrd1st"
   />
 </template>
 <script setup>
