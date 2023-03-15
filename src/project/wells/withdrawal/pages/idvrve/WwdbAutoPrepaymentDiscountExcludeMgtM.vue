@@ -342,7 +342,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'pdNm' }, // 상품명
     { fieldName: 'prmDscExcdStrtYm' }, // 선납제외시작월
     { fieldName: 'prmDscExcdEndYm' }, // 선납제외종료월
-    { fieldName: 'col8' }, // 선납시작일
+    { fieldName: 'prmStrtDate' }, // 선납시작일
     { fieldName: 'slCtrAmt' }, // 조정값
     { fieldName: 'fstRgstDtm' }, // 등록일시
     { fieldName: 'fstRgstUsrId' }, // 등록자 id
@@ -428,7 +428,7 @@ const initGrid = defineGrid((data, view) => {
       width: '125',
       styleName: 'text-center',
     },
-    { fieldName: 'col8',
+    { fieldName: 'prmStrtDate',
       header: t('MSG_TXT_PRM_STRT_MM'),
       // , header: '선납시작월'
       width: '100',

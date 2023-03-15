@@ -319,7 +319,9 @@ const attachFileRef = ref();
 
 async function onClickExcelUpload() {
   const apiUrl = '/sms/wells/withdrawal/idvrve/mutual-alliance-bulk-deposit/excel-upload';
+
   const templateId = 'FOM_WDA_00001';
+
   const {
     result,
     payload,
@@ -327,11 +329,8 @@ async function onClickExcelUpload() {
     component: 'ZwcmzExcelUploadP',
     componentProps: { apiUrl, templateId },
   });
-  if (result) {
-    if (payload.status === 'S') {
-      notify(t('MSG_ALT_SAVE_DATA'));
-    }
-    console.log(payload);
+  if (result && payload.status === 'S') {
+    notify(t('MSG_ALT_SAVE_DATA'));
   }
 }
 
