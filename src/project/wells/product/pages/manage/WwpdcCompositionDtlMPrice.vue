@@ -3,7 +3,7 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : PDC (상품운영관리)
-2. 프로그램 ID : WwpdcStandardDtlMPrice - 기준상품 상세조회 - 가격정보 ( W-PD-U-0010M01 )
+2. 프로그램 ID : WwpdcCompositionDtlMPrice - 기준상품 상세조회 - 가격정보 ( W-PD-U-0010M01 )
 3. 작성자 : jintae.choi
 4. 작성일 : 2022.12.31
 ****************************************************************************************************
@@ -46,10 +46,10 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { getComponentType, useDataService, codeUtil, gridUtil, stringUtil } from 'kw-lib';
-import { cloneDeep, isEmpty, merge } from 'lodash-es';
+import { useDataService, codeUtil, gridUtil, getComponentType, stringUtil } from 'kw-lib';
 import pdConst from '~sms-common/product/constants/pdConst';
-import { pdMergeBy, getPropInfosToGridRows, getPdMetaToCodeNames, getPdMetaToGridInfos } from '~sms-common/product/utils/pdUtil';
+import { merge, cloneDeep, isEmpty } from 'lodash-es';
+import { pdMergeBy, getPdMetaToCodeNames, getPropInfosToGridRows, getPdMetaToGridInfos } from '~sms-common/product/utils/pdUtil';
 
 /* eslint-disable no-use-before-define */
 defineExpose({
@@ -59,9 +59,7 @@ defineExpose({
 const props = defineProps({
   pdCd: { type: String, default: null },
   initData: { type: Object, default: null },
-  metaInfos: { type: Object, default: null },
   codes: { type: Object, default: null },
-  readonly: { type: Boolean, default: false },
 });
 
 const dataService = useDataService();
@@ -76,12 +74,12 @@ const prcd = pdConst.TBL_PD_PRC_DTL;
 const prcfd = pdConst.TBL_PD_PRC_FNL_DTL;
 const currentPdCd = ref();
 const currentInitData = ref(null);
-const currentMetaInfos = ref();
-const currentCodes = ref({});
 const usedChannelCds = ref([]);
+const metaInfos = ref();
+const currentCodes = ref({});
 
 const searchParams = ref({
-  pdTpCd: pdConst.PD_TP_CD_STANDARD,
+  pdTpCd: pdConst.PD_TP_CD_COMPOSITION,
   pdCd: '',
   avlChnlId: '',
 });
@@ -93,37 +91,38 @@ async function resetData() {
 }
 
 async function initGridRows() {
+  const view = grdMainRef.value?.getView();
   if (await currentInitData.value?.[prcfd]) {
     // 기준가 정보
-    const stdRows = cloneDeep(
-      await getPropInfosToGridRows(
-        currentInitData.value?.[prcd],
-        currentMetaInfos.value,
-        prcd,
-      ),
+    const stdRows = await getPropInfosToGridRows(
+      currentInitData.value?.[prcd],
+      metaInfos.value,
+      prcd,
+      [pdConst.PRC_STD_ROW_ID, 'pdPrcDtlId'],
     );
+    // 선택변수/최종가
     const rows = cloneDeep(await getPropInfosToGridRows(
       currentInitData.value?.[prcfd],
-      currentMetaInfos.value,
+      metaInfos.value,
       prcfd,
+      [pdConst.PRC_STD_ROW_ID, pdConst.PRC_FNL_ROW_ID, 'pdPrcDtlId', 'pdPrcFnlDtlId'],
     ));
-    rows?.map((row) => {
-      row[pdConst.PRC_FNL_ROW_ID] = row[pdConst.PRC_FNL_ROW_ID] ?? row.pdPrcFnlDtlId;
-      row[pdConst.PRC_STD_ROW_ID] = row[pdConst.PRC_STD_ROW_ID] ?? row.pdPrcDtlId;
+    rows?.forEach((row) => {
       const stdRow = stdRows?.find((item) => item[pdConst.PRC_STD_ROW_ID] === row[pdConst.PRC_STD_ROW_ID]
                                             || item.pdPrcDtlId === row.pdPrcDtlId);
       row = pdMergeBy(row, stdRow);
-      row.sellTpCd = currentInitData.value[pdConst.TBL_PD_BAS]?.sellTpCd;
-      return row;
+      row[pdConst.PRC_STD_ROW_ID] = row[pdConst.PRC_STD_ROW_ID] ?? row.pdPrcDtlId;
+      row[pdConst.PRC_FNL_ROW_ID] = row[pdConst.PRC_FNL_ROW_ID] ?? row.pdPrcFnlDtlId;
     });
-    // console.log('Fee Rows : ', rows);
-    const view = grdMainRef.value.getView();
+    // console.log('WwpdcCompositionDtlMPrice - initGridRows - rows : ', rows);
     if (searchParams.value.avlChnlId) {
       view.getDataSource().setRows(rows?.filter((item) => item.sellChnlCd === searchParams.value.avlChnlId));
     } else {
       view.getDataSource().setRows(rows);
     }
     view.resetCurrent();
+  } else {
+    view.getDataSource().clearRows();
   }
 }
 
@@ -139,27 +138,26 @@ async function resetInitData() {
   if (channels) {
     usedChannelCds.value = props.codes?.SELL_CHNL_DTL_CD.filter((item) => channels.indexOf(item.codeId) > -1);
   }
-  // await initGridRows();
-}
-
-async function onClickSearch() {
   await initGridRows();
 }
 
 async function fetchData() {
-  const { codes } = props;
-  if (isEmpty(currentMetaInfos.value)) {
-    const res = await dataService.get('/sms/common/product/meta-properties', { params: { pdPrcTpCd: pdConst.PD_PRC_TP_CD_ALL } });
-    if (isEmpty(res.data)) {
-      return;
-    }
-    currentMetaInfos.value = res.data;
+  // const res = await dataService.get('/sms/common/product/prices', { params: searchParams.value });
+  // const view = grdMainRef.value.getView();
+  // view.getDataSource().setRows(res.data);
+  // view.resetCurrent();
+  const res = await dataService.get('/sms/common/product/meta-properties', { params: { pdPrcTpCd: pdConst.PD_PRC_TP_CD_ALL } });
+  if (isEmpty(res.data)) {
+    return;
   }
-  // console.log('WwpdcStandardMgtMPrice - fetchData - currentMetaInfos.value : ', currentMetaInfos.value);
-  const codeNames = await getPdMetaToCodeNames(currentMetaInfos.value, props.codes);
+  metaInfos.value = res.data;
+  // console.log('WwpdcCompositionMgtMPrice - fetchData - metaInfos.value : ', metaInfos.value);
+  // TODO pdPrcTpCd: pdConst.PD_PRC_TP_CD_COMPOSITION
+  const codeNames = await getPdMetaToCodeNames(metaInfos.value, currentCodes.value);
   if (!isEmpty(codeNames)) {
+    // console.log('WwpdcCompositionMgtMPrice - fetchData - codeNames : ', codeNames);
     try {
-      currentCodes.value = merge(codes, await codeUtil.getMultiCodes(...codeNames));
+      currentCodes.value = merge(currentCodes.value, await codeUtil.getMultiCodes(...codeNames));
     } catch (e) {
       console.log(e);
       // 공통코드 없는 에러 때문에 임시 - 추후 Try catch 삭제
@@ -167,16 +165,20 @@ async function fetchData() {
   }
 }
 
+async function onClickSearch() {
+  await initGridRows();
+}
+
 async function initProps() {
-  const { pdCd, initData, metaInfos, codes } = props;
+  const { pdCd, initData, codes } = props;
   currentPdCd.value = pdCd;
   currentInitData.value = initData;
-  currentMetaInfos.value = metaInfos;
-  currentCodes.value = codes;
+  currentCodes.value = cloneDeep(codes);
+  searchParams.value.pdCd = currentPdCd.value;
+  await fetchData();
 }
 
 await initProps();
-await fetchData();
 
 watch(() => props.pdCd, (val) => { currentPdCd.value = val; });
 watch(() => props.initData, (val) => { currentInitData.value = val; resetInitData(); }, { deep: true });
@@ -189,21 +191,15 @@ onMounted(async () => {
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
 async function initGrid(data, view) {
-  currentMetaInfos.value.map((item) => {
-    if (item.colNm === 'fnlVal') {
-      // 최종가격
-      item.prpNm = t('MSG_TXT_PD_FNL_PRC');
-    }
-    return item;
-  });
   const { fields, columns } = await getPdMetaToGridInfos(
-    currentMetaInfos.value,
-    [pdConst.PD_PRC_TP_CD_BASIC,
-      pdConst.PD_PRC_TP_CD_VARIABLE,
-      pdConst.PD_PRC_TP_CD_FINAL,
-      pdConst.PD_PRC_TP_CD_FEE],
+    metaInfos.value,
+    [pdConst.PD_PRC_TP_CD_COMPOSITION],
     currentCodes.value,
   );
+  // console.log('WwpdcCompositionDtlMPrice - initGr id - columns : ', columns);
+  // Grid 내부키 - '신규 Row 추가' 대응
+  fields.push({ fieldName: pdConst.PRC_STD_ROW_ID });
+  fields.push({ fieldName: pdConst.PRC_FNL_ROW_ID });
 
   // 적용기간
   const applyPeriodCol = { fieldName: 'applyPeriod',
@@ -219,24 +215,20 @@ async function initGrid(data, view) {
       return '';
     },
   };
-  columns.splice(1, 0, applyPeriodCol);
+  columns.splice(6, 0, applyPeriodCol);
   fields.push({ fieldName: 'applyPeriod' });
-
-  // console.log('WwpdcStandardDtlMPrice - initGrid - columns : ', columns);
+  // console.log('columns : ', columns);
   data.setFields(fields);
-  view.setColumns(columns.sort((item) => (item.fieldName === 'sellChnlCd' ? -1 : 0))
-    .map((item) => {
-      // 적용 시작일자, 종료일자 숨김
-      if (['vlStrtDtm', 'vlEndDtm'].includes(item.fieldName)) {
-        item.visible = false;
-      }
-      return item;
-    }));
+  view.setColumns(columns.map((item) => {
+    // 적용 시작일자, 종료일자 숨김
+    if (['vlStrtDtm', 'vlEndDtm'].includes(item.fieldName)) {
+      item.visible = false;
+    }
+    return item;
+  }));
   view.checkBar.visible = false;
   view.rowIndicator.visible = false;
   view.editOptions.editable = false;
-
-  view.setFixedOptions({ colCount: 5 });
 
   await resetInitData();
 }

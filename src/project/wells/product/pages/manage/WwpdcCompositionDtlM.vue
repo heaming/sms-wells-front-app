@@ -3,7 +3,7 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : PDC (상품운영관리)
-2. 프로그램 ID : WwpdcStandardDtlM - (판매) 상품목록 - 상세조회 ( Z-PD-U-0011M01 )
+2. 프로그램 ID : WwpdcCompositionDtlM - (판매) 상품목록 - 상세조회 ( Z-PD-U-0011M01 )
 3. 작성자 : jintae.choi
 4. 작성일 : 2022.12.31
 ****************************************************************************************************
@@ -26,7 +26,7 @@
           </p>
         </h2>
       </div>
-      <wwpdc-standard-dtl-m-contents
+      <wwpdc-composition-dtl-m-contents
         ref="cmpRef"
         v-model:pd-cd="currentPdCd"
         v-model:init-data="prevStepData"
@@ -37,13 +37,14 @@
   </kw-page>
 </template>
 <script setup>
+
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { useDataService, codeUtil, stringUtil } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 import pdConst from '~sms-common/product/constants/pdConst';
-import WwpdcStandardDtlMContents from './WwpdcStandardDtlMContents.vue';
+import WwpdcCompositionDtlMContents from './WwpdcCompositionDtlMContents.vue';
 
 const props = defineProps({
   pdCd: { type: String, default: null },
@@ -64,37 +65,27 @@ const prevStepData = ref({});
 
 const codes = await codeUtil.getMultiCodes(
   'PD_TP_CD',
-  'COD_PRDT_STT',
   'SELL_CHNL_DTL_CD',
   'SELL_TP_CD',
   'COD_YN',
   'COD_PAGE_SIZE_OPTIONS',
   'PD_REL_TP_CD',
   'PD_TEMP_SAVE_CD',
-  'SV_PRD_UNIT_CD',
-  'SV_VST_PRD_CD',
-  'PD_TEMP_SAVE_CD',
 );
 codes.COD_YN.map((item) => {
   item.codeName = item.codeId;
+  item.changed = true;
   return item;
 });
 
 async function fetchProduct() {
   if (currentPdCd.value) {
-    const res = await dataService.get(`/sms/wells/product/standards/${currentPdCd.value}`);
-    // console.log('WwpdcStandardDtlM - fetchProduct - res.data', res.data);
+    const res = await dataService.get(`/sms/wells/product/compositions/${currentPdCd.value}`);
     pdBas.value = res.data[pdConst.TBL_PD_BAS];
-    // initData[bas] = res.data[bas];
-    // initData[dtl] = res.data[dtl];
-    // initData[ecom] = res.data[ecom];
-    // initData[prcd] = res.data[prcd];
-    // initData[prcfd] = res.data[prcfd];
-    // initData[prumd] = res.data[prumd];
-    // initData[pdConst.RELATION_PRODUCTS] = res.data[pdConst.RELATION_PRODUCTS];
-    // console.log('WwpdcStandardDtlM - fetchProduct - initData : ', initData);
+    console.log('WwpdcCompositionDtlM - fetchProduct - res.data', res.data);
+    // console.log('res.data : ', res.data);
     prevStepData.value = cloneDeep(res.data);
-    prdPropGroups.value = cloneDeep(res.data.groupCodes);
+    prdPropGroups.value = res.data.groupCodes;
   }
 }
 
@@ -107,7 +98,7 @@ async function initProps() {
 await initProps();
 
 watch(() => route.params.pdCd, async (pdCd) => {
-  console.log(`WwpdcStandardDtlM - currentPdCd.value : ${currentPdCd.value}, route.params.pdCd : ${pdCd}`);
+  console.log(`WwpdcCompositionDtlM - currentPdCd.value : ${currentPdCd.value}, route.params.pdCd : ${pdCd}`);
   if (pdCd) {
     if (cmpRef.value?.resetData) await cmpRef.value?.resetData();
     currentPdCd.value = pdCd;
