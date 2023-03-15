@@ -3,7 +3,7 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : PDC (상품운영관리)
-2. 프로그램 ID : WwpdcStandardMgtM - (판매) 상품목록 - 기준상품 등록/변경 ( Z-PD-U-0010M01 )
+2. 프로그램 ID : WwpdcCompositionMgtM - (판매) 상품목록 - 기준상품 등록/변경 ( Z-PD-U-0010M01 )
 3. 작성자 : jintae.choi
 4. 작성일 : 2022.12.31
 ****************************************************************************************************
@@ -22,73 +22,70 @@
         @update:model-value="onClickStep()"
       >
         <kw-step
-          :name="pdConst.STANDARD_STEP_BASIC.name"
+          :name="pdConst.COMPOSITION_STEP_BASIC.name"
           :title="$t('MSG_TXT_BAS_ATTR_REG')"
-          :prefix="pdConst.STANDARD_STEP_BASIC.step"
-          :done="currentStep.step > pdConst.STANDARD_STEP_BASIC.step"
+          :prefix="pdConst.COMPOSITION_STEP_BASIC.step"
+          :done="currentStep.step > pdConst.COMPOSITION_STEP_BASIC.step"
         />
         <kw-step
-          :name="pdConst.STANDARD_STEP_REL_PROD.name"
+          :name="pdConst.COMPOSITION_STEP_REL_PROD.name"
           :title="$t('MSG_TXT_REL_PRDT_SEL')"
-          :prefix="pdConst.STANDARD_STEP_REL_PROD.step"
-          :done="currentStep.step > pdConst.STANDARD_STEP_REL_PROD.step"
+          :prefix="pdConst.COMPOSITION_STEP_REL_PROD.step"
+          :done="currentStep.step > pdConst.COMPOSITION_STEP_REL_PROD.step"
         />
         <kw-step
-          :name="pdConst.STANDARD_STEP_MANAGE.name"
+          :name="pdConst.COMPOSITION_STEP_MANAGE.name"
           :title="$t('MSG_TXT_MGT_ATTR_REG')"
-          :prefix="pdConst.STANDARD_STEP_MANAGE.step"
-          :done="currentStep.step > pdConst.STANDARD_STEP_MANAGE.step"
+          :prefix="pdConst.COMPOSITION_STEP_MANAGE.step"
+          :done="currentStep.step > pdConst.COMPOSITION_STEP_MANAGE.step"
         />
         <kw-step
-          :name="pdConst.STANDARD_STEP_PRICE.name"
+          :name="pdConst.COMPOSITION_STEP_PRICE.name"
           :title="$t('MSG_TXT_PRC_INFO_REG')"
-          :prefix="pdConst.STANDARD_STEP_PRICE.step"
-          :done="currentStep.step > pdConst.STANDARD_STEP_PRICE.step"
+          :prefix="pdConst.COMPOSITION_STEP_PRICE.step"
+          :done="currentStep.step > pdConst.COMPOSITION_STEP_PRICE.step"
         />
         <kw-step
-          :name="pdConst.STANDARD_STEP_CHECK.name"
+          :name="pdConst.COMPOSITION_STEP_CHECK.name"
           :title="$t('MSG_TXT_CHK_REG_INFO')"
-          :prefix="pdConst.STANDARD_STEP_CHECK.step"
+          :prefix="pdConst.COMPOSITION_STEP_CHECK.step"
         />
-        <kw-step-panel :name="pdConst.STANDARD_STEP_BASIC.name">
+        <kw-step-panel :name="pdConst.COMPOSITION_STEP_BASIC.name">
           <zwpdc-prop-groups-mgt
             :ref="cmpStepRefs[0]"
             v-model:pd-cd="currentPdCd"
             v-model:init-data="prevStepData"
-            :pd-tp-cd="pdConst.PD_TP_CD_STANDARD"
+            :pd-tp-cd="pdConst.PD_TP_CD_COMPOSITION"
             :pd-grp-dv-cd="pdConst.PD_PRP_GRP_DV_CD_BASIC"
-            @update="onUpdateBasicValue"
           />
         </kw-step-panel>
-        <kw-step-panel :name="pdConst.STANDARD_STEP_REL_PROD.name">
-          <wwpdc-standard-mgt-m-rel
+        <kw-step-panel :name="pdConst.COMPOSITION_STEP_REL_PROD.name">
+          <wwpdc-composition-mgt-m-rel
             :ref="cmpStepRefs[1]"
             v-model:pd-cd="currentPdCd"
             v-model:init-data="prevStepData"
             :codes="codes"
-            @click-tab="onClickSubTab"
           />
         </kw-step-panel>
-        <kw-step-panel :name="pdConst.STANDARD_STEP_MANAGE.name">
+        <kw-step-panel :name="pdConst.COMPOSITION_STEP_MANAGE.name">
           <zwpdc-prop-groups-mgt
             :ref="cmpStepRefs[2]"
             v-model:pd-cd="currentPdCd"
             v-model:init-data="prevStepData"
-            :pd-tp-cd="pdConst.PD_TP_CD_STANDARD"
+            :pd-tp-cd="pdConst.PD_TP_CD_COMPOSITION"
             :pd-grp-dv-cd="pdConst.PD_PRP_GRP_DV_CD_MANUAL"
           />
         </kw-step-panel>
-        <kw-step-panel :name="pdConst.STANDARD_STEP_PRICE.name">
-          <wwpdc-standard-mgt-m-price
+        <kw-step-panel :name="pdConst.COMPOSITION_STEP_PRICE.name">
+          <wwpdc-composition-mgt-m-price
             :ref="cmpStepRefs[3]"
             v-model:pd-cd="currentPdCd"
             v-model:init-data="prevStepData"
             :codes="codes"
-            @click-tab="onClickSubTab"
           />
         </kw-step-panel>
-        <kw-step-panel :name="pdConst.STANDARD_STEP_CHECK.name">
-          <wwpdc-standard-dtl-m-contents
+        <kw-step-panel :name="pdConst.COMPOSITION_STEP_CHECK.name">
+          <wwpdc-composition-dtl-m-contents
             v-model:pd-cd="currentPdCd"
             v-model:init-data="prevStepData"
             :is-history-tab="false"
@@ -152,9 +149,9 @@ import { isEmpty, cloneDeep } from 'lodash-es';
 import pdConst from '~sms-common/product/constants/pdConst';
 import { pdMergeBy, pdRemoveBy } from '~sms-common/product/utils/pdUtil';
 import ZwpdcPropGroupsMgt from '~sms-common/product/pages/manage/components/ZwpdcPropGroupsMgt.vue';
-import WwpdcStandardMgtMPrice from './WwpdcStandardMgtMPrice.vue';
-import WwpdcStandardMgtMRel from './WwpdcStandardMgtMRel.vue';
-import WwpdcStandardDtlMContents from './WwpdcStandardDtlMContents.vue';
+import WwpdcCompositionMgtMPrice from './WwpdcCompositionMgtMPrice.vue';
+import WwpdcCompositionMgtMRel from './WwpdcCompositionMgtMRel.vue';
+import WwpdcCompositionDtlMContents from './WwpdcCompositionDtlMContents.vue';
 
 const props = defineProps({
   pdCd: { type: String, default: null },
@@ -180,50 +177,30 @@ const rel = pdConst.TBL_PD_REL;
 const prumd = pdConst.TBL_PD_DSC_PRUM_DTL;
 
 const isTempSaveBtn = ref(true);
-const regSteps = ref([pdConst.STANDARD_STEP_BASIC, pdConst.STANDARD_STEP_REL_PROD,
-  pdConst.STANDARD_STEP_MANAGE, pdConst.STANDARD_STEP_PRICE, pdConst.STANDARD_STEP_CHECK]);
-const currentStep = ref(cloneDeep(pdConst.STANDARD_STEP_BASIC));
+const regSteps = ref([pdConst.COMPOSITION_STEP_BASIC, pdConst.COMPOSITION_STEP_REL_PROD,
+  pdConst.COMPOSITION_STEP_MANAGE, pdConst.COMPOSITION_STEP_PRICE, pdConst.COMPOSITION_STEP_CHECK]);
+const currentStep = ref(cloneDeep(pdConst.COMPOSITION_STEP_BASIC));
 const cmpStepRefs = ref([ref(), ref(), ref(), ref()]);
-const removePriceRows = ref([]);
 const prevStepData = ref({});
 const currentPdCd = ref();
 const isCreate = ref(false);
 
 const codes = await codeUtil.getMultiCodes(
   'PD_TP_CD',
-  'COD_PRDT_STT',
   'SELL_CHNL_DTL_CD',
   'SELL_TP_CD',
-  'SELL_TP_DTL_CD',
   'COD_YN',
   'COD_PAGE_SIZE_OPTIONS',
   'PD_REL_TP_CD',
-  'PD_TEMP_SAVE_CD',
-  'SV_PRD_UNIT_CD',
-  'SV_VST_PRD_CD',
-  'RENTAL_SELL_DTL_TP_CD', // 렌탈 판매상세유형 : 판매유형 - 2
-  'MSH_SELL_DTL_TP_CD', // 멤버십 판매상세유형 : 판매유형 - 3
 );
-codes.COD_YN.map((item) => {
-  item.codeName = item.codeId;
-  item.changed = true;
-  return item;
-});
-
-async function onClickDelete() {
-  if (await confirm(t('MSG_ALT_WANT_DEL_WCC'))) {
-    await dataService.delete(`/sms/wells/product/standards/${currentPdCd.value}`);
-    router.push({ path: '/product/zwpdc-sale-product-list', replace: true, query: { onloadSearchYn: 'Y' } });
-  }
-}
 
 async function getSaveData() {
   const subList = { isModifiedProp: false, isModifiedPrice: false };
   await Promise.all(cmpStepRefs.value.map(async (item, idx) => {
-    const saveData = await item.value?.getSaveData();
+    const saveData = await item.value.getSaveData();
     const isModified = await item.value.isModifiedProps();
     if (await saveData) {
-      // console.log(`${idx}saveData : `, saveData);
+      // console.log(`${idx}-${isModified}saveData : `, saveData);
       subList.pdCd = subList.pdCd ?? saveData.pdCd;
       subList.pdTpCd = subList.pdTpCd ?? saveData.pdTpCd;
       // 기본속성, 관리 속성 수정여부
@@ -241,61 +218,76 @@ async function getSaveData() {
         subList[bas] = pdMergeBy(subList[bas], saveData[bas]);
       }
       if (saveData[dtl]) {
+        // 대상연령단위 예외 코딩
+        const subLrnnAgeUnitCds = [];
+        saveData[dtl] = saveData[dtl].reduce((rtn, chkItem) => {
+          if (chkItem.pdDtlDvCd === '04' && chkItem[pdConst.PD_DTL_GRP_ID] !== 'pdDtlPrpVal01') {
+            subLrnnAgeUnitCds.push(chkItem);
+          } else {
+            rtn.push(chkItem);
+          }
+          return rtn;
+        }, []);
+        // console.log('subLrnnAgeUnitCds : ', subLrnnAgeUnitCds);
         subList[dtl] = pdMergeBy(subList[dtl], saveData[dtl], pdConst.PD_DTL_GRP_ID);
+        if (subLrnnAgeUnitCds.length) {
+        // 대상연령단위 예외 코딩
+          subList[dtl] = subList[dtl].map((chkItem) => {
+            if (chkItem.pdDtlDvCd === '04') {
+              chkItem.pdDtlPrpVal02 = subLrnnAgeUnitCds?.find((fItm) => fItm.pdDtlPrpVal02)?.pdDtlPrpVal02;
+              chkItem.pdDtlPrpVal03 = subLrnnAgeUnitCds?.find((fItm) => fItm.pdDtlPrpVal03)?.pdDtlPrpVal03;
+            }
+            return chkItem;
+          });
+        }
       }
       if (saveData[ecom]) {
-        subList[ecom] = pdMergeBy(subList[ecom], saveData[ecom], 'pdExtsPrpGrpCd');
+        subList[ecom] = pdMergeBy(subList[ecom], saveData[ecom], pdConst.PD_META_GRP_CD);
       }
       if (saveData[prcd]) {
         subList[prcd] = pdMergeBy(subList[prcd], saveData[prcd], pdConst.PRC_STD_ROW_ID);
+        subList[prcd] = pdRemoveBy(subList[prcd], saveData[pdConst.REMOVE_ROWS]);
       }
       if (saveData[prcfd]) {
         subList[prcfd] = pdMergeBy(subList[prcfd], saveData[prcfd], pdConst.PRC_FNL_ROW_ID);
+        subList[prcfd] = pdRemoveBy(subList[prcfd], saveData[pdConst.REMOVE_ROWS]);
       }
-      if (saveData[rel]) {
-        subList[rel] = pdMergeBy(subList[rel], saveData[rel]);
-      }
-      if (saveData[prumd]) {
-        subList[prumd] = saveData[prumd];
+      if (rel in saveData) {
+        subList[rel] = saveData[rel];
       }
       if (saveData[pdConst.RELATION_PRODUCTS]) {
         subList[pdConst.RELATION_PRODUCTS] = saveData[pdConst.RELATION_PRODUCTS];
-        const services = saveData[pdConst.RELATION_PRODUCTS]
-          ?.filter((svcItem) => svcItem[pdConst.PD_REL_TP_CD] === pdConst.PD_REL_TP_CD_P_TO_S);
-        codes.svPdCd = services?.map(({ pdNm, pdCd }) => ({
-          codeId: pdCd, codeName: pdNm,
-        }));
       }
-      if (saveData[pdConst.REMOVE_ROWS]) {
-        removePriceRows.value = pdMergeBy(removePriceRows.value, saveData[pdConst.REMOVE_ROWS]);
-        // console.log('removeRows : ', subList[pdConst.REMOVE_ROWS]);
-        subList[prcd] = pdRemoveBy(subList[prcd], removePriceRows.value);
-        subList[prcfd] = pdRemoveBy(subList[prcfd], removePriceRows.value);
-      }
+      // console.log('WwpdcCompositionMgtM - getSaveData - subList : ', subList);
     }
   }));
-  console.log('WwpdcStandardMgtM - getSaveData - subList : ', subList);
+  // console.log('WwpdcCompositionMgtM - getSaveData - subList : ', subList);
   return subList;
+}
+
+async function onClickDelete() {
+  if (await confirm(t('MSG_ALT_WANT_DEL_WCC'))) {
+    await dataService.delete(`/sms/wells/product/compositions/${currentPdCd.value}`);
+    router.push({ path: '/product/zwpdc-sale-product-list', replace: true, query: { onloadSearchYn: 'Y' } });
+  }
+}
+
+async function isValidStep(stepIndex, isMoveProblemStep = false) {
+  const currentStepIndex = currentStep.value.step - 1;
+  const isValidOk = await (cmpStepRefs.value[stepIndex].value.validateProps());
+  if (!isValidOk && isMoveProblemStep && stepIndex !== currentStepIndex) {
+    currentStep.value = cloneDeep(regSteps.value[stepIndex]);
+  }
+  return isValidOk;
 }
 
 async function onClickNextStep() {
   const currentStepIndex = currentStep.value.step - 1;
-  // 현재 Step 필수여부 확인
-  const currentStepRef = await cmpStepRefs.value[currentStepIndex].value;
-  if (isEmpty(currentStepRef)) {
-    currentStep.value = cloneDeep(regSteps.value[currentStepIndex + 1]);
-    return;
-  }
-
-  // 가격의 경우 별도 Step
-  const isValidOk = currentStepIndex === 3
-    ? await (cmpStepRefs.value[currentStepIndex].value?.validateStepProps())
-    : await (cmpStepRefs.value[currentStepIndex].value?.validateProps());
-  if (!isValidOk) {
+  if (!(await isValidStep(currentStepIndex))) {
     return;
   }
   prevStepData.value = await getSaveData();
-
+  const currentStepRef = await cmpStepRefs.value[currentStepIndex].value;
   // Child 페이지 내에서 다음 스텝이 없으면(false), 현재 페이지에서 다음으로 진행
   const isMovedInnerStep = currentStepRef?.moveNextStep ? await currentStepRef?.moveNextStep() : false;
   if (!isMovedInnerStep) {
@@ -320,23 +312,16 @@ async function onClickPrevStep() {
 
 async function onClickStep() {
   const stepName = currentStep.value?.name;
-  // console.log('WwpdcStandardMgtM - onClickStep : ', stepName);
+  // console.log('WwpdcCompositionMgtM - onClickStep : ', stepName);
   prevStepData.value = await getSaveData();
   currentStep.value = cloneDeep(regSteps.value.find((item) => item.name === stepName));
-  // console.log('WwpdcStandardMgtM - onClickStep : ', currentStep.value);
-}
-
-async function onClickSubTab() {
-  // console.log('WwpdcStandardMgtM - onClickSubTab - ', clickedTab);
-  prevStepData.value = await getSaveData();
 }
 
 async function fetchProduct() {
-  removePriceRows.value = [];
   if (currentPdCd.value) {
     const initData = {};
-    const res = await dataService.get(`/sms/wells/product/standards/${currentPdCd.value}`);
-    // console.log('WwpdcStandardMgtM - fetchProduct - res.data', res.data);
+    const res = await dataService.get(`/sms/wells/product/compositions/${currentPdCd.value}`);
+    console.log('WwpdcCompositionMgtM - fetchProduct - res.data', res.data);
     initData[bas] = res.data[bas];
     initData[dtl] = res.data[dtl];
     initData[ecom] = res.data[ecom];
@@ -345,13 +330,8 @@ async function fetchProduct() {
     initData[rel] = res.data[rel];
     initData[prumd] = res.data[prumd];
     initData[pdConst.RELATION_PRODUCTS] = res.data[pdConst.RELATION_PRODUCTS];
-    const services = initData[pdConst.RELATION_PRODUCTS]
-      ?.filter((svcItem) => svcItem[pdConst.PD_REL_TP_CD] === pdConst.PD_REL_TP_CD_P_TO_S);
-    codes.svPdCd = services?.map(({ pdNm, pdCd }) => ({
-      codeId: pdCd, codeName: pdNm,
-    }));
-    isTempSaveBtn.value = cloneDeep(initData[bas].tempSaveYn === 'Y');
-    prevStepData.value = cloneDeep(initData);
+    isTempSaveBtn.value = initData[bas].tempSaveYn === 'Y';
+    prevStepData.value = initData;
   }
 }
 
@@ -397,18 +377,19 @@ async function onClickSave(tempSaveYn) {
   } else if (isEmpty(currentPdCd.value)) {
     subList[bas].tempSaveYn = tempSaveYn;
   }
-  // console.log('WwpdcStandardMgtM - onClickSave - subList : ', subList);
+  // console.log('WwpdcCompositionMgtM - onClickSave - subList : ', subList);
 
   // 4. 생성 or 저장
   let rtn;
   if (!isCreate.value) {
-    rtn = await dataService.put(`/sms/wells/product/standards/${currentPdCd.value}`, subList);
+    rtn = await dataService.put(`/sms/wells/product/compositions/${currentPdCd.value}`, subList);
   } else {
-    rtn = await dataService.post('/sms/wells/product/standards', subList);
+    rtn = await dataService.post('/sms/wells/product/compositions', subList);
   }
   notify(t('MSG_ALT_SAVE_DATA'));
+
   await Promise.all(cmpStepRefs.value.map(async (item) => {
-    if (item.value.init) { await item.value.init(); }
+    if (item.value.init) await item.value.init();
   }));
   if (tempSaveYn === 'N') {
     // 목록으로 이동
@@ -420,35 +401,10 @@ async function onClickSave(tempSaveYn) {
     if (rtn.data?.data?.pdCd !== currentPdCd.value) {
       currentPdCd.value = rtn.data?.data?.pdCd;
       isCreate.value = isEmpty(currentPdCd.value);
-      router.push({ path: '/product/zwpdc-sale-product-list/wwpdc-standard-mgt', replace: true, query: { pdCd: currentPdCd.value } });
+      router.push({ path: '/product/zwpdc-sale-product-list/wwpdc-composition-mgt', replace: true, query: { pdCd: currentPdCd.value } });
     } else {
       await fetchProduct();
     }
-  }
-}
-
-// 판매상세유형 코드 설정
-async function setSellDetailTypeCodes(sellTpCd, isReset = false) {
-  const mgtNameFields = await cmpStepRefs.value[0]?.value.getNameFields();
-  if (mgtNameFields.sellTpDtlCd) {
-    if (isReset) {
-      mgtNameFields.sellTpDtlCd.initValue = '';
-    }
-    if (sellTpCd === '2') {
-      mgtNameFields.sellTpDtlCd.readonly = false;
-      mgtNameFields.sellTpDtlCd.codes = codes.RENTAL_SELL_DTL_TP_CD;
-    } else if (sellTpCd === '3') {
-      mgtNameFields.sellTpDtlCd.readonly = false;
-      mgtNameFields.sellTpDtlCd.codes = codes.MSH_SELL_DTL_TP_CD;
-    } else {
-      mgtNameFields.sellTpDtlCd.readonly = true;
-    }
-  }
-}
-
-async function onUpdateBasicValue(field) {
-  if (field.colNm === 'sellTpCd') {
-    setSellDetailTypeCodes(field.initValue, true);
   }
 }
 
@@ -456,13 +412,13 @@ async function onClickReset() {
   currentPdCd.value = '';
   isCreate.value = true;
   isTempSaveBtn.value = true;
-  currentStep.value = cloneDeep(pdConst.STANDARD_STEP_BASIC);
+  currentStep.value = cloneDeep(pdConst.COMPOSITION_STEP_BASIC);
   prevStepData.value = {};
-  removePriceRows.value = [];
   await Promise.all(cmpStepRefs.value.map(async (item) => {
     if (item.value?.resetData) await item.value?.resetData();
     if (item.value?.init) await item.value?.init();
   }));
+  await fetchProduct();
 }
 
 async function initProps() {
@@ -479,7 +435,7 @@ async function initProps() {
 await initProps();
 
 watch(() => route.params.pdCd, async (pdCd) => {
-  // console.log(`WwpdcStandardMgtM - currentPdCd.value : ${currentPdCd.value}, route.params.pdCd : ${pdCd}`);
+  console.log(`WwpdcCompositionMgtM - currentPdCd.value : ${currentPdCd.value}, route.params.pdCd : ${pdCd}`);
   if (currentPdCd.value !== pdCd && pdCd) {
     await onClickReset();
     isCreate.value = isEmpty(pdCd);
@@ -492,16 +448,11 @@ watch(() => route.params.pdCd, async (pdCd) => {
 }, { immediate: true });
 
 watch(() => route.params.newRegYn, async (newRegYn) => {
-  // console.log(`WwpdcStandardMgtM - newRegYn : ${newRegYn}`);
+  console.log(`WwpdcCompositionMgtM - newRegYn : ${newRegYn}`);
   if (newRegYn && newRegYn === 'Y') {
     router.replace({ query: null });
     await onClickReset();
   }
-});
-
-onMounted(async () => {
-  const mgtNameFields = await cmpStepRefs.value[0]?.value.getNameFields();
-  await setSellDetailTypeCodes(mgtNameFields.sellTpCd?.initValue);
 });
 
 </script>

@@ -234,8 +234,7 @@ async function initGrid(data, view) {
   view.editOptions.editable = true;
 
   view.sortingOptions.enabled = false;
-  view.displayOptions.columnResizable = false;
-  view.filteringOptions.enabled = true;
+  view.filteringOptions.enabled = false;
 
   view.setFixedOptions({ colCount: 6 });
 
