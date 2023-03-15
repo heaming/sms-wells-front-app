@@ -3,48 +3,59 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : OGB
-2. 프로그램 ID : WwogxRecruitingUrlSendRegP - 리쿠르팅 등록 URL발송
+2. 프로그램 ID : WwogtRecruitingUrlSendRegP - 플래너 업무등록 - URL 발송(태블릿)
 3. 작성자 : 홍태기
 4. 작성일 : 2023-03-10
 ****************************************************************************************************
 * 프로그램 설명
 ****************************************************************************************************
-- 리쿠르팅 등록 URL발송
+- 플래너 업무등록 - URL 발송(태블릿)
 ****************************************************************************************************
 --->
 <template>
-  <kw-popup>
-    <div class="pa20">
-      <kw-form
-        ref="frmMainRef"
-        :cols="1"
-      >
-        <kw-input
+  <kw-popup size="sm">
+    <kw-form
+      ref="frmMainRef"
+      :cols="1"
+    >
+      <kw-form-row>
+        <kw-form-item
           :label="$t('MSG_TXT_EMPL_NM')"
-          :placeholder="$t('MSG_TXT_EMPL_NM')"
-          class=".kw-font-pt14 mb20"
-        />
-        <kw-input
+          required
+        >
+          <kw-input
+            v-model="urlSendInfo.rcvrNm"
+            :label="$t('MSG_TXT_EMPL_NM')"
+            rules="required"
+          />
+        </kw-form-item>
+      </kw-form-row>
+      <kw-form-row>
+        <kw-form-item
           :label="$t('MSG_TXT_MPNO')"
-          :placeholder="$t('MSG_TXT_MPNO')"
-          class=".kw-font-pt14 mb20"
-        />
+          required
+        >
+          <kw-input
+            v-model="urlSendInfo.phoneNumber"
+            :label="$t('MSG_TXT_MPNO')"
+            rules="required"
+          />
+        </kw-form-item>
+      </kw-form-row>
+      <kw-form-row>
+        <kw-form-item :label="$t('MSG_TXT_FRNR_YN')">
+          <kw-checkbox v-model="urlSendInfo.frnrYn" />
+        </kw-form-item>
+      </kw-form-row>
+    </kw-form>
 
-        <kw-checkbox
-          v-model="urlSendInfo.frnrYn"
-          :label="$t('MSG_TXT_FRNR_YN')"
-        />
-      </kw-form>
-    </div>
     <template #action>
       <kw-btn
-        filled
         negative
         :label="$t('MSG_BTN_CANCEL')"
         @click="onClickCancel"
       />
       <kw-btn
-        filled
         primary
         :label="$t('MSG_BTN_SEND')"
         @click="onClickSend"
@@ -71,7 +82,6 @@ const { getters } = useStore();
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 const userInfo = getters['meta/getUserInfo'];
-console.log(userInfo);
 const { ogTpCd } = userInfo;
 
 const urlSendInfo = ref({
