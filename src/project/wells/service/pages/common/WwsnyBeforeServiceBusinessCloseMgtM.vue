@@ -57,6 +57,7 @@
       </kw-action-top>
       <kw-grid
         ref="gridMainRef"
+        name="gridMain"
         :visible-rows="12"
         @init="initGrid"
       />
