@@ -18,20 +18,20 @@
       <kw-search-item>
         <kw-date-range-picker
           grow
-          label="작성일자"
+          :label="$t('MSG_TXT_WRTE_DT', undefined, '작성일자')"
           class="mb20"
         />
       </kw-search-item>
       <kw-search-item>
         <kw-date-range-picker
           grow
-          label="리쿠르팅일자"
+          :label="$t('MSG_TXT_RCRT_DT', undefined, '리쿠르팅일자')"
           class="mb20"
         />
       </kw-search-item>
       <kw-search-item>
         <kw-option-group
-          label="항목명"
+          :label="$t('MSG_TXT_ITEM_NM', undefined, '항목명')"
           :model-value="'승인건'"
           type="radio"
           :options="['승인건', '리쿠르팅건']"
@@ -40,7 +40,7 @@
       </kw-search-item>
       <kw-search-item>
         <kw-input
-          label="성명"
+          :label="$t('MSG_TXT_EMPL_NM', undefined, '성명')"
         />
       </kw-search-item>
     </kw-search>
@@ -96,10 +96,10 @@
               <p class="pt0">
                 {{ item.heading2 }}
               </p>
-              <kw-form-item label="작성일">
+              <kw-form-item :label="$t('MSG_TIT_DRAT_DT', undefined, '작성일')">
                 <p>{{ item.valuetext1 }}</p>
               </kw-form-item>
-              <kw-form-item label="계약일">
+              <kw-form-item :label="$t('MSG_TXT_CNTRCT_DT', undefined, '계약일')">
                 <p>{{ item.valuetext2 }}</p>
               </kw-form-item>
             </kw-form>

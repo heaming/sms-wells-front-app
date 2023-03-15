@@ -98,10 +98,8 @@ async function onClickSend() {
     cralIdvTno,
     smsFwUrlNm,
   };
-  const { data } = await dataService.post('/sms/common/recruitings/urlSendInfo', param);
-  if (data.processCount === 1) {
-    notify(t('MSG_ALT_SEND'));
-    ok();
-  }
+  await dataService.post('/sms/common/recruitings/urlSendInfo', param);
+  notify(t('MSG_ALT_SEND'));
+  ok();
 }
 </script>
