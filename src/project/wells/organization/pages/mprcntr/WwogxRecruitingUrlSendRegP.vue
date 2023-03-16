@@ -58,6 +58,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { useModal, useDataService, getComponentType, useGlobal } from 'kw-lib';
+import { SMS_COMMON_URI } from '~sms-common/organization/constants/ogConst';
 import { getPhoneNumber } from '~sms-common/organization/utils/ogUtil';
 
 const frmMainRef = ref(getComponentType('KwForm'));
@@ -75,8 +76,8 @@ console.log(userInfo);
 const { ogTpCd } = userInfo;
 
 const urlSendInfo = ref({
-  rcvrNm: '',
-  phoneNumber: '',
+  rcvrNm: undefined,
+  phoneNumber: undefined,
   frnrYn: 'N',
 });
 
@@ -98,7 +99,7 @@ async function onClickSend() {
     cralIdvTno,
     smsFwUrlNm,
   };
-  await dataService.post('/sms/common/recruitings/urlSendInfo', param);
+  await dataService.post(`${SMS_COMMON_URI}/recruitings/url-send-info`, param);
   notify(t('MSG_ALT_SEND'));
   ok();
 }
