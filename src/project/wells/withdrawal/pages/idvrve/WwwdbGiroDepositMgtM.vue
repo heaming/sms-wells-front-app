@@ -338,7 +338,7 @@ async function onUpdateFileUpload() {
           bnkCd: nullDefaultValue(array[i].substring(25, 32).trim(), null), // 은행코드      7
           bnkBrncCd: nullDefaultValue(array[i].substring(32, 39).trim(), null), // 정보작성점    7
           giroIndxNo: nullDefaultValue(array[i].substring(39, 51).trim(), null), // 색인번호      12
-          giroInqNo: nullDefaultValue(array[i].substring(51, 71).trim(), null), // 조회번호      2null
+          giroInqNo: nullDefaultValue(array[i].substring(51, 71).trim(), null), // 조회번호      20
           pyAmt: nullDefaultValue(array[i].substring(71, 84).trim(), null), // 납입금액      13
           giroRveDvCd: nullDefaultValue(array[i].substring(84, 85).trim(), null), // 수납구분      1
           giroFeeDvCd: nullDefaultValue(array[i].substring(85, 89).trim(), null), // 지로수수료    4

@@ -94,7 +94,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { defineGrid, getComponentType, gridUtil, useDataService, alert, useMeta } from 'kw-lib';
+import { defineGrid, getComponentType, gridUtil, useDataService, useMeta } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
 import { openReportPopup } from '~/modules/common/utils/cmPopupUtil';
@@ -199,29 +199,15 @@ async function onClickExcelDownload() {
 // 행삭제
 async function onClickRemove() {
   const view = grdPageRef.value.getView();
-  let rows;
 
-  if (!gridUtil.getCheckedRowValues(view).length > 0) {
-    alert(t('MSG_ALT_NOT_SEL_ITEM'));
-    return;
-  }
+  const deletedRows = await gridUtil.confirmDeleteCheckedRows(view);
 
-  if (gridUtil.isModified(view)) {
-    if (await gridUtil.confirmIfIsModified(view)) {
-      rows = gridUtil.deleteCheckedRows(view);
-    }
-  } else {
-    rows = await gridUtil.confirmDeleteCheckedRows(view);
-  }
-
-  if (rows.length > 0) {
-    rows.forEach((data) => {
+  if (deletedRows.length > 0) {
+    deletedRows.forEach((data) => {
       data.rowState = 'deleted';
     });
 
-    await dataService.delete('/sms/wells/withdrawal/idvrve/giro-ocr-forwardings/print', { data: rows });
-    // notify(t('삭제되었습니다.'));
-    // notify(t('MSG_ALT_DELETED'));
+    await dataService.delete('/sms/wells/withdrawal/idvrve/giro-ocr-forwardings/print', { data: deletedRows });
     await fetchData();
   }
 }
