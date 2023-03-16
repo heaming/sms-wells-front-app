@@ -186,8 +186,6 @@ async function onClickExcelDownload() {
 async function onClickRemove() {
   const view = grdMainRef.value.getView();
 
-  if (!await gridUtil.confirmIfIsModified(view)) { return; }
-
   const deletedRows = await gridUtil.confirmDeleteCheckedRows(view);
 
   if (deletedRows.length > 0) {
@@ -222,7 +220,7 @@ async function onClickSearchUser() {
 
 const initGrid = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'fwDt' }, // 발송일자
+    { fieldName: 'bildcFwDtm' }, // 발송일자
     { fieldName: 'bildcPblNo' },
     { fieldName: 'bildcPblSn' },
     { fieldName: 'cstFnm' }, // --고객성명
@@ -231,7 +229,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'pdQtySum' }, // --총수량
     { fieldName: 'pdSellAmt' }, // --판매금액
     { fieldName: 'pdSellAmtSum', dataType: 'number' }, // --총금액
-    { fieldName: 'rmkCn' }, // --비고 이건 수정 가능성이 잇음
+    // { fieldName: 'rmkCn' }, // --비고 이건 수정 가능성이 잇음
     { fieldName: 'bildcWrteDt' }, // --작성일자
     { fieldName: 'dummyText' }, // --발송
     { fieldName: 'sellPrtnrNo' }, /* 파트너번호 */
@@ -250,7 +248,7 @@ const initGrid = defineGrid((data, view) => {
       width: '200',
       styleName: 'text-center',
       datetimeFormat: 'date' },
-    { fieldName: 'fwDt',
+    { fieldName: 'bildcFwDtm',
       header: t('MSG_TXT_FW_DT'),
       // , header: '발송일자'
       width: '200',
@@ -273,11 +271,11 @@ const initGrid = defineGrid((data, view) => {
       width: '150',
       styleName: 'text-right',
       numberFormat: '#,##0' },
-    { fieldName: 'rmkCn',
-      header: t('MSG_TXT_NOTE'),
-      // , header: '비고'
-      width: '296',
-      styleName: 'text-left' },
+    // { fieldName: 'rmkCn',
+    //   header: t('MSG_TXT_NOTE'),
+    //   // , header: '비고'
+    //   width: '296',
+    //   styleName: 'text-left' },
     { fieldName: 'dummyText',
       header: t('MSG_TXT_BILDC_FW'),
       // , header: '청구서 발송'
