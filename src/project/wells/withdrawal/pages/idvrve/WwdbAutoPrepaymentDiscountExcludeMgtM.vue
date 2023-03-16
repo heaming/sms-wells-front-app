@@ -37,6 +37,7 @@
         >
           <!-- label="계약상세번호" -->
           <kw-input
+            v-model="searchParams.cntr"
             icon="search"
             clearable
             @keydown="onKeyDownSelectCntr"
@@ -71,6 +72,7 @@
             v-model:page-index="pageInfo.pageIndex"
             v-model:page-size="pageInfo.pageSize"
             :total-count="pageInfo.totalCount"
+            :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
             @change="fetchData"
           />
         </template>
@@ -134,14 +136,14 @@
 // -------------------------------------------------------------------------------------------------
 
 import dayjs from 'dayjs';
-import { codeUtil, defineGrid, getComponentType, gridUtil, alert, notify, modal, useDataService } from 'kw-lib';
+import { codeUtil, defineGrid, getComponentType, gridUtil, alert, notify, modal, useDataService, useMeta } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 
 const dataService = useDataService();
 const now = dayjs();
 const { t } = useI18n();
 const { currentRoute } = useRouter();
-
+const { getConfig } = useMeta();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -152,7 +154,7 @@ const codes = await codeUtil.getMultiCodes('COD_PAGE_SIZE_OPTIONS', 'SELL_TP_CD'
 const pageInfo = ref({
   totalCount: 0,
   pageIndex: 1,
-  pageSize: Number(codes.COD_PAGE_SIZE_OPTIONS[0].codeName),
+  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
   needTotalCount: true,
 });
 
@@ -309,10 +311,20 @@ async function onClickSelectCntr() {
   });
   console.log(payload);
   if (result) {
-    console.log(payload);
-    // searchParams.value.rveCd = payload.rveCd;
-    // searchParams.value.rveNm = payload.rveNm;
+    searchParams.value.cntr = payload.cntrNo + payload.cntrSn;
+    searchParams.value.cntrNo = payload.cntrNo;
+    searchParams.value.cntrSn = payload.cntrSn;
   }
+}
+
+async function onClearSelectCntr() {
+  searchParams.value.cntrNo = '';
+  searchParams.value.cntrSn = '';
+}
+
+async function onKeyDownSelectCntr() {
+  searchParams.value.cntrNo = '';
+  searchParams.value.cntrSn = '';
 }
 
 // -------------------------------------------------------------------------------------------------
@@ -330,7 +342,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'pdNm' }, // 상품명
     { fieldName: 'prmDscExcdStrtYm' }, // 선납제외시작월
     { fieldName: 'prmDscExcdEndYm' }, // 선납제외종료월
-    { fieldName: 'col8' }, // 선납시작일
+    { fieldName: 'prmStrtDate' }, // 선납시작일
     { fieldName: 'slCtrAmt' }, // 조정값
     { fieldName: 'fstRgstDtm' }, // 등록일시
     { fieldName: 'fstRgstUsrId' }, // 등록자 id
@@ -350,6 +362,7 @@ const initGrid = defineGrid((data, view) => {
       width: '150',
       styleName: 'text-left rg-button-icon--search',
       button: 'action',
+      editable: false,
       buttonVisibleCallback(grid, index) {
         return grid.getDataSource().getRowState(index.dataRow) === 'created';
       },
@@ -386,20 +399,6 @@ const initGrid = defineGrid((data, view) => {
         // text: '선납제외시작월',
         styleName: 'essential',
       },
-      // datetimeFormat: 'date',
-      // textFormat: '([0-9]{4})([0-9]{2})$;$1-$2',
-      // editor: {
-      //   type: 'btdate',
-      //   btOptions: {
-      //     startView: 1,
-      //     minViewMode: 1,
-      //     todayBtn: 'linked',
-      //     // language: 'kr',
-      //     todayHighlight: true,
-      //     language: 'ko',
-      //   },
-      //   datetimeFormat: 'yyyyMM',
-      // },
       datetimeFormat: 'yyyy-MM',
       editor: {
         type: 'btdate',
@@ -418,20 +417,7 @@ const initGrid = defineGrid((data, view) => {
         // text: '선납제외종료월',
         styleName: 'essential',
       },
-      // textFormat: '([0-9]{4})([0-9]{2})$;$1-$2',
       rules: 'required',
-      // editor: {
-      //   type: 'btdate',
-      //   btOptions: {
-      //     startView: 1,
-      //     minViewMode: 1,
-      //     todayBtn: 'linked',
-      //     // language: 'kr',
-      //     todayHighlight: true,
-      //     language: 'ko',
-      //   },
-      //   datetimeFormat: 'yyyyMM',
-      // },
       datetimeFormat: 'yyyy-MM',
       editor: {
         type: 'btdate',
@@ -442,7 +428,7 @@ const initGrid = defineGrid((data, view) => {
       width: '125',
       styleName: 'text-center',
     },
-    { fieldName: 'col8',
+    { fieldName: 'prmStrtDate',
       header: t('MSG_TXT_PRM_STRT_MM'),
       // , header: '선납시작월'
       width: '100',
@@ -487,10 +473,25 @@ const initGrid = defineGrid((data, view) => {
     if (column === 'cntr') {
       g.commit();
 
+      const { result, payload } = await modal({
+        component: 'WwctaContractNumberListP',
+      });
+
+      if (result) {
+        console.log(payload.cntrNo);
+        console.log(payload.cntrSn);
+        const cntr = payload.cntrNo + payload.cntrSn;
+        const { cntrNo, cntrSn } = payload;
+
+        data.setValue(itemIndex, 'cntrNo', cntrNo);
+        data.setValue(itemIndex, 'cntrSn', cntrSn);
+        data.setValue(itemIndex, 'cntr', cntr);
+      }
+
       if (data.getValue(itemIndex, 'cntr')) {
         const cntrParam = {
-          cntrNo: data.getValue(itemIndex, 'cntr').substring(0, 12),
-          cntrSn: data.getValue(itemIndex, 'cntr').substring(12),
+          cntrNo: data.getValue(itemIndex, 'cntrNo'),
+          cntrSn: data.getValue(itemIndex, 'cntrSn'),
         };
 
         const res = await dataService.get('/sms/wells/withdrawal/idvrve/auto-prepayment-discount-exclude/contracts', { params: cntrParam });
@@ -506,10 +507,11 @@ const initGrid = defineGrid((data, view) => {
           // 존재하지 않는 계약상세번호 입니다.
           alert(t('MSG_ALT_IT_NOT_EXIST', [t('MSG_TXT_CNTR_DTL_NO')]));
         }
-      } else {
-        // alert('계약상세번호는 필수 값 입니다.');
-        alert(t('MSG_ALT_NCELL_REQUIRED_VAL', [t('MSG_TXT_CNTR_DTL_NO')]));
       }
+      // else {
+      //   // alert('계약상세번호는 필수 값 입니다.');
+      //   alert(t('MSG_ALT_NCELL_REQUIRED_VAL', [t('MSG_TXT_CNTR_DTL_NO')]));
+      // }
 
       view.onValidate = async (grid, index) => {
         const { prmDscExcdStrtYm, prmDscExcdEndYm } = grid.getValues(index.dataRow);
@@ -517,19 +519,6 @@ const initGrid = defineGrid((data, view) => {
           return t('MSG_ALT_ABLE_START_DT_PREC_FINS_DT');
         }
       };
-
-      // const { result, payload } = await modal({
-      //   component: 'WwctaContractNumberListP',
-      // });
-
-      // if (result) {
-      //   console.log(payload.cntrNo);
-      //   console.log(payload.cntrSn);
-      //   const cntrNo = payload.cntrNo + payload.cntrSn;
-      //   // const cntrSn = payload.cntrSn;
-
-      //   data.setValue(itemIndex, 'cntrNo', cntrNo);
-      // }
     }
   };
 });

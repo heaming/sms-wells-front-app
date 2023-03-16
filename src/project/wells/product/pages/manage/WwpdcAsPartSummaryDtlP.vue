@@ -14,12 +14,14 @@
 --->
 <template>
   <kw-popup size="lg">
+    <!--
     <kw-chip
       :label="pdBas.sellYn === 'Y' ? $t('MSG_TXT_PD_SELLING') : $t('MSG_TXT_PD_NOT_SELLING') "
       color="primary"
       outline
       class="ml0 mb8 pb2 pt1 px8 mt0"
     />
+     -->
 
     <h2 class="h2-small">
       {{ pdBas.pdNm }}({{ pdBas.pdCd }})

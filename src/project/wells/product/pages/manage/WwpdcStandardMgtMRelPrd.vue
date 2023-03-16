@@ -94,7 +94,7 @@
         dense
         class="ml12 w140"
         :label="$t('MSG_TXT_PD_SEL_STD')"
-        :options="stdRelCodes"
+        :options="stdRelCodes.PDCT_REL_DV_CD"
         :placeholder="$t('MSG_TXT_SEL_REL_TYPE')"
         rules="required"
       />
@@ -140,7 +140,7 @@ const props = defineProps({
   codes: { type: Object, default: null },
 });
 
-const { modal } = useGlobal();
+const { alert, modal } = useGlobal();
 const { t } = useI18n();
 
 // -------------------------------------------------------------------------------------------------
@@ -160,8 +160,7 @@ const standardRelTypes = ref([
   pdConst.PD_REL_TP_CD_CONTRACTED_PD,
   pdConst.PD_REL_TP_CD_REQ_PD]);
 const standardRelTypeRef = ref();
-const stdRelCodes = (await codeUtil.getMultiCodes('PD_REL_TP_CD')).PD_REL_TP_CD
-  .filter((item) => standardRelTypes.value.includes(item.codeId));
+const stdRelCodes = await codeUtil.getMultiCodes('PDCT_REL_DV_CD');
 
 const materialSelectItems = ref([
   // 교재/자재명
@@ -193,9 +192,9 @@ const searchParams = ref({
 async function resetData() {
   currentPdCd.value = '';
   currentInitData.value = {};
-  grdMaterialRef.value?.getView()?.getDataSource().clearRows();
-  grdServiceRef.value?.getView()?.getDataSource().clearRows();
-  grdStandardRef.value?.getView()?.getDataSource().clearRows();
+  if (grdMaterialRef.value?.getView()) gridUtil.reset(grdMaterialRef.value.getView());
+  if (grdServiceRef.value?.getView()) gridUtil.reset(grdServiceRef.value.getView());
+  if (grdStandardRef.value?.getView()) gridUtil.reset(grdStandardRef.value.getView());
 }
 
 async function init() {
@@ -223,6 +222,11 @@ async function isModifiedProps() {
 }
 
 async function validateProps() {
+  const serviceRows = gridUtil.getAllRowValues(grdServiceRef.value.getView());
+  if (!serviceRows || !serviceRows.length) {
+    await alert(t('MSG_ALT_ADD_SOME_ITEM', [t('MSG_TXT_SERVICE')]));
+    return false;
+  }
   return true;
 }
 
@@ -356,13 +360,16 @@ async function initProps() {
   const { pdCd, initData } = props;
   currentPdCd.value = pdCd;
   currentInitData.value = initData;
-  await initGridRows();
 }
 
 await initProps();
 
 watch(() => props.pdCd, (pdCd) => { currentPdCd.value = pdCd; });
 watch(() => props.initData, (initData) => { currentInitData.value = initData; initGridRows(); }, { deep: true });
+
+onMounted(async () => {
+  await initGridRows();
+});
 
 //-------------------------------------------------------------------------------------------------
 // Initialize Grid
@@ -415,6 +422,9 @@ async function initMaterialGrid(data, view) {
   view.checkBar.visible = true;
   view.rowIndicator.visible = false;
   view.editOptions.editable = true;
+
+  view.sortingOptions.enabled = false;
+  view.filteringOptions.enabled = false;
 }
 
 async function initServiceGrid(data, view) {
@@ -448,7 +458,7 @@ async function initServiceGrid(data, view) {
 async function initStandardGrid(data, view) {
   const columns = [
     // 관계구분
-    { fieldName: 'pdRelTpCd', header: t('MSG_TXT_RELATION_CLSF'), width: '107', styleName: 'text-center', options: stdRelCodes, editable: false },
+    { fieldName: 'pdRelTpCd', header: t('MSG_TXT_RELATION_CLSF'), width: '107', styleName: 'text-center', options: stdRelCodes.PDCT_REL_DV_CD, editable: false },
     // 상태
     { fieldName: 'tempSaveYn', header: t('MSG_TXT_STT'), width: '105', styleName: 'text-center', options: props.codes?.PD_TEMP_SAVE_CD, editable: false },
     // 기준상품 분류
@@ -481,6 +491,9 @@ async function initStandardGrid(data, view) {
   view.rowIndicator.visible = false;
   view.editOptions.editable = true;
 
+  view.sortingOptions.enabled = false;
+  view.filteringOptions.enabled = false;
+
   view.onCellButtonClicked = async (grid, { column, itemIndex }) => {
     if (column === 'svPdNm') {
       const svPdNm = grid.getValue(itemIndex, 'svPdNm');
@@ -495,7 +508,5 @@ async function initStandardGrid(data, view) {
       }
     }
   };
-
-  await initGridRows();
 }
 </script>

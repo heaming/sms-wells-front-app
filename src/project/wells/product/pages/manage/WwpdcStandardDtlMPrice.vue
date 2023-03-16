@@ -32,6 +32,7 @@
     </kw-search>
   </div>
   <kw-action-top class="mt40">
+    <!-- (단위 : 원) -->
     <span class="kw-fc---black3 text-weight-regular">({{ $t('MSG_TXT_UNIT') }} : {{ $t('MSG_TXT_CUR_WON') }})</span>
   </kw-action-top>
   <kw-grid
@@ -45,10 +46,15 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { getComponentType, useDataService, codeUtil, stringUtil } from 'kw-lib';
+import { getComponentType, useDataService, codeUtil, gridUtil, stringUtil } from 'kw-lib';
 import { cloneDeep, isEmpty, merge } from 'lodash-es';
 import pdConst from '~sms-common/product/constants/pdConst';
 import { pdMergeBy, getPropInfosToGridRows, getPdMetaToCodeNames, getPdMetaToGridInfos } from '~sms-common/product/utils/pdUtil';
+
+/* eslint-disable no-use-before-define */
+defineExpose({
+  resetData,
+});
 
 const props = defineProps({
   pdCd: { type: String, default: null },
@@ -79,6 +85,12 @@ const searchParams = ref({
   pdCd: '',
   avlChnlId: '',
 });
+
+async function resetData() {
+  currentPdCd.value = '';
+  currentInitData.value = {};
+  if (grdMainRef.value?.getView()) gridUtil.reset(grdMainRef.value.getView());
+}
 
 async function initGridRows() {
   if (await currentInitData.value?.[prcfd]) {
@@ -161,7 +173,6 @@ async function initProps() {
   currentInitData.value = initData;
   currentMetaInfos.value = metaInfos;
   currentCodes.value = codes;
-  await resetInitData();
 }
 
 await initProps();
@@ -169,6 +180,10 @@ await fetchData();
 
 watch(() => props.pdCd, (val) => { currentPdCd.value = val; });
 watch(() => props.initData, (val) => { currentInitData.value = val; resetInitData(); }, { deep: true });
+
+onMounted(async () => {
+  await onClickSearch();
+});
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
@@ -220,7 +235,9 @@ async function initGrid(data, view) {
   view.checkBar.visible = false;
   view.rowIndicator.visible = false;
   view.editOptions.editable = false;
+
   view.setFixedOptions({ colCount: 5 });
-  await initGridRows();
+
+  await resetInitData();
 }
 </script>

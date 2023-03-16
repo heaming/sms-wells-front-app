@@ -43,6 +43,7 @@
         <kw-btn
           v-permission:delete
           dense
+          grid-action
           :label="t('MSG_BTN_DEL')"
           @click="onClickDelete"
         />

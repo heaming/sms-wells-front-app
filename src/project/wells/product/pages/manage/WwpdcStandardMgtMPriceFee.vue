@@ -81,12 +81,11 @@ async function resetData() {
   currentInitData.value = {};
   removeObjects.value = [];
   gridRowCount.value = 0;
-  grdMainRef.value?.getView()?.getDataSource().clearRows();
+  if (grdMainRef.value?.getView()) gridUtil.reset(grdMainRef.value.getView());
 }
 
 async function init() {
-  const view = grdMainRef.value?.getView();
-  if (view) gridUtil.init(view);
+  if (grdMainRef.value?.getView()) gridUtil.init(grdMainRef.value.getView());
 }
 
 async function getSaveData() {
@@ -154,7 +153,7 @@ async function initGridRows() {
       return row;
     });
     // console.log('Fee Rows : ', rows);
-    setPdGridRows(view, rows, pdConst.PRC_FNL_ROW_ID, defaultFields.value, true);
+    await setPdGridRows(view, rows, pdConst.PRC_FNL_ROW_ID, defaultFields.value, true);
   } else {
     view.getDataSource().clearRows();
   }
@@ -233,8 +232,14 @@ async function initGrid(data, view) {
   view.checkBar.visible = true;
   view.rowIndicator.visible = false;
   view.editOptions.editable = true;
+
+  view.sortingOptions.enabled = false;
+  view.filteringOptions.enabled = false;
+
   view.setFixedOptions({ colCount: 6 });
+
   await initGridRows();
+  await init();
 }
 
 </script>

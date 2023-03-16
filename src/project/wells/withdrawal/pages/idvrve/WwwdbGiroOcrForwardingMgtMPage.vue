@@ -164,7 +164,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, defineGrid, getComponentType, gridUtil, modal, notify, useDataService, useGlobal } from 'kw-lib';
+import { codeUtil, defineGrid, getComponentType, gridUtil, modal, notify, useDataService, useGlobal, useMeta } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
 
@@ -174,6 +174,7 @@ const dataService = useDataService();
 const now = dayjs();
 const { t } = useI18n();
 const { currentRoute } = useRouter();
+const { getConfig } = useMeta();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -200,7 +201,7 @@ async function onClickPopup() {
 const pageInfo = ref({
   totalCount: 0,
   pageIndex: 1,
-  pageSize: Number(codes.COD_PAGE_SIZE_OPTIONS[0].codeName),
+  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
   needTotalCount: true,
 });
 
@@ -647,8 +648,8 @@ const initGrid = defineGrid((data, view) => {
       if (result) {
         const cntr = payload.cntrNo + payload.cntrSn;
         // const cntrSn = payload.cntrSn;
-        data.setValue(itemIndex, 'cntrNo', cntr);
-        data.setValue(itemIndex, 'cntrSn', cntr);
+        data.setValue(itemIndex, 'cntrNo', payload.cntrNo);
+        data.setValue(itemIndex, 'cntrSn', payload.cntrSn);
         data.setValue(itemIndex, 'cntr', cntr);
       }
     }

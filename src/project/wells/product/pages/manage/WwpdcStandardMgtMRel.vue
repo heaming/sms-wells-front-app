@@ -92,7 +92,6 @@ async function resetData() {
 }
 
 async function init() {
-  selectedTab.value = selectedTabs.value[0];
   if (cmpPrdRef.value.init) await cmpPrdRef.value.init();
   if (cmpChgRef.value.init) await cmpChgRef.value.init();
 }
@@ -123,7 +122,9 @@ async function isModifiedProps() {
 }
 
 async function validateProps() {
-  return true;
+  let isValidOk = await cmpPrdRef.value.validateProps();
+  if (isValidOk) isValidOk = await cmpChgRef.value.validateProps();
+  return isValidOk;
 }
 
 async function moveNextStep() {

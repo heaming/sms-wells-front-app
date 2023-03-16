@@ -26,6 +26,7 @@
         <kw-input
           v-model="searchParams.schClctamNo"
           :label="$t('MSG_TXT_CLCTAM_NO')"
+          :regex="/^[0-9]*$/i"
           rules="required"
         />
       </kw-search-item>
@@ -42,7 +43,12 @@
       <kw-search-item
         :label="$t('MSG_TXT_CNTR_MPNO')"
       >
-        <kw-input v-model="searchParams.schCntrMpno" />
+        <kw-input
+          v-model="searchParams.schCntrMpno"
+          :maxlength="11"
+          :regex="/^[0-9]*$/i"
+          :placeholder="$t('MSG_TXT_REPSN_DGT4_WO_NO_IN')"
+        />
       </kw-search-item>
       <kw-search-item
         :label="$t('MSG_TXT_CST_NM')"
@@ -63,6 +69,7 @@
           v-model="searchParams.schClctamPsic"
           icon="search"
           clearable
+          @click-icon="onClickClctamPsic"
         />
       </kw-search-item>
       <kw-search-item
@@ -74,7 +81,12 @@
       <kw-search-item
         :label="$t('MSG_TXT_IST_MPNO')"
       >
-        <kw-input v-model="searchParams.schIstMpno" />
+        <kw-input
+          v-model="searchParams.schIstMpno"
+          :maxlength="11"
+          :regex="/^[0-9]*$/i"
+          :placeholder="$t('MSG_TXT_REPSN_DGT4_WO_NO_IN')"
+        />
       </kw-search-item>
     </kw-search-row>
     <kw-search-row>
@@ -227,6 +239,7 @@ const searchParams = ref({
   schCntrMpno: '',
   schCstNm: '',
   schClctamPsic: '',
+  schClctamPsicNo: '',
   schSfK: '',
   schIstMpno: '',
   schDlqMcntStrt: '',
@@ -236,7 +249,7 @@ const searchParams = ref({
   schFntDtEnd: '',
   seachOjBlamStrt: '',
   seachOjBlamEnd: '',
-  schCstDv: '',
+  schCstDv: '전체',
   schCpsnRsgYn: '',
   schDv: '',
 });
@@ -279,6 +292,21 @@ async function onClickSelectCustomer() {
     searchParams.value.schCstNm = returnCustomInfo.cstNm;
   }
 }
+
+// TODO: 집금담당자 검색 팝업 호출
+const onClickClctamPsic = async () => {
+  const { result, payload } = await modal({
+    component: 'ZwbnyCollectorListP',
+    componentProps: {
+      clctamPrtnrNm: searchParams.value.schClctamPsic,
+    },
+  });
+  if (result) {
+    const { clctamPrtnrNm, clctamPrtnrNo } = payload;
+    searchParams.value.schClctamPsic = clctamPrtnrNm;
+    searchParams.value.schClctamPsicNo = clctamPrtnrNo;
+  }
+};
 
 async function onClickSearch() {
   if (searchParams.value.schDv === '입금액 0원 제외') {

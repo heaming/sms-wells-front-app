@@ -97,7 +97,15 @@ import WwpdcStandardMgtMPriceFee from './WwpdcStandardMgtMPriceFee.vue';
 
 /* eslint-disable no-use-before-define */
 defineExpose({
-  resetData, init, getSaveData, isModifiedProps, validateProps, moveNextStep, movePrevStep, resetFirstStep,
+  resetData,
+  init,
+  getSaveData,
+  isModifiedProps,
+  validateProps,
+  validateStepProps,
+  moveNextStep,
+  movePrevStep,
+  resetFirstStep,
 });
 
 const props = defineProps({
@@ -139,7 +147,6 @@ async function resetData() {
 }
 
 async function init() {
-  selectedTab.value = selectedTabs.value[0];
   if (cmpStdRef.value?.init) await cmpStdRef.value.init();
   if (cmpValRef.value?.init) await cmpValRef.value.init();
   if (cmpFnlRef.value?.init) await cmpFnlRef.value.init();
@@ -216,6 +223,22 @@ async function isModifiedProps() {
     return true;
   }
   return false;
+}
+
+async function validateStepProps() {
+  if (selectedTab.value === selectedTabs.value[0]) {
+    return await cmpStdRef.value.validateProps();
+  }
+  if (selectedTab.value === selectedTabs.value[1]) {
+    return await cmpValRef.value.validateProps();
+  }
+  if (selectedTab.value === selectedTabs.value[2]) {
+    return await cmpFnlRef.value.validateProps();
+  }
+  if (selectedTab.value === selectedTabs.value[3]) {
+    return await cmpFeeRef.value.validateProps();
+  }
+  return true;
 }
 
 async function validateProps() {

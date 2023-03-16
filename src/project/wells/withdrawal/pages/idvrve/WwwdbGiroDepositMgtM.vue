@@ -146,7 +146,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 
-import { codeUtil, getComponentType, gridUtil, modal, notify, useDataService } from 'kw-lib';
+import { codeUtil, getComponentType, gridUtil, modal, notify, useDataService, useMeta } from 'kw-lib';
 import dayjs from 'dayjs';
 
 // import { cloneDeep } from 'lodash-es';
@@ -156,7 +156,7 @@ const { t } = useI18n();
 const now = dayjs();
 // const { t } = useI18n();
 const { currentRoute } = useRouter();
-
+const { getConfig } = useMeta();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -170,7 +170,7 @@ console.log(userInfo);
 const pageInfo = ref({
   totalCount: 0,
   pageIndex: 1,
-  pageSize: Number(codes.COD_PAGE_SIZE_OPTIONS[0].codeName),
+  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
   needTotalCount: true,
 });
 

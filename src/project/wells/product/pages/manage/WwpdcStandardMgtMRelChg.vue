@@ -95,12 +95,11 @@ const searchParams = ref({
 async function resetData() {
   currentPdCd.value = '';
   currentInitData.value = {};
-  grdChangePrdRef.value?.getView()?.getDataSource().clearRows();
+  if (grdChangePrdRef.value?.getView()) gridUtil.reset(grdChangePrdRef.value.getView());
 }
 
 async function init() {
-  const view = grdChangePrdRef.value?.getView();
-  if (view) gridUtil.init(view);
+  if (grdChangePrdRef.value?.getView()) gridUtil.init(grdChangePrdRef.value.getView());
 }
 
 async function getSaveData() {
@@ -175,13 +174,16 @@ async function initProps() {
   const { pdCd, initData } = props;
   currentPdCd.value = pdCd;
   currentInitData.value = initData;
-  await initGridRows();
 }
 
 await initProps();
 
 watch(() => props.pdCd, (pdCd) => { currentPdCd.value = pdCd; });
 watch(() => props.initData, (initData) => { currentInitData.value = initData; initGridRows(); }, { deep: true });
+
+onMounted(async () => {
+  await initGridRows();
+});
 
 //-------------------------------------------------------------------------------------------------
 // Initialize Grid
@@ -208,8 +210,6 @@ async function initChangePrdGrid(data, view) {
 
   view.checkBar.visible = true;
   view.rowIndicator.visible = false;
-
-  await initGridRows();
 }
 
 </script>

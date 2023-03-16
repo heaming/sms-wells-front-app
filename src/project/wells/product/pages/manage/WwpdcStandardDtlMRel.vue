@@ -51,8 +51,13 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { getComponentType } from 'kw-lib';
+import { getComponentType, codeUtil, gridUtil } from 'kw-lib';
 import pdConst from '~sms-common/product/constants/pdConst';
+
+/* eslint-disable no-use-before-define */
+defineExpose({
+  resetData,
+});
 
 const props = defineProps({
   pdCd: { type: String, default: null },
@@ -76,11 +81,17 @@ const standardRelTypes = ref([
   pdConst.PD_REL_TP_CD_MORE_PURCH,
   pdConst.PD_REL_TP_CD_CONTRACTED_PD,
   pdConst.PD_REL_TP_CD_REQ_PD]);
-const stdRelCodes = [
-  { codeId: pdConst.PD_REL_TP_CD_MORE_PURCH, codeName: '추가구매' }, /* 다국어 미적용 임시값 - 공통코드 적용 후 삭제 */
-  { codeId: pdConst.PD_REL_TP_CD_CONTRACTED_PD, codeName: '기계약상품' }, /* 다국어 미적용 임시값 - 공통코드 적용 후 삭제 */
-  { codeId: pdConst.PD_REL_TP_CD_REQ_PD, codeName: '필수선택상품' }, /* 다국어 미적용 임시값 - 공통코드 적용 후 삭제 */
-];
+const stdRelCodes = (await codeUtil.getMultiCodes('PD_REL_TP_CD')).PD_REL_TP_CD
+  .filter((item) => standardRelTypes.value.includes(item.codeId));
+
+async function resetData() {
+  currentPdCd.value = '';
+  currentInitData.value = {};
+  if (grdMaterialRef.value?.getView()) gridUtil.reset(grdMaterialRef.value.getView());
+  if (grdServiceRef.value?.getView()) gridUtil.reset(grdServiceRef.value.getView());
+  if (grdStandardRef.value?.getView()) gridUtil.reset(grdStandardRef.value.getView());
+  if (grdChangePrdRef.value?.getView()) gridUtil.reset(grdChangePrdRef.value.getView());
+}
 
 async function initGridRows() {
   const products = currentInitData.value[pdConst.RELATION_PRODUCTS];
@@ -121,14 +132,16 @@ async function initProps() {
   const { pdCd, initData } = props;
   currentPdCd.value = pdCd;
   currentInitData.value = initData;
-
-  await initGridRows();
 }
 
 await initProps();
 
 watch(() => props.pdCd, (pdCd) => { currentPdCd.value = pdCd; });
 watch(() => props.initData, (initData) => { currentInitData.value = initData; initGridRows(); }, { deep: true });
+
+onMounted(async () => {
+  await initGridRows();
+});
 
 //-------------------------------------------------------------------------------------------------
 // Initialize Grid
@@ -247,7 +260,5 @@ async function initChangePrdGrid(data, view) {
 
   view.checkBar.visible = false;
   view.rowIndicator.visible = false;
-
-  await initGridRows();
 }
 </script>

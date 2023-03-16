@@ -96,6 +96,7 @@
       </kw-action-top>
       <kw-grid
         ref="gridMainRef"
+        name="gridMain"
         :visible-rows="10"
         @init="initGrid"
       />
@@ -122,7 +123,7 @@ const { t } = useI18n();
 const { getConfig } = useMeta();
 const dataService = useDataService();
 const gridMainRef = ref(getComponentType('KwGrid'));
-// const router = useRouter();
+const { currentRoute } = useRouter();
 
 /*
  *  Search Parameter
@@ -185,9 +186,12 @@ async function onClickSearch() {
 async function onClickExcelDownload() {
   const view = gridMainRef.value.getView();
 
+  const response = await dataService.get('/sms/wells/service/fixation-visit/excel-download', { params: cachedParams });
+
   await gridUtil.exportView(view, {
-    fileName: 'fixation_visit',
-    timePostfix: false,
+    fileName: currentRoute.value.meta.menuName,
+    timePostfix: true,
+    exportData: response.data,
   });
 }
 

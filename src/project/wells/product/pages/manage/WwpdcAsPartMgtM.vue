@@ -63,6 +63,7 @@
                 :pd-tp-cd="pdConst.PD_TP_CD_MATERIAL"
                 :pd-grp-dv-cd="pdConst.PD_PRP_GRP_DV_CD_MANUAL"
                 :except-id="exceptPrpGrpCd"
+                :pd-tp-dtl-cd="pdTpDtlCd"
               />
             </kw-step-panel>
             <!-- 4.등록정보 확인 -->
@@ -103,6 +104,7 @@
                     :prefix-title="$t('MSG_TXT_MGT_ATTR')"
                     :is-first-title="true"
                     :except-id="exceptPrpGrpCd"
+                    :pd-tp-dtl-cd="pdTpDtlCd"
                   />
                 </kw-tab-panel>
               </kw-tab-panels>
@@ -111,6 +113,15 @@
         </div>
 
         <div class="button-set--bottom">
+          <div class="button-set--bottom-left">
+            <!-- 이전 -->
+            <kw-btn
+              v-show="currentStep.step > 1"
+              :label="$t('MSG_BTN_PREV')"
+              class="ml8"
+              @click="onClickPrevStep"
+            />
+          </div>
           <div class="button-set--bottom-right">
             <!-- 삭제 -->
             <kw-btn
@@ -140,13 +151,6 @@
               :label="$t('MSG_BTN_TMP_SAVE')"
               class="ml8"
               @click="onClickSave('Y')"
-            />
-            <!-- 이전 -->
-            <kw-btn
-              v-show="(currentStep.step > 1)"
-              :label="$t('MSG_BTN_PREV')"
-              class="ml8"
-              @click="onClickPrevStep"
             />
             <!-- 다음 -->
             <kw-btn

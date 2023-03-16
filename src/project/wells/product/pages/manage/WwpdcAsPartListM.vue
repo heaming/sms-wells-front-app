@@ -34,6 +34,10 @@
         <kw-search-item :label="$t('MSG_TIT_AS_PART_CD')">
           <kw-input
             v-model.trim="searchParams.pdCd"
+            clearable
+            :readonly="true"
+            icon="search"
+            @click-icon="onClickProduct()"
           />
         </kw-search-item>
       </kw-search-row>
@@ -49,7 +53,6 @@
             v-model:product2-level="searchParams.prdtCateMid"
             v-model:pd-tp-cd="pdConst.PD_TP_CD_STANDARD"
             first-option="all"
-            first-option-value="ALL"
             search-lvl="2"
           />
         </kw-search-item>
@@ -173,6 +176,15 @@ const searchParams = ref({
   sapMatCd: '',
 });
 
+async function onClickProduct() {
+  const { result, payload } = await modal({
+    component: 'ZwpdcMaterialsSelectListP',
+    componentProps: { searchType: null, searchValue: null, selectType: pdConst.PD_SEARCH_SINGLE },
+  });
+
+  if (result) searchParams.value.pdCd = payload.checkedRows[0].pdCd;
+}
+
 async function fetchData() {
   const res = await dataService.get(`${baseUrl}/paging`, { params: { ...cachedParams, ...pageInfo.value } });
   const { list: material, pageInfo: pagingResult } = res.data;
@@ -197,7 +209,7 @@ async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
   const res = await dataService.get(`${baseUrl}/excel-download`, { params: cachedParams });
   await gridUtil.exportView(view, {
-    fileName: t('MSG_TIT_AS_PART_MGT'),
+    fileName: router.value.meta.menuName,
     timePostfix: true,
     exportData: res.data,
   });
@@ -239,8 +251,12 @@ watch(() => route.query, async (query) => {
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
 const initGrdMain = defineGrid((data, view) => {
+  codes.PD_TEMP_SAVE_YN = [
+    { codeId: 'Y', codeName: t('MSG_BTN_TMP_SAVE') },
+    { codeId: 'N', codeName: t('MSG_TXT_SAVE') },
+  ];
   const columns = [
-    { fieldName: 'tempSaveYn', header: t('MSG_TXT_STT'), width: '90', styleName: 'text-center', options: codes.PD_TEMP_SAVE_CD }, /* 상태 */
+    { fieldName: 'tempSaveYn', header: t('MSG_TXT_STT'), width: '90', styleName: 'text-center', options: codes.PD_TEMP_SAVE_YN }, /* 상태 */
     { fieldName: 'pdTpCd', header: t('MSG_TXT_DIV'), width: '90', styleName: 'text-center', options: codes.PD_TP_CD }, /* 구분 */
     { fieldName: 'pdClsfNm', header: t('MSG_TXT_CLSF'), width: '176' }, /* 분류 */
     { fieldName: 'pdNm', header: t('MSG_TIT_AS_PART_NM'), width: '195' }, /* 교재/자재명 */
@@ -249,10 +265,10 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'pdAbbrNm', header: t('MSG_TXT_ABBR'), width: '195' }, /* 약어 */
     // 사용자 관련 공통 컬럼
     { fieldName: 'fstRgstDtm', header: t('MSG_TXT_RGST_DTM'), width: '110', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date' }, /* 등록일 */
-    { fieldName: 'fstRgstUsrNm', header: t('MSG_TXT_RGST_USR'), width: '80', styleName: 'rg-button-link text-center', renderer: { type: 'button' }, preventCellItemFocus: true }, /* 등록자 */
+    { fieldName: 'fstRgstUsrNm', header: t('MSG_TXT_RGST_USR'), width: '80', styleName: 'text-center', editable: false },
     { fieldName: 'fstRgstUsrId', header: 'RGST_ID', width: '50', visible: false },
     { fieldName: 'fnlMdfcDtm', header: t('MSG_TXT_FNL_MDFC_D'), width: '110', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date' }, /* 최종수정일 */
-    { fieldName: 'fnlMdfcUsrNm', header: t('MSG_TXT_FNL_MDFC_USR'), width: '80', styleName: 'rg-button-link text-center', renderer: { type: 'button' }, preventCellItemFocus: true }, /* 최종수정자 */
+    { fieldName: 'fnlMdfcUsrNm', header: t('MSG_TXT_FNL_MDFC_USR'), width: '80', styleName: 'text-center', editable: false },
     { fieldName: 'fnlMdfcUsrId', header: 'MDFC_ID', width: '50', visible: false },
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }))

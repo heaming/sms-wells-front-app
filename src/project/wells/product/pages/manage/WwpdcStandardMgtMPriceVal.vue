@@ -138,12 +138,11 @@ async function resetData() {
   addChannelId.value = '';
   removeObjects.value = [];
   gridRowCount.value = 0;
-  grdMainRef.value?.getView()?.getDataSource().clearRows();
+  if (grdMainRef.value?.getView()) gridUtil.reset(grdMainRef.value.getView());
 }
 
 async function init() {
-  const view = grdMainRef.value?.getView();
-  if (view) gridUtil.init(view);
+  if (grdMainRef.value?.getView()) gridUtil.init(grdMainRef.value.getView());
 }
 
 async function getSaveData() {
@@ -153,6 +152,7 @@ async function getSaveData() {
     return rtn;
   }, []); /* 그리드에서 수정항목이 아닌 경우 제외 */
   const rowValues = gridUtil.getAllRowValues(view);
+  // console.log('WwpdcStandardMgtMPriceVal - getSaveData - rowValues1 : ', rowValues);
   const rtnValues = await getGridRowsToSavePdProps(
     rowValues,
     currentMetaInfos.value,
@@ -160,6 +160,7 @@ async function getSaveData() {
     ['sellChnlCd', 'pdCd', ...defaultFields.value],
     outKeys,
   );
+  // console.log('WwpdcStandardMgtMPriceVal - getSaveData - rtnValues1.5 : ', rtnValues);
   if (removeObjects.value.length) {
     rtnValues[pdConst.REMOVE_ROWS] = cloneDeep(removeObjects.value);
   }
@@ -169,8 +170,7 @@ async function getSaveData() {
     }
     return rtn;
   }, []);
-
-  // console.log('WwpdcStandardMgtMPriceVal - getSaveData - rtnValues : ', rtnValues);
+  // console.log('WwpdcStandardMgtMPriceVal - getSaveData - rtnValues2 : ', rtnValues);
   return rtnValues;
 }
 
@@ -182,6 +182,10 @@ async function validateProps() {
   const rtn = gridUtil.validate(grdMainRef.value.getView(), {
     isChangedOnly: false,
   });
+  if (rtn && !gridRowCount.value) {
+    await alert(t('MSG_ALT_ADD_SOME_ITEM', [t('MSG_TXT_PRICE_INFO')]));
+    return false;
+  }
   return rtn;
 }
 
@@ -250,7 +254,7 @@ async function initGridRows() {
       // console.log('WwpdcStandardMgtMPriceVal - initGridRows - row : ', row);
       return row;
     });
-    setPdGridRows(view, rows, pdConst.PRC_FNL_ROW_ID, defaultFields.value, true);
+    await setPdGridRows(view, rows, pdConst.PRC_FNL_ROW_ID, defaultFields.value, true);
   } else {
     view.getDataSource().clearRows();
   }
@@ -394,6 +398,10 @@ async function initGrid(data, view) {
   view.checkBar.visible = true;
   view.rowIndicator.visible = false;
   view.editOptions.editable = true;
+
+  view.sortingOptions.enabled = false;
+  view.filteringOptions.enabled = false;
+
   view.setFixedOptions({ colCount: 6 });
 
   // 조정 값 초기화
@@ -426,9 +434,9 @@ async function initGrid(data, view) {
       }
     }
   };
-
-  // 그리드 마운트 시점과 컴포넌트 마운트 시점 불일지로 아래 로직 추가
   await resetInitData();
+  await init();
+  // 그리드 마운트 시점과 컴포넌트 마운트 시점 불일지로 아래 로직 추가
   await resetVisibleChannelColumns();
 }
 </script>

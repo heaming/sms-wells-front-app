@@ -14,19 +14,34 @@
 --->
 <template>
   <kw-page ignore-on-modified>
-    <wwpdc-standard-dtl-m-contents
-      v-model:pd-cd="currentPdCd"
-      v-model:init-data="initData"
-      :codes="codes"
-      :temp-save-yn="props.tempSaveYn"
-    />
+    <div class="normal-area normal-area--button-set-bottom">
+      <div class="kw-stepper-headingtext">
+        <h2 class="h2-small">
+          {{ pdBas.pdNm }}({{ pdBas.pdCd }})
+          <p>
+            <span>{{ $t('MSG_TXT_RGST_DT') }} {{ stringUtil.getDateFormat(pdBas.fstRgstDtm) }}
+              /  {{ pdBas.fstRgstUsrNm }}</span><span>
+              {{ $t('MSG_TXT_L_UPDATED') }} {{ stringUtil.getDateFormat(pdBas.fnlMdfcDtm) }}
+              / {{ pdBas.fnlMdfcUsrNm }}</span>
+          </p>
+        </h2>
+      </div>
+      <wwpdc-standard-dtl-m-contents
+        ref="cmpRef"
+        v-model:pd-cd="currentPdCd"
+        v-model:init-data="prevStepData"
+        :codes="codes"
+        :temp-save-yn="props.tempSaveYn"
+      />
+    </div>
   </kw-page>
 </template>
 <script setup>
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService, codeUtil } from 'kw-lib';
+import { useDataService, codeUtil, stringUtil } from 'kw-lib';
+import { cloneDeep } from 'lodash-es';
 import pdConst from '~sms-common/product/constants/pdConst';
 import WwpdcStandardDtlMContents from './WwpdcStandardDtlMContents.vue';
 
@@ -41,17 +56,11 @@ const dataService = useDataService();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
-const bas = pdConst.TBL_PD_BAS;
-const dtl = pdConst.TBL_PD_DTL;
-const ecom = pdConst.TBL_PD_ECOM_PRP_DTL;
-const prcd = pdConst.TBL_PD_PRC_DTL;
-const prcfd = pdConst.TBL_PD_PRC_FNL_DTL;
-const prumd = pdConst.TBL_PD_DSC_PRUM_DTL;
-
+const cmpRef = ref();
 const currentPdCd = ref();
 const prdPropGroups = ref({});
 const pdBas = ref({});
-const initData = ref({});
+const prevStepData = ref({});
 
 const codes = await codeUtil.getMultiCodes(
   'PD_TP_CD',
@@ -72,19 +81,21 @@ codes.COD_YN.map((item) => {
 });
 
 async function fetchProduct() {
-  initData.value = {};
-  const res = await dataService.get(`/sms/common/product/standards/${currentPdCd.value}`);
-  // console.log('WwpdcStandardDtlM - fetchProduct - res.data', res.data);
-  pdBas.value = res.data[pdConst.TBL_PD_BAS];
-  initData.value[bas] = res.data[bas];
-  initData.value[dtl] = res.data[dtl];
-  initData.value[ecom] = res.data[ecom];
-  initData.value[prcd] = res.data[prcd];
-  initData.value[prcfd] = res.data[prcfd];
-  initData.value[prumd] = res.data[prumd];
-  initData.value[pdConst.RELATION_PRODUCTS] = res.data[pdConst.RELATION_PRODUCTS];
-  console.log('WwpdcStandardDtlM - fetchProduct - initData.value : ', initData.value);
-  prdPropGroups.value = res.data.groupCodes;
+  if (currentPdCd.value) {
+    const res = await dataService.get(`/sms/wells/product/standards/${currentPdCd.value}`);
+    // console.log('WwpdcStandardDtlM - fetchProduct - res.data', res.data);
+    pdBas.value = res.data[pdConst.TBL_PD_BAS];
+    // initData[bas] = res.data[bas];
+    // initData[dtl] = res.data[dtl];
+    // initData[ecom] = res.data[ecom];
+    // initData[prcd] = res.data[prcd];
+    // initData[prcfd] = res.data[prcfd];
+    // initData[prumd] = res.data[prumd];
+    // initData[pdConst.RELATION_PRODUCTS] = res.data[pdConst.RELATION_PRODUCTS];
+    // console.log('WwpdcStandardDtlM - fetchProduct - initData : ', initData);
+    prevStepData.value = cloneDeep(res.data);
+    prdPropGroups.value = cloneDeep(res.data.groupCodes);
+  }
 }
 
 async function initProps() {
@@ -96,8 +107,9 @@ async function initProps() {
 await initProps();
 
 watch(() => route.params.pdCd, async (pdCd) => {
-  console.log(`currentPdCd.value : ${currentPdCd.value}, route.params.pdCd : ${pdCd}`);
-  if (currentPdCd.value !== pdCd && pdCd) {
+  console.log(`WwpdcStandardDtlM - currentPdCd.value : ${currentPdCd.value}, route.params.pdCd : ${pdCd}`);
+  if (pdCd) {
+    if (cmpRef.value?.resetData) await cmpRef.value?.resetData();
     currentPdCd.value = pdCd;
     fetchProduct();
   }

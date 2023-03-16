@@ -277,6 +277,7 @@
                     secondary
                     class="kw-font-caption py2 ml4"
                     style="min-height: 20px;"
+                    @click="onClickCustomerCardPrint"
                   />
                 </kw-form-item>
               </kw-form-row>
@@ -663,7 +664,7 @@
                 />
               </kw-tab-panel>
               <kw-tab-panel name="tab4">
-                <wwbna-counsel-wells-contract-list04 />
+                <zwbnc-customer-dtl-p-promise />
               </kw-tab-panel>
               <kw-tab-panel name="tab5">
                 <zwbnc-customer-dtl-p-law-measure />
@@ -940,11 +941,12 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { defineGrid, getComponentType, useDataService, gridUtil } from 'kw-lib';
+import { modal, defineGrid, getComponentType, useDataService, gridUtil } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 
 import ZwbncCustomerDtlPSms from '~sms-common/bond/pages/consultation/ZwbncCustomerDtlPSms.vue';
 import ZwbncCustomerDtlPLawMeasure from '~sms-common/bond/pages/consultation/ZwbncCustomerDtlPLawMeasure.vue';
+import ZwbncCustomerDtlPPromise from '~sms-common/bond/pages/consultation/ZwbncCustomerDtlPPromise.vue';
 import WwbncCustomerDtlPCounselHistory from './WwbncCustomerDtlPCounselHistory.vue';
 
 const { t } = useI18n();
@@ -1026,6 +1028,16 @@ async function onClickCnslRgstReset() {
   customer.value.promTp = '';
   customer.value.promAmt = '';
   customer.value.cnslCn = '';
+}
+
+// TODO: 고객카드 출력 팝업
+async function onClickCustomerCardPrint() {
+  const apiUrl = '/sms-common/bond/pages/consultation';
+  const templateId = 'MSG_TIT_CST_CARD_PRNT';
+  await modal({
+    component: 'ZwbncCustomerCardP',
+    componentProps: { apiUrl, templateId },
+  });
 }
 
 onMounted(async () => {
