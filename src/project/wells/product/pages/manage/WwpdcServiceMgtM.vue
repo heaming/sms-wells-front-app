@@ -144,7 +144,7 @@ const ecom = pdConst.TBL_PD_ECOM_PRP_DTL;
 
 const isTempSaveBtn = ref(true);
 const regSteps = ref([pdConst.W_SERVICE_STEP_BASIC, pdConst.W_SERVICE_STEP_FILTER, pdConst.W_SERVICE_STEP_CHECK]);
-const currentStep = cloneDeep(ref(pdConst.W_SERVICE_STEP_FILTER));
+const currentStep = cloneDeep(ref(pdConst.W_SERVICE_STEP_BASIC));
 const cmpStepRefs = ref([ref(), ref()]);
 const prevStepData = ref({});
 const currentPdCd = ref();
