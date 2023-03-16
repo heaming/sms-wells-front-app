@@ -22,18 +22,23 @@
       <!--  제품 선택 -->
       <span class="kw-fc--black1">{{ $t('MSG_TXT_PD_SELECT') }}</span>
       <kw-select
+        v-model="searchParams.searchType"
         dense
         class="ml12 w120"
+        :options="materialSelectItems"
       />
       <kw-input
+        v-model="searchParams.searchValue"
         dense
         clearable
         icon="search"
         class="ml8 w250"
+        @click-icon="onClickMaterialSchPopup"
       />
     </template>
     <kw-btn
       dense
+      :disable="grdRowCount === 0"
       :label="$t('MSG_BTN_DEL')"
     />
     <kw-separator
@@ -53,7 +58,7 @@
     />
   </kw-action-top>
   <kw-grid
-    :visible-rows="1"
+    ref="grdMainRef"
     @init="initGrid"
   />
 </template>
@@ -61,16 +66,43 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
+import { /* codeUtil, */ getComponentType, useGlobal, gridUtil } from 'kw-lib';
+import { clone } from 'lodash-es';
+import { getGridRowCount } from '~/modules/sms-common/product/utils/pdUtil';
+import pdConst from '~sms-common/product/constants/pdConst';
+
 /* eslint-disable no-use-before-define */
 defineExpose({
   isModifiedProps, validateProps, resetData, getSaveData,
 });
 
-const { t } = useI18n();
+const props = defineProps({
+  pdCd: { type: String, default: null },
+  initData: { type: Object, default: null },
+});
 
+const { t } = useI18n();
+const { modal } = useGlobal();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
+const grdMainRef = ref(getComponentType('KwGrid'));
+const grdRowCount = ref(0);
+const currentPdCd = ref();
+const currentInitData = ref({});
+const searchParams = ref({
+  searchType: null,
+  searchValue: null,
+});
+
+const materialSelectItems = ref([
+  // 교재/자재명
+  { codeId: pdConst.PD_SEARCH_NAME, codeName: t('MSG_TXT_PD_BOK_MTR_NAME') },
+  // 교재/자재코드
+  { codeId: pdConst.PD_SEARCH_CODE, codeName: t('MSG_TXT_PROD_CD') },
+]);
+// const codes = await codeUtil.getMultiCodes('PD_TEMP_SAVE_CD');
+
 async function isModifiedProps() {
   return false;
 }
@@ -88,45 +120,63 @@ async function getSaveData() {
   return subList;
 }
 
+async function onClickMaterialSchPopup() {
+  const view = grdMainRef.value.getView();
+  const rtn = await modal({
+    component: 'ZwpdcMaterialListP',
+    componentProps: searchParams.value,
+  });
+  if (rtn.result) {
+    if (Array.isArray(rtn.payload) && rtn.payload.length > 1) {
+      const data = view.getDataSource();
+      const rows = rtn.payload.map((item) => ({
+        ...item, svPdCd: clone(currentPdCd.value) }));
+      await data.insertRows(0, rows);
+      await gridUtil.focusCellInput(view, 0);
+    }
+  }
+  grdRowCount.value = getGridRowCount(view);
+}
+
+/* async function initGridRows() {
+  const products = currentInitData.value?.[pdConst.RELATION_PRODUCTS];
+  // console.log('WwpdcStandardMgtMRelPrd - initGridRows - products : ', products);
+  const materialView = grdMainRef.value?.getView();
+  if (materialView) {
+    materialView.getDataSource().clearRows();
+    materialView.getDataSource().setRows(products // 상품-필터
+      ?.filter((item) => item[pdConst.PD_REL_TP_CD] === pdConst.PD_REL_TP_CD_PD_TO_FL));
+    materialView.resetCurrent();
+    grdRowCount.value = getGridRowCount(materialView);
+  }
+} */
+
+async function initProps() {
+  const { pdCd, initData } = props;
+  currentPdCd.value = pdCd;
+  currentInitData.value = initData;
+  // await initGridRows();
+}
+
+await initProps();
+
+watch(() => props.pdCd, (pdCd) => { currentPdCd.value = pdCd; });
+watch(() => props.initData, (initData) => { currentInitData.value = initData; /* initGridRows(); */ }, { deep: true });
+
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
 function initGrid(data, view) {
-  const fields = [
-    { fieldName: 'col1' },
-    { fieldName: 'col2' },
-    { fieldName: 'col3' },
-    { fieldName: 'col4' },
-    { fieldName: 'col5' },
-    { fieldName: 'col6' },
-    { fieldName: 'col7' },
-  ];
-
   const columns = [
-    // 제품분류
-    { fieldName: 'col1', header: t('MSG_TXT_PRDT_CLSF'), width: '260' },
-    // 제품명
-    { fieldName: 'col2', header: t('MSG_TXT_GOODS_NM'), width: '311' },
-    // 제품코드
-    { fieldName: 'col3', header: t('MSG_TXT_PROD_CD'), width: '163', styleName: 'text-center ' },
-    // 자재코드
-    { fieldName: 'col4', header: t('MSG_TXT_MATI_CD'), width: '163', styleName: 'text-center ' },
-    // 모델명
-    { fieldName: 'col5', header: t('MSG_TXT_MDL_NM'), width: '229' },
-    // 모델NO
-    { fieldName: 'col6', header: t('MSG_TXT_PD_MODEL_NO'), width: '187', styleName: 'text-center ' },
-    // 모델색상
-    { fieldName: 'col7', header: t('MSG_TXT_MODEL_COLOR'), width: '187' },
+    { fieldName: 'pdNm', header: t('MSG_TXT_PD_BOK_MTR_NAME'), width: '306' },
   ];
-
+  const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
+  fields.push({ fieldName: 'svPdCd' }); // 서비스 상품 코드
   data.setFields(fields);
   view.setColumns(columns);
 
   view.checkBar.visible = true;
   view.rowIndicator.visible = false;
-
-  data.setRows([
-    { col1: '대분류 > 중분류', col2: '교재/자재명', col3: '제품코드값', col4: '자재코드값', col5: '모델명', col6: '입력값', col7: '입력값' },
-  ]);
 }
 </script>
+<style scoped></style>

@@ -111,7 +111,7 @@ const selectedTab = ref('attribute');
 
 async function onClickUpdate() {
   const { pdCd } = props;
-  router.push({ path: '/product/zwpdc-service-list/zwpdc-service-mgt', query: { pdCd, tempSaveYn: 'N' } });
+  router.push({ path: '/product/zwpdc-service-list/wwpdc-service-mgt', query: { pdCd, tempSaveYn: 'N' } });
   // router.close();
 }
 
