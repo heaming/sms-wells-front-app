@@ -41,6 +41,10 @@
             rules="required"
             type="number"
             maxlength="16"
+            icon="search"
+            clearable
+            :label="$t('MSG_TXT_CNTR_DTL_NO')"
+            :on-click-icon="onClickSelectCntrnosn"
           />
         </kw-search-item>
       </kw-search-row>
@@ -106,7 +110,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useGlobal, useDataService, codeUtil, gridUtil, defineGrid, getComponentType, useMeta } from 'kw-lib';
+import { useGlobal, useDataService, codeUtil, gridUtil, defineGrid, getComponentType, useMeta, modal } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 
 const { notify, confirm } = useGlobal();
@@ -145,6 +149,28 @@ const searchParams = ref({
   cntrNo: '',
   cntrSn: '',
 });
+
+// 계약상세번호 조회
+async function onClickSelectCntrnosn() {
+  // const { result, payload } = await modal({ component: 'WwctaContractNumberListP' });
+  // if (result) {
+  //   searchParams.value.cntrNoSn = payload.cntrNo + payload.cntrSn;
+  // }
+
+  /* 단위 테스트를 위한 코딩 추후 계약상세번호(공통) 팝업이 완성되면 삭제 예정 */
+  searchParams.value.cntr = '';
+  let returnCntrNoSn = await modal({ component: 'WwctaContractNumberListP' });
+  returnCntrNoSn = {
+    result: true,
+    payload: {
+      cntrNo: '20221699270',
+      cntrSn: '1',
+    },
+  };
+  if (returnCntrNoSn.result) {
+    searchParams.value.cntr = returnCntrNoSn.payload.cntrNo + returnCntrNoSn.payload.cntrSn;
+  }
+}
 
 const possibleDay = codes.AUTO_FNT_FTD_ACD.map((v) => v.codeId).join(','); // 가능한 이체일 추후에 수정
 
