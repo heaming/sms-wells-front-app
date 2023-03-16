@@ -306,13 +306,13 @@ async function fetchData() {
   if (taskDiv === '2' || taskDiv === '3') {
     const res = await dataService.get('/sms/wells/closing/sales-detail/rental', { params: cachedParams });
     console.log(res.data);
-    saledDetailInf1.value = res.data[0];
+    saledDetailInf1.value = res.data;
   } else if (taskDiv === '4') {
     const res = await dataService.get('/sms/wells/closing/sales-detail/membership', { params: cachedParams });
-    saledDetailInf2.value = res.data[0];
+    saledDetailInf2.value = res.data;
   } else if (taskDiv === '1') {
     const res = await dataService.get('/sms/wells/closing/sales-detail/single-payment', { params: cachedParams });
-    saledDetailInf3.value = res.data[0];
+    saledDetailInf3.value = res.data;
   }
 }
 
