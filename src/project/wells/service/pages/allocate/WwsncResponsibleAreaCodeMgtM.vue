@@ -187,6 +187,7 @@ import smsCommon from '~sms-wells/service/composables/useSnCode';
 const { t } = useI18n();
 const dataService = useDataService();
 const { getConfig } = useMeta();
+const { currentRoute } = useRouter();
 
 const {
   getDistricts,
@@ -266,7 +267,7 @@ async function onClickExcelDownload() {
   const response = await dataService.get('/sms/wells/service/responsible-area-codes/excel-download', { params: cachedParams });
 
   await gridUtil.exportView(view, {
-    fileName: 'ResponsibleAreaCode',
+    fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
     exportData: response.data,
   });

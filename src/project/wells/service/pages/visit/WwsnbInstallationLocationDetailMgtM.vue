@@ -211,7 +211,7 @@ const { t } = useI18n();
 const { getConfig } = useMeta();
 const grdMainRef = ref(getComponentType('KwGrid'));
 const dataService = useDataService();
-const router = useRouter();
+const { router, currentRoute } = useRouter();
 
 const {
   getAllEngineers,
@@ -274,7 +274,7 @@ async function onClickExcelDownload() {
   const response = await dataService.get('/sms/wells/service/installation-locations/excel-download', { params: cachedParams });
 
   await gridUtil.exportView(view, {
-    fileName: 'InstallationLocationDetail',
+    fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
     exportData: response.data,
   });
@@ -310,6 +310,7 @@ async function onClickSave() {
 }
 
 function setEngineers() {
+  console.log(wrkEng);
   if (searchParams.value.ogId === '') {
     if (searchParams.value.rgsnYn === 'Y') {
       engineers.value = wrkEng.map((v) => ({ codeId: v.codeId, codeName: v.codeNm1 }));

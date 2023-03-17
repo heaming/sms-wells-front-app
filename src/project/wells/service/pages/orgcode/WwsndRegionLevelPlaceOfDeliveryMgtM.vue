@@ -172,6 +172,7 @@ const { t } = useI18n();
 const { getConfig } = useMeta();
 const grdMainRef = ref(getComponentType('KwGrid'));
 const dataService = useDataService();
+const { currentRoute } = useRouter();
 
 const {
   modal,
@@ -225,7 +226,7 @@ async function onClickExcelDownload() {
   const response = await dataService.get('/sms/wells/service/region-levels/place-of-deliverys/excel-download', { params: cachedParams });
 
   await gridUtil.exportView(view, {
-    fileName: 'RegionLevelPlaceOfDelivery',
+    fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
     exportData: response.data,
   });
