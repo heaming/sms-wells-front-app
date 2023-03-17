@@ -90,7 +90,7 @@
       ref="grdTenRef"
       name="grdTen"
       :visible-rows="10"
-      @init="initGrdMain"
+      @init="initGrdTen"
     />
   </div>
 </template>
@@ -170,7 +170,7 @@ async function onClickOpenReport() {
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
 
-const initGrdMain = defineGrid((data, view) => {
+const initGrdTen = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'perfYm' },
     { fieldName: 'col2' },

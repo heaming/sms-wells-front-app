@@ -100,35 +100,35 @@
       ref="grdSixRef"
       name="grdSix"
       :visible-rows="10"
-      @init="initGrdSub"
+      @init="initGrdSix"
     />
     <kw-grid
       v-show="isGridSeven"
       ref="grdSevenRef"
       name="grdSeven"
       :visible-rows="10"
-      @init="initGrdThird"
+      @init="initGrdSeven"
     />
     <kw-grid
       v-show="isGridEight"
       ref="grdEightRef"
       name="grdEight"
       :visible-rows="10"
-      @init="initGrdFourth"
+      @init="initGrdEight"
     />
     <kw-grid
       v-show="isGridNine"
       ref="grdNineRef"
       name="grdNine"
       :visible-rows="10"
-      @init="initGrdFive"
+      @init="initGrdNine"
     />
     <kw-grid
       v-show="isGridFive"
       ref="grdFiveRef"
       name="grdFive"
       :visible-rows="10"
-      @init="initGrdMain"
+      @init="initGrdFive"
     />
   </div>
 </template>
@@ -411,7 +411,7 @@ async function onClickOpenReport() {
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
 
-const initGrdSub = defineGrid((data, view) => {
+const initGrdSix = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'perfYm', header: t('MSG_TXT_PERF_YM'), width: '150', styleName: 'text-left' }, // 실적년월
     { fieldName: 'perfDt', header: t('MSG_TXT_PERF_DT'), wdth: '130', styleName: 'text-left' }, // 실적일자
@@ -470,7 +470,7 @@ const initGrdSub = defineGrid((data, view) => {
   });
 });
 
-const initGrdThird = defineGrid((data, view) => {
+const initGrdSeven = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'perfYm', header: t('MSG_TXT_PERF_YM'), width: '150', styleName: 'text-left' }, // 실적년월
     { fieldName: 'perfDt', header: t('MSG_TXT_PERF_DT'), wdth: '130', styleName: 'text-left' }, // 실적일자
@@ -519,7 +519,7 @@ const initGrdThird = defineGrid((data, view) => {
     ],
   });
 });
-const initGrdFourth = defineGrid((data, view) => {
+const initGrdEight = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'perfYm', header: t('MSG_TXT_PERF_YM'), width: '150', styleName: 'text-left' }, // 실적년월
     { fieldName: 'perfDt', header: t('MSG_TXT_PERF_DT'), wdth: '130', styleName: 'text-left' }, // 실적일자
@@ -569,7 +569,7 @@ const initGrdFourth = defineGrid((data, view) => {
   });
 });
 
-const initGrdFive = defineGrid((data, view) => {
+const initGrdNine = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'perfYm', header: t('MSG_TXT_PERF_YM'), width: '150', styleName: 'text-left' }, // 실적년월
     { fieldName: 'perfDt', header: t('MSG_TXT_PERF_DT'), wdth: '130', styleName: 'text-left' }, // 실적일자
@@ -601,7 +601,7 @@ const initGrdFive = defineGrid((data, view) => {
   });
 });
 
-const initGrdMain = defineGrid((data, view) => {
+const initGrdFive = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'perfYm',
       header: t('MSG_TXT_PERF_YM'),
