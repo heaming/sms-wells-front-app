@@ -674,7 +674,7 @@ const initGrdMain = defineGrid((data, view) => {
   view.rowIndicator.visible = true;
 });
 
-const selectAgrgDv = { // 집계구분
+const selectAgrgDv = { // 집계구분  - 공통코드가 없는 관계로 임시로
   options: [{ codeId: '1', codeName: '집계' }, { codeId: '2', codeName: '일자별' }, { codeId: '3', codeName: '주문별' }, { codeId: '4', codeName: '가로계산식 틀린 회원' }],
 };
 
