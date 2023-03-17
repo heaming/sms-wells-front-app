@@ -29,14 +29,14 @@
           v-model="searchParams.agrgDv"
           type="radio"
           :options="selectAgrgDv.options"
-          @change="onChangeRadioTaskDiv"
+          @change="onChangeAgrgDv"
         />
       </kw-search-item>
       <kw-search-item :label="$t('MSG_TXT_TASK_DIV')">
         <kw-select
           v-model="searchParams.sellTpCd"
           :options="codes.SELL_TP_CD"
-          @change="onChangeSelectTaskDiv"
+          @change="onChangeBusinessDivide"
         />
       </kw-search-item>
     </kw-search-row>
@@ -72,7 +72,7 @@
           v-model="searchParams.mlgBtdPrpdAmt"
           type="checkbox"
           :options="[$t('MSG_TXT_P_ATAM_DTL')]"
-          @change="onCheckedChechRdio"
+          @change="onChangePointAnticipation"
         />
       </kw-search-item>
     </kw-search-row>
@@ -288,11 +288,11 @@ async function onClickExcelDownload() {
   });
 }
 
-async function onChangeRadioTaskDiv() {
+async function onChangeAgrgDv() {
   onChangeChechOption();
 }
 
-async function onCheckedChechRdio() {
+async function onChangePointAnticipation() {
   // const { agrgDv } = searchParams.value; // 집계구분
   const { mlgBtdPrpdAmt } = searchParams.value;
 
@@ -309,7 +309,7 @@ async function onCheckedChechRdio() {
 const filterCds = ref({
   sellTpDtlCd: [],
 });
-async function onChangeSelectTaskDiv() {
+async function onChangeBusinessDivide() {
   onChangeChechOption();
 
   const { sellTpCd } = searchParams.value;

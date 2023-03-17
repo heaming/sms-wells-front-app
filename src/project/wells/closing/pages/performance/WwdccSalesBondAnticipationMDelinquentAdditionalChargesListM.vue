@@ -29,7 +29,7 @@
           v-model="searchParams.agrgDv"
           type="radio"
           :options="selectAgrgDv.options"
-          @change="onChangeField"
+          @change="onChangeAgrgDv"
         />
       </kw-search-item>
       <kw-search-item :label="$t('MSG_TXT_TASK_DIV')">
@@ -148,7 +148,7 @@ async function onClickSearch() {
   await fetchData();
 }
 
-async function onChangeField() {
+async function onChangeAgrgDv() {
   const { agrgDv } = searchParams.value;
   const view = grdTenRef.value.getView();
   if (agrgDv === '1') {

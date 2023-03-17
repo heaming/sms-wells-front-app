@@ -29,14 +29,14 @@
           v-model="searchParams.agrgDv"
           type="radio"
           :options="selectAgrgDv.options"
-          @change="onChangeRadioTaskDiv"
+          @change="onChangeAggregateDivide"
         />
       </kw-search-item>
       <kw-search-item :label="$t('MSG_TXT_TASK_DIV')">
         <kw-select
           v-model="searchParams.sellTpCd"
           :options="codes.SELL_TP_CD"
-          @change="onSelectTaskDiv"
+          @change="onChangeBusinessDivide"
         />
       </kw-search-item>
     </kw-search-row>
@@ -356,7 +356,7 @@ async function onChangeRadioTaskDiv() {
   }
 }
 
-async function onSelectTaskDiv() {
+async function onChangeAggregateDivide() {
   onChangeChechOption();
   onChangeRadioTaskDiv();
   const { sellTpCd } = searchParams.value;
