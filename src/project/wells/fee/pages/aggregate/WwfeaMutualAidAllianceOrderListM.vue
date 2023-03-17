@@ -114,27 +114,25 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { getComponentType, defineGrid, useMeta, gridUtil } from 'kw-lib';
+import { getComponentType, defineGrid, gridUtil } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 
-const { getConfig } = useMeta();
 const { t } = useI18n();
 const { currentRoute } = useRouter();
-
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 const grdMainRef = ref(getComponentType('KwGrid'));
 
-let totalCount = ref(0);
+const totalCount = ref(0);
 
 let cachedParams;
 
 let searchParams;
 
 async function fetchData() {
-  cachedParams = { ...cachedParams, ...pageInfo.value };
+  cachedParams = { ...cachedParams };
   // const response = await dataService.get('', { params: cachedParams });
   const response = { data: [
     { col1: '비제휴', col2: '2022-5559710', col3: '2022-5559710', col4: '김고객', col5: 'Q831234', col6: '1234567', col7: '김교원', col8: '플래너', col9: '1234567', col10: '2022-10-12', col11: '-', col12: '-', col13: '-', col14: '-', col15: '-' },
@@ -151,7 +149,6 @@ async function onClickSearch() {
 }
 
 async function onClickExcelDownload() {
-  const res = { data: [] };
   // const res = await dataService.get('', { params: cachedParams });
   const view = grdMainRef.value.getView();
   await gridUtil.exportView(view, {
