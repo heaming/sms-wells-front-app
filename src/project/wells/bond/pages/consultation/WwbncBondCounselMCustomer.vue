@@ -197,8 +197,7 @@
         </p>
         <!-- TODO: 코드관리 등록 안된 임시 소스 -->
         <kw-option-group
-          v-model="searchParams.schDv"
-          :model-value="'연체잔액 0원 제외'"
+          v-model="searchParams.dv"
           dense
           type="radio"
           :options="['연체잔액 0원 제외', '입금액 0원 제외', '대상잔액 0원 제외', '연체개월 0개월 제외']"
@@ -252,6 +251,7 @@ const searchParams = ref({
   schCstDv: '전체',
   schCpsnRsgYn: '',
   schDv: '',
+  dv: '연체잔액 0원 제외',
 });
 
 const totalCount = ref(0);
@@ -309,11 +309,11 @@ const onClickClctamPsic = async () => {
 };
 
 async function onClickSearch() {
-  if (searchParams.value.schDv === '입금액 0원 제외') {
+  if (searchParams.value.dv === '입금액 0원 제외') {
     searchParams.value.schDv = '2';
-  } else if (searchParams.value.schDv === '대상잔액 0원 제외') {
+  } else if (searchParams.value.dv === '대상잔액 0원 제외') {
     searchParams.value.schDv = '3';
-  } else if (searchParams.value.schDv === '연체개월 0개월 제외') {
+  } else if (searchParams.value.dv === '연체개월 0개월 제외') {
     searchParams.value.schDv = '4';
   } else {
     searchParams.value.schDv = '1';
