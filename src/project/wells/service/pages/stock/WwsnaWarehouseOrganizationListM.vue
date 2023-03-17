@@ -244,7 +244,7 @@ async function onClickCarriedOver() {
   console.log(searchParams.value.baseYm);
 
   // if (await confirm(t('MSG_ALT_IS_SAV_DATA'))) {
-  await dataService.post('/sms/wells/service/warehouse-organizations', { baseYm: searchParams.value.baseYm });
+  await dataService.post('/sms/wells/service/warehouse-organizations/carried-over', { baseYm: searchParams.value.baseYm });
   await notify(t('MSG_ALT_CRDOVR_WK_FSH'));
   emit('reloadPages');
   // }
