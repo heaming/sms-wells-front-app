@@ -38,6 +38,7 @@
         >
           <kw-date-picker
             v-model="searchParams.lifSpptYm"
+            :label="t('MSG_TXT_MUTU_DP_MM')"
             rules="required"
             type="month"
           />
@@ -49,6 +50,7 @@
         >
           <kw-date-picker
             v-model="searchParams.perfDt"
+            :label="t('MSG_TXT_PERF_DT')"
             rules="required"
           />
         </kw-search-item>
@@ -61,6 +63,7 @@
         >
           <kw-date-picker
             v-model="searchParams.rveDt"
+            :label="t('MSG_TXT_RVE_DT')"
             rules="required"
           />
         </kw-search-item>
@@ -92,6 +95,7 @@
         >
           <kw-input
             v-model="searchParams.itgDpNo"
+            :readonly="true"
             icon="search"
             clearable
             @click-icon="onClickSelectIntegrationDeposit"
@@ -261,6 +265,7 @@ const searchParams = ref({
 });
 
 const dpBlam = ref(0);
+const dpDtm = ref();
 
 console.log(searchParams.value.lifSpptYm);
 
@@ -297,8 +302,10 @@ async function fetchSubData() {
 
   data.checkRowStates(false);
   data.setRows(pages);
+
+  console.log(dpBlam.value);
   data.setValue(0, 'dpBlam', dpBlam.value);
-  data.checkRowStates(true);
+  data.setValue(0, 'dpDtm', dpDtm.value);
 
   view.resetCurrent();
 }
@@ -336,7 +343,7 @@ async function onClickSelectIntegrationDeposit() {
   if (result) {
     searchParams.value.itgDpNo = payload.itgDpNo; // 입금잔액
 
-    if (payload.dpBlam) {
+    if (payload.dpBlam || payload.dpDtm) {
       const view = grdSubRef.value.getView();
       const data = view.getDataSource();
       console.log(payload.dpBlam);
@@ -344,8 +351,10 @@ async function onClickSelectIntegrationDeposit() {
 
       data.checkRowStates(false);
       data.setValue(0, 'dpBlam', payload.dpBlam);
+      data.setValue(0, 'dpDtm', payload.dpDtm);
 
       dpBlam.value = payload.dpBlam;
+      dpDtm.value = payload.dpDtm;
     }
   }
 }
@@ -360,15 +369,33 @@ async function onClearSelectRveCd() {
 }
 
 async function onKeyDownSelectIntegrationDeposit() {
+  const view = grdSubRef.value.getView();
+  const data = view.getDataSource();
+  data.setValue(0, 'dpBlam', 0);
+  data.setValue(0, 'dpDtm', '');
+  searchParams.value.itgDpNo = '';
   dpBlam.value = 0;
+  dpDtm.value = '';
 }
 
 async function onClearSelectIntegrationDeposit() {
+  const view = grdSubRef.value.getView();
+  const data = view.getDataSource();
+  data.setValue(0, 'dpBlam', 0);
+  data.setValue(0, 'dpDtm', '');
+  searchParams.value.itgDpNo = '';
   dpBlam.value = 0;
+  dpDtm.value = '';
 }
 
 async function onClickReset() {
+  const view = grdSubRef.value.getView();
+  const data = view.getDataSource();
+  data.setValue(0, 'dpBlam', 0);
+  data.setValue(0, 'dpDtm', '');
+  searchParams.value.itgDpNo = '';
   dpBlam.value = 0;
+  dpDtm.value = '';
 }
 
 async function onClickCreate() {
@@ -523,7 +550,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'welsCntrNo' }, /* 웰스계약번호 */
     { fieldName: 'welsCntrSn' }, /* 웰스계약일련번호 */
     { fieldName: 'lifAlncDvCd' }, /* 라이프제휴구분코드 */
-    { fieldName: 'fstRgstDtm' }, /* 입력일자 */
+    { fieldName: 'fstRgstDtm', dataType: 'date' }, /* 입력일자 */
     { fieldName: 'fstRgstUsrId' }, /* 입력담당자id */
     { fieldName: 'lifAlncPdCd' }, /* 상품코드 */
     { fieldName: 'lifAlncPdNm' }, /* 상품명 */
@@ -593,7 +620,7 @@ const initGrid2 = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'countLif', dataType: 'number' }, /* 대상건수 */
     { fieldName: 'amtSum', dataType: 'number' }, /* 대상금액 */
-    { fieldName: 'col3' },
+    { fieldName: 'dpDtm', dataType: 'date' },
     { fieldName: 'dpBlam', dataType: 'number' },
   ];
 
@@ -610,7 +637,8 @@ const initGrid2 = defineGrid((data, view) => {
       width: '386',
       styleName: 'text-right',
       numberFormat: '#,##0' },
-    { fieldName: 'col3',
+    { fieldName: 'dpDtm',
+      datetimeformat: 'date',
       header: t('MSG_TXT_ITG_DP_D'),
 
       // header: '통합입금일',
