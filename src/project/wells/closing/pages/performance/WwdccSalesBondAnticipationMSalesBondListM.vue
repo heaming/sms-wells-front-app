@@ -29,7 +29,7 @@
           v-model="searchParams.agrgDv"
           type="radio"
           :options="selectAgrgDv.options"
-          @change="onRadioTaskDiv"
+          @change="onChangeRadioTaskDiv"
         />
       </kw-search-item>
       <kw-search-item :label="$t('MSG_TXT_TASK_DIV')">
@@ -97,35 +97,35 @@
 
     <kw-grid
       v-show="isGridSix"
-      ref="grdSubRef"
+      ref="grdSixRef"
       name="grdSix"
       :visible-rows="10"
       @init="initGrdSub"
     />
     <kw-grid
       v-show="isGridSeven"
-      ref="grdThirdRef"
+      ref="grdSevenRef"
       name="grdSeven"
       :visible-rows="10"
       @init="initGrdThird"
     />
     <kw-grid
       v-show="isGridEight"
-      ref="grdFourthRef"
+      ref="grdEightRef"
       name="grdEight"
       :visible-rows="10"
       @init="initGrdFourth"
     />
     <kw-grid
       v-show="isGridNine"
-      ref="grdFiveRef"
+      ref="grdNineRef"
       name="grdNine"
       :visible-rows="10"
       @init="initGrdFive"
     />
     <kw-grid
       v-show="isGridFive"
-      ref="grdMainRef"
+      ref="grdFiveRef"
       name="grdFive"
       :visible-rows="10"
       @init="initGrdMain"
@@ -147,11 +147,11 @@ const dataService = useDataService();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
-const grdSubRef = ref(getComponentType('KwGrid'));
-const grdThirdRef = ref(getComponentType('KwGrid'));
-const grdFourthRef = ref(getComponentType('KwGrid'));
+const grdSixRef = ref(getComponentType('KwGrid'));
+const grdSevenRef = ref(getComponentType('KwGrid'));
+const grdEightRef = ref(getComponentType('KwGrid'));
+const grdNineRef = ref(getComponentType('KwGrid'));
 const grdFiveRef = ref(getComponentType('KwGrid'));
-const grdMainRef = ref(getComponentType('KwGrid'));
 
 const isSelectDisable = ref(true);
 const isDisable = ref(false);
@@ -189,36 +189,36 @@ async function fetchData() {
   const { sellTpCd } = searchParams.value;
   let res;
   if (agrgDv === '1') {
-    res = await dataService.get('/sms/wells/closing/performance/sales-bond/aggregate', { params: { ...cachedParams } });
+    res = await dataService.get('/sms/wells/closing/performance/sales-bond/aggregate', { params: cachedParams });
   } else if (agrgDv === '2') {
-    res = await dataService.get('/sms/wells/closing/performance/sales-bond/dates', { params: { ...cachedParams } });
+    res = await dataService.get('/sms/wells/closing/performance/sales-bond/dates', { params: cachedParams });
   } else if (agrgDv === '3') {
-    res = await dataService.get('/sms/wells/closing/performance/sales-bond/orders', { params: { ...cachedParams } });
+    res = await dataService.get('/sms/wells/closing/performance/sales-bond/orders', { params: cachedParams });
   } else if (agrgDv === '4') {
-    res = await dataService.get('/sms/wells/closing/performance/sales-bond/members', { params: { ...cachedParams } });
+    res = await dataService.get('/sms/wells/closing/performance/sales-bond/members', { params: cachedParams });
   }
 
-  const stores = res.data;
-  totalCount.value = stores.length;
+  const dataList = res.data;
+  totalCount.value = dataList.length;
 
   let mainView;
   if (sellTpCd === '1') {
-    mainView = grdMainRef.value.getView();
-  } else if (sellTpCd === '2') {
-    mainView = grdSubRef.value.getView();
-  } else if (sellTpCd === '3') {
-    mainView = grdThirdRef.value.getView();
-  } else if (sellTpCd === '4') {
-    mainView = grdFourthRef.value.getView();
-  } else if (sellTpCd === '5') {
     mainView = grdFiveRef.value.getView();
+  } else if (sellTpCd === '2') {
+    mainView = grdSixRef.value.getView();
+  } else if (sellTpCd === '3') {
+    mainView = grdSevenRef.value.getView();
+  } else if (sellTpCd === '4') {
+    mainView = grdEightRef.value.getView();
+  } else if (sellTpCd === '5') {
+    mainView = grdNineRef.value.getView();
   }
 
-  mainView.getDataSource().setRows(stores);
+  mainView.getDataSource().setRows(dataList);
   mainView.resetCurrent();
 }
 
-async function changeEvent() {
+async function onChangeChechOption() {
   const { agrgDv } = searchParams.value; // 집계구분
   const { sellTpCd } = searchParams.value; // 업무구분
   // const { mlgBtdPrpdAmt } = searchParams.value; // 포인트 조회
@@ -255,7 +255,7 @@ async function onClickIcon() {
   });
 
   if (res.result) {
-    debugger;
+    // res.result
   }
 }
 
@@ -264,12 +264,12 @@ async function onClickSearch() {
   fetchData();
 }
 
-async function onRadioTaskDiv() {
+async function onChangeRadioTaskDiv() {
   const { agrgDv } = searchParams.value;
   const { sellTpCd } = searchParams.value;
 
   if (sellTpCd === '1') {
-    const view = grdMainRef.value.getView();
+    const view = grdFiveRef.value.getView();
     if (agrgDv === '1') {
       view.columnByName('perfDt').visible = false;
       view.columnByName('sellChnlCd').visible = false;
@@ -286,7 +286,7 @@ async function onRadioTaskDiv() {
       view.layoutByColumn('perfYm').summaryUserSpans = [{ colspan: 7 }];
     }
   } else if (sellTpCd === '2') {
-    const view = grdSubRef.value.getView();
+    const view = grdSixRef.value.getView();
     if (agrgDv === '1') {
       view.columnByName('perfDt').visible = false;
       view.columnByName('sellChnlCd').visible = false;
@@ -303,7 +303,7 @@ async function onRadioTaskDiv() {
       view.layoutByColumn('perfYm').summaryUserSpans = [{ colspan: 7 }];
     }
   } else if (sellTpCd === '3') {
-    const view = grdThirdRef.value.getView();
+    const view = grdSevenRef.value.getView();
     if (agrgDv === '1') {
       view.columnByName('perfDt').visible = false;
       view.columnByName('sellChnlCd').visible = false;
@@ -320,7 +320,7 @@ async function onRadioTaskDiv() {
       view.layoutByColumn('perfYm').summaryUserSpans = [{ colspan: 7 }];
     }
   } else if (sellTpCd === '4') {
-    const view = grdFourthRef.value.getView();
+    const view = grdEightRef.value.getView();
     if (agrgDv === '1') {
       view.columnByName('perfDt').visible = false;
       view.columnByName('sellChnlCd').visible = false;
@@ -337,7 +337,7 @@ async function onRadioTaskDiv() {
       view.layoutByColumn('perfYm').summaryUserSpans = [{ colspan: 7 }];
     }
   } else if (sellTpCd === '5') {
-    const view = grdFiveRef.value.getView();
+    const view = grdNineRef.value.getView();
     if (agrgDv === '1') {
       view.columnByName('perfDt').visible = false;
       view.columnByName('sellChnlCd').visible = false;
@@ -357,8 +357,8 @@ async function onRadioTaskDiv() {
 }
 
 async function onSelectTaskDiv() {
-  changeEvent();
-  onRadioTaskDiv();
+  onChangeChechOption();
+  onChangeRadioTaskDiv();
   const { sellTpCd } = searchParams.value;
   if (sellTpCd === '3' || sellTpCd === '5') {
     isSelectDisable.value = false;
@@ -384,7 +384,18 @@ async function onSelectTaskDiv() {
 }
 
 async function onClickExcelDownload() {
-  const view = grdMainRef.value.getView();
+  let view;
+  if (isGridFive.value === true) {
+    view = grdFiveRef.value.getView();
+  } else if (isGridSix.value === true) {
+    view = grdSixRef.value.getView();
+  } else if (isGridSeven.value === true) {
+    view = grdSevenRef.value.getView();
+  } else if (isGridEight.value === true) {
+    view = grdEightRef.value.getView();
+  } else if (isGridNine.value === true) {
+    view = grdNineRef.value.getView();
+  }
   await gridUtil.exportView(view, {
     fileName: `${t('MSG_TIT_SL_BND_ATAM_PS')} - ${t('MSG_TIT_BZNS_ATAM')}`,
     timePostfix: true,
@@ -668,7 +679,7 @@ const selectAgrgDv = { // 집계구분
 };
 
 onMounted(async () => {
-  const view = grdMainRef.value.getView();
+  const view = grdFiveRef.value.getView();
   view.columnByName('perfDt').visible = false;
   view.columnByName('sellChnlCd').visible = false;
   view.columnByName('cntr').visible = false;

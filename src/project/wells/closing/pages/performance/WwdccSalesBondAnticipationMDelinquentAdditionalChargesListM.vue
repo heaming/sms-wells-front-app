@@ -29,7 +29,7 @@
           v-model="searchParams.agrgDv"
           type="radio"
           :options="selectAgrgDv.options"
-          @change="onChange"
+          @change="onChangeField"
         />
       </kw-search-item>
       <kw-search-item :label="$t('MSG_TXT_TASK_DIV')">
@@ -87,7 +87,7 @@
     </kw-action-top>
 
     <kw-grid
-      ref="grdMainRef"
+      ref="grdTenRef"
       name="grdTen"
       :visible-rows="10"
       @init="initGrdMain"
@@ -109,7 +109,7 @@ const dataService = useDataService();
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 const totalCount = ref(0);
-const grdMainRef = ref(getComponentType('KwGrid'));
+const grdTenRef = ref(getComponentType('KwGrid'));
 const searchParams = ref({
   perfYm: dayjs().add(-1, 'M').format('YYYYMM'),
   agrgDv: '1', // 집계구분
@@ -126,7 +126,7 @@ const codes = await codeUtil.getMultiCodes(
 );
 let cachedParams;
 async function onClickExcelDownload() {
-  const view = grdMainRef.value.getView();
+  const view = grdTenRef.value.getView();
   await gridUtil.exportView(view, {
     fileName: `${t('MSG_TIT_SL_BND_ATAM_PS')} - ${t('MSG_TIT_DLQ_ADAMT')}`,
     timePostfix: true,
@@ -134,14 +134,13 @@ async function onClickExcelDownload() {
 }
 
 async function fetchData() {
-  const res = await dataService.get('/sms/wells/closing/performance/delinquent-additional-charges', { params: { ...cachedParams } });
-  const stores = res.data;
+  const res = await dataService.get('/sms/wells/closing/performance/delinquent-additional-charges', { params: cachedParams });
+  const dataList = res.data;
 
-  totalCount.value = stores.length;
+  totalCount.value = dataList.length;
 
-  const view = grdMainRef.value.getView();
-  view.getDataSource().setRows(stores);
-  view.resetCurrent();
+  const view = grdTenRef.value.getView();
+  view.getDataSource().setRows(dataList);
 }
 
 async function onClickSearch() {
@@ -149,9 +148,9 @@ async function onClickSearch() {
   await fetchData();
 }
 
-async function onChange() {
+async function onChangeField() {
   const { agrgDv } = searchParams.value;
-  const view = grdMainRef.value.getView();
+  const view = grdTenRef.value.getView();
   if (agrgDv === '1') {
     view.columnByName('cntrNo').visible = false;
     view.columnByName('col4').visible = false;
@@ -273,11 +272,11 @@ const initGrdMain = defineGrid((data, view) => {
   });
 });
 
-const selectAgrgDv = { // 집계구분
+const selectAgrgDv = { // 집계구분 - 공통코드가 없는 관계로 임시로
   options: [{ codeId: '1', codeName: '집계' }, { codeId: '2', codeName: '주문별' }],
 };
 onMounted(async () => {
-  const view = grdMainRef.value.getView();
+  const view = grdTenRef.value.getView();
   view.columnByName('cntrNo').visible = false;
   view.columnByName('col4').visible = false;
   view.layoutByColumn('perfYm').summaryUserSpans = [{ colspan: 2 }];

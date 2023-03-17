@@ -29,14 +29,14 @@
           v-model="searchParams.agrgDv"
           type="radio"
           :options="selectAgrgDv.options"
-          @change="onRadioTaskDiv"
+          @change="onChangeRadioTaskDiv"
         />
       </kw-search-item>
       <kw-search-item :label="$t('MSG_TXT_TASK_DIV')">
         <kw-select
           v-model="searchParams.sellTpCd"
           :options="codes.SELL_TP_CD"
-          @change="onSelectTaskDiv"
+          @change="onChangeSelectTaskDiv"
         />
       </kw-search-item>
     </kw-search-row>
@@ -72,7 +72,7 @@
           v-model="searchParams.mlgBtdPrpdAmt"
           type="checkbox"
           :options="[$t('MSG_TXT_P_ATAM_DTL')]"
-          @change="onChecked"
+          @change="onCheckedChechRdio"
         />
       </kw-search-item>
     </kw-search-row>
@@ -159,10 +159,10 @@ const grdFourthRef = ref(getComponentType('KwGrid'));
 const isShow = ref(false);
 const isDisable = ref(false);
 const isSelectDisable = ref(true);
+const isGridMain = ref(true);
 const isGridSub = ref(false);
 const isGridThird = ref(false);
 const isGridFourth = ref(false);
-const isGridMain = ref(true);
 
 const searchParams = ref({
   perfYm: dayjs().add(-1, 'M').format('YYYYMM'),
@@ -186,16 +186,16 @@ async function fetchData() {
   const { agrgDv } = searchParams.value;
   let res;
   if (agrgDv === '1') {
-    res = await dataService.get('/sms/wells/closing/performance/overdue-qenalty/aggregate', { params: { ...cachedParams } });
+    res = await dataService.get('/sms/wells/closing/performance/overdue-qenalty/aggregate', { params: cachedParams });
   } else if (agrgDv === '2') {
-    res = await dataService.get('/sms/wells/closing/performance/overdue-qenalty/dates', { params: { ...cachedParams } });
+    res = await dataService.get('/sms/wells/closing/performance/overdue-qenalty/dates', { params: cachedParams });
   } else if (agrgDv === '3') {
-    res = await dataService.get('/sms/wells/closing/performance/overdue-qenalty/orders', { params: { ...cachedParams } });
+    res = await dataService.get('/sms/wells/closing/performance/overdue-qenalty/orders', { params: cachedParams });
   } else if (agrgDv === '4') {
-    res = await dataService.get('/sms/wells/closing/performance/overdue-qenalty/members', { params: { ...cachedParams } });
+    res = await dataService.get('/sms/wells/closing/performance/overdue-qenalty/members', { params: cachedParams });
   }
-  const stores = res.data;
-  totalCount.value = stores.length;
+  const dataList = res.data;
+  totalCount.value = dataList.length;
 
   let mainView;
   if (isGridMain.value === true) {
@@ -208,7 +208,7 @@ async function fetchData() {
     mainView = grdFourthRef.value.getView();
   }
 
-  mainView.getDataSource().setRows(stores);
+  mainView.getDataSource().setRows(dataList);
   mainView.resetCurrent();
 }
 
@@ -225,11 +225,11 @@ async function onClickIcon() {
   });
 
   if (res.result) {
-    debugger;
+    // res.result
   }
 }
 
-async function changeEvent() {
+async function onChangeChechOption() {
   const { agrgDv } = searchParams.value; // 집계구분
   const { sellTpCd } = searchParams.value; // 업무구분
   // const { mlgBtdPrpdAmt } = searchParams.value; // 포인트 조회
@@ -288,11 +288,11 @@ async function onClickExcelDownload() {
   });
 }
 
-async function onRadioTaskDiv() {
-  changeEvent();
+async function onChangeRadioTaskDiv() {
+  onChangeChechOption();
 }
 
-async function onChecked() {
+async function onCheckedChechRdio() {
   // const { agrgDv } = searchParams.value; // 집계구분
   const { mlgBtdPrpdAmt } = searchParams.value;
 
@@ -303,14 +303,14 @@ async function onChecked() {
     searchParams.value.agrgDv = '1';
     isGridThird.value = true;
   }
-  changeEvent();
+  onChangeChechOption();
 }
 
 const filterCds = ref({
   sellTpDtlCd: [],
 });
-async function onSelectTaskDiv() {
-  changeEvent();
+async function onChangeSelectTaskDiv() {
+  onChangeChechOption();
 
   const { sellTpCd } = searchParams.value;
   if (sellTpCd === '3' || sellTpCd === '5') {
@@ -895,7 +895,7 @@ const initGrdFourth = defineGrid((data, view) => {
   ]);
 });
 
-const selectAgrgDv = { // 집계구분
+const selectAgrgDv = { // 집계구분 - 공통코드가 없는 관계로 임시로
   options: [{ codeId: '1', codeName: '집계' }, { codeId: '2', codeName: '일자별' }, { codeId: '3', codeName: '주문별' }, { codeId: '4', codeName: '가로계산식 틀린 회원' }],
 };
 </script>
