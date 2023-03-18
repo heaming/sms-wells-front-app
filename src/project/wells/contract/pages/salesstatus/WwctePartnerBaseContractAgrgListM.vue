@@ -51,8 +51,9 @@
     <div class="result-area">
       <kw-action-top>
         <template #left>
-          <span>{{ $t('MSG_TXT_COM_TOT') }}</span>
-          <span class="accent pl4">{{ totalCount }}{{ $t('MSG_TXT_CNT') }}</span>
+          <kw-paging-info
+            :total-count="totalCount"
+          />
         </template>
         <kw-btn
           primary
