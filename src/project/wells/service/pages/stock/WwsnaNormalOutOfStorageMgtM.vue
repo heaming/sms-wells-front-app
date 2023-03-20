@@ -135,7 +135,8 @@
       <kw-grid
         ref="grdMainRef"
         name="grdMain"
-        :visible-rows="pageInfo.pageSize"
+        :total-count="pageInfo.totalCount"
+        :page-size="pageInfo.pageSize"
         @init="initGrdMain"
       />
       <kw-pagination
@@ -153,7 +154,8 @@
 // -------------------------------------------------------------------------------------------------
 import { codeUtil, useDataService, getComponentType, useMeta, defineGrid, useGlobal } from 'kw-lib';
 import dayjs from 'dayjs';
-import { cloneDeep, isEmpty } from 'lodash-es';
+import { cloneDeep } from 'lodash-es';
+// import { cloneDeep, isEmpty } from 'lodash-es';
 
 const { getConfig } = useMeta();
 const { modal } = useGlobal();
@@ -180,8 +182,6 @@ console.log(dayjs().format('YYYYMMDD'));
 const searchParams = ref({
   strHopDtStr: dayjs().format('YYYYMMDD'),
   strHopDtEnd: dayjs().format('YYYYMMDD'),
-  // strHopDtStr: '20221222',
-  // strHopDtEnd: '20221222',
   ostrCnfm: 'N',
   ostrAkTpCd: '',
   ostrOjWareNo: '',
@@ -239,13 +239,16 @@ const initGrdMain = defineGrid((data, view) => {
       header: t('MSG_TXT_OSTR_AK_TP'),
       width: '150',
       styleName: 'text-center',
-      displayCallback: (g, i, v) => {
-        const val = g.getValue(i.itemIndex, 'ostrAkTpCd');
-        if (v !== null) {
-          return codes.value.OSTR_AK_TP_CD.find((obj) => obj.codeId === v).codeName;
-        }
-        return isEmpty(v) ? val : v;
-      },
+      options: codes.OSTR_AK_TP_CD,
+      // optionValue:'codeId',
+      // optionLabel:'codeName'
+      // displayCallback: (g, i, v) => {
+      //   const val = g.getValue(i.itemIndex, 'ostrAkTpCd');
+      //   if (v !== null) {
+      //     return codes.value.OSTR_AK_TP_CD.find((obj) => obj.codeId === v).codeName;
+      //   }
+      //   return isEmpty(v) ? val : v;
+      // },
     },
     { fieldName: 'ostrAkNo',
       header: t('MSG_TXT_OSTR_AK_MNGT_NO'),
@@ -262,13 +265,14 @@ const initGrdMain = defineGrid((data, view) => {
       header: t('MSG_TXT_OVIV_FOM'),
       width: '100',
       styleName: 'text-center',
-      displayCallback: (grid, index, value) => {
-        const ovivTpCd = grid.getValue(index.itemIndex, 'ovivTpCd');
-        if (value !== null) {
-          return codes.value.OVIV_FOM_CD.find((obj) => obj.codeId === value).codeName;
-        }
-        return isEmpty(value) ? ovivTpCd : value;
-      },
+      options: codes.OVIV_FOM_CD,
+      // displayCallback: (grid, index, value) => {
+      //   const ovivTpCd = grid.getValue(index.itemIndex, 'ovivTpCd');
+      //   if (value !== null) {
+      //     return codes.value.OVIV_FOM_CD.find((obj) => obj.codeId === value).codeName;
+      //   }
+      //   return isEmpty(value) ? ovivTpCd : value;
+      // },
     },
     { fieldName: 'rectOstrDt', header: t('MSG_TXT_RECT_OSTR_DT'), width: '150', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'ostrDtrnYn', header: t('MSG_TXT_OSTR_DTRM_YN'), width: '150', styleName: 'text-center' },
