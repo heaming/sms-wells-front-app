@@ -1,7 +1,7 @@
 <!----
 ****************************************************************************************************
 1. 모듈 : DCC
-2. 프로그램 ID : WwdccSalesBondAnticipationMOverdueQenaltyListM - 매출채권/선수금 현황 - 영업선수금 // W-CL-U-0058M01
+2. 프로그램 ID : WwdccSalesBondAnticipationMOverduePenalty - 매출채권/선수금 현황 - 영업선수금 // W-CL-U-0058M01
 
 3. 작성자 : gs.piit172 kim juhyun
 4. 작성일 : 2023.03.08
@@ -186,13 +186,13 @@ async function fetchData() {
   const { agrgDv } = searchParams.value;
   let res;
   if (agrgDv === '1') {
-    res = await dataService.get('/sms/wells/closing/performance/overdue-qenalty/aggregate', { params: cachedParams });
+    res = await dataService.get('/sms/wells/closing/performance/overdue-penalty/aggregate', { params: cachedParams });
   } else if (agrgDv === '2') {
-    res = await dataService.get('/sms/wells/closing/performance/overdue-qenalty/dates', { params: cachedParams });
+    res = await dataService.get('/sms/wells/closing/performance/overdue-penalty/dates', { params: cachedParams });
   } else if (agrgDv === '3') {
-    res = await dataService.get('/sms/wells/closing/performance/overdue-qenalty/orders', { params: cachedParams });
+    res = await dataService.get('/sms/wells/closing/performance/overdue-penalty/orders', { params: cachedParams });
   } else if (agrgDv === '4') {
-    res = await dataService.get('/sms/wells/closing/performance/overdue-qenalty/members', { params: cachedParams });
+    res = await dataService.get('/sms/wells/closing/performance/overdue-penalty/members', { params: cachedParams });
   }
   const dataList = res.data;
   totalCount.value = dataList.length;
@@ -895,7 +895,7 @@ const initGrdFourth = defineGrid((data, view) => {
   ]);
 });
 
-const selectAgrgDv = { // 집계구분 - 공통코드가 없는 관계로 임시로
+const selectAgrgDv = { // 집계구분 -TODO.공통코드가 없는 관계로 임시로
   options: [{ codeId: '1', codeName: '집계' }, { codeId: '2', codeName: '일자별' }, { codeId: '3', codeName: '주문별' }, { codeId: '4', codeName: '가로계산식 틀린 회원' }],
 };
 </script>

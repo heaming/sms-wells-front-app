@@ -1,7 +1,7 @@
 <!----adamt
 ****************************************************************************************************
 1. 모듈 : DCC
-2. 프로그램 ID : WwdccSalesBondListM - 매출채권/선수금 현황 - 매출채권 // W-CL-U-0058M06
+2. 프로그램 ID : WwdccSalesBondAnticipationMSalesBond - 매출채권/선수금 현황 - 매출채권 // W-CL-U-0058M06
 3. 작성자 : gs.piit172 kim juhyun
 4. 작성일 : 2023.03.09
 ****************************************************************************************************
@@ -674,11 +674,12 @@ const initGrdFive = defineGrid((data, view) => {
   view.rowIndicator.visible = true;
 });
 
-const selectAgrgDv = { // 집계구분  - 공통코드가 없는 관계로 임시로
+const selectAgrgDv = { // 집계구분  - TODO.공통코드가 없는 관계로 임시로
   options: [{ codeId: '1', codeName: '집계' }, { codeId: '2', codeName: '일자별' }, { codeId: '3', codeName: '주문별' }, { codeId: '4', codeName: '가로계산식 틀린 회원' }],
 };
 
 onMounted(async () => {
+  onClickSearch();
   const view = grdFiveRef.value.getView();
   view.columnByName('perfDt').visible = false;
   view.columnByName('sellChnlCd').visible = false;
@@ -686,8 +687,6 @@ onMounted(async () => {
   view.columnByName('cstKnm').visible = false;
   view.columnByName('slDt').visible = false;
   view.layoutByColumn('perfYm').summaryUserSpans = [{ colspan: 2 }];
-
-  onClickSearch();
 });
 
 </script>

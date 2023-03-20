@@ -272,7 +272,7 @@ const initGrdTen = defineGrid((data, view) => {
   });
 });
 
-const selectAgrgDv = { // 집계구분 - 공통코드가 없는 관계로 임시로
+const selectAgrgDv = { // 집계구분 - TODO.공통코드가 없는 관계로 임시로
   options: [{ codeId: '1', codeName: '집계' }, { codeId: '2', codeName: '주문별' }],
 };
 onMounted(async () => {

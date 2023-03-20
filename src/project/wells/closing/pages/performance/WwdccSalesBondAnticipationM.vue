@@ -31,17 +31,17 @@
     </kw-tabs>
     <kw-tab-panels v-model="selectedTab">
       <kw-tab-panel name="tapOverdueQenaltyList">
-        <wwdcc-sales-bond-anticipation-m-overdue-qenalty-list-m
+        <wwdcc-sales-bond-anticipation-m-overdue-qenalty
           v-model:selected-link-id="selectedLinkId"
         />
       </kw-tab-panel>
       <kw-tab-panel name="tapSalesBondList">
-        <wwdcc-sales-bond-anticipation-m-sales-bond-list-m
+        <wwdcc-sales-bond-anticipation-m-sales-bond
           v-model:selected-link-id="selectedLinkId"
         />
       </kw-tab-panel>
       <kw-tab-panel name="tapDelinquentAdditionalChargesList">
-        <wwdcc-sales-bond-anticipation-m-delinquent-additional-charges-list-m
+        <wwdcc-sales-bond-anticipation-m-additional-charges
           v-model:selected-link-id="selectedLinkId"
         />
       </kw-tab-panel>
@@ -52,9 +52,9 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import WwdccSalesBondAnticipationMOverdueQenaltyListM from './WwdccSalesBondAnticipationMOverdueQenaltyListM.vue';
-import WwdccSalesBondAnticipationMSalesBondListM from './WwdccSalesBondAnticipationMSalesBondListM.vue';
-import WwdccSalesBondAnticipationMDelinquentAdditionalChargesListM from './WwdccSalesBondAnticipationMDelinquentAdditionalChargesListM.vue';
+import WwdccSalesBondAnticipationMOverdueQenalty from './WwdccSalesBondAnticipationMOverduePenalty.vue';
+import WwdccSalesBondAnticipationMSalesBond from './WwdccSalesBondAnticipationMSalesBond.vue';
+import WwdccSalesBondAnticipationMAdditionalCharges from './WwdccSalesBondAnticipationMAdditionalCharges.vue';
 
 const selectedTab = ref('tapOverdueQenaltyList');
 const selectedLinkId = ref(null);
