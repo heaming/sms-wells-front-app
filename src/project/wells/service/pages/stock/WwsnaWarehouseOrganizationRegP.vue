@@ -15,7 +15,6 @@
 <template>
   <kw-popup
     size="2xl"
-    :title="$t('MSG_TIT_WARE_OG_RGST')"
   >
     <kw-form
       ref="frmMainRef"
