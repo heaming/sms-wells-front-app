@@ -72,7 +72,7 @@
           </kw-action-top>
 
           <kw-form
-            v-if="isShow1"
+            v-show="isShow1"
             :cols="4"
             align-content="left"
             dense
@@ -81,22 +81,22 @@
               <kw-form-item
                 :label="$t('MSG_TXT_TASK_DIV')"
               >
-                <p>{{ baseInformation.col1 }}</p>
+                <p>{{ baseInformationRental.sellTpCd }}</p>
               </kw-form-item>
               <kw-form-item
                 :label="$t('MSG_TXT_CNTR_DTL_NO')"
               >
-                <p>{{ baseInformation.col2 }}</p>
+                <p>{{ baseInformationRental.cntrDtlNo }}</p>
               </kw-form-item>
               <kw-form-item
                 :label="$t('MSG_TXT_CST_NM')"
               >
-                <p>{{ baseInformation.col3 }}</p>
+                <p>{{ baseInformationRental.cstKnm }}</p>
               </kw-form-item>
               <kw-form-item
                 :label="$t('MSG_TXT_PD_INF')"
               >
-                <p>{{ baseInformation.col4 }}</p>
+                <p>{{ baseInformationRental.pdNm }}</p>
               </kw-form-item>
             </kw-form-row>
 
@@ -104,22 +104,22 @@
               <kw-form-item
                 :label="$t('MSG_TXT_EXN_TP')"
               >
-                <p>{{ baseInformation.col5 }}</p>
+                <p>{{ baseInformationRental.col5 }}</p>
               </kw-form-item>
               <kw-form-item
                 :label="$t('MSG_TXT_ALNC_DV')"
               >
-                <p>{{ baseInformation.col6 }}</p>
+                <p>{{ baseInformationRental.col6 }}</p>
               </kw-form-item>
               <kw-form-item
                 :label="$t('MSG_TXT_ATT_RCPDT')"
               >
-                <p>{{ baseInformation.col7 }}</p>
+                <p>{{ baseInformationRental.cntrRcpFshDtm }}</p>
               </kw-form-item>
               <kw-form-item
                 :label="$t('MSG_TXT_SL_DT')"
               >
-                <p>{{ baseInformation.col8 }}</p>
+                <p>{{ baseInformationRental.slDt }}</p>
               </kw-form-item>
             </kw-form-row>
 
@@ -127,66 +127,66 @@
               <kw-form-item
                 :label="$t('MSG_TXT_CANC_DT')"
               >
-                <p>{{ baseInformation.col9 }}</p>
+                <p>{{ baseInformationRental.cntrCanDtm }}</p>
               </kw-form-item>
               <kw-form-item
                 :label="$t('MSG_TXT_FSH_DT')"
               >
-                <p>{{ baseInformation.col10 }}</p>
+                <p>{{ baseInformationRental.col10 }}</p>
               </kw-form-item>
               <kw-form-item
                 :label="$t('MSG_TXT_REDF_DT')"
               >
-                <p>{{ baseInformation.col11 }}</p>
+                <p>{{ baseInformationRental.redfDt }}</p>
               </kw-form-item>
               <kw-form-item
                 :label="$t('MSG_TXT_ADSB_DT')"
               >
-                <p>{{ baseInformation.col12 }}</p>
+                <p>{{ baseInformationRental.adsbDt }}</p>
               </kw-form-item>
             </kw-form-row>
             <kw-form-row>
               <kw-form-item
                 :label="$t('MSG_TXT_PD_DC_CLASS')"
               >
-                <p>{{ baseInformation.col13 }}</p>
+                <p>{{ baseInformationRental.dscTpCd }}</p>
               </kw-form-item>
               <kw-form-item
                 :label="$t('MSG_TXT_FNT_INF_D')"
               >
-                <p>{{ baseInformation.col14 }}</p>
+                <p>{{ baseInformationRental.dpTpCd }}</p>
               </kw-form-item>
               <kw-form-item
                 :label="$t('MSG_TXT_RGST_CS_DSC')"
               >
-                <p>{{ baseInformation.col15 }}</p>
+                <p>{{ baseInformationRental.rentalRgstCost }}</p>
               </kw-form-item>
               <kw-form-item
                 :label="$t('MSG_TXT_RTLFE1_MCNT_WON')"
               >
-                <p>{{ baseInformation.col16 }}</p>
+                <p>{{ baseInformationRental.rentalPtrm }}</p>
               </kw-form-item>
             </kw-form-row>
             <kw-form-row>
               <kw-form-item
                 :label="$t('MSG_TXT_SL_AGG_AMT')"
               >
-                <p>{{ baseInformation.col17 }}</p>
+                <p>{{ baseInformationRental.slAggAmt }}</p>
               </kw-form-item>
               <kw-form-item
                 :label="$t('MSG_TXT_DSC_AGG_AMT')"
               >
-                <p>{{ baseInformation.col18 }}</p>
+                <p>{{ baseInformationRental.col18 }}</p>
               </kw-form-item>
               <kw-form-item
                 :label="$t('MSG_TXT_CTR_AGG_AMT')"
               >
-                <p>{{ baseInformation.col19 }}</p>
+                <p>{{ baseInformationRental.col19 }}</p>
               </kw-form-item>
               <kw-form-item
                 :label="$t('MSG_TXT_DP_AGG_AMT')"
               >
-                <p>{{ baseInformation.col20 }}</p>
+                <p>{{ baseInformationRental.slDpAggAmt }}</p>
               </kw-form-item>
             </kw-form-row>
 
@@ -194,40 +194,40 @@
               <kw-form-item
                 :label="$t('MSG_TXT_UC_AMT')"
               >
-                <p>{{ baseInformation.col21 }}</p>
+                <p>{{ baseInformationRental.col21 }}</p>
               </kw-form-item>
               <kw-form-item
                 :label="$t('MSG_TXT_DLQ_AMT')"
               >
-                <p>{{ baseInformation.col22 }}</p>
+                <p>{{ baseInformationRental.thmOcDlqAmt }}</p>
               </kw-form-item>
               <kw-form-item
                 :label="$t('MSG_TXT_SL_STP')"
               >
-                <p>{{ baseInformation.col23 }}</p>
+                <p>{{ baseInformationRental.col23 }}</p>
               </kw-form-item>
               <kw-form-item
                 :label="$t('MSG_TXT_ADD_AMT')"
               >
-                <p>{{ baseInformation.col24 }}</p>
+                <p>{{ baseInformationRental.eotDlqAddAmt }}</p>
               </kw-form-item>
             </kw-form-row>
             <kw-form-row>
               <kw-form-item
                 :label="$t('MSG_TXT_DFA_AMT')"
               >
-                <p>{{ baseInformation.col25 }}</p>
+                <p>{{ baseInformationRental.dfaAmt }}</p>
               </kw-form-item>
               <kw-form-item
                 :label="$t('MSG_TXT_DFA_DP_AMT')"
               >
-                <p>{{ baseInformation.col26 }}</p>
+                <p>{{ baseInformationRental.dfaDpAmt }}</p>
               </kw-form-item>
             </kw-form-row>
           </kw-form>
 
           <kw-form
-            v-if="isShow2"
+            v-show="isShow2"
             :cols="4"
             align-content="left"
             dense
@@ -236,22 +236,22 @@
               <kw-form-item
                 :label="$t('MSG_TXT_TASK_DIV')"
               >
-                <p>{{ baseInformation.col1 }}</p>
+                <p>{{ baseInformationMembership.sellTpCd }}</p>
               </kw-form-item>
               <kw-form-item
                 :label="$t('MSG_TXT_CNTR_DTL_NO')"
               >
-                <p>{{ baseInformation.col2 }}</p>
+                <p>{{ baseInformationMembership.cntrDtlNo }}</p>
               </kw-form-item>
               <kw-form-item
                 :label="$t('MSG_TXT_CST_NM')"
               >
-                <p>{{ baseInformation.col3 }}</p>
+                <p>{{ baseInformationMembership.cstKnm }}</p>
               </kw-form-item>
               <kw-form-item
                 :label="$t('MSG_TXT_PD_INF')"
               >
-                <p>{{ baseInformation.col4 }}</p>
+                <p>{{ baseInformationMembership.pdNm }}</p>
               </kw-form-item>
             </kw-form-row>
 
@@ -259,22 +259,22 @@
               <kw-form-item
                 :label="$t('MSG_TXT_FNT_INF')"
               >
-                <p>{{ baseInformation.col5 }}</p>
+                <p>{{ baseInformationMembership.dpTpCd }}</p>
               </kw-form-item>
               <kw-form-item
                 :label="$t('MSG_TXT_CNTR_DATE')"
               >
-                <p>{{ baseInformation.col6 }}</p>
+                <p>{{ baseInformationMembership.cntrDt }}</p>
               </kw-form-item>
               <kw-form-item
                 :label="$t('MSG_TXT_CNFM_DT')"
               >
-                <p>{{ baseInformation.col7 }}</p>
+                <p>{{ baseInformationMembership.cntrCnfmDtm }}</p>
               </kw-form-item>
               <kw-form-item
                 :label="$t('MSG_TXT_CANC_DT')"
               >
-                <p>{{ baseInformation.col8 }}</p>
+                <p>{{ baseInformationMembership.cntrCanDtm }}</p>
               </kw-form-item>
             </kw-form-row>
 
@@ -282,66 +282,66 @@
               <kw-form-item
                 :label="$t('MSG_TXT_J_DT')"
               >
-                <p>{{ baseInformation.col9 }}</p>
+                <p>{{ baseInformationMembership.col9 }}</p>
               </kw-form-item>
               <kw-form-item
                 :label="$t('MSG_TXT_WDWAL_DT')"
               >
-                <p>{{ baseInformation.col10 }}</p>
+                <p>{{ baseInformationMembership.col10 }}</p>
               </kw-form-item>
               <kw-form-item
                 :label="$t('MSG_TXT_FSH_DT')"
               >
-                <p>{{ baseInformation.col11 }}</p>
+                <p>{{ baseInformationMembership.col11 }}</p>
               </kw-form-item>
               <kw-form-item
                 :label="$t('MSG_TXT_MM_SSPCS')"
               >
-                <p>{{ baseInformation.col12 }}</p>
+                <p>{{ baseInformationMembership.sellAmt }}</p>
               </kw-form-item>
             </kw-form-row>
             <kw-form-row>
               <kw-form-item
                 :label="$t('MSG_TXT_DSC_AMT')"
               >
-                <p>{{ baseInformation.col13 }}</p>
+                <p>{{ baseInformationMembership.dscAmt }}</p>
               </kw-form-item>
               <kw-form-item
                 :label="$t('MSG_TXT_SL_AGG_AMT')"
               >
-                <p>{{ baseInformation.col14 }}</p>
+                <p>{{ baseInformationMembership.slAggAmt }}</p>
               </kw-form-item>
               <kw-form-item
                 :label="$t('MSG_TXT_DSC_AGG_AMT')"
               >
-                <p>{{ baseInformation.col15 }}</p>
+                <p>{{ baseInformationMembership.col15 }}</p>
               </kw-form-item>
               <kw-form-item
                 :label="$t('MSG_TXT_CTR_AGG_AMT')"
               >
-                <p>{{ baseInformation.col16 }}</p>
+                <p>{{ baseInformationMembership.col16 }}</p>
               </kw-form-item>
             </kw-form-row>
             <kw-form-row>
               <kw-form-item
                 :label="$t('MSG_TXT_DP_AGG_AMT')"
               >
-                <p>{{ baseInformation.col17 }}</p>
+                <p>{{ baseInformationMembership.slDpAggAmt }}</p>
               </kw-form-item>
               <kw-form-item
                 :label="$t('MSG_TXT_UC_AMT')"
               >
-                <p>{{ baseInformation.col18 }}</p>
+                <p>{{ baseInformationMembership.thmUcBlam }}</p>
               </kw-form-item>
               <kw-form-item
                 :label="$t('MSG_TXT_DLQ_AMT_ADAMT')"
               >
-                <p>{{ baseInformation.col19 }}</p>
+                <p>{{ baseInformationMembership.thmOcDlqAmt }}</p>
               </kw-form-item>
               <kw-form-item
                 :label="$t('MSG_TXT_DFA_AMT')"
               >
-                <p>{{ baseInformation.col20 }}</p>
+                <p>{{ baseInformationMembership.dfaAmt }}</p>
               </kw-form-item>
             </kw-form-row>
 
@@ -349,13 +349,13 @@
               <kw-form-item
                 :label="$t('MSG_TXT_DFA_DP_AMT')"
               >
-                <p>{{ baseInformation.col21 }}</p>
+                <p>{{ baseInformationMembership.dfaDpAmt }}</p>
               </kw-form-item>
             </kw-form-row>
           </kw-form>
 
           <kw-form
-            v-if="isShow3"
+            v-show="isShow3"
             :cols="4"
             align-content="left"
             dense
@@ -364,22 +364,92 @@
               <kw-form-item
                 :label="$t('MSG_TXT_TASK_DIV')"
               >
-                <p>{{ baseInformation.col1 }}</p>
+                <p>{{ baseInformationRegular.sellTpCd }}</p>
               </kw-form-item>
               <kw-form-item
                 :label="$t('MSG_TXT_CNTR_DTL_NO')"
               >
-                <p>{{ baseInformation.col2 }}</p>
+                <p>{{ baseInformationRegular.cntrDtlNo }}</p>
               </kw-form-item>
               <kw-form-item
                 :label="$t('MSG_TXT_CST_NM')"
               >
-                <p>{{ baseInformation.col3 }}</p>
+                <p>{{ baseInformationRegular.cstKnm }}</p>
               </kw-form-item>
               <kw-form-item
-                :label="$t('MSG_TXT_PD_INF')"
+                :label="$t('MSG_TXT_RCPDT')"
               >
-                <p>{{ baseInformation.col4 }}</p>
+                <p>{{ baseInformationRegular.cntrRcpFshDtm }}</p>
+              </kw-form-item>
+            </kw-form-row>
+            <kw-form-row>
+              <kw-form-item
+                :label="$t('MSG_TXT_SL_DT')"
+              >
+                <p>{{ baseInformationRegular.slDt }}</p>
+              </kw-form-item>
+              <kw-form-item
+                :label="$t('MSG_TXT_PKG_INF')"
+              >
+                <p>{{ baseInformationRegular.col6 }}</p>
+              </kw-form-item>
+              <kw-form-item
+                :label="$t('MSG_TXT_MCHN_INF')"
+              >
+                <p>{{ baseInformationRegular.col7 }}</p>
+              </kw-form-item>
+              <kw-form-item
+                :label="$t('MSG_TXT_CANC_DT')"
+              >
+                <p>{{ baseInformationRegular.col8 }}</p>
+              </kw-form-item>
+            </kw-form-row><kw-form-row>
+              <kw-form-item
+                :label="$t('MSG_TXT_SPP_DT')"
+              >
+                <p>{{ baseInformationRegular.sppDtm }}</p>
+              </kw-form-item>
+              <kw-form-item
+                :label="$t('MSG_TXT_FNT_INF')"
+              >
+                <p>{{ baseInformationRegular.dpTpCd }}</p>
+              </kw-form-item>
+              <kw-form-item
+                :label="$t('MSG_TXT_SL_AGG_AMT')"
+              >
+                <p>{{ baseInformationRegular.slAggAmt }}</p>
+              </kw-form-item>
+              <kw-form-item
+                :label="$t('MSG_TXT_DSC_AGG_AMT')"
+              >
+                <p>{{ baseInformationRegular.col12 }}</p>
+              </kw-form-item>
+            </kw-form-row><kw-form-row>
+              <kw-form-item
+                :label="$t('MSG_TXT_CTR_AGG_AMT')"
+              >
+                <p>{{ baseInformationRegular.col13 }}</p>
+              </kw-form-item>
+              <kw-form-item
+                :label="$t('MSG_TXT_DP_AGG_AMT')"
+              >
+                <p>{{ baseInformationRegular.slDpAggAmt }}</p>
+              </kw-form-item>
+              <kw-form-item
+                :label="$t('MSG_TXT_UC_AMT')"
+              >
+                <p>{{ baseInformationRegular.thmUcBlam }}</p>
+              </kw-form-item>
+              <kw-form-item
+                :label="$t('MSG_TXT_BIL_UC_AMT')"
+              >
+                <p>{{ baseInformationRegular.col16 }}</p>
+              </kw-form-item>
+            </kw-form-row><kw-form-row>
+              <kw-form-item
+                :label="$t('MSG_TXT_DLQ_AMT')"
+              >
+                <p>{{ baseInformationRegular.thmOcDlqAmt }}</p>
               </kw-form-item>
             </kw-form-row>
           </kw-form>
@@ -437,15 +507,36 @@
           </kw-action-top>
 
           <kw-grid
-            ref="grdMainRef"
-            name="grdMain"
+            v-show="isShow1"
+            ref="grdMainRef1"
+            name="grdMain1"
             :visible-rows="pageInfo.pageSize - 1"
-            @init="initGridMain"
+            @init="initGridMain1"
+          />
+          <kw-grid
+            v-show="isShow2"
+            ref="grdMainRef2"
+            name="grdMain2"
+            :visible-rows="pageInfo.pageSize - 1"
+            @init="initGridMain2"
+          />
+          <kw-grid
+            v-show="isShow3"
+            ref="grdMainRef3"
+            name="grdMain3"
+            :visible-rows="pageInfo.pageSize - 1"
+            @init="initGridMain3"
           />
         </div>
+        <kw-pagination
+          v-model:page-index="pageInfo.pageIndex"
+          v-model:page-size="pageInfo.pageSize"
+          :total-count="pageInfo.totalCount"
+          @change="fetchSalesData"
+        />
       </kw-tab-panel>
       <kw-tab-panel name="detailTab">
-        <wwdcb-single-payment-m
+        <wwdcb-sales-performance-list-m-single-payment
           v-model:selected-link-id="selectedLinkId"
         />
       </kw-tab-panel>
@@ -459,7 +550,7 @@
 import { codeUtil, gridUtil, defineGrid, getComponentType, useDataService, useMeta, useGlobal } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
-import WwdcbSinglePaymentM from './WwdcbSinglePaymentM.vue';
+import WwdcbSalesPerformanceListMSinglePayment from './WwdcbSalesPerformanceListMSinglePayment.vue';
 
 const selectedTab = ref('mainTab');
 const now = dayjs();
@@ -467,11 +558,14 @@ const { t } = useI18n();
 const { modal } = useGlobal();
 const { getConfig } = useMeta();
 const dataService = useDataService();
+const { currentRoute } = useRouter();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
-const grdMainRef = ref(getComponentType('KwGrid'));
+const grdMainRef1 = ref(getComponentType('KwGrid'));
+const grdMainRef2 = ref(getComponentType('KwGrid'));
+const grdMainRef3 = ref(getComponentType('KwGrid'));
 
 const isShow1 = ref(true);
 const isShow2 = ref(false);
@@ -487,7 +581,10 @@ const searchParams = ref({
   baseYearTo: now.format('YYYY'),
 });
 
-const baseInformation = ref({});
+const baseInfo = ref({});
+const baseInformationRental = ref({});
+const baseInformationMembership = ref({});
+const baseInformationRegular = ref({});
 
 const pageInfo = ref({
   totalCount: 0,
@@ -496,52 +593,111 @@ const pageInfo = ref({
 });
 
 let cachedParams;
+async function fetchRentalData() {
+  const res = await dataService.get('/sms/wells/closing/sales-performance/rental', { params: cachedParams });
+  baseInformationRental.value = res.data;
+}
+
+async function fetchMembershipData() {
+  const res = await dataService.get('/sms/wells/closing/sales-performance/membership', { params: cachedParams });
+  console.log(res.data);
+  baseInformationMembership.value = res.data;
+}
+
+async function fetchRegularData() {
+  const res = await dataService.get('/sms/wells/closing/sales-performance/regular', { params: cachedParams });
+  console.log(res.data);
+  baseInformationRegular.value = res.data;
+}
+
+async function fetchRentalListData() {
+  const res = await dataService.get('/sms/wells/closing/sales-performance/rental/paging', { params: { ...cachedParams, ...pageInfo.value } });
+  console.log('list:', res.data);
+  const { list: mainList, pageInfo: pagingResult } = res.data;
+  pageInfo.value = pagingResult;
+  const view = grdMainRef1.value.getView();
+  view.getDataSource().setRows(mainList);
+  view.resetCurrent();
+}
+
+async function fetchMembershipListData() {
+  const res = await dataService.get('/sms/wells/closing/sales-performance/membership/paging', { params: { ...cachedParams, ...pageInfo.value } });
+  console.log('list:', res.data);
+  const { list: mainList, pageInfo: pagingResult } = res.data;
+  pageInfo.value = pagingResult;
+  const view = grdMainRef2.value.getView();
+  view.getDataSource().setRows(mainList);
+  view.resetCurrent();
+}
+
+async function fetchRegularListData() {
+  const res = await dataService.get('/sms/wells/closing/sales-performance/regular/paging', { params: { ...cachedParams, ...pageInfo.value } });
+  console.log('list:', res.data);
+  const { list: mainList, pageInfo: pagingResult } = res.data;
+  pageInfo.value = pagingResult;
+  const view = grdMainRef3.value.getView();
+  view.getDataSource().setRows(mainList);
+  view.resetCurrent();
+}
+
 async function fetchBaseData() {
   const res = await dataService.get('/sms/wells/closing/sales-performance/base-information', { params: cachedParams });
-  console.log(res.data);
-  baseInformation.value = res.data;
-  console.log('baseInformation.value.col1:', baseInformation.value.col1);
-  if (baseInformation.value.col1 === '1') {
+  console.log('res.data:', res.data);
+  baseInfo.value = res.data;
+  // console.log('baseInfo.sellTpCd:', baseInfo.value.sellTpCd);
+  if (baseInfo.value.sellTpCd === '2') {
     isShow1.value = true;
     isShow2.value = false;
     isShow3.value = false;
-  } else if (baseInformation.value.col1 === '2') {
+    await fetchRentalData();
+    await fetchRentalListData();
+  } else if (baseInfo.value.sellTpCd === '3') {
     isShow1.value = false;
     isShow2.value = true;
     isShow3.value = false;
-  } else if (baseInformation.value.col1 === '3') {
+    await fetchMembershipData();
+    await fetchMembershipListData();
+  } else if (baseInfo.value.sellTpCd === '6') {
     isShow1.value = false;
     isShow2.value = false;
     isShow3.value = true;
+    await fetchRegularData();
+    await fetchRegularListData();
   }
-}
-
-async function fetchSalesData() {
-  const res = await dataService.get('/sms/wells/closing/sales-performance/sales-performance-mcby/paging', { params: cachedParams });
-  console.log(res.data);
-  const { list: mainList, pageInfo: pagingResult } = res.data;
-  pageInfo.value = pagingResult;
-
-  const view = grdMainRef.value.getView();
-  view.getDataSource().setRows(mainList);
-  view.resetCurrent();
 }
 
 async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
   await fetchBaseData();
-  await fetchSalesData();
 }
 
 async function onClickExportView() {
-  const view = grdMainRef.value.getView();
-
-  const response = await dataService.get('/sms/wells/closing/sales-performance/sales-performance-mcby/excel-download', { params: cachedParams });
-  await gridUtil.exportView(view, {
-    fileName: `${t('MSG_TXT_SL_PERF_MCBY')}Excel`,
-    timePostfix: true,
-    exportData: response.data,
-  });
+  console.log('baseInfo.value.sellTpCd:', baseInfo.value.sellTpCd);
+  if (baseInfo.value.sellTpCd === '2') {
+    const view = grdMainRef1.value.getView();
+    const response = await dataService.get('/sms/wells/closing/sales-performance/rental/excel-download', { params: cachedParams });
+    await gridUtil.exportView(view, {
+      fileName: currentRoute.value.meta.menuName,
+      timePostfix: true,
+      exportData: response.data,
+    });
+  } else if (baseInfo.value.sellTpCd === '3') {
+    const view = grdMainRef2.value.getView();
+    const response = await dataService.get('/sms/wells/closing/sales-performance/membership/excel-download', { params: cachedParams });
+    await gridUtil.exportView(view, {
+      fileName: currentRoute.value.meta.menuName,
+      timePostfix: true,
+      exportData: response.data,
+    });
+  } else if (baseInfo.value.sellTpCd === '6') {
+    const view = grdMainRef3.value.getView();
+    const response = await dataService.get('/sms/wells/closing/sales-performance/regular/excel-download', { params: cachedParams });
+    await gridUtil.exportView(view, {
+      fileName: currentRoute.value.meta.menuName,
+      timePostfix: true,
+      exportData: response.data,
+    });
+  }
 }
 
 async function onClickPrmEt() {
@@ -556,53 +712,29 @@ async function onClickPrmEt() {
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
-const initGridMain = defineGrid((data, view) => {
-  const fields = [
-    { fieldName: 'col1' },
-    { fieldName: 'col2' },
-    { fieldName: 'col3' },
-    { fieldName: 'col4', dataType: 'number' },
-    { fieldName: 'col5' },
-    { fieldName: 'col6', dataType: 'number' },
-    { fieldName: 'col7', dataType: 'number' },
-    { fieldName: 'col8', dataType: 'number' },
-    { fieldName: 'col9', dataType: 'number' },
-    { fieldName: 'col10', dataType: 'number' },
-    { fieldName: 'col11', dataType: 'number' },
-    { fieldName: 'col12', dataType: 'number' },
-    { fieldName: 'col13', dataType: 'number' },
-    { fieldName: 'col14', dataType: 'number' },
-    { fieldName: 'col15', dataType: 'number' },
-    { fieldName: 'col16', dataType: 'number' },
-    { fieldName: 'col17', dataType: 'number' },
-    { fieldName: 'col18', dataType: 'number' },
-    { fieldName: 'col19', dataType: 'number' },
-    { fieldName: 'col20', dataType: 'number' },
-  ];
-
+const initGridMain1 = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'col1', header: t('MSG_TXT_CNTR_DTL_NO'), width: '100', styleName: 'text-center' },
-    { fieldName: 'col2', header: t('MSG_TXT_SL_YM'), width: '100', styleName: 'text-center' },
-    { fieldName: 'col3', header: t('MSG_TXT_SL_STP'), width: '100', styleName: 'text-center' },
+    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '100', styleName: 'text-center' },
+    { fieldName: 'slDt', header: t('MSG_TXT_SL_YM'), width: '100', styleName: 'text-center' },
+    { fieldName: 'cntrDtlStatCd', header: t('MSG_TXT_SL_STP'), width: '100', styleName: 'text-center' },
     { fieldName: 'col4', header: t('MSG_TXT_NMN'), width: '100', styleName: 'text-center' },
     { fieldName: 'col5', header: t('MSG_TXT_MNGT_DV'), width: '100', styleName: 'text-center' },
-    { fieldName: 'col6', header: t('MSG_TXT_PRM_MCNT'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'col7', header: t('MSG_TXT_BIL_AMT'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'prmMcn', header: t('MSG_TXT_PRM_MCNT'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'thmSlSumAmt', header: t('MSG_TXT_BIL_AMT'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
     { fieldName: 'col8', header: t('MSG_TXT_CCAM'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
     { fieldName: 'col9', header: t('MSG_TXT_DP'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'col10', header: t('MSG_TXT_PRPD_AMT'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'col11', header: t('MSG_TXT_UC_AMT'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'col12', header: t('MSG_TXT_DLQ_AMT'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'col13', header: t('MSG_TXT_DLQ_MCNT'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'col14', header: t('MSG_TXT_BTD_AMT'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'col15', header: t('MSG_TXT_OCCR_AMT'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'col16', header: t('MSG_TXT_DDCTAM'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'col17', header: t('MSG_TXT_DP_AMT'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'col18', header: t('MSG_TXT_RFND_AMT'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'col19', header: t('MSG_TXT_EOT_AMT'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'col20', header: t('MSG_TXT_SL_STP_AMT'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'eotAtam', header: t('MSG_TXT_PRPD_AMT'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'thmUcBlam', header: t('MSG_TXT_UC_AMT'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'thmOcDlqAmt', header: t('MSG_TXT_DLQ_AMT'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'dlqMcn', header: t('MSG_TXT_DLQ_MCNT'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'btdDlqAddAmt', header: t('MSG_TXT_OCCR_AMT'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'thmOcDlqAddAmt', header: t('MSG_TXT_DDCTAM'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'thmCtrDlqAddAmt', header: t('MSG_TXT_DP_AMT'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'thmDlqDpSumAmt', header: t('MSG_TXT_RFND_AMT'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'thmDlqRfndSumAmt', header: t('MSG_TXT_EOT_AMT'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'eotDlqAddAmt', header: t('MSG_TXT_SL_STP_AMT'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
   ];
-
+  const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   data.setFields(fields);
   view.setColumns(columns);
 
@@ -619,37 +751,131 @@ const initGridMain = defineGrid((data, view) => {
   };
 
   const layout1 = [
-    'col1',
-    'col2',
-    'col3',
+    'cntrDtlNo',
+    'slDt',
+    'cntrDtlStatCd',
     'col4',
     'col5',
-    'col6',
-    'col7',
+    'prmMcn',
+    'thmSlSumAmt',
     'col8',
     'col9',
-    'col10',
-    'col11',
-    'col12',
-    'col13',
+    'eotAtam',
+    'thmUcBlam',
+    'thmOcDlqAmt',
+    'dlqMcn',
     {
       name: 'normalGroup',
       direction: 'horizontal',
       items: [
-        'col14',
-        'col15',
-        'col16',
-        'col17',
-        'col18',
-        'col19',
+        'btdDlqAddAmt',
+        'thmOcDlqAddAmt',
+        'thmCtrDlqAddAmt',
+        'thmDlqDpSumAmt',
+        'thmDlqRfndSumAmt',
       ],
       header: {
         text: t('MSG_TXT_ADD_AMT'),
       },
     },
-    'col20',
+    'eotDlqAddAmt',
   ];
   view.setColumnLayout(layout1);
+
+  view.rowIndicator.visible = true;
+});
+
+const initGridMain2 = defineGrid((data, view) => {
+  const columns = [
+    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '100', styleName: 'text-center' },
+    { fieldName: 'slDt', header: t('MSG_TXT_SL_YM'), width: '100', styleName: 'text-center' },
+    { fieldName: 'col3', header: t('MSG_TXT_J_NMN'), width: '100', styleName: 'text-center' },
+    { fieldName: 'col4', header: t('MSG_TXT_MNGT_DV'), width: '100', styleName: 'text-center' },
+    { fieldName: 'thmSlSumAmt', header: t('MSG_TXT_MSH_SL'), width: '100', styleName: 'text-center' },
+    { fieldName: 'thmAtamDpAmt', header: t('MSG_TXT_MSH_DP'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'eotAtam', header: t('MSG_TXT_PRPD_AMT'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'thmOcDlqAmt', header: t('MSG_TXT_DLQ_AMT'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'btdDlqAddAmt', header: t('MSG_TXT_BTD_AMT'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'thmOcDlqAddAmt', header: t('MSG_TXT_OCCR_AMT'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'thmCtrDlqAddAmt', header: t('MSG_TXT_DDCTAM'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'thmDlqDpSumAmt', header: t('MSG_TXT_DP_AMT'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'thmDlqRfndSumAmt', header: t('MSG_TXT_RFND_AMT'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'eotDlqAddAmt', header: t('MSG_TXT_EOT_AMT'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
+  ];
+  const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
+  data.setFields(fields);
+  view.setColumns(columns);
+
+  view.onCellItemClicked = async (grid, { column }) => {
+    const current = view.getCurrent();
+    const dataProvider = view.getDataSource();
+    const cntrDtlNo = dataProvider.getValue(current.dataRow, 'thmAtamDpAmt');
+    if (column === 'thmAtamDpAmt') {
+      await modal({
+        component: 'EwdccSalesDtlP',
+        componentProps: { cntrDtlNo },
+      });
+    }
+  };
+
+  const layout1 = [
+    'cntrDtlNo',
+    'slDt',
+    'col3',
+    'col4',
+    'thmSlSumAmt',
+    'thmAtamDpAmt',
+    'eotAtam',
+    'thmOcDlqAmt',
+    {
+      name: 'normalGroup',
+      direction: 'horizontal',
+      items: [
+        'btdDlqAddAmt',
+        'thmOcDlqAddAmt',
+        'thmCtrDlqAddAmt',
+        'thmDlqDpSumAmt',
+        'thmDlqRfndSumAmt',
+      ],
+      header: {
+        text: t('MSG_TXT_ADD_AMT'),
+      },
+    },
+    'eotDlqAddAmt',
+  ];
+  view.setColumnLayout(layout1);
+
+  view.rowIndicator.visible = true;
+});
+
+const initGridMain3 = defineGrid((data, view) => {
+  const columns = [
+    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '100', styleName: 'text-center' },
+    { fieldName: 'col2', header: t('MSG_TXT_PRGS_NMN'), width: '100', styleName: 'text-center' },
+    { fieldName: 'slDt', header: t('MSG_TXT_SL_YM'), width: '100', styleName: 'text-center' },
+    { fieldName: 'col4', header: t('MSG_TXT_SL_STP'), width: '100', styleName: 'text-center' },
+    { fieldName: 'thmSlSumAmt', header: t('MSG_TXT_SL_AMT'), width: '100', styleName: 'text-center' },
+    { fieldName: 'thmAtamDpAmt', header: t('MSG_TXT_DP_AMT'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'eotAtam', header: t('MSG_TXT_PRPD_AMT'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'thmUcBlam', header: t('MSG_TXT_UC_AMT'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'col8', header: t('MSG_TXT_BIL_UC'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'thmOcDlqAmt', header: t('MSG_TXT_DLQ_AMT'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
+  ];
+  const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
+  data.setFields(fields);
+  view.setColumns(columns);
+
+  view.onCellItemClicked = async (grid, { column }) => {
+    const current = view.getCurrent();
+    const dataProvider = view.getDataSource();
+    const cntrDtlNo = dataProvider.getValue(current.dataRow, 'thmAtamDpAmt');
+    if (column === 'thmAtamDpAmt') {
+      await modal({
+        component: 'EwdccSalesDtlP',
+        componentProps: { cntrDtlNo },
+      });
+    }
+  };
 
   view.rowIndicator.visible = true;
 });
