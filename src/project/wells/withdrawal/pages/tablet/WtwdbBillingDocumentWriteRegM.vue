@@ -135,9 +135,6 @@ const { getters } = useStore();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
-const userInfo = getters['meta/getUserInfo'];
-const { userId, userName } = userInfo;
-
 const props = defineProps({
   bildcPblNo: {
     type: String,
@@ -173,6 +170,9 @@ const props = defineProps({
   },
 });
 
+const userInfo = getters['meta/getUserInfo'];
+const { userId, userName } = userInfo;
+
 const regMainData = ref({
   bildcPblNo: '',
   bildcPblSn: '',
@@ -205,7 +205,7 @@ async function onClickSearchUser() {
 async function onClickBefore() {
   await router.push(
     {
-      path: '/ns/wtwdb-billing-document-tablet-mgt',
+      path: '/ns/wtwdb-billing-document-mgt',
       query: {
         searchCstFnm: props.searchCstFnm, // 조회조건
         searchBildcWrteDt: props.searchBildcWrteDt, // 조회조건

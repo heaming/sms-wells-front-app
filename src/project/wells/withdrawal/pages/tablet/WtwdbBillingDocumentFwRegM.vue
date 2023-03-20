@@ -40,6 +40,7 @@
         <kw-form-item
           v-if="sendMainData.bildcFwTpCd === 'K'"
           :label="t('MSG_TXT_DSPH_NO')"
+          required
         >
           <zwcm-telephone-number
             v-model:tel-no1="telNos.telNo1"
@@ -52,6 +53,7 @@
         <kw-form-item
           v-else
           :label="t('MSG_TXT_DSPTR')"
+          required
         >
           <zwcm-email-address
             v-model="sendMainData.toMail"
@@ -62,6 +64,7 @@
         <kw-form-item
           v-if="sendMainData.bildcFwTpCd === 'K'"
           :label="t('MSG_TXT_RECP_NO')"
+          required
         >
           <zwcm-telephone-number
             v-model:tel-no1="telNos2.telNo1"
@@ -75,7 +78,10 @@
           v-else
           :label="t('MSG_TXT_RECP_USR')"
         >
-          <zwcm-email-address v-model="sendMainData.fromMail" />
+          <zwcm-email-address
+            v-model="sendMainData.fromMail"
+            required
+          />
         </kw-form-item>
       </kw-form-row>
     </kw-form>
@@ -152,7 +158,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, notify, useDataService, alert, confirm } from 'kw-lib';
+import { codeUtil, notify, useDataService, confirm } from 'kw-lib';
 import ZwcmTelephoneNumber from '~common/components/ZwcmTelephoneNumber.vue';
 import ZwcmEmailAddress from '~common/components/ZwcmEmailAddress.vue';
 import { cloneDeep } from 'lodash-es';
@@ -165,7 +171,6 @@ const { t } = useI18n();
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 const props = defineProps({
-
   searchCstFnm: {
     type: String,
     default: null,
@@ -233,7 +238,7 @@ const telNos2 = ref({
 async function onClickBefore() {
   await router.push(
     {
-      path: '/ns/wtwdb-billing-document-tablet-mgt',
+      path: '/ns/wtwdb-billing-document-mgt',
       query: {
         searchCstFnm: props.searchCstFnm, // 조회조건
         searchBildcWrteDt: props.searchBildcWrteDt, // 조회조건
@@ -258,15 +263,7 @@ async function fetchData() {
       data.bildcFwDtm = dayjs(data.bildcFwDtm).format('YYYY-MM-DD');
     }
 
-    if (data.bildcFwTpCd) {
-      if (data.bildcFwTpCd === 'K') {
-        // data.bildcFwTpCd = '카카오 알림톡';
-        data.bildcFwTpCd = t('MSG_TXT_KAKAO_NOTAK');
-      } else {
-        // data.bildcFwTpCd = '이메일';
-        data.bildcFwTpCd = t('MSG_TXT_EMAIL');
-      }
-    }
+    data.bildcFwTpCd = data.bildcFwTpCd === 'K' ? t('MSG_TXT_KAKAO_NOTAK') : t('MSG_TXT_EMAIL');
   });
 
   items.value = list;
@@ -280,37 +277,37 @@ async function onClickSend() {
     sendMainData.value.destInfo = telNos.value.telNo1 + telNos.value.telNo2 + telNos.value.telNo3;
     sendMainData.value.callback = telNos2.value.telNo1 + telNos2.value.telNo2 + telNos2.value.telNo3;
 
-    if (sendMainData.value.bildcFwTpCd === 'K') {
-      if (!telNos.value.telNo1 || !telNos.value.telNo2 || !telNos.value.telNo3) {
-        await alert(t('MSG_ALT_NCELL_REQUIRED_ITEM', [t('MSG_TXT_DSPH_NO')]));
-        return;
-      }
+    // if (sendMainData.value.bildcFwTpCd === 'K') {
+    //   if (!telNos.value.telNo1 || !telNos.value.telNo2 || !telNos.value.telNo3) {
+    //     await alert(t('MSG_ALT_NCELL_REQUIRED_ITEM', [t('MSG_TXT_DSPH_NO')]));
+    //     return;
+    //   }
 
-      if (!telNos2.value.telNo1 || !telNos2.value.telNo2 || !telNos2.value.telNo3) {
-        await alert(t('MSG_ALT_NCELL_REQUIRED_ITEM', [t('MSG_TXT_RECP_NO')]));
-        return;
-      }
-    } else {
-    // eslint-disable-next-line no-lonely-if
-      if (!sendMainData.value.toMail) {
-        await alert(t('MSG_ALT_NCELL_REQUIRED_ITEM', [t('MSG_TXT_DSPTR_EML')]));
-        return;
-      }
-      if (!sendMainData.value.fromMail) {
-        await alert(t('MSG_ALT_NCELL_REQUIRED_ITEM', [t('MSG_TXT_RCVR_EML')]));
-        return;
-      }
+    //   if (!telNos2.value.telNo1 || !telNos2.value.telNo2 || !telNos2.value.telNo3) {
+    //     await alert(t('MSG_ALT_NCELL_REQUIRED_ITEM', [t('MSG_TXT_RECP_NO')]));
+    //     return;
+    //   }
+    // } else {
+    // // eslint-disable-next-line no-lonely-if
+    //   if (!sendMainData.value.toMail) {
+    //     await alert(t('MSG_ALT_NCELL_REQUIRED_ITEM', [t('MSG_TXT_DSPTR_EML')]));
+    //     return;
+    //   }
+    //   if (!sendMainData.value.fromMail) {
+    //     await alert(t('MSG_ALT_NCELL_REQUIRED_ITEM', [t('MSG_TXT_RCVR_EML')]));
+    //     return;
+    //   }
 
-      // if (!sendMainData.value.fromMail) {
-      //   await alert(t('MSG_ALT_NCELL_REQUIRED_ITEM', [t('MSG_TXT_RCVR_EML')]));
-      //   return;
-      // }
+    // if (!sendMainData.value.fromMail) {
+    //   await alert(t('MSG_ALT_NCELL_REQUIRED_ITEM', [t('MSG_TXT_RCVR_EML')]));
+    //   return;
+    // }
 
     // if (!sendMainData.value.toMail) {
     //   await alert(t('MSG_ALT_NCELL_REQUIRED_ITEM', [t('MSG_TXT_DSPTR_EML')]));
     //   return;
     // }
-    }
+    // }
 
     paramData = cloneDeep(sendMainData.value);
 

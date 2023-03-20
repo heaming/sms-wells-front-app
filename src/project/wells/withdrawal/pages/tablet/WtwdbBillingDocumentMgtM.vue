@@ -181,7 +181,7 @@
 // -------------------------------------------------------------------------------------------------
 
 import dayjs from 'dayjs';
-import { codeUtil, modal, useDataService, stringUtil, notify, confirm } from 'kw-lib';
+import { codeUtil, modal, useDataService, stringUtil, confirm } from 'kw-lib';
 import { cloneDeep, isUndefined, toInteger } from 'lodash-es';
 
 const dataService = useDataService();
@@ -291,7 +291,7 @@ async function onClickSearchUser() {
 async function onClickRegP() {
   router.replace(
     {
-      path: '/ns/wtwdb-billing-document-write-tablet-reg',
+      path: '/ns/wtwdb-billing-document-write-reg',
       query: {
         searchCstFnm: searchParams.value.cstFnm, // 조회조건
         searchBildcWrteDt: searchParams.value.bildcWrteDt, // 조회조건
@@ -305,7 +305,7 @@ async function onClickRegP() {
 //   const modifyRows = cloneDeep(data.value);
 //   router.replace(
 //     {
-//       path: '/ns/wtwdb-billing-document-write-tablet-reg',
+//       path: '/ns/wtwdb-billing-document-write-reg',
 //       query: {
 //         bildcPblNo: modifyRows.bildcPblNo,
 //         cstFnm: modifyRows.cstFnm,
@@ -325,7 +325,7 @@ async function onClickRegP() {
 async function onClickMove(data) {
   router.replace(
     {
-      path: '/ns/wtwdb-billing-document-fw-tablet-reg',
+      path: '/ns/wtwdb-billing-document-fw-reg',
       query: {
         searchCstFnm: searchParams.value.cstFnm, // 조회조건
         searchBildcWrteDt: searchParams.value.bildcWrteDt, // 조회조건
@@ -360,8 +360,6 @@ async function onClickRemove() {
     await dataService.delete('/sms/wells/withdrawal/idvrve/billing-document-orders', { data: deletedRows });
     await onClickSearch();
   }
-
-  notify(t('MSG_ALT_DELETED'));
 }
 
 async function initProps() {
