@@ -77,6 +77,13 @@
           />
         </template>
 
+        <kw-file
+          v-show="false"
+          ref="attachFileRef"
+          v-model="file"
+          accept=".xlsx, .xls, .csv"
+          @update:model-value="doUpload"
+        />
         <kw-btn
           v-permission:create
           icon="upload_on"
@@ -137,7 +144,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService, useMeta, gridUtil, codeUtil, useGlobal, getComponentType, defineGrid } from 'kw-lib';
+import { useDataService, useMeta, gridUtil, codeUtil, useGlobal, getComponentType, defineGrid, http } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 import ZwpdProductClassificationSelect from '~sms-common/product/pages/standard/components/ZwpdProductClassificationSelect.vue';
 import pdConst from '~sms-common/product/constants/pdConst';
@@ -148,6 +155,10 @@ const dataService = useDataService();
 const { getConfig } = useMeta();
 const route = useRoute();
 const router = useRouter();
+
+const attachFileRef = ref();
+const file = ref(null);
+
 const grdMainRef = ref(getComponentType('KwGrid'));
 
 const pageInfo = ref({
@@ -165,6 +176,34 @@ const page = ref({
   reg: '/product/wwpdc-as-part-list/wwpdc-as-part-mgt', // 교재/자재 등록 UI
   detail: '/product/wwpdc-as-part-list/wwpdc-as-part-dtl', // 교재/자재 상세보기 UI
 });
+
+// onMounted(async () => {
+//   const { test } = props;
+//   console.log('test', test);
+// });
+
+const props = defineProps({
+  test: { type: String, default: '' },
+  state: { type: String, default: '' },
+});
+
+watch(() => props.state, async (state) => {
+  console.log('props state', state);
+}, { immediate: true });
+
+watch(() => props.test, async (newValue) => {
+  console.log('props test', newValue);
+}, { immediate: true });
+
+watch(() => route.state, async (state) => {
+  console.log('route state', state);
+}, { immediate: true });
+
+watch(() => route.query, async (query) => {
+  console.log('route query', query);
+  // eslint-disable-next-line no-use-before-define
+  if (query.isSearch) onClickSearch();
+}, { immediate: true });
 
 let cachedParams;
 const searchParams = ref({
@@ -203,7 +242,40 @@ async function onClickSearch() {
 
 async function onClickExcelUpload() {
   notify('기능 확인 중... TBD');
+  file.value = null;
+  attachFileRef.value.reset();
+  attachFileRef.value.pickFiles();
 }
+
+// Excel Upload 관련 Mehotd 시작
+async function doUpload() {
+  if (file.value === null || file.value === undefined) {
+    return;
+  }
+
+  // WAS단으로 넘겨 DRM 해제 및 유효성 체크 후 저장.
+  const formData = new FormData();
+  formData.append('file', file.value.nativeFile);
+
+  const response = await http.post(`${baseUrl}/excel-upload`, formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
+
+  const { status, errorInfo } = response.data;
+  console.debug(status, errorInfo);
+  console.table(errorInfo);
+
+  if (pdConst.EXCEL_UPLOAD_SUCCESS !== status && errorInfo.length > 0) {
+    await modal({
+      component: 'ZwcmzExcelUploadErrorP',
+      componentProps: { errorInfo },
+    });
+  } else {
+    notify(t('MSG_ALT_COMPLETE_EXCEL_UPLOAD'));
+    await onClickSearch();
+  }
+}
+// Excel Upload 관련 Mehotd 종료
 
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
@@ -237,16 +309,11 @@ async function onClickSummarySearch() {
   }
 }
 
-async function openAsPartPopup(pdCd, tempSaveYn) {
+async function oprenRegDetailPopup(pdCd, tempSaveYn) {
   const targetUrl = tempSaveYn === 'Y' ? page.value.reg : page.value.detail;
   await router.push({ path: targetUrl, query: { pdCd, tempSaveYn } });
 }
 
-watch(() => route.query, async (query) => {
-  console.log('query', query);
-  if (query.isSearch) onClickSearch();
-  // if (query.closeTargetUi ?? false) await router.close(query.closeTargetUi);
-}, { immediate: true });
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
@@ -295,7 +362,7 @@ const initGrdMain = defineGrid((data, view) => {
       // [reg & detail] Link
       const pdCd = g.getValue(clickData.dataRow, 'pdCd');
       const tempSaveYn = g.getValue(clickData.dataRow, 'tempSaveYn');
-      openAsPartPopup(pdCd, tempSaveYn);
+      oprenRegDetailPopup(pdCd, tempSaveYn);
     }
   };
 });
