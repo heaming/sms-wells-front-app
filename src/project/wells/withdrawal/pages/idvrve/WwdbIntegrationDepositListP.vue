@@ -27,9 +27,9 @@
           required
         >
           <!-- label="수납코드" -->
-          <!-- rules="required" -->
           <kw-input
             v-model="searchParams.rveCd"
+            rules="required"
             icon="search"
             type="text"
             :label="$t('MSG_TXT_RVE_CD')"
