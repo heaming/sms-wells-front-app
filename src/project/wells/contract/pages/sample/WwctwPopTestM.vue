@@ -116,6 +116,34 @@ const pops = [
       cntrNo: 'E12345678900',
     },
   },
+  {
+    pname: 'WwctaRestipulationTargetCstListP',
+    title: '재약정 대상고객 조회 W-SS-U-0022P01',
+    param: {
+      cntrNo: '',
+    },
+  },
+  {
+    pname: 'WwctaBelongPartnerChoiceListP',
+    title: '소속 파트너 선택 W-SS-U-0022P02',
+    param: {
+      cntrNo: '',
+    },
+  },
+  {
+    pname: 'WwctaOnePlusOneContractListP',
+    title: '1+1 대상계약 조회 W-SS-U-0022P04',
+    param: {
+      cntrNo: '',
+    },
+  },
+  {
+    pname: 'WwctaCapsuleSeedingMgtP',
+    title: '캡슐/모종 선택 팝업 W-SS-U-0022P05',
+    param: {
+      cntrNo: '',
+    },
+  },
 ];
 
 const popInfo = ref({});
