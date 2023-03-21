@@ -274,7 +274,7 @@ async function onClickSearchUser() {
 async function onClickRegP() {
   await router.push(
     {
-      path: '/ns/wmwdb-billing-document-mgt-write',
+      path: '/ns/wmwdb-billing-document-write',
       query: {
         searchCstFnm: searchParams.value.cstFnm, // 조회조건
         searchBildcWrteDt: searchParams.value.bildcWrteDt, // 조회조건
@@ -287,7 +287,7 @@ async function onClickRegP() {
 async function onClickMove(data) {
   router.replace(
     {
-      path: '/ns/wmwdb-billing-document-mgt-send',
+      path: '/ns/wmwdb-billing-document-send',
       query: {
         searchCstFnm: searchParams.value.cstFnm, // 조회조건
         searchBildcWrteDt: searchParams.value.bildcWrteDt, // 조회조건
