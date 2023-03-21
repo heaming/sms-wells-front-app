@@ -3,7 +3,8 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : PDC (상품운영관리)
-2. 프로그램 ID : WwpdcServiceMgtMFlt - 서비스 관리 - 서비스 등록/변경 - 상품필터 교체관리 ( W-PD-U-0022M01 )
+2. 프로그램 ID : WwpdcServiceMgtMFlt - 서비스 관리 - 서비스 등록/변경 - 상품필터 교체관리
+                ( W-PD-U-0043M02 )
 3. 작성자 : jintae.choi
 4. 작성일 : 2022.12.31
 ****************************************************************************************************
@@ -40,6 +41,7 @@
       dense
       :disable="grdRowCount === 0"
       :label="$t('MSG_BTN_DEL')"
+      @click="onClickRemoveRows"
     />
     <kw-separator
       spaced
@@ -49,12 +51,16 @@
     <!-- 정기B/S투입 필터/부품 연결 -->
     <kw-btn
       dense
+      :disable="grdRowCount === 0"
       :label="$t('MSG_TXT_PD_SCH_BS_REL_PART')"
+      @click="onClickBsConnect"
     />
     <!-- 정기B/S투입정보 -->
     <kw-btn
       dense
+      :disable="grdRowCount === 0"
       :label="$t('MSG_TXT_PD_SCH_BS_INFO')"
+      @click="onClickBsInfos"
     />
   </kw-action-top>
   <kw-grid
@@ -66,14 +72,14 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { /* codeUtil, */ getComponentType, useGlobal, gridUtil } from 'kw-lib';
-import { clone } from 'lodash-es';
+import { gridUtil, codeUtil, getComponentType, useGlobal } from 'kw-lib';
+import { cloneDeep } from 'lodash-es';
 import { getGridRowCount } from '~/modules/sms-common/product/utils/pdUtil';
 import pdConst from '~sms-common/product/constants/pdConst';
 
 /* eslint-disable no-use-before-define */
 defineExpose({
-  isModifiedProps, validateProps, resetData, getSaveData,
+  init, isModifiedProps, validateProps, resetData, getSaveData,
 });
 
 const props = defineProps({
@@ -82,7 +88,7 @@ const props = defineProps({
 });
 
 const { t } = useI18n();
-const { modal } = useGlobal();
+const { notify, alert, modal } = useGlobal();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -101,23 +107,78 @@ const materialSelectItems = ref([
   // 교재/자재코드
   { codeId: pdConst.PD_SEARCH_CODE, codeName: t('MSG_TXT_PROD_CD') },
 ]);
-// const codes = await codeUtil.getMultiCodes('PD_TEMP_SAVE_CD');
+const codes = await codeUtil.getMultiCodes('PD_TEMP_SAVE_CD');
 
 async function isModifiedProps() {
-  return false;
+  return gridUtil.isModified(grdMainRef.value?.getView());
 }
 
 async function validateProps() {
   return true;
 }
 
+async function init() {
+  const materialView = grdMainRef.value?.getView();
+  if (materialView) gridUtil.init(materialView);
+}
+
 async function resetData() {
-  console.log('TODO restData');
+  currentPdCd.value = '';
+  currentInitData.value = {};
+  if (grdMainRef.value?.getView()) gridUtil.reset(grdMainRef.value.getView());
 }
 
 async function getSaveData() {
-  const subList = { saveFields: [] };
+  const subList = {};
+  subList[pdConst.TBL_PD_REL] = [];
+  const rowValues = gridUtil.getAllRowValues(grdMainRef.value.getView());
+  subList[pdConst.TBL_PD_REL] = rowValues;
+  subList[pdConst.RELATION_PRODUCTS] = rowValues;
   return subList;
+}
+
+async function onClickRemoveRows() {
+  const view = grdMainRef.value.getView();
+  await gridUtil.confirmDeleteCheckedRows(view);
+  grdRowCount.value = getGridRowCount(view);
+}
+
+async function onClickBsConnect() {
+  const view = grdMainRef.value.getView();
+  if (!view.getCheckedRows().length) {
+    await alert(t('MSG_ALT_NOT_SEL_ITEM'));
+    return;
+  }
+  if (view.getCheckedRows().length !== 1) {
+    notify(t('MSG_ALT_SELECT_ONE_ROW', [t('MSG_BTN_SUMMARY_SRCH')]));
+    return;
+  }
+  const checkedRows = gridUtil.getCheckedRowValues(view);
+  await modal({
+    component: 'WwpdcRoutineBsConnListP',
+    componentProps: { svPdCd: currentPdCd.value,
+      pdctPdCd: checkedRows[0].pdCd,
+      svPdNm: currentInitData.value[pdConst.TBL_PD_BAS].pdNm,
+      pdctPdNm: checkedRows[0].pdNm,
+    },
+  });
+}
+
+async function onClickBsInfos() {
+  const view = grdMainRef.value.getView();
+  if (!view.getCheckedRows().length) {
+    await alert(t('MSG_ALT_NOT_SEL_ITEM'));
+    return;
+  }
+  if (view.getCheckedRows().length !== 1) {
+    notify(t('MSG_ALT_SELECT_ONE_ROW', [t('MSG_BTN_SUMMARY_SRCH')]));
+    return;
+  }
+  const checkedRows = gridUtil.getCheckedRowValues(view);
+  await modal({
+    component: 'WwpdcRoutineBsListP',
+    componentProps: { svPdCd: currentPdCd.value, pdctPdCd: checkedRows[0].pdCd },
+  });
 }
 
 async function onClickMaterialSchPopup() {
@@ -130,7 +191,7 @@ async function onClickMaterialSchPopup() {
     if (Array.isArray(rtn.payload) && rtn.payload.length > 1) {
       const data = view.getDataSource();
       const rows = rtn.payload.map((item) => ({
-        ...item, svPdCd: clone(currentPdCd.value) }));
+        ...item, [pdConst.REL_OJ_PD_CD]: item.pdCd, [pdConst.PD_REL_TP_CD]: pdConst.PD_REL_TP_CD_PD_TO_FL }));
       await data.insertRows(0, rows);
       await gridUtil.focusCellInput(view, 0);
     }
@@ -138,9 +199,9 @@ async function onClickMaterialSchPopup() {
   grdRowCount.value = getGridRowCount(view);
 }
 
-/* async function initGridRows() {
-  const products = currentInitData.value?.[pdConst.RELATION_PRODUCTS];
-  // console.log('WwpdcStandardMgtMRelPrd - initGridRows - products : ', products);
+async function initGridRows() {
+  const products = cloneDeep(currentInitData.value?.[pdConst.RELATION_PRODUCTS]);
+  console.log('WwpdcServiceMgtMFlt - initGridRows - products : ', products);
   const materialView = grdMainRef.value?.getView();
   if (materialView) {
     materialView.getDataSource().clearRows();
@@ -149,34 +210,46 @@ async function onClickMaterialSchPopup() {
     materialView.resetCurrent();
     grdRowCount.value = getGridRowCount(materialView);
   }
-} */
+}
 
 async function initProps() {
   const { pdCd, initData } = props;
   currentPdCd.value = pdCd;
   currentInitData.value = initData;
-  // await initGridRows();
 }
 
 await initProps();
 
 watch(() => props.pdCd, (pdCd) => { currentPdCd.value = pdCd; });
-watch(() => props.initData, (initData) => { currentInitData.value = initData; /* initGridRows(); */ }, { deep: true });
+watch(() => props.initData, (initData) => { currentInitData.value = initData; initGridRows(); }, { deep: true });
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
-function initGrid(data, view) {
+async function initGrid(data, view) {
   const columns = [
+    // 상태
+    { fieldName: 'tempSaveYn', header: t('MSG_TXT_STT'), width: '135', styleName: 'text-center', options: codes.PD_TEMP_SAVE_CD },
+    // 교재/자재 분류
+    { fieldName: 'pdClsfNm', header: t('MSG_TXT_PD_BOK_MTR_TYPE'), width: '371' },
+    // 교재/자재명
     { fieldName: 'pdNm', header: t('MSG_TXT_PD_BOK_MTR_NAME'), width: '306' },
+    // 제품코드
+    { fieldName: 'pdCd', header: t('MSG_TXT_PROD_CD'), width: '185', styleName: 'text-center' },
+    // 자재코드
+    { fieldName: 'partPdCd', header: t('MSG_TXT_MATI_CD'), width: '187', styleName: 'text-center' },
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
-  fields.push({ fieldName: 'svPdCd' }); // 서비스 상품 코드
+  fields.push({ fieldName: pdConst.REL_PD_ID });
+  fields.push({ fieldName: pdConst.PD_REL_TP_CD });
+  fields.push({ fieldName: pdConst.REL_OJ_PD_CD });
   data.setFields(fields);
   view.setColumns(columns);
 
   view.checkBar.visible = true;
   view.rowIndicator.visible = false;
+  await initGridRows();
+  await init();
 }
 </script>
 <style scoped></style>
