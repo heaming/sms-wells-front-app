@@ -140,7 +140,7 @@ const codes = ref(await codeUtil.getMultiCodes(
 ));
 
 codes.value.OSTR_TP_CD = codes.value.OSTR_TP_CD.filter(
-  ({ codeId }) => ['221', '222', '223', '261', '262'].contains(codeId),
+  ({ codeId }) => ['221', '222', '223', '261', '262'].includes(codeId),
 );
 let cachedParams;
 console.log(dayjs().format('YYYYMMDD'));
