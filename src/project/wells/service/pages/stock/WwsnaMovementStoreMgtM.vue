@@ -102,6 +102,7 @@
         :total-count="pageInfo.totalCount"
         @init="initGrdMain"
       />
+
       <kw-pagination
         v-model:page-index="pageInfo.pageIndex"
         v-model:page-size="pageInfo.pageSize"
@@ -115,7 +116,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, useDataService, getComponentType, useMeta, defineGrid, useGlobal } from 'kw-lib';
+import { codeUtil, useDataService, getComponentType, useMeta, defineGrid, gridUtil, useGlobal } from 'kw-lib';
 // import ZwcmWareHouseSearch from '~sms-common/service/components/ZwsnzWareHouseSearch.vue';
 import dayjs from 'dayjs';
 import { cloneDeep } from 'lodash-es';
@@ -142,6 +143,7 @@ const codes = ref(await codeUtil.getMultiCodes(
 codes.value.OSTR_TP_CD = codes.value.OSTR_TP_CD.filter(
   ({ codeId }) => ['221', '222', '223', '261', '262'].includes(codeId),
 );
+
 let cachedParams;
 console.log(dayjs().format('YYYYMMDD'));
 
@@ -186,6 +188,16 @@ async function onClickSearch() {
   pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
+}
+
+async function onClickExcelDownload() {
+  const view = grdMainRef.value.getView();
+  const res = await dataService.get(`${baseURI}/excel-download`, { params: cachedParams });
+  await gridUtil.exportView(view, {
+    fileName: 'movementStoreMgtM',
+    timePostfix: true,
+    exportData: res.data,
+  });
 }
 
 onMounted(async () => {
