@@ -380,8 +380,12 @@ async function onClickSave(tempSaveYn) {
     isCreate.value = isEmpty(currentPdCd.value);
     await fetchData();
   } else {
-    // TODO 경로 관련 여타와 동일하게 push,close-go, go 방식들 내재한 문제 처리 필요.
-    router.push({ path: materialMainPage, query: {} });
+    await router.close(0, true); // observer 강제 무력화 및 현재 탭 강제 닫기.
+    await router.push(
+      { path: materialMainPage,
+        state: { stateParam: { test: 'teststring' } },
+        query: { isSearch: true, closeTargetUi: page.value.reg } },
+    );
   }
 }
 
@@ -409,7 +413,8 @@ async function onClickPrevStep() {
 }
 
 async function onClickCancel() {
-  await router.close({ to: materialMainPage });
+  // await router.close({ to: materialMainPage });
+  await router.close(0, true); // observer 강제 무력화 및 현재 탭 강제 닫기.
 }
 
 async function setInitCondition() {

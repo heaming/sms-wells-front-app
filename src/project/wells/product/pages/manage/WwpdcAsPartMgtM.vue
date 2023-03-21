@@ -11,6 +11,7 @@
 ****************************************************************************************************
 - 상품 >> AS부품 등록/변경 프로그램 (Outer Frame Page)
 ****************************************************************************************************
+- '교재/자재' 와 달리 '관리속성' 미사용.
 -TODO :
 --->
 <template>
@@ -28,17 +29,11 @@
               :title="$t('MSG_TXT_BAS_ATTR_REG')"
               :prefix="regSteps[0].step"
             />
-            <!-- 3.관리속성 등록 -->
+            <!-- 2.등록정보 확인 -->
             <kw-step
               :name="regSteps[1].name"
-              :title="$t('MSG_TXT_MGT_ATTR_REG')"
-              :prefix="regSteps[1].step"
-            />
-            <!-- 4.등록정보 확인 -->
-            <kw-step
-              :name="regSteps[2].name"
               :title="$t('MSG_TXT_CHK_REG_INFO')"
-              :prefix="regSteps[2].step"
+              :prefix="regSteps[1].step"
             />
 
             <!-- 1. 기본속성 등록 -->
@@ -53,21 +48,8 @@
                 @popup-callback="popupCallback"
               />
             </kw-step-panel>
-
-            <!-- 3.관리속성 등록 -->
+            <!-- 2.등록정보 확인 -->
             <kw-step-panel :name="regSteps[1].name">
-              <zwpdc-prop-groups-mgt
-                :ref="cmpStepRefs[1]"
-                v-model:pd-cd="currentPdCd"
-                v-model:init-data="prevStepData"
-                :pd-tp-cd="pdConst.PD_TP_CD_MATERIAL"
-                :pd-grp-dv-cd="pdConst.PD_PRP_GRP_DV_CD_MANUAL"
-                :except-id="exceptPrpGrpCd"
-                :pd-tp-dtl-cd="pdTpDtlCd"
-              />
-            </kw-step-panel>
-            <!-- 4.등록정보 확인 -->
-            <kw-step-panel :name="regSteps[2].name">
               <kw-tabs
                 v-model="selectedTab"
                 class="mt20"
@@ -91,19 +73,6 @@
                     :pd-grp-dv-cd="pdConst.PD_PRP_GRP_DV_CD_BASIC"
                     :prefix-title="$t('MSG_TXT_BAS_ATTR')"
                     :is-first-title="true"
-                    :pd-tp-dtl-cd="pdTpDtlCd"
-                  />
-                </kw-tab-panel>
-                <!--관리속성-->
-                <kw-tab-panel name="attributeExtr">
-                  <zwpdc-prop-groups-dtl
-                    v-model:pd-cd="currentPdCd"
-                    v-model:init-data="prevStepData"
-                    :pd-tp-cd="pdConst.PD_TP_CD_MATERIAL"
-                    :pd-grp-dv-cd="pdConst.PD_PRP_GRP_DV_CD_MANUAL"
-                    :prefix-title="$t('MSG_TXT_MGT_ATTR')"
-                    :is-first-title="true"
-                    :except-id="exceptPrpGrpCd"
                     :pd-tp-dtl-cd="pdTpDtlCd"
                   />
                 </kw-tab-panel>
@@ -207,12 +176,11 @@ const asPartMainPage = '/product/wwpdc-as-part-list';
 const pdTpDtlCd = ref(pdConst.PD_TP_DTL_CD_AS_PART);
 const wellsStep = [
   pdConst.W_AS_PART_STEP_BASIC,
-  pdConst.W_AS_PART_STEP_MANAGE,
   pdConst.W_AS_PART_STEP_CHECK,
 ];
 const regSteps = ref(wellsStep);
 const currentStep = ref(wellsStep[0]);
-const cmpStepRefs = ref([ref(), ref()]);
+const cmpStepRefs = ref([ref()]);
 
 const bas = pdConst.TBL_PD_BAS;
 const ecom = pdConst.TBL_PD_ECOM_PRP_DTL;
@@ -230,7 +198,7 @@ const page = ref({
   detail: '/product/zwpdc-as-part-list/wwpdc-as-part-dtl', // AS부품 상세보기 UI
 });
 
-const exceptPrpGrpCd = ref('');
+// const exceptPrpGrpCd = ref('');
 
 watch(() => props.pdCd, (val) => { currentPdCd.value = val; });
 watch(() => props.tempSaveYn, (val) => { isTempSaveBtn.value = val !== 'Y'; });
@@ -248,14 +216,6 @@ async function onClickRemove() {
       await dataService.delete(`${baseUrl}/${currentPdCd.value}`);
       // 변경사항 체크로직 우회 및 현재 page 닫고 target 페이지로 이동.
       obsMainRef.value.init();
-
-      // CASE -1 F5 keyPress 현상 발생 및 타겟화면 호출불가.
-      // await router.go(
-      //   { path: asPartMainPage,
-      //     query: { isSearch: true, closeTargetUi: page.value.reg },
-      //   },
-      // );
-      // CASE -2 창 닫고 이동은 하지만...파라미터 전달 불가.
       await router.close(
         {
           to: asPartMainPage,
@@ -264,12 +224,6 @@ async function onClickRemove() {
           refresh: false,
         },
       );
-      // CASE -3 파라미터 전달하여 이동은 하지만, 현재 창 닫지못함. 또한 타겟 페이지의 grid 객체 null 에러남. (unMounted 타는 듯.)
-      // await router.push(
-      //   { path: asPartMainPage,
-      //     query: { isSearch: true, closeTargetUi: page.value.reg },
-      //   },
-      // );
     }
   }
 }
@@ -349,8 +303,13 @@ async function onClickSave(tempSaveYn) {
     isCreate.value = isEmpty(currentPdCd.value);
     await fetchData();
   } else {
-    // TODO 경로 관련 여타와 동일하게 push,close-go, go 방식들 내재한 문제 처리 필요.
-    router.push({ path: asPartMainPage, query: {} });
+    // TODO 공통에서 'state: { stateParam: {}} 으로 감싸서 던지고 props에서 받으라는데... 받기 안됨..; TODO_DEL'
+    await router.close(0, true); // observer 강제 무력화 및 현재 탭 강제 닫기.
+    await router.push(
+      { path: asPartMainPage,
+        state: { stateParam: { test: 'teststring' } },
+        query: { isSearch: true, closeTargetUi: page.value.reg } },
+    );
   }
 }
 
@@ -359,6 +318,10 @@ async function onClickNextStep() {
   const isValidOk = await (cmpStepRefs.value[currentStep.value.step - 1].value.validateProps());
   if (!isValidOk) return false;
 
+  prevStepData.value = await getSaveData();
+  currentStep.value = regSteps.value[(currentStep.value.step - 1) + 1];
+
+  // ---------------------------------------------------------------------------
   // Validation Check 2- 현재 Step 변경사항 유무 확인 (변경사항이 있으면 '임시저장' 버튼 기능 수행 후 다음으로!)
   // const isModify = await (cmpStepRefs.value[currentStep.value.step - 1].value.isModifiedProps(false));
   // console.log('변경사항 유무 체크', isModify);
@@ -369,8 +332,8 @@ async function onClickNextStep() {
   //   prevStepData.value = await getSaveData();
   // }
 
-  prevStepData.value = await getSaveData();
-  currentStep.value = regSteps.value[(currentStep.value.step - 1) + 1];
+  // prevStepData.value = await getSaveData();
+  // currentStep.value = regSteps.value[(currentStep.value.step - 1) + 1];
 }
 
 async function onClickPrevStep() {
@@ -378,7 +341,12 @@ async function onClickPrevStep() {
 }
 
 async function onClickCancel() {
-  await router.close({ to: asPartMainPage });
+  await router.close(0, true); // observer 강제 무력화 및 현재 탭 강제 닫기.
+  // await router.push(
+  //   { path: page.value.detail,
+  //     state: { stateParam: { test: 'teststring' } },
+  //     query: { isSearch: false, closeTargetUi: page.value.reg } },
+  // );
 }
 
 async function setInitCondition() {
