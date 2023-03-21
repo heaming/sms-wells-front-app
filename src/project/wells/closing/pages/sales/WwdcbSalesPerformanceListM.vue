@@ -715,7 +715,7 @@ async function onClickPrmEt() {
 const initGridMain1 = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '100', styleName: 'text-center' },
-    { fieldName: 'slDt', header: t('MSG_TXT_SL_YM'), width: '100', styleName: 'text-center' },
+    { fieldName: 'slDt', header: t('MSG_TXT_SL_YM'), styleName: 'rg-button-link text-center', renderer: { type: 'button' } },
     { fieldName: 'cntrDtlStatCd', header: t('MSG_TXT_SL_STP'), width: '100', styleName: 'text-center' },
     { fieldName: 'col4', header: t('MSG_TXT_NMN'), width: '100', styleName: 'text-center' },
     { fieldName: 'col5', header: t('MSG_TXT_MNGT_DV'), width: '100', styleName: 'text-center' },
@@ -741,11 +741,11 @@ const initGridMain1 = defineGrid((data, view) => {
   view.onCellItemClicked = async (grid, { column }) => {
     const current = view.getCurrent();
     const dataProvider = view.getDataSource();
-    const cntrDtlNo = dataProvider.getValue(current.dataRow, 'col9');
-    if (column === 'col9') {
+    const slDt = dataProvider.getValue(current.dataRow, 'slDt');
+    if (column === 'slDt') {
       await modal({
-        component: 'EwdccSalesDtlP',
-        componentProps: { cntrDtlNo },
+        component: 'WwdcbLeaseSalesDetailP',
+        componentProps: { slDt },
       });
     }
   };
@@ -788,7 +788,7 @@ const initGridMain1 = defineGrid((data, view) => {
 const initGridMain2 = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '100', styleName: 'text-center' },
-    { fieldName: 'slDt', header: t('MSG_TXT_SL_YM'), width: '100', styleName: 'text-center' },
+    { fieldName: 'slDt', header: t('MSG_TXT_SL_YM'), width: '100', styleName: 'rg-button-link text-center', renderer: { type: 'button' } },
     { fieldName: 'col3', header: t('MSG_TXT_J_NMN'), width: '100', styleName: 'text-center' },
     { fieldName: 'col4', header: t('MSG_TXT_MNGT_DV'), width: '100', styleName: 'text-center' },
     { fieldName: 'thmSlSumAmt', header: t('MSG_TXT_MSH_SL'), width: '100', styleName: 'text-center' },
@@ -809,11 +809,11 @@ const initGridMain2 = defineGrid((data, view) => {
   view.onCellItemClicked = async (grid, { column }) => {
     const current = view.getCurrent();
     const dataProvider = view.getDataSource();
-    const cntrDtlNo = dataProvider.getValue(current.dataRow, 'thmAtamDpAmt');
-    if (column === 'thmAtamDpAmt') {
+    const slDt = dataProvider.getValue(current.dataRow, 'slDt');
+    if (column === 'slDt') {
       await modal({
-        component: 'EwdccSalesDtlP',
-        componentProps: { cntrDtlNo },
+        component: 'WwdcbMembershipSalesDetailP',
+        componentProps: { slDt },
       });
     }
   };
@@ -852,7 +852,7 @@ const initGridMain3 = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '100', styleName: 'text-center' },
     { fieldName: 'col2', header: t('MSG_TXT_PRGS_NMN'), width: '100', styleName: 'text-center' },
-    { fieldName: 'slDt', header: t('MSG_TXT_SL_YM'), width: '100', styleName: 'text-center' },
+    { fieldName: 'slDt', header: t('MSG_TXT_SL_YM'), width: '100', styleName: 'rg-button-link text-center', renderer: { type: 'button' } },
     { fieldName: 'col4', header: t('MSG_TXT_SL_STP'), width: '100', styleName: 'text-center' },
     { fieldName: 'thmSlSumAmt', header: t('MSG_TXT_SL_AMT'), width: '100', styleName: 'text-center' },
     { fieldName: 'thmAtamDpAmt', header: t('MSG_TXT_DP_AMT'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
@@ -868,11 +868,11 @@ const initGridMain3 = defineGrid((data, view) => {
   view.onCellItemClicked = async (grid, { column }) => {
     const current = view.getCurrent();
     const dataProvider = view.getDataSource();
-    const cntrDtlNo = dataProvider.getValue(current.dataRow, 'thmAtamDpAmt');
-    if (column === 'thmAtamDpAmt') {
+    const slDt = dataProvider.getValue(current.dataRow, 'slDt');
+    if (column === 'slDt') {
       await modal({
-        component: 'EwdccSalesDtlP',
-        componentProps: { cntrDtlNo },
+        component: '',
+        componentProps: { slDt },
       });
     }
   };
