@@ -97,7 +97,9 @@
 
       <kw-grid
         ref="grdMainRef"
-        :visible-rows="pageInfo.pageSize"
+        name="grdMain"
+        :page-size="pageInfo.pageSize"
+        :total-count="pageInfo.totalCount"
         @init="initGrdMain"
       />
       <kw-pagination
@@ -118,7 +120,7 @@ import { codeUtil, useDataService, getComponentType, useMeta, defineGrid, useGlo
 import dayjs from 'dayjs';
 import { cloneDeep } from 'lodash-es';
 
-const { modal, alert, notify } = useGlobal();
+const { modal, notify } = useGlobal();
 const { getConfig } = useMeta();
 const { t } = useI18n();
 
@@ -138,7 +140,7 @@ const codes = ref(await codeUtil.getMultiCodes(
 ));
 
 codes.value.OSTR_TP_CD = codes.value.OSTR_TP_CD.filter(
-  (v) => v.codeId === '221' || v.codeId === '222' || v.codeId === '223' || v.codeId === '261' || v.codeId === '262',
+  ({ codeId }) => ['221', '222', '223', '261', '262'].contains(codeId),
 );
 let cachedParams;
 console.log(dayjs().format('YYYYMMDD'));
@@ -216,17 +218,13 @@ const initGrdMain = defineGrid((data, view) => {
 
   view.onCellClick = async (e, v) => {
     if (v.column === 'strNoteButn') {
-      try {
-        const { result: isChanged } = await modal({
-          component: 'WwsnaTransferStoreRegP',
-        });
+      const { result: isChanged } = await modal({
+        component: 'WwsnaTransferStoreRegP',
+      });
 
-        if (isChanged) {
-          notify(t('MSG_ALT_SAVE_DATA'));
-          await fetchData();
-        }
-      } catch (err) {
-        alert(t('MSG_ALT_ERR_CONTACT_ADMIN'));
+      if (isChanged) {
+        notify(t('MSG_ALT_SAVE_DATA'));
+        await fetchData();
       }
     }
   };
