@@ -6,10 +6,11 @@
  2. 프로그램 ID : WwsnaIndividualWarehouseOstrMgtM(W-SV-U-0143M01) - 개인창고출고관리
  3. 작성자 : songTaeSung
  4. 작성일 : 2023.02.18
+ 5. 수정일 : 2023.03.20 - inho.choi
  ****************************************************************************************************
  * 프로그램 설명
  ****************************************************************************************************
- - 기타출고등록 관리 (http://localhost:3000/#/service/wwsna-individual-warehouse-ostr-mgt)
+ - 관리자가 물류센터로 독립창고에 물량을 일괄요청하는 화면
  ****************************************************************************************************
 --->
 
@@ -208,6 +209,8 @@ const dataService = useDataService();
 const grdMainRef = ref(getComponentType('KwGrid'));
 const { t } = useI18n();
 
+const baseURI = '/sms/wells/service/individual-ware-ostrs';
+
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -262,7 +265,7 @@ const onChangeItmKndCd = async () => {
   // const paramItmKndCd = searchParams.value.itmKndCd;
   // const itmKndCd = cloneDeep(searchParams.value.itmKndCd);
   // const res = await dataService.get(`/sms/wells/service/individual-ware-ostrs/${itmKndCd}`);
-  const res = await dataService.get('/sms/wells/service/individual-ware-ostrs/filter-items', { params: searchParams.value });
+  const res = await dataService.get(`${baseURI}/filter-items`, { params: searchParams.value });
   itemKndCdD.value = res.data;
   searchParams.value.itmKndCdD = itemKndCdD.value[0].codeId;
 };
@@ -286,14 +289,14 @@ const logisticParams = ref({
 const logistics = ref();
 
 async function fetchDefaultData() {
-  const res = await dataService.get('/sms/wells/service/individual-ware-ostrs/logistic', { params: logisticParams.value });
+  const res = await dataService.get(`${baseURI}/logistic`, { params: logisticParams.value });
   logistics.value = res.data;
   console.log(logistics.value);
   searchParams.value.ostrOjWareNo = logistics.value[0].codeId;
 }
 
 async function fetchData() {
-  const res = await dataService.get('/sms/wells/service/individual-ware-ostrs/', { params: cachedParams });
+  const res = await dataService.get(baseURI, { params: cachedParams });
   console.log(res);
   const baseData = res.data;
   totalCount.value = baseData.length;
@@ -319,47 +322,6 @@ onMounted(async () => {
 // -------------------------------------------------------------------------------------------------
 
 const initGrdMain = defineGrid((data, view) => {
-  const fields = [
-    { fieldName: 'wareNm' },
-    { fieldName: 'itmPdCd' },
-    { fieldName: 'pdAbbrNm' },
-    { fieldName: 'mgtGdCd' },
-    { fieldName: 'matGdCd' },
-    { fieldName: 'pdPrpVal05' },
-    { fieldName: 'mgtUntNm' },
-    { fieldName: 'boxUnitQty' },
-    { fieldName: 'mcbyAcuOstrQty' },
-    { fieldName: 'oustQtyBak' },
-    { fieldName: 'ostrWareNo' },
-    { fieldName: 'strWareNo' },
-    { fieldName: 'wareDvCd' },
-    { fieldName: 'wareMngtPrtnrNo' },
-    { fieldName: 'asnIzOutBoxQty' },
-    { fieldName: 'crtlStocQty' },
-    { fieldName: 'itmQomAsnNo' },
-    { fieldName: 'pdPrpVal19' },
-    { fieldName: 'itemPart' },
-    { fieldName: 'stocIzOnQty' },
-    { fieldName: 'stocIzUpOnQty' },
-    { fieldName: 'filtUseQty' },
-    { fieldName: 'sapMatCd' },
-    { fieldName: 'under20per' },
-    { fieldName: 'toutQty' },
-    { fieldName: 'nedQty' },
-    { fieldName: 'rmks' },
-    { fieldName: 'ostrIzOstrTpCd' },
-    { fieldName: 'ostrIzOstrWareNo' },
-    { fieldName: 'ostrIzOstrDt' },
-    { fieldName: 'ostrIzItmOstrNo' },
-    { fieldName: 'ostrIzOstrSn' },
-    { fieldName: 'ostrIzSellRcpdt' },
-    { fieldName: 'cfrmQty' },
-    { fieldName: 'accBoxQty' },
-    { fieldName: 'outQty' },
-    { fieldName: 'boxUnitQty1' },
-
-  ];
-
   const columns = [
     { fieldName: 'wareNm', header: t('MSG_TXT_STR_WARE'), width: '160', styleName: 'text-left' },
     { fieldName: 'sapMatCd', header: t('MSG_TXT_SAP_CD'), width: '150', styleName: 'text-center' },
@@ -382,8 +344,9 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'asnIzOutBoxQty', header: t('MSG_TXT_FILT_BOX_QTY'), width: '130', styleName: 'text-right' },
     { fieldName: 'outQty', header: t('MSG_TXT_OSTR_QTY'), width: '110', styleName: 'text-right' },
     { fieldName: 'rmks', header: t('MSG_TXT_NOTE'), width: '240', styleName: 'text-left' },
-
   ];
+
+  const fields = columns.map((v) => ({ fieldName: v.fieldName }));
 
   data.setFields(fields);
   view.setColumns(columns);
