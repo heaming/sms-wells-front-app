@@ -198,8 +198,8 @@ async function fetchData() {
     res = await dataService.get('/sms/wells/closing/performance/sales-bond/members', { params: cachedParams });
   }
 
-  const dataList = res.data;
-  totalCount.value = dataList.length;
+  const salesBond = res.data;
+  totalCount.value = salesBond.length;
 
   let mainView;
   if (sellTpCd === '1') {
@@ -214,7 +214,7 @@ async function fetchData() {
     mainView = grdNineRef.value.getView();
   }
 
-  mainView.getDataSource().setRows(dataList);
+  mainView.getDataSource().setRows(salesBond);
   mainView.resetCurrent();
 }
 
@@ -264,7 +264,7 @@ async function onClickSearch() {
   fetchData();
 }
 
-async function onChangeRadioTaskDiv() {
+async function onChangeAgrgDiv() {
   const { agrgDv } = searchParams.value;
   const { sellTpCd } = searchParams.value;
 
@@ -358,7 +358,7 @@ async function onChangeRadioTaskDiv() {
 
 async function onChangeAggregateDivide() {
   onChangeChechOption();
-  onChangeRadioTaskDiv();
+  onChangeAgrgDiv();
   const { sellTpCd } = searchParams.value;
   if (sellTpCd === '3' || sellTpCd === '5') {
     isSelectDisable.value = false;

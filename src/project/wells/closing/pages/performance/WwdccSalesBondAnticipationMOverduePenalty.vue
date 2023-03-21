@@ -194,8 +194,8 @@ async function fetchData() {
   } else if (agrgDv === '4') {
     res = await dataService.get('/sms/wells/closing/performance/overdue-penalty/members', { params: cachedParams });
   }
-  const dataList = res.data;
-  totalCount.value = dataList.length;
+  const overduePenalty = res.data;
+  totalCount.value = overduePenalty.length;
 
   let mainView;
   if (isGridMain.value === true) {
@@ -208,7 +208,7 @@ async function fetchData() {
     mainView = grdFourthRef.value.getView();
   }
 
-  mainView.getDataSource().setRows(dataList);
+  mainView.getDataSource().setRows(overduePenalty);
   mainView.resetCurrent();
 }
 
@@ -528,82 +528,64 @@ const initGrdSub = defineGrid((data, view) => {
       header: t('MSG_TXT_BTD_BZNS_ATAM'),
       width: '150',
       styleName: 'text-right',
-      numberFormat: '#,##0',
       headerSummary: {
         expression: 'sum',
-        numberFormat: '#,##0',
       } }, // 기초 영업선수금
     { fieldName: 'thmAtamDpAmt',
       header: t('MSG_TXT_DP'),
       width: '150',
       styleName: 'text-right',
-      numberFormat: '#,##0',
       headerSummary: {
         expression: 'sum',
-        numberFormat: '#,##0',
       } }, // 입금
     { fieldName: 'thmAtamRfndAmt',
       header: t('MSG_TXT_RFND'),
       width: '180',
       styleName: 'text-right',
-      numberFormat: '#,##0',
       headerSummary: {
         expression: 'sum',
-        numberFormat: '#,##0',
       } }, // 환불
     { fieldName: 'thmAtamSum',
       header: t('MSG_TXT_SUM'),
       width: '150',
       styleName: 'text-right',
-      numberFormat: '#,##0',
       headerSummary: {
         expression: 'sum',
-        numberFormat: '#,##0',
       } }, // 합계
     { fieldName: 'slBndAlrpyAmt',
       header: `(-) ${t('MSG_TXT_SL_CPRCNF')}`,
       width: '150',
       styleName: 'text-right',
-      numberFormat: '#,##0',
       headerSummary: {
         expression: 'sum',
-        numberFormat: '#,##0',
       } }, // (-) 매출대사
     { fieldName: 'col11',
       header: `(-) ${t('MSG_TXT_CCAM')}`,
       width: '150',
       styleName: 'text-right',
-      numberFormat: '#,##0',
       headerSummary: {
         expression: 'sum',
-        numberFormat: '#,##0',
       } }, // (-) 위약금
     { fieldName: 'slCtrAmt',
       header: `(+) ${t('MSG_TXT_CTR_AMT')}`,
       width: '150',
       styleName: 'text-right',
-      numberFormat: '#,##0',
       headerSummary: {
         expression: 'sum',
-        numberFormat: '#,##0',
       } }, // (+) 조정금액
     { fieldName: 'bznsAtamBlam',
       header: `(-) ${t('MSG_TXT_PTYPF')}`,
       width: '150',
       styleName: 'text-right',
-      numberFormat: '#,##0',
       headerSummary: {
         expression: 'sum',
-        numberFormat: '#,##0',
       } }, // (-) 잡이익
     { fieldName: 'eotAtam',
       header: t('MSG_TXT_EOT_BZNS_ATAM'),
       width: '150',
       styleName: 'text-right',
-      numberFormat: '#,##0',
       headerSummary: {
         expression: 'sum',
-        numberFormat: '#,##0',
       } }, // 기말 영업선수금
   ];
 

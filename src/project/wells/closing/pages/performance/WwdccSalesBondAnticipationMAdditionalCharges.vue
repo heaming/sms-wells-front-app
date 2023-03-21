@@ -135,12 +135,12 @@ async function onClickExcelDownload() {
 
 async function fetchData() {
   const res = await dataService.get('/sms/wells/closing/performance/delinquent-additional-charges', { params: cachedParams });
-  const dataList = res.data;
+  const delinquentAdditionalCharges = res.data;
 
-  totalCount.value = dataList.length;
+  totalCount.value = delinquentAdditionalCharges.length;
 
   const view = grdTenRef.value.getView();
-  view.getDataSource().setRows(dataList);
+  view.getDataSource().setRows(delinquentAdditionalCharges);
 }
 
 async function onClickSearch() {
@@ -202,56 +202,44 @@ const initGrdTen = defineGrid((data, view) => {
       header: t('MSG_TXT_FTRM_CRDOVR'),
       width: '130',
       styleName: 'text-right',
-      numberFormat: '#,##0',
       headerSummary: {
         expression: 'sum',
-        numberFormat: '#,##0',
       },
     }, // 전기이월
     { fieldName: 'thmOcDlqAddAmt',
       header: t('MSG_TXT_THM_OC'),
       width: '130',
       styleName: 'text-right',
-      numberFormat: '#,##0',
       headerSummary: {
         expression: 'sum',
-        numberFormat: '#,##0',
       } }, // 당월발생
     { fieldName: 'col9',
       header: t('MSG_TXT_THM_DDTN'),
       width: '130',
       styleName: 'text-right',
-      numberFormat: '#,##0',
       headerSummary: {
         expression: 'sum',
-        numberFormat: '#,##0',
       } }, // 당월공제
     { fieldName: 'col10',
       header: t('MSG_TXT_THM_DP'),
       width: '130',
       styleName: 'text-right',
-      numberFormat: '#,##0',
       headerSummary: {
         expression: 'sum',
-        numberFormat: '#,##0',
       } }, // 당월입금
     { fieldName: 'thmDlqRfndSumAmt',
       header: t('MSG_TXT_THM_RFND'),
       width: '130',
       styleName: 'text-right',
-      numberFormat: '#,##0',
       headerSummary: {
         expression: 'sum',
-        numberFormat: '#,##0',
       } }, // 당월환불
     { fieldName: 'eotDlqAddAmt',
       header: t('MSG_TXT_EOT_BLAM'),
       width: '130',
       styleName: 'text-right',
-      numberFormat: '#,##0',
       headerSummary: {
         expression: 'sum',
-        numberFormat: '#,##0',
       } }, // 기말잔액
   ];
 
