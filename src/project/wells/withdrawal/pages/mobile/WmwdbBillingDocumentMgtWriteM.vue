@@ -3,7 +3,7 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : mobile
-2. 프로그램 ID : WmwdbBillingDocumentWriteMobileRegM - 청구서 작성 모바일
+2. 프로그램 ID : WmwdbBillingDocumentMgtWriteM - 청구서 작성 모바일
 3. 작성자 : sojeong.Shin
 4. 작성일 : 2023.03.16
 ****************************************************************************************************
@@ -15,7 +15,7 @@
 <template>
   <kw-page>
     <kw-form
-      ref="pageRef"
+      ref="frmMainRef"
     >
       <div
         class="pa20"
@@ -109,21 +109,20 @@
 </template>
 
 <script setup>
-
+// -------------------------------------------------------------------------------------------------
+// Import & Declaration
+// -------------------------------------------------------------------------------------------------
 import dayjs from 'dayjs';
-// import ZwcmCounter from '~common/components/ZwcmCounter.vue';
-import { confirm, modal, notify, router, useDataService } from 'kw-lib';
-// import ZwcmCounter from '~common/components/ZwcmCounter.vue';
+import { modal, notify, router, useDataService } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 
 const now = dayjs();
 const dataService = useDataService();
 const { t } = useI18n();
 const { getters } = useStore();
-
-const userInfo = getters['meta/getUserInfo'];
-const { userId, userName } = userInfo;
-
+// -------------------------------------------------------------------------------------------------
+// Function & Event
+// -------------------------------------------------------------------------------------------------
 const props = defineProps({
   bildcPblNo: {
     type: String,
@@ -159,6 +158,9 @@ const props = defineProps({
   },
 });
 
+const userInfo = getters['meta/getUserInfo'];
+const { userId, userName } = userInfo;
+
 const regMainData = ref({
   bildcPblNo: '',
   bildcPblSn: '',
@@ -174,7 +176,7 @@ const regMainData = ref({
   rmkCn: '', // 비고
 });
 
-const pageRef = ref();
+const frmMainRef = ref();
 
 const isUseChk = ref(false);
 
@@ -189,10 +191,10 @@ async function onClickSearchUser() {
 
 // 이전 버튼 클릭
 async function onClickBefore() {
-  pageRef.value.reset();
+  frmMainRef.value.reset();
   await router.push(
     {
-      path: '/ns/wmwdb-billing-document-mobile-mgt',
+      path: '/ns/wmwdb-billing-document-mgt',
       query: {
         searchCstFnm: props.searchCstFnm, // 조회조건
         searchBildcWrteDt: props.searchBildcWrteDt, // 조회조건
@@ -220,9 +222,8 @@ let cachedParams;
 
 // 저장 버튼
 async function onClickSave() {
-  if (!await confirm(t('MSG_ALT_IS_SAV_DATA'))) { return; }
-  if (await pageRef.value.alertIfIsNotModified()) { return; }
-  if (!await pageRef.value.validate()) { return; }
+  if (await frmMainRef.value.alertIfIsNotModified()) { return; }
+  if (!await frmMainRef.value.validate()) { return; }
 
   const mainData = cloneDeep(regMainData.value);
   cachedParams = {

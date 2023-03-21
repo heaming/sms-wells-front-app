@@ -3,7 +3,7 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : mobile
-2. 프로그램 ID : WmwdbBillingDocumentMobileMgtM - 청구서 관리 모바일
+2. 프로그램 ID : WmwdbBillingDocumentMgtM - 청구서 관리 모바일
 3. 작성자 : sojeong.Shin
 4. 작성일 : 2023.03.16
 ****************************************************************************************************
@@ -14,7 +14,7 @@
 --->
 <template>
   <kw-page
-    ref="pageRef"
+    ref="frmMainRef"
     @load="onLoad"
   >
     <template #etc>
@@ -160,15 +160,20 @@
 </template>
 
 <script setup>
-
+// -------------------------------------------------------------------------------------------------
+// Import & Declaration
+// -------------------------------------------------------------------------------------------------
 import dayjs from 'dayjs';
-import { codeUtil, modal, router, useDataService, stringUtil, confirm, notify } from 'kw-lib';
+import { codeUtil, modal, router, useDataService, stringUtil, confirm } from 'kw-lib';
 import { cloneDeep, isUndefined, toInteger } from 'lodash-es';
 
 const dataService = useDataService();
 const now = dayjs();
-const pageRef = ref();
+const { t } = useI18n();
 
+// -------------------------------------------------------------------------------------------------
+// Function & Event
+// -------------------------------------------------------------------------------------------------
 const props = defineProps({
   searchCstFnm: {
     type: String,
@@ -184,7 +189,7 @@ const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
 );
 
-const { t } = useI18n();
+const frmMainRef = ref();
 
 const items = ref([]);
 
@@ -239,9 +244,9 @@ async function onLoad(pageIdx) {
 
   // 가져온 데이터가 가져와야할 pageSize보다 작으면 마지막 페이지이다.
   if (pages.length < pagingResult.pageSize) {
-    await pageRef.value.stopLoad();
+    await frmMainRef.value.stopLoad();
   } else {
-    await pageRef.value.startLoad();
+    await frmMainRef.value.startLoad();
   }
 }
 
@@ -269,7 +274,7 @@ async function onClickSearchUser() {
 async function onClickRegP() {
   await router.push(
     {
-      path: '/ns/wmwdb-billing-document-write-mobile-reg',
+      path: '/ns/wmwdb-billing-document-mgt-write',
       query: {
         searchCstFnm: searchParams.value.cstFnm, // 조회조건
         searchBildcWrteDt: searchParams.value.bildcWrteDt, // 조회조건
@@ -282,7 +287,7 @@ async function onClickRegP() {
 async function onClickMove(data) {
   router.replace(
     {
-      path: '/ns/wmwdb-billing-document-fw-mbl-reg',
+      path: '/ns/wmwdb-billing-document-mgt-send',
       query: {
         searchCstFnm: searchParams.value.cstFnm, // 조회조건
         searchBildcWrteDt: searchParams.value.bildcWrteDt, // 조회조건
@@ -316,8 +321,6 @@ async function onClickRemove() {
     await dataService.delete('/sms/wells/withdrawal/idvrve/billing-document-orders', { data: deletedRows });
     await onClickSearch();
   }
-
-  notify(t('MSG_ALT_DELETED'));
 }
 
 async function initProps() {

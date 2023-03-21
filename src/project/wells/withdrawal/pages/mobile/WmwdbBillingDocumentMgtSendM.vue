@@ -3,7 +3,7 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : mobile
-2. 프로그램 ID : WmwdbBillingDocumentFwMblRegM - 청구서 발송 모바일
+2. 프로그램 ID : WmwdbBillingDocumentMgtSendM - 청구서 발송 모바일
 3. 작성자 : sojeong.Shin
 4. 작성일 : 2023.03.16
 ****************************************************************************************************
@@ -42,6 +42,7 @@
 
         <zwcm-telephone-number
           v-if="sendMainData.bildcFwTpCd === 'K'"
+          ref="testRef"
           v-model:tel-no1="telNos.telNo1"
           v-model:tel-no2="telNos.telNo2"
           v-model:tel-no3="telNos.telNo3"
@@ -147,7 +148,10 @@
 </template>
 
 <script setup>
-import { alert, codeUtil, confirm, notify, router, useDataService } from 'kw-lib';
+// -------------------------------------------------------------------------------------------------
+// Import & Declaration
+// -------------------------------------------------------------------------------------------------
+import { codeUtil, confirm, router, useDataService } from 'kw-lib';
 import ZwcmTelephoneNumber from '~common/components/ZwcmTelephoneNumber.vue';
 import ZwcmEmailAddress from '~common/components/ZwcmEmailAddress.vue';
 import { cloneDeep } from 'lodash-es';
@@ -156,6 +160,9 @@ import dayjs from 'dayjs';
 const dataService = useDataService();
 const { t } = useI18n();
 
+// -------------------------------------------------------------------------------------------------
+// Function & Event
+// -------------------------------------------------------------------------------------------------
 const props = defineProps({
   searchCstFnm: {
     type: String,
@@ -224,7 +231,7 @@ const telNos2 = ref({
 async function onClickCancell() {
   await router.push(
     {
-      path: '/ns/wmwdb-billing-document-mobile-mgt',
+      path: '/ns/wmwdb-billing-document-mgt',
       query: {
         searchCstFnm: props.searchCstFnm, // 조회조건
         searchBildcWrteDt: props.searchBildcWrteDt, // 조회조건
@@ -247,13 +254,7 @@ async function fetchData() {
       data.bildcFwDtm = dayjs(data.bildcFwDtm).format('YYYY-MM-DD');
     }
 
-    if (data.bildcFwTpCd) {
-      if (data.bildcFwTpCd === 'K') {
-        data.bildcFwTpCd = t('MSG_TXT_KAKAO_NOTAK');
-      } else {
-        data.bildcFwTpCd = t('MSG_TXT_EMAIL');
-      }
-    }
+    data.bildcFwTpCd = data.bildcFwTpCd === 'K' ? t('MSG_TXT_KAKAO_NOTAK') : t('MSG_TXT_EMAIL');
   });
 
   items.value = list;
@@ -266,27 +267,26 @@ async function onClickSend() {
   sendMainData.value.destInfo = telNos.value.telNo1 + telNos.value.telNo2 + telNos.value.telNo3;
   sendMainData.value.callback = telNos2.value.telNo1 + telNos2.value.telNo2 + telNos2.value.telNo3;
 
-  if (sendMainData.value.bildcFwTpCd === 'K') {
-    if (!telNos.value.telNo1 || !telNos.value.telNo2 || !telNos.value.telNo3) {
-      await alert(t('MSG_ALT_NCELL_REQUIRED_ITEM', [t('MSG_TXT_DSPH_NO')]));
-      return;
-    }
+  // if (sendMainData.value.bildcFwTpCd === 'K') {
+  //   if (!telNos.value.telNo1 || !telNos.value.telNo2 || !telNos.value.telNo3) {
+  //     await alert(t('MSG_ALT_NCELL_REQUIRED_ITEM', [t('MSG_TXT_DSPH_NO')]));
+  //     return;
+  //   }
 
-    if (!telNos2.value.telNo1 || !telNos2.value.telNo2 || !telNos2.value.telNo3) {
-      await alert(t('MSG_ALT_NCELL_REQUIRED_ITEM', [t('MSG_TXT_RECP_NO')]));
-      return;
-    }
-  } else {
-    if (!sendMainData.value.toMail) {
-      await alert(t('MSG_ALT_NCELL_REQUIRED_ITEM', [t('MSG_TXT_DSPTR_EML')]));
-      return;
-    }
-    if (!sendMainData.value.fromMail) {
-      await alert(t('MSG_ALT_NCELL_REQUIRED_ITEM', [t('MSG_TXT_RCVR_EML')]));
-      return;
-    }
-    notify(t('MSG_ALT_SEND'));
-  }
+  //   if (!telNos2.value.telNo1 || !telNos2.value.telNo2 || !telNos2.value.telNo3) {
+  //     await alert(t('MSG_ALT_NCELL_REQUIRED_ITEM', [t('MSG_TXT_RECP_NO')]));
+  //     return;
+  //   }
+  // } else {
+  //   if (!sendMainData.value.toMail) {
+  //     await alert(t('MSG_ALT_NCELL_REQUIRED_ITEM', [t('MSG_TXT_DSPTR_EML')]));
+  //     return;
+  //   }
+  //   if (!sendMainData.value.fromMail) {
+  //     await alert(t('MSG_ALT_NCELL_REQUIRED_ITEM', [t('MSG_TXT_RCVR_EML')]));
+  //     return;
+  //   }
+  // }
 
   paramData = cloneDeep(sendMainData.value);
 
