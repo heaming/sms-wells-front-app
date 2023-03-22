@@ -137,7 +137,7 @@ const route = useRoute();
 const router = useRouter();
 const { t } = useI18n();
 const dataService = useDataService();
-const { notify, confirm, alert } = useGlobal();
+const { notify, confirm } = useGlobal();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -248,7 +248,7 @@ async function onClickSave(tempSaveYn) {
       }
     }));
     if (!modifiedOk) {
-      alert(t('MSG_ALT_NO_CHG_CNTN'));
+      notify(t('MSG_ALT_NO_CHG_CNTN'));
       return;
     }
   }

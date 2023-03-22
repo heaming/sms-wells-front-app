@@ -75,7 +75,7 @@
 // -------------------------------------------------------------------------------------------------
 import { gridUtil, codeUtil, getComponentType, useGlobal } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
-import { getGridRowCount } from '~/modules/sms-common/product/utils/pdUtil';
+import { getAlreadyItems, getGridRowCount } from '~/modules/sms-common/product/utils/pdUtil';
 import pdConst from '~sms-common/product/constants/pdConst';
 
 /* eslint-disable no-use-before-define */
@@ -89,7 +89,7 @@ const props = defineProps({
 });
 
 const { t } = useI18n();
-const { notify, alert, modal } = useGlobal();
+const { notify, modal } = useGlobal();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -147,7 +147,7 @@ async function onClickRemoveRows() {
 async function onClickBsConnect() {
   const view = grdMainRef.value.getView();
   if (!view.getCheckedRows().length) {
-    await alert(t('MSG_ALT_NOT_SEL_ITEM'));
+    await notify(t('MSG_ALT_NOT_SEL_ITEM'));
     return;
   }
   if (view.getCheckedRows().length !== 1) {
@@ -168,7 +168,7 @@ async function onClickBsConnect() {
 async function onClickBsInfos() {
   const view = grdMainRef.value.getView();
   if (!view.getCheckedRows().length) {
-    await alert(t('MSG_ALT_NOT_SEL_ITEM'));
+    await notify(t('MSG_ALT_NOT_SEL_ITEM'));
     return;
   }
   if (view.getCheckedRows().length !== 1) {
@@ -177,8 +177,12 @@ async function onClickBsInfos() {
   }
   const checkedRows = gridUtil.getCheckedRowValues(view);
   await modal({
-    component: 'WwpdcRoutineBsListP',
-    componentProps: { svPdCd: currentPdCd.value, pdctPdCd: checkedRows[0].pdCd },
+    component: 'WwpdcRoutineBsInputListP',
+    componentProps: { svPdCd: currentPdCd.value,
+      pdctPdCd: checkedRows[0].pdCd,
+      svPdNm: currentInitData.value[pdConst.TBL_PD_BAS].pdNm,
+      pdctPdNm: checkedRows[0].pdNm,
+    },
   });
 }
 
@@ -192,12 +196,48 @@ async function onClickMaterialSchPopup() {
     if (Array.isArray(rtn.payload) && rtn.payload.length > 1) {
       const data = view.getDataSource();
       const rows = rtn.payload.map((item) => ({
-        ...item, [pdConst.REL_OJ_PD_CD]: item.pdCd, [pdConst.PD_REL_TP_CD]: pdConst.PD_REL_TP_CD_PD_TO_FL }));
-      await data.insertRows(0, rows);
-      await gridUtil.focusCellInput(view, 0);
+        ...item,
+        [pdConst.REL_OJ_PD_CD]: item.pdCd,
+        [pdConst.PD_REL_TP_CD]: pdConst.PD_REL_TP_CD_PD_TO_FL }));
+      const okRows = await getCheckAndNotExistRows(view, rows);
+      if (okRows && okRows.length) {
+        await data.insertRows(0, okRows);
+        await gridUtil.focusCellInput(view, 0);
+      }
+    } else {
+      const row = Array.isArray(rtn.payload) ? rtn.payload[0] : rtn.payload;
+      row[pdConst.REL_OJ_PD_CD] = row.pdCd;
+      row[pdConst.PD_REL_TP_CD] = pdConst.PD_REL_TP_CD_PD_TO_FL;
+      const okRows = await getCheckAndNotExistRows(view, [row]);
+      if (okRows && okRows.length) {
+        await gridUtil.insertRowAndFocus(view, 0, okRows[0]);
+      }
     }
   }
   grdRowCount.value = getGridRowCount(view);
+}
+
+async function getCheckAndNotExistRows(view, rows) {
+  const alreadyItems = getAlreadyItems(view, rows, 'pdCd');
+  if (rows.length === alreadyItems.length) {
+    notify(t('MSG_ALT_ALREADY_RGST', [t('MSG_TXT_PRDT')]));
+    return [];
+  }
+  if (alreadyItems.length > 0) {
+    if (alreadyItems.length === 1) {
+      notify(t('MSG_ALT_ALREADY_RGST_CUT', [alreadyItems[0].pdCd]));
+    } else {
+      notify(t('MSG_ALT_ALREADY_RGST_CUT', [t('MSG_TXT_EXID_CNT', [alreadyItems[0].pdCd, alreadyItems.length - 1])]));
+    }
+    const alreadyPdCds = alreadyItems.reduce((rtns, item) => { rtns.push(item.pdCd); return rtns; }, []);
+    return rows.reduce((rtns, item) => {
+      if (!alreadyPdCds.includes(item.pdCd)) {
+        rtns.push(item);
+      }
+      return rtns;
+    }, []);
+  }
+  return rows;
 }
 
 async function initGridRows() {
