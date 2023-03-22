@@ -113,10 +113,11 @@ let cachedParams;
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 async function fetchData() {
-  debugger;
   const res = await dataService.get('/sms/wells/contract/contracts/district-manager-partners/paging', { params: { ...cachedParams, ...pageInfo.value } });
   const { list: partners, pageInfo: pagingResult } = res.data;
   pageInfo.value = pagingResult;
+
+  if (partners.length === 1) ok(partners[0]);
 
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(partners);
@@ -156,7 +157,7 @@ const initGrid = defineGrid((data, view) => {
   view.setColumns(columns);
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
-  view.onCellDblClicked = (grid, clickData) => {
+  view.onCellClicked = (grid, clickData) => {
     if (clickData.cellType === 'data') {
       ok(gridUtil.getCurrentRowValue(view));
     }
