@@ -145,7 +145,7 @@ async function onClickChange(no) {
     chRqrDvCd: no === 1 ? '20' : '10',
     aftnThpChYn: 'N',
     clctamMngtYn: 'N',
-    cntrChPrtnrNo: no === 1 ? userId : '',
+    cntrChPrtnrNo: userId,
     akChdt,
   };
   const url = no === 1 ? visitCocnMshCh : elsgLdstcCh;
@@ -155,6 +155,7 @@ async function onClickChange(no) {
   await router.push({ path, query });
 }
 
+// 알림톡 발송
 async function onClickAlarmSend() {
   const regex = /^\d{3}?\d{3,4}?\d{4}$/;
   const regexResult = regex.test(inputParams.value.phone);
@@ -172,7 +173,7 @@ async function onClickAlarmSend() {
     chRqrDvCd: '10',
     aftnThpChYn: 'N',
     clctamMngtYn: 'N',
-    cntrChPrtnrNo: '',
+    cntrChPrtnrNo: userId,
     akChdt,
   };
   const url = elsgLdstcCh;
