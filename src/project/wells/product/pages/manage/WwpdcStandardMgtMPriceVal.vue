@@ -29,6 +29,7 @@
           <kw-select
             ref="usedChannelRef"
             v-model="addChannelId"
+            first-option="select"
             :options="usedChannelCds"
             rules="required"
             :label="$t('MSG_TXT_SEL_CHNL')"
@@ -109,7 +110,7 @@ const props = defineProps({
 
 const { t } = useI18n();
 const dataService = useDataService();
-const { alert } = useGlobal();
+const { notify } = useGlobal();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -183,7 +184,7 @@ async function validateProps() {
     isChangedOnly: false,
   });
   if (rtn && !gridRowCount.value) {
-    await alert(t('MSG_ALT_ADD_SOME_ITEM', [t('MSG_TXT_PRICE_INFO')]));
+    await notify(t('MSG_ALT_ADD_SOME_ITEM', [t('MSG_TXT_PRICE_INFO')]));
     return false;
   }
   return rtn;
@@ -417,7 +418,7 @@ async function initGrid(data, view) {
         const basePrc = grid.getValue(itemIndex, 'ccamBasePrc');
         if (fixValue > basePrc) {
           /* {0}값이 {1}보다 큽니다. */
-          await alert(t('MSG_ALT_A_IS_GREAT_THEN_B', [
+          await notify(t('MSG_ALT_A_IS_GREAT_THEN_B', [
             `${grid.columnByName('cndtDscPrumVal').header.text}(${fixValue})`,
             `${grid.columnByName('ccamBasePrc').header.text}(${basePrc})`]));
           view.setValue(itemIndex, 'cndtDscPrumVal', 0);
@@ -425,7 +426,7 @@ async function initGrid(data, view) {
         }
       } else if (fixDvCd === '02') {
         if (fixValue > 100) {
-          await alert(t('MSG_ALT_A_IS_GREAT_THEN_B', [
+          await notify(t('MSG_ALT_A_IS_GREAT_THEN_B', [
             grid.columnByName('cndtDscPrumVal').header.text,
             '100%']));
           view.setValue(itemIndex, 'cndtDscPrumVal', 0);

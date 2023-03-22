@@ -55,7 +55,7 @@ const props = defineProps({
 });
 
 const { t } = useI18n();
-const { alert } = useGlobal();
+const { notify } = useGlobal();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -205,7 +205,7 @@ async function setFinalVal(view, grid, itemIndex) {
   // 조정 전 가격 ( 01: 정액, 02: 정률)23
   if (ctrVal > prcBefAdj) {
     /* {0}값이 {1}보다 큽니다. */
-    await alert(t('MSG_ALT_A_IS_GREAT_THEN_B', [
+    await notify(t('MSG_ALT_A_IS_GREAT_THEN_B', [
       `${grid.columnByName('ctrVal').header.text}(${ctrVal})`,
       `${grid.columnByName('prcBefAdj').header.text}(${prcBefAdj})`]));
     ctrVal = 0;

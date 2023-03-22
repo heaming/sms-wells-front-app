@@ -166,7 +166,7 @@ const route = useRoute();
 const router = useRouter();
 const { t } = useI18n();
 const dataService = useDataService();
-const { notify, confirm, alert } = useGlobal();
+const { notify, confirm } = useGlobal();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -368,7 +368,7 @@ async function onClickSave(tempSaveYn) {
       }
     }));
     if (!modifiedOk) {
-      alert(t('MSG_ALT_NO_CHG_CNTN'));
+      notify(t('MSG_ALT_NO_CHG_CNTN'));
       return;
     }
   }
@@ -397,7 +397,8 @@ async function onClickSave(tempSaveYn) {
   } else if (isEmpty(currentPdCd.value)) {
     subList[bas].tempSaveYn = tempSaveYn;
   }
-  // console.log('WwpdcStandardMgtM - onClickSave - subList : ', subList);
+
+  console.log('WwpdcStandardMgtM - onClickSave - subList : ', subList);
 
   // 4. 생성 or 저장
   let rtn;

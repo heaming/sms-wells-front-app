@@ -126,7 +126,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { gridUtil, useGlobal, getComponentType, codeUtil } from 'kw-lib';
-import { getGridRowCount, pdMergeBy } from '~/modules/sms-common/product/utils/pdUtil';
+import { getAlreadyItems, getGridRowCount, pdMergeBy } from '~/modules/sms-common/product/utils/pdUtil';
 import pdConst from '~sms-common/product/constants/pdConst';
 
 /* eslint-disable no-use-before-define */
@@ -140,7 +140,7 @@ const props = defineProps({
   codes: { type: Object, default: null },
 });
 
-const { alert, modal } = useGlobal();
+const { notify, modal } = useGlobal();
 const { t } = useI18n();
 
 // -------------------------------------------------------------------------------------------------
@@ -155,10 +155,6 @@ const grdStandardRowCount = ref(0);
 
 const currentPdCd = ref();
 const currentInitData = ref({});
-const standardRelTypes = ref([
-  pdConst.PD_REL_TP_CD_MORE_PURCH,
-  pdConst.PD_REL_TP_CD_CONTRACTED_PD,
-  pdConst.PD_REL_TP_CD_REQ_PD]);
 const standardRelTypeRef = ref();
 const stdRelCodes = await codeUtil.getMultiCodes('PDCT_REL_DV_CD');
 
@@ -224,7 +220,7 @@ async function isModifiedProps() {
 async function validateProps() {
   const serviceRows = gridUtil.getAllRowValues(grdServiceRef.value.getView());
   if (!serviceRows || !serviceRows.length) {
-    await alert(t('MSG_ALT_ADD_SOME_ITEM', [t('MSG_TXT_SERVICE')]));
+    await notify(t('MSG_ALT_ADD_SOME_ITEM', [t('MSG_TXT_SERVICE')]));
     return false;
   }
   return true;
@@ -236,29 +232,64 @@ async function insertCallbackRows(view, rtn, pdRelTpCd) {
       const data = view.getDataSource();
       const rows = rtn.payload.map((item) => ({
         ...item, [pdConst.REL_OJ_PD_CD]: item.pdCd, [pdConst.PD_REL_TP_CD]: pdRelTpCd }));
-      await data.insertRows(0, rows);
-      await gridUtil.focusCellInput(view, 0);
+      const okRows = await getCheckAndNotExistRows(view, rows);
+      if (okRows && okRows.length) {
+        await data.insertRows(0, okRows);
+        await gridUtil.focusCellInput(view, 0);
+      }
     } else if (rtn.payload.payload) {
       // TODO 삭제 필요
       const data = view.getDataSource();
       const rows = rtn.payload.payload.map((item) => ({
         ...item, [pdConst.REL_OJ_PD_CD]: item.pdCd, [pdConst.PD_REL_TP_CD]: pdRelTpCd }));
-      await data.insertRows(0, rows);
-      await gridUtil.focusCellInput(view, 0);
+      const okRows = await getCheckAndNotExistRows(view, rows);
+      if (okRows && okRows.length) {
+        await data.insertRows(0, okRows);
+        await gridUtil.focusCellInput(view, 0);
+      }
     } else if (rtn.payload.checkedRows) {
       // TODO 삭제 필요
       const data = view.getDataSource();
       const rows = rtn.payload.checkedRows.map((item) => ({
         ...item, [pdConst.REL_OJ_PD_CD]: item.pdCd, [pdConst.PD_REL_TP_CD]: pdRelTpCd }));
-      await data.insertRows(0, rows);
-      await gridUtil.focusCellInput(view, 0);
+      const okRows = await getCheckAndNotExistRows(view, rows);
+      if (okRows && okRows.length) {
+        await data.insertRows(0, okRows);
+        await gridUtil.focusCellInput(view, 0);
+      }
     } else {
       const row = Array.isArray(rtn.payload) ? rtn.payload[0] : rtn.payload;
       row[pdConst.PD_REL_TP_CD] = pdRelTpCd;
       row[pdConst.REL_OJ_PD_CD] = row.pdCd;
-      await gridUtil.insertRowAndFocus(view, 0, row);
+      const okRows = await getCheckAndNotExistRows(view, [row]);
+      if (okRows && okRows.length) {
+        await gridUtil.insertRowAndFocus(view, 0, okRows[0]);
+      }
     }
   }
+}
+
+async function getCheckAndNotExistRows(view, rows) {
+  const alreadyItems = getAlreadyItems(view, rows, 'pdCd');
+  if (rows.length === alreadyItems.length) {
+    notify(t('MSG_ALT_ALREADY_RGST', [t('MSG_TXT_PRDT')]));
+    return [];
+  }
+  if (alreadyItems.length > 0) {
+    if (alreadyItems.length === 1) {
+      notify(t('MSG_ALT_ALREADY_RGST_CUT', [alreadyItems[0].pdCd]));
+    } else {
+      notify(t('MSG_ALT_ALREADY_RGST_CUT', [t('MSG_TXT_EXID_CNT', [alreadyItems[0].pdCd, alreadyItems.length - 1])]));
+    }
+    const alreadyPdCds = alreadyItems.reduce((rtns, item) => { rtns.push(item.pdCd); return rtns; }, []);
+    return rows.reduce((rtns, item) => {
+      if (!alreadyPdCds.includes(item.pdCd)) {
+        rtns.push(item);
+      }
+      return rtns;
+    }, []);
+  }
+  return rows;
 }
 
 async function deleteCheckedRows(view) {
@@ -349,8 +380,11 @@ async function initGridRows() {
   const standardView = grdStandardRef.value?.getView();
   if (standardView) {
     standardView.getDataSource().clearRows();
+    const standardCodeValues = stdRelCodes.PDCT_REL_DV_CD
+      .reduce((rtns, code) => { rtns.push(code.codeId); return rtns; }, []);
+    console.log('standardCodeValues : ', standardCodeValues);
     standardView.getDataSource().setRows(products
-      ?.filter((item) => standardRelTypes.value.includes(item[pdConst.PD_REL_TP_CD])));
+      ?.filter((item) => standardCodeValues.includes(item[pdConst.PD_REL_TP_CD])));
     standardView.resetCurrent();
     grdStandardRowCount.value = getGridRowCount(standardView);
   }

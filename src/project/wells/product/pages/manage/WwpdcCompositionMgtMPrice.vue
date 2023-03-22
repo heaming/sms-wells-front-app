@@ -78,7 +78,7 @@ const props = defineProps({
 
 const { t } = useI18n();
 const dataService = useDataService();
-const { alert } = useGlobal();
+const { notify } = useGlobal();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -147,7 +147,7 @@ async function validateProps() {
     isChangedOnly: false,
   });
   if (rtn && !gridRowCount.value) {
-    await alert(t('MSG_ALT_ADD_SOME_ITEM', [t('MSG_TXT_PRICE_INFO')]));
+    notify(t('MSG_ALT_ADD_SOME_ITEM', [t('MSG_TXT_PRICE_INFO')]));
     return false;
   }
   return rtn;

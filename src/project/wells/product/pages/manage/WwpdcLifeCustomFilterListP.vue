@@ -3,7 +3,7 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : PDC (상품운영관리)
-2. 프로그램 ID : WwpdcRoutineBsConnListP - 서비스 등록/변경 - 생활맞춤형 제품관리
+2. 프로그램 ID : WwpdcLifeCustomFilterListP - 서비스 등록/변경 - 생활맞춤형 제품관리
                  (W-PD-U-0043P03)
 3. 작성자 : jintae.choi
 4. 작성일 : 2022.03.31
@@ -124,15 +124,10 @@ const filterName = ref();
 
 const codes = await codeUtil.getMultiCodes('MM_CD', 'VST_DV_CD');
 
-async function onClickRemoveRows() {
-  const view = grdMainRef.value.getView();
-  await gridUtil.confirmDeleteCheckedRows(view);
-  grdRowCount.value = getGridRowCount(view);
-}
-
 async function onClickAdd() {
+  const { svPdCd, pdctPdCd, partPdCd } = props;
   const view = grdMainRef.value.getView();
-  await gridUtil.insertRowAndFocus(view, 0, {});
+  await gridUtil.insertRowAndFocus(view, 0, { svPdCd, pdctPdCd, partPdCd });
   grdRowCount.value = getGridRowCount(view);
 }
 
@@ -159,8 +154,20 @@ async function fetchData() {
   grdRowCount.value = getGridRowCount(view);
 }
 
+async function onClickRemoveRows() {
+  const view = grdMainRef.value.getView();
+
+  if (!await gridUtil.confirmIfIsModified(view)) { return; }
+  const deletedRows = await gridUtil.confirmDeleteCheckedRows(view);
+  if (deletedRows.length) {
+    console.log('deletedRows : ', deletedRows);
+    await dataService.delete('/sms/wells/product/bs-works/life-filters', { data: deletedRows });
+    gridUtil.reset(view);
+    await fetchData();
+  }
+}
+
 async function onClickSave() {
-  const { svPdCd, pdctPdCd, partPdCd } = props;
   const view = grdMainRef.value.getView();
   if (await gridUtil.alertIfIsNotModified(view)) {
     return;
@@ -168,10 +175,13 @@ async function onClickSave() {
   if (!(await gridUtil.validate(view, { isChangedOnly: false }))) {
     return;
   }
+
+  const { svPdCd, pdctPdCd, partPdCd } = props;
   const subList = { svPdCd, pdctPdCd, partPdCd, bases: gridUtil.getAllRowValues(view) };
+  console.log('WwpdcLifeCustomFilterListP - onClickSave - subList : ', subList);
   await dataService.put('/sms/wells/product/bs-works/life-filters', subList);
   notify(t('MSG_ALT_SAVE_DATA'));
-  gridUtil.reset(grdMainRef.value.getView());
+  gridUtil.reset(view);
   await fetchData();
 }
 
@@ -243,6 +253,11 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'fnlMdfcUsrNm', header: t('MSG_TXT_FNL_MDFC_USR'), width: '80', styleName: 'text-center'/* , renderer: { type: 'button' }, preventCellItemFocus: true */, editable: false },
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
+  fields.push({ fieldName: 'svPdCd' });
+  fields.push({ fieldName: 'pdctPdCd' });
+  fields.push({ fieldName: 'dtlSn' });
+  fields.push({ fieldName: 'partPdCd' });
+
   data.setFields(fields);
   view.setColumns(columns);
   view.checkBar.visible = true;
@@ -269,8 +284,8 @@ const initGrid = defineGrid((data, view) => {
       });
       if (payload) {
         const row = Array.isArray(payload) ? payload[0] : payload;
-        data.setValue(itemIndex, 'chPdctPdCd', row.pdNm);
-        data.setValue(itemIndex, 'chPdctPdNm', row.pdCd);
+        data.setValue(itemIndex, 'chPdctPdCd', row.pdCd);
+        data.setValue(itemIndex, 'chPdctPdNm', row.pdNm);
       }
     }
   };
