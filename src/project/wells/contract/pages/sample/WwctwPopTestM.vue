@@ -127,7 +127,8 @@ const pops = [
     pname: 'WwctaBelongPartnerChoiceListP',
     title: '소속 파트너 선택 W-SS-U-0022P02',
     param: {
-      cntrNo: '',
+      dsmnPrtnrNo: '967179',
+      ogTpCd: 'W01',
     },
   },
   {
