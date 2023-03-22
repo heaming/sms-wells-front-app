@@ -48,7 +48,11 @@
             />
           </kw-step-panel>
           <kw-step-panel :name="pdConst.W_SERVICE_STEP_FILTER.name">
-            <wwpdc-service-mgt-m-flt />
+            <wwpdc-service-mgt-m-filter
+              :ref="cmpStepRefs[1]"
+              v-model:pd-cd="currentPdCd"
+              v-model:init-data="prevStepData"
+            />
           </kw-step-panel>
           <kw-step-panel :name="pdConst.W_SERVICE_STEP_CHECK.name">
             <h3 class="mb20">
@@ -56,7 +60,7 @@
               {{ $t('MSG_TXT_BAS_ATTR') }}
             </h3>
             <zwpdc-prop-groups-dtl
-              :ref="cmpStepRefs[1]"
+              :ref="cmpStepRefs[2]"
               v-model:pd-cd="currentPdCd"
               v-model:init-data="prevStepData"
               :pd-tp-cd="pdConst.PD_TP_CD_SERVICE"
@@ -121,7 +125,7 @@ import pdConst from '~sms-common/product/constants/pdConst';
 import { pdMergeBy } from '~sms-common/product/utils/pdUtil';
 import ZwpdcPropGroupsMgt from '~sms-common/product/pages/manage/components/ZwpdcPropGroupsMgt.vue';
 import ZwpdcPropGroupsDtl from '~sms-common/product/pages/manage/components/ZwpdcPropGroupsDtl.vue';
-import WwpdcServiceMgtMFlt from './WwpdcServiceMgtMFlt.vue';
+import WwpdcServiceMgtMFilter from './WwpdcServiceMgtMFilter.vue';
 
 const props = defineProps({
   pdCd: { type: String, default: null },
@@ -141,11 +145,12 @@ const { notify, confirm, alert } = useGlobal();
 const bas = pdConst.TBL_PD_BAS;
 const dtl = pdConst.TBL_PD_DTL;
 const ecom = pdConst.TBL_PD_ECOM_PRP_DTL;
+const rel = pdConst.TBL_PD_REL;
 
 const isTempSaveBtn = ref(true);
 const regSteps = ref([pdConst.W_SERVICE_STEP_BASIC, pdConst.W_SERVICE_STEP_FILTER, pdConst.W_SERVICE_STEP_CHECK]);
 const currentStep = cloneDeep(ref(pdConst.W_SERVICE_STEP_BASIC));
-const cmpStepRefs = ref([ref(), ref()]);
+const cmpStepRefs = ref([ref(), ref(), ref()]);
 const prevStepData = ref({});
 const currentPdCd = ref();
 const isCreate = ref(false);
@@ -175,6 +180,12 @@ async function getSaveData() {
       }
       if (saveData[ecom]) {
         subList[ecom] = pdMergeBy(subList[ecom], saveData[ecom], 'pdExtsPrpGrpCd');
+      }
+      if (saveData[rel]) {
+        subList[rel] = pdMergeBy(subList[rel], saveData[rel]);
+      }
+      if (saveData[pdConst.RELATION_PRODUCTS]) {
+        subList[pdConst.RELATION_PRODUCTS] = saveData[pdConst.RELATION_PRODUCTS];
       }
     }
   }));
@@ -214,9 +225,12 @@ async function fetchProduct() {
     const res = await dataService.get(`/sms/wells/product/services/${currentPdCd.value}`);
     initData[bas] = res.data[bas];
     initData[ecom] = res.data[ecom];
+    initData[rel] = res.data[rel];
+    initData[pdConst.RELATION_PRODUCTS] = res.data[pdConst.RELATION_PRODUCTS];
     isTempSaveBtn.value = initData[bas].tempSaveYn === 'Y';
-    // console.log('res.data : ', res.data);
-    prevStepData.value = initData;
+    isTempSaveBtn.value = cloneDeep(initData[bas].tempSaveYn === 'Y');
+    prevStepData.value = cloneDeep(initData);
+    console.log('res.data : ', res.data);
   }
 }
 
