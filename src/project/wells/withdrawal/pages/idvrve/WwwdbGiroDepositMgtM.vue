@@ -146,7 +146,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 
-import { codeUtil, getComponentType, gridUtil, modal, notify, useDataService, useMeta } from 'kw-lib';
+import { codeUtil, getComponentType, gridUtil, modal, notify, useDataService, useMeta, alert, confirm } from 'kw-lib';
 import dayjs from 'dayjs';
 
 // import { cloneDeep } from 'lodash-es';
@@ -211,7 +211,7 @@ async function fetchData() {
 
   const res2 = await dataService.get('/sms/wells/withdrawal/idvrve/giro-deposits/excel-download', { params: cachedParams });
 
-  console.log(res2.data);
+  // console.log(res2.data);
 
   result = 0;
   giroResult = 0;
@@ -363,7 +363,7 @@ async function onClickSave() {
   console.log(paramData.length);
 
   if (paramData.length < 1) {
-    notify(t('업로드 진행 한 지로 파일이 없습니다.'));
+    notify(t('MSG_ALT_ULD_PRGS_GIRO_FILE_NOT')); // 업로드 진행 한 지로 파일이 없습니다.
     return;
   }
 
@@ -371,10 +371,26 @@ async function onClickSave() {
     notify(t('MSG_ALT_NO_DATA'));
     return;
   }
+  const res = await dataService.post('/sms/wells/withdrawal/idvrve/giro-deposits/ledg-iz', paramData);
 
-  await dataService.post('/sms/wells/withdrawal/idvrve/giro-deposits', paramData);
-  await fetchData();
-  notify(t('MSG_ALT_SAVE_DATA'));
+  const resResult = res.data;
+
+  console.log(resResult);
+
+  if (resResult.itgDpProcsYCnt === 1) {
+    await alert(t('MSG_ALT_ITG_DP_RGST_CPRCNF_PROCS_ULD_NOT')); // '통합입금에 등록된 후 대사 처리된 Data는 업로드할 수 없습니다.'
+    return false;
+  } if (resResult.chkCnt > 0) {
+    if (await confirm(t('MSG_ALT_RVE_DT_ULD_DL_ULD', [dayjs(resResult.fntDt).format('YYYY-MM-DD')]))) { // "수납일자 '2023-02-27'에 업로드된 Data를 삭제 후 재업로드 하시겠습니까?"
+      await dataService.post('/sms/wells/withdrawal/idvrve/giro-deposits', paramData);
+      await fetchData();
+      notify(t('MSG_ALT_SAVE_DATA'));
+    }
+  } else {
+    await dataService.post('/sms/wells/withdrawal/idvrve/giro-deposits', paramData);
+    await fetchData();
+    notify(t('MSG_ALT_SAVE_DATA'));
+  }
 }
 
 async function onClickExcelUpload() {
