@@ -155,10 +155,6 @@ const grdStandardRowCount = ref(0);
 
 const currentPdCd = ref();
 const currentInitData = ref({});
-const standardRelTypes = ref([
-  pdConst.PD_REL_TP_CD_MORE_PURCH,
-  pdConst.PD_REL_TP_CD_CONTRACTED_PD,
-  pdConst.PD_REL_TP_CD_REQ_PD]);
 const standardRelTypeRef = ref();
 const stdRelCodes = await codeUtil.getMultiCodes('PDCT_REL_DV_CD');
 
@@ -384,8 +380,11 @@ async function initGridRows() {
   const standardView = grdStandardRef.value?.getView();
   if (standardView) {
     standardView.getDataSource().clearRows();
+    const standardCodeValues = stdRelCodes.PDCT_REL_DV_CD
+      .reduce((rtns, code) => { rtns.push(code.codeId); return rtns; }, []);
+    console.log('standardCodeValues : ', standardCodeValues);
     standardView.getDataSource().setRows(products
-      ?.filter((item) => standardRelTypes.value.includes(item[pdConst.PD_REL_TP_CD])));
+      ?.filter((item) => standardCodeValues.includes(item[pdConst.PD_REL_TP_CD])));
     standardView.resetCurrent();
     grdStandardRowCount.value = getGridRowCount(standardView);
   }

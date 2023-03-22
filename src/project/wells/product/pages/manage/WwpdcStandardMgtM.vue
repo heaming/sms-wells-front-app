@@ -397,7 +397,8 @@ async function onClickSave(tempSaveYn) {
   } else if (isEmpty(currentPdCd.value)) {
     subList[bas].tempSaveYn = tempSaveYn;
   }
-  // console.log('WwpdcStandardMgtM - onClickSave - subList : ', subList);
+
+  console.log('WwpdcStandardMgtM - onClickSave - subList : ', subList);
 
   // 4. 생성 or 저장
   let rtn;

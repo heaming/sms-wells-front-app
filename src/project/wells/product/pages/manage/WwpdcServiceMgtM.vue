@@ -296,7 +296,7 @@ async function onClickSave(tempSaveYn) {
     if (rtn.data?.data?.pdCd !== currentPdCd.value) {
       currentPdCd.value = rtn.data?.data?.pdCd;
       isCreate.value = isEmpty(currentPdCd.value);
-      router.push({ path: '/product/zwpdc-service-list/zwpdc-service-mgt', replace: true, query: { pdCd: currentPdCd.value } });
+      router.push({ path: '/product/zwpdc-service-list/wwpdc-service-mgt', replace: true, query: { pdCd: currentPdCd.value } });
     }
   }
 }
