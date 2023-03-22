@@ -67,7 +67,8 @@
     <kw-grid
       ref="grdMainRef"
       name="grdMain2"
-      :visible-rows="pageInfo.pageSize"
+      :page-size="pageInfo.pageSize"
+      :total-count="pageInfo.totalCount"
       @init="initGrid"
     />
     <kw-pagination
@@ -91,6 +92,7 @@ const dataService = useDataService();
 const { t } = useI18n();
 const now = dayjs();
 const { getConfig } = useMeta();
+const { currentRoute } = useRouter();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -135,7 +137,7 @@ async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
 
   await gridUtil.exportView(view, {
-    fileName: '자동이체변경 관리',
+    fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
     exportData: res.data,
   });

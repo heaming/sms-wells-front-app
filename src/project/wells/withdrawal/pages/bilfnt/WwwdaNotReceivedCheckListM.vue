@@ -91,7 +91,8 @@
           <kw-grid
             ref="grdMainRef"
             name="grdMain"
-            :visible-rows="pageInfo.pageSize"
+            :page-size="pageInfo.pageSize"
+            :total-count="pageInfo.totalCount"
             @init="initGrid"
           />
           <kw-pagination
@@ -129,6 +130,7 @@ const dataService = useDataService();
 const { t } = useI18n();
 const now = dayjs();
 const { getConfig } = useMeta();
+const { currentRoute } = useRouter();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -176,7 +178,7 @@ async function onClickExcelDownload() {
   const res = await dataService.get('/sms/wells/withdrawal/bilfnt/not-received-checks/excel-download', { params: cachedParams });
 
   await gridUtil.exportView(view, {
-    fileName: '청구완료 미수신건',
+    fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
     exportData: res.data,
   });
