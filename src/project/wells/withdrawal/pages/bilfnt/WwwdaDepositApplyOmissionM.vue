@@ -57,7 +57,8 @@
     <kw-grid
       ref="grdMainRef"
       name="grdMain1"
-      :visible-rows="pageInfo.pageSize"
+      :page-size="pageInfo.pageSize"
+      :total-count="pageInfo.totalCount"
       @init="initGrid"
     />
 
@@ -82,6 +83,7 @@ const dataService = useDataService();
 const { t } = useI18n();
 const now = dayjs();
 const { getConfig } = useMeta();
+const { currentRoute } = useRouter();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -125,7 +127,7 @@ async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
 
   await gridUtil.exportView(view, {
-    fileName: '매출실적 입금 전용 누락건',
+    fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
     exportData: res.data,
   });
@@ -144,7 +146,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'intamDpAmt' },
     { fieldName: 'intamRfndAmt' },
     { fieldName: 'rveAmt' },
-    { fieldName: 'mpyMthdTpCd' },
+    { fieldName: 'dpTpCd' },
   ];
 
   const columns = [
@@ -155,7 +157,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'intamDpAmt', header: t('MSG_TXT_PRPD_DP'), width: '150', styleName: 'text-right' },
     { fieldName: 'intamRfndAmt', header: t('MSG_TXT_PRPD_RFND'), width: '150', styleName: 'text-right' },
     { fieldName: 'rveAmt', header: t('MSG_TXT_AMT'), width: '150', styleName: 'text-right' },
-    { fieldName: 'mpyMthdTpCd', header: t('MSG_TXT_STLM_INF'), width: '117' },
+    { fieldName: 'dpTpCd', header: t('MSG_TXT_STLM_INF'), width: '117' },
   ];
 
   data.setFields(fields);

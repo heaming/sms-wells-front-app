@@ -18,6 +18,7 @@
     <kw-search
       one-row
       :cols="2"
+      :modified-targets="['grdMain']"
       @search="onClickSearch"
     >
       <kw-search-row>
@@ -99,7 +100,9 @@
 
       <kw-grid
         ref="grdMainRef"
-        :visible-rows="pageInfo.pageSize -1"
+        name="grdMain"
+        :page-size="pageInfo.pageSize"
+        :total-count="pageInfo.totalCount"
         @init="initGrid"
       />
     </div>
@@ -163,7 +166,7 @@ async function onClickSelectCntrnosn() {
   returnCntrNoSn = {
     result: true,
     payload: {
-      cntrNo: '20221699270',
+      cntrNo: '20216833001',
       cntrSn: '1',
     },
   };
@@ -222,7 +225,8 @@ async function onClickSearch() {
 
 async function onClickRemove() {
   const view = grdMainRef.value.getView();
-  const checkedRows = gridUtil.getCheckedRowValues(view);
+  // const checkedRows = gridUtil.getCheckedRowValues(view);
+  const checkedRows = await gridUtil.confirmDeleteCheckedRows(view);
   const data = checkedRows.filter((v) => v.rowState === 'none').map((v) => ({
     cntrNo: tenantCd + v.cntr.slice(0, 11),
     cntrSn: Number(v.cntr.slice(11)),
@@ -234,6 +238,10 @@ async function onClickRemove() {
   }
 
   if (checkedRows.every((v) => v.rowState !== 'none')) {
+    // 추가 확인 필요.
+    // if (!await confirm(t('MSG_ALT_WANT_DEL'))) { return; }
+    // await dataService.delete('/sms/wells/withdrawal/bilfnt/designation-wdrw-csts', { data });
+    // await onClickSearch();
     gridUtil.deleteCheckedRows(view);
     return;
   }
@@ -276,11 +284,11 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'cntr' }, // 계약번호
     { fieldName: 'cstKnm' }, // 고객명
     { fieldName: 'sellTpCd' }, // 업무유형
-    { fieldName: 'dsnWdrwAmt' }, // 지정금액
+    { fieldName: 'dsnWdrwAmt', dataType: 'number' }, // 지정금액
     { fieldName: 'dsnWdrwFntD' }, // 이체일자
     { fieldName: 'fntYn' }, // 이체구분
-    { fieldName: 'dpAmt' }, // 입금금액
-    { fieldName: 'ucAmt' }, // 잔액
+    { fieldName: 'dpAmt', dataType: 'number' }, // 입금금액
+    { fieldName: 'ucAmt', dataType: 'number' }, // 잔액
     { fieldName: 'dsnWdrwFntPrdCd' }, // 이체주기
     { fieldName: 'prtnrKnm' }, // 등록담당자
     { fieldName: 'fnlMdfcUsrId' }, // 등록자사번
@@ -340,6 +348,7 @@ const initGrid = defineGrid((data, view) => {
       },
       rules: 'required',
     },
+    // 잔액
     { fieldName: 'ucAmt',
       header: t('MSG_TXT_BLAM'),
       width: '120',
@@ -347,10 +356,13 @@ const initGrid = defineGrid((data, view) => {
       editable: false,
       // eslint-disable-next-line no-unused-vars
       displayCallback(grid, index, value) {
-        const dsnWdrwAmt = gridUtil.getCellValue(grid, index.itemIndex, 'dsnWdrwAmt');
-        const dpAmt = gridUtil.getCellValue(grid, index.itemIndex, 'dpAmt');
+        // const dsnWdrwAmt = gridUtil.getCellValue(grid, index.itemIndex, 'dsnWdrwAmt');
+        // const dpAmt = gridUtil.getCellValue(grid, index.itemIndex, 'dpAmt');
+        const dsnWdrwAmt = gridUtil.getCellValue(grid, index.dataRow, 'dsnWdrwAmt');
+        const dpAmt = gridUtil.getCellValue(grid, index.dataRow, 'dpAmt');
         return dsnWdrwAmt - dpAmt;
       },
+      label: t('MSG_TXT_BLAM'),
     },
     { fieldName: 'dsnWdrwFntPrdCd',
       header: t('MSG_TXT_FNT_PRD'),
@@ -359,7 +371,6 @@ const initGrid = defineGrid((data, view) => {
       editor: { type: 'list' },
       options: codes.DSN_WDRW_FNT_PRD_CD,
       rules: 'required',
-
     },
 
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_RGST_PSIC'), width: '100', styleName: 'text-center', editable: false },
@@ -385,8 +396,8 @@ const initGrid = defineGrid((data, view) => {
   view.onEditCommit = async (grid, index, oldValue, newValue) => {
     let canEdit = true;
     // const { dsnWdrwAmt, dpAmt } = gridUtil.getRowValue(grid, index.dataRow);
-    const dsnWdrwAmt = gridUtil.getCellValue(grid, index.itemIndex, 'dsnWdrwAmt');
-    const dpAmt = gridUtil.getCellValue(grid, index.itemIndex, 'dpAmt');
+    const dsnWdrwAmt = gridUtil.getCellValue(grid, index.dataRow, 'dsnWdrwAmt');
+    const dpAmt = gridUtil.getCellValue(grid, index.dataRow, 'dpAmt');
     if (index.column === 'dpAmt') {
       if (dsnWdrwAmt < newValue) {
         notify(t('MSG_ALT_DP_DSN_AMT_CMPR'));
