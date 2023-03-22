@@ -186,8 +186,17 @@
       </ul>
       <kw-grid
         ref="grdMainRef"
-        :visible-rows="10"
+        v-model:page-index="pageInfo.pageIndex"
+        v-model:page-size="pageInfo.pageSize"
+        name="grdMain"
+        :total-count="pageInfo.totalCount"
         @init="initGrdMain"
+      />
+      <kw-pagination
+        v-model:page-index="pageInfo.pageIndex"
+        v-model:page-size="pageInfo.pageSize"
+        :total-count="pageInfo.totalCount"
+        @change="fetchData"
       />
     </div>
   </kw-page>
@@ -199,7 +208,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 // import { codeUtil, defineGrid, useDataService, getComponentType, gridUtil, useGlobal } from 'kw-lib';
-import { defineGrid, codeUtil, useDataService, getComponentType } from 'kw-lib';
+import { defineGrid, codeUtil, useDataService, getComponentType, useMeta } from 'kw-lib';
 // import { onMounted } from 'vue';
 import dayjs from 'dayjs';
 import ZwcmWareHouseSearch from '~sms-common/service/components/ZwsnzWareHouseSearch.vue';
@@ -208,6 +217,7 @@ import { cloneDeep } from 'lodash-es';
 const dataService = useDataService();
 const grdMainRef = ref(getComponentType('KwGrid'));
 const { t } = useI18n();
+const { getConfig } = useMeta();
 
 const baseURI = '/sms/wells/service/individual-ware-ostrs';
 
@@ -260,6 +270,12 @@ const ostrWareDvCd = { WARE_DV_CD: [
 ] };
 
 const itemKndCdD = ref();
+
+const pageInfo = ref({
+  totalCount: 0,
+  pageIndex: 1,
+  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
+});
 
 const onChangeItmKndCd = async () => {
   // const paramItmKndCd = searchParams.value.itmKndCd;
