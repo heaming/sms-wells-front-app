@@ -48,7 +48,7 @@
             />
           </kw-step-panel>
           <kw-step-panel :name="pdConst.W_SERVICE_STEP_FILTER.name">
-            <wwpdc-service-mgt-m-flt
+            <wwpdc-service-mgt-m-filter
               :ref="cmpStepRefs[1]"
               v-model:pd-cd="currentPdCd"
               v-model:init-data="prevStepData"
@@ -125,7 +125,7 @@ import pdConst from '~sms-common/product/constants/pdConst';
 import { pdMergeBy } from '~sms-common/product/utils/pdUtil';
 import ZwpdcPropGroupsMgt from '~sms-common/product/pages/manage/components/ZwpdcPropGroupsMgt.vue';
 import ZwpdcPropGroupsDtl from '~sms-common/product/pages/manage/components/ZwpdcPropGroupsDtl.vue';
-import WwpdcServiceMgtMFlt from './WwpdcServiceMgtMFlt.vue';
+import WwpdcServiceMgtMFilter from './WwpdcServiceMgtMFilter.vue';
 
 const props = defineProps({
   pdCd: { type: String, default: null },

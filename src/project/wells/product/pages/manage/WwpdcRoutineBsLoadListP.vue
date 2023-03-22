@@ -65,6 +65,7 @@
       </kw-action-top>
       <kw-grid
         ref="grdMainRef"
+        name="grdMain"
         :visible-rows="pageInfo.pageSize"
         @init="initGrdMain"
       />

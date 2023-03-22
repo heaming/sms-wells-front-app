@@ -79,7 +79,7 @@
     </kw-action-top>
     <kw-grid
       ref="grdMainRef"
-      :visible-rows="pageSize"
+      name="grdMain"
       @init="initGrid"
     />
     <template #action>
@@ -95,7 +95,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, gridUtil, useGlobal, useMeta, useDataService, getComponentType, defineGrid } from 'kw-lib';
+import { codeUtil, gridUtil, useGlobal, useDataService, getComponentType, defineGrid } from 'kw-lib';
 import { isEmpty, cloneDeep } from 'lodash-es';
 import pdConst from '~sms-common/product/constants/pdConst';
 import { getGridRowCount } from '~/modules/sms-common/product/utils/pdUtil';
@@ -110,7 +110,6 @@ const props = defineProps({
 });
 
 const { notify, modal } = useGlobal();
-const { getConfig } = useMeta();
 const { t } = useI18n();
 const router = useRouter();
 const dataService = useDataService();
@@ -119,7 +118,6 @@ const dataService = useDataService();
 // -------------------------------------------------------------------------------------------------
 const grdMainRef = ref(getComponentType('KwGrid'));
 const grdRowCount = ref(0);
-const pageSize = Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE'));
 const serviceName = ref();
 const productName = ref();
 const filterName = ref();
@@ -156,11 +154,9 @@ async function fetchData() {
   }
   const res = await dataService.get('/sms/wells/product/bs-works/life-filters', { params: { svPdCd, pdctPdCd, partPdCd } });
   const view = grdMainRef.value.getView();
-  if (view) {
-    view.getDataSource().setRows(cloneDeep(res.data));
-    view.resetCurrent();
-    grdRowCount.value = getGridRowCount(view);
-  }
+  view.getDataSource().setRows(cloneDeep(res.data));
+  view.resetCurrent();
+  grdRowCount.value = getGridRowCount(view);
 }
 
 async function onClickSave() {

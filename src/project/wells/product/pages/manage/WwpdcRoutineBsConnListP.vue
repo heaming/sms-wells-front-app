@@ -95,7 +95,7 @@
 
     <kw-grid
       ref="grdMainRef"
-      :visible-rows="pageSize"
+      name="grdMain"
       @init="initGrid"
     />
 
@@ -113,7 +113,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, gridUtil, useGlobal, useMeta, useDataService, getComponentType, defineGrid } from 'kw-lib';
+import { codeUtil, gridUtil, useGlobal, useDataService, getComponentType, defineGrid } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 // import pdConst from '~sms-common/product/constants/pdConst';
 import { getGridRowCount } from '~/modules/sms-common/product/utils/pdUtil';
@@ -126,8 +126,7 @@ const props = defineProps({
   pdctPdNm: { type: String, default: '' },
 });
 
-const { modal, notify, alert } = useGlobal();
-const { getConfig } = useMeta();
+const { modal, notify } = useGlobal();
 const { t } = useI18n();
 const dataService = useDataService();
 const serviceName = ref();
@@ -137,7 +136,6 @@ const productName = ref();
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 const grdMainRef = ref(getComponentType('KwGrid'));
-const pageSize = Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE'));
 const grdRowCount = ref(0);
 const searchParams = ref({
   searchType: null,
@@ -173,7 +171,7 @@ async function onClickLoadRoutineBsFltPart() {
 async function onClickLifeFiltMgt() {
   const view = grdMainRef.value.getView();
   if (!view.getCheckedRows().length) {
-    await alert(t('MSG_ALT_NOT_SEL_ITEM'));
+    notify(t('MSG_ALT_NOT_SEL_ITEM'));
     return;
   }
   if (view.getCheckedRows().length !== 1) {
@@ -229,11 +227,9 @@ async function fetchData() {
   const res = await dataService.get('/sms/wells/product/bs-works/standards', { params: { svPdCd, pdctPdCd } });
   console.log(res.data);
   const view = grdMainRef.value?.getView();
-  if (view) {
-    view.getDataSource().setRows(res.data ?? []);
-    grdRowCount.value = getGridRowCount(view);
-    gridUtil.init(view);
-  }
+  view.getDataSource().setRows(res.data ?? []);
+  grdRowCount.value = getGridRowCount(view);
+  gridUtil.init(view);
 }
 
 async function onClickSave() {
@@ -245,9 +241,11 @@ async function onClickSave() {
   if (!(await gridUtil.validate(view, { isChangedOnly: false }))) {
     return;
   }
+
   const subList = { svPdCd, pdctPdCd, bases: gridUtil.getAllRowValues(view) };
   console.log('WwpdcRoutineBsConnListP - onClickSave - subList : ', subList);
   await dataService.put('/sms/wells/product/bs-works', subList);
+
   notify(t('MSG_ALT_SAVE_DATA'));
   gridUtil.reset(grdMainRef.value.getView());
   await fetchData();
