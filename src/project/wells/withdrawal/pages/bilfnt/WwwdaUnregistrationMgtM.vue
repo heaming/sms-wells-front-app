@@ -120,8 +120,7 @@
       <kw-grid
         ref="grdMainRef1"
         name="grdMain"
-        :page-size="pageInfo.pageSize"
-        :total-count="pageInfo.totalCount"
+        :visible-rows="pageInfo.pageSize - 1"
         @init="initGrid1"
       />
     </div>
@@ -159,8 +158,7 @@
       <kw-grid
         ref="grdMainRef2"
         name="grdMain2"
-        :page-size="pageInfo2.pageSize"
-        :total-count="pageInfo2.totalCount"
+        :visible-rows="pageInfo2.pageSize - 1"
         @init="initGrid2"
       />
     </div>
