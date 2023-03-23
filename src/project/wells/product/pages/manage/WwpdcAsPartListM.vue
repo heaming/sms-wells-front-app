@@ -24,14 +24,14 @@
             :readonly="true"
           />
         </kw-search-item>
-        <!-- AS부품명 -->
-        <kw-search-item :label="$t('MSG_TIT_AS_PART_NM')">
+        <!-- 교재/자재명 -->
+        <kw-search-item :label="$t('MSG_TIT_MATERIAL_NM')">
           <kw-input
             v-model.trim="searchParams.pdNm"
           />
         </kw-search-item>
-        <!-- AS부품코드 -->
-        <kw-search-item :label="$t('MSG_TIT_AS_PART_CD')">
+        <!-- 제품코드 -->
+        <kw-search-item :label="$t('MSG_TXT_PROD_CD')">
           <kw-input
             v-model.trim="searchParams.pdCd"
             clearable
@@ -56,10 +56,10 @@
             search-lvl="2"
           />
         </kw-search-item>
-        <!-- 자재코드 -->
-        <kw-search-item :label="$t('MSG_TXT_MATI_CD')">
+        <!-- AS자재번호 -->
+        <kw-search-item :label="$t('TXT_MSG_AS_MAT_CD')">
           <kw-input
-            v-model.trim="searchParams.sapMatCd"
+            v-model.trim="searchParams.asMatCd"
           />
         </kw-search-item>
       </kw-search-row>
@@ -212,7 +212,7 @@ const searchParams = ref({
   pdCd: '',
   prdtCateHigh: '',
   prdtCateMid: '',
-  sapMatCd: '',
+  asMatCd: '',
 });
 
 async function onClickProduct() {
@@ -326,10 +326,11 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'tempSaveYn', header: t('MSG_TXT_STT'), width: '90', styleName: 'text-center', options: codes.PD_TEMP_SAVE_YN }, /* 상태 */
     { fieldName: 'pdTpCd', header: t('MSG_TXT_DIV'), width: '90', styleName: 'text-center', options: codes.PD_TP_CD }, /* 구분 */
     { fieldName: 'pdClsfNm', header: t('MSG_TXT_CLSF'), width: '176' }, /* 분류 */
-    { fieldName: 'pdNm', header: t('MSG_TIT_AS_PART_NM'), width: '195' }, /* 교재/자재명 */
-    { fieldName: 'pdCd', header: t('MSG_TIT_AS_PART_CD'), width: '100' }, /* 제품코드 */
-    { fieldName: 'sapMatCd', header: t('MSG_TXT_MATI_CD'), width: '195' }, /* 자재코드 */
-    { fieldName: 'pdAbbrNm', header: t('MSG_TXT_ABBR'), width: '195' }, /* 약어 */
+    { fieldName: 'pdNm', header: t('MSG_TIT_MATERIAL_NM'), width: '195' }, /* 교재/자재명 */
+    { fieldName: 'pdCd', header: t('MSG_TXT_PROD_CD'), width: '100' }, /* 제품코드 */
+    { fieldName: 'asMatCd', header: t('TXT_MSG_AS_MAT_CD'), width: '195' }, /* AS자재번호 */
+    { fieldName: 'asItmCd', header: t('TXT_MSG_AS_ITM_CD'), width: '195' }, /* 품목코드 */
+    { fieldName: 'asMatEngNm', header: t('TXT_MSG_AS_MAT_ENG_NM'), width: '195' }, /* 품목명(영문) */
     // 사용자 관련 공통 컬럼
     { fieldName: 'fstRgstDtm', header: t('MSG_TXT_RGST_DTM'), width: '110', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date' }, /* 등록일 */
     { fieldName: 'fstRgstUsrNm', header: t('MSG_TXT_RGST_USR'), width: '80', styleName: 'text-center', editable: false },
