@@ -142,7 +142,9 @@ const pops = [
     pname: 'WwctaCapsuleSeedingMgtP',
     title: '캡슐/모종 선택 팝업 W-SS-U-0022P05',
     param: {
-      cntrNo: '',
+      prdtType: 'S',
+      prdtCnt: 12,
+      prdtList: [{ prdtId: 'A', prdtNm: '비타민다채' }, { prdtId: 'B', prdtNm: '청경채' }],
     },
   },
 ];
