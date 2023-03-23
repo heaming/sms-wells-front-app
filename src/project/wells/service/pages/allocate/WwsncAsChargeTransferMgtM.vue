@@ -105,6 +105,7 @@
           dense
           secondary
           :label="$t('MSG_BTN_EXCEL_DOWN')"
+          :disable="pageInfo.totalCount === 0"
           @click="onClickExcelDownload"
         />
         <kw-separator
@@ -425,8 +426,11 @@ async function onClickPsicTransfer() {
   }
 }
 
-function setAfchEmpno(grid, itemIndex, field) {
+function setAfchEmpno(grid, row, field) {
+  const itemIndex = grid.getItemIndex(row);
+
   const { afchFnm } = grid.getValues(itemIndex);
+
   const changedFieldName = grid.getDataSource().getOrgFieldName(field);
 
   if (changedFieldName === 'afchFnm') {
@@ -636,7 +640,7 @@ const initGrdMain = defineGrid((data, view) => {
       header: t('MSG_TXT_VST_CNFM_DT'),
       width: '150',
       styleName: 'text-center',
-      datetimeFormat: 'time',
+      displayCallback: (grid, index, v) => `${v.substring(0, 4)}-${v.substring(4, 6)}-${v.substring(6, 8)} ${v.substring(8, 10)}:${v.substring(10, 12)}`,
     },
     {
       fieldName: 'asnDtm',
@@ -776,13 +780,13 @@ const initGrdMain = defineGrid((data, view) => {
   view.rowIndicator.visible = true;
   view.editOptions.columnEditableFirst = true;
 
-  data.onValueChanged = (provider, itemIndex, field) => {
-    setAfchEmpno(view, itemIndex, field);
+  data.onValueChanged = (provider, row, field) => {
+    setAfchEmpno(view, row, field);
   };
 
   view.onCellEdited = async (grid, itemIndex, row, field) => {
     grid.checkItem(itemIndex, true);
-    setAfchEmpno(grid, itemIndex, field);
+    setAfchEmpno(grid, row, field);
   };
 });
 
