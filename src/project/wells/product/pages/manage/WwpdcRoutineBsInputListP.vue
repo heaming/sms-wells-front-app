@@ -73,6 +73,7 @@ const productName = ref();
 const grdMainRef = ref(getComponentType('KwGrid'));
 const grdRowCount = ref(0);
 const codes = await codeUtil.getMultiCodes('BFSVC_WK_DV_CD', 'MM_CD', 'SV_PRD_UNIT_CD', 'VST_DV_CD');
+codes.MM_CD.map((item) => { item.codeId = Number(item.codeId); return item; });
 
 async function fetchData() {
   const { svPdCd, pdctPdCd } = props;
@@ -121,7 +122,7 @@ const initGrdMain = defineGrid((data, view) => {
     // 작업연도
     { fieldName: 'strtWkYVal', header: t('MSG_TXT_JOB_YEAR'), width: '60', styleName: 'text-center', dataType: 'number' },
     // 작업월
-    { fieldName: 'wkMm', header: t('MSG_TXT_JOB_MON'), width: '60', styleName: 'text-center', options: codes.MM_CD },
+    { fieldName: 'wkMm', header: t('MSG_TXT_JOB_MON'), width: '60', styleName: 'text-center', dataType: 'number' },
     // 총약정개월
     { fieldName: 'totStplMcn', header: t('MSG_TXT_TOT_COMMIT_MM'), width: '80', styleName: 'text-right', dataType: 'number' },
   ];
