@@ -293,7 +293,7 @@ async function onClickSave() {
 const initGrdMain = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'fr2pLgldCd' },
-    { fieldName: 'newAdrZip' },
+    { fieldName: 'zipList' },
     { fieldName: 'mgtCnt' },
     { fieldName: 'wrkCnt' },
     { fieldName: 'ctpvNm' },
@@ -313,7 +313,7 @@ const initGrdMain = defineGrid((data, view) => {
 
   const columns = [
     {
-      fieldName: 'newAdrZip',
+      fieldName: 'zipList',
       header: t('MSG_TXT_ZIP'),
       width: '100',
       styleName: 'text-center',
@@ -375,7 +375,7 @@ const initGrdMain = defineGrid((data, view) => {
     {
       fieldName: 'apyStrtdt',
       header: t('MSG_TXT_APY_STRT_DAY'),
-      width: '120',
+      width: '150',
       styleName: 'text-center',
       editable: true,
       editor: { type: 'btdate' },
@@ -383,7 +383,7 @@ const initGrdMain = defineGrid((data, view) => {
     {
       fieldName: 'apyEnddt',
       header: t('MSG_TXT_APY_END_DAY'),
-      width: '120',
+      width: '150',
       styleName: 'text-center',
       editable: true,
       editor: { type: 'btdate' },
@@ -418,7 +418,7 @@ const initGrdMain = defineGrid((data, view) => {
   ];
 
   const columnLayout = [
-    'newAdrZip',
+    'zipList',
     'mgtCnt',
     'wrkCnt',
     {

@@ -92,10 +92,15 @@
           :colspan="2"
         >
           <kw-select
+            v-model="searchParams.pdGrpCd"
             first-option="all"
+            :options="codes.PD_GRP_CD"
+            @update:model-value="onUpdatePdGrpCd"
           />
           <kw-select
+            v-model="searchParams.pdCd"
             first-option="all"
+            :options="products"
           />
         </kw-search-item>
       </kw-search-row>
@@ -226,9 +231,12 @@ const {
 const svcCode = await getServiceCenterOrgs();
 
 const engineers = ref();
+const products = ref();
 // 기획서 기준
 const eng = (await getAllEngineers('G_ONLY_ENG')).G_ONLY_ENG;
 const wrkEng = (await getWorkingEngineers('G_ONLY_ENG')).G_ONLY_ENG;
+const prd = (await dataService.get('/sms/wells/service/installation-locations/products')).data;
+products.value = prd;
 engineers.value = eng.map((v) => ({ codeId: v.codeId, codeName: v.codeNm1 }));
 
 const dvCd = [{ codeId: '1', codeName: t('MSG_TXT_EGER') }];
@@ -256,6 +264,8 @@ const searchParams = ref({
   cstNo: '',
   egerId: '',
   rgsnYn: 'N',
+  pdGrpCd: '',
+  pdCd: '',
 });
 
 const pageInfo = ref({
@@ -310,7 +320,6 @@ async function onClickSave() {
 }
 
 function setEngineers() {
-  console.log(wrkEng);
   if (searchParams.value.ogId === '') {
     if (searchParams.value.rgsnYn === 'Y') {
       engineers.value = wrkEng.map((v) => ({ codeId: v.codeId, codeName: v.codeNm1 }));
@@ -328,6 +337,14 @@ function setEngineers() {
   }
 }
 
+function setProducts() {
+  if (searchParams.value.pdGrpCd === '') {
+    products.value = prd;
+  } else {
+    products.value = prd.filter((v) => v.pdGrpCd === searchParams.value.pdGrpCd);
+  }
+}
+
 async function onUpdateSvcCode() {
   searchParams.value.egerId = '';
   setEngineers();
@@ -336,6 +353,12 @@ async function onUpdateSvcCode() {
 async function onUpdateRgsnYn() {
   searchParams.value.egerId = '';
   setEngineers();
+}
+
+async function onUpdatePdGrpCd() {
+  console.log(prd);
+  searchParams.value.pdCd = '';
+  setProducts();
 }
 
 // -------------------------------------------------------------------------------------------------
