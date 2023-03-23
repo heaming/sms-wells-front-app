@@ -39,7 +39,7 @@
     </template>
     <kw-btn
       dense
-      :disable="grdRowCount === 0"
+      :disable="!currentPdCd || grdRowCount === 0"
       :label="$t('MSG_BTN_DEL')"
       @click="onClickRemoveRows"
     />
@@ -51,7 +51,7 @@
     <!-- 정기B/S투입 필터/부품 연결 -->
     <kw-btn
       dense
-      :disable="grdRowCount === 0"
+      :disable="!currentPdCd || grdRowCount === 0"
       :label="$t('MSG_TXT_PD_SCH_BS_REL_PART')"
       @click="onClickBsConnect"
     />

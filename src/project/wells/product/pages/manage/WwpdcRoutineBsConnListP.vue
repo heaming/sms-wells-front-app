@@ -114,9 +114,9 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { codeUtil, gridUtil, useGlobal, useDataService, getComponentType, defineGrid } from 'kw-lib';
-import { cloneDeep, isEmpty } from 'lodash-es';
+import { cloneDeep, isEmpty, split } from 'lodash-es';
 // import pdConst from '~sms-common/product/constants/pdConst';
-import { getGridRowCount } from '~/modules/sms-common/product/utils/pdUtil';
+import { getAlreadyItems, getGridRowCount } from '~/modules/sms-common/product/utils/pdUtil';
 import pdConst from '~sms-common/product/constants/pdConst';
 
 const props = defineProps({
@@ -147,7 +147,8 @@ const materialSelectItems = ref([
   // 교재/자재코드
   { codeId: pdConst.PD_SEARCH_CODE, codeName: t('MSG_TXT_PROD_CD') },
 ]);
-const codes = await codeUtil.getMultiCodes('BFSVC_WK_DV_CD', 'MM_CD', 'SV_PRD_UNIT_CD', 'VST_DV_CD');
+const codes = await codeUtil.getMultiCodes('BFSVC_WK_DV_CD', 'MM_CD', 'VST_DV_CD');
+codes.MM_CD.map((item) => { item.codeId = Number(item.codeId); return item; });
 
 async function onClickLoadRoutineBsFltPart() {
   const { svPdCd, pdctPdCd } = props;
@@ -195,6 +196,29 @@ async function onClickLifeFiltMgt() {
   }
 }
 
+async function getCheckAndNotExistRows(view, rows) {
+  const alreadyItems = getAlreadyItems(view, rows, 'pdCd');
+  if (rows.length === alreadyItems.length) {
+    notify(t('MSG_ALT_ALREADY_RGST', [t('MSG_TXT_PRDT')]));
+    return [];
+  }
+  if (alreadyItems.length > 0) {
+    if (alreadyItems.length === 1) {
+      notify(t('MSG_ALT_ALREADY_RGST_CUT', [alreadyItems[0].pdCd]));
+    } else {
+      notify(t('MSG_ALT_ALREADY_RGST_CUT', [t('MSG_TXT_EXID_CNT', [alreadyItems[0].pdCd, alreadyItems.length - 1])]));
+    }
+    const alreadyPdCds = alreadyItems.reduce((rtns, item) => { rtns.push(item.pdCd); return rtns; }, []);
+    return rows.reduce((rtns, item) => {
+      if (!alreadyPdCds.includes(item.pdCd)) {
+        rtns.push(item);
+      }
+      return rtns;
+    }, []);
+  }
+  return rows;
+}
+
 async function onClickMaterialSchPopup() {
   const { svPdCd, pdctPdCd } = props;
   const view = grdMainRef.value.getView();
@@ -207,7 +231,22 @@ async function onClickMaterialSchPopup() {
       const data = view.getDataSource();
       const rows = cloneDeep(rtn.payload.map((item) => ({
         ...item, svPdCd, pdctPdCd, partPdCd: item.pdCd, partPdNm: item.pdNm, filtChngLvCd: 1 })));
-      data.insertRows(0, rows);
+      const okRows = await getCheckAndNotExistRows(view, rows);
+      if (okRows && okRows.length) {
+        await data.insertRows(0, okRows);
+        await gridUtil.focusCellInput(view, 0);
+      }
+    } else {
+      const row = Array.isArray(rtn.payload) ? rtn.payload[0] : rtn.payload;
+      row.svPdCd = svPdCd;
+      row.pdctPdCd = pdctPdCd;
+      row.partPdCd = row.pdCd;
+      row.partPdNm = row.pdNm;
+      row.filtChngLvCd = 1;
+      const okRows = await getCheckAndNotExistRows(view, [row]);
+      if (okRows && okRows.length) {
+        await gridUtil.insertRowAndFocus(view, 0, okRows[0]);
+      }
     }
   }
   grdRowCount.value = getGridRowCount(view);
@@ -225,7 +264,7 @@ async function fetchData() {
     return;
   }
   const res = await dataService.get('/sms/wells/product/bs-works/standards', { params: { svPdCd, pdctPdCd } });
-  console.log(res.data);
+  console.log('WwpdcRoutineBsConnListP - fetchData - res : ', res.data);
   const view = grdMainRef.value?.getView();
   view.getDataSource().setRows(res.data ?? []);
   grdRowCount.value = getGridRowCount(view);
@@ -242,7 +281,46 @@ async function onClickSave() {
     return;
   }
 
-  const subList = { svPdCd, pdctPdCd, bases: gridUtil.getAllRowValues(view) };
+  const bases = gridUtil.getAllRowValues(view);
+  const details = [];
+  if (bases.length) {
+    bases.forEach((base) => {
+      const servicePeriod = Number(base.svPrdMmN);
+      const startMonth = Number(base.svStrtmmN);
+      const repeatCount = Number(base.svTms);
+      // 제외월
+      const exceptMonths = split(base.excdMmVal, ',').reduce((rtns, mon) => { if (Number(mon)) rtns.push(Number(mon)); return rtns; }, []);
+      // 설치월
+      const installMonth = Number(base.istMm);
+      // 작업연도
+      const workYear = Number(base.strtWkYVal);
+      if (startMonth) {
+        // 시작월이 있는 경우
+        for (let i = 1; i <= (repeatCount + exceptMonths.length); i += 1) {
+          // 시작월과 설치월중 하나는 0의 값을 가진다.
+          const vstNmnN = (servicePeriod * (i - 1)) + (startMonth + installMonth);
+          if (!exceptMonths.includes(vstNmnN)) {
+            // 제외월이면 건너 뜀
+            details.push({
+              // 방문월 : 서비스주기(*반복차수) + 시작월
+              ...base, vstNmnN,
+            });
+          }
+        }
+        // 제외월이 없음
+      } else {
+        // 시작월이 없는 경우
+        for (let i = 1; i <= repeatCount; i += 1) {
+          const dtl = cloneDeep(base);
+          // 상세 작업연도 = Base에 시작연도 + 반복차수
+          dtl.strtWkYVal = workYear + (i - 1);
+          details.push(dtl);
+        }
+      }
+    });
+  }
+
+  const subList = { svPdCd, pdctPdCd, bases, details };
   console.log('WwpdcRoutineBsConnListP - onClickSave - subList : ', subList);
   await dataService.put('/sms/wells/product/bs-works', subList);
 
@@ -273,6 +351,7 @@ const initGrid = defineGrid((data, view) => {
       header: t('MSG_TXT_WK_CLS'),
       width: '80',
       styleName: 'text-center',
+      rules: 'required',
       editor: { type: 'list' },
       options: codes.BFSVC_WK_DV_CD },
     // 단계
@@ -280,35 +359,35 @@ const initGrid = defineGrid((data, view) => {
       header: t('MSG_TXT_STEP'),
       width: '60',
       styleName: 'text-center',
-      editable: true,
       rules: 'required',
       editor: { type: 'number' },
       dataType: 'number',
     },
     // 필터/부품명
     { fieldName: 'partPdNm', header: t('MSG_TXT_FLT_AND_PART_NM'), width: '180', editable: false },
-    // 부품사용수량
-    { fieldName: 'partUseQty',
-      header: t('MSG_TXT_WK_QTY'),
-      width: '80',
-      styleName: 'text-right',
-      editable: true,
-      editor: { type: 'number', editFormat: '#,##0' },
-      dataType: 'number' },
     // 방문구분
     { fieldName: 'vstDvCd',
       header: t('MSG_TXT_VISIT_TYPE'),
       width: '80',
       styleName: 'text-center',
       editor: { type: 'list' },
+      rules: 'required',
       options: codes.VST_DV_CD },
+    // 작업수량
+    { fieldName: 'partUseQty',
+      header: t('MSG_TXT_WK_QTY'),
+      width: '80',
+      styleName: 'text-right',
+      editor: { type: 'number', editFormat: '#,##0' },
+      dataType: 'number' },
     // 서비스주기
     { fieldName: 'svPrdMmN',
-      header: t('TXT_MSG_SV_PRD_UNIT_CD'),
+      header: t('MSG_TXT_SVC_BETWEEN'),
       width: '90',
       styleName: 'text-center',
-      editor: { type: 'list' },
-      options: codes.SV_PRD_UNIT_CD },
+      rules: 'required',
+      editor: { type: 'number', editFormat: '999', maxLength: 3 },
+      dataType: 'number' },
     // 시작월
     { fieldName: 'svStrtmmN',
       header: t('MSG_TXT_STRT_MM'),
@@ -321,25 +400,20 @@ const initGrid = defineGrid((data, view) => {
       header: t('MSG_TXT_REPEAT_COUNT'),
       width: '60',
       styleName: 'text-right',
-      editable: true,
-      editor: { type: 'number', editFormat: '#,##0', maxLength: 2 },
+      rules: 'required',
+      editor: { type: 'number', editFormat: '999', maxLength: 3 },
       dataType: 'number' },
     // 총약정개월
     { fieldName: 'totStplMcn',
       header: t('MSG_TXT_TOT_COMMIT_MM'),
       width: '60',
       styleName: 'text-right',
-      editable: true,
-      editor: { type: 'number', editFormat: '999', maxLength: 2 },
+      editor: { type: 'number', editFormat: '99', maxLength: 4 },
       dataType: 'number' },
     // 제외월
     { fieldName: 'excdMmVal',
       header: t('MSG_TXT_EXCEPT_MONS'),
-      width: '80',
-      styleName: 'text-right',
-      editable: true,
-      editor: { type: 'number' },
-      dataType: 'number' },
+      width: '80' },
     // 설치월
     { fieldName: 'istMm',
       header: t('MSG_TXT_SETUP_MON'),
@@ -352,8 +426,7 @@ const initGrid = defineGrid((data, view) => {
       header: t('MSG_TXT_JOB_YEAR'),
       width: '60',
       styleName: 'text-center',
-      editable: true,
-      editor: { type: 'number', maxLength: 4 },
+      editor: { type: 'number', editFormat: '9', maxLength: 1 },
       dataType: 'number' },
     // 작업월
     { fieldName: 'wkMm',
@@ -377,6 +450,42 @@ const initGrid = defineGrid((data, view) => {
 
   view.sortingOptions.enabled = false;
   view.filteringOptions.enabled = false;
+  view.onCellEdited = async (grid, itemIndex, row, fieldIndex) => {
+    const changedFieldName = grid.getColumn(fieldIndex).fieldName;
+    if (['svPrdMmN', 'svStrtmmN', 'svTms', 'excdMmVal', 'istMm', 'wkMm'].includes(changedFieldName)) {
+      const servicePeriod = Number(grid.getValue(itemIndex, 'svPrdMmN'));
+      const startMonth = Number(grid.getValue(itemIndex, 'svStrtmmN'));
+      const repeatCount = Number(grid.getValue(itemIndex, 'svTms'));
+      // 제외월
+      const exceptMonth = grid.getValue(itemIndex, 'excdMmVal');
+      const exceptMonths = split(exceptMonth, ',').reduce((rtns, mon) => { if (Number(mon)) rtns.push(Number(mon)); return rtns; }, []);
+      // 설치월
+      const installMonth = Number(grid.getValue(itemIndex, 'istMm'));
+      // 작업월
+      const workMonth = Number(grid.getValue(itemIndex, 'wkMm'));
+      if (changedFieldName === 'svStrtmmN' && startMonth) {
+        console.log(`servicePeriod: ${servicePeriod} startMonth: ${startMonth} repeatCount: ${repeatCount} exceptMonths: ${exceptMonths.length}`);
+        grid.setValue(itemIndex, 'istMm', null);
+        grid.setValue(itemIndex, 'strtWkYVal', null);
+        grid.setValue(itemIndex, 'wkMm', null);
+        // const countTotalValue = (startMonth * (repeatCount + exceptMonths.length)) + servicePeriod;
+        // grid.setValue(itemIndex, 'totStplMcn', countTotalValue);
+      } else if (['istMm', 'wkMm'].includes(changedFieldName) && (installMonth || workMonth)) {
+        console.log(`installMonth: ${installMonth} workMonth: ${workMonth} repeatCount: ${repeatCount} exceptMonths: ${exceptMonths.length}`);
+        grid.setValue(itemIndex, 'svStrtmmN', null);
+        grid.setValue(itemIndex, 'excdMmVal', null);
+        // const countTotalValue = (installMonth * (repeatCount + exceptMonths.length)) + servicePeriod;
+        // grid.setValue(itemIndex, 'totStplMcn', countTotalValue);
+        // // 작업연도
+        // if (installMonth <= workMonth) {
+        //   grid.setValue(itemIndex, 'strtWkYVal', 0);
+        // } else {
+        //   grid.setValue(itemIndex, 'strtWkYVal', 1);
+        // }
+      }
+      view.resetCurrent();
+    }
+  };
 });
 </script>
 <style scoped></style>

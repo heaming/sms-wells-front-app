@@ -124,6 +124,7 @@ const pageInfo = ref({
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
 });
 const codes = await codeUtil.getMultiCodes('BFSVC_WK_DV_CD', 'MM_CD', 'SV_PRD_UNIT_CD', 'VST_DV_CD');
+codes.MM_CD.map((item) => { item.codeId = Number(item.codeId); return item; });
 
 const serviceSelectItems = ref([
   // 서비스명
@@ -205,7 +206,7 @@ const initGrdMain = defineGrid((data, view) => {
     // 작업연도
     { fieldName: 'strtWkYVal', header: t('MSG_TXT_JOB_YEAR'), width: '60', styleName: 'text-center', dataType: 'number' },
     // 작업월
-    { fieldName: 'wkMm', header: t('MSG_TXT_JOB_MON'), width: '60', styleName: 'text-center', options: codes.MM_CD },
+    { fieldName: 'wkMm', header: t('MSG_TXT_JOB_MON'), width: '60', styleName: 'text-center', dataType: 'number' },
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   fields.push({ fieldName: 'partPdCd' });
