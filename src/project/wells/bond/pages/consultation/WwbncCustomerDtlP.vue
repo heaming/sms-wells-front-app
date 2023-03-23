@@ -124,6 +124,7 @@
                     secondary
                     class="kw-font-caption py2 ml4"
                     style="min-height: 20px;"
+                    @click="onClickVisit"
                   />
                 </kw-form-item>
               </kw-form-row>
@@ -670,7 +671,9 @@
                 <zwbnc-customer-dtl-p-law-measure />
               </kw-tab-panel>
               <kw-tab-panel name="tab6">
-                <wwbna-counsel-wells-contract-list06 />
+                <zwbnc-customer-dtl-p-visit
+                  ref="visitRef"
+                />
               </kw-tab-panel>
               <kw-tab-panel name="tab7">
                 <wwbna-counsel-wells-contract-list07 />
@@ -941,17 +944,19 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { modal, defineGrid, getComponentType, useDataService, gridUtil } from 'kw-lib';
+import { defineGrid, getComponentType, useDataService, gridUtil, useGlobal } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 
 import ZwbncCustomerDtlPSms from '~sms-common/bond/pages/consultation/ZwbncCustomerDtlPSms.vue';
 import ZwbncCustomerDtlPLawMeasure from '~sms-common/bond/pages/consultation/ZwbncCustomerDtlPLawMeasure.vue';
 import ZwbncCustomerDtlPPromise from '~sms-common/bond/pages/consultation/ZwbncCustomerDtlPPromise.vue';
 import ZwbncCustomerDtlPCustomerCenter from '~sms-common/bond/pages/consultation/ZwbncCustomerDtlPCustomerCenter.vue';
+import ZwbncCustomerDtlPVisit from '~sms-common/bond/pages/consultation/ZwbncCustomerDtlPVisit.vue';
 import WwbncCustomerDtlPCounselHistory from './WwbncCustomerDtlPCounselHistory.vue';
 
 const { t } = useI18n();
 const dataService = useDataService();
+const { modal, notify } = useGlobal();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -971,6 +976,8 @@ const tabRefs = reactive({});
 const selectedTab = ref('tab1');
 
 const selectedGridRow = ref(null);
+
+const visitRef = ref();
 
 watch(selectedGridRow, (newValue) => {
   if (!newValue) {
@@ -1039,6 +1046,23 @@ async function onClickCustomerCardPrint() {
     component: 'ZwbncCustomerCardP',
     componentProps: { apiUrl, templateId },
   });
+}
+
+// TODO: 방문이력 관리 팝업
+async function onClickVisit() {
+  // TODO:고객번호, 고객명, 계약번호, 계약일련번호, 채권업무구분코드 전달필요
+  const { cstNo } = '011014769';
+
+  const { result: isChanged } = await modal({
+    component: 'ZwbncVisitMgtP',
+    componentProps: { cstNo },
+  });
+
+  if (isChanged) {
+    notify(t('MSG_ALT_REGISTERED'));
+    selectedTab.value = 'tab5';
+    await visitRef.value.fetchData();
+  }
 }
 
 onMounted(async () => {
