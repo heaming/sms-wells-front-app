@@ -52,7 +52,6 @@
             :label="$t('MSG_TXT_MDLV_DV')"
             first-option="all"
             first-option-value="ALL"
-            :first-option-label="$t('MSG_TXT_ALL')"
           /><!-- TODO.공통코드가 정의가 안됨-->
         </kw-search-item>
       </kw-search-row>
@@ -68,7 +67,6 @@
             :label="$t('TXT_MSG_SELL_CHNL_CD')"
             first-option="all"
             first-option-value="ALL"
-            :first-option-label="$t('MSG_TXT_ALL')"
           /><!--TODO.공통코드가 설계서에 요구하는게 맞는지 확인 필-->
         </kw-search-item>
 
@@ -83,7 +81,6 @@
             :label="$t('MSG_TXT_SEL_TYPE')"
             first-option="all"
             first-option-value="ALL"
-            :first-option-label="$t('MSG_TXT_ALL')"
           /><!--공통코드가 정의가 안됨  기존 코드 없어짐-->
         </kw-search-item>
       </kw-search-row>
