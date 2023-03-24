@@ -305,7 +305,7 @@ async function onClickReset() {
   currentPdCd.value = '';
   isCreate.value = true;
   isTempSaveBtn.value = true;
-  currentStep.value = cloneDeep(pdConst.W_SERVICE_STEP_FILTER);
+  currentStep.value = cloneDeep(pdConst.W_SERVICE_STEP_BASIC);
   prevStepData.value = {};
   await Promise.all(cmpStepRefs.value.map(async (item) => {
     if (item.value?.resetData) await item.value?.resetData();
@@ -328,6 +328,7 @@ async function initProps() {
 await initProps();
 
 watch(() => route.params.pdCd, async (pdCd) => {
+  console.log(`WwpdcServiceMgtM - watch - currentPdCd.value: ${currentPdCd.value} route.params.pdCd: ${pdCd}`);
   if (currentPdCd.value !== pdCd && pdCd) {
     await onClickReset();
     currentPdCd.value = pdCd;
@@ -340,11 +341,20 @@ watch(() => route.params.pdCd, async (pdCd) => {
 }, { immediate: true });
 
 watch(() => route.params.newRegYn, async (newRegYn) => {
+  console.log(`WwpdcServiceMgtM - watch - route.params.newRegYn: ${newRegYn}`);
   if (newRegYn && newRegYn === 'Y') {
     router.replace({ query: null });
     await onClickReset();
   }
 });
+
+/* watch(() => route.meta.reload, async (reload) => {
+  if (reload) {
+    console.log('Reload');
+    await onClickReset();
+    await fetchProduct();
+  }
+}); */
 
 </script>
 <style scoped></style>

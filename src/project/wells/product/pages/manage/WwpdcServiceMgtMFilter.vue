@@ -242,7 +242,7 @@ async function getCheckAndNotExistRows(view, rows) {
 
 async function initGridRows() {
   const products = cloneDeep(currentInitData.value?.[pdConst.RELATION_PRODUCTS]);
-  console.log('WwpdcServiceMgtMFlt - initGridRows - products : ', products);
+  // console.log('WwpdcServiceMgtMFlt - initGridRows - products : ', products);
   const materialView = grdMainRef.value?.getView();
   if (materialView) {
     materialView.getDataSource().clearRows();

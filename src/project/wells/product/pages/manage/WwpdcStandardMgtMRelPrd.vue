@@ -382,7 +382,6 @@ async function initGridRows() {
     standardView.getDataSource().clearRows();
     const standardCodeValues = stdRelCodes.PDCT_REL_DV_CD
       .reduce((rtns, code) => { rtns.push(code.codeId); return rtns; }, []);
-    console.log('standardCodeValues : ', standardCodeValues);
     standardView.getDataSource().setRows(products
       ?.filter((item) => standardCodeValues.includes(item[pdConst.PD_REL_TP_CD])));
     standardView.resetCurrent();

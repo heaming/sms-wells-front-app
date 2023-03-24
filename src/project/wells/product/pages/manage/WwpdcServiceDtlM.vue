@@ -38,6 +38,10 @@
                 :label="$t('MSG_TXT_BAS_ATTR')"
               />
               <kw-tab
+                name="filter"
+                :label="$t('MSG_TXT_PD_FILT_CHG')"
+              />
+              <kw-tab
                 name="hist"
                 :label="$t('MSG_TXT_REVS_HIST')"
               />
@@ -57,9 +61,16 @@
                   :pd-tp-cd="pdConst.PD_TP_CD_SERVICE"
                 />
               </kw-tab-panel>
+              <kw-tab-panel name="filter">
+                <wwpdc-service-dtl-m-filter
+                  :ref="cmpStepRefs[1]"
+                  v-model:pd-cd="currentPdCd"
+                  v-model:init-data="currentInitData"
+                />
+              </kw-tab-panel>
               <kw-tab-panel name="hist">
                 <zwpdc-prod-change-hist
-                  :ref="cmpStepRefs[1]"
+                  :ref="cmpStepRefs[2]"
                   v-model:pd-cd="currentPdCd"
                   :pd-tp-cd="pdConst.PD_TP_CD_SERVICE"
                 />
@@ -90,6 +101,7 @@ import { cloneDeep } from 'lodash-es';
 import pdConst from '~sms-common/product/constants/pdConst';
 import ZwpdcPropGroupsDtl from '~sms-common/product/pages/manage/components/ZwpdcPropGroupsDtl.vue';
 import ZwpdcProdChangeHist from '~sms-common/product/pages/manage/components/ZwpdcProdChangeHist.vue';
+import WwpdcServiceDtlMFilter from './WwpdcServiceDtlMFilter.vue';
 
 const props = defineProps({
   pdCd: { type: String, default: null },
@@ -102,7 +114,7 @@ const dataService = useDataService();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
-const cmpStepRefs = ref([ref(), ref()]);
+const cmpStepRefs = ref([ref(), ref(), ref()]);
 const currentPdCd = ref();
 const prdPropGroups = ref({});
 const pdBas = ref({});
@@ -135,7 +147,7 @@ async function initProps() {
 await initProps();
 
 watch(() => route.params.pdCd, async (pdCd) => {
-  console.log(`ZwpdcServiceDtlM - currentPdCd.value : ${currentPdCd.value}, route.params.pdCd : ${pdCd}`);
+  console.log(`WwpdcServiceDtlM - watch - currentPdCd.value: ${currentPdCd.value} route.params.pdCd: ${pdCd}`);
   if (pdCd) {
     await Promise.all(cmpStepRefs.value.map(async (item) => {
       if (item.value?.resetData) await item.value?.resetData();
