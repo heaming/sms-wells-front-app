@@ -492,6 +492,7 @@
                     secondary
                     class="kw-font-caption py2 ml4"
                     style="min-height: 20px;"
+                    @click="onClickVirtualAccount"
                   />
                   <kw-btn
                     :label="$t('MSG_BTN_DP_RGST')"
@@ -1063,6 +1064,17 @@ async function onClickVisit() {
     selectedTab.value = 'tab5';
     await visitRef.value.fetchData();
   }
+}
+
+// TODO: 가상상세 목록 팝업
+async function onClickVirtualAccount() {
+  // TODO:고객번호, 고객명, 계약번호, 계약일련번호 전달필요
+  const { cstNo } = '016568225';
+
+  await modal({
+    component: 'ZwbncVirtualAccountP',
+    componentProps: { cstNo },
+  });
 }
 
 onMounted(async () => {
