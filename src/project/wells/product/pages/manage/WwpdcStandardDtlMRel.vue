@@ -187,7 +187,6 @@ async function initMaterialGrid(data, view) {
 }
 
 async function initServiceGrid(data, view) {
-  // console.log('props.codes : ', props.codes);
   const columns = [
     // 필수여부
     { fieldName: 'mndtSvYn', header: t('MSG_TXT_NCSR_YN'), width: '95', styleName: 'text-center' },

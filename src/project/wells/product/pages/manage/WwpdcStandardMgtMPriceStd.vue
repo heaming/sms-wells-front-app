@@ -54,6 +54,7 @@
     </kw-action-top>
     <kw-grid
       ref="grdMainRef"
+      name="grdMain"
       :visible-rows="5"
       @init="initGrid"
     />
@@ -105,12 +106,12 @@ async function resetData() {
   currentInitData.value = {};
   removeObjects.value = [];
   gridRowCount.value = 0;
+  grdMainRef.value?.getView().getDataSource().clearRows();
   if (grdMainRef.value?.getView()) gridUtil.reset(grdMainRef.value.getView());
 }
 
 async function init() {
   if (grdMainRef.value?.getView()) gridUtil.init(grdMainRef.value.getView());
-  // console.log('WwpdcStandardMgtMPriceStd - init');
 }
 
 async function getSaveData() {
@@ -294,10 +295,10 @@ async function initGrid(data, view) {
   };
 
   view.onCellClicked = async (g, { dataRow }) => {
-    if (dataRow) {
+    if (dataRow >= 0) {
       const prcdValues = await getGridRowsToSavePdProps(
         [gridUtil.getRowValue(g, dataRow)],
-        metaInfos.value,
+        currentMetaInfos.value,
         prcd,
         [],
         [pdConst.PRC_DETAIL_ID, pdConst.PRC_STD_ROW_ID],

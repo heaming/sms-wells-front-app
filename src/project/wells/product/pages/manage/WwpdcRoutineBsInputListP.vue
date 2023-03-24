@@ -81,7 +81,7 @@ async function fetchData() {
     return;
   }
   const res = await dataService.get('/sms/wells/product/bs-works/tasks', { params: { svPdCd, pdctPdCd } });
-  console.log(res.data);
+  // console.log(res.data);
   const view = grdMainRef.value?.getView();
   view.getDataSource().setRows(res.data ?? []);
   grdRowCount.value = getGridRowCount(view);

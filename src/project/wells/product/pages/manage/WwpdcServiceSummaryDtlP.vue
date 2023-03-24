@@ -107,7 +107,7 @@ function getCodeName(codeValue, codeGroupName) {
 
 function getFieldName(colNm, defaultName) {
   const labelCd = metaInfos.value?.find((field) => field.colNm === colNm)?.uiLblCdv;
-  console.log(labelCd);
+  // console.log(labelCd);
   if (labelCd) {
     return t(labelCd);
   }

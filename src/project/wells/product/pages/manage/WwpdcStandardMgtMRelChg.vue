@@ -143,13 +143,16 @@ async function insertCallbackRows(view, rtn, pdRelTpCd) {
 async function getCheckAndNotExistRows(view, rows) {
   const alreadyItems = getAlreadyItems(view, rows, 'pdCd');
   if (rows.length === alreadyItems.length) {
+    // 이미 등록된 {상품} 입니다.
     notify(t('MSG_ALT_ALREADY_RGST', [t('MSG_TXT_PRDT')]));
     return [];
   }
   if (alreadyItems.length > 0) {
     if (alreadyItems.length === 1) {
+      // 이미 등록된 {pdCd}은(는) 제외 합니다.
       notify(t('MSG_ALT_ALREADY_RGST_CUT', [alreadyItems[0].pdCd]));
     } else {
+      // 이미 등록된 {pdCd} 외 {0} 건 은(는) 제외 합니다.
       notify(t('MSG_ALT_ALREADY_RGST_CUT', [t('MSG_TXT_EXID_CNT', [alreadyItems[0].pdCd, alreadyItems.length - 1])]));
     }
     const alreadyPdCds = alreadyItems.reduce((rtns, item) => { rtns.push(item.pdCd); return rtns; }, []);
