@@ -203,7 +203,7 @@ async function initGridRows() {
   const compositionView = grdCompositionRef.value?.getView();
   if (compositionView) {
     compositionView.getDataSource().setRows(products
-      .filter((item) => item[pdConst.PD_REL_TP_CD] === pdConst.PD_REL_TP_CD_P_TO_P));
+      .filter((item) => item[pdConst.PD_REL_TP_CD] === pdConst.PD_REL_TP_CD_C_TO_P));
     compositionView.resetCurrent();
   }
 

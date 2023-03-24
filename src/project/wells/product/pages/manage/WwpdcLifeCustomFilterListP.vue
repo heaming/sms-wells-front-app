@@ -160,7 +160,7 @@ async function onClickRemoveRows() {
   if (!await gridUtil.confirmIfIsModified(view)) { return; }
   const deletedRows = await gridUtil.confirmDeleteCheckedRows(view);
   if (deletedRows.length) {
-    console.log('deletedRows : ', deletedRows);
+    // console.log('deletedRows : ', deletedRows);
     await dataService.delete('/sms/wells/product/bs-works/life-filters', { data: deletedRows });
     gridUtil.reset(view);
     await fetchData();
@@ -178,7 +178,7 @@ async function onClickSave() {
 
   const { svPdCd, pdctPdCd, partPdCd } = props;
   const subList = { svPdCd, pdctPdCd, partPdCd, bases: gridUtil.getAllRowValues(view) };
-  console.log('WwpdcLifeCustomFilterListP - onClickSave - subList : ', subList);
+  // console.log('WwpdcLifeCustomFilterListP - onClickSave - subList : ', subList);
   await dataService.put('/sms/wells/product/bs-works/life-filters', subList);
   notify(t('MSG_ALT_SAVE_DATA'));
   gridUtil.reset(view);

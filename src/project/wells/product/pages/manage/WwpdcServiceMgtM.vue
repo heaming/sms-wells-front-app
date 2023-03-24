@@ -230,7 +230,7 @@ async function fetchProduct() {
     isTempSaveBtn.value = initData[bas].tempSaveYn === 'Y';
     isTempSaveBtn.value = cloneDeep(initData[bas].tempSaveYn === 'Y');
     prevStepData.value = cloneDeep(initData);
-    console.log('res.data : ', res.data);
+    // console.log('res.data : ', res.data);
   }
 }
 

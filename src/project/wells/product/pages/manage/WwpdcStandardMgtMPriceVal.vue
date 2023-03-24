@@ -17,8 +17,10 @@
     <!-- 선택변수 등록 -->
     <h3>{{ $t('MSG_TXT_PD_REG_SEL_VAR') }}</h3>
     <kw-form
+      ref="frmMainRef"
       :cols="2"
       dense
+      ignore-on-modified
     >
       <kw-form-row>
         <!-- 판매채널 -->
@@ -115,6 +117,7 @@ const { notify } = useGlobal();
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 const grdMainRef = ref(getComponentType('KwGrid'));
+const frmMainRef = ref();
 
 const prcd = pdConst.TBL_PD_PRC_DTL;
 const prcfd = pdConst.TBL_PD_PRC_FNL_DTL;
@@ -139,6 +142,8 @@ async function resetData() {
   addChannelId.value = '';
   removeObjects.value = [];
   gridRowCount.value = 0;
+  frmMainRef.value.reset();
+  grdMainRef.value?.getView().getDataSource().clearRows();
   if (grdMainRef.value?.getView()) gridUtil.reset(grdMainRef.value.getView());
 }
 
@@ -153,7 +158,7 @@ async function getSaveData() {
     return rtn;
   }, []); /* 그리드에서 수정항목이 아닌 경우 제외 */
   const rowValues = gridUtil.getAllRowValues(view);
-  // console.log('WwpdcStandardMgtMPriceVal - getSaveData - rowValues1 : ', rowValues);
+  // console.log('WwpdcStandardMgtMPriceVal - getSaveData - rowValues 1  : ', rowValues);
   const rtnValues = await getGridRowsToSavePdProps(
     rowValues,
     currentMetaInfos.value,
@@ -161,7 +166,7 @@ async function getSaveData() {
     ['sellChnlCd', 'pdCd', ...defaultFields.value],
     outKeys,
   );
-  // console.log('WwpdcStandardMgtMPriceVal - getSaveData - rtnValues1.5 : ', rtnValues);
+  // console.log('WwpdcStandardMgtMPriceVal - getSaveData - rtnValues 2 : ', rtnValues);
   if (removeObjects.value.length) {
     rtnValues[pdConst.REMOVE_ROWS] = cloneDeep(removeObjects.value);
   }
@@ -250,6 +255,7 @@ async function initGridRows() {
                                             || item.pdPrcDtlId === row.pdPrcDtlId);
       // console.log('const stdRow : ', row);
       row = pdMergeBy(row, stdRow);
+      if (isEmpty(row[pdConst.PRC_STD_ROW_ID])) row[pdConst.PRC_STD_ROW_ID] = row.pdPrcDtlId;
       // console.log('WwpdcStandardMgtMPriceVal - initGridRows - row : ', row);
       row.sellTpCd = sellTpCd;
       // console.log('WwpdcStandardMgtMPriceVal - initGridRows - row : ', row);
@@ -291,6 +297,8 @@ async function onClickAdd() {
         row[pdConst.PRC_FNL_ROW_ID] = stringUtil.getUid('FNL');
         row.pdPrcDtlIdRefVp = row.pdPrcDtlId;
         row.sellTpCd = currentInitData.value[pdConst.TBL_PD_BAS]?.sellTpCd;
+        // 정액정률구분 디폴트 - '정액'
+        row.cndtFxamFxrtDvCd = '01';
         // console.log('row[pdConst.PRC_FNL_ROW_ID] : ', row[pdConst.PRC_FNL_ROW_ID]);
         if (!rowValues.find((gridRow) => addChannelId.value === gridRow.sellChnlCd
         && row.pdPrcDtlId === gridRow.pdPrcDtlId)) {
@@ -379,19 +387,6 @@ async function initGrid(data, view) {
     }
     return item;
   });
-  /* columns.map((item) => {
-    if (item.fieldName === 'cndtDscPrumVal') {
-      item.styleName = 'rg-number-step';
-      item.sortable = false;
-      item.editButtonVisibility = 'always';
-      item.editor.showStepButton = true;
-      item.editor.positiveOnly = true;
-      item.editor.direction = 'horizontal';
-      item.editor.step = 1;
-      item.width = 140;
-    }
-    return item;
-  }); */
   fields.push({ fieldName: 'fixAmount', dataType: 'number' });
   data.setFields(fields);
   // 판매채널을 제일 앞으로

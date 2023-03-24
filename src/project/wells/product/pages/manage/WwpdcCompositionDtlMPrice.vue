@@ -13,24 +13,6 @@
 ****************************************************************************************************
 --->
 <template>
-  <div>
-    <kw-search
-      one-row
-      :cols="2"
-      class="mt24"
-      @search="onClickSearch"
-    >
-      <kw-search-row>
-        <kw-search-item :label="$t('MSG_TXT_SEL_CHNL')">
-          <kw-select
-            v-model="searchParams.avlChnlId"
-            first-option="all"
-            :options="usedChannelCds"
-          />
-        </kw-search-item>
-      </kw-search-row>
-    </kw-search>
-  </div>
   <kw-action-top class="mt40">
     <!-- (단위 : 원) -->
     <span class="kw-fc---black3 text-weight-regular">({{ $t('MSG_TXT_UNIT') }} : {{ $t('MSG_TXT_CUR_WON') }})</span>
@@ -46,14 +28,14 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService, codeUtil, gridUtil, getComponentType, stringUtil } from 'kw-lib';
+import { useDataService, codeUtil, gridUtil, getComponentType } from 'kw-lib';
 import pdConst from '~sms-common/product/constants/pdConst';
 import { merge, cloneDeep, isEmpty } from 'lodash-es';
 import { pdMergeBy, getPdMetaToCodeNames, getPropInfosToGridRows, getPdMetaToGridInfos } from '~sms-common/product/utils/pdUtil';
 
 /* eslint-disable no-use-before-define */
 defineExpose({
-  resetData,
+  resetData, onClickSearch,
 });
 
 const props = defineProps({
@@ -63,7 +45,6 @@ const props = defineProps({
 });
 
 const dataService = useDataService();
-const { t } = useI18n();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -74,7 +55,6 @@ const prcd = pdConst.TBL_PD_PRC_DTL;
 const prcfd = pdConst.TBL_PD_PRC_FNL_DTL;
 const currentPdCd = ref();
 const currentInitData = ref(null);
-const usedChannelCds = ref([]);
 const metaInfos = ref();
 const currentCodes = ref({});
 
@@ -87,6 +67,7 @@ const searchParams = ref({
 async function resetData() {
   currentPdCd.value = '';
   currentInitData.value = {};
+  grdMainRef.value?.getView().getDataSource().clearRows();
   if (grdMainRef.value?.getView()) gridUtil.reset(grdMainRef.value.getView());
 }
 
@@ -115,11 +96,7 @@ async function initGridRows() {
       row[pdConst.PRC_FNL_ROW_ID] = row[pdConst.PRC_FNL_ROW_ID] ?? row.pdPrcFnlDtlId;
     });
     // console.log('WwpdcCompositionDtlMPrice - initGridRows - rows : ', rows);
-    if (searchParams.value.avlChnlId) {
-      view.getDataSource().setRows(rows?.filter((item) => item.sellChnlCd === searchParams.value.avlChnlId));
-    } else {
-      view.getDataSource().setRows(rows);
-    }
+    view.getDataSource().setRows(rows);
     view.resetCurrent();
   } else {
     view.getDataSource().clearRows();
@@ -127,17 +104,6 @@ async function initGridRows() {
 }
 
 async function resetInitData() {
-  const channels = currentInitData.value?.[pdConst.TBL_PD_DTL]
-    ?.reduce((rtn, item) => {
-      if (item.avlChnlId) {
-        rtn.push(item.avlChnlId);
-      }
-      return rtn;
-    }, [])
-    ?.join(',');
-  if (channels) {
-    usedChannelCds.value = props.codes?.SELL_CHNL_DTL_CD.filter((item) => channels.indexOf(item.codeId) > -1);
-  }
   await initGridRows();
 }
 
@@ -201,23 +167,6 @@ async function initGrid(data, view) {
   fields.push({ fieldName: pdConst.PRC_STD_ROW_ID });
   fields.push({ fieldName: pdConst.PRC_FNL_ROW_ID });
 
-  // 적용기간
-  const applyPeriodCol = { fieldName: 'applyPeriod',
-    header: t('MSG_TXT_ACEPT_PERIOD'),
-    width: '200',
-    styleName: 'text-center',
-    displayCallback(grid, index) {
-      const vlStrtDtm = grid.getValue(index.itemIndex, 'vlStrtDtm');
-      const vlEndDtm = grid.getValue(index.itemIndex, 'vlEndDtm');
-      if (vlStrtDtm || vlEndDtm) {
-        return `${stringUtil.getDateFormat(vlStrtDtm)} ~ ${stringUtil.getDateFormat(vlEndDtm)}`;
-      }
-      return '';
-    },
-  };
-  columns.splice(6, 0, applyPeriodCol);
-  fields.push({ fieldName: 'applyPeriod' });
-  // console.log('columns : ', columns);
   data.setFields(fields);
   view.setColumns(columns.map((item) => {
     // 적용 시작일자, 종료일자 숨김

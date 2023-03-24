@@ -220,8 +220,18 @@ async function isModifiedProps() {
 async function validateProps() {
   const serviceRows = gridUtil.getAllRowValues(grdServiceRef.value.getView());
   if (!serviceRows || !serviceRows.length) {
-    await notify(t('MSG_ALT_ADD_SOME_ITEM', [t('MSG_TXT_SERVICE')]));
+    notify(t('MSG_ALT_ADD_SOME_ITEM', [t('MSG_TXT_SERVICE')]));
     return false;
+  }
+  const materialRows = gridUtil.getAllRowValues(grdMaterialRef.value.getView());
+  if (materialRows.length) {
+    // 안분비율
+    const sumDivisionRate = materialRows.reduce((tot, item) => tot + Number(item.diviRat), 0);
+    if (sumDivisionRate > 100) {
+      // 안분비율 합이 100%를 넘을 수 없습니다.
+      notify(t('MSG_ALT_DIV_RTE_OVER_PER'));
+      return false;
+    }
   }
   return true;
 }
@@ -272,13 +282,16 @@ async function insertCallbackRows(view, rtn, pdRelTpCd) {
 async function getCheckAndNotExistRows(view, rows) {
   const alreadyItems = getAlreadyItems(view, rows, 'pdCd');
   if (rows.length === alreadyItems.length) {
+    // 이미 등록된 {상품} 입니다.
     notify(t('MSG_ALT_ALREADY_RGST', [t('MSG_TXT_PRDT')]));
     return [];
   }
   if (alreadyItems.length > 0) {
     if (alreadyItems.length === 1) {
+      // 이미 등록된 {pdCd}은(는) 제외 합니다.
       notify(t('MSG_ALT_ALREADY_RGST_CUT', [alreadyItems[0].pdCd]));
     } else {
+      // 이미 등록된 {pdCd} 외 {0} 건 은(는) 제외 합니다.
       notify(t('MSG_ALT_ALREADY_RGST_CUT', [t('MSG_TXT_EXID_CNT', [alreadyItems[0].pdCd, alreadyItems.length - 1])]));
     }
     const alreadyPdCds = alreadyItems.reduce((rtns, item) => { rtns.push(item.pdCd); return rtns; }, []);
@@ -382,6 +395,7 @@ async function initGridRows() {
     standardView.getDataSource().clearRows();
     const standardCodeValues = stdRelCodes.PDCT_REL_DV_CD
       .reduce((rtns, code) => { rtns.push(code.codeId); return rtns; }, []);
+    // console.log('standardCodeValues : ', standardCodeValues);
     standardView.getDataSource().setRows(products
       ?.filter((item) => standardCodeValues.includes(item[pdConst.PD_REL_TP_CD])));
     standardView.resetCurrent();
@@ -424,26 +438,46 @@ async function initMaterialGrid(data, view) {
       header: t('MSG_TXT_PRD_COUNT_EA'),
       width: '87',
       styleName: 'text-right',
-      editor: { type: 'number', editFormat: '#,##0.##' },
+      editor: { type: 'number', editFormat: '#,##0', maxLength: 12 },
       dataType: 'number',
       suffix: ` ${t('MSG_TXT_GRD_CNT')}` },
     // 판매금액
-    { fieldName: 'pdRelPrpVal02', header: t('MSG_TXT_SALE_PRICE'), width: '107', styleName: 'text-right', editor: { type: 'number', editFormat: '#,##0.##' }, dataType: 'number' },
+    { fieldName: 'pdRelPrpVal02',
+      header: t('MSG_TXT_SALE_PRICE'),
+      width: '107',
+      styleName: 'text-right',
+      editor: { type: 'number', editFormat: '#,##0.##', maxLength: 12 },
+      dataType: 'number' },
     // 공급가액
-    { fieldName: 'pdRelPrpVal03', header: t('MSG_TXT_SUPPLY_AMOUNT'), width: '107', styleName: 'text-right', editor: { type: 'number', editFormat: '#,##0.##' }, dataType: 'number' },
+    { fieldName: 'pdRelPrpVal03',
+      header: t('MSG_TXT_SUPPLY_AMOUNT'),
+      width: '107',
+      styleName: 'text-right',
+      editor: { type: 'number', editFormat: '#,##0.##', maxLength: 12 },
+      dataType: 'number' },
     // 부가세액
-    { fieldName: 'pdRelPrpVal04', header: t('MSG_TXT_VAT_AMOUNT'), width: '107', styleName: 'text-right', editor: { type: 'number', editFormat: '#,##0.##' }, dataType: 'number' },
+    { fieldName: 'pdRelPrpVal04',
+      header: t('MSG_TXT_VAT_AMOUNT'),
+      width: '107',
+      styleName: 'text-right',
+      editor: { type: 'number', editFormat: '#,##0.##', maxLength: 12 },
+      dataType: 'number' },
     // 안분비율(%)
     { fieldName: 'diviRat',
       header: t('MSG_TXT_PROPORTIONAL_DV_RT'),
       width: '107',
       styleName: 'text-right',
-      editor: { type: 'number', editFormat: '##0' },
+      editor: { type: 'number', editFormat: '##0', maxLength: 3 },
       dataType: 'number',
       suffix: ' %',
     },
     // 잔액산입
-    { fieldName: 'blamInptYn', header: t('MSG_TXT_CHANGE_COUNTING'), width: '87', styleName: 'text-center', editor: { type: 'list' }, options: props.codes?.COD_YN },
+    { fieldName: 'blamInptYn',
+      header: t('MSG_TXT_CHANGE_COUNTING'),
+      width: '87',
+      styleName: 'text-center',
+      editor: { type: 'list' },
+      options: props.codes?.COD_YN },
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   fields.push({ fieldName: pdConst.REL_PD_ID });

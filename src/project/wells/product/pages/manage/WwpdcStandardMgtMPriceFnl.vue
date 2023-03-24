@@ -76,6 +76,7 @@ async function resetData() {
   currentInitData.value = {};
   removeObjects.value = [];
   gridRowCount.value = 0;
+  grdMainRef.value?.getView().getDataSource().clearRows();
   if (grdMainRef.value?.getView()) gridUtil.reset(grdMainRef.value.getView());
 }
 
@@ -160,6 +161,7 @@ async function initGridRows() {
       const stdRow = stdRows?.find((item) => item[pdConst.PRC_STD_ROW_ID] === row[pdConst.PRC_STD_ROW_ID]
                                             || item.pdPrcDtlId === row.pdPrcDtlId);
       row = pdMergeBy(row, stdRow);
+      if (isEmpty(row[pdConst.PRC_STD_ROW_ID])) row[pdConst.PRC_STD_ROW_ID] = row.pdPrcDtlId;
       // console.log('WwpdcStandardMgtMPriceFnl - initGridRows - row : ', row);
       row.sellTpCd = currentInitData.value[pdConst.TBL_PD_BAS]?.sellTpCd;
       // 조정 전 가격 ( 01: 정액, 02: 정률)
@@ -243,7 +245,7 @@ async function initGrid(data, view) {
     props.codes,
     readonlyFields,
     ['cndtFxamFxrtDvCd', 'cndtDscPrumVal'],
-    [pdConst.PRC_STD_ROW_ID, pdConst.PRC_FNL_ROW_ID, pdConst.PRC_DETAIL_ID, pdConst.PRC_DETAIL_FNL_ID], // 조정 전 가격
+    defaultFields.value,
   );
   // 할인적용가격
   const prcBeforAdj = { fieldName: 'prcBefAdj',
@@ -261,19 +263,6 @@ async function initGrid(data, view) {
     }
     return item;
   });
-  /* columns.map((item) => {
-    if (item.fieldName === 'ctrVal') {
-      item.styleName = 'rg-number-step';
-      item.sortable = false;
-      item.editButtonVisibility = 'always';
-      item.editor.showStepButton = true;
-      item.editor.positiveOnly = true;
-      item.editor.direction = 'horizontal';
-      item.editor.step = 1;
-      item.width = 140;
-    }
-    return item;
-  }); */
   data.setFields(fields);
   view.setColumns(columns.sort((item) => (item.fieldName === 'sellChnlCd' ? -1 : 0)));
   view.checkBar.visible = true;

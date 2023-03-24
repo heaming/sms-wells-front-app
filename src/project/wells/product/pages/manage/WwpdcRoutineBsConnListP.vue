@@ -264,7 +264,7 @@ async function fetchData() {
     return;
   }
   const res = await dataService.get('/sms/wells/product/bs-works/standards', { params: { svPdCd, pdctPdCd } });
-  console.log('WwpdcRoutineBsConnListP - fetchData - res : ', res.data);
+  // console.log('WwpdcRoutineBsConnListP - fetchData - res : ', res.data);
   const view = grdMainRef.value?.getView();
   view.getDataSource().setRows(res.data ?? []);
   grdRowCount.value = getGridRowCount(view);

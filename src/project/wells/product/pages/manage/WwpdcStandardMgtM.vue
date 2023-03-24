@@ -268,13 +268,17 @@ async function getSaveData() {
       }
       if (saveData[pdConst.REMOVE_ROWS]) {
         removePriceRows.value = pdMergeBy(removePriceRows.value, saveData[pdConst.REMOVE_ROWS]);
-        // console.log('removeRows : ', subList[pdConst.REMOVE_ROWS]);
-        subList[prcd] = pdRemoveBy(subList[prcd], removePriceRows.value);
-        subList[prcfd] = pdRemoveBy(subList[prcfd], removePriceRows.value);
       }
     }
   }));
-  console.log('WwpdcStandardMgtM - getSaveData - subList : ', subList);
+  if (removePriceRows.value.length) {
+    // console.log('removePriceRows - prev : ', subList);
+    // console.log('removePriceRows.value : ', removePriceRows.value);
+    subList[prcd] = pdRemoveBy(subList[prcd], removePriceRows.value);
+    subList[prcfd] = pdRemoveBy(subList[prcfd], removePriceRows.value);
+    // console.log('removePriceRows - after : ', subList);
+  }
+  // console.log('WwpdcStandardMgtM - getSaveData - subList : ', subList);
   return subList;
 }
 
@@ -397,8 +401,7 @@ async function onClickSave(tempSaveYn) {
   } else if (isEmpty(currentPdCd.value)) {
     subList[bas].tempSaveYn = tempSaveYn;
   }
-
-  console.log('WwpdcStandardMgtM - onClickSave - subList : ', subList);
+  // console.log('WwpdcStandardMgtM - onClickSave - subList : ', subList);
 
   // 4. 생성 or 저장
   let rtn;
@@ -480,7 +483,7 @@ async function initProps() {
 await initProps();
 
 watch(() => route.params.pdCd, async (pdCd) => {
-  // console.log(`WwpdcStandardMgtM - currentPdCd.value : ${currentPdCd.value}, route.params.pdCd : ${pdCd}`);
+  console.log(`WwpdcStandardMgtM - currentPdCd.value : ${currentPdCd.value}, route.params.pdCd : ${pdCd}`);
   if (currentPdCd.value !== pdCd && pdCd) {
     await onClickReset();
     isCreate.value = isEmpty(pdCd);
@@ -493,7 +496,7 @@ watch(() => route.params.pdCd, async (pdCd) => {
 }, { immediate: true });
 
 watch(() => route.params.newRegYn, async (newRegYn) => {
-  // console.log(`WwpdcStandardMgtM - newRegYn : ${newRegYn}`);
+  console.log(`WwpdcStandardMgtM - newRegYn : ${newRegYn}`);
   if (newRegYn && newRegYn === 'Y') {
     router.replace({ query: null });
     await onClickReset();

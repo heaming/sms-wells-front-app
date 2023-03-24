@@ -82,7 +82,7 @@ async function fetchProduct() {
   if (currentPdCd.value) {
     const res = await dataService.get(`/sms/wells/product/compositions/${currentPdCd.value}`);
     pdBas.value = res.data[pdConst.TBL_PD_BAS];
-    console.log('WwpdcCompositionDtlM - fetchProduct - res.data', res.data);
+    // console.log('WwpdcCompositionDtlM - fetchProduct - res.data', res.data);
     // console.log('res.data : ', res.data);
     prevStepData.value = cloneDeep(res.data);
     prdPropGroups.value = res.data.groupCodes;
