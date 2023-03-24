@@ -209,17 +209,12 @@ async function fetchData() {
   const view = grdMainRef.value.getView();
   const data = view.getDataSource();
 
-  const res2 = await dataService.get('/sms/wells/withdrawal/idvrve/giro-deposits/excel-download', { params: cachedParams });
+  const res2 = await dataService.get('/sms/wells/withdrawal/idvrve/giro-deposits', { params: cachedParams });
 
   // console.log(res2.data);
 
-  result = 0;
-  giroResult = 0;
-
-  for (let index = 0; index < res2.data.length; index += 1) {
-    result += Number(res2.data[index].rveAmt);
-    giroResult += Number(res2.data[index].giroFee);
-  }
+  result = Number(res2.data.rveAmtSum);
+  giroResult = Number(res2.data.giroFeeSum);
 
   data.checkRowStates(false);
   data.setRows(pages);
