@@ -15,7 +15,7 @@
 
 <template>
   <kw-popup
-    class="kw-popup--xl"
+    size="2xl"
   >
     <h3>
       {{ t('MSG_TXT_RQS_IZ') }}
@@ -110,11 +110,7 @@ async function fetchData() {
 }
 
 function onclickShowHide() {
-  if (!isShow.value) {
-    isShow.value = true;
-  } else {
-    isShow.value = false;
-  }
+  isShow.value = !isShow.value;
   return isShow.value;
 }
 
