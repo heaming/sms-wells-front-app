@@ -51,9 +51,10 @@
             ref="productSelRef"
             v-model:product1-level="searchParams.prdtCateHigh"
             v-model:product2-level="searchParams.prdtCateMid"
+            v-model:product3-level="searchParams.prdtCateLow"
             v-model:pd-tp-cd="pdConst.PD_TP_CD_STANDARD"
             first-option="all"
-            search-lvl="2"
+            search-lvl="3"
           />
         </kw-search-item>
         <!-- AS자재번호 -->
@@ -212,6 +213,7 @@ const searchParams = ref({
   pdCd: '',
   prdtCateHigh: '',
   prdtCateMid: '',
+  prdtCateLow: '',
   asMatCd: '',
 });
 

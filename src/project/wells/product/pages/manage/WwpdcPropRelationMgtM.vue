@@ -152,13 +152,16 @@ async function fetchData() {
     notify(t('MSG_ALT_CHK_ID', [t('MSG_TXT_RELATION_CLSF')]));
     return false;
   }
+
   const rtn = await modal({
     component: 'ZwpdcMaterialsSelectListP', // 교재자재 팝업
     componentProps: {
       searchType: searchParams.value.pdRelTpCd,
       searchValue: searchParams.value.searchValue,
+      searchLvl: 3,
     },
   });
+
   // 23-03-23 ref. WwpdcStandardMgtMRelChg 참조하여 중복 체크 로직 추가.
   const view = grdMainRef.value.getView();
   await insertCallbackRows(view, rtn, rtn.payload.pdRelTpCd);
