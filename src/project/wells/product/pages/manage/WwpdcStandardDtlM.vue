@@ -51,6 +51,7 @@ const props = defineProps({
 });
 
 const route = useRoute();
+const router = useRouter();
 const dataService = useDataService();
 
 // -------------------------------------------------------------------------------------------------
@@ -83,16 +84,7 @@ codes.COD_YN.map((item) => {
 async function fetchProduct() {
   if (currentPdCd.value) {
     const res = await dataService.get(`/sms/wells/product/standards/${currentPdCd.value}`);
-    // console.log('WwpdcStandardDtlM - fetchProduct - res.data', res.data);
     pdBas.value = res.data[pdConst.TBL_PD_BAS];
-    // initData[bas] = res.data[bas];
-    // initData[dtl] = res.data[dtl];
-    // initData[ecom] = res.data[ecom];
-    // initData[prcd] = res.data[prcd];
-    // initData[prcfd] = res.data[prcfd];
-    // initData[prumd] = res.data[prumd];
-    // initData[pdConst.RELATION_PRODUCTS] = res.data[pdConst.RELATION_PRODUCTS];
-    // console.log('WwpdcStandardDtlM - fetchProduct - initData : ', initData);
     prevStepData.value = cloneDeep(res.data);
     prdPropGroups.value = cloneDeep(res.data.groupCodes);
   }
@@ -107,6 +99,7 @@ async function initProps() {
 await initProps();
 
 watch(() => route.params.pdCd, async (pdCd) => {
+  if (!route.path.includes('wwpdc-standard-dtl')) return;
   console.log(`WwpdcStandardDtlM - currentPdCd.value : ${currentPdCd.value}, route.params.pdCd : ${pdCd}`);
   if (pdCd) {
     if (cmpRef.value?.resetData) await cmpRef.value?.resetData();
@@ -114,6 +107,18 @@ watch(() => route.params.pdCd, async (pdCd) => {
     fetchProduct();
   }
 }, { immediate: true });
+
+watch(() => route.params.reloadYn, async (reloadYn) => {
+  if (!route.path.includes('wwpdc-standard-dtl')) return;
+  console.log(`WwpdcStandardDtlM - watch - route.params.reloadYn: ${reloadYn}`);
+  if (reloadYn && reloadYn === 'Y') {
+    router.replace({ query: { pdCd: props.pdCd, tempSaveYn: props.tempSaveYn } });
+    currentPdCd.value = null;
+    if (cmpRef.value?.resetData) await cmpRef.value?.resetData();
+    currentPdCd.value = props.pdCd;
+    await fetchProduct();
+  }
+});
 
 </script>
 <style scoped></style>

@@ -267,11 +267,10 @@ async function onClickSave(tempSaveYn) {
 
   // 3. Step별 저장 데이터 확인
   const subList = await getSaveData();
+  subList[bas].tempSaveYn = tempSaveYn;
   if (tempSaveYn === 'N' && isTempSaveBtn.value) {
-    subList[bas].tempSaveYn = tempSaveYn;
+    subList.isModifiedProp = true;
   } else if (isEmpty(currentPdCd.value)) {
-    subList[bas].tempSaveYn = tempSaveYn;
-  } else if (isEmpty(subList[bas].tempSaveYn)) {
     subList[bas].tempSaveYn = 'Y';
   }
   // console.log('WwpdcStandardMgtM - onClickSave - subList : ', subList);
@@ -288,6 +287,7 @@ async function onClickSave(tempSaveYn) {
   }));
   if (tempSaveYn === 'N') {
     // 목록으로 이동
+    router.close();
     router.push({ path: '/product/zwpdc-service-list', replace: true, query: { onloadSearchYn: 'Y' } });
     return;
   }
@@ -328,8 +328,9 @@ async function initProps() {
 await initProps();
 
 watch(() => route.params.pdCd, async (pdCd) => {
+  if (!route.path.includes('wwpdc-service-mgt')) return;
   console.log(`WwpdcServiceMgtM - watch - currentPdCd.value: ${currentPdCd.value} route.params.pdCd: ${pdCd}`);
-  if (currentPdCd.value !== pdCd && pdCd) {
+  if (pdCd && currentPdCd.value !== pdCd) {
     await onClickReset();
     currentPdCd.value = pdCd;
     isCreate.value = isEmpty(currentPdCd.value);
@@ -341,6 +342,7 @@ watch(() => route.params.pdCd, async (pdCd) => {
 }, { immediate: true });
 
 watch(() => route.params.newRegYn, async (newRegYn) => {
+  if (!route.path.includes('wwpdc-service-mgt')) return;
   console.log(`WwpdcServiceMgtM - watch - route.params.newRegYn: ${newRegYn}`);
   if (newRegYn && newRegYn === 'Y') {
     router.replace({ query: null });
@@ -348,13 +350,15 @@ watch(() => route.params.newRegYn, async (newRegYn) => {
   }
 });
 
-/* watch(() => route.meta.reload, async (reload) => {
-  if (reload) {
-    console.log('Reload');
-    await onClickReset();
+watch(() => route.params.reloadYn, async (reloadYn) => {
+  if (!route.path.includes('wwpdc-service-mgt')) return;
+  console.log(`WwpdcServiceMgtM - watch - route.params.reloadYn: ${reloadYn}`);
+  if (reloadYn && reloadYn === 'Y') {
+    router.replace({ query: { pdCd: props.pdCd, tempSaveYn: props.tempSaveYn } });
+    currentStep.value = cloneDeep(pdConst.W_SERVICE_STEP_BASIC);
     await fetchProduct();
   }
-}); */
+});
 
 </script>
 <style scoped></style>

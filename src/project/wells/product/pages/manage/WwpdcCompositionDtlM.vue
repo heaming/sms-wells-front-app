@@ -52,6 +52,7 @@ const props = defineProps({
 });
 
 const route = useRoute();
+const router = useRouter();
 const dataService = useDataService();
 
 // -------------------------------------------------------------------------------------------------
@@ -98,6 +99,7 @@ async function initProps() {
 await initProps();
 
 watch(() => route.params.pdCd, async (pdCd) => {
+  if (!route.path.includes('wwpdc-composition-dtl')) return;
   console.log(`WwpdcCompositionDtlM - currentPdCd.value : ${currentPdCd.value}, route.params.pdCd : ${pdCd}`);
   if (pdCd) {
     if (cmpRef.value?.resetData) await cmpRef.value?.resetData();
@@ -105,6 +107,18 @@ watch(() => route.params.pdCd, async (pdCd) => {
     fetchProduct();
   }
 }, { immediate: true });
+
+watch(() => route.params.reloadYn, async (reloadYn) => {
+  if (!route.path.includes('wwpdc-composition-dtl')) return;
+  console.log(`WwpdcCompositionDtlM - watch - route.params.reloadYn: ${reloadYn}`, route);
+  if (reloadYn && reloadYn === 'Y') {
+    router.replace({ query: { pdCd: props.pdCd, tempSaveYn: props.tempSaveYn } });
+    currentPdCd.value = null;
+    if (cmpRef.value?.resetData) await cmpRef.value?.resetData();
+    currentPdCd.value = props.pdCd;
+    await fetchProduct();
+  }
+});
 
 </script>
 <style scoped></style>

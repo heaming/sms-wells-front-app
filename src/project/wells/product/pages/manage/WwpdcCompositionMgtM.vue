@@ -321,7 +321,7 @@ async function fetchProduct() {
   if (currentPdCd.value) {
     const initData = {};
     const res = await dataService.get(`/sms/wells/product/compositions/${currentPdCd.value}`);
-    console.log('WwpdcCompositionMgtM - fetchProduct - res.data', res.data);
+    // console.log('WwpdcCompositionMgtM - fetchProduct - res.data', res.data);
     initData[bas] = res.data[bas];
     initData[dtl] = res.data[dtl];
     initData[ecom] = res.data[ecom];
@@ -371,11 +371,11 @@ async function onClickSave(tempSaveYn) {
 
   // 3. Step별 저장 데이터 확인
   const subList = await getSaveData();
+  subList[bas].tempSaveYn = tempSaveYn;
   if (tempSaveYn === 'N' && isTempSaveBtn.value) {
-    subList[bas].tempSaveYn = tempSaveYn;
     subList.isModifiedProp = true;
   } else if (isEmpty(currentPdCd.value)) {
-    subList[bas].tempSaveYn = tempSaveYn;
+    subList[bas].tempSaveYn = 'Y';
   }
   // console.log('WwpdcCompositionMgtM - onClickSave - subList : ', subList);
 
@@ -393,6 +393,7 @@ async function onClickSave(tempSaveYn) {
   }));
   if (tempSaveYn === 'N') {
     // 목록으로 이동
+    router.close();
     router.push({ path: '/product/zwpdc-sale-product-list', replace: true, query: { onloadSearchYn: 'Y' } });
     return;
   }
@@ -435,6 +436,7 @@ async function initProps() {
 await initProps();
 
 watch(() => route.params.pdCd, async (pdCd) => {
+  if (!route.path.includes('wwpdc-composition-mgt')) return;
   console.log(`WwpdcCompositionMgtM - currentPdCd.value : ${currentPdCd.value}, route.params.pdCd : ${pdCd}`);
   if (currentPdCd.value !== pdCd && pdCd) {
     await onClickReset();
@@ -448,10 +450,21 @@ watch(() => route.params.pdCd, async (pdCd) => {
 }, { immediate: true });
 
 watch(() => route.params.newRegYn, async (newRegYn) => {
+  if (!route.path.includes('wwpdc-composition-mgt')) return;
   console.log(`WwpdcCompositionMgtM - newRegYn : ${newRegYn}`);
   if (newRegYn && newRegYn === 'Y') {
     router.replace({ query: null });
     await onClickReset();
+  }
+});
+
+watch(() => route.params.reloadYn, async (reloadYn) => {
+  if (!route.path.includes('wwpdc-composition-mgt')) return;
+  console.log(`WwpdcCompositionMgtM - watch - route.params.reloadYn: ${reloadYn}`, route);
+  if (reloadYn && reloadYn === 'Y') {
+    router.replace({ query: { pdCd: props.pdCd, tempSaveYn: props.tempSaveYn } });
+    currentStep.value = cloneDeep(pdConst.COMPOSITION_STEP_BASIC);
+    await fetchProduct();
   }
 });
 
