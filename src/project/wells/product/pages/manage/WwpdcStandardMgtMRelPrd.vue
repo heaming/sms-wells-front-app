@@ -44,6 +44,7 @@
   </kw-action-top>
   <kw-grid
     ref="grdMaterialRef"
+    name="grdMaterial"
     :visible-rows="3"
     @init="initMaterialGrid"
   />
@@ -78,6 +79,7 @@
   </kw-action-top>
   <kw-grid
     ref="grdServiceRef"
+    name="grdService"
     :visible-rows="3"
     @init="initServiceGrid"
   />
@@ -94,7 +96,7 @@
         dense
         class="ml12 w140"
         :label="$t('MSG_TXT_PD_SEL_STD')"
-        :options="stdRelCodes.PDCT_REL_DV_CD"
+        :options="stdRelCodes.BASE_PD_REL_DV_CD"
         :placeholder="$t('MSG_TXT_SEL_REL_TYPE')"
         rules="required"
       />
@@ -117,6 +119,7 @@
   </kw-action-top>
   <kw-grid
     ref="grdStandardRef"
+    name="grdStandard"
     :visible-rows="3"
     @init="initStandardGrid"
   />
@@ -156,7 +159,7 @@ const grdStandardRowCount = ref(0);
 const currentPdCd = ref();
 const currentInitData = ref({});
 const standardRelTypeRef = ref();
-const stdRelCodes = await codeUtil.getMultiCodes('PDCT_REL_DV_CD');
+const stdRelCodes = await codeUtil.getMultiCodes('BASE_PD_REL_DV_CD');
 
 const materialSelectItems = ref([
   // 교재/자재명
@@ -393,11 +396,11 @@ async function initGridRows() {
   const standardView = grdStandardRef.value?.getView();
   if (standardView) {
     standardView.getDataSource().clearRows();
-    const standardCodeValues = stdRelCodes.PDCT_REL_DV_CD
+    const standardCodeValues = stdRelCodes.BASE_PD_REL_DV_CD
       .reduce((rtns, code) => { rtns.push(code.codeId); return rtns; }, []);
-    // console.log('standardCodeValues : ', standardCodeValues);
-    standardView.getDataSource().setRows(products
-      ?.filter((item) => standardCodeValues.includes(item[pdConst.PD_REL_TP_CD])));
+    const standardRows = products
+      ?.filter((item) => standardCodeValues.includes(item[pdConst.PD_REL_TP_CD]));
+    standardView.getDataSource().setRows(standardRows);
     standardView.resetCurrent();
     grdStandardRowCount.value = getGridRowCount(standardView);
   }
@@ -525,7 +528,7 @@ async function initServiceGrid(data, view) {
 async function initStandardGrid(data, view) {
   const columns = [
     // 관계구분
-    { fieldName: 'pdRelTpCd', header: t('MSG_TXT_RELATION_CLSF'), width: '107', styleName: 'text-center', options: stdRelCodes.PDCT_REL_DV_CD, editable: false },
+    { fieldName: 'pdRelTpCd', header: t('MSG_TXT_RELATION_CLSF'), width: '107', styleName: 'text-center', options: stdRelCodes.BASE_PD_REL_DV_CD, editable: false },
     // 상태
     { fieldName: 'tempSaveYn', header: t('MSG_TXT_STT'), width: '105', styleName: 'text-center', options: props.codes?.PD_TEMP_SAVE_CD, editable: false },
     // 기준상품 분류

@@ -123,7 +123,7 @@ const selectedTab = ref('attribute');
 
 async function onClickUpdate() {
   const { pdCd } = props;
-  router.push({ path: '/product/zwpdc-service-list/wwpdc-service-mgt', query: { pdCd, tempSaveYn: 'N' } });
+  router.push({ path: '/product/zwpdc-service-list/wwpdc-service-mgt', query: { pdCd, tempSaveYn: 'N', reloadYn: 'Y' } });
   // router.close();
 }
 
@@ -147,6 +147,7 @@ async function initProps() {
 await initProps();
 
 watch(() => route.params.pdCd, async (pdCd) => {
+  if (!route.path.includes('wwpdc-service-dtl')) return;
   console.log(`WwpdcServiceDtlM - watch - currentPdCd.value: ${currentPdCd.value} route.params.pdCd: ${pdCd}`);
   if (pdCd) {
     await Promise.all(cmpStepRefs.value.map(async (item) => {
@@ -157,6 +158,21 @@ watch(() => route.params.pdCd, async (pdCd) => {
     await fetchData();
   }
 }, { immediate: true });
+
+watch(() => route.params.reloadYn, async (reloadYn) => {
+  if (!route.path.includes('wwpdc-service-dtl')) return;
+  console.log(`WwpdcServiceDtlM - watch - route.params.reloadYn: ${reloadYn}`);
+  if (reloadYn && reloadYn === 'Y') {
+    router.replace({ query: { pdCd: props.pdCd, tempSaveYn: props.tempSaveYn } });
+    currentPdCd.value = null;
+    await Promise.all(cmpStepRefs.value.map(async (item) => {
+      if (item.value?.resetData) await item.value?.resetData();
+    }));
+    currentPdCd.value = props.pdCd;
+    selectedTab.value = 'attribute';
+    await fetchData();
+  }
+});
 
 </script>
 <style scoped></style>
