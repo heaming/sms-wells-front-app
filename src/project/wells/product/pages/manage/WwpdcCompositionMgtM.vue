@@ -374,8 +374,11 @@ async function onClickSave(tempSaveYn) {
   subList[bas].tempSaveYn = tempSaveYn;
   if (tempSaveYn === 'N' && isTempSaveBtn.value) {
     subList.isModifiedProp = true;
+    subList[bas].tempSaveYn = tempSaveYn;
   } else if (isEmpty(currentPdCd.value)) {
     subList[bas].tempSaveYn = 'Y';
+  } else {
+    subList[bas].tempSaveYn = tempSaveYn;
   }
   // console.log('WwpdcCompositionMgtM - onClickSave - subList : ', subList);
 
