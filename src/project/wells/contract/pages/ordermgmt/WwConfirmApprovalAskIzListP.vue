@@ -37,9 +37,7 @@
       :visible-rows="4"
       @init="initGrdMain"
     />
-    <div
-      v-show="isShow"
-    >
+    <div v-show="isShow">
       <h3>{{ t('MSG_TXT_PRCH_IZ') }}</h3>
       <kw-action-top>
         <template #left>
