@@ -161,10 +161,6 @@ const searchParams = ref({
   baseYr: now.format('YYYY'),
 });
 
-const searchDetail = ref({
-  cwinst: '',
-});
-
 const pageInfo = ref({
   totalCount: 0,
   pageIndex: 1,
@@ -172,8 +168,9 @@ const pageInfo = ref({
 });
 
 let detailParams;
-async function fetchCancelData() {
-  detailParams = cloneDeep(searchDetail.value);
+async function fetchCancelData(cwinst) {
+  detailParams = cwinst;
+
   const resType = await dataService.get('/sms/wells/closing/kmoney-sales-bond/cancel-detail', { params: detailParams });
   console.log(resType.data);
   const cancelDetail = resType.data;
@@ -183,8 +180,8 @@ async function fetchCancelData() {
   viewType.resetCurrent();
 }
 
-async function fetchDepositData() {
-  detailParams = cloneDeep(searchDetail.value);
+async function fetchDepositData(cwinst) {
+  detailParams = cwinst;
 
   const nowDate = now.format('YYYYMM');
   // TODO. 데이터, 테이블 생성되면 확인 필!
@@ -214,9 +211,10 @@ async function fetchData() {
   view.resetCurrent();
 
   if (!isEmpty(mainList[0])) {
-    searchDetail.value.cwinst = mainList[0].cwinst;
-    await fetchDepositData();
-    await fetchCancelData();
+    let params;
+    params.cwinst = mainList[0].cwinst;
+    await fetchDepositData(params);
+    await fetchCancelData(params);
   }
 }
 
@@ -272,13 +270,11 @@ const initGridMain = defineGrid((data, view) => {
   view.checkBar.visible = true;
   view.rowIndicator.visible = true;
 
-  view.onCellItemClicked = async (grid, { column }) => {
+  view.onCellItemClicked = async (grid, { column, dataRow }) => {
     if (column === 'cwinst') {
-      const current = view.getCurrent();
-      const dataProvider = view.getDataSource();
-      searchDetail.value.cwinst = dataProvider.getValue(current.dataRow, 'cwinst');
-      await fetchDepositData();
-      await fetchCancelData();
+      const { cwinst } = gridUtil.getRowValue(grid, dataRow);
+      await fetchDepositData(cwinst);
+      await fetchCancelData(cwinst);
     }
   };
 });
