@@ -220,7 +220,7 @@ const searchParams = ref({
 async function onClickProduct() {
   const { result, payload } = await modal({
     component: 'ZwpdcMaterialsSelectListP',
-    componentProps: { searchType: null, searchValue: null, selectType: pdConst.PD_SEARCH_SINGLE },
+    componentProps: { searchType: null, searchValue: null, selectType: pdConst.PD_SEARCH_SINGLE, searchLvl: 3 },
   });
 
   if (result) searchParams.value.pdCd = payload.checkedRows[0].pdCd;
