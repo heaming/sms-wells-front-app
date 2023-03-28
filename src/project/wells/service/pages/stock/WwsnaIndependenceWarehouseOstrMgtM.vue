@@ -442,7 +442,6 @@ const initGrdMain = defineGrid((data, view) => {
   view.onEditChange = (grid, index, value) => {
     const oldvalue = gridUtil.getOrigCellValue(grid, index.itemIndex, index.fieldName);
 
-    // console.log(`before : ${oldvalue} ::: after : ${value}`);
     if (value !== oldvalue) {
       view.checkRow(index.itemIndex, true);
     } else {
