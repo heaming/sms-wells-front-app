@@ -65,7 +65,7 @@
   </kw-action-top>
   <kw-grid
     ref="grdMainRef"
-    name="grdMain"
+    name="grdMainMgt"
     @init="initGrid"
   />
 </template>
@@ -147,11 +147,11 @@ async function onClickRemoveRows() {
 async function onClickBsConnect() {
   const view = grdMainRef.value.getView();
   if (!view.getCheckedRows().length) {
-    await notify(t('MSG_ALT_NOT_SEL_ITEM'));
+    notify(t('MSG_ALT_SELECT_ONE_ROW', [t('MSG_TXT_PD_SCH_BS_REL_PART')]));
     return;
   }
-  if (view.getCheckedRows().length !== 1) {
-    notify(t('MSG_ALT_SELECT_ONE_ROW', [t('MSG_BTN_SUMMARY_SRCH')]));
+  if (view.getCheckedRows().length > 1) {
+    notify(t('MSG_ALT_SELT_ONE_ITEM'));
     return;
   }
   const checkedRows = gridUtil.getCheckedRowValues(view);
@@ -168,11 +168,11 @@ async function onClickBsConnect() {
 async function onClickBsInfos() {
   const view = grdMainRef.value.getView();
   if (!view.getCheckedRows().length) {
-    await notify(t('MSG_ALT_NOT_SEL_ITEM'));
+    notify(t('MSG_ALT_SELECT_ONE_ROW', [t('MSG_TXT_PD_SCH_BS_INFO')]));
     return;
   }
-  if (view.getCheckedRows().length !== 1) {
-    notify(t('MSG_ALT_SELECT_ONE_ROW', [t('MSG_BTN_SUMMARY_SRCH')]));
+  if (view.getCheckedRows().length > 1) {
+    notify(t('MSG_ALT_SELT_ONE_ITEM'));
     return;
   }
   const checkedRows = gridUtil.getCheckedRowValues(view);

@@ -96,7 +96,7 @@
     <kw-grid
       ref="grdMainRef"
       name="grdMain"
-      @init="initGrid"
+      @init="initGridMain"
     />
 
     <!-- 정기 B/S투입정보 생성 -->
@@ -114,7 +114,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { codeUtil, gridUtil, useGlobal, useDataService, getComponentType, defineGrid } from 'kw-lib';
-import { cloneDeep, isEmpty, split } from 'lodash-es';
+import { cloneDeep, isEmpty, split, merge } from 'lodash-es';
 // import pdConst from '~sms-common/product/constants/pdConst';
 import { getAlreadyItems, getGridRowCount } from '~/modules/sms-common/product/utils/pdUtil';
 import pdConst from '~sms-common/product/constants/pdConst';
@@ -148,7 +148,7 @@ const materialSelectItems = ref([
   { codeId: pdConst.PD_SEARCH_CODE, codeName: t('MSG_TXT_PROD_CD') },
 ]);
 const codes = await codeUtil.getMultiCodes('BFSVC_WK_DV_CD', 'MM_CD', 'VST_DV_CD');
-codes.MM_CD.map((item) => { item.codeId = Number(item.codeId); return item; });
+// codes.MM_CD = codes.MM_CD.map((item) => { item.codeId = Number(item.codeId); return item; });
 
 async function onClickLoadRoutineBsFltPart() {
   const { svPdCd, pdctPdCd } = props;
@@ -158,11 +158,10 @@ async function onClickLoadRoutineBsFltPart() {
     componentProps: {},
   });
   if (rtn.result) {
-    if (Array.isArray(rtn.payload) && rtn.payload.length > 1) {
+    if (Array.isArray(rtn.payload) && rtn.payload.length > 0) {
       const data = view.getDataSource();
-      const rows = rtn.payload.map((item) => ({
-        ...item, svPdCd, pdctPdCd }));
-      await data.insertRows(0, rows);
+      const rows = rtn.payload.map((item) => merge(item, { svPdCd, pdctPdCd, dtlSn: 0 }));
+      data.insertRows(0, rows);
       await gridUtil.focusCellInput(view, 0);
     }
   }
@@ -172,11 +171,11 @@ async function onClickLoadRoutineBsFltPart() {
 async function onClickLifeFiltMgt() {
   const view = grdMainRef.value.getView();
   if (!view.getCheckedRows().length) {
-    notify(t('MSG_ALT_NOT_SEL_ITEM'));
+    notify(t('MSG_ALT_SELECT_ONE_ROW', [t('MSG_BTN_LIFE_FILT_MGT')]));
     return;
   }
-  if (view.getCheckedRows().length !== 1) {
-    notify(t('MSG_ALT_SELECT_ONE_ROW', [t('MSG_BTN_SUMMARY_SRCH')]));
+  if (view.getCheckedRows().length > 1) {
+    notify(t('MSG_ALT_SELT_ONE_ITEM'));
     return;
   }
   const checkedRows = gridUtil.getCheckedRowValues(view);
@@ -344,7 +343,7 @@ onMounted(async () => {
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
-const initGrid = defineGrid((data, view) => {
+const initGridMain = defineGrid((data, view) => {
   const columns = [
     // 작업구분
     { fieldName: 'svBizDclsfCd',

@@ -18,9 +18,18 @@
 <template>
   <!-- 교재/자재 -->
   <h3>{{ $t('MSG_TXT_PD_MNL_MAT') }}</h3>
+  <kw-action-top>
+    <!-- 정기B/S투입정보 -->
+    <kw-btn
+      dense
+      :disable="grdRowCount === 0"
+      :label="$t('MSG_TXT_PD_SCH_BS_INFO')"
+      @click="onClickBsInfos"
+    />
+  </kw-action-top>
   <kw-grid
     ref="grdMainRef"
-    name="grdMain"
+    name="grdMainDtl"
     @init="initGrid"
   />
 </template>
@@ -28,8 +37,9 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { gridUtil, codeUtil, getComponentType } from 'kw-lib';
+import { gridUtil, useGlobal, getComponentType } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
+import { getGridRowCount } from '~/modules/sms-common/product/utils/pdUtil';
 import pdConst from '~sms-common/product/constants/pdConst';
 
 /* eslint-disable no-use-before-define */
@@ -40,17 +50,19 @@ defineExpose({
 const props = defineProps({
   pdCd: { type: String, default: null },
   initData: { type: Object, default: null },
+  codes: { type: Object, default: null },
 });
 
 const { t } = useI18n();
+const { notify, modal } = useGlobal();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 const grdMainRef = ref(getComponentType('KwGrid'));
+const grdRowCount = ref(0);
 const currentPdCd = ref();
 const currentInitData = ref({});
-
-const codes = await codeUtil.getMultiCodes('PD_TEMP_SAVE_CD');
+const currentCodes = ref({});
 
 async function isModifiedProps() {
   return gridUtil.isModified(grdMainRef.value?.getView());
@@ -60,6 +72,27 @@ async function validateProps() {
   return true;
 }
 
+async function onClickBsInfos() {
+  const view = grdMainRef.value.getView();
+  if (!view.getCheckedRows().length) {
+    notify(t('MSG_ALT_SELECT_ONE_ROW', [t('MSG_TXT_PD_SCH_BS_INFO')]));
+    return;
+  }
+  if (view.getCheckedRows().length > 1) {
+    notify(t('MSG_ALT_SELT_ONE_ITEM'));
+    return;
+  }
+  const checkedRows = gridUtil.getCheckedRowValues(view);
+  await modal({
+    component: 'WwpdcRoutineBsInputListP',
+    componentProps: { svPdCd: currentPdCd.value,
+      pdctPdCd: checkedRows[0].pdCd,
+      svPdNm: currentInitData.value[pdConst.TBL_PD_BAS].pdNm,
+      pdctPdNm: checkedRows[0].pdNm,
+    },
+  });
+}
+
 async function init() {
   const materialView = grdMainRef.value?.getView();
   if (materialView) gridUtil.init(materialView);
@@ -67,7 +100,9 @@ async function init() {
 
 async function resetData() {
   currentPdCd.value = '';
+  grdRowCount.value = 0;
   currentInitData.value = {};
+  grdMainRef.value?.getView().getDataSource().clearRows();
   if (grdMainRef.value?.getView()) gridUtil.reset(grdMainRef.value.getView());
 }
 
@@ -83,19 +118,21 @@ async function getSaveData() {
 async function initGridRows() {
   const products = cloneDeep(currentInitData.value?.[pdConst.RELATION_PRODUCTS]);
   // console.log('WwpdcServiceMgtMFlt - initGridRows - products : ', products);
-  const materialView = grdMainRef.value?.getView();
-  if (materialView) {
-    materialView.getDataSource().clearRows();
-    materialView.getDataSource().setRows(products // 상품-필터
+  const view = grdMainRef.value?.getView();
+  if (view) {
+    view.getDataSource().clearRows();
+    view.getDataSource().setRows(products // 상품-필터
       ?.filter((item) => item[pdConst.PD_REL_TP_CD] === pdConst.PD_REL_TP_CD_PD_TO_FL));
-    materialView.resetCurrent();
+    view.resetCurrent();
   }
+  grdRowCount.value = getGridRowCount(view);
 }
 
 async function initProps() {
-  const { pdCd, initData } = props;
+  const { pdCd, initData, codes } = props;
   currentPdCd.value = pdCd;
   currentInitData.value = initData;
+  currentCodes.value = codes;
 }
 
 await initProps();
@@ -109,7 +146,7 @@ watch(() => props.initData, (initData) => { currentInitData.value = initData; in
 async function initGrid(data, view) {
   const columns = [
     // 상태
-    { fieldName: 'tempSaveYn', header: t('MSG_TXT_STT'), width: '135', styleName: 'text-center', options: codes.PD_TEMP_SAVE_CD },
+    { fieldName: 'tempSaveYn', header: t('MSG_TXT_STT'), width: '135', styleName: 'text-center', options: currentCodes.value.PD_TEMP_SAVE_CD },
     // 교재/자재 분류
     { fieldName: 'pdClsfNm', header: t('MSG_TXT_PD_BOK_MTR_TYPE'), width: '371' },
     // 교재/자재명

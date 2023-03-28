@@ -166,15 +166,14 @@ async function initGridRows() {
       row.sellTpCd = currentInitData.value[pdConst.TBL_PD_BAS]?.sellTpCd;
       // 조정 전 가격 ( 01: 정액, 02: 정률)
       if (row.cndtFxamFxrtDvCd === '01') {
-        // 조정 전 가격 = 기준가 + 조정가
-        row.prcBefAdj = Number(row.ccamBasePrc) - Number(row.cndtDscPrumVal);
+        // 할인적용가격 = 기준가 + 조정가
+        row.prcBefAdj = Number(row.ccamBasePrc ?? 0) - Number(row.cndtDscPrumVal ?? 0);
       } else if (row.cndtFxamFxrtDvCd === '02') {
-        // 조정 전 가격 = 기준가 + 조정률
-        const calPrc = Math.round((Number(row.ccamBasePrc) * Number(row.cndtDscPrumVal)) / 100, 2);
+        // 할인적용가격 = 기준가 + 조정률
+        const calPrc = Math.round((Number(row.ccamBasePrc ?? 0) * Number(row.cndtDscPrumVal ?? 0)) / 100, 2);
         row.prcBefAdj = Number(row.ccamBasePrc) - calPrc;
       }
-      row.fnlVal = Number(row.prcBefAdj) - Number(row.ctrVal);
-
+      row.fnlVal = Number(row.prcBefAdj ?? 0) - Number(row.ctrVal ?? 0);
       return row;
     });
     // console.log('WwpdcStandardMgtMPriceFnl - initGridRows - Rows : ', rows);
@@ -201,8 +200,8 @@ watch(() => props.initData, (val) => { currentInitData.value = val; initGridRows
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
 async function setFinalVal(view, grid, itemIndex) {
-  const prcBefAdj = Number(grid.getValue(itemIndex, 'prcBefAdj'));
-  let ctrVal = Number(grid.getValue(itemIndex, 'ctrVal'));
+  const prcBefAdj = Number(grid.getValue(itemIndex, 'prcBefAdj') ?? 0);
+  let ctrVal = Number(grid.getValue(itemIndex, 'ctrVal') ?? 0);
   let fnlVal = 0;
   // 조정 전 가격 ( 01: 정액, 02: 정률)23
   if (ctrVal > prcBefAdj) {

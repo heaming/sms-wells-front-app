@@ -19,6 +19,7 @@
   </kw-action-top>
   <kw-grid
     ref="grdMainRef"
+    name="grdMain"
     :visible-rows="10"
     ignore-on-modified
     @init="initGrid"
@@ -108,11 +109,7 @@ async function resetInitData() {
 }
 
 async function fetchData() {
-  // const res = await dataService.get('/sms/common/product/prices', { params: searchParams.value });
-  // const view = grdMainRef.value.getView();
-  // view.getDataSource().setRows(res.data);
-  // view.resetCurrent();
-  const res = await dataService.get('/sms/common/product/meta-properties', { params: { pdPrcTpCd: pdConst.PD_PRC_TP_CD_ALL } });
+  const res = await dataService.get('/sms/common/product/meta-properties', { params: { pdPrcTpCd: pdConst.PD_PRC_TP_CD_COMPOSITION } });
   if (isEmpty(res.data)) {
     return;
   }
@@ -161,6 +158,7 @@ async function initGrid(data, view) {
     metaInfos.value,
     [pdConst.PD_PRC_TP_CD_COMPOSITION],
     currentCodes.value,
+    [],
   );
   // console.log('WwpdcCompositionDtlMPrice - initGr id - columns : ', columns);
   // Grid 내부키 - '신규 Row 추가' 대응
@@ -168,13 +166,7 @@ async function initGrid(data, view) {
   fields.push({ fieldName: pdConst.PRC_FNL_ROW_ID });
 
   data.setFields(fields);
-  view.setColumns(columns.map((item) => {
-    // 적용 시작일자, 종료일자 숨김
-    if (['vlStrtDtm', 'vlEndDtm'].includes(item.fieldName)) {
-      item.visible = false;
-    }
-    return item;
-  }));
+  view.setColumns(columns);
   view.checkBar.visible = false;
   view.rowIndicator.visible = false;
   view.editOptions.editable = false;
