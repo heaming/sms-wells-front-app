@@ -16,6 +16,7 @@
 <template>
   <kw-popup
     ref="popupRef"
+    :modified-targets="['grdMain']"
     size="2xl"
   >
     <kw-search
@@ -121,6 +122,7 @@
     </kw-action-top>
     <kw-grid
       ref="grdMainRef3"
+      name="grdMain"
       :visible-rows="pageInfoSecond.pageSize -1"
       @init="initGrid3"
     />

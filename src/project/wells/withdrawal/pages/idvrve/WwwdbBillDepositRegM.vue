@@ -292,7 +292,7 @@ async function onClickSelectCntr() {
 // 신규등록
 async function onClickCreate() {
   await modal({
-    component: 'WwwdbBillNewRegistrationRegP',
+    component: 'WwwdbBillDepositRegP',
   });
 }
 
