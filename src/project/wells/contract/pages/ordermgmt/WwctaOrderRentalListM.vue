@@ -38,40 +38,91 @@
     </kw-tabs>
     <kw-tab-panels v-model="selectedTab">
       <kw-tab-panel name="rental">
-        <kw-tabs v-model="selectedSubTab">
+        <kw-tabs v-model="selectedRntlTab">
           <!-- 일반조회 -->
           <kw-tab
-            name="generalSearch"
+            name="rntlGeneral"
             :label="$t('MSG_TXT_GE')+$t('MSG_TXT_SRCH')"
           />
           <!-- 계약번호 조회 -->
           <kw-tab
-            name="contractNumberSearch"
+            name="rntlCntrNo"
             :label="$t('MSG_TXT_CNTR_NO')+' '+$t('MSG_TXT_SRCH')"
           />
           <!-- 고객번호 조회 -->
           <kw-tab
-            name="customerNumberSearch"
+            name="rntlCstNo"
             :label="$t('MSG_TXT_CST_NO')+' '+$t('MSG_TXT_SRCH')"
           />
           <!-- 설치자 정보 조회 -->
           <kw-tab
-            name="installerInformationSearch"
+            name="rntlInstrInfo"
             :label="$t('MSG_TXT_INSTR_INFO')+' '+$t('MSG_TXT_SRCH')"
           />
         </kw-tabs>
-        <kw-tab-panels v-model="selectedSubTab">
+        <kw-tab-panels v-model="selectedRntlTab">
           <!-- 일반 조회 -->
-          <kw-tab-panel name="generalSearch">
-            <wwcta-order-rental-contract-list-m />
+          <kw-tab-panel name="rntlGeneral">
+            <wwcta-order-rental-contract-list-m
+              :ref="(vm) => tabRefs.page = vm"
+            />
           </kw-tab-panel>
           <!-- 계약번호 조회 -->
-          <kw-tab-panel name="contractNumberSearch">
-            <wwcta-order-rental-contract-No-list-m />
+          <kw-tab-panel name="rntlCntrNo">
+            <wwcta-order-rental-contract-No-list-m
+              :ref="(vm) => tabRefs.page = vm"
+            />
           </kw-tab-panel>
           <!-- 계약고객번호 조회 -->
-          <kw-tab-panel name="customerNumberSearch">
-            <wwcta-order-rental-contractor-list-m />
+          <kw-tab-panel name="rntlCstNo">
+            <wwcta-order-rental-contractor-list-m
+              :ref="(vm) => tabRefs.page = vm"
+            />
+          </kw-tab-panel>
+          <!-- 설치자 정보 조회 -->
+          <kw-tab-panel name="rntlInstrInfo">
+            <wwcta-order-rental-installer-list-m
+              :ref="(vm) => tabRefs.page = vm"
+            />
+          </kw-tab-panel>
+        </kw-tab-panels>
+      </kw-tab-panel>
+      <kw-tab-panel name="membership">
+        <kw-tabs v-model="selectedMmbrTab">
+          <!-- 일반조회 -->
+          <kw-tab
+            name="mmbrGeneral"
+            :label="$t('MSG_TXT_GE')+$t('MSG_TXT_SRCH')"
+          />
+          <!-- 계약번호 조회 -->
+          <kw-tab
+            name="mmbrCntrNo"
+            :label="$t('MSG_TXT_CNTR_NO')+' '+$t('MSG_TXT_SRCH')"
+          />
+          <!-- 개인정보 조회 -->
+          <kw-tab
+            name="mmbrPersInfo"
+            :label="$t('MSG_TXT_PRVCY')+' '+$t('MSG_TXT_SRCH')"
+          />
+        </kw-tabs>
+        <kw-tab-panels v-model="selectedMmbrTab">
+          <!-- 일반 조회 -->
+          <kw-tab-panel name="mmbrGeneral">
+            <wwcta-membership-contract-list-m
+              :ref="(vm) => tabRefs.page = vm"
+            />
+          </kw-tab-panel>
+          <!-- 계약번호 조회 -->
+          <kw-tab-panel name="mmbrCntrNo">
+            <wwcta-membership-contract-No-list-m
+              :ref="(vm) => tabRefs.page = vm"
+            />
+          </kw-tab-panel>
+          <!-- 개인정보 조회 -->
+          <kw-tab-panel name="mmbrPersInfo">
+            <wwcta-membership-contractor-list-m
+              :ref="(vm) => tabRefs.page = vm"
+            />
           </kw-tab-panel>
         </kw-tab-panels>
       </kw-tab-panel>
@@ -86,14 +137,19 @@
 import WwctaOrderRentalContractListM from './WwctaOrderRentalContractListM.vue';
 import WwctaOrderRentalContractNoListM from './WwctaOrderRentalContractNoListM.vue';
 import WwctaOrderRentalContractorListM from './WwctaOrderRentalContractorListM.vue';
+import WwctaOrderRentalInstallerListM from './WwctaOrderRentalInstallerListM.vue';
+
+import WwctaMembershipContractListM from './WwctaMembershipContractListM.vue';
+import WwctaMembershipContractNoListM from './WwctaMembershipContractNoListM.vue';
+import WwctaMembershipContractorListM from './WwctaMembershipContractorListM.vue';
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
-// const tabRefs = reactive({});
-// const itemsChecked = reactive({ page: false, link: false });
+const tabRefs = reactive({});
 const selectedTab = ref('rental');
-const selectedSubTab = ref('generalSearch');
+const selectedRntlTab = ref('rntlGeneral');
+const selectedMmbrTab = ref('mmbrGeneral');
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid

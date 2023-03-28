@@ -92,7 +92,7 @@
             </kw-form-item>
             <!-- 생년월일 -->
             <kw-form-item :label="$t('MSG_TXT_BIRTH_DATE')">
-              <p>{{ frmMainData.cstNo2 }}</p>
+              <p>{{ stringUtil.getDateFormat(frmMainData.cstNo2) }}</p>
             </kw-form-item>
           </kw-form-row>
 
@@ -132,21 +132,42 @@
             </kw-form-item>
             <!-- 가상계좌 -->
             <kw-form-item :label="$t('MSG_TXT_VT_AC')">
+              <kw-separator
+                vertical
+                spaced="2px"
+                size="0"
+              />
               <!-- 가상계좌확인서 -->
               <kw-btn
                 v-show="isVacInfo"
+                dense
+                secondary
                 :label="$t('MSG_BTN_VT_AC_CFDC')"
                 @click="onClick"
+              />
+              <kw-separator
+                vertical
+                spaced="2px"
+                size="0"
               />
               <!-- 문자발송 -->
               <kw-btn
                 v-show="isVacInfo"
+                dense
+                secondary
                 :label="$t('MSG_BTN_CHAR_FW')"
                 @click="onClick"
+              />
+              <kw-separator
+                vertical
+                spaced="2px"
+                size="0"
               />
               <!-- 메일발송 -->
               <kw-btn
                 v-show="isVacInfo"
+                dense
+                secondary
                 :label="$t('MSG_BTN_EMAIL_SEND')"
                 @click="onClick"
               />
@@ -195,7 +216,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService } from 'kw-lib';
+import { useDataService, stringUtil } from 'kw-lib';
 import { isNull, cloneDeep } from 'lodash-es';
 
 const dataService = useDataService();

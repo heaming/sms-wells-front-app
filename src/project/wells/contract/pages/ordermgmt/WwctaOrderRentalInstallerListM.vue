@@ -3,13 +3,13 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : SSU
-2. 프로그램 ID : WwctaOrderRentalContractNoListM - 주문상세조회/관리(렌탈-주문번호 조회)
+2. 프로그램 ID : WwctaOrderRentalInstallerListM - 주문상세조회/관리(렌탈-설치자 정보 조회)
 3. 작성자 : jihoon.kim
-4. 작성일 : 2023.03.13
+4. 작성일 : 2023.03.22
 ****************************************************************************************************
 * 프로그램 설명
 ****************************************************************************************************
-- [W-SS-U0047] - 계약번호기준으로 렌탈 주문상세내역을 조회한다.
+- 설치자기준으로 렌탈 주문상세내역을 조회한다.
 ****************************************************************************************************
 --->
 <template>
@@ -18,29 +18,28 @@
     @search="onClickSearch"
   >
     <kw-search-row>
-      <!-- 계약번호 -->
+      <!-- 설치자 휴대전화번호 -->
       <kw-search-item
-        :label="$t('MSG_TXT_CNTR_NO')"
+        :label="$t('MSG_TXT_MPNO')"
         required
         :colspan="2"
       >
         <kw-input
-          v-model="searchParams.cntrNo"
-          rules="required"
-          :label="$t('MSG_TXT_CNTR_NO')"
+          v-model="searchParams.istCralTno"
+          rules="required|numeric"
+          :label="$t('MSG_TXT_INSTR_PH_NO')"
+          :type="number"
           :maxlength="12"
         />
       </kw-search-item>
-      <!-- 계약일련번호 -->
+      <!-- 설치자명 -->
       <kw-search-item
-        :label="$t('MSG_TXT_CNTR_SN')"
+        :label="$t('MSG_TXT_IST_NM')"
         :colspan="2"
       >
         <kw-input
-          v-model="searchParams.cntrSn"
-          rules="numeric"
-          :label="$t('MSG_TXT_CNTR_SN')"
-          :type="number"
+          v-model="searchParams.rcgvpKnm"
+          :label="$t('MSG_TXT_IST_NM')"
           :maxlength="5"
         />
       </kw-search-item>
@@ -81,10 +80,10 @@
       />
     </kw-action-top>
     <kw-grid
-      ref="grdRentalContractorNoList"
-      name="grdRentalContractorNoList"
+      ref="grdRentalInstallerList"
+      name="grdRentalInstallerList"
       :visible-rows="pageInfo.pageSize"
-      @init="initGridRentalContractorNoList"
+      @init="initGridRentalInstallerList"
     />
     <kw-pagination
       v-model:page-index="pageInfo.pageIndex"
@@ -109,8 +108,8 @@ const { currentRoute } = useRouter();
 
 let cachedParams;
 const searchParams = ref({
-  cntrNo: '',
-  cntrSn: '',
+  istCralTno: '', // 설치자 휴대전화번호
+  rcgvpKnm: '', // 설치자명
 });
 const pageInfo = ref({
   totalCount: 0,
@@ -123,7 +122,7 @@ const pageInfo = ref({
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
-const grdRentalContractorNoList = ref(getComponentType('KwGrid'));
+const grdRentalInstallerList = ref(getComponentType('KwGrid'));
 const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
 );
@@ -143,7 +142,7 @@ async function fetchData() {
   pageInfo.value = pagingResult;
   console.log(res.data);
 
-  const view = grdRentalContractorNoList.value.getView();
+  const view = grdRentalInstallerList.value.getView();
   view.getDataSource().setRows(details);
   pageInfo.value.totalCount = view.getItemCount();
   view.resetCurrent();
@@ -154,7 +153,7 @@ async function onClickSearch() {
 }
 
 async function onClickExcelDownload() {
-  const view = grdRentalContractorNoList.value.getView();
+  const view = grdRentalInstallerList.value.getView();
   const res = await dataService.get('/sms/wells/contract/contracts/order-detail-mngt/rentals/excel-download', { params: cachedParams });
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
@@ -170,7 +169,7 @@ onMounted(async () => {
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
-const initGridRentalContractorNoList = defineGrid((data, view) => {
+const initGridRentalInstallerList = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'cntrNoFull' }, // 계약번호
     { fieldName: 'ordrInfoView' }, // 주문정보 보기
