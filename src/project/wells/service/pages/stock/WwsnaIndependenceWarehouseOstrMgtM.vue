@@ -200,7 +200,7 @@ import ZwcmWareHouseSearch from '~sms-common/service/components/ZwsnzWareHouseSe
 
 const { getConfig } = useMeta();
 const { t } = useI18n();
-const { alert, notify } = useGlobal();
+const { notify } = useGlobal();
 
 const dataService = useDataService();
 const grdMainRef = ref(getComponentType('KwGrid'));
@@ -327,7 +327,7 @@ async function onClickSave() {
   console.log(`view : ${view}`);
   console.log(`chkrows : ${chkRows}`);
   if (chkRows.length === 0) {
-    alert(t('MSG_ALT_CHK_MIN_SELT', [1, t('MSG_TIT_ROW')]));
+    notify(t('MSG_ALT_CHK_MIN_SELT', [1, t('MSG_TIT_ROW')]));
 
     return false;
   }
@@ -444,9 +444,9 @@ const initGrdMain = defineGrid((data, view) => {
 
     // console.log(`before : ${oldvalue} ::: after : ${value}`);
     if (value !== oldvalue) {
-      view.checkRow(index.dataRow, true);
+      view.checkRow(index.itemIndex, true);
     } else {
-      view.checkRow(index.dataRow, false);
+      view.checkRow(index.itemIndex, false);
     }
   };
 });
