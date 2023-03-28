@@ -26,9 +26,14 @@
       >
         <kw-input
           v-model="searchParams.cntrNo"
+          icon="search"
+          clearable
           rules="required"
           :label="$t('MSG_TXT_CNTR_NO')"
           :maxlength="12"
+          @keydown="onKeyDownSelectCntrNo"
+          @click-icon="onClickSelectCntrNo"
+          @clear="onClearSelectCntrNo"
         />
       </kw-search-item>
       <!-- 계약일련번호 -->
@@ -161,6 +166,18 @@ async function onClickExcelDownload() {
     timePostfix: true,
     exportData: res.data,
   });
+}
+
+// 계약번호 팝업조회
+async function onClickSelectCntrNo() {
+  const { result, payload } = await modal({ component: 'WwctaContractNumberListP',
+    // componentProps: { cntrCstNo: searchParams.value.cntrCstNo, cntrCstKnm: searchParams.value.cntrCstKnm },
+  });
+
+  if (result) {
+    searchParams.value.cntrNo = payload.cntrNo;
+    searchParams.value.cntrSn = payload.cntrSn;
+  }
 }
 
 onMounted(async () => {

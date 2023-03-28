@@ -342,28 +342,28 @@ async function fetchData() {
 // 상품코드 검색 팝업 호출
 async function onClickSearchPdCdPopup() {
   const { result, payload } = await modal({
-    component: 'ZpdcStandardProductListP',
+    component: 'ZwpdcStandardProductListP',
     componentProps: {
       pdRelTpCd: 'N',
       pdTpCd: '',
     },
   });
   if (result) {
-    searchParams.value.pdCd = payload.checkedRows?.[0].pdRelTpCd;
+    searchParams.value.pdCd = payload.checkedRows?.[0].pdCd;
   }
 }
 
 // 상품명 검색 팝업 호출
 async function onClickSearchPdNmPopup() {
   const { result, payload } = await modal({
-    component: 'ZpdcStandardProductListP',
+    component: 'ZwpdcStandardProductListP',
     componentProps: {
       pdRelTpCd: 'N',
       pdTpCd: '',
     },
   });
   if (result) {
-    searchParams.value.pdNm = payload.checkedRows?.[0].pdRelTpCd;
+    searchParams.value.pdNm = payload.checkedRows?.[0].pdNm;
   }
 }
 

@@ -26,9 +26,14 @@
       >
         <kw-input
           v-model="searchParams.cntrNo"
+          icon="search"
+          clearable
           rules="required"
           :label="$t('MSG_TXT_CNTR_NO')"
           :maxlength="12"
+          @keydown="onKeyDownSelectCntrNo"
+          @click-icon="onClickSelectCntrNo"
+          @clear="onClearSelectCntrNo"
         />
       </kw-search-item>
       <!-- 계약일련번호 -->
@@ -175,8 +180,34 @@ async function onClickConfirmManagement() {
   await alert('멤버십 확정관리 팝업연계 예정(WwctaMembershipConfirmMgtP)');
 }
 
+// 홈케어관리 팝업조회
 async function onClickHomeCareManagement() {
-  await alert('홈케어관리 팝업연계 예정(WwctaHomeCareMgtP)');
+  const view = grdMembershipContractorNoList.value.getView();
+  const row = view.getCheckedItems();
+  const paramCntrNo = gridUtil.getCellValue(view, row, 'cntrNo'); // 계약번호
+  const paramCntrSn = gridUtil.getCellValue(view, row, 'cntrSn'); // 계약일련번호
+  const paramWwctaHomeCareMgtP = ref({
+    param: `{"cntrs":[{"cntrNo":"${paramCntrNo}","cntrSn":${paramCntrSn}}]}`,
+    return: '',
+  });
+
+  const res = await modal({
+    component: 'WwctaHomeCareMgtP',
+    componentProps: JSON.parse(paramWwctaHomeCareMgtP.value.param),
+  });
+  paramWwctaHomeCareMgtP.value.return = JSON.stringify(res);
+}
+
+// 계약번호 팝업조회
+async function onClickSelectCntrNo() {
+  const { result, payload } = await modal({ component: 'WwctaContractNumberListP',
+    // componentProps: { cntrCstNo: searchParams.value.cntrCstNo, cntrCstKnm: searchParams.value.cntrCstKnm },
+  });
+
+  if (result) {
+    searchParams.value.cntrNo = payload.cntrNo;
+    searchParams.value.cntrSn = payload.cntrSn;
+  }
 }
 
 onMounted(async () => {
