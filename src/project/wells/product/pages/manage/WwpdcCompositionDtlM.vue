@@ -52,7 +52,6 @@ const props = defineProps({
 });
 
 const route = useRoute();
-const router = useRouter();
 const dataService = useDataService();
 
 // -------------------------------------------------------------------------------------------------
@@ -110,9 +109,8 @@ watch(() => route.params.pdCd, async (pdCd) => {
 
 watch(() => route.params.reloadYn, async (reloadYn) => {
   if (!route.path.includes('wwpdc-composition-dtl')) return;
-  console.log(`WwpdcCompositionDtlM - watch - route.params.reloadYn: ${reloadYn}`, route);
+  console.log(`WwpdcCompositionDtlM - watch - route.params.reloadYn: ${reloadYn}`);
   if (reloadYn && reloadYn === 'Y') {
-    router.replace({ query: { pdCd: props.pdCd, tempSaveYn: props.tempSaveYn } });
     currentPdCd.value = null;
     if (cmpRef.value?.resetData) await cmpRef.value?.resetData();
     currentPdCd.value = props.pdCd;

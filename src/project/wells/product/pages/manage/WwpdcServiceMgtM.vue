@@ -59,11 +59,12 @@
               <!-- 기본속성 -->
               {{ $t('MSG_TXT_BAS_ATTR') }}
             </h3>
-            <zwpdc-prop-groups-dtl
-              :ref="cmpStepRefs[2]"
+            <wwpdc-service-dtl-m-contents
               v-model:pd-cd="currentPdCd"
               v-model:init-data="prevStepData"
-              :pd-tp-cd="pdConst.PD_TP_CD_SERVICE"
+              :is-history-tab="false"
+              :is-update-btn="false"
+              :codes="codes"
             />
           </kw-step-panel>
         </slot>
@@ -119,13 +120,13 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService, useGlobal } from 'kw-lib';
+import { useDataService, useGlobal, codeUtil } from 'kw-lib';
 import { isEmpty, cloneDeep } from 'lodash-es';
 import pdConst from '~sms-common/product/constants/pdConst';
 import { pdMergeBy } from '~sms-common/product/utils/pdUtil';
 import ZwpdcPropGroupsMgt from '~sms-common/product/pages/manage/components/ZwpdcPropGroupsMgt.vue';
-import ZwpdcPropGroupsDtl from '~sms-common/product/pages/manage/components/ZwpdcPropGroupsDtl.vue';
 import WwpdcServiceMgtMFilter from './WwpdcServiceMgtMFilter.vue';
+import WwpdcServiceDtlMContents from './WwpdcServiceDtlMContents.vue';
 
 const props = defineProps({
   pdCd: { type: String, default: null },
@@ -150,15 +151,17 @@ const rel = pdConst.TBL_PD_REL;
 const isTempSaveBtn = ref(true);
 const regSteps = ref([pdConst.W_SERVICE_STEP_BASIC, pdConst.W_SERVICE_STEP_FILTER, pdConst.W_SERVICE_STEP_CHECK]);
 const currentStep = cloneDeep(ref(pdConst.W_SERVICE_STEP_BASIC));
-const cmpStepRefs = ref([ref(), ref(), ref()]);
+const cmpStepRefs = ref([ref(), ref()]);
 const prevStepData = ref({});
 const currentPdCd = ref();
 const isCreate = ref(false);
+const codes = await codeUtil.getMultiCodes('PD_TEMP_SAVE_CD');
 
 async function onClickDelete() {
   if (await confirm(t('MSG_ALT_WANT_DEL_WCC'))) {
     await dataService.delete(`/sms/wells/product/services/${currentPdCd.value}`);
     router.close();
+    router.push({ path: '/product/zwpdc-service-list', replace: true, query: { onloadSearchYn: 'Y' } });
   }
 }
 async function getSaveData() {
@@ -228,7 +231,6 @@ async function fetchProduct() {
     initData[rel] = res.data[rel];
     initData[pdConst.RELATION_PRODUCTS] = res.data[pdConst.RELATION_PRODUCTS];
     isTempSaveBtn.value = initData[bas].tempSaveYn === 'Y';
-    isTempSaveBtn.value = cloneDeep(initData[bas].tempSaveYn === 'Y');
     prevStepData.value = cloneDeep(initData);
     // console.log('res.data : ', res.data);
   }
@@ -267,7 +269,6 @@ async function onClickSave(tempSaveYn) {
 
   // 3. Step별 저장 데이터 확인
   const subList = await getSaveData();
-  subList[bas].tempSaveYn = tempSaveYn;
   if (tempSaveYn === 'N' && isTempSaveBtn.value) {
     subList.isModifiedProp = true;
     subList[bas].tempSaveYn = tempSaveYn;
@@ -348,7 +349,6 @@ watch(() => route.params.newRegYn, async (newRegYn) => {
   if (!route.path.includes('wwpdc-service-mgt')) return;
   console.log(`WwpdcServiceMgtM - watch - route.params.newRegYn: ${newRegYn}`);
   if (newRegYn && newRegYn === 'Y') {
-    router.replace({ query: null });
     await onClickReset();
   }
 });
@@ -357,7 +357,6 @@ watch(() => route.params.reloadYn, async (reloadYn) => {
   if (!route.path.includes('wwpdc-service-mgt')) return;
   console.log(`WwpdcServiceMgtM - watch - route.params.reloadYn: ${reloadYn}`);
   if (reloadYn && reloadYn === 'Y') {
-    router.replace({ query: { pdCd: props.pdCd, tempSaveYn: props.tempSaveYn } });
     currentStep.value = cloneDeep(pdConst.W_SERVICE_STEP_BASIC);
     await fetchProduct();
   }

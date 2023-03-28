@@ -326,7 +326,8 @@ async function onClickRemove() {
 }
 
 async function fetchSelVarData() {
-  const res = await dataService.get('/sms/common/product/type-variables', { params: { sellTpCd: pdConst.W_SELL_TP_CD_LENT_OR_LEASS } });
+  const sellTpCd = currentInitData.value[pdConst.TBL_PD_BAS]?.sellTpCd;
+  const res = await dataService.get('/sms/common/product/type-variables', { params: { sellTpCd } });
   // console.log('selectionVariables.value : ', selectionVariables.value);
   selectionVariables.value = res.data;
 }

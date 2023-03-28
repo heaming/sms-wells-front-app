@@ -371,7 +371,6 @@ async function onClickSave(tempSaveYn) {
 
   // 3. Step별 저장 데이터 확인
   const subList = await getSaveData();
-  subList[bas].tempSaveYn = tempSaveYn;
   if (tempSaveYn === 'N' && isTempSaveBtn.value) {
     subList.isModifiedProp = true;
     subList[bas].tempSaveYn = tempSaveYn;
@@ -456,7 +455,6 @@ watch(() => route.params.newRegYn, async (newRegYn) => {
   if (!route.path.includes('wwpdc-composition-mgt')) return;
   console.log(`WwpdcCompositionMgtM - newRegYn : ${newRegYn}`);
   if (newRegYn && newRegYn === 'Y') {
-    router.replace({ query: null });
     await onClickReset();
   }
 });
@@ -465,7 +463,6 @@ watch(() => route.params.reloadYn, async (reloadYn) => {
   if (!route.path.includes('wwpdc-composition-mgt')) return;
   console.log(`WwpdcCompositionMgtM - watch - route.params.reloadYn: ${reloadYn}`, route);
   if (reloadYn && reloadYn === 'Y') {
-    router.replace({ query: { pdCd: props.pdCd, tempSaveYn: props.tempSaveYn } });
     currentStep.value = cloneDeep(pdConst.COMPOSITION_STEP_BASIC);
     await fetchProduct();
   }

@@ -278,7 +278,7 @@ async function getSaveData() {
     subList[prcfd] = pdRemoveBy(subList[prcfd], removePriceRows.value);
     // console.log('removePriceRows - after : ', subList);
   }
-  console.log('WwpdcStandardMgtM - getSaveData - subList : ', subList);
+  // console.log('WwpdcStandardMgtM - getSaveData - subList : ', subList);
   return subList;
 }
 
@@ -395,7 +395,6 @@ async function onClickSave(tempSaveYn) {
 
   // 3. Step별 저장 데이터 확인
   const subList = await getSaveData();
-  subList[bas].tempSaveYn = tempSaveYn;
   if (tempSaveYn === 'N' && isTempSaveBtn.value) {
     subList.isModifiedProp = true;
     subList[bas].tempSaveYn = tempSaveYn;
@@ -503,7 +502,6 @@ watch(() => route.params.newRegYn, async (newRegYn) => {
   if (!route.path.includes('wwpdc-standard-mgt')) return;
   console.log(`WwpdcStandardMgtM - newRegYn : ${newRegYn}`);
   if (newRegYn && newRegYn === 'Y') {
-    router.replace({ query: null });
     await onClickReset();
   }
 });
@@ -512,7 +510,6 @@ watch(() => route.params.reloadYn, async (reloadYn) => {
   if (!route.path.includes('wwpdc-standard-mgt')) return;
   console.log(`WwpdcStandardMgtM - watch - route.params.reloadYn: ${reloadYn}`);
   if (reloadYn && reloadYn === 'Y') {
-    router.replace({ query: { pdCd: props.pdCd, tempSaveYn: props.tempSaveYn } });
     currentStep.value = cloneDeep(pdConst.STANDARD_STEP_BASIC);
     await fetchProduct();
   }
