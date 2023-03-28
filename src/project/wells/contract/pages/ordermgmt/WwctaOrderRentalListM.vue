@@ -107,11 +107,7 @@
         </kw-tabs>
         <kw-tab-panels v-model="selectedMmbrTab">
           <!-- 일반 조회 -->
-          <kw-tab-panel name="mmbrGeneral">
-            <wwcta-membership-contract-list-m
-              :ref="(vm) => tabRefs.page = vm"
-            />
-          </kw-tab-panel>
+          <kw-tab-panel name="mmbrGeneral" />
           <!-- 계약번호 조회 -->
           <kw-tab-panel name="mmbrCntrNo">
             <wwcta-membership-contract-No-list-m
@@ -119,11 +115,7 @@
             />
           </kw-tab-panel>
           <!-- 개인정보 조회 -->
-          <kw-tab-panel name="mmbrPersInfo">
-            <wwcta-membership-contractor-list-m
-              :ref="(vm) => tabRefs.page = vm"
-            />
-          </kw-tab-panel>
+          <kw-tab-panel name="mmbrPersInfo" />
         </kw-tab-panels>
       </kw-tab-panel>
     </kw-tab-panels>
@@ -139,9 +131,7 @@ import WwctaOrderRentalContractNoListM from './WwctaOrderRentalContractNoListM.v
 import WwctaOrderRentalContractorListM from './WwctaOrderRentalContractorListM.vue';
 import WwctaOrderRentalInstallerListM from './WwctaOrderRentalInstallerListM.vue';
 
-import WwctaMembershipContractListM from './WwctaMembershipContractListM.vue';
 import WwctaMembershipContractNoListM from './WwctaMembershipContractNoListM.vue';
-import WwctaMembershipContractorListM from './WwctaMembershipContractorListM.vue';
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
