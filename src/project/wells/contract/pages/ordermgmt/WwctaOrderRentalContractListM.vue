@@ -322,7 +322,7 @@ async function fetchData() {
   let res = '';
   cachedParams = cloneDeep(searchParams.value);
   console.log(cachedParams);
-  res = await dataService.get('/sms/wells/contract/contracts/order-detail-mngt/order-rentals', { params: { ...cachedParams, ...pageInfo.value } });
+  res = await dataService.get('/sms/wells/contract/contracts/order-detail-mngt/rentals/paging', { params: { ...cachedParams, ...pageInfo.value } });
 
   const { list: details, pageInfo: pagingResult } = res.data;
   if (res.data.length === 0) {
@@ -344,12 +344,12 @@ async function onClickSearchPdCdPopup() {
   const { result, payload } = await modal({
     component: 'ZpdcStandardProductListP',
     componentProps: {
-      searchType: null,
-      searchValue: searchParams.value.pdCd,
+      pdRelTpCd: 'N',
+      pdTpCd: '',
     },
   });
   if (result) {
-    searchParams.value.pdCd = payload.checkedRows?.[0].pdCd;
+    searchParams.value.pdCd = payload.checkedRows?.[0].pdRelTpCd;
   }
 }
 
@@ -358,12 +358,12 @@ async function onClickSearchPdNmPopup() {
   const { result, payload } = await modal({
     component: 'ZpdcStandardProductListP',
     componentProps: {
-      searchType: null,
-      searchValue: searchParams.value.pdNm,
+      pdRelTpCd: 'N',
+      pdTpCd: '',
     },
   });
   if (result) {
-    searchParams.value.pdNm = payload.checkedRows?.[0].pdNm;
+    searchParams.value.pdNm = payload.checkedRows?.[0].pdRelTpCd;
   }
 }
 
@@ -386,7 +386,7 @@ async function onClickSearch() {
 
 async function onClickExcelDownload() {
   const view = grdRentalContractList.value.getView();
-  const res = await dataService.get('/sms/wells/contract/contracts/order-detail-mngt/order-rentals/excel-download', { params: cachedParams });
+  const res = await dataService.get('/sms/wells/contract/contracts/order-detail-mngt/rentals/excel-download', { params: cachedParams });
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
@@ -472,7 +472,6 @@ const initGridRentalContractList = defineGrid((data, view) => {
     { fieldName: 'adrZip' }, // 계약자 정보-우편번호
     { fieldName: 'cntrCstRnadr' }, // 계약자 정보-기준주소
     { fieldName: 'cntrCstRdadr' }, // 계약자 정보-상세주소
-
     { fieldName: 'rcgvpKnm' }, // 설치정보-설치자명
     { fieldName: 'istCralLocaraTno' }, // 설치정보-휴대전화번호
     { fieldName: 'istAdrZip' }, // 설치정보-우편번호
@@ -483,7 +482,6 @@ const initGridRentalContractList = defineGrid((data, view) => {
     { fieldName: 'istAkDt' }, // 설치요청일
     { fieldName: 'sellInflwChnlDtlNm' }, // 판매구분
     { fieldName: 'copnDvNm' }, // 고객구분
-
     { fieldName: 'pdClsfNm' }, // 상품 정보-상품분류
     { fieldName: 'pdNm' }, // 상품 정보-상품명
     { fieldName: 'basePdCd' }, // 상품 정보-상품코드
@@ -491,7 +489,6 @@ const initGridRentalContractList = defineGrid((data, view) => {
     { fieldName: 'svPrd' }, // 상품 정보-주기
     { fieldName: 'svTpCd' }, // 상품 정보-용도구분
     { fieldName: 'svTpNm' }, // 상품 정보-용도구분 명
-
     { fieldName: 'cntrRcpFshDt' }, // 접수일
     { fieldName: 'sppDuedt' }, // 예정일
     { fieldName: 'istDt' }, // 설치일
@@ -526,11 +523,9 @@ const initGridRentalContractList = defineGrid((data, view) => {
     { fieldName: 'bogoCd' }, // １＋１연계코드
     { fieldName: 'bogoPdCd' }, // １＋１이전상품
     { fieldName: 'bogoPdNm' }, // １＋１이전상품명
-
     { fieldName: 'mpyMthdTpNm' }, // 계좌정보-자동이체
     { fieldName: 'aftnInf' }, // 계좌정보-카드／계좌번호
     { fieldName: 'aftnOwrKnm' }, // 계좌정보-예금／카드주명
-
     { fieldName: 'sellEvCd' }, // 행사코드
     { fieldName: 'alncmpCd' }, // 제휴코드
     { fieldName: 'alncmpNm' }, // 제휴코드명
@@ -546,7 +541,6 @@ const initGridRentalContractList = defineGrid((data, view) => {
     { fieldName: 'fnlPerfYm' }, // 최종연체
     { fieldName: 'fstMngtYm' }, // 최초매출중지
     { fieldName: 'fnlMngtYm' }, // 최종매출중지
-
     { fieldName: 'pmotCd' }, // 프로모션 정보-프로모션 번호
     { fieldName: 'pmotFvrMcn' }, // 프로모션 정보-할인개월
     { fieldName: 'pmotFvrAmt' }, // 프로모션 정보-할인금액
@@ -578,7 +572,6 @@ const initGridRentalContractList = defineGrid((data, view) => {
     { fieldName: 'lcet13' }, // 타사보상업체
     { fieldName: 'svAmt' }, // 서비스료
     { fieldName: 'rentalTn' }, // 렌탈차월
-
     { fieldName: 'fgpt1PdNm' }, // 사은품정보-사은품명1
     { fieldName: 'fgpt1PdCd' }, // 사은품정보-사은품코드1
     { fieldName: 'fgpt1Qty' }, // 사은품정보-사은품수량1
@@ -608,7 +601,6 @@ const initGridRentalContractList = defineGrid((data, view) => {
     { fieldName: 'cralLocaraTno', header: t('MSG_TXT_MPNO'), width: '138', styleName: 'text-center' }, // 파트너정보-휴대전화번호
     { fieldName: 'cntrDt', header: t('MSG_TXT_TASK_OPNG_DT'), width: '138', styleName: 'text-center' }, // 파트너정보-업무개시일
     { fieldName: 'cltnDt', header: t('MSG_TXT_BIZ_CLTN_D'), width: '166', styleName: 'text-center' }, // 파트너정보-업무해약일
-
     { fieldName: 'cstKnm', header: t('MSG_TXT_CNTOR_NM'), width: '138', styleName: 'text-center' }, // 계약자 정보-계약자명
     { fieldName: 'bryy', header: '생년(YY)', width: '138', styleName: 'text-center' }, // 계약자 정보-생년(YY)
     { fieldName: 'bzrNo', header: t('MSG_TXT_ENTRP_NO'), width: '138', styleName: 'text-center' }, // 계약자 정보-사업자번호
@@ -617,7 +609,6 @@ const initGridRentalContractList = defineGrid((data, view) => {
     { fieldName: 'adrZip', header: t('MSG_TXT_ZIP'), width: '138', styleName: 'text-center' }, // 계약자 정보-우편번호
     { fieldName: 'cntrCstRnadr', header: t('MSG_TXT_STD_ADDR'), width: '388', styleName: 'text-left' }, // 계약자 정보-기준주소
     { fieldName: 'cntrCstRdadr', header: t('MSG_TXT_DETAIL_ADDR'), width: '231', styleName: 'text-left' }, // 계약자 정보-상세주소
-
     { fieldName: 'rcgvpKnm', header: t('MSG_TXT_IST_NM'), width: '138', styleName: 'text-center' }, // 설치정보-설치자명
     { fieldName: 'istCralLocaraTno', header: t('MSG_TXT_MPNO'), width: '138', styleName: 'text-center' }, // 설치정보-휴대전화번호
     { fieldName: 'istAdrZip', header: t('MSG_TXT_ZIP'), width: '138', styleName: 'text-center' }, // 설치정보-우편번호
@@ -628,7 +619,6 @@ const initGridRentalContractList = defineGrid((data, view) => {
     { fieldName: 'istAkDt', header: `${t('MSG_TXT_INSTALLATION')} ${t('MSG_TXT_REQ_DATE')}`, width: '136', styleName: 'text-center', datetimeFormat: 'date' }, // 설치요청일
     { fieldName: 'sellInflwChnlDtlNm', header: t('MSG_TXT_SLS_CAT'), width: '136', styleName: 'text-center' }, // 판매구분
     { fieldName: 'copnDvNm', header: t('MSG_TXT_CST_DV'), width: '136', styleName: 'text-center' }, // 고객구분
-
     { fieldName: 'pdClsfNm', header: t('MSG_TXT_PRDT_CATE'), width: '275', styleName: 'text-center' }, // 상품 정보-상품분류
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '275', styleName: 'text-center' }, // 상품 정보-상품명
     { fieldName: 'basePdCd', header: t('MSG_TXT_PRDT_CODE'), width: '138', styleName: 'text-center' }, // 상품 정보-상품코드
@@ -636,7 +626,6 @@ const initGridRentalContractList = defineGrid((data, view) => {
     { fieldName: 'svPrd', header: t('MSG_TXT_CYCL'), width: '138', styleName: 'text-right' }, // 상품 정보-주기
     { fieldName: 'svTpCd', header: t('MSG_TXT_USWY_DV'), width: '138', styleName: 'text-center' }, // 상품 정보-용도구분
     { fieldName: 'svTpNm', header: t('MSG_TXT_USWY_DV_NM'), width: '138', styleName: 'text-center' }, // 상품 정보-용도구분 명
-
     { fieldName: 'cntrRcpFshDt', header: t('MSG_TXT_RCP_D'), width: '136', styleName: 'text-center', datetimeFormat: 'date' }, // 접수일
     { fieldName: 'sppDuedt', header: t('MSG_TXT_DUEDT'), width: '136', styleName: 'text-center', datetimeFormat: 'date' }, // 예정일
     { fieldName: 'istDt', header: t('MSG_TXT_INST_DT'), width: '136', styleName: 'text-center', datetimeFormat: 'date' }, // 설치일
@@ -671,11 +660,9 @@ const initGridRentalContractList = defineGrid((data, view) => {
     { fieldName: 'bogoCd', header: t('MSG_TXT_1PLUS1_LK_CD'), width: '136', styleName: 'text-center' }, // １＋１연계코드
     { fieldName: 'bogoPdCd', header: t('MSG_TXT_1PLUS1_CHNG_PREV_PRDT'), width: '136', styleName: 'text-center' }, // １＋１이전상품
     { fieldName: 'bogoPdNm', header: t('MSG_TXT_1PLUS1_CHNG_PREV_PRDT_NM'), width: '136', styleName: 'text-center' }, // １＋１이전상품명
-
     { fieldName: 'mpyMthdTpNm', header: t('MSG_TXT_AUTO_FNT'), width: '138', styleName: 'text-center' }, // 계좌정보-자동이체
     { fieldName: 'aftnInf', header: t('MSG_TXT_CARD_ACNO'), width: '138', styleName: 'text-center' }, // 계좌정보-카드／계좌번호
     { fieldName: 'aftnOwrKnm', header: t('MSG_TXT_DPO_CDONR'), width: '138', styleName: 'text-center' }, // 계좌정보-예금／카드주명
-
     { fieldName: 'sellEvCd', header: t('MSG_TXT_EV_CD'), width: '136', styleName: 'text-center' }, // 행사코드
     { fieldName: 'alncmpCd', header: t('MSG_TXT_ALNC_CD'), width: '136', styleName: 'text-center' }, // 제휴코드
     { fieldName: 'alncmpNm', header: t('MSG_TXT_ALNC_CD_NM'), width: '136', styleName: 'text-center' }, // 제휴코드명
@@ -691,7 +678,6 @@ const initGridRentalContractList = defineGrid((data, view) => {
     { fieldName: 'fnlPerfYm', header: t('MSG_TXT_FNL_DLQ'), width: '136', styleName: 'text-center' }, // 최종연체
     { fieldName: 'fstMngtYm', header: t('MSG_TXT_FST_SL_STP'), width: '136', styleName: 'text-center' }, // 최초매출중지
     { fieldName: 'fnlMngtYm', header: t('MSG_TXT_FNL_SL_STP'), width: '136', styleName: 'text-center' }, // 최종매출중지
-
     { fieldName: 'pmotCd', header: t('MSG_TXT_PMOT_NO'), width: '138', styleName: 'text-center' }, // 프로모션 정보-프로모션 번호
     { fieldName: 'pmotFvrMcn', header: t('MSG_TXT_DSC_MCNT'), width: '138', styleName: 'text-center' }, // 프로모션 정보-할인개월
     { fieldName: 'pmotFvrAmt', header: t('MSG_TXT_DSC_AMT'), width: '138', styleName: 'text-right' }, // 프로모션 정보-할인금액
@@ -723,7 +709,6 @@ const initGridRentalContractList = defineGrid((data, view) => {
     { fieldName: 'lcet13', header: t('MSG_TXT_OCO_COMP_CMPNY'), width: '136', styleName: 'text-center' }, // 타사보상업체
     { fieldName: 'svAmt', header: t('MSG_TXT_PD_SVC_FEE'), width: '136', styleName: 'text-right' }, // 서비스료
     { fieldName: 'rentalTn', header: t('MSG_TXT_RENTAL_NMN'), width: '136', styleName: 'text-right' }, // 렌탈차월
-
     { fieldName: 'fgpt1PdNm', header: t('MSG_TXT_FGPT_NM_1'), width: '138', styleName: 'text-center' }, // 사은품정보-사은품명1
     { fieldName: 'fgpt1PdCd', header: t('MSG_TXT_FGPT_CD_1'), width: '138', styleName: 'text-center' }, // 사은품정보-사은품코드1
     { fieldName: 'fgpt1Qty', header: t('MSG_TXT_FGPT_QTY_1'), width: '138', styleName: 'text-center' }, // 사은품정보-사은품수량1
@@ -800,9 +785,8 @@ const initGridRentalContractList = defineGrid((data, view) => {
     },
   ]);
 
-  view.onCellItemClicked = async (g, { column, itemIndex }) => {
-    // console.log('itemIndex', itemIndex);
-    const paramCntrNoFull = gridUtil.getCellValue(g, itemIndex, 'cntrNoFull');
+  view.onCellItemClicked = async (g, { column, dataRow }) => {
+    const paramCntrNoFull = gridUtil.getCellValue(g, dataRow, 'cntrNoFull');
     const paramCntrNo = String(paramCntrNoFull).split('-')[0];
     const paramCntrSn = String(paramCntrNoFull).split('-')[1];
 
