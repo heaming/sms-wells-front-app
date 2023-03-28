@@ -274,7 +274,7 @@ async function onClickReset() {
 
 async function onClickRemove() {
   if (currentPdCd.value) {
-    if (await confirm(t('MSG_ALT_DO_DELETE'))) {
+    if (await confirm(t('MSG_ALT_WANT_DEL_WCC'))) {
       await dataService.delete(`${baseUrl}/${currentPdCd.value}`);
       // 변경사항 체크로직 우회 및 현재 page 닫고 target 페이지로 이동.
       obsMainRef.value.init();
