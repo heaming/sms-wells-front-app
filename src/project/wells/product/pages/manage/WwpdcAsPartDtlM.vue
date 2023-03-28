@@ -136,6 +136,7 @@ async function fetchData(forcePdCd) {
 
   pdBas.value = res.data[pdConst.TBL_PD_BAS];
   prevStepData.value[pdConst.TBL_PD_BAS] = res.data[pdConst.TBL_PD_BAS];
+  prevStepData.value[pdConst.TBL_PD_DTL] = res.data[pdConst.TBL_PD_DTL];
   prevStepData.value[pdConst.TBL_PD_ECOM_PRP_DTL] = res.data[pdConst.TBL_PD_ECOM_PRP_DTL];
   prevStepData.value[pdConst.TBL_PD_REL] = res.data[pdConst.TBL_PD_REL];
   prdPropGroups.value = res.data.groupCodes;

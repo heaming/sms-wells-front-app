@@ -181,6 +181,7 @@ const wellsStep = [
 const regSteps = ref(wellsStep);
 const currentStep = ref(wellsStep[0]);
 const cmpStepRefs = ref([ref()]);
+const dtl = pdConst.TBL_PD_DTL;
 
 const bas = pdConst.TBL_PD_BAS;
 const ecom = pdConst.TBL_PD_ECOM_PRP_DTL;
@@ -243,6 +244,9 @@ async function getSaveData(tempSaveYn) {
         }
         subList[bas] = pdMergeBy(subList[bas], saveData[bas]);
       }
+      if (saveData[dtl]) {
+        subList[dtl] = pdMergeBy(subList[dtl], saveData[dtl], pdConst.PD_DTL_GRP_ID);
+      }
       if (saveData[ecom]) {
         subList[ecom] = pdMergeBy(subList[ecom], saveData[ecom], 'pdExtsPrpGrpCd');
       }
@@ -260,6 +264,7 @@ async function fetchData() {
   if (currentPdCd.value) {
     const res = await dataService.get(`${baseUrl}/${currentPdCd.value}`);
     prevStepData.value[bas] = res.data[bas];
+    prevStepData.value[dtl] = res.data[dtl];
     prevStepData.value[ecom] = res.data[ecom];
     prevStepData.value[rel] = res.data[rel];
     obsMainRef.value.init();
