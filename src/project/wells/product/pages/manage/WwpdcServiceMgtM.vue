@@ -165,7 +165,7 @@ async function onClickDelete() {
   }
 }
 async function getSaveData() {
-  const subList = { isModifiedProp: false, isModifiedPrice: false };
+  const subList = { isModifiedProp: false };
   await Promise.all(cmpStepRefs.value.map(async (item, idx) => {
     const isModified = await item.value.isModifiedProps();
     const saveData = item.value?.getSaveData ? await item.value.getSaveData() : null;
