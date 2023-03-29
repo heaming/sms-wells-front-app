@@ -21,6 +21,8 @@
           <kw-stepper
             v-model="currentStep.name"
             heading-text
+            :header-nav="!isTempSaveBtn"
+            @update:model-value="onClickStep()"
           >
             <!-- 1. 기본속성 등록 -->
             <kw-step
@@ -207,7 +209,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { useDataService, useGlobal } from 'kw-lib';
-import { isEmpty } from 'lodash-es';
+import { isEmpty, cloneDeep } from 'lodash-es';
 import { pdMergeBy } from '~sms-common/product/utils/pdUtil';
 import pdConst from '~sms-common/product/constants/pdConst';
 
@@ -310,6 +312,7 @@ async function getSaveData(tempSaveYn) {
   // eslint-disable-next-line no-unused-vars
   await Promise.all(cmpStepRefs.value.map(async (item, idx) => {
     const saveData = await item.value.getSaveData();
+
     if (await saveData) {
       subList.pdCd = subList.pdCd ?? saveData.pdCd;
       subList.pdTpCd = subList.pdTpCd ?? saveData.pdTpCd;
@@ -335,6 +338,14 @@ async function getSaveData(tempSaveYn) {
   }));
   subList[bas].tempSaveYn = tempSaveYn;
   return subList;
+}
+
+async function onClickStep() {
+  const stepName = currentStep.value?.name;
+  // console.log('WwpdcStandardMgtM - onClickStep : ', stepName);
+  prevStepData.value = await getSaveData();
+  currentStep.value = cloneDeep(regSteps.value.find((item) => item.name === stepName));
+  // console.log('WwpdcStandardMgtM - onClickStep : ', currentStep.value);
 }
 
 async function fetchData() {
@@ -414,7 +425,15 @@ async function onClickNextStep() {
 }
 
 async function onClickPrevStep() {
-  currentStep.value = regSteps.value[(currentStep.value.step - 1) - 1];
+  // currentStep.value = regSteps.value[(currentStep.value.step - 1) - 1];
+  const currentStepIndex = currentStep.value.step - 1;
+  prevStepData.value = await getSaveData();
+  const currentStepRef = await cmpStepRefs.value[currentStepIndex]?.value;
+  // Child 페이지 내에서 이전 스텝이 없으면(false), 현재 페이지에서 이전으로 진행
+  const isMovedInnerStep = currentStepRef?.movePrevStep ? await currentStepRef?.movePrevStep() : false;
+  if (!isMovedInnerStep) {
+    currentStep.value = cloneDeep(regSteps.value[currentStepIndex - 1]);
+  }
 }
 
 async function onClickCancel() {

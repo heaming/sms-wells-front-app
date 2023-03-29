@@ -41,9 +41,13 @@
     />
   </kw-action-top>
 
+  <!--
+    :visible-rows="pageInfo.pageSize"
+    visible-rows="10"
+  -->
   <kw-grid
     ref="grdMainRef"
-    :visible-rows="pageInfo.pageSize"
+    name="grdMainMgt"
     @init="initGrdMain"
   />
 </template>
@@ -51,7 +55,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, useGlobal, defineGrid, getComponentType, gridUtil, useMeta } from 'kw-lib';
+import { codeUtil, useGlobal, defineGrid, getComponentType, gridUtil } from 'kw-lib'; // useMeta
 import { isEmpty } from 'lodash-es';
 import pdConst from '~sms-common/product/constants/pdConst';
 import { getAlreadyItems } from '~sms-common/product/utils/pdUtil';
@@ -63,7 +67,6 @@ defineExpose({
 
 const { t } = useI18n();
 const { notify, modal } = useGlobal();
-const { getConfig } = useMeta();
 const grdMainRef = ref(getComponentType('KwGrid'));
 
 const props = defineProps({
@@ -72,11 +75,12 @@ const props = defineProps({
   initData: { type: Object, default: null },
 });
 
-const pageInfo = ref({
-  totalCount: 0,
-  pageIndex: 1,
-  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
-});
+// const { getConfig } = useMeta();
+// const pageInfo = ref({
+//   totalCount: 0,
+//   pageIndex: 1,
+//   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
+// });
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -213,6 +217,7 @@ async function getSaveData() {
   const subList = { };
   subList[pdConst.TBL_PD_REL] = gridUtil.getAllRowValues(grdMainRef.value.getView());
 
+  console.log('subListsubListsubListsubListsubList ', subList);
   return subList;
 }
 
@@ -220,7 +225,7 @@ async function getSaveData() {
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
 const columns = [
-  { fieldName: 'pdRelId', header: 'PK', width: '50', visible: false },
+  { fieldName: 'pdRelId', header: 'PK', width: '0', visible: false },
   { fieldName: 'pdRelTpCd', header: t('MSG_TXT_RELATION_CLSF'), width: '106', styleName: 'text-center', options: codes.PD_REL_TP_CD }, /* 관계구분 */
   { fieldName: 'pdClsfNm', header: t('MSG_TXT_CLSF'), width: '176', styleName: 'text-left' }, /* 분류 */
   { fieldName: 'pdNm', header: t('MSG_TIT_MATERIAL_NM'), width: '382', styleName: 'text-left' }, /* 교재/자재명 */
@@ -228,15 +233,15 @@ const columns = [
   { fieldName: 'modelNo', header: t('MSG_TXT_PD_MODEL_NO'), width: '152', styleName: 'text-center' }, /* 모델No */
   { fieldName: 'pdAbbrNm', header: t('MSG_TXT_ABBR'), width: '226', styleName: 'text-left' }, /* 약어 */
   { fieldName: 'ostrCnrCd', header: t('MSG_TIT_SHIPPING_CENTER'), width: '214', styleName: 'text-left' }, /* 출고센터 */
-  { fieldName: 'pdTpCd', header: t('MSG_TIT_PRDT_TYPE'), width: '214', visible: false }, /* 상품종류 */
-  { fieldName: 'ojPdCd', header: t('MSG_TIT_TARGET_PRDT_CD'), width: '214', visible: false }, /* 대상상품코드 */
-  { fieldName: 'fstRgstDtm', header: t('MSG_TXT_RGST_DTM'), width: '110', styleName: 'text-center', dataType: 'date', datetimeFormat: 'yyyy-MM-dd', visible: false }, /* 등록일 */
-  { fieldName: 'fstRgstUsrNm', header: t('MSG_TXT_RGST_USR'), width: '80', styleName: 'rg-button-link text-center', renderer: { type: 'button' }, preventCellItemFocus: true, visible: false }, /* 등록자 */
-  { fieldName: 'fnlMdfcDtm', header: t('MSG_TXT_FNL_MDFC_D'), width: '110', styleName: 'text-center', dataType: 'date', datetimeFormat: 'yyyy-MM-dd', visible: false }, /* 최종수정일 */
-  { fieldName: 'fnlMdfcUsrNm', header: t('MSG_TXT_FNL_MDFC_USR'), width: '80', styleName: 'rg-button-link text-center', renderer: { type: 'button' }, preventCellItemFocus: true, visible: false }, /* 최종수정자 */
+  { fieldName: 'pdTpCd', header: t('MSG_TIT_PRDT_TYPE'), width: '0', visible: false }, /* 상품종류 */
+  { fieldName: 'ojPdCd', header: t('MSG_TIT_TARGET_PRDT_CD'), width: '0', visible: false }, /* 대상상품코드 */
+  { fieldName: 'fstRgstDtm', header: t('MSG_TXT_RGST_DTM'), width: '0', styleName: 'text-center', dataType: 'date', datetimeFormat: 'yyyy-MM-dd', visible: false }, /* 등록일 */
+  { fieldName: 'fstRgstUsrNm', header: t('MSG_TXT_RGST_USR'), width: '0', styleName: 'rg-button-link text-center', renderer: { type: 'button' }, preventCellItemFocus: true, visible: false }, /* 등록자 */
+  { fieldName: 'fnlMdfcDtm', header: t('MSG_TXT_FNL_MDFC_D'), width: '0', styleName: 'text-center', dataType: 'date', datetimeFormat: 'yyyy-MM-dd', visible: false }, /* 최종수정일 */
+  { fieldName: 'fnlMdfcUsrNm', header: t('MSG_TXT_FNL_MDFC_USR'), width: '0', styleName: 'rg-button-link text-center', renderer: { type: 'button' }, preventCellItemFocus: true, visible: false }, /* 최종수정자 */
   //   NameTag Parameter
-  { fieldName: 'fstRgstUsrId', header: 'RGST_ID', width: '50', visible: false },
-  { fieldName: 'fnlMdfcUsrId', header: 'MDFC_ID', width: '50', visible: false },
+  { fieldName: 'fstRgstUsrId', header: 'RGST_ID', width: '0', visible: false },
+  { fieldName: 'fnlMdfcUsrId', header: 'MDFC_ID', width: '0', visible: false },
 ];
 
 // 수정모드 통합 DATA Grid
