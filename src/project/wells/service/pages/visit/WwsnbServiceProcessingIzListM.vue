@@ -282,7 +282,7 @@ watch(() => searchParams.value.serviceCenter, async (val) => {
 
 const products = ref([]);
 async function fetchProducts() {
-  const res = await dataService.get('/sms/wells/service/service-processing-itemizations/products', { params: { pdGrpCd: searchParams.value.pdGrpCd } });
+  const res = await dataService.get('/sms/wells/service/service-processing/products', { params: { pdGrpCd: searchParams.value.pdGrpCd } });
   products.value = res.data;
 }
 
@@ -308,7 +308,7 @@ function onUpdateProductGroupCode(val) {
 }
 
 async function fetchData() {
-  const res = await dataService.get('/sms/wells/service/service-processing-itemizations/paging', { params: { ...cachedParams, ...pageInfo.value } });
+  const res = await dataService.get('/sms/wells/service/service-processing/paging', { params: { ...cachedParams, ...pageInfo.value } });
   const { list: itemizations, pageInfo: pagingResult } = res.data;
 
   pageInfo.value = pagingResult;
@@ -331,7 +331,7 @@ async function onClickSearch() {
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
 
-  const res = await dataService.get('/sms/wells/service/service-processing-itemizations/paging', { params: { ...cachedParams, ...pageInfo.value } });
+  const res = await dataService.get('/sms/wells/service/service-processing/paging', { params: { ...cachedParams, ...pageInfo.value } });
 
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
