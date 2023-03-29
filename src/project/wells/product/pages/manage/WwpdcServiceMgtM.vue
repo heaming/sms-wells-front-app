@@ -161,17 +161,22 @@ async function onClickDelete() {
   if (await confirm(t('MSG_ALT_WANT_DEL_WCC'))) {
     await dataService.delete(`/sms/wells/product/services/${currentPdCd.value}`);
     router.close();
-    router.push({ path: '/product/zwpdc-service-list', replace: true, query: { onloadSearchYn: 'Y' } });
+    router.push({ path: '/product/zwpdc-service-list', query: { searchYn: 'Y' } });
   }
 }
 async function getSaveData() {
-  const subList = {};
-  await Promise.all(cmpStepRefs.value.map(async (item) => {
+  const subList = { isModifiedProp: false, isModifiedPrice: false };
+  await Promise.all(cmpStepRefs.value.map(async (item, idx) => {
+    const isModified = await item.value.isModifiedProps();
     const saveData = item.value?.getSaveData ? await item.value.getSaveData() : null;
     if (await saveData) {
       // console.log(`${idx}saveData : `, saveData);
       subList.pdCd = subList.pdCd ?? saveData.pdCd;
       subList.pdTpCd = subList.pdTpCd ?? saveData.pdTpCd;
+      // 기본속성, 관리 속성 수정여부
+      if (await isModified && idx === 0) {
+        subList.isModifiedProp = true;
+      }
       if (saveData[bas]) {
         if (subList[bas]?.cols) {
           saveData[bas].cols += subList[bas].cols;
@@ -292,7 +297,7 @@ async function onClickSave(tempSaveYn) {
   if (tempSaveYn === 'N') {
     // 목록으로 이동
     router.close();
-    router.push({ path: '/product/zwpdc-service-list', replace: true, query: { onloadSearchYn: 'Y' } });
+    router.push({ path: '/product/zwpdc-service-list', query: { searchYn: 'Y' } });
     return;
   }
   if (isTempSaveBtn.value) {
@@ -300,7 +305,7 @@ async function onClickSave(tempSaveYn) {
     if (rtn.data?.data?.pdCd !== currentPdCd.value) {
       currentPdCd.value = rtn.data?.data?.pdCd;
       isCreate.value = isEmpty(currentPdCd.value);
-      router.push({ path: '/product/zwpdc-service-list/wwpdc-service-mgt', replace: true, query: { pdCd: currentPdCd.value } });
+      router.push({ path: '/product/zwpdc-service-list/wwpdc-service-mgt', query: { pdCd: currentPdCd.value } });
     }
   }
 }

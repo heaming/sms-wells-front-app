@@ -95,22 +95,10 @@
     </kw-form>
     <kw-separator />
     <kw-grid
-      ref="grdMaterialRef"
-      :visible-rows="1"
+      ref="grdStandardRef"
+      :visible-rows="2"
       class="mb20"
-      @init="initMaterialGrid"
-    />
-    <kw-grid
-      ref="grdServiceRef"
-      :visible-rows="1"
-      class="mb20"
-      @init="initServiceGrid"
-    />
-    <kw-grid
-      ref="grdCompositionRef"
-      :visible-rows="1"
-      class="mb20"
-      @init="initCompositionGrid"
+      @init="initStandardGrid"
     />
     <kw-separator />
     <kw-action-top class="mt40">
@@ -142,9 +130,7 @@ const { t } = useI18n();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
-const grdMaterialRef = ref(getComponentType('KwGrid'));
-const grdServiceRef = ref(getComponentType('KwGrid'));
-const grdCompositionRef = ref(getComponentType('KwGrid'));
+const grdStandardRef = ref(getComponentType('KwGrid'));
 const grdMainRef = ref(getComponentType('KwGrid'));
 
 const currentPdCd = ref();
@@ -186,25 +172,11 @@ async function initGridRows() {
     return;
   }
 
-  const materialView = grdMaterialRef.value?.getView();
-  if (materialView) {
-    materialView.getDataSource().setRows(products
-      .filter((item) => item[pdConst.PD_REL_TP_CD] === pdConst.PD_REL_TP_CD_P_TO_PD));
-    materialView.resetCurrent();
-  }
-
-  const serviceView = grdServiceRef.value?.getView();
-  if (serviceView) {
-    serviceView.getDataSource().setRows(products
-      .filter((item) => item[pdConst.PD_REL_TP_CD] === pdConst.PD_REL_TP_CD_P_TO_S));
-    serviceView.resetCurrent();
-  }
-
-  const compositionView = grdCompositionRef.value?.getView();
-  if (compositionView) {
-    compositionView.getDataSource().setRows(products
+  const standardView = grdStandardRef.value?.getView();
+  if (standardView) {
+    standardView.getDataSource().setRows(products
       .filter((item) => item[pdConst.PD_REL_TP_CD] === pdConst.PD_REL_TP_CD_C_TO_P));
-    compositionView.resetCurrent();
+    standardView.resetCurrent();
   }
 
   const view = grdMainRef.value?.getView();
@@ -229,52 +201,7 @@ watch(() => props.pdCd, (pdCd) => { currentPdCd.value = pdCd; fetchData(); });
 //-------------------------------------------------------------------------------------------------
 // Initialize Grid
 //-------------------------------------------------------------------------------------------------
-async function initMaterialGrid(data, view) {
-  const columns = [
-    // 교재/자재 분류
-    { fieldName: 'pdClsfNm', header: t('MSG_TXT_PD_BOK_MTR_TYPE'), width: '201' },
-    // 교재/자재명
-    { fieldName: 'pdNm', header: t('MSG_TXT_PD_BOK_MTR_NAME'), width: '206' },
-    // 상품코드
-    { fieldName: 'pdCd', header: t('MSG_TXT_PRDT_CODE'), width: '185', styleName: 'text-center' },
-    // 학습/전집/기기구분
-    { fieldName: 'lrnColleDvTyp', header: t('MSG_TXT_PD_LRN_COLLE_DV_TYP'), width: '287', styleName: 'text-center' },
-  ];
-  const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
-  fields.push({ fieldName: pdConst.REL_PD_ID });
-  fields.push({ fieldName: pdConst.PD_REL_TP_CD });
-  fields.push({ fieldName: pdConst.REL_OJ_PD_CD });
-  data.setFields(fields);
-  view.setColumns(columns);
-
-  view.checkBar.visible = false;
-  view.rowIndicator.visible = false;
-}
-
-async function initServiceGrid(data, view) {
-  const columns = [
-    // 서비스 분류
-    { fieldName: 'pdClsfNm', header: t('MSG_TXT_SVC_CATG'), width: '201' },
-    // 서비스명
-    { fieldName: 'pdNm', header: t('MSG_TXT_SVC_NAME'), width: '156' },
-    // 서비스코드
-    { fieldName: 'pdCd', header: t('MSG_TXT_SVC_CODE'), width: '155', styleName: 'text-center' },
-    // 회수/기본주기 / 주기단위
-    { fieldName: 'recalDurUnit', header: t('MSG_TXT_PD_RECAL_DUR_UNIT'), width: '187', styleName: 'text-center', options: codes.SV_VST_PRD_CD },
-    // 학습시간+학습시간단위
-    { fieldName: 'lrnTmeUnt', header: t('MSG_TXT_PD_LRN_TME_N_UNT'), width: '187', styleName: 'text-center' },
-  ];
-  const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
-  fields.push({ fieldName: pdConst.REL_PD_ID });
-  fields.push({ fieldName: pdConst.PD_REL_TP_CD });
-  fields.push({ fieldName: pdConst.REL_OJ_PD_CD });
-  data.setFields(fields);
-  view.setColumns(columns);
-
-  view.checkBar.visible = false;
-  view.rowIndicator.visible = false;
-}
-async function initCompositionGrid(data, view) {
+async function initStandardGrid(data, view) {
   const columns = [
     // 기준상품 분류
     { fieldName: 'pdClsfNm', header: t('MSG_TXT_PD_STD_TYPE'), width: '201' },
