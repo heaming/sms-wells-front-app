@@ -22,6 +22,8 @@
           <kw-stepper
             v-model="currentStep.name"
             heading-text
+            :header-nav="!isTempSaveBtn"
+            @update:model-value="onClickStep()"
           >
             <!-- 1. 기본속성 등록 -->
             <kw-step
@@ -149,7 +151,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { useDataService, useGlobal } from 'kw-lib';
-import { isEmpty } from 'lodash-es';
+import { isEmpty, cloneDeep } from 'lodash-es';
 import { pdMergeBy } from '~sms-common/product/utils/pdUtil';
 import pdConst from '~sms-common/product/constants/pdConst';
 
@@ -258,6 +260,14 @@ async function getSaveData(tempSaveYn) {
   }));
   subList[bas].tempSaveYn = tempSaveYn;
   return subList;
+}
+
+async function onClickStep() {
+  const stepName = currentStep.value?.name;
+  // console.log('WwpdcStandardMgtM - onClickStep : ', stepName);
+  prevStepData.value = await getSaveData();
+  currentStep.value = cloneDeep(regSteps.value.find((item) => item.name === stepName));
+  // console.log('WwpdcStandardMgtM - onClickStep : ', currentStep.value);
 }
 
 async function fetchData() {
