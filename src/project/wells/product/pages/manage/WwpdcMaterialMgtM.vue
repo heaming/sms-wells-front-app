@@ -243,7 +243,9 @@ const wellsStep = [
   pdConst.W_MATERIAL_STEP_CHECK,
 ];
 const regSteps = ref(wellsStep);
-const currentStep = ref(wellsStep[0]);
+// const currentStep = ref(wellsStep[0]);
+const currentStep = cloneDeep(ref(wellsStep[0]));
+
 const cmpStepRefs = ref([ref(), ref(), ref()]);
 
 const bas = pdConst.TBL_PD_BAS;
@@ -342,10 +344,8 @@ async function getSaveData(tempSaveYn) {
 
 async function onClickStep() {
   const stepName = currentStep.value?.name;
-  // console.log('WwpdcStandardMgtM - onClickStep : ', stepName);
   prevStepData.value = await getSaveData();
   currentStep.value = cloneDeep(regSteps.value.find((item) => item.name === stepName));
-  // console.log('WwpdcStandardMgtM - onClickStep : ', currentStep.value);
 }
 
 async function fetchData() {

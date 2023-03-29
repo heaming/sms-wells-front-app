@@ -216,8 +216,7 @@ async function isModifiedProps() {
 async function getSaveData() {
   const subList = { };
   subList[pdConst.TBL_PD_REL] = gridUtil.getAllRowValues(grdMainRef.value.getView());
-
-  console.log('subListsubListsubListsubListsubList ', subList);
+  // console.log('subListsubListsubListsubListsubList ', subList);
   return subList;
 }
 
