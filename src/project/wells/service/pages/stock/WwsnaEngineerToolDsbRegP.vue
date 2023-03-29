@@ -13,10 +13,7 @@
  ****************************************************************************************************
 --->
 <template>
-  <kw-popup
-    size="2xl"
-    :title="$t('MSG_TIT_EGER_TOOL_DSB')"
-  >
+  <kw-popup size="2xl">
     <kw-form
       ref="frmMainRef"
       :cols="2"
@@ -137,7 +134,7 @@ function onChangeSvcCenters() {
 }
 
 async function fetchData() {
-  const res = await dataService.get('/sms/wells/service/engineer-tools/tool-parts-paging', { params: pageInfo.value });
+  const res = await dataService.get('/sms/wells/service/engineer-tools/parts/paging', { params: pageInfo.value });
   const { list: toolParts, pageInfo: pagingResult } = res.data;
 
   pageInfo.value = pagingResult;
