@@ -268,7 +268,7 @@ async function getSaveData() {
 async function onClickDelete() {
   if (await confirm(t('MSG_ALT_WANT_DEL_WCC'))) {
     await dataService.delete(`/sms/wells/product/compositions/${currentPdCd.value}`);
-    router.push({ path: '/product/zwpdc-sale-product-list', replace: true, query: { onloadSearchYn: 'Y' } });
+    router.push({ path: '/product/zwpdc-sale-product-list', replace: true, query: { searchYn: 'Y' } });
   }
 }
 
@@ -396,7 +396,7 @@ async function onClickSave(tempSaveYn) {
   if (tempSaveYn === 'N') {
     // 목록으로 이동
     router.close();
-    router.push({ path: '/product/zwpdc-sale-product-list', replace: true, query: { onloadSearchYn: 'Y' } });
+    router.push({ path: '/product/zwpdc-sale-product-list', replace: true, query: { searchYn: 'Y' } });
     return;
   }
   if (isTempSaveBtn.value) {
