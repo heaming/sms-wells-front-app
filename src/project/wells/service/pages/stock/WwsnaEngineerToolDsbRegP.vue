@@ -23,7 +23,7 @@
           :label="$t('MSG_TXT_SV_CNR')"
         >
           <kw-select
-            v-model="dataParams.ogId"
+            v-model="dataParams.ogCd"
             :options="svcCenters"
             :multiple="true"
             @update:model-value="onChangeSvcCenters"
@@ -33,8 +33,8 @@
           :label="$t('MSG_TXT_EGER')"
         >
           <kw-select
-            v-model="dataParams.egerPrtnrNo"
-            :model-value="dataParams.egerPrtnrNo ? dataParams.egerPrtnrNo : dataParams.egerPrtnrNo = []"
+            v-model="dataParams.egerPrtnrNos"
+            :model-value="dataParams.egerPrtnrNos ? dataParams.egerPrtnrNos : dataParams.egerPrtnrNos = []"
             :options="engineers"
             :multiple="true"
           />
@@ -106,29 +106,27 @@ const pageInfo = ref({
 });
 
 const dataParams = ref({
-  ogId: [],
-  egerPrtnrNo: [],
-  pdCd: [],
+  ogCd: [],
+  egerPrtnrNos: [],
+  pdCds: [],
 });
 
 // let cachedParams;
 
-const engineers = ref();
+const engineers = ref([]);
 const engsAndCenters = ((await getAllEngineers()));
 const centers = engsAndCenters.G_ONLY_SVC;
 const engs = engsAndCenters.G_ONLY_ENG;
 
 const centersByOgLevlDvCd = centers.filter((v) => v.ogTpCd === 'W06' && v.ogLevlDvCd === '2');
-const svcCenters = centersByOgLevlDvCd.map((v) => ({ codeName: v.ogNm, codeId: v.ogId }));
+const svcCenters = centersByOgLevlDvCd.map((v) => ({ codeName: v.ogNm, codeId: v.ogCd }));
 
 function onChangeSvcCenters() {
-  if (dataParams.value.ogId === '') {
-    dataParams.value.egerPrtnrNo = '';
+  if (dataParams.value.ogCd.length === 0) {
+    dataParams.value.egerPrtnrNos = [];
+    engineers.value = [];
   } else {
-    const branchsByHgrOgId = centers.filter((v) => dataParams.value.ogId.includes(v.hgrOgId));
-    const ogCd = branchsByHgrOgId.map((v) => v.ogCd);
-    const engsByOgCd = engs.filter((v) => ogCd.includes(v.ogCd));
-
+    const engsByOgCd = engs.filter((v) => dataParams.value.ogCd.includes(v.ogCd));
     engineers.value = engsByOgCd.map((v) => ({ codeId: v.codeId, codeName: v.codeNm }));
   }
 }
@@ -154,13 +152,13 @@ async function onClickToolDsb() {
   // TODO: observer 사용시 컴포넌트 아래 메세지 안보임. 확인 필요
   // if (!await frmMainRef.value.validate()) { return; }
 
-  if (dataParams.value.egerPrtnrNo.length === 0) {
+  if (dataParams.value.egerPrtnrNos.length === 0) {
     return notify(t('MSG_ALT_EGER_CHO'));
   }
 
   if (!await confirm(t('MSG_ALT_SPLY_TOOL_EGER'))) { return; }
 
-  dataParams.value.pdCd = chkRows.map((v) => v.svpdPdCd);
+  dataParams.value.pdCds = chkRows.map((v) => v.svpdPdCd);
 
   await dataService.post('/sms/wells/service/engineer-tools', dataParams.value);
 
