@@ -2,7 +2,7 @@
 ****************************************************************************************************
 * 프로그램 개요
 ****************************************************************************************************
-1. 모듈 : SSU
+1. 모듈 : CTA
 2. 프로그램 ID : WwctaSinglePaymentContractorListM - wells 주문상세조회/관리(일시불-개인정보)
 3. 작성자 : JSY
 4. 작성일 : 2023.03.27
@@ -25,7 +25,7 @@
       >
         <kw-select
           v-model="searchParams.searchGbn"
-          :options="SearchGbns"
+          :options="searchGbns"
           rules="required"
         />
         <kw-input
@@ -128,7 +128,7 @@
     </kw-action-top>
     <kw-grid
       ref="gridMainRef"
-      :visible-rows="2"
+      :visible-rows="pageInfo.pageSize"
       @init="initGrid4"
     />
     <kw-pagination
@@ -167,7 +167,7 @@ const pageInfo = ref({
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
 });
 
-const SearchGbns = ref([
+const searchGbns = ref([
   { codeId: 1, codeName: t('MSG_TXT_BIRTH_DATE') },
   { codeId: 2, codeName: t('MSG_TXT_ENTRP_NO') },
   { codeId: 3, codeName: t('MSG_TXT_CBNO') },
@@ -329,7 +329,7 @@ function initGrid4(data, view) {
     { fieldName: 'alncmpCntrDrmVal' },
     { fieldName: 'alncmpCd' },
     { fieldName: 'alncPrtnrDrmVal' },
-    { fieldName: 'SpcOrdDv' },
+    { fieldName: 'spcOrdDv' },
     { fieldName: 'sppOrdIvcNo' },
     { fieldName: 'basePdInfo' },
     { fieldName: 'basePdCd2' },
@@ -408,7 +408,7 @@ function initGrid4(data, view) {
     { fieldName: 'cntrRelDtlNm', header: t('MSG_TXT_COMBI_DV'), width: '138', styleName: 'text-center' },
     { fieldName: 'alncmpCd', header: t('MSG_TXT_ALNC_CD'), width: '138', styleName: 'text-center' },
     { fieldName: 'alncPrtnrDrmVal', header: `${t('MSG_TXT_ALNC')}${t('MSG_TXT_SELL_NO')}`, width: '138', styleName: 'text-center' },
-    { fieldName: 'SpcOrdDv', header: t('MSG_TXT_SPC_ORD_DV'), width: '157', styleName: 'text-center' },
+    { fieldName: 'spcOrdDv', header: t('MSG_TXT_SPC_ORD_DV'), width: '157', styleName: 'text-center' },
     { fieldName: 'sppOrdIvcNo', header: t('MSG_TXT_IVC_NO'), width: '157', styleName: 'text-center' },
 
     { fieldName: 'basePdInfo', header: t('MSG_TXT_PRDT_NM'), width: '197' },
