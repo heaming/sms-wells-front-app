@@ -54,7 +54,7 @@
 import { gridUtil, useGlobal, getComponentType } from 'kw-lib';
 import { isEmpty } from 'lodash-es';
 import pdConst from '~sms-common/product/constants/pdConst';
-import { getGridRowCount } from '~sms-common/product/utils/pdUtil';
+import { getAlreadyItems, getGridRowCount } from '~sms-common/product/utils/pdUtil';
 
 /* eslint-disable no-use-before-define */
 defineExpose({
@@ -67,7 +67,7 @@ const props = defineProps({
   codes: { type: Object, default: null },
 });
 
-const { modal } = useGlobal();
+const { notify, modal } = useGlobal();
 const { t } = useI18n();
 
 // -------------------------------------------------------------------------------------------------
@@ -123,14 +123,47 @@ async function insertCallbackRows(view, rtn, pdRelTpCd) {
       const data = view.getDataSource();
       const rows = rtn.payload.map((item) => ({
         ...item, [pdConst.REL_OJ_PD_CD]: item.pdCd, [pdConst.PD_REL_TP_CD]: pdRelTpCd }));
-      await data.insertRows(0, rows);
+      const okRows = await getCheckAndNotExistRows(view, rows);
+      if (okRows && okRows.length) {
+        await data.insertRows(0, okRows);
+        await gridUtil.focusCellInput(view, 0);
+      }
     } else {
       const row = Array.isArray(rtn.payload) ? rtn.payload[0] : rtn.payload;
       row[pdConst.PD_REL_TP_CD] = pdRelTpCd;
       row[pdConst.REL_OJ_PD_CD] = row.pdCd;
-      await gridUtil.insertRowAndFocus(view, 0, row);
+      const okRows = await getCheckAndNotExistRows(view, [row]);
+      if (okRows && okRows.length) {
+        await gridUtil.insertRowAndFocus(view, 0, okRows[0]);
+      }
     }
   }
+}
+
+async function getCheckAndNotExistRows(view, rows) {
+  const alreadyItems = getAlreadyItems(view, rows, 'pdCd');
+  if (rows.length === alreadyItems.length) {
+    // 이미 등록된 {상품} 입니다.
+    notify(t('MSG_ALT_ALREADY_RGST', [t('MSG_TXT_PRDT')]));
+    return [];
+  }
+  if (alreadyItems.length > 0) {
+    if (alreadyItems.length === 1) {
+      // 이미 등록된 {pdCd}은(는) 제외 합니다.
+      notify(t('MSG_ALT_ALREADY_RGST_CUT', [alreadyItems[0].pdCd]));
+    } else {
+      // 이미 등록된 {pdCd} 외 {0} 건 은(는) 제외 합니다.
+      notify(t('MSG_ALT_ALREADY_RGST_CUT', [t('MSG_TXT_EXID_CNT', [alreadyItems[0].pdCd, alreadyItems.length - 1])]));
+    }
+    const alreadyPdCds = alreadyItems.reduce((rtns, item) => { rtns.push(item.pdCd); return rtns; }, []);
+    return rows.reduce((rtns, item) => {
+      if (!alreadyPdCds.includes(item.pdCd)) {
+        rtns.push(item);
+      }
+      return rtns;
+    }, []);
+  }
+  return rows;
 }
 
 async function deleteCheckedRows(view) {

@@ -55,7 +55,7 @@ const props = defineProps({
 });
 
 const { t } = useI18n();
-const { alert } = useGlobal();
+const { notify } = useGlobal();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -76,6 +76,7 @@ async function resetData() {
   currentInitData.value = {};
   removeObjects.value = [];
   gridRowCount.value = 0;
+  grdMainRef.value?.getView().getDataSource().clearRows();
   if (grdMainRef.value?.getView()) gridUtil.reset(grdMainRef.value.getView());
 }
 
@@ -160,19 +161,19 @@ async function initGridRows() {
       const stdRow = stdRows?.find((item) => item[pdConst.PRC_STD_ROW_ID] === row[pdConst.PRC_STD_ROW_ID]
                                             || item.pdPrcDtlId === row.pdPrcDtlId);
       row = pdMergeBy(row, stdRow);
+      if (isEmpty(row[pdConst.PRC_STD_ROW_ID])) row[pdConst.PRC_STD_ROW_ID] = row.pdPrcDtlId;
       // console.log('WwpdcStandardMgtMPriceFnl - initGridRows - row : ', row);
       row.sellTpCd = currentInitData.value[pdConst.TBL_PD_BAS]?.sellTpCd;
       // 조정 전 가격 ( 01: 정액, 02: 정률)
       if (row.cndtFxamFxrtDvCd === '01') {
-        // 조정 전 가격 = 기준가 + 조정가
-        row.prcBefAdj = Number(row.ccamBasePrc) - Number(row.cndtDscPrumVal);
+        // 할인적용가격 = 기준가 + 조정가
+        row.prcBefAdj = Number(row.ccamBasePrc ?? 0) - Number(row.cndtDscPrumVal ?? 0);
       } else if (row.cndtFxamFxrtDvCd === '02') {
-        // 조정 전 가격 = 기준가 + 조정률
-        const calPrc = Math.round((Number(row.ccamBasePrc) * Number(row.cndtDscPrumVal)) / 100, 2);
+        // 할인적용가격 = 기준가 + 조정률
+        const calPrc = Math.round((Number(row.ccamBasePrc ?? 0) * Number(row.cndtDscPrumVal ?? 0)) / 100, 2);
         row.prcBefAdj = Number(row.ccamBasePrc) - calPrc;
       }
-      row.fnlVal = Number(row.prcBefAdj) - Number(row.ctrVal);
-
+      row.fnlVal = Number(row.prcBefAdj ?? 0) - Number(row.ctrVal ?? 0);
       return row;
     });
     // console.log('WwpdcStandardMgtMPriceFnl - initGridRows - Rows : ', rows);
@@ -199,13 +200,13 @@ watch(() => props.initData, (val) => { currentInitData.value = val; initGridRows
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
 async function setFinalVal(view, grid, itemIndex) {
-  const prcBefAdj = Number(grid.getValue(itemIndex, 'prcBefAdj'));
-  let ctrVal = Number(grid.getValue(itemIndex, 'ctrVal'));
+  const prcBefAdj = Number(grid.getValue(itemIndex, 'prcBefAdj') ?? 0);
+  let ctrVal = Number(grid.getValue(itemIndex, 'ctrVal') ?? 0);
   let fnlVal = 0;
   // 조정 전 가격 ( 01: 정액, 02: 정률)23
   if (ctrVal > prcBefAdj) {
     /* {0}값이 {1}보다 큽니다. */
-    await alert(t('MSG_ALT_A_IS_GREAT_THEN_B', [
+    await notify(t('MSG_ALT_A_IS_GREAT_THEN_B', [
       `${grid.columnByName('ctrVal').header.text}(${ctrVal})`,
       `${grid.columnByName('prcBefAdj').header.text}(${prcBefAdj})`]));
     ctrVal = 0;
@@ -243,7 +244,7 @@ async function initGrid(data, view) {
     props.codes,
     readonlyFields,
     ['cndtFxamFxrtDvCd', 'cndtDscPrumVal'],
-    [pdConst.PRC_STD_ROW_ID, pdConst.PRC_FNL_ROW_ID, pdConst.PRC_DETAIL_ID, pdConst.PRC_DETAIL_FNL_ID], // 조정 전 가격
+    defaultFields.value,
   );
   // 할인적용가격
   const prcBeforAdj = { fieldName: 'prcBefAdj',
@@ -261,19 +262,6 @@ async function initGrid(data, view) {
     }
     return item;
   });
-  /* columns.map((item) => {
-    if (item.fieldName === 'ctrVal') {
-      item.styleName = 'rg-number-step';
-      item.sortable = false;
-      item.editButtonVisibility = 'always';
-      item.editor.showStepButton = true;
-      item.editor.positiveOnly = true;
-      item.editor.direction = 'horizontal';
-      item.editor.step = 1;
-      item.width = 140;
-    }
-    return item;
-  }); */
   data.setFields(fields);
   view.setColumns(columns.sort((item) => (item.fieldName === 'sellChnlCd' ? -1 : 0)));
   view.checkBar.visible = true;
@@ -281,8 +269,7 @@ async function initGrid(data, view) {
   view.editOptions.editable = true;
 
   view.sortingOptions.enabled = false;
-  view.displayOptions.columnResizable = false;
-  view.filteringOptions.enabled = true;
+  view.filteringOptions.enabled = false;
 
   view.setFixedOptions({ colCount: 6 });
 

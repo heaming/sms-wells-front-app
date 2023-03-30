@@ -18,18 +18,18 @@
       v-model="selectedTab"
     >
       <kw-tab
-        name="slPsAgrg"
+        name="mainTab"
         :label="$t('MSG_TIT_SL_PS_AGRG')"
       />
       <kw-tab
-        name="slDtlInqr"
+        name="detailTab"
         :label="$t('MSG_TIT_SL_DTL_INQR')"
       />
     </kw-tabs>
     <kw-tab-panels
       v-model="selectedTab"
     >
-      <kw-tab-panel name="slPsAgrg">
+      <kw-tab-panel name="mainTab">
         <kw-search
           :cols="3"
           two-row
@@ -62,6 +62,7 @@
             <kw-search-item :label="$t('MSG_TXT_INQR_DV')">
               <kw-option-group
                 v-model="searchParams.inqrDv"
+                :disable="isInqrDv"
                 type="radio"
                 :options="selectInqrDv.options"
                 @change="onSelectInqrDv"
@@ -71,7 +72,7 @@
               <kw-select
                 v-if="searchParams.taskDiv === '3'"
                 v-model="searchParams.sellTp"
-                :options="codes.SELL_TP_CD.filter((v) => v.codeId === '1' || v.codeId === '2' )"
+                :options="codes.SELL_TP_DTL_CD.filter((v) => v.codeId === '1' || v.codeId === '3' )"
                 first-option
                 first-option-value="ALL"
                 :first-option-label="$t('MSG_TXT_ALL')"
@@ -79,7 +80,7 @@
               <kw-select
                 v-else-if="searchParams.taskDiv === '4'"
                 v-model="searchParams.sellTp"
-                :options="codes.SELL_TP_CD.filter((v) => v.codeId === '3')"
+                :options="codes.SELL_TP_DTL_CD.filter((v) => v.codeId === '1')"
                 first-option
                 first-option-value="ALL"
                 :first-option-label="$t('MSG_TXT_ALL')"
@@ -87,7 +88,7 @@
               <kw-select
                 v-else-if="searchParams.taskDiv === '5'"
                 v-model="searchParams.sellTp"
-                :options="codes.SELL_TP_CD.filter((v) => v.codeId === '4')"
+                :options="codes.SELL_TP_DTL_CD.filter((v) => v.codeId === '5')"
                 first-option
                 first-option-value="ALL"
                 :first-option-label="$t('MSG_TXT_ALL')"
@@ -95,7 +96,7 @@
               <kw-select
                 v-else
                 v-model="searchParams.sellTp"
-                :options="codes.SELL_TP_CD"
+                :options="codes.SELL_TP_DTL_CD"
                 first-option
                 first-option-value="ALL"
                 :first-option-label="$t('MSG_TXT_ALL')"
@@ -151,7 +152,7 @@
           />
         </div>
       </kw-tab-panel>
-      <kw-tab-panel name="slDtlInqr">
+      <kw-tab-panel name="detailTab">
         <WwdcbProductSalesListMDetail
           v-model:selected-link-id="selectedLinkId"
         />
@@ -168,10 +169,11 @@ import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
 import WwdcbProductSalesListMDetail from './WwdcbProductSalesListMDetail.vue';
 
-const selectedTab = ref('slPsAgrg');
+const selectedTab = ref('mainTab');
 const now = dayjs();
 const { t } = useI18n();
 const dataService = useDataService();
+const { currentRoute } = useRouter();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -183,12 +185,21 @@ const grdMainRef3 = ref(getComponentType('KwGrid'));
 const isShow1 = ref(true);
 const isShow2 = ref(false);
 const isShow3 = ref(false);
+const isInqrDv = ref(false);
 const totalCount = ref(0);
+
+const selectTaskDiv = { // 업무구분
+  options: [{ codeId: '1', codeName: '일시불' }, { codeId: '2', codeName: '렌탈' }, { codeId: '3', codeName: '금융리스' }, { codeId: '4', codeName: '멤버십' }, { codeId: '5', codeName: '정기구매' }],
+};
+
+const selectInqrDv = { // 조회구분
+  options: [{ codeId: '1', codeName: '집계' }, { codeId: '2', codeName: '상품' }],
+};
 
 const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
   'EDI_PD_DV_CD',
-  'SELL_TP_CD',
+  'SELL_TP_DTL_CD', // 판매유형상세코드 (1.일반, 2:공유, 3:환경리스, 4:장기할부)
   'REDF_SELL_DV_CD',
 );
 const searchParams = ref({
@@ -200,11 +211,12 @@ const searchParams = ref({
   sellDv: 'ALL', // 판매구분
 });
 
+const initGridData = [];
 async function onSelectInqrDv() {
-  const { inqrDv } = searchParams.value;
-  const { taskDiv } = searchParams.value;
+  const { taskDiv, inqrDv } = searchParams.value;
   if (taskDiv === '1' || taskDiv === '3' || taskDiv === '5') {
     const view = grdMainRef1.value.getView();
+    view.getDataSource().setRows(initGridData);
     if (inqrDv === '1') {
       view.columnByName('col3').visible = false;
       view.columnByName('col4').visible = false;
@@ -216,6 +228,7 @@ async function onSelectInqrDv() {
     }
   } else if (taskDiv === '2') {
     const view = grdMainRef2.value.getView();
+    view.getDataSource().setRows(initGridData);
     if (inqrDv === '1') {
       view.columnByName('col3').visible = false;
       view.columnByName('col4').visible = false;
@@ -225,88 +238,98 @@ async function onSelectInqrDv() {
       view.columnByName('col4').visible = true;
       view.layoutByColumn('col1').summaryUserSpans = [{ colspan: 4 }];
     }
+  } else if (taskDiv === '4') {
+    const view = grdMainRef3.value.getView();
+    view.getDataSource().setRows(initGridData);
   }
 }
 
 let cachedParams;
 async function fetchData() {
+  await onSelectInqrDv();
   cachedParams = cloneDeep(searchParams.value);
   console.log(searchParams.value);
 
-  const { taskDiv } = searchParams.value;
-  if (taskDiv === '1' || taskDiv === '3' || taskDiv === '5') {
-    const res = await dataService.get('/sms/wells/closing/product-sales/single-payment', { params: cachedParams });
-    const mainList = res.data;
-    totalCount.value = mainList.length;
-    const view = grdMainRef1.value.getView();
-    view.getDataSource().setRows(mainList);
-    view.resetCurrent();
-  } else if (taskDiv === '2') {
-    const res = await dataService.get('/sms/wells/closing/product-sales/rental', { params: cachedParams });
-    const mainList = res.data;
-    totalCount.value = mainList.length;
-    const view = grdMainRef2.value.getView();
-    view.getDataSource().setRows(mainList);
-    view.resetCurrent();
-  } else if (taskDiv === '4') {
-    const res = await dataService.get('/sms/wells/closing/product-sales/membership', { params: cachedParams });
-    const mainList = res.data;
-    totalCount.value = mainList.length;
-    const view = grdMainRef3.value.getView();
-    view.getDataSource().setRows(mainList);
-    view.resetCurrent();
+  const { taskDiv, inqrDv } = searchParams.value;
+  let res;
+  if (taskDiv === '1' || taskDiv === '3' || taskDiv === '5') { // 일시불, 금융리스, 정기배송
+    if (inqrDv === '1') { // 집계
+      res = await dataService.get('/sms/wells/closing/product-sales/single-payment-aggregates', { params: cachedParams });
+    } else if (inqrDv === '2') { // 상품
+      res = await dataService.get('/sms/wells/closing/product-sales/single-payment-products', { params: cachedParams });
+    }
+  } else if (taskDiv === '2') { // 렌탈
+    if (inqrDv === '1') { // 집계
+      res = await dataService.get('/sms/wells/closing/product-sales/rental-aggregates', { params: cachedParams });
+    } else if (inqrDv === '2') { // 상품
+      res = await dataService.get('/sms/wells/closing/product-sales/rental-products', { params: cachedParams });
+    }
+  } else if (taskDiv === '4') { // 멤버십
+    res = await dataService.get('/sms/wells/closing/product-sales/memberships', { params: cachedParams });
   }
-  await onSelectInqrDv();
+
+  const mainList = res.data;
+  totalCount.value = mainList.length;
+
+  let mainView;
+  if (isShow1.value === true) {
+    mainView = grdMainRef1.value.getView();
+  } else if (isShow2.value === true) {
+    mainView = grdMainRef2.value.getView();
+  } else if (isShow3.value === true) {
+    mainView = grdMainRef3.value.getView();
+  }
+
+  mainView.getDataSource().setRows(mainList);
+  mainView.resetCurrent();
 }
 
 async function onClickSearch() {
   await fetchData();
 }
 
+// 1. 일시불, 2.렌탈, 3. 금융리스, 4.멤버십, 5.정기구매
 async function onSelectTaskDiv() {
   const { taskDiv } = searchParams.value;
-  if (taskDiv === '1' || taskDiv === '3' || taskDiv === '5') {
+  if (taskDiv === '1' || taskDiv === '3') {
     isShow1.value = true;
     isShow2.value = false;
     isShow3.value = false;
+    isInqrDv.value = false;
   } else if (taskDiv === '2') {
     isShow1.value = false;
     isShow2.value = true;
     isShow3.value = false;
+    isInqrDv.value = false;
   } else if (taskDiv === '4') {
     isShow1.value = false;
     isShow2.value = false;
     isShow3.value = true;
+    searchParams.value.inqrDv = '1';
+    isInqrDv.value = true;
+  } else if (taskDiv === '5') {
+    isShow1.value = true;
+    isShow2.value = false;
+    isShow3.value = false;
+    searchParams.value.inqrDv = '1';
+    isInqrDv.value = true;
   }
 }
 
 async function onClickExportView() {
-  const { taskDiv } = searchParams.value;
-  if (taskDiv === '1' || taskDiv === '3' || taskDiv === '5') {
-    const view = grdMainRef1.value.getView();
-    const response = await dataService.get('/sms/wells/closing/product-sales/single-payment/excel-download', { params: cachedParams });
-    await gridUtil.exportView(view, {
-      fileName: 'mainList',
-      timePostfix: true,
-      exportData: response.data,
-    });
-  } else if (taskDiv === '2') {
-    const view = grdMainRef2.value.getView();
-    const response = await dataService.get('/sms/wells/closing/product-sales/rental/excel-download', { params: cachedParams });
-    await gridUtil.exportView(view, {
-      fileName: 'mainList',
-      timePostfix: true,
-      exportData: response.data,
-    });
-  } else if (taskDiv === '4') {
-    const view = grdMainRef3.value.getView();
-    const response = await dataService.get('/sms/wells/closing/product-sales/membership/excel-download', { params: cachedParams });
-    await gridUtil.exportView(view, {
-      fileName: 'mainList',
-      timePostfix: true,
-      exportData: response.data,
-    });
+  let view;
+  if (isShow1.value === true) {
+    view = grdMainRef1.value.getView();
+  } else if (isShow2.value === true) {
+    view = grdMainRef2.value.getView();
+  } else if (isShow3.value === true) {
+    view = grdMainRef3.value.getView();
   }
+
+  await gridUtil.exportView(view, {
+    fileName: currentRoute.value.meta.menuName,
+    timePostfix: true,
+  });
 }
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
@@ -384,12 +407,12 @@ const initGridMain1 = defineGrid((data, view) => {
     ],
   });
   view.columnByName('col1').setHeaderSummaries({ text: t('MSG_TXT_SUM'), styleName: 'text-center' });
-  view.columnByName('col6').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum', styleName: 'rg-button-link text-right', renderer: { type: 'button' } });
+  view.columnByName('col6').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
   view.columnByName('col7').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
   view.columnByName('col8').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
   view.columnByName('col9').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
   view.columnByName('col10').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
-  view.columnByName('col11').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
+  view.columnByName('col11').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum', styleName: 'rg-button-link text-right', renderer: { type: 'button' } });
   view.columnByName('col12').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
   view.columnByName('col13').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
   view.columnByName('col14').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
@@ -404,7 +427,6 @@ const initGridMain1 = defineGrid((data, view) => {
   view.columnByName('col23').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
   view.columnByName('col24').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
   view.columnByName('col25').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
-
   view.onCellClicked = async (g, clickData) => {
     console.log('clickData:', clickData);
     if (clickData.cellType === 'summary') {
@@ -648,7 +670,7 @@ const initGridMain2 = defineGrid((data, view) => {
             'col8',
           ],
           header: {
-            text: t('TXT_MSG_RGST_FEE'),
+            text: t('MSG_TXT_RGST_FEE'),
           },
         },
         {
@@ -903,11 +925,4 @@ const initGridMain3 = defineGrid((data, view) => {
   view.rowIndicator.visible = true;
 });
 
-const selectTaskDiv = { // 업무구분
-  options: [{ codeId: '1', codeName: '일시불' }, { codeId: '2', codeName: '렌탈' }, { codeId: '3', codeName: '금융리스' }, { codeId: '4', codeName: '멤버십' }, { codeId: '5', codeName: '정기구매' }],
-};
-
-const selectInqrDv = { // 조회구분
-  options: [{ codeId: '1', codeName: '집계' }, { codeId: '2', codeName: '상품' }],
-};
 </script>

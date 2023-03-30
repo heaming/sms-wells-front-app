@@ -23,8 +23,11 @@
         required
       >
         <kw-date-range-picker
-          v-model:from="searchParams.baseDtmnFrom"
-          v-model:to="searchParams.baseDtmnTo"
+          :from="searchParams.baseDtmnFrom"
+          :to="searchParams.baseDtmnTo"
+          type="date"
+          :label="$t('MSG_TXT_SL_DT')"
+          rules="date_range_required"
         />
       </kw-search-item>
       <kw-search-item
@@ -43,8 +46,37 @@
     <kw-search-row>
       <kw-search-item :label="$t('MSG_TXT_SEL_TYPE')">
         <kw-select
-          v-model="searchParams.sellType"
-          :options="codes.SELL_TP_CD"
+          v-if="searchParams.taskDiv === '3'"
+          v-model="searchParams.sellTp"
+          :readonly="false"
+          :options="codes.SELL_TP_DTL_CD.filter((v) => v.codeId === '1' || v.codeId === '3' )"
+          first-option
+          first-option-value="ALL"
+          :first-option-label="$t('MSG_TXT_ALL')"
+        />
+        <kw-select
+          v-else-if="searchParams.taskDiv === '4'"
+          v-model="searchParams.sellTp"
+          :readonly="false"
+          :options="codes.SELL_TP_DTL_CD.filter((v) => v.codeId === '1' || v.codeId === '2' )"
+          first-option
+          first-option-value="ALL"
+          :first-option-label="$t('MSG_TXT_ALL')"
+        />
+        <kw-select
+          v-else-if="searchParams.taskDiv === '5'"
+          v-model="searchParams.sellTp"
+          :readonly="false"
+          :options="codes.SELL_TP_DTL_CD.filter((v) => v.codeId === '3' || v.codeId === '4')"
+          first-option
+          first-option-value="ALL"
+          :first-option-label="$t('MSG_TXT_ALL')"
+        />
+        <kw-select
+          v-else
+          v-model="searchParams.sellTp"
+          :readonly="true"
+          :options="codes.SELL_TP_DTL_CD"
           first-option
           first-option-value="ALL"
           :first-option-label="$t('MSG_TXT_ALL')"
@@ -53,7 +85,7 @@
       <kw-search-item :label="$t('MSG_TXT_SLS_CAT')">
         <kw-select
           v-model="searchParams.sellDv"
-          :options="codes.WELS_CL_SELL_DV_CD"
+          :options="codes.RGLR_SPP_SELL_DV_ACD"
           first-option
           first-option-value="ALL"
           :first-option-label="$t('MSG_TXT_ALL')"
@@ -61,10 +93,10 @@
       </kw-search-item>
       <kw-search-item :label="$t('MSG_TXT_CNTR_DTL_NO')">
         <kw-input
-          v-model="searchParams.rveCd"
+          v-model="searchParams.cntrDtlNo"
           icon="search"
           clearable
-          :click-icon="onClickIcon"
+          :on-click-icon="onClickCntrDtlNo"
         />
       </kw-search-item>
     </kw-search-row>
@@ -75,7 +107,7 @@
           v-model="searchParams.cstNo"
           icon="search"
           clearable
-          :click-icon="onClickIcon"
+          :on-click-icon="onClickCstNo"
         />
       </kw-search-item>
       <kw-search-item :label="$t('MSG_TXT_SAP_SLPNO')">
@@ -154,13 +186,16 @@ const totalCount = ref(0);
 const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
   'SELL_TP_CD',
-  'WELS_CL_SELL_DV_CD',
+  'SELL_TP_DTL_CD',
+  'RGLR_SPP_SELL_DV_ACD',
 );
+codes.RGLR_SPP_SELL_DV_ACD = codes.RGLR_SPP_SELL_DV_ACD.filter((v) => ['04', '07', '09', '10'].includes(v.codeId));
+
 const searchParams = ref({
   baseDtmnFrom: now.subtract(30, 'day').format('YYYYMMDD'),
   baseDtmnTo: now.format('YYYYMMDD'),
   taskDiv: '1', // 업무구분
-  sellType: 'ALL', // 판매유형
+  sellTp: 'ALL', // 판매유형
   sellDv: 'ALL', // 판매구분
   cntrDtlNo: '', // 계약상세번호
   cstNo: '', // 고객번호
@@ -170,7 +205,19 @@ const searchParams = ref({
 const initGridData = [];
 async function onSelectTaskDiv() {
   const { taskDiv } = searchParams.value;
-  if (taskDiv === '1' || taskDiv === '3' || taskDiv === '5') {
+  if (taskDiv === '1') {
+    isShow1.value = true;
+    isShow2.value = false;
+    isShow3.value = false;
+    const view = grdDetailRef1.value.getView();
+    view.getDataSource().setRows(initGridData);
+  } else if (taskDiv === '3') {
+    isShow1.value = true;
+    isShow2.value = false;
+    isShow3.value = false;
+    const view = grdDetailRef1.value.getView();
+    view.getDataSource().setRows(initGridData);
+  } else if (taskDiv === '5') {
     isShow1.value = true;
     isShow2.value = false;
     isShow3.value = false;
@@ -193,7 +240,7 @@ async function onSelectTaskDiv() {
 let cachedParams;
 async function fetchData() {
   cachedParams = cloneDeep(searchParams.value);
-  console.log(searchParams.value);
+  console.log('searchParams.value:', searchParams.value);
 
   const { taskDiv } = searchParams.value;
   if (taskDiv === '1' || taskDiv === '3' || taskDiv === '5') {
@@ -253,43 +300,55 @@ async function onClickExportView() {
     });
   }
 }
+
+async function onClickCntrDtlNo() {
+  const { cntrDtlNo } = searchParams.value;
+  console.log('cntrDtlNo:', cntrDtlNo);
+  const res = await dataService.get('/sms/common/closing/slip-base-inf/person-information', { params: cntrDtlNo });
+  console.log(res.data);
+  if (res.data.length === 0) {
+    console.log('계약번호가 존재하지 않습니다.');
+  } else if (res.data.length === 1) {
+    console.log('계약상세번호 하나');
+    searchParams.value.cntrDtlNo = res.data.cntrDtlNo;
+  } else {
+    console.log('계약번호 조회 팝업');
+    // await modal({
+    // component: 'WwctaContractNumberListP',
+    // componentProps: { cntrDtlNo },
+    // });
+  }
+}
+
+let cstNoParam;
+const searchCstNoParams = ref({
+  cstNo: '', // 고객번호
+});
+async function onClickCstNo() {
+  searchCstNoParams.value.cstNo = searchParams.value.cstNo;
+  cstNoParam = cloneDeep(searchCstNoParams.value);
+  console.log('cstNoParam:', cstNoParam);
+  const res = await dataService.get('/sms/common/customer/reg/indv-customers', { params: cstNoParam });
+  console.log(res.data);
+  if (res.data.length === 0) {
+    console.log('고객이 존재하지 않습니다.');
+  } else if (res.data.length === 1) {
+    console.log('고객이 하나');
+    searchParams.value.cntrDtlNo = res.data.cntrDtlNo;
+  } else {
+    console.log('고객 조회 팝업');
+    // await modal({
+    // component: 'WwctaContractNumberListP',
+    // componentProps: { cntrDtlNo },
+    // });
+  }
+}
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
 const initGridDetail1 = defineGrid((data, view) => {
-  const fields = [
-    { fieldName: 'col1' },
-    { fieldName: 'col2' },
-    { fieldName: 'col3' },
-    { fieldName: 'col4' },
-    { fieldName: 'col5' },
-    { fieldName: 'col6' },
-    { fieldName: 'col7' },
-    { fieldName: 'col8' },
-    { fieldName: 'col9', dataType: 'number' },
-    { fieldName: 'col10', dataType: 'number' },
-    { fieldName: 'col11', dataType: 'number' },
-    { fieldName: 'col12', dataType: 'number' },
-    { fieldName: 'col13', dataType: 'number' },
-    { fieldName: 'col14', dataType: 'number' },
-    { fieldName: 'col15', dataType: 'number' },
-    { fieldName: 'col16', dataType: 'number' },
-    { fieldName: 'col17', dataType: 'number' },
-    { fieldName: 'col18', dataType: 'number' },
-    { fieldName: 'col19', dataType: 'number' },
-    { fieldName: 'col20', dataType: 'number' },
-    { fieldName: 'col21', dataType: 'number' },
-    { fieldName: 'col22', dataType: 'number' },
-    { fieldName: 'col23', dataType: 'number' },
-    { fieldName: 'col24', dataType: 'number' },
-    { fieldName: 'col25', dataType: 'number' },
-    { fieldName: 'col26', dataType: 'number' },
-    { fieldName: 'col27', dataType: 'number' },
-    { fieldName: 'col28', dataType: 'number' },
-  ];
-
   const columns = [
-    { fieldName: 'col1',
+    { fieldName: 'taskDiv',
       header: t('MSG_TXT_TASK_DIV'),
       width: '100',
       styleName: 'text-center',
@@ -297,14 +356,14 @@ const initGridDetail1 = defineGrid((data, view) => {
         text: t('MSG_TXT_SUM'),
         styleName: 'text-center',
       } },
-    { fieldName: 'col2', header: t('MSG_TXT_SEL_TYPE'), width: '100', styleName: 'text-center' },
-    { fieldName: 'col3', header: t('MSG_TXT_PRDT'), width: '100', styleName: 'text-center' },
-    { fieldName: 'col4', header: t('MSG_TXT_SLS_CAT'), width: '100', styleName: 'text-center' },
-    { fieldName: 'col5', header: t('MSG_TXT_SL_DT'), width: '100', styleName: 'text-center' },
-    { fieldName: 'col6', header: t('MSG_TXT_CNTR_DTL_NO'), width: '100', styleName: 'rg-button-link text-center', renderer: { type: 'button' } },
-    { fieldName: 'col7', header: t('MSG_TXT_CST_NO'), width: '100', styleName: 'text-right' },
-    { fieldName: 'col8', header: t('MSG_TXT_CST_NM'), width: '100', styleName: 'text-right' },
-    { fieldName: 'col9',
+    { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '100', styleName: 'text-center' },
+    { fieldName: 'pdDtlCd', header: t('MSG_TXT_PRDT'), width: '100', styleName: 'text-center' },
+    { fieldName: 'sellDv', header: t('MSG_TXT_SLS_CAT'), width: '100', styleName: 'text-center' },
+    { fieldName: 'slDt', header: t('MSG_TXT_SL_DT'), width: '100', styleName: 'text-center' },
+    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '100', styleName: 'rg-button-link text-center', renderer: { type: 'button' } },
+    { fieldName: 'cstNo', header: t('MSG_TXT_CST_NO'), width: '100', styleName: 'text-right' },
+    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '100', styleName: 'text-right' },
+    { fieldName: 'normalSellQty',
       header: t('MSG_TXT_SELL_QTY'),
       width: '100',
       styleName: 'text-right',
@@ -313,7 +372,7 @@ const initGridDetail1 = defineGrid((data, view) => {
         expression: 'sum',
         styleName: 'text-right',
       } },
-    { fieldName: 'col10',
+    { fieldName: 'normalMpyAmt',
       header: t('MSG_TXT_MPY_AMT'),
       width: '100',
       styleName: 'text-right',
@@ -322,7 +381,7 @@ const initGridDetail1 = defineGrid((data, view) => {
         expression: 'sum',
         styleName: 'text-right',
       } },
-    { fieldName: 'col11',
+    { fieldName: 'normalMmIstmPcamAmt',
       header: t('MSG_TXT_PVDA'),
       width: '100',
       styleName: 'text-right',
@@ -331,7 +390,7 @@ const initGridDetail1 = defineGrid((data, view) => {
         expression: 'sum',
         styleName: 'text-right',
       } },
-    { fieldName: 'col12',
+    { fieldName: 'normalVat',
       header: t('MSG_TXT_VAT'),
       width: '100',
       styleName: 'text-right',
@@ -340,7 +399,7 @@ const initGridDetail1 = defineGrid((data, view) => {
         expression: 'sum',
         styleName: 'text-right',
       } },
-    { fieldName: 'col13',
+    { fieldName: 'normalPurSlAmt',
       header: t('MSG_TXT_PUR_SLPRC'),
       width: '100',
       styleName: 'text-right',
@@ -349,7 +408,7 @@ const initGridDetail1 = defineGrid((data, view) => {
         expression: 'sum',
         styleName: 'text-right',
       } },
-    { fieldName: 'col14',
+    { fieldName: 'chgSellQty',
       header: t('MSG_TXT_SELL_QTY'),
       width: '100',
       styleName: 'text-right',
@@ -358,7 +417,7 @@ const initGridDetail1 = defineGrid((data, view) => {
         expression: 'sum',
         styleName: 'text-right',
       } },
-    { fieldName: 'col15',
+    { fieldName: 'chgMpyAmt',
       header: t('MSG_TXT_MPY_AMT'),
       width: '100',
       styleName: 'text-right',
@@ -367,7 +426,7 @@ const initGridDetail1 = defineGrid((data, view) => {
         expression: 'sum',
         styleName: 'text-right',
       } },
-    { fieldName: 'col16',
+    { fieldName: 'chgMmIstmPcamAmt',
       header: t('MSG_TXT_PVDA'),
       width: '100',
       styleName: 'text-right',
@@ -376,7 +435,7 @@ const initGridDetail1 = defineGrid((data, view) => {
         expression: 'sum',
         styleName: 'text-right',
       } },
-    { fieldName: 'col17',
+    { fieldName: 'chgVat',
       header: t('MSG_TXT_VAT'),
       width: '100',
       styleName: 'text-right',
@@ -385,7 +444,7 @@ const initGridDetail1 = defineGrid((data, view) => {
         expression: 'sum',
         styleName: 'text-right',
       } },
-    { fieldName: 'col18',
+    { fieldName: 'chgPurSlAmt',
       header: t('MSG_TXT_PUR_SLPRC'),
       width: '100',
       styleName: 'text-right',
@@ -394,7 +453,7 @@ const initGridDetail1 = defineGrid((data, view) => {
         expression: 'sum',
         styleName: 'text-right',
       } },
-    { fieldName: 'col19',
+    { fieldName: 'canSellQty',
       header: t('MSG_TXT_SELL_QTY'),
       width: '100',
       styleName: 'text-right',
@@ -403,7 +462,7 @@ const initGridDetail1 = defineGrid((data, view) => {
         expression: 'sum',
         styleName: 'text-right',
       } },
-    { fieldName: 'col20',
+    { fieldName: 'canMpyAmt',
       header: t('MSG_TXT_MPY_AMT'),
       width: '100',
       styleName: 'text-right',
@@ -412,7 +471,7 @@ const initGridDetail1 = defineGrid((data, view) => {
         expression: 'sum',
         styleName: 'text-right',
       } },
-    { fieldName: 'col21',
+    { fieldName: 'canMmIstmPcamAmt',
       header: t('MSG_TXT_PVDA'),
       width: '100',
       styleName: 'text-right',
@@ -421,7 +480,7 @@ const initGridDetail1 = defineGrid((data, view) => {
         expression: 'sum',
         styleName: 'text-right',
       } },
-    { fieldName: 'col22',
+    { fieldName: 'canVat',
       header: t('MSG_TXT_VAT'),
       width: '100',
       styleName: 'text-right',
@@ -430,7 +489,7 @@ const initGridDetail1 = defineGrid((data, view) => {
         expression: 'sum',
         styleName: 'text-right',
       } },
-    { fieldName: 'col23',
+    { fieldName: 'canPurSlAmt',
       header: t('MSG_TXT_PUR_SLPRC'),
       width: '100',
       styleName: 'text-right',
@@ -439,7 +498,7 @@ const initGridDetail1 = defineGrid((data, view) => {
         expression: 'sum',
         styleName: 'text-right',
       } },
-    { fieldName: 'col24',
+    { fieldName: 'sumSellQty',
       header: t('MSG_TXT_SELL_QTY'),
       width: '100',
       styleName: 'text-right',
@@ -448,7 +507,7 @@ const initGridDetail1 = defineGrid((data, view) => {
         expression: 'sum',
         styleName: 'text-right',
       } },
-    { fieldName: 'col25',
+    { fieldName: 'sumMpyAmt',
       header: t('MSG_TXT_MPY_AMT'),
       width: '100',
       styleName: 'text-right',
@@ -457,7 +516,7 @@ const initGridDetail1 = defineGrid((data, view) => {
         expression: 'sum',
         styleName: 'text-right',
       } },
-    { fieldName: 'col26',
+    { fieldName: 'sumMmIstmPcamAmt',
       header: t('MSG_TXT_PVDA'),
       width: '100',
       styleName: 'text-right',
@@ -466,7 +525,7 @@ const initGridDetail1 = defineGrid((data, view) => {
         expression: 'sum',
         styleName: 'text-right',
       } },
-    { fieldName: 'col27',
+    { fieldName: 'sumVat',
       header: t('MSG_TXT_VAT'),
       width: '100',
       styleName: 'text-right',
@@ -475,7 +534,7 @@ const initGridDetail1 = defineGrid((data, view) => {
         expression: 'sum',
         styleName: 'text-right',
       } },
-    { fieldName: 'col28',
+    { fieldName: 'sumPurSlAmt',
       header: t('MSG_TXT_PUR_SLPRC'),
       width: '100',
       styleName: 'text-right',
@@ -485,15 +544,15 @@ const initGridDetail1 = defineGrid((data, view) => {
         styleName: 'text-right',
       } },
   ];
-
+  const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   data.setFields(fields);
   view.setColumns(columns);
 
   view.onCellItemClicked = async (grid, { column }) => {
     const current = view.getCurrent();
     const dataProvider = view.getDataSource();
-    const cntrDtlNo = dataProvider.getValue(current.dataRow, 'col6');
-    if (column === 'col6') {
+    const cntrDtlNo = dataProvider.getValue(current.dataRow, 'cntrDtlNo');
+    if (column === 'cntrDtlNo') {
       const { taskDiv } = searchParams.value;
       await modal({
         component: 'WwdcbSalesDtlP',
@@ -503,23 +562,23 @@ const initGridDetail1 = defineGrid((data, view) => {
   };
 
   const layout1 = [
-    'col1',
-    'col2',
-    'col3',
-    'col4',
-    'col5',
-    'col6',
-    'col7',
-    'col8',
+    'taskDiv',
+    'sellTpCd',
+    'pdDtlCd',
+    'sellDv',
+    'slDt',
+    'cntrDtlNo',
+    'cstNo',
+    'cstKnm',
     {
       name: 'normalGroup',
       direction: 'horizontal',
       items: [
-        'col9',
-        'col10',
-        'col11',
-        'col12',
-        'col13',
+        'normalSellQty',
+        'normalMpyAmt',
+        'normalMmIstmPcamAmt',
+        'normalVat',
+        'normalPurSlAmt',
       ],
       header: {
         text: t('MSG_TXT_NOM_SL'),
@@ -530,11 +589,11 @@ const initGridDetail1 = defineGrid((data, view) => {
       direction: 'horizontal',
       items: [
 
-        'col14',
-        'col15',
-        'col16',
-        'col17',
-        'col18',
+        'chgSellQty',
+        'chgMpyAmt',
+        'chgMmIstmPcamAmt',
+        'chgVat',
+        'chgPurSlAmt',
       ],
       header: {
         text: t('MSG_TXT_SL_CH'),
@@ -544,11 +603,11 @@ const initGridDetail1 = defineGrid((data, view) => {
       name: 'normalGroup',
       direction: 'horizontal',
       items: [
-        'col19',
-        'col20',
-        'col21',
-        'col22',
-        'col23',
+        'canSellQty',
+        'canMpyAmt',
+        'canMmIstmPcamAmt',
+        'canVat',
+        'canPurSlAmt',
       ],
       header: {
         text: t('MSG_TXT_SL_CAN'),
@@ -558,11 +617,11 @@ const initGridDetail1 = defineGrid((data, view) => {
       name: 'normalGroup',
       direction: 'horizontal',
       items: [
-        'col24',
-        'col25',
-        'col26',
-        'col27',
-        'col28',
+        'sumSellQty',
+        'sumMpyAmt',
+        'sumMmIstmPcamAmt',
+        'sumVat',
+        'sumPurSlAmt',
       ],
       header: {
         text: t('MSG_TXT_SL_SUM'),
@@ -579,36 +638,13 @@ const initGridDetail1 = defineGrid((data, view) => {
     ],
   });
 
-  view.layoutByColumn('col1').summaryUserSpans = [{ colspan: 8 }];
+  view.layoutByColumn('taskDiv').summaryUserSpans = [{ colspan: 8 }];
   view.rowIndicator.visible = true;
 });
 
 const initGridDetail2 = defineGrid((data, view) => {
-  const fields = [
-    { fieldName: 'col1' },
-    { fieldName: 'col2' },
-    { fieldName: 'col3' },
-    { fieldName: 'col4' },
-    { fieldName: 'col5' },
-    { fieldName: 'col6' },
-    { fieldName: 'col7' },
-    { fieldName: 'col8' },
-    { fieldName: 'col9', dataType: 'number' },
-    { fieldName: 'col10', dataType: 'number' },
-    { fieldName: 'col11', dataType: 'number' },
-    { fieldName: 'col12', dataType: 'number' },
-    { fieldName: 'col13', dataType: 'number' },
-    { fieldName: 'col14', dataType: 'number' },
-    { fieldName: 'col15', dataType: 'number' },
-    { fieldName: 'col16', dataType: 'number' },
-    { fieldName: 'col17', dataType: 'number' },
-    { fieldName: 'col18', dataType: 'number' },
-    { fieldName: 'col19', dataType: 'number' },
-    { fieldName: 'col20', dataType: 'number' },
-  ];
-
   const columns = [
-    { fieldName: 'col1',
+    { fieldName: 'taskDiv',
       header: t('MSG_TXT_TASK_DIV'),
       width: '100',
       styleName: 'text-center',
@@ -616,14 +652,14 @@ const initGridDetail2 = defineGrid((data, view) => {
         text: t('MSG_TXT_SUM'),
         styleName: 'text-center',
       } },
-    { fieldName: 'col2', header: t('MSG_TXT_SEL_TYPE'), width: '100', styleName: 'text-center' },
-    { fieldName: 'col3', header: t('MSG_TXT_PRDT'), width: '100', styleName: 'text-center' },
-    { fieldName: 'col4', header: t('MSG_TXT_SLS_CAT'), width: '100', styleName: 'text-center' },
-    { fieldName: 'col5', header: t('MSG_TXT_SL_DT'), width: '100', styleName: 'text-center' },
-    { fieldName: 'col6', header: t('MSG_TXT_CNTR_DTL_NO'), width: '100', styleName: 'rg-button-link text-center', renderer: { type: 'button' } },
-    { fieldName: 'col7', header: t('MSG_TXT_CST_NO'), width: '100', styleName: 'text-right' },
-    { fieldName: 'col8', header: t('MSG_TXT_CST_NM'), width: '100', styleName: 'text-right' },
-    { fieldName: 'col9',
+    { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '100', styleName: 'text-center' },
+    { fieldName: 'pdDtlCd', header: t('MSG_TXT_PRDT'), width: '100', styleName: 'text-center' },
+    { fieldName: 'sellDiv', header: t('MSG_TXT_SLS_CAT'), width: '100', styleName: 'text-center' },
+    { fieldName: 'slDt', header: t('MSG_TXT_SL_DT'), width: '100', styleName: 'text-center' },
+    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '100', styleName: 'rg-button-link text-center', renderer: { type: 'button' } },
+    { fieldName: 'cstNo', header: t('MSG_TXT_CST_NO'), width: '100', styleName: 'text-right' },
+    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '100', styleName: 'text-right' },
+    { fieldName: 'rgstQty',
       header: t('MSG_TXT_ACC_QTY'),
       width: '100',
       styleName: 'text-right',
@@ -632,7 +668,7 @@ const initGridDetail2 = defineGrid((data, view) => {
         expression: 'sum',
         styleName: 'text-right',
       } },
-    { fieldName: 'col10',
+    { fieldName: 'rgstMpyAmt',
       header: t('MSG_TXT_MPY_AMT'),
       width: '100',
       styleName: 'text-right',
@@ -641,7 +677,7 @@ const initGridDetail2 = defineGrid((data, view) => {
         expression: 'sum',
         styleName: 'text-right',
       } },
-    { fieldName: 'col11',
+    { fieldName: 'rgstVat',
       header: t('MSG_TXT_VAT_AMOUNT'),
       width: '100',
       styleName: 'text-right',
@@ -650,7 +686,7 @@ const initGridDetail2 = defineGrid((data, view) => {
         expression: 'sum',
         styleName: 'text-right',
       } },
-    { fieldName: 'col12',
+    { fieldName: 'rgstPurSlAmt',
       header: t('MSG_TXT_PUR_SLPRC'),
       width: '100',
       styleName: 'text-right',
@@ -659,7 +695,7 @@ const initGridDetail2 = defineGrid((data, view) => {
         expression: 'sum',
         styleName: 'text-right',
       } },
-    { fieldName: 'col13',
+    { fieldName: 'rentalQty',
       header: t('MSG_TXT_ACC_QTY'),
       width: '100',
       styleName: 'text-right',
@@ -668,7 +704,7 @@ const initGridDetail2 = defineGrid((data, view) => {
         expression: 'sum',
         styleName: 'text-right',
       } },
-    { fieldName: 'col14',
+    { fieldName: 'rentalMpyAmt',
       header: t('MSG_TXT_MPY_AMT'),
       width: '100',
       styleName: 'text-right',
@@ -677,7 +713,7 @@ const initGridDetail2 = defineGrid((data, view) => {
         expression: 'sum',
         styleName: 'text-right',
       } },
-    { fieldName: 'col15',
+    { fieldName: 'rentalVat',
       header: t('MSG_TXT_VAT_AMOUNT'),
       width: '100',
       styleName: 'text-right',
@@ -686,7 +722,7 @@ const initGridDetail2 = defineGrid((data, view) => {
         expression: 'sum',
         styleName: 'text-right',
       } },
-    { fieldName: 'col16',
+    { fieldName: 'rentalPurSlAmt',
       header: t('MSG_TXT_PUR_SLPRC'),
       width: '100',
       styleName: 'text-right',
@@ -695,7 +731,7 @@ const initGridDetail2 = defineGrid((data, view) => {
         expression: 'sum',
         styleName: 'text-right',
       } },
-    { fieldName: 'col17',
+    { fieldName: 'sumQty',
       header: t('MSG_TXT_ACC_QTY'),
       width: '100',
       styleName: 'text-right',
@@ -704,7 +740,7 @@ const initGridDetail2 = defineGrid((data, view) => {
         expression: 'sum',
         styleName: 'text-right',
       } },
-    { fieldName: 'col18',
+    { fieldName: 'sumMpyAmt',
       header: t('MSG_TXT_MPY_AMT'),
       width: '100',
       styleName: 'text-right',
@@ -713,7 +749,7 @@ const initGridDetail2 = defineGrid((data, view) => {
         expression: 'sum',
         styleName: 'text-right',
       } },
-    { fieldName: 'col19',
+    { fieldName: 'sumVat',
       header: t('MSG_TXT_VAT_AMOUNT'),
       width: '100',
       styleName: 'text-right',
@@ -722,7 +758,7 @@ const initGridDetail2 = defineGrid((data, view) => {
         expression: 'sum',
         styleName: 'text-right',
       } },
-    { fieldName: 'col20',
+    { fieldName: 'sumPurSlAmt',
       header: t('MSG_TXT_PUR_SLPRC'),
       width: '100',
       styleName: 'text-right',
@@ -733,15 +769,15 @@ const initGridDetail2 = defineGrid((data, view) => {
       } },
 
   ];
-
+  const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   data.setFields(fields);
   view.setColumns(columns);
 
   view.onCellItemClicked = async (grid, { column }) => {
     const current = view.getCurrent();
     const dataProvider = view.getDataSource();
-    const cntrDtlNo = dataProvider.getValue(current.dataRow, 'col6');
-    if (column === 'col6') {
+    const cntrDtlNo = dataProvider.getValue(current.dataRow, 'cntrDtlNo');
+    if (column === 'cntrDtlNo') {
       const { taskDiv } = searchParams.value;
       await modal({
         component: 'WwdcbSalesDtlP',
@@ -751,14 +787,14 @@ const initGridDetail2 = defineGrid((data, view) => {
   };
 
   const layout1 = [
-    'col1',
-    'col2',
-    'col3',
-    'col4',
-    'col5',
-    'col6',
-    'col7',
-    'col8',
+    'taskDiv',
+    'sellTpCd',
+    'pdDtlCd',
+    'sellDiv',
+    'slDt',
+    'cntrDtlNo',
+    'cstNo',
+    'cstKnm',
     {
       name: 'normalGroup',
       direction: 'horizontal',
@@ -767,10 +803,10 @@ const initGridDetail2 = defineGrid((data, view) => {
           name: 'normalGroup',
           direction: 'horizontal',
           items: [
-            'col9',
-            'col10',
-            'col11',
-            'col12',
+            'rgstQty',
+            'rgstMpyAmt',
+            'rgstVat',
+            'rgstPurSlAmt',
           ],
           header: {
             text: t('MSG_TXT_RGST_FEE'),
@@ -780,10 +816,10 @@ const initGridDetail2 = defineGrid((data, view) => {
           name: 'normalGroup',
           direction: 'horizontal',
           items: [
-            'col13',
-            'col14',
-            'col15',
-            'col16',
+            'rentalQty',
+            'rentalMpyAmt',
+            'rentalVat',
+            'rentalPurSlAmt',
           ],
           header: {
             text: t('MSG_TXT_RTLFE'),
@@ -798,10 +834,10 @@ const initGridDetail2 = defineGrid((data, view) => {
       name: 'normalGroup',
       direction: 'horizontal',
       items: [
-        'col17',
-        'col18',
-        'col19',
-        'col20',
+        'sumQty',
+        'sumMpyAmt',
+        'sumVat',
+        'sumPurSlAmt',
       ],
       header: {
         text: t('MSG_TXT_SL_SUM'),
@@ -818,36 +854,13 @@ const initGridDetail2 = defineGrid((data, view) => {
     ],
   });
 
-  view.layoutByColumn('col1').summaryUserSpans = [{ colspan: 8 }];
+  view.layoutByColumn('taskDiv').summaryUserSpans = [{ colspan: 8 }];
   view.rowIndicator.visible = true;
 });
 
 const initGridDetail3 = defineGrid((data, view) => {
-  const fields = [
-    { fieldName: 'col1' },
-    { fieldName: 'col2' },
-    { fieldName: 'col3' },
-    { fieldName: 'col4' },
-    { fieldName: 'col5' },
-    { fieldName: 'col6' },
-    { fieldName: 'col7' },
-    { fieldName: 'col8' },
-    { fieldName: 'col9', dataType: 'number' },
-    { fieldName: 'col10', dataType: 'number' },
-    { fieldName: 'col11', dataType: 'number' },
-    { fieldName: 'col12', dataType: 'number' },
-    { fieldName: 'col13', dataType: 'number' },
-    { fieldName: 'col14', dataType: 'number' },
-    { fieldName: 'col15', dataType: 'number' },
-    { fieldName: 'col16', dataType: 'number' },
-    { fieldName: 'col17', dataType: 'number' },
-    { fieldName: 'col18', dataType: 'number' },
-    { fieldName: 'col19', dataType: 'number' },
-    { fieldName: 'col20', dataType: 'number' },
-  ];
-
   const columns = [
-    { fieldName: 'col1',
+    { fieldName: 'taskDiv',
       header: t('MSG_TXT_TASK_DIV'),
       width: '100',
       styleName: 'text-center',
@@ -855,14 +868,14 @@ const initGridDetail3 = defineGrid((data, view) => {
         text: t('MSG_TXT_SUM'),
         styleName: 'text-center',
       } },
-    { fieldName: 'col2', header: t('MSG_TXT_SEL_TYPE'), width: '100', styleName: 'text-center' },
-    { fieldName: 'col3', header: t('MSG_TXT_PRDT'), width: '100', styleName: 'text-center' },
-    { fieldName: 'col4', header: t('MSG_TXT_SLS_CAT'), width: '100', styleName: 'text-center' },
-    { fieldName: 'col5', header: t('MSG_TXT_SL_DT'), width: '100', styleName: 'text-center' },
-    { fieldName: 'col6', header: t('MSG_TXT_CNTR_DTL_NO'), width: '100', styleName: 'rg-button-link text-center', renderer: { type: 'button' } },
-    { fieldName: 'col7', header: t('MSG_TXT_CST_NO'), width: '100', styleName: 'text-right' },
-    { fieldName: 'col8', header: t('MSG_TXT_CST_NM'), width: '100', styleName: 'text-right' },
-    { fieldName: 'col9',
+    { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '100', styleName: 'text-center' },
+    { fieldName: 'pdDtlCd', header: t('MSG_TXT_PRDT'), width: '100', styleName: 'text-center' },
+    { fieldName: 'sellDiv', header: t('MSG_TXT_SLS_CAT'), width: '100', styleName: 'text-center' },
+    { fieldName: 'slDt', header: t('MSG_TXT_SL_DT'), width: '100', styleName: 'text-center' },
+    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '100', styleName: 'rg-button-link text-center', renderer: { type: 'button' } },
+    { fieldName: 'cstNo', header: t('MSG_TXT_CST_NO'), width: '100', styleName: 'text-right' },
+    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '100', styleName: 'text-right' },
+    { fieldName: 'sspcsQty',
       header: t('MSG_TXT_ACC_QTY'),
       width: '100',
       styleName: 'text-right',
@@ -871,7 +884,7 @@ const initGridDetail3 = defineGrid((data, view) => {
         expression: 'sum',
         styleName: 'text-right',
       } },
-    { fieldName: 'col10',
+    { fieldName: 'sspcsMpyAmt',
       header: t('MSG_TXT_MPY_AMT'),
       width: '100',
       styleName: 'text-right',
@@ -880,7 +893,7 @@ const initGridDetail3 = defineGrid((data, view) => {
         expression: 'sum',
         styleName: 'text-right',
       } },
-    { fieldName: 'col11',
+    { fieldName: 'sspcsVat',
       header: t('MSG_TXT_VAT_AMOUNT'),
       width: '100',
       styleName: 'text-right',
@@ -889,7 +902,7 @@ const initGridDetail3 = defineGrid((data, view) => {
         expression: 'sum',
         styleName: 'text-right',
       } },
-    { fieldName: 'col12',
+    { fieldName: 'sspcsPurSlAmt',
       header: t('MSG_TXT_PUR_SLPRC'),
       width: '100',
       styleName: 'text-right',
@@ -898,7 +911,7 @@ const initGridDetail3 = defineGrid((data, view) => {
         expression: 'sum',
         styleName: 'text-right',
       } },
-    { fieldName: 'col13',
+    { fieldName: 'filtQty',
       header: t('MSG_TXT_ACC_QTY'),
       width: '100',
       styleName: 'text-right',
@@ -907,7 +920,7 @@ const initGridDetail3 = defineGrid((data, view) => {
         expression: 'sum',
         styleName: 'text-right',
       } },
-    { fieldName: 'col14',
+    { fieldName: 'filtMpyAmt',
       header: t('MSG_TXT_MPY_AMT'),
       width: '100',
       styleName: 'text-right',
@@ -916,7 +929,7 @@ const initGridDetail3 = defineGrid((data, view) => {
         expression: 'sum',
         styleName: 'text-right',
       } },
-    { fieldName: 'col15',
+    { fieldName: 'filtVat',
       header: t('MSG_TXT_VAT_AMOUNT'),
       width: '100',
       styleName: 'text-right',
@@ -925,7 +938,7 @@ const initGridDetail3 = defineGrid((data, view) => {
         expression: 'sum',
         styleName: 'text-right',
       } },
-    { fieldName: 'col16',
+    { fieldName: 'filtPurSlAmt',
       header: t('MSG_TXT_PUR_SLPRC'),
       width: '100',
       styleName: 'text-right',
@@ -934,7 +947,7 @@ const initGridDetail3 = defineGrid((data, view) => {
         expression: 'sum',
         styleName: 'text-right',
       } },
-    { fieldName: 'col17',
+    { fieldName: 'sumQty',
       header: t('MSG_TXT_ACC_QTY'),
       width: '100',
       styleName: 'text-right',
@@ -943,7 +956,7 @@ const initGridDetail3 = defineGrid((data, view) => {
         expression: 'sum',
         styleName: 'text-right',
       } },
-    { fieldName: 'col18',
+    { fieldName: 'sumMpyAmt',
       header: t('MSG_TXT_MPY_AMT'),
       width: '100',
       styleName: 'text-right',
@@ -952,7 +965,7 @@ const initGridDetail3 = defineGrid((data, view) => {
         expression: 'sum',
         styleName: 'text-right',
       } },
-    { fieldName: 'col19',
+    { fieldName: 'sumVat',
       header: t('MSG_TXT_VAT_AMOUNT'),
       width: '100',
       styleName: 'text-right',
@@ -961,7 +974,7 @@ const initGridDetail3 = defineGrid((data, view) => {
         expression: 'sum',
         styleName: 'text-right',
       } },
-    { fieldName: 'col20',
+    { fieldName: 'sumPurSlAmt',
       header: t('MSG_TXT_PUR_SLPRC'),
       width: '100',
       styleName: 'text-right',
@@ -972,15 +985,15 @@ const initGridDetail3 = defineGrid((data, view) => {
       } },
 
   ];
-
+  const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   data.setFields(fields);
   view.setColumns(columns);
 
   view.onCellItemClicked = async (grid, { column }) => {
     const current = view.getCurrent();
     const dataProvider = view.getDataSource();
-    const cntrDtlNo = dataProvider.getValue(current.dataRow, 'col6');
-    if (column === 'col6') {
+    const cntrDtlNo = dataProvider.getValue(current.dataRow, 'cntrDtlNo');
+    if (column === 'cntrDtlNo') {
       const { taskDiv } = searchParams.value;
       await modal({
         component: 'WwdcbSalesDtlP',
@@ -990,14 +1003,14 @@ const initGridDetail3 = defineGrid((data, view) => {
   };
 
   const layout1 = [
-    'col1',
-    'col2',
-    'col3',
-    'col4',
-    'col5',
-    'col6',
-    'col7',
-    'col8',
+    'taskDiv',
+    'sellTpCd',
+    'pdDtlCd',
+    'sellDiv',
+    'slDt',
+    'cntrDtlNo',
+    'cstNo',
+    'cstKnm',
     {
       name: 'normalGroup',
       direction: 'horizontal',
@@ -1006,10 +1019,10 @@ const initGridDetail3 = defineGrid((data, view) => {
           name: 'normalGroup',
           direction: 'horizontal',
           items: [
-            'col9',
-            'col10',
-            'col11',
-            'col12',
+            'sspcsQty',
+            'sspcsMpyAmt',
+            'sspcsVat',
+            'sspcsPurSlAmt',
           ],
           header: {
             text: t('MSG_TXT_SSPCS'),
@@ -1019,10 +1032,10 @@ const initGridDetail3 = defineGrid((data, view) => {
           name: 'normalGroup',
           direction: 'horizontal',
           items: [
-            'col13',
-            'col14',
-            'col15',
-            'col16',
+            'filtQty',
+            'filtMpyAmt',
+            'filtVat',
+            'filtPurSlAmt',
           ],
           header: {
             text: t('MSG_TXT_FLTR'),
@@ -1037,10 +1050,10 @@ const initGridDetail3 = defineGrid((data, view) => {
       name: 'normalGroup',
       direction: 'horizontal',
       items: [
-        'col17',
-        'col18',
-        'col19',
-        'col20',
+        'sumQty',
+        'sumMpyAmt',
+        'sumVat',
+        'sumPurSlAmt',
       ],
       header: {
         text: t('MSG_TXT_SL_SUM'),
@@ -1057,7 +1070,7 @@ const initGridDetail3 = defineGrid((data, view) => {
     ],
   });
 
-  view.layoutByColumn('col1').summaryUserSpans = [{ colspan: 8 }];
+  view.layoutByColumn('taskDiv').summaryUserSpans = [{ colspan: 8 }];
   view.rowIndicator.visible = true;
 });
 

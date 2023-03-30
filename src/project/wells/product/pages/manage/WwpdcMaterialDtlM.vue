@@ -157,16 +157,18 @@ const currentPdCd = ref();
 async function onClickModify() {
   obsMainRef.value.init();
   const { pdCd, tempSaveYn } = props;
+  await router.close(0, true);
   await router.push({ path: page.value.modify, replace: true, query: { pdCd, tempSaveYn } });
 }
 
-async function fetchData() {
+async function fetchData(forcePdCd) {
   const { pdCd } = props;
-  currentPdCd.value = pdCd;
+  currentPdCd.value = isEmpty(forcePdCd) ? pdCd : forcePdCd;
   const res = await dataService.get(`${baseUrl}/${currentPdCd.value}`);
 
   pdBas.value = res.data[pdConst.TBL_PD_BAS];
   prevStepData.value[pdConst.TBL_PD_BAS] = res.data[pdConst.TBL_PD_BAS];
+  prevStepData.value[pdConst.TBL_PD_DTL] = res.data[pdConst.TBL_PD_DTL];
   prevStepData.value[pdConst.TBL_PD_ECOM_PRP_DTL] = res.data[pdConst.TBL_PD_ECOM_PRP_DTL];
   prevStepData.value[pdConst.TBL_PD_REL] = res.data[pdConst.TBL_PD_REL];
   prdPropGroups.value = res.data.groupCodes;
@@ -182,14 +184,16 @@ async function fetchProps() {
   }
 }
 
-await fetchProps();
-
-watch(() => route.params.pdCd, async (pdCd) => {
-  if (pdCd && currentPdCd.value !== pdCd) {
-    currentPdCd.value = pdCd;
-    await fetchData();
+watch(() => route.query, async (query) => {
+  if (currentPdCd.value && currentPdCd.value !== query.pdCd) {
+    currentPdCd.value = query.pdCd;
+    await fetchData(query.pdCd);
   }
 }, { immediate: true });
+
+onMounted(async () => {
+  await fetchProps();
+});
 
 </script>
 <style scoped></style>

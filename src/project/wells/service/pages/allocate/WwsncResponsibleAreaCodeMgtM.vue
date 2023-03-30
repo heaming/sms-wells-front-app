@@ -187,6 +187,7 @@ import smsCommon from '~sms-wells/service/composables/useSnCode';
 const { t } = useI18n();
 const dataService = useDataService();
 const { getConfig } = useMeta();
+const { currentRoute } = useRouter();
 
 const {
   getDistricts,
@@ -266,7 +267,7 @@ async function onClickExcelDownload() {
   const response = await dataService.get('/sms/wells/service/responsible-area-codes/excel-download', { params: cachedParams });
 
   await gridUtil.exportView(view, {
-    fileName: 'ResponsibleAreaCode',
+    fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
     exportData: response.data,
   });
@@ -292,7 +293,7 @@ async function onClickSave() {
 const initGrdMain = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'fr2pLgldCd' },
-    { fieldName: 'newAdrZip' },
+    { fieldName: 'zipList' },
     { fieldName: 'mgtCnt' },
     { fieldName: 'wrkCnt' },
     { fieldName: 'ctpvNm' },
@@ -312,7 +313,7 @@ const initGrdMain = defineGrid((data, view) => {
 
   const columns = [
     {
-      fieldName: 'newAdrZip',
+      fieldName: 'zipList',
       header: t('MSG_TXT_ZIP'),
       width: '100',
       styleName: 'text-center',
@@ -374,7 +375,7 @@ const initGrdMain = defineGrid((data, view) => {
     {
       fieldName: 'apyStrtdt',
       header: t('MSG_TXT_APY_STRT_DAY'),
-      width: '120',
+      width: '150',
       styleName: 'text-center',
       editable: true,
       editor: { type: 'btdate' },
@@ -382,7 +383,7 @@ const initGrdMain = defineGrid((data, view) => {
     {
       fieldName: 'apyEnddt',
       header: t('MSG_TXT_APY_END_DAY'),
-      width: '120',
+      width: '150',
       styleName: 'text-center',
       editable: true,
       editor: { type: 'btdate' },
@@ -417,7 +418,7 @@ const initGrdMain = defineGrid((data, view) => {
   ];
 
   const columnLayout = [
-    'newAdrZip',
+    'zipList',
     'mgtCnt',
     'wrkCnt',
     {

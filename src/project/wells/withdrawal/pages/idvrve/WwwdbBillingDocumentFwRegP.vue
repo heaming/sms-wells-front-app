@@ -271,7 +271,7 @@ onMounted(async () => {
 const initGrid = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'bildcFwTpCd' },
-    { fieldName: 'fwDt' },
+    { fieldName: 'bildcFwDtm' },
     { fieldName: 'callback' },
     { fieldName: 'recipientNum' },
   ];
@@ -304,7 +304,7 @@ const initGrid = defineGrid((data, view) => {
       width: '150',
       styleName: 'text-center',
     },
-    { fieldName: 'fwDt',
+    { fieldName: 'bildcFwDtm',
       header: t('MSG_TXT_FW_DT'),
       // , header: '발송일시'
       width: '150',

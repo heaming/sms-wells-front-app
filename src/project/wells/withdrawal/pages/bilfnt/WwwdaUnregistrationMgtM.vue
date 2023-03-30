@@ -3,7 +3,7 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : WDA
-2. 프로그램 ID : WwwdaUnregistrationMgtM - 묶음출금미등록현황 (W-WD-U-0010M01)
+2. 프로그램 ID : WwwdaUnregistrationMgtM - 묶음출금미등록현황 (W-WD-U-0010M01) , 묶음 등록 이력(W-WD-U-0010M02)
 3. 작성자 : donghyun.yoo
 4. 작성일 : 2023.02.01
 ****************************************************************************************************
@@ -55,6 +55,7 @@
             first-option="all"
           />
         </kw-search-item>
+        <!-- 계약번호 -->
         <kw-search-item
           :label="t('MSG_TXT_CNTR_NO')"
         >
@@ -63,6 +64,9 @@
             type="number"
             :name="t('MSG_TXT_CNTR_NO')"
             maxlength="17"
+            icon="search"
+            clearable
+            :on-click-icon="onClickSelectCntrnosn"
           />
         </kw-search-item>
         <kw-search-item
@@ -166,8 +170,9 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 
-import { useDataService, defineGrid, codeUtil, getComponentType, useGlobal, gridUtil, useMeta } from 'kw-lib';
+import { useDataService, defineGrid, codeUtil, getComponentType, useGlobal, gridUtil, useMeta, modal } from 'kw-lib';
 import dayjs from 'dayjs';
+// eslint-disable-next-line no-unused-vars
 import { cloneDeep, isEmpty } from 'lodash-es';
 
 const { alert } = useGlobal();
@@ -180,6 +185,7 @@ const { getConfig } = useMeta();
 
 const { getters } = useStore();
 const userInfo = getters['meta/getUserInfo'];
+// eslint-disable-next-line no-unused-vars
 const { tenantCd } = userInfo;
 
 // -------------------------------------------------------------------------------------------------
@@ -201,6 +207,28 @@ const searchParams = ref({
   cntrPdEnddt: now.add('7', 'day').format('YYYYMMDD'), // 접수일자 종료일
 });
 
+// 계약상세번호 조회
+async function onClickSelectCntrnosn() {
+  // const { result, payload } = await modal({ component: 'WwctaContractNumberListP' });
+  // if (result) {
+  //   searchParams.value.cntrNoSn = payload.cntrNo + payload.cntrSn;
+  // }
+
+  /* 단위 테스트를 위한 코딩 추후 계약상세번호(공통) 팝업이 완성되면 삭제 예정 */
+  searchParams.value.cntrNoSn = '';
+  let returnCntrNoSn = await modal({ component: 'WwctaContractNumberListP' });
+  returnCntrNoSn = {
+    result: true,
+    payload: {
+      cntrNo: '20221699270',
+      cntrSn: '1',
+    },
+  };
+  if (returnCntrNoSn.result) {
+    searchParams.value.cntr = returnCntrNoSn.payload.cntrNo + returnCntrNoSn.payload.cntrSn;
+  }
+}
+
 const pageInfo = ref({
   totalCount: 0,
   pageIndex: 1,
@@ -218,14 +246,14 @@ const codes = await codeUtil.getMultiCodes(
   'BNDL_WDRW_UNRG_OJ_DV_CD', // 묶음출금미등록대상구분코드
   'AFTN_NOM_ERR_DV_CD', // 자동이체통합미등록결과코드 -> AFTN_NOM_ERR_DV_CD 추후에 수정 아직 생성안된듯
   // 'BNK_CD_CD',
-  'MPY_MTHD_TP_CD', // 납부방식유형코드 110 : 계좌 / 120 : 카드
+  'DP_TP_CD', // 입금유형코드 0102 : 계좌 / 0203 : 카드
   'FNIT_APR_RS_CD', // 금융기관승인결과코드 B : 오류(승인결과) / Y : 승인완료 / N : 승인전/이체중지
 );
 
 const selectedTab = ref('unrgPs');
 
 async function fetchData1() {
-  const res = await dataService.get('/sms/wells/withdrawal/bilfnt/bundle-withdrawal-unrgs', { params: { ...cachedParams } });
+  const res = await dataService.get('/sms/wells/withdrawal/bilfnt/bundle-withdrawal-unrgs', { params: { ...cachedParams, ...pageInfo.value } });
   const { list: lists, pageInfo: pageResult } = res.data;
   pageInfo.value = pageResult;
 
@@ -238,7 +266,7 @@ async function fetchData1() {
 }
 
 async function fetchData2() {
-  const res = await dataService.get('/sms/wells/withdrawal/bilfnt/bundle-withdrawal-hist', { params: { ...cachedParams } });
+  const res = await dataService.get('/sms/wells/withdrawal/bilfnt/bundle-withdrawal-hist', { params: { ...cachedParams, ...pageInfo.value } });
   const { list: lists, pageInfo: pageResult } = res.data;
   pageInfo2.value = pageResult;
 
@@ -253,9 +281,6 @@ async function onClickSearch() {
   if (!await searchRef.value.validate()) { return; }
 
   searchParams.value.unrgRs = selectedTab.value === 'unrgPs' ? searchParams.value.unrgRsCd : searchParams.value.unrgRsonCd;
-  searchParams.value.fullCntr = !isEmpty(searchParams.value.cntr) ? tenantCd + searchParams.value.cntr : '';
-  searchParams.value.cntrNo = !isEmpty(searchParams.value.cntr.slice(0, 11)) ? tenantCd + searchParams.value.cntr.slice(0, 11) : '';
-  searchParams.value.cntrSn = searchParams.value.cntr.slice(11);
   cachedParams = cloneDeep(searchParams.value);
   if (selectedTab.value === 'unrgPs') {
     grdMainRef1.value.getData().clearRows();
@@ -272,7 +297,7 @@ async function onClickExcelDownload(no) {
     const res = await dataService.get('/sms/wells/withdrawal/bilfnt/bundle-withdrawal-unrgs/excel-download', { params: cachedParams });
 
     await gridUtil.exportView(view, {
-      fileName: '미등록 현황',
+      fileName: t('MSG_TXT_UNRG_PS'), // 미등록 현황
       timePostfix: true,
       exportData: res.data,
     });
@@ -281,7 +306,7 @@ async function onClickExcelDownload(no) {
     const res = await dataService.get('/sms/wells/withdrawal/bilfnt/bundle-withdrawal-hist/excel-download', { params: cachedParams });
 
     await gridUtil.exportView(view, {
-      fileName: '묶음 등록 이력',
+      fileName: t('MSG_TXT_BNDL_RGST_HIST'), // 묶음 등록 이력
       timePostfix: true,
       exportData: res.data,
     });
@@ -300,7 +325,7 @@ const initGrid1 = defineGrid((data, view) => {
     { fieldName: 'unrgRson' }, // 묶음출금 미등록
 
     { fieldName: 'cntrSn' }, // 기기주문번호
-    { fieldName: 'mpyMthdTpCd' }, // 이체구분
+    { fieldName: 'dpTpCd' }, // 이체구분
     { fieldName: 'fnitAprRsCd' }, // 상태
     { fieldName: 'dgCntrNo' }, // 묶음대표번호
     { fieldName: 'bnkNm' }, // 이체기관명
@@ -310,7 +335,7 @@ const initGrid1 = defineGrid((data, view) => {
     { fieldName: 'bryyMmdd' }, // 이체 인증번호
 
     { fieldName: 'sdingCntrSn' }, // 모종주문번호
-    { fieldName: 'sdingMpyMthdTpCd' }, // 이체구분
+    { fieldName: 'sdingDpTpCd' }, // 이체구분
     { fieldName: 'sdingFnitAprRsCd' }, // 상태
     { fieldName: 'sdingDgCntrNo' }, // 묶음대표번호
     { fieldName: 'sdingBnkNm' }, // 이체기관명
@@ -324,7 +349,7 @@ const initGrid1 = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '80', styleName: 'text-center' },
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '150', styleName: 'text-center' },
-    { fieldName: 'cntrPdStrtdt', header: t('MSG_TXT_RCPDT'), width: '120', styleName: 'text-center' },
+    { fieldName: 'cntrPdStrtdt', header: t('MSG_TXT_RCPDT'), width: '120', styleName: 'text-center', dataType: 'date', datetimeFormat: 'yyyy.MM.dd' },
     { fieldName: 'unrgRson',
       header: t('MSG_TXT_BNDL_WDRW_UNRG'), // 묶음 출금 미등록
       width: '200',
@@ -332,7 +357,7 @@ const initGrid1 = defineGrid((data, view) => {
       options: codes.AFTN_ITG_UNRG_RSON_CD },
 
     { fieldName: 'cntrSn', header: t('MSG_TXT_MCHN_ORD_NO'), width: '150', styleName: 'text-center' },
-    { fieldName: 'mpyMthdTpCd', header: t('MSG_TXT_FNT_DV'), width: '120', styleName: 'text-center', options: codes.MPY_MTHD_TP_CD },
+    { fieldName: 'dpTpCd', header: t('MSG_TXT_FNT_DV'), width: '120', styleName: 'text-center', options: codes.DP_TP_CD },
     { fieldName: 'fnitAprRsCd', header: t('MSG_TXT_STT'), width: '120', styleName: 'text-center', options: codes.FNIT_APR_RS_CD },
     { fieldName: 'dgCntrNo', header: t('MSG_TXT_BNDL_DG_NO'), width: '250', styleName: 'text-center' },
     { fieldName: 'bnkNm', header: t('MSG_TXT_FNT_BUR_NM'), width: '120', styleName: 'text-left' },
@@ -342,7 +367,7 @@ const initGrid1 = defineGrid((data, view) => {
     { fieldName: 'bryyMmdd', header: t('MSG_TXT_FNT_CTF_NO'), width: '120', styleName: 'text-center' },
 
     { fieldName: 'sdingCntrSn', header: t('MSG_TXT_SDING_ORD_NO'), width: '250', styleName: 'text-center' },
-    { fieldName: 'sdingMpyMthdTpCd', header: t('MSG_TXT_FNT_DV'), width: '120', styleName: 'text-center', options: codes.MPY_MTHD_TP_CD },
+    { fieldName: 'sdingDpTpCd', header: t('MSG_TXT_FNT_DV'), width: '120', styleName: 'text-center', options: codes.DP_TP_CD },
     { fieldName: 'sdingFnitAprRsCd', header: t('MSG_TXT_STT'), width: '120', styleName: 'text-center', options: codes.FNIT_APR_RS_CD },
     { fieldName: 'sdingDgCntrNo', header: t('MSG_TXT_BNDL_DG_NO'), width: '120', styleName: 'text-center' },
     { fieldName: 'sdingBnkNm', header: t('MSG_TXT_FNT_BUR_NM'), width: '120', styleName: 'text-left' },
@@ -369,13 +394,13 @@ const initGrid1 = defineGrid((data, view) => {
     {
       header: t('MSG_TXT_MCHN_FNT_INF'), // 기기이체정보
       direction: 'horizontal', // merge type
-      items: ['cntrSn', 'mpyMthdTpCd', 'fnitAprRsCd',
+      items: ['cntrSn', 'dpTpCd', 'fnitAprRsCd',
         'dgCntrNo', 'bnkNm', 'acnoEncr', 'owrKnm', 'mpyBsdt', 'bryyMmdd'],
     },
     {
       header: t('MSG_TXT_SDING_FNT_INF'), // 모종이체정보
       direction: 'horizontal', // merge type
-      items: ['sdingCntrSn', 'sdingMpyMthdTpCd', 'sdingFnitAprRsCd',
+      items: ['sdingCntrSn', 'sdingDpTpCd', 'sdingFnitAprRsCd',
         'sdingBnkNm', 'sdingAcnoEncr', 'sdingOwrKnm', 'sdingMpyBsdt', 'sdingBryyMmdd'],
     },
   ]);
@@ -401,18 +426,18 @@ const initGrid2 = defineGrid((data, view) => {
     { fieldName: 'aftnItgUnrgRsonCd' }, // 묶음출금 미등록
 
     { fieldName: 'cntrSn' }, // 기기주문번호
-    { fieldName: 'mpyMthdTpCd' }, // 이체구분
-    { fieldName: 'dgCntrNo' }, // 묶음대표번호
-    { fieldName: 'bnkNm' }, // 이체기관명
+    { fieldName: 'dpTpCd' }, // 이체구분
+    { fieldName: 'dgCntrSn' }, // 묶음대표번호
+    { fieldName: 'bnkCd' }, // 이체기관명
     { fieldName: 'acnoEncr' }, // 이체번호
     { fieldName: 'owrKnm' }, // 이체 소유주명
     { fieldName: 'mpyBsdt' }, // 이체일자
     { fieldName: 'bryyMmdd' }, // 이체 인증번호
 
     { fieldName: 'sdingCntrSn' }, // 모종주문번호
-    { fieldName: 'sdingMpyMthdTpCd' }, // 이체구분
-    { fieldName: 'sdingDgCntrNo' }, // 묶음대표번호
-    { fieldName: 'sdingBnkNm' }, // 이체기관명
+    { fieldName: 'sdingDpTpCd' }, // 이체구분
+    { fieldName: 'sdingDgCntrSn' }, // 묶음대표번호
+    { fieldName: 'sdingBnkCd' }, // 이체기관명
     { fieldName: 'sdingAcnoEncr' }, // 이체번호
     { fieldName: 'sdingOwrKnm' }, // 이체 소유주명
     { fieldName: 'sdingMpyBsdt' }, // 이체일자
@@ -428,7 +453,7 @@ const initGrid2 = defineGrid((data, view) => {
 
     { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '80', styleName: 'text-center' },
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '150', styleName: 'text-center' },
-    { fieldName: 'cntrPdStrtdt', header: t('MSG_TXT_RCPDT'), width: '180', styleName: 'text-center', datetimeFormat: 'datetime' },
+    { fieldName: 'cntrPdStrtdt', header: t('MSG_TXT_RCPDT'), width: '180', styleName: 'text-center', dataType: 'date', datetimeFormat: 'yyyy.MM.dd' },
     { fieldName: 'aftnItgUnrgRsonCd',
       header: t('MSG_TXT_BNDL_WDRW_UNRG'), // 묶음출금 미등록
       width: '200',
@@ -436,20 +461,20 @@ const initGrid2 = defineGrid((data, view) => {
       options: codes.BNDL_WDRW_UNRG_OJ_DV_CD },
 
     { fieldName: 'cntrSn', header: t('MSG_TXT_MCHN_ORD_NO'), width: '150', styleName: 'text-center' },
-    { fieldName: 'mpyMthdTpCd', header: t('MSG_TXT_FNT_DV'), width: '120', styleName: 'text-center', options: codes.MPY_MTHD_TP_CD },
-    { fieldName: 'dgCntrNo', header: t('MSG_TXT_BNDL_DG_NO'), width: '150', styleName: 'text-right' },
-    { fieldName: 'bnkNm', header: t('MSG_TXT_FNT_BUR_NM'), width: '120', styleName: 'text-right' },
+    { fieldName: 'dpTpCd', header: t('MSG_TXT_FNT_DV'), width: '120', styleName: 'text-center', options: codes.DP_TP_CD },
+    { fieldName: 'dgCntrSn', header: t('MSG_TXT_BNDL_DG_NO'), width: '150', styleName: 'text-right' },
+    { fieldName: 'bnkCd', header: t('MSG_TXT_FNT_BUR_NM'), width: '120', styleName: 'text-center' },
     { fieldName: 'acnoEncr', header: t('MSG_TXT_FNT_NO'), width: '120', styleName: 'text-right' },
-    { fieldName: 'owrKnm', header: t('MSG_TXT_FNT_PSR_NM'), width: '120', styleName: 'text-right' },
-    { fieldName: 'mpyBsdt', header: t('MSG_TXT_FNT_DT'), width: '120', styleName: 'text-right' },
+    { fieldName: 'owrKnm', header: t('MSG_TXT_FNT_PSR_NM'), width: '120', styleName: 'text-left' },
+    { fieldName: 'mpyBsdt', header: t('MSG_TXT_FNT_DT'), width: '120', styleName: 'text-center' },
     { fieldName: 'bryyMmdd', header: t('MSG_TXT_FNT_CTF_NO'), width: '120', styleName: 'text-right' },
 
     { fieldName: 'sdingCntrSn', header: t('MSG_TXT_SDING_ORD_NO'), width: '250', styleName: 'text-center' },
-    { fieldName: 'sdingMpyMthdTpCd', header: t('MSG_TXT_FNT_DV'), width: '120', styleName: 'text-center', options: codes.MPY_MTHD_TP_CD },
-    { fieldName: 'sdingDgCntrNo', header: t('MSG_TXT_BNDL_DG_NO'), width: '150', styleName: 'text-right' },
-    { fieldName: 'sdingBnkNm', header: t('MSG_TXT_FNT_BUR_NM'), width: '120', styleName: 'text-right' },
+    { fieldName: 'sdingDpTpCd', header: t('MSG_TXT_FNT_DV'), width: '120', styleName: 'text-center', options: codes.DP_TP_CD },
+    { fieldName: 'sdingDgCntrSn', header: t('MSG_TXT_BNDL_DG_NO'), width: '150', styleName: 'text-right' },
+    { fieldName: 'sdingBnkCd', header: t('MSG_TXT_FNT_BUR_NM'), width: '120', styleName: 'text-center' },
     { fieldName: 'sdingAcnoEncr', header: t('MSG_TXT_FNT_NO'), width: '120', styleName: 'text-right' },
-    { fieldName: 'sdingOwrKnm', header: t('MSG_TXT_FNT_PSR_NM'), width: '120', styleName: 'text-right' },
+    { fieldName: 'sdingOwrKnm', header: t('MSG_TXT_FNT_PSR_NM'), width: '120', styleName: 'text-left' },
     { fieldName: 'sdingMpyBsdt', header: t('MSG_TXT_FNT_DT'), width: '100', styleName: 'text-center' },
     { fieldName: 'sdingBryyMmdd', header: t('MSG_TXT_FNT_CTF_NO'), width: '100', styleName: 'text-center' },
 
@@ -476,14 +501,14 @@ const initGrid2 = defineGrid((data, view) => {
     {
       header: t('MSG_TXT_MCHN_FNT_INF'), // 기기이체정보
       direction: 'horizontal', // merge type
-      items: ['cntrSn', 'mpyMthdTpCd',
-        'dgCntrNo', 'bnkNm', 'acnoEncr', 'owrKnm', 'mpyBsdt', 'bryyMmdd'],
+      items: ['cntrSn', 'dpTpCd',
+        'dgCntrSn', 'bnkCd', 'acnoEncr', 'owrKnm', 'mpyBsdt', 'bryyMmdd'],
     },
     {
       header: t('MSG_TXT_SDING_FNT_INF'), // 모종이체정보
       direction: 'horizontal', // merge type
-      items: ['sdingCntrSn', 'sdingMpyMthdTpCd',
-        'sdingBnkNm', 'sdingAcnoEncr', 'sdingOwrKnm', 'sdingMpyBsdt', 'sdingBryyMmdd'],
+      items: ['sdingCntrSn', 'sdingDpTpCd',
+        'sdingBnkCd', 'sdingAcnoEncr', 'sdingOwrKnm', 'sdingMpyBsdt', 'sdingBryyMmdd'],
     },
   ]);
 

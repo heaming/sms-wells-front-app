@@ -26,7 +26,7 @@
         >
           <kw-select
             v-model="searchParams.sellTpCd"
-            :options="codes.SELL_TP_CD"
+            :options="codes.BND_CLCTN_SELL_TP_CD.filter(({codeId}) => codeId !== '4' && codeId !== '7')"
             first-option="all"
             first-option-value="ALL"
           />
@@ -41,6 +41,10 @@
             rules="required"
             type="number"
             maxlength="16"
+            icon="search"
+            clearable
+            :label="$t('MSG_TXT_CNTR_DTL_NO')"
+            :on-click-icon="onClickSelectCntrnosn"
           />
         </kw-search-item>
       </kw-search-row>
@@ -95,7 +99,8 @@
 
       <kw-grid
         ref="grdMainRef"
-        :visible-rows="pageInfo.pageSize -1"
+        name="grdMain"
+        :visible-rows="pageInfo.pageSize - 1"
         @init="initGrid"
       />
     </div>
@@ -106,10 +111,10 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useGlobal, useDataService, codeUtil, gridUtil, defineGrid, getComponentType, useMeta } from 'kw-lib';
+import { useGlobal, useDataService, codeUtil, gridUtil, defineGrid, getComponentType, useMeta, modal } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 
-const { notify, confirm } = useGlobal();
+const { notify } = useGlobal();
 const { t } = useI18n();
 const dataService = useDataService();
 
@@ -118,6 +123,7 @@ const { getConfig } = useMeta();
 
 const { getters } = useStore();
 const userInfo = getters['meta/getUserInfo'];
+// eslint-disable-next-line no-unused-vars
 const { tenantCd } = userInfo;
 
 // -------------------------------------------------------------------------------------------------
@@ -127,6 +133,7 @@ const grdMainRef = ref(getComponentType('KwGrid'));
 
 const codes = await codeUtil.getMultiCodes(
   'SELL_TP_CD',
+  'BND_CLCTN_SELL_TP_CD', // 채권추심판매유형코드
   'DSN_WDRW_FNT_PRD_CD', // 1 : 지정일자 / 2 : 매회 추후에 수정
   'AUTO_FNT_FTD_ACD', // 자동 이체 이체일 앱코드 추후에 수정
   'DSN_WDRW_FNT_DV_CD',
@@ -142,9 +149,29 @@ const pageInfo = ref({
 const searchParams = ref({
   sellTpCd: 'ALL',
   cntr: '',
-  cntrNo: '',
-  cntrSn: '',
 });
+
+// 계약상세번호 조회
+async function onClickSelectCntrnosn() {
+  // const { result, payload } = await modal({ component: 'WwctaContractNumberListP' });
+  // if (result) {
+  //   searchParams.value.cntrNoSn = payload.cntrNo + payload.cntrSn;
+  // }
+
+  /* 단위 테스트를 위한 코딩 추후 계약상세번호(공통) 팝업이 완성되면 삭제 예정 */
+  searchParams.value.cntr = '';
+  let returnCntrNoSn = await modal({ component: 'WwctaContractNumberListP' });
+  returnCntrNoSn = {
+    result: true,
+    payload: {
+      cntrNo: '',
+      cntrSn: '',
+    },
+  };
+  if (returnCntrNoSn.result) {
+    searchParams.value.cntr = returnCntrNoSn.payload.cntrNo + returnCntrNoSn.payload.cntrSn;
+  }
+}
 
 const possibleDay = codes.AUTO_FNT_FTD_ACD.map((v) => v.codeId).join(','); // 가능한 이체일 추후에 수정
 
@@ -155,6 +182,8 @@ async function onClickAddRow() {
     fntYn: '1',
     dsnWdrwFntPrdCd: '1',
   });
+
+  window.scrollTo(0, 0);
 }
 
 function getSaveParams() {
@@ -163,17 +192,18 @@ function getSaveParams() {
   const changedRows = gridUtil.getChangedRowValues(view);
 
   return changedRows.map((v) => ({ ...v,
-    dpAmt: isEmpty(v.dpAmt) ? 0 : Number(v.dpAmt),
-    cntrNo: tenantCd + v.cntr.slice(0, 11), //   계약상세 4 - 7 - 1
-    cntrSn: Number(v.cntr.slice(11)) })); // 계약상세일련번호 4 - 7 - 1
+    cntrNo: v.cntr[0] !== tenantCd ? tenantCd + v.cntr.slice(0, 11) : v.cntr.slice(0, 12),
+    cntrSn: v.cntr[0] !== tenantCd ? v.cntr.slice(11) : v.cntr.slice(12),
+    ucAmt: v.dsnWdrwAmt - v.dpAmt,
+  }));
 }
 
 async function fetchData() {
   const res = await dataService.get('/sms/wells/withdrawal/bilfnt/designation-wdrw-csts', { params: { ...cachedParams, ...pageInfo.value } });
-  // const { list: person, pageInfo: pageResult } = res.data;
+  const { list: person, pageInfo: pageResult } = res.data;
 
-  const person = res.data.list.map((v) => ({ ...v, cntr: v.cntr.replace(tenantCd, '') }));
-  const pageResult = res.data.pageInfo;
+  // const person = res.data.list.map((v) => ({ ...v, cntr: v.cntr.replace(tenantCd, '') }));
+  // const pageResult = res.data.pageInfo;
   pageInfo.value = pageResult;
 
   const view = grdMainRef.value.getView();
@@ -185,37 +215,40 @@ async function fetchData() {
 }
 
 async function onClickSearch() {
+  if (isEmpty(searchParams.value.cntr)) return;
   grdMainRef.value.getData().clearRows();
 
   pageInfo.value.pageIndex = 1;
-  searchParams.value.cntrNo = tenantCd + searchParams.value.cntr.slice(0, 11);
-  searchParams.value.cntrSn = searchParams.value.cntr.slice(11);
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
 }
 
 async function onClickRemove() {
   const view = grdMainRef.value.getView();
-  const checkedRows = gridUtil.getCheckedRowValues(view);
-  const data = checkedRows.filter((v) => v.rowState === 'none').map((v) => ({
-    cntrNo: tenantCd + v.cntr.slice(0, 11),
-    cntrSn: Number(v.cntr.slice(11)),
-    dsnWdrwFntD: v.dsnWdrwFntD,
-  }));
-  if (checkedRows.length === 0) {
-    notify(t('MSG_ALT_NOT_SEL_ITEM'));
+  // const checkedRows = gridUtil.getCheckedRowValues(view);
+  const deletedRows = await gridUtil.confirmDeleteCheckedRows(view);
+
+  if (deletedRows.length === 0) {
     return;
   }
 
-  if (checkedRows.every((v) => v.rowState !== 'none')) {
+  const data = deletedRows.filter((v) => v.rowState === 'none').map((v) => ({
+    cntr: v.cntr,
+    cntrNo: v.cntr.slice(0, 12),
+    cntrSn: v.cntr.slice(12),
+    dsnWdrwFntD: v.dsnWdrwFntD,
+  }));
+
+  if (deletedRows.every((v) => v.rowState !== 'none')) {
+    // 추가 확인 필요.
+    // if (!await confirm(t('MSG_ALT_WANT_DEL'))) { return; }
+    // await dataService.delete('/sms/wells/withdrawal/bilfnt/designation-wdrw-csts', { data });
+    // await onClickSearch();
     gridUtil.deleteCheckedRows(view);
     return;
   }
-
-  if (await confirm(t('MSG_ALT_WANT_DEL'))) {
-    await dataService.delete('/sms/wells/withdrawal/bilfnt/designation-wdrw-csts', { data });
-    await onClickSearch();
-  }
+  await dataService.delete('/sms/wells/withdrawal/bilfnt/designation-wdrw-csts', { data });
+  await onClickSearch();
 }
 
 async function onClickSave() {
@@ -227,7 +260,7 @@ async function onClickSave() {
   await dataService.post('/sms/wells/withdrawal/bilfnt/designation-wdrw-csts', data);
   notify(t('MSG_ALT_SAVE_DATA'));
 
-  await fetchData();
+  await onClickSearch();
 }
 
 async function onClickExcelDownload() {
@@ -248,12 +281,14 @@ async function onClickExcelDownload() {
 const initGrid = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'cntr' }, // 계약번호
+    { fieldName: 'cntrNo' }, // 계약상세번호
+    { fieldName: 'cntrSn' }, // 계약상세 일련번호
     { fieldName: 'cstKnm' }, // 고객명
     { fieldName: 'sellTpCd' }, // 업무유형
-    { fieldName: 'dsnWdrwAmt' }, // 지정금액
+    { fieldName: 'dsnWdrwAmt', dataType: 'number' }, // 지정금액
     { fieldName: 'dsnWdrwFntD' }, // 이체일자
     { fieldName: 'fntYn' }, // 이체구분
-    { fieldName: 'dpAmt' }, // 입금금액
+    { fieldName: 'dpAmt', dataType: 'number' }, // 입금금액
     { fieldName: 'ucAmt' }, // 잔액
     { fieldName: 'dsnWdrwFntPrdCd' }, // 이체주기
     { fieldName: 'prtnrKnm' }, // 등록담당자
@@ -265,15 +300,21 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'cntr',
       header: t('MSG_TXT_CNTR_DTL_NO'),
       width: '120',
-      styleName: 'text-center',
+      button: 'action',
+      styleName: 'text-center rg-button-icon--search',
       editor: {
         type: 'number',
       },
       rules: 'required||digits:12',
-
+      styleCallback: (grid, dataCell) => {
+        const rowState = gridUtil.getCellValue(view, dataCell.index.itemIndex, 'rowState');
+        if (rowState !== 'created') {
+          return { styleName: 'rg-button-hide' };
+        }
+      },
     },
     { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '80', styleName: 'text-center', editable: false },
-    { fieldName: 'sellTpCd', header: t('MSG_TXT_TASK_TYPE'), width: '80', styleName: 'text-center', editable: false, options: codes.SELL_TP_CD },
+    { fieldName: 'sellTpCd', header: t('MSG_TXT_TASK_TYPE'), width: '80', styleName: 'text-center', editable: false, options: codes.BND_CLCTN_SELL_TP_CD },
     { fieldName: 'dsnWdrwAmt',
       header: t('MSG_TXT_DSN_AMT'),
       width: '120',
@@ -302,8 +343,7 @@ const initGrid = defineGrid((data, view) => {
       editor: { type: 'list' },
       rules: 'required',
 
-      options: codes.DSN_WDRW_FNT_DV_CD, // 추후에 수정 코드 못찾음
-      // options: [{ codeId: 'Y', codeName: '이체' }, { codeId: 'N', codeName: '중단' }], // 추후에 수정 코드 못찾음
+      options: codes.DSN_WDRW_FNT_DV_CD,
     },
     { fieldName: 'dpAmt',
       header: t('MSG_TXT_DP_AMT'),
@@ -314,15 +354,20 @@ const initGrid = defineGrid((data, view) => {
       },
       rules: 'required',
     },
+    // 잔액
     { fieldName: 'ucAmt',
+      label: t('MSG_TXT_BLAM'),
       header: t('MSG_TXT_BLAM'),
       width: '120',
       styleName: 'text-right',
       editable: false,
       // eslint-disable-next-line no-unused-vars
       displayCallback(grid, index, value) {
-        const dsnWdrwAmt = gridUtil.getCellValue(grid, index.itemIndex, 'dsnWdrwAmt');
-        const dpAmt = gridUtil.getCellValue(grid, index.itemIndex, 'dpAmt');
+        // const dsnWdrwAmt = gridUtil.getCellValue(grid, index.itemIndex, 'dsnWdrwAmt');
+        // const dpAmt = gridUtil.getCellValue(grid, index.itemIndex, 'dpAmt');
+        const dsnWdrwAmt = gridUtil.getCellValue(grid, index.dataRow, 'dsnWdrwAmt');
+        const dpAmt = gridUtil.getCellValue(grid, index.dataRow, 'dpAmt');
+
         return dsnWdrwAmt - dpAmt;
       },
     },
@@ -333,7 +378,6 @@ const initGrid = defineGrid((data, view) => {
       editor: { type: 'list' },
       options: codes.DSN_WDRW_FNT_PRD_CD,
       rules: 'required',
-
     },
 
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_RGST_PSIC'), width: '100', styleName: 'text-center', editable: false },
@@ -359,8 +403,8 @@ const initGrid = defineGrid((data, view) => {
   view.onEditCommit = async (grid, index, oldValue, newValue) => {
     let canEdit = true;
     // const { dsnWdrwAmt, dpAmt } = gridUtil.getRowValue(grid, index.dataRow);
-    const dsnWdrwAmt = gridUtil.getCellValue(grid, index.itemIndex, 'dsnWdrwAmt');
-    const dpAmt = gridUtil.getCellValue(grid, index.itemIndex, 'dpAmt');
+    const dsnWdrwAmt = gridUtil.getCellValue(grid, index.dataRow, 'dsnWdrwAmt');
+    const dpAmt = gridUtil.getCellValue(grid, index.dataRow, 'dpAmt');
     if (index.column === 'dpAmt') {
       if (dsnWdrwAmt < newValue) {
         notify(t('MSG_ALT_DP_DSN_AMT_CMPR'));
@@ -385,14 +429,47 @@ const initGrid = defineGrid((data, view) => {
       await fetchData();
     }
   };
-  view.onCellClicked = (grid, clickData) => {
-    if (clickData.cellType === 'data') {
-      grid.checkItem(clickData.itemIndex, !grid.isCheckedItem(clickData.itemIndex));
+  // eslint-disable-next-line no-unused-vars
+  view.onCellButtonClicked = async (g, { column, itemIndex }) => {
+    if (column === 'cntr') {
+      // eslint-disable-next-line no-unused-vars
+      const { result, payload } = await modal({
+        component: 'WwctaContractNumberListP',
+      });
+
+      /*
+      if (result) {
+        const cntr = payload.cntrNo + payload.cntrSn;
+        // const cntrSn = payload.cntrSn;
+        data.setValue(itemIndex, 'cntrNo', payload.cntrNo);
+        data.setValue(itemIndex, 'cntrSn', payload.cntrSn);
+        data.setValue(itemIndex, 'cntr', cntr);
+      }
+      */
+
+      // 삭제대상
+      const cntr = gridUtil.getCellValue(g, itemIndex, 'cntr');
+      data.setValue(itemIndex, 'cntrNo', cntr.slice(0, 12));
+      data.setValue(itemIndex, 'cntrSn', Number(cntr.slice(12)));
+      data.setValue(itemIndex, 'cntr', cntr);
     }
   };
+
+  // view.onCellClicked = (grid, clickData) => {
+  //   if (clickData.cellType === 'data') {
+  //     grid.checkItem(clickData.itemIndex, !grid.isCheckedItem(clickData.itemIndex));
+  //   }
+  // };
 });
 
 </script>
 
-<style scoped>
+<style>
+.kw-search-style .kw-search__action {
+  display: none;
+}
+
+.rg-button-hide .rg-button-action {
+  display: none !important;
+}
 </style>

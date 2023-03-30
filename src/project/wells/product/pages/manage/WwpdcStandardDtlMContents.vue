@@ -16,6 +16,7 @@
   <kw-tabs
     v-model="selectedTab"
     class="mt24"
+    @update:model-value="onClickTab(selectedTab)"
   >
     <!-- 기본속성 -->
     <kw-tab
@@ -157,14 +158,20 @@ async function init() {
   }));
 }
 
+async function onClickTab(selTab) {
+  if (selTab === pdConst.STANDARD_STEP_PRICE.name) {
+    const priceStepIndex = pdConst.STANDARD_STEP_PRICE.step - 1;
+    cmpStepRefs.value[priceStepIndex].value.onClickSearch();
+  }
+}
+
 async function onClickUpdate() {
   const { pdCd } = props;
-  router.push({ path: '/product/zwpdc-sale-product-list/wwpdc-standard-mgt', query: { pdCd, tempSaveYn: 'N' } });
+  await router.push({ path: '/product/zwpdc-sale-product-list/wwpdc-standard-mgt', query: { pdCd, tempSaveYn: 'N', reloadYn: 'Y' } });
 }
 
 async function initProps() {
   const { pdCd, initData } = props;
-  selectedTab.value = pdConst.STANDARD_STEP_BASIC.name;
   currentPdCd.value = pdCd;
   currentInitData.value = initData;
 }

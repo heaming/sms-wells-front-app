@@ -21,6 +21,8 @@
           <kw-stepper
             v-model="currentStep.name"
             heading-text
+            :header-nav="!isTempSaveBtn"
+            @update:model-value="onClickStep()"
           >
             <!-- 1. 기본속성 등록 -->
             <kw-step
@@ -207,7 +209,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { useDataService, useGlobal } from 'kw-lib';
-import { isEmpty } from 'lodash-es';
+import { isEmpty, cloneDeep } from 'lodash-es';
 import { pdMergeBy } from '~sms-common/product/utils/pdUtil';
 import pdConst from '~sms-common/product/constants/pdConst';
 
@@ -241,10 +243,13 @@ const wellsStep = [
   pdConst.W_MATERIAL_STEP_CHECK,
 ];
 const regSteps = ref(wellsStep);
-const currentStep = ref(wellsStep[0]);
+// const currentStep = ref(wellsStep[0]);
+const currentStep = cloneDeep(ref(wellsStep[0]));
+
 const cmpStepRefs = ref([ref(), ref(), ref()]);
 
 const bas = pdConst.TBL_PD_BAS;
+const dtl = pdConst.TBL_PD_DTL;
 const ecom = pdConst.TBL_PD_ECOM_PRP_DTL;
 const rel = pdConst.TBL_PD_REL;
 
@@ -265,6 +270,15 @@ const exceptPrpGrpCd = ref('PART');
 watch(() => props.pdCd, (val) => { currentPdCd.value = val; });
 watch(() => props.tempSaveYn, (val) => { isTempSaveBtn.value = val !== 'Y'; });
 
+async function pageMove(targetPage, isForce) {
+  await router.close(0, isForce);
+  await router.push(
+    { path: targetPage,
+      state: { stateParam: { test: 'teststring' } },
+      query: { isSearch: true, closeTargetUi: page.value.reg } },
+  );
+}
+
 async function onClickReset() {
   notify('TBD Function..');
   await cmpStepRefs.value.forEach((item) => {
@@ -274,32 +288,9 @@ async function onClickReset() {
 
 async function onClickRemove() {
   if (currentPdCd.value) {
-    if (await confirm(t('MSG_ALT_DO_DELETE'))) {
+    if (await confirm(t('MSG_ALT_WANT_DEL_WCC'))) {
       await dataService.delete(`${baseUrl}/${currentPdCd.value}`);
-      // 변경사항 체크로직 우회 및 현재 page 닫고 target 페이지로 이동.
-      obsMainRef.value.init();
-
-      // CASE -1 F5 keyPress 현상 발생 및 타겟화면 호출불가.
-      // await router.go(
-      //   { path: materialMainPage,
-      //     query: { isSearch: true, closeTargetUi: page.value.reg },
-      //   },
-      // );
-      // CASE -2 창 닫고 이동은 하지만...파라미터 전달 불가.
-      await router.close(
-        {
-          to: materialMainPage,
-          params: { isSearch: true, closeTargetUi: page.value.reg },
-          query: { isSearch: true, closeTargetUi: page.value.reg },
-          refresh: false,
-        },
-      );
-      // CASE -3 파라미터 전달하여 이동은 하지만, 현재 창 닫지못함. 또한 타겟 페이지의 grid 객체 null 에러남. (unMounted 타는 듯.)
-      // await router.push(
-      //   { path: materialMainPage,
-      //     query: { isSearch: true, closeTargetUi: page.value.reg },
-      //   },
-      // );
+      await pageMove(materialMainPage, true);
     }
   }
 }
@@ -309,6 +300,7 @@ async function getSaveData(tempSaveYn) {
   // eslint-disable-next-line no-unused-vars
   await Promise.all(cmpStepRefs.value.map(async (item, idx) => {
     const saveData = await item.value.getSaveData();
+
     if (await saveData) {
       subList.pdCd = subList.pdCd ?? saveData.pdCd;
       subList.pdTpCd = subList.pdTpCd ?? saveData.pdTpCd;
@@ -318,6 +310,9 @@ async function getSaveData(tempSaveYn) {
         }
         // subList[bas] = merge(subList[bas] ?? {}, saveData[bas]);
         subList[bas] = pdMergeBy(subList[bas], saveData[bas]);
+      }
+      if (saveData[dtl]) {
+        subList[dtl] = pdMergeBy(subList[dtl], saveData[dtl], pdConst.PD_DTL_GRP_ID);
       }
       if (saveData[ecom]) {
         // subList[ecom] = unionBy(saveData[ecom], subList[ecom], 'pdExtsPrpGrpCd');
@@ -333,10 +328,17 @@ async function getSaveData(tempSaveYn) {
   return subList;
 }
 
+async function onClickStep() {
+  const stepName = currentStep.value?.name;
+  prevStepData.value = await getSaveData();
+  currentStep.value = cloneDeep(regSteps.value.find((item) => item.name === stepName));
+}
+
 async function fetchData() {
   if (currentPdCd.value) {
     const res = await dataService.get(`${baseUrl}/${currentPdCd.value}`);
     prevStepData.value[bas] = res.data[bas];
+    prevStepData.value[dtl] = res.data[dtl];
     prevStepData.value[ecom] = res.data[ecom];
     prevStepData.value[rel] = res.data[rel];
     obsMainRef.value.init();
@@ -380,8 +382,7 @@ async function onClickSave(tempSaveYn) {
     isCreate.value = isEmpty(currentPdCd.value);
     await fetchData();
   } else {
-    // TODO 경로 관련 여타와 동일하게 push,close-go, go 방식들 내재한 문제 처리 필요.
-    router.push({ path: materialMainPage, query: {} });
+    await pageMove(materialMainPage, true);
   }
 }
 
@@ -405,11 +406,20 @@ async function onClickNextStep() {
 }
 
 async function onClickPrevStep() {
-  currentStep.value = regSteps.value[(currentStep.value.step - 1) - 1];
+  // currentStep.value = regSteps.value[(currentStep.value.step - 1) - 1];
+  const currentStepIndex = currentStep.value.step - 1;
+  prevStepData.value = await getSaveData();
+  const currentStepRef = await cmpStepRefs.value[currentStepIndex]?.value;
+  // Child 페이지 내에서 이전 스텝이 없으면(false), 현재 페이지에서 이전으로 진행
+  const isMovedInnerStep = currentStepRef?.movePrevStep ? await currentStepRef?.movePrevStep() : false;
+  if (!isMovedInnerStep) {
+    currentStep.value = cloneDeep(regSteps.value[currentStepIndex - 1]);
+  }
 }
 
 async function onClickCancel() {
-  await router.close({ to: materialMainPage });
+  // await router.close({ to: materialMainPage });
+  await router.close(0, true); // observer 강제 무력화 및 현재 탭 강제 닫기.
 }
 
 async function setInitCondition() {

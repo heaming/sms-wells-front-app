@@ -122,7 +122,9 @@ async function isModifiedProps() {
 }
 
 async function validateProps() {
-  return true;
+  let isValidOk = await cmpPrdRef.value.validateProps();
+  if (isValidOk) isValidOk = await cmpChgRef.value.validateProps();
+  return isValidOk;
 }
 
 async function moveNextStep() {

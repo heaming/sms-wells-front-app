@@ -27,9 +27,9 @@
           required
         >
           <!-- label="수납코드" -->
-          <!-- rules="required" -->
           <kw-input
             v-model="searchParams.rveCd"
+            rules="required"
             icon="search"
             type="text"
             :label="$t('MSG_TXT_RVE_CD')"
@@ -66,8 +66,8 @@
             v-model="searchParams.dpTpCd"
             :options="DP_TP_CD"
             :label="t('MSG_TXT_DP_TP')"
+            rules="required"
           />
-          <!-- rules="required" -->
         </kw-search-item>
         <kw-search-item
           :label="t('MSG_TXT_AC_NO')"
@@ -190,7 +190,7 @@ const searchParams = ref({
   rveNm: '', // 수납코드명
   dpStartDtm: now.format('YYYYMM01'), // 입금일시
   dpEndDtm: now.format('YYYYMMDD'), // 입금일시
-  dpTpCd: '', // 입금유형
+  dpTpCd: '0101', // 입금유형
   prtnrNo: '', // 파트너번호
   cardAprno: '', // 승인번호
   acnoEncr: '', /* 계좌번호암호화 */

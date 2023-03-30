@@ -24,11 +24,11 @@
         required
       >
         <kw-option-group
-          v-model="searchParams.mpyMthdTpCd"
+          v-model="searchParams.dpTpCd"
           :label="t('MSG_TXT_AUTO_FNT')"
           type="radio"
           rules="required"
-          :options="codes.MPY_MTHD_TP_CD.filter(v => v.codeId === '110' || v.codeId === '120')"
+          :options="codes.DP_TP_CD.filter(v => v.codeId === '0102' || v.codeId === '0203')"
         />
       </kw-search-item>
     </kw-search-row>
@@ -58,7 +58,8 @@
     <kw-grid
       ref="grdMainRef"
       name="grdMain3"
-      :visible-rows="pageInfo.pageSize"
+      :page-size="pageInfo.pageSize"
+      :total-count="pageInfo.totalCount"
       @init="initGrid"
     />
     <kw-pagination
@@ -80,13 +81,14 @@ import { useDataService, codeUtil, defineGrid, getComponentType, gridUtil, useMe
 const dataService = useDataService();
 const { t } = useI18n();
 const { getConfig } = useMeta();
+const { currentRoute } = useRouter();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 const codes = await codeUtil.getMultiCodes(
   'SELL_TP_CD', // 판매유형코드
-  'MPY_MTHD_TP_CD', // 납부방식유형코드
+  'DP_TP_CD', // 입금유형코드
   'COD_PAGE_SIZE_OPTIONS',
 );
 
@@ -94,7 +96,7 @@ const grdMainRef = ref(getComponentType('KwGrid'));
 
 let cachedParams;
 const searchParams = ref({
-  mpyMthdTpCd: '110', // 자동이체 체크
+  dpTpCd: '0102', // 자동이체 체크
 });
 
 const pageInfo = ref({
@@ -124,7 +126,7 @@ async function onClickExcelDownload() {
   const res = await dataService.get('/sms/wells/withdrawal/bilfnt/result-bundle-error/excel-download', { params: cachedParams });
 
   await gridUtil.exportView(view, {
-    fileName: '묶음출금 오등록',
+    fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
     exportData: res.data,
   });
@@ -138,20 +140,20 @@ const initGrid = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'mstrSellTpCd' },
     { fieldName: 'dgCntrNo' },
-    { fieldName: 'mstrMpyMthdTpCd' },
+    { fieldName: 'mstrDpTpCd' },
     { fieldName: 'subSellTpCd' },
     { fieldName: 'subodCntrNo' },
-    { fieldName: 'subMpyMthdTpCd' },
+    { fieldName: 'subDpTpCd' },
     { fieldName: 'errTyp' },
   ];
 
   const columns = [
     { fieldName: 'mstrSellTpCd', header: t('MSG_TXT_DG_ORD_SELL_TP'), width: '200', styleName: 'text-center', options: codes.SELL_TP_CD },
     { fieldName: 'dgCntrNo', header: t('MSG_TXT_DG_CNTR_NO'), width: '200', styleName: 'text-center' },
-    { fieldName: 'mstrMpyMthdTpCd', header: t('MSG_TXT_DG_ORD_FNT_DV'), width: '200', styleName: 'text-center', options: codes.MPY_MTHD_TP_CD },
+    { fieldName: 'mstrDpTpCd', header: t('MSG_TXT_DG_ORD_FNT_DV'), width: '200', styleName: 'text-center', options: codes.DP_TP_CD },
     { fieldName: 'subSellTpCd', header: t('MSG_TXT_BNDL_ORD_SELL_TP'), width: '200', styleName: 'text-center', options: codes.SELL_TP_CD },
     { fieldName: 'subodCntrNo', header: t('MSG_TXT_BNDL_CNTR_NO'), width: '200', styleName: 'text-center' },
-    { fieldName: 'subMpyMthdTpCd', header: t('MSG_TXT_BNDL_ORD_FNT_DV'), width: '159', styleName: 'text-center', options: codes.MPY_MTHD_TP_CD },
+    { fieldName: 'subDpTpCd', header: t('MSG_TXT_BNDL_ORD_FNT_DV'), width: '159', styleName: 'text-center', options: codes.DP_TP_CD },
     { fieldName: 'errTyp', header: t('MSG_TXT_ERR_RGST_IZ'), width: '300', styleName: 'text-left' },
   ];
 

@@ -255,27 +255,15 @@ async function onClickAdd() {
 // 행삭제
 async function onClickRemove() {
   const view = grdLinkRef.value.getView();
-  let rows;
 
-  if (!gridUtil.getCheckedRowValues(view).length > 0) {
-    notify(t('MSG_ALT_NOT_SEL_ITEM'));
-    return;
-  }
+  const deletedRows = await gridUtil.confirmDeleteCheckedRows(view);
 
-  if (gridUtil.isModified(view)) {
-    if (await gridUtil.confirmIfIsModified(view)) {
-      rows = gridUtil.deleteCheckedRows(view);
-    }
-  } else {
-    rows = await gridUtil.confirmDeleteCheckedRows(view);
-  }
-
-  if (rows.length > 0) {
-    rows.forEach((data) => {
+  if (deletedRows.length > 0) {
+    deletedRows.forEach((data) => {
       data.rowState = 'deleted';
     });
 
-    await dataService.delete('/sms/wells/withdrawal/idvrve/giro-ocr-forwardings', { data: rows });
+    await dataService.delete('/sms/wells/withdrawal/idvrve/giro-ocr-forwardings', { data: deletedRows });
     await fetchData();
   }
 }
@@ -559,7 +547,7 @@ const initGrid = defineGrid((data, view) => {
       header: t('MSG_TXT_LTPAY_YN'),
       // header: '후납여부',
       width: '100',
-      styleName: 'text-left',
+      styleName: 'text-center',
       editable: true,
       rules: 'required',
       editor: {

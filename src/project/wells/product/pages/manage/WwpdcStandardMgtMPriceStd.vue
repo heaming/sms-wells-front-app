@@ -54,6 +54,7 @@
     </kw-action-top>
     <kw-grid
       ref="grdMainRef"
+      name="grdMain"
       :visible-rows="5"
       @init="initGrid"
     />
@@ -63,11 +64,11 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { gridUtil, stringUtil, getComponentType } from 'kw-lib';
+import { useGlobal, gridUtil, stringUtil, getComponentType } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import pdConst from '~sms-common/product/constants/pdConst';
 import ZwpdcPropMeta from '~sms-common/product/pages/manage/components/ZwpdcPropMeta.vue';
-import { getGridRowCount, setPdGridRows, getGridRowsToSavePdProps, getPropInfosToGridRows, getPdMetaToGridInfos, pdMergeBy } from '~sms-common/product/utils/pdUtil';
+import { setGridDateFromTo, getGridRowCount, setPdGridRows, getGridRowsToSavePdProps, getPropInfosToGridRows, getPdMetaToGridInfos, pdMergeBy } from '~sms-common/product/utils/pdUtil';
 
 /* eslint-disable no-use-before-define */
 defineExpose({
@@ -82,6 +83,8 @@ const props = defineProps({
   readonly: { type: Boolean, default: false },
 });
 
+const { t } = useI18n();
+const { notify } = useGlobal();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -103,12 +106,12 @@ async function resetData() {
   currentInitData.value = {};
   removeObjects.value = [];
   gridRowCount.value = 0;
+  grdMainRef.value?.getView().getDataSource().clearRows();
   if (grdMainRef.value?.getView()) gridUtil.reset(grdMainRef.value.getView());
 }
 
 async function init() {
   if (grdMainRef.value?.getView()) gridUtil.init(grdMainRef.value.getView());
-  // console.log('WwpdcStandardMgtMPriceStd - init');
 }
 
 async function getSaveData() {
@@ -134,11 +137,10 @@ async function validateProps() {
   const rtn = gridUtil.validate(grdMainRef.value.getView(), {
     isChangedOnly: false,
   });
-  // if(rtn && !gridRowCount){
-  //   alert('행추가');
-  //   return false;
-  // }
-  // console.log('=-================', rtn);
+  if (rtn && !gridRowCount.value) {
+    await notify(t('MSG_ALT_ADD_SOME_ITEM', [t('MSG_TXT_STD_PRICE')]));
+    return false;
+  }
   return rtn;
 }
 
@@ -285,14 +287,18 @@ async function initGrid(data, view) {
   view.editOptions.editable = true;
 
   view.sortingOptions.enabled = false;
-  view.displayOptions.columnResizable = false;
-  view.filteringOptions.enabled = true;
+  view.filteringOptions.enabled = false;
+
+  view.onCellEdited = async (grid, itemIndex, row, fieldIndex) => {
+    // 날짜값 조정
+    await setGridDateFromTo(view, grid, itemIndex, fieldIndex, 'vlStrtDtm', 'vlEndDtm');
+  };
 
   view.onCellClicked = async (g, { dataRow }) => {
-    if (dataRow) {
+    if (dataRow >= 0) {
       const prcdValues = await getGridRowsToSavePdProps(
         [gridUtil.getRowValue(g, dataRow)],
-        metaInfos.value,
+        currentMetaInfos.value,
         prcd,
         [],
         [pdConst.PRC_DETAIL_ID, pdConst.PRC_STD_ROW_ID],

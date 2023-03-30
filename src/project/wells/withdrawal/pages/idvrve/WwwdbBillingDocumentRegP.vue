@@ -318,10 +318,14 @@ const initGrid = defineGrid((data, view) => {
 
   const columns = [
     { fieldName: 'pdNm',
-      rules: 'required|max:33',
+      rules: 'required|max:16',
       header: t('MSG_TXT_PRDT_NM'),
       // , header: '상품명'
       width: '200',
+      editor: {
+        type: 'line',
+        maxLength: 33,
+      },
       styleName: 'text-left' },
     { fieldName: 'pdQty',
       header: t('MSG_TXT_QTY'),
@@ -331,6 +335,7 @@ const initGrid = defineGrid((data, view) => {
       rules: 'required|max:12',
       editor: {
         type: 'number',
+        maxLength: 12,
       } },
     { fieldName: 'pdSellAmt',
       header: t('MSG_TXT_UPRC_TAM'),
@@ -341,13 +346,19 @@ const initGrid = defineGrid((data, view) => {
       numberFormat: '#,##0',
       editor: {
         type: 'number',
+        maxLength: 20,
       } },
     { fieldName: 'rmkCn',
       header: t('MSG_TXT_NOTE'),
       // , header: '비고'
       width: '485',
       styleName: 'text-left',
-      rules: 'max:333' },
+      rules: 'max:333',
+      editor: {
+        type: 'line',
+        maxLength: 333,
+      },
+    },
   ];
 
   data.setFields(fields);

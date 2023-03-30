@@ -24,16 +24,20 @@
             :readonly="true"
           />
         </kw-search-item>
-        <!-- AS부품명 -->
-        <kw-search-item :label="$t('MSG_TIT_AS_PART_NM')">
+        <!-- 교재/자재명 -->
+        <kw-search-item :label="$t('MSG_TIT_MATERIAL_NM')">
           <kw-input
             v-model.trim="searchParams.pdNm"
           />
         </kw-search-item>
-        <!-- AS부품코드 -->
-        <kw-search-item :label="$t('MSG_TIT_AS_PART_CD')">
+        <!-- 제품코드 -->
+        <kw-search-item :label="$t('MSG_TXT_PROD_CD')">
           <kw-input
             v-model.trim="searchParams.pdCd"
+            clearable
+            :readonly="true"
+            icon="search"
+            @click-icon="onClickProduct()"
           />
         </kw-search-item>
       </kw-search-row>
@@ -47,16 +51,16 @@
             ref="productSelRef"
             v-model:product1-level="searchParams.prdtCateHigh"
             v-model:product2-level="searchParams.prdtCateMid"
+            v-model:product3-level="searchParams.prdtCateLow"
             v-model:pd-tp-cd="pdConst.PD_TP_CD_STANDARD"
             first-option="all"
-            first-option-value="ALL"
-            search-lvl="2"
+            search-lvl="3"
           />
         </kw-search-item>
-        <!-- 자재코드 -->
-        <kw-search-item :label="$t('MSG_TXT_MATI_CD')">
+        <!-- AS자재번호 -->
+        <kw-search-item :label="$t('TXT_MSG_AS_MAT_CD')">
           <kw-input
-            v-model.trim="searchParams.sapMatCd"
+            v-model.trim="searchParams.asMatCd"
           />
         </kw-search-item>
       </kw-search-row>
@@ -74,6 +78,13 @@
           />
         </template>
 
+        <kw-file
+          v-show="false"
+          ref="attachFileRef"
+          v-model="file"
+          accept=".xlsx, .xls, .csv"
+          @update:model-value="doUpload"
+        />
         <kw-btn
           v-permission:create
           icon="upload_on"
@@ -134,7 +145,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService, useMeta, gridUtil, codeUtil, useGlobal, getComponentType, defineGrid } from 'kw-lib';
+import { useDataService, useMeta, gridUtil, codeUtil, useGlobal, getComponentType, defineGrid, http } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 import ZwpdProductClassificationSelect from '~sms-common/product/pages/standard/components/ZwpdProductClassificationSelect.vue';
 import pdConst from '~sms-common/product/constants/pdConst';
@@ -145,6 +156,10 @@ const dataService = useDataService();
 const { getConfig } = useMeta();
 const route = useRoute();
 const router = useRouter();
+
+const attachFileRef = ref();
+const file = ref(null);
+
 const grdMainRef = ref(getComponentType('KwGrid'));
 
 const pageInfo = ref({
@@ -163,6 +178,34 @@ const page = ref({
   detail: '/product/wwpdc-as-part-list/wwpdc-as-part-dtl', // 교재/자재 상세보기 UI
 });
 
+// onMounted(async () => {
+//   const { test } = props;
+//   console.log('test', test);
+// });
+
+const props = defineProps({
+  test: { type: String, default: '' },
+  state: { type: String, default: '' },
+});
+
+watch(() => props.state, async (state) => {
+  console.log('props state', state);
+}, { immediate: true });
+
+watch(() => props.test, async (newValue) => {
+  console.log('props test', newValue);
+}, { immediate: true });
+
+watch(() => route.state, async (state) => {
+  console.log('route state', state);
+}, { immediate: true });
+
+watch(() => route.query, async (query) => {
+  console.log('route query', query);
+  // eslint-disable-next-line no-use-before-define
+  if (query.isSearch) onClickSearch();
+}, { immediate: true });
+
 let cachedParams;
 const searchParams = ref({
   pdTpCd: pdConst.PD_TP_CD_MATERIAL,
@@ -170,8 +213,18 @@ const searchParams = ref({
   pdCd: '',
   prdtCateHigh: '',
   prdtCateMid: '',
-  sapMatCd: '',
+  prdtCateLow: '',
+  asMatCd: '',
 });
+
+async function onClickProduct() {
+  const { result, payload } = await modal({
+    component: 'ZwpdcMaterialsSelectListP',
+    componentProps: { searchType: null, searchValue: null, selectType: pdConst.PD_SEARCH_SINGLE, searchLvl: 3 },
+  });
+
+  if (result) searchParams.value.pdCd = payload.checkedRows[0].pdCd;
+}
 
 async function fetchData() {
   const res = await dataService.get(`${baseUrl}/paging`, { params: { ...cachedParams, ...pageInfo.value } });
@@ -191,7 +244,40 @@ async function onClickSearch() {
 
 async function onClickExcelUpload() {
   notify('기능 확인 중... TBD');
+  file.value = null;
+  attachFileRef.value.reset();
+  attachFileRef.value.pickFiles();
 }
+
+// Excel Upload 관련 Mehotd 시작
+async function doUpload() {
+  if (file.value === null || file.value === undefined) {
+    return;
+  }
+
+  // WAS단으로 넘겨 DRM 해제 및 유효성 체크 후 저장.
+  const formData = new FormData();
+  formData.append('file', file.value.nativeFile);
+
+  const response = await http.post(`${baseUrl}/excel-upload`, formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
+
+  const { status, errorInfo } = response.data;
+  console.debug(status, errorInfo);
+  console.table(errorInfo);
+
+  if (pdConst.EXCEL_UPLOAD_SUCCESS !== status && errorInfo.length > 0) {
+    await modal({
+      component: 'ZwcmzExcelUploadErrorP',
+      componentProps: { errorInfo },
+    });
+  } else {
+    notify(t('MSG_ALT_COMPLETE_EXCEL_UPLOAD'));
+    await onClickSearch();
+  }
+}
+// Excel Upload 관련 Mehotd 종료
 
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
@@ -225,28 +311,28 @@ async function onClickSummarySearch() {
   }
 }
 
-async function openAsPartPopup(pdCd, tempSaveYn) {
+async function oprenRegDetailPopup(pdCd, tempSaveYn) {
   const targetUrl = tempSaveYn === 'Y' ? page.value.reg : page.value.detail;
   await router.push({ path: targetUrl, query: { pdCd, tempSaveYn } });
 }
 
-watch(() => route.query, async (query) => {
-  console.log('query', query);
-  if (query.isSearch) onClickSearch();
-  // if (query.closeTargetUi ?? false) await router.close(query.closeTargetUi);
-}, { immediate: true });
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
 const initGrdMain = defineGrid((data, view) => {
+  codes.PD_TEMP_SAVE_YN = [
+    { codeId: 'Y', codeName: t('MSG_BTN_TMP_SAVE') },
+    { codeId: 'N', codeName: t('MSG_TXT_SAVE') },
+  ];
   const columns = [
-    { fieldName: 'tempSaveYn', header: t('MSG_TXT_STT'), width: '90', styleName: 'text-center', options: codes.PD_TEMP_SAVE_CD }, /* 상태 */
+    { fieldName: 'tempSaveYn', header: t('MSG_TXT_STT'), width: '90', styleName: 'text-center', options: codes.PD_TEMP_SAVE_YN }, /* 상태 */
     { fieldName: 'pdTpCd', header: t('MSG_TXT_DIV'), width: '90', styleName: 'text-center', options: codes.PD_TP_CD }, /* 구분 */
     { fieldName: 'pdClsfNm', header: t('MSG_TXT_CLSF'), width: '176' }, /* 분류 */
-    { fieldName: 'pdNm', header: t('MSG_TIT_AS_PART_NM'), width: '195' }, /* 교재/자재명 */
-    { fieldName: 'pdCd', header: t('MSG_TIT_AS_PART_CD'), width: '100' }, /* 제품코드 */
-    { fieldName: 'sapMatCd', header: t('MSG_TXT_MATI_CD'), width: '195' }, /* 자재코드 */
-    { fieldName: 'pdAbbrNm', header: t('MSG_TXT_ABBR'), width: '195' }, /* 약어 */
+    { fieldName: 'pdNm', header: t('MSG_TIT_MATERIAL_NM'), width: '195' }, /* 교재/자재명 */
+    { fieldName: 'pdCd', header: t('MSG_TXT_PROD_CD'), width: '100' }, /* 제품코드 */
+    { fieldName: 'asMatCd', header: t('TXT_MSG_AS_MAT_CD'), width: '195' }, /* AS자재번호 */
+    { fieldName: 'asItmCd', header: t('TXT_MSG_AS_ITM_CD'), width: '195' }, /* 품목코드 */
+    { fieldName: 'asMatEngNm', header: t('TXT_MSG_AS_MAT_ENG_NM'), width: '195' }, /* 품목명(영문) */
     // 사용자 관련 공통 컬럼
     { fieldName: 'fstRgstDtm', header: t('MSG_TXT_RGST_DTM'), width: '110', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date' }, /* 등록일 */
     { fieldName: 'fstRgstUsrNm', header: t('MSG_TXT_RGST_USR'), width: '80', styleName: 'text-center', editable: false },
@@ -279,7 +365,7 @@ const initGrdMain = defineGrid((data, view) => {
       // [reg & detail] Link
       const pdCd = g.getValue(clickData.dataRow, 'pdCd');
       const tempSaveYn = g.getValue(clickData.dataRow, 'tempSaveYn');
-      openAsPartPopup(pdCd, tempSaveYn);
+      oprenRegDetailPopup(pdCd, tempSaveYn);
     }
   };
 });

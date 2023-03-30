@@ -44,6 +44,7 @@
   </kw-action-top>
   <kw-grid
     ref="grdMaterialRef"
+    name="grdMaterial"
     :visible-rows="3"
     @init="initMaterialGrid"
   />
@@ -78,6 +79,7 @@
   </kw-action-top>
   <kw-grid
     ref="grdServiceRef"
+    name="grdService"
     :visible-rows="3"
     @init="initServiceGrid"
   />
@@ -94,7 +96,7 @@
         dense
         class="ml12 w140"
         :label="$t('MSG_TXT_PD_SEL_STD')"
-        :options="stdRelCodes"
+        :options="stdRelCodes.BASE_PD_REL_DV_CD"
         :placeholder="$t('MSG_TXT_SEL_REL_TYPE')"
         rules="required"
       />
@@ -117,6 +119,7 @@
   </kw-action-top>
   <kw-grid
     ref="grdStandardRef"
+    name="grdStandard"
     :visible-rows="3"
     @init="initStandardGrid"
   />
@@ -126,7 +129,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { gridUtil, useGlobal, getComponentType, codeUtil } from 'kw-lib';
-import { getGridRowCount, pdMergeBy } from '~/modules/sms-common/product/utils/pdUtil';
+import { getAlreadyItems, getGridRowCount, pdMergeBy } from '~/modules/sms-common/product/utils/pdUtil';
 import pdConst from '~sms-common/product/constants/pdConst';
 
 /* eslint-disable no-use-before-define */
@@ -140,7 +143,7 @@ const props = defineProps({
   codes: { type: Object, default: null },
 });
 
-const { modal } = useGlobal();
+const { notify, modal } = useGlobal();
 const { t } = useI18n();
 
 // -------------------------------------------------------------------------------------------------
@@ -155,13 +158,8 @@ const grdStandardRowCount = ref(0);
 
 const currentPdCd = ref();
 const currentInitData = ref({});
-const standardRelTypes = ref([
-  pdConst.PD_REL_TP_CD_MORE_PURCH,
-  pdConst.PD_REL_TP_CD_CONTRACTED_PD,
-  pdConst.PD_REL_TP_CD_REQ_PD]);
 const standardRelTypeRef = ref();
-const stdRelCodes = (await codeUtil.getMultiCodes('PD_REL_TP_CD')).PD_REL_TP_CD
-  .filter((item) => standardRelTypes.value.includes(item.codeId));
+const stdRelCodes = await codeUtil.getMultiCodes('BASE_PD_REL_DV_CD');
 
 const materialSelectItems = ref([
   // 교재/자재명
@@ -223,6 +221,21 @@ async function isModifiedProps() {
 }
 
 async function validateProps() {
+  /* const serviceRows = gridUtil.getAllRowValues(grdServiceRef.value.getView());
+  if (!serviceRows || !serviceRows.length) {
+    notify(t('MSG_ALT_ADD_SOME_ITEM', [t('MSG_TXT_SERVICE')]));
+    return false;
+  } */
+  const materialRows = gridUtil.getAllRowValues(grdMaterialRef.value.getView());
+  if (materialRows.length) {
+    // 안분비율
+    const sumDivisionRate = materialRows.reduce((tot, item) => tot + Number(item.diviRat), 0);
+    if (sumDivisionRate > 100) {
+      // 안분비율 합이 100%를 넘을 수 없습니다.
+      notify(t('MSG_ALT_DIV_RTE_OVER_PER'));
+      return false;
+    }
+  }
   return true;
 }
 
@@ -232,29 +245,67 @@ async function insertCallbackRows(view, rtn, pdRelTpCd) {
       const data = view.getDataSource();
       const rows = rtn.payload.map((item) => ({
         ...item, [pdConst.REL_OJ_PD_CD]: item.pdCd, [pdConst.PD_REL_TP_CD]: pdRelTpCd }));
-      await data.insertRows(0, rows);
-      await gridUtil.focusCellInput(view, 0);
+      const okRows = await getCheckAndNotExistRows(view, rows);
+      if (okRows && okRows.length) {
+        await data.insertRows(0, okRows);
+        await gridUtil.focusCellInput(view, 0);
+      }
     } else if (rtn.payload.payload) {
       // TODO 삭제 필요
       const data = view.getDataSource();
       const rows = rtn.payload.payload.map((item) => ({
         ...item, [pdConst.REL_OJ_PD_CD]: item.pdCd, [pdConst.PD_REL_TP_CD]: pdRelTpCd }));
-      await data.insertRows(0, rows);
-      await gridUtil.focusCellInput(view, 0);
+      const okRows = await getCheckAndNotExistRows(view, rows);
+      if (okRows && okRows.length) {
+        await data.insertRows(0, okRows);
+        await gridUtil.focusCellInput(view, 0);
+      }
     } else if (rtn.payload.checkedRows) {
       // TODO 삭제 필요
       const data = view.getDataSource();
       const rows = rtn.payload.checkedRows.map((item) => ({
         ...item, [pdConst.REL_OJ_PD_CD]: item.pdCd, [pdConst.PD_REL_TP_CD]: pdRelTpCd }));
-      await data.insertRows(0, rows);
-      await gridUtil.focusCellInput(view, 0);
+      const okRows = await getCheckAndNotExistRows(view, rows);
+      if (okRows && okRows.length) {
+        await data.insertRows(0, okRows);
+        await gridUtil.focusCellInput(view, 0);
+      }
     } else {
       const row = Array.isArray(rtn.payload) ? rtn.payload[0] : rtn.payload;
       row[pdConst.PD_REL_TP_CD] = pdRelTpCd;
       row[pdConst.REL_OJ_PD_CD] = row.pdCd;
-      await gridUtil.insertRowAndFocus(view, 0, row);
+      const okRows = await getCheckAndNotExistRows(view, [row]);
+      if (okRows && okRows.length) {
+        await gridUtil.insertRowAndFocus(view, 0, okRows[0]);
+      }
     }
   }
+}
+
+async function getCheckAndNotExistRows(view, rows) {
+  const alreadyItems = getAlreadyItems(view, rows, 'pdCd');
+  if (rows.length === alreadyItems.length) {
+    // 이미 등록된 {상품} 입니다.
+    notify(t('MSG_ALT_ALREADY_RGST', [t('MSG_TXT_PRDT')]));
+    return [];
+  }
+  if (alreadyItems.length > 0) {
+    if (alreadyItems.length === 1) {
+      // 이미 등록된 {pdCd}은(는) 제외 합니다.
+      notify(t('MSG_ALT_ALREADY_RGST_CUT', [alreadyItems[0].pdCd]));
+    } else {
+      // 이미 등록된 {pdCd} 외 {0} 건 은(는) 제외 합니다.
+      notify(t('MSG_ALT_ALREADY_RGST_CUT', [t('MSG_TXT_EXID_CNT', [alreadyItems[0].pdCd, alreadyItems.length - 1])]));
+    }
+    const alreadyPdCds = alreadyItems.reduce((rtns, item) => { rtns.push(item.pdCd); return rtns; }, []);
+    return rows.reduce((rtns, item) => {
+      if (!alreadyPdCds.includes(item.pdCd)) {
+        rtns.push(item);
+      }
+      return rtns;
+    }, []);
+  }
+  return rows;
 }
 
 async function deleteCheckedRows(view) {
@@ -345,8 +396,11 @@ async function initGridRows() {
   const standardView = grdStandardRef.value?.getView();
   if (standardView) {
     standardView.getDataSource().clearRows();
-    standardView.getDataSource().setRows(products
-      ?.filter((item) => standardRelTypes.value.includes(item[pdConst.PD_REL_TP_CD])));
+    const standardCodeValues = stdRelCodes.BASE_PD_REL_DV_CD
+      .reduce((rtns, code) => { rtns.push(code.codeId); return rtns; }, []);
+    const standardRows = products
+      ?.filter((item) => standardCodeValues.includes(item[pdConst.PD_REL_TP_CD]));
+    standardView.getDataSource().setRows(standardRows);
     standardView.resetCurrent();
     grdStandardRowCount.value = getGridRowCount(standardView);
   }
@@ -387,26 +441,46 @@ async function initMaterialGrid(data, view) {
       header: t('MSG_TXT_PRD_COUNT_EA'),
       width: '87',
       styleName: 'text-right',
-      editor: { type: 'number', editFormat: '#,##0.##' },
+      editor: { type: 'number', editFormat: '#,##0', maxLength: 12 },
       dataType: 'number',
       suffix: ` ${t('MSG_TXT_GRD_CNT')}` },
     // 판매금액
-    { fieldName: 'pdRelPrpVal02', header: t('MSG_TXT_SALE_PRICE'), width: '107', styleName: 'text-right', editor: { type: 'number', editFormat: '#,##0.##' }, dataType: 'number' },
+    { fieldName: 'pdRelPrpVal02',
+      header: t('MSG_TXT_SALE_PRICE'),
+      width: '107',
+      styleName: 'text-right',
+      editor: { type: 'number', editFormat: '#,##0.##', maxLength: 12 },
+      dataType: 'number' },
     // 공급가액
-    { fieldName: 'pdRelPrpVal03', header: t('MSG_TXT_SUPPLY_AMOUNT'), width: '107', styleName: 'text-right', editor: { type: 'number', editFormat: '#,##0.##' }, dataType: 'number' },
+    { fieldName: 'pdRelPrpVal03',
+      header: t('MSG_TXT_SUPPLY_AMOUNT'),
+      width: '107',
+      styleName: 'text-right',
+      editor: { type: 'number', editFormat: '#,##0.##', maxLength: 12 },
+      dataType: 'number' },
     // 부가세액
-    { fieldName: 'pdRelPrpVal04', header: t('MSG_TXT_VAT_AMOUNT'), width: '107', styleName: 'text-right', editor: { type: 'number', editFormat: '#,##0.##' }, dataType: 'number' },
+    { fieldName: 'pdRelPrpVal04',
+      header: t('MSG_TXT_VAT_AMOUNT'),
+      width: '107',
+      styleName: 'text-right',
+      editor: { type: 'number', editFormat: '#,##0.##', maxLength: 12 },
+      dataType: 'number' },
     // 안분비율(%)
     { fieldName: 'diviRat',
       header: t('MSG_TXT_PROPORTIONAL_DV_RT'),
       width: '107',
       styleName: 'text-right',
-      editor: { type: 'number', editFormat: '##0' },
+      editor: { type: 'number', editFormat: '##0', maxLength: 3 },
       dataType: 'number',
       suffix: ' %',
     },
     // 잔액산입
-    { fieldName: 'blamInptYn', header: t('MSG_TXT_CHANGE_COUNTING'), width: '87', styleName: 'text-center', editor: { type: 'list' }, options: props.codes?.COD_YN },
+    { fieldName: 'blamInptYn',
+      header: t('MSG_TXT_CHANGE_COUNTING'),
+      width: '87',
+      styleName: 'text-center',
+      editor: { type: 'list' },
+      options: props.codes?.COD_YN },
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   fields.push({ fieldName: pdConst.REL_PD_ID });
@@ -420,8 +494,7 @@ async function initMaterialGrid(data, view) {
   view.editOptions.editable = true;
 
   view.sortingOptions.enabled = false;
-  view.displayOptions.columnResizable = false;
-  view.filteringOptions.enabled = true;
+  view.filteringOptions.enabled = false;
 }
 
 async function initServiceGrid(data, view) {
@@ -455,7 +528,7 @@ async function initServiceGrid(data, view) {
 async function initStandardGrid(data, view) {
   const columns = [
     // 관계구분
-    { fieldName: 'pdRelTpCd', header: t('MSG_TXT_RELATION_CLSF'), width: '107', styleName: 'text-center', options: stdRelCodes, editable: false },
+    { fieldName: 'pdRelTpCd', header: t('MSG_TXT_RELATION_CLSF'), width: '107', styleName: 'text-center', options: stdRelCodes.BASE_PD_REL_DV_CD, editable: false },
     // 상태
     { fieldName: 'tempSaveYn', header: t('MSG_TXT_STT'), width: '105', styleName: 'text-center', options: props.codes?.PD_TEMP_SAVE_CD, editable: false },
     // 기준상품 분류
@@ -489,8 +562,7 @@ async function initStandardGrid(data, view) {
   view.editOptions.editable = true;
 
   view.sortingOptions.enabled = false;
-  view.displayOptions.columnResizable = false;
-  view.filteringOptions.enabled = true;
+  view.filteringOptions.enabled = false;
 
   view.onCellButtonClicked = async (grid, { column, itemIndex }) => {
     if (column === 'svPdNm') {

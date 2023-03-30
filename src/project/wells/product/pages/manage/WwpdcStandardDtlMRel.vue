@@ -77,12 +77,7 @@ const grdChangePrdRef = ref(getComponentType('KwGrid'));
 
 const currentPdCd = ref();
 const currentInitData = ref({});
-const standardRelTypes = ref([
-  pdConst.PD_REL_TP_CD_MORE_PURCH,
-  pdConst.PD_REL_TP_CD_CONTRACTED_PD,
-  pdConst.PD_REL_TP_CD_REQ_PD]);
-const stdRelCodes = (await codeUtil.getMultiCodes('PD_REL_TP_CD')).PD_REL_TP_CD
-  .filter((item) => standardRelTypes.value.includes(item.codeId));
+const stdRelCodes = await codeUtil.getMultiCodes('BASE_PD_REL_DV_CD');
 
 async function resetData() {
   currentPdCd.value = '';
@@ -114,8 +109,10 @@ async function initGridRows() {
   const standardView = grdStandardRef.value?.getView();
   if (standardView) {
     standardView.getDataSource().clearRows();
+    const standardCodeValues = stdRelCodes.BASE_PD_REL_DV_CD
+      .reduce((rtns, code) => { rtns.push(code.codeId); return rtns; }, []);
     standardView.getDataSource().setRows(products
-      ?.filter((item) => standardRelTypes.value.includes(item[pdConst.PD_REL_TP_CD])));
+      ?.filter((item) => standardCodeValues.includes(item[pdConst.PD_REL_TP_CD])));
     standardView.resetCurrent();
   }
 
@@ -190,7 +187,6 @@ async function initMaterialGrid(data, view) {
 }
 
 async function initServiceGrid(data, view) {
-  // console.log('props.codes : ', props.codes);
   const columns = [
     // 필수여부
     { fieldName: 'mndtSvYn', header: t('MSG_TXT_NCSR_YN'), width: '95', styleName: 'text-center' },
@@ -217,7 +213,7 @@ async function initServiceGrid(data, view) {
 async function initStandardGrid(data, view) {
   const columns = [
     // 관계구분
-    { fieldName: 'pdRelTpCd', header: t('MSG_TXT_RELATION_CLSF'), width: '107', styleName: 'text-center', options: stdRelCodes },
+    { fieldName: 'pdRelTpCd', header: t('MSG_TXT_RELATION_CLSF'), width: '107', styleName: 'text-center', options: stdRelCodes.BASE_PD_REL_DV_CD },
     // 상태
     { fieldName: 'tempSaveYn', header: t('MSG_TXT_STT'), width: '105', styleName: 'text-center', options: props.codes?.PD_TEMP_SAVE_CD },
     // 기준상품 분류

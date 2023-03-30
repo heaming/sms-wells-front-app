@@ -36,7 +36,7 @@
           <kw-select
             v-model="searchParams.ogTp"
             :label="$t('MSG_TXT_OG_TP')"
-            :options="['M추진단', 'P추진단','홈마스터']"
+            :options="ogTpCd"
             rules="required"
             @change="onChangeOgTp"
           />
@@ -50,7 +50,7 @@
             :label="$t('MSG_TXT_RSB_TP')"
             type="radio"
             rules="required"
-            :options="['플래너', '지점장']"
+            :options="rsbTpCd"
           />
         </kw-search-item>
       </kw-search-row>
@@ -62,17 +62,17 @@
           <kw-select
             v-model="searchParams.ogLevl1"
             :model-value="''"
-            :options="['총괄단', 'B']"
+            :options="['총괄단', 'B', 'C', 'D']"
           />
           <kw-select
             v-model="searchParams.ogLevl2"
             :model-value="''"
-            :options="['지역단', 'B']"
+            :options="['지역단', 'B', 'C', 'D']"
           />
           <kw-select
             v-model="searchParams.ogLevl3"
             :model-value="''"
-            :options="['지점', 'B']"
+            :options="['지점', 'B', 'C', 'D']"
           />
         </kw-search-item>
 
@@ -80,7 +80,7 @@
           :label="$t('MSG_TXT_SEQUENCE_NUMBER')"
         >
           <kw-input
-            v-model="searchParams.no"
+            v-model="searchParams.prtnrNo"
             icon="search"
             clearable
           />
@@ -95,8 +95,7 @@
             v-model="searchParams.feeDsbYn"
             type="radio"
             :label="t('MSG_TXT_FEE')+t('MSG_TXT_DSB_YN')"
-            rules="required"
-            :options="['전체', 'Y', 'N']"
+            :options="feeDsbCd"
           />
         </kw-search-item>
       </kw-search-row>
@@ -157,17 +156,48 @@ const grd1MainRef = ref(getComponentType('KwGrid'));
 const grd2MainRef = ref(getComponentType('KwGrid'));
 const isSelectVisile = ref(true);
 const isSelectVisile2 = ref(false);
+const ogTpCd = [
+  { codeId: 'W02', codeName: 'M추진단' },
+  { codeId: 'W01', codeName: 'P추진단' },
+  { codeId: 'W03', codeName: '홈마스터' },
+];
+const rsbTpCd = ref([
+  { codeId: 'W204', codeName: '지점장' },
+  { codeId: 'W205', codeName: '플래너' },
+]);
+
+const rsbTpCd1 = [
+  { codeId: 'W204', codeName: '지점장' },
+  { codeId: 'W205', codeName: '플래너' },
+];
+
+const rsbTpCd2 = [
+  { codeId: 'W104', codeName: '지점장' },
+  { codeId: 'W105', codeName: '플래너' },
+];
+
+const rsbTpCd3 = [
+  { codeId: 'W301', codeName: '지점장' },
+  { codeId: 'W302', codeName: '홈마스터' },
+];
+
+const feeDsbCd = [
+  { codeId: '', codeName: '전체' },
+  { codeId: 'Y', codeName: 'Yes' },
+  { codeId: 'N', codeName: 'No' },
+];
+
 const totalCount = ref(0);
 const searchParams = ref({
 
-  perfYm: now.format('YYYYMM'),
-  ogTp: '',
-  rsbTp: '',
+  perfYm: now.add(-1, 'month').format('YYYYMM'),
+  ogTp: 'W02',
+  rsbTp: 'W204',
   ogLevl1: '',
   ogLevl2: '',
   ogLevl3: '',
-  no: '',
-  feeDsbYn: '전체',
+  prtnrNo: '',
+  feeDsbYn: '',
   prPerfYm: '',
   prOgTp: '',
 });
@@ -175,55 +205,6 @@ const searchParams = ref({
 let cachedParams;
 
 const router = useRouter();
-/*
- *  Event - 그리드 사번 클릭시 개인상세조회 페이지 이동
- */
-async function movePage(no) {
-  let url = '';
-
-  if (searchParams.value.prOgTp === 'M추진단') {
-    url = '/fee/wwfee-individual-fee-manager-list';
-  } else if (searchParams.value.prOgTp === 'P추진단') {
-    url = '/fee/wwfee-individual-fee-planner-list';
-  } else if (searchParams.value.prOgTp === '홈마스터') {
-    url = '/fee/wwfee-individual-fee-home-master-list';
-  }
-
-  router.push({
-    path: url,
-    query: {
-      perfYm: searchParams.value.prPerfYm,
-      partnerNo: no },
-  });
-}
-/*
- *  Event - 조직유형 선택에 따른 그리드 변경
- */
-async function onChangeOgTp() {
-  const { ogTp } = searchParams.value;
-
-  if (ogTp === 'M추진단' || ogTp === 'P추진단') {
-    isSelectVisile.value = true;
-    isSelectVisile2.value = false;
-  } else if (ogTp === '홈마스터') {
-    isSelectVisile.value = false;
-    isSelectVisile2.value = true;
-  }
-}
-/*
- *  Event - 지급명세서 출력 버튼 클릭  ※현재 팝업화면 없음
- */
-async function openReportPopup() {
-  const param = {
-    perfYm: searchParams.value.perfYm,
-    no: searchParams.value.no,
-  };
-
-  await modal({
-    component: 'openReportPopup',
-    componentProps: param,
-  });
-}
 
 async function fetchData(uri) {
   const response = await dataService.get(`/sms/wells/fee/individual-fees/${uri}`, { params: cachedParams });
@@ -254,45 +235,105 @@ async function onClickSearch() {
   await fetchData(uri);
 }
 
+/*
+ *  Event - 그리드 사번 클릭시 개인상세조회 페이지 이동
+*/
+async function movePage(no) {
+  let url = '';
+
+  if (searchParams.value.prOgTp === 'M추진단') {
+    url = '/fee/wwfee-individual-fee-manager-list';
+  } else if (searchParams.value.prOgTp === 'P추진단') {
+    url = '/fee/wwfee-individual-fee-planner-list';
+  } else if (searchParams.value.prOgTp === '홈마스터') {
+    url = '/fee/wwfee-individual-fee-home-master-list';
+  }
+
+  router.push({
+    path: url,
+    query: {
+      perfYm: searchParams.value.prPerfYm,
+      prtnrNo: no },
+  });
+}
+
+/*
+ *  Event - 조직유형 선택에 따른 그리드 변경
+ */
+async function onChangeOgTp() {
+  const { ogTp } = searchParams.value;
+
+  if (ogTp === 'W02') {
+    isSelectVisile.value = true;
+    isSelectVisile2.value = false;
+    rsbTpCd.value = rsbTpCd1;
+    searchParams.value.rsbTp = 'W204';
+  } else if (ogTp === 'W01') {
+    isSelectVisile.value = true;
+    isSelectVisile2.value = false;
+    rsbTpCd.value = rsbTpCd2;
+    searchParams.value.rsbTp = 'W104';
+  } else if (ogTp === 'W03') {
+    isSelectVisile.value = false;
+    isSelectVisile2.value = true;
+    rsbTpCd.value = rsbTpCd3;
+    searchParams.value.rsbTp = 'W301';
+  }
+}
+/*
+ *  Event - 지급명세서 출력 버튼 클릭  ※현재 팝업화면 없음
+ */
+async function openReportPopup() {
+  const param = {
+    perfYm: searchParams.value.perfYm,
+    no: searchParams.value.prtnrNo,
+  };
+
+  await modal({
+    component: 'openReportPopup',
+    componentProps: param,
+  });
+}
+
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
 const initGrd1Main = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'col1' },
-    { fieldName: 'col2' },
-    { fieldName: 'col3' },
-    { fieldName: 'col4' },
-    { fieldName: 'col5' },
-    { fieldName: 'col6' },
-    { fieldName: 'col7' },
-    { fieldName: 'col8' },
-    { fieldName: 'col9' },
-    { fieldName: 'col10', dataType: 'number' },
-    { fieldName: 'col11', dataType: 'number' },
-    { fieldName: 'col12', dataType: 'number' },
-    { fieldName: 'col13', dataType: 'number' },
-    { fieldName: 'col14', dataType: 'number' },
-    { fieldName: 'col15', dataType: 'number' },
+    { fieldName: 'mngtDiv' },
+    { fieldName: 'renlGrp' },
+    { fieldName: 'branch' },
+    { fieldName: 'emplNm' },
+    { fieldName: 'prtnrNo' },
+    { fieldName: 'rsb' },
+    { fieldName: 'qlf' },
+    { fieldName: 'bnk' },
+    { fieldName: 'acNo' },
+    { fieldName: 'intbsSum', dataType: 'number' },
+    { fieldName: 'ddtnSum', dataType: 'number' },
+    { fieldName: 'aclDsbAmt', dataType: 'number' },
+    { fieldName: 'awbIntbsSum', dataType: 'number' },
+    { fieldName: 'awbDdtnSum', dataType: 'number' },
+    { fieldName: 'awbAclDsbAmt', dataType: 'number' },
   ];
 
   const columns = [
-    { fieldName: 'col1', header: t('MSG_TXT_MANAGEMENT_DEPARTMENT'), width: '98' },
-    { fieldName: 'col2', header: t('MSG_TXT_RGNL_GRP'), width: '98' },
-    { fieldName: 'col3', header: t('MSG_TXT_BRANCH'), width: '98' },
-    { fieldName: 'col4', header: t('MSG_TXT_EMPL_NM'), width: '95' },
-    { fieldName: 'col5', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '124', styleName: 'text-center' },
-    { fieldName: 'col6', header: t('MSG_TXT_RSB'), width: '71' },
-    { fieldName: 'col7', header: t('MSG_TXT_QLF'), width: '110' },
+    { fieldName: 'mngtDiv', header: t('MSG_TXT_MANAGEMENT_DEPARTMENT'), width: '98' },
+    { fieldName: 'renlGrp', header: t('MSG_TXT_RGNL_GRP'), width: '98' },
+    { fieldName: 'branch', header: t('MSG_TXT_BRANCH'), width: '98' },
+    { fieldName: 'emplNm', header: t('MSG_TXT_EMPL_NM'), width: '95' },
+    { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '124', styleName: 'text-center' },
+    { fieldName: 'rsb', header: t('MSG_TXT_RSB'), width: '71' },
+    { fieldName: 'qlf', header: t('MSG_TXT_QLF'), width: '110' },
 
-    { fieldName: 'col8', header: t('MSG_TXT_BNK'), width: '80' },
-    { fieldName: 'col9', header: t('MSG_TXT_AC_NO'), width: '127' },
-    { fieldName: 'col10', header: t('MSG_TXT_INTBS_SUM'), width: '111', styleName: 'text-right' },
-    { fieldName: 'col11', header: t('MSG_TXT_DDTN_SUM'), width: '111', styleName: 'text-right' },
-    { fieldName: 'col12', header: t('MSG_TXT_ACL_DSB_AMT'), width: '111', styleName: 'text-right' },
-    { fieldName: 'col13', header: t('MSG_TXT_AWD') + t('MSG_TXT_INTBS_SUM'), width: '111', styleName: 'text-right' },
-    { fieldName: 'col14', header: t('MSG_TXT_AWD') + t('MSG_TXT_DDTN_SUM'), width: '111', styleName: 'text-right' },
-    { fieldName: 'col15', header: t('MSG_TXT_AWD') + t('MSG_TXT_ACL_DSB_AMT'), width: '111', styleName: 'text-right' },
+    { fieldName: 'bnk', header: t('MSG_TXT_BNK'), width: '80' },
+    { fieldName: 'acNo', header: t('MSG_TXT_AC_NO'), width: '127' },
+    { fieldName: 'intbsSum', header: t('MSG_TXT_INTBS_SUM'), width: '111', styleName: 'text-right' },
+    { fieldName: 'ddtnSum', header: t('MSG_TXT_DDTN_SUM'), width: '111', styleName: 'text-right' },
+    { fieldName: 'aclDsbAmt', header: t('MSG_TXT_ACL_DSB_AMT'), width: '111', styleName: 'text-right' },
+    { fieldName: 'awbIntbsSum', header: t('MSG_TXT_AWD') + t('MSG_TXT_INTBS_SUM'), width: '111', styleName: 'text-right' },
+    { fieldName: 'awbDdtnSum', header: t('MSG_TXT_AWD') + t('MSG_TXT_DDTN_SUM'), width: '111', styleName: 'text-right' },
+    { fieldName: 'awbAclDsbAmt', header: t('MSG_TXT_AWD') + t('MSG_TXT_ACL_DSB_AMT'), width: '111', styleName: 'text-right' },
   ];
 
   data.setFields(fields);
@@ -302,46 +343,46 @@ const initGrd1Main = defineGrid((data, view) => {
   view.rowIndicator.visible = true;
 
   view.onCellDblClicked = async (g, { dataRow, column }) => {
-    if (column === 'col5') {
-      movePage(g.getValue(dataRow, 'col5'));
+    if (column === 'prtnrNo') {
+      movePage(g.getValue(dataRow, 'prtnrNo'));
     }
   };
 });
 
 const initGrd2Main = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'col1' },
-    { fieldName: 'col2' },
-    { fieldName: 'col3' },
-    { fieldName: 'col4' },
-    { fieldName: 'col5' },
-    { fieldName: 'col6' },
-    { fieldName: 'col7' },
-    { fieldName: 'col8' },
-    { fieldName: 'col9', dataType: 'number' },
-    { fieldName: 'col10', dataType: 'number' },
-    { fieldName: 'col11', dataType: 'number' },
-    { fieldName: 'col12', dataType: 'number' },
-    { fieldName: 'col13', dataType: 'number' },
-    { fieldName: 'col14', dataType: 'number' },
+    { fieldName: 'renlGrp' },
+    { fieldName: 'branch' },
+    { fieldName: 'emplNm' },
+    { fieldName: 'prtnrNo' },
+    { fieldName: 'rsb' },
+    { fieldName: 'qlf' },
+    { fieldName: 'bnk' },
+    { fieldName: 'acNo' },
+    { fieldName: 'intbsSum', dataType: 'number' },
+    { fieldName: 'ddtnSum', dataType: 'number' },
+    { fieldName: 'aclDsbAmt', dataType: 'number' },
+    { fieldName: 'awbIntbsSum', dataType: 'number' },
+    { fieldName: 'awbDdtnSum', dataType: 'number' },
+    { fieldName: 'awbAclDsbAmt', dataType: 'number' },
   ];
 
   const columns = [
-    { fieldName: 'col1', header: t('MSG_TXT_RGNL_GRP'), width: '98' },
-    { fieldName: 'col2', header: t('MSG_TXT_BRANCH'), width: '98' },
-    { fieldName: 'col3', header: t('MSG_TXT_EMPL_NM'), width: '95' },
-    { fieldName: 'col4', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '124', styleName: 'text-center' },
-    { fieldName: 'col5', header: t('MSG_TXT_RSB'), width: '71' },
-    { fieldName: 'col6', header: t('MSG_TXT_QLF'), width: '110' },
+    { fieldName: 'renlGrp', header: t('MSG_TXT_RGNL_GRP'), width: '98' },
+    { fieldName: 'branch', header: t('MSG_TXT_BRANCH'), width: '98' },
+    { fieldName: 'emplNm', header: t('MSG_TXT_EMPL_NM'), width: '95' },
+    { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '124', styleName: 'text-center' },
+    { fieldName: 'rsb', header: t('MSG_TXT_RSB'), width: '71' },
+    { fieldName: 'qlf', header: t('MSG_TXT_QLF'), width: '110' },
 
-    { fieldName: 'col7', header: t('MSG_TXT_BNK'), width: '80' },
-    { fieldName: 'col8', header: t('MSG_TXT_AC_NO'), width: '127' },
-    { fieldName: 'col9', header: t('MSG_TXT_INTBS_SUM'), width: '111', styleName: 'text-right' },
-    { fieldName: 'col10', header: t('MSG_TXT_DDTN_SUM'), width: '111', styleName: 'text-right' },
-    { fieldName: 'col11', header: t('MSG_TXT_ACL_DSB_AMT'), width: '111', styleName: 'text-right' },
-    { fieldName: 'col12', header: t('MSG_TXT_AWD') + t('MSG_TXT_INTBS_SUM'), width: '111', styleName: 'text-right' },
-    { fieldName: 'col13', header: t('MSG_TXT_AWD') + t('MSG_TXT_DDTN_SUM'), width: '111', styleName: 'text-right' },
-    { fieldName: 'col14', header: t('MSG_TXT_AWD') + t('MSG_TXT_ACL_DSB_AMT'), width: '111', styleName: 'text-right' },
+    { fieldName: 'bnk', header: t('MSG_TXT_BNK'), width: '80' },
+    { fieldName: 'acNo', header: t('MSG_TXT_AC_NO'), width: '127' },
+    { fieldName: 'intbsSum', header: t('MSG_TXT_INTBS_SUM'), width: '111', styleName: 'text-right' },
+    { fieldName: 'ddtnSum', header: t('MSG_TXT_DDTN_SUM'), width: '111', styleName: 'text-right' },
+    { fieldName: 'aclDsbAmt', header: t('MSG_TXT_ACL_DSB_AMT'), width: '111', styleName: 'text-right' },
+    { fieldName: 'awbIntbsSum', header: t('MSG_TXT_AWD') + t('MSG_TXT_INTBS_SUM'), width: '111', styleName: 'text-right' },
+    { fieldName: 'awbDdtnSum', header: t('MSG_TXT_AWD') + t('MSG_TXT_DDTN_SUM'), width: '111', styleName: 'text-right' },
+    { fieldName: 'awbAclDsbAmt', header: t('MSG_TXT_AWD') + t('MSG_TXT_ACL_DSB_AMT'), width: '111', styleName: 'text-right' },
   ];
 
   data.setFields(fields);
@@ -351,8 +392,8 @@ const initGrd2Main = defineGrid((data, view) => {
   view.rowIndicator.visible = true;
 
   view.onCellDblClicked = async (g, { dataRow, column }) => {
-    if (column === 'col4') {
-      movePage(g.getValue(dataRow, 'col4'));
+    if (column === 'prtnrNo') {
+      movePage(g.getValue(dataRow, 'prtnrNo'));
     }
   };
 });

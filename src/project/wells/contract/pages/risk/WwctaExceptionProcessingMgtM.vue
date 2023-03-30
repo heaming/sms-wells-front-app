@@ -92,6 +92,7 @@
             v-model:page-size="pageInfo.pageSize"
             :total-count="pageInfo.totalCount"
             :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
+            @change="fetchData"
           />
         </template>
         <kw-btn
@@ -136,7 +137,8 @@
       <kw-grid
         ref="grdMainRef"
         name="grdMain"
-        :visible-rows="Math.max(10, Math.min(pageInfo.pageSize, pageInfo.totalCount))"
+        :page-size="pageInfo.pageSize"
+        :total-count="pageInfo.totalCount"
         @init="initGrid"
       />
 

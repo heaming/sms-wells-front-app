@@ -32,6 +32,7 @@
     </kw-search>
   </div>
   <kw-action-top class="mt40">
+    <!-- (단위 : 원) -->
     <span class="kw-fc---black3 text-weight-regular">({{ $t('MSG_TXT_UNIT') }} : {{ $t('MSG_TXT_CUR_WON') }})</span>
   </kw-action-top>
   <kw-grid
@@ -52,7 +53,7 @@ import { pdMergeBy, getPropInfosToGridRows, getPdMetaToCodeNames, getPdMetaToGri
 
 /* eslint-disable no-use-before-define */
 defineExpose({
-  resetData,
+  resetData, onClickSearch,
 });
 
 const props = defineProps({
@@ -88,11 +89,12 @@ const searchParams = ref({
 async function resetData() {
   currentPdCd.value = '';
   currentInitData.value = {};
+  grdMainRef.value?.getView().getDataSource().clearRows();
   if (grdMainRef.value?.getView()) gridUtil.reset(grdMainRef.value.getView());
 }
 
 async function initGridRows() {
-  if (await currentInitData.value?.[prcfd]) {
+  if (currentInitData.value?.[prcfd]) {
     // 기준가 정보
     const stdRows = cloneDeep(
       await getPropInfosToGridRows(
@@ -115,14 +117,13 @@ async function initGridRows() {
       row.sellTpCd = currentInitData.value[pdConst.TBL_PD_BAS]?.sellTpCd;
       return row;
     });
-    // console.log('Fee Rows : ', rows);
+
     const view = grdMainRef.value.getView();
     if (searchParams.value.avlChnlId) {
       view.getDataSource().setRows(rows?.filter((item) => item.sellChnlCd === searchParams.value.avlChnlId));
     } else {
       view.getDataSource().setRows(rows);
     }
-    view.resetCurrent();
   }
 }
 
@@ -138,7 +139,6 @@ async function resetInitData() {
   if (channels) {
     usedChannelCds.value = props.codes?.SELL_CHNL_DTL_CD.filter((item) => channels.indexOf(item.codeId) > -1);
   }
-  // await initGridRows();
 }
 
 async function onClickSearch() {
@@ -180,6 +180,10 @@ await fetchData();
 watch(() => props.pdCd, (val) => { currentPdCd.value = val; });
 watch(() => props.initData, (val) => { currentInitData.value = val; resetInitData(); }, { deep: true });
 
+onMounted(async () => {
+  await onClickSearch();
+});
+
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
@@ -217,7 +221,6 @@ async function initGrid(data, view) {
   columns.splice(1, 0, applyPeriodCol);
   fields.push({ fieldName: 'applyPeriod' });
 
-  // console.log('WwpdcStandardDtlMPrice - initGrid - columns : ', columns);
   data.setFields(fields);
   view.setColumns(columns.sort((item) => (item.fieldName === 'sellChnlCd' ? -1 : 0))
     .map((item) => {
@@ -230,10 +233,6 @@ async function initGrid(data, view) {
   view.checkBar.visible = false;
   view.rowIndicator.visible = false;
   view.editOptions.editable = false;
-
-  view.sortingOptions.enabled = false;
-  view.displayOptions.columnResizable = false;
-  view.filteringOptions.enabled = true;
 
   view.setFixedOptions({ colCount: 5 });
 

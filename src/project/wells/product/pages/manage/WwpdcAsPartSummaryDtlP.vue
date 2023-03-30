@@ -14,12 +14,14 @@
 --->
 <template>
   <kw-popup size="lg">
+    <!--
     <kw-chip
       :label="pdBas.sellYn === 'Y' ? $t('MSG_TXT_PD_SELLING') : $t('MSG_TXT_PD_NOT_SELLING') "
       color="primary"
       outline
       class="ml0 mb8 pb2 pt1 px8 mt0"
     />
+     -->
 
     <h2 class="h2-small">
       {{ pdBas.pdNm }}({{ pdBas.pdCd }})
@@ -60,7 +62,7 @@
         </kw-form-item>
       </kw-form-row>
     </kw-form>
-
+    <!--
     <template #action>
       <kw-btn
         primary
@@ -68,6 +70,7 @@
         @click="onClickConfirm"
       />
     </template>
+     -->
   </kw-popup>
 </template>
 
@@ -75,10 +78,10 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService, stringUtil, useModal } from 'kw-lib';
+import { useDataService, stringUtil } from 'kw-lib'; // useModal
 import pdConst from '~sms-common/product/constants/pdConst';
 
-const { ok } = useModal();
+// const { ok } = useModal();
 const dataService = useDataService();
 const props = defineProps({
   pdCd: { type: String, required: true, default: '' },
@@ -94,9 +97,9 @@ const PdEcomPrpDtl = ref([]); // 상품각사속성상세
 const PDCT = ref({}); // 관리속성 - 학습관리
 const pdColoNm = ref(''); // 모델색상
 
-async function onClickConfirm() {
-  ok();
-}
+// async function onClickConfirm() {
+//   ok();
+// }
 
 async function fetchData() {
   const res = await dataService.get(`${baseUrl}/${props.pdCd}`);

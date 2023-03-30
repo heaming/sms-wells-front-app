@@ -271,35 +271,15 @@ async function onClickSave() {
 async function onClickRemove() {
   const view = grdMainRef.value.getView();
 
-  let rows;
-
-  if (!gridUtil.getCheckedRowValues(view).length > 0) {
-    alert(t('MSG_ALT_NOT_SEL_ITEM'));
-    return;
-  }
-
-  // if (!await gridUtil.confirmIfIsModified(view)) { return; }
-
-  // const deletedRows = await gridUtil.confirmDeleteCheckedRows(view);
-  if (gridUtil.isModified(view)) {
-    if (await gridUtil.confirmIfIsModified(view)) {
-      rows = gridUtil.deleteCheckedRows(view);
-    }
-  } else {
-    rows = await gridUtil.confirmDeleteCheckedRows(view);
-  }
-
-  console.log(rows);
+  const deletedRows = await gridUtil.confirmDeleteCheckedRows(view);
 
   // rowState 삭제상태 none 으로 나와 임시 set
-  for (let i = 0; i < rows.length; i += 1) {
-    rows[i].rowState = 'deleted';
+  for (let i = 0; i < deletedRows.length; i += 1) {
+    deletedRows[i].rowState = 'deleted';
   }
 
-  if (rows.length > 0) {
-    await dataService.delete('/sms/wells/withdrawal/idvrve/auto-prepayment-discount-exclude', { data: rows });
-    // notify(t('삭제되었습니다.'));
-    // notify(t('MSG_ALT_DELETED'));
+  if (deletedRows.length > 0) {
+    await dataService.delete('/sms/wells/withdrawal/idvrve/auto-prepayment-discount-exclude', { data: deletedRows });
     await fetchData();
   }
 }
@@ -342,7 +322,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'pdNm' }, // 상품명
     { fieldName: 'prmDscExcdStrtYm' }, // 선납제외시작월
     { fieldName: 'prmDscExcdEndYm' }, // 선납제외종료월
-    { fieldName: 'col8' }, // 선납시작일
+    { fieldName: 'prmStrtDate' }, // 선납시작일
     { fieldName: 'slCtrAmt' }, // 조정값
     { fieldName: 'fstRgstDtm' }, // 등록일시
     { fieldName: 'fstRgstUsrId' }, // 등록자 id
@@ -428,7 +408,7 @@ const initGrid = defineGrid((data, view) => {
       width: '125',
       styleName: 'text-center',
     },
-    { fieldName: 'col8',
+    { fieldName: 'prmStrtDate',
       header: t('MSG_TXT_PRM_STRT_MM'),
       // , header: '선납시작월'
       width: '100',

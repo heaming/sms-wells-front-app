@@ -124,6 +124,7 @@
                     secondary
                     class="kw-font-caption py2 ml4"
                     style="min-height: 20px;"
+                    @click="onClickVisit"
                   />
                 </kw-form-item>
               </kw-form-row>
@@ -491,6 +492,7 @@
                     secondary
                     class="kw-font-caption py2 ml4"
                     style="min-height: 20px;"
+                    @click="onClickVirtualAccount"
                   />
                   <kw-btn
                     :label="$t('MSG_BTN_DP_RGST')"
@@ -670,13 +672,15 @@
                 <zwbnc-customer-dtl-p-law-measure />
               </kw-tab-panel>
               <kw-tab-panel name="tab6">
-                <wwbna-counsel-wells-contract-list06 />
+                <zwbnc-customer-dtl-p-visit
+                  ref="visitRef"
+                />
               </kw-tab-panel>
               <kw-tab-panel name="tab7">
                 <wwbna-counsel-wells-contract-list07 />
               </kw-tab-panel>
               <kw-tab-panel name="tab8">
-                <wwbna-counsel-wells-contract-list08 />
+                <zwbnc-customer-dtl-p-customer-center />
               </kw-tab-panel>
             </kw-tab-panels>
           </div>
@@ -941,16 +945,19 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { modal, defineGrid, getComponentType, useDataService, gridUtil } from 'kw-lib';
+import { defineGrid, getComponentType, useDataService, gridUtil, useGlobal } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 
 import ZwbncCustomerDtlPSms from '~sms-common/bond/pages/consultation/ZwbncCustomerDtlPSms.vue';
 import ZwbncCustomerDtlPLawMeasure from '~sms-common/bond/pages/consultation/ZwbncCustomerDtlPLawMeasure.vue';
 import ZwbncCustomerDtlPPromise from '~sms-common/bond/pages/consultation/ZwbncCustomerDtlPPromise.vue';
+import ZwbncCustomerDtlPCustomerCenter from '~sms-common/bond/pages/consultation/ZwbncCustomerDtlPCustomerCenter.vue';
+import ZwbncCustomerDtlPVisit from '~sms-common/bond/pages/consultation/ZwbncCustomerDtlPVisit.vue';
 import WwbncCustomerDtlPCounselHistory from './WwbncCustomerDtlPCounselHistory.vue';
 
 const { t } = useI18n();
 const dataService = useDataService();
+const { modal, notify } = useGlobal();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -970,6 +977,8 @@ const tabRefs = reactive({});
 const selectedTab = ref('tab1');
 
 const selectedGridRow = ref(null);
+
+const visitRef = ref();
 
 watch(selectedGridRow, (newValue) => {
   if (!newValue) {
@@ -1037,6 +1046,34 @@ async function onClickCustomerCardPrint() {
   await modal({
     component: 'ZwbncCustomerCardP',
     componentProps: { apiUrl, templateId },
+  });
+}
+
+// TODO: 방문이력 관리 팝업
+async function onClickVisit() {
+  // TODO:고객번호, 고객명, 계약번호, 계약일련번호, 채권업무구분코드 전달필요
+  const { cstNo } = '011014769';
+
+  const { result: isChanged } = await modal({
+    component: 'ZwbncVisitMgtP',
+    componentProps: { cstNo },
+  });
+
+  if (isChanged) {
+    notify(t('MSG_ALT_REGISTERED'));
+    selectedTab.value = 'tab5';
+    await visitRef.value.fetchData();
+  }
+}
+
+// TODO: 가상상세 목록 팝업
+async function onClickVirtualAccount() {
+  // TODO:고객번호, 고객명, 계약번호, 계약일련번호 전달필요
+  const { cstNo } = '016568225';
+
+  await modal({
+    component: 'ZwbncVirtualAccountP',
+    componentProps: { cstNo },
   });
 }
 
