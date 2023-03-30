@@ -118,6 +118,37 @@
           <kw-tab-panel name="mmbrPersInfo" />
         </kw-tab-panels>
       </kw-tab-panel>
+      <kw-tab-panel name="singlePayment">
+        <kw-tabs v-model="selectedSpayTab">
+          <!-- 일반조회 -->
+          <kw-tab
+            name="spayGeneral"
+            :label="$t('MSG_TXT_GE')+$t('MSG_TXT_SRCH')"
+          />
+          <!-- 계약번호 조회 -->
+          <kw-tab
+            name="spayCntrNo"
+            :label="$t('MSG_TXT_CNTR_NO')+' '+$t('MSG_TXT_SRCH')"
+          />
+          <!-- 개인정보 조회 -->
+          <kw-tab
+            name="spayPersInfo"
+            :label="$t('MSG_TXT_PRVCY')+' '+$t('MSG_TXT_SRCH')"
+          />
+        </kw-tabs>
+        <kw-tab-panels v-model="selectedSpayTab">
+          <!-- 일반 조회 -->
+          <kw-tab-panel name="spayGeneral" />
+          <!-- 계약번호 조회 -->
+          <kw-tab-panel name="spayCntrNo" />
+          <!-- 개인정보 조회 -->
+          <kw-tab-panel name="spayPersInfo">
+            <wwcta-single-payment-contractor-list-m
+              :ref="(vm) => tabRefs.page = vm"
+            />
+          </kw-tab-panel>
+        </kw-tab-panels>
+      </kw-tab-panel>
     </kw-tab-panels>
   </kw-page>
 </template>
@@ -133,6 +164,8 @@ import WwctaOrderRentalInstallerListM from './WwctaOrderRentalInstallerListM.vue
 
 import WwctaMembershipContractNoListM from './WwctaMembershipContractNoListM.vue';
 
+import WwctaSinglePaymentContractorListM from './WwctaSinglePaymentContractorListM.vue';
+
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -140,6 +173,7 @@ const tabRefs = reactive({});
 const selectedTab = ref('rental');
 const selectedRntlTab = ref('rntlGeneral');
 const selectedMmbrTab = ref('mmbrGeneral');
+const selectedSpayTab = ref('spayGeneral');
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
