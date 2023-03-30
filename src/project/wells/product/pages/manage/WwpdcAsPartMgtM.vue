@@ -206,6 +206,16 @@ const page = ref({
 watch(() => props.pdCd, (val) => { currentPdCd.value = val; });
 watch(() => props.tempSaveYn, (val) => { isTempSaveBtn.value = val !== 'Y'; });
 
+// TODO 공통에서 'state: { stateParam: {}} 으로 감싸서 던지고 props에서 받으라는데... 받기 안됨..; TODO_DEL'
+async function pageMove(targetPage, isForce) {
+  await router.close(0, isForce);
+  await router.push(
+    { path: targetPage,
+      state: { stateParam: { test: 'teststring' } },
+      query: { isSearch: true, closeTargetUi: page.value.reg } },
+  );
+}
+
 async function onClickReset() {
   notify('TBD Function..');
   await cmpStepRefs.value.forEach((item) => {
@@ -215,18 +225,9 @@ async function onClickReset() {
 
 async function onClickRemove() {
   if (currentPdCd.value) {
-    if (await confirm(t('MSG_ALT_DO_DELETE'))) {
+    if (await confirm(t('MSG_ALT_WANT_DEL_WCC'))) {
       await dataService.delete(`${baseUrl}/${currentPdCd.value}`);
-      // 변경사항 체크로직 우회 및 현재 page 닫고 target 페이지로 이동.
-      obsMainRef.value.init();
-      await router.close(
-        {
-          to: asPartMainPage,
-          params: { isSearch: true, closeTargetUi: page.value.reg },
-          query: { isSearch: true, closeTargetUi: page.value.reg },
-          refresh: false,
-        },
-      );
+      await pageMove(asPartMainPage, true);
     }
   }
 }
@@ -318,13 +319,7 @@ async function onClickSave(tempSaveYn) {
     isCreate.value = isEmpty(currentPdCd.value);
     await fetchData();
   } else {
-    // TODO 공통에서 'state: { stateParam: {}} 으로 감싸서 던지고 props에서 받으라는데... 받기 안됨..; TODO_DEL'
-    await router.close(0, true); // observer 강제 무력화 및 현재 탭 강제 닫기.
-    await router.push(
-      { path: asPartMainPage,
-        state: { stateParam: { test: 'teststring' } },
-        query: { isSearch: true, closeTargetUi: page.value.reg } },
-    );
+    await pageMove(asPartMainPage, true);
   }
 }
 

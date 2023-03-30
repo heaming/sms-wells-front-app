@@ -270,6 +270,15 @@ const exceptPrpGrpCd = ref('PART');
 watch(() => props.pdCd, (val) => { currentPdCd.value = val; });
 watch(() => props.tempSaveYn, (val) => { isTempSaveBtn.value = val !== 'Y'; });
 
+async function pageMove(targetPage, isForce) {
+  await router.close(0, isForce);
+  await router.push(
+    { path: targetPage,
+      state: { stateParam: { test: 'teststring' } },
+      query: { isSearch: true, closeTargetUi: page.value.reg } },
+  );
+}
+
 async function onClickReset() {
   notify('TBD Function..');
   await cmpStepRefs.value.forEach((item) => {
@@ -281,30 +290,7 @@ async function onClickRemove() {
   if (currentPdCd.value) {
     if (await confirm(t('MSG_ALT_WANT_DEL_WCC'))) {
       await dataService.delete(`${baseUrl}/${currentPdCd.value}`);
-      // 변경사항 체크로직 우회 및 현재 page 닫고 target 페이지로 이동.
-      obsMainRef.value.init();
-
-      // CASE -1 F5 keyPress 현상 발생 및 타겟화면 호출불가.
-      // await router.go(
-      //   { path: materialMainPage,
-      //     query: { isSearch: true, closeTargetUi: page.value.reg },
-      //   },
-      // );
-      // CASE -2 창 닫고 이동은 하지만...파라미터 전달 불가.
-      await router.close(
-        {
-          to: materialMainPage,
-          params: { isSearch: true, closeTargetUi: page.value.reg },
-          query: { isSearch: true, closeTargetUi: page.value.reg },
-          refresh: false,
-        },
-      );
-      // CASE -3 파라미터 전달하여 이동은 하지만, 현재 창 닫지못함. 또한 타겟 페이지의 grid 객체 null 에러남. (unMounted 타는 듯.)
-      // await router.push(
-      //   { path: materialMainPage,
-      //     query: { isSearch: true, closeTargetUi: page.value.reg },
-      //   },
-      // );
+      await pageMove(materialMainPage, true);
     }
   }
 }
@@ -396,12 +382,7 @@ async function onClickSave(tempSaveYn) {
     isCreate.value = isEmpty(currentPdCd.value);
     await fetchData();
   } else {
-    await router.close(0, true); // observer 강제 무력화 및 현재 탭 강제 닫기.
-    await router.push(
-      { path: materialMainPage,
-        state: { stateParam: { test: 'teststring' } },
-        query: { isSearch: true, closeTargetUi: page.value.reg } },
-    );
+    await pageMove(materialMainPage, true);
   }
 }
 
