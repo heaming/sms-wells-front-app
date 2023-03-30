@@ -128,7 +128,8 @@
     </kw-action-top>
     <kw-grid
       ref="gridMainRef"
-      :visible-rows="pageInfo.pageSize"
+      :page-size="pageInfo.pageSize"
+      :total-count="pageInfo.totalCount"
       @init="initGrid4"
     />
     <kw-pagination
