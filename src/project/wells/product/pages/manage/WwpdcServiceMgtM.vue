@@ -160,8 +160,12 @@ const codes = await codeUtil.getMultiCodes('PD_TEMP_SAVE_CD');
 async function onClickDelete() {
   if (await confirm(t('MSG_ALT_WANT_DEL_WCC'))) {
     await dataService.delete(`/sms/wells/product/services/${currentPdCd.value}`);
-    router.close();
-    router.push({ path: '/product/zwpdc-service-list', query: { searchYn: 'Y' } });
+    await router.close();
+    // TODO 화면이동 테스트 - 공통에 확인요청 - to 김민규 프로
+    await router.push({ path: '/product/zwpdc-service-list',
+      query: { searchYn: 'Y' }, /* 임시 아래 stateParam 될 때 삭제 */
+      state: { stateParam: { searchYn: 'Y' } },
+    });
   }
 }
 async function getSaveData() {
@@ -296,8 +300,12 @@ async function onClickSave(tempSaveYn) {
   }));
   if (tempSaveYn === 'N') {
     // 목록으로 이동
-    router.close();
-    router.push({ path: '/product/zwpdc-service-list', query: { searchYn: 'Y' } });
+    await router.close();
+    // TODO 화면이동 테스트 - 공통에 확인요청 - to 김민규 프로
+    await router.push({ path: '/product/zwpdc-service-list',
+      query: { searchYn: 'Y' }, /* 임시 아래 stateParam 될 때 삭제 */
+      state: { stateParam: { searchYn: 'Y' } },
+    });
     return;
   }
   if (isTempSaveBtn.value) {

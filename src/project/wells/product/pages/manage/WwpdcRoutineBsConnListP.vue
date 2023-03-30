@@ -148,7 +148,7 @@ const materialSelectItems = ref([
   { codeId: pdConst.PD_SEARCH_CODE, codeName: t('MSG_TXT_PROD_CD') },
 ]);
 const codes = await codeUtil.getMultiCodes('BFSVC_WK_DV_CD', 'MM_CD', 'VST_DV_CD');
-// codes.MM_CD = codes.MM_CD.map((item) => { item.codeId = Number(item.codeId); return item; });
+codes.MM_CD = codes.MM_CD.map((item) => { item.codeId = Number(item.codeId); return item; });
 
 async function onClickLoadRoutineBsFltPart() {
   const { svPdCd, pdctPdCd } = props;

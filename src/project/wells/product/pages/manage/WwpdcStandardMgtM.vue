@@ -213,7 +213,8 @@ codes.COD_YN.map((item) => {
 async function onClickDelete() {
   if (await confirm(t('MSG_ALT_WANT_DEL_WCC'))) {
     await dataService.delete(`/sms/wells/product/standards/${currentPdCd.value}`);
-    router.push({ path: '/product/zwpdc-sale-product-list', replace: true, query: { searchYn: 'Y' } });
+    await router.close();
+    await router.push({ path: '/product/zwpdc-sale-product-list', query: { searchYn: 'Y' } });
   }
 }
 
@@ -418,8 +419,8 @@ async function onClickSave(tempSaveYn) {
   }));
   if (tempSaveYn === 'N') {
     // 목록으로 이동
-    router.close();
-    router.push({ path: '/product/zwpdc-sale-product-list', replace: true, query: { searchYn: 'Y' } });
+    await router.close();
+    await router.push({ path: '/product/zwpdc-sale-product-list', query: { searchYn: 'Y' } });
     return;
   }
   if (isTempSaveBtn.value) {
@@ -427,7 +428,7 @@ async function onClickSave(tempSaveYn) {
     if (rtn.data?.data?.pdCd !== currentPdCd.value) {
       currentPdCd.value = rtn.data?.data?.pdCd;
       isCreate.value = isEmpty(currentPdCd.value);
-      router.push({ path: '/product/zwpdc-sale-product-list/wwpdc-standard-mgt', replace: true, query: { pdCd: currentPdCd.value } });
+      await router.push({ path: '/product/zwpdc-sale-product-list/wwpdc-standard-mgt', query: { pdCd: currentPdCd.value } });
     } else {
       await fetchProduct();
     }

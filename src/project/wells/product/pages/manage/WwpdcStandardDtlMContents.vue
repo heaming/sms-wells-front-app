@@ -167,7 +167,7 @@ async function onClickTab(selTab) {
 
 async function onClickUpdate() {
   const { pdCd } = props;
-  router.push({ path: '/product/zwpdc-sale-product-list/wwpdc-standard-mgt', query: { pdCd, tempSaveYn: 'N', reloadYn: 'Y' } });
+  await router.push({ path: '/product/zwpdc-sale-product-list/wwpdc-standard-mgt', query: { pdCd, tempSaveYn: 'N', reloadYn: 'Y' } });
 }
 
 async function initProps() {
