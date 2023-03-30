@@ -100,6 +100,7 @@ const { currentRoute } = useRouter();
 const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
   'FNT_DV_CD',
+  'SELL_TP_CD',
 );
 
 const grdMainRef = ref(getComponentType('KwGrid'));
@@ -159,8 +160,8 @@ const initGrid = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'aftnClsf', header: t('MSG_TXT_AUTO_FNT'), width: '200', styleName: 'text-center' },
     { fieldName: 'cntrSn', header: t('MSG_TXT_CNTR_DTL_NO'), width: '120', styleName: 'text-center' },
-    { fieldName: 'bilDt', header: t('MSG_TXT_FNT_DT'), width: '120', styleName: 'text-center' },
-    { fieldName: 'sellTpCd', header: t('MSG_TXT_TASK_TYPE'), width: '120', styleName: 'text-center' },
+    { fieldName: 'bilDt', header: t('MSG_TXT_FNT_DT'), width: '120', styleName: 'text-center', dataType: 'date', datetimeFormat: 'yyyy-MM-dd' },
+    { fieldName: 'sellTpCd', header: t('MSG_TXT_TASK_TYPE'), width: '120', styleName: 'text-center', options: codes.SELL_TP_CD },
     { fieldName: 'dpAmt', header: t('MSG_TXT_RCV_AMT'), width: '120', styleName: 'text-center' },
   ];
 
