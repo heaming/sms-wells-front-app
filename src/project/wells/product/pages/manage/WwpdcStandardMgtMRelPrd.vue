@@ -221,11 +221,11 @@ async function isModifiedProps() {
 }
 
 async function validateProps() {
-  const serviceRows = gridUtil.getAllRowValues(grdServiceRef.value.getView());
+  /* const serviceRows = gridUtil.getAllRowValues(grdServiceRef.value.getView());
   if (!serviceRows || !serviceRows.length) {
     notify(t('MSG_ALT_ADD_SOME_ITEM', [t('MSG_TXT_SERVICE')]));
     return false;
-  }
+  } */
   const materialRows = gridUtil.getAllRowValues(grdMaterialRef.value.getView());
   if (materialRows.length) {
     // 안분비율
