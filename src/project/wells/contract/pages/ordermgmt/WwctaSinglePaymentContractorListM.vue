@@ -32,7 +32,7 @@
           v-if="searchParams.searchGbn===1"
           v-model="searchParams.bryyMmdd"
           :label="$t('MSG_TXT_BRYY_MMDD_ENTRPNO_CBNO')"
-          :placeholder="t('19000101')"
+          :placeholder="t('19990101')"
           rules="required"
         />
         <kw-input
@@ -52,6 +52,7 @@
         <kw-select
           v-if="searchParams.searchGbn===1"
           v-model="searchParams.sexGbn"
+          :label="$t('MSG_TXT_GENDER')"
           :options="codes.SEX_CD"
           style="width: 50px;"
           rules="required"
@@ -176,9 +177,9 @@ const searchGbns = ref([
 
 const searchParams = ref({
   searchGbn: 1, // 조회구분 생년월일 / 사업자법인등록번호
-  bryyMmdd: '19800229', // 생년월일
+  bryyMmdd: '', // 생년월일
   bzrno: '', // 사업자법인등록번호
-  sexGbn: '', // 성별구분
+  sexGbn: 'M', // 성별구분
   cstKnm: '', // 계약자명
   cralLocaraTno: '', // 휴대전화번호
   cntrCstNo: '', // 고객번호
@@ -221,7 +222,6 @@ async function onClickExcelDownload() {
 }
 
 async function onClickSearchCntrCstNo() {
-  // notify(t('팝업 준비중 입니다.'));
   const cpProps = { cntrCstNo: searchParams.value.cntrCstNo };
 
   const { result } = await modal({
