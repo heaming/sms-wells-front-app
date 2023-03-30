@@ -392,8 +392,8 @@ const initGridMain = defineGrid((data, view) => {
       header: t('MSG_TXT_STRT_MM'),
       width: '60',
       styleName: 'text-center',
-      editor: { type: 'list' },
-      options: codes.MM_CD },
+      editor: { type: 'number', editFormat: '999', maxLength: 3 },
+    },
     // 반복횟수
     { fieldName: 'svTms',
       header: t('MSG_TXT_REPEAT_COUNT'),
