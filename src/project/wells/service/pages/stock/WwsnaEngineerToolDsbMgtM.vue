@@ -117,7 +117,9 @@
 
       <kw-grid
         ref="grdMainRef"
-        :visible-rows="pageInfo.pageSize"
+        name="grdMain"
+        :page-size="pageInfo.pageSize"
+        :total-count="pageInfo.totalCount"
         @init="initGrdMain"
       />
 
@@ -143,6 +145,7 @@ import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
 
 const { getAllEngineers } = useSnCode();
+const { currentRoute } = useRouter();
 const { getConfig } = useMeta();
 const { modal, notify, confirm } = useGlobal();
 const { t } = useI18n();
@@ -294,7 +297,7 @@ async function onClickExcelDownload() {
   const res = await dataService.get('/sms/wells/service/engineer-tools', { params: cachedParams });
 
   await gridUtil.exportView(view, {
-    fileName: '엔지니어 공구 지급 이력',
+    fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
     exportData: res.data,
   });
@@ -311,7 +314,6 @@ async function onClickRechDsbIzDl() {
   if (!await confirm(t('MSG_ALT_CHO_RECT_DSB_IZ_DL'))) { return; }
 
   await dataService.delete('/sms/wells/service/engineer-tools', { data: [...checkedRows] });
-  notify(t('MSG_ALT_DELETED'));
   await fetchData();
 }
 
