@@ -17,7 +17,7 @@
     size="xl"
   >
     <kw-search
-      :cols="2"
+      :cols="3"
       @search="onClickSearch"
     >
       <kw-search-row>
@@ -29,7 +29,7 @@
             :label="$t('MSG_TXT_CNTOR_NM')"
             icon="search"
             :on-click-icon="onClickSearchCntrCst"
-            rules="max:50"
+            maxlength="50"
           />
         </kw-search-item>
         <kw-search-item
@@ -38,20 +38,20 @@
           <kw-input
             v-model="searchParams.istCstKnm"
             :label="$t('MSG_TXT_IST_NM')"
-            rules="max:50"
+            maxlength="50"
+          />
+        </kw-search-item>
+        <kw-search-item
+          :label="$t('MSG_TXT_MPNO')"
+        >
+          <kw-input
+            v-model="searchParams.mpno"
+            mask="telephone"
+            :unmasked-value="false"
           />
         </kw-search-item>
       </kw-search-row>
       <kw-search-row>
-        <kw-search-item
-          :label="$t('MSG_TXT_MPNO')"
-        >
-          <zwcm-telephone-number
-            v-model:tel-no1="searchParams.cralLocaraTno"
-            v-model:tel-no2="searchParams.mexnoEncr"
-            v-model:tel-no3="searchParams.cralIdvTno"
-          />
-        </kw-search-item>
         <kw-search-item
           :label="$t('MSG_TXT_CST_NO')"
         >
@@ -60,7 +60,18 @@
             :label="$t('MSG_TXT_CST_NO')"
             icon="search"
             :on-click-icon="onClickSearchCntrCst"
+            maxlength="10"
             rules="max:10|numeric"
+          />
+        </kw-search-item>
+        <kw-search-item
+          :label="$t('MSG_TXT_CNTR_DTL_NO')"
+          colspan="2"
+        >
+          <zctz-contract-detail-number
+            v-model:cntr-no="searchParams.cntrNo"
+            v-model:cntr-sn="searchParams.cntrSn"
+            disable-popup="true"
           />
         </kw-search-item>
       </kw-search-row>
@@ -81,7 +92,7 @@
     <kw-grid
       ref="grdMainRef"
       name="grdMain"
-      :visible-rows="10"
+      :visible-rows="5"
       @init="initGrid"
     />
 
@@ -107,15 +118,13 @@
 // -------------------------------------------------------------------------------------------------
 import { codeUtil, defineGrid, getComponentType, gridUtil, useDataService, useGlobal, useMeta, useModal } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
-import ZwcmTelephoneNumber from '~common/components/ZwcmTelephoneNumber.vue';
+import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
 
 const dataService = useDataService();
-
 const { modal } = useGlobal();
 const { getConfig } = useMeta();
 const { t } = useI18n();
 const { ok, cancel: onClickClose } = useModal();
-
 const props = defineProps({
   cntrCstKnm: { type: String },
   istCstKnm: { type: String },
@@ -123,41 +132,48 @@ const props = defineProps({
   mexnoEncr: { type: String },
   cralIdvTno: { type: String },
   cntrCstNo: { type: String },
+  cntrNo: { type: String },
+  cntrSn: { type: Number },
 });
-// -------------------------------------------------------------------------------------------------
-// Function & Event
-// -------------------------------------------------------------------------------------------------
 const grdMainRef = ref(getComponentType('KwGrid'));
-
+const grdData = computed(() => grdMainRef.value?.getData());
 const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
 );
-
 let cachedParams;
 const searchParams = ref({
   cntrCstKnm: props.cntrCstKnm,
   istCstKnm: props.istCstKnm,
+  mpno: `${props.cralLocaraTno}${props.mexnoEncr}${props.cralIdvTno}`,
   cralLocaraTno: props.cralLocaraTno,
   mexnoEncr: props.mexnoEncr,
   cralIdvTno: props.cralIdvTno,
   cntrCstNo: props.cntrCstNo,
+  cntrNo: props.cntrNo,
+  cntrSn: props.cntrSn,
 });
-
 const pageInfo = ref({
   totalCount: 0,
   pageIndex: 1,
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
 });
+let initGridData = [];
 
+// -------------------------------------------------------------------------------------------------
+// Function & Event
+// -------------------------------------------------------------------------------------------------
 async function fetchData() {
   const res = await dataService.get('/sms/wells/contract/contracts/numbers/paging', { params: { ...cachedParams, ...pageInfo.value } });
-  const { list: details, pageInfo: pagingResult } = res.data;
+  const { list: cntrs, pageInfo: pagingResult } = res.data;
 
+  if (cntrs.length === 1) ok(cntrs[0]);
   pageInfo.value = pagingResult;
 
-  const view = grdMainRef.value.getView();
-  view.getDataSource().setRows(details);
-  view.resetCurrent();
+  if (grdData.value) {
+    grdData.value.setRows(cntrs);
+  } else {
+    initGridData = cntrs;
+  }
 }
 
 async function onClickSearch() {
@@ -168,6 +184,8 @@ async function onClickSearch() {
   }
 
   pageInfo.value.pageIndex = 1;
+  // XXX 전화번호 컴포넌트 변경으로 mpno사용, split 처리
+  [searchParams.value.cralLocaraTno, searchParams.value.mexnoEncr, searchParams.value.cralIdvTno] = searchParams.value.mpno.split('-');
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
 }
@@ -216,5 +234,11 @@ const initGrid = defineGrid((data, view) => {
       ok(gridUtil.getCurrentRowValue(view));
     }
   };
+  data.setRows(initGridData);
 });
+
+if (Object.values(searchParams.value).some((val) => !isEmpty(val))) {
+  cachedParams = cloneDeep(searchParams.value);
+  await fetchData();
+}
 </script>
