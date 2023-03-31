@@ -1,20 +1,13 @@
 <template>
   <mobile-layout>
-    <template #default>
-      <mobile-footer />
-      <mobile-left-drawer />
-      <mobile-stack-view />
-    </template>
-    <template #unauthenticated>
-      <mobile-fallback-login />
-    </template>
+    <mobile-stack-view />
   </mobile-layout>
 </template>
 
 <script setup>
 import {
   useSession,
-  MobileLayout, MobileFooter, MobileLeftDrawer, MobileStackView, MobileFallbackLogin,
+  MobileLayout, MobileStackView,
 } from 'kw-lib';
 
 const {
