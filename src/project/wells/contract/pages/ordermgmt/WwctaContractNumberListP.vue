@@ -166,7 +166,7 @@ async function fetchData() {
   const res = await dataService.get('/sms/wells/contract/contracts/numbers/paging', { params: { ...cachedParams, ...pageInfo.value } });
   const { list: cntrs, pageInfo: pagingResult } = res.data;
 
-  if (cntrs.length === 1) ok(cntrs[0]);
+  if (cntrs.length === 1 && pageInfo.value.pageIndex === 1) ok(cntrs[0]);
   pageInfo.value = pagingResult;
 
   if (grdData.value) {
@@ -191,10 +191,15 @@ async function onClickSearch() {
 }
 
 async function onClickSearchCntrCst() {
-  const res = await modal({ component: 'ZwcsaCustomerListP' });
+  const res = await modal({
+    component: 'ZwcsaCustomerListP',
+    componentProps: {
+      cstNo: searchParams.value.cntrCstNo,
+    },
+  });
   if (res.result && res.payload) {
-    searchParams.cntrCstKnm(res.payload.name);
-    searchParams.cntrCstNo(res.payload.cstNo);
+    searchParams.value.cntrCstKnm = res.payload.name;
+    searchParams.value.cntrCstNo = res.payload.cstNo;
   }
 }
 
@@ -214,9 +219,9 @@ const initGrid = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'cntrCnfmDtm', header: t('MSG_TXT_CNTR_DATE'), width: 130, styleName: 'text-center' },
+    { fieldName: 'cntrCnfmDtm', header: t('MSG_TXT_CNTR_DATE'), width: 130, styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_NO'), width: 150, styleName: 'text-center' },
-    { fieldName: 'cntrSn', header: t('MSG_TXT_CNTR_SN'), width: 100, styleName: 'text-center' },
+    { fieldName: 'cntrSn', header: t('MSG_TXT_CNTR_SN'), width: 100, styleName: 'text-right' },
     { fieldName: 'cntrCstKnm', header: t('MSG_TXT_CNTOR_NM'), width: 100, styleName: 'text-center' },
     { fieldName: 'istCstKnm', header: t('MSG_TXT_IST_NM'), width: 100, styleName: 'text-center' },
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: 300 },
