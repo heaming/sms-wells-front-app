@@ -150,24 +150,6 @@ const materialSelectItems = ref([
 const codes = await codeUtil.getMultiCodes('BFSVC_WK_DV_CD', 'MM_CD', 'VST_DV_CD');
 codes.MM_CD = codes.MM_CD.map((item) => { item.codeId = Number(item.codeId); return item; });
 
-async function onClickLoadRoutineBsFltPart() {
-  const { svPdCd, pdctPdCd } = props;
-  const view = grdMainRef.value.getView();
-  const rtn = await modal({
-    component: 'WwpdcRoutineBsLoadListP',
-    componentProps: {},
-  });
-  if (rtn.result) {
-    if (Array.isArray(rtn.payload) && rtn.payload.length > 0) {
-      const data = view.getDataSource();
-      const rows = rtn.payload.map((item) => merge(item, { svPdCd, pdctPdCd, dtlSn: 0 }));
-      data.insertRows(0, rows);
-      await gridUtil.focusCellInput(view, 0);
-    }
-  }
-  grdRowCount.value = getGridRowCount(view);
-}
-
 async function onClickLifeFiltMgt() {
   const view = grdMainRef.value.getView();
   if (!view.getCheckedRows().length) {
@@ -196,20 +178,20 @@ async function onClickLifeFiltMgt() {
 }
 
 async function getCheckAndNotExistRows(view, rows) {
-  const alreadyItems = getAlreadyItems(view, rows, 'pdCd');
+  const alreadyItems = getAlreadyItems(view, rows, 'partPdCd');
   if (rows.length === alreadyItems.length) {
     notify(t('MSG_ALT_ALREADY_RGST', [t('MSG_TXT_PRDT')]));
     return [];
   }
   if (alreadyItems.length > 0) {
     if (alreadyItems.length === 1) {
-      notify(t('MSG_ALT_ALREADY_RGST_CUT', [alreadyItems[0].pdCd]));
+      notify(t('MSG_ALT_ALREADY_RGST_CUT', [alreadyItems[0].partPdCd]));
     } else {
-      notify(t('MSG_ALT_ALREADY_RGST_CUT', [t('MSG_TXT_EXID_CNT', [alreadyItems[0].pdCd, alreadyItems.length - 1])]));
+      notify(t('MSG_ALT_ALREADY_RGST_CUT', [t('MSG_TXT_EXID_CNT', [alreadyItems[0].partPdCd, alreadyItems.length - 1])]));
     }
-    const alreadyPdCds = alreadyItems.reduce((rtns, item) => { rtns.push(item.pdCd); return rtns; }, []);
+    const alreadyPdCds = alreadyItems.reduce((rtns, item) => { rtns.push(item.partPdCd); return rtns; }, []);
     return rows.reduce((rtns, item) => {
-      if (!alreadyPdCds.includes(item.pdCd)) {
+      if (!alreadyPdCds.includes(item.partPdCd)) {
         rtns.push(item);
       }
       return rtns;
@@ -245,6 +227,27 @@ async function onClickMaterialSchPopup() {
       const okRows = await getCheckAndNotExistRows(view, [row]);
       if (okRows && okRows.length) {
         await gridUtil.insertRowAndFocus(view, 0, okRows[0]);
+      }
+    }
+  }
+  grdRowCount.value = getGridRowCount(view);
+}
+
+async function onClickLoadRoutineBsFltPart() {
+  const { svPdCd, pdctPdCd } = props;
+  const view = grdMainRef.value.getView();
+  const { result, payload } = await modal({
+    component: 'WwpdcRoutineBsLoadListP',
+    componentProps: {},
+  });
+  if (result) {
+    if (Array.isArray(payload) && payload.length > 0) {
+      const data = view.getDataSource();
+      const rows = payload.map((item) => merge(item, { svPdCd, pdctPdCd, dtlSn: null }));
+      const okRows = await getCheckAndNotExistRows(view, rows);
+      if (okRows && okRows.length) {
+        await data.insertRows(0, okRows);
+        await gridUtil.focusCellInput(view, 0);
       }
     }
   }
@@ -392,8 +395,8 @@ const initGridMain = defineGrid((data, view) => {
       header: t('MSG_TXT_STRT_MM'),
       width: '60',
       styleName: 'text-center',
-      editor: { type: 'list' },
-      options: codes.MM_CD },
+      editor: { type: 'number', editFormat: '999', maxLength: 3 },
+    },
     // 반복횟수
     { fieldName: 'svTms',
       header: t('MSG_TXT_REPEAT_COUNT'),

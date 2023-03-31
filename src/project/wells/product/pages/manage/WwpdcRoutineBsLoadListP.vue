@@ -22,15 +22,17 @@
           :label="$t('MSG_TXT_PD_SVC_SEL')"
         >
           <kw-select
-            v-model="searchParams.svcType"
-            :model-value="[]"
+            v-model="svcType"
             :options="serviceSelectItems"
             class="w98"
           />
           <kw-input
-            v-model="searchParams.svcValue"
+            v-model="svcValue"
             icon="search"
             clearable
+            @click-icon="onClickSearchServicePopup"
+            @clear="onClearService"
+            @keydown="onClearService"
           />
         </kw-search-item>
         <!-- 제품 선택 -->
@@ -38,15 +40,17 @@
           :label="$t('MSG_TXT_PD_SELECT')"
         >
           <kw-select
-            v-model="searchParams.prdtType"
-            :model-value="[]"
+            v-model="prdtType"
             :options="materialSelectItems"
             class="w98"
           />
           <kw-input
-            v-model="searchParams.prdtValue"
+            v-model="prdtValue"
             icon="search"
             clearable
+            @click-icon="onClickSearchMaterialPopup"
+            @clear="onClearMaterial"
+            @keydown="onClearMaterial"
           />
         </kw-search-item>
       </kw-search-row>
@@ -100,7 +104,7 @@ const props = defineProps({
   selectType: { type: String, default: pdConst.PD_SEARCH_MULTIPLE },
 });
 
-const { notify } = useGlobal();
+const { notify, modal } = useGlobal();
 const { t } = useI18n();
 const { ok } = useModal();
 const dataService = useDataService();
@@ -110,12 +114,15 @@ const { getConfig } = useMeta();
 // -------------------------------------------------------------------------------------------------
 const grdMainRef = ref(getComponentType('KwGrid'));
 
+const svcType = ref();
+const svcValue = ref();
+const prdtType = ref();
+const prdtValue = ref();
+
 let cachedParams;
 const searchParams = ref({
-  svcType: '',
-  svcValue: '',
-  prdtType: '',
-  prdtValue: '',
+  svPdCd: '',
+  pdctPdCd: '',
 });
 
 const pageInfo = ref({
@@ -150,23 +157,86 @@ async function onSelect() {
       notify(t('MSG_ALT_MDFC_SEL'));
       return;
     }
+
+    let duplicateFilterName = '';
+    checkedRows.forEach((row) => {
+      if (!duplicateFilterName && checkedRows.filter((item) => item.partPdCd === row.partPdCd).length > 1) {
+        duplicateFilterName = row.partPdNm;
+      }
+    });
+    if (duplicateFilterName) {
+      // {필터명}이(가) 중복됩니다.
+      notify(t('MSG_ALT_DUP_NCELL', [duplicateFilterName]));
+      return;
+    }
+
     ok(checkedRows);
   }
 }
 
 async function fetchData() {
+  console.log('WwpdcRoutineBsLoadListP - fetchData - cachedParams : ', cachedParams);
   const res = await dataService.get('/sms/wells/product/bs-works/standards/paging', { params: { ...cachedParams, ...pageInfo.value } });
   const { list: services, pageInfo: pagingResult } = res.data;
   pageInfo.value = pagingResult;
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(services);
-  view.resetCurrent();
   if (services?.length === 1 && props.selectType === pdConst.PD_SEARCH_SINGLE) {
     await onSelect();
   }
 }
 
+async function onClickSearchServicePopup() {
+  const searchPopupParams = {
+    searchType: svcType.value,
+    searchValue: svcValue.value,
+    selectType: pdConst.PD_SEARCH_SINGLE,
+  };
+  const rtn = await modal({
+    component: 'ZwpdcServiceListP',
+    componentProps: searchPopupParams,
+  });
+  searchParams.value.svPdCd = rtn.payload?.[0]?.pdCd;
+  if (svcType.value === pdConst.PD_SEARCH_CODE) {
+    svcValue.value = rtn.payload?.[0]?.pdCd;
+  } else {
+    svcValue.value = rtn.payload?.[0]?.pdNm;
+  }
+}
+
+async function onClearService() {
+  searchParams.value.svPdCd = '';
+}
+
+async function onClickSearchMaterialPopup() {
+  const searchPopupParams = {
+    searchType: prdtType.value,
+    searchValue: prdtValue.value,
+    selectType: pdConst.PD_SEARCH_SINGLE,
+  };
+  const rtn = await modal({
+    component: 'ZwpdcMaterialsSelectListP',
+    componentProps: searchPopupParams,
+  });
+  searchParams.value.pdctPdCd = rtn.payload.checkedRows?.[0]?.pdCd;
+  if (prdtType.value === pdConst.PD_SEARCH_CODE) {
+    prdtValue.value = rtn.payload.checkedRows?.[0]?.pdCd;
+  } else {
+    prdtValue.value = rtn.payload?.checkedRows?.[0]?.pdNm;
+  }
+}
+
+async function onClearMaterial() {
+  searchParams.value.pdctPdCd = '';
+}
+
 async function onClickSearch() {
+  if (isEmpty(searchParams.value.svPdCd) && svcValue.value) {
+    svcValue.value = '';
+  }
+  if (isEmpty(searchParams.value.pdctPdCd) && prdtValue.value) {
+    prdtValue.value = '';
+  }
   pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
@@ -214,6 +284,13 @@ const initGrdMain = defineGrid((data, view) => {
   view.setColumns(columns);
   view.checkBar.visible = true;
   view.rowIndicator.visible = false;
+
+  view.onCellClicked = (g, clickData) => {
+    if (clickData.cellType === 'data') {
+      // Data Row Click시 checkbar toggle 적용
+      view.checkRow(clickData.dataRow, !view.getCheckedItems().includes(clickData.dataRow));
+    }
+  };
 });
 </script>
 <style scoped></style>

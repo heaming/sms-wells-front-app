@@ -98,6 +98,12 @@
             @click="onClickSave('Y')"
           />
           <kw-btn
+            v-show="!isTempSaveBtn"
+            :label="$t('MSG_BTN_CANCEL')"
+            class="ml8"
+            @click="onClickCancel()"
+          />
+          <kw-btn
             v-show="currentStep.step < regSteps.length"
             :label="$t('MSG_BTN_NEXT')"
             class="ml8"
@@ -161,7 +167,6 @@ async function onClickDelete() {
   if (await confirm(t('MSG_ALT_WANT_DEL_WCC'))) {
     await dataService.delete(`/sms/wells/product/services/${currentPdCd.value}`);
     await router.close();
-    // TODO 화면이동 테스트 - 공통에 확인요청 - to 김민규 프로
     await router.push({ path: '/product/zwpdc-service-list',
       query: { searchYn: 'Y' }, /* 임시 아래 stateParam 될 때 삭제 */
       state: { stateParam: { searchYn: 'Y' } },
@@ -229,6 +234,10 @@ async function onClickStep() {
   const stepName = currentStep.value?.name;
   prevStepData.value = await getSaveData();
   currentStep.value = cloneDeep(regSteps.value.find((item) => item.name === stepName));
+}
+
+async function onClickCancel() {
+  await router.close();
 }
 
 async function fetchProduct() {
@@ -301,7 +310,6 @@ async function onClickSave(tempSaveYn) {
   if (tempSaveYn === 'N') {
     // 목록으로 이동
     await router.close();
-    // TODO 화면이동 테스트 - 공통에 확인요청 - to 김민규 프로
     await router.push({ path: '/product/zwpdc-service-list',
       query: { searchYn: 'Y' }, /* 임시 아래 stateParam 될 때 삭제 */
       state: { stateParam: { searchYn: 'Y' } },
