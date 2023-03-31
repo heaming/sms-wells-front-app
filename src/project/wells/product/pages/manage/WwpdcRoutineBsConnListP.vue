@@ -236,14 +236,14 @@ async function onClickMaterialSchPopup() {
 async function onClickLoadRoutineBsFltPart() {
   const { svPdCd, pdctPdCd } = props;
   const view = grdMainRef.value.getView();
-  const rtn = await modal({
+  const { result, payload } = await modal({
     component: 'WwpdcRoutineBsLoadListP',
     componentProps: {},
   });
-  if (rtn.result) {
-    if (Array.isArray(rtn.payload) && rtn.payload.length > 0) {
+  if (result) {
+    if (Array.isArray(payload) && payload.length > 0) {
       const data = view.getDataSource();
-      const rows = rtn.payload.map((item) => merge(item, { svPdCd, pdctPdCd, dtlSn: null }));
+      const rows = payload.map((item) => merge(item, { svPdCd, pdctPdCd, dtlSn: null }));
       const okRows = await getCheckAndNotExistRows(view, rows);
       if (okRows && okRows.length) {
         await data.insertRows(0, okRows);
