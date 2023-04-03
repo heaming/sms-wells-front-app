@@ -24,8 +24,8 @@
         <kw-search-item :label="$t('MSG_TXT_SEL_CHNL')">
           <kw-select
             v-model="searchParams.avlChnlId"
-            first-option="all"
             :options="usedChannelCds"
+            multiple
           />
         </kw-search-item>
       </kw-search-row>
@@ -83,7 +83,7 @@ const usedChannelCds = ref([]);
 const searchParams = ref({
   pdTpCd: pdConst.PD_TP_CD_STANDARD,
   pdCd: '',
-  avlChnlId: '',
+  avlChnlId: [],
 });
 
 async function resetData() {
@@ -118,9 +118,12 @@ async function initGridRows() {
       return row;
     });
 
+    // 정렬 1. 판매채널(가나다..), 2. 적용기간, 3. LV.1, 4. LV.2
+    // TODO
+
     const view = grdMainRef.value.getView();
-    if (searchParams.value.avlChnlId) {
-      view.getDataSource().setRows(rows?.filter((item) => item.sellChnlCd === searchParams.value.avlChnlId));
+    if (searchParams.value.avlChnlId.length) {
+      view.getDataSource().setRows(rows?.filter((item) => searchParams.value.avlChnlId.includes(item.sellChnlCd)));
     } else {
       view.getDataSource().setRows(rows);
     }

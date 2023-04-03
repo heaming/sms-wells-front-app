@@ -46,6 +46,7 @@
           :pd-tp-cd="pdConst.PD_TP_CD_SERVICE"
           :is-first-title="true"
           :prefix-title="$t('MSG_TXT_BAS_ATTR')"
+          is-auto-group-title
         />
       </kw-tab-panel>
       <kw-tab-panel :name="pdConst.W_SERVICE_STEP_FILTER.name">

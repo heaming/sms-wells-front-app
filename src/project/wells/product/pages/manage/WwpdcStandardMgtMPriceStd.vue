@@ -68,7 +68,7 @@ import { useGlobal, gridUtil, stringUtil, getComponentType } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import pdConst from '~sms-common/product/constants/pdConst';
 import ZwpdcPropMeta from '~sms-common/product/pages/manage/components/ZwpdcPropMeta.vue';
-import { setGridDateFromTo, getGridRowCount, setPdGridRows, getGridRowsToSavePdProps, getPropInfosToGridRows, getPdMetaToGridInfos, pdMergeBy } from '~sms-common/product/utils/pdUtil';
+import { setGridDateFromTo, getGridRowCount, setPdGridRows, getGridRowsToSavePdProps, getPropInfosToGridRows, getPdMetaToGridInfos, pdMergeBy, isDuplicateGridRows } from '~sms-common/product/utils/pdUtil';
 
 /* eslint-disable no-use-before-define */
 defineExpose({
@@ -134,12 +134,21 @@ async function isModifiedProps() {
 }
 
 async function validateProps() {
-  const rtn = gridUtil.validate(grdMainRef.value.getView(), {
+  const view = grdMainRef.value.getView();
+  const rtn = gridUtil.validate(view, {
     isChangedOnly: false,
   });
   if (rtn && !gridRowCount.value) {
-    await notify(t('MSG_ALT_ADD_SOME_ITEM', [t('MSG_TXT_STD_PRICE')]));
+    notify(t('MSG_ALT_ADD_SOME_ITEM', [t('MSG_TXT_STD_PRICE')]));
     return false;
+  }
+
+  // 중복체크
+  const outKeys = ['stdRowId', 'rowState', 'dataRow', 'verSn', 'pdPrcDtlId'];
+  if (isDuplicateGridRows(view, null, outKeys)) {
+    // 체크된 기준가 항목이 중복되었습니다.
+    notify(t('MSG_ALT_CHK_SOME_ITEM_DUP', [t('MSG_TXT_STD_PRICE')]));
+    return;
   }
   return rtn;
 }
@@ -288,6 +297,8 @@ async function initGrid(data, view) {
 
   view.sortingOptions.enabled = false;
   view.filteringOptions.enabled = false;
+
+  view.setFixedOptions({ colCount: 5 });
 
   view.onCellEdited = async (grid, itemIndex, row, fieldIndex) => {
     // 날짜값 조정
