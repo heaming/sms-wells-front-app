@@ -47,11 +47,13 @@
         </kw-search-item>
         <kw-search-item
           :label="t('MSG_TXT_DP_DT')"
+          required
         >
           <!-- label="입금일자" -->
           <kw-date-range-picker
             v-model:from="searchParams.dpStartDtm"
             v-model:to="searchParams.dpEndDtm"
+            rules="required"
             :dense="true"
           />
           <!-- rules="date_range_months:1" -->
