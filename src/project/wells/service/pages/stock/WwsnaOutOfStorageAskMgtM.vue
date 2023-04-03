@@ -105,6 +105,7 @@
 import { codeUtil, getComponentType, useGlobal, useDataService, useMeta, gridUtil } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
+import useSnCode from '~sms-wells/service/composables/useSnCode';
 
 const { t } = useI18n();
 const dataService = useDataService();
@@ -118,6 +119,9 @@ const { alert } = useGlobal();
 // -------------------------------------------------------------------------------------------------
 const grdMainRef = ref(getComponentType('KwGrid'));
 
+// 로그인한 사용자의 창고정보 조회
+const { getMonthWarehouse } = useSnCode();
+
 let cachedParams;
 const searchParams = ref({
   strOjWareNo: '', // 입고대상창고번호
@@ -130,6 +134,7 @@ const totalCount = ref(0);
 
 const wharehouseParams = ref({
   apyYm: dayjs().format('YYYYMM'),
+  userId: '36680',
 });
 
 const pageInfo = ref({
@@ -218,8 +223,10 @@ async function onClickRegistration() {
 
 const warehouses = ref();
 async function fetchDefaultData() {
-  const res = await dataService.get('/sms/wells/service/out-of-storage-asks/warehouses', { params: wharehouseParams.value });
-  warehouses.value = res.data;
+  const { apyYm } = wharehouseParams.value;
+  const { userId } = wharehouseParams.value;
+
+  warehouses.value = await getMonthWarehouse(userId, apyYm);
   searchParams.value.strOjWareNo = warehouses.value[0].codeId;
 }
 
