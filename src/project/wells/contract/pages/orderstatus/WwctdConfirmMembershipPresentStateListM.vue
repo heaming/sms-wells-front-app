@@ -166,12 +166,12 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'col15', header: t('MSG_TXT_PRTNR_CD'), width: '154' },
     { fieldName: 'col16', header: t('MSG_TXT_PTNR_NAME'), width: '154', styleName: 'text-center' },
     { fieldName: 'col17', header: t('MSG_TXT_CRLV'), width: '154', styleName: 'text-center' },
-    { fieldName: 'col18', header: t('MSG_TXT_RECPETN_DT'), width: '154', styleName: 'text-center' },
+    { fieldName: 'col18', header: t('MSG_TXT_RECPETN_DT'), width: '154', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'col19', header: t('MSG_TXT_DTRM_YN'), width: '154', styleName: 'text-center' },
-    { fieldName: 'col20', header: t('MSG_TXT_DTRM_DATE'), width: '154', styleName: 'text-center' },
-    { fieldName: 'col21', header: t('MSG_TXT_SUBS_DT'), width: '154', styleName: 'text-center' },
-    { fieldName: 'col22', header: t('MSG_TXT_RSGN_D'), width: '154', styleName: 'text-center' },
-    { fieldName: 'col23', header: t('MSG_TXT_CAN_D'), width: '154', styleName: 'text-center' },
+    { fieldName: 'col20', header: t('MSG_TXT_DTRM_DATE'), width: '154', styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'col21', header: t('MSG_TXT_SUBS_DT'), width: '154', styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'col22', header: t('MSG_TXT_RSGN_D'), width: '154', styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'col23', header: t('MSG_TXT_CAN_D'), width: '154', styleName: 'text-center', datetimeFormat: 'date' },
 
   ];
 
