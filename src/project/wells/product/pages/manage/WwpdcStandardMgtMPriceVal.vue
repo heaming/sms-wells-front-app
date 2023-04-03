@@ -262,8 +262,6 @@ async function initGridRows() {
       return row;
     });
     await setPdGridRows(view, rows, pdConst.PRC_FNL_ROW_ID, defaultFields.value, true);
-  } else {
-    view.getDataSource().clearRows();
   }
   gridRowCount.value = getGridRowCount(view);
 }
@@ -287,25 +285,28 @@ async function onClickAdd() {
     // console.log('rowValues : ', rowValues);
     // console.log('stdRows : ', stdRows);
     const data = view.getDataSource();
-    let insPosition = rowValues.findIndex((gridRow) => gridRow.sellChnlCd === addChannelId.value);
-    if (!insPosition || insPosition < 0) {
-      insPosition = 0;
-    }
+    const channelIndex = rowValues.findIndex((gridRow) => addChannelId.value === gridRow.sellChnlCd);
     if (stdRows && stdRows.length) {
-      stdRows.forEach((row) => {
+      stdRows.forEach((row, idx) => {
         row.sellChnlCd = addChannelId.value;
         row[pdConst.PRC_FNL_ROW_ID] = stringUtil.getUid('FNL');
         row.pdPrcDtlIdRefVp = row.pdPrcDtlId;
         row.sellTpCd = currentInitData.value[pdConst.TBL_PD_BAS]?.sellTpCd;
         // 정액정률구분 디폴트 - '정액'
         row.cndtFxamFxrtDvCd = '01';
-        // console.log('row[pdConst.PRC_FNL_ROW_ID] : ', row[pdConst.PRC_FNL_ROW_ID]);
-        if (!rowValues.find((gridRow) => addChannelId.value === gridRow.sellChnlCd
-        && row.pdPrcDtlId === gridRow.pdPrcDtlId)) {
-          data.insertRow(insPosition, row);
+        if (channelIndex < 0) {
+          // 동일 채널이 없으면 Insert
+          data.insertRow(0 + idx, row);
+        } else {
+          // 동일 채널이 존재하면, 동일 기준가격이 존재하는지 확인하고, 없으면 해당 위치에 Insert
+          const alradyRow = rowValues.findIndex((gridRow) => addChannelId.value === gridRow.sellChnlCd
+            && gridRow[pdConst.PRC_STD_ROW_ID] === row[pdConst.PRC_STD_ROW_ID]);
+          if (alradyRow < 0) {
+            data.insertRow(channelIndex + idx, row);
+          }
         }
       });
-      gridUtil.insertRowAndFocus(view, insPosition);
+      gridUtil.insertRowAndFocus(view, 0);
     }
   }
   gridRowCount.value = getGridRowCount(view);
@@ -388,7 +389,6 @@ async function initGrid(data, view) {
     }
     return item;
   });
-  fields.push({ fieldName: 'fixAmount', dataType: 'number' });
   data.setFields(fields);
   // 판매채널을 제일 앞으로
   view.setColumns(columns.sort((item) => (item.fieldName === 'sellChnlCd' ? -1 : 0)));

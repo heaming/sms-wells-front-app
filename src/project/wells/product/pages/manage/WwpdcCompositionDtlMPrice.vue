@@ -62,7 +62,6 @@ const currentCodes = ref({});
 const searchParams = ref({
   pdTpCd: pdConst.PD_TP_CD_COMPOSITION,
   pdCd: '',
-  avlChnlId: '',
 });
 
 async function resetData() {

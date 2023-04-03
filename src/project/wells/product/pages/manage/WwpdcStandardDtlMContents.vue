@@ -57,7 +57,6 @@
           :pd-tp-cd="pdConst.PD_TP_CD_STANDARD"
           :pd-grp-dv-cd="pdConst.PD_PRP_GRP_DV_CD_BASIC"
           :is-first-title="true"
-          :prefix-title="$t('MSG_TXT_BAS_ATTR')"
         />
       </kw-tab-panel>
       <kw-tab-panel :name="pdConst.STANDARD_STEP_REL_PROD.name">
@@ -76,7 +75,6 @@
           :pd-tp-cd="pdConst.PD_TP_CD_STANDARD"
           :pd-grp-dv-cd="pdConst.PD_PRP_GRP_DV_CD_MANUAL"
           :is-first-title="true"
-          :prefix-title="$t('MSG_TXT_MGT_ATTR')"
         />
       </kw-tab-panel>
       <kw-tab-panel :name="pdConst.STANDARD_STEP_PRICE.name">
