@@ -163,6 +163,31 @@ export default () => {
 
   /**
    * <pre>
+   * 월별창고 조회
+   * </pre>
+   *
+   * @see SearchStackInfo > GET_STCK_MGR_S01
+   * @see GET_STCK_MGR_S01.XML
+   * @example
+   *     import useSnCode from '~sms-wells/service/composables/useSnCode';
+   *      const { getMonthWarehouse } = useSnCode();
+   *      const userId = session.employeeIDNumber;
+   *      const apyYm = searchParams.value.apyYm;
+   *      const checkWarehouse = await getWarehouseCloseCheck(userId,apyYm);
+   *
+   *
+   */
+
+  async function getMonthWarehouse(wareMngtPrtnrNo, apyYm) {
+    const result = await dataService.get('/sms/wells/common/sms-wells-codes/month-stocks', { params: { wareMngtPrtnrNo, apyYm } });
+    return result.data.map((x) => ({
+      codeId: x.codeId,
+      codeName: x.codeName,
+    }));
+  }
+
+  /**
+   * <pre>
    * 서비스센터, 전체 엔지니어
    * </pre>
    *
@@ -241,5 +266,6 @@ export default () => {
     getAllEngineers,
     getWorkingEngineers,
     getWarehouseCloseCheck,
+    getMonthWarehouse,
   };
 };

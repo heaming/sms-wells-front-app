@@ -122,6 +122,12 @@
             @click="onClickSave('Y')"
           />
           <kw-btn
+            v-show="!isTempSaveBtn"
+            :label="$t('MSG_BTN_CANCEL')"
+            class="ml8"
+            @click="onClickCancel()"
+          />
+          <kw-btn
             v-show="currentStep.step < regSteps.length"
             :label="$t('MSG_BTN_NEXT')"
             class="ml8"
@@ -316,6 +322,10 @@ async function onClickStep() {
   // console.log('WwpdcCompositionMgtM - onClickStep : ', stepName);
   prevStepData.value = await getSaveData();
   currentStep.value = cloneDeep(regSteps.value.find((item) => item.name === stepName));
+}
+
+async function onClickCancel() {
+  await router.close();
 }
 
 async function fetchProduct() {

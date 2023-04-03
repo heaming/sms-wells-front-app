@@ -460,6 +460,7 @@ const initGrdMain = defineGrid((data, view) => {
   view.addLookupSource(lookupTreeSubCodes);
 
   const fields = [
+    { fieldName: 'cstSvAsnNo' },
     { fieldName: 'cntrNo' },
     { fieldName: 'rcgvpKnm' },
     { fieldName: 'sellTpNm' },
@@ -493,9 +494,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'afchEmpno' },
     { fieldName: 'afchFnm' },
     { fieldName: 'afchBlgCdOrigin' },
-    { fieldName: 'afchBlgNmOrigin' },
     { fieldName: 'afchEmpnoOrigin' },
-    { fieldName: 'afchFnmOrigin' },
     { fieldName: 'tfDt' },
     { fieldName: 'tfRsonNm' },
     { fieldName: 'tfBlgNm' },
