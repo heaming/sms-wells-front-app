@@ -80,12 +80,14 @@
           <kw-input
             v-model.trim="searchParams.sapItemCdFrom"
             mask="#####-######"
+            :rules="sapItemCdFromValidation"
             clearable
           />
           ~
           <kw-input
             v-model.trim="searchParams.sapItemCdTo"
             mask="#####-######"
+            :rules="sapItemCdToValidation"
             clearable
           />
         </kw-search-item>
@@ -252,31 +254,6 @@ async function fetchData() {
 }
 
 async function onClickSearch() {
-  const from = searchParams.value.sapItemCdFrom;
-  const to = searchParams.value.sapItemCdTo;
-
-  if (isEmpty(from) && isEmpty(to)) {
-    console.log('pass');
-  } else {
-    if (
-      (!isEmpty(from) && isEmpty(to))
-      || (isEmpty(from) && !isEmpty(to))) {
-      // 품목코드의 검색범위를 모두 입력해주세요.
-      notify(t('MSG_ALT_KEY_IN_ALL_RANGE'));
-      return false;
-    }
-    if (!isEmpty(from) && from.length !== 11) {
-      // 품목코드 첫번째 조건의 자리수를 확인해주세요. ######-######
-      notify(t('MSG_ALT_CHECK_DIGIT_1ST_COND'));
-      return false;
-    }
-    if (!isEmpty(to) && to.length !== 11) {
-      // 품목코드 두번째 조건의 자리수를 확인해주세요. ######-######
-      notify(t('MSG_ALT_CHECK_DIGIT_1ST_COND'));
-      return false;
-    }
-  }
-
   pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
@@ -355,6 +332,28 @@ async function oprenRegDetailPopup(pdCd, tempSaveYn) {
   const targetUrl = tempSaveYn === 'Y' ? page.value.reg : page.value.detail;
   await router.push({ path: targetUrl, query: { pdCd, tempSaveYn } });
 }
+
+const sapItemCdFromValidation = async (val) => {
+  const errors = [];
+  if (!(isEmpty(val) || val.length === 11)) {
+    errors.push('MSG_ALT_CHECK_DIGIT_1ST_COND');
+  }
+  if (!isEmpty(val) && isEmpty(searchParams.value.sapItemCdTo)) {
+    errors.push(t('MSG_ALT_KEY_IN_ALL_RANGE'));
+  }
+  return errors[0] || true;
+};
+
+const sapItemCdToValidation = async (val) => {
+  const errors = [];
+  if (!(isEmpty(val) || val.length === 11)) {
+    errors.push('MSG_ALT_CHECK_DIGIT_2ND_COND');
+  }
+  if (!isEmpty(val) && isEmpty(searchParams.value.sapItemCdFrom)) {
+    errors.push(t('MSG_ALT_KEY_IN_ALL_RANGE'));
+  }
+  return errors[0] || true;
+};
 
 watch(() => props.state, async (state) => {
   console.log('props state', state);
