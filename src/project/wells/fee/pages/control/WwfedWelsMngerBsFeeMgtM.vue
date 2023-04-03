@@ -58,34 +58,34 @@
           <kw-form-item
             :label="t('MSG_TXT_THM')+t('MSG_TXT_BRANCH')"
           >
-            <p>{{ info1.col1 }}</p>
+            <p>{{ info1.thmBranch }}</p>
           </kw-form-item>
           <kw-form-item
             :label="t('MSG_TXT_TASK')+t('MSG_TXT_RGS')"
           >
-            <p>{{ info1.col2 }}</p>
+            <p>{{ stringUtil.getDateFormat(info1.taskRgs,'YYYY-MM-DD') }}</p>
           </kw-form-item>
           <kw-form-item
             :label="t('MSG_TXT_STMNT')+t('MSG_TXT_NMN')"
           >
-            <p>{{ info1.col3 }}</p>
+            <p>{{ info1.stmntNmn }}</p>
           </kw-form-item>
         </kw-form-row>
         <kw-form-row>
           <kw-form-item
             :label="t('MSG_TXT_THM')+t('MSG_TXT_CRLV')"
           >
-            <p>{{ info1.col4 }}</p>
+            <p>{{ info1.thmCrlv }}</p>
           </kw-form-item>
           <kw-form-item
             :label="'WM'+t('MSG_TXT_OPNG')"
           >
-            <p>{{ info1.col5 }}</p>
+            <p>{{ stringUtil.getDateFormat(info1.wmOpng,'YYYY-MM-DD') }}</p>
           </kw-form-item>
           <kw-form-item
             :label="'WM'+t('MSG_TXT_CLTN')"
           >
-            <p>{{ info1.col6 }}</p>
+            <p>{{ stringUtil.getDateFormat(info1.wmCltn,'YYYY-MM-DD') }}</p>
           </kw-form-item>
         </kw-form-row>
       </kw-form>
@@ -106,19 +106,19 @@
             <li class="grid-fix-footer__item">
               <span class="grid-fix-footer__label">{{ t('MSG_TXT_VISIT_RECORD') }}</span>
               <p class="grid-fix-footer__data">
-                {{ stringUtil.getNumberWithComma(info2.col1) }}
+                {{ stringUtil.getNumberWithComma(info2.visitRecord) }}
               </p>
             </li>
             <li class="grid-fix-footer__item">
               <span class="grid-fix-footer__label">{{ t('MSG_TXT_PROCS_RT') }}(%)</span>
               <p class="grid-fix-footer__data">
-                {{ info2.col2 }}
+                {{ info2.procsRt }}
               </p>
             </li>
             <li class="grid-fix-footer__item">
               <span class="grid-fix-footer__label">{{ t('MSG_TXT_PD_ACC_CNT') }}</span>
               <p class="grid-fix-footer__data">
-                {{ stringUtil.getNumberWithComma(info2.col3) }}
+                {{ stringUtil.getNumberWithComma(info2.pdAccCnt) }}
               </p>
             </li>
           </ul>
@@ -126,19 +126,19 @@
             <li class="grid-fix-footer__item">
               <span class="grid-fix-footer__label">W1{{ t('MSG_TXT_COUNT') }}</span>
               <p class="grid-fix-footer__data">
-                {{ stringUtil.getNumberWithComma(info2.col4) }}
+                {{ stringUtil.getNumberWithComma(info2.w1Cnt) }}
               </p>
             </li>
             <li class="grid-fix-footer__item">
               <span class="grid-fix-footer__label">W2{{ t('MSG_TXT_COUNT') }}</span>
               <p class="grid-fix-footer__data">
-                {{ stringUtil.getNumberWithComma(info2.col5) }}
+                {{ stringUtil.getNumberWithComma(info2.w2Cnt) }}
               </p>
             </li>
             <li class="grid-fix-footer__item">
               <span class="grid-fix-footer__label">{{ t('MSG_TXT_ENVR')+t('MSG_TXT_COUNT') }}</span>
               <p class="grid-fix-footer__data">
-                {{ stringUtil.getNumberWithComma(info2.col6) }}
+                {{ stringUtil.getNumberWithComma(info2.envrCnt) }}
               </p>
             </li>
           </ul>
@@ -165,19 +165,19 @@
             <li class="grid-fix-footer__item">
               <span class="grid-fix-footer__label">{{ t('MSG_TXT_DSB')+t('MSG_TXT_SUM') }}</span>
               <p class="grid-fix-footer__data">
-                {{ stringUtil.getNumberWithComma(info3.col1) }}
+                {{ stringUtil.getNumberWithComma(info3.dsbSum) }}
               </p>
             </li>
             <li class="grid-fix-footer__item">
               <span class="grid-fix-footer__label">{{ t('MSG_TXT_DDTN')+t('MSG_TXT_SUM') }}</span>
               <p class="grid-fix-footer__data">
-                10,000
+                {{ stringUtil.getNumberWithComma(info3.ddtnSum) }}
               </p>
             </li>
             <li class="grid-fix-footer__item">
               <span class="grid-fix-footer__label">{{ t('MSG_TXT_DSB')+t('MSG_TXT_TAM') }}</span>
               <p class="grid-fix-footer__data">
-                {{ stringUtil.getNumberWithComma(info3.col2) }}
+                {{ stringUtil.getNumberWithComma(info3.dsbTam) }}
               </p>
             </li>
           </ul>
@@ -191,13 +191,12 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService, getComponentType, useGlobal, stringUtil } from 'kw-lib';
+import { useDataService, getComponentType, stringUtil, defineGrid, gridUtil, notify } from 'kw-lib';
 import dayjs from 'dayjs';
 import { cloneDeep } from 'lodash-es';
 
 const { t } = useI18n();
 const dataService = useDataService();
-const { alert } = useGlobal();
 
 const now = dayjs();
 const grd1MainRef = ref(getComponentType('KwGrid'));
@@ -211,41 +210,46 @@ const searchParams = ref({
 });
 
 const info1 = ref({
-  col1: '',
-  col2: '',
-  col3: '',
-  col4: '',
-  col5: '',
-  col6: '',
+  thmBranch: '',
+  taskRgs: '',
+  stmntNmn: '',
+  thmCrlv: '',
+  wmOpng: '',
+  wmCltn: '',
 });
 
 const info2 = ref({
-  col1: '',
-  col2: '',
-  col3: '',
-  col4: '',
-  col5: '',
-  col6: '',
+  visitRecord: '',
+  procsRt: '',
+  pdAccCnt: '',
+  w1Cnt: '',
+  w2Cnt: '',
+  envrCnt: '',
 });
 
 const info3 = ref({
-  col1: '',
-  col2: '',
+  ddtnSum: '',
+  dsbSum: '',
+  dsbTam: '',
 });
 
 let cachedParams;
 
-const saveData = ref({
-  /*
-  perfYm: props.perfYm,
-  perfDv: props.perfDv,
-  perfDvTxt: props.perfDvTxt,
-  */
-});
-
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
+
+async function setEditable(resData) {
+  const view = grd2MainRef.value.getView();
+  const dataSource = view.getDataSource();
+  const col1 = view.columnByName('col1');
+  for (let i = 0; i < resData.length; i += 1) {
+    const editable = dataSource.getValue([i], 'col5');
+    if (editable === 'N') {
+      view.setColumnProperty(col1, 'visible', false);
+    }
+  }
+}
 
 async function fetchData(type) {
   const response = await dataService.get(`/sms/wells/fee/wm-bs-fees/${type}`, { params: cachedParams });
@@ -261,6 +265,7 @@ async function fetchData(type) {
     const controlView = grd2MainRef.value.getView();
     controlView.getDataSource().setRows(resData);
     controlView.resetCurrent();
+    await setEditable(resData);
   } else if (type === 'visit-aggregate') {
     info2.value = resData;
   } else if (type === 'fee-aggregate') {
@@ -276,42 +281,44 @@ async function onClickSearch() {
   await fetchData('visit-aggregate');
   await fetchData('fee-aggregate');
 }
+/*
+ *  Event - 저장 버튼 클릭 (조정 리스트 저장)
+ */
 
 async function onClickSave() {
-  const response = await dataService.post('/sms/wells/fee/wm-bs-fees', saveData);
-
-  if (response.data.processCount > 0) {
-    await alert(t('MSG_ALT_SVE_DATA'));
-  } else {
-    await alert(t('MSG_ALT_SVE_ERR'));
-  }
-  // ok(response.data);
+  const view = grd2MainRef.value.getView();
+  const changedRows = gridUtil.getChangedRowValues(view);
+  if (await gridUtil.alertIfIsNotModified(view)) { return; }
+  if (!await gridUtil.validate(view)) { return; }
+  await dataService.post('/sms/wells/fee/wm-bs-fees', changedRows);
+  notify(t('MSG_ALT_SAVE_DATA'));
+  await onClickSearch();
 }
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
-function initGrd1Main(data, view) {
+const initGrd1Main = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'col1' },
-    { fieldName: 'col2', dataType: 'number' },
-    { fieldName: 'col3', dataType: 'number' },
-    { fieldName: 'col4', dataType: 'number' },
-    { fieldName: 'col5', dataType: 'number' },
-    { fieldName: 'col6', dataType: 'number' },
-    { fieldName: 'col7', dataType: 'number' },
-    { fieldName: 'col8', dataType: 'number' },
+    { fieldName: 'cdNm' },
+    { fieldName: 'cnt1', dataType: 'number' },
+    { fieldName: 'cnt2', dataType: 'number' },
+    { fieldName: 'amt1', dataType: 'number' },
+    { fieldName: 'cnt3', dataType: 'number' },
+    { fieldName: 'cnt4', dataType: 'number' },
+    { fieldName: 'amt2', dataType: 'number' },
+    { fieldName: 'sumAmt', dataType: 'number' },
   ];
 
   const columns = [
-    { fieldName: 'col1', header: t('MSG_TXT_PRDT'), width: '140', footer: { text: '합계', styleName: 'text-center' } },
-    { fieldName: 'col2', header: t('MSG_TXT_MGT'), width: '90', styleName: 'text-right', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
-    { fieldName: 'col3', header: t('MSG_TXT_VST'), width: '90', styleName: 'text-right', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
-    { fieldName: 'col4', header: t('MSG_TXT_AMT'), width: '90', styleName: 'text-right', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
-    { fieldName: 'col5', header: t('MSG_TXT_MGT'), width: '90', styleName: 'text-right', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
-    { fieldName: 'col6', header: t('MSG_TXT_VST'), width: '90', styleName: 'text-right', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
-    { fieldName: 'col7', header: t('MSG_TXT_AMT'), width: '90', styleName: 'text-right', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
-    { fieldName: 'col8', header: t('MSG_TXT_SUM'), width: '114', styleName: 'text-right', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
+    { fieldName: 'cdNm', header: t('MSG_TXT_PRDT'), width: '140', footer: { text: '합계', styleName: 'text-center' } },
+    { fieldName: 'cnt1', header: t('MSG_TXT_MGT'), width: '90', styleName: 'text-right', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
+    { fieldName: 'cnt2', header: t('MSG_TXT_VST'), width: '90', styleName: 'text-right', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
+    { fieldName: 'amt1', header: t('MSG_TXT_AMT'), width: '90', styleName: 'text-right', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
+    { fieldName: 'cnt3', header: t('MSG_TXT_MGT'), width: '90', styleName: 'text-right', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
+    { fieldName: 'cnt4', header: t('MSG_TXT_VST'), width: '90', styleName: 'text-right', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
+    { fieldName: 'amt2', header: t('MSG_TXT_AMT'), width: '90', styleName: 'text-right', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
+    { fieldName: 'sumAmt', header: t('MSG_TXT_SUM'), width: '114', styleName: 'text-right', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
   ];
 
   data.setFields(fields);
@@ -323,43 +330,42 @@ function initGrd1Main(data, view) {
 
   // multi row header setting
   view.setColumnLayout([
-    'col1', // single
+    'cdNm', // single
     {
       header: t('MSG_TXT_GE'), // colspan title
       direction: 'horizontal', // merge type
-      items: ['col2', 'col3', 'col4'],
+      items: ['cnt1', 'cnt2', 'amt1'],
     },
     {
       header: t('MSG_TXT_FXAM'),
       direction: 'horizontal',
-      items: ['col5', 'col6', 'col7'],
+      items: ['cnt3', 'cnt4', 'amt2'],
     },
-    'col8',
+    'sumAmt',
   ]);
-}
+});
 
-function initGrd2Main(data, view) {
+const initGrd2Main = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'col1' },
-    { fieldName: 'col2' },
-    { fieldName: 'col3' },
-    { fieldName: 'col4' },
-    { fieldName: 'col5' },
-    { fieldName: 'col6' },
-    { fieldName: 'col7' },
-    { fieldName: 'col8' },
-    { fieldName: 'col9' },
-    { fieldName: 'col10' },
-    { fieldName: 'col11' },
-    { fieldName: 'col12' },
-    { fieldName: 'col13' },
+    { fieldName: 'feeNm' },
+    { fieldName: 'feeCalcAmt', dataType: 'number' },
+    { fieldName: 'feeCtrCnfmAmt', dataType: 'number' },
+    { fieldName: 'feeCtrRsonCn' },
+    { fieldName: 'prtnrNo' },
+    { fieldName: 'baseYm' },
+    { fieldName: 'ogTpCd' },
+    { fieldName: 'feeCd' },
   ];
 
   const columns = [
-    { fieldName: 'col1', header: t('MSG_TXT_GE'), width: '90', styleName: 'text-left' },
-    { fieldName: 'col2', header: t('MSG_TXT_AMT'), width: '92', styleName: 'text-right' },
-    { fieldName: 'col3', header: t('MSG_TXT_ADD') + t('MSG_TXT_DSB'), width: '115', styleName: 'text-center' },
-    { fieldName: 'col4', header: t('MSG_TXT_FEE_DDTN'), width: '115', styleName: 'text-center' },
+    { fieldName: 'feeNm', header: t('MSG_TXT_GE'), width: '90', styleName: 'text-left', editable: false },
+    { fieldName: 'feeCalcAmt', header: t('MSG_TXT_AMT'), width: '92', styleName: 'text-right', editable: false, dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'feeCtrCnfmAmt', header: t('MSG_TXT_AMT_AFT_ADJ'), width: '115', styleName: 'text-center', editor: { type: 'number', textAlignment: 'far', editFormat: '#,##0', maxIntegerLength: 8 } },
+    { fieldName: 'feeCtrRsonCn', header: t('MSG_TXT_RSN_FR_ADJ'), width: '115', styleName: 'text-center' },
+    { fieldName: 'prtnrNo', header: t('MSG_TXT_ETC'), width: '115', styleName: 'text-center', visible: false },
+    { fieldName: 'baseYm', header: t('MSG_TXT_ETC'), width: '115', styleName: 'text-center', visible: false },
+    { fieldName: 'ogTpCd', header: t('MSG_TXT_ETC'), width: '115', styleName: 'text-center', visible: false },
+    { fieldName: 'feeCd', header: t('MSG_TXT_ETC'), width: '115', styleName: 'text-center', visible: false },
   ];
 
   data.setFields(fields);
@@ -367,7 +373,8 @@ function initGrd2Main(data, view) {
 
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
-}
+  view.editOptions.editable = true;
+});
 
 </script>
 
