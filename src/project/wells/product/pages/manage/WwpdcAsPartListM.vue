@@ -58,9 +58,35 @@
           />
         </kw-search-item>
         <!-- AS자재번호 -->
+        <!--
         <kw-search-item :label="$t('TXT_MSG_AS_MAT_CD')">
           <kw-input
             v-model.trim="searchParams.asMatCd"
+          />
+        </kw-search-item>
+         -->
+        <!-- 자재코드 -->
+        <kw-search-item :label="$t('MSG_TXT_MATI_CD')">
+          <kw-input
+            v-model.trim="searchParams.sapMatCd"
+            clearable
+            :readonly="true"
+            icon="search"
+            @click-icon="onClickSapMaterial()"
+          />
+        </kw-search-item>
+        <!-- 품목코드 -->
+        <kw-search-item :label="$t('TXT_MSG_AS_ITM_CD')">
+          <kw-input
+            v-model.trim="searchParams.sapItemCdFrom"
+            mask="#####-######"
+            clearable
+          />
+          ~
+          <kw-input
+            v-model.trim="searchParams.sapItemCdTo"
+            mask="#####-######"
+            clearable
           />
         </kw-search-item>
       </kw-search-row>
@@ -146,7 +172,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { useDataService, useMeta, gridUtil, codeUtil, useGlobal, getComponentType, defineGrid, http } from 'kw-lib';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, isEmpty } from 'lodash-es';
 import ZwpdProductClassificationSelect from '~sms-common/product/pages/standard/components/ZwpdProductClassificationSelect.vue';
 import pdConst from '~sms-common/product/constants/pdConst';
 
@@ -178,33 +204,10 @@ const page = ref({
   detail: '/product/wwpdc-as-part-list/wwpdc-as-part-dtl', // 교재/자재 상세보기 UI
 });
 
-// onMounted(async () => {
-//   const { test } = props;
-//   console.log('test', test);
-// });
-
 const props = defineProps({
   test: { type: String, default: '' },
   state: { type: String, default: '' },
 });
-
-watch(() => props.state, async (state) => {
-  console.log('props state', state);
-}, { immediate: true });
-
-watch(() => props.test, async (newValue) => {
-  console.log('props test', newValue);
-}, { immediate: true });
-
-watch(() => route.state, async (state) => {
-  console.log('route state', state);
-}, { immediate: true });
-
-watch(() => route.query, async (query) => {
-  console.log('route query', query);
-  // eslint-disable-next-line no-use-before-define
-  if (query.isSearch) onClickSearch();
-}, { immediate: true });
 
 let cachedParams;
 const searchParams = ref({
@@ -215,7 +218,19 @@ const searchParams = ref({
   prdtCateMid: '',
   prdtCateLow: '',
   asMatCd: '',
+  sapMatCd: '',
+  sapItemCdFrom: '', // 품목코드
+  sapItemCdTo: '', // 품목코드
 });
+
+async function onClickSapMaterial() {
+  const { result, payload } = await modal({
+    component: 'ZwpdcMaterialsCodeListP',
+    componentProps: { searchKeyword: null, searchCond: null },
+  });
+
+  if (result) searchParams.value.sapMatCd = payload.sapMatCd;
+}
 
 async function onClickProduct() {
   const { result, payload } = await modal({
@@ -237,6 +252,31 @@ async function fetchData() {
 }
 
 async function onClickSearch() {
+  const from = searchParams.value.sapItemCdFrom;
+  const to = searchParams.value.sapItemCdTo;
+
+  if (isEmpty(from) && isEmpty(to)) {
+    console.log('pass');
+  } else {
+    if (
+      (!isEmpty(from) && isEmpty(to))
+      || (isEmpty(from) && !isEmpty(to))) {
+      // 품목코드의 검색범위를 모두 입력해주세요.
+      notify(t('MSG_ALT_KEY_IN_ALL_RANGE'));
+      return false;
+    }
+    if (!isEmpty(from) && from.length !== 11) {
+      // 품목코드 첫번째 조건의 자리수를 확인해주세요. ######-######
+      notify(t('MSG_ALT_CHECK_DIGIT_1ST_COND'));
+      return false;
+    }
+    if (!isEmpty(to) && to.length !== 11) {
+      // 품목코드 두번째 조건의 자리수를 확인해주세요. ######-######
+      notify(t('MSG_ALT_CHECK_DIGIT_1ST_COND'));
+      return false;
+    }
+  }
+
   pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
@@ -316,23 +356,36 @@ async function oprenRegDetailPopup(pdCd, tempSaveYn) {
   await router.push({ path: targetUrl, query: { pdCd, tempSaveYn } });
 }
 
+watch(() => props.state, async (state) => {
+  console.log('props state', state);
+}, { immediate: true });
+
+watch(() => props.test, async (newValue) => {
+  console.log('props test', newValue);
+}, { immediate: true });
+
+watch(() => route.state, async (state) => {
+  console.log('route state', state);
+}, { immediate: true });
+
+watch(() => route.query, async (query) => {
+  console.log('route query', query);
+  // eslint-disable-next-line no-use-before-define
+  if (query.isSearch) onClickSearch();
+}, { immediate: true });
+
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
 const initGrdMain = defineGrid((data, view) => {
-  codes.PD_TEMP_SAVE_YN = [
-    { codeId: 'Y', codeName: t('MSG_BTN_TMP_SAVE') },
-    { codeId: 'N', codeName: t('MSG_TXT_SAVE') },
-  ];
   const columns = [
-    { fieldName: 'tempSaveYn', header: t('MSG_TXT_STT'), width: '90', styleName: 'text-center', options: codes.PD_TEMP_SAVE_YN }, /* 상태 */
+    { fieldName: 'tempSaveYn', header: t('MSG_TXT_STT'), width: '90', styleName: 'text-center', options: codes.PD_TEMP_SAVE_CD }, /* 상태 */
     { fieldName: 'pdTpCd', header: t('MSG_TXT_DIV'), width: '90', styleName: 'text-center', options: codes.PD_TP_CD }, /* 구분 */
     { fieldName: 'pdClsfNm', header: t('MSG_TXT_CLSF'), width: '176' }, /* 분류 */
     { fieldName: 'pdNm', header: t('MSG_TIT_MATERIAL_NM'), width: '195' }, /* 교재/자재명 */
-    { fieldName: 'pdCd', header: t('MSG_TXT_PROD_CD'), width: '100' }, /* 제품코드 */
-    { fieldName: 'asMatCd', header: t('TXT_MSG_AS_MAT_CD'), width: '195' }, /* AS자재번호 */
-    { fieldName: 'asItmCd', header: t('TXT_MSG_AS_ITM_CD'), width: '195' }, /* 품목코드 */
-    { fieldName: 'asMatEngNm', header: t('TXT_MSG_AS_MAT_ENG_NM'), width: '195' }, /* 품목명(영문) */
+    { fieldName: 'pdCd', header: t('MSG_TXT_PROD_CD'), width: '140' }, /* 제품코드 */
+    { fieldName: 'asItmCd', header: t('TXT_MSG_AS_ITM_CD'), width: '130' }, /* 품목코드 */
+    { fieldName: 'asMatCd', header: t('TXT_MSG_AS_MAT_CD'), width: '130' }, /* AS자재번호 */
     // 사용자 관련 공통 컬럼
     { fieldName: 'fstRgstDtm', header: t('MSG_TXT_RGST_DTM'), width: '110', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date' }, /* 등록일 */
     { fieldName: 'fstRgstUsrNm', header: t('MSG_TXT_RGST_USR'), width: '80', styleName: 'text-center', editable: false },
