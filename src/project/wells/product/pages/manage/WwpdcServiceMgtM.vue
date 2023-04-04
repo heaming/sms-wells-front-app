@@ -45,6 +45,7 @@
               v-model:pd-cd="currentPdCd"
               v-model:init-data="prevStepData"
               :pd-tp-cd="pdConst.PD_TP_CD_SERVICE"
+              is-auto-group-title
             />
           </kw-step-panel>
           <kw-step-panel :name="pdConst.W_SERVICE_STEP_FILTER.name">

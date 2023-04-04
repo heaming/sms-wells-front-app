@@ -71,7 +71,10 @@
         <kw-action-top>
           <template #left>
             <kw-paging-info
+              v-model:page-index="pageInfo.pageIndex"
+              v-model:page-size="pageInfo.pageSize"
               :total-count="pageInfo.totalCount"
+              :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
               @change="onClickSearch"
             />
           </template>
@@ -131,7 +134,7 @@
         <kw-grid
           ref="grdMainRef"
           name="approvalBaseGrid"
-          :visible-rows="pageInfo.pageSize"
+          :visible-rows="pageInfo.pageSize - 1"
           @init="initGrid"
         />
       </div>
@@ -210,6 +213,8 @@ async function fetchData() {
   dataSource.checkRowStates(false);
   dataSource.addRows(pages);
   dataSource.checkRowStates(true);
+
+  view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
 async function fetchAprCodes() {

@@ -182,6 +182,8 @@ async function fetchData() {
   dataSource.checkRowStates(false);
   dataSource.addRows(pages);
   dataSource.checkRowStates(true);
+
+  view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
 async function onClickSearch() {

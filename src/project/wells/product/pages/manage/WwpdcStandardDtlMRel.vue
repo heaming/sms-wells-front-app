@@ -29,8 +29,8 @@
     ignore-on-modified
     @init="initServiceGrid"
   />
-  <!-- 동시구매가능 기준상품 -->
-  <h3>{{ $t('MSG_TXT_PD_PUR_SIM') }}</h3>
+  <!-- 기준상품 -->
+  <h3>{{ $t('MSG_TXT_STND_PRDT') }}</h3>
   <kw-grid
     ref="grdStandardRef"
     :visible-rows="3"

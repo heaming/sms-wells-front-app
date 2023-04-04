@@ -63,13 +63,13 @@
             v-model:from="searchParams.strHopDtStr"
             v-model:to="searchParams.strHopDtEnd"
             rules="date_range_months:1"
+            @change="fetchDefaultData"
           />
           <!-- //입고희망일자 -->
           <!-- 출고확정-->
           <kw-field
             v-model="searchParams.ostrCnfm"
             class="w80"
-            v-bind="checkItem"
           >
             <template #default="{ field }">
               <kw-checkbox
@@ -87,7 +87,7 @@
           :label="$t('MSG_TXT_OSTR_AK_WARE')"
         >
           <kw-select
-            v-model="searchParams.ostrAkTpCd"
+            v-model="searchParams.wareDvCd"
             :options="codes.WARE_DV_CD"
           />
         </kw-search-item>
@@ -151,7 +151,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, useDataService, getComponentType, useMeta, defineGrid, useGlobal } from 'kw-lib';
+import { codeUtil, useDataService, getComponentType, useMeta, defineGrid, useGlobal, gridUtil } from 'kw-lib';
 import dayjs from 'dayjs';
 import { cloneDeep } from 'lodash-es';
 // import { cloneDeep, isEmpty } from 'lodash-es';
@@ -191,7 +191,13 @@ const searchParams = ref({
 let cachedParams;
 
 async function fetchDefaultData() {
-  const res = await dataService.get(wareURI, { params: {} });
+  const defaultParams = ref({
+    apyYm: dayjs(searchParams.value.strHopDtStr).format('YYYYMM'),
+  });
+  const res = await dataService.get(wareURI, { params: defaultParams.value });
+  if (res.data.length === 0) {
+    return false;
+  }
   codes.value.WARE_HOUSE = res.data.map((v) => ({ codeId: v.wareNo, codeName: v.wareNm }));
   searchParams.value.ostrOjWareNo = codes.value.WARE_HOUSE[0].codeId;
 }
@@ -220,6 +226,16 @@ async function onClickSearch() {
   await fetchData();
 }
 
+async function onClickExcelDownload() {
+  const view = grdMainRef.value.getView();
+  const res = await dataService.get(`${baseURI}/excel-download`, { params: cachedParams });
+  await gridUtil.exportView(view, {
+    fileName: 'NomalOutOfStorageMgt',
+    timePostfix: true,
+    exportData: res.data,
+  });
+}
+
 onMounted(async () => {
   await fetchDefaultData();
 });
@@ -238,16 +254,7 @@ const initGrdMain = defineGrid((data, view) => {
       header: t('MSG_TXT_OSTR_AK_TP'),
       width: '150',
       styleName: 'text-center',
-      options: codes.OSTR_AK_TP_CD,
-      // optionValue:'codeId',
-      // optionLabel:'codeName'
-      // displayCallback: (g, i, v) => {
-      //   const val = g.getValue(i.itemIndex, 'ostrAkTpCd');
-      //   if (v !== null) {
-      //     return codes.value.OSTR_AK_TP_CD.find((obj) => obj.codeId === v).codeName;
-      //   }
-      //   return isEmpty(v) ? val : v;
-      // },
+      options: codes.value.OSTR_AK_TP_CD,
     },
     { fieldName: 'ostrAkNo',
       header: t('MSG_TXT_OSTR_AK_MNGT_NO'),
@@ -264,14 +271,7 @@ const initGrdMain = defineGrid((data, view) => {
       header: t('MSG_TXT_OVIV_FOM'),
       width: '100',
       styleName: 'text-center',
-      options: codes.OVIV_FOM_CD,
-      // displayCallback: (grid, index, value) => {
-      //   const ovivTpCd = grid.getValue(index.itemIndex, 'ovivTpCd');
-      //   if (value !== null) {
-      //     return codes.value.OVIV_FOM_CD.find((obj) => obj.codeId === value).codeName;
-      //   }
-      //   return isEmpty(value) ? ovivTpCd : value;
-      // },
+      options: codes.value.OVIV_FOM_CD,
     },
     { fieldName: 'rectOstrDt', header: t('MSG_TXT_RECT_OSTR_DT'), width: '150', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'ostrDtrnYn', header: t('MSG_TXT_OSTR_DTRM_YN'), width: '150', styleName: 'text-center' },
@@ -281,10 +281,13 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-center',
       renderer: {
         type: 'button',
-
       },
       displayCallback: () => t('MSG_TXT_NOM_OSTR_RGST'),
     },
+    { fieldName: 'ostrOjWareNo', header: '', width: '0', styleName: 'text-left', visible: false },
+    { fieldName: 'strOjWareNo', header: '', width: '0', styleName: 'text-left', visible: false },
+    { fieldName: 'strOjWareNm', header: '', width: '0', styleName: 'text-left', visible: false },
+    { fieldName: 'itmPdCd', header: '', width: '0', styleName: 'text-left', visible: false },
   ];
 
   const fields = columns.map((v) => ({ fieldName: v.fieldName }));
@@ -296,7 +299,6 @@ const initGrdMain = defineGrid((data, view) => {
   view.rowIndicator.visible = true;
   view.onCellItemClicked = async (g, { column, dataRow }, v) => {
     console.log(g, column, dataRow, v);
-    debugger;
     if (column === 'rmkCn') {
       const { result, payload } = await modal({
         component: 'WwsnaNormalOutOfStorageRgstListP',
@@ -304,7 +306,6 @@ const initGrdMain = defineGrid((data, view) => {
 
       if (result) {
         console.log(payload[0]);
-        debugger;
       }
     }
   };
