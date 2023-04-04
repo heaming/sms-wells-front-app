@@ -106,7 +106,7 @@
               <kw-paging-info
                 :total-count="100"
               />
-              <span class="ml8">{{ $t('MSG_TXT_UNIT_WON_MCN') }}</span>
+              <span class="ml8">{{ t('MSG_TXT_UNIT_WON_MCN') }}</span>
             </template>
             <kw-btn
               icon="download_on"
