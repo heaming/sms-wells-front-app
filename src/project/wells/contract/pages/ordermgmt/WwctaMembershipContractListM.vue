@@ -1,34 +1,75 @@
+<!-- eslint-disable max-len -->
 <!----
 ****************************************************************************************************
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : SSU
-2. 프로그램 ID : WwctaMembershipContractNoListM - 주문상세조회/관리(멤버십-주문번호 조회)
+2. 프로그램 ID : WwctaMembershipContractNoListM - 주문상세조회/관리(멤버십-일반조회)
 3. 작성자 : jihoon.kim
-4. 작성일 : 2023.03.24
+4. 작성일 : 2023.03.29
 ****************************************************************************************************
 * 프로그램 설명
 ****************************************************************************************************
-- 계약번호기준으로 멤버십 주문상세내역을 조회한다.
+- [W-SS-U0067] - 멤버십에 대한 주문 상세내역 (to-be 에서는 통합 주문 상세 내역으로 구현)
 ****************************************************************************************************
 --->
 <template>
-  <kw-search
-    :cols="4"
-    @search="onClickSearch"
-  >
+  <kw-search @search="onClickSearch">
+    <kw-search-row>
+      <!-- 접수일 -->
+      <kw-search-item
+        :label="$t('MSG_TXT_RCP_D')"
+        required
+      >
+        <kw-select
+          v-model="searchParams.rcpDateDv"
+          :options="[{ codeId: '1', codeName: t('MSG_TXT_RCPDT') },
+                     { codeId: '2', codeName: t('MSG_TXT_SCHD_DT') },
+                     { codeId: '3', codeName: t('MSG_TXT_WDWAL_DT') },
+                     { codeId: '4', codeName: t('MSG_TXT_J_DT') },
+                     { codeId: '5', codeName: t('MSG_TXT_MAND_EXP_DT_FRISU') },
+                     { codeId: '6', codeName: t('MSG_TXT_MAND_EXP_DT_RECAP') }]"
+          rules="required"
+        />
+        <kw-date-range-picker
+          v-model:from="searchParams.strtDt"
+          v-model:to="searchParams.endDt"
+          rules="date_range_required|date_range_months:3"
+        />
+      </kw-search-item>
+      <!-- 일자선택 -->
+      <kw-search-item
+        :label="$t('MSG_TXT_DT_SELT')"
+        :colspan="2"
+      >
+        <kw-select
+          v-model="searchParams.dateSeltDv"
+          :options="[{ codeId: '1', codeName: t('MSG_TXT_DUEDT') },
+                     { codeId: '2', codeName: t('MSG_TXT_WTDR_DT') },
+                     { codeId: '3', codeName: t('MSG_TXT_SUBS_DT') },
+                     { codeId: '4', codeName: t('MSG_TXT_MAND_EXP_DT_FRISU') },
+                     { codeId: '5', codeName: t('MSG_TXT_MAND_EXP_DT_RECAP') },
+                     { codeId: '6', codeName: t('MSG_TXT_DTRM_DATE') },
+                     { codeId: '7', codeName: t('MSG_TXT_DT_OF_SALE') },
+                     { codeId: '8', codeName: t('MSG_TXT_CAN_D') }]"
+          class="w150"
+        />
+        <kw-date-range-picker
+          v-model:from="searchParams.choStrtDt"
+          v-model:to="searchParams.choEndDt"
+          rules="date_range_months:1"
+        />
+      </kw-search-item>
+    </kw-search-row>
     <kw-search-row>
       <!-- 계약번호 -->
       <kw-search-item
         :label="$t('MSG_TXT_CNTR_NO')"
-        required
-        :colspan="2"
       >
         <kw-input
           v-model="searchParams.cntrNo"
           icon="search"
           clearable
-          rules="required"
           :label="$t('MSG_TXT_CNTR_NO')"
           :maxlength="12"
           @keydown="onKeyDownSelectCntrNo"
@@ -36,19 +77,107 @@
           @clear="onClearSelectCntrNo"
         />
       </kw-search-item>
-      <!-- 계약일련번호 -->
+      <!-- 계약구분 -->
       <kw-search-item
-        :label="$t('MSG_TXT_CNTR_SN')"
+        :label="$t('MSG_TXT_CNTR_DV')"
         :colspan="2"
       >
-        <kw-input
-          v-model="searchParams.cntrSn"
-          rules="numeric"
-          :label="$t('MSG_TXT_CNTR_SN')"
-          :type="number"
-          :maxlength="5"
+        <kw-option-group
+          v-model="searchParams.sellTpCd"
+          type="radio"
+          :options="codes.SELL_TP_CD.filter((v) => v.codeId === '1' || v.codeId === '2' || v.codeId === '3')"
+          first-option="all"
+          first-option-value=""
         />
       </kw-search-item>
+    </kw-search-row>
+    <kw-search-row>
+      <!-- 멤버십구분 -->
+      <kw-form-item
+        :label="$t('MSG_TXT_MSH_DV')"
+      >
+        <kw-select
+          v-model="searchParams.cntrwTpCd"
+          :options="codes.CNTRW_TP_CD.filter((v) => v.codeId === '1' || v.codeId === '2' || v.codeId === '5')"
+          first-option="all"
+          first-option-value=""
+        />
+      </kw-form-item>
+      <!-- 판매구분 -->
+      <kw-form-item
+        :label="$t('MSG_TXT_SLS_CAT')"
+      >
+        <kw-select
+          v-model="searchParams.sellInflwChnlDtlCd"
+          :options="codes.SELL_CHNL_DTL_CD.filter((v) => v.codeId === '1010' || v.codeId === '1080' || v.codeId === '3010' || v.codeId === '1030' || v.codeId === '9040')"
+          first-option="all"
+          first-option-value=""
+        />
+      </kw-form-item>
+      <!-- 상품분류 -->
+      <kw-form-item
+        :label="$t('MSG_TXT_PRDT_CATE')"
+      >
+        <zwpd-product-classification-select
+          ref="productSelRef"
+          v-model:product1-level="searchParams.hcsfVal"
+          v-model:product2-level="searchParams.hcsfMcsfVal"
+          v-model:pd-tp-cd="S"
+          search-lvl="2"
+        />
+      </kw-form-item>
+    </kw-search-row>
+    <kw-search-row>
+      <!-- 상품코드 -->
+      <kw-search-item
+        :label="$t('MSG_TXT_PRDT_CODE')"
+      >
+        <kw-input
+          v-model="searchParams.pdCd"
+          clearable
+          icon="search"
+          dense
+          @click-icon="onClickSearchPdCdPopup()"
+        />
+      </kw-search-item>
+      <!-- 상품명 -->
+      <kw-search-item
+        :label="$t('MSG_TXT_PRDT_NM')"
+      >
+        <kw-input
+          v-model="searchParams.pdNm"
+          clearable
+          icon="search"
+          @click-icon="onClickSearchPdNmPopup()"
+        />
+      </kw-search-item>
+      <!-- 파트너코드 -->
+      <kw-search-item
+        :label="$t('MSG_TXT_PRTNR_CD')"
+      >
+        <kw-input
+          v-model="searchParams.sellPrtnrNo"
+          clearable
+          icon="search"
+          @click-icon="onClickSearchPrtnrNoPopup()"
+        />
+      </kw-search-item>
+    </kw-search-row>
+    <kw-search-row>
+      <!-- 미가입자만 조회 -->
+      <kw-form-item :label="$t('MSG_TXT_UNSSCB_INQR')">
+        <kw-field
+          :model-value="[]"
+        >
+          <template #default="{ field }">
+            <kw-checkbox
+              v-model="checkType"
+              v-bind="field"
+              val=""
+            />
+          </template>
+        </kw-field>
+      </kw-form-item>
     </kw-search-row>
   </kw-search>
   <div class="result-area">
@@ -95,10 +224,10 @@
       />
     </kw-action-top>
     <kw-grid
-      ref="grdMembershipContractNoList"
-      name="grdMembershipContractNoList"
+      ref="grdMembershipContractList"
+      name="grdMembershipContractList"
       :visible-rows="pageInfo.pageSize"
-      @init="initGridMembershipContractNoList"
+      @init="initGridMembershipContractList"
     />
     <kw-pagination
       v-model:page-index="pageInfo.pageIndex"
@@ -113,7 +242,9 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { codeUtil, defineGrid, getComponentType, useDataService, gridUtil, useGlobal } from 'kw-lib';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, isEmpty, uniqBy } from 'lodash-es';
+import ZwpdProductClassificationSelect from '~sms-common/product/pages/standard/components/ZwpdProductClassificationSelect.vue';
+import dayjs from 'dayjs';
 
 const dataService = useDataService();
 const { t } = useI18n();
@@ -122,13 +253,31 @@ const { alert, modal } = useGlobal();
 const { currentRoute } = useRouter();
 
 let cachedParams;
+const now = dayjs();
 const searchParams = ref({
+  rcpDateDv: '1',
+  strtDt: now.startOf('month').format('YYYYMMDD'), // 시작일자
+  endDt: now.format('YYYYMMDD'), // 종료일자
+  dateSeltDv: '',
+  choStrtDt: '',
+  choEndDt: '',
   cntrNo: '',
-  cntrSn: '',
+  sellTpCd: '',
+  cntrwTpCd: '',
+  sellInflwChnlDtlCd: '',
+  hcsfVal: '',
+  hcsfMcsfVal: '',
+  pdCd: '',
+  pdNm: '',
+  sellPrtnrNo: '',
+  cntrRcpFshDtYn: '',
 });
 
 const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
+  'SELL_CHNL_DTL_CD', // 판매유입채널상세코드
+  'SELL_TP_CD', // 판매유형코드
+  'CNTRW_TP_CD', // 멤버십구분
 );
 
 const pageInfo = ref({
@@ -141,9 +290,16 @@ const pageInfo = ref({
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
-const grdMembershipContractNoList = ref(getComponentType('KwGrid'));
+const grdMembershipContractList = ref(getComponentType('KwGrid'));
+
+const highClsfIdOptions = ref([]); // 상품분류(대분류)
+const middleClsfIdOptions = ref([]); // 상품분류(중분류)
+const checkType = ref([undefined]); // 미가입자만 조회
 
 async function fetchData() {
+  // console.log(`checkType : ${checkType.value[0]}`);
+  searchParams.value.cntrRcpFshDtYn = checkType.value[0] === undefined ? 'N' : 'Y';
+
   // changing api & cacheparams according to search classification
   let res = '';
   cachedParams = cloneDeep(searchParams.value);
@@ -158,11 +314,54 @@ async function fetchData() {
   pageInfo.value = pagingResult;
   console.log(res.data);
 
-  const view = grdMembershipContractNoList.value.getView();
+  const view = grdMembershipContractList.value.getView();
   view.getDataSource().setRows(pages);
   // pageInfo.value.totalCount = view.getItemCount();
   view.resetCurrent();
   view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
+}
+
+// 상품코드 검색 팝업 호출
+async function onClickSearchPdCdPopup() {
+  const { result, payload } = await modal({
+    component: 'ZwpdcStandardListP', // ZwpdcStandardProductListP 에서 변경
+    componentProps: {
+      pdRelTpCd: 'N',
+      pdTpCd: '',
+    },
+  });
+  if (result) {
+    searchParams.value.pdCd = payload.checkedRows?.[0].pdCd;
+    searchParams.value.pdNm = payload.checkedRows?.[0].pdNm;
+  }
+}
+
+// 상품명 검색 팝업 호출
+async function onClickSearchPdNmPopup() {
+  const { result, payload } = await modal({
+    component: 'ZwpdcStandardListP', // ZwpdcStandardProductListP 에서 변경
+    componentProps: {
+      pdRelTpCd: 'N',
+      pdTpCd: '',
+    },
+  });
+  if (result) {
+    searchParams.value.pdCd = payload.checkedRows?.[0].pdCd;
+    searchParams.value.pdNm = payload.checkedRows?.[0].pdNm;
+  }
+}
+
+// 파트너 검색 팝업 호출
+async function onClickSearchPrtnrNoPopup() {
+  const { result, payload } = await modal({
+    component: 'ZwogzPartnerListP',
+    componentProps: {
+      prtnrNo: searchParams.value.sellPrtnrNo,
+    },
+  });
+  if (result) {
+    searchParams.value.sellPrtnrNo = payload.prtnrNo;
+  }
 }
 
 async function onClickSearch() {
@@ -170,7 +369,7 @@ async function onClickSearch() {
 }
 
 async function onClickExcelDownload() {
-  const view = grdMembershipContractNoList.value.getView();
+  const view = grdMembershipContractList.value.getView();
   const res = await dataService.get('/sms/wells/contract/contracts/order-detail-mngt/membership/excel-download', { params: cachedParams });
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
@@ -179,13 +378,30 @@ async function onClickExcelDownload() {
   });
 }
 
+async function fetchDefaultData() {
+  // const responseHclsfIdOptions = await dataService.get('sms/wells/contract/product/high-classes');
+  const responseMclsfIdOptions = await dataService.get('sms/wells/contract/product/middle-classes');
+
+  const initHclsfIdOptions = []; // 상품분류(대분류)
+  const initMclsfIdOptions = []; // 상품분류(중분류)
+
+  responseMclsfIdOptions.data.forEach((v) => {
+    if ((!isEmpty(v)) && (!isEmpty(v.pdClsfId))) {
+      initMclsfIdOptions.push({ codeId: v.pdClsfId, codeName: v.pdClsfNm });
+    }
+  });
+
+  highClsfIdOptions.value = uniqBy(initHclsfIdOptions, 'codeId');
+  middleClsfIdOptions.value = uniqBy(initMclsfIdOptions, 'codeId');
+}
+
 async function onClickConfirmManagement() {
   await alert('멤버십 확정관리 팝업연계 예정(WwctaMembershipConfirmMgtP)');
 }
 
 // 홈케어관리 팝업조회
 async function onClickHomeCareManagement() {
-  const view = grdMembershipContractNoList.value.getView();
+  const view = grdMembershipContractList.value.getView();
   const row = view.getCheckedItems();
   const paramCntrNo = gridUtil.getCellValue(view, row, 'cntrNo'); // 계약번호
   const paramCntrSn = gridUtil.getCellValue(view, row, 'cntrSn'); // 계약일련번호
@@ -214,13 +430,13 @@ async function onClickSelectCntrNo() {
 }
 
 onMounted(async () => {
-  // await fetchData();
+  await fetchDefaultData();
 });
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
-const initGridMembershipContractNoList = defineGrid((data, view) => {
+const initGridMembershipContractList = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'cntrNo' }, // 계약번호
     { fieldName: 'ordrInfoView' }, // 주문정보 보기
@@ -243,8 +459,8 @@ const initGridMembershipContractNoList = defineGrid((data, view) => {
     { fieldName: 'cntrDtlStatNm' }, // 멤버십상태
     { fieldName: 'dscApyTpCdNm' }, // 회비자료구분
     { fieldName: 'feeAckmtCt' }, // 인정건수
-    { fieldName: 'ackmtPerfAmt', dataType: 'number' }, // 인정금액
-    { fieldName: 'cntrCtrAmt', dataType: 'number' }, // 할인금액
+    { fieldName: 'ackmtPerfAmt' }, // 인정금액
+    { fieldName: 'cntrCtrAmt' }, // 할인금액
     { fieldName: 'stlmTpNm' }, // 납입구분
     { fieldName: 'prmPtrmMcn' }, // 선납구분
     { fieldName: 'adjDvNm' }, // 정상구분
@@ -344,9 +560,9 @@ const initGridMembershipContractNoList = defineGrid((data, view) => {
     { fieldName: 'cntrCnfmDt', header: t('MSG_TXT_DTRM_DATE'), width: '136', styleName: 'text-center', datetimeFormat: 'date' }, // 확정일
     { fieldName: 'cntrTempSaveDt', header: t('MSG_TXT_SUBS_DT'), width: '136', styleName: 'text-center', datetimeFormat: 'date' }, // 가입일
     { fieldName: 'hcrDuedt', header: t('MSG_TXT_HCR_DUEDT'), width: '136', styleName: 'text-center', datetimeFormat: 'date' }, // 홈케어예정일
-    { fieldName: 'istDt', header: t('MSG_TXT_INST_DT'), width: '136', styleName: 'text-center', datetimeFormat: 'date' }, // 설치일
-    { fieldName: 'dutyExnDtFrisu', header: t('MSG_TXT_MAND_EXP_DT_FRISU'), width: '136', styleName: 'text-center', datetimeFormat: 'date' }, // 의무만료일(무상)
-    { fieldName: 'dutyExnDtRecap', header: t('MSG_TXT_MAND_EXP_DT_RECAP'), width: '136', styleName: 'text-center', datetimeFormat: 'date' }, // 의무만료일자(유상)
+    { fieldName: 'istDt', header: t('MSG_TXT_INST_DT'), width: '136', styleName: 'text-center' }, // 설치일
+    { fieldName: 'dutyExnDtFrisu', header: t('MSG_TXT_MAND_EXP_DT_FRISU'), width: '136', styleName: 'text-center' }, // 의무만료일(무상)
+    { fieldName: 'dutyExnDtRecap', header: t('MSG_TXT_MAND_EXP_DT_RECAP'), width: '136', styleName: 'text-center' }, // 의무만료일자(유상)
     { fieldName: 'cntrPdEnddt', header: t('MSG_TXT_WTDR_DT'), width: '136', styleName: 'text-center', datetimeFormat: 'date' }, // 탈퇴일
     { fieldName: 'canDt', header: t('MSG_TXT_CAN_D'), width: '136', styleName: 'text-center', datetimeFormat: 'date' }, // 취소일
     { fieldName: 'vstDuedt', header: t('MSG_TXT_VISIT_DATE'), width: '136', styleName: 'text-center', datetimeFormat: 'date' }, // 방문일
