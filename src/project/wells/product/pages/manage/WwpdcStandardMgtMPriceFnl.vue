@@ -39,7 +39,7 @@
 import { gridUtil, getComponentType, useGlobal } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import pdConst from '~sms-common/product/constants/pdConst';
-import { getGridRowCount, setPdGridRows, pdMergeBy, getGridRowsToSavePdProps, getPropInfosToGridRows, getPdMetaToGridInfos } from '~sms-common/product/utils/pdUtil';
+import { resetVisibleGridColumns, getGridRowCount, setPdGridRows, pdMergeBy, getGridRowsToSavePdProps, getPropInfosToGridRows, getPdMetaToGridInfos } from '~sms-common/product/utils/pdUtil';
 
 /* eslint-disable no-use-before-define */
 defineExpose({
@@ -63,6 +63,7 @@ const grdMainRef = ref(getComponentType('KwGrid'));
 
 const prcd = pdConst.TBL_PD_PRC_DTL;
 const prcfd = pdConst.TBL_PD_PRC_FNL_DTL;
+const prumd = pdConst.TBL_PD_DSC_PRUM_DTL;
 const defaultFields = ref([pdConst.PRC_STD_ROW_ID, pdConst.PRC_FNL_ROW_ID,
   pdConst.PRC_DETAIL_ID, pdConst.PRC_DETAIL_FNL_ID]);
 const currentPdCd = ref();
@@ -119,6 +120,25 @@ async function validateProps() {
   return rtn;
 }
 
+async function setFinalVal(view, grid, itemIndex) {
+  const prcBefAdj = Number(grid.getValue(itemIndex, 'prcBefAdj') ?? 0);
+  let ctrVal = Number(grid.getValue(itemIndex, 'ctrVal') ?? 0);
+  let fnlVal = 0;
+  // 조정 전 가격 ( 01: 정액, 02: 정률)
+  if (ctrVal > prcBefAdj) {
+    /* {0}값이 {1}보다 큽니다. */
+    notify(t('MSG_ALT_A_IS_GREAT_THEN_B', [
+      `${grid.columnByName('ctrVal').header.text}(${ctrVal})`,
+      `${grid.columnByName('prcBefAdj').header.text}(${prcBefAdj})`]));
+    ctrVal = 0;
+    view.setValue(itemIndex, 'ctrVal', ctrVal);
+  }
+  // 조정 전 가격 = 조정전가격 - 조정가
+  fnlVal = prcBefAdj + ctrVal;
+  view.setValue(itemIndex, 'fnlVal', fnlVal);
+  view.resetCurrent();
+}
+
 async function onClickRemove() {
   const view = grdMainRef.value.getView();
   const deletedRowValues = await gridUtil.confirmDeleteCheckedRows(view);
@@ -139,6 +159,23 @@ async function initGridRows() {
   if (isEmpty(view)) {
     return;
   }
+
+  // 선택변수
+  const checkedVals = currentInitData.value?.[prumd]?.reduce((rtn, item) => {
+    if (item.pdDscPrumPrpVal01) {
+      rtn.push(item.pdDscPrumPrpVal01);
+    }
+    return rtn;
+  }, []);
+  resetVisibleGridColumns(currentMetaInfos.value, pdConst.PD_PRC_TP_CD_FINAL, view);
+  checkedVals.forEach((fieldName) => {
+    // 선택변수 표시
+    const column = view.columnByName(fieldName);
+    if (column) {
+      column.visible = true;
+    }
+  });
+
   if (await currentInitData.value?.[prcfd]) {
     // 기준가 정보
     const stdRows = cloneDeep(
@@ -189,25 +226,6 @@ watch(() => props.initData, (val) => { currentInitData.value = val; initGridRows
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
-async function setFinalVal(view, grid, itemIndex) {
-  const prcBefAdj = Number(grid.getValue(itemIndex, 'prcBefAdj') ?? 0);
-  let ctrVal = Number(grid.getValue(itemIndex, 'ctrVal') ?? 0);
-  let fnlVal = 0;
-  // 조정 전 가격 ( 01: 정액, 02: 정률)
-  if (ctrVal > prcBefAdj) {
-    /* {0}값이 {1}보다 큽니다. */
-    notify(t('MSG_ALT_A_IS_GREAT_THEN_B', [
-      `${grid.columnByName('ctrVal').header.text}(${ctrVal})`,
-      `${grid.columnByName('prcBefAdj').header.text}(${prcBefAdj})`]));
-    ctrVal = 0;
-    view.setValue(itemIndex, 'ctrVal', ctrVal);
-  }
-  // 조정 전 가격 = 조정전가격 - 조정가
-  fnlVal = prcBefAdj - ctrVal;
-  view.setValue(itemIndex, 'fnlVal', fnlVal);
-  view.resetCurrent();
-}
-
 async function initGrid(data, view) {
   const { metaInfos } = props;
   currentMetaInfos.value = metaInfos;
@@ -247,6 +265,7 @@ async function initGrid(data, view) {
   };
   columns.splice(columns.length - 3, 0, prcBeforAdj);
   fields.push({ fieldName: 'prcBefAdj', dataType: 'number' });
+
   columns.map((item) => {
     if (item.fieldName === 'svPdCd') {
       item.options = props.codes.svPdCd;

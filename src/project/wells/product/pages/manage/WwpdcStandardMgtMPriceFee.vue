@@ -44,7 +44,7 @@
 import { gridUtil, getComponentType } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import pdConst from '~sms-common/product/constants/pdConst';
-import { getGridRowCount, setPdGridRows, pdMergeBy, getGridRowsToSavePdProps, getPropInfosToGridRows, getPdMetaToGridInfos } from '~sms-common/product/utils/pdUtil';
+import { resetVisibleGridColumns, getGridRowCount, setPdGridRows, pdMergeBy, getGridRowsToSavePdProps, getPropInfosToGridRows, getPdMetaToGridInfos } from '~sms-common/product/utils/pdUtil';
 
 /* eslint-disable no-use-before-define */
 defineExpose({
@@ -68,6 +68,7 @@ const grdMainRef = ref(getComponentType('KwGrid'));
 
 const prcd = pdConst.TBL_PD_PRC_DTL;
 const prcfd = pdConst.TBL_PD_PRC_FNL_DTL;
+const prumd = pdConst.TBL_PD_DSC_PRUM_DTL;
 const defaultFields = ref([pdConst.PRC_STD_ROW_ID, pdConst.PRC_FNL_ROW_ID,
   pdConst.PRC_DETAIL_ID, pdConst.PRC_DETAIL_FNL_ID]);
 const currentPdCd = ref();
@@ -127,6 +128,23 @@ async function initGridRows() {
   if (isEmpty(view)) {
     return;
   }
+
+  // 선택변수
+  const checkedVals = currentInitData.value?.[prumd]?.reduce((rtn, item) => {
+    if (item.pdDscPrumPrpVal01) {
+      rtn.push(item.pdDscPrumPrpVal01);
+    }
+    return rtn;
+  }, []);
+  resetVisibleGridColumns(currentMetaInfos.value, pdConst.PD_PRC_TP_CD_FINAL, view);
+  checkedVals.forEach((fieldName) => {
+    // 선택변수 표시
+    const column = view.columnByName(fieldName);
+    if (column) {
+      column.visible = true;
+    }
+  });
+
   if (await currentInitData.value?.[prcfd]) {
     // 기준가 정보
     const stdRows = cloneDeep(
@@ -224,6 +242,7 @@ async function initGrid(data, view) {
     ['cndtFxamFxrtDvCd', 'cndtDscPrumVal', 'fxamFxrtDvCd', 'ctrVal'],
     defaultFields.value,
   );
+
   columns.map((item) => {
     if (item.fieldName === 'svPdCd') {
       item.options = props.codes.svPdCd;
