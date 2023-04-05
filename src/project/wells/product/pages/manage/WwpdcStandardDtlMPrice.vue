@@ -49,7 +49,7 @@
 import { getComponentType, useDataService, codeUtil, gridUtil, stringUtil } from 'kw-lib';
 import { cloneDeep, isEmpty, merge } from 'lodash-es';
 import pdConst from '~sms-common/product/constants/pdConst';
-import { pdMergeBy, getPropInfosToGridRows, getPdMetaToCodeNames, getPdMetaToGridInfos } from '~sms-common/product/utils/pdUtil';
+import { resetVisibleGridColumns, pdMergeBy, getPropInfosToGridRows, getPdMetaToCodeNames, getPdMetaToGridInfos } from '~sms-common/product/utils/pdUtil';
 
 /* eslint-disable no-use-before-define */
 defineExpose({
@@ -94,6 +94,23 @@ async function resetData() {
 }
 
 async function initGridRows() {
+  const view = grdMainRef.value.getView();
+  // 선택변수
+  const checkedVals = currentInitData.value?.[pdConst.TBL_PD_DSC_PRUM_DTL]?.reduce((rtn, item) => {
+    if (item.pdDscPrumPrpVal01) {
+      rtn.push(item.pdDscPrumPrpVal01);
+    }
+    return rtn;
+  }, []);
+  resetVisibleGridColumns(currentMetaInfos.value, pdConst.PD_PRC_TP_CD_FINAL, view);
+  checkedVals.forEach((fieldName) => {
+    // 선택변수 표시
+    const column = view.columnByName(fieldName);
+    if (column) {
+      column.visible = true;
+    }
+  });
+
   if (currentInitData.value?.[prcfd]) {
     // 기준가 정보
     const stdRows = cloneDeep(
@@ -119,10 +136,6 @@ async function initGridRows() {
       return row;
     });
 
-    // 정렬 1. 판매채널(가나다..), 2. 적용기간, 3. LV.1, 4. LV.2
-    // TODO
-
-    const view = grdMainRef.value.getView();
     if (searchParams.value.avlChnlId.length) {
       view.getDataSource().setRows(rows?.filter((item) => searchParams.value.avlChnlId.includes(item.sellChnlCd)));
     } else {

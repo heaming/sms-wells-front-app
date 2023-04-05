@@ -17,7 +17,7 @@
     <!-- 선택변수 등록 -->
     <h3>{{ $t('MSG_TXT_PD_REG_SEL_VAR') }}</h3>
     <kw-form
-      ref="frmMainRef"
+      ref="frmChannelRef"
       :cols="2"
       dense
       ignore-on-modified
@@ -41,24 +41,19 @@
     </kw-form>
     <kw-separator />
     <kw-form
+      ref="frmVariableRef"
       :cols="2"
       dense
     >
       <kw-form-row>
         <!-- 선택변수 -->
         <kw-form-item :label="$t('MSG_TXT_PD_SEL_VAL')">
-          <slot
-            v-for="(sv, i) of selectionVariables"
-            :key="sv.codeId"
-          >
-            <kw-checkbox
-              v-model="checkedSelVals[i]"
-              :label="sv.codeName"
-              :true-value="sv.codeId"
-              :false-value="null"
-              @update:model-value="resetVisibleChannelColumns"
-            />
-          </slot>
+          <kw-option-group
+            v-model="checkedSelVals"
+            type="checkbox"
+            :options="selectionVariables"
+            @update:model-value="resetVisibleChannelColumns"
+          />
         </kw-form-item>
       </kw-form-row>
     </kw-form>
@@ -117,7 +112,8 @@ const { notify } = useGlobal();
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 const grdMainRef = ref(getComponentType('KwGrid'));
-const frmMainRef = ref();
+const frmChannelRef = ref();
+const frmVariableRef = ref();
 
 const prcd = pdConst.TBL_PD_PRC_DTL;
 const prcfd = pdConst.TBL_PD_PRC_FNL_DTL;
@@ -127,6 +123,7 @@ const defaultFields = ref([pdConst.PRC_STD_ROW_ID, pdConst.PRC_FNL_ROW_ID,
 const currentPdCd = ref();
 const currentInitData = ref(null);
 const currentMetaInfos = ref();
+const currentSellTpCd = ref();
 const usedChannelCds = ref([]);
 const addChannelId = ref();
 const usedChannelRef = ref();
@@ -142,13 +139,16 @@ async function resetData() {
   addChannelId.value = '';
   removeObjects.value = [];
   gridRowCount.value = 0;
-  frmMainRef.value.reset();
+  frmChannelRef.value.reset();
+  frmVariableRef.value.reset();
   grdMainRef.value?.getView().getDataSource().clearRows();
   if (grdMainRef.value?.getView()) gridUtil.reset(grdMainRef.value.getView());
 }
 
 async function init() {
   if (grdMainRef.value?.getView()) gridUtil.init(grdMainRef.value.getView());
+  frmChannelRef.value.init();
+  frmVariableRef.value.init();
 }
 
 async function getSaveData() {
@@ -181,7 +181,7 @@ async function getSaveData() {
 }
 
 async function isModifiedProps() {
-  return gridUtil.isModified(grdMainRef.value.getView());
+  return gridUtil.isModified(grdMainRef.value.getView()) || frmVariableRef.value.isModified();
 }
 
 async function validateProps() {
@@ -196,6 +196,13 @@ async function validateProps() {
 }
 
 async function resetInitData() {
+  // 판매유형
+  const sellTpCd = currentInitData.value[pdConst.TBL_PD_BAS]?.sellTpCd;
+  if (sellTpCd !== currentSellTpCd.value) {
+    currentSellTpCd.value = sellTpCd;
+    await fetchSelVarData();
+  }
+
   // 기본 속성에서 등록 채널 목록
   const channels = currentInitData.value?.[pdConst.TBL_PD_DTL]
     ?.reduce((rtn, item) => {
@@ -230,8 +237,6 @@ async function initGridRows() {
     return;
   }
   if (await currentInitData.value[prcfd]) {
-    // 판매유형
-    const sellTpCd = currentInitData.value[pdConst.TBL_PD_BAS]?.sellTpCd;
     // 기준가 정보
     const stdRows = cloneDeep(
       await getPropInfosToGridRows(
@@ -258,7 +263,7 @@ async function initGridRows() {
       row = pdMergeBy(row, stdRow);
       if (isEmpty(row[pdConst.PRC_STD_ROW_ID])) row[pdConst.PRC_STD_ROW_ID] = row.pdPrcDtlId;
       // console.log('WwpdcStandardMgtMPriceVal - initGridRows - row : ', row);
-      row.sellTpCd = sellTpCd;
+      row.sellTpCd = currentSellTpCd.value;
       // console.log('WwpdcStandardMgtMPriceVal - initGridRows - row : ', row);
       return row;
     });
@@ -286,7 +291,7 @@ async function onClickAdd() {
     // console.log('rowValues : ', rowValues);
     // console.log('stdRows : ', stdRows);
     const data = view.getDataSource();
-    const channelIndex = rowValues.findIndex((gridRow) => addChannelId.value === gridRow.sellChnlCd);
+    let channelIndex = rowValues.findIndex((gridRow) => addChannelId.value === gridRow.sellChnlCd);
     if (stdRows && stdRows.length) {
       stdRows.forEach((row, idx) => {
         row.sellChnlCd = addChannelId.value;
@@ -297,18 +302,17 @@ async function onClickAdd() {
         // 정액정률구분 디폴트 - '정액'
         row.cndtFxamFxrtDvCd = '01';
         if (channelIndex < 0) {
-          // 동일 채널이 없으면 Insert
-          data.insertRow(0 + idx, row);
-        } else {
-          // 동일 채널이 존재하면, 동일 기준가격이 존재하는지 확인하고, 없으면 해당 위치에 Insert
-          const alradyRow = rowValues.findIndex((gridRow) => addChannelId.value === gridRow.sellChnlCd
-            && gridRow[pdConst.PRC_STD_ROW_ID] === row[pdConst.PRC_STD_ROW_ID]);
-          if (alradyRow < 0) {
-            data.insertRow(channelIndex + idx, row);
-          }
+          channelIndex = 0;
         }
+        // 동일 채널이 존재하면, 동일 기준가격이 존재하는지 확인하고, 없으면 해당 위치에 Insert
+        // const alradyRow = rowValues.findIndex((gridRow) => addChannelId.value === gridRow.sellChnlCd
+        //   && gridRow[pdConst.PRC_STD_ROW_ID] === row[pdConst.PRC_STD_ROW_ID]);
+        // if (alradyRow < 0) {
+        data.insertRow(channelIndex + idx, row);
+        // }
       });
-      gridUtil.insertRowAndFocus(view, 0);
+      view.resetCurrent();
+      gridUtil.focusCellInput(view, channelIndex);
     }
   }
   gridRowCount.value = getGridRowCount(view);
@@ -355,7 +359,6 @@ async function initProps() {
   currentPdCd.value = pdCd;
   currentInitData.value = initData;
   currentMetaInfos.value = metaInfos;
-  await fetchSelVarData();
 }
 
 await initProps();
