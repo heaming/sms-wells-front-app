@@ -99,32 +99,6 @@ async function resetData() {
   // TODO Grid 에서 초기화버튼 기능을 어떻게 정의할지 확인필요.
 }
 
-async function getCheckAndNotExistRows(view, rows) {
-  const alreadyItems = getAlreadyItems(view, rows, 'pdCd');
-
-  console.log(rows, rows.length, alreadyItems.length);
-
-  if (rows.length === alreadyItems.length) {
-    notify(t('MSG_ALT_ALREADY_RGST', [t('MSG_TXT_PRDT')]));
-    return [];
-  }
-  if (alreadyItems.length > 0) {
-    if (alreadyItems.length === 1) {
-      notify(t('MSG_ALT_ALREADY_RGST_CUT', [alreadyItems[0].pdCd]));
-    } else {
-      notify(t('MSG_ALT_ALREADY_RGST_CUT', [t('MSG_TXT_EXID_CNT', [alreadyItems[0].pdCd, alreadyItems.length - 1])]));
-    }
-    const alreadyPdCds = alreadyItems.reduce((rtns, item) => { rtns.push(item.pdCd); return rtns; }, []);
-    return rows.reduce((rtns, item) => {
-      if (!alreadyPdCds.includes(item.pdCd)) {
-        rtns.push(item);
-      }
-      return rtns;
-    }, []);
-  }
-  return rows;
-}
-
 async function insertCallbackRows(view, rtn, pdRelTpCd) {
   if (rtn.result) {
     if (Array.isArray(rtn.payload.checkedRows) && rtn.payload.checkedRows.length > 1) {
@@ -147,6 +121,32 @@ async function insertCallbackRows(view, rtn, pdRelTpCd) {
       }
     }
   }
+}
+
+async function getCheckAndNotExistRows(view, rows) {
+  // const alreadyItems = getAlreadyItems(view, rows, 'pdCd');
+  const alreadyItems = getAlreadyItems(view, rows, 'ojPdCd');
+  console.log(rows, rows.length, alreadyItems.length);
+
+  if (rows.length === alreadyItems.length) {
+    notify(t('MSG_ALT_ALREADY_RGST', [t('MSG_TXT_PRDT')]));
+    return [];
+  }
+  if (alreadyItems.length > 0) {
+    if (alreadyItems.length === 1) {
+      notify(t('MSG_ALT_ALREADY_RGST_CUT', [alreadyItems[0].pdCd]));
+    } else {
+      notify(t('MSG_ALT_ALREADY_RGST_CUT', [t('MSG_TXT_EXID_CNT', [alreadyItems[0].pdCd, alreadyItems.length - 1])]));
+    }
+    const alreadyPdCds = alreadyItems.reduce((rtns, item) => { rtns.push(item.pdCd); return rtns; }, []);
+    return rows.reduce((rtns, item) => {
+      if (!alreadyPdCds.includes(item.pdCd)) {
+        rtns.push(item);
+      }
+      return rtns;
+    }, []);
+  }
+  return rows;
 }
 
 // component: 'ZpdcStandardProductListP', // 기준정보 팝업

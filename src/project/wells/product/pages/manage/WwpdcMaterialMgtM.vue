@@ -1,4 +1,4 @@
-  <!----
+<!----
 ****************************************************************************************************
 * 프로그램 개요
 ****************************************************************************************************
@@ -243,7 +243,7 @@ const wellsStep = [
   pdConst.W_MATERIAL_STEP_CHECK,
 ];
 const regSteps = ref(wellsStep);
-// const currentStep = ref(wellsStep[0]);
+
 const currentStep = cloneDeep(ref(wellsStep[0]));
 
 const cmpStepRefs = ref([ref(), ref(), ref()]);
@@ -330,6 +330,7 @@ async function getSaveData(tempSaveYn) {
 
 async function onClickStep() {
   const stepName = currentStep.value?.name;
+  console.log('stepName', stepName);
   prevStepData.value = await getSaveData();
   currentStep.value = cloneDeep(regSteps.value.find((item) => item.name === stepName));
 }
@@ -343,6 +344,24 @@ async function fetchData() {
     prevStepData.value[rel] = res.data[rel];
     obsMainRef.value.init();
   }
+}
+
+// 중복체크 메소드 - 확장성 위해 'validationType' 추가.
+async function duplicationCheck(validationType, sourceData) {
+  const validationParams = {};
+  validationParams.validationType = validationType;
+  validationParams.pdCd = sourceData[bas].pdCd;
+  validationParams.sapMatCd = sourceData[bas].sapMatCd;
+
+  const res = await dataService.get(`${baseUrl}/check-validation`, { params: validationParams });
+  console.debug('/check-validation', res.data);
+
+  if (res.data !== 'N') {
+    // 다른 교재/제품에서 이미 사용 중인 SAP자재코드입니다. (사용 교재/제품코드: {0}/{1}) - 교재명/자재코드
+    notify(t('MSG_ALT_EXIST_SAP_MAT_CD', [res.data, validationParams.sapMatCd]));
+    return false;
+  }
+  return true;
 }
 
 async function onClickSave(tempSaveYn) {
@@ -370,10 +389,17 @@ async function onClickSave(tempSaveYn) {
   // 3. Step별 저장 데이터 확인
   const subList = await getSaveData(tempSaveYn);
 
+  // 4. 자재코드 중복검사.
+  if (!isEmpty(subList[bas].sapMatCd)) {
+    if (!await duplicationCheck('sapMatCd', subList)) return false;
+  }
+
   // 4. 생성 or 저장
   const rtn = currentPdCd.value
     ? await dataService.put(baseUrl, subList)
     : await dataService.post(`${baseUrl}`, subList);
+
+  console.log('subList', subList);
 
   // 5. 생성 이후 Step 설정
   notify(t('MSG_ALT_SAVE_DATA'));
