@@ -251,7 +251,8 @@ async function initGridRows() {
     rows?.map((row) => {
       row[pdConst.PRC_FNL_ROW_ID] = row[pdConst.PRC_FNL_ROW_ID] ?? row.pdPrcFnlDtlId;
       row[pdConst.PRC_STD_ROW_ID] = row[pdConst.PRC_STD_ROW_ID] ?? row.pdPrcDtlId;
-      const stdRow = stdRows?.find((item) => item[pdConst.PRC_STD_ROW_ID] === row[pdConst.PRC_STD_ROW_ID]
+      const stdRow = stdRows?.find((item) => (row[pdConst.PRC_STD_ROW_ID]
+                                                && item[pdConst.PRC_STD_ROW_ID] === row[pdConst.PRC_STD_ROW_ID])
                                             || item.pdPrcDtlId === row.pdPrcDtlId);
       // console.log('const stdRow : ', row);
       row = pdMergeBy(row, stdRow);
@@ -290,6 +291,7 @@ async function onClickAdd() {
       stdRows.forEach((row, idx) => {
         row.sellChnlCd = addChannelId.value;
         row[pdConst.PRC_FNL_ROW_ID] = stringUtil.getUid('FNL');
+        row[pdConst.PRC_DETAIL_FNL_ID] = '';
         row.pdPrcDtlIdRefVp = row.pdPrcDtlId;
         row.sellTpCd = currentInitData.value[pdConst.TBL_PD_BAS]?.sellTpCd;
         // 정액정률구분 디폴트 - '정액'
@@ -414,7 +416,7 @@ async function initGrid(data, view) {
         const basePrc = grid.getValue(itemIndex, 'ccamBasePrc');
         if (fixValue > basePrc) {
           /* {0}값이 {1}보다 큽니다. */
-          await notify(t('MSG_ALT_A_IS_GREAT_THEN_B', [
+          notify(t('MSG_ALT_A_IS_GREAT_THEN_B', [
             `${grid.columnByName('cndtDscPrumVal').header.text}(${fixValue})`,
             `${grid.columnByName('ccamBasePrc').header.text}(${basePrc})`]));
           view.setValue(itemIndex, 'cndtDscPrumVal', 0);

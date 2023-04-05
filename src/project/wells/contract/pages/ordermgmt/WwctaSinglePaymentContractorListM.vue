@@ -147,7 +147,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { codeUtil, useDataService, gridUtil, useMeta, getComponentType, useGlobal } from 'kw-lib';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, isEmpty } from 'lodash-es';
 
 const dataService = useDataService();
 const { getConfig } = useMeta();
@@ -317,12 +317,18 @@ function initGrid4(data, view) {
     { fieldName: 'mmIstmAmt' },
     { fieldName: 'istmPcamAmt' },
     { fieldName: 'cntrCstNo' },
+    { fieldName: 'cntrMpno' },
     { fieldName: 'cralLocaraTno' },
+    { fieldName: 'mexnoEncr' },
+    { fieldName: 'cralIdvTno' },
     { fieldName: 'newAdrZip' },
     { fieldName: 'rnadr' },
     { fieldName: 'rdadr' },
     { fieldName: 'rcgvpKnm' },
+    { fieldName: 'istlcMpno' },
     { fieldName: 'istlcCralLocaraTno' },
+    { fieldName: 'istlcMexnoEncr' },
+    { fieldName: 'istlcCralIdvTno' },
     { fieldName: 'istlcAdrZip' },
     { fieldName: 'istlcAdr' },
     { fieldName: 'istlcDadr' },
@@ -396,13 +402,31 @@ function initGrid4(data, view) {
     { fieldName: 'istmPcamAmt', header: `${t('MSG_TXT_COM_TOT')} ${t('MSG_TXT_ISTM_AMT')}`, width: '138', styleName: 'text-right' },
 
     { fieldName: 'cntrCstNo', header: t('MSG_TXT_CST_NO'), width: '138', styleName: 'text-right' },
-    { fieldName: 'cralLocaraTno', header: `${t('MSG_TXT_CNTRT')} ${t('MSG_TXT_MPNO')}`, width: '160', styleName: 'text-right' },
+    {
+      fieldName: 'cntrMpno',
+      header: `${t('MSG_TXT_CNTRT')} ${t('MSG_TXT_MPNO')}`,
+      width: '160',
+      styleName: 'text-center',
+      displayCallback(grid, index) {
+        const { cralLocaraTno, mexnoEncr, cralIdvTno } = grid.getValues(index.itemIndex);
+        return !isEmpty(cralLocaraTno) && !isEmpty(mexnoEncr) && !isEmpty(cralIdvTno) ? `${cralLocaraTno}-${mexnoEncr}-${cralIdvTno}` : '';
+      },
+    },
     { fieldName: 'newAdrZip', header: `${t('MSG_TXT_CNTRT')} ${t('MSG_TXT_ZIP')}`, width: '144', styleName: 'text-right' },
     { fieldName: 'rnadr', header: `${t('MSG_TXT_CNTRT')} ${t('MSG_TXT_STD_ADDR')}`, width: '312', styleName: 'text-center' },
     { fieldName: 'rdadr', header: `${t('MSG_TXT_CNTRT')} ${t('MSG_TXT_DETAIL_ADDR')}`, width: '284', styleName: 'text-right' },
 
     { fieldName: 'rcgvpKnm', header: t('MSG_TXT_IST_NM'), width: '144', styleName: 'text-center' },
-    { fieldName: 'istlcCralLocaraTno', header: `${t('MSG_TXT_INSTR')} ${t('MSG_TXT_MPNO')}`, width: '160', styleName: 'text-center' },
+    {
+      fieldName: 'istlcMpno',
+      header: `${t('MSG_TXT_INSTR')} ${t('MSG_TXT_MPNO')}`,
+      width: '160',
+      styleName: 'text-center',
+      displayCallback(grid, index) {
+        const { istlcCralLocaraTno, istlcMexnoEncr, istlcCralIdvTno } = grid.getValues(index.itemIndex);
+        return !isEmpty(istlcCralLocaraTno) && !isEmpty(istlcMexnoEncr) && !isEmpty(istlcCralIdvTno) ? `${istlcCralLocaraTno}-${istlcMexnoEncr}-${istlcCralIdvTno}` : '';
+      },
+    },
     { fieldName: 'istlcAdrZip', header: `${t('MSG_TXT_INSTR')} ${t('MSG_TXT_ZIP')}`, width: '144', styleName: 'text-center' },
     { fieldName: 'istlcAdr', header: `${t('MSG_TXT_INSTR')} ${t('MSG_TXT_STD_ADDR')}`, width: '312' },
     { fieldName: 'istlcDadr', header: `${t('MSG_TXT_INSTR')} ${t('MSG_TXT_DETAIL_ADDR')}`, width: '284' },

@@ -219,6 +219,7 @@ async function onClickAdd() {
     return rtn;
   }, {}));
   rowItem[pdConst.PRC_STD_ROW_ID] = stringUtil.getUid('STD');
+  rowItem[pdConst.PRC_DETAIL_ID] = '';
   // console.log('rowItem : ', rowItem);
   await gridUtil.insertRowAndFocus(view, 0, rowItem);
   gridRowCount.value = getGridRowCount(view);
