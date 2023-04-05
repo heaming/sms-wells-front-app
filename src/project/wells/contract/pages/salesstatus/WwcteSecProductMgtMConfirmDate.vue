@@ -1,31 +1,40 @@
+<!----
+****************************************************************************************************
+* 프로그램 개요
+****************************************************************************************************
+1. 모듈 : CTE
+2. 프로그램 ID : WwcteSecProductMgtMConfirmDate - 삼성전자 상품관리(확정일) 화면
+3. 작성자 : gs.ritvik.m
+4. 작성일 : 2023.04.03
+****************************************************************************************************
+* 프로그램 설명
+****************************************************************************************************
+- 삼성전자 상품관리(확정일) 화면
+****************************************************************************************************
+--->
 <template>
   <kw-page>
-    <template #header>
-      <kw-page-header
-        :options="['홈','판매','영업활동관리','삼성전자 상품관리']"
-      />
-    </template>
     <!-- To.개발 kw-tab-panel안에 kw-search로 시작하는 경우 kw-tabs에 .form-border 제거 / 그 외 추가 -->
     <kw-tabs model-value="3">
       <kw-tab
         name="1"
-        label="미설치"
+        :label="$t('MSG_TXT_NOT_INSTL')"
       />
       <kw-tab
         name="2"
-        label="배송"
+        :label="$t('MSG_TXT_DLVRY')"
       />
       <kw-tab
         name="3"
-        label="확정일"
+        :label="$t('MSG_TXT_DTRM_DATE')"
       />
       <kw-tab
         name="4"
-        label="예약일"
+        :label="$t('MSG_TXT_RSV_DATE')"
       />
       <kw-tab
         name="5"
-        label="무상A/S"
+        :label="`{$t('MSG_TXT_FREE')} A/S`"
       />
     </kw-tabs>
     <kw-tab-panels model-value="3">
@@ -33,31 +42,34 @@
         <kw-search>
           <kw-search-row>
             <kw-search-item
-              label="예정일"
+              :label="$t('MSG_TXT_DUEDT')"
               required
             >
-              <kw-date-range-picker rules="date_range_required|date_range_months:1" />
-            </kw-search-item>
-            <kw-search-item
-              label="주문유형"
-            >
-              <kw-option-group
-                :model-value="'전체'"
-                type="radio"
-                :options="['전체', '렌탈', '일시불']"
+              <kw-date-range-picker
+                rules="date_range_required|date_range_months:1"
+                :label="$t('MSG_TXT_DUEDT')"
               />
             </kw-search-item>
             <kw-search-item
-              label="삼성주문번호"
+              :label="$t('MSG_TXT_ORD_TYP')"
             >
-              <kw-input />
+              <kw-option-group
+                type="radio"
+                :label="$t('MSG_TXT_ORD_TYP')"
+                :options="[$t('MSG_TXT_ALL'), $t('MSG_TXT_RENTAL'), $t('MSG_TXT_SNGL_PMNT')]"
+              />
+            </kw-search-item>
+            <kw-search-item
+              :label="$t('MSG_TXT_SM_ORD_NO')"
+            >
+              <kw-input :label="$t('MSG_TXT_SM_ORD_NO')" />
             </kw-search-item>
           </kw-search-row>
           <kw-search-row>
             <kw-search-item
-              label="시리얼번호"
+              :label="$t('MSG_TXT_SERIAL_NO')"
             >
-              <kw-input />
+              <kw-input :label="$t('MSG_TXT_SERIAL_NO')" />
             </kw-search-item>
           </kw-search-row>
         </kw-search>
@@ -72,25 +84,27 @@
               icon="download_off"
               dense
               secondary
-              label="양식 다운로드"
+              :label="$t('MSG_TXT_TEMP_DOWN')"
             />
             <kw-btn
               icon="upload_on"
               dense
               secondary
-              label="엑셀업로드"
+              :label="$t('MSG_TXT_EXCEL_UPLOAD')"
             />
             <kw-btn
               icon="download_on"
               dense
               secondary
-              label="엑셀다운로드"
+              :label="$t('MSG_TXT_EXCEL_DOWNLOAD')"
               @click="onClickExcelDownload"
             />
           </kw-action-top>
           <kw-grid
+            ref="grdMainRef"
             :visible-rows="1"
-            @init="initGrid"
+            name="grdMain"
+            @init="initGrdMain"
           />
           <h3>업로드 미리보기</h3>
           <kw-action-top>
@@ -102,8 +116,10 @@
             </template>
           </kw-action-top>
           <kw-grid
+            ref="grdUploadPrevRef"
             :visible-rows="10"
-            @init="initGrid2"
+            name="grdUploadPrev"
+            @init="initGrdUploadPrev"
           />
         </div>
       </kw-tab-panel>
@@ -111,7 +127,22 @@
   </kw-page>
 </template>
 <script setup>
-function initGrid(data, view) {
+// -------------------------------------------------------------------------------------------------
+// Import & Declaration
+// -------------------------------------------------------------------------------------------------
+import { getComponentType, defineGrid } from 'kw-lib';
+
+const { t } = useI18n();
+// -------------------------------------------------------------------------------------------------
+// Function & Event
+// -------------------------------------------------------------------------------------------------
+const grdMainRef = ref(getComponentType('KwGrid'));
+const grdUploadPrevRef = ref(getComponentType('KwGrid'));
+
+// -------------------------------------------------------------------------------------------------
+// Initialize Grid
+// -------------------------------------------------------------------------------------------------
+const initGrdMain = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'col1' },
     { fieldName: 'col2' },
@@ -130,20 +161,20 @@ function initGrid(data, view) {
   ];
 
   const columns = [
-    { fieldName: 'col1', header: '계약번호', width: '137', styleName: 'text-center' },
-    { fieldName: 'col2', header: '계약자명', width: '136', styleName: 'text-center' },
-    { fieldName: 'col3', header: '주문유형', width: '136', styleName: 'text-center' },
-    { fieldName: 'col4', header: '상품명', width: '253' },
-    { fieldName: 'col5', header: '상품코드', width: '168', styleName: 'text-center' },
-    { fieldName: 'col6', header: '삼성주문번호', width: '168', styleName: 'text-center' },
-    { fieldName: 'col7', header: '설치일', width: '136', styleName: 'text-center' },
-    { fieldName: 'col8', header: '컨텍코드', width: '136', styleName: 'text-center' },
-    { fieldName: 'col9', header: '취소일', width: '136', styleName: 'text-center' },
-    { fieldName: 'col10', header: '시리얼번호', width: '152', styleName: 'text-center' },
-    { fieldName: 'col11', header: '삼성모델명', width: '152', styleName: 'text-center' },
-    { fieldName: 'col12', header: '엑셀업로드 일시', width: '170', styleName: 'text-center' },
-    { fieldName: 'col13', header: '배치실행 일시', width: '170', styleName: 'text-center' },
-    { fieldName: 'col14', header: '등록비완납여부', width: '146.8', styleName: 'text-center' },
+    { fieldName: 'col1', header: t('MSG_TXT_CNTR_NO'), width: '137', styleName: 'text-center' },
+    { fieldName: 'col2', header: t('MSG_TXT_CNTOR_NM'), width: '136', styleName: 'text-center' },
+    { fieldName: 'col3', header: t('MSG_TXT_ORD_TYP'), width: '136', styleName: 'text-center' },
+    { fieldName: 'col4', header: t('MSG_TXT_PRDT_NM'), width: '253' },
+    { fieldName: 'col5', header: t('MSG_TXT_PRDT_CODE'), width: '168', styleName: 'text-center' },
+    { fieldName: 'col6', header: t('MSG_TXT_SM_ORD_NO'), width: '168', styleName: 'text-center' },
+    { fieldName: 'col7', header: t('MSG_TXT_INST_DT'), width: '136', styleName: 'text-center' },
+    { fieldName: 'col8', header: t('MSG_TXT_CNT_CD'), width: '136', styleName: 'text-center' },
+    { fieldName: 'col9', header: t('MSG_TXT_CAN_D'), width: '136', styleName: 'text-center' },
+    { fieldName: 'col10', header: t('MSG_TXT_SERIAL_NO'), width: '152', styleName: 'text-center' },
+    { fieldName: 'col11', header: t('MSG_TXT_SM_MOD_NO'), width: '152', styleName: 'text-center' },
+    { fieldName: 'col12', header: t('MSG_TXT_EXL_UPL_DT'), width: '170', styleName: 'text-center' },
+    { fieldName: 'col13', header: t('MSG_TXT_BAT_EXEC_DT'), width: '170', styleName: 'text-center' },
+    { fieldName: 'col14', header: t('MSG_TXT_REG_NON_PMT'), width: '146.8', styleName: 'text-center' },
   ];
 
   data.setFields(fields);
@@ -155,9 +186,9 @@ function initGrid(data, view) {
   data.setRows([
     { col1: '1234-1234567', col2: '김고객', col3: '렌탈', col4: '비스포크냉장고코타화이트', col5: '1234', col6: '1234567890', col7: '2022-10-05', col8: '(01)성공OK', col9: '-', col10: 'QX3F5AET900171', col11: 'DV17B8720BP', col12: '2022-10-01 09:23:10', col13: '2022-10-01 12:23:10', col14: 'Y' },
   ]);
-}
+});
 
-function initGrid2(data, view) {
+const initGrdUploadPrev = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'col1' },
     { fieldName: 'col2' },
@@ -172,16 +203,16 @@ function initGrid2(data, view) {
   ];
 
   const columns = [
-    { fieldName: 'col1', header: '계약번호', width: '137', styleName: 'text-center' },
-    { fieldName: 'col2', header: '벽걸이 주문번호', width: '148', styleName: 'text-center' },
-    { fieldName: 'col3', header: '주문번호', width: '148', styleName: 'text-center' },
-    { fieldName: 'col4', header: '특이사항', width: '200' },
-    { fieldName: 'col5', header: '설치일', width: '136', styleName: 'text-center' },
-    { fieldName: 'col6', header: '시리얼번호', width: '152', styleName: 'text-center' },
-    { fieldName: 'col7', header: '예약일', width: '136', styleName: 'text-center' },
-    { fieldName: 'col8', header: '재고입고일', width: '136', styleName: 'text-center' },
-    { fieldName: 'col9', header: '설치구분', width: '136', styleName: 'text-center' },
-    { fieldName: 'col10', header: '삼성서비스 모델명', width: '166', styleName: 'text-center' },
+    { fieldName: 'col1', header: t('MSG_TXT_CNTR_NO'), width: '137', styleName: 'text-center' },
+    { fieldName: 'col2', header: t('MSG_TXT_WALL_MNT_ORD_NO'), width: '148', styleName: 'text-center' },
+    { fieldName: 'col3', header: t('MSG_TXT_ORD_NO'), width: '148', styleName: 'text-center' },
+    { fieldName: 'col4', header: t('MSG_TXT_UNUITM'), width: '200' },
+    { fieldName: 'col5', header: t('MSG_TXT_INST_DT'), width: '136', styleName: 'text-center' },
+    { fieldName: 'col6', header: t('MSG_TXT_SERIAL_NO'), width: '152', styleName: 'text-center' },
+    { fieldName: 'col7', header: t('MSG_TXT_RSV_DATE'), width: '136', styleName: 'text-center' },
+    { fieldName: 'col8', header: t('MSG_TXT_STOCK_DT'), width: '136', styleName: 'text-center' },
+    { fieldName: 'col9', header: t('MSG_TXT_INST_CLS'), width: '136', styleName: 'text-center' },
+    { fieldName: 'col10', header: t('MSG_TXT_SM_SRV_MOD_NM'), width: '166', styleName: 'text-center' },
   ];
 
   data.setFields(fields);
@@ -192,7 +223,7 @@ function initGrid2(data, view) {
   data.setRows([
     { col1: '1234-1234567', col2: '-', col3: '1234567890', col4: '특이사항내용이 들어감..', col5: '2022-10-05', col6: '003F5AET900171', col7: '2022-10-05', col8: '2022-10-05', col9: '-', col10: '-' },
   ]);
-}
+});
 </script>
 <style scoped>
 </style>
