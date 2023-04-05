@@ -169,7 +169,7 @@ async function onClickDelete() {
     await dataService.delete(`/sms/wells/product/services/${currentPdCd.value}`);
     await router.close();
     await router.push({ path: '/product/zwpdc-service-list',
-      query: { searchYn: 'Y' }, /* 임시 아래 stateParam 될 때 삭제 */
+      query: { searchYn: 'Y' }, /* 임시 아래 stateParam 될 때 삭제, props로 돌리는건 watch 문제가 있음 */
       state: { stateParam: { searchYn: 'Y' } },
     });
   }

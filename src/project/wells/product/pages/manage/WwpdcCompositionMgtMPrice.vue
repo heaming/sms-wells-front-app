@@ -219,7 +219,9 @@ async function initGridRows() {
       defaultFields.value,
     ));
     rows?.forEach((row) => {
-      const stdRow = stdRows?.find((item) => item.pdPrcDtlId === row.pdPrcDtlId);
+      const stdRow = stdRows?.find((item) => (row[pdConst.PRC_STD_ROW_ID]
+                                                && item[pdConst.PRC_STD_ROW_ID] === row[pdConst.PRC_STD_ROW_ID])
+                                            || item.pdPrcDtlId === row.pdPrcDtlId);
       row = pdMergeBy(row, stdRow);
       row[pdConst.PRC_STD_ROW_ID] = row[pdConst.PRC_STD_ROW_ID] ?? row.pdPrcDtlId;
       row[pdConst.PRC_FNL_ROW_ID] = row[pdConst.PRC_FNL_ROW_ID] ?? row.pdPrcFnlDtlId;
@@ -243,6 +245,8 @@ async function onClickAdd() {
   }, {}));
   rowItem[pdConst.PRC_STD_ROW_ID] = stringUtil.getUid('STD');
   rowItem[pdConst.PRC_FNL_ROW_ID] = stringUtil.getUid('FNL');
+  rowItem[pdConst.PRC_DETAIL_ID] = '';
+  rowItem[pdConst.PRC_DETAIL_FNL_ID] = '';
   // console.log('rowItem : ', rowItem);
   gridUtil.insertRowAndFocus(view, 0, rowItem);
   gridRowCount.value = getGridRowCount(view);

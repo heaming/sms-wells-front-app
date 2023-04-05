@@ -159,7 +159,8 @@ async function initGridRows() {
     rows?.map((row) => {
       row[pdConst.PRC_FNL_ROW_ID] = row[pdConst.PRC_FNL_ROW_ID] ?? row.pdPrcFnlDtlId;
       row[pdConst.PRC_STD_ROW_ID] = row[pdConst.PRC_STD_ROW_ID] ?? row.pdPrcDtlId;
-      const stdRow = stdRows?.find((item) => item[pdConst.PRC_STD_ROW_ID] === row[pdConst.PRC_STD_ROW_ID]
+      const stdRow = stdRows?.find((item) => (row[pdConst.PRC_STD_ROW_ID]
+                                                && item[pdConst.PRC_STD_ROW_ID] === row[pdConst.PRC_STD_ROW_ID])
                                             || item.pdPrcDtlId === row.pdPrcDtlId);
       row = pdMergeBy(row, stdRow);
       if (isEmpty(row[pdConst.PRC_STD_ROW_ID])) row[pdConst.PRC_STD_ROW_ID] = row.pdPrcDtlId;
@@ -195,7 +196,7 @@ async function setFinalVal(view, grid, itemIndex) {
   // 조정 전 가격 ( 01: 정액, 02: 정률)
   if (ctrVal > prcBefAdj) {
     /* {0}값이 {1}보다 큽니다. */
-    await notify(t('MSG_ALT_A_IS_GREAT_THEN_B', [
+    notify(t('MSG_ALT_A_IS_GREAT_THEN_B', [
       `${grid.columnByName('ctrVal').header.text}(${ctrVal})`,
       `${grid.columnByName('prcBefAdj').header.text}(${prcBefAdj})`]));
     ctrVal = 0;
