@@ -107,7 +107,11 @@
         </kw-tabs>
         <kw-tab-panels v-model="selectedMmbrTab">
           <!-- 일반 조회 -->
-          <kw-tab-panel name="mmbrGeneral" />
+          <kw-tab-panel name="mmbrGeneral">
+            <wwcta-membership-contract-list-m
+              :ref="(vm) => tabRefs.page = vm"
+            />
+          </kw-tab-panel>
           <!-- 계약번호 조회 -->
           <kw-tab-panel name="mmbrCntrNo">
             <wwcta-membership-contract-No-list-m
@@ -115,7 +119,11 @@
             />
           </kw-tab-panel>
           <!-- 개인정보 조회 -->
-          <kw-tab-panel name="mmbrPersInfo" />
+          <kw-tab-panel name="mmbrPersInfo">
+            <wwcta-membership-contractor-list-m
+              :ref="(vm) => tabRefs.page = vm"
+            />
+          </kw-tab-panel>
         </kw-tab-panels>
       </kw-tab-panel>
       <kw-tab-panel name="singlePayment">
@@ -149,6 +157,34 @@
           </kw-tab-panel>
         </kw-tab-panels>
       </kw-tab-panel>
+      <kw-tab-panel name="regularDelivery">
+        <kw-tabs v-model="selectedRglrDlvrTab">
+          <!-- 일반조회 -->
+          <kw-tab
+            name="rglrDlvrGeneral"
+            :label="$t('MSG_TXT_GE')+$t('MSG_TXT_SRCH')"
+          />
+          <!-- 계약번호 조회 -->
+          <kw-tab
+            name="rglrDlvrCntrNo"
+            :label="$t('MSG_TXT_CNTR_NO')+' '+$t('MSG_TXT_SRCH')"
+          />
+        </kw-tabs>
+        <kw-tab-panels v-model="selectedRglrDlvrTab">
+          <!-- 일반 조회 -->
+          <kw-tab-panel name="rglrDlvrGeneral">
+            <wwcta-order-regular-shipping-list-m
+              :ref="(vm) => tabRefs.page = vm"
+            />
+          </kw-tab-panel>
+          <!-- 계약번호 조회 -->
+          <kw-tab-panel name="rglrDlvrCntrNo">
+            <wwcta-order-regular-shipping-contract-No-list-m
+              :ref="(vm) => tabRefs.page = vm"
+            />
+          </kw-tab-panel>
+        </kw-tab-panels>
+      </kw-tab-panel>
     </kw-tab-panels>
   </kw-page>
 </template>
@@ -161,19 +197,23 @@ import WwctaOrderRentalContractListM from './WwctaOrderRentalContractListM.vue';
 import WwctaOrderRentalContractNoListM from './WwctaOrderRentalContractNoListM.vue';
 import WwctaOrderRentalContractorListM from './WwctaOrderRentalContractorListM.vue';
 import WwctaOrderRentalInstallerListM from './WwctaOrderRentalInstallerListM.vue';
-
+import WwctaMembershipContractListM from './WwctaMembershipContractListM.vue';
 import WwctaMembershipContractNoListM from './WwctaMembershipContractNoListM.vue';
-
+import WwctaMembershipContractorListM from './WwctaMembershipContractorListM.vue';
 import WwctaSinglePaymentContractorListM from './WwctaSinglePaymentContractorListM.vue';
+
+import WwctaOrderRegularShippingListM from './WwctaOrderRegularShippingListM.vue';
+import WwctaOrderRegularShippingContractNoListM from './WwctaOrderRegularShippingContractNoListM.vue';
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 const tabRefs = reactive({});
-const selectedTab = ref('rental');
-const selectedRntlTab = ref('rntlGeneral');
-const selectedMmbrTab = ref('mmbrGeneral');
-const selectedSpayTab = ref('spayGeneral');
+const selectedTab = ref('rental'); // 주문상세(렌탈)
+const selectedRntlTab = ref('rntlGeneral'); // 렌탈(일반조회)
+const selectedMmbrTab = ref('mmbrGeneral'); // 멤버쉽(일반조회)
+const selectedSpayTab = ref('spayGeneral'); // 일시불(일반조회)
+const selectedRglrDlvrTab = ref('rglrDlvrGeneral'); // 정기배송(일반조회)
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
