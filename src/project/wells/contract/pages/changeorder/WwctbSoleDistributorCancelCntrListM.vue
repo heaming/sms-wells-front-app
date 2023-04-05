@@ -38,7 +38,11 @@
       <kw-action-top>
         <template #left>
           <kw-paging-info
-            :total-count="156"
+            v-model:page-index="pageInfo.pageIndex"
+            v-model:page-size="pageInfo.pageSize"
+            :total-count="pageInfo.totalCount"
+            :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
+            @change="fetchData"
           />
         </template>
         <kw-btn
@@ -95,6 +99,7 @@ const pageInfo = ref({
 
 const codes = await codeUtil.getMultiCodes(
   'PDGRP_ACD',
+  'COD_PAGE_SIZE_OPTIONS',
 );
 
 let cachedParams;
