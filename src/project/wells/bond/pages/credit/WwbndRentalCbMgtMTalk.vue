@@ -137,7 +137,7 @@ const pageInfo = ref({
 const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
 );
-const baseUrl = '/sms/wells/bond//rental-cb/notification-talks';
+const baseUrl = '/sms/wells/bond/rental-cb/notification-talks';
 const searchParams = ref({
   cstNo: '',
   cstKnm: '',
