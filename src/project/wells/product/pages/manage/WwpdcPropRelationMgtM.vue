@@ -126,7 +126,7 @@ async function insertCallbackRows(view, rtn, pdRelTpCd) {
 
 async function getCheckAndNotExistRows(view, rows) {
   // const alreadyItems = getAlreadyItems(view, rows, 'pdCd');
-  const alreadyItems = getAlreadyItems(view, rows, 'ojPdCd');
+  const alreadyItems = getAlreadyItems(view, rows, 'ojPdCd', 'pdRelTpCd');
   console.log(rows, rows.length, alreadyItems.length);
 
   if (rows.length === alreadyItems.length) {
