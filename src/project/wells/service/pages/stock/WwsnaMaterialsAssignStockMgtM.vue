@@ -17,7 +17,6 @@
     <kw-search
       :cols="3"
       @search="onClickSearch"
-      @reset="onClickReset"
     >
       <kw-search-row>
         <!-- 기준년월 -->
@@ -139,7 +138,7 @@ import ZwcmWareHouseSearch from '~sms-common/service/components/ZwsnzWareHouseSe
 import dayjs from 'dayjs';
 import { cloneDeep } from 'lodash-es';
 
-const { modal, alert, notify } = useGlobal();
+const { modal, notify } = useGlobal();
 const dataService = useDataService();
 const { getConfig } = useMeta();
 const baseURI = '/sms/wells/service/materials-assign-stocks';
@@ -218,7 +217,6 @@ async function onClickSave() {
   await fetchData();
 }
 
-// TODO: 단위테스트용 (단위테스트후 초기값 설정에 대해 확인 필요)
 function searchDefaultCondition() {
   searchParams.value.baseYm = dayjs().format('YYYYMM');
   searchParams.value.ogId = '';
@@ -230,33 +228,27 @@ function searchDefaultCondition() {
   searchParams.value.wareDtlDvCd = '';
 }
 
-// TODO: ALERT창 정리필요(단위테스트 후 정리필요 : 팝업페이지가 아직 개발되지 않음.)
 async function onCellClickedPrtnrNo() {
-  try {
-    const { result: isChanged } = await modal({
-      component: 'WwsnaWarehouseOrganizationRegP',
-    });
+  const { result: isChanged } = await modal({
+    component: 'WwsnaWarehouseOrganizationRegP',
+  });
 
-    if (isChanged) {
-      notify(t('MSG_ALT_SAVE_DATA'));
-      await fetchData();
-    }
-  } catch (e) {
-    alert('현재 단위 테스트 대상이 아닙니다.(개발중)');
+  if (isChanged) {
+    notify(t('MSG_ALT_SAVE_DATA'));
+    await fetchData();
   }
 }
 
-// TODO: 단위테스트용 (단위테스트후 초기값 설정에 대해 확인 필요)
-function onClickReset() {
+onMounted(() => {
   searchDefaultCondition();
-}
+});
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
 const initGrdMain = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'wareDtlDvNm', header: t('MSG_TXT_WARE_DTL_DV'), width: '140', styleName: 'text-left' },
-    { fieldName: 'prtnrNo', header: t('MSG_TXT_EPNO'), width: '80', styleName: 'text-center' },
+    { fieldName: 'prtnrNo', header: t('MSG_TXT_EPNO'), width: '80', styleName: 'rg-button-link', renderer: { type: 'button' } },
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '70', styleName: 'text-center' },
     { fieldName: 'ogNm', header: t('MSG_TXT_BLG'), width: '120', styleName: 'text-center' },
     { fieldName: 'bldCd', header: t('MSG_TXT_BLD_CD'), width: '70', styleName: 'text-center' },
