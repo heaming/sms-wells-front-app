@@ -200,6 +200,8 @@ async function fetchData() {
 
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(blacklists);
+  view.resetCurrent();
+  view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
 async function onClickSearch() {
@@ -449,6 +451,7 @@ const initGrid = defineGrid((data, view) => {
     grid.commit();
     grid.commitEditor();
   };
+  view.setFixedOptions({ colCount: 5 });
 });
 
 </script>

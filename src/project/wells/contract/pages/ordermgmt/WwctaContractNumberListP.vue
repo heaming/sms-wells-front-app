@@ -45,9 +45,12 @@
           :label="$t('MSG_TXT_MPNO')"
         >
           <kw-input
-            v-model="searchParams.mpno"
+            v-model:model-value="searchParams.mpno"
+            v-model:telNo0="searchParams.cralLocaraTno"
+            v-model:telNo1="searchParams.mexnoEncr"
+            v-model:telNo2="searchParams.cralIdvTno"
+            :label="$t('MSG_TXT_MPNO')"
             mask="telephone"
-            :unmasked-value="false"
           />
         </kw-search-item>
       </kw-search-row>
@@ -144,7 +147,7 @@ let cachedParams;
 const searchParams = ref({
   cntrCstKnm: props.cntrCstKnm,
   istCstKnm: props.istCstKnm,
-  mpno: `${props.cralLocaraTno}${props.mexnoEncr}${props.cralIdvTno}`,
+  mpno: (props.cralLocaraTno ?? '').concat(props.mexnoEncr ?? '').concat(props.cralIdvTno ?? ''),
   cralLocaraTno: props.cralLocaraTno,
   mexnoEncr: props.mexnoEncr,
   cralIdvTno: props.cralIdvTno,
@@ -184,8 +187,6 @@ async function onClickSearch() {
   }
 
   pageInfo.value.pageIndex = 1;
-  // XXX 전화번호 컴포넌트 변경으로 mpno사용, split 처리
-  [searchParams.value.cralLocaraTno, searchParams.value.mexnoEncr, searchParams.value.cralIdvTno] = searchParams.value.mpno.split('-');
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
 }

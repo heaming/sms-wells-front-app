@@ -150,7 +150,7 @@
 
 import { codeUtil, defineGrid, getComponentType, gridUtil, useDataService, useGlobal, useMeta } from 'kw-lib';
 import dayjs from 'dayjs';
-import { cloneDeep, isEmpty } from 'lodash-es';
+import { cloneDeep, isNumber } from 'lodash-es';
 
 const { getConfig } = useMeta();
 const dataService = useDataService();
@@ -210,6 +210,7 @@ async function fetchData() {
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(partners);
   view.resetCurrent();
+  view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
 async function onClickSearch() {
@@ -251,9 +252,9 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'icptSellProcsTpCd' },
     { fieldName: 'icptSellRsonCn' },
     { fieldName: 'baseCntrNo' },
-    { fieldName: 'baseCntrSn' },
+    { fieldName: 'baseCntrSn', dataType: 'number' },
     { fieldName: 'ojCntrNo' },
-    { fieldName: 'ojCntrSn' },
+    { fieldName: 'ojCntrSn', dataType: 'number' },
     { fieldName: 'icptSellExrDt' },
     { fieldName: 'cntrPdStrtDt' },
     { fieldName: 'baseUsedCpsYn' },
@@ -407,10 +408,10 @@ const initGrid = defineGrid((data, view) => {
   view.onCellEdited = async (grid, itemIndex, row, field) => {
     if (['baseCntrNo', 'baseCntrSn', 'ojCntrNo', 'ojCntrSn'].includes(grid.getColumn(field).name)) {
       const { baseCntrNo, baseCntrSn, ojCntrNo, ojCntrSn } = grid.getValues(itemIndex);
-      if (!isEmpty(baseCntrNo) && !isEmpty(baseCntrSn) && !isEmpty(ojCntrNo) && !isEmpty(ojCntrSn)) {
+      if (!!baseCntrNo && isNumber(baseCntrSn) && !!ojCntrNo && isNumber(ojCntrSn)) {
         const res = await dataService.get('/sms/wells/contract/incomplete-sales', { params: { baseCntrNo, baseCntrSn, ojCntrNo, ojCntrSn } });
         const info = res.data;
-        ['icptSellProcsTpCd', 'icptSellRsonCn', 'icptSellExrDt'].forEach((col) => delete info[col]);
+        ['icptSellProcsTpCd', 'icptSellRsonCn', 'icptSellExrDt'].forEach((col) => delete info[col]); // FIXME 로직 확인
         grid.setValues(itemIndex, res.data);
       }
     }
