@@ -452,15 +452,7 @@ async function setSellDetailTypeCodes(sellTpCd, isReset = false) {
     if (isReset) {
       mgtNameFields.sellTpDtlCd.initValue = '';
     }
-    if (sellTpCd === '2') {
-      mgtNameFields.sellTpDtlCd.readonly = false;
-      mgtNameFields.sellTpDtlCd.codes = codes.RENTAL_SELL_DTL_TP_CD;
-    } else if (sellTpCd === '3') {
-      mgtNameFields.sellTpDtlCd.readonly = false;
-      mgtNameFields.sellTpDtlCd.codes = codes.MSH_SELL_DTL_TP_CD;
-    } else {
-      mgtNameFields.sellTpDtlCd.readonly = true;
-    }
+    mgtNameFields.sellTpDtlCd.codes = codes.SELL_TP_DTL_CD.filter((item) => item.userDfn02 === sellTpCd);
   }
 }
 
