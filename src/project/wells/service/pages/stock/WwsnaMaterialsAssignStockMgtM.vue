@@ -248,7 +248,7 @@ onMounted(() => {
 const initGrdMain = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'wareDtlDvNm', header: t('MSG_TXT_WARE_DTL_DV'), width: '140', styleName: 'text-left' },
-    { fieldName: 'prtnrNo', header: t('MSG_TXT_EPNO'), width: '80', styleName: 'text-center' },
+    { fieldName: 'prtnrNo', header: t('MSG_TXT_EPNO'), width: '80', styleName: 'rg-button-link', renderer: { type: 'button' } },
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '70', styleName: 'text-center' },
     { fieldName: 'ogNm', header: t('MSG_TXT_BLG'), width: '120', styleName: 'text-center' },
     { fieldName: 'bldCd', header: t('MSG_TXT_BLD_CD'), width: '70', styleName: 'text-center' },
