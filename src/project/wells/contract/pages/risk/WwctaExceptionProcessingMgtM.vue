@@ -75,10 +75,10 @@
         <kw-search-item
           :label="$t('MSG_TXT_CNTR_NO')"
         >
-          <kw-input
-            v-model="searchParams.cntrNo"
-            maxlength="15"
-            rules="max:15"
+          <zctz-contract-detail-number
+            v-model:cntr-no="searchParams.cntrNo"
+            v-model:cntr-sn="searchParams.cntrSn"
+            disable-popup="true"
           />
         </kw-search-item>
       </kw-search-row>
@@ -158,6 +158,7 @@
 import { codeUtil, defineGrid, getComponentType, gridUtil, useDataService, useGlobal, useMeta } from 'kw-lib';
 import dayjs from 'dayjs';
 import { cloneDeep } from 'lodash-es';
+import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
 
 const dataService = useDataService();
 const { getConfig } = useMeta();
@@ -215,6 +216,8 @@ async function fetchData() {
 
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(exceptions);
+  view.resetCurrent();
+  view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
 async function onClickSearch() {
