@@ -112,9 +112,10 @@ async function insertCallbackRows(view, rtn, pdRelTpCd) {
         await gridUtil.focusCellInput(view, 0);
       }
     } else {
-      const row = Array.isArray(rtn.payload) ? rtn.payload[0] : rtn.payload;
+      const row = Array.isArray(rtn.payload) ? rtn.payload[0].checkedRows[0] : rtn.payload.checkedRows[0];
       row[pdConst.PD_REL_TP_CD] = pdRelTpCd;
       row[pdConst.REL_OJ_PD_CD] = row.pdCd;
+      console.log('row', row);
       const okRows = await getCheckAndNotExistRows(view, [row]);
       if (okRows && okRows.length) {
         await gridUtil.insertRowAndFocus(view, 0, okRows[0]);
