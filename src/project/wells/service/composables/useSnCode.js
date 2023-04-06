@@ -180,10 +180,7 @@ export default () => {
 
   async function getMonthWarehouse(wareMngtPrtnrNo, apyYm) {
     const result = await dataService.get('/sms/wells/common/sms-wells-codes/month-stocks', { params: { wareMngtPrtnrNo, apyYm } });
-    return result.data.map((x) => ({
-      codeId: x.codeId,
-      codeName: x.codeName,
-    }));
+    return result.data;
   }
 
   /**
