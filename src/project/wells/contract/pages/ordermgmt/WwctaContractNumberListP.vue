@@ -29,6 +29,7 @@
             :label="$t('MSG_TXT_CNTOR_NM')"
             icon="search"
             :on-click-icon="onClickSearchCntrCst"
+            :on-keydown-no-click="true"
             maxlength="50"
           />
         </kw-search-item>
@@ -45,7 +46,6 @@
           :label="$t('MSG_TXT_MPNO')"
         >
           <kw-input
-            v-model:model-value="searchParams.mpno"
             v-model:telNo0="searchParams.cralLocaraTno"
             v-model:telNo1="searchParams.mexnoEncr"
             v-model:telNo2="searchParams.cralIdvTno"
@@ -63,6 +63,7 @@
             :label="$t('MSG_TXT_CST_NO')"
             icon="search"
             :on-click-icon="onClickSearchCntrCst"
+            :on-keydown-no-click="true"
             maxlength="10"
             rules="max:10|numeric"
           />
@@ -145,15 +146,14 @@ const codes = await codeUtil.getMultiCodes(
 );
 let cachedParams;
 const searchParams = ref({
-  cntrCstKnm: props.cntrCstKnm,
-  istCstKnm: props.istCstKnm,
-  mpno: (props.cralLocaraTno ?? '').concat(props.mexnoEncr ?? '').concat(props.cralIdvTno ?? ''),
-  cralLocaraTno: props.cralLocaraTno,
-  mexnoEncr: props.mexnoEncr,
-  cralIdvTno: props.cralIdvTno,
-  cntrCstNo: props.cntrCstNo,
-  cntrNo: props.cntrNo,
-  cntrSn: props.cntrSn,
+  cntrCstKnm: '',
+  istCstKnm: '',
+  cralLocaraTno: '',
+  mexnoEncr: '',
+  cralIdvTno: '',
+  cntrCstNo: '',
+  cntrNo: '',
+  cntrSn: '',
 });
 const pageInfo = ref({
   totalCount: 0,
@@ -204,6 +204,18 @@ async function onClickSearchCntrCst() {
   }
 }
 
+onMounted(async () => {
+  Object.keys(props).forEach((attr) => {
+    if (props[attr]) {
+      searchParams.value[attr] = props[attr];
+    }
+  });
+  if (Object.values(searchParams.value).some((val) => !isEmpty(val))) {
+    cachedParams = cloneDeep(searchParams.value);
+    await fetchData();
+  }
+});
+
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
@@ -242,9 +254,4 @@ const initGrid = defineGrid((data, view) => {
   };
   data.setRows(initGridData);
 });
-
-if (Object.values(searchParams.value).some((val) => !isEmpty(val))) {
-  cachedParams = cloneDeep(searchParams.value);
-  await fetchData();
-}
 </script>
