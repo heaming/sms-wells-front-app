@@ -130,7 +130,7 @@ import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
 
 const { currentRoute } = useRouter();
-const { modal, notify, confirm } = useGlobal();
+const { modal, confirm } = useGlobal();
 const { getConfig } = useMeta();
 const { t } = useI18n();
 const dataService = useDataService();
@@ -212,7 +212,6 @@ async function onClickDdlvBaseCrdovr() {
 
   await dataService.post('/sms/wells/service/delivery-bases/next-month');
   await fetchData();
-  notify(t('MSG_ALT_SAVE_DATA'));
 }
 
 async function onClickDdlvBaseInfGrst() {
