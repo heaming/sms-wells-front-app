@@ -263,8 +263,6 @@ async function onClickSearch() {
         .format('YYYYMMDD');
     }
   }
-  console.log(cachedParams);
-  await nextTick();
   await fetchPage(1);
 }
 
@@ -474,42 +472,6 @@ const initGrd = defineGrid((data, view) => {
     },
   });
   view.rowIndicator.visible = true;
-  // data.setRows([{
-  //   cntrNo: 'W20231231987',
-  //   cntrSn: 1,
-  //   copnDvCd: '2',
-  //   istDt: '20230101',
-  //   cntrCstNo: '교원키가뭐냐',
-  //   cstKnm: '고갱님',
-  //   cralLocaraTno: '010',
-  //   mexnoEncr: '****',
-  //   cralIdvTno: '1234',
-  //   rcgvpKnm: '수령동지',
-  //   rcgvpCralLocaraTno: '010',
-  //   rcgvpMexnoEncr: '****',
-  //   rcgvpCralIdvTno: '5678',
-  //   pdCd: 'PD_CD_1',
-  //   pdNm: '제품명_1',
-  //   sdingPdNm: '모종제품명',
-  //   fnlAmt: 123456,
-  //   recapDutyPtrmN: 12,
-  //   lastBsDt: '20211212',
-  //   eotUcAmt: 80000,
-  //   eotDlqAmt: 40000,
-  //   dlqAcuMcn: 1,
-  //   cntrPdStrtdt: '20211212',
-  //   cntrPdEnddt: undefined,
-  //   mchnChYn: 'Y',
-  //   reRetalYn: 'Y',
-  //   mchnChTpCd: '15',
-  //   chCntrNo: 'W20231231999',
-  //   chCntrSn: 1,
-  //   chPdCd: 'PD_CD_2',
-  //   chPdNm: '제품명_2',
-  //   stplRcpDtm: '20211212235959',
-  //   stplStrtdt: '20211212',
-  //   stplCanDtm: '20211212235959',
-  // }]);
 });
 
 </script>
