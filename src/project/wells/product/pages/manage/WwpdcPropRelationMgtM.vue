@@ -99,9 +99,34 @@ async function resetData() {
   // TODO Grid 에서 초기화버튼 기능을 어떻게 정의할지 확인필요.
 }
 
-async function getCheckAndNotExistRows(view, rows) {
-  const alreadyItems = getAlreadyItems(view, rows, 'pdCd');
+async function insertCallbackRows(view, rtn, pdRelTpCd) {
+  if (rtn.result) {
+    if (Array.isArray(rtn.payload.checkedRows) && rtn.payload.checkedRows.length > 1) {
+      const data = view.getDataSource();
+      const rows = rtn.payload.checkedRows.map((item) => ({
+        ...item, [pdConst.REL_OJ_PD_CD]: item.pdCd, [pdConst.PD_REL_TP_CD]: pdRelTpCd }));
+      console.log('rows', rows);
+      const okRows = await getCheckAndNotExistRows(view, rows);
+      if (okRows && okRows.length) {
+        await data.insertRows(0, okRows);
+        await gridUtil.focusCellInput(view, 0);
+      }
+    } else {
+      const row = Array.isArray(rtn.payload) ? rtn.payload[0].checkedRows[0] : rtn.payload.checkedRows[0];
+      row[pdConst.PD_REL_TP_CD] = pdRelTpCd;
+      row[pdConst.REL_OJ_PD_CD] = row.pdCd;
+      console.log('row', row);
+      const okRows = await getCheckAndNotExistRows(view, [row]);
+      if (okRows && okRows.length) {
+        await gridUtil.insertRowAndFocus(view, 0, okRows[0]);
+      }
+    }
+  }
+}
 
+async function getCheckAndNotExistRows(view, rows) {
+  // const alreadyItems = getAlreadyItems(view, rows, 'pdCd');
+  const alreadyItems = getAlreadyItems(view, rows, 'ojPdCd', 'pdRelTpCd');
   console.log(rows, rows.length, alreadyItems.length);
 
   if (rows.length === alreadyItems.length) {
@@ -123,30 +148,6 @@ async function getCheckAndNotExistRows(view, rows) {
     }, []);
   }
   return rows;
-}
-
-async function insertCallbackRows(view, rtn, pdRelTpCd) {
-  if (rtn.result) {
-    if (Array.isArray(rtn.payload.checkedRows) && rtn.payload.checkedRows.length > 1) {
-      const data = view.getDataSource();
-      const rows = rtn.payload.checkedRows.map((item) => ({
-        ...item, [pdConst.REL_OJ_PD_CD]: item.pdCd, [pdConst.PD_REL_TP_CD]: pdRelTpCd }));
-      console.log('rows', rows);
-      const okRows = await getCheckAndNotExistRows(view, rows);
-      if (okRows && okRows.length) {
-        await data.insertRows(0, okRows);
-        await gridUtil.focusCellInput(view, 0);
-      }
-    } else {
-      const row = Array.isArray(rtn.payload) ? rtn.payload[0] : rtn.payload;
-      row[pdConst.PD_REL_TP_CD] = pdRelTpCd;
-      row[pdConst.REL_OJ_PD_CD] = row.pdCd;
-      const okRows = await getCheckAndNotExistRows(view, [row]);
-      if (okRows && okRows.length) {
-        await gridUtil.insertRowAndFocus(view, 0, okRows[0]);
-      }
-    }
-  }
 }
 
 // component: 'ZpdcStandardProductListP', // 기준정보 팝업
