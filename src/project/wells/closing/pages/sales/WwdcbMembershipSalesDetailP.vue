@@ -245,7 +245,7 @@
           <p>{{ membershipDetail.col52 }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_FILT_UC_AMT')">
-          <p>{{ membershipDetail.col53 }}</p>
+          <p>{{ membershipDetail.col53 }}</p>initGrdBondOrder
         </kw-form-item>
       </kw-form-row>
     </kw-form>
@@ -260,7 +260,7 @@
           <p>{{ membershipDetail.btdDlqAddAmt }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_ADAMT_OC_AMT')">
-          <p>{{ membershipDetail.thmOcDlqAddAmt }}</p>
+          <p>{{ membershipDetail.dlqAdamtOcAmt }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_ADAMT_DDTN_AMT')">
           <p>{{ membershipDetail.thmCtrDlqAddAmt }}</p>

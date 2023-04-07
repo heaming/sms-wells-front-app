@@ -53,10 +53,11 @@
         />
       </kw-action-top>
       <kw-grid
-        ref="gridMainRef"
+        ref="grdGridSoleDistributorCanCntr"
+        name=""
         :page-size="pageInfo.pageSize"
         :total-count="pageInfo.totalCount"
-        @init="initGrid"
+        @init="initGridSoleDistributorCanCntrList"
       />
       <kw-pagination
         v-model:page-index="pageInfo.pageIndex"
@@ -71,7 +72,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, useMeta, useDataService, getComponentType, useGlobal } from 'kw-lib';
+import { codeUtil, useMeta, useDataService, getComponentType, useGlobal, defineGrid, gridUtil } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 
@@ -82,7 +83,7 @@ const { notify } = useGlobal();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
-const gridMainRef = ref(getComponentType('KwGrid'));
+const grdGridSoleDistributorCanCntr = ref(getComponentType('KwGrid'));
 const now = dayjs();
 
 const searchParams = ref({
@@ -106,19 +107,15 @@ let cachedParams;
 
 async function fetchData() {
   const res = await dataService.get('/sms/wells/contract/contracts/soledistributor-cancel-contracts/paging', { params: { ...cachedParams, ...pageInfo.value } });
-  const { list: details, pageInfo: pagingResult } = res.data;
+  const { list: pages, pageInfo: pagingResult } = res.data;
   pageInfo.value = pagingResult;
 
-  const view = gridMainRef.value.getView();
+  const view = grdGridSoleDistributorCanCntr.value.getView();
   const dataSource = view.getDataSource();
+  dataSource.setRows(pages);
 
-  dataSource.checkRowStates(false);
-  if (pageInfo.value.pageIndex === 1) {
-    dataSource.setRows(details);
-  } else {
-    dataSource.addRows(details);
-  }
-  dataSource.checkRowStates(true);
+  view.resetCurrent();
+  view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
 async function onClickSearch() {
@@ -133,7 +130,7 @@ async function ozPrint() {
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
-function initGrid(data, view) {
+const initGridSoleDistributorCanCntrList = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'ogCd' }, // 소속
     { fieldName: 'hooPrtnrNm' }, // 본부장명
@@ -183,7 +180,7 @@ function initGrid(data, view) {
   view.setColumns(columns);
 
   view.rowIndicator.visible = true;
-}
+});
 </script>
 <style scoped>
 </style>

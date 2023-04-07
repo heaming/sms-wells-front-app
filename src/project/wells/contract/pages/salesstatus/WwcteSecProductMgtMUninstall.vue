@@ -1,31 +1,40 @@
+<!----
+****************************************************************************************************
+* 프로그램 개요
+****************************************************************************************************
+1. 모듈 : CTE
+2. 프로그램 ID : WwcteSecProductMgtMUninstall - 삼성전자 상품관리
+3. 작성자 : gs.nidhi.d
+4. 작성일 : 2023.04.05
+****************************************************************************************************
+* 프로그램 설명
+****************************************************************************************************
+- 삼성전자 상품관리
+****************************************************************************************************
+--->
 <template>
   <kw-page>
-    <template #header>
-      <kw-page-header
-        :options="['홈','판매','영업활동관리','삼성전자 상품관리']"
-      />
-    </template>
     <!-- To.개발 kw-tab-panel안에 kw-search로 시작하는 경우 kw-tabs에 .form-border 제거 / 그 외 추가 -->
     <kw-tabs model-value="1">
       <kw-tab
         name="1"
-        label="미설치"
+        :label="$t('MSG_TXT_NOT_INSTL')"
       />
       <kw-tab
         name="2"
-        label="배송"
+        :label="$t('MSG_TXT_DLVRY')"
       />
       <kw-tab
         name="3"
-        label="확정일"
+        :label="$t('MSG_TXT_DTRM_DATE')"
       />
       <kw-tab
         name="4"
-        label="예약일"
+        :label="$t('MSG_TXT_RSV_DATE')"
       />
       <kw-tab
         name="5"
-        label="무상A/S"
+        :label="$t('MSG_TXT_FRISU_AS')"
       />
     </kw-tabs>
     <kw-tab-panels model-value="1">
@@ -33,24 +42,24 @@
         <kw-search>
           <kw-search-row>
             <kw-search-item
-              label="접수기간"
+              :label="$t('MSG_TXT_APPL_PRD')"
             >
               <kw-date-range-picker rules="date_range_months:1" />
             </kw-search-item>
             <kw-search-item
-              label="계약번호"
+              :label="$t('MSG_TXT_CNTR_NO')"
             >
               <kw-input />
             </kw-search-item>
             <kw-search-item
-              label="계약자명"
+              :label="$t('MSG_TXT_CNTOR_NM')"
             >
               <kw-input />
             </kw-search-item>
           </kw-search-row>
           <kw-search-row>
             <kw-search-item
-              label="소속코드"
+              :label="$t('MSG_TXT_BLG_CD')"
             >
               <kw-input />
               <span>~</span>
@@ -69,14 +78,14 @@
               secondary
               dense
               class="mr8"
-              label="양식 다운로드"
+              :label="$t('MSG_BTN_TEMP_DOWN')"
             />
             <kw-btn
               icon="upload_on"
               secondary
               dense
               class="mr8"
-              label="엑셀 업로드"
+              :label="$t('MSG_BTN_EXCEL_UP')"
             />
           </kw-action-top>
           <kw-grid
@@ -89,7 +98,17 @@
   </kw-page>
 </template>
 <script setup>
-function initGrid(data, view) {
+// -------------------------------------------------------------------------------------------------
+// Import & Declaration
+// -------------------------------------------------------------------------------------------------
+import { defineGrid } from 'kw-lib';
+
+const { t } = useI18n();
+
+// -------------------------------------------------------------------------------------------------
+// Initialize Grid
+// -------------------------------------------------------------------------------------------------
+const initGrid = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'col1' },
     { fieldName: 'col2' },
@@ -105,17 +124,17 @@ function initGrid(data, view) {
   ];
 
   const columns = [
-    { fieldName: 'col1', header: '계약번호', width: '136', styleName: 'text-center' },
-    { fieldName: 'col2', header: '계약자명', width: '136', styleName: 'text-center' },
-    { fieldName: 'col3', header: '주문번호', width: '137', styleName: 'text-center' },
-    { fieldName: 'col4', header: '상품명(대분류)', width: '197' },
-    { fieldName: 'col5', header: '상품명(소분류)', width: '198' },
-    { fieldName: 'col6', header: '계약일', width: '136', styleName: 'text-center' },
-    { fieldName: 'col7', header: '설치예약일', width: '136', styleName: 'text-center' },
-    { fieldName: 'col8', header: '파트너 소속코드', width: '147', styleName: 'text-center' },
-    { fieldName: 'col9', header: '파트너 사번', width: '149', styleName: 'text-center' },
-    { fieldName: 'col10', header: '파트너명', width: '148', styleName: 'text-center' },
-    { fieldName: 'col11', header: '비고', width: '366' },
+    { fieldName: 'col1', header: t('MSG_TXT_CNTR_NO'), width: '136', styleName: 'text-center' },
+    { fieldName: 'col2', header: t('MSG_TXT_CNTOR_NM'), width: '136', styleName: 'text-center' },
+    { fieldName: 'col3', header: t('MSG_TXT_ORD_NO'), width: '137', styleName: 'text-center' },
+    { fieldName: 'col4', header: `${t('MSG_TXT_PRDT_NM')}(${t('MSG_TXT_TXT_MSG_PD_HCLSF_ID')})`, width: '197' },
+    { fieldName: 'col5', header: `${t('MSG_TXT_PRDT_NM')}(${t('MSG_TXT_TXT_MSG_PD_LCLSF_ID')})`, width: '198' },
+    { fieldName: 'col6', header: t('MSG_TXT_CNTRCT_DT'), width: '136', styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'col7', header: t('MSG_TXT_INSTLATN_RSRVATN_DT'), width: '136', styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'col8', header: t('MSG_TXT_PRTNR_AFFILITN_CD'), width: '147', styleName: 'text-center' },
+    { fieldName: 'col9', header: t('MSG_TXT_PARTNER_NO'), width: '149', styleName: 'text-center' },
+    { fieldName: 'col10', header: t('MSG_TXT_PTNR_NAME'), width: '148', styleName: 'text-center' },
+    { fieldName: 'col11', header: t('MSG_TXT_NOTE'), width: '366' },
   ];
 
   data.setFields(fields);
@@ -125,9 +144,9 @@ function initGrid(data, view) {
   view.rowIndicator.visible = true;
 
   data.setRows([
-    { col1: '1234-1234567', col2: '김고객', col3: '1234567890', col4: '환경가전', col5: '건조기', col6: '2022-10-01', col7: '2022-10-05', col8: 'A123456', col9: 'A123456', col10: '김판매', col11: '미설치 된 사유 내용이 들어갑니다.' },
+    { col1: '1234-1234567', col2: '김고객', col3: '1234567890', col4: '환경가전', col5: '건조기', col6: '20221001', col7: '20221005', col8: 'A123456', col9: 'A123456', col10: '김판매', col11: '미설치 된 사유 내용이 들어갑니다.' },
   ]);
-}
+});
 </script>
 <style scoped>
 </style>

@@ -103,13 +103,15 @@ async function initGridRows() {
     return rtn;
   }, []);
   resetVisibleGridColumns(currentMetaInfos.value, pdConst.PD_PRC_TP_CD_FINAL, view);
-  checkedVals.forEach((fieldName) => {
+  if (checkedVals && checkedVals.length) {
+    checkedVals.forEach((fieldName) => {
     // 선택변수 표시
-    const column = view.columnByName(fieldName);
-    if (column) {
-      column.visible = true;
-    }
-  });
+      const column = view.columnByName(fieldName);
+      if (column) {
+        column.visible = true;
+      }
+    });
+  }
 
   if (currentInitData.value?.[prcfd]) {
     // 기준가 정보

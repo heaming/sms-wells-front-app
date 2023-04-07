@@ -20,13 +20,13 @@
     <kw-form dense>
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_CST_NM')">
-          <p>{{ leaseSalesDetail.col1 }}</p>
+          <p>{{ leaseSalesDetail.cstKnm }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_CNTR_DTL_NO')">
-          <p>{{ leaseSalesDetail.col2 }}</p>
+          <p>{{ leaseSalesDetail.cntrDtlNo }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_SL_YM')">
-          <p>{{ leaseSalesDetail.col3 }}</p>
+          <p>{{ leaseSalesDetail.slClYm }}</p>
         </kw-form-item>
       </kw-form-row>
     </kw-form>
@@ -38,32 +38,32 @@
     <kw-form dense>
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_PRDT')">
-          <p>{{ leaseSalesDetail.col4 }}</p>
+          <p>{{ leaseSalesDetail.pdNm }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_RCP_D')">
-          <p>{{ stringUtil.getDateFormat(leaseSalesDetail.col5) }}</p>
+          <p>{{ stringUtil.getDateFormat(leaseSalesDetail.cntrDt) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_DT_OF_SALE')">
-          <p>{{ stringUtil.getDateFormat(leaseSalesDetail.col16) }}</p>
+          <p>{{ stringUtil.getDateFormat(leaseSalesDetail.slDt) }}</p>
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_PRD_MCNT_USWY')">
-          <p>{{ leaseSalesDetail.col7 }}</p>
+          <p>{{ leaseSalesDetail.col1 }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_REG_FEE')">
-          <p>{{ leaseSalesDetail.col8 }}</p>
+          <p>{{ leaseSalesDetail.rentalRgstCost }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_LEASE_TAM')">
-          <p>{{ leaseSalesDetail.col9 }}</p>
+          <p>{{ leaseSalesDetail.istmAmt }}</p>
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_LEASFE_MCNT_WON')">
-          <p>{{ leaseSalesDetail.col10 }}</p>
+          <p>{{ leaseSalesDetail.rentalPtrm }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_PD_SVC_FEE')">
-          <p>{{ leaseSalesDetail.col11 }}</p>
+          <p>{{ leaseSalesDetail.col2 }}</p>
         </kw-form-item>
       </kw-form-row>
     </kw-form>
@@ -75,32 +75,32 @@
     <kw-form dense>
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_LEASE_NMN')">
-          <p>{{ leaseSalesDetail.col12 }}</p>
+          <p>{{ leaseSalesDetail.rentalTn }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_USE_DC_D')">
-          <p>{{ leaseSalesDetail.col13 }}</p>
+          <p>{{ leaseSalesDetail.col3 }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_CANC_DT')">
-          <p>{{ stringUtil.getDateFormat(leaseSalesDetail.col14) }}</p>
+          <p>{{ stringUtil.getDateFormat(leaseSalesDetail.col4) }}</p>
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_PCAM_SL_AMT')">
-          <p>{{ leaseSalesDetail.col15 }}</p>
+          <p>{{ leaseSalesDetail.fnnLeasePcamTam }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_FSH_DT')">
-          <p>{{ stringUtil.getDateFormat(leaseSalesDetail.col16) }}</p>
+          <p>{{ stringUtil.getDateFormat(leaseSalesDetail.col5) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_PCAM_AGG_AMT')">
-          <p>{{ leaseSalesDetail.col17 }}</p>
+          <p>{{ leaseSalesDetail.slAggAmt }}</p>
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_DSC_AGG_AMT')">
-          <p>{{ leaseSalesDetail.col18 }}</p>
+          <p>{{ leaseSalesDetail.col6 }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_CTR_AGG_AMT')">
-          <p>{{ leaseSalesDetail.col19 }}</p>
+          <p>{{ leaseSalesDetail.col7 }}</p>
         </kw-form-item>
       </kw-form-row>
     </kw-form>
@@ -112,35 +112,35 @@
     <kw-form dense>
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_BTD_AMT')">
-          <p>{{ leaseSalesDetail.col20 }}</p>
+          <p>{{ leaseSalesDetail.ovrCtrDpAmt }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_OCCR_AMT')">
-          <p>{{ leaseSalesDetail.col21 }}</p>
+          <p>{{ leaseSalesDetail.col8 }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_DP_AMT')">
-          <p>{{ leaseSalesDetail.col22 }}</p>
+          <p>{{ leaseSalesDetail.col9 }}</p>
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_SPMT_AMT')">
-          <p>{{ leaseSalesDetail.col23 }}</p>
+          <p>{{ leaseSalesDetail.col10 }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_CTR_AMT')">
-          <p>{{ leaseSalesDetail.col24 }}</p>
+          <p>{{ leaseSalesDetail.col11 }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_EOT_AMT')">
-          <p>{{ leaseSalesDetail.col25 }}</p>
+          <p>{{ leaseSalesDetail.col12 }}</p>
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_BND_CTR_AMT')">
-          <p>{{ leaseSalesDetail.col26 }}</p>
+          <p>{{ leaseSalesDetail.col13 }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_BND_EOT_AMT')">
-          <p>{{ leaseSalesDetail.col27 }}</p>
+          <p>{{ leaseSalesDetail.col14 }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_BTD_AMT')">
-          <p>{{ leaseSalesDetail.col28 }}</p>
+          <p>{{ leaseSalesDetail.col15 }}</p>
         </kw-form-item>
       </kw-form-row>
     </kw-form>
@@ -152,10 +152,10 @@
     <kw-form dense>
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_BOR_AMT')">
-          <p>{{ leaseSalesDetail.col29 }}</p>
+          <p>{{ leaseSalesDetail.col16 }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_PD_LENT_LOST_LOG')">
-          <p>{{ leaseSalesDetail.col30 }}</p>
+          <p>{{ leaseSalesDetail.col17 }}</p>
         </kw-form-item>
       </kw-form-row>
     </kw-form>
@@ -167,32 +167,32 @@
     <kw-form dense>
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_BTD_AMT')">
-          <p>{{ leaseSalesDetail.col31 }}</p>
+          <p>{{ leaseSalesDetail.btdAtam }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_PRPD_DP_AMT')">
-          <p>{{ leaseSalesDetail.col32 }}</p>
+          <p>{{ leaseSalesDetail.thmAtamDpAmt }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_PRPD_RFND_AMT')">
-          <p>{{ leaseSalesDetail.col33 }}</p>
+          <p>{{ leaseSalesDetail.thmAtamRfndAmt }}</p>
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_SL_RPLC_AMT')">
-          <p>{{ leaseSalesDetail.col34 }}</p>
+          <p>{{ leaseSalesDetail.col18 }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_PRPD_RPLC_AMT')">
-          <p>{{ leaseSalesDetail.col35 }}</p>
+          <p>{{ leaseSalesDetail.col19 }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_PRPD_TAM')">
-          <p>{{ leaseSalesDetail.col36 }}</p>
+          <p>{{ leaseSalesDetail.eotTotalAmt }}</p>
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_P_BLAM')">
-          <p>{{ leaseSalesDetail.col37 }}</p>
+          <p>{{ leaseSalesDetail.mlgEotPrpdAmt }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_PRPD_BLAM')">
-          <p>{{ leaseSalesDetail.col38 }}</p>
+          <p>{{ leaseSalesDetail.eotAtam }}</p>
         </kw-form-item>
       </kw-form-row>
     </kw-form>
@@ -204,24 +204,24 @@
     <kw-form dense>
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_ADAMT_BTD_AMT')">
-          <p>{{ leaseSalesDetail.col39 }}</p>
+          <p>{{ leaseSalesDetail.btdDlqAddAmt }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_ADAMT_OC_AMT')">
-          <p>{{ leaseSalesDetail.col40 }}</p>
+          <p>{{ leaseSalesDetail.dlqAdamtOcAmt }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_ADAMT_DDTN_AMT')">
-          <p>{{ leaseSalesDetail.col41 }}</p>
+          <p>{{ leaseSalesDetail.thmCtrDlqAddAmt }}</p>
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_ADAMT_DP_AMT')">
-          <p>{{ leaseSalesDetail.col42 }}</p>
+          <p>{{ leaseSalesDetail.thmDlqDpSumAmt }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_ADAMT_RFND_AMT')">
-          <p>{{ leaseSalesDetail.col43 }}</p>
+          <p>{{ leaseSalesDetail.thmDlqRfndSumAmt }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_ADAMT_EOT_AMT')">
-          <p>{{ leaseSalesDetail.col44 }}</p>
+          <p>{{ leaseSalesDetail.eotDlqAddAmt }}</p>
         </kw-form-item>
       </kw-form-row>
     </kw-form>
@@ -233,24 +233,24 @@
     <kw-form dense>
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_KEEP_AW_AMT')">
-          <p>{{ leaseSalesDetail.col45 }}</p>
+          <p>{{ leaseSalesDetail.col20 }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_DLQ_MCNT_AGG')">
-          <p>{{ leaseSalesDetail.col46 }}</p>
+          <p>{{ leaseSalesDetail.dlqMcn }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_DLQ_AMT')">
-          <p>{{ leaseSalesDetail.col47 }}</p>
+          <p>{{ leaseSalesDetail.thmOcDlqAmt }}</p>
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_ACTCS_DT')">
-          <p>{{ leaseSalesDetail.col48 }}</p>
+          <p>{{ leaseSalesDetail.actcsDt }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_CLCTAM_ICHR')">
-          <p>{{ leaseSalesDetail.col49 }}</p>
+          <p>{{ leaseSalesDetail.clctamPrtnrNo }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_FW_YM')">
-          <p>{{ leaseSalesDetail.col50 }}</p>
+          <p>{{ leaseSalesDetail.col21 }}</p>
         </kw-form-item>
       </kw-form-row>
     </kw-form>

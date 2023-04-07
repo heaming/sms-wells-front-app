@@ -426,10 +426,11 @@ async function initGrid(data, view) {
           view.resetCurrent();
         }
       } else if (fixDvCd === '02') {
-        if (fixValue > 100) {
-          await notify(t('MSG_ALT_A_IS_GREAT_THEN_B', [
+        if (fixValue < -100) {
+          /* {0}값이 {1}보다 작습니다. */
+          notify(t('MSG_ALT_A_IS_LESS_THEN_B', [
             grid.columnByName('cndtDscPrumVal').header.text,
-            '100%']));
+            '-100%']));
           view.setValue(itemIndex, 'cndtDscPrumVal', 0);
           view.resetCurrent();
         }

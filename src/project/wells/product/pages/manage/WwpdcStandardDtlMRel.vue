@@ -29,8 +29,8 @@
     ignore-on-modified
     @init="initServiceGrid"
   />
-  <!-- 기준상품 -->
-  <h3>{{ $t('MSG_TXT_STND_PRDT') }}</h3>
+  <!-- 기준상품 관계설정 -->
+  <h3>{{ $t('MSG_TXT_STD_PRD_SET_REL') }}</h3>
   <kw-grid
     ref="grdStandardRef"
     :visible-rows="3"

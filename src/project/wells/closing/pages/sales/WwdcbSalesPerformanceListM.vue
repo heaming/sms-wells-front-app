@@ -487,6 +487,7 @@
               dense
               secondary
               :label="$t('MSG_BTN_CCAM_ET')"
+              @click="onClickCcamEt"
             />
             <kw-btn
               dense
@@ -645,19 +646,19 @@ async function fetchBaseData() {
   console.log('res.data:', res.data);
   baseInfo.value = res.data;
   // console.log('baseInfo.sellTpCd:', baseInfo.value.sellTpCd);
-  if (baseInfo.value.sellTpCd === '2') {
+  if (baseInfo.value.sellTpCd === '2') { // 렌탈, 리스
     isShow1.value = true;
     isShow2.value = false;
     isShow3.value = false;
     await fetchRentalData();
     await fetchRentalListData();
-  } else if (baseInfo.value.sellTpCd === '3') {
+  } else if (baseInfo.value.sellTpCd === '3') { // 멤버십
     isShow1.value = false;
     isShow2.value = true;
     isShow3.value = false;
     await fetchMembershipData();
     await fetchMembershipListData();
-  } else if (baseInfo.value.sellTpCd === '6') {
+  } else if (baseInfo.value.sellTpCd === '6') { // 정기배송
     isShow1.value = false;
     isShow2.value = false;
     isShow3.value = true;
@@ -700,6 +701,12 @@ async function onClickExportView() {
   }
 }
 
+async function onClickCcamEt() {
+  await modal({
+    component: 'WwdcbPenaltyEstimateDtlP',
+  });
+}
+
 async function onClickPrmEt() {
   console.log('선납예상 팝업 추가');
   // const cntrDtlNo = baseInformation.value.col2;
@@ -719,8 +726,8 @@ const initGridMain1 = defineGrid((data, view) => {
     { fieldName: 'cntrDtlStatCd', header: t('MSG_TXT_SL_STP'), width: '100', styleName: 'text-center' },
     { fieldName: 'col4', header: t('MSG_TXT_NMN'), width: '100', styleName: 'text-center' },
     { fieldName: 'col5', header: t('MSG_TXT_MNGT_DV'), width: '100', styleName: 'text-center' },
-    { fieldName: 'prmMcn', header: t('MSG_TXT_PRM_MCNT'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'thmSlSumAmt', header: t('MSG_TXT_BIL_AMT'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'prmMcn', header: t('MSG_TXT_PRM_MCNT'), width: '100', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'thmSlSumAmt', header: t('MSG_TXT_BIL_AMT'), width: '100', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
     { fieldName: 'col8', header: t('MSG_TXT_CCAM'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
     { fieldName: 'col9', header: t('MSG_TXT_DP'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
     { fieldName: 'eotAtam', header: t('MSG_TXT_PRPD_AMT'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
@@ -743,10 +750,22 @@ const initGridMain1 = defineGrid((data, view) => {
     const dataProvider = view.getDataSource();
     const slDt = dataProvider.getValue(current.dataRow, 'slDt');
     if (column === 'slDt') {
-      await modal({
-        component: 'WwdcbLeaseSalesDetailP',
-        componentProps: { slDt },
-      });
+      if (baseInfo.value.sellTpCd === '2') { // 렌탈, 리스
+        await modal({
+          component: 'WwdcbRentalSalesDetailP', // TODOL 조건 추가하기(리스 : WwdcbLeaseSalesDetailP)
+          componentProps: { slDt },
+        });
+      } else if (baseInfo.value.sellTpCd === '3') { // 멤버십
+        await modal({
+          component: 'WwdcbMembershipSalesDetailP',
+          componentProps: { slDt },
+        });
+      } else if (baseInfo.value.sellTpCd === '6') { // 정기배송
+        await modal({
+          component: '',
+          componentProps: { slDt },
+        });
+      }
     }
   };
 
