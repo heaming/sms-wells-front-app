@@ -154,6 +154,7 @@ async function fetchData() {
   pageInfo.value = pagingResult;
   view.getDataSource().setRows(pages);
   view.resetCurrent();
+  view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
 async function onClickSearch() {
@@ -170,7 +171,7 @@ async function onClickRegister() {
     },
   });
   if (result) {
-    await notify(t('MSG_ALT_SAVE_DATA'));
+    notify(t('MSG_ALT_SAVE_DATA'));
     await fetchData();
   }
 }
@@ -266,7 +267,7 @@ const initGrdSub = defineGrid((data, view) => {
       },
     });
     if (result) {
-      await notify(t('MSG_ALT_SAVE_DATA'));
+      notify(t('MSG_ALT_SAVE_DATA'));
       await fetchData();
     }
   };
