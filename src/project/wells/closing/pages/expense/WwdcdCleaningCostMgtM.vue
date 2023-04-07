@@ -114,8 +114,10 @@
             @init="initGrdMain"
           />
           <kw-pagination
-            :model-value="1"
-            :total-count="100"
+            v-model:page-index="pageInfo.pageIndex"
+            v-model:page-size="pageInfo.pageSize"
+            :total-count="pageInfo.totalCount"
+            @change="fetchData"
           />
         </div>
       </kw-tab-panel>
