@@ -23,8 +23,8 @@
         required
       >
         <kw-date-range-picker
-          :from="searchParams.baseDtmnFrom"
-          :to="searchParams.baseDtmnTo"
+          v-model:from="searchParams.baseDtmnFrom"
+          v-model:to="searchParams.baseDtmnTo"
           type="date"
           :label="$t('MSG_TXT_SL_DT')"
           rules="date_range_required"
@@ -47,48 +47,43 @@
       <kw-search-item :label="$t('MSG_TXT_SEL_TYPE')">
         <kw-select
           v-if="searchParams.taskDiv === '3'"
-          v-model="searchParams.sellTp"
+          v-model="searchParams.sellTpCd"
           :readonly="false"
-          :options="codes.SELL_TP_DTL_CD.filter((v) => v.codeId === '1' || v.codeId === '3' )"
-          first-option
+          :options="codes.SELL_TP_DTL_CD.filter((v) => v.codeId === '11' || v.codeId === '24' )"
+          first-option="all"
           first-option-value="ALL"
-          :first-option-label="$t('MSG_TXT_ALL')"
         />
         <kw-select
           v-else-if="searchParams.taskDiv === '4'"
-          v-model="searchParams.sellTp"
+          v-model="searchParams.sellTpCd"
           :readonly="false"
-          :options="codes.SELL_TP_DTL_CD.filter((v) => v.codeId === '1' || v.codeId === '2' )"
-          first-option
+          :options="codes.SELL_TP_DTL_CD.filter((v) => v.codeId === '11' || v.codeId === '33' )"
+          first-option="all"
           first-option-value="ALL"
-          :first-option-label="$t('MSG_TXT_ALL')"
         />
         <kw-select
           v-else-if="searchParams.taskDiv === '5'"
-          v-model="searchParams.sellTp"
+          v-model="searchParams.sellTpCd"
           :readonly="false"
-          :options="codes.SELL_TP_DTL_CD.filter((v) => v.codeId === '3' || v.codeId === '4')"
-          first-option
+          :options="codes.SELL_TP_DTL_CD.filter((v) => v.codeId === '62')"
+          first-option="all"
           first-option-value="ALL"
-          :first-option-label="$t('MSG_TXT_ALL')"
         />
         <kw-select
           v-else
-          v-model="searchParams.sellTp"
+          v-model="searchParams.sellTpCd"
           :readonly="true"
           :options="codes.SELL_TP_DTL_CD"
-          first-option
+          first-option="all"
           first-option-value="ALL"
-          :first-option-label="$t('MSG_TXT_ALL')"
         />
       </kw-search-item>
       <kw-search-item :label="$t('MSG_TXT_SLS_CAT')">
         <kw-select
           v-model="searchParams.sellDv"
           :options="codes.RGLR_SPP_SELL_DV_ACD"
-          first-option
+          first-option="all"
           first-option-value="ALL"
-          :first-option-label="$t('MSG_TXT_ALL')"
         />
       </kw-search-item>
       <kw-search-item :label="$t('MSG_TXT_CNTR_DTL_NO')">
@@ -137,24 +132,24 @@
     </kw-action-top>
     <kw-grid
       v-if="isShow1"
-      ref="grdDetailRef1"
-      name="grdDetail1"
+      ref="grdDetailSingleRef"
+      name="grdDetailSingle"
       :visible-rows="10"
-      @init="initGridDetail1"
+      @init="initGrdSinglePayment"
     />
     <kw-grid
       v-if="isShow2"
-      ref="grdDetailRef2"
-      name="grdDetail2"
+      ref="grdDetailRentalRef"
+      name="grdDetailRental"
       :visible-rows="10"
-      @init="initGridDetail2"
+      @init="initGrdRental"
     />
     <kw-grid
       v-if="isShow3"
-      ref="grdDetailRef3"
-      name="grdDetail3"
+      ref="grdDetailMembershipsRef"
+      name="grdDetailMemberships"
       :visible-rows="10"
-      @init="initGridDetail3"
+      @init="initGrdMemberships"
     />
   </div>
 </template>
@@ -174,9 +169,9 @@ const dataService = useDataService();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
-const grdDetailRef1 = ref(getComponentType('KwGrid'));
-const grdDetailRef2 = ref(getComponentType('KwGrid'));
-const grdDetailRef3 = ref(getComponentType('KwGrid'));
+const grdDetailSingleRef = ref(getComponentType('KwGrid'));
+const grdDetailRentalRef = ref(getComponentType('KwGrid'));
+const grdDetailMembershipsRef = ref(getComponentType('KwGrid'));
 
 const isShow1 = ref(true);
 const isShow2 = ref(false);
@@ -195,7 +190,7 @@ const searchParams = ref({
   baseDtmnFrom: now.subtract(30, 'day').format('YYYYMMDD'),
   baseDtmnTo: now.format('YYYYMMDD'),
   taskDiv: '1', // 업무구분
-  sellTp: 'ALL', // 판매유형
+  sellTpCd: 'ALL', // 판매유형
   sellDv: 'ALL', // 판매구분
   cntrDtlNo: '', // 계약상세번호
   cstNo: '', // 고객번호
@@ -209,31 +204,31 @@ async function onSelectTaskDiv() {
     isShow1.value = true;
     isShow2.value = false;
     isShow3.value = false;
-    const view = grdDetailRef1.value.getView();
+    const view = grdDetailSingleRef.value.getView();
     view.getDataSource().setRows(initGridData);
   } else if (taskDiv === '3') {
     isShow1.value = true;
     isShow2.value = false;
     isShow3.value = false;
-    const view = grdDetailRef1.value.getView();
+    const view = grdDetailSingleRef.value.getView();
     view.getDataSource().setRows(initGridData);
   } else if (taskDiv === '5') {
     isShow1.value = true;
     isShow2.value = false;
     isShow3.value = false;
-    const view = grdDetailRef1.value.getView();
+    const view = grdDetailSingleRef.value.getView();
     view.getDataSource().setRows(initGridData);
   } else if (taskDiv === '2') {
     isShow1.value = false;
     isShow2.value = true;
     isShow3.value = false;
-    const view = grdDetailRef2.value.getView();
+    const view = grdDetailRentalRef.value.getView();
     view.getDataSource().setRows(initGridData);
   } else if (taskDiv === '4') {
     isShow1.value = false;
     isShow2.value = false;
     isShow3.value = true;
-    const view = grdDetailRef3.value.getView();
+    const view = grdDetailMembershipsRef.value.getView();
     view.getDataSource().setRows(initGridData);
   }
 }
@@ -248,21 +243,21 @@ async function fetchData() {
     console.log(res.data);
     const mainList = res.data;
     totalCount.value = mainList.length;
-    const view = grdDetailRef1.value.getView();
+    const view = grdDetailSingleRef.value.getView();
     view.getDataSource().setRows(mainList);
     view.resetCurrent();
   } else if (taskDiv === '2') {
     const res = await dataService.get('/sms/wells/closing/product-sales-detail/rental', { params: cachedParams });
     const mainList = res.data;
     totalCount.value = mainList.length;
-    const view = grdDetailRef2.value.getView();
+    const view = grdDetailRentalRef.value.getView();
     view.getDataSource().setRows(mainList);
     view.resetCurrent();
   } else if (taskDiv === '4') {
     const res = await dataService.get('/sms/wells/closing/product-sales-detail/membership', { params: cachedParams });
     const mainList = res.data;
     totalCount.value = mainList.length;
-    const view = grdDetailRef3.value.getView();
+    const view = grdDetailMembershipsRef.value.getView();
     view.getDataSource().setRows(mainList);
     view.resetCurrent();
   }
@@ -275,7 +270,7 @@ async function onClickSearch() {
 async function onClickExportView() {
   const { taskDiv } = searchParams.value;
   if (taskDiv === '1' || taskDiv === '3' || taskDiv === '5') {
-    const view = grdDetailRef1.value.getView();
+    const view = grdDetailSingleRef.value.getView();
     const response = await dataService.get('/sms/wells/closing/product-sales-detail/single-payment/excel-download', { params: cachedParams });
     await gridUtil.exportView(view, {
       fileName: 'mainList',
@@ -283,7 +278,7 @@ async function onClickExportView() {
       exportData: response.data,
     });
   } else if (taskDiv === '2') {
-    const view = grdDetailRef2.value.getView();
+    const view = grdDetailRentalRef.value.getView();
     const response = await dataService.get('/sms/wells/closing/product-sales-detail/rental/excel-download', { params: cachedParams });
     await gridUtil.exportView(view, {
       fileName: 'mainList',
@@ -291,7 +286,7 @@ async function onClickExportView() {
       exportData: response.data,
     });
   } else if (taskDiv === '4') {
-    const view = grdDetailRef3.value.getView();
+    const view = grdDetailMembershipsRef.value.getView();
     const response = await dataService.get('/sms/wells/closing/product-sales-detail/membership/excel-download', { params: cachedParams });
     await gridUtil.exportView(view, {
       fileName: 'mainList',
@@ -346,7 +341,7 @@ async function onClickCstNo() {
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
-const initGridDetail1 = defineGrid((data, view) => {
+const initGrdSinglePayment = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'taskDiv',
       header: t('MSG_TXT_TASK_DIV'),
@@ -642,7 +637,7 @@ const initGridDetail1 = defineGrid((data, view) => {
   view.rowIndicator.visible = true;
 });
 
-const initGridDetail2 = defineGrid((data, view) => {
+const initGrdRental = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'taskDiv',
       header: t('MSG_TXT_TASK_DIV'),
@@ -858,7 +853,7 @@ const initGridDetail2 = defineGrid((data, view) => {
   view.rowIndicator.visible = true;
 });
 
-const initGridDetail3 = defineGrid((data, view) => {
+const initGrdMemberships = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'taskDiv',
       header: t('MSG_TXT_TASK_DIV'),

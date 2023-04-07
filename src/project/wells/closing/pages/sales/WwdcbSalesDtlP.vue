@@ -25,61 +25,61 @@
         <kw-form-item
           :label="$t('MSG_TXT_REG_FEE')"
         >
-          <p>{{ saledDetailInf1.col1 }}</p>
+          <p>{{ salesRentalInf.rentalRgstCost }}</p>
         </kw-form-item>
         <kw-form-item
           :label="$t('MSG_TXT_RTLFE1_MM_CHRAM')"
         >
-          <p>{{ saledDetailInf1.col7 }}</p>
+          <p>{{ salesRentalInf.col3 }}</p>
         </kw-form-item>
         <kw-form-item
           :label="$t('MSG_TXT_PUR_MM_INTAM')"
         >
-          <p>{{ saledDetailInf1.col13 }}</p>
+          <p>{{ salesRentalInf.rentalAmt2 }}</p>
         </kw-form-item>
         <kw-form-item
           :label="$t('MSG_TXT_REQD_RQDT')"
         >
-          <p>{{ saledDetailInf1.col19 }}</p>
+          <p>{{ salesRentalInf.rentalPtrm2 }}</p>
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
         <kw-form-item
           :label="$t('MSG_TXT_RGST_COST_DSC')"
         >
-          <p>{{ saledDetailInf1.col2 }}</p>
+          <p>{{ salesRentalInf.rentalAmt }}</p>
         </kw-form-item>
         <kw-form-item
           :label="$t('MSG_TXT_RTLFE1_DSC')"
         >
-          <p>{{ saledDetailInf1.col8 }}</p>
+          <p>{{ salesRentalInf.col4 }}</p>
         </kw-form-item>
         <kw-form-item
           :label="$t('MSG_TXT_PD_DC_CLASS')"
         >
-          <p>{{ saledDetailInf1.col14 }}</p>
+          <p>{{ salesRentalInf.col7 }}</p>
         </kw-form-item>
         <kw-form-item
           :label="$t('MSG_TXT_CANC_DT')"
         >
-          <p>{{ saledDetailInf1.col20 }}</p>
+          <p>{{ salesRentalInf.slDt }}</p>
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
         <kw-form-item
           :label="$t('MSG_TXT_RNTL_TOTAL')"
         >
-          <p>{{ saledDetailInf1.col3 }}</p>
+          <p>{{ salesRentalInf.col1 }}</p>
         </kw-form-item>
         <kw-form-item
           :label="$t('MSG_TXT_RTLFE1_MCNT')"
         >
-          <p>{{ saledDetailInf1.col9 }}</p>
+          <p>{{ salesRentalInf.istmAmt }}</p>
         </kw-form-item>
         <kw-form-item
           :label="$t('MSG_TXT_DISC_CODE')"
         >
-          <p>{{ saledDetailInf1.col15 }}</p>
+          <p>{{ salesRentalInf.col8 }}</p>
         </kw-form-item>
       </kw-form-row>
 
@@ -87,51 +87,51 @@
         <kw-form-item
           :label="$t('MSG_TXT_LEASE_DV')"
         >
-          <p>{{ saledDetailInf1.col4 }}</p>
+          <p>{{ salesRentalInf.reqdDtm }}</p>
         </kw-form-item>
         <kw-form-item
           :label="$t('MSG_TXT_RTLFE2_MM_CHRAM')"
         >
-          <p>{{ saledDetailInf1.col10 }}</p>
+          <p>{{ salesRentalInf.rentalPtrm }}</p>
         </kw-form-item>
         <kw-form-item
           :label="$t('MSG_TXT_MNGT_PRD_MCNT')"
         >
-          <p>{{ saledDetailInf1.col16 }}</p>
+          <p>{{ salesRentalInf.rentalDscAmt2 }}</p>
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
         <kw-form-item
           :label="$t('MSG_TXT_1PLUS1_LK_CNTR')"
         >
-          <p>{{ saledDetailInf1.col5 }}</p>
+          <p>{{ salesRentalInf.col2 }}</p>
         </kw-form-item>
         <kw-form-item
           :label="$t('MSG_TXT_RTLFE2_DSC')"
         >
-          <p>{{ saledDetailInf1.col11 }}</p>
+          <p>{{ salesRentalInf.col5 }}</p>
         </kw-form-item>
         <kw-form-item
           :label="$t('MSG_TXT_PAR_CNTR')"
         >
-          <p>{{ saledDetailInf1.col17 }}</p>
+          <p>{{ salesRentalInf.col9 }}</p>
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
         <kw-form-item
           :label="$t('MSG_TXT_ALNC_LK_CNTR')"
         >
-          <p>{{ saledDetailInf1.col6 }}</p>
+          <p>{{ salesRentalInf.rentalDscAmt }}</p>
         </kw-form-item>
         <kw-form-item
           :label="$t('MSG_TXT_RTLFE2_MCNT')"
         >
-          <p>{{ saledDetailInf1.col12 }}</p>
+          <p>{{ salesRentalInf.col6 }}</p>
         </kw-form-item>
         <kw-form-item
           :label="$t('MSG_TXT_SL_DT')"
         >
-          <p>{{ saledDetailInf1.col18 }}</p>
+          <p>{{ salesRentalInf.col10 }}</p>
         </kw-form-item>
       </kw-form-row>
     </kw-form>
@@ -144,56 +144,56 @@
         <kw-form-item
           :label="$t('MSG_TXT_MM_SSPCS')"
         >
-          <p>{{ saledDetailInf2.col1 }}</p>
+          <p>{{ salesMembershipInf.sellAmt }}</p>
         </kw-form-item>
         <kw-form-item
           :label="$t('MSG_TXT_DISC_CODE')"
         >
-          <p>{{ saledDetailInf2.col4 }}</p>
+          <p>{{ salesMembershipInf.col3 }}</p>
         </kw-form-item>
         <kw-form-item
           :label="$t('MSG_TXT_WDWAL_DT')"
         >
-          <p>{{ saledDetailInf2.col7 }}</p>
+          <p>{{ salesMembershipInf.col4 }}</p>
         </kw-form-item>
         <kw-form-item
           :label="$t('MSG_TXT_TXT_MSG_SV_VST_PRD_CD')"
         >
-          <p>{{ saledDetailInf2.col10 }}</p>
+          <p>{{ salesMembershipInf.col7 }}</p>
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
         <kw-form-item
           :label="$t('MSG_TXT_STPL_MCNT')"
         >
-          <p>{{ saledDetailInf2.col2 }}</p>
+          <p>{{ salesMembershipInf.col1 }}</p>
         </kw-form-item>
         <kw-form-item
           :label="$t('MSG_TXT_DSC_AMT')"
         >
-          <p>{{ saledDetailInf2.col5 }}</p>
+          <p>{{ salesMembershipInf.istmMcn }}</p>
         </kw-form-item>
         <kw-form-item
           :label="$t('MSG_TXT_VST_DT')"
         >
-          <p>{{ saledDetailInf2.col8 }}</p>
+          <p>{{ salesMembershipInf.col5 }}</p>
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
         <kw-form-item
           :label="$t('MSG_TXT_MNGT_PRD')"
         >
-          <p>{{ saledDetailInf2.col3 }}</p>
+          <p>{{ salesMembershipInf.col2 }}</p>
         </kw-form-item>
         <kw-form-item
           :label="$t('MSG_TXT_J_DT')"
         >
-          <p>{{ saledDetailInf2.col6 }}</p>
+          <p>{{ salesMembershipInf.dscAmt }}</p>
         </kw-form-item>
         <kw-form-item
           :label="$t('MSG_TXT_VST_NMN')"
         >
-          <p>{{ saledDetailInf2.col9 }}</p>
+          <p>{{ salesMembershipInf.col6 }}</p>
         </kw-form-item>
       </kw-form-row>
     </kw-form>
@@ -206,56 +206,56 @@
         <kw-form-item
           :label="$t('MSG_TXT_FRISU_MSH')"
         >
-          <p>{{ saledDetailInf3.col1 }}</p>
+          <p>{{ salesSingleInf.frisuYn }}</p>
         </kw-form-item>
         <kw-form-item
           :label="$t('MSG_TXT_SALE_PRICE')"
         >
-          <p>{{ saledDetailInf3.col4 }}</p>
+          <p>{{ salesSingleInf.istmMcn }}</p>
         </kw-form-item>
         <kw-form-item
           :label="$t('MSG_TXT_TK_AMT')"
         >
-          <p>{{ saledDetailInf3.col7 }}</p>
+          <p>{{ salesSingleInf.istmAmt }}</p>
         </kw-form-item>
         <kw-form-item
           :label="$t('MSG_TXT_ISTM_MCNT')"
         >
-          <p>{{ saledDetailInf3.col10 }}</p>
+          <p>{{ salesSingleInf.mmIstmAmt }}</p>
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
         <kw-form-item
           :label="$t('MSG_TXT_FRISU_AS')"
         >
-          <p>{{ saledDetailInf3.col2 }}</p>
+          <p>{{ salesSingleInf.sellAmt }}</p>
         </kw-form-item>
         <kw-form-item
           :label="$t('MSG_TXT_CNTRCT_AMT')"
         >
-          <p>{{ saledDetailInf3.col5 }}</p>
+          <p>{{ salesSingleInf.col1 }}</p>
         </kw-form-item>
         <kw-form-item
           :label="$t('MSG_TXT_ISTM_AMT')"
         >
-          <p>{{ saledDetailInf3.col8 }}</p>
+          <p>{{ salesSingleInf.col2 }}</p>
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
         <kw-form-item
           :label="$t('MSG_TXT_RECAP_MSH')"
         >
-          <p>{{ saledDetailInf3.col3 }}</p>
+          <p>{{ salesSingleInf.tkAmt }}</p>
         </kw-form-item>
         <kw-form-item
           :label="$t('MSG_TXT_SBSCM')"
         >
-          <p>{{ saledDetailInf3.col6 }}</p>
+          <p>{{ salesSingleInf.cntrTam }}</p>
         </kw-form-item>
         <kw-form-item
           :label="$t('MSG_TXT_MM_INTAM')"
         >
-          <p>{{ saledDetailInf3.col9 }}</p>
+          <p>{{ salesSingleInf.subscAmt }}</p>
         </kw-form-item>
       </kw-form-row>
     </kw-form>
@@ -290,12 +290,11 @@ const isShow3 = ref(true);
 
 const searchParams = ref({
   cntrDtlNo: props.cntrDtlNo,
-  taskDiv: props.taskDiv,
 });
 
-const saledDetailInf1 = ref({});
-const saledDetailInf2 = ref({});
-const saledDetailInf3 = ref({});
+const salesRentalInf = ref({});
+const salesMembershipInf = ref({});
+const salesSingleInf = ref({});
 
 let cachedParams;
 async function fetchData() {
@@ -306,13 +305,13 @@ async function fetchData() {
   if (taskDiv === '2' || taskDiv === '3') {
     const res = await dataService.get('/sms/wells/closing/sales-detail/rental', { params: cachedParams });
     console.log(res.data);
-    saledDetailInf1.value = res.data;
+    salesRentalInf.value = res.data;
   } else if (taskDiv === '4') {
     const res = await dataService.get('/sms/wells/closing/sales-detail/membership', { params: cachedParams });
-    saledDetailInf2.value = res.data;
+    salesMembershipInf.value = res.data;
   } else if (taskDiv === '1') {
     const res = await dataService.get('/sms/wells/closing/sales-detail/single-payment', { params: cachedParams });
-    saledDetailInf3.value = res.data;
+    salesSingleInf.value = res.data;
   }
 }
 
