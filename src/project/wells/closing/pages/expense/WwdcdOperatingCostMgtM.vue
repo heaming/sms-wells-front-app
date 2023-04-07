@@ -37,14 +37,14 @@
           />
         </kw-search-item>
         <kw-search-item :label="$t('MSG_TXT_OG_LEVL')">
-          <kw-select
-            :options="generalDivision"
-          />
-          <kw-select
-            :options="regionalGroup"
-          />
-          <kw-select
-            :options="branch"
+          <zwogz-level-select
+            v-model:og-levl-dv-cd1="searchParams.ogLevlDvCd1"
+            v-model:og-levl-dv-cd2="searchParams.ogLevlDvCd2"
+            v-model:og-levl-dv-cd3="searchParams.ogLevlDvCd3"
+            :og-tp-cd="searchParams.ogTpCd"
+            :base-ym="searchParams.baseYm"
+            :start-level="1"
+            :end-level="3"
           />
         </kw-search-item>
       </kw-search-row>
@@ -136,6 +136,7 @@
 import { useDataService, getComponentType, defineGrid } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
+import ZwogzLevelSelect from '~sms-common/organization/components/common/ZwogzLevelSelect.vue';
 
 // 유가증권 제외
 import WwdcdOperatingCostMgtMSecuritiesException from './WwdcdOperatingCostMgtMSecuritiesException.vue';
@@ -156,29 +157,25 @@ const { getters } = useStore();
 // -------------------------------------------------------------------------------------------------
 // 본사 관리자가 아니면 코드 값 가져와야 함
 const userInfo = getters['meta/getUserInfo'];
-const { orgTpCd } = userInfo;
-const optionsCode = (await dataService.get('/sms/wells/closing/expense/operating-cost/code', { params: orgTpCd }));
-const generalDivision = optionsCode.data.map((v) => ({ codeId: v.dgr2LevlOgId, codeName: v.dgr2LevlOgNm }));
-const regionalGroup = optionsCode.data.map((v) => ({ codeId: v.dgr3LevlOgId, codeName: v.dgr3LevlOgNm }));
-const branch = optionsCode.data.map((v) => ({ codeId: v.dgr4LevlOgId, codeName: v.dgr4LevlOgNm }));
+const { ogTpCd } = userInfo;
 const grdMainRef = ref(getComponentType('KwGrid'));
 const grdSubRef = ref(getComponentType('KwGrid'));
 let cachedParams;
 
 const searchParams = ref({
   baseYm: dayjs().format('YYYYMM'),
-  adjDeptOgId: orgTpCd,
+  adjDeptOgId: ogTpCd,
   dgr2LevlOgId: '',
   dgr3LevlOgId: '',
   dgr4LevlOgId: '',
-  entrpDvCd: orgTpCd,
+  entrpDvCd: ogTpCd,
+  ogTpCd,
 });
 
 async function fetchAmountData() {
   const view = grdMainRef.value.getView();
-  debugger;
   const res = await dataService.get('/sms/wells/closing/expense/operating-cost/amount', { params: cachedParams });
-  debugger;
+
   const { list: services } = res.data;
   view.getDataSource().setRows(services);
   view.resetCurrent();
@@ -186,8 +183,8 @@ async function fetchAmountData() {
 
 async function fetchSummaryData() {
   const view = grdSubRef.value.getView();
-
   const res = await dataService.get('/sms/wells/closing/expense/operating-cost/summary', { params: cachedParams });
+
   const { list: services } = res.data;
   view.getDataSource().setRows(services);
   view.resetCurrent();
@@ -203,7 +200,6 @@ async function fetchData() {
 }
 
 async function onClickSearch() {
-  debugger;
   fetchData();
 }
 
