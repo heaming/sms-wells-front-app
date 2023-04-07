@@ -2,7 +2,7 @@
 ****************************************************************************************************
 * 프로그램 개요
 ****************************************************************************************************
-1. 모듈 : CMA
+1. 모듈 : SNA (재고관리)
 2. 프로그램 ID : WwsnaMovementStoreMgtM - 이동입고 관리(W-SV-U-0132M01)
 3. 작성자 : inho.choi
 4. 작성일 : 2023.03.20
@@ -24,7 +24,7 @@
           :label="$t('MSG_TXT_STR_WARE')"
         >
           <kw-select
-            v-model="searchParams.strOjWareNo"
+            v-model="searchParams.strWareNo"
             :options="warehouses"
           />
         </kw-search-item>
@@ -34,21 +34,21 @@
           :label="$t('MSG_TXT_RCP_TP')"
         >
           <kw-select
-            v-model="searchParams.strTpCd"
-            :options="filterCodes.filterStrTpCd"
+            v-model="searchParams.ostrTpCd"
+            :options="filterCodes.filterOstrTpCd"
             first-option="all"
           />
         </kw-search-item>
 
-        <!-- 입고기간 -->
+        <!-- 출고기간 -->
         <kw-search-item
-          :label="$t('MSG_TXT_STR_PTRM')"
+          :label="$t('MSG_TXT_OSTR_PTRM')"
           :colspan="2"
         >
           <!-- if essential case please add "required" -->
           <kw-date-range-picker
-            v-model:from="searchParams.stStrDt"
-            v-model:to="searchParams.edStrDt"
+            v-model:from="searchParams.stOstrDt"
+            v-model:to="searchParams.edOstrDt"
             rules="date_range_months:1"
           />
         </kw-search-item>
@@ -71,7 +71,10 @@
       <kw-action-top>
         <template #left>
           <kw-paging-info
-            :total-count="totalCount"
+            v-model:page-index="pageInfo.pageIndex"
+            v-model:page-size="pageInfo.pageSize"
+            :total-count="pageInfo.totalCount"
+            :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
             @change="fetchData"
           />
         </template>
@@ -95,8 +98,14 @@
       <kw-grid
         ref="grdMainRef"
         name="grdMain"
-        :total-count="totalCount"
+        :visible-rows="pageInfo.pageSize"
         @init="initGrdMain"
+      />
+      <kw-pagination
+        v-model:page-index="pageInfo.pageIndex"
+        v-model:page-size="pageInfo.pageSize"
+        :total-count="pageInfo.totalCount"
+        @change="fetchData"
       />
     </div>
   </kw-page>
@@ -105,16 +114,18 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, useDataService, getComponentType, defineGrid, gridUtil, useGlobal } from 'kw-lib';
+import { codeUtil, useDataService, getComponentType, useMeta, defineGrid, gridUtil, useGlobal } from 'kw-lib';
 // import ZwcmWareHouseSearch from '~sms-common/service/components/ZwsnzWareHouseSearch.vue';
 import dayjs from 'dayjs';
 import { cloneDeep } from 'lodash-es';
 
+const { getConfig } = useMeta();
 const { modal, notify } = useGlobal();
 const { t } = useI18n();
 
 const dataService = useDataService();
-// const baseURI = '/sms/wells/service/movement-stores';
+const baseURI = '/sms/wells/service/movement-stores/ostr';
+const excelURI = `${baseURI} + -excel-download`;
 const wareURI = '/sms/wells/service/out-of-storage-asks/warehouses';
 const grdMainRef = ref(getComponentType('KwGrid'));
 
@@ -124,16 +135,16 @@ const grdMainRef = ref(getComponentType('KwGrid'));
 
 const codes = await codeUtil.getMultiCodes(
   'WARE_DV_CD',
-  'STR_TP_CD',
+  'OSTR_TP_CD',
   'COD_PAGE_SIZE_OPTIONS',
 );
 
 // 입고상세구분 필터링
 const filterCodes = ref({
-  filterStrTpCd: [],
+  filterOstrTpCd: [],
 });
 
-filterCodes.value.filterStrTpCd = codes.STR_TP_CD.filter((v) => ['121', '122', '123', '161', '162'].includes(v.codeId));
+filterCodes.value.filterOstrTpCd = codes.OSTR_TP_CD.filter((v) => ['221', '222', '223', '261', '262'].includes(v.codeId));
 
 let cachedParams;
 const totalCount = ref(0);
@@ -141,20 +152,27 @@ const totalCount = ref(0);
 const searchParams = ref({
   baseYm: '',
   wareDvCd: '2',
-  strOjWareNo: '',
-  strTpCd: '',
-  stStrDt: '',
-  edStrDt: '',
+  strWareNo: '',
+  ostrTpCd: '',
+  stOstrDt: '',
+  edOstrDt: '',
 });
 
 searchParams.value.baseYm = dayjs().format('YYYYMM');
-searchParams.value.stStrDt = dayjs().format('YYYYMMDD');
-searchParams.value.edStrDt = dayjs().format('YYYYMMDD');
+searchParams.value.stOstrDt = dayjs().format('YYYYMMDD');
+searchParams.value.edOstrDt = dayjs().format('YYYYMMDD');
+
+const pageInfo = ref({
+  totalCount: 0,
+  pageIndex: 1,
+  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
+});
 
 async function fetchData() {
-  const res = await dataService.get('/sms/wells/service/movement-stores/movements', { params: cachedParams });
-  const searchData = res.data;
-  totalCount.value = searchData.length;
+  const res = await dataService.get(baseURI, { params: { ...cachedParams, ...pageInfo.value } });
+  const { list: searchData, pageInfo: pagingResult } = res.data;
+
+  pageInfo.value = pagingResult;
 
   const view = grdMainRef.value.getView();
   const datasSource = view.getDataSource();
@@ -166,7 +184,7 @@ const warehouses = ref();
 async function fetchDefaultData() {
   const res = await dataService.get(wareURI, { params: { apyYm: searchParams.value.baseYm } });
   warehouses.value = res.data;
-  searchParams.value.strOjWareNo = warehouses.value[0].codeId;
+  searchParams.value.strWareNo = warehouses.value[0].codeId;
 }
 
 async function onClickSearch() {
@@ -176,7 +194,7 @@ async function onClickSearch() {
 
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
-  const res = await dataService.get('/sms/wells/service/movement-stores/movements/excel-download', { params: cachedParams });
+  const res = await dataService.get(excelURI, { params: cachedParams });
   await gridUtil.exportView(view, {
     fileName: 'movementStoreMgtM',
     timePostfix: true,
@@ -192,18 +210,29 @@ onMounted(async () => {
 // -------------------------------------------------------------------------------------------------
 const initGrdMain = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'strRgstDt', header: t('MSG_TXT_STR_DT'), width: '150', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'strTpCd', header: t('MSG_TXT_STR_TP'), width: '150', options: codes.STR_TP_CD, styleName: 'text-center' },
-    { fieldName: 'itmStrNo', header: t('MSG_TXT_STR_MNGT_NO'), width: '250', styleName: 'text-center' },
-    { fieldName: 'wareNm', header: t('MSG_TXT_STR_WARE'), width: '150', styleName: 'text-left' },
-    { fieldName: 'itmPdNm', header: t('MSG_TXT_STR_ITM'), width: '250', styleName: 'text-left' },
-    { fieldName: 'strNoteButn',
+    { fieldName: 'ostrDt', header: t('MSG_TXT_OSTR_DT'), width: '150', styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'ostrTpCd', header: t('MSG_TXT_OSTR_TP'), width: '150', options: codes.OSTR_TP_CD, styleName: 'text-center' },
+    { fieldName: 'itmOstrNo',
+      header: t('MSG_TXT_OSTR_MNGT_NO'),
+      width: '250',
+      styleName: 'text-center',
+      displayCallback: (g, i, v) => {
+        const regExp = /^(\d{3})(\d{8})(\d{7}).*/;
+        return v.replace(regExp, '$1-$2-$3');
+      } },
+    { fieldName: 'ostrWareNm', header: t('MSG_TXT_OSTR_WARE'), width: '150', styleName: 'text-left' },
+    { fieldName: 'pdNm', header: t('MSG_TXT_OSTR_ITM'), width: '250', styleName: 'text-left' },
+    { fieldName: 'itmStrNo',
       header: t('MSG_TXT_NOTE'),
       width: '145',
       styleName: 'text-center',
-      renderer: { tyep: 'button' },
+      renderer: { type: 'button' },
       displayCallback: () => t('MSG_BTN_STR_RGST'),
     },
+    { fieldName: 'strWareNo', header: t('MSG_TXT_STR_WARE'), width: '0', styleName: 'text-left', visible: false },
+    { fieldName: 'ostrWareNo', header: t('MSG_TXT_OSTR_WARE'), width: '0', styleName: 'text-left', visible: false },
+    { fieldName: 'strHopDt', header: t('MSG_TXT_OSTR_WARE'), width: '0', styleName: 'text-left', visible: false },
+    { fieldName: 'strWareNm', header: t('MSG_TXT_STR_WARE'), width: '0', styleName: 'text-left', visible: false },
   ];
   const fields = columns.map((v) => ({ fieldName: v.fieldName }));
 
@@ -212,10 +241,35 @@ const initGrdMain = defineGrid((data, view) => {
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
 
-  view.onCellClick = async (e, v) => {
-    if (v.column === 'strNoteButn') {
+  view.onCellClicked = async (g, { column, dataRow }, v) => {
+    const {
+      ostrDt,
+      ostrTpCd,
+      itmOstrNo,
+      itmStrNo,
+      strWareNo,
+      ostrWareNo,
+      strWareNm,
+      ostrWareNm,
+      strHopDt,
+    } = gridUtil.getRowValue(g, dataRow);
+    console.log(g, column, dataRow, v);
+
+    if (column === 'itmStrNo') {
       const { result: isChanged } = await modal({
-        component: 'WwsnaTransferStoreRegP',
+        component: 'WwsnaTransferStoreRgstMgtP',
+        componentProps: {
+          ostrDt,
+          ostrTpCd,
+          ostrTpNm: codes.OSTR_TP_CD.find((atr) => atr.codeId === ostrTpCd).codeName,
+          itmOstrNo,
+          itmStrNo,
+          strWareNo,
+          ostrWareNo,
+          strWareNm,
+          ostrWareNm,
+          strHopDt,
+        },
       });
 
       if (isChanged) {
