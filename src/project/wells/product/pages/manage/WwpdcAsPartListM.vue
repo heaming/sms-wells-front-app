@@ -251,6 +251,7 @@ async function fetchData() {
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(material);
   view.resetCurrent();
+  view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
 async function onClickSearch() {
