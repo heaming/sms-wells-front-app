@@ -27,7 +27,7 @@
       <kw-tab-panel name="manageCleaningSuppliesCostsList">
         <kw-search
           :modified-targets="['grdMain']"
-          :cols="3"
+          :cols="2"
           @search="onClickSearch"
         >
           <kw-search-row>
@@ -35,20 +35,16 @@
               :label="$t('MSG_TXT_APL_DATE')"
               required
             >
-              <kw-date-picker
-                v-model="searchParams.fstRgstDtm"
-                rules="required"
-                type="year"
-              />
-            </kw-search-item>
-            <kw-search-item :label="$t('MSG_TXT_CLINR')">
-              <kw-input
-                v-model="searchParams.clinrNm"
+              <kw-date-range-picker
+                v-model:from="searchParams.aplcStartDt"
+                v-model:to="searchParams.aplcEndDt"
+                type="month"
               />
             </kw-search-item>
             <kw-search-item :label="$t('MSG_TXT_BUILDING')">
-              <kw-input
-                v-model="searchParams.bldNm"
+              <kw-select
+                :v-model="searchParams.bldCd"
+                :options="buildingCodes"
               />
             </kw-search-item>
           </kw-search-row>
@@ -99,7 +95,7 @@
             />
 
             <kw-btn
-              :label="$t('MSG_BTN_RGST')"
+              :label="$t('MSG_BTN_APPL')"
               primary
               dense
               @click="onClickRegister"
@@ -137,6 +133,7 @@
 import { defineGrid, useMeta, codeUtil, getComponentType, useDataService, useGlobal, gridUtil } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
+import { openReportPopup } from '~common/utils/cmPopupUtil';
 import WwdcdCleaningCostMgtMCleaner from './WwdcdCleaningCostMgtMCleaner.vue';
 
 const selectedTab = ref('manageCleaningSuppliesCostsList');
@@ -146,12 +143,10 @@ const { modal, notify, ok } = useGlobal();
 const { getConfig } = useMeta();
 const dataService = useDataService();
 const { currentRoute } = useRouter();
-
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 let cachedParams;
-
 const grdMainRef = ref(getComponentType('KwGrid'));
 const pageInfo = ref({
   totalCount: 0,
@@ -161,18 +156,29 @@ const pageInfo = ref({
 });
 
 const searchParams = ref({
-  fstRgstDtm: dayjs().format('YYYY'),
+  aplcStartDt: dayjs().format('YYYYMM'),
+  aplcEndDt: dayjs().format('YYYYMM'),
   clinrNm: '',
   bldCd: '',
-  bldNm: '',
 });
 
 const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
 );
 
+const buildingCodes = ref([]);
+async function buildingCode() {
+  const res = await dataService.get('/sms/wells/closing/expense/cleaning-cost/code');
+
+  res.data.forEach((obj) => {
+    buildingCodes.value.push({
+      codeId: obj.bldCd,
+      codeName: obj.bldNm,
+    });
+  });
+}
+
 async function fetchData() {
-  // TODO. 본사 영업담당자, 본사 담당자 구분 해야함
   const res = await dataService.get('/sms/wells/closing/expense/cleaning-cost/paging', { params: { ...cachedParams, ...pageInfo } });
   const { list: pages, pageInfo: pagingResult } = res.data;
 
@@ -190,7 +196,7 @@ async function onClickSearch() {
 
 async function onClickRegister() {
   const { result } = await modal({
-    component: 'WwdcdRegistrationAsACleanerMgtM',
+    component: 'WwdcdRequestCleaningSuppliesMgtM', // W-CL-U-0093P01
     componentProps: {
       configGroup: '',
     },
@@ -206,8 +212,8 @@ async function onClickDelete() {
   const deleteRows = await gridUtil.confirmDeleteCheckedRows(view);
 
   if (deleteRows.length > 0) {
-    const clinrRgnos = deleteRows.map(({ clinrRgno }) => clinrRgno);
-    await dataService.delete('/sms/wells/closing/expense/cleaning-cost', { data: [...clinrRgnos] });
+    const clingCostAdjRcpNos = deleteRows.map(({ clingCostAdjRcpNo }) => clingCostAdjRcpNo);
+    await dataService.delete('/sms/wells/closing/expense/cleaning-cost', { data: [...clingCostAdjRcpNos] });
     fetchData();
   }
   ok();
@@ -226,6 +232,7 @@ async function onClickExcelDownload() {
 
 async function onClickOpenReport() {
   // TODO. 오즈 개발완료되면 수정할 예정
+  openReportPopup('/eformsample.ozr', '/eformsample.odi');
 }
 
 // -------------------------------------------------------------------------------------------------
@@ -233,32 +240,25 @@ async function onClickOpenReport() {
 // -------------------------------------------------------------------------------------------------
 const initGrdMain = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'clinrRgno', visible: false }, // 청소원등록번호
-    { fieldName: 'rcpYm', visible: false }, // 청소원등록번호
-    { fieldName: 'fstRgstDtm', header: t('MSG_TXT_RGST_DTM'), width: '174', styleName: 'text-center', dataType: 'date', datetimeFormat: 'datetime' }, // 등록일시
-    { fieldName: 'fnlMdfcDtm', header: t('MSG_TXT_CH_DTM'), width: '174', styleName: 'text-center', dataType: 'date', datetimeFormat: 'datetime' }, // 변경일시
-    { fieldName: 'clinrNm', header: t('MSG_TXT_CLINR'), width: '200', styleName: 'text-left' }, // 청소원
-    { fieldName: 'bldCd', visible: false }, // 빌딩 // CD
-    { fieldName: 'bldNm', header: t('MSG_TXT_BUILDING'), width: '200', styleName: 'text-left' }, // 빌딩 //NM
-    { fieldName: 'aplcDt', header: t('MSG_TXT_APPL_DATE'), width: '200', styleName: 'text-center', dataType: 'date', datetimeFormat: 'datetime' }, // 신청일
-    { fieldName: 'aplcnsNm', header: t('MSG_TXT_APPL_DATE'), width: '200', styleName: 'text-center' }, // 신청자
-    { fieldName: 'cntrwApnFileId', header: t('MSG_TXT_CNTRW'), width: '200', styleName: 'rg-button-link', renderer: { type: 'button' } }, // 계약서
-    { fieldName: 'cntrLroreApnFileId', header: t('MSG_TXT_A_CON_TERM_AGE'), width: '200', styleName: 'rg-button-link', renderer: { type: 'button' } }, // 계약해지원
-    { fieldName: 'idfApnFileId', header: t('MSG_TXT_IDF_CY'), width: '200', styleName: 'rg-button-link', renderer: { type: 'button' } }, // 신분증사본
-    { fieldName: 'bnkbApnFileId', header: t('MSG_TXT_IDF_CY'), width: '200', styleName: 'rg-button-link', renderer: { type: 'button' } }, // 통장사본
-    { fieldName: 'fmnCoSpptAmt', header: t('MSG_TXT_CO_SUFD_MM'), width: '182', styleName: 'text-center' }, // 회사지원금(월)
-    { fieldName: 'clinrFxnAmt', header: t('MSG_TXT_FXN_AMT_MM'), width: '182', styleName: 'text-center' }, // 고정금(월)
-    { fieldName: 'taxDdctam', header: t('MSG_TXT_TAX_DDTN_WON'), width: '182', styleName: 'text-right', dataType: 'number' }, // 세금공제(원)
-    { fieldName: 'amt', header: t('MSG_TXT_ACL_DSB_AMT_WON'), width: '182', styleName: 'text-right', dataType: 'number' }, // 실지급액(원)
-    { fieldName: 'wrkStrtdt', header: t('MSG_TXT_WRK_STRT_DT'), width: '182', styleName: 'text-center', dataType: 'date', datetimeFormat: 'datetime' }, // 근무시작일자
-    { fieldName: 'wrkEnddt', header: t('MSG_TXT_WRK_END_DT'), width: '182', styleName: 'text-center', dataType: 'date', datetimeFormat: 'datetime' }, // 근무종료일자
-    { fieldName: 'workStatus', header: t('MSG_TXT_WRK_YN'), width: '182', styleName: 'text-center' }, // 근무여부
-    { fieldName: 'rrnoEncr', header: t('MSG_TXT_RRNO'), width: '182', styleName: 'text-center' }, // 주민등록번호
-    { fieldName: 'telNum', header: t('MSG_TXT_CONTACT'), width: '182', styleName: 'text-center' }, // 연락처
-    { fieldName: 'address', header: t('MSG_TXT_RRGT_ADR'), width: '182', styleName: 'text-right' }, // 주민등록상의 주소
-    { fieldName: 'bnkCd', visible: false }, // 은행 // CD
-    { fieldName: 'bnkNm', header: t('MSG_TXT_BNK_NM'), width: '182', styleName: 'text-right' }, // 은행명
-    { fieldName: 'acnoEncr', header: t('MSG_TXT_AC_NO'), width: '182', styleName: 'text-right' }, // 계좌번호
+    { fieldName: 'clingCostAdjRcpNo', visible: false }, // 청소비정산접수번호
+    { fieldName: 'fstRgstDtm', header: t('등록일시'), width: '174', styleName: 'text-center', datetimeFormat: 'datetime' }, // 등록일시
+    { fieldName: 'cfnlMdfcDtmol', header: '변경일시', width: '174', styleName: 'text-center', datetimeFormat: 'datetime' }, // 변경일시
+    { fieldName: 'clingCostDvNm', header: '구분', width: '200', styleName: 'text-left' }, // 구분
+    { fieldName: 'claimNm', header: '영수인', width: '200', styleName: 'text-left' }, // 영수인
+    { fieldName: 'bldNm', header: '빌딩', width: '200', styleName: 'text-left' }, // 빌딩
+    { fieldName: 'colaplcDt6', header: '신청일', width: '200', styleName: 'text-center', datetimeFormat: 'datetime' }, // 신청일
+    { fieldName: 'bilAmt', header: '금액(원)', width: '182', styleName: 'text-right' }, // 금액(원)
+    { fieldName: 'clingCostSrcpApnFileId',
+      header: '영수증첨부',
+      width: '121',
+      styleName: 'text-right',
+      renderer: {
+        type: 'button',
+        hideWhenEmpty: false,
+      },
+      displayCallback: () => t('MSG_BTN_CLINR_MNGT_BRWS'),
+    }, // 영수증첨부
+
   ];
 
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
@@ -286,7 +286,7 @@ const initGrdMain = defineGrid((data, view) => {
   view.onCellItemClicked = async (grid, { itemIndex }) => {
     const { clinrRgno, result } = gridUtil.getRowValue(grid, itemIndex);
     await modal({
-      component: 'WwdcdRegistrationAsACleanerMgtM',
+      component: 'WwdcdRequestCleaningSuppliesMgtM', // W-CL-U-0093P01
       componentProps: {
         configGroup: { clinrRgno },
       },
@@ -298,6 +298,9 @@ const initGrdMain = defineGrid((data, view) => {
   };
 });
 
+onMounted(async () => {
+  await buildingCode();
+});
 </script>
 
 <style scoped>
