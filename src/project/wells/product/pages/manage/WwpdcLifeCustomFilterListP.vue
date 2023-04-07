@@ -150,7 +150,6 @@ async function fetchData() {
   const res = await dataService.get('/sms/wells/product/bs-works/life-filters', { params: { svPdCd, pdctPdCd, partPdCd } });
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(cloneDeep(res.data));
-  view.resetCurrent();
   grdRowCount.value = getGridRowCount(view);
 }
 
@@ -178,7 +177,7 @@ async function onClickSave() {
 
   const { svPdCd, pdctPdCd, partPdCd } = props;
   const subList = { svPdCd, pdctPdCd, partPdCd, bases: gridUtil.getAllRowValues(view) };
-  // console.log('WwpdcLifeCustomFilterListP - onClickSave - subList : ', subList);
+  console.log('WwpdcLifeCustomFilterListP - onClickSave - subList : ', subList);
   await dataService.put('/sms/wells/product/bs-works/life-filters', subList);
   notify(t('MSG_ALT_SAVE_DATA'));
   gridUtil.reset(view);
