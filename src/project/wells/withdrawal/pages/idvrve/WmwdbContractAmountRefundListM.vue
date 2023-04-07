@@ -339,41 +339,44 @@ async function fetchData() {
   cachedParams = { ...cachedParams, ...pageInfo.value };
 
   const response = await dataService.get('/sms/wells/withdrawal/idvrve/wells-refund-lists/paging', { params: cachedParams });
-  const { list: products, pageInfo: pagingResult } = response.data;
+  const { list: refundCases, pageInfo: pagingResult } = response.data;
   pageInfo.value = pagingResult;
 
   const view = grdMainRef2.value.getView();
   const dataSource = view.getDataSource();
 
   dataSource.checkRowStates(false);
-  dataSource.addRows(products);
+  dataSource.addRows(refundCases);
   dataSource.checkRowStates(true);
 }
 async function fetchData2() {
   // aggregationStatus.value = []; // 집계 현황 초기화
   const response = await dataService.get('/sms/wells/withdrawal/idvrve/wells-refund-lists/aggregate', { params: searchParams.value });
-  aggregationStatus.value.cashRfndDsbAmtSum = response.data.cashRfndDsbAmtSum;
-  aggregationStatus.value.bcCardRfndDsbAmtSum = response.data.bcCardRfndDsbAmtSum;
-  aggregationStatus.value.kbCardRfndDsbAmtSum = response.data.kbCardRfndDsbAmtSum;
-  aggregationStatus.value.ssCardRfndDsbAmtSum = response.data.ssCardRfndDsbAmtSum;
-  aggregationStatus.value.hnCardRfndDsbAmtSum = response.data.hnCardRfndDsbAmtSum;
-  aggregationStatus.value.shCardRfndDsbAmtSum = response.data.shCardRfndDsbAmtSum;
-  aggregationStatus.value.ltCardRfndDsbAmtSum = response.data.ltCardRfndDsbAmtSum;
-  aggregationStatus.value.hdCardRfndDsbAmtSum = response.data.hdCardRfndDsbAmtSum;
-  aggregationStatus.value.nhCardRfndDsbAmtSum = response.data.nhCardRfndDsbAmtSum;
-  aggregationStatus.value.ydCardRfndDsbAmtSum = response.data.ydCardRfndDsbAmtSum;
-  aggregationStatus.value.cardRfndDdtnAmtSum = response.data.cardRfndDdtnAmtSum;
-  /* 확인 필요: 회사귀속 */
-  aggregationStatus.value.cashCardRfndDdtnAmtSum = response.data.cashCardRfndDdtnAmtSum;
-  aggregationStatus.value.cardRfndDsbAmtSum = response.data.cardRfndDsbAmtSum;
-  /* 확인 필요: 인수 전금 웰스: 홈케어: */
-  /* 확인 필요: 인수 전금 계 */
-  /* 확인 필요: 할부전금(웰스)  */
-  /* 확인 필요: 할부전금계 = 인수전금 합계 + 할부전금 합계  */
-  aggregationStatus.value.rfndDsbPspIntSum = response.data.rfndDsbPspIntSum; // 지연이자 합계
-  /* 확인 필요:K 포인트 */
-  /* 확인 필요:전금합계 */
-  /* 확인 필요:환불 총계 */
+  Object.assign(aggregationStatus.value, response.data);
+  // console.log('contrct aggregationStatus.value', aggregationStatus.value);
+  // 테이블 변경으로 아직 확인되지 않은 값들에 대한 인식을 위해 삭제하지 않고 주석 처리 했습니다.
+  // aggregationStatus.value.cashRfndDsbAmtSum = response.data.cashRfndDsbAmtSum;
+  // aggregationStatus.value.bcCardRfndDsbAmtSum = response.data.bcCardRfndDsbAmtSum;
+  // aggregationStatus.value.kbCardRfndDsbAmtSum = response.data.kbCardRfndDsbAmtSum;
+  // aggregationStatus.value.ssCardRfndDsbAmtSum = response.data.ssCardRfndDsbAmtSum;
+  // aggregationStatus.value.hnCardRfndDsbAmtSum = response.data.hnCardRfndDsbAmtSum;
+  // aggregationStatus.value.shCardRfndDsbAmtSum = response.data.shCardRfndDsbAmtSum;
+  // aggregationStatus.value.ltCardRfndDsbAmtSum = response.data.ltCardRfndDsbAmtSum;
+  // aggregationStatus.value.hdCardRfndDsbAmtSum = response.data.hdCardRfndDsbAmtSum;
+  // aggregationStatus.value.nhCardRfndDsbAmtSum = response.data.nhCardRfndDsbAmtSum;
+  // aggregationStatus.value.ydCardRfndDsbAmtSum = response.data.ydCardRfndDsbAmtSum;
+  // aggregationStatus.value.cardRfndDdtnAmtSum = response.data.cardRfndDdtnAmtSum;
+  // /* 확인 필요: 회사귀속 */
+  // aggregationStatus.value.cashCardRfndDdtnAmtSum = response.data.cashCardRfndDdtnAmtSum;
+  // aggregationStatus.value.cardRfndDsbAmtSum = response.data.cardRfndDsbAmtSum;
+  // /* 확인 필요: 인수 전금 웰스: 홈케어: */
+  // /* 확인 필요: 인수 전금 계 */
+  // /* 확인 필요: 할부전금(웰스)  */
+  // /* 확인 필요: 할부전금계 = 인수전금 합계 + 할부전금 합계  */
+  // aggregationStatus.value.rfndDsbPspIntSum = response.data.rfndDsbPspIntSum; // 지연이자 합계
+  // /* 확인 필요:K 포인트 */
+  // /* 확인 필요:전금합계 */
+  // /* 확인 필요:환불 총계 */
 }
 
 async function onClickSearch() {
