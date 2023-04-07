@@ -260,8 +260,8 @@ async function initMaterialGrid(data, view) {
     { fieldName: 'pdNm', header: t('MSG_TXT_PD_BOK_MTR_NAME'), width: '206' },
     // 상품코드
     { fieldName: 'pdCd', header: t('MSG_TXT_PRDT_CODE'), width: '185', styleName: 'text-center' },
-    // 학습/전집/기기구분
-    { fieldName: 'lrnColleDvTyp', header: t('MSG_TXT_PD_LRN_COLLE_DV_TYP'), width: '187', styleName: 'text-center' },
+    // 전집/기기구분
+    { fieldName: 'lrnColleDvTyp', header: t('TXT_MSG_LRNN_COCN_MCHN_TP_CD'), width: '187', styleName: 'text-center' },
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   fields.push({ fieldName: pdConst.REL_PD_ID });
