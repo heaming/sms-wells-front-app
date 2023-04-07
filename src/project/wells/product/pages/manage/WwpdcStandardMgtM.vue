@@ -100,7 +100,7 @@
       <div class="button-set--bottom">
         <div class="button-set--bottom-left">
           <kw-btn
-            v-show="currentStep.step > 1"
+            v-show="isTempSaveBtn && currentStep.step > 1"
             :label="$t('MSG_BTN_PREV')"
             class="ml8"
             @click="onClickPrevStep"
@@ -131,7 +131,7 @@
             @click="onClickCancel()"
           />
           <kw-btn
-            v-show="currentStep.step < regSteps.length"
+            v-show="isTempSaveBtn && currentStep.step < regSteps.length"
             :label="$t('MSG_BTN_NEXT')"
             class="ml8"
             primary
