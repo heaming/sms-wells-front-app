@@ -1,7 +1,7 @@
 <!----
 ****************************************************************************************************
 1. 모듈 : DCD
-2. 프로그램 ID : WwDcdOperatingCostMgtM - 운영비 등록관리 Operatingost
+2. 프로그램 ID : WwDcdOperatingCostMgtM - 운영비 등록관리 Operatingost / W-CL-U-0082M01
 3. 작성자 : gs.piit172 kim juhyun
 4. 작성일 : 2023.02.03
 ****************************************************************************************************
@@ -13,6 +13,7 @@
 <template>
   <kw-page>
     <kw-search
+      :modified-targets="['grdMain']"
       @search="onClickSearch"
     >
       <kw-action-top>
@@ -28,22 +29,22 @@
           required
         >
           <kw-date-picker
-            v-model:init-data="searchParams.useYearMonth"
-            v-model="searchParams.useYearMonth"
-            v-model:useYearMonth="searchParams.useYearMonth"
+            v-model:init-data="searchParams.baseYm"
+            v-model="searchParams.baseYm"
+            v-model:baseYm="searchParams.baseYm"
             rules="required"
             type="month"
           />
         </kw-search-item>
         <kw-search-item :label="$t('MSG_TXT_OG_LEVL')">
           <kw-select
-            :options="['']"
+            :options="generalDivision"
           />
           <kw-select
-            :options="['']"
+            :options="regionalGroup"
           />
           <kw-select
-            :options="['']"
+            :options="branch"
           />
         </kw-search-item>
       </kw-search-row>
@@ -111,7 +112,7 @@
             <wwdcd-operating-cost-mgt-m-securities-exception
               :ref="(vm) => tabRefs.mscrexcd = vm"
               v-model:selected-link-id="selectedLinkId"
-              v-model:init-data="searchParams.useYearMonth"
+              v-model:init-data="searchParams.baseYm"
               @reload-pages="fetchTabs('basic')"
             />
           </kw-tab-panel>
@@ -119,7 +120,7 @@
             <wwdcd-operating-cost-mgt-m-securities
               :ref="(vm) => tabRefs.securities = vm"
               v-model:selected-link-id="selectedLinkId"
-              v-model:init-data="searchParams.useYearMonth"
+              v-model:init-data="searchParams.baseYm"
               @reload-pages="fetchTabs('basic')"
             />
           </kw-tab-panel>
@@ -148,56 +149,48 @@ const dataService = useDataService();
 const { t } = useI18n();
 const tabRefs = reactive({});
 const selectedLinkId = ref(null);
+const { getters } = useStore();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
-
+// 본사 관리자가 아니면 코드 값 가져와야 함
+const userInfo = getters['meta/getUserInfo'];
+const { orgTpCd } = userInfo;
+const optionsCode = (await dataService.get('/sms/wells/closing/expense/operating-cost/code', { params: orgTpCd }));
+const generalDivision = optionsCode.data.map((v) => ({ codeId: v.dgr2LevlOgId, codeName: v.dgr2LevlOgNm }));
+const regionalGroup = optionsCode.data.map((v) => ({ codeId: v.dgr3LevlOgId, codeName: v.dgr3LevlOgNm }));
+const branch = optionsCode.data.map((v) => ({ codeId: v.dgr4LevlOgId, codeName: v.dgr4LevlOgNm }));
 const grdMainRef = ref(getComponentType('KwGrid'));
 const grdSubRef = ref(getComponentType('KwGrid'));
 let cachedParams;
+
 const searchParams = ref({
-  useYearMonth: dayjs().format('YYYYMM'),
+  baseYm: dayjs().format('YYYYMM'),
+  adjDeptOgId: orgTpCd,
+  dgr2LevlOgId: '',
+  dgr3LevlOgId: '',
+  dgr4LevlOgId: '',
+  entrpDvCd: orgTpCd,
 });
 
 async function fetchAmountData() {
   const view = grdMainRef.value.getView();
-  const mainServices = ([
-    { col1: '20,000', col2: '5,000', col3: '1111-1111-1111-1111', col4: '첫번째 그리드1', col5: '일반대중음식', col6: '경북 예천군 효명...' },
-
-  ]);
-  view.getDataSource().setRows(mainServices);
+  debugger;
+  const res = await dataService.get('/sms/wells/closing/expense/operating-cost/amount', { params: cachedParams });
+  debugger;
+  const { list: services } = res.data;
+  view.getDataSource().setRows(services);
   view.resetCurrent();
-
-  // TODO.뒷단 완료되면 할꺼
-  // cachedParams.registration = 'amount';
-  // const res = await dataService.get('/sms/wells/expense/operating-cost', { params: { ...cachedParams } });
-  // debugger;
-  // const { list: services } = res.data;
-  // const view = grdMainRef.value.getView();
-  // view.getDataSource().setRows(services);
-  // view.resetCurrent();
 }
 
 async function fetchSummaryData() {
   const view = grdSubRef.value.getView();
-  const subServices = ([
-    { col1: '2,022', col2: '21,670', col3: '등록', col4: '다운로드' },
 
-  ]);
-  view.getDataSource().setRows(subServices);
+  const res = await dataService.get('/sms/wells/closing/expense/operating-cost/summary', { params: cachedParams });
+  const { list: services } = res.data;
+  view.getDataSource().setRows(services);
   view.resetCurrent();
-
-  /* TODO.뒷단 완료되면 할꺼!!
-  cachedParams.registration = 'summary';
-  const res = await dataService.get('/sms/wells/expense/operating-cost', { params: { ...cachedParams } });
-  debugger;
-
-    const { list: services } = res.data;
-    const view = grdMSubRef.value.getView();
-    view.getDataSource().setRows(services);
-    view.resetCurrent();
-*/
 }
 
 async function fetchData() {
@@ -210,21 +203,22 @@ async function fetchData() {
 }
 
 async function onClickSearch() {
+  debugger;
   fetchData();
 }
 
 async function withholdingTaxCfdcDld() {
   // 다운로드
-  const res = dataService.get('/sms/wells/expense/operating-cost/withholdingTaxCfdcDld', { params: { ...cachedParams } });
+  const res = dataService.get('/sms/wells/closing/expense/operating-cost/withholdingTaxCfdcDld', { params: cachedParams });
   console.log(res.data);
 }
 
 async function withholdingTaxCfdcAdd() {
   // TODO.첨부파일등록
 
-  // 첨부파일 정보를 함께 넘겨줍시다. (팝업이지만 확인!)
+  // TODO.첨부파일 정보를 함께 넘겨줍시다. (팝업이지만 확인!)
   // Object.assign(cachedParams{ attachFiles: [file.value] });
-  const res = dataService.post('/sms/wells/expense/operating-cost/', { params: { ...cachedParams } });
+  const res = dataService.post('/sms/wells/closing/expense/operating-cost/', { params: { ...cachedParams } });
   console.log(res.data);
 }
 
@@ -233,26 +227,17 @@ async function withholdingTaxCfdcAdd() {
 // -------------------------------------------------------------------------------------------------
 
 const initGrdMain = defineGrid((data, view) => {
-  const fields = [
-    { fieldName: 'col1' },
-    { fieldName: 'col2' },
-    { fieldName: 'col3' },
-    { fieldName: 'col4' },
-    { fieldName: 'col5' },
-    { fieldName: 'col6' },
-
-  ];
-
   const columns = [
-    { fieldName: 'col1', header: t('MSG_TXT_CRDOVR_BLAM'), width: '251', styleName: 'text-right' }, // 이월잔액
-    { fieldName: 'col2', header: t('MSG_TXT_THM_DSB'), width: '277', styleName: 'text-right' }, // 당월지급
-    { fieldName: 'col3', header: t('MSG_TXT_THM_U_PSB_AMT'), width: '258', styleName: 'text-right' }, // 당월 이용가능 금액
-    { fieldName: 'col4', header: t('MSG_TXT_THM_USE_AMT'), width: '252', styleName: 'text-right' }, // 당월 사용금액
-    { fieldName: 'col5', header: t('MSG_TXT_THM_CAN_AMT'), width: '253', styleName: 'text-right' }, // 당월 취소금액
-    { fieldName: 'col6', header: t('MSG_TXT_BLAM'), width: '255', styleName: 'text-right' }, // 잔액
+    { fieldName: 'befJanAmt', header: t('MSG_TXT_CRDOVR_BLAM'), width: '251', styleName: 'text-right' }, // 이월잔액
+    { fieldName: 'cardThmDsb', header: t('MSG_TXT_THM_DSB'), width: '277', styleName: 'text-right' }, // 당월지급
+    { fieldName: 'cardLimAmt', header: t('MSG_TXT_THM_U_PSB_AMT'), width: '258', styleName: 'text-right' }, // 당월 이용가능 금액
+    { fieldName: 'cardUseAmt', header: t('MSG_TXT_THM_USE_AMT'), width: '252', styleName: 'text-right' }, // 당월 사용금액
+    { fieldName: 'cardCanAmt', header: t('MSG_TXT_THM_CAN_AMT'), width: '253', styleName: 'text-right' }, // 당월 취소금액
+    { fieldName: 'cardResAmt', header: t('MSG_TXT_BLAM'), width: '255', styleName: 'text-right' }, // 잔액
 
   ];
 
+  const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   data.setFields(fields);
   view.setColumns(columns);
 
@@ -261,17 +246,10 @@ const initGrdMain = defineGrid((data, view) => {
 });
 
 const initGrdSub = defineGrid((data, view) => {
-  const fields = [
-    { fieldName: 'col1' },
-    { fieldName: 'col2' },
-    { fieldName: 'col3' },
-    { fieldName: 'col4' },
-  ];
-
   const columns = [
-    { fieldName: 'col1', header: t('MSG_TXT_OPCS_TOT_USE_CT'), width: '477', styleName: 'text-center' }, // 운영비 총 사용 건수
-    { fieldName: 'col2', header: t('MSG_TXT_AES'), width: '450', styleName: 'text-center' }, // 미적요
-    { fieldName: 'col3',
+    { fieldName: 'aprDt', header: t('MSG_TXT_OPCS_TOT_USE_CT'), width: '477', styleName: 'text-center' }, // 운영비 총 사용 건수
+    { fieldName: 'usrSmryCn', header: t('MSG_TXT_AES'), width: '450', styleName: 'text-center' }, // 미적요
+    { fieldName: 'opcsWhtxCfdcApnFileId',
       header: t('MSG_TXT_MSCR_WHTX_CFDC_APN_FILE'),
       width: '300',
       styleName: 'text-center',
@@ -280,7 +258,7 @@ const initGrdSub = defineGrid((data, view) => {
 
       },
     },
-    { fieldName: 'col4',
+    { fieldName: 'opcsWhtxCfdcApnFileAdd',
       header: t('MSG_TXT_MSCR_WHTX_CFDC_APN_FILE'),
       width: '300',
       styleName: 'text-center',
@@ -290,16 +268,17 @@ const initGrdSub = defineGrid((data, view) => {
       },
     },
   ];
+  const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
 
   const hideChildLayout = [
-    'col1',
-    'col2',
+    'aprDt',
+    'usrSmryCn',
     {
       direction: 'horizontal',
       hideChildHeaders: true,
       items: [
-        'col3',
-        'col4',
+        'opcsWhtxCfdcApnFileId',
+        'opcsWhtxCfdcApnFileAdd',
       ],
       header: t('MSG_TXT_MSCR_WHTX_CFDC_APN_FILE'),
     },
@@ -315,10 +294,10 @@ const initGrdSub = defineGrid((data, view) => {
   view.onCellItemClicked = ((grid, index) => {
     // grid, index, clickData
 
-    if (index.column === 'col3') {
+    if (index.column === 'opcsWhtxCfdcApnFileId') {
       // btnValue : 다운로드
       withholdingTaxCfdcDld();
-    } else if (index.column === 'col4') {
+    } else if (index.column === 'opcsWhtxCfdcApnFileAdd') {
       // btnValue : 등록(파일테이블 insert, 유가)
       withholdingTaxCfdcAdd();
     }
