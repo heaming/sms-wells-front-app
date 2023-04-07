@@ -147,7 +147,7 @@ const codes = await codeUtil.getMultiCodes(
 
 async function fetchData() {
   // TODO. 본사 영업담당자, 본사 담당자 구분 해야함
-  const res = await dataService.get('/sms/wells/closing/expense/cleaner-management/paging', { params: { ...cachedParams, ...pageInfo } });
+  const res = await dataService.get('/sms/wells/closing/expense/cleaners/paging', { params: { ...cachedParams, ...pageInfo } });
   const { list: pages, pageInfo: pagingResult } = res.data;
 
   const view = grdSubRef.value.getView();
@@ -182,7 +182,7 @@ async function onClickDelete() {
 
   if (deleteRows.length > 0) {
     const clinrRgnos = deleteRows.map(({ clinrRgno }) => clinrRgno);
-    await dataService.delete('/sms/wells/closing/expense/cleaner-management', { data: [...clinrRgnos] });
+    await dataService.delete('/sms/wells/closing/expense/cleaners', { data: [...clinrRgnos] });
     fetchData();
   }
   ok();
@@ -190,7 +190,7 @@ async function onClickDelete() {
 
 async function onClickExcelDownload() {
   const view = grdSubRef.value.getView();
-  const response = await dataService.get('/sms/wells/closing/expense/cleaner-management/excel-download', { params: cachedParams });
+  const response = await dataService.get('/sms/wells/closing/expense/cleaners/excel-download', { params: cachedParams });
 
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
