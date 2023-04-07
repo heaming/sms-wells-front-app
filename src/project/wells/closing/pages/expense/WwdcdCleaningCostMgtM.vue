@@ -16,11 +16,11 @@
     <kw-tabs v-model="selectedTab">
       <kw-tab
         name="manageCleaningSuppliesCostsList"
-        label="청소용품비 관리"
+        :label="$t('MSG_TXT_CLING_THG_AMT_MNGT')"
       />
       <kw-tab
         name="cleanerManagementList"
-        label="청소원 관리"
+        :label="$t('MSG_TXT_CLINR_MNGT')"
       />
     </kw-tabs>
     <kw-tab-panels v-model="selectedTab">
@@ -32,7 +32,7 @@
         >
           <kw-search-row>
             <kw-search-item
-              label="신청년월"
+              :label="$t('MSG_TXT_APL_DATE')"
               required
             >
               <kw-date-picker
@@ -41,12 +41,12 @@
                 type="year"
               />
             </kw-search-item>
-            <kw-search-item label="청소원">
+            <kw-search-item :label="$t('MSG_TXT_CLINR')">
               <kw-input
                 v-model="searchParams.clinrNm"
               />
             </kw-search-item>
-            <kw-search-item label="빌딩">
+            <kw-search-item :label="$t('MSG_TXT_BUILDING')">
               <kw-input
                 v-model="searchParams.bldNm"
               />
@@ -109,7 +109,8 @@
           <kw-grid
             ref="grdMainRef"
             name="grdMain"
-            :visible-rows="10"
+            :page-size="pageInfo.pageSize"
+            :total-count="pageInfo.totalCount"
             @init="initGrdMain"
           />
           <kw-pagination
@@ -119,7 +120,7 @@
         </div>
       </kw-tab-panel>
       <kw-tab-panel name="cleanerManagementList">
-        <wwdcd-cleaning-cleaner-cost-mgt-m
+        <wwdcd-cleaning-cost-mgt-m-cleaner
           v-model:selected-link-id="selectedLinkId"
         />
       </kw-tab-panel>
@@ -134,7 +135,7 @@
 import { defineGrid, useMeta, codeUtil, getComponentType, useDataService, useGlobal, gridUtil } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
-import WwdcdCleaningCleanerCostMgtM from './WwdcdCleaningCleanerCostMgtM.vue';
+import WwdcdCleaningCostMgtMCleaner from './WwdcdCleaningCostMgtMCleaner.vue';
 
 const selectedTab = ref('manageCleaningSuppliesCostsList');
 const selectedLinkId = ref(null);
