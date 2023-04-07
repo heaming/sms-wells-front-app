@@ -115,8 +115,8 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'partUseQty', header: t('MSG_TXT_WK_QTY'), width: '80', styleName: 'text-right', dataType: 'number' },
     // 방문구분
     { fieldName: 'vstDvCd', header: t('MSG_TXT_VISIT_TYPE'), width: '80', styleName: 'text-center', options: codes.VST_DV_CD },
-    // 방문월 (방문차월주기값?)
-    { fieldName: 'vstNmnPrdVal', header: t('MSG_TXT_VISIT_MON'), width: '80', styleName: 'text-right', dataType: 'number' },
+    // 방문월
+    { fieldName: 'vstNmnN', header: t('MSG_TXT_VISIT_MON'), width: '80', styleName: 'text-right', dataType: 'number' },
     // 설치월
     { fieldName: 'istMm', header: t('MSG_TXT_SETUP_MON'), width: '60', styleName: 'text-center', options: codes.MM_CD },
     // 작업연도

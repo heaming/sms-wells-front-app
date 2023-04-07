@@ -287,8 +287,11 @@ async function onClickSave() {
   const details = [];
   if (bases.length) {
     bases.forEach((base) => {
+      // 서비스 주기
       const servicePeriod = Number(base.svPrdMmN);
+      // 시작월
       const startMonth = Number(base.svStrtmmN);
+      // 반복횟수
       const repeatCount = Number(base.svTms);
       // 제외월
       const exceptMonths = split(base.excdMmVal, ',').reduce((rtns, mon) => { if (Number(mon)) rtns.push(Number(mon)); return rtns; }, []);
@@ -296,11 +299,17 @@ async function onClickSave() {
       const installMonth = Number(base.istMm);
       // 작업연도
       const workYear = Number(base.strtWkYVal);
+      // 총약정개월
+      const totStplMcn = Number(base.totStplMcn);
       if (startMonth) {
         // 시작월이 있는 경우
         for (let i = 1; i <= (repeatCount + exceptMonths.length); i += 1) {
           // 시작월과 설치월중 하나는 0의 값을 가진다.
           const vstNmnN = (servicePeriod * (i - 1)) + (startMonth + installMonth);
+          // 방문월이 > 총약정월 넘으면 중단
+          if (vstNmnN > totStplMcn) {
+            break;
+          }
           if (!exceptMonths.includes(vstNmnN)) {
             // 제외월이면 건너 뜀
             details.push({
@@ -314,8 +323,8 @@ async function onClickSave() {
         // 시작월이 없는 경우
         for (let i = 1; i <= repeatCount; i += 1) {
           const dtl = cloneDeep(base);
-          // 상세 작업연도 = Base에 시작연도 + 반복차수
-          dtl.strtWkYVal = workYear + (i - 1);
+          // 상세 작업연도 = Base에 시작연도 + ( 반복차수 * 주기연도 )
+          dtl.strtWkYVal = workYear + ((i - 1) * Math.floor(servicePeriod / 12));
           details.push(dtl);
         }
       }
