@@ -338,7 +338,7 @@ const searchParams = ref({
 async function fetchData() {
   cachedParams = { ...cachedParams, ...pageInfo.value };
 
-  const response = await dataService.get('/sms/wells/withdrawal/idvrve/wells-refund-lists/paging', { params: cachedParams });
+  const response = await dataService.get('/sms/wells/withdrawal/idvrve/contract-refunds/paging', { params: cachedParams });
   const { list: refundCases, pageInfo: pagingResult } = response.data;
   pageInfo.value = pagingResult;
 
@@ -351,7 +351,7 @@ async function fetchData() {
 }
 async function fetchData2() {
   // aggregationStatus.value = []; // 집계 현황 초기화
-  const response = await dataService.get('/sms/wells/withdrawal/idvrve/wells-refund-lists/aggregate', { params: searchParams.value });
+  const response = await dataService.get('/sms/wells/withdrawal/idvrve/contract-refunds/aggregate', { params: searchParams.value });
   Object.assign(aggregationStatus.value, response.data);
   // console.log('contrct aggregationStatus.value', aggregationStatus.value);
   // 테이블 변경으로 아직 확인되지 않은 값들에 대한 인식을 위해 삭제하지 않고 주석 처리 했습니다.
@@ -395,7 +395,7 @@ async function onClickReportView() {
 }
 
 async function onClickExcelDownload() {
-  const response = await dataService.get('/sms/wells/withdrawal/idvrve/wells-refund-lists/excel-download', { params: cachedParams });
+  const response = await dataService.get('/sms/wells/withdrawal/idvrve/contract-refunds/excel-download', { params: cachedParams });
   const view = grdMainRef2.value.getView();
 
   await gridUtil.exportView(view, {

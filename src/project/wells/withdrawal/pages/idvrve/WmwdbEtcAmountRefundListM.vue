@@ -325,7 +325,7 @@ const searchParams = ref({
 async function fetchData() {
   cachedParams = { ...cachedParams, ...pageInfo.value };
 
-  const response = await dataService.get('/sms/wells/withdrawal/idvrve/etc-atam-rfnd-lists/paging', { params: cachedParams });
+  const response = await dataService.get('/sms/wells/withdrawal/idvrve/etc-amount-refunds/paging', { params: cachedParams });
   const { list: refundCases, pageInfo: pagingResult } = response.data;
   pageInfo.value = pagingResult;
 
@@ -338,7 +338,7 @@ async function fetchData() {
 }
 async function fetchData2() {
   // aggregationStatus.value = []; // 집계 현황 초기화
-  const response = await dataService.get('/sms/wells/withdrawal/idvrve/etc-atam-rfnd-lists/aggregate', { params: searchParams.value });
+  const response = await dataService.get('/sms/wells/withdrawal/idvrve/etc-amount-refunds/aggregate', { params: searchParams.value });
   Object.assign(aggregationStatus.value, response.data);
   // console.log('etc aggregationStatus.value', aggregationStatus.value);
   // 테이블 변경으로 아직 확인되지 않은 값들에 대한 인식을 위해 삭제하지 않고 주석 처리 했습니다.
@@ -381,7 +381,7 @@ async function onClickReportView() {
 }
 
 async function onClickExcelDownload() {
-  const response = await dataService.get('/sms/wells/withdrawal/idvrve/etc-atam-rfnd-lists/excel-download', { params: cachedParams });
+  const response = await dataService.get('/sms/wells/withdrawal/idvrve/etc-amount-refunds/excel-download', { params: cachedParams });
   const view = grdMainRef3.value.getView();
 
   await gridUtil.exportView(view, {
@@ -405,8 +405,8 @@ const initGrdMain3 = defineGrid((data, view) => {
     { fieldName: 'tmp1' }, // 입금종류
     { fieldName: 'tmp3' }, // 환불구분
     { fieldName: 'baseCntrNo' }, // 불완전판매구분
-    { fieldName: 'sellAmt' }, // 판매금액
-    { fieldName: 'tmp2' }, // 지급금액
+    { fieldName: 'sellAmt', dataType: 'number' }, // 판매금액
+    { fieldName: 'tmp2', dataType: 'number' }, // 지급금액
     { fieldName: 'rfndDsbAmt', dataType: 'number' }, // 환불금액
     { fieldName: 'rfndDsbPspInt', dataType: 'number' }, // 지연이자
     { fieldName: 'cardRfndFee', dataType: 'number' }, // 카드수수료
