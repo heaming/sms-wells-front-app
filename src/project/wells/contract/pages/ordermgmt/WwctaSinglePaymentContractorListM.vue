@@ -131,11 +131,11 @@
       />
     </kw-action-top>
     <kw-grid
-      ref="grdSnglPmntContractList"
-      name="grdSnglPmntContractList"
+      ref="grdSnglPmntContractorList"
+      name="grdSnglPmntContractorList"
       :page-size="pageInfo.pageSize"
       :total-count="pageInfo.totalCount"
-      @init="initGridSnglPmntContractList"
+      @init="initGridSnglPmntContractorList"
     />
     <kw-pagination
       v-model:page-index="pageInfo.pageIndex"
@@ -161,7 +161,7 @@ const { notify, modal } = useGlobal();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
-const grdSnglPmntContractList = ref(getComponentType('KwGrid'));
+const grdSnglPmntContractorList = ref(getComponentType('KwGrid'));
 const codes = await codeUtil.getMultiCodes(
   'SEX_CD',
   'COD_PAGE_SIZE_OPTIONS',
@@ -199,7 +199,7 @@ async function fetchData() {
   const { list: pages, pageInfo: pagingResult } = res.data;
   pageInfo.value = pagingResult;
 
-  const view = grdSnglPmntContractList.value.getView();
+  const view = grdSnglPmntContractorList.value.getView();
   const dataSource = view.getDataSource();
   dataSource.setRows(pages);
 
@@ -214,7 +214,7 @@ async function onClickSearch() {
 }
 
 async function onClickExcelDownload() {
-  const view = grdSnglPmntContractList.value.getView();
+  const view = grdSnglPmntContractorList.value.getView();
   const res = await dataService.get('sms/wells/contract/contracts/order-detail-mngt/singlepayments/excel-download', { params: cachedParams });
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
@@ -226,11 +226,12 @@ async function onClickExcelDownload() {
 async function onClickSearchCntrCstNo() {
   const cpProps = { cntrCstNo: searchParams.value.cntrCstNo };
 
-  const { result } = await modal({
+  const { result, payload } = await modal({
     component: 'ZwcsaCustomerListP',
     componentProps: cpProps,
   });
   if (result) {
+    console.log(payload);
     notify(t('팝업 준비중 입니다.')); // 공통 팝업 피완성. 값을 받아오지 못합니다.
   }
 }
@@ -238,18 +239,19 @@ async function onClickSearchCntrCstNo() {
 async function onClickSearchCstKnm() {
   const cpProps = { cntrCstKnm: searchParams.value.cstKnm };
 
-  const { result } = await modal({
+  const { result, payload } = await modal({
     component: 'ZwcsaCustomerListP',
     componentProps: cpProps,
   });
   if (result) {
+    console.log(payload);
     notify(t('팝업 준비중 입니다.')); // 공통 팝업 피완성. 값을 받아오지 못합니다.
   }
 }
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
-const initGridSnglPmntContractList = defineGrid((data, view) => {
+const initGridSnglPmntContractorList = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'cntrDtlNo' }, // 계약상세번호
     { fieldName: 'cntrNo' }, // 계약번호
@@ -402,21 +404,21 @@ const initGridSnglPmntContractList = defineGrid((data, view) => {
     { fieldName: 'alncmpNm', header: t('MSG_TXT_ALNC_CD_NM'), width: '136', styleName: 'text-center' }, // 제휴코드명
     { fieldName: 'sellEvNm', header: `${t('MSG_TXT_EV_CD')}${t('MSG_TXT_NM')}`, width: '136', styleName: 'text-center' }, // 행사코드명
     { fieldName: 'fnlAmt', header: `${t('MSG_TXT_COM_TOT')}${t('MSG_TXT_SALE_PRICE')}`, width: '136', styleName: 'text-right' }, // 총판매금액
-    { fieldName: 'sellAmt', header: t('MSG_TXT_SUPP_PRC'), width: '136', styleName: 'text-right' }, // 공급가격
-    { fieldName: 'vat', header: t('MSG_TXT_VAT'), width: '136', styleName: 'text-right' }, // 부가세
-    { fieldName: 'cntrAmt', header: `${t('MSG_TXT_DTRM')}${t('MSG_TXT_SBSCM')}`, width: '136', styleName: 'text-center' }, // 확정청약금
-    { fieldName: 'feeAckmtBaseAmt', header: t('MSG_TXT_FEE'), width: '138', styleName: 'text-right' }, // 수수료
-    { fieldName: 'crpUc', header: t('MSG_TXT_CRP_UC'), width: '138', styleName: 'text-right' }, // 법인미수
-    { fieldName: 'totDscAmt', header: t('MSG_TXT_TOT_DSC_AMT'), width: '138', styleName: 'text-right' }, // 총할인금액
+    { fieldName: 'sellAmt', header: t('MSG_TXT_SUPP_PRC'), width: '136', styleName: 'text-right', dataType: 'number' }, // 공급가격
+    { fieldName: 'vat', header: t('MSG_TXT_VAT'), width: '136', styleName: 'text-right', dataType: 'number' }, // 부가세
+    { fieldName: 'cntrAmt', header: `${t('MSG_TXT_DTRM')}${t('MSG_TXT_SBSCM')}`, width: '136', styleName: 'text-center', dataType: 'number' }, // 확정청약금
+    { fieldName: 'feeAckmtBaseAmt', header: t('MSG_TXT_FEE'), width: '138', styleName: 'text-right', dataType: 'number' }, // 수수료
+    { fieldName: 'crpUc', header: t('MSG_TXT_CRP_UC'), width: '138', styleName: 'text-right', dataType: 'number' }, // 법인미수
+    { fieldName: 'totDscAmt', header: t('MSG_TXT_TOT_DSC_AMT'), width: '138', styleName: 'text-right', dataType: 'number' }, // 총할인금액
     { fieldName: 'feeAckmtCt', header: t('TXT_MSG_ACKMT_CT'), width: '138', styleName: 'text-right' }, // 인정건수
-    { fieldName: 'ackmtPerfAmt', header: `${t('MSG_TXT_COM_TOT')}${t('TXT_MSG_ACKMT_AMT')}`, width: '138', styleName: 'text-right' }, // 총인정금액
-    { fieldName: 'feeAckmtTotAmt', header: `${t('MSG_TXT_COM_TOT')}${t('MSG_TXT_PD_STD_FEE')}`, width: '138', styleName: 'text-right' }, // 총기준수수료
+    { fieldName: 'ackmtPerfAmt', header: `${t('MSG_TXT_COM_TOT')}${t('TXT_MSG_ACKMT_AMT')}`, width: '138', styleName: 'text-right', dataType: 'number' }, // 총인정금액
+    { fieldName: 'feeAckmtTotAmt', header: `${t('MSG_TXT_COM_TOT')}${t('MSG_TXT_PD_STD_FEE')}`, width: '138', styleName: 'text-right', dataType: 'number' }, // 총기준수수료
     { fieldName: 'feeFxamYn', header: t('MSG_TXT_PD_FEE_FIX'), width: '138', styleName: 'text-right' }, // 수수료정액여부
-    { fieldName: 'pdSaleFee', header: t('MSG_TXT_PD_SALE_FEE'), width: '138', styleName: 'text-right' }, // 판매수수료
-    { fieldName: 'cashBlam', header: `${t('MSG_TXT_CASH')}${t('MSG_TXT_BLAM')}`, width: '138', styleName: 'text-right' }, // 현금잔액
+    { fieldName: 'pdSaleFee', header: t('MSG_TXT_PD_SALE_FEE'), width: '138', styleName: 'text-right', dataType: 'number' }, // 판매수수료
+    { fieldName: 'cashBlam', header: `${t('MSG_TXT_CASH')}${t('MSG_TXT_BLAM')}`, width: '138', styleName: 'text-right', dataType: 'number' }, // 현금잔액
     { fieldName: 'istmMcn', header: t('MSG_TXT_ISTM_MCN'), width: '138', styleName: 'text-right' }, // 할부개월수
-    { fieldName: 'mmIstmAmt', header: t('MSG_TXT_MM_INTAM'), width: '138', styleName: 'text-right' }, // 월할부금
-    { fieldName: 'istmPcamAmt', header: `${t('MSG_TXT_COM_TOT')} ${t('MSG_TXT_ISTM_AMT')}`, width: '138', styleName: 'text-right' }, // 총할부금액
+    { fieldName: 'mmIstmAmt', header: t('MSG_TXT_MM_INTAM'), width: '138', styleName: 'text-right', dataType: 'number' }, // 월할부금
+    { fieldName: 'istmPcamAmt', header: `${t('MSG_TXT_COM_TOT')} ${t('MSG_TXT_ISTM_AMT')}`, width: '138', styleName: 'text-right', dataType: 'number' }, // 총할부금액
 
     { fieldName: 'cntrCstNo', header: `${t('MSG_TXT_ISTM')} ${t('MSG_TXT_FNT_INF')}`, width: '138', styleName: 'text-right' }, // 할부이체정보
     { fieldName: 'cntrCstNo', header: `${t('MSG_TXT_ISTM')} ${t('MSG_TXT_FTD')}`, width: '138', styleName: 'text-center' }, // 할부이체일
