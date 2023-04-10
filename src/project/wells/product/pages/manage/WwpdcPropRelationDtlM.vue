@@ -60,10 +60,11 @@ const props = defineProps({
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 const codes = await codeUtil.getMultiCodes(
-  'PD_REL_TP_CD',
+  'PDCT_REL_DV_CD',
 );
 
-codes.PD_REL_TP_CD = codes.PD_REL_TP_CD.filter((v) => (['13', '14', '15'].includes(v.codeId)));
+// 06 대체 , 13 혼식 14 AS
+// codes.PDCT_REL_DV_CD = codes.PDCT_REL_DV_CD.filter((v) => (['06', '13', '14'].includes(v.codeId)));
 const visibleRowCnt = ref(3);
 
 const grd1stTit = ref([]);
@@ -79,7 +80,7 @@ async function validateProps() {
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
 const columns = [
-  { fieldName: 'pdRelTpCd', header: t('MSG_TXT_RELATION_CLSF'), width: '106', styleName: 'text-center', options: codes.PD_REL_TP_CD }, /* 관계구분 */
+  { fieldName: 'pdRelTpCd', header: t('MSG_TXT_RELATION_CLSF'), width: '106', styleName: 'text-center', options: codes.PDCT_REL_DV_CD }, /* 관계구분 */
   { fieldName: 'pdClsfNm', header: t('MSG_TXT_CLSF'), width: '176', styleName: 'text-left' }, /* 분류 */
   { fieldName: 'pdNm', header: t('MSG_TIT_MATERIAL_NM'), width: '382', styleName: 'text-left' }, /* 교재/자재명 */
   { fieldName: 'sapPdctSclsrtStrcVal', header: t('MSG_TXT_MATI_CD'), width: '121' }, /* 자재코드 교재/제재코드 */
@@ -129,9 +130,9 @@ const initGrd3rd = defineGrid((data, view) => {
 
 async function setData() {
   // Grid Header Binding
-  grd1stTit.value = codes.PD_REL_TP_CD.find((v) => v.codeId === '13');
-  grd2ndTit.value = codes.PD_REL_TP_CD.find((v) => v.codeId === '14');
-  grd3rdTit.value = codes.PD_REL_TP_CD.find((v) => v.codeId === '15');
+  grd1stTit.value = codes.PDCT_REL_DV_CD.find((v) => v.codeId === '14');
+  grd2ndTit.value = codes.PDCT_REL_DV_CD.find((v) => v.codeId === '13');
+  grd3rdTit.value = codes.PDCT_REL_DV_CD.find((v) => v.codeId === '06');
 
   const relData = props.initData[pdConst.TBL_PD_REL];
   if (isEmpty(relData)) return;
@@ -141,9 +142,9 @@ async function setData() {
   const grd2DataProvider = grd2ndRef.value.getView().getDataSource();
   const grd3DataProvider = grd3rdRef.value.getView().getDataSource();
 
-  grd1DataProvider.fillJsonData(relData.filter((v) => v.pdRelTpCd === '13'), { fillMode: 'set' });
-  grd2DataProvider.fillJsonData(relData.filter((v) => v.pdRelTpCd === '14'), { fillMode: 'set' });
-  grd3DataProvider.fillJsonData(relData.filter((v) => v.pdRelTpCd === '15'), { fillMode: 'set' });
+  grd1DataProvider.fillJsonData(relData.filter((v) => v.pdRelTpCd === '14'), { fillMode: 'set' });
+  grd2DataProvider.fillJsonData(relData.filter((v) => v.pdRelTpCd === '13'), { fillMode: 'set' });
+  grd3DataProvider.fillJsonData(relData.filter((v) => v.pdRelTpCd === '06'), { fillMode: 'set' });
 }
 
 onMounted(async () => {
