@@ -22,7 +22,7 @@
         v-model="searchParams.pdRelTpCd"
         dense
         class="ml12 w150"
-        :options="codes.PD_REL_TP_CD"
+        :options="codes.PDCT_REL_DV_CD"
       />
       <kw-input
         v-model="searchParams.searchValue"
@@ -91,9 +91,9 @@ const searchParams = ref({
 });
 
 const codes = await codeUtil.getMultiCodes(
-  'PD_REL_TP_CD',
+  'PDCT_REL_DV_CD',
 );
-codes.PD_REL_TP_CD = codes.PD_REL_TP_CD.filter((v) => (['13', '14', '15'].includes(v.codeId)));
+// codes.PDCT_REL_DV_CD = codes.PDCT_REL_DV_CD.filter((v) => (['13', '14', '15'].includes(v.codeId)));
 
 async function resetData() {
   // TODO Grid 에서 초기화버튼 기능을 어떻게 정의할지 확인필요.
@@ -226,7 +226,7 @@ async function getSaveData() {
 // -------------------------------------------------------------------------------------------------
 const columns = [
   { fieldName: 'pdRelId', header: 'PK', width: '0', visible: false },
-  { fieldName: 'pdRelTpCd', header: t('MSG_TXT_RELATION_CLSF'), width: '106', styleName: 'text-center', options: codes.PD_REL_TP_CD }, /* 관계구분 */
+  { fieldName: 'pdRelTpCd', header: t('MSG_TXT_RELATION_CLSF'), width: '106', styleName: 'text-center', options: codes.PDCT_REL_DV_CD }, /* 관계구분 */
   { fieldName: 'pdClsfNm', header: t('MSG_TXT_CLSF'), width: '176', styleName: 'text-left' }, /* 분류 */
   { fieldName: 'pdNm', header: t('MSG_TIT_MATERIAL_NM'), width: '382', styleName: 'text-left' }, /* 교재/자재명 */
   { fieldName: 'sapPdctSclsrtStrcVal', header: t('MSG_TXT_MATI_CD'), width: '121' }, /* 자재코드 교재/제재코드 */

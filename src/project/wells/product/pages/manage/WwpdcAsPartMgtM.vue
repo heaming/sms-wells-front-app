@@ -60,10 +60,6 @@
                   name="attribute"
                   :label="$t('MSG_TXT_BAS_ATTR')"
                 />
-                <kw-tab
-                  name="attributeExtr"
-                  :label="$t('MSG_TXT_MGT_ATTR')"
-                />
               </kw-tabs>
               <kw-tab-panels :model-value="selectedTab">
                 <!--기본속성-->
@@ -73,7 +69,6 @@
                     v-model:init-data="prevStepData"
                     :pd-tp-cd="pdConst.PD_TP_CD_MATERIAL"
                     :pd-grp-dv-cd="pdConst.PD_PRP_GRP_DV_CD_BASIC"
-                    :prefix-title="$t('MSG_TXT_BAS_ATTR')"
                     :is-first-title="true"
                     :pd-tp-dtl-cd="pdTpDtlCd"
                   />
