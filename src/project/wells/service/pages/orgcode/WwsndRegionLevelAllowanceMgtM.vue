@@ -37,7 +37,50 @@
     <div class="result-area">
       <div class="grid-horizontal-wrap">
         <div class="grid-horizontal-wrap__section">
-          <h3>{{ $t('MSG_TXT_MMT_RGLVL') }}</h3>
+          <kw-action-top>
+            <template #left>
+              <!-- 이동급지 -->
+              <h3>{{ $t('MSG_TXT_MMT_RGLVL') }}</h3>
+            </template>
+            <!-- 적용 -->
+            <kw-btn
+              primary
+              dense
+              :label="$t('MSG_BTN_APPLY')"
+              :disable="countInfo.movementTotalCount === 0"
+              @click="onClickMovementBulkApply"
+            />
+          </kw-action-top>
+          <kw-grid
+            ref="grdMovementBaseRef"
+            :visible-rows="1"
+            @init="initGrdMovementBase"
+          />
+        </div>
+        <div class="grid-horizontal-wrap__section">
+          <kw-action-top>
+            <template #left>
+              <!-- 업무급지 -->
+              <h3>{{ $t('MSG_TXT_BIZ_RGLVL') }}</h3>
+            </template>
+            <!-- 적용 -->
+            <kw-btn
+              primary
+              dense
+              :label="$t('MSG_BTN_APPLY')"
+              :disable="countInfo.bizTotalCount === 0"
+              @click="onClickBizBulkApply"
+            />
+          </kw-action-top>
+          <kw-grid
+            ref="grdBizBaseRef"
+            :visible-rows="1"
+            @init="initGrdBizBase"
+          />
+        </div>
+      </div>
+      <div class="grid-horizontal-wrap">
+        <div class="grid-horizontal-wrap__section mt30">
           <kw-action-top>
             <template #left>
               <kw-paging-info
@@ -45,8 +88,7 @@
               />
             </template>
             <kw-btn
-              dense
-              secondary
+              grid-action
               :label="$t('MSG_BTN_SAVE')"
               @click="onClickMovementSave"
             />
@@ -54,37 +96,6 @@
               spaced
               vertical
               inset
-            />
-            <!-- 분당공수 입력 -->
-            <kw-input
-              v-model="baseInfo.movementManHour"
-              mask="###"
-              dense
-              class="w150"
-              :placeholder="$t('MSG_TXT_ENTER_AIRSPEED_PER_MIN')"
-            />
-            <!-- 급지비중 입력 -->
-            <kw-input
-              v-model="baseInfo.movementFieldWeight"
-              mask="###"
-              dense
-              class="w150"
-              :placeholder="$t('MSG_TXT_ENTER_FEED_WEIGHT')"
-            />
-            <!-- 평균시속 입력 -->
-            <kw-input
-              v-model="baseInfo.movementAverageSpeed"
-              mask="###"
-              dense
-              class="w150"
-              :placeholder="$t('MSG_TXT_ENTER_AVERAGE_HOULY')"
-            />
-            <!-- 계산기준 변경 -->
-            <kw-btn
-              :disable="countInfo.movementTotalCount === 0"
-              :label="$t('MSG_TXT_CALC_BASE_CH')"
-              dense
-              @click="onClickMovementBulkApply"
             />
             <kw-date-range-picker
               v-model:from="applyDates.movementApplyDate"
@@ -109,8 +120,7 @@
             @init="initGrdMovementLevel"
           />
         </div>
-        <div class="grid-horizontal-wrap__section">
-          <h3>{{ $t('MSG_TXT_BIZ_RGLVL') }}</h3>
+        <div class="grid-horizontal-wrap__section mt30">
           <kw-action-top>
             <template #left>
               <kw-paging-info
@@ -118,8 +128,7 @@
               />
             </template>
             <kw-btn
-              dense
-              secondary
+              grid-action
               :label="$t('MSG_BTN_SAVE')"
               @click="onClickBizSave"
             />
@@ -127,39 +136,6 @@
               spaced
               vertical
               inset
-            />
-            <!-- 분당공수 입력 -->
-            <kw-input
-              v-model="baseInfo.bizManHour"
-              mask="###"
-              dense
-              class="w150"
-              :placeholder="$t('MSG_TXT_ENTER_AIRSPEED_PER_MIN')"
-              @change="onChangebizFieldAirlift"
-            />
-            <!-- 급지비중 입력 -->
-            <kw-input
-              v-model="baseInfo.bizFieldWeight"
-              mask="###"
-              dense
-              class="w150"
-              :placeholder="$t('MSG_TXT_ENTER_FEED_WEIGHT')"
-              @change="onChangebizFieldAirlift"
-            />
-            <!-- 급지공수 입력 -->
-            <kw-input
-              v-model="baseInfo.bizFieldAirlift"
-              dense
-              class="w150"
-              readonly
-              :placeholder="$t('MSG_TXT_ENTER_FEEDWATER')"
-            />
-            <!-- 계산기준 변경 -->
-            <kw-btn
-              :label="$t('MSG_TXT_CALC_BASE_CH')"
-              dense
-              :disable="countInfo.bizTotalCount === 0"
-              @click="onClickBizBulkApply"
             />
             <kw-date-range-picker
               v-model:from="applyDates.bizApplyDate"
@@ -193,7 +169,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { defineGrid, getComponentType, gridUtil, useDataService, useGlobal, useMeta } from 'kw-lib';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, isNumber } from 'lodash-es';
 import dayjs from 'dayjs';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 
@@ -210,19 +186,12 @@ const { notify } = useGlobal();
 // -------------------------------------------------------------------------------------------------
 const grdMovementLevelRef = ref(getComponentType('KwGrid'));
 const grdBizLevelRef = ref(getComponentType('KwGrid'));
+const grdMovementBaseRef = ref(getComponentType('KwGrid'));
+const grdBizBaseRef = ref(getComponentType('KwGrid'));
 
 let cachedParams;
 const searchParams = ref({
   applyDate: dayjs().format('YYYYMMDD'),
-});
-
-const baseInfo = ref({
-  movementManHour: '',
-  movementFieldWeight: '',
-  movementAverageSpeed: '',
-  bizManHour: '',
-  bizFieldWeight: '',
-  bizFieldAirlift: '',
 });
 
 const tomorrow = dayjs().add(1, 'day').format('YYYYMMDD');
@@ -268,14 +237,22 @@ function validateMaxApplyStartDate(maxApyStrtdt, val) {
   return true;
 }
 
+function getBaseInfo(type) {
+  const grdBaseRef = type === 'movement' ? grdMovementBaseRef : grdBizBaseRef;
+  const view = grdBaseRef.value.getView();
+  return view.getJsonRows()[0];
+}
+
 function getMoveTime(view, row, rglvlGdCd, value) {
+  const { movementAverageSpeed } = getBaseInfo('movement');
+
   let mmtLdtm = 360; // [이동급지] 급지등급 25등급은 '섬'으로 이동시간 360 고정
 
   if (rglvlGdCd !== '25') {
     view.setValue(row, 'mmtDstn', value);
 
     const mmtDstn = Number(value);
-    const averageSpeed = Number(baseInfo.value.movementAverageSpeed);
+    const averageSpeed = Number(movementAverageSpeed);
     mmtLdtm = (mmtDstn * 60) / averageSpeed;
 
     view.setValue(row, 'mmtLdtm', mmtLdtm);
@@ -284,8 +261,9 @@ function getMoveTime(view, row, rglvlGdCd, value) {
 }
 
 function setAllowance(view, row, mmtLdtm) {
-  const manHour = Number(baseInfo.value.movementManHour);
-  const fieldWeight = Number(baseInfo.value.movementFieldWeight);
+  const { movementManHour, movementFieldWeight } = getBaseInfo('movement');
+  const manHour = Number(movementManHour);
+  const fieldWeight = Number(movementFieldWeight);
   const rglvlAwAmt = Math.round((mmtLdtm * manHour * (fieldWeight / 100)) / 100) * 100;
 
   view.setValue(row, 'rglvlAwAmt', rglvlAwAmt);
@@ -295,7 +273,9 @@ let isMovementChanged = false;
 
 // 이동급지 - 분당공수, 급지비중, 평균시속 일괄적용
 function onClickMovementBulkApply() {
-  if (baseInfo.value.movementManHour === '' || baseInfo.value.movementAverageSpeed === '' || baseInfo.value.movementFieldWeight === '') {
+  const { movementManHour, movementFieldWeight, movementAverageSpeed } = getBaseInfo('movement');
+
+  if (!isNumber(movementManHour) || !isNumber(movementFieldWeight) || !isNumber(movementAverageSpeed)) {
     notify(t('MSG_ALT_NCELL_REQUIRED_ITEM', [t('MSG_TXT_CALC_BASE')]));
     return;
   }
@@ -349,13 +329,11 @@ function getFieldAirlift(manHour, fieldWeight) {
   return Math.round((Number(manHour) * (Number(fieldWeight) / 100)) / 10) * 10; // 급지공수
 }
 
-function onChangebizFieldAirlift() {
-  baseInfo.value.bizFieldAirlift = getFieldAirlift(baseInfo.value.bizManHour, baseInfo.value.bizFieldWeight);
-}
-
 // 업무급지 - 분당공수, 급지비중, 급지공수
 function onClickBizBulkApply() {
-  if (baseInfo.value.bizManHour === '' || baseInfo.value.bizFieldWeight === '') {
+  const { bizManHour, bizFieldWeight } = getBaseInfo('biz');
+
+  if (!isNumber(bizManHour) || !isNumber(bizFieldWeight)) {
     notify(t('MSG_ALT_NCELL_REQUIRED_ITEM', [t('MSG_TXT_CALC_BASE')]));
     return;
   }
@@ -371,9 +349,7 @@ function onClickBizBulkApply() {
       mmtLdtm = '260'; // [업무급지] 급지등급 24등급은 "섬"으로 이동시간 260으로 계산
     }
 
-    baseInfo.value.bizFieldAirlift = getFieldAirlift(baseInfo.value.bizManHour, baseInfo.value.bizFieldWeight); // 급지공수
-
-    const rglvlAwAmt = Number(mmtLdtm) * baseInfo.value.bizFieldAirlift;
+    const rglvlAwAmt = Number(mmtLdtm) * getFieldAirlift(bizManHour, bizFieldWeight);
     view.setValue(dataRow, 'rglvlAwAmt', rglvlAwAmt);
   }
 }
@@ -401,10 +377,12 @@ async function fetchData() {
   movementLevelView.resetCurrent();
 
   originApplyDates.movementApplyDate = movementAllowances[0] ? movementAllowances[0].apyStrtdt : '';
-  const { minPerManho, rglvlWeit, avVe } = movementAllowances[0];
-  baseInfo.value.movementManHour = minPerManho;
-  baseInfo.value.movementFieldWeight = rglvlWeit;
-  baseInfo.value.movementAverageSpeed = avVe;
+  const movementBaseView = grdMovementBaseRef.value.getView();
+  movementBaseView.getDataSource().setRows([{
+    movementManHour: movementAllowances[0].minPerManho,
+    movementFieldWeight: movementAllowances[0].rglvlWeit,
+    movementAverageSpeed: movementAllowances[0].avVe,
+  }]);
 
   const bizLevelview = grdBizLevelRef.value.getView();
   countInfo.value.bizTotalCount = bizAllowances.length;
@@ -412,9 +390,12 @@ async function fetchData() {
   bizLevelview.resetCurrent();
 
   originApplyDates.bizApplyDate = bizAllowances[0] ? bizAllowances[0].apyStrtdt : '';
-  baseInfo.value.bizManHour = bizAllowances[0].minPerManho;
-  baseInfo.value.bizFieldWeight = bizAllowances[0].rglvlWeit;
-  baseInfo.value.bizFieldAirlift = getFieldAirlift(baseInfo.value.bizManHour, baseInfo.value.bizFieldWeight);
+  const bizBaseView = grdBizBaseRef.value.getView();
+  bizBaseView.getDataSource().setRows([{
+    bizManHour: bizAllowances[0].minPerManho,
+    bizFieldWeight: bizAllowances[0].rglvlWeit,
+    bizFieldAirlift: getFieldAirlift(bizAllowances[0].minPerManho, bizAllowances[0].rglvlWeit),
+  }]);
 }
 
 async function onClickSearch() {
@@ -457,13 +438,13 @@ async function saveData(view, additionalInfo) {
 }
 
 async function onClickMovementSave() {
-  const { movementManHour, movementFieldWeight, movementAverageSpeed } = baseInfo.value;
+  const { movementManHour, movementFieldWeight, movementAverageSpeed } = getBaseInfo('movement');
   const additionalInfo = { minPerManho: movementManHour, rglvlWeit: movementFieldWeight, avVe: movementAverageSpeed };
   await saveData(grdMovementLevelRef.value.getView(), additionalInfo);
 }
 
 async function onClickBizSave() {
-  const { bizManHour, bizFieldWeight } = baseInfo.value;
+  const { bizManHour, bizFieldWeight } = getBaseInfo('biz');
   const avVe = getFieldAirlift(bizManHour, bizFieldWeight);
   const additionalInfo = { minPerManho: bizManHour, rglvlWeit: bizFieldWeight, avVe };
   await saveData(grdBizLevelRef.value.getView(), additionalInfo);
@@ -628,4 +609,102 @@ const initGrdBizLevel = defineGrid((data, view) => {
   view.rowIndicator.visible = true;
   view.editOptions.columnEditableFirst = true;
 });
+
+function initGrdMovementBase(data, view) {
+  const fields = [
+    { fieldName: 'movementManHour', dataType: 'number' },
+    { fieldName: 'movementFieldWeight', dataType: 'number' },
+    { fieldName: 'movementAverageSpeed', dataType: 'number' },
+  ];
+
+  const columns = [
+    { fieldName: 'movementManHour',
+      header: t('MSG_TXT_AIRLIFT_PER_MIN'),
+      width: '100',
+      styleName: 'text-center',
+      editable: true,
+      editor: {
+        type: 'number',
+        maxLength: 3,
+        editFormat: '##0',
+      } },
+    { fieldName: 'movementFieldWeight',
+      header: t('MSG_TXT_RGLVL_WEIT'),
+      width: '100',
+      styleName: 'text-center',
+      editable: true,
+      editor: {
+        type: 'number',
+        maxLength: 3,
+        editFormat: '##0',
+      } },
+    { fieldName: 'movementAverageSpeed',
+      header: t('MSG_TXT_AV_HH_VE'),
+      width: '100',
+      styleName: 'text-center',
+      editable: true,
+      editor: {
+        type: 'number',
+        maxLength: 3,
+        editFormat: '##0',
+      } },
+  ];
+
+  data.setFields(fields);
+  view.setColumns(columns);
+  view.checkBar.visible = false;
+  view.rowIndicator.visible = false;
+  view.editOptions.columnEditableFirst = true;
+}
+
+function initGrdBizBase(data, view) {
+  const fields = [
+    { fieldName: 'bizManHour', dataType: 'number' },
+    { fieldName: 'bizFieldWeight', dataType: 'number' },
+    { fieldName: 'bizFieldAirlift', dataType: 'number' },
+  ];
+
+  const columns = [
+    { fieldName: 'bizManHour',
+      header: t('MSG_TXT_AIRLIFT_PER_MIN'),
+      width: '100',
+      styleName: 'text-center',
+      editable: true,
+      editor: {
+        type: 'number',
+        maxLength: 3,
+        editFormat: '##0',
+      },
+    },
+    { fieldName: 'bizFieldWeight',
+      header: t('MSG_TXT_RGLVL_WEIT'),
+      width: '100',
+      styleName: 'text-center',
+      editable: true,
+      editor: {
+        type: 'number',
+        maxLength: 3,
+        editFormat: '##0',
+      } },
+    { fieldName: 'bizFieldAirlift', header: t('MSG_TXT_RGLVL_AIRLIFT'), width: '100', styleName: 'text-center' },
+  ];
+
+  data.setFields(fields);
+  view.setColumns(columns);
+  view.checkBar.visible = false;
+  view.rowIndicator.visible = false;
+  view.editOptions.columnEditableFirst = true;
+
+  view.onGetEditValue = async (grid, index, editResult) => {
+    let bizFieldAirlift = 0;
+    if (index.fieldName === 'bizManHour') {
+      bizFieldAirlift = getFieldAirlift(editResult.value, grid.getValue(index.dataRow, 'bizFieldWeight'));
+    } else if (index.fieldName === 'bizFieldWeight') {
+      bizFieldAirlift = getFieldAirlift(grid.getValue(index.dataRow, 'bizManHour'), editResult.value);
+    }
+
+    grid.setValue(index.dataRow, index.fieldName, editResult.value);
+    grid.setValue(index.dataRow, 'bizFieldAirlift', bizFieldAirlift);
+  };
+}
 </script>
