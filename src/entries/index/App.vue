@@ -1,5 +1,8 @@
 <template>
   <web-layout>
+    <template #custdomain>
+      <cust-doamin-error />
+    </template>
     <template #default>
       <web-header>
         <template #logo>
@@ -22,7 +25,7 @@
 <script setup>
 import {
   useSession,
-  WebLayout, WebHeader, WebLeftDrawer, WebTabView, WebFallbackLogin,
+  WebLayout, WebHeader, WebLeftDrawer, WebTabView, WebFallbackLogin, CustDoaminError,
 } from 'kw-lib';
 
 const {

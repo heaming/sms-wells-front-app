@@ -111,7 +111,6 @@
                     v-model:init-data="prevStepData"
                     :pd-tp-cd="pdConst.PD_TP_CD_MATERIAL"
                     :pd-grp-dv-cd="pdConst.PD_PRP_GRP_DV_CD_BASIC"
-                    :prefix-title="$t('MSG_TXT_BAS_ATTR')"
                     :is-first-title="true"
                     :pd-tp-dtl-cd="pdTpDtlCd"
                   />
@@ -125,17 +124,18 @@
                   />
                 </kw-tab-panel>
                 <!--관리속성-->
+                <!--
                 <kw-tab-panel name="attributeExtr">
                   <zwpdc-prop-groups-dtl
                     v-model:pd-cd="currentPdCd"
                     v-model:init-data="prevStepData"
                     :pd-tp-cd="pdConst.PD_TP_CD_MATERIAL"
                     :pd-grp-dv-cd="pdConst.PD_PRP_GRP_DV_CD_MANUAL"
-                    :prefix-title="$t('MSG_TXT_MGT_ATTR')"
                     :is-first-title="true"
                     :except-id="exceptPrpGrpCd"
                   />
                 </kw-tab-panel>
+                 -->
               </kw-tab-panels>
             </kw-step-panel>
           </kw-stepper>
