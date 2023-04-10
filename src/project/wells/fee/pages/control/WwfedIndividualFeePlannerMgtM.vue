@@ -58,19 +58,19 @@
             :label="t('MSG_TXT_EMPL_NM')"
             align-content="left"
           >
-            <p>{{ info1.col1 }}</p>
+            <p>{{ info1.emplNm }}</p>
           </kw-form-item>
           <kw-form-item
             :label="t('MSG_TXT_BLG')"
             align-content="center"
           >
-            <p>{{ info1.col2 }}</p>
+            <p>{{ info1.blg }}</p>
           </kw-form-item>
           <kw-form-item
             :label="t('MSG_TXT_RSB')"
             align-content="left"
           >
-            <p>{{ info1.col3 }}</p>
+            <p>{{ info1.rsb }}</p>
           </kw-form-item>
         </kw-form-row>
         <kw-form-row>
@@ -78,14 +78,14 @@
             :label="t('MSG_TXT_METG')"
             align-content="right"
           >
-            <p>{{ stringUtil.getNumberWithComma(info1.col4) }}</p>
+            <p>{{ stringUtil.getNumberWithComma(info1.metg) }}</p>
           </kw-form-item>
           <kw-form-item />
           <kw-form-item
             :label="t('MSG_TXT_QLF')"
             align-content="left"
           >
-            <p>{{ info1.col5 }}</p>
+            <p>{{ info1.qlf }}</p>
           </kw-form-item>
         </kw-form-row>
       </kw-form>
@@ -106,51 +106,51 @@
           <kw-form-item
             :label="t('MSG_TXT_INDV')+t('MSG_TXT_ELHM')"
           >
-            <p>{{ stringUtil.getNumberWithComma(info2.col1) }}</p>
+            <p>{{ stringUtil.getNumberWithComma(info1.indvElhm) }}</p>
           </kw-form-item>
           <kw-form-item
             :label="t('MSG_TXT_INDV')+t('MSG_TXT_ELHM')+t('MSG_TXT_EXCP')"
           >
-            <p>{{ stringUtil.getNumberWithComma(info2.col2) }}</p>
+            <p>{{ stringUtil.getNumberWithComma(info1.indvElhmExcp) }}</p>
           </kw-form-item>
           <kw-form-item
             :label="t('MSG_TXT_INDV')+t('MSG_TXT_ADP')"
           >
-            <p>{{ stringUtil.getNumberWithComma(info2.col3) }}</p>
+            <p>{{ stringUtil.getNumberWithComma(info1.indvAdp) }}</p>
           </kw-form-item>
         </kw-form-row>
         <kw-form-row>
           <kw-form-item
             :label="t('MSG_TXT_OG')+t('MSG_TXT_ELHM')"
           >
-            <p>{{ stringUtil.getNumberWithComma(info2.col4) }}</p>
+            <p>{{ stringUtil.getNumberWithComma(info1.ogElhm) }}</p>
           </kw-form-item>
           <kw-form-item
             :label="t('MSG_TXT_OG')+t('MSG_TXT_ELHM')+t('MSG_TXT_EXCP')"
           >
-            <p>{{ stringUtil.getNumberWithComma(info2.col5) }}</p>
+            <p>{{ stringUtil.getNumberWithComma(info1.ogElhmExcp) }}</p>
           </kw-form-item>
           <kw-form-item
             :label="t('MSG_TXT_OG')+t('MSG_TXT_ADP')"
           >
-            <p>{{ stringUtil.getNumberWithComma( info2.col6) }}</p>
+            <p>{{ stringUtil.getNumberWithComma( info1.ogAdp) }}</p>
           </kw-form-item>
         </kw-form-row>
         <kw-form-row>
           <kw-form-item
             :label="t('MSG_TXT_INDV')+t('MSG_TXT_CHNG')"
           >
-            <p>{{ stringUtil.getNumberWithComma(info2.col7) }}</p>
+            <p>{{ stringUtil.getNumberWithComma(info1.indvChng) }}</p>
           </kw-form-item>
           <kw-form-item
             :label="t('MSG_TXT_INDV')+t('MSG_TXT_MUTU')"
           >
-            <p>{{ stringUtil.getNumberWithComma(info2.col8) }}</p>
+            <p>{{ stringUtil.getNumberWithComma(info1.indvMutu) }}</p>
           </kw-form-item>
           <kw-form-item
             :label="t('MSG_TXT_OG')+t('MSG_TXT_MUTU')"
           >
-            <p>{{ stringUtil.getNumberWithComma(info2.col9) }}</p>
+            <p>{{ stringUtil.getNumberWithComma(info1.ogMutu) }}</p>
           </kw-form-item>
         </kw-form-row>
       </kw-form>
@@ -170,17 +170,17 @@
           <kw-form-item
             :label="t('MSG_TXT_INTBS_SUM')"
           >
-            <p>{{ stringUtil.getNumberWithComma(info3.col1) }}</p>
+            <p>{{ stringUtil.getNumberWithComma(info1.intbsSum) }}</p>
           </kw-form-item>
           <kw-form-item
             :label="t('MSG_TXT_DDTN_SUM')"
           >
-            <p>{{ stringUtil.getNumberWithComma(info3.col2) }}</p>
+            <p>{{ stringUtil.getNumberWithComma(info1.ddtnSum) }}</p>
           </kw-form-item>
           <kw-form-item
             :label="t('MSG_TXT_ACL_DSB_AMT')"
           >
-            <p>{{ stringUtil.getNumberWithComma(info3.col3) }}</p>
+            <p>{{ stringUtil.getNumberWithComma(info1.aclDsbAmt) }}</p>
           </kw-form-item>
         </kw-form-row>
       </kw-form>
@@ -206,100 +206,100 @@
           <kw-form-item
             :label="t('MSG_TXT_INDV')+t('MSG_TXT_ELHM')+t('MSG_TXT_PRPN')"
           >
-            <p>{{ stringUtil.getNumberWithComma(info4.col1) }}</p>
+            <p>{{ stringUtil.getNumberWithComma(info2.w01) }}</p>
           </kw-form-item>
           <kw-form-item
             :label="t('MSG_TXT_INDV')+t('MSG_TXT_ELHM')+t('MSG_TXT_EXCP')+t('MSG_TXT_PRPN')"
           >
-            <p>{{ stringUtil.getNumberWithComma(info4.col2) }}</p>
+            <p>{{ stringUtil.getNumberWithComma(info2.w02) }}</p>
           </kw-form-item>
           <kw-form-item
             :label="t('MSG_TXT_SAL_INTV')"
           >
-            <p>{{ stringUtil.getNumberWithComma(info4.col3) }}</p>
+            <p>{{ stringUtil.getNumberWithComma(info2.w03) }}</p>
           </kw-form-item>
           <kw-form-item
             :label="t('MSG_TXT_METG')"
           >
-            <p>{{ stringUtil.getNumberWithComma(info4.col4) }}</p>
+            <p>{{ stringUtil.getNumberWithComma(info2.w04) }}</p>
           </kw-form-item>
         </kw-form-row>
         <kw-form-row>
           <kw-form-item
             :label="t('MSG_TXT_STMNT')"
           >
-            <p>{{ stringUtil.getNumberWithComma(info4.col5) }}</p>
+            <p>{{ stringUtil.getNumberWithComma(info2.w05) }}</p>
           </kw-form-item>
           <kw-form-item
             :label="t('MSG_TXT_MUTU')"
           >
-            <p>{{ stringUtil.getNumberWithComma(info4.col6) }}</p>
+            <p>{{ stringUtil.getNumberWithComma(info2.w21) }}</p>
           </kw-form-item>
           <kw-form-item
             :label="t('MSG_TXT_FXAM')"
           >
-            <p>{{ stringUtil.getNumberWithComma(info4.col7) }}</p>
+            <p>{{ stringUtil.getNumberWithComma(info2.w23) }}</p>
           </kw-form-item>
           <kw-form-item
             :label="t('MSG_TXT_LIVE_PAKG')"
           >
-            <p>{{ stringUtil.getNumberWithComma(info4.col8) }}</p>
+            <p>{{ stringUtil.getNumberWithComma(info2.w24) }}</p>
           </kw-form-item>
         </kw-form-row>
         <kw-form-row>
           <kw-form-item
             :label="t('MSG_TXT_HOME_CARE')"
           >
-            <p>{{ stringUtil.getNumberWithComma(info4.col9) }}</p>
+            <p>{{ stringUtil.getNumberWithComma(info2.w25) }}</p>
           </kw-form-item>
           <kw-form-item
             :label="t('MSG_TXT_OG')+t('MSG_TXT_ELHM')+t('MSG_TXT_PRPN')"
           >
-            <p>{{ stringUtil.getNumberWithComma(info4.col10) }}</p>
+            <p>{{ stringUtil.getNumberWithComma(info2.w11) }}</p>
           </kw-form-item>
           <kw-form-item
             :label="t('MSG_TXT_OG')+t('MSG_TXT_ELHM')+t('MSG_TXT_EXCP')+t('MSG_TXT_PRPN')"
           >
-            <p>{{ stringUtil.getNumberWithComma(info4.col11) }}</p>
+            <p>{{ stringUtil.getNumberWithComma(info2.w12) }}</p>
           </kw-form-item>
           <kw-form-item
             :label="t('MSG_TXT_OG')+t('MSG_TXT_SAL_INTV')"
           >
-            <p>{{ stringUtil.getNumberWithComma(info4.col12) }}</p>
+            <p>{{ stringUtil.getNumberWithComma(info2.w13) }}</p>
           </kw-form-item>
         </kw-form-row>
         <kw-form-row>
           <kw-form-item
             :label="t('MSG_TXT_NB')+t('MSG_TXT_BRANCH')"
           >
-            <p>{{ stringUtil.getNumberWithComma(info4.col13) }}</p>
+            <p>{{ stringUtil.getNumberWithComma(info2.w15) }}</p>
           </kw-form-item>
           <kw-form-item
             :label="t('MSG_TXT_OG')+t('MSG_TXT_EJT')+'1'"
           >
-            <p>{{ stringUtil.getNumberWithComma(info4.col14) }}</p>
+            <p>{{ stringUtil.getNumberWithComma(info2.w16) }}</p>
           </kw-form-item>
           <kw-form-item
             :label="t('MSG_TXT_OG')+t('MSG_TXT_EJT')+'2'"
           >
-            <p>{{ stringUtil.getNumberWithComma(info4.col15) }}</p>
+            <p>{{ stringUtil.getNumberWithComma(info2.w17) }}</p>
           </kw-form-item>
           <kw-form-item
             :label="t('MSG_TXT_OG')+t('MSG_TXT_MUTU')"
           >
-            <p>{{ stringUtil.getNumberWithComma(info4.col16) }}</p>
+            <p>{{ stringUtil.getNumberWithComma(info2.w22) }}</p>
           </kw-form-item>
         </kw-form-row>
         <kw-form-row>
           <kw-form-item
             :label="t('MSG_TXT_ADSB')"
           >
-            <p>{{ stringUtil.getNumberWithComma(info4.col17) }}</p>
+            <p>{{ stringUtil.getNumberWithComma(info2.w20) }}</p>
           </kw-form-item>
           <kw-form-item
             :label="t('MSG_TXT_ETC_SPPT')"
           >
-            <p>{{ stringUtil.getNumberWithComma(info4.col18) }}</p>
+            <p>{{ stringUtil.getNumberWithComma(info2.w30) }}</p>
           </kw-form-item>
         </kw-form-row>
       </kw-form>
@@ -335,34 +335,34 @@
           <kw-form-item
             :label="t('MSG_TXT_RDS')"
           >
-            <p>{{ stringUtil.getNumberWithComma(info5.col1) }}</p>
+            <p>{{ stringUtil.getNumberWithComma(info3.rds) }}</p>
           </kw-form-item>
           <kw-form-item
             :label="t('MSG_TXT_ERNTX')"
           >
-            <p>{{ stringUtil.getNumberWithComma(info5.col2) }}</p>
+            <p>{{ stringUtil.getNumberWithComma(info3.erntx) }}</p>
           </kw-form-item>
           <kw-form-item
             :label="t('MSG_TXT_RSDNTX')"
           >
-            <p>{{ stringUtil.getNumberWithComma(info5.col3) }}</p>
+            <p>{{ stringUtil.getNumberWithComma(info3.rsdntx) }}</p>
           </kw-form-item>
         </kw-form-row>
         <kw-form-row>
           <kw-form-item
             :label="t('MSG_TXT_HIR_INSR')"
           >
-            <p>{{ stringUtil.getNumberWithComma(info5.col4) }}</p>
+            <p>{{ stringUtil.getNumberWithComma(info3.hirInsr) }}</p>
           </kw-form-item>
           <kw-form-item
             :label="t('MSG_TXT_BU_DDTN')"
           >
-            <p>{{ stringUtil.getNumberWithComma(info5.col5) }}</p>
+            <p>{{ stringUtil.getNumberWithComma(info3.buDdtn) }}</p>
           </kw-form-item>
           <kw-form-item
             :label="t('MSG_TXT_PNPYAM')"
           >
-            <p>{{ stringUtil.getNumberWithComma(info5.col6) }}</p>
+            <p>{{ stringUtil.getNumberWithComma(info3.pnpyam) }}</p>
           </kw-form-item>
         </kw-form-row>
       </kw-form>
@@ -388,7 +388,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService, getComponentType, stringUtil, modal } from 'kw-lib';
+import { useDataService, getComponentType, stringUtil, modal, defineGrid } from 'kw-lib';
 import dayjs from 'dayjs';
 import { cloneDeep } from 'lodash-es';
 
@@ -410,59 +410,53 @@ const searchParams = ref({
 });
 
 const info1 = ref({
-  col1: '',
-  col2: '',
-  col3: '',
-  col4: '',
-  col5: '',
+  emplNm: '',
+  blg: '',
+  rsb: '',
+  metg: '',
+  qlf: '',
+  indvElhm: '',
+  indvElhmExcp: '',
+  indvAdp: '',
+  ogElhm: '',
+  ogElhmExcp: '',
+  ogAdp: '',
+  indvChng: '',
+  indvMutu: '',
+  ogMutu: '',
+  intbsSum: '',
+  ddtnSum: '',
+  aclDsbAmt: '',
 });
 
 const info2 = ref({
-  col1: '',
-  col2: '',
-  col3: '',
-  col4: '',
-  col5: '',
-  col6: '',
-  col7: '',
-  col8: '',
-  col9: '',
+  w01: '',
+  w02: '',
+  w03: '',
+  w04: '',
+  w05: '',
+  w21: '',
+  w23: '',
+  w24: '',
+  w25: '',
+  w11: '',
+  w12: '',
+  w13: '',
+  w15: '',
+  w16: '',
+  w17: '',
+  w22: '',
+  w20: '',
+  w30: '',
 });
 
 const info3 = ref({
-  col1: '',
-  col2: '',
-  col3: '',
-});
-
-const info4 = ref({
-  col1: '',
-  col2: '',
-  col3: '',
-  col4: '',
-  col5: '',
-  col6: '',
-  col7: '',
-  col8: '',
-  col9: '',
-  col10: '',
-  col11: '',
-  col12: '',
-  col13: '',
-  col14: '',
-  col15: '',
-  col16: '',
-  col17: '',
-  col18: '',
-});
-
-const info5 = ref({
-  col1: '',
-  col2: '',
-  col3: '',
-  col4: '',
-  col5: '',
-  col6: '',
+  rds: '',
+  erntx: '',
+  rsdntx: '',
+  hirInsr: '',
+  buDdtn: '',
+  pnpyam: '',
 });
 
 let cachedParams;
@@ -517,14 +511,10 @@ async function fetchData(type) {
   totalCount.value = resData.length;
   if (type === 'entrepreneur') {
     info1.value = resData;
-  } else if (type === 'basic') {
-    info2.value = resData;
-  } else if (type === 'total-sum') {
-    info3.value = resData;
   } else if (type === 'fee') {
-    info4.value = resData;
+    info2.value = resData;
   } else if (type === 'deduction') {
-    info5.value = resData;
+    info3.value = resData;
   } else if (type === 'control') {
     const controlView = grdMainRef.value.getView();
     controlView.getDataSource().setRows(resData);
@@ -535,8 +525,6 @@ async function fetchData(type) {
 async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
   await fetchData('entrepreneur');
-  await fetchData('basic');
-  await fetchData('total-sum');
   await fetchData('fee');
   await fetchData('deduction');
   await fetchData('control');
@@ -545,25 +533,25 @@ async function onClickSearch() {
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
-function initGrdMain(data, view) {
+const initGrdMain = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'col1' },
-    { fieldName: 'col2' },
-    { fieldName: 'col3', dataType: 'number' },
-    { fieldName: 'col4', dataType: 'number' },
-    { fieldName: 'col5' },
-    { fieldName: 'col6' },
-    { fieldName: 'col7' },
+    { fieldName: 'div' },
+    { fieldName: 'item' },
+    { fieldName: 'ctrBf', dataType: 'number' },
+    { fieldName: 'ctrAf', dataType: 'number' },
+    { fieldName: 'rsn' },
+    { fieldName: 'ctrDtm' },
+    { fieldName: 'ctrr' },
   ];
 
   const columns = [
-    { fieldName: 'col1', header: t('MSG_TXT_DIV'), width: '132', styleName: 'text-left' },
-    { fieldName: 'col2', header: t('MSG_TXT_ITEM'), width: '247', styleName: 'text-left' },
-    { fieldName: 'col3', header: t('MSG_TXT_CTR_BF'), width: '200', styleName: 'text-right' },
-    { fieldName: 'col4', header: t('MSG_TXT_CTR_AF'), width: '200', styleName: 'text-right' },
-    { fieldName: 'col5', header: t('MSG_TXT_RSN'), width: '328', styleName: 'text-left' },
-    { fieldName: 'col6', header: t('MSG_TXT_CTR_DTM'), width: '200', styleName: 'text-center' },
-    { fieldName: 'col7', header: t('MSG_TXT_CTRR'), width: '161', styleName: 'text-left' },
+    { fieldName: 'div', header: t('MSG_TXT_DIV'), width: '132', styleName: 'text-left' },
+    { fieldName: 'item', header: t('MSG_TXT_ITEM'), width: '247', styleName: 'text-left' },
+    { fieldName: 'ctrBf', header: t('MSG_TXT_CTR_BF'), width: '200', styleName: 'text-right' },
+    { fieldName: 'ctrAf', header: t('MSG_TXT_CTR_AF'), width: '200', styleName: 'text-right' },
+    { fieldName: 'rsn', header: t('MSG_TXT_RSN'), width: '328', styleName: 'text-left' },
+    { fieldName: 'ctrDtm', header: t('MSG_TXT_CTR_DTM'), width: '200', styleName: 'text-center' },
+    { fieldName: 'ctrr', header: t('MSG_TXT_CTRR'), width: '161', styleName: 'text-left' },
   ];
 
   data.setFields(fields);
@@ -571,6 +559,6 @@ function initGrdMain(data, view) {
 
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
-}
+});
 
 </script>

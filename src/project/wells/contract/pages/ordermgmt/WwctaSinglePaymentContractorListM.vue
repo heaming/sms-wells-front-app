@@ -73,8 +73,11 @@
         :label="$t('MSG_TXT_MPNO')"
       >
         <kw-input
-          v-model="searchParams.cralLocaraTno"
+          v-model:telNo0="searchParams.cralLocaraTno"
+          v-model:telNo1="searchParams.mexnoEncr"
+          v-model:telNo2="searchParams.cralIdvTno"
           :placeholder="t('MSG_TXT_INP')"
+          mask="telephone"
         />
       </kw-search-item>
     </kw-search-row>
@@ -182,7 +185,9 @@ const searchParams = ref({
   bzrno: '', // 사업자법인등록번호
   sexGbn: 'M', // 성별구분
   cstKnm: '', // 계약자명
-  cralLocaraTno: '', // 휴대전화번호
+  cralLocaraTno: '', // 휴대전화번호1
+  mexnoEncr: '', // 휴대전화번호2
+  cralIdvTno: '', // 휴대전화번호3
   cntrCstNo: '', // 고객번호
   cntrCanYn: 'N', // 취소제외
 });
