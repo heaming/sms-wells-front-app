@@ -295,9 +295,19 @@ watch(() => warehouseInfo.value.wareDvCd, async (val) => {
 }, { immediate: true });
 
 async function onClickOpenHumanResourcesPopup() {
+  let mngrDvCd = '';
+  if (warehouseInfo.value.wareDvCd === '2') { // 서비스센터일 경우 '엔지니어'
+    mngrDvCd = '2';
+  } else if (warehouseInfo.value.wareDvCd === '3') { // 영업센터일 경우 '매니저'
+    mngrDvCd = '1';
+  }
+
   const { result: isChanged, payload } = await modal({
     component: 'WwsndHumanResourcesListP',
-    componentProps: { searchText: warehouseInfo.value.prtnrKnm },
+    componentProps: {
+      mngrDvCd,
+      searchText: warehouseInfo.value.prtnrKnm,
+    },
   });
 
   if (isChanged) {
