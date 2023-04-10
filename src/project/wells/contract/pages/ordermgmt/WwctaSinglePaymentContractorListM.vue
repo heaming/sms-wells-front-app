@@ -236,12 +236,11 @@ async function onClickSearchCntrCstNo() {
 }
 
 async function onClickSearchCstKnm() {
-  const cntrAprId = '105106';
-  const cntrNo = 'W73103315';
+  const cpProps = { cntrCstKnm: searchParams.value.cstKnm };
 
   const { result } = await modal({
-    component: 'WwctaContractRejectReasonModP',
-    componentProps: { cntrAprId, cntrNo },
+    component: 'ZwcsaCustomerListP',
+    componentProps: cpProps,
   });
   if (result) {
     notify(t('팝업 준비중 입니다.')); // 공통 팝업 피완성. 값을 받아오지 못합니다.
