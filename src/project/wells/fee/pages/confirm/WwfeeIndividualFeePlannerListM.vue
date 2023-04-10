@@ -185,7 +185,7 @@
         />
       </kw-action-top>
       <kw-form
-        :cols="2"
+        :cols="4"
         dense
       >
         <kw-form-row>
@@ -201,8 +201,6 @@
           >
             <p>{{ stringUtil.getNumberWithComma(info2.erntx) }}</p>
           </kw-form-item>
-        </kw-form-row>
-        <kw-form-row>
           <kw-form-item
             :label="t('MSG_TXT_RSDNTX')"
             align-content="center"
@@ -229,14 +227,12 @@
           >
             <p>{{ stringUtil.getNumberWithComma(info2.inddInsr) }}</p>
           </kw-form-item>
-        </kw-form-row>
-        <kw-form-row>
           <kw-form-item
             :label="t('MSG_TXT_BU_DDTN')"
             align-content="center"
           >
             <p>
-              {{ stringUtil.getNumberWithComma(info2.buddtn) }}
+              {{ stringUtil.getNumberWithComma(info2.buDdtn) }}
             </p>
           </kw-form-item>
           <kw-form-item
@@ -330,7 +326,7 @@ const info2 = ref({
   pnpyam: '',
   hirInsr: '',
   inddInsr: '',
-  buddtn: '',
+  buDdtn: '',
   ddtnSum: '',
 });
 
@@ -559,11 +555,11 @@ const initGrd3Main = defineGrid((data, view) => {
 
   const columns = [
     { fieldName: 'item', header: t('MSG_TXT_ITEM'), width: '167', styleName: 'text-left', footer: { text: '합계', styleName: 'text-center' } },
-    { fieldName: 'lstmm', header: t('MSG_TXT_LSTMM') + t('MSG_TXT_BLAM'), width: '274', styleName: 'text-right', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
-    { fieldName: 'thmOc', header: t('MSG_TXT_THM_OC'), width: '274', styleName: 'text-right', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
-    { fieldName: 'tmh', header: t('MSG_TXT_THM') + t('MSG_TXT_SUM'), width: '275', styleName: 'text-right', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
-    { fieldName: 'thmDdtn', header: t('MSG_TXT_THM_DDTN'), width: '274', styleName: 'text-right', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
-    { fieldName: 'thmBlam', header: t('MSG_TXT_THM_BLAM'), width: '274', styleName: 'text-right', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
+    { fieldName: 'lstmm', header: t('MSG_TXT_LSTMM') + t('MSG_TXT_BLAM'), width: '254', styleName: 'text-right', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
+    { fieldName: 'thmOc', header: t('MSG_TXT_THM_OC'), width: '254', styleName: 'text-right', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
+    { fieldName: 'tmh', header: t('MSG_TXT_THM') + t('MSG_TXT_SUM'), width: '254', styleName: 'text-right', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
+    { fieldName: 'thmDdtn', header: t('MSG_TXT_THM_DDTN'), width: '254', styleName: 'text-right', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
+    { fieldName: 'thmBlam', header: t('MSG_TXT_THM_BLAM'), width: '254', styleName: 'text-right', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
 
   ];
 
