@@ -77,7 +77,7 @@ async function initProps() {
 await initProps();
 
 watch(() => route.params.pdCd, async (pdCd) => {
-  if (!route.path.includes('wwpdc-service-dtl')) return;
+  if (!route.path.includes('zwpdc-service-list')) return;
   console.log(`WwpdcServiceDtlM - watch - currentPdCd.value: ${currentPdCd.value} route.params.pdCd: ${pdCd}`);
   if (pdCd) {
     cmpRef.value?.resetData();
@@ -88,7 +88,7 @@ watch(() => route.params.pdCd, async (pdCd) => {
 }, { immediate: true });
 
 watch(() => route.params.reloadYn, async (reloadYn) => {
-  if (!route.path.includes('wwpdc-service-dtl')) return;
+  if (!route.path.includes('zwpdc-service-list')) return;
   console.log(`WwpdcServiceDtlM - watch - route.params.reloadYn: ${reloadYn}`);
   if (reloadYn && reloadYn === 'Y') {
     currentPdCd.value = null;

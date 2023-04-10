@@ -74,7 +74,7 @@
       <div class="button-set--bottom">
         <div class="button-set--bottom-left">
           <kw-btn
-            v-show="currentStep.step > 1"
+            v-show="isTempSaveBtn && currentStep.step > 1"
             :label="$t('MSG_BTN_PREV')"
             class="ml8"
             @click="onClickPrevStep"
@@ -105,7 +105,7 @@
             @click="onClickCancel()"
           />
           <kw-btn
-            v-show="currentStep.step < regSteps.length"
+            v-show="isTempSaveBtn && currentStep.step < regSteps.length"
             :label="$t('MSG_BTN_NEXT')"
             class="ml8"
             primary
@@ -137,8 +137,6 @@ import WwpdcServiceDtlMContents from './WwpdcServiceDtlMContents.vue';
 
 const props = defineProps({
   pdCd: { type: String, default: null },
-  tempSaveYn: { type: String, default: 'Y' },
-  newRegYn: { type: String, default: 'N' },
 });
 
 const route = useRoute();
@@ -241,6 +239,12 @@ async function onClickCancel() {
   await router.close();
 }
 
+async function init() {
+  await Promise.all(cmpStepRefs.value.map(async (item) => {
+    if (item.value?.init) await item.value?.init();
+  }));
+}
+
 async function fetchProduct() {
   const initData = {};
   if (currentPdCd.value) {
@@ -250,8 +254,9 @@ async function fetchProduct() {
     initData[rel] = res.data[rel];
     initData[pdConst.RELATION_PRODUCTS] = res.data[pdConst.RELATION_PRODUCTS];
     isTempSaveBtn.value = initData[bas].tempSaveYn === 'Y';
-    prevStepData.value = cloneDeep(initData);
+    prevStepData.value = initData;
     // console.log('res.data : ', res.data);
+    await init();
   }
 }
 
@@ -305,9 +310,8 @@ async function onClickSave(tempSaveYn) {
     rtn = await dataService.post('/sms/wells/product/services', subList);
   }
   notify(t('MSG_ALT_SAVE_DATA'));
-  await Promise.all(cmpStepRefs.value.map(async (item) => {
-    if (item.value.init) { await item.value.init(); }
-  }));
+  await init();
+
   if (tempSaveYn === 'N') {
     // 목록으로 이동
     await router.close();
@@ -335,7 +339,6 @@ async function onClickReset() {
   prevStepData.value = {};
   await Promise.all(cmpStepRefs.value.map(async (item) => {
     if (item.value?.resetData) await item.value?.resetData();
-    if (item.value?.init) await item.value?.init();
   }));
   await fetchProduct();
 }
@@ -354,8 +357,8 @@ async function initProps() {
 await initProps();
 
 watch(() => route.params.pdCd, async (pdCd) => {
-  if (!route.path.includes('wwpdc-service-mgt')) return;
-  console.log(`WwpdcServiceMgtM - watch - currentPdCd.value: ${currentPdCd.value} route.params.pdCd: ${pdCd}`);
+  if (!route.path.includes('zwpdc-service-list')) return;
+  console.log(`WwpdcServiceMgtM - watch - currentPdCd.value: ${currentPdCd.value} route.params.pdCd: ${pdCd}`, route);
   if (pdCd && currentPdCd.value !== pdCd) {
     await onClickReset();
     currentPdCd.value = pdCd;
@@ -368,17 +371,17 @@ watch(() => route.params.pdCd, async (pdCd) => {
 }, { immediate: true });
 
 watch(() => route.params.newRegYn, async (newRegYn) => {
-  if (!route.path.includes('wwpdc-service-mgt')) return;
-  console.log(`WwpdcServiceMgtM - watch - route.params.newRegYn: ${newRegYn}`);
-  if (newRegYn && newRegYn === 'Y') {
+  if (!route.path.includes('zwpdc-service-list')) return;
+  console.log(`WwpdcServiceMgtM - watch - route.params.newRegYn: ${newRegYn}`, route);
+  if (newRegYn === 'Y') {
     await onClickReset();
   }
 });
 
 watch(() => route.params.reloadYn, async (reloadYn) => {
-  if (!route.path.includes('wwpdc-service-mgt')) return;
-  console.log(`WwpdcServiceMgtM - watch - route.params.reloadYn: ${reloadYn}`);
-  if (reloadYn && reloadYn === 'Y') {
+  if (!route.path.includes('zwpdc-service-list')) return;
+  console.log(`WwpdcServiceMgtM - watch - route.params.reloadYn: ${reloadYn}`, route);
+  if (reloadYn === 'Y') {
     currentStep.value = cloneDeep(pdConst.W_SERVICE_STEP_BASIC);
     await fetchProduct();
   }

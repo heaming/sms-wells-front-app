@@ -17,10 +17,10 @@
     v-model="selectedTab"
     class="mt24"
   >
-    <!-- 기본속성 -->
+    <!-- 속성 -->
     <kw-tab
       :name="pdConst.W_SERVICE_STEP_BASIC.name"
-      :label="$t('MSG_TXT_BAS_ATTR')"
+      :label="$t('MSG_TXT_PRP')"
     />
     <!-- 연결상품 -->
     <kw-tab
@@ -121,7 +121,7 @@ async function resetData() {
 
 async function onClickUpdate() {
   const { pdCd } = props;
-  await router.push({ path: '/product/zwpdc-service-list/wwpdc-service-mgt', query: { pdCd, tempSaveYn: 'N', reloadYn: 'Y' } });
+  await router.push({ path: '/product/zwpdc-service-list/wwpdc-service-mgt', query: { pdCd, reloadYn: 'Y' } });
 }
 
 async function initProps() {

@@ -100,7 +100,7 @@
       <div class="button-set--bottom">
         <div class="button-set--bottom-left">
           <kw-btn
-            v-show="currentStep.step > 1"
+            v-show="isTempSaveBtn && currentStep.step > 1"
             :label="$t('MSG_BTN_PREV')"
             class="ml8"
             @click="onClickPrevStep"
@@ -131,7 +131,7 @@
             @click="onClickCancel()"
           />
           <kw-btn
-            v-show="currentStep.step < regSteps.length"
+            v-show="isTempSaveBtn && currentStep.step < regSteps.length"
             :label="$t('MSG_BTN_NEXT')"
             class="ml8"
             primary
@@ -164,8 +164,6 @@ import WwpdcStandardDtlMContents from './WwpdcStandardDtlMContents.vue';
 
 const props = defineProps({
   pdCd: { type: String, default: null },
-  tempSaveYn: { type: String, default: 'Y' },
-  newRegYn: { type: String, default: 'N' },
 });
 
 const route = useRoute();
@@ -337,13 +335,19 @@ async function onClickStep() {
   // console.log('WwpdcStandardMgtM - onClickStep : ', currentStep.value);
 }
 
+async function onClickSubTab() {
+  // console.log('WwpdcStandardMgtM - onClickSubTab - ', clickedTab);
+  prevStepData.value = await getSaveData();
+}
+
 async function onClickCancel() {
   await router.close();
 }
 
-async function onClickSubTab() {
-  // console.log('WwpdcStandardMgtM - onClickSubTab - ', clickedTab);
-  prevStepData.value = await getSaveData();
+async function init() {
+  await Promise.all(cmpStepRefs.value.map(async (item) => {
+    if (item.value?.init) await item.value?.init();
+  }));
 }
 
 async function fetchProduct() {
@@ -365,8 +369,9 @@ async function fetchProduct() {
     codes.svPdCd = services?.map(({ pdNm, pdCd }) => ({
       codeId: pdCd, codeName: pdNm,
     }));
-    isTempSaveBtn.value = cloneDeep(initData[bas].tempSaveYn === 'Y');
-    prevStepData.value = cloneDeep(initData);
+    isTempSaveBtn.value = initData[bas].tempSaveYn === 'Y';
+    prevStepData.value = initData;
+    await init();
   }
 }
 
@@ -424,9 +429,8 @@ async function onClickSave(tempSaveYn) {
     rtn = await dataService.post('/sms/wells/product/standards', subList);
   }
   notify(t('MSG_ALT_SAVE_DATA'));
-  await Promise.all(cmpStepRefs.value.map(async (item) => {
-    if (item.value.init) { await item.value.init(); }
-  }));
+  await init();
+
   if (tempSaveYn === 'N') {
     // 목록으로 이동
     await router.close();
@@ -489,30 +493,31 @@ async function initProps() {
 await initProps();
 
 watch(() => route.params.pdCd, async (pdCd) => {
-  console.log(`WwpdcStandardMgtM - currentPdCd.value : ${currentPdCd.value}, route.params.pdCd : ${pdCd}`);
-  if (currentPdCd.value !== pdCd && pdCd) {
+  if (!route.path.includes('zwpdc-sale-product-list')) return;
+  console.log(`WwpdcStandardMgtM - currentPdCd.value : ${currentPdCd.value}, route.params.pdCd : ${pdCd}`, route);
+  if (pdCd && currentPdCd.value !== pdCd) {
     await onClickReset();
-    isCreate.value = isEmpty(pdCd);
+    currentPdCd.value = pdCd;
+    isCreate.value = isEmpty(currentPdCd.value);
     if (isCreate.value) {
       isTempSaveBtn.value = true;
     }
-    currentPdCd.value = pdCd;
     await fetchProduct();
   }
 }, { immediate: true });
 
 watch(() => route.params.newRegYn, async (newRegYn) => {
-  if (!route.path.includes('wwpdc-standard-mgt')) return;
-  console.log(`WwpdcStandardMgtM - newRegYn : ${newRegYn}`);
-  if (newRegYn && newRegYn === 'Y') {
+  if (!route.path.includes('zwpdc-sale-product-list')) return;
+  console.log(`WwpdcStandardMgtM - newRegYn : ${newRegYn}`, route);
+  if (newRegYn === 'Y') {
     await onClickReset();
   }
 });
 
 watch(() => route.params.reloadYn, async (reloadYn) => {
-  if (!route.path.includes('wwpdc-standard-mgt')) return;
-  console.log(`WwpdcStandardMgtM - watch - route.params.reloadYn: ${reloadYn}`);
-  if (reloadYn && reloadYn === 'Y') {
+  if (!route.path.includes('zwpdc-sale-product-list')) return;
+  console.log(`WwpdcStandardMgtM - watch - route.params.reloadYn: ${reloadYn}`, route);
+  if (reloadYn === 'Y') {
     currentStep.value = cloneDeep(pdConst.STANDARD_STEP_BASIC);
     await fetchProduct();
   }

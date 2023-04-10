@@ -98,7 +98,7 @@ async function initProps() {
 await initProps();
 
 watch(() => route.params.pdCd, async (pdCd) => {
-  if (!route.path.includes('wwpdc-standard-dtl')) return;
+  if (!route.path.includes('zwpdc-sale-product-list')) return;
   console.log(`WwpdcStandardDtlM - currentPdCd.value : ${currentPdCd.value}, route.params.pdCd : ${pdCd}`);
   if (pdCd) {
     if (cmpRef.value?.resetData) await cmpRef.value?.resetData();
@@ -108,7 +108,7 @@ watch(() => route.params.pdCd, async (pdCd) => {
 }, { immediate: true });
 
 watch(() => route.params.reloadYn, async (reloadYn) => {
-  if (!route.path.includes('wwpdc-standard-dtl')) return;
+  if (!route.path.includes('zwpdc-sale-product-list')) return;
   console.log(`WwpdcStandardDtlM - watch - route.params.reloadYn: ${reloadYn}`);
   if (reloadYn && reloadYn === 'Y') {
     currentPdCd.value = null;

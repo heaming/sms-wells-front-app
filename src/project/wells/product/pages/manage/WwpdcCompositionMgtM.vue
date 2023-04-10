@@ -97,7 +97,7 @@
       <div class="button-set--bottom">
         <div class="button-set--bottom-left">
           <kw-btn
-            v-show="currentStep.step > 1"
+            v-show="isTempSaveBtn && currentStep.step > 1"
             :label="$t('MSG_BTN_PREV')"
             class="ml8"
             @click="onClickPrevStep"
@@ -128,7 +128,7 @@
             @click="onClickCancel()"
           />
           <kw-btn
-            v-show="currentStep.step < regSteps.length"
+            v-show="isTempSaveBtn && currentStep.step < regSteps.length"
             :label="$t('MSG_BTN_NEXT')"
             class="ml8"
             primary
@@ -328,6 +328,12 @@ async function onClickCancel() {
   await router.close();
 }
 
+async function init() {
+  await Promise.all(cmpStepRefs.value.map(async (item) => {
+    if (item.value?.init) await item.value?.init();
+  }));
+}
+
 async function fetchProduct() {
   if (currentPdCd.value) {
     const initData = {};
@@ -343,6 +349,7 @@ async function fetchProduct() {
     initData[pdConst.RELATION_PRODUCTS] = res.data[pdConst.RELATION_PRODUCTS];
     isTempSaveBtn.value = initData[bas].tempSaveYn === 'Y';
     prevStepData.value = initData;
+    await init();
   }
 }
 
@@ -400,10 +407,8 @@ async function onClickSave(tempSaveYn) {
     rtn = await dataService.post('/sms/wells/product/compositions', subList);
   }
   notify(t('MSG_ALT_SAVE_DATA'));
+  await init();
 
-  await Promise.all(cmpStepRefs.value.map(async (item) => {
-    if (item.value.init) await item.value.init();
-  }));
   if (tempSaveYn === 'N') {
     // 목록으로 이동
     await router.close();
@@ -449,31 +454,31 @@ async function initProps() {
 await initProps();
 
 watch(() => route.params.pdCd, async (pdCd) => {
-  if (!route.path.includes('wwpdc-composition-mgt')) return;
-  console.log(`WwpdcCompositionMgtM - currentPdCd.value : ${currentPdCd.value}, route.params.pdCd : ${pdCd}`);
-  if (currentPdCd.value !== pdCd && pdCd) {
+  if (!route.path.includes('zwpdc-sale-product-list')) return;
+  console.log(`WwpdcCompositionMgtM - currentPdCd.value : ${currentPdCd.value}, route.params.pdCd : ${pdCd}`, route);
+  if (pdCd && currentPdCd.value !== pdCd) {
     await onClickReset();
-    isCreate.value = isEmpty(pdCd);
+    currentPdCd.value = pdCd;
+    isCreate.value = isEmpty(currentPdCd.value);
     if (isCreate.value) {
       isTempSaveBtn.value = true;
     }
-    currentPdCd.value = pdCd;
     await fetchProduct();
   }
 }, { immediate: true });
 
 watch(() => route.params.newRegYn, async (newRegYn) => {
-  if (!route.path.includes('wwpdc-composition-mgt')) return;
-  console.log(`WwpdcCompositionMgtM - newRegYn : ${newRegYn}`);
-  if (newRegYn && newRegYn === 'Y') {
+  if (!route.path.includes('zwpdc-sale-product-list')) return;
+  console.log(`WwpdcCompositionMgtM - newRegYn : ${newRegYn}`, route);
+  if (newRegYn === 'Y') {
     await onClickReset();
   }
 });
 
 watch(() => route.params.reloadYn, async (reloadYn) => {
-  if (!route.path.includes('wwpdc-composition-mgt')) return;
+  if (!route.path.includes('zwpdc-sale-product-list')) return;
   console.log(`WwpdcCompositionMgtM - watch - route.params.reloadYn: ${reloadYn}`, route);
-  if (reloadYn && reloadYn === 'Y') {
+  if (reloadYn === 'Y') {
     currentStep.value = cloneDeep(pdConst.COMPOSITION_STEP_BASIC);
     await fetchProduct();
   }

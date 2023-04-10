@@ -258,7 +258,7 @@ async function initGridRows() {
       row[pdConst.PRC_STD_ROW_ID] = row[pdConst.PRC_STD_ROW_ID] ?? row.pdPrcDtlId;
       const stdRow = stdRows?.find((item) => (row[pdConst.PRC_STD_ROW_ID]
                                                 && item[pdConst.PRC_STD_ROW_ID] === row[pdConst.PRC_STD_ROW_ID])
-                                            || item.pdPrcDtlId === row.pdPrcDtlId);
+                                            || (row.pdPrcDtlId && item.pdPrcDtlId === row.pdPrcDtlId));
       // console.log('const stdRow : ', row);
       row = pdMergeBy(row, stdRow);
       if (isEmpty(row[pdConst.PRC_STD_ROW_ID])) row[pdConst.PRC_STD_ROW_ID] = row.pdPrcDtlId;
