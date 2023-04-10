@@ -193,7 +193,7 @@ async function onClickSearch() {
 
 async function onClickRegister() {
   const { result } = await modal({
-    component: 'WwdcdRequestCleaningSuppliesMgtM', // W-CL-U-0093P01
+    component: 'WwdcdRequestCleaningSuppliesMgtP', // W-CL-U-0093P01
     componentProps: {
       configGroup: '',
     },
@@ -283,7 +283,7 @@ const initGrdMain = defineGrid((data, view) => {
   view.onCellItemClicked = async (grid, { itemIndex }) => {
     const { clinrRgno, result } = gridUtil.getRowValue(grid, itemIndex);
     await modal({
-      component: 'WwdcdRequestCleaningSuppliesMgtM', // W-CL-U-0093P01
+      component: 'WwdcdRequestCleaningSuppliesMgtP', // W-CL-U-0093P01
       componentProps: {
         configGroup: { clinrRgno },
       },

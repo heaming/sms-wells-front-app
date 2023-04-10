@@ -30,6 +30,7 @@
     <kw-search
       :cols="2"
       class="mt30"
+      :modified-targets="['grdPopSub']"
       @search="onSearch"
     >
       <kw-search-row>
@@ -37,16 +38,25 @@
           :label="$t('MSG_TXT_RGNL_GRP')"
           required
         >
-          <kw-select
-            :model-value="[]"
-            :options="['선택', 'B', 'C', 'D']"
-          /><!--TODO.공통코드가 없어 임시로 -->
+          <zwogz-level-select
+            v-model:og-levl-dv-cd2="searchParams.ogLevlDvCd2"
+            :og-tp-cd="searchParams.ogTpCd"
+            :base-ym="searchParams.baseYm"
+            :start-level="2"
+            :end-level="2"
+            first-option="all"
+            rules="required"
+          />
         </kw-search-item>
+
         <kw-search-item :label="$t('MSG_TXT_BLD_NM')">
           <kw-select
-            :model-value="[]"
-            :options="['선택', 'B', 'C', 'D']"
-          /><!--TODO.공통코드가 없어 임시로 -->
+            v-model="searchParams.bldCd"
+            :options="buildingCodes"
+            option-value="bldCd"
+            option-label="bldNm"
+            first-option="all"
+          />
         </kw-search-item>
       </kw-search-row>
 
@@ -55,15 +65,17 @@
           :label="t('MSG_TXT_RSB')"
         >
           <kw-option-group
-            :model-value="'지점장'"
+            v-model="searchParams.pstnDvCd"
             type="radio"
-            :options="['지점장', '플래너']"
-          /><!--TODO.공통코드가 없어 임시로 -->
+            :options="codes.PSTN_DV_CD"
+          />
         </kw-search-item>
         <kw-search-item :label="$t('MSG_TXT_ELIGIBILITY')">
           <kw-input
+            v-model="searchParams.dstOjpsNm"
             icon="search"
             clearable
+            @click-icon="onClickSearchPartner"
           />
         </kw-search-item>
       </kw-search-row>
@@ -80,7 +92,7 @@
 
     <kw-action-top class="mt20">
       <template #left>
-        <kw-paging-info :total-count="subPageInfo.totalCount" />
+        <kw-paging-info :total-count="subTotalCount" />
         <span class="ml8">{{ t('MSG_TXT_UNIT_WON') }}</span>
       </template>
       <kw-btn
@@ -131,7 +143,7 @@
 
     <kw-action-top class="mt20">
       <template #left>
-        <kw-paging-info :total-count="thirdPageInfo.totalCount" />
+        <kw-paging-info :total-count="thirdTotalCount" />
         <span class="ml8">{{ t('MSG_TXT_UNIT_WON') }}</span>
       </template>
       <kw-btn
@@ -164,41 +176,15 @@
 // -------------------------------------------------------------------------------------------------
 import { defineGrid, useDataService, getComponentType, gridUtil, useGlobal, useModal, codeUtil } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
+import ZwogzLevelSelect from '~sms-common/organization/components/common/ZwogzLevelSelect.vue';
+import dayjs from 'dayjs';
 
 const { t } = useI18n();
-const { confirm, notify } = useGlobal();
+const { modal, confirm, notify } = useGlobal();
 const { ok } = useModal();
+const { getters } = useStore();
 
 const dataService = useDataService();
-const props = defineProps({
-  params: {
-    type: Object,
-    required: true,
-  },
-});
-
-const searchParams = ref({
-  objectPerson: '',
-});
-
-const codes = await codeUtil.getMultiCodes(
-  'COD_NOTICOBJ_SRCH_DIV',
-  'COD_PAGE_SIZE_OPTIONS',
-);
-
-const subPageInfo = ref({
-  totalCount: 0,
-  pageIndex: 1,
-  pageSize: Number(codes.COD_PAGE_SIZE_OPTIONS[0].codeName),
-  needTotalCount: true,
-});
-
-const thirdPageInfo = ref({
-  totalCount: 0,
-  pageIndex: 1,
-  pageSize: Number(codes.COD_PAGE_SIZE_OPTIONS[0].codeName),
-  needTotalCount: true,
-});
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -207,12 +193,42 @@ const thirdPageInfo = ref({
 const grdMainRef = ref(getComponentType('KwGrid'));
 const grdSubRef = ref(getComponentType('KwGrid'));
 const grdThirdRef = ref(getComponentType('KwGrid'));
+const subTotalCount = ref(0);
+const thirdTotalCount = ref(0);
 let cachedParams;
 let mainParams;
+const props = defineProps({
+  params: {
+    type: Object,
+    required: true,
+  },
+});
+
+const codes = await codeUtil.getMultiCodes(
+  'PSTN_DV_CD',
+);
+
 async function fetchData() {
-  mainParams.useYearMonth = cloneDeep(props.value);
+  mainParams.baseYm = cloneDeep(props.value);
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(mainParams);
+}
+
+const userInfo = getters['meta/getUserInfo'];
+const { ogTpCd } = userInfo;
+const searchParams = ref({
+  baseYm: dayjs().format('YYYYMM'),
+  ogTpCd,
+  bldCd: '',
+  ogLevlDvCd2: '',
+  pstnDvCd: '',
+  dstOjpsNm: '',
+});
+
+const buildingCodes = ref([]);
+async function buildingCode() {
+  const res = await dataService.get('/sms/wells/closing/expense/operating-cost/marketable-securities-excd/code');
+  buildingCodes.value = res.data;
 }
 
 async function onClickEquality() {
@@ -241,7 +257,7 @@ async function onClickPerformance() {
     alert(''); // 등록 금액이 정산 대상 금액과 일치하도록 등록해주세요.
   }
 
-  const res = await dataService.get('/sms/wells/expense/operating-cost');
+  const res = await dataService.get('/sms/wells/closing/expense/operating-cost/marketable-securities-excd');
   const jikukListAccN = await cloneDeep(res.data);
 
   console.log(jikukListAccN.length);
@@ -317,34 +333,45 @@ async function onClickObjectPersonDel() {
   });
 }
 
-async function fetchPages() {
+async function subject() {
   const view = grdSubRef.value.getView();
-  const SubServices = ([
-    { col1: '2022-08-09 오전 08:03', col2: '경북총괄단', col3: '1111-1111-1111-1111', col4: '오천교송어회', col5: '일반대중음식', col6: '경북 예천군 효명...', col7: '11111111', col8: '123,123', col9: '정산', col10: '선택', col11: '예천빌딩식구', col12: '식사', col13: '원천세 정산', col14: '완료' },
-    { col1: '2023-08-09 오전 08:03', col2: '테스트', col3: '1111-1111-1111-1111', col4: '오천교송어회', col5: '일반대중음식', col6: '경북 예천군 효명...', col7: '11111111', col8: '123,123', col9: '정산', col10: '선택', col11: '예천빌딩식구', col12: '식사', col13: '원천세 정산', col14: '완료' },
-  ]);
-  subPageInfo.value.totalCount = 2;
-  view.getDataSource().setRows(SubServices);
-  view.resetCurrent();
-
-  // TODO.서비스 완성되면 써야할꺼
-  /* const res = await dataService
-  .get('/sms/wells/expense/operating-cost/withholding-Tax-scr-excd', { params: cachedParams });
-
-  const pages = res.data;
+  const res = await dataService.get('/sms/wells/closing/expense/operating-cost/marketable-securities-excd/subject', { params: cachedParams });
 
   const { list: services } = res.data;
-  totalCount.value = pages.length;
-
-  const view = grdMainRef.value.getView();
-  view.getDataSource().setRows(pages);
+  subTotalCount.value = res.data.length;
+  view.getDataSource().setRows(services);
   view.resetCurrent();
-  */
+}
+
+async function marketableSecuritiesExcd() {
+  const view = grdThirdRef.value.getView();
+  const res = await dataService.get('/sms/wells/closing/expense/operating-cost/marketable-securities-excd/final-withholding-tax-settlement', { params: cachedParams });
+
+  const { list: services } = res.data;
+  thirdTotalCount.value = res.data.length;
+
+  view.getDataSource().setRows(services);
+  view.resetCurrent();
+}
+
+async function onClickSearchPartner() {
+  /* TODO: 임직원 검색 컴포넌트 개발 시, 변경 될 수 있음 */
+  const { result, payload } = await modal({
+    // component: 'ZwcmzSingleSelectUserListP',
+    component: 'ZwogzPartnerListP',
+    componentProps: {
+      prtnrNo: searchParams.value.prtnrNo,
+    },
+  });
+  if (result) {
+    searchParams.value.prtnrNo = payload.prtnrNo;
+  }
 }
 
 async function onSearch() {
   cachedParams = cloneDeep(searchParams.value);
-  await fetchPages();
+  await subject();
+  await marketableSecuritiesExcd();
 }
 
 async function onClickSave() {
@@ -372,62 +399,45 @@ async function onClickSave() {
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
 const initGrdMain = defineGrid((data, view) => {
-  const fields = [
-    { fieldName: 'col1' },
-    { fieldName: 'col2' },
-    { fieldName: 'col3' },
-    { fieldName: 'col4' },
-    { fieldName: 'col5' },
-  ];
-
   const columns = [
-    { fieldName: 'col1', header: t('MSG_TXT_USE_DTM'), width: '220', styleName: 'text-center' }, // 사용일시
-    { fieldName: 'col2', header: t('MSG_TXT_ADJ_OJ_AMT'), width: '220', styleName: 'text-left' }, // 가맹점
-    { fieldName: 'col3', header: t('MSG_TXT_MRC'), width: '200', styleName: 'text-right' }, // 정산대상금액
-    { fieldName: 'col4', header: t('MSG_TXT_RGST_AMT'), width: '200', styleName: 'text-right' }, // 등록금액
-    { fieldName: 'col5', header: t('MSG_TXT_UNRG_AMT'), width: '221', styleName: 'text-right' }, // 미등록금액
+    { fieldName: 'authDate', header: t('MSG_TXT_USE_DTM'), width: '220', styleName: 'text-center' }, // 사용일시
+    { fieldName: 'mrcNm', header: t('MSG_TXT_ADJ_OJ_AMT'), width: '220', styleName: 'text-left' }, // 가맹점
+    { fieldName: 'adjCnfmAmt', header: t('MSG_TXT_MRC'), width: '200', styleName: 'text-right' }, // 정산대상금액
+    { fieldName: 'dstAmt', header: t('MSG_TXT_RGST_AMT'), width: '200', styleName: 'text-right' }, // 등록금액
+    { fieldName: 'amt', header: t('MSG_TXT_UNRG_AMT'), width: '221', styleName: 'text-right' }, // 미등록금액
 
   ];
+  const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
 
   data.setFields(fields);
   view.setColumns(columns);
 
   view.checkBar.visible = false;
   view.rowIndicator.visible = false;
-  view.setData = { col1: '2023.01.01' };
 });
 
 const initGrdSub = defineGrid((data, view) => {
-  const fields = [
-    { fieldName: 'col1' },
-    { fieldName: 'col2' },
-    { fieldName: 'col3' },
-    { fieldName: 'col4' },
-    { fieldName: 'col5' },
-    { fieldName: 'col6' },
-    { fieldName: 'col7' },
-    { fieldName: 'col8' },
-  ];
-
   const columns = [
-    { fieldName: 'col1', header: t('MSG_TXT_MANAGEMENT_DEPARTMENT'), width: '96', styleName: 'text-left' }, // 총괄단
-    { fieldName: 'col2', header: t('MSG_TXT_RGNL_GRP'), width: '117', styleName: 'text-left' }, // 지역단
-    { fieldName: 'col3', header: t('MSG_TXT_BLD_NM'), width: '195', styleName: 'text-left' }, // 빌딩명
-    { fieldName: 'col4', header: t('MSG_TXT_EMPL_NM'), width: '83', styleName: 'text-left' }, // 성명
-    { fieldName: 'col5', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '85', styleName: 'text-center' }, // 번호
-    { fieldName: 'col6', header: t('MSG_TXT_RSB'), width: '105', styleName: 'text-left' }, // 직책
-    { fieldName: 'col7', header: t('MSG_TXT_PERF'), width: '85', styleName: 'text-center' }, // 실적
+    { fieldName: 'dgr2LevlOgNm', header: t('MSG_TXT_MANAGEMENT_DEPARTMENT'), width: '96', styleName: 'text-left' }, // 총괄단
+    { fieldName: 'ogNm', header: t('MSG_TXT_RGNL_GRP'), width: '117', styleName: 'text-left' }, // 지역단
+    { fieldName: 'bldNm', header: t('MSG_TXT_BLD_NM'), width: '195', styleName: 'text-left' }, // 빌딩명
+    { fieldName: 'dstOjOgTpCd', header: t('MSG_TXT_EMPL_NM'), width: '83', styleName: 'text-left' }, // 성명
+    { fieldName: 'dstOjpsNm', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '85', styleName: 'text-center' }, // 번호
+    { fieldName: 'signrPrtnrNo', header: t('MSG_TXT_RSB'), width: '105', styleName: 'text-left' }, // 직책
+    { fieldName: 'pstnDvCd', header: t('MSG_TXT_PERF'), width: '85', styleName: 'text-center' }, // 실적
     {
-      fieldName: 'col8',
+      fieldName: 'useAmt',
       header: {
         text: t('MSG_TXT_AMT'),
         styleName: 'essential',
       },
       width: '211',
       styleName: 'text-right',
+      dataType: 'number',
     }, // 금액
   ];
 
+  const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   data.setFields(fields);
   view.setColumns(columns);
 
@@ -436,35 +446,27 @@ const initGrdSub = defineGrid((data, view) => {
 });
 
 const initGrdThird = defineGrid((data, view) => {
-  const fields = [
-    { fieldName: 'col1' },
-    { fieldName: 'col2' },
-    { fieldName: 'col3' },
-    { fieldName: 'col4' },
-    { fieldName: 'col5' },
-    { fieldName: 'col6' },
-    { fieldName: 'col7' },
-    { fieldName: 'col8' },
-  ];
-
   const columns = [
-    { fieldName: 'col1', header: t('MSG_TXT_MANAGEMENT_DEPARTMENT'), width: '100', styleName: 'text-left' }, // 총괄단
-    { fieldName: 'col2', header: t('MSG_TXT_RGNL_GRP'), width: '101', styleName: 'text-left' }, // 지역단
-    { fieldName: 'col3', header: t('MSG_TXT_BLD_NM'), width: '164', styleName: 'text-left' }, // 빌딩명
-    { fieldName: 'col4', header: t('MSG_TXT_EMPL_NM'), width: '83', styleName: 'text-left' }, // 성명
-    { fieldName: 'col5', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '85', styleName: 'text-center' }, // 번호
-    { fieldName: 'col6', header: t('MSG_TXT_RSB'), width: '105', styleName: 'text-left' }, // 직책
-    { fieldName: 'col7', header: t('MSG_TXT_OPCS_ADJ_AMT'), width: '169', styleName: 'text-right' }, // 운영비 정산금액
-    { fieldName: 'col8', header: t('MSG_TXT_WHTX'), width: '178', styleName: 'text-right' }, // 원천세
+    { fieldName: 'dgr2LevlOgNm', header: t('MSG_TXT_MANAGEMENT_DEPARTMENT'), width: '100', styleName: 'text-left' }, // 총괄단
+    { fieldName: 'ogNm', header: t('MSG_TXT_RGNL_GRP'), width: '101', styleName: 'text-left' }, // 지역단
+    { fieldName: 'bldNm', header: t('MSG_TXT_BLD_NM'), width: '164', styleName: 'text-left' }, // 빌딩명
+    { fieldName: 'dstOjpsNm', header: t('MSG_TXT_EMPL_NM'), width: '83', styleName: 'text-left' }, // 성명
+    { fieldName: 'signrPrtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '85', styleName: 'text-center' }, // 번호
+    { fieldName: 'pstnDvCd', header: t('MSG_TXT_RSB'), width: '105', styleName: 'text-left' }, // 직책
+    { fieldName: 'adjCnfmAmt', header: t('MSG_TXT_OPCS_ADJ_AMT'), width: '169', styleName: 'text-right', dataType: 'number' }, // 운영비 정산금액
+    { fieldName: 'dstWhtx', header: t('MSG_TXT_WHTX'), width: '178', styleName: 'text-right', dataType: 'number' }, // 원천세
   ];
 
+  const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   data.setFields(fields);
   view.setColumns(columns);
 
   view.checkBar.visible = true;
   view.rowIndicator.visible = true;
 });
+
 onMounted(async () => {
-  fetchData();
+  await buildingCode();
+  await fetchData();
 });
 </script>
