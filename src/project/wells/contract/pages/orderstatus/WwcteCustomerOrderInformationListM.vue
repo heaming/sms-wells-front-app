@@ -52,10 +52,12 @@
           />
         </kw-search-item>
         <kw-search-item :label="$t('MSG_TXT_MPNO')">
-          <zwcm-telephone-number
-            v-model:tel-no1="searchParams.cralLocaraTno"
-            v-model:tel-no2="searchParams.mexno"
-            v-model:tel-no3="searchParams.cralIdvTno"
+          <kw-input
+            v-model:model-value="totalTelephoneNumber"
+            v-model:telNo0="searchParams.cralLocaraTno"
+            v-model:telNo1="searchParams.mexno"
+            v-model:telNo2="searchParams.cralIdvTno"
+            mask="telephone"
           />
         </kw-search-item>
       </kw-search-row>
@@ -95,9 +97,8 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, defineGrid, getComponentType, useDataService, useGlobal, useMeta } from 'kw-lib';
+import { codeUtil, defineGrid, getComponentType, gridUtil, useDataService, useGlobal, useMeta } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
-import ZwcmTelephoneNumber from '~common/components/ZwcmTelephoneNumber.vue';
 
 const { modal, notify } = useGlobal();
 const { t } = useI18n();
@@ -124,6 +125,7 @@ const pageInfo = ref({
   pageIndex: 1,
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
 });
+
 let cachedParams;
 
 // -------------------------------------------------------------------------------------------------
@@ -139,11 +141,10 @@ async function onClickCntrNoPop() {
 }
 
 async function onClickSelectCst(div) {
-  // TODO : 고객 검색 시, 부모창 파라미터 전송 확인
   let cpProps;
 
-  if (div === 'cntor') cpProps = { cntrCstKnm: searchParams.value.cstKnm };
-  if (div === 'cst') cpProps = { cntrCstNo: searchParams.value.cstNo };
+  if (div === 'cntor') cpProps = { cstNm: searchParams.value.cstKnm };
+  if (div === 'cst') cpProps = { cstNo: searchParams.value.cstNo };
 
   const { result, payload } = await modal({
     component: 'ZwcsaCustomerListP',
@@ -156,7 +157,6 @@ async function onClickSelectCst(div) {
 }
 
 async function fetchData() {
-  console.log(cachedParams);
   const res = await dataService.get('/sms/wells/contract/myself-contracts/paging', { params: { ...cachedParams, ...pageInfo.value } });
   const { list: details, pageInfo: pagingResult } = res.data;
   pageInfo.value = pagingResult;
@@ -164,6 +164,7 @@ async function fetchData() {
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(details);
   view.resetCurrent();
+  view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
 async function onClickSearch() {
@@ -178,17 +179,17 @@ async function onClickSearch() {
 // -------------------------------------------------------------------------------------------------
 const initGrid = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'regButton' },
-    { fieldName: 'cntrNo' },
-    { fieldName: 'cntrSn' },
-    { fieldName: 'cstKnm' },
-    { fieldName: 'cstNo' },
-    { fieldName: 'mpNo' },
-    { fieldName: 'sellTpNm' },
-    { fieldName: 'cntrDtlStatNm' },
-    { fieldName: 'pdNm' },
-    { fieldName: 'adr' },
-    { fieldName: 'dtlAdr' },
+    { fieldName: 'regButton' }, // 계약서 작석
+    { fieldName: 'cntrNo' }, // 계약번호
+    { fieldName: 'cntrSn' }, // 계약일련번호
+    { fieldName: 'cstKnm' }, // 계약자명
+    { fieldName: 'cstNo' }, // 고객번호
+    { fieldName: 'mpNo' }, // 휴대전화번호
+    { fieldName: 'sellTpNm' }, // 계약구분
+    { fieldName: 'cntrDtlStatNm' }, // 상태
+    { fieldName: 'pdNm' }, // 상품명
+    { fieldName: 'adr' }, // 계약주소
+    { fieldName: 'dtlAdr' }, // 상세주소
   ];
 
   const columns = [
