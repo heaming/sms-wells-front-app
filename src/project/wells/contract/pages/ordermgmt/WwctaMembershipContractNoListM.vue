@@ -113,7 +113,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { codeUtil, defineGrid, getComponentType, useDataService, gridUtil, useGlobal } from 'kw-lib';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, isEmpty } from 'lodash-es';
 
 const dataService = useDataService();
 const { t } = useI18n();
@@ -222,7 +222,7 @@ onMounted(async () => {
 // -------------------------------------------------------------------------------------------------
 const initGridMembershipContractNoList = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'cntrNo' }, // 계약번호
+    { fieldName: 'cntrDtlNo' }, // 계약상세번호
     { fieldName: 'ordrInfoView' }, // 주문정보 보기
     { fieldName: 'cntrSn' }, // 순번
     { fieldName: 'cstKnm' }, // 계약자명
@@ -311,8 +311,8 @@ const initGridMembershipContractNoList = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_NO'), width: '180', styleName: 'rg-button-link text-center', renderer: { type: 'button' }, preventCellItemFocus: true }, // 계약번호
-    { fieldName: 'ordrInfoView', header: t('MSG_TXT_ODER_INF_VIEW'), width: '130', styleName: 'text-center', renderer: { type: 'button' } }, // 주문정보 보기
+    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '180', styleName: 'rg-button-link text-center', renderer: { type: 'button' }, preventCellItemFocus: true }, // 계약번호
+    { fieldName: 'ordrInfoView', header: t('MSG_TXT_ODER_INF_VIEW'), width: '130', styleName: 'text-center', renderer: { type: 'button', hideWhenEmpty: false }, displayCallback: () => t('MSG_TXT_ODER_INF_VIEW') }, // 주문정보 보기
     { fieldName: 'cntrSn', header: t('MSG_TXT_CNTR_SN'), width: '138', styleName: 'text-center' }, // 순번
     { fieldName: 'cstKnm', header: t('MSG_TXT_CNTOR_NM'), width: '138', styleName: 'text-center' }, // 계약자명
     { fieldName: 'rcgvpKnm', header: t('MSG_TXT_IST_NM'), width: '138', styleName: 'text-center' }, // 설치자명
@@ -376,7 +376,7 @@ const initGridMembershipContractNoList = defineGrid((data, view) => {
       styleName: 'text-center',
       displayCallback(grid, index) {
         const { cntrCralLocaraTno: no1, cntrMexnoEncr: no2, cntrCralIdvTno: no3 } = grid.getValues(index.itemIndex);
-        return `${no1}-${no2}-${no3}`;
+        return !isEmpty(no1) && !isEmpty(no2) && !isEmpty(no3) ? `${no1}-${no2}-${no3}` : '';
       },
     }, // 계약자 휴대폰번호
     { fieldName: 'adrZip', header: `${t('MSG_TXT_CNTRT')}${t('MSG_TXT_ZIP')}`, width: '136', styleName: 'text-center' }, // 계약자우편번호
@@ -389,7 +389,7 @@ const initGridMembershipContractNoList = defineGrid((data, view) => {
       styleName: 'text-center',
       displayCallback(grid, index) {
         const { istCralLocaraTno: no1, istMexnoEncr: no2, istCralIdvTno: no3 } = grid.getValues(index.itemIndex);
-        return `${no1}-${no2}-${no3}`;
+        return !isEmpty(no1) && !isEmpty(no2) && !isEmpty(no3) ? `${no1}-${no2}-${no3}` : '';
       },
     }, // 설치정보-휴대전화번호
     { fieldName: 'istAdrZip', header: `${t('MSG_TXT_INSTR')}${t('MSG_TXT_ZIP')}`, width: '136', styleName: 'text-center' }, // 설치자우편번호
@@ -417,10 +417,11 @@ const initGridMembershipContractNoList = defineGrid((data, view) => {
   view.rowIndicator.visible = true; // create number indicator column
 
   view.onCellItemClicked = async (g, { column, dataRow }) => {
-    const paramCntrNo = gridUtil.getCellValue(g, dataRow, 'cntrNo');
-    const paramCntrSn = gridUtil.getCellValue(g, dataRow, 'cntrSn');
+    const paramCntrDtlNo = gridUtil.getCellValue(g, dataRow, 'cntrDtlNo');
+    const paramCntrNo = String(paramCntrDtlNo).split('-')[0];
+    const paramCntrSn = String(paramCntrDtlNo).split('-')[1];
 
-    if (['cntrNo'].includes(column)) { // 계약상세(윈도우팝업)
+    if (['cntrDtlNo'].includes(column)) { // 계약상세(윈도우팝업)
       await modal({ component: 'WwctaOrderDetailP', componentProps: { cntrNo: paramCntrNo, cntrSn: paramCntrSn } });
     } else if (['ordrInfoView'].includes(column)) { // 멤버쉽 주문정보 상세
       await modal({ component: 'WwctaOrderRentalDtlP', componentProps: { cntrNo: paramCntrNo, cntrSn: paramCntrSn } });

@@ -13,12 +13,16 @@
 ****************************************************************************************************
 --->
 <template>
-  <kw-search @search="onClickSearch">
+  <kw-search
+    :cols="4"
+    @search="onClickSearch"
+  >
     <kw-search-row>
       <!-- 생년월일/사업자/법인등록번호 -->
       <kw-search-item
         :label="$t('MSG_TXT_BRYY_MMDD_ENTRPNO_CBNO')"
         required
+        :colspan="2"
       >
         <kw-select
           v-model="searchParams.bryyMmddEntrpNoCbno"
@@ -33,6 +37,7 @@
           v-model="searchParams.bryyMmdd"
           placeholder="20100101"
           rules="required|max:8|numeric"
+          :label="$t('MSG_TXT_BIRTH_DATE')"
           :type="number"
           :regex="/^[0-9]*$/i"
           :maxlength="8"
@@ -40,14 +45,16 @@
         <kw-select
           v-if="isSearchSexDvCdVisible"
           v-model="searchParams.sexDvCd"
-          :options="codes.SEX_DV_CD"
           rules="required"
+          :options="codes.SEX_CD"
+          :label="$t('MSG_TXT_GENDER')"
         />
         <kw-input
           v-if="isSearchBzrnoVisible"
           v-model="searchParams.bzrno"
-          placeholder="4968602009"
+          :placeholder="t('MSG_TXT_INP')"
           rules="required|max:10|numeric"
+          :label="$t('MSG_TXT_CBNO')"
           :type="number"
           :regex="/^[0-9]*$/i"
           :maxlength="10"
@@ -61,6 +68,7 @@
           v-model="searchParams.cstKnm"
           icon="search"
           clearable
+          :placeholder="t('MSG_TXT_INP_AND_SELT')"
           :label="$t('MSG_TXT_CNTR_NM')"
           :maxlength="50"
           @keydown="onKeyDownSelectCntrNm"
@@ -73,9 +81,12 @@
         :label="$t('MSG_TXT_MPNO')"
       >
         <kw-input
-          v-model="searchParams.cntrCralTno"
-          :type="number"
-          :maxlength="11"
+          v-model:model-value="searchParams.cntrCralTno"
+          v-model:telNo0="searchParams.cralLocaraTno"
+          v-model:telNo1="searchParams.mexnoEncr"
+          v-model:telNo2="searchParams.cralIdvTno"
+          :placeholder="t('MSG_TXT_INP')"
+          mask="telephone"
         />
       </kw-search-item>
     </kw-search-row>
@@ -89,8 +100,9 @@
           :label="$t('MSG_TXT_CST_NO')"
           icon="search"
           clearable
+          :placeholder="t('MSG_TXT_INP_AND_SELT')"
           :on-click-icon="onClickSearchCntrCst"
-          rules="required|max:10|numeric"
+          rules="max:10|numeric"
           :maxlength="10"
         />
       </kw-search-item>
@@ -166,14 +178,17 @@ const searchParams = ref({
   sexDvCd: '', // 성별구분
   bzrno: '', // 사업자번호/법인번호
   cstKnm: '', // 계약자명
-  cntrCralTno: '', // 휴대전화번호
+  cntrCralTno: '', // 계약자 휴대전화번호
+  cralLocaraTno: '', // 계약자 휴대지역전화번호
+  mexnoEncr: '', // 계약자 휴대전화국번호암호화
+  cralIdvTno: '', // 계약자 휴대개별전화번호
   cntrCstNo: '', // 계약고객번호
   cntrPdEnddtYn: '', // 탈퇴제외
 });
 
 const codes = await codeUtil.getMultiCodes(
+  'SEX_CD',
   'COD_PAGE_SIZE_OPTIONS',
-  'SEX_DV_CD',
 );
 
 const pageInfo = ref({
@@ -199,6 +214,7 @@ async function fetchData() {
   // changing api & cacheparams according to search classification
   let res = '';
   cachedParams = cloneDeep(searchParams.value);
+  console.log(cachedParams);
   res = await dataService.get('/sms/wells/contract/contracts/order-detail-mngt/membership/paging', { params: { ...cachedParams, ...pageInfo.value } });
 
   const { list: pages, pageInfo: pagingResult } = res.data;
@@ -275,8 +291,7 @@ onMounted(async () => {
 // -------------------------------------------------------------------------------------------------
 const initGridMembershipContractorList = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'cntrNo' }, // 계약번호
-    { fieldName: 'cntrSn' }, // 계약일련번호
+    { fieldName: 'cntrDtlNo' }, // 계약번호
     { fieldName: 'cstKnm' }, // 계약자명
     { fieldName: 'rcgvpKnm' }, // 설치자명
     { fieldName: 'ojSellTpNm' }, // 계약구분
@@ -301,8 +316,7 @@ const initGridMembershipContractorList = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_NO'), width: '180', styleName: 'rg-button-link text-center', renderer: { type: 'button' }, preventCellItemFocus: true }, // 계약번호
-    { fieldName: 'cntrSn', header: t('MSG_TXT_CNTR_SN'), width: '138', styleName: 'text-center' }, // 계약일련번호
+    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '180', styleName: 'rg-button-link text-center', renderer: { type: 'button' }, preventCellItemFocus: true }, // 계약번호
     { fieldName: 'cstKnm', header: t('MSG_TXT_CNTOR_NM'), width: '138', styleName: 'text-center' }, // 계약자명
     { fieldName: 'rcgvpKnm', header: t('MSG_TXT_IST_NM'), width: '138', styleName: 'text-center' }, // 설치자명
     { fieldName: 'ojSellTpNm', header: t('MSG_TXT_CNTR_DV'), width: '138' }, // 계약구분
@@ -329,14 +343,15 @@ const initGridMembershipContractorList = defineGrid((data, view) => {
   data.setFields(fields);
   view.setColumns(columns);
 
-  view.checkBar.visible = true;
+  view.checkBar.visible = false;
   view.rowIndicator.visible = true;
 
   view.onCellItemClicked = async (g, { column, dataRow }) => {
-    const paramCntrNo = gridUtil.getCellValue(g, dataRow, 'cntrNo');
-    const paramCntrSn = gridUtil.getCellValue(g, dataRow, 'cntrSn');
+    const paramCntrDtlNo = gridUtil.getCellValue(g, dataRow, 'cntrDtlNo');
+    const paramCntrNo = String(paramCntrDtlNo).split('-')[0];
+    const paramCntrSn = String(paramCntrDtlNo).split('-')[1];
 
-    if (['cntrNo'].includes(column)) { // 계약상세(윈도우팝업)
+    if (['cntrDtlNo'].includes(column)) { // 계약상세(윈도우팝업)
       await modal({ component: 'WwctaOrderDetailP', componentProps: { cntrNo: paramCntrNo, cntrSn: paramCntrSn } });
     }
   };

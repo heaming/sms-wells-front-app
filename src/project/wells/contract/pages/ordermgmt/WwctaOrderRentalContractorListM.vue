@@ -87,8 +87,8 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, defineGrid, getComponentType, useDataService, gridUtil, useGlobal } from 'kw-lib';
-import { cloneDeep } from 'lodash-es';
+import { codeUtil, getComponentType, useDataService, gridUtil, useGlobal } from 'kw-lib';
+import { cloneDeep, isEmpty } from 'lodash-es';
 
 const dataService = useDataService();
 const { t } = useI18n();
@@ -134,6 +134,7 @@ async function fetchData() {
 
   pageInfo.value = pagingResult;
   console.log(res.data);
+  // console.log(res.data);
 
   const view = grdRentalContractorList.value.getView();
   view.getDataSource().setRows(pages);
@@ -171,9 +172,10 @@ onMounted(async () => {
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
-const initGridRentalContractorList = defineGrid((data, view) => {
+function initGridRentalContractorList(data, view) {
+// const initGridRentalContractorList = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'cntrNoFull' }, // 계약번호
+    { fieldName: 'cntrDtlNo' }, // 계약번호
     { fieldName: 'ordrInfoView' }, // 주문정보 보기
     { fieldName: 'sellTpDtlNm' }, // 판매유형
     { fieldName: 'dgr3LevlDgPrtnrNo' }, // 파트너정보-지점장 사번
@@ -235,15 +237,15 @@ const initGridRentalContractorList = defineGrid((data, view) => {
     { fieldName: 'booSellYn' }, // 예약
     { fieldName: 'mchnChYn' }, // 기변
     { fieldName: 'mchnCpsApyr' }, // 기변실적율
-    { fieldName: 'ackmtPerfAmt' }, // 인정실적액
+    { fieldName: 'ackmtPerfAmt', dataType: 'number' }, // 인정실적액
     { fieldName: 'ackmtPerfRt' }, // 인정실적률(%)
-    { fieldName: 'feeAckmtBaseAmt' }, // 수수료기준금액
+    { fieldName: 'feeAckmtBaseAmt', dataType: 'number' }, // 수수료기준금액
     { fieldName: 'feeFxamYn' }, // 수수료정액여부
     { fieldName: 'dscApyDtlCd' }, // 할인구분
     { fieldName: 'dscApyTpCd' }, // 할인유형
     { fieldName: 'dscPmotCd' }, // 할인제도
     { fieldName: 'mchnChTpCd' }, // 기변유형
-    { fieldName: 'ojCntrNoFull' }, // 기변상대코드
+    { fieldName: 'ojCntrDtlNo' }, // 기변상대코드
     { fieldName: 'ojBasePdCd' }, // 기변이전상품
     { fieldName: 'ojPdNm' }, // 기변이전상품명
     { fieldName: 'bogoCd' }, // １＋１연계코드
@@ -319,8 +321,8 @@ const initGridRentalContractorList = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'cntrNoFull', header: t('MSG_TXT_CNTR_NO'), width: '180', styleName: 'rg-button-link text-center', renderer: { type: 'button' }, preventCellItemFocus: true }, // 계약번호
-    { fieldName: 'ordrInfoView', header: t('MSG_TXT_ODER_INF_VIEW'), width: '130', styleName: 'text-center', renderer: { type: 'button' } }, // 주문정보 보기
+    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '180', styleName: 'rg-button-link text-center', renderer: { type: 'button' }, preventCellItemFocus: true }, // 계약번호
+    { fieldName: 'ordrInfoView', header: t('MSG_TXT_ODER_INF_VIEW'), width: '130', styleName: 'text-center', renderer: { type: 'button', hideWhenEmpty: false }, displayCallback: () => t('MSG_TXT_ODER_INF_VIEW') }, // 주문정보 보기
     { fieldName: 'sellTpDtlNm', header: t('MSG_TXT_SEL_TYPE'), width: '138', styleName: 'text-center' }, // 판매유형
     { fieldName: 'dgr3LevlDgPrtnrNo', header: t('MSG_TXT_BRMGR_EPNO'), width: '138', styleName: 'text-center' }, // 파트너정보-지점장 사번
     { fieldName: 'dgr3LevlDgPrtnrNm', header: t('MSG_TXT_BRMGR_FNM'), width: '138', styleName: 'text-center' }, // 파트너정보-지점장명
@@ -334,7 +336,7 @@ const initGridRentalContractorList = defineGrid((data, view) => {
       styleName: 'text-center',
       displayCallback(grid, index) {
         const { cralLocaraTno: no1, mexnoEncr: no2, cralIdvTno: no3 } = grid.getValues(index.itemIndex);
-        return `${no1}-${no2}-${no3}`;
+        return !isEmpty(no1) && !isEmpty(no2) && !isEmpty(no3) ? `${no1}-${no2}-${no3}` : '';
       },
     }, // 파트너정보-휴대전화번호
     { fieldName: 'cntrDt', header: t('MSG_TXT_TASK_OPNG_DT'), width: '138', styleName: 'text-center' }, // 파트너정보-업무개시일
@@ -355,7 +357,7 @@ const initGridRentalContractorList = defineGrid((data, view) => {
       styleName: 'text-center',
       displayCallback(grid, index) {
         const { istCralLocaraTno: no1, istMexnoEncr: no2, istCralIdvTno: no3 } = grid.getValues(index.itemIndex);
-        return `${no1}-${no2}-${no3}`;
+        return !isEmpty(no1) && !isEmpty(no2) && !isEmpty(no3) ? `${no1}-${no2}-${no3}` : '';
       },
     }, // 설치정보-휴대전화번호
     { fieldName: 'istAdrZip', header: t('MSG_TXT_ZIP'), width: '138', styleName: 'text-center' }, // 설치정보-우편번호
@@ -401,7 +403,7 @@ const initGridRentalContractorList = defineGrid((data, view) => {
     { fieldName: 'dscApyTpCd', header: t('MSG_TXT_DSC_SYST'), width: '136', styleName: 'text-right' }, // 할인유형
     { fieldName: 'dscPmotCd', header: t('MSG_TXT_DSC_SYST'), width: '136', styleName: 'text-right' }, // 할인제도
     { fieldName: 'mchnChTpCd', header: t('MSG_TXT_CHDVC_TP'), width: '136', styleName: 'text-right' }, // 기변유형
-    { fieldName: 'ojCntrNoFull', header: t('MSG_TXT_CHNG_PTY_CD'), width: '136', styleName: 'text-center' }, // 기변상대코드
+    { fieldName: 'ojCntrDtlNo', header: t('MSG_TXT_CHNG_PTY_CD'), width: '136', styleName: 'text-center' }, // 기변상대코드
     { fieldName: 'ojBasePdCd', header: t('MSG_TXT_CHNG_PREV_PRDT'), width: '136', styleName: 'text-center' }, // 기변이전상품
     { fieldName: 'ojPdNm', header: t('MSG_TXT_CHNG_PREV_PRDT_NM'), width: '136', styleName: 'text-center' }, // 기변이전상품명
     { fieldName: 'bogoCd', header: t('MSG_TXT_1PLUS1_LK_CD'), width: '136', styleName: 'text-center' }, // １＋１연계코드
@@ -429,7 +431,7 @@ const initGridRentalContractorList = defineGrid((data, view) => {
     { fieldName: 'pmotFvrMcn', header: t('MSG_TXT_DSC_MCNT'), width: '138', styleName: 'text-center' }, // 프로모션 정보-할인개월
     { fieldName: 'pmotFvrAmt', header: t('MSG_TXT_DSC_AMT'), width: '138', styleName: 'text-right' }, // 프로모션 정보-할인금액
     { fieldName: 'frisuBfsvcPtrmN', header: t('MSG_TXT_FRE_MCNT'), width: '136', styleName: 'text-center' }, // 프로모션 정보-무료개월
-    { fieldName: 'connPdView', header: t('MSG_TXT_CONN_PD_VIEW'), width: '136', styleName: 'text-center', renderer: { type: 'button' } }, // 연계상품 조회
+    { fieldName: 'connPdView', header: t('MSG_TXT_CONN_PD_VIEW'), width: '197', styleName: 'text-center', renderer: { type: 'button', hideWhenEmpty: false }, displayCallback: () => t('MSG_TXT_CONN_PD_VIEW') },
     { fieldName: 'canPdGdCd', header: t('MSG_TXT_CNCL_GD'), width: '136', styleName: 'text-center' }, // 취소등급
     { fieldName: 'freExpnYn', header: t('MSG_TXT_FRE_EXPN_YN'), width: '136', styleName: 'text-center' }, // 무료체험여부
     { fieldName: 'freExpnCnfmStrtdt', header: t('MSG_TXT_EXPN_STRT_DT'), width: '136', styleName: 'text-center' }, // 무료체험시작일
@@ -449,7 +451,7 @@ const initGridRentalContractorList = defineGrid((data, view) => {
       styleName: 'text-center',
       displayCallback(grid, index) {
         const { cntrCralLocaraTno: no1, cntrMexnoEncr: no2, cntrCralIdvTno: no3 } = grid.getValues(index.itemIndex);
-        return `${no1}-${no2}-${no3}`;
+        return !isEmpty(no1) && !isEmpty(no2) && !isEmpty(no3) ? `${no1}-${no2}-${no3}` : '';
       },
     }, // 계약자 휴대폰번호
     { fieldName: 'dntcYn', header: t('MSG_TXT_DNC_YN'), width: '136', styleName: 'text-center' }, // 두낫콜 여부
@@ -484,12 +486,12 @@ const initGridRentalContractorList = defineGrid((data, view) => {
 
   data.setFields(fields);
   view.setColumns(columns);
-  view.checkBar.visible = true; // create checkbox column
+  view.checkBar.visible = false; // create checkbox column
   view.rowIndicator.visible = true; // create number indicator column
 
   // multi row header setting
   view.setColumnLayout([
-    'cntrNoFull', 'ordrInfoView', 'sellTpDtlNm',
+    'cntrDtlNo', 'ordrInfoView', 'sellTpDtlNm',
     {
       header: `${t('MSG_TXT_PRTNR')} ${t('MSG_TXT_INF')}`, // 파트너 정보
       direction: 'horizontal', // merge type
@@ -510,7 +512,7 @@ const initGridRentalContractorList = defineGrid((data, view) => {
       direction: 'horizontal', // merge type
       items: ['pdClsfNm', 'pdNm', 'basePdCd', 'pdTpNm', 'svPrd', 'svTpCd', 'svTpNm'],
     },
-    'cntrRcpFshDt', 'sppDuedt', 'istDt', 'slDt', 'istmMcn', 'cntrPdEnddt', 'canDt', 'reqdDt', 'exnReqdDt', 'recapDutyPtrmN', 'cntrAmt', 'cntrCtrAmt', 'pdBaseAmt', 'ctrVal', 'rentalAmt2', 'rentalDscAmt2', 'rentalDscDfam', 'booSellYn', 'mchnChYn', 'mchnCpsApyr', 'ackmtPerfAmt', 'ackmtPerfRt', 'feeAckmtBaseAmt', 'feeFxamYn', 'dscApyDtlCd', 'dscApyTpCd', 'dscPmotCd', 'mchnChTpCd', 'ojCntrNoFull', 'ojBasePdCd', 'ojPdNm', 'bogoCd', 'bogoPdCd', 'bogoPdNm',
+    'cntrRcpFshDt', 'sppDuedt', 'istDt', 'slDt', 'istmMcn', 'cntrPdEnddt', 'canDt', 'reqdDt', 'exnReqdDt', 'recapDutyPtrmN', 'cntrAmt', 'cntrCtrAmt', 'pdBaseAmt', 'ctrVal', 'rentalAmt2', 'rentalDscAmt2', 'rentalDscDfam', 'booSellYn', 'mchnChYn', 'mchnCpsApyr', 'ackmtPerfAmt', 'ackmtPerfRt', 'feeAckmtBaseAmt', 'feeFxamYn', 'dscApyDtlCd', 'dscApyTpCd', 'dscPmotCd', 'mchnChTpCd', 'ojCntrDtlNo', 'ojBasePdCd', 'ojPdNm', 'bogoCd', 'bogoPdCd', 'bogoPdNm',
     {
       header: `${t('MSG_TXT_AC')}${t('MSG_TXT_INF')}`, // 계좌정보
       direction: 'horizontal', // merge type
@@ -542,11 +544,11 @@ const initGridRentalContractorList = defineGrid((data, view) => {
   ]);
 
   view.onCellItemClicked = async (g, { column, dataRow }) => {
-    const paramCntrNoFull = gridUtil.getCellValue(g, dataRow, 'cntrNoFull');
-    const paramCntrNo = String(paramCntrNoFull).split('-')[0];
-    const paramCntrSn = String(paramCntrNoFull).split('-')[1];
+    const paramCntrDtlNo = gridUtil.getCellValue(g, dataRow, 'cntrDtlNo');
+    const paramCntrNo = String(paramCntrDtlNo).split('-')[0];
+    const paramCntrSn = String(paramCntrDtlNo).split('-')[1];
 
-    if (['cntrNoFull'].includes(column)) { // 계약상세(윈도우팝업)
+    if (['cntrDtlNo'].includes(column)) { // 계약상세(윈도우팝업)
       await modal({ component: 'WwctaOrderDetailP', componentProps: { cntrNo: paramCntrNo, cntrSn: paramCntrSn } });
     } else if (['ordrInfoView'].includes(column)) { // 렌탈 주문정보 상세
       await modal({ component: 'WwctaOrderRentalDtlP', componentProps: { cntrNo: paramCntrNo, cntrSn: paramCntrSn } });
@@ -554,7 +556,7 @@ const initGridRentalContractorList = defineGrid((data, view) => {
       await alert('연계상품 리스트 팝업 조회');
     }
   };
-});
+}
 </script>
 <style scoped>
 </style>
