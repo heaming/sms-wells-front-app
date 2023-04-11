@@ -69,7 +69,7 @@
           </kw-tab-panel>
           <!-- 계약번호 조회 -->
           <kw-tab-panel name="rntlCntrNo">
-            <wwcta-order-rental-contract-No-list-m
+            <wwcta-order-rental-contract-no-list-m
               :ref="(vm) => tabRefs.page = vm"
             />
           </kw-tab-panel>
@@ -114,7 +114,7 @@
           </kw-tab-panel>
           <!-- 계약번호 조회 -->
           <kw-tab-panel name="mmbrCntrNo">
-            <wwcta-membership-contract-No-list-m
+            <wwcta-membership-contract-no-list-m
               :ref="(vm) => tabRefs.page = vm"
             />
           </kw-tab-panel>
@@ -146,9 +146,17 @@
         </kw-tabs>
         <kw-tab-panels v-model="selectedSpayTab">
           <!-- 일반 조회 -->
-          <kw-tab-panel name="spayGeneral" />
+          <kw-tab-panel name="spayGeneral">
+            <wwcta-single-payment-contract-list-m
+              :ref="(vm) => tabRefs.page = vm"
+            />
+          </kw-tab-panel>
           <!-- 계약번호 조회 -->
-          <kw-tab-panel name="spayCntrNo" />
+          <kw-tab-panel name="spayCntrNo">
+            <wwcta-single-payment-contract-no-list-m
+              :ref="(vm) => tabRefs.page = vm"
+            />
+          </kw-tab-panel>
           <!-- 개인정보 조회 -->
           <kw-tab-panel name="spayPersInfo">
             <wwcta-single-payment-contractor-list-m
@@ -179,7 +187,7 @@
           </kw-tab-panel>
           <!-- 계약번호 조회 -->
           <kw-tab-panel name="rglrDlvrCntrNo">
-            <wwcta-order-regular-shipping-contract-No-list-m
+            <wwcta-order-regular-shipping-contract-no-list-m
               :ref="(vm) => tabRefs.page = vm"
             />
           </kw-tab-panel>
@@ -200,8 +208,9 @@ import WwctaOrderRentalInstallerListM from './WwctaOrderRentalInstallerListM.vue
 import WwctaMembershipContractListM from './WwctaMembershipContractListM.vue';
 import WwctaMembershipContractNoListM from './WwctaMembershipContractNoListM.vue';
 import WwctaMembershipContractorListM from './WwctaMembershipContractorListM.vue';
+import WwctaSinglePaymentContractListM from './WwctaSinglePaymentContractListM.vue';
+import WwctaSinglePaymentContractNoListM from './WwctaSinglePaymentContractNoListM.vue';
 import WwctaSinglePaymentContractorListM from './WwctaSinglePaymentContractorListM.vue';
-
 import WwctaOrderRegularShippingListM from './WwctaOrderRegularShippingListM.vue';
 import WwctaOrderRegularShippingContractNoListM from './WwctaOrderRegularShippingContractNoListM.vue';
 
