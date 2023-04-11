@@ -44,9 +44,10 @@
           <kw-option-group
             v-model="frmMainData.clPsicNo"
             type="radio"
-            :options="[{codeId: '9',codeName:'공통'}, {codeId: '',codeName:'담당자'}]"
-          /><!-- TODO. 공통은 우선 key값이 9 이지만 아직 정의가 안됨 수정해야함-->
+            :options="clPsicCodes"
+          />
           <kw-input
+            v-model="frmMainData.usrNm"
             icon="search"
             clearable
             @click-icon="onClickIcon"
@@ -268,19 +269,19 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { codeUtil, useDataService, useGlobal, useModal } from 'kw-lib';
-
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 
 const { ok } = useModal();
 const { t } = useI18n();
 const { notify } = useGlobal();
 const dataService = useDataService();
-
+const { getters } = useStore();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 const frmMainRef = ref();
+const userInfo = getters['meta/getUserInfo'];
 const codes = await codeUtil.getMultiCodes(
   'CL_BIZ_TP_CD', // [마감업무유형코드],
   'KW_GRP_CO_CD',
@@ -292,6 +293,10 @@ const dtDvCodes = ref([
   { codeId: '2', codeName: '익월1일' },
 ]);
 
+const clPsicCodes = ref([
+  { codeId: '9', codeName: '공통' },
+  { codeId: '', codeName: '담당자' },
+]);
 // TODO: 명세서 기준 팝업시 전달 받을 정보 '마감구분' 만 정의 확인 필요
 const props = defineProps({
   clBizTpCd: {
@@ -306,8 +311,8 @@ const props = defineProps({
 const frmMainData = ref({
   kwGrpCoCd: '2000', // 1200 교원 / 2000 교원 프러퍼티
   clBizTpCd: props.clBizTpCd,
-  clPsicCode: '01',
   clPsicNo: '9',
+  usrNm: '', // 담당자 구분
   baseYm: dayjs().format('YYYYMM'),
   crtDt: dayjs().format('YYYYMMDD'),
   crtDtTmFrom: '0800',
@@ -340,6 +345,9 @@ const frmMainData = ref({
 async function onClickSave() {
   if (await frmMainRef.value.alertIfIsNotModified()) { return; }
   if (!await frmMainRef.value.validate()) { return; }
+  const { clPsicNo } = frmMainData.value;
+  // 담당자구분이 담당자이면 파트너 번호로
+  frmMainData.value.clPsicNo = isEmpty(clPsicNo) ? userInfo.prtnrNo : clPsicNo;
   const data = cloneDeep(frmMainData.value);
   console.log(`data: ${data}`);
   // TODO: url 백엔드에 맞춰서 수정 필요
