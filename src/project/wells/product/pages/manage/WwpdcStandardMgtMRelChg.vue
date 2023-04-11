@@ -196,6 +196,7 @@ async function initGridRows() {
   }
   const changeView = grdChangePrdRef.value?.getView();
   if (changeView) {
+    changeView.getDataSource().clearRows();
     changeView.getDataSource().setRows(products
       .filter((item) => item[pdConst.PD_REL_TP_CD] === pdConst.PD_REL_TP_CD_CHANGE));
     changeView.resetCurrent();
