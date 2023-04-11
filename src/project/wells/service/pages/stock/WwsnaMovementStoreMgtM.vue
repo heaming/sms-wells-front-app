@@ -35,7 +35,7 @@
         >
           <kw-select
             v-model="searchParams.ostrTpCd"
-            :options="filterCodes.filterOstrTpCd"
+            :options="filterCodes.filterStrTpCd"
             first-option="all"
           />
         </kw-search-item>
@@ -124,8 +124,8 @@ const { modal, notify } = useGlobal();
 const { t } = useI18n();
 
 const dataService = useDataService();
-const baseURI = '/sms/wells/service/movement-stores/ostr';
-const excelURI = `${baseURI} + -excel-download`;
+const baseURI = '/sms/wells/service/movement-stores/management';
+const excelURI = `${baseURI} + /excel-download`;
 const wareURI = '/sms/wells/service/out-of-storage-asks/warehouses';
 const grdMainRef = ref(getComponentType('KwGrid'));
 
@@ -153,7 +153,7 @@ const searchParams = ref({
   baseYm: '',
   wareDvCd: '2',
   strWareNo: '',
-  ostrTpCd: '',
+  strTpCd: '',
   stOstrDt: '',
   edOstrDt: '',
 });
@@ -254,10 +254,10 @@ const initGrdMain = defineGrid((data, view) => {
       strHopDt,
     } = gridUtil.getRowValue(g, dataRow);
     console.log(g, column, dataRow, v);
-
+    // WwsnaTransferStoreRgstMgtP
     if (column === 'itmStrNo') {
       const { result: isChanged } = await modal({
-        component: 'WwsnaTransferStoreRgstMgtP',
+        component: 'WwsnaMovementStoreRegP',
         componentProps: {
           ostrDt,
           ostrTpCd,
