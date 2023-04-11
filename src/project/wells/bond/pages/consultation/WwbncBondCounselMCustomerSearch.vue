@@ -48,10 +48,12 @@
       >
         <kw-input
           v-model="mpNo"
-          :maxlength="11"
-          :label="$t('MSG_TXT_MPNO')"
-          :regex="/^[0-9]*$/i"
+          v-model:tel-no0="searchParams.cntrCralLocaraTno"
+          v-model:tel-no1="searchParams.cntrMexnoEncr"
+          v-model:tel-no2="searchParams.cntrCralIdvTno"
+          mask="telephone"
           :placeholder="$t('MSG_TXT_REPSN_DGT4_WO_NO_IN')"
+          :label="$t('MSG_TXT_MPNO')"
           rules="required"
         />
       </kw-search-item>
@@ -60,27 +62,27 @@
       >
         <kw-input
           v-model="istMpNo"
-          :maxlength="11"
-          :regex="/^[0-9]*$/i"
+          v-model:tel-no0="searchParams.istCralLocaraTno"
+          v-model:tel-no1="searchParams.istMexnoEncr"
+          v-model:tel-no2="searchParams.istCralIdvTno"
+          mask="telephone"
           :placeholder="$t('MSG_TXT_REPSN_DGT4_WO_NO_IN')"
         />
       </kw-search-item>
     </kw-search-row>
     <kw-search-row>
       <kw-search-item
-        :label="$t('MSG_TXT_BND_PRP')"
+        :colspan="2"
+        :label="$t('MSG_TXT_BND_PRP_RSON')"
       >
         <kw-select
           v-model="searchParams.bndClctnPrpDvCd"
           :options="codes.BND_CLCTN_PRP_DV_CD"
+          first-option="all"
         />
-      </kw-search-item>
-      <kw-search-item
-        :label="$t('MSG_TXT_PRP_RSON')"
-      >
         <kw-select
           v-model="searchParams.bndClctnPrpRsonCd"
-          :options="codes.BND_CLCTN_PRP_RSON_CD"
+          :options="subModuleCodes"
         />
       </kw-search-item>
       <kw-search-item
@@ -88,8 +90,10 @@
       >
         <kw-input
           v-model="telNo"
-          :maxlength="11"
-          :regex="/^[0-9]*$/i"
+          v-model:tel-no0="searchParams.cntrLocaraTno"
+          v-model:tel-no1="searchParams.cntrExnoEncr"
+          v-model:tel-no2="searchParams.cntrIdvTno"
+          mask="telephone"
           :placeholder="$t('MSG_TXT_REPSN_DGT4_WO_NO_IN')"
         />
       </kw-search-item>
@@ -98,8 +102,10 @@
       >
         <kw-input
           v-model="istTelNo"
-          :maxlength="11"
-          :regex="/^[0-9]*$/i"
+          v-model:tel-no0="searchParams.istLocaraTno"
+          v-model:tel-no1="searchParams.istExnoEncr"
+          v-model:tel-no2="searchParams.istIdvTno"
+          mask="telephone"
           :placeholder="$t('MSG_TXT_REPSN_DGT4_WO_NO_IN')"
         />
       </kw-search-item>
@@ -131,7 +137,7 @@
     </kw-action-top>
     <kw-grid
       ref="grdMainRef"
-      name="grdMain3"
+      name="grdMain"
       :visible-rows="10"
       @init="initGrid"
     />
@@ -142,17 +148,18 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService, getComponentType, codeUtil, modal, gridUtil } from 'kw-lib';
+import { useDataService, getComponentType, codeUtil, modal, gridUtil, defineGrid } from 'kw-lib';
 
 const { t } = useI18n();
 const dataService = useDataService();
+const { currentRoute } = useRouter();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 const grdMainRef = ref(getComponentType('KwGrid'));
 
-const searchParams = ref({
+const searchParams = reactive({
   bndClctnPrpDvCd: '',
   bndClctnPrpRsonCd: '',
   clctamPrtnrNo: '',
@@ -178,68 +185,24 @@ const istMpNo = ref('');
 const telNo = ref('');
 const istTelNo = ref('');
 const totalCount = ref(0);
+const subModuleCodes = ref([]);
 
 const codes = await codeUtil.getMultiCodes(
   'BND_CLCTN_PRP_DV_CD',
-  'BND_CLCTN_PRP_RSON_CD',
 );
 
-function phoneFormat(type, phoneNumber) {
-  const value = phoneNumber.replace(/[^0-9]/g, '');
-  const firstLength = value.length > 9 ? 3 : 2;
-  if (type === 'mpNo') {
-    searchParams.value.cntrCralLocaraTno = value.slice(0, firstLength);
-    searchParams.value.cntrMexnoEncr = value.slice(firstLength, value.length - 4);
-    searchParams.value.cntrCralIdvTno = value.slice(value.length - 4);
-  } else if (type === 'istMpNo') {
-    searchParams.value.istCralLocaraTno = value.slice(0, firstLength);
-    searchParams.value.istMexnoEncr = value.slice(firstLength, value.length - 4);
-    searchParams.value.istCralIdvTno = value.slice(value.length - 4);
-  } else if (type === 'telNo') {
-    searchParams.value.cntrLocaraTno = value.slice(0, firstLength);
-    searchParams.value.cntrExnoEncr = value.slice(firstLength, value.length - 4);
-    searchParams.value.cntrIdvTno = value.slice(value.length - 4);
-  } else {
-    searchParams.value.istLocaraTno = value.slice(0, firstLength);
-    searchParams.value.istExnoEncr = value.slice(firstLength, value.length - 4);
-    searchParams.value.istIdvTno = value.slice(value.length - 4);
-  }
-}
-
-watch(mpNo, (newVal) => {
-  phoneFormat('mpNo', newVal);
-});
-
-watch(istMpNo, (newVal) => {
-  phoneFormat('istMpNo', newVal);
-});
-
-watch(telNo, (newVal) => {
-  phoneFormat('telNo', newVal);
-});
-
-watch(istTelNo, (newVal) => {
-  phoneFormat('istTelNo', newVal);
-});
+watch(() => searchParams.bndClctnPrpDvCd, async (newValue) => {
+  searchParams.bndClctnPrpRsonCd = '';
+  subModuleCodes.value = newValue !== '' ? await codeUtil.getSubCodes('BND_CLCTN_PRP_RSON_CD', newValue) : [];
+}, { immediate: true });
 
 async function fetchData() {
-  const res = await dataService.get('/sms/wells/bond/customer-search', { params: searchParams.value });
+  const res = await dataService.get('/sms/wells/bond/customer-search', { params: searchParams });
   const customerList = res.data;
   totalCount.value = customerList.length;
   const view = grdMainRef.value.getView();
-
-  /* TODO: 테이블 데이터 없음, 하드코딩 제거 대상 */
-  if (customerList.length === 0) {
-    const data = grdMainRef.value.getData();
-    data.setRows([
-      { bndBizDvCd: 'L10', bndBizDvNm: 'Wells', cntrNo: '12345621', cntrSn: '12', cstKnm: '윤경숙', prtnrKnm: '이소정', clctamPrtnrNo: '123549875', cstNo: '8956210254', sppZip: '02314', sppAdr: '서울특별시 중구', sppDtlAdr: '21', adr: '서울특별시 중구 21', cntrLocaraTno: '031', cntrExnoEncr: '6821', cntrIdvTno: '1254', cntrCralLocaraTno: '010', cntrMexnoEncr: '4562', cntrCralIdvTno: '1234', istLocaraTno: '031', istExnoEncr: '6821', istIdvTno: '1254', istCralLocaraTno: '010', istMexnoEncr: '4562', istCralIdvTno: '1234', sfkVal: '1234597', bndClctnPrpDvCd: '01', bndClctnPrpDvNm: '정상', bndClctnPrpRsonDvCd: '10', bndClctnPrpRsonDvNm: '정상' },
-      { bndBizDvCd: 'L20', bndBizDvNm: '렌탈', cntrNo: '25402458', cntrSn: '02', cstKnm: '윤경숙', prtnrKnm: '이소정', clctamPrtnrNo: '567891562', cstNo: '8956210254', sppZip: '65424', sppAdr: '경기도 성남시', sppDtlAdr: '02', adr: '경기도 성남시 20', cntrLocaraTno: '02', cntrExnoEncr: '6821', cntrIdvTno: '1254', cntrCralLocaraTno: '010', cntrMexnoEncr: '4562', cntrCralIdvTno: '1234', istLocaraTno: '031', istExnoEncr: '5623', istIdvTno: '0021', istCralLocaraTno: '010', istMexnoEncr: '2650', istCralIdvTno: '5442', sfkVal: '564202', bndClctnPrpDvCd: '03', bndClctnPrpDvNm: '아웃소싱이관', bndClctnPrpRsonDvCd: '34', bndClctnPrpRsonDvNm: '사회약자' },
-    ]);
-    totalCount.value = '2';
-  } else {
-    view.getDataSource().setRows(customerList);
-    view.resetCurrent();
-  }
+  view.getDataSource().setRows(customerList);
+  view.resetCurrent();
 }
 
 async function onClickSearch() {
@@ -267,7 +230,7 @@ async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
 
   await gridUtil.exportView(view, {
-    fileName: 'customerList',
+    fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
   });
 }
@@ -275,7 +238,7 @@ async function onClickExcelDownload() {
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
-function initGrid(data, view) {
+const initGrid = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'bndBizDvCd' },
     { fieldName: 'bndBizDvNm' },
@@ -324,7 +287,7 @@ function initGrid(data, view) {
 
       displayCallback(grid, index) {
         const { cntrNo, cntrSn } = grid.getValues(index.itemIndex);
-        return `${cntrNo}${cntrSn}`;
+        return `${cntrNo}-${cntrSn}`;
       },
     },
     { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_NO'), width: '100', styleName: 'text-left', visible: false },
@@ -405,5 +368,5 @@ function initGrid(data, view) {
 
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
-}
+});
 </script>
