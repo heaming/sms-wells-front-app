@@ -755,16 +755,6 @@ const initGridMain1 = defineGrid((data, view) => {
           component: 'WwdcbRentalSalesDetailP', // TODOL 조건 추가하기(리스 : WwdcbLeaseSalesDetailP)
           componentProps: { slDt },
         });
-      } else if (baseInfo.value.sellTpCd === '3') { // 멤버십
-        await modal({
-          component: 'WwdcbMembershipSalesDetailP',
-          componentProps: { slDt },
-        });
-      } else if (baseInfo.value.sellTpCd === '6') { // 정기배송
-        await modal({
-          component: '',
-          componentProps: { slDt },
-        });
       }
     }
   };
@@ -890,7 +880,7 @@ const initGridMain3 = defineGrid((data, view) => {
     const slDt = dataProvider.getValue(current.dataRow, 'slDt');
     if (column === 'slDt') {
       await modal({
-        component: '',
+        component: 'WwdcbRegularShippingSalesDtlP',
         componentProps: { slDt },
       });
     }
