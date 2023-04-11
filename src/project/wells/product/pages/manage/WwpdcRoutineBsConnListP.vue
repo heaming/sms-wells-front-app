@@ -430,6 +430,9 @@ const initGridMain = defineGrid((data, view) => {
       header: t('MSG_TXT_SETUP_MON'),
       width: '60',
       styleName: 'text-center',
+      firstOption: 'empty',
+      firstOptionValue: '',
+      placeHolder: '',
       editor: { type: 'list' },
       options: codes.MM_CD },
     // 작업연도
@@ -444,6 +447,9 @@ const initGridMain = defineGrid((data, view) => {
       header: t('MSG_TXT_JOB_MON'),
       width: '60',
       styleName: 'text-center',
+      firstOption: 'empty',
+      firstOptionValue: '',
+      placeHolder: '',
       editor: { type: 'list' },
       options: codes.MM_CD },
   ];

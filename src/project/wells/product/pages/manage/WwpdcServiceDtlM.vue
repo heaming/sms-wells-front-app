@@ -90,7 +90,7 @@ watch(() => route.params.pdCd, async (pdCd) => {
 watch(() => route.params.reloadYn, async (reloadYn) => {
   if (!route.path.includes('zwpdc-service-list')) return;
   console.log(`WwpdcServiceDtlM - watch - route.params.reloadYn: ${reloadYn}`);
-  if (reloadYn && reloadYn === 'Y') {
+  if (reloadYn === 'Y') {
     currentPdCd.value = null;
     cmpRef.value?.resetData();
     currentPdCd.value = props.pdCd;
