@@ -135,11 +135,11 @@ const { t } = useI18n();
 const route = useRoute();
 const router = useRouter();
 const dataService = useDataService();
-const obsMainRef = ref();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 const baseUrl = '/sms/wells/product/materials';
+const materialMainPage = '/product/zwpdc-material-list';
 const page = ref({
   modify: '/product/zwpdc-material-list/wwpdc-material-mgt', // 등록/수정 UI
 });
@@ -151,6 +151,7 @@ const selectedTab = ref('attribute');
 const pdBas = ref({});
 const prevStepData = ref({});
 const currentPdCd = ref();
+const obsMainRef = ref();
 
 async function onClickModify() {
   obsMainRef.value.init();
@@ -186,6 +187,18 @@ watch(() => route.query, async (query) => {
   if (currentPdCd.value && currentPdCd.value !== query.pdCd) {
     currentPdCd.value = query.pdCd;
     await fetchData(query.pdCd);
+  }
+}, { immediate: true });
+
+watch(() => route.query, async (query) => {
+  if (isEmpty(query)) {
+    /*
+      #1. (관리) => 상세 => 수정 => 저장
+      #2. (관리) => 상세 => 수정 => 취소
+      상기 경우 관리(*ListM) 화면으로 Forward
+    */
+    await router.close(0, true);
+    await router.push({ path: materialMainPage, query: { isSearch: true } });
   }
 }, { immediate: true });
 

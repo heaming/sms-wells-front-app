@@ -227,8 +227,6 @@ const { t } = useI18n();
 const dataService = useDataService();
 const { confirm, notify } = useGlobal();
 const router = useRouter();
-const obsMainRef = ref();
-
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -243,9 +241,8 @@ const wellsStep = [
   pdConst.W_MATERIAL_STEP_CHECK,
 ];
 const regSteps = ref(wellsStep);
-
 const currentStep = cloneDeep(ref(wellsStep[0]));
-
+const obsMainRef = ref();
 const cmpStepRefs = ref([ref(), ref(), ref()]);
 
 const bas = pdConst.TBL_PD_BAS;
@@ -260,10 +257,10 @@ const isCreate = ref(false);
 
 const selectedTab = ref('attribute');
 
-const page = ref({
-  reg: '/product/zwpdc-material-list/wwpdc-material-mgt', // 교재/자재 등록 UI
-  detail: '/product/zwpdc-material-list/wwpdc-material-dtl', // 교재/자재 상세보기 UI
-});
+// const page = ref({
+//   reg: '/product/zwpdc-material-list/wwpdc-material-mgt', // 교재/자재 등록 UI
+//   detail: '/product/zwpdc-material-list/wwpdc-material-dtl', // 교재/자재 상세보기 UI
+// });
 
 const exceptPrpGrpCd = ref('PART');
 
@@ -275,7 +272,7 @@ async function pageMove(targetPage, isForce) {
   await router.push(
     { path: targetPage,
       state: { stateParam: { test: 'teststring' } },
-      query: { isSearch: true, closeTargetUi: page.value.reg } },
+      query: { isSearch: true } },
   );
 }
 
@@ -354,7 +351,6 @@ async function duplicationCheck(validationType, sourceData) {
   validationParams.sapMatCd = sourceData[bas].sapMatCd;
 
   const res = await dataService.get(`${baseUrl}/check-validation`, { params: validationParams });
-  console.debug('/check-validation', res.data);
 
   if (res.data !== 'N') {
     // 다른 교재/제품에서 이미 사용 중인 SAP자재코드입니다. (사용 교재/제품코드: {0}/{1}) - 교재명/자재코드
@@ -388,20 +384,19 @@ async function onClickSave(tempSaveYn) {
 
   // 3. Step별 저장 데이터 확인
   const subList = await getSaveData(tempSaveYn);
+  // console.log('subList', subList);
 
   // 4. 자재코드 중복검사.
   if (!isEmpty(subList[bas].sapMatCd)) {
     if (!await duplicationCheck('sapMatCd', subList)) return false;
   }
 
-  // 4. 생성 or 저장
+  // 5. 생성 or 저장
   const rtn = currentPdCd.value
     ? await dataService.put(baseUrl, subList)
     : await dataService.post(`${baseUrl}`, subList);
 
-  console.log('subList', subList);
-
-  // 5. 생성 이후 Step 설정
+  // 6. 생성 이후 Step 설정
   notify(t('MSG_ALT_SAVE_DATA'));
   if (tempSaveYn === 'Y') {
     currentPdCd.value = rtn.data?.data?.pdCd;
