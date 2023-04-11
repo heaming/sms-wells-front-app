@@ -115,5 +115,21 @@ const pops = [
       prdtList: [{ prdtId: 'A', prdtNm: '비타민다채' }, { prdtId: 'B', prdtNm: '청경채' }],
     },
   },
+  {
+    pname: 'WwctaMachineChangeCustomerDtlP',
+    title: '기기변경 고객조회 W-SS-U-0022P03',
+    param: {
+      baseCntrNo: 'W20230000701',
+      baseCntrSn: '1',
+      cstNo: '040166791',
+      indvCrpDv: '1',
+      pdCd: 'WP01200008',
+      dscDv: '',
+      dscTp: '',
+      sellTpCd: '1',
+      alncmpCd: '',
+      rgstMdfcDv: '2',
+    },
+  },
 ];
 </script>
