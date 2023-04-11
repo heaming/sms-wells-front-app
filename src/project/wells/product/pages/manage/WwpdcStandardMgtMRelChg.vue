@@ -43,6 +43,7 @@
   </kw-action-top>
   <kw-grid
     ref="grdChangePrdRef"
+    name="grdMgtChangePrdRef"
     :visible-rows="15"
     @init="initChangePrdGrid"
   />

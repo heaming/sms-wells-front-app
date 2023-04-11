@@ -17,6 +17,7 @@
   <h3>{{ $t('MSG_TXT_PD_MNL_MAT') }}</h3>
   <kw-grid
     ref="grdMaterialRef"
+    name="grdDtlMaterial"
     :visible-rows="3"
     ignore-on-modified
     @init="initMaterialGrid"
@@ -25,6 +26,7 @@
   <h3>{{ $t('MSG_TXT_SERVICE') }}</h3>
   <kw-grid
     ref="grdServiceRef"
+    name="grdDtlService"
     :visible-rows="3"
     ignore-on-modified
     @init="initServiceGrid"
@@ -33,6 +35,7 @@
   <h3>{{ $t('MSG_TXT_STD_PRD_SET_REL') }}</h3>
   <kw-grid
     ref="grdStandardRef"
+    name="grdDtlStandard"
     :visible-rows="3"
     ignore-on-modified
     @init="initStandardGrid"
@@ -42,6 +45,7 @@
   <h3>{{ $t('MSG_TXT_REP_PROD') }}</h3>
   <kw-grid
     ref="grdChangePrdRef"
+    name="grdDtlChangePrd"
     :visible-rows="3"
     ignore-on-modified
     @init="initChangePrdGrid"
@@ -56,7 +60,7 @@ import pdConst from '~sms-common/product/constants/pdConst';
 
 /* eslint-disable no-use-before-define */
 defineExpose({
-  resetData,
+  resetData, onClickSearch,
 });
 
 const props = defineProps({
@@ -88,6 +92,10 @@ async function resetData() {
   if (grdChangePrdRef.value?.getView()) gridUtil.reset(grdChangePrdRef.value.getView());
 }
 
+async function onClickSearch() {
+  await initGridRows();
+}
+
 async function initGridRows() {
   const products = currentInitData.value[pdConst.RELATION_PRODUCTS];
   const materialView = grdMaterialRef.value?.getView();
@@ -95,7 +103,6 @@ async function initGridRows() {
     materialView.getDataSource().clearRows();
     materialView.getDataSource().setRows(products
       ?.filter((item) => item[pdConst.PD_REL_TP_CD] === pdConst.PD_REL_TP_CD_P_TO_PD));
-    materialView.resetCurrent();
   }
 
   const serviceView = grdServiceRef.value?.getView();
@@ -103,7 +110,6 @@ async function initGridRows() {
     serviceView.getDataSource().clearRows();
     serviceView.getDataSource().setRows(products
       ?.filter((item) => item[pdConst.PD_REL_TP_CD] === pdConst.PD_REL_TP_CD_P_TO_S));
-    serviceView.resetCurrent();
   }
 
   const standardView = grdStandardRef.value?.getView();
@@ -113,7 +119,6 @@ async function initGridRows() {
       .reduce((rtns, code) => { rtns.push(code.codeId); return rtns; }, []);
     standardView.getDataSource().setRows(products
       ?.filter((item) => standardCodeValues.includes(item[pdConst.PD_REL_TP_CD])));
-    standardView.resetCurrent();
   }
 
   const changeView = grdChangePrdRef.value?.getView();
@@ -121,7 +126,6 @@ async function initGridRows() {
     changeView.getDataSource().clearRows();
     changeView.getDataSource().setRows(products
       ?.filter((item) => item[pdConst.PD_REL_TP_CD] === pdConst.PD_REL_TP_CD_CHANGE));
-    changeView.resetCurrent();
   }
 }
 
@@ -257,4 +261,5 @@ async function initChangePrdGrid(data, view) {
   view.checkBar.visible = false;
   view.rowIndicator.visible = false;
 }
+
 </script>

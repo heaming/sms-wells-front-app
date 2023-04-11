@@ -41,7 +41,6 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { useDataService, codeUtil, stringUtil } from 'kw-lib';
-import { cloneDeep } from 'lodash-es';
 import pdConst from '~sms-common/product/constants/pdConst';
 import WwpdcStandardDtlMContents from './WwpdcStandardDtlMContents.vue';
 
@@ -84,8 +83,8 @@ async function fetchProduct() {
   if (currentPdCd.value) {
     const res = await dataService.get(`/sms/wells/product/standards/${currentPdCd.value}`);
     pdBas.value = res.data[pdConst.TBL_PD_BAS];
-    prevStepData.value = cloneDeep(res.data);
-    prdPropGroups.value = cloneDeep(res.data.groupCodes);
+    prevStepData.value = res.data;
+    prdPropGroups.value = res.data.groupCodes;
   }
 }
 
