@@ -161,6 +161,11 @@ async function onClickTab(selTab) {
     const priceStepIndex = pdConst.STANDARD_STEP_PRICE.step - 1;
     cmpStepRefs.value[priceStepIndex].value.onClickSearch();
   }
+
+  if (selTab === pdConst.STANDARD_STEP_REL_PROD.name) {
+    const relStepIndex = pdConst.STANDARD_STEP_REL_PROD.step - 1;
+    cmpStepRefs.value[relStepIndex].value.onClickSearch();
+  }
 }
 
 async function onClickUpdate() {

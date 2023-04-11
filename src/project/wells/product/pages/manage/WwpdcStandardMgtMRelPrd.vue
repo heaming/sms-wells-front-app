@@ -44,7 +44,7 @@
   </kw-action-top>
   <kw-grid
     ref="grdMaterialRef"
-    name="grdMaterial"
+    name="grdMgtMaterial"
     :visible-rows="3"
     @init="initMaterialGrid"
   />
@@ -79,7 +79,7 @@
   </kw-action-top>
   <kw-grid
     ref="grdServiceRef"
-    name="grdService"
+    name="grdMgtService"
     :visible-rows="3"
     @init="initServiceGrid"
   />
@@ -119,7 +119,7 @@
   </kw-action-top>
   <kw-grid
     ref="grdStandardRef"
-    name="grdStandard"
+    name="grdMgtStandard"
     :visible-rows="3"
     @init="initStandardGrid"
   />
