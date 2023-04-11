@@ -2,7 +2,7 @@
 ****************************************************************************************************
 * 프로그램 개요
 ****************************************************************************************************
-1. 모듈 : CMA
+1. 모듈 : SNA (재고관리)
 2. 프로그램 ID : WwsnaNormalOutOfStorageMgtM - 정상출고 관리(W-SV-U-0142M01)
 3. 작성자 : inho.choi
 4. 작성일 : 2023.03.13
@@ -298,10 +298,31 @@ const initGrdMain = defineGrid((data, view) => {
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
   view.onCellItemClicked = async (g, { column, dataRow }, v) => {
+    const {
+      ostrAkTpCd,
+      ostrOjWareNo,
+      strOjWareNo,
+      strHopDt,
+      ostrAkNo,
+      ostrOjWareNm,
+      strOjWareNm,
+      itmPdCd,
+    } = gridUtil.getRowValue(g, dataRow);
     console.log(g, column, dataRow, v);
+
     if (column === 'rmkCn') {
       const { result, payload } = await modal({
         component: 'WwsnaNormalOutOfStorageRgstListP',
+        componentProps: {
+          ostrAkTpCd,
+          ostrOjWareNo,
+          strOjWareNo,
+          strHopDt,
+          ostrAkNo,
+          ostrOjWareNm,
+          strOjWareNm,
+          itmPdCd,
+        },
       });
 
       if (result) {
