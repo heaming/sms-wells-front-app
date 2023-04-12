@@ -86,6 +86,13 @@ const { currentRoute } = useRouter();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
+const props = defineProps({
+  itemsChecked: {
+    type: String,
+    required: true,
+  },
+});
+
 const codes = await codeUtil.getMultiCodes(
   'SELL_TP_CD', // 판매유형코드
   'DP_TP_CD', // 입금유형코드
@@ -126,7 +133,7 @@ async function onClickExcelDownload() {
   const res = await dataService.get('/sms/wells/withdrawal/bilfnt/result-bundle-error/excel-download', { params: cachedParams });
 
   await gridUtil.exportView(view, {
-    fileName: currentRoute.value.meta.menuName,
+    fileName: `${currentRoute.value.meta.menuName}_${props.itemsChecked}`,
     timePostfix: true,
     exportData: res.data,
   });

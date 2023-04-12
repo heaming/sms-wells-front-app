@@ -104,13 +104,19 @@
         </div>
       </kw-tab-panel>
       <kw-tab-panel name="rcvFshDpCrtOmssnCt">
-        <wwwda-fund-transfer-change-mgt-m />
+        <wwwda-fund-transfer-change-mgt-m
+          v-model:items-checked="itemsChecked.tab1"
+        />
       </kw-tab-panel>
       <kw-tab-panel name="slPerfDpApyOmssnCt">
-        <wwwda-deposit-apply-omission-m />
+        <wwwda-deposit-apply-omission-m
+          v-model:items-checked="itemsChecked.tab2"
+        />
       </kw-tab-panel>
       <kw-tab-panel name="bndlWdrwUnrg">
-        <wwwda-result-bundle-error-list-m />
+        <wwwda-result-bundle-error-list-m
+          v-model:items-checked="itemsChecked.tab3"
+        />
       </kw-tab-panel>
     </kw-tab-panels>
   </kw-page>
@@ -135,6 +141,12 @@ const { currentRoute } = useRouter();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
+
+const itemsChecked = ref({
+  tab1: t('MSG_TIT_AFTN_CH_RJ_RSON'),
+  tab2: t('MSG_TIT_SL_PERF_DP_APY_OMSSN_CT'),
+  tab3: t('MSG_TIT_BNDL_WDRW_ERR_RGST'),
+});
 
 const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
@@ -178,7 +190,7 @@ async function onClickExcelDownload() {
   const res = await dataService.get('/sms/wells/withdrawal/bilfnt/not-received-checks/excel-download', { params: cachedParams });
 
   await gridUtil.exportView(view, {
-    fileName: currentRoute.value.meta.menuName,
+    fileName: `${currentRoute.value.meta.menuName}_${t('MSG_TIT_BIL_FSH_NRCV_CT')}`,
     timePostfix: true,
     exportData: res.data,
   });
@@ -192,7 +204,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'autoFntClsf' },
     { fieldName: 'bnkCd' },
     { fieldName: 'bnkNm' },
-    { fieldName: 'ct' },
+    { fieldName: 'ct', dataType: 'number' },
 
   ];
 
@@ -200,7 +212,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'autoFntClsf', header: t('MSG_TXT_AUTO_FNT_CLSF'), width: '735' },
     { fieldName: 'bnkCd', header: t('MSG_TXT_BNK_CDCO_CD'), width: '250', styleName: 'text-center' },
     { fieldName: 'bnkNm', header: t('MSG_TXT_BNK_CDCO_NM'), width: '250', options: codes.BNK_CD },
-    { fieldName: 'ct', header: t('MSG_TXT_NRCV_CT'), width: '250', styleName: 'text-right', editor: { type: 'number' } },
+    { fieldName: 'ct', header: t('MSG_TXT_NRCV_CT'), width: '250', styleName: 'text-right' },
 
   ];
 

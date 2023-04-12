@@ -97,6 +97,13 @@ const { currentRoute } = useRouter();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
+const props = defineProps({
+  itemsChecked: {
+    type: Boolean,
+    required: true,
+  },
+});
+
 const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
   'FNT_DV_CD',
@@ -138,7 +145,7 @@ async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
 
   await gridUtil.exportView(view, {
-    fileName: currentRoute.value.meta.menuName,
+    fileName: `${currentRoute.value.meta.menuName}_${props.itemsChecked}`,
     timePostfix: true,
     exportData: res.data,
   });
@@ -151,15 +158,26 @@ async function onClickExcelDownload() {
 const initGrid = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'aftnClsf' },
+    { fieldName: 'cntr' },
+    { fieldName: 'cntrNo' },
     { fieldName: 'cntrSn' },
     { fieldName: 'bilDt' },
     { fieldName: 'sellTpCd' },
-    { fieldName: 'dpAmt' },
+    { fieldName: 'dpAmt', dataType: 'number' },
   ];
 
   const columns = [
     { fieldName: 'aftnClsf', header: t('MSG_TXT_AUTO_FNT'), width: '200', styleName: 'text-center' },
-    { fieldName: 'cntrSn', header: t('MSG_TXT_CNTR_DTL_NO'), width: '120', styleName: 'text-center' },
+    { fieldName: 'cntr',
+      header: t('MSG_TXT_CNTR_DTL_NO'),
+      width: '120',
+      styleName: 'text-center',
+      // eslint-disable-next-line no-unused-vars
+      displayCallback: (g, i, v) => {
+        const { cntrNo, cntrSn } = gridUtil.getRowValue(g, i.itemIndex);
+        return `${cntrNo}-${cntrSn}`;
+      },
+    },
     { fieldName: 'bilDt', header: t('MSG_TXT_FNT_DT'), width: '120', styleName: 'text-center', dataType: 'date', datetimeFormat: 'yyyy-MM-dd' },
     { fieldName: 'sellTpCd', header: t('MSG_TXT_TASK_TYPE'), width: '120', styleName: 'text-center', options: codes.SELL_TP_CD },
     { fieldName: 'dpAmt', header: t('MSG_TXT_RCV_AMT'), width: '120', styleName: 'text-center' },

@@ -88,6 +88,12 @@ const { currentRoute } = useRouter();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
+const props = defineProps({
+  itemsChecked: {
+    type: Boolean,
+    required: true,
+  },
+});
 
 const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
@@ -127,7 +133,7 @@ async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
 
   await gridUtil.exportView(view, {
-    fileName: currentRoute.value.meta.menuName,
+    fileName: `${currentRoute.value.meta.menuName}_${props.itemsChecked}`,
     timePostfix: true,
     exportData: res.data,
   });
@@ -141,18 +147,26 @@ const initGrid = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'sellTpNm' },
     { fieldName: 'baseYm' },
-    { fieldName: 'cntrSn' },
+    { fieldName: 'cntr' },
     { fieldName: 'rentalNmn' },
-    { fieldName: 'thmIntamDpAmt' },
-    { fieldName: 'thmIstmRfndAmt' },
-    { fieldName: 'rveAmt' },
+    { fieldName: 'thmIntamDpAmt', dataType: 'number' },
+    { fieldName: 'thmIstmRfndAmt', dataType: 'number' },
+    { fieldName: 'rveAmt', dataType: 'number' },
     { fieldName: 'dpTpCd' },
   ];
 
   const columns = [
     { fieldName: 'sellTpNm', header: t('MSG_TXT_AUTO_FNT_CLSF'), width: '290' },
     { fieldName: 'baseYm', header: t('MSG_TXT_PERF_YM'), width: '200', styleName: 'text-center' },
-    { fieldName: 'cntrSn', header: t('MSG_TXT_CNTR_DTL_NO'), width: '250', styleName: 'text-center' },
+    { fieldName: 'cntr',
+      header: t('MSG_TXT_CNTR_DTL_NO'),
+      width: '250',
+      styleName: 'text-center',
+      // eslint-disable-next-line no-unused-vars
+      displayCallback: (g, i, v) => {
+        const { cntrNo, cntrSn } = gridUtil.getRowValue(g, i.itemIndex);
+        return `${cntrNo}-${cntrSn}`;
+      } },
     { fieldName: 'rentalNmn', header: t('MSG_TXT_RENTAL_NMN'), width: '150', styleName: 'text-center' },
     { fieldName: 'thmIntamDpAmt', header: t('MSG_TXT_PRPD_DP'), width: '150', styleName: 'text-right' },
     { fieldName: 'thmIstmRfndAmt', header: t('MSG_TXT_PRPD_RFND'), width: '150', styleName: 'text-right' },
