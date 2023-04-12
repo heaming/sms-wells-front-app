@@ -35,7 +35,13 @@
           :label="$t('MSG_TXT_CNTR_DTL_NO')"
           required
         >
-          <kw-input
+          <zctz-contract-detail-number
+            v-model:cntr-no="searchParams.cntrNo"
+            v-model:cntr-sn="searchParams.cntrSn"
+            :name="$t('MSG_TXT_CNTR_DTL_NO')"
+            rules="required"
+          />
+          <!-- <kw-input
             v-model="searchParams.cntr"
             :name="$t('MSG_TXT_CNTR_DTL_NO')"
             rules="required"
@@ -45,7 +51,7 @@
             clearable
             :label="$t('MSG_TXT_CNTR_DTL_NO')"
             :on-click-icon="onClickSelectCntrnosn"
-          />
+          /> -->
         </kw-search-item>
       </kw-search-row>
     </kw-search>
@@ -112,7 +118,9 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { useGlobal, useDataService, codeUtil, gridUtil, defineGrid, getComponentType, useMeta, modal } from 'kw-lib';
+// eslint-disable-next-line no-unused-vars
 import { cloneDeep, isEmpty } from 'lodash-es';
+import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
 
 const { notify } = useGlobal();
 const { t } = useI18n();
@@ -148,10 +156,12 @@ const pageInfo = ref({
 
 const searchParams = ref({
   sellTpCd: 'ALL',
-  cntr: '',
+  cntrNo: '',
+  cntrSn: '',
 });
 
 // 계약상세번호 조회
+// eslint-disable-next-line no-unused-vars
 async function onClickSelectCntrnosn() {
   // const { result, payload } = await modal({ component: 'WwctaContractNumberListP' });
   // if (result) {
@@ -215,7 +225,7 @@ async function fetchData() {
 }
 
 async function onClickSearch() {
-  if (isEmpty(searchParams.value.cntr)) return;
+  // if (isEmpty(searchParams.value.cntr)) return;
   grdMainRef.value.getData().clearRows();
 
   pageInfo.value.pageIndex = 1;
@@ -289,7 +299,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'dsnWdrwFntD' }, // 이체일자
     { fieldName: 'fntYn' }, // 이체구분
     { fieldName: 'dpAmt', dataType: 'number' }, // 입금금액
-    { fieldName: 'ucAmt' }, // 잔액
+    { fieldName: 'ucAmt', dataType: 'number' }, // 잔액
     { fieldName: 'dsnWdrwFntPrdCd' }, // 이체주기
     { fieldName: 'prtnrKnm' }, // 등록담당자
     { fieldName: 'fnlMdfcUsrId' }, // 등록자사번
@@ -302,15 +312,23 @@ const initGrid = defineGrid((data, view) => {
       width: '120',
       button: 'action',
       styleName: 'text-center rg-button-icon--search',
-      editor: {
-        type: 'number',
-      },
-      rules: 'required||digits:12',
+      // editor: {
+      //   type: 'number',
+      // },
+      rules: 'required||length:13',
       styleCallback: (grid, dataCell) => {
         const rowState = gridUtil.getCellValue(view, dataCell.index.itemIndex, 'rowState');
         if (rowState !== 'created') {
           return { styleName: 'rg-button-hide' };
         }
+      },
+      // eslint-disable-next-line no-unused-vars
+      displayCallback(grid, index, value) {
+        const { cntrNo, cntrSn, rowState } = gridUtil.getRowValue(grid, index.itemIndex);
+        if (rowState !== 'created') {
+          return `${cntrNo}-${cntrSn}`;
+        }
+        return value;
       },
     },
     { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '80', styleName: 'text-center', editable: false },
@@ -321,6 +339,7 @@ const initGrid = defineGrid((data, view) => {
       styleName: 'text-right',
       editor: {
         type: 'number',
+        maxLength: 9,
       },
       rules: 'required',
     },
@@ -351,6 +370,7 @@ const initGrid = defineGrid((data, view) => {
       styleName: 'text-right',
       editor: {
         type: 'number',
+        maxLength: 9,
       },
       rules: 'required',
     },
@@ -432,26 +452,17 @@ const initGrid = defineGrid((data, view) => {
   // eslint-disable-next-line no-unused-vars
   view.onCellButtonClicked = async (g, { column, itemIndex }) => {
     if (column === 'cntr') {
-      // eslint-disable-next-line no-unused-vars
+      const { cntr } = gridUtil.getRowValue(g, itemIndex);
       const { result, payload } = await modal({
         component: 'WwctaContractNumberListP',
+        componentProps: { cntrNo: cntr?.slice(0, 12), cntrSn: cntr?.slice(12) },
       });
 
-      /*
       if (result) {
-        const cntr = payload.cntrNo + payload.cntrSn;
-        // const cntrSn = payload.cntrSn;
-        data.setValue(itemIndex, 'cntrNo', payload.cntrNo);
-        data.setValue(itemIndex, 'cntrSn', payload.cntrSn);
-        data.setValue(itemIndex, 'cntr', cntr);
+        const { cntrNo: resCntrNo, cntrSn: resCntrSn } = payload;
+        data.setValue(itemIndex, 'cntrNo', resCntrNo);
+        data.setValue(itemIndex, 'cntrSn', resCntrSn);
       }
-      */
-
-      // 삭제대상
-      const cntr = gridUtil.getCellValue(g, itemIndex, 'cntr');
-      data.setValue(itemIndex, 'cntrNo', cntr.slice(0, 12));
-      data.setValue(itemIndex, 'cntrSn', Number(cntr.slice(12)));
-      data.setValue(itemIndex, 'cntr', cntr);
     }
   };
 
