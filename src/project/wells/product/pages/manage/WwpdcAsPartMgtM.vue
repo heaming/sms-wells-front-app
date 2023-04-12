@@ -190,11 +190,10 @@ const isCreate = ref(false);
 
 const selectedTab = ref('attribute');
 
-const page = ref({
-  reg: '/product/zwpdc-as-part-list/wwpdc-as-part-mgt', // AS부품 등록 UI
-  detail: '/product/zwpdc-as-part-list/wwpdc-as-part-dtl', // AS부품 상세보기 UI
-});
-
+// const page = ref({
+//   reg: '/product/zwpdc-as-part-list/wwpdc-as-part-mgt', // AS부품 등록 UI
+//   detail: '/product/zwpdc-as-part-list/wwpdc-as-part-dtl', // AS부품 상세보기 UI
+// });
 // const exceptPrpGrpCd = ref('');
 
 watch(() => props.pdCd, (val) => { currentPdCd.value = val; });
@@ -228,7 +227,6 @@ async function onClickRemove() {
 
 async function getSaveData(tempSaveYn) {
   const subList = {};
-  console.log('cmpStepRefs', cmpStepRefs.value);
   // eslint-disable-next-line no-unused-vars
   await Promise.all(cmpStepRefs.value.map(async (item, idx) => {
     const saveData = await item.value.getSaveData();
@@ -259,10 +257,8 @@ async function getSaveData(tempSaveYn) {
 
 async function onClickStep() {
   const stepName = currentStep.value?.name;
-  // console.log('WwpdcStandardMgtM - onClickStep : ', stepName);
   prevStepData.value = await getSaveData();
   currentStep.value = cloneDeep(regSteps.value.find((item) => item.name === stepName));
-  // console.log('WwpdcStandardMgtM - onClickStep : ', currentStep.value);
 }
 
 async function fetchData() {
