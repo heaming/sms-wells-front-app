@@ -239,18 +239,6 @@ let cachedParams;
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 
-async function setEditable(resData) {
-  const view = grd2MainRef.value.getView();
-  const dataSource = view.getDataSource();
-  const col1 = view.columnByName('col1');
-  for (let i = 0; i < resData.length; i += 1) {
-    const editable = dataSource.getValue([i], 'col5');
-    if (editable === 'N') {
-      view.setColumnProperty(col1, 'visible', false);
-    }
-  }
-}
-
 async function fetchData(type) {
   const response = await dataService.get(`/sms/wells/fee/wm-bs-fees/${type}`, { params: cachedParams });
   const resData = response.data;
@@ -262,10 +250,13 @@ async function fetchData(type) {
     controlView.getDataSource().setRows(resData);
     controlView.resetCurrent();
   } else if (type === 'fees') {
-    const controlView = grd2MainRef.value.getView();
-    controlView.getDataSource().setRows(resData);
-    controlView.resetCurrent();
-    await setEditable(resData);
+    if (info1.value.thmBranch !== undefined) {
+      const controlView = grd2MainRef.value.getView();
+      controlView.getDataSource().setRows(resData);
+      controlView.resetCurrent();
+    } else {
+      grd2MainRef.value.getView().getDataSource().clearRows();
+    }
   } else if (type === 'visit-aggregate') {
     info2.value = resData;
   } else if (type === 'fee-aggregate') {

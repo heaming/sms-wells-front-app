@@ -3,13 +3,13 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : FEE
-2. 프로그램 ID : WwfebOgFeeManagerListM - 개인별 수수료 관리(M조직)
+2. 프로그램 ID : WwfeeIndividualFeeManagerListM - 수수료 개인별 상세조회 (M조직)
 3. 작성자 : gs.piit150
 4. 작성일 : 2023.02.24
 ****************************************************************************************************
 * 프로그램 설명
 ****************************************************************************************************
-- 개인별 수수료 관리(M조직) 조회 화면
+- 수수료 개인별 상세조회 (M조직) 조회 화면
 ****************************************************************************************************
 --->
 <template>
@@ -385,10 +385,11 @@ async function openPerformancePopup() {
   const param = {
     perfYm: searchParams.value.perfYm,
     no: searchParams.value.no,
+    ogTpCd: 'W02',
   };
 
   await modal({
-    component: 'openPerformancePopup',
+    component: 'WwfeeIndividualFeeDetailListP',
     componentProps: param,
   });
 }
