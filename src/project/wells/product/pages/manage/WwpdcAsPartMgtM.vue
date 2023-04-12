@@ -174,7 +174,7 @@ const wellsStep = [
   pdConst.W_AS_PART_STEP_CHECK,
 ];
 const regSteps = ref(wellsStep);
-const currentStep = ref(wellsStep[0]);
+const currentStep = cloneDeep(ref(wellsStep[0]));
 const obsMainRef = ref();
 const cmpStepRefs = ref([ref()]);
 const dtl = pdConst.TBL_PD_DTL;
