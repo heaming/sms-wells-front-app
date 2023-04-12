@@ -82,7 +82,7 @@
           <div class="button-set--bottom-left">
             <!-- 이전 -->
             <kw-btn
-              v-show="currentStep.step > 1"
+              v-show="isTempSaveBtn && currentStep.step > 1"
               :label="$t('MSG_BTN_PREV')"
               class="ml8"
               @click="onClickPrevStep"
@@ -98,7 +98,7 @@
             />
             <!-- 취소 -->
             <kw-btn
-              v-if="!isEmpty(currentPdCd)"
+              v-show="!isTempSaveBtn"
               :label="$t('MSG_BTN_CANCEL')"
               class="ml8"
               @click="onClickCancel"
@@ -120,7 +120,7 @@
             />
             <!-- 다음 -->
             <kw-btn
-              v-show="(currentStep.step < regSteps.length)"
+              v-show="isTempSaveBtn && (currentStep.step < regSteps.length)"
               :label="$t('MSG_BTN_NEXT')"
               class="ml8"
               primary
@@ -128,7 +128,7 @@
             />
             <!-- 저장 -->
             <kw-btn
-              v-show="currentStep.step === regSteps.length"
+              v-show="!isTempSaveBtn || currentStep.step === regSteps.length"
               v-permission:update
               :label="$t('MSG_BTN_SAVE')"
               class="ml8"
@@ -174,7 +174,7 @@ const wellsStep = [
   pdConst.W_AS_PART_STEP_CHECK,
 ];
 const regSteps = ref(wellsStep);
-const currentStep = ref(wellsStep[0]);
+const currentStep = cloneDeep(ref(wellsStep[0]));
 const obsMainRef = ref();
 const cmpStepRefs = ref([ref()]);
 const dtl = pdConst.TBL_PD_DTL;
@@ -363,12 +363,7 @@ async function onClickPrevStep() {
 }
 
 async function onClickCancel() {
-  await router.close(0, true); // observer 강제 무력화 및 현재 탭 강제 닫기.
-  // await router.push(
-  //   { path: page.value.detail,
-  //     state: { stateParam: { test: 'teststring' } },
-  //     query: { isSearch: false } },
-  // );
+  await router.close();
 }
 
 async function setInitCondition() {

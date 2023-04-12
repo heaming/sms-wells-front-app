@@ -124,7 +124,6 @@
                   />
                 </kw-tab-panel>
                 <!--관리속성-->
-                <!--
                 <kw-tab-panel name="attributeExtr">
                   <zwpdc-prop-groups-dtl
                     v-model:pd-cd="currentPdCd"
@@ -135,7 +134,6 @@
                     :except-id="exceptPrpGrpCd"
                   />
                 </kw-tab-panel>
-                 -->
               </kw-tab-panels>
             </kw-step-panel>
           </kw-stepper>
@@ -145,7 +143,7 @@
           <div class="button-set--bottom-left">
             <!-- 이전 -->
             <kw-btn
-              v-show="currentStep.step > 1"
+              v-show="isTempSaveBtn && currentStep.step > 1"
               :label="$t('MSG_BTN_PREV')"
               class="ml8"
               @click="onClickPrevStep"
@@ -159,9 +157,12 @@
               :label="$t('MSG_BTN_DEL')"
               @click="onClickRemove"
             />
-            <!-- 취소 -->
-            <kw-btn
+            <!--
+              취소
               v-if="!isEmpty(currentPdCd)"
+            -->
+            <kw-btn
+              v-show="!isTempSaveBtn"
               :label="$t('MSG_BTN_CANCEL')"
               class="ml8"
               @click="onClickCancel"
@@ -183,7 +184,7 @@
             />
             <!-- 다음 -->
             <kw-btn
-              v-show="(currentStep.step < regSteps.length)"
+              v-show="isTempSaveBtn && (currentStep.step < regSteps.length)"
               :label="$t('MSG_BTN_NEXT')"
               class="ml8"
               primary
@@ -191,7 +192,7 @@
             />
             <!-- 저장 -->
             <kw-btn
-              v-show="currentStep.step === regSteps.length"
+              v-show="!isTempSaveBtn || currentStep.step === regSteps.length"
               v-permission:update
               :label="$t('MSG_BTN_SAVE')"
               class="ml8"
@@ -439,8 +440,7 @@ async function onClickPrevStep() {
 }
 
 async function onClickCancel() {
-  // await router.close({ to: materialMainPage });
-  await router.close(0, true); // observer 강제 무력화 및 현재 탭 강제 닫기.
+  await router.close();
 }
 
 async function setInitCondition() {
