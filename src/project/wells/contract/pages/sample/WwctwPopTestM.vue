@@ -131,5 +131,10 @@ const pops = [
       rgstMdfcDv: '2',
     },
   },
+  {
+    pname: 'WwctaRestipulationTargetCstListP',
+    title: '재약정/멤버십 조회결과 팝업 W-SS-U-0022P01 ',
+    param: {},
+  },
 ];
 </script>
