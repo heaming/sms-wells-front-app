@@ -279,7 +279,7 @@ const initGrdThird = defineGrid((data, view) => {
   };
 
   view.setColumnLayout([
-    'authDate', 'ogTpNm', 'cardNum', 'mrcNm', 'mrcTobzNm', 'mrcAdrCn', 'cardAprno', 'requestAmount', 'opcsAdjExcdYn', // single
+    'opcsCardUseIzId', 'authDate', 'ogTpNm', 'cardNum', 'mrcNm', 'mrcTobzNm', 'mrcAdrCn', 'cardAprno', 'requestAmount', 'opcsAdjExcdYn', // single
     {
       header: t('MSG_TXT_ADJ_YN'), // colspan title
       direction: 'horizontal', // merge type
