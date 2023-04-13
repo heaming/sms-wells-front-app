@@ -145,7 +145,7 @@
         <kw-action-top>
           <template #left>
             <kw-paging-info
-              :total-count="7"
+              :total-count="0"
             />
           </template>
           <span class="kw-fc--black3 text-weight-regular">{{ $t('MSG_TXT_UNIT_WON') }}</span>
@@ -235,12 +235,22 @@ const props = defineProps({
   cntrSn: { type: String, required: false, default: '' }, // 계약일련번호
 });
 
-const cachedParams = ref();
 const frmBaseRef = ref(getComponentType('KwForm'));
 const frmRpblRef = ref(getComponentType('KwForm'));
 
-const isFirstOpen = ref(true);
+const isFirstOpen = ref(false);
 const defaultCheck = ref(true); // 기본정보 변경 버튼 초기값
+
+const cachedParams = ref({
+  chRsonCn: '', // 변경사유
+  cssrIsDvCd: '', // 발행구분
+  cralLocaraTno: '', // 휴대전화 통신사 식별번호
+  cssrIsNo: '', // 발행구분 값
+  mexnoEncr: '', // 휴대전화 중간자리
+  cralIdvTno: '', // 휴대전화 끝자리
+  phoneNo: '', // 휴대전화 전체번호
+  mask: '', // 마스크
+});
 
 const fieldBaseParams = ref({
   // 기본정보 변경
@@ -279,6 +289,9 @@ codes.CSSR_IS_DV_CD = codes.CSSR_IS_DV_CD.filter((v) => v.codeId !== '2');
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
+
+/* TODO: 현금영수증 테이블 모델링 완료 후 저징 맟 재발행 추가 예정 */
+
 // onclickDefault: 기본정보 변경 버튼 클릭
 function onclickDefault() {
   defaultCheck.value = !defaultCheck.value;
@@ -337,20 +350,22 @@ function changeBaseValues() {
 // fetchData: 기본정보 조회 및 현금영수증 발행내역 조회
 async function fetchData() {
   const res = await dataService.get('/sms/wells/contract/contracts/order-details/cash-sales-receipts', { params: { cntrNo: props.cntrNo, cntrSn: props.cntrSn } });
+  if (!isEmpty(res.data)) {
+    fieldBaseParams.value.cssrIsNo = res.data.cssrIsNo; // 발행구분 값
+    fieldBaseParams.value.cssrIsDvCd = res.data.cssrIsDvCd; // 발행구분
+    fieldBaseParams.value.chRsonCn = res.data.chRsonCn; // 변경사유
 
-  fieldBaseParams.value.cssrIsNo = res.data.cssrIsNo; // 발행구분 값
-  fieldBaseParams.value.cssrIsDvCd = res.data.cssrIsDvCd; // 발행구분
-  fieldBaseParams.value.chRsonCn = res.data.chRsonCn; // 변경사유
+    cachedParams.value = cloneDeep(fieldBaseParams.value); // 기본정보 초기화용 값
+    cachedParams.value.mask = changeMask(fieldBaseParams.value.cssrIsDvCd); // 마스크
 
-  cachedParams.value = cloneDeep(fieldBaseParams.value); // 기본정보 초기화용 값
-  cachedParams.value.mask = changeMask(fieldBaseParams.value.cssrIsDvCd); // 마스크
+    isFirstOpen.value = true;
+  }
 
   /* TODO: 현금영수증 발행내역 테이블 작업 완료 후 추가예정 */
 }
 
 // onChangedcssrIsDvCd: 기본정보 발행구분 변경 시 발생하는 이벤트
 async function onChangedcssrIsDvCd() {
-  console.log('changed');
   changeBaseValues();
   isFirstOpen.value = false;
 }
@@ -413,9 +428,5 @@ function initGrid(data, view) {
 
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
-
-  data.setRows([
-    { col1: '2022-12-12', col2: 'Y', col3: '12346', col4: '1200,000', col5: '123456', col6: '-', col7: '-' },
-  ]);
 }
 </script>
