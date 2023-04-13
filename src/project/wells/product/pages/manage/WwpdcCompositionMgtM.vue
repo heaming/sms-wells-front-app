@@ -3,13 +3,14 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : PDC (상품운영관리)
-2. 프로그램 ID : WwpdcCompositionMgtM - (판매) 상품목록 - 기준상품 등록/변경 ( Z-PD-U-0010M01 )
+2. 프로그램 ID : WwpdcCompositionMgtM - (판매) 상품목록 - 복합상품 등록/변경
+                ( Z-PD-U-0010M01 )
 3. 작성자 : jintae.choi
-4. 작성일 : 2022.12.31
+4. 작성일 : 2023.04.01
 ****************************************************************************************************
 * 프로그램 설명
 ****************************************************************************************************
-- 상품 서비스 등록/변경 프로그램
+- 상품 복합상품 등록/변경 프로그램
 ****************************************************************************************************
 --->
 <template>
@@ -288,11 +289,15 @@ async function isValidStep(stepIndex, isMoveProblemStep = false) {
   return isValidOk;
 }
 
+// 다음 버튼
 async function onClickNextStep() {
   const currentStepIndex = currentStep.value.step - 1;
+  // 현재 Step 필수여부 확인
   if (!(await isValidStep(currentStepIndex))) {
     return;
   }
+
+  // 다음 이동
   prevStepData.value = await getSaveData();
   const currentStepRef = await cmpStepRefs.value[currentStepIndex].value;
   // Child 페이지 내에서 다음 스텝이 없으면(false), 현재 페이지에서 다음으로 진행
@@ -306,6 +311,7 @@ async function onClickNextStep() {
   }
 }
 
+// 이전 버튼
 async function onClickPrevStep() {
   const currentStepIndex = currentStep.value.step - 1;
   prevStepData.value = await getSaveData();
@@ -317,13 +323,14 @@ async function onClickPrevStep() {
   }
 }
 
+// Stepper 클릭
 async function onClickStep() {
   const stepName = currentStep.value?.name;
-  // console.log('WwpdcCompositionMgtM - onClickStep : ', stepName);
   prevStepData.value = await getSaveData();
   currentStep.value = cloneDeep(regSteps.value.find((item) => item.name === stepName));
 }
 
+// 취소 버튼
 async function onClickCancel() {
   await router.close();
 }
@@ -427,6 +434,7 @@ async function onClickSave(tempSaveYn) {
   }
 }
 
+// 초기화
 async function onClickReset() {
   currentPdCd.value = '';
   isCreate.value = true;
@@ -453,6 +461,7 @@ async function initProps() {
 
 await initProps();
 
+// 화면(탭) OPEN 상태에서, 다른 상품코드로 정보 변환
 watch(() => route.params.pdCd, async (pdCd) => {
   if (!route.path.includes('zwpdc-sale-product-list')) return;
   console.log(`WwpdcCompositionMgtM - currentPdCd.value : ${currentPdCd.value}, route.params.pdCd : ${pdCd}`, route);
@@ -467,6 +476,7 @@ watch(() => route.params.pdCd, async (pdCd) => {
   }
 }, { immediate: true });
 
+// 화면(탭) OPEN 상태에서, 신규등록
 watch(() => route.params.newRegYn, async (newRegYn) => {
   if (!route.path.includes('zwpdc-sale-product-list')) return;
   console.log(`WwpdcCompositionMgtM - newRegYn : ${newRegYn}`, route);
@@ -475,6 +485,7 @@ watch(() => route.params.newRegYn, async (newRegYn) => {
   }
 });
 
+// 화면(탭) OPEN 상태에서, 상품정보 갱신
 watch(() => route.params.reloadYn, async (reloadYn) => {
   if (!route.path.includes('zwpdc-sale-product-list')) return;
   console.log(`WwpdcCompositionMgtM - watch - route.params.reloadYn: ${reloadYn}`, route);

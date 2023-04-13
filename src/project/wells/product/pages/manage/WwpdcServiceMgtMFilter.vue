@@ -65,7 +65,7 @@
   </kw-action-top>
   <kw-grid
     ref="grdMainRef"
-    name="grdMainMgt"
+    name="grdMgtFilterMain"
     @init="initGrid"
   />
 </template>

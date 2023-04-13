@@ -43,7 +43,7 @@
   </kw-action-top>
   <kw-grid
     ref="grdChangePrdRef"
-    name="grdMgtChangePrdRef"
+    name="grdMgtRelChange"
     :visible-rows="15"
     @init="initChangePrdGrid"
   />
@@ -198,8 +198,9 @@ async function initGridRows() {
   const changeView = grdChangePrdRef.value?.getView();
   if (changeView) {
     changeView.getDataSource().clearRows();
-    changeView.getDataSource().setRows(products
-      .filter((item) => item[pdConst.PD_REL_TP_CD] === pdConst.PD_REL_TP_CD_CHANGE));
+    const changeRows = products
+      ?.filter((item) => item[pdConst.PD_REL_TP_CD] === pdConst.PD_REL_TP_CD_CHANGE);
+    changeView.getDataSource().setRows(changeRows);
     changeView.resetCurrent();
   }
   grdChangeRowCount.value = getGridRowCount(changeView);

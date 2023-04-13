@@ -32,6 +32,7 @@
     </kw-action-top>
     <kw-grid
       ref="grdMainRef"
+      name="grdMgtPrcFeeMain"
       :visible-rows="10"
       @init="initGrid"
     />

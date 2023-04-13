@@ -3,13 +3,14 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : PDC (상품운영관리)
-2. 프로그램 ID : WwpdcCompositionDtlMPrice - 기준상품 상세조회 - 가격정보 ( W-PD-U-0010M01 )
+2. 프로그램 ID : WwpdcCompositionDtlMPrice - 복합상품 상세조회 - 가격정보
+                ( Z-PD-U-0021M04 )
 3. 작성자 : jintae.choi
-4. 작성일 : 2022.12.31
+4. 작성일 : 2023.04.01
 ****************************************************************************************************
 * 프로그램 설명
 ****************************************************************************************************
-- 상품 기준상품 등록/변경 - 가격정보 프로그램
+- 상품 복합상품 등록/변경 - 가격정보 프로그램
 ****************************************************************************************************
 --->
 <template>
@@ -19,7 +20,7 @@
   </kw-action-top>
   <kw-grid
     ref="grdMainRef"
-    name="grdMain"
+    name="grdDtlPrcMain"
     :visible-rows="10"
     ignore-on-modified
     @init="initGrid"
@@ -104,10 +105,6 @@ async function initGridRows() {
   }
 }
 
-async function resetInitData() {
-  await initGridRows();
-}
-
 async function fetchData() {
   const res = await dataService.get('/sms/common/product/meta-properties', { params: { pdPrcTpCd: pdConst.PD_PRC_TP_CD_COMPOSITION } });
   if (isEmpty(res.data)) {
@@ -143,8 +140,14 @@ async function initProps() {
 
 await initProps();
 
-watch(() => props.pdCd, (val) => { currentPdCd.value = val; });
-watch(() => props.initData, (val) => { currentInitData.value = val; resetInitData(); }, { deep: true });
+watch(() => props.pdCd, (val) => {
+  currentPdCd.value = val;
+});
+
+watch(() => props.initData, (val) => {
+  currentInitData.value = val;
+  initGridRows();
+}, { deep: true });
 
 onMounted(async () => {
   await onClickSearch();
@@ -171,6 +174,6 @@ async function initGrid(data, view) {
   view.rowIndicator.visible = false;
   view.editOptions.editable = false;
 
-  await resetInitData();
+  await initGridRows();
 }
 </script>

@@ -3,7 +3,8 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : PDC (상품운영관리)
-2. 프로그램 ID : WwpdcStandardDtlMContents - (판매) 상품목록 - 상세조회 ( Z-PD-U-0011M01 )
+2. 프로그램 ID : WwpdcStandardDtlMContents - (판매) 상품목록 - 상세조회
+                ( Z-PD-U-0011M01 )
 3. 작성자 : jintae.choi
 4. 작성일 : 2022.12.31
 ****************************************************************************************************
@@ -168,6 +169,7 @@ async function onClickTab(selTab) {
   }
 }
 
+// 상품 수정 화면으로 이동
 async function onClickUpdate() {
   const { pdCd } = props;
   await router.close();
@@ -182,8 +184,13 @@ async function initProps() {
 
 await initProps();
 
-watch(() => props.pdCd, (pdCd) => { currentPdCd.value = pdCd; selectedTab.value = pdConst.STANDARD_STEP_BASIC.name; });
-watch(() => props.initData, (initData) => { currentInitData.value = initData; }, { deep: true });
+watch(() => props.pdCd, (pdCd) => {
+  currentPdCd.value = pdCd;
+  selectedTab.value = pdConst.STANDARD_STEP_BASIC.name;
+});
+watch(() => props.initData, (initData) => {
+  currentInitData.value = initData;
+}, { deep: true });
 
 </script>
 <style scoped></style>

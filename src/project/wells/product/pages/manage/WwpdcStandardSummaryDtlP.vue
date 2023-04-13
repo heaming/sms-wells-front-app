@@ -24,8 +24,10 @@
     <h2 class="h2-small mb30">
       {{ pdInfo.pdNm }}({{ pdInfo.pdCd }})
       <p>
+        <!-- 등록일 -->
         <span>{{ $t('MSG_TXT_RGST_DT') }} {{ stringUtil.getDateFormat(pdInfo.fstRgstDtm) }}
           /  {{ pdInfo.fstRgstUsrNm }}</span><span>
+          <!-- 최종수정일  -->
           {{ $t('MSG_TXT_L_UPDATED') }} {{ stringUtil.getDateFormat(pdInfo.fnlMdfcDtm) }}
           / {{ pdInfo.fnlMdfcUsrNm }}</span>
       </p>
@@ -80,7 +82,7 @@
         <!-- 리퍼여부 -->
         <kw-form-item :label="$t('MSG_TXT_WHETHER_REFURBISHED')">
           <p>
-            {{ getCodeNames(codes, pdInfo.rfbshYn, 'COD_YN') }}
+            {{ pdInfo.rfbshYn }}
           </p>
         </kw-form-item>
       </kw-form-row>
@@ -131,6 +133,7 @@
 
     <kw-grid
       ref="grdMainRef"
+      name="grdMain"
       :visible-rows="5"
       @init="initGrid"
     />
@@ -166,7 +169,6 @@ const pdInfo = ref({});
 const pdRels = ref([]);
 const pdPrcs = ref([]);
 const codes = await codeUtil.getMultiCodes(
-  'COD_YN',
   'NAT_CD',
   'SELL_TP_CD',
   'SV_PRD_UNIT_CD',
@@ -175,10 +177,9 @@ const codes = await codeUtil.getMultiCodes(
   'SPAY_DSC_DV_CD',
   'STPL_PRD_CD',
   'SV_IST_PCSV_DV_CD',
+  'BASE_PD_REL_DV_CD',
+  'PD_PDCT_REL_DV_CD',
 );
-if (codes?.COD_YN) {
-  codes.COD_YN = codes.COD_YN.map((item) => { item.codeName = item.codeId; return item; });
-}
 
 async function initGridRows() {
   const products = pdRels.value;
@@ -188,29 +189,37 @@ async function initGridRows() {
 
   const materialView = grdMaterialRef.value?.getView();
   if (materialView) {
-    materialView.getDataSource().setRows(products
-      .filter((item) => item[pdConst.PD_REL_TP_CD] === pdConst.PD_REL_TP_CD_P_TO_PD));
+    const materialCodeValues = codes.PD_PDCT_REL_DV_CD
+      .reduce((rtns, code) => { rtns.push(code.codeId); return rtns; }, []);
+    const materialRows = products
+      ?.filter((item) => materialCodeValues.includes(item[pdConst.PD_REL_TP_CD]));
+    materialView.getDataSource().setRows(materialRows);
     materialView.resetCurrent();
   }
 
   const serviceView = grdServiceRef.value?.getView();
   if (serviceView) {
-    serviceView.getDataSource().setRows(products
-      .filter((item) => item[pdConst.PD_REL_TP_CD] === pdConst.PD_REL_TP_CD_P_TO_S));
+    const serviceRows = products
+      ?.filter((item) => item[pdConst.PD_REL_TP_CD] === pdConst.PD_REL_TP_CD_P_TO_S);
+    serviceView.getDataSource().setRows(serviceRows);
     serviceView.resetCurrent();
   }
 
   const standardView = grdStandardRef.value?.getView();
   if (standardView) {
-    standardView.getDataSource().setRows(products
-      .filter((item) => item[pdConst.PD_REL_TP_CD] === pdConst.PD_REL_TP_CD_P_TO_P));
+    const standardCodeValues = codes.BASE_PD_REL_DV_CD
+      .reduce((rtns, code) => { rtns.push(code.codeId); return rtns; }, []);
+    const standardRows = products
+      ?.filter((item) => standardCodeValues.includes(item[pdConst.PD_REL_TP_CD]));
+    standardView.getDataSource().setRows(standardRows);
     standardView.resetCurrent();
   }
 
   const changeView = grdChangePrdRef.value?.getView();
   if (changeView) {
-    changeView.getDataSource().setRows(products
-      .filter((item) => item[pdConst.PD_REL_TP_CD] === pdConst.PD_REL_TP_CD_CHANGE));
+    const changeRows = products
+      ?.filter((item) => item[pdConst.PD_REL_TP_CD] === pdConst.PD_REL_TP_CD_CHANGE);
+    changeView.getDataSource().setRows(changeRows);
     changeView.resetCurrent();
   }
 
@@ -247,8 +256,6 @@ async function initProps() {
 
 await initProps();
 
-watch(() => props.pdCd, () => { initProps(); });
-
 //-------------------------------------------------------------------------------------------------
 // Initialize Grid
 //-------------------------------------------------------------------------------------------------
@@ -264,9 +271,6 @@ async function initMaterialGrid(data, view) {
     { fieldName: 'lrnColleDvTyp', header: t('TXT_MSG_LRNN_COCN_MCHN_TP_CD'), width: '187', styleName: 'text-center' },
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
-  fields.push({ fieldName: pdConst.REL_PD_ID });
-  fields.push({ fieldName: pdConst.PD_REL_TP_CD });
-  fields.push({ fieldName: pdConst.REL_OJ_PD_CD });
   data.setFields(fields);
   view.setColumns(columns);
 
@@ -282,15 +286,39 @@ async function initServiceGrid(data, view) {
     { fieldName: 'pdNm', header: t('MSG_TXT_SVC_NAME'), width: '206' },
     // 서비스코드
     { fieldName: 'pdCd', header: t('MSG_TXT_SVC_CODE'), width: '185', styleName: 'text-center' },
-    // 회수/기본주기 / 주기단위
-    { fieldName: 'recalDurUnit', header: t('MSG_TXT_PD_RECAL_DUR_UNIT'), width: '187', styleName: 'text-center' },
-    // 학습시간+학습시간단위
-    { fieldName: 'lrnTmeUnt', header: t('MSG_TXT_PD_LRN_TME_N_UNT'), width: '187', styleName: 'text-center' },
+    // 주기단위/방문주기
+    { fieldName: 'svVstPrdCdSet',
+      header: t('MSG_TXT_PD_UNIT_VISIT_PERI'),
+      width: '187',
+      styleName: 'text-center',
+      displayCallback(grid, index) {
+        const svPrdUnitCd = getCodeNames(codes.SV_PRD_UNIT_CD, grid.getValue(index.itemIndex, 'svPrdUnitCd'));
+        const svVstPrdCd = getCodeNames(codes.SV_VST_PRD_CD, grid.getValue(index.itemIndex, 'svVstPrdCd'));
+        if (svPrdUnitCd || svVstPrdCd) {
+          return `${svPrdUnitCd} / ${svVstPrdCd}`;
+        }
+        return '';
+      },
+    },
+    // 주기단위/택배주기
+    { fieldName: 'pcsvPrdCdSet',
+      header: t('MSG_TXT_PD_UNIT_PARCEL_PERI'),
+      width: '187',
+      styleName: 'text-center',
+      displayCallback(grid, index) {
+        const svPrdUnitCd = getCodeNames(codes.SV_PRD_UNIT_CD, grid.getValue(index.itemIndex, 'svPrdUnitCd'));
+        const pcsvPrdCd = getCodeNames(codes.SV_VST_PRD_CD, grid.getValue(index.itemIndex, 'pcsvPrdCd'));
+        if (svPrdUnitCd || pcsvPrdCd) {
+          return `${svPrdUnitCd} / ${pcsvPrdCd}`;
+        }
+        return '';
+      },
+    },
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
-  fields.push({ fieldName: pdConst.REL_PD_ID });
-  fields.push({ fieldName: pdConst.PD_REL_TP_CD });
-  fields.push({ fieldName: pdConst.REL_OJ_PD_CD });
+  fields.push({ fieldName: 'svPrdUnitCd' });
+  fields.push({ fieldName: 'svVstPrdCd' });
+  fields.push({ fieldName: 'pcsvPrdCd' });
   data.setFields(fields);
   view.setColumns(columns);
 
@@ -311,9 +339,6 @@ async function initStandardGrid(data, view) {
     { fieldName: 'channelId', header: t('MSG_TXT_SEL_CHNL'), width: '187', styleName: 'text-center', options: codes.SELL_CHNL_DTL_CD },
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
-  fields.push({ fieldName: pdConst.REL_PD_ID });
-  fields.push({ fieldName: pdConst.PD_REL_TP_CD });
-  fields.push({ fieldName: pdConst.REL_OJ_PD_CD });
   data.setFields(fields);
   view.setColumns(columns);
 
@@ -337,9 +362,6 @@ async function initChangePrdGrid(data, view) {
     { fieldName: 'modelNo', header: t('MSG_TXT_PD_MODEL_NO'), width: '127', styleName: 'text-center ' },
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
-  fields.push({ fieldName: pdConst.REL_PD_ID });
-  fields.push({ fieldName: pdConst.PD_REL_TP_CD });
-  fields.push({ fieldName: pdConst.REL_OJ_PD_CD });
   data.setFields(fields);
   view.setColumns(columns);
 

@@ -17,7 +17,7 @@
   <h3>{{ $t('MSG_TXT_PD_MNL_MAT') }}</h3>
   <kw-grid
     ref="grdMaterialRef"
-    name="grdDtlMaterial"
+    name="grdDtlRelMaterial"
     :visible-rows="3"
     ignore-on-modified
     @init="initMaterialGrid"
@@ -26,7 +26,7 @@
   <h3>{{ $t('MSG_TXT_SERVICE') }}</h3>
   <kw-grid
     ref="grdServiceRef"
-    name="grdDtlService"
+    name="grdDtlRelService"
     :visible-rows="3"
     ignore-on-modified
     @init="initServiceGrid"
@@ -35,7 +35,7 @@
   <h3>{{ $t('MSG_TXT_STD_PRD_SET_REL') }}</h3>
   <kw-grid
     ref="grdStandardRef"
-    name="grdDtlStandard"
+    name="grdDtlRelStandard"
     :visible-rows="3"
     ignore-on-modified
     @init="initStandardGrid"
@@ -45,7 +45,7 @@
   <h3>{{ $t('MSG_TXT_REP_PROD') }}</h3>
   <kw-grid
     ref="grdChangePrdRef"
-    name="grdDtlChangePrd"
+    name="grdDtlRelChangePrd"
     :visible-rows="3"
     ignore-on-modified
     @init="initChangePrdGrid"
@@ -56,6 +56,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { getComponentType, codeUtil, gridUtil } from 'kw-lib';
+import { getCodeNames } from '~/modules/sms-common/product/utils/pdUtil';
 import pdConst from '~sms-common/product/constants/pdConst';
 
 /* eslint-disable no-use-before-define */
@@ -81,7 +82,7 @@ const grdChangePrdRef = ref(getComponentType('KwGrid'));
 
 const currentPdCd = ref();
 const currentInitData = ref({});
-const stdRelCodes = await codeUtil.getMultiCodes('BASE_PD_REL_DV_CD');
+const codes = await codeUtil.getMultiCodes('BASE_PD_REL_DV_CD', 'PD_PDCT_REL_DV_CD');
 
 async function resetData() {
   currentPdCd.value = '';
@@ -101,31 +102,37 @@ async function initGridRows() {
   const materialView = grdMaterialRef.value?.getView();
   if (materialView) {
     materialView.getDataSource().clearRows();
-    materialView.getDataSource().setRows(products
-      ?.filter((item) => item[pdConst.PD_REL_TP_CD] === pdConst.PD_REL_TP_CD_P_TO_PD));
+    const materialCodeValues = codes.PD_PDCT_REL_DV_CD
+      .reduce((rtns, code) => { rtns.push(code.codeId); return rtns; }, []);
+    const materialRows = products
+      ?.filter((item) => materialCodeValues.includes(item[pdConst.PD_REL_TP_CD]));
+    materialView.getDataSource().setRows(materialRows);
   }
 
   const serviceView = grdServiceRef.value?.getView();
   if (serviceView) {
     serviceView.getDataSource().clearRows();
-    serviceView.getDataSource().setRows(products
-      ?.filter((item) => item[pdConst.PD_REL_TP_CD] === pdConst.PD_REL_TP_CD_P_TO_S));
+    const serviceRows = products
+      ?.filter((item) => item[pdConst.PD_REL_TP_CD] === pdConst.PD_REL_TP_CD_P_TO_S);
+    serviceView.getDataSource().setRows(serviceRows);
   }
 
   const standardView = grdStandardRef.value?.getView();
   if (standardView) {
     standardView.getDataSource().clearRows();
-    const standardCodeValues = stdRelCodes.BASE_PD_REL_DV_CD
+    const standardCodeValues = codes.BASE_PD_REL_DV_CD
       .reduce((rtns, code) => { rtns.push(code.codeId); return rtns; }, []);
-    standardView.getDataSource().setRows(products
-      ?.filter((item) => standardCodeValues.includes(item[pdConst.PD_REL_TP_CD])));
+    const standardRows = products
+      ?.filter((item) => standardCodeValues.includes(item[pdConst.PD_REL_TP_CD]));
+    standardView.getDataSource().setRows(standardRows);
   }
 
   const changeView = grdChangePrdRef.value?.getView();
   if (changeView) {
     changeView.getDataSource().clearRows();
-    changeView.getDataSource().setRows(products
-      ?.filter((item) => item[pdConst.PD_REL_TP_CD] === pdConst.PD_REL_TP_CD_CHANGE));
+    const changeRows = products
+      ?.filter((item) => item[pdConst.PD_REL_TP_CD] === pdConst.PD_REL_TP_CD_CHANGE);
+    changeView.getDataSource().setRows(changeRows);
   }
 }
 
@@ -149,6 +156,8 @@ onMounted(async () => {
 //-------------------------------------------------------------------------------------------------
 async function initMaterialGrid(data, view) {
   const columns = [
+    // 관계구분
+    { fieldName: 'pdRelTpCd', header: t('MSG_TXT_RELATION_CLSF'), width: '107', styleName: 'text-center', options: codes.PD_PDCT_REL_DV_CD },
     // 상태
     { fieldName: 'tempSaveYn', header: t('MSG_TXT_STT'), width: '135', styleName: 'text-center', options: props.codes?.PD_TEMP_SAVE_CD },
     // 교재/자재 분류
@@ -203,11 +212,38 @@ async function initServiceGrid(data, view) {
     // 서비스코드
     { fieldName: 'pdCd', header: t('MSG_TXT_SVC_CODE'), width: '185', styleName: 'text-center' },
     // 주기단위/방문주기
-    { fieldName: 'svVstPrdCd', header: t('MSG_TXT_PD_UNIT_VISIT_PERI'), width: '187', styleName: 'text-center', options: props.codes?.SV_VST_PRD_CD },
+    { fieldName: 'svVstPrdCdSet',
+      header: t('MSG_TXT_PD_UNIT_VISIT_PERI'),
+      width: '187',
+      styleName: 'text-center',
+      displayCallback(grid, index) {
+        const svPrdUnitCd = getCodeNames(props.codes?.SV_PRD_UNIT_CD, grid.getValue(index.itemIndex, 'svPrdUnitCd'));
+        const svVstPrdCd = getCodeNames(props.codes?.SV_VST_PRD_CD, grid.getValue(index.itemIndex, 'svVstPrdCd'));
+        if (svPrdUnitCd || svVstPrdCd) {
+          return `${svPrdUnitCd} / ${svVstPrdCd}`;
+        }
+        return '';
+      },
+    },
     // 주기단위/택배주기
-    { fieldName: 'pcsvPrdCd', header: t('MSG_TXT_PD_UNIT_PARCEL_PERI'), width: '187', styleName: 'text-center', options: props.codes?.SV_VST_PRD_CD },
+    { fieldName: 'pcsvPrdCdSet',
+      header: t('MSG_TXT_PD_UNIT_PARCEL_PERI'),
+      width: '187',
+      styleName: 'text-center',
+      displayCallback(grid, index) {
+        const svPrdUnitCd = getCodeNames(props.codes?.SV_PRD_UNIT_CD, grid.getValue(index.itemIndex, 'svPrdUnitCd'));
+        const pcsvPrdCd = getCodeNames(props.codes?.SV_VST_PRD_CD, grid.getValue(index.itemIndex, 'pcsvPrdCd'));
+        if (svPrdUnitCd || pcsvPrdCd) {
+          return `${svPrdUnitCd} / ${pcsvPrdCd}`;
+        }
+        return '';
+      },
+    },
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
+  fields.push({ fieldName: 'svPrdUnitCd' });
+  fields.push({ fieldName: 'svVstPrdCd' });
+  fields.push({ fieldName: 'pcsvPrdCd' });
   data.setFields(fields);
   view.setColumns(columns);
 
@@ -217,7 +253,7 @@ async function initServiceGrid(data, view) {
 async function initStandardGrid(data, view) {
   const columns = [
     // 관계구분
-    { fieldName: 'pdRelTpCd', header: t('MSG_TXT_RELATION_CLSF'), width: '107', styleName: 'text-center', options: stdRelCodes.BASE_PD_REL_DV_CD },
+    { fieldName: 'pdRelTpCd', header: t('MSG_TXT_RELATION_CLSF'), width: '107', styleName: 'text-center', options: codes.BASE_PD_REL_DV_CD },
     // 상태
     { fieldName: 'tempSaveYn', header: t('MSG_TXT_STT'), width: '105', styleName: 'text-center', options: props.codes?.PD_TEMP_SAVE_CD },
     // 기준상품 분류
