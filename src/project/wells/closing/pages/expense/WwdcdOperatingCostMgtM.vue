@@ -1,7 +1,7 @@
 <!----
 ****************************************************************************************************
 1. 모듈 : DCD
-2. 프로그램 ID : WwDcdOperatingCostMgtM - 운영비 등록관리 Operatingost / W-CL-U-0082M01
+2. 프로그램 ID : WwdcdOperatingCostMgtM - 운영비 등록관리 Operatingost / W-CL-U-0082M01
 3. 작성자 : gs.piit172 kim juhyun
 4. 작성일 : 2023.02.03
 ****************************************************************************************************
@@ -38,9 +38,9 @@
         </kw-search-item>
         <kw-search-item :label="$t('MSG_TXT_OG_LEVL')">
           <zwogz-level-select
-            v-model:og-levl-dv-cd1="searchParams.ogLevlDvCd1"
-            v-model:og-levl-dv-cd2="searchParams.ogLevlDvCd2"
-            v-model:og-levl-dv-cd3="searchParams.ogLevlDvCd3"
+            v-model:og-levl-dv-cd1="searchParams.dgr2LevlOgId"
+            v-model:og-levl-dv-cd2="searchParams.dgr3LevlOgId"
+            v-model:og-levl-dv-cd3="searchParams.dgr4LevlOgId"
             :og-tp-cd="searchParams.ogTpCd"
             :base-ym="searchParams.baseYm"
             :start-level="1"
@@ -110,18 +110,18 @@
         >
           <kw-tab-panel name="basic">
             <wwdcd-operating-cost-mgt-m-securities-exception
-              :ref="(vm) => tabRefs.mscrexcd = vm"
+              :ref="(searchParams) => tabRefs.mscrexcd = searchParams"
               v-model:selected-link-id="selectedLinkId"
-              v-model:init-data="searchParams.baseYm"
+              v-model:init-data="searchParams"
               @reload-pages="fetchTabs('basic')"
             />
           </kw-tab-panel>
           <kw-tab-panel name="sel">
             <wwdcd-operating-cost-mgt-m-securities
-              :ref="(vm) => tabRefs.securities = vm"
+              :ref="(searchParams) => tabRefs.securities = searchParams"
               v-model:selected-link-id="selectedLinkId"
-              v-model:init-data="searchParams.baseYm"
-              @reload-pages="fetchTabs('basic')"
+              v-model:init-data="searchParams"
+              @reload-pages="fetchTabs('sel')"
             />
           </kw-tab-panel>
         </kw-tab-panels>
@@ -164,15 +164,16 @@ let cachedParams;
 
 const searchParams = ref({
   baseYm: dayjs().format('YYYYMM'),
+  ogTpCd,
   adjDeptOgId: ogTpCd,
   dgr2LevlOgId: '',
   dgr3LevlOgId: '',
   dgr4LevlOgId: '',
   entrpDvCd: ogTpCd,
-  ogTpCd,
 });
 
 async function fetchAmountData() {
+  debugger;
   const view = grdMainRef.value.getView();
   const res = await dataService.get('/sms/wells/closing/expense/operating-cost/amount', { params: cachedParams });
 
@@ -194,9 +195,6 @@ async function fetchData() {
   cachedParams = cloneDeep(searchParams.value);
   fetchAmountData(); // 금액
   fetchSummaryData(); // 적요
-  await Promise.all(
-    Object.values(tabRefs).map((vm) => vm.setData(cachedParams)),
-  );
 }
 
 async function onClickSearch() {

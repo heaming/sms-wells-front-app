@@ -74,7 +74,7 @@
     ref="grdFourthRef"
     name="grdTabFourth"
     :visible-rows="10"
-    @init="initGrdSubFourth"
+    @init="initGrdFourth"
   />
 </template>
 <script setup>
@@ -125,7 +125,7 @@ async function onClickOpenReport() {
 
 async function adjustObject() {
   const { initData } = props;
-  cachedParams = { useYearMonth: cloneDeep(initData) };
+  cachedParams = cloneDeep(initData);
   const res = await dataService.get('/sms/wells/closing/expense/marketable-securities/adjust-object', { params: { ...cachedParams } });
   const { list: services } = res.data;
   mainTotalCount.value = res.data.length;
@@ -136,7 +136,7 @@ async function adjustObject() {
 
 async function withholdingTaxAdjustList() {
   const { initData } = props;
-  cachedParams = { useYearMonth: cloneDeep(initData) };
+  cachedParams = cloneDeep(initData);
   const res = await dataService.get('/sms/wells/closing/expense/marketable-securities/withholding-tax-adjust', { params: { ...cachedParams } });
   const { list: services } = res.data;
   subTotalCount.value = res.data.length;
@@ -196,7 +196,7 @@ const initGrdThird = defineGrid((data, view) => {
     { fieldName: 'cardAprno', header: t('MSG_TXT_APR_NO'), width: '78', styleName: 'text-center' }, // 승인번호
     { fieldName: 'requestAmount', header: t('MSG_TXT_USE_AMT'), width: '101', styleName: 'text-right' }, // 사용금액
     { fieldName: 'opcsAdjExcdYn',
-      header: t('MSG_TXT_DEL_YN'),
+      header: t('MSG_TXT_ADJ_EXCD_YN'),
       width: '126',
       styleName: 'text-left',
       options: codes.COD_YN,
@@ -279,7 +279,7 @@ const initGrdThird = defineGrid((data, view) => {
   };
 
   view.setColumnLayout([
-    'authDate', 'ogTpNm', 'cardNum', 'mrcNm', 'mrcTobzNm', 'mrcAdrCn', 'cardAprno', 'requestAmounts', 'opcsAdjExcdYn', // single
+    'authDate', 'ogTpNm', 'cardNum', 'mrcNm', 'mrcTobzNm', 'mrcAdrCn', 'cardAprno', 'requestAmount', 'opcsAdjExcdYn', // single
     {
       header: t('MSG_TXT_ADJ_YN'), // colspan title
       direction: 'horizontal', // merge type
@@ -293,16 +293,16 @@ const initGrdThird = defineGrid((data, view) => {
   ]);
 });
 
-const initGrdSubFourth = defineGrid((data, view) => {
+const initGrdFourth = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'adjDeptOgId', header: t('MSG_TXT_MANAGEMENT_DEPARTMENT'), width: '149', styleName: 'text-left' }, /* 총괄단 */
-    { fieldName: 'ogTpCd', header: t('MSG_TXT_CENTER_DIVISION'), width: '206', styleName: 'text-left' }, /* 지역단 */
+    { fieldName: 'dgr2LevlOgNm', header: t('MSG_TXT_MANAGEMENT_DEPARTMENT'), width: '149', styleName: 'text-left' }, /* 총괄단 */
+    { fieldName: 'dgr3LevlOgNm', header: t('MSG_TXT_CENTER_DIVISION'), width: '206', styleName: 'text-left' }, /* 지역단 */
     { fieldName: 'usrNm', header: t('MSG_TXT_EMPL_NM'), width: '198', styleName: 'text-left' }, /* 성명 */
     { fieldName: 'opcsAdjNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '218', styleName: 'text-center' }, /* 번호 */
     { fieldName: 'crlvNm', header: t('MSG_TXT_RSB'), width: '219', styleName: 'text-left' }, /* 직책 */
     { fieldName: 'adjCnfmAmt', header: t('MSG_TXT_OPCS_ADJ_AMT'), width: '260', styleName: 'text-right' }, /* 운영비 정상금액 */
     { fieldName: 'dstWhtx', header: t('MSG_TXT_WHTX'), width: '246', styleName: 'text-right' }, /* 원천세 */
-    { fieldName: 'cardAprno', header: t('MSG_TXT_WHTX'), width: '246', styleName: 'text-right' }, /* 승인번호 */
+    { fieldName: 'cardAprno', header: t('MSG_TXT_APR_NO'), width: '246', styleName: 'text-right' }, /* 승인번호 */
   ];
 
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
