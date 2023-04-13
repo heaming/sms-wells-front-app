@@ -3,7 +3,7 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : CTA
-2. 프로그램 ID : WwctaRestipulationTargetCstListP - 재약정 대상고객 조회
+2. 프로그램 ID : WwctaMshRstlOjCstListP - 멤버십/재약정 대상고객 조회
 3. 작성자 : gs.piit159
 4. 작성일 : 2023.03.20
 ****************************************************************************************************
@@ -46,11 +46,11 @@
       </kw-search-row>
       <kw-search-row>
         <kw-search-item
-          :label="$t('MSG_TXT_NAME')"
+          :label="$t('MSG_TXT_CST_NM')"
         >
           <kw-input
             v-model="searchParams.cstKnm"
-            :label="$t('MSG_TXT_NAME')"
+            :label="$t('MSG_TXT_CST_NM')"
           />
         </kw-search-item>
         <kw-search-item
@@ -124,8 +124,16 @@ const codes = await codeUtil.getMultiCodes(
   'SEX_DV_CD',
 );
 codes.CNTR_TP_CD = [
-  { codeId: '1', codeName: t('MSG_TXT_MMBR') /* 멤버쉽 */ },
-  { codeId: '2', codeName: t('MSG_TXT_RSTL') /* 재약정 */ },
+  {
+    codeId: 'MSH',
+    codeName: t('MSG_TXT_MMBR') /* 멤버쉽 */,
+    url: '/sms/wells/contract/membership/customers/paging',
+  },
+  {
+    codeId: 'RSTL',
+    codeName: t('MSG_TXT_RSTL') /* 재약정 */,
+    url: '/sms/wells/contract/re-stipulation/customers/paging',
+  },
 ]; /* 의도적 하드 코딩 : 요청사항! */
 
 // -------------------------------------------------------------------------------------------------
@@ -156,11 +164,14 @@ async function fetchPage(pageIndex = pageInfo.value.pageIndex, pageSize = pageIn
     pageIndex,
     pageSize,
   };
-  const response = await dataService.get('/sms/wells/contract/renewal-membership-customers', { params });
+
+  const { url } = codes.CNTR_TP_CD.find((code) => code.codeId === params.cntrTpCd);
+  const response = await dataService.get(url, { params });
 
   pageInfo.value = response.data.pageInfo;
   grdData.value.setRows(response.data.list);
 }
+
 async function onSearch() {
   cachedParams = { ...toRaw(searchParams) };
   console.log(cachedParams);
@@ -175,7 +186,11 @@ const initGrd = defineGrid((data, view) => {
   useGridDataModel(view, {
     sellTpCd: { displaying: false },
     cntrDtlStatCd: { displaying: false },
-    copnDvCd: { label: t('MSG_TXT_CNTRT_TP') /* 계약자유형' */, width: '104', options: codes.COPN_DV_CD },
+    copnDvCd: {
+      label: t('MSG_TXT_CNTRT_TP') /* 계약자유형' */,
+      width: '104',
+      options: codes.COPN_DV_CD,
+    },
     cntrCstNo: { label: t('MSG_TXT_CST_NO') /* 고객번호' */, width: '131', classes: 'text-center' },
     cntrNo: { displaying: false },
     cntrSn: { displaying: false },
@@ -203,7 +218,12 @@ const initGrd = defineGrid((data, view) => {
       classes: 'text-center',
     },
     pdNm: { label: t('MSG_TXT_PRDT_NM') /* 상품명' */, width: '235', classes: 'text-left' },
-    stplPtrm: { label: t('MSG_TXT_CNTR_PTRM') /* 계약기간' */, type: Number, width: '99', classes: 'text-right' },
+    stplPtrm: {
+      label: t('MSG_TXT_CNTR_PTRM') /* 계약기간' */,
+      type: Number,
+      width: '99',
+      classes: 'text-right',
+    },
     dlqYn: { label: t('MSG_TXT_DLQ') /* 연체 */, width: '68', classes: 'text-center' },
   });
 
