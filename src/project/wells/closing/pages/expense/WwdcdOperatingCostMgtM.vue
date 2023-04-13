@@ -173,7 +173,6 @@ const searchParams = ref({
 });
 
 async function fetchAmountData() {
-  debugger;
   const view = grdMainRef.value.getView();
   const res = await dataService.get('/sms/wells/closing/expense/operating-cost/amount', { params: cachedParams });
 
@@ -195,6 +194,9 @@ async function fetchData() {
   cachedParams = cloneDeep(searchParams.value);
   fetchAmountData(); // 금액
   fetchSummaryData(); // 적요
+  await Promise.all(
+    Object.values(tabRefs).map((vm) => vm.setData(cachedParams)),
+  );
 }
 
 async function onClickSearch() {
