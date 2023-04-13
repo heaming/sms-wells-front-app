@@ -73,6 +73,7 @@
           <div class="button-set--bottom">
             <div class="button-set--bottom-right">
               <kw-btn
+                v-if="isCompleteLoad"
                 :label="$t('MSG_BTN_MOD')"
                 class="ml8"
                 primary
@@ -94,6 +95,7 @@ import { isEmpty } from 'lodash-es';
 import pdConst from '~sms-common/product/constants/pdConst';
 import ZwpdcPropGroupsDtl from '~sms-common/product/pages/manage/components/ZwpdcPropGroupsDtl.vue';
 import ZwpdcProdChangeHist from '~sms-common/product/pages/manage/components/ZwpdcProdChangeHist.vue';
+import { pageMove } from '~sms-common/product/utils/pdUtil';
 
 const props = defineProps({
   pdCd: { type: String, default: null },
@@ -108,14 +110,15 @@ const dataService = useDataService();
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 const baseUrl = '/sms/wells/product/as-parts';
-const materialMainPage = '/product/zwpdc-material-list';
-const page = ref({
-  modify: '/product/wwpdc-as-part-list/wwpdc-as-part-mgt', // 등록/수정 UI
-});
+// const materialMainPage = '/product/zwpdc-material-list';
+// const page = ref({
+//   modify: '/product/wwpdc-as-part-list/wwpdc-as-part-mgt', // 등록/수정 UI
+// });
 
 const pdTpDtlCd = ref(pdConst.PD_TP_DTL_CD_AS_PART);
 const prdPropGroups = ref({});
 const selectedTab = ref('attribute');
+const isCompleteLoad = ref(false);
 
 const pdBas = ref({});
 const prevStepData = ref({});
@@ -123,10 +126,9 @@ const currentPdCd = ref();
 const obsMainRef = ref();
 
 async function onClickModify() {
-  obsMainRef.value.init();
   const { pdCd, tempSaveYn } = props;
-  await router.close(0, true);
-  await router.push({ path: page.value.modify, replace: true, query: { pdCd, tempSaveYn } });
+  const query = { pdCd, tempSaveYn, isSearch: true, fromUi: 'Dtl' };
+  await pageMove(pdConst.ASPART_MNGT_PAGE, true, router, query);
 }
 
 async function fetchData(forcePdCd) {
@@ -140,9 +142,10 @@ async function fetchData(forcePdCd) {
   prevStepData.value[pdConst.TBL_PD_ECOM_PRP_DTL] = res.data[pdConst.TBL_PD_ECOM_PRP_DTL];
   prevStepData.value[pdConst.TBL_PD_REL] = res.data[pdConst.TBL_PD_REL];
   prdPropGroups.value = res.data.groupCodes;
+  isCompleteLoad.value = true;
 }
 
-async function fetchProps() {
+async function initProps() {
   const { pdCd } = props;
   currentPdCd.value = pdCd;
   if (isEmpty(currentPdCd.value)) {
@@ -160,19 +163,16 @@ watch(() => route.query, async (query) => {
 }, { immediate: true });
 
 watch(() => route.query, async (query) => {
-  if (isEmpty(query)) {
-    /*
-      #1. (관리) => 상세 => 수정 => 저장
-      #2. (관리) => 상세 => 수정 => 취소
-      상기 경우 관리(*ListM) 화면으로 Forward
-    */
-    await router.close(0, true);
-    await router.push({ path: materialMainPage, query: { isSearch: true } });
-  }
+  /*
+    #1. (관리) => 상세 => 수정 => 저장
+    #2. (관리) => 상세 => 수정 => 취소
+    상기 경우 관리(*ListM) 화면으로 Forward
+  */
+  if (isEmpty(query)) await pageMove(pdConst.ASPART_LIST_PAGE, true, router, { isSearch: false });
 }, { immediate: true });
 
 onMounted(async () => {
-  await fetchProps();
+  await initProps();
 });
 
 </script>
