@@ -26,9 +26,8 @@
         >
           <kw-select
             v-model="searchParams.bzHdqDvCd"
-            :options="codes.DIV_DV_CD"
+            :options="codes.BZ_HDQ_DV_CD"
             :label="$t('MSG_TXT_DIV2')"
-            model-value="1000"
             rules="required"
             readonly
           />
@@ -60,9 +59,7 @@
           <!-- TODO: 코드 정의 안되어 있음 정의 되면 코드보게 수정필요 -->
           <kw-select
             v-model="searchParams.nwYn"
-            :model-value="[]"
-            :options="['신규', '기존']"
-            first-option="all"
+            :options="codes.BND_NW_DV_CD"
           />
         </kw-search-item>
       </kw-search-row>
@@ -73,6 +70,7 @@
           <kw-input
             v-model="showInfo.cstKnm"
             icon="search"
+            :on-click-icon="openSearchUserPopup"
             clearable
           />
         </kw-search-item>
@@ -82,6 +80,7 @@
           <kw-input
             v-model="searchParams.cstNo"
             icon="search"
+            :on-click-icon="openSearchUserPopup"
             clearable
           />
         </kw-search-item>
@@ -130,7 +129,7 @@
           :label="$t('MSG_BTN_ASN_WEIT_MDFC')"
           secondary
           dense
-          @click="onClickUpdate"
+          @click="onClickPageMove"
         />
         <kw-separator
           vertical
@@ -204,13 +203,15 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useGlobal, codeUtil, getComponentType, useMeta, useDataService, defineGrid, gridUtil } from 'kw-lib';
+import { useGlobal, codeUtil, getComponentType, useMeta, useDataService, defineGrid, gridUtil, router } from 'kw-lib';
 import dayjs from 'dayjs';
+import { getBzHdqDvcd } from '~sms-common/bond/utils/bnUtil';
 import { cloneDeep } from 'lodash-es';
 
 const { t } = useI18n();
 const { getConfig } = useMeta();
 const { modal, notify } = useGlobal();
+const { getters } = useStore();
 const dataService = useDataService();
 
 // -------------------------------------------------------------------------------------------------
@@ -219,6 +220,8 @@ const dataService = useDataService();
 const codes = await codeUtil.getMultiCodes(
   'CLCTAM_DV_CD',
   'DIV_DV_CD',
+  'BZ_HDQ_DV_CD',
+  'BND_NW_DV_CD',
 );
 const filteredCodes = ref({ CLCTAM_DV_CD: codes.CLCTAM_DV_CD.filter((obj) => (obj.codeId !== '09' && obj.codeId !== '10')) });
 
@@ -234,12 +237,13 @@ const pageInfo = ref({
 
 // TODO: 기준년월을 여기에서 보낼지... 서비스에서 만들지 관련 화면들 전부 정리 되면 확인 필요 현재는 화면에서 보내는 걸로 작업
 const defaultDate = dayjs().format('YYYYMM');
+const { tenantId } = getters['meta/getUserInfo'];
 
 let cachedParams;
 let cachedDetailsParams;
 const searchParams = ref({
   baseYm: defaultDate,
-  bzHdqDvCd: '1000',
+  bzHdqDvCd: getBzHdqDvcd(tenantId),
   clctamDvCd: '',
   nwYn: '',
   cstNo: '',
@@ -255,6 +259,10 @@ const searchDetailsParams = ref({
   bzHdqDvCd: '',
   clctamDvCd: '',
   clctamPrtnrNo: '',
+});
+
+const pageMove = ref({
+  url: '/bond/zwbny-assign-weight-mgt',
 });
 
 async function fetchData() {
@@ -339,9 +347,10 @@ function onClickCreate() {
   notify(t('MSG_ALT_ALLO_OF_COLL_EXCN'));
 }
 
-function onClickUpdate() {
-  // TODO: 미완료 구현 필요(Z-BN-U-0066M01 화면으로 연결 필요)
-  notify(t('MSG_ALT_MODIFIED'));
+async function onClickPageMove() {
+  router.push({
+    path: pageMove.value.url,
+  });
 }
 
 async function onClickConfirm() {
@@ -349,6 +358,21 @@ async function onClickConfirm() {
   cachedParams = cloneDeep(searchParams.value);
   await dataService.put('/sms/wells/bond/collector-assigns/confirm', cachedParams);
   notify(t('MSG_ALT_MODIFIED'));
+}
+
+async function openSearchUserPopup() {
+  const { result, payload } = await modal({
+    component: 'ZwbnyDelinquentCustomerP',
+    componentProps: {
+      baseYm: searchParams.value.baseYm,
+    },
+  });
+  if (result) {
+    const { cstNo, cstNm, phoneNumber } = payload;
+    searchParams.value.cstNo = cstNo;
+    searchParams.value.cstKnm = cstNm;
+    showInfo.value.phoneNumber = phoneNumber;
+  }
 }
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
