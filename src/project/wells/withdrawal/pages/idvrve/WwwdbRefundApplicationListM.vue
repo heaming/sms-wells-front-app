@@ -22,11 +22,15 @@
       <kw-search-row>
         <!-- 접수일자 -->
         <!-- 2023.04.12 rules="date_range_months:1" 가 있으면, 공백 조회가 안됨. 추후 확인 필요. -->
-        <kw-search-item :label="$t('MSG_TXT_RCPDT')">
+        <kw-search-item
+          :label="$t('MSG_TXT_RCPDT')"
+          required
+        >
           <kw-date-range-picker
             v-model:from="searchParams.startDay"
             v-model:to="searchParams.endDay"
-            rules="date_range_months:1"
+            rules="date_range_required|date_range_months:1"
+            :label="$t('MSG_TXT_RCPDT')"
           />
         </kw-search-item>
         <!-- 환불상태 -->
@@ -247,7 +251,7 @@ async function onClickCstSearch() {
 async function fetchData() {
   cachedParams = { ...cachedParams, ...pageInfo.value };
 
-  const res = await dataService.get('/sms/wells/withdrawal/idvrve/refund-application-present-state/paging', { params: cachedParams });
+  const res = await dataService.get('/sms/wells/withdrawal/idvrve/refund-applications/paging', { params: cachedParams });
   const { list: application, pageInfo: pagingResult } = res.data;
 
   pageInfo.value = pagingResult;
@@ -279,7 +283,7 @@ async function onClickReportView() {
 
 // 엑셀 다운로드
 async function onClickExcelDownload() {
-  const response = await dataService.get('/sms/wells/withdrawal/idvrve/refund-application-present-state/excel-download', { params: cachedParams });
+  const response = await dataService.get('/sms/wells/withdrawal/idvrve/refund-applications/excel-download', { params: cachedParams });
   const view = grdMainRef.value.getView();
 
   await gridUtil.exportView(view, {
@@ -294,7 +298,7 @@ async function onClickExcelDownload() {
 // 고객센터 엑셀업로드 시 환불신청(등록)만 됨
 async function onClickExcelUpload() {
   // TODO: 엑셀 양식 만든 후 엑셀 업로드 만들기
-  const apiUrl = '/sms/wells/withdrawal/idvrve/refund-application-present-state/excel-upload';
+  const apiUrl = '/sms/wells/withdrawal/idvrve/refund-applications/excel-upload';
   const templateId = 'RefundApplication'; // 확인필요.
   const { result } = await modal({
     component: 'ZwcmzExcelUploadP',
@@ -372,7 +376,7 @@ const initGrdMain = defineGrid((data, view) => {
       renderer: { type: 'button', hideWhenEmpty: false },
       displayCallback: () => t('MSG_BTN_DTL') },
     // 접수일자
-    { fieldName: 'fnlMdfcDtm', header: t('MSG_TXT_RCPDT'), width: '120', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd' },
+    { fieldName: 'fnlMdfcDtm', header: t('MSG_TXT_RCPDT'), width: '120', styleName: 'text-center', datetimeFormat: 'date' },
     // 계약유형 : 계약서유형코드
     { fieldName: 'cntrwTpCd', header: t('MSG_TXT_CONTR_TYPE'), width: '130', styleName: 'text-left', options: codes.CNTRW_TP_CD },
     // 계약상세번호 : 표시방법 = 계약번호-계약일련번호
