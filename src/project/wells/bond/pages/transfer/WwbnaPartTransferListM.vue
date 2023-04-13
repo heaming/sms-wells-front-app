@@ -35,7 +35,7 @@
         >
           <kw-select
             v-model="searchParams.bzHdqDvCd"
-            :options="codes.DIV_DV_CD"
+            :options="codes.BZ_HDQ_DV_CD"
             :label="$t('MSG_TXT_DIV2')"
             readonly
           />
@@ -67,6 +67,7 @@
           <kw-input
             v-model="searchParams.cstKnm"
             icon="search"
+            :on-click-icon="openSearchUserPopup"
             clearable
           />
         </kw-search-item>
@@ -79,13 +80,12 @@
             icon="search"
             :on-click-icon="openSearchUserPopup"
             clearable
-            @keydown.enter="isCustomerNo"
           />
         </kw-search-item>
         <kw-search-item
           :label="$t('MSG_TXT_MPNO')"
         >
-          <kw-input />
+          <kw-input v-model="searchParams.phoneNumber" />
         </kw-search-item>
       </kw-search-row>
     </kw-search>
@@ -177,10 +177,11 @@
 import { useGlobal, codeUtil, getComponentType, useMeta, useDataService, defineGrid, gridUtil } from 'kw-lib';
 import dayjs from 'dayjs';
 import { cloneDeep } from 'lodash-es';
+import { getBzHdqDvcd } from '~sms-common/bond/utils/bnUtil';
 
 const { t } = useI18n();
 const { getConfig } = useMeta();
-const { notify, alert, confirm } = useGlobal();
+const { notify, alert, confirm, modal } = useGlobal();
 const { getters } = useStore();
 const dataService = useDataService();
 
@@ -194,6 +195,7 @@ const codes = await codeUtil.getMultiCodes(
   'CLCTAM_DV_CD',
   'DIV_DV_CD',
   'COD_PAGE_SIZE_OPTIONS',
+  'BZ_HDQ_DV_CD',
 );
 const filteredCodes = ref({ CLCTAM_DV_CD: codes.CLCTAM_DV_CD.filter((obj) => (obj.codeId !== '09' && obj.codeId !== '10')) });
 
@@ -208,11 +210,12 @@ const pageInfo = ref({
 });
 
 const defaultDate = dayjs().format('YYYYMM');
+const { tenantId } = getters['meta/getUserInfo'];
 
 let cachedParams;
 const searchParams = ref({
   baseYm: defaultDate,
-  bzHdqDvCd: '',
+  bzHdqDvCd: getBzHdqDvcd(tenantId),
   clctamDvCd: '',
   nwYn: '',
   cstNo: '',
@@ -220,15 +223,9 @@ const searchParams = ref({
   cstKnm: '',
 });
 
-const { tenantId } = getters['meta/getUserInfo'];
-watch(() => tenantId, (val) => {
-  if (val === 'TNT_EDU') { searchParams.value.bzHdqDvCd = '1000'; }
-  if (val === 'TNT_WELLS') { searchParams.value.bzHdqDvCd = '2000'; }
-}, { immediate: true });
-
 const searchDetailsParams = ref({
   baseYm: defaultDate,
-  bzHdqDvCd: '1000',
+  bzHdqDvCd: searchParams.value.bzHdqDvCd,
   clctamDvCd: '',
 });
 
@@ -293,17 +290,18 @@ async function onClickDetailsExcelDownload() {
   });
 }
 
-function openSearchUserPopup() {
-  // TODO: 고객정보 조회 팝업 확인 후 추가 작업 예정
-  console.log('call openSearchUserPopup');
-}
-
-async function isCustomerNo() {
-  cachedParams = cloneDeep(searchParams.value);
-  const response = await dataService.get('/sms/common/bond/normal-bonds/is-customer-no', { params: cachedParams });
-  if (!response.data) {
-    searchParams.value.cstNo = '';
-    notify(t('MSG_ALT_INQR_OJ_CST_YN'));
+async function openSearchUserPopup() {
+  const { result, payload } = await modal({
+    component: 'ZwbnyDelinquentCustomerP',
+    componentProps: {
+      baseYm: searchParams.value.baseYm,
+    },
+  });
+  if (result) {
+    const { cstNo, cstNm, phoneNumber } = payload;
+    searchParams.value.cstNo = cstNo;
+    searchParams.value.cstKnm = cstNm;
+    searchParams.value.phoneNumber = phoneNumber;
   }
 }
 
