@@ -90,10 +90,8 @@ const searchParams = ref({
   searchValue: '',
 });
 
-const codes = await codeUtil.getMultiCodes(
-  'PDCT_REL_DV_CD',
-);
-// codes.PDCT_REL_DV_CD = codes.PDCT_REL_DV_CD.filter((v) => (['13', '14', '15'].includes(v.codeId)));
+const codes = await codeUtil.getMultiCodes('PDCT_REL_DV_CD');
+const initLoadData = ref([]);
 
 async function resetData() {
   // TODO Grid 에서 초기화버튼 기능을 어떻게 정의할지 확인필요.
@@ -211,7 +209,12 @@ async function validateProps() {
 }
 
 async function isModifiedProps() {
-  return true;
+  const view = grdMainRef.value.getView();
+  const currentData = gridUtil.getAllRowValues(view);
+  const isSame = initLoadData.value.every((e) => currentData.includes(e));
+  // console.log('초기', initLoadData.value);
+  // console.log('헌재', currentData);
+  return !isSame;
 }
 
 async function getSaveData() {
@@ -279,11 +282,12 @@ onMounted(async () => {
 
 async function setData(newInitData) {
   if (!isEmpty(newInitData)) {
-    const relData = props.initData[pdConst.TBL_PD_REL];
-    if (isEmpty(relData)) return;
+    // const relData = props.initData[pdConst.TBL_PD_REL];
+    initLoadData.value = props.initData[pdConst.TBL_PD_REL];
+    if (isEmpty(initLoadData.value)) return;
 
     const grd1DataProvider = grdMainRef.value.getView().getDataSource();
-    grd1DataProvider.fillJsonData(relData, { fillMode: 'set' });
+    grd1DataProvider.fillJsonData(initLoadData.value, { fillMode: 'set' });
   }
 }
 

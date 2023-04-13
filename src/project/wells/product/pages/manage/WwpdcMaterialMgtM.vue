@@ -12,6 +12,11 @@
 - 상품 >> 교재/자재 등록/변경 프로그램 (Outer Frame Page)
 ****************************************************************************************************
 -TODO :
+const materialMainPage = '/product/zwpdc-material-list';
+// const page = ref({
+//   reg: '/product/zwpdc-material-list/wwpdc-material-mgt', // 교재/자재 등록 UI
+//   detail: '/product/zwpdc-material-list/wwpdc-material-dtl', // 교재/자재 상세보기 UI
+// });
 --->
 <template>
   <kw-page>
@@ -211,7 +216,7 @@
 // -------------------------------------------------------------------------------------------------
 import { useDataService, useGlobal } from 'kw-lib';
 import { isEmpty, cloneDeep } from 'lodash-es';
-import { pdMergeBy } from '~sms-common/product/utils/pdUtil';
+import { pdMergeBy, pageMove } from '~sms-common/product/utils/pdUtil';
 import pdConst from '~sms-common/product/constants/pdConst';
 
 import ZwpdcPropGroupsMgt from '~sms-common/product/pages/manage/components/ZwpdcPropGroupsMgt.vue'; /* 속성 등록/수정 */
@@ -232,7 +237,6 @@ const router = useRouter();
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 const baseUrl = '/sms/wells/product/materials';
-const materialMainPage = '/product/zwpdc-material-list';
 
 const pdTpDtlCd = ref(pdConst.PD_TP_DTL_CD_MATERIAL);
 const wellsStep = [
@@ -257,39 +261,18 @@ const isTempSaveBtn = ref(true);
 const isCreate = ref(false);
 
 const selectedTab = ref('attribute');
-
-// const page = ref({
-//   reg: '/product/zwpdc-material-list/wwpdc-material-mgt', // 교재/자재 등록 UI
-//   detail: '/product/zwpdc-material-list/wwpdc-material-dtl', // 교재/자재 상세보기 UI
-// });
-
 const exceptPrpGrpCd = ref('PART');
 
-watch(() => props.pdCd, (val) => { currentPdCd.value = val; });
-watch(() => props.tempSaveYn, (val) => { isTempSaveBtn.value = val !== 'Y'; });
-
-async function pageMove(targetPage, isForce) {
-  await router.close(0, isForce);
-  await router.push(
-    { path: targetPage,
-      state: { stateParam: { test: 'teststring' } },
-      query: { isSearch: true } },
-  );
-}
-
 async function onClickReset() {
-  notify('TBD Function..');
   await cmpStepRefs.value.forEach((item) => {
     item.value.resetData();
   });
 }
 
 async function onClickRemove() {
-  if (currentPdCd.value) {
-    if (await confirm(t('MSG_ALT_WANT_DEL_WCC'))) {
-      await dataService.delete(`${baseUrl}/${currentPdCd.value}`);
-      await pageMove(materialMainPage, true);
-    }
+  if (await confirm(t('MSG_ALT_WANT_DEL_WCC'))) {
+    await dataService.delete(`${baseUrl}/${currentPdCd.value}`);
+    await pageMove(pdConst.MATERIAL_LIST_PAGE, true, router, { isSearch: true });
   }
 }
 
@@ -306,14 +289,12 @@ async function getSaveData(tempSaveYn) {
         if (subList[bas]?.cols) {
           saveData[bas].cols += subList[bas].cols;
         }
-        // subList[bas] = merge(subList[bas] ?? {}, saveData[bas]);
         subList[bas] = pdMergeBy(subList[bas], saveData[bas]);
       }
       if (saveData[dtl]) {
         subList[dtl] = pdMergeBy(subList[dtl], saveData[dtl], pdConst.PD_DTL_GRP_ID);
       }
       if (saveData[ecom]) {
-        // subList[ecom] = unionBy(saveData[ecom], subList[ecom], 'pdExtsPrpGrpCd');
         subList[ecom] = pdMergeBy(subList[ecom], saveData[ecom], 'pdExtsPrpGrpCd');
       }
 
@@ -328,19 +309,27 @@ async function getSaveData(tempSaveYn) {
 
 async function onClickStep() {
   const stepName = currentStep.value?.name;
-  console.log('stepName', stepName);
   prevStepData.value = await getSaveData();
   currentStep.value = cloneDeep(regSteps.value.find((item) => item.name === stepName));
 }
 
+async function init() {
+  await Promise.all(cmpStepRefs.value.map(async (item) => {
+    if (item.value?.init) await item.value?.init();
+  }));
+}
+
 async function fetchData() {
+  const initData = {};
   if (currentPdCd.value) {
     const res = await dataService.get(`${baseUrl}/${currentPdCd.value}`);
-    prevStepData.value[bas] = res.data[bas];
-    prevStepData.value[dtl] = res.data[dtl];
-    prevStepData.value[ecom] = res.data[ecom];
-    prevStepData.value[rel] = res.data[rel];
-    obsMainRef.value.init();
+    initData[bas] = res.data[bas];
+    initData[dtl] = res.data[dtl];
+    initData[ecom] = res.data[ecom];
+    initData[rel] = res.data[rel];
+    isTempSaveBtn.value = initData[bas].tempSaveYn === 'Y';
+    prevStepData.value = initData;
+    await init();
   }
 }
 
@@ -362,15 +351,19 @@ async function duplicationCheck(validationType, sourceData) {
 }
 
 async function onClickSave(tempSaveYn) {
-  // 1. Step별 수정여부 확인
-  // '임시저장 ==> 저장' 경우를 제외하고 수정여부 체크
   if (!(isTempSaveBtn.value && tempSaveYn === 'N')) {
-    let isModifiedOk = true;
+    let modifiedOk = false;
     await Promise.all(cmpStepRefs.value.map(async (item) => {
-      if (isModifiedOk) {
-        isModifiedOk = await item.value.isModifiedProps(false);
+      if (!modifiedOk) {
+        if (await item.value.isModifiedProps()) {
+          modifiedOk = true;
+        }
       }
     }));
+    if (!modifiedOk) {
+      notify(t('MSG_ALT_NO_CHG_CNTN'));
+      return;
+    }
   }
 
   // 2. Step별 필수여부 확인
@@ -385,26 +378,25 @@ async function onClickSave(tempSaveYn) {
 
   // 3. Step별 저장 데이터 확인
   const subList = await getSaveData(tempSaveYn);
-  // console.log('subList', subList);
 
   // 4. 자재코드 중복검사.
   if (!isEmpty(subList[bas].sapMatCd)) {
     if (!await duplicationCheck('sapMatCd', subList)) return false;
   }
 
-  // 5. 생성 or 저장
+  // 5. Insert or Update
   const rtn = currentPdCd.value
     ? await dataService.put(baseUrl, subList)
     : await dataService.post(`${baseUrl}`, subList);
 
-  // 6. 생성 이후 Step 설정
+  // 6. fetchData Or pageMove
   notify(t('MSG_ALT_SAVE_DATA'));
   if (tempSaveYn === 'Y') {
     currentPdCd.value = rtn.data?.data?.pdCd;
     isCreate.value = isEmpty(currentPdCd.value);
     await fetchData();
   } else {
-    await pageMove(materialMainPage, true);
+    await pageMove(pdConst.MATERIAL_LIST_PAGE, true, router, { isSearch: true });
   }
 }
 
@@ -413,22 +405,12 @@ async function onClickNextStep() {
   const isValidOk = await (cmpStepRefs.value[currentStep.value.step - 1].value.validateProps());
   if (!isValidOk) return false;
 
-  // Validation Check 2- 현재 Step 변경사항 유무 확인 (변경사항이 있으면 '임시저장' 버튼 기능 수행 후 다음으로!)
-  // const isModify = await (cmpStepRefs.value[currentStep.value.step - 1].value.isModifiedProps(false));
-  // console.log('변경사항 유무 체크', isModify);
-  // if (isModify) {
-  //   // 변경사항이 있으므로 DB 저장수행 및 save Method 내부단에서 prevStepData 의 값들을 재조회하므로 if else 분기.
-  //   await onClickSave('Y');
-  // } else {
-  //   prevStepData.value = await getSaveData();
-  // }
-
+  if (isEmpty(prevStepData.value)) prevStepData.value = {};
   prevStepData.value = await getSaveData();
-  currentStep.value = regSteps.value[(currentStep.value.step - 1) + 1];
+  currentStep.value = cloneDeep(regSteps.value[(currentStep.value.step - 1) + 1]);
 }
 
 async function onClickPrevStep() {
-  // currentStep.value = regSteps.value[(currentStep.value.step - 1) - 1];
   const currentStepIndex = currentStep.value.step - 1;
   prevStepData.value = await getSaveData();
   const currentStepRef = await cmpStepRefs.value[currentStepIndex]?.value;
@@ -440,21 +422,47 @@ async function onClickPrevStep() {
 }
 
 async function onClickCancel() {
-  await router.close();
+  // TODO [신규 Vs 수정] 취소버튼 클릭시 이동해야할 대상이 달라진다면 query.fromUi로 대응하도록 파라미터 선처리함.
+  let modifiedOk = false;
+  await Promise.all(cmpStepRefs.value.map(async (item) => {
+    if (!modifiedOk) {
+      if (await item.value.isModifiedProps()) {
+        modifiedOk = true;
+      }
+    }
+  }));
+
+  if (modifiedOk && await confirm(t('MSG_ALT_HIS_TAB_MOD'))) {
+    await pageMove(pdConst.MATERIAL_LIST_PAGE, true, router, { isSearch: false });
+  }
+  if (!modifiedOk) await pageMove(pdConst.MATERIAL_LIST_PAGE, true, router, { isSearch: false });
 }
 
-async function setInitCondition() {
-  const { pdCd, tempSaveYn } = props;
+// async function setInitCondition() {
+//   const { pdCd, tempSaveYn } = props;
+//   currentPdCd.value = pdCd;
+//   isCreate.value = isEmpty(currentPdCd.value);
+//   isTempSaveBtn.value = tempSaveYn !== 'N';
+
+//   if (currentPdCd.value) await fetchData();
+// }
+
+// onMounted(async () => {
+//   await setInitCondition();
+// });
+
+async function initProps() {
+  const { pdCd } = props;
   currentPdCd.value = pdCd;
+  if (currentPdCd.value) {
+    await fetchData();
+  } else {
+    isTempSaveBtn.value = true;
+  }
   isCreate.value = isEmpty(currentPdCd.value);
-  isTempSaveBtn.value = tempSaveYn !== 'N';
-
-  if (currentPdCd.value) await fetchData();
 }
 
-onMounted(async () => {
-  await setInitCondition();
-});
+await initProps();
 
 async function popupCallback(payload) {
   if (payload.fromUi === 'ZwpdcMaterialsCodeListP') {
@@ -471,5 +479,9 @@ async function popupCallback(payload) {
     prevStepData.value[bas].sapPlntCd = payload.sapPlntVal ?? '';
   }
 }
+
+watch(() => props.pdCd, (val) => { currentPdCd.value = val; });
+watch(() => props.tempSaveYn, (val) => { isTempSaveBtn.value = val !== 'Y'; });
+
 </script>
 <style lang="scss" scoped></style>

@@ -13,6 +13,11 @@
 ****************************************************************************************************
 - '교재/자재' 와 달리 '관리속성' 미사용.
 -TODO :
+// const page = ref({
+//   reg: '/product/zwpdc-as-part-list/wwpdc-as-part-mgt', // AS부품 등록 UI
+//   detail: '/product/zwpdc-as-part-list/wwpdc-as-part-dtl', // AS부품 상세보기 UI
+// });
+// const exceptPrpGrpCd = ref('');
 --->
 <template>
   <kw-page>
@@ -147,7 +152,7 @@
 // -------------------------------------------------------------------------------------------------
 import { useDataService, useGlobal } from 'kw-lib';
 import { isEmpty, cloneDeep } from 'lodash-es';
-import { pdMergeBy } from '~sms-common/product/utils/pdUtil';
+import { pdMergeBy, pageMove } from '~sms-common/product/utils/pdUtil';
 import pdConst from '~sms-common/product/constants/pdConst';
 
 import ZwpdcPropGroupsMgt from '~sms-common/product/pages/manage/components/ZwpdcPropGroupsMgt.vue'; /* 속성 등록/수정 */
@@ -166,7 +171,6 @@ const router = useRouter();
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 const baseUrl = '/sms/wells/product/as-parts';
-const asPartMainPage = '/product/wwpdc-as-part-list';
 
 const pdTpDtlCd = ref(pdConst.PD_TP_DTL_CD_AS_PART);
 const wellsStep = [
@@ -190,65 +194,36 @@ const isCreate = ref(false);
 
 const selectedTab = ref('attribute');
 
-// const page = ref({
-//   reg: '/product/zwpdc-as-part-list/wwpdc-as-part-mgt', // AS부품 등록 UI
-//   detail: '/product/zwpdc-as-part-list/wwpdc-as-part-dtl', // AS부품 상세보기 UI
-// });
-// const exceptPrpGrpCd = ref('');
-
 watch(() => props.pdCd, (val) => { currentPdCd.value = val; });
 watch(() => props.tempSaveYn, (val) => { isTempSaveBtn.value = val !== 'Y'; });
 
-// TODO 공통에서 'state: { stateParam: {}} 으로 감싸서 던지고 props에서 받으라는데... 받기 안됨..; TODO_DEL'
-async function pageMove(targetPage, isForce) {
-  await router.close(0, isForce);
-  await router.push(
-    { path: targetPage,
-      state: { stateParam: { test: 'teststring' } },
-      query: { isSearch: true } },
-  );
-}
-
 async function onClickReset() {
-  notify('TBD Function..');
   await cmpStepRefs.value.forEach((item) => {
     item.value.resetData();
   });
 }
 
 async function onClickRemove() {
-  if (currentPdCd.value) {
-    if (await confirm(t('MSG_ALT_WANT_DEL_WCC'))) {
-      await dataService.delete(`${baseUrl}/${currentPdCd.value}`);
-      await pageMove(asPartMainPage, true);
-    }
+  if (await confirm(t('MSG_ALT_WANT_DEL_WCC'))) {
+    await dataService.delete(`${baseUrl}/${currentPdCd.value}`);
+    await pageMove(pdConst.ASPART_LIST_PAGE, true, router, { isSearch: true });
   }
 }
 
 async function getSaveData(tempSaveYn) {
   const subList = {};
-  // eslint-disable-next-line no-unused-vars
-  await Promise.all(cmpStepRefs.value.map(async (item, idx) => {
+  await Promise.all(cmpStepRefs.value.map(async (item) => {
     const saveData = await item.value.getSaveData();
     if (await saveData) {
       subList.pdCd = subList.pdCd ?? saveData.pdCd;
       subList.pdTpCd = subList.pdTpCd ?? saveData.pdTpCd;
       if (saveData[bas]) {
-        if (subList[bas]?.cols) {
-          saveData[bas].cols += subList[bas].cols;
-        }
+        if (subList[bas]?.cols) saveData[bas].cols += subList[bas].cols;
         subList[bas] = pdMergeBy(subList[bas], saveData[bas]);
       }
-      if (saveData[dtl]) {
-        subList[dtl] = pdMergeBy(subList[dtl], saveData[dtl], pdConst.PD_DTL_GRP_ID);
-      }
-      if (saveData[ecom]) {
-        subList[ecom] = pdMergeBy(subList[ecom], saveData[ecom], 'pdExtsPrpGrpCd');
-      }
-
-      if (saveData[rel]) {
-        subList[rel] = saveData[rel];
-      }
+      if (saveData[dtl]) subList[dtl] = pdMergeBy(subList[dtl], saveData[dtl], pdConst.PD_DTL_GRP_ID);
+      if (saveData[ecom]) subList[ecom] = pdMergeBy(subList[ecom], saveData[ecom], 'pdExtsPrpGrpCd');
+      if (saveData[rel]) subList[rel] = saveData[rel];
     }
   }));
   subList[bas].tempSaveYn = tempSaveYn;
@@ -261,14 +236,22 @@ async function onClickStep() {
   currentStep.value = cloneDeep(regSteps.value.find((item) => item.name === stepName));
 }
 
+async function init() {
+  await Promise.all(cmpStepRefs.value.map(async (item) => {
+    if (item.value?.init) await item.value?.init();
+  }));
+}
+
 async function fetchData() {
+  const initData = {};
   if (currentPdCd.value) {
     const res = await dataService.get(`${baseUrl}/${currentPdCd.value}`);
-    prevStepData.value[bas] = res.data[bas];
-    prevStepData.value[dtl] = res.data[dtl];
-    prevStepData.value[ecom] = res.data[ecom];
-    prevStepData.value[rel] = res.data[rel];
-    obsMainRef.value.init();
+    initData[bas] = res.data[bas];
+    initData[dtl] = res.data[dtl];
+    initData[ecom] = res.data[ecom];
+    isTempSaveBtn.value = initData[bas].tempSaveYn === 'Y';
+    prevStepData.value = initData;
+    await init();
   }
 }
 
@@ -291,14 +274,19 @@ async function duplicationCheck(validationType, sourceData) {
 
 async function onClickSave(tempSaveYn) {
   // 1. Step별 수정여부 확인
-  // '임시저장 ==> 저장' 경우를 제외하고 수정여부 체크
   if (!(isTempSaveBtn.value && tempSaveYn === 'N')) {
-    let isModifiedOk = true;
+    let modifiedOk = false;
     await Promise.all(cmpStepRefs.value.map(async (item) => {
-      if (isModifiedOk) {
-        isModifiedOk = await item.value.isModifiedProps(false);
+      if (!modifiedOk) {
+        if (await item.value.isModifiedProps()) {
+          modifiedOk = true;
+        }
       }
     }));
+    if (!modifiedOk) {
+      notify(t('MSG_ALT_NO_CHG_CNTN'));
+      return;
+    }
   }
 
   // 2. Step별 필수여부 확인
@@ -319,7 +307,7 @@ async function onClickSave(tempSaveYn) {
     if (!await duplicationCheck('sapMatCd', subList)) return false;
   }
 
-  // 5. 생성 or 저장
+  // 5. Insert or Update
   const rtn = currentPdCd.value
     ? await dataService.put(baseUrl, subList)
     : await dataService.post(`${baseUrl}`, subList);
@@ -331,7 +319,7 @@ async function onClickSave(tempSaveYn) {
     isCreate.value = isEmpty(currentPdCd.value);
     await fetchData();
   } else {
-    await pageMove(asPartMainPage, true);
+    await pageMove(pdConst.ASPART_LIST_PAGE, true, router, { isSearch: true });
   }
 }
 
@@ -340,30 +328,30 @@ async function onClickNextStep() {
   const isValidOk = await (cmpStepRefs.value[currentStep.value.step - 1].value.validateProps());
   if (!isValidOk) return false;
 
+  if (isEmpty(prevStepData.value)) prevStepData.value = {};
   prevStepData.value = await getSaveData();
-  currentStep.value = regSteps.value[(currentStep.value.step - 1) + 1];
-
-  // ---------------------------------------------------------------------------
-  // Validation Check 2- 현재 Step 변경사항 유무 확인 (변경사항이 있으면 '임시저장' 버튼 기능 수행 후 다음으로!)
-  // const isModify = await (cmpStepRefs.value[currentStep.value.step - 1].value.isModifiedProps(false));
-  // console.log('변경사항 유무 체크', isModify);
-  // if (isModify) {
-  //   // 변경사항이 있으므로 DB 저장수행 및 save Method 내부단에서 prevStepData 의 값들을 재조회하므로 if else 분기.
-  //   await onClickSave('Y');
-  // } else {
-  //   prevStepData.value = await getSaveData();
-  // }
-
-  // prevStepData.value = await getSaveData();
-  // currentStep.value = regSteps.value[(currentStep.value.step - 1) + 1];
+  currentStep.value = cloneDeep(regSteps.value[(currentStep.value.step - 1) + 1]);
 }
 
 async function onClickPrevStep() {
-  currentStep.value = regSteps.value[(currentStep.value.step - 1) - 1];
+  currentStep.value = cloneDeep(regSteps.value[(currentStep.value.step - 1) - 1]);
 }
 
 async function onClickCancel() {
-  await router.close();
+  // TODO [신규 Vs 수정] 취소버튼 클릭시 이동해야할 대상이 달라진다면 query.fromUi로 대응하도록 파라미터 선처리함.
+  let modifiedOk = false;
+  await Promise.all(cmpStepRefs.value.map(async (item) => {
+    if (!modifiedOk) {
+      if (await item.value.isModifiedProps()) {
+        modifiedOk = true;
+      }
+    }
+  }));
+
+  if (modifiedOk && await confirm(t('MSG_ALT_HIS_TAB_MOD'))) {
+    await pageMove(pdConst.ASPART_LIST_PAGE, true, router, { isSearch: false });
+  }
+  if (!modifiedOk) await pageMove(pdConst.ASPART_LIST_PAGE, true, router, { isSearch: false });
 }
 
 async function setInitCondition() {
@@ -377,7 +365,6 @@ async function setInitCondition() {
 
 onMounted(async () => {
   await setInitCondition();
-  console.log('as-partas-partas-part MGT');
 });
 
 async function popupCallback(payload) {
