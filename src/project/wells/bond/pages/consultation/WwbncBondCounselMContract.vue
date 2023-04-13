@@ -24,7 +24,7 @@
         required
       >
         <kw-input
-          v-model="searchParams.schClctamPsic"
+          v-model="searchParams.schClctamNo"
           :label="$t('MSG_TXT_CLCTAM_PSIC')"
           clearable
           icon="search"
@@ -47,14 +47,12 @@
       >
         <kw-select
           v-model="searchParams.schDlqMcntStrt"
-          :options="[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18
-                     ,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,999]"
+          :options="selectCodes.DLQ_MCNT"
         />
         <span>-</span>
         <kw-select
           v-model="searchParams.schDlqMcntEnd"
-          :options="[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18
-                     ,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,999]"
+          :options="selectCodes.DLQ_MCNT"
         />
       </kw-search-item>
       <kw-search-item
@@ -88,10 +86,9 @@
       <kw-search-item
         :label="$t('MSG_TXT_TASK_DIV')"
       >
-        <!-- TODO: 코드관리 등록 안된 임시 소스 -->
         <kw-select
           v-model="searchParams.schBizDv"
-          :options="['렌탈','멤버십','정기배송','금융리스','일시불']"
+          :options="selectCodes.BIZ_DV"
         />
       </kw-search-item>
       <kw-search-item
@@ -120,10 +117,9 @@
       <kw-search-item
         :label="$t('MSG_TXT_CST_DV')"
       >
-        <!-- TODO: 코드관리 등록 안된 임시 소스 -->
         <kw-select
           v-model="searchParams.schCstDv"
-          :options="['전체','개인','법인']"
+          :options="codes.CST_SE_APY_DV_CD"
         />
       </kw-search-item>
       <kw-search-item
@@ -156,40 +152,35 @@
         :label="$t('MSG_TXT_FNT_DT')"
         :colspan="2"
       >
-        <!-- TODO: 코드관리 등록 안된 임시 소스 -->
         <kw-select
           v-model="searchParams.schFntDv"
-          :options="['카드','계좌']"
+          :options="selectCodes.FNT_DV"
         />
         <kw-select
           v-model="searchParams.schFntDtStrt"
-          :options="[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18
-                     ,19,20,21,22,23,24,25,26,27,28,29,30,31]"
+          :options="selectCodes.FNT_DT"
         />
         <span>-</span>
         <kw-select
           v-model="searchParams.schFntDtEnd"
-          :options="[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18
-                     ,19,20,21,22,23,24,25,26,27,28,29,30,31]"
+          :options="selectCodes.FNT_DT"
         />
       </kw-search-item>
       <kw-search-item
         :label="$t('MSG_TXT_BIL_DV')"
       >
-        <!-- TODO: 코드관리 등록 안된 임시 소스 -->
         <kw-select
           v-model="searchParams.schBilDv"
-          :options="['전체','카드이체','계좌이체','지로','가상','청구보류','어음']"
+          :options="selectCodes.BIL_HD"
         />
       </kw-search-item>
       <kw-search-item
         :label="$t('MSG_TXT_CST_THM_DP')"
       >
-        <!-- TODO: 코드관리 등록 안된 임시 소스 -->
         <kw-option-group
           v-model="searchParams.schCstThmDp"
           type="radio"
-          :options="['포함', '제외']"
+          :options="selectCodes.CST_THM_DP"
         />
       </kw-search-item>
     </kw-search-row>
@@ -197,10 +188,9 @@
       <kw-search-item
         :label="$t('MSG_TXT_AUTH_RSG_YN')"
       >
-        <!-- TODO: 코드관리 등록 안된 임시 소스 -->
         <kw-select
           v-model="searchParams.schAuthRsgYn"
-          :options="['해지','해지예정']"
+          :options="selectCodes.AUTH_AUTH_RSG_YN"
         />
       </kw-search-item>
     </kw-search-row>
@@ -241,12 +231,11 @@
         <p class="filter-box__item-label">
           {{ $t('MSG_TXT_DIV') }}
         </p>
-        <!-- TODO: 코드관리 등록 안된 임시 소스 -->
         <kw-option-group
           v-model="searchParams.dv"
           dense
           type="radio"
-          :options="['연체잔액 0원 제외', '입금액 0원 제외', '대상잔액 0원 제외', '연체개월 0개월 제외']"
+          :options="selectCodes.WELLS_CNTR_LIST_DV"
         />
       </li>
     </ul>
@@ -264,8 +253,9 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { defineGrid, gridUtil, getComponentType, modal, useDataService } from 'kw-lib';
+import { defineGrid, gridUtil, codeUtil, getComponentType, modal, useDataService } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
+import { getDlqMcnt, getFntDt, getWellsCntrListDv, getAuthAuthRsgYn, getFntDv, getCstThmDp, getWellsBilDv, getBizDv } from '~sms-common/bond/utils/bnUtil';
 import dayjs from 'dayjs';
 
 const { t } = useI18n();
@@ -276,14 +266,27 @@ const dataService = useDataService();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
+const selectCodes = ref({
+  DLQ_MCNT: await getDlqMcnt(),
+  FNT_DT: await getFntDt(),
+  WELLS_CNTR_LIST_DV: await getWellsCntrListDv(),
+  AUTH_AUTH_RSG_YN: await getAuthAuthRsgYn(),
+  FNT_DV: await getFntDv(),
+  CST_THM_DP: await getCstThmDp(),
+  BIL_HD: await getWellsBilDv(),
+  BIZ_DV: await getBizDv(),
+});
+
+const codes = await codeUtil.getMultiCodes(
+  'CST_SE_APY_DV_CD',
+);
 
 const grdMainRef = ref(getComponentType('KwGrid'));
 
 // TODO: 계약리스트 검색조건
 let cachedParams;
 const searchParams = ref({
-  schClctamPsic: '',
-  schClctamPsicNo: '',
+  schClctamNo: '',
   schCstNm: '',
   schDlqMcntStrt: '',
   schDlqMcntEnd: '',
@@ -304,10 +307,10 @@ const searchParams = ref({
   schFntDtStrt: '',
   schFntDtEnd: '',
   schBilDv: '',
-  schCstThmDp: '',
+  schCstThmDp: '02',
   schAuthRsgYn: '',
   schDv: '',
-  dv: '연체잔액 0원 제외',
+  dv: '01',
 });
 
 const totalCount = ref(0);
@@ -365,11 +368,11 @@ const onClickClctamPsic = async () => {
 };
 
 async function onClickSearch() {
-  if (searchParams.value.dv === '입금액 0원 제외') {
+  if (searchParams.value.dv === '02') {
     searchParams.value.schDv = '2';
-  } else if (searchParams.value.dv === '대상잔액 0원 제외') {
+  } else if (searchParams.value.dv === '03') {
     searchParams.value.schDv = '3';
-  } else if (searchParams.value.dv === '연체개월 0개월 제외') {
+  } else if (searchParams.value.dv === '04') {
     searchParams.value.schDv = '4';
   } else {
     searchParams.value.schDv = '1';
@@ -388,6 +391,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'prdf' },
     { fieldName: 'pdctNm' },
     { fieldName: 'cntrNo' },
+    { fieldName: 'cntrSn' },
     { fieldName: 'cstNm' },
     { fieldName: 'dlqMcnt' },
     { fieldName: 'ojAmt', dataType: 'number' },
@@ -455,6 +459,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'prdf', header: t('MSG_TXT_PRD_GRP'), width: '100', styleName: 'text-left' },
     { fieldName: 'pdctNm', header: t('MSG_TXT_GOODS_NM'), width: '130', styleName: 'text-left' },
     { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_NO'), width: '140', styleName: 'text-center' },
+    { fieldName: 'cntrSn', header: t('MSG_TXT_CNTR_SN'), width: '100', styleName: 'text-center', visible: 'false' },
     { fieldName: 'cstNm', header: t('MSG_TXT_CST_NM'), width: '100', styleName: 'text-left' },
     { fieldName: 'dlqMcnt', header: t('MSG_TXT_DLQ_MCNT'), width: '70', styleName: 'text-center' },
     { fieldName: 'ojAmt', header: t('MSG_TXT_OJ_AMT'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
@@ -533,6 +538,15 @@ const initGrdMain = defineGrid((data, view) => {
     const cstNo = g.getValue(dataRow, 'cstNo');
     if (cstNo) {
       await window.open(`/popup/#/wwbnc-customer-dtl?cstNo=${cstNo}`, 'POPUP', 'width=1540, height=1100, menubar=no, location=no');
+    }
+  };
+
+  view.onCellDblClicked = async (g, { dataRow }) => {
+    const cstNo = g.getValue(dataRow, 'cstNo');
+    const cntrNo = g.getValue(dataRow, 'cntrNo');
+    const cntrSn = g.getValue(dataRow, 'cntrSn');
+    if (cstNo) {
+      await window.open(`/popup/#/wwbnc-customer-dtl?cstNo=${cstNo}&cntrNo=${cntrNo}&cntrSn=${cntrSn}`, 'POPUP', 'width=1540, height=1100, menubar=no, location=no');
     }
   };
 });
