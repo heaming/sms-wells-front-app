@@ -3,13 +3,14 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : PDC (상품운영관리)
-2. 프로그램 ID : WwpdcCompositionDtlMContents - (판매) 상품목록 - 상세조회 ( Z-PD-U-0011M01 )
+2. 프로그램 ID : WwpdcCompositionDtlMContents - (판매) 상품목록 - 복합상품 상세조회
+                ( Z-PD-U-0021M01 )
 3. 작성자 : jintae.choi
-4. 작성일 : 2022.12.31
+4. 작성일 : 2023.04.01
 ****************************************************************************************************
 * 프로그램 설명
 ****************************************************************************************************
-- 상품 기준상품 상세조회 프로그램
+- 상품 복합상품 상세조회 프로그램
 ****************************************************************************************************
 --->
 <template>
@@ -126,7 +127,6 @@ const props = defineProps({
   pdCd: { type: String, default: null },
   initData: { type: Object, default: null },
   codes: { type: Object, default: null },
-  tempSaveYn: { type: String, default: 'Y' },
   isHistoryTab: { type: Boolean, default: true },
   isUpdateBtn: { type: Boolean, default: true },
 });
@@ -150,6 +150,7 @@ async function resetData() {
   }));
 }
 
+// 상품 수정 화면으로 이동
 async function onClickUpdate() {
   const { pdCd } = props;
   await router.close();
@@ -165,7 +166,6 @@ async function onClickTab(selTab) {
 
 async function initProps() {
   const { pdCd, initData } = props;
-  selectedTab.value = pdConst.COMPOSITION_STEP_BASIC.name;
   currentPdCd.value = pdCd;
   currentInitData.value = initData;
 }
@@ -173,9 +173,13 @@ async function initProps() {
 await initProps();
 
 watch(() => props.pdCd, (pdCd) => {
-  currentPdCd.value = pdCd; selectedTab.value = pdConst.COMPOSITION_STEP_BASIC.name;
+  currentPdCd.value = pdCd;
+  selectedTab.value = pdConst.COMPOSITION_STEP_BASIC.name;
 });
-watch(() => props.initData, (initData) => { currentInitData.value = initData; }, { deep: true });
+
+watch(() => props.initData, (initData) => {
+  currentInitData.value = initData;
+}, { deep: true });
 
 </script>
 <style scoped></style>

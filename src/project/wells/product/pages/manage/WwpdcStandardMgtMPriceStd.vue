@@ -54,7 +54,7 @@
     </kw-action-top>
     <kw-grid
       ref="grdMainRef"
-      name="grdMain"
+      name="grdMgtPrcStdMain"
       :visible-rows="5"
       @init="initGrid"
     />

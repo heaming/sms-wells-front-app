@@ -208,11 +208,6 @@ const codes = await codeUtil.getMultiCodes(
   'RENTAL_SELL_DTL_TP_CD', // 렌탈 판매상세유형 : 판매유형 - 2
   'MSH_SELL_DTL_TP_CD', // 멤버십 판매상세유형 : 판매유형 - 3
 );
-codes.COD_YN.map((item) => {
-  item.codeName = item.codeId;
-  item.changed = true;
-  return item;
-});
 
 async function onClickDelete() {
   if (await confirm(t('MSG_ALT_WANT_DEL_WCC'))) {
@@ -287,6 +282,7 @@ async function getSaveData() {
   return subList;
 }
 
+// 다음 버튼
 async function onClickNextStep() {
   const currentStepIndex = currentStep.value.step - 1;
   // 현재 Step 필수여부 확인
@@ -295,7 +291,6 @@ async function onClickNextStep() {
     currentStep.value = cloneDeep(regSteps.value[currentStepIndex + 1]);
     return;
   }
-
   // 가격의 경우 별도 Step
   const isValidOk = currentStepIndex === 3
     ? await (cmpStepRefs.value[currentStepIndex].value?.validateStepProps())
@@ -303,8 +298,9 @@ async function onClickNextStep() {
   if (!isValidOk) {
     return;
   }
-  prevStepData.value = await getSaveData();
 
+  // 다음 이동
+  prevStepData.value = await getSaveData();
   // Child 페이지 내에서 다음 스텝이 없으면(false), 현재 페이지에서 다음으로 진행
   const isMovedInnerStep = currentStepRef?.moveNextStep ? await currentStepRef?.moveNextStep() : false;
   if (!isMovedInnerStep) {
@@ -316,6 +312,7 @@ async function onClickNextStep() {
   }
 }
 
+// 이전 버튼
 async function onClickPrevStep() {
   const currentStepIndex = currentStep.value.step - 1;
   prevStepData.value = await getSaveData();
@@ -327,19 +324,19 @@ async function onClickPrevStep() {
   }
 }
 
+// Stepper 클릭
 async function onClickStep() {
   const stepName = currentStep.value?.name;
-  // console.log('WwpdcStandardMgtM - onClickStep : ', stepName);
   prevStepData.value = await getSaveData();
   currentStep.value = cloneDeep(regSteps.value.find((item) => item.name === stepName));
-  // console.log('WwpdcStandardMgtM - onClickStep : ', currentStep.value);
 }
 
+// 하위 컴포넌트 탭 이동시 호출
 async function onClickSubTab() {
-  // console.log('WwpdcStandardMgtM - onClickSubTab - ', clickedTab);
   prevStepData.value = await getSaveData();
 }
 
+// 취소 버튼
 async function onClickCancel() {
   await router.close();
 }
@@ -460,12 +457,15 @@ async function setSellDetailTypeCodes(sellTpCd, isReset = false) {
   }
 }
 
+// 메타 속성값 수정시 호출
 async function onUpdateBasicValue(field) {
   if (field.colNm === 'sellTpCd') {
+    // 판매유형
     setSellDetailTypeCodes(field.initValue, true);
   }
 }
 
+// 초기화
 async function onClickReset() {
   currentPdCd.value = '';
   isCreate.value = true;
@@ -492,6 +492,7 @@ async function initProps() {
 
 await initProps();
 
+// 화면(탭) OPEN 상태에서, 다른 상품코드로 정보 변환
 watch(() => route.params.pdCd, async (pdCd) => {
   if (!route.path.includes('zwpdc-sale-product-list')) return;
   console.log(`WwpdcStandardMgtM - currentPdCd.value : ${currentPdCd.value}, route.params.pdCd : ${pdCd}`, route);
@@ -506,6 +507,7 @@ watch(() => route.params.pdCd, async (pdCd) => {
   }
 }, { immediate: true });
 
+// 화면(탭) OPEN 상태에서, 신규등록
 watch(() => route.params.newRegYn, async (newRegYn) => {
   if (!route.path.includes('zwpdc-sale-product-list')) return;
   console.log(`WwpdcStandardMgtM - newRegYn : ${newRegYn}`, route);
@@ -514,6 +516,7 @@ watch(() => route.params.newRegYn, async (newRegYn) => {
   }
 });
 
+// 화면(탭) OPEN 상태에서, 상품정보 갱신
 watch(() => route.params.reloadYn, async (reloadYn) => {
   if (!route.path.includes('zwpdc-sale-product-list')) return;
   console.log(`WwpdcStandardMgtM - watch - route.params.reloadYn: ${reloadYn}`, route);
@@ -524,6 +527,7 @@ watch(() => route.params.reloadYn, async (reloadYn) => {
 });
 
 onMounted(async () => {
+  // 판매 상세 유형 초기값 설정
   const mgtNameFields = await cmpStepRefs.value[0]?.value.getNameFields();
   await setSellDetailTypeCodes(mgtNameFields.sellTpCd?.initValue);
 });

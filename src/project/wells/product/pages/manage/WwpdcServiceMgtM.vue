@@ -162,6 +162,7 @@ const currentPdCd = ref();
 const isCreate = ref(false);
 const codes = await codeUtil.getMultiCodes('PD_TEMP_SAVE_CD');
 
+// 삭제 버튼
 async function onClickDelete() {
   if (await confirm(t('MSG_ALT_WANT_DEL_WCC'))) {
     await dataService.delete(`/sms/wells/product/services/${currentPdCd.value}`);
@@ -172,6 +173,7 @@ async function onClickDelete() {
     });
   }
 }
+
 async function getSaveData() {
   const subList = { isModifiedProp: false };
   await Promise.all(cmpStepRefs.value.map(async (item, idx) => {
@@ -209,6 +211,7 @@ async function getSaveData() {
   return subList;
 }
 
+// 다음 버튼
 async function onClickNextStep() {
   const currentStepIndex = currentStep.value.step - 1;
   // 현재 Step 필수여부 확인
@@ -221,20 +224,25 @@ async function onClickNextStep() {
   if (!isValidOk) {
     return;
   }
+
+  // 다음 이동
   prevStepData.value = await getSaveData();
   currentStep.value = cloneDeep(regSteps.value[(currentStep.value.step - 1) + 1]);
 }
 
+// 이전 버튼
 async function onClickPrevStep() {
   currentStep.value = cloneDeep(regSteps.value[(currentStep.value.step - 1) - 1]);
 }
 
+// Stepper 클릭
 async function onClickStep() {
   const stepName = currentStep.value?.name;
   prevStepData.value = await getSaveData();
   currentStep.value = cloneDeep(regSteps.value.find((item) => item.name === stepName));
 }
 
+// 취소 버튼
 async function onClickCancel() {
   await router.close();
 }
@@ -331,6 +339,7 @@ async function onClickSave(tempSaveYn) {
   }
 }
 
+// 초기화 버튼
 async function onClickReset() {
   currentPdCd.value = '';
   isCreate.value = true;
@@ -356,6 +365,7 @@ async function initProps() {
 
 await initProps();
 
+// 화면(탭) OPEN 상태에서, 다른 상품코드로 정보 변환
 watch(() => route.params.pdCd, async (pdCd) => {
   if (!route.path.includes('zwpdc-service-list')) return;
   console.log(`WwpdcServiceMgtM - watch - currentPdCd.value: ${currentPdCd.value} route.params.pdCd: ${pdCd}`, route);
@@ -370,6 +380,7 @@ watch(() => route.params.pdCd, async (pdCd) => {
   }
 }, { immediate: true });
 
+// 화면(탭) OPEN 상태에서, 신규등록
 watch(() => route.params.newRegYn, async (newRegYn) => {
   if (!route.path.includes('zwpdc-service-list')) return;
   console.log(`WwpdcServiceMgtM - watch - route.params.newRegYn: ${newRegYn}`, route);
@@ -378,6 +389,7 @@ watch(() => route.params.newRegYn, async (newRegYn) => {
   }
 });
 
+// 화면(탭) OPEN 상태에서, 상품정보 갱신
 watch(() => route.params.reloadYn, async (reloadYn) => {
   if (!route.path.includes('zwpdc-service-list')) return;
   console.log(`WwpdcServiceMgtM - watch - route.params.reloadYn: ${reloadYn}`, route);

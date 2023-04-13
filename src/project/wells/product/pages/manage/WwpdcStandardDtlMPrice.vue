@@ -37,6 +37,7 @@
   </kw-action-top>
   <kw-grid
     ref="grdMainRef"
+    name="grdDtlPriceMain"
     :visible-rows="10"
     ignore-on-modified
     @init="initGrid"
