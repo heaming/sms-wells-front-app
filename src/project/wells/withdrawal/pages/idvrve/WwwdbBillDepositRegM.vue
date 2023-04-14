@@ -3,7 +3,7 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : withdrawal/idvrve
-2. 프로그램 ID : WwwdbRegistrationListM - 어음입금 등록
+2. 프로그램 ID : WwwdbBillDepositRegM - 어음입금 등록
 3. 작성자 : heungjun.lee
 4. 작성일 : 2023.03.22
 ****************************************************************************************************
@@ -15,7 +15,7 @@
 <template>
   <kw-page>
     <kw-search
-      :modified-targets="['grdMain']"
+      :modified-targets="['grdMain' , 'grdSub']"
       @search="onClickSearch"
     >
       <kw-search-row>
@@ -36,7 +36,7 @@
         >
           <!-- label="계약상세번호" -->
           <kw-input
-            v-model="searchParams.cntrNo"
+            v-model="searchParams.cntr"
             icon="search"
             clearable
             @keydown="onKeyDownSelectCntr"
@@ -124,7 +124,9 @@
 
       <kw-grid
         ref="grdMainRef"
-        :visible-rows="10"
+        name="grdSub"
+        :page-size="pageInfo.pageSize"
+        :total-count="pageInfo.totalCount"
         @init="initGrid"
       />
 
@@ -173,7 +175,8 @@
       <kw-grid
         ref="grdMainRef2"
         name="grdMain"
-        :visible-rows="pageInfoSecond.pageSize -1"
+        :page-size="pageInfoSecond.pageSize"
+        :total-count="pageInfoSecond.totalCount"
         @init="initGrid2"
       />
     </div>
@@ -216,6 +219,7 @@ const searchParams = ref({
   rcpEndDt: now.format('YYYYMMDD'),
   dlpnrNm: '',
   billExprDt: '',
+  cntr: '',
 });
 
 const pageInfo = ref({
@@ -272,20 +276,23 @@ async function onClickSelectCntr() {
   });
   if (result) {
     console.log(payload);
-    searchParams.cntrNo = payload.cntrNo;
-    searchParams.cntrSn = payload.cntrSn;
+    searchParams.value.cntrNo = payload.cntrNo;
+    searchParams.value.cntrSn = payload.cntrSn;
+    searchParams.value.cntr = payload.cntrNo + payload.cntrSn;
 
     let popupParams = {
-      cntrNo: searchParams.cntrNo,
-      cntrSn: searchParams.cntrSn,
+      cntrNo: searchParams.value.cntrNo,
+      cntrSn: searchParams.value.cntrSn,
     };
 
     popupParams = { ...popupParams };
 
     const res = await dataService.get('/sms/wells/withdrawal/idvrve/bill-deposits/electronic/paging', { params: popupParams });
-    const dlpnrNms = res.data;
+    if (!isEmpty(res.data.list[0])) {
+      const dlpnrNms = res.data;
 
-    searchParams.value.dlpnrNm = dlpnrNms.list[0].dlpnrNm;
+      searchParams.value.dlpnrNm = dlpnrNms.list[0].dlpnrNm;
+    }
   }
 }
 
@@ -297,13 +304,12 @@ async function onClickCreate() {
 }
 
 async function onClearSelectCntr() {
-  searchParams.value.cntrNo = '';
-  searchParams.value.cntrSn = '';
+  searchParams.value.cntr = '';
+
   searchParams.value.dlpnrNm = '';
 }
 
 async function onKeyDownSelectCntr() {
-  searchParams.value.cntrSn = '';
   searchParams.value.dlpnrNm = '';
 }
 
@@ -566,7 +572,7 @@ const initGrid2 = defineGrid((data, view) => {
       header: t('MSG_TXT_CNTR_DTL_NO'),
       // , header: '계약상세번호'
       width: '120',
-      styleName: 'text-right',
+      styleName: 'text-left',
       editable: false },
     {
       fieldName: 'billDpAmt',

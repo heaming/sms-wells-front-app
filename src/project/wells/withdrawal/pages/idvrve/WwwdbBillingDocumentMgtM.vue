@@ -23,13 +23,15 @@
       <kw-search-row>
         <kw-search-item
           :label="t('MSG_TXT_CST_NM')"
-          required
         >
+          <!-- required -->
           <!-- label="고객명" -->
           <kw-input
             v-model="searchParams.cstFnm"
             icon="search"
             clearable
+            :label="t('MSG_TXT_CST_NM')"
+            :readonly="true"
             @click-icon="onClickSearchUser"
           />
           <!-- rules="required" -->
@@ -92,8 +94,9 @@
 
       <kw-grid
         ref="grdMainRef"
-        :visible-rows="10"
         name="grdMain"
+        :page-size="pageInfo.pageSize"
+        :total-count="pageInfo.totalCount"
         @init="initGrid"
       />
       <kw-pagination
@@ -198,10 +201,12 @@ async function onClickRemove() {
 
 // 청구서 작성
 async function onClickRegP() {
-  const { result } = await modal({ component: 'WwwdbBillingDocumentRegP' });
-
-  if (result) {
-    await fetchData();
+  const { result, payload } = await modal({ component: 'WwwdbBillingDocumentRegP' });
+  console.log(result);
+  console.log(payload);
+  if (result && payload.isSearchChk) {
+    searchParams.value.cstFnm = payload.cstFnm;
+    await onClickSearch();
   }
 }
 
@@ -302,13 +307,14 @@ const initGrid = defineGrid((data, view) => {
       const cstFnm = g.getValue(itemIndex, 'cstFnm');
       const bildcWrteDt = g.getValue(itemIndex, 'bildcWrteDt');
       const bildcPblSn = g.getValue(itemIndex, 'bildcPblSn');
-      const { result } = await modal({
+      const { result, payload } = await modal({
         component: 'WwwdbBillingDocumentRegP',
         componentProps: { bildcPblNo, cstFnm, bildcWrteDt, bildcPblSn },
       });
 
-      if (result) {
-        fetchData();
+      if (result && payload.isSearchChk) {
+        searchParams.value.cstFnm = payload.cstFnm;
+        onClickSearch();
       }
     }
     if (column === 'dummyText') {

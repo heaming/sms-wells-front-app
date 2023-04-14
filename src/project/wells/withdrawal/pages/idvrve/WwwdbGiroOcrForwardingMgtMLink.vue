@@ -77,8 +77,9 @@
     </kw-action-top>
     <kw-grid
       ref="grdPageRef"
-      :visible-rows="10"
       name="grdPage"
+      :page-size="pageInfo.pageSize"
+      :total-count="pageInfo.totalCount"
       @init="initGrid"
     />
     <kw-pagination
