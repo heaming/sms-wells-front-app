@@ -23,13 +23,11 @@
         <!-- 대상구분 -->
         <kw-search-item
           :label="$t('MSG_TXT_CONT_CLASS')"
-          required
         >
           <kw-select
             v-model="searchParams.stlmTpCd"
             :options="codes.STLM_TP_CD"
             first-option="all"
-            :label="$t('MSG_TXT_CONT_CLASS')"
           />
         </kw-search-item>
         <!-- 처리일자 -->
