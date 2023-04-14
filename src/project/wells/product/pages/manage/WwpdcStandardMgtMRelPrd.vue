@@ -41,9 +41,7 @@
         class="ml12 w140"
         :label="$t('MSG_TXT_SEL_REL_TYPE')"
         :options="codes.PD_PDCT_REL_DV_CD"
-        :placeholder="$t('MSG_TXT_SEL_REL_TYPE')"
         rules="required"
-        first-option
       />
     </template>
     <!-- 삭제 -->
@@ -361,9 +359,12 @@ async function onClickServiceSchPopup() {
   searchParams.value.searchType = serviceSearchType.value;
   searchParams.value.searchValue = serviceSearchValue.value;
   searchParams.value.pdTpCd = pdConst.PD_TP_CD_SERVICE;
+
+  const materialCds = gridUtil.getAllRowValues(grdMaterialRef.value.getView())
+    ?.reduce((rtn, item) => { rtn.push(item.pdCd); return rtn; }, []);
   const rtn = await modal({
     component: 'ZwpdcServiceSimpleListP',
-    componentProps: searchParams.value,
+    componentProps: { ...searchParams.value, relationCds: materialCds },
   });
   await insertCallbackRows(view, rtn, pdConst.PD_REL_TP_CD_P_TO_S);
   grdServiceRowCount.value = getGridRowCount(view);
