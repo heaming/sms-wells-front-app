@@ -333,7 +333,6 @@ const initGrid1 = defineGrid((data, view) => {
     { fieldName: 'mpyBsdt' }, // 이체일자
     { fieldName: 'bryyMmdd' }, // 이체 인증번호
 
-    { fieldName: 'sdingCntr' }, // 모종주문번호
     { fieldName: 'sdingCntrNo' }, // 모종주문번호
     { fieldName: 'sdingCntrSn' }, // 모종 상세번호
     { fieldName: 'sdingDpTpCd' }, // 이체구분
@@ -349,8 +348,8 @@ const initGrid1 = defineGrid((data, view) => {
 
   const columns = [
     { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '80', styleName: 'text-center' },
-    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '150', styleName: 'text-center' },
-    { fieldName: 'cntrPdStrtdt', header: t('MSG_TXT_RCPDT'), width: '120', styleName: 'text-center', dataType: 'date', datetimeFormat: 'yyyy.MM.dd' },
+    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '180', styleName: 'text-center' },
+    { fieldName: 'cntrPdStrtdt', header: t('MSG_TXT_RCPDT'), width: '120', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'unrgRson',
       header: t('MSG_TXT_BNDL_WDRW_UNRG'), // 묶음 출금 미등록
       width: '200',
@@ -367,13 +366,13 @@ const initGrid1 = defineGrid((data, view) => {
     { fieldName: 'mpyBsdt', header: t('MSG_TXT_FNT_DT'), width: '120', styleName: 'text-center' },
     { fieldName: 'bryyMmdd', header: t('MSG_TXT_FNT_CTF_NO'), width: '120', styleName: 'text-center' },
 
-    { fieldName: 'sdingCntr',
+    { fieldName: 'sdingCntrNo',
       header: t('MSG_TXT_SDING_ORD_NO'),
       width: '250',
       styleName: 'text-center',
-      displayCallback(grid, index) {
-        const { sdingCntrNo, sdingCntrSn } = gridUtil.getRowValue(grid, index.itemIndex);
-        return `${sdingCntrNo}-${sdingCntrSn}`;
+      displayCallback(grid, index, value) {
+        const { sdingCntrSn } = gridUtil.getRowValue(grid, index.itemIndex);
+        return `${value}-${sdingCntrSn}`;
       } },
     { fieldName: 'sdingDpTpCd', header: t('MSG_TXT_FNT_DV'), width: '120', styleName: 'text-center', options: codes.DP_TP_CD },
     { fieldName: 'sdingFnitAprRsCd', header: t('MSG_TXT_STT'), width: '120', styleName: 'text-center', options: codes.FNIT_APR_RS_CD },
@@ -408,7 +407,7 @@ const initGrid1 = defineGrid((data, view) => {
     {
       header: t('MSG_TXT_SDING_FNT_INF'), // 모종이체정보
       direction: 'horizontal', // merge type
-      items: ['sdingCntr', 'sdingDpTpCd', 'sdingFnitAprRsCd', 'sdingDgCntrNo',
+      items: ['sdingCntrNo', 'sdingDpTpCd', 'sdingFnitAprRsCd', 'sdingDgCntrNo',
         'sdingBnkNm', 'sdingAcnoEncr', 'sdingOwrKnm', 'sdingMpyBsdt', 'sdingBryyMmdd'],
     },
   ]);
