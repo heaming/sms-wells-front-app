@@ -20,65 +20,73 @@
     <!-- title="청구서 발송" -->
     <h3>{{ t('CST_INF_IN') }}</h3>
     <!-- <h3>고객 정보</h3> -->
-    <kw-form :cols="1">
-      <kw-form-row>
-        <kw-form-item
-          :label="t('MSG_TXT_FW_TP')"
-        >
-          <!-- label="발송유형" -->
-          <kw-option-group
-            v-model="sendMainData.bildcFwTpCd"
-            type="radio"
-            :options="codes.BILDC_FW_TP_CD"
-            @change="fetchData"
-          />
-        </kw-form-item>
-      </kw-form-row>
-      <kw-form-row>
-        <kw-form-item
-          v-if="sendMainData.bildcFwTpCd === 'K'"
-          :label="t('MSG_TXT_DSPH_NO')"
-        >
-          <!-- label="발신번호" -->
-          <!-- <kw-input v-model="sendMainData.callback" /> -->
-          <zwcm-telephone-number
-            v-model:tel-no1="telNos.telNo1"
-            v-model:tel-no2="telNos.telNo2"
-            v-model:tel-no3="telNos.telNo3"
-            required
-          />
-        </kw-form-item>
-        <kw-form-item
-          v-else
-          :label="t('MSG_TXT_DSPTR_EML')"
-        >
-          <!-- label="발신자 이메일" -->
-          <zwcm-email-address v-model="sendMainData.toMail" />
-        </kw-form-item>
-      </kw-form-row>
-      <kw-form-row>
-        <kw-form-item
-          v-if="sendMainData.bildcFwTpCd === 'K'"
-          :label="t('MSG_TXT_RECP_NO')"
-        >
-          <!-- label="수신번호" -->
-          <zwcm-telephone-number
-            v-model:tel-no1="telNos2.telNo1"
-            v-model:tel-no2="telNos2.telNo2"
-            v-model:tel-no3="telNos2.telNo3"
-            required
-          />
+    <kw-observer ref="obsRef">
+      <kw-form :cols="1">
+        <kw-form-row>
+          <kw-form-item
+            :label="t('MSG_TXT_FW_TP')"
+          >
+            <!-- label="발송유형" -->
+            <kw-option-group
+              v-model="sendMainData.bildcFwTpCd"
+              type="radio"
+              :options="codes.BILDC_FW_TP_CD"
+              @change="fetchData"
+            />
+          </kw-form-item>
+        </kw-form-row>
+        <kw-form-row>
+          <kw-form-item
+            v-if="sendMainData.bildcFwTpCd === 'K'"
+            :label="t('MSG_TXT_DSPH_NO')"
+          >
+            <!-- label="발신번호" -->
+            <!-- <kw-input v-model="sendMainData.callback" /> -->
+            <zwcm-telephone-number
+              v-model:tel-no1="telNos.telNo1"
+              v-model:tel-no2="telNos.telNo2"
+              v-model:tel-no3="telNos.telNo3"
+              required
+            />
+          </kw-form-item>
+          <kw-form-item
+            v-else
+            :label="t('MSG_TXT_DSPTR_EML')"
+          >
+            <!-- label="발신자 이메일" -->
+            <zwcm-email-address
+              v-model="sendMainData.toMail"
+              required
+            />
+          </kw-form-item>
+        </kw-form-row>
+        <kw-form-row>
+          <kw-form-item
+            v-if="sendMainData.bildcFwTpCd === 'K'"
+            :label="t('MSG_TXT_RECP_NO')"
+          >
+            <!-- label="수신번호" -->
+            <zwcm-telephone-number
+              v-model:tel-no1="telNos2.telNo1"
+              v-model:tel-no2="telNos2.telNo2"
+              v-model:tel-no3="telNos2.telNo3"
+              required
+            />
           <!-- <kw-input v-model="sendMainData.destInfo" /> -->
-        </kw-form-item>
-        <kw-form-item
-          v-else
-          :label="t('MSG_TXT_RCVR_EML')"
-        >
-          <!-- label="수신자 이메일" -->
-          <zwcm-email-address v-model="sendMainData.fromMail" />
-        </kw-form-item>
-      </kw-form-row>
-    </kw-form>
+          </kw-form-item>
+          <kw-form-item
+            v-else
+            :label="t('MSG_TXT_RCVR_EML')"
+          >
+            <!-- label="수신자 이메일" -->
+            <zwcm-email-address
+              v-model="sendMainData.fromMail"
+              required
+            />
+          </kw-form-item>
+        </kw-form-row>
+      </kw-form>
+    </kw-observer>
     <kw-separator />
     <h3>{{ t('MSG_TXT_DSPH_IZ') }}</h3>
     <!-- <h3>발신 내역</h3> -->
@@ -109,7 +117,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 
-import { codeUtil, defineGrid, getComponentType, notify, useDataService, useModal, alert } from 'kw-lib';
+import { codeUtil, defineGrid, getComponentType, useDataService, useModal, notify } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 import ZwcmEmailAddress from '~common/components/ZwcmEmailAddress.vue';
 import ZwcmTelephoneNumber from '~common/components/ZwcmTelephoneNumber.vue';
@@ -166,6 +174,8 @@ const telNos2 = ref({
   telNo3: '',
 });
 
+const obsRef = ref();
+
 const sendMainData = ref({
   bildcPblNo: '',
   bildcFwTpCd: 'K',
@@ -182,44 +192,15 @@ const sendMainData = ref({
 
 let paramData;
 async function onClickSend() {
+  if (!await obsRef.value.validate()) { return; }
+
+  if (await obsRef.value.alertIfIsNotModified()) { return; }
+
   sendMainData.value.destInfo = telNos.value.telNo1 + telNos.value.telNo2 + telNos.value.telNo3;
   sendMainData.value.callback = telNos2.value.telNo1 + telNos2.value.telNo2 + telNos2.value.telNo3;
 
-  if (sendMainData.value.bildcFwTpCd === 'K') {
-    if (!telNos.value.telNo1 || !telNos.value.telNo2 || !telNos.value.telNo3) {
-      await alert(t('MSG_ALT_NCELL_REQUIRED_ITEM', [t('MSG_TXT_DSPH_NO')]));
-      return;
-    }
-
-    if (!telNos2.value.telNo1 || !telNos2.value.telNo2 || !telNos2.value.telNo3) {
-      await alert(t('MSG_ALT_NCELL_REQUIRED_ITEM', [t('MSG_TXT_RECP_NO')]));
-      return;
-    }
-  } else {
-    // eslint-disable-next-line no-lonely-if
-    if (!sendMainData.value.toMail) {
-      await alert(t('MSG_ALT_NCELL_REQUIRED_ITEM', [t('MSG_TXT_DSPTR_EML')]));
-      return;
-    }
-    if (!sendMainData.value.fromMail) {
-      await alert(t('MSG_ALT_NCELL_REQUIRED_ITEM', [t('MSG_TXT_RCVR_EML')]));
-      return;
-    }
-
-    // if (!sendMainData.value.fromMail) {
-    //   await alert(t('MSG_ALT_NCELL_REQUIRED_ITEM', [t('MSG_TXT_RCVR_EML')]));
-    //   return;
-    // }
-
-    // if (!sendMainData.value.toMail) {
-    //   await alert(t('MSG_ALT_NCELL_REQUIRED_ITEM', [t('MSG_TXT_DSPTR_EML')]));
-    //   return;
-    // }
-  }
-
   paramData = cloneDeep(sendMainData.value);
 
-  console.log(paramData);
   await dataService.post('/sms/wells/withdrawal/idvrve/billing-document-orders/forwardings', paramData);
 
   notify(t('MSG_ALT_SAVE_DATA')); // 메시지 자원 수정 필요
@@ -242,9 +223,8 @@ async function fetchData() {
   const data = view.getDataSource();
   data.checkRowStates(false);
   data.setRows(list);
-  data.checkRowStates(true);
 
-  view.resetCurrent();
+  data.checkRowStates(true);
 }
 
 async function initProps() {
