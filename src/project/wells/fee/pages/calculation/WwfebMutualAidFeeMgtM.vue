@@ -14,13 +14,14 @@
 --->
 <template>
   <kw-page>
-    <kw-search>
+    <kw-search @search="onClickSearch">
       <kw-search-row>
         <kw-search-item
           :label="$t('MSG_TXT_PERF_YM')"
           required
         >
           <kw-date-picker
+            v-model="searchParams.baseYm"
             :label="$t('MSG_TXT_PERF_YM')"
             rules="required"
             type="month"
@@ -31,9 +32,10 @@
           :label="$t('MSG_TXT_DIV')"
         >
           <kw-option-group
-            model-value="개인"
+            v-model="searchParams.type"
             type="radio"
-            :options="[ '개인','조직']"
+            :options="[{codeId: 'A', codeName: '개인'},
+                       {codeId: 'B', codeName: '조직'}]"
           />
         </kw-search-item>
 
@@ -41,7 +43,10 @@
           :label="$t('MSG_TXT_CNTR_DATE')"
         >
           <kw-date-range-picker
-            rules="date_range_months:1"
+            v-model:from="searchParams.strtdt"
+            v-model:to="searchParams.enddt"
+            type="date"
+            :label="$t('MSG_TXT_CNTR_DATE')"
           />
         </kw-form-item>
       </kw-search-row>
@@ -50,9 +55,11 @@
           :label="$t('MSG_TXT_PRDT_NM')"
         >
           <kw-option-group
-            model-value="전체"
+            v-model="searchParams.nameType"
             type="radio"
-            :options="[ '전체','429','599']"
+            :options="[{codeId: '', codeName: '전체'},
+                       {codeId: 'A', codeName: '429'},
+                       {codeId: 'B', codeName: '599'}]"
           />
         </kw-search-item>
       </kw-search-row>
@@ -61,8 +68,8 @@
     <div class="result-area">
       <kw-action-top>
         <template #left>
-          <kw-paging-info :total-count="123456" />
-          <span class="ml8">{{ t('MSG_TXT_UNIT_WON') }}</span>
+          <kw-paging-info :total-count="totalCount" />
+          <span class="ml8">({{ $t('MSG_TXT_UNIT') }}) : ({{ $t('MSG_TXT_CUR_WON') }})</span>
         </template>
 
         <kw-btn
@@ -70,6 +77,7 @@
           dense
           secondary
           :label="$t('MSG_BTN_EXCEL_DOWN')"
+          :disable="(totalCount === 0)"
           @click="onClickExcelDownload"
         />
         <kw-separator
@@ -81,10 +89,11 @@
           :label="$t('MSG_BTN_FEE_CRT')"
           primary
           dense
+          @click="onClickCreate"
         />
       </kw-action-top>
       <kw-grid
-        :visible-rows="3"
+        ref="grdRef"
         @init="initGrdMain"
       />
     </div>
@@ -94,45 +103,72 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { defineGrid } from 'kw-lib';
+import { defineGrid, useGlobal, useDataService, getComponentType, gridUtil } from 'kw-lib';
+import { isEmpty, cloneDeep } from 'lodash-es';
+import dayjs from 'dayjs';
 
+const dataService = useDataService();
+const now = dayjs();
 const { t } = useI18n();
+const { modal } = useGlobal();
+const { currentRoute } = useRouter();
 
+// -------------------------------------------------------------------------------------------------
+// Function & Event
+// -------------------------------------------------------------------------------------------------
+const grdRef = ref(getComponentType('KwGrid'));
+const grdData = computed(() => grdRef.value?.getData());
+const totalCount = ref(0);
+// 위에 하드코딩된 코드들 미정의됨
+// const codes = await codeUtil.getMultiCodes(
+//   'COD_YN',
+// );
+
+let cachedParams;
+const searchParams = ref({
+  baseYm: now.format('YYYYMM'),
+  type: 'A',
+  strtdt: now.format('YYYYMMDD'),
+  enddt: now.add(3, 'month').format('YYYYMMDD'),
+  nameType: '',
+});
+// 데이터 조회
+async function fetchData() {
+  const { data } = await dataService.get('API정의안됨', { params: { ...cachedParams } });
+  grdData.value.setRows(data);
+  totalCount.value = data.length;
+}
+// 조회 버튼
+async function onClickSearch() {
+  cachedParams = cloneDeep(searchParams.value);
+  await fetchData();
+}
+// 엑셀 다운로드 버튼
+async function onClickExcelDownload() {
+  const view = grdRef.value.getView();
+  await gridUtil.exportView(view, {
+    fileName: currentRoute.value.meta.menuName,
+    timePostfix: true,
+  });
+}
+// 수수료 생성 버튼
+async function onClickCreate() {
+  const { result: isChanged, payload } = await modal({
+    component: 'WwfebMutualAidFeeRegP',
+    componentProps: {
+      type: searchParams.value.type,
+    },
+  });
+  if (isChanged) {
+    if (!isEmpty(payload.rtnKey)) {
+      onClickSearch();
+    }
+  }
+}
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
 const initGrdMain = defineGrid((data, view) => {
-  const fields = [
-    { fieldName: 'col1' },
-    { fieldName: 'col2' },
-    { fieldName: 'col3' },
-    { fieldName: 'col4' },
-    { fieldName: 'col5' },
-    { fieldName: 'col6' },
-    { fieldName: 'col7' },
-    { fieldName: 'col8' },
-    { fieldName: 'col9' },
-    { fieldName: 'col10' },
-    { fieldName: 'col11' },
-    { fieldName: 'col12' },
-    { fieldName: 'col13' },
-    { fieldName: 'col14' },
-    { fieldName: 'col15' },
-    { fieldName: 'col16' },
-    { fieldName: 'col17' },
-    { fieldName: 'col18' },
-    { fieldName: 'col19' },
-    { fieldName: 'col20' },
-    { fieldName: 'col21' },
-    { fieldName: 'col22' },
-    { fieldName: 'col23' },
-    { fieldName: 'col24' },
-    { fieldName: 'col25' },
-    { fieldName: 'col26' },
-    { fieldName: 'col27' },
-    { fieldName: 'col28' },
-  ];
-
   const columns = [
     { fieldName: 'col1', header: t('MSG_TXT_MNTH_OCCURENCE'), width: '103.8', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
     { fieldName: 'col2', header: t('MSG_TXT_CLASFCTN_FEE'), width: '110.8', styleName: 'text-' },
@@ -162,20 +198,17 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'col26', header: t('MSG_TXT_LIFE_CNFRMD'), width: '126.7', styleName: 'text-center' },
     { fieldName: 'col27', header: t('MSG_TXT_FEE_PYMNT_MNTH'), width: '186', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
     { fieldName: 'col28', header: t('MSG_TXT_FEE_BCK_MNTH'), width: '186', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
-
   ];
+  const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
 
   data.setFields(fields);
   view.setColumns(columns);
-
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
-
   data.setRows([
     { col1: '202210', col2: '수수료', col3: 'OO총괄단', col4: 'OO지역단', col5: '김웰스 지점', col6: '1234567', col7: '김교원', col8: '플래너', col9: '1234567', col10: '2022-5559710', col11: '김치냉장고4Door', col12: '20221012', col13: '2022-5559710', col14: '599', col15: '20221012', col16: '20221012', col17: '20221012', col18: '12,345', col19: '12', col20: '1', col21: '12,345', col22: '12,345', col23: '1', col24: '12,345', col25: '12,345', col26: 'Y', col27: '202210', col28: '202210' },
     { col1: '202210', col2: '수수료', col3: 'OO총괄단', col4: 'OO지역단', col5: '김웰스 지점', col6: '1234567', col7: '김교원', col8: '플래너', col9: '1234567', col10: '2022-5559710', col11: '김치냉장고4Door', col12: '20221012', col13: '2022-5559710', col14: '599', col15: '20221012', col16: '20221012', col17: '20221012', col18: '12,345', col19: '12', col20: '1', col21: '12,345', col22: '12,345', col23: '1', col24: '12,345', col25: '12,345', col26: 'Y', col27: '202210', col28: '202210' },
     { col1: '202210', col2: '수수료', col3: 'OO총괄단', col4: 'OO지역단', col5: '김웰스 지점', col6: '1234567', col7: '김교원', col8: '플래너', col9: '1234567', col10: '2022-5559710', col11: '김치냉장고4Door', col12: '20221012', col13: '2022-5559710', col14: '599', col15: '20221012', col16: '20221012', col17: '20221012', col18: '12,345', col19: '12', col20: '1', col21: '12,345', col22: '12,345', col23: '1', col24: '12,345', col25: '12,345', col26: 'Y', col27: '202210', col28: '202210' },
-
   ]);
 });
 
