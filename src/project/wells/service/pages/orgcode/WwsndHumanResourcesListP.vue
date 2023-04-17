@@ -303,22 +303,88 @@ async function onClickSelect() {
 // TODO: 조직쪽 테이블 및 로직 확정되면 수정 필요
 const initGrdMain = defineGrid((data, view) => {
   const fields = [
+    { fieldName: 'baseYm' }, // 기준년월
+    { fieldName: 'ogTpCd' }, // 조직유형코드
+    { fieldName: 'prtnrNo' }, // 파트너번호
+    { fieldName: 'prtnrClsfCd' }, // 파트너분류코드
+    { fieldName: 'cikVal' }, // CI키값
+    { fieldName: 'sfkVal' }, // 세이프키값
+    { fieldName: 'copnDvCd' }, // 법인격구분코드
+    { fieldName: 'lnfDvCd' }, // 내외국인구분코드
+    { fieldName: 'prtnrKnm' }, // 파트너한글명
+    { fieldName: 'prtnrEnm' }, // 파트너영문명
     { fieldName: 'ogId' }, // 조직ID
     { fieldName: 'ogCd' }, // 조직코드
     { fieldName: 'ogNm' }, // 조직명
-    { fieldName: 'prtnrNo' }, // 파트너번호
-    { fieldName: 'prtnrKnm' }, // 파트너한글명
-    { fieldName: 'pstnDvCd' }, // 직급구분코드
-    { fieldName: 'rolDvCd' }, // 직무구분코드
-    { fieldName: 'cntrDt' }, // 계약일자
+    { fieldName: 'hmnrscDeptCd' }, // 인사부서코드
+    { fieldName: 'hmnrscEmpno' }, // 인사사원번호
+    { fieldName: 'sapDlpnrCd' }, // SAP거래처코드
+    { fieldName: 'sapDlpnrDtlIzRfltDt' }, // SAP거래처상세내역반영일자
+    { fieldName: 'wkGrpCd' }, // 작업그룹코드
+    { fieldName: 'wkGrpNm' }, // 작업그룹명
+    { fieldName: 'wkcrNo' }, // 작업조번호
+    { fieldName: 'rcrtWrteDt' }, // 리쿠르팅작성일자
+    { fieldName: 'fstCntrDt' }, // 최초계약일자
+    { fieldName: 'fnlCltnDt' }, // 최종해약일자
+    { fieldName: 'rcntrDt' }, // 재계약일자
     { fieldName: 'cltnDt' }, // 해약일자
+    { fieldName: 'cntrDt' }, // 계약일자
+    { fieldName: 'bzStatCd' }, // 사업상태코드
+    { fieldName: 'prfmtDmtnDvCd' }, // 승진강등구분코드
+    { fieldName: 'prfmtDt' }, // 승진일자
+    { fieldName: 'dmtnDt' }, // 강등일자
+    { fieldName: 'ccpsYn' }, // 겸직여부
+    { fieldName: 'cltnChoYn' }, // 해약선택여부
+    { fieldName: 'prrBizRgstYn' }, // 사전업무등록여부
+    { fieldName: 'pstnDvCd' }, // 직급구분코드
+    { fieldName: 'rsbDvCd' }, // 직책구분코드
+    { fieldName: 'rolDvCd' }, // 직무구분코드
+    { fieldName: 'prtnrGdCd' }, // 파트너등급코드
+    { fieldName: 'perfExcdOjYn' }, // 실적제외대상여부
+    { fieldName: 'rdsDsbExcdOjYn' }, // RDS지급제외대상여부
+    { fieldName: 'hgrOgId' }, // 상위조직ID
+    { fieldName: 'ogLevlDvCd' }, // 조직레벨구분코드
+    { fieldName: 'ogAbbrNm' }, // 조직약어명
+    { fieldName: 'vdtcrPdDvCd' }, // 화상교사상품구분코드
+    { fieldName: 'cpsnDtrcOgCd' }, // 강제지국조직코드
+    { fieldName: 'dtrcSbrncOgCd' }, // 지국지소조직코드
+    { fieldName: 'sbrncYn' }, // 지소여부
+    { fieldName: 'sbrncDvCd' }, // 지소구분코드
+    { fieldName: 'opDt' }, // 개설일자
+    { fieldName: 'cloYn' }, // 폐쇄여부
+    { fieldName: 'cloDt' }, // 폐쇄일자
+    { fieldName: 'hooOgTpCd' }, // 조직장조직유형코드
+    { fieldName: 'hooPrtnrNo' }, // 조직장파트너번호
+    { fieldName: 'hooPrtnrNm' }, // 조직장파트너명
+    { fieldName: 'bizSpptPrtnrNo' }, // 업무지원파트너번호
+    { fieldName: 'ogUpbrngPrtnrNo' }, // 조직육성파트너번호
+    { fieldName: 'bldCd' }, // 빌딩코드
+    { fieldName: 'bldNm' }, // 빌딩명
     { fieldName: 'dgr1LevlOgId' }, // 1차레벨조직ID
     { fieldName: 'dgr1LevlOgCd' }, // 1차레벨조직코드
     { fieldName: 'dgr1LevlOgNm' }, // 1차레벨조직명
+    { fieldName: 'dgr1LevlDgPrtnrNo' }, // 1차레벨대표파트너번호
+    { fieldName: 'dgr1LevlDgPrtnrNm' }, // 1차레벨대표파트너명
     { fieldName: 'dgr2LevlOgId' }, // 2차레벨조직ID
     { fieldName: 'dgr2LevlOgCd' }, // 2차레벨조직코드
     { fieldName: 'dgr2LevlOgNm' }, // 2차레벨조직명
+    { fieldName: 'dgr2LevlDgPrtnrNo' }, // 2차레벨대표파트너번호
+    { fieldName: 'dgr2LevlDgPrtnrNm' }, // 2차레벨대표파트너명
     { fieldName: 'dgr3LevlOgId' }, // 3차레벨조직ID
+    { fieldName: 'dgr3LevlOgCd' }, // 3차레벨조직코드
+    { fieldName: 'dgr3LevlOgNm' }, // 3차레벨조직명
+    { fieldName: 'dgr3LevlDgPrtnrNo' }, // 3차레벨대표파트너번호
+    { fieldName: 'dgr3LevlDgPrtnrNm' }, // 3차레벨대표파트너명
+    { fieldName: 'dgr4LevlOgId' }, // 4차레벨조직ID
+    { fieldName: 'dgr4LevlOgCd' }, // 4차레벨조직코드
+    { fieldName: 'dgr4LevlOgNm' }, // 4차레벨조직명
+    { fieldName: 'dgr4LevlDgPrtnrNo' }, // 4차레벨대표파트너번호
+    { fieldName: 'dgr4LevlDgPrtnrNm' }, // 4차레벨대표파트너명
+    { fieldName: 'dgr5LevlOgId' }, // 5차레벨조직ID
+    { fieldName: 'dgr5LevlOgCd' }, // 5차레벨조직코드
+    { fieldName: 'dgr5LevlOgNm' }, // 5차레벨조직명
+    { fieldName: 'dgr5LevlDgPrtnrNo' }, // 5차레벨대표파트너번호
+    { fieldName: 'dgr5LevlDgPrtnrNm' }, // 5차레벨대표파트너명
   ];
 
   const columns = [
