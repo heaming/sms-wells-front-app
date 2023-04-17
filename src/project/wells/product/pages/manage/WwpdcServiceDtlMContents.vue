@@ -35,47 +35,45 @@
       :label="$t('MSG_TXT_REVS_HIST')"
     />
   </kw-tabs>
-  <div class="normal-area normal-area--button-set-bottom">
-    <kw-tab-panels
-      :model-value="selectedTab"
-    >
-      <kw-tab-panel :name="pdConst.W_SERVICE_STEP_BASIC.name">
-        <zwpdc-prop-groups-dtl
-          :ref="cmpStepRefs[0]"
-          v-model:pd-cd="currentPdCd"
-          v-model:init-data="currentInitData"
-          :pd-tp-cd="pdConst.PD_TP_CD_SERVICE"
-          :is-first-title="true"
-          :prefix-title="$t('MSG_TXT_BAS_ATTR')"
-          is-auto-group-title
-        />
-      </kw-tab-panel>
-      <kw-tab-panel :name="pdConst.W_SERVICE_STEP_FILTER.name">
-        <wwpdc-service-dtl-m-filter
-          :ref="cmpStepRefs[1]"
-          v-model:pd-cd="currentPdCd"
-          v-model:init-data="currentInitData"
-          :codes="props.codes"
-        />
-      </kw-tab-panel>
-      <kw-tab-panel name="hist">
-        <zwpdc-prod-change-hist
-          :ref="cmpStepRefs[2]"
-          v-model:pd-cd="currentPdCd"
-          :pd-tp-cd="pdConst.PD_TP_CD_SERVICE"
-        />
-      </kw-tab-panel>
-    </kw-tab-panels>
-    <div
-      v-show="isUpdateBtn"
-      class="button-set--bottom"
-    >
-      <div class="button-set--bottom-right">
-        <kw-btn
-          :label="$t('MSG_BTN_MOD')"
-          @click="onClickUpdate"
-        />
-      </div>
+  <kw-tab-panels
+    :model-value="selectedTab"
+  >
+    <kw-tab-panel :name="pdConst.W_SERVICE_STEP_BASIC.name">
+      <zwpdc-prop-groups-dtl
+        :ref="cmpStepRefs[0]"
+        v-model:pd-cd="currentPdCd"
+        v-model:init-data="currentInitData"
+        :pd-tp-cd="pdConst.PD_TP_CD_SERVICE"
+        :is-first-title="true"
+        :prefix-title="$t('MSG_TXT_BAS_ATTR')"
+        is-auto-group-title
+      />
+    </kw-tab-panel>
+    <kw-tab-panel :name="pdConst.W_SERVICE_STEP_FILTER.name">
+      <wwpdc-service-dtl-m-filter
+        :ref="cmpStepRefs[1]"
+        v-model:pd-cd="currentPdCd"
+        v-model:init-data="currentInitData"
+        :codes="props.codes"
+      />
+    </kw-tab-panel>
+    <kw-tab-panel name="hist">
+      <zwpdc-prod-change-hist
+        :ref="cmpStepRefs[2]"
+        v-model:pd-cd="currentPdCd"
+        :pd-tp-cd="pdConst.PD_TP_CD_SERVICE"
+      />
+    </kw-tab-panel>
+  </kw-tab-panels>
+  <div
+    v-show="isUpdateBtn"
+    class="button-set--bottom"
+  >
+    <div class="button-set--bottom-right">
+      <kw-btn
+        :label="$t('MSG_BTN_MOD')"
+        @click="onClickUpdate"
+      />
     </div>
   </div>
 </template>

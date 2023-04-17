@@ -46,6 +46,7 @@
     <kw-action-top class="mt20">
       <!-- 필터/부품 -->
       <kw-btn
+        grid-action
         dense
         secondary
         :disable="grdRowCount === 0"
@@ -58,6 +59,7 @@
         spaced
       />
       <kw-btn
+        grid-action
         dense
         secondary
         :label="$t('MSG_BTN_ROW_ADD')"

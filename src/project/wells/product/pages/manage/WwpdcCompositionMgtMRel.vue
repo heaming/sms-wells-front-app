@@ -38,6 +38,7 @@
     <!-- 삭제 -->
     <kw-btn
       v-show="!props.readonly"
+      grid-action
       dense
       :label="$t('MSG_BTN_DEL')"
       @click="onClickStandardDelRows"

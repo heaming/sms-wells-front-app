@@ -60,6 +60,7 @@
         />
       </template>
       <kw-btn
+        grid-action
         dense
         secondary
         :disable="grdRowCount === 0"
@@ -73,6 +74,7 @@
       />
       <!-- 정기BS투입 필터/부품 불러오기 -->
       <kw-btn
+        grid-action
         dense
         secondary
         :label="$t('MSG_BTN_LOAD_ROUTINE_BS_FLT_PART')"

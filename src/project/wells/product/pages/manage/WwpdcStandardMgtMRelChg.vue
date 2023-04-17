@@ -35,6 +35,7 @@
       />
     </template>
     <kw-btn
+      grid-action
       dense
       :label="$t('MSG_BTN_DEL')"
       :disable="grdChangeRowCount === 0"

@@ -46,65 +46,63 @@
       :label="$t('MSG_TXT_REVS_HIST')"
     />
   </kw-tabs>
-  <div class="normal-area normal-area--button-set-bottom">
-    <kw-tab-panels
-      :model-value="selectedTab"
-    >
-      <kw-tab-panel :name="pdConst.COMPOSITION_STEP_BASIC.name">
-        <zwpdc-prop-groups-dtl
-          :ref="cmpStepRefs[0]"
-          v-model:pd-cd="currentPdCd"
-          v-model:init-data="currentInitData"
-          :pd-tp-cd="pdConst.PD_TP_CD_COMPOSITION"
-          :pd-grp-dv-cd="pdConst.PD_PRP_GRP_DV_CD_BASIC"
-          :is-first-title="true"
-        />
-      </kw-tab-panel>
-      <kw-tab-panel :name="pdConst.COMPOSITION_STEP_REL_PROD.name">
-        <wwpdc-composition-dtl-m-rel
-          :ref="cmpStepRefs[1]"
-          v-model:pd-cd="currentPdCd"
-          v-model:init-data="currentInitData"
-          :codes="props.codes"
-        />
-      </kw-tab-panel>
-      <kw-tab-panel :name="pdConst.COMPOSITION_STEP_MANAGE.name">
-        <zwpdc-prop-groups-dtl
-          :ref="cmpStepRefs[2]"
-          v-model:pd-cd="currentPdCd"
-          v-model:init-data="currentInitData"
-          :pd-tp-cd="pdConst.PD_TP_CD_COMPOSITION"
-          :pd-grp-dv-cd="pdConst.PD_PRP_GRP_DV_CD_MANUAL"
-          :is-first-title="true"
-        />
-      </kw-tab-panel>
-      <kw-tab-panel :name="pdConst.COMPOSITION_STEP_PRICE.name">
-        <wwpdc-composition-dtl-m-price
-          :ref="cmpStepRefs[3]"
-          v-model:pd-cd="currentPdCd"
-          v-model:init-data="currentInitData"
-          :codes="props.codes"
-        />
-      </kw-tab-panel>
-      <kw-tab-panel name="hist">
-        <zwpdc-prod-change-hist
-          :ref="cmpStepRefs[4]"
-          v-model:pd-cd="currentPdCd"
-          :pd-tp-cd="pdConst.PD_TP_CD_COMPOSITION"
-          :is-price="true"
-        />
-      </kw-tab-panel>
-    </kw-tab-panels>
-    <div
-      v-show="isUpdateBtn"
-      class="button-set--bottom"
-    >
-      <div class="button-set--bottom-right">
-        <kw-btn
-          :label="$t('MSG_BTN_MOD')"
-          @click="onClickUpdate"
-        />
-      </div>
+  <kw-tab-panels
+    :model-value="selectedTab"
+  >
+    <kw-tab-panel :name="pdConst.COMPOSITION_STEP_BASIC.name">
+      <zwpdc-prop-groups-dtl
+        :ref="cmpStepRefs[0]"
+        v-model:pd-cd="currentPdCd"
+        v-model:init-data="currentInitData"
+        :pd-tp-cd="pdConst.PD_TP_CD_COMPOSITION"
+        :pd-grp-dv-cd="pdConst.PD_PRP_GRP_DV_CD_BASIC"
+        :is-first-title="true"
+      />
+    </kw-tab-panel>
+    <kw-tab-panel :name="pdConst.COMPOSITION_STEP_REL_PROD.name">
+      <wwpdc-composition-dtl-m-rel
+        :ref="cmpStepRefs[1]"
+        v-model:pd-cd="currentPdCd"
+        v-model:init-data="currentInitData"
+        :codes="props.codes"
+      />
+    </kw-tab-panel>
+    <kw-tab-panel :name="pdConst.COMPOSITION_STEP_MANAGE.name">
+      <zwpdc-prop-groups-dtl
+        :ref="cmpStepRefs[2]"
+        v-model:pd-cd="currentPdCd"
+        v-model:init-data="currentInitData"
+        :pd-tp-cd="pdConst.PD_TP_CD_COMPOSITION"
+        :pd-grp-dv-cd="pdConst.PD_PRP_GRP_DV_CD_MANUAL"
+        :is-first-title="true"
+      />
+    </kw-tab-panel>
+    <kw-tab-panel :name="pdConst.COMPOSITION_STEP_PRICE.name">
+      <wwpdc-composition-dtl-m-price
+        :ref="cmpStepRefs[3]"
+        v-model:pd-cd="currentPdCd"
+        v-model:init-data="currentInitData"
+        :codes="props.codes"
+      />
+    </kw-tab-panel>
+    <kw-tab-panel name="hist">
+      <zwpdc-prod-change-hist
+        :ref="cmpStepRefs[4]"
+        v-model:pd-cd="currentPdCd"
+        :pd-tp-cd="pdConst.PD_TP_CD_COMPOSITION"
+        :is-price="true"
+      />
+    </kw-tab-panel>
+  </kw-tab-panels>
+  <div
+    v-show="isUpdateBtn"
+    class="button-set--bottom"
+  >
+    <div class="button-set--bottom-right">
+      <kw-btn
+        :label="$t('MSG_BTN_MOD')"
+        @click="onClickUpdate"
+      />
     </div>
   </div>
 </template>

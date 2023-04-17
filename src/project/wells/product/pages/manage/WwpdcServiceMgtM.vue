@@ -18,23 +18,26 @@
       <kw-stepper
         v-model="currentStep.name"
         heading-text
-        :header-nav="!isTempSaveBtn"
+        :header-nav="!isTempSaveBtn || passedStep > 0"
         @update:model-value="onClickStep()"
       >
         <slot>
           <kw-step
-            :name="pdConst.E_SERVICE_STEP_BASIC.name"
+            :header-nav="!isTempSaveBtn || passedStep >= pdConst.W_SERVICE_STEP_BASIC.step"
+            :name="pdConst.W_SERVICE_STEP_BASIC.name"
             :title="$t('MSG_TXT_PROP_REG')"
-            :prefix="pdConst.E_SERVICE_STEP_BASIC.step"
-            :done="currentStep.step > pdConst.E_SERVICE_STEP_BASIC.step"
+            :prefix="pdConst.W_SERVICE_STEP_BASIC.step"
+            :done="currentStep.step > pdConst.W_SERVICE_STEP_BASIC.step"
           />
           <kw-step
+            :header-nav="!isTempSaveBtn || passedStep >= pdConst.W_SERVICE_STEP_FILTER.step"
             :name="pdConst.W_SERVICE_STEP_FILTER.name"
             :title="$t('MSG_TXT_PD_FILT_CHG')"
             :prefix="pdConst.W_SERVICE_STEP_FILTER.step"
             :done="currentStep.step > pdConst.W_SERVICE_STEP_FILTER.step"
           />
           <kw-step
+            :header-nav="!isTempSaveBtn || passedStep >= pdConst.W_SERVICE_STEP_CHECK.step"
             :name="pdConst.W_SERVICE_STEP_CHECK.name"
             :title="$t('MSG_TXT_CHK_REG_INFO')"
             :prefix="pdConst.W_SERVICE_STEP_CHECK.step"
@@ -86,23 +89,22 @@
             :label="$t('MSG_BTN_DEL')"
             @click="onClickDelete"
           />
-          <kw-btn
+          <!-- <kw-btn
             v-show="currentStep.step === 1 && isCreate"
             :label="$t('MSG_BTN_INTL')"
             class="ml8"
             @click="onClickReset"
+          /> -->
+          <kw-btn
+            :label="$t('MSG_BTN_CANCEL')"
+            class="ml8"
+            @click="onClickCancel()"
           />
           <kw-btn
             v-if="currentStep.step < regSteps.length && isTempSaveBtn"
             :label="$t('MSG_BTN_TMP_SAVE')"
             class="ml8"
             @click="onClickSave('Y')"
-          />
-          <kw-btn
-            v-show="!isTempSaveBtn"
-            :label="$t('MSG_BTN_CANCEL')"
-            class="ml8"
-            @click="onClickCancel()"
           />
           <kw-btn
             v-show="isTempSaveBtn && currentStep.step < regSteps.length"
@@ -156,6 +158,7 @@ const rel = pdConst.TBL_PD_REL;
 const isTempSaveBtn = ref(true);
 const regSteps = ref([pdConst.W_SERVICE_STEP_BASIC, pdConst.W_SERVICE_STEP_FILTER, pdConst.W_SERVICE_STEP_CHECK]);
 const currentStep = cloneDeep(ref(pdConst.W_SERVICE_STEP_BASIC));
+const passedStep = ref(0);
 const cmpStepRefs = ref([ref(), ref()]);
 const prevStepData = ref({});
 const currentPdCd = ref();
@@ -228,6 +231,7 @@ async function onClickNextStep() {
   // 다음 이동
   prevStepData.value = await getSaveData();
   currentStep.value = cloneDeep(regSteps.value[(currentStep.value.step - 1) + 1]);
+  passedStep.value = currentStep.value.step;
 }
 
 // 이전 버튼
@@ -345,6 +349,7 @@ async function onClickReset() {
   isCreate.value = true;
   isTempSaveBtn.value = true;
   currentStep.value = cloneDeep(pdConst.W_SERVICE_STEP_BASIC);
+  passedStep.value = 0;
   prevStepData.value = {};
   await Promise.all(cmpStepRefs.value.map(async (item) => {
     if (item.value?.resetData) await item.value?.resetData();
@@ -395,6 +400,7 @@ watch(() => route.params.reloadYn, async (reloadYn) => {
   console.log(`WwpdcServiceMgtM - watch - route.params.reloadYn: ${reloadYn}`, route);
   if (reloadYn === 'Y') {
     currentStep.value = cloneDeep(pdConst.W_SERVICE_STEP_BASIC);
+    passedStep.value = 0;
     await fetchProduct();
   }
 });

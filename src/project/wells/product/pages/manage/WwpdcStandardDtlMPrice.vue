@@ -26,6 +26,7 @@
             v-model="searchParams.avlChnlId"
             :options="usedChannelCds"
             multiple
+            :placeholder="$t('MSG_TXT_ALL')"
           />
         </kw-search-item>
       </kw-search-row>
