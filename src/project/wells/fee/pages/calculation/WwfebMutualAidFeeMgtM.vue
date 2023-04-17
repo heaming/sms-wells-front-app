@@ -154,7 +154,7 @@ async function onClickExcelDownload() {
 // 수수료 생성 버튼
 async function onClickCreate() {
   const { result: isChanged, payload } = await modal({
-    component: 'ZwfeyFeeScheduleCopyP',
+    component: 'WwfebMutualAidFeeRegP',
     componentProps: {
       type: searchParams.value.type,
     },
