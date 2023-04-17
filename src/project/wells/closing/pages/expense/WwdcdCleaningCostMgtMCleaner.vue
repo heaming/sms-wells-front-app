@@ -112,7 +112,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { defineGrid, useMeta, codeUtil, getComponentType, useDataService, useGlobal, gridUtil } from 'kw-lib';
-import { cloneDeep, isEmpty } from 'lodash-es';
+import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
 
 const { t } = useI18n();
@@ -165,7 +165,7 @@ async function onClickSearch() {
 
 async function onClickRegister() {
   const { result } = await modal({
-    component: 'WwdcdCleanerRegistrationMgtP', // W-CL-U-0093P02
+    component: 'WwdcdCleanerReqeustMgtP', // W-CL-U-0093P02
     componentProps: {
       configGroup: '',
     },
@@ -260,18 +260,15 @@ const initGrdSub = defineGrid((data, view) => {
 
   view.onCellItemClicked = async (grid, { itemIndex }) => {
     const { clinrRgno, result } = gridUtil.getRowValue(grid, itemIndex);
-
-    if (!isEmpty(itemIndex)) {
-      await modal({
-        component: 'WwdcdRegistrationAsACleanerMgtP', // W-CL-U-0093P02
-        componentProps: {
-          configGroup: { clinrRgno },
-        },
-      });
-      if (result) {
-        notify(t('MSG_ALT_SAVE_DATA'));
-        await fetchData();
-      }
+    await modal({
+      component: 'WwdcdCleanerReqeustMgtP', // W-CL-U-0093P02
+      componentProps: {
+        configGroup: { clinrRgno },
+      },
+    });
+    if (result) {
+      notify(t('MSG_ALT_SAVE_DATA'));
+      await fetchData();
     }
   };
 });
