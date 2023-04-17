@@ -14,211 +14,157 @@
 --->
 
 <template>
-  <kw-popup
-    size="4xl"
+  <kw-form
+    ref="frmBaseRef"
+    :cols="2"
+    class="mt20"
   >
-    <h3>{{ $t('MSG_TXT_SELT_CNTR_PD') }}</h3>
-    <kw-form :cols="2">
+    <!-- 현금영수증 기본정보 변경 -->
+    <h3>{{ `${$t('MSG_TXT_CASH_RCP')} ${$t('MSG_TXT_BASIC_INFO')} ${$t('MSG_TXT_CH')}` }}</h3>
+
+    <div class="border-box mt10">
       <kw-form-row>
-        <!-- 계약상세번호 -->
-        <kw-form-item :label="t('MSG_TXT_CNTR_DTL_NO')">
-          <p>2022-1234567</p>
+        <!-- 발행구분 -->
+        <kw-form-item
+          :label="t('MSG_TXT_ISSUANCE_CLAR')"
+          required
+        >
+          <kw-select
+            v-model="fieldBaseParams.cssrIsDvCd"
+            :options="codes.CSSR_IS_DV_CD"
+            :readonly="isDefault"
+            rules="required"
+            @change="onChangedcssrIsDvCd"
+          />
+          <kw-input
+            v-model="fieldBaseParams.cssrIsNo"
+            v-model:tel-no0="fieldBaseParams.cralLocaraTno"
+            v-model:tel-no1="fieldBaseParams.mexnoEncr"
+            v-model:tel-no2="fieldBaseParams.cralIdvTno"
+            class="px5"
+            :mask="fieldBaseParams.mask"
+            :rules="fieldBaseParams.cssrIsDvCd === '4' ? 'required|telephone' : 'required'"
+            :label="t('MSG_TXT_ISSUANCE_CLAR')"
+            :readonly="isCssrEmpty"
+          />
         </kw-form-item>
-        <!-- 상품명 -->
-        <kw-form-item :label="t('MSG_TXT_PRDT_NM')">
-          <kw-select />
+        <!-- 변경사유 -->
+        <kw-form-item
+          :label="t('MSG_TXT_CH_RSON')"
+          required
+        >
+          <kw-input
+            v-model="fieldBaseParams.chRsonCn"
+            type="text"
+            class="px5"
+            :label="t('MSG_TXT_CH_RSON')"
+            rules="required"
+            maxlength="2000"
+          />
         </kw-form-item>
       </kw-form-row>
-    </kw-form>
-    <kw-separator />
-    <kw-tabs
-      model-value="4"
-    >
-      <kw-tab
-        name="1"
-        :label="$t('MSG_TXT_CST_BAS_INF')"
-      />
-      <kw-tab
-        name="2"
-        :label="$t('MSG_TXT_MGT_INF')"
-      />
-      <kw-tab
-        name="3"
-        :label="$t('MSG_TXT_DP_IZ')"
-      />
-      <kw-tab
-        name="4"
-        :label="$t('MSG_TXT_TXINV')"
-      />
-      <kw-tab
-        name="5"
-        :label="$t('MSG_TXT_HW_CMNC_HIS')"
-      />
-      <kw-tab
-        name="6"
-        :label="$t('MSG_TXT_ELC_TASK_RQST')"
-      />
-      <kw-tab
-        name="7"
-        :label="$t('MSG_TXT_CLCTAM_CTT_CNTN')"
-      />
-    </kw-tabs>
-    <kw-tab-panels model-value="4">
-      <kw-tab-panel name="4">
-        <kw-form
-          ref="frmBaseRef"
-          :cols="2"
-          class="mt20"
-        >
-          <!-- 현금영수증 기본정보 변경 -->
-          <h3>{{ `${$t('MSG_TXT_CASH_RCP')} ${$t('MSG_TXT_BASIC_INFO')} ${$t('MSG_TXT_CH')}` }}</h3>
-
-          <div class="border-box mt10">
-            <kw-form-row>
-              <!-- 발행구분 -->
-              <kw-form-item
-                :label="t('MSG_TXT_ISSUANCE_CLAR')"
-                required
-              >
-                <kw-select
-                  v-model="fieldBaseParams.cssrIsDvCd"
-                  :options="codes.CSSR_IS_DV_CD"
-                  :readonly="isDefault"
-                  rules="required"
-                  @change="onChangedcssrIsDvCd"
-                />
-                <kw-input
-                  v-model="fieldBaseParams.cssrIsNo"
-                  v-model:tel-no0="fieldBaseParams.cralLocaraTno"
-                  v-model:tel-no1="fieldBaseParams.mexnoEncr"
-                  v-model:tel-no2="fieldBaseParams.cralIdvTno"
-                  class="px5"
-                  :mask="fieldBaseParams.mask"
-                  :rules="fieldBaseParams.cssrIsDvCd === '4' ? 'required|telephone' : 'required'"
-                  :label="t('MSG_TXT_ISSUANCE_CLAR')"
-                  :readonly="isCssrEmpty"
-                />
-              </kw-form-item>
-              <!-- 변경사유 -->
-              <kw-form-item
-                :label="t('MSG_TXT_CH_RSON')"
-                required
-              >
-                <kw-input
-                  v-model="fieldBaseParams.chRsonCn"
-                  type="text"
-                  class="px5"
-                  :label="t('MSG_TXT_CH_RSON')"
-                  rules="required"
-                  maxlength="2000"
-                />
-              </kw-form-item>
-            </kw-form-row>
-          </div>
-          <kw-action-bottom>
-            <div v-show="!isDefault">
-              <!-- 초기화 -->
-              <kw-btn
-                :label="$t('MSG_BTN_INTL')"
-                class="mx7"
-                @click="onClickBaseReset"
-              />
-              <!-- 저장 -->
-              <kw-btn
-                :label="$t('MSG_BTN_SAVE')"
-                negative
-                @click="onClickSave"
-              />
-            </div>
-            <!-- 기본정보 변경 -->
-            <kw-btn
-              v-show="isDefault"
-              v-model="defaultCheck"
-              :label="`${$t('MSG_TXT_BASIC_INFO')} ${$t('MSG_TXT_CH')}`"
-              negative
-              @click="onclickDefault"
-            />
-          </kw-action-bottom>
-        </kw-form>
-
-        <h3>{{ `${$t('MSG_TXT_CASH_RCP')} ${$t('MSG_TXT_ISSUANCE_IZ')}` }}</h3> <!-- 현금영수증 발행내역 -->
-        <kw-action-top>
-          <template #left>
-            <kw-paging-info
-              :total-count="0"
-            />
-          </template>
-          <span class="kw-fc--black3 text-weight-regular">{{ $t('MSG_TXT_UNIT_WON') }}</span>
-        </kw-action-top>
-
-        <kw-grid
-          :visible-rows="10"
-          @init="initGrid"
+    </div>
+    <kw-action-bottom>
+      <div v-show="!isDefault">
+        <!-- 초기화 -->
+        <kw-btn
+          :label="$t('MSG_BTN_INTL')"
+          class="mx7"
+          @click="onClickBaseReset"
         />
-        <kw-form
-          ref="frmRpblRef"
-          :cols="2"
-          class="mt20"
-        >
-          <h3>{{ `${$t('MSG_TXT_CASH_RCP')} ${$t('MSG_TXT_RPBL')}` }}</h3> <!-- 현금영수증 재발행 -->
+        <!-- 저장 -->
+        <kw-btn
+          :label="$t('MSG_BTN_SAVE')"
+          negative
+          @click="onClickSave"
+        />
+      </div>
+      <!-- 기본정보 변경 -->
+      <kw-btn
+        v-show="isDefault"
+        v-model="defaultCheck"
+        :label="`${$t('MSG_TXT_BASIC_INFO')} ${$t('MSG_TXT_CH')}`"
+        negative
+        @click="onclickDefault"
+      />
+    </kw-action-bottom>
+  </kw-form>
 
-          <div class="border-box mt10">
-            <kw-form-row>
-              <!-- 발행구분 -->
-              <kw-form-item
-                :label="t('MSG_TXT_ISSUANCE_CLAR')"
-                required
-              >
-                <kw-select
-                  v-model="fieldRpblParams.cssrIsDvCd"
-                  :options="codes.CSSR_IS_DV_CD"
-                  rules="required"
-                  @change="onChangedcssrIsDvCdRpbl"
-                />
-                <kw-input
-                  v-model="fieldRpblParams.cssrIsNo"
-                  v-model:tel-no0="fieldRpblParams.cralLocaraTno"
-                  v-model:tel-no1="fieldRpblParams.mexnoEncr"
-                  v-model:tel-no2="fieldRpblParams.cralIdvTno"
-                  class="px5"
-                  :mask="fieldRpblParams.mask"
-                  :rules="fieldRpblParams.cssrIsDvCd === '4' ? 'required|telephone' : 'required'"
-                  :label="t('MSG_TXT_ISSUANCE_CLAR')"
-                  :readonly="isCssrRpblEmpty"
-                />
-              </kw-form-item>
-              <!-- 변경사유 -->
-              <kw-form-item
-                :label="t('MSG_TXT_CH_RSON')"
-                required
-              >
-                <kw-input
-                  v-model="fieldRpblParams.chRsonCn"
-                  type="text"
-                  class="px5"
-                  :label="t('MSG_TXT_CH_RSON')"
-                  rules="required"
-                  maxlength="2000"
-                />
-              </kw-form-item>
-            </kw-form-row>
-          </div>
-        </kw-form>
-        <kw-action-bottom>
-          <!-- 초기화 -->
-          <kw-btn
-            :label="$t('MSG_BTN_INTL')"
-            @click="onClickRpblReset"
+  <h3>{{ `${$t('MSG_TXT_CASH_RCP')} ${$t('MSG_TXT_ISSUANCE_IZ')}` }}</h3> <!-- 현금영수증 발행내역 -->
+  <kw-action-top>
+    <template #left>
+      <kw-paging-info
+        :total-count="0"
+      />
+    </template>
+    <span class="kw-fc--black3 text-weight-regular">{{ $t('MSG_TXT_UNIT_WON') }}</span>
+  </kw-action-top>
+
+  <kw-grid
+    :visible-rows="10"
+    @init="initGrid"
+  />
+  <kw-form
+    ref="frmRpblRef"
+    :cols="2"
+    class="mt20"
+  >
+    <h3>{{ `${$t('MSG_TXT_CASH_RCP')} ${$t('MSG_TXT_RPBL')}` }}</h3> <!-- 현금영수증 재발행 -->
+
+    <div class="border-box mt10">
+      <kw-form-row>
+        <!-- 발행구분 -->
+        <kw-form-item
+          :label="t('MSG_TXT_ISSUANCE_CLAR')"
+          required
+        >
+          <kw-select
+            v-model="fieldRpblParams.cssrIsDvCd"
+            :options="codes.CSSR_IS_DV_CD"
+            rules="required"
+            @change="onChangedcssrIsDvCdRpbl"
           />
-          <!-- 재발행 -->
-          <kw-btn
-            :label="t('MSG_BTN_RPBL')"
-            @click="onClickRpbl"
+          <kw-input
+            v-model="fieldRpblParams.cssrIsNo"
+            v-model:tel-no0="fieldRpblParams.cralLocaraTno"
+            v-model:tel-no1="fieldRpblParams.mexnoEncr"
+            v-model:tel-no2="fieldRpblParams.cralIdvTno"
+            class="px5"
+            :mask="fieldRpblParams.mask"
+            :rules="fieldRpblParams.cssrIsDvCd === '4' ? 'required|telephone' : 'required'"
+            :label="t('MSG_TXT_ISSUANCE_CLAR')"
+            :readonly="isCssrRpblEmpty"
           />
-        </kw-action-bottom>
-      </kw-tab-panel>
-    </kw-tab-panels>
-  </kw-popup>
+        </kw-form-item>
+        <!-- 변경사유 -->
+        <kw-form-item
+          :label="t('MSG_TXT_CH_RSON')"
+          required
+        >
+          <kw-input
+            v-model="fieldRpblParams.chRsonCn"
+            type="text"
+            class="px5"
+            :label="t('MSG_TXT_CH_RSON')"
+            rules="required"
+            maxlength="2000"
+          />
+        </kw-form-item>
+      </kw-form-row>
+    </div>
+  </kw-form>
+  <kw-action-bottom>
+    <!-- 초기화 -->
+    <kw-btn
+      :label="$t('MSG_BTN_INTL')"
+      @click="onClickRpblReset"
+    />
+    <!-- 재발행 -->
+    <kw-btn
+      :label="t('MSG_BTN_RPBL')"
+      @click="onClickRpbl"
+    />
+  </kw-action-bottom>
 </template>
 <script setup>
 // -------------------------------------------------------------------------------------------------
@@ -279,6 +225,9 @@ const fieldRpblParams = ref({
 const isDefault = computed(() => defaultCheck.value); // 기본정보 변경 버튼클릭 여부
 const isCssrEmpty = computed(() => isEmpty(fieldBaseParams.value.cssrIsDvCd) || isDefault.value); // 발행구분 선택 여부
 const isCssrRpblEmpty = computed(() => isEmpty(fieldRpblParams.value.cssrIsDvCd)); // 재발행구분 선택 여부
+
+const orgCntrNo = ref(''); /* 변경전 계약번호 */
+const orgCntrSn = ref(''); /* 변경전 계약일련번호 */
 
 const codes = await codeUtil.getMultiCodes(
   'CSSR_IS_DV_CD',
@@ -386,8 +335,17 @@ async function onChangedcssrIsDvCdRpbl() {
   fieldRpblParams.value.mask = changeMask(fieldRpblParams.value.cssrIsDvCd); // 마스크
 }
 
-// onMounted: 초기값 설정 작업
-onMounted(() => {
+// onActivated: Tab 변경시
+onActivated(() => {
+  // 부모창의 cntrNo랑 cntrSn이 바뀌지 않았으면,
+  if (orgCntrNo.value === props.cntrNo && orgCntrSn.value === props.cntrSn) {
+    // 리턴
+    return;
+  }
+
+  // 부모창의 cntrNo랑 cntrSn이 바꼈으면, 다시 조회한다.
+  orgCntrNo.value = props.cntrNo;
+  orgCntrSn.value = props.cntrSn;
   fetchData();
 });
 
