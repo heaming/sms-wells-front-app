@@ -2,7 +2,6 @@
 ****************************************************************************************************
 1. 모듈 : DCD
 2. 프로그램 ID : WwdcdRequestCleaningSuppliesMgtP - 청소 용품비 관리 - 청소(용품)비 신청 / W-CL-U-0093P01
-
 3. 작성자 : gs.piit172 kim juhyun
 4. 작성일 : 2023.04.14
 ****************************************************************************************************
@@ -41,7 +40,7 @@
             option-value="bldCd"
             option-label="bldNm"
             rules="required"
-            :name="$t('MSG_TXT_BUILDING')"
+            :label="$t('MSG_TXT_BUILDING')"
           />
         </kw-form-item>
       </kw-form-row>
@@ -53,7 +52,7 @@
         >
           <kw-input
             v-model="saveParams.bilAmt"
-            :name="$t('MSG_TXT_AMT')"
+            :label="$t('MSG_TXT_AMT')"
             rules="required"
             :regex="/^[0-9]*$/i"
           />
@@ -67,7 +66,7 @@
         >
           <kw-input
             v-model="saveParams.cardPsrNm"
-            :name="$t('MSG_TXT_CARD_PSR')"
+            :label="$t('MSG_TXT_CARD_PSR')"
             rules="required"
           />
         </kw-form-item>
@@ -79,7 +78,7 @@
         >
           <kw-input
             v-model="saveParams.contact"
-            :name="$t('MSG_TXT_CONTACT')"
+            :label="$t('MSG_TXT_CONTACT')"
             rules="required"
             :regex="/^[0-9]*$/i"
             :maxlength="11"
@@ -95,7 +94,7 @@
             v-model="saveParams.aplcDt"
             type="date"
             rules="required"
-            :name="$t('MSG_TXT_APPL_DATE')"
+            :label="$t('MSG_TXT_APPL_DATE')"
           />
         </kw-form-item>
       </kw-form-row>
@@ -111,7 +110,7 @@
             attach-group-id="ATG_DCD_CLING_COST_MGT"
             :attach-document-id="saveParams.clingCostAdjRcpNo"
             rules="required"
-            :name="$t('MSG_TXT_SRCP_APN')"
+            :label="$t('MSG_TXT_SRCP_APN')"
           />
         </kw-form-item>
       </kw-form-row>
@@ -142,7 +141,7 @@ const { ok } = useModal();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
-let cachedParams;
+let dataParams;
 const attachFiles = ref([]);
 const props = defineProps({
   clingCostAdjRcpNo: {
@@ -186,18 +185,20 @@ async function onClickClaimantName() {
     },
   });
   if (result) {
-    debugger;
+
     // 선택한 지역단장 조직유형코드, 지역단장 파트너번호, 지역단장명 set 해야함
   }
 }
 
 async function onClickApplication() {
-  debugger;
+  if (await saveParams.value.alertIfIsNotModified()) { return; }
+  if (!await saveParams.value.validate()) { return; }
+  if (!await confirm(t('MSG_ALT_WANT_SAVE'))) { return; }
+
   saveParams.value.attachFiles = attachFiles.value;
   const data = saveParams.value;
   await dataService.post('/sms/wells/closing/expense/cleaning-cost/request-cleaning-supplies', data);
 
-  if (!await confirm(t('MSG_ALT_PRSS_TMP_SAVE'))) { return; }
   notify(t('MSG_ALT_SAVE_DATA'));
 
   ok();
@@ -205,10 +206,10 @@ async function onClickApplication() {
 
 async function fetchData() {
   const { clingCostAdjRcpNo } = props;
-  debugger;
+
   if (!isEmpty(clingCostAdjRcpNo)) {
-    cachedParams = { clingCostAdjRcpNo: cloneDeep(clingCostAdjRcpNo) };
-    const res = await dataService.get('/sms/wells/closing/expense/cleaning-cost/request-cleaning-supplies', { params: cachedParams });
+    dataParams = { clingCostAdjRcpNo: cloneDeep(clingCostAdjRcpNo) };
+    const res = await dataService.get('/sms/wells/closing/expense/cleaning-cost/request-cleaning-supplies', { params: dataParams });
     saveParams.value = res.data;
   }
 }
