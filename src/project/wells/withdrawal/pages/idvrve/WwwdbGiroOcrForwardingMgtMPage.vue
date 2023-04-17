@@ -58,6 +58,7 @@
           v-model:page-index="pageInfo.pageIndex"
           v-model:page-size="pageInfo.pageSize"
           :total-count="pageInfo.totalCount"
+          :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
           @change="fetchData"
         />
       </template>
@@ -67,6 +68,12 @@
         dense
         @click="onClickPopup()"
       />
+      <!-- <kw-btn
+        :label="t('통합입금번호조회 임시')"
+        negative
+        dense
+        @click="onClickPopup2()"
+      /> -->
       <!-- label="임시 지로 수신처 관리 팝업" -->
       <kw-btn
         dense
@@ -148,7 +155,8 @@
     <kw-grid
       ref="grdLinkRef"
       name="grdLink"
-      :visible-rows="pageInfo.pageSize -1"
+      :page-size="pageInfo.pageSize"
+      :total-count="pageInfo.totalCount"
       @init="initGrid"
     />
     <kw-pagination
@@ -194,9 +202,16 @@ const codes = await codeUtil.getMultiCodes(
 // 임시 팝업 호출
 async function onClickPopup() {
   await modal({
-    component: 'WwwdbGiroPlrcvMgtP',
+    component: 'ZwwdbGiroPlaceReceivedMgtP',
+    componentProps: { cntrNo: 'W20222718343', cntrSn: '1' },
   });
 }
+// // 임시 팝업 호출
+// async function onClickPopup2() {
+//   await modal({
+//     component: 'WwwdbIntegrationDepositNumberInquiryP',
+//   });
+// }
 
 const pageInfo = ref({
   totalCount: 0,
@@ -227,6 +242,7 @@ async function fetchData() {
 
   data.checkRowStates(false);
   data.setRows(pages);
+  // view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
   data.checkRowStates(true);
 
   view.resetCurrent();
@@ -359,7 +375,6 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'ltpayYn' }, // 후납여부
     { fieldName: 'giroRglrDvCd' }, // 정기구분
     { fieldName: 'col2' }, // 현재차월
-
   ];
 
   const columns = [
@@ -456,6 +471,7 @@ const initGrid = defineGrid((data, view) => {
       header: t('MSG_TXT_SHUTDOWN'),
       editor: {
         type: 'number',
+        editFormat: '#,##0',
       },
       rules: 'required|max:5',
       // , header: '종료'
@@ -470,7 +486,7 @@ const initGrid = defineGrid((data, view) => {
       editable: true,
       editor: {
         type: 'number',
-
+        editFormat: '#,##0',
       },
     },
     { fieldName: 'istmMcn',
@@ -565,7 +581,7 @@ const initGrid = defineGrid((data, view) => {
       header: t('MSG_TXT_RGLR_DV'),
       // header: '정기구분',
       width: '100',
-      styleName: 'text-left',
+      styleName: 'text-center',
       rules: 'required',
       editable: false,
       options: codes.GIRO_RGLR_DV_CD },

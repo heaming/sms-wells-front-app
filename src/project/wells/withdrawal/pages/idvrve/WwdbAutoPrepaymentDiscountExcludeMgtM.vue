@@ -184,7 +184,7 @@ async function fetchData() {
   data.setRows(pages);
   data.checkRowStates(true);
 
-  view.resetCurrent();
+  view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
 // 조회 버튼
@@ -423,10 +423,10 @@ const initGrid = defineGrid((data, view) => {
       editable: false },
     { fieldName: 'fstRgstDtm', header: t('MSG_TXT_RGST_DTM'), width: '150', styleName: 'text-center', editable: false },
     { fieldName: 'fstRgstUsrId', header: t('MSG_TXT_FST_RGST_USR'), width: '70', styleName: 'text-left', editable: false },
-    { fieldName: 'fstRgstUsrId', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '88', styleName: 'text-left', editable: false },
+    { fieldName: 'fstRgstUsrId', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '88', styleName: 'text-right', editable: false },
     { fieldName: 'fnlMdfcDtm', header: t('MSG_TXT_MDFC_DTM'), width: '150', styleName: 'text-center', editable: false },
     { fieldName: 'fnlMdfcUsrId', header: t('MSG_TIT_MDFC_USR'), width: '70', styleName: 'text-left', editable: false },
-    { fieldName: 'fnlMdfcUsrId', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '88', styleName: 'text-left', editable: false },
+    { fieldName: 'fnlMdfcUsrId', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '88', styleName: 'text-right', editable: false },
   ];
 
   data.setFields(fields);

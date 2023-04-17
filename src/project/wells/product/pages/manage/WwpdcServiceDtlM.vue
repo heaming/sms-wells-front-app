@@ -3,7 +3,8 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : PDC (상품운영관리)
-2. 프로그램 ID : WwpdcServiceDtlM - 서비스 관리 - 서비스 상세조회 ( Z-PD-U-0042M01 )
+2. 프로그램 ID : WwpdcServiceDtlM - 서비스 관리 - 서비스 상세조회
+                ( W-PD-U-0044M01 )
 3. 작성자 : jintae.choi
 4. 작성일 : 2022.12.31
 ****************************************************************************************************
@@ -19,8 +20,10 @@
         <h2 class="h2-small">
           {{ pdBas.pdNm }}({{ pdBas.pdCd }})
           <p>
+            <!-- 등록일 -->
             <span>{{ $t('MSG_TXT_RGST_DT') }} {{ stringUtil.getDateFormat(pdBas.fstRgstDtm) }}
               /  {{ pdBas.fstRgstUsrNm }}</span><span>
+              <!-- 최종수정일  -->
               {{ $t('MSG_TXT_L_UPDATED') }} {{ stringUtil.getDateFormat(pdBas.fnlMdfcDtm) }}
               / {{ pdBas.fnlMdfcUsrNm }}</span>
           </p>
@@ -76,25 +79,24 @@ async function initProps() {
 
 await initProps();
 
+// 화면(탭) OPEN 상태에서, 다른 상품코드로 정보 변환
 watch(() => route.params.pdCd, async (pdCd) => {
   if (!route.path.includes('zwpdc-service-list')) return;
   console.log(`WwpdcServiceDtlM - watch - currentPdCd.value: ${currentPdCd.value} route.params.pdCd: ${pdCd}`);
   if (pdCd) {
-    cmpRef.value?.resetData();
+    await cmpRef.value?.resetData();
     currentPdCd.value = pdCd;
-    // selectedTab.value = 'attribute';
     await fetchData();
   }
 }, { immediate: true });
 
+// 화면(탭) OPEN 상태에서, 상품정보 갱신
 watch(() => route.params.reloadYn, async (reloadYn) => {
   if (!route.path.includes('zwpdc-service-list')) return;
   console.log(`WwpdcServiceDtlM - watch - route.params.reloadYn: ${reloadYn}`);
   if (reloadYn === 'Y') {
-    currentPdCd.value = null;
-    cmpRef.value?.resetData();
+    await cmpRef.value?.resetData();
     currentPdCd.value = props.pdCd;
-    // selectedTab.value = 'attribute';
     await fetchData();
   }
 });

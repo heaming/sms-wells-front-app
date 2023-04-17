@@ -35,13 +35,16 @@
               icon="search"
               clearable
               :label="t('MSG_TXT_CUSTOMER')"
-              rules="required|max:16"
               :disable="regMainData.isSearchChk"
               maxlength="48"
               counter
+              :rules="validateCst"
+              :custom-messages="{ required:$t('MSG_ALT_USE_DT_SRCH_AF') }"
               @click-icon="onClickSearchUser"
+              @keydown="onKeyDownSelectUser"
+              @clear="onClearSelectUser"
             />
-            <!-- :custom-messages="{ is: $t('MSG_ALT_CHK_DUP') }" -->
+            <!-- rules="required|max:16" -->
           </kw-form-item>
           <kw-form-item
             :label="t('MSG_TXT_WRTE_DT')"
@@ -114,13 +117,13 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 
-import { defineGrid, getComponentType, gridUtil, modal, notify, useDataService, useModal } from 'kw-lib';
+import { defineGrid, getComponentType, gridUtil, modal, notify, useDataService, useModal, validate } from 'kw-lib';
 import dayjs from 'dayjs';
 import { cloneDeep } from 'lodash-es';
 
 const now = dayjs();
 
-const { ok, cancel: onClickCancel } = useModal();
+const { ok } = useModal();
 const dataService = useDataService();
 const { t } = useI18n();
 const { getters } = useStore();
@@ -162,6 +165,7 @@ const regMainData = ref({
   sellPrtnrNm: userName,
   state: '',
   isSearchChk: false,
+  cstNo: '',
 });
 
 // 행추가
@@ -176,6 +180,18 @@ async function onClickAddRow() {
 }
 
 let cachedParams;
+
+const validateCst = computed(() => async (val, options) => {
+  const errors = [];
+
+  if (!regMainData.value.isSearchChk) {
+    errors.push(
+      ...(await validate(regMainData.value.cstNo, 'required', options)).errors,
+    );
+  }
+
+  return errors[0] || true;
+});
 
 // 저장 버튼
 async function onClickSave() {
@@ -213,7 +229,12 @@ async function onClickSave() {
 
   notify(t('MSG_ALT_SAVE_DATA'));
 
-  ok();
+  console.log('???>');
+
+  ok({
+    cstFnm: regMainData.value.cstFnm,
+    isSearchChk: true,
+  });
 }
 
 // 고객명 찾기 이벤트
@@ -222,7 +243,7 @@ async function onClickSearchUser() {
 
   if (result) {
     console.log(payload);
-    // regMainData.value.cstFnm = payload.cstNm;
+    regMainData.value.cstNo = payload.cstNo;
     regMainData.value.cstFnm = payload.name;
   }
 }
@@ -275,8 +296,22 @@ async function onClickRemove() {
 
   if (allCount === 0) {
     await dataService.delete('/sms/wells/withdrawal/idvrve/billing-document-orders', { data: deletedRows });
-    ok();
   }
+}
+
+async function onClearSelectUser() {
+  regMainData.value.cstNo = '';
+  regMainData.value.cstFnm = '';
+}
+
+async function onKeyDownSelectUser() {
+  regMainData.value.cstNo = '';
+}
+async function onClickCancel() {
+  ok({
+    cstFnm: regMainData.value.cstFnm,
+    isSearchChk: regMainData.value.isSearchChk,
+  });
 }
 
 async function initProps() {

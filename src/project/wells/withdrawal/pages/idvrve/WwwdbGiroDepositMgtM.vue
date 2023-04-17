@@ -56,6 +56,7 @@
             v-model:page-index="pageInfo.pageIndex"
             v-model:page-size="pageInfo.pageSize"
             :total-count="pageInfo.totalCount"
+            :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
             @change="fetchData"
           />
         </template>
@@ -125,11 +126,11 @@
         />
         <!-- label="입금등록" -->
       </kw-action-top>
-
       <kw-grid
         ref="grdMainRef"
-        :visible-rows="10"
         name="grdMain"
+        :page-size="pageInfo.pageSize"
+        :total-count="pageInfo.totalCount"
         @init="initGrid"
       />
       <kw-pagination

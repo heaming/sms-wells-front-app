@@ -47,13 +47,11 @@
         </kw-search-item>
         <kw-search-item
           :label="t('MSG_TXT_DP_DT')"
-          required
         >
           <!-- label="입금일자" -->
           <kw-date-range-picker
             v-model:from="searchParams.dpStartDtm"
             v-model:to="searchParams.dpEndDtm"
-            rules="required"
             :dense="true"
           />
           <!-- rules="date_range_months:1" -->
@@ -137,9 +135,11 @@
     </kw-action-top>
 
     <kw-grid
+
       ref="grdMainRef"
       name="grdMain"
-      :visible-rows="10"
+      :page-size="pageInfo.pageSize"
+      :total-count="pageInfo.totalCount"
       @init="initGrid"
     />
 
@@ -181,6 +181,7 @@ const grdMainRef = ref(getComponentType('KwGrid'));
 const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
   'DP_TP_CD',
+  'CARD_KND_CD',
 );
 
 const DP_TP_CD = codes.DP_TP_CD.filter((e) => ['0101', '0104', '0201'].includes(e.codeId));
@@ -296,10 +297,6 @@ onMounted(async () => {
 
 const initGrid = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'col1' },
-    { fieldName: 'col2' },
-    { fieldName: 'col3' },
-    { fieldName: 'col4' },
 
     { fieldName: 'itgDpNo' }, /* 통합입금번호 */
     { fieldName: 'rveCd' }, /* 수납코드 */
@@ -313,14 +310,14 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'pextBnkCd' }, /* 은행코드 */
     { fieldName: 'bankNm' }, /* 은행명 */
     { fieldName: 'acnoEncr' }, /* 계좌번호암호화 */
-    /* 카드구분 */
+    { fieldName: 'cardKndCd' }, /* 카드구분 */
     { fieldName: 'crcdnoEncr' }, /* 신용카드번호암호화 - 카드번호 */
     { fieldName: 'cardNm' }, /* 카드명 */
     { fieldName: 'aprDtm' }, /* 승인일시 */
     { fieldName: 'cardAprno' }, /* 카드승인번호 */
-    /* 대사번호 */
-    /* 대사금액 */
-    /* 입금대사일자 */
+    { fieldName: 'dpCprcnfNo' }, /* 대사번호 */
+    { fieldName: 'dpCprcnfProcsAmt' }, /* 대사금액 */
+    { fieldName: 'dpCprcnfDtm' }, /* 입금대사일자 */
     { fieldName: 'dpCprcnfAmt', dataType: 'number' }, /* 기대사금액(입금대사금액) */
     { fieldName: 'pchsCdcoCd' }, /* 매입카드사코드 */
     { fieldName: 'istmMcn' }, /* 할부개월 */
@@ -393,10 +390,11 @@ const initGrid = defineGrid((data, view) => {
       // , header: '계좌번호'
       width: '154',
       styleName: 'text-left' },
-    { fieldName: 'col1',
+    { fieldName: 'cardKndCd',
       header: t('MSG_TXT_CARD_DV'),
       // , header: '카드구분'
       width: '100',
+      options: codes.CARD_KND_CD,
       styleName: 'text-center' },
     { fieldName: 'crcdnoEncr',
       header: t('MSG_TXT_CARD_NO'),
@@ -418,17 +416,17 @@ const initGrid = defineGrid((data, view) => {
       // , header: '승인번호'
       width: '114',
       styleName: 'text-left' },
-    { fieldName: 'col2',
+    { fieldName: 'dpCprcnfNo',
       header: t('MSG_TXT_CPRCNF_NO'),
       // , header: '대사번호'
       width: '100',
       styleName: 'text-left' },
-    { fieldName: 'col3',
+    { fieldName: 'dpCprcnfProcsAmt',
       header: t('MSG_TXT_CPRCNF_AMT_WON'),
       // , header: '대사금액(원)'
       width: '100',
       styleName: 'text-right' },
-    { fieldName: 'col4',
+    { fieldName: 'dpCprcnfDtm',
       header: t('MSG_TXT_DP_CPRCNF_DT'),
       // , header: '입금대사일자'
       width: '100',

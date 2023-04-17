@@ -308,8 +308,7 @@ async function onClickExcelDownload() {
 }
 
 async function onClickAdd() {
-  // await router.push({ path: page.value.reg });
-  await router.push({ path: page.value.reg });
+  await router.push({ path: page.value.reg, query: { fromUi: 'Reg' } });
 }
 
 async function onClickSummarySearch() {

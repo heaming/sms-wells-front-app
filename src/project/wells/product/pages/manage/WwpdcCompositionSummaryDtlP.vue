@@ -3,13 +3,14 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : PDC (상품운영관리)
-2. 프로그램 ID : WwpdcCompositionSummaryDtlP - 판매상품 관리 - 서비스 요약조회 ( Z-PD-U-0042P01 )
+2. 프로그램 ID : WwpdcCompositionSummaryDtlP - 판매상품 관리 - 복합상품 요약조회
+                ( Z-PD-U-0021P01 )
 3. 작성자 : jintae.choi
-4. 작성일 : 2022.12.31
+4. 작성일 : 2023.04.01
 ****************************************************************************************************
 * 프로그램 설명
 ****************************************************************************************************
-- 상품 서비스 관리 - 서비스 요약조회
+- 상품 판매상품 관리 - 복합상품 요약조회
 ****************************************************************************************************
 --->
 <template>
@@ -24,8 +25,10 @@
     <h2 class="h2-small mb30">
       {{ pdInfo.pdNm }}({{ pdInfo.pdCd }})
       <p>
+        <!-- 등록일 -->
         <span>{{ $t('MSG_TXT_RGST_DT') }} {{ stringUtil.getDateFormat(pdInfo.fstRgstDtm) }}
           /  {{ pdInfo.fstRgstUsrNm }}</span><span>
+          <!-- 최종수정일  -->
           {{ $t('MSG_TXT_L_UPDATED') }} {{ stringUtil.getDateFormat(pdInfo.fnlMdfcDtm) }}
           / {{ pdInfo.fnlMdfcUsrNm }}</span>
       </p>
@@ -80,7 +83,7 @@
         <!-- 컨텐츠 선택 제한유무 -->
         <kw-form-item :label="$t('MSG_TXT_CONTS_SEL_STOP_YN')">
           <p>
-            {{ getCodeNames(codes, pdInfo.cntsChoLmYn, 'COD_YN') }}
+            {{ pdInfo.cntsChoLmYn }}
           </p>
         </kw-form-item>
       </kw-form-row>
@@ -96,6 +99,7 @@
     <kw-separator />
     <kw-grid
       ref="grdStandardRef"
+      name="grdStandardMain"
       :visible-rows="2"
       class="mb20"
       @init="initStandardGrid"
@@ -106,6 +110,7 @@
     </kw-action-top>
     <kw-grid
       ref="grdMainRef"
+      name="grdMain"
       :visible-rows="5"
       @init="initGrid"
     />
@@ -145,11 +150,6 @@ const codes = await codeUtil.getMultiCodes(
   'VAT_TP_CD',
   'GRY_CD',
 );
-codes.COD_YN.map((item) => {
-  item.codeName = item.codeId;
-  item.changed = true;
-  return item;
-});
 
 async function fetchData() {
   const resPd = await dataService.get(`/sms/common/product/${currentPdCd.value}`);
@@ -195,8 +195,6 @@ async function initProps() {
 }
 
 await initProps();
-
-watch(() => props.pdCd, (pdCd) => { currentPdCd.value = pdCd; fetchData(); });
 
 //-------------------------------------------------------------------------------------------------
 // Initialize Grid

@@ -26,8 +26,10 @@
     <h2 class="h2-small mb30">
       {{ pdInfo.pdNm }}({{ pdInfo.pdCd }})
       <p>
+        <!-- 등록일 -->
         <span>{{ $t('MSG_TXT_RGST_DT') }} {{ stringUtil.getDateFormat(pdInfo.fstRgstDtm) }}
           /  {{ pdInfo.fstRgstUsrNm }}</span><span>
+          <!-- 최종수정일  -->
           {{ $t('MSG_TXT_L_UPDATED') }} {{ stringUtil.getDateFormat(pdInfo.fnlMdfcDtm) }}
           / {{ pdInfo.fnlMdfcUsrNm }}</span>
       </p>
@@ -40,7 +42,7 @@
         <!-- 필수 서비스 여부 -->
         <kw-form-item :label="getFieldName('mndtSvYn')">
           <p>
-            {{ getCodeName(pdInfo.mndtSvYn, 'COD_YN') }}
+            {{ pdInfo.mndtSvYn }}
           </p>
         </kw-form-item>
       </kw-form-row>
@@ -130,6 +132,5 @@ async function initProps() {
 
 await initProps();
 
-watch(() => props.pdCd, () => { initProps(); });
 </script>
 <style scoped></style>

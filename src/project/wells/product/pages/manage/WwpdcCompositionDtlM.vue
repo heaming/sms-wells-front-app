@@ -3,13 +3,14 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : PDC (상품운영관리)
-2. 프로그램 ID : WwpdcCompositionDtlM - (판매) 상품목록 - 상세조회 ( Z-PD-U-0011M01 )
+2. 프로그램 ID : WwpdcCompositionDtlM - (판매) 상품목록 - 복합상품 상세조회
+                ( Z-PD-U-0021M01 )
 3. 작성자 : jintae.choi
-4. 작성일 : 2022.12.31
+4. 작성일 : 2023.04.01
 ****************************************************************************************************
 * 프로그램 설명
 ****************************************************************************************************
-- 상품 기준상품 상세조회 프로그램
+- 상품 복합상품 상세조회 프로그램
 ****************************************************************************************************
 --->
 <template>
@@ -19,8 +20,10 @@
         <h2 class="h2-small">
           {{ pdBas.pdNm }}({{ pdBas.pdCd }})
           <p>
+            <!-- 등록일 -->
             <span>{{ $t('MSG_TXT_RGST_DT') }} {{ stringUtil.getDateFormat(pdBas.fstRgstDtm) }}
               /  {{ pdBas.fstRgstUsrNm }}</span><span>
+              <!-- 최종수정일  -->
               {{ $t('MSG_TXT_L_UPDATED') }} {{ stringUtil.getDateFormat(pdBas.fnlMdfcDtm) }}
               / {{ pdBas.fnlMdfcUsrNm }}</span>
           </p>
@@ -31,7 +34,6 @@
         v-model:pd-cd="currentPdCd"
         v-model:init-data="prevStepData"
         :codes="codes"
-        :temp-save-yn="props.tempSaveYn"
       />
     </div>
   </kw-page>
@@ -42,13 +44,11 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { useDataService, codeUtil, stringUtil } from 'kw-lib';
-import { cloneDeep } from 'lodash-es';
 import pdConst from '~sms-common/product/constants/pdConst';
 import WwpdcCompositionDtlMContents from './WwpdcCompositionDtlMContents.vue';
 
 const props = defineProps({
   pdCd: { type: String, default: null },
-  tempSaveYn: { type: String, default: 'Y' },
 });
 
 const route = useRoute();
@@ -59,7 +59,6 @@ const dataService = useDataService();
 // -------------------------------------------------------------------------------------------------
 const cmpRef = ref();
 const currentPdCd = ref();
-const prdPropGroups = ref({});
 const pdBas = ref({});
 const prevStepData = ref({});
 
@@ -72,20 +71,12 @@ const codes = await codeUtil.getMultiCodes(
   'PD_REL_TP_CD',
   'PD_TEMP_SAVE_CD',
 );
-codes.COD_YN.map((item) => {
-  item.codeName = item.codeId;
-  item.changed = true;
-  return item;
-});
 
 async function fetchProduct() {
   if (currentPdCd.value) {
     const res = await dataService.get(`/sms/wells/product/compositions/${currentPdCd.value}`);
     pdBas.value = res.data[pdConst.TBL_PD_BAS];
-    // console.log('WwpdcCompositionDtlM - fetchProduct - res.data', res.data);
-    // console.log('res.data : ', res.data);
-    prevStepData.value = cloneDeep(res.data);
-    prdPropGroups.value = res.data.groupCodes;
+    prevStepData.value = res.data;
   }
 }
 
@@ -97,22 +88,24 @@ async function initProps() {
 
 await initProps();
 
+// 화면(탭) OPEN 상태에서, 다른 상품코드로 정보 변환
 watch(() => route.params.pdCd, async (pdCd) => {
   if (!route.path.includes('zwpdc-sale-product-list')) return;
   console.log(`WwpdcCompositionDtlM - currentPdCd.value : ${currentPdCd.value}, route.params.pdCd : ${pdCd}`);
   if (pdCd) {
-    if (cmpRef.value?.resetData) await cmpRef.value?.resetData();
+    // 초기화
+    await cmpRef.value?.resetData();
     currentPdCd.value = pdCd;
-    fetchProduct();
+    await fetchProduct();
   }
 }, { immediate: true });
 
+// 화면(탭) OPEN 상태에서, 상품정보 갱신
 watch(() => route.params.reloadYn, async (reloadYn) => {
   if (!route.path.includes('zwpdc-sale-product-list')) return;
   console.log(`WwpdcCompositionDtlM - watch - route.params.reloadYn: ${reloadYn}`);
-  if (reloadYn && reloadYn === 'Y') {
-    currentPdCd.value = null;
-    if (cmpRef.value?.resetData) await cmpRef.value?.resetData();
+  if (reloadYn === 'Y') {
+    await cmpRef.value?.resetData();
     currentPdCd.value = props.pdCd;
     await fetchProduct();
   }

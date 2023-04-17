@@ -162,13 +162,13 @@
           vertical
           inset
         /> -->
-        <kw-btn
+        <!-- <kw-btn
           icon="download_on"
           dense
           secondary
           :label="$t('MSG_BTN_TEMP_DOWN')"
           @click="onClickTemplateDownload"
-        />
+        /> -->
         <!-- label="양식다운로드" -->
 
         <kw-btn
@@ -201,10 +201,11 @@
         />
         <!-- label="생성" -->
       </kw-action-top>
-
       <kw-grid
         ref="grdMainRef"
-        :visible-rows="10"
+        name="grdMain"
+        :page-size="pageInfo.pageSize"
+        :total-count="pageInfo.totalCount"
         @init="initGrid"
       />
       <kw-pagination
@@ -224,13 +225,11 @@
 import dayjs from 'dayjs';
 import { codeUtil, defineGrid, getComponentType, gridUtil, modal, notify, useDataService, useMeta, confirm } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
-import useCmFile from '~common/composables/useCmFile';
 
 const dataService = useDataService();
 const now = dayjs();
 const { t } = useI18n();
 const { getConfig } = useMeta();
-const { getStandardFormFile } = useCmFile();
 const { currentRoute } = useRouter();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -529,11 +528,11 @@ async function onClickExcelDownload() {
 }
 
 // 엑셀 양식 다운로드
-async function onClickTemplateDownload() {
-  const fileName = await searchTemplateFile(searchParams.value.lifAlncDvCd);
+// async function onClickTemplateDownload() {
+//   const fileName = await searchTemplateFile(searchParams.value.lifAlncDvCd);
 
-  await getStandardFormFile(fileName);
-}
+//   await getStandardFormFile(fileName);
+// }
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
