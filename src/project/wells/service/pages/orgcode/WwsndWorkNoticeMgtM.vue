@@ -50,7 +50,7 @@
           />
         </kw-search-item>
       </kw-search-row>
-      <wwsnz-manager-og-multi-select
+      <wwsn-manager-og-search-row
         v-model:dgr1-levl-og-id="testParams1.dgr1LevlOgId"
         v-model:dgr2-levl-og-id="testParams1.dgr2LevlOgId"
         v-model:dgr3-levl-og-id="testParams1.dgr3LevlOgId"
@@ -66,7 +66,7 @@
         dgr3-levl-og-required
         partner-required
       />
-      <wwsnz-manager-og-multi-select
+      <wwsn-manager-og-search-row
         v-model:dgr1-levl-og-id="testParams2.dgr1LevlOgId"
         v-model:dgr2-levl-og-id="testParams2.dgr2LevlOgId"
         v-model:dgr3-levl-og-id="testParams2.dgr3LevlOgId"
@@ -81,7 +81,7 @@
         dgr2-levl-og-first-otion="all"
         dgr3-levl-og-first-otion="all"
       />
-      <wwsnz-manager-og-multi-select
+      <wwsn-manager-og-search-row
         v-model:dgr1-levl-og-id="testParams3.dgr1LevlOgId"
         v-model:dgr2-levl-og-id="testParams2.dgr2LevlOgId"
         v-model:dgr3-levl-og-id="testParams2.dgr3LevlOgId"
@@ -94,7 +94,7 @@
         dgr2-levl-og-label="ogCdNm"
         dgr3-levl-og-label="ogCdNm"
       />
-      <wwsnz-manager-og-multi-select
+      <wwsn-manager-og-search-row
         v-model:prtnr-no="testParams4.prtnrNo"
         use-og-level="0"
         use-partner
@@ -171,7 +171,7 @@ import {
 } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
-import WwsnzManagerOgMultiSelect from '~sms-wells/service/pages/common/components/WwsnzManagerOgMultiSelect.vue';
+import WwsnManagerOgSearchRow from '~sms-wells/service/components/WwsnManagerOgSearchRow.vue';
 
 const { modal } = useGlobal();
 const { t } = useI18n();
