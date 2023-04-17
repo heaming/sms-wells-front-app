@@ -38,7 +38,7 @@
           :label="$t('MSG_TXT_RGNL_GRP')"
           required
         >
-          <zwogz-level-select
+          <zwog-level-select
             v-model:og-levl-dv-cd2="searchParams.ogLevlDvCd2"
             :og-tp-cd="searchParams.ogTpCd"
             :base-ym="searchParams.baseYm"
@@ -176,7 +176,7 @@
 // -------------------------------------------------------------------------------------------------
 import { defineGrid, useDataService, getComponentType, gridUtil, useGlobal, useModal, codeUtil } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
-import ZwogzLevelSelect from '~sms-common/organization/components/common/ZwogzLevelSelect.vue';
+import ZwogLevelSelect from '~sms-common/organization/components/ZwogLevelSelect.vue';
 import dayjs from 'dayjs';
 
 const { t } = useI18n();
