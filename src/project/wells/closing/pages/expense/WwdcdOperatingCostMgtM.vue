@@ -37,7 +37,7 @@
           />
         </kw-search-item>
         <kw-search-item :label="$t('MSG_TXT_OG_LEVL')">
-          <zwogz-level-select
+          <zwog-level-select
             v-model:og-levl-dv-cd1="searchParams.dgr2LevlOgId"
             v-model:og-levl-dv-cd2="searchParams.dgr3LevlOgId"
             v-model:og-levl-dv-cd3="searchParams.dgr4LevlOgId"
@@ -136,7 +136,7 @@
 import { useDataService, getComponentType, defineGrid } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
-import ZwogzLevelSelect from '~sms-common/organization/components/common/ZwogzLevelSelect.vue';
+import ZwogLevelSelect from '~sms-common/organization/components/ZwogLevelSelect.vue';
 
 // 유가증권 제외
 import WwdcdOperatingCostMgtMSecuritiesException from './WwdcdOperatingCostMgtMSecuritiesException.vue';
