@@ -191,7 +191,6 @@ async function onClickClaimantName() {
 }
 
 async function onClickApplication() {
-  if (!await saveParams.value.validate()) { return; }
   if (!await confirm(t('MSG_ALT_WANT_SAVE'))) { return; }
 
   saveParams.value.attachFiles = attachFiles.value;
