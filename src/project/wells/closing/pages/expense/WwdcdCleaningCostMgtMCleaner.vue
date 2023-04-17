@@ -165,7 +165,7 @@ async function onClickSearch() {
 
 async function onClickRegister() {
   const { result } = await modal({
-    component: 'WwdcdRegistrationAsACleanerMgtM', // W-CL-U-0093P02
+    component: 'WwdcdCleanerRegistrationMgtP', // W-CL-U-0093P02
     componentProps: {
       configGroup: '',
     },
