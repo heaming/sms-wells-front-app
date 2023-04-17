@@ -29,6 +29,7 @@
         <kw-search-item :label="$t('MSG_TXT_DIV')">
           <kw-select
             v-model="searchParams.pdGbn"
+            first-option="all"
             :options="codes.PDGRP_ACD"
           />
         </kw-search-item>
