@@ -7,18 +7,16 @@ export default () => {
    * <pre>
    * 상품기본조회
    * </pre>
-   *
    * @see LC_SERVICEVISIT_460_LST_S03.xml
-   * @descript ASIS의 데이터가 ToBe로 이관되면 사용하지 않을 예정
    * @example
    *     import useSnCode from '~sms-wells/service/composables/useSnCode';
-   *     const { getLcStockSt101tb } = useSnCode();
-   *     const sido = await getLcStockSt101tb('sido');
+   *     const { getPartMaster } = useSnCode();
+   *     const sido = await getPartMaster('sido');
    */
-  async function getLcStockSt101tb() {
+  async function getPartMaster(itemKnd, itemGr, pdTpCd) {
     const result = await dataService.get(
-      '/sms/wells/common/sms-wells-codes/districts',
-      { params: { itemKnd: '4', itemGr: '1', pdTpCd: 'M' } },
+      '/sms/wells/common/sms-wells-codes/part-master',
+      { params: { itemKnd: itemKnd || '4', itemGr: itemGr || '1', pdTpCd: pdTpCd || 'M' } },
     );
     return result.data;
   }
@@ -254,7 +252,7 @@ export default () => {
   }
 
   return {
-    getLcStockSt101tb,
+    getPartMaster,
     getServiceCenters,
     getDistricts,
     getMcbyCstSvOjIz,

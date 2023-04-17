@@ -90,12 +90,12 @@ const dataService = useDataService();
 
 const { getConfig } = useMeta();
 
-const { getLcStockSt101tb } = useSnCode();
+const { getPartMaster } = useSnCode();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
-const subCodes = ref((await getLcStockSt101tb()).map((v) => ({ codeId: v.cd, codeName: v.cdNm })));
+const subCodes = ref((await getPartMaster()).map((v) => ({ codeId: v.cd, codeName: v.cdNm })));
 const grdMainRef = ref(getComponentType('KwGrid'));
 
 let cachedParams;

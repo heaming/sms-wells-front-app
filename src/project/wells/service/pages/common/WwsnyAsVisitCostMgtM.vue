@@ -86,7 +86,7 @@ import { notify, gridUtil, defineGrid, useMeta, codeUtil, getComponentType, useD
 import { cloneDeep } from 'lodash-es';
 import smsCommon from '~sms-wells/service/composables/useSnCode';
 
-const { getLcStockSt101tb } = smsCommon();
+const { getPartMaster } = smsCommon();
 
 const { t } = useI18n();
 const { getConfig } = useMeta();
@@ -108,7 +108,7 @@ const pageInfo = ref({
 const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
 );
-const pds = await getLcStockSt101tb();
+const pds = await getPartMaster();
 
 async function fetchData() {
   const res = await dataService.get('/sms/wells/service/as-visit-costs/paging', { params: {
