@@ -128,7 +128,7 @@ let cachedParams;
 const searchParams = ref({
   baseYm: now.format('YYYYMM'),
   type: 'A',
-  strtdt: now.format('YYYYMM'),
+  strtdt: now.format('YYYYMMDD'),
   enddt: now.add(3, 'month').format('YYYYMMDD'),
   nameType: '',
 });
