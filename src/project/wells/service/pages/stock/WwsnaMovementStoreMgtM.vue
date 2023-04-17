@@ -24,7 +24,7 @@
           :label="$t('MSG_TXT_STR_WARE')"
         >
           <kw-select
-            v-model="searchParams.strWareNo"
+            v-model="searchParams.strOjWareNo"
             :options="warehouses"
           />
         </kw-search-item>
@@ -34,7 +34,7 @@
           :label="$t('MSG_TXT_RCP_TP')"
         >
           <kw-select
-            v-model="searchParams.ostrTpCd"
+            v-model="searchParams.strTpCd"
             :options="filterCodes.filterStrTpCd"
             first-option="all"
           />
@@ -47,8 +47,8 @@
         >
           <!-- if essential case please add "required" -->
           <kw-date-range-picker
-            v-model:from="searchParams.stOstrDt"
-            v-model:to="searchParams.edOstrDt"
+            v-model:from="searchParams.stStrDt"
+            v-model:to="searchParams.edStrDt"
             rules="date_range_months:1"
           />
         </kw-search-item>
@@ -115,9 +115,9 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { codeUtil, useDataService, getComponentType, useMeta, defineGrid, gridUtil, useGlobal } from 'kw-lib';
-// import ZwcmWareHouseSearch from '~sms-common/service/components/ZwsnzWareHouseSearch.vue';
-import dayjs from 'dayjs';
 import { cloneDeep } from 'lodash-es';
+import dayjs from 'dayjs';
+import useSnCode from '~sms-wells/service/composables/useSnCode';
 
 const { getConfig } = useMeta();
 const { modal, notify } = useGlobal();
@@ -126,41 +126,47 @@ const { t } = useI18n();
 const dataService = useDataService();
 const baseURI = '/sms/wells/service/movement-stores/management';
 const excelURI = `${baseURI} + /excel-download`;
-const wareURI = '/sms/wells/service/out-of-storage-asks/warehouses';
 const grdMainRef = ref(getComponentType('KwGrid'));
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
+// 로그인한 사용자의 창고정보 조회
+const { getMonthWarehouse } = useSnCode();
 
 const codes = await codeUtil.getMultiCodes(
   'WARE_DV_CD',
-  'OSTR_TP_CD',
+  'STR_TP_CD',
   'COD_PAGE_SIZE_OPTIONS',
 );
 
 // 입고상세구분 필터링
 const filterCodes = ref({
-  filterOstrTpCd: [],
+  filterStrTpCd: [],
 });
 
-filterCodes.value.filterOstrTpCd = codes.OSTR_TP_CD.filter((v) => ['221', '222', '223', '261', '262'].includes(v.codeId));
+filterCodes.value.filterStrTpCd = codes.STR_TP_CD.filter((v) => ['121', '122', '123', '162', '161'].includes(v.codeId));
 
 let cachedParams;
 const totalCount = ref(0);
 
+const wharehouseParams = ref({
+  apyYm: dayjs().format('YYYYMM'),
+  userId: '36680', // TODO: USER_ID로 정리되어야함(임시로 사용)
+});
+
 const searchParams = ref({
   baseYm: '',
   wareDvCd: '2',
-  strWareNo: '',
+  strOjWareNo: '',
   strTpCd: '',
-  stOstrDt: '',
-  edOstrDt: '',
+  stStrDt: '',
+  edStrDt: '',
 });
 
 searchParams.value.baseYm = dayjs().format('YYYYMM');
-searchParams.value.stOstrDt = dayjs().format('YYYYMMDD');
-searchParams.value.edOstrDt = dayjs().format('YYYYMMDD');
+searchParams.value.stStrDt = dayjs().format('YYYYMMDD');
+searchParams.value.edStrDt = dayjs().format('YYYYMMDD');
 
 const pageInfo = ref({
   totalCount: 0,
@@ -182,9 +188,10 @@ async function fetchData() {
 
 const warehouses = ref();
 async function fetchDefaultData() {
-  const res = await dataService.get(wareURI, { params: { apyYm: searchParams.value.baseYm } });
-  warehouses.value = res.data;
-  searchParams.value.strWareNo = warehouses.value[0].codeId;
+  const { userId, apyYm } = wharehouseParams.value;
+
+  warehouses.value = await getMonthWarehouse(userId, apyYm);
+  searchParams.value.strOjWareNo = warehouses.value[0].codeId;
 }
 
 async function onClickSearch() {
@@ -210,72 +217,74 @@ onMounted(async () => {
 // -------------------------------------------------------------------------------------------------
 const initGrdMain = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'ostrDt', header: t('MSG_TXT_OSTR_DT'), width: '150', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'ostrTpCd', header: t('MSG_TXT_OSTR_TP'), width: '150', options: codes.OSTR_TP_CD, styleName: 'text-center' },
-    { fieldName: 'itmOstrNo',
-      header: t('MSG_TXT_OSTR_MNGT_NO'),
+    { fieldName: 'strRgstDt', header: t('MSG_TXT_STR_DT'), width: '150', styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'strTpCd', header: t('MSG_TXT_STR_TP'), width: '150', options: codes.STR_TP_CD, styleName: 'text-center' },
+    { fieldName: 'itmStrNo',
+      header: t('MSG_TXT_STR_MNGT_NO'),
       width: '250',
       styleName: 'text-center',
       displayCallback: (g, i, v) => {
         const regExp = /^(\d{3})(\d{8})(\d{7}).*/;
         return v.replace(regExp, '$1-$2-$3');
       } },
-    { fieldName: 'ostrWareNm', header: t('MSG_TXT_OSTR_WARE'), width: '150', styleName: 'text-left' },
-    { fieldName: 'pdNm', header: t('MSG_TXT_OSTR_ITM'), width: '250', styleName: 'text-left' },
-    { fieldName: 'itmStrNo',
+    { fieldName: 'wareNm', header: t('MSG_TXT_STR_WARE'), width: '150', styleName: 'text-left' },
+    { fieldName: 'itmPdNm', header: t('MSG_TXT_STR_ITM'), width: '250', styleName: 'text-left' },
+    { fieldName: 'strSn',
       header: t('MSG_TXT_NOTE'),
       width: '145',
       styleName: 'text-center',
       renderer: { type: 'button' },
       displayCallback: () => t('MSG_BTN_STR_RGST'),
     },
-    { fieldName: 'strWareNo', header: t('MSG_TXT_STR_WARE'), width: '0', styleName: 'text-left', visible: false },
-    { fieldName: 'ostrWareNo', header: t('MSG_TXT_OSTR_WARE'), width: '0', styleName: 'text-left', visible: false },
-    { fieldName: 'strHopDt', header: t('MSG_TXT_OSTR_WARE'), width: '0', styleName: 'text-left', visible: false },
-    { fieldName: 'strWareNm', header: t('MSG_TXT_STR_WARE'), width: '0', styleName: 'text-left', visible: false },
   ];
-  const fields = columns.map((v) => ({ fieldName: v.fieldName }));
+
+  const gridField = columns.map((v) => ({ fieldName: v.fieldName }));
+  const fields = [...gridField,
+    { fieldName: 'strWareNo' },
+    { fieldName: 'itmPdNo' },
+    { fieldName: 'ostrWareNo' },
+    { fieldName: 'ostrWareNm' }];
 
   data.setFields(fields);
   view.setColumns(columns);
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
 
-  view.onCellClicked = async (g, { column, dataRow }, v) => {
+  view.onCellItemClicked = async (g, { column, dataRow }) => {
     const {
-      ostrDt,
-      ostrTpCd,
-      itmOstrNo,
+      strRgstDt,
+      strTpCd,
       itmStrNo,
       strWareNo,
+      wareNm,
+      itmPdNo,
+      itmPdNm,
       ostrWareNo,
-      strWareNm,
       ostrWareNm,
-      strHopDt,
     } = gridUtil.getRowValue(g, dataRow);
-    console.log(g, column, dataRow, v);
-    // WwsnaTransferStoreRgstMgtP
-    if (column === 'itmStrNo') {
-      const { result: isChanged } = await modal({
-        component: 'WwsnaMovementStoreRegP',
-        componentProps: {
-          ostrDt,
-          ostrTpCd,
-          ostrTpNm: codes.OSTR_TP_CD.find((atr) => atr.codeId === ostrTpCd).codeName,
-          itmOstrNo,
-          itmStrNo,
-          strWareNo,
-          ostrWareNo,
-          strWareNm,
-          ostrWareNm,
-          strHopDt,
-        },
-      });
+    console.log(g, column, dataRow);
 
-      if (isChanged) {
-        notify(t('MSG_ALT_SAVE_DATA'));
-        await fetchData();
-      }
+    const { result: isChanged } = await modal({
+      component: 'WwsnaMovementStoreRegP',
+      componentProps: {
+        strRgstDt,
+        strTpCd,
+        strTpNm: codes.STR_TP_CD.find((atr) => atr.codeId === strTpCd).codeName,
+        itmStrNo,
+        strWareNo,
+        strWareNm: wareNm,
+        ostrWareNo,
+        ostrWareNm,
+        itmPdNo,
+        itmPdNm,
+        strHopDt: '',
+        flagChk: 0,
+      },
+    });
+
+    if (isChanged) {
+      notify(t('MSG_ALT_SAVE_DATA'));
+      await fetchData();
     }
   };
 });
