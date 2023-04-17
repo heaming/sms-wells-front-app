@@ -147,7 +147,7 @@
         <kw-btn
           v-permission:create
           dense
-          primary-s
+          primary
           :label="$t('MSG_BTN_AS_PART_REG')"
           @click="onClickAdd"
         />

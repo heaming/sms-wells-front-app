@@ -380,6 +380,7 @@ async function popupCallback(payload) {
     prevStepData.value[bas].sapMatEvlClssVal = payload.sapMatEvlClssVal ?? '';
     prevStepData.value[bas].sapMatGrpVal = payload.sapMatGrpVal ?? '';
     prevStepData.value[bas].sapPlntCd = payload.sapPlntVal ?? '';
+    prevStepData.value[bas].sapMatTpVal = payload.sapMatTpVal ?? '';
   }
 }
 </script>
