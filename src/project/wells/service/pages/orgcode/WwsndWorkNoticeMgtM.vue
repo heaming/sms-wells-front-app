@@ -15,7 +15,7 @@
 <template>
   <kw-page>
     <kw-search
-      :cols="3"
+      :cols="4"
       @search="onClickSearch"
     >
       <kw-search-row>
@@ -50,6 +50,57 @@
           />
         </kw-search-item>
       </kw-search-row>
+      <wwsn-manager-og-search-row
+        v-model:dgr1-levl-og-id="testParams1.dgr1LevlOgId"
+        v-model:dgr2-levl-og-id="testParams1.dgr2LevlOgId"
+        v-model:dgr3-levl-og-id="testParams1.dgr3LevlOgId"
+        v-model:prtnr-no="testParams1.prtnrNo"
+        v-model:dgr1-levl-og="testParams1.dgr1LevlOg"
+        v-model:dgr2-levl-og="testParams1.dgr2LevlOg"
+        v-model:dgr3-levl-og="testParams1.dgr3LevlOg"
+        v-model:partner="testParams1.partner"
+        use-og-level="3"
+        use-partner
+        dgr1-levl-og-required
+        dgr2-levl-og-required
+        dgr3-levl-og-required
+        partner-required
+      />
+      <wwsn-manager-og-search-row
+        v-model:dgr1-levl-og-id="testParams2.dgr1LevlOgId"
+        v-model:dgr2-levl-og-id="testParams2.dgr2LevlOgId"
+        v-model:dgr3-levl-og-id="testParams2.dgr3LevlOgId"
+        v-model:prtnr-no="testParams2.prtnrNo"
+        v-model:dgr1-levl-og="testParams2.dgr1LevlOg"
+        v-model:dgr2-levl-og="testParams2.dgr2LevlOg"
+        v-model:dgr3-levl-og="testParams2.dgr3LevlOg"
+        v-model:partner="testParams2.partner"
+        use-og-level="3"
+        use-partner
+        dgr1-levl-og-first-otion="all"
+        dgr2-levl-og-first-otion="all"
+        dgr3-levl-og-first-otion="all"
+      />
+      <wwsn-manager-og-search-row
+        v-model:dgr1-levl-og-id="testParams3.dgr1LevlOgId"
+        v-model:dgr2-levl-og-id="testParams2.dgr2LevlOgId"
+        v-model:dgr3-levl-og-id="testParams2.dgr3LevlOgId"
+        use-og-level="3"
+        :use-partner="false"
+        dgr1-levl-og-first-otion="all"
+        dgr2-levl-og-first-otion="all"
+        dgr3-levl-og-first-otion="all"
+        dgr1-levl-og-label="ogCdNm"
+        dgr2-levl-og-label="ogCdNm"
+        dgr3-levl-og-label="ogCdNm"
+      />
+      <wwsn-manager-og-search-row
+        v-model:prtnr-no="testParams4.prtnrNo"
+        use-og-level="0"
+        use-partner
+        partner-first-otion="all"
+        partner-label="prtnrNoNm"
+      />
     </kw-search>
 
     <div class="result-area">
@@ -120,6 +171,7 @@ import {
 } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
+import WwsnManagerOgSearchRow from '~sms-wells/service/components/WwsnManagerOgSearchRow.vue';
 
 const { modal } = useGlobal();
 const { t } = useI18n();
@@ -143,6 +195,50 @@ const searchParams = ref({
   edRgstDt: '',
   mngrDvCd: '',
   ntccnTitNm: '',
+});
+
+const testParams1 = ref({
+  dgr1LevlOgId: '',
+  dgr2LevlOgId: '',
+  dgr3LevlOgId: '',
+  prtnrNo: '',
+  dgr1LevlOg: {},
+  dgr2LevlOg: {},
+  dgr3LevlOg: {},
+  partner: {},
+});
+
+const testParams2 = ref({
+  dgr1LevlOgId: '',
+  dgr2LevlOgId: '',
+  dgr3LevlOgId: '',
+  prtnrNo: '',
+  dgr1LevlOg: {},
+  dgr2LevlOg: {},
+  dgr3LevlOg: {},
+  partner: {},
+});
+
+const testParams3 = ref({
+  dgr1LevlOgId: '',
+  dgr2LevlOgId: '',
+  dgr3LevlOgId: '',
+  prtnrNo: '',
+  dgr1LevlOg: {},
+  dgr2LevlOg: {},
+  dgr3LevlOg: {},
+  partner: {},
+});
+
+const testParams4 = ref({
+  dgr1LevlOgId: '',
+  dgr2LevlOgId: '',
+  dgr3LevlOgId: '',
+  prtnrNo: '',
+  dgr1LevlOg: {},
+  dgr2LevlOg: {},
+  dgr3LevlOg: {},
+  partner: {},
 });
 
 const pageInfo = ref({
