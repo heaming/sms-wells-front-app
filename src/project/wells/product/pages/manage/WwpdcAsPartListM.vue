@@ -116,16 +116,14 @@
         <kw-btn
           v-permission:create
           icon="upload_on"
-          secondary
-          dense
+          grid-action
           :label="$t('MSG_BTN_EXCEL_UP')"
           @click="onClickExcelUpload"
         />
         <kw-btn
           v-permission:download
           icon="download_on"
-          secondary
-          dense
+          grid-action
           :disable="pageInfo.totalCount === 0"
           :label="$t('MSG_BTN_EXCEL_DOWN')"
           @click="onClickExcelDownload"
@@ -136,8 +134,7 @@
           inset
         />
         <kw-btn
-          dense
-          secondary
+          grid-action
           :disable="pageInfo.totalCount === 0"
           :label="$t('MSG_BTN_SUMMARY_SRCH')"
           @click="onClickSummarySearch"
@@ -150,14 +147,15 @@
         <kw-btn
           v-permission:create
           dense
-          primary
+          primary-s
           :label="$t('MSG_BTN_AS_PART_REG')"
           @click="onClickAdd"
         />
       </kw-action-top>
       <kw-grid
         ref="grdMainRef"
-        :visible-rows="pageInfo.pageSize"
+        :page-size="pageInfo.pageSize"
+        :total-count="pageInfo.totalCount"
         @init="initGrdMain"
       />
       <kw-pagination
