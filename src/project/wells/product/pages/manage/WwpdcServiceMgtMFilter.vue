@@ -38,6 +38,7 @@
       />
     </template>
     <kw-btn
+      grid-action
       dense
       :disable="!currentPdCd || grdRowCount === 0"
       :label="$t('MSG_BTN_DEL')"
@@ -50,6 +51,7 @@
     />
     <!-- 정기B/S투입 필터/부품 연결 -->
     <kw-btn
+      grid-action
       dense
       :disable="!currentPdCd || grdRowCount === 0"
       :label="$t('MSG_TXT_PD_SCH_BS_REL_PART')"
@@ -57,6 +59,7 @@
     />
     <!-- 정기B/S투입정보 -->
     <kw-btn
+      grid-action
       dense
       :disable="grdRowCount === 0"
       :label="$t('MSG_TXT_PD_SCH_BS_INFO')"

@@ -46,6 +46,7 @@
     </template>
     <!-- 삭제 -->
     <kw-btn
+      grid-action
       dense
       :label="$t('MSG_BTN_DEL')"
       :disable="grdMaterialRowCount === 0"
@@ -81,6 +82,7 @@
     </template>
     <!-- 삭제 -->
     <kw-btn
+      grid-action
       dense
       :label="$t('MSG_BTN_DEL')"
       :disable="grdServiceRowCount === 0"
@@ -127,6 +129,7 @@
     </template>
     <!-- 삭제 -->
     <kw-btn
+      grid-action
       dense
       :label="$t('MSG_BTN_DEL')"
       :disable="grdStandardRowCount === 0"

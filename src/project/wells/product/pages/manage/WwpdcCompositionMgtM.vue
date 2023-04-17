@@ -19,34 +19,39 @@
       <kw-stepper
         v-model="currentStep.name"
         heading-text
-        :header-nav="!isTempSaveBtn"
+        :header-nav="!isTempSaveBtn || passedStep > 0"
         @update:model-value="onClickStep()"
       >
         <kw-step
+          :header-nav="!isTempSaveBtn || passedStep >= pdConst.COMPOSITION_STEP_BASIC.step"
           :name="pdConst.COMPOSITION_STEP_BASIC.name"
           :title="$t('MSG_TXT_BAS_ATTR_REG')"
           :prefix="pdConst.COMPOSITION_STEP_BASIC.step"
           :done="currentStep.step > pdConst.COMPOSITION_STEP_BASIC.step"
         />
         <kw-step
+          :header-nav="!isTempSaveBtn || passedStep >= pdConst.COMPOSITION_STEP_REL_PROD.step"
           :name="pdConst.COMPOSITION_STEP_REL_PROD.name"
           :title="$t('MSG_TXT_REL_PRDT_SEL')"
           :prefix="pdConst.COMPOSITION_STEP_REL_PROD.step"
           :done="currentStep.step > pdConst.COMPOSITION_STEP_REL_PROD.step"
         />
         <kw-step
+          :header-nav="!isTempSaveBtn || passedStep >= pdConst.COMPOSITION_STEP_MANAGE.step"
           :name="pdConst.COMPOSITION_STEP_MANAGE.name"
           :title="$t('MSG_TXT_MGT_ATTR_REG')"
           :prefix="pdConst.COMPOSITION_STEP_MANAGE.step"
           :done="currentStep.step > pdConst.COMPOSITION_STEP_MANAGE.step"
         />
         <kw-step
+          :header-nav="!isTempSaveBtn || passedStep >= pdConst.COMPOSITION_STEP_PRICE.step"
           :name="pdConst.COMPOSITION_STEP_PRICE.name"
           :title="$t('MSG_TXT_PRC_INFO_REG')"
           :prefix="pdConst.COMPOSITION_STEP_PRICE.step"
           :done="currentStep.step > pdConst.COMPOSITION_STEP_PRICE.step"
         />
         <kw-step
+          :header-nav="!isTempSaveBtn || passedStep >= pdConst.COMPOSITION_STEP_CHECK.step"
           :name="pdConst.COMPOSITION_STEP_CHECK.name"
           :title="$t('MSG_TXT_CHK_REG_INFO')"
           :prefix="pdConst.COMPOSITION_STEP_CHECK.step"
@@ -110,23 +115,22 @@
             :label="$t('MSG_BTN_DEL')"
             @click="onClickDelete"
           />
-          <kw-btn
+          <!-- <kw-btn
             v-show="currentStep.step === 1 && isCreate"
             :label="$t('MSG_BTN_INTL')"
             class="ml8"
             @click="onClickReset"
+          /> -->
+          <kw-btn
+            :label="$t('MSG_BTN_CANCEL')"
+            class="ml8"
+            @click="onClickCancel()"
           />
           <kw-btn
             v-if="currentStep.step < regSteps.length && isTempSaveBtn"
             :label="$t('MSG_BTN_TMP_SAVE')"
             class="ml8"
             @click="onClickSave('Y')"
-          />
-          <kw-btn
-            v-show="!isTempSaveBtn"
-            :label="$t('MSG_BTN_CANCEL')"
-            class="ml8"
-            @click="onClickCancel()"
           />
           <kw-btn
             v-show="isTempSaveBtn && currentStep.step < regSteps.length"
@@ -187,6 +191,7 @@ const isTempSaveBtn = ref(true);
 const regSteps = ref([pdConst.COMPOSITION_STEP_BASIC, pdConst.COMPOSITION_STEP_REL_PROD,
   pdConst.COMPOSITION_STEP_MANAGE, pdConst.COMPOSITION_STEP_PRICE, pdConst.COMPOSITION_STEP_CHECK]);
 const currentStep = ref(cloneDeep(pdConst.COMPOSITION_STEP_BASIC));
+const passedStep = ref(0);
 const cmpStepRefs = ref([ref(), ref(), ref(), ref()]);
 const prevStepData = ref({});
 const currentPdCd = ref();
@@ -308,6 +313,7 @@ async function onClickNextStep() {
       await nextStepRef.resetFirstStep();
     }
     currentStep.value = cloneDeep(regSteps.value[currentStepIndex + 1]);
+    passedStep.value = currentStep.value.step;
   }
 }
 
@@ -440,6 +446,7 @@ async function onClickReset() {
   isCreate.value = true;
   isTempSaveBtn.value = true;
   currentStep.value = cloneDeep(pdConst.COMPOSITION_STEP_BASIC);
+  passedStep.value = 0;
   prevStepData.value = {};
   await Promise.all(cmpStepRefs.value.map(async (item) => {
     if (item.value?.resetData) await item.value?.resetData();
@@ -491,6 +498,7 @@ watch(() => route.params.reloadYn, async (reloadYn) => {
   console.log(`WwpdcCompositionMgtM - watch - route.params.reloadYn: ${reloadYn}`, route);
   if (reloadYn === 'Y') {
     currentStep.value = cloneDeep(pdConst.COMPOSITION_STEP_BASIC);
+    passedStep.value = 0;
     await fetchProduct();
   }
 });

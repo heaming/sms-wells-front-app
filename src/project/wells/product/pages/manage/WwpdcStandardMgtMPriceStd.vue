@@ -27,18 +27,22 @@
       :use-rule="false"
       ignore-on-modified
     />
-    <kw-action-top class="mt30">
-      <!-- <kw-btn
-        v-show="!props.readonly"
-        :label="$t('MSG_BTN_MOD')"
-        dense
-        @click="onClickMidify"
-      /> -->
+    <div class="row justify-end mt20 mb30">
       <kw-btn
         v-show="!props.readonly"
-        :label="$t('MSG_BTN_ROW_ADD')"
+        secondary
         dense
-        @click="onClickAdd"
+        :label="$t('MSG_BTN_ADD')"
+        @click="onClickAdd(true)"
+      />
+    </div>
+    <kw-action-top class="mt30">
+      <kw-btn
+        :label="$t('MSG_BTN_DEL')"
+        grid-action
+        dense
+        :disable="gridRowCount === 0"
+        @click="onClickRemove"
       />
       <kw-separator
         vertical
@@ -46,10 +50,11 @@
         spaced
       />
       <kw-btn
-        :label="$t('MSG_BTN_DEL')"
+        v-show="!props.readonly"
+        :label="$t('MSG_BTN_ROW_ADD')"
+        grid-action
         dense
-        :disable="gridRowCount === 0"
-        @click="onClickRemove"
+        @click="onClickAdd(false)"
       />
     </kw-action-top>
     <kw-grid
@@ -210,14 +215,14 @@ async function initGridRows() {
   gridRowCount.value = getGridRowCount(view);
 }
 
-async function onClickAdd() {
+async function onClickAdd(isForm) {
   const view = grdMainRef.value.getView();
   // console.log('priceStdRef.value : ', priceStdRef.value);
   const savFields = await priceStdRef.value.getSaveFields();
-  const rowItem = cloneDeep(savFields?.reduce((rtn, item) => {
+  const rowItem = isForm ? cloneDeep(savFields?.reduce((rtn, item) => {
     rtn[item.colNm] = item.initValue;
     return rtn;
-  }, {}));
+  }, {})) : {};
   rowItem[pdConst.PRC_STD_ROW_ID] = stringUtil.getUid('STD');
   rowItem[pdConst.PRC_DETAIL_ID] = '';
   // console.log('rowItem : ', rowItem);

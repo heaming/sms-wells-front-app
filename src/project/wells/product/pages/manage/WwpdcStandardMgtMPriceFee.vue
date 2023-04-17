@@ -24,6 +24,7 @@
       <kw-btn
         v-show="!props.readonly"
         :label="$t('MSG_BTN_DEL')"
+        grid-action
         secondary
         dense
         :disable="gridRowCount === 0"
