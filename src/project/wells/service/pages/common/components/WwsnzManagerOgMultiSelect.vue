@@ -203,6 +203,7 @@ async function getPartners() {
   if ((props.useOgLevel === '3' && (props.dgr3LevlOgFirstOtion === 'all' || !isEmpty(selectedDgr3LevlOgId.value)))
     || (props.useOgLevel === '2' && (props.dgr2LevlOgFirstOtion === 'all' || !isEmpty(selectedDgr2LevlOgId.value)))
       || (props.useOgLevel === '1' && (props.dgr1LevlOgFirstOtion === 'all' || !isEmpty(selectedDgr1LevlOgId.value)))
+      || props.useOgLevel === '0'
   ) {
     const res = await fetchPartners({ params: {
       dgr1LevlOgId: selectedDgr1LevlOgId.value,
