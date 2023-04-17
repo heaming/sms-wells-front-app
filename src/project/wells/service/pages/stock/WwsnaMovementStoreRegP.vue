@@ -316,7 +316,8 @@ async function onClickSave() {
     strSn, strQty, itmStrNo, strWareNo, itemGdCd, itmPdCd,
   };
   // const confirmData = {strSn, StrQty,};
-  if (await confirm(t('MSG_ALT_WANT_SAVE'))) {
+  // 저장하시겠습니까?
+  if (await confirm(t('MSG_ALT_IS_SAV_DATA'))) {
     await dataService.put(baseURI, confirmData);
     await notify(t('MSG_ALT_SAVE_DATA'));
     ok();
@@ -391,13 +392,16 @@ const initGrdMain = defineGrid((data, view) => {
     console.log(strConfDt);
 
     if (strConfDt !== null) {
-      alert('이미 입고확인이 처리된 품목입니다.');
+      // '이미 입고확인이 처리된 품목입니다.'
+      notify(t('MSG_ALT_ITM_ALRDY_CNFM_RCPT'));
     }
 
     if ((Number(strQty) - Number(ostrQty)) === 0) {
-      console.log('입고출고 수량이 같음');
+      // 입고출고 수량이 같음
+      notify(t('MSG_ALT_RCPT_RLS_QTTS_SAME'));
     } else {
-      alert('입고출고 수량이 일치하지 않습니다.');
+      // 입고출고 수량이 일치하지 않습니다.
+      notify(t('MSG_ALT_RCPT_RLS_QTTS_NO_MATCH'));
     }
   };
 });
