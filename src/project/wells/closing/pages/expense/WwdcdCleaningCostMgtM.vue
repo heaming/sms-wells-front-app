@@ -133,7 +133,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { defineGrid, useMeta, codeUtil, getComponentType, useDataService, useGlobal, gridUtil } from 'kw-lib';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 import { openReportPopup } from '~common/utils/cmPopupUtil';
 import WwdcdCleaningCostMgtMCleaner from './WwdcdCleaningCostMgtMCleaner.vue';
@@ -266,20 +266,6 @@ const initGrdMain = defineGrid((data, view) => {
   view.checkBar.visible = true;
   view.rowIndicator.visible = true;
 
-  view.onCellClicked = (grid, clickData) => {
-    // TODO.파일 업로드 개발 완료 되면 수정해야됨
-    // 참고 ZdecRdsAnAccountErrorMgtService > saveAttachFile
-    if (clickData.column === 'cntrwApnFileId') {
-      // 계약서
-    } else if (clickData.column === 'cntrLroreApnFil') {
-      // 계약해지원
-    } else if (clickData.column === 'idfApnFileId') {
-      // 신분증사본
-    } else if (clickData.column === 'bnkbApnFileId') {
-      // 통장사본
-    }
-  };
-
   view.onCellItemClicked = async (grid, { itemIndex }) => {
     const { clinrRgno, result } = gridUtil.getRowValue(grid, itemIndex);
     await modal({
@@ -291,6 +277,20 @@ const initGrdMain = defineGrid((data, view) => {
     if (result) {
       notify(t('MSG_ALT_SAVE_DATA'));
       await fetchData();
+    }
+  };
+  view.onCellClicked = async (grid, { itemIndex }) => {
+    debugger;
+    if (isEmpty(itemIndex)) {
+      const { clingCostAdjRcpNo, result } = gridUtil.getRowValue(grid, itemIndex);
+      await modal({
+        component: 'WwdcdRequestCleaningSuppliesMgtP', // W-CL-U-0093P01
+        componentProps: { clingCostAdjRcpNo },
+      });
+      if (result) {
+        notify(t('MSG_ALT_SAVE_DATA'));
+        await fetchData();
+      }
     }
   };
 });
