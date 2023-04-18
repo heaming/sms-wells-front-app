@@ -10,17 +10,19 @@
 * 프로그램 설명
 ****************************************************************************************************
 - 예상수수료 조회(홈마스터) 화면
+- 2023.04.18 퍼블수정됨
 ****************************************************************************************************
 --->
 <template>
   <kw-page>
-    <kw-search>
+    <kw-search @search="onClickSearch">
       <kw-search-row>
         <kw-search-item
           :label="$t('MSG_TXT_PERF_YM')"
           required
         >
           <kw-date-picker
+            v-model="searchParams.baseYm"
             rules="required"
             type="month"
             :label="$t('MSG_TXT_PERF_YM')"
@@ -31,9 +33,11 @@
           required
         >
           <kw-option-group
+            v-model="searchParams.type"
             type="radio"
             :label="$t('MSG_TXT_PERF_INQR')"
-            :options="[$t('MSG_TXT_RCP'), $t('MSG_TXT_INSTALLATION')]"
+            :options="[{ codeId: '0', codeName: $t('MSG_TXT_RCP') },
+                       { codeId: '1', codeName: $t('MSG_TXT_INSTALLATION') }]"
           />
         </kw-search-item>
         <kw-search-item
@@ -41,15 +45,21 @@
           required
         >
           <kw-input
+            v-model="searchParams.sellPrtnrNo"
             :label="$t('MSG_TXT_SEQUENCE_NUMBER')"
+            rules="required"
+            icon="search"
+            clearable
+            @click-icon="onClickSearchPrtnrNoPopup"
           />
         </kw-search-item>
       </kw-search-row>
     </kw-search>
     <div class="result-area">
+      <!-- 기본 정보 -->
       <kw-action-top>
         <template #left>
-          <span class="accent">기본 정보</span>
+          <span class="accent">{{ t('MSG_TXT_DEFAULT_INFO') }}</span>
         </template>
       </kw-action-top>
       <kw-form
@@ -59,46 +69,48 @@
           <kw-form-item
             :label="$t('MSG_TXT_EMPL_NM')"
           >
-            <p>김교원</p>
+            <p>{{ baseInfo.sample }}</p>
           </kw-form-item>
           <kw-form-item
             :label="$t('MSG_TXT_BLG_CD')"
           >
-            <p>Q913123</p>
+            <p>{{ baseInfo.sample }}</p>
           </kw-form-item>
           <kw-form-item
             :label="$t('MSG_TXT_CRLV')"
           >
-            <p>플래너</p>
+            <p>{{ baseInfo.sample }}</p>
           </kw-form-item>
         </kw-form-row>
         <kw-form-row>
           <kw-form-item
             :label="$t('MSG_TXT_EST_SAL_COMM')"
           >
-            <p>12,345,670</p>
+            <p>{{ baseInfo.sample }}</p>
           </kw-form-item>
           <kw-form-item
             :label="$t('MSG_TXT_EST_SVC_FEE')"
           >
-            <p>123,450</p>
+            <p>{{ baseInfo.sample }}</p>
           </kw-form-item>
           <kw-form-item
             :label="$t('MSG_TXT_TOT_EST_FEE')"
           >
-            <p>12,345,670</p>
+            <p>{{ baseInfo.sample }}</p>
           </kw-form-item>
         </kw-form-row>
       </kw-form>
       <kw-separator />
+      <!-- 실적내역 -->
       <kw-action-top>
         <template #left>
-          <span class="accent">{{$t('MSG_TXT_PERF_DETAIL')}}</span>
+          <span class="accent">{{ $t('MSG_TXT_PERF_DETAIL') }}</span>
         </template>
 
         <kw-btn
           :label="$t('MSG_TXT_EDU_COMPL_APPL')"
           dense
+          @click="onClickEduCompletion"
         />
         <kw-separator
           vertical
@@ -106,9 +118,10 @@
           spaced
         />
         <kw-btn
-          :label="$t('MSG_BTN_SAVE')"
+          :label="$t('MSG_BTN_PRJTD_PERF_CALCULATE')"
           dense
           primary
+          @click="onClickCalculateDetail"
         />
       </kw-action-top>
       <kw-grid
@@ -138,54 +151,6 @@
         :visible-rows="5"
         @init="initGrdSaleHist"
       />
-      <kw-separator />
-
-      <kw-action-top>
-        <template #left>
-          <span class="accent">{{ $t('MSG_TXT_ADVICE') }}</span>
-        </template>
-      </kw-action-top>
-      <kw-form
-        :cols="2"
-        dense
-      >
-        <kw-form-row>
-          <kw-form-item
-            :label="$t('MSG_TXT_NUM_ADD_SALES')"
-          >
-            <p>2</p>
-          </kw-form-item>
-          <kw-form-item
-            :label="$t('MSG_TXT_ADD_EST_FEE')"
-          >
-            <p>300,000</p>
-          </kw-form-item>
-        </kw-form-row>
-        <kw-form-row>
-          <kw-form-item
-            :label="$t('MSG_TXT_NUM_ADD_SALES')"
-          >
-            <p>4</p>
-          </kw-form-item>
-          <kw-form-item
-            :label="$t('MSG_TXT_ADD_EST_FEE')"
-          >
-            <p>600,000</p>
-          </kw-form-item>
-        </kw-form-row>
-        <kw-form-row>
-          <kw-form-item
-            :label="$t('MSG_TXT_NUM_ADD_SALES')"
-          >
-            <p>6</p>
-          </kw-form-item>
-          <kw-form-item
-            :label="$t('MSG_TXT_ADD_EST_FEE')"
-          >
-            <p>1,000,000</p>
-          </kw-form-item>
-        </kw-form-row>
-      </kw-form>
     </div>
   </kw-page>
 </template>
@@ -194,22 +159,76 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { getComponentType, defineGrid } from 'kw-lib';
+import { getComponentType, defineGrid, useGlobal, useDataService } from 'kw-lib';
+import { cloneDeep } from 'lodash-es';
+import dayjs from 'dayjs';
 
+const now = dayjs();
+const { modal } = useGlobal();
 const { t } = useI18n();
+const dataService = useDataService();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 const grdPerfDtlRef = ref(getComponentType('KwGrid'));
 const grdEstFeeDtlRef = ref(getComponentType('KwGrid'));
 const grdSaleHistRef = ref(getComponentType('KwGrid'));
+const grdPerfDtlData = computed(() => grdPerfDtlRef.value?.getData());
+const grdEstFeeDtlData = computed(() => grdEstFeeDtlRef.value?.getData());
+const grdSaleHistData = computed(() => grdSaleHistRef.value?.getData());
+
+let cachedParams;
+const searchParams = ref({
+  baseYm: now.format('YYYYMM'),
+  type: '0',
+  sellPrtnrNo: '',
+});
+const baseInfo = ref({
+  sample: 'test',
+});
+
+// 데이터 조회
+async function fetchData() {
+  const { data } = await dataService.get('API정의안됨', { params: { ...cachedParams } });
+  grdPerfDtlData.value.setRows(data.list1);
+  grdEstFeeDtlData.value.setRows(data.list2);
+  grdSaleHistData.value.setRows(data.list3);
+}
+// 조회버튼
+async function onClickSearch() {
+  cachedParams = cloneDeep(searchParams.value);
+  await fetchData();
+}
+
+// 파트너 검색 팝업
+async function onClickSearchPrtnrNoPopup() {
+  const { result, payload } = await modal({
+    component: 'ZwogzPartnerListP',
+    componentProps: {
+      prtnrNo: searchParams.value.sellPrtnrNo,
+    },
+  });
+  if (result) {
+    searchParams.value.sellPrtnrNo = payload.prtnrNo;
+  }
+}
+
+// 실적내역 교육수료적용 버튼 클릭
+async function onClickEduCompletion() {
+  const { data } = await dataService.get('API정의안됨', { params: { ...cachedParams } });
+  console.log(data);
+}
+
+// 실적내역 예상실적 계산버튼 클릭
+async function onClickCalculateDetail() {
+  const { data } = await dataService.get('API정의안됨', { params: { ...cachedParams } });
+  console.log(data);
+}
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
 const initGrdPerfDtl = defineGrid((data, view) => {
-  const fields = [{ fieldName: 'col1' }, { fieldName: 'col2' }, { fieldName: 'col3' }, { fieldName: 'col4' }, { fieldName: 'col5' }, { fieldName: 'col6' }];
-
   const columns = [
     { fieldName: 'col1', header: t('MSG_TXT_DIV'), width: '193', styleName: 'text-left' },
     { fieldName: 'col2', header: t('MSG_TXT_ELHM_ACKMT_CT'), width: '269', styleName: 'text-right' },
@@ -218,7 +237,7 @@ const initGrdPerfDtl = defineGrid((data, view) => {
     { fieldName: 'col5', header: t('MSG_TXT_APL_HNDL_CASE'), width: '270', styleName: 'text-right' },
     { fieldName: 'col6', header: t('MSG_TXT_EDU_CERT'), width: '270', styleName: 'text-center' },
   ];
-
+  const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   data.setFields(fields);
   view.setColumns(columns);
 
@@ -232,32 +251,18 @@ const initGrdPerfDtl = defineGrid((data, view) => {
 });
 
 const initGrdEstFeeDtl = defineGrid((data, view) => {
-  const fields = [
-    { fieldName: 'col1' },
-    { fieldName: 'col2' },
-    { fieldName: 'col3' },
-    { fieldName: 'col4' },
-    { fieldName: 'col5' },
-    { fieldName: 'col6' },
-    { fieldName: 'col7' },
-    { fieldName: 'col8' },
-    { fieldName: 'col9' },
-    { fieldName: 'col10' },
-  ];
-
   const columns = [
     { fieldName: 'col1', header: t('MSG_TXT_DIV'), styleName: 'text-left', width: '218' },
     { fieldName: 'col2', header: t('MSG_TXT_PRPN'), styleName: 'text-right', width: '165' },
     { fieldName: 'col3', header: t('MSG_TXT_EARLY_STTLMNT'), styleName: 'text-right', width: '165' },
-    { fieldName: 'col4', header: `${t('MSG_TXT_ENRG')} 1`, styleName: 'text-right', width: '165' },
-    { fieldName: 'col5', header: `${t('MSG_TXT_ENRG')} 2`, styleName: 'text-right', width: '165' },
+    { fieldName: 'col4', header: t('MSG_TXT_ENRG'), styleName: 'text-right', width: '165' },
     { fieldName: 'col6', header: t('MSG_TXT_SCENE'), styleName: 'text-right', width: '132' },
     { fieldName: 'col7', header: `${t('MSG_TXT_ACTI')} 1`, styleName: 'text-right', width: '132' },
     { fieldName: 'col8', header: `${t('MSG_TXT_ACTI')} 2`, styleName: 'text-right', width: '132' },
     { fieldName: 'col9', header: t('MSG_TXT_ACML'), styleName: 'text-right', width: '132' },
     { fieldName: 'col10', header: t('MSG_TXT_EDUC'), styleName: 'text-right', width: '132' },
   ];
-
+  const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   data.setFields(fields);
   view.setColumns(columns);
   view.checkBar.visible = false; // create checkbox column
@@ -269,7 +274,7 @@ const initGrdEstFeeDtl = defineGrid((data, view) => {
     {
       header: t('MSG_TXT_EST_SAL_COMM'), // colspan title
       direction: 'horizontal', // merge type
-      items: ['col2', 'col3', 'col4', 'col5'],
+      items: ['col2', 'col3', 'col4'],
     },
     {
       header: t('MSG_TXT_EST_SVC_FEE'), // colspan title
@@ -285,8 +290,6 @@ const initGrdEstFeeDtl = defineGrid((data, view) => {
 });
 
 const initGrdSaleHist = defineGrid((data, view) => {
-  const fields = [{ fieldName: 'col1' }, { fieldName: 'col2' }, { fieldName: 'col3' }, { fieldName: 'col4' }, { fieldName: 'col5' }, { fieldName: 'col6' }, { fieldName: 'col7' }, { fieldName: 'col8' }, { fieldName: 'col9' }, { fieldName: 'col10' }];
-
   const columns = [
     { fieldName: 'col1', header: t('MSG_TXT_CONF_COMPL_DT'), width: '155', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd' },
     { fieldName: 'col2', header: t('MSG_TXT_NST_COMP_DT'), width: '155', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd' },
@@ -299,7 +302,7 @@ const initGrdSaleHist = defineGrid((data, view) => {
     { fieldName: 'col9', header: t('MSG_TXT_PD_ACC_CNT'), width: '155', styleName: 'text-right' },
     { fieldName: 'col10', header: t('MSG_TXT_PD_ACC_CNT'), width: '155', styleName: 'text-right' },
   ];
-
+  const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   data.setFields(fields);
   view.setColumns(columns);
 
