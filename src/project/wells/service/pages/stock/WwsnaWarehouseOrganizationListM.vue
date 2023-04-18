@@ -154,8 +154,8 @@ import ZwcmWareHouseSearch from '~sms-common/service/components/ZwsnzWareHouseSe
 const { t } = useI18n();
 
 // const { getConfig } = useMeta();
-// const { modal, alert, notify } = useGlobal();
-const { alert, notify } = useGlobal();
+const { modal, alert, notify } = useGlobal();
+// const { alert, notify } = useGlobal();
 // const store = useStore();
 
 const emit = defineEmits([
@@ -276,26 +276,22 @@ async function onClickExcelDownload() {
   });
 }
 
-async function onClickWareOgCrdovr() {
-  alert('현재 단위테스트 대상이 아닙니다.(개발진행)');
+async function onClickWareOgCrdovr(apyYm, wareNo) {
+  const today = dayjs().format('YYYYMM');
 
-  // const view = grdMainRef.value.getView();
-  // const currentDataRow = view.getCurrent().dataRow;
-  // const rowData = gridUtil.getRowValue(view, currentDataRow);
-  // const today = dayjs().format('YYYYMM');
+  if (apyYm >= today) {
+    const { result: isChanged } = await modal({
+      component: 'WwsnaWarehouseOrganizationRegP',
+      componentProps: { apyYm, wareNo },
+    });
 
-  // if (rowData.apyYm >= today) {
-  //   const { result: isChanged } = await modal({
-  //     component: 'WwsnaWarehouseOrganizationRegP',
-  //   });
-
-  //   if (isChanged) {
-  //     notify(t('MSG_ALT_SAVE_DATA'));
-  //     await fetchData();
-  //   }
-  // } else {
-  //   await alert(t('MSG_ALT_THM_BF_WAREINF_MDFC_IMP'));
-  // }
+    if (isChanged) {
+      notify(t('MSG_ALT_SAVE_DATA'));
+      await fetchData();
+    }
+  } else {
+    await alert(t('MSG_ALT_THM_BF_WAREINF_MDFC_IMP'));
+  }
 }
 
 function searchConditionReset() {
@@ -392,7 +388,11 @@ const initGrdMain = defineGrid((data, view) => {
   view.rowIndicator.visible = true;
   // eslint-disable-next-line no-unused-vars
   view.onCellDblClicked = (grid, clickData) => {
-    onClickWareOgCrdovr();
+    const currentDataRow = view.getCurrent().dataRow;
+    const rowData = gridUtil.getRowValue(view, currentDataRow);
+
+    const { apyYm, wareNo } = rowData;
+    onClickWareOgCrdovr(apyYm, wareNo);
   };
 });
 
