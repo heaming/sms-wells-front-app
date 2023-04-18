@@ -13,10 +13,34 @@ export default () => {
    *     const { getPartMaster } = useSnCode();
    *     const sido = await getPartMaster('sido');
    */
-  async function getPartMaster(itemKnd, itemGr, pdTpCd) {
+  async function getPartMaster(
+    itemKnd,
+    itemGr,
+    pdTpCd,
+    sellIndate,
+    partCd,
+    sellTpCd,
+    pdClsfId,
+    pdHclsfId,
+    pdMclsfId,
+    pdLclsfId,
+    pdDclsfId,
+  ) {
     const result = await dataService.get(
       '/sms/wells/common/sms-wells-codes/part-master',
-      { params: { itemKnd: itemKnd || '4', itemGr: itemGr || '1', pdTpCd: pdTpCd || 'M' } },
+      { params: {
+        itemKnd,
+        itemGr,
+        pdTpCd,
+        sellIndate,
+        partCd,
+        sellTpCd,
+        pdClsfId,
+        pdHclsfId,
+        pdMclsfId,
+        pdLclsfId,
+        pdDclsfId,
+      } },
     );
     return result.data;
   }
