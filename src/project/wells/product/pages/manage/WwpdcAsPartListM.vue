@@ -35,7 +35,6 @@
           <kw-input
             v-model.trim="searchParams.pdCd"
             clearable
-            :readonly="true"
             icon="search"
             @click-icon="onClickProduct()"
           />
@@ -70,7 +69,6 @@
           <kw-input
             v-model.trim="searchParams.sapMatCd"
             clearable
-            :readonly="true"
             icon="search"
             @click-icon="onClickSapMaterial()"
           />
@@ -223,19 +221,30 @@ const searchParams = ref({
   sapItemCdTo: '', // 품목코드
 });
 
+// 자재코드 조회팝업(sapMatCd)
 async function onClickSapMaterial() {
   const { result, payload } = await modal({
     component: 'ZwpdcMaterialsCodeListP',
-    componentProps: { searchKeyword: null, searchCond: null },
+    componentProps: {
+      searchType: 'sapMatCd',
+      selectType: 'SINGLE',
+      searchValue: searchParams.value.sapMatCd,
+    },
   });
 
   if (result) searchParams.value.sapMatCd = payload.sapMatCd;
 }
 
+// 제품코드 조회팝업
 async function onClickProduct() {
   const { result, payload } = await modal({
     component: 'ZwpdcMaterialsSelectListP',
-    componentProps: { searchType: null, searchValue: null, selectType: pdConst.PD_SEARCH_SINGLE, searchLvl: 3 },
+    componentProps: {
+      searchType: 'prodCd',
+      searchValue: searchParams.value.pdCd,
+      selectType: pdConst.PD_SEARCH_SINGLE,
+      searchLvl: 3,
+    },
   });
 
   if (result) searchParams.value.pdCd = payload.checkedRows[0].pdCd;

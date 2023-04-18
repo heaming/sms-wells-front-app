@@ -27,17 +27,19 @@
           <kw-stepper
             v-model="currentStep.name"
             heading-text
-            :header-nav="!isTempSaveBtn"
+            :header-nav="!isTempSaveBtn || passedStep > 0"
             @update:model-value="onClickStep()"
           >
             <!-- 1. 기본속성 등록 -->
             <kw-step
+              :header-nav="!isTempSaveBtn || passedStep >= regSteps[0].step"
               :name="regSteps[0].name"
               :title="$t('MSG_TXT_BAS_ATTR_REG')"
               :prefix="regSteps[0].step"
             />
             <!-- 2.등록정보 확인 -->
             <kw-step
+              :header-nav="!isTempSaveBtn || passedStep >= regSteps[1].step"
               :name="regSteps[1].name"
               :title="$t('MSG_TXT_CHK_REG_INFO')"
               :prefix="regSteps[1].step"
@@ -108,9 +110,9 @@
               class="ml8"
               @click="onClickCancel"
             />
-            <!-- 초기화 -->
+            <!-- 초기화 currentStep.step === 1 && isCreate -->
             <kw-btn
-              v-show="currentStep.step === 1 && isCreate"
+              v-show="isShowInitBtn"
               :label="$t('MSG_BTN_INTL')"
               class="ml8"
               @click="onClickReset"
@@ -179,6 +181,7 @@ const wellsStep = [
 ];
 const regSteps = ref(wellsStep);
 const currentStep = cloneDeep(ref(wellsStep[0]));
+const passedStep = ref(0);
 const obsMainRef = ref();
 const cmpStepRefs = ref([ref()]);
 const dtl = pdConst.TBL_PD_DTL;
@@ -191,6 +194,7 @@ const prevStepData = ref({});
 const currentPdCd = ref();
 const isTempSaveBtn = ref(true);
 const isCreate = ref(false);
+const isShowInitBtn = ref(false);
 
 const selectedTab = ref('attribute');
 
@@ -201,6 +205,7 @@ async function onClickReset() {
   await cmpStepRefs.value.forEach((item) => {
     item.value.resetData();
   });
+  passedStep.value = 0;
 }
 
 async function onClickRemove() {
@@ -331,6 +336,7 @@ async function onClickNextStep() {
   if (isEmpty(prevStepData.value)) prevStepData.value = {};
   prevStepData.value = await getSaveData();
   currentStep.value = cloneDeep(regSteps.value[(currentStep.value.step - 1) + 1]);
+  passedStep.value = currentStep.value.step;
 }
 
 async function onClickPrevStep() {
@@ -354,9 +360,10 @@ async function onClickCancel() {
   if (!modifiedOk) await pageMove(pdConst.ASPART_LIST_PAGE, true, router, { isSearch: false });
 }
 
-async function setInitCondition() {
+async function initProps() {
   const { pdCd, tempSaveYn } = props;
   currentPdCd.value = pdCd;
+  passedStep.value = 0;
   isCreate.value = isEmpty(currentPdCd.value);
   isTempSaveBtn.value = tempSaveYn !== 'N';
 
@@ -364,7 +371,7 @@ async function setInitCondition() {
 }
 
 onMounted(async () => {
-  await setInitCondition();
+  await initProps();
 });
 
 async function popupCallback(payload) {
