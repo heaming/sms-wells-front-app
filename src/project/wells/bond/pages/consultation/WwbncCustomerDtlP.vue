@@ -1373,9 +1373,9 @@ const initGrdMain = defineGrid((data, view) => {
   };
 
   view.onCellDblClicked = async (g, { dataRow }) => {
-    const cntrDtlNo = g.getValue(dataRow, 'cntrDtlNo');
-    if (cntrDtlNo) {
-      await window.open(`/popup/#/wwbnc-same-customer-contract?cntrDtlNo=${cntrDtlNo}`, 'popup', 'width=1200, height=1100, menubar=no, location=no');
+    const cstNo = g.getValue(dataRow, 'cstNo');
+    if (cstNo) {
+      await window.open(`/popup/#/wwbnc-same-customer-contract?cstNo=${cstNo}`, 'popup', 'width=1200, height=1100, menubar=no, location=no');
     }
   };
 });
