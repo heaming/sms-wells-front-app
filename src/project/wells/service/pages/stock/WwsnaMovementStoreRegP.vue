@@ -21,20 +21,21 @@
       <kw-form-row>
         <!-- 출고관리번호 -->
         <kw-form-item
-          :label="$t('MSG_TXT_OSTR_MNGT_NO')"
+          :label="$t('MSG_TXT_STR_MNGT_NO')"
         >
           <kw-input
-            v-model="parentsParams.itmOstrNo"
+            v-model="propsParams.itmStrNo"
             :disable="true"
+            mask="###-########-#######"
           />
         </kw-form-item>
         <!-- //출고관리번호 -->
         <!-- 출고창고 -->
         <kw-form-item
-          :label="$t('MSG_TXT_OSTR_WARE')"
+          :label="$t('MSG_TXT_STR_WARE')"
         >
           <kw-input
-            v-model="parentsParams.ostrWareNm"
+            v-model="propsParams.strWareNm"
             :disable="true"
           />
         </kw-form-item>
@@ -46,7 +47,7 @@
           :label="$t('MSG_TXT_STR_HOP_DT')"
         >
           <kw-input
-            v-model="parentsParams.strHopDt"
+            v-model="propsParams.strHopDt"
             :disable="true"
             datetime-format="date"
           />
@@ -54,10 +55,10 @@
         <!-- //입고희망일자 -->
         <!-- 출고유형 -->
         <kw-form-item
-          :label="$t('MSG_TXT_OSTR_TP')"
+          :label="$t('MSG_TXT_STR_TP')"
         >
           <kw-input
-            v-model="parentsParams.ostrTpNm"
+            v-model="propsParams.strTpNm"
             :disable="true"
           />
         </kw-form-item>
@@ -68,15 +69,17 @@
         <kw-form-item
           :label="$t('MSG_TXT_STR_DT')"
         >
-          <kw-date-picker />
+          <kw-date-picker
+            v-model="searchParams.strDt"
+          />
         </kw-form-item>
         <!-- //입고일자 -->
         <!-- 입고창고 -->
         <kw-form-item
-          :label="$t('MSG_TXT_STR_WARE')"
+          :label="$t('MSG_TXT_OSTR_WARE')"
         >
           <kw-input
-            v-model="parentsParams.strWareNm"
+            v-model="propsParams.ostrWareNm"
             :disable="true"
           />
         </kw-form-item>
@@ -145,8 +148,9 @@
       <kw-btn
         primary
         dense
-        :label="$t('MSG_TXT_TF_STR_RGST')"
-        @click="onClickSave"
+        :label="$t('MSG_TXT_DEL')"
+        :disable="propsParams.flagChk === 0"
+        @click="onClickRemove"
       />
       <kw-btn
         primary
@@ -175,13 +179,14 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, useDataService, getComponentType, useMeta, defineGrid, gridUtil, useGlobal } from 'kw-lib';
+import { codeUtil, useDataService, getComponentType, useMeta, defineGrid, gridUtil, useGlobal, useModal } from 'kw-lib';
 import dayjs from 'dayjs';
 import { cloneDeep } from 'lodash-es';
 
 const { getConfig } = useMeta();
-const { alert } = useGlobal();
+const { alert, confirm, notify } = useGlobal();
 const { t } = useI18n();
+const { ok } = useModal();
 
 const dataService = useDataService();
 const baseURI = '/sms/wells/service/movement-stores/registration';
@@ -190,19 +195,15 @@ const grdMainRef = ref(getComponentType('KwGrid'));
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 const props = defineProps({
-  ostrDt: {
+  strRgstDt: {
     type: String,
     default: '',
   },
-  ostrTpCd: {
+  strTpCd: {
     type: String,
     default: '',
   },
-  ostrTpNm: {
-    type: String,
-    default: '',
-  },
-  itmOstrNo: {
+  strTpNm: {
     type: String,
     default: '',
   },
@@ -214,11 +215,11 @@ const props = defineProps({
     type: String,
     default: '',
   },
-  ostrWareNo: {
+  strWareNm: {
     type: String,
     default: '',
   },
-  strWareNm: {
+  ostrWareNo: {
     type: String,
     default: '',
   },
@@ -226,7 +227,11 @@ const props = defineProps({
     type: String,
     default: '',
   },
-  itmPdCd: {
+  itmPdNo: {
+    type: String,
+    default: '',
+  },
+  itmPdNm: {
     type: String,
     default: '',
   },
@@ -234,34 +239,52 @@ const props = defineProps({
     type: String,
     default: '',
   },
-
+  flagChk: {
+    type: Number,
+    default: 0,
+  },
 });
 
 const codes = ref(await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
 ));
 
-const parentsParams = ref({
-  ostrDt: props.ostrDt,
-  ostrTpCd: props.ostrTpCd,
-  ostrTpNm: props.ostrTpNm,
-  itmOstrNo: props.itmOstrNo,
+const propsParams = ref({
+  strRgstDt: props.strRgstDt,
+  strTpCd: props.strTpCd,
+  strTpNm: props.strTpNm,
   itmStrNo: props.itmStrNo,
   strWareNo: props.strWareNo,
-  ostrWareNo: props.ostrWareNo,
   strWareNm: props.strWareNm,
+  ostrWareNo: props.ostrWareNo,
   ostrWareNm: props.ostrWareNm,
+  itmPdNo: props.itmPdNo,
+  itmPdNm: props.itmPdNm,
   strHopDt: props.strHopDt,
+  flagChk: props.flagChk,
 });
 
 const searchParams = ref({
   baseYm: dayjs().format('YYYYMM'),
-  itmOstrNo: props.itmOstrNo,
+  strRgstDt: props.strRgstDt,
+  strTpCd: props.strTpCd,
+  itmStrNo: props.itmStrNo,
   strWareNo: props.strWareNo,
   ostrWareNo: props.ostrWareNo,
+  itmPdNo: props.itmPdNo,
+  strHopDt: props.strHopDt,
   stckStdGb: '1',
   strDt: dayjs().format('YYYYMMDD'),
 });
+
+// const searchParams = ref({
+//   baseYm: dayjs().format('YYYYMM'),
+//   itmOstrNo: props.itmOstrNo,
+//   strWareNo: props.strWareNo,
+//   ostrWareNo: props.ostrWareNo,
+//   stckStdGb: '1',
+//   strDt: dayjs().format('YYYYMMDD'),
+// });
 let cachedParams;
 
 const pageInfo = ref({
@@ -284,14 +307,25 @@ async function fetchData() {
   view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
-// async function onClickSearch() {
-//   pageInfo.value.pageIndex = 1;
-//   cachedParams = cloneDeep(searchParams.value);
-//   await fetchData();
-// }
-
 async function onClickSave() {
-  const res = await dataService.get(baseURI, { params: {} });
+  const dataParams = grdMainRef.value.getView();
+  const rows = dataParams.getCheckedItems();
+  console.log(rows);
+  const { strSn, strQty, itmStrNo, strWareNo, itemGdCd, itmPdCd } = dataParams.getValues(0);
+  const confirmData = {
+    strSn, strQty, itmStrNo, strWareNo, itemGdCd, itmPdCd,
+  };
+  // const confirmData = {strSn, StrQty,};
+  // 저장하시겠습니까?
+  if (await confirm(t('MSG_ALT_IS_SAV_DATA'))) {
+    await dataService.put(baseURI, confirmData);
+    await notify(t('MSG_ALT_SAVE_DATA'));
+    ok();
+    await fetchData();
+  }
+}
+async function onClickRemove() {
+  const res = await dataService.delete(baseURI, { params: {} });
   console.log(res.data);
 }
 
@@ -321,27 +355,55 @@ onMounted(async () => {
 const initGrdMain = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'sapMaptCd', header: t('MSG_TXT_SAP_CD'), width: '124', styleName: 'text-center' },
-
     { fieldName: 'itmPdCd', header: t('MSG_TXT_ITM_CD'), width: '130', styleName: 'text-center' },
-    { fieldName: 'pdNm', header: t('MSG_TXT_ITM_NM'), width: '210', styleName: 'text-left' },
+    { fieldName: 'itmPdNm', header: t('MSG_TXT_ITM_NM'), width: '210', styleName: 'text-left' },
     { fieldName: 'itemLoc', header: t('MSG_TXT_ITM_LOC'), width: '141', styleName: 'text-left' },
     { fieldName: 'onQty', header: t('MSG_TXT_STOC_QTY'), width: '100', styleName: 'text-right' },
     { fieldName: 'mngtUnitCd', header: t('MSG_TXT_MNGT_UNIT'), width: '100', styleName: 'text-center' },
     { fieldName: 'boxUnitQty', header: t('MSG_TXT_UNIT_QTY'), width: '100', styleName: 'text-right' },
-    { fieldName: 'col8', header: t('MSG_TXT_OSTR_AK_QTY'), width: '100', styleName: 'text-right' },
+    { fieldName: 'ostrAkQty', header: t('MSG_TXT_OSTR_AK_QTY'), width: '100', styleName: 'text-right' },
     { fieldName: 'itmGdCd', header: t('MSG_TXT_GD'), width: '100', styleName: 'text-center' },
-    { fieldName: 'qty1', header: t('MSG_TXT_OSTR_QTY'), width: '100', styleName: 'text-right' },
-    { fieldName: 'sellRcpdt', header: t('MSG_TXT_RECT_STR_DT'), width: '100', styleName: 'text-center' },
+    { fieldName: 'ostrQty', header: t('MSG_TXT_OSTR_QTY'), width: '100', styleName: 'text-right' },
+    { fieldName: 'strRgstDt', header: t('MSG_TXT_RECT_STR_DT'), width: '100', styleName: 'text-center' },
     { fieldName: 'inSum', header: t('MSG_TXT_STR_AGG_QTY'), width: '100', styleName: 'text-right' },
-    { fieldName: 'qty2', header: t('MSG_TXT_STR_OJ_QTY'), width: '100', styleName: 'text-right' },
-
+    { fieldName: 'strQty', header: t('MSG_TXT_STR_OJ_QTY'), width: '100', styleName: 'text-right' },
+    { fieldName: 'ostrCnfmCd', header: t('MSG_TXT_CH_CNFM_RSON'), width: '100', styleName: 'text-right' },
+    { fieldName: 'rmkCn', header: t('MSG_TXT_NOTE'), width: '100', styleName: 'text-right' },
   ];
-  const fields = columns.map((v) => ({ fieldName: v.fieldName }));
+
+  const gridField = columns.map((v) => ({ fieldName: v.fieldName }));
+  const fields = [...gridField,
+    { fieldName: 'strSn' },
+    { fieldName: 'strConfDt' },
+    { fieldName: 'baseGb' },
+    { fieldName: 'baseColorGb' },
+    { fieldName: 'strWareNo' },
+    { fieldName: 'itmStrNo' }];
 
   data.setFields(fields);
   view.setColumns(columns);
   view.checkBar.visible = true;
   view.rowIndicator.visible = true;
+
+  view.onItemChecked = async (grid, i, checkedVal) => {
+    console.log(grid, i, checkedVal);
+
+    const { strQty, ostrQty, strConfDt } = grid.getValues(i);
+    console.log(strConfDt);
+
+    if (strConfDt !== null) {
+      // '이미 입고확인이 처리된 품목입니다.'
+      notify(t('MSG_ALT_ITM_ALRDY_CNFM_RCPT'));
+    }
+
+    if ((Number(strQty) - Number(ostrQty)) === 0) {
+      // 입고출고 수량이 같음
+      notify(t('MSG_ALT_RCPT_RLS_QTTS_SAME'));
+    } else {
+      // 입고출고 수량이 일치하지 않습니다.
+      notify(t('MSG_ALT_RCPT_RLS_QTTS_NO_MATCH'));
+    }
+  };
 });
 </script>
 <style scoped>
