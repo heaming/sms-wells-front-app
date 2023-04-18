@@ -14,13 +14,14 @@
 --->
 <template>
   <kw-page>
-    <kw-search>
+    <kw-search @search="onClickSearch">
       <kw-search-row>
         <kw-search-item
           :label="$t('MSG_TXT_PERF_YM')"
           required
         >
           <kw-date-picker
+            v-model="searchParams.baseYm"
             :label="$t('MSG_TXT_PERF_YM')"
             rules="required"
             type="month"
@@ -31,11 +32,12 @@
           required
         >
           <kw-option-group
+            v-model="searchParams.type"
             :label="$t('MSG_TXT_PERF_INQR')"
-            :model-value="'접수'"
             type="radio"
-            :options="['접수', '매출']"
             rules="required"
+            :options="[{ codeId: '0', codeName: $t('MSG_TXT_RCP') },
+                       { codeId: '1', codeName: $t('MSG_TXT_SL') }]"
           />
         </kw-search-item>
         <kw-search-item
@@ -43,10 +45,12 @@
           required
         >
           <kw-input
+            v-model="searchParams.sellPrtnrNo"
             :label="$t('MSG_TXT_SEQUENCE_NUMBER')"
             rules="required"
             icon="search"
             clearable
+            @click-icon="onClickSearchPrtnrNoPopup"
           />
         </kw-search-item>
       </kw-search-row>
@@ -61,24 +65,24 @@
       <kw-form dense>
         <kw-form-row>
           <kw-form-item :label="$t('MSG_TXT_EMPL_NM')">
-            <p>김교원</p>
+            <p> {{ baseInfo.sample }}</p>
           </kw-form-item>
           <kw-form-item :label="$t('MSG_TXT_BLG')">
-            <p>Q913123</p>
+            <p>{{ baseInfo.sample }}</p>
           </kw-form-item>
           <kw-form-item :label="$t('MSG_TXT_RSB')">
-            <p>플래너</p>
+            <p>{{ baseInfo.sample }}</p>
           </kw-form-item>
         </kw-form-row>
         <kw-form-row>
           <kw-form-item :label="$t('MSG_TXT_EST_SAL_COMM')">
-            <p>12,345,670</p>
+            <p>{{ baseInfo.sample }}</p>
           </kw-form-item>
           <kw-form-item :label="$t('MSG_TXT_EXP_MUT_AID_FEE')">
-            <p>123,450</p>
+            <p>{{ baseInfo.sample }}</p>
           </kw-form-item>
           <kw-form-item :label="$t('MSG_TXT_TOT_EST_FEE')">
-            <p>12,345,670</p>
+            <p>{{ baseInfo.sample }}</p>
           </kw-form-item>
         </kw-form-row>
       </kw-form>
@@ -92,9 +96,11 @@
           :label="$t('MSG_TXT_CALCULATE')"
           dense
           primary
+          @click="onClickCalculate"
         />
       </kw-action-top>
       <kw-grid
+        ref="grdPerformanceRef"
         :visible-rows="4"
         @init="initGrdPerformanceDtl"
       />
@@ -106,6 +112,7 @@
         <span class="kw-fc--black3 text-weight-regular"> {{ t('MSG_TXT_UNIT_WON') }}</span>
       </kw-action-top>
       <kw-grid
+        ref="grdEstimatedRef"
         :visible-rows="2"
         @init="initGrdEstimatedFeeDtl"
       />
@@ -116,6 +123,7 @@
         </template>
       </kw-action-top>
       <kw-grid
+        ref="grdSalesRef"
         :visible-rows="3"
         @init="initGrdSalesHist"
       />
@@ -127,16 +135,68 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { defineGrid } from 'kw-lib';
+import { defineGrid, useDataService, useGlobal, getComponentType } from 'kw-lib';
+import { cloneDeep } from 'lodash-es';
+import dayjs from 'dayjs';
 
+const now = dayjs();
+const { modal } = useGlobal();
 const { t } = useI18n();
+const dataService = useDataService();
+// -------------------------------------------------------------------------------------------------
+// Function & Event
+// -------------------------------------------------------------------------------------------------
+const grdPerformanceRef = ref(getComponentType('KwGrid'));
+const grdEstimatedRef = ref(getComponentType('KwGrid'));
+const grdSalesRef = ref(getComponentType('KwGrid'));
+const grdPerformanceData = computed(() => grdPerformanceRef.value?.getData());
+const grdEstimatedData = computed(() => grdEstimatedRef.value?.getData());
+const grdSalesData = computed(() => grdSalesRef.value?.getData());
+
+let cachedParams;
+const searchParams = ref({
+  baseYm: now.format('YYYYMM'),
+  type: '0',
+  sellPrtnrNo: '',
+});
+const baseInfo = ref({
+  sample: '',
+});
+
+// 데이터 조회
+async function fetchData() {
+  const { data } = await dataService.get('API정의안됨', { params: { ...cachedParams } });
+  grdPerformanceData.value.setRows(data.list1);
+  grdEstimatedData.value.setRows(data.list2);
+  grdSalesData.value.setRows(data.list3);
+}
+// 조회버튼
+async function onClickSearch() {
+  cachedParams = cloneDeep(searchParams.value);
+  await fetchData();
+}
+// 계산버튼 클릭
+async function onClickCalculate() {
+  const { data } = await dataService.get('API정의안됨', { params: { ...cachedParams } });
+  console.log(data);
+}
+// 파트너 검색 팝업
+async function onClickSearchPrtnrNoPopup() {
+  const { result, payload } = await modal({
+    component: 'ZwogzPartnerListP',
+    componentProps: {
+      prtnrNo: searchParams.value.sellPrtnrNo,
+    },
+  });
+  if (result) {
+    searchParams.value.sellPrtnrNo = payload.prtnrNo;
+  }
+}
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
 const initGrdPerformanceDtl = defineGrid((data, view) => {
-  const fields = [{ fieldName: 'col1' }, { fieldName: 'col2' }, { fieldName: 'col3' }, { fieldName: 'col4' }, { fieldName: 'col5' }, { fieldName: 'col6' }, { fieldName: 'col7' }];
-
   const columns = [
     { fieldName: 'col1', header: t('MSG_TXT_DIV'), width: '220', styleName: 'text-left' },
     { fieldName: 'col2', header: t('MSG_TXT_ELHM'), width: '220', styleName: 'text-right' },
@@ -146,7 +206,7 @@ const initGrdPerformanceDtl = defineGrid((data, view) => {
     { fieldName: 'col6', header: t('MSG_TXT_PLANNER_STRTUP'), width: '220', styleName: 'text-center' },
     { fieldName: 'col7', header: t('MSG_TXT_PLANNER_PRCTC'), width: '220', styleName: 'text-center' },
   ];
-
+  const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   data.setFields(fields);
   view.setColumns(columns);
 
@@ -178,8 +238,6 @@ const initGrdPerformanceDtl = defineGrid((data, view) => {
 });
 
 const initGrdEstimatedFeeDtl = defineGrid((data, view) => {
-  const fields = [{ fieldName: 'col1' }, { fieldName: 'col2' }, { fieldName: 'col3' }, { fieldName: 'col4' }, { fieldName: 'col5' }, { fieldName: 'col6' }, { fieldName: 'col7' }, { fieldName: 'col8' }, { fieldName: 'col9' }, { fieldName: 'col10' }];
-
   const columns = [
     { fieldName: 'col1', header: t('MSG_TXT_DIV'), width: '218' },
     { fieldName: 'col2', header: t('MSG_TXT_ELHM_PRPN'), styleName: 'text-right', width: '135' },
@@ -192,7 +250,7 @@ const initGrdEstimatedFeeDtl = defineGrid((data, view) => {
     { fieldName: 'col9', header: t('MSG_TXT_SAL_INTV'), styleName: 'text-right', width: '166' },
     { fieldName: 'col10', header: t('MSG_TXT_MUTU'), styleName: 'text-right', width: '165' },
   ];
-
+  const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   data.setFields(fields);
   view.setColumns(columns);
   view.checkBar.visible = false; // create checkbox column
@@ -219,8 +277,6 @@ const initGrdEstimatedFeeDtl = defineGrid((data, view) => {
   ]);
 });
 const initGrdSalesHist = defineGrid((data, view) => {
-  const fields = [{ fieldName: 'col1' }, { fieldName: 'col2' }, { fieldName: 'col3' }, { fieldName: 'col4' }, { fieldName: 'col5' }, { fieldName: 'col6' }, { fieldName: 'col7' }, { fieldName: 'col8' }, { fieldName: 'col9' }, { fieldName: 'col10' }, { fieldName: 'col11' }, { fieldName: 'col12' }, { fieldName: 'col13' }];
-
   const columns = [
     { fieldName: 'col1', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '118', styleName: 'text-center' },
     { fieldName: 'col2', header: t('MSG_TXT_EMPL_NM'), width: '120' },
@@ -236,7 +292,7 @@ const initGrdSalesHist = defineGrid((data, view) => {
     { fieldName: 'col12', header: t('MSG_TXT_EXCEPT_HOUSEHOLD_APPLIANCES'), width: '118', styleName: 'text-right' },
     { fieldName: 'col13', header: t('MSG_TXT_CHNG'), width: '118', styleName: 'text-right' },
   ];
-
+  const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   data.setFields(fields);
   view.setColumns(columns);
 
