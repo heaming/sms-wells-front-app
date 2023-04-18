@@ -287,6 +287,7 @@ async function onClickApplyDateBulkChange() {
 function searchConditionReset() {
   searchParams.value.hgrPdCd = '';
   searchParams.value.cmnPartChk = 'N';
+  searchParams.value.apyMtrChk = 'N';
 }
 
 async function onClickSave() {
@@ -311,7 +312,9 @@ function onClickReset() {
 }
 
 onMounted(async () => {
-  await onChangeHgrPdCd();
+  if (!isEmpty(searchParams.value.hgrPdCd)) {
+    await onChangeHgrPdCd();
+  }
 });
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
@@ -330,6 +333,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'sumAmt' }, // 합계(소비자가+기술료)
     { fieldName: 'izSn' }, // 내역일련번호
     { fieldName: 'basePdCd' }, // 사용자재상품코드
+    { fieldName: 'useMatPdCd' },
   ];
 
   const columns = [
@@ -341,7 +345,13 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'csmrUprcAmt',
       header: t('MSG_TXT_CSPRC'),
       width: '100',
-      editable: true,
+      styleCallback: (grid, dataCell) => {
+        const { izSn, basePdCd, useMatPdCd } = gridUtil.getRowValue(grid, dataCell.index.dataRow);
+        if (isEmpty(izSn) || isEmpty(basePdCd) || isEmpty(useMatPdCd)) {
+          return { editable: false };
+        }
+        return { editable: true };
+      },
       editor: {
         type: 'number',
         inputCharacters: '0-9',
@@ -351,7 +361,13 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'whlsUprcAmt',
       header: t('MSG_TXT_WHLS_UPRC'),
       width: '100',
-      editable: true,
+      styleCallback: (grid, dataCell) => {
+        const { izSn, basePdCd, useMatPdCd } = gridUtil.getRowValue(grid, dataCell.index.dataRow);
+        if (isEmpty(izSn) || isEmpty(basePdCd) || isEmpty(useMatPdCd)) {
+          return { editable: false };
+        }
+        return { editable: true };
+      },
       editor: {
         type: 'number',
         inputCharacters: '0-9',
@@ -361,7 +377,13 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'insiUprcAmt',
       header: t('MSG_TXT_INSI_UPRC'),
       width: '100',
-      editable: true,
+      styleCallback: (grid, dataCell) => {
+        const { izSn, basePdCd, useMatPdCd } = gridUtil.getRowValue(grid, dataCell.index.dataRow);
+        if (isEmpty(izSn) || isEmpty(basePdCd) || isEmpty(useMatPdCd)) {
+          return { editable: false };
+        }
+        return { editable: true };
+      },
       editor: {
         type: 'number',
         inputCharacters: '0-9',
@@ -371,7 +393,13 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'tcfeeAmt',
       header: t('MSG_TXT_TCFEE'),
       width: '100',
-      editable: true,
+      styleCallback: (grid, dataCell) => {
+        const { izSn, basePdCd, useMatPdCd } = gridUtil.getRowValue(grid, dataCell.index.dataRow);
+        if (isEmpty(izSn) || isEmpty(basePdCd) || isEmpty(useMatPdCd)) {
+          return { editable: false };
+        }
+        return { editable: true };
+      },
       editor: {
         type: 'number',
         inputCharacters: '0-9',
@@ -411,5 +439,15 @@ const initGrdMain = defineGrid((data, view) => {
     grid.setValue(itemIndex, 'apyStrtdt', apyStrtdt);
     grid.setValue(itemIndex, 'apyEnddt', apyEnddt);
   };
+
+  view.setCheckableCallback((dataSource, item) => {
+    console.log(item.dataRow);
+    const { izSn, basePdCd, useMatPdCd } = gridUtil.getRowValue(view, item.dataRow);
+
+    if (isEmpty(izSn) || isEmpty(basePdCd) || isEmpty(useMatPdCd)) {
+      return false;
+    }
+    return true;
+  });
 });
 </script>
