@@ -19,7 +19,14 @@
       @search="onClickSearch"
     >
       <kw-search-row>
-        <kw-search-item :label="$t('MSG_TXT_PD_NM')">
+        <!--상품그룹-->
+        <kw-search-item :label="$t('MSG_TXT_PD_GRP')">
+          <kw-select
+            v-model="searchParams.pdGrpCd"
+            :options="codes.PD_GRP_CD"
+            first-option="all"
+            @change="changePdGrpCd"
+          />
           <kw-select
             v-model="searchParams.pdCd"
             :options="pds"
@@ -86,7 +93,7 @@ import { notify, gridUtil, defineGrid, useMeta, codeUtil, getComponentType, useD
 import { cloneDeep } from 'lodash-es';
 import smsCommon from '~sms-wells/service/composables/useSnCode';
 
-const { getLcStockSt101tb } = smsCommon();
+const { getPartMaster } = smsCommon();
 
 const { t } = useI18n();
 const { getConfig } = useMeta();
@@ -105,10 +112,8 @@ const pageInfo = ref({
   pageIndex: 1,
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
 });
-const codes = await codeUtil.getMultiCodes(
-  'COD_PAGE_SIZE_OPTIONS',
-);
-const pds = await getLcStockSt101tb();
+const codes = await codeUtil.getMultiCodes('COD_PAGE_SIZE_OPTIONS', 'PD_GRP_CD');
+const pds = ref([]);// = await getPartMaster('4', '1', 'M');
 
 async function fetchData() {
   const res = await dataService.get('/sms/wells/service/as-visit-costs/paging', { params: {
@@ -149,6 +154,14 @@ async function onClickSave() {
   await notify(t('MSG_ALT_SAVE_DATA'));
   await fetchData();
 }
+
+async function changePdGrpCd() {
+  if (searchParams.value.pdGrpCd) {
+    pds.value = await getPartMaster('4', searchParams.value.pdGrpCd, 'M');
+  } else pds.value = [];
+}
+pds.value = await getPartMaster('4', null, 'M');
+console.log(pds.value);
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
@@ -168,7 +181,7 @@ const initGrdMain = defineGrid((data, view) => {
       width: '150',
       styleName: 'text-left',
       editor: { type: 'dropdown' },
-      options: pds.map((x) => ({ codeId: x.cd ? x.cd : '', codeName: x.cdNm ? x.cdNm : '' })),
+      options: pds.value.map((x) => ({ codeId: x.cd ? x.cd : '', codeName: x.cdNm ? x.cdNm : '' })),
       rules: 'required',
     },
     /* 출장비용금액 */
@@ -208,9 +221,10 @@ const initGrdMain = defineGrid((data, view) => {
   view.setColumns(columns);
   view.checkBar.visible = true;
 
-  view.setEditOptions({
-    editable: true,
-    updatable: true,
-  });
+  view.editOptions.editable = true;
+  // view.setEditOptions({
+  //   editable: true,
+  //   updatable: true,
+  // });
 });
 </script>

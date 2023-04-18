@@ -25,10 +25,8 @@
             v-model="searchParams.pdGrpCd"
             :options="codes.PD_GRP_CD"
             first-option="all"
+            @change="changePdGrpCd"
           />
-        </kw-search-item>
-        <!--상품명-->
-        <kw-search-item :label="$t('MSG_TXT_PD_NM')">
           <kw-select
             v-model="searchParams.pdCd"
             :options="pds"
@@ -37,8 +35,6 @@
             option-value="cd"
           />
         </kw-search-item>
-      </kw-search-row>
-      <kw-search-row>
         <!--서비스유형-->
         <kw-search-item :label="$t('MSG_TXT_SV_TP')">
           <kw-select
@@ -55,20 +51,22 @@
             first-option="all"
           />
         </kw-search-item>
+      </kw-search-row>
+      <kw-search-row>
         <!--적용일자-->
         <kw-search-item>
-          <kw-option-group
-            v-model="searchParams.apyChk"
-            :options="codesYn"
-            option-label="name"
-            option-value="code"
-            type="toggle"
-          />
           <kw-date-picker
             v-model="searchParams.applyDate"
             :disable="searchParams.apyChk[0] !== '1' "
             :label="$t('MSG_TXT_APPLY_DT')"
             :rules="searchParams.apyChk[0] === '1' ? 'required' : '' "
+          />
+          <kw-option-group
+            v-model="searchParams.apyChk"
+            :options="codesYn"
+            option-label="name"
+            option-value="code"
+            type="checkbox"
           />
         </kw-search-item>
       </kw-search-row>
@@ -116,7 +114,7 @@ import {
 import { cloneDeep } from 'lodash-es';
 import smsCommon from '~sms-wells/service/composables/useSnCode';
 
-const { getLcStockSt101tb } = smsCommon();
+const { getPartMaster } = smsCommon();
 
 const { t } = useI18n();
 const dataService = useDataService();
@@ -147,7 +145,7 @@ const codes = await codeUtil.getMultiCodes(
   'SV_BIZ_DCLSF_CD', // BA04
 );
 const codesYn = [{ code: '1', name: t('MSG_TXT_APPLY_DT') }];
-const pds = await getLcStockSt101tb();
+const pds = ref([]);// = await getPartMaster('4', '1', 'M');
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -164,6 +162,12 @@ async function onClickSearch() {
   pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
+}
+
+async function changePdGrpCd() {
+  if (searchParams.value.pdGrpCd) {
+    pds.value = await getPartMaster('4', searchParams.value.pdGrpCd, 'M');
+  } else pds.value = [];
 }
 
 // -------------------------------------------------------------------------------------------------
