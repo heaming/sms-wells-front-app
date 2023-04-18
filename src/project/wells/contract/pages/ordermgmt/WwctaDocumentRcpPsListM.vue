@@ -63,16 +63,13 @@
         </kw-search-item>
         <!-- 휴대전화번호 -->
         <kw-search-item :label="$t('MSG_TXT_MPNO')">
-          <kw-select
-            v-model="searchParams.cralLocapaTno"
-            :options="codes.COD_CARRIER_ID_TYPE"
-            first-option="select"
-            first-option-value=""
-            class="w120"
-          />
           <kw-input
-            v-model="searchParams.cralMexnoIdvTno"
-            :maxlength="8"
+            v-model:model-value="searchParams.cntrCralTno"
+            v-model:telNo0="searchParams.cralLocaraTno"
+            v-model:telNo1="searchParams.mexnoEncr"
+            v-model:telNo2="searchParams.cralIdvTno"
+            :placeholder="t('MSG_TXT_INP')"
+            mask="telephone"
           />
         </kw-search-item>
       </kw-search-row>
@@ -80,20 +77,22 @@
     <div class="result-area">
       <kw-action-top>
         <template #left>
-          <kw-paging-info :total-count="pageInfo.totalCount" />
+          <kw-paging-info
+            :total-count="pageInfo.totalCount"
+          />
         </template>
         <kw-btn
           icon="download_on"
           dense
           secondary
           :label="$t('MSG_BTN_EXCEL_DOWN')"
-          :disable="!totalCount"
+          :disable="!pageInfo.totalCount"
           @click="onClickExcelDownload"
         />
       </kw-action-top>
       <kw-grid
         ref="grdMainRef"
-        name="grdMain"
+        name="grdMainRef"
         :visible-rows="10"
         @init="initGrid"
       />
@@ -104,12 +103,13 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { defineGrid, getComponentType, useDataService, gridUtil, codeUtil } from 'kw-lib';
+import { defineGrid, getComponentType, useDataService, useGlobal, gridUtil, codeUtil } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 
 const dataService = useDataService();
 const { t } = useI18n();
+const { modal } = useGlobal();
 const { currentRoute } = useRouter();
 
 let cachedParams;
@@ -121,9 +121,10 @@ const searchParams = ref({
   cntrChTpCd: '',
   cntrChRcpId: '',
   cstKnm: '',
-  cralLocapaMexnoIdvTno: '',
-  cralLocapaTno: '',
-  cralMexnoIdvTno: '',
+  cntrCralTno: '', // 계약자 휴대전화번호
+  cralLocaraTno: '', // 계약자 휴대지역전화번호
+  mexnoEncr: '', // 계약자 휴대전화국번호암호화
+  cralIdvTno: '', // 계약자 휴대개별전화번호
 });
 const pageInfo = ref({
   totalCount: 0,
@@ -135,14 +136,13 @@ const pageInfo = ref({
 const grdMainRef = ref(getComponentType('KwGrid'));
 const codes = await codeUtil.getMultiCodes(
   'CNTR_CH_PRGS_STAT_CD', // 계약변경진행상태코드
-  'COD_CARRIER_ID_TYPE', // 통신사 식별번호 유형
 );
 
 async function fetchData() {
   // changing api & cacheparams according to search classification
-  searchParams.value.cralLocapaMexnoIdvTno = searchParams.value.cralLocapaTno + searchParams.value.cralMexnoIdvTno;
   let res = '';
   cachedParams = cloneDeep(searchParams.value);
+  // console.log(cachedParams);
   res = await dataService.get('/sms/wells/contract/document-receipts', { params: cachedParams });
 
   // const { list: accounts } = res.data;
@@ -153,6 +153,7 @@ async function fetchData() {
   view.getDataSource().setRows(res.data);
   pageInfo.value.totalCount = view.getItemCount();
   view.resetCurrent();
+  // view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
 async function onClickSearch() {
@@ -179,25 +180,28 @@ onMounted(async () => {
 // -------------------------------------------------------------------------------------------------
 const initGrid = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'cntrChRcpId' },
-    { fieldName: 'cntrChRcpD' },
-    { fieldName: 'cntrChRcpTm' },
-    { fieldName: 'cntrChPrgsStatCd' },
-    { fieldName: 'cntrChPrgsStatCdEnd' },
-    { fieldName: 'cstKnm' },
-    { fieldName: 'cralLocaraTno' },
-    { fieldName: 'mexnoEncr' },
-    { fieldName: 'cralIdvTno' },
-    { fieldName: 'cntrChTypeCd' },
-    { fieldName: 'fnlMdfcDtm' },
+    { fieldName: 'cntrChRcpId' }, // 접수번호
+    { fieldName: 'cntrChRcpD' }, // 접수일
+    { fieldName: 'cntrChRcpTm' }, // 접수시간
+    { fieldName: 'cntrChPrgsStatCd' }, // 접수현황코드
+    { fieldName: 'cntrChPrgsStatNm' }, // 접수현황코드명
+    { fieldName: 'cntrChPrgsStatCdEnd' }, // 기타종료코드
+    { fieldName: 'cntrChPrgsStatNmEnd' }, // 기타종료코드명
+    { fieldName: 'cstKnm' }, // 고객명
+    { fieldName: 'cralLocaraTno' }, // 휴대지역전화번호
+    { fieldName: 'mexnoEncr' }, // 휴대전화국번호암호화
+    { fieldName: 'cralIdvTno' }, // 휴대개별전화번호
+    { fieldName: 'cntrChTpCd' }, // 접수유형
+    { fieldName: 'cntrChTpNm' }, // 접수유형명
+    { fieldName: 'fnlMdfcDtm' }, // 최종변경일시
   ];
 
   const columns = [
     { fieldName: 'cntrChRcpId', header: t('MSG_TXT_RCPT_NO'), width: '166', styleName: 'text-center' }, // 접수번호
     { fieldName: 'cntrChRcpD', header: t('MSG_TXT_RCP_D'), width: '166', styleName: 'text-center', datetimeFormat: 'date' }, // 접수일
-    { fieldName: 'cntrChRcpTm', header: t('MSG_TXT_RCPT_HH'), width: '166', styleName: 'text-center', datetimeFormat: 'hh:mm' }, // 접수시간
-    { fieldName: 'cntrChPrgsStatCd', header: t('MSG_TXT_RCP_PS'), width: '166', styleName: 'text-left' }, // 접수현황
-    { fieldName: 'cntrChPrgsStatCdEnd', header: t('MSG_TXT_ETC_END'), width: '166', styleName: 'text-center' }, // 기타종료
+    { fieldName: 'cntrChRcpTm', header: t('MSG_TXT_RCPT_HH'), width: '166', styleName: 'text-center', datetimeFormat: 'hh:mm:ss' }, // 접수시간
+    { fieldName: 'cntrChPrgsStatNm', header: t('MSG_TXT_RCP_PS'), width: '166', styleName: 'text-left' }, // 접수현황
+    { fieldName: 'cntrChPrgsStatNmEnd', header: t('MSG_TXT_ETC_END'), width: '166', styleName: 'text-left' }, // 기타종료
     { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '166', styleName: 'text-left' }, // 고객명
     {
       fieldName: 'cralLocaraTno',
@@ -219,14 +223,26 @@ const initGrid = defineGrid((data, view) => {
         return '';
       },
     }, // 휴대전화번호
-    { fieldName: 'cntrChTypeCd', header: t('MSG_TXT_RCP_TP_1'), width: '166', styleName: 'text-left' }, // 접수유형1
-    { fieldName: 'fnlMdfcDtm', header: t('MSG_TXT_RCP_TP_2'), width: '166', styleName: 'text-center' }, // 접수유형2
+    { fieldName: 'cntrChTpNm', header: t('MSG_TXT_RCP_TP_1'), width: '166', styleName: 'text-left' }, // 접수유형1
+    { fieldName: 'fnlMdfcDtm', header: t('MSG_TXT_RCP_TP_2'), width: '166', styleName: 'text-center', datetimeFormat: 'datetime' }, // 접수유형2
   ];
 
   data.setFields(fields);
   view.setColumns(columns);
   view.checkBar.visible = false; // create checkbox column
   view.rowIndicator.visible = true; // create number indicator column
+
+  view.onCellItemClicked = async (g, { dataRow, column }) => {
+    if (['cntrChPrgsStatNmEnd'].includes(column)) { // 기타종료
+      const paramCntrChRcpId = g.getValue(dataRow, 'cntrChRcpId');
+      const paramCstKnm = g.getValue(dataRow, 'cstKnm');
+      const paramCralLocaraTno = g.getValue(dataRow, 'cralLocaraTno');
+      const paramMexnoEncr = g.getValue(dataRow, 'mexnoEncr');
+      const paramCralIdvTno = g.getValue(dataRow, 'cralIdvTno');
+
+      await modal({ component: 'WwctaDocumentRcpEtcEndChoDtlP', componentProps: { cntrChRcpId: paramCntrChRcpId, cstKnm: paramCstKnm, cralLocaraTno: paramCralLocaraTno, mexnoEncr: paramMexnoEncr, cralIdvTno: paramCralIdvTno } });
+    }
+  };
 });
 </script>
 <style>
