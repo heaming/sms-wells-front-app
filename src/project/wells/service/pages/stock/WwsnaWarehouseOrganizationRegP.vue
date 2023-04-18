@@ -92,14 +92,15 @@
             @click-icon="onClickOpenHumanResourcesPopup"
           />
         </kw-form-item>
-        <!-- 창고명 -->
+        <!-- 상위창고 -->
         <kw-form-item
-          :label="$t('MSG_TXT_WARE_NM')"
+          :label="$t('MSG_TXT_HGR_WARE')"
         >
-          <kw-input
-            v-model="warehouseInfo.wareNm"
-            :label="$t('MSG_TXT_WARE_NM')"
-            readonly
+          <kw-select
+            v-model="warehouseInfo.hgrWareNo"
+            :label="$t('MSG_TXT_HGR_WARE')"
+            :options="hgrWarehouses"
+            :readonly="hasProps()"
           />
         </kw-form-item>
       </kw-form-row>
@@ -109,22 +110,22 @@
           :label="$t('MSG_TXT_BLG')"
         >
           <kw-input
-            v-model="warehouseInfo.dgr1LevlOgNm"
+            v-model="warehouseInfo.dgr1LevlOgCdNm"
             readonly
           />
           <kw-input
-            v-model="warehouseInfo.dgr2LevlOgNm"
+            v-model="warehouseInfo.dgr2LevlOgCdNm"
             readonly
           />
         </kw-form-item>
-        <!-- 창고 -->
+        <!-- 창고명 -->
         <kw-form-item
-          :label="$t('MSG_TXT_WARE')"
+          :label="$t('MSG_TXT_WARE_NM')"
         >
           <kw-input
-            v-model="warehouseInfo.hgrWareNm"
-            :label="$t('MSG_TXT_WARE')"
-            readonly
+            v-model="warehouseInfo.wareNm"
+            :label="$t('MSG_TXT_WARE_NM')"
+            :readonly="hasProps() || !isOrgWarehouse"
           />
         </kw-form-item>
       </kw-form-row>
@@ -232,8 +233,6 @@ const props = defineProps({
   },
 });
 
-console.log(props);
-
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -255,24 +254,31 @@ const warehouseInfo = ref({
   prtnrNo: '', // 관리자번호
   prtnrKnm: '', // 관리자명
   wareNm: '', // 창고명
+  bldNm: '', // 빌딩명
+  bldCd: '', // 빌딩코드
+  ogTpCd: '', // 조직유형코드
   hgrWareNo: '', // 상위창고번호
   hgrWareNm: '', // 상위창고명
   rmkCn: '', // 비고내용
   wareUseYn: 'Y', // 창고사용여부
   fstRgstDt: '', // 최초등록일
   adrUseYn: 'N', // 주소사용여부
-  bldCd: '', // 빌딩코드
   wareAdrId: '', // 창고주소ID
   rnadr: '', // 도로명주소
   rdadr: '', // 도로명상세주소
   newAdrZip: '', // 신주소우편번호
   ogId: '', // 조직ID
+  ogCd: '', // 조직코드
   ogNm: '', // 조직명
-  dgr1LevlOgId: '', // 1차레벨조직ID
+  dgr1LevlOgCd: '', // 1차레벨조직코드
   dgr1LevlOgNm: '', // 1차레벨조직명
-  dgr2LevlOgId: '', // 2차레벨조직ID
+  dgr1LevlOgCdNm: '', // 1차레벨조직코드 + 조직명
+  dgr2LevlOgCd: '', // 2차레벨조직코드
   dgr2LevlOgNm: '', // 2차레벨조직명
+  dgr2LevlOgCdNm: '', // 2차레벨조직코드 + 조직명
 });
+
+const hgrWarehouses = ref([]);
 
 const WARE_DV_SERVICE = '2';
 const WARE_DV_BUSINESS = '3';
@@ -280,6 +286,7 @@ const wareDtlDvCds = ref([]);
 const isNotIndpWarehouse = computed(() => warehouseInfo.value.wareDtlDvCd !== '32');
 const wareDvCdRule = codes.WARE_DV_CD.filter((v) => v.codeId !== '1').map((v) => (v.codeId)).join(',');
 const wareDtlDvCdRule = ref('');
+const isOrgWarehouse = computed(() => warehouseInfo.value.wareDtlDvCd === '20' || warehouseInfo.value.wareDtlDvCd === '30');
 
 watch(() => warehouseInfo.value.wareDvCd, async (val) => {
   if (val === WARE_DV_SERVICE) {
@@ -294,11 +301,46 @@ watch(() => warehouseInfo.value.wareDvCd, async (val) => {
   wareDtlDvCdRule.value = wareDtlDvCds.value.map((v) => (v.codeId)).join(',');
 }, { immediate: true });
 
+async function fetchHigherWarehouses() {
+  const params = {
+    ogId: warehouseInfo.value.ogId,
+    wareDvCd: warehouseInfo.value.wareDvCd,
+    wareDtlDvCd: warehouseInfo.value.wareDtlDvCd,
+  };
+
+  const res = await dataService.get('/sms/wells/service/warehouse-organizations/high-rank-warehouses', { params });
+  hgrWarehouses.value = res.data;
+
+  if (isOrgWarehouse.value) {
+    warehouseInfo.value.hgrWareNo = '100002';
+  } else {
+    warehouseInfo.value.hgrWareNo = hgrWarehouses.value[0]?.codeId ?? '';
+  }
+}
+
+function validateWareDvCd() {
+  if (warehouseInfo.value.wareDvCd === '') {
+    notify(t('MSG_ALT_BEFORE_SELECT_IT', [t('MSG_TXT_WARE_DV')]));
+    return false;
+  }
+
+  if (warehouseInfo.value.wareDtlDvCd === '') {
+    notify(t('MSG_ALT_BEFORE_SELECT_IT', [t('MSG_TXT_WARE_DV_DTL')]));
+    return false;
+  }
+
+  return true;
+}
+
 async function onClickOpenHumanResourcesPopup() {
+  if (!validateWareDvCd()) return;
+
   let mngrDvCd = '';
-  if (warehouseInfo.value.wareDvCd === '2') { // 서비스센터일 경우 '엔지니어'
+  let searchText;
+  if (warehouseInfo.value.wareDvCd === WARE_DV_SERVICE) { // 서비스센터일 경우 '엔지니어'
     mngrDvCd = '2';
-  } else if (warehouseInfo.value.wareDvCd === '3') { // 영업센터일 경우 '매니저'
+    searchText = warehouseInfo.value.prtnrKnm;
+  } else if (warehouseInfo.value.wareDvCd === WARE_DV_BUSINESS) { // 영업센터일 경우 '매니저'
     mngrDvCd = '1';
   }
 
@@ -306,21 +348,26 @@ async function onClickOpenHumanResourcesPopup() {
     component: 'WwsndHumanResourcesListP',
     componentProps: {
       mngrDvCd,
-      searchText: warehouseInfo.value.prtnrKnm,
+      searchText,
     },
   });
 
   if (isChanged) {
-    // TODO: 빌딩명, 상위창고명 필요
-    const { ogCd, prtnrNo, prtnrKnm, dgr1LevlOgId, dgr1LevlOgNm, dgr2LevlOgId, dgr2LevlOgNm } = payload[0];
-    warehouseInfo.value.ogId = ogCd;
-    warehouseInfo.value.prtnrNo = prtnrNo;
-    warehouseInfo.value.prtnrKnm = prtnrKnm;
-    // TODO: 창고명 warehouseInfo.value.wareNm = `${bldNm} (${prtnrKnm})`;
-    warehouseInfo.value.dgr1LevlOgId = dgr1LevlOgId;
-    warehouseInfo.value.dgr1LevlOgNm = dgr1LevlOgNm;
-    warehouseInfo.value.dgr2LevlOgId = dgr2LevlOgId;
-    warehouseInfo.value.dgr2LevlOgNm = dgr2LevlOgNm;
+    warehouseInfo.value.ogId = payload[0].ogId;
+    warehouseInfo.value.ogCd = payload[0].ogCd;
+    warehouseInfo.value.ogTpCd = payload[0].ogTpCd;
+    warehouseInfo.value.prtnrNo = payload[0].prtnrNo;
+    warehouseInfo.value.prtnrKnm = payload[0].prtnrKnm;
+    warehouseInfo.value.dgr1LevlOgCd = payload[0].dgr1LevlOgCd;
+    warehouseInfo.value.dgr1LevlOgNm = payload[0].dgr1LevlOgNm;
+    warehouseInfo.value.dgr2LevlOgCd = payload[0].dgr2LevlOgCd;
+    warehouseInfo.value.dgr2LevlOgNm = payload[0].dgr2LevlOgNm;
+    warehouseInfo.value.bldNm = payload[0].bldNm ?? '';
+    warehouseInfo.value.wareNm = isOrgWarehouse.value ? `${warehouseInfo.value.bldNm}` : `${warehouseInfo.value.bldNm} (${payload[0].prtnrKnm})`;
+    warehouseInfo.value.dgr1LevlOgCdNm = `[${payload[0].dgr1LevlOgCd}] ${payload[0].dgr1LevlOgNm}`;
+    warehouseInfo.value.dgr2LevlOgCdNm = payload[0].dgr2LevlOgCd ? `[${payload[0].dgr2LevlOgCd}] ${payload[0].dgr2LevlOgNm}` : '-';
+
+    await fetchHigherWarehouses();
   }
 }
 
@@ -331,8 +378,9 @@ async function onClickOpenBuildingPopup() {
 
 async function fetchData() {
   const res = await dataService.get(`/sms/wells/service/warehouse-organizations/${props.apyYm}${props.wareNo}`);
-  console.log(res.data);
   warehouseInfo.value = res.data;
+  const { hgrWareNo, hgrWareNm } = warehouseInfo.value;
+  hgrWarehouses.value = [{ codeId: hgrWareNo, codeName: hgrWareNm }];
 }
 
 async function onClickSave() {
@@ -344,8 +392,8 @@ async function onClickSave() {
   }
 
   await dataService.post('/sms/wells/service/warehouse-organizations', warehouseInfo.value);
-  await notify(t('MSG_ALT_SAVE_DATA'));
   ok();
+  await notify(t('MSG_ALT_SAVE_DATA'));
 }
 
 function hasProps() {
