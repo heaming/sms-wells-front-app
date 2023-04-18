@@ -26,29 +26,33 @@ const materialMainPage = '/product/zwpdc-material-list';
           <kw-stepper
             v-model="currentStep.name"
             heading-text
-            :header-nav="!isTempSaveBtn"
+            :header-nav="!isTempSaveBtn || passedStep > 0"
             @update:model-value="onClickStep()"
           >
             <!-- 1. 기본속성 등록 -->
             <kw-step
+              :header-nav="!isTempSaveBtn || passedStep >= regSteps[0].step"
               :name="regSteps[0].name"
               :title="$t('MSG_TXT_BAS_ATTR_REG')"
               :prefix="regSteps[0].step"
             />
             <!-- 2.연결상품 선택 -->
             <kw-step
+              :header-nav="!isTempSaveBtn || passedStep >= regSteps[1].step"
               :name="regSteps[1].name"
               :title="$t('MSG_TXT_REL_PRDT_SEL')"
               :prefix="regSteps[1].step"
             />
             <!-- 3.관리속성 등록 -->
             <kw-step
+              :header-nav="!isTempSaveBtn || passedStep >= regSteps[2].step"
               :name="regSteps[2].name"
               :title="$t('MSG_TXT_MGT_ATTR_REG')"
               :prefix="regSteps[2].step"
             />
             <!-- 4.등록정보 확인 -->
             <kw-step
+              :header-nav="!isTempSaveBtn || passedStep >= regSteps[3].step"
               :name="regSteps[3].name"
               :title="$t('MSG_TXT_CHK_REG_INFO')"
               :prefix="regSteps[3].step"
@@ -172,9 +176,9 @@ const materialMainPage = '/product/zwpdc-material-list';
               class="ml8"
               @click="onClickCancel"
             />
-            <!-- 초기화 -->
+            <!-- 초기화 currentStep.step === 1 && isCreate -->
             <kw-btn
-              v-show="currentStep.step === 1 && isCreate"
+              v-show="isShowInitBtn"
               :label="$t('MSG_BTN_INTL')"
               class="ml8"
               @click="onClickReset"
@@ -247,6 +251,7 @@ const wellsStep = [
 ];
 const regSteps = ref(wellsStep);
 const currentStep = cloneDeep(ref(wellsStep[0]));
+const passedStep = ref(0);
 const obsMainRef = ref();
 const cmpStepRefs = ref([ref(), ref(), ref()]);
 
@@ -262,11 +267,13 @@ const isCreate = ref(false);
 
 const selectedTab = ref('attribute');
 const exceptPrpGrpCd = ref('PART');
+const isShowInitBtn = ref(false);
 
 async function onClickReset() {
   await cmpStepRefs.value.forEach((item) => {
     item.value.resetData();
   });
+  passedStep.value = 0;
 }
 
 async function onClickRemove() {
@@ -408,6 +415,7 @@ async function onClickNextStep() {
   if (isEmpty(prevStepData.value)) prevStepData.value = {};
   prevStepData.value = await getSaveData();
   currentStep.value = cloneDeep(regSteps.value[(currentStep.value.step - 1) + 1]);
+  passedStep.value = currentStep.value.step;
 }
 
 async function onClickPrevStep() {
@@ -454,6 +462,7 @@ async function onClickCancel() {
 async function initProps() {
   const { pdCd } = props;
   currentPdCd.value = pdCd;
+  passedStep.value = 0;
   if (currentPdCd.value) {
     await fetchData();
   } else {
