@@ -100,6 +100,7 @@
 import { useDataService, codeUtil, defineGrid, getComponentType, gridUtil, useGlobal } from 'kw-lib';
 import dayjs from 'dayjs';
 import { cloneDeep } from 'lodash-es';
+import useSnCode from '~sms-wells/service/composables/useSnCode';
 // import ZwcmWareHouseSearch from '~sms-common/service/components/ZwsnzWareHouseSearch.vue';
 
 const grdMainRef = ref(getComponentType('KwGrid'));
@@ -108,6 +109,7 @@ const dataService = useDataService();
 
 const { t } = useI18n();
 const { alert } = useGlobal();
+const { getMonthWarehouse } = useSnCode();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -136,6 +138,8 @@ const strTpCd = codes.STR_TP_CD.filter((v) => v.codeId !== '110');
 
 const wharehouseParams = ref({
   apyYm: dayjs().format('YYYYMM'),
+  // TODO: 임시 사용자 사번정보
+  userId: '36680',
 });
 
 searchParams.value.stStrDt = dayjs().format('YYYYMMDD');
@@ -173,8 +177,10 @@ async function onClickSearch() {
 const warehouses = ref();
 
 async function fetchDefaultData() {
-  const res = await dataService.get('/sms/wells/service/out-of-storage-asks/warehouses', { params: wharehouseParams.value });
-  warehouses.value = res.data;
+  const { apyYm } = wharehouseParams.value;
+  const { userId } = wharehouseParams.value;
+
+  warehouses.value = await getMonthWarehouse(userId, apyYm);
   searchParams.value.strOjWareNo = warehouses.value[0].codeId;
 }
 

@@ -110,8 +110,10 @@ import { useGlobal, codeUtil, defineGrid, useDataService, getComponentType, grid
 import snConst from '~sms-wells/service/constants/snConst';
 // TODO: 추후 공통서비스 변경후 적용 예정 (조직창고 , 조직창고에 해당하는 엔지니어조회)
 import ZwcmWareHouseSearch from '~sms-common/service/components/ZwsnzWareHouseSearch.vue';
+import useSnCode from '~sms-wells/service/composables/useSnCode';
 import dayjs from 'dayjs';
 import { cloneDeep } from 'lodash-es';
+// 로그인한 사용자의 창고정보 조회
 
 const grdMainRef = ref(getComponentType('KwGrid'));
 
@@ -119,6 +121,7 @@ const dataService = useDataService();
 
 const { t } = useI18n();
 const { alert } = useGlobal();
+const { getMonthWarehouse } = useSnCode();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -138,6 +141,8 @@ const searchParams = ref({
 
 const wharehouseParams = ref({
   apyYm: dayjs().format('YYYYMM'),
+  // TODO: 임시 사용자 사번정보
+  userId: '36680',
 });
 
 const codes = await codeUtil.getMultiCodes(
@@ -187,8 +192,10 @@ async function onClickSearch() {
 
 const warehouses = ref();
 async function fetchDefaultData() {
-  const res = await dataService.get('/sms/wells/service/out-of-storage-asks/warehouses', { params: wharehouseParams.value });
-  warehouses.value = res.data;
+  const { apyYm } = wharehouseParams.value;
+  const { userId } = wharehouseParams.value;
+
+  warehouses.value = await getMonthWarehouse(userId, apyYm);
   searchParams.value.strOjWareNo = warehouses.value[0].codeId;
 }
 
