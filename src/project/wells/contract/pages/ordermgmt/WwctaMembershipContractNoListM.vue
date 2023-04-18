@@ -424,7 +424,7 @@ const initGridMembershipContractNoList = defineGrid((data, view) => {
     if (['cntrDtlNo'].includes(column)) { // 계약상세(윈도우팝업)
       await modal({ component: 'WwctaOrderDetailP', componentProps: { cntrNo: paramCntrNo, cntrSn: paramCntrSn } });
     } else if (['ordrInfoView'].includes(column)) { // 멤버쉽 주문정보 상세
-      await modal({ component: 'WwctaOrderRentalDtlP', componentProps: { cntrNo: paramCntrNo, cntrSn: paramCntrSn } });
+      await modal({ component: 'WwctaOrderMembershipDtlP', componentProps: { cntrNo: paramCntrNo, cntrSn: paramCntrSn } });
     }
   };
 });
