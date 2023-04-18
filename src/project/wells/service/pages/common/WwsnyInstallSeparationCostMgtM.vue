@@ -19,7 +19,6 @@
       :cols="2"
       :modified-targets="['grdMain']"
       @search="onClickSearch"
-      @reset="onClickReset"
     >
       <!-- 상품그룹: 상품그룹-->
       <kw-search-row>
@@ -85,6 +84,7 @@
           dense
           secondary
           :label="$t('MSG_BTN_EXCEL_DOWN')"
+          :disable="pageInfo.totalCount === 0"
           @click="onClickExcelDownload"
         />
         <kw-separator
@@ -156,15 +156,13 @@ const pageInfo = ref({
   pageIndex: 1,
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
 });
-
+const pdNm = ref([]);
 /* 조회조건 */
 const searchParams = ref({
   pdCd: '', /* 상품코드 */
   pdGr: '1',
   apyMtrChk: 'N',
 });
-
-const pdNm = ref([]);
 
 async function onChangePdGr() {
   const res = await dataService.get('/sms/wells/service/installation-separation-costs/filter-products', { params: searchParams.value });
@@ -185,15 +183,6 @@ watch(() => searchParams.value.pdGr, async (val) => {
   await onChangePdGr();
 });
 
-function searchConditionReset() {
-  searchParams.value.pdCd = pdNm.value[0]?.codeId ?? '';
-  searchParams.value.pdGr = '1';
-  searchParams.value.apyMtrChk = 'N';
-}
-function onClickReset() {
-  searchConditionReset();
-}
-
 let cachedParams;
 
 async function fetchData() {
@@ -206,8 +195,6 @@ async function fetchData() {
   view.getDataSource().setRows(installSeperationCsMgt);
   view.resetCurrent();
   await gridUtil.reset(view);
-
-  console.log(gridUtil.confirmIfIsModified);
 }
 async function onClickSearch() {
   pageInfo.value.pageIndex = 1;
@@ -221,7 +208,8 @@ async function onClickAdd() {
   const view = grdMainRef.value.getView();
 
   await gridUtil.insertRowAndFocus(view, 0, {
-    apyStrtdt: now.format('YYYYMMDD'),
+    pdCd: pdNm.value[0].codeId,
+    apyStrtdt: now.add('1', 'day').format('YYYYMMDD'),
     apyEnddt: '99991231' });
 }
 
@@ -241,7 +229,7 @@ async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
   const res = await dataService.get('/sms/wells/service/installation-separation-costs/excel-download', { params: searchParams.value });
   await gridUtil.exportView(view, {
-    fileName: `${currentRoute.value.meta.menuName}_Excel`,
+    fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
     exportData: res.data,
   });
@@ -249,15 +237,28 @@ async function onClickExcelDownload() {
 
 async function onClickSave() {
   const view = grdMainRef.value.getView();
-  const chkRows = gridUtil.getCheckedRowValues(view);
+  const realChkRows = gridUtil.getCheckedRowValues(view);
+  const chkRows = gridUtil.getCheckedRowValues(view, { isChangedOnly: true });
 
-  if (chkRows.length === 0) {
+  if (chkRows.length === 0 && realChkRows.length === 0) {
     notify(t('MSG_ALT_NOT_SEL_ITEM'));
-  } else if (await gridUtil.validate(view, { isCheckedOnly: true })) {
-    await dataService.post('sms/wells/service/installation-separation-costs', chkRows);
-    notify(t('MSG_ALT_SAVE_DATA'));
-    await fetchData();
+    return;
   }
+
+  if (chkRows.length !== 0 && (realChkRows.length > chkRows.length)) {
+    notify(t('MSG_ALT_NO_CHG_ROW_SELECT'));
+    return;
+  }
+
+  if (await gridUtil.alertIfIsNotModified(view)) { return; }
+  if (!await gridUtil.validate(view)) { return; }
+
+  await dataService.post('sms/wells/service/installation-separation-costs', chkRows);
+  notify(t('MSG_ALT_SAVE_DATA'));
+  await fetchData();
+
+  console.log(!gridUtil.isCreatedRow(view, chkRows));
+  console.log(gridUtil.getRowState(view, chkRows));
 }
 
 onMounted(async () => {
@@ -290,18 +291,11 @@ const initGrdMain = defineGrid((data, view) => {
         styleName: 'essential',
       },
       width: '110',
-      editable: true,
+      // editable: true,
       editor: { type: 'list' },
       options: codes.PRD_MNGT_TP_CD,
       styleName: 'text-center',
       rules: 'required',
-      styleCallback: (grid, dataCell) => {
-        const rowState = gridUtil.getRowState(grid, dataCell.index.dataRow);
-        if (rowState === 'created') {
-          return { editable: true };
-        }
-        return { editable: false };
-      },
     }, // 판매유형
     {
       fieldName: 'pdCd',
@@ -314,13 +308,6 @@ const initGrdMain = defineGrid((data, view) => {
       options: pdNm.value,
       styleName: 'text-left',
       rules: 'required',
-      styleCallback: (grid, dataCell) => {
-        const rowState = gridUtil.getRowState(grid, dataCell.index.dataRow);
-        if (rowState === 'created') {
-          return { editable: true };
-        }
-        return { editable: false };
-      },
     }, // 상품명
     {
       fieldName: 'svBizMclsfCd',
@@ -333,13 +320,6 @@ const initGrdMain = defineGrid((data, view) => {
       options: codes.SEP_IST_CS_ATC_CD,
       styleName: 'text-left',
       rules: 'required',
-      styleCallback: (grid, dataCell) => {
-        const rowState = gridUtil.getRowState(grid, dataCell.index.dataRow);
-        if (rowState === 'created') {
-          return { editable: true };
-        }
-        return { editable: false };
-      },
     }, // 대분류
     {
       fieldName: 'svBizDclsfCd',
@@ -352,13 +332,6 @@ const initGrdMain = defineGrid((data, view) => {
       options: codes.SEP_IST_CS_DTL_CD,
       styleName: 'text-left',
       rules: 'required',
-      styleCallback: (grid, dataCell) => {
-        const rowState = gridUtil.getRowState(grid, dataCell.index.dataRow);
-        if (rowState === 'created') {
-          return { editable: true };
-        }
-        return { editable: false };
-      },
     }, // 소분류
     {
       fieldName: 'apyStrtdt',
@@ -370,18 +343,12 @@ const initGrdMain = defineGrid((data, view) => {
       editor: { type: 'btdate' },
       styleName: 'text-center',
       rules: 'required',
-      styleCallback: (grid, dataCell) => {
-        const rowState = gridUtil.getRowState(grid, dataCell.index.dataRow);
-        if (rowState === 'created') {
-          return { editable: true };
-        }
-        return { editable: false };
-      },
     }, // 적용시작일
     { fieldName: 'apyEnddt',
       header: t('MSG_TXT_APY_END_DAY'),
       width: '150',
       styleName: 'text-center',
+      editable: false,
     }, // 적용종료일
     {
       fieldName: 'wkCsAmt',
@@ -396,13 +363,6 @@ const initGrdMain = defineGrid((data, view) => {
       },
       styleName: 'text-right',
       rules: 'required',
-      styleCallback: (grid, dataCell) => {
-        const rowState = gridUtil.getRowState(grid, dataCell.index.dataRow);
-        if (rowState === 'created') {
-          return { editable: true };
-        }
-        return { editable: false };
-      },
     }, // 단가(원)
     {
       fieldName: 'recapSvYn',
@@ -415,24 +375,10 @@ const initGrdMain = defineGrid((data, view) => {
       options: codes.COD_YN,
       styleName: 'text-center',
       rules: 'required',
-      styleCallback: (grid, dataCell) => {
-        const rowState = gridUtil.getRowState(grid, dataCell.index.dataRow);
-        if (rowState === 'created') {
-          return { editable: true };
-        }
-        return { editable: false };
-      },
     }, // 항시유상서비스
     { fieldName: 'rmkCn',
       header: t('MSG_TXT_NOTE'),
       width: '158',
-      styleCallback: (grid, dataCell) => {
-        const rowState = gridUtil.getRowState(grid, dataCell.index.dataRow);
-        if (rowState === 'created') {
-          return { editable: true };
-        }
-        return { editable: false };
-      },
     }, // 비고
   ];
 
@@ -440,7 +386,7 @@ const initGrdMain = defineGrid((data, view) => {
   view.setColumns(columns);
   view.checkBar.visible = true;
   view.rowIndicator.visible = true;
-  view.editOptions.columnEditableFirst = true;
+  view.editOptions.editable = true;
 
   const columnLayout = [
     'sellTpCd', 'pdCd',
@@ -453,18 +399,11 @@ const initGrdMain = defineGrid((data, view) => {
   ];
   view.setColumnLayout(columnLayout);
 
-  view.onCellEdited = (grid, itemIndex, row, field) => {
-    grid.checkItem(itemIndex, true);
-    const { sellTpCd, pdCd, svBizMclsfCd, svBizDclsfCd, apyStrtdt, wkCsAmt, rmkCn } = grid.getValues(itemIndex);
-    grid.getDataSource().getOrgFieldName(field);
-
-    grid.setValue(itemIndex, 'sellTpCd', sellTpCd);
-    grid.setValue(itemIndex, 'pdCd', pdCd);
-    grid.setValue(itemIndex, 'svBizMclsfCd', svBizMclsfCd);
-    grid.setValue(itemIndex, 'svBizDclsfCd', svBizDclsfCd);
-    grid.setValue(itemIndex, 'apyStrtdt', apyStrtdt);
-    grid.setValue(itemIndex, 'wkCsAmt', wkCsAmt);
-    grid.setValue(itemIndex, 'rmkCn', rmkCn);
+  view.onCellEditable = (grid, itemIndex) => {
+    if (!gridUtil.isCreatedRow(grid, itemIndex.dataRow)
+    && ['sellTpCd', 'pdCd', 'svBizMclsfCd', 'svBizDclsfCd', 'apyStrtdt', 'wkCsAmt', 'recapSvYn', 'rmkCn'].includes(itemIndex.column)) {
+      return false;
+    }
   };
 });
 </script>

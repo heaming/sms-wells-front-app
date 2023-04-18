@@ -260,7 +260,7 @@ async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
   const res = await dataService.get('/sms/wells/service/paid-as-costs/excel-download', { params: searchParams.value });
   await gridUtil.exportView(view, {
-    fileName: `${currentRoute.value.meta.menuName}_Excel`,
+    fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
     exportData: res.data,
   });
@@ -337,21 +337,14 @@ const initGrdMain = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'sapMatCd', header: t('MSG_TXT_SAP_CD'), width: '200', styleName: 'text-center' }, // SAP코드
-    { fieldName: 'pdCd', header: t('MSG_TXT_ITM_CD'), width: '150', styleName: 'text-center' }, // 품목코드
-    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '350', styleName: 'text-center' }, // 상품명
-    { fieldName: 'apyStrtdt', header: t('MSG_TXT_APY_STRT_DAY'), width: '150', styleName: 'text-center', datetimeFormat: 'date' }, // 적용시작일
-    { fieldName: 'apyEnddt', header: t('MSG_TXT_APY_END_DAY'), width: '150', styleName: 'text-center', datetimeFormat: 'date' }, // 적용종료일
+    { fieldName: 'sapMatCd', header: t('MSG_TXT_SAP_CD'), width: '200', styleName: 'text-center', editable: false }, // SAP코드
+    { fieldName: 'pdCd', header: t('MSG_TXT_ITM_CD'), width: '150', styleName: 'text-center', editable: false }, // 품목코드
+    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '350', styleName: 'text-center', editable: false }, // 상품명
+    { fieldName: 'apyStrtdt', header: t('MSG_TXT_APY_STRT_DAY'), width: '150', styleName: 'text-center', datetimeFormat: 'date', editable: false }, // 적용시작일
+    { fieldName: 'apyEnddt', header: t('MSG_TXT_APY_END_DAY'), width: '150', styleName: 'text-center', datetimeFormat: 'date', editable: false }, // 적용종료일
     { fieldName: 'csmrUprcAmt',
       header: t('MSG_TXT_CSPRC'),
       width: '100',
-      styleCallback: (grid, dataCell) => {
-        const { izSn, basePdCd, useMatPdCd } = gridUtil.getRowValue(grid, dataCell.index.dataRow);
-        if (isEmpty(izSn) || isEmpty(basePdCd) || isEmpty(useMatPdCd)) {
-          return { editable: false };
-        }
-        return { editable: true };
-      },
       editor: {
         type: 'number',
         inputCharacters: '0-9',
@@ -361,13 +354,6 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'whlsUprcAmt',
       header: t('MSG_TXT_WHLS_UPRC'),
       width: '100',
-      styleCallback: (grid, dataCell) => {
-        const { izSn, basePdCd, useMatPdCd } = gridUtil.getRowValue(grid, dataCell.index.dataRow);
-        if (isEmpty(izSn) || isEmpty(basePdCd) || isEmpty(useMatPdCd)) {
-          return { editable: false };
-        }
-        return { editable: true };
-      },
       editor: {
         type: 'number',
         inputCharacters: '0-9',
@@ -377,13 +363,6 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'insiUprcAmt',
       header: t('MSG_TXT_INSI_UPRC'),
       width: '100',
-      styleCallback: (grid, dataCell) => {
-        const { izSn, basePdCd, useMatPdCd } = gridUtil.getRowValue(grid, dataCell.index.dataRow);
-        if (isEmpty(izSn) || isEmpty(basePdCd) || isEmpty(useMatPdCd)) {
-          return { editable: false };
-        }
-        return { editable: true };
-      },
       editor: {
         type: 'number',
         inputCharacters: '0-9',
@@ -393,13 +372,6 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'tcfeeAmt',
       header: t('MSG_TXT_TCFEE'),
       width: '100',
-      styleCallback: (grid, dataCell) => {
-        const { izSn, basePdCd, useMatPdCd } = gridUtil.getRowValue(grid, dataCell.index.dataRow);
-        if (isEmpty(izSn) || isEmpty(basePdCd) || isEmpty(useMatPdCd)) {
-          return { editable: false };
-        }
-        return { editable: true };
-      },
       editor: {
         type: 'number',
         inputCharacters: '0-9',
@@ -410,6 +382,7 @@ const initGrdMain = defineGrid((data, view) => {
       header: t('MSG_TXT_SUM_CSPRC_TCFEE'),
       width: '200',
       styleName: 'text-center',
+      editable: false,
       displayCallback(grid, index, value) {
         const { csmrUprcAmt, tcfeeAmt } = grid.getValues(index.itemIndex);
 
@@ -423,25 +396,19 @@ const initGrdMain = defineGrid((data, view) => {
 
   data.setFields(fields);
   view.setColumns(columns);
-  view.editOptions.columnEditableFirst = true;
+  view.editOptions.editable = true;
   view.checkBar.visible = true;
   view.rowIndicator.visible = true;
 
-  view.onCellEdited = (grid, itemIndex, row, field) => {
-    grid.checkItem(itemIndex, true);
-    const { csmrUprcAmt, whlsUprcAmt, insiUprcAmt, tcfeeAmt, apyStrtdt, apyEnddt } = grid.getValues(itemIndex);
-    grid.getDataSource().getOrgFieldName(field);
-
-    grid.setValue(itemIndex, 'csmrUprcAmt', csmrUprcAmt);
-    grid.setValue(itemIndex, 'whlsUprcAmt', whlsUprcAmt);
-    grid.setValue(itemIndex, 'insiUprcAmt', insiUprcAmt);
-    grid.setValue(itemIndex, 'tcfeeAmt', tcfeeAmt);
-    grid.setValue(itemIndex, 'apyStrtdt', apyStrtdt);
-    grid.setValue(itemIndex, 'apyEnddt', apyEnddt);
+  view.onCellEditable = (grid, itemIndex) => {
+    const { izSn, basePdCd, useMatPdCd } = gridUtil.getRowValue(grid, itemIndex.dataRow);
+    if ((isEmpty(izSn) || isEmpty(basePdCd) || isEmpty(useMatPdCd))
+    && ['csmrUprcAmt', 'whlsUprcAmt', 'insiUprcAmt', 'tcfeeAmt', 'apyStrtdt', 'apyEnddt'].includes(itemIndex.column)) {
+      return false;
+    }
   };
 
   view.setCheckableCallback((dataSource, item) => {
-    console.log(item.dataRow);
     const { izSn, basePdCd, useMatPdCd } = gridUtil.getRowValue(view, item.dataRow);
 
     if (isEmpty(izSn) || isEmpty(basePdCd) || isEmpty(useMatPdCd)) {
