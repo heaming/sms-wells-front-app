@@ -49,7 +49,7 @@
                 <kw-form-item
                   :label="$t('MSG_TXT_BIRTH_DATE')"
                 >
-                  <p>{{ customer.bryyMmdd }}</p>
+                  <p>({{ customer.sexDvNm }}){{ customer.bryyMmdd }}</p>
                 </kw-form-item>
               </kw-form-row>
               <kw-form-row>
@@ -57,7 +57,7 @@
                   :label="$t('MSG_TXT_MPNO')"
                 >
                   <p class="w100">
-                    {{ customer.mpno1 }}
+                    {{ customer.cntrCralLocaraTno }}{{ customer.cntrMexnoEncr }}{{ customer.cntrCralIdvTno }}
                   </p>
                   <kw-btn
                     borderless
@@ -94,7 +94,7 @@
                 <kw-form-item
                   :label="$t('MSG_TXT_BU_TP')"
                 >
-                  <p>{{ customer.buTp }}</p>
+                  <p>{{ customer.buNotiTpCd }}</p>
                 </kw-form-item>
                 <kw-form-item no-label>
                   <kw-btn
@@ -141,13 +141,13 @@
                 <kw-form-item
                   :label="$t('MSG_TXT_IST_NM')"
                 >
-                  <p>{{ customer.istllNm }}</p>
+                  <p>{{ customer.rcgvpKnm }}</p>
                 </kw-form-item>
                 <kw-form-item
                   :label="$t('MSG_TXT_TEL_NO')"
                 >
                   <p class="w100">
-                    {{ customer.tno }}
+                    {{ customer.istLocaraTno }}{{ customer.istExnoEncr }}{{ customer.istIdvTno }}
                   </p>
                   <kw-btn
                     borderless
@@ -167,7 +167,7 @@
                   :label="$t('MSG_TXT_MPNO')"
                 >
                   <p class="w100">
-                    {{ customer.mpno2 }}
+                    {{ customer.istCralLocaraTno }}{{ customer.istMexnoEncr }}{{ customer.istCralIdvTno }}
                   </p>
                   <kw-btn
                     borderless
@@ -196,12 +196,12 @@
                   :label="$t('MSG_TXT_CNTR_ADR')"
                   colspan="2"
                 >
-                  <p>{{ customer.cntrAdr }}</p>
+                  <p>({{ customer.cntrSppZip }}){{ customer.cntrSppAdr }} {{ customer.cntrSppDtlAdr }}</p>
                 </kw-form-item>
                 <kw-form-item
                   :label="$t('MSG_TXT_PRCH_PD_NM')"
                 >
-                  <p>{{ customer.prchPdNm }}</p>
+                  <p>{{ customer.pdNm }}</p>
                 </kw-form-item>
               </kw-form-row>
               <kw-form-row>
@@ -209,12 +209,12 @@
                   :label="$t('MSG_TXT_INST_ADDR')"
                   colspan="2"
                 >
-                  <p>{{ customer.istAdr }}</p>
+                  <p>({{ customer.istSppZip }}){{ customer.istSppAdr }} {{ customer.istSppDtlAdr }}</p>
                 </kw-form-item>
                 <kw-form-item
                   :label="$t('MSG_TXT_CRTL_MB_STAT')"
                 >
-                  <p>{{ customer.crtlMbStat }}</p>
+                  <p>{{ customer.cntrDtlStatCd }}</p>
                 </kw-form-item>
               </kw-form-row>
             </kw-form>
@@ -231,14 +231,14 @@
                   :label="$t('MSG_TXT_RCP_D')"
                 >
                   <p>
-                    {{ customer.rcpD }}
+                    {{ customer.rcpDt }}
                   </p>
                 </kw-form-item>
                 <kw-form-item
                   :label="$t('MSG_TXT_INST_DT')"
                 >
                   <p>
-                    {{ customer.istD }}
+                    {{ customer.istDt }}
                   </p>
                 </kw-form-item>
               </kw-form-row>
@@ -247,14 +247,14 @@
                   :label="$t('MSG_TXT_CAN_D')"
                 >
                   <p>
-                    {{ customer.canD }}
+                    {{ customer.canDt }}
                   </p>
                 </kw-form-item>
                 <kw-form-item
                   :label="$t('MSG_TXT_REQD_D')"
                 >
                   <p>
-                    {{ customer.reqdD }}
+                    {{ customer.reqdDt }}
                   </p>
                 </kw-form-item>
                 <kw-form-item no-label>
@@ -286,7 +286,7 @@
                 <kw-form-item
                   :label="$t('MSG_TXT_AUTO_FNT')"
                 >
-                  <p>{{ customer.aftn }}</p>
+                  <p>({{ customer.bnk }}){{ customer.vtAc }}</p>
                 </kw-form-item>
                 <kw-form-item
                   :label="$t('MSG_TXT_FNT_DT')"
@@ -296,7 +296,7 @@
                 <kw-form-item
                   :label="$t('MSG_TXT_FNT_STAT')"
                 >
-                  <p>{{ customer.fntStat }}</p>
+                  <p>{{ customer.mpyMthdTpCd }}</p>
                 </kw-form-item>
               </kw-form-row>
             </kw-form>
@@ -312,14 +312,14 @@
                   :label="$t('MSG_TXT_SELLER_PERSON')"
                 >
                   <p>
-                    {{ customer.seller }}
+                    {{ customer.plar }}
                   </p>
                 </kw-form-item>
                 <kw-form-item
                   :label="$t('MSG_TXT_SELLER_CTPLC')"
                 >
                   <p class="w100">
-                    {{ customer.sellerCtplc }}
+                    {{ customer.plarMpno }}
                   </p>
                   <kw-btn
                     borderless
@@ -339,7 +339,7 @@
                   :label="$t('MSG_TXT_CLTN_D')"
                 >
                   <p>
-                    {{ customer.cltnD1 }}
+                    {{ customer.cltnDt }}
                   </p>
                 </kw-form-item>
               </kw-form-row>
@@ -355,7 +355,7 @@
                   :label="$t('MSG_TXT_DSMN_CTPLC')"
                 >
                   <p class="w100">
-                    {{ customer.dsmnCtplc }}
+                    {{ customer.dsmnMpno }}
                   </p>
                   <kw-btn
                     borderless
@@ -375,7 +375,7 @@
                   :label="$t('MSG_TXT_CLTN_D')"
                 >
                   <p>
-                    {{ customer.cltnD2 }}
+                    {{ customer.cltnDt }}
                   </p>
                 </kw-form-item>
               </kw-form-row>
@@ -383,7 +383,7 @@
                 <kw-form-item
                   :label="$t('MSG_TXT_BLG_BLD_STORE')"
                 >
-                  <p>{{ customer.blgBldStore }}</p>
+                  <p>{{ customer.bldNm }}</p>
                 </kw-form-item>
                 <kw-form-item
                   :label="$t('MSG_TXT_STORE_TNO')"
@@ -430,7 +430,7 @@
                   :label="$t('MSG_TXT_VT_AC')"
                 >
                   <p>
-                    {{ customer.vac }}
+                    {{ customer.vacNo }}
                   </p>
                 </kw-form-item>
                 <kw-form-item
@@ -444,7 +444,7 @@
                   :label="$t('MSG_TXT_CLCTAM_ICHR')"
                 >
                   <p>
-                    {{ customer.clctamIchr }}
+                    {{ customer.prtnrNm }}
                   </p>
                 </kw-form-item>
               </kw-form-row>
@@ -453,7 +453,7 @@
                   :label="$t('MSG_TXT_DBT_NFF')"
                 >
                   <p>
-                    {{ customer.dbtNff }}
+                    {{ customer.dfltDt }}
                   </p>
                   <kw-btn
                     :label="$t('MSG_BTN_CB_INF_INQR_AK')"
@@ -467,7 +467,7 @@
                   :label="$t('MSG_TXT_LWM')"
                 >
                   <p>
-                    {{ customer.lwm }}
+                    {{ customer.lwmMoCn }}
                   </p>
                 </kw-form-item>
                 <kw-form-item no-label>
@@ -477,6 +477,7 @@
                     secondary
                     class="kw-font-caption py2"
                     style="min-height: 20px;"
+                    @click="onClickPetitionCreate"
                   />
                   <kw-btn
                     :label="$t('MSG_BTN_LWM_RGST')"
@@ -533,12 +534,12 @@
                 <kw-form-item
                   :label="$t('MSG_TXT_CLN_PSBL')"
                 >
-                  <p>{{ customer.clnPsbl1 }}</p>
+                  <p>{{ customer.bndClnPsblDvCd }}</p>
                 </kw-form-item>
                 <kw-form-item
                   :label="$t('MSG_TXT_CLN_PRCS')"
                 >
-                  <p>{{ customer.clnPrcs1 }}</p>
+                  <p>{{ customer.bndClnPrcsDvCd }}</p>
                 </kw-form-item>
                 <kw-form-item no-label>
                   <kw-btn
@@ -571,7 +572,7 @@
                   :label="$t('MSG_TXT_LWSC_DP_AMT')"
                 >
                   <p>
-                    {{ customer.lwscDpAmt }}
+                    {{ customer.lwmDpAmt }}
                   </p>
                 </kw-form-item>
                 <kw-form-item
@@ -587,7 +588,7 @@
                   :label="$t('MSG_TXT_UCAM_ADP')"
                 >
                   <p>
-                    {{ customer.ucamAdp }}
+                    {{ customer.ucAmt }}
                   </p>
                 </kw-form-item>
                 <kw-form-item no-label>
@@ -655,32 +656,62 @@
             </kw-tabs>
             <kw-tab-panels v-model="selectedTab">
               <kw-tab-panel name="tab1">
-                <wwbnc-customer-dtl-p-counsel-history />
+                <wwbnc-customer-dtl-p-counsel-history
+                  v-model:cst-no="customer.cstNo"
+                  v-model:cntr-no="customer.cntrNo"
+                  v-model:cntr-sn="customer.cntrSn"
+                />
               </kw-tab-panel>
               <kw-tab-panel name="tab2">
-                <wwbna-counsel-wells-contract-list02 />
+                <wwbna-counsel-wells-contract-list02
+                  v-model:cst-no="customer.cstNo"
+                  v-model:cntr-no="customer.cntrNo"
+                  v-model:cntr-sn="customer.cntrSn"
+                />
               </kw-tab-panel>
               <kw-tab-panel name="tab3">
                 <zwbnc-customer-dtl-p-sms
                   :ref="(vm) => tabRefs.tab3 = vm"
+                  v-model:cst-no="customer.cstNo"
+                  v-model:cntr-no="customer.cntrNo"
+                  v-model:cntr-sn="customer.cntrSn"
                 />
               </kw-tab-panel>
               <kw-tab-panel name="tab4">
-                <zwbnc-customer-dtl-p-promise />
+                <zwbnc-customer-dtl-p-promise
+                  v-model:cst-no="customer.cstNo"
+                  v-model:cntr-no="customer.cntrNo"
+                  v-model:cntr-sn="customer.cntrSn"
+                />
               </kw-tab-panel>
               <kw-tab-panel name="tab5">
-                <zwbnc-customer-dtl-p-law-measure />
+                <zwbnc-customer-dtl-p-law-measure
+                  v-model:cst-no="customer.cstNo"
+                  v-model:cntr-no="customer.cntrNo"
+                  v-model:cntr-sn="customer.cntrSn"
+                />
               </kw-tab-panel>
               <kw-tab-panel name="tab6">
                 <zwbnc-customer-dtl-p-visit
                   ref="visitRef"
+                  v-model:cst-no="customer.cstNo"
+                  v-model:cntr-no="customer.cntrNo"
+                  v-model:cntr-sn="customer.cntrSn"
                 />
               </kw-tab-panel>
               <kw-tab-panel name="tab7">
-                <wwbna-counsel-wells-contract-list07 />
+                <wwbna-counsel-wells-contract-list07
+                  v-model:cst-no="customer.cstNo"
+                  v-model:cntr-no="customer.cntrNo"
+                  v-model:cntr-sn="customer.cntrSn"
+                />
               </kw-tab-panel>
               <kw-tab-panel name="tab8">
-                <zwbnc-customer-dtl-p-customer-center />
+                <zwbnc-customer-dtl-p-customer-center
+                  v-model:cst-no="customer.cstNo"
+                  v-model:cntr-no="customer.cntrNo"
+                  v-model:cntr-sn="customer.cntrSn"
+                />
               </kw-tab-panel>
             </kw-tab-panels>
           </div>
@@ -696,7 +727,7 @@
         >
           <div class="pr20">
             <kw-input
-              v-model="customer.unuitmCn"
+              v-model="customer.cnslUnuitmCn"
               type="textarea"
               :rows="3"
               :placeholder="$t('MSG_TXT_UNUITM_IN')"
@@ -713,6 +744,7 @@
                 primary
                 dense
                 class="ml8"
+                @click="onClickUnuitmCnSave"
               />
             </div>
 
@@ -724,6 +756,7 @@
             />
 
             <kw-form
+              ref="frmMainRef"
               cols="1"
               dense
               :label-size="112"
@@ -733,11 +766,12 @@
                   :label="$t('MSG_TXT_CNSL_PH')"
                   required
                 >
-                  <!-- TODO: 코드관리 등록 안된 임시 소스 -->
                   <kw-select
                     v-model="customer.cnslPh"
-                    :options="[ '인바운드','아웃바운드']"
+                    :label="$t('MSG_TXT_CNSL_PH')"
+                    :options="codes.TEL_CNSL_PH_CD"
                     dense
+                    rules="required"
                   />
                 </kw-form-item>
               </kw-form-row>
@@ -746,12 +780,12 @@
                   :label="$t('MSG_TXT_CRNCY_RS')"
                   required
                 >
-                  <!-- TODO: 코드관리 등록 안된 임시 소스 -->
                   <kw-select
                     v-model="customer.crncyRs"
-                    :options="[ '(성공)입금성공','(성공)입금약속','(성공)단순문의','(성공)입금거부(민원)'
-                                ,'(성공)타인통화','(성공)기타','(실패)무응답','(실패)통화중','(실패)결번' ]"
+                    :label="$t('MSG_TXT_CRNCY_RS')"
+                    :options="codes.TEL_CNSL_RS_CD"
                     dense
+                    rules="required"
                   />
                 </kw-form-item>
               </kw-form-row>
@@ -760,11 +794,12 @@
                   :label="$t('MSG_TXT_CST_PRP')"
                   required
                 >
-                  <!-- TODO: 코드관리 등록 안된 임시 소스 -->
                   <kw-select
                     v-model="customer.cstPrp"
-                    :options="['번호이상','주소이상','결번','미응답' ]"
+                    :label="$t('MSG_TXT_CST_PRP')"
+                    :options="codes.CNSL_CST_PRP_CD"
                     dense
+                    rules="required"
                   />
                 </kw-form-item>
               </kw-form-row>
@@ -783,11 +818,12 @@
                   :label="$t('MSG_TXT_CNSL_TP')"
                   required
                 >
-                  <!-- TODO: 코드관리 등록 안된 임시 소스 -->
                   <kw-select
                     v-model="customer.cnslTp"
-                    :options="['전화','문자' ]"
+                    :label="$t('MSG_TXT_CNSL_TP')"
+                    :options="selectCodes.CNSL_TP"
                     dense
+                    rules="required"
                   />
                 </kw-form-item>
               </kw-form-row>
@@ -796,11 +832,12 @@
                   :label="$t('MSG_TXT_CST_STAT')"
                   required
                 >
-                  <!-- TODO: 코드관리 등록 안된 임시 소스 -->
                   <kw-select
                     v-model="customer.cstStat"
-                    :options="[ '분납','컨택불가','납부예정','납부거부' ]"
+                    :label="$t('MSG_TXT_CST_STAT')"
+                    :options="codes.BND_CNSL_CST_STAT_CD"
                     dense
+                    rules="required"
                   />
                 </kw-form-item>
               </kw-form-row>
@@ -809,11 +846,12 @@
                   :label="$t('MSG_TXT_CLN_PSBL')"
                   required
                 >
-                  <!-- TODO: 코드관리 등록 안된 임시 소스 -->
                   <kw-select
                     v-model="customer.clnPsbl"
-                    :options="[ '신규','상','중','하']"
+                    :label="$t('MSG_TXT_CLN_PSBL')"
+                    :options="codes.BND_CLN_PSBL_DV_CD"
                     dense
+                    rules="required"
                   />
                 </kw-form-item>
               </kw-form-row>
@@ -822,12 +860,12 @@
                   :label="$t('MSG_TXT_CLN_PRCS')"
                   required
                 >
-                  <!-- TODO: 코드관리 등록 안된 임시 소스 -->
                   <kw-select
                     v-model="customer.clnPrcs"
-                    :options="[ '전화문자','소송예정','소송접수','변론','판결','재산명시','압류접수'
-                                ,'압류완료','경매접수','경매완료' ]"
+                    :label="$t('MSG_TXT_CLN_PRCS')"
+                    :options="codes.BND_CLN_PRCS_DV_CD"
                     dense
+                    rules="required"
                   />
                 </kw-form-item>
               </kw-form-row>
@@ -857,6 +895,7 @@
                     color="black1"
                   />
                   <kw-form
+                    ref="frmSubRef"
                     :label-size="100"
                     dense
                     cols="1"
@@ -868,14 +907,17 @@
                       >
                         <div class="column">
                           <kw-date-picker
-                            v-model="customer.promD"
+                            v-model="customer.promDt"
+                            :label="$t('MSG_TXT_PROM_DTM')"
                             dense
                             :placeholder="$t('MSG_TXT_SELT')"
+                            rules="required"
                           />
                           <kw-time-picker
                             v-model="customer.promHh"
                             dense
                             class="mt8"
+                            rules="required"
                           />
                         </div>
                       </kw-form-item>
@@ -885,12 +927,13 @@
                         :label="$t('MSG_TXT_PROM_TP')"
                         required
                       >
-                        <!-- TODO: 코드관리 등록 안된 임시 소스 -->
                         <kw-select
                           v-model="customer.promTp"
-                          :options="[ '입금약속','재컨택약속','기타약속','강제집행','변론기일','보정명령']"
+                          :label="$t('MSG_TXT_PROM_TP')"
+                          :options="codes.CLCTAM_PROM_TP_CD"
                           dense
                           :placeholder="$t('MSG_TXT_SELT')"
+                          rules="required"
                         />
                       </kw-form-item>
                     </kw-form-row>
@@ -901,7 +944,9 @@
                       >
                         <kw-input
                           v-model="customer.promAmt"
+                          :label="$t('MSG_TXT_PROM_AMT')"
                           dense
+                          rules="required"
                         />
                       </kw-form-item>
                     </kw-form-row>
@@ -933,6 +978,7 @@
               primary
               dense
               class="ml8"
+              @click="onClickCounselSave"
             />
           </div>
         </div>
@@ -945,8 +991,9 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { defineGrid, getComponentType, useDataService, gridUtil, useGlobal } from 'kw-lib';
+import { defineGrid, codeUtil, getComponentType, useDataService, gridUtil, useGlobal, confirm } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
+import { getCnslTp } from '~sms-common/bond/utils/bnUtil';
 
 import ZwbncCustomerDtlPSms from '~sms-common/bond/pages/consultation/ZwbncCustomerDtlPSms.vue';
 import ZwbncCustomerDtlPLawMeasure from '~sms-common/bond/pages/consultation/ZwbncCustomerDtlPLawMeasure.vue';
@@ -962,22 +1009,41 @@ const { modal, notify } = useGlobal();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
+const codes = await codeUtil.getMultiCodes(
+  'TEL_CNSL_PH_CD',
+  'TEL_CNSL_RS_CD',
+  'CNSL_CST_PRP_CD',
+  'BND_CNSL_CST_STAT_CD',
+  'BND_CLN_PSBL_DV_CD',
+  'BND_CLN_PRCS_DV_CD',
+  'CLCTAM_PROM_TP_CD',
+
+);
+
+const selectCodes = ref({
+  CNSL_TP: await getCnslTp(),
+});
+
 const props = defineProps({
   cstNo: {
     type: String,
-    required: true,
+    default: null,
+  },
+  cntrNo: {
+    type: String,
+    default: null,
+  },
+  cntrSn: {
+    type: String,
+    default: null,
   },
 
 });
 
 const grdMainRef = ref(getComponentType('KwGrid'));
-
 const tabRefs = reactive({});
-
 const selectedTab = ref('tab1');
-
 const selectedGridRow = ref(null);
-
 const visitRef = ref();
 
 watch(selectedGridRow, (newValue) => {
@@ -988,13 +1054,59 @@ watch(selectedGridRow, (newValue) => {
 });
 
 const customer = ref({});
+const frmMainRef = ref(getComponentType('KwForm'));
+const frmSubRef = ref(getComponentType('KwForm'));
 
 let cachedParams;
 const searchParams = ref({
   schBaseYm: '',
   schCstNo: props.cstNo,
-  schCntrNo: '',
-  schCntrSn: '',
+  schCntrNo: props.cntrNo,
+  schCntrSn: props.cntrSn,
+});
+
+let cachedSaveParams;
+const saveUnuitmCnParams = ref({
+  bndUnuitmId: '',
+  bndCntrTpCd: '',
+  bndBizDvCd: '',
+  cstNo: '',
+  cntrNo: '',
+  cntrSn: '',
+  clctnOjOgTpCd: '',
+  clctnOjPrtnrNo: '',
+  cnslUnuitmCn: '',
+  cvcpCn: '',
+});
+
+const saveCounselParams = ref({
+  telCnslId: '',
+  bndCntrTpCd: '',
+  bndBizDvCd: '',
+  cstNo: '',
+  cntrNo: '',
+  cntrSn: '',
+  clctnOjOgTpCd: '',
+  clctnOjPrtnrNo: '',
+  clctnOjPrtnrBzrno: '',
+  clctamPrtnrNo: '',
+  telCnslPhCd: '',
+  bndCnslMtrDvCd: '',
+  telCnslRsCd: '',
+  cnslCstPrpCd: '',
+  telCnslCn: '',
+  bndClnPsblDvCd: '',
+  bndCnslCstStatCd: '',
+  bndClnPrcsDvCd: '',
+  dprNm: '',
+  rdgId: '',
+  promBooId: '',
+  promDt: '',
+  promHh: '',
+  clctamPromTpCd: '',
+  clnPromAmt: '',
+  promCn: '',
+  promFshYn: '',
 });
 
 async function fetchCustomerDetail() {
@@ -1019,7 +1131,7 @@ async function fetchData() {
 
 // TODO: 특기사항 초기화 버튼 클릭 이벤트
 async function onClickUnuitmCnReset() {
-  customer.value.unuitmCn = '';
+  customer.value.cnslUnuitmCn = '';
 }
 
 // TODO: 상담등록 초기화 버튼 클릭 이벤트
@@ -1032,7 +1144,7 @@ async function onClickCnslRgstReset() {
   customer.value.cstStat = '';
   customer.value.clnPsbl = '';
   customer.value.clnPrcs = '';
-  customer.value.promD = '';
+  customer.value.promDt = '';
   customer.value.promHh = '';
   customer.value.promTp = '';
   customer.value.promAmt = '';
@@ -1041,18 +1153,18 @@ async function onClickCnslRgstReset() {
 
 // TODO: 고객카드 출력 팝업
 async function onClickCustomerCardPrint() {
-  const apiUrl = '/sms-common/bond/pages/consultation';
-  const templateId = 'MSG_TIT_CST_CARD_PRNT';
+  // TODO:고객번호, 고객명, 계약번호, 계약일련번호, 채권업무구분코드 전달필요
+  const { cstNo } = '016568225';
   await modal({
     component: 'ZwbncCustomerCardP',
-    componentProps: { apiUrl, templateId },
+    componentProps: { cstNo },
   });
 }
 
 // TODO: 방문이력 관리 팝업
 async function onClickVisit() {
   // TODO:고객번호, 고객명, 계약번호, 계약일련번호, 채권업무구분코드 전달필요
-  const { cstNo } = '011014769';
+  const { cstNo } = '016568225';
 
   const { result: isChanged } = await modal({
     component: 'ZwbncVisitMgtP',
@@ -1077,6 +1189,65 @@ async function onClickVirtualAccount() {
   });
 }
 
+// TODO: 소장 생성 팝업
+async function onClickPetitionCreate() {
+  // TODO:고객번호, 고객명, 계약번호, 계약일련번호, 채권업무구분코드 전달필요
+  const { cstNo } = '016568225';
+  await modal({
+    component: 'ZwbncPetitionCreateP',
+    componentProps: { cstNo },
+  });
+}
+
+async function onClickUnuitmCnSave() {
+  Object.assign(saveUnuitmCnParams.value, customer.value);
+
+  if (!await confirm(t('MSG_ALT_WANT_SAVE'))) { return; }
+
+  cachedSaveParams = cloneDeep(saveUnuitmCnParams.value);
+
+  const res = await dataService.post('/sms/wells/bond/bond-counsel/customer-detail/unuitmCn', cachedSaveParams);
+
+  if (res.data) {
+    console.log(res);
+  }
+}
+
+async function onClickCounselSave() {
+  saveCounselParams.value.cstNo = customer.value.cstNo;
+  saveCounselParams.value.cntrNo = customer.value.cntrNo;
+  saveCounselParams.value.cntrSn = customer.value.cntrSn;
+
+  saveCounselParams.value.telCnslPhCd = customer.value.cnslPh;
+  saveCounselParams.value.telCnslRsCd = customer.value.crncyRs;
+  saveCounselParams.value.cnslCstPrpCd = customer.value.cstPrp;
+  saveCounselParams.value.dprNm = customer.value.dpr;
+  saveCounselParams.value.bndCntrTpCd = customer.value.cnslTp;
+  saveCounselParams.value.bndCnslCstStatCd = customer.value.cstStat;
+  saveCounselParams.value.bndClnPsblDvCd = customer.value.clnPsbl;
+  saveCounselParams.value.bndClnPrcsDvCd = customer.value.clnPrcs;
+  saveCounselParams.value.telCnslCn = customer.value.cnslCn;
+
+  saveCounselParams.value.promDt = customer.value.promDt;
+  saveCounselParams.value.promHh = customer.value.promHh;
+  saveCounselParams.value.clctamPromTpCd = customer.value.clctamPromTpCd;
+  saveCounselParams.value.clnPromAmt = customer.value.clnPromAmt;
+  saveCounselParams.value.promCn = customer.value.cnslCn;
+
+  if (await frmMainRef.value.alertIfIsNotModified()) { return; }
+  if (!await frmMainRef.value.validate()) { return; }
+  if (!await frmSubRef.value.validate()) { return; }
+
+  if (!await confirm(t('MSG_ALT_WANT_SAVE'))) { return; }
+
+  cachedSaveParams = cloneDeep(saveCounselParams.value);
+  const res = await dataService.post('/sms/wells/bond/bond-counsel/customer-detail/counsel', cachedSaveParams);
+
+  if (res.data) {
+    await fetchData();
+  }
+}
+
 onMounted(async () => {
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
@@ -1086,14 +1257,17 @@ onMounted(async () => {
 // -------------------------------------------------------------------------------------------------
 const initGrdMain = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'fnt' },
-    { fieldName: 'taskDiv' },
-    { fieldName: 'prdGrp' },
-    { fieldName: 'goodsNm' },
+    { fieldName: 'mpyBsdt' },
+    { fieldName: 'sellTpCd' },
+    { fieldName: 'prdf' },
+    { fieldName: 'pdNm' },
+    { fieldName: 'cntrNo' },
+    { fieldName: 'cntrSn' },
     { fieldName: 'cntrDtlNo' },
-    { fieldName: 'cstNm' },
-    { fieldName: 'dlqMcnt' },
-    { fieldName: 'authRsgDt' },
+    { fieldName: 'cstNo' },
+    { fieldName: 'cstKnm' },
+    { fieldName: 'dlqMcn' },
+    { fieldName: 'cntrRsgDt' },
     { fieldName: 'ojAmt', dataType: 'number' },
     { fieldName: 'ojDp', dataType: 'number' },
     { fieldName: 'ojBlam', dataType: 'number' },
@@ -1105,7 +1279,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'mmChramBlam', dataType: 'number' },
     { fieldName: 'dlqAddAmt', dataType: 'number' },
     { fieldName: 'dlqAddDp', dataType: 'number' },
-    { fieldName: 'dlqAddBlam', dataType: 'number' },
+    { fieldName: 'dlqAdamtBlam', dataType: 'number' },
     { fieldName: 'svCs', dataType: 'number' },
     { fieldName: 'svDp', dataType: 'number' },
     { fieldName: 'svBlam', dataType: 'number' },
@@ -1114,7 +1288,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'ucBlam', dataType: 'number' },
     { fieldName: 'totDpAmt', dataType: 'number' },
     { fieldName: 'spmtSl', dataType: 'number' },
-    { fieldName: 'pdLentLostLog', dataType: 'number' },
+    { fieldName: 'lsRntf', dataType: 'number' },
     { fieldName: 'vtAcDv' },
     { fieldName: 'vtAcBnk' },
     { fieldName: 'vtAcNo' },
@@ -1124,21 +1298,23 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'rtlfeIstm1', dataType: 'number' },
     { fieldName: 'rtlfe2', dataType: 'number' },
     { fieldName: 'rtlfeIstm2', dataType: 'number' },
-    { fieldName: 'dpr' },
+    { fieldName: 'dprNm' },
     { fieldName: 'clctamIchr' },
     { fieldName: 'tfDt' },
     { fieldName: 'sfk' },
   ];
 
   const columns = [
-    { fieldName: 'fnt', header: t('MSG_TXT_FNT'), width: '60', styleName: 'text-left', headerSummaries: { text: '합계', styleName: 'text-center' } },
-    { fieldName: 'taskDiv', header: t('MSG_TXT_TASK_DIV'), width: '80', styleName: 'text-left' },
-    { fieldName: 'prdGrp', header: t('MSG_TXT_PRD_GRP'), width: '100', styleName: 'text-left' },
-    { fieldName: 'goodsNm', header: t('MSG_TXT_GOODS_NM'), width: '190', styleName: 'text-left' },
+    { fieldName: 'mpyBsdt', header: t('MSG_TXT_FNT'), width: '60', styleName: 'text-left', headerSummaries: { text: '합계', styleName: 'text-center' } },
+    { fieldName: 'sellTpCd', header: t('MSG_TXT_TASK_DIV'), width: '80', styleName: 'text-left' },
+    { fieldName: 'prdf', header: t('MSG_TXT_PRD_GRP'), width: '100', styleName: 'text-left' },
+    { fieldName: 'pdNm', header: t('MSG_TXT_GOODS_NM'), width: '190', styleName: 'text-left' },
+    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_NO'), width: '100', styleName: 'text-center', visible: 'false' },
+    { fieldName: 'cntrSn', header: t('MSG_TXT_CNTR_SN'), width: '100', styleName: 'text-center', visible: 'false' },
     { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '150', styleName: 'text-center' },
-    { fieldName: 'cstNm', header: t('MSG_TXT_CST_NM'), width: '120', styleName: 'text-left' },
-    { fieldName: 'dlqMcnt', header: t('MSG_TXT_DLQ_MCNT'), width: '80', styleName: 'text-right' },
-    { fieldName: 'authRsgDt', header: t('MSG_TXT_AUTH_RSG_DT'), width: '130', styleName: 'text-right' },
+    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '120', styleName: 'text-left' },
+    { fieldName: 'dlqMcn', header: t('MSG_TXT_DLQ_MCNT'), width: '80', styleName: 'text-right' },
+    { fieldName: 'cntrRsgDt', header: t('MSG_TXT_AUTH_RSG_DT'), width: '130', styleName: 'text-right' },
     { fieldName: 'ojAmt', header: t('MSG_TXT_OJ_AMT'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
     { fieldName: 'ojDp', header: t('MSG_TXT_OJ_DP'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
     { fieldName: 'ojBlam', header: t('MSG_TXT_OJ_BLAM'), width: '110', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
@@ -1148,9 +1324,9 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'mmChramAmt', header: t('MSG_TXT_MM_CHRAM_AMT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
     { fieldName: 'mmChramDp', header: t('MSG_TXT_MM_CHRAM_DP'), width: '130', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
     { fieldName: 'mmChramBlam', header: t('MSG_TXT_MM_CHRAM_BLAM'), width: '130', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
-    { fieldName: 'dlqAddAmt', header: t('MSG_TXT_DLQ_ADD_AMT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
+    { fieldName: 'dlqAddWmt', header: t('MSG_TXT_DLQ_ADD_AMT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
     { fieldName: 'dlqAddDp', header: t('MSG_TXT_DLQ_ADD_DP'), width: '130', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
-    { fieldName: 'dlqAddBlam', header: t('MSG_TXT_DLQ_ADD_BLAM'), width: '130', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
+    { fieldName: 'dlqAdamtBlam', header: t('MSG_TXT_DLQ_ADD_BLAM'), width: '130', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
     { fieldName: 'svCs', header: t('MSG_TXT_SV_CS'), width: '130', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
     { fieldName: 'svDp', header: t('MSG_TXT_SV_DP'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
     { fieldName: 'svBlam', header: t('MSG_TXT_SV_BLAM'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
@@ -1159,7 +1335,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'ucBlam', header: t('MSG_TXT_UC_BLAM'), styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
     { fieldName: 'totDpAmt', header: t('MSG_TXT_TOT_DP_AMT'), styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
     { fieldName: 'spmtSl', header: t('MSG_TXT_SPMT_SL'), width: '90', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
-    { fieldName: 'pdLentLostLog', header: t('MSG_TXT_PD_LENT_LOST_LOG'), width: '90', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
+    { fieldName: 'lsRntf', header: t('MSG_TXT_PD_LENT_LOST_LOG'), width: '90', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
     { fieldName: 'vtAcDv', header: t('MSG_TXT_VT_AC_DV'), width: '100', styleName: 'text-left' },
     { fieldName: 'vtAcBnk', header: t('MSG_TXT_VT_AC_BNK'), width: '120', styleName: 'text-left' },
     { fieldName: 'vtAcNo', header: t('MSG_TXT_VT_AC_NO'), width: '160', styleName: 'text-left' },
@@ -1169,7 +1345,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'rtlfeIstm1', header: t('MSG_TXT_RTLFE_1_ISTM'), styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
     { fieldName: 'rtlfe2', header: t('MSG_TXT_RTLFE2'), styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
     { fieldName: 'rtlfeIstm2', header: t('MSG_TXT_RTLFE_2_ISTM'), styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
-    { fieldName: 'dpr', header: t('MSG_TXT_DPR'), styleName: 'text-right' },
+    { fieldName: 'dprNm', header: t('MSG_TXT_DPR'), styleName: 'text-right' },
     { fieldName: 'clctamIchr', header: t('MSG_TXT_CLCTAM_ICHR'), styleName: 'text-left' },
     { fieldName: 'tfDt', header: t('MSG_TXT_TF_DT'), styleName: 'text-center' },
     { fieldName: 'sfk', header: t('MSG_TXT_SFK'), styleName: 'text-center' },
@@ -1197,9 +1373,9 @@ const initGrdMain = defineGrid((data, view) => {
   };
 
   view.onCellDblClicked = async (g, { dataRow }) => {
-    const cntrDtlNo = g.getValue(dataRow, 'cntrDtlNo');
-    if (cntrDtlNo) {
-      await window.open(`/popup/#/wwbnc-same-customer-contract?cntrDtlNo=${cntrDtlNo}`, 'popup', 'width=1200, height=1100, menubar=no, location=no');
+    const cstNo = g.getValue(dataRow, 'cstNo');
+    if (cstNo) {
+      await window.open(`/popup/#/wwbnc-same-customer-contract?cstNo=${cstNo}`, 'popup', 'width=1200, height=1100, menubar=no, location=no');
     }
   };
 });
