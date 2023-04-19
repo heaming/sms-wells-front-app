@@ -15,7 +15,7 @@
 --->
 <template>
   <kw-popup size="3xl">
-    <kw-form>
+    <kw-form :cols="2">
       <kw-form-row>
         <!-- 서비스명 -->
         <kw-form-item
@@ -74,7 +74,6 @@
       />
       <!-- 정기BS투입 필터/부품 불러오기 -->
       <kw-btn
-        grid-action
         dense
         secondary
         :label="$t('MSG_BTN_LOAD_ROUTINE_BS_FLT_PART')"
@@ -147,7 +146,7 @@ const materialSelectItems = ref([
   // 교재/자재명
   { codeId: pdConst.PD_SEARCH_NAME, codeName: t('MSG_TXT_PD_BOK_MTR_NAME') },
   // 교재/자재코드
-  { codeId: pdConst.PD_SEARCH_CODE, codeName: t('MSG_TXT_PROD_CD') },
+  { codeId: pdConst.PD_SEARCH_CODE, codeName: t('MSG_TXT_MATERIAL_CD') },
 ]);
 const codes = await codeUtil.getMultiCodes('BFSVC_WK_DV_CD', 'MM_CD', 'VST_DV_CD');
 codes.MM_CD = codes.MM_CD.map((item) => { item.codeId = Number(item.codeId); return item; });
@@ -362,6 +361,7 @@ const initGridMain = defineGrid((data, view) => {
     // 작업구분
     { fieldName: 'svBizDclsfCd',
       header: t('MSG_TXT_WK_CLS'),
+      placeHolder: t('MSG_TXT_SELT'),
       width: '80',
       styleName: 'text-center',
       rules: 'required',
@@ -381,6 +381,7 @@ const initGridMain = defineGrid((data, view) => {
     // 방문구분
     { fieldName: 'vstDvCd',
       header: t('MSG_TXT_VISIT_TYPE'),
+      placeHolder: t('MSG_TXT_SELT'),
       width: '80',
       styleName: 'text-center',
       editor: { type: 'list' },
@@ -430,11 +431,12 @@ const initGridMain = defineGrid((data, view) => {
     // 설치월
     { fieldName: 'istMm',
       header: t('MSG_TXT_SETUP_MON'),
+      placeHolder: t('MSG_TXT_SELT'),
       width: '60',
       styleName: 'text-center',
       firstOption: 'empty',
       firstOptionValue: '',
-      placeHolder: '',
+      firstOptionLabel: t('MSG_TXT_SELT'),
       editor: { type: 'list' },
       options: codes.MM_CD },
     // 작업연도
@@ -447,11 +449,12 @@ const initGridMain = defineGrid((data, view) => {
     // 작업월
     { fieldName: 'wkMm',
       header: t('MSG_TXT_JOB_MON'),
+      placeHolder: t('MSG_TXT_SELT'),
       width: '60',
       styleName: 'text-center',
       firstOption: 'empty',
       firstOptionValue: '',
-      placeHolder: '',
+      firstOptionLabel: t('MSG_TXT_SELT'),
       editor: { type: 'list' },
       options: codes.MM_CD },
   ];

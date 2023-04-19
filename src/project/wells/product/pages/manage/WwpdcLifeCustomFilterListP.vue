@@ -207,6 +207,7 @@ const initGrid = defineGrid((data, view) => {
     // 방문구분
     { fieldName: 'vstDvCd',
       header: t('MSG_TXT_VISIT_TYPE'),
+      placeHolder: t('MSG_TXT_SELT'),
       width: '100',
       styleName: 'text-center',
       rules: 'required',
@@ -215,6 +216,7 @@ const initGrid = defineGrid((data, view) => {
     // 월구분
     { fieldName: 'prdMmVal',
       header: t('MSG_TXT_MON_GUBUN'),
+      placeHolder: t('MSG_TXT_SELT'),
       width: '70',
       styleName: 'text-center',
       rules: 'required',
