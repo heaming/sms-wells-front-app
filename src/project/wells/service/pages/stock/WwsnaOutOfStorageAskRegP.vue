@@ -65,7 +65,7 @@
         <kw-form-item :label="$t('MSG_TXT_OSTR_AK_TP')">
           <kw-select
             v-model="searchParams.ostrAkTpCd"
-            :options="codes.OSTR_AK_TP_CD"
+            :options="filterCodes.filterOstrTpCd"
             :readonly="isAkTp"
             @update:model-value="onChangeCode"
           />
@@ -226,21 +226,36 @@ const codes = await codeUtil.getMultiCodes(
   'OVIV_FOM_CD',
   'OSTR_AK_TP_CD', // check: 출고요청유형코드 공통코드에서 가져오는데 갯수가 많음.
   'ITM_KND_CD',
+
 );
+
+// 출고유형코드 필터링
+const filterCodes = ref({
+  filterOstrTpCd: [],
+});
+
+filterCodes.value.filterOstrTpCd = codes.OSTR_AK_TP_CD.filter((v) => ['310', '320', '330'].includes(v.codeId));
 
 async function onClickItemPop() {
   // TODO: 품목코드 던져줘야 됨. 팝업 props 맞게 던져주면됨.
   // chk값으로 팝업값 결정됨. 뭔값인지 몰??
+  debugger;
   const { result, payload } = await modal({
     component: 'WwsnaItemBaseInformationListP',
-    componentProps: { chk: '2', itmPdCd: searchParams.ostrItmNo },
+    componentProps: { chk: '2',
+      itmKndCd: searchParams.value.ostrItmNo,
+      wareNo: searchParams.value.ostrOjStckMgr,
+      ostrWareNo: searchParams.value.ostrOjWareNo,
+
+    },
   });
+  debugger;
   // TODO: 연결화면 개발진행중이라, 받아와서 처리하는 로직은 임시값으로 테스트한 코드임. 팝업화면에서 넘어오는 형식따라 수정가능성있음.
   if (result) {
     const view = grdMainRef.value.getView();
-    view.getDataSource().addRows(payload.values);
+    view.getDataSource().addRows(payload);
     view.resetCurrent();
-    pageInfo.value.totalCount += payload.values.length;
+    pageInfo.value.totalCount += payload.length;
   }
 }
 async function fetchOstrOjWare() {
@@ -291,7 +306,7 @@ function validateChangeCode() {
 
 async function fetchDefaultData() {
   // TODO: 알맞는 값 없어서 하드코딩. session값 맞아지면 userInfo.employeeIDNumber 로 변경.
-  warehouses.value = await getMonthWarehouse('36680', dayjs().format('YYYYMM'));
+  warehouses.value = await getMonthWarehouse('1642720', dayjs().format('YYYYMM'));
 
   searchParams.value.strOjWareNo = warehouses.value[0].codeId;
   validateChangeCode();
@@ -378,6 +393,7 @@ async function onClickSave() {
 
 async function onChangeStrHopDt() {
   if (!searchParams.value.strHopDt) {
+    debugger;
     notify(t('MSG_ALT_NCELL_REQUIRED_VAL', [t('MSG_TXT_STR_HOP_D')]));
     searchParams.value.strHopDt = dayjs().format('YYYYMMDD');
     fetchOstrOjWare();
@@ -405,42 +421,62 @@ onMounted(async () => {
 
 const initGrdMain = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'sapMatCd' }, // SAP코드
+    { fieldName: 'sapCd' }, // SAP코드
     { fieldName: 'itmPdCd' }, // 품목코드
-    { fieldName: 'ostrAkNo' }, // 출고요청번호
-    { fieldName: 'ostrAkSn' }, // 출고요청일련번호
-    { fieldName: 'fstRgstDtm' }, // 최초등록일시
-    { fieldName: 'strHopDt' }, // 입고희망일자
-    { fieldName: 'itmCd' }, // 품목코드
-    { fieldName: 'itmKnd' }, // 품목종류
-    { fieldName: 'itmNm' }, // 상품약어명
-    { fieldName: 'ostrAkWareDvCd' }, // 출고요청창고구분코드
-    { fieldName: 'wareMngtPrtnrNo' }, // 창고관리파트너번호
-    { fieldName: 'ostrOjWareDvCd' }, // 출고대상창고구분코드
-    { fieldName: 'ostrOjWareNo' }, // 출고대상창고번호
-    { fieldName: 'ostrWareMngtPrtnrNo' }, // 출고창고관리파트너번호
+    { fieldName: 'itmPdNm' }, // 품목상품명
+    { fieldName: 'ostrAkNo' }, // 출고요청일련번호
+    { fieldName: 'ostrAkSn' }, // 출고요청순번
+    { fieldName: 'ostrAkTpCd' }, /* 출고요청유형코드 */
+    { fieldName: 'strHopDt' }, /* 입고희망일자 */
     { fieldName: 'mngtUnitCd' }, // 관리단위코드
-    { fieldName: 'boxUnitQty', dataType: 'number' }, // 박스단위수량
+    { fieldName: 'boxUnitgQty', dataType: 'number' }, // 박스단위수량
     { fieldName: 'itmGdCd' }, // 품목등급코드
-    { fieldName: 'onQty', dataType: 'number' },
-    { fieldName: 'ostrAkQty', dataType: 'number' }, // 출고요청수량
-    { fieldName: 'ostrCnfmQty', dataType: 'number' }, // 출고확정수량
-    { fieldName: 'rmkCn' }, // 비고
-    { fieldName: 'rectOstrDt' }, // 최근출고일자
-    { fieldName: 'ostrAggQty' }, // 출고누계수량
-    { fieldName: 'warehouseQty', dataType: 'number' }, // 재고
-    { fieldName: 'baseStocQty', dataType: 'number' }, // 기준재고수량
-    { fieldName: 'sftStocQty', dataType: 'number' }, // 안전재고수량
-    { fieldName: 'useQty', dataType: 'number' }, // 당월수량
-    { fieldName: 'centerQty', dataType: 'number' }, // 센터수량
-    { fieldName: 'indiQty', dataType: 'number' }, // 개인수량
-    { fieldName: 'imgApnFileId' }, // 이미지첨부파일ID
-    { fieldName: 'cfrmCnt', dataType: 'number' }, // 방문확정수량
+    { fieldName: 'ostrAkQty', dataType: 'number' }, /* 출고요청수량 */
+    { fieldName: 'ostrCnfmQty', dataType: 'number' }, /* 출고확정수량 */
+    { fieldName: 'rmkCn' }, /* 비고 */
+    { fieldName: 'rectOstrDt' }, /* 최근출고일자 */
+    { fieldName: 'ostrWareMngtPrtnrNo' }, /* 출고창고관리파트너번호 */
+    { fieldName: 'ostrOjWareNo' }, /* 출고대상창고번호 */
+    { fieldName: 'strOjWareNo' }, /* 입고대상창고번호 */
+    { fieldName: 'itmKnd' }, /* 품목종류 */
+    { fieldName: 'itmKndNm' }, /* 품목종류명 */
+    { fieldName: 'imgUrl' }, /* imgUrl */
+    { fieldName: 'ostrAkWareDvCd' }, /* 출고요청창고구분코드 */
+    { fieldName: 'wareMngtPrtnrNo' }, /* 창고관리파트너번호 */
+    { fieldName: 'warehouseQty', dataType: 'number' }, /* 재고 */
+    { fieldName: 'centerQty', dataType: 'number' }, /* 센터수량 */
+    { fieldName: 'indiQty', dataType: 'number' }, /* 개인수량 */
+    { fieldName: 'useQty', dataType: 'number' }, /* 당월수량 */
+    { fieldName: 'baseStocQty', dataType: 'number' }, /* 기준재고수량 */
+    { fieldName: 'sftStocQty', dataType: 'number' }, /* 안전재고수량 */
+
+    // { fieldName: 'ostrAkWareDvCd' }, // 출고요청창고구분코드
+    // { fieldName: 'wareMngtPrtnrNo' }, // 창고관리파트너번호
+    // { fieldName: 'ostrOjWareDvCd' }, // 출고대상창고구분코드
+    // { fieldName: 'ostrOjWareNo' }, // 출고대상창고번호
+    // { fieldName: 'ostrWareMngtPrtnrNo' }, // 출고창고관리파트너번호
+    // { fieldName: 'mngtUnitCd' },
+    // { fieldName: 'boxUnitQty', dataType: 'number' },
+    // { fieldName: 'itmGdCd' },
+    // { fieldName: 'onQty', dataType: 'number' },
+    // { fieldName: 'ostrAkQty', dataType: 'number' }, // 출고요청수량
+    // { fieldName: 'ostrCnfmQty', dataType: 'number' }, // 출고확정수량
+    // { fieldName: 'rmkCn' }, // 비고
+    // { fieldName: 'rectOstrDt' }, // 최근출고일자
+    // { fieldName: 'ostrAggQty' }, // 출고누계수량
+    // { fieldName: 'warehouseQty', dataType: 'number' }, // 재고
+    // { fieldName: 'baseStocQty', dataType: 'number' }, // 기준재고수량
+    // { fieldName: 'sftStocQty', dataType: 'number' }, // 안전재고수량
+    // { fieldName: 'useQty', dataType: 'number' }, // 당월수량
+    // { fieldName: 'centerQty', dataType: 'number' }, // 센터수량
+    // { fieldName: 'indiQty', dataType: 'number' }, // 개인수량
+    // { fieldName: 'imgApnFileId' }, // 이미지첨부파일ID
+    // { fieldName: 'cfrmCnt', dataType: 'number' }, // 방문확정수량
   ];
 
   const columns = [
     {
-      fieldName: 'sapMatCd',
+      fieldName: 'sapCd',
       header: t('MSG_TXT_SAP_CD'),
       width: '150',
       styleName: 'text-center',
@@ -449,11 +485,11 @@ const initGrdMain = defineGrid((data, view) => {
     {
       fieldName: 'itmPdCd',
       header: t('MSG_TXT_ITM_CD'),
-      width: '150',
+      width: '200',
       styleName: 'text-center',
     },
     {
-      fieldName: 'itmNm',
+      fieldName: 'itmPdNm',
       header: t('MSG_TXT_ITM_NM'),
       width: '250',
       styleName: 'text-center',
@@ -546,7 +582,7 @@ const initGrdMain = defineGrid((data, view) => {
       },
     },
     {
-      fieldName: 'imgApnFileId',
+      fieldName: 'imgUrl',
       header: t('MSG_TXT_PHO'),
       width: '100',
       styleName: 'text-center',
@@ -567,10 +603,10 @@ const initGrdMain = defineGrid((data, view) => {
 
   const columnLayout = [
     {
-      column: 'sapMatCd', footerUserSpans: [{ colspan: 4 }],
+      column: 'sapCd', footerUserSpans: [{ colspan: 4 }],
     }, // SAP코드
     'itmPdCd', // 품목코드
-    'itmNm', // 품목명
+    'itmPdNm', // 품목명
     'itmGdCd', // 등급
     'warehouseQty', // 재고
     'baseStocQty', // 기준
@@ -580,7 +616,7 @@ const initGrdMain = defineGrid((data, view) => {
     'indiQty', // 개인
     'ostrCnfmQty', // 방문확정수량
     'ostrAkQty', // 출고요청수량
-    'imgApnFileId', // 사진
+    'imgUrl', // 사진
     'rmkCn', // 비고
   ];
 

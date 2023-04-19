@@ -28,19 +28,20 @@
         >
           <kw-select
             v-model="searchParams.itmKndCd"
+            :readonly="isKndCd"
             :options="codes.ITM_KND_CD"
           />
         </kw-search-item>
         <!-- 품목코드 -->
         <kw-search-item :label="$t('MSG_TXT_ITM_CD')">
           <kw-input
-            v-model="searchParams.pdCd"
+            v-model="searchParams.itmPdCd"
           />
         </kw-search-item>
         <!-- 품목명 -->
         <kw-search-item :label="$t('MSG_TXT_ITM_NM')">
           <kw-input
-            v-model="searchParams.pdNm"
+            v-model="searchParams.itmPdNm"
           />
           <kw-field
             :model-value="[]"
@@ -68,6 +69,8 @@
           <kw-select
             v-show="aplcList"
             :options="codes.APLC_DV_ACD"
+            first-option="all"
+            @change="onChangeAplcDvAcd"
           />
         </kw-search-item>
       </kw-search-row>
@@ -130,6 +133,7 @@ const grdMainRef2 = ref(getComponentType('KwGrid'));
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 
+const isKndCd = ref(false); // 품목종류
 const codes = await codeUtil.getMultiCodes(
   'ITM_KND_CD',
   'MNGT_UNIT_CD',
@@ -145,16 +149,9 @@ const aplcList = ref();
 // 안전재고체크박스
 const checkField = ref();
 
-const searchParams = ref({
-  itmKndCd: '4',
-  pdNm: '',
-  pdCd: '',
-
-});
-
 const totalCount = ref(0);
-
-// TODO: 현재 테스트진행중
+debugger;
+// TODO: 현재 테스트진행중 chk가 2인경우는 출고요청등록에서 들어온경우
 const props = defineProps({
   chk: {
     type: String,
@@ -164,6 +161,31 @@ const props = defineProps({
     type: String,
     default: undefined,
   },
+  itmKndCd: {
+    type: String,
+    default: '',
+  },
+  wareNo: {
+    type: String,
+    default: '',
+  },
+  ostrWareNo: {
+    type: String,
+    default: '',
+  },
+  lpGbYn: {
+    type: String,
+    default: '',
+  },
+
+});
+
+const searchParams = ref({
+  itmKndCd: props.itmKndCd,
+  itmPdNm: '',
+  itmPdCd: '',
+  lpGbYn: props.lpGbYn,
+
 });
 
 async function onClickSelt() {
@@ -176,12 +198,18 @@ async function onClickSelt() {
     view = grdMainRef.value.getView();
   }
 
-  const checkedRows = gridUtil.getCheckedRowValues(view);
+  const checkedRows = gridUtil.getCheckedRowValues(view).map((v) => ({ ...v, itmGdCd: 'A' }));
 
   if (isEmpty(checkedRows)) {
     ok(gridUtil.getSelectedRowValues(view));
   } else {
     ok(checkedRows);
+  }
+}
+
+function validateChangeCode() {
+  if (!isEmpty(props.itmKndCd)) {
+    isKndCd.value = true;
   }
 }
 let cachedParams;
@@ -200,6 +228,7 @@ async function fetchData() {
   totalCount.value = itemBase.length;
   view.getDataSource().setRows(itemBase);
   view.resetCurrent();
+  validateChangeCode();
 }
 
 async function onClickSearch() {
@@ -223,6 +252,9 @@ async function initData() {
 }
 
 onMounted(async () => {
+  if (isEmpty(props.itmKndCd)) {
+    searchParams.value.itmKndCd = '4';
+  }
   await initData();
 });
 
@@ -231,48 +263,35 @@ onMounted(async () => {
 // -------------------------------------------------------------------------------------------------
 const initGrdMain = defineGrid((data, view) => {
   const fields = [
+    { fieldName: 'sapCd' },
     { fieldName: 'itmPdCd' },
-    { fieldName: 'itmNm' },
-    { fieldName: 'pdPrpVal19' },
-    { fieldName: 'imgApnFileId' },
-    { fieldName: 'pdPrpVal05' },
-    { fieldName: 'pdPrpVal02' },
-    { fieldName: 'pdPrpVal01' },
-    { fieldName: 'pdPrpVal06' },
-    { fieldName: 'pdPrpVal31' },
-    { fieldName: 'pdPrpVal11' },
-    { fieldName: 'useQty' },
-    { fieldName: 'svStrtDt' },
-    { fieldName: 'svEndDt' },
-    { fieldName: 'pdPrpVal12' },
-    { fieldName: 'sapMatCd' },
-    { fieldName: 'sapMatGrpVal' },
-    { fieldName: 'pdPrpVal16' },
-    { fieldName: 'pdAbbrNm' },
-    { fieldName: 'mulQty' },
-    { fieldName: 'centerQty' },
-    { fieldName: 'indiStckQty' },
-    { fieldName: 'warehouseQty', dataType: 'number' },
-    { fieldName: 'warehouseBQty', dataType: 'number' },
+    { fieldName: 'itmPdNm' },
+    { fieldName: 'itmPdNm1' },
+    { fieldName: 'itemKnd' },
+    { fieldName: 'imgUrl' },
+    { fieldName: 'lgstQty', dataType: 'number' },
+    { fieldName: 'centerQty', dataType: 'number' },
+    { fieldName: 'centerBQty' },
+    { fieldName: 'indiQty', dataType: 'number' },
+    { fieldName: 'useQty', dataType: 'number' },
     { fieldName: 'useQtyY', dataType: 'number' },
     { fieldName: 'useQtyP', dataType: 'number' },
-    { fieldName: 'indiQty', dataType: 'number' },
-    { fieldName: 'shortSupplty', dataType: 'number' },
+    { fieldName: 'shortSupply', dataType: 'number' },
     { fieldName: 'totalQty', dataType: 'number' },
   ];
 
   const columns = [
-    { fieldName: 'sapMatCd', header: t('MSG_TXT_SAP_CD'), width: '150', styleName: 'text-center' },
+    { fieldName: 'sapCd', header: t('MSG_TXT_SAP_CD'), width: '150', styleName: 'text-center' },
     { fieldName: 'itmPdCd', header: t('MSG_TXT_ITM_CD'), width: '150', styleName: 'text-center' },
-    { fieldName: 'itmNm', header: t('MSG_TXT_ITM_NM'), width: '250' },
-    { fieldName: 'imgApnFileId', header: t('MSG_TXT_PHO'), width: '100', styleName: 'text-center' },
-    { fieldName: 'warehouseQty', header: t('MSG_TXT_LGST'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'itmPdNm', header: t('MSG_TXT_ITM_NM'), width: '250' },
+    { fieldName: 'imgUrl', header: t('MSG_TXT_PHO'), width: '100', styleName: 'text-center' },
+    { fieldName: 'lgstQty', header: t('MSG_TXT_LGST'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
     { fieldName: 'useQtyY', header: t('MSG_TXT_PVO_Y'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
     { fieldName: 'useQtyP', header: t('MSG_TXT_LSTMM'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
     { fieldName: 'useQty', header: t('MSG_TXT_THM'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
     { fieldName: 'centerQty', header: t('MSG_TXT_CENTER_DIVISION'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
     { fieldName: 'indiQty', header: t('MSG_TXT_INDV'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'shortSupplty', header: t('MSG_TXT_APLC'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'shortSupply', header: t('MSG_TXT_APLC'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
     { fieldName: 'totalQty', header: t('MSG_TXT_TOT_STOC'), width: '175', styleName: 'text-right', numberFormat: '#,##0' },
   ];
 
@@ -285,41 +304,41 @@ const initGrdMain = defineGrid((data, view) => {
 
 const initGrdMain2 = defineGrid((data, view) => {
   const fields = [
+    { fieldName: 'sapCd' },
+    { fieldName: 'sapGrp' },
     { fieldName: 'itmPdCd' },
-    { fieldName: 'itmNm' },
-    { fieldName: 'pdPrpVal19' },
-    { fieldName: 'mngtUnitCd' },
-    { fieldName: 'pdPrpVal06' },
-    { fieldName: 'pdPrpVal11' },
-    { fieldName: 'svStrtDt' },
-    { fieldName: 'svEndDt' },
-    { fieldName: 'pdPrpVal12' },
-    { fieldName: 'sapMatCd' },
-    { fieldName: 'sapMatGrpVal' },
-    { fieldName: 'pdPrpVal16' },
-    { fieldName: 'pdAbbrNm' },
-    { fieldName: 'mulQty', dataType: 'number' },
-    { fieldName: 'centerQty', dataType: 'number' },
-    { fieldName: 'myCenterQty', dataType: 'number' },
-    { fieldName: 'indiStckQty', dataType: 'number' },
+    { fieldName: 'itmPdNm' },
+    { fieldName: 'itmPdAbbr1' },
+    { fieldName: 'lgstQty' },
+    { fieldName: 'centerQty' },
+    { fieldName: 'myCenterQty' },
+    { fieldName: 'indiStckQty' },
     { fieldName: 'lQty' },
+    { fieldName: 'itmKnd' },
+    { fieldName: 'itmKndNm' },
+    { fieldName: 'delUnt' },
+    { fieldName: 'delUntNm' },
+    { fieldName: 'imgUrl' },
+    { fieldName: 'apldFr' },
+    { fieldName: 'apldTo' },
+    { fieldName: 'boxQty' },
+    { fieldName: 'leadTime' },
+
   ];
 
   const columns = [
-    { fieldName: 'sapMatCd', header: t('MSG_TXT_SAP_CD'), width: '150', styleName: 'text-center' },
+    { fieldName: 'sapCd', header: t('MSG_TXT_SAP_CD'), width: '150', styleName: 'text-center' },
     { fieldName: 'itmPdCd', header: t('MSG_TXT_ITM_CD'), width: '150', styleName: 'text-center' },
-    { fieldName: 'itmNm', header: t('MSG_TXT_ITM_NM'), width: '250', styleName: 'text-left' },
-    { fieldName: 'mngtUnitCd', header: t('MSG_TXT_APLC_UNIT'), width: '100', styleName: 'text-right' },
-    { fieldName: 'mulQty', header: t('MSG_TXT_LGST'), width: '100', numberFormat: '#,##0', styleName: 'text-right' },
+    { fieldName: 'itmPdNm', header: t('MSG_TXT_ITM_NM'), width: '250', styleName: 'text-left' },
+    { fieldName: 'lgstQty', header: t('MSG_TXT_LGST'), width: '100', numberFormat: '#,##0', styleName: 'text-right' },
     { fieldName: 'centerQty', header: t('MSG_TXT_CENTER_DIVISION'), width: '100', numberFormat: '#,##0', styleName: 'text-right' },
     { fieldName: 'myCenterQty', header: t('MSG_TXT_OG_WARE'), width: '100', numberFormat: '#,##0', styleName: 'text-right' },
     { fieldName: 'indiStckQty', header: t('MSG_TXT_INDV_WARE'), width: '100', numberFormat: '#,##0', styleName: 'text-right' },
-    { fieldName: 'sapMatGrpVal', header: t('TXT_MSG_SAP_MAT_GRP_VAL'), width: '100', styleName: 'text-center' },
-    { fieldName: 'mngtUnitCd', header: t('TXT_MSG_MNGT_UNIT_CD'), width: '100', options: codes.MNGT_UNIT_CD, styleName: 'text-center' },
-    { fieldName: 'pdPrpVal06', header: t('MSG_TXT_LEAD_TIME'), width: '100', styleName: 'text-center' },
-    { fieldName: 'pdPrpVal11', header: t('TXT_MSG_OSTR_UNIT_CD'), width: '100', styleName: 'text-center' },
-    { fieldName: 'svStrtDt', header: t('MSG_TXT_USE_STRTDT'), width: '100', datetimeFormat: 'date', styleName: 'text-center' },
-    { fieldName: 'svEndDt', header: t('MSG_TXT_USE_ENDDT'), width: '100', datetimeFormat: 'date', styleName: 'text-center' },
+    { fieldName: 'sapGrp', header: t('TXT_MSG_SAP_MAT_GRP_VAL'), width: '100', styleName: 'text-center' },
+    { fieldName: 'leadTime', header: t('MSG_TXT_LEAD_TIME'), width: '100', styleName: 'text-center' },
+    { fieldName: 'delUntNm', header: t('TXT_MSG_OSTR_UNIT_CD'), width: '100', styleName: 'text-center' },
+    { fieldName: 'apldFr', header: t('MSG_TXT_USE_STRTDT'), width: '100', datetimeFormat: 'date', styleName: 'text-center' },
+    { fieldName: 'apldTo', header: t('MSG_TXT_USE_ENDDT'), width: '100', datetimeFormat: 'date', styleName: 'text-center' },
 
   ];
 
