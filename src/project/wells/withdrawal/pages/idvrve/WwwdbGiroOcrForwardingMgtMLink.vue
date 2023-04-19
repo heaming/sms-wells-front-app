@@ -285,25 +285,21 @@ const initGrid = defineGrid((data, view) => {
   };
 
   view.onCellItemClicked = async (g, { column, dataRow }) => {
-    console.log(dataRow);
+    const cwwDte = g.getValue(dataRow, 'giroOcrPblDtm');
+    const cwpSeq = g.getValue(dataRow, 'giroOcrPblSeqn');
+
+    console.log(cwwDte);
+    console.log(cwpSeq);
+
     if (column === 'giroOcrPrnt') {
-      // eslint-disable-next-line no-use-before-define
-      openReportPopup('/eformsample.ozr', '/eformsample.odi', JSON.stringify({ param1: 'test1', param2: 'test2' }));
+      openReportPopup('/BIZ0000003.ozr', '/BIZ0000003.odi', JSON.stringify({ cwwDte, cwpSeq }));
     } else if (column === 'giroOcrRead') {
-      // eslint-disable-next-line no-use-before-define
-      openReportPopup('/eformsample.ozr', '/eformsample.odi', JSON.stringify({ param1: 'test1', param2: 'test2' }));
+      openReportPopup('/BIZ0000003.ozr', '/BIZ0000003.odi', JSON.stringify({ cwwDte, cwpSeq }));
     }
   };
 
   view.checkBar.visible = true;
   view.rowIndicator.visible = true;
-
-  // data.setRows([
-  //   { giroOcrPblDate: '2022-07-20'
-  // , giroOcrPblTime: '2022',
-  //  giroOcrPblTotQty: '1234567',
-  //   giroOcrPblOj: '9267', giroOcrPrntDt: '2022-07-20', col6: '출력', col7: '보기' },
-  // ]);
 });
 </script>
 
