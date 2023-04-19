@@ -153,7 +153,7 @@ async function initGrid(data, view) {
     // 제품코드
     { fieldName: 'pdCd', header: t('MSG_TXT_PROD_CD'), width: '185', styleName: 'text-center' },
     // 자재코드
-    { fieldName: 'partPdCd', header: t('MSG_TXT_MATI_CD'), width: '187', styleName: 'text-center' },
+    { fieldName: 'sapMatCd', header: t('MSG_TXT_MATI_CD'), width: '187', styleName: 'text-center' },
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   fields.push({ fieldName: pdConst.REL_PD_ID });

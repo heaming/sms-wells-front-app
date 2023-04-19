@@ -51,7 +51,6 @@
     />
     <!-- 정기B/S투입 필터/부품 연결 -->
     <kw-btn
-      grid-action
       dense
       :disable="!currentPdCd || grdRowCount === 0"
       :label="$t('MSG_TXT_PD_SCH_BS_REL_PART')"
@@ -59,7 +58,6 @@
     />
     <!-- 정기B/S투입정보 -->
     <kw-btn
-      grid-action
       dense
       :disable="grdRowCount === 0"
       :label="$t('MSG_TXT_PD_SCH_BS_INFO')"
@@ -196,6 +194,7 @@ async function onClickMaterialSchPopup() {
     componentProps: searchParams.value,
   });
   if (rtn.result) {
+    console.log('rtn.payload : ', rtn.payload);
     if (Array.isArray(rtn.payload) && rtn.payload.length > 1) {
       const data = view.getDataSource();
       const rows = rtn.payload.map((item) => ({
@@ -281,7 +280,7 @@ async function initGrid(data, view) {
     // 제품코드
     { fieldName: 'pdCd', header: t('MSG_TXT_PROD_CD'), width: '185', styleName: 'text-center' },
     // 자재코드
-    { fieldName: 'partPdCd', header: t('MSG_TXT_MATI_CD'), width: '187', styleName: 'text-center' },
+    { fieldName: 'sapMatCd', header: t('MSG_TXT_MATI_CD'), width: '187', styleName: 'text-center' },
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   fields.push({ fieldName: pdConst.REL_PD_ID });

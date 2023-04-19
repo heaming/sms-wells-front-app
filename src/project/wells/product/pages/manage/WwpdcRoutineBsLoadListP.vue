@@ -144,7 +144,7 @@ const materialSelectItems = ref([
   // 교재/자재명
   { codeId: pdConst.PD_SEARCH_NAME, codeName: t('MSG_TXT_PD_BOK_MTR_NAME') },
   // 교재/자재코드
-  { codeId: pdConst.PD_SEARCH_CODE, codeName: t('MSG_TXT_PROD_CD') },
+  { codeId: pdConst.PD_SEARCH_CODE, codeName: t('MSG_TXT_MATERIAL_CD') },
 ]);
 
 async function onSelect() {
