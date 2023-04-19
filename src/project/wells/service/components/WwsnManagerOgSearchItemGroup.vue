@@ -3,7 +3,7 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : SN
-2. 프로그램 ID : WwsnManagerOgSearchRow - 매니저 조직 조회조건용 Select Group
+2. 프로그램 ID : WwsnManagerOgSearchItemGroup - 매니저 조직 조회조건용 Select Group
 3. 작성자 : KJ
 4. 작성일 : 2023.04.14
 ****************************************************************************************************
@@ -13,76 +13,74 @@
 ****************************************************************************************************
 --->
 <template>
-  <kw-search-row>
-    <kw-search-item
-      v-if="useOgLevel > '0'"
+  <kw-search-item
+    v-if="useOgLevel > '0'"
+    :label="$t('MSG_TXT_MANAGEMENT_DEPARTMENT')"
+    :required="dgr1LevlOgRequired"
+  >
+    <kw-select
+      ref="cbDgr1LevlOgIdRef"
+      v-model="selectedDgr1LevlOgId"
+      :options="dgr1LevlOgs"
+      option-value="ogId"
+      :option-label="dgr1LevlOgLabel"
+      :first-option="dgr1LevlOgFirstOption"
       :label="$t('MSG_TXT_MANAGEMENT_DEPARTMENT')"
-      :required="dgr1LevlOgRequired"
-    >
-      <kw-select
-        ref="cbDgr1LevlOgIdRef"
-        v-model="selectedDgr1LevlOgId"
-        :options="dgr1LevlOgs"
-        option-value="ogId"
-        :option-label="dgr1LevlOgLabel"
-        :first-option="dgr1LevlOgFirstOtion"
-        :label="$t('MSG_TXT_MANAGEMENT_DEPARTMENT')"
-        :rules="dgr1LevlOgRequired ? 'required' : undefined"
-        @update:model-value="onChangeDgr1LevlOgId"
-      />
-    </kw-search-item>
-    <kw-search-item
-      v-if="useOgLevel > '1'"
+      :rules="dgr1LevlOgRequired ? 'required' : undefined"
+      @update:model-value="onChangeDgr1LevlOgId"
+    />
+  </kw-search-item>
+  <kw-search-item
+    v-if="useOgLevel > '1'"
+    :label="$t('MSG_TXT_RGNL_GRP')"
+    :required="dgr2LevlOgRequired"
+  >
+    <kw-select
+      ref="cbDgr2LevlOgIdRef"
+      v-model="selectedDgr2LevlOgId"
+      :options="dgr2LevlOgs"
+      option-value="ogId"
+      :option-label="dgr2LevlOgLabel"
+      :first-option="dgr2LevlOgFirstOption"
       :label="$t('MSG_TXT_RGNL_GRP')"
-      :required="dgr2LevlOgRequired"
-    >
-      <kw-select
-        ref="cbDgr2LevlOgIdRef"
-        v-model="selectedDgr2LevlOgId"
-        :options="dgr2LevlOgs"
-        option-value="ogId"
-        :option-label="dgr2LevlOgLabel"
-        :first-option="dgr2LevlOgFirstOtion"
-        :label="$t('MSG_TXT_RGNL_GRP')"
-        :rules="dgr2LevlOgRequired ? 'required' : undefined"
-        @update:model-value="onChangeDgr2LevlOgId"
-      />
-    </kw-search-item>
-    <kw-search-item
-      v-if="useOgLevel > '2'"
+      :rules="dgr2LevlOgRequired ? 'required' : undefined"
+      @update:model-value="onChangeDgr2LevlOgId"
+    />
+  </kw-search-item>
+  <kw-search-item
+    v-if="useOgLevel > '2'"
+    :label="$t('MSG_TXT_BRANCH')"
+    :required="dgr3LevlOgRequired"
+  >
+    <kw-select
+      ref="cbDgr3LevlOgIdRef"
+      v-model="selectedDgr3LevlOgId"
+      :options="dgr3LevlOgs"
+      option-value="ogId"
+      :option-label="dgr3LevlOgLabel"
+      :first-option="dgr3LevlOgFirstOption"
       :label="$t('MSG_TXT_BRANCH')"
-      :required="dgr3LevlOgRequired"
-    >
-      <kw-select
-        ref="cbDgr3LevlOgIdRef"
-        v-model="selectedDgr3LevlOgId"
-        :options="dgr3LevlOgs"
-        option-value="ogId"
-        :option-label="dgr3LevlOgLabel"
-        :first-option="dgr3LevlOgFirstOtion"
-        :label="$t('MSG_TXT_BRANCH')"
-        :rules="dgr3LevlOgRequired ? 'required' : undefined"
-        @update:model-value="onChangeDgr3LevlOgId"
-      />
-    </kw-search-item>
-    <kw-search-item
-      v-if="!!usePartner"
+      :rules="dgr3LevlOgRequired ? 'required' : undefined"
+      @update:model-value="onChangeDgr3LevlOgId"
+    />
+  </kw-search-item>
+  <kw-search-item
+    v-if="!!usePartner"
+    :label="$t('MSG_TXT_MANAGER')"
+    :required="partnerRequired"
+  >
+    <kw-select
+      ref="cbPrtnrNoRef"
+      v-model="selectedPrtnrNo"
+      :options="partners"
+      option-value="prtnrNo"
+      :option-label="partnerLabel"
+      :first-option="partnerFirstOption"
       :label="$t('MSG_TXT_MANAGER')"
-      :required="partnerRequired"
-    >
-      <kw-select
-        ref="cbPrtnrNoRef"
-        v-model="selectedPrtnrNo"
-        :options="partners"
-        option-value="prtnrNo"
-        :option-label="partnerLabel"
-        :first-option="partnerFirstOtion"
-        :label="$t('MSG_TXT_MANAGER')"
-        :rules="partnerRequired ? 'required' : undefined"
-        @update:model-value="onChangePrtnrNo"
-      />
-    </kw-search-item>
-  </kw-search-row>
+      :rules="partnerRequired ? 'required' : undefined"
+      @update:model-value="onChangePrtnrNo"
+    />
+  </kw-search-item>
 </template>
 
 <script setup>
@@ -97,16 +95,18 @@ const dataService = useDataService();
 const props = defineProps({
   useOgLevel: { type: String, default: '3' },
   usePartner: { type: Boolean, default: true },
+
+  // Model Value
   dgr1LevlOgId: { type: String, default: undefined },
   dgr2LevlOgId: { type: String, default: undefined },
   dgr3LevlOgId: { type: String, default: undefined },
   prtnrNo: { type: String, default: undefined },
 
   // Select First Option
-  dgr1LevlOgFirstOtion: { type: String, default: undefined },
-  dgr2LevlOgFirstOtion: { type: String, default: undefined },
-  dgr3LevlOgFirstOtion: { type: String, default: undefined },
-  partnerFirstOtion: { type: String, default: undefined },
+  dgr1LevlOgFirstOption: { type: String, default: undefined },
+  dgr2LevlOgFirstOption: { type: String, default: undefined },
+  dgr3LevlOgFirstOption: { type: String, default: undefined },
+  partnerFirstOption: { type: String, default: undefined },
 
   // Select Label
   dgr1LevlOgLabel: { type: String, default: 'ogNm' },
@@ -200,9 +200,9 @@ async function getDgr3LevlOgs() {
 
 async function getPartners() {
   if (!props.usePartner) return;
-  if ((props.useOgLevel === '3' && (props.dgr3LevlOgFirstOtion === 'all' || !isEmpty(selectedDgr3LevlOgId.value)))
-    || (props.useOgLevel === '2' && (props.dgr2LevlOgFirstOtion === 'all' || !isEmpty(selectedDgr2LevlOgId.value)))
-      || (props.useOgLevel === '1' && (props.dgr1LevlOgFirstOtion === 'all' || !isEmpty(selectedDgr1LevlOgId.value)))
+  if ((props.useOgLevel === '3' && (props.dgr3LevlOgFirstOption === 'all' || !isEmpty(selectedDgr3LevlOgId.value)))
+    || (props.useOgLevel === '2' && (props.dgr2LevlOgFirstOption === 'all' || !isEmpty(selectedDgr2LevlOgId.value)))
+      || (props.useOgLevel === '1' && (props.dgr1LevlOgFirstOption === 'all' || !isEmpty(selectedDgr1LevlOgId.value)))
       || props.useOgLevel === '0'
   ) {
     const res = await fetchPartners({ params: {
