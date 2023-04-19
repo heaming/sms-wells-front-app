@@ -474,7 +474,7 @@ async function initProps() {
 await initProps();
 
 async function popupCallback(payload) {
-  if (payload.fromUi === 'ZwpdcMaterialsCodeListP') {
+  if (payload?.fromUi === 'ZwpdcMaterialsCodeListP') {
     if (isEmpty(prevStepData.value[bas])) {
       prevStepData.value = await getSaveData();
     }
