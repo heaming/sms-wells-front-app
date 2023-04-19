@@ -95,7 +95,7 @@
           :done="stepInitNum > 2"
           prefix="2"
           :active-icon="'write'"
-          :tooltip="'클릭하여 수수료생성을 진행하세요.'"
+          :tooltip="$t('MSG_TXT_CLICK_PRGS', [t('MSG_TIT_CRT_FEE')])"
           @click="onClickCreate"
         />
         <kw-step
