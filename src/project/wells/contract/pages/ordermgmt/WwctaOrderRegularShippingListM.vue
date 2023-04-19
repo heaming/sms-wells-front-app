@@ -84,25 +84,37 @@
         :label="$t('MSG_TXT_OG_CD')"
         :colspan="2"
       >
+        <!-- 총괄단 선택 -->
         <kw-select
-          v-model="searchParams.dgr1LevlOgId"
-          :options="gnrlDivOptions"
-          :model-value="searchParams.dgr1LevlOgId ? searchParams.dgr1LevlOgId : []"
-          :multiple="true"
+          v-model="selectedDgr1LevlOgCds"
+          class="select_og_cd"
+          :placeholder="$t('MSG_TXT_MANAGEMENT_DEPARTMENT') + ' ' + $t('MSG_TXT_SELT')"
+          :options="filteredDgr1LevlOgCds"
+          option-value="dgr1LevlOgCd"
+          option-label="dgr1LevlOgNm"
+          multiple
+          @update:model-value="onUpdateDgr1Levl"
         />
+        <!-- 지역단 선택 -->
         <kw-select
-          v-model="searchParams.dgr2LevlOgId"
-          :options="rgnlDivOptions"
-          :model-value="searchParams.dgr2LevlOgId ? searchParams.dgr2LevlOgId : []"
-          :multiple="true"
+          v-model="selectedDgr2LevlOgCds"
+          class="select_og_cd"
+          :placeholder="$t('MSG_TXT_RGNL_GRP') + ' ' + $t('MSG_TXT_SELT')"
+          :options="filteredDgr2LevlOgCds"
+          option-value="dgr2LevlOgCd"
+          option-label="dgr2LevlOgNm"
+          multiple
+          @update:model-value="onUpdateDgr2Levl"
         />
+        <!-- 지점 선택 -->
         <kw-select
-          v-model="searchParams.dgr3LevlOgId"
-          :options="brchDivOptions"
-          :model-value="searchParams.dgr3LevlOgId ? searchParams.dgr3LevlOgId : []"
-          :multiple="true"
-          first-option="all"
-          first-option-value=""
+          v-model="selectedDgr3LevlOgCds"
+          class="select_og_cd"
+          :placeholder="$t('MSG_TXT_BRANCH') + ' ' + $t('MSG_TXT_SELT')"
+          :options="filteredDgr3LevlOgCds"
+          option-value="dgr3LevlOgCd"
+          option-label="dgr3LevlOgNm"
+          multiple
         />
       </kw-search-item>
     </kw-search-row>
@@ -129,6 +141,7 @@
           v-model="searchParams.sellPrtnrNo"
           clearable
           icon="search"
+          :maxlength="10"
           @click-icon="onClickSearchPrtnrNoPopup()"
         />
       </kw-search-item>
@@ -186,7 +199,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { codeUtil, getComponentType, useDataService, gridUtil, useGlobal } from 'kw-lib';
-import { cloneDeep, isEmpty, uniqBy } from 'lodash-es';
+import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 
 const dataService = useDataService();
@@ -231,13 +244,7 @@ const pageInfo = ref({
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 const grdRglrDlvrContractList = ref(getComponentType('KwGrid'));
-
-const gnrlDivOptions = ref([]); // 총괄단
-const rgnlDivOptions = ref([]); // 지역단
-const brchDivOptions = ref([]); // 지점
-
 const checkType = ref([]); // 자료구분
-
 const checkOption = ref([
   { codeId: 1, codeName: t('MSG_TXT_EXCLD_CANC') }, // 취소제외
   { codeId: 2, codeName: t('MSG_TXT_SL_CRT') }, // 매출생성
@@ -298,6 +305,55 @@ async function onClickSearchPrtnrNoPopup() {
   }
 }
 
+// 조직코드 조회
+const codesDgr1Levl = ref([]);
+const codesDgr2Levl = ref([]);
+const codesDgr3Levl = ref([]);
+
+const filteredDgr1LevlOgCds = ref([]); // 필터링된 총괄단 코드
+const filteredDgr2LevlOgCds = ref([]); // 필터링된 지역단 코드
+const filteredDgr3LevlOgCds = ref([]); // 필터링된 지점 코드
+
+const selectedDgr1LevlOgCds = ref([]); // 선택한 총괄단 코드
+const selectedDgr2LevlOgCds = ref([]); // 선택한 지역단 코드
+const selectedDgr3LevlOgCds = ref([]); // 선택한 지점 코드
+
+async function getDgrOgInfos() {
+  let res = [];
+  res = await dataService.get('/sms/wells/contract/partners/general-divisions'); // 총괄단
+  codesDgr1Levl.value = res.data;
+  res = await dataService.get('/sms/wells/contract/partners/regional-divisions'); // 지역단
+  codesDgr2Levl.value = res.data;
+  res = await dataService.get('/sms/wells/contract/partners/branch-divisions'); // 지점
+  codesDgr3Levl.value = res.data;
+
+  // 총괄단 조직코드 초기화
+  filteredDgr1LevlOgCds.value = codesDgr1Levl.value;
+}
+getDgrOgInfos();
+
+// 조직코드 총괄단 변경 이벤트
+async function onUpdateDgr1Levl(selectedValues) {
+  // 선택한 지역단, 지점 초기화
+  selectedDgr2LevlOgCds.value = [];
+  selectedDgr3LevlOgCds.value = [];
+
+  // 지역단 코드 필터링. 선택한 총괄단의 하위 지역단으로 필터링
+  filteredDgr2LevlOgCds.value = codesDgr2Levl.value.filter((v) => selectedValues.includes(v.dgr1LevlOgCd));
+
+  // 지점 코드 초기화
+  filteredDgr3LevlOgCds.value = [];
+}
+
+// 조직코드 지역단 변경 이벤트
+async function onUpdateDgr2Levl(selectedValues) {
+  // 선택한 지점 초기화
+  selectedDgr3LevlOgCds.value = [];
+
+  // 지점 코드 필터링. 선택한 지역단의 하위 지점으로 필터링.
+  filteredDgr3LevlOgCds.value = codesDgr3Levl.value.filter((v) => selectedValues.includes(v.dgr2LevlOgCd));
+}
+
 async function onClickSearch() {
   await fetchData();
 }
@@ -312,38 +368,7 @@ async function onClickExcelDownload() {
   });
 }
 
-async function fetchDefaultData() {
-  const responseGnrlDivOptions = await dataService.get('sms/wells/contract/partners/general-divisions');
-  const responseRgnlDivOptions = await dataService.get('sms/wells/contract/partners/regional-divisions');
-  // const responseBrchDivOptions = await dataService.get('sms/wells/contract/partners/branch-divisions');
-
-  const initGnrlDivOptions = []; // 조직(총괄단)
-  const initRgnlDivOptions = []; // 조직(지역단)
-  const initBrchDivOptions = []; // 조직(지점)
-
-  responseGnrlDivOptions.data.forEach((v) => {
-    if ((!isEmpty(v)) && (!isEmpty(v.dgr1LevlOgCd))) {
-      initGnrlDivOptions.push({ codeId: v.dgr1LevlOgCd, codeName: v.dgr1LevlOgNm });
-    }
-  });
-  responseRgnlDivOptions.data.forEach((v) => {
-    if ((!isEmpty(v)) && (!isEmpty(v.dgr2LevlOgCd))) {
-      initRgnlDivOptions.push({ codeId: v.dgr2LevlOgCd, codeName: v.dgr2LevlOgNm });
-    }
-  });
-  /* responseBrchDivOptions.data.forEach((v) => {
-    if ((!isEmpty(v)) && (!isEmpty(v.dgr3LevlOgCd))) {
-      initBrchDivOptions.push({ codeId: v.dgr3LevlOgCd, codeName: v.dgr3LevlOgNm });
-    }
-  }); */
-
-  gnrlDivOptions.value = uniqBy(initGnrlDivOptions, 'codeId');
-  rgnlDivOptions.value = uniqBy(initRgnlDivOptions, 'codeId');
-  brchDivOptions.value = uniqBy(initBrchDivOptions, 'codeId');
-}
-
 onMounted(async () => {
-  await fetchDefaultData();
 });
 
 // -------------------------------------------------------------------------------------------------
@@ -659,8 +684,8 @@ function initGridRglrDlvrContractList(data, view) {
 
     if (['cntrDtlNo'].includes(column)) { // 계약상세(윈도우팝업)
       await modal({ component: 'WwctaOrderDetailP', componentProps: { cntrNo: paramCntrNo, cntrSn: paramCntrSn } });
-    } else if (['ordrInfoView'].includes(column)) { // 렌탈 주문정보 상세
-      await modal({ component: 'WwctaOrderRentalDtlP', componentProps: { cntrNo: paramCntrNo, cntrSn: paramCntrSn } });
+    } else if (['ordrInfoView'].includes(column)) { // 정기배송 주문정보 상세
+      await modal({ component: 'WwctaOrderRegularShippingDtlP', componentProps: { cntrNo: paramCntrNo, cntrSn: paramCntrSn } });
     } else if (['connPdView'].includes(column)) { // 연계상품 리스트 조회
       await alert('연계상품 리스트 팝업 조회');
     }
