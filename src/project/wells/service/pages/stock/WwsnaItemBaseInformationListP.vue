@@ -42,6 +42,7 @@
         <kw-search-item :label="$t('MSG_TXT_ITM_NM')">
           <kw-input
             v-model="searchParams.itmPdNm"
+            class="w200"
           />
           <kw-field
             :model-value="[]"
@@ -98,7 +99,7 @@
     <template #action>
       <kw-btn
         negative
-        :label="$t('MSG_BTN_CNCL')"
+        :label="$t('MSG_BTN_CLOSE')"
         @click="onClickClose"
       />
       <kw-btn
