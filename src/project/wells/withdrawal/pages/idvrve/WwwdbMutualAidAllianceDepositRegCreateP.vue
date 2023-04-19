@@ -146,17 +146,18 @@ async function onClickSelectIntegrationDeposit() {
   });
 
   if (result) {
+    console.log(payload);
     searchParams.value.itgDpNo = payload.itgDpNo; // 입금잔액
 
-    if (payload.dpBlam || payload.dpDtm) {
-      console.log(payload.dpBlam);
-      console.log(payload.dpDtm);
+    // if (payload.dpBlam || payload.dpDtm) {
+    //   console.log(payload.dpBlam);
+    //   console.log(payload.dpDtm);
 
-      // data.setValue(0, 'dpBlam', payload.dpBlam);
-      // data.setValue(0, 'dpDtm', payload.dpDtm);
+    //   // data.setValue(0, 'dpBlam', payload.dpBlam);
+    //   // data.setValue(0, 'dpDtm', payload.dpDtm);
 
-      searchParams.value.itgDpNo = payload.dpBlam;
-    }
+    //   searchParams.value.itgDpNo = payload.dpBlam;
+    // }
   }
 }
 
