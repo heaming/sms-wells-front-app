@@ -31,6 +31,7 @@
             :on-click-icon="onClickSearchCntrCst"
             :on-keydown-no-click="true"
             maxlength="50"
+            @keydown.enter="onClickSearch"
           />
         </kw-search-item>
         <kw-search-item
@@ -66,6 +67,7 @@
             :on-keydown-no-click="true"
             maxlength="10"
             rules="max:10|numeric"
+            @keydown.enter="onClickSearch"
           />
         </kw-search-item>
         <kw-search-item
@@ -120,7 +122,16 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, defineGrid, getComponentType, gridUtil, useDataService, useGlobal, useMeta, useModal } from 'kw-lib';
+import {
+  codeUtil,
+  defineGrid,
+  getComponentType,
+  gridUtil,
+  useDataService,
+  useGlobal,
+  useMeta,
+  useModal,
+} from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
 
