@@ -16,10 +16,22 @@
 <template>
   <kw-page>
     <kw-search
+      ref="kwSearchRef"
       :cols="4"
       @search="onClickSearch"
     >
       <kw-search-row>
+        <kw-search-item
+          :label="$t('MSG_TXT_BASE_YM')"
+          required
+        >
+          <kw-date-picker
+            v-model="searchParams.baseYm"
+            type="month"
+            rules="required"
+            :label="$t('MSG_TXT_BASE_YM')"
+          />
+        </kw-search-item>
         <kw-search-item
           :label="$t('MSG_TXT_DIV2')"
           required
@@ -44,34 +56,26 @@
           />
         </kw-search-item>
         <kw-search-item
-          :label="$t('MSG_TXT_CLCTAM_PSIC_NM')"
+          :label="$t('MSG_TXT_CLCTAM_PSIC')"
         >
           <!-- TODO: 집금담당자 번호 입력시 정상 번호인지 확인 하는 작업 필요(집금담당자 조회 화면 개발 후 추가 작업 필요) -->
           <kw-input
-            v-model="showInfo.clctamPrtnrKnm"
+            v-model="searchParams.clctamPrtnrNm"
             icon="search"
             clearable
-          />
-        </kw-search-item>
-        <kw-search-item
-          :label="$t('MSG_TXT_NW_DV')"
-        >
-          <!-- TODO: 코드 정의 안되어 있음 정의 되면 코드보게 수정필요 -->
-          <kw-select
-            v-model="searchParams.nwYn"
-            :options="codes.BND_NW_DV_CD"
+            :label="$t('MSG_TXT_CLCTAM_PSIC')"
+            @click-icon="onClickCollector"
           />
         </kw-search-item>
       </kw-search-row>
       <kw-search-row>
         <kw-search-item
-          :label="$t('MSG_TXT_CST_NM')"
+          :label="$t('MSG_TXT_NW_DV')"
         >
-          <kw-input
-            v-model="showInfo.cstKnm"
-            icon="search"
-            :on-click-icon="openSearchUserPopup"
-            clearable
+          <!-- TODO: 코드 정의 안되어 있음 정의 되면 코드보게 수정필요 -->
+          <kw-select
+            v-model="searchParams.bndNwDvCd"
+            :options="codes.BND_NW_DV_CD"
           />
         </kw-search-item>
         <kw-search-item
@@ -81,13 +85,30 @@
             v-model="searchParams.cstNo"
             icon="search"
             :on-click-icon="openSearchUserPopup"
+            :on-keydown-no-click="true"
+            @keydown.enter="isCustomer('type1')"
+          />
+        </kw-search-item>
+        <kw-search-item
+          :label="$t('MSG_TXT_CST_NM')"
+        >
+          <kw-input
+            v-model="searchParams.cstNm"
+            icon="search"
             clearable
+            :on-click-icon="openSearchUserPopup"
+            :on-keydown-no-click="true"
+            @keydown.enter="isCustomer('type2')"
           />
         </kw-search-item>
         <kw-search-item
           :label="$t('MSG_TXT_MPNO')"
         >
-          <kw-input v-model="showInfo.phoneNumber" />
+          <kw-input
+            v-model="searchParams.phoneNumber"
+            :on-keydown-no-click="true"
+            @keydown.enter="isCustomer('type3')"
+          />
         </kw-search-item>
       </kw-search-row>
     </kw-search>
@@ -101,17 +122,11 @@
           <span class="ml8">{{ $t('MSG_TXT_UNIT_WON') }}</span>
         </template>
         <kw-btn
-          icon="upload_on"
-          :label="$t('MSG_TXT_EXCEL_UPLOAD')"
-          secondary
-          dense
-          @click="onClickExcelUpload"
-        />
-        <kw-btn
           icon="download_on"
           :label="$t('MSG_BTN_EXCEL_DOWN')"
           secondary
           dense
+          :disable="totalCount === 0"
           @click="onClickExcelDownload"
         />
         <kw-separator
@@ -153,7 +168,11 @@
       <kw-action-top>
         <template #left>
           <kw-paging-info
+            v-model:page-index="pageInfo.pageIndex"
+            v-model:page-size="pageInfo.pageSize"
             :total-count="pageInfo.totalCount"
+            :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
+            @change="fetchDetailsData"
           />
           <span class="ml8">{{ $t('MSG_TXT_UNIT_WON') }}</span>
         </template>
@@ -166,13 +185,6 @@
           vertical
           inset
           spaced
-        />
-        <kw-btn
-          icon="upload_on"
-          :label="$t('MSG_TXT_EXCEL_UPLOAD')"
-          secondary
-          dense
-          @click="onClickExcelUpload"
         />
         <kw-btn
           icon="download_on"
@@ -203,28 +215,32 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useGlobal, codeUtil, getComponentType, useMeta, useDataService, defineGrid, gridUtil, router } from 'kw-lib';
+import { useGlobal, codeUtil, getComponentType, router, useMeta, useDataService, defineGrid, gridUtil } from 'kw-lib';
+import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
 import { getBzHdqDvcd } from '~sms-common/bond/utils/bnUtil';
-import { cloneDeep } from 'lodash-es';
 
 const { t } = useI18n();
 const { getConfig } = useMeta();
 const { modal, notify } = useGlobal();
 const { getters } = useStore();
 const dataService = useDataService();
-
+const { currentRoute } = useRouter();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 const codes = await codeUtil.getMultiCodes(
   'CLCTAM_DV_CD',
   'DIV_DV_CD',
+  'LWM_TP_CD',
+  'LWM_DTL_TP_CD',
   'BZ_HDQ_DV_CD',
   'BND_NW_DV_CD',
+  'COD_PAGE_SIZE_OPTIONS',
 );
-const filteredCodes = ref({ CLCTAM_DV_CD: codes.CLCTAM_DV_CD.filter((obj) => (obj.codeId !== '09' && obj.codeId !== '10')) });
+const filteredCodes = ref({ CLCTAM_DV_CD: codes.CLCTAM_DV_CD.filter((obj) => (obj.codeId !== '09' && obj.codeId !== '10' && obj.codeId !== '11' && obj.codeId !== '90')) });
 
+const kwSearchRef = ref(getComponentType('KwSearch'));
 const grdMainRef = ref(getComponentType('KwGrid'));
 const grdSubRef = ref(getComponentType('KwGrid'));
 const totalCount = ref(0);
@@ -235,30 +251,37 @@ const pageInfo = ref({
   needTotalCount: true,
 });
 
-// TODO: 기준년월을 여기에서 보낼지... 서비스에서 만들지 관련 화면들 전부 정리 되면 확인 필요 현재는 화면에서 보내는 걸로 작업
 const defaultDate = dayjs().format('YYYYMM');
 const { tenantId } = getters['meta/getUserInfo'];
 
 let cachedParams;
-let cachedDetailsParams;
 const searchParams = ref({
   baseYm: defaultDate,
   bzHdqDvCd: getBzHdqDvcd(tenantId),
   clctamDvCd: '',
-  nwYn: '',
+  bndNwDvCd: '',
   cstNo: '',
   clctamPrtnrNo: '',
-});
-const showInfo = ref({
+  clctamPrtnrNm: '',
+  cstNm: '',
+  tfBizDvCd: '02',
   phoneNumber: '',
-  clctamPrtnrKnm: '',
-  cstKnm: '',
 });
+
 const searchDetailsParams = ref({
-  baseYm: defaultDate,
-  bzHdqDvCd: '',
+  baseYm: '',
+  bzHdqDvCd: getBzHdqDvcd(tenantId),
   clctamDvCd: '',
+  bndNwDvCd: '',
+  cstNo: '',
   clctamPrtnrNo: '',
+  tfBizDvCd: '',
+});
+const canFeasibleSearch = ref({
+  popSearchComplate: false,
+  type1: false,
+  type2: false,
+  type3: false,
 });
 
 const pageMove = ref({
@@ -266,6 +289,9 @@ const pageMove = ref({
 });
 
 async function fetchData() {
+  const subView = grdSubRef.value.getView();
+  subView.getDataSource().setRows();
+
   const res = await dataService.get('/sms/wells/bond/collector-assigns', { params: cachedParams });
   const partTransfers = res.data;
 
@@ -274,16 +300,46 @@ async function fetchData() {
   view.getDataSource().setRows(partTransfers);
   view.resetCurrent();
 }
+async function chkInputSearchComplete() {
+  if ((searchParams.value.cstNo && !canFeasibleSearch.value.type1)
+  && !(searchParams.value.phoneNumber && canFeasibleSearch.value.type3)) {
+    return '고객번호 유효성 체크를 실행하지 않았습니다.'; // TODO: 설계에 빠져 있고 구두로 협의한 내용 설계 문서 갱신시 메시지 확인 후 수정
+  }
+  if ((searchParams.value.cstNm && !canFeasibleSearch.value.type2)
+  && !(searchParams.value.cstNo && canFeasibleSearch.value.type1)) {
+    return '고객명 유효성 체크를 실행하지 않았습니다.'; // TODO: 설계에 빠져 있고 구두로 협의한 내용 설계 문서 갱신시 메시지 확인 후 수정
+  }
+  if ((searchParams.value.phoneNumber && !canFeasibleSearch.value.type3)
+  && !(searchParams.value.cstNo && canFeasibleSearch.value.type1)) {
+    return '휴대폰번호 유효성 체크를 실행하지 않았습니다.'; // TODO: 설계에 빠져 있고 구두로 협의한 내용 설계 문서 갱신시 메시지 확인 후 수정
+  }
+}
 async function onClickSearch() {
+  const notifyMessage = await chkInputSearchComplete();
+  if (notifyMessage) {
+    notify(notifyMessage);
+    return;
+  }
   cachedParams = cloneDeep(searchParams.value);
   fetchData();
 }
 
+async function fetchSummaryData() {
+  const res = await dataService.get('/sms/wells/bond/collector-assigns/details/summary', { params: searchDetailsParams.value });
+  const view = grdSubRef.value.getView();
+
+  view.columnByName('clctamPrtnrKnm').headerSummary.text = t('MSG_TXT_TOT_SUMMARY');
+  view.columnByName('objAmt').headerSummary.text = res.data.objAmt;
+  view.columnByName('dlqAmt').headerSummary.text = res.data.dlqAmt;
+  view.columnByName('thmChramAmt').headerSummary.text = res.data.thmChramAmt;
+  view.columnByName('dlqAddDpAmt').headerSummary.text = res.data.dlqAddDpAmt;
+  view.columnByName('rsgBorAmt').headerSummary.text = res.data.rsgBorAmt;
+  view.columnByName('clctamPrtnrKnm').headerSummary.styleName = 'text-center';
+}
+
 async function fetchDetailsData() {
-  searchDetailsParams.value.bzHdqDvCd = searchParams.value.bzHdqDvCd;
-  searchDetailsParams.value.clctamDvCd = searchParams.value.clctamDvCd;
-  cachedDetailsParams = cloneDeep(searchDetailsParams.value);
-  const res = await dataService.get('/sms/wells/bond/collector-assigns/details/paging', { params: cachedDetailsParams });
+  fetchSummaryData();
+  const res = await dataService.get('/sms/wells/bond/collector-assigns/details/paging', { params: { ...searchDetailsParams.value, ...pageInfo.value } });
   const { list: collectorAssigns, pageInfo: pagingResult } = res.data;
 
   pageInfo.value = pagingResult;
@@ -291,6 +347,7 @@ async function fetchDetailsData() {
   const view = grdSubRef.value.getView();
   view.getDataSource().setRows(collectorAssigns);
   view.resetCurrent();
+  view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
 // TODO: 명세서에 맞춰서 서버 다운로드로 변경 해야 할 수 있음
@@ -298,32 +355,16 @@ async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
 
   await gridUtil.exportView(view, {
-    fileName: 'collectorAssignsList', // TODO: 파일명 정의되면 변경
+    fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
   });
 }
 
-async function onClickExcelUpload() {
-  // TODO: 엑셀 업로드 문서 양식이 없어 구현 하지 않음 화면은 나와야 한다고 해서 샘플 소스 추가
-  const apiUrl = '/sflex/common/common/excel-read/upload-test';
-  const templateId = 'FOM_MSG_RESO_XLS_UP';
-  const {
-    result,
-  } = await modal({
-    component: 'ZwcmzExcelUploadP',
-    componentProps: { apiUrl, templateId },
-  });
-  if (result.status === 'S') {
-    notify(t('MSG_ALT_SAVE_DATA'));
-  }
-}
-
 async function onClickDetailsExcelDownload() {
-  const res = await dataService.get('/sms/wells/bond/collector-assigns/details/excel-download', { params: cachedDetailsParams });
-
+  const res = await dataService.get('/sms/wells/bond/collector-assigns/details/excel-download', { params: searchDetailsParams.value });
   const view = grdSubRef.value.getView();
   await gridUtil.exportView(view, {
-    fileName: 'collectorAssignDetailsList',
+    fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
     exportData: res.data,
   });
@@ -354,13 +395,66 @@ async function onClickPageMove() {
 }
 
 async function onClickConfirm() {
-  // TODO: 미완료 구현 필요
+  // TODO: 명세서 다시 변경될 예정 맞춰서 수정 필요 search영역의 정보를 가지고 가고 필수 부분이 동일해 우선 kwSearchRef 기준으로 작업
+  if (!await kwSearchRef.value.validate()) { return; }
   cachedParams = cloneDeep(searchParams.value);
-  await dataService.put('/sms/wells/bond/collector-assigns/confirm', cachedParams);
-  notify(t('MSG_ALT_MODIFIED'));
+  const response = await dataService.get('/sms/common/bond/collector-changes/has-collector-assing', { params: cachedParams });
+  if (response.data) {
+    await dataService.put('/sms/wells/bond/collector-assigns/confirm', cachedParams);
+    notify(t('MSG_ALT_MODIFIED'));
+  } else {
+    notify('집금자배정을 먼저 수행해야 합니다'); // TODO: toast관련 내용 한번더 확인, 확정 후 수정
+  }
 }
 
-async function openSearchUserPopup() {
+// 집금담당자 조회 팝업
+const onClickCollector = async () => {
+  const { result, payload } = await modal({
+    component: 'ZwbnyCollectorListP',
+    componentProps: {
+      clctamPrtnrNm: '',
+    },
+  });
+  if (result) {
+    const { prtnrKnm, prtnrNo } = payload;
+    searchParams.value.clctamPrtnrNm = prtnrKnm;
+    searchParams.value.clctamPrtnrNo = prtnrNo;
+  }
+};
+
+// TODO: util 정리 되기 전까지 안에 정의 추후 util보게 수정
+async function isCustomerCommon() {
+  cachedParams = cloneDeep(searchParams.value);
+  const response = await dataService.get('/sms/common/bond/normal-bonds/is-customer', { params: cachedParams });
+  if (response.data) {
+    if (searchParams.value.workType === 'type1' || searchParams.value.workType === 'type3') {
+      const res = await dataService.get('/sms/common/bond/delinquent-customers/detail', { params: cachedParams });
+      const delinquentCustomer = res.data;
+      // TODO: if 조건 정리 할 수 있는지 확인 필요
+      if (searchParams.value.workType === 'type3') {
+        searchParams.value.cstNo = delinquentCustomer.cstNo;
+      }
+      if (searchParams.value.workType === 'type1') {
+        searchParams.value.phoneNumber = delinquentCustomer.phoneNumber;
+      }
+      searchParams.value.cstNm = delinquentCustomer.cstNm;
+    }
+    canFeasibleSearch.value[searchParams.value.workType] = true;
+  } else {
+    return t('MSG_ALT_INQR_OJ_CST_YN');
+  }
+}
+
+async function isCustomer(workType = 'type1') {
+  searchParams.value.workType = workType;
+  const notifyMessage = await isCustomerCommon();
+  if (notifyMessage) {
+    notify(notifyMessage);
+  }
+}
+
+// TODO: util 정리 되기 전까지 안에 정의 추후 util보게 수정
+async function openSearchUserCommonPopup() {
   const { result, payload } = await modal({
     component: 'ZwbnyDelinquentCustomerP',
     componentProps: {
@@ -370,15 +464,48 @@ async function openSearchUserPopup() {
   if (result) {
     const { cstNo, cstNm, phoneNumber } = payload;
     searchParams.value.cstNo = cstNo;
-    searchParams.value.cstKnm = cstNm;
-    showInfo.value.phoneNumber = phoneNumber;
+    searchParams.value.cstNm = cstNm;
+    if (Object.keys(searchParams.value).includes('phoneNumber')) {
+      searchParams.value.phoneNumber = phoneNumber;
+    }
+    // 검색 팝업을 통해서 설정된 경우 추가 검증 필요가 없음
+    Object.keys(canFeasibleSearch.value).forEach((key) => {
+      canFeasibleSearch.value[key] = true;
+    });
   }
 }
+
+async function openSearchUserPopup() {
+  await openSearchUserCommonPopup();
+}
+
+watch(() => searchParams.value.cstNo, async () => {
+  if (canFeasibleSearch.value.popSearchComplate) {
+    canFeasibleSearch.value.popSearchComplate = false;
+  } else {
+    canFeasibleSearch.value.type1 = false;
+  }
+});
+watch(() => searchParams.value.cstNm, async () => {
+  if (canFeasibleSearch.value.popSearchComplate) {
+    canFeasibleSearch.value.popSearchComplate = false;
+  } else {
+    canFeasibleSearch.value.type2 = false;
+  }
+});
+watch(() => searchParams.value.phoneNumber, async () => {
+  if (canFeasibleSearch.value.popSearchComplate) {
+    canFeasibleSearch.value.popSearchComplate = false;
+  } else {
+    canFeasibleSearch.value.type3 = false;
+  }
+});
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
 const initGrdMain = defineGrid((data, view) => {
   const fields = [
+    { fieldName: 'baseYm' },
     { fieldName: 'clctamPrtnrNo' },
     { fieldName: 'clctamPrtnrKnm' },
     { fieldName: 'asnRat' },
@@ -496,13 +623,11 @@ const initGrdMain = defineGrid((data, view) => {
 
   data.setFields(fields);
   view.setColumns(columns);
-  view.checkBar.visible = true;
-  view.rowIndicator.visible = false;
 
   view.setColumnLayout([
     'clctamPrtnrKnm', 'asnRat',
     {
-      header: t('MSG_TXT_ALL'),
+      header: t('MSG_TIT_TOT'),
       direction: 'horizontal',
       items: ['woCstn', 'woCntrCt', 'rwoTrgAmt', 'woDlqAmt', 'woThmChramAmt', 'woDlqAddAmt', 'woRsgBorAmt'],
     },
@@ -537,8 +662,13 @@ const initGrdMain = defineGrid((data, view) => {
       items: ['rglrSppCstn', 'rglrSppCntrCt', 'rglrSppTrgAmt', 'rglrSppDlqAmt', 'rglrSppThmChramAmt', 'rglrSppDlqAddAmt', 'rglrSppRsgBorAmt'],
     },
   ]);
+  view.checkBar.visible = true;
+  // TODO: 선택해서 하는게 없음 확정은 조회조건 기준, 배정비중 수정도 팝업 호출 임 이 부분 확인 필요
+  view.rowIndicator.visible = true;
+
   view.onCellDblClicked = async (g, { dataRow }) => {
-    // TODO: 명세서에 맞게 항목 재정의 필요 화면 구현을 위해 임시 소스
+    // TODO: 명세서 변경 예정 현재는 임시 소스
+    searchDetailsParams.value = cloneDeep(searchParams.value);
     const { clctamPrtnrNo } = gridUtil.getRowValue(g, dataRow);
     searchDetailsParams.value.clctamPrtnrNo = clctamPrtnrNo;
     fetchDetailsData();
@@ -546,24 +676,27 @@ const initGrdMain = defineGrid((data, view) => {
 });
 const initGrdSub = defineGrid((data, view) => {
   const fields = [
+    { fieldName: 'bndCntrId' },
     { fieldName: 'baseYm' },
     { fieldName: 'bzHdqDvCd' },
     { fieldName: 'cntrSn' },
     { fieldName: 'clctamPrtnrNo' },
     { fieldName: 'clctamPrtnrKnm' },
     { fieldName: 'lstmmClctamDvCd' },
-    { fieldName: 'lstmmClctamPrtnrNo' },
-    { fieldName: 'lstmmClctamPrtnrKnm' },
+    { fieldName: 'bfClctamPrtnrNo' },
+    { fieldName: 'bfClctamPrtnrKnm' },
     { fieldName: 'cntrNo' },
     { fieldName: 'cstKnm' },
     { fieldName: 'cstNo' },
-    { fieldName: 'pdNm' },
+    { fieldName: 'pdDvKnm' },
+    { fieldName: 'pdDvCd' },
     { fieldName: 'dlqMcn' },
-    { fieldName: 'trgAmt' },
-    { fieldName: 'dlqAmt' },
-    { fieldName: 'thmChramAmt' },
-    { fieldName: 'dlqAddAmt' },
-    { fieldName: 'rsgBorAmt' },
+    { fieldName: 'objAmt', dataType: 'number' },
+    { fieldName: 'dlqAmt', dataType: 'number' },
+    { fieldName: 'thmChramAmt', dataType: 'number' },
+    { fieldName: 'dlqAddDpAmt', dataType: 'number' },
+    { fieldName: 'rsgBorAmt', dataType: 'number' },
+    { fieldName: 'lwmTpCd' },
     { fieldName: 'lwmDtlTpCd' },
     { fieldName: 'lwmDt' },
     { fieldName: 'dfltDt' },
@@ -572,30 +705,48 @@ const initGrdSub = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'clctamPrtnrKnm', header: t('MSG_TXT_PIC_NM'), width: '98', styleName: 'text-left' },
     { fieldName: 'lstmmClctamDvCd', header: t('MSG_TXT_LSTMM_ICHR_CLCTAM_DV'), width: '130', styleName: 'text-left', editable: false },
-    { fieldName: 'lstmmClctamPrtnrKnm', header: t('MSG_TXT_LSTMM_PSIC'), width: '90', styleName: 'text-left', editable: false },
-    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_NO'), width: '160', styleName: 'text-center', editable: false },
+    { fieldName: 'bfClctamPrtnrKnm', header: t('MSG_TXT_LSTMM_PSIC'), width: '90', styleName: 'text-left', editable: false },
+    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '160', styleName: 'text-center', editable: false },
     { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '90', styleName: 'text-left', editable: false },
     { fieldName: 'cstNo', header: t('MSG_TXT_CST_NO'), width: '130', styleName: 'text-center', editable: false },
-    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_GUBUN'), width: '90', styleName: 'text-left', editable: false },
+    { fieldName: 'pdDvKnm', header: t('MSG_TXT_PRDT_GUBUN'), width: '90', styleName: 'text-left', editable: false },
     { fieldName: 'dlqMcn', header: t('MSG_TXT_DLQ_MCNT'), width: '86', styleName: 'text-center', editable: false },
-    { fieldName: 'trgAmt', header: t('MSG_TXT_OJ_AMT'), width: '110', styleName: 'text-right', editable: false },
+    { fieldName: 'objAmt', header: t('MSG_TXT_OJ_AMT'), width: '110', styleName: 'text-right', editable: false },
     { fieldName: 'dlqAmt', header: t('MSG_TXT_DLQ_AMT'), width: '110', styleName: 'text-right', editable: false },
     { fieldName: 'thmChramAmt', header: t('MSG_TXT_THM_CHRAM'), width: '110', styleName: 'text-right', editable: false },
-    { fieldName: 'dlqAddAmt', header: t('MSG_TXT_DLQ_ADD_AMT'), width: '116', styleName: 'text-right', editable: false },
+    { fieldName: 'dlqAddDpAmt', header: t('MSG_TXT_DLQ_ADD_AMT'), width: '116', styleName: 'text-right', editable: false },
     { fieldName: 'rsgBorAmt', header: t('MSG_TXT_BOR_AMT'), width: '110', styleName: 'text-right', editable: false },
-    { fieldName: 'lwmDtlTpCd', header: t('MSG_TXT_LWM_PS'), width: '110', styleName: 'text-center', editable: false },
-    { fieldName: 'lwmDt', header: t('MSG_TXT_LWM_PS_DT'), width: '110', styleName: 'text-center', editable: false },
+    { fieldName: 'lwmTpCd', header: t('MSG_TXT_LWM_TP'), options: codes.LWM_TP_CD, width: '110', styleName: 'text-left', editable: false },
+    { fieldName: 'lwmDtlTpCd', header: t('MSG_TXT_LWM_DTL'), options: codes.LWM_DTL_TP_CD, width: '110', styleName: 'text-left', editable: false },
+    { fieldName: 'lwmDt', header: t('MSG_TXT_LWM_DT'), width: '110', styleName: 'text-center', editable: false },
     { fieldName: 'dfltDt', header: t('MSG_TXT_DE_RGST_DT'), width: '110', styleName: 'text-center', editable: false },
     { fieldName: 'addr', header: t('MSG_TXT_ADDR'), width: '200', styleName: 'text-left', editable: false },
   ];
 
   data.setFields(fields);
   view.setColumns(columns);
+  view.setHeaderSummaries({
+    visible: true,
+    items: [{ height: 40 }],
+  });
+  view.layoutByColumn('clctamPrtnrKnm').summaryUserSpans = { colspan: 8 };
+  view.layoutByColumn('lwmDtlTpCd').summaryUserSpans = { colspan: 4 };
+
   view.checkBar.visible = true;
   view.rowIndicator.visible = true;
+  view.editOptions.editable = true;
 
-  view.onCellClicked = () => {
-    view.editOptions.editable = true;
+  view.onCellButtonClicked = async (grid, { dataRow, column }) => {
+    if (column === 'clctamPrtnrKnm') {
+      const { result, payload } = await modal({
+        component: 'ZwogzPartnerListP',
+      });
+      if (result) {
+        const { prtnrNo, prtnrKnm } = payload;
+        data.setValue(dataRow, 'clctamPrtnrNo', prtnrNo);
+        data.setValue(dataRow, 'clctamPrtnrKnm', prtnrKnm);
+      }
+    }
   };
 });
 </script>
