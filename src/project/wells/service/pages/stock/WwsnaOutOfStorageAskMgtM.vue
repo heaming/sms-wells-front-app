@@ -135,7 +135,8 @@ const totalCount = ref(0);
 
 const wharehouseParams = ref({
   apyYm: dayjs().format('YYYYMM'),
-  userId: '1642720',
+  // WM : 1642720
+  userId: '36680',
 });
 
 const pageInfo = ref({

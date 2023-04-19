@@ -238,8 +238,16 @@ filterCodes.value.filterOstrTpCd = codes.OSTR_AK_TP_CD.filter((v) => ['310', '32
 
 async function onClickItemPop() {
   // TODO: 품목코드 던져줘야 됨. 팝업 props 맞게 던져주면됨.
-  // chk값으로 팝업값 결정됨. 뭔값인지 몰??
-  debugger;
+  if (isEmpty(searchParams.value.ostrAkTpCd)) {
+    // 출고요청유형 항목이 비어있습니다.
+    notify(t('MSG_ALT_OSTR_AK_TP_ATC_IS_NULL'));
+    return;
+  }
+  // 출고대상창고 항목이 비어있습니다.
+  if (isEmpty(searchParams.value.ostrOjWareNo)) {
+    notify(t('MSG_ALT_OSTR_OJ_WARE_ATC_IS_NULL'));
+    return;
+  }
   const { result, payload } = await modal({
     component: 'WwsnaItemBaseInformationListP',
     componentProps: { chk: '2',
