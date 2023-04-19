@@ -14,7 +14,7 @@
 --->
 <template>
   <kw-popup size="3xl">
-    <kw-form>
+    <kw-form :cols="2">
       <kw-form-row>
         <!-- 서비스명 -->
         <kw-form-item
