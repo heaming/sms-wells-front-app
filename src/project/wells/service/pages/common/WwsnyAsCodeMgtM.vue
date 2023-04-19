@@ -25,21 +25,24 @@
             v-model="searchParams.pdGrpCd"
             :options="codes.PD_GRP_CD"
             first-option="all"
+            :label="$t('MSG_TXT_PD_GRP')"
             @change="changePdGrpCd"
           />
+          <!--            rules="required"-->
           <kw-select
             v-model="searchParams.pdCd"
             :options="pds"
             first-option="all"
             option-label="cdNm"
             option-value="cd"
+            :label="$t('MSG_TXT_PRDT')"
           />
         </kw-search-item>
         <!--서비스유형-->
         <kw-search-item :label="$t('MSG_TXT_SV_TP')">
           <kw-select
             v-model="searchParams.svTpCd"
-            :options="codes.SV_TP_CD"
+            :options="codes.SV_BIZ_HCLSF_CD"
             first-option="all"
           />
         </kw-search-item>
@@ -159,14 +162,17 @@ const pageInfo = ref({
 });
 const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
-  'PD_GRP_CD', // SB01
-  'SV_TP_CD', // SB21
-  'AS_LCT_CD', // SB31
-  'AS_PHN_CD', // SB32
-  'AS_CAUS_CD', // SB33
-  'SITE_AW_ATC_CD', // SB23
-  'SV_BIZ_DCLSF_CD', // BA04
+  'PD_GRP_CD',
+  'SV_BIZ_HCLSF_CD',
+  'AS_LCT_CD',
+  'AS_PHN_CD',
+  'AS_CAUS_CD',
+  'SITE_AW_ATC_CD',
+  'SV_BIZ_DCLSF_CD',
 );
+
+codes.SV_BIZ_HCLSF_CD.splice(4, 3);
+console.log(codes.SV_BIZ_HCLSF_CD);
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -198,7 +204,7 @@ async function onClickExcelDownload() {
   // const response = await dataService.get('/sms/wells/service/as-codes/excel-download'
   // , { params: cachedParams, ...pageInfo.value });
   const exportLayout = [
-    'svTpCd',
+    'svBizHclsfCd',
     { direction: 'horizontal', items: ['asLctCd', 'asLctNm'], header: { text: t('MSG_TXT_AS_LCT') } },
     { direction: 'horizontal', items: ['asPhnCd', 'asPhnNm'], header: { text: t('MSG_TXT_AS_PHN') } },
     { direction: 'horizontal', items: ['asCausCd', 'asCausNm'], header: { text: t('MSG_TXT_AS_CAUS') } },
@@ -227,7 +233,7 @@ const onClickExcelUpload = async () => {
   if (result.status === 'S') {
     notify(t('MSG_ALT_SAVE_DATA'));
   }
-  await onClickSearch();
+  // await onClickSearch();
 };
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
@@ -253,7 +259,7 @@ const initGrdMain = defineGrid((data, view) => {
       fieldName: 'svTpCd',
       header: t('MSG_TXT_SV_TP'),
       width: '30',
-      options: codes.SV_TP_CD,
+      options: codes.SV_BIZ_HCLSF_CD,
       styleName: 'text-center',
     },
     { fieldName: 'asLctCd', header: t('MSG_TXT_CODE_ID'), width: '50', styleName: 'text-center' },
@@ -296,12 +302,12 @@ const initGrdMain = defineGrid((data, view) => {
       width: '30',
       styleName: 'text-center',
     },
-    {
-      fieldName: 'svAnaHclsfNm',
-      header: t('MSG_TXT_CODE_NAME'),
-      width: '100',
-      options: codes.SV_BIZ_DCLSF_CD,
-    },
+    // {
+    //   fieldName: 'svAnaHclsfNm',
+    //   header: t('MSG_TXT_CODE_NAME'),
+    //   width: '100',
+    //   options: codes.SV_BIZ_DCLSF_CD,
+    // },
   ];
 
   const columnLayout = [
@@ -310,14 +316,15 @@ const initGrdMain = defineGrid((data, view) => {
     { direction: 'horizontal', items: ['asPhnCd', 'asPhnNm'], header: { text: t('MSG_TXT_AS_PHN') } },
     { direction: 'horizontal', items: ['asCausCd', 'asCausNm'], header: { text: t('MSG_TXT_AS_CAUS') } },
     { direction: 'horizontal', items: ['siteAwAtcCd', 'siteAwAtcNm', 'fuleyAwAmt'], header: { text: t('MSG_TXT_SITE_AW') } },
-    { direction: 'horizontal', items: ['svAnaHclsfCd', 'svAnaHclsfNm'], header: { text: t('MSG_TXT_SV_ANA_HCLSF_CD') } },
+    // { direction: 'horizontal', items: ['svAnaHclsfCd', 'svAnaHclsfNm']
+    // , header: { text: t('MSG_TXT_SV_ANA_HCLSF_CD') } },
   ];
 
   view.setColumnLayout(columnLayout);
 
   data.setFields(fields);
   view.setColumns(columns);
-  view.checkBar.visible = true;
+  // view.checkBar.visible = true;
 
   // view.onCellItemClicked = async (g, { column, itemIndex }) => {
   //   console.log(g, column, itemIndex);
