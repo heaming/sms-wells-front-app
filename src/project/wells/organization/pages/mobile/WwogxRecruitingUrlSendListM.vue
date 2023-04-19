@@ -20,28 +20,26 @@
     >
       <kw-search-item>
         <kw-date-range-picker
-          v-model:from="searchParams.prcsStrtDt"
-          v-model:to="searchParams.prcsEndDt"
-          rules="date_range_months:1"
+          v-model:from="searchParams.writeStrtDt"
+          v-model:to="searchParams.writeEndDt"
           class="mb20"
           grow
-          :label="$t('MSG_TXT_WRTE_DT')"
+          :label="$t('MSG_TXT_WRTE_DT', undefined, '작성일자')"
         />
       </kw-search-item>
       <kw-search-item>
         <kw-date-range-picker
           v-model:from="searchParams.rcrtStrtDt"
           v-model:to="searchParams.rcrtEndDt"
-          rules="date_range_months:1"
           grow
-          :label="$t('MSG_TXT_RCRT_DT')"
+          :label="$t('MSG_TXT_RCRT_DT', undefined, '리쿠르팅일자')"
           class="mb20"
         />
       </kw-search-item>
       <kw-search-item>
         <kw-option-group
           v-model="searchParams.apprGubun"
-          :label="t('MSG_TXT_ITEM_NM')"
+          :label="$t('MSG_TXT_ITEM_NM', undefined, '항목명')"
           option-value="value"
           option-label="name"
           type="radio"
@@ -52,7 +50,8 @@
       </kw-search-item>
       <kw-search-item>
         <kw-input
-          :label="$t('MSG_TXT_EMPL_NM')"
+          v-model="searchParams.prtnrKnm"
+          :label="$t('MSG_TXT_EMPL_NM', undefined, '성명')"
         />
       </kw-search-item>
     </kw-search>
@@ -111,10 +110,10 @@
               <p class="pt0">
                 {{ item.urlSendNm }}
               </p>
-              <kw-form-item :label="t('MSG_TIT_DRAT_DT')">
-                <p>{{ stringUtil.getDateFormat(item.contractDt) }}</p>
+              <kw-form-item :label="$t('MSG_TIT_DRAT_DT', undefined, '작성일')">
+                <p>{{ stringUtil.getDateFormat(item.writeDt) }}</p>
               </kw-form-item>
-              <kw-form-item :label="$t('MSG_TXT_CNTRCT_DT')">
+              <kw-form-item :label="$t('MSG_TXT_CNTRCT_DT', undefined, '계약일')">
                 <p>{{ stringUtil.getDateFormat(item.contractDt) }}</p>
               </kw-form-item>
             </kw-form>
@@ -128,7 +127,7 @@
         filled
         primary
         :label="t('MSG_BTN_RGST_URL_FW')"
-        @click="onclickUrlSendPopup"
+        @click="onClickUrlSend"
       />
     </template>
   </kw-page>
@@ -137,17 +136,21 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService, stringUtil } from 'kw-lib';
+import { useDataService, stringUtil, useGlobal } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 import { SMS_COMMON_URI } from '~sms-common/organization/constants/ogConst';
 
 const { t } = useI18n();
 const dataService = useDataService();
+const { getters } = useStore();
+const { modal, notify } = useGlobal();
+const userInfo = getters['meta/getUserInfo'];
+const { ogTpCd } = userInfo;
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 let cachedParams;
-const resultList = ref();
+const resultList = ref({});
 const searchParams = ref({
   prcsStrtDt: undefined,
   prcsEndDt: undefined,
@@ -155,6 +158,7 @@ const searchParams = ref({
   rcrtEndDt: undefined,
   apprGubun: '50',
   prtnrKnm: undefined,
+  ogTpCd,
 });
 
 const apprvGubun = ref([
@@ -173,17 +177,25 @@ async function fetchData() {
   const res = await dataService.get(`${SMS_COMMON_URI}/recruitings/recruiting`, { params: { ...cachedParams } });
   const list = res.data;
   resultList.value = list;
-  console.log(resultList.value);
   totalCount.value = list.length;
 }
 
 async function onclickSearch() {
   cachedParams = cloneDeep(searchParams.value);
+  resultList.value = {};
   await fetchData();
 }
 
-async function onclickUrlSendPopup() {
-  console.log('a');
+// 리쿠르팅 등록 URL 발송
+async function onClickUrlSend() {
+  const { result: isChanged } = await modal({
+    component: 'WwogxRecruitingUrlSendRegP',
+    componentProps: { undefined },
+  });
+
+  if (isChanged) {
+    notify(t('MSG_ALT_SEND'));
+  }
 }
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
