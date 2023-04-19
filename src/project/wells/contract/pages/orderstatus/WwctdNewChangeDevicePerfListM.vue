@@ -40,8 +40,8 @@
           <kw-option-group
             v-model="searchParams.perfDv"
             type="radio"
-            :options="[{ codeId: 'T', codeName: '총주문' },
-                       { codeId: 'S', codeName: '순주문' }]"
+            :options="[{ codeId: 'T', codeName: t('MSG_TXT_TOT_ORD') },
+                       { codeId: 'S', codeName: t('MSG_TXT_NTOR') }]"
           />
         </kw-search-item>
         <kw-search-item
@@ -63,10 +63,10 @@
         >
           <kw-select
             v-model="searchParams.inqrDv"
-            :options="[{ codeId: '1', codeName: '총괄단' },
-                       { codeId: '2', codeName: '지역단' },
-                       { codeId: '3', codeName: '지점' },
-                       { codeId: '4', codeName: '개인' }]"
+            :options="[{ codeId: '1', codeName: t('MSG_TXT_MANAGEMENT_DEPARTMENT') },
+                       { codeId: '2', codeName: t('MSG_TXT_RGNL_GRP') },
+                       { codeId: '3', codeName: t('MSG_TXT_BRANCH') },
+                       { codeId: '4', codeName: t('MSG_TXT_INDV') }]"
           />
         </kw-search-item>
         <kw-search-item :label="$t('MSG_TXT_MANAGEMENT_DEPARTMENT')">
