@@ -15,7 +15,7 @@
 <template>
   <kw-page>
     <kw-search
-      :cols="3"
+      :cols="2"
       @search="onClickSearch"
     >
       <kw-search-row>
@@ -23,20 +23,18 @@
           <kw-field-wrap>
             <kw-date-picker
               v-model="searchParams.year"
-              type="year"
               rules="required"
+              type="year"
             />
           </kw-field-wrap>
         </kw-search-item>
-        <kw-search-item :label="$t('MSG_TXT_PD_GRD')">
+        <kw-search-item :label="$t('MSG_TXT_PD_GRP')">
           <kw-select
-            v-model="searchParams.pdGdCd"
-            :label="$t('MSG_TXT_PD_GRD')"
-            :options="codes.PD_GD_CD"
+            v-model="searchParams.pdGrpCd"
+            :label="$t('MSG_TXT_PD_GRP')"
+            :options="codes.PD_GRP_CD"
             rules="required"
           />
-        </kw-search-item>
-        <kw-search-item :label="$t('MSG_TXT_PRDT')">
           <kw-select
             v-model="searchParams.pdCd"
             :options="productCode"
@@ -46,6 +44,21 @@
       </kw-search-row>
     </kw-search>
     <div class="result-area">
+      <kw-action-top>
+        <kw-btn
+          :label="$t('MSG_BTN_PRTG')"
+          dense
+          icon="print"
+          secondary
+        />
+        <kw-btn
+          :label="$t('MSG_BTN_EXCEL_DOWN')"
+          dense
+          icon="download_on"
+          secondary
+          @click="onClickExcelDownload"
+        />
+      </kw-action-top>
       <h3>{{ $t('MSG_TXT_SRCH_RSLT') }}</h3>
       <kw-grid
         ref="grdMainRef"
@@ -60,15 +73,24 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { stringUtil, codeUtil, defineGrid, getComponentType, useDataService } from 'kw-lib';
+import {
+  stringUtil,
+  codeUtil,
+  defineGrid,
+  getComponentType,
+  useDataService,
+  gridUtil,
+} from 'kw-lib';
 import dayjs from 'dayjs';
 import { cloneDeep } from 'lodash-es';
 import smsCommon from '~sms-wells/service/composables/useSnCode';
 
 const { t } = useI18n();
+const { currentRoute } = useRouter();
 const dataService = useDataService();
 
-const { getMcbyCstSvOjIz } = smsCommon();
+// const { getMcbyCstSvOjIz } = smsCommon();
+const { getPartMaster } = smsCommon();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -76,19 +98,21 @@ const { getMcbyCstSvOjIz } = smsCommon();
 const grdMainRef = ref(getComponentType('KwGrid'));
 let cachedParams;
 const searchParams = ref({
-  pdGdCd: 'A',
+  pdGrpCd: 'A',
   pdCd: '',
   year: stringUtil.getDateFormat(dayjs().format(), 'yyyyMMdd').substring(0, 4),
 });
 const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
-  'PD_GD_CD',
+  'PD_GRP_CD',
 );
 const productCode = ref();
-productCode.value = await getMcbyCstSvOjIz(searchParams.value.year, searchParams.value.pdGdCd);
+// productCode.value = await getMcbyCstSvOjIz(searchParams.value.year, searchParams.value.pdGrpCd);
+// productCode.value = await getPartMaster(undefined, searchParams.value.pdGrpCd);
 
-watch(() => [searchParams.value.year, searchParams.value.pdGdCd], async () => {
-  productCode.value = await getMcbyCstSvOjIz(searchParams.value.year, searchParams.value.pdGdCd);
+watch(() => [searchParams.value.year, searchParams.value.pdGrpCd], async () => {
+  // productCode.value = await getMcbyCstSvOjIz(searchParams.value.year, searchParams.value.pdGrpCd);
+  productCode.value = await getPartMaster(undefined, searchParams.value.pdGrpCd);
 }, { immediate: true });
 
 async function fetchData() {
@@ -110,6 +134,40 @@ async function fetchData() {
 async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
+}
+
+async function onClickExcelDownload() {
+  const view = grdMainRef.value.getView();
+  const response = await dataService.get('/sms/wells/service/as-assign-state/total-customers/excel-download', { params: cachedParams });
+
+  const exportLayout = [
+    {
+      header: t('MSG_TXT_DIV'), // colspan title
+      direction: 'horizontal', // merge type
+      items: ['yyyy', 'typNm'],
+    },
+    'acol1',
+    'acol2',
+    'acol3',
+    'acol4',
+    'acol5',
+    'acol6',
+    'acol7',
+    'acol8',
+    'acol9',
+    'acol10',
+    'acol11',
+    'acol12',
+    'tcnt',
+    'per',
+  ];
+
+  await gridUtil.exportView(view, {
+    fileName: currentRoute.value.meta.menuName,
+    timePostfix: true,
+    exportData: response.data,
+    exportLayout,
+  });
 }
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid

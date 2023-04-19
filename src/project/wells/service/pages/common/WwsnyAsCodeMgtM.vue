@@ -83,6 +83,27 @@
             @change="fetchData"
           />
         </template>
+        <kw-btn
+          :label="$t('MSG_BTN_PRTG')"
+          dense
+          icon="print"
+          secondary
+        />
+        <kw-btn
+          :label="$t('MSG_BTN_EXCEL_UP')"
+          dense
+          icon="upload_on"
+          secondary
+          @click="onClickExcelUpload"
+        />
+        <kw-btn
+          :disable="pageInfo.totalCount === 0"
+          :label="$t('MSG_BTN_EXCEL_DOWN')"
+          dense
+          icon="download_on"
+          secondary
+          @click="onClickExcelDownload"
+        />
       </kw-action-top>
       <kw-grid
         ref="grdMainRef"
@@ -107,8 +128,8 @@
 import {
   codeUtil,
   defineGrid,
-  getComponentType,
-  useDataService,
+  getComponentType, gridUtil,
+  useDataService, useGlobal,
   useMeta,
 } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
@@ -117,9 +138,11 @@ import smsCommon from '~sms-wells/service/composables/useSnCode';
 const { getPartMaster } = smsCommon();
 
 const { t } = useI18n();
+const { currentRoute } = useRouter();
 const dataService = useDataService();
 const { getConfig } = useMeta();
 const grdMainRef = ref(getComponentType('KwGrid'));
+const { modal, notify } = useGlobal();
 let cachedParams;
 const searchParams = ref({
   pdGrpCd: '',
@@ -144,11 +167,12 @@ const codes = await codeUtil.getMultiCodes(
   'SITE_AW_ATC_CD', // SB23
   'SV_BIZ_DCLSF_CD', // BA04
 );
-const codesYn = [{ code: '1', name: t('MSG_TXT_APPLY_DT') }];
-const pds = ref([]);// = await getPartMaster('4', '1', 'M');
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
+const codesYn = [{ code: '1', name: t('MSG_TXT_APPLY_DT') }];
+const pds = ref([]);// = await getPartMaster('4', '1', 'M');
+
 async function fetchData() {
   const res = await dataService.get('/sms/wells/service/as-codes/paging', { params: { ...cachedParams, ...pageInfo.value } });
   const { list: products, pageInfo: pagingResult } = res.data;
@@ -169,7 +193,42 @@ async function changePdGrpCd() {
     pds.value = await getPartMaster('4', searchParams.value.pdGrpCd, 'M');
   } else pds.value = [];
 }
+async function onClickExcelDownload() {
+  const view = grdMainRef.value.getView();
+  // const response = await dataService.get('/sms/wells/service/as-codes/excel-download'
+  // , { params: cachedParams, ...pageInfo.value });
+  const exportLayout = [
+    'svTpCd',
+    { direction: 'horizontal', items: ['asLctCd', 'asLctNm'], header: { text: t('MSG_TXT_AS_LCT') } },
+    { direction: 'horizontal', items: ['asPhnCd', 'asPhnNm'], header: { text: t('MSG_TXT_AS_PHN') } },
+    { direction: 'horizontal', items: ['asCausCd', 'asCausNm'], header: { text: t('MSG_TXT_AS_CAUS') } },
+    { direction: 'horizontal', items: ['siteAwAtcCd', 'siteAwAtcNm', 'fuleyAwAmt'], header: { text: t('MSG_TXT_SITE_AW') } },
+    { direction: 'horizontal', items: ['svAnaHclsfCd', 'svAnaHclsfNm'], header: { text: t('MSG_TXT_SV_ANA_HCLSF_CD') } },
+  ];
 
+  await gridUtil.exportView(view, {
+    fileName: currentRoute.value.meta.menuName,
+    timePostfix: true,
+    // exportData: response.data,
+    exportLayout,
+  });
+}
+const onClickExcelUpload = async () => {
+  cachedParams = cloneDeep(searchParams.value);
+  const apiUrl = '/sms/wells/service/as-codes/excel-upload';
+  const templateId = 'FOM_AS_CODE_MNGT';
+  const extraData = cachedParams;
+  const {
+    result,
+  } = await modal({
+    component: 'ZwcmzExcelUploadP',
+    componentProps: { apiUrl, templateId, extraData },
+  });
+  if (result.status === 'S') {
+    notify(t('MSG_ALT_SAVE_DATA'));
+  }
+  await onClickSearch();
+};
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
