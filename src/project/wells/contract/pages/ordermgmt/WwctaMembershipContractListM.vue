@@ -122,12 +122,16 @@
       <!-- 상품분류 -->
       <kw-form-item
         :label="$t('MSG_TXT_PRDT_CATE')"
+        :colspan="2"
       >
         <zwpd-product-classification-select
           ref="productSelRef"
           v-model:product1-level="searchParams.hcsfVal"
           v-model:product2-level="searchParams.hcsfMcsfVal"
-          v-model:pd-tp-cd="S"
+          product1-first-option="select"
+          :product1-first-option-label="$t('TXT_MSG_PD_HCLSF_ID') + ' ' + $t('MSG_TXT_SELT')"
+          product2-first-option="select"
+          :product2-first-option-label="$t('MSG_TXT_PD_MCLSF_ID') + ' ' + $t('MSG_TXT_SELT')"
           search-lvl="2"
         />
       </kw-form-item>
@@ -141,8 +145,9 @@
           v-model="searchParams.pdCd"
           clearable
           icon="search"
+          :maxlength="10"
           dense
-          @click-icon="onClickSearchPdCdPopup()"
+          @click-icon="onClickSelectPdCd()"
         />
       </kw-search-item>
       <!-- 상품명 -->
@@ -153,7 +158,8 @@
           v-model="searchParams.pdNm"
           clearable
           icon="search"
-          @click-icon="onClickSearchPdNmPopup()"
+          :maxlength="100"
+          @click-icon="onClickSelectPdCd()"
         />
       </kw-search-item>
       <!-- 파트너코드 -->
@@ -164,6 +170,7 @@
           v-model="searchParams.sellPrtnrNo"
           clearable
           icon="search"
+          :maxlength="10"
           @click-icon="onClickSearchPrtnrNoPopup()"
         />
       </kw-search-item>
@@ -247,8 +254,9 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { codeUtil, defineGrid, getComponentType, useDataService, gridUtil, useGlobal } from 'kw-lib';
-import { cloneDeep, isEmpty, uniqBy } from 'lodash-es';
+import { cloneDeep, isEmpty } from 'lodash-es';
 import ZwpdProductClassificationSelect from '~sms-common/product/pages/standard/components/ZwpdProductClassificationSelect.vue';
+import pdConst from '~sms-common/product/constants/pdConst';
 import dayjs from 'dayjs';
 
 const dataService = useDataService();
@@ -296,9 +304,6 @@ const pageInfo = ref({
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 const grdMembershipContractList = ref(getComponentType('KwGrid'));
-
-const highClsfIdOptions = ref([]); // 상품분류(대분류)
-const middleClsfIdOptions = ref([]); // 상품분류(중분류)
 const checkType = ref([undefined]); // 미가입자만 조회
 
 async function fetchData() {
@@ -326,33 +331,22 @@ async function fetchData() {
   view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
-// 상품코드 검색 팝업 호출
-async function onClickSearchPdCdPopup() {
-  const { result, payload } = await modal({
-    component: 'ZwpdcStandardListP', // ZwpdcStandardProductListP 에서 변경
-    componentProps: {
-      pdRelTpCd: 'N',
-      pdTpCd: '',
-    },
-  });
-  if (result) {
-    searchParams.value.pdCd = payload.checkedRows?.[0].pdCd;
-    searchParams.value.pdNm = payload.checkedRows?.[0].pdNm;
-  }
-}
+// 상품코드 검색아이콘 클릭
+async function onClickSelectPdCd() {
+  const searchPopupParams = {
+    searchType: pdConst.PD_SEARCH_CODE,
+    searchValue: searchParams.value.pdCd,
+    selectType: '',
+  };
 
-// 상품명 검색 팝업 호출
-async function onClickSearchPdNmPopup() {
-  const { result, payload } = await modal({
-    component: 'ZwpdcStandardListP', // ZwpdcStandardProductListP 에서 변경
-    componentProps: {
-      pdRelTpCd: 'N',
-      pdTpCd: '',
-    },
+  const returnPdInfo = await modal({
+    component: 'ZwpdcStandardListP', // 상품기준 목록조회 팝업
+    componentProps: searchPopupParams,
   });
-  if (result) {
-    searchParams.value.pdCd = payload.checkedRows?.[0].pdCd;
-    searchParams.value.pdNm = payload.checkedRows?.[0].pdNm;
+
+  if (returnPdInfo.result) {
+    searchParams.value.pdCd = returnPdInfo.payload?.[0].pdCd;
+    searchParams.value.pdNm = returnPdInfo.payload?.[0].pdNm;
   }
 }
 
@@ -381,23 +375,6 @@ async function onClickExcelDownload() {
     timePostfix: true,
     exportData: res.data,
   });
-}
-
-async function fetchDefaultData() {
-  // const responseHclsfIdOptions = await dataService.get('sms/wells/contract/product/high-classes');
-  const responseMclsfIdOptions = await dataService.get('sms/wells/contract/product/middle-classes');
-
-  const initHclsfIdOptions = []; // 상품분류(대분류)
-  const initMclsfIdOptions = []; // 상품분류(중분류)
-
-  responseMclsfIdOptions.data.forEach((v) => {
-    if ((!isEmpty(v)) && (!isEmpty(v.pdClsfId))) {
-      initMclsfIdOptions.push({ codeId: v.pdClsfId, codeName: v.pdClsfNm });
-    }
-  });
-
-  highClsfIdOptions.value = uniqBy(initHclsfIdOptions, 'codeId');
-  middleClsfIdOptions.value = uniqBy(initMclsfIdOptions, 'codeId');
 }
 
 async function onClickConfirmManagement() {
@@ -435,7 +412,6 @@ async function onClickSelectCntrNo() {
 }
 
 onMounted(async () => {
-  await fetchDefaultData();
 });
 
 // -------------------------------------------------------------------------------------------------
