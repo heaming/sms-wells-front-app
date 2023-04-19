@@ -21,16 +21,14 @@
       <kw-search-row>
         <kw-search-item :label="t('MSG_TXT_WRTE_DT')">
           <kw-date-range-picker
-            v-model:from="searchParams.prcsStrtDt"
-            v-model:to="searchParams.prcsEndDt"
-            rules="date_range_months:1"
+            v-model:from="searchParams.writeStrtDt"
+            v-model:to="searchParams.writeEndDt"
           />
         </kw-search-item>
         <kw-search-item :label="t('MSG_TXT_RCRT_DT')">
           <kw-date-range-picker
             v-model:from="searchParams.rcrtStrtDt"
             v-model:to="searchParams.rcrtEndDt"
-            rules="date_range_months:1"
           />
         </kw-search-item>
       </kw-search-row>
@@ -61,206 +59,69 @@
           />
         </template>
       </kw-action-top>
-
-      <div class="row justify-between">
-        <div class="col border-box mb20">
-          <div class="row justify-between item-center">
-            <p class="kw-fc--black2 kw-font-pt14">
-              최종확정
-            </p>
-            <kw-chip
-              label="재등록"
-              color="placeholder"
-              outline
-            />
-          </div>
-          <h3 class="mt20 mb12">
-            남궁교원(1234567)
-          </h3>
-          <p class="kw-font-pt14">
-            강남센터 B010160
-          </p>
-          <p class="kw-font-pt14">
-            20221224 - 2******
-          </p>
-          <p class="kw-font-pt14">
-            010-9000-8000
-          </p>
-          <kw-separator class="my20" />
-          <p class="kw-font-pt14">
-            김발송(1234567)
-          </p>
-
-          <kw-form
-            dense
-            :label-size="60"
-          >
-            <kw-form-item label="작성일">
-              <p class="kw-font-pt14 text-weight-regular">
-                2022-08-15
-              </p>
-            </kw-form-item>
-            <kw-form-item label="계약일">
-              <p class="kw-font-pt14 text-weight-regular">
-                2022-08-15
-              </p>
-            </kw-form-item>
-          </kw-form>
-        </div>
-        <div class="col border-box mb20 mx20">
-          <div class="row justify-between item-center">
-            <p class="kw-fc--black2 kw-font-pt14">
-              최종확정
-            </p>
-            <kw-chip
-              label="재등록"
-              color="placeholder"
-              outline
-            />
-          </div>
-          <h3 class="mt20 mb12">
-            남궁교원(1234567)
-          </h3>
-          <p class="kw-font-pt14">
-            강남센터 B010160
-          </p>
-          <p class="kw-font-pt14">
-            20221224 - 2******
-          </p>
-          <p class="kw-font-pt14">
-            010-9000-8000
-          </p>
-          <kw-separator class="my20" />
-          <p class="kw-font-pt14">
-            김발송(1234567)
-          </p>
-
-          <kw-form
-            dense
-            :label-size="60"
-          >
-            <kw-form-item label="작성일">
-              <p class="kw-font-pt14 text-weight-regular">
-                2022-08-15
-              </p>
-            </kw-form-item>
-            <kw-form-item label="계약일">
-              <p class="kw-font-pt14 text-weight-regular">
-                2022-08-15
-              </p>
-            </kw-form-item>
-          </kw-form>
-        </div>
-        <div class="col border-box mb20">
-          <div class="row justify-between item-center">
-            <p class="kw-fc--black2 kw-font-pt14">
-              승인요청
-            </p>
-            <kw-chip
-              label="신규"
-              color="primary"
-              outline
-            />
-          </div>
-          <h3 class="mt20 mb12">
-            남궁교원(1234567)
-          </h3>
-          <p class="kw-font-pt14">
-            강남센터 B010160
-          </p>
-          <p class="kw-font-pt14">
-            20221224 - 2******
-          </p>
-          <p class="kw-font-pt14">
-            010-9000-8000
-          </p>
-          <kw-separator class="my20" />
-          <p class="kw-font-pt14">
-            김발송(1234567)
-          </p>
-
-          <kw-form
-            dense
-            :label-size="60"
-          >
-            <kw-form-item label="작성일">
-              <p class="kw-font-pt14 text-weight-regular">
-                2022-08-15
-              </p>
-            </kw-form-item>
-            <kw-form-item label="계약일">
-              <p class="kw-font-pt14 text-weight-regular">
-                2022-08-15
-              </p>
-            </kw-form-item>
-          </kw-form>
-        </div>
-      </div>
-
       <template
         v-for="(item, index) of resultList"
         :key="index"
       >
-        <div
-          v-if="index % 3 === 0"
-          class="row justify-between"
-        >
-          <template
-            v-for="(subItem, subIndex) of resultList"
-            :key="subIndex"
-          >
-            <div
-              v-if="subIndex < 3"
-              class="col border-box mb20"
-              :class="{ 'mx20' : subIndex % 3 === 1}"
-            >
-              <div class="row justify-between item-center">
-                <p class="kw-fc--black2 kw-font-pt14">
-                  {{ subItem.rcrtAprLvCdNm }} {{ `${index} - ${subIndex}` }}
-                </p>
-                <kw-chip
-                  :label="subItem.rgstTpCd === '01' ? t('MSG_TXT_NEW') : t('MSG_TXT_RETR')"
-                  :color="subItem.rgstTpCd === '01' ? 'placeholder' : 'primary'"
-                  outline
-                />
-              </div>
-              <h3 class="mt20 mb12">
-                {{ `${subItem.prtnrKnm}(${subItem.prtnrNo})` }}
-              </h3>
-              <p class="kw-font-pt14">
-                {{ `${subItem.orgNm}${subItem.orgCd}` }}
+        <div class="row justify-between">
+          <div class="col border-box mb20">
+            <div class="row justify-between item-center">
+              <p class="kw-fc--black2 kw-font-pt14">
+                {{ item.rcrtAprLvCdNm }}
               </p>
-              <p class="kw-font-pt14">
-                {{ subItem.rrnoEncr }}
-              </p>
-              <p class="kw-font-pt14">
-                {{ `${subItem.cralLocaraTno}-${subItem.mexnoEncr}-${subItem.cralIdvTno}` }}
-              </p>
-              <kw-separator class="my20" />
-              <p class="kw-font-pt14">
-                {{ subItem.urlSendNm }}
-              </p>
-
-              <kw-form
-                dense
-                :label-size="60"
-              >
-                <kw-form-item :label="$t('MSG_TIT_DRAT_DT')">
-                  <p class="kw-font-pt14 text-weight-regular">
-                    2022-08-15{{ stringUtil.getDateFormat(subItem.contractDt) }}
-                  </p>
-                </kw-form-item>
-                <kw-form-item :label="t('MSG_TXT_CNTRCT_DT')">
-                  <p class="kw-font-pt14 text-weight-regular">
-                    2022-08-15 {{ stringUtil.getDateFormat(subItem.contractDt) }}
-                  </p>
-                </kw-form-item>
-              </kw-form>
+              <kw-chip
+                :label="item.rgstTpCd === '01' ? t('MSG_TXT_NEW') : t('MSG_TXT_RETR')"
+                :color="item.rgstTpCd === '01' ? 'placeholder' : 'primary'"
+                outline
+              />
             </div>
-          </template>
+            <h3 class="mt20 mb12">
+              {{ `${item.prtnrKnm}(${item.prtnrNo})` }}
+            </h3>
+            <p class="kw-font-pt14">
+              {{ `${item.orgNm}${item.orgCd}` }}
+            </p>
+            <p class="kw-font-pt14">
+              {{ item.rrnoEncr }}
+            </p>
+            <p class="kw-font-pt14">
+              {{ `${item.cralLocaraTno}-${item.mexnoEncr}-${item.cralIdvTno}` }}
+            </p>
+            <kw-separator class="my20" />
+            <p class="kw-font-pt14">
+              {{ item.urlSendNm }}
+            </p>
+
+            <kw-form
+              dense
+              :label-size="60"
+            >
+              <kw-form-item :label="$t('MSG_TIT_DRAT_DT')">
+                <p class="kw-font-pt14 text-weight-regular">
+                  {{ stringUtil.getDateFormat(item.writeDt) }}
+                </p>
+              </kw-form-item>
+              <kw-form-item :label="t('MSG_TXT_CNTRCT_DT')">
+                <p class="kw-font-pt14 text-weight-regular">
+                  {{ stringUtil.getDateFormat(item.contractDt) }}
+                </p>
+              </kw-form-item>
+            </kw-form>
+            <!-- <kw-btn
+              label="상세보기"
+              secondry
+              class="mt20 mr8 px12"
+            />
+            <kw-btn
+              label="이력조회"
+              secondry
+              class="mt20 px12"
+            /> -->
+          </div>
         </div>
       </template>
     </div>
+
     <template #action>
       <div class="tablet-action-left" />
       <div class="tablet-action-right">
@@ -284,19 +145,23 @@ import { SMS_COMMON_URI } from '~sms-common/organization/constants/ogConst';
 const { t } = useI18n();
 const { modal, notify } = useGlobal();
 const dataService = useDataService();
+const { getters } = useStore();
+const userInfo = getters['meta/getUserInfo'];
+const { ogTpCd } = userInfo;
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 let cachedParams;
 const totalCount = ref(0);
-const resultList = ref();
+const resultList = ref({});
 const searchParams = ref({
-  prcsStrtDt: undefined,
-  prcsEndDt: undefined,
+  writeStrtDt: undefined,
+  writeEndDt: undefined,
   rcrtStrtDt: undefined,
   rcrtEndDt: undefined,
   apprGubun: '50',
   prtnrKnm: undefined,
+  ogTpCd,
 });
 
 const apprvGubun = ref([
@@ -318,6 +183,7 @@ async function fetchData() {
 
 async function onclickSearch() {
   cachedParams = cloneDeep(searchParams.value);
+  resultList.value = {};
   await fetchData();
 }
 
