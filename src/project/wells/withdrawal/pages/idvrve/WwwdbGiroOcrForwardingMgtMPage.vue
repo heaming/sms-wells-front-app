@@ -172,7 +172,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, defineGrid, getComponentType, gridUtil, modal, notify, useDataService, useGlobal, useMeta } from 'kw-lib';
+import { codeUtil, defineGrid, getComponentType, gridUtil, modal, notify, useDataService, useGlobal, useMeta, alert } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
 
@@ -296,9 +296,17 @@ async function onClickExcelDownload() {
 }
 // 대상조회
 async function onClickObjectSearch() {
-  notify(t('MSG_ALT_DEVELOPING'));
-  // const res = await dataService.get('/sms/wells/withdrawal/idvrve/giro-ocr-forwardings/objects');
-  // console.log(res.data);
+  // notify(t('MSG_ALT_DEVELOPING'));
+  const res = await dataService.get(`/sms/wells/withdrawal/idvrve/giro-ocr-forwardings/objects/${null}`);
+  if (!res.data.length > 0) {
+    notify('추가 할 대상이 없습니다.'); /* 추후에 메시지 바뀔 예정이라 추후 채번 예정 */
+    return;
+  }
+
+  const view = grdLinkRef.value.getView();
+  const data = view.getDataSource();
+
+  data.setRows(res.data);
 }
 
 // 저장버튼
@@ -652,6 +660,15 @@ const initGrid = defineGrid((data, view) => {
       if (result) {
         const cntr = payload.cntrNo + payload.cntrSn;
         // const cntrSn = payload.cntrSn;
+        const res = await dataService.get(`/sms/wells/withdrawal/idvrve/giro-ocr-forwardings/objects/${cntr}`);
+
+        console.log(res.data);
+
+        if (!res.data.length > 0) {
+          alert('존재하지 않는 고객정보 입니다.');
+          return;
+        }
+
         data.setValue(itemIndex, 'cntrNo', payload.cntrNo);
         data.setValue(itemIndex, 'cntrSn', payload.cntrSn);
         data.setValue(itemIndex, 'cntr', cntr);

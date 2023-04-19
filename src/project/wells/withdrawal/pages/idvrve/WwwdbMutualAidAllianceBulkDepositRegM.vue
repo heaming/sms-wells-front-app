@@ -15,6 +15,8 @@
 <template>
   <kw-page>
     <kw-search
+      :cols="2"
+      one-row
       @search="onClickSearch"
       @reset="onClickReset"
     >
@@ -44,7 +46,7 @@
           />
         </kw-search-item>
         <!-- label="실적일자" -->
-        <kw-search-item
+        <!-- <kw-search-item
           :label="t('MSG_TXT_PERF_DT')"
           required
         >
@@ -53,10 +55,10 @@
             :label="t('MSG_TXT_PERF_DT')"
             rules="required"
           />
-        </kw-search-item>
+        </kw-search-item> -->
       </kw-search-row>
-      <kw-search-row>
-        <!-- label="수납일자" -->
+      <!-- <kw-search-row>
+        label="수납일자"
         <kw-search-item
           :label="t('MSG_TXT_RVE_DT')"
           required
@@ -67,7 +69,7 @@
             rules="required"
           />
         </kw-search-item>
-        <!-- label="수납코드" -->
+        label="수납코드"
         <kw-form-item
           :label="t('MSG_TXT_RVE_CD')"
           required
@@ -89,7 +91,7 @@
             placeholder=""
           />
         </kw-form-item>
-        <!-- label="통합입금번호" -->
+        label="통합입금번호"
         <kw-form-item
           :label="t('MSG_TXT_ITG_DP_NO')"
         >
@@ -103,7 +105,7 @@
             @clear="onClearSelectIntegrationDeposit"
           />
         </kw-form-item>
-      </kw-search-row>
+      </kw-search-row> -->
     </kw-search>
 
     <div class="result-area">
@@ -319,73 +321,73 @@ async function onClickSearch() {
   await fetchSubData();
 }
 
-// 수납코드 조회 팝업
-async function onClickSelectRveCd() {
-  const { result, payload } = await modal({ component: 'ZwwdyDivisionReceiveCodeRegP',
-    componentProps: { rveCd: searchParams.value.rveCd, rveNm: searchParams.value.rveNm },
-  });
-  console.log(payload);
-  if (result) {
-    console.log(payload);
-    searchParams.value.rveCd = payload.rveCd;
-    searchParams.value.rveNm = payload.rveNm;
-  }
-}
+// // 수납코드 조회 팝업
+// async function onClickSelectRveCd() {
+//   const { result, payload } = await modal({ component: 'ZwwdyDivisionReceiveCodeRegP',
+//     componentProps: { rveCd: searchParams.value.rveCd, rveNm: searchParams.value.rveNm },
+//   });
+//   console.log(payload);
+//   if (result) {
+//     console.log(payload);
+//     searchParams.value.rveCd = payload.rveCd;
+//     searchParams.value.rveNm = payload.rveNm;
+//   }
+// }
 
-// 통합입금번호
-async function onClickSelectIntegrationDeposit() {
-  const { result, payload } = await modal({
-    component: 'WwdbIntegrationDepositListP',
-    componentProps: { itgDpNo: searchParams.value.itgDpNo },
-  });
+// // 통합입금번호
+// async function onClickSelectIntegrationDeposit() {
+//   const { result, payload } = await modal({
+//     component: 'WwdbIntegrationDepositListP',
+//     componentProps: { itgDpNo: searchParams.value.itgDpNo },
+//   });
 
-  if (result) {
-    searchParams.value.itgDpNo = payload.itgDpNo; // 입금잔액
+//   if (result) {
+//     searchParams.value.itgDpNo = payload.itgDpNo; // 입금잔액
 
-    if (payload.dpBlam || payload.dpDtm) {
-      const view = grdSubRef.value.getView();
-      const data = view.getDataSource();
-      console.log(payload.dpBlam);
-      console.log(data);
+//     if (payload.dpBlam || payload.dpDtm) {
+//       const view = grdSubRef.value.getView();
+//       const data = view.getDataSource();
+//       console.log(payload.dpBlam);
+//       console.log(data);
 
-      data.checkRowStates(false);
-      data.setValue(0, 'dpBlam', payload.dpBlam);
-      data.setValue(0, 'dpDtm', payload.dpDtm);
+//       data.checkRowStates(false);
+//       data.setValue(0, 'dpBlam', payload.dpBlam);
+//       data.setValue(0, 'dpDtm', payload.dpDtm);
 
-      dpBlam.value = payload.dpBlam;
-      dpDtm.value = payload.dpDtm;
-    }
-  }
-}
+//       dpBlam.value = payload.dpBlam;
+//       dpDtm.value = payload.dpDtm;
+//     }
+//   }
+// }
 
-async function onKeyDownSelectRveCd() {
-  searchParams.value.rveNm = '';
-}
+// async function onKeyDownSelectRveCd() {
+//   searchParams.value.rveNm = '';
+// }
 
-async function onClearSelectRveCd() {
-  searchParams.value.rveCd = '';
-  searchParams.value.rveNm = '';
-}
+// async function onClearSelectRveCd() {
+//   searchParams.value.rveCd = '';
+//   searchParams.value.rveNm = '';
+// }
 
-async function onKeyDownSelectIntegrationDeposit() {
-  const view = grdSubRef.value.getView();
-  const data = view.getDataSource();
-  data.setValue(0, 'dpBlam', 0);
-  data.setValue(0, 'dpDtm', '');
-  searchParams.value.itgDpNo = '';
-  dpBlam.value = 0;
-  dpDtm.value = '';
-}
+// async function onKeyDownSelectIntegrationDeposit() {
+//   const view = grdSubRef.value.getView();
+//   const data = view.getDataSource();
+//   data.setValue(0, 'dpBlam', 0);
+//   data.setValue(0, 'dpDtm', '');
+//   searchParams.value.itgDpNo = '';
+//   dpBlam.value = 0;
+//   dpDtm.value = '';
+// }
 
-async function onClearSelectIntegrationDeposit() {
-  const view = grdSubRef.value.getView();
-  const data = view.getDataSource();
-  data.setValue(0, 'dpBlam', 0);
-  data.setValue(0, 'dpDtm', '');
-  searchParams.value.itgDpNo = '';
-  dpBlam.value = 0;
-  dpDtm.value = '';
-}
+// async function onClearSelectIntegrationDeposit() {
+//   const view = grdSubRef.value.getView();
+//   const data = view.getDataSource();
+//   data.setValue(0, 'dpBlam', 0);
+//   data.setValue(0, 'dpDtm', '');
+//   searchParams.value.itgDpNo = '';
+//   dpBlam.value = 0;
+//   dpDtm.value = '';
+// }
 
 async function onClickReset() {
   const view = grdSubRef.value.getView();
@@ -398,7 +400,24 @@ async function onClickReset() {
 }
 
 async function onClickCreate() {
-  notify(t('MSG_ALT_DEVELOPING'));
+  const lifAlncDvNm = codes.LIF_ALNC_DV_CD.filter((data) => data.codeId === searchParams.value.lifAlncDvCd);
+
+  if (!await confirm(t('MSG_ALT_IS_MUTU_DP_MM_CREATE', [
+    lifAlncDvNm[0].codeName,
+    dayjs(searchParams.value.lifSpptYm).format('YYYY-MM')]))) { return; }
+
+  const {
+    result,
+    payload,
+  } = await modal({
+    component: 'WwwdbMutualAidAllianceDepositRegCreateP',
+    componentProps: { lifAlncDvCd: searchParams.value.lifAlncDvCd, lifSpptYm: searchParams.value.lifSpptYm },
+  });
+  console.log(payload);
+  if (result) {
+    notify(t('MSG_ALT_CRT_FSH'));
+    await fetchData();
+  }
 }
 
 // const attachFileRef = ref();
@@ -426,6 +445,8 @@ async function onClickExcelUpload() {
   if (!await confirm(t('MSG_ALT_IS_MUTU_DP_MM_UPLOAD', [
     lifAlncDvNm[0].codeName,
     dayjs(searchParams.value.lifSpptYm).format('YYYY-MM')]))) return;
+
+  console.log(searchParams.value.lifAlncDvCd);
 
   const apiUrl = `/sms/wells/withdrawal/idvrve/mutual-alliance-bulk-deposit/${searchParams.value.lifAlncDvCd}/${searchParams.value.lifSpptYm}/excel-upload`;
 
