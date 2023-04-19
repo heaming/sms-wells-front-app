@@ -17,6 +17,7 @@
   <kw-popup
     size="md"
     :title="$t('MSG_TXT_MCHN_CH')"
+    ignore-on-modified
   >
     <kw-search
       one-row
