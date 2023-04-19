@@ -114,6 +114,7 @@ import dayjs from 'dayjs';
 const { getServiceCenterOrgs } = useSnCode();
 
 const { t } = useI18n();
+const { currentRoute } = useRouter();
 const dataService = useDataService();
 
 const { getConfig } = useMeta();
@@ -179,9 +180,12 @@ async function onClickSearch() {
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
 
+  const res = await dataService.get('/sms/wells/service/as-visit-state/product-services', { params: searchParams.value });
+
   await gridUtil.exportView(view, {
-    fileName: 'serviceProcAggrByPrdtList',
+    fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
+    exportData: res.data.list,
   });
 }
 
