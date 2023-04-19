@@ -15,13 +15,12 @@
 <template>
   <kw-page>
     <kw-search
-      :cols="4"
+      :cols="3"
       @search="onClickSearch"
     >
       <kw-search-row>
         <!-- 출고요청접수 -->
         <kw-search-item
-          :colspan="2"
           :label="$t('MSG_TXT_OSTR_AK_RCP')"
         >
           <kw-select
@@ -38,6 +37,7 @@
           <kw-select
             v-model="searchParams.itmKndCd"
             :options="codes.ITM_KND_CD"
+            first-option="all"
           />
         </kw-search-item>
         <!-- //출고품목 -->
@@ -49,6 +49,7 @@
           <kw-select
             v-model="searchParams.ostrAkTpCd"
             :options="codes.OSTR_AK_TP_CD"
+            first-option="all"
           />
         </kw-search-item>
         <!-- //출고요청유형 -->
@@ -58,6 +59,7 @@
         <kw-search-item
           :label="$t('MSG_TXT_STR_HOP_DT')"
           :colspan="2"
+          class="w"
         >
           <kw-date-range-picker
             v-model:from="searchParams.strHopDtStr"
@@ -92,17 +94,6 @@
           />
         </kw-search-item>
         <!-- //출고요청창고 -->
-        <!-- 지역 -->
-        <kw-search-item
-          :colspan="1"
-          :label="$t('MSG_TXT_LOCARA')"
-        >
-          <kw-select
-            v-model="searchParams.ovivTpCd"
-            :options="codes.ADM_ZN_CLSF_CD"
-          />
-        </kw-search-item>
-        <!-- //지역 -->
       </kw-search-row>
     </kw-search>
 
@@ -171,7 +162,6 @@ const codes = ref(await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
   'OSTR_AK_TP_CD',
   'WARE_DV_CD',
-  'ADM_ZN_CLSF_CD',
   'ITM_KND_CD',
   'OVIV_FOM_CD',
 ));
