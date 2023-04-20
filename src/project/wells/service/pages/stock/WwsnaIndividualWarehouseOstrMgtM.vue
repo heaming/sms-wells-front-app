@@ -3,7 +3,7 @@
  * 프로그램 개요
  ****************************************************************************************************
  1. 모듈 : SNA (재고관리)
- 2. 프로그램 ID : WwsnaIndividualWarehouseOstrMgtM(W-SV-U-0143M01) - 개인창고출고관리
+ 2. 프로그램 ID : WwsnaIndividualWarehouseOstrMgtM(W-SV-U-0192M01) - 개인창고출고관리
  3. 작성자 : songTaeSung
  4. 작성일 : 2023.02.18
  5. 수정일 : 2023.03.20 - inho.choi
@@ -88,7 +88,7 @@
         >
           <kw-date-picker
             v-model="searchParams.ostrDt"
-            type="month"
+            type="date"
           />
         </kw-search-item>
       </kw-search-row>
@@ -145,6 +145,7 @@
           dense
           grid-action
           :label="$t('MSG_TXT_SAVE')"
+          @click="onClickSave"
         />
         <kw-separator
           spaced
@@ -162,6 +163,7 @@
           dense
           secondary
           :label="$t('MSG_BTN_EXCEL_DOWN')"
+          :disable="pageInfo.totalCount === 0"
           @click="onClickExcelDownload"
         />
       </kw-action-top>
@@ -207,9 +209,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-// import { codeUtil, defineGrid, useDataService, getComponentType, gridUtil, useGlobal } from 'kw-lib';
-import { defineGrid, codeUtil, useDataService, getComponentType, useMeta } from 'kw-lib';
-// import { onMounted } from 'vue';
+import { defineGrid, codeUtil, useDataService, getComponentType, useMeta, gridUtil, useGlobal } from 'kw-lib';
 import dayjs from 'dayjs';
 import ZwcmWareHouseSearch from '~sms-common/service/components/ZwsnzWareHouseSearch.vue';
 import { cloneDeep } from 'lodash-es';
@@ -218,6 +218,7 @@ const dataService = useDataService();
 const grdMainRef = ref(getComponentType('KwGrid'));
 const { t } = useI18n();
 const { getConfig } = useMeta();
+const { notify } = useGlobal();
 
 const baseURI = '/sms/wells/service/individual-ware-ostrs';
 
@@ -325,6 +326,16 @@ async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
   console.log(searchParams.value);
   await fetchData();
+}
+
+async function onClickSave() {
+  const view = grdMainRef.value.getView();
+  const chkRows = gridUtil.getCheckedRowValues(view);
+  if (chkRows.length === 0) {
+    notify(t('MSG_ALT_NO_CHG_CNTN'));
+
+    return false;
+  }
 }
 
 onMounted(async () => {
