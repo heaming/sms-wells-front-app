@@ -19,8 +19,15 @@
       @search="onClickSearch"
     >
       <kw-search-row>
-        <kw-search-item :label="'기준년월'">
-          <kw-date-picker type="month" />
+        <kw-search-item
+          :label="'기준년월'"
+          required
+        >
+          <kw-date-picker
+            v-model="searchParams.baseYm"
+            rules="required"
+            type="month"
+          />
         </kw-search-item>
         <kw-search-item :label="'관리구분'">
           <kw-select
@@ -36,25 +43,24 @@
             first-option="all"
           />
         </kw-search-item>
-        <kw-search-item :label="'총괄단'">
-          <kw-select
-            :options="['전체','2','3']"
-          />
-        </kw-search-item>
-      </kw-search-row>
-      <kw-search-row>
-        <kw-search-item :label="'지역단'">
-          <kw-select
-            :options="['전체','2','3']"
-          />
-        </kw-search-item>
         <kw-search-item :label="'방문담당자'">
           <kw-input
             v-model.trim="searchParams.fxnPrtnrNo"
             icon="search"
             clearable
+            @click-icon="onFxnPrtnrNoSearchPopup"
           />
         </kw-search-item>
+      </kw-search-row>
+      <kw-search-row>
+        <wwsn-manager-og-search-item-group
+          v-model:dgr1-levl-og-id="searchParams.dgr1LevlOgId"
+          v-model:dgr2-levl-og-id="searchParams.dgr2LevlOgId"
+          v-model:dgr1-levl-og="searchParams.dgr1LevlOg"
+          v-model:dgr2-levl-og="searchParams.dgr2LevlOg"
+          use-og-level="2"
+          :use-partner="false"
+        />
       </kw-search-row>
     </kw-search>
     <div class="result-area">
@@ -117,6 +123,8 @@
 // -------------------------------------------------------------------------------------------------
 import { codeUtil, defineGrid, getComponentType, gridUtil, useGlobal, useDataService, useMeta } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
+import WwsnManagerOgSearchItemGroup from '~sms-wells/service/components/WwsnManagerOgSearchItemGroup.vue';
+import dayjs from 'dayjs';
 
 const { notify, modal/* , alert */ } = useGlobal();
 const { t } = useI18n();
@@ -129,9 +137,14 @@ const { currentRoute } = useRouter();
  *  Search Parameter
  */
 const searchParams = ref({
+  baseYm: dayjs().format('YYYYMM'),
   fxnPrtnrDvCd: '',
   sellTpCd: '',
   fxnPrtnrNo: '',
+  dgr1LevlOgId: '',
+  dgr2LevlOgId: '',
+  dgr1LevlOg: '',
+  dgr2LevlOg: '',
 });
 
 /*
@@ -206,6 +219,26 @@ async function onClickFixationRegistration() {
   if (isChanged) {
     await notify(t('MSG_ALT_REGISTERED'));
     await getFixationRegistrationPages();
+  }
+}
+
+/*
+ *  Event - 방문담당자 검색 버튼 클릭
+ */
+async function onFxnPrtnrNoSearchPopup() {
+  const mngrDvCd = searchParams.value.fxnPrtnrDvCd ?? '';
+  const searchText = searchParams.value.fxnPrtnrNo;
+
+  const { result: isChanged, payload } = await modal({
+    component: 'WwsndHumanResourcesListP',
+    componentProps: {
+      mngrDvCd,
+      searchText,
+    },
+  });
+
+  if (isChanged) {
+    searchParams.value.fxnPrtnrNo = payload[0].prtnrNo;
   }
 }
 
