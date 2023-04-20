@@ -39,7 +39,7 @@
             :options="svcCode"
             first-option="all"
             option-label="ogNm"
-            option-value="ogCd"
+            option-value="ogId"
             @update:model-value="onUpdateSvcCode"
           />
         </kw-search-item>
@@ -86,7 +86,6 @@
           />
         </kw-search-item>
         <!-- 상품그룹 -->
-        <!-- TODO : 상품 데이터 이관시 수정-->
         <kw-search-item
           :label="$t('MSG_TXT_PD_GRP')"
           :colspan="2"
@@ -123,12 +122,14 @@
             v-model="searchParams.cstNm"
           />
         </kw-form-item>
-        <!-- 고객번호 -->
+        <!-- 계약번호 -->
         <kw-form-item
-          :label="$t('MSG_TXT_CST_NO')"
+          :label="$t('MSG_TXT_CNTR_NO')"
         >
           <kw-input
-            v-model="searchParams.cstNo"
+            v-model="searchParams.cntrNo"
+            :maxlength="11"
+            type="number"
           />
         </kw-form-item>
       </kw-search-row>
@@ -216,7 +217,7 @@ const { t } = useI18n();
 const { getConfig } = useMeta();
 const grdMainRef = ref(getComponentType('KwGrid'));
 const dataService = useDataService();
-const { router, currentRoute } = useRouter();
+const { currentRoute } = useRouter();
 
 const {
   getAllEngineers,
@@ -251,6 +252,7 @@ const now = dayjs();
 
 const {
   notify,
+  alert,
 } = useGlobal();
 
 /* 조회조건 */
@@ -261,7 +263,7 @@ const searchParams = ref({
   istDtFrom: now.subtract(7, 'days').format('YYYYMMDD'),
   istDtTo: now.format('YYYYMMDD'),
   cstNm: '',
-  cstNo: '',
+  cntrNo: '',
   egerId: '',
   rgsnYn: 'N',
   pdGrpCd: '',
@@ -294,6 +296,7 @@ async function fetchData() {
   const res = await dataService.get('/sms/wells/service/installation-locations/paging', { params: { ...cachedParams, ...pageInfo.value } });
   const { list: locations, pageInfo: pagingResult } = res.data;
   pageInfo.value = pagingResult;
+  console.log(res.data);
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(locations);
   view.resetCurrent();
@@ -308,7 +311,7 @@ async function onClickSearch() {
 
 async function onClickSave() {
   const view = grdMainRef.value.getView();
-  const chkRows = gridUtil.getCheckedRowValues(view);
+  const chkRows = gridUtil.getCheckedRowValues(view).map((v) => ({ ...v, dtlSn: '1' }));
   if (chkRows.length === 0) {
     notify(t('MSG_ALT_NOT_SEL_ITEM'));
   } else {
@@ -370,19 +373,26 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'istDt' },
     { fieldName: 'cntrNo' },
     { fieldName: 'cntrSn' },
-    { fieldName: 'dtlSn' },
     { fieldName: 'custNm' },
-    { fieldName: 'sellTpCd' },
+    { fieldName: 'sellTpNm' },
+    { fieldName: 'basePdCd' },
+    { fieldName: 'sapMapCd' },
     { fieldName: 'pdNm' },
+    { fieldName: 'locaraTno' },
+    { fieldName: 'exnoEncr' },
+    { fieldName: 'idvTno' },
     { fieldName: 'telNo' },
+    { fieldName: 'cralLocaraTno' },
+    { fieldName: 'mexnoEncr' },
+    { fieldName: 'cralIdvTno' },
     { fieldName: 'cralTelNo' },
     { fieldName: 'zip' },
     { fieldName: 'adr' },
     { fieldName: 'istLctDtlCn' },
     { fieldName: 'ogNm' },
     { fieldName: 'prtnrKnm' },
-    { fieldName: 'fstRgstUsrId' },
-    { fieldName: 'fstRgstDtm' },
+    { fieldName: 'wkPrtnrNo' },
+    { fieldName: 'regDtm' },
   ];
 
   const columns = [
@@ -391,6 +401,7 @@ const initGrdMain = defineGrid((data, view) => {
       header: t('MSG_TXT_IST_DT'),
       width: '100',
       styleName: 'text-center',
+      datetimeFormat: 'yyyy-MM-dd',
     },
     {
       fieldName: 'cntrNo',
@@ -400,6 +411,10 @@ const initGrdMain = defineGrid((data, view) => {
       renderer: {
         type: 'button',
       },
+      displayCallback: (g, i) => {
+        const { cntrNo, cntrSn } = gridUtil.getRowValue(g, i.itemIndex);
+        return `${cntrNo}-${cntrSn}`;
+      },
     },
     {
       fieldName: 'custNm',
@@ -408,15 +423,27 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-center',
     },
     {
-      fieldName: 'sellTpCd',
+      fieldName: 'sellTpNm',
       header: t('MSG_TXT_TYPE'),
       width: '100',
       styleName: 'text-center',
     },
     {
+      fieldName: 'sapMapCd',
+      header: t('MSG_TXT_SAP_CD'),
+      width: '150',
+      styleName: 'text-center',
+    },
+    {
+      fieldName: 'basePdCd',
+      header: t('MSG_TXT_ITM_CD'),
+      width: '150',
+      styleName: 'text-center',
+    },
+    {
       fieldName: 'pdNm',
       header: t('MSG_TXT_PRDT_NM'),
-      width: '350',
+      width: '300',
       styleName: 'text-center',
     },
     {
@@ -424,12 +451,20 @@ const initGrdMain = defineGrid((data, view) => {
       header: t('MSG_TXT_TEL_NO'),
       width: '150',
       styleName: 'text-center',
+      displayCallback: (g, i) => {
+        const { locaraTno, exnoEncr, idvTno } = gridUtil.getRowValue(g, i.itemIndex);
+        return `${locaraTno}-${exnoEncr}-${idvTno}`;
+      },
     },
     {
       fieldName: 'cralTelNo',
       header: t('MSG_TXT_MPNO'),
       width: '150',
       styleName: 'text-center',
+      displayCallback: (g, i) => {
+        const { cralLocaraTno, mexnoEncr, cralIdvTno } = gridUtil.getRowValue(g, i.itemIndex);
+        return `${cralLocaraTno}-${mexnoEncr}-${cralIdvTno}`;
+      },
     },
     {
       fieldName: 'zip',
@@ -462,13 +497,13 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-center',
     },
     {
-      fieldName: 'fstRgstUsrId',
+      fieldName: 'wkPrtnrNo',
       header: t('MSG_TXT_RGR_EMPNO'),
       width: '100',
       styleName: 'text-center',
     },
     {
-      fieldName: 'fstRgstDtm',
+      fieldName: 'regDtm',
       header: t('MSG_TXT_FST_RGST_DT'),
       width: '248',
       styleName: 'text-center',
@@ -479,7 +514,9 @@ const initGrdMain = defineGrid((data, view) => {
     'istDt',
     'cntrNo',
     'custNm',
-    'sellTpCd',
+    'sellTpNm',
+    'sapMapCd',
+    'basePdCd',
     'pdNm',
     'telNo',
     'cralTelNo',
@@ -488,8 +525,8 @@ const initGrdMain = defineGrid((data, view) => {
     'istLctDtlCn',
     'ogNm',
     'prtnrKnm',
-    'fstRgstUsrId',
-    'fstRgstDtm',
+    'wkPrtnrNo',
+    'regDtm',
   ];
 
   data.setFields(fields);
@@ -509,12 +546,13 @@ const initGrdMain = defineGrid((data, view) => {
 
   /* TODO : 연결페이지(W-SV-U-0072M01) 개발전. 개발완료 시 변경. */
   view.onCellItemClicked = (/* grid, index */) => {
-    router.push({
-      path: '/service/wwsnc-responsible-area-code-mgt',
-      // query: {
-      //   value: 'value1'
-      // },
-    });
+    alert('연결페이지 개발 전입니다.');
+    // router.push({
+    //   path: '/service/wwsnc-responsible-area-code-mgt',
+    //   // query: {
+    //   //   value: 'value1'
+    //   // },
+    // });
   };
 });
 
