@@ -313,8 +313,8 @@ function validateChangeCode() {
 }
 
 async function fetchDefaultData() {
-  // TODO: 알맞는 값 없어서 하드코딩. session값 맞아지면 userInfo.employeeIDNumber 로 변경.
-  warehouses.value = await getMonthWarehouse('1642720', dayjs().format('YYYYMM'));
+  // TODO: 알맞는 값 없어서 하드코딩. session값 맞아지면 userInfo.employeeIDNumber 로 변경. WM: 1642720
+  warehouses.value = await getMonthWarehouse('36680', dayjs().format('YYYYMM'));
 
   searchParams.value.strOjWareNo = warehouses.value[0].codeId;
   validateChangeCode();
