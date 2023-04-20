@@ -1,7 +1,7 @@
 <!----
 ****************************************************************************************************
 1. 모듈 : DCD
-2. 프로그램 ID : WwdcdCleanerReqeustMgtP - 청소원 관리 - 청소원 등록(신규변경) / W-CL-U-0093P02
+2. 프로그램 ID : WwdcdCleanerRegistrationMgtP - 청소원 관리 - 청소원 등록(신규변경) / W-CL-U-0093P02
 3. 작성자 : gs.piit172 kim juhyun
 4. 작성일 : 2023.04.17
 ****************************************************************************************************
@@ -21,12 +21,12 @@
           required
         >
           <kw-option-group
-            v-model="saveParams.flage"
+            v-model="saveParams.flag"
             rules="required"
             type="radio"
             :options="[{codeId:'0', codeName:t('MSG_TXT_NEW')}, {codeId:'1', codeName:t('MSG_TXT_CH')}]"
             :label="$t('MSG_TXT_DIV')"
-            @change="onChangeFlage"
+            @change="onChangeFlag"
           />
         </kw-form-item>
       </kw-form-row>
@@ -186,11 +186,14 @@
           required
         >
           <zwcm-telephone-number
-            v-model="saveParams.locaraTno"
+            v-model:tel-no1="
+              saveParams.locaraTno"
+            v-model:tel-no2="
+              saveParams.exnoEncr"
+            v-model:tel-no3="
+              saveParams.idvTno"
             :label="$t('MSG_TXT_CONTACT')"
             rules="required"
-            :regex="/^[0-9]*$/i"
-            :maxlength="11"
           />
         </kw-form-item>
       </kw-form-row>
@@ -337,7 +340,7 @@ const props = defineProps({
 });
 
 const saveParams = ref({
-  flage: '0',
+  flag: '0',
   clinrRgno: '', // 청소원등록번호
   rcpYm: '', // 접수년월
   bldCd: '', // 빌딩코드
@@ -349,7 +352,6 @@ const saveParams = ref({
   clinrNm: '', // 청소원 명
   wrkStrtdt: dayjs().format('YYYYMMDD'), // 근무시작일자
   wrkEnddt: dayjs().format('YYYYMMDD'), // 근무종료일자
-  rrnoEncr: '', // 주민등록번호
   frontRrnoEncr: '', // 앞 주민등록번호
   backRrnoEncr: '', // 뒤 주민번호
   locaraTno: '', // 지역번호
@@ -382,12 +384,12 @@ async function fetchData() {
   const { clinrRgno } = props;
   debugger;
   if (!isEmpty(clinrRgno)) {
-    saveParams.value.flage = '1';
     dataParams = { clinrRgno: cloneDeep(clinrRgno) };
     const res = await dataService.get(`/sms/wells/closing/expense/cleaners/cleaners-reqeust-change/${clinrRgno}`, { params: dataParams });
     saveParams.value = res.data;
+    saveParams.value.flag = '1';
   } else {
-    saveParams.value.flage = '0';
+    saveParams.value.flag = '0';
   }
 }
 
@@ -398,7 +400,6 @@ async function onClickSave() {
   saveParams.value.attachFiles2 = attachFiles2.value;
   saveParams.value.attachFiles3 = attachFiles3.value;
   saveParams.value.attachFiles4 = attachFiles4.value;
-  saveParams.value.rrnoEncr = `${saveParams.value.frontRrnoEncr}-${saveParams.value.backRrnoEncr}`;
   const data = saveParams.value;
 
   await dataService.post('/sms/wells/closing/expense/cleaners/cleaners-reqeust-change', data);
@@ -436,10 +437,10 @@ async function onBlurFixationAmount() {
   saveParams.value.dsbAmt = clinrFxnAmt - taxDdctam;
 }
 
-async function onChangeFlage() {
-  const { flage } = saveParams.value;
+async function onChangeFlag() {
+  const { flag } = saveParams.value;
 
-  if (flage === '0') {
+  if (flag === '0') {
     // if (!await confirm(t('MSG_ALT_WANT_RESET')))
   }
 }

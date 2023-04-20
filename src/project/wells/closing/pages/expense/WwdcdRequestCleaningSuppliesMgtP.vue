@@ -76,12 +76,15 @@
           :label="$t('MSG_TXT_CONTACT')"
           required
         >
-          <kw-input
-            v-model="saveParams.contact"
+          <zwcm-telephone-number
+            v-model:tel-no1="
+              saveParams.locaraTno"
+            v-model:tel-no2="
+              saveParams.exnoEncr"
+            v-model:tel-no3="
+              saveParams.idvTno"
             :label="$t('MSG_TXT_CONTACT')"
             rules="required"
-            :regex="/^[0-9]*$/i"
-            :maxlength="11"
           />
         </kw-form-item>
       </kw-form-row>
@@ -108,7 +111,7 @@
             ref="attachFileRef"
             v-model="attachFiles"
             attach-group-id="ATG_DCD_CLING_COST_MGT"
-            :attach-document-id="saveParams.clingCostAdjRcpNo"
+            :attach-document-id="saveParams.clingCostSrcpApnFileId"
             rules="required"
             :label="$t('MSG_TXT_SRCP_APN')"
           />
@@ -131,6 +134,7 @@
 import { useDataService, useGlobal, useModal } from 'kw-lib';
 import dayjs from 'dayjs';
 import { cloneDeep, isEmpty } from 'lodash-es';
+import ZwcmTelephoneNumber from '~common/components/ZwcmTelephoneNumber.vue';
 import ZwcmFileAttacher from '~common/components/ZwcmFileAttacher.vue';
 
 const { modal, notify, confirm } = useGlobal();
@@ -165,7 +169,9 @@ const saveParams = ref({
   bilAmt: '', // 금액
   claimNm: userName, // 청구인
   cardPsrNm: userName, // 카드소유주명
-  contact: '', // 연락처
+  locaraTno: '', // 지역번호
+  exnoEncr: '', // 전화국별
+  idvTno: '', // 개별전화번호
   aplcDt: dayjs().format('YYYYMMDD'), // 신청일
   clingCostSignApnFileId: '',
   attachFiles: [],
@@ -207,7 +213,8 @@ async function fetchData() {
 
   if (!isEmpty(clingCostAdjRcpNo)) {
     dataParams = { clingCostAdjRcpNo: cloneDeep(clingCostAdjRcpNo) };
-    const res = await dataService.get('/sms/wells/closing/expense/cleaning-cost/request-cleaning-supplies', { params: dataParams });
+    const res = await dataService.get(`/sms/wells/closing/expense/cleaning-cost/request-cleaning-supplies/${clingCostAdjRcpNo}`, { params: dataParams });
+    debugger;
     saveParams.value = res.data;
   }
 }
