@@ -45,6 +45,7 @@
             :options="warehouses"
             rules="required"
             :readonly="hasProps()"
+            @change="onChangeOstrWareNo"
           />
         </kw-search-item>
       </kw-search-row>
@@ -303,7 +304,7 @@ function onClickGridBulkChange(val, type) {
 }
 
 function getRowData(rowData) {
-  return { ...rowData, itmPdNm: rowData.itmNm, onQty: rowData.onQty || 0 };
+  return { ...rowData, sapMatCd: rowData.sapCd, onQty: rowData.myCenterQty || 0 };
 }
 
 async function openItemBasePopup(type, row) {
@@ -338,16 +339,27 @@ function setReasonCellStyle() {
   ostrRsonCd.values = ostrRsonCds.value.map((v) => v.codeId);
 }
 
+function setStrWareNo() {
+  const { codeIdUp, codeNameUp } = warehouses.value.find((v) => v.codeId === searchParams.value.ostrWareNo);
+  searchParams.value.strWareNo = codeIdUp;
+  searchParams.value.strWareNm = codeNameUp;
+}
+
+function onChangeOstrWareNo() {
+  if (searchParams.value.ostrTpCd === RETURN_INSIDE) {
+    setStrWareNo();
+  }
+}
+
 function onChangeOstrTp(ostrTpCd) {
   if (ostrTpCd === DISUSE) {
     ostrRsonCds.value = codes.DSU_RSON_CD;
     searchParams.value.strWareNm = '';
-  } else {
+  } else if (ostrTpCd === RETURN_INSIDE) {
     ostrRsonCds.value = codes.RTNGD_RSON_CD;
-
-    const { codeIdUp, codeNameUp } = warehouses.value.find((v) => v.codeId === searchParams.value.ostrWareNo);
-    searchParams.value.strWareNo = codeIdUp;
-    searchParams.value.strWareNm = codeNameUp;
+    setStrWareNo();
+  } else if (ostrTpCd === RETURN_OUTSIDE) {
+    searchParams.value.strWareNm = '';
   }
 
   setReasonCellStyle();
