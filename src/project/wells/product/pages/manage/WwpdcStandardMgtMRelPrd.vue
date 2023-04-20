@@ -185,7 +185,7 @@ const materialSelectItems = ref([
   // 교재/자재명
   { codeId: pdConst.PD_SEARCH_NAME, codeName: t('MSG_TXT_PD_BOK_MTR_NAME') },
   // 교재/자재코드
-  { codeId: pdConst.PD_SEARCH_CODE, codeName: t('MSG_TXT_PROD_CD') },
+  { codeId: pdConst.PD_SEARCH_CODE, codeName: t('MSG_TXT_MATERIAL_CD') },
 ]);
 
 const serviceSelectItems = ref([
@@ -478,29 +478,29 @@ async function initMaterialGrid(data, view) {
     // 자재코드
     { fieldName: 'sapMatCd', header: t('MSG_TXT_MATI_CD'), width: '87', styleName: 'text-center', editable: false },
     // 제품수량(개)
-    { fieldName: 'pdRelPrpVal01',
+    { fieldName: 'itmQty',
       header: t('MSG_TXT_PRD_COUNT_EA'),
       width: '87',
       styleName: 'text-right',
       editor: { type: 'number', editFormat: '#,##0', maxLength: 12 },
       dataType: 'number',
-      suffix: ` ${t('MSG_TXT_GRD_CNT')}` },
+    },
     // 판매금액
-    { fieldName: 'pdRelPrpVal02',
+    { fieldName: 'fnlVal',
       header: t('MSG_TXT_SALE_PRICE'),
       width: '107',
       styleName: 'text-right',
       editor: { type: 'number', editFormat: '#,##0.##', maxLength: 12 },
       dataType: 'number' },
     // 공급가액
-    { fieldName: 'pdRelPrpVal03',
+    { fieldName: 'splAmt',
       header: t('MSG_TXT_SUPPLY_AMOUNT'),
       width: '107',
       styleName: 'text-right',
       editor: { type: 'number', editFormat: '#,##0.##', maxLength: 12 },
       dataType: 'number' },
     // 부가세액
-    { fieldName: 'pdRelPrpVal04',
+    { fieldName: 'vat',
       header: t('MSG_TXT_VAT_AMOUNT'),
       width: '107',
       styleName: 'text-right',
@@ -513,7 +513,6 @@ async function initMaterialGrid(data, view) {
       styleName: 'text-right',
       editor: { type: 'number', editFormat: '##0', maxLength: 3 },
       dataType: 'number',
-      suffix: ' %',
     },
     // 잔액산입
     { fieldName: 'blamInptYn',

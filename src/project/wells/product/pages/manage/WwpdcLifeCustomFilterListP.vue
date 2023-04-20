@@ -98,7 +98,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { codeUtil, gridUtil, useGlobal, useDataService, getComponentType, defineGrid } from 'kw-lib';
-import { isEmpty, cloneDeep } from 'lodash-es';
+import { isEmpty } from 'lodash-es';
 import pdConst from '~sms-common/product/constants/pdConst';
 import { getGridRowCount } from '~/modules/sms-common/product/utils/pdUtil';
 
@@ -151,7 +151,8 @@ async function fetchData() {
   }
   const res = await dataService.get('/sms/wells/product/bs-works/life-filters', { params: { svPdCd, pdctPdCd, partPdCd } });
   const view = grdMainRef.value.getView();
-  view.getDataSource().setRows(cloneDeep(res.data));
+  view.getDataSource().setRows(res.data);
+  gridUtil.init(view);
   grdRowCount.value = getGridRowCount(view);
 }
 
@@ -166,6 +167,7 @@ async function onClickRemoveRows() {
     gridUtil.reset(view);
     await fetchData();
   }
+  grdRowCount.value = getGridRowCount(view);
 }
 
 async function onClickSave() {

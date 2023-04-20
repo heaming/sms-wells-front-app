@@ -169,25 +169,25 @@ async function initMaterialGrid(data, view) {
     // 자재코드
     { fieldName: 'sapMatCd', header: t('MSG_TXT_MATI_CD'), width: '187', styleName: 'text-center' },
     // 제품수량(개)
-    { fieldName: 'pdRelPrpVal01',
+    { fieldName: 'itmQty',
       header: t('MSG_TXT_PRD_COUNT_EA'),
       width: '87',
       styleName: 'text-right',
       dataType: 'number',
-      suffix: ` ${t('MSG_TXT_GRD_CNT')}` },
+    },
     // 판매금액
-    { fieldName: 'pdRelPrpVal02', header: t('MSG_TXT_SALE_PRICE'), width: '107', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'fnlVal', header: t('MSG_TXT_SALE_PRICE'), width: '107', styleName: 'text-right', dataType: 'number' },
     // 공급가액
-    { fieldName: 'pdRelPrpVal03', header: t('MSG_TXT_SUPPLY_AMOUNT'), width: '107', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'splAmt', header: t('MSG_TXT_SUPPLY_AMOUNT'), width: '107', styleName: 'text-right', dataType: 'number' },
     // 부가세액
-    { fieldName: 'pdRelPrpVal04', header: t('MSG_TXT_VAT_AMOUNT'), width: '107', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'vat', header: t('MSG_TXT_VAT_AMOUNT'), width: '107', styleName: 'text-right', dataType: 'number' },
     // 안분비율(%)
     { fieldName: 'diviRat',
       header: t('MSG_TXT_PROPORTIONAL_DV_RT'),
       width: '107',
       styleName: 'text-right',
       dataType: 'number',
-      suffix: ' %' },
+    },
     // 잔액산입
     { fieldName: 'blamInptYn', header: t('MSG_TXT_CHANGE_COUNTING'), width: '87', styleName: 'text-center', editor: { type: 'list' }, options: props.codes?.COD_YN },
   ];

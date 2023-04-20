@@ -99,7 +99,7 @@ const grdRowCount = ref(0);
 const currentPdCd = ref();
 const currentInitData = ref({});
 const searchParams = ref({
-  searchType: null,
+  searchType: pdConst.PD_SEARCH_NAME,
   searchValue: null,
 });
 
@@ -107,7 +107,7 @@ const materialSelectItems = ref([
   // 교재/자재명
   { codeId: pdConst.PD_SEARCH_NAME, codeName: t('MSG_TXT_PD_BOK_MTR_NAME') },
   // 교재/자재코드
-  { codeId: pdConst.PD_SEARCH_CODE, codeName: t('MSG_TXT_PROD_CD') },
+  { codeId: pdConst.PD_SEARCH_CODE, codeName: t('MSG_TXT_MATERIAL_CD') },
 ]);
 const codes = await codeUtil.getMultiCodes('PD_TEMP_SAVE_CD');
 
@@ -127,6 +127,8 @@ async function init() {
 async function resetData() {
   currentPdCd.value = '';
   currentInitData.value = {};
+  searchParams.value.searchType = pdConst.PD_SEARCH_NAME;
+  grdRowCount.value = 0;
   if (grdMainRef.value?.getView()) gridUtil.reset(grdMainRef.value.getView());
 }
 
