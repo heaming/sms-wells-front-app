@@ -15,7 +15,7 @@
 <template>
   <kw-page>
     <kw-search
-      :cols="4"
+      :cols="3"
       @search="onClickSearch"
     >
       <kw-search-row>
@@ -49,59 +49,6 @@
             :placeholder="$t('MSG_TXT_ENTER_SOMETHING', [$t('MSG_TXT_TTL')])"
           />
         </kw-search-item>
-        <wwsn-manager-og-search-item-group
-          v-model:prtnr-no="testParams4.prtnrNo"
-          use-og-level="0"
-          use-partner
-          partner-first-option="all"
-          partner-label="prtnrNoNm"
-        />
-      </kw-search-row>
-      <kw-search-row>
-        <wwsn-manager-og-search-item-group
-          v-model:dgr1-levl-og-id="testParams1.dgr1LevlOgId"
-          v-model:dgr2-levl-og-id="testParams1.dgr2LevlOgId"
-          v-model:dgr3-levl-og-id="testParams1.dgr3LevlOgId"
-          v-model:prtnr-no="testParams1.prtnrNo"
-          v-model:dgr1-levl-og="testParams1.dgr1LevlOg"
-          v-model:dgr2-levl-og="testParams1.dgr2LevlOg"
-          v-model:dgr3-levl-og="testParams1.dgr3LevlOg"
-          v-model:partner="testParams1.partner"
-          use-og-level="3"
-          use-partner
-          dgr1-levl-og-required
-          dgr2-levl-og-required
-          dgr3-levl-og-required
-          partner-required
-        />
-      </kw-search-row>
-      <kw-search-row>
-        <wwsn-manager-og-search-item-group
-          v-model:dgr1-levl-og-id="testParams2.dgr1LevlOgId"
-          v-model:dgr2-levl-og-id="testParams2.dgr2LevlOgId"
-          v-model:dgr3-levl-og-id="testParams2.dgr3LevlOgId"
-          v-model:prtnr-no="testParams2.prtnrNo"
-          use-og-level="3"
-          use-partner
-          dgr1-levl-og-first-option="all"
-          dgr2-levl-og-first-option="all"
-          dgr3-levl-og-first-option="all"
-        />
-      </kw-search-row>
-      <kw-search-row>
-        <wwsn-manager-og-search-item-group
-          v-model:dgr1-levl-og-id="testParams3.dgr1LevlOgId"
-          v-model:dgr2-levl-og-id="testParams3.dgr2LevlOgId"
-          v-model:dgr3-levl-og-id="testParams3.dgr3LevlOgId"
-          use-og-level="3"
-          :use-partner="false"
-          dgr1-levl-og-first-option="all"
-          dgr2-levl-og-first-option="all"
-          dgr3-levl-og-first-option="all"
-          dgr1-levl-og-label="ogCdNm"
-          dgr2-levl-og-label="ogCdNm"
-          dgr3-levl-og-label="ogCdNm"
-        />
       </kw-search-row>
     </kw-search>
 
@@ -173,7 +120,6 @@ import {
 } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
-import WwsnManagerOgSearchItemGroup from '~sms-wells/service/components/WwsnManagerOgSearchItemGroup.vue';
 
 const { modal } = useGlobal();
 const { t } = useI18n();
@@ -197,34 +143,6 @@ const searchParams = ref({
   edRgstDt: '',
   mngrDvCd: '',
   ntccnTitNm: '',
-});
-
-const testParams1 = ref({
-  dgr1LevlOgId: '',
-  dgr2LevlOgId: '',
-  dgr3LevlOgId: '',
-  prtnrNo: '',
-  dgr1LevlOg: {},
-  dgr2LevlOg: {},
-  dgr3LevlOg: {},
-  partner: {},
-});
-
-const testParams2 = ref({
-  dgr1LevlOgId: '',
-  dgr2LevlOgId: '',
-  dgr3LevlOgId: '',
-  prtnrNo: '',
-});
-
-const testParams3 = ref({
-  dgr1LevlOgId: '',
-  dgr2LevlOgId: '',
-  dgr3LevlOgId: '',
-});
-
-const testParams4 = ref({
-  prtnrNo: '',
 });
 
 const pageInfo = ref({
