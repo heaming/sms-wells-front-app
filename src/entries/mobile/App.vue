@@ -1,7 +1,7 @@
 <template>
   <mobile-layout>
-    <mobile-stack-view />
-    <web-router-view />
+    <mobile-stack-view v-if="!isPopup" />
+    <web-router-view v-if="isPopup" />
   </mobile-layout>
 </template>
 
@@ -10,6 +10,12 @@ import {
   useSession,
   MobileLayout, MobileStackView, WebRouterView,
 } from 'kw-lib';
+
+const route = useRouter();
+const isPopup = computed(() => {
+  if (route.currentRoute.meta?.menuUid) return false;
+  return true;
+});
 
 const {
   isReady,
