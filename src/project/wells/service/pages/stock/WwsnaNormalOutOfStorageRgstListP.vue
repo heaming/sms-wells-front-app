@@ -27,7 +27,7 @@
           :label="$t('MSG_TXT_OSTR_AK_TP')"
         >
           <kw-input
-            v-model="searchParams.ostrAkTpCd"
+            v-model="searchParams.ostrAkTpNm"
             :disable="true"
           />
         </kw-search-item>
@@ -40,6 +40,20 @@
             v-model="searchParams.ostrOjWareNm"
             :disable="true"
           />
+          <!-- 표준 미적용 -->
+          <kw-field
+            class="w100"
+          >
+            <template #default="{ field }">
+              <kw-checkbox
+                v-model="searchParams.stckNoStdGb"
+                v-bind="field"
+                :label="$t('MSG_TXT_STD_NO_APY')"
+                @change="onClickStandardNoApply"
+              />
+            </template>
+          </kw-field>
+          <!-- //표준 미적용 -->
         </kw-search-item>
         <!-- //출고창고 -->
       </kw-search-row>
@@ -71,7 +85,9 @@
         <kw-search-item
           :label="$t('MSG_TXT_FST_RGST_DT')"
         >
-          <kw-date-picker />
+          <kw-date-picker
+            v-model="searchParams.rgstDt"
+          />
         </kw-search-item>
         <!-- //등록일자 -->
         <!-- 입고창고 -->
@@ -116,24 +132,6 @@
         vertical
         inset
       />
-      <!-- 품목위치 표준미적용 -->
-      <kw-btn
-        dense
-        secondary
-        :label="$t('MSG_TXT_ITM_LOC_STD_NO_APY')"
-        name="BtnStckStdGbF"
-        @click="onClickLocationStandardNoApply"
-      />
-      <!-- //품목위치 표준미적용 -->
-      <!-- 품목위치 표준적용 -->
-      <kw-btn
-        dense
-        secondary
-        :label="$t('MSG_TXT_ITM_LOC_STD_APY')"
-        name="BtnStckStdGbT"
-        @click="onClickLocationStandardApply"
-      />
-      <!-- //품목위치 표준적용 -->
       <kw-separator
         spaced
         vertical
@@ -182,6 +180,7 @@ import { cloneDeep } from 'lodash-es';
 const { getConfig } = useMeta();
 const { modal, confirm, notify } = useGlobal();
 const { t } = useI18n();
+// const { ok } = useModal();
 
 const dataService = useDataService();
 const baseURI = '/sms/wells/service/normal-outofstorages/detail';
@@ -234,16 +233,11 @@ const codes = ref(await codeUtil.getMultiCodes(
   'MAT_MNGT_DV_CD',
 ));
 
-console.log(`codes.value.MAT_MNGT_DV_CD : ${codes.value.MAT_MNGT_DV_CD}`);
-console.log(dayjs().format('YYYYMMDD'));
-console.log(`props.ostrOjWareNm: ${props.ostrOjWareNm}`);
-console.log(`props.strOjWareNm: ${props.strOjWareNm}`);
-console.log(`props.strHopDt: ${props.strHopDt}`);
-
 const searchParams = ref({
   ostrAkTpCd: props.ostrAkTpCd,
-  ostrOjWareNo: props.ostrOjWareNo,
-  strOjWareNo: props.strOjWareNo,
+  ostrAkTpNm: codes.value.OSTR_AK_TP_CD.find((v) => v.codeId === props.ostrAkTpCd).codeName,
+  ostrWareNo: '',
+  strWareNo: '',
   strHopDt: props.strHopDt,
   ostrAkNo: props.ostrAkNo,
   ostrOjWareNm: props.ostrOjWareNm,
@@ -251,6 +245,8 @@ const searchParams = ref({
   ostrAkRgstDt: props.strHopDt,
   itmPdCd: props.itmPdCd,
   stckStdGb: '1',
+  stckNoStdGb: '',
+  rgstDt: dayjs().format('YYYYMMDD'),
 });
 let cachedParams;
 
@@ -290,19 +286,23 @@ async function onClickExcelDownload() {
   });
 }
 
-async function onClickLocationStandardApply() {
-  searchParams.value.stckStdGb = '1';
-  await onClickSearch();
+function getSaveParams() {
+  const checkedValues = gridUtil.getCheckedRowValues(grdMainRef.value.getView());
+  console.log(checkedValues);
+  return checkedValues;
 }
 
-async function onClickLocationStandardNoApply() {
-  searchParams.value.stckStdGb = '0';
-  await onClickSearch();
+async function onClickStandardNoApply() {
+  // onClickLocationStandardApply();
+  // searchParams.value.stckStdGb = '0';
+  // debugger;
 }
 
 async function onClickConfirm() {
   if (await confirm(t('MSG_ALT_WANT_DTRM'))) {
-    notify(t('MSG_TXT_CNFM_SCS'));
+    const saveParams = getSaveParams();
+    await dataService.put(baseURI, saveParams);
+    await fetchData();
   }
 }
 
@@ -313,7 +313,14 @@ async function onClickConfirmAfterMove() {
 }
 
 onMounted(async () => {
+  searchParams.value.ostrWareNo = props.ostrOjWareNo;
+  searchParams.value.strWareNo = props.strOjWareNo;
+  // searchParams.value.stckNoStdGb = 'N';
+  // searchParams.value.stckStdGb = '1';
+  console.log(searchParams.value.ostrWareNo);
+  console.log(searchParams.value.strWareNo);
   await onClickSearch();
+  // debugger;
 });
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
@@ -335,7 +342,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'reqStckQty', header: t('MSG_TXT_OSTR_WARE_STOC'), width: '100', styleName: 'text-center' },
     { fieldName: 'qty', header: t('MSG_TXT_STR_WARE_STOC'), width: '100', styleName: 'text-center' },
     { fieldName: 'avgOut', header: t('MSG_TXT_CNTR_AV_OSTR_QTY'), width: '100', styleName: 'text-center' },
-    { fieldName: 'ostrAkQty', header: t('RQST_QTY'), width: '100', styleName: 'text-center' },
+    { fieldName: 'ostrAkQty', header: t('MSG_TXT_RQST_QTY'), width: '100', styleName: 'text-center' },
     { fieldName: 'ostrCnfmQty', header: t('MSG_TXT_CNFM_QTY'), width: '100', styleName: 'text-center' },
     { fieldName: 'strHopDt', header: t('MSG_TXT_STR_HOP_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'ostrAggQty', header: t('MSG_TXT_OSTR_AGG'), width: '100', styleName: 'text-center' },
@@ -359,9 +366,25 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'mgtUntNm', header: t('TXT_MSG_MNGT_UNIT_CD'), width: '100', styleName: 'text-center' },
     { fieldName: 'boxUnitQty', header: t('MSG_TXT_BOX_QTY'), width: '100', styleName: 'text-center' },
     { fieldName: 'rectOstrDt', header: t('MSG_TXT_RECT_OSTR_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'chk', header: '', width: '0', styleName: 'text-center', visible: false },
   ];
-  const fields = columns.map((v) => ({ fieldName: v.fieldName }));
+  const gridField = columns.map((v) => ({ fieldName: v.fieldName }));
+  const fields = [...gridField,
+    { fieldName: 'chk' },
+    { fieldName: 'flag' },
+    { fieldName: 'ostrAkNo' },
+    { fieldName: 'ostrAkSn' },
+    { fieldName: 'pdPrpVal15' },
+    { fieldName: 'pdPrpVal16' },
+    { fieldName: 'pdPrpVal19' },
+    { fieldName: 'ostrTpCd' },
+    { fieldName: 'strWareNo' },
+    { fieldName: 'ostrWareNo' },
+    { fieldName: 'ostrAkRgstDt' },
+    { fieldName: 'wareMngtPrtnrNo' },
+    { fieldName: 'ostrAkWareDvCd' },
+    { fieldName: 'ostrWareMngtPrtnrNo' },
+    { fieldName: 'mngtUnitCd' },
+    { fieldName: 'ostrCnfmCd' }];
 
   data.setFields(fields);
   view.setColumns(columns);
