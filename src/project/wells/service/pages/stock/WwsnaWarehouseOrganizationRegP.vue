@@ -246,7 +246,7 @@ const codes = await codeUtil.getMultiCodes(
 
 const rgstDt = dayjs().format('YYYYMMDD');
 
-const warehouseInfo = ref({
+const initialWarehouseInfo = {
   apyYm: '', // 기준년월
   wareDvCd: '', // 창고구분코드
   wareDtlDvCd: '', // 창고상세구분코드
@@ -276,10 +276,10 @@ const warehouseInfo = ref({
   dgr2LevlOgCd: '', // 2차레벨조직코드
   dgr2LevlOgNm: '', // 2차레벨조직명
   dgr2LevlOgCdNm: '', // 2차레벨조직코드 + 조직명
-});
+};
 
+const warehouseInfo = ref(initialWarehouseInfo);
 const hgrWarehouses = ref([]);
-
 const WARE_DV_SERVICE = '2';
 const WARE_DV_BUSINESS = '3';
 const wareDtlDvCds = ref([]);
@@ -288,7 +288,22 @@ const wareDvCdRule = codes.WARE_DV_CD.filter((v) => v.codeId !== '1').map((v) =>
 const wareDtlDvCdRule = ref('');
 const isOrgWarehouse = computed(() => warehouseInfo.value.wareDtlDvCd === '20' || warehouseInfo.value.wareDtlDvCd === '30');
 
+function hasProps() {
+  return !isEmpty(props.apyYm) && !isEmpty(props.wareNo);
+}
+
+function resetWarehouseInfo() {
+  const { wareDvCd } = warehouseInfo.value;
+  warehouseInfo.value = { ...initialWarehouseInfo };
+  warehouseInfo.value.wareDvCd = wareDvCd;
+  hgrWarehouses.value = [];
+}
+
 watch(() => warehouseInfo.value.wareDvCd, async (val) => {
+  if (!hasProps()) {
+    resetWarehouseInfo();
+  }
+
   if (val === WARE_DV_SERVICE) {
     wareDtlDvCds.value = codes.WARE_DTL_DV_CD
       .filter((v) => v.codeId.charAt(0) === WARE_DV_SERVICE)
@@ -299,7 +314,7 @@ watch(() => warehouseInfo.value.wareDvCd, async (val) => {
       .map((v) => ({ codeId: v.codeId, codeName: v.codeName.split(' ')[1] }));
   }
   wareDtlDvCdRule.value = wareDtlDvCds.value.map((v) => (v.codeId)).join(',');
-}, { immediate: true });
+});
 
 async function fetchHigherWarehouses() {
   const params = {
@@ -336,10 +351,8 @@ async function onClickOpenHumanResourcesPopup() {
   if (!validateWareDvCd()) return;
 
   let mngrDvCd = '';
-  let searchText;
   if (warehouseInfo.value.wareDvCd === WARE_DV_SERVICE) { // 서비스센터일 경우 '엔지니어'
     mngrDvCd = '2';
-    searchText = warehouseInfo.value.prtnrKnm;
   } else if (warehouseInfo.value.wareDvCd === WARE_DV_BUSINESS) { // 영업센터일 경우 '매니저'
     mngrDvCd = '1';
   }
@@ -348,7 +361,7 @@ async function onClickOpenHumanResourcesPopup() {
     component: 'WwsndHumanResourcesListP',
     componentProps: {
       mngrDvCd,
-      searchText,
+      searchText: warehouseInfo.value.prtnrKnm,
     },
   });
 
@@ -394,10 +407,6 @@ async function onClickSave() {
   await dataService.post('/sms/wells/service/warehouse-organizations', warehouseInfo.value);
   ok();
   await notify(t('MSG_ALT_SAVE_DATA'));
-}
-
-function hasProps() {
-  return !isEmpty(props.apyYm) && !isEmpty(props.wareNo);
 }
 
 onMounted(async () => {
