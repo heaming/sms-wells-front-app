@@ -22,7 +22,7 @@
       @search="onClickSearch"
     >
       <kw-search-row>
-        <kw-search-item :label="$t('고객번호')">
+        <kw-search-item :label="$t('계약번호')">
           <kw-input
             v-model="searchParams.cntrNo"
             icon="search"
@@ -137,7 +137,7 @@
         <kw-form-item
           :label="$t('활동중지일')"
         >
-          <p>{{ stringUtil.getDateFormat(contractInfo.rsgnDt) }}</p>
+          <p>{{ stringUtil.getDateFormat(contractInfo.cltnDt) }}</p>
         </kw-form-item>
       </kw-form-row>
     </kw-form>
@@ -154,7 +154,7 @@
         </kw-form-item>
         <kw-form-item :label="$t('변경구분')">
           <kw-select
-            v-model="contractInfo.chRqrDvCd"
+            v-model="contractInfo.chMngrDvCd"
             :options="codes.FXN_MNGER_DSN_DV_CD"
           />
         </kw-form-item>
@@ -175,12 +175,15 @@
       <kw-form-row>
         <kw-form-item :label="$t('방문담당')">
           <kw-input
+            v-model.trim="contractInfo.fxnPrtnrKnm"
             icon="search"
             clearable
+            @click-icon="onFxnPrtnrNoSearchPopup"
           />
           <kw-input
             v-model="contractInfo.fxnPrtnrNo"
             class="w120"
+            placeholder=""
             disable
           />
         </kw-form-item>
@@ -229,7 +232,7 @@ import { codeUtil, useModal, useGlobal, useDataService, stringUtil } from 'kw-li
 import { cloneDeep, isEmpty } from 'lodash-es';
 
 const { t } = useI18n();
-const { confirm, notify } = useGlobal();
+const { confirm, notify, modal, alert } = useGlobal();
 const { ok, cancel: onClickCancel } = useModal();
 const dataService = useDataService();
 
@@ -248,6 +251,35 @@ const searchParams = ref({
  *  Response Data setting을 위한 parameter
  */
 const contractInfo = ref({});
+const contractSaveInfo = ref({
+  cntrNo: '',
+  cntrSn: '',
+  chSn: '',
+  cstKnm: '',
+  cralLocaraTno: '',
+  mexnoEncr: '',
+  cralIdvTno: '',
+  rnadr: '',
+  rdadr: '',
+  rcgvpKnm: '',
+  cralLocaraTnoInstall: '',
+  mexnoEncrInstall: '',
+  cralIdvTnoInstall: '',
+  rnadrInstall: '',
+  rdadrInstall: '',
+  pdNm: '',
+  pdPrpVal01: '',
+  apyStrtYm: '',
+  chMngrDvCd: '',
+  fnlMdfcDtm: '',
+  fxnPrtnrDvCd: '',
+  fxnPrtnrNo: '',
+  fxnPrtnrKnm: '',
+  chRsonCn: '',
+  dtaDlYn: '',
+  prtnrKnm: '',
+  cltnDt: '',
+});
 
 /*
  *  공통코드 조회
@@ -270,7 +302,7 @@ const codes = await codeUtil.getMultiCodes(
 let cachedParams;
 async function fetchFixationRegistration() {
   const res = await dataService.get('/sms/wells/service/fixation-visit', { params: { ...cachedParams } });
-  contractInfo.value = res.data;
+  contractInfo.value = { ...contractSaveInfo.value, ...res.data };
 }
 
 /*
@@ -299,6 +331,15 @@ function getAddress(rnadr, rdadr) {
  *  Event - 저장 버튼 클릭
  */
 async function onClickSave() {
+  if (isEmpty(searchParams.value.cntrNo) || isEmpty(searchParams.value.cntrSn)) {
+    await alert('계약정보를 조회한 후 저장할 수 있습니다.');
+    return;
+  }
+
+  // cntrNo, cntrSn, chSn setting
+  contractInfo.value.cntrNo = searchParams.value.cntrNo;
+  contractInfo.value.cntrSn = searchParams.value.cntrSn;
+
   if (!await confirm(t('MSG_ALT_WANT_SAVE'))) { return; }
 
   await dataService.post('/sms/wells/service/fixation-visit', contractInfo.value);
@@ -311,8 +352,39 @@ async function onClickSave() {
  *  Event - 조회 버튼 클릭
  */
 async function onClickSearch() {
+  // cherro ::: test code (단위테스트 후 삭제)
+  if (isEmpty(searchParams.value.cntrSn)) {
+    searchParams.value.cntrSn = '1';
+  }
+
+  if (isEmpty(searchParams.value.cntrNo) || isEmpty(searchParams.value.cntrSn)) {
+    await alert('계약정보를 조회한 후 조회할 수 있습니다.');
+    return;
+  }
+
   cachedParams = cloneDeep(searchParams.value);
   fetchFixationRegistration();
+}
+
+/*
+ *  Event - 방문담당자 검색 버튼 클릭
+ */
+async function onFxnPrtnrNoSearchPopup() {
+  const mngrDvCd = contractInfo.value.fxnPrtnrDvCd ?? '';
+  const searchText = contractInfo.value.fxnPrtnrKnm;
+
+  const { result: isChanged, payload } = await modal({
+    component: 'WwsndHumanResourcesListP',
+    componentProps: {
+      mngrDvCd,
+      searchText,
+    },
+  });
+
+  if (isChanged) {
+    contractInfo.value.fxnPrtnrNo = payload[0].prtnrNo;
+    contractInfo.value.fxnPrtnrKnm = payload[0].prtnrKnm;
+  }
 }
 
 // -------------------------------------------------------------------------------------------------
