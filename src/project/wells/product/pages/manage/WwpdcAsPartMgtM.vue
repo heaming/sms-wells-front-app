@@ -354,7 +354,8 @@ async function onClickCancel() {
     }
   }));
 
-  if (modifiedOk && await confirm(t('MSG_ALT_HIS_TAB_MOD'))) {
+  // MSG_ALT_HIS_TAB_MOD - 변경사항이 있습니다. 취소하시겠습니까?
+  if (modifiedOk && await confirm(t('MSG_ALT_DO_CANCEL_DISCARD_CHANGE'))) {
     await pageMove(pdConst.ASPART_LIST_PAGE, true, router, { isSearch: false });
   }
   if (!modifiedOk) await pageMove(pdConst.ASPART_LIST_PAGE, true, router, { isSearch: false });

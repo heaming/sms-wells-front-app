@@ -68,21 +68,21 @@
 
     <kw-separator />
     <!-- Grid Area -->
-    <h3>{{ grd3rdTit.codeName }}</h3>
+    <h3>{{ grd3rdTit.codeName ?? t('MSG_TXT_REP_PROD') }}</h3>
     <kw-grid
       ref="grd3rdRef"
       :visible-rows="visibleRowCnt3"
       @init="initGrd3rd"
     />
     <kw-separator />
-    <h3>{{ grd2ndTit.codeName }}</h3>
+    <h3>{{ grd2ndTit.codeName ?? t('MSG_TXT_AVOID_EAT_ALONE') }}</h3>
     <kw-grid
       ref="grd2ndRef"
       :visible-rows="visibleRowCnt2"
       @init="initGrd2nd"
     />
     <kw-separator />
-    <h3>{{ grd1stTit.codeName }}</h3>
+    <h3>{{ grd1stTit.codeName ?? t('MSG_TXT_AS_PART') }}</h3>
     <kw-grid
       ref="grd1stRef"
       :visible-rows="visibleRowCnt1"
@@ -129,16 +129,17 @@ const visibleRowCnt1 = ref(1);
 const visibleRowCnt2 = ref(1);
 const visibleRowCnt3 = ref(1);
 
-const codes = await codeUtil.getMultiCodes('PD_REL_TP_CD');
+const codes = await codeUtil.getMultiCodes('PDCT_REL_DV_CD');
 
 async function fetchData() {
   const res = await dataService.get(`${baseUrl}/${props.pdCd}`);
   pdBas.value = res.data[pdConst.TBL_PD_BAS];
   pdRel.value = res.data[pdConst.TBL_PD_REL];
   PdEcomPrpDtl.value = res.data[pdConst.TBL_PD_ECOM_PRP_DTL];
+  debugger;
   // 관리속성 - 판매제품
   PDCT.value = PdEcomPrpDtl.value.find((element) => element.pdExtsPrpGrpCd === 'PDCT');
-  pdColoNm.value = PDCT.value.pdPrpVal02 ?? '';
+  pdColoNm.value = PDCT.value?.pdPrpVal02 ?? '';
 }
 
 function showRowCnt(rowCnt) {
@@ -160,13 +161,13 @@ onMounted(async () => {
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
 const columns = [
-  { fieldName: 'pdRelTpCd', header: t('MSG_TXT_RELATION_CLSF'), width: '106', styleName: 'text-center', options: codes.PD_REL_TP_CD }, /* 관계구분 */
+  { fieldName: 'pdRelTpCd', header: t('MSG_TXT_RELATION_CLSF'), width: '106', styleName: 'text-center', options: codes.PDCT_REL_DV_CD }, /* 관계구분 */
   { fieldName: 'pdClsfNm', header: t('MSG_TXT_CLSF'), width: '176', styleName: 'text-left' }, /* 분류 */
   { fieldName: 'pdNm', header: t('MSG_TIT_MATERIAL_NM'), width: '382', styleName: 'text-left' }, /* 교재/자재명 */
   { fieldName: 'sapPdctSclsrtStrcVal', header: t('MSG_TXT_MATI_CD'), width: '121' }, /* 자재코드 교재/제재코드 */
   { fieldName: 'modelNo', header: t('MSG_TXT_PD_MODEL_NO'), width: '152', styleName: 'text-center' }, /* 모델No */
-  { fieldName: 'pdAbbrNm', header: t('MSG_TXT_ABBR'), width: '226', styleName: 'text-left' }, /* 약어 */
-  { fieldName: 'ostrCnrCd', header: t('MSG_TIT_SHIPPING_CENTER'), width: '214', styleName: 'text-left' }, /* 출고센터 */
+  { fieldName: 'pdAbbrNm', header: t('MSG_TXT_ABBR'), width: '226', styleName: 'text-left', visible: false }, /* 약어 */
+  { fieldName: 'ostrCnrCd', header: t('MSG_TIT_SHIPPING_CENTER'), width: '214', styleName: 'text-left', visible: false }, /* 출고센터 */
   { fieldName: 'pdTpCd', header: t('MSG_TIT_PRDT_TYPE'), width: '214', visible: false }, /* 상품종류 */
   { fieldName: 'ojPdCd', header: t('MSG_TIT_TARGET_PRDT_CD'), width: '214', visible: false }, /* 대상상품코드 */
   { fieldName: 'fstRgstDtm', header: t('MSG_TXT_RGST_DTM'), width: '110', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date', visible: false }, /* 등록일 */
@@ -183,7 +184,7 @@ const initGrd1st = defineGrid((data, view) => {
     .filter((visible) => visible);
   data.setFields(fields);
   view.setColumns(columns);
-  view.rowIndicator.visible = true;
+  view.rowIndicator.visible = false;
   view.checkBar.visible = false;
   view.displayOptions.selectionStyle = 'singleRow';
 });
@@ -193,7 +194,7 @@ const initGrd2nd = defineGrid((data, view) => {
     .filter((visible) => visible);
   data.setFields(fields);
   view.setColumns(columns);
-  view.rowIndicator.visible = true;
+  view.rowIndicator.visible = false;
   view.checkBar.visible = false;
   view.displayOptions.selectionStyle = 'singleRow';
 });
@@ -203,16 +204,16 @@ const initGrd3rd = defineGrid((data, view) => {
     .filter((visible) => visible);
   data.setFields(fields);
   view.setColumns(columns);
-  view.rowIndicator.visible = true;
+  view.rowIndicator.visible = false;
   view.checkBar.visible = false;
   view.displayOptions.selectionStyle = 'singleRow';
 });
 
 async function setData() {
   // Grid Header Binding
-  grd1stTit.value = codes.PD_REL_TP_CD.find((v) => v.codeId === pdConst.PD_REL_TP_CD_NO_MIX); // 13
-  grd2ndTit.value = codes.PD_REL_TP_CD.find((v) => v.codeId === pdConst.PD_REL_TP_CD_AS_PART); // 14
-  grd3rdTit.value = codes.PD_REL_TP_CD.find((v) => v.codeId === pdConst.PD_REL_TP_CD_CHG_MD); // 15
+  grd1stTit.value = codes.PDCT_REL_DV_CD.find((v) => v.codeId === '14');
+  grd2ndTit.value = codes.PDCT_REL_DV_CD.find((v) => v.codeId === '13');
+  grd3rdTit.value = codes.PDCT_REL_DV_CD.find((v) => v.codeId === '06');
 
   // Grid Data Binding
   const relData = pdRel.value;
@@ -223,9 +224,9 @@ async function setData() {
   const grd2DataProvider = grd2ndRef.value.getView().getDataSource();
   const grd3DataProvider = grd3rdRef.value.getView().getDataSource();
 
-  grd1DataProvider.fillJsonData(relData.filter((v) => v.pdRelTpCd === pdConst.PD_REL_TP_CD_NO_MIX), { fillMode: 'set' });
-  grd2DataProvider.fillJsonData(relData.filter((v) => v.pdRelTpCd === pdConst.PD_REL_TP_CD_AS_PART), { fillMode: 'set' });
-  grd3DataProvider.fillJsonData(relData.filter((v) => v.pdRelTpCd === pdConst.PD_REL_TP_CD_CHG_MD), { fillMode: 'set' });
+  grd1DataProvider.fillJsonData(relData.filter((v) => v.pdRelTpCd === '14'), { fillMode: 'set' });
+  grd2DataProvider.fillJsonData(relData.filter((v) => v.pdRelTpCd === '13'), { fillMode: 'set' });
+  grd3DataProvider.fillJsonData(relData.filter((v) => v.pdRelTpCd === '06'), { fillMode: 'set' });
 
   visibleRowCnt1.value = showRowCnt(grd1stRef.value.getView().getItemCount());
   visibleRowCnt2.value = showRowCnt(grd2ndRef.value.getView().getItemCount());

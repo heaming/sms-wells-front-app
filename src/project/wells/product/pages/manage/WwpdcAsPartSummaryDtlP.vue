@@ -14,15 +14,6 @@
 --->
 <template>
   <kw-popup size="lg">
-    <!--
-    <kw-chip
-      :label="pdBas.sellYn === 'Y' ? $t('MSG_TXT_PD_SELLING') : $t('MSG_TXT_PD_NOT_SELLING') "
-      color="primary"
-      outline
-      class="ml0 mb8 pb2 pt1 px8 mt0"
-    />
-     -->
-
     <h2 class="h2-small">
       {{ pdBas.pdNm }}({{ pdBas.pdCd }})
       <p>
@@ -56,21 +47,19 @@
         <kw-form-item :label="$t('MSG_TXT_PD_MODEL_NO')">
           <p>{{ pdBas.modelNo }}</p>
         </kw-form-item>
-        <!-- 모델색상 -->
-        <kw-form-item :label="$t('MSG_TXT_MODEL_COLOR')">
-          <p>{{ pdColoNm }}</p>
+        <!-- 품목코드 -->
+        <kw-form-item :label="$t('MSG_TXT_ITM_CD')">
+          <p>{{ asMatCd }}</p>
+        </kw-form-item>
+      </kw-form-row>
+
+      <kw-form-row>
+        <!-- AS자재번호 -->
+        <kw-form-item :label="$t('TXT_MSG_AS_MAT_CD')">
+          <p>{{ asItmCd }}</p>
         </kw-form-item>
       </kw-form-row>
     </kw-form>
-    <!--
-    <template #action>
-      <kw-btn
-        primary
-        :label="$t('MSG_BTN_CONFIRM')"
-        @click="onClickConfirm"
-      />
-    </template>
-     -->
   </kw-popup>
 </template>
 
@@ -78,10 +67,9 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService, stringUtil } from 'kw-lib'; // useModal
+import { useDataService, stringUtil } from 'kw-lib';
 import pdConst from '~sms-common/product/constants/pdConst';
 
-// const { ok } = useModal();
 const dataService = useDataService();
 const props = defineProps({
   pdCd: { type: String, required: true, default: '' },
@@ -94,19 +82,21 @@ const baseUrl = '/sms/wells/product/as-parts';
 
 const pdBas = ref({}); // 상품기본
 const PdEcomPrpDtl = ref([]); // 상품각사속성상세
-const PDCT = ref({}); // 관리속성 - 학습관리
-const pdColoNm = ref(''); // 모델색상
+// const PDCT = ref({}); // 관리속성 - 학습관리
+// const pdColoNm = ref(''); // 모델색상
 
-// async function onClickConfirm() {
-//   ok();
-// }
+const PART = ref({}); // 관리속성 - 학습관리
+const asMatCd = ref(''); // PART- 품목코드
+const asItmCd = ref(''); // PART- AS자재번호
 
 async function fetchData() {
   const res = await dataService.get(`${baseUrl}/${props.pdCd}`);
   pdBas.value = res.data[pdConst.TBL_PD_BAS];
   PdEcomPrpDtl.value = res.data[pdConst.TBL_PD_ECOM_PRP_DTL];
-  PDCT.value = PdEcomPrpDtl.value.find((element) => element.pdExtsPrpGrpCd === 'PDCT');
-  pdColoNm.value = PDCT.value?.pdPrpVal02 ?? '';
+
+  PART.value = PdEcomPrpDtl.value.find((element) => element.pdExtsPrpGrpCd === 'PART');
+  asMatCd.value = PART.value?.pdPrpVal31 ?? '';
+  asItmCd.value = PART.value?.pdPrpVal01 ?? '';
 }
 
 onMounted(async () => {
