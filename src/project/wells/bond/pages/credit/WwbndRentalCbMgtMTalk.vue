@@ -183,11 +183,11 @@ async function onChangePageInfo() {
 async function onClickRemove() {
   const view = grdMainRefTalk.value.getView();
   const deletedRows = await gridUtil.confirmDeleteCheckedRows(view);
-  const deletedKeys = deletedRows.map((row) => ({
-    bndCntcExcdOjId: row.bndCntcExcdOjId,
-  }));
+  const deletedKeys = deletedRows.map((row) => (
+    row.bndCntcExcdOjId
+  ));
   if (deletedRows.length > 0) {
-    await dataService.delete(baseUrl, deletedKeys);
+    await dataService.delete(baseUrl, { data: deletedKeys });
     await fetchData();
   }
 }
@@ -215,10 +215,9 @@ async function onClickSave() {
   await fetchData();
 }
 
-// TODO: 추후 개발 예정
 const onClickExcelUpload = async () => {
   const apiUrl = `${baseUrl}/excel-upload`;
-  const templateId = '';
+  const templateId = 'FOM_NOTAK_FW_EXCD';
   const {
     result,
   } = await modal({
@@ -227,6 +226,7 @@ const onClickExcelUpload = async () => {
   });
   if (result.status === 'S') {
     notify(t('MSG_ALT_SAVE_DATA'));
+    await fetchData();
   }
 };
 
@@ -236,9 +236,11 @@ async function onClickExcelDownload() {
   const res = await dataService.get(`${baseUrl}/excel-download`, { params: cachedParams });
 
   await gridUtil.exportView(view, {
-    fileName: currentRoute.value.meta.menuName,
+    fileName: `${currentRoute.value.meta.menuName}_${t('MSG_TIT_RENTAL_CB_NOTAK_FW_EXCD')}`,
     timePostfix: true,
     exportData: res.data,
+    indicator: 'hidden',
+    checkBar: 'hidden',
   });
 }
 // -------------------------------------------------------------------------------------------------
@@ -246,9 +248,9 @@ async function onClickExcelDownload() {
 // -------------------------------------------------------------------------------------------------
 const initGridTalk = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'cstNo', header: t('MSG_TXT_CST_NO'), width: '450', styleName: 'text-center', rules: 'numeric', editor: { maxLength: 10 } },
-    { fieldName: 'apyStrtdt', header: t('MSG_TXT_APY_STRT_YM'), width: '498', styleName: 'text-center', editor: { type: 'btdate' }, datetimeFormat: 'YYYY-MM' },
-    { fieldName: 'apyEnddt', header: t('MSG_TXT_APY_END_YM'), width: '498', styleName: 'text-center', editor: { type: 'btdate' }, datetimeFormat: 'YYYY-MM' },
+    { fieldName: 'cstNo', header: t('MSG_TXT_CST_NO'), width: '450', styleName: 'text-center, rg-button-icon--search', button: 'action', rules: 'numeric||required', editor: { maxLength: 10 } },
+    { fieldName: 'apyStrtdt', header: t('MSG_TXT_APY_STRT_YM'), width: '498', styleName: 'text-center', editor: { type: 'btdate' }, datetimeFormat: 'YYYY-MM', rules: 'required' },
+    { fieldName: 'apyEnddt', header: t('MSG_TXT_APY_END_YM'), width: '498', styleName: 'text-center', editor: { type: 'btdate' }, datetimeFormat: 'YYYY-MM', rules: 'required' },
     { fieldName: 'bndCntcExcdOjId', visible: false },
     { fieldName: 'ctntExcdBndBizCd', visible: false },
     { fieldName: 'ctntExcdOjTpCd', visible: false },
@@ -266,6 +268,18 @@ const initGridTalk = defineGrid((data, view) => {
 
   view.onCellEdited = (grid, itemIndex) => {
     grid.checkItem(itemIndex, true);
+  };
+
+  view.onCellButtonClicked = async (grid, { dataRow, column }) => {
+    if (column === 'cstNo') {
+      const { result, payload } = await modal({
+        component: 'ZwcsaCustomerListP',
+      });
+      if (result) {
+        const { cstNo } = payload;
+        data.setValue(dataRow, 'cstNo', cstNo);
+      }
+    }
   };
 });
 
