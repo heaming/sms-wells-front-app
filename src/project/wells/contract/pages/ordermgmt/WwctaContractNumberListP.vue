@@ -27,11 +27,7 @@
           <kw-input
             v-model="searchParams.cntrCstKnm"
             :label="$t('MSG_TXT_CNTOR_NM')"
-            icon="search"
-            :on-click-icon="onClickSearchCntrCst"
-            :on-keydown-no-click="true"
             maxlength="50"
-            @keydown.enter="onClickSearch"
           />
         </kw-search-item>
         <kw-search-item
@@ -122,16 +118,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import {
-  codeUtil,
-  defineGrid,
-  getComponentType,
-  gridUtil,
-  useDataService,
-  useGlobal,
-  useMeta,
-  useModal,
-} from 'kw-lib';
+import { codeUtil, defineGrid, getComponentType, gridUtil, useDataService, useGlobal, useMeta, useModal } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
 
