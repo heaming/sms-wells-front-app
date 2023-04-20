@@ -202,8 +202,6 @@ function getSaveParams() {
   const changedRows = gridUtil.getChangedRowValues(view);
 
   return changedRows.map((v) => ({ ...v,
-    cntrNo: v.cntr[0] !== tenantCd ? tenantCd + v.cntr.slice(0, 11) : v.cntr.slice(0, 12),
-    cntrSn: v.cntr[0] !== tenantCd ? v.cntr.slice(11) : v.cntr.slice(12),
     ucAmt: v.dsnWdrwAmt - v.dpAmt,
   }));
 }
@@ -238,14 +236,10 @@ async function onClickRemove() {
   // const checkedRows = gridUtil.getCheckedRowValues(view);
   const deletedRows = await gridUtil.confirmDeleteCheckedRows(view);
 
-  if (deletedRows.length === 0) {
-    return;
-  }
-
   const data = deletedRows.filter((v) => v.rowState === 'none').map((v) => ({
     cntr: v.cntr,
-    cntrNo: v.cntr.slice(0, 12),
-    cntrSn: v.cntr.slice(12),
+    cntrNo: v.cntrNo,
+    cntrSn: v.cntrSn,
     dsnWdrwFntD: v.dsnWdrwFntD,
   }));
 
@@ -315,7 +309,7 @@ const initGrid = defineGrid((data, view) => {
       // editor: {
       //   type: 'number',
       // },
-      rules: 'required||length:13',
+      rules: 'required',
       styleCallback: (grid, dataCell) => {
         const rowState = gridUtil.getCellValue(view, dataCell.index.itemIndex, 'rowState');
         if (rowState !== 'created') {
@@ -323,13 +317,15 @@ const initGrid = defineGrid((data, view) => {
         }
       },
       // eslint-disable-next-line no-unused-vars
-      displayCallback(grid, index, value) {
-        const { cntrNo, cntrSn, rowState } = gridUtil.getRowValue(grid, index.itemIndex);
-        if (rowState !== 'created') {
-          return `${cntrNo}-${cntrSn}`;
-        }
-        return value;
-      },
+      // displayCallback(grid, index, value) {
+      //   // eslint-disable-next-line no-unused-vars
+      //   const { cntrNo, cntrSn, rowState } = gridUtil.getRowValue(grid, index.itemIndex);
+      //   // if (rowState !== 'created') {
+      //   //   return `${cntrNo}-${cntrSn}`;
+      //   // }
+      //   // return value;
+      //   return `${cntrNo}-${cntrSn}`;
+      // },
     },
     { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '80', styleName: 'text-center', editable: false },
     { fieldName: 'sellTpCd', header: t('MSG_TXT_TASK_TYPE'), width: '80', styleName: 'text-center', editable: false, options: codes.BND_CLCTN_SELL_TP_CD },
@@ -450,18 +446,18 @@ const initGrid = defineGrid((data, view) => {
     }
   };
   // eslint-disable-next-line no-unused-vars
-  view.onCellButtonClicked = async (g, { column, itemIndex }) => {
+  view.onCellButtonClicked = async (g, { column, dataRow }) => {
     if (column === 'cntr') {
-      const { cntr } = gridUtil.getRowValue(g, itemIndex);
+      const { cntr } = gridUtil.getRowValue(g, dataRow);
       const { result, payload } = await modal({
         component: 'WwctaContractNumberListP',
         componentProps: { cntrNo: cntr?.slice(0, 12), cntrSn: cntr?.slice(12) },
       });
-
       if (result) {
         const { cntrNo: resCntrNo, cntrSn: resCntrSn } = payload;
-        data.setValue(itemIndex, 'cntrNo', resCntrNo);
-        data.setValue(itemIndex, 'cntrSn', resCntrSn);
+        data.setValue(dataRow, 'cntrNo', resCntrNo);
+        data.setValue(dataRow, 'cntrSn', resCntrSn);
+        data.setValue(dataRow, 'cntr', `${resCntrNo}-${resCntrSn}`);
       }
     }
   };
