@@ -3,7 +3,7 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : CTE
-2. 프로그램 ID : WwcteSecProductMgtMConfirmDate - 삼성전자 상품관리(확정일) 화면
+2. 프로그램 ID : WwcteSamsungProductMgtM - 삼성전자 상품관리
 3. 작성자 : gs.ritvik.m
 4. 작성일 : 2023.04.03
 ****************************************************************************************************
@@ -13,118 +13,87 @@
 ****************************************************************************************************
 --->
 <template>
-  <kw-page>
-    <!-- To.개발 kw-tab-panel안에 kw-search로 시작하는 경우 kw-tabs에 .form-border 제거 / 그 외 추가 -->
-    <kw-tabs model-value="3">
-      <kw-tab
-        name="1"
-        :label="$t('MSG_TXT_NOT_INSTL')"
+  <kw-search>
+    <kw-search-row>
+      <kw-search-item
+        :label="$t('MSG_TXT_DUEDT')"
+        required
+      >
+        <kw-date-range-picker
+          rules="date_range_required|date_range_months:1"
+          :label="$t('MSG_TXT_DUEDT')"
+        />
+      </kw-search-item>
+      <kw-search-item
+        :label="$t('MSG_TXT_ORD_TYP')"
+      >
+        <kw-option-group
+          type="radio"
+          :label="$t('MSG_TXT_ORD_TYP')"
+          :options="[$t('MSG_TXT_ALL'), $t('MSG_TXT_RENTAL'), $t('MSG_TXT_SNGL_PMNT')]"
+        />
+      </kw-search-item>
+      <kw-search-item
+        :label="$t('MSG_TXT_SM_ORD_NO')"
+      >
+        <kw-input :label="$t('MSG_TXT_SM_ORD_NO')" />
+      </kw-search-item>
+    </kw-search-row>
+    <kw-search-row>
+      <kw-search-item
+        :label="$t('MSG_TXT_SERIAL_NO')"
+      >
+        <kw-input :label="$t('MSG_TXT_SERIAL_NO')" />
+      </kw-search-item>
+    </kw-search-row>
+  </kw-search>
+  <div class="result-area">
+    <h3>결과조회</h3>
+    <kw-action-top>
+      <template #left>
+        <kw-paging-info :total-count="100" />
+      </template>
+      <kw-btn
+        icon="download_off"
+        dense
+        secondary
+        :label="$t('MSG_TXT_TEMP_DOWN')"
       />
-      <kw-tab
-        name="2"
-        :label="$t('MSG_TXT_DLVRY')"
+      <kw-btn
+        icon="upload_on"
+        dense
+        secondary
+        :label="$t('MSG_TXT_EXCEL_UPLOAD')"
       />
-      <kw-tab
-        name="3"
-        :label="$t('MSG_TXT_DTRM_DATE')"
+      <kw-btn
+        icon="download_on"
+        dense
+        secondary
+        :label="$t('MSG_TXT_EXCEL_DOWNLOAD')"
+        @click="onClickExcelDownload"
       />
-      <kw-tab
-        name="4"
-        :label="$t('MSG_TXT_RSV_DATE')"
-      />
-      <kw-tab
-        name="5"
-        :label="`{$t('MSG_TXT_FREE')} A/S`"
-      />
-    </kw-tabs>
-    <kw-tab-panels model-value="3">
-      <kw-tab-panel name="3">
-        <kw-search>
-          <kw-search-row>
-            <kw-search-item
-              :label="$t('MSG_TXT_DUEDT')"
-              required
-            >
-              <kw-date-range-picker
-                rules="date_range_required|date_range_months:1"
-                :label="$t('MSG_TXT_DUEDT')"
-              />
-            </kw-search-item>
-            <kw-search-item
-              :label="$t('MSG_TXT_ORD_TYP')"
-            >
-              <kw-option-group
-                type="radio"
-                :label="$t('MSG_TXT_ORD_TYP')"
-                :options="[$t('MSG_TXT_ALL'), $t('MSG_TXT_RENTAL'), $t('MSG_TXT_SNGL_PMNT')]"
-              />
-            </kw-search-item>
-            <kw-search-item
-              :label="$t('MSG_TXT_SM_ORD_NO')"
-            >
-              <kw-input :label="$t('MSG_TXT_SM_ORD_NO')" />
-            </kw-search-item>
-          </kw-search-row>
-          <kw-search-row>
-            <kw-search-item
-              :label="$t('MSG_TXT_SERIAL_NO')"
-            >
-              <kw-input :label="$t('MSG_TXT_SERIAL_NO')" />
-            </kw-search-item>
-          </kw-search-row>
-        </kw-search>
+    </kw-action-top>
+    <kw-grid
+      ref="grdMainRef"
+      :visible-rows="1"
+      @init="initGrdMain"
+    />
+    <h3>업로드 미리보기</h3>
+    <kw-action-top>
+      <template #left>
+        <kw-paging-info
 
-        <div class="result-area">
-          <h3>결과조회</h3>
-          <kw-action-top>
-            <template #left>
-              <kw-paging-info :total-count="100" />
-            </template>
-            <kw-btn
-              icon="download_off"
-              dense
-              secondary
-              :label="$t('MSG_TXT_TEMP_DOWN')"
-            />
-            <kw-btn
-              icon="upload_on"
-              dense
-              secondary
-              :label="$t('MSG_TXT_EXCEL_UPLOAD')"
-            />
-            <kw-btn
-              icon="download_on"
-              dense
-              secondary
-              :label="$t('MSG_TXT_EXCEL_DOWNLOAD')"
-              @click="onClickExcelDownload"
-            />
-          </kw-action-top>
-          <kw-grid
-            ref="grdMainRef"
-            :visible-rows="1"
-            name="grdMain"
-            @init="initGrdMain"
-          />
-          <h3>업로드 미리보기</h3>
-          <kw-action-top>
-            <template #left>
-              <kw-paging-info
-
-                :total-count="1"
-              />
-            </template>
-          </kw-action-top>
-          <kw-grid
-            ref="grdUploadPrevRef"
-            :visible-rows="10"
-            name="grdUploadPrev"
-            @init="initGrdUploadPrev"
-          />
-        </div>
-      </kw-tab-panel>
-    </kw-tab-panels>
-  </kw-page>
+          :total-count="1"
+        />
+      </template>
+    </kw-action-top>
+    <kw-grid
+      ref="grdUploadPrevRef"
+      :visible-rows="10"
+      name="grdUploadPrev"
+      @init="initGrdUploadPrev"
+    />
+  </div>
 </template>
 <script setup>
 // -------------------------------------------------------------------------------------------------
