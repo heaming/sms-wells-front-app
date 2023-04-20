@@ -29,59 +29,45 @@
             :options="codes.MNGR_DV_CD"
             :readonly="!isEmpty(props.mngrDvCd)"
             rules="required"
-            @change="onChangeMngrDvCd"
+            @update:model-value="onChangeMngrDvCd"
           />
         </kw-search-item>
-        <kw-search-item
-          :label="isManagerSelected ? $t('MSG_TXT_MANAGEMENT_DEPARTMENT') : $t('MSG_TXT_CENTER_DIVISION')"
-        >
-          <kw-select
-            ref="cbDgr1LevlOgIdRef"
-            v-model="searchParams.dgr1LevlOgId"
-            :options="dgr1LevlOgs"
-            option-value="ogId"
-            option-label="ogNm"
-            first-option="all"
-            @change="onChangeDgr1LevlOgId"
+        <template v-if="isManagerSelected">
+          <wwsn-manager-og-search-item-group
+            v-model:dgr1-levl-og-id="searchParams.dgr1LevlOgId"
+            v-model:dgr2-levl-og-id="searchParams.dgr2LevlOgId"
+            v-model:dgr3-levl-og-id="searchParams.dgr3LevlOgId"
+            use-og-level="3"
+            :use-partner="false"
+            dgr1-levl-og-first-option="all"
+            dgr2-levl-og-first-option="all"
+            dgr3-levl-og-first-option="all"
           />
-        </kw-search-item>
-        <kw-search-item
-          v-if="isManagerSelected"
-          :label="$t('MSG_TXT_RGNL_GRP')"
-        >
-          <kw-select
-            ref="cbDgr2LevlOgIdRef"
-            v-model="searchParams.dgr2LevlOgId"
-            :options="dgr2LevlOgs"
-            option-value="ogId"
-            option-label="ogNm"
-            first-option="all"
-            @change="onChangeDgr2LevlOgId"
-          />
-        </kw-search-item>
-        <kw-search-item
-          v-if="isManagerSelected"
-          :label="$t('MSG_TXT_BRANCH')"
-        >
-          <kw-select
-            ref="cbDgr3LevlOgIdRef"
-            v-model="searchParams.dgr3LevlOgId"
-            :options="dgr3LevlOgs"
-            option-value="ogId"
-            option-label="ogNm"
-            first-option="all"
-          />
-        </kw-search-item>
-        <kw-search-item
-          v-if="!isManagerSelected"
-          :label="`${$t('MSG_TXT_EMPL_NM')}/${$t('MSG_TXT_EPNO')}`"
-        >
-          <kw-input
-            v-model="searchParams.searchText"
-            :maxlength="100"
-            :placeholder="$t('MSG_TXT_ENTER_SOMETHING', [`${$t('MSG_TXT_EMPL_NM')}/${$t('MSG_TXT_EPNO')}`])"
-          />
-        </kw-search-item>
+        </template>
+        <template v-else>
+          <kw-search-item
+            :label="$t('MSG_TXT_CENTER_DIVISION')"
+          >
+            <kw-select
+              ref="cbDgr1LevlOgIdRef"
+              v-model="searchParams.dgr1LevlOgId"
+              :options="dgr1LevlOgs"
+              option-value="ogId"
+              option-label="ogNm"
+              first-option="all"
+              @update:model-value="onChangeDgr1LevlOgId"
+            />
+          </kw-search-item>
+          <kw-search-item
+            :label="`${$t('MSG_TXT_EMPL_NM')}/${$t('MSG_TXT_EPNO')}`"
+          >
+            <kw-input
+              v-model="searchParams.searchText"
+              :maxlength="100"
+              :placeholder="$t('MSG_TXT_ENTER_SOMETHING', [`${$t('MSG_TXT_EMPL_NM')}/${$t('MSG_TXT_EPNO')}`])"
+            />
+          </kw-search-item>
+        </template>
       </kw-search-row>
       <kw-search-row
         v-if="isManagerSelected"
@@ -142,6 +128,7 @@
 import { codeUtil, defineGrid, getComponentType, gridUtil, useDataService, useMeta, useModal } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import { onMounted } from 'vue';
+import WwsnManagerOgSearchItemGroup from '~sms-wells/service/components/WwsnManagerOgSearchItemGroup.vue';
 
 const { t } = useI18n();
 const { getConfig } = useMeta();
@@ -177,8 +164,6 @@ const props = defineProps({
 const grdMainRef = ref(getComponentType('KwGrid'));
 const cbMngrDvCdRef = ref(getComponentType('KwSelect'));
 const cbDgr1LevlOgIdRef = ref(getComponentType('KwSelect'));
-const cbDgr2LevlOgIdRef = ref(getComponentType('KwSelect'));
-const cbDgr3LevlOgIdRef = ref(getComponentType('KwSelect'));
 
 const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
@@ -210,16 +195,6 @@ const isManagerSelected = computed(() => searchParams.value.mngrDvCd === '1');
 const dgr1LevlOgs = computed(() => {
   const ogTpCd = isManagerSelected.value ? 'W02' : 'W06';
   return organizations.value.filter((og) => (og.ogTpCd === ogTpCd && og.ogLevlDvCd === '1'));
-});
-
-const dgr2LevlOgs = computed(() => {
-  if (isEmpty(searchParams.value.dgr1LevlOgId)) return [];
-  return organizations.value.filter((og) => (og.ogTpCd === 'W02' && og.ogLevlDvCd === '2' && og.hgrOgId === searchParams.value.dgr1LevlOgId));
-});
-
-const dgr3LevlOgs = computed(() => {
-  if (isEmpty(searchParams.value.dgr2LevlOgId)) return [];
-  return organizations.value.filter((og) => (og.ogTpCd === 'W02' && og.ogLevlDvCd === '3' && og.hgrOgId === searchParams.value.dgr2LevlOgId));
 });
 
 const layouts = computed(() => {
@@ -284,14 +259,11 @@ function onChangeMngrDvCd() {
   searchParams.value.dgr1LevlOgId = '';
   searchParams.value.dgr2LevlOgId = '';
   searchParams.value.dgr3LevlOgId = '';
+  searchParams.value.searchText = '';
 }
 
 function onChangeDgr1LevlOgId() {
   searchParams.value.dgr2LevlOgId = '';
-  searchParams.value.dgr3LevlOgId = '';
-}
-
-function onChangeDgr2LevlOgId() {
   searchParams.value.dgr3LevlOgId = '';
 }
 
