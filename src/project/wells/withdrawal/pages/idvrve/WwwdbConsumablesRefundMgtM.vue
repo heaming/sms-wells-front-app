@@ -251,16 +251,6 @@ async function onClickRemove() {
   const view = grdMainRef.value.getView();
   const deletedRows = await gridUtil.confirmDeleteCheckedRows(view);
   if (deletedRows.length > 0) {
-    // const prdtUids = deletedRows.map(({ prdtUid }) => prdtUid);
-    // deletedRows.list((obj) => ({
-    //   kwGrpCoCd: obj.kwGrpCoCd,
-    //   rfndRcpNo: obj.rfndRcpNo,
-    //   rfndRcpDtlSn: obj.rfndRcpDtlSn,
-    // }));
-    deletedRows.forEach((data) => {
-      data.rowState = 'deleted';
-    });
-    console.log(deletedRows);
     await dataService.delete('/sms/wells/withdrawal/idvrve/consumables-refunds', { data: deletedRows });
     await fetchData();
   }
