@@ -139,7 +139,7 @@ const productName = ref();
 const grdMainRef = ref(getComponentType('KwGrid'));
 const grdRowCount = ref(0);
 const searchParams = ref({
-  searchType: null,
+  searchType: pdConst.PD_SEARCH_NAME,
   searchValue: null,
 });
 const materialSelectItems = ref([

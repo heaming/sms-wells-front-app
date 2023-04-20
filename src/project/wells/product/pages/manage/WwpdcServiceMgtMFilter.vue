@@ -99,7 +99,7 @@ const grdRowCount = ref(0);
 const currentPdCd = ref();
 const currentInitData = ref({});
 const searchParams = ref({
-  searchType: null,
+  searchType: pdConst.PD_SEARCH_NAME,
   searchValue: null,
 });
 
@@ -127,6 +127,8 @@ async function init() {
 async function resetData() {
   currentPdCd.value = '';
   currentInitData.value = {};
+  searchParams.value.searchType = pdConst.PD_SEARCH_NAME;
+  grdRowCount.value = 0;
   if (grdMainRef.value?.getView()) gridUtil.reset(grdMainRef.value.getView());
 }
 
