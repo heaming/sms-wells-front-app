@@ -1,3 +1,17 @@
+<!----
+****************************************************************************************************
+* 프로그램 개요
+****************************************************************************************************
+1. 모듈 : CTA
+2. 프로그램 ID : WwctaTradeSpcshBlkPrntMgtM - wells 거래명세서 일괄출력 (추가)
+3. 작성자 : JSY
+4. 작성일 : 2023.04.13
+****************************************************************************************************
+* 프로그램 설명
+****************************************************************************************************
+- [W-SS-U-0150M01] - wells 거래명세서 일괄출력 (추가)
+****************************************************************************************************
+--->
 <template>
   <kw-page>
     <kw-search @search="onClickSearch">
@@ -113,7 +127,7 @@ import { cloneDeep, isEmpty } from 'lodash-es';
 const dataService = useDataService();
 const { t } = useI18n();
 const { currentRoute } = useRouter();
-const { notify, alert } = useGlobal();
+const { notify, alert, modal } = useGlobal();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -219,9 +233,6 @@ async function onClickSave() {
 }
 
 async function onClickOpenPopup() {
-  // const cpProps = { cntrCstKnm: searchParams.value.cstKnm };
-  notify(t('팝업 준비중 입니다.')); // 팝업 미완성
-  /*
   const cpProps = '';
   const { result, payload } = await modal({
     component: 'WwctaTradeSpcshBlkPwMgtP',
@@ -230,7 +241,6 @@ async function onClickOpenPopup() {
   if (result) {
     console.log(payload);
   }
-  */
 }
 
 // 행삭제
