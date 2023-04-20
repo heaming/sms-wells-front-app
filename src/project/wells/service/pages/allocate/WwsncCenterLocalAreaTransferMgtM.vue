@@ -34,7 +34,10 @@
         <kw-search-item :label="$t('관리지역단')">
           <kw-select
             v-model="searchParams.wareAreaCd"
-            :options="customCodes.WARE_AREA_CD"
+            :options="customCodes.DGR_2_LEVL_OG"
+            option-value="ogCd"
+            option-label="ogNm"
+            first-option="all"
           />
         </kw-search-item>
 
@@ -115,7 +118,9 @@
         <kw-select
           v-model="gridParams.wareAreaCd"
           class="w200"
-          :options="customCodes.WARE_AREA_CD"
+          :options="customCodes.DGR_2_LEVL_OG"
+          option-value="ogCd"
+          option-label="ogNm"
         />
         <kw-btn
           dense
@@ -208,7 +213,17 @@ const customCodes = {
     { codeId: 'B', codeName: 'B' },
     { codeId: 'C', codeName: 'C' },
   ], // 관리지역단
+  DGR_2_LEVL_OG: [], // 지역단
 };
+
+/*
+ * 지역단 조회(Grid 콤보)
+ */
+async function getRegionalGroup() {
+  const res = await dataService.get('/sms/wells/service/organizations/regional-group', { params: { ogId: '' } });
+  customCodes.DGR_2_LEVL_OG = res.data;
+}
+await getRegionalGroup();
 
 /*
  *  Page Info setting
@@ -385,7 +400,9 @@ const initGrid = defineGrid((data, view) => {
       },
       width: '200',
       styleName: 'text-center',
-      options: customCodes.WARE_AREA_CD,
+      options: customCodes.DGR_2_LEVL_OG,
+      optionValue: 'ogCd',
+      optionLabel: 'ogNm',
       editor: {
         type: 'list',
       },

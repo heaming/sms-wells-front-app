@@ -357,18 +357,6 @@ const initGrid = defineGrid((data, view) => {
     'fnlMdfcDtm',
     'fnlMdfcUsrId',
   ]);
-
-  data.setRows([
-    { cntrNo: '2018-0169267', rcgvpKnm: '신의상실', newAdrZip: '03134', rdadr: '서울 종로구 서순라길 151 신의상실 (권농동, 142-1)', cralIdvTno: '2020-12-17', idvTno: '2020-12-17', col4: '정수기(WL652NWA)냉정', sellTpCd: '렌탈', fxnPrtnrDvCd: '매니저' },
-    { cntrNo: '2018-0169267', rcgvpKnm: '신의상실', newAdrZip: '03134', rdadr: '서울 종로구 서순라길 151 신의상실 (권농동, 142-1)', cralIdvTno: '2020-12-17', idvTno: '2020-12-17', col4: '정수기(WL652NWA)냉정', sellTpCd: '렌탈', fxnPrtnrDvCd: '매니저' },
-    { cntrNo: '2018-0169267', rcgvpKnm: '신의상실', newAdrZip: '03134', rdadr: '서울 종로구 서순라길 151 신의상실 (권농동, 142-1)', cralIdvTno: '2020-12-17', idvTno: '2020-12-17', col4: '정수기(WL652NWA)냉정', sellTpCd: '렌탈', fxnPrtnrDvCd: '매니저' },
-    { cntrNo: '2018-0169267', rcgvpKnm: '신의상실', newAdrZip: '03134', rdadr: '서울 종로구 서순라길 151 신의상실 (권농동, 142-1)', cralIdvTno: '2020-12-17', idvTno: '2020-12-17', col4: '정수기(WL652NWA)냉정', sellTpCd: '렌탈', fxnPrtnrDvCd: '매니저' },
-    { cntrNo: '2018-0169267', rcgvpKnm: '신의상실', newAdrZip: '03134', rdadr: '서울 종로구 서순라길 151 신의상실 (권농동, 142-1)', cralIdvTno: '2020-12-17', idvTno: '2020-12-17', col4: '정수기(WL652NWA)냉정', sellTpCd: '렌탈', fxnPrtnrDvCd: '매니저' },
-    { cntrNo: '2018-0169267', rcgvpKnm: '신의상실', newAdrZip: '03134', rdadr: '서울 종로구 서순라길 151 신의상실 (권농동, 142-1)', cralIdvTno: '2020-12-17', idvTno: '2020-12-17', col4: '정수기(WL652NWA)냉정', sellTpCd: '렌탈', fxnPrtnrDvCd: '매니저' },
-    { cntrNo: '2018-0169267', rcgvpKnm: '신의상실', newAdrZip: '03134', rdadr: '서울 종로구 서순라길 151 신의상실 (권농동, 142-1)', cralIdvTno: '2020-12-17', idvTno: '2020-12-17', col4: '정수기(WL652NWA)냉정', sellTpCd: '렌탈', fxnPrtnrDvCd: '매니저' },
-    { cntrNo: '2018-0169267', rcgvpKnm: '신의상실', newAdrZip: '03134', rdadr: '서울 종로구 서순라길 151 신의상실 (권농동, 142-1)', cralIdvTno: '2020-12-17', idvTno: '2020-12-17', col4: '정수기(WL652NWA)냉정', sellTpCd: '렌탈', fxnPrtnrDvCd: '매니저' },
-    { cntrNo: '2018-0169267', rcgvpKnm: '신의상실', newAdrZip: '03134', rdadr: '서울 종로구 서순라길 151 신의상실 (권농동, 142-1)', cralIdvTno: '2020-12-17', idvTno: '2020-12-17', col4: '정수기(WL652NWA)냉정', sellTpCd: '렌탈', fxnPrtnrDvCd: '매니저' },
-  ]);
 });
 
 </script>

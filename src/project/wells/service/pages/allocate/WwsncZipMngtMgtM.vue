@@ -159,7 +159,17 @@ const customCodes = {
   MNGR_DV_CD: [], // 관리구분
   LOCARA_VST_PRD_CD: [], // 방문주기
   RGLVL_DV_CD: [], // 급지
+  DGR_2_LEVL_OG: [], // 지역단
 };
+
+/*
+ * 지역단 조회(Grid 콤보)
+ */
+async function getRegionalGroup() {
+  const res = await dataService.get('/sms/wells/service/organizations/regional-group', { params: { ogId: '' } });
+  customCodes.DGR_2_LEVL_OG = res.data;
+}
+await getRegionalGroup();
 
 /*
  *  공통코드 조회
@@ -308,7 +318,15 @@ const initGridMain = defineGrid((data, view) => {
       },
     },
     { fieldName: 'mngrDvCd', header: '관리구분', width: '150', styleName: 'text-center', options: codes.MNGR_DV_CD, editor: { type: 'list' }, rules: 'required' },
-    { fieldName: 'brchOgId', header: '지역단', width: '150', styleName: 'text-center', editable: false },
+    { fieldName: 'brchOgId',
+      header: '지역단',
+      width: '150',
+      styleName: 'text-center',
+      options: customCodes.DGR_2_LEVL_OG,
+      optionValue: 'ogCd',
+      optionLabel: 'ogNm',
+      editor: { type: 'list' },
+    },
     { fieldName: 'mngerRglvlDvCd', header: '급지', width: '100', styleName: 'text-center', options: codes.RGLVL_DV_CD, editor: { type: 'list' } },
     { fieldName: 'fnlMdfcDtm', header: '최종수정일자', width: '100', styleName: 'text-center', editable: false, datetimeFormat: 'datetime' },
   ];
