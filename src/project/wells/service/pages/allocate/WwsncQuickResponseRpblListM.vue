@@ -45,6 +45,7 @@
           <kw-select
             v-model="searchParams.pdPrpVal20"
             :options="codes.PD_GRP_CD"
+            first-option="all"
           />
         </kw-search-item>
         <kw-search-item :label="$t('계약번호')">
