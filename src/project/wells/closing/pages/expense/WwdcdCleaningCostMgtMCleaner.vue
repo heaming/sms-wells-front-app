@@ -22,9 +22,10 @@
         required
       >
         <kw-date-picker
-          v-model="searchParams.fstRgstDtm"
-          type="year"
+          v-model="searchParams.aplcDt"
+          type="month"
           rules="required"
+          :label="$t('MSG_TXT_APL_DATE')"
         />
       </kw-search-item>
       <kw-search-item :label="$t('MSG_TXT_CLINR')">
@@ -135,7 +136,7 @@ const pageInfo = ref({
 });
 
 const searchParams = ref({
-  fstRgstDtm: dayjs().format('YYYY'),
+  aplcDt: dayjs().format('YYYYMM'),
   clinrNm: '',
   bldCd: '',
   bldNm: '',
@@ -147,6 +148,7 @@ const codes = await codeUtil.getMultiCodes(
 
 async function fetchData() {
   // TODO. 본사 영업담당자, 본사 담당자 구분 해야함
+  debugger;
   const res = await dataService.get('/sms/wells/closing/expense/cleaners/paging', { params: { ...cachedParams, ...pageInfo } });
   const { list: pages, pageInfo: pagingResult } = res.data;
 
@@ -165,14 +167,14 @@ async function onClickSearch() {
 
 async function onClickRegister() {
   const { result } = await modal({
-    component: 'WwdcdCleanerReqeustMgtP', // W-CL-U-0093P02
+    component: 'WwdcdCleanerRegistrationMgtP', // W-CL-U-0093P02
     componentProps: {
       configGroup: '',
     },
   });
   if (result) {
     notify(t('MSG_ALT_SAVE_DATA'));
-    await fetchData();
+    await onClickSearch();
   }
 }
 
@@ -212,7 +214,7 @@ const initGrdSub = defineGrid((data, view) => {
     { fieldName: 'rcpYm', visible: false }, // 청소원등록번호
     { fieldName: 'fstRgstDtm', header: t('MSG_TXT_RGST_DTM'), width: '174', styleName: 'text-center', dataType: 'date', datetimeFormat: 'datetime' }, // 등록일시
     { fieldName: 'fnlMdfcDtm', header: t('MSG_TXT_CH_DTM'), width: '174', styleName: 'text-center', dataType: 'date', datetimeFormat: 'datetime' }, // 변경일시
-    { fieldName: 'clinrNm', header: t('MSG_TXT_CLINR'), width: '200', styleName: 'text-left' }, // 청소원
+    { fieldName: 'clinrNm', header: t('MSG_TXT_CLINR'), width: '200', styleName: 'rg-button-link', renderer: { type: 'button' } }, // 청소원
     { fieldName: 'bldCd', visible: false }, // 빌딩 // CD
     { fieldName: 'bldNm', header: t('MSG_TXT_BUILDING'), width: '200', styleName: 'text-left' }, // 빌딩 //NM
     { fieldName: 'aplcDt', header: t('MSG_TXT_APPL_DATE'), width: '200', styleName: 'text-center', dataType: 'date', datetimeFormat: 'datetime' }, // 신청일
@@ -221,8 +223,8 @@ const initGrdSub = defineGrid((data, view) => {
     { fieldName: 'cntrLroreApnFileId', header: t('MSG_TXT_A_CON_TERM_AGE'), width: '200', styleName: 'text-center', renderer: { type: 'button', hideWhenEmpty: false }, displayCallback: () => t('MSG_BTN_CLINR_MNGT_BRWS') }, // 계약해지원
     { fieldName: 'idfApnFileId', header: t('MSG_TXT_IDF_CY'), width: '200', styleName: 'text-center', renderer: { type: 'button', hideWhenEmpty: false }, displayCallback: () => t('MSG_BTN_CLINR_MNGT_BRWS') }, // 신분증사본
     { fieldName: 'bnkbApnFileId', header: t('MSG_TXT_IDF_CY'), width: '200', styleName: 'text-center', renderer: { type: 'button', hideWhenEmpty: false }, displayCallback: () => t('MSG_BTN_CLINR_MNGT_BRWS') }, // 통장사본
-    { fieldName: 'fmnCoSpptAmt', header: t('MSG_TXT_CO_SUFD_MM'), width: '182', styleName: 'text-center' }, // 회사지원금(월)
-    { fieldName: 'clinrFxnAmt', header: t('MSG_TXT_FXN_AMT_MM'), width: '182', styleName: 'text-center' }, // 고정금(월)
+    { fieldName: 'fmnCoSpptAmt', header: t('MSG_TXT_CO_SUFD_MM'), width: '182', styleName: 'text-center', dataType: 'number' }, // 회사지원금(월)
+    { fieldName: 'clinrFxnAmt', header: t('MSG_TXT_FXN_AMT_MM'), width: '182', styleName: 'text-center', dataType: 'number' }, // 고정금(월)
     { fieldName: 'taxDdctam', header: t('MSG_TXT_TAX_DDTN_WON'), width: '182', styleName: 'text-right', dataType: 'number' }, // 세금공제(원)
     { fieldName: 'amt', header: t('MSG_TXT_ACL_DSB_AMT_WON'), width: '182', styleName: 'text-right', dataType: 'number' }, // 실지급액(원)
     { fieldName: 'wrkStrtdt', header: t('MSG_TXT_WRK_STRT_DT'), width: '182', styleName: 'text-center', dataType: 'date', datetimeFormat: 'datetime' }, // 근무시작일자
@@ -244,31 +246,28 @@ const initGrdSub = defineGrid((data, view) => {
   view.checkBar.visible = true;
   view.rowIndicator.visible = true;
 
-  view.onCellClicked = (grid, clickData) => {
+  view.onCellItemClicked = (grid, { column, itemIndex }) => {
     // TODO.파일 업로드 개발 완료 되면 수정해야됨
     // 참고 ZdecRdsAnAccountErrorMgtService > saveAttachFile
-    if (clickData.column === 'cntrwApnFileId') {
-      // 계약서
-    } else if (clickData.column === 'cntrLroreApnFil') {
-      // 계약해지원
-    } else if (clickData.column === 'idfApnFileId') {
-      // 신분증사본
-    } else if (clickData.column === 'bnkbApnFileId') {
-      // 통장사본
-    }
-  };
+    const { clinrRgno, result } = grid.getValues(itemIndex);
 
-  view.onCellItemClicked = async (grid, { itemIndex }) => {
-    const { clinrRgno, result } = gridUtil.getRowValue(grid, itemIndex);
-    await modal({
-      component: 'WwdcdCleanerReqeustMgtP', // W-CL-U-0093P02
-      componentProps: {
-        configGroup: { clinrRgno },
-      },
-    });
-    if (result) {
-      notify(t('MSG_ALT_SAVE_DATA'));
-      await fetchData();
+    if (column === 'cntrwApnFileId') {
+      // 계약서
+    } else if (column === 'cntrLroreApnFileId') {
+      // 계약해지원
+    } else if (column === 'idfApnFileId') {
+      // 신분증사본
+    } else if (column === 'bnkbApnFileId') {
+      // 통장사본
+    } else if (column === 'clinrNm') {
+      modal({
+        component: 'WwdcdCleanerRegistrationMgtP', // W-CL-U-0093P02
+        componentProps: { clinrRgno },
+      });
+      if (result) {
+        notify(t('MSG_ALT_SAVE_DATA'));
+        onClickSearch();
+      }
     }
   };
 });

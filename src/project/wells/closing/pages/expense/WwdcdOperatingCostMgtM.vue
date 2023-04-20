@@ -176,17 +176,14 @@ async function fetchAmountData() {
   const view = grdMainRef.value.getView();
   const res = await dataService.get('/sms/wells/closing/expense/operating-cost/amount', { params: cachedParams });
 
-  const { list: services } = res.data;
-  view.getDataSource().setRows(services);
+  view.getDataSource().setRows(res.data);
   view.resetCurrent();
 }
 
 async function fetchSummaryData() {
   const view = grdSubRef.value.getView();
   const res = await dataService.get('/sms/wells/closing/expense/operating-cost/summary', { params: cachedParams });
-
-  const { list: services } = res.data;
-  view.getDataSource().setRows(services);
+  view.getDataSource().setRows(res.data);
   view.resetCurrent();
 }
 
@@ -224,12 +221,12 @@ async function withholdingTaxCfdcAdd() {
 
 const initGrdMain = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'befJanAmt', header: t('MSG_TXT_CRDOVR_BLAM'), width: '251', styleName: 'text-right' }, // 이월잔액
-    { fieldName: 'cardThmDsb', header: t('MSG_TXT_THM_DSB'), width: '277', styleName: 'text-right' }, // 당월지급
-    { fieldName: 'cardLimAmt', header: t('MSG_TXT_THM_U_PSB_AMT'), width: '258', styleName: 'text-right' }, // 당월 이용가능 금액
-    { fieldName: 'cardUseAmt', header: t('MSG_TXT_THM_USE_AMT'), width: '252', styleName: 'text-right' }, // 당월 사용금액
-    { fieldName: 'cardCanAmt', header: t('MSG_TXT_THM_CAN_AMT'), width: '253', styleName: 'text-right' }, // 당월 취소금액
-    { fieldName: 'cardResAmt', header: t('MSG_TXT_BLAM'), width: '255', styleName: 'text-right' }, // 잔액
+    { fieldName: 'befJanAmt', header: t('MSG_TXT_CRDOVR_BLAM'), width: '251', styleName: 'text-right', dataType: 'number' }, // 이월잔액
+    { fieldName: 'cardThmDsb', header: t('MSG_TXT_THM_DSB'), width: '277', styleName: 'text-right', dataType: 'number' }, // 당월지급
+    { fieldName: 'cardLimAmt', header: t('MSG_TXT_THM_U_PSB_AMT'), width: '258', styleName: 'text-right', dataType: 'number' }, // 당월 이용가능 금액
+    { fieldName: 'cardUseAmt', header: t('MSG_TXT_THM_USE_AMT'), width: '252', styleName: 'text-right', dataType: 'number' }, // 당월 사용금액
+    { fieldName: 'cardCanAmt', header: t('MSG_TXT_THM_CAN_AMT'), width: '253', styleName: 'text-right', dataType: 'number' }, // 당월 취소금액
+    { fieldName: 'cardResAmt', header: t('MSG_TXT_BLAM'), width: '255', styleName: 'text-right', dataType: 'number' }, // 잔액
 
   ];
 
