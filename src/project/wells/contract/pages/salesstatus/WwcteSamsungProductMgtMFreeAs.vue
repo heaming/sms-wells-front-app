@@ -3,7 +3,7 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : CTE
-2. 프로그램 ID : WwcteSecProductMgtMFreeAs - 삼성전자 상품관리(무상A/S)
+2. 프로그램 ID : WwcteSamsungProductMgtM - 삼성전자 상품관리(무상A/S)
 3. 작성자 : gs.rahul.n
 4. 작성일 : 2023.03.04
 ****************************************************************************************************
@@ -13,118 +13,88 @@
 ****************************************************************************************************
 --->
 <template>
-  <kw-page>
-    <!-- To.개발 kw-tab-panel안에 kw-search로 시작하는 경우 kw-tabs에 .form-border 제거 / 그 외 추가 -->
-    <kw-tabs model-value="5">
-      <kw-tab
-        name="1"
-        :label="$t('MSG_TXT_NOT_INSTL')"
+  <kw-search :cols="4">
+    <kw-search-row>
+      <kw-search-item
+        :label="$t('MSG_TXT_LOOKUP_PERIOD')"
+        required
+        :colspan="2"
+      >
+        <kw-select
+          :label="$t('MSG_TXT_LOOKUP_PERIOD')"
+          :model-value="[]"
+          :options="['A', 'B', 'C']"
+          rules="required"
+        />
+        <kw-date-range-picker
+          :label="$t('MSG_TXT_LOOKUP_PERIOD')"
+          rules="date_range_required|date_range_months:1"
+        />
+      </kw-search-item>
+      <kw-search-item :label="$t('MSG_TXT_CNTR_STAT')">
+        <kw-select
+          :label="$t('MSG_TXT_CNTR_STAT')"
+          :model-value="[]"
+          :options="['A', 'B', 'C']"
+        />
+      </kw-search-item>
+      <kw-search-item :label="$t('MSG_TXT_CNTR_NO')">
+        <kw-input />
+      </kw-search-item>
+    </kw-search-row>
+    <kw-search-row>
+      <kw-search-item :label="$t('MSG_TXT_CNTOR_NM')">
+        <kw-input />
+      </kw-search-item>
+      <kw-search-item :label="$t('MSG_TXT_PRDT_CODE')">
+        <kw-input />
+      </kw-search-item>
+      <kw-search-item :label="$t('MSG_TXT_PRDT_NM')">
+        <kw-input />
+      </kw-search-item>
+      <kw-search-item :label="$t('MSG_TXT_MNFT_NO')">
+        <kw-input />
+      </kw-search-item>
+    </kw-search-row>
+    <kw-search-row>
+      <kw-search-item :label="$t('MSG_TXT_SUS_OF_SALES')">
+        <kw-select
+          :model-value="[]"
+          :options="['A', 'B', 'C']"
+        />
+      </kw-search-item>
+      <kw-search-item :label="$t('MSG_TXT_POST_STLMNT')">
+        <kw-select
+          :model-value="[]"
+          :options="['A', 'B', 'C']"
+        />
+      </kw-search-item>
+      <kw-search-item :label="$t('MSG_TXT_BASE_MN_POST_STLMNT')">
+        <kw-date-picker />
+      </kw-search-item>
+    </kw-search-row>
+  </kw-search>
+  <div class="result-area">
+    <kw-action-top>
+      <template #left>
+        <kw-paging-info
+          :total-count="100"
+        />
+        <span class="ml8">{{ t('MSG_TXT_UNIT_WON_MCN') }}</span>
+      </template>
+      <kw-btn
+        icon="download_on"
+        dense
+        secondary
+        :label="$t('MSG_TXT_EXCEL_DOWNLOAD')"
       />
-      <kw-tab
-        name="2"
-        :label="$t('MSG_TXT_DLVRY')"
-      />
-      <kw-tab
-        name="3"
-        :label="$t('MSG_TXT_DTRM_DATE')"
-      />
-      <kw-tab
-        name="4"
-        :label="$t('MSG_TXT_RSV_DATE')"
-      />
-      <kw-tab
-        name="5"
-        :label="$t('MSG_TXT_FRISU_AS')"
-      />
-    </kw-tabs>
-    <kw-tab-panels model-value="5">
-      <kw-tab-panel name="5">
-        <kw-search :cols="4">
-          <kw-search-row>
-            <kw-search-item
-              :label="$t('MSG_TXT_LOOKUP_PERIOD')"
-              required
-              :colspan="2"
-            >
-              <kw-select
-                :label="$t('MSG_TXT_LOOKUP_PERIOD')"
-                :model-value="[]"
-                :options="['A', 'B', 'C']"
-                rules="required"
-              />
-              <kw-date-range-picker
-                :label="$t('MSG_TXT_LOOKUP_PERIOD')"
-                rules="date_range_required|date_range_months:1"
-              />
-            </kw-search-item>
-            <kw-search-item :label="$t('MSG_TXT_CNTR_STAT')">
-              <kw-select
-                :label="$t('MSG_TXT_CNTR_STAT')"
-                :model-value="[]"
-                :options="['A', 'B', 'C']"
-              />
-            </kw-search-item>
-            <kw-search-item :label="$t('MSG_TXT_CNTR_NO')">
-              <kw-input />
-            </kw-search-item>
-          </kw-search-row>
-          <kw-search-row>
-            <kw-search-item :label="$t('MSG_TXT_CNTOR_NM')">
-              <kw-input />
-            </kw-search-item>
-            <kw-search-item :label="$t('MSG_TXT_PRDT_CODE')">
-              <kw-input />
-            </kw-search-item>
-            <kw-search-item :label="$t('MSG_TXT_PRDT_NM')">
-              <kw-input />
-            </kw-search-item>
-            <kw-search-item :label="$t('MSG_TXT_MNFT_NO')">
-              <kw-input />
-            </kw-search-item>
-          </kw-search-row>
-          <kw-search-row>
-            <kw-search-item :label="$t('MSG_TXT_SUS_OF_SALES')">
-              <kw-select
-                :model-value="[]"
-                :options="['A', 'B', 'C']"
-              />
-            </kw-search-item>
-            <kw-search-item :label="$t('MSG_TXT_POST_STLMNT')">
-              <kw-select
-                :model-value="[]"
-                :options="['A', 'B', 'C']"
-              />
-            </kw-search-item>
-            <kw-search-item :label="$t('MSG_TXT_BASE_MN_POST_STLMNT')">
-              <kw-date-picker />
-            </kw-search-item>
-          </kw-search-row>
-        </kw-search>
-        <div class="result-area">
-          <kw-action-top>
-            <template #left>
-              <kw-paging-info
-                :total-count="100"
-              />
-              <span class="ml8">{{ t('MSG_TXT_UNIT_WON_MCN') }}</span>
-            </template>
-            <kw-btn
-              icon="download_on"
-              dense
-              secondary
-              :label="$t('MSG_TXT_EXCEL_DOWNLOAD')"
-            />
-          </kw-action-top>
-          <kw-grid
-            ref="grdMainRef"
-            name="grdMain"
-            :visible-rows="1"
-            @init="initGrdMain"
-          />
-        </div>
-      </kw-tab-panel>
-    </kw-tab-panels>
-  </kw-page>
+    </kw-action-top>
+    <kw-grid
+      ref="grdMainRef"
+      :visible-rows="1"
+      @init="initGrdMain"
+    />
+  </div>
 </template>
 
 <script setup>

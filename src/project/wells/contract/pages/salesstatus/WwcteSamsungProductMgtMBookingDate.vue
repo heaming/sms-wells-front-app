@@ -1,0 +1,208 @@
+<!----
+****************************************************************************************************
+* 프로그램 개요
+****************************************************************************************************
+1. 모듈 : CTE
+2. 프로그램 ID : WwcteSecProductMgtMReserveDate - 삼성전자 상품관리
+3. 작성자 : gs.nidhi.d
+4. 작성일 : 2023.04.05
+****************************************************************************************************
+* 프로그램 설명
+****************************************************************************************************
+- 삼성전자 상품관리
+****************************************************************************************************
+--->
+<template>
+  <kw-search
+    :cols="2"
+    one-row
+    @search="onClickSearch"
+  >
+    <kw-search-row>
+      <kw-search-item
+        :label="$t('MSG_TXT_RSV_DATE')"
+        required
+      >
+        <kw-date-range-picker
+          v-model:from="searchParams.strtdt"
+          v-model:to="searchParams.enddt"
+          :label="$t('MSG_TXT_RSV_DATE')"
+          rules="date_range_required"
+        />
+      </kw-search-item>
+      <kw-search-item :label="$t('MSG_TXT_ORD_TYP')">
+        <kw-option-group
+          v-model="searchParams.sellTpCd"
+          :label="$t('MSG_TXT_ORD_TYP')"
+          type="radio"
+          :options="codes.SUBSET_SELL_TP_CD"
+        />
+      </kw-search-item>
+    </kw-search-row>
+  </kw-search>
+  <div class="result-area">
+    <kw-action-top>
+      <template #left>
+        <kw-paging-info :total-count="pageInfo.totalCount" />
+      </template>
+      <kw-btn
+        icon="download_on"
+        dense
+        secondary
+        :label="$t('MSG_BTN_EXCEL_DOWN')"
+        @click="onClickExcelDownload"
+      />
+    </kw-action-top>
+    <kw-grid
+      ref="grdRef"
+      name="grdBooking"
+      :page-size="pageInfo.pageSize"
+      :total-count="pageInfo.totalCount"
+      @init="initGrid"
+    />
+  </div>
+</template>
+
+<script setup>
+// -------------------------------------------------------------------------------------------------
+// Import & Declaration
+// -------------------------------------------------------------------------------------------------
+import { codeUtil, defineGrid, getComponentType, gridUtil, useDataService, useMeta } from 'kw-lib';
+import useGridDataModel from '~sms-common/contract/composable/useGridDataModel';
+import dayjs from 'dayjs';
+
+const { t } = useI18n();
+const codes = await codeUtil.getMultiCodes(
+  'SELL_TP_CD',
+);
+
+codes.SUBSET_SELL_TP_CD = [
+  { codeId: '', codeName: '전체' },
+  codes.SELL_TP_CD.find((code) => code.codeId === '2'),
+  codes.SELL_TP_CD.find((code) => code.codeId === '1'),
+];
+const { getConfig } = useMeta();
+const dataService = useDataService();
+const router = useRouter();
+
+// -------------------------------------------------------------------------------------------------
+// Function & Event
+// -------------------------------------------------------------------------------------------------
+const grdRef = ref(getComponentType('KwGrid'));
+const grdView = computed(() => grdRef.value?.getView());
+const grdData = computed(() => grdRef.value?.getData());
+
+const pageInfo = ref({
+  totalCount: 0,
+  pageIndex: 1,
+  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
+});
+
+let cachedParams;
+const searchParams = reactive({
+  strtdt: dayjs()
+    .startOf('M')
+    .format('YYYYMMDD'),
+  enddt: dayjs()
+    .startOf('M')
+    .add(1, 'M')
+    .format('YYYYMMDD'),
+  sellTpCd: '',
+});
+
+const fetchPage = async (pageIndex = pageInfo.value.pageIndex, pageSize = pageInfo.value.pageSize) => {
+  const params = {
+    ...cachedParams,
+    pageIndex,
+    pageSize,
+  };
+  const response = await dataService.get('/sms/wells/contract/sales-status/sec-product-management/reservation-days/paging', { params });
+
+  pageInfo.value = response.data.pageInfo;
+  grdData.value.setRows(response.data.list);
+};
+
+async function onClickSearch() {
+  cachedParams = { ...toRaw(searchParams) };
+  await fetchPage(1);
+}
+
+async function onClickExcelDownload() {
+  const response = await dataService.get('/sms/wells/contract/sales-status/sec-product-management/reservation-days/paging', { params: cachedParams });
+  await gridUtil.exportView(grdView.value, {
+    fileName: router.currentRoute?.value.meta?.menuName,
+    timePostfix: true,
+    exportData: response.data.list,
+  });
+}
+// -------------------------------------------------------------------------------------------------
+// Initialize Grid
+// -------------------------------------------------------------------------------------------------
+const initGrid = defineGrid((data, view) => {
+  useGridDataModel(view, {
+    ogId: { displaying: false },
+    ogCd: { label: '조직코드', width: 136, classes: 'text-center' },
+    hooPrtnrNo: { label: '지점장사번', width: 136, classes: 'text-center' },
+    sellPrtnrNo: { label: '파트너사번', width: 136, classes: 'text-center' },
+    prtnrKnm: { label: '파트너명', width: 136, classes: 'text-center' },
+    cntrNo: { displaying: false },
+    cntrSn: { displaying: false },
+    cntrNoSn: {
+      label: t('MSG_TXT_CNTR_NO'), /* 계약번호 */
+      width: 168,
+      valueExpression: 'values["cntrNo"] + "-" + values["cntrSn"]',
+      classes: 'text-center',
+    },
+    rcgvpKnm: { label: '수령자명', width: 136, classes: 'text-center' },
+    pdCd: { label: '상품코드', width: 136, classes: 'text-center' },
+    pdNm: { label: '상품명', width: 260 },
+    sppBzsOrdId: { label: '삼성 주문번호', width: 168, classes: 'text-center' },
+    sellTpCd: { label: '주문유형', width: 168, options: codes.SELL_TP_CD },
+    resDt: { label: '예약일', width: 138, datetimeFormat: 'date' },
+    stocStrDt: { label: '재고입고일', width: 138, datetimeFormat: 'date' },
+    fstRgstDtm: { label: '업데이트일시', width: 212, datetimeFormat: 'datetime' },
+    ogTpCd: { displaying: false },
+  });
+
+  view.rowIndicator.visible = true;
+
+  data.setRows([
+    {
+      ogCd: 'X910080',
+      hooPrtnrNo: '1653226',
+      sellPrtnrNo: '1653227',
+      prtnrKnm: '김팥트',
+      cntrNo: 'W2022012301',
+      cntrSn: 1,
+      rcgvpKnm: '김계약',
+      pdNm: '비스포크 세탁기 실버',
+      pdCd: '1234',
+      sppBzsOrdId: '1234567890',
+      sellTpCd: '1',
+      resDt: '20221001',
+      stocStrDt: '20221020',
+      fstRgstDtm: '20221001092310',
+    },
+    {
+      ogCd: 'X910080',
+      hooPrtnrNo: '1653226',
+      sellPrtnrNo: '1653227',
+      prtnrKnm: '김팥트',
+      cntrNo: 'W2022012301',
+      cntrSn: 1,
+      rcgvpKnm: '김계약',
+      pdNm: '비스포크 세탁기 실버',
+      pdCd: '1234',
+      sppBzsOrdId: '1234567890',
+      sellTpCd: '2',
+      resDt: '20221001',
+      stocStrDt: '20221020',
+      fstRgstDtm: '20221001092310',
+    },
+  ]);
+});
+
+</script>
+
+<style scoped>
+</style>
