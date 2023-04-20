@@ -73,6 +73,20 @@
           />
         </kw-search-item>
         <kw-search-item
+          v-if="!isManagerSelected"
+          :label="`${$t('MSG_TXT_EMPL_NM')}/${$t('MSG_TXT_EPNO')}`"
+        >
+          <kw-input
+            v-model="searchParams.searchText"
+            :maxlength="100"
+            :placeholder="$t('MSG_TXT_ENTER_SOMETHING', [`${$t('MSG_TXT_EMPL_NM')}/${$t('MSG_TXT_EPNO')}`])"
+          />
+        </kw-search-item>
+      </kw-search-row>
+      <kw-search-row
+        v-if="isManagerSelected"
+      >
+        <kw-search-item
           :label="`${$t('MSG_TXT_EMPL_NM')}/${$t('MSG_TXT_EPNO')}`"
         >
           <kw-input
