@@ -23,7 +23,7 @@
       />
       <kw-tab
         name="rcvFshDpCrtOmssnCt"
-        :label="t('MSG_TIT_AFTN_CH_RJ_RSON')"
+        :label="t('MSG_TIT_RCV_FSH_DP_CRT_OMSSN_CT')"
       />
       <kw-tab
         name="slPerfDpApyOmssnCt"
@@ -143,7 +143,7 @@ const { currentRoute } = useRouter();
 // -------------------------------------------------------------------------------------------------
 
 const itemsChecked = ref({
-  tab1: t('MSG_TIT_AFTN_CH_RJ_RSON'),
+  tab1: t('MSG_TIT_RCV_FSH_DP_CRT_OMSSN_CT'),
   tab2: t('MSG_TIT_SL_PERF_DP_APY_OMSSN_CT'),
   tab3: t('MSG_TIT_BNDL_WDRW_ERR_RGST'),
 });
@@ -212,7 +212,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'autoFntClsf', header: t('MSG_TXT_AUTO_FNT_CLSF'), width: '735' },
     { fieldName: 'bnkCd', header: t('MSG_TXT_BNK_CDCO_CD'), width: '250', styleName: 'text-center' },
     { fieldName: 'bnkNm', header: t('MSG_TXT_BNK_CDCO_NM'), width: '250', options: codes.BNK_CD },
-    { fieldName: 'ct', header: t('MSG_TXT_NRCV_CT'), width: '250', styleName: 'text-right' },
+    { fieldName: 'ct', header: t('MSG_TXT_NRCV_CT'), width: '250', styleName: 'text-right', numberFormat: '#,##0' },
 
   ];
 
