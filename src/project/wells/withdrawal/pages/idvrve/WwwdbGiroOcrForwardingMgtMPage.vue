@@ -68,12 +68,12 @@
         dense
         @click="onClickPopup()"
       />
-      <!-- <kw-btn
+      <kw-btn
         :label="t('통합입금번호조회 임시')"
         negative
         dense
         @click="onClickPopup2()"
-      /> -->
+      />
       <!-- label="임시 지로 수신처 관리 팝업" -->
       <kw-btn
         dense
@@ -207,11 +207,11 @@ async function onClickPopup() {
   });
 }
 // // 임시 팝업 호출
-// async function onClickPopup2() {
-//   await modal({
-//     component: 'WwwdbIntegrationDepositNumberInquiryP',
-//   });
-// }
+async function onClickPopup2() {
+  await modal({
+    component: 'WwwdbIntegrationDepositNumberP',
+  });
+}
 
 const pageInfo = ref({
   totalCount: 0,
@@ -242,9 +242,8 @@ async function fetchData() {
 
   data.checkRowStates(false);
   data.setRows(pages);
-  data.checkRowStates(true);
-
   view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
+  data.checkRowStates(true);
 }
 
 async function onClickSearch() {

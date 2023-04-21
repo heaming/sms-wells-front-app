@@ -287,9 +287,8 @@ async function fetchData() {
 
   data.checkRowStates(false);
   data.setRows(pages);
+  view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
   data.checkRowStates(true);
-
-  view.resetCurrent();
 }
 
 async function fetchSubData() {
@@ -572,6 +571,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'lifAlncDvCd' }, /* 라이프제휴구분코드 */
     { fieldName: 'fstRgstDtm', dataType: 'date' }, /* 입력일자 */
     { fieldName: 'fstRgstUsrId' }, /* 입력담당자id */
+    { fieldName: 'fstRgstUsrNm' }, /* 입력담당자id */
     { fieldName: 'lifAlncPdCd' }, /* 상품코드 */
     { fieldName: 'lifAlncPdNm' }, /* 상품명 */
   ];
@@ -588,7 +588,7 @@ const initGrid = defineGrid((data, view) => {
       header: t('MSG_TXT_LIF_CNTR_NO'),
       // header: '라이프 계약번호',
       width: '238',
-      styleName: 'text-left' },
+      styleName: 'text-center' },
     { fieldName: 'amt',
       header: t('MSG_TXT_SPPT_AMT'),
       // header: '지원금액',
@@ -611,14 +611,14 @@ const initGrid = defineGrid((data, view) => {
       header: t('MSG_TXT_WELLS_CNTR_NO'),
       // header: '웰스계약번호',
       width: '260',
-      styleName: 'text-left' },
+      styleName: 'text-center' },
     { fieldName: 'fstRgstDtm',
       header: t('MSG_TXT_IN_DTM'),
       // header: '입력일시',
       width: '180',
-      datetimeformat: 'date',
+      datetimeFormat: 'date',
       styleName: 'text-center' },
-    { fieldName: 'fstRgstUsrId',
+    { fieldName: 'fstRgstUsrNm',
       header: t('MSG_TXT_IN_PSIC'),
       // header: '입력담당자명',
       width: '137' },
@@ -626,7 +626,7 @@ const initGrid = defineGrid((data, view) => {
       header: t('MSG_TXT_SEQUENCE_NUMBER'),
       // header: '번호',
       width: '130',
-      styleName: 'text-right' },
+      styleName: 'text-center' },
   ];
 
   data.setFields(fields);
