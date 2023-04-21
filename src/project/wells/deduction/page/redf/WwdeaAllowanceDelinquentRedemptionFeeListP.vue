@@ -14,39 +14,36 @@
 --->
 <template>
   <kw-popup
-    class="kw-popup--2xl"
+    ref="popupRef"
+    size="2xl"
   >
-    <kw-form
-      ref="frmMainRef"
+    <kw-search
+      :cols="2"
+      one-row
+      @search="onClickPopSearch"
     >
-      <kw-search
-        :cols="2"
-        one-row
-        @search="onClickPopSearch"
-      >
-        <kw-search-row>
-          <kw-search-item
-            label="구분"
-          >
-            <kw-select
-              v-model="searchParams.perfDvCd"
-              first-option="all"
-              :options="codes.PERF_DV_CD"
-            />
-          </kw-search-item>
+      <kw-search-row>
+        <kw-search-item
+          :label="$t('MSG_TXT_DIV')"
+        >
+          <kw-select
+            v-model="searchParams.perfDvCd"
+            first-option="all"
+            :options="codes.PERF_DV_CD"
+          />
+        </kw-search-item>
 
-          <kw-search-item
-            label="유형"
-          >
-            <kw-select
-              v-model="searchParams.whtxRepDvCd"
-              first-option="all"
-              :options="codes.REDF_INQR_TP_CD"
-            />
-          </kw-search-item>
-        </kw-search-row>
-      </kw-search>
-    </kw-form>
+        <kw-search-item
+          :label="$t('MSG_TXT_TYPE')"
+        >
+          <kw-select
+            v-model="searchParams.whtxRepDvCd"
+            first-option="all"
+            :options="codes.REDF_INQR_TP_CD"
+          />
+        </kw-search-item>
+      </kw-search-row>
+    </kw-search>
 
     <kw-action-top>
       <template #left>
@@ -74,6 +71,8 @@
       ref="grdPopRef"
       name="grdPop"
       :visible-rows="getVisibleRows"
+      :page-size="pageInfo.pageSize"
+      :total-count="pageInfo.totalCount"
       @init="initGrid"
     />
 
@@ -96,8 +95,8 @@ import { cloneDeep } from 'lodash-es';
 const dataService = useDataService();
 const { t } = useI18n();
 const { getConfig } = useMeta();
-const frmMainRef = ref();
 const grdPopRef = ref(getComponentType('KwGrid'));
+const popupRef = ref();
 
 const {
   cancel: onClickCancel,
@@ -165,7 +164,7 @@ async function onClickExcelDownload() {
   const view = grdPopRef.value.getView();
 
   await gridUtil.exportView(view, {
-    fileName: '수당/연체 되물림',
+    fileName: popupRef.value.pageCtxTitle,
     timePostfix: true,
     exportData: res.data,
   });
@@ -194,70 +193,70 @@ function initGrid(data, view) {
 
   const columns = [
     { fieldName: 'perfDvNm',
-      header: t('구분'),
+      header: t('MSG_TXT_DIV'), // 구분
       width: '130',
       styleName: 'text-center',
     },
     { fieldName: 'redfAdsbOcYm',
-      header: t('발생월'),
+      header: t('MSG_TXT_MNTH_OCCURENCE'), // 발생월
       width: '80',
       styleName: 'text-center',
       datetimeFormat: 'YYYY-MM',
     },
     { fieldName: 'whtxRepDvNm',
-      header: t('유형'),
+      header: t('MSG_TXT_TYPE'), // 유형
       width: '150',
       styleName: 'text-left',
     },
     { fieldName: 'cntrNo',
-      header: t('계약번호'),
+      header: t('MSG_TXT_CNTR_NO'), // 계약번호
       width: '150',
       styleName: 'text-center',
     },
     { fieldName: 'cstKnm',
-      header: t('고객명'),
+      header: t('MSG_TXT_CST_NM'), // 고객명
       width: '80',
       styleName: 'text-center',
     },
     { fieldName: 'prtnrKnm',
-      header: t('판매자'),
+      header: t('MSG_TXT_SELLER_PERSON'), // 판매자
       width: '80',
       styleName: 'text-center',
     },
     { fieldName: 'redfAdsbOcAmt',
-      header: t('되물림액'),
+      header: t('MSG_TXT_REDF_AMT'), // 되물림액
       width: '150',
       styleName: 'text-right',
       numberFormat: '#,##0',
     },
     { fieldName: 'perfYm',
-      header: t('매출월'),
+      header: t('MSG_TXT_SL_MM'), // 매출월
       width: '80',
       styleName: 'text-center',
       datetimeFormat: 'YYYY-MM',
     },
     { fieldName: 'pdNm',
-      header: t('상품'),
+      header: t('MSG_TXT_PRDT'), // 상품
       width: '250',
       styleName: 'text-left',
     },
     { fieldName: 'envYn',
-      header: t('환경'),
+      header: t('MSG_TXT_ENVR'), // 환경
       width: '50',
       styleName: 'text-center',
     },
     { fieldName: 'redfAdsbTpNm',
-      header: t('처리유형'),
+      header: t('MSG_TXT_PROCS_TP'), // 처리유형
       width: '120',
       styleName: 'text-center',
     },
     { fieldName: 'cntrCanRsonCd',
-      header: t('취소유형'),
+      header: t('MSG_TXT_CNCL_TP'), // 취소유형
       width: '120',
       styleName: 'text-left',
     },
     { fieldName: 'mchnChTpCd',
-      header: t('기변유형'),
+      header: t('MSG_TXT_CHDVC_TP'), // 기변유형
       width: '80',
       styleName: 'text-center',
     },
