@@ -253,7 +253,7 @@ async function fetchData1() {
 }
 
 async function fetchData2() {
-  const res = await dataService.get('/sms/wells/withdrawal/bilfnt/bundle-withdrawal-hist', { params: { ...cachedParams, ...pageInfo.value } });
+  const res = await dataService.get('/sms/wells/withdrawal/bilfnt/bundle-withdrawal-hist', { params: { ...cachedParams, ...pageInfo2.value } });
   const { list: lists, pageInfo: pageResult } = res.data;
   pageInfo2.value = pageResult;
 
@@ -271,9 +271,11 @@ async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
   if (selectedTab.value === 'unrgPs') {
     grdMainRef1.value.getData().clearRows();
+    pageInfo.value.pageIndex = 1;
     await fetchData1();
   } else {
     grdMainRef2.value.getData().clearRows();
+    pageInfo2.value.pageIndex = 1;
     await fetchData2();
   }
 }
