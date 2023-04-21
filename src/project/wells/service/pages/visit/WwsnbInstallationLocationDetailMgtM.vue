@@ -208,9 +208,9 @@ import {
   useGlobal,
 } from 'kw-lib';
 
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
-import smsCommon from '~sms-wells/service/composables/useSnCode';
+// import smsCommon from '~sms-wells/service/composables/useSnCode';
 // import ZwcmMultiSelect from '@/modules/common/components/ZwcmMultiSelect.vue';
 
 const { t } = useI18n();
@@ -219,26 +219,26 @@ const grdMainRef = ref(getComponentType('KwGrid'));
 const dataService = useDataService();
 const { currentRoute } = useRouter();
 
-const {
-  getAllEngineers,
-  getServiceCenterOrgs,
-  getWorkingEngineers,
-} = smsCommon();
+// const {
+//   getAllEngineers,
+//   getServiceCenterOrgs,
+//   getWorkingEngineers,
+// } = smsCommon();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 
-const svcCode = await getServiceCenterOrgs();
+const svcCode = (await dataService.get('/sms/wells/service/installation-locations/centers')).data;
 
 const engineers = ref();
 const products = ref();
 // 기획서 기준
-const eng = (await getAllEngineers('G_ONLY_ENG')).G_ONLY_ENG;
-const wrkEng = (await getWorkingEngineers('G_ONLY_ENG')).G_ONLY_ENG;
+const eng = (await dataService.get('/sms/wells/service/installation-locations/engineers')).data;
+// const wrkEng = (await getWorkingEngineers('G_ONLY_ENG')).G_ONLY_ENG;
 const prd = (await dataService.get('/sms/wells/service/installation-locations/products')).data;
 products.value = prd;
-engineers.value = eng.map((v) => ({ codeId: v.codeId, codeName: v.codeNm1 }));
+engineers.value = eng.map((v) => ({ codeId: v.prtnrNo, codeName: v.prtnrKnm }));
 
 const dvCd = [{ codeId: '1', codeName: t('MSG_TXT_EGER') }];
 const codes = await codeUtil.getMultiCodes(
@@ -326,18 +326,18 @@ async function onClickSave() {
 function setEngineers() {
   if (searchParams.value.ogId === '') {
     if (searchParams.value.rgsnYn === 'Y') {
-      engineers.value = wrkEng.map((v) => ({ codeId: v.codeId, codeName: v.codeNm1 }));
+      engineers.value = eng.filter((v) => isEmpty(v.cltnDt)).map((v) => ({ codeId: v.prtnrNo, codeName: v.prtnrKnm }));
       return;
     }
-    engineers.value = eng.map((v) => ({ codeId: v.codeId, codeName: v.codeNm1 }));
+    engineers.value = eng.map((v) => ({ codeId: v.prtnrNo, codeName: v.prtnrKnm }));
   } else {
     if (searchParams.value.rgsnYn === 'Y') {
-      const wrkEngByOdId = wrkEng.filter((v) => v.ogCd === searchParams.value.ogId);
-      engineers.value = wrkEngByOdId.map((v) => ({ codeId: v.codeId, codeName: v.codeNm1 }));
+      const wrkEngByOdId = eng.filter((v) => v.cltnDt === '').map((v) => ({ codeId: v.prtnrNo, codeName: v.prtnrKnm }));
+      engineers.value = wrkEngByOdId.map((v) => ({ codeId: v.prtnrNo, codeName: v.prtnrKnm }));
       return;
     }
-    const engByOgId = eng.filter((v) => v.ogCd === searchParams.value.ogId);
-    engineers.value = engByOgId.map((v) => ({ codeId: v.codeId, codeName: v.codeNm1 }));
+    const engByOgId = eng.filter((v) => v.ogId === searchParams.value.ogId);
+    engineers.value = engByOgId.map((v) => ({ codeId: v.prtnrNo, codeName: v.prtnrKnm }));
   }
 }
 
