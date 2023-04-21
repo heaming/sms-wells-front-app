@@ -16,6 +16,7 @@
   <kw-search
     :cols="4"
     @search="onClickSearch"
+    @reset="onClickReset"
   >
     <kw-search-row>
       <!-- 기간조회 -->
@@ -34,11 +35,23 @@
                      { codeId: '6', codeName: t('MSG_TXT_RENTAL_NMN') },
                      { codeId: '7', codeName: t('MSG_TXT_DUEDT') }]"
           rules="required"
+          @change="onChangePrdEnqry"
         />
         <kw-date-range-picker
+          v-if="isSearchPrdEnqryVisible"
           v-model:from="searchParams.strtDt"
           v-model:to="searchParams.endDt"
           rules="date_range_required|date_range_months:1"
+        />
+        <kw-input
+          v-if="isSearchRentalNmnVisible"
+          v-model="searchParams.rentalNmn"
+          :placeholder="t('MSG_TXT_INP')"
+          rules="required|max:10|numeric"
+          :label="$t('MSG_TXT_RENTAL_NMN')"
+          :type="number"
+          :regex="/^[0-9]*$/i"
+          :maxlength="10"
         />
       </kw-search-item>
       <!-- 상품분류 -->
@@ -79,9 +92,7 @@
         <kw-input
           v-model="searchParams.pdNm"
           clearable
-          icon="search"
           :maxlength="100"
-          @click-icon="onClickSelectPdCd()"
         />
       </kw-search-item>
       <!-- 제휴코드 -->
@@ -199,11 +210,6 @@
     </kw-search-row>
   </kw-search>
   <div class="result-area">
-    <ul class="kw-notification">
-      <li>
-        CSV / 엑셀 다운로드는 전체 자료를 다운받습니다. (5분~10분 시간 소요, 최대조회기간: CSV 100일 이내, 엑셀 33일 이내)
-      </li>
-    </ul>
     <kw-action-top>
       <template #left>
         <kw-paging-info
@@ -216,6 +222,7 @@
         <span class="ml8">(단위:원, 개월:건)</span>
       </template>
       <kw-btn
+        v-if="isCsvDownloadVisible"
         icon="download_on"
         dense
         secondary
@@ -269,6 +276,7 @@ const searchParams = ref({
   prdEnqry: '1', // 기간조회
   strtDt: now.startOf('month').format('YYYYMMDD'), // 시작일자
   endDt: now.format('YYYYMMDD'), // 종료일자
+  rentalNmn: '', // 렌탈차월
   hcsfVal: '', // 상품분류-대분류
   hcsfMcsfVal: '', // 상품분류-중분류
   pdCd: '', // 상품코드
@@ -307,12 +315,25 @@ const pageInfo = ref({
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 const grdRentalContractList = ref(getComponentType('KwGrid'));
+const isSearchPrdEnqryVisible = ref(true); // 조회조건(기간조회)
+const isSearchRentalNmnVisible = ref(false); // 조회조건(렌탈차월)
+const isCsvDownloadVisible = ref(false); // CSV Download Button
 const checkType = ref([]); // 자료구분
 const checkOption = ref([
   { codeId: 1, codeName: t('MSG_TXT_BOO_MTR') }, // 예약자료
   { codeId: 2, codeName: t('MSG_TXT_EXCLD_CANC') }, // 취소제외
   { codeId: 3, codeName: t('MSG_TXT_SL_CRT') }, // 매출생성
 ]);
+
+async function onChangePrdEnqry() {
+  if (searchParams.value.prdEnqry === '6') { // 렌탈차월
+    isSearchPrdEnqryVisible.value = false;
+    isSearchRentalNmnVisible.value = true;
+  } else { // 렌탈차월 이외
+    isSearchPrdEnqryVisible.value = true;
+    isSearchRentalNmnVisible.value = false;
+  }
+}
 
 async function fetchData() {
   // changing api & cacheparams according to search classification
@@ -432,10 +453,22 @@ async function onUpdateDgr2Levl(selectedValues) {
   filteredDgr3LevlOgCds.value = codesDgr3Levl.value.filter((v) => selectedValues.includes(v.dgr2LevlOgCd));
 }
 
+// 조회버튼 클릭 이벤트
 async function onClickSearch() {
   await fetchData();
 }
 
+// 초기화버튼 클릭 이벤트
+async function onClickReset() {
+  searchParams.value.strtDt = now.startOf('month').format('YYYYMMDD'); // 시작일자
+  searchParams.value.endDt = now.format('YYYYMMDD'); // 종료일자
+  searchParams.value.rentalNmn = ''; // 렌탈차월
+
+  isSearchPrdEnqryVisible.value = true;
+  isSearchRentalNmnVisible.value = false;
+}
+
+// 엑셀다운로드버튼 클릭 이벤트
 async function onClickExcelDownload() {
   const view = grdRentalContractList.value.getView();
   const res = await dataService.get('/sms/wells/contract/contracts/order-detail-mngt/rentals/excel-download', { params: cachedParams });

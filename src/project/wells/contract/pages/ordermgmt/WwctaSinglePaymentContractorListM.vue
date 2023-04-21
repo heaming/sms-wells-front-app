@@ -128,11 +128,11 @@
       />
     </kw-action-top>
     <kw-grid
-      ref="grdSnglPmntContractList"
-      name="grdSnglPmntContractList"
+      ref="grdSnglPmntContractorList"
+      name="grdSnglPmntContractorList"
       :page-size="pageInfo.pageSize"
       :total-count="pageInfo.totalCount"
-      @init="initGridSnglPmntContractList"
+      @init="initGridSnglPmntContractorList"
     />
     <kw-pagination
       v-model:page-index="pageInfo.pageIndex"
@@ -158,7 +158,7 @@ const { notify, modal } = useGlobal();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
-const grdSnglPmntContractList = ref(getComponentType('KwGrid'));
+const grdSnglPmntContractorList = ref(getComponentType('KwGrid'));
 const codes = await codeUtil.getMultiCodes(
   'SEX_CD',
   'COD_PAGE_SIZE_OPTIONS',
@@ -194,7 +194,7 @@ async function fetchData() {
   const { list: pages, pageInfo: pagingResult } = res.data;
   pageInfo.value = pagingResult;
 
-  const view = grdSnglPmntContractList.value.getView();
+  const view = grdSnglPmntContractorList.value.getView();
   const dataSource = view.getDataSource();
   dataSource.setRows(pages);
 
@@ -209,7 +209,7 @@ async function onClickSearch() {
 }
 
 async function onClickExcelDownload() {
-  const view = grdSnglPmntContractList.value.getView();
+  const view = grdSnglPmntContractorList.value.getView();
   const res = await dataService.get('sms/wells/contract/contracts/order-detail-mngt/singlepayments/excel-download', { params: cachedParams });
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
@@ -244,7 +244,7 @@ async function onClickSearchCstKnm() {
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
-const initGridSnglPmntContractList = defineGrid((data, view) => {
+const initGridSnglPmntContractorList = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'cntrDtlNo' }, // 계약상세번호
     { fieldName: 'cntrNo' }, // 계약번호

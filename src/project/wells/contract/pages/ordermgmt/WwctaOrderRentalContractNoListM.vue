@@ -18,46 +18,22 @@
     @search="onClickSearch"
   >
     <kw-search-row>
-      <!-- 계약번호 -->
+      <!-- 계약상세번호 -->
       <kw-search-item
-        :label="$t('MSG_TXT_CNTR_NO')"
+        :label="$t('MSG_TXT_CNTR_DTL_NO')"
+        colspan="2"
         required
-        :colspan="2"
       >
-        <kw-input
-          v-model="searchParams.cntrNo"
-          icon="search"
-          clearable
-          rules="required"
-          :label="$t('MSG_TXT_CNTR_NO')"
-          :maxlength="12"
-          @keydown="onKeyDownSelectCntrNo"
-          @click-icon="onClickSelectCntrNo"
-          @clear="onClearSelectCntrNo"
-        />
-      </kw-search-item>
-      <!-- 계약일련번호 -->
-      <kw-search-item
-        :label="$t('MSG_TXT_CNTR_SN')"
-        :colspan="2"
-      >
-        <kw-input
-          v-model="searchParams.cntrSn"
-          rules="numeric"
-          :label="$t('MSG_TXT_CNTR_SN')"
-          :type="number"
-          :maxlength="5"
+        <zctz-contract-detail-number
+          v-model:cntr-no="searchParams.cntrNo"
+          v-model:cntr-sn="searchParams.cntrSn"
+          class="w300"
+          disable-popup="true"
         />
       </kw-search-item>
     </kw-search-row>
   </kw-search>
   <div class="result-area">
-    <ul class="kw-notification">
-      <li>
-        CSV / 엑셀 다운로드는 전체 자료를 다운받습니다. (5분~10분 시간 소요, 최대조회기간: CSV 100일 이내, 엑셀 33일 이내)
-      </li>
-    </ul>
-
     <kw-action-top>
       <template #left>
         <kw-paging-info
@@ -70,6 +46,7 @@
         <span class="ml8">(단위:원, 개월:건)</span>
       </template>
       <kw-btn
+        v-if="isCsvDownloadVisible"
         icon="download_on"
         dense
         secondary
@@ -105,6 +82,7 @@
 // -------------------------------------------------------------------------------------------------
 import { codeUtil, getComponentType, useDataService, gridUtil, useGlobal, defineGrid } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
+import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
 
 const dataService = useDataService();
 const { t } = useI18n();
@@ -134,6 +112,7 @@ const pageInfo = ref({
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 const grdRentalContractorNoList = ref(getComponentType('KwGrid'));
+const isCsvDownloadVisible = ref(false); // CSV Download Button
 
 async function fetchData() {
   // changing api & cacheparams according to search classification
@@ -169,18 +148,6 @@ async function onClickExcelDownload() {
     timePostfix: true,
     exportData: res.data,
   });
-}
-
-// 계약번호 팝업조회
-async function onClickSelectCntrNo() {
-  const { result, payload } = await modal({ component: 'WwctaContractNumberListP',
-    // componentProps: { cntrCstNo: searchParams.value.cntrCstNo, cntrCstKnm: searchParams.value.cntrCstKnm },
-  });
-
-  if (result) {
-    searchParams.value.cntrNo = payload.cntrNo;
-    searchParams.value.cntrSn = payload.cntrSn;
-  }
 }
 
 onMounted(async () => {

@@ -52,12 +52,6 @@
     </kw-search-row>
   </kw-search>
   <div class="result-area">
-    <ul class="kw-notification">
-      <li>
-        CSV / 엑셀 다운로드는 전체 자료를 다운받습니다. (5분~10분 시간 소요, 최대조회기간: CSV 100일 이내, 엑셀 33일 이내)
-      </li>
-    </ul>
-
     <kw-action-top>
       <template #left>
         <kw-paging-info
@@ -70,9 +64,11 @@
         <span class="ml8">(단위:원, 개월:건)</span>
       </template>
       <kw-btn
+        v-if="isCsvDownloadVisible"
         icon="download_on"
         dense
         secondary
+        :visible="false"
         :label="$t('MSG_BTN_CSV_DOWN')"
         :disable="!pageInfo.totalCount"
       />
@@ -133,6 +129,7 @@ const pageInfo = ref({
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 const grdRglrDlvrContractNoList = ref(getComponentType('KwGrid'));
+const isCsvDownloadVisible = ref(false); // CSV Download Button
 
 async function fetchData() {
   // changing api & cacheparams according to search classification
@@ -500,8 +497,8 @@ function initGridRglrDlvrContractNoList(data, view) {
 
     if (['cntrDtlNo'].includes(column)) { // 계약상세(윈도우팝업)
       await modal({ component: 'WwctaOrderDetailP', componentProps: { cntrNo: paramCntrNo, cntrSn: paramCntrSn } });
-    } else if (['ordrInfoView'].includes(column)) { // 렌탈 주문정보 상세
-      await modal({ component: 'WwctaOrderRentalDtlP', componentProps: { cntrNo: paramCntrNo, cntrSn: paramCntrSn } });
+    } else if (['ordrInfoView'].includes(column)) { // 정기배송 주문정보 상세
+      await modal({ component: 'WwctaOrderRegularShippingDtlP', componentProps: { cntrNo: paramCntrNo, cntrSn: paramCntrSn } });
     } else if (['connPdView'].includes(column)) { // 연계상품 리스트 조회
       await alert('연계상품 리스트 팝업 조회');
     }
