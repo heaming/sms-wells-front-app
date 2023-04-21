@@ -136,13 +136,15 @@
 // -------------------------------------------------------------------------------------------------
 
 import dayjs from 'dayjs';
-import { codeUtil, defineGrid, getComponentType, gridUtil, modal, useDataService, useModal } from 'kw-lib';
+import { codeUtil, defineGrid, getComponentType, gridUtil, modal, useDataService, useModal, useMeta } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 
 const dataService = useDataService();
 const now = dayjs();
 const { t } = useI18n();
 const { ok } = useModal();
+const { getUserInfo } = useMeta();
+const userInfo = getUserInfo();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -234,10 +236,14 @@ async function onClickSearch() {
 
 // 파트너 검색 팝업 호출
 async function onClickSearchPrtnrNoPopup() {
+  console.log(searchParams.value.sellPrtnrNo);
+  console.log(userInfo.ogTpCd);
+
   const { result, payload } = await modal({
     component: 'ZwogzPartnerListP',
     componentProps: {
       prtnrNo: searchParams.value.sellPrtnrNo,
+      ogTpCd: userInfo.ogTpCd,
     },
   });
   if (result) {

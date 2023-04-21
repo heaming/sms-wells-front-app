@@ -40,9 +40,7 @@
             v-model="searchParams.cntr"
             icon="search"
             clearable
-            @keydown="onKeyDownSelectCntr"
             @click-icon="onClickSelectCntr"
-            @clear="onClearSelectCntr"
           />
         </kw-search-item>
         <kw-search-item
@@ -114,11 +112,11 @@
         />
         <!-- label="엑셀다운로드" -->
       </kw-action-top>
-
       <kw-grid
         ref="grdMainRef"
         name="grdMain"
-        :visible-rows="pageInfo.pageSize"
+        :page-size="pageInfo.pageSize"
+        :total-count="pageInfo.totalCount"
         @init="initGrid"
       />
       <kw-pagination
@@ -160,8 +158,9 @@ const pageInfo = ref({
 
 const searchParams = ref({
   baseYm: now.format('YYYYMM'),
-  prmDscExcdStrtYm: now.format('YYYYMM'),
-  prmDscExcdEndYm: now.format('999912'),
+  prmDscExcdStrtYm: '',
+  prmDscExcdEndYm: '',
+  // prmDscExcdEndYm: now.format('999912'),
   cntr: '',
   cntrNo: '',
   cntrSn: '',
@@ -182,9 +181,8 @@ async function fetchData() {
 
   data.checkRowStates(false);
   data.setRows(pages);
-  data.checkRowStates(true);
-
   view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
+  data.checkRowStates(true);
 }
 
 // 조회 버튼
@@ -287,24 +285,13 @@ async function onClickRemove() {
 // 계약상세번호 조회
 async function onClickSelectCntr() {
   const { result, payload } = await modal({ component: 'WwctaContractNumberListP',
-    // componentProps: { rveCd: searchParams.value.rveCd, rveNm: searchParams.value.rveNm },
+    // componentProps: { cntrNo: searchParams.value.cntrNo },
   });
-  console.log(payload);
   if (result) {
     searchParams.value.cntr = payload.cntrNo + payload.cntrSn;
     searchParams.value.cntrNo = payload.cntrNo;
     searchParams.value.cntrSn = payload.cntrSn;
   }
-}
-
-async function onClearSelectCntr() {
-  searchParams.value.cntrNo = '';
-  searchParams.value.cntrSn = '';
-}
-
-async function onKeyDownSelectCntr() {
-  searchParams.value.cntrNo = '';
-  searchParams.value.cntrSn = '';
 }
 
 // -------------------------------------------------------------------------------------------------
@@ -326,8 +313,10 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'slCtrAmt' }, // 조정값
     { fieldName: 'fstRgstDtm' }, // 등록일시
     { fieldName: 'fstRgstUsrId' }, // 등록자 id
+    { fieldName: 'fstRgstUsrNm' }, // 등록자
     { fieldName: 'fnlMdfcDtm' }, // 수정일시
     { fieldName: 'fnlMdfcUsrId' }, // 수정자 id
+    { fieldName: 'fnlMdfcUsrNm' }, // 수정자 id
     { fieldName: 'rowState' }, // 상태값
   ];
 
@@ -422,11 +411,11 @@ const initGrid = defineGrid((data, view) => {
       styleName: 'text-right',
       editable: false },
     { fieldName: 'fstRgstDtm', header: t('MSG_TXT_RGST_DTM'), width: '150', styleName: 'text-center', editable: false },
-    { fieldName: 'fstRgstUsrId', header: t('MSG_TXT_FST_RGST_USR'), width: '70', styleName: 'text-left', editable: false },
-    { fieldName: 'fstRgstUsrId', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '88', styleName: 'text-right', editable: false },
+    { fieldName: 'fstRgstUsrNm', header: t('MSG_TXT_FST_RGST_USR'), width: '70', styleName: 'text-left', editable: false },
+    { fieldName: 'fstRgstUsrId', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '88', styleName: 'text-center', editable: false },
     { fieldName: 'fnlMdfcDtm', header: t('MSG_TXT_MDFC_DTM'), width: '150', styleName: 'text-center', editable: false },
-    { fieldName: 'fnlMdfcUsrId', header: t('MSG_TIT_MDFC_USR'), width: '70', styleName: 'text-left', editable: false },
-    { fieldName: 'fnlMdfcUsrId', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '88', styleName: 'text-right', editable: false },
+    { fieldName: 'fnlMdfcUsrNm', header: t('MSG_TIT_MDFC_USR'), width: '70', styleName: 'text-left', editable: false },
+    { fieldName: 'fnlMdfcUsrId', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '88', styleName: 'text-center', editable: false },
   ];
 
   data.setFields(fields);
