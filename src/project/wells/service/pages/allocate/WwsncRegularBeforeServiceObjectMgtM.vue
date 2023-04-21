@@ -72,7 +72,7 @@ import dayjs from 'dayjs';
 import { useDataService, useGlobal } from 'kw-lib';
 
 const { t } = useI18n();
-const { confirm } = useGlobal();
+const { confirm, alert } = useGlobal();
 
 const dataService = useDataService();
 
@@ -96,6 +96,7 @@ const customCodes = {
     // { codeId: 'E', codeName: '튜빙피팅체크' },
     // { codeId: 'F', codeName: '중복자재 처리' },
     // { codeId: 'G', codeName: '배정고객 정리' },
+    { codeId: 'H', codeName: '배정생성' },
   ],
 };
 // -------------------------------------------------------------------------------------------------

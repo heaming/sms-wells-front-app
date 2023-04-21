@@ -34,7 +34,9 @@
         <kw-form-item :label="$t('당직자')">
           <kw-select
             v-model="calendarInfo.bndtWrkPsicNo"
-            :options="['김교원', 'B', 'C', 'D']"
+            :options="customCodes.SERVICE_CENTER_ENGINEER"
+            option-value="prtnrNo"
+            option-label="prtnrNm"
           />
         </kw-form-item>
       </kw-form-row>
@@ -86,6 +88,10 @@ const props = defineProps({
     type: String,
     required: true,
   },
+  svCnrOgCd: {
+    type: String,
+    required: true,
+  },
   baseY: {
     type: String,
     required: true,
@@ -117,6 +123,7 @@ const props = defineProps({
  */
 const calendarInfo = ref({
   svCnrOgId: props.svCnrOgId,
+  svCnrOgCd: props.svCnrOgCd,
   baseY: props.baseY,
   baseMm: props.baseMm,
   baseD: props.baseD,
@@ -131,6 +138,22 @@ const calendarInfo = ref({
 const codes = await codeUtil.getMultiCodes(
   'COD_YN',
 );
+
+/*
+ *  Custom Code setting
+ */
+const customCodes = {
+  SERVICE_CENTER_ENGINEER: [], // 당직자
+};
+
+/*
+ * 당직자 조회
+ */
+async function getServiceCenterEngineer() {
+  const res = await dataService.get('/sms/wells/service/organizations/engineer', { params: { dgr1LevlOgId: calendarInfo.value.svCnrOgId } });
+  customCodes.SERVICE_CENTER_ENGINEER = res.data;
+}
+await getServiceCenterEngineer();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
