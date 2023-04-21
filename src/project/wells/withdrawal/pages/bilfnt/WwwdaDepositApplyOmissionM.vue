@@ -152,26 +152,22 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'thmIntamDpAmt', dataType: 'number' },
     { fieldName: 'thmIstmRfndAmt', dataType: 'number' },
     { fieldName: 'rveAmt', dataType: 'number' },
-    { fieldName: 'dpTpCd' },
+    { fieldName: 'dpMesCd' },
   ];
 
   const columns = [
     { fieldName: 'sellTpNm', header: t('MSG_TXT_AUTO_FNT_CLSF'), width: '290' },
-    { fieldName: 'baseYm', header: t('MSG_TXT_PERF_YM'), width: '200', styleName: 'text-center' },
+    { fieldName: 'baseYm', header: t('MSG_TXT_PERF_YM'), width: '200', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'cntr',
       header: t('MSG_TXT_CNTR_DTL_NO'),
       width: '250',
       styleName: 'text-center',
-      // eslint-disable-next-line no-unused-vars
-      displayCallback: (g, i, v) => {
-        const { cntrNo, cntrSn } = gridUtil.getRowValue(g, i.itemIndex);
-        return `${cntrNo}-${cntrSn}`;
-      } },
+    },
     { fieldName: 'rentalNmn', header: t('MSG_TXT_RENTAL_NMN'), width: '150', styleName: 'text-center' },
     { fieldName: 'thmIntamDpAmt', header: t('MSG_TXT_PRPD_DP'), width: '150', styleName: 'text-right', numberFormat: '#,##0' },
     { fieldName: 'thmIstmRfndAmt', header: t('MSG_TXT_PRPD_RFND'), width: '150', styleName: 'text-right', numberFormat: '#,##0' },
     { fieldName: 'rveAmt', header: t('MSG_TXT_AMT'), width: '150', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'dpTpCd', header: t('MSG_TXT_STLM_INF'), width: '117' },
+    { fieldName: 'dpMesCd', header: t('MSG_TXT_STLM_INF'), width: '117' },
   ];
 
   data.setFields(fields);
