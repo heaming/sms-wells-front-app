@@ -229,6 +229,7 @@ async function onClickExcelDownload() {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
     exportData: response.data,
+    checkBar: 'hidden',
   });
 }
 async function fetchData() {
