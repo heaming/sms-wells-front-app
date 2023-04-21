@@ -114,7 +114,6 @@
         >
           <kw-input
             v-model="searchParams.pdCd"
-            :placeholder="t('1234')"
           />
         </kw-search-item>
         <kw-search-item
