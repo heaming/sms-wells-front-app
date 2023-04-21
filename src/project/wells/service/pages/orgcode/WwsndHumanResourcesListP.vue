@@ -45,19 +45,12 @@
           />
         </template>
         <template v-else>
-          <kw-search-item
-            :label="$t('MSG_TXT_CENTER_DIVISION')"
-          >
-            <kw-select
-              ref="cbDgr1LevlOgIdRef"
-              v-model="searchParams.dgr1LevlOgId"
-              :options="dgr1LevlOgs"
-              option-value="ogId"
-              option-label="ogNm"
-              first-option="all"
-              @update:model-value="onChangeDgr1LevlOgId"
-            />
-          </kw-search-item>
+          <wwsn-engineer-og-search-item-group
+            v-model:dgr1-levl-og-id="searchParams.dgr1LevlOgId"
+            use-og-level="1"
+            :use-partner="false"
+            dgr1-levl-og-first-option="all"
+          />
           <kw-search-item
             :label="`${$t('MSG_TXT_EMPL_NM')}/${$t('MSG_TXT_EPNO')}`"
           >
@@ -129,6 +122,7 @@ import { codeUtil, defineGrid, getComponentType, gridUtil, useDataService, useMe
 import { cloneDeep, isEmpty } from 'lodash-es';
 import { onMounted } from 'vue';
 import WwsnManagerOgSearchItemGroup from '~sms-wells/service/components/WwsnManagerOgSearchItemGroup.vue';
+import WwsnEngineerOgSearchItemGroup from '~sms-wells/service/components/WwsnEngineerOgSearchItemGroup.vue';
 
 const { t } = useI18n();
 const { getConfig } = useMeta();
@@ -163,7 +157,6 @@ const props = defineProps({
 // -------------------------------------------------------------------------------------------------
 const grdMainRef = ref(getComponentType('KwGrid'));
 const cbMngrDvCdRef = ref(getComponentType('KwSelect'));
-const cbDgr1LevlOgIdRef = ref(getComponentType('KwSelect'));
 
 const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
@@ -191,11 +184,6 @@ const searchParams = ref({
 let cachedParams;
 
 const isManagerSelected = computed(() => searchParams.value.mngrDvCd === '1');
-
-const dgr1LevlOgs = computed(() => {
-  const ogTpCd = isManagerSelected.value ? 'W02' : 'W06';
-  return organizations.value.filter((og) => (og.ogTpCd === ogTpCd && og.ogLevlDvCd === '1'));
-});
 
 const layouts = computed(() => {
   if (isManagerSelected.value) {
@@ -260,11 +248,6 @@ function onChangeMngrDvCd() {
   searchParams.value.dgr2LevlOgId = '';
   searchParams.value.dgr3LevlOgId = '';
   searchParams.value.searchText = '';
-}
-
-function onChangeDgr1LevlOgId() {
-  searchParams.value.dgr2LevlOgId = '';
-  searchParams.value.dgr3LevlOgId = '';
 }
 
 async function onClickSearch() {
