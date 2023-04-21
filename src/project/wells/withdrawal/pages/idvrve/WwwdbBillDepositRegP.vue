@@ -147,16 +147,37 @@
 // -------------------------------------------------------------------------------------------------
 
 import dayjs from 'dayjs';
-import { defineGrid, getComponentType, gridUtil, modal, useDataService, useMeta, alert, confirm, notify } from 'kw-lib';
+import { defineGrid, getComponentType, gridUtil, modal, useDataService, useMeta, alert, confirm, notify, useModal } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 
 const { getConfig } = useMeta();
 const dataService = useDataService();
 const now = dayjs();
 const { t } = useI18n();
+const { ok } = useModal();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
+const props = defineProps({
+  itgDpNo: {
+    type: String,
+    default: null,
+  },
+  cntrNo: {
+    type: String,
+    default: null,
+  },
+  bzrno: {
+    type: String,
+    default: null,
+  },
+  mconBzsNm: {
+    type: String,
+    default: null,
+  },
+
+});
+
 const grdMainRef = ref(getComponentType('KwGrid'));
 const grdMainRef2 = ref(getComponentType('KwGrid'));
 const grdMainRef3 = ref(getComponentType('KwGrid'));
@@ -182,7 +203,10 @@ const pageInfoSecond = ref({
   needTotalCount: true,
 });
 
+const params = ref({ itgDpNo: '', cntrNo: '', bzrno: '' });
+
 const itgDpNo = ref();
+const cntrNo = ref();
 
 let cachedParams;
 
@@ -239,7 +263,7 @@ async function onClickSubSearch() {
 
   pageInfoSecond.value.pageIndex = 1;
 
-  const itgDp = { itgDpNo: itgDpNo.value };
+  const itgDp = { itgDpNo: itgDpNo.value, cntrNo: cntrNo.value };
 
   cachedSubParams = cloneDeep(itgDp);
 
@@ -352,7 +376,8 @@ async function onClickSave() {
 
   notify(t('MSG_ALT_SAVE_DATA'));
 
-  await onClickSubSearch();
+  ok();
+  // await onClickSubSearch();
 }
 
 // 엑셀다운로드
@@ -376,6 +401,27 @@ async function onClickExcelSubDownload() {
     exportData: res.data,
   });
 }
+
+async function initProps() {
+  console.log(props.itgDpNo);
+  console.log(props.cntrNo);
+  console.log(props.bzrno);
+  if (!isEmpty(props.itgDpNo)) {
+    params.value.itgDpNo = props.itgDpNo;
+    params.value.cntrNo = props.cntrNo;
+    searchParams.value.bzrno = props.bzrno;
+    searchParams.value.dlpnrNm = props.mconBzsNm;
+    itgDpNo.value = props.itgDpNo;
+    cntrNo.value = props.cntrNo;
+
+    await onClickSearch();
+    await onClickSubSearch();
+  }
+}
+
+onMounted(async () => {
+  await initProps();
+});
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
