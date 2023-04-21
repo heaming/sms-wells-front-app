@@ -207,11 +207,12 @@ const searchParams = ref({
   strOjWareNo: '', // 출고요청창고번호
   wareNm: '', // 창고명
   ostrAkNo: '', // 출고요청관리번호
-  ovivTpCd: '1', // 배차유형코드
+  ovivTpCd: '0', // 배차유형코드
   ostrAkTpCd: '', // 출고요청유형코드
   ostrItmNo: '', // 품목종류
   ostrOjWareNo: '',
   strHopDt: dayjs().format('YYYYMMDD'), // 입고희망일자
+  ostrAkRgstDt: '',
 });
 
 const pageInfo = ref({
@@ -252,7 +253,7 @@ async function onClickItemPop() {
     component: 'WwsnaItemBaseInformationListP',
     componentProps: { chk: '2',
       itmKndCd: searchParams.value.ostrItmNo,
-      wareNo: searchParams.value.ostrOjStckMgr,
+      wareNo: searchParams.value.strOjWareNo,
       ostrWareNo: searchParams.value.ostrOjWareNo,
 
     },
@@ -366,14 +367,15 @@ async function onClickDelete() {
 async function onClickSave() {
   const view = grdMainRef.value.getView();
   const checkedRows = gridUtil.getCheckedRowValues(view);
-
+  debugger;
   if (checkedRows.length === 0) {
     notify(t('MSG_ALT_NOT_SELECT_OSTR'));
     return;
   }
 
+  const chkOstrAkTpCd = searchParams.value.ostrAkTpCd;
+
   for (let i = 0; i < checkedRows.length; i += 1) {
-    const chkOstrAkTpCd = checkedRows[i].ostrAkTpCd;
     const chkWarehouseQty = checkedRows[i].warehouseQty;
     const chkOstrAkQty = checkedRows[i].ostrAkQty;
     const chkRectOstrDt = checkedRows[i].rectOstrDt;
@@ -386,13 +388,18 @@ async function onClickSave() {
       notify(t('MSG_ALT_OSTR_QTY_ZERO_BE_BIG'));
       return;
     }
-    if (!chkRectOstrDt) {
+
+    if (!isEmpty(chkRectOstrDt)) {
       notify(t('MSG_ALT_ARDY_OSTR', [t('MSG_TXT_MOD')]));
       return;
     }
   }
+  const params = searchParams.value;
+
+  params.ostrAkRgstDt = dayjs().format('YYYYMMDD');
+
   // TODO: 데이터 생기면 테스트.
-  const result = await dataService.post('/sms/wells/service/out-of-storage-asks', checkedRows);
+  const result = await dataService.post('/sms/wells/service/out-of-storage-asks', checkedRows.map((v) => ({ ...v, ...params })));
   if (result > 0) {
     notify(t('MSG_ALT_SAVE_DATA'));
   }

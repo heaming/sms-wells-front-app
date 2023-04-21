@@ -186,6 +186,8 @@ const searchParams = ref({
   itmPdNm: '',
   itmPdCd: '',
   lpGbYn: props.lpGbYn,
+  wareNo: props.wareNo,
+  ostrWareNo: props.ostrWareNo,
 
 });
 
@@ -234,6 +236,7 @@ async function fetchData() {
 
 async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
+  debugger;
   await fetchData();
 }
 // 기본정보 세팅
@@ -270,7 +273,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'itmPdNm1' },
     { fieldName: 'itemKnd' },
     { fieldName: 'imgUrl' },
-    { fieldName: 'lgstQty', dataType: 'number' },
+    { fieldName: 'warehouseQty', dataType: 'number' },
     { fieldName: 'centerQty', dataType: 'number' },
     { fieldName: 'centerBQty' },
     { fieldName: 'indiQty', dataType: 'number' },
@@ -286,7 +289,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'itmPdCd', header: t('MSG_TXT_ITM_CD'), width: '150', styleName: 'text-center' },
     { fieldName: 'itmPdNm', header: t('MSG_TXT_ITM_NM'), width: '250' },
     { fieldName: 'imgUrl', header: t('MSG_TXT_PHO'), width: '100', styleName: 'text-center' },
-    { fieldName: 'lgstQty', header: t('MSG_TXT_LGST'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'warehouseQty', header: t('MSG_TXT_LGST'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
     { fieldName: 'useQtyY', header: t('MSG_TXT_PVO_Y'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
     { fieldName: 'useQtyP', header: t('MSG_TXT_LSTMM'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
     { fieldName: 'useQty', header: t('MSG_TXT_THM'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
