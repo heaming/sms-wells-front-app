@@ -616,7 +616,7 @@ const initGrid = defineGrid((data, view) => {
       header: t('MSG_TXT_IN_DTM'),
       // header: '입력일시',
       width: '180',
-      datetimeformat: 'date',
+      datetimeFormat: 'date',
       styleName: 'text-center' },
     { fieldName: 'fstRgstUsrNm',
       header: t('MSG_TXT_IN_PSIC'),
