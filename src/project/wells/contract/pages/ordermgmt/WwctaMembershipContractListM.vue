@@ -61,7 +61,7 @@
         <kw-date-range-picker
           v-model:from="searchParams.choStrtDt"
           v-model:to="searchParams.choEndDt"
-          rules="date_range_months:1"
+          :label="$t('MSG_TXT_DT_SELT')"
         />
       </kw-search-item>
     </kw-search-row>

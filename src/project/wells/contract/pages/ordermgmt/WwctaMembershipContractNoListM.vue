@@ -29,6 +29,8 @@
           v-model:cntr-sn="searchParams.cntrSn"
           class="w300"
           disable-popup="true"
+          rules="required"
+          :label="$t('MSG_TXT_CNTR_DTL_NO')"
         />
       </kw-search-item>
     </kw-search-row>

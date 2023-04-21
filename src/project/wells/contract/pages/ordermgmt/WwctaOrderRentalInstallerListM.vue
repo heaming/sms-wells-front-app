@@ -30,7 +30,8 @@
           v-model:telNo1="searchParams.mexnoEncr"
           v-model:telNo2="searchParams.cralIdvTno"
           mask="telephone"
-          rules="required|telephone"
+          rules="required"
+          :label="$t('MSG_TXT_MPNO')"
         />
       </kw-search-item>
       <!-- 설치자명 -->
