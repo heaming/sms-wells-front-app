@@ -16,24 +16,23 @@
   <kw-popup
     class="kw-popup--3xl"
   >
-    <kw-search
+    <kw-form
       :cols="2"
       :default-visible-rows="3"
-      @search="onClickSearch"
     >
-      <kw-search-row>
+      <kw-form-row>
         <!-- 출고요청유형 -->
-        <kw-search-item
+        <kw-form-item
           :label="$t('MSG_TXT_OSTR_AK_TP')"
         >
           <kw-input
             v-model="searchParams.ostrAkTpNm"
             :disable="true"
           />
-        </kw-search-item>
+        </kw-form-item>
         <!-- //출고요청유형 -->
         <!-- 출고창고 -->
-        <kw-search-item
+        <kw-form-item
           :label="$t('MSG_TXT_OSTR_WARE')"
         >
           <kw-input
@@ -42,34 +41,31 @@
           />
           <!-- 표준 미적용 -->
           <kw-field
-            class="w100"
+            class="w120"
           >
-            <template #default="{ field }">
-              <kw-checkbox
-                v-model="searchParams.stckNoStdGb"
-                v-bind="field"
-                :label="$t('MSG_TXT_STD_NO_APY')"
-                @change="onClickStandardNoApply"
-              />
-            </template>
+            <kw-checkbox
+              v-model="searchParams.stckNoStdGb"
+              :label="$t('MSG_TXT_STD_NO_APY')"
+              @change="onClickStandardNoApply"
+            />
           </kw-field>
           <!-- //표준 미적용 -->
-        </kw-search-item>
+        </kw-form-item>
         <!-- //출고창고 -->
-      </kw-search-row>
-      <kw-search-row>
+      </kw-form-row>
+      <kw-form-row>
         <!-- 입고희망일 -->
-        <kw-search-item
+        <kw-form-item
           :label="$t('MSG_TXT_STR_HOP_D')"
         >
           <kw-date-picker
             v-model="searchParams.strHopDt"
             :disable="true"
           />
-        </kw-search-item>
+        </kw-form-item>
         <!-- //입고희망일 -->
         <!-- 출고요청번호 -->
-        <kw-search-item
+        <kw-form-item
           :label="$t('MSG_TXT_OSTR_AK_NO')"
         >
           <kw-input
@@ -77,32 +73,32 @@
             :disable="true"
             mask="###-########-#######"
           />
-        </kw-search-item>
+        </kw-form-item>
         <!-- //출고요청번호 -->
-      </kw-search-row>
-      <kw-search-row>
+      </kw-form-row>
+      <kw-form-row>
         <!-- 등록일자 -->
-        <kw-search-item
+        <kw-form-item
           :label="$t('MSG_TXT_FST_RGST_DT')"
         >
           <kw-date-picker
             v-model="searchParams.rgstDt"
           />
-        </kw-search-item>
+        </kw-form-item>
         <!-- //등록일자 -->
         <!-- 입고창고 -->
-        <kw-search-item
+        <kw-form-item
           :label="$t('MSG_TXT_STR_WARE')"
         >
           <kw-input
             v-model="searchParams.strOjWareNm"
             :disable="true"
           />
-        </kw-search-item>
+        </kw-form-item>
         <!-- //입고창고 -->
-      </kw-search-row>
-    </kw-search>
-
+      </kw-form-row>
+    </kw-form>
+    <kw-separator />
     <kw-action-top>
       <template #left>
         <kw-paging-info
@@ -113,6 +109,18 @@
           @change="fetchData"
         />
       </template>
+      <kw-btn
+        v-permission:delete
+        primary
+        :label="$t('MSG_BTN_DEL')"
+        :disable="!isSelected"
+        @click="onClickDelete"
+      />
+      <kw-separator
+        spaced
+        vertical
+        inset
+      />
       <kw-btn
         dense
         secondary
@@ -126,11 +134,6 @@
         :label="$t('MSG_BTN_EXCEL_DOWN')"
         :disable="pageInfo.totalCount === 0"
         @click="onClickExcelDownload"
-      />
-      <kw-separator
-        spaced
-        vertical
-        inset
       />
       <kw-separator
         spaced
@@ -245,7 +248,7 @@ const searchParams = ref({
   ostrAkRgstDt: props.strHopDt,
   itmPdCd: props.itmPdCd,
   stckStdGb: '1',
-  stckNoStdGb: '',
+  stckNoStdGb: 'N',
   rgstDt: dayjs().format('YYYYMMDD'),
 });
 let cachedParams;
@@ -286,6 +289,12 @@ async function onClickExcelDownload() {
   });
 }
 
+async function onClickDelete() {
+  if (await confirm(t('MSG_ALT_WANT_DEL'))) {
+    console.log(t('MSG_ALT_WANT_DEL'));
+  }
+}
+
 function getSaveParams() {
   const checkedValues = gridUtil.getCheckedRowValues(grdMainRef.value.getView());
   console.log(checkedValues);
@@ -315,7 +324,6 @@ async function onClickConfirmAfterMove() {
 onMounted(async () => {
   searchParams.value.ostrWareNo = props.ostrOjWareNo;
   searchParams.value.strWareNo = props.strOjWareNo;
-  // searchParams.value.stckNoStdGb = 'N';
   // searchParams.value.stckStdGb = '1';
   console.log(searchParams.value.ostrWareNo);
   console.log(searchParams.value.strWareNo);
@@ -384,7 +392,10 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'ostrAkWareDvCd' },
     { fieldName: 'ostrWareMngtPrtnrNo' },
     { fieldName: 'mngtUnitCd' },
-    { fieldName: 'ostrCnfmCd' }];
+    { fieldName: 'ostrCnfmCd' },
+    { fieldName: 'ostrWareDvCd' },
+    { fieldName: 'strWareDvCd' },
+  ];
 
   data.setFields(fields);
   view.setColumns(columns);

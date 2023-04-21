@@ -153,18 +153,18 @@
           inset
         />
         <kw-btn
-          icon="print"
-          dense
-          secondary
-          :label="$t('MSG_BTN_PRTG')"
-        />
-        <kw-btn
           icon="download_on"
           dense
           secondary
           :label="$t('MSG_BTN_EXCEL_DOWN')"
           :disable="pageInfo.totalCount === 0"
           @click="onClickExcelDownload"
+        />
+        <kw-btn
+          dense
+          secondary
+          :label="$t('MSG_TXT_ASGN_EXLD_ITM_RGST')"
+          @click="onClickModal"
         />
       </kw-action-top>
       <ul class="filter-box mb12">
@@ -218,7 +218,7 @@ const dataService = useDataService();
 const grdMainRef = ref(getComponentType('KwGrid'));
 const { t } = useI18n();
 const { getConfig } = useMeta();
-const { notify } = useGlobal();
+const { notify, modal } = useGlobal();
 
 const baseURI = '/sms/wells/service/individual-ware-ostrs';
 
@@ -336,6 +336,27 @@ async function onClickSave() {
 
     return false;
   }
+}
+
+async function onClickModal() {
+  await modal({
+    component: 'WwsnaAssignExcludeItemRegP',
+    componentProps: {
+      itmPdCd: '',
+    },
+  });
+
+  // const { result: isChanged } = await modal({
+  //   component: 'WwsnaMovementStoreRegP',
+  //   componentProps: {
+  //     itmPdCd,
+  //     sapMatCd,
+  //   },
+  // });
+
+  // if (result) {
+  //   console.log(payload[0]);
+  // }
 }
 
 onMounted(async () => {

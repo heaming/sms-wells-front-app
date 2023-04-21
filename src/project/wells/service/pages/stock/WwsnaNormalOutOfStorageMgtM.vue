@@ -15,7 +15,6 @@
 <template>
   <kw-page>
     <kw-search
-      :cols="3"
       @search="onClickSearch"
     >
       <kw-search-row>
@@ -31,7 +30,6 @@
         <!-- //출고요청접수 -->
         <!-- 출고품목 -->
         <kw-search-item
-          :colspan="1"
           :label="$t('MSG_TXT_OSTR_ITM')"
         >
           <kw-select
@@ -44,7 +42,6 @@
         <!-- 출고요청유형 -->
         <kw-search-item
           :label="$t('MSG_TXT_OSTR_AK_TP')"
-          :colspan="1"
         >
           <kw-select
             v-model="searchParams.ostrAkTpCd"
@@ -59,7 +56,6 @@
         <kw-search-item
           :label="$t('MSG_TXT_STR_HOP_DT')"
           :colspan="2"
-          class="w"
         >
           <kw-date-range-picker
             v-model:from="searchParams.strHopDtStr"
@@ -71,7 +67,7 @@
           <!-- 출고확정-->
           <kw-field
             v-model="searchParams.ostrCnfm"
-            class="w80"
+            class="ml20"
           >
             <template #default="{ field }">
               <kw-checkbox

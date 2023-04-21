@@ -32,7 +32,7 @@
         >
           <kw-select
             v-model="searchParams.strTpCd"
-            :options="strTpCd"
+            :options="strTpCds"
             first-option="all"
           />
         </kw-search-item>
@@ -101,20 +101,17 @@ import { useDataService, codeUtil, defineGrid, getComponentType, gridUtil, useGl
 import dayjs from 'dayjs';
 import { cloneDeep } from 'lodash-es';
 import useSnCode from '~sms-wells/service/composables/useSnCode';
-// import ZwcmWareHouseSearch from '~sms-common/service/components/ZwsnzWareHouseSearch.vue';
 
 const grdMainRef = ref(getComponentType('KwGrid'));
-
 const dataService = useDataService();
 
 const { t } = useI18n();
-const { alert } = useGlobal();
 const { getMonthWarehouse } = useSnCode();
+const { notify, modal } = useGlobal();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
-
 const searchParams = ref({
   stStrDt: '',
   edStrDt: '',
@@ -134,7 +131,7 @@ const codes = await codeUtil.getMultiCodes(
 );
 
 // 입고유형 필터링
-const strTpCd = codes.STR_TP_CD.filter((v) => v.codeId !== '110');
+const strTpCds = codes.STR_TP_CD.filter((v) => v.codeId !== '110');
 
 const wharehouseParams = ref({
   apyYm: dayjs().format('YYYYMM'),
@@ -177,8 +174,7 @@ async function onClickSearch() {
 const warehouses = ref();
 
 async function fetchDefaultData() {
-  const { apyYm } = wharehouseParams.value;
-  const { userId } = wharehouseParams.value;
+  const { userId, apyYm } = wharehouseParams.value;
 
   warehouses.value = await getMonthWarehouse(userId, apyYm);
   searchParams.value.strOjWareNo = warehouses.value[0].codeId;
@@ -232,10 +228,44 @@ const initGrdMain = defineGrid((data, view) => {
   // TODO: W-SV-U-0169P01 - 이관입고 팝업 개발 진행 후 반영 예정
   view.onCellItemClicked = async (g, { column, dataRow }) => {
     console.log(gridUtil.getRowValue(g, dataRow));
+    const {
+      strRgstDt,
+      strTpCd,
+      itmStrNo,
+      strWareNo,
+      wareNm,
+      // itmPdNo,
+      // itmPdNm,
+      ostrWareNo,
+      // ostrWareNm,
+    } = gridUtil.getRowValue(g, dataRow);
+    console.log(g, column, dataRow);
 
-    if (column === 'strDelButn') {
-      alert('현재 단위 테스트 대상이 아닙니다.(개발중)');
+    const { result: isChanged } = await modal({
+      component: 'WwsnaMovementStoreRegP',
+      componentProps: {
+        strRgstDt,
+        strTpCd,
+        strTpNm: codes.STR_TP_CD.find((atr) => atr.codeId === strTpCd).codeName,
+        itmStrNo,
+        strWareNo,
+        strWareNm: wareNm,
+        ostrWareNo,
+        ostrWareNm: '',
+        itmPdNo: '',
+        itmPdNm: '',
+        strHopDt: '',
+        flagChk: 1,
+      },
+    });
+
+    if (isChanged) {
+      notify(t('MSG_ALT_SAVE_DATA'));
+      await fetchData();
     }
+    // if (column === 'strDelButn') {
+    //   alert('현재 단위 테스트 대상이 아닙니다.(개발중)');
+    // }
   };
 });
 </script>
