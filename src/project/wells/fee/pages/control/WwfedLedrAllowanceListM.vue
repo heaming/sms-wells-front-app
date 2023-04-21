@@ -31,17 +31,18 @@
           :label="$t('MSG_TXT_DIV')"
         >
           <kw-option-group
-            v-model="searchParams.dv"
+            v-model="searchParams.rsbDvCd"
             type="radio"
-            :options="[$t('MSG_TXT_ALL'), $t('MSG_TXT_GNLR_LEDR'), $t('MSG_TXT_REG_DIR')]"
+            :options="rsbDvCd"
+            first-option="all"
+            first-option-value=""
           />
         </kw-search-item>
         <kw-search-item :label="$t('MSG_TXT_INQR_DV')">
           <kw-option-group
             v-model="searchParams.inqrDv"
             type="radio"
-            :options="[$t('MSG_TXT_INDV'), $t('MSG_TXT_SUM')]"
-            @change="onChangeInqrDv"
+            :options="inqrDv"
           />
         </kw-search-item>
       </kw-search-row>
@@ -71,6 +72,7 @@
           dense
           secondary
           :label="$t('MSG_BTN_EXCEL_UP')"
+          @click="onClickExcelUpload"
         />
 
         <kw-btn
@@ -103,11 +105,11 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { defineGrid, getComponentType, gridUtil, useGlobal, useDataService } from 'kw-lib';
+import { defineGrid, getComponentType, gridUtil, useGlobal, useDataService, codeUtil } from 'kw-lib';
 import dayjs from 'dayjs';
 
 const dataService = useDataService();
-const { modal } = useGlobal();
+const { modal, notify } = useGlobal();
 const { t } = useI18n();
 const { currentRoute } = useRouter();
 // -------------------------------------------------------------------------------------------------
@@ -119,24 +121,47 @@ const totalCount = ref(0);
 const isGrdIndvVisible = ref(true);
 const isGrdSumVisible = ref(false);
 
+const codes = await codeUtil.getMultiCodes(
+  'RSB_DV_CD',
+);
+const rsbDvCd = codes.RSB_DV_CD.filter((v) => ['W0202', 'W0203'].includes(v.codeId));
+
+// 조회구분
+const inqrDv = [
+  { codeId: 'indv', codeName: t('MSG_TXT_INDV') },
+  { codeId: 'sum', codeName: t('MSG_TXT_SUM') },
+];
+
 const searchParams = ref({
-  perfYm: dayjs().subtract(1, 'month').format('YYYY-MM'),
-  dv: t('MSG_TXT_ALL'),
-  inqrDv: t('MSG_TXT_INDV'),
+  perfYm: dayjs().subtract(1, 'month').format('YYYYMM'),
+  rsbDvCd: '',
+  inqrDv: 'indv',
   no: '',
 });
 
-async function onChangeInqrDv() {
+watch(() => searchParams.value.inqrDv, async (val) => {
   totalCount.value = 0;
 
-  if (searchParams.value.inqrDv === t('MSG_TXT_INDV')) {
+  if (val === 'indv') {
     isGrdIndvVisible.value = true;
     isGrdSumVisible.value = false;
-  } else if (searchParams.value.inqrDv === t('MSG_TXT_SUM')) {
+  } else if (val === 'sum') {
     isGrdIndvVisible.value = false;
     isGrdSumVisible.value = true;
   }
-}
+}, { immediate: true });
+
+watch(() => searchParams.value.perfYm, async (val) => {
+  const view = grdIndvRef.value.getView();
+
+  if (val < '202102') {
+    view.columnByName('mngrPerfGdCd').visible = true; // 등급
+    view.columnByName('ogAwAmt').visible = false; // 조직수당
+  } else {
+    view.columnByName('mngrPerfGdCd').visible = false;
+    view.columnByName('ogAwAmt').visible = true;
+  }
+}, { immediate: false });
 
 async function onClickExcelDownload() {
   const view = grdIndvRef.value.getView();
@@ -145,6 +170,20 @@ async function onClickExcelDownload() {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
   });
+}
+
+async function openUploadPopup(componentProps) {
+  const { result: isUploadSuccess, payload } = await modal({
+    component: 'ZwfezXlsUpP',
+    componentProps,
+  });
+  if (isUploadSuccess) {
+    notify(t('MSG_ALT_SAVED_CNT', [payload.count]));
+  }
+}
+
+async function onClickExcelUpload() {
+  openUploadPopup({ formatId: 'FOM_FEZ_0027', baseYm: searchParams.value.perfYm });
 }
 
 async function onClickSearchNo() {
@@ -160,65 +199,73 @@ async function onClickSearchNo() {
   }
 }
 
-async function fetchData() {
-  const res = await dataService.get('/sms/wells/fee/ledr-allowances', searchParams.value);
+async function fetchData(type) {
+  const res = await dataService.get(`/sms/wells/fee/ledr-allowances/${type}`, { params: searchParams.value });
   const leaderAllowances = res.data;
 
   totalCount.value = leaderAllowances.length;
 
-  const view = grdIndvRef.value.getView();
+  let view;
+  if (type === 'indv') view = grdIndvRef.value.getView();
+  else if (type === 'sum') view = grdSumRef.value.getView();
+
   view.getDataSource().setRows(leaderAllowances);
   view.resetCurrent();
 }
 
 async function onClickSearch() {
-  await fetchData();
+  if (searchParams.value.inqrDv === 'indv') await fetchData('indv');
+  else if (searchParams.value.inqrDv === 'sum') await fetchData('sum');
 }
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
 const initGridIndv = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'col1', header: t('MSG_TXT_PERF_YM'), width: '106', styleName: 'text-center' },
-    { fieldName: 'col2', header: t('MSG_TXT_RSB_TP'), width: '96', styleName: 'text-left' },
-    { fieldName: 'col3', header: t('MSG_TXT_BLG_NM'), width: '96', styleName: 'text-left' },
-    { fieldName: 'col4', header: t('MSG_TXT_EMPL_NM'), width: '96', styleName: 'text-left' },
-    { fieldName: 'col5', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '106', styleName: 'text-center' },
-    { fieldName: 'col6', header: t('MSG_TXT_BRCH_N'), width: '106', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'col7', header: t('MSG_TXT_BAS_SAL'), width: '120', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'col8', header: t('MSG_TXT_HH_EXCP_AW'), width: '120', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'col9', header: t('MSG_TXT_RSB') + t('MSG_TXT_AW'), width: '120', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'col10', header: t('MSG_TXT_FXN_SAL_SUM'), width: '120', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'col11', header: t('MSG_TXT_TRG'), width: '133', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'col12', header: t('MSG_TXT_PERF'), width: '133', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'col13', header: t('MSG_TXT_ACHV_RT'), width: '133', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'dsbYm', header: t('MSG_TXT_PERF_YM'), width: '106', styleName: 'text-center' },
+    { fieldName: 'ogLevlDvNm', header: t('MSG_TXT_RSB_TP'), width: '96', styleName: 'text-left' },
+    { fieldName: 'ogNm', header: t('MSG_TXT_BLG_NM'), width: '96', styleName: 'text-left' },
+    { fieldName: 'ogCd', header: t('MSG_TXT_BLG'), width: '96', styleName: 'text-left' },
+    { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '96', styleName: 'text-left' },
+    { fieldName: 'hmnrscEmpno', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '106', styleName: 'text-center' },
+    { fieldName: 'brchCt', header: t('MSG_TXT_BRCH_N'), width: '106', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
 
-    { fieldName: 'col14', header: t('MSG_TXT_TRG') + t('MSG_TXT_ACHV') + t('MSG_TXT_AW'), width: '133', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'col15', header: t('MSG_TXT_EVL') + t('MSG_TXT_AW'), width: '133', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'col16', header: t('MSG_TXT_ENRG') + t('MSG_TXT_AW'), width: '133', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'col17', header: t('MSG_TXT_OG') + t('MSG_TXT_AW'), width: '133', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'col18', header: t('MSG_TXT_OUTC_AW_SUM'), width: '133', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'col19', header: t('MSG_TXT_EXCL_DIV'), width: '133', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'col20', header: t('MSG_TXT_ICT'), width: '133', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'col21', header: t('MSG_TXT_LDSTC_ATDC_LVOF'), width: '133', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'col22', header: t('MSG_TXT_MRNT_SPPT'), width: '133', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'col23', header: t('MSG_TXT_LECT_CHRAM'), width: '133', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'col24', header: t('MSG_TXT_ETC'), width: '133', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'basAwAmt', header: t('MSG_TXT_BAS_SAL'), width: '120', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'hhExcpAwAmt', header: t('MSG_TXT_HH_EXCP_AW'), width: '120', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'rsbAwAmt', header: t('MSG_TXT_RSB') + t('MSG_TXT_AW'), width: '120', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'fxnAwSumAmt', header: t('MSG_TXT_FXN_SAL_SUM'), width: '120', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
 
-    { fieldName: 'col25', header: t('MSG_TXT_ETC') + t('MSG_TXT_AW_SUM'), width: '133', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'col26', header: `${t('MSG_TXT_FXN_SAL')}+${t('MSG_TXT_OUTC_AW')}`, width: '146', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'col27', header: t('MSG_TXT_DSB_SUM'), width: '146', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'col28', header: t('MSG_TXT_HL_INSR'), width: '133', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'col29', header: t('MSG_TXT_LTM_NRSN_INSR'), width: '133', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'col30', header: t('MSG_TXT_NTNL_INSR'), width: '133', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'col31', header: t('MSG_TXT_HIR_INSR'), width: '133', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'col32', header: t('MSG_TXT_ERNTX'), width: '133', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'col33', header: t('MSG_TXT_RSDNTX'), width: '133', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'col34', header: t('MSG_TXT_IRG_BZNS'), width: '133', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'col35', header: t('MSG_TXT_ETC'), width: '133', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'trgCt', header: t('MSG_TXT_TRG'), width: '133', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'perfCt', header: t('MSG_TXT_PERF'), width: '133', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'perfAchvRat', header: t('MSG_TXT_ACHV_RT'), width: '133', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'trgAchvAwAmt', header: t('MSG_TXT_TRG') + t('MSG_TXT_ACHV') + t('MSG_TXT_AW'), width: '133', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'mngrPerfGdCd', header: t('MSG_TXT_GD'), width: '133', styleName: 'text-right' }, // 등급(2021년 1월까지)
+    { fieldName: 'ogAwAmt', header: t('MSG_TXT_OG') + t('MSG_TXT_AW'), width: '133', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 조직수당(2021년 2월부터)
+    { fieldName: 'evlAwAmt', header: t('MSG_TXT_EVL') + t('MSG_TXT_AW'), width: '133', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'perfAwSumAmt', header: t('MSG_TXT_OUTC_AW_SUM'), width: '133', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
 
-    { fieldName: 'col36', header: t('MSG_TXT_DDTN_SUM'), width: '146', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'col37', header: t('MSG_TXT_TOT_DSB_AMT'), width: '146', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'exclDivAwAmt', header: t('MSG_TXT_EXCL_DIV'), width: '133', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'ictAwAmt', header: t('MSG_TXT_ICT'), width: '133', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'ldstcAtdcAwAmt', header: t('MSG_TXT_LDSTC_ATDC_LVOF'), width: '133', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'mrntSpptAwAmt', header: t('MSG_TXT_MRNT_SPPT'), width: '133', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'lectrAdnAwAmt', header: t('MSG_TXT_LECT_CHRAM'), width: '133', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'etcAdnAwAmt', header: t('MSG_TXT_ETC'), width: '133', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'etcAdnAwSumAmt', header: t('MSG_TXT_ETC') + t('MSG_TXT_AW_SUM'), width: '133', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+
+    { fieldName: 'fxnPerfAwSumAmt', header: `${t('MSG_TXT_FXN_SAL')}+${t('MSG_TXT_OUTC_AW')}`, width: '146', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'awCalcSumAmt', header: t('MSG_TXT_DSB_SUM'), width: '146', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+
+    { fieldName: 'hinsrDdctam', header: t('MSG_TXT_HL_INSR'), width: '133', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'nrsnInsrDdctam', header: t('MSG_TXT_LTM_NRSN_INSR'), width: '133', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'ntnlPnsnDdctam', header: t('MSG_TXT_NTNL_INSR'), width: '133', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'einsrDdctam', header: t('MSG_TXT_HIR_INSR'), width: '133', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'erntx', header: t('MSG_TXT_ERNTX'), width: '133', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'rsdntx', header: t('MSG_TXT_RSDNTX'), width: '133', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'crptBznsDdctam', header: t('MSG_TXT_IRG_BZNS'), width: '133', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'eddtnAmt', header: t('MSG_TXT_ETC'), width: '133', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+
+    { fieldName: 'ddtnSumAmt', header: t('MSG_TXT_DDTN_SUM'), width: '146', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'acpyAmt', header: t('MSG_TXT_TOT_DSB_AMT'), width: '146', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
   ];
 
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
@@ -229,154 +276,449 @@ const initGridIndv = defineGrid((data, view) => {
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
 
+  if (searchParams.value.perfYm < '202102') {
+    view.columnByName('mngrPerfGdCd').visible = true; // 등급
+    view.columnByName('ogAwAmt').visible = false; // 조직수당
+  } else {
+    view.columnByName('mngrPerfGdCd').visible = false;
+    view.columnByName('ogAwAmt').visible = true;
+  }
+
   // multi row header setting
   view.setColumnLayout([
-    'col1',
-    'col2',
-    'col3',
-    'col4',
-    'col5',
-    'col6', // single
+    'dsbYm',
+    'ogLevlDvNm',
+    'ogNm',
+    'ogCd',
+    'prtnrKnm',
+    'hmnrscEmpno',
+    'brchCt',
     {
       header: t('MSG_TXT_FXN_SAL'), // colspan title
       direction: 'horizontal', // merge type
-      items: ['col7', 'col8', 'col9', 'col10'],
+      items: ['basAwAmt', 'hhExcpAwAmt', 'rsbAwAmt', 'fxnAwSumAmt'],
     },
     {
       header: t('MSG_TXT_OUTC_AW'),
       direction: 'horizontal',
-      items: ['col11', 'col12', 'col13', 'col14', 'col15', 'col16', 'col17', 'col18'],
+      items: ['trgCt', 'perfCt', 'perfAchvRat', 'trgAchvAwAmt', 'mngrPerfGdCd', 'ogAwAmt', 'evlAwAmt', 'perfAwSumAmt'],
     },
     {
       header: t('MSG_TXT_ETC') + t('MSG_TXT_AW'), // colspan title
       direction: 'horizontal', // merge type
-      items: ['col19', 'col20', 'col21', 'col22', 'col23', 'col24', 'col25'],
+      items: ['exclDivAwAmt', 'ictAwAmt', 'ldstcAtdcAwAmt', 'mrntSpptAwAmt', 'lectrAdnAwAmt', 'etcAdnAwAmt', 'etcAdnAwSumAmt'],
     },
-    'col26',
-    'col27',
+    'fxnPerfAwSumAmt',
+    'awCalcSumAmt',
     {
       header: t('MSG_TXT_DDTN'), // colspan title
       direction: 'horizontal', // merge type
-      items: ['col28', 'col29', 'col30', 'col31', 'col32', 'col33', 'col34', 'col35'],
+      items: ['hinsrDdctam', 'nrsnInsrDdctam', 'ntnlPnsnDdctam', 'einsrDdctam', 'erntx', 'rsdntx', 'crptBznsDdctam', 'eddtnAmt'],
     },
-    'col36',
-    'col37',
+    'ddtnSumAmt',
+    'acpyAmt',
   ]);
 });
 
 const initGridSum = defineGrid((data, view) => {
-  const fields = [
-    { fieldName: 'col1' },
-    { fieldName: 'col2' },
-    { fieldName: 'col3' },
-    { fieldName: 'col4' },
-    { fieldName: 'col5' },
-    { fieldName: 'col6' },
-    { fieldName: 'col7' },
-    { fieldName: 'col8' },
-    { fieldName: 'col9' },
-    { fieldName: 'col10' },
-    { fieldName: 'col11' },
-    { fieldName: 'col12' },
-    { fieldName: 'col13' },
-    { fieldName: 'col14' },
-    { fieldName: 'col15' },
-    { fieldName: 'col16' },
-    { fieldName: 'col17' },
-    { fieldName: 'col18' },
-    { fieldName: 'col19' },
-    { fieldName: 'col20' },
-    { fieldName: 'col21' },
-    { fieldName: 'col22' },
-    { fieldName: 'col23' },
-    { fieldName: 'col24' },
-    { fieldName: 'col25' },
-    { fieldName: 'col26' },
-    { fieldName: 'col27' },
-    { fieldName: 'col28' },
-    { fieldName: 'col29' },
-    { fieldName: 'col30' },
-    { fieldName: 'col31' },
-    { fieldName: 'col32' },
-  ];
-
   const columns = [
-    { fieldName: 'col1', header: t('MSG_TXT_PERF_YM'), width: '106', styleName: 'text-center' },
-    { fieldName: 'col2', header: t('MSG_TXT_RSB_TP'), width: '106', styleName: 'text-left' },
-    { fieldName: 'col3', header: t('MSG_TXT_PPL_N'), width: '106', styleName: 'text-left' },
-    { fieldName: 'col4', header: t('MSG_TXT_BAS_SAL'), width: '120', styleName: 'text-right' },
-    { fieldName: 'col5', header: t('MSG_TXT_HH_EXCP_AW'), width: '120', styleName: 'text-right' },
-    { fieldName: 'col6', header: t('MSG_TXT_RSB') + t('MSG_TXT_AW'), width: '120', styleName: 'text-right' },
-    { fieldName: 'col7', header: t('MSG_TXT_FXN_SAL_SUM'), width: '120', styleName: 'text-right' },
-    { fieldName: 'col8', header: t('MSG_TXT_TRG'), width: '133', styleName: 'text-right' },
-    { fieldName: 'col9', header: t('MSG_TXT_PERF'), width: '133', styleName: 'text-right' },
-    { fieldName: 'col10', header: t('MSG_TXT_ACHV_RT'), width: '133', styleName: 'text-right' },
-    { fieldName: 'col11', header: t('MSG_TXT_TRG') + t('MSG_TXT_ACHV') + t('MSG_TXT_AW'), width: '133', styleName: 'text-right' },
-    { fieldName: 'col12', header: t('MSG_TXT_EVL') + t('MSG_TXT_AW'), width: '133', styleName: 'text-right' },
-    { fieldName: 'col13', header: t('MSG_TXT_OUTC_AW_SUM'), width: '133', styleName: 'text-right' },
+    { fieldName: 'dsbYm',
+      header: t('MSG_TXT_PERF_YM'),
+      width: '106',
+      styleName: 'text-center',
+      headerSummary: {
+        text: t('MSG_TXT_SUM'),
+      },
+    },
+    { fieldName: 'ogLevlDvNm', header: t('MSG_TXT_RSB_TP'), width: '96', styleName: 'text-left' },
+    { fieldName: 'hmnrscEmpnoCnt',
+      header: t('MSG_TXT_PPL_N'),
+      width: '106',
+      styleName: 'text-right',
+      dataType: 'number',
+      numberFormat: '#,##0',
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+      },
+    },
 
-    { fieldName: 'col14', header: t('MSG_TXT_EXCL_DIV'), width: '133', styleName: 'text-right' },
-    { fieldName: 'col15', header: t('MSG_TXT_ICT'), width: '133', styleName: 'text-right' },
-    { fieldName: 'col16', header: t('MSG_TXT_LDSTC_ATDC_LVOF'), width: '133', sty기타leName: 'text-right' },
-    { fieldName: 'col17', header: t('MSG_TXT_MRNT_SPPT'), width: '133', styleName: 'text-right' },
-    { fieldName: 'col18', header: t('MSG_TXT_LECT_CHRAM'), width: '133', styleName: 'text-right' },
-    { fieldName: 'col19', header: t('MSG_TXT_ETC'), width: '133', styleName: 'text-right' },
+    { fieldName: 'basAwAmt',
+      header: t('MSG_TXT_BAS_SAL'),
+      width: '120',
+      styleName: 'text-right',
+      dataType: 'number',
+      numberFormat: '#,##0',
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+      },
+    },
+    { fieldName: 'hhExcpAwAmt',
+      header: t('MSG_TXT_HH_EXCP_AW'),
+      width: '120',
+      styleName: 'text-right',
+      dataType: 'number',
+      numberFormat: '#,##0',
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+      },
+    },
+    { fieldName: 'rsbAwAmt',
+      header: t('MSG_TXT_RSB') + t('MSG_TXT_AW'),
+      width: '120',
+      styleName: 'text-right',
+      dataType: 'number',
+      numberFormat: '#,##0',
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+      },
+    },
+    { fieldName: 'fxnAwSumAmt',
+      header: t('MSG_TXT_FXN_SAL_SUM'),
+      width: '120',
+      styleName: 'text-right',
+      dataType: 'number',
+      numberFormat: '#,##0',
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+      },
+    },
 
-    { fieldName: 'col20', header: t('MSG_TXT_ETC_SUM'), width: '133', styleName: 'text-right' },
-    { fieldName: 'col21', header: `${t('MSG_TXT_FXN_SAL')}+${t('MSG_TXT_OUTC_AW')}`, width: '146', styleName: 'text-right' },
-    { fieldName: 'col22', header: t('MSG_TXT_DSB_SUM'), width: '146', styleName: 'text-right' },
-    { fieldName: 'col23', header: t('MSG_TXT_HL_INSR'), width: '133', styleName: 'text-right' },
-    { fieldName: 'col24', header: t('MSG_TXT_LTM_NRSN_INSR'), width: '133', styleName: 'text-right' },
-    { fieldName: 'col25', header: t('MSG_TXT_NTNL_INSR'), width: '133', styleName: 'text-right' },
-    { fieldName: 'col26', header: t('MSG_TXT_HIR_INSR'), width: '133', styleName: 'text-right' },
-    { fieldName: 'col27', header: t('MSG_TXT_ERNTX'), width: '133', styleName: 'text-right' },
-    { fieldName: 'col28', header: t('MSG_TXT_RSDNTX'), width: '133', styleName: 'text-right' },
-    { fieldName: 'col29', header: t('MSG_TXT_IRG_BZNS'), width: '133', styleName: 'text-right' },
-    { fieldName: 'col30', header: t('MSG_TXT_ETC'), width: '133', styleName: 'text-right' },
+    { fieldName: 'trgCt',
+      header: t('MSG_TXT_TRG'),
+      width: '133',
+      styleName: 'text-right',
+      dataType: 'number',
+      numberFormat: '#,##0',
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+      },
+    },
+    { fieldName: 'perfCt',
+      header: t('MSG_TXT_PERF'),
+      width: '133',
+      styleName: 'text-right',
+      dataType: 'number',
+      numberFormat: '#,##0',
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+      },
+    },
+    { fieldName: 'perfAchvRat',
+      header: t('MSG_TXT_ACHV_RT'),
+      width: '133',
+      styleName: 'text-right',
+      dataType: 'number',
+      numberFormat: '#,##0',
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+      },
+    },
+    { fieldName: 'trgAchvAwAmt',
+      header: t('MSG_TXT_TRG') + t('MSG_TXT_ACHV') + t('MSG_TXT_AW'),
+      width: '133',
+      styleName: 'text-right',
+      dataType: 'number',
+      numberFormat: '#,##0',
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+      },
+    },
+    { fieldName: 'evlAwAmt',
+      header: t('MSG_TXT_EVL') + t('MSG_TXT_AW'),
+      width: '133',
+      styleName: 'text-right',
+      dataType: 'number',
+      numberFormat: '#,##0',
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+      },
+    },
+    { fieldName: 'perfAwSumAmt',
+      header: t('MSG_TXT_OUTC_AW_SUM'),
+      width: '133',
+      styleName: 'text-right',
+      dataType: 'number',
+      numberFormat: '#,##0',
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+      },
+    },
 
-    { fieldName: 'col31', header: t('MSG_TXT_DDTN_SUM'), width: '146', styleName: 'text-right' },
-    { fieldName: 'col32', header: t('MSG_TXT_TOT_DSB_AMT'), width: '146', styleName: 'text-right' },
+    { fieldName: 'exclDivAwAmt',
+      header: t('MSG_TXT_EXCL_DIV'),
+      width: '133',
+      styleName: 'text-right',
+      dataType: 'number',
+      numberFormat: '#,##0',
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+      },
+    },
+    { fieldName: 'ictAwAmt',
+      header: t('MSG_TXT_ICT'),
+      width: '133',
+      styleName: 'text-right',
+      dataType: 'number',
+      numberFormat: '#,##0',
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+      },
+    },
+    { fieldName: 'ldstcAtdcAwAmt',
+      header: t('MSG_TXT_LDSTC_ATDC_LVOF'),
+      width: '133',
+      styleName: 'text-right',
+      dataType: 'number',
+      numberFormat: '#,##0',
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+      },
+    },
+    { fieldName: 'mrntSpptAwAmt',
+      header: t('MSG_TXT_MRNT_SPPT'),
+      width: '133',
+      styleName: 'text-right',
+      dataType: 'number',
+      numberFormat: '#,##0',
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+      },
+    },
+    { fieldName: 'lectrAdnAwAmt',
+      header: t('MSG_TXT_LECT_CHRAM'),
+      width: '133',
+      styleName: 'text-right',
+      dataType: 'number',
+      numberFormat: '#,##0',
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+      },
+    },
+    { fieldName: 'etcAdnAwAmt',
+      header: t('MSG_TXT_ETC'),
+      width: '133',
+      styleName: 'text-right',
+      dataType: 'number',
+      numberFormat: '#,##0',
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+      },
+    },
+    { fieldName: 'etcAdnAwSumAmt',
+      header: t('MSG_TXT_ETC') + t('MSG_TXT_AW_SUM'),
+      width: '133',
+      styleName: 'text-right',
+      dataType: 'number',
+      numberFormat: '#,##0',
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+      },
+    },
+
+    { fieldName: 'fxnPerfAwSumAmt',
+      header: `${t('MSG_TXT_FXN_SAL')}+${t('MSG_TXT_OUTC_AW')}`,
+      width: '146',
+      styleName: 'text-right',
+      dataType: 'number',
+      numberFormat: '#,##0',
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+      },
+    },
+    { fieldName: 'awCalcSumAmt',
+      header: t('MSG_TXT_DSB_SUM'),
+      width: '146',
+      styleName: 'text-right',
+      dataType: 'number',
+      numberFormat: '#,##0',
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+      },
+    },
+
+    { fieldName: 'hinsrDdctam',
+      header: t('MSG_TXT_HL_INSR'),
+      width: '133',
+      styleName: 'text-right',
+      dataType: 'number',
+      numberFormat: '#,##0',
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+      },
+    },
+    { fieldName: 'nrsnInsrDdctam',
+      header: t('MSG_TXT_LTM_NRSN_INSR'),
+      width: '133',
+      styleName: 'text-right',
+      dataType: 'number',
+      numberFormat: '#,##0',
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+      },
+    },
+    { fieldName: 'ntnlPnsnDdctam',
+      header: t('MSG_TXT_NTNL_INSR'),
+      width: '133',
+      styleName: 'text-right',
+      dataType: 'number',
+      numberFormat: '#,##0',
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+      },
+    },
+    { fieldName: 'einsrDdctam',
+      header: t('MSG_TXT_HIR_INSR'),
+      width: '133',
+      styleName: 'text-right',
+      dataType: 'number',
+      numberFormat: '#,##0',
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+      },
+    },
+    { fieldName: 'erntx',
+      header: t('MSG_TXT_ERNTX'),
+      width: '133',
+      styleName: 'text-right',
+      dataType: 'number',
+      numberFormat: '#,##0',
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+      },
+    },
+    { fieldName: 'rsdntx',
+      header: t('MSG_TXT_RSDNTX'),
+      width: '133',
+      styleName: 'text-right',
+      dataType: 'number',
+      numberFormat: '#,##0',
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+      },
+    },
+    { fieldName: 'crptBznsDdctam',
+      header: t('MSG_TXT_IRG_BZNS'),
+      width: '133',
+      styleName: 'text-right',
+      dataType: 'number',
+      numberFormat: '#,##0',
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+      },
+    },
+    { fieldName: 'eddtnAmt',
+      header: t('MSG_TXT_ETC'),
+      width: '133',
+      styleName: 'text-right',
+      dataType: 'number',
+      numberFormat: '#,##0',
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+      },
+    },
+
+    { fieldName: 'ddtnSumAmt',
+      header: t('MSG_TXT_DDTN_SUM'),
+      width: '146',
+      styleName: 'text-right',
+      dataType: 'number',
+      numberFormat: '#,##0',
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+      },
+    },
+    { fieldName: 'acpyAmt',
+      header: t('MSG_TXT_TOT_DSB_AMT'),
+      width: '146',
+      styleName: 'text-right',
+      dataType: 'number',
+      numberFormat: '#,##0',
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+      },
+    },
   ];
+
+  const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
 
   data.setFields(fields);
   view.setColumns(columns);
+
+  // 헤더쪽 합계 행고정, summary
+  view.setHeaderSummaries({
+    visible: true,
+    items: [
+      {
+        height: 40,
+      },
+    ],
+  });
 
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
 
   // multi row header setting
   view.setColumnLayout([
-    'col1',
-    'col2',
-    'col3',
+    {
+      column: 'dsbYm',
+      summaryUserSpans: [{ colspan: 2 }],
+    },
+    'ogLevlDvNm',
+    'hmnrscEmpnoCnt',
     {
       header: t('MSG_TXT_FXN_SAL'), // colspan title
       direction: 'horizontal', // merge type
-      items: ['col4', 'col5', 'col6'],
+      items: ['basAwAmt', 'hhExcpAwAmt', 'rsbAwAmt', 'fxnAwSumAmt'],
     },
-    'col7',
     {
       header: t('MSG_TXT_OUTC_AW'),
       direction: 'horizontal',
-      items: ['col8', 'col9', 'col10', 'col11', 'col12'],
+      items: ['trgCt', 'perfCt', 'perfAchvRat', 'trgAchvAwAmt', 'evlAwAmt', 'perfAwSumAmt'],
     },
-    'col13',
     {
-      header: t('MSG_TXT_ETC'),
+      header: t('MSG_TXT_ETC') + t('MSG_TXT_AW'), // colspan title
       direction: 'horizontal', // merge type
-      items: ['col14', 'col15', 'col16', 'col17', 'col18', 'col19'],
+      items: ['exclDivAwAmt', 'ictAwAmt', 'ldstcAtdcAwAmt', 'mrntSpptAwAmt', 'lectrAdnAwAmt', 'etcAdnAwAmt', 'etcAdnAwSumAmt'],
     },
-    'col20',
-    'col21',
-    'col22',
-
+    'fxnPerfAwSumAmt',
+    'awCalcSumAmt',
     {
-      header: t('MSG_TXT_DDTN'),
+      header: t('MSG_TXT_DDTN'), // colspan title
       direction: 'horizontal', // merge type
-      items: ['col23', 'col24', 'col25', 'col26', 'col27', 'col28', 'col29', 'col30'],
+      items: ['hinsrDdctam', 'nrsnInsrDdctam', 'ntnlPnsnDdctam', 'einsrDdctam', 'erntx', 'rsdntx', 'crptBznsDdctam', 'eddtnAmt'],
     },
-    'col31',
-    'col32',
+    'ddtnSumAmt',
+    'acpyAmt',
   ]);
 });
 </script>
