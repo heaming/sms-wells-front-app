@@ -75,6 +75,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { getComponentType, modal, useDataService, useMeta } from 'kw-lib';
+import dayjs from 'dayjs';
 
 const { t } = useI18n();
 const { getConfig } = useMeta();
@@ -118,6 +119,7 @@ async function onClickSearchPrtnr() {
     component: 'ZwogzPartnerListP',
     componentProps: {
       prtnrNo: searchParams.value.prtnrNo,
+      ogTpCd: 'W01',
     },
   });
   if (result) {
@@ -131,9 +133,12 @@ async function onClickSearchOg() {
     component: 'ZwogzOrganizationListP',
     componentProps: {
       ogNm: searchParams.value.ogNm,
+      ogTpCd: 'W01',
+      baseYm: dayjs().format('YYYYMM'),
     },
   });
   if (result) {
+    searchParams.value.ogNm = payload.ogNm;
     searchParams.value.ogCd = payload.ogCd;
   }
 }
