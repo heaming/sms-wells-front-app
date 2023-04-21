@@ -23,8 +23,8 @@
       <kw-search-row>
         <kw-search-item
           :label="t('MSG_TXT_CST_NM')"
+          required
         >
-          <!-- required -->
           <!-- label="고객명" -->
           <kw-input
             v-model="searchParams.cstFnm"
@@ -32,9 +32,9 @@
             clearable
             :label="t('MSG_TXT_CST_NM')"
             :readonly="true"
+            rules="required"
             @click-icon="onClickSearchUser"
           />
-          <!-- rules="required" -->
         </kw-search-item>
         <kw-search-item
           :label="t('MSG_TXT_WRTE_DT')"
@@ -163,7 +163,7 @@ async function fetchData() {
   data.setRows(pages);
   data.checkRowStates(true);
 
-  view.resetCurrent();
+  view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
 async function onClickSearch() {

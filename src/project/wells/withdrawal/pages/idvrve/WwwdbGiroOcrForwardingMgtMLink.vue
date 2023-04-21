@@ -288,14 +288,13 @@ const initGrid = defineGrid((data, view) => {
     const cwwDte = g.getValue(dataRow, 'giroOcrPblDtm');
     const cwpSeq = g.getValue(dataRow, 'giroOcrPblSeqn');
 
-    console.log(cwwDte);
-    console.log(cwpSeq);
-
     if (column === 'giroOcrPrnt') {
       openReportPopup('/BIZ0000003.ozr', '/BIZ0000003.odi', JSON.stringify({ cwwDte, cwpSeq }));
-    } else if (column === 'giroOcrRead') {
-      openReportPopup('/BIZ0000003.ozr', '/BIZ0000003.odi', JSON.stringify({ cwwDte, cwpSeq }));
     }
+
+    // else if (column === 'giroOcrRead') {
+    //   openReportPopup('/BIZ0000003.ozr', '/BIZ0000003.odi', JSON.stringify({ cwwDte, cwpSeq }));
+    // }
   };
 
   view.checkBar.visible = true;

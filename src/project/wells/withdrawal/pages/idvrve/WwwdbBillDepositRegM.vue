@@ -256,6 +256,8 @@ async function fetchData() {
 
   searchParams.value.isAddChk = true;
 
+  view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
+
   data.checkRowStates(true);
 }
 
@@ -328,8 +330,10 @@ async function fetchSubData() {
   const view = grdMainRef2.value.getView();
 
   const data = view.getDataSource();
+
   data.checkRowStates(false);
   data.addRows(pages);
+  view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfoSecond.value);
   data.checkRowStates(true);
 }
 

@@ -219,9 +219,8 @@ async function fetchData() {
 
   data.checkRowStates(false);
   data.setRows(pages);
+  view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
   data.checkRowStates(true);
-
-  view.resetCurrent();
 }
 
 // 조회 버튼
