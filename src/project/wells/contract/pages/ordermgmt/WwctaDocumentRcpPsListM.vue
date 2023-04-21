@@ -1,3 +1,4 @@
+<!-- eslint-disable max-len -->
 <!----
 ****************************************************************************************************
 * 프로그램 개요
@@ -37,10 +38,7 @@
         <kw-search-item :label="$t('MSG_TXT_RCP_TP')">
           <kw-select
             v-model="searchParams.cntrChTpCd"
-            :options="[{ codeId: '1', codeName: '개명신청' },
-                       { codeId: '2', codeName: '자동이체 변경' },
-                       { codeId: '3', codeName: '명의 변경' },
-                       { codeId: '4', codeName: '해지/철회신청' }]"
+            :options="codes.CNTR_CH_TP_CD.filter((v)=> v.codeId === '104' || v.codeId === '301' || v.codeId === '103' || v.codeId === '401')"
             first-option="all"
             first-option-value=""
           />
@@ -136,6 +134,7 @@ const pageInfo = ref({
 const grdMainRef = ref(getComponentType('KwGrid'));
 const codes = await codeUtil.getMultiCodes(
   'CNTR_CH_PRGS_STAT_CD', // 계약변경진행상태코드
+  'CNTR_CH_TP_CD', // 계약변경유형코드
 );
 
 async function fetchData() {

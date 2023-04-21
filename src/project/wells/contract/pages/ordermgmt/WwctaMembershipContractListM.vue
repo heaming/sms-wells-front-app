@@ -157,9 +157,7 @@
         <kw-input
           v-model="searchParams.pdNm"
           clearable
-          icon="search"
           :maxlength="100"
-          @click-icon="onClickSelectPdCd()"
         />
       </kw-search-item>
       <!-- 파트너코드 -->

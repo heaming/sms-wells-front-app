@@ -52,12 +52,6 @@
     </kw-search-row>
   </kw-search>
   <div class="result-area">
-    <ul class="kw-notification">
-      <li>
-        CSV / 엑셀 다운로드는 전체 자료를 다운받습니다. (5분~10분 시간 소요, 최대조회기간: CSV 100일 이내, 엑셀 33일 이내)
-      </li>
-    </ul>
-
     <kw-action-top>
       <template #left>
         <kw-paging-info

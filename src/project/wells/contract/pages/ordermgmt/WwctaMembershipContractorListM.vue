@@ -16,6 +16,7 @@
   <kw-search
     :cols="4"
     @search="onClickSearch"
+    @reset="onClickReset"
   >
     <kw-search-row>
       <!-- 생년월일/사업자/법인등록번호 -->
@@ -66,14 +67,10 @@
       >
         <kw-input
           v-model="searchParams.cstKnm"
-          icon="search"
           clearable
-          :placeholder="t('MSG_TXT_INP_AND_SELT')"
+          :placeholder="t('MSG_TXT_INP')"
           :label="$t('MSG_TXT_CNTR_NM')"
           :maxlength="50"
-          @keydown="onKeyDownSelectCntrNm"
-          @click-icon="onClickSelectCntrNm"
-          @clear="onClearSelectCntrNm"
         />
       </kw-search-item>
       <!-- 휴대전화번호 -->
@@ -233,10 +230,24 @@ async function fetchData() {
   view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
+// 조회버튼 클릭 이벤트
 async function onClickSearch() {
   await fetchData();
 }
 
+// 초기화버튼 클릭 이벤트
+async function onClickReset() {
+  searchParams.value.bryyMmddEntrpNoCbno = '1'; // 생년월일/사업자/법인등록번호
+  searchParams.value.bryyMmdd = ''; // 생년월일
+  searchParams.value.sexDvCd = ''; // 성별구분
+  searchParams.value.bzrno = ''; // 사업자번호/법인번호
+
+  isSearchBryyMmddVisible.value = true;
+  isSearchSexDvCdVisible.value = true;
+  isSearchBzrnoVisible.value = false;
+}
+
+// 엑셀다운로드버튼 클릭 이벤트
 async function onClickExcelDownload() {
   const view = grdMembershipContractorList.value.getView();
   const res = await dataService.get('/sms/wells/contract/contracts/order-detail-mngt/membership/excel-download', { params: cachedParams });
@@ -257,18 +268,6 @@ async function onChangeBryyMmddEntrpNoCbnoryyMmdd() {
     isSearchBryyMmddVisible.value = false;
     isSearchSexDvCdVisible.value = false;
     isSearchBzrnoVisible.value = true;
-  }
-}
-
-// 계약명 팝업조회
-async function onClickSelectCntrNm() {
-  const { result, payload } = await modal({ component: 'WwctaContractNumberListP',
-    // componentProps: { cntrCstNo: searchParams.value.cntrCstNo, cntrCstKnm: searchParams.value.cntrCstKnm },
-  });
-
-  if (result) {
-    searchParams.value.cntrNo = payload.cntrNo;
-    searchParams.value.cntrSn = payload.cntrSn;
   }
 }
 
