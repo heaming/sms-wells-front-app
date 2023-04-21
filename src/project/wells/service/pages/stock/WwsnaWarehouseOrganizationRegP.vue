@@ -77,16 +77,20 @@
         <!-- 관리자 -->
         <kw-form-item
           :label="$t('MSG_TXT_ADMIN')"
+          required
         >
           <kw-input
             v-model="warehouseInfo.prtnrNo"
             :label="$t('MSG_TXT_ADMIN')"
+            rules="required"
             readonly
           />
           <!-- 인사정보 -->
           <kw-input
             v-model="warehouseInfo.prtnrKnm"
             icon="search"
+            :label="$t('MSG_TXT_ADMIN')"
+            rules="required"
             :readonly="hasProps()"
             :disable-icon="hasProps()"
             @click-icon="onClickOpenHumanResourcesPopup"
