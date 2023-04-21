@@ -254,7 +254,7 @@
 // -------------------------------------------------------------------------------------------------
 import { codeUtil, defineGrid, getComponentType, useDataService, gridUtil, useGlobal } from 'kw-lib';
 // import { cloneDeep } from 'lodash-es';
-import { cloneDeep, isEmpty } from 'lodash-es';
+import { cloneDeep, isEmpty, uniqBy } from 'lodash-es';
 // import ZpdcStandardProductListP from '~sms-common/product/pages/manage/ZpdcStandardProductListP.vue';
 import ZwpdProductClassificationSelect from '~sms-common/product/pages/standard/components/ZwpdProductClassificationSelect.vue';
 import pdConst from '~sms-common/product/constants/pdConst';
@@ -386,7 +386,8 @@ async function getDgrOgInfos() {
   codesDgr3Levl.value = res.data;
 
   // 총괄단 조직코드 초기화
-  filteredDgr1LevlOgCds.value = codesDgr1Levl.value;
+  // filteredDgr1LevlOgCds.value = codesDgr1Levl.value;
+  filteredDgr1LevlOgCds.value = uniqBy(codesDgr1Levl.value.filter((v) => ['W01', 'W02', 'W03', 'W04', 'W05', 'W06'].includes(v.ogTpCd)));
 }
 getDgrOgInfos();
 
