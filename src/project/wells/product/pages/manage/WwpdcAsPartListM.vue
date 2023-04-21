@@ -393,7 +393,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'asItmCd', header: t('TXT_MSG_AS_ITM_CD'), width: '130' }, /* 품목코드 */
     { fieldName: 'asMatCd', header: t('TXT_MSG_AS_MAT_CD'), width: '130' }, /* AS자재번호 */
     // 사용자 관련 공통 컬럼
-    { fieldName: 'fstRgstDtm', header: t('MSG_TXT_RGST_DTM'), width: '110', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date' }, /* 등록일 */
+    { fieldName: 'fstRgstDtm', header: t('MSG_TXT_RGST_DT'), width: '110', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date' }, /* 등록일 */
     { fieldName: 'fstRgstUsrNm', header: t('MSG_TXT_RGST_USR'), width: '80', styleName: 'text-center', editable: false },
     { fieldName: 'fstRgstUsrId', header: 'RGST_ID', width: '50', visible: false },
     { fieldName: 'fnlMdfcDtm', header: t('MSG_TXT_FNL_MDFC_D'), width: '110', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date' }, /* 최종수정일 */

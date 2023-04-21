@@ -238,7 +238,7 @@ const columns = [
   { fieldName: 'ostrCnrCd', header: t('MSG_TIT_SHIPPING_CENTER'), width: '214', styleName: 'text-left' }, /* 출고센터 */
   { fieldName: 'pdTpCd', header: t('MSG_TIT_PRDT_TYPE'), width: '0', visible: false }, /* 상품종류 */
   { fieldName: 'ojPdCd', header: t('MSG_TIT_TARGET_PRDT_CD'), width: '0', visible: false }, /* 대상상품코드 */
-  { fieldName: 'fstRgstDtm', header: t('MSG_TXT_RGST_DTM'), width: '0', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date', visible: false }, /* 등록일 */
+  { fieldName: 'fstRgstDtm', header: t('MSG_TXT_RGST_DT'), width: '0', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date', visible: false }, /* 등록일 */
   { fieldName: 'fstRgstUsrNm', header: t('MSG_TXT_RGST_USR'), width: '0', styleName: 'rg-button-link text-center', renderer: { type: 'button' }, preventCellItemFocus: true, visible: false }, /* 등록자 */
   { fieldName: 'fnlMdfcDtm', header: t('MSG_TXT_FNL_MDFC_D'), width: '0', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date', visible: false }, /* 최종수정일 */
   { fieldName: 'fnlMdfcUsrNm', header: t('MSG_TXT_FNL_MDFC_USR'), width: '0', styleName: 'rg-button-link text-center', renderer: { type: 'button' }, preventCellItemFocus: true, visible: false }, /* 최종수정자 */
