@@ -388,7 +388,7 @@ async function fetchData() {
 
 async function fetchDefaultData() {
   console.log(sessionUserId); // TODO: 수정 필요
-  const res = await dataService.get('/sms/wells/service/returning-goods-out-of-storages/warehouses', { params: { userId: '36631', apyYm: dayjs().format('YYYYMM') } });
+  const res = await dataService.get('/sms/wells/service/returning-goods-out-of-storages/warehouses', { params: { userId: '36680', apyYm: dayjs().format('YYYYMM') } });
   warehouses.value = res.data;
   if (!res.data[0]) return;
 
