@@ -35,8 +35,11 @@
           required
         >
           <kw-select
-            v-model="searchParams.serviceCenterCd"
-            :options="['B','C']"
+            v-model="searchParams.serviceCenter"
+            :emit-value="false"
+            :options="customCodes.SERVICE_CENTER"
+            option-value="ogCd"
+            option-label="ogNm"
             first-option="select"
             rules="required"
           />
@@ -150,8 +153,26 @@ const calendarInfo = ref({
  */
 const searchParams = ref({
   baseYm: dayjs().format('YYYYMM'),
-  serviceCenterCd: 'B',
+  serviceCenterOgId: '',
+  serviceCenterCd: '',
+  serviceCenter: {},
 });
+
+/*
+ *  Custom Code setting
+ */
+const customCodes = {
+  SERVICE_CENTER: [], // 서비스센터
+};
+
+/*
+ * 서비스센터 조회
+ */
+async function getServiceCenter() {
+  const res = await dataService.get('/sms/wells/service/organizations/service-center');
+  customCodes.SERVICE_CENTER = res.data;
+}
+await getServiceCenter();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -228,6 +249,8 @@ function isToday(dayCnt) {
  *  Event - 조회 버튼 클릭
  */
 async function onClickSearch() {
+  searchParams.value.serviceCenterCd = searchParams.value.serviceCenter.ogCd;
+  searchParams.value.serviceCenterOgId = searchParams.value.serviceCenter.ogId;
   cachedParams = cloneDeep(searchParams.value);
   await getCalendarMgt();
 }
@@ -248,10 +271,11 @@ async function onDbClickCalendar(dayCnt) {
   //     rmkCn: calendarList.value[dayCnt - 1]?.rmkCn,
   //   },
   // });
-  const { svCnrOgId, baseY, baseMm, baseD, dfYn, bndtWrkPsicNo, rmkCn } = calendarList.value[dayCnt - 1];
+  const { svCnrOgCd, svCnrOgId, baseY, baseMm, baseD, dfYn, bndtWrkPsicNo, rmkCn } = calendarList.value[dayCnt - 1];
   const { result: isChanged } = await modal({
     component: 'WwsnyCalendarRegP',
     componentProps: {
+      svCnrOgCd,
       svCnrOgId,
       baseY,
       baseMm,
