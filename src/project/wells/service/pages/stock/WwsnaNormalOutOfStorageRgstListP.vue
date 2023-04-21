@@ -121,12 +121,14 @@
         vertical
         inset
       />
+      <!--
       <kw-btn
         dense
         secondary
         icon="print"
         :label="$t('MSG_BTN_PRTG')"
       />
+ -->
       <kw-btn
         dense
         secondary
@@ -395,6 +397,8 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'ostrCnfmCd' },
     { fieldName: 'ostrWareDvCd' },
     { fieldName: 'strWareDvCd' },
+    { fieldName: 'strWareNm' },
+    { fieldName: 'ostrWareNm' },
   ];
 
   data.setFields(fields);
@@ -403,14 +407,19 @@ const initGrdMain = defineGrid((data, view) => {
   view.checkBar.visible = true;
   view.rowIndicator.visible = true;
   view.onCellDblClicked = async (g, { column, dataRow }, v) => {
-    const { pdCd, itmPdCd } = gridUtil.getRowValue(g, dataRow); // TODO: componentProps 와 함께 추가
+    // TODO: componentProps 와 함께 추가
+    const { itmPdCd, pdNm, strWareNo, ostrWareNm, outQty } = gridUtil.getRowValue(g, dataRow);
     console.log(g, column, dataRow, v);
 
     const { result, payload } = await modal({
-      component: 'WwsnaAskMaterialsHavePsDtlP', // TODO: 요청자재보유현황 팝업페이지 연결확인
+      // TODO: 요청자재보유현황 팝업페이지 연결확인
+      component: 'WwsnaRequestMaterialHaveListP',
       componentProps: {
-        pdCd,
         itmPdCd,
+        itmPdNm: pdNm,
+        strOjWareNo: strWareNo,
+        ostrOjWareNm: ostrWareNm,
+        ostrQty: outQty,
       },
     });
 

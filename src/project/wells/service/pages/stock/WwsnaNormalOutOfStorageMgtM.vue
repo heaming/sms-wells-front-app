@@ -223,6 +223,7 @@ async function onClickExcelDownload() {
 }
 
 onMounted(async () => {
+  searchParams.value.wareDvCd = '2';
   await fetchDefaultData();
 });
 // -------------------------------------------------------------------------------------------------
