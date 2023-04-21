@@ -168,9 +168,9 @@ const initGrid = defineGrid((data, view) => {
         return `${cntrNo}-${cntrSn}`;
       } },
     { fieldName: 'rentalNmn', header: t('MSG_TXT_RENTAL_NMN'), width: '150', styleName: 'text-center' },
-    { fieldName: 'thmIntamDpAmt', header: t('MSG_TXT_PRPD_DP'), width: '150', styleName: 'text-right' },
-    { fieldName: 'thmIstmRfndAmt', header: t('MSG_TXT_PRPD_RFND'), width: '150', styleName: 'text-right' },
-    { fieldName: 'rveAmt', header: t('MSG_TXT_AMT'), width: '150', styleName: 'text-right' },
+    { fieldName: 'thmIntamDpAmt', header: t('MSG_TXT_PRPD_DP'), width: '150', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'thmIstmRfndAmt', header: t('MSG_TXT_PRPD_RFND'), width: '150', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'rveAmt', header: t('MSG_TXT_AMT'), width: '150', styleName: 'text-right', numberFormat: '#,##0' },
     { fieldName: 'dpTpCd', header: t('MSG_TXT_STLM_INF'), width: '117' },
   ];
 

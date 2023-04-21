@@ -3,7 +3,7 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : WDA
-2. 프로그램 ID : WwwdaFundTransferChangeMgtM - 자동이체결과 체크리스트(수신완료 입금생성 누락건 ? 자동이체변경 관리 ?) (W-WD-U-0035M02)
+2. 프로그램 ID : WwwdaFundTransferChangeMgtM - 자동이체결과 체크리스트(수신완료 입금생성 누락건) (W-WD-U-0035M02)
 3. 작성자 : donghyun.yoo
 4. 작성일 : 2023.02.17
 ****************************************************************************************************
@@ -180,7 +180,7 @@ const initGrid = defineGrid((data, view) => {
     },
     { fieldName: 'bilDt', header: t('MSG_TXT_FNT_DT'), width: '120', styleName: 'text-center', dataType: 'date', datetimeFormat: 'yyyy-MM-dd' },
     { fieldName: 'sellTpCd', header: t('MSG_TXT_TASK_TYPE'), width: '120', styleName: 'text-center', options: codes.SELL_TP_CD },
-    { fieldName: 'dpAmt', header: t('MSG_TXT_RCV_AMT'), width: '120', styleName: 'text-center' },
+    { fieldName: 'dpAmt', header: t('MSG_TXT_RCV_AMT'), width: '120', styleName: 'text-center', numberFormat: '#,##0' },
   ];
 
   data.setFields(fields);
