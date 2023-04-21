@@ -246,8 +246,6 @@ async function onClickExcelUpload() {
   const apiUrl = '/sms/wells/contract/sales-limits/business-partners/excel-upload';
   const templateId = 'FOM_CTC_0001';
 
-  alert('[엑셀업로드 공통파트에서 작업중]');
-
   const { result } = await modal({
     component: 'ZwcmzExcelUploadP',
     componentProps: { apiUrl, templateId },
