@@ -145,26 +145,26 @@ const props = defineProps({
   itmPdCd: {
     type: String,
     required: true,
-    default: 'WM0402729',
+    default: '',
   },
   itmPdNm: {
     type: String,
     required: true,
-    default: '풋유닛커버H05S1 BS',
+    default: '',
   },
   ostrOjWareNm: {
     type: String,
-    default: '부산(김유진)',
+    default: '',
   },
 
   strOjWareNo: {
     type: String,
-    default: '200005',
+    default: '',
   },
 
   ostrQty: {
     type: String,
-    default: '1',
+    default: '',
   },
 });
 
