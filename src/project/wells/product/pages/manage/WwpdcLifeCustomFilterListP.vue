@@ -129,7 +129,7 @@ const codes = await codeUtil.getMultiCodes('MM_CD', 'VST_DV_CD');
 async function onClickAdd() {
   const { svPdCd, pdctPdCd, partPdCd } = props;
   const view = grdMainRef.value.getView();
-  await gridUtil.insertRowAndFocus(view, 0, { svPdCd, pdctPdCd, partPdCd });
+  await gridUtil.insertRowAndFocus(view, 0, { svPdCd, pdctPdCd, partPdCd }, false);
   grdRowCount.value = getGridRowCount(view);
 }
 
