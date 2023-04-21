@@ -181,6 +181,10 @@ const dataService = useDataService();
 const { getConfig } = useMeta();
 const { notify } = useGlobal();
 
+const ALL = 0;
+const MOVEMENT = 1;
+const BIZ = 2;
+
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -280,6 +284,11 @@ function onClickMovementBulkApply() {
     return;
   }
 
+  if (movementManHour <= 0 || movementFieldWeight <= 0 || movementAverageSpeed <= 0) {
+    notify(t('MSG_ALT_ZERO_IS_BIG', [t('MSG_TXT_CALC_BASE')]));
+    return;
+  }
+
   if (isMovementChanged) {
     notify(t('MSG_ALT_MDFC_CN_SAVE_AF_APY'));
     return;
@@ -326,6 +335,7 @@ async function onClickMovementBulkApplyDate() {
 
 // 급지공수 가져오기
 function getFieldAirlift(manHour, fieldWeight) {
+  if (manHour === 0 || fieldWeight === 0) return 0;
   return Math.round((Number(manHour) * (Number(fieldWeight) / 100)) / 10) * 10; // 급지공수
 }
 
@@ -335,6 +345,11 @@ function onClickBizBulkApply() {
 
   if (!isNumber(bizManHour) || !isNumber(bizFieldWeight)) {
     notify(t('MSG_ALT_NCELL_REQUIRED_ITEM', [t('MSG_TXT_CALC_BASE')]));
+    return;
+  }
+
+  if (bizManHour <= 0 || bizFieldWeight <= 0) {
+    notify(t('MSG_ALT_ZERO_IS_BIG', [t('MSG_TXT_CALC_BASE')]));
     return;
   }
 
@@ -367,35 +382,49 @@ function onClickBizBulkApplyDate() {
   setApplyDates(grdBizLevelRef.value.getView(), 'bizApplyDate');
 }
 
-async function fetchData() {
+async function fetchDefaultData(viewType) {
+  const res = await dataService.get('/sms/wells/service/region-level-allowances/base-information', { params: { ...searchParams.value } });
+  const { movementBases, bizBases } = res.data;
+
+  if (viewType === ALL || viewType === MOVEMENT) {
+    const movementBaseView = grdMovementBaseRef.value.getView();
+    movementBaseView.getDataSource().setRows([{
+      movementManHour: movementBases?.minPerManho || 0,
+      movementFieldWeight: movementBases?.rglvlWeit || 0,
+      movementAverageSpeed: movementBases?.avVe || 0,
+    }]);
+  }
+
+  if (viewType === ALL || viewType === BIZ) {
+    const bizBaseView = grdBizBaseRef.value.getView();
+    bizBaseView.getDataSource().setRows([{
+      bizManHour: bizBases?.minPerManho || 0,
+      bizFieldWeight: bizBases?.rglvlWeit || 0,
+      bizFieldAirlift: getFieldAirlift(bizBases?.minPerManho || 0, bizBases?.rglvlWeit || 0),
+    }]);
+  }
+}
+
+async function fetchData(viewType) {
   const res = await dataService.get('/sms/wells/service/region-level-allowances', { params: { ...cachedParams } });
   const { movementAllowances, bizAllowances } = res.data;
 
-  const movementLevelView = grdMovementLevelRef.value.getView();
-  countInfo.value.movementTotalCount = movementAllowances.length;
-  movementLevelView.getDataSource().setRows(movementAllowances);
-  movementLevelView.resetCurrent();
+  if (viewType === ALL || viewType === MOVEMENT) {
+    const movementLevelView = grdMovementLevelRef.value.getView();
+    countInfo.value.movementTotalCount = movementAllowances.length;
+    movementLevelView.getDataSource().setRows(movementAllowances);
+    movementLevelView.resetCurrent();
+    originApplyDates.movementApplyDate = movementAllowances[0] ? movementAllowances[0].apyStrtdt : '';
+  }
 
-  originApplyDates.movementApplyDate = movementAllowances[0] ? movementAllowances[0].apyStrtdt : '';
-  const movementBaseView = grdMovementBaseRef.value.getView();
-  movementBaseView.getDataSource().setRows([{
-    movementManHour: movementAllowances[0].minPerManho,
-    movementFieldWeight: movementAllowances[0].rglvlWeit,
-    movementAverageSpeed: movementAllowances[0].avVe,
-  }]);
+  if (viewType === ALL || viewType === BIZ) {
+    const bizLevelview = grdBizLevelRef.value.getView();
+    countInfo.value.bizTotalCount = bizAllowances.length;
+    bizLevelview.getDataSource().setRows(bizAllowances);
+    bizLevelview.resetCurrent();
 
-  const bizLevelview = grdBizLevelRef.value.getView();
-  countInfo.value.bizTotalCount = bizAllowances.length;
-  bizLevelview.getDataSource().setRows(bizAllowances);
-  bizLevelview.resetCurrent();
-
-  originApplyDates.bizApplyDate = bizAllowances[0] ? bizAllowances[0].apyStrtdt : '';
-  const bizBaseView = grdBizBaseRef.value.getView();
-  bizBaseView.getDataSource().setRows([{
-    bizManHour: bizAllowances[0].minPerManho,
-    bizFieldWeight: bizAllowances[0].rglvlWeit,
-    bizFieldAirlift: getFieldAirlift(bizAllowances[0].minPerManho, bizAllowances[0].rglvlWeit),
-  }]);
+    originApplyDates.bizApplyDate = bizAllowances[0] ? bizAllowances[0].apyStrtdt : '';
+  }
 }
 
 async function onClickSearch() {
@@ -407,7 +436,8 @@ async function onClickSearch() {
 
   cachedParams = cloneDeep(searchParams.value);
   isMovementChanged = false;
-  await fetchData();
+  await fetchData(ALL);
+  await fetchDefaultData(ALL);
 }
 
 function validateApplyDate(view) {
@@ -421,7 +451,7 @@ function validateApplyDate(view) {
   return true;
 }
 
-async function saveData(view, additionalInfo) {
+async function saveData(view, additionalInfo, viewType) {
   if (view.getItemCount() === 0) {
     notify(t('MSG_ALT_NO_APPY_OBJ_DT'));
     return;
@@ -434,21 +464,26 @@ async function saveData(view, additionalInfo) {
   await dataService.post('/sms/wells/service/region-level-allowances', changedRows.map((v) => ({ ...v, ...additionalInfo })));
 
   notify(t('MSG_ALT_SAVE_DATA'));
-  await fetchData();
+  await fetchData(viewType);
+  await fetchDefaultData(viewType);
 }
 
 async function onClickMovementSave() {
   const { movementManHour, movementFieldWeight, movementAverageSpeed } = getBaseInfo('movement');
   const additionalInfo = { minPerManho: movementManHour, rglvlWeit: movementFieldWeight, avVe: movementAverageSpeed };
-  await saveData(grdMovementLevelRef.value.getView(), additionalInfo);
+  await saveData(grdMovementLevelRef.value.getView(), additionalInfo, MOVEMENT);
 }
 
 async function onClickBizSave() {
   const { bizManHour, bizFieldWeight } = getBaseInfo('biz');
   const avVe = getFieldAirlift(bizManHour, bizFieldWeight);
   const additionalInfo = { minPerManho: bizManHour, rglvlWeit: bizFieldWeight, avVe };
-  await saveData(grdBizLevelRef.value.getView(), additionalInfo);
+  await saveData(grdBizLevelRef.value.getView(), additionalInfo, BIZ);
 }
+
+onMounted(async () => {
+  await fetchDefaultData(ALL);
+});
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
