@@ -162,12 +162,12 @@
           vertical
           inset
         />
-        <kw-btn
+        <!-- <kw-btn
           icon="print"
           dense
           secondary
           :label="$t('MSG_BTN_PRTG')"
-        />
+        /> -->
         <kw-btn
           icon="download_on"
           dense
@@ -289,6 +289,7 @@ async function onClickExcelDownload() {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
     exportData: response.data,
+    checkBar: 'hidden',
   });
 }
 
