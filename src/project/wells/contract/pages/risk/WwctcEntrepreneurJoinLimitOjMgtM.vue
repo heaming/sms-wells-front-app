@@ -32,8 +32,8 @@
           <kw-search-item :label="$t('MSG_TXT_ENTRP_NO')">
             <kw-input
               v-model="searchParams.sellLmBzrno"
-              type="number"
-              :maxlength="10"
+              mask="###-##-#####"
+              :max="10"
             />
           </kw-search-item>
           <kw-search-item :label="$t('MSG_TXT_BSN_NM')">
@@ -246,8 +246,6 @@ async function onClickExcelUpload() {
   const apiUrl = '/sms/wells/contract/sales-limits/business-partners/excel-upload';
   const templateId = 'FOM_CTC_0001';
 
-  alert('[엑셀업로드 공통파트에서 작업중]');
-
   const { result } = await modal({
     component: 'ZwcmzExcelUploadP',
     componentProps: { apiUrl, templateId },
@@ -288,7 +286,7 @@ const initGrdMain = defineGrid((data, view) => {
 
   const columns = [
     { fieldName: 'sellLmDv', header: t('MSG_TXT_INF_CLS'), width: '142', styleName: 'text-center', editable: true, editor: { type: 'list' }, options: [{ codeId: '3', codeName: t('MSG_TXT_RGS') }, { codeId: '4', codeName: t('MSG_TXT_RSTRCT') }], rules: 'required' }, /* 공통코드 미존재로 하드코딩 설정 */
-    { fieldName: 'sellLmBzrno', header: t('MSG_TXT_ENTRP_NO'), width: '127', styleName: 'text-center', editable: true, editor: { type: 'number', maxLength: 10 }, rules: 'required' },
+    { fieldName: 'sellLmBzrno', header: t('MSG_TXT_ENTRP_NO'), width: '127', styleName: 'text-center', editable: true, editor: { maxLength: 10, mask: { editMask: '000-00-00000' } }, rules: 'required' },
     { fieldName: 'dlpnrNm', header: t('MSG_TXT_BSN_NM'), width: '127', styleName: 'text-left', editable: false },
     { fieldName: 'dlgpsNm', header: t('MSG_TXT_RPRS_NM'), width: '127', styleName: 'text-left', editable: false },
     { fieldName: 'bryyMmdd', header: t('MSG_TXT_BIRTH_DATE'), width: '196', styleName: 'text-center', datetimeFormat: 'date', editable: false, editor: { type: 'btdate' } },
