@@ -27,6 +27,7 @@
             v-model="searchParams.baseYm"
             type="month"
             rules="required"
+            :label="$t('기준년월')"
           />
         </kw-search-item>
 
@@ -42,6 +43,7 @@
             option-label="ogNm"
             first-option="select"
             rules="required"
+            :label="$t('서비스센터')"
           />
         </kw-search-item>
       </kw-search-row>
@@ -155,7 +157,7 @@ const searchParams = ref({
   baseYm: dayjs().format('YYYYMM'),
   serviceCenterOgId: '',
   serviceCenterCd: '',
-  serviceCenter: {},
+  serviceCenter: undefined,
 });
 
 /*
