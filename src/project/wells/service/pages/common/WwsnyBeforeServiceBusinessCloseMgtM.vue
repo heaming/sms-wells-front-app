@@ -27,6 +27,7 @@
             v-model="searchParams.managementYear"
             type="year"
             rules="required"
+            :label="$t('관리년도')"
           />
         </kw-search-item>
 
@@ -39,6 +40,7 @@
             :options="customCodes.MNGT_ITM"
             first-option="select"
             rules="required"
+            :label="$t('관리항목')"
           />
         </kw-search-item>
       </kw-search-row>
