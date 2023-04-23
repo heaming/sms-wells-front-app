@@ -27,6 +27,7 @@
             v-model="searchParams.baseYm"
             rules="required"
             type="month"
+            :label="'기준년월'"
           />
         </kw-search-item>
         <kw-search-item :label="'관리구분'">
