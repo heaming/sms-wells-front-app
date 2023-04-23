@@ -44,9 +44,9 @@
             class="w120"
           >
             <kw-checkbox
-              v-model="searchParams.stckNoStdGb"
+              v-model="searchParams.stckStdGb"
               :label="$t('MSG_TXT_STD_NO_APY')"
-              @change="onClickStandardNoApply"
+              @change="onclickStandard"
             />
           </kw-field>
           <!-- //표준 미적용 -->
@@ -83,6 +83,7 @@
         >
           <kw-date-picker
             v-model="searchParams.rgstDt"
+            @change="onChangeRgstDt"
           />
         </kw-form-item>
         <!-- //등록일자 -->
@@ -189,6 +190,7 @@ const { t } = useI18n();
 
 const dataService = useDataService();
 const baseURI = '/sms/wells/service/normal-outofstorages/detail';
+const wareURI = '/sms/wells/service/normal-outofstorages/standard-ware';
 const grdMainRef = ref(getComponentType('KwGrid'));
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -241,16 +243,16 @@ const codes = ref(await codeUtil.getMultiCodes(
 const searchParams = ref({
   ostrAkTpCd: props.ostrAkTpCd,
   ostrAkTpNm: codes.value.OSTR_AK_TP_CD.find((v) => v.codeId === props.ostrAkTpCd).codeName,
-  ostrWareNo: '',
-  strWareNo: '',
+  ostrWareNo: props.ostrOjWareNo,
+  strWareNo: props.ostrJWareNo,
   strHopDt: props.strHopDt,
   ostrAkNo: props.ostrAkNo,
   ostrOjWareNm: props.ostrOjWareNm,
   strOjWareNm: props.strOjWareNm,
   ostrAkRgstDt: props.strHopDt,
   itmPdCd: props.itmPdCd,
-  stckStdGb: '1',
-  stckNoStdGb: 'N',
+  // stckStdGb: '1',
+  stckStdGb: 'N',
   rgstDt: dayjs().format('YYYYMMDD'),
 });
 let cachedParams;
@@ -303,15 +305,27 @@ function getSaveParams() {
   return checkedValues;
 }
 
-async function onClickStandardNoApply() {
-  // onClickLocationStandardApply();
-  // searchParams.value.stckStdGb = '0';
-  // debugger;
+async function getStandardWare() {
+  const { ostrWareNo } = searchParams.value;
+  const res = await dataService.get(wareURI, { params: { ostrWareNo, stckStdGb: '' } });
+  console.log(`res : ${res}`);
 }
+
+async function onclickStandard() {
+  // searchParams.stckNoStdGb
+
+}
+
+// async function onClickStandardNoApply() {
+//   // onClickLocationStandardApply();
+//   // searchParams.value.stckStdGb = '0';
+//   // debugger;
+// }
 
 async function onClickConfirm() {
   if (await confirm(t('MSG_ALT_WANT_DTRM'))) {
     const saveParams = getSaveParams();
+    debugger;
     await dataService.put(baseURI, saveParams);
     await fetchData();
   }
@@ -323,12 +337,18 @@ async function onClickConfirmAfterMove() {
   }
 }
 
+async function onChangeRgstDt() {
+  await onClickSearch();
+}
+
 onMounted(async () => {
   searchParams.value.ostrWareNo = props.ostrOjWareNo;
   searchParams.value.strWareNo = props.strOjWareNo;
-  // searchParams.value.stckStdGb = '1';
   console.log(searchParams.value.ostrWareNo);
   console.log(searchParams.value.strWareNo);
+
+  getStandardWare();
+  // searchParams.value.stckStdGb = '1';
   await onClickSearch();
   // debugger;
 });
@@ -406,6 +426,22 @@ const initGrdMain = defineGrid((data, view) => {
 
   view.checkBar.visible = true;
   view.rowIndicator.visible = true;
+
+  const editFields = ['outQty', 'rmkCn'];
+  view.onCellEditable = (grid, clickData) => {
+    if (!editFields.includes(clickData.column)) {
+      return false;
+    }
+  };
+
+  view.onCellClicked = (grid, clickData) => {
+    if (editFields.includes(clickData.column)) {
+      view.editOptions.editable = true;
+    } else {
+      view.editOptions.editable = false;
+    }
+  };
+
   view.onCellDblClicked = async (g, { column, dataRow }, v) => {
     // TODO: componentProps 와 함께 추가
     const { itmPdCd, pdNm, strWareNo, ostrWareNm, outQty } = gridUtil.getRowValue(g, dataRow);
