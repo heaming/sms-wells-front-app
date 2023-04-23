@@ -252,7 +252,9 @@ async function onClickSearch() {
 }
 
 function isProps() {
-  return !isEmpty(props.itmPdCd) && !isEmpty(props.itmPdNm) && !isEmpty(props.ostrQty);
+  // TODO : ostrQty 데이터가 정상적이지 않음 추후 정상적일경우 조건 변경
+  // return !isEmpty(props.itmPdCd) && !isEmpty(props.itmPdNm) && !isEmpty(props.ostrQty);
+  return !isEmpty(props.itmPdCd) && !isEmpty(props.itmPdNm);
 }
 onMounted(async () => {
   if (isProps()) {
