@@ -82,12 +82,6 @@
           dense
           @click="onClickWorkNoticeRegBtn"
         />
-        <!-- TODO: 인사기본정보 테스트 완료 후 삭제 필요 -->
-        <kw-btn
-          :label="$t('인사기본정보 팝업')"
-          dense
-          @click="onClickTest"
-        />
       </kw-action-top>
       <kw-grid
         ref="grdMainRef"
@@ -206,15 +200,6 @@ async function onClickWorkNoticeRegBtn() {
     component: 'WwsndWorkNoticeRegP',
   });
   if (result) await onClickSearch();
-}
-
-// TODO: 인사기본정보 테스트 완료 후 삭제 필요
-async function onClickTest() {
-  const { result, payload } = await modal({
-    component: 'WwsndHumanResourcesListP',
-    // componentProps: { mngrDvCd: '2', deptCd: '', cnrCd: 'TEST11', searchText: 'ZZZ' },
-  });
-  if (result) payload.forEach((obj) => { console.log(obj); });
 }
 
 // -------------------------------------------------------------------------------------------------
