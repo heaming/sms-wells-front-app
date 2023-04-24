@@ -212,7 +212,7 @@ function getRmkCnText(dayCnt) {
  *  Calendar 당직자를 가져오기 위한 function
  */
 function getBndtWrkPsicNo(dayCnt) {
-  return calendarList.value[dayCnt - 1]?.bndtWrkPsicNo ?? '';
+  return calendarList.value[dayCnt - 1]?.bndtWrkPsicNm ?? '';
 }
 
 /*
