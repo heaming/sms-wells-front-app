@@ -149,6 +149,7 @@
 
 import { codeUtil, getComponentType, gridUtil, modal, notify, useDataService, useMeta, alert, confirm } from 'kw-lib';
 import dayjs from 'dayjs';
+import { cloneDeep } from 'lodash-es';
 
 // import { cloneDeep } from 'lodash-es';
 
@@ -372,7 +373,7 @@ async function onClickSave() {
 
   console.log(resResult);
 
-  if (resResult.itgDpProcsYCnt === 1) {
+  if (resResult.itgDpProcsYCnt > 0) {
     await alert(t('MSG_ALT_ITG_DP_RGST_CPRCNF_PROCS_ULD_NOT')); // '통합입금에 등록된 후 대사 처리된 Data는 업로드할 수 없습니다.'
     return false;
   } if (resResult.chkCnt > 0) {
@@ -392,14 +393,19 @@ async function onClickExcelUpload() {
   attachFileRef.value.pickFiles();
 }
 
-// let createParam;
+let createParam;
 // 생성버튼
 async function onClickCreate() {
-  notify(t('MSG_ALT_DEVELOPING'));
-  //   // createParam = cloneDeep(searchParams.value);
+  // notify(t('MSG_ALT_DEVELOPING'));
+  if (await confirm('입금등록을 진행하시겠습니까?')) {
+    createParam = cloneDeep(searchParams.value);
 
-//   // await dataService.post('/sms/wells/withdrawal/idvrve/giro-deposits/create', createParam);
-//   // notify(t('MSG_ALT_SAVE_DATA'));
+    console.log(createParam);
+
+    await dataService.post('/sms/wells/withdrawal/idvrve/giro-deposits/create', createParam);
+
+    onClickSearch();
+  }
 }
 
 // 오류 처리
