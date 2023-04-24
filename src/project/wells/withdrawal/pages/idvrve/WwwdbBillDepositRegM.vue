@@ -300,11 +300,10 @@ async function onClickSelectCntr() {
 
 // 신규등록
 async function onClickCreate() {
-  const result = await modal({
+  const { result } = await modal({
     component: 'WwwdbBillDepositRegP',
   });
   if (result) {
-    // await onClickSubSearch(paramData);
     grdMainRef2.value.getData().clearRows();
     await onClickSearch();
   }
@@ -556,12 +555,7 @@ const initGrid = defineGrid((data, view) => {
 
   view.onCellItemClicked = async (g, { column, itemIndex }) => {
     if (column === 'mconBzsNm') {
-      const itgDpNo = g.getValue(itemIndex, 'itgDpNo');
-      const cntrNo = g.getValue(itemIndex, 'cntrNo');
-      const bzrno = g.getValue(itemIndex, 'bzrno');
-      const mconBzsNm = g.getValue(itemIndex, 'mconBzsNm');
-
-      console.log(bzrno);
+      const { itgDpNo, cntrNo, bzrno, mconBzsNm } = g.getValues(itemIndex);
 
       const paramData = {
         itgDpNo,
