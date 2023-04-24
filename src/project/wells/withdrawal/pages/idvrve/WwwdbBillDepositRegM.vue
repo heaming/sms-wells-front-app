@@ -264,7 +264,7 @@ async function fetchData() {
 async function onClickSearch() {
   pageInfo.value.pageIndex = 1;
 
-  grdMainRef2.value.getData().clearRows();
+  // grdMainRef2.value.getData().clearRows();
 
   cachedParams = cloneDeep(searchParams.value);
 
@@ -300,9 +300,13 @@ async function onClickSelectCntr() {
 
 // 신규등록
 async function onClickCreate() {
-  await modal({
+  const { result } = await modal({
     component: 'WwwdbBillDepositRegP',
   });
+  if (result) {
+    grdMainRef2.value.getData().clearRows();
+    await onClickSearch();
+  }
 }
 
 async function onClearSelectCntr() {
@@ -324,7 +328,6 @@ async function fetchSubData() {
   const res = await dataService.get('/sms/wells/withdrawal/idvrve/bill-deposits/electronic-detail/paging', { params: cachedSubParams });
   const { list: pages, pageInfo: pagingResult } = res.data;
 
-  console.log(pages);
   pageInfoSecond.value = pagingResult;
 
   const view = grdMainRef2.value.getView();
@@ -333,13 +336,25 @@ async function fetchSubData() {
 
   data.checkRowStates(false);
   data.addRows(pages);
-  view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfoSecond.value);
   data.checkRowStates(true);
 }
 
-async function onClickSubSearch(data) {
-  grdMainRef2.value.getData().clearRows();
+async function removeData(params) {
+  const view = grdMainRef2.value.getView();
 
+  const allValues = gridUtil.getAllRowValues(view);
+  const data = view.getDataSource();
+  console.log(allValues);
+  console.log(params);
+
+  allValues.forEach((param) => {
+    if ((param.cntrNo === params.cntrNo) && (param.itgDpNo === params.itgDpNo)) {
+      data.removeRow(param.dataRow);
+    }
+  });
+}
+
+async function onClickSubSearch(data) {
   pageInfoSecond.value.pageIndex = 1;
 
   const itgDp = data;
@@ -348,6 +363,18 @@ async function onClickSubSearch(data) {
 
   await fetchSubData();
 }
+
+// async function onClickSubSearch(data) {
+//   grdMainRef2.value.getData().clearRows();
+
+//   pageInfoSecond.value.pageIndex = 1;
+
+//   const itgDp = data;
+
+//   cachedSubParams = cloneDeep(itgDp);
+
+//   await fetchSubData();
+// }
 
 // 엑셀다운로드
 async function onClickExcelMainDownload() {
@@ -374,8 +401,7 @@ async function onClickExcelSubDownload() {
 // 저장버튼
 async function onClickSave() {
   const view = grdMainRef2.value.getView();
-  const changedRows = gridUtil.getChangedRowValues(view);
-
+  const changedRows = gridUtil.getAllRowValues(view);
   console.log(changedRows);
 
   if (await gridUtil.alertIfIsNotModified(view)) { return; }
@@ -389,13 +415,14 @@ async function onClickSave() {
     SaveMainDtlReq: changedRows,
   };
 
-  console.log(changedRows);
+  // console.log(changedRows);
 
   await dataService.post('/sms/wells/withdrawal/idvrve/bill-deposits/electronic', cachedParam);
 
   notify(t('MSG_ALT_SAVE_DATA'));
 
-  await onClickSubSearch(changedRows[0]);
+  await onClickSearch();
+  // await onClickSubSearch(changedRows[0]);
 }
 
 // 대상조회
@@ -504,17 +531,48 @@ const initGrid = defineGrid((data, view) => {
   view.checkBar.visible = true;
   view.rowIndicator.visible = true;
 
+  view.onItemChecked = (grid, itemIndex) => {
+    const checkState = grid.isCheckedItem(itemIndex);
+    const itgDpNo = grid.getValue(itemIndex, 'itgDpNo');
+    const cntrNo = grid.getValue(itemIndex, 'cntrNo');
+    const paramData = {
+      itgDpNo,
+      cntrNo,
+    };
+    if (checkState === true) {
+      onClickSubSearch(paramData);
+    } else {
+      removeData(paramData);
+    }
+  };
+
+  // 체크박스 설정
+  // view.onCellClicked = (grid, clickData) => {
+  //   if (clickData.cellType === 'data') {
+  //     grid.checkItem(clickData.itemIndex, !grid.isCheckedItem(clickData.itemIndex));
+  //   }
+  // };
+
   view.onCellItemClicked = async (g, { column, itemIndex }) => {
     if (column === 'mconBzsNm') {
-      const itgDpNo = g.getValue(itemIndex, 'itgDpNo');
-      const cntrNo = g.getValue(itemIndex, 'cntrNo');
+      const { itgDpNo, cntrNo, bzrno, mconBzsNm } = g.getValues(itemIndex);
 
       const paramData = {
         itgDpNo,
         cntrNo,
+        bzrno,
+        mconBzsNm,
       };
+      const { result } = await modal({
+        component: 'WwwdbBillDepositRegP',
+        componentProps: paramData,
+      });
 
-      await onClickSubSearch(paramData);
+      if (result) {
+        // await onClickSubSearch(paramData);
+        grdMainRef2.value.getData().clearRows();
+        await onClickSearch();
+      }
     }
   };
 });
