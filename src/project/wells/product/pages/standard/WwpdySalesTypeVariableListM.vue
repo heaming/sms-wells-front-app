@@ -180,7 +180,7 @@ async function onClickSave() {
   if (!await gridUtil.validate(view)) { return; } // 유효성 검사
 
   const changedRows = gridUtil.getChangedRowValues(view);
-  await dataService.put('/sms/wells/product/variables', { bases: changedRows });
+  await dataService.post('/sms/wells/product/variables', { bases: changedRows });
   notify(t('MSG_ALT_SAVE_DATA'));
 
   await fetchData();
@@ -225,7 +225,11 @@ const initGrdMain = defineGrid((data, view) => {
       rules: 'required',
       options: codes.CHO_FXN_DV_CD },
     // 변수ID
-    { fieldName: 'rgltnVarbId', header: t('MSG_TXT_VAL_ID'), width: '86', styleName: 'text-center' },
+    { fieldName: 'rgltnVarbId',
+      header: t('MSG_TXT_VAL_ID'),
+      width: '86',
+      styleName: 'text-center',
+      rules: 'required' },
     // 변수명
     { fieldName: 'rgltnVarbNm',
       header: t('MSG_TXT_VARB_NM'),
