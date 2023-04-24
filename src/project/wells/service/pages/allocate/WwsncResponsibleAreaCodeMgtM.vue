@@ -211,7 +211,7 @@ const now = dayjs();
 /* 공통코드 가져오기(임시) */
 const svcCode = await getServiceCenterOrgs();
 const sido = await getDistricts('sido');
-const sigungu = ref((await getDistricts('guAll')).map((v) => ({ sgg: v.ctctyNm, sggNm: v.ctctyNm })));
+const sigungu = ref([]);
 
 const locaraCds = ref(await getLgldCtpvLocaras());
 let cachedParams;
@@ -239,7 +239,7 @@ const pageInfo = ref({
 async function changeSido() {
   searchParams.value.ctctyNm = '';
   if (searchParams.value.fr2pLgldCd === '') {
-    sigungu.value = (await getDistricts('guAll')).map((v) => ({ sgg: v.ctctyNm, sggNm: v.ctctyNm }));
+    sigungu.value = [];
   } else {
     sigungu.value = (await getDistricts('gu', searchParams.value.fr2pLgldCd)).map((v) => ({ sgg: v.ctctyNm, sggNm: v.ctctyNm }));
   }
