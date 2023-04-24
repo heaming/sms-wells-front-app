@@ -137,12 +137,14 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import dayjs from 'dayjs';
-import { useDataService, useGlobal } from 'kw-lib';
+import { useDataService, useGlobal, useMeta } from 'kw-lib';
 import { cloneDeep, isEmpty, toInteger } from 'lodash-es';
 
 const dataService = useDataService();
 const { notify, modal/* , alert */ } = useGlobal();
 const { t } = useI18n();
+const { getUserInfo } = useMeta();
+const sessionUserInfo = getUserInfo();
 
 const calendarList = ref([]);
 const calendarInfo = ref({
@@ -179,6 +181,14 @@ await getServiceCenter();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
+
+/*
+ * 휴일근무 지정자인지 체크하기 위한 funciton
+ */
+function isHolidaySetter() {
+  return sessionUserInfo.userId === '999999';
+  // return sessionUserInfo.userId === 'admin';
+}
 
 /*
  *  Search - 고정방문 관리 조회
@@ -251,8 +261,10 @@ function isToday(dayCnt) {
  *  Event - 조회 버튼 클릭
  */
 async function onClickSearch() {
-  searchParams.value.serviceCenterCd = searchParams.value.serviceCenter.ogCd;
-  searchParams.value.serviceCenterOgId = searchParams.value.serviceCenter.ogId;
+  if (!isHolidaySetter()) {
+    searchParams.value.serviceCenterCd = searchParams.value.serviceCenter.ogCd;
+    searchParams.value.serviceCenterOgId = searchParams.value.serviceCenter.ogId;
+  }
   cachedParams = cloneDeep(searchParams.value);
   await getCalendarMgt();
 }
@@ -285,6 +297,7 @@ async function onDbClickCalendar(dayCnt) {
       dfYn,
       bndtWrkPsicNo,
       rmkCn,
+      isHolidaySetter,
     },
   });
 

@@ -27,6 +27,7 @@
           <kw-select
             v-model="calendarInfo.dfYn"
             :options="codes.COD_YN"
+            :readonly="!props.isHolidaySetter()"
           />
         </kw-form-item>
       </kw-form-row>
@@ -37,6 +38,7 @@
             :options="customCodes.SERVICE_CENTER_ENGINEER"
             option-value="prtnrNo"
             option-label="prtnrNm"
+            :readonly="props.isHolidaySetter()"
           />
         </kw-form-item>
       </kw-form-row>
@@ -47,6 +49,7 @@
             :maxlength="1000"
             type="textarea"
             :rows="3"
+            :readonly="!props.isHolidaySetter()"
           />
         </kw-form-item>
       </kw-form-row>
@@ -115,6 +118,10 @@ const props = defineProps({
   rmkCn: {
     type: String,
     required: true,
+  },
+  isHolidaySetter: {
+    type: Function,
+    default: () => false,
   },
 });
 
