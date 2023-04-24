@@ -19,12 +19,12 @@
   >
     <kw-search-row>
       <kw-search-item
-        :label="$t('MSG_TXT_CLCTAM_NO')"
+        :label="$t('MSG_TXT_CLCTAM_ICHR_EMPNO')"
         required
       >
         <kw-input
           v-model="searchParams.clctamPrtnrNo"
-          :label="$t('MSG_TXT_CLCTAM_NO')"
+          :label="$t('MSG_TXT_CLCTAM_ICHR_EMPNO')"
           :regex="/^[0-9]*$/i"
           rules="required"
         />
@@ -149,6 +149,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { useDataService, getComponentType, codeUtil, modal, gridUtil, defineGrid } from 'kw-lib';
+import { isEmpty } from 'lodash-es';
 
 const { t } = useI18n();
 const dataService = useDataService();
@@ -159,6 +160,7 @@ const { currentRoute } = useRouter();
 // -------------------------------------------------------------------------------------------------
 const grdMainRef = ref(getComponentType('KwGrid'));
 
+const customerParams = ref({});
 const searchParams = reactive({
   bndClctnPrpDvCd: '',
   bndClctnPrpRsonCd: '',
@@ -211,18 +213,17 @@ async function onClickSearch() {
 
 /** 고객조회(공통) */
 async function onClickSelectCustomer() {
-  let returnCustomInfo = await modal({
-    component: 'ZwcsaCustomerListP',
+  const { result, payload } = await modal({
+    component: 'ZwbnyDelinquentCustomerP',
+    componentProps: {
+      baseYm: customerParams.value.baseYm,
+      cstNm: searchParams.cstKnm,
+    },
   });
-  /* 단위 테스트를 위한 코딩 추후 고객조회(공통) 팝업이 완성되면 삭제 예정 */
-  returnCustomInfo = {
-    cstNo: '8956210254',
-    cstNm: '윤경숙',
-  };
-
-  if (returnCustomInfo) {
-    searchParams.value.cstNo = returnCustomInfo.cstNo;
-    searchParams.value.cstKnm = returnCustomInfo.cstNm;
+  if (result) {
+    const { cstNo, cstNm } = payload;
+    searchParams.cstNo = cstNo;
+    searchParams.cstKnm = cstNm;
   }
 }
 
@@ -234,6 +235,15 @@ async function onClickExcelDownload() {
     timePostfix: true,
   });
 }
+
+async function fetchBaseYmData() {
+  const response = await dataService.get('/sms/common/bond/promise-customer/baseYm');
+  customerParams.value = response.data;
+}
+
+onMounted(async () => {
+  await fetchBaseYmData();
+});
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
@@ -281,20 +291,22 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'bndBizDvNm', header: t('MSG_TXT_DIV'), width: '100', styleName: 'text-left' },
     {
       fieldName: 'cntrNoSn',
-      header: t('MSG_TXT_CNTR_NO'),
+      header: t('MSG_TXT_CNTR_DTL_NO'),
       styleName: 'text-left',
       width: '100',
 
       displayCallback(grid, index) {
         const { cntrNo, cntrSn } = grid.getValues(index.itemIndex);
-        return `${cntrNo}-${cntrSn}`;
+        if (!isEmpty(cntrNo)) {
+          return `${cntrNo}-${cntrSn}`;
+        }
       },
     },
     { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_NO'), width: '100', styleName: 'text-left', visible: false },
     { fieldName: 'cntrSn', header: t('MSG_TXT_CNTR_SN'), width: '100', styleName: 'text-left', visible: false },
     { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '100', styleName: 'text-left' },
-    { fieldName: 'clctamPrtnrNo', header: t('MSG_TXT_CLCTAM_ICHR_NO'), width: '100', styleName: 'text-left', visible: false },
-    { fieldName: 'prtnrKnm', header: t('MSG_TXT_CLCTAM_ICHR'), width: '100', styleName: 'text-left' },
+    { fieldName: 'clctamPrtnrNo', header: t('MSG_TXT_CLCTAM_PSIC'), width: '100', styleName: 'text-left', visible: false },
+    { fieldName: 'prtnrKnm', header: t('MSG_TXT_CLCTAM_PSIC'), width: '100', styleName: 'text-left' },
     {
       fieldName: 'cntrTelNo',
       header: t('MSG_TXT_TEL_NO'),
@@ -303,7 +315,9 @@ const initGrid = defineGrid((data, view) => {
 
       displayCallback(grid, index) {
         const { cntrLocaraTno: no1, cntrExnoEncr: no2, cntrIdvTno: no3 } = grid.getValues(index.itemIndex);
-        return `${no1}-${no2}-${no3}`;
+        if (!isEmpty(no1)) {
+          return `${no1}-${no2}-${no3}`;
+        }
       },
     },
     {
@@ -314,10 +328,12 @@ const initGrid = defineGrid((data, view) => {
 
       displayCallback(grid, index) {
         const { cntrCralLocaraTno: no1, cntrMexnoEncr: no2, cntrCralIdvTno: no3 } = grid.getValues(index.itemIndex);
-        return `${no1}-${no2}-${no3}`;
+        if (!isEmpty(no1)) {
+          return `${no1}-${no2}-${no3}`;
+        }
       },
     },
-    { fieldName: 'cstNo', header: t('MSG_TXT_KWK'), width: '100', styleName: 'text-left' },
+    { fieldName: 'cstNo', header: t('MSG_TXT_CST_NO'), width: '100', styleName: 'text-left' },
     { fieldName: 'adr', header: t('MSG_TXT_ADDR'), width: '100', styleName: 'text-left' },
     { fieldName: 'sppAdr', header: t('MSG_TXT_ADDR'), width: '100', styleName: 'text-left', visible: false },
     {
@@ -328,7 +344,9 @@ const initGrid = defineGrid((data, view) => {
 
       displayCallback(grid, index) {
         const { istLocaraTno: no1, istExnoEncr: no2, istIdvTno: no3 } = grid.getValues(index.itemIndex);
-        return `${no1}-${no2}-${no3}`;
+        if (!isEmpty(no1)) {
+          return `${no1}-${no2}-${no3}`;
+        }
       },
     },
     {
@@ -339,7 +357,9 @@ const initGrid = defineGrid((data, view) => {
 
       displayCallback(grid, index) {
         const { istCralLocaraTno: no1, istMexnoEncr: no2, istCralIdvTno: no3 } = grid.getValues(index.itemIndex);
-        return `${no1}-${no2}-${no3}`;
+        if (!isEmpty(no1)) {
+          return `${no1}-${no2}-${no3}`;
+        }
       },
     },
     { fieldName: 'bndClctnPrpDvNm', header: t('MSG_TXT_BND_PRP'), width: '100', styleName: 'text-left' },
