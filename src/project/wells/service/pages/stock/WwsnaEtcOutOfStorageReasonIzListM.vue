@@ -86,12 +86,12 @@
         <template #left>
           <kw-paging-info :total-count="totalCount" />
         </template>
-        <kw-btn
+        <!-- <kw-btn
           icon="print"
           dense
           secondary
           :label="$t('MSG_BTN_PRTG')"
-        />
+        /> -->
         <!-- 엑셀다운로드 -->
         <kw-btn
           icon="download_on"
