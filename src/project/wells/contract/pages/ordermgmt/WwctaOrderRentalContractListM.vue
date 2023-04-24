@@ -428,7 +428,7 @@ async function getDgrOgInfos() {
 
   // 총괄단 조직코드 초기화
   // filteredDgr1LevlOgCds.value = codesDgr1Levl.value;
-  filteredDgr1LevlOgCds.value = uniqBy(codesDgr1Levl.value.filter((v) => ['W01', 'W02', 'W03', 'W04', 'W05', 'W06'].includes(v.ogTpCd)));
+  filteredDgr1LevlOgCds.value = uniqBy(codesDgr1Levl.value.filter((v) => ['W01', 'W02'].includes(v.ogTpCd)));
 }
 getDgrOgInfos();
 
