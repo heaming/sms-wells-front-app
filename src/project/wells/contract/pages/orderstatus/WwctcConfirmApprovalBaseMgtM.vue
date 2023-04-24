@@ -213,8 +213,6 @@ async function fetchData() {
   dataSource.checkRowStates(false);
   dataSource.addRows(pages);
   dataSource.checkRowStates(true);
-
-  view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
 async function fetchAprCodes() {
@@ -375,15 +373,17 @@ function initGrid(data, view) {
     }
   };
 
-  view.onCellButtonClicked = async (g, { column }) => {
+  view.onCellButtonClicked = async (g, { column, itemIndex }) => {
     if (column === 'ichrUsrId') {
-      alert('공통팝업(임직원 조회) 추가 후 수정예정');
-      /*
-      TODO: 공통팝업(임직원 조회) 추가 후 수정예정
-      await modal({
-        component: 'WwctaContractNumberListP',
+      const ichrUsrId = g.getValue(itemIndex, 'ichrUsrId');
+      const { result, payload } = await modal({
+        component: 'ZwcmzSingleSelectUserListP',
+        componentProps: { searchEmplCond: '2', searchCodEmplText: ichrUsrId },
       });
-      */
+      if (result) {
+        g.setValue(itemIndex, 'ichrUsrId', payload.userId);
+        g.setValue(itemIndex, 'psicNm', payload.userName);
+      }
     }
   };
 }
