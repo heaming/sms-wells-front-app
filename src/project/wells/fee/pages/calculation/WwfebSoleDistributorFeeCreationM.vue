@@ -38,7 +38,7 @@
             v-model:from="searchParams.strtdt"
             v-model:to="searchParams.enddt"
             type="month"
-            rules="date_range_required|date_range_months:1"
+            rules="date_range_required|date_range_months:3"
             :label="t('MSG_TXT_RCP_YM')"
           />
         </kw-search-item>
@@ -48,7 +48,7 @@
           required
         >
           <kw-date-picker
-            v-model="searchParams.baseYm"
+            v-model="searchParams.perfYm"
             :label="t('MSG_TXT_PERF_YM')"
             type="month"
             rules="required"
@@ -65,7 +65,7 @@
             v-model:from="searchParams.cancelStrtdt"
             v-model:to="searchParams.cancelEnddt"
             type="month"
-            rules="date_range_months:1"
+            rules="date_range_months:3"
             :label="t('MSG_TXT_CANCEL_YM')"
           />
         </kw-search-item>
@@ -74,7 +74,7 @@
     <div class="result-area">
       <kw-action-top>
         <template #left>
-          <h3>{{ searchParams.baseYm }} {{ $t('MSG_TXT_TOT_FEE_CRT_PRGS_STE') }}</h3>
+          <h3>{{ searchParams.perfYm }} {{ $t('MSG_TXT_TOT_FEE_CRT_PRGS_STE') }}</h3>
         </template>
       </kw-action-top>
       <kw-stepper
@@ -95,7 +95,7 @@
           :done="stepInitNum > 2"
           prefix="2"
           :active-icon="'write'"
-          :tooltip="'클릭하여 수수료생성을 진행하세요.'"
+          :tooltip="$t('MSG_TXT_CLICK_PRGS', [$t('MSG_TIT_FEE_CRT')])"
           @click="onClickCreate"
         />
         <kw-step
@@ -164,7 +164,7 @@
 // -------------------------------------------------------------------------------------------------
 import { defineGrid, gridUtil, getComponentType, useDataService, useGlobal } from 'kw-lib';
 import dayjs from 'dayjs';
-import { isEmpty, cloneDeep } from 'lodash-es';
+import { cloneDeep } from 'lodash-es';
 
 const dataService = useDataService();
 const now = dayjs();
@@ -187,14 +187,15 @@ const searchParams = ref({
   type: 'A',
   strtdt: now.format('YYYYMMDD'),
   enddt: now.add(1, 'month').format('YYYYMMDD'),
-  baseYm: now.format('YYYYMM'),
+  perfYm: now.format('YYYYMM'),
   cancelStrtdt: now.format('YYYYMMDD'),
   cancelEnddt: now.add(1, 'month').format('YYYYMMDD'),
 });
 
 // 데이터 조회
 async function fetchData() {
-  const { data } = await dataService.get('API정의안됨', { params: { ...cachedParams } });
+  const fixApi = cachedParams.type === 'A' ? 'performance' : 'fee';
+  const { data } = await dataService.get(`/sms/wells/fee/sole-distributor/${fixApi}`, { params: { ...cachedParams } });
   if (cachedParams.type === 'A') {
     grdDataA.value.setRows(data);
   } else {
@@ -218,10 +219,22 @@ async function onClickExcelDownload() {
     timePostfix: true,
   });
 }
+// 이력팝업 호출
+async function openZwfebFeeHistoryMgtP() {
+  const param = {
+    feeHistSrnCd: '01',
+  };
+  await modal({
+    component: 'ZwfebFeeHistoryMgtP',
+    componentProps: param,
+  });
+}
 // 이력관리 버튼 클릭
 async function onClickHistory() {
-  console.log('Z-CO-U-0034P09');
+  // Z-CO-U-0034P09 아래 팝업 호출시 에러남ㅋ;
+  await openZwfebFeeHistoryMgtP();
 }
+
 // 저장
 async function onClickSave() {
   const view = grdRefB.value.getView();
@@ -229,29 +242,46 @@ async function onClickSave() {
   if (await gridUtil.alertIfIsNotModified(view)) { return; }
   // 필수여부
   if (!await gridUtil.validate(view)) { return; }
+  // @todo api 미정의
   const changedRows = gridUtil.getChangedRowValues(view);
-  await dataService.post('/sms/common/fee/schedules/steps', { changedRows });
+  await dataService.post('/sms/wells/fee/sole-distributor/fee', { changedRows });
   await notify(t('MSG_ALT_SAVE_DATA'));
   await fetchData();
 }
 // 수수료 생성 버튼
 async function onClickCreate() {
-  const { result: isChanged, payload } = await modal({
+  // 조회후 진행
+  const { result: isChanged } = await modal({
     component: 'WwfebSoleDistributorFeeCreationRegP',
     componentProps: {
-      type: searchParams.value.type,
+      perfYm: searchParams.value.perfYm,
     },
   });
   if (isChanged) {
-    if (!isEmpty(payload.rtnKey)) {
-      onClickSearch();
-    }
+    fetchData();
   }
 }
-// 실적집계 재시작
+// 재시작 && 실적집계
 async function onClickRetry() {
-  if (await confirm(t('MSG_ALT_LV_RESRT'))) {
-    console.log('api 미정의');
+  // 조회후 진행
+  // 1보다크면 재시작
+  if (stepInitNum.value > 1) {
+    if (await confirm(t('MSG_ALT_LV_RESRT'))) {
+      // @todo api미정의
+      await dataService.post(`/sms/wells/fee/sole-distributor/fee/retry/${searchParams.value.perfYm}`);
+      notify(t('MSG_ALT_AGRG_FSH')); // 집계되었습니다.
+      fetchData();
+    }
+  } else { // 아니면 집계
+    const { result: isChanged } = await modal({
+      component: 'WwfebSoleDistributorFeeCreationAggregateP',
+      componentProps: {
+        perfYm: searchParams.value.perfYm,
+      },
+    });
+    if (isChanged) {
+      fetchData();
+    }
   }
 }
 // -------------------------------------------------------------------------------------------------
@@ -259,59 +289,50 @@ async function onClickRetry() {
 // -------------------------------------------------------------------------------------------------
 const initGridDetail = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'col1', header: t('MSG_TXT_CORP_NAME'), width: '127' },
-    { fieldName: 'col2', header: t('MSG_TXT_SELLER_PERSON'), width: '98' },
-    { fieldName: 'col3', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '127', styleName: 'text-center' },
-    { fieldName: 'col4', header: t('MSG_TXT_CNTR_DTL_NO'), width: '151', styleName: 'text-center' },
-    { fieldName: 'col5', header: t('MSG_TXT_CUST_STMT'), width: '98' },
-    { fieldName: 'col6', header: t('MSG_TXT_PRDT_CODE'), width: '106', styleName: 'text-center' },
-    { fieldName: 'col7', header: t('MSG_TXT_PRDT_NM'), width: '210' },
-    { fieldName: 'col8', header: t('MSG_TXT_PD_DC_CLASS'), width: '98' },
-    { fieldName: 'col9', header: t('MSG_TXT_DISC_CODE'), width: '98' },
-    { fieldName: 'col10', header: t('MSG_TXT_DSC_SYST'), width: '98', styleName: 'text-right' },
-    { fieldName: 'col11', header: t('MSG_TXT_COMBI_DV'), width: '98' },
-    { fieldName: 'col12', header: t('MSG_TXT_USWY_DV'), width: '98' },
-    { fieldName: 'col13', header: t('MSG_TXT_MGT_TYP'), width: '98' },
-    { fieldName: 'col14', header: t('MSG_TXT_VST_PRD'), width: '98' },
-    { fieldName: 'col15', header: t('MSG_TXT_RCPDT'), width: '127', styleName: 'text-center' },
-    { fieldName: 'col16', header: t('MSG_TXT_SL_DT'), width: '127', styleName: 'text-center' },
-    { fieldName: 'col17', header: t('MSG_TXT_CANC_DT'), width: '127', styleName: 'text-center' },
-    { fieldName: 'col18', header: t('MSG_TXT_FEE'), width: '127', styleName: 'text-right' },
-    { fieldName: 'col19', header: t('MSG_TXT_NUM_OF_NEW_CASES'), width: '92', styleName: 'text-right' },
-    { fieldName: 'col20', header: t('MSG_TXT_PD_ACC_RSLT'), width: '127', styleName: 'text-right' },
+    { fieldName: 'hdqOgNm', header: t('MSG_TXT_CORP_NAME'), width: '127' },
+    { fieldName: 'sellPrtnrNm', header: t('MSG_TXT_SELLER_PERSON'), width: '98' },
+    { fieldName: 'cntrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '127', styleName: 'text-center' },
+    { fieldName: 'cntrSn', header: t('MSG_TXT_CNTR_DTL_NO'), width: '151', styleName: 'text-center' },
+    { fieldName: 'cntrCstNm', header: t('MSG_TXT_CUST_STMT'), width: '98' },
+    { fieldName: 'pdCd', header: t('MSG_TXT_PRDT_CODE'), width: '106', styleName: 'text-center' },
+    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '210' },
+    { fieldName: 'dscDvCd', header: t('MSG_TXT_PD_DC_CLASS'), width: '98' },
+    { fieldName: 'dscTpCd', header: t('MSG_TXT_DISC_CODE'), width: '98' },
+    { fieldName: 'pmotCd', header: t('MSG_TXT_DSC_SYST'), width: '98', styleName: 'text-right' },
+    { fieldName: 'relPdCd', header: t('MSG_TXT_COMBI_DV'), width: '98' },
+    { fieldName: 'uswyDvCd', header: t('MSG_TXT_USWY_DV'), width: '98' },
+    { fieldName: 'mngtTpCd', header: t('MSG_TXT_MGT_TYP'), width: '98' },
+    { fieldName: 'bfsvcPrdCd', header: t('MSG_TXT_VST_PRD'), width: '98' },
+    { fieldName: 'rcpDt', header: t('MSG_TXT_RCPDT'), width: '127', styleName: 'text-center' },
+    { fieldName: 'slDt', header: t('MSG_TXT_SL_DT'), width: '127', styleName: 'text-center' },
+    { fieldName: 'canDt', header: t('MSG_TXT_CANC_DT'), width: '127', styleName: 'text-center' },
+    { fieldName: 'ackmtPerfAmt', header: t('MSG_TXT_FEE'), width: '127', styleName: 'text-right' },
+    { fieldName: 'ackmtPerfCt', header: t('MSG_TXT_NUM_OF_NEW_CASES'), width: '92', styleName: 'text-right' },
+    { fieldName: 'feeAmt', header: t('MSG_TXT_PD_ACC_RSLT'), width: '127', styleName: 'text-right' },
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   data.setFields(fields);
   view.setColumns(columns);
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
-
-  data.setRows([
-    { col1: 'Z950010', col2: '다온홈시', col3: '총판10', col4: '1607624', col5: '2022-4640868', col6: '홍길동', col7: '4512', col8: 'WN652NWR', col9: '3', col10: '6', col11: '3', col12: '18', col13: '2', col14: '2-업소', col15: '3', col16: '22-10-24', col17: '22-10-24', col18: '22-10-25', col19: '123,450', col20: '1' },
-    { col1: 'Z950010', col2: '다온홈시', col3: '총판10', col4: '1607624', col5: '2022-4640868', col6: '홍길동', col7: '4512', col8: 'WN652NWR', col9: '3', col10: '6', col11: '3', col12: '18', col13: '2', col14: '2-업소', col15: '3', col16: '22-10-24', col17: '22-10-24', col18: '22-10-25', col19: '123,450', col20: '1' },
-    { col1: 'Z950010', col2: '다온홈시', col3: '총판10', col4: '1607624', col5: '2022-4640868', col6: '홍길동', col7: '4512', col8: 'WN652NWR', col9: '3', col10: '6', col11: '3', col12: '18', col13: '2', col14: '2-업소', col15: '3', col16: '22-10-24', col17: '22-10-24', col18: '22-10-25', col19: '123,450', col20: '1' },
-    { col1: 'Z950010', col2: '다온홈시', col3: '총판10', col4: '1607624', col5: '2022-4640868', col6: '홍길동', col7: '4512', col8: 'WN652NWR', col9: '3', col10: '6', col11: '3', col12: '18', col13: '2', col14: '2-업소', col15: '3', col16: '22-10-24', col17: '22-10-24', col18: '22-10-25', col19: '123,450', col20: '1' },
-    { col1: 'Z950010', col2: '다온홈시', col3: '총판10', col4: '1607624', col5: '2022-4640868', col6: '홍길동', col7: '4512', col8: 'WN652NWR', col9: '3', col10: '6', col11: '3', col12: '18', col13: '2', col14: '2-업소', col15: '3', col16: '22-10-24', col17: '22-10-24', col18: '22-10-25', col19: '123,450', col20: '1' },
-    { col1: 'Z950010', col2: '다온홈시', col3: '총판10', col4: '1607624', col5: '2022-4640868', col6: '홍길동', col7: '4512', col8: 'WN652NWR', col9: '3', col10: '6', col11: '3', col12: '18', col13: '2', col14: '2-업소', col15: '3', col16: '22-10-24', col17: '22-10-24', col18: '22-10-25', col19: '123,450', col20: '1' },
-  ]);
 });
 
 const initGridBase = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'col1', header: t('MSG_TXT_CORP_NAME'), width: '127' },
-    { fieldName: 'col2', header: t('MSG_TXT_BLG'), width: '98' },
-    { fieldName: 'col3', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '127', styleName: 'text-center' },
+    { fieldName: 'ogNm', header: t('MSG_TXT_CORP_NAME'), width: '127' },
+    { fieldName: 'ogId', header: t('MSG_TXT_BLG'), width: '98' },
+    { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '127', styleName: 'text-center' },
     { fieldName: 'col4', header: t('MSG_TXT_PERF'), width: '151', styleName: 'text-center' },
-    { fieldName: 'col5', header: t('MSG_TXT_BAS_FEE'), width: '98', styleName: 'text-right' },
-    { fieldName: 'col6', header: t('MSG_TXT_ENRG_FEE'), width: '98', styleName: 'text-center' },
-    { fieldName: 'col7', header: t('MSG_TXT_ICT'), width: '98', styleName: 'text-right' },
-    { fieldName: 'col8', header: t('MSG_TXT_ADSB'), width: '98', styleName: 'text-right' },
-    { fieldName: 'col9', header: t('MSG_TXT_QUARTER_OUTC'), width: '98', styleName: 'text-right' },
-    { fieldName: 'col10', header: t('MSG_TXT_FEE_SUM'), width: '98', styleName: 'text-right' },
-    { fieldName: 'col11', header: t('MSG_TXT_RDS'), width: '98', styleName: 'text-right' },
-    { fieldName: 'col12', header: t('MSG_TXT_RE_REDF'), width: '98', styleName: 'text-right' },
-    { fieldName: 'col13', header: t('MSG_TXT_DDTN_SUM'), width: '98', styleName: 'text-right' },
-    { fieldName: 'col14', header: t('MSG_TXT_ACL_DSB_AMT'), width: '98', styleName: 'text-right' },
+    { fieldName: 'w050001Amt', header: t('MSG_TXT_BAS_FEE'), width: '98', styleName: 'text-right' },
+    { fieldName: 'w050002Amt', header: t('MSG_TXT_ENRG_FEE'), width: '98', styleName: 'text-center' },
+    { fieldName: 'w050003Amt', header: t('MSG_TXT_ICT'), width: '98', styleName: 'text-right' },
+    { fieldName: 'w050005Amt', header: t('MSG_TXT_ADSB'), width: '98', styleName: 'text-right' },
+    { fieldName: 'w050004Amt', header: t('MSG_TXT_QUARTER_OUTC'), width: '98', styleName: 'text-right' },
+    { fieldName: 'feeSumAmt', header: t('MSG_TXT_FEE_SUM'), width: '98', styleName: 'text-right' },
+    { fieldName: 'd01Amt', header: t('MSG_TXT_RDS'), width: '98', styleName: 'text-right' },
+    { fieldName: 'd08Amt', header: t('MSG_TXT_RE_REDF'), width: '98', styleName: 'text-right' },
+    { fieldName: 'ddtnSumAmt', header: t('MSG_TXT_DDTN_SUM'), width: '98', styleName: 'text-right' },
+    { fieldName: 'acpyAmt', header: t('MSG_TXT_ACL_DSB_AMT'), width: '98', styleName: 'text-right' },
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   data.setFields(fields);
@@ -319,22 +340,18 @@ const initGridBase = defineGrid((data, view) => {
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
   view.setColumnLayout([
-    'col1', 'col2', 'col3', 'col4',
+    'ogNm', 'ogId', 'prtnrNo', 'col4',
     {
       header: t('MSG_TXT_FEE'),
       direction: 'horizontal',
-      items: ['col5', 'col6', 'col7', 'col8', 'col9', 'col10'],
+      items: ['w050001Amt', 'w050002Amt', 'w050003Amt', 'w050005Amt', 'w050004Amt', 'feeSumAmt'],
     },
     {
       header: t('MSG_TXT_DDTN'),
       direction: 'horizontal',
-      items: ['col11', 'col12', 'col13'],
+      items: ['d01Amt', 'd08Amt', 'ddtnSumAmt'],
     },
-    'col14',
-  ]);
-  data.setRows([
-    { col1: 'Z950010', col2: '다온홈시', col3: '11111', col4: '1607624', col5: '20222424', col6: '2323', col7: '4512', col8: '232', col9: '3', col10: '6', col11: '3', col12: '18', col13: '2', col14: '2' },
-    { col1: 'Z950010', col2: '다온홈시', col3: '11111', col4: '1607624', col5: '20222424', col6: '2323', col7: '4512', col8: '232', col9: '3', col10: '6', col11: '3', col12: '18', col13: '2', col14: '2' },
+    'acpyAmt',
   ]);
 });
 
