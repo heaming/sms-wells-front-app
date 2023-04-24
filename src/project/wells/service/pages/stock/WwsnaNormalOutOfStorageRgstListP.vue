@@ -258,6 +258,7 @@ const searchParams = ref({
   stckStdGb: '0',
   stckNoStdGb: 'N',
   rgstDt: dayjs().format('YYYYMMDD'),
+  apyYm: dayjs().format('YYYYMM'),
 });
 let cachedParams;
 
@@ -335,9 +336,10 @@ async function onclickStandard() {
     searchParams.value.stckStdGb = '0';
   }
 
-  const { ostrWareNo, stckStdGb } = searchParams.value;
-  const pathUri = `${standardURI}/${ostrWareNo}/${stckStdGb}`;
-  const res = await dataService.put(pathUri, {});
+  const { ostrWareNo, apyYm, stckStdGb } = searchParams.value;
+  // const pathUri = `/sms/wells/service/normal-outofstorages/monthly-warehouse/${apyYm}-${ostrWareNo}`;
+  const pathUri = '/sms/wells/service/normal-outofstorages/monthly-warehouse';
+  const res = await dataService.put(pathUri, { apyYm, stckStdGb, wareNo: ostrWareNo });
   console.log(res);
 }
 
