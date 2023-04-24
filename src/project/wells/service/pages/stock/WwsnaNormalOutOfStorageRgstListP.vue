@@ -41,13 +41,16 @@
           />
           <!-- 표준 미적용 -->
           <kw-field
+            v-model="searchParams.stckNoStdGb"
             class="w120"
+            @update:model-value="onclickStandard"
           >
-            <kw-checkbox
-              v-model="searchParams.stckStdGb"
-              :label="$t('MSG_TXT_STD_NO_APY')"
-              @change="onclickStandard"
-            />
+            <template #default="{ field }">
+              <kw-checkbox
+                v-bind="field"
+                :label="$t('MSG_TXT_STD_NO_APY')"
+              />
+            </template>
           </kw-field>
           <!-- //표준 미적용 -->
         </kw-form-item>
@@ -190,7 +193,7 @@ const { t } = useI18n();
 
 const dataService = useDataService();
 const baseURI = '/sms/wells/service/normal-outofstorages/detail';
-const wareURI = '/sms/wells/service/normal-outofstorages/standard-ware';
+const standardURI = '/sms/wells/service/normal-outofstorages/standard-ware';
 const grdMainRef = ref(getComponentType('KwGrid'));
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -252,8 +255,10 @@ const searchParams = ref({
   ostrAkRgstDt: props.strHopDt,
   itmPdCd: props.itmPdCd,
   // stckStdGb: '1',
-  stckStdGb: 'N',
+  stckStdGb: '0',
+  stckNoStdGb: 'N',
   rgstDt: dayjs().format('YYYYMMDD'),
+  apyYm: dayjs().format('YYYYMM'),
 });
 let cachedParams;
 
@@ -307,20 +312,37 @@ function getSaveParams() {
 
 async function getStandardWare() {
   const { ostrWareNo } = searchParams.value;
-  const res = await dataService.get(wareURI, { params: { ostrWareNo, stckStdGb: '' } });
-  console.log(`res : ${res}`);
+  console.log(`searchParams.value.ostrWareNo:${searchParams.value.ostrWareNo}`);
+  const res = await dataService.get(standardURI, { params: { ostrWareNo, stckStdGb: '' } });
+  console.log(`res : ${res.data.stckStdGb}`);
+  return res.data.stckStdGb;
+}
+
+async function setStandardCheckbox() {
+  const stdWare = await getStandardWare();
+  if (stdWare === '1') {
+    searchParams.value.stckNoStdGb = 'N';
+    searchParams.value.stckStdGb = '1';
+  } else {
+    searchParams.value.stckNoStdGb = 'Y';
+    searchParams.value.stckStdGb = '0';
+  }
 }
 
 async function onclickStandard() {
-  // searchParams.stckNoStdGb
+  searchParams.value.stckStdGb = searchParams.value.stckNoStdGb === 'N' ? '1' : '0';
+  // if (searchParams.value.stckNoStdGb === 'N') {
+  //   searchParams.value.stckStdGb = '1';
+  // } else {
+  //   searchParams.value.stckStdGb = '0';
+  // }
 
+  const { ostrWareNo, apyYm, stckStdGb } = searchParams.value;
+  // const pathUri = `/sms/wells/service/normal-outofstorages/monthly-warehouse/${apyYm}-${ostrWareNo}`;
+  const pathUri = '/sms/wells/service/normal-outofstorages/monthly-warehouse';
+  const res = await dataService.put(pathUri, { apyYm, stckStdGb, warNo: ostrWareNo });
+  console.log(res);
 }
-
-// async function onClickStandardNoApply() {
-//   // onClickLocationStandardApply();
-//   // searchParams.value.stckStdGb = '0';
-//   // debugger;
-// }
 
 async function onClickConfirm() {
   if (await confirm(t('MSG_ALT_WANT_DTRM'))) {
@@ -347,10 +369,8 @@ onMounted(async () => {
   console.log(searchParams.value.ostrWareNo);
   console.log(searchParams.value.strWareNo);
 
-  getStandardWare();
-  // searchParams.value.stckStdGb = '1';
+  await setStandardCheckbox();
   await onClickSearch();
-  // debugger;
 });
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
