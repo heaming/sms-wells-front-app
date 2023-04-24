@@ -166,7 +166,7 @@ const periodOptions = [
     codeName: t('MSG_TXT_RCPDT'), /* 접수일자' */
   },
   {
-    codeId: 'slDt',
+    codeId: 'slRcogDt',
     codeName: t('MSG_TXT_SL_DT'), /* 매출일자' */
   },
   {
