@@ -20,7 +20,10 @@
     >
       <kw-search-row>
         <!-- 우편번호 -->
-        <kw-search-item :label="$t('MSG_TXT_ZIP')">
+        <kw-search-item
+          :label="$t('MSG_TXT_ZIP')"
+          :colspan="2"
+        >
           <kw-input
             v-model="searchParams.zipFrom"
             type="text"
@@ -54,24 +57,29 @@
             option-value="ctctyNm"
           />
         </kw-search-item>
+      </kw-search-row>
+
+      <kw-search-row>
         <!-- 서비스센터 -->
         <kw-search-item :label="$t('MSG_TXT_SV_CNR')">
           <kw-select
-            v-model="searchParams.ogId"
+            v-model="searchParams.ogCd"
             :options="serviceCenter"
             first-option="all"
             option-label="ogNm"
             option-value="ogCd"
           />
         </kw-search-item>
-      </kw-search-row>
-
-      <kw-search-row>
         <!-- 작업그룹 -->
-        <kw-search-item :label="$t('MSG_TXT_WK_GRP')">
+        <kw-search-item
+          :label="$t('MSG_TXT_WK_GRP')"
+          required
+        >
           <kw-select
             v-model="searchParams.wkGrpCd"
             :options="codes.WK_GRP_CD"
+            :label="$t('MSG_TXT_WK_GRP')"
+            rules="required"
           />
         </kw-search-item>
         <!-- 적용일자 -->
@@ -85,8 +93,13 @@
             rules="date_range_required"
           />
         </kw-search-item>
+      </kw-search-row>
+      <kw-search-row>
         <!-- 지역코드 -->
-        <kw-search-item :label="$t('MSG_TXT_LOCARA_CD')">
+        <kw-search-item
+          :label="$t('MSG_TXT_LOCARA_CD')"
+          :colspan="2"
+        >
           <kw-input
             v-model="searchParams.rpbLocaraCdFrom"
             type="text"
@@ -114,9 +127,9 @@
           />
         </template>
 
+        <!-- 저장 -->
         <kw-btn
-          dense
-          secondary
+          grid-action
           :label="$t('MSG_BTN_SAVE')"
           @click="onClickSave"
         />
@@ -125,12 +138,14 @@
           inset
           spaced
         />
+        <!-- 인쇄 -->
         <kw-btn
           icon="print"
           dense
           secondary
           :label="$t('MSG_BTN_PRTG')"
         />
+        <!-- 엑셀다운로드 -->
         <kw-btn
           icon="download_on"
           dense
@@ -178,14 +193,18 @@ import { codeUtil, defineGrid, getComponentType, gridUtil, useDataService, useGl
 import { cloneDeep } from 'lodash-es';
 import useSnCode from '~sms-wells/service/composables/useSnCode';
 import dayjs from 'dayjs';
+import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
+
+dayjs.extend(isSameOrBefore);
 
 const { getDistricts, getServiceCenterOrgs, getWorkingEngineers } = useSnCode();
 
 const { t } = useI18n();
-const dataService = useDataService();
-
-const { getConfig } = useMeta();
 const { notify } = useGlobal();
+const { getConfig } = useMeta();
+const { currentRoute } = useRouter();
+
+const dataService = useDataService();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -198,7 +217,7 @@ const searchParams = ref({
   zipTo: '',
   ctpvNm: '',
   ctctyNm: '',
-  ogId: '',
+  ogCd: '',
   wkGrpCd: '10',
   applyDate: dayjs().format('YYYYMMDD'),
   rpbLocaraCdFrom: '',
@@ -227,12 +246,9 @@ const codes = await codeUtil.getMultiCodes(
 const serviceCenter = await getServiceCenterOrgs();
 const { G_ONLY_ENG: engineers } = await getWorkingEngineers();
 
-const ctpvs = ref();
-const ctctys = ref();
-const cachedCtctys = ref();
+const ctpvs = ref([]);
+const ctctys = ref([]);
 ctpvs.value = (await getDistricts('sido')).map((v) => ({ ctpv: v.ctpvNm, ctpvNm: v.ctpvNm, ctpvCd: v.fr2pLgldCd }));
-ctctys.value = (await getDistricts('guAll')).map((v) => ({ ctcty: v.ctctyNm, ctctyNm: v.ctctyNm }));
-cachedCtctys.value = cloneDeep(ctctys.value);
 
 async function fetchData() {
   const res = await dataService.get('/sms/wells/service/responsible-area-charges/paging', { params: { ...cachedParams, ...pageInfo.value } });
@@ -258,20 +274,21 @@ async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
 
   const res = await dataService.get('/sms/wells/service/responsible-area-charges/excel-download', { params: cachedParams });
+
   await gridUtil.exportView(view, {
-    fileName: 'rpbLocaraPersonInChargeList',
+    fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
-    exportData: res.data,
+    exportData: res.data.list,
   });
 }
 
 async function onUpdateCtcty(val) {
+  searchParams.value.ctctyNm = '';
   if (val) {
     const { ctpvCd } = ctpvs.value.find((v) => v.ctpvNm === val);
     ctctys.value = (await getDistricts('gu', ctpvCd)).map((v) => ({ ctcty: v.ctctyNm, ctctyNm: v.ctctyNm }));
   } else {
-    ctctys.value = cachedCtctys.value;
-    searchParams.value.ctctyNm = '';
+    ctctys.value = [];
   }
 }
 
@@ -298,6 +315,27 @@ function validateApplyDate() {
   return true;
 }
 
+function validateGridApplyDate() {
+  const view = grdMainRef.value.getView();
+  const originApyStrtdt = gridUtil.getOrigCellValue(view, 0, 'apyStrtdt');
+  const apyStrtdt = gridUtil.getCellValue(view, 0, 'apyStrtdt');
+
+  if (originApyStrtdt === apyStrtdt) {
+    notify(t('MSG_ALT_APY_STRT_D_CH_NCST'));
+    return false;
+  }
+  return true;
+}
+
+function validateToday(val) {
+  const today = dayjs().format('YYYYMMDD');
+  if (dayjs(val).isSameOrBefore(today)) {
+    notify(t('MSG_ALT_APY_STRT_D_CONF_FUR_DT'));
+    return false;
+  }
+  return true;
+}
+
 function setPersonInChargeCellData(view, row, value, column) {
   const matchedEngineer = engineers.find((v) => v.codeId === value);
   if (matchedEngineer) {
@@ -312,6 +350,7 @@ function setPersonInChargeCellData(view, row, value, column) {
 async function onClickApplyDateBulkApply() {
   if (!validateApplyDate()) return;
   if (!validateIsApplyRowExists()) return;
+  if (!validateToday(baseInfo.value.applyDateFrom)) return;
 
   const view = grdMainRef.value.getView();
   const checkedRows = gridUtil.getCheckedRowValues(view);
@@ -324,6 +363,7 @@ async function onClickApplyDateBulkApply() {
 
 async function onClickSave() {
   if (!validateIsApplyRowExists()) return;
+  if (!validateGridApplyDate()) return;
 
   const view = grdMainRef.value.getView();
 
@@ -357,13 +397,15 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'mgtCnt', dataType: 'number' },
     { fieldName: 'wrkCnt', dataType: 'number' },
     { fieldName: 'rpbLocaraCd' },
-    { fieldName: 'w1W3SatWrkYn' },
+    { fieldName: 'satWrkYn' },
     { fieldName: 'apyStrtdt', dataType: 'datetime' },
     { fieldName: 'apyEnddt', dataType: 'datetime' },
     { fieldName: 'wkGrpCd' },
+    { fieldName: 'ogTpCd' },
     { fieldName: 'ogNm' },
     { fieldName: 'ichrPrtnrNo' },
     { fieldName: 'prtnrKnm' },
+    { fieldName: 'pprnIchrPrtnrOgTpCd' },
     { fieldName: 'ogNm1' },
     { fieldName: 'pprnIchrPrtnrNo1' },
     { fieldName: 'pprnIchrPrtnrKnm1' },
@@ -380,7 +422,6 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'pprnIchrPrtnrNo5' },
     { fieldName: 'pprnIchrPrtnrKnm5' },
     { fieldName: 'rpbLocaraGrpCd' },
-    { fieldName: 'vstDowValNm' },
     { fieldName: 'vstDowVal' },
     { fieldName: 'izSn', dataType: 'number' },
     { fieldName: 'rstrCndtUseYn' },
@@ -396,7 +437,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'mgtCnt', header: t('MSG_TXT_SV_ACC'), width: '100', styleName: 'text-right' },
     { fieldName: 'wrkCnt', header: t('MSG_TXT_MLMN_ACTCS'), width: '100', styleName: 'text-right' },
     { fieldName: 'rpbLocaraCd', header: t('MSG_TXT_LOCARA_CD'), width: '100', styleName: 'text-center' },
-    { fieldName: 'w1W3SatWrkYn',
+    { fieldName: 'satWrkYn',
       header: t('MSG_TXT_SAT_IST_LOCARA'),
       width: '110',
       styleName: 'text-center',
@@ -405,7 +446,7 @@ const initGrdMain = defineGrid((data, view) => {
     },
     { fieldName: 'apyStrtdt',
       header: t('MSG_TXT_APY_STRT_DAY'),
-      width: '120',
+      width: '125',
       styleName: 'text-center',
       datetimeFormat: 'date',
       editable: true,
@@ -413,7 +454,7 @@ const initGrdMain = defineGrid((data, view) => {
     },
     { fieldName: 'apyEnddt',
       header: t('MSG_TXT_APY_END_DAY'),
-      width: '120',
+      width: '125',
       styleName: 'text-center',
       datetimeFormat: 'date',
       editable: true,
@@ -469,7 +510,7 @@ const initGrdMain = defineGrid((data, view) => {
     'mgtCnt',
     'wrkCnt',
     'rpbLocaraCd',
-    'w1W3SatWrkYn',
+    'satWrkYn',
     'apyStrtdt',
     'apyEnddt',
     'wkGrpCd',

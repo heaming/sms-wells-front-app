@@ -69,8 +69,14 @@
           />
         </kw-search-item>
         <!-- 적용일자 -->
-        <kw-search-item :label="$t('MSG_TXT_APPLY_DT')">
-          <kw-date-picker v-model="searchParams.applyDate" />
+        <kw-search-item
+          :label="$t('MSG_TXT_APPLY_DT')"
+          required
+        >
+          <kw-date-picker
+            v-model="searchParams.applyDate"
+            rules="required"
+          />
         </kw-search-item>
       </kw-search-row>
     </kw-search>
@@ -86,9 +92,10 @@
             @change="fetchData"
           />
         </template>
+        <!-- 저장 -->
         <kw-btn
           dense
-          secondary
+          grid-action
           :label="$t('MSG_BTN_SAVE')"
           @click="onClickSave"
         />
@@ -97,12 +104,14 @@
           vertical
           inset
         />
+        <!-- 인쇄 -->
         <kw-btn
           icon="print"
           dense
           secondary
           :label="$t('MSG_BTN_PRTG')"
         />
+        <!-- 엑셀 다운로드 -->
         <kw-btn
           icon="download_on"
           dense
@@ -141,10 +150,11 @@ import dayjs from 'dayjs';
 const { getDistricts } = useSnCode();
 
 const { t } = useI18n();
-const dataService = useDataService();
-
-const { getConfig } = useMeta();
 const { notify } = useGlobal();
+const { getConfig } = useMeta();
+const { currentRoute } = useRouter();
+
+const dataService = useDataService();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -170,14 +180,12 @@ const pageInfo = ref({
 const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
   'WK_GRP_CD',
+  'LOCARA_VST_PRD_CD',
 );
 
-const ctpvs = ref();
-const ctctys = ref();
-const cachedCtctys = ref();
+const ctpvs = ref([]);
+const ctctys = ref([]);
 ctpvs.value = (await getDistricts('sido')).map((v) => ({ ctpv: v.ctpvNm, ctpvNm: v.ctpvNm, ctpvCd: v.fr2pLgldCd }));
-ctctys.value = (await getDistricts('guAll')).map((v) => ({ ctcty: v.ctctyNm, ctctyNm: v.ctctyNm }));
-cachedCtctys.value = cloneDeep(ctctys.value);
 
 async function fetchData() {
   const res = await dataService.get('/sms/wells/service/responsible-area-zips/paging', { params: { ...cachedParams, ...pageInfo.value } });
@@ -199,20 +207,21 @@ async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
 
   const res = await dataService.get('/sms/wells/service/responsible-area-zips/excel-download', { params: cachedParams });
+
   await gridUtil.exportView(view, {
-    fileName: 'rpbLocaraZipList',
+    fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
-    exportData: res.data,
+    exportData: res.data.list,
   });
 }
 
 async function onUpdateCtcty(val) {
+  searchParams.value.ctctyNm = '';
   if (val) {
     const { ctpvCd } = ctpvs.value.find((v) => v.ctpvNm === val);
     ctctys.value = (await getDistricts('gu', ctpvCd)).map((v) => ({ ctcty: v.ctctyNm, ctctyNm: v.ctctyNm }));
   } else {
-    ctctys.value = cachedCtctys.value;
-    searchParams.value.ctctyNm = '';
+    ctctys.value = [];
   }
 }
 
@@ -306,7 +315,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'ogNm', header: t('MSG_TXT_CENTER_DIVISION'), width: '120' },
     { fieldName: 'ichrPrtnrNo', header: t('MSG_TXT_RPB_PRTNR_NO'), width: '120', styleName: 'text-center' },
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_RPB_ICHR_NM'), width: '100' },
-    { fieldName: 'vstDowVal', header: t('MSG_TXT_VST_DOW'), width: '100' },
+    { fieldName: 'vstDowVal', header: t('MSG_TXT_VST_DOW'), width: '100', options: codes.LOCARA_VST_PRD_CD },
   ];
 
   const columnLayout = [

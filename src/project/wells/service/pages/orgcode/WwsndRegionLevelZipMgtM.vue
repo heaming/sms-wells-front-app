@@ -66,12 +66,11 @@
         <!-- 서비스센터 -->
         <kw-search-item :label="$t('MSG_TXT_SV_CNR')">
           <kw-select
-            v-model="searchParams.ogId"
+            v-model="searchParams.ogCd"
             :options="serviceCenter"
             first-option="all"
             option-label="ogNm"
-            option-value="ogId"
-            :readonly="isManagementDepartment()"
+            option-value="ogCd"
           />
         </kw-search-item>
       </kw-search-row>
@@ -88,12 +87,19 @@
             @change="fetchData"
           />
         </template>
+        <!-- 저장 -->
         <kw-btn
           dense
           grid-action
           :label="$t('MSG_BTN_SAVE')"
           @click="onClickSave"
         />
+        <kw-separator
+          vertical
+          inset
+          spaced
+        />
+        <!-- 엑셀 다운로드 -->
         <kw-btn
           icon="download_on"
           dense
@@ -131,15 +137,11 @@ import useSnCode from '~sms-wells/service/composables/useSnCode';
 const { getDistricts, getServiceCenterOrgs } = useSnCode();
 
 const { t } = useI18n();
-const dataService = useDataService();
-
 const { getConfig } = useMeta();
 const { notify } = useGlobal();
+const { currentRoute } = useRouter();
 
-const { getters } = useStore();
-const userInfo = getters['meta/getUserInfo'];
-
-const { departmentId } = userInfo;
+const dataService = useDataService();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -153,7 +155,7 @@ const searchParams = ref({
   ctpvNm: '',
   ctctyNm: '',
   wkGrpCd: '10',
-  ogId: '',
+  ogCd: '',
 });
 
 const pageInfo = ref({
@@ -169,22 +171,9 @@ const codes = await codeUtil.getMultiCodes(
 );
 
 const serviceCenter = await getServiceCenterOrgs();
-const ctpvs = ref();
-const ctctys = ref();
-const cachedCtctys = ref();
+const ctpvs = ref([]);
+const ctctys = ref([]);
 ctpvs.value = (await getDistricts('sido')).map((v) => ({ ctpv: v.ctpvNm, ctpvNm: v.ctpvNm, ctpvCd: v.fr2pLgldCd }));
-ctctys.value = (await getDistricts('guAll')).map((v) => ({ ctcty: v.ctctyNm, ctctyNm: v.ctctyNm }));
-cachedCtctys.value = cloneDeep(ctctys.value);
-
-// 관리부서 여부 체크 TODO: 부서ID와 조직ID 일치 여부 확인 필요
-function isManagementDepartment() {
-  return departmentId !== '71314' && departmentId !== '71399' && departmentId !== '70526';
-}
-
-// 관리부서 로그인시 서비스센터 콤보활성화
-if (isManagementDepartment()) {
-  searchParams.value.ogId = departmentId;
-}
 
 let cachedZips;
 async function fetchData() {
@@ -209,19 +198,21 @@ async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
 
   const res = await dataService.get('/sms/wells/service/region-level-zips/excel-download', { params: cachedParams });
+
   await gridUtil.exportView(view, {
-    fileName: 'regionLevelZipList',
+    fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
-    exportData: res.data,
+    exportData: res.data.list,
   });
 }
 
 async function onUpdateCtcty(val) {
+  searchParams.value.ctctyNm = '';
   if (val) {
     const { ctpvCd } = ctpvs.value.find((v) => v.ctpvNm === val);
     ctctys.value = (await getDistricts('gu', ctpvCd)).map((v) => ({ ctcty: v.ctctyNm, ctctyNm: v.ctctyNm }));
   } else {
-    ctctys.value = cachedCtctys;
+    ctctys.value = [];
   }
 }
 
