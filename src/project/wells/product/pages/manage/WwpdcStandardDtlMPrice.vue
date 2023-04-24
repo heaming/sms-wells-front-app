@@ -26,7 +26,6 @@
             v-model="searchParams.avlChnlId"
             :options="usedChannelCds"
             multiple
-            :placeholder="$t('MSG_TXT_ALL')"
           />
         </kw-search-item>
       </kw-search-row>
@@ -49,9 +48,9 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { getComponentType, useDataService, codeUtil, gridUtil, stringUtil } from 'kw-lib';
-import { cloneDeep, isEmpty, merge } from 'lodash-es';
+import { isEmpty, merge } from 'lodash-es';
 import pdConst from '~sms-common/product/constants/pdConst';
-import { resetVisibleGridColumns, pdMergeBy, getPropInfosToGridRows, getPdMetaToCodeNames, getPdMetaToGridInfos } from '~sms-common/product/utils/pdUtil';
+import { getCodeNames, resetVisibleGridColumns, pdMergeBy, getPropInfosToGridRows, getPdMetaToCodeNames, getPdMetaToGridInfos } from '~sms-common/product/utils/pdUtil';
 
 /* eslint-disable no-use-before-define */
 defineExpose({
@@ -117,18 +116,18 @@ async function initGridRows() {
 
   if (currentInitData.value?.[prcfd]) {
     // 기준가 정보
-    const stdRows = cloneDeep(
-      await getPropInfosToGridRows(
-        currentInitData.value?.[prcd],
-        currentMetaInfos.value,
-        prcd,
-      ),
+    const stdRows = await getPropInfosToGridRows(
+      currentInitData.value?.[prcd],
+      currentMetaInfos.value,
+      prcd,
     );
-    const rows = cloneDeep(await getPropInfosToGridRows(
+
+    const rows = await getPropInfosToGridRows(
       currentInitData.value?.[prcfd],
       currentMetaInfos.value,
       prcfd,
-    ));
+      ['svPdNm'],
+    );
     rows?.map((row) => {
       row[pdConst.PRC_FNL_ROW_ID] = row[pdConst.PRC_FNL_ROW_ID] ?? row.pdPrcFnlDtlId;
       row[pdConst.PRC_STD_ROW_ID] = row[pdConst.PRC_STD_ROW_ID] ?? row.pdPrcDtlId;
@@ -139,7 +138,6 @@ async function initGridRows() {
       row.sellTpCd = currentInitData.value[pdConst.TBL_PD_BAS]?.sellTpCd;
       return row;
     });
-
     if (searchParams.value.avlChnlId.length) {
       view.getDataSource().setRows(rows?.filter((item) => searchParams.value.avlChnlId.includes(item.sellChnlCd)));
     } else {
@@ -155,10 +153,10 @@ async function resetInitData() {
         rtn.push(item.avlChnlId);
       }
       return rtn;
-    }, [])
-    ?.join(',');
+    }, [])?.join(',');
   if (channels) {
     usedChannelCds.value = props.codes?.SELL_CHNL_DTL_CD.filter((item) => channels.indexOf(item.codeId) > -1);
+    searchParams.value.avlChnlId = usedChannelCds.value.map(({ codeId }) => codeId);
   }
 }
 
@@ -225,6 +223,18 @@ async function initGrid(data, view) {
     currentCodes.value,
   );
 
+  columns.forEach((item) => {
+    if (item.fieldName === 'svPdCd') {
+      item.displayCallback = (grid, index) => {
+        const { svPdCd, svPdNm } = grid.getValues(index.itemIndex);
+        if (svPdNm) {
+          return svPdNm;
+        }
+        return getCodeNames(props.codes.svPdCd, svPdCd);
+      };
+    }
+  });
+
   // 적용기간
   const applyPeriodCol = { fieldName: 'applyPeriod',
     header: t('MSG_TXT_ACEPT_PERIOD'),
@@ -241,6 +251,7 @@ async function initGrid(data, view) {
   };
   columns.splice(1, 0, applyPeriodCol);
   fields.push({ fieldName: 'applyPeriod' });
+  fields.push({ fieldName: 'svPdNm' });
 
   data.setFields(fields);
   view.setColumns(columns.sort((item) => (item.fieldName === 'sellChnlCd' ? -1 : 0))
