@@ -138,7 +138,7 @@
       >
         <!-- 총괄단 선택 -->
         <kw-select
-          v-model="selectedDgr1LevlOgCds"
+          v-model="searchParams.dgr1LevlOgId"
           class="select_og_cd"
           :placeholder="$t('MSG_TXT_MANAGEMENT_DEPARTMENT') + ' ' + $t('MSG_TXT_SELT')"
           :options="filteredDgr1LevlOgCds"
@@ -149,7 +149,7 @@
         />
         <!-- 지역단 선택 -->
         <kw-select
-          v-model="selectedDgr2LevlOgCds"
+          v-model="searchParams.dgr2LevlOgId"
           class="select_og_cd"
           :placeholder="$t('MSG_TXT_RGNL_GRP') + ' ' + $t('MSG_TXT_SELT')"
           :options="filteredDgr2LevlOgCds"
@@ -160,7 +160,7 @@
         />
         <!-- 지점 선택 -->
         <kw-select
-          v-model="selectedDgr3LevlOgCds"
+          v-model="searchParams.dgr3LevlOgId"
           class="select_og_cd"
           :placeholder="$t('MSG_TXT_BRANCH') + ' ' + $t('MSG_TXT_SELT')"
           :options="filteredDgr3LevlOgCds"
@@ -228,6 +228,7 @@
         secondary
         :label="$t('MSG_BTN_CSV_DOWN')"
         :disable="!pageInfo.totalCount"
+        @click="onClickCsvDownload"
       />
       <kw-btn
         icon="download_on"
@@ -413,10 +414,6 @@ const filteredDgr1LevlOgCds = ref([]); // 필터링된 총괄단 코드
 const filteredDgr2LevlOgCds = ref([]); // 필터링된 지역단 코드
 const filteredDgr3LevlOgCds = ref([]); // 필터링된 지점 코드
 
-const selectedDgr1LevlOgCds = ref([]); // 선택한 총괄단 코드
-const selectedDgr2LevlOgCds = ref([]); // 선택한 지역단 코드
-const selectedDgr3LevlOgCds = ref([]); // 선택한 지점 코드
-
 async function getDgrOgInfos() {
   let res = [];
   res = await dataService.get('/sms/wells/contract/partners/general-divisions'); // 총괄단
@@ -435,8 +432,8 @@ getDgrOgInfos();
 // 조직코드 총괄단 변경 이벤트
 async function onUpdateDgr1Levl(selectedValues) {
   // 선택한 지역단, 지점 초기화
-  selectedDgr2LevlOgCds.value = [];
-  selectedDgr3LevlOgCds.value = [];
+  searchParams.value.dgr2LevlOgId = [];
+  searchParams.value.dgr3LevlOgId = [];
 
   // 지역단 코드 필터링. 선택한 총괄단의 하위 지역단으로 필터링
   filteredDgr2LevlOgCds.value = codesDgr2Levl.value.filter((v) => selectedValues.includes(v.dgr1LevlOgCd));
@@ -448,7 +445,7 @@ async function onUpdateDgr1Levl(selectedValues) {
 // 조직코드 지역단 변경 이벤트
 async function onUpdateDgr2Levl(selectedValues) {
   // 선택한 지점 초기화
-  selectedDgr3LevlOgCds.value = [];
+  searchParams.value.dgr3LevlOgId = [];
 
   // 지점 코드 필터링. 선택한 지역단의 하위 지점으로 필터링.
   filteredDgr3LevlOgCds.value = codesDgr3Levl.value.filter((v) => selectedValues.includes(v.dgr2LevlOgCd));
@@ -467,6 +464,18 @@ async function onClickReset() {
 
   isSearchPrdEnqryVisible.value = true;
   isSearchRentalNmnVisible.value = false;
+}
+
+// CSV다운로드버튼 클릭 이벤트
+async function onClickCsvDownload() {
+  const view = grdRentalContractList.value.getView();
+  const res = await dataService.get('/sms/wells/contract/contracts/order-detail-mngt/rentals/excel-download', { params: cachedParams });
+  await gridUtil.exportView(view, {
+    fileName: currentRoute.value.meta.menuName,
+    timePostfix: true,
+    exportData: res.data,
+    exportType: 'csv',
+  });
 }
 
 // 엑셀다운로드버튼 클릭 이벤트
@@ -497,7 +506,6 @@ function initGridRentalContractList(data, view) {
     { fieldName: 'dgr3LevlOgCd' }, // 파트너정보-지점코드
     { fieldName: 'sellPrtnrNo' }, // 파트너정보-파트너사번
     { fieldName: 'prtnrKnm' }, // 파트너정보-파트너명
-    { fieldName: 'sellPrtnrCralTno' }, // 파트너정보-휴대전화번호
     { fieldName: 'cralLocaraTno' }, // 파트너정보-휴대지역전화번호
     { fieldName: 'mexnoEncr' }, // 파트너정보-휴대전화국번호암호화
     { fieldName: 'cralIdvTno' }, // 파트너정보-휴대개별전화번호
@@ -644,17 +652,25 @@ function initGridRentalContractList(data, view) {
     { fieldName: 'sellPrtnrNo', header: t('MSG_TXT_EPNO'), width: '138', styleName: 'text-center' }, // 파트너정보-파트너사번
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_PTNR_NAME'), width: '138', styleName: 'text-center' }, // 파트너정보-파트너명
     {
-      fieldName: 'sellPrtnrCralTno',
+      fieldName: 'cralLocaraTno',
       header: t('MSG_TXT_MPNO'),
       width: '138',
       styleName: 'text-center',
-      displayCallback(grid, index) {
-        const { cralLocaraTno: no1, mexnoEncr: no2, cralIdvTno: no3 } = grid.getValues(index.itemIndex);
-        return !isEmpty(no1) && !isEmpty(no2) && !isEmpty(no3) ? `${no1}-${no2}-${no3}` : '';
+      displayCallback(grid, index, value) {
+        const mpno1 = value;
+        const mpno2 = grid.getValue(index.itemIndex, 'mexnoEncr');
+        const mpno3 = grid.getValue(index.itemIndex, 'cralIdvTno');
+
+        if (!isEmpty(mpno1) && !Number.isNaN(mpno1)
+            && !isEmpty(mpno2) && !Number.isNaN(mpno2)
+            && !isEmpty(mpno3) && !Number.isNaN(mpno3)) {
+          return `${mpno1}-${mpno2}-${mpno3}`;
+        }
+        return '';
       },
     }, // 파트너정보-휴대전화번호
-    { fieldName: 'cntrDt', header: t('MSG_TXT_TASK_OPNG_DT'), width: '138', styleName: 'text-center' }, // 파트너정보-업무개시일
-    { fieldName: 'cltnDt', header: t('MSG_TXT_BIZ_CLTN_D'), width: '166', styleName: 'text-center' }, // 파트너정보-업무해약일
+    { fieldName: 'cntrDt', header: t('MSG_TXT_TASK_OPNG_DT'), width: '138', styleName: 'text-center', datetimeFormat: 'date' }, // 파트너정보-업무개시일
+    { fieldName: 'cltnDt', header: t('MSG_TXT_BIZ_CLTN_D'), width: '166', styleName: 'text-center', datetimeFormat: 'date' }, // 파트너정보-업무해약일
     { fieldName: 'cstKnm', header: t('MSG_TXT_CNTOR_NM'), width: '138', styleName: 'text-center' }, // 계약자 정보-계약자명
     { fieldName: 'bryy', header: '생년(YY)', width: '138', styleName: 'text-center' }, // 계약자 정보-생년(YY)
     { fieldName: 'bzrNo', header: t('MSG_TXT_ENTRP_NO'), width: '138', styleName: 'text-center' }, // 계약자 정보-사업자번호
@@ -809,7 +825,7 @@ function initGridRentalContractList(data, view) {
     {
       header: `${t('MSG_TXT_PRTNR')} ${t('MSG_TXT_INF')}`, // 파트너 정보
       direction: 'horizontal', // merge type
-      items: ['dgr3LevlDgPrtnrNo', 'dgr3LevlDgPrtnrNm', 'dgr3LevlOgCd', 'sellPrtnrNo', 'prtnrKnm', 'sellPrtnrCralTno', 'cntrDt', 'cltnDt'],
+      items: ['dgr3LevlDgPrtnrNo', 'dgr3LevlDgPrtnrNm', 'dgr3LevlOgCd', 'sellPrtnrNo', 'prtnrKnm', 'cralLocaraTno', 'cntrDt', 'cltnDt'],
     },
     {
       header: `${t('MSG_TXT_CNTRT')} ${t('MSG_TXT_INF')}`, // 계약자 정보

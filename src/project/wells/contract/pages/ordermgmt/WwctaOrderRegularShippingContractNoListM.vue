@@ -71,6 +71,7 @@
         :visible="false"
         :label="$t('MSG_BTN_CSV_DOWN')"
         :disable="!pageInfo.totalCount"
+        @click="onClickCsvDownload"
       />
       <kw-btn
         icon="download_on"
@@ -154,10 +155,24 @@ async function fetchData() {
   view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
+// 조회버튼 클릭 이벤트
 async function onClickSearch() {
   await fetchData();
 }
 
+// CSV다운로드버튼 클릭 이벤트
+async function onClickCsvDownload() {
+  const view = grdRglrDlvrContractNoList.value.getView();
+  const res = await dataService.get('/sms/wells/contract/contracts/order-detail-mngt/rentals/excel-download', { params: cachedParams });
+  await gridUtil.exportView(view, {
+    fileName: currentRoute.value.meta.menuName,
+    timePostfix: true,
+    exportData: res.data,
+    exportType: 'csv',
+  });
+}
+
+// 엑셀다운로드버튼 클릭 이벤트
 async function onClickExcelDownload() {
   const view = grdRglrDlvrContractNoList.value.getView();
   const res = await dataService.get('/sms/wells/contract/contracts/order-detail-mngt/regular-shippings/excel-download', { params: cachedParams });

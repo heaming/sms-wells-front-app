@@ -66,6 +66,7 @@
         secondary
         :label="$t('MSG_BTN_CSV_DOWN')"
         :disable="!pageInfo.totalCount"
+        @click="onClickCsvDownload"
       />
       <kw-btn
         icon="download_on"
@@ -157,6 +158,19 @@ async function onClickSearch() {
   await fetchData();
 }
 
+// CSV다운로드버튼 클릭 이벤트
+async function onClickCsvDownload() {
+  const view = grdRentalInstallerList.value.getView();
+  const res = await dataService.get('/sms/wells/contract/contracts/order-detail-mngt/rentals/excel-download', { params: cachedParams });
+  await gridUtil.exportView(view, {
+    fileName: currentRoute.value.meta.menuName,
+    timePostfix: true,
+    exportData: res.data,
+    exportType: 'csv',
+  });
+}
+
+// 엑셀다운로드버튼 클릭 이벤트
 async function onClickExcelDownload() {
   const view = grdRentalInstallerList.value.getView();
   const res = await dataService.get('/sms/wells/contract/contracts/order-detail-mngt/rentals/excel-download', { params: cachedParams });
@@ -341,8 +355,8 @@ function initGridRentalInstallerList(data, view) {
         return !isEmpty(no1) && !isEmpty(no2) && !isEmpty(no3) ? `${no1}-${no2}-${no3}` : '';
       },
     }, // 파트너정보-휴대전화번호
-    { fieldName: 'cntrDt', header: t('MSG_TXT_TASK_OPNG_DT'), width: '138', styleName: 'text-center' }, // 파트너정보-업무개시일
-    { fieldName: 'cltnDt', header: t('MSG_TXT_BIZ_CLTN_D'), width: '166', styleName: 'text-center' }, // 파트너정보-업무해약일
+    { fieldName: 'cntrDt', header: t('MSG_TXT_TASK_OPNG_DT'), width: '138', styleName: 'text-center', datetimeFormat: 'date' }, // 파트너정보-업무개시일
+    { fieldName: 'cltnDt', header: t('MSG_TXT_BIZ_CLTN_D'), width: '166', styleName: 'text-center', datetimeFormat: 'date' }, // 파트너정보-업무해약일
     { fieldName: 'cstKnm', header: t('MSG_TXT_CNTOR_NM'), width: '138', styleName: 'text-center' }, // 계약자 정보-계약자명
     { fieldName: 'bryy', header: '생년(YY)', width: '138', styleName: 'text-center' }, // 계약자 정보-생년(YY)
     { fieldName: 'bzrNo', header: t('MSG_TXT_ENTRP_NO'), width: '138', styleName: 'text-center' }, // 계약자 정보-사업자번호
