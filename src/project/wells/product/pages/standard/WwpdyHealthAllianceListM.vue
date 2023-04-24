@@ -230,7 +230,9 @@ async function onClickRemoveRows() {
 
 async function onClickAdd() {
   const view = grdMainRef.value.getView();
-  await gridUtil.insertRowAndFocus(view, 0, { });
+  await gridUtil.insertRowAndFocus(view, 0, {
+    apyEnddt: '9999-12-31',
+  });
 }
 
 async function onClickSave() {
@@ -239,7 +241,7 @@ async function onClickSave() {
   if (!await gridUtil.validate(view)) { return; } // 유효성 검사
 
   const changedRows = gridUtil.getChangedRowValues(view);
-  await dataService.put('/sms/wells/product/alliances', { bases: changedRows });
+  await dataService.post('/sms/wells/product/alliances', { bases: changedRows });
   notify(t('MSG_ALT_SAVE_DATA'));
 
   await fetchData();
@@ -268,8 +270,9 @@ const initGrdMain = defineGrid((data, view) => {
     {
       fieldName: 'alncmpCd',
       header: t('MSG_TXT_ALNC_CD'),
-      width: '100',
+      width: '110',
       styleName: 'text-center',
+      rules: 'required',
       editor: { maxLength: 20 },
     },
     // 판매유형
@@ -289,7 +292,8 @@ const initGrdMain = defineGrid((data, view) => {
       header: t('MSG_TXT_PRDT_CODE'),
       width: '160',
       styleName: 'text-center',
-      button: 'action',
+      editable: false,
+      rules: 'required',
     },
     // 상품명
     {
@@ -298,6 +302,7 @@ const initGrdMain = defineGrid((data, view) => {
       width: '207',
       styleName: 'text-left',
       button: 'action',
+      rules: 'required',
     },
     // 서비스
     { fieldName: 'svPdCd',
@@ -320,7 +325,7 @@ const initGrdMain = defineGrid((data, view) => {
     {
       fieldName: 'svcDurtion',
       header: t('MSG_TXT_CONTRACT_PERI'),
-      width: '160',
+      width: '220',
       styleName: 'text-right',
       editable: false,
     },
@@ -361,6 +366,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'fnlMdfcUsrNm', header: t('MSG_TXT_FNL_MDFC_USR'), width: '100', styleName: 'text-center', editable: false },
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
+  fields.push({ fieldName: 'pdAlncmpBaseId' });
   data.setFields(fields);
   view.setColumns(columns);
   view.checkBar.visible = true;
@@ -369,6 +375,32 @@ const initGrdMain = defineGrid((data, view) => {
 
   view.sortingOptions.enabled = false;
   view.filteringOptions.enabled = false;
+
+  view.onCellButtonClicked = async (grid, { column, itemIndex }) => {
+    if (column === 'pdNm') {
+      const svPdNm = grid.getValue(itemIndex, 'pdNm');
+      const { payload } = await modal({
+        component: 'ZwpdcServiceListP',
+        componentProps: { searchType: pdConst.PD_SEARCH_NAME, searchValue: svPdNm },
+      });
+      if (payload) {
+        const row = Array.isArray(payload) ? payload[0] : payload;
+        data.setValue(itemIndex, 'pdNm', row.pdNm);
+        data.setValue(itemIndex, 'pdCd', row.pdCd);
+      }
+    }
+    if (column === 'svPdCd') {
+      const svPdCd = grid.getValue(itemIndex, 'svPdCd');
+      const { payload } = await modal({
+        component: 'ZwpdcServiceListP',
+        componentProps: { searchType: pdConst.PD_SEARCH_CODE, searchValue: svPdCd },
+      });
+      if (payload) {
+        const row = Array.isArray(payload) ? payload[0] : payload;
+        data.setValue(itemIndex, 'svPdCd', row.pdCd);
+      }
+    }
+  };
 });
 </script>
 <style scoped></style>

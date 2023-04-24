@@ -214,7 +214,9 @@ async function onClickRemoveRows() {
 
 async function onClickAdd() {
   const view = grdMainRef.value.getView();
-  await gridUtil.insertRowAndFocus(view, 0, { });
+  await gridUtil.insertRowAndFocus(view, 0, {
+    vlEndDtm: '9999-12-31',
+  });
 }
 
 async function onClickSave() {
@@ -223,7 +225,7 @@ async function onClickSave() {
   if (!await gridUtil.validate(view)) { return; } // 유효성 검사
 
   const changedRows = gridUtil.getChangedRowValues(view);
-  await dataService.put('/sms/wells/product/cancel-charges', { bases: changedRows });
+  await dataService.post('/sms/wells/product/cancel-charges', { bases: changedRows });
   notify(t('MSG_ALT_SAVE_DATA'));
 
   await fetchData();
@@ -254,7 +256,8 @@ const initGrdMain = defineGrid((data, view) => {
       header: t('MSG_TXT_PRDT_CODE'),
       width: '138',
       styleName: 'text-center',
-      button: 'action',
+      editable: false,
+      rules: 'required',
     },
     // 상품명
     {
@@ -263,6 +266,7 @@ const initGrdMain = defineGrid((data, view) => {
       width: '203',
       styleName: 'text-left',
       button: 'action',
+      rules: 'required',
     },
     // 시작일
     {
@@ -288,7 +292,7 @@ const initGrdMain = defineGrid((data, view) => {
       header: t('MSG_TXT_CSMB_CS'),
       width: '141',
       styleName: 'text-right',
-      editor: { type: 'number', editFormat: '9', maxLength: 1 },
+      editor: { type: 'number', editFormat: '#,##0.##', maxLength: 12 },
       dataType: 'number',
     },
     // 철거비
@@ -297,7 +301,7 @@ const initGrdMain = defineGrid((data, view) => {
       header: t('MSG_TXT_REQD_CS'),
       width: '141',
       styleName: 'text-right',
-      editor: { type: 'number', editFormat: '9', maxLength: 1 },
+      editor: { type: 'number', editFormat: '#,##0.##', maxLength: 12 },
       dataType: 'number',
     },
     // 렌탈손료
@@ -306,16 +310,16 @@ const initGrdMain = defineGrid((data, view) => {
       header: t('MSG_TXT_LENT_LOSS_COST'),
       width: '141',
       styleName: 'text-right',
-      editor: { type: 'number', editFormat: '9', maxLength: 1 },
+      editor: { type: 'number', editFormat: '#,##0.##', maxLength: 12 },
       dataType: 'number',
     },
     // 잔여위약금(%)
     {
       fieldName: 'resCcamRat',
-      header: t('MSG_TXT_REMAIN_PENALTY'),
+      header: `${t('MSG_TXT_REMAIN_PENALTY')}(%)`,
       width: '141',
       styleName: 'text-right',
-      editor: { type: 'number', editFormat: '9', maxLength: 1 },
+      editor: { type: 'number', editFormat: '999', maxLength: 3 },
       dataType: 'number',
     },
     // 일시분손료
@@ -324,7 +328,7 @@ const initGrdMain = defineGrid((data, view) => {
       header: t('MSG_TXT_ONET_LOSS_COST'),
       width: '141',
       styleName: 'text-right',
-      editor: { type: 'number', editFormat: '9', maxLength: 1 },
+      editor: { type: 'number', editFormat: '#,##0.##', maxLength: 12 },
       dataType: 'number',
     },
     // 등록일
@@ -337,6 +341,9 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'fnlMdfcUsrNm', header: t('MSG_TXT_FNL_MDFC_USR'), width: '100', styleName: 'text-center', editable: false },
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
+  fields.push({ fieldName: 'ccamId' });
+  fields.push({ fieldName: 'histStrtDtm' });
+  fields.push({ fieldName: 'histEndDtm' });
   data.setFields(fields);
   view.setColumns(columns);
   view.checkBar.visible = true;
@@ -345,6 +352,21 @@ const initGrdMain = defineGrid((data, view) => {
 
   view.sortingOptions.enabled = false;
   view.filteringOptions.enabled = false;
+
+  view.onCellButtonClicked = async (grid, { column, itemIndex }) => {
+    if (column === 'pdNm') {
+      const svPdNm = grid.getValue(itemIndex, 'pdNm');
+      const { payload } = await modal({
+        component: 'ZwpdcServiceListP',
+        componentProps: { searchType: pdConst.PD_SEARCH_NAME, searchValue: svPdNm },
+      });
+      if (payload) {
+        const row = Array.isArray(payload) ? payload[0] : payload;
+        data.setValue(itemIndex, 'pdNm', row.pdNm);
+        data.setValue(itemIndex, 'pdCd', row.pdCd);
+      }
+    }
+  };
 });
 </script>
 <style scoped></style>
