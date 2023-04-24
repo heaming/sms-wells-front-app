@@ -381,7 +381,7 @@ function initGrid(data, view) {
         componentProps: { searchEmplCond: '2', searchCodEmplText: ichrUsrId },
       });
       if (result) {
-        g.setValue(itemIndex, 'ichrUsrId', payload.userId);
+        g.setValue(itemIndex, 'ichrUsrId', payload.employeeIDNumber);
         g.setValue(itemIndex, 'psicNm', payload.userName);
       }
     }
