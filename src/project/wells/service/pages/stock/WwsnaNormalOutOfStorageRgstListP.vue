@@ -330,16 +330,17 @@ async function setStandardCheckbox() {
 }
 
 async function onclickStandard() {
-  if (searchParams.value.stckNoStdGb === 'N') {
-    searchParams.value.stckStdGb = '1';
-  } else {
-    searchParams.value.stckStdGb = '0';
-  }
+  searchParams.value.stckStdGb = searchParams.value.stckNoStdGb === 'N' ? '1' : '0';
+  // if (searchParams.value.stckNoStdGb === 'N') {
+  //   searchParams.value.stckStdGb = '1';
+  // } else {
+  //   searchParams.value.stckStdGb = '0';
+  // }
 
   const { ostrWareNo, apyYm, stckStdGb } = searchParams.value;
   // const pathUri = `/sms/wells/service/normal-outofstorages/monthly-warehouse/${apyYm}-${ostrWareNo}`;
   const pathUri = '/sms/wells/service/normal-outofstorages/monthly-warehouse';
-  const res = await dataService.put(pathUri, { apyYm, stckStdGb, wareNo: ostrWareNo });
+  const res = await dataService.put(pathUri, { apyYm, stckStdGb, warNo: ostrWareNo });
   console.log(res);
 }
 
