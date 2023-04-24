@@ -29,10 +29,10 @@
           rules="required"
         >
           <kw-select
-            v-model="propsParam.ogCd"
+            v-model="propsParam.ogId"
             :options="centers"
             option-label="ogNm"
-            option-value="ogCd"
+            option-value="ogId"
             :disable="isModify"
             @update:model-value="onChangeCenter"
           />
@@ -44,6 +44,15 @@
             rules="required"
             @update:model-value="onChangeEngineer"
           />
+          <!-- <wwsn-engineer-og-search-item-group
+            v-model:dgr1-levl-og-id="propsParam.ogId"
+            v-model:prtnr-no="dataParams.vhcMngtPrtnrNo"
+            dgr1-levl-og-first-option="all"
+            partner-first-option="all"
+            use-og-level="1"
+            use-partner
+            partner-label="prtnrNoNm"
+          /> -->
         </kw-form-item>
         <!-- 근무기간 -->
         <kw-form-item :label="$t('MSG_TXT_WRK_PTRM')">
@@ -216,32 +225,30 @@ const { t } = useI18n();
 const { cancel: onClickCancel, ok } = useModal();
 
 const props = defineProps({
-  ogCd: { type: String, default: '' },
+  ogId: { type: String, default: '' },
   vhcMngtNo: { type: String, default: '' },
   vhcMngtSn: { type: String, default: '' },
   prtnrNo: { type: String, default: '' },
   vhcMngtPrtnrNo: { type: String, default: '' },
 });
-
+console.log(props);
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 
 const frmMainRef = ref(getComponentType('KwObserver'));
-const engsAndSvcCenters = (await getAllEngineers());
-const svcCenters = engsAndSvcCenters.G_ONLY_SVC;
-const engs = engsAndSvcCenters.G_ONLY_ENG;
+const svcCenters = (await getAllEngineers()).G_ONLY_SVC;
 const codes = await codeUtil.getMultiCodes(
   'INSR_AGE_CD',
   'VHC_MNGT_TP_CD',
 );
-const isModify = computed(() => !(isEmpty(props.ogCd) || isEmpty(props.vhcMngtNo) || isEmpty(props.vhcMngtSn)));
+const isModify = computed(() => !(isEmpty(props.ogId) || isEmpty(props.vhcMngtNo) || isEmpty(props.vhcMngtSn)));
 const centers = ref();
 const engineers = ref();
 const vehicleInfos = ref();
 
 const propsParam = ref({
-  ogCd: props.ogCd === '' ? undefined : props.ogCd,
+  ogId: props.ogId === '' ? undefined : props.ogId,
 });
 
 const dataParams = ref({
@@ -262,6 +269,17 @@ const dataParams = ref({
   carnm: '',
 });
 
+async function fetchEngineers(params) {
+  return await dataService.get('/sms/wells/service/organizations/engineer', params);
+}
+
+async function getEngineers() {
+  const res = await fetchEngineers({ params: { dgr1LevlOgId: propsParam.value.ogId } });
+  return res.data;
+}
+
+const engs = (await getEngineers());
+
 async function fetchAllVehicles() {
   return await dataService.get('/sms/wells/service/business-vehicles/all-vehicles');
 }
@@ -274,7 +292,7 @@ async function getAllVehicles() {
 const vhcs = (await getAllVehicles());
 
 async function onChangeEngineer() {
-  const engineerByPrtnrNo = engs.filter((v) => v.codeId === dataParams.value.vhcMngtPrtnrNo);
+  const engineerByPrtnrNo = engs.filter((v) => v.prtnrNo === dataParams.value.vhcMngtPrtnrNo);
 
   engineerByPrtnrNo.forEach((e) => {
     dataParams.value.entcoDt = e.entcoDt;
@@ -286,8 +304,8 @@ async function onChangeEngineer() {
 }
 
 async function onChangeCenter() {
-  const engineerByOgCd = engs.filter((v) => v.ogCd === propsParam.value.ogCd);
-  engineers.value = engineerByOgCd.map((v) => ({ codeId: v.codeId, codeName: v.codeNm }));
+  const engineerByOgCd = engs.filter((v) => v.ogId === propsParam.value.ogId);
+  engineers.value = engineerByOgCd.map((v) => ({ codeId: v.prtnrNo, codeName: v.prtnrNoNm }));
 }
 
 async function fetchBusinessVehicle(vhcMngtNo, vhcMngtSn) {
@@ -300,11 +318,11 @@ async function getBusinessVehicle() {
 }
 
 if (isModify.value) { // 수정
-  const centerByOgcd = svcCenters.filter((v) => v.ogCd === props.ogCd);
+  const centerByOgcd = svcCenters.filter((v) => v.ogId === props.ogId);
   const engineerByPrtnrNo = engs.filter((v) => v.codeId === props.vhcMngtNo);
   const vehicleByCarno = vhcs.filter((v) => v.carseq === props.vhcMngtNo);
 
-  centers.value = centerByOgcd.map((v) => ({ ogNm: v.ogNm, ogCd: v.ogCd }));
+  centers.value = centerByOgcd.map((v) => ({ ogNm: v.ogNm, ogId: v.ogId }));
   engineers.value = engineerByPrtnrNo.map((v) => ({ codeId: v.codeId, codeName: v.codeNm }));
   vehicleInfos.value = vehicleByCarno.map((v) => ({ codeId: v.carno, codeName: v.carno }));
 
@@ -314,8 +332,8 @@ if (isModify.value) { // 수정
 } else { // 신규
   // TODO: 1. 권한 조회 후 서비스센터/지점 조회 or 특정 센터/지점 조회
   // TODO: 2. 엔지니어는 센터/지점 선택 시 해당 조직에 해당하는 엔지니어만 조회
-  const centerByOgTpCd = svcCenters.filter((v) => v.ogTpCd === 'W06' && v.ogLevlDvCd === '3');
-  centers.value = centerByOgTpCd.map((v) => ({ ogNm: v.ogNm, ogCd: v.ogCd }));
+  const centerByOgTpCd = svcCenters.filter((v) => v.ogTpCd === 'W06');
+  centers.value = centerByOgTpCd.map((v) => ({ ogNm: v.ogNm, ogId: v.ogId }));
   vehicleInfos.value = vhcs.map((v) => ({ codeId: v.carno, codeName: v.carno }));
 
   dataParams.value.vhcPymdt = dayjs().format('YYYYMMDD');

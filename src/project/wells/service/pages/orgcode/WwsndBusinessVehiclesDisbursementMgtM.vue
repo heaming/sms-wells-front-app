@@ -19,34 +19,16 @@
       @search="onClickSearch"
     >
       <kw-search-row>
-        <!-- 광역센터 -->
-        <kw-search-item :label="$t('MSG_TXT_WIDA_CNR')">
-          <kw-select
-            v-model="searchParams.hgrOgId"
-            :options="centers"
-            first-option="all"
-            @update:model-value="onUpdateCenters"
-          />
-        </kw-search-item>
-        <!-- 지점 -->
-        <kw-search-item :label="$t('MSG_TXT_BRANCH')">
-          <kw-select
-            v-model="searchParams.ogCd"
-            :options="branchs"
-            first-option="all"
-            option-label="ogNm"
-            option-value="ogCd"
-            @update:model-value="onUpdateBranchs"
-          />
-        </kw-search-item>
-        <!-- 엔지니어 -->
-        <kw-search-item :label="$t('MSG_TXT_EGER')">
-          <kw-select
-            v-model="searchParams.prtnrNo"
-            :options="engineers"
-            first-option="all"
-          />
-        </kw-search-item>
+        <!-- 서비스센터 -->
+        <wwsn-engineer-og-search-item-group
+          v-model:dgr1-levl-og-id="searchParams.ogId"
+          v-model:prtnr-no="searchParams.prtnrNo"
+          dgr1-levl-og-first-option="all"
+          partner-first-option="all"
+          use-og-level="1"
+          use-partner
+          partner-label="prtnrNoNm"
+        />
         <!-- 조회구분 -->
         <kw-search-item :label="$t('MSG_TXT_INQR_DV')">
           <kw-select
@@ -111,9 +93,8 @@
 // -------------------------------------------------------------------------------------------------
 import { useMeta, getComponentType, defineGrid, codeUtil, useGlobal, gridUtil, useDataService } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
-import useSnCode from '~sms-wells/service/composables/useSnCode';
+import WwsnEngineerOgSearchItemGroup from '~sms-wells/service/components/WwsnEngineerOgSearchItemGroup.vue';
 
-const { getAllEngineers } = useSnCode();
 const { getConfig } = useMeta();
 const { modal } = useGlobal();
 const { t } = useI18n();
@@ -136,41 +117,12 @@ const codes = await codeUtil.getMultiCodes(
 );
 
 const searchParams = ref({
-  hgrOgId: '',
-  ogCd: '',
+  ogId: '',
   prtnrNo: '',
   findGb: '',
 });
 
 let cachedParams;
-
-const centers = ref();
-const branchs = ref();
-const engineers = ref();
-const engsAndSvcCenters = (await getAllEngineers());
-const svcCenters = engsAndSvcCenters.G_ONLY_SVC;
-const engs = engsAndSvcCenters.G_ONLY_ENG;
-
-centers.value = svcCenters.map((v) => ({ codeName: v.ogNm, codeId: v.ogId }));
-// engineers.value = engs.map((v) => ({ codeId: v.codeId, codeName: v.codeNm }));
-
-async function onUpdateBranchs() {
-  if (searchParams.value.ogCd === '') {
-    searchParams.value.prtnrNo = '';
-  } else {
-    const engByOgCd = engs.filter((v) => v.ogCd === searchParams.value.ogCd);
-    engineers.value = engByOgCd.map((v) => ({ codeId: v.codeId, codeName: v.codeNm }));
-  }
-}
-
-async function onUpdateCenters() {
-  if (searchParams.value.hgrOgId === '') {
-    searchParams.value.ogCd = '';
-  } else {
-    const ogCdByHgrOgId = svcCenters.filter((v) => v.hgrOgId === searchParams.value.hgrOgId);
-    branchs.value = ogCdByHgrOgId.map((v) => ({ ogNm: v.ogNm, ogCd: v.ogCd }));
-  }
-}
 
 async function fetchData() {
   const res = await dataService.get('/sms/wells/service/business-vehicles/paging', { params: { ...cachedParams, ...pageInfo.value } });
@@ -228,7 +180,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'rflngCdnoEncr' },
     { fieldName: 'hipsCdnoEncr' },
     { fieldName: 'vhcDsbRmkCn' },
-    { fieldName: 'ogCd' },
+    { fieldName: 'ogId' },
     { fieldName: 'vhcMngtNo' },
     { fieldName: 'vhcMngtSn' },
     { fieldName: 'vhcMngtPrtnrNo' },
@@ -299,7 +251,7 @@ const initGrdMain = defineGrid((data, view) => {
   view.onCellDblClicked = async (grid) => {
     if (pageInfo.value.totalCount > 0) {
       const {
-        ogCd,
+        ogId,
         vhcMngtNo,
         vhcMngtSn,
         prtnrNo,
@@ -308,7 +260,7 @@ const initGrdMain = defineGrid((data, view) => {
 
       const { result } = await modal({
         component: 'WwsndBusinessVehiclesRegP',
-        componentProps: { ogCd, vhcMngtNo, vhcMngtSn, prtnrNo, vhcMngtPrtnrNo },
+        componentProps: { ogId, vhcMngtNo, vhcMngtSn, prtnrNo, vhcMngtPrtnrNo },
       });
 
       if (result) await fetchData();
