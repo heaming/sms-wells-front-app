@@ -168,7 +168,7 @@
       >
         <!-- 총괄단 선택 -->
         <kw-select
-          v-model="selectedDgr1LevlOgCds"
+          v-model="searchParams.dgr1LevlOgId"
           class="select_og_cd"
           :placeholder="$t('MSG_TXT_MANAGEMENT_DEPARTMENT') + ' ' + $t('MSG_TXT_SELT')"
           :options="filteredDgr1LevlOgCds"
@@ -179,7 +179,7 @@
         />
         <!-- 지역단 선택 -->
         <kw-select
-          v-model="selectedDgr2LevlOgCds"
+          v-model="searchParams.dgr2LevlOgId"
           class="select_og_cd"
           :placeholder="$t('MSG_TXT_RGNL_GRP') + ' ' + $t('MSG_TXT_SELT')"
           :options="filteredDgr2LevlOgCds"
@@ -190,7 +190,7 @@
         />
         <!-- 지점 선택 -->
         <kw-select
-          v-model="selectedDgr3LevlOgCds"
+          v-model="searchParams.dgr3LevlOgId"
           class="select_og_cd"
           :placeholder="$t('MSG_TXT_BRANCH') + ' ' + $t('MSG_TXT_SELT')"
           :options="filteredDgr3LevlOgCds"
@@ -372,10 +372,6 @@ const filteredDgr1LevlOgCds = ref([]); // 필터링된 총괄단 코드
 const filteredDgr2LevlOgCds = ref([]); // 필터링된 지역단 코드
 const filteredDgr3LevlOgCds = ref([]); // 필터링된 지점 코드
 
-const selectedDgr1LevlOgCds = ref([]); // 선택한 총괄단 코드
-const selectedDgr2LevlOgCds = ref([]); // 선택한 지역단 코드
-const selectedDgr3LevlOgCds = ref([]); // 선택한 지점 코드
-
 async function getDgrOgInfos() {
   let res = [];
   res = await dataService.get('/sms/wells/contract/partners/general-divisions'); // 총괄단
@@ -387,15 +383,15 @@ async function getDgrOgInfos() {
 
   // 총괄단 조직코드 초기화
   // filteredDgr1LevlOgCds.value = codesDgr1Levl.value;
-  filteredDgr1LevlOgCds.value = uniqBy(codesDgr1Levl.value.filter((v) => ['W01', 'W02', 'W03', 'W04', 'W05', 'W06'].includes(v.ogTpCd)));
+  filteredDgr1LevlOgCds.value = uniqBy(codesDgr1Levl.value.filter((v) => ['W01', 'W02'].includes(v.ogTpCd)));
 }
 getDgrOgInfos();
 
 // 조직코드 총괄단 변경 이벤트
 async function onUpdateDgr1Levl(selectedValues) {
   // 선택한 지역단, 지점 초기화
-  selectedDgr2LevlOgCds.value = [];
-  selectedDgr3LevlOgCds.value = [];
+  searchParams.value.dgr2LevlOgId = [];
+  searchParams.value.dgr3LevlOgId = [];
 
   // 지역단 코드 필터링. 선택한 총괄단의 하위 지역단으로 필터링
   filteredDgr2LevlOgCds.value = codesDgr2Levl.value.filter((v) => selectedValues.includes(v.dgr1LevlOgCd));
@@ -407,7 +403,7 @@ async function onUpdateDgr1Levl(selectedValues) {
 // 조직코드 지역단 변경 이벤트
 async function onUpdateDgr2Levl(selectedValues) {
   // 선택한 지점 초기화
-  selectedDgr3LevlOgCds.value = [];
+  searchParams.value.dgr3LevlOgId = [];
 
   // 지점 코드 필터링. 선택한 지역단의 하위 지점으로 필터링.
   filteredDgr3LevlOgCds.value = codesDgr3Levl.value.filter((v) => selectedValues.includes(v.dgr2LevlOgCd));
