@@ -254,7 +254,6 @@ const searchParams = ref({
   strOjWareNm: props.strOjWareNm,
   ostrAkRgstDt: props.strHopDt,
   itmPdCd: props.itmPdCd,
-  // stckStdGb: '1',
   stckStdGb: '0',
   stckNoStdGb: 'N',
   rgstDt: dayjs().format('YYYYMMDD'),
@@ -340,14 +339,13 @@ async function onclickStandard() {
   const { ostrWareNo, apyYm, stckStdGb } = searchParams.value;
   // const pathUri = `/sms/wells/service/normal-outofstorages/monthly-warehouse/${apyYm}-${ostrWareNo}`;
   const pathUri = '/sms/wells/service/normal-outofstorages/monthly-warehouse';
-  const res = await dataService.put(pathUri, { apyYm, stckStdGb, warNo: ostrWareNo });
+  const res = await dataService.put(pathUri, { apyYm, stckStdGb, wareNo: ostrWareNo });
   console.log(res);
 }
 
 async function onClickConfirm() {
   if (await confirm(t('MSG_ALT_WANT_DTRM'))) {
     const saveParams = getSaveParams();
-    debugger;
     await dataService.put(baseURI, saveParams);
     await fetchData();
   }
