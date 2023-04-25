@@ -52,7 +52,6 @@
                 <kw-tab-panel name="attribute">
                   <zwpdc-prop-groups-dtl
                     v-model:pd-cd="currentPdCd"
-                    v-model:pd-group-cd="prdPropGroups"
                     v-model:init-data="prevStepData"
                     :pd-tp-cd="pdConst.PD_TP_CD_MATERIAL"
                     :pd-grp-dv-cd="pdConst.PD_PRP_GRP_DV_CD_BASIC"
@@ -116,7 +115,6 @@ const baseUrl = '/sms/wells/product/as-parts';
 // });
 
 const pdTpDtlCd = ref(pdConst.PD_TP_DTL_CD_AS_PART);
-const prdPropGroups = ref({});
 const selectedTab = ref('attribute');
 const isCompleteLoad = ref(false);
 
@@ -141,7 +139,6 @@ async function fetchData(forcePdCd) {
   prevStepData.value[pdConst.TBL_PD_DTL] = res.data[pdConst.TBL_PD_DTL];
   prevStepData.value[pdConst.TBL_PD_ECOM_PRP_DTL] = res.data[pdConst.TBL_PD_ECOM_PRP_DTL];
   prevStepData.value[pdConst.TBL_PD_REL] = res.data[pdConst.TBL_PD_REL];
-  prdPropGroups.value = res.data.groupCodes;
   isCompleteLoad.value = true;
 }
 
