@@ -121,6 +121,8 @@
         />
       </kw-action-top>
       <kw-grid
+        ref="grdRef"
+        name="grd"
         :visible-rows="10"
         @init="initGrd"
       />
@@ -166,19 +168,19 @@ const periodOptions = [
     codeName: t('MSG_TXT_RCPDT'), /* 접수일자' */
   },
   {
-    codeId: 'slRcogDt',
+    codeId: 'SL_RCOG_DT',
     codeName: t('MSG_TXT_SL_DT'), /* 매출일자' */
   },
   {
-    codeId: '"canDt"',
+    codeId: 'CAN_DT',
     codeName: t('MSG_TXT_CANC_DT'), /* 취소일자' */
   },
   {
-    codeId: 'istDt',
+    codeId: 'IST_DT',
     codeName: t('MSG_TXT_IST_DT'), /* 설치일자' */
   },
   {
-    codeId: 'exnDt',
+    codeId: 'EXN_DT',
     codeName: t('MSG_TXT_EXP_DT_1'), /* 만료일자' */
   },
   {
@@ -215,6 +217,9 @@ const searchParams = reactive({
   ogCd: '',
   copnDvCd: '',
 });
+searchParams.startDt = '20220101';
+searchParams.endDt = '20220101';
+
 // 사용차월을 위한..
 const useNmn = reactive({
   activate: computed(() => searchParams.periodType === 'useNmn'),
@@ -229,6 +234,7 @@ const fetchPage = async (pageIndex = pageInfo.value.pageIndex, pageSize = pageIn
     pageSize,
   };
   const response = await dataService.get('/sms/wells/contract/contracts/self-conversion/paging', { params });
+  console.log(response.data.list);
 
   pageInfo.value = response.data.pageInfo;
   grdData.value.setRows(response.data.list);
@@ -249,7 +255,7 @@ async function onClickExcelDownload() {
 async function onClickSearch() {
   cachedParams = { ...toRaw(searchParams) };
   if (useNmn.activate) {
-    cachedParams.periodType = 'istDt';
+    cachedParams.periodType = 'IST_DT';
     cachedParams.startDt = dayjs()
       .subtract(useNmn.max, 'M')
       .startOf('M')
@@ -278,14 +284,17 @@ const initGrd = defineGrid((data, view) => {
       .startOf('M')
       .diff(targetDay, 'M');
   }
-
   useGridDataModel(view, {
     contract: {
       type: String,
       label: t('MSG_BTN_CNTRW') /* 계약서' */,
       displaying: {
         value: '계약서',
-        renderer: { type: 'button' },
+        renderer: {
+          type: 'button',
+          hideWhenEmpty: false,
+        },
+        visible: false,
       },
     },
     cntrNo: { displaying: false },
@@ -366,7 +375,7 @@ const initGrd = defineGrid((data, view) => {
     pdHclsfNm: { displaying: false },
     pdMclsfNm: { displaying: false },
     pdCd: {
-      label: t('MSG_TXT_PROD_CD') /* 제품코드' */,
+      label: t('MSG_TXT_PRDT_CODE') /* 제품코드' */,
       width: 110,
     },
     pdNm: {
