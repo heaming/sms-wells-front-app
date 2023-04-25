@@ -51,6 +51,7 @@
               v-model:page-index="pageInfo.pageIndex"
               v-model:page-size="pageInfo.pageSize"
               :total-count="pageInfo.totalCount"
+              :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
               @change="onClickSearch"
             />
           </template>
@@ -114,6 +115,12 @@
           name="grdMain"
           :visible-rows="10"
           @init="initGrdMain"
+        />
+        <kw-pagination
+          v-model:page-index="pageInfo.pageIndex"
+          v-model:page-size="pageInfo.pageSize"
+          :total-count="pageInfo.totalCount"
+          @change="fetchData"
         />
       </div>
     </kw-observer>
@@ -182,7 +189,8 @@ async function fetchData() {
   pageInfo.value = pagingResult;
 
   dataSource.checkRowStates(false);
-  dataSource.addRows(pages);
+  dataSource.setRows(pages);
+  view.resetCurrent();
   dataSource.checkRowStates(true);
 
   view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
@@ -307,13 +315,6 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'sellLmRlsPsicNm', header: t('MSG_TXT_CNC_INCHR'), width: '180', styleName: 'text-left', editable: false },
     { fieldName: 'sellLmId', visible: false },
   ];
-
-  view.onScrollToBottom = (g) => {
-    if (pageInfo.value.pageIndex * pageInfo.value.pageSize <= g.getItemCount()) {
-      pageInfo.value.pageIndex += 1;
-      fetchData();
-    }
-  };
 
   data.setFields(fields);
   view.setColumns(columns);

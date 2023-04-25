@@ -74,6 +74,7 @@
               v-model:page-index="pageInfo.pageIndex"
               v-model:page-size="pageInfo.pageSize"
               :total-count="pageInfo.totalCount"
+              :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
               @change="onClickSearch"
             />
           </template>
@@ -135,6 +136,12 @@
           name="approvalBaseGrid"
           :visible-rows="10"
           @init="initGrid"
+        />
+        <kw-pagination
+          v-model:page-index="pageInfo.pageIndex"
+          v-model:page-size="pageInfo.pageSize"
+          :total-count="pageInfo.totalCount"
+          @change="fetchData"
         />
       </div>
     </kw-observer>
@@ -210,8 +217,11 @@ async function fetchData() {
   const dataSource = view.getDataSource();
 
   dataSource.checkRowStates(false);
-  dataSource.addRows(pages);
+  dataSource.setRows(pages);
+  view.resetCurrent();
   dataSource.checkRowStates(true);
+
+  view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
 async function fetchAprCodes() {
@@ -353,12 +363,6 @@ function initGrid(data, view) {
   view.rowIndicator.visible = true;
   view.editOptions.editable = true;
 
-  view.onScrollToBottom = (g) => {
-    if (pageInfo.value.pageIndex * pageInfo.value.pageSize <= g.getItemCount()) {
-      pageInfo.value.pageIndex += 1;
-      fetchData();
-    }
-  };
   view.onCellEdited = async (grid, itemIndex, row, fieldIndex) => {
     const { fieldName } = grid.getColumn(fieldIndex);
     if (fieldName === 'cntrAprAkDvCd') {
