@@ -38,7 +38,7 @@
     <kw-tab-panels v-model="selectedTab">
       <kw-tab-panel name="bilFshNrcvCt">
         <kw-search
-          :cols="2"
+          one-row
           @search="onClickSearch"
         >
           <kw-search-row>
