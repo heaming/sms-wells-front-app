@@ -241,48 +241,48 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'cralIdvTno', width: '43', styleName: 'text-center' }, // 휴대개별전화번호
     { fieldName: 'rsgnDt', header: t('MSG_TXT_RSGN_D'), width: '106', styleName: 'text-center' }, // 퇴사일
     { fieldName: 'sellInflwChnlDtlCd', header: t('MSG_TXT_BLG'), width: '112', styleName: 'text-center' }, // 소속
-    { fieldName: 'cntPre', header: t('MSG_TXT_INSTALLATION'), width: '112', styleName: 'text-right' }, // 전월-설치
-    { fieldName: 'cntPreC', header: t('MSG_TXT_CANCEL'), width: '111', styleName: 'text-right' }, // 전월-취소
-    { fieldName: 'cntPreFnl', header: t('MSG_TXT_FNL'), width: '111', styleName: 'text-right' }, // 전월-최종
-    { fieldName: 'cntCur', header: t('MSG_TXT_INSTALLATION'), width: '111', styleName: 'text-right' }, // 당월-설치
-    { fieldName: 'cntCurC', header: t('MSG_TXT_CANCEL'), width: '111', styleName: 'text-right' }, // 당월-취소
-    { fieldName: 'cntCurFnl', header: t('MSG_TXT_FNL'), width: '111', styleName: 'text-right' }, // 당월-최종
-    { fieldName: 'cnt01', header: t('MSG_TXT_INSTALLATION'), width: '111', styleName: 'text-right' }, // 1월-설치
-    { fieldName: 'cnt01C', header: t('MSG_TXT_CANCEL'), width: '111', styleName: 'text-right' }, // 1월-취소
-    { fieldName: 'cnt01Fnl', header: t('MSG_TXT_FNL'), width: '111', styleName: 'text-right' }, // 1월-최종
-    { fieldName: 'cnt02', header: t('MSG_TXT_INSTALLATION'), width: '111', styleName: 'text-right' }, // 2월-설치
-    { fieldName: 'cnt02C', header: t('MSG_TXT_CANCEL'), width: '111', styleName: 'text-right' }, // 2월-취소
-    { fieldName: 'cnt02Fnl', header: t('MSG_TXT_FNL'), width: '111', styleName: 'text-right' }, // 2월-최종
-    { fieldName: 'cnt03', header: t('MSG_TXT_INSTALLATION'), width: '111', styleName: 'text-right' }, // 3월-설치
-    { fieldName: 'cnt03C', header: t('MSG_TXT_CANCEL'), width: '111', styleName: 'text-right' }, // 3월-취소
-    { fieldName: 'cnt03Fnl', header: t('MSG_TXT_FNL'), width: '111', styleName: 'text-right' }, // 3월-최종
-    { fieldName: 'cnt04', header: t('MSG_TXT_INSTALLATION'), width: '111', styleName: 'text-right' }, // 4월-설치
-    { fieldName: 'cnt04C', header: t('MSG_TXT_CANCEL'), width: '111', styleName: 'text-right' }, // 4월-취소
-    { fieldName: 'cnt04Fnl', header: t('MSG_TXT_FNL'), width: '111', styleName: 'text-right' }, // 4월-최종
-    { fieldName: 'cnt05', header: t('MSG_TXT_INSTALLATION'), width: '111', styleName: 'text-right' }, // 5월-설치
-    { fieldName: 'cnt05C', header: t('MSG_TXT_CANCEL'), width: '111', styleName: 'text-right' }, // 5월-취소
-    { fieldName: 'cnt05Fnl', header: t('MSG_TXT_FNL'), width: '111', styleName: 'text-right' }, // 5월-최종
-    { fieldName: 'cnt06', header: t('MSG_TXT_INSTALLATION'), width: '111', styleName: 'text-right' }, // 6월-설치
-    { fieldName: 'cnt06C', header: t('MSG_TXT_CANCEL'), width: '111', styleName: 'text-right' }, // 6월-취소
-    { fieldName: 'cnt06Fnl', header: t('MSG_TXT_FNL'), width: '111', styleName: 'text-right' }, // 6월-최종
-    { fieldName: 'cnt07', header: t('MSG_TXT_INSTALLATION'), width: '111', styleName: 'text-right' }, // 7월-설치
-    { fieldName: 'cnt07C', header: t('MSG_TXT_CANCEL'), width: '111', styleName: 'text-right' }, // 7월-취소
-    { fieldName: 'cnt07Fnl', header: t('MSG_TXT_FNL'), width: '111', styleName: 'text-right' }, // 7월-최종
-    { fieldName: 'cnt08', header: t('MSG_TXT_INSTALLATION'), width: '111', styleName: 'text-right' }, // 8월-설치
-    { fieldName: 'cnt08C', header: t('MSG_TXT_CANCEL'), width: '111', styleName: 'text-right' }, // 8월-취소
-    { fieldName: 'cnt08Fnl', header: t('MSG_TXT_FNL'), width: '111', styleName: 'text-right' }, // 8월-최종
-    { fieldName: 'cnt09', header: t('MSG_TXT_INSTALLATION'), width: '111', styleName: 'text-right' }, // 9월-설치
-    { fieldName: 'cnt09C', header: t('MSG_TXT_CANCEL'), width: '111', styleName: 'text-right' }, // 9월-취소
-    { fieldName: 'cnt09Fnl', header: t('MSG_TXT_FNL'), width: '111', styleName: 'text-right' }, // 9월-최종
-    { fieldName: 'cnt10', header: t('MSG_TXT_INSTALLATION'), width: '111', styleName: 'text-right' }, //  10월-설치
-    { fieldName: 'cnt10C', header: t('MSG_TXT_CANCEL'), width: '111', styleName: 'text-right' }, // 10월-취소
-    { fieldName: 'cnt10Fnl', header: t('MSG_TXT_FNL'), width: '111', styleName: 'text-right' }, // 10월-최종
-    { fieldName: 'cnt11', header: t('MSG_TXT_INSTALLATION'), width: '111', styleName: 'text-right' }, // 11월-설치
-    { fieldName: 'cnt11C', header: t('MSG_TXT_CANCEL'), width: '111', styleName: 'text-right' }, // 11월-취소
-    { fieldName: 'cnt11Fnl', header: t('MSG_TXT_FNL'), width: '111', styleName: 'text-right' }, // 11월-최종
-    { fieldName: 'cnt12', header: t('MSG_TXT_INSTALLATION'), width: '111', styleName: 'text-right' }, //  12월-설치
-    { fieldName: 'cnt12C', header: t('MSG_TXT_CANCEL'), width: '111', styleName: 'text-right' }, // 12월-취소
-    { fieldName: 'cnt12Fnl', header: t('MSG_TXT_FNL'), width: '111', styleName: 'text-right' }, // 12월-최종
+    { fieldName: 'cntPre', header: t('MSG_TXT_INSTALLATION'), width: '112', styleName: 'text-right rg-button-link', renderer: { type: 'button' } }, // 전월-설치
+    { fieldName: 'cntPreC', header: t('MSG_TXT_CANCEL'), width: '111', styleName: 'text-right rg-button-link', renderer: { type: 'button' } }, // 전월-취소
+    { fieldName: 'cntPreFnl', header: t('MSG_TXT_FNL'), width: '111', styleName: 'text-right rg-button-link', renderer: { type: 'button' } }, // 전월-최종
+    { fieldName: 'cntCur', header: t('MSG_TXT_INSTALLATION'), width: '111', styleName: 'text-right rg-button-link', renderer: { type: 'button' } }, // 당월-설치
+    { fieldName: 'cntCurC', header: t('MSG_TXT_CANCEL'), width: '111', styleName: 'text-right rg-button-link', renderer: { type: 'button' } }, // 당월-취소
+    { fieldName: 'cntCurFnl', header: t('MSG_TXT_FNL'), width: '111', styleName: 'text-right rg-button-link', renderer: { type: 'button' } }, // 당월-최종
+    { fieldName: 'cnt01', header: t('MSG_TXT_INSTALLATION'), width: '111', styleName: 'text-right rg-button-link', renderer: { type: 'button' } }, // 1월-설치
+    { fieldName: 'cnt01C', header: t('MSG_TXT_CANCEL'), width: '111', styleName: 'text-right rg-button-link', renderer: { type: 'button' } }, // 1월-취소
+    { fieldName: 'cnt01Fnl', header: t('MSG_TXT_FNL'), width: '111', styleName: 'text-right rg-button-link', renderer: { type: 'button' } }, // 1월-최종
+    { fieldName: 'cnt02', header: t('MSG_TXT_INSTALLATION'), width: '111', styleName: 'text-right rg-button-link', renderer: { type: 'button' } }, // 2월-설치
+    { fieldName: 'cnt02C', header: t('MSG_TXT_CANCEL'), width: '111', styleName: 'text-right rg-button-link', renderer: { type: 'button' } }, // 2월-취소
+    { fieldName: 'cnt02Fnl', header: t('MSG_TXT_FNL'), width: '111', styleName: 'text-right rg-button-link', renderer: { type: 'button' } }, // 2월-최종
+    { fieldName: 'cnt03', header: t('MSG_TXT_INSTALLATION'), width: '111', styleName: 'text-right rg-button-link', renderer: { type: 'button' } }, // 3월-설치
+    { fieldName: 'cnt03C', header: t('MSG_TXT_CANCEL'), width: '111', styleName: 'text-right rg-button-link', renderer: { type: 'button' } }, // 3월-취소
+    { fieldName: 'cnt03Fnl', header: t('MSG_TXT_FNL'), width: '111', styleName: 'text-right rg-button-link', renderer: { type: 'button' } }, // 3월-최종
+    { fieldName: 'cnt04', header: t('MSG_TXT_INSTALLATION'), width: '111', styleName: 'text-right rg-button-link', renderer: { type: 'button' } }, // 4월-설치
+    { fieldName: 'cnt04C', header: t('MSG_TXT_CANCEL'), width: '111', styleName: 'text-right rg-button-link', renderer: { type: 'button' } }, // 4월-취소
+    { fieldName: 'cnt04Fnl', header: t('MSG_TXT_FNL'), width: '111', styleName: 'text-right rg-button-link', renderer: { type: 'button' } }, // 4월-최종
+    { fieldName: 'cnt05', header: t('MSG_TXT_INSTALLATION'), width: '111', styleName: 'text-right rg-button-link', renderer: { type: 'button' } }, // 5월-설치
+    { fieldName: 'cnt05C', header: t('MSG_TXT_CANCEL'), width: '111', styleName: 'text-right rg-button-link', renderer: { type: 'button' } }, // 5월-취소
+    { fieldName: 'cnt05Fnl', header: t('MSG_TXT_FNL'), width: '111', styleName: 'text-right rg-button-link', renderer: { type: 'button' } }, // 5월-최종
+    { fieldName: 'cnt06', header: t('MSG_TXT_INSTALLATION'), width: '111', styleName: 'text-right rg-button-link', renderer: { type: 'button' } }, // 6월-설치
+    { fieldName: 'cnt06C', header: t('MSG_TXT_CANCEL'), width: '111', styleName: 'text-right rg-button-link', renderer: { type: 'button' } }, // 6월-취소
+    { fieldName: 'cnt06Fnl', header: t('MSG_TXT_FNL'), width: '111', styleName: 'text-right rg-button-link', renderer: { type: 'button' } }, // 6월-최종
+    { fieldName: 'cnt07', header: t('MSG_TXT_INSTALLATION'), width: '111', styleName: 'text-right rg-button-link', renderer: { type: 'button' } }, // 7월-설치
+    { fieldName: 'cnt07C', header: t('MSG_TXT_CANCEL'), width: '111', styleName: 'text-right rg-button-link', renderer: { type: 'button' } }, // 7월-취소
+    { fieldName: 'cnt07Fnl', header: t('MSG_TXT_FNL'), width: '111', styleName: 'text-right rg-button-link', renderer: { type: 'button' } }, // 7월-최종
+    { fieldName: 'cnt08', header: t('MSG_TXT_INSTALLATION'), width: '111', styleName: 'text-right rg-button-link', renderer: { type: 'button' } }, // 8월-설치
+    { fieldName: 'cnt08C', header: t('MSG_TXT_CANCEL'), width: '111', styleName: 'text-right rg-button-link', renderer: { type: 'button' } }, // 8월-취소
+    { fieldName: 'cnt08Fnl', header: t('MSG_TXT_FNL'), width: '111', styleName: 'text-right rg-button-link', renderer: { type: 'button' } }, // 8월-최종
+    { fieldName: 'cnt09', header: t('MSG_TXT_INSTALLATION'), width: '111', styleName: 'text-right rg-button-link', renderer: { type: 'button' } }, // 9월-설치
+    { fieldName: 'cnt09C', header: t('MSG_TXT_CANCEL'), width: '111', styleName: 'text-right rg-button-link', renderer: { type: 'button' } }, // 9월-취소
+    { fieldName: 'cnt09Fnl', header: t('MSG_TXT_FNL'), width: '111', styleName: 'text-right rg-button-link', renderer: { type: 'button' } }, // 9월-최종
+    { fieldName: 'cnt10', header: t('MSG_TXT_INSTALLATION'), width: '111', styleName: 'text-right rg-button-link', renderer: { type: 'button' } }, //  10월-설치
+    { fieldName: 'cnt10C', header: t('MSG_TXT_CANCEL'), width: '111', styleName: 'text-right rg-button-link', renderer: { type: 'button' } }, // 10월-취소
+    { fieldName: 'cnt10Fnl', header: t('MSG_TXT_FNL'), width: '111', styleName: 'text-right rg-button-link', renderer: { type: 'button' } }, // 10월-최종
+    { fieldName: 'cnt11', header: t('MSG_TXT_INSTALLATION'), width: '111', styleName: 'text-right rg-button-link', renderer: { type: 'button' } }, // 11월-설치
+    { fieldName: 'cnt11C', header: t('MSG_TXT_CANCEL'), width: '111', styleName: 'text-right rg-button-link', renderer: { type: 'button' } }, // 11월-취소
+    { fieldName: 'cnt11Fnl', header: t('MSG_TXT_FNL'), width: '111', styleName: 'text-right rg-button-link', renderer: { type: 'button' } }, // 11월-최종
+    { fieldName: 'cnt12', header: t('MSG_TXT_INSTALLATION'), width: '111', styleName: 'text-right rg-button-link', renderer: { type: 'button' } }, //  12월-설치
+    { fieldName: 'cnt12C', header: t('MSG_TXT_CANCEL'), width: '111', styleName: 'text-right rg-button-link', renderer: { type: 'button' } }, // 12월-취소
+    { fieldName: 'cnt12Fnl', header: t('MSG_TXT_FNL'), width: '111', styleName: 'text-right rg-button-link', renderer: { type: 'button' } }, // 12월-최종
     { fieldName: 'cntTot', header: t('MSG_TXT_SUM'), width: '111', styleName: 'text-right' }, // 합계
   ];
 
@@ -394,6 +394,26 @@ const initGrid = defineGrid((data, view) => {
 
   view.rowIndicator.visible = true;
   view.checkBar.visible = true;
+
+  view.onCellItemClicked = async (g, { column, dataRow }) => {
+    const stYy = searchParams.istDt;
+    const mMGbn = column.substring(5, 3);
+    let colDv = '';
+    const empno = g.getValue(dataRow, 'empno');
+    if (mMGbn === 'Pr') {
+      colDv = now.format('MM') - 1;
+    } else if (mMGbn === 'Cu') {
+      colDv = now.format('MM');
+    } else if (mMGbn === 'To') {
+      colDv = '';
+    } else {
+      colDv = mMGbn;
+    }
+    await modal({
+      component: 'WwctaEmployeePurchaseContractListP',
+      componentProps: { stYy, colDv, empno },
+    });
+  };
 });
 </script>
 <style>
