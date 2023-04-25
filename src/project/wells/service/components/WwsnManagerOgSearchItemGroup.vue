@@ -109,10 +109,10 @@ const props = defineProps({
   partnerFirstOption: { type: String, default: undefined },
 
   // Select Label
-  dgr1LevlOgLabel: { type: String, default: 'ogNm' },
-  dgr2LevlOgLabel: { type: String, default: 'ogNm' },
-  dgr3LevlOgLabel: { type: String, default: 'ogNm' },
-  partnerLabel: { type: String, default: 'prtnrNm' },
+  dgr1LevlOgLabel: { type: String, default: 'ogCdNm' },
+  dgr2LevlOgLabel: { type: String, default: 'ogCdNm' },
+  dgr3LevlOgLabel: { type: String, default: 'ogCdNm' },
+  partnerLabel: { type: String, default: 'prtnrNoNm' },
 
   // Select Required
   dgr1LevlOgRequired: { type: Boolean, default: false },
