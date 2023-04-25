@@ -475,19 +475,25 @@ const initGrid = defineGrid((data, view) => {
         } else {
           // 존재하지 않는 계약상세번호 입니다.
           alert(t('MSG_ALT_IT_NOT_EXIST', [t('MSG_TXT_CNTR_DTL_NO')]));
+
+          data.setValue(itemIndex, 'cntrNo', '');
+          data.setValue(itemIndex, 'cntrSn', '');
+          data.setValue(itemIndex, 'cntr', '');
         }
       }
       // else {
       //   // alert('계약상세번호는 필수 값 입니다.');
       //   alert(t('MSG_ALT_NCELL_REQUIRED_VAL', [t('MSG_TXT_CNTR_DTL_NO')]));
       // }
-
-      view.onValidate = async (grid, index) => {
-        const { prmDscExcdStrtYm, prmDscExcdEndYm } = grid.getValues(index.dataRow);
-        if (prmDscExcdStrtYm > prmDscExcdEndYm) {
-          return t('MSG_ALT_ABLE_START_DT_PREC_FINS_DT');
-        }
-      };
+    }
+  };
+  view.onValidate = async (grid, index) => {
+    const { prmDscExcdStrtYm, prmDscExcdEndYm, cntr } = grid.getValues(index.dataRow);
+    if (!cntr) {
+      return t('MSG_ALT_NCELL_REQUIRED_VAL', [t('MSG_TXT_CNTR_DTL_NO')]);
+    }
+    if (prmDscExcdStrtYm > prmDscExcdEndYm) {
+      return t('MSG_ALT_ABLE_START_DT_PREC_FINS_DT');
     }
   };
 });
