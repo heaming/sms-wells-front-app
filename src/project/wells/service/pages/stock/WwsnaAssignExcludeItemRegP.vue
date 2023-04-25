@@ -14,9 +14,10 @@
 --->
 <template>
   <kw-popup
-    class="kw-popup--2xl"
+    size="2xl"
   >
     <kw-search
+      :modified-targets="['grdMain']"
       @search="onClickSearch"
     >
       <kw-search-row>
@@ -80,7 +81,8 @@
     <kw-grid
       ref="grdMainRef"
       name="grdMain"
-      :visible-rows="pageInfo.pageSize"
+      :page-size="pageInfo.pageSize"
+      :total-count="pageInfo.totalCount"
       @init="initGrdMain"
     />
     <kw-pagination
