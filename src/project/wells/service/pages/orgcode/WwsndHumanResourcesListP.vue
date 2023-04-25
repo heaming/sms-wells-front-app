@@ -154,6 +154,10 @@ const props = defineProps({
     type: String,
     default: '',
   },
+  checkType: {
+    type: String,
+    default: 'radio',
+  },
 });
 
 // -------------------------------------------------------------------------------------------------
@@ -188,6 +192,7 @@ const searchParams = ref({
 let cachedParams;
 
 const isManagerSelected = computed(() => searchParams.value.mngrDvCd === '1');
+const isRadio = computed(() => props.checkType === 'radio');
 
 const layouts = computed(() => {
   if (isManagerSelected.value) {
@@ -377,7 +382,19 @@ const initGrdMain = defineGrid((data, view) => {
   view.setColumnLayout(layouts.value);
 
   view.checkBar.visible = true;
+  view.checkBar.exclusive = isRadio.value;
   view.rowIndicator.visible = true;
+
+  // 체크박스 설정
+  view.onCellClicked = (grid, clickData) => {
+    if (clickData.cellType === 'data') {
+      grid.checkItem(
+        clickData.itemIndex,
+        isRadio.value ? true : !grid.isCheckedItem(clickData.itemIndex),
+        isRadio.value,
+      );
+    }
+  };
 });
 
 onMounted(async () => {
