@@ -25,13 +25,13 @@
             type="month"
           />
         </kw-search-item>
-        <kw-search-item :label="$t('MSG_TXT_SV_CNR')">
-          <kw-select
-            v-model="searchParams.ogCd"
-            first-option="all"
-            :options="svcCenters"
-          />
-        </kw-search-item>
+        <wwsn-engineer-og-search-item-group
+          v-model:dgr1-levl-og-id="searchParams.ogId"
+          dgr1-levl-og-first-option="all"
+          partner-first-option="all"
+          use-og-level="1"
+          :use-partner="false"
+        />
         <kw-search-item :label="$t('MSG_TXT_EPNO')">
           <kw-input
             v-model="searchParams.egerPrtnrNo"
@@ -140,11 +140,12 @@
 // -------------------------------------------------------------------------------------------------
 
 import { useMeta, getComponentType, defineGrid, codeUtil, useGlobal, useDataService, gridUtil } from 'kw-lib';
-import useSnCode from '~sms-wells/service/composables/useSnCode';
+// import useSnCode from '~sms-wells/service/composables/useSnCode';
 import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
+import WwsnEngineerOgSearchItemGroup from '~sms-wells/service/components/WwsnEngineerOgSearchItemGroup.vue';
 
-const { getAllEngineers } = useSnCode();
+// const { getAllEngineers } = useSnCode();
 const { currentRoute } = useRouter();
 const { getConfig } = useMeta();
 const { modal, notify, confirm } = useGlobal();
@@ -169,7 +170,7 @@ const codes = await codeUtil.getMultiCodes(
 
 const searchParams = ref({
   pymdt: dayjs().format('YYYYMM'),
-  ogCd: '',
+  ogId: '',
   egerPrtnrNo: '',
   prtnrKnm: '',
   toolPdCdStrt: '',
@@ -180,9 +181,9 @@ const searchParams = ref({
 
 let cachedParams;
 
-const centers = ((await getAllEngineers()).G_ONLY_SVC);
-const centersByOgLevlDvCd = centers.filter((v) => v.ogTpCd === 'W06' && v.ogLevlDvCd === '2');
-const svcCenters = centersByOgLevlDvCd.map((v) => ({ codeName: v.ogNm, codeId: v.ogId }));
+// const centers = ((await getAllEngineers()).G_ONLY_SVC);
+// const centersByOgLevlDvCd = centers.filter((v) => v.ogTpCd === 'W06' && v.ogLevlDvCd === '2');
+// const svcCenters = centersByOgLevlDvCd.map((v) => ({ codeName: v.ogNm, codeId: v.ogId }));
 
 function setPymdtColumns(toolHist) {
   const view = grdMainRef.value.getView();
@@ -245,7 +246,7 @@ function initGrid() {
         { fieldName: 'toolPdCd' },
         { fieldName: 'dsbSn' },
         { fieldName: 'toolQty' },
-        { fieldName: 'ogCd' },
+        { fieldName: 'ogId' },
         { fieldName: 'ogNm' },
         { fieldName: 'hgrOgNm' },
         { fieldName: 'prtnrNo' },
@@ -270,6 +271,7 @@ function initGrid() {
 }
 
 async function fetchData() {
+  console.log(cachedParams);
   initGrid();
 
   const res = await dataService.get('/sms/wells/service/engineer-tools/paging', { params: { ...cachedParams, ...pageInfo.value } });
@@ -336,7 +338,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'toolPdCd' },
     { fieldName: 'dsbSn' },
     { fieldName: 'toolQty' },
-    { fieldName: 'ogCd' },
+    { fieldName: 'ogId' },
     { fieldName: 'ogNm' },
     { fieldName: 'hgrOgNm' },
     { fieldName: 'prtnrNo' },

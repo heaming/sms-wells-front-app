@@ -23,7 +23,7 @@
           :label="$t('MSG_TXT_SV_CNR')"
         >
           <kw-select
-            v-model="dataParams.ogCd"
+            v-model="dataParams.ogId"
             :options="svcCenters"
             :multiple="true"
             @update:model-value="onChangeSvcCenters"
@@ -79,10 +79,10 @@
 // -------------------------------------------------------------------------------------------------
 
 import { useMeta, getComponentType, defineGrid, codeUtil, useDataService, gridUtil, useGlobal, useModal } from 'kw-lib';
-import useSnCode from '~sms-wells/service/composables/useSnCode';
+// import useSnCode from '~sms-wells/service/composables/useSnCode';
 
 const dataService = useDataService();
-const { getAllEngineers } = useSnCode();
+// const { getAllEngineers } = useSnCode();
 const { getConfig } = useMeta();
 const { notify, confirm } = useGlobal();
 const { t } = useI18n();
@@ -106,28 +106,40 @@ const pageInfo = ref({
 });
 
 const dataParams = ref({
-  ogCd: [],
+  ogId: [],
   egerPrtnrNos: [],
   pdCds: [],
 });
 
 // let cachedParams;
 
-const engineers = ref([]);
-const engsAndCenters = ((await getAllEngineers()));
-const centers = engsAndCenters.G_ONLY_SVC;
-const engs = engsAndCenters.G_ONLY_ENG;
+async function fetchDgr1LevlOgs() {
+  const res = await dataService.get('/sms/wells/service/organizations/service-center');
+  return res.data;
+}
 
-const centersByOgLevlDvCd = centers.filter((v) => v.ogTpCd === 'W06' && v.ogLevlDvCd === '2');
-const svcCenters = centersByOgLevlDvCd.map((v) => ({ codeName: v.ogNm, codeId: v.ogCd }));
+async function fetchEngineers(params) {
+  return await dataService.get('/sms/wells/service/organizations/engineer', params);
+}
+
+async function getEngineers() {
+  const res = await fetchEngineers({ params: { dgr1LevlOgId: dataParams.value.ogId } });
+  return res.data;
+}
+
+const engineers = ref([]);
+const centers = (await fetchDgr1LevlOgs());
+const engs = (await getEngineers());
+
+const svcCenters = centers.map((v) => ({ codeName: v.ogNm, codeId: v.ogId }));
 
 function onChangeSvcCenters() {
-  if (dataParams.value.ogCd.length === 0) {
+  if (dataParams.value.ogId.length === 0) {
     dataParams.value.egerPrtnrNos = [];
     engineers.value = [];
   } else {
-    const engsByOgCd = engs.filter((v) => dataParams.value.ogCd.includes(v.ogCd));
-    engineers.value = engsByOgCd.map((v) => ({ codeId: v.codeId, codeName: v.codeNm }));
+    const engsByOgCd = engs.filter((v) => dataParams.value.ogId.includes(v.ogId));
+    engineers.value = engsByOgCd.map((v) => ({ codeId: v.prtnrNo, codeName: v.prtnrNoNm }));
   }
 }
 
