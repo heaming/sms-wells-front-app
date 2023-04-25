@@ -238,7 +238,7 @@ async function onClickDelete() {
   const deleteKeys = deletedRows.map((row) => row.sellLmId);
 
   if (deleteKeys.length) {
-    await notify(t('MSG_ALT_DEL_DATA'));
+    await notify(t('MSG_ALT_DELETED'));
     await dataService.delete('/sms/wells/contract/sales-limits/business-partners', { data: deleteKeys });
     onClickSearch();
   }
