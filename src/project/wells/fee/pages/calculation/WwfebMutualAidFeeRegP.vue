@@ -56,10 +56,6 @@ const { notify } = useGlobal();
 
 const { t } = useI18n();
 const props = defineProps({
-  type: {
-    type: String,
-    default: '',
-  },
   baseYm: {
     type: String,
     default: '',
@@ -71,7 +67,6 @@ const props = defineProps({
 const popupRef = ref();
 const dataService = useDataService();
 const regData = ref({
-  type: props.type,
   baseYm: props.baseYm,
 });
 // 취소
@@ -81,10 +76,9 @@ async function onClickCancel() {
 // 생성
 async function onClickCreate() {
   if (!await popupRef.value.validate()) { return; }
-  const res = await dataService.post('API정의안됨', { regData });
-  const { key: rtnKey } = res.data;
+  await dataService.post('/sms/wells/fee/mutual-aid/create', { baseYm: regData.value.baseYm });
   notify(t('MSG_ALT_SAVE_DATA'));
-  ok(true, { rtnKey });
+  ok(true);
 }
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
