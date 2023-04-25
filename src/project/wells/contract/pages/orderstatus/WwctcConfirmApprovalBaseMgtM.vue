@@ -74,7 +74,6 @@
               v-model:page-index="pageInfo.pageIndex"
               v-model:page-size="pageInfo.pageSize"
               :total-count="pageInfo.totalCount"
-              :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
               @change="onClickSearch"
             />
           </template>
@@ -134,7 +133,7 @@
         <kw-grid
           ref="grdMainRef"
           name="approvalBaseGrid"
-          :visible-rows="pageInfo.pageSize - 1"
+          :visible-rows="10"
           @init="initGrid"
         />
       </div>

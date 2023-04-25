@@ -51,7 +51,6 @@
               v-model:page-index="pageInfo.pageIndex"
               v-model:page-size="pageInfo.pageSize"
               :total-count="pageInfo.totalCount"
-              :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
               @change="onClickSearch"
             />
           </template>
@@ -113,7 +112,7 @@
         <kw-grid
           ref="grdMainRef"
           name="grdMain"
-          :visible-rows="pageInfo.pageSize - 1"
+          :visible-rows="10"
           @init="initGrdMain"
         />
       </div>
@@ -160,6 +159,9 @@ const searchParams = ref({
   dlpnrCd: '',
 });
 
+const isSellLmOcStmEmpty = computed(() => isEmpty(searchParams.value.sellLmOcStm));
+const isSellLmOcDtmEmpty = computed(() => isEmpty(searchParams.value.sellLmOcDtm));
+
 let cachedParams;
 
 async function onClickAdd() {
@@ -194,6 +196,13 @@ async function onClickSearch() {
     alert(t('MSG_ALT_REQ_INPUT_VAL', [t('MSG_TXT_OCCUR_DATE'), t('MSG_TXT_ENTRP_NO'), t('MSG_TXT_BSN_NM')]));
     return;
   }
+
+  if ((isSellLmOcStmEmpty.value && !isSellLmOcDtmEmpty.value)
+     || (!isSellLmOcStmEmpty.value && isSellLmOcDtmEmpty.value)) {
+    alert(t('MSG_ALT_CHK_CONFIRM', [t('MSG_TXT_OCCR_DATE')]));
+    return;
+  }
+
   grdMainRef.value.getData().clearRows();
   pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(paramsValue);
