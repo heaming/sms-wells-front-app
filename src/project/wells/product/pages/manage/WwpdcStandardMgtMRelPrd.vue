@@ -27,6 +27,7 @@
       />
       <kw-input
         v-model="materialSearchValue"
+        maxlength="100"
         dense
         clearable
         icon="search"
@@ -73,6 +74,7 @@
       />
       <kw-input
         v-model="serviceSearchValue"
+        maxlength="100"
         dense
         clearable
         icon="search"
@@ -109,6 +111,7 @@
       />
       <kw-input
         v-model="standardSearchValue"
+        maxlength="100"
         dense
         clearable
         icon="search"
@@ -611,6 +614,7 @@ async function initStandardGrid(data, view) {
       width: '256',
       editable: true,
       styleName: 'text-left rg-button-icon--search',
+      editor: { maxLength: 10 },
       button: 'action',
     },
     // 서비스코드

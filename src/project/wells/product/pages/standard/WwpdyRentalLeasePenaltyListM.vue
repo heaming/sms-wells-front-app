@@ -34,12 +34,14 @@
         <kw-search-item :label="$t('MSG_TXT_PRDT_NM')">
           <kw-input
             v-model="searchParams.pdNm"
+            maxlength="100"
           />
         </kw-search-item>
         <!-- 상품코드 -->
         <kw-search-item :label="$t('MSG_TXT_PRDT_CODE')">
           <kw-input
             v-model="searchParams.pdCd"
+            maxlength="10"
             clearable
             icon="search"
             @click-icon="onClickSearchPdCdPopup()"
@@ -267,6 +269,7 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-left',
       button: 'action',
       rules: 'required',
+      editor: { maxLength: 100 },
     },
     // 시작일
     {

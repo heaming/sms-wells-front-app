@@ -27,6 +27,7 @@
       />
       <kw-input
         v-model="productSearchValue"
+        maxlength="100"
         dense
         clearable
         icon="search"
