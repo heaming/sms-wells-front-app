@@ -301,6 +301,7 @@ async function onClickRemove() {
   const deleteKeys = deletedRows.map((row) => row);
 
   if (deleteKeys.length) {
+    await notify(t('MSG_ALT_DEL_DATA'));
     await dataService.delete('/sms/wells/contract/contracts/approval-standards', { data: deleteKeys });
     await onClickSearch();
   }
