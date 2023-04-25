@@ -21,6 +21,7 @@
         <kw-search-item :label="$t('MSG_TXT_ALNC_CD')">
           <kw-input
             v-model="searchParams.alncmpCd"
+            maxlength="3"
           />
         </kw-search-item>
         <!-- 판매유형 -->
@@ -34,6 +35,7 @@
         <kw-search-item :label="$t('MSG_TXT_PRDT_NM')">
           <kw-input
             v-model="searchParams.pdNm"
+            maxlength="100"
           />
         </kw-search-item>
       </kw-search-row>
@@ -43,6 +45,7 @@
         <kw-search-item :label="$t('MSG_TXT_PRDT_CODE')">
           <kw-input
             v-model="searchParams.pdCd"
+            maxlength="10"
             clearable
             icon="search"
             @click-icon="onClickSearchPdCdPopup()"
@@ -273,7 +276,7 @@ const initGrdMain = defineGrid((data, view) => {
       width: '110',
       styleName: 'text-center',
       rules: 'required',
-      editor: { maxLength: 20 },
+      editor: { maxLength: 3 },
     },
     // 판매유형
     {
@@ -302,6 +305,7 @@ const initGrdMain = defineGrid((data, view) => {
       width: '207',
       styleName: 'text-left',
       button: 'action',
+      editor: { maxLength: 100 },
       rules: 'required',
     },
     // 서비스
@@ -309,6 +313,7 @@ const initGrdMain = defineGrid((data, view) => {
       header: t('MSG_TXT_SERVICE'),
       width: '160',
       styleName: 'text-center',
+      editor: { maxLength: 100 },
       button: 'action',
     },
     // 할인유형

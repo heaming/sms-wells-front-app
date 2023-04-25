@@ -28,6 +28,7 @@
       />
       <kw-input
         v-model="standardSearchValue"
+        maxlength="100"
         dense
         clearable
         icon="search"

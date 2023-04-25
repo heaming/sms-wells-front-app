@@ -392,7 +392,7 @@ const initGridMain = defineGrid((data, view) => {
       header: t('MSG_TXT_WK_QTY'),
       width: '80',
       styleName: 'text-right',
-      editor: { type: 'number', editFormat: '#,##0' },
+      editor: { type: 'number', editFormat: '#,##0', maxLength: 12 },
       dataType: 'number' },
     // 서비스주기
     { fieldName: 'svPrdMmN',
@@ -427,6 +427,7 @@ const initGridMain = defineGrid((data, view) => {
     // 제외월
     { fieldName: 'excdMmVal',
       header: t('MSG_TXT_EXCEPT_MONS'),
+      editor: { maxLength: 100, inputCharacters: '0-9,' },
       width: '80' },
     // 설치월
     { fieldName: 'istMm',

@@ -32,6 +32,7 @@
         <kw-search-item :label="$t('MSG_TXT_VARB_NM')">
           <kw-input
             v-model="searchParams.rgltnVarbNm"
+            maxlength="100"
           />
         </kw-search-item>
       </kw-search-row>
@@ -229,6 +230,7 @@ const initGrdMain = defineGrid((data, view) => {
       header: t('MSG_TXT_VAL_ID'),
       width: '86',
       styleName: 'text-center',
+      editor: { maxLength: 15 },
       rules: 'required' },
     // 변수명
     { fieldName: 'rgltnVarbNm',
