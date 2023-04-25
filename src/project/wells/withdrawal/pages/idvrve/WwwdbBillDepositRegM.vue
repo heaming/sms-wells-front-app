@@ -264,7 +264,7 @@ async function fetchData() {
 async function onClickSearch() {
   pageInfo.value.pageIndex = 1;
 
-  // grdMainRef2.value.getData().clearRows();
+  grdMainRef2.value.getData().clearRows();
 
   cachedParams = cloneDeep(searchParams.value);
 
@@ -447,6 +447,8 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'cntrCount' }, /* 계약수 */
     { fieldName: 'itgDpNo' }, /* 통합입금번호 */
     { fieldName: 'col3' },
+    { fieldName: 'sellBzsBzrno' }, /* 판매업체사업자번호 */
+    { fieldName: 'pblBzsBzrno' }, /* 발행업체사업자번호 */
 
   ];
 
@@ -555,13 +557,21 @@ const initGrid = defineGrid((data, view) => {
 
   view.onCellItemClicked = async (g, { column, itemIndex }) => {
     if (column === 'mconBzsNm') {
-      const { itgDpNo, cntrNo, bzrno, mconBzsNm } = g.getValues(itemIndex);
+      const { itgDpNo, cntrNo, bzrno, mconBzsNm,
+        billBndNo, billRmkCn, billRcpDt, billExprDt, billDpAmt, sellBzsBzrno, pblBzsBzrno } = g.getValues(itemIndex);
 
       const paramData = {
         itgDpNo,
         cntrNo,
         bzrno,
         mconBzsNm,
+        sellBzsBzrno,
+        pblBzsBzrno,
+        billBndNo,
+        billRmkCn,
+        billRcpDt,
+        billExprDt,
+        billDpAmt,
       };
       const { result } = await modal({
         component: 'WwwdbBillDepositRegP',

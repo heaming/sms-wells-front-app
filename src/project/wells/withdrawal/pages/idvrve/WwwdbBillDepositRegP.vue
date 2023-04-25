@@ -175,7 +175,35 @@ const props = defineProps({
     type: String,
     default: null,
   },
+  sellBzsBzrno: {
+    type: String,
+    default: null,
+  },
+  pblBzsBzrno: {
+    type: String,
+    default: null,
+  },
 
+  billBndNo: {
+    type: String,
+    default: null,
+  }, // 채권번호
+  billRmkCn: {
+    type: String,
+    default: null,
+  }, // 어음구분
+  billRcpDt: {
+    type: String,
+    default: null,
+  }, // 접수일자
+  billExprDt: {
+    type: String,
+    default: null,
+  }, // 만기일
+  billDpAmt: {
+    type: String,
+    default: null,
+  }, // 입금금액
 });
 
 const grdMainRef = ref(getComponentType('KwGrid'));
@@ -333,15 +361,26 @@ async function onClickCreate() {
 // 행추가
 async function onGridAdd() {
   const view = grdMainRef2.value.getView();
-  gridUtil.insertRowAndFocus(view, 0, {
-    billRcpDt: now.format('YYYYMMDD'), // 접수일자
-    billExprDt: now.format('99991231'), // 만기일
-  });
-}
 
-onMounted(async () => {
-  await onGridAdd();
-});
+  console.log(props.sellBzsBzrno);
+
+  if (!isEmpty(props.itgDpNo)) {
+    gridUtil.insertRowAndFocus(view, 0, {
+      billBndNo: props.billBndNo, // 채권번호
+      billRmkCn: props.billRmkCn, // 어음구분
+      billRcpDt: props.billRcpDt, // 접수일자
+      billExprDt: props.billExprDt, // 만기일
+      billDpAmt: props.billDpAmt, // 입금금액
+      sellBzsBzrno: props.sellBzsBzrno,
+      pblBzsBzrno: props.pblBzsBzrno,
+    });
+  } else {
+    gridUtil.insertRowAndFocus(view, 0, {
+      billRcpDt: now.format('YYYYMMDD'), // 접수일자
+      billExprDt: now.format('99991231'), // 만기일
+    });
+  }
+}
 
 // 저장버튼
 async function onClickSave() {
@@ -416,6 +455,7 @@ async function initProps() {
 
     await onClickSearch();
     await onClickSubSearch();
+    await onGridAdd();
   }
 }
 
