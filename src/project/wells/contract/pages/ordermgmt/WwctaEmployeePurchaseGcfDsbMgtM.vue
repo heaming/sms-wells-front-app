@@ -401,7 +401,7 @@ const initGrid = defineGrid((data, view) => {
     let colDv = '';
     const empno = g.getValue(dataRow, 'empno');
     if (mMGbn === 'Pr') {
-      colDv = now.format('MM') - 1;
+      colDv = dayjs().subtract(1, 'month').format('MM');
     } else if (mMGbn === 'Cu') {
       colDv = now.format('MM');
     } else if (mMGbn === 'To') {
