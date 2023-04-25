@@ -28,12 +28,14 @@
         <kw-search-item :label="$t('MSG_TIT_MATERIAL_NM')">
           <kw-input
             v-model.trim="searchParams.pdNm"
+            :maxlength="100"
           />
         </kw-search-item>
         <!-- 제품코드 -->
         <kw-search-item :label="$t('MSG_TXT_PROD_CD')">
           <kw-input
             v-model.trim="searchParams.pdCd"
+            :maxlength="10"
             clearable
             icon="search"
             @click-icon="onClickProduct()"
@@ -68,6 +70,7 @@
         <kw-search-item :label="$t('MSG_TXT_MATI_CD')">
           <kw-input
             v-model.trim="searchParams.sapMatCd"
+            :maxlength="20"
             clearable
             icon="search"
             @click-icon="onClickSapMaterial()"
