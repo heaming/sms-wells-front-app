@@ -186,7 +186,6 @@ await getServiceCenter();
  * 휴일근무 지정자인지 체크하기 위한 funciton
  */
 function isHolidaySetter() {
-  console.log(`cherro ::: 111 ::: ${sessionUserInfo.employeeIDNumber}`);
   return sessionUserInfo.employeeIDNumber === '999999';
   // return sessionUserInfo.userId === '999999';
   // return sessionUserInfo.userId === 'admin';
