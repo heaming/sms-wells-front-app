@@ -49,7 +49,7 @@
             v-else
             v-model:from="searchParams.startDt"
             v-model:to="searchParams.endDt"
-            rules="date_range_required"
+            rules="date_range_required|date_range_months:2"
           />
         </kw-search-item>
         <kw-search-item
@@ -217,8 +217,6 @@ const searchParams = reactive({
   ogCd: '',
   copnDvCd: '',
 });
-searchParams.startDt = '20220101';
-searchParams.endDt = '20220101';
 
 // 사용차월을 위한..
 const useNmn = reactive({
