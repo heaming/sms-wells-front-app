@@ -14,10 +14,10 @@
 --->
 <template>
   <kw-popup
-    class="kw-popup--2xl"
+    size="2xl"
   >
     <kw-search
-      :cols="1"
+      :cols="2"
       one-row
       :modified-targets="['approvalBaseGrid']"
       @search="fetchData"
@@ -35,25 +35,23 @@
         </kw-search-item>
       </kw-search-row>
     </kw-search>
-    <div>
-      <kw-action-top>
-        <template #left>
-          <kw-paging-info :total-count="totalCount" />
-        </template>
-        <kw-btn
-          v-permission:delete
-          dense
-          grid-action
-          :label="t('MSG_BTN_DEL')"
-          @click="onClickDelete"
-        />
-      </kw-action-top>
-      <kw-grid
-        ref="grdConfirmRef"
-        :visible-rows="12"
-        @init="initGrid"
+    <kw-action-top>
+      <template #left>
+        <kw-paging-info :total-count="totalCount" />
+      </template>
+      <kw-btn
+        v-permission:delete
+        dense
+        grid-action
+        :label="t('MSG_BTN_DEL')"
+        @click="onClickDelete"
       />
-    </div>
+    </kw-action-top>
+    <kw-grid
+      ref="grdConfirmRef"
+      :visible-rows="12"
+      @init="initGrid"
+    />
     <kw-separator
       vertical
       inset
@@ -72,11 +70,12 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { defineGrid, gridUtil, getComponentType, useDataService, useModal } from 'kw-lib';
+import { defineGrid, gridUtil, getComponentType, useDataService, useModal, useGlobal } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 
 const dataService = useDataService();
 const { t } = useI18n();
+const { notify } = useGlobal();
 
 const { ok, cancel: onClickCancel } = useModal();
 const grdConfirmRef = ref(getComponentType('KwGrid'));
@@ -122,6 +121,7 @@ async function onClickDelete() {
   const deletedRows = await gridUtil.confirmDeleteCheckedRows(view);
 
   if (deletedRows.length > 0) {
+    await notify(t('MSG_ALT_DELETED'));
     await dataService.delete('sms/wells/contract/contracts/approval-request-standards', { data: deletedRows });
     fetchData();
   }
