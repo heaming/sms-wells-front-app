@@ -47,7 +47,7 @@
             :options="clPsicCodes"
           />
           <kw-input
-            v-model="frmMainData.usrNm"
+            v-model="frmMainData.prtnrNo"
             icon="search"
             clearable
             @click-icon="onClickIcon"
@@ -202,6 +202,7 @@
           </kw-field-wrap>
         </kw-form-item>
       </kw-form-row>
+      <!-- (일시불)마감일/실적일자 -->
       <kw-form-row>
         <kw-form-item
           :label="$t('MSG_TXT_SPAY_CL_D_PED')"
@@ -228,6 +229,7 @@
             /><!--TODO. 설계자 확인 후 코드 수정 필요 -->
           </kw-field-wrap>
         </kw-form-item>
+        <!-- (일시불) 마감익일~말일시간/실적일자 -->
         <kw-form-item
           :label="$t('MSG_TXT_SPAY_CL_NXD_LAST_HH_PED')"
           required
@@ -277,6 +279,8 @@ const { t } = useI18n();
 const { notify } = useGlobal();
 const dataService = useDataService();
 const { getters } = useStore();
+const store = useStore();
+const { modal } = useGlobal();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -294,7 +298,7 @@ const dtDvCodes = ref([
 ]);
 
 const clPsicCodes = ref([
-  { codeId: '9', codeName: '공통' },
+  { codeId: '0', codeName: '공통' },
   { codeId: '', codeName: '담당자' },
 ]);
 // TODO: 명세서 기준 팝업시 전달 받을 정보 '마감구분' 만 정의 확인 필요
@@ -309,21 +313,22 @@ const props = defineProps({
 // TODO: 마감담당자(clPsicNo ) 관련 키 인데... 화면에는 공통이라는 내용이 있음 어떻게 해야 하는지 명세서에 없음 확인 필요 테스트 하느라 임의값 셋팅
 // TODO. 법인, 마감구분, 기준년월 제외하고 다 수정해야됨
 const frmMainData = ref({
-  kwGrpCoCd: '2000', // 1200 교원 / 2000 교원 프러퍼티
+  kwGrpCoCd: store.getters['meta/getUserInfo'].companyCode, // 1200 교원 / 2000 교원 프러퍼티
   clBizTpCd: props.clBizTpCd,
-  clPsicNo: '9',
-  usrNm: '', // 담당자 구분
+  clPsicNo: '0',
+  prtnrNo: '', // 담당자 구분
   baseYm: dayjs().format('YYYYMM'),
-  crtDt: dayjs().format('YYYYMMDD'),
+  crtDt: dayjs().format('YYYYMMDD'), // 생성일자
   crtDtTmFrom: '0800',
   crtDtTmTo: '2359',
   crtDtPerfDtDvVal: '1',
 
-  clDt: dayjs().format('YYYYMMDD'),
+  clDt: dayjs().format('YYYYMMDD'), // 마감일자
   ddClDtTmFrom: '0800',
   ddClDtTmTo: '2359',
   ddClPerfDtDvVal: '1',
 
+  // 마감일자
   rentalRcpClDdTmFrom: '0800',
   rentalRcpClDdTmTo: '2359',
   rentalRcpClDdPerfDtDvVal: '1',
@@ -332,6 +337,7 @@ const frmMainData = ref({
   rentalRcpClNxdTmTo: '2359',
   rentalRcpClNxdPerfDtDvVal: '2',
 
+  // 말일까지 일자
   spayRcpClDdTmFrom: '0800',
   spayRcpClDdTmTo: '2359',
   spayRcpClDdPerfDtDvVal: '1',
@@ -342,6 +348,19 @@ const frmMainData = ref({
 
 });
 
+// 파트너 검색 팝업
+async function onClickIcon() {
+  const { result, payload } = await modal({
+    component: 'ZwogzPartnerListP',
+    componentProps: {
+      prtnrNo: frmMainData.value.prtnrNo,
+    },
+  });
+  if (result) {
+    frmMainData.value.prtnrNo = payload.prtnrNo;
+  }
+}
+
 async function onClickSave() {
   if (await frmMainRef.value.alertIfIsNotModified()) { return; }
   if (!await frmMainRef.value.validate()) { return; }
@@ -350,6 +369,7 @@ async function onClickSave() {
   frmMainData.value.clPsicNo = isEmpty(clPsicNo) ? userInfo.prtnrNo : clPsicNo;
   const data = cloneDeep(frmMainData.value);
   console.log(`data: ${data}`);
+  debugger;
   // TODO: url 백엔드에 맞춰서 수정 필요
   await dataService.post('/sms/wells/closing/standard', data);
   notify(t('MSG_ALT_SAVE_DATA'));

@@ -110,7 +110,7 @@
           <zwcm-file-attacher
             ref="attachFileRef"
             v-model="attachFiles"
-            attach-group-id="ATG_DCD_CLING_COST_MGT"
+            attach-group-id="ATG_DCD_CLING_COST"
             :attach-document-id="saveParams.clingCostSrcpApnFileId"
             rules="required"
             :label="$t('MSG_TXT_SRCP_APN')"
@@ -154,7 +154,7 @@ const props = defineProps({
   },
 });
 
-const { userName } = store.getters['meta/getUserInfo'];
+const { userName, ogTpCd, prtnrNo } = store.getters['meta/getUserInfo'];
 // 본사 영업관리자, 본사담당자 - 청구(영수)인 성명, 카드소유주
 // -돋보기 클릭하여 [Z-OG-U-0050P01] 팝업창 호출하여 리턴 값으로 세팅 : 지역단장 조직유형코드, 지역단장 파트너번호, 지역단장명
 // - 청구(영수)인 성명 : 지역단장명
@@ -179,7 +179,8 @@ const saveParams = ref({
 
 const buildingCodes = ref([]);
 async function buildingCode() {
-  const res = await dataService.get('/sms/wells/closing/expense/cleaning-cost/request-cleaning-supplies/code');
+  const sessionParans = { ogTpCd, prtnrNo };
+  const res = await dataService.get('/sms/wells/closing/expense/cleaning-cost/request-cleaning-supplies/code', { params: sessionParans });
   buildingCodes.value = res.data;
 }
 

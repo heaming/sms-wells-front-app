@@ -12,16 +12,18 @@
 --->
 <template>
   <kw-search
+    :cols="2"
     @search="onClickSearch"
   >
     <kw-search-row>
       <kw-search-item
         :label="$t('MSG_TXT_BASE_YM')"
+        required
       >
         <kw-date-picker
-          v-model="searchParams.perfYm"
+          v-model="searchParams.slClYm"
           type="month"
-          rules="date_range_months:1"
+          rules="required"
         />
       </kw-search-item>
       <kw-search-item :label="$t('MSG_TXT_AGRG_DV')">
@@ -32,36 +34,79 @@
           @change="onChangeAggregateDivide"
         />
       </kw-search-item>
-      <kw-search-item :label="$t('MSG_TXT_TASK_DIV')">
-        <kw-select
-          v-model="searchParams.sellTpCd"
-          :options="codes.SELL_TP_CD"
-          @change="onChangeBusinessDivide"
-        />
-      </kw-search-item>
     </kw-search-row>
     <kw-search-row>
+      <kw-search-item :label="$t('MSG_TXT_SAP_PD_DV_CD_NM')">
+        <kw-select
+          v-model="searchParams.sapPdDvCd"
+          :options="sapPdDv"
+          option-value="codeId"
+          option-label="codeName"
+          first-option="all"
+          first-option-value="ALL"
+        /><!--판매유형-->
+      </kw-search-item>
       <kw-search-item :label="$t('MSG_TXT_SEL_TYPE')">
         <kw-select
-          v-model="searchParams.sellTpDtlCd"
-          :options="filterCds.sellTpDtlCd"
-          :disable="isSelectDisable"
+          v-model="searchParams.sellTpCd"
+          :options="codes.SELL_TP_CD.filter((v) => ['1', '2', '3', '6', '9'].includes(v.codeId))"
         />
-      </kw-search-item>
-      <kw-search-item :label="$t('MSG_TXT_SEL_CHNL')">
         <kw-select
-          v-model="searchParams.sellChnlDtl"
-          :options="codes.SELL_CHNL_DTL_CD"
+          v-if="searchParams.sellTpCd === '1'"
+          v-model="searchParams.sellTpDtlCd"
+          :options="codes.SELL_TP_DTL_CD.filter((v) => v.codeId === '11' || v.codeId === '12' || v.codeId === '13')"
+          first-option="all"
+          first-option-value="ALL"
         />
-      </kw-search-item>
+        <kw-select
+          v-if="searchParams.sellTpCd === '2'"
+          v-model="searchParams.sellTpDtlCd"
+          :options="codes.SELL_TP_DTL_CD.filter((v) => v.codeId === '21' || v.codeId === '22' || v.codeId === '23' ||
+            v.codeId === '24' || v.codeId === '25'|| v.codeId === '26')"
+          first-option="all"
+          first-option-value="ALL"
+        />
+        <kw-select
+          v-if="searchParams.sellTpCd === '3'"
+          v-model="searchParams.sellTpDtlCd"
+          :options="codes.SELL_TP_DTL_CD.filter((v) => v.codeId === '31' || v.codeId === '32'
+            || v.codeId === '33' || v.codeId === '34')"
+          first-option="all"
+          first-option-value="ALL"
+        />
+        <kw-select
+          v-if="searchParams.sellTpCd === '6'"
+          v-model="searchParams.sellTpDtlCd"
+          :options="codes.SELL_TP_DTL_CD.filter((v) => v.codeId === '61' || v.codeId === '62' || v.codeId === '63')"
+          first-option="all"
+          first-option-value="ALL"
+        />
+        <kw-select
+          v-if="searchParams.sellTpCd === '9'"
+          v-model="searchParams.sellTpDtlCd"
+          :options="codes.SELL_TP_DTL_CD.filter(v => v.codeId === 'ALL')"
+          first-option="all"
+          first-option-value="ALL"
+        />
+      </kw-search-item><!--판매유형상세-->
+    </kw-search-row>
+    <kw-search-row>
       <kw-search-item :label="$t('MSG_TXT_CNTR_DTL_NO')">
         <kw-input
           v-model.trim="searchParams.cntr"
           icon="search_24"
           :disable="isDisable"
           @click-icon="onClickIcon"
-        />
+        /><!-- 계약 상세 -->
       </kw-search-item>
+      <kw-search-item :label="$t('MSG_TXT_SEL_CHNL')">
+        <kw-select
+          v-model="searchParams.sellChnlDtl"
+          :options="codes.SELL_CHNL_DTL_CD"
+          first-option="all"
+          first-option-value="ALL"
+        />
+      </kw-search-item><!-- 판매 채널 -->
     </kw-search-row>
   </kw-search>
   <div class="result-area">
@@ -147,6 +192,9 @@ const dataService = useDataService();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
+// 검색조건 - 판매채널
+const sapPdDv = (await dataService.get('/sms/wells/closing/performance/overdue-penalty/code'))
+  .data.map((v) => ({ codeId: v.sapPdDvCd, codeName: v.sapPdDvNm }));
 const grdSixRef = ref(getComponentType('KwGrid'));
 const grdSevenRef = ref(getComponentType('KwGrid'));
 const grdEightRef = ref(getComponentType('KwGrid'));
@@ -154,7 +202,7 @@ const grdNineRef = ref(getComponentType('KwGrid'));
 const grdFiveRef = ref(getComponentType('KwGrid'));
 
 const isSelectDisable = ref(true);
-const isDisable = ref(false);
+const isDisable = ref(true);
 const isGridSix = ref(false);
 const isGridSeven = ref(false);
 const isGridEight = ref(false);
@@ -165,23 +213,20 @@ const totalCount = ref(0);
 
 let cachedParams;
 const codes = await codeUtil.getMultiCodes(
-  'SELL_TP_CD', // 업무구분
+  'SELL_TP_CD', // 판매유형
   // 'PD_DTL_CD', 없음
   'SELL_TP_DTL_CD', // 판매유형
   'SELL_CHNL_DTL_CD', // 판매채널
 );
 
 const searchParams = ref({
-  perfYm: dayjs().add(-1, 'M').format('YYYYMM'),
+  slClYm: dayjs().add(-1, 'M').format('YYYYMM'),
   agrgDv: '1', // 집계구분
-  sellTpCd: '1', // 업무구분
-  sellTpDtlCd: '',
-  sellChnlDtl: '1',
+  sapPdDvCd: 'ALL', // SAP상품구분코드
+  sellTpCd: '1', // 판매유형
+  sellTpDtlCd: 'ALL', // 판매유형상세
+  sellChnlDtl: 'ALL', // 판매채널
   cntr: '',
-});
-
-const filterCds = ref({
-  sellTpDtlCd: [],
 });
 
 async function fetchData() {
@@ -365,22 +410,6 @@ async function onChangeAggregateDivide() {
   } else {
     isSelectDisable.value = true;
   }
-
-  codes.SELL_TP_DTL_CD.forEach((e) => {
-    if (sellTpCd === '2') {
-      if (e.codeId === '1' || e.codeId === '2' || sellTpCd === '3' || sellTpCd === '4') {
-        filterCds.value.sellTpDtlCd.push({
-          codeId: e.codeId.trim(),
-          codeName: e.codeName.trim(),
-        });
-      }
-    } else if (sellTpCd === '5' || sellTpCd === '6') {
-      filterCds.value.sellTpDtlCd.push({
-        codeId: e.codeId.trim(),
-        codeName: e.codeName.trim(),
-      });
-    }
-  });
 }
 
 async function onClickExcelDownload() {
