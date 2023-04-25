@@ -65,7 +65,6 @@ const materialMainPage = '/product/zwpdc-material-list';
                 <kw-tab-panel name="attribute">
                   <zwpdc-prop-groups-dtl
                     v-model:pd-cd="currentPdCd"
-                    v-model:pd-group-cd="prdPropGroups"
                     v-model:init-data="prevStepData"
                     :pd-tp-cd="pdConst.PD_TP_CD_MATERIAL"
                     :pd-grp-dv-cd="pdConst.PD_PRP_GRP_DV_CD_BASIC"
@@ -87,7 +86,6 @@ const materialMainPage = '/product/zwpdc-material-list';
                 <kw-tab-panel name="attributeExtr">
                   <zwpdc-prop-groups-dtl
                     v-model:pd-cd="currentPdCd"
-                    v-model:pd-group-cd="prdPropGroups"
                     v-model:init-data="prevStepData"
                     :pd-tp-cd="pdConst.PD_TP_CD_MATERIAL"
                     :pd-grp-dv-cd="pdConst.PD_PRP_GRP_DV_CD_MANUAL"
@@ -147,7 +145,6 @@ const dataService = useDataService();
 const baseUrl = '/sms/wells/product/materials';
 
 const pdTpDtlCd = ref(pdConst.PD_TP_DTL_CD_MATERIAL);
-const prdPropGroups = ref({});
 const selectedTab = ref('attribute');
 
 const pdBas = ref({});
@@ -172,7 +169,6 @@ async function fetchData(forcePdCd) {
   prevStepData.value[pdConst.TBL_PD_DTL] = res.data[pdConst.TBL_PD_DTL];
   prevStepData.value[pdConst.TBL_PD_ECOM_PRP_DTL] = res.data[pdConst.TBL_PD_ECOM_PRP_DTL];
   prevStepData.value[pdConst.TBL_PD_REL] = res.data[pdConst.TBL_PD_REL];
-  prdPropGroups.value = res.data.groupCodes;
   isCompleteLoad.value = true;
 }
 
