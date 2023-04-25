@@ -42,6 +42,9 @@
             dgr1-levl-og-first-option="all"
             dgr2-levl-og-first-option="all"
             dgr3-levl-og-first-option="all"
+            dgr1-levl-og-label="ogCdNm"
+            dgr2-levl-og-label="ogCdNm"
+            dgr3-levl-og-label="ogCdNm"
           />
         </template>
         <template v-else>
@@ -50,6 +53,7 @@
             use-og-level="1"
             :use-partner="false"
             dgr1-levl-og-first-option="all"
+            dgr1-levl-og-label="ogCdNm"
           />
           <kw-search-item
             :label="`${$t('MSG_TXT_EMPL_NM')}/${$t('MSG_TXT_EPNO')}`"
