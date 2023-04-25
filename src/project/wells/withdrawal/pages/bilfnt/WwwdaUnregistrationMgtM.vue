@@ -213,7 +213,7 @@ const searchParams = ref({
   cntrNo: '', // 계약번호
   cntrSn: '', // 계약 일련번호
   cntrPdStrtdt: now.format('YYYYMMDD'), // 접수일자 시작일
-  cntrPdEnddt: now.add('7', 'day').format('YYYYMMDD'), // 접수일자 종료일
+  cntrPdEnddt: now.format('YYYYMMDD'), // 접수일자 종료일
 });
 
 const pageInfo = ref({
@@ -350,40 +350,40 @@ const initGrid1 = defineGrid((data, view) => {
 
   const columns = [
     { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '80', styleName: 'text-center' },
-    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '180', styleName: 'text-center' },
+    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '180', styleName: 'text-left' },
     { fieldName: 'cntrPdStrtdt', header: t('MSG_TXT_RCPDT'), width: '120', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'unrgRson',
       header: t('MSG_TXT_BNDL_WDRW_UNRG'), // 묶음 출금 미등록
       width: '200',
-      styleName: 'text-center',
+      styleName: 'text-left',
       options: codes.AFTN_ITG_UNRG_RSON_CD },
 
     { fieldName: 'cntrSn', header: t('MSG_TXT_MCHN_ORD_NO'), width: '150', styleName: 'text-center' },
     { fieldName: 'dpTpCd', header: t('MSG_TXT_FNT_DV'), width: '120', styleName: 'text-center', options: codes.DP_TP_CD },
-    { fieldName: 'fnitAprRsCd', header: t('MSG_TXT_STT'), width: '120', styleName: 'text-center', options: codes.FNIT_APR_RS_CD },
+    { fieldName: 'fnitAprRsCd', header: t('MSG_TXT_STT'), width: '120', styleName: 'text-left', options: codes.FNIT_APR_RS_CD },
     { fieldName: 'dgCntrNo', header: t('MSG_TXT_BNDL_DG_NO'), width: '250', styleName: 'text-center' },
     { fieldName: 'bnkNm', header: t('MSG_TXT_FNT_BUR_NM'), width: '120', styleName: 'text-left' },
-    { fieldName: 'acnoEncr', header: t('MSG_TXT_FNT_NO'), width: '180', styleName: 'text-center' },
+    { fieldName: 'acnoEncr', header: t('MSG_TXT_FNT_NO'), width: '180', styleName: 'text-left' },
     { fieldName: 'owrKnm', header: t('MSG_TXT_FNT_PSR_NM'), width: '120', styleName: 'text-left' },
     { fieldName: 'mpyBsdt', header: t('MSG_TXT_FNT_DT'), width: '120', styleName: 'text-center' },
-    { fieldName: 'bryyMmdd', header: t('MSG_TXT_FNT_CTF_NO'), width: '120', styleName: 'text-center' },
+    { fieldName: 'bryyMmdd', header: t('MSG_TXT_FNT_CTF_NO'), width: '120', styleName: 'text-left' },
 
     { fieldName: 'sdingCntrNo',
       header: t('MSG_TXT_SDING_ORD_NO'),
       width: '250',
-      styleName: 'text-center',
+      styleName: 'text-left',
       displayCallback(grid, index, value) {
         const { sdingCntrSn } = gridUtil.getRowValue(grid, index.itemIndex);
         return `${value}-${sdingCntrSn}`;
       } },
     { fieldName: 'sdingDpTpCd', header: t('MSG_TXT_FNT_DV'), width: '120', styleName: 'text-center', options: codes.DP_TP_CD },
-    { fieldName: 'sdingFnitAprRsCd', header: t('MSG_TXT_STT'), width: '120', styleName: 'text-center', options: codes.FNIT_APR_RS_CD },
+    { fieldName: 'sdingFnitAprRsCd', header: t('MSG_TXT_STT'), width: '120', styleName: 'text-left', options: codes.FNIT_APR_RS_CD },
     { fieldName: 'sdingDgCntrNo', header: t('MSG_TXT_BNDL_DG_NO'), width: '250', styleName: 'text-center' },
     { fieldName: 'sdingBnkNm', header: t('MSG_TXT_FNT_BUR_NM'), width: '120', styleName: 'text-left' },
-    { fieldName: 'sdingAcnoEncr', header: t('MSG_TXT_FNT_NO'), width: '180', styleName: 'text-center' },
+    { fieldName: 'sdingAcnoEncr', header: t('MSG_TXT_FNT_NO'), width: '180', styleName: 'text-left' },
     { fieldName: 'sdingOwrKnm', header: t('MSG_TXT_FNT_PSR_NM'), width: '120', styleName: 'text-left' },
     { fieldName: 'sdingMpyBsdt', header: t('MSG_TXT_FNT_DT'), width: '100', styleName: 'text-center' },
-    { fieldName: 'sdingBryyMmdd', header: t('MSG_TXT_FNT_CTF_NO'), width: '100', styleName: 'text-center' },
+    { fieldName: 'sdingBryyMmdd', header: t('MSG_TXT_FNT_CTF_NO'), width: '100', styleName: 'text-left' },
 
   ];
 
@@ -462,39 +462,39 @@ const initGrid2 = defineGrid((data, view) => {
     { fieldName: 'aftnItgUnrgRsCd', header: t('MSG_TXT_RSULT'), width: '170', styleName: 'text-center', options: codes.AFTN_NOM_ERR_DV_CD },
     { fieldName: 'errCn', header: t('MSG_TXT_ERR_CNTN'), width: '80', styleName: 'text-center' },
 
-    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '80', styleName: 'text-center' },
-    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '180', styleName: 'text-center' },
+    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '80', styleName: 'text-left' },
+    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '180', styleName: 'text-left' },
     { fieldName: 'cntrPdStrtdt', header: t('MSG_TXT_RCPDT'), width: '180', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'aftnItgUnrgRsonCd',
       header: t('MSG_TXT_BNDL_WDRW_UNRG'), // 묶음출금 미등록
       width: '200',
-      styleName: 'text-center',
+      styleName: 'text-left',
       options: codes.BNDL_WDRW_UNRG_OJ_DV_CD },
 
     { fieldName: 'cntrSn', header: t('MSG_TXT_MCHN_ORD_NO'), width: '150', styleName: 'text-center' },
     { fieldName: 'dpTpCd', header: t('MSG_TXT_FNT_DV'), width: '120', styleName: 'text-center', options: codes.DP_TP_CD },
-    { fieldName: 'dgCntrSn', header: t('MSG_TXT_BNDL_DG_NO'), width: '150', styleName: 'text-right' },
-    { fieldName: 'bnkCd', header: t('MSG_TXT_FNT_BUR_NM'), width: '120', styleName: 'text-center' },
-    { fieldName: 'acnoEncr', header: t('MSG_TXT_FNT_NO'), width: '180', styleName: 'text-right' },
+    { fieldName: 'dgCntrSn', header: t('MSG_TXT_BNDL_DG_NO'), width: '150', styleName: 'text-center' },
+    { fieldName: 'bnkCd', header: t('MSG_TXT_FNT_BUR_NM'), width: '120', styleName: 'text-left' },
+    { fieldName: 'acnoEncr', header: t('MSG_TXT_FNT_NO'), width: '180', styleName: 'text-left' },
     { fieldName: 'owrKnm', header: t('MSG_TXT_FNT_PSR_NM'), width: '120', styleName: 'text-left' },
     { fieldName: 'mpyBsdt', header: t('MSG_TXT_FNT_DT'), width: '120', styleName: 'text-center' },
-    { fieldName: 'bryyMmdd', header: t('MSG_TXT_FNT_CTF_NO'), width: '120', styleName: 'text-right' },
+    { fieldName: 'bryyMmdd', header: t('MSG_TXT_FNT_CTF_NO'), width: '120', styleName: 'text-left' },
 
     { fieldName: 'sdingCntr',
       header: t('MSG_TXT_SDING_ORD_NO'),
       width: '250',
-      styleName: 'text-center',
+      styleName: 'text-left',
       displayCallback(grid, index) {
         const { sdingCntrNo, sdingCntrSn } = gridUtil.getRowValue(grid, index.itemIndex);
         return `${sdingCntrNo}-${sdingCntrSn}`;
       } },
     { fieldName: 'sdingDpTpCd', header: t('MSG_TXT_FNT_DV'), width: '120', styleName: 'text-center', options: codes.DP_TP_CD },
     { fieldName: 'sdingDgCntrSn', header: t('MSG_TXT_BNDL_DG_NO'), width: '150', styleName: 'text-right' },
-    { fieldName: 'sdingBnkCd', header: t('MSG_TXT_FNT_BUR_NM'), width: '120', styleName: 'text-center' },
-    { fieldName: 'sdingAcnoEncr', header: t('MSG_TXT_FNT_NO'), width: '180', styleName: 'text-right' },
+    { fieldName: 'sdingBnkCd', header: t('MSG_TXT_FNT_BUR_NM'), width: '120', styleName: 'text-left' },
+    { fieldName: 'sdingAcnoEncr', header: t('MSG_TXT_FNT_NO'), width: '180', styleName: 'text-left' },
     { fieldName: 'sdingOwrKnm', header: t('MSG_TXT_FNT_PSR_NM'), width: '120', styleName: 'text-left' },
     { fieldName: 'sdingMpyBsdt', header: t('MSG_TXT_FNT_DT'), width: '100', styleName: 'text-center' },
-    { fieldName: 'sdingBryyMmdd', header: t('MSG_TXT_FNT_CTF_NO'), width: '100', styleName: 'text-center' },
+    { fieldName: 'sdingBryyMmdd', header: t('MSG_TXT_FNT_CTF_NO'), width: '100', styleName: 'text-left' },
 
   ];
 
