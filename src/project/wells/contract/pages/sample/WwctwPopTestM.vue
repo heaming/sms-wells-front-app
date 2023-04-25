@@ -136,5 +136,25 @@ const pops = [
     title: '재약정/멤버십 조회결과 팝업 W-SS-U-0022P01 ',
     param: {},
   },
+  {
+    pname: 'ZwctaTaxInvoiceBundleListP',
+    title: '세금계산서 묶음 리스트 Z-SS-U-0009P01 ',
+    param: {
+      txinvId: '20220213059679',
+    },
+  },
+  {
+    pname: 'ZwctaDealingPartnerListP',
+    title: '곧급받는자 조회 Z-SS-U-0009P02 ',
+    param: {},
+  },
+  {
+    pname: 'ZwctaTaxInvoiceApplicationDtlModP',
+    title: '세금계산서 신청 상세 수정 Z-SS-U-0009P04 ',
+    param: {
+      txinvId: '20221229000125',
+      dtlSn: '1',
+    },
+  },
 ];
 </script>
