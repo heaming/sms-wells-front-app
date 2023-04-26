@@ -24,7 +24,6 @@
             v-model:from="searchParams.startDate"
             v-model:to="searchParams.endDate"
             type="date"
-            rules="date_range_months:1"
           />
         </kw-search-item>
         <kw-search-item
@@ -59,7 +58,7 @@
           <kw-select
             v-model="searchParams.sellType"
             first-option="all"
-            :options="codes.SELL_TP_CD"
+            :options="sellTpCds"
           />
         </kw-search-item>
         <kw-search-item :label="t('MSG_TXT_SLS_RSTR')">
@@ -74,8 +73,6 @@
       <kw-action-top>
         <template #left>
           <kw-paging-info
-            v-model:page-index="pageInfo.pageIndex"
-            v-model:page-size="pageInfo.pageSize"
             :total-count="pageInfo.totalCount"
             :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
             @change="fetchData"
@@ -120,7 +117,7 @@
       <kw-grid
         ref="gridMainRef"
         name="userSellLimitGrid"
-        :visible-rows="pageInfo.pageSize - 1"
+        :visible-rows="pageInfo.pageSize"
         @init="initGrid"
       />
     </div>
@@ -130,15 +127,14 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { getComponentType, gridUtil, useGlobal, useMeta, codeUtil, useDataService } from 'kw-lib';
+import { getComponentType, gridUtil, useGlobal, codeUtil, useDataService, useMeta } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 
 const gridMainRef = ref(getComponentType('KwGrid'));
 const { notify } = useGlobal();
-const { getConfig } = useMeta();
 const { currentRoute } = useRouter();
-
+const { getConfig } = useMeta();
 const { t } = useI18n();
 
 const now = dayjs();
@@ -148,7 +144,6 @@ const dataService = useDataService();
 // -------------------------------------------------------------------------------------------------
 const codes = await codeUtil.getMultiCodes(
   'PRTNR_CHNL_DV_ACD',
-  'SELL_TP_CD',
   'COPN_DV_CD',
 );
 
@@ -180,8 +175,14 @@ const orgOptions = ref([
   { codeId: '9', codeName: `9-${t('MSG_TXT_EMP_PRCH')}` },
 ]);
 
+const sellTpCds = ref([
+  { codeId: '1', codeName: t('MSG_TXT_SNGL_PMNT') },
+  { codeId: '2', codeName: t('MSG_TXT_RENTAL') },
+  { codeId: '5', codeName: t('MSG_TXT_HOME_CARE') },
+  { codeId: '6', codeName: t('MSG_TXT_REG_DLVR') },
+]);
+
 const salesTypeOptions = ref([
-  { codeId: '', codeName: t('MSG_TXT_ALL') },
   { codeId: '2', codeName: `2-${t('MSG_TXT_LIMIT')}` },
   { codeId: '3', codeName: `3-${t('MSG_TXT_EXP_GRNTD')}` },
   { codeId: '4', codeName: `4-${t('MSG_TXT_NEW_RGLTD')}` },
@@ -194,24 +195,18 @@ const copnDvCdOptions = ref([
 ]);
 
 async function fetchData() {
-  const res = await dataService.get('sms/wells/contract/sales-limits/users/paging', { params: { ...cachedParams, ...pageInfo.value } });
-  const { list: details, pageInfo: pagingResult } = res.data;
-  pageInfo.value = pagingResult;
+  const res = await dataService.get('sms/wells/contract/sales-limits/users', { params: cachedParams });
 
   const view = gridMainRef.value.getView();
   const dataSource = view.getDataSource();
+  dataSource.setRows(res.data);
+  pageInfo.value.totalCount = view.getItemCount();
 
-  dataSource.checkRowStates(false);
-  if (pageInfo.value.pageIndex === 1) {
-    dataSource.setRows(details);
-  } else {
-    dataSource.addRows(details);
-  }
-  dataSource.checkRowStates(true);
+  view.resetCurrent();
+  view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
 async function onClickSearch() {
-  pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
 }
@@ -219,7 +214,7 @@ async function onClickSearch() {
 async function onClickExcelDownload() {
   const view = gridMainRef.value.getView();
 
-  const res = await dataService.get('sms/wells/contract/sales-limits/users/excel-download', { params: cachedParams });
+  const res = await dataService.get('sms/wells/contract/sales-limits/users', { params: cachedParams });
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
@@ -235,6 +230,7 @@ async function onClickDelete() {
   if (deletedRows.length > 0) {
     const sellBaseIds = deletedRows.map(({ sellBaseId }) => sellBaseId);
     await dataService.delete('sms/wells/contract/sales-limits/users', { params: { sellBaseIds } });
+    notify(t('MSG_ALT_DELETED'));
     await onClickSearch();
   }
 }
@@ -248,10 +244,13 @@ async function onClickSave() {
   const view = gridMainRef.value.getView();
   if (await gridUtil.alertIfIsNotModified(view)) { return; }
   if (!await gridUtil.validate(view)) { return; }
-
-  for (let i = 0; i < gridUtil.getCheckedRowValues(view).length; i += 1) {
-    if (!isEmpty(gridUtil.getCheckedRowValues(view)[i].dangOjOgId)) {
+  for (let i = 0; i < gridUtil.getChangedRowValues(view).length; i += 1) {
+    if (!isEmpty(gridUtil.getChangedRowValues(view)[i].dangOjOgId)) {
       notify(t('MSG_ALT_EXIST_BEAN_ID'));
+      return;
+    }
+    if (gridUtil.getChangedRowValues(view)[i].vlStrtDtm > gridUtil.getChangedRowValues(view)[i].vlEndDtm) {
+      notify(t('MSG_ALT_CHK_DT_RLT'));
       return;
     }
   }
@@ -327,8 +326,8 @@ function initGrid(data, view) {
     { fieldName: 'sellBaseSellTp',
       header: t('MSG_TXT_SEL_TYPE'),
       width: '142',
-      options: codes.SELL_TP_CD,
-      rules: 'required',
+      options: sellTpCds.value,
+      firstOption: 'all',
       editor: { type: 'list' } },
     { fieldName: 'sellPrmitDvCd',
       header: t('MSG_TXT_SLS_RSTR'),
@@ -368,13 +367,6 @@ function initGrid(data, view) {
 
   view.onCellButtonClicked = async () => {
     notify(t('팝업 준비중 입니다.'));
-  };
-
-  view.onScrollToBottom = (g) => {
-    if (pageInfo.value.pageIndex * pageInfo.value.pageSize <= g.getItemCount()) {
-      pageInfo.value.pageIndex += 1;
-      fetchData();
-    }
   };
 }
 </script>
