@@ -134,7 +134,8 @@
         <kw-grid
           ref="grdMainRef"
           name="approvalBaseGrid"
-          :visible-rows="10"
+          :page-size="pageInfo.pageSize"
+          :total-count="pageInfo.totalCount"
           @init="initGrid"
         />
         <kw-pagination
@@ -218,7 +219,6 @@ async function fetchData() {
 
   dataSource.checkRowStates(false);
   dataSource.setRows(pages);
-  view.resetCurrent();
   dataSource.checkRowStates(true);
 
   view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
@@ -300,9 +300,9 @@ async function onClickRemove() {
   // deleteKeys needs to be updated as per API
   const deleteKeys = deletedRows.map((row) => row);
 
-  if (deleteKeys.length) {
-    await notify(t('MSG_ALT_DELETED'));
+  if (deleteKeys.length > 0) {
     await dataService.delete('/sms/wells/contract/contracts/approval-standards', { data: deleteKeys });
+    await notify(t('MSG_ALT_DELETED'));
     await onClickSearch();
   }
 }
