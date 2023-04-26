@@ -210,12 +210,15 @@ async function validateProps() {
 }
 
 async function isModifiedProps() {
-  const view = grdMainRef.value.getView();
-  const currentData = gridUtil.getAllRowValues(view);
-  const isSame = initLoadData.value.every((e) => currentData.includes(e));
+  // const view = grdMainRef.value.getView();
+  // const currentData = gridUtil.getAllRowValues(view);
+  // const isSame = initLoadData.value.every((e) => currentData.includes(e));
   // console.log('초기', initLoadData.value);
-  // console.log('헌재', currentData);
-  return !isSame;
+  // console.log('헌재', currentData, isSame);
+  // const ttt = gridUtil.isModified(grdMainRef.value?.getView());
+  // console.log(ttt);
+  // return !isSame;
+  return gridUtil.isModified(grdMainRef.value?.getView());
 }
 
 async function getSaveData() {
