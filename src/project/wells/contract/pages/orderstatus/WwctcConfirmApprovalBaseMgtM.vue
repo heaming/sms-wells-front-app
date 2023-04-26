@@ -374,6 +374,16 @@ function initGrid(data, view) {
           grid.setValue(itemIndex, 'cntrAprAkDvCd', searchCntrAprAkDvCd);
         }
       }
+    } else if (fieldName === 'vlEndDtm' || fieldName === 'vlStrtDtm') {
+      const vlEndDtm = grid.getValue(itemIndex, 'vlEndDtm');
+      const vlStrtDtm = grid.getValue(itemIndex, 'vlStrtDtm');
+      if (!isEmpty(vlEndDtm)) {
+        if (vlEndDtm.length === 0) {
+          grid.setValue(itemIndex, 'vlEndDtm', null);
+        } else if (vlStrtDtm > vlEndDtm) {
+          grid.setValue(itemIndex, 'vlStrtDtm', vlEndDtm);
+        }
+      }
     }
   };
 
