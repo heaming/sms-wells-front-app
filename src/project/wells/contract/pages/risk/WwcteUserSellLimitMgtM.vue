@@ -33,6 +33,7 @@
         >
           <kw-select
             v-model="searchParams.sell"
+            first-option="all"
             :options="orgOptions"
           />
           <kw-select
@@ -41,7 +42,7 @@
             :options="codes.PRTNR_CHNL_DV_ACD"
           />
           <kw-input
-            v-model="searchParams.organization"
+            v-model="searchParams.deptCd"
           />
           <kw-input
             v-model="searchParams.user"
@@ -52,16 +53,13 @@
         <kw-search-item :label="t('MSG_TXT_PRDT_NM')">
           <kw-input
             v-model="searchParams.productName"
-            icon="search"
-            clearable
-            @click-icon="openProductsSearchPopup"
           />
         </kw-search-item>
         <kw-search-item :label="t('MSG_TXT_SEL_TYPE')">
           <kw-select
             v-model="searchParams.sellType"
             first-option="all"
-            :options="codes.MSH_SELL_DTL_TP_CD"
+            :options="codes.SELL_TP_CD"
           />
         </kw-search-item>
         <kw-search-item :label="t('MSG_TXT_SLS_RSTR')">
@@ -83,16 +81,16 @@
             @change="fetchData"
           />
         </template>
-        <kw-separator
-          spaced
-          vertical
-          inset
-        />
         <kw-btn
           v-permission:delete
           :label="t('MSG_BTN_DEL')"
           grid-action
           @click="onClickDelete"
+        />
+        <kw-separator
+          vertical
+          inset
+          spaced
         />
         <kw-btn
           grid-action
@@ -150,25 +148,21 @@ const dataService = useDataService();
 // -------------------------------------------------------------------------------------------------
 const codes = await codeUtil.getMultiCodes(
   'PRTNR_CHNL_DV_ACD',
-  'MSH_SELL_DTL_TP_CD',
+  'SELL_TP_CD',
   'COPN_DV_CD',
 );
 
 const searchParams = ref({
   startDate: now.format('YYYYMM01'),
   endDate: now.format('YYYYMMDD'),
-  sell: 'A',
+  sell: '',
   channel: '',
-  organization: '',
+  deptCd: '',
   user: '',
   productName: '',
   sellType: '',
   sellLimit: '',
 });
-
-async function openProductsSearchPopup() {
-  notify(t('팝업 준비중 입니다.'));
-}
 
 const pageInfo = ref({
   totalCount: 0,
@@ -333,7 +327,7 @@ function initGrid(data, view) {
     { fieldName: 'sellBaseSellTp',
       header: t('MSG_TXT_SEL_TYPE'),
       width: '142',
-      options: codes.MSH_SELL_DTL_TP_CD,
+      options: codes.SELL_TP_CD,
       rules: 'required',
       editor: { type: 'list' } },
     { fieldName: 'sellPrmitDvCd',
