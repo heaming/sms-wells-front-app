@@ -109,7 +109,8 @@
       <kw-grid
         ref="grdMainRef"
         name="grdMain"
-        :visible-rows="pageInfo.pageSize"
+        :page-size="pageInfo.pageSize"
+        :total-count="pageInfo.totalCount"
         @init="initGrdMain"
       />
       <kw-pagination
@@ -202,7 +203,7 @@ async function onClickDelete() {
   if (deletedRows.length > 0) {
     // 삭제 controller
     // TODO : DB2 테이블 확인 후 저장, 삭제로직 수정.
-    alert('개발 중입니다.');
+    await alert('개발 중입니다.');
   }
 }
 
@@ -227,7 +228,7 @@ async function onClickSave() {
     notify(t('MSG_ALT_NOT_SEL_ITEM'));
   } else if (await gridUtil.validate(view, { isCheckedOnly: true })) {
     // TODO: DB2테이블 확인 필요.
-    alert('개발 중입니다.');
+    await alert('개발 중입니다.');
     // const response = await dataService.post('/sms/wells/service/outsourcedpd-as-receipts', chkRows);
     // if (response.data.processCount !== 0) {
     //   notify(t('MSG_ALT_SAVE_DATA'));
@@ -236,8 +237,8 @@ async function onClickSave() {
   }
 }
 
-function onClicBiztalkSend() {
-  alert('연결 페이지 개발 전 입니다.');
+async function onClicBiztalkSend() {
+  await alert('연결 페이지 개발 전 입니다.');
 }
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
