@@ -132,6 +132,7 @@ async function fetchData() {
   // changing api & cacheparams according to search classification
   let res = '';
   cachedParams = cloneDeep(searchParams.value);
+  console.log(cachedParams);
   res = await dataService.get('/sms/wells/contract/contracts/order-detail-mngt/membership/paging', { params: { ...cachedParams, ...pageInfo.value } });
 
   const { list: pages, pageInfo: pagingResult } = res.data;
@@ -165,7 +166,16 @@ async function onClickExcelDownload() {
 }
 
 async function onClickConfirmManagement() {
-  await alert('멤버십 확정관리 팝업연계 예정(WwctaMembershipConfirmMgtP)');
+  // await alert('멤버십 확정관리 팝업연계 예정(WwctaMembershipConfirmMgtP)');
+  const view = grdMembershipContractNoList.value.getView();
+  const cntrs = gridUtil.getCheckedRowValues(view);
+  const res = await modal({
+    component: 'WwctaMembershipConfirmMgtP',
+    componentProps: { cntrs },
+  });
+
+  // 리턴값을 체크한 후 재조회
+  if (res.result) fetchData();
 }
 
 // 홈케어관리 팝업조회
