@@ -113,7 +113,8 @@
         <kw-grid
           ref="grdMainRef"
           name="grdMain"
-          :visible-rows="10"
+          :page-size="pageInfo.pageSize"
+          :total-count="pageInfo.totalCount"
           @init="initGrdMain"
         />
         <kw-pagination
@@ -190,7 +191,6 @@ async function fetchData() {
 
   dataSource.checkRowStates(false);
   dataSource.setRows(pages);
-  view.resetCurrent();
   dataSource.checkRowStates(true);
 
   view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
@@ -238,8 +238,8 @@ async function onClickDelete() {
   const deleteKeys = deletedRows.map((row) => row.sellLmId);
 
   if (deleteKeys.length) {
-    await notify(t('MSG_ALT_DELETED'));
     await dataService.delete('/sms/wells/contract/sales-limits/business-partners', { data: deleteKeys });
+    await notify(t('MSG_ALT_DELETED'));
     onClickSearch();
   }
 }
