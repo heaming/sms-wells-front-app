@@ -36,14 +36,18 @@
             class="w200"
             icon="search"
             :on-click-icon="onClickSearchPrtnr"
+            :on-keydown-no-click="true"
+            @keydown.enter="onClickSearch"
           />
           <kw-input
             v-if="searchParams.condCls===2"
-            v-model="searchParams.ogNm"
+            v-model="searchParams.ogCd"
             :max-length="10"
             class="w200"
             icon="search"
             :on-click-icon="onClickSearchOg"
+            :on-keydown-no-click="true"
+            @keydown.enter="onClickSearch"
           />
         </kw-search-item>
       </kw-search-row>
@@ -64,7 +68,9 @@
       </kw-action-top>
       <kw-grid
         ref="grdMainRef"
-        :visible-rows="Math.max(10, Math.min(Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')), totalCount))"
+        name="grdMain"
+        :page-size="Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE'))"
+        :total-count="totalCount"
         @init="initGrid"
       />
     </div>
@@ -77,6 +83,8 @@
 import { getComponentType, modal, useDataService, useMeta } from 'kw-lib';
 import dayjs from 'dayjs';
 
+const { getters } = useStore();
+const { ogTpCd } = getters['meta/getUserInfo'];
 const { t } = useI18n();
 const { getConfig } = useMeta();
 const router = useRouter();
@@ -86,8 +94,6 @@ const totalCount = ref(0);
 const searchParams = ref({
   condCls: 1,
   prtnrNo: '',
-  ogTpCd: '',
-  ogNm: '',
   ogCd: '',
 });
 
@@ -119,7 +125,7 @@ async function onClickSearchPrtnr() {
     component: 'ZwogzPartnerListP',
     componentProps: {
       prtnrNo: searchParams.value.prtnrNo,
-      ogTpCd: 'W01',
+      ogTpCd,
     },
   });
   if (result) {
@@ -132,19 +138,18 @@ async function onClickSearchOg() {
   const { result, payload } = await modal({
     component: 'ZwogzOrganizationListP',
     componentProps: {
-      ogNm: searchParams.value.ogNm,
+      ogCd: searchParams.value.ogCd,
       ogTpCd: 'W01',
       baseYm: dayjs().format('YYYYMM'),
     },
   });
   if (result) {
-    searchParams.value.ogNm = payload.ogNm;
     searchParams.value.ogCd = payload.ogCd;
   }
 }
 
 async function onClickCntrMgt() {
-  router.push({
+  await router.push({
     path: '/contract/wwcta-contract-management-list',
   });
 }

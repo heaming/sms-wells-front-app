@@ -86,7 +86,9 @@
       </kw-action-top>
       <kw-grid
         ref="grdMainRef"
-        :visible-rows="10"
+        name="grdMain"
+        :page-size="Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE'))"
+        :total-count="totalCount"
         @init="initGrdMain"
       />
     </div>
@@ -97,12 +99,13 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { defineGrid, getComponentType, gridUtil, useDataService } from 'kw-lib';
+import { defineGrid, getComponentType, gridUtil, useDataService, useMeta } from 'kw-lib';
 import dayjs from 'dayjs';
 import { isEmpty } from 'lodash-es';
 
 const dataService = useDataService();
 const { t } = useI18n();
+const { getConfig } = useMeta();
 const { currentRoute } = useRouter();
 const grdMainRef = ref(getComponentType('KwGrid'));
 const now = dayjs();
@@ -189,11 +192,11 @@ const initGrdMain = defineGrid((data, view) => {
 
   const columns = [
     { fieldName: 'exnDt', header: t('MSG_TXT_EXP_DT'), width: 120, styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_NO'), width: 120 },
+    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_NO'), width: 130 },
     { fieldName: 'cntrSn', header: t('MSG_TXT_CNTR_SN'), width: 100, styleName: 'text-right' },
     { fieldName: 'cstKnm', header: t('MSG_TXT_CNTOR_NM'), width: 100 },
     { fieldName: 'pdClsf', header: t('MSG_TXT_PRDT_CATE'), width: 100 },
-    { fieldName: 'basePdCd', header: t('MSG_TXT_PRDT_CODE'), width: 100, styleName: 'text-center' },
+    { fieldName: 'basePdCd', header: t('MSG_TXT_PRDT_CODE'), width: 140, styleName: 'text-center' },
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: 250 },
     { fieldName: 'istmMcn', header: t('MSG_TXT_RENT_PRD_MN'), width: 100, styleName: 'text-right' },
     { fieldName: 'recapDutyPtrmN', header: t('MSG_TXT_LCK_IN_PRD_MN'), width: 100, styleName: 'text-right' },
