@@ -31,10 +31,10 @@
             icon="search"
             clearable
             :label="t('MSG_TXT_CST_NM')"
-            :readonly="true"
             rules="required"
             @click-icon="onClickSearchUser"
           />
+          <!-- :readonly="true" -->
         </kw-search-item>
         <kw-search-item
           :label="t('MSG_TXT_WRTE_DT')"
@@ -78,11 +78,11 @@
           @click="onClickExcelDownload"
         />
         <!-- label="엑셀다운로드" -->
-        <!-- <kw-separator
+        <kw-separator
           spaced
           vertical
           inset
-        /> -->
+        />
         <kw-btn
           :label="t('MSG_BTN_BILDC_WRTE')"
           primary
