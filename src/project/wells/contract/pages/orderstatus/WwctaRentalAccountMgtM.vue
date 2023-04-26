@@ -45,6 +45,7 @@
         >
           <kw-select
             v-model="searchParams.pdMclsfId"
+            first-option="all"
             :label="$t('MSG_TXT_PDGRP')"
             :options="pdMclsfIdOptions"
           />
@@ -56,6 +57,7 @@
         >
           <kw-select
             v-model="searchParams.dgr1LevlOgCd"
+            first-option="all"
             :label="$t('MSG_TXT_MANAGEMENT_DEPARTMENT')"
             :options="gnrlDivOptions"
           />
@@ -77,6 +79,7 @@
         >
           <kw-select
             v-model="searchParams.dgr2LevlOgCd"
+            first-option="all"
             :options="rgnlDivOptions"
           />
         </kw-search-item>
@@ -85,6 +88,7 @@
         >
           <kw-select
             v-model="searchParams.copnDvCd"
+            first-option="all"
             :label="$t('MSG_TXT_CST_DV')"
             :options="codes.COPN_DV_CD"
           />
@@ -173,6 +177,11 @@ function onChangeSearch() {
   const view = grdMainRef.value.getView();
   const data = view.getDataSource();
   data.clearRows();
+  searchParams.value.pdMclsfId = '';
+  searchParams.value.basePdCd = '';
+  searchParams.value.dgr1LevlOgCd = '';
+  searchParams.value.dgr2LevlOgCd = '';
+  searchParams.value.copnDvCd = '';
   totalCount.value = 0;
   view.columnsByTag('prod').forEach((col) => { col.visible = isProd.value; });
   view.columnsByTag('org').forEach((col) => { col.visible = !(isProd.value); });
