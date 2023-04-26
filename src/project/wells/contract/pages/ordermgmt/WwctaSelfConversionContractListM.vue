@@ -107,7 +107,11 @@
       <kw-action-top>
         <template #left>
           <kw-paging-info
+            v-model:page-index="pageInfo.pageIndex"
+            v-model:page-size="pageInfo.pageSize"
             :total-count="pageInfo.totalCount"
+            :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
+            @change="fetchPage"
           />
           <span class="ml8">{{ $t('MSG_TXT_UNIT_WON_MCN') /* (단위:원, 개월) */ }}</span>
         </template>
@@ -154,7 +158,7 @@ const codes = {
 };
 const router = useRouter();
 await Promise.allSettled([
-  codeUtil.getMultiCodes('COPN_DV_CD', 'MCHN_CH_TP_CD')
+  codeUtil.getMultiCodes('COPN_DV_CD', 'MCHN_CH_TP_CD', 'COD_PAGE_SIZE_OPTIONS')
     .then((multiCodes) => { Object.assign(codes, multiCodes); }),
   dataService.get('/sms/common/contract/products/hclsf')
     .then((response) => { codes.PD_HCLSF = response.data; }),
@@ -243,11 +247,14 @@ function productSubsetFilter(subCode, parentCodeId) {
 }
 
 async function onClickExcelDownload() {
-  const exportData = await dataService.get('/sms/wells/contract/contracts/self-conversion/excel-download', { params: cachedParams });
+  if (!cachedParams) {
+    cachedParams = { ...toRaw(searchParams) };
+  }
+  const response = await dataService.get('/sms/wells/contract/contracts/self-conversion/excel-download', { params: cachedParams });
   await gridUtil.exportView(grdView.value, {
     fileName: router.currentRoute?.value.meta?.menuName,
     timePostfix: true,
-    exportData,
+    exportData: response.data,
   });
 }
 async function onClickSearch() {
