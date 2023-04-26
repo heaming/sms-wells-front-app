@@ -201,7 +201,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'cntrChRcpTm', header: t('MSG_TXT_RCPT_HH'), width: '166', styleName: 'text-center', datetimeFormat: 'hh:mm:ss' }, // 접수시간
     { fieldName: 'cntrChPrgsStatNm', header: t('MSG_TXT_RCP_PS'), width: '166', styleName: 'text-left' }, // 접수현황
     { fieldName: 'cntrChPrgsStatNmEnd', header: t('MSG_TXT_ETC_END'), width: '166', styleName: 'text-left' }, // 기타종료
-    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '166', styleName: 'text-left' }, // 고객명
+    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '166', styleName: 'text-center' }, // 고객명
     {
       fieldName: 'cralLocaraTno',
       name: 'mpno',
