@@ -18,6 +18,11 @@
   <!-- 교재/자재 -->
   <h3>{{ $t('MSG_TXT_PD_MNL_MAT') }}</h3>
   <kw-action-top>
+    <template #left>
+      <kw-paging-info
+        :total-count="grdRowCount"
+      />
+    </template>
     <!-- 정기B/S투입정보 -->
     <kw-btn
       dense
@@ -163,7 +168,7 @@ async function initGrid(data, view) {
   view.setColumns(columns);
 
   view.checkBar.visible = true;
-  view.rowIndicator.visible = false;
+  view.rowIndicator.visible = true;
   await initGridRows();
   await init();
 }

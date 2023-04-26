@@ -256,7 +256,7 @@ async function initGrid(data, view) {
   data.setFields(fields);
   view.setColumns(columns.sort((item) => (item.fieldName === 'sellChnlCd' ? -1 : 0)));
   view.checkBar.visible = true;
-  view.rowIndicator.visible = false;
+  view.rowIndicator.visible = true;
   view.editOptions.editable = true;
 
   view.sortingOptions.enabled = false;

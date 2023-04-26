@@ -32,6 +32,11 @@
     </kw-search>
   </div>
   <kw-action-top class="mt40">
+    <template #left>
+      <kw-paging-info
+        :total-count="totalCount"
+      />
+    </template>
     <!-- (단위 : 원) -->
     <span class="kw-fc---black3 text-weight-regular">({{ $t('MSG_TXT_UNIT') }} : {{ $t('MSG_TXT_CUR_WON') }})</span>
   </kw-action-top>
@@ -80,6 +85,7 @@ const currentInitData = ref(null);
 const currentMetaInfos = ref();
 const currentCodes = ref({});
 const usedChannelCds = ref([]);
+const totalCount = ref(0);
 
 const searchParams = ref({
   pdTpCd: pdConst.PD_TP_CD_STANDARD,
@@ -144,6 +150,7 @@ async function initGridRows() {
       view.getDataSource().setRows(rows);
     }
   }
+  totalCount.value = gridUtil.getAllRowValues(view).length;
 }
 
 async function resetInitData() {
@@ -263,7 +270,7 @@ async function initGrid(data, view) {
       return item;
     }));
   view.checkBar.visible = false;
-  view.rowIndicator.visible = false;
+  view.rowIndicator.visible = true;
   view.editOptions.editable = false;
 
   view.setFixedOptions({ colCount: 5 });

@@ -117,7 +117,7 @@ async function initStandardGrid(data, view) {
   view.setColumns(columns);
 
   view.checkBar.visible = false;
-  view.rowIndicator.visible = false;
+  view.rowIndicator.visible = true;
 }
 
 </script>

@@ -178,7 +178,7 @@ async function onClickDelete() {
 }
 
 async function getSaveData() {
-  const subList = { isModifiedProp: false };
+  const subList = { isModifiedProp: false, isOnlyFileModified: false };
   await Promise.all(cmpStepRefs.value.map(async (item, idx) => {
     const isModified = await item.value.isModifiedProps();
     const saveData = item.value?.getSaveData ? await item.value.getSaveData() : null;
@@ -189,6 +189,7 @@ async function getSaveData() {
       // 기본속성, 관리 속성 수정여부
       if (await isModified && idx === 0) {
         subList.isModifiedProp = true;
+        subList.isOnlyFileModified = await item.value.isOnlyFileModified();
       }
       if (saveData[bas]) {
         if (subList[bas]?.cols) {
