@@ -60,11 +60,6 @@
             @change="fetchData"
           />
         </template>
-        <kw-separator
-          spaced
-          vertical
-          inset
-        />
         <kw-file
           v-show="false"
           ref="attachFileRef"
@@ -74,6 +69,7 @@
         />
         <!-- :updatable="false" -->
         <kw-btn
+          v-permission:create
           dense
           icon="upload_on"
           :label="$t('MSG_BTN_EXCEL_UP')"
@@ -257,9 +253,12 @@ const attachFileRef = ref();
 const fileData = [];
 
 let paramData;
+const gridSetData = [];
 
 async function rowAdd() {
   const view = grdMainRef.value.getView();
+  const dataSource = view.getDataSource();
+
   paramData = fileData;
 
   console.log(paramData);
@@ -267,7 +266,8 @@ async function rowAdd() {
 
   paramData.forEach((data) => {
     if (data.giroDpMtrDvCd === '22') {
-      gridUtil.insertRowAndFocus(view, 0, {
+      // gridUtil.insertRowAndFocus(view, 0, {
+      gridSetData.push({
         giroDpMtrDvCd: data.giroDpMtrDvCd, // 구분코드      2
         dpSn: data.dpSn, // 일련번호      7
         rveDt: data.fntDt, // 수납년        8
@@ -285,10 +285,12 @@ async function rowAdd() {
         perfDt: data.rveDt, // 실적일
         rveAmt: data.pyAmt, // 납입금액
         giroFee: data.giroFeeDvCd,
-
       });
+      // });
     }
   });
+
+  dataSource.setRows(gridSetData);
 }
 
 async function onClickExcelDownload() {
@@ -302,10 +304,10 @@ async function onClickExcelDownload() {
 }
 
 async function onUpdateFileUpload() {
+  console.log(file.value.nativeFile);
   if (file.value === null || file.value.length === 0) {
     return;
   }
-  console.log(file.value.nativeFile);
   // 첨부파일 정보를 함께 넘겨줍시다.
   const reader = new FileReader();
   reader.onload = () => {
@@ -379,17 +381,19 @@ async function onClickSave() {
   } if (resResult.chkCnt > 0) {
     if (await confirm(t('MSG_ALT_RVE_DT_ULD_DL_ULD', [dayjs(resResult.fntDt).format('YYYY-MM-DD')]))) { // "수납일자 '2023-02-27'에 업로드된 Data를 삭제 후 재업로드 하시겠습니까?"
       await dataService.post('/sms/wells/withdrawal/idvrve/giro-deposits', paramData);
-      await fetchData();
+      await onClickSearch();
       notify(t('MSG_ALT_SAVE_DATA'));
     }
   } else {
     await dataService.post('/sms/wells/withdrawal/idvrve/giro-deposits', paramData);
-    await fetchData();
+    await onClickSearch();
     notify(t('MSG_ALT_SAVE_DATA'));
   }
 }
 
 async function onClickExcelUpload() {
+  file.value = null;
+  attachFileRef.value.reset();
   attachFileRef.value.pickFiles();
 }
 

@@ -474,17 +474,14 @@ const initGrid = defineGrid((data, view) => {
           data.setValue(itemIndex, 'pdNm', rowCtrnRes.pdNm);
         } else {
           // 존재하지 않는 계약상세번호 입니다.
-          alert(t('MSG_ALT_IT_NOT_EXIST', [t('MSG_TXT_CNTR_DTL_NO')]));
+          // alert(t('MSG_ALT_IT_NOT_EXIST', [t('MSG_TXT_CNTR_DTL_NO')]));
+          alert('판매유형이 렌탈 , 맴버십 인 계약상세 정보만 등록 가능합니다.');
 
           data.setValue(itemIndex, 'cntrNo', '');
           data.setValue(itemIndex, 'cntrSn', '');
           data.setValue(itemIndex, 'cntr', '');
         }
       }
-      // else {
-      //   // alert('계약상세번호는 필수 값 입니다.');
-      //   alert(t('MSG_ALT_NCELL_REQUIRED_VAL', [t('MSG_TXT_CNTR_DTL_NO')]));
-      // }
     }
   };
   view.onValidate = async (grid, index) => {
