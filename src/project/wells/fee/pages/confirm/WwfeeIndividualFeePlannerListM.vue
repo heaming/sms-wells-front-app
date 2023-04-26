@@ -373,10 +373,11 @@ async function openPerformancePopup() {
   const param = {
     perfYm: searchParams.value.perfYm,
     no: searchParams.value.no,
+    ogTpCd: 'W01',
   };
 
   await modal({
-    component: 'openPerformancePopup',
+    component: 'WwfeeIndividualFeeDetailListP',
     componentProps: param,
   });
 }

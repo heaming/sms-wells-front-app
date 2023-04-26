@@ -55,27 +55,17 @@
         </kw-search-item>
       </kw-search-row>
       <kw-search-row>
-        <kw-search-item
-          :label="$t('MSG_TXT_OG_LEVL')"
-          :colspan="2"
-        >
-          <kw-select
-            v-model="searchParams.ogLevl1"
-            :model-value="''"
-            :options="['총괄단', 'B', 'C', 'D']"
-          />
-          <kw-select
-            v-model="searchParams.ogLevl2"
-            :model-value="''"
-            :options="['지역단', 'B', 'C', 'D']"
-          />
-          <kw-select
-            v-model="searchParams.ogLevl3"
-            :model-value="''"
-            :options="['지점', 'B', 'C', 'D']"
+        <kw-search-item :label="t('MSG_TXT_OG_LEVL')">
+          <zwogz-level-select
+            v-model:og-levl-dv-cd1="searchParams.ogLevl1"
+            v-model:og-levl-dv-cd2="searchParams.ogLevl2"
+            v-model:og-levl-dv-cd3="searchParams.ogLevl3"
+            :og-tp-cd="searchParams.ogTp"
+            :base-ym="searchParams.perfYm"
+            :start-level="1"
+            :end-level="3"
           />
         </kw-search-item>
-
         <kw-search-item
           :label="$t('MSG_TXT_SEQUENCE_NUMBER')"
         >
@@ -140,6 +130,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { useDataService, getComponentType, defineGrid, modal } from 'kw-lib';
+import ZwogzLevelSelect from '~sms-common/organization/components/common/ZwogzLevelSelect.vue';
 import dayjs from 'dayjs';
 
 import { cloneDeep } from 'lodash-es';

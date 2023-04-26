@@ -69,19 +69,19 @@
             :label="t('MSG_TXT_PERF_YM')"
             align-content="center"
           >
-            <p>{{ info.col1 }}</p>
+            <p>{{ info.perfYm }}</p>
           </kw-form-item>
           <kw-form-item
             :label="t('MSG_TXT_SEQUENCE_NUMBER')"
             align-content="center"
           >
-            <p>{{ info.col2 }}</p>
+            <p>{{ info.prtnrNo }}</p>
           </kw-form-item>
           <kw-form-item
             :label="t('MSG_TXT_FEE_SUM')"
             align-content="right"
           >
-            <p>{{ stringUtil.getNumberWithComma(info.col3) }}</p>
+            <p>{{ stringUtil.getNumberWithComma(info.frrSum) }}</p>
           </kw-form-item>
         </kw-form-row>
         <kw-form-row>
@@ -89,19 +89,19 @@
             :label="t('MSG_TXT_BLG')"
             align-content="center"
           >
-            <p>{{ info.col4 }}</p>
+            <p>{{ info.blg }}</p>
           </kw-form-item>
           <kw-form-item
             :label="t('MSG_TXT_RSB')"
             align-content="left"
           >
-            <p>{{ info.col5 }}</p>
+            <p>{{ info.rsb }}</p>
           </kw-form-item>
           <kw-form-item
             :label="t('MSG_TXT_DDTN_SUM')"
             align-content="right"
           >
-            <p>{{ stringUtil.getNumberWithComma(info.col6) }}</p>
+            <p>{{ stringUtil.getNumberWithComma(info.ddtnSum) }}</p>
           </kw-form-item>
         </kw-form-row>
         <kw-form-row>
@@ -109,19 +109,19 @@
             :label="t('MSG_TXT_EMPL_NM')"
             align-content="left"
           >
-            <p>{{ info.col7 }}</p>
+            <p>{{ info.emplNm }}</p>
           </kw-form-item>
           <kw-form-item
             :label="t('MSG_TXT_DSB_BNK')"
             align-content="left"
           >
-            <p>{{ info.col8 }}</p>
+            <p>{{ info.dsbBnk }}</p>
           </kw-form-item>
           <kw-form-item
             :label="t('MSG_TXT_DSB_AC')"
             align-content="right"
           >
-            <p>{{ stringUtil.getNumberWithComma(info.col9) }}</p>
+            <p>{{ stringUtil.getNumberWithComma(info.dsbAc) }}</p>
           </kw-form-item>
         </kw-form-row>
         <kw-form-row>
@@ -129,7 +129,7 @@
             :label="t('MSG_TXT_ACL_DSB')"
             align-content="right"
           >
-            <p>{{ stringUtil.getNumberWithComma(info.col10) }}</p>
+            <p>{{ stringUtil.getNumberWithComma(info.aclDsb) }}</p>
           </kw-form-item>
         </kw-form-row>
       </kw-form>
@@ -192,42 +192,42 @@
           <kw-form-item
             :label="t('MSG_TXT_ERNTX')"
           >
-            <p>{{ stringUtil.getNumberWithComma(info2.col1) }}</p>
+            <p>{{ stringUtil.getNumberWithComma(info2.erntx) }}</p>
           </kw-form-item>
           <kw-form-item
             :label="t('MSG_TXT_RSDNTX')"
           >
-            <p>{{ stringUtil.getNumberWithComma(info2.col2) }}</p>
+            <p>{{ stringUtil.getNumberWithComma(info2.rsdntx) }}</p>
           </kw-form-item>
           <kw-form-item
             :label="t('MSG_TXT_RDS')"
           >
-            <p>{{ stringUtil.getNumberWithComma(info2.col3) }}</p>
+            <p>{{ stringUtil.getNumberWithComma(info2.rds) }}</p>
           </kw-form-item>
           <kw-form-item
             :label="t('MSG_TXT_HIR_INSR')"
           >
-            <p>{{ stringUtil.getNumberWithComma(info2.col4) }}</p>
+            <p>{{ stringUtil.getNumberWithComma(info2.hirInsr) }}</p>
           </kw-form-item>
         </kw-form-row>
         <kw-form-row>
           <kw-form-item :label="t('MSG_TXT_INDD_INSR')">
-            <p>{{ stringUtil.getNumberWithComma(info2.col5) }}</p>
+            <p>{{ stringUtil.getNumberWithComma(info2.inddInsr) }}</p>
           </kw-form-item>
           <kw-form-item
             :label="t('MSG_TXT_BU_DDTN')"
           >
-            <p>{{ stringUtil.getNumberWithComma(info2.col6) }}</p>
+            <p>{{ stringUtil.getNumberWithComma(info2.buDdtn) }}</p>
           </kw-form-item>
           <kw-form-item
             :label="t('MSG_TXT_REDF')"
           >
-            <p>{{ stringUtil.getNumberWithComma(info2.col7) }}</p>
+            <p>{{ stringUtil.getNumberWithComma(info2.redf) }}</p>
           </kw-form-item>
           <kw-form-item
             :label="t('MSG_TXT_DLQ')+t('MSG_TXT_REDF')"
           >
-            <p>{{ stringUtil.getNumberWithComma(info2.col8) }}</p>
+            <p>{{ stringUtil.getNumberWithComma(info2.dlqRedf) }}</p>
           </kw-form-item>
         </kw-form-row>
       </kw-form>
@@ -257,7 +257,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService, getComponentType, stringUtil, modal } from 'kw-lib';
+import { useDataService, getComponentType, stringUtil, modal, defineGrid } from 'kw-lib';
 import dayjs from 'dayjs';
 
 import { cloneDeep, isEmpty } from 'lodash-es';
@@ -295,28 +295,29 @@ const searchParams = ref({
 });
 
 const info = ref({
-  col1: '',
-  col2: '',
-  col3: '',
-  col4: '',
-  col5: '',
-  col6: '',
-  col7: '',
-  col8: '',
-  col9: '',
-  col10: '',
+  perfYm: '',
+  blg: '',
+  prtnrNo: '',
+  rsb: '',
+  emplNm: '',
+  frrSum: '',
+  ddtnSum: '',
+  aclDsb: '',
+  dsbBnk: '',
+  dsbAc: '',
 });
 
 const info2 = ref({
-  col1: '',
-  col2: '',
-  col3: '',
-  col4: '',
-  col5: '',
-  col6: '',
-  col7: '',
-  col8: '',
+  rds: '',
+  erntx: '',
+  rsdntx: '',
+  buDdtn: '',
+  hirInsr: '',
+  inddInsr: '',
+  redf: '',
+  dlqRedf: '',
 });
+
 const { prPerfYm } = searchParams.value;
 const { prpartnerNo } = searchParams.value;
 
@@ -450,20 +451,20 @@ if (!isEmpty(prPerfYm) && !isEmpty(prpartnerNo)) {
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
-function initGrd1Main(data, view) {
+const initGrd1Main = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'col1' },
-    { fieldName: 'col2' },
-    { fieldName: 'col3' },
-    { fieldName: 'col4' },
+    { fieldName: 'div' },
+    { fieldName: 'elhmAckmtCt' },
+    { fieldName: 'svCnt' },
+    { fieldName: 'svRat' },
 
   ];
 
   const columns = [
-    { fieldName: 'col1', header: t('MSG_TXT_DIV'), width: '167', styleName: 'text-center' },
-    { fieldName: 'col2', header: t('MSG_TXT_ELHM_ACKMT_CT'), width: '456', styleName: 'text-right' },
-    { fieldName: 'col3', header: t('MSG_TXT_SERVICE') + t('MSG_TXT_COUNT'), width: '456', styleName: 'text-right' },
-    { fieldName: 'col4', header: t('MSG_TXT_SERVICE') + t('MSG_TXT_PROCS_RT'), width: '458', styleName: 'text-right' },
+    { fieldName: 'div', header: t('MSG_TXT_DIV'), width: '167', styleName: 'text-center' },
+    { fieldName: 'elhmAckmtCt', header: t('MSG_TXT_ELHM_ACKMT_CT'), width: '456', styleName: 'text-right' },
+    { fieldName: 'svCnt', header: t('MSG_TXT_SERVICE') + t('MSG_TXT_COUNT'), width: '456', styleName: 'text-right' },
+    { fieldName: 'svRat', header: t('MSG_TXT_SERVICE') + t('MSG_TXT_PROCS_RT'), width: '458', styleName: 'text-right' },
 
   ];
 
@@ -472,25 +473,26 @@ function initGrd1Main(data, view) {
 
   view.checkBar.visible = false;
   view.rowIndicator.visible = false;
-}
-function initGrd2Main(data, view) {
+});
+
+const initGrd2Main = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'col1' },
-    { fieldName: 'col2', dataType: 'number' },
-    { fieldName: 'col3' },
-    { fieldName: 'col4', dataType: 'number' },
-    { fieldName: 'col5' },
-    { fieldName: 'col6', dataType: 'number' },
+    { fieldName: 'item1' },
+    { fieldName: 'amt1', dataType: 'number' },
+    { fieldName: 'item2' },
+    { fieldName: 'amt2', dataType: 'number' },
+    { fieldName: 'item3' },
+    { fieldName: 'amt3', dataType: 'number' },
 
   ];
 
   const columns = [
-    { fieldName: 'col1', header: t('MSG_TXT_ITEM'), width: '194', styleName: 'text-left', footer: { text: '합계', styleName: 'text-center' } },
-    { fieldName: 'col2', header: t('MSG_TXT_AMT'), width: '203', styleName: 'text-right', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
-    { fieldName: 'col3', header: t('MSG_TXT_ITEM'), width: '194', styleName: 'text-left', footer: { text: '합계', styleName: 'text-center' } },
-    { fieldName: 'col4', header: t('MSG_TXT_AMT'), width: '203', styleName: 'text-right', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
-    { fieldName: 'col5', header: t('MSG_TXT_ITEM'), width: '194', styleName: 'text-left', footer: { text: '합계', styleName: 'text-center' } },
-    { fieldName: 'col6', header: t('MSG_TXT_AMT'), width: '203', styleName: 'text-right', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
+    { fieldName: 'item1', header: t('MSG_TXT_ITEM'), width: '194', styleName: 'text-left', footer: { text: '합계', styleName: 'text-center' } },
+    { fieldName: 'amt1', header: t('MSG_TXT_AMT'), width: '203', styleName: 'text-right', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
+    { fieldName: 'item2', header: t('MSG_TXT_ITEM'), width: '194', styleName: 'text-left', footer: { text: '합계', styleName: 'text-center' } },
+    { fieldName: 'amt2', header: t('MSG_TXT_AMT'), width: '203', styleName: 'text-right', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
+    { fieldName: 'item3', header: t('MSG_TXT_ITEM'), width: '194', styleName: 'text-left', footer: { text: '합계', styleName: 'text-center' } },
+    { fieldName: 'amt3', header: t('MSG_TXT_AMT'), width: '203', styleName: 'text-right', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
 
   ];
 
@@ -508,40 +510,40 @@ function initGrd2Main(data, view) {
     {
       header: t('MSG_TXT_PD_SALE_FEE'), // colspan title
       direction: 'horizontal', // merge type
-      items: ['col1', 'col2'],
+      items: ['item1', 'amt1'],
     },
     {
       header: t('MSG_TXT_SERVICE') + t('MSG_TXT_FEE'),
       direction: 'horizontal',
-      items: ['col3', 'col4'],
+      items: ['item2', 'amt2'],
     },
     {
       header: t('MSG_TXT_OG') + t('MSG_TXT_FEE'),
       direction: 'horizontal',
-      items: ['col5', 'col6'],
+      items: ['item3', 'amt3'],
     },
 
   ]);
-}
+});
 
-function initGrd3Main(data, view) {
+const initGrd3Main = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'col1' },
-    { fieldName: 'col2', dataType: 'number' },
-    { fieldName: 'col3', dataType: 'number' },
-    { fieldName: 'col4', dataType: 'number' },
-    { fieldName: 'col5', dataType: 'number' },
-    { fieldName: 'col6', dataType: 'number' },
+    { fieldName: 'item' },
+    { fieldName: 'lstmm', dataType: 'number' },
+    { fieldName: 'thmOc', dataType: 'number' },
+    { fieldName: 'tmh', dataType: 'number' },
+    { fieldName: 'thmDdtn', dataType: 'number' },
+    { fieldName: 'thmBlam', dataType: 'number' },
 
   ];
 
   const columns = [
-    { fieldName: 'col1', header: t('MSG_TXT_ITEM'), width: '167', styleName: 'text-left', footer: { text: '합계', styleName: 'text-center' } },
-    { fieldName: 'col2', header: t('MSG_TXT_LSTMM') + t('MSG_TXT_BLAM'), width: '274', styleName: 'text-right', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
-    { fieldName: 'col3', header: t('MSG_TXT_THM_OC'), width: '274', styleName: 'text-right', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
-    { fieldName: 'col4', header: t('MSG_TXT_THM') + t('MSG_TXT_SUM'), width: '275', styleName: 'text-right', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
-    { fieldName: 'col5', header: t('MSG_TXT_THM_DDTN'), width: '274', styleName: 'text-right', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
-    { fieldName: 'col6', header: t('MSG_TXT_THM_BLAM'), width: '274', styleName: 'text-right', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
+    { fieldName: 'item', header: t('MSG_TXT_ITEM'), width: '167', styleName: 'text-left', footer: { text: '합계', styleName: 'text-center' } },
+    { fieldName: 'lstmm', header: t('MSG_TXT_LSTMM') + t('MSG_TXT_BLAM'), width: '274', styleName: 'text-right', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
+    { fieldName: 'thmOc', header: t('MSG_TXT_THM_OC'), width: '274', styleName: 'text-right', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
+    { fieldName: 'tmh', header: t('MSG_TXT_THM') + t('MSG_TXT_SUM'), width: '275', styleName: 'text-right', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
+    { fieldName: 'thmDdtn', header: t('MSG_TXT_THM_DDTN'), width: '274', styleName: 'text-right', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
+    { fieldName: 'thmBlam', header: t('MSG_TXT_THM_BLAM'), width: '274', styleName: 'text-right', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
 
   ];
 
@@ -551,5 +553,5 @@ function initGrd3Main(data, view) {
 
   view.checkBar.visible = false;
   view.rowIndicator.visible = false;
-}
+});
 </script>
