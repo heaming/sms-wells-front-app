@@ -49,7 +49,6 @@
       <kw-search-item :label="$t('MSG_TXT_SEL_CHNL')">
         <kw-select
           v-model="searchParams.sellChnlDtlCd"
-          :model-value="[]"
           :options="codes.SELL_CHNL_DTL_CD"
         />
       </kw-search-item>
