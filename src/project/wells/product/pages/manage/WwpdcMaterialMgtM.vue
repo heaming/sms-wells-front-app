@@ -378,7 +378,7 @@ async function onClickSave(tempSaveYn) {
   await Promise.all(cmpStepRefs.value.map(async (item, idx) => {
     if (!await item.value.validateProps()) {
       isValidOk = false;
-      currentStep.value = regSteps.value[idx];
+      currentStep.value = cloneDeep(regSteps.value[idx]);
     }
   }));
   if (!isValidOk) return;
