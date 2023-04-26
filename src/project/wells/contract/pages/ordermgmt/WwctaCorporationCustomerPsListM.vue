@@ -99,11 +99,15 @@
             v-model="searchParams.pdHclsf"
             :options="hclsfs"
             first-option="all"
-            @change="onHclsfChanged"
+            option-value="pdClsfId"
+            option-label="pdClsfNm"
+            @update:model-value="onHclsfChanged"
           />
           <kw-select
             v-model="searchParams.pdMclsf"
             :options="mclsfs"
+            option-value="pdClsfId"
+            option-label="pdClsfNm"
             first-option="all"
           />
         </kw-search-item>
@@ -342,18 +346,29 @@ async function onClickExcelDownload() {
   });
 }
 
-async function onHclsfChanged() {
-  const responses = await dataService.get('/sms/wells/contract/product-standards/mid-levels', { params: {
-    pdHclsf: searchParams.value.pdHclsf,
-  } });
+const responseHclsDivOptions = ref([]);
+const responseMclsfIdOptions = ref([]);
+async function fetchDefaultData() {
+  let res = [];
+  res = await dataService.get('sms/wells/contract/product/high-classes');
+  responseHclsDivOptions.value = res.data;
+  res = await dataService.get('sms/wells/contract/product/middle-classes');
+  responseMclsfIdOptions.value = res.data;
 
-  const initMclsfs = [];
-
-  responses.data.forEach((v) => {
-    if (!isEmpty(v.gnrCd)) initMclsfs.push({ codeId: v.pdClsfId, codeName: v.pdClsfNm });
-  });
-  mclsfs.value = uniqBy(initMclsfs, 'codeId');
+  hclsfs.value = uniqBy(responseHclsDivOptions.value);
 }
+
+async function onHclsfChanged(selectedValues) {
+  // 선택한 중분류 초기화
+  mclsfs.value = [];
+
+  // 중분류 필터링
+  mclsfs.value = responseMclsfIdOptions.value.filter((v) => selectedValues.includes(v.hgrPdClsfId));
+}
+
+onMounted(async () => {
+  await fetchDefaultData();
+});
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
