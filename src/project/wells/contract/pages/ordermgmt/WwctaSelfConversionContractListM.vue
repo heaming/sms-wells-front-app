@@ -92,11 +92,11 @@
           />
         </kw-search-item>
         <kw-search-item
-          :label="$t('MSG_TXT_MTR_DV')/* 자료구분 */"
+          :label="$t('MSG_TXT_INDI_CORP')/* 개인/법인 */"
         >
           <kw-select
             v-model="searchParams.copnDvCd"
-            :label="$t('MSG_TXT_MTR_DV')/* 자료구분 */"
+            :label="$t('MSG_TXT_INDI_CORP')/* 개인/법인 */"
             :options="codes.COPN_DV_CD"
           />
         </kw-search-item>
@@ -306,7 +306,7 @@ const initGrd = defineGrid((data, view) => {
     cntrSn: { displaying: false },
     cntrNoSn: {
       type: String,
-      label: t('MSG_TXT_CST_CD') /* 고객코드' */,
+      label: t('MSG_TXT_CNTR_DTL_NO') /* 계약상세번호' */,
       width: 150,
       valueCallback: (gridBase, rowId, fieldName, fields, values) => {
         const cntrNo = values[fields.indexOf('cntrNo')];
@@ -316,7 +316,7 @@ const initGrd = defineGrid((data, view) => {
       },
     },
     copnDvCd: {
-      label: t('MSG_TXT_MTR_DV') /* 자료구분' */,
+      label: t('MSG_TXT_INDI_CORP') /* 개인/법인' */,
       width: 110,
       options: codes.COPN_DV_CD,
     },
@@ -335,7 +335,7 @@ const initGrd = defineGrid((data, view) => {
       },
     },
     cntrCstNo: {
-      label: t('MSG_TXT_KWK') /* 교원키' */,
+      label: t('MSG_TXT_CNTOR_CST_NO') /* 계약자 고객번호' */,
       width: '110',
       classes: 'text-center',
     },
