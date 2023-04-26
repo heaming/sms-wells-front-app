@@ -201,6 +201,8 @@ function onClickAdd() {
     ctntExcdMediTpCd: '03', // 알림톡
   });
   view.checkItem(0, true);
+
+  // view.setColumnProperty('cstNo', 'alwaysShowButton', 'true');
 }
 
 async function onClickSave() {
@@ -212,7 +214,7 @@ async function onClickSave() {
   await dataService.put(baseUrl, changedRows);
 
   notify(t('MSG_ALT_SAVE_DATA'));
-  await fetchData();
+  await onClickSearch();
 }
 
 const onClickExcelUpload = async () => {
