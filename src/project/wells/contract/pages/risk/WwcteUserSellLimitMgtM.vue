@@ -313,7 +313,7 @@ function initGrid(data, view) {
       rules: 'required',
       options: copnDvCdOptions.value,
       editor: { type: 'list' } },
-    { fieldName: 'zip', header: t('MSG_TXT_ZIP'), width: '180', styleName: 'text-center' },
+    { fieldName: 'zip', header: t('MSG_TXT_ZIP'), width: '180', styleName: 'text-center', editor: { mask: { editMask: '999999' } } },
     { fieldName: 'pdCd',
       header: t('MSG_TXT_PRDT_CODE'),
       width: '180',
