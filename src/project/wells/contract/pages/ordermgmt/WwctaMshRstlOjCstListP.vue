@@ -174,7 +174,7 @@ async function fetchPage(pageIndex = pageInfo.value.pageIndex, pageSize = pageIn
 
 async function onSearch() {
   cachedParams = { ...toRaw(searchParams) };
-  console.log(cachedParams);
+  pageInfo.value.pageIndex = 1;
   await fetchPage(1);
 }
 

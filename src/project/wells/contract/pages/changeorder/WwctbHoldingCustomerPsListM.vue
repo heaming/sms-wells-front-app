@@ -156,6 +156,7 @@ function onChangePageInfo(pageIndex, pageSize) {
 
 async function onClickSearch() {
   cachedParams = { ...toRaw(searchParams) };
+  pageInfo.value.pageIndex = 1;
   await fetchPage(1);
 }
 
