@@ -1,7 +1,21 @@
+<!----
+****************************************************************************************************
+* 프로그램 개요
+****************************************************************************************************
+1. 모듈 : CTA
+2. 프로그램 ID : WwctaReceiptBulkUploadForInstallLocationP - 대량 접수자료 업로드(설치처) 화면
+3. 작성자 : gs.ritvik.m
+4. 작성일 : 2023.04.25
+****************************************************************************************************
+* 프로그램 설명
+****************************************************************************************************
+- 대량 접수자료 업로드(설치처) 화면
+****************************************************************************************************
+--->
 <template>
   <kw-popup
-    class="kw-popup--md"
-    title="설치처 대량 접수자료 업로드"
+    size="md"
+    title="$t('MSG_TXT_UPL_MASS_APP_DATA')"
   >
     <kw-action-top>
       <template #left>
@@ -11,35 +25,50 @@
       <kw-btn
         icon="upload_on"
         dense
-        label="엑셀 업로드"
+        :label="$t('MSG_BTN_EXCEL_UP')"
       />
       <kw-btn
         icon="download_off"
         dense
-        label="양식 다운로드"
+        :label="$t('MSG_BTN_TEMP_DOWN')"
         @click="onClickExcelDownload"
       />
     </kw-action-top>
 
     <kw-grid
+      ref="grdMainRef"
       :visible-rows="1"
-      @init="initGrid"
+      @init="initGrdMain"
     />
 
     <template #action>
       <kw-btn
         negative
-        label="취소"
+        :label="$t('MSG_BTN_CANCEL')"
       />
       <kw-btn
         primary
-        label="등록"
+        :label="$t('MSG_BTN_RGST')"
       />
     </template>
   </kw-popup>
 </template>
 <script setup>
-function initGrid(data, view) {
+// -------------------------------------------------------------------------------------------------
+// Import & Declaration
+// -------------------------------------------------------------------------------------------------
+import { getComponentType, defineGrid } from 'kw-lib';
+
+const { t } = useI18n();
+// -------------------------------------------------------------------------------------------------
+// Function & Event
+// -------------------------------------------------------------------------------------------------
+const grdMainRef = ref(getComponentType('KwGrid'));
+
+// -------------------------------------------------------------------------------------------------
+// Initialize Grid
+// -------------------------------------------------------------------------------------------------
+const initGrdMain = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'col1' },
     { fieldName: 'col2' },
@@ -53,15 +82,15 @@ function initGrid(data, view) {
   ];
 
   const columns = [
-    { fieldName: 'col1', header: '구분(1:일시불, 2:렌탈, 6:정기배송)', width: '267', styleName: 'text-center' },
-    { fieldName: 'col2', header: '고객년도', width: '125', styleName: 'text-center' },
-    { fieldName: 'col3', header: '고객코드', width: '125', styleName: 'text-center' },
-    { fieldName: 'col4', header: '일련번호(렌탈/일시불:0)', width: '204', styleName: 'text-center' },
-    { fieldName: 'col5', header: '고객명', width: '125', styleName: 'text-center' },
-    { fieldName: 'col6', header: '우편번호', width: '128', styleName: 'text-center' },
-    { fieldName: 'col7', header: '주소', width: '263', styleName: 'text-center' },
-    { fieldName: 'col8', header: '휴대전화번호', width: '128', styleName: 'text-center' },
-    { fieldName: 'col9', header: '전화번호', width: '128', styleName: 'text-center' },
+    { fieldName: 'col1', header: `${t('MSG_TXT_DIV')} (1:일시불, 2:렌탈, 6:정기배송)`, width: '267', styleName: 'text-center' },
+    { fieldName: 'col2', header: t('MSG_TXT_CST_Y'), width: '125', styleName: 'text-center' },
+    { fieldName: 'col3', header: t('MSG_TXT_CST_CD'), width: '125', styleName: 'text-center' },
+    { fieldName: 'col4', header: `${t('MSG_TXT_SERIAL_NUMBER')}(렌탈/일시불:0)`, width: '204', styleName: 'text-center' },
+    { fieldName: 'col5', header: t('MSG_TXT_CST_NM'), width: '125', styleName: 'text-center' },
+    { fieldName: 'col6', header: t('MSG_TXT_ZIP'), width: '128', styleName: 'text-center' },
+    { fieldName: 'col7', header: t('MSG_TXT_ADDR'), width: '263', styleName: 'text-center' },
+    { fieldName: 'col8', header: t('MSG_TXT_MPNO'), width: '128', styleName: 'text-center' },
+    { fieldName: 'col9', header: t('MSG_TXT_TEL_NO'), width: '128', styleName: 'text-center' },
   ];
 
   data.setFields(fields);
@@ -73,5 +102,5 @@ function initGrid(data, view) {
   data.setRows([
     { col1: '1', col2: '2022', col3: '1234567', col4: '1', col5: '김고객', col6: '123-12', col7: '서울시 종로구 을지로 100길 10', col8: '010-0000-0000', col9: '02-000-0000' },
   ]);
-}
+});
 </script>
