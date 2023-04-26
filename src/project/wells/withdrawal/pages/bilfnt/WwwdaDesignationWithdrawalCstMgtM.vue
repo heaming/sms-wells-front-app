@@ -337,7 +337,7 @@ const initGrid = defineGrid((data, view) => {
         type: 'number',
         maxLength: 9,
       },
-      numberFormat: '#,##0.##',
+      numberFormat: '#,##0',
       rules: 'required',
     },
     { fieldName: 'dsnWdrwFntD',
@@ -348,7 +348,7 @@ const initGrid = defineGrid((data, view) => {
         type: 'number',
         maxLength: 2,
       },
-      numberFormat: '#,##0.##',
+      numberFormat: '#,##0',
       rules: `required||one_of:${possibleDay}`, // 정규일이 바뀔수도 있기 때문에 추후에 수정
       customMessages: { one_of: t('MSG_ALT_FTD_CHECK', [possibleDay]) },
 
@@ -370,7 +370,7 @@ const initGrid = defineGrid((data, view) => {
         type: 'number',
         maxLength: 9,
       },
-      numberFormat: '#,##0.##',
+      numberFormat: '#,##0',
       rules: 'required',
     },
     // 잔액
@@ -380,6 +380,7 @@ const initGrid = defineGrid((data, view) => {
       width: '120',
       styleName: 'text-right',
       editable: false,
+      numberFormat: '#,##0',
       // eslint-disable-next-line no-unused-vars
       displayCallback(grid, index, value) {
         // const dsnWdrwAmt = gridUtil.getCellValue(grid, index.itemIndex, 'dsnWdrwAmt');
