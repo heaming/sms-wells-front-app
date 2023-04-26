@@ -134,8 +134,14 @@
         <kw-grid
           ref="grdMainRef"
           name="approvalBaseGrid"
-          :visible-rows="pageInfo.pageSize - 1"
+          :visible-rows="10"
           @init="initGrid"
+        />
+        <kw-pagination
+          v-model:page-index="pageInfo.pageIndex"
+          v-model:page-size="pageInfo.pageSize"
+          :total-count="pageInfo.totalCount"
+          @change="fetchData"
         />
       </div>
     </kw-observer>
@@ -211,8 +217,11 @@ async function fetchData() {
   const dataSource = view.getDataSource();
 
   dataSource.checkRowStates(false);
-  dataSource.addRows(pages);
+  dataSource.setRows(pages);
+  view.resetCurrent();
   dataSource.checkRowStates(true);
+
+  view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
 async function fetchAprCodes() {
@@ -292,6 +301,7 @@ async function onClickRemove() {
   const deleteKeys = deletedRows.map((row) => row);
 
   if (deleteKeys.length) {
+    await notify(t('MSG_ALT_DELETED'));
     await dataService.delete('/sms/wells/contract/contracts/approval-standards', { data: deleteKeys });
     await onClickSearch();
   }
@@ -354,12 +364,6 @@ function initGrid(data, view) {
   view.rowIndicator.visible = true;
   view.editOptions.editable = true;
 
-  view.onScrollToBottom = (g) => {
-    if (pageInfo.value.pageIndex * pageInfo.value.pageSize <= g.getItemCount()) {
-      pageInfo.value.pageIndex += 1;
-      fetchData();
-    }
-  };
   view.onCellEdited = async (grid, itemIndex, row, fieldIndex) => {
     const { fieldName } = grid.getColumn(fieldIndex);
     if (fieldName === 'cntrAprAkDvCd') {

@@ -113,8 +113,14 @@
         <kw-grid
           ref="grdMainRef"
           name="grdMain"
-          :visible-rows="pageInfo.pageSize - 1"
+          :visible-rows="10"
           @init="initGrdMain"
+        />
+        <kw-pagination
+          v-model:page-index="pageInfo.pageIndex"
+          v-model:page-size="pageInfo.pageSize"
+          :total-count="pageInfo.totalCount"
+          @change="fetchData"
         />
       </div>
     </kw-observer>
@@ -160,6 +166,9 @@ const searchParams = ref({
   dlpnrCd: '',
 });
 
+const isSellLmOcStmEmpty = computed(() => isEmpty(searchParams.value.sellLmOcStm));
+const isSellLmOcDtmEmpty = computed(() => isEmpty(searchParams.value.sellLmOcDtm));
+
 let cachedParams;
 
 async function onClickAdd() {
@@ -180,7 +189,8 @@ async function fetchData() {
   pageInfo.value = pagingResult;
 
   dataSource.checkRowStates(false);
-  dataSource.addRows(pages);
+  dataSource.setRows(pages);
+  view.resetCurrent();
   dataSource.checkRowStates(true);
 
   view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
@@ -194,6 +204,13 @@ async function onClickSearch() {
     alert(t('MSG_ALT_REQ_INPUT_VAL', [t('MSG_TXT_OCCUR_DATE'), t('MSG_TXT_ENTRP_NO'), t('MSG_TXT_BSN_NM')]));
     return;
   }
+
+  if ((isSellLmOcStmEmpty.value && !isSellLmOcDtmEmpty.value)
+     || (!isSellLmOcStmEmpty.value && isSellLmOcDtmEmpty.value)) {
+    alert(t('MSG_ALT_CHK_CONFIRM', [t('MSG_TXT_OCCR_DATE')]));
+    return;
+  }
+
   grdMainRef.value.getData().clearRows();
   pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(paramsValue);
@@ -221,6 +238,7 @@ async function onClickDelete() {
   const deleteKeys = deletedRows.map((row) => row.sellLmId);
 
   if (deleteKeys.length) {
+    await notify(t('MSG_ALT_DELETED'));
     await dataService.delete('/sms/wells/contract/sales-limits/business-partners', { data: deleteKeys });
     onClickSearch();
   }
@@ -288,23 +306,16 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'sellLmDv', header: t('MSG_TXT_INF_CLS'), width: '142', styleName: 'text-center', editable: true, editor: { type: 'list' }, options: [{ codeId: '3', codeName: t('MSG_TXT_RGS') }, { codeId: '4', codeName: t('MSG_TXT_RSTRCT') }], rules: 'required' }, /* 공통코드 미존재로 하드코딩 설정 */
     { fieldName: 'sellLmBzrno', header: t('MSG_TXT_ENTRP_NO'), width: '127', styleName: 'text-center', editable: true, editor: { maxLength: 10, mask: { editMask: '000-00-00000' } }, rules: 'required' },
     { fieldName: 'dlpnrNm', header: t('MSG_TXT_BSN_NM'), width: '127', styleName: 'text-left', editable: false },
-    { fieldName: 'dlgpsNm', header: t('MSG_TXT_RPRS_NM'), width: '127', styleName: 'text-left', editable: false },
+    { fieldName: 'dlgpsNm', header: t('MSG_TXT_RPRS_NM'), width: '127', styleName: 'text-center', editable: false },
     { fieldName: 'bryyMmdd', header: t('MSG_TXT_BIRTH_DATE'), width: '196', styleName: 'text-center', datetimeFormat: 'date', editable: false, editor: { type: 'btdate' } },
     { fieldName: 'sellLmRsonCd', header: t('MSG_TXT_DFT_CD'), width: '211', editable: true, editor: { type: 'list' }, options: codes.SELL_LM_RSON_CD },
     { fieldName: 'sellLmOcDtm', header: t('MSG_TXT_OCCUR_DATE'), width: '196', styleName: 'text-center', datetimeFormat: 'date', editable: true, editor: { type: 'btdate' }, rules: 'required' },
     { fieldName: 'sellLmRlsDtm', header: t('MSG_TXT_CNC_DT'), width: '196', styleName: 'text-center', datetimeFormat: 'date', editable: true, editor: { type: 'btdate' } },
     { fieldName: 'sellLmRson', header: t('MSG_TXT_OCC_RSN'), width: '376', styleName: 'text-left', editable: true, editor: { type: 'text', maxLength: 1000 } },
-    { fieldName: 'sellLmPsicNm', header: t('MSG_TXT_RGST_ICHR'), width: '180', styleName: 'text-left', editable: false },
-    { fieldName: 'sellLmRlsPsicNm', header: t('MSG_TXT_CNC_INCHR'), width: '180', styleName: 'text-left', editable: false },
+    { fieldName: 'sellLmPsicNm', header: t('MSG_TXT_RGST_ICHR'), width: '180', styleName: 'text-center', editable: false },
+    { fieldName: 'sellLmRlsPsicNm', header: t('MSG_TXT_CNC_INCHR'), width: '180', styleName: 'text-center', editable: false },
     { fieldName: 'sellLmId', visible: false },
   ];
-
-  view.onScrollToBottom = (g) => {
-    if (pageInfo.value.pageIndex * pageInfo.value.pageSize <= g.getItemCount()) {
-      pageInfo.value.pageIndex += 1;
-      fetchData();
-    }
-  };
 
   data.setFields(fields);
   view.setColumns(columns);
