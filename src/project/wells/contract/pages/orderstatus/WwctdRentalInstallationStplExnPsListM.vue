@@ -169,6 +169,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'exnDt' },
     { fieldName: 'cntrNo' },
     { fieldName: 'cntrSn' },
+    { fieldName: 'dtlCntrNo' },
     { fieldName: 'cntrCstNo' },
     { fieldName: 'cstKnm' },
     { fieldName: 'pdClsf' },
@@ -182,6 +183,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'dutyUseDt' },
     { fieldName: 'mshCntrNo' },
     { fieldName: 'mshCntrSn' },
+    { fieldName: 'mshDtlCntrNo' },
     { fieldName: 'mshCntrDt' },
     { fieldName: 'mshJoinDt' },
     { fieldName: 'mshCanDt' },
@@ -192,10 +194,17 @@ const initGrdMain = defineGrid((data, view) => {
 
   const columns = [
     { fieldName: 'exnDt', header: t('MSG_TXT_EXP_DT'), width: 120, styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_NO'), width: 130 },
-    { fieldName: 'cntrSn', header: t('MSG_TXT_CNTR_SN'), width: 100, styleName: 'text-right' },
+    {
+      fieldName: 'dtlCntrNo',
+      header: t('MSG_TXT_RNT_CNTR_NO'),
+      width: 150,
+      displayCallback(grid, index) {
+        const { cntrNo, cntrSn } = grid.getValues(index.itemIndex);
+        return isEmpty(cntrNo) || isEmpty(cntrSn) ? '' : `${cntrNo}-${cntrSn}`;
+      },
+    },
     { fieldName: 'cstKnm', header: t('MSG_TXT_CNTOR_NM'), width: 100 },
-    { fieldName: 'pdClsf', header: t('MSG_TXT_PRDT_CATE'), width: 100 },
+    { fieldName: 'pdClsf', header: t('MSG_TXT_PRDT_CATE'), width: 180 },
     { fieldName: 'basePdCd', header: t('MSG_TXT_PRDT_CODE'), width: 140, styleName: 'text-center' },
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: 250 },
     { fieldName: 'istmMcn', header: t('MSG_TXT_RENT_PRD_MN'), width: 100, styleName: 'text-right' },
@@ -204,8 +213,15 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'canCstDutyUseExprYn', header: t('MSG_TXT_CAN_CST_MAND_PRD_EXP_STAT'), width: 200, styleName: 'text-center' },
     { fieldName: 'slDt', header: t('MSG_TXT_DT_OF_SALE'), width: 120, styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'dutyUseDt', header: t('MSG_TXT_MAND_DAYS'), width: 120, styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'mshCntrNo', header: t('MSG_TXT_CNTR_NO'), width: 120, styleName: 'text-center' },
-    { fieldName: 'mshCntrSn', header: t('MSG_TXT_CNTR_SN'), width: 100, styleName: 'text-right' },
+    {
+      fieldName: 'mshDtlCntrNo',
+      header: t('MSG_TXT_MEM_CNTR_NO'),
+      width: 150,
+      displayCallback(grid, index) {
+        const { mshCntrNo, mshCntrSn } = grid.getValues(index.itemIndex);
+        return isEmpty(mshCntrNo) || isEmpty(mshCntrSn) ? '' : `${mshCntrNo}-${mshCntrSn}`;
+      },
+    },
     { fieldName: 'mshCntrDt', header: t('MSG_TXT_MEM_CNTR_DT_1'), width: 120, styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'mshJoinDt', header: t('MSG_TXT_MEM_SIGNUP'), width: 120, styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'mshCanDt', header: t('MSG_TXT_MEM_CANC_DT_1'), width: 120, styleName: 'text-center', datetimeFormat: 'date' },
@@ -214,25 +230,8 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'istllMpno', header: t('MSG_TXT_INSTR_PH_NO'), width: 150, styleName: 'text-center' },
   ];
 
-  const layouts = [
-    'exnDt',
-    {
-      header: t('MSG_TXT_RNT_CNTR_NO'),
-      direction: 'horizontal',
-      items: ['cntrNo', 'cntrSn'],
-    },
-    'cstKnm', 'pdClsf', 'basePdCd', 'pdNm', 'istmMcn', 'recapDutyPtrmN', 'canDt', 'canCstDutyUseExprYn', 'slDt', 'dutyUseDt',
-
-    {
-      header: t('MSG_TXT_MEM_CNTR_NO'),
-      direction: 'horizontal',
-      items: ['mshCntrNo', 'mshCntrSn'],
-    },
-    'mshCntrDt', 'mshJoinDt', 'mshCanDt', 'mshWdwalDt', 'cntrtMpno', 'istllMpno',
-  ];
   data.setFields(fields);
   view.setColumns(columns);
-  view.setColumnLayout(layouts);
   view.rowIndicator.visible = true;
 });
 </script>
