@@ -390,7 +390,7 @@ function initGridRentalContractorList(data, view) {
     { fieldName: 'sppDuedt', header: t('MSG_TXT_DUEDT'), width: '136', styleName: 'text-center', datetimeFormat: 'date' }, // 예정일
     { fieldName: 'istDt', header: t('MSG_TXT_INST_DT'), width: '136', styleName: 'text-center', datetimeFormat: 'date' }, // 설치일
     { fieldName: 'slDt', header: t('MSG_TXT_DT_OF_SALE'), width: '136', styleName: 'text-center', datetimeFormat: 'date' }, // 매출일
-    { fieldName: 'istmMcn', header: t('MSG_TXT_CNTR_PTRM'), width: '136', styleName: 'text-center' }, // 계약기간
+    { fieldName: 'istmMcn', header: t('MSG_TXT_CNTR_PTRM'), width: '136', styleName: 'text-right' }, // 계약기간
     { fieldName: 'cntrPdEnddt', header: t('MSG_TXT_EXP_DT'), width: '136', styleName: 'text-center', datetimeFormat: 'date' }, // 만료일
     { fieldName: 'canDt', header: t('MSG_TXT_CAN_D'), width: '136', styleName: 'text-center', datetimeFormat: 'date' }, // 취소일
     { fieldName: 'reqdDt', header: t('MSG_TXT_REQD_D'), width: '136', styleName: 'text-center', datetimeFormat: 'date' }, // 철거일

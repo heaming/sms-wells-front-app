@@ -309,7 +309,7 @@ const initGridMembershipContractNoList = defineGrid((data, view) => {
     { fieldName: 'stplPtrm', header: t('MSG_TXT_STPL_MCNT'), width: '138', styleName: 'text-right' }, // 약정개월
     { fieldName: 'svPrd', header: t('MSG_TXT_MNGT_PRD'), width: '138', styleName: 'text-right' }, // 관리주기
     { fieldName: 'frisuBfsvcPtrmN', header: `${t('MSG_TXT_MMBR')}/${t('MSG_TXT_FRISU_MSH')}`, width: '138', styleName: 'text-right' }, // 멤버십/무상멤버십
-    { fieldName: 'spayFrisuBfsvcPtrmN', header: `${t('MSG_TXT_SNGL_PMNT')}/${t('MSG_TXT_FRISU_MSH')}`, width: '138', styleName: 'text-center' }, // 일시불/무상멤버십
+    { fieldName: 'spayFrisuBfsvcPtrmN', header: `${t('MSG_TXT_SNGL_PMNT')}/${t('MSG_TXT_FRISU_MSH')}`, width: '138', styleName: 'text-right' }, // 일시불/무상멤버십
     { fieldName: 'pdLclsfNm', header: t('MSG_TXT_PRDT_GUBUN') + 1, width: '138' }, // 상품구분1
     { fieldName: 'pdDclsfNm', header: t('MSG_TXT_PRDT_GUBUN') + 2, width: '138' }, // 상품구분2
     { fieldName: 'cntrDtlStatNm', header: t('MSG_TXT_MSH_STAT'), width: '138', styleName: 'text-center' }, // 멤버십상태
