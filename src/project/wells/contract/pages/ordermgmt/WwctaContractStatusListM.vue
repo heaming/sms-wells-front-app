@@ -1,50 +1,58 @@
+<!----
+****************************************************************************************************
+* 프로그램 개요
+****************************************************************************************************
+1. 모듈 : CTA
+2. 프로그램 ID : WwctaContractStatusListM - 계약현황 목록
+3. 작성자 : gs.nidhi.d
+4. 작성일 : 2023.04.26
+****************************************************************************************************
+* 프로그램 설명
+****************************************************************************************************
+- 계약현황 목록
+****************************************************************************************************
+--->
 <template>
   <kw-page>
-    <template #header>
-      <kw-page-header
-        :options="['홈','판매관리','계약관리','계약현황목록']"
-      />
-    </template>
-
     <ul class="kw-state-list">
       <li class="kw-state-list__item">
         <p class="kw-state-list__top">
-          확정
+          {{ t('MSG_TXT_DTRM') }}
         </p>
         <p class="kw-state-list__num">
-          7<span class="kw-state-list__unit">명</span>
+          7<span class="kw-state-list__unit">{{ t('MSG_TXT_NM') }}</span>
         </p>
       </li>
       <li class="kw-state-list__item">
         <p class="kw-state-list__top">
-          결제완료
+          {{ t('MSG_TXT_STLM_FSH') }}
         </p>
         <p class="kw-state-list__num">
-          18<span class="kw-state-list__unit">명</span>
+          18<span class="kw-state-list__unit">{{ t('MSG_TXT_NM') }}</span>
         </p>
       </li>
       <li class="kw-state-list__item">
         <p class="kw-state-list__top">
-          작성완료
+          {{ t('MSG_TXT_DRFT_CMPL') }}
         </p>
         <p class="kw-state-list__num">
-          8<span class="kw-state-list__unit">명</span>
+          8<span class="kw-state-list__unit">{{ t('MSG_TXT_NM') }}</span>
         </p>
       </li>
       <li class="kw-state-list__item">
         <p class="kw-state-list__top">
-          결제중
+          {{ t('MSG_TXT_APP_IN_PRG') }}
         </p>
         <p class="kw-state-list__num">
-          7<span class="kw-state-list__unit">명</span>
+          7<span class="kw-state-list__unit">{{ t('MSG_TXT_NM') }}</span>
         </p>
       </li>
       <li class="kw-state-list__item">
         <p class="kw-state-list__top">
-          삭제요청
+          {{ t('MSG_TXT_DEL_REQ') }}
         </p>
         <p class="kw-state-list__num">
-          7<span class="kw-state-list__unit">명</span>
+          7<span class="kw-state-list__unit">{{ t('MSG_TXT_NM') }}</span>
         </p>
       </li>
     </ul>
@@ -52,21 +60,21 @@
     <kw-search>
       <kw-search-row>
         <kw-search-item
-          label="접수일자"
+          :label="$t('MSG_TXT_RCPDT')"
         >
           <kw-date-range-picker
             rules="date_range_months:1"
           />
         </kw-search-item>
 
-        <kw-search-item label="계약상태">
+        <kw-search-item :label="$t('MSG_TXT_CNTR_STAT')">
           <kw-select
             :model-value="['']"
             :options="['전체','B','C']"
           />
         </kw-search-item>
 
-        <kw-search-item label="상품구분">
+        <kw-search-item :label="$t('MSG_TXT_PRDT_GUBUN')">
           <kw-select
             :model-value="['']"
             :options="['전체','B','C']"
@@ -75,16 +83,16 @@
       </kw-search-row>
 
       <kw-search-row>
-        <kw-search-item label="계약자">
+        <kw-search-item :label="$t('MSG_TXT_CNTRT')">
           <kw-input />
         </kw-search-item>
-        <kw-search-item label="파트너">
+        <kw-search-item :label="$t('MSG_TXT_PRTNR')">
           <kw-input />
         </kw-search-item>
-        <kw-search-item label="보기 구분">
+        <kw-search-item :label="$t('MSG_TXT_VIEW_CLSFCTN')">
           <kw-checkbox
             v-model="checked"
-            label="지점장 계약건만 보기"
+            :label="$t('MSG_TXT_BRNCH_MNGR_CNTRCT')"
             val=""
           />
         </kw-search-item>
@@ -99,7 +107,7 @@
           />
         </template>
         <kw-btn
-          label="계약관리"
+          :label="$t('MSG_TXT_CNTR_MGT')"
           primary
           dense
         />
@@ -108,10 +116,10 @@
         <kw-card>
           <div class="row items-center justify-between">
             <p class="kw-font-pt14 kw-fc--black2">
-              렌탈
+              {{ t('MSG_TXT_RENTAL') }}
             </p>
             <kw-chip
-              label="개인"
+              :label="$t('MSG_TXT_INDV')"
               color="placeholder"
               outline
             />
@@ -130,7 +138,7 @@
             </li>
             <li>
               <p class="w90">
-                접수일
+                {{ t('MSG_TXT_RCP_D') }}
               </p>
               <span>
                 2022-12-12
@@ -138,7 +146,7 @@
             </li>
             <li>
               <p class="w90">
-                제품명
+                {{ t('MSG_TXT_GOODS_NM') }}
               </p>
               <span>
                 비데(BM551RWA)
@@ -146,7 +154,7 @@
             </li>
             <li>
               <p class="w90">
-                입금대상금액
+                {{ t('MSG_TXT_DPST_AMT') }}
               </p>
               <span class="text-weight-bold">
                 300,000원
@@ -154,7 +162,7 @@
             </li>
             <li>
               <p class="w90">
-                파트너
+                {{ t('MSG_TXT_PRTNR') }}
               </p>
               <span>
                 김판매
@@ -163,22 +171,22 @@
           </ul>
           <kw-chip
             class="state-chip"
-            label="임시저장(Step1)"
+            :label="`${t('MSG_TXT_TEMP_SAVE')}(Step1)`"
           />
           <kw-separator spaced="20px" />
           <div class="button-wrap">
             <kw-btn
-              label="수정"
+              :label="$t('MSG_BTN_MOD')"
             />
           </div>
         </kw-card>
         <kw-card>
           <div class="row items-center justify-between">
             <p class="kw-font-pt14 kw-fc--black2">
-              할부
+              {{ t('MSG_TXT_ISTM') }}
             </p>
             <kw-chip
-              label="개인"
+              :label="$t('MSG_TXT_INDV')"
               color="placeholder"
               outline
             />
@@ -197,7 +205,7 @@
             </li>
             <li>
               <p class="w90">
-                접수일
+                {{ t('MSG_TXT_RCP_D') }}
               </p>
               <span>
                 2022-12-12
@@ -205,7 +213,7 @@
             </li>
             <li>
               <p class="w90">
-                제품명
+                {{ t('MSG_TXT_GOODS_NM') }}
               </p>
               <span>
                 비데(BM551RWA)
@@ -213,7 +221,7 @@
             </li>
             <li>
               <p class="w90">
-                입금대상금액
+                {{ t('MSG_TXT_DPST_AMT') }}
               </p>
               <span class="text-weight-bold">
                 300,000원
@@ -221,7 +229,7 @@
             </li>
             <li>
               <p class="w90">
-                파트너
+                {{ t('MSG_TXT_PRTNR') }}
               </p>
               <span>
                 김판매
@@ -230,28 +238,28 @@
           </ul>
           <kw-chip
             class="state-chip"
-            label="작성완료"
+            :label="$t('MSG_TXT_DRFT_CMPL')"
           />
           <kw-separator spaced="20px" />
           <div class="button-wrap">
             <kw-btn
-              label="수정"
+              :label="$t('MSG_BTN_MOD')"
             />
             <kw-btn
-              label="비대면결제"
+              :label="$t('MSG_TXT_NON_FCF_PYMNT')"
             />
             <kw-btn
-              label="취소"
+              :label="$t('MSG_BTN_CANCEL')"
             />
           </div>
         </kw-card>
         <kw-card>
           <div class="row items-center justify-between">
             <p class="kw-font-pt14 kw-fc--black2">
-              일시불
+              {{ t('MSG_TXT_SNGL_PMNT') }}
             </p>
             <kw-chip
-              label="개인"
+              :label="$t('MSG_TXT_INDV')"
               color="placeholder"
               outline
             />
@@ -270,7 +278,7 @@
             </li>
             <li>
               <p class="w90">
-                접수일
+                {{ t('MSG_TXT_RCP_D') }}
               </p>
               <span>
                 2022-12-12
@@ -278,7 +286,7 @@
             </li>
             <li>
               <p class="w90">
-                제품명
+                {{ t('MSG_TXT_GOODS_NM') }}
               </p>
               <span>
                 비데(BM551RWA)
@@ -286,7 +294,7 @@
             </li>
             <li>
               <p class="w90">
-                입금대상금액
+                {{ t('MSG_TXT_DPST_AMT') }}
               </p>
               <span class="text-weight-bold">
                 300,000원
@@ -294,7 +302,7 @@
             </li>
             <li>
               <p class="w90">
-                파트너
+                {{ t('MSG_TXT_PRTNR') }}
               </p>
               <span>
                 김판매
@@ -303,25 +311,25 @@
           </ul>
           <kw-chip
             class="state-chip"
-            label="확정"
+            :label="$t('MSG_TXT_DTRM')"
           />
           <kw-separator spaced="20px" />
           <div class="button-wrap">
             <kw-btn
-              label="조회"
+              :label="$t('MSG_BTN_INQR')"
             />
             <kw-btn
-              label="대면결제"
+              :label="$t('MSG_BTN_F2F_PYMNT')"
             />
           </div>
         </kw-card>
         <kw-card>
           <div class="row items-center justify-between">
             <p class="kw-font-pt14 kw-fc--black2">
-              환경가전(렌탈)
+              {{ `${t('MSG_TXT_ENVR_ELHM')}(${t('MSG_TXT_RENTAL')})` }}
             </p>
             <kw-chip
-              label="법인"
+              :label="$t('MSG_TXT_CRP')"
               color="placeholder"
               outline
             />
@@ -340,7 +348,7 @@
             </li>
             <li>
               <p class="w90">
-                접수일
+                {{ t('MSG_TXT_RCP_D') }}
               </p>
               <span>
                 2022-12-12
@@ -348,7 +356,7 @@
             </li>
             <li>
               <p class="w90">
-                제품명
+                {{ t('MSG_TXT_GOODS_NM') }}
               </p>
               <span>
                 비데(BM551RWA)
@@ -356,7 +364,7 @@
             </li>
             <li>
               <p class="w90">
-                입금대상금액
+                {{ t('MSG_TXT_DPST_AMT') }}
               </p>
               <span class="text-weight-bold">
                 300,000원
@@ -364,7 +372,7 @@
             </li>
             <li>
               <p class="w90">
-                파트너
+                {{ t('MSG_TXT_PRTNR') }}
               </p>
               <span>
                 김판매
@@ -373,25 +381,25 @@
           </ul>
           <kw-chip
             class="state-chip"
-            label="삭제요청"
+            :label="$t('MSG_TXT_DEL_REQ')"
           />
           <kw-separator spaced="20px" />
           <div class="button-wrap">
             <kw-btn
-              label="삭제반려"
+              :label="$t('MSG_BTN_DLT')"
             />
             <kw-btn
-              label="삭제승인"
+              :label="$t('MSG_BTN_DLT_APPRVL')"
             />
           </div>
         </kw-card>
         <kw-card>
           <div class="row items-center justify-between">
             <p class="kw-font-pt14 kw-fc--black2">
-              환경가전(구매)
+              {{ `${t('MSG_TXT_ENVR_ELHM')}(${t('MSG_TXT_PRCHS')})` }}
             </p>
             <kw-chip
-              label="개인"
+              :label="$t('MSG_TXT_INDV')"
               color="placeholder"
               outline
             />
@@ -410,7 +418,7 @@
             </li>
             <li>
               <p class="w90">
-                접수일
+                {{ t('MSG_TXT_RCP_D') }}
               </p>
               <span>
                 2022-12-12
@@ -418,7 +426,7 @@
             </li>
             <li>
               <p class="w90">
-                제품명
+                {{ t('MSG_TXT_GOODS_NM') }}
               </p>
               <span>
                 비데(BM551RWA)
@@ -426,7 +434,7 @@
             </li>
             <li>
               <p class="w90">
-                입금대상금액
+                {{ t('MSG_TXT_DPST_AMT') }}
               </p>
               <span class="text-weight-bold">
                 300,000원
@@ -434,7 +442,7 @@
             </li>
             <li>
               <p class="w90">
-                파트너
+                {{ t('MSG_TXT_PRTNR') }}
               </p>
               <span>
                 김판매
@@ -443,34 +451,34 @@
           </ul>
           <kw-chip
             class="state-chip"
-            label="작성완료"
+            :label="$t('MSG_TXT_DRFT_CMPL')"
           />
           <kw-separator spaced="20px" />
           <div class="button-wrap">
             <kw-btn
-              label="조회"
+              :label="$t('MSG_BTN_INQR')"
             />
             <kw-btn
-              label="비대면결제"
+              :label="$t('MSG_TXT_NON_FCF_PYMNT')"
             />
             <kw-btn
-              label="컨택배정"
+              :label="$t('MSG_BTN_CNTCT_ASSGNMNT')"
             />
             <kw-btn
-              label="확정"
+              :label="$t('MSG_TXT_DTRM')"
             />
             <kw-btn
-              label="입금대사"
+              :label="$t('MSG_BTN_DPST_ABSDR')"
             />
           </div>
         </kw-card>
         <kw-card>
           <div class="row items-center justify-between">
             <p class="kw-font-pt14 kw-fc--black2">
-              일시불
+              {{ t('MSG_TXT_SNGL_PMNT') }}
             </p>
             <kw-chip
-              label="개인"
+              :label="$t('MSG_TXT_INDV')"
               color="placeholder"
               outline
             />
@@ -489,7 +497,7 @@
             </li>
             <li>
               <p class="w90">
-                접수일
+                {{ t('MSG_TXT_RCP_D') }}
               </p>
               <span>
                 2022-12-12
@@ -497,7 +505,7 @@
             </li>
             <li>
               <p class="w90">
-                제품명
+                {{ t('MSG_TXT_GOODS_NM') }}
               </p>
               <span>
                 비데(BM551RWA)
@@ -505,7 +513,7 @@
             </li>
             <li>
               <p class="w90">
-                입금대상금액
+                {{ t('MSG_TXT_DPST_AMT') }}
               </p>
               <span class="text-weight-bold">
                 300,000원
@@ -513,7 +521,7 @@
             </li>
             <li>
               <p class="w90">
-                파트너
+                {{ t('MSG_TXT_PRTNR') }}
               </p>
               <span>
                 김판매
@@ -522,20 +530,20 @@
           </ul>
           <kw-chip
             class="state-chip"
-            label="확정"
+            :label="$t('MSG_TXT_DTRM')"
           />
           <kw-separator spaced="20px" />
           <div class="button-wrap">
             <kw-btn
-              label="수정"
+              :label="$t('MSG_BTN_MOD')"
             />
             <kw-btn
-              label="대면결제"
+              :label="$t('MSG_BTN_F2F_PYMNT')"
             />
             <kw-btn
-              label="컨택배정"
+              :label="$t('MSG_BTN_CNTCT_ASSGNMNT')"
             />
-            <kw-btn label="취소" />
+            <kw-btn :label="$t('MSG_BTN_CANCEL')" />
           </div>
         </kw-card>
       </div>
@@ -549,6 +557,7 @@
 
 <script setup>
 const checked = ref('N');
+const { t } = useI18n();
 </script>
 
 <style lang="scss" scoped>
