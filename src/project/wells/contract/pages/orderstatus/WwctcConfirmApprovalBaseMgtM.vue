@@ -366,6 +366,8 @@ function initGrid(data, view) {
 
   view.onCellEdited = async (grid, itemIndex, row, fieldIndex) => {
     const { fieldName } = grid.getColumn(fieldIndex);
+    const vlEndDtm = grid.getValue(itemIndex, 'vlEndDtm');
+    const vlStrtDtm = grid.getValue(itemIndex, 'vlStrtDtm');
     if (fieldName === 'cntrAprAkDvCd') {
       const searchCntrAprAkDvCd = searchParams.value.cntrAprAkDvCd;
       const cntrAprAkDvCd = grid.getValue(itemIndex, fieldIndex);
@@ -374,14 +376,18 @@ function initGrid(data, view) {
           grid.setValue(itemIndex, 'cntrAprAkDvCd', searchCntrAprAkDvCd);
         }
       }
-    } else if (fieldName === 'vlEndDtm' || fieldName === 'vlStrtDtm') {
-      const vlEndDtm = grid.getValue(itemIndex, 'vlEndDtm');
-      const vlStrtDtm = grid.getValue(itemIndex, 'vlStrtDtm');
+    } else if (fieldName === 'vlEndDtm') {
       if (!isEmpty(vlEndDtm)) {
         if (vlEndDtm.length === 0) {
           grid.setValue(itemIndex, 'vlEndDtm', null);
         } else if (vlStrtDtm > vlEndDtm) {
           grid.setValue(itemIndex, 'vlStrtDtm', vlEndDtm);
+        }
+      }
+    } else if (fieldName === 'vlStrtDtm') {
+      if (!isEmpty(vlStrtDtm)) {
+        if (vlEndDtm < vlStrtDtm) {
+          grid.setValue(itemIndex, 'vlEndDtm', vlStrtDtm);
         }
       }
     }
