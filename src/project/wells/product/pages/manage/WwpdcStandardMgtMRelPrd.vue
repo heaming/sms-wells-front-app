@@ -532,7 +532,7 @@ async function initMaterialGrid(data, view) {
   view.setColumns(columns);
 
   view.checkBar.visible = true;
-  view.rowIndicator.visible = false;
+  view.rowIndicator.visible = true;
   view.editOptions.editable = true;
 
   view.sortingOptions.enabled = false;
@@ -592,7 +592,7 @@ async function initServiceGrid(data, view) {
   view.setColumns(columns);
 
   view.checkBar.visible = true;
-  view.rowIndicator.visible = false;
+  view.rowIndicator.visible = true;
 }
 async function initStandardGrid(data, view) {
   const columns = [
@@ -627,7 +627,7 @@ async function initStandardGrid(data, view) {
   view.setColumns(columns);
 
   view.checkBar.visible = true;
-  view.rowIndicator.visible = false;
+  view.rowIndicator.visible = true;
   view.editOptions.editable = true;
 
   view.sortingOptions.enabled = false;

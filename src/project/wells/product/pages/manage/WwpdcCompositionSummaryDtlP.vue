@@ -220,7 +220,7 @@ async function initStandardGrid(data, view) {
   view.setColumns(columns);
 
   view.checkBar.visible = false;
-  view.rowIndicator.visible = false;
+  view.rowIndicator.visible = true;
 }
 
 async function initGrid(data, view) {
@@ -244,7 +244,7 @@ async function initGrid(data, view) {
   view.setColumns(columns);
 
   view.checkBar.visible = false;
-  view.rowIndicator.visible = false;
+  view.rowIndicator.visible = true;
 
   initGridRows();
 }

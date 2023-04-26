@@ -44,6 +44,11 @@
     <kw-separator />
 
     <kw-action-top class="mt20">
+      <template #left>
+        <kw-paging-info
+          :total-count="grdRowCount"
+        />
+      </template>
       <!-- 필터/부품 -->
       <kw-btn
         grid-action
@@ -266,7 +271,7 @@ const initGrid = defineGrid((data, view) => {
   data.setFields(fields);
   view.setColumns(columns);
   view.checkBar.visible = true;
-  view.rowIndicator.visible = false;
+  view.rowIndicator.visible = true;
   view.editOptions.editable = true;
 
   view.sortingOptions.enabled = false;

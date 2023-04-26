@@ -223,7 +223,7 @@ async function onClickDelete() {
 }
 
 async function getSaveData() {
-  const subList = { isModifiedProp: false, isModifiedPrice: false };
+  const subList = { isModifiedProp: false, isOnlyFileModified: false, isModifiedPrice: false };
   await Promise.all(cmpStepRefs.value.map(async (item, idx) => {
     const saveData = await item.value?.getSaveData();
     const isModified = await item.value.isModifiedProps();
@@ -233,6 +233,11 @@ async function getSaveData() {
       subList.pdTpCd = subList.pdTpCd ?? saveData.pdTpCd;
       // 기본속성, 관리 속성 수정여부
       if (await isModified && (idx === 0 || idx === 2)) {
+        if (idx === 0 && isModified) {
+          subList.isOnlyFileModified = await item.value.isOnlyFileModified();
+        } else if (idx === 2 && isModified) {
+          subList.isOnlyFileModified = false;
+        }
         subList.isModifiedProp = true;
       }
       // 가격 수정여부
@@ -283,6 +288,7 @@ async function getSaveData() {
     subList[prcfd] = pdRemoveBy(subList[prcfd], removePriceRows.value);
     // console.log('removePriceRows - after : ', subList);
   }
+  console.log('WwpdcStandardMgtM - getSaveData - subList.isOnlyFileModified : ', subList.isOnlyFileModified);
   // console.log('WwpdcStandardMgtM - getSaveData - subList : ', subList);
   return subList;
 }

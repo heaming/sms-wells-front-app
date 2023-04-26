@@ -247,7 +247,7 @@ async function initChangePrdGrid(data, view) {
   view.setColumns(columns);
 
   view.checkBar.visible = true;
-  view.rowIndicator.visible = false;
+  view.rowIndicator.visible = true;
 }
 
 </script>

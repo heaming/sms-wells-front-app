@@ -196,7 +196,7 @@ async function initMaterialGrid(data, view) {
   view.setColumns(columns);
 
   view.checkBar.visible = false;
-  view.rowIndicator.visible = false;
+  view.rowIndicator.visible = true;
 }
 
 async function initServiceGrid(data, view) {
@@ -248,7 +248,7 @@ async function initServiceGrid(data, view) {
   view.setColumns(columns);
 
   view.checkBar.visible = false;
-  view.rowIndicator.visible = false;
+  view.rowIndicator.visible = true;
 }
 async function initStandardGrid(data, view) {
   const columns = [
@@ -274,7 +274,7 @@ async function initStandardGrid(data, view) {
   view.setColumns(columns);
 
   view.checkBar.visible = false;
-  view.rowIndicator.visible = false;
+  view.rowIndicator.visible = true;
 }
 
 async function initChangePrdGrid(data, view) {
@@ -295,7 +295,7 @@ async function initChangePrdGrid(data, view) {
   view.setColumns(columns);
 
   view.checkBar.visible = false;
-  view.rowIndicator.visible = false;
+  view.rowIndicator.visible = true;
 }
 
 </script>

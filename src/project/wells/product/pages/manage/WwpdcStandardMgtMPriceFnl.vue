@@ -17,6 +17,9 @@
     <!-- 최종가격 조정 -->
     <h3>{{ $t('MSG_TXT_PD_FNL_PRC_ADJ') }}</h3>
     <kw-action-top>
+      <template #left>
+        <span>({{ $t('MSG_TXT_UNIT') }} : {{ $t('MSG_TXT_CUR_WON') }})</span>
+      </template>
       <kw-btn
         v-show="!props.readonly"
         :label="$t('MSG_BTN_DEL')"
@@ -279,7 +282,7 @@ async function initGrid(data, view) {
   data.setFields(fields);
   view.setColumns(columns.sort((item) => (item.fieldName === 'sellChnlCd' ? -1 : 0)));
   view.checkBar.visible = true;
-  view.rowIndicator.visible = false;
+  view.rowIndicator.visible = true;
   view.editOptions.editable = true;
 
   view.sortingOptions.enabled = false;
