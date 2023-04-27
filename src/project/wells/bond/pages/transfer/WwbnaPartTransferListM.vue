@@ -190,10 +190,11 @@ import { useGlobal, codeUtil, getComponentType, useMeta, useDataService, defineG
 import dayjs from 'dayjs';
 import { cloneDeep } from 'lodash-es';
 import { getBzHdqDvcd } from '~sms-common/bond/utils/bnUtil';
+import { chkInputSearchComplete, openSearchUserCommonPopup, isCustomerCommon } from '~sms-common/bond/pages/transfer/utils/bnaTransferUtils';
 
 const { t } = useI18n();
 const { getConfig } = useMeta();
-const { notify, alert, confirm, modal } = useGlobal();
+const { notify, alert, confirm } = useGlobal();
 const { getters } = useStore();
 const dataService = useDataService();
 const { currentRoute } = useRouter();
@@ -274,23 +275,8 @@ async function hasPartTransfer() {
   return true;
 }
 
-async function chkInputSearchComplete() {
-  if ((searchParams.value.cstNo && !canFeasibleSearch.value.type1)
-  && !(searchParams.value.phoneNumber && canFeasibleSearch.value.type3)) {
-    return '고객번호 유효성 체크를 실행하지 않았습니다.'; // TODO: 설계에 빠져 있고 구두로 협의한 내용 설계 문서 갱신시 메시지 확인 후 수정
-  }
-  if ((searchParams.value.cstNm && !canFeasibleSearch.value.type2)
-  && !(searchParams.value.cstNo && canFeasibleSearch.value.type1)) {
-    return '고객명 유효성 체크를 실행하지 않았습니다.'; // TODO: 설계에 빠져 있고 구두로 협의한 내용 설계 문서 갱신시 메시지 확인 후 수정
-  }
-  if ((searchParams.value.phoneNumber && !canFeasibleSearch.value.type3)
-  && !(searchParams.value.cstNo && canFeasibleSearch.value.type1)) {
-    return '휴대폰번호 유효성 체크를 실행하지 않았습니다.'; // TODO: 설계에 빠져 있고 구두로 협의한 내용 설계 문서 갱신시 메시지 확인 후 수정
-  }
-}
-
 async function onClickSearch() {
-  const notifyMessage = await chkInputSearchComplete();
+  const notifyMessage = await chkInputSearchComplete(searchParams, canFeasibleSearch);
   if (notifyMessage) {
     notify(notifyMessage);
     return;
@@ -354,53 +340,8 @@ async function onClickDetailsExcelDownload() {
   });
 }
 
-// TODO: util 정리 되기 전까지 안에 정의 추후 util보게 수정
-async function openSearchUserCommonPopup() {
-  const { result, payload } = await modal({
-    component: 'ZwbnyDelinquentCustomerP',
-    componentProps: {
-      baseYm: searchParams.value.baseYm,
-    },
-  });
-  if (result) {
-    const { cstNo, cstNm, phoneNumber } = payload;
-    searchParams.value.cstNo = cstNo;
-    searchParams.value.cstNm = cstNm;
-    if (Object.keys(searchParams.value).includes('phoneNumber')) {
-      searchParams.value.phoneNumber = phoneNumber;
-    }
-    // 검색 팝업을 통해서 설정된 경우 추가 검증 필요가 없음
-    Object.keys(canFeasibleSearch.value).forEach((key) => {
-      canFeasibleSearch.value[key] = true;
-    });
-  }
-}
-
 async function openSearchUserPopup() {
-  await openSearchUserCommonPopup();
-}
-
-// TODO: util 정리 되기 전까지 안에 정의 추후 util보게 수정
-async function isCustomerCommon() {
-  cachedParams = cloneDeep(searchParams.value);
-  const response = await dataService.get('/sms/common/bond/normal-bonds/is-customer', { params: cachedParams });
-  if (response.data) {
-    if (searchParams.value.workType === 'type1' || searchParams.value.workType === 'type3') {
-      const res = await dataService.get('/sms/common/bond/delinquent-customers/detail', { params: cachedParams });
-      const delinquentCustomer = res.data;
-      // TODO: if 조건 정리 할 수 있는지 확인 필요
-      if (searchParams.value.workType === 'type3') {
-        searchParams.value.cstNo = delinquentCustomer.cstNo;
-      }
-      if (searchParams.value.workType === 'type1') {
-        searchParams.value.phoneNumber = delinquentCustomer.phoneNumber;
-      }
-      searchParams.value.cstNm = delinquentCustomer.cstNm;
-    }
-    canFeasibleSearch.value[searchParams.value.workType] = true;
-  } else {
-    return t('MSG_ALT_INQR_OJ_CST_YN');
-  }
+  await openSearchUserCommonPopup(searchParams, canFeasibleSearch);
 }
 
 async function isCustomer(workType = 'type1') {
@@ -461,59 +402,66 @@ watch(() => searchParams.value.phoneNumber, async () => {
 // -------------------------------------------------------------------------------------------------
 const initGrdMain = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'bzHdqDvCd', header: t('MSG_TXT_DIV2'), width: '75' },
-    { fieldName: 'clctamDvCd', header: t('MSG_TXT_CLCTAM_DV'), width: '75' },
-    { fieldName: 'totCstCt', header: t('MSG_TXT_CST_N'), width: '65', styleName: 'text-right' },
-    { fieldName: 'totCntrCt', header: t('MSG_TXT_CNTR_N'), width: '65', styleName: 'text-right' },
-    { fieldName: 'woCstCt', header: t('MSG_TXT_CST_N'), width: '65', styleName: 'text-right' },
-    { fieldName: 'woCntrCt', header: t('MSG_TXT_CNTR_N'), width: '65', styleName: 'text-right' },
-    { fieldName: 'woObjAmt', header: t('MSG_TXT_OJ_AMT'), width: '110', styleName: 'text-right' },
-    { fieldName: 'woDlqAmt', header: t('MSG_TXT_DLQ_AMT'), width: '110', styleName: 'text-right' },
-    { fieldName: 'woThmChramAmt', header: t('MSG_TXT_THM_CHRAM'), width: '110', styleName: 'text-right' },
-    { fieldName: 'woDlqAddAmt', header: t('MSG_TXT_DLQ_ADD_AMT'), width: '110', styleName: 'text-right' },
-    { fieldName: 'woRsgBorAmt', header: t('MSG_TXT_BOR_AMT'), width: '110', styleName: 'text-right' },
-    { fieldName: 'rentalCstCt', header: t('MSG_TXT_CST_N'), width: '65', styleName: 'text-right' },
-    { fieldName: 'rentalCntrCt', header: t('MSG_TXT_CNTR_N'), width: '65', styleName: 'text-right' },
-    { fieldName: 'rentalObjAmt', header: t('MSG_TXT_OJ_AMT'), width: '110', styleName: 'text-right' },
-    { fieldName: 'rentalDlqAmt', header: t('MSG_TXT_DLQ_AMT'), width: '110', styleName: 'text-right' },
-    { fieldName: 'rentalThmChramAmt', header: t('MSG_TXT_THM_CHRAM'), width: '110', styleName: 'text-right' },
-    { fieldName: 'rentalDlqAddAmt', header: t('MSG_TXT_DLQ_ADD_AMT'), width: '110', styleName: 'text-right' },
-    { fieldName: 'rentalRsgBorAmt', header: t('MSG_TXT_BOR_AMT'), width: '110', styleName: 'text-right' },
-    { fieldName: 'leaseCstCt', header: t('MSG_TXT_CST_N'), width: '65', styleName: 'text-right' },
-    { fieldName: 'leaseCntrCt', header: t('MSG_TXT_CNTR_N'), width: '65', styleName: 'text-right' },
-    { fieldName: 'leaseObjAmt', header: t('MSG_TXT_OJ_AMT'), width: '110', styleName: 'text-right' },
-    { fieldName: 'leaseDlqAmt', header: t('MSG_TXT_DLQ_AMT'), width: '110', styleName: 'text-right' },
-    { fieldName: 'leaseThmChramAmt', header: t('MSG_TXT_THM_CHRAM'), width: '110', styleName: 'text-right' },
-    { fieldName: 'leaseDlqAddAmt', header: t('MSG_TXT_DLQ_ADD_AMT'), width: '110', styleName: 'text-right' },
-    { fieldName: 'leaseRsgBorAmt', header: t('MSG_TXT_BOR_AMT'), width: '110', styleName: 'text-right' },
-    { fieldName: 'mshCstCt', header: t('MSG_TXT_CST_N'), width: '65', styleName: 'text-right' },
-    { fieldName: 'mshCntrCt', header: t('MSG_TXT_CNTR_N'), width: '65', styleName: 'text-right' },
-    { fieldName: 'mshObjAmt', header: t('MSG_TXT_OJ_AMT'), width: '110', styleName: 'text-right' },
-    { fieldName: 'mshDlqAmt', header: t('MSG_TXT_DLQ_AMT'), width: '110', styleName: 'text-right' },
-    { fieldName: 'mshThmChramAmt', header: t('MSG_TXT_THM_CHRAM'), width: '110', styleName: 'text-right' },
-    { fieldName: 'mshDlqAddAmt', header: t('MSG_TXT_DLQ_ADD_AMT'), width: '110', styleName: 'text-right' },
-    { fieldName: 'mshRsgBorAmt', header: t('MSG_TXT_BOR_AMT'), width: '110', styleName: 'text-right' },
-    { fieldName: 'rglrSppCstCt', header: t('MSG_TXT_CST_N'), width: '65', styleName: 'text-right' },
-    { fieldName: 'rglrSppCntrCt', header: t('MSG_TXT_CNTR_N'), width: '65', styleName: 'text-right' },
-    { fieldName: 'rglrSppObjAmt', header: t('MSG_TXT_OJ_AMT'), width: '110', styleName: 'text-right' },
-    { fieldName: 'rglrSppDlqAmt', header: t('MSG_TXT_DLQ_AMT'), width: '110', styleName: 'text-right' },
-    { fieldName: 'rglrSppThmChramAmt', header: t('MSG_TXT_THM_CHRAM'), width: '110', styleName: 'text-right' },
-    { fieldName: 'rglrSppDlqAddAmt', header: t('MSG_TXT_DLQ_ADD_AMT'), width: '110', styleName: 'text-right' },
-    { fieldName: 'rglrSppRsgBorAmt', header: t('MSG_TXT_BOR_AMT'), width: '110', styleName: 'text-right' },
-    { fieldName: 'hcrCstCt', header: t('MSG_TXT_CST_N'), width: '65', styleName: 'text-right' },
-    { fieldName: 'hcrCntrCt', header: t('MSG_TXT_CNTR_N'), width: '65', styleName: 'text-right' },
-    { fieldName: 'hcrObjAmt', header: t('MSG_TXT_OJ_AMT'), width: '110', styleName: 'text-right' },
-    { fieldName: 'hcrDlqAmt', header: t('MSG_TXT_DLQ_AMT'), width: '110', styleName: 'text-right' },
-    { fieldName: 'hcrThmChramAmt', header: t('MSG_TXT_THM_CHRAM'), width: '110', styleName: 'text-right' },
-    { fieldName: 'hcrDlqAddAmt', header: t('MSG_TXT_DLQ_ADD_AMT'), width: '110', styleName: 'text-right' },
-    { fieldName: 'hcrRsgBorAmt', header: t('MSG_TXT_BOR_AMT'), width: '110', styleName: 'text-right' },
-    { fieldName: 'spayCstCt', header: t('MSG_TXT_CST_N'), width: '65', styleName: 'text-right' },
-    { fieldName: 'spayCntrCt', header: t('MSG_TXT_CNTR_N'), width: '65', styleName: 'text-right' },
-    { fieldName: 'spayObjAmt', header: t('MSG_TXT_OJ_AMT'), width: '110', styleName: 'text-right' },
-    { fieldName: 'spayDlqAmt', header: t('MSG_TXT_DLQ_AMT'), width: '110', styleName: 'text-right' },
-    { fieldName: 'spayThmChramAmt', header: t('MSG_TXT_THM_CHRAM'), width: '110', styleName: 'text-right' },
-    { fieldName: 'spayDlqAddAmt', header: t('MSG_TXT_DLQ_ADD_AMT'), width: '110', styleName: 'text-right' },
-    { fieldName: 'spayRsgBorAmt', header: t('MSG_TXT_BOR_AMT'), width: '110', styleName: 'text-right' },
+    { fieldName: 'bzHdqDvCd',
+      header: t('MSG_TXT_DIV2'),
+      options: codes.BZ_HDQ_DV_CD,
+      optionValue: 'codeId',
+      optionLabel: 'codeName',
+      width: '75',
+      headerSummary: {
+        text: t('MSG_TXT_SUM'),
+        styleName: 'text-center',
+      } },
+    { fieldName: 'clctamDvCd', header: t('MSG_TXT_CLCTAM_DV'), options: codes.CLCTAM_DV_CD, width: '75' },
+    { fieldName: 'woCstCt', header: t('MSG_TXT_CST_N'), width: '80', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
+    { fieldName: 'woCntrCt', header: t('MSG_TXT_CNTR_N'), width: '80', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
+    { fieldName: 'woObjAmt', header: t('MSG_TXT_OJ_AMT'), width: '130', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
+    { fieldName: 'woDlqAmt', header: t('MSG_TXT_DLQ_AMT'), width: '130', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
+    { fieldName: 'woThmChramAmt', header: t('MSG_TXT_THM_CHRAM'), width: '130', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
+    { fieldName: 'woDlqAddAmt', header: t('MSG_TXT_DLQ_ADD_AMT'), width: '130', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
+    { fieldName: 'woRsgBorAmt', header: t('MSG_TXT_BOR_AMT'), width: '130', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
+    { fieldName: 'rentalCstCt', header: t('MSG_TXT_CST_N'), width: '80', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
+    { fieldName: 'rentalCntrCt', header: t('MSG_TXT_CNTR_N'), width: '80', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
+    { fieldName: 'rentalObjAmt', header: t('MSG_TXT_OJ_AMT'), width: '130', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
+    { fieldName: 'rentalDlqAmt', header: t('MSG_TXT_DLQ_AMT'), width: '130', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
+    { fieldName: 'rentalThmChramAmt', header: t('MSG_TXT_THM_CHRAM'), width: '130', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
+    { fieldName: 'rentalDlqAddAmt', header: t('MSG_TXT_DLQ_ADD_AMT'), width: '130', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
+    { fieldName: 'rentalRsgBorAmt', header: t('MSG_TXT_BOR_AMT'), width: '130', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
+    { fieldName: 'leaseCstCt', header: t('MSG_TXT_CST_N'), width: '80', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
+    { fieldName: 'leaseCntrCt', header: t('MSG_TXT_CNTR_N'), width: '80', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
+    { fieldName: 'leaseObjAmt', header: t('MSG_TXT_OJ_AMT'), width: '130', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
+    { fieldName: 'leaseDlqAmt', header: t('MSG_TXT_DLQ_AMT'), width: '130', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
+    { fieldName: 'leaseThmChramAmt', header: t('MSG_TXT_THM_CHRAM'), width: '130', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
+    { fieldName: 'leaseDlqAddAmt', header: t('MSG_TXT_DLQ_ADD_AMT'), width: '130', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
+    { fieldName: 'leaseRsgBorAmt', header: t('MSG_TXT_BOR_AMT'), width: '130', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
+    { fieldName: 'mshCstCt', header: t('MSG_TXT_CST_N'), width: '80', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
+    { fieldName: 'mshCntrCt', header: t('MSG_TXT_CNTR_N'), width: '80', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
+    { fieldName: 'mshObjAmt', header: t('MSG_TXT_OJ_AMT'), width: '130', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
+    { fieldName: 'mshDlqAmt', header: t('MSG_TXT_DLQ_AMT'), width: '130', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
+    { fieldName: 'mshThmChramAmt', header: t('MSG_TXT_THM_CHRAM'), width: '130', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
+    { fieldName: 'mshDlqAddAmt', header: t('MSG_TXT_DLQ_ADD_AMT'), width: '130', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
+    { fieldName: 'mshRsgBorAmt', header: t('MSG_TXT_BOR_AMT'), width: '130', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
+    { fieldName: 'rglrSppCstCt', header: t('MSG_TXT_CST_N'), width: '80', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
+    { fieldName: 'rglrSppCntrCt', header: t('MSG_TXT_CNTR_N'), width: '80', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
+    { fieldName: 'rglrSppObjAmt', header: t('MSG_TXT_OJ_AMT'), width: '130', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
+    { fieldName: 'rglrSppDlqAmt', header: t('MSG_TXT_DLQ_AMT'), width: '130', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
+    { fieldName: 'rglrSppThmChramAmt', header: t('MSG_TXT_THM_CHRAM'), width: '130', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
+    { fieldName: 'rglrSppDlqAddAmt', header: t('MSG_TXT_DLQ_ADD_AMT'), width: '130', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
+    { fieldName: 'rglrSppRsgBorAmt', header: t('MSG_TXT_BOR_AMT'), width: '130', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
+    { fieldName: 'hcrCstCt', header: t('MSG_TXT_CST_N'), width: '80', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
+    { fieldName: 'hcrCntrCt', header: t('MSG_TXT_CNTR_N'), width: '80', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
+    { fieldName: 'hcrObjAmt', header: t('MSG_TXT_OJ_AMT'), width: '130', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
+    { fieldName: 'hcrDlqAmt', header: t('MSG_TXT_DLQ_AMT'), width: '130', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
+    { fieldName: 'hcrThmChramAmt', header: t('MSG_TXT_THM_CHRAM'), width: '130', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
+    { fieldName: 'hcrDlqAddAmt', header: t('MSG_TXT_DLQ_ADD_AMT'), width: '130', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
+    { fieldName: 'hcrRsgBorAmt', header: t('MSG_TXT_BOR_AMT'), width: '130', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
+    { fieldName: 'spayCstCt', header: t('MSG_TXT_CST_N'), width: '80', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
+    { fieldName: 'spayCntrCt', header: t('MSG_TXT_CNTR_N'), width: '80', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
+    { fieldName: 'spayObjAmt', header: t('MSG_TXT_OJ_AMT'), width: '130', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
+    { fieldName: 'spayDlqAmt', header: t('MSG_TXT_DLQ_AMT'), width: '130', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
+    { fieldName: 'spayThmChramAmt', header: t('MSG_TXT_THM_CHRAM'), width: '130', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
+    { fieldName: 'spayDlqAddAmt', header: t('MSG_TXT_DLQ_ADD_AMT'), width: '130', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
+    { fieldName: 'spayRsgBorAmt', header: t('MSG_TXT_BOR_AMT'), width: '130', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
   ];
 
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
@@ -523,7 +471,7 @@ const initGrdMain = defineGrid((data, view) => {
   view.rowIndicator.visible = true;
 
   view.setColumnLayout([
-    'bzHdqDvCd', 'clctamDvCd', 'totCstCt', 'totCntrCt',
+    'bzHdqDvCd', 'clctamDvCd',
     {
       header: t('MSG_TIT_TOT'),
       direction: 'horizontal',
@@ -588,11 +536,11 @@ const initGrdSub = defineGrid((data, view) => {
     { fieldName: 'cstNo' },
     { fieldName: 'bndBizDvCd' },
     { fieldName: 'dlqMcn' },
-    { fieldName: 'objAmt' },
-    { fieldName: 'dlqAmt' },
-    { fieldName: 'thmChramAmt' },
-    { fieldName: 'dlqAddDpAmt' },
-    { fieldName: 'rsgBorAmt' },
+    { fieldName: 'objAmt', dataType: 'number' },
+    { fieldName: 'dlqAmt', dataType: 'number' },
+    { fieldName: 'thmChramAmt', dataType: 'number' },
+    { fieldName: 'dlqAddDpAmt', dataType: 'number' },
+    { fieldName: 'rsgBorAmt', dataType: 'number' },
     { fieldName: 'lwmTpCd' },
     { fieldName: 'lwmDtlTpCd' },
     { fieldName: 'lwmDt' },
@@ -607,12 +555,12 @@ const initGrdSub = defineGrid((data, view) => {
     { fieldName: 'cstNo', header: t('MSG_TXT_CST_NO'), width: '135', styleName: 'text-center', editable: false },
     { fieldName: 'bndBizDvCd', header: t('MSG_TXT_PRDT_GUBUN'), width: '100', options: codes.BND_BIZ_DV_CD, editable: false },
     { fieldName: 'dlqMcn', header: t('MSG_TXT_DLQ_MCNT'), width: '80', styleName: 'text-right', editable: false },
-    { fieldName: 'objAmt', header: t('MSG_TXT_OJ_AMT'), width: '110', styleName: 'text-right', editable: false },
-    { fieldName: 'dlqAmt', header: t('MSG_TXT_DLQ_AMT'), width: '110', styleName: 'text-right', editable: false },
-    { fieldName: 'thmChramAmt', header: t('MSG_TXT_THM_AMT'), width: '110', styleName: 'text-right', editable: false },
-    { fieldName: 'dlqAddDpAmt', header: t('MSG_TXT_DLQ_ADD_AMT'), width: '110', styleName: 'text-right', editable: false },
-    { fieldName: 'rsgBorAmt', header: t('MSG_TXT_BOR_AMT'), width: '110', styleName: 'text-right', editable: false },
-    { fieldName: 'lwmTpCd', header: t('MSG_TXT_LWM_TP'), width: '110', editable: false },
+    { fieldName: 'objAmt', header: t('MSG_TXT_OJ_AMT'), width: '110', numberFormat: '#,##0', styleName: 'text-right', editable: false },
+    { fieldName: 'dlqAmt', header: t('MSG_TXT_DLQ_AMT'), width: '110', numberFormat: '#,##0', styleName: 'text-right', editable: false },
+    { fieldName: 'thmChramAmt', header: t('MSG_TXT_THM_AMT'), width: '110', numberFormat: '#,##0', styleName: 'text-right', editable: false },
+    { fieldName: 'dlqAddDpAmt', header: t('MSG_TXT_DLQ_ADD_AMT'), width: '110', numberFormat: '#,##0', styleName: 'text-right', editable: false },
+    { fieldName: 'rsgBorAmt', header: t('MSG_TXT_BOR_AMT'), width: '110', numberFormat: '#,##0', styleName: 'text-right', editable: false },
+    { fieldName: 'lwmTpCd', header: t('MSG_TXT_LWM_TP'), width: '110', numberFormat: '#,##0', editable: false },
     { fieldName: 'lwmDtlTpCd', header: t('MSG_TXT_LWM_DTL'), width: '110', editable: false },
     { fieldName: 'lwmDt', header: t('MSG_TXT_LWM_DT'), width: '110', styleName: 'text-center', editable: false },
     { fieldName: 'dfltDt', header: t('MSG_TXT_DE_RGST_DT'), width: '110', styleName: 'text-center', editable: false },
