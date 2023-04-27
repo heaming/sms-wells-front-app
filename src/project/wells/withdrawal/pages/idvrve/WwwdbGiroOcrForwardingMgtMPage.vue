@@ -310,6 +310,7 @@ async function onClickObjectSearch() {
 
     objectRes.forEach((param) => {
       param.wkDt = searchParams.value.wkDt;
+      param.giroRglrDvCd = '01';
       gridUtil.insertRowAndFocus(view, 0, param);
     });
   }
@@ -328,7 +329,7 @@ async function onClickSave() {
 
   notify(t('MSG_ALT_SAVE_DATA'));
 
-  fetchData();
+  onClickSearch();
 }
 
 // 출력관리 생성 버튼

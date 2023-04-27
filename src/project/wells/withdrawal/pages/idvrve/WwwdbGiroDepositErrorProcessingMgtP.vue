@@ -304,12 +304,12 @@ const initGrid = defineGrid((data, view) => {
       });
 
       if (result) {
-        console.log(payload.cntrNo);
-        console.log(payload.cntrSn);
+        console.log(payload);
         const cntr = payload.cntrNo + payload.cntrSn;
-        // const cntrSn = payload.cntrSn;
+        const { cntrCstKnm } = payload;
 
         data.setValue(itemIndex, 'cntr', cntr);
+        data.setValue(itemIndex, 'cstKnm', cntrCstKnm);
       }
     }
   };
