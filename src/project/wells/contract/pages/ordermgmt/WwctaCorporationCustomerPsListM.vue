@@ -78,16 +78,19 @@
             v-if="searchParams.dateGbn!=3"
             v-model:from="searchParams.fromDate"
             v-model:to="searchParams.toDate"
+            :name="t('MSG_TXT_LOOKUP_PERIOD')"
             rules="date_range_required|date_range_months:1"
           />
           <kw-input
             v-if="searchParams.dateGbn==3"
             v-model="searchParams.fromRental"
+            :name="t('MSG_TXT_LOOKUP_PERIOD')"
             rules="required"
           />
           <kw-input
             v-if="searchParams.dateGbn==3"
             v-model="searchParams.toRental"
+            :name="t('MSG_TXT_LOOKUP_PERIOD')"
             rules="required"
           />
         </kw-search-item>
@@ -118,6 +121,11 @@
         >
           <kw-input
             v-model="searchParams.pdCd"
+            clearable
+            icon="search"
+            dense
+            :maxlength="10"
+            @click-icon="onClickSelectPdCd()"
           />
         </kw-search-item>
         <kw-search-item
@@ -246,10 +254,11 @@
 import { codeUtil, useMeta, getComponentType, gridUtil, useDataService, useGlobal } from 'kw-lib';
 import dayjs from 'dayjs';
 import { cloneDeep, isEmpty, uniqBy } from 'lodash-es';
+import pdConst from '~sms-common/product/constants/pdConst';
 
 const dataService = useDataService();
 
-const { notify } = useGlobal();
+const { notify, modal } = useGlobal();
 const { getConfig } = useMeta();
 const { t } = useI18n();
 // -------------------------------------------------------------------------------------------------
@@ -344,6 +353,25 @@ async function onClickExcelDownload() {
     timePostfix: true,
     exportData: res.data,
   });
+}
+
+// 상품코드 검색아이콘 클릭
+async function onClickSelectPdCd() {
+  const searchPopupParams = {
+    searchType: pdConst.PD_SEARCH_CODE,
+    searchValue: searchParams.value.pdCd,
+    selectType: '',
+  };
+
+  const returnPdInfo = await modal({
+    component: 'ZwpdcStandardListP', // 상품기준 목록조회 팝업
+    componentProps: searchPopupParams,
+  });
+
+  if (returnPdInfo.result) {
+    searchParams.value.pdCd = returnPdInfo.payload?.[0].pdCd;
+    searchParams.value.pdNm = returnPdInfo.payload?.[0].pdNm;
+  }
 }
 
 const responseHclsDivOptions = ref([]);
