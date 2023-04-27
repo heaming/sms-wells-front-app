@@ -315,6 +315,7 @@ const initGrd = defineGrid((data, view) => {
         if (!cntrNo) { return ''; }
         return `${cntrNo}${cntrSn ? `-${cntrSn}` : ''}`;
       },
+      classes: 'text-center',
     },
     copnDvCd: {
       label: t('MSG_TXT_INDI_CORP') /* 개인/법인' */,
