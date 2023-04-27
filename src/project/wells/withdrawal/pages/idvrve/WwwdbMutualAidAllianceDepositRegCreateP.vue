@@ -16,73 +16,77 @@
   <kw-popup
     size="md"
   >
-    <kw-form :cols="1">
-      <kw-form-row>
-        <!-- label="실적일자" -->
-        <kw-form-item
-          :label="t('MSG_TXT_PERF_DT')"
-          required
-        >
-          <kw-date-picker
-            v-model="searchParams.perfDt"
+    <kw-observer ref="obsRef">
+      <kw-form :cols="1">
+        <kw-form-row>
+          <!-- label="실적일자" -->
+          <kw-form-item
             :label="t('MSG_TXT_PERF_DT')"
-            rules="required"
-          />
-        </kw-form-item>
-      </kw-form-row>
-      <kw-form-row>
-        <!-- label="수납일자" -->
-        <kw-form-item
-          :label="t('MSG_TXT_RVE_DT')"
-          required
-        >
-          <kw-date-picker
-            v-model="searchParams.rveDt"
+            required
+          >
+            <kw-date-picker
+              v-model="searchParams.perfDt"
+              :label="t('MSG_TXT_PERF_DT')"
+              rules="required"
+            />
+          </kw-form-item>
+        </kw-form-row>
+        <kw-form-row>
+          <!-- label="수납일자" -->
+          <kw-form-item
             :label="t('MSG_TXT_RVE_DT')"
-            rules="required"
-          />
-        </kw-form-item>
-      </kw-form-row>
-      <kw-form-row>
-        <!-- label="수납코드" -->
-        <kw-form-item
-          :label="t('MSG_TXT_RVE_CD')"
-          required
-        >
-          <kw-input
-            v-model="searchParams.rveCd"
-            icon="search"
-            type="text"
-            :label="$t('MSG_TXT_RVE_CD')"
-            clearable
-            mask="#####"
-            @keydown="onKeyDownSelectRveCd"
-            @click-icon="onClickSelectRveCd"
-            @clear="onClearSelectRveCd"
-          />
-          <kw-input
-            v-model="searchParams.rveNm"
-            :disable="true"
-            placeholder=""
-          />
-        </kw-form-item>
-      </kw-form-row>
-      <kw-form-row>
-        <!-- label="통합입금번호" -->
-        <kw-form-item
-          :label="t('MSG_TXT_ITG_DP_NO')"
-          required
-        >
-          <kw-input
-            v-model="searchParams.itgDpNo"
-            :readonly="true"
-            icon="search"
-            clearable
-            @click-icon="onClickSelectIntegrationDeposit"
-          />
-        </kw-form-item>
-      </kw-form-row>
-    </kw-form>
+            required
+          >
+            <kw-date-picker
+              v-model="searchParams.rveDt"
+              :label="t('MSG_TXT_RVE_DT')"
+              rules="required"
+            />
+          </kw-form-item>
+        </kw-form-row>
+        <kw-form-row>
+          <!-- label="수납코드" -->
+          <kw-form-item
+            :label="t('MSG_TXT_RVE_CD')"
+            required
+          >
+            <kw-input
+              v-model="searchParams.rveCd"
+              icon="search"
+              type="text"
+              :label="$t('MSG_TXT_RVE_CD')"
+              clearable
+              mask="#####"
+              rules="required"
+              @keydown="onKeyDownSelectRveCd"
+              @click-icon="onClickSelectRveCd"
+              @clear="onClearSelectRveCd"
+            />
+            <kw-input
+              v-model="searchParams.rveNm"
+              :disable="true"
+            />
+          </kw-form-item>
+        </kw-form-row>
+        <kw-form-row>
+          <!-- label="통합입금번호" -->
+          <kw-form-item
+            :label="t('MSG_TXT_ITG_DP_NO')"
+            required
+          >
+            <kw-input
+              v-model="searchParams.itgDpNo"
+              :readonly="true"
+              icon="search"
+              clearable
+              rules="required"
+              :label="t('MSG_TXT_ITG_DP_NO')"
+              @click-icon="onClickSelectIntegrationDeposit"
+            />
+          </kw-form-item>
+        </kw-form-row>
+      </kw-form>
+    </kw-observer>
     <template #action>
       <!-- label="생성" -->
       <kw-btn
@@ -98,15 +102,28 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import dayjs from 'dayjs';
-import { modal, notify } from 'kw-lib';
+import { modal, useDataService } from 'kw-lib';
+import { cloneDeep } from 'lodash-es';
 
 const { t } = useI18n();
 
 const now = dayjs();
+const dataService = useDataService();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
+const props = defineProps({
+  lifAlncDvCd: {
+    type: String,
+    default: null,
+  },
+  lifSpptYm: {
+    type: String,
+    default: null,
+  },
+
+});
 
 const searchParams = ref({
   perfDt: now.format('YYYYMMDD'), // 실적일자
@@ -114,7 +131,11 @@ const searchParams = ref({
   rveCd: '', // 수납코드
   rveNm: '',
   itgDpNo: '', // 통합입금번호
+  lifAlncDvCd: '',
+  lifSpptYm: '',
 });
+
+const obsRef = ref();
 
 async function onKeyDownSelectRveCd() {
   searchParams.value.rveNm = '';
@@ -160,9 +181,33 @@ async function onClickSelectIntegrationDeposit() {
     // }
   }
 }
+let cachedParams;
 
 async function onClickCreate() {
-  notify(t('MSG_ALT_DEVELOPING'));
+  if (!await obsRef.value.validate()) { return; }
+
+  if (await obsRef.value.alertIfIsNotModified()) { return; }
+
+  cachedParams = cloneDeep(searchParams.value);
+
+  console.log(cachedParams);
+
+  const res = await dataService.post('/sms/wells/withdrawal/idvrve/mutual-alliance-bulk-deposit/create', cachedParams);
+  console.log(res.data);
+
+  // notify(t('MSG_ALT_DEVELOPING'));
 }
 
+async function initProps() {
+  const { lifAlncDvCd, lifSpptYm } = props;
+
+  console.log(lifAlncDvCd);
+
+  searchParams.value.lifAlncDvCd = lifAlncDvCd;
+  searchParams.value.lifSpptYm = lifSpptYm;
+}
+
+onMounted(async () => {
+  await initProps();
+});
 </script>
