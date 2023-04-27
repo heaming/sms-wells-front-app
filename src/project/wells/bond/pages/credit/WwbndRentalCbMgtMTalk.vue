@@ -166,7 +166,7 @@ async function fetchData() {
 
   const view = grdMainRefTalk.value.getView();
   view.getDataSource().setRows(data);
-  view.resetCurrent();
+  // view.resetCurrent();
 
   view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
@@ -221,14 +221,14 @@ const onClickExcelUpload = async () => {
   const apiUrl = `${baseUrl}/excel-upload`;
   const templateId = 'FOM_NOTAK_FW_EXCD';
   const {
-    result,
+    payload,
   } = await modal({
     component: 'ZwcmzExcelUploadP',
     componentProps: { apiUrl, templateId },
   });
-  if (result.status === 'S') {
+  if (payload.status === 'S') {
     notify(t('MSG_ALT_SAVE_DATA'));
-    await fetchData();
+    await onClickSearch();
   }
 };
 
@@ -249,19 +249,42 @@ async function onClickExcelDownload() {
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
 const initGridTalk = defineGrid((data, view) => {
+  const btOpt = {
+    startView: 1,
+    minViewMode: 1,
+    language: 'ko',
+    todayHighlight: true,
+  };
   const columns = [
-    { fieldName: 'cstNo', header: t('MSG_TXT_CST_NO'), width: '450', styleName: 'text-center, rg-button-icon--search', button: 'action', rules: 'numeric||required', editor: { maxLength: 10 } },
-    { fieldName: 'apyStrtdt', header: t('MSG_TXT_APY_STRT_YM'), width: '498', styleName: 'text-center', editor: { type: 'btdate' }, datetimeFormat: 'YYYY-MM', rules: 'required' },
-    { fieldName: 'apyEnddt', header: t('MSG_TXT_APY_END_YM'), width: '498', styleName: 'text-center', editor: { type: 'btdate' }, datetimeFormat: 'YYYY-MM', rules: 'required' },
-    { fieldName: 'bndCntcExcdOjId', visible: false },
-    { fieldName: 'ctntExcdBndBizCd', visible: false },
-    { fieldName: 'ctntExcdOjTpCd', visible: false },
-    { fieldName: 'ctntExcdMediTpCd', visible: false },
-    { fieldName: 'ctntExcdRsonDvCd', visible: false },
-    { fieldName: 'fnlMdfcDtm', visible: false },
+    { fieldName: 'cstNo',
+      header: t('MSG_TXT_CST_NO'),
+      styleName: 'text-center !important, rg-button-icon--search',
+      button: 'action',
+      rules: 'numeric||required',
+      editor: {
+        type: 'number',
+        maxLength: 10,
+        positiveOnly: true,
+      },
+      numberFormat: '###0' },
+    { fieldName: 'apyStrtdt', header: t('MSG_TXT_APY_STRT_YM'), styleName: 'text-center', editor: { type: 'btdate', btOptions: btOpt }, datetimeFormat: 'YYYY-MM', rules: 'required' },
+    { fieldName: 'apyEnddt', header: t('MSG_TXT_APY_END_YM'), styleName: 'text-center', editor: { type: 'btdate', btOptions: btOpt }, datetimeFormat: 'YYYY-MM', rules: 'required' },
+    // { fieldName: 'bndCntcExcdOjId', visible: false },
+    // { fieldName: 'ctntExcdBndBizCd', visible: false },
+    // { fieldName: 'ctntExcdOjTpCd', visible: false },
+    // { fieldName: 'ctntExcdMediTpCd', visible: false },
+    // { fieldName: 'ctntExcdRsonDvCd', visible: false },
+    // { fieldName: 'fnlMdfcDtm', visible: false },
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
-
+  fields.push(
+    { fieldName: 'bndCntcExcdOjId' },
+    { fieldName: 'ctntExcdBndBizCd' },
+    { fieldName: 'ctntExcdOjTpCd' },
+    { fieldName: 'ctntExcdMediTpCd' },
+    { fieldName: 'ctntExcdRsonDvCd' },
+    { fieldName: 'fnlMdfcDtm' },
+  );
   data.setFields(fields);
   view.setColumns(columns);
   view.checkBar.visible = true;
