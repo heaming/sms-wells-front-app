@@ -216,7 +216,6 @@ async function fetchData() {
 
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(exceptions);
-  view.resetCurrent();
   view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
@@ -262,7 +261,7 @@ async function onClickSave() {
 }
 
 async function onClickExcelDownload() {
-  const res = await dataService.get('/sms/wells/contract/contract-exceptions/excel-download');
+  const res = await dataService.get('/sms/wells/contract/contract-exceptions/excel-download', { params: cachedParams });
 
   const view = grdMainRef.value.getView();
 
@@ -374,21 +373,38 @@ const initGrid = defineGrid((data, view) => {
   view.rowIndicator.visible = true;
   view.editOptions.editable = true;
   view.onCellButtonClicked = async (g, { column, itemIndex }) => {
+    const { cstNo, prtnrNo, cntrNo } = g.getValues(itemIndex);
     if (column === 'cstNo') {
-      const { result: isChanged, payload: employeeDetails } = await modal({
-        component: 'ZwogcPartnerListP',
-      });
-
-      if (isChanged) {
-        data.setValue(itemIndex, 'cstNo', employeeDetails.prtnrNo);
-      }
-    }
-    if (column === 'prtnrNo') {
       const { result, payload } = await modal({
         component: 'ZwcsaCustomerListP',
+        componentProps: {
+          cstNo,
+        },
       });
       if (result) {
-        data.setValue(itemIndex, 'prtnrNo', payload.cstNo);
+        data.setValue(itemIndex, 'cstNo', payload.cstNo);
+      }
+    } else if (column === 'prtnrNo') {
+      const { result, payload } = await modal({
+        component: 'ZwogzPartnerListP',
+        componentProps: {
+          ogTpCd: 'W01',
+          prtnrNo,
+        },
+      });
+      if (result) {
+        data.setValue(itemIndex, 'prtnrNo', payload.prtnrNo);
+      }
+    } else if (column === 'cntrNo') {
+      const { result, payload } = await modal({
+        component: 'WwctaContractNumberListP',
+        componentProps: {
+          cntrNo,
+          // cntrSn: '1',
+        },
+      });
+      if (result) {
+        data.setValue(itemIndex, 'cntrNo', payload.cntrNo);
       }
     }
   };
