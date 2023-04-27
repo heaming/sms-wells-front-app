@@ -155,9 +155,10 @@ filterCodes.value.filterStrTpCd = codes.STR_TP_CD.filter((v) => ['121', '122', '
 let cachedParams;
 // const totalCount = ref(0);
 
+// @TODO TEMP_CODE
 const wharehouseParams = ref({
   apyYm: dayjs().format('YYYYMM'),
-  userId: '36680', // TODO: USER_ID로 정리되어야함(임시로 사용)
+  userId: '36680', // @TODO TEMP_CODE : USER_ID로 정리되어야함(임시로 사용)
 });
 
 const searchParams = ref({
