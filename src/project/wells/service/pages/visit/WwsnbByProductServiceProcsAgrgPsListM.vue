@@ -63,12 +63,6 @@
         </template>
 
         <kw-btn
-          icon="print"
-          dense
-          secondary
-          :label="$t('MSG_BTN_PRTG')"
-        />
-        <kw-btn
           icon="download_on"
           dense
           secondary

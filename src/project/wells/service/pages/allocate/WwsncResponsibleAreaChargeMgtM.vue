@@ -64,7 +64,7 @@
         <kw-search-item :label="$t('MSG_TXT_SV_CNR')">
           <kw-select
             v-model="searchParams.ogCd"
-            :options="serviceCenter"
+            :options="serviceCenters"
             first-option="all"
             option-label="ogNm"
             option-value="ogCd"
@@ -138,13 +138,6 @@
           inset
           spaced
         />
-        <!-- 인쇄 -->
-        <kw-btn
-          icon="print"
-          dense
-          secondary
-          :label="$t('MSG_BTN_PRTG')"
-        />
         <!-- 엑셀다운로드 -->
         <kw-btn
           icon="download_on"
@@ -197,7 +190,7 @@ import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 
 dayjs.extend(isSameOrBefore);
 
-const { getDistricts, getServiceCenterOrgs, getWorkingEngineers } = useSnCode();
+const { getDistricts } = useSnCode();
 
 const { t } = useI18n();
 const { notify } = useGlobal();
@@ -243,8 +236,8 @@ const codes = await codeUtil.getMultiCodes(
   'COD_YN',
 );
 
-const serviceCenter = await getServiceCenterOrgs();
-const { G_ONLY_ENG: engineers } = await getWorkingEngineers();
+const { data: serviceCenters } = await dataService.get('/sms/wells/service/organizations/service-center');
+const { data: engineers } = await dataService.get('/sms/wells/service/organizations/engineer');
 
 const ctpvs = ref([]);
 const ctctys = ref([]);
@@ -315,18 +308,6 @@ function validateApplyDate() {
   return true;
 }
 
-function validateGridApplyDate() {
-  const view = grdMainRef.value.getView();
-  const originApyStrtdt = gridUtil.getOrigCellValue(view, 0, 'apyStrtdt');
-  const apyStrtdt = gridUtil.getCellValue(view, 0, 'apyStrtdt');
-
-  if (originApyStrtdt === apyStrtdt) {
-    notify(t('MSG_ALT_APY_STRT_D_CH_NCST'));
-    return false;
-  }
-  return true;
-}
-
 function validateToday(val) {
   const today = dayjs().format('YYYYMMDD');
   if (dayjs(val).isSameOrBefore(today)) {
@@ -336,13 +317,33 @@ function validateToday(val) {
   return true;
 }
 
+function validateGridApplyDate() {
+  const view = grdMainRef.value.getView();
+  const changedRows = gridUtil.getChangedRowValues(view, true);
+
+  for (let i = 0; i < changedRows.length; i += 1) {
+    const { apyStrtdt, dataRow } = changedRows[i];
+    const originApyStrtdt = gridUtil.getOrigCellValue(view, dataRow, 'apyStrtdt');
+
+    if (originApyStrtdt === apyStrtdt) {
+      notify(t('MSG_ALT_APY_STRT_D_CH_NCST'));
+      return false;
+    }
+
+    if (!validateToday(apyStrtdt)) return false;
+  }
+
+  return true;
+}
+
 function setPersonInChargeCellData(view, row, value, column) {
-  const matchedEngineer = engineers.find((v) => v.codeId === value);
+  const matchedEngineer = engineers.find((v) => v.prtnrNo === value);
   if (matchedEngineer) {
-    const { codeNm, ogNm } = matchedEngineer;
-    view.setValue(row, `${column[0]}`, ogNm);
-    view.setValue(row, `${column[1]}`, value);
-    view.setValue(row, `${column[2]}`, codeNm);
+    const { ogTpCd, prtnrNm, ogNm } = matchedEngineer;
+    view.setValue(row, `${column[0]}`, ogTpCd);
+    view.setValue(row, `${column[1]}`, ogNm);
+    view.setValue(row, `${column[2]}`, value);
+    view.setValue(row, `${column[3]}`, prtnrNm);
   }
 }
 
@@ -371,7 +372,7 @@ async function onClickSave() {
     const changedRows = gridUtil.getChangedRowValues(view);
 
     const isNotMatched = changedRows.find((v) => {
-      const matchedEngineer = engineers.find((x) => x.codeId === v.ichrPrtnrNo);
+      const matchedEngineer = engineers.find((x) => x.prtnrNo === v.ichrPrtnrNo);
       return matchedEngineer === null;
     });
 
@@ -549,16 +550,22 @@ const initGrdMain = defineGrid((data, view) => {
   view.onGetEditValue = async (grid, index, editResult) => {
     grid.checkItem(index.itemIndex, true);
 
-    const regExp = /ichrPrtnrNo/gi;
-    const matchedIndex = index.column.search(regExp);
+    if (index.column === 'apyStrtdt') {
+      if (!validateToday(editResult.value)) return;
+    }
 
-    if (matchedIndex === 0) { // 책임담당사번
-      setPersonInChargeCellData(grid, index.dataRow, editResult.value, ['ogNm', 'ichrPrtnrNo', 'prtnrKnm']);
-    } else if (matchedIndex > 0) { // 예비담당사번
-      const columnSlices = index.column.split(regExp);
-      const column = [`ogNm${columnSlices[1]}`, `pprnIchrPrtnrNo4${columnSlices[1]}`, `pprnIchrPrtnrKnm${columnSlices[1]}`];
+    if (index.column.includes('PrtnrNo')) {
+      const regExp = /ichrPrtnrNo/gi;
+      const matchedIndex = index.column.search(regExp);
 
-      setPersonInChargeCellData(grid, index.dataRow, editResult.value, column);
+      if (matchedIndex === 0) { // 책임담당사번
+        setPersonInChargeCellData(grid, index.dataRow, editResult.value, ['ogTpCd', 'ogNm', 'ichrPrtnrNo', 'prtnrKnm']);
+      } else if (matchedIndex > 0) { // 예비담당사번
+        const columnSlices = index.column.split(regExp);
+        const column = ['pprnIchrPrtnrOgTpCd', `ogNm${columnSlices[1]}`, `pprnIchrPrtnrNo4${columnSlices[1]}`, `pprnIchrPrtnrKnm${columnSlices[1]}`];
+
+        setPersonInChargeCellData(grid, index.dataRow, editResult.value, column);
+      }
     }
   };
 });
