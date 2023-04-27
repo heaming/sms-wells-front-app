@@ -175,17 +175,17 @@ async function getSaveData() {
 
   // 저장전 할인적용가격, 최종가 재계산
   subList[prcfd]?.forEach((prcRow) => {
-    // 기준가
-    const basePrc = Number(subList[prcd]
-      .find((stdRow) => stdRow[pdConst.PRC_STD_ROW_ID] === prcRow[pdConst.PRC_STD_ROW_ID])?.ccamBasePrc ?? 0);
+    // 기본가
+    const basVal = Number(subList[prcd]
+      .find((stdRow) => stdRow[pdConst.PRC_STD_ROW_ID] === prcRow[pdConst.PRC_STD_ROW_ID])?.basVal ?? 0);
       // 조정 전 가격 ( 01: 정액, 02: 정률)
     if (prcRow.cndtFxamFxrtDvCd === '01') {
-      // 할인적용가격 = 기준가 + 조정가
-      prcRow.prcBefAdj = basePrc + Number(prcRow.cndtDscPrumVal ?? 0);
+      // 할인적용가격 = 기본가 + 조정가
+      prcRow.prcBefAdj = basVal + Number(prcRow.cndtDscPrumVal ?? 0);
     } else if (prcRow.cndtFxamFxrtDvCd === '02') {
-      // 할인적용가격 = 기준가 + 조정률
-      const calPrc = Math.round((basePrc * Number(prcRow.cndtDscPrumVal ?? 0)) / 100, 2);
-      prcRow.prcBefAdj = Number(prcRow.ccamBasePrc) + calPrc;
+      // 할인적용가격 = 기본가 + 조정률
+      const calPrc = Math.round((basVal * Number(prcRow.cndtDscPrumVal ?? 0)) / 100, 2);
+      prcRow.prcBefAdj = Number(basVal) + calPrc;
     }
     // 최종가
     prcRow.fnlVal = Number(prcRow.prcBefAdj ?? 0) + Number(prcRow.ctrVal ?? 0);

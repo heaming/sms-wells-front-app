@@ -421,12 +421,12 @@ async function initGrid(data, view) {
       const fixDvCd = grid.getValue(itemIndex, 'cndtFxamFxrtDvCd');
       const fixValue = grid.getValue(itemIndex, 'cndtDscPrumVal');
       if (fixDvCd === '01') {
-        const basePrc = grid.getValue(itemIndex, 'ccamBasePrc');
-        if (fixValue > basePrc) {
+        const basVal = grid.getValue(itemIndex, 'basVal');
+        if (fixValue > basVal) {
           /* {0}값이 {1}보다 큽니다. */
           notify(t('MSG_ALT_A_IS_GREAT_THEN_B', [
             `${grid.columnByName('cndtDscPrumVal').header.text}(${fixValue})`,
-            `${grid.columnByName('ccamBasePrc').header.text}(${basePrc})`]));
+            `${grid.columnByName('basVal').header.text}(${basVal})`]));
           view.setValue(itemIndex, 'cndtDscPrumVal', 0);
           view.resetCurrent();
         }
