@@ -14,7 +14,10 @@
   <kw-popup
     size="2xl"
   >
-    <kw-form :cols="2">
+    <kw-form
+      ref="saveRef"
+      cols="2"
+    >
       <kw-form-row>
         <kw-form-item
           :label="$t('MSG_TXT_DIV')"
@@ -24,7 +27,8 @@
             v-model="saveParams.flag"
             rules="required"
             type="radio"
-            :options="[{codeId:'0', codeName:t('MSG_TXT_NEW')}, {codeId:'1', codeName:t('MSG_TXT_CH')}]"
+            :options="[{codeId:'0', codeName:t('MSG_TXT_NEW'), disable: newReg},
+                       {codeId:'1', codeName:t('MSG_TXT_CH'), disable: chReg} ]"
             :label="$t('MSG_TXT_DIV')"
             @change="onChangeFlag"
           />
@@ -39,6 +43,7 @@
             v-model="saveParams.aplcnsNm"
             :label="$t('MSG_TXT_APPL_USER')"
             rules="required"
+            :disable="isDisableAplcnsNm"
           />
         </kw-form-item>
         <kw-form-item
@@ -49,6 +54,7 @@
             v-model="saveParams.aplcDt"
             :label="$t('MSG_TXT_APPL_DATE')"
             rules="required"
+            :disable="isDisableAplcDt"
           />
         </kw-form-item>
       </kw-form-row>
@@ -63,6 +69,7 @@
             option-value="bldCd"
             option-label="bldNm"
             :label="$t('MSG_TXT_BLD_NM')"
+            :disable="isDisableBldCd"
           />
         </kw-form-item>
       </kw-form-row>
@@ -314,7 +321,7 @@ import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 
 const { notify, confirm, modal } = useGlobal();
-
+const { getters } = useStore();
 const dataService = useDataService();
 
 const { ok } = useModal();
@@ -327,7 +334,13 @@ const attachFiles1 = ref([]);
 const attachFiles2 = ref([]);
 const attachFiles3 = ref([]);
 const attachFiles4 = ref([]);
-
+const isDisableAplcnsNm = ref(false);
+const isDisableAplcDt = ref(false);
+const isDisableBldCd = ref(false);
+const newReg = ref(false);
+const chReg = ref(false);
+const userInfo = getters['meta/getUserInfo'];
+const saveRef = ref();
 const codes = await codeUtil.getMultiCodes(
   'BNK_CD', // 은행코드
 );
@@ -354,6 +367,7 @@ const saveParams = ref({
   wrkEnddt: dayjs().format('YYYYMMDD'), // 근무종료일자
   frontRrnoEncr: '', // 앞 주민등록번호
   backRrnoEncr: '', // 뒤 주민번호
+  rrnoEncr: '', // 주민번호 전체
   locaraTno: '', // 지역번호
   exnoEncr: '', // 전화국별
   idvTno: '', // 개별전화번호
@@ -376,30 +390,40 @@ const saveParams = ref({
 
 const buildingCodes = ref([]);
 async function buildingCode() {
-  const res = await dataService.get('/sms/wells/closing/expense/cleaners/cleaners-reqeust-change/code');
+  const sessenParam = { ogTpCd: userInfo.ogTpCd, prtnrNo: userInfo.prtnrNo };
+  const res = await dataService.get('/sms/wells/closing/expense/cleaners/cleaners-reqeust-change/code', { params: sessenParam });
   buildingCodes.value = res.data;
 }
 
 async function fetchData() {
   const { clinrRgno } = props;
-  debugger;
+
   if (!isEmpty(clinrRgno)) {
     dataParams = { clinrRgno: cloneDeep(clinrRgno) };
     const res = await dataService.get(`/sms/wells/closing/expense/cleaners/cleaners-reqeust-change/${clinrRgno}`, { params: dataParams });
     saveParams.value = res.data;
     saveParams.value.flag = '1';
+
+    isDisableAplcnsNm.value = true;
+    isDisableAplcDt.value = true;
+    isDisableBldCd.value = true;
+    newReg.value = true;
   } else {
     saveParams.value.flag = '0';
+    chReg.value = true;
   }
 }
 
 async function onClickSave() {
+  if (await saveRef.value.alertIfIsNotModified()) { return; }
+  if (!await saveRef.value.validate()) { return; }
   if (!await confirm(t('MSG_ALT_WANT_SAVE'))) { return; }
 
   saveParams.value.attachFiles1 = attachFiles1.value;
   saveParams.value.attachFiles2 = attachFiles2.value;
   saveParams.value.attachFiles3 = attachFiles3.value;
   saveParams.value.attachFiles4 = attachFiles4.value;
+  saveParams.value.rrnoEncr = saveParams.value.frontRrnoEncr + saveParams.value.backRrnoEncr;
   const data = saveParams.value;
 
   await dataService.post('/sms/wells/closing/expense/cleaners/cleaners-reqeust-change', data);

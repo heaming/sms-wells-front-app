@@ -132,7 +132,6 @@ const pageInfo = ref({
   totalCount: 0,
   pageIndex: 1,
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
-  needTotalCount: true,
 });
 
 const searchParams = ref({
@@ -149,14 +148,15 @@ const codes = await codeUtil.getMultiCodes(
 async function fetchData() {
   // TODO. 본사 영업담당자, 본사 담당자 구분 해야함
   debugger;
-  const res = await dataService.get('/sms/wells/closing/expense/cleaners/paging', { params: { ...cachedParams, ...pageInfo } });
+  const res = await dataService.get('/sms/wells/closing/expense/cleaners/paging', { params: { ...cachedParams, ...pageInfo.value } });
   const { list: pages, pageInfo: pagingResult } = res.data;
 
   const view = grdSubRef.value.getView();
   pageInfo.value = pagingResult;
   view.getDataSource().setRows(pages);
   view.resetCurrent();
-  view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
+
+  // view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
 async function onClickSearch() {
