@@ -168,11 +168,13 @@
           <kw-input
             v-model="searchParams.fromogCd"
             :placeholder="t('A000000')"
+            :maxlength="10"
           />
           <span>~</span>
           <kw-input
             v-model="searchParams.toOgCd"
             :placeholder="t('9999999')"
+            :maxlength="10"
           />
         </kw-search-item>
         <kw-search-item
@@ -221,6 +223,7 @@
             v-model:page-index="pageInfo.pageIndex"
             v-model:page-size="pageInfo.pageSize"
             :total-count="pageInfo.totalCount"
+            :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
             @change="fetchData"
           />
         </template>
@@ -238,7 +241,7 @@
       <kw-grid
         ref="grdMainRef"
         name="grdMain"
-        :visible-rows="1"
+        :visible-rows="pageInfo.pageSize"
         @init="initGrid"
       />
       <kw-pagination
@@ -261,7 +264,7 @@ import { cloneDeep, isEmpty, uniqBy } from 'lodash-es';
 import pdConst from '~sms-common/product/constants/pdConst';
 
 const dataService = useDataService();
-
+const { currentRoute } = useRouter();
 const { notify, modal } = useGlobal();
 const { getConfig, getUserInfo } = useMeta();
 const { t } = useI18n();
@@ -274,6 +277,7 @@ const grdMainRef = ref(getComponentType('KwGrid'));
 const codes = await codeUtil.getMultiCodes(
   'SELL_TP_CD',
   'FNT_DV_CD',
+  'COD_PAGE_SIZE_OPTIONS',
 );
 
 const hclsfs = ref([]);
@@ -343,7 +347,7 @@ async function fetchData() {
 
 async function onClickSearch() {
   if (searchParams.value.dateGbn === '3') {
-    if (searchParams.value.fromRental > searchParams.value.toRental) {
+    if (searchParams.value.fromRental >= searchParams.value.toRental) {
       notify(t('MSG_ALT_CHK_DT_RLT'));
       return false;
     }
@@ -365,7 +369,7 @@ async function onClickExcelDownload() {
 
   const res = await dataService.get('/sms/wells/contract/contracts/corporates/excel-download', { params: cachedParams });
   await gridUtil.exportView(view, {
-    fileName: 'corporationCustomerPsList',
+    fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
     exportData: res.data,
   });
@@ -452,7 +456,7 @@ function initGrid(data, view) {
     { fieldName: 'svPrd' },
     { fieldName: 'fnlPdUswyCd' },
     { fieldName: 'bznsSpptOgCd' },
-    { fieldName: 'ogUpbrngPrtnrNo' },
+    { fieldName: 'bizSpptPrtnrNo' },
     { fieldName: 'bznsSpptPrtnrKnm' },
     { fieldName: 'ackmtPerfAmt' },
     { fieldName: 'cntrAmt' },
@@ -460,7 +464,7 @@ function initGrid(data, view) {
     { fieldName: 'discountAmt' },
     { fieldName: 'pdBaseAmt' },
     { fieldName: 'recapDutyPtrmN' },
-    { fieldName: 'etrcnt' },
+    { fieldName: 'rentalTn' },
     { fieldName: 'txinvPblYn' },
     { fieldName: 'txinvPblTpCd' },
     { fieldName: 'emadr' },
@@ -491,6 +495,8 @@ function initGrid(data, view) {
     { fieldName: 'dlpnrItemNm' },
     { fieldName: 'reqdDt' },
     { fieldName: 'chdvcCntrNo' },
+    { fieldName: 'ojCntrNo' },
+    { fieldName: 'ojCntrSn' },
     { fieldName: 'chdvcCntrStlmFshDtm' },
     { fieldName: 'chdvcCntrCanDtm' },
     { fieldName: 'chdvcBasePdCd' },
@@ -502,6 +508,9 @@ function initGrid(data, view) {
     { fieldName: 'cntrCstNo' },
     { fieldName: 'pkgPdCd' },
     { fieldName: 'pkgPdNm' },
+    { fieldName: 'cntrAdrpcId' },
+    { fieldName: 'cntrtRelCd' },
+    { fieldName: 'ogTpCd' },
     { fieldName: 'pmotCd' },
     { fieldName: 'pmotDesc' },
     { fieldName: 'fstRgstUsrId' },
@@ -533,7 +542,7 @@ function initGrid(data, view) {
     { fieldName: 'svPrd', header: t('MSG_TXT_MNGT_PRD'), width: '112', styleName: 'text-right' },
     { fieldName: 'fnlPdUswyCd', header: t('MSG_TXT_USWY_DV'), width: '112', styleName: 'text-right' },
     { fieldName: 'bznsSpptOgCd', header: t('MSG_TXT_OG_CD'), width: '121', styleName: 'text-center' },
-    { fieldName: 'ogUpbrngPrtnrNo', header: t('MSG_TXT_EPNO'), width: '121', styleName: 'text-center' },
+    { fieldName: 'bizSpptPrtnrNo', header: t('MSG_TXT_EPNO'), width: '121', styleName: 'text-center' },
     { fieldName: 'bznsSpptPrtnrKnm', header: t('MSG_TXT_PIC'), width: '120', styleName: 'text-center' },
 
     { fieldName: 'ackmtPerfAmt', header: t('MSG_TXT_ACKMT_PERF_AMT'), width: '125', styleName: 'text-right' },
@@ -542,7 +551,7 @@ function initGrid(data, view) {
     { fieldName: 'discountAmt', header: t('MSG_TXT_RTLFE_DSC_RFLT'), width: '125', styleName: 'text-right' },
     { fieldName: 'pdBaseAmt', header: t('MSG_TXT_RTLFE'), width: '125', styleName: 'text-right' },
     { fieldName: 'recapDutyPtrmN', header: t('MSG_TXT_LCK_IN_PRD_MN'), width: '125', styleName: 'text-right' },
-    { fieldName: 'etrcnt', header: t('MSG_TXT_RENTAL_NMN'), width: '125', styleName: 'text-right' },
+    { fieldName: 'rentalTn', header: t('MSG_TXT_RENTAL_NMN'), width: '125', styleName: 'text-right' },
 
     { fieldName: 'txinvPblYn', header: t('MSG_TXT_TXINV_YN'), width: '121', styleName: 'text-center' },
     { fieldName: 'txinvPblTpCd', header: t('MSG_TXT_ISSUANCE_CLAR'), width: '121', styleName: 'text-center' },
@@ -617,9 +626,9 @@ function initGrid(data, view) {
     {
       header: t('MSG_TXT_WELS_MNGER'),
       direction: 'horizontal',
-      items: ['bznsSpptOgCd', 'ogUpbrngPrtnrNo', 'bznsSpptPrtnrKnm'],
+      items: ['bznsSpptOgCd', 'bizSpptPrtnrNo', 'bznsSpptPrtnrKnm'],
     },
-    'ackmtPerfAmt', 'cntrAmt', 'fnlAmt', 'discountAmt', 'pdBaseAmt', 'recapDutyPtrmN', 'etrcnt',
+    'ackmtPerfAmt', 'cntrAmt', 'fnlAmt', 'discountAmt', 'pdBaseAmt', 'recapDutyPtrmN', 'rentalTn',
     {
       header: t('MSG_BTN_TXINV'),
       direction: 'horizontal',
