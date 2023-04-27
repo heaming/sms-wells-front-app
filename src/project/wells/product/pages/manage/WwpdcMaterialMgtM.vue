@@ -284,10 +284,21 @@ async function onClickRemove() {
 }
 
 async function getSaveData(tempSaveYn) {
-  const subList = {};
+  const subList = { isModifiedProp: false, isOnlyFileModified: false };
   // eslint-disable-next-line no-unused-vars
   await Promise.all(cmpStepRefs.value.map(async (item, idx) => {
-    const saveData = await item.value.getSaveData();
+    const isModified = await item.value.isModifiedProps();
+    const saveData = item.value?.getSaveData ? await item.value.getSaveData() : null;
+    // 기본속성, 관리 속성 수정여부
+    if (await isModified && (idx === 0 || idx === 2)) {
+      subList.isModifiedProp = true;
+      // subList.isOnlyFileModified = item.value?.isOnlyFileModified ? await item.value?.isOnlyFileModified() : false;
+      if (idx === 0 && isModified) {
+        subList.isOnlyFileModified = item.value?.isOnlyFileModified ? await item.value?.isOnlyFileModified() : false;
+      } else if (idx === 2 && isModified) {
+        subList.isOnlyFileModified = false;
+      }
+    }
 
     if (await saveData) {
       subList.pdCd = subList.pdCd ?? saveData.pdCd;

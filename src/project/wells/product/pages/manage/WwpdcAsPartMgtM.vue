@@ -216,12 +216,18 @@ async function onClickRemove() {
 }
 
 async function getSaveData(tempSaveYn) {
-  const subList = {};
-  await Promise.all(cmpStepRefs.value.map(async (item) => {
-    const saveData = await item.value.getSaveData();
+  const subList = { isModifiedProp: false, isOnlyFileModified: false };
+  await Promise.all(cmpStepRefs.value.map(async (item, idx) => {
+    const isModified = await item.value.isModifiedProps();
+    const saveData = item.value?.getSaveData ? await item.value.getSaveData() : null;
     if (await saveData) {
       subList.pdCd = subList.pdCd ?? saveData.pdCd;
       subList.pdTpCd = subList.pdTpCd ?? saveData.pdTpCd;
+      // 기본속성, 관리 속성 수정여부
+      if (await isModified && idx === 0) {
+        subList.isModifiedProp = true;
+        subList.isOnlyFileModified = item.value?.isOnlyFileModified ? await item.value?.isOnlyFileModified() : false;
+      }
       if (saveData[bas]) {
         if (subList[bas]?.cols) saveData[bas].cols += subList[bas].cols;
         subList[bas] = pdMergeBy(subList[bas], saveData[bas]);
