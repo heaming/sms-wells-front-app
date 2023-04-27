@@ -25,7 +25,7 @@
           :label="$t('MSG_TXT_CNTOR_NM')"
         >
           <kw-input
-            v-model="searchParams.cntrCstKnm"
+            v-model.trim="searchParams.cntrCstKnm"
             :label="$t('MSG_TXT_CNTOR_NM')"
             maxlength="50"
           />
@@ -34,7 +34,7 @@
           :label="$t('MSG_TXT_IST_NM')"
         >
           <kw-input
-            v-model="searchParams.istCstKnm"
+            v-model.trim="searchParams.istCstKnm"
             :label="$t('MSG_TXT_IST_NM')"
             maxlength="50"
           />
@@ -43,9 +43,9 @@
           :label="$t('MSG_TXT_MPNO')"
         >
           <kw-input
-            v-model:telNo0="searchParams.cralLocaraTno"
-            v-model:telNo1="searchParams.mexnoEncr"
-            v-model:telNo2="searchParams.cralIdvTno"
+            v-model.trim:telNo0="searchParams.cralLocaraTno"
+            v-model.trim:telNo1="searchParams.mexnoEncr"
+            v-model.trim:telNo2="searchParams.cralIdvTno"
             :label="$t('MSG_TXT_MPNO')"
             mask="telephone"
           />
@@ -56,7 +56,7 @@
           :label="$t('MSG_TXT_CST_NO')"
         >
           <kw-input
-            v-model="searchParams.cntrCstNo"
+            v-model.trim="searchParams.cntrCstNo"
             :label="$t('MSG_TXT_CST_NO')"
             icon="search"
             :on-click-icon="onClickSearchCntrCst"
@@ -71,8 +71,8 @@
           :colspan="2"
         >
           <zctz-contract-detail-number
-            v-model:cntr-no="searchParams.cntrNo"
-            v-model:cntr-sn="searchParams.cntrSn"
+            v-model.trim:cntr-no="searchParams.cntrNo"
+            v-model.trim:cntr-sn="searchParams.cntrSn"
             disable-popup
           />
         </kw-search-item>
@@ -104,8 +104,8 @@
     <kw-action-top>
       <template #left>
         <kw-paging-info
-          v-model:page-index="pageInfo.pageIndex"
-          v-model:page-size="pageInfo.pageSize"
+          v-model.trim:page-index="pageInfo.pageIndex"
+          v-model.trim:page-size="pageInfo.pageSize"
           :total-count="pageInfo.totalCount"
           :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
           @change="fetchData"
@@ -121,8 +121,8 @@
     />
 
     <kw-pagination
-      v-model:page-index="pageInfo.pageIndex"
-      v-model:page-size="pageInfo.pageSize"
+      v-model.trim:page-index="pageInfo.pageIndex"
+      v-model.trim:page-size="pageInfo.pageSize"
       :total-count="pageInfo.totalCount"
       @change="fetchData"
     />
