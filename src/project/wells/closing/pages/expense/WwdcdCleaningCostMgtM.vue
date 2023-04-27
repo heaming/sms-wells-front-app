@@ -178,7 +178,7 @@ async function buildingCode() {
 }
 
 async function fetchData() {
-  const res = await dataService.get('/sms/wells/closing/expense/cleaning-cost/paging', { params: { ...cachedParams, ...pageInfo } });
+  const res = await dataService.get('/sms/wells/closing/expense/cleaning-cost/paging', { params: { ...cachedParams, ...pageInfo.value } });
   const { list: pages, pageInfo: pagingResult } = res.data;
 
   const view = grdMainRef.value.getView();
