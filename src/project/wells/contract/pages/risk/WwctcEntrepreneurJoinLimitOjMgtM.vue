@@ -241,7 +241,6 @@ async function onClickDelete() {
 
   if (deleteKeys.length) {
     await dataService.delete('/sms/wells/contract/sales-limits/business-partners', { data: deleteKeys });
-    await notify(t('MSG_ALT_DELETED'));
     onClickSearch();
   }
 }

@@ -302,7 +302,6 @@ async function onClickRemove() {
 
   if (deleteKeys.length > 0) {
     await dataService.delete('/sms/wells/contract/contracts/approval-standards', { data: deleteKeys });
-    await notify(t('MSG_ALT_DELETED'));
     await onClickSearch();
   }
 }
