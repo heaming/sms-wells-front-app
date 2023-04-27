@@ -59,6 +59,8 @@
           v-model:dgr2-levl-og-id="searchParams.dgr2LevlOgId"
           v-model:dgr1-levl-og="searchParams.dgr1LevlOg"
           v-model:dgr2-levl-og="searchParams.dgr2LevlOg"
+          dgr1-levl-og-first-option="all"
+          dgr2-levl-og-first-option="all"
           use-og-level="2"
           :use-partner="false"
         />
