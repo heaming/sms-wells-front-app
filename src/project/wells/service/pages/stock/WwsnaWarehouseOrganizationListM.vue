@@ -323,6 +323,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'wareNo' },
     { fieldName: 'wareCd' },
     { fieldName: 'wareNm' },
+    { fieldName: 'adrNm' },
     { fieldName: 'wareMngtPrtnrNo' },
     { fieldName: 'wareStocMgr' },
     { fieldName: 'hgrWare' },
@@ -351,7 +352,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'hgrWare', header: t('MSG_TXT_WARE_CD'), width: '100', styleName: 'text-center' },
     { fieldName: 'hgrWareNo', header: t('MSG_TXT_HGR_WARE_NO'), width: '100', styleName: 'text-center' },
     { fieldName: 'hgrWareNm', header: t('MSG_TXT_HGR_WARE_NM'), width: '280' },
-    { fieldName: 'wareAdrId', header: t('MSG_TXT_ADDR'), width: '280', styleName: 'text-left' },
+    { fieldName: 'adrNm', header: t('MSG_TXT_ADDR'), width: '280', styleName: 'text-left' },
     { fieldName: 'adrUseYn', header: t('MSG_TXT_USE_EYN'), options: codes.USE_YN, width: '100', styleName: 'text-center' },
     { fieldName: 'dsnBldNm', header: t('MSG_TXT_BLD_NM'), width: '150', styleName: 'text-center' },
     { fieldName: 'bldCd', header: t('MSG_TXT_BLD_CD'), width: '100', styleName: 'text-center' },
@@ -375,7 +376,7 @@ const initGrdMain = defineGrid((data, view) => {
     {
       header: t('MSG_TXT_HGR_WARE'), // colspan title
       direction: 'horizontal', // merge type
-      items: ['hgrWare', 'hgrWareNo', 'hgrWareNm', 'wareAdrId'],
+      items: ['hgrWare', 'hgrWareNo', 'hgrWareNm', 'adrNm'],
     },
     {
       header: t('MSG_TXT_DSN_ADR'),

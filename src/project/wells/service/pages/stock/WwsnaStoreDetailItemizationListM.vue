@@ -423,8 +423,8 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'strQty', header: t('MSG_TXT_QTY'), dataType: 'number', numberFormat: '#,##0', width: '100', styleName: 'text-right' },
     { fieldName: 'strWareNm', header: t('MSG_TXT_STR_WARE'), width: '150', styleName: 'text-center' },
     { fieldName: 'ostrWareNm', header: t('MSG_TXT_OSTR_WARE'), width: '150', styleName: 'text-center' },
-    { fieldName: 'itmStrNo', header: t('MSG_TXT_STR_WARE_NO'), width: '200', styleName: 'text-center' },
-    { fieldName: 'itmOstrNo', header: t('MSG_TXT_OSTR_WARE_NO'), width: '200', styleName: 'text-center' },
+    { fieldName: 'itmStrNo', header: t('MSG_TXT_STR_MNGT_NO'), width: '200', styleName: 'text-center' },
+    { fieldName: 'itmOstrNo', header: t('MSG_TXT_OSTR_MNGT_NO'), width: '200', styleName: 'text-center' },
   ];
 
   data.setFields(fields);

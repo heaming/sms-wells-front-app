@@ -77,12 +77,6 @@
           />
         </template>
         <kw-btn
-          icon="print"
-          dense
-          secondary
-          :label="$t('MSG_BTN_PRTG')"
-        />
-        <kw-btn
           icon="download_on"
           dense
           secondary
@@ -106,7 +100,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 
-import { useGlobal, codeUtil, defineGrid, useDataService, getComponentType, gridUtil } from 'kw-lib';
+import { useGlobal, codeUtil, defineGrid, useDataService, getComponentType, gridUtil, popupUtil } from 'kw-lib';
 import snConst from '~sms-wells/service/constants/snConst';
 // TODO: 추후 공통서비스 변경후 적용 예정 (조직창고 , 조직창고에 해당하는 엔지니어조회)
 import ZwcmWareHouseSearch from '~sms-common/service/components/ZwsnzWareHouseSearch.vue';
@@ -292,8 +286,12 @@ const initGrdMain = defineGrid((data, view) => {
 
   view.onCellItemClicked = async (g, { column, dataRow }) => {
     debugger;
+    // let url = '';
+    // if (window.location.href.includes('localhost')) {
+    //   url = 'http://localhost:3000';
+    // }
     console.log(gridUtil.getRowValue(g, dataRow));
-    const { ostrTpCd } = gridUtil.getRowValue(g, dataRow);
+    const { ostrTpCd, ostrWareNo, ostrDt, strWareNo, itmOstrNo } = gridUtil.getRowValue(g, dataRow);
 
     if (column === 'txtNote') {
       if (ostrTpCd === '217') {
@@ -306,7 +304,7 @@ const initGrdMain = defineGrid((data, view) => {
         alert('현재 단위 테스트 대상이 아닙니다.(개발중)');
         return;
       } if (['212', '261', '262'].includes(ostrTpCd)) {
-        alert('현재 단위 테스트 대상이 아닙니다.(개발중)');
+        await popupUtil.open(`/popup#/service/wwsna-returning-goods-out-of-storage-reg?ostrTpCd=${ostrTpCd}&ostrWareNo=${ostrWareNo}&ostrDt=${ostrDt}&strWareNo=${strWareNo}&itmOstrNo=${itmOstrNo}`, { width: 1800, height: 1000 }, false);
       }
     }
   };
