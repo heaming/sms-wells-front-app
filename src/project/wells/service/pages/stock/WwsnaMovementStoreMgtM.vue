@@ -90,7 +90,7 @@
           dense
           secondary
           :label="$t('MSG_BTN_EXCEL_DOWN')"
-          :disable="totalCount === 0"
+          :disable="pageInfo.totalCount === 0"
           @click="onClickExcelDownload"
         />
       </kw-action-top>
@@ -98,7 +98,8 @@
       <kw-grid
         ref="grdMainRef"
         name="grdMain"
-        :visible-rows="pageInfo.pageSize"
+        :page-size="pageInfo.pageSize"
+        :total-count="pageInfo.totalCount"
         @init="initGrdMain"
       />
       <kw-pagination
@@ -125,7 +126,7 @@ const { t } = useI18n();
 
 const dataService = useDataService();
 const baseURI = '/sms/wells/service/movement-stores/management';
-const excelURI = `${baseURI} + /excel-download`;
+const excelURI = `${baseURI}/excel-download`;
 const grdMainRef = ref(getComponentType('KwGrid'));
 
 // -------------------------------------------------------------------------------------------------
@@ -148,7 +149,7 @@ const filterCodes = ref({
 filterCodes.value.filterStrTpCd = codes.STR_TP_CD.filter((v) => ['121', '122', '123', '162', '161'].includes(v.codeId));
 
 let cachedParams;
-const totalCount = ref(0);
+// const totalCount = ref(0);
 
 const wharehouseParams = ref({
   apyYm: dayjs().format('YYYYMM'),
