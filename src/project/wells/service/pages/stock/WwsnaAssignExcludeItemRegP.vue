@@ -69,14 +69,6 @@
         primary
         @click="onClickSave"
       />
-      <!--
-      <kw-btn
-        icon="print"
-        dense
-        primary
-        :label="$t('MSG_BTN_PRTG')"
-      />
--->
     </kw-action-top>
     <kw-grid
       ref="grdMainRef"
