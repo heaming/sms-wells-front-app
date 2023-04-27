@@ -110,7 +110,7 @@
           v-model="baseInfo.pdGdCd"
           dense
           class="w150"
-          :options="codes.PD_GD_CD"
+          :options="pdGdCds"
           :disable="canEdit()"
         />
         <!-- 등급 일괄변경 -->
@@ -232,6 +232,8 @@ const codes = await codeUtil.getMultiCodes(
   'RTNGD_RSON_CD', // 반품사유 (출고사유코드)
   'DSU_RSON_CD', // 폐기사유 (출고사유코드)
 );
+
+const pdGdCds = codes.PD_GD_CD.filter((v) => ['A', 'B', 'E', 'R', 'X'].includes(v.codeId));
 
 function isReturingCode(codeId) {
   return codeId === DISUSE || codeId === RETURN_INSIDE || codeId === RETURN_OUTSIDE;
@@ -555,7 +557,7 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-center',
       editable: true,
       editor: { type: 'list' },
-      options: codes.PD_GD_CD,
+      options: pdGdCds,
       rules: 'required',
       styleCallback: setCellEditableFalse,
     },

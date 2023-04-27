@@ -104,13 +104,6 @@
           vertical
           inset
         />
-        <!-- 인쇄 -->
-        <kw-btn
-          icon="print"
-          dense
-          secondary
-          :label="$t('MSG_BTN_PRTG')"
-        />
         <!-- 엑셀 다운로드 -->
         <kw-btn
           icon="download_on"
