@@ -14,7 +14,7 @@
 --->
 <template>
   <kw-popup
-    class="kw-popup--3xl"
+    size="3xl"
   >
     <kw-form
       :cols="2"
@@ -125,14 +125,6 @@
         vertical
         inset
       />
-      <!--
-      <kw-btn
-        dense
-        secondary
-        icon="print"
-        :label="$t('MSG_BTN_PRTG')"
-      />
- -->
       <kw-btn
         dense
         secondary

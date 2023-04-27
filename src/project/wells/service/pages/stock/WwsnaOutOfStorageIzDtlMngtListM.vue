@@ -130,12 +130,6 @@
         <kw-btn
           secondary
           dense
-          icon="print"
-          :label="$t('MSG_BTN_PRTG')"
-        />
-        <kw-btn
-          secondary
-          dense
           icon="excel"
           :label="$t('MSG_BTN_EXCEL_DOWN')"
           :disable="pageInfo.totalCount === 0"
