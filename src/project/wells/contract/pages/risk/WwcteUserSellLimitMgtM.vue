@@ -130,9 +130,10 @@
 import { getComponentType, gridUtil, useGlobal, codeUtil, useDataService, useMeta } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
+import pdConst from '~sms-common/product/constants/pdConst';
 
 const gridMainRef = ref(getComponentType('KwGrid'));
-const { notify } = useGlobal();
+const { notify, modal } = useGlobal();
 const { currentRoute } = useRouter();
 const { getConfig } = useMeta();
 const { t } = useI18n();
@@ -365,8 +366,25 @@ function initGrid(data, view) {
   view.rowIndicator.visible = true; // create number indicator column
   view.editOptions.editable = true;
 
-  view.onCellButtonClicked = async () => {
-    notify(t('팝업 준비중 입니다.'));
+  view.onCellButtonClicked = async (g, { itemIndex }) => {
+    const searchPopupParams = {
+      searchType: pdConst.PD_SEARCH_CODE,
+      searchValue: g.getValues(itemIndex).pdCd,
+      selectType: '',
+    };
+
+    const returnPdInfo = await modal({
+      component: 'ZwpdcStandardListP', // 상품기준 목록조회 팝업
+      componentProps: searchPopupParams,
+    });
+
+    if (returnPdInfo.result) {
+      const pdClsfNm = returnPdInfo.payload?.[0].pdClsfNm.split('>');
+      data.setValue(itemIndex, 'pdCd', returnPdInfo.payload?.[0].pdCd);
+      data.setValue(itemIndex, 'pdNm', returnPdInfo.payload?.[0].pdNm);
+      data.setValue(itemIndex, 'pdMclsfNm', !isEmpty(pdClsfNm[1]) ? pdClsfNm[1] : '');
+      data.setValue(itemIndex, 'pdLclsfNm', !isEmpty(pdClsfNm[2]) ? pdClsfNm[2] : '');
+    }
   };
 }
 </script>
