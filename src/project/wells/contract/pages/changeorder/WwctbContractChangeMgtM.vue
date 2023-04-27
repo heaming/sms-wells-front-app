@@ -1,9 +1,19 @@
+<!----
+****************************************************************************************************
+* 프로그램 개요
+****************************************************************************************************
+1. 모듈 : CTB
+2. 프로그램 ID : WwctbContractChangeMgtM - 계약변경
+3. 작성자 : gs.rahul.n
+4. 작성일 : 2023.04.25
+****************************************************************************************************
+* 프로그램 설명
+****************************************************************************************************
+- 계약변경
+****************************************************************************************************
+--->
 <template>
   <kw-page>
-    <template #header>
-      <kw-page-header :options="['홈', '판매', '계약관리', '통합계약서 작성']" />
-    </template>
-
     <div
       class="normal-area normal-area--button-set-bottom"
     >
@@ -25,7 +35,7 @@
                 <kw-search :cols="3">
                   <kw-search-row>
                     <kw-search-item
-                      label="계약유형"
+                      :label="$t('MSG_TXT_CONTR_TYPE')"
                       required
                     >
                       <kw-select
@@ -35,7 +45,7 @@
                       />
                     </kw-search-item>
                     <kw-search-item
-                      label="계약자 유형"
+                      :label="$t('MSG_TXT_CONTRACTOR_TYPE')"
                       required
                     >
                       <kw-select
@@ -44,25 +54,25 @@
                         rules="required"
                       />
                     </kw-search-item>
-                    <kw-search-item label="이름">
+                    <kw-search-item :label="$t('MSG_TXT_NAME')">
                       <kw-input />
                     </kw-search-item>
                   </kw-search-row>
                   <kw-search-row>
                     <kw-search-item
-                      label="휴대전화번호"
+                      :label="$t('MSG_TXT_MPNO')"
                       required
                     >
                       <zwcm-telephone-number rules="required" />
                     </kw-search-item>
                     <kw-search-item
-                      label="생년월일"
+                      :label="$t('MSG_TXT_BIRTH_DATE')"
                       required
                     >
                       <kw-date-picker rule="required" />
                     </kw-search-item>
                     <kw-search-item
-                      label="남여구분"
+                      :label="$t('MSG_TXT_GEND_DIV')"
                       required
                     >
                       <kw-option-group
@@ -74,12 +84,12 @@
                     </kw-search-item>
                   </kw-search-row>
                   <kw-search-row>
-                    <kw-search-item label="계약구분">
+                    <kw-search-item :label="$t('MSG_TXT_CNTR_DV')">
                       <kw-field :model-value="[]">
                         <template #default="{ field }">
                           <kw-checkbox
                             v-bind="field"
-                            label="기존계약만 검색"
+                            :label="$t('MSG_TXT_SEA_ONLY_PEXT_CNTR')"
                             val=""
                           />
                         </template>
@@ -87,28 +97,30 @@
                     </kw-search-item>
                   </kw-search-row>
                 </kw-search>
-                <h3>계약자정보 -개인</h3>
+                <h3>
+                  {{ t('MSG_TXT_CONTR_INFO_INDIV') }}
+                </h3>
                 <kw-form
                   :cols="2"
                   dense
                 >
                   <kw-form-row>
-                    <kw-form-item label="계약자">
+                    <kw-form-item :label="$t('MSG_TXT_CNTRT')">
                       <p>김엄마 / 1988-03-03 / 여</p>
                     </kw-form-item>
                     <kw-form-item
-                      label="본인인증여부"
+                      :label="$t('MSG_TXT_IDENT_VERF')"
                       hint="s"
                     >
-                      <p>본인인증완료</p>
+                      <p>{{ t('MSG_TXT_IDENT_VERF_COMPL') }}</p>
                     </kw-form-item>
                   </kw-form-row>
                   <kw-form-row>
-                    <kw-form-item label="고객번호">
+                    <kw-form-item :label="$t('MSG_TXT_CST_NO')">
                       <p>123456789</p>
                     </kw-form-item>
                     <kw-form-item
-                      label="스마트마일리지"
+                      :label="$t('MSG_TXT_REF_MIL')"
                       hint="a"
                     >
                       <p>1,000,000</p>
@@ -116,25 +128,25 @@
                   </kw-form-row>
                   <kw-form-row>
                     <kw-form-item
-                      label="K머니"
+                      :label="$t('MSG_TXT_K_MON')"
                       hint="a"
                     >
                       <p>1,000,000</p>
                     </kw-form-item>
                     <kw-form-item
-                      label="K몰캐쉬"
+                      :label="$t('MSG_TXT_K_MALL_CASH')"
                       hint="a"
                     >
                       <p>1,000,000</p>
                     </kw-form-item>
                   </kw-form-row>
                   <kw-form-row>
-                    <kw-form-item label="휴대전화번호">
+                    <kw-form-item :label="$t('MSG_TXT_MPNO')">
                       <p>
                         010-1234-1234
                       </p>
                     </kw-form-item>
-                    <kw-form-item label="주소">
+                    <kw-form-item :label="$t('MSG_TXT_ADDR')">
                       <p>
                         06617 (주소코드 : 23456789)<br>
                         서울 서초구 서초대로 385 진흥 아파트 D동 1301
@@ -149,12 +161,12 @@
                     <kw-paging-info :total-count="1" />
                   </template>
                   <kw-btn
-                    label="수정"
+                    :label="$t('MSG_BTN_MOD')"
                     secondary
                     dense
                   />
                   <kw-btn
-                    label="학습자추가"
+                    :label="$t('MSG_BTN_ADD_LEARNER')"
                     secondary
                     dense
                   />
@@ -177,7 +189,7 @@
                             val=""
                           />
                           <kw-chip
-                            label="자녀"
+                            :label="$t('MSG_TXT_CHILD')"
                             square
                             color="primary"
                             text-color="primary"
@@ -191,41 +203,41 @@
                         :cols="2"
                       >
                         <kw-form-row>
-                          <kw-form-item label="성별">
+                          <kw-form-item :label="$t('MSG_TXT_GENDER')">
                             <p class="text-bold">
                               여
                             </p>
                           </kw-form-item>
-                          <kw-form-item label="나이(세)">
+                          <kw-form-item :label="$t('MSG_TXT_AGE_YR')">
                             <p class="text-bold">
                               10
                             </p>
                           </kw-form-item>
                         </kw-form-row>
                         <kw-form-row>
-                          <kw-form-item label="고객번호">
+                          <kw-form-item :label="$t('MSG_TXT_CST_NO')">
                             <p class="text-bold">
                               123456789
                             </p>
                           </kw-form-item>
-                          <kw-form-item label="학년">
+                          <kw-form-item :label="$t('MSG_TXT_CLASS')">
                             <p class="text-bold">
                               3
                             </p>
                           </kw-form-item>
                         </kw-form-row>
                         <kw-form-row>
-                          <kw-form-item label="백점이회원정보">
+                          <kw-form-item :label="$t('MSG_TXT_HUND_PT_MEM_INFO')">
                             <kw-input />
                           </kw-form-item>
-                          <kw-form-item label="휴대전화번호">
+                          <kw-form-item :label="$t('MSG_TXT_MPNO')">
                             <p class="text-bold">
                               010-1234-1234
                             </p>
                           </kw-form-item>
                         </kw-form-row>
                         <kw-form-row>
-                          <kw-form-item label="주소">
+                          <kw-form-item :label="$t('MSG_TXT_ADDR')">
                             <p class="text-bold">
                               06617 (주소코드 : 23456789)<br>
                               서울 서초구 서초대로 385 진흥 아파트 D동1301
@@ -249,7 +261,7 @@
                             val=""
                           />
                           <kw-chip
-                            label="자녀"
+                            :label="$t('MSG_TXT_CHILD')"
                             square
                             color="primary"
                             text-color="primary"
@@ -263,41 +275,41 @@
                         :cols="2"
                       >
                         <kw-form-row>
-                          <kw-form-item label="성별">
+                          <kw-form-item :label="$t('MSG_TXT_GENDER')">
                             <p class="text-bold">
                               여
                             </p>
                           </kw-form-item>
-                          <kw-form-item label="나이(세)">
+                          <kw-form-item :label="$t('MSG_TXT_AGE_YR')">
                             <p class="text-bold">
                               10
                             </p>
                           </kw-form-item>
                         </kw-form-row>
                         <kw-form-row>
-                          <kw-form-item label="고객번호">
+                          <kw-form-item :label="$t('MSG_TXT_CST_NO')">
                             <p class="text-bold">
                               123456789
                             </p>
                           </kw-form-item>
-                          <kw-form-item label="학년">
+                          <kw-form-item :label="$t('MSG_TXT_CLASS')">
                             <p class="text-bold">
                               3
                             </p>
                           </kw-form-item>
                         </kw-form-row>
                         <kw-form-row>
-                          <kw-form-item label="백점이회원정보">
+                          <kw-form-item :label="$t('MSG_TXT_HUND_PT_MEM_INFO')">
                             <kw-input />
                           </kw-form-item>
-                          <kw-form-item label="휴대전화번호">
+                          <kw-form-item :label="$t('MSG_TXT_MPNO')">
                             <p class="text-bold">
                               010-1234-1234
                             </p>
                           </kw-form-item>
                         </kw-form-row>
                         <kw-form-row>
-                          <kw-form-item label="주소">
+                          <kw-form-item :label="$t('MSG_TXT_ADDR')">
                             <p class="text-bold">
                               06617 (주소코드 : 23456789)<br>
                               서울 서초구 서초대로 385 진흥 아파트 D동1301
@@ -317,7 +329,7 @@
                 <kw-search :cols="3">
                   <kw-search-row>
                     <kw-search-item
-                      label="계약유형"
+                      :label="$t('MSG_TXT_CONTR_TYPE')"
                       required
                     >
                       <kw-select
@@ -327,7 +339,7 @@
                       />
                     </kw-search-item>
                     <kw-search-item
-                      label="계약자 유형"
+                      :label="$t('MSG_TXT_CONTRACTOR_TYPE')"
                       required
                     >
                       <kw-select
@@ -336,25 +348,25 @@
                         rules="required"
                       />
                     </kw-search-item>
-                    <kw-search-item label="이름">
+                    <kw-search-item :label="$t('MSG_TXT_NAME')">
                       <kw-input />
                     </kw-search-item>
                   </kw-search-row>
                   <kw-search-row>
                     <kw-search-item
-                      label="휴대전화번호"
+                      :label="$t('MSG_TXT_MPNO')"
                       required
                     >
                       <zwcm-telephone-number rules="required" />
                     </kw-search-item>
                     <kw-search-item
-                      label="생년월일"
+                      :label="$t('MSG_TXT_BIRTH_DATE')"
                       required
                     >
                       <kw-date-picker rule="required" />
                     </kw-search-item>
                     <kw-search-item
-                      label="남여구분"
+                      :label="$t('MSG_TXT_GEND_DIV')"
                       required
                     >
                       <kw-option-group
@@ -366,12 +378,12 @@
                     </kw-search-item>
                   </kw-search-row>
                   <kw-search-row>
-                    <kw-search-item label="계약구분">
+                    <kw-search-item :label="$t('MSG_TXT_CNTR_DV')">
                       <kw-field :model-value="[]">
                         <template #default="{ field }">
                           <kw-checkbox
                             v-bind="field"
-                            label="기존계약만 검색"
+                            :label="$t('MSG_TXT_SEA_ONLY_PEXT_CNTR')"
                             val=""
                           />
                         </template>
@@ -379,28 +391,28 @@
                     </kw-search-item>
                   </kw-search-row>
                 </kw-search>
-                <h3>계약자정보 -개인</h3>
+                <h3>{{ t('MSG_TXT_CONTR_INFO_INDIV') }}</h3>
                 <kw-form
                   :cols="2"
                   dense
                 >
                   <kw-form-row>
-                    <kw-form-item label="계약자">
+                    <kw-form-item :label="$t('MSG_TXT_CNTRT')">
                       <p>김엄마 / 1988-03-03 / 여</p>
                     </kw-form-item>
                     <kw-form-item
-                      label="본인인증여부"
+                      :label="$t('MSG_TXT_IDENT_VERF')"
                       hint="s"
                     >
                       <p>본인인증완료</p>
                     </kw-form-item>
                   </kw-form-row>
                   <kw-form-row>
-                    <kw-form-item label="고객번호">
+                    <kw-form-item :label="$t('MSG_TXT_CST_NO')">
                       <p>123456789</p>
                     </kw-form-item>
                     <kw-form-item
-                      label="스마트마일리지"
+                      :label="$t('MSG_TXT_REF_MIL')"
                       hint="a"
                     >
                       <p>1,000,000</p>
@@ -408,25 +420,25 @@
                   </kw-form-row>
                   <kw-form-row>
                     <kw-form-item
-                      label="K머니"
+                      :label="$t('MSG_TXT_K_MON')"
                       hint="a"
                     >
                       <p>1,000,000</p>
                     </kw-form-item>
                     <kw-form-item
-                      label="K몰캐쉬"
+                      :label="$t('MSG_TXT_K_MALL_CASH')"
                       hint="a"
                     >
                       <p>1,000,000</p>
                     </kw-form-item>
                   </kw-form-row>
                   <kw-form-row>
-                    <kw-form-item label="휴대전화번호">
+                    <kw-form-item :label="$t('MSG_TXT_MPNO')">
                       <p>
                         010-1234-1234
                       </p>
                     </kw-form-item>
-                    <kw-form-item label="주소">
+                    <kw-form-item :label="$t('MSG_TXT_ADDR')">
                       <p>
                         06617 (주소코드 : 23456789)<br>
                         서울 서초구 서초대로 385 진흥 아파트 D동 1301
@@ -435,18 +447,18 @@
                   </kw-form-row>
                 </kw-form>
                 <kw-separator />
-                <h3>학습자</h3>
+                <h3>{{ t('MSG_TXT_LRNR') }}</h3>
                 <kw-action-top>
                   <template #left>
                     <kw-paging-info :total-count="1" />
                   </template>
                   <kw-btn
-                    label="수정"
+                    :label="$t('MSG_BTN_MOD')"
                     secondary
                     dense
                   />
                   <kw-btn
-                    label="학습자추가"
+                    :label="$t('MSG_BTN_ADD_LEARNER')"
                     secondary
                     dense
                   />
@@ -470,7 +482,7 @@
                       >
                         {{ `${item.name} / ${item.birth} / ${item.gender}` }}
                         <kw-chip
-                          label="자녀"
+                          :label="$t('MSG_TXT_CHILD')"
                           square
                           color="primary"
                           text-color="primary"
@@ -485,41 +497,41 @@
                         :cols="2"
                       >
                         <kw-form-row>
-                          <kw-form-item label="성별">
+                          <kw-form-item :label="$t('MSG_TXT_GENDER')">
                             <p class="text-bold">
                               여
                             </p>
                           </kw-form-item>
-                          <kw-form-item label="나이(세)">
+                          <kw-form-item :label="$t('MSG_TXT_AGE_YR')">
                             <p class="text-bold">
                               10
                             </p>
                           </kw-form-item>
                         </kw-form-row>
                         <kw-form-row>
-                          <kw-form-item label="고객번호">
+                          <kw-form-item :label="$t('MSG_TXT_CST_NO')">
                             <p class="text-bold">
                               123456789
                             </p>
                           </kw-form-item>
-                          <kw-form-item label="학년">
+                          <kw-form-item :label="$t('MSG_TXT_CLASS')">
                             <p class="text-bold">
                               3
                             </p>
                           </kw-form-item>
                         </kw-form-row>
                         <kw-form-row>
-                          <kw-form-item label="백점이회원정보">
+                          <kw-form-item :label="$t('MSG_TXT_HUND_PT_MEM_INFO')">
                             <kw-input />
                           </kw-form-item>
-                          <kw-form-item label="휴대전화번호">
+                          <kw-form-item :label="$t('MSG_TXT_MPNO')">
                             <p class="text-bold">
                               010-1234-1234
                             </p>
                           </kw-form-item>
                         </kw-form-row>
                         <kw-form-row>
-                          <kw-form-item label="주소">
+                          <kw-form-item :label="$t('MSG_TXT_ADDR')">
                             <p class="text-bold">
                               06617 (주소코드 : 23456789)<br>
                               서울 서초구 서초대로 385 진흥 아파트 D동1301
@@ -548,7 +560,7 @@
                 <div class="row items-center">
                   E2022-1234567
                   <kw-chip
-                    label="임시저장"
+                    :label="$t('MSG_TXT_TEMP_SAVE')"
                     color="placeholder"
                     outline
                     class="ml8"
@@ -594,17 +606,17 @@
                   <div class="like-vertical-stepper__step-content">
                     <ul class="card-text">
                       <li>
-                        <p>계약유형</p>
+                        <p>{{ t('MSG_TXT_CONTR_TYPE') }}</p>
                         <span>
-                          개인
+                          {{ t('MSG_TXT_INDV') }}
                         </span>
                       </li>
                       <li>
-                        <p>계약자</p>
+                        <p>{{ t('MSG_TXT_CNTRT') }}</p>
                         <span>김엄마</span>
                       </li>
                       <li>
-                        <p>학습자</p>
+                        <p>{{ t('MSG_TXT_LRNR') }}</p>
                         <span>이둘째</span>
                       </li>
                     </ul>
@@ -616,7 +628,7 @@
                   <ul class="card-text card-text--bigger card-text--between">
                     <li>
                       <p>
-                        상품금액
+                        {{ t('MSG_TXT_PRDT_AMT') }}
                       </p>
                       <span>0 원</span>
                     </li>
@@ -638,12 +650,12 @@
       <div class="button-set--bottom">
         <div class="button-set--bottom-right">
           <kw-btn
-            label="임시저장"
+            :label="$t('MSG_BTN_TEMP_SAVE')"
             class="ml8"
             @click="currentStepName = steps[0].name"
           />
           <kw-btn
-            label="다음"
+            :label="$t('MSG_BTN_NEXT')"
             class="ml8"
             primary
             @click="next"
@@ -655,6 +667,10 @@
 </template>
 
 <script setup>
+// -------------------------------------------------------------------------------------------------
+// Import & Declaration
+// -------------------------------------------------------------------------------------------------
+const { t } = useI18n();
 const sideStepRefs = reactive({});
 
 const steps = ref([
@@ -719,9 +735,9 @@ function next() {
   padding-top: 8px;
 
   &.kw-list.q-list--separator {
-    :deep(> .q-expansion-item:last-child.q-item-type) {
-      border-bottom: none; // remove last separator
-    }
+    // :deep(> .q-expansion-item:last-child.q-item-type) {
+    //   border-bottom: none; // remove last separator
+    // }
   }
 
   &__step {
@@ -791,8 +807,8 @@ function next() {
 }
 
 .student-list.kw-list {
-  :deep(.kw-item__section.q-item__section--side) {
-    padding-right: 8px;
-  }
+  // :deep(.kw-item__section.q-item__section--side) {
+  //   padding-right: 8px;
+  // }
 }
 </style>

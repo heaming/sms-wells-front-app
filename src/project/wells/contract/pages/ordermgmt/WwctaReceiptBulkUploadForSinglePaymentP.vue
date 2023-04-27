@@ -1,7 +1,21 @@
+<!----
+****************************************************************************************************
+* 프로그램 개요
+****************************************************************************************************
+1. 모듈 : CTA
+2. 프로그램 ID : WwctaReceiptBulkUploadForSinglePaymentP - 일시불 대량 접수자료 업로드
+3. 작성자 : gs.rahul.n
+4. 작성일 : 2023.04.25
+****************************************************************************************************
+* 프로그램 설명
+****************************************************************************************************
+- 일시불 대량 접수자료 업로드
+****************************************************************************************************
+--->
 <template>
   <kw-popup
-    class="kw-popup--lg"
-    title="일시불 대량 접수자료 업로드"
+    size="xl"
+    :title="$t('MSG_TIT_UPL_BULK_MAT')"
   >
     <kw-action-top class="mt30">
       <template #left>
@@ -11,36 +25,47 @@
       <kw-btn
         icon="upload_on"
         dense
-        label="엑셀업로드"
+        :label="$t('MSG_TXT_EXCEL_UPLOAD')"
         @click="onClickExcelDownload"
       />
       <kw-btn
         icon="download_off"
         dense
-        label="양식 다운로드"
+        :label="$t('MSG_BTN_TEMP_DOWN')"
         @click="onClickExcelDownload"
       />
     </kw-action-top>
 
     <kw-grid
+      name="grdMain"
       :visible-rows="3"
-      @init="initGrid"
+      @init="initGrdMain"
     />
 
     <template #action>
       <kw-btn
         negative
-        label="취소"
+        :label="$t('MSG_BTN_CANCEL')"
       />
       <kw-btn
         primary
-        label="등록"
+        :label="$t('MSG_BTN_RGST')"
       />
     </template>
   </kw-popup>
 </template>
 <script setup>
-function initGrid(data, view) {
+// -------------------------------------------------------------------------------------------------
+// Import & Declaration
+// -------------------------------------------------------------------------------------------------
+import { defineGrid } from 'kw-lib';
+
+const { t } = useI18n();
+
+// -------------------------------------------------------------------------------------------------
+// Initialize Grid
+// -------------------------------------------------------------------------------------------------
+const initGrdMain = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'col1' },
     { fieldName: 'col2' },
@@ -64,25 +89,25 @@ function initGrid(data, view) {
   ];
 
   const columns = [
-    { fieldName: 'col1', header: '구분1', width: '111', styleName: 'text-center' },
-    { fieldName: 'col2', header: '구분2', width: '125', styleName: 'text-center' },
-    { fieldName: 'col3', header: '상품코드', width: '125' },
-    { fieldName: 'col4', header: '제휴코드', width: '125', styleName: 'text-right' },
-    { fieldName: 'col5', header: '할인구분', width: '125', styleName: 'text-center' },
-    { fieldName: 'col6', header: '할인유형', width: '282', styleName: 'text-center' },
-    { fieldName: 'col7', header: '무상멤버십', width: '125', styleName: 'text-center' },
-    { fieldName: 'col8', header: '무상A/S', width: '125', styleName: 'text-center' },
-    { fieldName: 'col9', header: '교원키', width: '125', styleName: 'text-center' },
-    { fieldName: 'col10', header: '고객명', width: '125', styleName: 'text-center' },
-    { fieldName: 'col11', header: '생년월일', width: '128', styleName: 'text-center' },
-    { fieldName: 'col12', header: '성별(1:남, 2:여)', width: '128', styleName: 'text-center' },
-    { fieldName: 'col13', header: '휴대전화번호', width: '128', styleName: 'text-center' },
-    { fieldName: 'col14', header: '전화번호', width: '128', styleName: 'text-center' },
-    { fieldName: 'col15', header: '우편번호', width: '128', styleName: 'text-center' },
-    { fieldName: 'col16', header: '주소', width: '275', styleName: 'text-center' },
-    { fieldName: 'col17', header: '매출일', width: '128', styleName: 'text-center' },
-    { fieldName: 'col18', header: '업체BS구분', width: '128', styleName: 'text-center' },
-    { fieldName: 'col19', header: '업체구분', width: '128', styleName: 'text-center' },
+    { fieldName: 'col1', header: t('MSG_TXT_DV_1'), width: '111', styleName: 'text-center' },
+    { fieldName: 'col2', header: t('MSG_TXT_DV_2'), width: '125', styleName: 'text-center' },
+    { fieldName: 'col3', header: t('MSG_TXT_PRDT_CODE'), width: '125' },
+    { fieldName: 'col4', header: t('MSG_TXT_ALNC_CD'), width: '125', styleName: 'text-right' },
+    { fieldName: 'col5', header: t('MSG_TXT_PD_DC_CLASS'), width: '125', styleName: 'text-center' },
+    { fieldName: 'col6', header: t('MSG_TXT_DISC_CODE'), width: '282', styleName: 'text-center' },
+    { fieldName: 'col7', header: t('MSG_TXT_FRISU_MSH'), width: '125', styleName: 'text-center' },
+    { fieldName: 'col8', header: t('MSG_TXT_FRISU_AS'), width: '125', styleName: 'text-center' },
+    { fieldName: 'col9', header: t('MSG_TXT_KWK'), width: '125', styleName: 'text-center' },
+    { fieldName: 'col10', header: t('MSG_TXT_CST_NM'), width: '125', styleName: 'text-center' },
+    { fieldName: 'col11', header: t('MSG_TXT_BIRTH_DATE'), width: '128', styleName: 'text-center' },
+    { fieldName: 'col12', header: t('MSG_TXT_GENDER_MF'), width: '128', styleName: 'text-center' },
+    { fieldName: 'col13', header: t('MSG_TXT_MPNO'), width: '128', styleName: 'text-center' },
+    { fieldName: 'col14', header: t('MSG_TXT_TEL_NO'), width: '128', styleName: 'text-center' },
+    { fieldName: 'col15', header: t('MSG_TXT_ZIP'), width: '128', styleName: 'text-center' },
+    { fieldName: 'col16', header: t('MSG_TXT_ADDR'), width: '275', styleName: 'text-center' },
+    { fieldName: 'col17', header: t('MSG_TXT_DT_OF_SALE'), width: '128', styleName: 'text-center' },
+    { fieldName: 'col18', header: t('MSG_TXT_CLSF_BS'), width: '128', styleName: 'text-center' },
+    { fieldName: 'col19', header: t('MSG_TXT_CLSF_BUS'), width: '128', styleName: 'text-center' },
   ];
 
   data.setFields(fields);
@@ -95,5 +120,5 @@ function initGrid(data, view) {
     { col1: 'BW', col2: '16', col3: '3020', col4: '50', col5: '1', col6: '36. 무상멤버십 3년', col7: '36', col8: '36', col9: '123456789', col10: '김고객', col11: '1990-01-01', col12: '1', col13: '010-0000-0000', col14: '02-000-0000', col15: '123-12', col16: '서울시 종로구 을지로 100길 10', col17: '2022-10-10', col18: '1', col19: '11' },
 
   ]);
-}
+});
 </script>
