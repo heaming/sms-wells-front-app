@@ -17,7 +17,11 @@
     <kw-search
       :cols="3"
       @search="onClickSearch"
+      @reset="searchDefaultCondition"
     >
+      <!-- TODO: 초기화 버튼클릭시 기본조건 셋팅
+                 @reset="searchDefaultCondition" (공통기능으로 되지않음.)
+      -->
       <kw-search-row>
         <!-- 기준년월 -->
         <kw-search-item :label="$t('MSG_TXT_BASE_YM')">
@@ -160,13 +164,13 @@ const wareDvCd = { WARE_DV_CD: [
 let cachedParams;
 
 const searchParams = ref({
-  baseYm: '',
+  baseYm: dayjs().format('YYYYMM'),
   ogId: '',
   prtnrNo: '',
   prtnrKnm: '',
   hgrWareNo: '',
   wareNo: '',
-  wareDvCd: '',
+  wareDvCd: '3',
   wareDtlDvCd: '',
 });
 
@@ -240,7 +244,7 @@ async function onCellClickedPrtnrNo() {
 }
 
 onMounted(() => {
-  searchDefaultCondition();
+  // searchDefaultCondition();
 });
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
