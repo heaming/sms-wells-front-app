@@ -222,6 +222,8 @@ async function onClickSave() {
   if (await gridUtil.alertIfIsNotModified(view)) { return; }
   if (!await gridUtil.validate(view)) { return; }
   const changedRows = gridUtil.getChangedRowValues(view);
+
+  console.log(changedRows);
   await dataService.post(
     '/sms/wells/contract/sales-limits/business-partners',
     changedRows,
@@ -325,6 +327,9 @@ const initGrdMain = defineGrid((data, view) => {
 
   view.onCellEdited = async (grid, itemIndex, row, fieldIndex) => {
     const { fieldName } = grid.getColumn(fieldIndex);
+    const sellLmRlsDtm = grid.getValue(itemIndex, 'sellLmRlsDtm');
+    const sellLmOcDtm = grid.getValue(itemIndex, 'sellLmOcDtm');
+
     if (fieldName === 'sellLmBzrno') {
       const sellLmBzrno = grid.getValue(itemIndex, fieldIndex);
       const searchOgParams = ref({
@@ -340,8 +345,18 @@ const initGrdMain = defineGrid((data, view) => {
         view.setValue(itemIndex, 'bryyMmdd', bzrno[0].bryyMmdd);
       }
     } else if (fieldName === 'sellLmRlsDtm') {
-      if (grid.getValue(itemIndex, fieldIndex).length === 0) {
-        grid.setValue(itemIndex, 'sellLmRlsDtm', null);
+      if (!isEmpty(sellLmRlsDtm)) {
+        if (sellLmRlsDtm.length === 0) {
+          grid.setValue(itemIndex, 'sellLmRlsDtm', null);
+        } else if (sellLmRlsDtm < sellLmOcDtm) {
+          grid.setValue(itemIndex, 'sellLmOcDtm', sellLmRlsDtm);
+        }
+      }
+    } else if (fieldName === 'sellLmOcDtm') {
+      if (!isEmpty(sellLmOcDtm)) {
+        if (sellLmOcDtm > sellLmRlsDtm) {
+          grid.setValue(itemIndex, 'sellLmRlsDtm', sellLmOcDtm);
+        }
       }
     }
   };
