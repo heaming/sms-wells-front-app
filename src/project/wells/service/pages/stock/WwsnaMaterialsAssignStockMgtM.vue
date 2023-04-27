@@ -213,7 +213,7 @@ async function onClickExcelDownload() {
 async function onClickSave() {
   const view = grdMainRef.value.getView();
   const saveList = gridUtil.getChangedRowValues(view, false)
-    .map((v) => ({ prtnrNo: v.prtnrNo, qomAsnApyYn: v.qomAsnApyYn }));
+    .map((v) => ({ prtnrNo: v.prtnrNo, qomAsnApyYn: v.qomAsnApyYn, ogTpCd: v.ogTpCd }));
 
   view.editOptions.editable = false;
 
@@ -273,7 +273,10 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'rdadr', header: t('MSG_TXT_ADDR'), width: '200', styleName: 'text-left' },
   ];
 
-  const fields = columns.map((v) => ({ fieldName: v.fieldName }));
+  const gridField = columns.map((v) => ({ fieldName: v.fieldName }));
+  const fields = [...gridField,
+    { fieldName: 'ogTpCd' },
+  ];
 
   data.setFields(fields);
   view.setColumns(columns);
