@@ -85,36 +85,6 @@
             @update:model-value="onChangeMngrDvCd"
           />
         </kw-search-item>
-
-        <kw-search-item :label="$t('총괄단')">
-          <kw-select
-            v-model="searchParams.mngtDptmtCd"
-            :options="codes.LOCARA_MNGT_DV_CD"
-          />
-        </kw-search-item>
-        <kw-search-item :label="$t('지역단')">
-          <kw-select
-            v-model="searchParams.rgnlGrpCd"
-            :options="codes.LOCARA_MNGT_DV_CD"
-          />
-        </kw-search-item>
-      </kw-search-row>
-
-      <kw-search-row
-        v-if="searchCase2"
-      >
-        <kw-search-item :label="$t('지점')">
-          <kw-select
-            v-model="searchParams.branchCd"
-            :options="codes.LOCARA_MNGT_DV_CD"
-          />
-        </kw-search-item>
-        <kw-search-item :label="$t('매니저')">
-          <kw-select
-            v-model="searchParams.mngrCd"
-            :options="codes.LOCARA_MNGT_DV_CD"
-          />
-        </kw-search-item>
         <kw-search-item :label="$t('상품그룹')">
           <kw-select
             v-model="searchParams.pdPrpVal20"
@@ -127,6 +97,27 @@
             maxlength="100"
           />
         </kw-search-item>
+      </kw-search-row>
+
+      <kw-search-row
+        v-if="searchCase2"
+      >
+        <wwsn-manager-og-search-item-group
+          v-model:dgr1-levl-og-id="searchParams.mngtDptmtCd"
+          v-model:dgr2-levl-og-id="searchParams.rgnlGrpCd"
+          v-model:dgr3-levl-og-id="searchParams.branchCd"
+          v-model:prtnr-no="searchParams.mngrCd"
+          use-og-level="3"
+          use-partner
+          dgr1-levl-og-first-option="all"
+          dgr2-levl-og-first-option="all"
+          dgr3-levl-og-first-option="all"
+          partner-first-option="all"
+          dgr1-levl-og-label="ogCdNm"
+          dgr2-levl-og-label="ogCdNm"
+          dgr3-levl-og-label="ogCdNm"
+          partner-label="prtnrNoNm"
+        />
       </kw-search-row>
       <kw-search-row
         v-if="searchCase2"
@@ -158,18 +149,17 @@
             @update:model-value="onChangeMngrDvCd"
           />
         </kw-search-item>
-        <kw-search-item :label="$t('서비스센터')">
-          <kw-select
-            v-model="searchParams.svcCntrCd"
-            :options="codes.LOCARA_MNGT_DV_CD"
-          />
-        </kw-search-item>
-        <kw-search-item :label="$t('엔지니어')">
-          <kw-select
-            v-model="searchParams.engineerCd"
-            :options="codes.LOCARA_MNGT_DV_CD"
-          />
-        </kw-search-item>
+
+        <wwsn-engineer-og-search-item-group
+          v-model:dgr1-levl-og-id="searchParams.svcCntrCd"
+          v-model:prtnr-no="searchParams.engineerCd"
+          use-og-level="1"
+          use-partner
+          dgr1-levl-og-first-option="all"
+          dgr1-levl-og-label="ogCdNm"
+          partner-first-option="all"
+          partner-label="prtnrNoNm"
+        />
       </kw-search-row>
       <kw-search-row
         v-if="searchCase3"
@@ -277,6 +267,8 @@
 import { codeUtil, defineGrid, getComponentType, useMeta, useDataService, useGlobal } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
+import WwsnManagerOgSearchItemGroup from '~sms-wells/service/components/WwsnManagerOgSearchItemGroup.vue';
+import WwsnEngineerOgSearchItemGroup from '~sms-wells/service/components/WwsnEngineerOgSearchItemGroup.vue';
 
 const { getConfig } = useMeta();
 const { alert } = useGlobal();
@@ -418,6 +410,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'bcInMthdCd' },
     { fieldName: 'useMpno' },
     { fieldName: 'cstSignCn' },
+    { fieldName: 'dnldPrtnrKnm' },
 
     { fieldName: 'publishInfo' },
     { fieldName: 'col2' },
@@ -463,7 +456,7 @@ const initGrid = defineGrid((data, view) => {
         return dayjs(strDate.substr(0, 8)).format('YYYY-MM-DD');
       },
     },
-    { fieldName: 'prtnrKnm', header: '다운로드 담당자', width: '200', styleName: 'text-center' },
+    { fieldName: 'dnldPrtnrKnm', header: '다운로드 담당자', width: '200', styleName: 'text-center' },
     { fieldName: 'vstFshDt', header: '처리 일자', width: '200', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'vstFshHh', header: '처리 시간', width: '200', styleName: 'text-center', datetimeFormat: 'time' },
     { fieldName: 'bcInMthdCd', header: '스캔', width: '200', styleName: 'text-center' },
