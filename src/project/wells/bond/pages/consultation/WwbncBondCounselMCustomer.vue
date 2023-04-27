@@ -20,12 +20,12 @@
   >
     <kw-search-row>
       <kw-search-item
-        :label="$t('MSG_TXT_CLCTAM_NO')"
+        :label="$t('MSG_TXT_CLCTAM_ICHR_EMPNO')"
         required
       >
         <kw-input
           v-model="searchParams.schClctamNo"
-          :label="$t('MSG_TXT_CLCTAM_NO')"
+          :label="$t('MSG_TXT_CLCTAM_ICHR_EMPNO')"
           :regex="/^[0-9]*$/i"
           rules="required"
         />
@@ -410,9 +410,34 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'rtlfeIstm1', header: t('MSG_TXT_RTLFE_1_ISTM'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
     { fieldName: 'rtlfe2', header: t('MSG_TXT_RTLFE2'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
     { fieldName: 'rtlfeIstm2', header: t('MSG_TXT_RTLFE_2_ISTM'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
-    { fieldName: 'clctamIchr', header: t('MSG_TXT_CLCTAM_ICHR'), width: '100' },
-    { fieldName: 'cntrMpno', header: t('MSG_TXT_CNTR_MPNO'), width: '130', styleName: 'text-center' },
-    { fieldName: 'istMpno', header: t('MSG_TXT_IST_MPNO'), width: '130', styleName: 'text-center' },
+    { fieldName: 'clctamIchr', header: t('MSG_TXT_CLCTAM_PSIC'), width: '100' },
+    {
+      fieldName: 'cntrMpno',
+      header: t('MSG_TXT_CNTR_MPNO'),
+      styleName: 'text-center',
+      width: '120',
+
+      displayCallback(grid, index) {
+        const { cralLocaraTno: no1, mexnoEncr: no2, cralIdvTno: no3 } = grid.getValues(index.itemIndex);
+        if (no1 != null) {
+          return `${no1}-${no2}-${no3}`;
+        }
+      },
+    },
+    {
+      fieldName: 'istMpno',
+      header: t('MSG_TXT_IST_MPNO'),
+      styleName: 'text-center',
+      width: '120',
+
+      displayCallback(grid, index) {
+        const { istCralLocaraTno: no1, istMexnoEncr: no2, istCralIdvTno: no3 } = grid.getValues(index.itemIndex);
+        if (no1 != null) {
+          return `${no1}-${no2}-${no3}`;
+        }
+      },
+    },
+
     { fieldName: 'vtAcBnk', header: t('MSG_TXT_VT_AC_BNK'), width: '100' },
     { fieldName: 'vtAcNo', header: t('MSG_TXT_VT_AC_NO'), width: '130', styleName: 'text-center' },
     { fieldName: 'sfk', header: t('MSG_TXT_SFK'), width: '100', styleName: 'text-center' },
@@ -421,8 +446,8 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'cstStat', header: t('MSG_TXT_CST_STAT'), width: '100' },
     { fieldName: 'cvcpInf', header: t('MSG_TXT_CVCP_INF'), width: '120' },
     { fieldName: 'unuslArtc', header: t('MSG_TXT_UNUITM'), width: '120' },
-    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_NO'), width: '100', styleName: 'text-center', visible: 'false' },
-    { fieldName: 'cntrSn', header: t('MSG_TXT_CNTR_SN'), width: '100', styleName: 'text-center', visible: 'false' },
+    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_NO'), width: '100', styleName: 'text-center', visible: false },
+    { fieldName: 'cntrSn', header: t('MSG_TXT_CNTR_SN'), width: '100', styleName: 'text-center', visible: false },
   ];
 
   data.setFields(fields);
