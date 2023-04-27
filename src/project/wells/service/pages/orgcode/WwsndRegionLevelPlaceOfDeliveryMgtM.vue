@@ -165,7 +165,6 @@ import {
   useGlobal,
 } from 'kw-lib';
 import { cloneDeep, replace } from 'lodash-es';
-import smsCommon from '~sms-wells/service/composables/useSnCode';
 import dayjs from 'dayjs';
 
 const { t } = useI18n();
@@ -178,10 +177,6 @@ const {
   modal,
   notify,
 } = useGlobal();
-const {
-  // getDisstricts,
-  getServiceCenterOrgs,
-} = smsCommon();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -195,7 +190,7 @@ const codes = await codeUtil.getMultiCodes(
   'PDLV_DV_CD',
 );
 
-const svcCode = await getServiceCenterOrgs();
+const svcCode = (await dataService.get('/sms/wells/service/organizations/service-center')).data;
 
 const pageInfo = ref({
   totalCount: 0,
