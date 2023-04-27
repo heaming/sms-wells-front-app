@@ -72,7 +72,7 @@ const productName = ref();
 // -------------------------------------------------------------------------------------------------
 const grdMainRef = ref(getComponentType('KwGrid'));
 const grdRowCount = ref(0);
-const codes = await codeUtil.getMultiCodes('BFSVC_WK_DV_CD', 'MM_CD', 'SV_PRD_UNIT_CD', 'VST_DV_CD');
+const codes = await codeUtil.getMultiCodes('SV_BIZ_DCLSF_CD', 'MM_CD', 'SV_PRD_UNIT_CD', 'VST_DV_CD');
 codes.MM_CD.map((item) => { item.codeId = Number(item.codeId); return item; });
 
 async function fetchData() {
@@ -106,7 +106,7 @@ onMounted(async () => {
 const initGrdMain = defineGrid((data, view) => {
   const columns = [
     // 작업구분
-    { fieldName: 'svBizDclsfCd', header: t('MSG_TXT_WK_CLS'), width: '80', styleName: 'text-center', options: codes.BFSVC_WK_DV_CD },
+    { fieldName: 'svBizDclsfCd', header: t('MSG_TXT_WK_CLS'), width: '80', styleName: 'text-center', options: codes.SV_BIZ_DCLSF_CD },
     // 단계
     { fieldName: 'filtChngLvCd', header: t('MSG_TXT_STEP'), width: '60', styleName: 'text-center', rules: 'required', dataType: 'number' },
     // 필터/부품명

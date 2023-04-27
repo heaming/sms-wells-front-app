@@ -148,7 +148,7 @@ const materialSelectItems = ref([
   // 교재/자재코드
   { codeId: pdConst.PD_SEARCH_CODE, codeName: t('MSG_TXT_MATERIAL_CD') },
 ]);
-const codes = await codeUtil.getMultiCodes('BFSVC_WK_DV_CD', 'MM_CD', 'VST_DV_CD');
+const codes = await codeUtil.getMultiCodes('SV_BIZ_DCLSF_CD', 'MM_CD', 'VST_DV_CD');
 codes.MM_CD = codes.MM_CD.map((item) => { item.codeId = Number(item.codeId); return item; });
 
 async function onClickLifeFiltMgt() {
@@ -366,7 +366,7 @@ const initGridMain = defineGrid((data, view) => {
       styleName: 'text-center',
       rules: 'required',
       editor: { type: 'list' },
-      options: codes.BFSVC_WK_DV_CD },
+      options: codes.SV_BIZ_DCLSF_CD },
     // 단계
     { fieldName: 'filtChngLvCd',
       header: t('MSG_TXT_STEP'),
