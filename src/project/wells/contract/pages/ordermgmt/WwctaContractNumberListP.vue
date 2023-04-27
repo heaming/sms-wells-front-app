@@ -71,8 +71,8 @@
           :colspan="2"
         >
           <zctz-contract-detail-number
-            v-model.trim:cntr-no="searchParams.cntrNo"
-            v-model.trim:cntr-sn="searchParams.cntrSn"
+            v-model:cntr-no="searchParams.cntrNo"
+            v-model:cntr-sn="searchParams.cntrSn"
             disable-popup
           />
         </kw-search-item>
