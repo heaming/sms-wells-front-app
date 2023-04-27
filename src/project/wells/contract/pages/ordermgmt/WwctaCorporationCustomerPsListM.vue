@@ -73,6 +73,7 @@
               {codeId:'3',codeName:$t('MSG_TXT_RENTAL_NMN')},
             ]"
             rules="required"
+            @change="onChangeSearch"
           />
           <kw-date-range-picker
             v-if="searchParams.dateGbn!=3"
@@ -180,6 +181,9 @@
           <kw-input
             v-model="searchParams.prtnrNo"
             :placeholder="t('MSG_TXT_INP')"
+            icon="search"
+            :maxlength="10"
+            @click-icon="onClickSearchPrtnrNoPopup()"
           />
         </kw-search-item>
         <kw-search-item
@@ -259,8 +263,9 @@ import pdConst from '~sms-common/product/constants/pdConst';
 const dataService = useDataService();
 
 const { notify, modal } = useGlobal();
-const { getConfig } = useMeta();
+const { getConfig, getUserInfo } = useMeta();
 const { t } = useI18n();
+const userInfo = getUserInfo();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -318,6 +323,13 @@ async function onLoad() {
   hclsfs.value = uniqBy(initHclsfs, 'codeId');
 }
 
+function onChangeSearch() {
+  searchParams.value.fromDate = now.startOf('month').format('YYYYMMDD');
+  searchParams.value.toDate = now.format('YYYYMMDD');
+  searchParams.value.fromRental = '';
+  searchParams.value.toRental = '';
+}
+
 async function fetchData() {
   const res = await dataService.get('/sms/wells/contract/contracts/corporates/paging', { params: { ...cachedParams, ...pageInfo.value } });
   const { list: details, pageInfo: pagingResult } = res.data;
@@ -331,7 +343,11 @@ async function fetchData() {
 
 async function onClickSearch() {
   if (searchParams.value.dateGbn === '3') {
-    if (parseInt(searchParams.value.toRental, 10) - parseInt(searchParams.value.fromRental, 10) > 3) {
+    if (searchParams.value.fromRental > searchParams.value.toRental) {
+      notify(t('MSG_ALT_CHK_DT_RLT'));
+      return false;
+    }
+    if (searchParams.value.fromRental - searchParams.value.toRental > 3) {
       notify(t('MSG_ALT_INP_RENTAL_3_MONTH'));
       return false;
     }
@@ -371,6 +387,20 @@ async function onClickSelectPdCd() {
   if (returnPdInfo.result) {
     searchParams.value.pdCd = returnPdInfo.payload?.[0].pdCd;
     searchParams.value.pdNm = returnPdInfo.payload?.[0].pdNm;
+  }
+}
+
+// 파트너 검색 팝업 호출
+async function onClickSearchPrtnrNoPopup() {
+  const { result, payload } = await modal({
+    component: 'ZwogzPartnerListP',
+    componentProps: {
+      prtnrNo: searchParams.value.pntnrNo,
+      ogTpCd: userInfo.ogTpCd,
+    },
+  });
+  if (result) {
+    searchParams.value.pntnrNo = payload.prtnrNo;
   }
 }
 
