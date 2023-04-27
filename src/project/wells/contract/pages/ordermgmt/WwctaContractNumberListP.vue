@@ -68,15 +68,37 @@
         </kw-search-item>
         <kw-search-item
           :label="$t('MSG_TXT_CNTR_DTL_NO')"
-          colspan="2"
+          :colspan="2"
         >
           <zctz-contract-detail-number
             v-model:cntr-no="searchParams.cntrNo"
             v-model:cntr-sn="searchParams.cntrSn"
-            disable-popup="true"
+            disable-popup
           />
         </kw-search-item>
       </kw-search-row>
+      <template #action>
+        <kw-btn
+          ref="resetBtn"
+          v-permission:read
+          :label="$t('MSG_BTN_INTL', null, '초기화')"
+          :class="$g.platform.is.mobile ? 'w64' : 'w90'"
+          secondary
+          dense
+          @click="onClickReset"
+        />
+        <kw-btn
+          ref="searchBtn"
+          v-permission:read
+          :label="$t('MSG_TXT_SRCH', null, '조회')"
+          :class="$g.platform.is.mobile ? 'w64' : 'w90'"
+          color="secondary"
+          border-color="secondary"
+          text-color="bg-white"
+          dense
+          type="submit"
+        />
+      </template>
     </kw-search>
 
     <kw-action-top>
@@ -118,7 +140,17 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, defineGrid, getComponentType, gridUtil, useDataService, useGlobal, useMeta, useModal } from 'kw-lib';
+import {
+  alert,
+  codeUtil,
+  defineGrid,
+  getComponentType,
+  gridUtil,
+  useDataService,
+  useGlobal,
+  useMeta,
+  useModal,
+} from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
 
@@ -128,14 +160,14 @@ const { getConfig } = useMeta();
 const { t } = useI18n();
 const { ok, cancel: onClickClose } = useModal();
 const props = defineProps({
-  cntrCstKnm: { type: String },
-  istCstKnm: { type: String },
-  cralLocaraTno: { type: String },
-  mexnoEncr: { type: String },
-  cralIdvTno: { type: String },
-  cntrCstNo: { type: String },
-  cntrNo: { type: String },
-  cntrSn: { type: Number },
+  cntrCstKnm: { type: String, default: undefined },
+  istCstKnm: { type: String, default: undefined },
+  cralLocaraTno: { type: String, default: undefined },
+  mexnoEncr: { type: String, default: undefined },
+  cralIdvTno: { type: String, default: undefined },
+  cntrCstNo: { type: String, default: undefined },
+  cntrNo: { type: String, default: undefined },
+  cntrSn: { type: Number, default: undefined },
 });
 const grdMainRef = ref(getComponentType('KwGrid'));
 const grdData = computed(() => grdMainRef.value?.getData());
@@ -144,14 +176,14 @@ const codes = await codeUtil.getMultiCodes(
 );
 let cachedParams;
 const searchParams = ref({
-  cntrCstKnm: '',
-  istCstKnm: '',
-  cralLocaraTno: '',
-  mexnoEncr: '',
-  cralIdvTno: '',
-  cntrCstNo: '',
-  cntrNo: '',
-  cntrSn: '',
+  cntrCstKnm: props.cntrCstKnm,
+  istCstKnm: props.istCstKnm,
+  cralLocaraTno: props.cralLocaraTno,
+  mexnoEncr: props.mexnoEncr,
+  cralIdvTno: props.cralIdvTno,
+  cntrCstNo: props.cntrCstNo,
+  cntrNo: props.cntrNo,
+  cntrSn: props.cntrSn,
 });
 const pageInfo = ref({
   totalCount: 0,
@@ -163,6 +195,29 @@ let initGridData = [];
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
+async function onClickReset() {
+  // 기존 로직을 form 기반 reset 을 안쓰려면
+  // 아예 다른 동작을 하는 버튼을 만드는 것이 정답일 것 같습니다.
+  searchParams.value = {
+    cntrCstKnm: '',
+    lrnnCstKnm: '',
+    cralLocaraTno: '',
+    mexnoEncr: '',
+    cralIdvTno: '',
+    cntrCstNo: '',
+    cntrNo: '',
+    cntrSn: undefined,
+  };
+}
+
+function checkSearchParamIsNotEmpty(needAlertWhenEmpty) {
+  const notEmpty = Object.values(searchParams.value).some((val) => !isEmpty(val));
+  if (needAlertWhenEmpty && !notEmpty) {
+    alert(t('MSG_ALT_INQR_CNDT_AT_LEAST_ONE'));
+  }
+  return notEmpty;
+}
+
 async function fetchData() {
   const res = await dataService.get('/sms/wells/contract/contracts/numbers/paging', { params: { ...cachedParams, ...pageInfo.value } });
   const { list: cntrs, pageInfo: pagingResult } = res.data;
@@ -179,10 +234,7 @@ async function fetchData() {
 
 async function onClickSearch() {
   // 조회조건 검증
-  if (Object.values(searchParams.value).every((val) => isEmpty(val))) {
-    await alert(t('MSG_ALT_INQR_CNDT_AT_LEAST_ONE'));
-    return;
-  }
+  if (!checkSearchParamIsNotEmpty(true)) { return; }
 
   pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
@@ -202,17 +254,10 @@ async function onClickSearchCntrCst() {
   }
 }
 
-onMounted(async () => {
-  Object.keys(props).forEach((attr) => {
-    if (props[attr]) {
-      searchParams.value[attr] = props[attr];
-    }
-  });
-  if (Object.values(searchParams.value).some((val) => !isEmpty(val))) {
-    cachedParams = cloneDeep(searchParams.value);
-    await fetchData();
-  }
-});
+if (checkSearchParamIsNotEmpty()) {
+  cachedParams = cloneDeep(searchParams.value);
+  await fetchData();
+}
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
