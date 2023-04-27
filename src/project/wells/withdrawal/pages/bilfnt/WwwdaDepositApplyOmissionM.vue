@@ -157,7 +157,13 @@ const initGrid = defineGrid((data, view) => {
 
   const columns = [
     { fieldName: 'sellTpNm', header: t('MSG_TXT_AUTO_FNT_CLSF'), width: '290' },
-    { fieldName: 'baseYm', header: t('MSG_TXT_PERF_YM'), width: '200', styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'baseYm',
+      header: t('MSG_TXT_PERF_YM'),
+      width: '200',
+      styleName: 'text-center',
+      datetimeFormat: 'yyyy-MM',
+
+    },
     { fieldName: 'cntr',
       header: t('MSG_TXT_CNTR_DTL_NO'),
       width: '250',
