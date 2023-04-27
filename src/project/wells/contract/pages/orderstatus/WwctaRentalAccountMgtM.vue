@@ -35,7 +35,7 @@
             v-model:from="searchParams.istStartDt"
             v-model:to="searchParams.istEndDt"
             :label="$t('MSG_TXT_YR_INSTALLATION')"
-            rules="required"
+            rules="date_range_required"
             type="month"
           />
         </kw-search-item>
@@ -74,6 +74,11 @@
           <kw-input
             v-model="searchParams.basePdCd"
             :label="$t('MSG_TXT_PRDT_CODE')"
+            clearable
+            icon="search"
+            dense
+            :maxlength="10"
+            @click-icon="onClickSelectPdCd()"
           />
         </kw-search-item>
         <kw-search-item
@@ -131,13 +136,14 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, gridUtil, defineGrid, getComponentType, useDataService } from 'kw-lib';
+import { codeUtil, gridUtil, defineGrid, getComponentType, useDataService, useGlobal } from 'kw-lib';
 import { cloneDeep, isEmpty, uniqBy } from 'lodash-es';
 import dayjs from 'dayjs';
+import pdConst from '~sms-common/product/constants/pdConst';
 
 const { t } = useI18n();
 const dataService = useDataService();
-
+const { modal } = useGlobal();
 const now = dayjs();
 const { currentRoute } = useRouter();
 const totalCount = ref(0);
@@ -228,6 +234,24 @@ async function onClickExcelDownload() {
     timePostfix: true,
     exportData: res.data,
   });
+}
+
+// 상품코드 검색아이콘 클릭
+async function onClickSelectPdCd() {
+  const searchPopupParams = {
+    searchType: pdConst.PD_SEARCH_CODE,
+    searchValue: searchParams.value.basePdCd,
+    selectType: '',
+  };
+
+  const returnPdInfo = await modal({
+    component: 'ZwpdcStandardListP', // 상품기준 목록조회 팝업
+    componentProps: searchPopupParams,
+  });
+
+  if (returnPdInfo.result) {
+    searchParams.value.basePdCd = returnPdInfo.payload?.[0].pdCd;
+  }
 }
 
 const responseGnrlDivOptions = ref([]);
