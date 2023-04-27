@@ -17,7 +17,11 @@
     <kw-search
       :cols="4"
       @search="onClickSearch"
+      @reset="fetchDefaultData"
     >
+      <!-- TODO: 초기화 버튼클릭시 기본조건 셋팅
+                 @reset="searchDefaultCondition" (공통기능으로 되지않음.)
+      -->
       <kw-search-row>
         <!-- 입고창고 -->
         <kw-search-item
