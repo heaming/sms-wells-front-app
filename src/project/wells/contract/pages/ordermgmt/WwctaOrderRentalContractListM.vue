@@ -1,3 +1,4 @@
+<!-- eslint-disable max-len -->
 <!----
 ****************************************************************************************************
 * 프로그램 개요
@@ -119,18 +120,6 @@
       </kw-search-item>
     </kw-search-row>
     <kw-search-row>
-      <!-- 파트너코드 -->
-      <kw-search-item
-        :label="$t('MSG_TXT_PRTNR_CD')"
-      >
-        <kw-input
-          v-model="searchParams.sellPrtnrNo"
-          clearable
-          icon="search"
-          :maxlength="10"
-          @click-icon="onClickSearchPrtnrNoPopup()"
-        />
-      </kw-search-item>
       <!-- 조직코드 -->
       <kw-search-item
         :label="$t('MSG_TXT_OG_CD')"
@@ -169,16 +158,25 @@
           multiple
         />
       </kw-search-item>
+      <!-- 파트너코드 -->
+      <kw-search-item
+        :label="$t('MSG_TXT_PRTNR_CD')"
+      >
+        <kw-input
+          v-model="searchParams.sellPrtnrNo"
+          clearable
+          icon="search"
+          :maxlength="10"
+          @click-icon="onClickSearchPrtnrNoPopup()"
+        />
+      </kw-search-item>
       <!-- 판매유형상세 -->
       <kw-search-item
         :label="$t('MSG_TXT_SELL_TP_DTL')"
       >
         <kw-select
           v-model="searchParams.cndtSellTpCd"
-          :options="[{ codeId: '1', codeName: t('MSG_TXT_RENTAL') },
-                     { codeId: '2', codeName: t('MSG_TXT_GE_LEASE') },
-                     { codeId: '3', codeName: t('MSG_TXT_LTM_LEASE') },
-                     { codeId: '4', codeName: t('MSG_TXT_LTM_ISTM') }]"
+          :options="codes.SELL_TP_DTL_CD.filter((v)=> v.codeId === '21' || v.codeId === '22' || v.codeId === '23' || v.codeId === '24' || v.codeId === '25' || v.codeId === '26')"
           first-option="all"
           first-option-value=""
         />
@@ -191,8 +189,7 @@
       >
         <kw-select
           v-model="searchParams.sellOgTpCd"
-          :options="[{ codeId: 'W01', codeName: 'P추진단' },
-                     { codeId: 'W02', codeName: 'M추진단' }]"
+          :options="codes.OG_TP_CD"
           :model-value="searchParams.sellOgTpCd ? searchParams.sellOgTpCd : []"
           :multiple="true"
         />
@@ -302,6 +299,8 @@ const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
   'ALNCMP_CD',
   'SELL_EV_CD',
+  'OG_TP_CD',
+  'SELL_TP_DTL_CD',
 );
 
 const pageInfo = ref({
