@@ -98,6 +98,7 @@
             v-model="searchParams.copnDvCd"
             :label="$t('MSG_TXT_INDI_CORP')/* 개인/법인 */"
             :options="codes.COPN_DV_CD"
+            first-option="all"
           />
         </kw-search-item>
       </kw-search-row>
