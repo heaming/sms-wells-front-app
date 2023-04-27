@@ -274,6 +274,7 @@ async function onClickSearch() {
         .format('YYYYMMDD');
     }
   }
+  pageInfo.value.pageIndex = 1;
   await fetchPage(1);
 }
 
