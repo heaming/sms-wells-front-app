@@ -60,10 +60,17 @@
           />
         </kw-search-item>
         <kw-search-item :label="$t('MSG_TXT_EXCLD_CANC')">
-          <kw-checkbox
+          <kw-field
+            v-slot="{field}"
             v-model="searchParams.isExcdCan"
-            val="Y"
-          />
+          >
+            <kw-checkbox
+              v-bind="field"
+              :label="$t('MSG_TXT_EXCLD_CANC')"
+              :false-value="'N'"
+              :true-value="'Y'"
+            />
+          </kw-field>
         </kw-search-item>
       </kw-search-row>
     </kw-search>
