@@ -25,7 +25,7 @@
       option-value="ogId"
       :option-label="dgr1LevlOgLabel"
       :first-option="dgr1LevlOgFirstOption"
-      :label="$t('MSG_TXT_CENTER_DIVISION')"
+      :label="$t('MSG_TXT_SV_CNR')"
       :rules="dgr1LevlOgRequired ? 'required' : undefined"
       @update:model-value="onChangeDgr1LevlOgId"
     />
