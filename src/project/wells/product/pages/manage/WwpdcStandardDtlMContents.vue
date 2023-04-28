@@ -57,6 +57,7 @@
         :pd-tp-cd="pdConst.PD_TP_CD_STANDARD"
         :pd-grp-dv-cd="pdConst.PD_PRP_GRP_DV_CD_BASIC"
         :is-first-title="true"
+        :is-reg-check-page="props.isRegCheckPage"
       />
     </kw-tab-panel>
     <kw-tab-panel :name="pdConst.STANDARD_STEP_REL_PROD.name">
@@ -75,6 +76,7 @@
         :pd-tp-cd="pdConst.PD_TP_CD_STANDARD"
         :pd-grp-dv-cd="pdConst.PD_PRP_GRP_DV_CD_MANUAL"
         :is-first-title="true"
+        :is-reg-check-page="props.isRegCheckPage"
       />
     </kw-tab-panel>
     <kw-tab-panel :name="pdConst.STANDARD_STEP_PRICE.name">
@@ -125,9 +127,9 @@ const props = defineProps({
   pdCd: { type: String, default: null },
   initData: { type: Object, default: null },
   codes: { type: Object, default: null },
-  tempSaveYn: { type: String, default: 'Y' },
   isHistoryTab: { type: Boolean, default: true },
   isUpdateBtn: { type: Boolean, default: true },
+  isRegCheckPage: { type: Boolean, default: false }, /* 화면이 등록정보확인(true)인지, 상세조회인지(false)인지 여부  */
 });
 
 const router = useRouter();
