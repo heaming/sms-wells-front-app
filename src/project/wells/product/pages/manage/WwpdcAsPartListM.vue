@@ -183,6 +183,7 @@ const dataService = useDataService();
 const { getConfig } = useMeta();
 const route = useRoute();
 const router = useRouter();
+const { currentRoute } = useRouter();
 
 const attachFileRef = ref();
 const file = ref(null);
@@ -310,8 +311,9 @@ async function doUpload() {
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
   const res = await dataService.get(`${baseUrl}/excel-download`, { params: cachedParams });
+
   await gridUtil.exportView(view, {
-    fileName: router.value.meta.menuName,
+    fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
     exportData: res.data,
   });
