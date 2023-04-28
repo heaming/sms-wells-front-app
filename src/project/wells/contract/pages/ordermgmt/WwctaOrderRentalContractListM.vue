@@ -67,6 +67,9 @@
           :options="filteredHighClasses"
           option-value="pdClsfId"
           option-label="pdClsfNm"
+          first-option="all"
+          :first-option-label="$t('TXT_MSG_PD_HCLSF_ID') + ' ' + $t('MSG_TXT_SELT')"
+          first-option-value=""
           @update:model-value="onUpdateHighClasses"
         />
         <!-- 상품분류(중분류) 선택 -->
