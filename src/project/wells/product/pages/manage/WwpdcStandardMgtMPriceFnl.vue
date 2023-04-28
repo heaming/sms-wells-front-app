@@ -130,9 +130,9 @@ async function setFinalVal(view, grid, itemIndex) {
   let ctrVal = Number(grid.getValue(itemIndex, 'ctrVal') ?? 0);
   let fnlVal = 0;
   // 조정 전 가격 ( 01: 정액, 02: 정률)
-  if (ctrVal > prcBefAdj) {
-    /* {0}값이 {1}보다 큽니다. */
-    notify(t('MSG_ALT_A_IS_GREAT_THEN_B', [
+  if (ctrVal < 0 && Math.abs(ctrVal) > prcBefAdj) {
+    /* {0}값이 {1}보다 작습니다. */
+    notify(t('MSG_ALT_A_IS_LESS_THEN_B', [
       `${grid.columnByName('ctrVal').header.text}(${ctrVal})`,
       `${grid.columnByName('prcBefAdj').header.text}(${prcBefAdj})`]));
     ctrVal = 0;
