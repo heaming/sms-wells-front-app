@@ -153,7 +153,6 @@ const dataService = useDataService();
 const { modal } = useGlobal();
 const now = dayjs();
 const { currentRoute } = useRouter();
-const totalCount = ref(0);
 const srchOptions = ref([{
   codeId: 1,
   codeName: t('MSG_TXT_BY_PRD') },
@@ -191,6 +190,12 @@ const rgnlDivOptions = ref([]);
 
 const isProd = computed(() => searchParams.value.srchGbn === 1);
 
+const pageInfo = ref({
+  totalCount: 0,
+  pageIndex: 1,
+  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
+});
+
 // Updating the col visibility as per search classification
 function onChangeSearch() {
   const view = grdRentalAccountList.value.getView();
@@ -201,16 +206,10 @@ function onChangeSearch() {
   searchParams.value.dgr1LevlOgCd = '';
   searchParams.value.dgr2LevlOgCd = '';
   searchParams.value.copnDvCd = '';
-  totalCount.value = 0;
+  pageInfo.value.totalCount = 0;
   view.columnsByTag('prod').forEach((col) => { col.visible = isProd.value; });
   view.columnsByTag('org').forEach((col) => { col.visible = !(isProd.value); });
 }
-
-const pageInfo = ref({
-  totalCount: 0,
-  pageIndex: 1,
-  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
-});
 
 async function fetchData() {
   // changing api & cacheparams according to search classification
