@@ -412,8 +412,8 @@ const initGrdMain = defineGrid((data, view) => {
   view.rowIndicator.visible = true;
   view.checkBar.visible = true;
   view.checkBar.showAll = false;
-  view.checkBar.exclusive = false;
-  view.displayOptions.selectionStyle = 'singleRow';
+  view.checkBar.exclusive = true;
+  // view.displayOptions.selectionStyle = 'singleRow';
 
   view.onCellItemClicked = async (g, { column, itemIndex }) => {
     if (['fstRgstUsrNm', 'fnlMdfcUsrNm'].includes(column)) {
