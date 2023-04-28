@@ -31,20 +31,17 @@
       </kw-search-item>
       <kw-search-item
         :label="$t('MSG_TXT_CST_NM')"
-        required
       >
         <kw-input
           v-model="searchParams.cstKnm"
           icon="search"
           clearable
-          rules="required"
           :label="$t('MSG_TXT_CST_NM')"
           @click-icon="onClickSelectCustomer"
         />
       </kw-search-item>
       <kw-search-item
         :label="$t('MSG_TXT_MPNO')"
-        required
       >
         <kw-input
           v-model="mpNo"
@@ -54,7 +51,6 @@
           mask="telephone"
           :placeholder="$t('MSG_TXT_REPSN_DGT4_WO_NO_IN')"
           :label="$t('MSG_TXT_MPNO')"
-          rules="required"
         />
       </kw-search-item>
       <kw-search-item
@@ -160,7 +156,6 @@ const { currentRoute } = useRouter();
 // -------------------------------------------------------------------------------------------------
 const grdMainRef = ref(getComponentType('KwGrid'));
 
-const customerParams = ref({});
 const searchParams = reactive({
   bndClctnPrpDvCd: '',
   bndClctnPrpRsonCd: '',
@@ -214,16 +209,16 @@ async function onClickSearch() {
 /** 고객조회(공통) */
 async function onClickSelectCustomer() {
   const { result, payload } = await modal({
-    component: 'ZwbnyDelinquentCustomerP',
+    component: 'ZwcsaCustomerListP',
     componentProps: {
-      baseYm: customerParams.value.baseYm,
-      cstNm: searchParams.cstKnm,
+      name: searchParams.cstKnm,
+      cstType: '1', // '1': 개인 / '2': 법인
     },
   });
+
   if (result) {
-    const { cstNo, cstNm } = payload;
-    searchParams.cstNo = cstNo;
-    searchParams.cstKnm = cstNm;
+    searchParams.cstKnm = payload.name; // 고객명
+    searchParams.cstNo = payload.cstNo; // 고객번호
   }
 }
 
@@ -235,15 +230,6 @@ async function onClickExcelDownload() {
     timePostfix: true,
   });
 }
-
-async function fetchBaseYmData() {
-  const response = await dataService.get('/sms/common/bond/promise-customer/baseYm');
-  customerParams.value = response.data;
-}
-
-onMounted(async () => {
-  await fetchBaseYmData();
-});
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
@@ -287,12 +273,12 @@ const initGrid = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'bndBizDvCd', header: t('MSG_TXT_BND_BIZ_DV_CD'), width: '100', styleName: 'text-left', visible: false },
-    { fieldName: 'bndBizDvNm', header: t('MSG_TXT_DIV'), width: '100', styleName: 'text-left' },
+    { fieldName: 'bndBizDvCd', header: t('MSG_TXT_BND_BIZ_DV_CD'), width: '100', styleName: 'text-center', visible: false },
+    { fieldName: 'bndBizDvNm', header: t('MSG_TXT_DIV'), width: '100', styleName: 'text-center' },
     {
       fieldName: 'cntrNoSn',
       header: t('MSG_TXT_CNTR_DTL_NO'),
-      styleName: 'text-left',
+      styleName: 'text-center',
       width: '100',
 
       displayCallback(grid, index) {
@@ -302,15 +288,15 @@ const initGrid = defineGrid((data, view) => {
         }
       },
     },
-    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_NO'), width: '100', styleName: 'text-left', visible: false },
-    { fieldName: 'cntrSn', header: t('MSG_TXT_CNTR_SN'), width: '100', styleName: 'text-left', visible: false },
-    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '100', styleName: 'text-left' },
-    { fieldName: 'clctamPrtnrNo', header: t('MSG_TXT_CLCTAM_PSIC'), width: '100', styleName: 'text-left', visible: false },
-    { fieldName: 'prtnrKnm', header: t('MSG_TXT_CLCTAM_PSIC'), width: '100', styleName: 'text-left' },
+    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_NO'), width: '100', styleName: 'text-center', visible: false },
+    { fieldName: 'cntrSn', header: t('MSG_TXT_CNTR_SN'), width: '100', styleName: 'text-center', visible: false },
+    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '100', styleName: 'text-center' },
+    { fieldName: 'clctamPrtnrNo', header: t('MSG_TXT_CLCTAM_PSIC'), width: '100', styleName: 'text-center', visible: false },
+    { fieldName: 'prtnrKnm', header: t('MSG_TXT_CLCTAM_PSIC'), width: '100', styleName: 'text-center' },
     {
       fieldName: 'cntrTelNo',
       header: t('MSG_TXT_TEL_NO'),
-      styleName: 'text-left',
+      styleName: 'text-center',
       width: '100',
 
       displayCallback(grid, index) {
@@ -323,7 +309,7 @@ const initGrid = defineGrid((data, view) => {
     {
       fieldName: 'cntrMpNo',
       header: t('MSG_TXT_MPNO'),
-      styleName: 'text-left',
+      styleName: 'text-center',
       width: '100',
 
       displayCallback(grid, index) {
@@ -333,13 +319,13 @@ const initGrid = defineGrid((data, view) => {
         }
       },
     },
-    { fieldName: 'cstNo', header: t('MSG_TXT_CST_NO'), width: '100', styleName: 'text-left' },
+    { fieldName: 'cstNo', header: t('MSG_TXT_CST_NO'), width: '100', styleName: 'text-center' },
     { fieldName: 'adr', header: t('MSG_TXT_ADDR'), width: '100', styleName: 'text-left' },
     { fieldName: 'sppAdr', header: t('MSG_TXT_ADDR'), width: '100', styleName: 'text-left', visible: false },
     {
       fieldName: 'istTelNo',
       header: t('MSG_TXT_IST_TNO'),
-      styleName: 'text-left',
+      styleName: 'text-center',
       width: '100',
 
       displayCallback(grid, index) {
@@ -352,7 +338,7 @@ const initGrid = defineGrid((data, view) => {
     {
       fieldName: 'istMpNo',
       header: t('MSG_TXT_IST_MPNO'),
-      styleName: 'text-left',
+      styleName: 'text-center',
       width: '100',
 
       displayCallback(grid, index) {
@@ -362,8 +348,8 @@ const initGrid = defineGrid((data, view) => {
         }
       },
     },
-    { fieldName: 'bndClctnPrpDvNm', header: t('MSG_TXT_BND_PRP'), width: '100', styleName: 'text-left' },
-    { fieldName: 'bndClctnPrpRsonDvNm', header: t('MSG_TXT_PRP_RSON'), width: '100', styleName: 'text-left' },
+    { fieldName: 'bndClctnPrpDvNm', header: t('MSG_TXT_BND_PRP'), width: '100', styleName: 'text-center' },
+    { fieldName: 'bndClctnPrpRsonDvNm', header: t('MSG_TXT_PRP_RSON'), width: '100', styleName: 'text-center' },
     { fieldName: 'sppZip', header: t('MSG_TXT_CNTR_ZIP'), width: '100', styleName: 'text-left', visible: false },
     { fieldName: 'sppDtlAdr', header: t('MSG_TXT_BND_BIZ_DV_CD'), width: '100', styleName: 'text-left', visible: false },
     { fieldName: 'cntrLocaraTno', header: t('MSG_TXT_BND_BIZ_DV_CD'), width: '100', styleName: 'text-left', visible: false },
@@ -388,5 +374,14 @@ const initGrid = defineGrid((data, view) => {
 
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
+
+  view.onCellDblClicked = async (g, clickData) => {
+    if (clickData.cellType === 'data') {
+      const { cstNo, cntrNo, cntrSn } = gridUtil.getRowValue(g, clickData.itemIndex);
+      if (cstNo) {
+        await window.open(`/popup/#/wwbnc-customer-dtl?cstNo=${cstNo}&cntrNo=${cntrNo}&cntrSn=${cntrSn}`, 'POPUP', 'width=2000, height=1100, menubar=no, location=no, resizable=yes');
+      }
+    }
+  };
 });
 </script>
