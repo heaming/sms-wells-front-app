@@ -97,6 +97,7 @@
             v-model:page-index="pageInfo.pageIndex"
             v-model:page-size="pageInfo.pageSize"
             :total-count="pageInfo.totalCount"
+            :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
             @change="fetchData"
           />
         </template>
@@ -128,7 +129,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { gridUtil, defineGrid, getComponentType, useDataService, useMeta, useGlobal } from 'kw-lib';
+import { gridUtil, defineGrid, getComponentType, useDataService, useMeta, useGlobal, codeUtil } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 
@@ -154,6 +155,10 @@ const searchParams = ref({
   brch: '',
   dangOjPrtnrNo: '',
 });
+
+const codes = await codeUtil.getMultiCodes(
+  'COD_PAGE_SIZE_OPTIONS',
+);
 const prdDivOption = ref([{ codeId: 1, codeName: t('MSG_TXT_FST_RGST_DT') },
   { codeId: 2, codeName: t('MSG_TXT_YEAR_OCCURNCE') }]);
 
