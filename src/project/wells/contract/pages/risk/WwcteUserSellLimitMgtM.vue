@@ -383,10 +383,26 @@ function initGrid(data, view) {
 
     if (returnPdInfo.result) {
       const pdClsfNm = returnPdInfo.payload?.[0].pdClsfNm.split('>');
+      data.setValue(itemIndex, 'pdCd', '');
+      data.setValue(itemIndex, 'pdNm', '');
+      data.setValue(itemIndex, 'pdMclsfNm', '');
+      data.setValue(itemIndex, 'pdLclsfNm', '');
       data.setValue(itemIndex, 'pdCd', returnPdInfo.payload?.[0].pdCd);
       data.setValue(itemIndex, 'pdNm', returnPdInfo.payload?.[0].pdNm);
       data.setValue(itemIndex, 'pdMclsfNm', !isEmpty(pdClsfNm[1]) ? pdClsfNm[1] : '');
       data.setValue(itemIndex, 'pdLclsfNm', !isEmpty(pdClsfNm[2]) ? pdClsfNm[2] : '');
+    }
+  };
+  view.onCellEdited = async function Test(grid, index, dataRow, field) {
+    if (field === 14 || field === 15) {
+      if (grid.getValues(dataRow).vlStrtDtm > grid.getValues(dataRow).vlEndDtm
+        && !isEmpty(grid.getValues(dataRow).vlStrtDtm)
+        && !isEmpty(grid.getValues(dataRow).vlEndDtm)) {
+        grid.commit();
+        notify(t('MSG_ALT_CHK_DT_RLT'));
+        data.setValue(dataRow, 'vlStrtDtm', '');
+        data.setValue(dataRow, 'vlEndDtm', '');
+      }
     }
   };
 }
