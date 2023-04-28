@@ -272,6 +272,8 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'itmPdNm' },
     { fieldName: 'itmPdNm1' },
     { fieldName: 'itemKnd' },
+    { fieldName: 'boxUnitQty' },
+    { fieldName: 'delUnt' },
     { fieldName: 'imgUrl' },
     { fieldName: 'warehouseQty', dataType: 'number' },
     { fieldName: 'centerQty', dataType: 'number' },
