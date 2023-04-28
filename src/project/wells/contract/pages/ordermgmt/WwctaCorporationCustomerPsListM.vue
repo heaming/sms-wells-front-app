@@ -86,12 +86,16 @@
             v-if="searchParams.dateGbn==3"
             v-model="searchParams.fromRental"
             :name="t('MSG_TXT_LOOKUP_PERIOD')"
+            :maxlength="10"
+            type="number"
             rules="required"
           />
           <kw-input
             v-if="searchParams.dateGbn==3"
             v-model="searchParams.toRental"
             :name="t('MSG_TXT_LOOKUP_PERIOD')"
+            :maxlength="10"
+            type="Number"
             rules="required"
           />
         </kw-search-item>
@@ -351,7 +355,7 @@ async function onClickSearch() {
       notify(t('MSG_ALT_CHK_DT_RLT'));
       return false;
     }
-    if (searchParams.value.fromRental - searchParams.value.toRental > 3) {
+    if (searchParams.value.toRental - searchParams.value.fromRental > 3) {
       notify(t('MSG_ALT_INP_RENTAL_3_MONTH'));
       return false;
     }

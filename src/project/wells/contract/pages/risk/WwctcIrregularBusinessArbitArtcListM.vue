@@ -52,7 +52,7 @@
           <kw-select
             v-model="searchParams.dangMngtPrtnrNo"
             first-option="all"
-            :options="codes.PSTN_DV_CD"
+            :options="orgOptions"
           />
         </kw-search-item>
       </kw-search-row>
@@ -117,8 +117,8 @@
       </kw-action-top>
       <kw-grid
         ref="grdMainRef"
-        name="grdMain"
-        :visible-rows="pageInfo.pageSize - 1"
+        name="grdMainRef"
+        :visible-rows="pageInfo.pageSize"
         @init="initGrdMain"
       />
     </div>
@@ -128,24 +128,27 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { gridUtil, defineGrid, getComponentType, useDataService, useMeta, codeUtil, useGlobal } from 'kw-lib';
+import { gridUtil, defineGrid, getComponentType, useDataService, useMeta, useGlobal } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
+import dayjs from 'dayjs';
 
-const { notify } = useGlobal();
-const { getConfig } = useMeta();
+const { notify, modal } = useGlobal();
+const { getConfig, getUserInfo } = useMeta();
 const dataService = useDataService();
 const { t } = useI18n();
 const { currentRoute } = useRouter();
+const userInfo = getUserInfo();
+const now = dayjs();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 const grdMainRef = ref(getComponentType('KwGrid'));
 const searchParams = ref({
   srchGbn: 1,
-  dangOcStrtdt: '',
-  dangOcStrtMonth: '',
-  dangOcEnddt: '',
-  dangOcEndMonth: '',
+  dangOcStrtdt: now.startOf('month').format('YYYYMMDD'),
+  dangOcStrtMonth: now.format('YYYYMM') - 1,
+  dangOcEnddt: now.format('YYYYMMDD'),
+  dangOcEndMonth: now.format('YYYYMM'),
   gnrdv: '',
   rgrp: '',
   brch: '',
@@ -166,10 +169,14 @@ const gnrlMngTeamOptions = ref([
   { codeId: 'H', codeName: `H${t('MSG_TXT_MANAGEMENT_DEPARTMENT')}` },
   { codeId: 'P', codeName: `P${t('MSG_TXT_MANAGEMENT_DEPARTMENT')}` },
 ]);
-const codes = await codeUtil.getMultiCodes(
-  'COD_PAGE_SIZE_OPTIONS',
-  'PSTN_DV_CD',
-);
+
+const orgOptions = ref([
+  { codeId: '2', codeName: t('MSG_TXT_GNLR_LEDR') },
+  { codeId: '4', codeName: t('MSG_TXT_REG_DIR') },
+  { codeId: '5', codeName: t('MSG_TXT_BM') },
+  { codeId: '7', codeName: t('MSG_TXT_BRMGR') },
+]);
+
 const pageInfo = ref({
   totalCount: 0,
   pageIndex: 1,
@@ -181,7 +188,7 @@ let cachedParams;
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
 
-  const res = await dataService.get('/sms/wells/contract/risk-audits/irregular-sales-actions/excel-download', { params: cachedParams });
+  const res = await dataService.get('/sms/wells/contract/risk-audits/irregular-sales-actions', { params: cachedParams });
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
@@ -189,33 +196,29 @@ async function onClickExcelDownload() {
   });
 }
 async function onClickSearchPartnerId() {
-  notify(t('팝업 준비중 입니다.'));
+  const { result, payload } = await modal({
+    component: 'ZwogzPartnerListP',
+    componentProps: {
+      prtnrNo: searchParams.value.dangOjPrtnrNo,
+      ogTpCd: userInfo.ogTpCd,
+    },
+  });
+  if (result) {
+    searchParams.value.dangOjPrtnrNo = payload.prtnrNo;
+  }
 }
 
 async function fetchData() {
-  if (searchParams.value.srchGbn === 1) {
-    cachedParams = { ...cachedParams, ...pageInfo.value };
-  } else {
-    const dangOcStrtMonth = cachedParams.dangOcStrtdt;
-    const dangOcEndMonth = cachedParams.dangOcEnddt;
-    const { dangOcStrtdt, dangOcEnddt, ...newCachedParams } = cachedParams;
+  cachedParams = cloneDeep(searchParams.value);
 
-    cachedParams = { dangOcStrtMonth, dangOcEndMonth, ...newCachedParams, ...pageInfo.value };
-  }
-  const res = await dataService.get('sms/wells/contract/risk-audits/irregular-sales-actions/paging', { params: cachedParams });
-  const { list: details, pageInfo: pagingResult } = res.data;
-  pageInfo.value = pagingResult;
-
+  const res = await dataService.get('sms/wells/contract/risk-audits/irregular-sales-actions', { params: cachedParams });
   const view = grdMainRef.value.getView();
   const dataSource = view.getDataSource();
+  dataSource.setRows(res.data);
+  pageInfo.value.totalCount = view.getItemCount();
 
-  dataSource.checkRowStates(false);
-  if (pageInfo.value.pageIndex === 1) {
-    dataSource.setRows(details);
-  } else {
-    dataSource.addRows(details);
-  }
-  dataSource.checkRowStates(true);
+  view.resetCurrent();
+  view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
 async function onClickSearch() {
@@ -265,10 +268,10 @@ async function onClickDelete() {
 }
 
 async function calChange() {
-  searchParams.value.dangOcStrtdt = '';
-  searchParams.value.dangOcEnddt = '';
-  searchParams.value.dangOcStrtMonth = '';
-  searchParams.value.dangOcEndMonth = '';
+  searchParams.value.dangOcStrtdt = now.startOf('month').format('YYYYMMDD');
+  searchParams.value.dangOcEnddt = now.format('YYYYMMDD');
+  searchParams.value.dangOcStrtMonth = now.format('YYYYMM') - 1;
+  searchParams.value.dangOcEndMonth = now.format('YYYYMM');
 }
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
@@ -335,13 +338,6 @@ const initGrdMain = defineGrid((data, view) => {
     },
     'fstRgstUsrId', 'fstRgstDtm',
   ]);
-
-  view.onScrollToBottom = (g) => {
-    if (pageInfo.value.pageIndex * pageInfo.value.pageSize <= g.getItemCount()) {
-      pageInfo.value.pageIndex += 1;
-      fetchData();
-    }
-  };
 });
 </script>
 <style scoped>
