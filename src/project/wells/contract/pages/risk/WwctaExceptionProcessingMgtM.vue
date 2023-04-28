@@ -155,10 +155,10 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
+import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
 import { codeUtil, defineGrid, getComponentType, gridUtil, useDataService, useGlobal, useMeta } from 'kw-lib';
 import dayjs from 'dayjs';
 import { cloneDeep } from 'lodash-es';
-import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
 
 const dataService = useDataService();
 const { getConfig } = useMeta();
@@ -193,6 +193,10 @@ const pageInfo = ref({
 async function onClickOpenEmployeeSearchPopup() {
   const { result, payload } = await modal({
     component: 'ZwogzPartnerListP',
+    componentProps: {
+      ogTpCd: 'W01',
+      prtnrNo: searchParams.value.prtnrNo,
+    },
   });
   if (result) {
     searchParams.value.prtnrNo = payload.prtnrNo;
@@ -202,6 +206,9 @@ async function onClickOpenEmployeeSearchPopup() {
 async function onClickOpenCustomerSearchPopup() {
   const { result, payload } = await modal({
     component: 'ZwcsaCustomerListP',
+    componentProps: {
+      cstNo: searchParams.value.cstNo,
+    },
   });
   if (result) {
     searchParams.value.cstNo = payload.cstNo;
@@ -242,7 +249,7 @@ async function onClickRemove() {
 
 async function onClickAdd() {
   const view = grdMainRef.value.getView();
-  gridUtil.insertRowAndFocus(view, 0, {
+  await gridUtil.insertRowAndFocus(view, 0, {
     dtaDlYn: 'N',
     vlStrtDtm: now.format('YYYYMMDD'),
   });
