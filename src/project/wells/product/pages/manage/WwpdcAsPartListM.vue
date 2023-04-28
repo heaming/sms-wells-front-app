@@ -348,7 +348,7 @@ async function oprenRegDetailPopup(pdCd, tempSaveYn) {
 const sapItemCdFromValidation = async (val) => {
   const errors = [];
   if (!(isEmpty(val) || val.length === 11)) {
-    errors.push('MSG_ALT_CHECK_DIGIT_1ST_COND');
+    errors.push(t('MSG_ALT_CHECK_DIGIT_1ST_COND'));
   }
   if (!isEmpty(val) && isEmpty(searchParams.value.sapItemCdTo)) {
     errors.push(t('MSG_ALT_KEY_IN_ALL_RANGE'));
@@ -359,7 +359,7 @@ const sapItemCdFromValidation = async (val) => {
 const sapItemCdToValidation = async (val) => {
   const errors = [];
   if (!(isEmpty(val) || val.length === 11)) {
-    errors.push('MSG_ALT_CHECK_DIGIT_2ND_COND');
+    errors.push(t('MSG_ALT_CHECK_DIGIT_2ND_COND'));
   }
   if (!isEmpty(val) && isEmpty(searchParams.value.sapItemCdFrom)) {
     errors.push(t('MSG_ALT_KEY_IN_ALL_RANGE'));
