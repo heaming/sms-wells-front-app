@@ -29,7 +29,7 @@
           :label="$t('MSG_TXT_CST_NO')"
           icon="search"
           clearable
-          :on-click-icon="onClickSearchCntrCst"
+          :on-click-icon="onClickSearchCustomer"
           rules="required|max:10|numeric"
           :maxlength="10"
         />
@@ -145,11 +145,14 @@ async function onClickSearch() {
   await fetchData();
 }
 
-async function onClickSearchCntrCst() {
-  const res = await modal({ component: 'ZwcsaCustomerListP' });
-  if (res.result && res.payload) {
-    // searchParams.cntrCstKnm(res.payload.name);
-    searchParams.cntrCstNo(res.payload.cstNo);
+async function onClickSearchCustomer() {
+  const { result, payload } = await modal({
+    component: 'ZwcsaCustomerListP',
+    componentProps: { cstType: '1', cstNo: searchParams.value.cntrCstNo },
+  });
+
+  if (result) {
+    searchParams.value.cntrCstNo = payload.cstNo;
   }
 }
 
