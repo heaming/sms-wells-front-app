@@ -76,7 +76,9 @@
         <template #left>
           <kw-paging-info
             v-model:page-index="pageInfo.pageIndex"
+            v-model:page-size="pageInfo.pageSize"
             :total-count="pageInfo.totalCount"
+            :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
             @change="fetchData"
           />
         </template>
@@ -120,7 +122,7 @@
       <kw-grid
         ref="grdMainRef"
         name="grdMain"
-        :visible-rows="pageInfo.pageSize - 1"
+        :visible-rows="pageInfo.pageSize"
         @init="initGrid"
       />
     </div>
@@ -156,7 +158,6 @@ const gnrlMngTeamOptions = ref([
 ]);
 
 let cachedParams;
-const totalCount = ref(0);
 const searchParams = ref({
   srchGbn: 1,
   dangOcStrtdt: '',
@@ -180,6 +181,7 @@ const now = dayjs();
 const codes = await codeUtil.getMultiCodes(
   'PNTSC_ARBIT_ATC_CD',
   'PNTSC_ARBIT_DEPT_CD',
+  'COD_PAGE_SIZE_OPTIONS',
 );
 
 const pageInfo = ref({
@@ -196,21 +198,20 @@ async function calChange() {
 }
 
 async function fetchData() {
-  const res = await dataService.get('/sms/wells/contract/risk-audits/irregular-sales-actions/managerial-tasks/paging', { params: { ...cachedParams, ...pageInfo.value } });
-  const { list: details, pageInfo: pagingResult } = res.data;
-  pageInfo.value = pagingResult;
+  cachedParams = cloneDeep(searchParams.value);
+  if (cachedParams.srchGbn !== 1) {
+    const { dangOcStrtdt, dangOcEnddt, ...restParams } = cachedParams;
+    cachedParams = { dangOcStrtMonth: dangOcStrtdt, dangOcEndMonth: dangOcEnddt, ...restParams };
+  }
 
-  totalCount.value = res.data.length;
+  const res = await dataService.get('/sms/wells/contract/risk-audits/irregular-sales-actions/managerial-tasks', { params: cachedParams });
   const view = grdMainRef.value.getView();
   const dataSource = view.getDataSource();
+  dataSource.setRows(res.data);
+  pageInfo.value.totalCount = view.getItemCount();
 
-  dataSource.checkRowStates(false);
-  if (pageInfo.value.pageIndex === 1) {
-    dataSource.setRows(details);
-  } else {
-    dataSource.addRows(details);
-  }
-  dataSource.checkRowStates(true);
+  view.resetCurrent();
+  view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
 async function onClickSearch() {
@@ -235,14 +236,6 @@ async function onClickSearch() {
       return;
     }
   }
-
-  pageInfo.value.pageIndex = 1;
-  cachedParams = cloneDeep(searchParams.value);
-  if (cachedParams.srchGbn !== 1) {
-    const { dangOcStrtdt, dangOcEnddt, ...restParams } = cachedParams;
-    cachedParams = { dangOcStrtMonth: dangOcStrtdt, dangOcEndMonth: dangOcEnddt, ...restParams };
-  }
-
   await fetchData();
 }
 
@@ -291,7 +284,7 @@ async function onClickAdd() {
 
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
-  const res = await dataService.get('/sms/wells/contract/risk-audits/irregular-sales-actions/managerial-tasks/excel-download', { params: cachedParams });
+  const res = await dataService.get('/sms/wells/contract/risk-audits/irregular-sales-actions/managerial-tasks', { params: cachedParams });
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,

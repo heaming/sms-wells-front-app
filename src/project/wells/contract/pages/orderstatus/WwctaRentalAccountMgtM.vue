@@ -113,6 +113,7 @@
             v-model:page-index="pageInfo.pageIndex"
             v-model:page-size="pageInfo.pageSize"
             :total-count="pageInfo.totalCount"
+            :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
             @change="fetchData"
           />
         </template>
@@ -180,6 +181,7 @@ const grdRentalAccountList = ref(getComponentType('KwGrid'));
 
 const codes = await codeUtil.getMultiCodes(
   'COPN_DV_CD',
+  'COD_PAGE_SIZE_OPTIONS',
 );
 
 const pdMclsfIdOptions = ref([]);
@@ -308,7 +310,7 @@ onMounted(async () => {
 const initRentalAccountList = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'pdgrpNm' },
-    { fieldName: 'pdNM' },
+    { fieldName: 'pdNm' },
     { fieldName: 'basePdCd' },
     { fieldName: 'istDt' },
     { fieldName: 'rstlYn' },
