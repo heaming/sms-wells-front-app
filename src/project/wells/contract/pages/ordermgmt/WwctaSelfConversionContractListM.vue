@@ -17,6 +17,7 @@
     <kw-search
       :cols="0"
       @search="onClickSearch"
+      @reset="onReset"
     >
       <kw-search-row>
         <kw-search-item
@@ -229,6 +230,11 @@ const useNmn = reactive({
   min: 0,
   max: 0,
 });
+
+function onReset() {
+  useNmn.min = 0;
+  useNmn.max = 0;
+}
 
 const fetchPage = async (pageIndex = pageInfo.value.pageIndex, pageSize = pageInfo.value.pageSize) => {
   const params = {
