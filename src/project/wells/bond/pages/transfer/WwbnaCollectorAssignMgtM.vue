@@ -64,6 +64,7 @@
             icon="search"
             clearable
             :label="$t('MSG_TXT_CLCTAM_PSIC')"
+            :regex="/^[A-Z가-힣ㄱ-ㅎ]*$/i"
             @click-icon="onClickCollector"
           />
         </kw-search-item>
@@ -83,6 +84,8 @@
         >
           <kw-input
             v-model="searchParams.cstNo"
+            type="number"
+            rules="numeric"
             icon="search"
             :on-click-icon="openSearchUserPopup"
             :on-keydown-no-click="true"
@@ -98,6 +101,7 @@
             clearable
             :on-click-icon="openSearchUserPopup"
             :on-keydown-no-click="true"
+            :regex="/^[A-Z가-힣ㄱ-ㅎ]*$/i"
             @keydown.enter="isCustomer('type2')"
           />
         </kw-search-item>
@@ -106,6 +110,7 @@
         >
           <kw-input
             v-model="searchParams.phoneNumber"
+            type="telephone"
             :on-keydown-no-click="true"
             @keydown.enter="isCustomer('type3')"
           />
@@ -503,7 +508,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'rglrSppRsgBorAmt', dataType: 'number' },
   ];
   const columns = [
-    { fieldName: 'clctamPrtnrKnm', header: t('MSG_TXT_PIC_NM'), width: '98', styleName: 'text-left' },
+    { fieldName: 'clctamPrtnrKnm', header: t('MSG_TXT_PIC_NM'), width: '98', styleName: 'text-center' },
     { fieldName: 'asnRat', header: t('MSG_TXT_ASN_WEIT'), width: '98', styleName: 'text-center' },
 
     { fieldName: 'woCstCt', header: t('MSG_TXT_CST_N'), width: '65', numberFormat: '#,##0', styleName: 'text-center' },
@@ -647,11 +652,11 @@ const initGrdSub = defineGrid((data, view) => {
     { fieldName: 'changeClctamPrtnrKnm' }, // 항목 수정여부 해당 값이 true라면 저장 할 수 없음
   ];
   const columns = [
-    { fieldName: 'clctamPrtnrKnm', header: t('MSG_TXT_PIC_NM'), width: '98', styleName: 'text-left, rg-button-icon--search', button: 'action' },
+    { fieldName: 'clctamPrtnrKnm', header: t('MSG_TXT_PIC_NM'), width: '98', styleName: 'text-center, rg-button-icon--search', button: 'action' },
     { fieldName: 'lstmmClctamDvCd', header: t('MSG_TXT_LSTMM_ICHR_CLCTAM_DV'), width: '130', styleName: 'text-left', editable: false },
-    { fieldName: 'bfClctamPrtnrKnm', header: t('MSG_TXT_LSTMM_PSIC'), width: '90', styleName: 'text-left', editable: false },
+    { fieldName: 'bfClctamPrtnrKnm', header: t('MSG_TXT_LSTMM_PSIC'), width: '90', styleName: 'text-center', editable: false },
     { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '160', styleName: 'text-center', editable: false },
-    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '90', styleName: 'text-left', editable: false },
+    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '90', styleName: 'text-center', editable: false },
     { fieldName: 'cstNo', header: t('MSG_TXT_CST_NO'), width: '130', styleName: 'text-center', editable: false },
     { fieldName: 'pdDvKnm', header: t('MSG_TXT_PRDT_GUBUN'), width: '90', styleName: 'text-left', editable: false },
     { fieldName: 'dlqMcn', header: t('MSG_TXT_DLQ_MCNT'), width: '86', styleName: 'text-center', editable: false },
