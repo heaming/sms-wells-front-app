@@ -341,7 +341,14 @@ const initGrid = defineGrid((data, view) => {
         type: 'list',
       },
     },
-    { fieldName: 'exProcsDtlCn', header: t('MSG_TXT_MEMO'), width: 300 },
+    {
+      fieldName: 'exProcsDtlCn',
+      header: t('MSG_TXT_MEMO'),
+      width: 300,
+      editor: {
+        maxLength: 500,
+      },
+    },
     {
       fieldName: 'vlStrtDtm',
       header: t('MSG_TXT_STRT_DT'),
