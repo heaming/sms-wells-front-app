@@ -110,7 +110,10 @@
       <kw-action-top>
         <template #left>
           <kw-paging-info
-            :total-count="totalCount"
+            v-model:page-index="pageInfo.pageIndex"
+            v-model:page-size="pageInfo.pageSize"
+            :total-count="pageInfo.totalCount"
+            @change="fetchData"
           />
         </template>
         <kw-btn
@@ -118,14 +121,15 @@
           dense
           secondary
           :label="$t('MSG_BTN_EXCEL_DOWN')"
-          :disable="!totalCount"
+          :disable="pageInfo.totalCount === 0"
           @click="onClickExcelDownload"
         />
       </kw-action-top>
       <kw-grid
-        ref="grdMainRef"
-        :visible-rows="10"
-        @init="initGrid"
+        ref="grdRentalAccountList"
+        name="grdRentalAccountList"
+        :visible-rows="pageInfo.pageSize"
+        @init="initRentalAccountList"
       />
     </div>
   </kw-page>
@@ -136,11 +140,12 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, gridUtil, defineGrid, getComponentType, useDataService, useGlobal } from 'kw-lib';
+import { codeUtil, gridUtil, defineGrid, getComponentType, useDataService, useGlobal, useMeta } from 'kw-lib';
 import { cloneDeep, isEmpty, uniqBy } from 'lodash-es';
 import dayjs from 'dayjs';
 import pdConst from '~sms-common/product/constants/pdConst';
 
+const { getConfig } = useMeta();
 const { t } = useI18n();
 const dataService = useDataService();
 const { modal } = useGlobal();
@@ -171,7 +176,7 @@ const searchParams = ref({
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 
-const grdMainRef = ref(getComponentType('KwGrid'));
+const grdRentalAccountList = ref(getComponentType('KwGrid'));
 
 const codes = await codeUtil.getMultiCodes(
   'COPN_DV_CD',
@@ -185,7 +190,7 @@ const isProd = computed(() => searchParams.value.srchGbn === 1);
 
 // Updating the col visibility as per search classification
 function onChangeSearch() {
-  const view = grdMainRef.value.getView();
+  const view = grdRentalAccountList.value.getView();
   const data = view.getDataSource();
   data.clearRows();
   searchParams.value.pdMclsfId = '';
@@ -198,22 +203,30 @@ function onChangeSearch() {
   view.columnsByTag('org').forEach((col) => { col.visible = !(isProd.value); });
 }
 
+const pageInfo = ref({
+  totalCount: 0,
+  pageIndex: 1,
+  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
+});
+
 async function fetchData() {
   // changing api & cacheparams according to search classification
   let res = '';
-  if (isProd.value) {
-    const { dgr1LevlOgNm, dgr2LevlOgNm, ...prodParams } = cachedParams;
-    res = await dataService.get('/sms/wells/contract/rental-accounts/products/paging', { params: prodParams });
-  } else {
-    const { pdMclsfId, basePdCd, ...orgParams } = cachedParams;
-    res = await dataService.get('/sms/wells/contract/rental-accounts/organizations/paging', { params: orgParams });
-  }
+  cachedParams = cloneDeep(searchParams.value);
 
-  const { list: accounts } = res.data;
-  totalCount.value = accounts.length;
-  const view = grdMainRef.value.getView();
-  view.getDataSource().setRows(accounts);
+  if (isProd.value) {
+    res = await dataService.get('/sms/wells/contract/rental-accounts/products', { params: cachedParams });
+  } else {
+    res = await dataService.get('/sms/wells/contract/rental-accounts/organizations', { params: cachedParams });
+  }
+  const view = grdRentalAccountList.value.getView();
+
+  const dataSource = view.getDataSource();
+  dataSource.setRows(res.data);
+  pageInfo.value.totalCount = view.getItemCount();
+
   view.resetCurrent();
+  view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
 async function onClickSearch() {
@@ -222,12 +235,12 @@ async function onClickSearch() {
 }
 
 async function onClickExcelDownload() {
-  const view = grdMainRef.value.getView();
+  const view = grdRentalAccountList.value.getView();
   let res = '';
   if (isProd.value) {
-    res = await dataService.get('/sms/wells/contract/rental-accounts/products/excel-download', { params: cachedParams });
+    res = await dataService.get('/sms/wells/contract/rental-accounts/products', { params: cachedParams });
   } else {
-    res = await dataService.get('/sms/wells/contract/rental-accounts/organizations/excel-download', { params: cachedParams });
+    res = await dataService.get('/sms/wells/contract/rental-accounts/organizations', { params: cachedParams });
   }
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
@@ -292,7 +305,7 @@ onMounted(async () => {
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
-const initGrid = defineGrid((data, view) => {
+const initRentalAccountList = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'pdgrpNm' },
     { fieldName: 'pdNM' },
