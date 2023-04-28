@@ -1,0 +1,261 @@
+<!----
+****************************************************************************************************
+* 프로그램 개요
+****************************************************************************************************
+1. 모듈 : SNA (재고관리)
+2. 프로그램 ID : WwsnaItemLocationMgtP(W-SV-U-0210P01) - 품목위치관리
+3. 작성자 : inho.choi
+4. 작성일 : 2023.04.06
+****************************************************************************************************
+* 프로그램 설명
+****************************************************************************************************
+
+****************************************************************************************************
+--->
+<template>
+  <kw-popup
+    size="3xl"
+    no-action
+  >
+    <kw-form
+      :cols="2"
+    >
+      <kw-form-row>
+        <!-- 품목코드 -->
+        <kw-form-item
+          :label="$t('TXT_MSG_AS_ITM_CD')"
+        >
+          <kw-input
+            v-model="propParams.itmPdCd"
+            :disable="true"
+          />
+        </kw-form-item>
+        <!-- //품목코드 -->
+        <!-- 품목명 -->
+        <kw-form-item
+          :label="$t('MSG_TXT_ITM_NM')"
+        >
+          <kw-input
+            v-model="propParams.itmPdNm"
+            :disable="true"
+          />
+        </kw-form-item>
+        <!-- //품목명 -->
+      </kw-form-row>
+      <kw-form-row>
+        <!-- 관리창고 -->
+        <kw-form-item
+
+          :label="$t('MSG_TXT_MNGT_WARE')"
+        >
+          <kw-input
+            v-model="propParams.wareNm"
+            :disable="true"
+          />
+          <!-- 표준 미적용 -->
+          <kw-checkbox
+            v-model="propParams.stdWareUseYn"
+            class="ml20"
+            :label="$t('MSG_TXT_STD_NO_APY')"
+          />
+          <!-- //표준 미적용 -->
+        </kw-form-item>
+        <!-- //관리창고 -->
+      </kw-form-row>
+    </kw-form>
+
+    <kw-separator />
+
+    <kw-action-top>
+      <template #left>
+        <kw-paging-info
+          :total-count="propParams.totalCount"
+          @change="fetchData"
+        />
+      </template>
+      <kw-btn
+        grid-action
+        :label="$t('MSG_BTN_SAVE')"
+        @click="onClickSave"
+      />
+      <kw-separator
+        vertical
+        inset
+        spaced
+      />
+      <kw-btn
+        dense
+        secondary
+        icon="excel"
+        :label="$t('MSG_BTN_EXCEL_DOWN')"
+        :disable="propParams.totalCount === 0"
+        @click="onClickExcelDownload"
+      />
+    </kw-action-top>
+    <kw-grid
+      ref="grdMainRef"
+      name="grdMain"
+      :total-count="propParams.totalCount"
+      @init="initGrdMain"
+    />
+  </kw-popup>
+</template>
+
+<script setup>
+// -------------------------------------------------------------------------------------------------
+// Import & Declaration
+// -------------------------------------------------------------------------------------------------
+import {
+  codeUtil,
+  useDataService,
+  getComponentType,
+  gridUtil,
+  defineGrid } from 'kw-lib';
+import { cloneDeep } from 'lodash-es';
+
+const { t } = useI18n();
+
+const dataService = useDataService();
+const baseURI = '/sms/wells/service/item-locations';
+const grdMainRef = ref(getComponentType('KwGrid'));
+// -------------------------------------------------------------------------------------------------
+// Function & Event
+// -------------------------------------------------------------------------------------------------
+const props = defineProps({
+  itmPdCd: {
+    type: String,
+    default: '',
+  },
+  wareNo: {
+    type: String,
+    default: '',
+  },
+});
+const codes = ref(await codeUtil.getMultiCodes(
+  'COD_PAGE_SIZE_OPTIONS',
+  'LCT_ANGLE_CD',
+  'LCT_COF_CD',
+  'LCT_FLOR_NO_CD',
+  'LCT_MAT_GRP_CD',
+));
+const propParams = ref({
+  itmPdCd: props.itmPdCd,
+  wareNo: props.wareNo,
+  wareNm: '',
+  itmPdNm: '',
+  stdWareUseYn: 'N',
+  totalCount: '0',
+});
+
+const searchParams = ref({
+  itmPdCd: props.itmPdCd,
+  wareNo: props.wareNo,
+});
+
+let cachedParams;
+
+async function fetchData() {
+  const res = await dataService.get(baseURI, { params: { ...cachedParams } });
+  // const { list: searchData } = res.data;
+
+  propParams.value.totalCount = res.data.length;
+  propParams.value.itmPdNm = res.data[0].pdAbbrNm;
+  propParams.value.wareNm = res.data[0].wareNm;
+
+  const view = grdMainRef.value.getView();
+  const datasSource = view.getDataSource();
+  datasSource.setRows(res.data);
+  view.resetCurrent();
+}
+async function onClickSave() {
+  const dataParams = grdMainRef.value.getView();
+  const rows = dataParams.getCheckedItems();
+  console.log(rows);
+}
+
+async function onClickExcelDownload() {
+  const view = grdMainRef.value.getView();
+
+  const response = await dataService.get(baseURI, { params: cachedParams });
+
+  await gridUtil.exportView(view, {
+    fileName: 'WwsnaItemLocationMgtP',
+    timePostfix: true,
+    exportData: response.data,
+  });
+}
+
+onMounted(async () => {
+  cachedParams = cloneDeep(searchParams.value);
+  await fetchData();
+});
+// -------------------------------------------------------------------------------------------------
+// Initialize Grid
+// -------------------------------------------------------------------------------------------------
+const initGrdMain = defineGrid((data, view) => {
+  const columns = [
+    { fieldName: 'sapMatCd', header: t('MSG_TXT_SAP_CD'), width: '120', styleName: 'text-center' },
+    { fieldName: 'itmPdCd', header: t('TXT_MSG_AS_ITM_CD'), width: '146', styleName: 'text-center' },
+    { fieldName: 'pdAbbrNm', header: t('MSG_TXT_ITM_NM'), width: '320' },
+    { fieldName: 'pitmStocAGdQty', header: t('MSG_TXT_STOC'), width: '80', styleName: 'text-center' },
+    { fieldName: 'itmLctAngleVal',
+      header: t('MSG_TXT_ANGLE'),
+      width: '80',
+      styleName: 'text-center',
+      options: codes.value.LCT_ANGLE_CD,
+      editor: { type: 'list' },
+      editable: true,
+      editOptions: { editable: true },
+    },
+    { fieldName: 'itmLctCofVal',
+      header: t('MSG_TXT_FLOR_CNT'),
+      width: '80',
+      styleName: 'text-center',
+      options: codes.value.LCT_COF_CD,
+      editor: { type: 'list' },
+      editable: true,
+    },
+    { fieldName: 'itmLctFlorNoVal',
+      header: t('MSG_TXT_FLOR_NO'),
+      width: '96',
+      styleName: 'text-center',
+      options: codes.value.LCT_FLOR_NO_CD,
+      editor: { type: 'list' },
+      editable: true,
+    },
+    { fieldName: 'itmLctMatGrpCd',
+      header: t('MSG_TXT_SAP_GRP'),
+      width: '118',
+      styleName: 'text-center',
+      options: codes.value.LCT_MAT_GRP_CD,
+      editor: { type: 'list' },
+      editable: true,
+    },
+    { fieldName: 'itmLctNm', header: t('MSG_TXT_LCT_NM'), width: '283' },
+  ];
+  const gridField = columns.map((v) => ({ fieldName: v.fieldName }));
+  const fields = [...gridField,
+    { fieldName: 'wareNo' },
+    { fieldName: 'itmKndCd' },
+    { fieldName: 'stdWareUseYn' }];
+
+  data.setFields(fields);
+  view.setColumns(columns);
+  view.checkBar.visible = true;
+  view.rowIndicator.visible = true;
+  // view.editOptions.editable = true;
+  const editFields = ['itmLctAngleVal', 'itmLctCofVal', 'itmLctFlorNoVal', 'itmLctMatGrpCd'];
+  view.onCellEditable = (grid, clickData) => {
+    if (!editFields.includes(clickData.column)) {
+      return false;
+    }
+  };
+  view.onCellClicked = (grid, clickData) => {
+    if (editFields.includes(clickData.column)) {
+      view.editOptions.editable = true;
+    } else {
+      view.editOptions.editable = false;
+    }
+  };
+});
+</script>
