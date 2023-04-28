@@ -288,7 +288,7 @@ async function onClickSave() {
   }
 
   if (await gridUtil.alertIfIsNotModified(view)) { return; }
-  let errorYn = false;
+  let isError = false;
   checkedRows.forEach((checkedRow) => {
     let f = 1;
     let a = 1;
@@ -312,7 +312,7 @@ async function onClickSave() {
 
           // i18n 다국어모듈 사용으로 처리하면 파라미터 값 표시 안됨. 확인 필요
           alert(`${itemsData.value[i].aplcPdNm}은(는) ${itemsData.value[i].aplcPckngUnit.replace(/[^0-9]/g, '')}개까지 가능합니다.`);
-          errorYn = true;
+          isError = true;
           saveData = [];
           return;
         }
@@ -332,7 +332,7 @@ async function onClickSave() {
     }
   });
 
-  if (!errorYn) {
+  if (!isError) {
     await dataService.post('/sms/wells/service/newmanager-bsconsumables', saveData);
     notify(t('MSG_ALT_SAVE_DATA'));
     await fetchData();
@@ -375,25 +375,25 @@ const initGrdMain = defineGrid(async (data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'reqYn', header: '상태', width: '100', styleName: 'text-center' },
-    { fieldName: 'bldNm', header: '빌딩명', width: '200', styleName: 'text-center' },
-    { fieldName: 'bldCd', header: '빌딩코드', width: '100', styleName: 'text-center' },
-    { fieldName: 'prtnrNo', header: '사번', width: '101', styleName: 'text-center' },
-    { fieldName: 'ogCd', header: '소속', width: '100', styleName: 'text-center' },
-    { fieldName: 'prtnrKnm', header: '성명', width: '100', styleName: 'text-center' },
-    { fieldName: 'vstCstN', header: '방문고객', width: '100', styleName: 'text-center' },
-    { fieldName: 'wrfr', header: '정수기', width: '70', styleName: 'text-right' },
-    { fieldName: 'bdtIndv', header: '비데(개인)', width: '90', styleName: 'text-right' },
-    { fieldName: 'bdtCrp', header: '비데(법인)', width: '90', styleName: 'text-right' },
-    { fieldName: 'arcleIndv', header: '공기청정기(개인)', width: '120', styleName: 'text-right' },
-    { fieldName: 'arcleCrp', header: '공기청정기(법인)', width: '120', styleName: 'text-right' },
-    { fieldName: 'wtrSftnr', header: '연수기', width: '70', styleName: 'text-right' },
-    { fieldName: 'cffMchn', header: '커피머신', width: '80', styleName: 'text-right' },
-    { fieldName: 'msgcr', header: '안마의자', width: '80', styleName: 'text-right' },
-    { fieldName: 'dryr', header: '건조기', width: '70', styleName: 'text-right' },
-    { fieldName: 'wash', header: '세탁기', width: '70', styleName: 'text-right' },
-    { fieldName: 'ardrssr', header: '에어드레서', width: '90', styleName: 'text-right' },
-    { fieldName: 'sscling', header: '삼성 청소기', width: '100', styleName: 'text-right' },
+    { fieldName: 'reqYn', header: t('MSG_TXT_STT'), width: '100', styleName: 'text-center' },
+    { fieldName: 'bldNm', header: t('MSG_TXT_BLD_NM'), width: '200', styleName: 'text-center' },
+    { fieldName: 'bldCd', header: t('MSG_TXT_BLD_CD'), width: '100', styleName: 'text-center' },
+    { fieldName: 'prtnrNo', header: t('MSG_TXT_EPNO'), width: '101', styleName: 'text-center' },
+    { fieldName: 'ogCd', header: t('MSG_TXT_BLG'), width: '100', styleName: 'text-center' },
+    { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '100', styleName: 'text-center' },
+    { fieldName: 'vstCstN', header: t('MSG_TXT_VST_CST'), width: '100', styleName: 'text-center' },
+    { fieldName: 'wrfr', header: t('MSG_TXT_WRFR'), width: '70', styleName: 'text-right' },
+    { fieldName: 'bdtIndv', header: t('MSG_TXT_BDT_INDV'), width: '90', styleName: 'text-right' },
+    { fieldName: 'bdtCrp', header: t('MSG_TXT_BDT_CRP'), width: '90', styleName: 'text-right' },
+    { fieldName: 'arcleIndv', header: t('MSG_TXT_ARCLE_INDV'), width: '120', styleName: 'text-right' },
+    { fieldName: 'arcleCrp', header: t('MSG_TXT_ARCLE_INDV'), width: '120', styleName: 'text-right' },
+    { fieldName: 'wtrSftnr', header: t('MSG_TXT_WTST'), width: '70', styleName: 'text-right' },
+    { fieldName: 'cffMchn', header: t('MSG_TXT_CFF_MCHN'), width: '80', styleName: 'text-right' },
+    { fieldName: 'msgcr', header: t('MSG_TXT_MSGCR'), width: '80', styleName: 'text-right' },
+    { fieldName: 'dryr', header: t('MSG_TXT_DRYER'), width: '70', styleName: 'text-right' },
+    { fieldName: 'wash', header: t('MSG_TXT_WASHER'), width: '70', styleName: 'text-right' },
+    { fieldName: 'ardrssr', header: t('MSG_TXT_ARDRSSR'), width: '90', styleName: 'text-right' },
+    { fieldName: 'sscling', header: t('MSG_TXT_SS_CLING_MCHN'), width: '100', styleName: 'text-right' },
   ];
 
   const gridData = await getItems(); // 고정/신청품목 그리드 헤더를 위해 조회
