@@ -166,7 +166,7 @@
 
       <kw-grid
         ref="grdMainRef"
-        :visible-rows="10"
+        :total-count="totalCount"
         @init="initGrdMain"
       />
     </div>
