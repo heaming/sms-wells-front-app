@@ -122,6 +122,7 @@ const materialMainPage = '/product/zwpdc-material-list';
                     :pd-grp-dv-cd="pdConst.PD_PRP_GRP_DV_CD_BASIC"
                     :is-first-title="true"
                     :pd-tp-dtl-cd="pdTpDtlCd"
+                    is-reg-check-page
                   />
                 </kw-tab-panel>
                 <!-- 연결상품-->
@@ -141,6 +142,7 @@ const materialMainPage = '/product/zwpdc-material-list';
                     :pd-grp-dv-cd="pdConst.PD_PRP_GRP_DV_CD_MANUAL"
                     :is-first-title="true"
                     :except-id="exceptPrpGrpCd"
+                    is-reg-check-page
                   />
                 </kw-tab-panel>
               </kw-tab-panels>

@@ -99,6 +99,7 @@
             :is-history-tab="false"
             :is-update-btn="false"
             :codes="codes"
+            is-reg-check-page
           />
         </kw-step-panel>
       </kw-stepper>
