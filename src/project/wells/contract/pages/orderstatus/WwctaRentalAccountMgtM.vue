@@ -61,7 +61,7 @@
             :options="gnrlDivOptions"
             first-option="all"
             option-value="dgr1LevlOgCd"
-            option-label="dgr1LevlOgNm"
+            option-label="dgr1LevlOgCd"
             @update:model-value="onUpdateDgr1Levl"
           />
         </kw-search-item>
@@ -90,7 +90,7 @@
             first-option="all"
             :options="rgnlDivOptions"
             option-value="dgr2LevlOgCd"
-            option-label="dgr2LevlOgNm"
+            option-label="dgr2LevlOgCd"
           />
         </kw-search-item>
         <kw-search-item
@@ -308,7 +308,9 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'sprReqdCnt' },
     { fieldName: 'sprRat' },
     { fieldName: 'dgr1LevlOgNm' },
+    { fieldName: 'dgr1LevlOgCd' },
     { fieldName: 'dgr2LevlOgNm' },
+    { fieldName: 'dgr2LevlOgCd' },
 
   ];
 
@@ -316,8 +318,8 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'pdgrpNm', header: t('MSG_TXT_PDGRP'), width: '178', visible: true, tag: 'prod' },
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '295', visible: true, tag: 'prod' },
     { fieldName: 'basePdCd', header: t('MSG_TXT_PRDT_CODE'), width: '125', styleName: 'text-center', visible: true, tag: 'prod' },
-    { fieldName: 'dgr1LevlOgNm', header: t('MSG_TXT_MANAGEMENT_DEPARTMENT'), width: '178', visible: false, tag: 'org' },
-    { fieldName: 'dgr2LevlOgNm', header: t('MSG_TXT_RGNL_GRP'), width: '295', visible: false, tag: 'org' },
+    { fieldName: 'dgr1LevlOgCd', header: t('MSG_TXT_MANAGEMENT_DEPARTMENT'), width: '178', visible: false, tag: 'org' },
+    { fieldName: 'dgr2LevlOgCd', header: t('MSG_TXT_RGNL_GRP'), width: '295', visible: false, tag: 'org' },
     { fieldName: 'istDt', header: t('MSG_TXT_YR_INSTALLATION'), width: '125', styleName: 'text-center' },
     { fieldName: 'rstlYn', header: t('MSG_TXT_RECOMMITMENT'), width: '125', styleName: 'text-center' },
     { fieldName: 'jCnt', header: t('MSG_TXT_SUBSCRPTN_NO'), width: '139', styleName: 'text-right' },
