@@ -119,7 +119,8 @@
       <kw-grid
         ref="gridMainRef"
         name="userSellLimitGrid"
-        :visible-rows="pageInfo.pageSize"
+        :page-size="pageInfo.pageSize"
+        :total-count="pageInfo.totalCount"
         @init="initGrid"
       />
     </div>
