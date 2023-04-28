@@ -420,11 +420,8 @@ async function onClickSave() {
   const params = searchParams.value;
 
   params.ostrAkRgstDt = dayjs().format('YYYYMMDD');
-  debugger;
-  const result = 0;
   // TODO: 데이터 생기면 테스트.
-  // const result = await dataService.post
-  // ('/sms/wells/service/out-of-storage-asks', checkedRows.map((v) => ({ ...v, ...params })));
+  const result = await dataService.post('/sms/wells/service/out-of-storage-asks', checkedRows.map((v) => ({ ...v, ...params })));
   if (result > 0) {
     notify(t('MSG_ALT_SAVE_DATA'));
   }
