@@ -60,8 +60,6 @@
             :label="$t('MSG_TXT_MANAGEMENT_DEPARTMENT')"
             :options="gnrlDivOptions"
             first-option="all"
-            option-value="dgr1LevlOgCd"
-            option-label="dgr1LevlOgCd"
             @update:model-value="onUpdateDgr1Levl"
           />
         </kw-search-item>
@@ -89,8 +87,6 @@
             v-model="searchParams.dgr2LevlOgCd"
             first-option="all"
             :options="rgnlDivOptions"
-            option-value="dgr2LevlOgCd"
-            option-label="dgr2LevlOgCd"
           />
         </kw-search-item>
         <kw-search-item
@@ -272,6 +268,9 @@ async function onClickSelectPdCd() {
 const responseGnrlDivOptions = ref([]);
 const responseRgnlDivOptions = ref([]);
 
+const filteredDgr1LevlOgCds = ref([]); // 필터링된 총괄단 코드
+const filteredDgr2LevlOgCds = ref([]); // 필터링된 총괄단 코드
+
 async function fetchDefaultData() {
   let res = [];
   const responseMclsfIdOptions = await dataService.get('sms/wells/contract/product/middle-classes');
@@ -280,25 +279,40 @@ async function fetchDefaultData() {
   res = await dataService.get('sms/wells/contract/partners/regional-divisions');
   responseRgnlDivOptions.value = res.data;
 
-  gnrlDivOptions.value = uniqBy(responseGnrlDivOptions.value.filter((v) => ['W01', 'W02'].includes(v.ogTpCd)));
+  filteredDgr1LevlOgCds.value = uniqBy(responseGnrlDivOptions.value.filter((v) => ['W01', 'W02'].includes(v.ogTpCd)));
 
   const initPdMclsfId = []; // 상품분류
+  const initdgr1LevlOgCd = []; // 총괄단
+
   responseMclsfIdOptions.data.forEach((v) => {
     if ((!isEmpty(v)) && (!isEmpty(v.pdClsfId))) {
-      initPdMclsfId.push({ codeId: v.pdClsfId, codeName: v.pdClsfNm });
+      initPdMclsfId.push({ codeId: v.pdClsfNm, codeName: v.pdClsfNm });
     }
   });
-
+  filteredDgr1LevlOgCds.value.forEach((v) => {
+    if ((!isEmpty(v)) && (!isEmpty(v.dgr1LevlOgCd))) {
+      initdgr1LevlOgCd.push({ codeId: v.dgr1LevlOgCd, codeName: v.dgr1LevlOgCd });
+    }
+  });
+  gnrlDivOptions.value = initdgr1LevlOgCd;
   pdMclsfIdOptions.value = uniqBy(initPdMclsfId, 'codeId'); // 중복제거
 }
-
 // 조직코드 총괄단 변경 이벤트
 async function onUpdateDgr1Levl(selectedValues) {
+  const initdgr2LevlOgCd = []; // 지역단
   // 선택한 지역단, 지점 초기화
   rgnlDivOptions.value = [];
+  searchParams.value.dgr2LevlOgCd = '';
 
   // 지역단 코드 필터링. 선택한 총괄단의 하위 지역단으로 필터링
-  rgnlDivOptions.value = responseRgnlDivOptions.value.filter((v) => selectedValues.includes(v.dgr1LevlOgCd));
+  filteredDgr2LevlOgCds.value = responseRgnlDivOptions.value.filter((v) => selectedValues.includes(v.dgr1LevlOgCd));
+
+  filteredDgr2LevlOgCds.value.forEach((v) => {
+    if ((!isEmpty(v)) && (!isEmpty(v.dgr2LevlOgCd))) {
+      initdgr2LevlOgCd.push({ codeId: v.dgr2LevlOgCd, codeName: v.dgr2LevlOgCd });
+    }
+  });
+  rgnlDivOptions.value = initdgr2LevlOgCd;
 }
 
 onMounted(async () => {
