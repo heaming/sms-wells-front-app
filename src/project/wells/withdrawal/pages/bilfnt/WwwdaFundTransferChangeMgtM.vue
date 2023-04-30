@@ -29,12 +29,12 @@
         />
       </kw-search-item>
       <kw-search-item
-        :label="t('MSG_TXT_AUTO_FNT')"
+        :label="t('MSG_TXT_FNT_DV')"
         required
       >
         <kw-option-group
           v-model="searchParams.fntDvCd"
-          :label="t('MSG_TXT_AUTO_FNT')"
+          :label="t('MSG_TXT_FNT_DV')"
           rules="required"
           type="radio"
           :options="codes.FNT_DV_CD.filter(v => v.codeId !== '03')"
