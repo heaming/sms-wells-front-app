@@ -343,7 +343,7 @@ async function onClickCreate() {
   checkItem.forEach((data) => {
     gridUtil.insertRowAndFocus(view3, 0, {
 
-      itgDpNo: rowItem.itgDpNo, /* 통합입금번호 */
+      itgDpNo: itgDpNo.value, /* 통합입금번호 */
       rveCd: '', /* 수납구분 */
       billBndNo: rowItem.billBndNo, /* 어음채권번호 */
       billRmkCn: rowItem.billRmkCn, /* 어음비고내용 */
@@ -354,6 +354,9 @@ async function onClickCreate() {
       cntr: data.cntrNo + data.cntrSn, /* 계약상세번호 */
       billDpAmt: rowItem.billDpAmt, /* 입금금액 */
       billDlpnrNm: checkItem[0].dlpnrNm,
+      sellBzsBzrno: rowItem.sellBzsBzrno,
+      pblBzsBzrno: rowItem.pblBzsBzrno,
+
     });
   });
 }
@@ -384,9 +387,12 @@ async function onGridAdd() {
 
 // 저장버튼
 async function onClickSave() {
+  const view2 = grdMainRef2.value.getView();
   const view = grdMainRef3.value.getView();
+  const changedRows2 = gridUtil.getChangedRowValues(view2);
   const changedRows = gridUtil.getChangedRowValues(view);
 
+  console.log(changedRows2);
   console.log(changedRows);
 
   if (await gridUtil.alertIfIsNotModified(view)) { return; }
@@ -456,6 +462,12 @@ async function initProps() {
     await onClickSearch();
     await onClickSubSearch();
     await onGridAdd();
+  } else {
+    const view = grdMainRef2.value.getView();
+    gridUtil.insertRowAndFocus(view, 0, {
+      billRcpDt: now.format('YYYYMMDD'), // 접수일자
+      billExprDt: now.format('99991231'), // 만기일
+    });
   }
 }
 
@@ -680,6 +692,9 @@ const initGrid3 = defineGrid((data, view) => {
     { fieldName: 'cntr' }, /* 일련번호 */
     { fieldName: 'billDpAmt', dataType: 'number' }, /* 입금금액 */
     { fieldName: 'billDlpnrNm' }, /* 거래처명 */
+
+    { fieldName: 'sellBzsBzrno' },
+    { fieldName: 'pblBzsBzrno' },
 
   ];
 

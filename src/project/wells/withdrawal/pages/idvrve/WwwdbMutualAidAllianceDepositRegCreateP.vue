@@ -102,14 +102,14 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import dayjs from 'dayjs';
-import { modal, useDataService } from 'kw-lib';
+import { modal, useDataService, useModal } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 
 const { t } = useI18n();
 
 const now = dayjs();
 const dataService = useDataService();
-
+const { ok } = useModal();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -195,7 +195,7 @@ async function onClickCreate() {
   const res = await dataService.post('/sms/wells/withdrawal/idvrve/mutual-alliance-bulk-deposit/create', cachedParams);
   console.log(res.data);
 
-  // notify(t('MSG_ALT_DEVELOPING'));
+  ok();
 }
 
 async function initProps() {
