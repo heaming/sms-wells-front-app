@@ -288,7 +288,6 @@ function initGrid(data, view) {
     { fieldName: 'vlStrtDtm' },
     { fieldName: 'vlEndDtm' },
     { fieldName: 'sellBaseApyCn' },
-    { fieldName: 'fstRgstDt' },
     { fieldName: 'fstRgstDtm' },
     { fieldName: 'fstRgstUsrId' },
     { fieldName: 'fnlMdfcDtm' },
@@ -359,7 +358,7 @@ function initGrid(data, view) {
       },
     },
     { fieldName: 'sellBaseApyCn', header: t('MSG_TXT_NOTE'), width: '220' },
-    { fieldName: 'fstRgstDt', header: t('MSG_TXT_RGST_DT'), datetimeFormat: 'date', width: '196', styleName: 'text-right', editable: false },
+    { fieldName: 'fstRgstDtm', header: t('MSG_TXT_RGST_DT'), datetimeFormat: 'date', width: '196', styleName: 'text-right', editable: false },
     { fieldName: 'fstRgstUsrId', header: t('MSG_TXT_FST_RGST_USR'), width: '131', editable: false },
     { fieldName: 'fnlMdfcDtm', header: t('MSG_TXT_MDFC_DT'), datetimeFormat: 'date', width: '196', styleName: 'text-right', editable: false },
     { fieldName: 'fnlMdfcUsrId', header: t('MSG_TXT_MDFC_USR'), width: '131', editable: false },
@@ -382,11 +381,12 @@ function initGrid(data, view) {
       searchValue: g.getValues(itemIndex).pdCd,
       selectType: '',
     };
+
     const returnPdInfo = await modal({
       component: 'ZwpdcStandardListP', // 상품기준 목록조회 팝업
       componentProps: searchPopupParams,
     });
-    console.log(updateRow);
+
     if (returnPdInfo.result) {
       const pdClsfNm = returnPdInfo.payload?.[0].pdClsfNm.split('>');
       data.setValue(itemIndex, 'pdCd', '');
