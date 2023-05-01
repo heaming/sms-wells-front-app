@@ -119,7 +119,10 @@
       <h3>
         <!-- 입금내역 상세 -->
         {{ t('MSG_TXT_DP_IZ_DTL') }}
-        <ul class="kw-notification">
+        <ul
+          v-if="false"
+          class="kw-notification"
+        >
           <li>
             <span class="kw-fc--primary">{{ t('MSG_TXT_INQR_NOT_STAT_EXCEL_DLD') }}</span>
             <!-- <span class="kw-fc--primary">조회하지 않은상태에서도 엑셀다운이 가능합니다.</span> -->
@@ -199,6 +202,7 @@
           primary
           dense
           :label="t('MSG_BTN_CNTN_CREATE')"
+          :disable="pageInfo.totalCount === 0"
           @click="onClickCreate"
         />
         <!-- label="생성" -->
@@ -231,6 +235,7 @@ import { cloneDeep } from 'lodash-es';
 const dataService = useDataService();
 const now = dayjs();
 const { t } = useI18n();
+// eslint-disable-next-line no-unused-vars
 const { getConfig } = useMeta();
 const { currentRoute } = useRouter();
 // -------------------------------------------------------------------------------------------------
@@ -250,7 +255,7 @@ const codes = await codeUtil.getMultiCodes(
 const pageInfo = ref({
   totalCount: 0,
   pageIndex: 1,
-  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
+  pageSize: 10, // Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
   needTotalCount: true,
 });
 
@@ -397,11 +402,15 @@ async function onClickCreate() {
     lifAlncDvNm[0].codeName,
     dayjs(searchParams.value.lifSpptYm).format('YYYY-MM')]))) { return; }
 
+  const view = grdSubRef.value.getView();
+  const amtSum = gridUtil.getCellValue(view, 0, 'amtSum');
   const {
     result,
   } = await modal({
     component: 'WwwdbMutualAidAllianceDepositRegCreateP',
-    componentProps: { lifAlncDvCd: searchParams.value.lifAlncDvCd, lifSpptYm: searchParams.value.lifSpptYm },
+    componentProps: { lifAlncDvCd: searchParams.value.lifAlncDvCd,
+      lifSpptYm: searchParams.value.lifSpptYm,
+      dpObjAmtSum: amtSum },
   });
 
   if (result) {
@@ -608,7 +617,8 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'fstRgstUsrNm',
       header: t('MSG_TXT_IN_PSIC'),
       // header: '입력담당자명',
-      width: '137' },
+      width: '137',
+      styleName: 'text-center' },
     { fieldName: 'fstRgstUsrId',
       header: t('MSG_TXT_SEQUENCE_NUMBER'),
       // header: '번호',

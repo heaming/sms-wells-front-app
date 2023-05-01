@@ -257,12 +257,12 @@ async function onClickSelectRveCd() {
 // 그리드 더블클릭 이벤트
 const onSelect = async (data) => {
   if (!data || data.length === 0) {
-    await notify(t('MSG_ALT_NOT_SEL_ITEM'));
+    notify(t('MSG_ALT_NOT_SEL_ITEM'));
     return;
   }
 
   if (data.dpBlam < 1) {
-    await notify(t('MSG_ALT_SELECT_ITEM_DP_BLAM'));
+    notify(t('MSG_ALT_SELECT_ITEM_DP_BLAM'));
     return;
   }
 
