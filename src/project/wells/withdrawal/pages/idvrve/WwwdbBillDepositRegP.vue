@@ -37,9 +37,11 @@
             icon="search"
             clearable
             :label="t('MSG_TXT_CLNT_NM')"
-            :readonly="true"
             @click-icon="onClickDealingPartner"
+            @keydown="onKeyDownSelect"
+            @clear="onClearSelect"
           />
+          <!-- :readonly="true" -->
         </kw-search-item>
       </kw-search-row>
     </kw-search>
@@ -71,6 +73,7 @@
     <kw-grid
       ref="grdMainRef"
       name="grdPage"
+      :visible-rows="5"
       :page-size="pageInfo.pageSize - 1"
       :total-count="pageInfo.totalCount"
       @init="initGrid1"
@@ -307,7 +310,7 @@ async function onClickReset() {
 async function onClickDealingPartner() {
   const { result, payload } = await modal({
     component: 'ZwcsaCorporateCustomerRegDlpnrChoListP',
-    // componentProps: { param: searchParams.value },
+    componentProps: { param: searchParams.value },
   });
 
   if (result) {
@@ -445,6 +448,15 @@ async function onClickExcelSubDownload() {
     timePostfix: true,
     exportData: res.data,
   });
+}
+
+async function onClearSelect() {
+  searchParams.value.bzrno = '';
+  searchParams.value.dlpnrNm = '';
+}
+
+async function onKeyDownSelect() {
+  searchParams.value.dlpnrNm = '';
 }
 
 async function initProps() {
@@ -753,6 +765,7 @@ const initGrid3 = defineGrid((data, view) => {
       editor: {
         type: 'number',
       },
+      rules: 'required|min_value:1',
       numberFormat: '#,##0',
       width: '110',
       styleName: 'text-right',
