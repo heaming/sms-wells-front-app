@@ -158,12 +158,13 @@
 // -------------------------------------------------------------------------------------------------
 
 import dayjs from 'dayjs';
-import { codeUtil, defineGrid, getComponentType, gridUtil, modal, useDataService, useModal } from 'kw-lib';
+import { codeUtil, defineGrid, getComponentType, gridUtil, modal, useDataService, useModal, useGlobal } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 
 const dataService = useDataService();
 const now = dayjs();
 const { ok } = useModal();
+const { notify } = useGlobal();
 const { t } = useI18n();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -247,9 +248,7 @@ async function onClickSelectRveCd() {
   const { result, payload } = await modal({ component: 'ZwwdyDivisionReceiveCodeRegP',
     componentProps: { rveCd: searchParams.value.rveCd, rveNm: searchParams.value.rveNm },
   });
-  console.log(payload);
   if (result) {
-    console.log(payload);
     searchParams.value.rveCd = payload.rveCd;
     searchParams.value.rveNm = payload.rveNm;
   }
@@ -257,12 +256,16 @@ async function onClickSelectRveCd() {
 
 // 그리드 더블클릭 이벤트
 const onSelect = async (data) => {
-  console.log(data);
-
   if (!data || data.length === 0) {
-    await alert(t('MSG_ALT_NOT_SEL_ITEM'));
+    await notify(t('MSG_ALT_NOT_SEL_ITEM'));
     return;
   }
+
+  if (data.dpBlam < 1) {
+    await notify(t('MSG_ALT_SELECT_ITEM_DP_BLAM'));
+    return;
+  }
+
   ok(data);
 };
 

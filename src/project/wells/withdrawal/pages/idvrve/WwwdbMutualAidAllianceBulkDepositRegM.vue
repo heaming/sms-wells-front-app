@@ -242,7 +242,6 @@ const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
   'LIF_ALNC_DV_CD',
 );
-console.log(codes.LIF_ALNC_DV_CD);
 
 // const totalCount = ref(0);
 // const failedCount = ref(0);
@@ -268,8 +267,6 @@ const searchParams = ref({
 const dpBlam = ref(0);
 const dpDtm = ref();
 
-console.log(searchParams.value.lifSpptYm);
-
 let cachedParams;
 
 async function fetchData() {
@@ -277,8 +274,6 @@ async function fetchData() {
 
   const res = await dataService.get('/sms/wells/withdrawal/idvrve/mutual-alliance-bulk-deposit/paging', { params: cachedParams });
   const { list: pages, pageInfo: pagingResult } = res.data;
-
-  console.log(pages);
 
   pageInfo.value = pagingResult;
 
@@ -295,15 +290,12 @@ async function fetchSubData() {
   const res = await dataService.get('/sms/wells/withdrawal/idvrve/mutual-alliance-bulk-deposit', { params: cachedParams });
   const pages = [res.data];
 
-  console.log(res.data);
-
   const view = grdSubRef.value.getView();
   const data = view.getDataSource();
 
   data.checkRowStates(false);
   data.setRows(pages);
 
-  console.log(dpBlam.value);
   data.setValue(0, 'dpBlam', dpBlam.value);
   data.setValue(0, 'dpDtm', dpDtm.value);
 
@@ -407,12 +399,11 @@ async function onClickCreate() {
 
   const {
     result,
-    payload,
   } = await modal({
     component: 'WwwdbMutualAidAllianceDepositRegCreateP',
     componentProps: { lifAlncDvCd: searchParams.value.lifAlncDvCd, lifSpptYm: searchParams.value.lifSpptYm },
   });
-  console.log(payload);
+
   if (result) {
     notify(t('MSG_ALT_CRT_FSH'));
     await fetchData();
@@ -445,8 +436,6 @@ async function onClickExcelUpload() {
     lifAlncDvNm[0].codeName,
     dayjs(searchParams.value.lifSpptYm).format('YYYY-MM')]))) return;
 
-  console.log(searchParams.value.lifAlncDvCd);
-
   const apiUrl = `/sms/wells/withdrawal/idvrve/mutual-alliance-bulk-deposit/${searchParams.value.lifAlncDvCd}/${searchParams.value.lifSpptYm}/excel-upload`;
 
   const fileName = await searchTemplateFile(searchParams.value.lifAlncDvCd);
@@ -455,13 +444,11 @@ async function onClickExcelUpload() {
 
   const {
     result,
-    payload,
   } = await modal({
     component: 'ZwcmzExcelUploadP',
     componentProps: { apiUrl, templateId },
   });
   // if (result && payload.status === 'S') {
-  console.log(payload);
   if (result) {
     notify(t('MSG_ALT_SAVE_DATA'));
     await fetchData();
@@ -648,7 +635,7 @@ const initGrid2 = defineGrid((data, view) => {
     { fieldName: 'countLif',
       header: t('MSG_TXT_OJ_CT') + t('MSG_TXT_CT_CASE'),
       // header: '대상건수(건)',
-      width: '386',
+      width: '300',
       styleName: 'text-right',
       numberFormat: '#,##0' },
     { fieldName: 'amtSum',
@@ -662,7 +649,7 @@ const initGrid2 = defineGrid((data, view) => {
       header: t('MSG_TXT_ITG_DP_D'),
 
       // header: '통합입금일',
-      width: '387',
+      width: '300',
       styleName: 'text-center' },
     { fieldName: 'dpBlam',
       header: t('MSG_TXT_ANYTHING_AMT_WON', [t('MSG_TXT_ITG_DP_BLAM')]),
