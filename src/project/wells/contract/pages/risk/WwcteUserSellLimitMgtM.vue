@@ -241,7 +241,8 @@ async function onClickDelete() {
 
 async function onClickRowAdd() {
   const view = gridMainRef.value.getView();
-  await gridUtil.insertRowAndFocus(view, 0, {});
+  const row = view.getCurrent().dataRow < 0 ? '0' : view.getCurrent().dataRow;
+  await gridUtil.insertRowAndFocus(view, row, {});
 }
 
 async function onClickSave() {
@@ -287,6 +288,7 @@ function initGrid(data, view) {
     { fieldName: 'vlStrtDtm' },
     { fieldName: 'vlEndDtm' },
     { fieldName: 'sellBaseApyCn' },
+    { fieldName: 'fstRgstDt' },
     { fieldName: 'fstRgstDtm' },
     { fieldName: 'fstRgstUsrId' },
     { fieldName: 'fnlMdfcDtm' },
@@ -357,7 +359,7 @@ function initGrid(data, view) {
       },
     },
     { fieldName: 'sellBaseApyCn', header: t('MSG_TXT_NOTE'), width: '220' },
-    { fieldName: 'fstRgstDtm', header: t('MSG_TXT_RGST_DT'), datetimeFormat: 'date', width: '196', styleName: 'text-right', editable: false },
+    { fieldName: 'fstRgstDt', header: t('MSG_TXT_RGST_DT'), datetimeFormat: 'date', width: '196', styleName: 'text-right', editable: false },
     { fieldName: 'fstRgstUsrId', header: t('MSG_TXT_FST_RGST_USR'), width: '131', editable: false },
     { fieldName: 'fnlMdfcDtm', header: t('MSG_TXT_MDFC_DT'), datetimeFormat: 'date', width: '196', styleName: 'text-right', editable: false },
     { fieldName: 'fnlMdfcUsrId', header: t('MSG_TXT_MDFC_USR'), width: '131', editable: false },
@@ -368,40 +370,47 @@ function initGrid(data, view) {
   view.checkBar.visible = true; // create checkbox column
   view.rowIndicator.visible = true; // create number indicator column
   view.editOptions.editable = true;
+  view.setEditOptions({
+    insertable: true,
+    appendable: true,
+  });
 
   view.onCellButtonClicked = async (g, { itemIndex }) => {
+    const updateRow = view.getCurrent().dataRow;
     const searchPopupParams = {
       searchType: pdConst.PD_SEARCH_CODE,
       searchValue: g.getValues(itemIndex).pdCd,
       selectType: '',
     };
-
     const returnPdInfo = await modal({
       component: 'ZwpdcStandardListP', // 상품기준 목록조회 팝업
       componentProps: searchPopupParams,
     });
-
+    console.log(updateRow);
     if (returnPdInfo.result) {
       const pdClsfNm = returnPdInfo.payload?.[0].pdClsfNm.split('>');
       data.setValue(itemIndex, 'pdCd', '');
       data.setValue(itemIndex, 'pdNm', '');
       data.setValue(itemIndex, 'pdMclsfNm', '');
       data.setValue(itemIndex, 'pdLclsfNm', '');
-      data.setValue(itemIndex, 'pdCd', returnPdInfo.payload?.[0].pdCd);
-      data.setValue(itemIndex, 'pdNm', returnPdInfo.payload?.[0].pdNm);
-      data.setValue(itemIndex, 'pdMclsfNm', !isEmpty(pdClsfNm[1]) ? pdClsfNm[1] : '');
-      data.setValue(itemIndex, 'pdLclsfNm', !isEmpty(pdClsfNm[2]) ? pdClsfNm[2] : '');
+      data.setValue(updateRow, 'pdCd', returnPdInfo.payload?.[0].pdCd);
+      data.setValue(updateRow, 'pdNm', returnPdInfo.payload?.[0].pdNm);
+      data.setValue(updateRow, 'pdMclsfNm', !isEmpty(pdClsfNm[1]) ? pdClsfNm[1] : '');
+      data.setValue(updateRow, 'pdLclsfNm', !isEmpty(pdClsfNm[2]) ? pdClsfNm[2] : '');
     }
   };
-  view.onCellEdited = async function Test(grid, index, dataRow, field) {
-    if (field === 14 || field === 15) {
-      if (grid.getValues(dataRow).vlStrtDtm > grid.getValues(dataRow).vlEndDtm
-        && !isEmpty(grid.getValues(dataRow).vlStrtDtm)
-        && !isEmpty(grid.getValues(dataRow).vlEndDtm)) {
+  view.onCellEdited = async (grid, itemIndex, dataRow, fieldIndex) => {
+    const columnName = grid.getColumn(fieldIndex).fieldName;
+
+    if (columnName === 'vlStrtDtm' || columnName === 'vlEndDtm') {
+      const { vlStrtDtm, vlEndDtm } = grid.getValues(itemIndex);
+      if (vlStrtDtm > vlEndDtm
+        && !vlStrtDtm && !vlEndDtm) {
         grid.commit();
+        const updateDateRow = view.getCurrent().dataRow;
         notify(t('MSG_ALT_CHK_DT_RLT'));
-        data.setValue(dataRow, 'vlStrtDtm', '');
-        data.setValue(dataRow, 'vlEndDtm', '');
+        data.setValue(updateDateRow, 'vlStrtDtm', '');
+        data.setValue(updateDateRow, 'vlEndDtm', '');
       }
     }
   };
