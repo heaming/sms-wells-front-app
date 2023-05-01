@@ -5,10 +5,11 @@
     </template>
     <template #default>
       <web-header>
-        <template #logo>
+        <template #logo="{ goToHome }">
           <img
             src="~~@assets/images/kstation_wells.svg"
             alt="K-Station Wells"
+            @click="goToHome()"
           >
         </template>
       </web-header>
