@@ -102,7 +102,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import dayjs from 'dayjs';
-import { modal, useDataService, useModal } from 'kw-lib';
+import { modal, useDataService, useModal, alert } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 
 const { t } = useI18n();
@@ -121,6 +121,10 @@ const props = defineProps({
   lifSpptYm: {
     type: String,
     default: null,
+  },
+  dpObjAmtSum: {
+    type: Number,
+    default: 0,
   },
 
 });
@@ -151,9 +155,7 @@ async function onClickSelectRveCd() {
   const { result, payload } = await modal({ component: 'ZwwdyDivisionReceiveCodeRegP',
     componentProps: { rveCd: searchParams.value.rveCd, rveNm: searchParams.value.rveNm },
   });
-  console.log(payload);
   if (result) {
-    console.log(payload);
     searchParams.value.rveCd = payload.rveCd;
     searchParams.value.rveNm = payload.rveNm;
   }
@@ -167,7 +169,11 @@ async function onClickSelectIntegrationDeposit() {
   });
 
   if (result) {
-    console.log(payload);
+    if (props.dpObjAmtSum !== payload.dpBlam) {
+      await alert(t('MSG_ALT_MUTU_DP_IZ_AMT_GAP'));
+      return;
+    }
+
     searchParams.value.itgDpNo = payload.itgDpNo; // 입금잔액
 
     // if (payload.dpBlam || payload.dpDtm) {
@@ -190,10 +196,7 @@ async function onClickCreate() {
 
   cachedParams = cloneDeep(searchParams.value);
 
-  console.log(cachedParams);
-
-  const res = await dataService.post('/sms/wells/withdrawal/idvrve/mutual-alliance-bulk-deposit/create', cachedParams);
-  console.log(res.data);
+  await dataService.post('/sms/wells/withdrawal/idvrve/mutual-alliance-bulk-deposit/create', cachedParams);
 
   ok();
 }
@@ -201,9 +204,8 @@ async function onClickCreate() {
 async function initProps() {
   const { lifAlncDvCd, lifSpptYm } = props;
 
-  console.log(lifAlncDvCd);
-
   searchParams.value.lifAlncDvCd = lifAlncDvCd;
+  searchParams.value.lifSpptYm = lifSpptYm;
   searchParams.value.lifSpptYm = lifSpptYm;
 }
 

@@ -202,8 +202,7 @@ async function onClickRemove() {
 // 청구서 작성
 async function onClickRegP() {
   const { result, payload } = await modal({ component: 'WwwdbBillingDocumentRegP' });
-  console.log(result);
-  console.log(payload);
+
   if (result && payload.isSearchChk) {
     searchParams.value.cstFnm = payload.cstFnm;
     await onClickSearch();
@@ -212,10 +211,10 @@ async function onClickRegP() {
 
 // 고객명 찾기 이벤트
 async function onClickSearchUser() {
-  const { result, payload } = await modal({ component: 'ZwcsaCustomerListP' });
+  const { result, payload } = await modal({ component: 'ZwcsaCustomerListP',
+    componentProps: { cstNm: searchParams.value.cstFnm } });
 
   if (result) {
-    console.log(payload);
     searchParams.value.cstFnm = payload.name;
   }
 }
