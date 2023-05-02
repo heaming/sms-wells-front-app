@@ -69,6 +69,8 @@
           <!-- TODO: 고객번호 다른 화면에 맞춰서 작업 한 이벤트 명세서 맞춰서 수정 필요한 경우 수정 -->
           <kw-input
             v-model="searchParams.cstNo"
+            type="number"
+            rules="numeric"
             icon="search"
             :on-click-icon="openSearchUserPopup"
             clearable
@@ -86,6 +88,7 @@
             :on-click-icon="openSearchUserPopup"
             clearable
             :on-keydown-no-click="true"
+            regex="alpha_hangul"
             @keydown.enter="isCustomer('type2')"
           />
         </kw-search-item>
@@ -94,6 +97,7 @@
         >
           <kw-input
             v-model="searchParams.phoneNumber"
+            type="telephone"
             :on-keydown-no-click="true"
             @keydown.enter="isCustomer('type3')"
           />
@@ -549,9 +553,9 @@ const initGrdSub = defineGrid((data, view) => {
   ];
   const columns = [
     { fieldName: 'clctamDvCd', header: t('MSG_TXT_CLCTAM_DV'), options: filteredCodes.value.CLCTAM_DV_CD, optionValue: 'codeId', optionLabel: 'codeName', editor: { type: 'list' }, width: '100' },
-    { fieldName: 'bfPrtnrKnm', header: t('MSG_TXT_LSTMM_PSIC'), width: '100', editable: false },
+    { fieldName: 'bfPrtnrKnm', header: t('MSG_TXT_LSTMM_PSIC'), width: '100', styleName: 'text-center', editable: false },
     { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '170', styleName: 'text-center', editable: false },
-    { fieldName: 'cstNm', header: t('MSG_TXT_CST_NM'), width: '100', editable: false },
+    { fieldName: 'cstNm', header: t('MSG_TXT_CST_NM'), width: '100', styleName: 'text-center', editable: false },
     { fieldName: 'cstNo', header: t('MSG_TXT_CST_NO'), width: '135', styleName: 'text-center', editable: false },
     { fieldName: 'bndBizDvCd', header: t('MSG_TXT_PRDT_GUBUN'), width: '100', options: codes.BND_BIZ_DV_CD, editable: false },
     { fieldName: 'dlqMcn', header: t('MSG_TXT_DLQ_MCNT'), width: '80', styleName: 'text-right', editable: false },
