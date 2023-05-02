@@ -114,13 +114,10 @@ import {
 import { cloneDeep } from 'lodash-es';
 
 const { t } = useI18n();
-
 const dataService = useDataService();
+const grdMainRef = getComponentType('KwGrid');
 const baseURI = '/sms/wells/service/item-locations';
-const grdMainRef = ref(getComponentType('KwGrid'));
-// -------------------------------------------------------------------------------------------------
-// Function & Event
-// -------------------------------------------------------------------------------------------------
+
 const props = defineProps({
   itmPdCd: {
     type: String,
@@ -131,6 +128,9 @@ const props = defineProps({
     default: '',
   },
 });
+// -------------------------------------------------------------------------------------------------
+// Function & Event
+// -------------------------------------------------------------------------------------------------
 const codes = ref(await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
   'LCT_ANGLE_CD',
@@ -138,6 +138,7 @@ const codes = ref(await codeUtil.getMultiCodes(
   'LCT_FLOR_NO_CD',
   'LCT_MAT_GRP_CD',
 ));
+
 const propParams = ref({
   itmPdCd: props.itmPdCd,
   wareNo: props.wareNo,
@@ -177,9 +178,9 @@ async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
 
   const response = await dataService.get(baseURI, { params: cachedParams });
-
+  const { currentRoute } = useRouter();
   await gridUtil.exportView(view, {
-    fileName: 'WwsnaItemLocationMgtP',
+    fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
     exportData: response.data,
   });
