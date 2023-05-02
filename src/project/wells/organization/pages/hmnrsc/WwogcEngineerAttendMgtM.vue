@@ -74,13 +74,14 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, useMeta, useDataService, getComponentType, gridUtil, useGlobal } from 'kw-lib';
+import { codeUtil, useMeta, useDataService, getComponentType, gridUtil, useGlobal, defineGrid } from 'kw-lib';
 import dayjs from 'dayjs';
 import ZwogLevelSelect from '~sms-common/organization/components/ZwogLevelSelect.vue';
 
 const { getConfig } = useMeta();
 const dataService = useDataService();
 const { modal } = useGlobal();
+const { currentRoute } = useRouter();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -118,7 +119,7 @@ async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
   const res = await dataService.get('/sms/wells/partner-engineer/attend/excel-download', { params: { ...searchParams.value } });
   await gridUtil.exportView(view, {
-    fileName: '엔지니어 출근관리',
+    fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
     exportData: res.data,
   });
@@ -133,7 +134,7 @@ function editableCallback() {
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
 
-function initGrid(data, view) {
+const initGrid = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'ogCd', header: t('MSG_TXT_CODE'), width: '92', styleName: 'text-center', editable: false },
     { fieldName: 'ogNm', header: t('MSG_TXT_CNT_NM'), width: '166', styleName: 'text-center', editable: false },
@@ -261,7 +262,7 @@ function initGrid(data, view) {
       }
     }
   };
-}
+});
 </script>
 
 <style scoped>
