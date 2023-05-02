@@ -131,13 +131,13 @@ const props = defineProps({
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
-const codes = ref(await codeUtil.getMultiCodes(
+const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
   'LCT_ANGLE_CD',
   'LCT_COF_CD',
   'LCT_FLOR_NO_CD',
   'LCT_MAT_GRP_CD',
-));
+);
 
 const propParams = ref({
   itmPdCd: props.itmPdCd,
