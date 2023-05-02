@@ -342,7 +342,7 @@ async function onClickSummarySearch() {
 
 async function oprenRegDetailPopup(pdCd, tempSaveYn) {
   const targetUrl = tempSaveYn === 'Y' ? page.value.reg : page.value.detail;
-  await router.push({ path: targetUrl, query: { pdCd, tempSaveYn } });
+  await router.push({ path: targetUrl, query: { pdCd, tempSaveYn, fromUi: 'ASPART' } });
 }
 
 const sapItemCdFromValidation = async (val) => {

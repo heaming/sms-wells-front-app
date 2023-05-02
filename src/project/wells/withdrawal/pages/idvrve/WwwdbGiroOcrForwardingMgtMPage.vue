@@ -123,9 +123,14 @@
       />
       <kw-btn
         dense
-        negative
+        secondary
         :label="t('대상추가')"
         @click="onClickObjectSearch"
+      />
+      <kw-separator
+        vertical
+        inset
+        spaced
       />
       <!-- label="대상추가" -->
       <kw-date-picker
@@ -679,7 +684,7 @@ const initGrid = defineGrid((data, view) => {
         console.log(res.data);
 
         if (!res.data.length > 0) {
-          alert('존재하지 않는 고객정보 입니다.');
+          await alert('선택한 계약 관련하여 매출정보가 등록되지 않아 추가가 불가능합니다.');
           return;
         }
 

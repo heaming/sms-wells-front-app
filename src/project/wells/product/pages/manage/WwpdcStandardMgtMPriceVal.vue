@@ -316,7 +316,6 @@ async function onClickAdd() {
         data.insertRow(channelIndex + idx, row);
         // }
       });
-      view.resetCurrent();
       gridUtil.focusCellInput(view, channelIndex);
     }
   }
@@ -416,7 +415,6 @@ async function initGrid(data, view) {
     const changedFieldName = grid.getColumn(fieldIndex).fieldName;
     if (changedFieldName === 'cndtFxamFxrtDvCd') {
       view.setValue(itemIndex, 'cndtDscPrumVal', 0);
-      view.resetCurrent();
     } else if (changedFieldName === 'cndtDscPrumVal') {
       const fixDvCd = grid.getValue(itemIndex, 'cndtFxamFxrtDvCd');
       const fixValue = grid.getValue(itemIndex, 'cndtDscPrumVal');
@@ -428,7 +426,6 @@ async function initGrid(data, view) {
             `${grid.columnByName('cndtDscPrumVal').header.text}(${fixValue})`,
             `${grid.columnByName('basVal').header.text}(${basVal})`]));
           view.setValue(itemIndex, 'cndtDscPrumVal', 0);
-          view.resetCurrent();
         }
       } else if (fixDvCd === '02') {
         if (fixValue < -100) {
@@ -437,7 +434,6 @@ async function initGrid(data, view) {
             grid.columnByName('cndtDscPrumVal').header.text,
             '-100%']));
           view.setValue(itemIndex, 'cndtDscPrumVal', 0);
-          view.resetCurrent();
         }
       }
     }

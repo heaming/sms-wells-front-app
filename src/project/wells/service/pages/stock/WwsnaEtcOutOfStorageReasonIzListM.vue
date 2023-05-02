@@ -104,7 +104,7 @@
       </kw-action-top>
       <kw-grid
         ref="grdMainRef"
-        :visible-rows="10"
+        :total-count="totalCount"
         @init="initGrdMain"
       />
     </div>
@@ -117,7 +117,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 
-import { codeUtil, getComponentType, useDataService, defineGrid } from 'kw-lib';
+import { codeUtil, getComponentType, useDataService, defineGrid, gridUtil } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
 
@@ -135,6 +135,7 @@ console.log(getters['meta/getUserInfo']);
 
 const { t } = useI18n();
 const dataService = useDataService();
+const { currentRoute } = useRouter();
 
 // const { getConfig } = useMeta();
 // const { notify } = useGlobal();
@@ -181,6 +182,26 @@ async function fetchData() {
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(etcValue);
   view.resetCurrent();
+}
+
+async function onClickExcelDownload() {
+  const view = grdMainRef.value.getView();
+
+  if (deptId === '2') {
+    const res = await dataService.get('/sms/wells/service/etc-out-of-storage-resons/excel-download', { params: cachedParams });
+    await gridUtil.exportView(view, {
+      fileName: currentRoute.value.meta.menuName,
+      timePostfix: true,
+      exportData: res.data.list,
+    });
+  } else {
+    const res = await dataService.get('/sms/wells/service/etc-out-of-storage-resons/business/excel-download', { params: cachedParams });
+    await gridUtil.exportView(view, {
+      fileName: currentRoute.value.meta.menuName,
+      timePostfix: true,
+      exportData: res.data.list,
+    });
+  }
 }
 
 async function onClickSearch() {

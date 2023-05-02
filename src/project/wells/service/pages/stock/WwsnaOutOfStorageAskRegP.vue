@@ -138,7 +138,7 @@
         :disable="searchParams.ostrItmNo.length === 0"
         primary
         dense
-        @click="onClickItemPop"
+        @click="onClickItem"
       />
     </kw-action-top>
 
@@ -154,13 +154,14 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, getComponentType, gridUtil, useDataService, useMeta, useGlobal, defineGrid } from 'kw-lib';
+import { codeUtil, getComponentType, gridUtil, useDataService, useMeta, useGlobal, defineGrid, useModal } from 'kw-lib';
 import { isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 import useSnCode from '~sms-wells/service/composables/useSnCode';
 
 const { t } = useI18n();
 const dataService = useDataService();
+const { ok } = useModal();
 
 const { getConfig } = useMeta();
 const { modal, notify } = useGlobal();
@@ -237,7 +238,18 @@ const filterCodes = ref({
 
 filterCodes.value.filterOstrTpCd = codes.OSTR_AK_TP_CD.filter((v) => ['310', '320', '330'].includes(v.codeId));
 
-async function onClickItemPop() {
+function changeOstrAkQty(row, val) {
+  debugger;
+  console.log(val);
+  const view = grdMainRef.value.getView();
+  view.setValue(row, 'ostrCnfmQty', val);
+}
+
+function getRowData(rowData) {
+  return { ...rowData, sapCd: rowData.sapCd, warehouseQty: rowData.warehouseQty || 0 };
+}
+
+async function onClickItemPop(type, row) {
   // TODO: 품목코드 던져줘야 됨. 팝업 props 맞게 던져주면됨.
   if (isEmpty(searchParams.value.ostrAkTpCd)) {
     // 출고요청유형 항목이 비어있습니다.
@@ -262,10 +274,19 @@ async function onClickItemPop() {
   // TODO: 연결화면 개발진행중이라, 받아와서 처리하는 로직은 임시값으로 테스트한 코드임. 팝업화면에서 넘어오는 형식따라 수정가능성있음.
   if (result) {
     const view = grdMainRef.value.getView();
-    view.getDataSource().addRows(payload);
-    view.resetCurrent();
-    pageInfo.value.totalCount += payload.length;
+    if (type === 'C') {
+      debugger;
+      view.getDataSource().addRows(payload);
+      view.resetCurrent();
+    } else if (type === 'U') {
+      const rowData = payload?.[0] || {};
+      view.setValues(row, getRowData(rowData), true);
+    }
   }
+}
+
+async function onClickItem() {
+  await onClickItemPop('C');
 }
 async function fetchOstrOjWare() {
   if (!isEmpty(props.ostrAkNo)) { return; }
@@ -373,6 +394,8 @@ async function onClickSave() {
     return;
   }
 
+  if (!(await gridUtil.validate(view, { isCheckedOnly: true }))) { return; }
+
   const chkOstrAkTpCd = searchParams.value.ostrAkTpCd;
 
   for (let i = 0; i < checkedRows.length; i += 1) {
@@ -397,13 +420,13 @@ async function onClickSave() {
   const params = searchParams.value;
 
   params.ostrAkRgstDt = dayjs().format('YYYYMMDD');
-
   // TODO: 데이터 생기면 테스트.
   const result = await dataService.post('/sms/wells/service/out-of-storage-asks', checkedRows.map((v) => ({ ...v, ...params })));
   if (result > 0) {
     notify(t('MSG_ALT_SAVE_DATA'));
   }
-  await fetchOstrAkDataItem();
+  // await fetchOstrAkDataItem();
+  ok();
 }
 
 async function onChangeStrHopDt() {
@@ -444,7 +467,8 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'ostrAkTpCd' }, /* 출고요청유형코드 */
     { fieldName: 'strHopDt' }, /* 입고희망일자 */
     { fieldName: 'mngtUnitCd' }, // 관리단위코드
-    { fieldName: 'boxUnitgQty', dataType: 'number' }, // 박스단위수량
+    { fieldName: 'boxUnitQty', dataType: 'number' }, // 박스단위수량
+    { fieldName: 'delUnt' },
     { fieldName: 'itmGdCd' }, // 품목등급코드
     { fieldName: 'ostrAkQty', dataType: 'number' }, /* 출고요청수량 */
     { fieldName: 'ostrCnfmQty', dataType: 'number' }, /* 출고확정수량 */
@@ -501,7 +525,8 @@ const initGrdMain = defineGrid((data, view) => {
       fieldName: 'itmPdCd',
       header: t('MSG_TXT_ITM_CD'),
       width: '200',
-      styleName: 'text-center',
+      button: 'action',
+      styleName: 'rg-button-icon--search',
     },
     {
       fieldName: 'itmPdNm',
@@ -513,6 +538,7 @@ const initGrdMain = defineGrid((data, view) => {
       fieldName: 'itmGdCd',
       header: t('MSG_TXT_GD'),
       width: '100',
+      options: codes.PD_GD_CD,
       styleName: 'text-center',
     },
     {
@@ -591,6 +617,10 @@ const initGrdMain = defineGrid((data, view) => {
       width: '100',
       styleName: 'text-right',
       editable: true,
+      rules: 'required|min_value:1',
+      editor: {
+        type: 'number',
+      },
       footer: {
         expression: 'sum',
         numberFormat: '#,##0.##',
@@ -645,6 +675,20 @@ const initGrdMain = defineGrid((data, view) => {
   view.checkBar.visible = true;
   view.rowIndicator.visible = true;
   view.editOptions.columnEditableFirst = true;
+
+  view.onCellClicked = async (grid, { column, dataRow }) => {
+    if (column === 'itmPdCd') {
+      await onClickItemPop('U', dataRow);
+    }
+  };
+
+  view.onGetEditValue = async (grid, index, editResult) => {
+    grid.checkItem(index.itemIndex, true);
+    debugger;
+    if (index.fieldName === 'ostrAkQty') {
+      changeOstrAkQty(index.dataRow, editResult.value);
+    }
+  };
 });
 
 </script>

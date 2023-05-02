@@ -247,7 +247,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'sortOdr',
       header: t('MSG_TXT_EXPSR_ODR'),
       width: '79',
-      editor: { type: 'number', editFormat: '9', maxLength: 1 },
+      editor: { type: 'number', editFormat: '9', maxLength: 1, positiveOnly: true },
       dataType: 'number' },
     // 등록일
     { fieldName: 'fstRgstDtm', header: t('MSG_TXT_RGST_DT'), width: '100', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date', editable: false },

@@ -86,7 +86,8 @@
     <kw-grid
       v-show="isCenter"
       ref="grdMainRef"
-      :visible-rows="10"
+      :page-size="pageInfo.pageSize"
+      :total-count="pageInfo.totalCount"
       @init="initGrdMain"
     />
     <!-- 개인창고 -->
@@ -104,7 +105,8 @@
     <kw-grid
       v-show="isPerson"
       ref="grdMainRef2"
-      :visible-rows="10"
+      :page-size="pageInfo2.pageSize"
+      :total-count="pageInfo2.totalCount"
       @init="initGrdMain2"
     />
 

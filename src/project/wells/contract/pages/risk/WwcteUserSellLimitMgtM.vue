@@ -73,6 +73,8 @@
       <kw-action-top>
         <template #left>
           <kw-paging-info
+            v-model:page-index="pageInfo.pageIndex"
+            v-model:page-size="pageInfo.pageSize"
             :total-count="pageInfo.totalCount"
             :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
             @change="fetchData"
@@ -117,7 +119,8 @@
       <kw-grid
         ref="gridMainRef"
         name="userSellLimitGrid"
-        :visible-rows="pageInfo.pageSize"
+        :page-size="pageInfo.pageSize"
+        :total-count="pageInfo.totalCount"
         @init="initGrid"
       />
     </div>
@@ -203,7 +206,6 @@ async function fetchData() {
   dataSource.setRows(res.data);
   pageInfo.value.totalCount = view.getItemCount();
 
-  view.resetCurrent();
   view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
@@ -238,7 +240,8 @@ async function onClickDelete() {
 
 async function onClickRowAdd() {
   const view = gridMainRef.value.getView();
-  await gridUtil.insertRowAndFocus(view, 0, {});
+  const row = view.getCurrent().dataRow < 0 ? '0' : view.getCurrent().dataRow;
+  await gridUtil.insertRowAndFocus(view, row, {});
 }
 
 async function onClickSave() {
@@ -365,8 +368,13 @@ function initGrid(data, view) {
   view.checkBar.visible = true; // create checkbox column
   view.rowIndicator.visible = true; // create number indicator column
   view.editOptions.editable = true;
+  view.setEditOptions({
+    insertable: true,
+    appendable: true,
+  });
 
   view.onCellButtonClicked = async (g, { itemIndex }) => {
+    const updateRow = view.getCurrent().dataRow;
     const searchPopupParams = {
       searchType: pdConst.PD_SEARCH_CODE,
       searchValue: g.getValues(itemIndex).pdCd,
@@ -380,10 +388,29 @@ function initGrid(data, view) {
 
     if (returnPdInfo.result) {
       const pdClsfNm = returnPdInfo.payload?.[0].pdClsfNm.split('>');
-      data.setValue(itemIndex, 'pdCd', returnPdInfo.payload?.[0].pdCd);
-      data.setValue(itemIndex, 'pdNm', returnPdInfo.payload?.[0].pdNm);
-      data.setValue(itemIndex, 'pdMclsfNm', !isEmpty(pdClsfNm[1]) ? pdClsfNm[1] : '');
-      data.setValue(itemIndex, 'pdLclsfNm', !isEmpty(pdClsfNm[2]) ? pdClsfNm[2] : '');
+      data.setValue(itemIndex, 'pdCd', '');
+      data.setValue(itemIndex, 'pdNm', '');
+      data.setValue(itemIndex, 'pdMclsfNm', '');
+      data.setValue(itemIndex, 'pdLclsfNm', '');
+      data.setValue(updateRow, 'pdCd', returnPdInfo.payload?.[0].pdCd);
+      data.setValue(updateRow, 'pdNm', returnPdInfo.payload?.[0].pdNm);
+      data.setValue(updateRow, 'pdMclsfNm', !isEmpty(pdClsfNm[1]) ? pdClsfNm[1] : '');
+      data.setValue(updateRow, 'pdLclsfNm', !isEmpty(pdClsfNm[2]) ? pdClsfNm[2] : '');
+    }
+  };
+  view.onCellEdited = async (grid, itemIndex, dataRow, fieldIndex) => {
+    const columnName = grid.getColumn(fieldIndex).fieldName;
+
+    if (columnName === 'vlStrtDtm' || columnName === 'vlEndDtm') {
+      const { vlStrtDtm, vlEndDtm } = grid.getValues(itemIndex);
+      if (vlStrtDtm > vlEndDtm
+        && !vlStrtDtm && !vlEndDtm) {
+        grid.commit();
+        const updateDateRow = view.getCurrent().dataRow;
+        notify(t('MSG_ALT_CHK_DT_RLT'));
+        data.setValue(updateDateRow, 'vlStrtDtm', '');
+        data.setValue(updateDateRow, 'vlEndDtm', '');
+      }
     }
   };
 }

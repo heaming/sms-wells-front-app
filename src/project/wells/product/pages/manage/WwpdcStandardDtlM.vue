@@ -34,7 +34,6 @@
         v-model:pd-cd="currentPdCd"
         v-model:init-data="prevStepData"
         :codes="codes"
-        :temp-save-yn="props.tempSaveYn"
       />
     </div>
   </kw-page>
@@ -49,7 +48,6 @@ import WwpdcStandardDtlMContents from './WwpdcStandardDtlMContents.vue';
 
 const props = defineProps({
   pdCd: { type: String, default: null },
-  tempSaveYn: { type: String, default: 'Y' },
 });
 
 const route = useRoute();

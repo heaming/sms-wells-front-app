@@ -72,7 +72,6 @@ async function initGridRows() {
     standardView.getDataSource().clearRows();
     standardView.getDataSource().setRows(products
       .filter((item) => item[pdConst.PD_REL_TP_CD] === pdConst.PD_REL_TP_CD_C_TO_P));
-    standardView.resetCurrent();
   }
 }
 

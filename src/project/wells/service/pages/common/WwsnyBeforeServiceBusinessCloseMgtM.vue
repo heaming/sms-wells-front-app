@@ -60,8 +60,7 @@
       <kw-grid
         ref="gridMainRef"
         name="gridMain"
-        :page-size="pageInfo.pageSize"
-        :total-count="pageInfo.totalCount"
+        :visible-rows="12"
         @init="initGrid"
       />
     </div>
@@ -73,7 +72,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { getComponentType, useDataService, gridUtil, useGlobal } from 'kw-lib';
+import { getComponentType, gridUtil, useDataService, useGlobal } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 

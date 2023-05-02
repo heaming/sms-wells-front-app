@@ -165,7 +165,8 @@ watch(() => route.query, async (query) => {
     #2. (관리) => 상세 => 수정 => 취소
     상기 경우 관리(*ListM) 화면으로 Forward
   */
-  if (isEmpty(query)) await pageMove(pdConst.ASPART_LIST_PAGE, true, router, { isSearch: false });
+  console.log('wwpdcasDtlM', query);
+  // if (isEmpty(query)) await pageMove(pdConst.ASPART_LIST_PAGE, true, router, { isSearch: false });
 }, { immediate: true });
 
 onMounted(async () => {

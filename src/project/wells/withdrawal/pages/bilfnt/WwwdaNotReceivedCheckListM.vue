@@ -211,7 +211,7 @@ const initGrid = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'autoFntClsf', header: t('MSG_TXT_AUTO_FNT_CLSF'), width: '735' },
     { fieldName: 'bnkCd', header: t('MSG_TXT_BNK_CDCO_CD'), width: '250', styleName: 'text-center' },
-    { fieldName: 'bnkNm', header: t('MSG_TXT_BNK_CDCO_NM'), width: '250', options: codes.BNK_CD },
+    { fieldName: 'bnkNm', header: t('MSG_TXT_BNK_CDCO_NM'), width: '250', options: codes.BNK_CD, styleName: 'text-center' },
     { fieldName: 'ct', header: t('MSG_TXT_NRCV_CT'), width: '250', styleName: 'text-right', numberFormat: '#,##0' },
 
   ];

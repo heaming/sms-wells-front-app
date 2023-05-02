@@ -40,23 +40,20 @@
           :label="$t('MSG_TXT_PD_GRP')"
           required
         >
-          <kw-field-wrap>
-            <kw-select
-              v-model="workNotice.pdGrpCd"
-              :name="$t('MSG_TXT_PD_GRP')"
-              :options="codes.PD_GRP_CD"
-              class="mr8"
-              rules="required"
-            />
-            <kw-select
-              v-model="workNotice.pdCd"
-              :options="customCodes.pdCd"
-              option-value="pdCd"
-              option-label="pdNm"
-              first-option="select"
-              :first-option-label="$t('MSG_TXT_SOMETHING_NO_SELECT', [$t('MSG_TXT_PRDT')])"
-            />
-          </kw-field-wrap>
+          <kw-select
+            v-model="workNotice.pdGrpCd"
+            :name="$t('MSG_TXT_PD_GRP')"
+            :options="codes.PD_GRP_CD"
+            first-option="all"
+            @update:model-value="workNotice.pdCd = ''"
+          />
+          <kw-select
+            v-model="workNotice.pdCd"
+            :options="filteredPdCds"
+            option-value="pdCd"
+            option-label="pdAbbrNm"
+            first-option="all"
+          />
         </kw-form-item>
         <kw-form-item
           :label="$t('MSG_TXT_WORK_TYPE')"
@@ -189,9 +186,7 @@ const codes = await codeUtil.getMultiCodes(
   'PD_GRP_CD',
 );
 
-const customCodes = ref({
-  pdCd: [],
-});
+const pdCds = ref([]);
 
 const workNoticeFormRef = ref();
 
@@ -209,6 +204,11 @@ const workNotice = ref({
   ntccnCn: '',
   vlStrtdt: '',
   vlEnddt: '',
+});
+
+const filteredPdCds = computed(() => {
+  if (isEmpty(workNotice.value.pdGrpCd)) return pdCds.value;
+  return pdCds.value.filter((obj) => obj.pdGrpCd === workNotice.value.pdGrpCd);
 });
 
 const isModify = computed(() => !(isEmpty(props.mngtYm) || isEmpty(props.ntcId) || isEmpty(props.ntcSn)));
@@ -237,31 +237,23 @@ async function getWorkNoticeDetail() {
 }
 
 async function fetchProductsByProductGroup(pdGrpCd) {
-  return await dataService.get(`/sms/wells/service/work-notices/products/${pdGrpCd}`);
+  return await dataService.get('/sms/wells/service/work-notices/products', { params: { pdGrpCd } });
 }
 
 async function getProductsByProductGroup(pdGrpCd) {
   const res = await fetchProductsByProductGroup(pdGrpCd);
-  customCodes.value.pdCd = res.data;
+  pdCds.value = res.data;
 }
+
+await getProductsByProductGroup('');
 
 if (isModify.value) {
   await getWorkNoticeDetail();
-  await getProductsByProductGroup(workNotice.value.pdGrpCd);
 } else {
   workNotice.value.mngrDvCd = deptMngrDvCd.value;
   workNotice.value.vlStrtdt = dayjs().format('YYYYMMDD');
   workNotice.value.vlEnddt = dayjs().format('YYYYMMDD');
 }
-
-watch(() => workNotice.value.pdGrpCd, async (newVal) => {
-  if (isEmpty(newVal)) {
-    customCodes.value.pdCd = [];
-  } else {
-    await getProductsByProductGroup(workNotice.value.pdGrpCd);
-  }
-  workNotice.value.pdCd = '';
-});
 
 async function onClickSave() {
   if (await workNoticeFormRef.value.alertIfIsNotModified()) { return; }

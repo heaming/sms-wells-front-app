@@ -29,7 +29,13 @@
         <kw-search-item :label="$t('MSG_TXT_RCP_PS')">
           <kw-select
             v-model="searchParams.cntrChPrgsStatCd"
-            :options="codes.CNTR_CH_PRGS_STAT_CD"
+            :options="[{ codeId: '10', codeName: t('MSG_TXT_RCP_STNB') },
+                       { codeId: '20', codeName: t('MSG_TXT_RCP_CPLT') },
+                       { codeId: '40', codeName: t('MSG_TXT_BIZ_IN_PRGS') },
+                       { codeId: '19', codeName: t('MSG_TXT_RE_REG') },
+                       { codeId: '29', codeName: t('MSG_TXT_RE_REG_CPLT') },
+                       { codeId: '50', codeName: t('MSG_TXT_PROCS_FSH') },
+                       { codeId: '99', codeName: t('MSG_TXT_ETC_END') }]"
             first-option="all"
             first-option-value=""
           />
@@ -133,7 +139,6 @@ const pageInfo = ref({
 // -------------------------------------------------------------------------------------------------
 const grdMainRef = ref(getComponentType('KwGrid'));
 const codes = await codeUtil.getMultiCodes(
-  'CNTR_CH_PRGS_STAT_CD', // 계약변경진행상태코드
   'CNTR_CH_TP_CD', // 계약변경유형코드
 );
 
@@ -180,6 +185,7 @@ onMounted(async () => {
 const initGrid = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'cntrChRcpId' }, // 접수번호
+    { fieldName: 'reCntrChRcpId' }, // 재접수번호
     { fieldName: 'cntrChRcpD' }, // 접수일
     { fieldName: 'cntrChRcpTm' }, // 접수시간
     { fieldName: 'cntrChPrgsStatCd' }, // 접수현황코드
@@ -192,11 +198,10 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'cralIdvTno' }, // 휴대개별전화번호
     { fieldName: 'cntrChTpCd' }, // 접수유형
     { fieldName: 'cntrChTpNm' }, // 접수유형명
-    { fieldName: 'fnlMdfcDtm' }, // 최종변경일시
   ];
 
   const columns = [
-    { fieldName: 'cntrChRcpId', header: t('MSG_TXT_RCPT_NO'), width: '166', styleName: 'text-center' }, // 접수번호
+    { fieldName: 'reCntrChRcpId', header: t('MSG_TXT_RCPT_NO'), width: '166', styleName: 'text-center' }, // 접수번호
     { fieldName: 'cntrChRcpD', header: t('MSG_TXT_RCP_D'), width: '166', styleName: 'text-center', datetimeFormat: 'date' }, // 접수일
     { fieldName: 'cntrChRcpTm', header: t('MSG_TXT_RCPT_HH'), width: '166', styleName: 'text-center', datetimeFormat: 'hh:mm:ss' }, // 접수시간
     { fieldName: 'cntrChPrgsStatNm', header: t('MSG_TXT_RCP_PS'), width: '166', styleName: 'text-left' }, // 접수현황
@@ -223,7 +228,6 @@ const initGrid = defineGrid((data, view) => {
       },
     }, // 휴대전화번호
     { fieldName: 'cntrChTpNm', header: t('MSG_TXT_RCP_TP_1'), width: '166', styleName: 'text-left' }, // 접수유형1
-    { fieldName: 'fnlMdfcDtm', header: t('MSG_TXT_RCP_TP_2'), width: '166', styleName: 'text-center', datetimeFormat: 'datetime' }, // 접수유형2
   ];
 
   data.setFields(fields);

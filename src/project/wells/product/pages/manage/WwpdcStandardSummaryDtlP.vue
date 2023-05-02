@@ -194,7 +194,6 @@ async function initGridRows() {
     const materialRows = products
       ?.filter((item) => materialCodeValues.includes(item[pdConst.PD_REL_TP_CD]));
     materialView.getDataSource().setRows(materialRows);
-    materialView.resetCurrent();
   }
 
   const serviceView = grdServiceRef.value?.getView();
@@ -202,7 +201,6 @@ async function initGridRows() {
     const serviceRows = products
       ?.filter((item) => item[pdConst.PD_REL_TP_CD] === pdConst.PD_REL_TP_CD_P_TO_S);
     serviceView.getDataSource().setRows(serviceRows);
-    serviceView.resetCurrent();
   }
 
   const standardView = grdStandardRef.value?.getView();
@@ -212,7 +210,6 @@ async function initGridRows() {
     const standardRows = products
       ?.filter((item) => standardCodeValues.includes(item[pdConst.PD_REL_TP_CD]));
     standardView.getDataSource().setRows(standardRows);
-    standardView.resetCurrent();
   }
 
   const changeView = grdChangePrdRef.value?.getView();
@@ -220,13 +217,11 @@ async function initGridRows() {
     const changeRows = products
       ?.filter((item) => item[pdConst.PD_REL_TP_CD] === pdConst.PD_REL_TP_CD_CHANGE);
     changeView.getDataSource().setRows(changeRows);
-    changeView.resetCurrent();
   }
 
   const view = grdMainRef.value?.getView();
   if (view) {
     view.getDataSource().setRows(pdPrcs.value);
-    view.resetCurrent();
   }
 }
 

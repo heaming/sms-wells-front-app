@@ -37,9 +37,11 @@
             icon="search"
             clearable
             :label="t('MSG_TXT_CLNT_NM')"
-            :readonly="true"
             @click-icon="onClickDealingPartner"
+            @keydown="onKeyDownSelect"
+            @clear="onClearSelect"
           />
+          <!-- :readonly="true" -->
         </kw-search-item>
       </kw-search-row>
     </kw-search>
@@ -71,6 +73,7 @@
     <kw-grid
       ref="grdMainRef"
       name="grdPage"
+      :visible-rows="5"
       :page-size="pageInfo.pageSize - 1"
       :total-count="pageInfo.totalCount"
       @init="initGrid1"
@@ -307,7 +310,7 @@ async function onClickReset() {
 async function onClickDealingPartner() {
   const { result, payload } = await modal({
     component: 'ZwcsaCorporateCustomerRegDlpnrChoListP',
-    // componentProps: { param: searchParams.value },
+    componentProps: { param: searchParams.value },
   });
 
   if (result) {
@@ -343,7 +346,7 @@ async function onClickCreate() {
   checkItem.forEach((data) => {
     gridUtil.insertRowAndFocus(view3, 0, {
 
-      itgDpNo: rowItem.itgDpNo, /* 통합입금번호 */
+      itgDpNo: itgDpNo.value, /* 통합입금번호 */
       rveCd: '', /* 수납구분 */
       billBndNo: rowItem.billBndNo, /* 어음채권번호 */
       billRmkCn: rowItem.billRmkCn, /* 어음비고내용 */
@@ -354,6 +357,9 @@ async function onClickCreate() {
       cntr: data.cntrNo + data.cntrSn, /* 계약상세번호 */
       billDpAmt: rowItem.billDpAmt, /* 입금금액 */
       billDlpnrNm: checkItem[0].dlpnrNm,
+      sellBzsBzrno: rowItem.sellBzsBzrno,
+      pblBzsBzrno: rowItem.pblBzsBzrno,
+
     });
   });
 }
@@ -384,9 +390,12 @@ async function onGridAdd() {
 
 // 저장버튼
 async function onClickSave() {
+  const view2 = grdMainRef2.value.getView();
   const view = grdMainRef3.value.getView();
+  const changedRows2 = gridUtil.getChangedRowValues(view2);
   const changedRows = gridUtil.getChangedRowValues(view);
 
+  console.log(changedRows2);
   console.log(changedRows);
 
   if (await gridUtil.alertIfIsNotModified(view)) { return; }
@@ -441,6 +450,15 @@ async function onClickExcelSubDownload() {
   });
 }
 
+async function onClearSelect() {
+  searchParams.value.bzrno = '';
+  searchParams.value.dlpnrNm = '';
+}
+
+async function onKeyDownSelect() {
+  searchParams.value.dlpnrNm = '';
+}
+
 async function initProps() {
   console.log(props.itgDpNo);
   console.log(props.cntrNo);
@@ -456,6 +474,12 @@ async function initProps() {
     await onClickSearch();
     await onClickSubSearch();
     await onGridAdd();
+  } else {
+    const view = grdMainRef2.value.getView();
+    gridUtil.insertRowAndFocus(view, 0, {
+      billRcpDt: now.format('YYYYMMDD'), // 접수일자
+      billExprDt: now.format('99991231'), // 만기일
+    });
   }
 }
 
@@ -681,6 +705,9 @@ const initGrid3 = defineGrid((data, view) => {
     { fieldName: 'billDpAmt', dataType: 'number' }, /* 입금금액 */
     { fieldName: 'billDlpnrNm' }, /* 거래처명 */
 
+    { fieldName: 'sellBzsBzrno' },
+    { fieldName: 'pblBzsBzrno' },
+
   ];
 
   const columns = [
@@ -738,6 +765,7 @@ const initGrid3 = defineGrid((data, view) => {
       editor: {
         type: 'number',
       },
+      rules: 'required|min_value:1',
       numberFormat: '#,##0',
       width: '110',
       styleName: 'text-right',

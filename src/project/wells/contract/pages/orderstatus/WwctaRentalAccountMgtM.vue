@@ -60,8 +60,6 @@
             :label="$t('MSG_TXT_MANAGEMENT_DEPARTMENT')"
             :options="gnrlDivOptions"
             first-option="all"
-            option-value="dgr1LevlOgCd"
-            option-label="dgr1LevlOgCd"
             @update:model-value="onUpdateDgr1Levl"
           />
         </kw-search-item>
@@ -89,8 +87,6 @@
             v-model="searchParams.dgr2LevlOgCd"
             first-option="all"
             :options="rgnlDivOptions"
-            option-value="dgr2LevlOgCd"
-            option-label="dgr2LevlOgCd"
           />
         </kw-search-item>
         <kw-search-item
@@ -110,7 +106,11 @@
       <kw-action-top>
         <template #left>
           <kw-paging-info
-            :total-count="totalCount"
+            v-model:page-index="pageInfo.pageIndex"
+            v-model:page-size="pageInfo.pageSize"
+            :total-count="pageInfo.totalCount"
+            :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
+            @change="fetchData"
           />
         </template>
         <kw-btn
@@ -118,14 +118,16 @@
           dense
           secondary
           :label="$t('MSG_BTN_EXCEL_DOWN')"
-          :disable="!totalCount"
+          :disable="pageInfo.totalCount === 0"
           @click="onClickExcelDownload"
         />
       </kw-action-top>
       <kw-grid
-        ref="grdMainRef"
-        :visible-rows="10"
-        @init="initGrid"
+        ref="grdRentalAccountList"
+        name="grdRentalAccountList"
+        :page-size="pageInfo.pageSize"
+        :total-count="pageInfo.totalCount"
+        @init="initRentalAccountList"
       />
     </div>
   </kw-page>
@@ -136,17 +138,17 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, gridUtil, defineGrid, getComponentType, useDataService, useGlobal } from 'kw-lib';
+import { codeUtil, gridUtil, defineGrid, getComponentType, useDataService, useGlobal, useMeta } from 'kw-lib';
 import { cloneDeep, isEmpty, uniqBy } from 'lodash-es';
 import dayjs from 'dayjs';
 import pdConst from '~sms-common/product/constants/pdConst';
 
+const { getConfig } = useMeta();
 const { t } = useI18n();
 const dataService = useDataService();
 const { modal } = useGlobal();
 const now = dayjs();
 const { currentRoute } = useRouter();
-const totalCount = ref(0);
 const srchOptions = ref([{
   codeId: 1,
   codeName: t('MSG_TXT_BY_PRD') },
@@ -171,10 +173,11 @@ const searchParams = ref({
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 
-const grdMainRef = ref(getComponentType('KwGrid'));
+const grdRentalAccountList = ref(getComponentType('KwGrid'));
 
 const codes = await codeUtil.getMultiCodes(
   'COPN_DV_CD',
+  'COD_PAGE_SIZE_OPTIONS',
 );
 
 const pdMclsfIdOptions = ref([]);
@@ -183,9 +186,15 @@ const rgnlDivOptions = ref([]);
 
 const isProd = computed(() => searchParams.value.srchGbn === 1);
 
+const pageInfo = ref({
+  totalCount: 0,
+  pageIndex: 1,
+  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
+});
+
 // Updating the col visibility as per search classification
 function onChangeSearch() {
-  const view = grdMainRef.value.getView();
+  const view = grdRentalAccountList.value.getView();
   const data = view.getDataSource();
   data.clearRows();
   searchParams.value.pdMclsfId = '';
@@ -193,7 +202,7 @@ function onChangeSearch() {
   searchParams.value.dgr1LevlOgCd = '';
   searchParams.value.dgr2LevlOgCd = '';
   searchParams.value.copnDvCd = '';
-  totalCount.value = 0;
+  pageInfo.value.totalCount = 0;
   view.columnsByTag('prod').forEach((col) => { col.visible = isProd.value; });
   view.columnsByTag('org').forEach((col) => { col.visible = !(isProd.value); });
 }
@@ -201,19 +210,20 @@ function onChangeSearch() {
 async function fetchData() {
   // changing api & cacheparams according to search classification
   let res = '';
-  if (isProd.value) {
-    const { dgr1LevlOgNm, dgr2LevlOgNm, ...prodParams } = cachedParams;
-    res = await dataService.get('/sms/wells/contract/rental-accounts/products/paging', { params: prodParams });
-  } else {
-    const { pdMclsfId, basePdCd, ...orgParams } = cachedParams;
-    res = await dataService.get('/sms/wells/contract/rental-accounts/organizations/paging', { params: orgParams });
-  }
+  cachedParams = cloneDeep(searchParams.value);
 
-  const { list: accounts } = res.data;
-  totalCount.value = accounts.length;
-  const view = grdMainRef.value.getView();
-  view.getDataSource().setRows(accounts);
-  view.resetCurrent();
+  if (isProd.value) {
+    res = await dataService.get('/sms/wells/contract/rental-accounts/products', { params: cachedParams });
+  } else {
+    res = await dataService.get('/sms/wells/contract/rental-accounts/organizations', { params: cachedParams });
+  }
+  const view = grdRentalAccountList.value.getView();
+
+  const dataSource = view.getDataSource();
+  dataSource.setRows(res.data);
+  pageInfo.value.totalCount = view.getItemCount();
+
+  view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
 async function onClickSearch() {
@@ -222,12 +232,12 @@ async function onClickSearch() {
 }
 
 async function onClickExcelDownload() {
-  const view = grdMainRef.value.getView();
+  const view = grdRentalAccountList.value.getView();
   let res = '';
   if (isProd.value) {
-    res = await dataService.get('/sms/wells/contract/rental-accounts/products/excel-download', { params: cachedParams });
+    res = await dataService.get('/sms/wells/contract/rental-accounts/products', { params: cachedParams });
   } else {
-    res = await dataService.get('/sms/wells/contract/rental-accounts/organizations/excel-download', { params: cachedParams });
+    res = await dataService.get('/sms/wells/contract/rental-accounts/organizations', { params: cachedParams });
   }
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
@@ -257,6 +267,9 @@ async function onClickSelectPdCd() {
 const responseGnrlDivOptions = ref([]);
 const responseRgnlDivOptions = ref([]);
 
+const filteredDgr1LevlOgCds = ref([]); // 필터링된 총괄단 코드
+const filteredDgr2LevlOgCds = ref([]); // 필터링된 총괄단 코드
+
 async function fetchDefaultData() {
   let res = [];
   const responseMclsfIdOptions = await dataService.get('sms/wells/contract/product/middle-classes');
@@ -265,25 +278,40 @@ async function fetchDefaultData() {
   res = await dataService.get('sms/wells/contract/partners/regional-divisions');
   responseRgnlDivOptions.value = res.data;
 
-  gnrlDivOptions.value = uniqBy(responseGnrlDivOptions.value.filter((v) => ['W01', 'W02'].includes(v.ogTpCd)));
+  filteredDgr1LevlOgCds.value = uniqBy(responseGnrlDivOptions.value.filter((v) => ['W01', 'W02'].includes(v.ogTpCd)));
 
   const initPdMclsfId = []; // 상품분류
+  const initdgr1LevlOgCd = []; // 총괄단
+
   responseMclsfIdOptions.data.forEach((v) => {
     if ((!isEmpty(v)) && (!isEmpty(v.pdClsfId))) {
-      initPdMclsfId.push({ codeId: v.pdClsfId, codeName: v.pdClsfNm });
+      initPdMclsfId.push({ codeId: v.pdClsfNm, codeName: v.pdClsfNm });
     }
   });
-
+  filteredDgr1LevlOgCds.value.forEach((v) => {
+    if ((!isEmpty(v)) && (!isEmpty(v.dgr1LevlOgCd))) {
+      initdgr1LevlOgCd.push({ codeId: v.dgr1LevlOgCd, codeName: v.dgr1LevlOgCd });
+    }
+  });
+  gnrlDivOptions.value = initdgr1LevlOgCd;
   pdMclsfIdOptions.value = uniqBy(initPdMclsfId, 'codeId'); // 중복제거
 }
-
 // 조직코드 총괄단 변경 이벤트
 async function onUpdateDgr1Levl(selectedValues) {
+  const initdgr2LevlOgCd = []; // 지역단
   // 선택한 지역단, 지점 초기화
   rgnlDivOptions.value = [];
+  searchParams.value.dgr2LevlOgCd = '';
 
   // 지역단 코드 필터링. 선택한 총괄단의 하위 지역단으로 필터링
-  rgnlDivOptions.value = responseRgnlDivOptions.value.filter((v) => selectedValues.includes(v.dgr1LevlOgCd));
+  filteredDgr2LevlOgCds.value = responseRgnlDivOptions.value.filter((v) => selectedValues.includes(v.dgr1LevlOgCd));
+
+  filteredDgr2LevlOgCds.value.forEach((v) => {
+    if ((!isEmpty(v)) && (!isEmpty(v.dgr2LevlOgCd))) {
+      initdgr2LevlOgCd.push({ codeId: v.dgr2LevlOgCd, codeName: v.dgr2LevlOgCd });
+    }
+  });
+  rgnlDivOptions.value = initdgr2LevlOgCd;
 }
 
 onMounted(async () => {
@@ -292,10 +320,10 @@ onMounted(async () => {
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
-const initGrid = defineGrid((data, view) => {
+const initRentalAccountList = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'pdgrpNm' },
-    { fieldName: 'pdNM' },
+    { fieldName: 'pdNm' },
     { fieldName: 'basePdCd' },
     { fieldName: 'istDt' },
     { fieldName: 'rstlYn' },

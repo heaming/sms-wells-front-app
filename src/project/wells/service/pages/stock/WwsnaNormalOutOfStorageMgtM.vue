@@ -105,12 +105,6 @@
           />
         </template>
         <kw-btn
-          icon="print"
-          dense
-          secondary
-          :label="$t('MSG_BTN_PRTG')"
-        />
-        <kw-btn
           v-permission:download
           dense
           icon="excel"
@@ -253,7 +247,7 @@ const initGrdMain = defineGrid((data, view) => {
         return v.replace(regExp, '$1-$2-$3');
       },
     },
-    { fieldName: 'ostrOjWareNm', header: t('MSG_TXT_OSTR_AK_WARE'), width: '150', styleName: 'text-left' },
+    { fieldName: 'strOjWareNm', header: t('MSG_TXT_OSTR_AK_WARE'), width: '150', styleName: 'text-left' },
     { fieldName: 'pdNm', header: t('MSG_TXT_OSTR_AK_ITM'), width: '300', styleName: 'text-left' },
     { fieldName: 'ovivTpCd',
       header: t('MSG_TXT_OVIV_FOM'),
@@ -273,8 +267,9 @@ const initGrdMain = defineGrid((data, view) => {
       displayCallback: () => t('MSG_TXT_NOM_OSTR_RGST'),
     },
     { fieldName: 'ostrOjWareNo', header: '', width: '0', styleName: 'text-left', visible: false },
+    { fieldName: 'ostrOjWareNm', header: '', width: '0', styleName: 'text-left', visible: false },
     { fieldName: 'strOjWareNo', header: '', width: '0', styleName: 'text-left', visible: false },
-    { fieldName: 'strOjWareNm', header: '', width: '0', styleName: 'text-left', visible: false },
+    // { fieldName: 'strOjWareNm', header: '', width: '0', styleName: 'text-left', visible: false },
     { fieldName: 'itmPdCd', header: '', width: '0', styleName: 'text-left', visible: false },
   ];
 

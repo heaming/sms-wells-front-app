@@ -232,6 +232,25 @@ async function fetchDefaultData() {
   searchParams.value.strOjWareNo = warehouses.value[0].codeId;
 }
 
+async function openOutOfStorageP(g, { column, dataRow }) {
+  debugger;
+  console.log(g, { column, dataRow });
+  const { ostrAkNo } = gridUtil.getRowValue(g, dataRow);
+  const { ostrAkTpCd } = gridUtil.getRowValue(g, dataRow);
+  const { ostrAkRgstDt } = gridUtil.getRowValue(g, dataRow);
+  const { strOjWareNo } = gridUtil.getRowValue(g, dataRow);
+
+  const { result } = await modal({
+    component: 'WwsnaOutOfStorageAskRegP',
+    componentProps: { ostrAkNo, ostrAkTpCd, ostrAkRgstDt, strOjWareNo },
+  });
+
+  if (result) {
+    debugger;
+    await fetchData();
+  }
+}
+
 function searchConditionReset() {
   fetchDefaultData();
 
@@ -295,26 +314,13 @@ function initGrdMain(data, view) {
   };
 
   view.onCellItemClicked = async (g, { column, dataRow }) => {
-    console.log(gridUtil.getRowValue(g, dataRow));
-    console.log(column);
-    // alert('현재 단위테스트 대상이 아닙니다.(개발중)');
-    debugger;
-    const { ostrAkNo } = gridUtil.getRowValue(g, dataRow);
-    const { ostrAkTpCd } = gridUtil.getRowValue(g, dataRow);
-    const { ostrAkRgstDt } = gridUtil.getRowValue(g, dataRow);
-    const { strOjWareNo } = gridUtil.getRowValue(g, dataRow);
-
     if (column === 'itmNm') {
-      await modal({
-        component: 'WwsnaOutOfStorageAskRegP',
-        componentProps: { ostrAkNo, ostrAkTpCd, ostrAkRgstDt, strOjWareNo },
-      });
+      await openOutOfStorageP(g, { column, dataRow });
     }
   };
-
   // eslint-disable-next-line no-unused-vars
-  view.onCellDblClicked = (grid, clickData) => {
-    onClickRegistration();
+  view.onCellDblClicked = async (g, { column, dataRow }) => {
+    await openOutOfStorageP(g, { column, dataRow });
   };
 }
 </script>

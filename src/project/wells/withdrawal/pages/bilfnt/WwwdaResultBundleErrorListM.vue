@@ -20,12 +20,12 @@
   >
     <kw-search-row>
       <kw-search-item
-        :label="t('MSG_TXT_AUTO_FNT')"
+        :label="t('MSG_TXT_FNT_DV')"
         required
       >
         <kw-option-group
           v-model="searchParams.dpTpCd"
-          :label="t('MSG_TXT_AUTO_FNT')"
+          :label="t('MSG_TXT_FNT_DV')"
           type="radio"
           rules="required"
           :options="codes.DP_TP_CD.filter(v => v.codeId === '0102' || v.codeId === '0203')"

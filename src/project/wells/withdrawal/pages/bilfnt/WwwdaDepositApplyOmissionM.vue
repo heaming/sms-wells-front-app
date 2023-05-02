@@ -173,7 +173,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'thmIntamDpAmt', header: t('MSG_TXT_PRPD_DP'), width: '150', styleName: 'text-right', numberFormat: '#,##0' },
     { fieldName: 'thmIstmRfndAmt', header: t('MSG_TXT_PRPD_RFND'), width: '150', styleName: 'text-right', numberFormat: '#,##0' },
     { fieldName: 'rveAmt', header: t('MSG_TXT_AMT'), width: '150', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'dpMesCd', header: t('MSG_TXT_STLM_INF'), width: '117' },
+    { fieldName: 'dpMesCd', header: t('MSG_TXT_STLM_INF'), width: '117', styleName: 'text-center' },
   ];
 
   data.setFields(fields);
