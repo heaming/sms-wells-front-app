@@ -101,18 +101,16 @@
         v-show="gridVshow"
         ref="grdMainRef"
         name="grdMain"
-        :page-size="pageInfo.pageSize"
+        :page-size="pageInfo.pageSize -1"
         :total-count="pageInfo.totalCount"
-        :visible-rows="pageInfo.pageSize - 1"
         @init="initGrid"
       />
       <kw-grid
         v-show="!gridVshow"
         ref="grdSubRef"
         name="grdSub"
-        :page-size="pageInfo.pageSize"
+        :page-size="pageInfo.pageSize -1"
         :total-count="pageInfo.totalCount"
-        :visible-rows="pageInfo.pageSize - 1"
         @init="initGrid2"
       />
     </div>
@@ -152,8 +150,8 @@ const rleDvCds = ref([
 const pageInfo = ref({
   totalCount: 0,
   pageIndex: 1,
-  // // 환경변수에서 기본설정값 받아오는 코드 현재 CFG_CMZ_DEFAULT_PAGE_SIZE 기본값:10
-  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
+  // 환경변수에서 기본설정값 받아오는 코드 현재 CFG_CMZ_DEFAULT_PAGE_SIZE 기본값:10
+  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')) - 1,
   needTotalCount: true,
 });
 
