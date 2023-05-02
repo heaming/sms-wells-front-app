@@ -347,7 +347,6 @@ async function fetchData() {
 
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(details);
-  view.resetCurrent();
 }
 
 async function onClickSearch() {

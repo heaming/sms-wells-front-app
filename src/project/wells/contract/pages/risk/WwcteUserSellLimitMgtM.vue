@@ -206,7 +206,6 @@ async function fetchData() {
   dataSource.setRows(res.data);
   pageInfo.value.totalCount = view.getItemCount();
 
-  view.resetCurrent();
   view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
