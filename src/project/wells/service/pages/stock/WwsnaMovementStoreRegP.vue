@@ -98,13 +98,14 @@
           @change="fetchData"
         />
       </template>
-
+      <!--
       <kw-btn
         icon="print"
         secondary
         :label="$t('MSG_BTN_PRTG')"
         dense
       />
+ -->
       <kw-btn
         dense
         secondary
@@ -184,15 +185,12 @@ import dayjs from 'dayjs';
 import { cloneDeep } from 'lodash-es';
 
 const { getConfig } = useMeta();
-const { alert, confirm, notify } = useGlobal();
+const { alert, confirm, notify, modal } = useGlobal();
 const { t } = useI18n();
 
 const dataService = useDataService();
 const baseURI = '/sms/wells/service/movement-stores/registration';
 const grdMainRef = ref(getComponentType('KwGrid'));
-// -------------------------------------------------------------------------------------------------
-// Function & Event
-// -------------------------------------------------------------------------------------------------
 const props = defineProps({
   strRgstDt: {
     type: String,
@@ -243,7 +241,9 @@ const props = defineProps({
     default: 0,
   },
 });
-
+// -------------------------------------------------------------------------------------------------
+// Function & Event
+// -------------------------------------------------------------------------------------------------
 const codes = ref(await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
 ));
@@ -276,14 +276,6 @@ const searchParams = ref({
   strDt: dayjs().format('YYYYMMDD'),
 });
 
-// const searchParams = ref({
-//   baseYm: dayjs().format('YYYYMM'),
-//   itmOstrNo: props.itmOstrNo,
-//   strWareNo: props.strWareNo,
-//   ostrWareNo: props.ostrWareNo,
-//   stckStdGb: '1',
-//   strDt: dayjs().format('YYYYMMDD'),
-// });
 let cachedParams;
 
 const pageInfo = ref({
@@ -346,6 +338,19 @@ function onClickNameTagPrint() {
   alert('페이지가 존재하지 않습니다.(개발중)');
 }
 
+async function onClickExcelDownload() {
+  const view = grdMainRef.value.getView();
+
+  const response = await dataService.get(`${baseURI}/excel-download`, { params: cachedParams });
+
+  const { currentRoute } = useRouter();
+  await gridUtil.exportView(view, {
+    fileName: currentRoute.value.meta.menuName,
+    timePostfix: true,
+    exportData: response.data,
+  });
+}
+
 onMounted(async () => {
   pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
@@ -386,6 +391,28 @@ const initGrdMain = defineGrid((data, view) => {
   view.setColumns(columns);
   view.checkBar.visible = true;
   view.rowIndicator.visible = true;
+
+  view.onCellDblClicked = async (g, c) => {
+    const { itmPdCd, itmPdNm } = g.getValues(g.getCurrent().itemIndex);
+    console.log(itmPdNm, itmPdNm);
+    console.log(searchParams.value.ostrWareNo);
+
+    if (c.column === 'itemLoc') {
+      const { result: isChanged } = await modal({
+        component: 'WwsnaItemLocationMgtP',
+        componentProps: {
+          wareNo: searchParams.value.ostrWareNo,
+          itmPdCd,
+        },
+      });
+      console.log(isChanged);
+    }
+
+    // if (isChanged) {
+    //   notify(t('MSG_ALT_SAVE_DATA'));
+    //   await fetchData();
+    // }
+  };
 
   view.onItemChecked = async (grid, i, checkedVal) => {
     console.log(grid, i, checkedVal);
