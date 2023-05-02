@@ -64,7 +64,7 @@
             icon="search"
             clearable
             :label="$t('MSG_TXT_CLCTAM_PSIC')"
-            :regex="/^[A-Z가-힣ㄱ-ㅎ]*$/i"
+            regex="alpha_hangul"
             @click-icon="onClickCollector"
           />
         </kw-search-item>
@@ -101,7 +101,7 @@
             clearable
             :on-click-icon="openSearchUserPopup"
             :on-keydown-no-click="true"
-            :regex="/^[A-Z가-힣ㄱ-ㅎ]*$/i"
+            regex="alpha_hangul"
             @keydown.enter="isCustomer('type2')"
           />
         </kw-search-item>

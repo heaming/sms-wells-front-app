@@ -88,7 +88,7 @@
             :on-click-icon="openSearchUserPopup"
             clearable
             :on-keydown-no-click="true"
-            :regex="/^[A-Z가-힣ㄱ-ㅎ]*$/i"
+            regex="alpha_hangul"
             @keydown.enter="isCustomer('type2')"
           />
         </kw-search-item>
