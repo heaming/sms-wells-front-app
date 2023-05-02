@@ -51,7 +51,7 @@
           <kw-option-group
             v-model="searchParams.dvCd"
             type="radio"
-            :options="rleDvCdList"
+            :options="rleDvCds"
             @change="onChangeDvCd"
           />
         </kw-search-item>
@@ -101,16 +101,18 @@
         v-show="gridVshow"
         ref="grdMainRef"
         name="grdMain"
-        :page-size="pageInfo.pageSize-1"
+        :page-size="pageInfo.pageSize"
         :total-count="pageInfo.totalCount"
+        :visible-rows="pageInfo.pageSize - 1"
         @init="initGrid"
       />
       <kw-grid
         v-show="!gridVshow"
         ref="grdSubRef"
         name="grdSub"
-        :page-size="pageInfo.pageSize-1"
+        :page-size="pageInfo.pageSize"
         :total-count="pageInfo.totalCount"
+        :visible-rows="pageInfo.pageSize - 1"
         @init="initGrid2"
       />
     </div>
@@ -121,12 +123,10 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import dayjs from 'dayjs';
-import { cloneDeep, isEmpty } from 'lodash-es';
 import { modal, useMeta, defineGrid, getComponentType, codeUtil, useDataService, gridUtil } from 'kw-lib';
+import { cloneDeep, isEmpty } from 'lodash-es';
+import dayjs from 'dayjs';
 
-const grdMainRef = ref(getComponentType('KwGrid'));
-const grdSubRef = ref(getComponentType('KwGrid'));
 const { t } = useI18n();
 const { getConfig } = useMeta();
 const { getUserInfo } = useMeta();
@@ -137,7 +137,7 @@ const { currentRoute } = useRouter(); // 엑셀 다운로드 페이지명
 let cachedParamsTotal;
 let cachedParams;
 
-const rleDvCdList = ref([
+const rleDvCds = ref([
   {
     codeId: '01',
     codeName: t('MSG_TXT_INDV'),
@@ -165,6 +165,8 @@ const codes = await codeUtil.getMultiCodes(
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
+const grdMainRef = ref(getComponentType('KwGrid'));
+const grdSubRef = ref(getComponentType('KwGrid'));
 const defaultDay = dayjs().subtract(0, 'month').format('YYYYMM');
 const gridVshow = ref(true);
 const searchParams = ref({
