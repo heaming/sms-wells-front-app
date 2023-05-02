@@ -122,13 +122,14 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { getComponentType, useGlobal, useMeta, useDataService, gridUtil } from 'kw-lib';
+import { getComponentType, useGlobal, useMeta, useDataService, gridUtil, defineGrid } from 'kw-lib';
 import dayjs from 'dayjs';
 
 const dataService = useDataService();
 const { t } = useI18n();
 const { modal, notify, confirm } = useGlobal();
 const { getConfig } = useMeta();
+const { currentRoute } = useRouter();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -187,7 +188,7 @@ async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
   const res = await dataService.get('/sms/wells/insurance/industrial-disaster/excel-download', { params: { ...searchParams.value } });
   await gridUtil.exportView(view, {
-    fileName: 'WwogdInddInsrMgtM',
+    fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
     exportData: res.data,
   });
@@ -200,10 +201,10 @@ async function onClickConfirm() {
   if (checkedRows.length > 0) {
     if (!await confirm(t('MSG_ALT_IS_DTRM'))) { return; }
     await dataService.put('/sms/wells/insurance/industrial-disaster', checkedRows);
-    await notify(t('MSG_ALT_SAVE_DATA'));
+    notify(t('MSG_ALT_SAVE_DATA'));
     await onClickSearch();
   } else {
-    await notify(t('MSG_ALT_NOT_SEL_ITEM'));
+    notify(t('MSG_ALT_NOT_SEL_ITEM'));
   }
 }
 
@@ -247,7 +248,7 @@ onMounted(async () => {
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
 
-function initGrid(data, view) {
+const initGrid = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'level2Nm', header: t('MSG_TXT_RGNL_GRP'), width: '136', styleName: 'text-center' },
     { fieldName: 'ogCd', header: t('MSG_TXT_BLG'), width: '110', styleName: 'text-center' },
@@ -267,7 +268,16 @@ function initGrid(data, view) {
 
   view.checkBar.visible = true;
   view.rowIndicator.visible = true;
-}
+
+  // 스크롤 다운 이벤트
+  view.onScrollToBottom = async (g) => {
+    if (pageInfo.value.pageIndex * pageInfo.value.pageSize <= g.getItemCount()) {
+      pageInfo.value.pageIndex += 1;
+      const res = await fetchData();
+      view.getDataSource().addRows(res.data.list);
+    }
+  };
+});
 
 </script>
 
