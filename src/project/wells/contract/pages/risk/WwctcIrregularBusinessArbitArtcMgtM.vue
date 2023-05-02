@@ -138,9 +138,11 @@ import { codeUtil, defineGrid, getComponentType, gridUtil, useDataService, useGl
 import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 
-const { notify } = useGlobal();
+const { notify, modal } = useGlobal();
 const { t } = useI18n();
-
+const { getConfig, getUserInfo } = useMeta();
+const now = dayjs();
+const userInfo = getUserInfo();
 const dataService = useDataService();
 const { currentRoute } = useRouter();
 const prdDivOption = ref([{ codeId: 1, codeName: t('MSG_TXT_FST_RGST_DT') },
@@ -174,11 +176,7 @@ const searchParams = ref({
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
-
 const grdMainRef = ref(getComponentType('KwGrid'));
-const { getConfig } = useMeta();
-const now = dayjs();
-
 const codes = await codeUtil.getMultiCodes(
   'PNTSC_ARBIT_ATC_CD',
   'PNTSC_ARBIT_DEPT_CD',
@@ -211,7 +209,6 @@ async function fetchData() {
   dataSource.setRows(res.data);
   pageInfo.value.totalCount = view.getItemCount();
 
-  view.resetCurrent();
   view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
@@ -264,13 +261,6 @@ async function onClickSave() {
   if (await gridUtil.alertIfIsNotModified(view)) { return; }
   if (!await gridUtil.validate(view)) { return; }
 
-  for (let i = 0; i < gridUtil.getCheckedRowValues(view).length; i += 1) {
-    if (isEmpty(gridUtil.getCheckedRowValues(view)[i].dangOjOgId)) {
-      notify(t('MSG_ALT_EXIST_BEAN_ID'));
-      return;
-    }
-  }
-
   const changedRows = gridUtil.getChangedRowValues(view);
   await dataService.post('/sms/wells/contract/risk-audits/irregular-sales-actions/managerial-tasks', changedRows);
 
@@ -280,7 +270,8 @@ async function onClickSave() {
 
 async function onClickAdd() {
   const view = grdMainRef.value.getView();
-  await gridUtil.insertRowAndFocus(view, 0, {});
+  const row = view.getCurrent().dataRow < 0 ? '0' : view.getCurrent().dataRow;
+  await gridUtil.insertRowAndFocus(view, row, {});
 }
 
 async function onClickExcelDownload() {
@@ -293,8 +284,59 @@ async function onClickExcelDownload() {
   });
 }
 
+async function onGroupFind(dataRow) {
+  const view = grdMainRef.value.getView();
+  if (!isEmpty(view.getValues(dataRow).dangOcStrtmm)
+    && !isEmpty(view.getValues(dataRow).dangOjPrtnrNo)) {
+    const res = await dataService.get('sms/wells/contract/risk-audits/irregular-sales-actions/organizations', {
+      params: {
+        baseYm: view.getValues(dataRow).dangOcStrtmm,
+        prtnrNo: view.getValues(dataRow).dangOjPrtnrNo,
+        ogTpCd: userInfo.ogTpCd,
+      },
+    });
+    view.setValue(dataRow, 'dangOjPrtnrNm', '');
+    view.setValue(dataRow, 'dangOjOgId', '');
+    view.setValue(dataRow, 'dangOjPstnDvCd', '');
+    view.setValue(dataRow, 'dgr1LevlDgPrtnrNo', '');
+    view.setValue(dataRow, 'dgr1LevlDgPrtnrNm', '');
+    view.setValue(dataRow, 'dgr2LevlDgPrtnrNo', '');
+    view.setValue(dataRow, 'dgr2LevlDgPrtnrNm', '');
+    view.setValue(dataRow, 'bznsSpptPrtnrNo', '');
+    view.setValue(dataRow, 'bznsSpptPrtnrNm', '');
+    view.setValue(dataRow, 'dgr3LevlDgPrtnrNo', '');
+    view.setValue(dataRow, 'dgr3LevlDgPrtnrNm', '');
+    view.setValue(dataRow, 'ogTpCd', '');
+    const resData = res.data;
+
+    if ((!isEmpty(res.data))) {
+      view.setValue(dataRow, 'dangOjPrtnrNm', resData.prtnrKnm);
+      view.setValue(dataRow, 'dangOjOgId', resData.ogCd);
+      view.setValue(dataRow, 'dangOjPstnDvCd', resData.pstnDvCd);
+      view.setValue(dataRow, 'dgr1LevlDgPrtnrNo', resData.dgr1LevlDgPrtnrNo);
+      view.setValue(dataRow, 'dgr1LevlDgPrtnrNm', resData.dgr1LevlDgPrtnrNm);
+      view.setValue(dataRow, 'dgr2LevlDgPrtnrNo', resData.dgr2LevlDgPrtnrNo);
+      view.setValue(dataRow, 'dgr2LevlDgPrtnrNm', resData.dgr2LevlDgPrtnrNm);
+      view.setValue(dataRow, 'bznsSpptPrtnrNo', resData.bizSpptPrtnrNo);
+      view.setValue(dataRow, 'bznsSpptPrtnrNm', resData.bizSpptPrtnrNm);
+      view.setValue(dataRow, 'dgr3LevlDgPrtnrNo', resData.dgr3LevlDgPrtnrNo);
+      view.setValue(dataRow, 'dgr3LevlDgPrtnrNm', resData.dgr3LevlDgPrtnrNm);
+      view.setValue(dataRow, 'ogTpCd', resData.ogTpCd);
+    }
+  }
+}
+
 async function onClickOpenPartnerListPopup() {
-  notify(t('팝업 준비중 입니다.'));
+  const { result, payload } = await modal({
+    component: 'ZwogzPartnerListP',
+    componentProps: {
+      prtnrNo: searchParams.value.prtnrNo,
+      ogTpCd: userInfo.ogTpCd,
+    },
+  });
+  if (result) {
+    searchParams.value.dangOjPrtnrNo = payload.prtnrNo;
+  }
 }
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
@@ -304,7 +346,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'dangOjPrtnrNo' },
     { fieldName: 'dangOcStrtmm' },
     { fieldName: 'dangOjOgId' },
-    { fieldName: 'dangOjPntnrNm' },
+    { fieldName: 'dangOjPrtnrNm' },
     { fieldName: 'dangOjPstnDvCd' },
     { fieldName: 'dgr1LevlDgPrtnrNo' },
     { fieldName: 'dgr1LevlDgPrtnrNm' },
@@ -321,6 +363,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'dangArbitOgId' },
     { fieldName: 'fstRgstUsrId' },
     { fieldName: 'fstRgstDt' },
+    { fieldName: 'ogTpCd' },
 
   ];
 
@@ -331,11 +374,15 @@ const initGrid = defineGrid((data, view) => {
       styleName: 'text-center rg-button-icon--search',
       button: 'action',
       rules: 'required',
+      styleCallback(grid, dataCell) {
+        return { editable: dataCell.item.rowState === 'created' };
+      },
     },
     { fieldName: 'dangOcStrtmm',
       header: t('MSG_TXT_YEAR_OCCURNCE'),
       width: '165',
       datetimeFormat: 'yyyy-MM',
+      rules: 'required',
       editor: {
         type: 'btdate',
         btOptions: {
@@ -343,10 +390,12 @@ const initGrid = defineGrid((data, view) => {
         },
         datetimeFormat: 'yyyy-MM',
       },
-
+      styleCallback(grid, dataCell) {
+        return { editable: dataCell.item.rowState === 'created' };
+      },
     },
     { fieldName: 'dangOjOgId', header: t('MSG_TXT_BLG'), width: '129', editable: false },
-    { fieldName: 'dangOjPntnrNm', header: t('MSG_TXT_EMPL_NM'), width: '129', editable: false },
+    { fieldName: 'dangOjPrtnrNm', header: t('MSG_TXT_EMPL_NM'), width: '129', editable: false },
     { fieldName: 'dangOjPstnDvCd', header: t('MSG_TXT_CRLV'), width: '129', editable: false },
     { fieldName: 'dgr1LevlDgPrtnrNm', header: t('MSG_TXT_MANAGEMENT_DEPARTMENT'), width: '129', editable: false },
     { fieldName: 'dgr2LevlDgPrtnrNm', header: t('MSG_TXT_RGNL_GRP'), width: '129', editable: false },
@@ -409,7 +458,7 @@ const initGrid = defineGrid((data, view) => {
     {
       header: t('MSG_TXT_EMP_NO'),
       direction: 'horizontal',
-      items: ['dangOjPrtnrNo', 'dangOcStrtmm', 'dangOjOgId', 'dangOjPntnrNm', 'dangOjPstnDvCd'],
+      items: ['dangOjPrtnrNo', 'dangOcStrtmm', 'dangOjOgId', 'dangOjPrtnrNm', 'dangOjPstnDvCd'],
     },
     {
       header: t('MSG_TXT_BLG'),
@@ -425,58 +474,35 @@ const initGrid = defineGrid((data, view) => {
 
   ]);
 
-  view.onCellButtonClicked = async () => {
-    notify(t('팝업 준비중 입니다.'));
-  };
-  view.onScrollToBottom = (g) => {
-    if (pageInfo.value.pageIndex * pageInfo.value.pageSize <= g.getItemCount()) {
-      pageInfo.value.pageIndex += 1;
-      fetchData();
+  view.onCellButtonClicked = async (g, { itemIndex }) => {
+    const updateRow = view.getCurrent().dataRow;
+    if (!isEmpty(data.getValue(updateRow, 18))) {
+      notify(t('MSG_ALT_ACCESS_WHEN_REG_MODE'));
+      return;
+    }
+    const { result, payload } = await modal({
+      component: 'ZwogzPartnerListP',
+      componentProps: {
+        prtnrNo: searchParams.value.prtnrNo,
+        ogTpCd: userInfo.ogTpCd,
+      },
+    });
+    data.setValue(updateRow, 'dangOjPrtnrNo', '');
+    if (result) {
+      data.setValue(updateRow, 'dangOjPrtnrNo', payload.prtnrNo);
+      onGroupFind(itemIndex);
     }
   };
-  view.onCellEdited = async function Test(grid, index, dataRow, field) {
-    if (field === 1 || field === 0) {
-      const prtnrNoParam = grid.getValue(index, 0);
-      const dateParam = grid.getValue(index, 1);
+  view.onCellEdited = async function cellEdited(grid, itemIndex, dataRow, fieldIndex) {
+    const columnName = grid.getColumn(fieldIndex).fieldName;
+    if (columnName === 'dangOjPrtnrNo' || columnName === 'dangOcStrtmm') {
+      const updateDateRow = view.getCurrent().dataRow;
+      const dateParam = grid.getValue(updateDateRow, 1);
       if (isEmpty(dateParam)) {
         grid.commit();
-        data.setValue(dataRow, 'dangOcStrtmm', now.format('YYYYMM'));
+        data.setValue(updateDateRow, 'dangOcStrtmm', now.format('YYYYMM'));
       }
-      if (!isEmpty(prtnrNoParam)) {
-        const res = await dataService.get('/sms/wells/contract/risk-audits/irregular-sales-actions/Organizations', {
-          params: {
-            baseYm: grid.getValues(dataRow).dangOcStrtmm,
-            pntnrNo: grid.getValues(dataRow).dangOjPrtnrNo,
-            ogTpCd: '',
-          },
-        });
-        data.setValue(dataRow, 'dangOjPntnrNm', '');
-        data.setValue(dataRow, 'dangOjOgId', '');
-        data.setValue(dataRow, 'dangOjPstnDvCd', '');
-        data.setValue(dataRow, 'dgr1LevlDgPrtnrNo', '');
-        data.setValue(dataRow, 'dgr1LevlDgPrtnrNm', '');
-        data.setValue(dataRow, 'dgr2LevlDgPrtnrNo', '');
-        data.setValue(dataRow, 'dgr2LevlDgPrtnrNm', '');
-        data.setValue(dataRow, 'bznsSpptPrtnrNo', '');
-        data.setValue(dataRow, 'bznsSpptPrtnrNm', '');
-        data.setValue(dataRow, 'dgr3LevlDgPrtnrNo', '');
-        data.setValue(dataRow, 'dgr3LevlDgPrtnrNm', '');
-        res.data.forEach((v) => {
-          if ((!isEmpty(v))) {
-            data.setValue(dataRow, 'dangOjPntnrNm', v.prtnrKnm);
-            data.setValue(dataRow, 'dangOjOgId', v.ogCd);
-            data.setValue(dataRow, 'dangOjPstnDvCd', v.pstnDvCd);
-            data.setValue(dataRow, 'dgr1LevlDgPrtnrNo', v.dgr1LevlDgPrtnrNo);
-            data.setValue(dataRow, 'dgr1LevlDgPrtnrNm', v.dgr1LevlDgPrtnrNm);
-            data.setValue(dataRow, 'dgr2LevlDgPrtnrNo', v.dgr2LevlDgPrtnrNo);
-            data.setValue(dataRow, 'dgr2LevlDgPrtnrNm', v.dgr2LevlDgPrtnrNm);
-            data.setValue(dataRow, 'bznsSpptPrtnrNo', v.bizSpptPrtnrCd);
-            data.setValue(dataRow, 'bznsSpptPrtnrNm', v.bizSpptPrtnrNo);
-            data.setValue(dataRow, 'dgr3LevlDgPrtnrNo', v.dgr3LevlDgPrtnrNo);
-            data.setValue(dataRow, 'dgr3LevlDgPrtnrNm', v.dgr3LevlDgPrtnrNm);
-          }
-        });
-      }
+      onGroupFind(itemIndex);
     }
   };
 });
