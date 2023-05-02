@@ -127,7 +127,7 @@ import dayjs from 'dayjs';
 
 const dataService = useDataService();
 const { t } = useI18n();
-const { modal, notify } = useGlobal();
+const { modal, notify, confirm } = useGlobal();
 const { getConfig } = useMeta();
 const { currentRoute } = useRouter();
 // -------------------------------------------------------------------------------------------------
@@ -165,6 +165,13 @@ async function onClickPrtnrSea() {
   }
 }
 
+// 파트너 번호 삭제 시
+watch(() => searchParams.value.prtnrNo, async (newVal) => {
+  if (!newVal) {
+    searchParams.value.prtnrKnm = undefined;
+  }
+}, { immediate: true });
+
 async function fetchData() {
   const res = await dataService.get('/sms/wells/insurance/industrial-disaster/pages', {
     params: { ...searchParams.value, ...pageInfo.value },
@@ -199,8 +206,8 @@ async function onClickConfirm() {
   const view = grdMainRef.value.getView();
   const checkedRows = gridUtil.getCheckedRowValues(view);
   if (checkedRows.length > 0) {
+    if (!await confirm(t('MSG_ALT_IS_DTRM'))) { return; }
     await dataService.put('/sms/wells/insurance/industrial-disaster', checkedRows);
-    notify(t('MSG_ALT_SAVE_DATA'));
     await onClickSearch();
   } else {
     notify(t('MSG_ALT_NOT_SEL_ITEM'));
