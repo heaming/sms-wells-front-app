@@ -105,7 +105,6 @@ async function initGridRows() {
     });
     // console.log('WwpdcCompositionDtlMPrice - initGridRows - rows : ', rows);
     view.getDataSource().setRows(rows);
-    view.resetCurrent();
   } else {
     view.getDataSource().clearRows();
   }

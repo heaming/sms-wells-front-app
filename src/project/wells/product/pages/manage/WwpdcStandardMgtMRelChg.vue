@@ -203,7 +203,6 @@ async function initGridRows() {
     const changeRows = products
       ?.filter((item) => item[pdConst.PD_REL_TP_CD] === pdConst.PD_REL_TP_CD_CHANGE);
     changeView.getDataSource().setRows(changeRows);
-    changeView.resetCurrent();
   }
   grdChangeRowCount.value = getGridRowCount(changeView);
 }

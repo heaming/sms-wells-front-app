@@ -141,7 +141,6 @@ async function setFinalVal(view, grid, itemIndex) {
   // 조정 전 가격 = 조정전가격 - 조정가
   fnlVal = prcBefAdj + ctrVal;
   view.setValue(itemIndex, 'fnlVal', fnlVal);
-  view.resetCurrent();
 }
 
 async function onClickRemove() {

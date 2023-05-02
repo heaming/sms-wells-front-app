@@ -373,7 +373,7 @@ const initGridMain = defineGrid((data, view) => {
       width: '60',
       styleName: 'text-center',
       rules: 'required',
-      editor: { type: 'number' },
+      editor: { type: 'number', positiveOnly: true },
       dataType: 'number',
     },
     // 필터/부품명
@@ -392,7 +392,7 @@ const initGridMain = defineGrid((data, view) => {
       header: t('MSG_TXT_WK_QTY'),
       width: '80',
       styleName: 'text-right',
-      editor: { type: 'number', editFormat: '#,##0', maxLength: 12 },
+      editor: { type: 'number', editFormat: '#,##0', maxLength: 12, positiveOnly: true },
       dataType: 'number' },
     // 서비스주기
     { fieldName: 'svPrdMmN',
@@ -400,14 +400,14 @@ const initGridMain = defineGrid((data, view) => {
       width: '90',
       styleName: 'text-center',
       rules: 'required',
-      editor: { type: 'number', editFormat: '999', maxLength: 3 },
+      editor: { type: 'number', editFormat: '999', maxLength: 3, positiveOnly: true },
       dataType: 'number' },
     // 시작월
     { fieldName: 'svStrtmmN',
       header: t('MSG_TXT_STRT_MM'),
       width: '60',
       styleName: 'text-center',
-      editor: { type: 'number', editFormat: '999', maxLength: 3 },
+      editor: { type: 'number', editFormat: '999', maxLength: 3, positiveOnly: true },
     },
     // 반복횟수
     { fieldName: 'svTms',
@@ -415,14 +415,14 @@ const initGridMain = defineGrid((data, view) => {
       width: '60',
       styleName: 'text-right',
       rules: 'required',
-      editor: { type: 'number', editFormat: '999', maxLength: 3 },
+      editor: { type: 'number', editFormat: '999', maxLength: 3, positiveOnly: true },
       dataType: 'number' },
     // 총약정개월
     { fieldName: 'totStplMcn',
       header: t('MSG_TXT_TOT_COMMIT_MM'),
       width: '60',
       styleName: 'text-right',
-      editor: { type: 'number', editFormat: '99', maxLength: 4 },
+      editor: { type: 'number', editFormat: '99', maxLength: 4, positiveOnly: true },
       dataType: 'number' },
     // 제외월
     { fieldName: 'excdMmVal',
@@ -445,7 +445,7 @@ const initGridMain = defineGrid((data, view) => {
       header: t('MSG_TXT_JOB_YEAR'),
       width: '60',
       styleName: 'text-center',
-      editor: { type: 'number', editFormat: '9', maxLength: 1 },
+      editor: { type: 'number', editFormat: '9', maxLength: 1, positiveOnly: true },
       dataType: 'number' },
     // 작업월
     { fieldName: 'wkMm',
@@ -506,7 +506,6 @@ const initGridMain = defineGrid((data, view) => {
         //   grid.setValue(itemIndex, 'strtWkYVal', 1);
         // }
       }
-      view.resetCurrent();
     }
   };
 });

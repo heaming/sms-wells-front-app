@@ -295,7 +295,7 @@ const initGrdMain = defineGrid((data, view) => {
       header: t('MSG_TXT_CSMB_CS'),
       width: '141',
       styleName: 'text-right',
-      editor: { type: 'number', editFormat: '#,##0.##', maxLength: 12 },
+      editor: { type: 'number', editFormat: '#,##0.##', maxLength: 12, positiveOnly: true },
       dataType: 'number',
     },
     // 철거비
@@ -304,7 +304,7 @@ const initGrdMain = defineGrid((data, view) => {
       header: t('MSG_TXT_REQD_CS'),
       width: '141',
       styleName: 'text-right',
-      editor: { type: 'number', editFormat: '#,##0.##', maxLength: 12 },
+      editor: { type: 'number', editFormat: '#,##0.##', maxLength: 12, positiveOnly: true },
       dataType: 'number',
     },
     // 렌탈손료
@@ -313,7 +313,7 @@ const initGrdMain = defineGrid((data, view) => {
       header: t('MSG_TXT_LENT_LOSS_COST'),
       width: '141',
       styleName: 'text-right',
-      editor: { type: 'number', editFormat: '#,##0.##', maxLength: 12 },
+      editor: { type: 'number', editFormat: '#,##0.##', maxLength: 12, positiveOnly: true },
       dataType: 'number',
     },
     // 잔여위약금(%)
@@ -322,7 +322,7 @@ const initGrdMain = defineGrid((data, view) => {
       header: `${t('MSG_TXT_REMAIN_PENALTY')}(%)`,
       width: '141',
       styleName: 'text-right',
-      editor: { type: 'number', editFormat: '999', maxLength: 3 },
+      editor: { type: 'number', editFormat: '999', maxLength: 3, positiveOnly: true },
       dataType: 'number',
     },
     // 일시분손료
@@ -331,7 +331,7 @@ const initGrdMain = defineGrid((data, view) => {
       header: t('MSG_TXT_ONET_LOSS_COST'),
       width: '141',
       styleName: 'text-right',
-      editor: { type: 'number', editFormat: '#,##0.##', maxLength: 12 },
+      editor: { type: 'number', editFormat: '#,##0.##', maxLength: 12, positiveOnly: true },
       dataType: 'number',
     },
     // 등록일

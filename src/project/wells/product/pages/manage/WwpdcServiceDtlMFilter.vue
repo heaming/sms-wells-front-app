@@ -127,7 +127,6 @@ async function initGridRows() {
     view.getDataSource().clearRows();
     view.getDataSource().setRows(products // 상품-필터
       ?.filter((item) => item[pdConst.PD_REL_TP_CD] === pdConst.PD_REL_TP_CD_PD_TO_FL));
-    view.resetCurrent();
   }
   grdRowCount.value = getGridRowCount(view);
 }

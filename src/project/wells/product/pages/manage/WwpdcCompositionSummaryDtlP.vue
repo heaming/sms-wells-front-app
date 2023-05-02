@@ -176,13 +176,11 @@ async function initGridRows() {
   if (standardView) {
     standardView.getDataSource().setRows(products
       .filter((item) => item[pdConst.PD_REL_TP_CD] === pdConst.PD_REL_TP_CD_C_TO_P));
-    standardView.resetCurrent();
   }
 
   const view = grdMainRef.value?.getView();
   if (view) {
     view.getDataSource().setRows(pdPrcs.value);
-    view.resetCurrent();
   }
 }
 
