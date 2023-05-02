@@ -458,10 +458,11 @@ const initGrid = defineGrid((data, view) => {
         componentProps: { cntrNo: cntr?.slice(0, 12), cntrSn: cntr?.slice(12) },
       });
       if (result) {
-        const { cntrNo: resCntrNo, cntrSn: resCntrSn } = payload;
+        const { cntrNo: resCntrNo, cntrSn: resCntrSn, cntrCstKnm: cstKnm } = payload;
         data.setValue(dataRow, 'cntrNo', resCntrNo);
         data.setValue(dataRow, 'cntrSn', resCntrSn);
         data.setValue(dataRow, 'cntr', `${resCntrNo}-${resCntrSn}`);
+        data.setValue(dataRow, 'cstKnm', cstKnm);
       }
     }
   };
