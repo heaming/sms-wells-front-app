@@ -357,7 +357,7 @@ async function onClickSearch() {
 // CSV다운로드버튼 클릭 이벤트
 async function onClickCsvDownload() {
   const view = grdRglrDlvrContractList.value.getView();
-  const res = await dataService.get('/sms/wells/contract/contracts/order-detail-mngt/rentals/excel-download', { params: cachedParams });
+  const res = await dataService.get('/sms/wells/contract/contracts/order-detail-mngt/regular-shippings/excel-download', { params: cachedParams });
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
@@ -538,7 +538,7 @@ function initGridRglrDlvrContractList(data, view) {
     { fieldName: 'mchnCntrNo', header: t('MSG_TXT_MCHN_CNTR_NO'), width: '138', styleName: 'text-center' }, // 기기계약번호
     { fieldName: 'mchnRcgvpKnm', header: t('MSG_TXT_MCHN_ORDR_NM'), width: '134', styleName: 'text-center' }, // 기기주문자명
     { fieldName: 'mchnPdCd', header: t('MSG_TXT_MCHN_PRDT'), width: '134', styleName: 'text-center' }, // 기기상품
-    { fieldName: 'mchnPdNm', header: t('MSG_TXT_MCHN_PRDT_NM'), width: '134', styleName: 'text-center' }, // 기기상품명
+    { fieldName: 'mchnPdNm', header: t('MSG_TXT_MCHN_PRDT_NM'), width: '134', styleName: 'text-left' }, // 기기상품명
     { fieldName: 'mchnSvTpNm', header: t('MSG_TXT_MCHN_USWY'), width: '134', styleName: 'text-center' }, // 기기용도
     { fieldName: 'mchnSvPrd', header: t('MSG_TXT_MCHN_PRD'), width: '134', styleName: 'text-center' }, // 기기주기
     { fieldName: 'mchnPdMclsfNm', header: t('MSG_TXT_MCHN_KND'), width: '134', styleName: 'text-center' }, // 기기종류
@@ -546,7 +546,7 @@ function initGridRglrDlvrContractList(data, view) {
 
     { fieldName: 'pdTpCm', header: t('MSG_TXT_PRDT_SELT_TP'), width: '138', styleName: 'text-center' }, // 상품선택유형
     { fieldName: 'recapDutyPtrmN', header: t('MSG_TXT_DUTY_PTRM'), width: '136', styleName: 'text-right' }, // 의무기간
-    { fieldName: 'stplPtrm', header: t('MSG_TXT_CNTR_PTRM'), width: '136', styleName: 'text-center' }, // 계약기간
+    { fieldName: 'stplPtrm', header: t('MSG_TXT_CNTR_PTRM'), width: '136', styleName: 'text-right' }, // 계약기간
     { fieldName: 'fnlAmt', header: t('MSG_TXT_SLE_PRC'), width: '134', styleName: 'text-right' }, // 판매가격
     { fieldName: 'sellAmt', header: t('MSG_TXT_SUPPLY_AMOUNT'), width: '134', styleName: 'text-right' }, // 공급가액
     { fieldName: 'vat', header: t('MSG_TXT_VAT'), width: '134', styleName: 'text-right' }, // 부가세
@@ -572,13 +572,13 @@ function initGridRglrDlvrContractList(data, view) {
 
     { fieldName: 'rcpPkgYn', header: t('MSG_TXT_PKG_YN'), width: '134', styleName: 'text-center' }, // 패키지여부
     { fieldName: 'rcpPkgCd', header: t('MSG_TXT_PKG_CD'), width: '134', styleName: 'text-center' }, // 패키지코드
-    { fieldName: 'rcpPkgNm', header: t('MSG_TXT_PKG_NM'), width: '274', styleName: 'text-center' }, // 패키지명
+    { fieldName: 'rcpPkgNm', header: t('MSG_TXT_PKG_NM'), width: '274', styleName: 'text-left' }, // 패키지명
     { fieldName: 'pkgYn', header: t('MSG_TXT_PKG_YN'), width: '134', styleName: 'text-center' }, // 패키지여부
     { fieldName: 'pkgPrcApy', header: `${t('MSG_TXT_PKG_PRC')} ${t('MSG_TXT_APPLY')}`, width: '134', styleName: 'text-center' }, // 패키지가격 적용
     { fieldName: 'pkgclsfNm', header: t('MSG_TXT_PKG_GRP'), width: '134', styleName: 'text-center' }, // 패키지군
     { fieldName: 'pkgCd', header: t('MSG_TXT_PKG_CD'), width: '134', styleName: 'text-center' }, // 패키지코드
-    { fieldName: 'pkgNm', header: t('MSG_TXT_PKG_NM'), width: '274', styleName: 'text-center' }, // 패키지명
-    { fieldName: 'lcscnt', header: t('MSG_TXT_SPP_STD_TMS'), width: '134', styleName: 'text-center' }, // 배송기준횟수
+    { fieldName: 'pkgNm', header: t('MSG_TXT_PKG_NM'), width: '274', styleName: 'text-left' }, // 패키지명
+    { fieldName: 'lcscnt', header: t('MSG_TXT_SPP_STD_TMS'), width: '134', styleName: 'text-right' }, // 배송기준횟수
     { fieldName: 'freCnfmYn', header: t('MSG_TXT_CNFM_EYN'), width: '134', styleName: 'text-center' }, // 확정유무
     { fieldName: 'ordCnfmYn', header: `${t('MSG_TXT_ODER')}${t('MSG_TXT_CNFM_EYN')}`, width: '134', styleName: 'text-center' }, // 주문확정유무
     { fieldName: 'dCnfmYn', header: `${t('MSG_TXT_DY_SL')}${t('MSG_TXT_DTRM')}`, width: '134', styleName: 'text-center' }, // 일매출 확정
@@ -701,5 +701,9 @@ function initGridRglrDlvrContractList(data, view) {
   };
 }
 </script>
-<style scoped>
+<style lang="scss">
+.select_og_cd {
+  min-width: 185.96px;
+  max-width: 33% !important;
+}
 </style>

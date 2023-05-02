@@ -451,18 +451,14 @@ async function onClickHomeCareManagement() {
     notify(t('MSG_ALT_BEFORE_SELECT_IT', [t('MSG_TXT_ITEM')]));
     return;
   }
-  const paramCntrNo = gridUtil.getCellValue(view, row, 'cntrNo'); // 계약번호
-  const paramCntrSn = gridUtil.getCellValue(view, row, 'cntrSn'); // 계약일련번호
-  const paramWwctaHomeCareMgtP = ref({
-    param: `{"cntrs":[{"cntrNo":"${paramCntrNo}","cntrSn":${paramCntrSn}}]}`,
-    return: '',
-  });
-
+  const cntrs = gridUtil.getCheckedRowValues(view);
   const res = await modal({
     component: 'WwctaHomeCareMgtP',
-    componentProps: JSON.parse(paramWwctaHomeCareMgtP.value.param),
+    componentProps: { cntrs },
   });
-  paramWwctaHomeCareMgtP.value.return = JSON.stringify(res);
+
+  // 리턴값을 체크한 후 재조회
+  if (res.result) fetchData();
 }
 
 // 계약번호 팝업조회
