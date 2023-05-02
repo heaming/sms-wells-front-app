@@ -127,6 +127,11 @@
         :label="t('대상추가')"
         @click="onClickObjectSearch"
       />
+      <kw-separator
+        vertical
+        inset
+        spaced
+      />
       <!-- label="대상추가" -->
       <kw-date-picker
         v-model="searchParams.giroOcrPblDtm"
