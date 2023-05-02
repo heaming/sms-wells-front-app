@@ -158,7 +158,7 @@ const { getConfig } = useMeta();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
-const codes = await codeUtil.getMultiCodes('COD_PAGE_SIZE_OPTIONS', 'COD_MSG_RESO_TYPE', 'COD_EXCEL_UPD_RESULT_TYPE', 'PROCS_ERR_TP_CD', 'DP_MES_CD');
+const codes = await codeUtil.getMultiCodes('COD_PAGE_SIZE_OPTIONS', 'COD_MSG_RESO_TYPE', 'COD_EXCEL_UPD_RESULT_TYPE', 'PROCS_ERR_TP_CD', 'DP_MES_CD', 'SELL_TP_CD', 'DP_TP_CD');
 const grdMainRef = ref(getComponentType('KwGrid'));
 const file = ref(null);
 const { getters } = useStore();
@@ -501,11 +501,12 @@ function initGrid(data, view) {
     { fieldName: 'sellTpCd',
       header: t('MSG_TXT_SEL_TYPE'),
       // header: '판매유형',
+      options: codes.SELL_TP_CD,
       width: '78',
       styleName: 'text-left' },
     { fieldName: 'dpMesCd',
       header: t('MSG_TXT_DP_TP'),
-      options: codes.DP_MES_CD,
+      options: codes.DP_TP_CD,
       // header: '입금유형',
       width: '104',
       styleName: 'text-left' },
