@@ -63,6 +63,8 @@
             :sub-options="codes.PD_MCLSF"
             :filter="productSubsetFilter"
             :label="$t('MSG_TXT_PDGRP')"
+            first-option="all"
+            sub-first-option="all"
           />
         </kw-search-item>
       </kw-search-row>
