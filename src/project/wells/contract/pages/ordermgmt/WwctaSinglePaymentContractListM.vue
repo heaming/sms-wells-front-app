@@ -74,15 +74,25 @@
         :label="$t('MSG_TXT_PRDT_CATE')"
         :colspan="2"
       >
-        <zwpd-product-classification-select
-          ref="productSelRef"
-          v-model:product1-level="searchParams.hcsfVal"
-          v-model:product2-level="searchParams.hcsfMcsfVal"
-          product1-first-option="select"
-          :product1-first-option-label="$t('TXT_MSG_PD_HCLSF_ID') + ' ' + $t('MSG_TXT_SELT')"
-          product2-first-option="select"
-          :product2-first-option-label="$t('MSG_TXT_PD_MCLSF_ID') + ' ' + $t('MSG_TXT_SELT')"
-          search-lvl="2"
+        <!-- 상품분류(대분류) 선택 -->
+        <kw-select
+          v-model="selectHighClasses"
+          :placeholder="$t('TXT_MSG_PD_HCLSF_ID') + ' ' + $t('MSG_TXT_SELT')"
+          :options="filteredHighClasses"
+          option-value="pdClsfId"
+          option-label="pdClsfNm"
+          first-option="all"
+          :first-option-label="$t('TXT_MSG_PD_HCLSF_ID') + ' ' + $t('MSG_TXT_SELT')"
+          first-option-value=""
+          @update:model-value="onUpdateHighClasses"
+        />
+        <!-- 상품분류(중분류) 선택 -->
+        <kw-select
+          v-model="selectMiddleClasses"
+          :placeholder="$t('MSG_TXT_PD_MCLSF_ID') + ' ' + $t('MSG_TXT_SELT')"
+          :options="filteredMiddleClasses"
+          option-value="refPdClsfVal"
+          option-label="pdClsfNm"
         />
       </kw-search-item>
       <!-- 상품코드 -->
@@ -253,10 +263,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { codeUtil, defineGrid, getComponentType, useDataService, gridUtil, useGlobal } from 'kw-lib';
-// import { cloneDeep } from 'lodash-es';
 import { cloneDeep, isEmpty, uniqBy } from 'lodash-es';
-// import ZpdcStandardProductListP from '~sms-common/product/pages/manage/ZpdcStandardProductListP.vue';
-import ZwpdProductClassificationSelect from '~sms-common/product/pages/standard/components/ZwpdProductClassificationSelect.vue';
 import pdConst from '~sms-common/product/constants/pdConst';
 import dayjs from 'dayjs';
 
@@ -409,7 +416,46 @@ async function onUpdateDgr2Levl(selectedValues) {
   filteredDgr3LevlOgCds.value = codesDgr3Levl.value.filter((v) => selectedValues.includes(v.dgr2LevlOgCd));
 }
 
+// 상품분류코드 조회
+const codesHighClasses = ref([]);
+const codesMiddleClasses = ref([]);
+
+const filteredHighClasses = ref([]); // 필터링된 대분류 코드
+const filteredMiddleClasses = ref([]); // 필터링된 중분류 코드
+
+const selectHighClasses = ref([]); // 선택한 대분류 코드
+const selectMiddleClasses = ref([]); // 선택한 중분류 코드
+
+async function getPdClassesInfos() {
+  let res = [];
+  res = await dataService.get('/sms/wells/contract/product/high-classes'); // 상품대분류 조회
+  codesHighClasses.value = res.data;
+  res = await dataService.get('/sms/wells/contract/product/middle-classes'); // 상품중분류 조회
+  codesMiddleClasses.value = res.data;
+
+  // 상품대분류 코드 초기화
+  filteredHighClasses.value = codesHighClasses.value;
+}
+getPdClassesInfos();
+
+// 상품대분류 변경 이벤트
+async function onUpdateHighClasses(selectedValues) {
+  // 선택한 상품중분류 초기화
+  selectMiddleClasses.value = [];
+
+  // 상품중분류 코드 필터링. 선택한 상품대분류의 하위 상품중분류으로 필터링
+  filteredMiddleClasses.value = codesMiddleClasses.value.filter((v) => selectedValues.includes(v.hgrPdClsfId));
+}
+
 async function onClickSearch() {
+  // 선택한 상품분류 코드에 해당하는 참조상품분류값 세팅
+  const highClasses = ref();
+  highClasses.value = codesHighClasses.value
+    .filter((v) => selectHighClasses.value.includes(v.pdClsfId))
+    .map((v) => v.refPdClsfVal);
+  searchParams.value.hcsfVal = highClasses.value[0];
+  searchParams.value.hcsfMcsfVal = selectMiddleClasses.value;
+
   await fetchData();
 }
 
@@ -645,7 +691,7 @@ const initGridSnglPmntContractList = defineGrid((data, view) => {
 
     if (['cntrDtlNo'].includes(column)) { // 계약상세(윈도우팝업)
       await modal({ component: 'WwctaOrderDetailP', componentProps: { cntrNo: paramCntrNo, cntrSn: paramCntrSn } });
-    } else if (['ordrInfoView'].includes(column)) { // 렌탈 주문정보 상세
+    } else if (['ordrInfoView'].includes(column)) { // 일시불 주문정보 상세
       await modal({ component: 'WwctaOrderRentalDtlP', componentProps: { cntrNo: paramCntrNo, cntrSn: paramCntrSn } });
     } else if (['connPdView'].includes(column)) { // 연계상품 리스트 조회
       await alert('연계상품 리스트 팝업 조회');
@@ -653,5 +699,9 @@ const initGridSnglPmntContractList = defineGrid((data, view) => {
   };
 });
 </script>
-<style scoped>
+<style lang="scss">
+.select_og_cd {
+  min-width: 185.96px;
+  max-width: 33% !important;
+}
 </style>
