@@ -34,7 +34,7 @@
           required
         >
           <kw-option-group
-            v-model="searchParams.typeA"
+            v-model="searchParams.cntrStat"
             type="radio"
             :options="[{ codeId: '0', codeName: $t('MSG_TXT_RCP') },
                        { codeId: '1', codeName: $t('MSG_TXT_CNTRCT') },
@@ -43,9 +43,11 @@
             :label="$t('MSG_TXT_PERF_DV')"
           />
         </kw-search-item>
-        <kw-search-item label="$t('MSG_TXT_ALNC_DV')">
+        <kw-search-item
+          :label="$t('MSG_TXT_ALNC_DV')"
+        >
           <kw-option-group
-            v-model="searchParams.typeB"
+            v-model="searchParams.alncCd"
             type="radio"
             :options="[{ codeId: '', codeName: $t('MSG_TXT_ALL') },
                        { codeId: '1', codeName: $t('MSG_TXT_ALNC') },
@@ -59,7 +61,7 @@
           required
         >
           <kw-option-group
-            v-model="searchParams.typeC"
+            v-model="searchParams.rsbDvCd"
             type="radio"
             rules="required"
             :options="[{ codeId: '', codeName: $t('MSG_TXT_ALL') },
@@ -72,20 +74,14 @@
           :label="$t('MSG_TXT_OG_LEVL')"
           :colspan="2"
         >
-          <kw-select
-            v-model="searchParams.levelA"
-            :options="codes.COD_YN"
-            first-option="select"
-          />
-          <kw-select
-            v-model="searchParams.levelB"
-            :options="codes.COD_YN.filter((code) => code.prtsCodeId === searchParams.levelA)"
-            first-option="select"
-          />
-          <kw-select
-            v-model="searchParams.levelC"
-            :options="codes.COD_YN.filter((code) => code.prtsCodeId === searchParams.levelB)"
-            first-option="select"
+          <zwog-level-select
+            v-model:og-levl-dv-cd1="searchParams.dgr2LevlOgId"
+            v-model:og-levl-dv-cd2="searchParams.dgr3LevlOgId"
+            v-model:og-levl-dv-cd3="searchParams.dgr4LevlOgId"
+            :og-tp-cd="searchParams.ogTpCd"
+            :base-ym="searchParams.baseYm"
+            :start-level="1"
+            :end-level="3"
           />
         </kw-search-item>
       </kw-search-row>
@@ -94,7 +90,7 @@
           :label="$t('MSG_TXT_SEQUENCE_NUMBER')"
         >
           <kw-input
-            v-model="searchParams.userName"
+            v-model="searchParams.prtnrNm"
             icon="search"
             clearable
             :label="$t('MSG_TXT_SEQUENCE_NUMBER')"
@@ -135,7 +131,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { getComponentType, defineGrid, gridUtil, useDataService, codeUtil, useGlobal } from 'kw-lib';
+import { getComponentType, defineGrid, gridUtil, useDataService, useGlobal } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
 
@@ -143,34 +139,36 @@ const now = dayjs();
 const { t } = useI18n();
 const { modal } = useGlobal();
 const { currentRoute } = useRouter();
+const { getters } = useStore();
 const dataService = useDataService();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
+const userInfo = getters['meta/getUserInfo'];
+const { ogTpCd } = userInfo;
+
 const grdRef = ref(getComponentType('KwGrid'));
 const grdData = computed(() => grdRef.value?.getData());
 const totalCount = ref(0);
-const codes = await codeUtil.getMultiCodes(
-  'COD_YN',
-);
 
 let cachedParams;
 const searchParams = ref({
   baseYm: now.format('YYYYMM'),
-  typeA: '0',
-  typeB: '',
-  typeC: '',
-  levelA: '',
-  levelB: '',
-  levelC: '',
-  userId: '',
-  userName: '',
+  ogTpCd,
+  dgr2LevlOgId: '',
+  dgr3LevlOgId: '',
+  dgr4LevlOgId: '',
+  cntrStat: '0',
+  alncCd: '',
+  rsbDvCd: '',
+  prtnrNo: '',
+  prtnrNm: '',
 });
 
 // 데이터 조회
 async function fetchData() {
-  const { data } = await dataService.get('API정의안됨', { params: { ...cachedParams } });
+  const { data } = await dataService.get('sms/wells/fee/mutual-aid/order', { params: { ...cachedParams } });
   grdData.value.setRows(data);
   totalCount.value = data.length;
 }
@@ -191,13 +189,13 @@ async function onClickExcelDownload() {
 async function onClickSeachItem() {
   const { result, payload } = await modal({ component: 'ZwcmzSingleSelectUserListP' });
   if (result) {
-    searchParams.value.userId = payload.userId;
-    searchParams.value.userName = payload.userName;
+    searchParams.value.prtnrNo = payload.userId;
+    searchParams.value.prtnrNm = payload.userName;
   }
 }
 async function onClearSearchItem() {
-  searchParams.value.userId = '';
-  searchParams.value.userName = '';
+  searchParams.value.prtnrNo = '';
+  searchParams.value.prtnrNm = '';
 }
 
 // -------------------------------------------------------------------------------------------------
@@ -205,21 +203,21 @@ async function onClearSearchItem() {
 // -------------------------------------------------------------------------------------------------
 const initGrdMain = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'col1', header: t('MSG_TXT_ALNC_DV'), width: '91', styleName: 'text-center' },
-    { fieldName: 'col2', header: `Wells ${t('MSG_TXT_CNTR_NO')}`, width: '138', styleName: 'text-center' },
-    { fieldName: 'col3', header: `${t('MSG_TXT_MUTU')} ${t('MSG_TXT_CNTR_NO')}`, width: '138', styleName: 'text-center' },
-    { fieldName: 'col4', header: t('MSG_TXT_CST_NM'), width: '111', styleName: 'text-left ' },
-    { fieldName: 'col5', header: t('MSG_TXT_BLG'), width: '104', styleName: 'text-center' },
-    { fieldName: 'col6', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '111', styleName: 'text-center' },
-    { fieldName: 'col7', header: t('MSG_TXT_EMPL_NM'), width: '111', styleName: 'text-left' },
-    { fieldName: 'col8', header: t('MSG_TXT_RSB'), width: '111', styleName: 'text-left' },
-    { fieldName: 'col9', header: t('MSG_TXT_BRMGR'), width: '111', styleName: 'text-center ' },
-    { fieldName: 'col10', header: t('MSG_TXT_RECPETN_DT'), width: '111', styleName: 'text-center ' },
-    { fieldName: 'col11', header: t('MSG_TXT_CNTRCT_DT'), width: '111', styleName: 'text-center ' },
-    { fieldName: 'col12', header: t('MSG_TXT_DEP_DT'), width: '111', styleName: 'text-center' },
-    { fieldName: 'col13', header: t('MSG_TXT_WTH_DT'), width: '111', styleName: 'text-center' },
-    { fieldName: 'col14', header: t('MSG_TXT_CAN_D'), width: '111', styleName: 'text-center' },
-    { fieldName: 'col15', header: t('MSG_TXT_FEE_MN'), width: '111', styleName: 'text-center' },
+    { fieldName: 'alncNm', header: t('MSG_TXT_ALNC_DV'), width: '91', styleName: 'text-center' },
+    { fieldName: 'welsCntrNo', header: `Wells ${t('MSG_TXT_CNTR_NO')}`, width: '138', styleName: 'text-center' },
+    { fieldName: 'lifCntrNo', header: `${t('MSG_TXT_MUTU')} ${t('MSG_TXT_CNTR_NO')}`, width: '138', styleName: 'text-center' },
+    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '111', styleName: 'text-left ' },
+    { fieldName: 'ogCd', header: t('MSG_TXT_BLG'), width: '104', styleName: 'text-center' },
+    { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '111', styleName: 'text-center' },
+    { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '111', styleName: 'text-left' },
+    { fieldName: 'cdCntn', header: t('MSG_TXT_RSB'), width: '111', styleName: 'text-left' },
+    { fieldName: 'brmgrPrtnrNo', header: t('MSG_TXT_BRMGR'), width: '111', styleName: 'text-center ' },
+    { fieldName: 'rcpdt', header: t('MSG_TXT_RECPETN_DT'), width: '111', styleName: 'text-center ' },
+    { fieldName: 'cntrDt', header: t('MSG_TXT_CNTRCT_DT'), width: '111', styleName: 'text-center ' },
+    { fieldName: 'dpDt', header: t('MSG_TXT_DEP_DT'), width: '111', styleName: 'text-center' },
+    { fieldName: 'wdwlDt', header: t('MSG_TXT_WTH_DT'), width: '111', styleName: 'text-center' },
+    { fieldName: 'canDt', header: t('MSG_TXT_CAN_D'), width: '111', styleName: 'text-center' },
+    { fieldName: 'feeDsbYm', header: t('MSG_TXT_FEE_MN'), width: '111', styleName: 'text-center' },
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   data.setFields(fields);
@@ -227,10 +225,5 @@ const initGrdMain = defineGrid((data, view) => {
 
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
-  data.setRows([
-    { col1: '비제휴', col2: '2022-5559710', col3: '2022-5559710', col4: '김고객', col5: 'Q831234', col6: '1234567', col7: '김교원', col8: '플래너', col9: '1234567', col10: '2022-10-12', col11: '-', col12: '-', col13: '-', col14: '-', col15: '-' },
-    { col1: '비제휴', col2: '2022-5559710', col3: '2022-5559710', col4: '김고객', col5: 'Q831234', col6: '1234567', col7: '김교원', col8: '플래너', col9: '1234567', col10: '2022-10-12', col11: '-', col12: '-', col13: '-', col14: '-', col15: '-' },
-    { col1: '비제휴', col2: '2022-5559710', col3: '2022-5559710', col4: '김고객', col5: 'Q831234', col6: '1234567', col7: '김교원', col8: '플래너', col9: '1234567', col10: '2022-10-12', col11: '-', col12: '-', col13: '-', col14: '-', col15: '-' },
-  ]);
 });
 </script>

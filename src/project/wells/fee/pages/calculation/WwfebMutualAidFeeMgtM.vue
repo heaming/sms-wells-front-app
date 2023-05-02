@@ -43,8 +43,8 @@
           :label="$t('MSG_TXT_CNTR_DATE')"
         >
           <kw-date-range-picker
-            v-model:from="searchParams.strtdt"
-            v-model:to="searchParams.enddt"
+            v-model:from="searchParams.strtDt"
+            v-model:to="searchParams.endDt"
             type="date"
             :label="$t('MSG_TXT_CNTR_DATE')"
           />
@@ -133,8 +133,8 @@ let cachedParams;
 const searchParams = ref({
   type: 'A',
   baseYm: now.format('YYYYMM'),
-  strtdt: '',
-  enddt: '',
+  strtDt: '',
+  endDt: '',
   pdCd: '',
 });
 // 데이터 조회
