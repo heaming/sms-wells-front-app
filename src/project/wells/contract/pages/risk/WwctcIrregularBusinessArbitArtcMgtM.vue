@@ -288,14 +288,14 @@ async function onGroupFind(dataRow) {
   const view = grdMainRef.value.getView();
   if (!isEmpty(view.getValues(dataRow).dangOcStrtmm)
     && !isEmpty(view.getValues(dataRow).dangOjPrtnrNo)) {
-    const res = await dataService.get('sms/wells/contract/risk-audits/irregular-sales-actions/Organizations', {
+    const res = await dataService.get('sms/wells/contract/risk-audits/irregular-sales-actions/organizations', {
       params: {
         baseYm: view.getValues(dataRow).dangOcStrtmm,
-        pntnrNo: view.getValues(dataRow).dangOjPrtnrNo,
+        prtnrNo: view.getValues(dataRow).dangOjPrtnrNo,
         ogTpCd: userInfo.ogTpCd,
       },
     });
-    view.setValue(dataRow, 'dangOjPntnrNm', '');
+    view.setValue(dataRow, 'dangOjPrtnrNm', '');
     view.setValue(dataRow, 'dangOjOgId', '');
     view.setValue(dataRow, 'dangOjPstnDvCd', '');
     view.setValue(dataRow, 'dgr1LevlDgPrtnrNo', '');
@@ -310,7 +310,7 @@ async function onGroupFind(dataRow) {
     const resData = res.data;
 
     if ((!isEmpty(res.data))) {
-      view.setValue(dataRow, 'dangOjPntnrNm', resData.prtnrKnm);
+      view.setValue(dataRow, 'dangOjPrtnrNm', resData.prtnrKnm);
       view.setValue(dataRow, 'dangOjOgId', resData.ogCd);
       view.setValue(dataRow, 'dangOjPstnDvCd', resData.pstnDvCd);
       view.setValue(dataRow, 'dgr1LevlDgPrtnrNo', resData.dgr1LevlDgPrtnrNo);
@@ -330,7 +330,7 @@ async function onClickOpenPartnerListPopup() {
   const { result, payload } = await modal({
     component: 'ZwogzPartnerListP',
     componentProps: {
-      prtnrNo: searchParams.value.pntnrNo,
+      prtnrNo: searchParams.value.prtnrNo,
       ogTpCd: userInfo.ogTpCd,
     },
   });
@@ -346,7 +346,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'dangOjPrtnrNo' },
     { fieldName: 'dangOcStrtmm' },
     { fieldName: 'dangOjOgId' },
-    { fieldName: 'dangOjPntnrNm' },
+    { fieldName: 'dangOjPrtnrNm' },
     { fieldName: 'dangOjPstnDvCd' },
     { fieldName: 'dgr1LevlDgPrtnrNo' },
     { fieldName: 'dgr1LevlDgPrtnrNm' },
@@ -375,13 +375,7 @@ const initGrid = defineGrid((data, view) => {
       button: 'action',
       rules: 'required',
       styleCallback(grid, dataCell) {
-        const ret = {};
-        if (dataCell.item.rowState === 'created') {
-          ret.editable = true;
-        } else {
-          ret.editable = false;
-        }
-        return ret;
+        return { editable: dataCell.item.rowState === 'created' };
       },
     },
     { fieldName: 'dangOcStrtmm',
@@ -397,17 +391,11 @@ const initGrid = defineGrid((data, view) => {
         datetimeFormat: 'yyyy-MM',
       },
       styleCallback(grid, dataCell) {
-        const ret = {};
-        if (dataCell.item.rowState === 'created') {
-          ret.editable = true;
-        } else {
-          ret.editable = false;
-        }
-        return ret;
+        return { editable: dataCell.item.rowState === 'created' };
       },
     },
     { fieldName: 'dangOjOgId', header: t('MSG_TXT_BLG'), width: '129', editable: false },
-    { fieldName: 'dangOjPntnrNm', header: t('MSG_TXT_EMPL_NM'), width: '129', editable: false },
+    { fieldName: 'dangOjPrtnrNm', header: t('MSG_TXT_EMPL_NM'), width: '129', editable: false },
     { fieldName: 'dangOjPstnDvCd', header: t('MSG_TXT_CRLV'), width: '129', editable: false },
     { fieldName: 'dgr1LevlDgPrtnrNm', header: t('MSG_TXT_MANAGEMENT_DEPARTMENT'), width: '129', editable: false },
     { fieldName: 'dgr2LevlDgPrtnrNm', header: t('MSG_TXT_RGNL_GRP'), width: '129', editable: false },
@@ -470,7 +458,7 @@ const initGrid = defineGrid((data, view) => {
     {
       header: t('MSG_TXT_EMP_NO'),
       direction: 'horizontal',
-      items: ['dangOjPrtnrNo', 'dangOcStrtmm', 'dangOjOgId', 'dangOjPntnrNm', 'dangOjPstnDvCd'],
+      items: ['dangOjPrtnrNo', 'dangOcStrtmm', 'dangOjOgId', 'dangOjPrtnrNm', 'dangOjPstnDvCd'],
     },
     {
       header: t('MSG_TXT_BLG'),
@@ -495,7 +483,7 @@ const initGrid = defineGrid((data, view) => {
     const { result, payload } = await modal({
       component: 'ZwogzPartnerListP',
       componentProps: {
-        prtnrNo: searchParams.value.pntnrNo,
+        prtnrNo: searchParams.value.prtnrNo,
         ogTpCd: userInfo.ogTpCd,
       },
     });
