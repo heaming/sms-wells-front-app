@@ -176,13 +176,13 @@ const pageInfo = ref({
 const serachStandardOptionList = [
   {
     codeId: '1',
-    codeName: t('유'),
+    codeName: t('포함'),
     // codeName: '기준월',
   },
   {
     codeId: '2',
     // codeName: '적용월',
-    codeName: t('무'),
+    codeName: t('미포함'), // 변경 될 수도 있어 채번은 나중에 등록 하겠음
   },
 ];
 
@@ -253,20 +253,34 @@ const attachFileRef = ref();
 const fileData = [];
 
 let paramData;
-const gridSetData = [];
+let gridSetData = [];
 
-async function rowAdd() {
+async function addRow() {
   const view = grdMainRef.value.getView();
   const dataSource = view.getDataSource();
 
+  const createData = gridUtil.getAllRowValues(view);
+
+  console.log(createData);
+
   paramData = fileData;
 
-  console.log(paramData);
-  console.log(view);
+  let sum1 = 0;
+  let sum2 = 0;
+
+  if (!await confirm('지로업로드를 진행하시겠습니까?')) { return; }
+
+  grdMainRef.value.getData().clearRows();
+  pageInfo.value.pageIndex = 1;
+  pageInfo.value.totalCount = 0;
+
+  result = 0;
+  giroResult = 0;
 
   paramData.forEach((data) => {
     if (data.giroDpMtrDvCd === '22') {
       // gridUtil.insertRowAndFocus(view, 0, {
+
       gridSetData.push({
         giroDpMtrDvCd: data.giroDpMtrDvCd, // 구분코드      2
         dpSn: data.dpSn, // 일련번호      7
@@ -287,10 +301,19 @@ async function rowAdd() {
         giroFee: data.giroFeeDvCd,
       });
       // });
+
+      sum1 += Number(data.pyAmt);
+      sum2 += Number(data.giroFeeDvCd);
     }
   });
 
+  result = sum1;
+  giroResult = sum2;
+
+  console.log(result);
   dataSource.setRows(gridSetData);
+
+  gridSetData = [];
 }
 
 async function onClickExcelDownload() {
@@ -304,7 +327,6 @@ async function onClickExcelDownload() {
 }
 
 async function onUpdateFileUpload() {
-  console.log(file.value.nativeFile);
   if (file.value === null || file.value.length === 0) {
     return;
   }
@@ -345,7 +367,7 @@ async function onUpdateFileUpload() {
       }
     }
     // giroSaveUpload();
-    rowAdd();
+    addRow();
   };
   reader.readAsText(file.value.nativeFile);
 }
