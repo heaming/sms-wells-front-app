@@ -255,7 +255,7 @@ const fileData = [];
 let paramData;
 let gridSetData = [];
 
-async function rowAdd() {
+async function addRow() {
   const view = grdMainRef.value.getView();
   const dataSource = view.getDataSource();
 
@@ -367,7 +367,7 @@ async function onUpdateFileUpload() {
       }
     }
     // giroSaveUpload();
-    rowAdd();
+    addRow();
   };
   reader.readAsText(file.value.nativeFile);
 }
