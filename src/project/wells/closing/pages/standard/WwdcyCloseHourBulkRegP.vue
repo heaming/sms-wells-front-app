@@ -33,7 +33,7 @@
         >
           <kw-select
             v-model="frmMainData.clBizTpCd"
-            :options="codes.CL_BIZ_TP_CD"
+            :options="closeDivideCodes.clBizTpCd"
           />
         </kw-form-item>
       </kw-form-row>
@@ -143,7 +143,7 @@
               :options="dtDvCodes"
               rules="required"
               :label="$t('MSG_TXT_D_CL_HH_PERF_DT')"
-            /><!--TODO. 설계자 확인 후 코드 수정 필요 -->
+            /><!--일마감 시간/실적일자 -->
           </kw-field-wrap>
         </kw-form-item>
       </kw-form-row>
@@ -273,6 +273,7 @@
 import { codeUtil, useDataService, useGlobal, useModal } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
+import clConst from '~sms-common/closing/constants/clConst';
 
 const { ok } = useModal();
 const { t } = useI18n();
@@ -301,20 +302,13 @@ const clPsicCodes = ref([
   { codeId: '0', codeName: '공통' },
   { codeId: '', codeName: '담당자' },
 ]);
-// TODO: 명세서 기준 팝업시 전달 받을 정보 '마감구분' 만 정의 확인 필요
-const props = defineProps({
-  clBizTpCd: {
-    type: String,
-    default: null,
-  },
-});
 
 // TODO: 초기 설정 정보 명세서 기준으로 작업(참고 명세서 완료본 아니기 때문에 마무리전 반드시 확인 필요)
 // TODO: 마감담당자(clPsicNo ) 관련 키 인데... 화면에는 공통이라는 내용이 있음 어떻게 해야 하는지 명세서에 없음 확인 필요 테스트 하느라 임의값 셋팅
 // TODO. 법인, 마감구분, 기준년월 제외하고 다 수정해야됨
 const frmMainData = ref({
   kwGrpCoCd: store.getters['meta/getUserInfo'].companyCode, // 1200 교원 / 2000 교원 프러퍼티
-  clBizTpCd: props.clBizTpCd,
+  clBizTpCd: '11',
   clPsicNo: '0',
   prtnrNo: '', // 담당자 구분
   baseYm: dayjs().format('YYYYMM'),
@@ -328,20 +322,22 @@ const frmMainData = ref({
   ddClDtTmTo: '2359',
   ddClPerfDtDvVal: '1',
 
-  // 마감일자
+  // (렌탈)마감일/실적일자
   rentalRcpClDdTmFrom: '0800',
   rentalRcpClDdTmTo: '2359',
   rentalRcpClDdPerfDtDvVal: '1',
 
+  // (렌탈)마감익일~말일시간/실적일자
   rentalRcpClNxdTmForm: '0800',
   rentalRcpClNxdTmTo: '2359',
   rentalRcpClNxdPerfDtDvVal: '2',
 
-  // 말일까지 일자
+  // (일시불)마감일/실적일자
   spayRcpClDdTmFrom: '0800',
   spayRcpClDdTmTo: '2359',
   spayRcpClDdPerfDtDvVal: '1',
 
+  // (일시불)마감익일~말일시간/실적일자
   spayRcpClNxdTmFrom: '0800',
   spayRcpClNxdTmTo: '2359',
   spayRcpClNxdPerfDtDvVal: '1',
@@ -368,11 +364,18 @@ async function onClickSave() {
   // 담당자구분이 담당자이면 파트너 번호로
   frmMainData.value.clPsicNo = isEmpty(clPsicNo) ? userInfo.prtnrNo : clPsicNo;
   const data = cloneDeep(frmMainData.value);
-  console.log(`data: ${data}`);
-  debugger;
-  // TODO: url 백엔드에 맞춰서 수정 필요
-  await dataService.post('/sms/wells/closing/standard', data);
+
+  const res = await dataService.post('/sms/wells/closing/standard', data);
+
   notify(t('MSG_ALT_SAVE_DATA'));
-  ok();
+  ok(res);
 }
+
+const closeDivideCodes = ref({ clBizTpCd: [] });
+codes.CL_BIZ_TP_CD.forEach((data) => {
+  if (store.getters['meta/getUserInfo'].tenantId === clConst.TENANT_ID_WELLS && (data.codeId === '11' || data.codeId === '12'
+        || data.codeId === '21' || data.codeId === '22' || data.codeId === '30')) {
+    closeDivideCodes.value.clBizTpCd.push({ codeId: data.codeId, codeName: data.codeName });
+  }
+});
 </script>
