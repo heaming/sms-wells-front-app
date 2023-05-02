@@ -124,12 +124,12 @@
         </kw-form-item>
         <!-- 계약번호 -->
         <kw-form-item
-          :label="$t('MSG_TXT_CNTR_NO')"
+          :label="$t('MSG_TXT_CNTR_DTL_NO')"
         >
           <kw-input
             v-model="searchParams.cntrNo"
-            :maxlength="11"
-            type="number"
+            :maxlength="14"
+            class="w200"
           />
         </kw-form-item>
       </kw-search-row>
@@ -181,7 +181,8 @@
       <kw-grid
         ref="grdMainRef"
         name="grdMain"
-        :visible-rows="pageInfo.pageSize"
+        :page-size="pageInfo.pageSize"
+        :total-count="pageInfo.totalCount"
         @init="initGrdMain"
       />
       <kw-pagination
@@ -208,7 +209,7 @@ import {
   useGlobal,
 } from 'kw-lib';
 
-import { cloneDeep, isEmpty } from 'lodash-es';
+import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
 // import smsCommon from '~sms-wells/service/composables/useSnCode';
 // import ZwcmMultiSelect from '@/modules/common/components/ZwcmMultiSelect.vue';
@@ -229,16 +230,16 @@ const { currentRoute } = useRouter();
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 
-const svcCode = (await dataService.get('/sms/wells/service/installation-locations/centers')).data;
+// const svcCode = (await dataService.get('/sms/wells/service/installation-locations/centers')).data;
+const svcCode = (await dataService.get('/sms/wells/service/organizations/service-center')).data;
 
-const engineers = ref();
-const products = ref();
+const engineers = ref([]);
+const products = ref([]);
 // 기획서 기준
-const eng = (await dataService.get('/sms/wells/service/installation-locations/engineers')).data;
 // const wrkEng = (await getWorkingEngineers('G_ONLY_ENG')).G_ONLY_ENG;
 const prd = (await dataService.get('/sms/wells/service/installation-locations/products')).data;
 products.value = prd;
-engineers.value = eng.map((v) => ({ codeId: v.prtnrNo, codeName: v.prtnrKnm }));
+// engineers.value = eng.map((v) => ({ codeId: v.prtnrNo, codeName: v.prtnrKnm }));
 
 const dvCd = [{ codeId: '1', codeName: t('MSG_TXT_EGER') }];
 const codes = await codeUtil.getMultiCodes(
@@ -323,21 +324,17 @@ async function onClickSave() {
   await fetchData();
 }
 
-function setEngineers() {
+async function setEngineers() {
   if (searchParams.value.ogId === '') {
-    if (searchParams.value.rgsnYn === 'Y') {
-      engineers.value = eng.filter((v) => isEmpty(v.cltnDt)).map((v) => ({ codeId: v.prtnrNo, codeName: v.prtnrKnm }));
-      return;
-    }
-    engineers.value = eng.map((v) => ({ codeId: v.prtnrNo, codeName: v.prtnrKnm }));
+    engineers.value = [];
   } else {
+    const eng = (await dataService.get('/sms/wells/service/installation-locations/engineers', { params: { ogId: searchParams.value.ogId } })).data;
     if (searchParams.value.rgsnYn === 'Y') {
       const wrkEngByOdId = eng.filter((v) => v.cltnDt === '').map((v) => ({ codeId: v.prtnrNo, codeName: v.prtnrKnm }));
       engineers.value = wrkEngByOdId.map((v) => ({ codeId: v.prtnrNo, codeName: v.prtnrKnm }));
       return;
     }
-    const engByOgId = eng.filter((v) => v.ogId === searchParams.value.ogId);
-    engineers.value = engByOgId.map((v) => ({ codeId: v.prtnrNo, codeName: v.prtnrKnm }));
+    engineers.value = eng.map((v) => ({ codeId: v.prtnrNo, codeName: v.prtnrKnm }));
   }
 }
 
@@ -406,7 +403,7 @@ const initGrdMain = defineGrid((data, view) => {
     },
     {
       fieldName: 'cntrNo',
-      header: t('MSG_TXT_CNTR_NO'),
+      header: t('MSG_TXT_CNTR_DTL_NO'),
       width: '150',
       styleName: 'text-center rg-button-link',
       renderer: {
