@@ -119,7 +119,7 @@ const searchParams = ref({
 });
 
 async function fetchData() {
-  const res = await dataService.get('sms/wells/organization/partner/planner-license/paging', { params: { ...cachedParams, ...pageInfo.value } });
+  const res = await dataService.get('sms/wells/partner/planner-license/paging', { params: { ...cachedParams, ...pageInfo.value } });
   const { list, pageInfo: pagingResult } = res.data;
   pageInfo.value = pagingResult;
   const view = grdMainRef.value.getView();
@@ -137,7 +137,7 @@ async function onclickSearch() {
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
 
-  const res = await dataService.get('/sms/wells/organization/partner/planner-license/excel-download', { params: cachedParams });
+  const res = await dataService.get('/sms/wells/partner/planner-license/excel-download', { params: cachedParams });
   await gridUtil.exportView(view, {
     fileName: '플래너 자격 관리',
     timePostfix: true,
