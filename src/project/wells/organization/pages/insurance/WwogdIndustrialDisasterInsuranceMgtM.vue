@@ -127,7 +127,7 @@ import dayjs from 'dayjs';
 
 const dataService = useDataService();
 const { t } = useI18n();
-const { modal, notify, confirm } = useGlobal();
+const { modal, notify } = useGlobal();
 const { getConfig } = useMeta();
 const { currentRoute } = useRouter();
 // -------------------------------------------------------------------------------------------------
@@ -199,7 +199,6 @@ async function onClickConfirm() {
   const view = grdMainRef.value.getView();
   const checkedRows = gridUtil.getCheckedRowValues(view);
   if (checkedRows.length > 0) {
-    if (!await confirm(t('MSG_ALT_IS_DTRM'))) { return; }
     await dataService.put('/sms/wells/insurance/industrial-disaster', checkedRows);
     notify(t('MSG_ALT_SAVE_DATA'));
     await onClickSearch();
