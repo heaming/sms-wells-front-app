@@ -50,12 +50,10 @@
         <kw-search-item
           :label="$t('MSG_TXT_CNTR_NO')"
         >
-          <kw-input
-            v-model="searchParams.cntrNo "
-            icon="search"
-            maxlength="12"
-            clearable
-            @click-icon="onClickCntrNoPop"
+          <zctz-contract-detail-number
+            v-model:cntr-no="searchParams.cntrNo"
+            v-model:cntr-sn="searchParams.cntrSn"
+            :label="$t('MSG_TXT_CNTR_DTL_NO')"
           />
         </kw-search-item>
       </kw-search-row>
@@ -82,8 +80,7 @@
         >
           <kw-input
             v-model="searchParams.prtnrKnm"
-            icon="search"
-            clearable
+            maxlength="50"
           />
         </kw-search-item>
       </kw-search-row>
@@ -147,7 +144,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // ------------------------------------------------------------------------------------------------
-
+import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
 import { codeUtil, defineGrid, getComponentType, gridUtil, useDataService, useGlobal, useMeta } from 'kw-lib';
 import dayjs from 'dayjs';
 import { cloneDeep, isNumber } from 'lodash-es';
@@ -209,7 +206,6 @@ async function fetchData() {
 
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(partners);
-  view.resetCurrent();
   view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
@@ -219,6 +215,21 @@ async function onClickSearch() {
 
   await fetchData();
 }
+
+/*
+async function onClickSearchPartner() {
+  const { result, payload } = await modal({
+    component: 'ZwogzPartnerListP',
+    componentProps: {
+      prtnrNo: searchParams.value.prtnrNo,
+      ogTpCd: 'W01',
+    },
+  });
+  if (result) {
+    searchParams.value.prtnrNo = payload.prtnrNo;
+  }
+}
+ */
 
 async function onClickSave() {
   const view = grdMainRef.value.getView();

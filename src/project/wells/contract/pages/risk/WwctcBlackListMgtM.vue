@@ -28,7 +28,11 @@
           />
         </kw-search-item>
         <kw-search-item :label="$t('MSG_TXT_CNTR_NO')">
-          <kw-input v-model="searchParams.cntrNo" />
+          <zctz-contract-detail-number
+            v-model:cntr-no="searchParams.cntrNo"
+            v-model:cntr-sn="searchParams.cntrSn"
+            :label="$t('MSG_TXT_CNTR_DTL_NO')"
+          />
         </kw-search-item>
         <kw-search-item :label="$t('MSG_TXT_CST_NM')">
           <kw-input v-model="searchParams.cstKnm" />
@@ -47,10 +51,11 @@
           />
         </kw-search-item>
         <kw-search-item :label="$t('MSG_TXT_MPNO')">
-          <zwcm-telephone-number
-            v-model:tel-no1="searchParams.cralLocaraTno"
-            v-model:tel-no2="searchParams.mexnoEncr"
-            v-model:tel-no3="searchParams.cralIdvTno"
+          <kw-input
+            v-model:tel-no0="searchParams.cralLocaraTno"
+            v-model:tel-no1="searchParams.mexnoEncr"
+            v-model:tel-no2="searchParams.cralIdvTno"
+            mask="telephone"
           />
         </kw-search-item>
         <kw-search-item :label="$t('MSG_TXT_PRTNR')">
@@ -128,10 +133,9 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-
+import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
 import { codeUtil, defineGrid, getComponentType, gridUtil, useDataService, useGlobal, useMeta } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
-import ZwcmTelephoneNumber from '~common/components/ZwcmTelephoneNumber.vue';
 
 const { getConfig } = useMeta();
 const dataService = useDataService();
@@ -200,7 +204,6 @@ async function fetchData() {
 
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(blacklists);
-  view.resetCurrent();
   view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
@@ -336,7 +339,7 @@ const initGrid = defineGrid((data, view) => {
       },
     },
     { fieldName: 'cntrCstNo', header: t('MSG_TXT_CST_NO'), width: 120, styleName: 'text-center' },
-    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: 100 },
+    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: 100, styleName: 'text-center' },
     { fieldName: 'bryyMmdd', header: t('MSG_TXT_BRYY_MMDD_ENTRP_NO'), width: 140, styleName: 'text-center' },
     {
       fieldName: 'cntrMpno',
@@ -385,7 +388,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'istllZip', header: t('MSG_TXT_ZIP'), width: 100, styleName: 'text-center' },
     { fieldName: 'istllAdr', header: t('MSG_TXT_ADDR'), width: 300 },
     { fieldName: 'ogNm', header: t('MSG_TXT_SLR_BRCH'), width: 120 },
-    { fieldName: 'prtnrKnm', header: t('MSG_TXT_PTNR_NAME'), width: 100 },
+    { fieldName: 'prtnrKnm', header: t('MSG_TXT_PTNR_NAME'), width: 100, styleName: 'text-center' },
     { fieldName: 'prtnrNo', header: t('MSG_TXT_PRTNR_NO'), width: 120, styleName: 'text-center' },
     {
       fieldName: 'prtnrMpno',
