@@ -105,12 +105,6 @@
           />
         </template>
         <kw-btn
-          icon="print"
-          dense
-          secondary
-          :label="$t('MSG_BTN_PRTG')"
-        />
-        <kw-btn
           v-permission:download
           dense
           icon="excel"
