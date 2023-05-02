@@ -49,7 +49,7 @@
           <kw-option-group
             v-model="searchParams.alncCd"
             type="radio"
-            :options="[{ codeId: '', codeName: $t('MSG_TXT_ALL') },
+            :options="[{ codeId: '0', codeName: $t('MSG_TXT_ALL') },
                        { codeId: '1', codeName: $t('MSG_TXT_ALNC') },
                        { codeId: '2', codeName: $t('MSG_TXT_UNF') }]"
           />
@@ -64,7 +64,7 @@
             v-model="searchParams.rsbDvCd"
             type="radio"
             rules="required"
-            :options="[{ codeId: '', codeName: $t('MSG_TXT_ALL') },
+            :options="[{ codeId: '0', codeName: $t('MSG_TXT_ALL') },
                        { codeId: '1', codeName: $t('MSG_TXT_PLAR') },
                        { codeId: '2', codeName: $t('MSG_TXT_BRMGR') }]"
             :label="$t('MSG_TXT_RSB_TP')"
@@ -120,8 +120,7 @@
         />
       </kw-action-top>
       <kw-grid
-        ref="grdMainRef"
-        :visible-rows="3"
+        ref="grdRef"
         @init="initGrdMain"
       />
     </div>
@@ -134,6 +133,7 @@
 import { getComponentType, defineGrid, gridUtil, useDataService, useGlobal } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
+import ZwogLevelSelect from '~sms-common/organization/components/ZwogLevelSelect.vue';
 
 const now = dayjs();
 const { t } = useI18n();
@@ -155,13 +155,13 @@ const totalCount = ref(0);
 let cachedParams;
 const searchParams = ref({
   baseYm: now.format('YYYYMM'),
+  cntrStat: '0',
+  alncCd: '0',
+  rsbDvCd: '0',
   ogTpCd,
   dgr2LevlOgId: '',
   dgr3LevlOgId: '',
   dgr4LevlOgId: '',
-  cntrStat: '0',
-  alncCd: '',
-  rsbDvCd: '',
   prtnrNo: '',
   prtnrNm: '',
 });
@@ -187,9 +187,15 @@ async function onClickExcelDownload() {
 }
 // 조회조건 돋보기 관련
 async function onClickSeachItem() {
-  const { result, payload } = await modal({ component: 'ZwcmzSingleSelectUserListP' });
+  const { result, payload } = await modal({
+    component: 'ZwcmzSingleSelectUserListP',
+    componentProps: {
+      searchEmplCond: '3',
+      searchCodEmplText: searchParams.value.prtnrNm,
+    },
+  });
   if (result) {
-    searchParams.value.prtnrNo = payload.userId;
+    searchParams.value.prtnrNo = payload.employeeIDNumber;
     searchParams.value.prtnrNm = payload.userName;
   }
 }
@@ -211,13 +217,13 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '111', styleName: 'text-center' },
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '111', styleName: 'text-left' },
     { fieldName: 'cdCntn', header: t('MSG_TXT_RSB'), width: '111', styleName: 'text-left' },
-    { fieldName: 'brmgrPrtnrNo', header: t('MSG_TXT_BRMGR'), width: '111', styleName: 'text-center ' },
-    { fieldName: 'rcpdt', header: t('MSG_TXT_RECPETN_DT'), width: '111', styleName: 'text-center ' },
-    { fieldName: 'cntrDt', header: t('MSG_TXT_CNTRCT_DT'), width: '111', styleName: 'text-center ' },
-    { fieldName: 'dpDt', header: t('MSG_TXT_DEP_DT'), width: '111', styleName: 'text-center' },
-    { fieldName: 'wdwlDt', header: t('MSG_TXT_WTH_DT'), width: '111', styleName: 'text-center' },
-    { fieldName: 'canDt', header: t('MSG_TXT_CAN_D'), width: '111', styleName: 'text-center' },
-    { fieldName: 'feeDsbYm', header: t('MSG_TXT_FEE_MN'), width: '111', styleName: 'text-center' },
+    { fieldName: 'brmgrPrtnrNo', header: t('MSG_TXT_BRMGR'), width: '111', styleName: 'text-center' },
+    { fieldName: 'rcpdt', header: t('MSG_TXT_RCP_D'), width: '111', styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'cntrDt', header: t('MSG_TXT_CNTRCT_DT'), width: '111', styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'dpDt', header: t('MSG_TXT_DEP_DT'), width: '111', styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'wdwlDt', header: t('MSG_TXT_WTH_DT'), width: '111', styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'canDt', header: t('MSG_TXT_CAN_D'), width: '111', styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'feeDsbYm', header: t('MSG_TXT_FEE_MN'), width: '111', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   data.setFields(fields);
