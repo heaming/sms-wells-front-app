@@ -76,7 +76,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { gridUtil, codeUtil, getComponentType, useGlobal } from 'kw-lib';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, isEmpty } from 'lodash-es';
 import { getAlreadyItems, getGridRowCount } from '~/modules/sms-common/product/utils/pdUtil';
 import pdConst from '~sms-common/product/constants/pdConst';
 
@@ -159,6 +159,12 @@ async function onClickBsConnect() {
     return;
   }
   const checkedRows = gridUtil.getCheckedRowValues(view);
+  if (isEmpty(checkedRows[0][pdConst.REL_PD_ID])) {
+    // 신규 입력한 항목은 저장 후 연결 가능합니다.
+    notify(t('MSG_ALT_NO_SAVE_NO_CONN'));
+    return;
+  }
+
   await modal({
     component: 'WwpdcRoutineBsConnListP',
     componentProps: { svPdCd: currentPdCd.value,
@@ -197,7 +203,7 @@ async function onClickMaterialSchPopup() {
     componentProps: searchParams.value,
   });
   if (rtn.result) {
-    console.log('rtn.payload : ', rtn.payload);
+    // console.log('rtn.payload : ', rtn.payload);
     if (Array.isArray(rtn.payload) && rtn.payload.length > 1) {
       const data = view.getDataSource();
       const rows = rtn.payload.map((item) => ({
@@ -253,7 +259,6 @@ async function initGridRows() {
     materialView.getDataSource().clearRows();
     materialView.getDataSource().setRows(products // 상품-필터
       ?.filter((item) => item[pdConst.PD_REL_TP_CD] === pdConst.PD_REL_TP_CD_PD_TO_FL));
-    materialView.resetCurrent();
     grdRowCount.value = getGridRowCount(materialView);
   }
 }

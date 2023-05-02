@@ -421,7 +421,6 @@ async function initGridRows() {
     const materialRows = products
       ?.filter((item) => materialCodeValues.includes(item[pdConst.PD_REL_TP_CD]));
     materialView.getDataSource().setRows(materialRows);
-    materialView.resetCurrent();
     grdMaterialRowCount.value = getGridRowCount(materialView);
   }
 
@@ -431,7 +430,6 @@ async function initGridRows() {
     const serviceRows = products
       ?.filter((item) => item[pdConst.PD_REL_TP_CD] === pdConst.PD_REL_TP_CD_P_TO_S);
     serviceView.getDataSource().setRows(serviceRows);
-    serviceView.resetCurrent();
     grdServiceRowCount.value = getGridRowCount(serviceView);
   }
 
@@ -443,7 +441,6 @@ async function initGridRows() {
     const standardRows = products
       ?.filter((item) => standardCodeValues.includes(item[pdConst.PD_REL_TP_CD]));
     standardView.getDataSource().setRows(standardRows);
-    standardView.resetCurrent();
     grdStandardRowCount.value = getGridRowCount(standardView);
   }
 }
@@ -485,7 +482,7 @@ async function initMaterialGrid(data, view) {
       header: t('MSG_TXT_PRD_COUNT_EA'),
       width: '87',
       styleName: 'text-right',
-      editor: { type: 'number', editFormat: '#,##0', maxLength: 12 },
+      editor: { type: 'number', editFormat: '#,##0', maxLength: 12, positiveOnly: true },
       dataType: 'number',
     },
     // 판매금액
@@ -493,28 +490,28 @@ async function initMaterialGrid(data, view) {
       header: t('MSG_TXT_SALE_PRICE'),
       width: '107',
       styleName: 'text-right',
-      editor: { type: 'number', editFormat: '#,##0.##', maxLength: 12 },
+      editor: { type: 'number', editFormat: '#,##0.##', maxLength: 12, positiveOnly: true },
       dataType: 'number' },
     // 공급가액
     { fieldName: 'splAmt',
       header: t('MSG_TXT_SUPPLY_AMOUNT'),
       width: '107',
       styleName: 'text-right',
-      editor: { type: 'number', editFormat: '#,##0.##', maxLength: 12 },
+      editor: { type: 'number', editFormat: '#,##0.##', maxLength: 12, positiveOnly: true },
       dataType: 'number' },
     // 부가세액
     { fieldName: 'vat',
       header: t('MSG_TXT_VAT_AMOUNT'),
       width: '107',
       styleName: 'text-right',
-      editor: { type: 'number', editFormat: '#,##0.##', maxLength: 12 },
+      editor: { type: 'number', editFormat: '#,##0.##', maxLength: 12, positiveOnly: true },
       dataType: 'number' },
     // 안분비율(%)
     { fieldName: 'diviRat',
       header: t('MSG_TXT_PROPORTIONAL_DV_RT'),
       width: '107',
       styleName: 'text-right',
-      editor: { type: 'number', editFormat: '##0', maxLength: 3 },
+      editor: { type: 'number', editFormat: '##0', maxLength: 3, positiveOnly: true },
       dataType: 'number',
     },
     // 잔액산입
