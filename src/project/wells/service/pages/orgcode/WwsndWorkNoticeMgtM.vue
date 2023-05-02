@@ -250,6 +250,10 @@ const initGrdMain = defineGrid((data, view) => {
       displayCallback(grid, index, value) {
         const pdCd = grid.getValue(index.itemIndex, 'pdCd');
         if (isEmpty(pdCd)) {
+          const pdGrpCd = grid.getValue(index.itemIndex, 'pdGrpCd');
+          if (isEmpty(pdGrpCd)) {
+            return t('MSG_TXT_ALL');
+          }
           return codes.PD_GRP_CD.find((obj) => obj.codeId === grid.getValue(index.itemIndex, 'pdGrpCd')).codeName;
         }
 
