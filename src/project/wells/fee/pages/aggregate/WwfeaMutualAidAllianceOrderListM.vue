@@ -179,7 +179,7 @@ async function onClickSearch() {
 }
 // 엑셀다운로드
 async function onClickExcelDownload() {
-  const view = grdData.value.getView();
+  const view = grdRef.value.getView();
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
