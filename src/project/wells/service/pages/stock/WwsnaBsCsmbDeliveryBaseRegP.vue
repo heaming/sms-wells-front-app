@@ -23,6 +23,7 @@
             :label="$t('MSG_TXT_MGT_YNM')"
             type="month"
             rules="required"
+            :disable="isDisable"
           />
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_ITM_NM')">
@@ -34,6 +35,7 @@
               clearable
               class="mr10"
               :label="$t('MSG_TXT_ITM_NM')"
+              :disable="isDisable"
               @click-icon="onClickItemSearch"
             />
             <kw-input
@@ -48,6 +50,7 @@
           <kw-select
             v-model="basData.mngtUnitCd"
             :options="codes.MNGT_UNIT_CD"
+            :disable="isDisable"
           />
         </kw-form-item>
       </kw-form-row>
@@ -56,18 +59,21 @@
           <kw-input
             v-model="basData.boxUnitQty"
             type="number"
+            :disable="isDisable"
           />
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_ITM_DV')">
           <kw-select
             v-model="basData.goDvCd"
             :options="codes.GO_DV_CD"
+            :disable="isDisable"
           />
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_UPRC_WON')">
           <kw-input
             v-model="basData.goUprc"
             type="number"
+            :disable="isDisable"
           />
         </kw-form-item>
       </kw-form-row>
@@ -80,6 +86,7 @@
             v-model="basData.rmkCn"
             type="textarea"
             :rows="3"
+            :disable="isDisable"
           />
         </kw-form-item>
       </kw-form-row>
@@ -91,6 +98,7 @@
             :label="$t('MSG_TXT_ORT_YN')"
             :options="codes.COD_YN"
             rules="required"
+            :disable="isDisable"
             @update:model-value="onChangeOrtYn(1)"
           />
         </kw-form-item>
@@ -100,7 +108,7 @@
               v-model="ddlvOjCd1Data.bfsvcCsmbDdlvTpCd"
               :label="$t('MSG_TXT_DDLV_TP')"
               :options="codes.BFSVC_CSMB_DDLV_TP_CD"
-              :disable="isDisableYn1"
+              :disable="isDisableYn1 || isDisable"
               :rules="isRequiredDdlvTp1"
               class="mr8 w167"
             />
@@ -108,7 +116,7 @@
               v-model="ddlvOjCd1Data.bfsvcCsmbDdlvCmptBaseCd"
               :label="$t('MSG_TXT_DDLV_TP')"
               :options="codes.BFSVC_CSMB_DDLV_CMPT_BASE_CD"
-              :disable="isDisableYn1"
+              :disable="isDisableYn1 || isDisable"
               :rules="isRequiredDdlvTp1"
               class="w167"
             />
@@ -119,7 +127,7 @@
             v-model="ddlvOjCd1Data.bfsvcCsmbDdlvOjPdGrpCd"
             :label="$t('MSG_TXT_DDLV_OJ_PD_GRP')"
             :options="codes.PD_GRP_CD"
-            :disable="isDisableYn1"
+            :disable="isDisableYn1 || isDisable"
             :rules="isRequiredAccPrpnYn1"
           />
         </kw-form-item>
@@ -130,7 +138,7 @@
             v-model="ddlvOjCd1Data.bfsvcCsmbDdlvOjAccTpCd"
             :label="$t('MSG_TXT_DDLV_OJ_ACC_TP')"
             :options="codes.BFSVC_CSMB_DDLV_OJ_ACC_TP_CD"
-            :disable="isDisableYn1"
+            :disable="isDisableYn1 || isDisable"
             :rules="isRequiredAccPrpnYn1"
           />
         </kw-form-item>
@@ -139,7 +147,7 @@
             v-model="ddlvOjCd1Data.bfsvcCsmbDdlvUnitAccN"
             :label="$t('MSG_TXT_DDLV_UNIT_ACC_N')"
             type="number"
-            :disable="isDisableYn1"
+            :disable="isDisableYn1 || isDisable"
             :rules="isRequiredAccPrpnYn1"
           />
         </kw-form-item>
@@ -148,7 +156,7 @@
             v-model="ddlvOjCd1Data.bfsvcCsmbDdlvUnitQty"
             :label="$t('MSG_TXT_DDLV_UNIT_QTY_EA')"
             type="number"
-            :disable="isDisableYn1"
+            :disable="isDisableYn1 || isDisable"
             :rules="isRequiredUnitQty1 || isRequiredAccPrpnYn1"
           />
         </kw-form-item>
@@ -159,7 +167,7 @@
             v-model="ddlvOjCd1Data.bfsvcCsmbAplcLmQty"
             :label="$t('MSG_TXT_APLC_LM_QTY')"
             type="number"
-            :disable="isDisableYn1"
+            :disable="isDisableYn1 || isDisable"
             :rules="isRequiredLmQty1"
           />
         </kw-form-item>
@@ -167,7 +175,7 @@
           <kw-input
             v-model="ddlvOjCd1Data.sortOdr"
             type="number"
-            :disable="isDisableYn1"
+            :disable="isDisableYn1 || isDisable"
           />
         </kw-form-item>
       </kw-form-row>
@@ -179,6 +187,7 @@
             :label="$t('MSG_TXT_ORT_YN')"
             :options="codes.COD_YN"
             rules="required"
+            :disable="isDisable"
             @update:model-value="onChangeOrtYn(2)"
           />
         </kw-form-item>
@@ -188,7 +197,7 @@
               v-model="ddlvOjCd2Data.bfsvcCsmbDdlvTpCd"
               :label="$t('MSG_TXT_DDLV_TP')"
               :options="codes.BFSVC_CSMB_DDLV_TP_CD"
-              :disable="isDisableYn2"
+              :disable="isDisableYn2 || isDisable"
               :rules="isRequiredDdlvTp2"
               class="mr8 w167"
             />
@@ -196,7 +205,7 @@
               v-model="ddlvOjCd2Data.bfsvcCsmbDdlvCmptBaseCd"
               :label="$t('MSG_TXT_DDLV_TP')"
               :options="codes.BFSVC_CSMB_DDLV_CMPT_BASE_CD"
-              :disable="isDisableYn2"
+              :disable="isDisableYn2 || isDisable"
               :rules="isRequiredDdlvTp2"
               class="w167"
             />
@@ -207,7 +216,7 @@
             v-model="ddlvOjCd2Data.bfsvcCsmbDdlvOjPdGrpCd"
             :label="$t('MSG_TXT_DDLV_OJ_PD_GRP')"
             :options="codes.PD_GRP_CD"
-            :disable="isDisableYn2"
+            :disable="isDisableYn2 || isDisable"
             :rules="isRequiredAccPrpnYn2"
           />
         </kw-form-item>
@@ -218,7 +227,7 @@
             v-model="ddlvOjCd2Data.bfsvcCsmbDdlvOjAccTpCd"
             :label="$t('MSG_TXT_DDLV_OJ_ACC_TP')"
             :options="codes.BFSVC_CSMB_DDLV_OJ_ACC_TP_CD"
-            :disable="isDisableYn2"
+            :disable="isDisableYn2 || isDisable"
             :rules="isRequiredAccPrpnYn2"
           />
         </kw-form-item>
@@ -227,7 +236,7 @@
             v-model="ddlvOjCd2Data.bfsvcCsmbDdlvUnitAccN"
             :label="$t('MSG_TXT_DDLV_UNIT_ACC_N')"
             type="number"
-            :disable="isDisableYn2"
+            :disable="isDisableYn2 || isDisable"
             :rules="isRequiredAccPrpnYn2"
           />
         </kw-form-item>
@@ -236,7 +245,7 @@
             v-model="ddlvOjCd2Data.bfsvcCsmbDdlvUnitQty"
             :label="$t('MSG_TXT_DDLV_UNIT_QTY_EA')"
             type="number"
-            :disable="isDisableYn2"
+            :disable="isDisableYn2 || isDisable"
             :rules="isRequiredUnitQty2 || isRequiredAccPrpnYn2"
           />
         </kw-form-item>
@@ -247,7 +256,7 @@
             v-model="ddlvOjCd2Data.bfsvcCsmbAplcLmQty"
             :label="$t('MSG_TXT_APLC_LM_QTY')"
             type="number"
-            :disable="isDisableYn2"
+            :disable="isDisableYn2 || isDisable"
             :rules="isRequiredLmQty2"
           />
         </kw-form-item>
@@ -256,7 +265,7 @@
             v-model="ddlvOjCd2Data.sortOdr"
             :label="$t('MSG_TXT_SORT_ORDER')"
             type="number"
-            :disable="isDisableYn2"
+            :disable="isDisableYn2 || isDisable"
           />
         </kw-form-item>
       </kw-form-row>
@@ -268,6 +277,7 @@
             :label="$t('MSG_TXT_ORT_YN')"
             :options="codes.COD_YN"
             rules="required"
+            :disable="isDisable"
             @update:model-value="onChangeOrtYn(3)"
           />
         </kw-form-item>
@@ -277,7 +287,7 @@
               v-model="ddlvOjCd3Data.bfsvcCsmbDdlvTpCd"
               :label="$t('MSG_TXT_DDLV_TP')"
               :options="codes.BFSVC_CSMB_DDLV_TP_CD"
-              :disable="isDisableYn3"
+              :disable="isDisableYn3 || isDisable"
               :rules="isRequiredDdlvTp3"
               class="mr8 w167"
             />
@@ -285,7 +295,7 @@
               v-model="ddlvOjCd3Data.bfsvcCsmbDdlvCmptBaseCd"
               :label="$t('MSG_TXT_DDLV_TP')"
               :options="codes.BFSVC_CSMB_DDLV_CMPT_BASE_CD"
-              :disable="isDisableYn3"
+              :disable="isDisableYn3 || isDisable"
               :rules="isRequiredDdlvTp3"
               class="w167"
             />
@@ -296,7 +306,7 @@
             v-model="ddlvOjCd3Data.bfsvcCsmbDdlvOjPdGrpCd"
             :label="$t('MSG_TXT_DDLV_OJ_PD_GRP')"
             :options="codes.PD_GRP_CD"
-            :disable="isDisableYn3"
+            :disable="isDisableYn3 || isDisable"
             :rules="isRequiredAccPrpnYn3"
           />
         </kw-form-item>
@@ -307,7 +317,7 @@
             v-model="ddlvOjCd3Data.bfsvcCsmbDdlvOjAccTpCd"
             :label="$t('MSG_TXT_DDLV_OJ_ACC_TP')"
             :options="codes.BFSVC_CSMB_DDLV_OJ_ACC_TP_CD"
-            :disable="isDisableYn3"
+            :disable="isDisableYn3 || isDisable"
             :rules="isRequiredAccPrpnYn3"
           />
         </kw-form-item>
@@ -316,7 +326,7 @@
             v-model="ddlvOjCd3Data.bfsvcCsmbDdlvUnitAccN"
             :label="$t('MSG_TXT_DDLV_UNIT_ACC_N')"
             type="number"
-            :disable="isDisableYn3"
+            :disable="isDisableYn3 || isDisable"
             :rules="isRequiredAccPrpnYn3"
           />
         </kw-form-item>
@@ -325,7 +335,7 @@
             v-model="ddlvOjCd3Data.bfsvcCsmbDdlvUnitQty"
             :label="$t('MSG_TXT_DDLV_UNIT_QTY_EA')"
             type="number"
-            :disable="isDisableYn3"
+            :disable="isDisableYn3 || isDisable"
             :rules="isRequiredUnitQty3 || isRequiredAccPrpnYn3"
           />
         </kw-form-item>
@@ -336,7 +346,7 @@
             v-model="ddlvOjCd3Data.bfsvcCsmbAplcLmQty"
             :label="$t('MSG_TXT_APLC_LM_QTY')"
             type="number"
-            :disable="isDisableYn3"
+            :disable="isDisableYn3 || isDisable"
             :rules="isRequiredLmQty3"
           />
         </kw-form-item>
@@ -344,7 +354,7 @@
           <kw-input
             v-model="ddlvOjCd3Data.sortOdr"
             type="number"
-            :disable="isDisableYn3"
+            :disable="isDisableYn3 || isDisable"
           />
         </kw-form-item>
       </kw-form-row>
@@ -358,6 +368,7 @@
       <kw-btn
         primary
         :label="$t('MSG_BTN_RGST')"
+        :disable="isDisable"
         @click="onClickRgst"
       />
     </template>
@@ -377,9 +388,18 @@ const { modal } = useGlobal();
 const { t } = useI18n();
 const { cancel: onClickCancel, ok } = useModal();
 
+const props = defineProps({
+  mngtYm: { type: String, default: '' },
+  csmbPdCd: { type: String, default: '' },
+});
+
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
+
+const isDisable = computed(
+  () => (props.csmbPdCd !== '' && props.mngtYm !== '') && (Number(props.mngtYm) < Number(dayjs().format('YYYYMM'))),
+);
 
 const frmMainRef = ref(getComponentType('KwObserver'));
 const codes = await codeUtil.getMultiCodes(
@@ -393,9 +413,9 @@ const codes = await codeUtil.getMultiCodes(
 );
 
 const basData = ref({
-  mngtYm: dayjs().format('YYYYMM'),
+  mngtYm: props.mngtYm === '' ? dayjs().format('YYYYMM') : props.mngtYm,
+  csmbPdCd: props.csmbPdCd === '' ? '' : props.csmbPdCd,
   itmKnm: '',
-  csmbPdCd: '',
   mngtUnitCd: '',
   goDvCd: '',
   boxUnitQty: '',
@@ -656,9 +676,10 @@ async function onClickItemSearch() {
   }
 }
 
+let isNewMode = true;
 async function onClickRgst() {
   if (!await frmMainRef.value.validate()) { return; }
-  // if (await frmMainRef.value.alertIfIsNotModified()) { return; }
+  if (await frmMainRef.value.alertIfIsNotModified()) { return; }
 
   const dataParams = [];
 
@@ -667,10 +688,69 @@ async function onClickRgst() {
   dataParams.push(ddlvOjCd2Data.value);
   dataParams.push(ddlvOjCd3Data.value);
 
-  await dataService.post('/sms/wells/service/delivery-bases', dataParams);
+  if (isNewMode) {
+    await dataService.post('/sms/wells/service/delivery-bases', dataParams);
+  } else {
+    await dataService.put('/sms/wells/service/delivery-bases', dataParams);
+  }
 
   ok();
   notify(t('MSG_ALT_SAVE_DATA'));
 }
+
+async function getDeliveryBase() {
+  const res = await dataService.get(`/sms/wells/service/delivery-bases/${props.mngtYm}-${props.csmbPdCd}`);
+
+  basData.value.itmKnm = res.data.itmKnm;
+  basData.value.mngtUnitCd = res.data.mngtUnitCd;
+  basData.value.goDvCd = res.data.goDvCd;
+  basData.value.boxUnitQty = res.data.boxUnitQty;
+  basData.value.goUprc = res.data.goUprc;
+  basData.value.rmkCn = res.data.rmkCn;
+
+  ddlvOjCd1Data.value.mngtYm = res.data.mngtYm;
+  ddlvOjCd1Data.value.csmbPdCd = res.data.csmbPdCd;
+  ddlvOjCd1Data.value.bfsvcCsmbDdlvOrtYn = res.data.nwcmrOrtYn;
+  ddlvOjCd1Data.value.bfsvcCsmbDdlvTpCd = res.data.nwcmrTpCd;
+  ddlvOjCd1Data.value.bfsvcCsmbDdlvCmptBaseCd = res.data.nwcmrCmptBase;
+  ddlvOjCd1Data.value.bfsvcCsmbDdlvOjPdGrpCd = res.data.nwcmrOjPdGrpCd;
+  ddlvOjCd1Data.value.bfsvcCsmbDdlvOjAccTpCd = res.data.nwcmrOjAccTpCd;
+  ddlvOjCd1Data.value.bfsvcCsmbDdlvUnitAccN = res.data.nwcmrUnitAccN;
+  ddlvOjCd1Data.value.bfsvcCsmbDdlvUnitQty = res.data.nwcmrUnitQty;
+  ddlvOjCd1Data.value.bfsvcCsmbAplcLmQty = res.data.nwcmrAplcLmQty;
+  ddlvOjCd1Data.value.sortOdr = res.data.nwcmrSortOdr;
+
+  ddlvOjCd2Data.value.mngtYm = res.data.mngtYm;
+  ddlvOjCd2Data.value.csmbPdCd = res.data.csmbPdCd;
+  ddlvOjCd2Data.value.bfsvcCsmbDdlvOrtYn = res.data.indvOrtYn;
+  ddlvOjCd2Data.value.bfsvcCsmbDdlvTpCd = res.data.indvTpCd;
+  ddlvOjCd2Data.value.bfsvcCsmbDdlvCmptBaseCd = res.data.indvCmptBase;
+  ddlvOjCd2Data.value.bfsvcCsmbDdlvOjPdGrpCd = res.data.indvOjPdGrpCd;
+  ddlvOjCd2Data.value.bfsvcCsmbDdlvOjAccTpCd = res.data.indvOjAccTpCd;
+  ddlvOjCd2Data.value.bfsvcCsmbDdlvUnitAccN = res.data.indvUnitAccN;
+  ddlvOjCd2Data.value.bfsvcCsmbDdlvUnitQty = res.data.indvUnitQty;
+  ddlvOjCd2Data.value.bfsvcCsmbAplcLmQty = res.data.indvAplcLmQty;
+  ddlvOjCd2Data.value.sortOdr = res.data.indvSortOdr;
+
+  ddlvOjCd3Data.value.mngtYm = res.data.mngtYm;
+  ddlvOjCd3Data.value.csmbPdCd = res.data.csmbPdCd;
+  ddlvOjCd3Data.value.bfsvcCsmbDdlvOrtYn = res.data.bldOrtYn;
+  ddlvOjCd3Data.value.bfsvcCsmbDdlvTpCd = res.data.bldvTpCd;
+  ddlvOjCd3Data.value.bfsvcCsmbDdlvCmptBaseCd = res.data.bldCmptBase;
+  ddlvOjCd3Data.value.bfsvcCsmbDdlvOjPdGrpCd = res.data.bldOjPdGrpCd;
+  ddlvOjCd3Data.value.bfsvcCsmbDdlvOjAccTpCd = res.data.bldOjAccTpCd;
+  ddlvOjCd3Data.value.bfsvcCsmbDdlvUnitAccN = res.data.bldUnitAccN;
+  ddlvOjCd3Data.value.bfsvcCsmbDdlvUnitQty = res.data.bldUnitQty;
+  ddlvOjCd3Data.value.bfsvcCsmbAplcLmQty = res.data.bldAplcLmQty;
+  ddlvOjCd3Data.value.sortOdr = res.data.bldSortOdr;
+
+  isNewMode = false;
+}
+
+onMounted(async () => {
+  if (props.mngtYm !== '' && props.csmbPdCd !== '') {
+    await getDeliveryBase();
+  }
+});
 
 </script>
