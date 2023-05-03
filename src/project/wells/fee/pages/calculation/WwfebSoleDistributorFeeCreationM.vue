@@ -174,7 +174,7 @@ const searchParams = ref({
 });
 const naviParams = ref({
   baseYm: '202305',
-  feeSchdTpCd: '301',
+  feeSchdTpCd: '501',
   feeTcntDvCd: '01',
   coCd: '1200',
 });
