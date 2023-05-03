@@ -212,7 +212,7 @@ async function onClickRegP() {
 // 고객명 찾기 이벤트
 async function onClickSearchUser() {
   const { result, payload } = await modal({ component: 'ZwcsaCustomerListP',
-    componentProps: { cstNm: searchParams.value.cstFnm } });
+    componentProps: { cstNm: searchParams.value.cstFnm, cstType: '1' } });
 
   if (result) {
     searchParams.value.cstFnm = payload.name;

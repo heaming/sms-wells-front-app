@@ -60,6 +60,17 @@
             @change="fetchData"
           />
         </template>
+        <kw-btn
+          secondary
+          dense
+          :label="t('저장')"
+          @click="onClickSave"
+        />
+        <kw-separator
+          spaced
+          vertical
+          inset
+        />
         <kw-file
           v-show="false"
           ref="attachFileRef"
@@ -84,17 +95,7 @@
           :disable="pageInfo.totalCount === 0"
           @click="onClickExcelDownload"
         />
-        <kw-separator
-          spaced
-          vertical
-          inset
-        />
-        <kw-btn
-          secondary
-          dense
-          :label="t('저장')"
-          @click="onClickSave"
-        />
+
         <!-- label="엑셀 다운로드" -->
         <kw-separator
           spaced

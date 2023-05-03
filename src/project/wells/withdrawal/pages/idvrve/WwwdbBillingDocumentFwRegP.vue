@@ -195,7 +195,7 @@ const sendMainData = ref({
 
 });
 
-// let paramData;
+let paramData;
 async function onClickSend() {
   console.log(sendMainData.value.toMail);
 
@@ -206,9 +206,9 @@ async function onClickSend() {
   sendMainData.value.destInfo = telNos.value.telNo1 + telNos.value.telNo2 + telNos.value.telNo3;
   sendMainData.value.callback = telNos2.value.telNo1 + telNos2.value.telNo2 + telNos2.value.telNo3;
 
-  // paramData = cloneDeep(sendMainData.value);
+  paramData = cloneDeep(sendMainData.value);
 
-  // await dataService.post('/sms/wells/withdrawal/idvrve/billing-document-orders/forwardings', paramData);
+  await dataService.post('/sms/wells/withdrawal/idvrve/billing-document-orders/forwardings', paramData);
 
   notify(t('MSG_ALT_SAVE_DATA')); // 메시지 자원 수정 필요
 
