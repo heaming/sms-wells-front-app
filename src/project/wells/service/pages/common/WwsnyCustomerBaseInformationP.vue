@@ -41,7 +41,7 @@
           <kw-input
             v-model="searchParams.mpNo"
             maxlength="11"
-            :regex="/^[0-9]*$/i"
+            regex="num"
           />
         </kw-search-item>
         <kw-search-item
@@ -50,7 +50,7 @@
           <kw-input
             v-model="searchParams.telNo"
             maxlength="11"
-            :regex="/^[0-9]*$/i"
+            regex="num"
           />
         </kw-search-item>
       </kw-search-row>
@@ -209,53 +209,7 @@ async function fetchData() {
   view.resetCurrent();
 
   if (pageInfo.value.totalCount === 1) {
-    const {
-      cntrNo,
-      cntrSn,
-      cstNm,
-      newAdrZip,
-      rnadr,
-      rdadr,
-      cralLocaraTno,
-      mexnoEncr,
-      cralIdvTno,
-      locaraTno,
-      exnoEncr,
-      idvTno,
-      istDt,
-      sellTpCd,
-      pdCd,
-      bcNo,
-      svStpDt,
-      recapDutyPtrmN,
-      frisuAsPtrmN,
-      frisuBfsvcPtrmN,
-      cycleCode,
-    } = view.getValues(0);
-
-    returnValues.value.cntrNo = cntrNo;
-    returnValues.value.cntrSn = cntrSn;
-    returnValues.value.cstNm = cstNm;
-    returnValues.value.newAdrZip = newAdrZip;
-    returnValues.value.rnadr = rnadr;
-    returnValues.value.rdadr = rdadr;
-    returnValues.value.cralLocaraTno = cralLocaraTno;
-    returnValues.value.mexnoEncr = mexnoEncr;
-    returnValues.value.cralIdvTno = cralIdvTno;
-    returnValues.value.locaraTno = locaraTno;
-    returnValues.value.exnoEncr = exnoEncr;
-    returnValues.value.idvTno = idvTno;
-    returnValues.value.istDt = istDt;
-    returnValues.value.sellTpCd = sellTpCd;
-    returnValues.value.pdCd = pdCd;
-    returnValues.value.bcNo = bcNo;
-    returnValues.value.svStpDt = svStpDt;
-    returnValues.value.recapDutyPtrmN = recapDutyPtrmN;
-    returnValues.value.frisuAsPtrmN = frisuAsPtrmN;
-    returnValues.value.frisuBfsvcPtrmN = frisuBfsvcPtrmN;
-    returnValues.value.cycleCode = cycleCode;
-
-    ok(returnValues.value);
+    ok(view.getValues(0));
   }
 }
 
