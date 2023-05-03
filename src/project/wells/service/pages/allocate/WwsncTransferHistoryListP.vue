@@ -18,7 +18,7 @@
   >
     <kw-action-top>
       <template #left>
-        <kw-paging-info :total-count="10" />
+        <kw-paging-info :total-count="totalCount.totalCount" />
       </template>
     </kw-action-top>
     <kw-grid
@@ -45,6 +45,7 @@ import { onMounted } from 'vue';
 const { t } = useI18n();
 const { cancel: onClickCancel } = useModal();
 const dataService = useDataService();
+const gridMainRef = ref(getComponentType('KwGrid'));
 
 /*
  *  Parent Parameter를 가져오기 위한 변수 선언.
@@ -56,19 +57,23 @@ const props = defineProps({
   },
 });
 
+const totalCount = ref({
+  totalCount: 0,
+});
+
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
-const gridMainRef = ref(getComponentType('KwGrid'));
+
 /*
  * 이관이력 조회
  */
 async function getTransferHistories() {
   const res = await dataService.get('/sms/wells/service/transfer-histories', { params: { cstSvAsnNo: props.cstSvAsnNo } });
+  totalCount.value.totalCount = res.data.length;
   const view = gridMainRef.value.getView();
   view.getDataSource().setRows(res.data);
   view.resetCurrent();
-  // await dataService.get('/sms/wells/service/transfer-histories', { params: { cstSvAsnNo: props.cstSvAsnNo } });
 }
 
 onMounted(async () => {
