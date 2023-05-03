@@ -25,8 +25,8 @@
             type="radio"
             rules="required"
             :label="t('MSG_TXT_DIV')"
-            :options="[{codeId: 'A', codeName: '수수료실적'},
-                       {codeId: 'B', codeName: '기본 수수료'}]"
+            :options="[{codeId: 'A', codeName: t('MSG_TXT_FEE_PERF')},
+                       {codeId: 'B', codeName: t('MSG_TXT_DFLT_FEE')}]"
           />
         </kw-search-item>
         <kw-search-item
@@ -35,8 +35,8 @@
           required
         >
           <kw-date-range-picker
-            v-model:from="searchParams.strtdt"
-            v-model:to="searchParams.enddt"
+            v-model:from="searchParams.strtYm"
+            v-model:to="searchParams.endYm"
             type="month"
             rules="date_range_required|date_range_months:3"
             :label="t('MSG_TXT_RCP_YM')"
@@ -62,8 +62,8 @@
           :label="t('MSG_TXT_CANCEL_YM')"
         >
           <kw-date-range-picker
-            v-model:from="searchParams.cancelStrtdt"
-            v-model:to="searchParams.cancelEnddt"
+            v-model:from="searchParams.cancelStrtYm"
+            v-model:to="searchParams.cancelEndYm"
             type="month"
             rules="date_range_months:3"
             :label="t('MSG_TXT_CANCEL_YM')"
@@ -77,34 +77,14 @@
           <h3>{{ searchParams.perfYm }} {{ $t('MSG_TXT_TOT_FEE_CRT_PRGS_STE') }}</h3>
         </template>
       </kw-action-top>
-      <kw-stepper
-        v-model="stepInitNum"
-        alternative-labels
-      >
-        <kw-step
-          :name="1"
-          :title="$t('MSG_TXT_PERF_AGRG')"
-          :done="stepInitNum > 1"
-          prefix="1"
-          :done-icon="'retry'"
-          @click="onClickRetry"
-        />
-        <kw-step
-          :name="2"
-          :title="$t('MSG_TIT_FEE_CRT')"
-          :done="stepInitNum > 2"
-          prefix="2"
-          :active-icon="'write'"
-          :tooltip="$t('MSG_TXT_CLICK_PRGS', [$t('MSG_TIT_FEE_CRT')])"
-          @click="onClickCreate"
-        />
-        <kw-step
-          :name="3"
-          :title="$t('MSG_TXT_GRNT_DEP_ERN')"
-          :done="stepInitNum > 3"
-          prefix="3"
-        />
-      </kw-stepper>
+      <!-- STEPER -->
+      <wwfeb-fee-step
+        v-model:base-ym="naviParams.baseYm"
+        v-model:fee-schd-tp-cd="naviParams.feeSchdTpCd"
+        v-model:fee-tcnt-dv-cd="naviParams.feeTcntDvCd"
+        v-model:co-cd="naviParams.coCd"
+        @click-step="onclickStep"
+      />
       <kw-action-top class="mt40">
         <template #left>
           <kw-paging-info
@@ -165,12 +145,13 @@
 import { defineGrid, gridUtil, getComponentType, useDataService, useGlobal } from 'kw-lib';
 import dayjs from 'dayjs';
 import { cloneDeep } from 'lodash-es';
+import WwfebFeeStep from './WwfebFeeStep.vue';
 
 const dataService = useDataService();
 const now = dayjs();
 const { t } = useI18n();
 const { currentRoute } = useRouter();
-const { notify, confirm, modal } = useGlobal();
+const { notify, modal, confirm } = useGlobal();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -185,13 +166,18 @@ const stepInitNum = ref(2);
 let cachedParams;
 const searchParams = ref({
   type: 'A',
-  strtdt: now.format('YYYYMMDD'),
-  enddt: now.add(1, 'month').format('YYYYMMDD'),
   perfYm: now.format('YYYYMM'),
-  cancelStrtdt: now.format('YYYYMMDD'),
-  cancelEnddt: now.add(1, 'month').format('YYYYMMDD'),
+  strtYm: now.format('YYYYMMDD'),
+  endYm: now.add(1, 'month').format('YYYYMMDD'),
+  cancelStrtYm: now.format('YYYYMMDD'),
+  cancelEndYm: now.add(1, 'month').format('YYYYMMDD'),
 });
-
+const naviParams = ref({
+  baseYm: '202305',
+  feeSchdTpCd: '301',
+  feeTcntDvCd: '01',
+  coCd: '1200',
+});
 // 데이터 조회
 async function fetchData() {
   const fixApi = cachedParams.type === 'A' ? 'performance' : 'fee';
@@ -284,6 +270,15 @@ async function onClickRetry() {
     }
   }
 }
+async function onclickStep(item) {
+  console.log(item);
+  if (item === '1') {
+    await onClickCreate();
+  }
+  if (item === '2') {
+    await onClickRetry();
+  }
+}
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
@@ -319,18 +314,18 @@ const initGridDetail = defineGrid((data, view) => {
 
 const initGridBase = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'ogNm', header: t('MSG_TXT_CORP_NAME'), width: '127' },
-    { fieldName: 'ogId', header: t('MSG_TXT_BLG'), width: '98' },
+    { fieldName: 'coCdNm', header: t('MSG_TXT_CORP_NAME'), width: '127' },
+    { fieldName: 'ogCd', header: t('MSG_TXT_BLG'), width: '98' },
     { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '127', styleName: 'text-center' },
-    { fieldName: 'col4', header: t('MSG_TXT_PERF'), width: '151', styleName: 'text-center' },
-    { fieldName: 'w050001Amt', header: t('MSG_TXT_BAS_FEE'), width: '98', styleName: 'text-right' },
-    { fieldName: 'w050002Amt', header: t('MSG_TXT_ENRG_FEE'), width: '98', styleName: 'text-center' },
-    { fieldName: 'w050003Amt', header: t('MSG_TXT_ICT'), width: '98', styleName: 'text-right' },
-    { fieldName: 'w050005Amt', header: t('MSG_TXT_ADSB'), width: '98', styleName: 'text-right' },
-    { fieldName: 'w050004Amt', header: t('MSG_TXT_QUARTER_OUTC'), width: '98', styleName: 'text-right' },
+    { fieldName: 'cnt', header: t('MSG_TXT_PERF'), width: '151', styleName: 'text-center' },
+    { fieldName: 'amtW050001', header: t('MSG_TXT_BAS_FEE'), width: '98', styleName: 'text-right' },
+    { fieldName: 'amtW050002', header: t('MSG_TXT_ENRG_FEE'), width: '98', styleName: 'text-center' },
+    { fieldName: 'amtW050003', header: t('MSG_TXT_ICT'), width: '98', styleName: 'text-right' },
+    { fieldName: 'amtW050020', header: t('MSG_TXT_ADSB'), width: '98', styleName: 'text-right' },
+    { fieldName: 'amtW050004', header: t('MSG_TXT_QUARTER_OUTC'), width: '98', styleName: 'text-right' },
     { fieldName: 'feeSumAmt', header: t('MSG_TXT_FEE_SUM'), width: '98', styleName: 'text-right' },
-    { fieldName: 'd01Amt', header: t('MSG_TXT_RDS'), width: '98', styleName: 'text-right' },
-    { fieldName: 'd08Amt', header: t('MSG_TXT_RE_REDF'), width: '98', styleName: 'text-right' },
+    { fieldName: 'amt01', header: t('MSG_TXT_RDS'), width: '98', styleName: 'text-right' },
+    { fieldName: 'amt08', header: t('MSG_TXT_RE_REDF'), width: '98', styleName: 'text-right' },
     { fieldName: 'ddtnSumAmt', header: t('MSG_TXT_DDTN_SUM'), width: '98', styleName: 'text-right' },
     { fieldName: 'acpyAmt', header: t('MSG_TXT_ACL_DSB_AMT'), width: '98', styleName: 'text-right' },
   ];
@@ -340,16 +335,16 @@ const initGridBase = defineGrid((data, view) => {
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
   view.setColumnLayout([
-    'ogNm', 'ogId', 'prtnrNo', 'col4',
+    'coCdNm', 'ogCd', 'prtnrNo', 'cnt',
     {
       header: t('MSG_TXT_FEE'),
       direction: 'horizontal',
-      items: ['w050001Amt', 'w050002Amt', 'w050003Amt', 'w050005Amt', 'w050004Amt', 'feeSumAmt'],
+      items: ['amtW050001', 'amtW050002', 'amtW050003', 'amtW050020', 'amtW050004', 'feeSumAmt'],
     },
     {
       header: t('MSG_TXT_DDTN'),
       direction: 'horizontal',
-      items: ['d01Amt', 'd08Amt', 'ddtnSumAmt'],
+      items: ['amt01', 'amt08', 'ddtnSumAmt'],
     },
     'acpyAmt',
   ]);
