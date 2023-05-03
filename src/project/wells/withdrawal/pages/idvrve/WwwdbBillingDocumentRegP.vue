@@ -240,7 +240,8 @@ async function onClickSave() {
 
 // 고객명 찾기 이벤트
 async function onClickSearchUser() {
-  const { result, payload } = await modal({ component: 'ZwcsaCustomerListP' });
+  const { result, payload } = await modal({ component: 'ZwcsaCustomerListP',
+    componentProps: { cstType: '1' } });
 
   if (result) {
     console.log(payload);
@@ -329,6 +330,8 @@ async function initProps() {
     await fetchData();
   } else {
     regMainData.value.state = 'created';
+    const view = grdPageRef.value.getView();
+    gridUtil.insertRowAndFocus(view, 0, {});
   }
 }
 
