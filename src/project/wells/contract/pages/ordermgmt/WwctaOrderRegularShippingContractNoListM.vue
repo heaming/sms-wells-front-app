@@ -18,35 +18,19 @@
     @search="onClickSearch"
   >
     <kw-search-row>
-      <!-- 계약번호 -->
+      <!-- 계약상세번호 -->
       <kw-search-item
-        :label="$t('MSG_TXT_CNTR_NO')"
+        :label="$t('MSG_TXT_CNTR_DTL_NO')"
+        colspan="2"
         required
-        :colspan="2"
       >
-        <kw-input
-          v-model="searchParams.cntrNo"
-          icon="search"
-          clearable
+        <zctz-contract-detail-number
+          v-model:cntr-no="searchParams.cntrNo"
+          v-model:cntr-sn="searchParams.cntrSn"
+          class="w300"
+          disable-popup="true"
           rules="required"
-          :label="$t('MSG_TXT_CNTR_NO')"
-          :maxlength="12"
-          @keydown="onKeyDownSelectCntrNo"
-          @click-icon="onClickSelectCntrNo"
-          @clear="onClearSelectCntrNo"
-        />
-      </kw-search-item>
-      <!-- 계약일련번호 -->
-      <kw-search-item
-        :label="$t('MSG_TXT_CNTR_SN')"
-        :colspan="2"
-      >
-        <kw-input
-          v-model="searchParams.cntrSn"
-          rules="numeric"
-          :label="$t('MSG_TXT_CNTR_SN')"
-          :type="number"
-          :maxlength="5"
+          :label="$t('MSG_TXT_CNTR_DTL_NO')"
         />
       </kw-search-item>
     </kw-search-row>
@@ -102,6 +86,7 @@
 // -------------------------------------------------------------------------------------------------
 import { codeUtil, getComponentType, useDataService, gridUtil, useGlobal } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
+import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
 
 const dataService = useDataService();
 const { t } = useI18n();
@@ -181,18 +166,6 @@ async function onClickExcelDownload() {
     timePostfix: true,
     exportData: res.data,
   });
-}
-
-// 계약번호 팝업조회
-async function onClickSelectCntrNo() {
-  const { result, payload } = await modal({ component: 'WwctaContractNumberListP',
-    // componentProps: { cntrCstNo: searchParams.value.cntrCstNo, cntrCstKnm: searchParams.value.cntrCstKnm },
-  });
-
-  if (result) {
-    searchParams.value.cntrNo = payload.cntrNo;
-    searchParams.value.cntrSn = payload.cntrSn;
-  }
 }
 
 onMounted(async () => {

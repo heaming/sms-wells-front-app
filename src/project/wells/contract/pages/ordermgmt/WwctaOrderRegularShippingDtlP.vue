@@ -57,7 +57,6 @@
           />
         </kw-form-item>
       </kw-form-row>
-
       <kw-form-row>
         <!-- 고객번호 -->
         <kw-form-item :label="$t('MSG_TXT_CST_NO')">
@@ -675,6 +674,33 @@
       </kw-form-row>
     </kw-form>
     <kw-separator />
+    <!-- 프로모션 -->
+    <h3 class="mb20">
+      {{ $t('MSG_TXT_PMOT') }}
+    </h3>
+    <kw-form :cols="4">
+      <kw-form-row>
+        <!-- 프로모션명 -->
+        <kw-form-item :label="$t('MSG_TXT_PMOT_NM')">
+          <kw-input
+            v-model="frmMainData.pmotNm"
+            placeholder=""
+            readonly
+          />
+        </kw-form-item>
+        <!-- 프로모션유형 -->
+        <kw-form-item
+          :label="$t('MSG_TXT_PMOT_TP')"
+        >
+          <kw-input
+            v-model="frmMainData.pmotTpNm"
+            placeholder=""
+            readonly
+          />
+        </kw-form-item>
+      </kw-form-row>
+    </kw-form>
+    <kw-separator />
     <!-- 제휴정보 -->
     <h3 class="mb20">
       {{ $t('MSG_TXT_ALNC_INF') }}
@@ -1083,6 +1109,9 @@ const frmMainData = ref({
   mchnSvPrd: '', // 기기주기
   mchnPdMclsfNm: '', // 기기종류
   mchnPdLclsfNm: '', // 기기구분
+  pdQty: '', // 수량
+  fnlVal: '', // 단가
+  ctrVal: '', // 할인
   pdTpCm: '', // 제품선택유형
   recapDutyPtrmN: '', // 의무기간
   stplPtrm: '', // 계약기간
@@ -1090,7 +1119,8 @@ const frmMainData = ref({
   fnlAmt: '', // 판매가격
   sellAmt: '', // 공급가액
   vat: '', // 부가세
-  cntrAmt: '', // 제품정상가격
+  cntrAmt: '', // 계약총액
+  pdBaseAmt: '', // 제품정상가격
   ackmtPerfRt: '', // 인정실적율(%)
   ackmtPerfAmt: '', // 인정실적액
   pmotFvrMcn: '', // 할인개월
@@ -1223,6 +1253,9 @@ async function fetchData() {
     // -------------------------------------------------------------------------------------------------
     // 상품 정보
     // -------------------------------------------------------------------------------------------------
+    frmMainData.value.pdQty = pages[0].pdQty; // 수량
+    frmMainData.value.fnlVal = pages[0].fnlVal; // 단가
+    frmMainData.value.ctrVal = pages[0].ctrVal; // 할인
     frmMainData.value.pdTpCm = pages[0].pdTpCm; // 제품선택유형
     frmMainData.value.recapDutyPtrmN = pages[0].recapDutyPtrmN; // 의무기간
     frmMainData.value.stplPtrm = pages[0].stplPtrm; // 계약기간
@@ -1230,7 +1263,8 @@ async function fetchData() {
     frmMainData.value.fnlAmt = stringUtil.getNumberWithComma(Number(pages[0].fnlAmt), 0); // 판매가격
     frmMainData.value.sellAmt = stringUtil.getNumberWithComma(Number(pages[0].sellAmt), 0); // 공급가액
     frmMainData.value.vat = stringUtil.getNumberWithComma(Number(pages[0].vat), 0); // 부가세
-    frmMainData.value.cntrAmt = stringUtil.getNumberWithComma(Number(pages[0].cntrAmt), 0); // 제품정상가격
+    frmMainData.value.cntrAmt = stringUtil.getNumberWithComma(Number(pages[0].cntrAmt), 0); // 계약총액
+    frmMainData.value.pdBaseAmt = stringUtil.getNumberWithComma(Number(pages[0].pdBaseAmt), 0); // 제품정상가격
     frmMainData.value.ackmtPerfRt = pages[0].ackmtPerfRt; // 인정실적율(%)
     frmMainData.value.ackmtPerfAmt = stringUtil.getNumberWithComma(Number(pages[0].ackmtPerfAmt), 0); // 인정실적액
     frmMainData.value.pmotFvrMcn = pages[0].pmotFvrMcn; // 할인개월
