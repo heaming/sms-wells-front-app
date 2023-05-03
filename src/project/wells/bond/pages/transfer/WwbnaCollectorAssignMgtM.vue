@@ -84,8 +84,7 @@
         >
           <kw-input
             v-model="searchParams.cstNo"
-            type="number"
-            rules="numeric"
+            regex="num"
             icon="search"
             :on-click-icon="openSearchUserPopup"
             :on-keydown-no-click="true"
