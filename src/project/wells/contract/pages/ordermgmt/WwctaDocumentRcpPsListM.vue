@@ -227,7 +227,7 @@ const initGrid = defineGrid((data, view) => {
         return '';
       },
     }, // 휴대전화번호
-    { fieldName: 'cntrChTpNm', header: t('MSG_TXT_RCP_TP_1'), width: '166', styleName: 'text-left' }, // 접수유형1
+    { fieldName: 'cntrChTpNm', header: t('MSG_TXT_RCP_TP'), width: '166', styleName: 'text-left' }, // 접수유형
   ];
 
   data.setFields(fields);

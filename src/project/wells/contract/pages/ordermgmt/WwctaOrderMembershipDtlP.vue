@@ -587,7 +587,7 @@
       <kw-form-row>
         <!-- 인정금액(원) -->
         <kw-form-item
-          :label="$t('TXT_MSG_ACKMT_AMT')"
+          :label="$t('MSG_TXT_RECOG_AMT_KRW')"
         >
           <kw-input
             v-model="frmMainData.ackmtPerfAmt"
