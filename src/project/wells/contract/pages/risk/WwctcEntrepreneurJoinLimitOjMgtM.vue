@@ -182,6 +182,8 @@ console.log(hasRoleNickName);
 async function fetchData() {
   cachedParams = { ...cachedParams, ...pageInfo.value };
 
+  if (isEmpty(cachedParams)) return;
+
   const res = await dataService.get('/sms/wells/contract/sales-limits/business-partners/paging', { params: cachedParams });
   const { list: pages, pageInfo: pagingResult } = res.data;
   const view = grdMainRef.value.getView();
