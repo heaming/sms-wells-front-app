@@ -276,24 +276,16 @@ async function onClickAggregate() {
  *         done[Boolean]: 이전단계로 되돌림 플레그
  */
 async function onclickStep(params) {
-  if (params.code === 'W0501') { // 실적집계
-    if (params.done) {
-      await onClickRetry(params.feeSchdId, params.code, '02');
-    } else {
+  if (params.done) {
+    await onClickRetry(params.feeSchdId, params.code, '02');
+  } else {
+    if (params.code === 'W0501') { // 실적집계
       await onClickAggregate();
     }
-  }
-  if (params.code === 'W0502') { // 수수료 생성
-    if (params.done) {
-      await onClickRetry(params.feeSchdId, params.code, '02');
-    } else {
+    if (params.code === 'W0502') { // 수수료 생성
       await onClickCreate();
     }
-  }
-  if (params.code === 'W0503') { // 보증예치금 적립
-    if (params.done) {
-      await onClickRetry(params.feeSchdId, params.code, '02');
-    } else {
+    if (params.code === 'W0503') { // 보증예치금 적립
       // 미정의
     }
   }
