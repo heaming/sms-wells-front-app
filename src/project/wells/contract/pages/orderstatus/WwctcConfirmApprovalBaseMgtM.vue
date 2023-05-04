@@ -20,6 +20,7 @@
       name="obsTab"
     >
       <kw-search
+        ref="searchMainRef"
         :modified-targets="['approvalBaseGrid']"
         @search="onClickSearch"
       >
@@ -164,6 +165,7 @@ const { t } = useI18n();
 const { notify, modal } = useGlobal();
 const { currentRoute } = useRouter();
 
+const searchMainRef = ref(getComponentType('KwSearch'));
 const grdMainRef = ref(getComponentType('KwGrid'));
 const { getConfig } = useMeta();
 
@@ -205,6 +207,10 @@ let cachedParams;
 
 async function fetchData() {
   cachedParams = { ...cachedParams, ...pageInfo.value };
+  if (!await searchMainRef.value.validate()) {
+    pageInfo.value.totalCount = 0;
+    return;
+  }
 
   const res = await dataService.get('/sms/wells/contract/contracts/approval-standards/paging', { params: cachedParams });
   const { list: pages, pageInfo: pagingResult } = res.data;
