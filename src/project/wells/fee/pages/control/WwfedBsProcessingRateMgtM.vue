@@ -276,7 +276,7 @@ const initGridMain = defineGrid((data, view) => {
         const response = await searchPartnerBs(payload.prtnrNo);
         const resData = response.data;
         if (resData.length < 1) {
-          alert(t('MSG_ALT_NO_INFO_SRCH'));
+          await alert(t('MSG_ALT_NO_INFO_SRCH'));
           return;
         }
         data.setValue(dataRow, 'prtnrNo', resData.prtnrNo);
@@ -300,8 +300,8 @@ const initGridMain = defineGrid((data, view) => {
   };
 
   // 행 추가 후 저장시 유효성 체크
-  view.onValidate = async (grid, index) => {
-    const { baseYm, ogTpcd } = await grid.getValues(index.dataRow);
+  view.onValidate = async (grid, { itemIndex }) => {
+    const { baseYm, ogTpcd } = await grid.getValues(itemIndex);
     if (!baseYm && !ogTpcd) {
       return t('MSG_ALT_NCELL_REQUIRED_VAL', [t('MSG_TXT_SEQUENCE_NUMBER')]);
     }
