@@ -65,7 +65,6 @@
             v-model:from="searchParams.cancelStrtYm"
             v-model:to="searchParams.cancelEndYm"
             type="month"
-            rules="date_range_months:3"
             :label="t('MSG_TXT_CANCEL_YM')"
           />
         </kw-search-item>
@@ -78,11 +77,13 @@
         </template>
       </kw-action-top>
       <!-- STEPER -->
-      <wwfeb-fee-step
-        v-model:base-ym="naviParams.baseYm"
-        v-model:fee-schd-tp-cd="naviParams.feeSchdTpCd"
-        v-model:fee-tcnt-dv-cd="naviParams.feeTcntDvCd"
-        v-model:co-cd="naviParams.coCd"
+      <zwfey-fee-step
+        ref="stepNaviRef"
+        :key="searchParams.perfYm"
+        v-model:base-ym="searchParams.perfYm"
+        v-model:fee-schd-tp-cd="searchParams.feeSchdTpCd"
+        v-model:fee-tcnt-dv-cd="searchParams.feeTcntDvCd"
+        v-model:co-cd="searchParams.coCd"
         @click-step="onclickStep"
       />
       <kw-action-top class="mt40">
@@ -145,7 +146,7 @@
 import { defineGrid, gridUtil, getComponentType, useDataService, useGlobal } from 'kw-lib';
 import dayjs from 'dayjs';
 import { cloneDeep } from 'lodash-es';
-import WwfebFeeStep from './WwfebFeeStep.vue';
+import ZwfeyFeeStep from '~sms-common/fee/pages/schedule/ZwfeyFeeStep.vue';
 
 const dataService = useDataService();
 const now = dayjs();
@@ -161,7 +162,7 @@ const grdRefB = ref(getComponentType('KwGrid'));
 const grdDataB = computed(() => grdRefB.value?.getData());
 const totalCount = ref(0);
 const grdType = ref('A');
-const stepInitNum = ref(2);
+const stepNaviRef = ref();
 
 let cachedParams;
 const searchParams = ref({
@@ -169,17 +170,16 @@ const searchParams = ref({
   perfYm: now.format('YYYYMM'),
   strtYm: now.format('YYYYMMDD'),
   endYm: now.add(1, 'month').format('YYYYMMDD'),
-  cancelStrtYm: now.format('YYYYMMDD'),
-  cancelEndYm: now.add(1, 'month').format('YYYYMMDD'),
+  cancelStrtYm: '',
+  cancelEndYm: '',
+  feeSchdTpCd: '501', // 신채널(총판)
+  feeTcntDvCd: '01', // 1차수
+  coCd: '1200', // 교원
 });
-const naviParams = ref({
-  baseYm: '202305',
-  feeSchdTpCd: '501',
-  feeTcntDvCd: '01',
-  coCd: '1200',
-});
+
 // 데이터 조회
 async function fetchData() {
+  stepNaviRef.value.initProps();
   const fixApi = cachedParams.type === 'A' ? 'performance' : 'fee';
   const { data } = await dataService.get(`/sms/wells/fee/sole-distributor/${fixApi}`, { params: { ...cachedParams } });
   if (cachedParams.type === 'A') {
@@ -187,7 +187,6 @@ async function fetchData() {
   } else {
     grdDataB.value.setRows(data);
   }
-  stepInitNum.value = data.baseInfo.step;
   totalCount.value = data.list.length;
 }
 // 조회 버튼
@@ -247,36 +246,47 @@ async function onClickCreate() {
     fetchData();
   }
 }
-// 재시작 && 실적집계
-async function onClickRetry() {
-  // 조회후 진행
-  // 1보다크면 재시작
-  if (stepInitNum.value > 1) {
-    if (await confirm(t('MSG_ALT_LV_RESRT'))) {
-      // @todo api미정의
-      await dataService.post(`/sms/wells/fee/sole-distributor/fee/retry/${searchParams.value.perfYm}`);
-      notify(t('MSG_ALT_AGRG_FSH')); // 집계되었습니다.
-      fetchData();
-    }
-  } else { // 아니면 집계
-    const { result: isChanged } = await modal({
-      component: 'WwfebSoleDistributorFeeCreationAggregateP',
-      componentProps: {
-        perfYm: searchParams.value.perfYm,
-      },
-    });
-    if (isChanged) {
-      fetchData();
-    }
+// 재시작, 상태를 진행중상태로 변경한다.
+async function onClickRetry(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
+  if (await confirm(t('MSG_ALT_LV_RESRT'))) {
+    await dataService.put(`/sms/common/fee/schedules/steps/${feeSchdId}/status/levels`, null, { params: { feeSchdLvCd, feeSchdLvStatCd } });
+    notify(t('MSG_ALT_SAVE_DATA'));
+    fetchData();
   }
 }
-async function onclickStep(item) {
-  console.log(item);
-  if (item === '1') {
-    await onClickCreate();
+
+// 실적집계
+async function onClickAggregate() {
+  const { result: isChanged } = await modal({
+    component: 'WwfebSoleDistributorFeeCreationAggregateP',
+    componentProps: {
+      perfYm: searchParams.value.perfYm,
+    },
+  });
+  if (isChanged) {
+    fetchData();
   }
-  if (item === '2') {
-    await onClickRetry();
+}
+/**
+ * 스텝퍼 클릭시
+ * WELLS 총판수수료 단계코드[FEE_SCHD_LV_CD] W05** 에 있는 코드 단계별 모든 로직을 정리한다.
+ * 버튼 로직 존재시 해당 로직 서술
+ * @params code[String]: 스탭퍼에서 선택한 단계 코드
+ *         done[Boolean]: 이전단계로 되돌림 플레그
+ */
+async function onclickStep(params) {
+  if (params.done) {
+    await onClickRetry(params.feeSchdId, params.code, '02');
+  } else {
+    if (params.code === 'W0501') { // 실적집계
+      await onClickAggregate();
+    }
+    if (params.code === 'W0502') { // 수수료 생성
+      await onClickCreate();
+    }
+    if (params.code === 'W0503') { // 보증예치금 적립
+      // 미정의
+    }
   }
 }
 // -------------------------------------------------------------------------------------------------
