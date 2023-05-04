@@ -519,7 +519,7 @@ const initGrid = defineGrid((data, view) => {
       styleName: 'text-right',
       numberFormat: '#,##0',
       rules: 'required|max:12',
-      editable: true,
+      editable: false,
       editor: {
         type: 'number',
       },
@@ -531,7 +531,7 @@ const initGrid = defineGrid((data, view) => {
       rules: 'required|max:20',
       width: '100',
       styleName: 'text-right',
-      editable: true,
+      editable: false,
       editor: {
         type: 'number',
         editFormat: '#,##0',
@@ -543,7 +543,7 @@ const initGrid = defineGrid((data, view) => {
       rules: 'required|max:20',
       numberFormat: '#,##0',
       styleName: 'text-right',
-      editable: true,
+      editable: false,
       editor: {
         type: 'number',
         editFormat: '#,##0',

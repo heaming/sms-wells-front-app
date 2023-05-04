@@ -62,40 +62,40 @@
           </kw-form-item>
         </kw-form-row>
       </kw-form>
-
-      <kw-separator />
-
-      <kw-action-top>
-        <template #left>
-          <kw-paging-info />
-        </template>
-        <kw-btn
-          dense
-          secondary
-          :label="t('MSG_BTN_DEL')"
-          @click="onClickRemove"
-        />
-        <!-- label="삭제" -->
-        <kw-separator
-          vertical
-          inset
-          spaced
-        />
-
-        <kw-btn
-          :label="t('MSG_TXT_ROW_SPMT')"
-          dense
-          secondary
-          @click="onClickAddRow"
-        />
-      <!-- label="행 추가" -->
-      </kw-action-top>
-      <kw-grid
-        ref="grdPageRef"
-        :visible-rows="10"
-        @init="initGrid"
-      />
     </kw-observer>
+    <kw-separator />
+
+    <kw-action-top>
+      <template #left>
+        <kw-paging-info />
+      </template>
+      <kw-btn
+        dense
+        secondary
+        :label="t('MSG_BTN_DEL')"
+        @click="onClickRemove"
+      />
+      <!-- label="삭제" -->
+      <kw-separator
+        vertical
+        inset
+        spaced
+      />
+
+      <kw-btn
+        :label="t('MSG_TXT_ROW_SPMT')"
+        dense
+        secondary
+        @click="onClickAddRow"
+      />
+      <!-- label="행 추가" -->
+    </kw-action-top>
+    <kw-grid
+      ref="grdPageRef"
+      :visible-rows="10"
+      @init="initGrid"
+    />
+
     <template #action>
       <kw-btn
         negative
@@ -117,7 +117,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 
-import { defineGrid, getComponentType, gridUtil, modal, notify, useDataService, useModal, validate } from 'kw-lib';
+import { defineGrid, getComponentType, gridUtil, modal, notify, useDataService, useModal, validate, alert } from 'kw-lib';
 import dayjs from 'dayjs';
 import { cloneDeep } from 'lodash-es';
 
@@ -133,7 +133,7 @@ const { getters } = useStore();
 // -------------------------------------------------------------------------------------------------
 const grdPageRef = ref(getComponentType('KwGrid'));
 const userInfo = getters['meta/getUserInfo'];
-// const grdPageRef = ref();
+
 const { loginId, userName } = userInfo;
 console.log(userInfo);
 const props = defineProps({
@@ -196,11 +196,19 @@ const validateCst = computed(() => async (val, options) => {
 
 // 저장 버튼
 async function onClickSave() {
+  const view = grdPageRef.value.getView();
+
   if (!await obsRef.value.validate()) { return; }
 
-  if (await obsRef.value.alertIfIsNotModified()) { return; }
+  if (!await gridUtil.validate(view)) { return; }
 
-  const view = grdPageRef.value.getView();
+  console.log(obsRef.value.isModified());
+  console.log(!gridUtil.isModified(view));
+
+  if (await !obsRef.value.isModified() && await !gridUtil.isModified(view)) {
+    await alert(t('MSG_ALT_NO_CHG_CNTN'));
+    return;
+  }
 
   const gridSize = view.getDataSource().getRowCount();
 
@@ -209,10 +217,6 @@ async function onClickSave() {
     // alert('청구 내역을 입력하세요.');
     return;
   }
-
-  // if (await gridUtil.alertIfIsNotModified(view)) { return; }
-
-  // if (!await gridUtil.validate(view)) { return; }
 
   const changedRows = gridUtil.getChangedRowValues(view);
   const mainData = cloneDeep(regMainData.value);
@@ -229,8 +233,6 @@ async function onClickSave() {
   await dataService.post('/sms/wells/withdrawal/idvrve/billing-document-orders/details', cachedParams);
 
   notify(t('MSG_ALT_SAVE_DATA'));
-
-  console.log('???>');
 
   ok({
     cstFnm: regMainData.value.cstFnm,
@@ -263,6 +265,7 @@ async function fetchData() {
   const data = view.getDataSource();
   data.checkRowStates(false);
   data.setRows(list);
+  await obsRef.value.init();
   data.checkRowStates(true);
 }
 
@@ -325,8 +328,6 @@ async function initProps() {
     // regMainData.value.bildcPblSn = bildcPblSn;
     regMainData.value.state = 'updated';
     regMainData.value.isSearchChk = true;
-
-    await obsRef.value.init();
     await fetchData();
   } else {
     regMainData.value.state = 'created';
