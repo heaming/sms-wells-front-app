@@ -51,6 +51,12 @@
             @change="fetchData"
           />
         </template>
+        <!-- <kw-btn
+          dense
+          secondary
+          label="고객 기본정보 테스트"
+          @click="onClickTest"
+        /> -->
         <kw-btn
           icon="download_on"
           dense
@@ -160,6 +166,14 @@ async function onClickExcelDownload() {
   });
 }
 
+// async function onClickTest() {
+//   const { result, payload } = await modal({
+//     component: 'WwsnyCustomerBaseInformationP',
+//   });
+//   console.log(result);
+//   console.log(payload);
+// }
+
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
@@ -194,20 +208,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'cntrDt', header: t('MSG_TXT_ENTCO_D'), width: '100', styleName: 'text-center' },
     { fieldName: 'carno', header: t('MSG_TXT_CARNO'), width: '120', styleName: 'text-center' },
     { fieldName: 'carnm', header: t('MSG_TXT_VHC_KND'), width: '100', styleName: 'text-center' },
-    {
-      fieldName: 'vhcMngtTpNm',
-      header: t('MSG_TXT_J_TP'),
-      width: '100',
-      styleName: 'text-center',
-      displayCallback(grid, index, value) {
-        const vhcMngtTpCd = grid.getValue(index.itemIndex, 'vhcMngtTpCd');
-        if (vhcMngtTpCd !== null) {
-          return codes.VHC_MNGT_TP_CD.find((obj) => obj.codeId === grid.getValue(index.itemIndex, 'vhcMngtTpCd')).codeName;
-        }
-
-        return isEmpty(value) ? vhcMngtTpCd : value;
-      },
-    },
+    { fieldName: 'vhcMngtTpNm', header: t('MSG_TXT_J_TP'), width: '100', styleName: 'text-center' },
     { fieldName: 'vhcPymdt', header: t('MSG_TXT_DSB_STRT_D'), width: '150', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'dsbEnddt', header: t('MSG_TXT_DSB_END_D'), width: '150', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'insrAgeCd', header: t('MSG_TXT_INSR_AGE'), width: '100', styleName: 'text-center' },
