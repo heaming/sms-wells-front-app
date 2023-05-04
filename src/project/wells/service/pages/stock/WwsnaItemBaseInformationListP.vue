@@ -162,6 +162,10 @@ const props = defineProps({
     type: String,
     default: undefined,
   },
+  itmPdNm: {
+    type: String,
+    default: undefined,
+  },
   itmKndCd: {
     type: String,
     default: '',
@@ -183,13 +187,15 @@ const props = defineProps({
 
 const searchParams = ref({
   itmKndCd: props.itmKndCd,
-  itmPdNm: '',
+  itmPdNm: props.itmPdNm,
   itmPdCd: '',
   lpGbYn: props.lpGbYn,
   wareNo: props.wareNo,
   ostrWareNo: props.ostrWareNo,
 
 });
+
+const isRadio = computed(() => props.lpGbYn === 'Y');
 
 async function onClickSelt() {
   debugger;
@@ -351,6 +357,18 @@ const initGrdMain2 = defineGrid((data, view) => {
   data.setFields(fields);
   view.setColumns(columns);
   view.checkBar.visible = true;
+  view.checkBar.exclusive = isRadio.value;
+  // 체크박스 설정
+  view.onCellClicked = (grid, clickData) => {
+    if (clickData.cellType === 'data') {
+      grid.checkItem(
+        clickData.itemIndex,
+        isRadio.value ? true : !grid.isCheckedItem(clickData.itemIndex),
+        isRadio.value,
+      );
+    }
+  };
+
   view.rowIndicator.visible = true;
   view.setFixedOptions({ colCount: 3, resizable: true });
   view.onCellDblClicked = (grid, clickData) => {
