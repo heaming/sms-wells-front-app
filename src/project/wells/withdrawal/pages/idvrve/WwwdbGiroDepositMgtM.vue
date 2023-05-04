@@ -146,7 +146,7 @@
 
 import { codeUtil, getComponentType, gridUtil, modal, notify, useDataService, useMeta, alert, confirm } from 'kw-lib';
 import dayjs from 'dayjs';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, isEmpty } from 'lodash-es';
 
 // import { cloneDeep } from 'lodash-es';
 
@@ -192,6 +192,8 @@ const searchParams = ref({
   rveDt: now.format('YYYYMMDD'), // 실적일자
   errorChk: '1',
 });
+
+let fileData = [];
 
 let cachedParams;
 
@@ -251,8 +253,6 @@ function nullDefaultValue(a, b) {
 
 const attachFileRef = ref();
 
-const fileData = [];
-
 let paramData;
 let gridSetData = [];
 
@@ -260,16 +260,12 @@ async function addRow() {
   const view = grdMainRef.value.getView();
   const dataSource = view.getDataSource();
 
-  const createData = gridUtil.getAllRowValues(view);
-
-  console.log(createData);
+  console.log(fileData);
 
   paramData = fileData;
 
   let sum1 = 0;
   let sum2 = 0;
-
-  if (!await confirm('지로업로드를 진행하시겠습니까?')) { return; }
 
   grdMainRef.value.getData().clearRows();
   pageInfo.value.pageIndex = 1;
@@ -300,6 +296,9 @@ async function addRow() {
         perfDt: data.rveDt, // 실적일
         rveAmt: data.pyAmt, // 납입금액
         giroFee: data.giroFeeDvCd,
+        sellTpCd: '2',
+        dpMesCd: '0401',
+
       });
       // });
 
@@ -328,9 +327,10 @@ async function onClickExcelDownload() {
 }
 
 async function onUpdateFileUpload() {
-  if (file.value === null || file.value.length === 0) {
+  if (isEmpty(file.value)) {
     return;
   }
+  fileData = [];
   // 첨부파일 정보를 함께 넘겨줍시다.
   const reader = new FileReader();
   reader.onload = () => {
@@ -415,6 +415,16 @@ async function onClickSave() {
 }
 
 async function onClickExcelUpload() {
+  const view = grdMainRef.value.getView();
+
+  const gridData = gridUtil.getAllRowValues(view);
+
+  console.log(gridData);
+
+  if (gridData.length > 0) {
+    if (!await confirm('조회 또는 입력한 내용이 초기화됩니다.지로업로드를 진행하시겠습니까?')) { return; }
+  }
+
   file.value = null;
   attachFileRef.value.reset();
   attachFileRef.value.pickFiles();
@@ -532,7 +542,7 @@ function initGrid(data, view) {
       options: codes.DP_TP_CD,
       // header: '입금유형',
       width: '104',
-      styleName: 'text-left' },
+      styleName: 'text-center' },
     { fieldName: 'procsErrTpCd',
       header: t('MSG_TXT_ERR_KR'),
       options: codes.PROCS_ERR_TP_CD,
