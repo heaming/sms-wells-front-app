@@ -7,6 +7,7 @@ module.exports = {
   ],
 
   rules: {
+    'no-underscore-dangle': 'off',
     'import/no-extraneous-dependencies': ['error', {
       'packageDir': [__dirname],
       'devDependencies': false,
