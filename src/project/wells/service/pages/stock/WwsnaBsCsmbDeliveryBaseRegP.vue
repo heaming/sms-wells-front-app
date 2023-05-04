@@ -660,15 +660,13 @@ const isRequiredAccPrpnYn3 = async (val, options) => {
 };
 
 async function onClickItemSearch() {
-  const chk = '1';
-
   const { result, payload } = await modal({
     component: 'WwsnaItemBaseInformationListP',
-    componentProps: { chk },
+    componentProps: { chk: '1', itmKndCd: '08', lpGbYn: 'Y', itmPdNm: basData.value.itmKnm },
   });
 
   if (result) {
-    basData.value.itmKnm = payload[0].itmNm;
+    basData.value.itmKnm = payload[0].itmPdNm;
     basData.value.csmbPdCd = payload[0].itmPdCd;
     ddlvOjCd1Data.value.csmbPdCd = payload[0].itmPdCd;
     ddlvOjCd2Data.value.csmbPdCd = payload[0].itmPdCd;
