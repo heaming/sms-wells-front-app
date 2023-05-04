@@ -67,13 +67,15 @@
 
     <kw-action-top>
       <template #left>
-        <kw-paging-info
+        <h3>
+          {{ t('청구내역') }}
+        </h3>
+        <!-- <kw-paging-info
           v-model:page-index="pageInfo.pageIndex"
           v-model:page-size="pageInfo.pageSize"
           :total-count="pageInfo.totalCount"
-          :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
           @change="fetchData"
-        />
+        /> -->
       </template>
       <kw-btn
         dense
@@ -96,6 +98,7 @@
       />
       <!-- label="행 추가" -->
     </kw-action-top>
+
     <kw-grid
       ref="grdPageRef"
       name="grdPage"
@@ -125,7 +128,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 
-import { defineGrid, getComponentType, gridUtil, modal, notify, useDataService, useModal, validate, alert, useMeta, codeUtil } from 'kw-lib';
+import { defineGrid, getComponentType, gridUtil, modal, notify, useDataService, useModal, validate, alert, useMeta } from 'kw-lib';
 import dayjs from 'dayjs';
 import { cloneDeep } from 'lodash-es';
 
@@ -140,9 +143,9 @@ const { getConfig } = useMeta();
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 
-const codes = await codeUtil.getMultiCodes(
-  'COD_PAGE_SIZE_OPTIONS',
-);
+// const codes = await codeUtil.getMultiCodes(
+//   'COD_PAGE_SIZE_OPTIONS',
+// );
 
 const grdPageRef = ref(getComponentType('KwGrid'));
 const userInfo = getters['meta/getUserInfo'];
@@ -263,10 +266,9 @@ async function onClickSave() {
 // 고객명 찾기 이벤트
 async function onClickSearchUser() {
   const { result, payload } = await modal({ component: 'ZwcsaCustomerListP',
-    componentProps: { cstType: '1' } });
+    componentProps: { cstNo: ' ', cstNm: regMainData.value.cstFnm, cstType: '1' } });
 
   if (result) {
-    console.log(payload);
     regMainData.value.cstNo = payload.cstNo;
     regMainData.value.cstFnm = payload.name;
   }
