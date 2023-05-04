@@ -156,5 +156,13 @@ const pops = [
       dtlSn: '1',
     },
   },
+  {
+    pname: 'WwctaOrderDetailP',
+    title: 'wells 주문 상세 조회 W-SS-U-0092P01 ',
+    param: {
+      cntrNo: 'W20155005919',
+      cntrSn: '1',
+    },
+  },
 ];
 </script>
