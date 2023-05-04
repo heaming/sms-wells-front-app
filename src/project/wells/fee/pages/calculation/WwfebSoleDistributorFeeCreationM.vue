@@ -271,7 +271,6 @@ async function onClickAggregate() {
  * 스텝퍼 클릭시
  * WELLS 총판수수료 단계코드[FEE_SCHD_LV_CD] W05** 에 있는 코드 단계별 모든 로직을 정리한다.
  * 버튼 로직 존재시 해당 로직 서술
- * 버튼 로직 미정의시 단계 상세 팝업 호출
  * @params code[String]: 스탭퍼에서 선택한 단계 코드
  *         done[Boolean]: 이전단계로 되돌림 플레그
  */
