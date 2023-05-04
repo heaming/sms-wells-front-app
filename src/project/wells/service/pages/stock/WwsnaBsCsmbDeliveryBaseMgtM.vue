@@ -436,6 +436,19 @@ const initGrdMain = defineGrid((data, view) => {
 
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
+
+  view.onCellDblClicked = async (grid, clickData) => {
+    if (pageInfo.value.totalCount > 0) {
+      const { mngtYm, csmbPdCd } = grid.getValues(clickData.itemIndex);
+
+      const { result } = await modal({
+        component: 'WwsnaBsCsmbDeliveryBaseRegP',
+        componentProps: { mngtYm, csmbPdCd },
+      });
+
+      if (result) await fetchData();
+    }
+  };
 });
 
 </script>
