@@ -67,7 +67,13 @@
 
     <kw-action-top>
       <template #left>
-        <kw-paging-info />
+        <kw-paging-info
+          v-model:page-index="pageInfo.pageIndex"
+          v-model:page-size="pageInfo.pageSize"
+          :total-count="pageInfo.totalCount"
+          :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
+          @change="fetchData"
+        />
       </template>
       <kw-btn
         dense
@@ -92,7 +98,9 @@
     </kw-action-top>
     <kw-grid
       ref="grdPageRef"
-      :visible-rows="10"
+      name="grdPage"
+      :page-size="pageInfo.pageSize"
+      :total-count="pageInfo.totalCount"
       @init="initGrid"
     />
 
@@ -117,7 +125,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 
-import { defineGrid, getComponentType, gridUtil, modal, notify, useDataService, useModal, validate, alert } from 'kw-lib';
+import { defineGrid, getComponentType, gridUtil, modal, notify, useDataService, useModal, validate, alert, useMeta, codeUtil } from 'kw-lib';
 import dayjs from 'dayjs';
 import { cloneDeep } from 'lodash-es';
 
@@ -127,10 +135,15 @@ const { ok } = useModal();
 const dataService = useDataService();
 const { t } = useI18n();
 const { getters } = useStore();
-
+const { getConfig } = useMeta();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
+
+const codes = await codeUtil.getMultiCodes(
+  'COD_PAGE_SIZE_OPTIONS',
+);
+
 const grdPageRef = ref(getComponentType('KwGrid'));
 const userInfo = getters['meta/getUserInfo'];
 
@@ -167,6 +180,13 @@ const regMainData = ref({
   state: '',
   isSearchChk: false,
   cstNo: '',
+});
+
+const pageInfo = ref({
+  totalCount: 0,
+  pageIndex: 1,
+  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
+  needTotalCount: true,
 });
 
 // 행추가
@@ -256,15 +276,18 @@ let dataParam;
 
 async function fetchData() {
   dataParam = cloneDeep(regMainData.value);
+  dataParam = { ...dataParam, ...pageInfo.value };
 
   const res = await dataService.get('/sms/wells/withdrawal/idvrve/billing-document-orders/details', { params: dataParam });
-  const list = res.data;
+
+  const { list: pages, pageInfo: pagingResult } = res.data;
+  pageInfo.value = pagingResult;
 
   const view = grdPageRef.value.getView();
 
   const data = view.getDataSource();
   data.checkRowStates(false);
-  data.setRows(list);
+  data.addRows(pages);
   await obsRef.value.init();
   data.checkRowStates(true);
 }
@@ -333,6 +356,7 @@ async function initProps() {
     regMainData.value.state = 'created';
     const view = grdPageRef.value.getView();
     gridUtil.insertRowAndFocus(view, 0, {});
+    await obsRef.value.init();
   }
 }
 
@@ -408,6 +432,13 @@ const initGrid = defineGrid((data, view) => {
   view.onCellClicked = (grid, clickData) => {
     if (clickData.cellType === 'data') {
       grid.checkItem(clickData.itemIndex, !grid.isCheckedItem(clickData.itemIndex));
+    }
+  };
+
+  view.onScrollToBottom = async (g) => {
+    if (pageInfo.value.pageIndex * pageInfo.value.pageSize <= g.getItemCount()) {
+      pageInfo.value.pageIndex += 1;
+      await fetchData();
     }
   };
 
