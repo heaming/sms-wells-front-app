@@ -209,7 +209,7 @@ import {
   useGlobal,
 } from 'kw-lib';
 
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, replace } from 'lodash-es';
 import dayjs from 'dayjs';
 // import smsCommon from '~sms-wells/service/composables/useSnCode';
 // import ZwcmMultiSelect from '@/modules/common/components/ZwcmMultiSelect.vue';
@@ -451,7 +451,7 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-center',
       displayCallback: (g, i) => {
         const { locaraTno, exnoEncr, idvTno } = gridUtil.getRowValue(g, i.itemIndex);
-        return `${locaraTno}-${exnoEncr}-${idvTno}`;
+        return `${replace(locaraTno, null, '')}-${replace(exnoEncr, null, '')}-${replace(idvTno, null, '')}`;
       },
     },
     {
@@ -461,7 +461,7 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-center',
       displayCallback: (g, i) => {
         const { cralLocaraTno, mexnoEncr, cralIdvTno } = gridUtil.getRowValue(g, i.itemIndex);
-        return `${cralLocaraTno}-${mexnoEncr}-${cralIdvTno}`;
+        return `${replace(cralLocaraTno, null, '')}-${replace(mexnoEncr, null, '')}-${replace(cralIdvTno, null, '')}`;
       },
     },
     {
