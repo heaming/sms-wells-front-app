@@ -505,12 +505,12 @@ const initGrid1 = defineGrid((data, view) => {
     { fieldName: 'dlpnrNm',
       header: t('MSG_TXT_CLNT_NM'),
       // , header: '거래처명'
-      width: '270',
+      width: '280',
       styleName: 'text-left' },
     { fieldName: 'bzrno',
       header: t('MSG_TXT_CRNO'),
       // header: '사업자등록번호',
-      width: '281',
+      width: '250',
       styleName: 'text-center',
       displayCallback(grid, index, value) {
         return !isEmpty(value) ? `${value.substring(0, 3)}-${value.substring(3, 5)}-${value.substring(5, 10)}` : value;
@@ -518,12 +518,12 @@ const initGrid1 = defineGrid((data, view) => {
     { fieldName: 'cntr',
       header: t('MSG_TXT_CNTR_DTL_NO'),
       // , header: '계약상세번호'
-      width: '280',
+      width: '250',
       styleName: 'text-left' },
     { fieldName: 'sellAmt',
       header: t('MSG_TXT_AMT_WON'),
       // , header: '금액(원)'
-      width: '280',
+      width: '200',
       styleName: 'text-right',
       numberFormat: '#,##0' },
 
