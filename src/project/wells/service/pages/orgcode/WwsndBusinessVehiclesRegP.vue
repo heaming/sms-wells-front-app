@@ -40,7 +40,6 @@
             v-model="dataParams.vhcMngtPrtnrNo"
             :label="$t('MSG_TXT_EGER')"
             :options="engineers"
-            :disable="isModify"
             rules="required"
             @update:model-value="onChangeEngineer"
           />
@@ -231,7 +230,7 @@ const props = defineProps({
   prtnrNo: { type: String, default: '' },
   vhcMngtPrtnrNo: { type: String, default: '' },
 });
-console.log(props);
+
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -267,6 +266,8 @@ const dataParams = ref({
   hipsCdnoEncr: '',
   vhcDsbRmkCn: '',
   carnm: '',
+  bfPrtnrNo: '',
+  prtnrChYn: '',
 });
 
 async function fetchEngineers(params) {
@@ -297,8 +298,10 @@ async function onChangeEngineer() {
   engineerByPrtnrNo.forEach((e) => {
     dataParams.value.entcoDt = e.entcoDt;
     dataParams.value.rsgnDt = e.rsgnDt;
-    if (!isModify.value) {
-      dataParams.value.vhcMngtOgTpCd = e.ogTpCd;
+    dataParams.value.vhcMngtOgTpCd = e.ogTpCd;
+
+    if (isModify.value && (dataParams.value.vhcMngtPrtnrNo !== dataParams.value.bfPrtnrNo)) {
+      dataParams.value.prtnrChYn = '1';
     }
   });
 }
@@ -315,6 +318,10 @@ async function fetchBusinessVehicle(vhcMngtNo, vhcMngtSn) {
 async function getBusinessVehicle() {
   const res = await fetchBusinessVehicle(props.vhcMngtNo, props.vhcMngtSn);
   dataParams.value = res.data;
+
+  if (isModify.value) {
+    dataParams.value.bfPrtnrNo = dataParams.value.vhcMngtPrtnrNo;
+  }
 }
 
 if (isModify.value) { // 수정
