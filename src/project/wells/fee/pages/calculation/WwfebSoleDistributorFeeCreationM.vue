@@ -173,7 +173,7 @@ const searchParams = ref({
   cancelStrtYm: '',
   cancelEndYm: '',
   feeSchdTpCd: '501', // 신채널(총판)
-  feeTcntDvCd: '01', // 1차수
+  feeTcntDvCd: '02', // 2차수
   coCd: '1200', // 교원
 });
 
@@ -294,6 +294,7 @@ async function onclickStep(params) {
 // -------------------------------------------------------------------------------------------------
 const initGridDetail = defineGrid((data, view) => {
   const columns = [
+    { fieldName: 'baseYm', visible: false },
     { fieldName: 'hdqOgNm', header: t('MSG_TXT_CORP_NAME'), width: '127' },
     { fieldName: 'sellPrtnrNm', header: t('MSG_TXT_SELLER_PERSON'), width: '98' },
     { fieldName: 'cntrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '127', styleName: 'text-center' },
@@ -324,6 +325,7 @@ const initGridDetail = defineGrid((data, view) => {
 
 const initGridBase = defineGrid((data, view) => {
   const columns = [
+    { fieldName: 'baseYm', visible: false },
     { fieldName: 'coCdNm', header: t('MSG_TXT_CORP_NAME'), width: '127' },
     { fieldName: 'ogCd', header: t('MSG_TXT_BLG'), width: '98' },
     { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '127', styleName: 'text-center' },

@@ -77,7 +77,7 @@ async function onClickCancel() {
 async function onClickCreate() {
   if (!await popupRef.value.validate()) { return; }
 
-  await dataService.post(`/sms/wells/fee/sole-distributor/fee/aggregate/${regData.perfYm}`);
+  await dataService.post('/sms/wells/fee/sole-distributor/aggregate', { perfYm: regData.value.perfYm });
   notify(t('MSG_ALT_AGRG_FSH')); // 집계되었습니다.
   ok(true);
 }
