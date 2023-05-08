@@ -41,9 +41,10 @@
             :options="customCodes.SERVICE_CENTER"
             option-value="ogCd"
             option-label="ogNm"
-            first-option="select"
             rules="required"
+            first-option="select"
             :label="$t('서비스센터')"
+            @update:model-value="onItemChanged"
           />
         </kw-search-item>
       </kw-search-row>
@@ -141,7 +142,7 @@ import { useDataService, useGlobal, useMeta } from 'kw-lib';
 import { cloneDeep, isEmpty, toInteger } from 'lodash-es';
 
 const dataService = useDataService();
-const { notify, modal, alert } = useGlobal();
+const { notify, modal } = useGlobal();
 const { t } = useI18n();
 const { getUserInfo } = useMeta();
 const sessionUserInfo = getUserInfo();
@@ -159,8 +160,8 @@ const searchParams = ref({
   baseYm: dayjs().format('YYYYMM'),
   serviceCenterOgId: '',
   serviceCenterCd: '',
-  // serviceCenter: undefined,
-  serviceCenter: { ogCd: '', ogId: '선택' },
+  serviceCenter: undefined,
+  // serviceCenter: { ogCd: '', ogId: '선택' },
 });
 
 /*
@@ -263,10 +264,10 @@ function isToday(dayCnt) {
  *  Event - 조회 버튼 클릭
  */
 async function onClickSearch() {
-  if (isEmpty(searchParams.value.serviceCenter.ogCd)) {
-    alert(t('MSG_VAL_REQUIRED', [t('서비스센터')]));
-    return;
-  }
+  // if (isEmpty(searchParams.value.serviceCenter.ogCd)) {
+  //   alert(t('MSG_VAL_REQUIRED', [t('서비스센터')]));
+  //   return;
+  // }
 
   if (!isHolidaySetter()) {
     searchParams.value.serviceCenterCd = searchParams.value.serviceCenter.ogCd;
@@ -311,6 +312,15 @@ async function onDbClickCalendar(dayCnt) {
   if (isChanged) {
     await notify(t('MSG_ALT_SAVE_DATA'));
     await getCalendarMgt();
+  }
+}
+
+/*
+ * KwSelect 의 Object required rule 적용이 안되므로 방어 코딩
+ */
+function onItemChanged() {
+  if (isEmpty(searchParams.value.serviceCenter.ogCd)) {
+    searchParams.value.serviceCenter = undefined;
   }
 }
 
