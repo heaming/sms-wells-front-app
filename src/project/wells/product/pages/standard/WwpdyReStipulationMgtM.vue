@@ -328,32 +328,29 @@ const initGrdMain = defineGrid((data, view) => {
     }
   };
 
-  view.onCellButtonClicked = async (g, { column, itemIndex }) => {
+  view.onCellButtonClicked = async (g, { column, dataRow }) => {
     if (column === 'pdCd' || column === 'pdNm') {
-      if (!gridUtil.isCreatedRow(g, itemIndex)) {
+      if (!gridUtil.isCreatedRow(g, dataRow)) {
         notify(t('MSG_ALT_NOT_MODIFY_IT', [t('MSG_TXT_PD_ATC')]));
         return;
       }
       const componentProps = {
         selectType: pdConst.PD_SEARCH_SINGLE,
         searchType: column === 'pdCd' ? pdConst.PD_SEARCH_CODE : pdConst.PD_SEARCH_NAME,
-        searchValue: g.getValue(itemIndex, column),
+        searchValue: g.getValue(dataRow, column),
       };
       const { result, payload } = await modal({ component: 'ZwpdcStandardListP', componentProps });
       if (result) {
-        g.setValue(itemIndex, 'pdCd', payload[0].pdCd);
-        g.setValue(itemIndex, 'pdNm', payload[0].pdNm);
+        g.setValue(dataRow, 'pdCd', payload[0].pdCd);
+        g.setValue(dataRow, 'pdNm', payload[0].pdNm);
       }
     }
   };
 
   view.onEditRowChanged = (grid, itemIndex, dataRow, field, oldValue, newValue) => {
-    // if (field === 5) {
-    // eslint-disable-next-line no-underscore-dangle
-    const compareColumn = grid?.__columns__[field]?.name;
-
+    const compareColumn = data.getFieldName(field);
     // 적용[시작|종료]일
-    if (compareColumn === 'apyStrtdt') {
+    if (compareColumn === 'APYSTRTDT') {
       const apyEnddt = grid.getValue(itemIndex, 'apyEnddt').replaceAll('-', '');
       if (!isEmpty(apyEnddt) && (Number(newValue) > Number(apyEnddt))) {
         // 적용시작일은 적용종료일보다 작은 값이어야 합니다.
@@ -362,7 +359,7 @@ const initGrdMain = defineGrid((data, view) => {
         return false;
       }
     }
-    if (compareColumn === 'apyEnddt') {
+    if (compareColumn === 'APYENDDT') {
       const apyStrtdt = grid.getValue(itemIndex, 'apyStrtdt').replaceAll('-', '');
       if (!isEmpty(apyStrtdt) && (Number(newValue) < Number(apyStrtdt))) {
         // 적용종료일은 적용시작일보다 큰 값이어야 합니다.
@@ -373,7 +370,7 @@ const initGrdMain = defineGrid((data, view) => {
     }
 
     // 접수[시작|종료]차월
-    if (compareColumn === 'rcpEndMcn') {
+    if (compareColumn === 'RCPSTRTMCN') {
       const rcpEndMcn = grid.getValue(itemIndex, 'rcpEndMcn');
       if (!isEmpty(rcpEndMcn) && (Number(newValue) > Number(rcpEndMcn))) {
         // 접수시작차월은 접수종료차월보다 작은 값이어야 합니다.
@@ -382,9 +379,9 @@ const initGrdMain = defineGrid((data, view) => {
         return false;
       }
     }
-    if (compareColumn === 'rcpEndMcn') {
-      const rcpEndMcn = grid.getValue(itemIndex, 'rcpEndMcn');
-      if (!isEmpty(rcpEndMcn) && (Number(newValue) < Number(rcpEndMcn))) {
+    if (compareColumn === 'RCPENDMCN') {
+      const rcpStrtMcn = grid.getValue(itemIndex, 'rcpStrtMcn');
+      if (!isEmpty(rcpStrtMcn) && (Number(newValue) < Number(rcpStrtMcn))) {
         // 접수종료차월은 접수시작차월보다 큰 값이어야 합니다.
         notify(t('MSG_ALT_INVAILD_RANGE_END_MONTH_CNT'));
         grid.setValue(itemIndex, field, oldValue);
