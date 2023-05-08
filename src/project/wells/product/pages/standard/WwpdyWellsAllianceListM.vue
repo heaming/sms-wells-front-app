@@ -3,7 +3,7 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : PDY (기준정보관리)
-2. 프로그램 ID : WwpdyHealthAllianceListM - 헬스 제휴관리
+2. 프로그램 ID : WwpdyWellsAllianceListM - 헬스 제휴관리
                 ( W-PD-U-0023M01 )
 3. 작성자 : jintae.choi
 4. 작성일 : 2023.05.01
@@ -17,11 +17,12 @@
   <kw-page>
     <kw-search @search="onClickSearch">
       <kw-search-row>
-        <!-- 제휴코드 -->
+        <!-- 제휴사코드 -->
         <kw-search-item :label="$t('MSG_TXT_ALNC_CD')">
-          <kw-input
+          <kw-select
             v-model="searchParams.alncmpCd"
-            maxlength="3"
+            :options="codes.ALNCMP_CD"
+            first-option="all"
           />
         </kw-search-item>
         <!-- 판매유형 -->
@@ -29,6 +30,7 @@
           <kw-select
             v-model="searchParams.sellTpCd"
             :options="codes.SELL_TP_CD"
+            first-option="all"
           />
         </kw-search-item>
         <!-- 상품명 -->
@@ -154,6 +156,7 @@ import dayjs from 'dayjs';
 import { cloneDeep } from 'lodash-es';
 import pdConst from '~sms-common/product/constants/pdConst';
 import ZwpdProductClassificationSelect from '~sms-common/product/pages/standard/components/ZwpdProductClassificationSelect.vue';
+import { setGridDateFromTo } from '~sms-common/product/utils/pdUtil';
 
 const { notify, modal } = useGlobal();
 const router = useRouter();
@@ -187,7 +190,7 @@ const pageInfo = ref({
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
 });
 
-const codes = await codeUtil.getMultiCodes('SELL_TP_CD', 'RENTAL_DSC_TP_CD', 'SELL_CHNL_DTL_CD', 'COD_PAGE_SIZE_OPTIONS');
+const codes = await codeUtil.getMultiCodes('ALNCMP_CD', 'SELL_TP_CD', 'RENTAL_DSC_TP_CD', 'SELL_CHNL_DTL_CD', 'COD_PAGE_SIZE_OPTIONS');
 
 async function fetchData() {
   const res = await dataService.get('/sms/wells/product/alliances/paging', { params: { ...cachedParams, ...pageInfo.value } });
@@ -275,8 +278,9 @@ const initGrdMain = defineGrid((data, view) => {
       header: t('MSG_TXT_ALNC_CD'),
       width: '110',
       styleName: 'text-center',
+      editor: { type: 'list' },
       rules: 'required',
-      editor: { maxLength: 3 },
+      options: codes.ALNCMP_CD,
     },
     // 판매유형
     {
@@ -380,6 +384,11 @@ const initGrdMain = defineGrid((data, view) => {
 
   view.sortingOptions.enabled = false;
   view.filteringOptions.enabled = false;
+
+  view.onCellEdited = async (grid, itemIndex, row, fieldIndex) => {
+    // 날짜값 조정
+    await setGridDateFromTo(view, grid, itemIndex, fieldIndex, 'apyStrtdt', 'apyEnddt');
+  };
 
   view.onCellButtonClicked = async (grid, { column, itemIndex }) => {
     if (column === 'pdNm') {

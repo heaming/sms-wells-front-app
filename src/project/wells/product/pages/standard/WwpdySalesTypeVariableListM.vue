@@ -230,7 +230,7 @@ const initGrdMain = defineGrid((data, view) => {
       header: t('MSG_TXT_VAL_ID'),
       width: '86',
       styleName: 'text-center',
-      editor: { maxLength: 15 },
+      editor: { maxLength: 15, inputCharacters: 'A-Za-z0-9' },
       rules: 'required' },
     // 변수명
     { fieldName: 'rgltnVarbNm',
