@@ -3,13 +3,13 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : FEB
-2. 프로그램 ID : WwfebB2bFeeCreationRegP - B2B 수수료 생성관리 -> 수수료 생성
+2. 프로그램 ID : WwfebB2bFeeCreationAggregateP - B2B 수수료 생성관리 -> 집계
 3. 작성자 : mj
 4. 작성일 : 2023.04.17
 ****************************************************************************************************
 * 프로그램 설명
 ****************************************************************************************************
-- B2B 수수료 관리 -> 수수료 생성 버튼클릭시 나오는 팝업이다.
+- 수수료 수수료 관리 -> 집계 버튼클릭시 나오는 팝업이다.
 ****************************************************************************************************
 --->
 <template>
@@ -38,7 +38,7 @@
         @click="onClickCancel"
       />
       <kw-btn
-        :label="$t('MSG_BTN_CNTN_CREATE')"
+        :label="$t('MSG_BTN_AGRG')"
         primary
         @click="onClickCreate"
       />
@@ -67,20 +67,18 @@ const props = defineProps({
 const popupRef = ref();
 const dataService = useDataService();
 const regData = ref({
-  feeCalcUnitTpCd: '401', // B2B 수수료
-  feeTcntDvCd: '02', // 2차수
   perfYm: props.perfYm,
 });
 // 취소
 async function onClickCancel() {
   cancel();
 }
-// 생성
+// 집계
 async function onClickCreate() {
   if (!await popupRef.value.validate()) { return; }
 
-  await dataService.post(`/sms/common/fee-standards/calculate/${regData.perfYm}/${regData.feeTcntDvCd}/${regData.feeCalcUnitTpCd}`);
-  notify(t('MSG_ALT_CRT_FSH')); // 생성되었습니다.
+  await dataService.post('/sms/wells/fee/b2b/aggregate', { perfYm: regData.value.perfYm });
+  notify(t('MSG_ALT_AGRG_FSH')); // 집계되었습니다.
   ok(true);
 }
 // -------------------------------------------------------------------------------------------------

@@ -25,8 +25,8 @@
             type="radio"
             rules="required"
             :label="t('MSG_TXT_DIV')"
-            :options="[{codeId: 'A', codeName: '수수료실적'},
-                       {codeId: 'B', codeName: '기본 수수료'}]"
+            :options="[{codeId: 'A', codeName: t('MSG_TXT_FEE_PERF')},
+                       {codeId: 'B', codeName: t('MSG_TXT_DFLT_FEE')}]"
           />
         </kw-search-item>
         <kw-search-item
@@ -35,10 +35,10 @@
           required
         >
           <kw-date-range-picker
-            v-model:from="searchParams.strtdt"
-            v-model:to="searchParams.enddt"
+            v-model:from="searchParams.strtYm"
+            v-model:to="searchParams.endYm"
             type="month"
-            rules="date_range_required|date_range_months:1"
+            rules="date_range_required|date_range_months:3"
             :label="t('MSG_TXT_RCP_YM')"
           />
         </kw-search-item>
@@ -48,7 +48,7 @@
           required
         >
           <kw-date-picker
-            v-model="searchParams.baseYm"
+            v-model="searchParams.perfYm"
             :label="t('MSG_TXT_PERF_YM')"
             type="month"
             rules="required"
@@ -62,10 +62,9 @@
           :label="t('MSG_TXT_CANCEL_YM')"
         >
           <kw-date-range-picker
-            v-model:from="searchParams.cancelStrtdt"
-            v-model:to="searchParams.cancelEnddt"
+            v-model:from="searchParams.cancelStrtYm"
+            v-model:to="searchParams.cancelEndYm"
             type="month"
-            rules="date_range_months:1"
             :label="t('MSG_TXT_CANCEL_YM')"
           />
         </kw-search-item>
@@ -74,37 +73,19 @@
     <div class="result-area">
       <kw-action-top>
         <template #left>
-          <h3>{{ searchParams.baseYm }} {{ $t('MSG_TXT_TOT_FEE_CRT_PRGS_STE') }}</h3>
+          <h3>{{ searchParams.perfYm }} {{ $t('MSG_TXT_B2B_FEE_CRT_PRGS_STE') }}</h3>
         </template>
       </kw-action-top>
-      <kw-stepper
-        v-model="stepInitNum"
-        alternative-labels
-      >
-        <kw-step
-          :name="1"
-          :title="$t('MSG_TXT_PERF_AGRG')"
-          :done="stepInitNum > 1"
-          prefix="1"
-          :done-icon="'retry'"
-          @click="onClickRetry"
-        />
-        <kw-step
-          :name="2"
-          :title="$t('MSG_TIT_FEE_CRT')"
-          :done="stepInitNum > 2"
-          prefix="2"
-          :active-icon="'write'"
-          :tooltip="$t('MSG_TXT_CLICK_PRGS', [t('MSG_TIT_CRT_FEE')])"
-          @click="onClickCreate"
-        />
-        <kw-step
-          :name="3"
-          :title="$t('MSG_TXT_GRNT_DEP_ERN')"
-          :done="stepInitNum > 3"
-          prefix="3"
-        />
-      </kw-stepper>
+      <!-- STEPER -->
+      <zwfey-fee-step
+        ref="stepNaviRef"
+        :key="searchParams.perfYm"
+        v-model:base-ym="searchParams.perfYm"
+        v-model:fee-schd-tp-cd="searchParams.feeSchdTpCd"
+        v-model:fee-tcnt-dv-cd="searchParams.feeTcntDvCd"
+        v-model:co-cd="searchParams.coCd"
+        @click-step="onclickStep"
+      />
       <kw-action-top class="mt40">
         <template #left>
           <kw-paging-info
@@ -164,13 +145,14 @@
 // -------------------------------------------------------------------------------------------------
 import { defineGrid, gridUtil, getComponentType, useDataService, useGlobal } from 'kw-lib';
 import dayjs from 'dayjs';
-import { isEmpty, cloneDeep } from 'lodash-es';
+import { cloneDeep } from 'lodash-es';
+import ZwfeyFeeStep from '~sms-common/fee/pages/schedule/ZwfeyFeeStep.vue';
 
 const dataService = useDataService();
 const now = dayjs();
 const { t } = useI18n();
 const { currentRoute } = useRouter();
-const { notify, confirm, modal } = useGlobal();
+const { notify, confirm, modal, alert } = useGlobal();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -180,28 +162,32 @@ const grdRefB = ref(getComponentType('KwGrid'));
 const grdDataB = computed(() => grdRefB.value?.getData());
 const totalCount = ref(0);
 const grdType = ref('A');
-const stepInitNum = ref(2);
+const stepNaviRef = ref();
 
 let cachedParams;
 const searchParams = ref({
   type: 'A',
-  strtdt: now.format('YYYYMMDD'),
-  enddt: now.add(1, 'month').format('YYYYMMDD'),
-  baseYm: now.format('YYYYMM'),
-  cancelStrtdt: now.format('YYYYMMDD'),
-  cancelEnddt: now.add(1, 'month').format('YYYYMMDD'),
+  perfYm: now.format('YYYYMM'),
+  strtYm: now.format('YYYYMMDD'),
+  endYm: now.add(1, 'month').format('YYYYMMDD'),
+  cancelStrtYm: '',
+  cancelEndYm: '',
+  feeSchdTpCd: '401', // 신채널(B2B)
+  feeTcntDvCd: '02', // 2차수
+  coCd: '2000', // 교원 웰스
 });
 
 // 데이터 조회
 async function fetchData() {
-  const { data } = await dataService.get('API정의안됨', { params: { ...cachedParams } });
+  stepNaviRef.value.initProps();
+  const fixApi = cachedParams.type === 'A' ? 'performance' : 'fee';
+  const { data } = await dataService.get(`/sms/wells/fee/b2b/${fixApi}`, { params: { ...cachedParams } });
+  totalCount.value = data.length;
   if (cachedParams.type === 'A') {
     grdDataA.value.setRows(data);
   } else {
     grdDataB.value.setRows(data);
   }
-  stepInitNum.value = data.baseInfo.step;
-  totalCount.value = data.list.length;
 }
 // 조회 버튼
 async function onClickSearch() {
@@ -220,7 +206,9 @@ async function onClickExcelDownload() {
 }
 // 이력관리 버튼 클릭
 async function onClickHistory() {
-  console.log('Z-CO-U-0034P09');
+  // Z-CO-U-0034P09 아래 팝업 호출시 에러남ㅋ;
+  // await openZwfebFeeHistoryMgtP();
+  await alert('Z-CO-U-0034P09 팝업 호출');
 }
 // 저장
 async function onClickSave() {
@@ -230,28 +218,64 @@ async function onClickSave() {
   // 필수여부
   if (!await gridUtil.validate(view)) { return; }
   const changedRows = gridUtil.getChangedRowValues(view);
-  await dataService.post('/sms/common/fee/schedules/steps', { changedRows });
+  await dataService.post('/sms/wells/fee/b2b/fee', { changedRows });
   await notify(t('MSG_ALT_SAVE_DATA'));
   await fetchData();
 }
 // 수수료 생성 버튼
 async function onClickCreate() {
-  const { result: isChanged, payload } = await modal({
+  // 조회후 진행
+  const { result: isChanged } = await modal({
     component: 'WwfebB2bFeeCreationRegP',
     componentProps: {
-      type: searchParams.value.type,
+      perfYm: searchParams.value.perfYm,
     },
   });
   if (isChanged) {
-    if (!isEmpty(payload.rtnKey)) {
-      onClickSearch();
-    }
+    fetchData();
   }
 }
-// 실적집계 재시작
-async function onClickRetry() {
+// 재시작, 상태를 진행중상태로 변경한다.
+async function onClickRetry(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
   if (await confirm(t('MSG_ALT_LV_RESRT'))) {
-    console.log('api 미정의');
+    await dataService.put(`/sms/common/fee/schedules/steps/${feeSchdId}/status/levels`, null, { params: { feeSchdLvCd, feeSchdLvStatCd } });
+    notify(t('MSG_ALT_SAVE_DATA'));
+    fetchData();
+  }
+}
+
+// 실적집계
+async function onClickAggregate() {
+  const { result: isChanged } = await modal({
+    component: 'WwfebB2bFeeCreationAggregateP',
+    componentProps: {
+      perfYm: searchParams.value.perfYm,
+    },
+  });
+  if (isChanged) {
+    fetchData();
+  }
+}
+/**
+ * 스텝퍼 클릭시
+ * WELLS B2B수수료 단계코드[FEE_SCHD_LV_CD] W04** 에 있는 코드 단계별 모든 로직을 정리한다.
+ * 버튼 로직 존재시 해당 로직 서술
+ * @params code[String]: 스탭퍼에서 선택한 단계 코드
+ *         done[Boolean]: 이전단계로 되돌림 플레그
+ */
+async function onclickStep(params) {
+  if (params.done) {
+    await onClickRetry(params.feeSchdId, params.code, '02');
+  } else {
+    if (params.code === 'W0401') { // 실적집계
+      await onClickAggregate();
+    }
+    if (params.code === 'W0402') { // 수수료 생성
+      await onClickCreate();
+    }
+    if (params.code === 'W0403') { // 보증예치금 적립
+      // 미정의
+    }
   }
 }
 // -------------------------------------------------------------------------------------------------
@@ -259,82 +283,108 @@ async function onClickRetry() {
 // -------------------------------------------------------------------------------------------------
 const initGridDetail = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'col1', header: t('MSG_TXT_CORP_NAME'), width: '127' },
-    { fieldName: 'col2', header: t('MSG_TXT_SELLER_PERSON'), width: '98' },
-    { fieldName: 'col3', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '127', styleName: 'text-center' },
-    { fieldName: 'col4', header: t('MSG_TXT_CNTR_DTL_NO'), width: '151', styleName: 'text-center' },
-    { fieldName: 'col5', header: t('MSG_TXT_CUST_STMT'), width: '98' },
-    { fieldName: 'col6', header: t('MSG_TXT_PRDT_CODE'), width: '106', styleName: 'text-center' },
-    { fieldName: 'col7', header: t('MSG_TXT_PRDT_NM'), width: '210' },
-    { fieldName: 'col8', header: t('MSG_TXT_PD_DC_CLASS'), width: '98' },
-    { fieldName: 'col9', header: t('MSG_TXT_DISC_CODE'), width: '98' },
-    { fieldName: 'col10', header: t('MSG_TXT_DSC_SYST'), width: '98', styleName: 'text-right' },
-    { fieldName: 'col11', header: t('MSG_TXT_COMBI_DV'), width: '98' },
-    { fieldName: 'col12', header: t('MSG_TXT_USWY_DV'), width: '98' },
-    { fieldName: 'col13', header: t('MSG_TXT_MGT_TYP'), width: '98' },
-    { fieldName: 'col14', header: t('MSG_TXT_VST_PRD'), width: '98' },
-    { fieldName: 'col15', header: t('MSG_TXT_RCPDT'), width: '127', styleName: 'text-center' },
-    { fieldName: 'col16', header: t('MSG_TXT_SL_DT'), width: '127', styleName: 'text-center' },
-    { fieldName: 'col17', header: t('MSG_TXT_CANC_DT'), width: '127', styleName: 'text-center' },
-    { fieldName: 'col18', header: t('MSG_TXT_FEE'), width: '127', styleName: 'text-right' },
-    { fieldName: 'col19', header: t('MSG_TXT_NUM_OF_NEW_CASES'), width: '92', styleName: 'text-right' },
+    { fieldName: 'baseYm', visible: false },
+    { fieldName: 'coCdNm', header: t('MSG_TXT_CORP_NAME'), width: '127' },
+    { fieldName: 'prtnrKnm', header: t('MSG_TXT_SELLER_PERSON'), width: '98' },
+    { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '127', styleName: 'text-center' },
+    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '151', styleName: 'text-center' },
+    { fieldName: 'cstKnm', header: t('MSG_TXT_CUST_STMT'), width: '98' },
+    { fieldName: 'basePdCd', header: t('MSG_TXT_PRDT_CODE'), width: '106', styleName: 'text-center' },
+    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '210' },
+    { fieldName: 'sellDscDvCdNm', header: t('MSG_TXT_PD_DC_CLASS'), width: '98' },
+    { fieldName: 'sellDscrCdNm', header: t('MSG_TXT_DISC_CODE'), width: '98' },
+    { fieldName: 'sellDscTpCdNm', header: t('MSG_TXT_DSC_SYST'), width: '98' },
+    { fieldName: 'relPdCdNm', header: t('MSG_TXT_COMBI_DV'), width: '98' },
+    { fieldName: 'pmotUswyDvCdNm', header: t('MSG_TXT_USWY_DV'), width: '98' },
+    { fieldName: 'mgNm', header: t('MSG_TXT_MGT_TYP'), width: '98' },
+    { fieldName: 'bfsvcPrdCdNm', header: t('MSG_TXT_VST_PRD'), width: '98' },
+    { fieldName: 'rcpdt', header: t('MSG_TXT_RCPDT'), width: '127', styleName: 'text-center', dataType: 'date', datetimeFormat: 'datetime' },
+    { fieldName: 'slDt', header: t('MSG_TXT_SL_DT'), width: '127', styleName: 'text-center', dataType: 'date', datetimeFormat: 'datetime' },
+    { fieldName: 'canDt', header: t('MSG_TXT_CANC_DT'), width: '127', styleName: 'text-center', dataType: 'date', datetimeFormat: 'datetime' },
+    { fieldName: 'perfVal', header: t('MSG_TXT_FEE'), width: '127', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'ackmtPerfCt', header: t('MSG_TXT_NUM_OF_NEW_CASES'), width: '92', styleName: 'text-right', dataType: 'number' },
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   data.setFields(fields);
   view.setColumns(columns);
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
-
-  data.setRows([
-    { col1: 'Z950010', col2: '다온홈시', col3: '총판10', col4: '1607624', col5: '2022-4640868', col6: '홍길동', col7: '4512', col8: 'WN652NWR', col9: '3', col10: '6', col11: '3', col12: '18', col13: '2', col14: '2-업소', col15: '3', col16: '22-10-24', col17: '22-10-24', col18: '22-10-25', col19: '123,450' },
-    { col1: 'Z950010', col2: '다온홈시', col3: '총판10', col4: '1607624', col5: '2022-4640868', col6: '홍길동', col7: '4512', col8: 'WN652NWR', col9: '3', col10: '6', col11: '3', col12: '18', col13: '2', col14: '2-업소', col15: '3', col16: '22-10-24', col17: '22-10-24', col18: '22-10-25', col19: '123,450' },
-    { col1: 'Z950010', col2: '다온홈시', col3: '총판10', col4: '1607624', col5: '2022-4640868', col6: '홍길동', col7: '4512', col8: 'WN652NWR', col9: '3', col10: '6', col11: '3', col12: '18', col13: '2', col14: '2-업소', col15: '3', col16: '22-10-24', col17: '22-10-24', col18: '22-10-25', col19: '123,450' },
-    { col1: 'Z950010', col2: '다온홈시', col3: '총판10', col4: '1607624', col5: '2022-4640868', col6: '홍길동', col7: '4512', col8: 'WN652NWR', col9: '3', col10: '6', col11: '3', col12: '18', col13: '2', col14: '2-업소', col15: '3', col16: '22-10-24', col17: '22-10-24', col18: '22-10-25', col19: '123,450' },
-    { col1: 'Z950010', col2: '다온홈시', col3: '총판10', col4: '1607624', col5: '2022-4640868', col6: '홍길동', col7: '4512', col8: 'WN652NWR', col9: '3', col10: '6', col11: '3', col12: '18', col13: '2', col14: '2-업소', col15: '3', col16: '22-10-24', col17: '22-10-24', col18: '22-10-25', col19: '123,450' },
-    { col1: 'Z950010', col2: '다온홈시', col3: '총판10', col4: '1607624', col5: '2022-4640868', col6: '홍길동', col7: '4512', col8: 'WN652NWR', col9: '3', col10: '6', col11: '3', col12: '18', col13: '2', col14: '2-업소', col15: '3', col16: '22-10-24', col17: '22-10-24', col18: '22-10-25', col19: '123,450' },
-  ]);
 });
 
 const initGridBase = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'col1', header: t('MSG_TXT_CORP_NAME'), width: '127' },
-    { fieldName: 'col2', header: t('MSG_TXT_BLG'), width: '98' },
-    { fieldName: 'col3', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '127', styleName: 'text-center' },
-    { fieldName: 'col4', header: t('MSG_TXT_PERF'), width: '151', styleName: 'text-center' },
-    { fieldName: 'col5', header: t('MSG_TXT_BAS_FEE'), width: '98', styleName: 'text-right' },
-    { fieldName: 'col6', header: t('MSG_TXT_MED_FEE'), width: '98', styleName: 'text-center' },
-    { fieldName: 'col7', header: t('MSG_TXT_PMOT'), width: '98', styleName: 'text-right' },
-    { fieldName: 'col8', header: t('MSG_TXT_ADSB'), width: '98', styleName: 'text-right' },
-    { fieldName: 'col9', header: t('MSG_TXT_ICT'), width: '98', styleName: 'text-right' },
-    { fieldName: 'col10', header: t('MSG_TXT_FEE_SUM'), width: '98', styleName: 'text-right' },
-    { fieldName: 'col11', header: t('MSG_TXT_RDS'), width: '98', styleName: 'text-right' },
-    { fieldName: 'col12', header: t('MSG_TXT_RDS_MDFC_RSON'), width: '150', styleName: 'text-right' },
-    { fieldName: 'col13', header: t('MSG_TXT_RE_REDF'), width: '98', styleName: 'text-right' },
-    { fieldName: 'col14', header: t('MSG_TXT_DDTN_SUM'), width: '98', styleName: 'text-right' },
-    { fieldName: 'col15', header: t('MSG_TXT_ACL_DSB_AMT'), width: '98', styleName: 'text-right' },
+    { fieldName: 'baseYm', visible: false },
+    { fieldName: 'coCd', visible: false },
+    { fieldName: 'coCdNm', header: t('MSG_TXT_CORP_NAME'), width: '127' },
+    { fieldName: 'ogCd', header: t('MSG_TXT_BLG'), width: '98' },
+    { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '127', styleName: 'text-center' },
+    { fieldName: 'cnt', header: t('MSG_TXT_PERF'), width: '110', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'amtW040001', header: t('MSG_TXT_BAS_FEE'), width: '110', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'amtW040005', header: t('MSG_TXT_MED_FEE'), width: '110', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'amtW040004', header: t('MSG_TXT_PMOT'), width: '110', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'amtW040020', header: t('MSG_TXT_ADSB'), width: '110', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'amtW040003', header: t('MSG_TXT_ICT'), width: '110', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'feeSumAmt', header: t('MSG_TXT_FEE_SUM'), width: '98', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'amt01', header: t('MSG_TXT_RDS'), width: '110', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'amt01Cn', header: t('MSG_TXT_RDS_MDFC_RSON'), width: '150', styleName: 'text-left' },
+    { fieldName: 'amt08', header: t('MSG_TXT_RE_REDF'), width: '110', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'ddtnSumAmt', header: t('MSG_TXT_DDTN_SUM'), width: '150', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'acpyAmt', header: t('MSG_TXT_ACL_DSB_AMT'), width: '150', styleName: 'text-right', dataType: 'number' },
   ];
-  const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
+  const fields = [
+    { fieldName: 'baseYm' },
+    { fieldName: 'coCd' },
+    { fieldName: 'coCdNm' },
+    { fieldName: 'ogCd' },
+    { fieldName: 'prtnrNo' },
+    { fieldName: 'cnt', dataType: 'number' },
+    { fieldName: 'amtW040001', dataType: 'number' },
+    { fieldName: 'amtW040005', dataType: 'number' },
+    { fieldName: 'amtW040004', dataType: 'number' },
+    { fieldName: 'amtW040020', dataType: 'number' },
+    { fieldName: 'amtW040003', dataType: 'number' },
+    {
+      fieldName: 'feeSumAmt',
+      dataType: 'number',
+      valueExpression: "values['amtW040001'] + values['amtW040005'] + values['amtW040004'] + values['amtW040020'] + values['amtW040003']",
+    },
+    { fieldName: 'amt01', dataType: 'number' },
+    { fieldName: 'amt01Cn' },
+    { fieldName: 'amt08', dataType: 'number' },
+    {
+      fieldName: 'ddtnSumAmt',
+      dataType: 'number',
+      valueExpression: "values['amt01'] + values['amt08']",
+    },
+    {
+      fieldName: 'acpyAmt',
+      dataType: 'number',
+      valueExpression: "values['feeSumAmt'] - values['ddtnSumAmt']",
+    },
+  ];
   data.setFields(fields);
   view.setColumns(columns);
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
+  view.editOptions.editable = true;
+  view.onCellEditable = (grid, index) => {
+    if (!['amtW040005', 'amtW040005', 'amtW040020', 'amtW040003', 'amt01', 'amt01Cn'].includes(index.column)) {
+      return false;
+    }
+  };
   view.setColumnLayout([
-    'col1', 'col2', 'col3', 'col4',
+    'coCdNm', 'ogCd', 'prtnrNo', 'cnt',
     {
       header: t('MSG_TXT_FEE'),
       direction: 'horizontal',
-      items: ['col5', 'col6', 'col7', 'col8', 'col9', 'col10'],
+      items: ['amtW040001', 'amtW040005', 'amtW040004', 'amtW040020', 'amtW040003', 'feeSumAmt'],
     },
     {
       header: t('MSG_TXT_DDTN'),
       direction: 'horizontal',
-      items: ['col11', 'col12', 'col13', 'col14'],
+      items: ['amt01', 'amt01Cn', 'amt08', 'ddtnSumAmt'],
     },
-    'col15',
-  ]);
-  data.setRows([
-    { col1: 'Z950010', col2: '다온홈시', col3: '11111', col4: '1607624', col5: '20222424', col6: '2323', col7: '4512', col8: '232', col9: '3', col10: '6', col11: '3', col12: '18', col13: '2', col14: '2', col15: '5555' },
-    { col1: 'Z950010', col2: '다온홈시', col3: '11111', col4: '1607624', col5: '20222424', col6: '2323', col7: '4512', col8: '232', col9: '3', col10: '6', col11: '3', col12: '18', col13: '2', col14: '2', col15: '5555' },
+    'acpyAmt',
   ]);
 });
 

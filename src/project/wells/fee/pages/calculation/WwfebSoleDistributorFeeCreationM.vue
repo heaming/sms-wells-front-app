@@ -174,7 +174,7 @@ const searchParams = ref({
   cancelEndYm: '',
   feeSchdTpCd: '501', // 신채널(총판)
   feeTcntDvCd: '02', // 2차수
-  coCd: '1200', // 교원
+  coCd: '2000', // 교원 웰스
 });
 
 // 데이터 조회
