@@ -31,7 +31,6 @@
             v-model:from="searchParams.fromDate"
             v-model:to="searchParams.toDate"
             :name="t('MSG_TXT_PRD_ENQRY')"
-            rules="date_range_required|date_range_months:1"
             type="month"
           />
         </kw-search-item>
@@ -74,7 +73,7 @@
           <kw-select
             v-model="searchParams.isYn"
             :name="t('MSG_BTN_IS')+t('MSG_TXT_YN')"
-            :options="codes.PMOT_PRMIT_YN_ACD"
+            :options="isYn"
           />
         </kw-search-item>
       </kw-search-row>
@@ -148,7 +147,13 @@ const pageInfo = ref({
 const codes = await codeUtil.getMultiCodes(
   'PMOT_PRMIT_YN_ACD',
   'SPECTX_PBL_D_DV_CD',
+  'DP_TP_CD',
 );
+
+const isYn = ref([
+  { codeId: '1', codeName: 'Y' },
+  { codeId: '2', codeName: 'N' },
+]);
 
 async function fetchData() {
   // changing api & cacheparams according to search classification
@@ -217,19 +222,19 @@ const initTradeSpcshBlkPwMgtList = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'preview', header: '미리보기', width: '112', styleName: 'text-center' }, // 미리보기
-    { fieldName: 'spectxGrpNo', header: '그룹번호', width: '112', styleName: 'text-center' }, // 그룹번호
-    { fieldName: 'cstNm', header: '발급명', width: '155', styleName: 'text-left' }, // 발급명
-    { fieldName: 'slClYm', header: '기간', width: '130', styleName: 'text-center' }, // 기간
-    { fieldName: 'spectxPblDDvCd', header: '발행일자', width: '112', styleName: 'text-center' }, // 발행일자
-    { fieldName: 'spectxPrntDt', header: '출력일', width: '112', styleName: 'text-center' }, // 출력일
-    { fieldName: 'isYn', header: '발급여부', width: '112', styleName: 'text-center' }, // 발급여부
-    { fieldName: 'spectxFwD', header: '발급일시', width: '165', styleName: 'text-center' }, // 발급일시
-    { fieldName: 'spectxFwTm', header: '발급시간', width: '165', styleName: 'text-center' }, // 발급시간
-    { fieldName: 'dpTpCd', header: '수납유형', width: '112', styleName: 'text-center' }, // 수납유형
+    { fieldName: 'preview', header: t('MSG_TXT_PREVIEW'), width: '112', styleName: 'text-center', renderer: { type: 'button', hideWhenEmpty: false }, displayCallback: () => t('MSG_BTN_PREVIEW') }, // 미리보기
+    { fieldName: 'spectxGrpNo', header: t('MSG_TXT_GRP_NO'), width: '112', styleName: 'text-center' }, // 그룹번호
+    { fieldName: 'cstNm', header: t('MSG_TXT_IS_USR'), width: '155', styleName: 'text-left' }, // 발급담당자
+    { fieldName: 'slClYm', header: t('MSG_TXT_PRD'), width: '130', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 기간
+    { fieldName: 'spectxPblDDvCd', header: t('MSG_TXT_PBL_DT'), width: '112', styleName: 'text-center' }, // 발행일자
+    { fieldName: 'spectxPrntDt', header: t('MSG_TXT_PRNT_DT'), width: '112', styleName: 'text-center', datetimeFormat: 'date' }, // 출력일자
+    { fieldName: 'isYn', header: t('MSG_TXT_IS_YN'), width: '112', styleName: 'text-center', options: isYn.value }, // 발급여부
+    { fieldName: 'spectxFwD', header: t('MSG_TXT_IS_DTM'), width: '165', styleName: 'text-center', datetimeFormat: 'date' }, // 발급일자
+    { fieldName: 'spectxFwTm', header: t('MSG_TXT_IS_HH'), width: '165', styleName: 'text-center', datetimeFormat: 'time' }, // 발급시간
+    { fieldName: 'dpTpCd', header: `${t('MSG_TXT_RVE')}${t('MSG_TXT_TYPE')}`, width: '112', styleName: 'text-center', options: codes.DP_TP_CD }, // 수납유형
     {
       fieldName: 'cntrDtlNo',
-      header: '계약상세번호',
+      header: t('MSG_TXT_CNTR_DTL_NO'),
       width: '146',
       styleName: 'text-center',
       displayCallback(grid, index) {
@@ -237,13 +242,13 @@ const initTradeSpcshBlkPwMgtList = defineGrid((data, view) => {
         return !isEmpty(cntrNo) && !isEmpty(cntrSn) ? `${cntrNo}-${cntrSn}` : '';
       },
     }, // 계약상세번호
-    { fieldName: 'cntrCn', header: '계약건수', width: '148', styleName: 'text-center' }, // 계약건수
-    { fieldName: 'basePdNm', header: '상품명', width: '246', styleName: 'text-left' }, // 상품명
-    { fieldName: 'nomSlAmt', header: '매출액', width: '130', styleName: 'text-right' }, // 매출액
-    { fieldName: 'emadr', header: '이메일', width: '246', styleName: 'text-left' }, // 이메일
-    { fieldName: 'faxLocaraTno', header: '팩스지역전화번호', width: '188', styleName: 'text-left' }, // 팩스번호1
-    { fieldName: 'faxExno', header: '팩스전화국번호', width: '188', styleName: 'text-left' }, // 팩스번호2
-    { fieldName: 'faxIdvTno', header: '팩스개별전화번호', width: '188', styleName: 'text-left' }, // 팩스번호3
+    { fieldName: 'cntrCn', header: t('MSG_TXT_CNTR_CT'), width: '148', styleName: 'text-right' }, // 계약건수
+    { fieldName: 'basePdNm', header: t('MSG_TXT_PRDT_NM'), width: '246', styleName: 'text-left' }, // 상품명
+    { fieldName: 'nomSlAmt', header: t('MSG_TXT_SL_AMT'), width: '130', styleName: 'text-right' }, // 매출금액
+    { fieldName: 'emadr', header: t('MSG_TXT_EMAIL'), width: '246', styleName: 'text-left' }, // 이메일
+    { fieldName: 'faxLocaraTno', header: t('MSG_TXT_FAX_LOCARA_TNO'), width: '188', styleName: 'text-left' }, // 팩스번호1
+    { fieldName: 'faxExno', header: t('MSG_TXT_FAX_MEXNO'), width: '188', styleName: 'text-left' }, // 팩스번호2
+    { fieldName: 'faxIdvTno', header: t('MSG_TXT_FAX_IDV_TNO'), width: '188', styleName: 'text-left' }, // 팩스번호3
   ];
 
   data.setFields(fields);
@@ -251,5 +256,12 @@ const initTradeSpcshBlkPwMgtList = defineGrid((data, view) => {
 
   view.checkBar.visible = true;
   view.rowIndicator.visible = true;
+
+  view.onCellItemClicked = async (g, { column }) => {
+    // TODO: 미리보기 팝업화면 개발진행 후 변경 예정
+    if (column === 'preview') {
+      notify(t('팝업 준비중 입니다.')); // 리포트 팝업 준비 중
+    }
+  };
 });
 </script>
