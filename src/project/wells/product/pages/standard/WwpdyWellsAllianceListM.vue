@@ -394,7 +394,7 @@ const initGrdMain = defineGrid((data, view) => {
     if (column === 'pdNm') {
       const svPdNm = grid.getValue(itemIndex, 'pdNm');
       const { payload } = await modal({
-        component: 'ZwpdcServiceListP',
+        component: 'ZwpdcStandardListP',
         componentProps: { searchType: pdConst.PD_SEARCH_NAME, searchValue: svPdNm },
       });
       if (payload) {
