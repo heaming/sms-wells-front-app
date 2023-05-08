@@ -328,7 +328,7 @@ const initGrdMain = defineGrid((data, view) => {
     }
   };
 
-  view.onCellButtonClicked = async (g, { column, dataRow }) => {
+  view.onCellButtonClicked = async (g, { column, dataRow, itemIndex }) => {
     if (column === 'pdCd' || column === 'pdNm') {
       if (!gridUtil.isCreatedRow(g, dataRow)) {
         notify(t('MSG_ALT_NOT_MODIFY_IT', [t('MSG_TXT_PD_ATC')]));
@@ -337,12 +337,12 @@ const initGrdMain = defineGrid((data, view) => {
       const componentProps = {
         selectType: pdConst.PD_SEARCH_SINGLE,
         searchType: column === 'pdCd' ? pdConst.PD_SEARCH_CODE : pdConst.PD_SEARCH_NAME,
-        searchValue: g.getValue(dataRow, column),
+        searchValue: g.getValue(itemIndex, column),
       };
       const { result, payload } = await modal({ component: 'ZwpdcStandardListP', componentProps });
       if (result) {
-        g.setValue(dataRow, 'pdCd', payload[0].pdCd);
-        g.setValue(dataRow, 'pdNm', payload[0].pdNm);
+        g.setValue(itemIndex, 'pdCd', payload[0].pdCd);
+        g.setValue(itemIndex, 'pdNm', payload[0].pdNm);
       }
     }
   };
