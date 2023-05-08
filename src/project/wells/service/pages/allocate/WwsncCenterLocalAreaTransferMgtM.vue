@@ -86,7 +86,6 @@
         </template>
 
         <kw-btn
-          grid-action
           secondary
           :label="$t('MSG_BTN_SAVE')"
           @click="onClickSave"
@@ -100,12 +99,10 @@
           v-if="false"
           icon="print"
           secondary
-          dense
           :label="$t('인쇄')"
         />
         <kw-btn
           icon="download_on"
-          dense
           :disable="pageInfo.totalCount === 0"
           secondary
           :label="$t('엑셀다운로드')"
