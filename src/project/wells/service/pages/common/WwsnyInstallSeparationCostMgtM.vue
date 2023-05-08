@@ -271,10 +271,8 @@ const initGrdMain = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'sellTpCd' },
     { fieldName: 'pdCd' },
-    { fieldName: 'svBizMclsfCd' },
-    { fieldName: 'svBizMclsfNm' },
-    { fieldName: 'svBizDclsfCd' },
-    { fieldName: 'svBizDclsfNm' },
+    { fieldName: 'sepIstCsAtcCd' },
+    { fieldName: 'sepIstCsDtlCd' },
     { fieldName: 'apyStrtdt' },
     { fieldName: 'apyEnddt' },
     { fieldName: 'wkCsAmt' },
@@ -310,7 +308,7 @@ const initGrdMain = defineGrid((data, view) => {
       rules: 'required',
     }, // 상품명
     {
-      fieldName: 'svBizMclsfCd',
+      fieldName: 'sepIstCsAtcCd',
       header: {
         text: t('TXT_MSG_PD_HCLSF_ID'),
         styleName: 'essential',
@@ -322,7 +320,7 @@ const initGrdMain = defineGrid((data, view) => {
       rules: 'required',
     }, // 대분류
     {
-      fieldName: 'svBizDclsfCd',
+      fieldName: 'sepIstCsDtlCd',
       header: {
         text: t('TXT_MSG_PD_LCLSF_ID'),
         styleName: 'essential',
@@ -393,7 +391,7 @@ const initGrdMain = defineGrid((data, view) => {
     {
       header: t('MSG_TXT_PROCS_DV'), // colspan title
       direction: 'horizontal', // merge type
-      items: ['svBizMclsfCd', 'svBizDclsfCd'],
+      items: ['sepIstCsAtcCd', 'sepIstCsDtlCd'],
     }, // 처리구분
     'apyStrtdt', 'apyEnddt', 'wkCsAmt', 'recapSvYn', 'rmkCn',
   ];
@@ -401,7 +399,7 @@ const initGrdMain = defineGrid((data, view) => {
 
   view.onCellEditable = (grid, itemIndex) => {
     if (!gridUtil.isCreatedRow(grid, itemIndex.dataRow)
-    && ['sellTpCd', 'pdCd', 'svBizMclsfCd', 'svBizDclsfCd', 'apyStrtdt', 'wkCsAmt', 'recapSvYn', 'rmkCn'].includes(itemIndex.column)) {
+    && ['sellTpCd', 'pdCd', 'sepIstCsAtcCd', 'sepIstCsDtlCd', 'apyStrtdt', 'wkCsAmt', 'recapSvYn', 'rmkCn'].includes(itemIndex.column)) {
       return false;
     }
   };

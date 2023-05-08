@@ -152,7 +152,7 @@ const dataService = useDataService();
 const now = dayjs();
 const { t } = useI18n();
 const { currentRoute } = useRouter();
-const { notify, modal, confirm } = useGlobal();
+const { notify, modal, confirm, alert } = useGlobal();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -173,7 +173,7 @@ const searchParams = ref({
   cancelStrtYm: '',
   cancelEndYm: '',
   feeSchdTpCd: '501', // 신채널(총판)
-  feeTcntDvCd: '01', // 1차수
+  feeTcntDvCd: '02', // 2차수
   coCd: '1200', // 교원
 });
 
@@ -182,12 +182,12 @@ async function fetchData() {
   stepNaviRef.value.initProps();
   const fixApi = cachedParams.type === 'A' ? 'performance' : 'fee';
   const { data } = await dataService.get(`/sms/wells/fee/sole-distributor/${fixApi}`, { params: { ...cachedParams } });
+  totalCount.value = data.length;
   if (cachedParams.type === 'A') {
     grdDataA.value.setRows(data);
   } else {
     grdDataB.value.setRows(data);
   }
-  totalCount.value = data.list.length;
 }
 // 조회 버튼
 async function onClickSearch() {
@@ -205,19 +205,20 @@ async function onClickExcelDownload() {
   });
 }
 // 이력팝업 호출
-async function openZwfebFeeHistoryMgtP() {
-  const param = {
-    feeHistSrnCd: '01',
-  };
-  await modal({
-    component: 'ZwfebFeeHistoryMgtP',
-    componentProps: param,
-  });
-}
+// async function openZwfebFeeHistoryMgtP() {
+//   const param = {
+//     feeHistSrnCd: '01',
+//   };
+//   await modal({
+//     component: 'ZwfebFeeHistoryMgtP',
+//     componentProps: param,
+//   });
+// }
 // 이력관리 버튼 클릭
 async function onClickHistory() {
   // Z-CO-U-0034P09 아래 팝업 호출시 에러남ㅋ;
-  await openZwfebFeeHistoryMgtP();
+  // await openZwfebFeeHistoryMgtP();
+  await alert('Z-CO-U-0034P09 팝업 호출');
 }
 
 // 저장
@@ -294,26 +295,27 @@ async function onclickStep(params) {
 // -------------------------------------------------------------------------------------------------
 const initGridDetail = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'hdqOgNm', header: t('MSG_TXT_CORP_NAME'), width: '127' },
-    { fieldName: 'sellPrtnrNm', header: t('MSG_TXT_SELLER_PERSON'), width: '98' },
-    { fieldName: 'cntrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '127', styleName: 'text-center' },
-    { fieldName: 'cntrSn', header: t('MSG_TXT_CNTR_DTL_NO'), width: '151', styleName: 'text-center' },
-    { fieldName: 'cntrCstNm', header: t('MSG_TXT_CUST_STMT'), width: '98' },
-    { fieldName: 'pdCd', header: t('MSG_TXT_PRDT_CODE'), width: '106', styleName: 'text-center' },
+    { fieldName: 'baseYm', visible: false },
+    { fieldName: 'coCdNm', header: t('MSG_TXT_CORP_NAME'), width: '127' },
+    { fieldName: 'prtnrKnm', header: t('MSG_TXT_SELLER_PERSON'), width: '98' },
+    { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '127', styleName: 'text-center' },
+    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '151', styleName: 'text-center' },
+    { fieldName: 'cstKnm', header: t('MSG_TXT_CUST_STMT'), width: '98' },
+    { fieldName: 'basePdCd', header: t('MSG_TXT_PRDT_CODE'), width: '106', styleName: 'text-center' },
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '210' },
-    { fieldName: 'dscDvCd', header: t('MSG_TXT_PD_DC_CLASS'), width: '98' },
-    { fieldName: 'dscTpCd', header: t('MSG_TXT_DISC_CODE'), width: '98' },
-    { fieldName: 'pmotCd', header: t('MSG_TXT_DSC_SYST'), width: '98', styleName: 'text-right' },
-    { fieldName: 'relPdCd', header: t('MSG_TXT_COMBI_DV'), width: '98' },
-    { fieldName: 'uswyDvCd', header: t('MSG_TXT_USWY_DV'), width: '98' },
-    { fieldName: 'mngtTpCd', header: t('MSG_TXT_MGT_TYP'), width: '98' },
-    { fieldName: 'bfsvcPrdCd', header: t('MSG_TXT_VST_PRD'), width: '98' },
-    { fieldName: 'rcpDt', header: t('MSG_TXT_RCPDT'), width: '127', styleName: 'text-center' },
-    { fieldName: 'slDt', header: t('MSG_TXT_SL_DT'), width: '127', styleName: 'text-center' },
-    { fieldName: 'canDt', header: t('MSG_TXT_CANC_DT'), width: '127', styleName: 'text-center' },
-    { fieldName: 'ackmtPerfAmt', header: t('MSG_TXT_FEE'), width: '127', styleName: 'text-right' },
-    { fieldName: 'ackmtPerfCt', header: t('MSG_TXT_NUM_OF_NEW_CASES'), width: '92', styleName: 'text-right' },
-    { fieldName: 'feeAmt', header: t('MSG_TXT_PD_ACC_RSLT'), width: '127', styleName: 'text-right' },
+    { fieldName: 'sellDscDvCdNm', header: t('MSG_TXT_PD_DC_CLASS'), width: '98' },
+    { fieldName: 'sellDscrCdNm', header: t('MSG_TXT_DISC_CODE'), width: '98' },
+    { fieldName: 'sellDscTpCdNm', header: t('MSG_TXT_DSC_SYST'), width: '98', styleName: 'text-right' },
+    { fieldName: 'relPdCdNm', header: t('MSG_TXT_COMBI_DV'), width: '98' },
+    { fieldName: 'pmotUswyDvCdNm', header: t('MSG_TXT_USWY_DV'), width: '98' },
+    { fieldName: 'mgNm', header: t('MSG_TXT_MGT_TYP'), width: '98' },
+    { fieldName: 'bfsvcPrdCdNm', header: t('MSG_TXT_VST_PRD'), width: '98' },
+    { fieldName: 'rcpdt', header: t('MSG_TXT_RCPDT'), width: '127', styleName: 'text-center', dataType: 'date', datetimeFormat: 'datetime' },
+    { fieldName: 'slDt', header: t('MSG_TXT_SL_DT'), width: '127', styleName: 'text-center', dataType: 'date', datetimeFormat: 'datetime' },
+    { fieldName: 'canDt', header: t('MSG_TXT_CANC_DT'), width: '127', styleName: 'text-center', dataType: 'date', datetimeFormat: 'datetime' },
+    { fieldName: 'perfVal', header: t('MSG_TXT_FEE'), width: '127', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'ackmtPerfCt', header: t('MSG_TXT_NUM_OF_NEW_CASES'), width: '92', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'ackmtPerfAmt', header: t('MSG_TXT_PD_ACC_RSLT'), width: '127', styleName: 'text-right', dataType: 'number' },
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   data.setFields(fields);
@@ -324,26 +326,63 @@ const initGridDetail = defineGrid((data, view) => {
 
 const initGridBase = defineGrid((data, view) => {
   const columns = [
+    { fieldName: 'baseYm', visible: false },
+    { fieldName: 'coCd', visible: false },
     { fieldName: 'coCdNm', header: t('MSG_TXT_CORP_NAME'), width: '127' },
     { fieldName: 'ogCd', header: t('MSG_TXT_BLG'), width: '98' },
     { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '127', styleName: 'text-center' },
-    { fieldName: 'cnt', header: t('MSG_TXT_PERF'), width: '151', styleName: 'text-center' },
-    { fieldName: 'amtW050001', header: t('MSG_TXT_BAS_FEE'), width: '98', styleName: 'text-right' },
-    { fieldName: 'amtW050002', header: t('MSG_TXT_ENRG_FEE'), width: '98', styleName: 'text-center' },
-    { fieldName: 'amtW050003', header: t('MSG_TXT_ICT'), width: '98', styleName: 'text-right' },
-    { fieldName: 'amtW050020', header: t('MSG_TXT_ADSB'), width: '98', styleName: 'text-right' },
-    { fieldName: 'amtW050004', header: t('MSG_TXT_QUARTER_OUTC'), width: '98', styleName: 'text-right' },
-    { fieldName: 'feeSumAmt', header: t('MSG_TXT_FEE_SUM'), width: '98', styleName: 'text-right' },
-    { fieldName: 'amt01', header: t('MSG_TXT_RDS'), width: '98', styleName: 'text-right' },
-    { fieldName: 'amt08', header: t('MSG_TXT_RE_REDF'), width: '98', styleName: 'text-right' },
-    { fieldName: 'ddtnSumAmt', header: t('MSG_TXT_DDTN_SUM'), width: '98', styleName: 'text-right' },
-    { fieldName: 'acpyAmt', header: t('MSG_TXT_ACL_DSB_AMT'), width: '98', styleName: 'text-right' },
+    { fieldName: 'cnt', header: t('MSG_TXT_PERF'), width: '151', styleName: 'text-center', dataType: 'number' },
+    { fieldName: 'amtW050001', header: t('MSG_TXT_BAS_FEE'), width: '110', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'amtW050002', header: t('MSG_TXT_ENRG_FEE'), width: '110', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'amtW050003', header: t('MSG_TXT_ICT'), width: '110', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'amtW050020', header: t('MSG_TXT_ADSB'), width: '110', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'amtW050004', header: t('MSG_TXT_QUARTER_OUTC'), width: '110', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'feeSumAmt', header: t('MSG_TXT_FEE_SUM'), width: '150', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'amt01', header: t('MSG_TXT_RDS'), width: '110', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'amt08', header: t('MSG_TXT_RE_REDF'), width: '110', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'ddtnSumAmt', header: t('MSG_TXT_DDTN_SUM'), width: '150', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'acpyAmt', header: t('MSG_TXT_ACL_DSB_AMT'), width: '150', styleName: 'text-right', dataType: 'number' },
   ];
-  const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
+  const fields = [
+    { fieldName: 'baseYm' },
+    { fieldName: 'coCd' },
+    { fieldName: 'coCdNm' },
+    { fieldName: 'ogCd' },
+    { fieldName: 'prtnrNo' },
+    { fieldName: 'cnt', dataType: 'number' },
+    { fieldName: 'amtW050001', dataType: 'number' },
+    { fieldName: 'amtW050002', dataType: 'number' },
+    { fieldName: 'amtW050003', dataType: 'number' },
+    { fieldName: 'amtW050020', dataType: 'number' },
+    { fieldName: 'amtW050004', dataType: 'number' },
+    {
+      fieldName: 'feeSumAmt',
+      dataType: 'number',
+      valueExpression: "values['amtW050001'] + values['amtW050002'] + values['amtW050003'] + values['amtW050020'] + values['amtW050004']",
+    },
+    { fieldName: 'amt01', dataType: 'number' },
+    { fieldName: 'amt08', dataType: 'number' },
+    {
+      fieldName: 'ddtnSumAmt',
+      dataType: 'number',
+      valueExpression: "values['amt01'] + values['amt08']",
+    },
+    {
+      fieldName: 'acpyAmt',
+      dataType: 'number',
+      valueExpression: "values['feeSumAmt'] - values['ddtnSumAmt']",
+    },
+  ];
   data.setFields(fields);
   view.setColumns(columns);
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
+  view.editOptions.editable = true;
+  view.onCellEditable = (grid, index) => {
+    if (!['amtW050002', 'amtW050003', 'amtW050020', 'amtW050004'].includes(index.column)) {
+      return false;
+    }
+  };
   view.setColumnLayout([
     'coCdNm', 'ogCd', 'prtnrNo', 'cnt',
     {

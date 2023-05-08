@@ -14,7 +14,7 @@
 --->
 <template>
   <kw-popup
-    size="2xl"
+    size="4xl"
     ignore-on-modified
   >
     <!-- 선택계약상품 -->
@@ -38,37 +38,34 @@
       </kw-form-row>
     </kw-form>
     <kw-separator />
-    <kw-tabs model-value="1">
+    <kw-tabs v-model="selectedTab">
+      <!-- 고객기본정보 -->
       <kw-tab
         name="1"
         :label="$t('MSG_TXT_CST_BAS_INF')"
       />
+      <!-- 판매정보 -->
       <kw-tab
         name="2"
-        :label="$t('MSG_TXT_MGT_INF')"
+        :label="$t('MSG_TXT_SELL') + $t('MSG_TXT_INF')"
       />
+      <!-- 입금내역 -->
       <kw-tab
         name="3"
         :label="$t('MSG_TXT_DP_IZ')"
       />
+      <!-- 세금계산서 -->
       <kw-tab
         name="4"
         :label="$t('MSG_TXT_TXINV')"
       />
+      <!-- 컨택내용 -->
       <kw-tab
         name="5"
-        :label="$t('MSG_TXT_HW_CMNC_HIS')"
-      />
-      <kw-tab
-        name="6"
-        :label="$t('MSG_TXT_ELC_TASK_RQST')"
-      />
-      <kw-tab
-        name="7"
-        :label="$t('MSG_TXT_CLCTAM_CTT_CNTN')"
+        :label="$t('MSG_TXT_CTT_CNTN')"
       />
     </kw-tabs>
-    <kw-tab-panels model-value="1">
+    <kw-tab-panels :model-value="selectedTab">
       <kw-tab-panel name="1">
         <kw-form
           :cols="2"
@@ -209,6 +206,30 @@
           </kw-form-row>
         </kw-form>
       </kw-tab-panel>
+      <!-- 판매정보 탭 -->
+      <kw-tab-panel name="2">
+        <kw-form
+          ref="tab2Ref"
+        />
+      </kw-tab-panel>
+      <!-- 입금내역 탭 -->
+      <kw-tab-panel name="3">
+        <kw-form
+          ref="tab3Ref"
+        />
+      </kw-tab-panel>
+      <!-- 세금계산서 탭 -->
+      <kw-tab-panel name="4">
+        <kw-form
+          ref="tab4Ref"
+        />
+      </kw-tab-panel>
+      <!-- 컨택내용 탭 -->
+      <kw-tab-panel name="5">
+        <wwcta-order-detail-collecting-amount-contact-list-p
+          ref="tab5Ref"
+        />
+      </kw-tab-panel>
     </kw-tab-panels>
   </kw-popup>
 </template>
@@ -219,6 +240,7 @@
 // -------------------------------------------------------------------------------------------------
 import { useDataService, stringUtil } from 'kw-lib';
 import { isNull, cloneDeep } from 'lodash-es';
+import WwctaOrderDetailCollectingAmountContactListP from './WwctaOrderDetailCollectingAmountContactListP.vue';
 
 const dataService = useDataService();
 // const { t } = useI18n();
@@ -258,6 +280,12 @@ const frmMainData = ref({
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
+const selectedTab = ref('1');
+const tab2Ref = ref(); // 판매정보 탭
+const tab3Ref = ref(); // 입금내역 탭
+const tab4Ref = ref(); // 세금계산서 탭
+const tab5Ref = ref(); // 컨택내용 탭
+
 // wells 주문 상세(고객기본정보) - 상세계약목록
 async function fetchDataContractLists() {
   // changing api & cacheparams according to search classification
@@ -307,16 +335,53 @@ async function fetchDataCustomerBase() {
   }
 }
 
+// 현재 열려있는 탭에서 조회하기
+async function currentTabFetchData() {
+  switch (selectedTab.value) {
+    case '1': // 고객기본정보
+      await fetchDataCustomerBase();
+      break;
+    case '2': // 판매정보
+      await tab2Ref.value.setDatas(
+        searchParams.value.cntrNo,
+        searchParams.value.cntrSn,
+      );
+      break;
+    case '3': // 입금내역
+      await tab3Ref.value.setDatas(
+        searchParams.value.cntrNo,
+        searchParams.value.cntrSn,
+      );
+      break;
+    case '4': // 세금계산서
+      await tab4Ref.value.setDatas(
+        searchParams.value.cntrNo,
+        searchParams.value.cntrSn,
+      );
+      break;
+    case '5': // 컨택내용
+      await tab5Ref.value.setDatas(
+        searchParams.value.cntrNo,
+        searchParams.value.cntrSn,
+      );
+      break;
+  }
+}
+
 // 상세계약목록 변경 시 Event
 async function onSelectCntrctPdList() {
   const { cntrSn } = frmMainData.value;
-  // console.log(cntrSn);
   searchParams.value.cntrSn = cntrSn;
-  await fetchDataCustomerBase();
+  await currentTabFetchData();
 }
 
 onMounted(async () => {
   await fetchDataContractLists();
+});
+
+// 탭 선택이 변경되었는지 감시하기
+watch(() => selectedTab.value, async () => {
+  currentTabFetchData();
 });
 
 // -------------------------------------------------------------------------------------------------

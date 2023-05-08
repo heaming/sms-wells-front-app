@@ -86,7 +86,6 @@
         </template>
 
         <kw-btn
-          grid-action
           secondary
           :label="$t('MSG_BTN_SAVE')"
           @click="onClickSave"
@@ -100,12 +99,10 @@
           v-if="false"
           icon="print"
           secondary
-          dense
           :label="$t('인쇄')"
         />
         <kw-btn
           icon="download_on"
-          dense
           :disable="pageInfo.totalCount === 0"
           secondary
           :label="$t('엑셀다운로드')"
@@ -124,7 +121,6 @@
           option-label="ogNm"
         />
         <kw-btn
-          dense
           secondary
           :label="$t('이관지역단 일괄변경')"
           @click="onClickSetWareAreaCd"
@@ -140,7 +136,6 @@
           :options="codes.TF_AK_RSON_CD"
         />
         <kw-btn
-          dense
           secondary
           :label="$t('이관사유 일괄변경')"
           @click="onClickSetRsonCd"
@@ -250,7 +245,7 @@ async function getCenterAreaPages() {
 
   const view = gridMainRef.value.getView();
   view.getDataSource().setRows(centerAreas);
-  view.resetCurrent();
+  // view.resetCurrent(); //첫 행 selectRow 없앰.
 }
 
 /*
