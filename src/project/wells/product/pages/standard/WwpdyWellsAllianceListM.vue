@@ -17,8 +17,8 @@
   <kw-page>
     <kw-search @search="onClickSearch">
       <kw-search-row>
-        <!-- 제휴사코드 -->
-        <kw-search-item :label="$t('MSG_TXT_ALNC_CD')">
+        <!-- 제휴사 -->
+        <kw-search-item :label="$t('MSG_TXT_ALLIANCE_COMP')">
           <kw-select
             v-model="searchParams.alncmpCd"
             :options="codes.ALNCMP_CD"
@@ -272,10 +272,10 @@ onMounted(async () => {
 // -------------------------------------------------------------------------------------------------
 const initGrdMain = defineGrid((data, view) => {
   const columns = [
-    // 제휴코드
+    // 제휴사
     {
       fieldName: 'alncmpCd',
-      header: t('MSG_TXT_ALNC_CD'),
+      header: t('MSG_TXT_ALLIANCE_COMP'),
       width: '110',
       styleName: 'text-center',
       editor: { type: 'list' },
