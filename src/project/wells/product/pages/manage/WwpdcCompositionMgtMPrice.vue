@@ -15,57 +15,64 @@
 --->
 <template>
   <div class="normal-area">
-    <!-- 가격 -->
-    <h3>{{ $t('MSG_TXT_PRICE') }}</h3>
-    <zwpdc-prop-meta
-      ref="pricePrcRef"
-      v-model:pd-cd="currentPdCd"
-      v-model:init-data="priceFieldData"
-      v-model:codes="currentCodes"
-      :pd-prc-tp-cd="pdConst.PD_PRC_TP_CD_COMPOSITION"
-      pd-grp-cd="PRC"
-      :readonly-fields="readonlyFields"
-      :use-rule="false"
+    <!-- 판매채널 -->
+    <h3>{{ $t('MSG_TXT_SEL_CHNL') }}</h3>
+    <kw-form
+      ref="frmChannelRef"
+      :cols="2"
+      dense
       ignore-on-modified
-    />
-    <div class="row justify-end mt20 mb30">
+    >
+      <kw-form-row>
+        <!-- 판매채널 -->
+        <kw-form-item
+          :label="$t('MSG_TXT_SEL_CHNL')"
+          required
+        >
+          <kw-select
+            ref="usedChannelRef"
+            v-model="addChannelId"
+            first-option="select"
+            :options="usedChannelCds"
+            rules="required"
+            :label="$t('MSG_TXT_SEL_CHNL')"
+          />
+        </kw-form-item>
+        <!-- 판매채널 -->
+        <kw-form-item
+          :label="$t('MSG_TXT_ACEPT_PERIOD')"
+          required
+        >
+          <kw-date-range-picker
+            v-model:from="vlStrtDtm"
+            v-model:to="vlEndDtm"
+            :label="$t('MSG_TXT_ACEPT_PERIOD')"
+          />
+        </kw-form-item>
+      </kw-form-row>
+    </kw-form>
+    <kw-separator />
+    <kw-action-bottom class="mb30">
       <kw-btn
-        v-show="!props.readonly"
-        secondary
-        dense
         :label="$t('MSG_BTN_ADD')"
-        @click="onClickAdd(true)"
+        dense
+        @click="onClickAdd"
       />
-    </div>
-    <kw-action-top class="mt30">
-      <template #left>
-        <span>({{ $t('MSG_TXT_UNIT') }} : {{ $t('MSG_TXT_CUR_WON') }})</span>
-      </template>
+    </kw-action-bottom>
+    <kw-action-top>
+      <!-- 삭제 -->
       <kw-btn
-        :label="$t('MSG_BTN_DEL')"
         grid-action
         dense
+        :label="$t('MSG_BTN_DEL')"
         :disable="gridRowCount === 0"
         @click="onClickRemove"
       />
-      <kw-separator
-        vertical
-        inset
-        spaced
-      />
-      <kw-btn
-        v-show="!props.readonly"
-        :label="$t('MSG_BTN_ROW_ADD')"
-        grid-action
-        dense
-        @click="onClickAdd(false)"
-      />
     </kw-action-top>
-
+    <!-- 가격 -->
     <kw-grid
       ref="grdMainRef"
       name="grdMgtPrcMain"
-      :visible-rows="5"
       @init="initGrid"
     />
   </div>
@@ -75,9 +82,9 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { codeUtil, useGlobal, getComponentType, gridUtil, stringUtil, useDataService } from 'kw-lib';
-import { cloneDeep, isEmpty } from 'lodash-es';
+import dayjs from 'dayjs';
+import { cloneDeep, isEmpty, omit } from 'lodash-es';
 import pdConst from '~sms-common/product/constants/pdConst';
-import ZwpdcPropMeta from '~sms-common/product/pages/manage/components/ZwpdcPropMeta.vue';
 import { getGridRowCount, setGridDateFromTo, getGridRowsToSavePdProps, getPdMetaToCodeNames, getPdMetaToGridInfos, getPropInfosToGridRows, pdMergeBy, setPdGridRows } from '~sms-common/product/utils/pdUtil';
 
 /* eslint-disable no-use-before-define */
@@ -94,18 +101,18 @@ const props = defineProps({
 
 const { t } = useI18n();
 const dataService = useDataService();
-const { notify } = useGlobal();
+const { modal, notify } = useGlobal();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
+const now = dayjs();
 const grdMainRef = ref(getComponentType('KwGrid'));
 const defaultFields = ref(['verSn', pdConst.PRC_STD_ROW_ID, pdConst.PRC_FNL_ROW_ID,
-  pdConst.PRC_DETAIL_ID, pdConst.PRC_DETAIL_FNL_ID]);
+  pdConst.PRC_DETAIL_ID, pdConst.PRC_DETAIL_FNL_ID, 'basePdTempSaveYn', 'basePdClsfNm', 'basePdNm', 'basePdCd']);
 const readonlyFields = ref(['pdCd', pdConst.PRC_DETAIL_ID, 'verSn', 'crncyDvCd']);
 const prcd = pdConst.TBL_PD_PRC_DTL;
 const prcfd = pdConst.TBL_PD_PRC_FNL_DTL;
-const pricePrcRef = ref();
 const currentPdCd = ref();
 const currentInitData = ref(null);
 const priceFieldData = ref({});
@@ -113,10 +120,25 @@ const metaInfos = ref();
 const removeObjects = ref([]);
 const currentCodes = ref({});
 const gridRowCount = ref(0);
+const usedChannelCds = ref([]);
+const addChannelId = ref();
+const usedChannelRef = ref();
+const vlStrtDtm = ref(now.format('YYYYMMDD'));
+const vlEndDtm = ref();
+
+const searchParams = ref({
+  searchType: pdConst.PD_SEARCH_CODE,
+  searchValue: null,
+  selectType: pdConst.PD_SEARCH_SINGLE,
+});
 
 async function resetData() {
   currentPdCd.value = '';
   currentInitData.value = {};
+  usedChannelCds.value = [];
+  addChannelId.value = '';
+  vlStrtDtm.value = now.format('YYYYMMDD');
+  vlEndDtm.value = null;
   removeObjects.value = [];
   gridRowCount.value = 0;
   const view = grdMainRef.value?.getView();
@@ -135,7 +157,7 @@ async function getSaveData() {
     rowValues,
     metaInfos.value,
     prcd,
-    [pdConst.PRC_STD_ROW_ID, pdConst.PRC_DETAIL_ID],
+    [pdConst.PRC_STD_ROW_ID, pdConst.PRC_DETAIL_ID, 'basePdCd'],
   );
   const fnlValues = await getGridRowsToSavePdProps(
     rowValues,
@@ -191,25 +213,94 @@ async function setChannels() {
     }, []);
   // console.log('channels : ', channels);
   if (channels) {
-    currentCodes.value.SELL_CHNL_DTL_CD = props.codes.SELL_CHNL_DTL_CD
-      ?.filter((item) => channels.includes(item.codeId));
-    const nameFields = await pricePrcRef.value?.getNameFields();
-    // console.log(nameFields);
-    if (nameFields && nameFields.sellChnlCd) {
-      nameFields.sellChnlCd.codes = currentCodes.value.SELL_CHNL_DTL_CD;
-    }
+    usedChannelCds.value = props.codes?.SELL_CHNL_DTL_CD?.filter((item) => channels.indexOf(item.codeId) > -1);
   }
 
   const view = grdMainRef.value?.getView();
   if (view) {
-    const svPdCds = view.columnByName('sellChnlCd');
-    if (svPdCds) {
-      svPdCds.options = currentCodes.value.SELL_CHNL_DTL_CD;
-      svPdCds.labels = currentCodes.value.SELL_CHNL_DTL_CD?.map((item) => (item.codeName));
-      svPdCds.values = currentCodes.value.SELL_CHNL_DTL_CD?.map((item) => (item.codeId));
-      svPdCds.lookupDisplay = true;
+    const sellChnlCd = view.columnByName('sellChnlCd');
+    if (sellChnlCd) {
+      sellChnlCd.options = currentCodes.value.SELL_CHNL_DTL_CD;
+      sellChnlCd.labels = currentCodes.value.SELL_CHNL_DTL_CD?.map((item) => (item.codeName));
+      sellChnlCd.values = currentCodes.value.SELL_CHNL_DTL_CD?.map((item) => (item.codeId));
+      sellChnlCd.lookupDisplay = true;
     }
   }
+}
+
+async function onClickAdd() {
+  if (!(await usedChannelRef.value.validate())) {
+    return;
+  }
+
+  const view = grdMainRef.value?.getView();
+  const products = currentInitData.value?.[pdConst.RELATION_PRODUCTS];
+  if (await products) {
+    const rows = products
+      ?.filter((svcItem) => svcItem[pdConst.PD_REL_TP_CD] === pdConst.PD_REL_TP_CD_C_TO_P);
+    rows.forEach((item) => {
+      item.basePdTempSaveYn = item.tempSaveYn;
+      item.basePdClsfNm = item.pdClsfNm;
+      item.basePdNm = item.pdNm;
+      item.basePdCd = item.pdCd;
+      item.sellChnlCd = addChannelId.value;
+      item.vlStrtDtm = vlStrtDtm.value;
+      item.vlEndDtm = vlEndDtm.value;
+      item.pdCd = '';
+      item.verSn = '';
+      item.pdPrcId = '';
+      item[pdConst.PRC_STD_ROW_ID] = stringUtil.getUid('STD');
+      item[pdConst.PRC_FNL_ROW_ID] = stringUtil.getUid('FNL');
+      item[pdConst.PRC_DETAIL_ID] = '';
+      item[pdConst.PRC_DETAIL_FNL_ID] = '';
+    });
+    if (rows && rows.length) {
+      const data = view.getDataSource();
+      await data.insertRows(0, rows);
+      await gridUtil.focusCellInput(view, 0);
+      gridRowCount.value = getGridRowCount(view);
+      return;
+    }
+  }
+  notify(t('MSG_ALT_NO_LINK_PDS'));
+}
+
+async function onClickStandardSchPopup(pdCd, rowId) {
+  if (!(await usedChannelRef.value.validate())) {
+    return;
+  }
+  searchParams.value.searchValue = pdCd;
+  const rtn = await modal({
+    component: 'ZwpdcStandardPriceListP',
+    componentProps: searchParams.value,
+  });
+  await updatePriceRow(rtn, rowId);
+}
+
+async function updatePriceRow(rtn, rowId) {
+  const view = grdMainRef.value?.getView();
+  if (rtn.result && rtn.payload && rtn.payload.length) {
+    const row = Array.isArray(rtn.payload) ? rtn.payload[0] : rtn.payload;
+    const data = view.getDataSource();
+    data.updateRow(rowId, omit(
+      row,
+      [...defaultFields.value, 'sellChnlCd', 'sellChnlCd', 'vlStrtDtm', 'vlEndDtm', 'pdCd', 'verSn', 'pdPrcId'],
+    ));
+  }
+}
+
+async function onClickRemove() {
+  const view = grdMainRef.value.getView();
+  const deletedRowValues = await gridUtil.confirmDeleteCheckedRows(view);
+  if (deletedRowValues && deletedRowValues.length) {
+    removeObjects.value.push(...deletedRowValues.reduce((rtn, item) => {
+      if (item[pdConst.PRC_FNL_ROW_ID]) {
+        rtn.push({ [pdConst.PRC_FNL_ROW_ID]: item[pdConst.PRC_FNL_ROW_ID] });
+      }
+      return rtn;
+    }, []));
+  }
+  gridRowCount.value = getGridRowCount(view);
 }
 
 async function initGridRows() {
@@ -246,38 +337,6 @@ async function initGridRows() {
     await setPdGridRows(view, rows, pdConst.PRC_FNL_ROW_ID, defaultFields.value, true);
   } else {
     view.getDataSource().clearRows();
-  }
-  gridRowCount.value = getGridRowCount(view);
-}
-
-async function onClickAdd(isForm) {
-  const view = grdMainRef.value.getView();
-  // console.log('priceStdRef.value : ', priceStdRef.value);
-  const savFields = await pricePrcRef.value.getSaveFields();
-  // console.log('savFields : ', savFields);
-  const rowItem = isForm ? cloneDeep(savFields?.reduce((rtn, item) => {
-    rtn[item.colNm] = item.initValue;
-    return rtn;
-  }, {})) : {};
-  rowItem[pdConst.PRC_STD_ROW_ID] = stringUtil.getUid('STD');
-  rowItem[pdConst.PRC_FNL_ROW_ID] = stringUtil.getUid('FNL');
-  rowItem[pdConst.PRC_DETAIL_ID] = '';
-  rowItem[pdConst.PRC_DETAIL_FNL_ID] = '';
-  // console.log('rowItem : ', rowItem);
-  gridUtil.insertRowAndFocus(view, 0, rowItem);
-  gridRowCount.value = getGridRowCount(view);
-}
-
-async function onClickRemove() {
-  const view = grdMainRef.value.getView();
-  const deletedRowValues = await gridUtil.confirmDeleteCheckedRows(view);
-  if (deletedRowValues && deletedRowValues.length) {
-    removeObjects.value.push(...deletedRowValues.reduce((rtn, item) => {
-      if (item[pdConst.PRC_FNL_ROW_ID]) {
-        rtn.push({ [pdConst.PRC_FNL_ROW_ID]: item[pdConst.PRC_FNL_ROW_ID] });
-      }
-      return rtn;
-    }, []));
   }
   gridRowCount.value = getGridRowCount(view);
 }
@@ -327,18 +386,54 @@ watch(() => props.initData, (val) => { currentInitData.value = cloneDeep(val); r
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
 async function initGrid(data, view) {
+  const pdColumns = [
+    // 상태
+    { fieldName: 'basePdTempSaveYn', header: t('MSG_TXT_STT'), width: '85', styleName: 'text-center', options: props.codes?.PD_TEMP_SAVE_CD, editable: false },
+    // 기준상품 분류
+    { fieldName: 'basePdClsfNm', header: t('MSG_TXT_PD_STD_TYPE'), width: '171', editable: false },
+    // 기준상품명
+    { fieldName: 'basePdNm', header: t('MSG_TXT_PD_STD_NAME'), width: '126', editable: false },
+    // 기준상품코드
+    { fieldName: 'basePdCd', header: t('MSG_TXT_PD_STD_CODE'), width: '115', styleName: 'text-center', editable: false },
+    // 판매유형
+    { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '87', styleName: 'text-center', options: props.codes?.SELL_TP_CD, editable: false },
+    // 판매채널
+    { fieldName: 'sellChnlCd', header: t('MSG_TXT_SEL_CHNL'), width: '127', styleName: 'text-center', editor: { type: 'list' }, options: currentCodes.value.SELL_CHNL_DTL_CD },
+    // 적용시작일자
+    { fieldName: 'vlStrtDtm', header: t('MSG_TXT_APY_STRTDT'), width: '127', styleName: 'text-center', editor: { type: 'date' } },
+    // 적용종료일자
+    { fieldName: 'vlEndDtm', header: t('MSG_TXT_APY_ENDDT'), width: '127', styleName: 'text-center', editor: { type: 'date' } },
+    // 서비스명
+    { fieldName: 'priceSchBtn',
+      header: t('MSG_TXT_PRICE'),
+      width: '40',
+      editable: false,
+      styleName: 'text-left rg-button-icon--search',
+      editor: { maxLength: 10 },
+      button: 'action',
+    },
+  ];
+  const pdFields = pdColumns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
+
   const { fields, columns } = await getPdMetaToGridInfos(
     metaInfos.value,
     [pdConst.PD_PRC_TP_CD_COMPOSITION],
     currentCodes.value,
     readonlyFields.value,
+    [],
+    ['pdPrcDtlId', 'pdPrcFnlDtlId'],
+    ['sellChnlCd', 'sellTpCd', 'vlStrtDtm', 'vlEndDtm'],
   );
   // console.log('WwpdcCompositionMgtMPriceStd - initGr id - columns : ', columns);
   // Grid 내부키 - '신규 Row 추가' 대응
   fields.push({ fieldName: pdConst.PRC_STD_ROW_ID });
   fields.push({ fieldName: pdConst.PRC_FNL_ROW_ID });
-  data.setFields(fields);
-  view.setColumns(columns);
+
+  pdColumns.push(...columns);
+  pdFields.push(...fields);
+
+  data.setFields(pdFields);
+  view.setColumns(pdColumns);
   view.checkBar.visible = true;
   view.rowIndicator.visible = true;
   view.editOptions.editable = true;
@@ -351,27 +446,13 @@ async function initGrid(data, view) {
     await setGridDateFromTo(view, grid, itemIndex, fieldIndex, 'vlStrtDtm', 'vlEndDtm');
   };
 
-  view.onCellClicked = async (g, { dataRow }) => {
-    // console.log('clicekd : ', dataRow);
-    if (dataRow >= 0) {
-      const prcdValues = await getGridRowsToSavePdProps(
-        [gridUtil.getRowValue(g, dataRow)],
-        metaInfos.value,
-        prcd,
-        [],
-        defaultFields.value,
-      );
-      const prcfdValues = await getGridRowsToSavePdProps(
-        [gridUtil.getRowValue(g, dataRow)],
-        metaInfos.value,
-        prcfd,
-        [],
-        defaultFields.value,
-      );
-      priceFieldData.value[prcd] = prcdValues[prcd]?.[0];
-      priceFieldData.value[prcfd] = prcfdValues[prcfd]?.[0];
+  view.onCellButtonClicked = async (grid, { column, itemIndex }) => {
+    if (column === 'priceSchBtn') {
+      const pdCd = grid.getValue(itemIndex, 'pdCd');
+      await onClickStandardSchPopup(pdCd, itemIndex);
     }
   };
+
   await resetInitData();
   await init();
 }

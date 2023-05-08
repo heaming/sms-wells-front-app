@@ -284,13 +284,6 @@ const initGrdMain = defineGrid((data, view) => {
   view.setColumns(columns);
   view.checkBar.visible = true;
   view.rowIndicator.visible = true;
-
-  view.onCellClicked = (g, clickData) => {
-    if (clickData.cellType === 'data') {
-      // Data Row Click시 checkbar toggle 적용
-      view.checkRow(clickData.dataRow, !view.getCheckedItems().includes(clickData.dataRow));
-    }
-  };
 });
 </script>
 <style scoped></style>

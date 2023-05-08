@@ -42,6 +42,7 @@
       grid-action
       dense
       :label="$t('MSG_BTN_DEL')"
+      :disable="grdStandardRowCount === 0"
       @click="onClickStandardDelRows"
     />
   </kw-action-top>
@@ -208,7 +209,7 @@ async function initGridRows() {
   if (standardView) {
     standardView.getDataSource().clearRows();
     standardView.getDataSource().setRows(products
-      .filter((item) => item[pdConst.PD_REL_TP_CD] === pdConst.PD_REL_TP_CD_P_TO_P));
+      .filter((item) => item[pdConst.PD_REL_TP_CD] === pdConst.PD_REL_TP_CD_C_TO_P));
     grdStandardRowCount.value = getGridRowCount(standardView);
   }
 }

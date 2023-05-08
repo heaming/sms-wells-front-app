@@ -37,13 +37,6 @@
           :done="currentStep.step > pdConst.COMPOSITION_STEP_REL_PROD.step"
         />
         <kw-step
-          :header-nav="!isTempSaveBtn || passedStep >= pdConst.COMPOSITION_STEP_MANAGE.step"
-          :name="pdConst.COMPOSITION_STEP_MANAGE.name"
-          :title="$t('MSG_TXT_MGT_ATTR_REG')"
-          :prefix="pdConst.COMPOSITION_STEP_MANAGE.step"
-          :done="currentStep.step > pdConst.COMPOSITION_STEP_MANAGE.step"
-        />
-        <kw-step
           :header-nav="!isTempSaveBtn || passedStep >= pdConst.COMPOSITION_STEP_PRICE.step"
           :name="pdConst.COMPOSITION_STEP_PRICE.name"
           :title="$t('MSG_TXT_PRC_INFO_REG')"
@@ -62,7 +55,6 @@
             v-model:pd-cd="currentPdCd"
             v-model:init-data="prevStepData"
             :pd-tp-cd="pdConst.PD_TP_CD_COMPOSITION"
-            :pd-grp-dv-cd="pdConst.PD_PRP_GRP_DV_CD_BASIC"
           />
         </kw-step-panel>
         <kw-step-panel :name="pdConst.COMPOSITION_STEP_REL_PROD.name">
@@ -73,18 +65,9 @@
             :codes="codes"
           />
         </kw-step-panel>
-        <kw-step-panel :name="pdConst.COMPOSITION_STEP_MANAGE.name">
-          <zwpdc-prop-groups-mgt
-            :ref="cmpStepRefs[2]"
-            v-model:pd-cd="currentPdCd"
-            v-model:init-data="prevStepData"
-            :pd-tp-cd="pdConst.PD_TP_CD_COMPOSITION"
-            :pd-grp-dv-cd="pdConst.PD_PRP_GRP_DV_CD_MANUAL"
-          />
-        </kw-step-panel>
         <kw-step-panel :name="pdConst.COMPOSITION_STEP_PRICE.name">
           <wwpdc-composition-mgt-m-price
-            :ref="cmpStepRefs[3]"
+            :ref="cmpStepRefs[2]"
             v-model:pd-cd="currentPdCd"
             v-model:init-data="prevStepData"
             :codes="codes"
@@ -190,10 +173,10 @@ const prumd = pdConst.TBL_PD_DSC_PRUM_DTL;
 
 const isTempSaveBtn = ref(true);
 const regSteps = ref([pdConst.COMPOSITION_STEP_BASIC, pdConst.COMPOSITION_STEP_REL_PROD,
-  pdConst.COMPOSITION_STEP_MANAGE, pdConst.COMPOSITION_STEP_PRICE, pdConst.COMPOSITION_STEP_CHECK]);
+  pdConst.COMPOSITION_STEP_PRICE, pdConst.COMPOSITION_STEP_CHECK]);
 const currentStep = ref(cloneDeep(pdConst.COMPOSITION_STEP_BASIC));
 const passedStep = ref(0);
-const cmpStepRefs = ref([ref(), ref(), ref(), ref()]);
+const cmpStepRefs = ref([ref(), ref(), ref()]);
 const prevStepData = ref({});
 const currentPdCd = ref();
 const isCreate = ref(false);
@@ -217,16 +200,12 @@ async function getSaveData() {
       subList.pdCd = subList.pdCd ?? saveData.pdCd;
       subList.pdTpCd = subList.pdTpCd ?? saveData.pdTpCd;
       // 기본속성, 관리 속성 수정여부
-      if (await isModified && (idx === 0 || idx === 2)) {
-        if (idx === 0 && isModified) {
-          subList.isOnlyFileModified = await item.value.isOnlyFileModified();
-        } else if (idx === 2 && isModified) {
-          subList.isOnlyFileModified = false;
-        }
+      if (await isModified && idx === (pdConst.COMPOSITION_STEP_BASIC.step - 1)) {
+        subList.isOnlyFileModified = await item.value.isOnlyFileModified();
         subList.isModifiedProp = true;
       }
       // 가격 수정여부
-      if (await isModified && idx === 3) {
+      if (await isModified && idx === (pdConst.COMPOSITION_STEP_PRICE.step - 1)) {
         subList.isModifiedPrice = true;
       }
       if (saveData[bas]) {
