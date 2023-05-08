@@ -330,7 +330,7 @@ const initGridTradeSpcshBlkPrntList = defineGrid((data, view) => {
     { fieldName: 'faxExno', header: t('MSG_TXT_FAX_MEXNO'), width: '220', styleName: 'text-center' }, // 팩스전화국번호
     { fieldName: 'faxIdvTno', header: t('MSG_TXT_FAX_IDV_TNO'), width: '220', styleName: 'text-center' }, // 팩스개별전화번호
     { fieldName: 'fstRgstUsrId', header: t('MSG_TXT_RGR_EP_NO'), width: '100', styleName: 'text-center', editable: false }, // 등록자 사번
-    { fieldName: 'fstRgstDtm', header: t('MSG_TXT_RGST_DT'), width: '106', styleName: 'text-center', editable: false }, // 등록일
+    { fieldName: 'fstRgstDtm', header: t('MSG_TXT_RGST_DT'), width: '106', styleName: 'text-center', editable: false, datetimeFormat: 'date' }, // 등록일
     { fieldName: 'lstmmYn', header: `${t('MSG_TXT_LSTMM')}${t('MSG_TXT_YN')}`, width: '106', styleName: 'text-center', editable: false, renderer: { type: 'check', trueValues: 'Y', falseValues: 'N' } }, // 전월여부
   ];
 
