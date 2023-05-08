@@ -126,7 +126,8 @@
       <kw-grid
         ref="grdMainRef1"
         name="grdMain"
-        :visible-rows="pageInfo.pageSize - 1"
+        :page-size="pageInfo.pageSize - 1"
+        :total-count="pageInfo.totalCount"
         @init="initGrid1"
       />
     </div>
@@ -159,7 +160,8 @@
       <kw-grid
         ref="grdMainRef2"
         name="grdMain2"
-        :visible-rows="pageInfo2.pageSize - 1"
+        :page-size="pageInfo2.pageSize - 1"
+        :total-count="pageInfo2.totalCount"
         @init="initGrid2"
       />
     </div>
@@ -215,12 +217,14 @@ const pageInfo = ref({
   totalCount: 0,
   pageIndex: 1,
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
+  needTotalCount: true,
 });
 
 const pageInfo2 = ref({
   totalCount: 0,
   pageIndex: 1,
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
+  needTotalCount: true,
 });
 
 const codes = await codeUtil.getMultiCodes(
