@@ -37,9 +37,6 @@
       />
     </div>
     <kw-action-top class="mt30">
-      <template #left>
-        <span>({{ $t('MSG_TXT_UNIT') }} : {{ $t('MSG_TXT_CUR_WON') }})</span>
-      </template>
       <kw-btn
         :label="$t('MSG_BTN_DEL')"
         grid-action

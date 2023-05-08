@@ -68,9 +68,6 @@
     </kw-action-bottom>
 
     <kw-action-top>
-      <template #left>
-        <span>({{ $t('MSG_TXT_UNIT') }} : {{ $t('MSG_TXT_CUR_WON') }})</span>
-      </template>
       <kw-btn
         v-show="!props.readonly"
         :label="$t('MSG_BTN_DEL')"
