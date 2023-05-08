@@ -148,7 +148,7 @@ const grdMainRef = ref(getComponentType('KwGrid'));
 const searchParams = ref({
   srchGbn: 1,
   dangOcStrtdt: now.startOf('month').format('YYYYMMDD'),
-  dangOcStrtMonth: now.format('YYYYMM') - 1,
+  dangOcStrtMonth: now.add('-1', 'month').format('YYYYMM'),
   dangOcEnddt: now.format('YYYYMMDD'),
   dangOcEndMonth: now.format('YYYYMM'),
   gnrdv: '',
@@ -275,7 +275,7 @@ async function onClickDelete() {
 async function calChange() {
   searchParams.value.dangOcStrtdt = now.startOf('month').format('YYYYMMDD');
   searchParams.value.dangOcEnddt = now.format('YYYYMMDD');
-  searchParams.value.dangOcStrtMonth = now.format('YYYYMM') - 1;
+  searchParams.value.dangOcStrtMonth = now.add('-1', 'month').format('YYYYMM');
   searchParams.value.dangOcEndMonth = now.format('YYYYMM');
 }
 // -------------------------------------------------------------------------------------------------

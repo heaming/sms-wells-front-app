@@ -357,9 +357,9 @@ function initGrid(data, view) {
       },
     },
     { fieldName: 'sellBaseApyCn', header: t('MSG_TXT_NOTE'), width: '220' },
-    { fieldName: 'fstRgstDtm', header: t('MSG_TXT_RGST_DT'), datetimeFormat: 'date', width: '196', styleName: 'text-right', editable: false },
+    { fieldName: 'fstRgstDtm', header: t('MSG_TXT_RGST_DT'), datetimeFormat: 'date', width: '196', styleName: 'text-center', editable: false },
     { fieldName: 'fstRgstUsrId', header: t('MSG_TXT_FST_RGST_USR'), width: '131', editable: false },
-    { fieldName: 'fnlMdfcDtm', header: t('MSG_TXT_MDFC_DT'), datetimeFormat: 'date', width: '196', styleName: 'text-right', editable: false },
+    { fieldName: 'fnlMdfcDtm', header: t('MSG_TXT_MDFC_DT'), datetimeFormat: 'date', width: '196', styleName: 'text-center', editable: false },
     { fieldName: 'fnlMdfcUsrId', header: t('MSG_TXT_MDFC_USR'), width: '131', editable: false },
   ];
 
