@@ -1,19 +1,30 @@
+<!----
+****************************************************************************************************
+* 프로그램 개요
+****************************************************************************************************
+1. 모듈 : OGC
+2. 프로그램 ID : WwogcTopPlannerReqMgtM - 수석플래너 신청관리
+3. 작성자 : 이한울
+4. 작성일 : 2023-05-08
+****************************************************************************************************
+* 프로그램 설명
+****************************************************************************************************
+- 수석플래너 신청관리
+****************************************************************************************************
+--->
 <template>
   <kw-page>
-    <template #header>
-      <kw-page-header :options="['홈', 'nav', 'nav', '수석플래너 신청 관리']" />
-    </template>
-
     <kw-search
       one-row
       :cols="2"
     >
       <kw-search-row>
         <kw-search-item
-          label="신청년월"
+          :label="$t('MSG_TXT_APL_DATE')"
           required
         >
           <kw-date-picker
+            :label="$t('MSG_TXT_APL_DATE')"
             rules="required"
             type="month"
           />
@@ -25,16 +36,18 @@
       <kw-action-top>
         <template #left>
           <kw-paging-info
-            :page-size="10"
+            :page-size="pageInfo.pageSize"
             :page-size-options="[10, 20, 30, 40]"
-            :total-count="7"
+            :total-count="pageInfo.totalCount"
           />
         </template>
         <kw-btn
           icon="download_on"
           dense
           secondary
-          label="엑셀다운로드"
+          :label="$t('MSG_TXT_EXCEL_DOWNLOAD')"
+          :disable="pageInfo.totalCount===0"
+          @click="onClickExcelDownload"
         />
         <kw-separator
           vertical
@@ -42,27 +55,58 @@
           spaced
         />
         <kw-btn
-          label="등록시간통제"
+          :label="$t('MSG_TXT_REG_TM_CTRL')"
           primary
           dense
         />
       </kw-action-top>
 
       <kw-grid
-        ref="grdRef"
+        ref="grdMainRef"
+        name="grMain"
         :visible-rows="10"
-        @init="initGrid"
+        @init="initGrdMain"
       />
       <kw-pagination
         :model-value="1"
-        :total-count="100"
+        :total-count="pageInfo.totalCount"
       />
     </div>
   </kw-page>
 </template>
 
 <script setup>
-function initGrid(data, view) {
+// -------------------------------------------------------------------------------------------------
+// Import & Declaration
+// -------------------------------------------------------------------------------------------------
+import { defineGrid, getComponentType, gridUtil, useMeta } from 'kw-lib';
+
+const { t } = useI18n();
+const { getConfig } = useMeta();
+const { currentRoute } = useRouter();
+
+const pageInfo = ref({
+  totalCount: 0,
+  pageIndex: 1,
+  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
+});
+// -------------------------------------------------------------------------------------------------
+// Function & Event
+// -------------------------------------------------------------------------------------------------
+const grdMainRef = ref(getComponentType('KwGrid'));
+
+async function onClickExcelDownload() {
+  const view = grdMainRef.value.getView();
+  await gridUtil.exportView(view, {
+    fileName: currentRoute.value.meta.menuName,
+    timePostfix: true,
+  });
+}
+
+// -------------------------------------------------------------------------------------------------
+// Initialize Grid
+// -------------------------------------------------------------------------------------------------
+const initGrdMain = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'col1' },
     { fieldName: 'col2' },
@@ -83,21 +127,21 @@ function initGrid(data, view) {
   ];
 
   const columns = [
-    { fieldName: 'col1', header: '총괄단', width: '92', styleName: 'text-center' },
-    { fieldName: 'col2', header: '지역단', width: '106', styleName: 'text-center' },
-    { fieldName: 'col3', header: '소속', width: '106', styleName: 'text-center' },
-    { fieldName: 'col4', header: '빌딩명', width: '160', styleName: 'text-center' },
-    { fieldName: 'col5', header: '번호', width: '134', styleName: 'text-center' },
-    { fieldName: 'col6', header: '성명', width: '92', styleName: 'text-center' },
-    { fieldName: 'col7', header: 'WM자격여부', width: '136', styleName: 'text-center' },
-    { fieldName: 'col8', header: '누적건수인정시작월', width: '180', styleName: 'text-center' },
-    { fieldName: 'col9', header: '누적건수', width: '106', styleName: 'text-center' },
-    { fieldName: 'col10', header: '리쿠르팅일자', width: '130', styleName: 'text-center' },
-    { fieldName: 'col11', header: '최종해약일자', width: '130', styleName: 'text-center' },
-    { fieldName: 'col12', header: '개시일자', width: '130', styleName: 'text-center' },
-    { fieldName: 'col13', header: '강등일자', width: '130', styleName: 'text-center' },
-    { fieldName: 'col14', header: '수석플래너인정여부', width: '130', styleName: 'text-center' },
-    { fieldName: 'col15', header: '신청여부', width: '106', styleName: 'text-center' },
+    { fieldName: 'col1', header: t('MSG_TXT_MANAGEMENT_DEPARTMENT'), width: '92', styleName: 'text-center' },
+    { fieldName: 'col2', header: t('MSG_TXT_RGNL_GRP'), width: '106', styleName: 'text-center' },
+    { fieldName: 'col3', header: t('MSG_TXT_BLG'), width: '106', styleName: 'text-center' },
+    { fieldName: 'col4', header: t('MSG_TXT_BLD_NM'), width: '160', styleName: 'text-center' },
+    { fieldName: 'col5', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '134', styleName: 'text-center' },
+    { fieldName: 'col6', header: t('MSG_TXT_EMPL_NM'), width: '92', styleName: 'text-center' },
+    { fieldName: 'col7', header: t('MSG_TXT_WM_QLF_YN'), width: '136', styleName: 'text-center' },
+    { fieldName: 'col8', header: t('MSG_TXT_STRT_MNTH_REG_CUM'), width: '180', styleName: 'text-center' },
+    { fieldName: 'col9', header: t('MSG_TXT_ACU_CT'), width: '106', styleName: 'text-center' },
+    { fieldName: 'col10', header: t('MSG_TXT_RCRT_DT'), width: '130', styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'col11', header: t('MSG_TXT_FNL_CLTN_DT'), width: '130', styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'col12', header: t('MSG_TXT_STRT_DT'), width: '130', styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'col13', header: t('MSG_TXT_DMTN_DT'), width: '130', styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'col14', header: t('MSG_TXT_REC_CHIEF_PLNR'), width: '130', styleName: 'text-center' },
+    { fieldName: 'col15', header: t('MSG_TXT_APLC_YN'), width: '106', styleName: 'text-center' },
   ];
 
   data.setFields(fields);
@@ -113,7 +157,7 @@ function initGrid(data, view) {
   view.setColumnLayout([
 
     {
-      header: '소속',
+      header: t('MSG_TXT_BLG'),
       direction: 'horizontal',
       items: ['col1', 'col2', 'col3', 'col4'],
     },
@@ -121,24 +165,24 @@ function initGrid(data, view) {
     'col6',
     'col7',
     {
-      header: '환경가전 실적',
+      header: t('MSG_TXT_ENVR_ELHM_PERF'),
       direction: 'horizontal',
       items: ['col8', 'col9'],
     },
     {
-      header: '수석플래너 현황',
+      header: t('MSG_TXT_TOPMR_PLAR_PS'),
       direction: 'horizontal',
       items: ['col10', 'col11', 'col12'],
     },
     {
-      header: '수석플래너 현황',
+      header: t('MSG_TXT_TOPMR_PLAR_PS'),
       direction: 'horizontal',
       items: ['col13'],
     },
     'col14',
     'col15',
   ]);
-}
+});
 </script>
 
 <style scoped>
