@@ -141,7 +141,7 @@ import { useDataService, useGlobal, useMeta } from 'kw-lib';
 import { cloneDeep, isEmpty, toInteger } from 'lodash-es';
 
 const dataService = useDataService();
-const { notify, modal/* , alert */ } = useGlobal();
+const { notify, modal, alert } = useGlobal();
 const { t } = useI18n();
 const { getUserInfo } = useMeta();
 const sessionUserInfo = getUserInfo();
@@ -159,7 +159,8 @@ const searchParams = ref({
   baseYm: dayjs().format('YYYYMM'),
   serviceCenterOgId: '',
   serviceCenterCd: '',
-  serviceCenter: undefined,
+  // serviceCenter: undefined,
+  serviceCenter: { ogCd: '', ogId: '선택' },
 });
 
 /*
@@ -262,6 +263,11 @@ function isToday(dayCnt) {
  *  Event - 조회 버튼 클릭
  */
 async function onClickSearch() {
+  if (isEmpty(searchParams.value.serviceCenter.ogCd)) {
+    alert(t('MSG_VAL_REQUIRED', [t('서비스센터')]));
+    return;
+  }
+
   if (!isHolidaySetter()) {
     searchParams.value.serviceCenterCd = searchParams.value.serviceCenter.ogCd;
     searchParams.value.serviceCenterOgId = searchParams.value.serviceCenter.ogId;
