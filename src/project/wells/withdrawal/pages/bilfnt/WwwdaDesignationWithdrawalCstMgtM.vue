@@ -65,7 +65,6 @@
             :total-count="pageInfo.totalCount"
             @change="fetchData"
           />
-          <span class="ml8">{{ t('MSG_TXT_UNIT_WON') }}</span>
         </template>
 
         <kw-btn
@@ -106,7 +105,8 @@
       <kw-grid
         ref="grdMainRef"
         name="grdMain"
-        :visible-rows="pageInfo.pageSize - 1"
+        :page-size="pageInfo.pageSize - 1"
+        :total-count="pageInfo.totalCount"
         @init="initGrid"
       />
     </div>
@@ -152,6 +152,7 @@ const pageInfo = ref({
   totalCount: 0,
   pageIndex: 1,
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
+  needTotalCount: true,
 });
 
 const searchParams = ref({
@@ -297,7 +298,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'dsnWdrwFntPrdCd' }, // 이체주기
     { fieldName: 'prtnrKnm' }, // 등록담당자
     { fieldName: 'fnlMdfcUsrId' }, // 등록자사번
-    { fieldName: 'fnlMdfcDtm' }, // 등록자일번
+    { fieldName: 'fnlMdfcDtm' }, // 등록일시
   ];
 
   const columns = [
@@ -402,7 +403,7 @@ const initGrid = defineGrid((data, view) => {
 
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_RGST_PSIC'), width: '100', styleName: 'text-center', editable: false },
     { fieldName: 'fnlMdfcUsrId', header: t('MSG_TXT_RGR_EMPNO'), width: '100', styleName: 'text-center', editable: false },
-    { fieldName: 'fnlMdfcDtm', header: t('MSG_TXT_FST_RGST_DT'), width: '155', styleName: 'text-center', editable: false, datetimeFormat: 'datetime' },
+    { fieldName: 'fnlMdfcDtm', header: t('MSG_TXT_RGST_DTM'), width: '155', styleName: 'text-center', editable: false, datetimeFormat: 'datetime' },
 
   ];
 
