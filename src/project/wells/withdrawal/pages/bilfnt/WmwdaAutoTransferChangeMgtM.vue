@@ -44,51 +44,66 @@
       :spaced="`false`"
       size="8px"
     />
-    <div class="pa20">
-      <h3>{{ t('MSG_TXT_ELSG_LDSTC_CH') }}</h3>
-      <div class="mt20 row">
+    <kw-form
+      ref="formRef"
+    >
+      <div class="pa20">
+        <h3>{{ t('MSG_TXT_ELSG_LDSTC_CH') }}</h3>
+        <div class="mt20 row">
+          <kw-input
+            :placeholder="elsgLdstcCh"
+            grow
+            readonly
+          />
+          <kw-btn
+            :label="t('MSG_BTN_CNTN_COPY')"
+            secondary
+            border-color="black-btn-line ml8"
+            @click="onClickUrlCopy(2)"
+          />
+        </div>
+        <h4>{{ t('MSG_TXT_NOTAK_RCV_CST_NAME') }}</h4>
         <kw-input
-          :placeholder="elsgLdstcCh"
+          v-model.trim="inputParams.cstNm"
+          :label="t('MSG_TXT_NOTAK_RCV_CST_NAME')"
+          :placeholder="t('MSG_TXT_INP')"
           grow
-          readonly
+          class="mt20"
+          maxlength="15"
+          rules="required"
         />
-        <kw-btn
-          :label="t('MSG_BTN_CNTN_COPY')"
-          secondary
-          border-color="black-btn-line ml8"
-          @click="onClickUrlCopy(2)"
+        <h4>{{ t('MSG_TXT_NOTAK_RCV_CST_NO') }}</h4>
+        <kw-input
+          v-model:tel-no0="inputParams.cralLocaraTno"
+          v-model:tel-no1="inputParams.mexnoGbencr"
+          v-model:tel-no2="inputParams.cralIdvTno"
+          :label="$t('MSG_TXT_NOTAK_RCV_CST_NO')"
+          mask="telephone"
+          class="mt20"
+          :rules="'required|telephone'"
         />
-      </div>
-      <h4>{{ t('MSG_TXT_NOTAK_RCV_CST_NAME') }}</h4>
-      <kw-input
-        v-model.trim="inputParams.name"
-        :placeholder="t('MSG_TXT_INP')"
-        grow
-        class="mt20"
-        maxlength="15"
-      />
-      <h4>{{ t('MSG_TXT_NOTAK_RCV_CST_NO') }}</h4>
-      <kw-input
+        <!-- <kw-input
         v-model="inputParams.phone"
         placeholder="01012345678"
         grow
         class="mt20"
         maxlength="11"
-      />
-      <ul class="kw-notification mt20">
-        <li>{{ t('MSG_TXT_NOTAK_FW_CAN_IMP') }}</li>
-      </ul>
+      /> -->
+        <ul class="kw-notification mt20">
+          <li>{{ t('MSG_TXT_NOTAK_FW_CAN_IMP') }}</li>
+        </ul>
 
-      <div class="mt20">
-        <kw-btn
-          :label="t('MSG_BTN_BIZTALK_SEND')"
-          secondary
-          class="full-width"
-          border-color="black-btn-line"
-          @click="onClickAlarmSend"
-        />
+        <div class="mt20">
+          <kw-btn
+            :label="t('MSG_BTN_BIZTALK_SEND')"
+            secondary
+            class="full-width"
+            border-color="black-btn-line"
+            @click="onClickAlarmSend"
+          />
+        </div>
       </div>
-    </div>
+    </kw-form>
   </kw-page>
 </template>
 
@@ -97,11 +112,14 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 
-import { router, useGlobal } from 'kw-lib';
+import { useDataService, router, useGlobal } from 'kw-lib';
+// eslint-disable-next-line no-unused-vars
 import { isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 
 const { t } = useI18n();
+const dataService = useDataService();
+// eslint-disable-next-line no-unused-vars
 const { alert, notify } = useGlobal();
 
 const { getters } = useStore();
@@ -112,11 +130,16 @@ const now = dayjs();
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 
+const formRef = ref();
+
 const akChdt = now.format('YYYYMMDD');
 
 const inputParams = ref({
-  name: '',
+  cstNm: '',
   phone: '',
+  cralLocaraTno: '', /* 휴대전화번호1 */
+  mexnoGbencr: '', /* 휴대전화번호2 */
+  cralIdvTno: '', /* 휴대전화번호3 */
 });
 
 const strDomain = window.location.host;
@@ -150,30 +173,24 @@ async function onClickChange() {
 
 // 알림톡 발송
 async function onClickAlarmSend() {
-  const regex = /^\d{3}?\d{3,4}?\d{4}$/;
-  const regexResult = regex.test(inputParams.value.phone);
-
-  if (!regexResult || isEmpty(inputParams.value.name)) {
-    notify(t('MSG_ALT_NAME_NO_IN'));
-    return;
-  }
   // chRqrDvCd 방문 : '20' (교원) / 원거리 : '10' (고객)
-  await alert(t('준비중입니다.'));
+  if (!await formRef.value.validate()) { return; }
+  await dataService.post('sms/common/withdrawal/bilfnt/auto-transfer-change/notification-talk-send', inputParams.value);
+
   notify(t('MSG_ALT_BIZTALK_SEND_SUCCESS'));
+  // const url = visitCocnMshCh;
 
-  const url = visitCocnMshCh;
+  // const query = {
+  //   vstYn: 'N',
+  //   chRqrDvCd: '10',
+  //   aftnThpChYn: 'N',
+  //   clctamMngtYn: 'N',
+  //   cntrChPrtnrNo: userId,
+  //   akChdt,
+  // };
+  // const path = url.slice(url.indexOf('#') + 1);
 
-  const query = {
-    vstYn: 'N',
-    chRqrDvCd: '10',
-    aftnThpChYn: 'N',
-    clctamMngtYn: 'N',
-    cntrChPrtnrNo: userId,
-    akChdt,
-  };
-  const path = url.slice(url.indexOf('#') + 1);
-
-  await router.push({ path, query });
+  // await router.push({ path, query });
 }
 
 </script>

@@ -61,25 +61,38 @@
 
       <kw-separator />
 
-      <kw-form :cols="2">
+      <kw-form
+        ref="formRef"
+        :cols="2"
+      >
         <kw-form-row>
           <kw-form-item
             :label="t('MSG_TXT_NOTAK_RCV_CST_NAME')"
           >
             <kw-input
-              v-model="inputParams.name"
+              v-model="inputParams.cstNm"
+              :label="t('MSG_TXT_NOTAK_RCV_CST_NAME')"
               maxlength="15"
               :placeholder="t('MSG_TXT_INP')"
+              rules="required"
             />
           </kw-form-item>
           <kw-form-item
             :label="t('MSG_TXT_NOTAK_RCV_CST_NO')"
           >
             <kw-input
+              v-model:tel-no0="inputParams.cralLocaraTno"
+              v-model:tel-no1="inputParams.mexnoGbencr"
+              v-model:tel-no2="inputParams.cralIdvTno"
+              :label="$t('MSG_TXT_NOTAK_RCV_CST_NO')"
+              mask="telephone"
+              :rules="'required|telephone'"
+            />
+            <!-- <kw-input
               v-model="inputParams.phone"
               maxlength="11"
               placeholder="01012345678"
-            />
+            /> -->
             <kw-btn
               :label="t('MSG_BTN_BIZTALK_SEND')"
               class="ml8"
@@ -103,11 +116,13 @@
 // -------------------------------------------------------------------------------------------------
 
 // eslint-disable-next-line no-unused-vars
-import { modal, router, useGlobal } from 'kw-lib';
+import { useDataService, modal, router, useGlobal } from 'kw-lib';
+// eslint-disable-next-line no-unused-vars
 import { isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 
 const { t } = useI18n();
+const dataService = useDataService();
 const { notify } = useGlobal();
 
 const { getters } = useStore();
@@ -118,9 +133,14 @@ const now = dayjs();
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 
+const formRef = ref();
+
 const inputParams = ref({
-  name: '',
+  cstNm: '',
   phone: '',
+  cralLocaraTno: '', /* 휴대전화번호1 */
+  mexnoGbencr: '', /* 휴대전화번호2 */
+  cralIdvTno: '', /* 휴대전화번호3 */
 });
 
 const akChdt = now.format('YYYYMMDD');
@@ -157,29 +177,24 @@ async function onClickChange(no) {
 
 // 알림톡 발송
 async function onClickAlarmSend() {
-  const regex = /^\d{3}?\d{3,4}?\d{4}$/;
-  const regexResult = regex.test(inputParams.value.phone);
-
-  if (!regexResult || isEmpty(inputParams.value.name)) {
-    notify(t('MSG_ALT_NAME_NO_IN'));
-    return;
-  }
   // chRqrDvCd 방문 : '20' (교원) / 원거리 : '10' (고객)
-  // notify(t('MSG_ALT_BIZTALK_SEND_SUCCESS'));
+  if (!await formRef.value.validate()) { return; }
+  await dataService.post('sms/common/withdrawal/bilfnt/auto-transfer-change/notification-talk-send', inputParams.value);
+
   notify(t('MSG_ALT_BIZTALK_SEND_SUCCESS'));
 
-  const query = {
-    vstYn: 'N',
-    chRqrDvCd: '10',
-    aftnThpChYn: 'N',
-    clctamMngtYn: 'N',
-    cntrChPrtnrNo: userId,
-    akChdt,
-  };
-  const url = elsgLdstcCh;
+  // const query = {
+  //   vstYn: 'N',
+  //   chRqrDvCd: '10',
+  //   aftnThpChYn: 'N',
+  //   clctamMngtYn: 'N',
+  //   cntrChPrtnrNo: userId,
+  //   akChdt,
+  // };
+  // const url = elsgLdstcCh;
 
-  const path = url.slice(url.indexOf('#') + 1);
-  await router.push({ path, query });
+  // const path = url.slice(url.indexOf('#') + 1);
+  // await router.push({ path, query });
 }
 
 </script>
