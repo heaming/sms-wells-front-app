@@ -230,6 +230,7 @@
           :label="$t('엑셀다운로드')"
           secondary
           dense
+          @click="onClickExcelDownload"
         />
         <kw-separator
           vertical
@@ -265,7 +266,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, defineGrid, getComponentType, useMeta, useDataService, useGlobal } from 'kw-lib';
+import { codeUtil, defineGrid, getComponentType, useMeta, useDataService, useGlobal, gridUtil } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 import WwsnManagerOgSearchItemGroup from '~sms-wells/service/components/WwsnManagerOgSearchItemGroup.vue';
@@ -276,6 +277,7 @@ const { alert } = useGlobal();
 const { t } = useI18n();
 const dataService = useDataService();
 const gridMainRef = ref(getComponentType('KwGrid'));
+const { currentRoute } = useRouter();
 
 /*
  *  Search Parameter
@@ -375,6 +377,21 @@ async function onClickSearch() {
   pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
   await getQuickResponseRpblPages();
+}
+
+/*
+ *  Event - 엑셀 다운로드 버튼 클릭
+ */
+async function onClickExcelDownload() {
+  const view = gridMainRef.value.getView();
+
+  const response = await dataService.get('/sms/wells/service/quick-response-rpbls/excel-download', { params: cachedParams });
+
+  await gridUtil.exportView(view, {
+    fileName: currentRoute.value.meta.menuName,
+    timePostfix: true,
+    exportData: response.data,
+  });
 }
 
 /*
