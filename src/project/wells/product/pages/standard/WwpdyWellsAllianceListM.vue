@@ -276,7 +276,7 @@ const initGrdMain = defineGrid((data, view) => {
     {
       fieldName: 'alncmpCd',
       header: t('MSG_TXT_ALLIANCE_COMP'),
-      width: '110',
+      width: '150',
       styleName: 'text-center',
       editor: { type: 'list' },
       rules: 'required',
