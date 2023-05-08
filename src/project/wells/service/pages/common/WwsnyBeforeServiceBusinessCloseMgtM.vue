@@ -115,7 +115,7 @@ async function getBusinessClosePages() {
   const res = await dataService.get('/sms/wells/service/business-closes', { params: { ...cachedParams } });
   const view = gridMainRef.value.getView();
   view.getDataSource().setRows(res.data);
-  view.resetCurrent();
+  // view.resetCurrent(); //첫 행 selectRow 없앰.
 }
 
 /*
