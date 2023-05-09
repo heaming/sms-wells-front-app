@@ -73,7 +73,10 @@
     <div class="result-area">
       <kw-action-top>
         <template #left>
-          <h3>{{ searchParams.perfYm }} {{ $t('MSG_TXT_B2B_FEE_CRT_PRGS_STE') }}</h3>
+          <h3>
+            {{ stringUtil.getDateFormat(searchParams.perfYm, 'yyyy-MM').substring(0,7) }}
+            {{ $t('MSG_TXT_B2B_FEE_CRT_PRGS_STE') }}
+          </h3>
         </template>
       </kw-action-top>
       <!-- STEPER -->
@@ -143,7 +146,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { defineGrid, gridUtil, getComponentType, useDataService, useGlobal } from 'kw-lib';
+import { defineGrid, gridUtil, getComponentType, useDataService, useGlobal, stringUtil } from 'kw-lib';
 import dayjs from 'dayjs';
 import { cloneDeep } from 'lodash-es';
 import ZwfeyFeeStep from '~sms-common/fee/pages/schedule/ZwfeyFeeStep.vue';
@@ -152,7 +155,7 @@ const dataService = useDataService();
 const now = dayjs();
 const { t } = useI18n();
 const { currentRoute } = useRouter();
-const { notify, confirm, modal, alert } = useGlobal();
+const { notify, confirm, modal } = useGlobal();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -206,9 +209,13 @@ async function onClickExcelDownload() {
 }
 // 이력관리 버튼 클릭
 async function onClickHistory() {
-  // Z-CO-U-0034P09 아래 팝업 호출시 에러남ㅋ;
-  // await openZwfebFeeHistoryMgtP();
-  await alert('Z-CO-U-0034P09 팝업 호출');
+  const param = {
+    feeHistSrnCd: '01',
+  };
+  await modal({
+    component: 'ZwfebFeeHistoryMgtP',
+    componentProps: param,
+  });
 }
 // 저장
 async function onClickSave() {
