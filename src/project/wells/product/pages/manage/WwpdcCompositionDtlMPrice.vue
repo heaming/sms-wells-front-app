@@ -58,7 +58,7 @@ const metaInfos = ref();
 const currentCodes = ref({});
 const totalCount = ref(0);
 const defaultFields = ref(['verSn', pdConst.PRC_STD_ROW_ID, pdConst.PRC_FNL_ROW_ID,
-  pdConst.PRC_DETAIL_ID, pdConst.PRC_DETAIL_FNL_ID, 'basePdTempSaveYn', 'basePdClsfNm', 'basePdNm', 'basePdCd']);
+  pdConst.PRC_DETAIL_ID, pdConst.PRC_DETAIL_FNL_ID, 'basePdTempSaveYn', 'basePdClsfNm', 'basePdNm', 'basePdCd', 'baseSellTpCd']);
 
 const searchParams = ref({
   pdTpCd: pdConst.PD_TP_CD_COMPOSITION,
@@ -170,7 +170,7 @@ async function initGrid(data, view) {
     // 기준상품코드
     { fieldName: 'basePdCd', header: t('MSG_TXT_PD_STD_CODE'), width: '115', styleName: 'text-center', dataType: 'date' },
     // 판매유형
-    { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '87', styleName: 'text-center', options: props.codes?.SELL_TP_CD },
+    { fieldName: 'baseSellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '87', styleName: 'text-center', options: props.codes?.SELL_TP_CD },
     // 판매채널
     { fieldName: 'sellChnlCd', header: t('MSG_TXT_SEL_CHNL'), width: '87', styleName: 'text-center', options: currentCodes.value.SELL_CHNL_DTL_CD },
     // 적용시작일자

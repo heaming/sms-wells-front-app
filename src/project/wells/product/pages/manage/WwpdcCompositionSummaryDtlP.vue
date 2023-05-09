@@ -204,7 +204,7 @@ async function initGrid(data, view) {
     // 기준상품명
     { fieldName: 'basePdNm', header: t('MSG_TXT_PD_STD_NAME'), width: '206' },
     // 판매유형
-    { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '157', styleName: 'text-center', options: codes.SELL_TP_CD },
+    { fieldName: 'baseSellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '157', styleName: 'text-center', options: codes.SELL_TP_CD },
     // 약정개월
     { fieldName: 'stplPrdCd', header: t('MSG_TXT_STPL_MCNT'), width: '120', styleName: 'text-right', numberFormat: '#,##0.##', dataType: 'number' },
     // 최종가격

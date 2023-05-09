@@ -109,7 +109,7 @@ const { modal, notify } = useGlobal();
 const now = dayjs();
 const grdMainRef = ref(getComponentType('KwGrid'));
 const defaultFields = ref(['verSn', pdConst.PRC_STD_ROW_ID, pdConst.PRC_FNL_ROW_ID,
-  pdConst.PRC_DETAIL_ID, pdConst.PRC_DETAIL_FNL_ID, 'basePdTempSaveYn', 'basePdClsfNm', 'basePdNm', 'basePdCd']);
+  pdConst.PRC_DETAIL_ID, pdConst.PRC_DETAIL_FNL_ID, 'basePdTempSaveYn', 'basePdClsfNm', 'basePdNm', 'basePdCd', 'baseSellTpCd']);
 const readonlyFields = ref(['pdCd', pdConst.PRC_DETAIL_ID, 'verSn', 'crncyDvCd']);
 const prcd = pdConst.TBL_PD_PRC_DTL;
 const prcfd = pdConst.TBL_PD_PRC_FNL_DTL;
@@ -243,6 +243,7 @@ async function onClickAdd() {
       item.basePdClsfNm = item.pdClsfNm;
       item.basePdNm = item.pdNm;
       item.basePdCd = item.pdCd;
+      item.baseSellTpCd = item.sellTpCd;
       item.sellChnlCd = addChannelId.value;
       item.vlStrtDtm = vlStrtDtm.value;
       item.vlEndDtm = vlEndDtm.value;
@@ -393,7 +394,7 @@ async function initGrid(data, view) {
     // 기준상품코드
     { fieldName: 'basePdCd', header: t('MSG_TXT_PD_STD_CODE'), width: '115', styleName: 'text-center', editable: false },
     // 판매유형
-    { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '87', styleName: 'text-center', options: props.codes?.SELL_TP_CD, editable: false },
+    { fieldName: 'baseSellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '87', styleName: 'text-center', options: props.codes?.SELL_TP_CD, editable: false },
     // 판매채널
     { fieldName: 'sellChnlCd', header: t('MSG_TXT_SEL_CHNL'), width: '127', styleName: 'text-center', editor: { type: 'list' }, options: currentCodes.value.SELL_CHNL_DTL_CD },
     // 적용시작일자
