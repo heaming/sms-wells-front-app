@@ -188,6 +188,7 @@ const codes = await codeUtil.getMultiCodes(
   'COD_YN',
   'COD_PAGE_SIZE_OPTIONS',
   'PD_REL_TP_CD',
+  'PD_TEMP_SAVE_CD',
 );
 
 async function getSaveData() {
