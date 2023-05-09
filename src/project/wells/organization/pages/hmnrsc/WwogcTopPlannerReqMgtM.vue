@@ -36,9 +36,10 @@
       <kw-action-top>
         <template #left>
           <kw-paging-info
-            :page-size="pageInfo.pageSize"
-            :page-size-options="[10, 20, 30, 40]"
+            v-model:page-index="pageInfo.pageIndex"
+            v-model:page-size="pageInfo.pageSize"
             :total-count="pageInfo.totalCount"
+            :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
           />
         </template>
         <kw-btn
@@ -68,7 +69,8 @@
         @init="initGrdMain"
       />
       <kw-pagination
-        :model-value="1"
+        v-model:page-index="pageInfo.pageIndex"
+        v-model:page-size="pageInfo.pageSize"
         :total-count="pageInfo.totalCount"
       />
     </div>
@@ -79,7 +81,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { defineGrid, getComponentType, gridUtil, useMeta } from 'kw-lib';
+import { codeUtil, defineGrid, getComponentType, gridUtil, useMeta } from 'kw-lib';
 
 const { t } = useI18n();
 const { getConfig } = useMeta();
@@ -94,6 +96,10 @@ const pageInfo = ref({
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 const grdMainRef = ref(getComponentType('KwGrid'));
+
+const codes = await codeUtil.getMultiCodes(
+  'COD_PAGE_SIZE_OPTIONS',
+);
 
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();

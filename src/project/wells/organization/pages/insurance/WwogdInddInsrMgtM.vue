@@ -54,7 +54,10 @@
       <kw-action-top>
         <template #left>
           <kw-paging-info
-            :total-count="totalCount"
+            v-model:page-index="pageInfo.pageIndex"
+            v-model:page-size="pageInfo.pageSize"
+            :total-count="pageInfo.totalCount"
+            :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
           />
           <span class="ml8">{{ $t('MSG_TXT_UNIT_WON') }}</span>
         </template>
@@ -97,6 +100,11 @@
         :visible-rows="3"
         @init="initGrdMain"
       />
+      <kw-pagination
+        v-model:page-index="pageInfo.pageIndex"
+        v-model:page-size="pageInfo.pageSize"
+        :total-count="pageInfo.totalCount"
+      />
     </div>
   </kw-page>
 </template>
@@ -105,16 +113,26 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { defineGrid, getComponentType, gridUtil } from 'kw-lib';
+import { codeUtil, defineGrid, getComponentType, gridUtil, useMeta } from 'kw-lib';
 
 const { t } = useI18n();
 const { currentRoute } = useRouter();
 
-const totalCount = ref(0);
+const { getConfig } = useMeta();
+
+const pageInfo = ref({
+  totalCount: 0,
+  pageIndex: 1,
+  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
+});
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 const grdMainRef = ref(getComponentType('KwGrid'));
+
+const codes = await codeUtil.getMultiCodes(
+  'COD_PAGE_SIZE_OPTIONS',
+);
 
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
