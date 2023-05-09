@@ -126,6 +126,7 @@ const pdPrcs = ref([]);
 const codes = await codeUtil.getMultiCodes(
   'SELL_CHNL_DTL_CD',
   'CRNCY_DV_CD',
+  'SELL_TP_CD',
 );
 
 async function fetchData() {
@@ -135,12 +136,8 @@ async function fetchData() {
   const resRel = await dataService.get(`/sms/common/product/relations/products/${currentPdCd.value}`, { params: { } });
   pdRels.value = resRel.data;
 
-  const resPrc = await dataService.get('/sms/common/product/prices', { params: { pdTpCd: pdConst.PD_TP_CD_COMPOSITION, pdCd: currentPdCd.value } });
-  pdPrcs.value = resPrc.data;
-
-  const resCls = await dataService.get('/sms/common/product/classifications', { params: { hgrPdClsfId: '', pdTpCd: pdConst.PD_TP_CD_COMPOSITION } });
-  codes.clsfCodes = resCls.data?.map((item) => ({ ...item, codeId: item.pdClsfId, codeName: item.pdClsfNm }), []);
-  // console.log(codes.clsfCodes);
+  const resPrc = await dataService.get(`/sms/common/product/prices/products/${currentPdCd.value}`, { params: { } });
+  pdPrcs.value = resPrc.data?.prices;
 }
 
 async function initGridRows() {
@@ -201,15 +198,15 @@ async function initStandardGrid(data, view) {
 async function initGrid(data, view) {
   const columns = [
     // 판매채널
-    { fieldName: 'avlChnlId', header: t('MSG_TXT_SEL_CHNL'), width: '178', options: codes.SELL_CHNL_DTL_CD },
-    // 적용시작일
-    { fieldName: 'vlStrtDtm', header: t('MSG_TXT_APY_STRT_DAY'), width: '87', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date' },
-    // 적용종료일
-    { fieldName: 'vlEndDtm', header: t('MSG_TXT_APY_END_DAY'), width: '87', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date' },
-    // 할인유형
-    { fieldName: 'dscCd', header: t('MSG_TXT_DISC_CODE'), width: '120', styleName: 'text-right', options: codes.DSC_APY_DTL_CD },
-    // 학년구분(대상학년?)
-    { fieldName: 'lrnnGryCd', header: t('MSG_TXT_CLASS_TYPE'), width: '120', styleName: 'text-right', options: codes.GRY_CD },
+    { fieldName: 'sellChnlCd', header: t('MSG_TXT_SEL_CHNL'), width: '128', options: codes.SELL_CHNL_DTL_CD, styleName: 'text-center' },
+    // 기준상품코드
+    { fieldName: 'basePdCd', header: t('MSG_TXT_PD_STD_CODE'), width: '185', styleName: 'text-center' },
+    // 기준상품명
+    { fieldName: 'basePdNm', header: t('MSG_TXT_PD_STD_NAME'), width: '206' },
+    // 판매유형
+    { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '157', styleName: 'text-center', options: codes.SELL_TP_CD },
+    // 약정개월
+    { fieldName: 'stplPrdCd', header: t('MSG_TXT_STPL_MCNT'), width: '120', styleName: 'text-right', numberFormat: '#,##0.##', dataType: 'number' },
     // 최종가격
     { fieldName: 'fnlVal', header: t('MSG_TXT_PD_FNL_PRC'), width: '120', styleName: 'text-right', numberFormat: '#,##0.##', dataType: 'number' },
   ];
