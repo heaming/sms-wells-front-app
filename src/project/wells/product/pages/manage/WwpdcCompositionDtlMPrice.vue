@@ -187,7 +187,7 @@ async function initGrid(data, view) {
     [],
     [],
     [],
-    ['sellChnlCd', 'sellTpCd', 'vlStrtDtm', 'vlEndDtm'],
+    ['basePdCd', 'sellChnlCd', 'sellTpCd', 'vlStrtDtm', 'vlEndDtm'],
   );
 
   pdColumns.push(...columns);

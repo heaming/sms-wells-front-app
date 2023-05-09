@@ -266,9 +266,6 @@ async function onClickAdd() {
 }
 
 async function onClickStandardSchPopup(pdCd, rowId) {
-  if (!(await usedChannelRef.value.validate())) {
-    return;
-  }
   searchParams.value.searchValue = pdCd;
   const rtn = await modal({
     component: 'ZwpdcStandardPriceListP',
@@ -422,7 +419,7 @@ async function initGrid(data, view) {
     readonlyFields.value,
     [],
     ['pdPrcDtlId', 'pdPrcFnlDtlId'],
-    ['sellChnlCd', 'sellTpCd', 'vlStrtDtm', 'vlEndDtm'],
+    ['basePdCd', 'sellChnlCd', 'sellTpCd', 'vlStrtDtm', 'vlEndDtm'],
   );
   // console.log('WwpdcCompositionMgtMPriceStd - initGr id - columns : ', columns);
   // Grid 내부키 - '신규 Row 추가' 대응
@@ -448,7 +445,7 @@ async function initGrid(data, view) {
 
   view.onCellButtonClicked = async (grid, { column, itemIndex }) => {
     if (column === 'priceSchBtn') {
-      const pdCd = grid.getValue(itemIndex, 'pdCd');
+      const pdCd = grid.getValue(itemIndex, 'basePdCd');
       await onClickStandardSchPopup(pdCd, itemIndex);
     }
   };
