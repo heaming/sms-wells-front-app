@@ -29,11 +29,6 @@
       :name="pdConst.COMPOSITION_STEP_REL_PROD.name"
       :label="$t('MSG_TXT_REL_PRDT')"
     />
-    <!-- 관리속성 -->
-    <kw-tab
-      :name="pdConst.COMPOSITION_STEP_MANAGE.name"
-      :label="$t('MSG_TXT_MGT_ATTR')"
-    />
     <!-- 가격 -->
     <kw-tab
       :name="pdConst.COMPOSITION_STEP_PRICE.name"
@@ -55,7 +50,6 @@
         v-model:pd-cd="currentPdCd"
         v-model:init-data="currentInitData"
         :pd-tp-cd="pdConst.PD_TP_CD_COMPOSITION"
-        :pd-grp-dv-cd="pdConst.PD_PRP_GRP_DV_CD_BASIC"
         :is-first-title="true"
         :is-reg-check-page="props.isRegCheckPage"
       />
@@ -68,20 +62,9 @@
         :codes="props.codes"
       />
     </kw-tab-panel>
-    <kw-tab-panel :name="pdConst.COMPOSITION_STEP_MANAGE.name">
-      <zwpdc-prop-groups-dtl
-        :ref="cmpStepRefs[2]"
-        v-model:pd-cd="currentPdCd"
-        v-model:init-data="currentInitData"
-        :pd-tp-cd="pdConst.PD_TP_CD_COMPOSITION"
-        :pd-grp-dv-cd="pdConst.PD_PRP_GRP_DV_CD_MANUAL"
-        :is-first-title="true"
-        :is-reg-check-page="props.isRegCheckPage"
-      />
-    </kw-tab-panel>
     <kw-tab-panel :name="pdConst.COMPOSITION_STEP_PRICE.name">
       <wwpdc-composition-dtl-m-price
-        :ref="cmpStepRefs[3]"
+        :ref="cmpStepRefs[2]"
         v-model:pd-cd="currentPdCd"
         v-model:init-data="currentInitData"
         :codes="props.codes"
@@ -89,7 +72,7 @@
     </kw-tab-panel>
     <kw-tab-panel name="hist">
       <zwpdc-prod-change-hist
-        :ref="cmpStepRefs[4]"
+        :ref="cmpStepRefs[3]"
         v-model:pd-cd="currentPdCd"
         :pd-tp-cd="pdConst.PD_TP_CD_COMPOSITION"
         :is-price="true"
@@ -137,7 +120,7 @@ const router = useRouter();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
-const cmpStepRefs = ref([ref(), ref(), ref(), ref(), ref()]);
+const cmpStepRefs = ref([ref(), ref(), ref(), ref()]);
 const currentPdCd = ref();
 const currentInitData = ref({});
 const selectedTab = ref(pdConst.COMPOSITION_STEP_BASIC.name);

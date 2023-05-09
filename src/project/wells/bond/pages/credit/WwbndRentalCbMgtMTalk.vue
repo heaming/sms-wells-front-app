@@ -150,6 +150,9 @@ const searchParams = ref({
 const onClickCustomer = async () => {
   const { result, payload } = await modal({
     component: 'ZwcsaCustomerListP',
+    componentProps: {
+      cstNo: searchParams.value.cstNo,
+    },
   });
   if (result) {
     const { cstNo, name } = payload;

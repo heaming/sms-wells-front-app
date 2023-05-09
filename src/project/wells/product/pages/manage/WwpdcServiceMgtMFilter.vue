@@ -236,9 +236,9 @@ async function getCheckAndNotExistRows(view, rows) {
   }
   if (alreadyItems.length > 0) {
     if (alreadyItems.length === 1) {
-      notify(t('MSG_ALT_ALREADY_RGST_CUT', [alreadyItems[0].pdCd]));
+      notify(t('MSG_ALT_ALREADY_RGST_CUT', [`# ${`# ${alreadyItems[0].pdNm} #`} #`]));
     } else {
-      notify(t('MSG_ALT_ALREADY_RGST_CUT', [t('MSG_TXT_EXID_CNT', [alreadyItems[0].pdCd, alreadyItems.length - 1])]));
+      notify(t('MSG_ALT_ALREADY_RGST_CUT', [t('MSG_TXT_EXID_CNT', [`# ${`# ${alreadyItems[0].pdNm} #`} #`, alreadyItems.length - 1])]));
     }
     const alreadyPdCds = alreadyItems.reduce((rtns, item) => { rtns.push(item.pdCd); return rtns; }, []);
     return rows.reduce((rtns, item) => {

@@ -21,6 +21,11 @@
         :header-nav="!isTempSaveBtn || passedStep > 0"
         @update:model-value="onClickStep()"
       >
+        <div class="kw-stepper-headingtext">
+          <h2 class="h2-small">
+            <p>XXXXXXXXXXXXXXXX</p>
+          </h2>
+        </div>
         <slot>
           <kw-step
             :header-nav="!isTempSaveBtn || passedStep >= pdConst.W_SERVICE_STEP_BASIC.step"

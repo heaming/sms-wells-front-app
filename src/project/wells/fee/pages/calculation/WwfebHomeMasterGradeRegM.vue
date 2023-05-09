@@ -237,8 +237,8 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'brmgrEmplNm', header: t('MSG_TXT_EMPL_NM'), width: '92', styleName: 'text-left', editable: false },
     { fieldName: 'brmgrPrtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '110', styleName: 'text-center', editable: false },
     { fieldName: 'clDvCd', header: t('MSG_TXT_GD'), width: '78', styleName: 'text-right', editor: { type: 'number', textAlignment: 'far', editFormat: '#,##0.##', maxIntegerLength: 2 } },
-    { fieldName: 'save', header: t('MSG_TXT_SAVE'), width: '78', styleName: 'rg-button-link text-center', renderer: { type: 'button' }, editable: false },
-    { fieldName: 'pointHistory', header: t('MSG_TXT_P') + t('MSG_TXT_HIS'), width: '112', styleName: 'rg-button-link text-center', renderer: { type: 'button' }, editable: false },
+    { fieldName: 'save', header: t('MSG_TXT_SAVE'), width: '78', styleName: 'text-center', renderer: { type: 'button' }, editable: false },
+    { fieldName: 'pointHistory', header: t('MSG_TXT_P') + t('MSG_TXT_HIS'), width: '112', styleName: 'text-center', renderer: { type: 'button' }, editable: false },
 
   ];
   data.setFields(fields);

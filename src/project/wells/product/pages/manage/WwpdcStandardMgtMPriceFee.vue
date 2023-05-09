@@ -17,10 +17,6 @@
     <!-- 수수료 등록 -->
     <h3>{{ $t('MSG_TXT_PD_REG_FEE') }}</h3>
     <kw-action-top>
-      <template #left>
-        <!-- (단위:원) -->
-        <span>({{ $t('MSG_TXT_UNIT') }} : {{ $t('MSG_TXT_CUR_WON') }})</span>
-      </template>
       <kw-btn
         v-show="!props.readonly"
         :label="$t('MSG_BTN_DEL')"

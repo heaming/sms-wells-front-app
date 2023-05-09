@@ -23,7 +23,7 @@
           :label="$t('MSG_TXT_PERF_YM')"
         >
           <kw-date-picker
-            v-model="regData.baseYm"
+            v-model="regData.perfYm"
             rules="required"
             type="month"
             :label="$t('MSG_TXT_PERF_YM')"
@@ -56,11 +56,7 @@ const { notify } = useGlobal();
 
 const { t } = useI18n();
 const props = defineProps({
-  type: {
-    type: String,
-    default: '',
-  },
-  baseYm: {
+  perfYm: {
     type: String,
     default: '',
   },
@@ -71,8 +67,9 @@ const props = defineProps({
 const popupRef = ref();
 const dataService = useDataService();
 const regData = ref({
-  type: props.type,
-  baseYm: props.baseYm,
+  feeCalcUnitTpCd: '401', // B2B 수수료
+  feeTcntDvCd: '02', // 2차수
+  perfYm: props.perfYm,
 });
 // 취소
 async function onClickCancel() {
@@ -81,10 +78,10 @@ async function onClickCancel() {
 // 생성
 async function onClickCreate() {
   if (!await popupRef.value.validate()) { return; }
-  const res = await dataService.post('API정의안됨', { regData });
-  const { key: rtnKey } = res.data;
-  notify(t('MSG_ALT_SAVE_DATA'));
-  ok(true, { rtnKey });
+
+  await dataService.post(`/sms/common/fee/fee-standards/calculate/${regData.value.perfYm}-${regData.value.feeTcntDvCd}-${regData.value.feeCalcUnitTpCd}`);
+  notify(t('MSG_ALT_CRT_FSH')); // 생성되었습니다.
+  ok(true);
 }
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid

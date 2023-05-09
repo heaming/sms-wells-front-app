@@ -51,6 +51,7 @@
             :label="$t('MSG_TXT_SEQUENCE_NUMBER')"
             icon="search"
             clearable
+            :on-click-icon="onClickSearchNo"
           />
         </kw-search-item>
       </kw-search-row>
@@ -159,7 +160,7 @@
           <kw-paging-info
             :total-count="totalCount"
           />
-          <span class="ml8">({{ $t('MSG_TXT_UNIT') }}) : ({{ $t('MSG_TXT_CUR_WON') }})</span>
+          <span class="ml8">({{ $t('MSG_TXT_UNIT_COLON_WON') }})</span>
         </template>
         <kw-btn
           icon="download_on"
@@ -178,7 +179,7 @@
           dense
           secondary=""
           :label="$t('MSG_BTN_HIS_MGT')"
-          @click="openHistMngtPopup"
+          @click="openZwfebFeeHistoryMgtP"
         />
         <kw-separator
           vertical
@@ -230,13 +231,13 @@
 import dayjs from 'dayjs';
 
 import { useDataService, getComponentType, gridUtil, useGlobal, defineGrid } from 'kw-lib';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, isEmpty } from 'lodash-es';
 import ZwogLevelSelect from '~sms-common/organization/components/ZwogLevelSelect.vue';
 
 const { t } = useI18n();
 const dataService = useDataService();
 const stepInitNum = ref(1);
-const { modal, notify } = useGlobal();
+const { modal, notify, alert } = useGlobal();
 const isGrid1Visile = ref(false);
 const isGrid2Visile = ref(false);
 const isGrid3Visile = ref(true);
@@ -283,21 +284,26 @@ async function onChangedRsbTp() {
     isGrid2Visile.value = false;
     isGrid3Visile.value = true;
   }
+  stepInitNum.value = 1;
+  totalCount.value = 0;
 }
 
 /*
- *  Event - 이력 관리 버튼 클릭 (Z-CO-U-0034P09 호출) ※아직 팝업 페이지 생성이 안됨※
+ *  Event - 이력 관리 버튼 클릭 ※
  */
-async function openHistMngtPopup() {
+async function openZwfebFeeHistoryMgtP() {
   const param = {
-    ogTp: 'W02',
+    feeHistSrnCd: 'W02',
   };
   await modal({
-    component: 'ZCOU0034P09',
+    component: 'ZwfebFeeHistoryMgtP',
     componentProps: param,
   });
 }
 
+/*
+ *  Event - 엑셀 다운로드 버튼 클릭 ※
+ */
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
 
@@ -307,9 +313,118 @@ async function onClickExcelDownload() {
   });
 }
 
+/*
+ *  Event - 다음단계 버튼 클릭 ※
+ */
 async function onClickNextStep() {
   const nowStep = stepInitNum.value;
-  /* if (nowStep === 13) {
+  if (nowStep < 13 && totalCount.value > 0) {
+    if (searchParams.value.rsbTp === '전체') {
+      await alert(t('MSG_ALT_SELECT_RSB_TP'));
+    } else {
+      stepInitNum.value = nowStep + 1;
+    }
+  }
+  /*
+  if (nowStep === 1) {
+    // 미팅참석집계 프로세스 클릭 (Z-CO-U-0034P01 호출) ※아직 팝업 페이지 생성이 안됨
+     alert('1 Step ZCOU0034P01');
+    const param = {
+      ogTp: 'W02',
+    };
+    await modal({
+      component: 'ZCOU0034P01',
+      componentProps: param,
+    });
+  } else if (nowStep === 2) {
+    // 수수료생성 프로세스 클릭 (W-CO-U-0047P02 호출) ※아직 팝업 페이지 생성이 안됨
+    // alert('2 Step WCOU0047P02');
+    const param = {
+      ogTp: 'W02',
+    };
+    await modal({
+      component: 'ZCOU0034P02',
+      componentProps: param,
+    });
+  } else if (nowStep === 3) {
+    // 미팅참석집계 프로세스 클릭 (Z-CO-U-0034P01 호출) ※아직 팝업 페이지 생성이 안됨※
+    // alert('3 Step EtcUpload');
+  } else if (nowStep === 4) {
+    // 세금공제 프로세스 클릭 (Z-CO-U-0034P02 호출) ※아직 팝업 페이지 생성이 안됨
+    // alert('4 Step ZCOU0034P02');
+    const param = {
+      ogTp: 'W02',
+    };
+    await modal({
+      component: 'ZCOU0034P02',
+      componentProps: param,
+    });
+  } else if (nowStep === 5) {
+    // 원천세 등록 프로세스 클릭 (Z-CO-U-0034P03 호출) ※아직 팝업 페이지 생성이 안됨
+    // alert('5 Step ZCOU0034P03');
+    const param = {
+      ogTp: 'W02',
+    };
+    await modal({
+      component: 'ZCOU0034P03',
+      componentProps: param,
+    });
+  } else if (nowStep === 6) {
+    // 고용보험 공제 프로세스 클릭 (Z-CO-U-0034P04 호출) ※아직 팝업 페이지 생성이 안됨
+    // alert('6 Step ZCOU0034P04');
+    const param = {
+      ogTp: 'W02',
+    };
+    await modal({
+      component: 'ZCOU0034P04',
+      componentProps: param,
+    });
+  } else if (nowStep === 7) { // 가지급금 공제 프로세스 클릭 (Z-CO-U-0034P05 호출) ※아직 팝업 페이지 생성이 안됨
+    // alert('7 Step ZCOU0034P05');
+    const param = {
+      ogTp: 'W02',
+    };
+    await modal({
+      component: 'ZCOU0034P05',
+      componentProps: param,
+    });
+  } else if (nowStep === 8) {
+    // 부담공제 프로세스 클릭 (Z-CO-U-0034P06 호출) ※아직 팝업 페이지 생성이 안됨
+    // alert('8 Step ZCOU0034P06');
+    const param = {
+      ogTp: 'W02',
+    };
+    await modal({
+      component: 'ZCOU0034P06',
+      componentProps: param,
+    });
+  } else if (nowStep === 9) {
+    // 보증예치금 적립 프로세스 클릭 (Z-CO-U-0034P07 호출) ※아직 팝업 페이지 생성이 안됨
+    // alert('9 Step ZCOU0034P07');
+    const param = {
+      ogTp: 'W02',
+    };
+    await modal({
+      component: 'ZCOU0034P07',
+      componentProps: param,
+    });
+  } else if (nowStep === 10) {
+    // 이체자료생성 프로세스 클릭 (Z-CO-U-0034P08 호출) ※아직 팝업 페이지 생성이 안됨
+    // alert('10 Step ZCOU0034P08');
+    const param = {
+      ogTp: 'W02',
+    };
+    await modal({
+      component: 'ZCOU0034P08',
+      componentProps: param,
+    });
+  } else if (nowStep === 11) {
+    // TBD 처리 ※기능연계 전
+    // alert('11 Step TBD1');
+  } else if (nowStep === 12) {
+    // TBD 처리 ※기능연계 전
+    // alert('12 Step TBD2');
+  } else if (nowStep === 13) {
     // 선판매 수수료 확정 프로세스 클릭 (W-CO-U-0047P04 호출) ※아직 팝업 페이지 생성이 안됨
     // alert('13 Step WCOU0047P04');
     const param = {
@@ -321,12 +436,19 @@ async function onClickNextStep() {
     });
   }
   */
-  stepInitNum.value = nowStep + 1;
 }
+
+/*
+ *  Event - 이전단계 버튼 클릭 ※
+ */
 async function onClickPrevStep() {
   const nowStep = stepInitNum.value;
-  if (nowStep > 1) {
-    stepInitNum.value = nowStep - 1;
+  if (nowStep > 1 && totalCount.value > 0) {
+    if (searchParams.value.rsbTp === '전체') {
+      await alert(t('MSG_ALT_SELECT_RSB_TP'));
+    } else {
+      stepInitNum.value = nowStep - 1;
+    }
   }
 }
 
@@ -367,6 +489,23 @@ async function fetchData() {
 async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
+}
+
+// 번호 검색 아이콘 클릭 이벤트
+async function onClickSearchNo() {
+  const { result, payload } = await modal({
+    component: 'ZwogzPartnerListP',
+    componentProps: {
+      prtnrNo: searchParams.value.no,
+      ogTpCd: 'W02',
+    },
+  });
+
+  if (result) {
+    if (!isEmpty(payload)) {
+      searchParams.value.no = payload.prtnrNo;
+    }
+  }
 }
 
 // -------------------------------------------------------------------------------------------------
