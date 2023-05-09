@@ -4,7 +4,7 @@
 ****************************************************************************************************
 1. 모듈 : FEB
 2. 프로그램 ID : WwfebHomeMasterPointRegP - 홈마스터 포인트 상세 화면
-3. 작성자 : minkyu.bae
+3. 작성자 : min-kyu.bae
 4. 작성일 : 2023.03.15
 ****************************************************************************************************
 * 프로그램 설명
@@ -290,7 +290,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'etcPVal3', header: t('MSG_TXT_SFT') + t('MSG_TXT_ACDN'), width: '92', styleName: 'text-right', editor: { type: 'number', textAlignment: 'far', editFormat: '#,##0.##', maxIntegerLength: 2 } },
     { fieldName: 'totSum', header: t('MSG_TXT_SUM'), width: '92', styleName: 'text-right', editable: false },
     { fieldName: 'clDvCd', header: t('MSG_TXT_GD'), width: '92', styleName: 'text-right', editable: false },
-    { fieldName: 'save', header: t('MSG_BTN_SAVE'), width: '106', styleName: 'rg-button-link text-center', renderer: { type: 'button' }, preventCellItemFocus: true },
+    { fieldName: 'save', header: t('MSG_BTN_SAVE'), width: '106', styleName: 'text-center', renderer: { type: 'button' }, preventCellItemFocus: true },
     { fieldName: 'newYn', header: 'NEW_YN', width: '50', styleName: 'text-center' },
 
   ];

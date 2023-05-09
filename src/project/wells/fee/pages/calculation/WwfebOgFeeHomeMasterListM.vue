@@ -62,6 +62,7 @@
             v-model="searchParams.no"
             icon="search"
             clearable
+            :on-click-icon="onClickSearchNo"
           />
         </kw-search-item>
       </kw-search-row>
@@ -167,7 +168,7 @@
           <kw-paging-info
             :total-count="totalCount"
           />
-          <span class="ml8">({{ $t('MSG_TXT_UNIT') }}) : ({{ $t('MSG_TXT_CUR_WON') }})</span>
+          <span class="ml8">({{ $t('MSG_TXT_UNIT_COLON_WON') }})</span>
         </template>
         <kw-btn
           icon="download_on"
@@ -231,7 +232,7 @@
 import dayjs from 'dayjs';
 
 import { useDataService, getComponentType, gridUtil, useGlobal, defineGrid } from 'kw-lib';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, isEmpty } from 'lodash-es';
 import ZwogLevelSelect from '~sms-common/organization/components/ZwogLevelSelect.vue';
 
 const { t } = useI18n();
@@ -266,6 +267,23 @@ const info = ref({
 
 let cachedParams;
 
+// 번호 검색 아이콘 클릭 이벤트
+async function onClickSearchNo() {
+  const { result, payload } = await modal({
+    component: 'ZwogzPartnerListP',
+    componentProps: {
+      prtnrNo: searchParams.value.no,
+      ogTpCd: 'W03',
+    },
+  });
+
+  if (result) {
+    if (!isEmpty(payload)) {
+      searchParams.value.no = payload.prtnrNo;
+    }
+  }
+}
+
 /*
  *  Event - 직책유형 선택 시 하단 그리드 변경※
  */
@@ -278,6 +296,7 @@ async function onChangedRsbDv() {
     isGrid2Visile.value = true;
   }
   stepInitNum.value = 1;
+  totalCount.value = 0;
 }
 
 /*
@@ -304,6 +323,7 @@ async function onClickExcelDownload() {
 
 async function onClickNextStep() {
   const nowStep = stepInitNum.value;
+  if (nowStep < 13 && totalCount.value > 0) {
   /* if (nowStep === 13) {
     // 선판매 수수료 확정 프로세스 클릭 (W-CO-U-0047P04 호출) ※아직 팝업 페이지 생성이 안됨
     // alert('13 Step WCOU0047P04');
@@ -316,12 +336,13 @@ async function onClickNextStep() {
     });
   }
   */
-  stepInitNum.value = nowStep + 1;
+    stepInitNum.value = nowStep + 1;
+  }
 }
 
 async function onClickPrevStep() {
   const nowStep = stepInitNum.value;
-  if (nowStep > 1) {
+  if (nowStep > 1 && totalCount.value > 0) {
     stepInitNum.value = nowStep - 1;
   }
 }

@@ -48,9 +48,9 @@
         >
           <kw-input
             v-model="searchParams.no"
-            :label="$t('MSG_TXT_SEQUENCE_NUMBER')"
             icon="search"
             clearable
+            :on-click-icon="onClickSearchNo"
           />
         </kw-search-item>
       </kw-search-row>
@@ -159,7 +159,7 @@
           <kw-paging-info
             :total-count="totalCount"
           />
-          <span class="ml8">({{ $t('MSG_TXT_UNIT') }}) : ({{ $t('MSG_TXT_CUR_WON') }})</span>
+          <span class="ml8">({{ $t('MSG_TXT_UNIT_COLON_WON') }})</span>
         </template>
         <kw-btn
           icon="download_on"
@@ -178,7 +178,7 @@
           dense
           secondary=""
           :label="$t('MSG_BTN_HIS_MGT')"
-          @click="openHistMngtPopup"
+          @click="openZwfebFeeHistoryMgtP"
         />
         <kw-separator
           vertical
@@ -230,11 +230,11 @@
 import dayjs from 'dayjs';
 
 import { useDataService, getComponentType, useGlobal, gridUtil, defineGrid } from 'kw-lib';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, isEmpty } from 'lodash-es';
 import ZwogLevelSelect from '~sms-common/organization/components/ZwogLevelSelect.vue';
 
 const { t } = useI18n();
-const { modal, notify } = useGlobal();
+const { modal, notify, alert } = useGlobal();
 const dataService = useDataService();
 const stepInitNum = ref(1);
 const isGrid1Visile = ref(false);
@@ -269,6 +269,23 @@ const info = ref({
 
 let cachedParams;
 
+// 번호 검색 아이콘 클릭 이벤트
+async function onClickSearchNo() {
+  const { result, payload } = await modal({
+    component: 'ZwogzPartnerListP',
+    componentProps: {
+      prtnrNo: searchParams.value.no,
+      ogTpCd: 'W01',
+    },
+  });
+
+  if (result) {
+    if (!isEmpty(payload)) {
+      searchParams.value.no = payload.prtnrNo;
+    }
+  }
+}
+
 /*
  *  Event - 직책유형 선택 시 하단 그리드 변경※
  */
@@ -286,21 +303,26 @@ async function onChangedRsbTp() {
     isGrid2Visile.value = false;
     isGrid3Visile.value = true;
   }
+  stepInitNum.value = 1;
+  totalCount.value = 0;
 }
 
 /*
- *  Event - 이력 관리 버튼 클릭 (Z-CO-U-0034P09 호출) ※아직 팝업 페이지 생성이 안됨※
+ *  Event - 이력 관리 버튼 클릭 ※
  */
-async function openHistMngtPopup() {
+async function openZwfebFeeHistoryMgtP() {
   const param = {
-    ogTp: 'W01',
+    feeHistSrnCd: 'W01',
   };
   await modal({
-    component: 'ZCOU0034P09',
+    component: 'ZwfebFeeHistoryMgtP',
     componentProps: param,
   });
 }
 
+/*
+ *  Event - 엑셀 다운로드 버튼 클릭 ※
+ */
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
 
@@ -310,8 +332,18 @@ async function onClickExcelDownload() {
   });
 }
 
+/*
+ *  Event - 다음단계 버튼 클릭 ※
+ */
 async function onClickNextStep() {
   const nowStep = stepInitNum.value;
+  if (nowStep < 13 && totalCount.value > 0) {
+    if (searchParams.value.rsbTp === '전체') {
+      await alert(t('MSG_ALT_SELECT_RSB_TP'));
+    } else {
+      stepInitNum.value = nowStep + 1;
+    }
+  }
   /*
   if (nowStep === 1) {
     // 미팅참석집계 프로세스 클릭 (Z-CO-U-0034P01 호출) ※아직 팝업 페이지 생성이 안됨
@@ -423,12 +455,19 @@ async function onClickNextStep() {
     });
   }
   */
-  stepInitNum.value = nowStep + 1;
 }
+
+/*
+ *  Event - 이전단계 버튼 클릭 ※
+ */
 async function onClickPrevStep() {
   const nowStep = stepInitNum.value;
-  if (nowStep > 1) {
-    stepInitNum.value = nowStep - 1;
+  if (nowStep > 1 && totalCount.value > 0) {
+    if (searchParams.value.rsbTp === '전체') {
+      await alert(t('MSG_ALT_SELECT_RSB_TP'));
+    } else {
+      stepInitNum.value = nowStep - 1;
+    }
   }
 }
 
