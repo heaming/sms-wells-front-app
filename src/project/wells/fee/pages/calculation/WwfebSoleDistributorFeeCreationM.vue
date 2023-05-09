@@ -155,7 +155,7 @@ const dataService = useDataService();
 const now = dayjs();
 const { t } = useI18n();
 const { currentRoute } = useRouter();
-const { notify, modal, confirm, alert } = useGlobal();
+const { notify, modal, confirm } = useGlobal();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -207,21 +207,16 @@ async function onClickExcelDownload() {
     timePostfix: true,
   });
 }
-// 이력팝업 호출
-// async function openZwfebFeeHistoryMgtP() {
-//   const param = {
-//     feeHistSrnCd: '01',
-//   };
-//   await modal({
-//     component: 'ZwfebFeeHistoryMgtP',
-//     componentProps: param,
-//   });
-// }
 // 이력관리 버튼 클릭
 async function onClickHistory() {
   // Z-CO-U-0034P09 아래 팝업 호출시 에러남ㅋ;
-  // await openZwfebFeeHistoryMgtP();
-  await alert('Z-CO-U-0034P09 팝업 호출');
+  const param = {
+    feeHistSrnCd: '01',
+  };
+  await modal({
+    component: 'ZwfebFeeHistoryMgtP',
+    componentProps: param,
+  });
 }
 
 // 저장
