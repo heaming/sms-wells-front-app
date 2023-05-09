@@ -73,7 +73,10 @@
     <div class="result-area">
       <kw-action-top>
         <template #left>
-          <h3>{{ searchParams.perfYm }} {{ $t('MSG_TXT_TOT_FEE_CRT_PRGS_STE') }}</h3>
+          <h3>
+            {{ stringUtil.getDateFormat(searchParams.perfYm, 'yyyy-MM').substring(0,7) }}
+            {{ $t('MSG_TXT_TOT_FEE_CRT_PRGS_STE') }}
+          </h3>
         </template>
       </kw-action-top>
       <!-- STEPER -->
@@ -143,7 +146,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { defineGrid, gridUtil, getComponentType, useDataService, useGlobal } from 'kw-lib';
+import { defineGrid, gridUtil, getComponentType, useDataService, useGlobal, stringUtil } from 'kw-lib';
 import dayjs from 'dayjs';
 import { cloneDeep } from 'lodash-es';
 import ZwfeyFeeStep from '~sms-common/fee/pages/schedule/ZwfeyFeeStep.vue';

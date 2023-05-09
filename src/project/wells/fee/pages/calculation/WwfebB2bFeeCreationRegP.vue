@@ -79,7 +79,7 @@ async function onClickCancel() {
 async function onClickCreate() {
   if (!await popupRef.value.validate()) { return; }
 
-  await dataService.post(`/sms/common/fee-standards/calculate/${regData.perfYm}/${regData.feeTcntDvCd}/${regData.feeCalcUnitTpCd}`);
+  await dataService.post(`/sms/common/fee/fee-standards/calculate/${regData.value.perfYm}-${regData.value.feeTcntDvCd}-${regData.value.feeCalcUnitTpCd}`);
   notify(t('MSG_ALT_CRT_FSH')); // 생성되었습니다.
   ok(true);
 }
