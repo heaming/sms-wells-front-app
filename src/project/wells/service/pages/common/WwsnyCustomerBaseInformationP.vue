@@ -199,7 +199,7 @@ async function fetchData() {
     return;
   }
 
-  const res = await dataService.get('/sms/wells/service/customer-base-informations/paging', { params: { ...cachedParams, ...pageInfo.value } });
+  const res = await dataService.get('/sms/wells/service/customers/paging', { params: { ...cachedParams, ...pageInfo.value } });
   const { list: customerBases, pageInfo: pagingResult } = res.data;
 
   pageInfo.value = pagingResult;
@@ -214,7 +214,6 @@ async function fetchData() {
 }
 
 async function onClickSearch() {
-  console.log(searchParams.value);
   if (searchParams.value.cstNm === '' && searchParams.value.bzrno === '' && searchParams.value.bcNo === ''
   && searchParams.value.mpNo === '' && searchParams.value.telNo === '') {
     notify(t('MSG_ALT_MNDT_IN_CNDT'));
@@ -272,7 +271,7 @@ async function onClickSearch() {
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
 
-  const res = await dataService.get('/sms/wells/service/customer-base-informations', { params: { ...cachedParams } });
+  const res = await dataService.get('/sms/wells/service/customers', { params: { ...cachedParams } });
 
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
