@@ -34,6 +34,7 @@
   <kw-grid
     ref="grdMainRef"
     name="grdDtlPriceMain"
+    class="mt40"
     :visible-rows="10"
     ignore-on-modified
     @init="initGrid"
