@@ -31,7 +31,12 @@
         <kw-option-group
           v-model="searchParams.agrgDv"
           type="radio"
-          :options="selectAgrgDv.options"
+          :options="[
+            { codeId: '1', codeName: t('MSG_TXT_AGRG') },
+            { codeId: '2', codeName: t('MSG_TXT_BY_DAY'), disable: dayClassifiedBy },
+            { codeId: '3', codeName: t('MSG_TXT_PER_ORDER') },
+            { codeId: '4', codeName: t('MSG_TXT_WRO_HORIZ_CAL_FORMULA'), disable: wrongHorizontalCalculationFormula },
+          ]"
           @change="onChangeAgrgDv"
         />
       </kw-search-item>
@@ -52,22 +57,19 @@
       <kw-search-item :label="$t('MSG_TXT_SEL_TYPE')">
         <kw-select
           v-model="searchParams.sellTpCd"
-          :options="codes.SELL_TP_CD.filter((v) => ['1', '2', '3', '6', '9'].includes(v.codeId))"
+          :options="codes.SELL_TP_CD.filter((v) => ['1', '2', '3', '6'].includes(v.codeId))"
+          @change="onChangeBusinessDivide"
         /><!--판매유형-->
         <kw-select
           v-if="searchParams.sellTpCd === '1'"
           v-model="searchParams.sellTpDtlCd"
           :options="codes.SELL_TP_DTL_CD.filter((v) => v.codeId === '11' || v.codeId === '12' || v.codeId === '13')"
-          first-option="all"
-          first-option-value="ALL"
         />
         <kw-select
           v-if="searchParams.sellTpCd === '2'"
           v-model="searchParams.sellTpDtlCd"
           :options="codes.SELL_TP_DTL_CD.filter((v) => v.codeId === '21' || v.codeId === '22' || v.codeId === '23' ||
             v.codeId === '24' || v.codeId === '25'|| v.codeId === '26')"
-          first-option="all"
-          first-option-value="ALL"
         />
         <kw-select
           v-if="searchParams.sellTpCd === '3'"
@@ -81,13 +83,6 @@
           v-if="searchParams.sellTpCd === '6'"
           v-model="searchParams.sellTpDtlCd"
           :options="codes.SELL_TP_DTL_CD.filter((v) => v.codeId === '61' || v.codeId === '62' || v.codeId === '63')"
-          first-option="all"
-          first-option-value="ALL"
-        />
-        <kw-select
-          v-if="searchParams.sellTpCd === '9'"
-          v-model="searchParams.sellTpDtlCd"
-          :options="codes.SELL_TP_DTL_CD.filter(v => v.codeId === 'ALL')"
           first-option="all"
           first-option-value="ALL"
         />
@@ -215,6 +210,8 @@ const isGridSub = ref(false);
 const isGridThird = ref(false);
 const isGridFourth = ref(false);
 const isShowInquiryDivide = ref(true);
+const dayClassifiedBy = ref(false);
+const wrongHorizontalCalculationFormula = ref(false);
 
 const searchParams = ref({
   slClYm: dayjs().add(-1, 'M').format('YYYYMM'),
@@ -292,7 +289,7 @@ async function onChangeChechOption() {
   isGridSub.value = false;
   isGridThird.value = false;
   isGridFourth.value = false;
-  debugger;
+
   if (sellTpCd === '5' || sellTpCd === '6') {
     isShow.value = true;
   } else {
@@ -324,6 +321,9 @@ async function onChangeChechOption() {
         mainView.columnByName('slClYm').visible = false;
         mainView.columnByName('perfDt').visible = true;
         mainView.layoutByColumn('perfDt').summaryUserSpans = [{ colspan: 4 }];
+        if (sellTpCd === '2') {
+          searchParams.value.sellTpCd = '1';
+        }
       }
     }
   } else if (agrgDv === '3') {
@@ -334,6 +334,23 @@ async function onChangeChechOption() {
     }
   } else if (agrgDv === '4') {
     isGridSub.value = true;
+    if (sellTpCd === '2') {
+      searchParams.value.sellTpCd = '1';
+    }
+  }
+  onClickSearch();
+}
+
+async function onChangeBusinessDivide() {
+  debugger;
+  const { sellTpCd } = searchParams.value;
+
+  if (sellTpCd === '2') {
+    dayClassifiedBy.value = true;
+    wrongHorizontalCalculationFormula.value = true;
+  } else {
+    dayClassifiedBy.value = false;
+    wrongHorizontalCalculationFormula.value = false;
   }
 }
 
@@ -376,11 +393,12 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'slClYm',
       width: '130',
       header: t('MSG_TXT_PERF_YM'),
+      styleName: 'text-center',
       headerSummary: {
         text: t('MSG_TXT_SUM'),
         styleName: 'text-center',
       },
-      datetimeFormat: 'date',
+      datetimeFormat: 'YYYY-MM',
     }, // 실적년월
     { fieldName: 'perfDt',
       header: t('MSG_TXT_PERF_DT'),
@@ -390,12 +408,12 @@ const initGrdMain = defineGrid((data, view) => {
         text: t('MSG_TXT_SUM'),
         styleName: 'text-center',
       },
-      datetimeFormat: 'date',
+      dataType: 'date',
     }, // 실적일자
     { fieldName: 'sellTpNm',
       header: t('MSG_TXT_SEL_TYPE'),
       width: '130',
-      styleName: 'text-center',
+      styleName: 'text-left',
     }, // 판매유형
     { fieldName: 'sellTpDtlNm',
       header: t('MSG_TXT_SELL_TP_DTL'),
@@ -543,12 +561,12 @@ const initGrdSub = defineGrid((data, view) => {
     { fieldName: 'slClYm',
       header: t('MSG_TXT_PERF_YM'),
       width: '150',
-      styleName: 'text-left',
+      styleName: 'text-center',
       headerSummary: {
         text: t('MSG_TXT_SUM'),
         styleName: 'text-center',
       },
-      datetimeFormat: 'date',
+      datetimeFormat: 'YYYY-MM',
     }, // 실적년월
     { fieldName: 'sellTpNm',
       header: t('MSG_TXT_SEL_TYPE'),
@@ -556,22 +574,22 @@ const initGrdSub = defineGrid((data, view) => {
       styleName: 'text-left',
     }, // 판매유형
     { fieldName: 'sellTpDtlNm', header: t('MSG_TXT_SELL_TP_DTL'), width: '130', styleName: 'text-left' }, // 판매유형상세
-    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '130', styleName: 'text-left' }, // 계약상세번호
+    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '130', styleName: 'text-center' }, // 계약상세번호
     { fieldName: 'sapPdDvNm', header: t('MSG_TXT_SAP_PD_DV_CD_NM'), width: '130', styleName: 'text-left' }, // SAP상품구분코드명
     { fieldName: 'cstKnm',
       header: t('MSG_TXT_CST_NM'),
       width: '150',
-      styleName: 'text-right',
+      styleName: 'text-left',
     }, // 고객명
     { fieldName: 'pdCd',
       header: t('MSG_TXT_PRDT_CODE'),
       width: '150',
-      styleName: 'text-right',
+      styleName: 'text-left',
     }, // 상품코드
     { fieldName: 'pdNm',
       header: t('MSG_TXT_PRDT_NM'),
       width: '180',
-      styleName: 'text-right',
+      styleName: 'text-left',
     }, // 상품명
     { fieldName: 'w1Am01',
       header: t('MSG_TXT_BTD_BZNS_ATAM'),
@@ -710,12 +728,12 @@ const initGrdThird = defineGrid((data, view) => {
     { fieldName: 'slClYm',
       header: t('MSG_TXT_PERF_YM'),
       width: '150',
-      styleName: 'text-left',
+      styleName: 'text-center',
       headerSummary: {
         text: t('MSG_TXT_SUM'),
         styleName: 'text-center',
       },
-      datetimeFormat: 'date',
+      datetimeFormat: 'YYYY-MM',
     }, // 실적년월
     { fieldName: 'sellTpNm', header: t('MSG_TXT_SEL_TYPE'), width: '130', styleName: 'text-left' }, // 판매유형
     { fieldName: 'sellTpDtlNm',
@@ -726,7 +744,7 @@ const initGrdThird = defineGrid((data, view) => {
     { fieldName: 'sapPdDvNm',
       header: t('MSG_TXT_SAP_PD_DV_CD_NM'),
       width: '130',
-      styleName: 'text-center',
+      styleName: 'text-left',
     }, // SAP상품구분코드명
     { fieldName: 'wpAm01',
       header: t('MSG_TXT_BTD_AMT'),
@@ -833,12 +851,12 @@ const initGrdFourth = defineGrid((data, view) => {
     { fieldName: 'slClYm',
       header: t('MSG_TXT_PERF_YM'),
       width: '150',
-      styleName: 'text-left',
+      styleName: 'text-center',
       headerSummary: {
         text: t('MSG_TXT_SUM'),
         styleName: 'text-center',
       },
-      datetimeFormat: 'date',
+      datetimeFormat: 'YYYY-MM',
     }, // 실적년월
     { fieldName: 'sellTpNm', header: t('MSG_TXT_SEL_TYPE'), width: '130', styleName: 'text-left' }, // 판매유형
     { fieldName: 'sellTpDtlNm',
@@ -849,11 +867,11 @@ const initGrdFourth = defineGrid((data, view) => {
     { fieldName: 'sapPdDvNm',
       header: t('MSG_TXT_SAP_PD_DV_CD_NM'),
       width: '130',
-      styleName: 'text-center',
+      styleName: 'text-left',
     }, // SAP상품구분코드명
     { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '130', styleName: 'text-center' }, // 고객명
     { fieldName: 'cntr', header: t('MSG_TXT_CNTR_DTL_NO'), width: '130', styleName: 'text-center' }, // 계약상세번호
-    { fieldName: 'slRcogDt', header: t('MSG_TXT_SL_DT'), width: '150', styleName: 'text-right', datetimeFormat: 'date' }, // 매출일자
+    { fieldName: 'slRcogDt', header: t('MSG_TXT_SL_DT'), width: '150', styleName: 'text-center', datetype: 'date' }, // 매출일자
     { fieldName: 'mlgBtdPrpdAmt',
       header: t('MSG_TXT_BTD_AMT'),
       width: '150',
@@ -967,7 +985,4 @@ const initGrdFourth = defineGrid((data, view) => {
   view.layoutByColumn('slClYm').summaryUserSpans = [{ colspan: 7 }];
 });
 
-const selectAgrgDv = { // 집계구분 -TODO.공통코드가 없는 관계로 임시로
-  options: [{ codeId: '1', codeName: '집계' }, { codeId: '2', codeName: '일자별' }, { codeId: '3', codeName: '주문별' }, { codeId: '4', codeName: '가로계산식 틀린 회원' }],
-};
 </script>
