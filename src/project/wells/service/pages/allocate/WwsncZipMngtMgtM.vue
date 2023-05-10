@@ -82,6 +82,7 @@
         </template>
         <kw-btn
           dense
+          grid-action
           secondary
           :label="'저장'"
           @click="onClickSave"
