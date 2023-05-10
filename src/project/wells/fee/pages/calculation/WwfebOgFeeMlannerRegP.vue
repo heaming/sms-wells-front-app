@@ -3,7 +3,7 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : FEB
-2. 프로그램 ID : WwfebOgFeePlannerRegP - P조직 수수료 생성관리 -> 수수료 생성
+2. 프로그램 ID : WwfebOgFeeMlannerRegP - M조직 수수료 생성관리 -> 수수료 생성
 3. 작성자 : mj
 4. 작성일 : 2023.04.17
 ****************************************************************************************************
@@ -14,7 +14,7 @@
 async function onClickCreate() {
   // 조회후 진행
   const { result: isChanged } = await modal({
-    component: 'WwfebOgFeePlannerRegP',
+    component: 'WwfebOgFeeMlannerRegP',
     componentProps: {
       perfYm: searchParams.value.perfYm
     },
@@ -51,7 +51,7 @@ async function onClickCreate() {
         >
           <kw-select
             v-model="regData.feeCalcUnitTpCd"
-            :options="codes.FEE_CALC_UNIT_TP_CD.filter((v) => ['101', '102'].includes(v.codeId))"
+            :options="codes.FEE_CALC_UNIT_TP_CD.filter((v) => ['201', '202'].includes(v.codeId))"
             rules="required"
             first-option="select"
             :label="$t('MSG_TXT_RSB_TP')"
@@ -98,7 +98,7 @@ const codes = await codeUtil.getMultiCodes(
 const popupRef = ref();
 const dataService = useDataService();
 const regData = ref({
-  feeCalcUnitTpCd: '101', // 101 [P추진단 플래너], 102 [P추진단 지국장]
+  feeCalcUnitTpCd: '201',
   feeTcntDvCd: '02', // 2차수
   perfYm: props.perfYm,
 });
