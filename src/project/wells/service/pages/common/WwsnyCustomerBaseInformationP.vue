@@ -162,7 +162,7 @@ const searchParams = ref({
   mpNo: '',
   bzrno: '',
   bcNo: '',
-  canCtIncYn: '',
+  canCtIncYn: '1',
 });
 
 const returnValues = ref({
