@@ -1,18 +1,28 @@
+<!----
+****************************************************************************************************
+* 프로그램 개요
+****************************************************************************************************
+1. 모듈 : OGC
+2. 프로그램 ID : WwogcEngineerGradeMgtM - 엔지니어 등급 관리
+3. 작성자 : gs.rahul.m
+4. 작성일 : 2023-05-08
+****************************************************************************************************
+* 프로그램 설명
+****************************************************************************************************
+- 엔지니어 등급 관리
+****************************************************************************************************
+--->
 <template>
   <kw-page>
-    <template #header>
-      <kw-page-header :options="['홈', 'nav', '엔지니어 등급 관리']" />
-    </template>
-
     <kw-search>
       <kw-search-row>
-        <kw-search-item label="관리구분">
+        <kw-search-item :label="$t('MSG_TXT_MNGT_DV')">
           <kw-select
             :model-value="[]"
             :options="['엔지니어', 'B', 'C', 'D']"
           />
         </kw-search-item>
-        <kw-search-item label="조직레벨">
+        <kw-search-item :label="$t('MSG_TXT_OG_LEVL')">
           <kw-select
             :model-value="[]"
             :options="['전체', 'B', 'C', 'D']"
@@ -22,7 +32,7 @@
             :options="['전체', 'B', 'C', 'D']"
           />
         </kw-search-item>
-        <kw-search-item label="직무">
+        <kw-search-item :label="$t('MSG_TXT_ROLE_1')">
           <kw-select
             :model-value="[]"
             :options="['전체', 'B', 'C', 'D']"
@@ -30,7 +40,7 @@
         </kw-search-item>
       </kw-search-row>
       <kw-search-row>
-        <kw-search-item label="미등록">
+        <kw-search-item :label="$t('MSG_TXT_NO_RGS')">
           <kw-field :model-value="[]">
             <template #default="{ field }">
               <kw-checkbox
@@ -48,7 +58,7 @@
       <kw-action-top>
         <kw-btn
           grid-action
-          label="저장"
+          :label="$t('MSG_BTN_SAVE')"
         />
         <kw-separator
           vertical
@@ -59,29 +69,63 @@
           icon="download_on"
           secondary
           dense
-          label="엑셀다운로드"
+          :label="$t('MSG_TXT_EXCEL_DOWNLOAD')"
         />
         <kw-btn
           icon="upload_on"
           secondary
           dense
-          label="엑셀업로드  "
+          :label="$t('MSG_TXT_EXCEL_UPLOAD')"
+          :disable="pageInfo.totalCount === 0"
+          @click="onClickExcelDownload"
         />
       </kw-action-top>
       <kw-grid
+        ref="grdMainRef"
         :visible-rows="10"
-        @init="initGrid"
+        @init="initGrdMain"
       />
       <kw-pagination
         :model-value="1"
-        :total-count="100"
+        :total-count="pageInfo.totalCount"
       />
     </div>
   </kw-page>
 </template>
 <script setup>
+// -------------------------------------------------------------------------------------------------
+// Import & Declaration
+// -------------------------------------------------------------------------------------------------
+import { defineGrid, getComponentType, gridUtil, useMeta } from 'kw-lib';
 
-function initGrid(data, view) {
+const { t } = useI18n();
+const { getConfig } = useMeta();
+const { currentRoute } = useRouter();
+
+const pageInfo = ref({
+  totalCount: 0,
+  pageIndex: 1,
+  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
+});
+
+const grdMainRef = ref(getComponentType('KwGrid'));
+
+// -------------------------------------------------------------------------------------------------
+// Function & Event
+// -------------------------------------------------------------------------------------------------
+
+async function onClickExcelDownload() {
+  const view = grdMainRef.value.getView();
+  await gridUtil.exportView(view, {
+    fileName: currentRoute.value.meta.menuName,
+    timePostfix: true,
+  });
+}
+
+// -------------------------------------------------------------------------------------------------
+// Initialize Grid
+// -------------------------------------------------------------------------------------------------
+const initGrdMain = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'col1' },
     { fieldName: 'col2' },
@@ -97,16 +141,16 @@ function initGrid(data, view) {
   ];
 
   const columns = [
-    { fieldName: 'col1', header: '소속', width: '152', styleName: 'text-center' },
-    { fieldName: 'col2', header: '사번', width: '110', styleName: 'text-center' },
-    { fieldName: 'col3', header: '성명', width: '166', styleName: 'text-center' },
-    { fieldName: 'col4', header: '직책', width: '106', styleName: 'text-center' },
-    { fieldName: 'col5', header: '직무', width: '106', styleName: 'text-center' },
-    { fieldName: 'col6', header: '입사일자', width: '130', styleName: 'text-center' },
-    { fieldName: 'col7', header: '등급', width: '166', styleName: 'text-left' },
-    { fieldName: 'col8', header: '적용시작일자', width: '178', styleName: 'text-center ' },
-    { fieldName: 'col9', header: '적용종료일자', width: '178', styleName: 'text-center ' },
-    { fieldName: 'col10', header: '비고', width: '499.7', styleName: 'text-center' },
+    { fieldName: 'col1', header: t('MSG_TXT_BLG'), width: '152', styleName: 'text-center' },
+    { fieldName: 'col2', header: t('MSG_TXT_EPNO'), width: '110', styleName: 'text-center' },
+    { fieldName: 'col3', header: t('MSG_TXT_EMPL_NM'), width: '166', styleName: 'text-center' },
+    { fieldName: 'col4', header: t('MSG_TXT_RSB'), width: '106', styleName: 'text-center' },
+    { fieldName: 'col5', header: t('MSG_TXT_ROLE_1'), width: '106', styleName: 'text-center' },
+    { fieldName: 'col6', header: t('MSG_TXT_ENTCO_DT'), width: '130', styleName: 'text-center' },
+    { fieldName: 'col7', header: t('MSG_TXT_GD'), width: '166', styleName: 'text-left' },
+    { fieldName: 'col8', header: t('MSG_TXT_APY_STRTDT'), width: '178', styleName: 'text-center ' },
+    { fieldName: 'col9', header: t('MSG_TXT_APY_ENDDT'), width: '178', styleName: 'text-center ' },
+    { fieldName: 'col10', header: t('MSG_TXT_NOTE'), width: '499.7', styleName: 'text-center' },
 
   ];
   data.setFields(fields);
@@ -128,5 +172,5 @@ function initGrid(data, view) {
     { col1: '경남서비스센터', col2: '0000000', col3: '박준찬(0000000)', col4: '센터소장', col5: '정규직', col6: '2008-09-13', col7: '정규직', col8: '2022-09-13', col9: '2022-09-13', col10: '-' },
 
   ]);
-}
+});
 </script>
