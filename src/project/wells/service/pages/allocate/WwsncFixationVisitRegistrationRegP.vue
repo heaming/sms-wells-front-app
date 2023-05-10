@@ -24,9 +24,11 @@
       <kw-search-row>
         <kw-search-item :label="$t('계약번호')">
           <kw-input
-            v-model="searchParams.cntrNo"
+            v-model="searchParams.cntrDtlNo"
             icon="search"
+            :max-length="50"
             clearable
+            @click-icon="onClickSearchContract"
           />
         </kw-search-item>
       </kw-search-row>
@@ -243,6 +245,7 @@ const searchParams = ref({
   // Popup Parameter
   cntrNo: '',
   cntrSn: '',
+  cntrDtlNo: '',
   // Insert Data
   fxnPrtnrDvCd: '',
 });
@@ -384,6 +387,92 @@ async function onFxnPrtnrNoSearchPopup() {
   if (isChanged) {
     contractInfo.value.fxnPrtnrNo = payload[0].prtnrNo;
     contractInfo.value.fxnPrtnrKnm = payload[0].prtnrKnm;
+  }
+}
+
+/*
+ * 계약번호 조회
+ */
+async function onClickSearchContract() {
+  const { result, payload } = await modal({
+    component: 'WwsnyCustomerBaseInformationP',
+  });
+
+  if (result) {
+    searchParams.value.cntrNo = payload.cntrNo ?? '';
+    searchParams.value.cntrSn = payload.cntrSn ?? '';
+    searchParams.value.cntrDtlNo = `${payload.cntrNo ?? ''}-${payload.cntrSn ?? ''}`;
+
+    /*
+     * 조회데이터 Setting & Clear
+     */
+    // 계약정보
+    // 고객명
+    // contractInfo.value.cstKnm = payload.cstNm ?? '';
+    // // 휴대전화번호
+    // contractInfo.value.cralLocaraTno = payload.cralLocaraTno ?? '';
+    // contractInfo.value.mexnoEncr = payload.mexnoEncr ?? '';
+    // contractInfo.value.cralIdvTno = payload.cralIdvTno ?? '';
+    // // 계약주소
+    // contractInfo.value.rnadr = payload.rnadr ?? '';
+    // contractInfo.value.rdadr = payload.rdadr ?? '';
+
+    // 계약정보
+    // 고객명
+    contractInfo.value.cstKnm = '';
+    // 휴대전화번호
+    contractInfo.value.cralLocaraTno = '';
+    contractInfo.value.mexnoEncr = '';
+    contractInfo.value.cralIdvTno = '';
+    // 계약주소
+    contractInfo.value.rnadr = '';
+    contractInfo.value.rdadr = '';
+
+    // 설치정보
+    // 고객명
+    contractInfo.value.rcgvpKnm = '';
+    // 휴대전화번호
+    contractInfo.value.cralLocaraTnoInstall = '';
+    contractInfo.value.mexnoEncrInstall = '';
+    contractInfo.value.cralIdvTnoInstall = '';
+    // 설치주소
+    contractInfo.value.rnadrInstall = '';
+    contractInfo.value.rdadrInstall = '';
+
+    // 상품정보
+    // 상품
+    contractInfo.value.pdNm = '';
+    // 용도
+    contractInfo.value.pdPrpVal01Nm = '';
+
+    // 기존담당
+    // 담당자
+    contractInfo.value.prtnrKnm = '';
+    // 활동중지일
+    contractInfo.value.cltnDt = '';
+
+    // For Example
+    // customerData.value.cntrNo = payload.cntrNo ?? '';
+    // customerData.value.cntrSn = payload.cntrSn ?? '';
+    // customerData.value.cstNm = payload.cstNm ?? '';
+    // customerData.value.newAdrZip = payload.newAdrZip ?? '';
+    // customerData.value.rnadr = payload.rnadr ?? '';
+    // customerData.value.rdadr = payload.rdadr ?? '';
+    // customerData.value.cralLocaraTno = payload.cralLocaraTno ?? '';
+    // customerData.value.mexnoEncr = payload.mexnoEncr ?? '';
+    // customerData.value.cralIdvTno = payload.cralIdvTno ?? '';
+    // customerData.value.locaraTno = payload.locaraTno ?? '';
+    // customerData.value.exnoEncr = payload.exnoEncr ?? '';
+    // customerData.value.idvTno = payload.idvTno ?? '';
+    // customerData.value.istDt = payload.istDt ?? '';
+    // customerData.value.sellTpCd = payload.sellTpCd ?? '';
+    // customerData.value.pdCd = payload.pdCd ?? '';
+    // customerData.value.bcNo = payload.bcNo ?? '';
+    // customerData.value.svStpDt = payload.svStpDt ?? '';
+    // customerData.value.recapDutyPtrmN = payload.recapDutyPtrmN ?? '';
+    // customerData.value.frisuAsPtrmN = payload.frisuAsPtrmN ?? '';
+    // customerData.value.frisuBfsvcPtrmN = payload.frisuBfsvcPtrmN ?? '';
+    // customerData.value.cycleCode = payload.cycleCode ?? '';
   }
 }
 
