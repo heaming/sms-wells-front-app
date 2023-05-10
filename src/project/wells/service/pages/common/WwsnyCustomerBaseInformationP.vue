@@ -194,7 +194,7 @@ const cntrDtlNoMask = computed(() => (searchParams.value.cntrDtlNo.length === 12
 let cachedParams;
 async function fetchData() {
   if (searchParams.value.cstNm === '' && searchParams.value.bzrno === '' && searchParams.value.bcNo === ''
-  && searchParams.value.mpNo === '' && searchParams.value.telNo === '') {
+  && searchParams.value.mpNo === '' && searchParams.value.telNo === '' && searchParams.value.cntrDtlNo === '') {
     notify(t('MSG_ALT_MNDT_IN_CNDT'));
     return;
   }
@@ -215,7 +215,7 @@ async function fetchData() {
 
 async function onClickSearch() {
   if (searchParams.value.cstNm === '' && searchParams.value.bzrno === '' && searchParams.value.bcNo === ''
-  && searchParams.value.mpNo === '' && searchParams.value.telNo === '') {
+  && searchParams.value.mpNo === '' && searchParams.value.telNo === '' && searchParams.value.cntrDtlNo === '') {
     notify(t('MSG_ALT_MNDT_IN_CNDT'));
     return;
   }
