@@ -149,6 +149,7 @@ const dataService = useDataService();
 const codes = await codeUtil.getMultiCodes(
   'PRTNR_CHNL_DV_ACD',
   'COPN_DV_CD',
+  'COD_PAGE_SIZE_OPTIONS',
 );
 
 const searchParams = ref({
