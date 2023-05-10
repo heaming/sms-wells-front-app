@@ -16,15 +16,13 @@ async function onClickCreate() {
   const { result: isChanged } = await modal({
     component: 'WwfebOgFeePlannerRegP',
     componentProps: {
-      perfYm: searchParams.value.perfYm,
-      feeCalcUnitTpCd: '101', // [P추진단 플래너], 102 [P추진단 지국장]
+      perfYm: searchParams.value.perfYm
     },
   });
   if (isChanged) {
     fetchData();
   }
 }
-
 ****************************************************************************************************
 --->
 <template>
@@ -36,12 +34,27 @@ async function onClickCreate() {
       <kw-form-row>
         <kw-form-item
           :label="$t('MSG_TXT_PERF_YM')"
+          required
         >
           <kw-date-picker
             v-model="regData.perfYm"
             rules="required"
             type="month"
             :label="$t('MSG_TXT_PERF_YM')"
+          />
+        </kw-form-item>
+      </kw-form-row>
+      <kw-form-row>
+        <kw-form-item
+          :label="$t('MSG_TXT_RSB_TP')"
+          required
+        >
+          <kw-select
+            v-model="regData.feeCalcUnitTpCd"
+            :options="codes.FEE_CALC_UNIT_TP_CD.filter((v) => ['101', '102'].includes(v.codeId))"
+            rules="required"
+            first-option="select"
+            :label="$t('MSG_TXT_RSB_TP')"
           />
         </kw-form-item>
       </kw-form-row>
@@ -64,7 +77,7 @@ async function onClickCreate() {
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useModal, useDataService, useGlobal } from 'kw-lib';
+import { useModal, useDataService, useGlobal, codeUtil } from 'kw-lib';
 
 const { cancel, ok } = useModal();
 const { notify } = useGlobal();
@@ -75,18 +88,17 @@ const props = defineProps({
     type: String,
     default: '',
   },
-  feeCalcUnitTpCd: {
-    type: String,
-    default: '',
-  },
 });
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
+const codes = await codeUtil.getMultiCodes(
+  'FEE_CALC_UNIT_TP_CD',
+);
 const popupRef = ref();
 const dataService = useDataService();
 const regData = ref({
-  feeCalcUnitTpCd: props.feeCalcUnitTpCd, // 101 [P추진단 플래너], 102 [P추진단 지국장]
+  feeCalcUnitTpCd: '101', // 101 [P추진단 플래너], 102 [P추진단 지국장]
   feeTcntDvCd: '02', // 2차수
   perfYm: props.perfYm,
 });
