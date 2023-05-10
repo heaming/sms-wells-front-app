@@ -248,28 +248,71 @@ async function onClickSearchPrtnrNoPopup() {
 // -------------------------------------------------------------------------------------------------
 const initGrdPerformanceDtl = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'type', header: t('MSG_TXT_DIV'), width: '220', styleName: 'text-left' },
-    { fieldName: 'amtElhm', header: t('MSG_TXT_ELHM'), width: '220', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'amtExceptElhm', header: t('MSG_TXT_EXCEPT_HOUSEHOLD_APPLIANCES'), width: '220', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'amtMutu429', header: '429', width: '220', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'amtMutu599', header: '599', width: '220', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'eduCertSrtupYn', header: t('MSG_TXT_PLANNER_STRTUP'), width: '220', styleName: 'text-center' },
-    { fieldName: 'eduCertPlarPriticYn ', header: t('MSG_TXT_PLANNER_PRCTC'), width: '220', styleName: 'text-center' },
+    {
+      fieldName: 'type',
+      header: t('MSG_TXT_DIV'),
+      width: '220',
+      styleName: 'text-left',
+      displayCallback(grid, index, value) {
+        const title = { A: t('MSG_TXT_INDV_PERF_PS'), B: t('MSG_TXT_INDV_CHG_PERF'), C: t('MSG_TXT_OG_PERF_PS'), D: t('MSG_TXT_OG_CHG_PERF') };
+        return title[value];
+      },
+    },
+    { fieldName: 'amtElhm', header: t('MSG_TXT_ELHM'), width: '220', styleName: 'text-right', dataType: 'number', editable: true },
+    { fieldName: 'amtExceptElhm', header: t('MSG_TXT_EXCEPT_HOUSEHOLD_APPLIANCES'), width: '220', styleName: 'text-right', dataType: 'number', editable: true },
+    { fieldName: 'amtMutu429', header: '429', width: '220', styleName: 'text-right', dataType: 'number', editable: true },
+    { fieldName: 'amtMutu599', header: '599', width: '220', styleName: 'text-right', dataType: 'number', editable: true },
+    {
+      fieldName: 'eduCertSrtupYn',
+      header: t('MSG_TXT_PLANNER_STRTUP'),
+      width: '220',
+      styleName: 'text-center',
+      options: ['Y', 'N'].map((v) => ({ codeId: v, codeName: v })),
+      styleCallback(grid, dataCell) {
+        if (grid.getValue(dataCell.index.itemIndex, 'type') === 'B') {
+          return {
+            editable: false,
+            renderer: { type: 'radio' },
+          };
+        }
+        return { renderer: { type: 'text' } };
+      },
+    },
+    {
+      fieldName: 'eduCertPlarPriticYn',
+      header: t('MSG_TXT_PLANNER_PRCTC'),
+      width: '220',
+      styleName: 'text-center',
+      options: ['Y', 'N'].map((v) => ({ codeId: v, codeName: v })),
+      styleCallback(grid, dataCell) {
+        if (grid.getValue(dataCell.index.itemIndex, 'type') === 'B') {
+          return {
+            editable: false,
+            renderer: { type: 'radio' },
+          };
+        }
+        return { renderer: { type: 'text' } };
+      },
+    },
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   data.setFields(fields);
   view.setColumns(columns);
-
   view.checkBar.visible = false;
   view.rowIndicator.visible = false;
-  // multi row header setting
+  view.editOptions.columnEditableFirst = true;
+  view.onCellEditable = (grid, index) => {
+    if (['A', 'C'].includes(grid.getValue(index.itemIndex, 'type'))) {
+      return false;
+    }
+  };
   view.setColumnLayout([
     'type',
     'amtElhm',
     'amtExceptElhm',
     {
-      header: t('MSG_TXT_MUTU'), // colspan title
-      direction: 'horizontal', // merge type
+      header: t('MSG_TXT_MUTU'),
+      direction: 'horizontal',
       items: ['amtMutu429', 'amtMutu599'],
     },
     {
@@ -291,29 +334,28 @@ const initGrdEstimatedFeeDtl = defineGrid((data, view) => {
     { fieldName: 'amtSumOgElhmPrpn', header: t('MSG_TXT_ELHM_PRPN'), styleName: 'text-right', width: '165', dataType: 'number' },
     { fieldName: 'amtSumOgElhmExcpPrpn', header: t('MSG_TXT_ELHM_EXCP_PRPN'), styleName: 'text-right', width: '165', dataType: 'number' },
     { fieldName: 'amtSumOgSalIntv', header: t('MSG_TXT_SAL_INTV'), styleName: 'text-right', width: '166', dataType: 'number' },
-    { fieldName: 'amtSumOgMutu ', header: t('MSG_TXT_MUTU'), styleName: 'text-right', width: '165', dataType: 'number' },
+    { fieldName: 'amtSumOgMutu', header: t('MSG_TXT_MUTU'), styleName: 'text-right', width: '165', dataType: 'number' },
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   data.setFields(fields);
   view.setColumns(columns);
-  view.checkBar.visible = false; // create checkbox column
-  view.rowIndicator.visible = false; // create number indicator column
-
-  // multi row header setting
+  view.checkBar.visible = false;
+  view.rowIndicator.visible = false;
   view.setColumnLayout([
     'div',
     {
-      header: t('MSG_TXT_PRSNL_FEE'), // colspan title
-      direction: 'horizontal', // merge type
+      header: t('MSG_TXT_PRSNL_FEE'),
+      direction: 'horizontal',
       items: ['amtSumElhmPrpn', 'amtSumElhmExcpPrpn', 'amtSumSalIntv', 'amtSumStmnt', 'amtSumMutu'],
     },
     {
-      header: t('MSG_TXT_ORGNSTN_FEE'), // colspan title
-      direction: 'horizontal', // merge type
+      header: t('MSG_TXT_ORGNSTN_FEE'),
+      direction: 'horizontal',
       items: ['amtSumOgElhmPrpn', 'amtSumOgElhmExcpPrpn', 'amtSumOgSalIntv', 'amtSumOgMutu'],
     },
   ]);
 });
+
 const initGrdSalesHist = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '118', styleName: 'text-center' },
@@ -333,7 +375,6 @@ const initGrdSalesHist = defineGrid((data, view) => {
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   data.setFields(fields);
   view.setColumns(columns);
-
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
 });
