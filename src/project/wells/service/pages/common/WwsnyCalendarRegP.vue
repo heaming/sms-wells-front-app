@@ -59,13 +59,11 @@
       <kw-btn
         negative
         :label="$t('MSG_BTN_CANCEL')"
-        dense
         @click="onClickCancel"
       />
       <kw-btn
         primary
         :label="t('MSG_BTN_SAVE')"
-        dense
         @click="onClickSave"
       />
     </template>
