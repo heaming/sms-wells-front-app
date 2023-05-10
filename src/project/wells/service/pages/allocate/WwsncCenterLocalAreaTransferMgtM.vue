@@ -106,6 +106,7 @@
           icon="download_on"
           :disable="pageInfo.totalCount === 0"
           secondary
+          dense
           :label="$t('엑셀다운로드')"
           @click="onClickExcelDownload"
         />
@@ -120,6 +121,7 @@
           :options="customCodes.DGR_2_LEVL_OG"
           option-value="ogCd"
           option-label="ogNm"
+          :placeholder="$t('이관지역단 선택')"
         />
         <kw-separator
           spaced
@@ -130,10 +132,11 @@
           v-model="gridParams.rsonCd"
           class="w200"
           :options="codes.TF_AK_RSON_CD"
+          :placeholder="$t('이관사유 선택')"
         />
         <kw-btn
           secondary
-          :label="$t('이관사유 일괄변경')"
+          :label="$t('이관지역단 일괄변경')"
           @click="onClickBatchUpdate"
         />
       </kw-action-top>
