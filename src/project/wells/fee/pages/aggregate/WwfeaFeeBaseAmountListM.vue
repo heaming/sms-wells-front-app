@@ -52,20 +52,17 @@
           <kw-paging-info
             :total-count="totalCount"
           />
-          <span class="ml8">({{ $t('MSG_TXT_UNIT') }}) : ({{ $t('MSG_TXT_CUR_WON') }})</span>
+          <span class="ml8">({{ $t('MSG_TXT_UNIT_COLON_WON') }})</span>
         </template>
         <kw-btn
           dense
           secondary
           icon="download_on"
           :label="$t('MSG_BTN_EXCEL_DOWN')"
-          :disable="pageInfo.totalCount === 0"
+          :disable="totalCount.value === 0"
           @click="onClickExcelDownload"
         />
-
-        />
       </kw-action-top>
-
       <kw-grid
         ref="grdMainRef"
         name="grdMain"
@@ -82,11 +79,12 @@
 // -------------------------------------------------------------------------------------------------
 import dayjs from 'dayjs';
 
-import { useDataService, getComponentType, gridUtil } from 'kw-lib';
+import { useDataService, getComponentType, gridUtil, defineGrid } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 
 const { t } = useI18n();
 const dataService = useDataService();
+const currentRoute = useRouter();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -107,7 +105,7 @@ async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
 
   await gridUtil.exportView(view, {
-    fileName: '수수료_체크리스트내역',
+    fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
   });
 }
@@ -130,7 +128,7 @@ async function onClickSearch() {
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
-function initGrdMain(data, view) {
+const initGrdMain = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'col1' },
     { fieldName: 'col2' },
@@ -201,5 +199,5 @@ function initGrdMain(data, view) {
     },
     'col22', 'col23',
   ]);
-}
+});
 </script>

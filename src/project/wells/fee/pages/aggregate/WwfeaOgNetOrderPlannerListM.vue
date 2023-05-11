@@ -76,7 +76,7 @@
           <kw-paging-info
             :total-count="totalCount"
           />
-          <span class="ml8">({{ $t('MSG_TXT_UNIT') }}) : ({{ $t('MSG_TXT_CUR_WON') }})</span>
+          <span class="ml8">({{ $t('MSG_TXT_UNIT_COLON_WON') }})</span>
         </template>
 
         <kw-btn

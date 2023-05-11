@@ -73,7 +73,7 @@
           <kw-paging-info
             :total-count="totalCount"
           />
-          <span class="ml8">({{ $t('MSG_TXT_UNIT') }}) : ({{ $t('MSG_TXT_CUR_WON') }})</span>
+          <span class="ml8">({{ $t('MSG_TXT_UNIT_COLON_WON') }})</span>
         </template>
 
         <kw-btn
@@ -81,7 +81,7 @@
           secondary
           icon="download_on"
           :label="$t('MSG_BTN_EXCEL_DOWN')"
-          :disable="pageInfo.totalCount === 0"
+          :disable="totalCount.value === 0"
           @click="onClickExcelDownload"
         />
         <kw-separator
@@ -93,6 +93,7 @@
           :label="$t('MSG_BTN_NTOR_AGRG')"
           secondary
           dense
+          :disable="totalCount.value === 0"
           @click="openNtorAgrgPopup"
         />
       </kw-action-top>
@@ -111,14 +112,14 @@
 // -------------------------------------------------------------------------------------------------
 import dayjs from 'dayjs';
 
-import { useDataService, getComponentType, useGlobal, gridUtil } from 'kw-lib';
+import { useDataService, getComponentType, useGlobal, gridUtil, defineGrid } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 
 // const { t } = useI18n();
 const { modal } = useGlobal();
 const dataService = useDataService();
 const { t } = useI18n();
-
+const currentRoute = useRouter();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -142,7 +143,7 @@ async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
 
   await gridUtil.exportView(view, {
-    fileName: '순주문내역',
+    fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
   });
 }
@@ -183,7 +184,7 @@ async function openNtorAgrgPopup() {
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
-function initGrdMain(data, view) {
+const initGrdMain = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'col1' },
     { fieldName: 'col2' },
@@ -269,5 +270,5 @@ function initGrdMain(data, view) {
 
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
-}
+});
 </script>

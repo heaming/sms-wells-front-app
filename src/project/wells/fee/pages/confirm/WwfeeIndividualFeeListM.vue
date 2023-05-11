@@ -73,6 +73,7 @@
             v-model="searchParams.prtnrNo"
             icon="search"
             clearable
+            :on-click-icon="onClickSearchNo"
           />
         </kw-search-item>
       </kw-search-row>
@@ -93,7 +94,7 @@
     <div class="result-area">
       <kw-action-top>
         <template #left>
-          <span class="ml8">({{ $t('MSG_TXT_UNIT') }}) : ({{ $t('MSG_TXT_CUR_WON') }})</span>
+          <span class="ml8">({{ $t('MSG_TXT_UNIT_COLON_WON') }})</span>
         </template>
         <kw-separator
           vertical
@@ -133,7 +134,7 @@ import { useDataService, getComponentType, defineGrid, modal } from 'kw-lib';
 
 import dayjs from 'dayjs';
 
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, isEmpty } from 'lodash-es';
 import ZwogLevelSelect from '~sms-common/organization/components/ZwogLevelSelect.vue';
 
 const { t } = useI18n();
@@ -225,6 +226,22 @@ async function onClickSearch() {
     uri = 'home-masters';
   }
   await fetchData(uri);
+}
+
+// 번호 검색 아이콘 클릭 이벤트
+async function onClickSearchNo() {
+  const { result, payload } = await modal({
+    component: 'ZwogzPartnerListP',
+    componentProps: {
+      prtnrNo: searchParams.value.prtnrNo,
+    },
+  });
+
+  if (result) {
+    if (!isEmpty(payload)) {
+      searchParams.value.prtnrNo = payload.prtnrNo;
+    }
+  }
 }
 
 /*
