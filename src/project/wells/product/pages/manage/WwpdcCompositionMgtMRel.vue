@@ -186,7 +186,7 @@ async function isPriceData() {
   const priceRows = currentInitData.value?.[pdConst.TBL_PD_PRC_FNL_DTL];
   if (priceRows && priceRows.length) {
     // 가격 정보가 입력되어 있어, 상품연결을 변경 할 수 없습니다.
-    alert(t('MSG_ALT_HAS_PRC_DO_NOT'));
+    await alert(t('MSG_ALT_HAS_PRC_DO_NOT'));
     return true;
   }
   return false;
