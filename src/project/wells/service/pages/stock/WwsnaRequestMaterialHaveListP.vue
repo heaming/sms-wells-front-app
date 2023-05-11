@@ -42,7 +42,7 @@
           :label="$t('MSG_TXT_AK_WARE')"
         >
           <kw-input
-            v-model="searchParams.ostrOjWareNm"
+            v-model="searchParams.strOjWareNm"
             :readonly="true"
           />
         </kw-search-item>
@@ -154,7 +154,7 @@ const props = defineProps({
     required: true,
     default: '',
   },
-  ostrOjWareNm: {
+  strOjWareNm: {
     type: String,
     default: '',
   },
@@ -192,7 +192,7 @@ const codes = await codeUtil.getMultiCodes(
 const searchParams = ref({
   itmPdCd: props.itmPdCd,
   itmPdNm: props.itmPdNm,
-  ostrOjWareNm: props.ostrOjWareNm,
+  strOjWareNm: props.strOjWareNm,
   strOjWareNo: props.strOjWareNo,
   ostrQty: props.ostrQty,
   wareClsfCd: '11',
