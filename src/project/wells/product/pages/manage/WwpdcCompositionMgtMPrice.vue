@@ -234,6 +234,12 @@ async function onClickAdd() {
   }
 
   const view = grdMainRef.value?.getView();
+  const rowValues = gridUtil.getAllRowValues(view);
+  if (rowValues.find((item) => item.sellChnlCd === addChannelId.value)?.basePdCd) {
+    notify(t('MSG_ALT_ALREADY_RGST', [t('MSG_TXT_SEL_CHNL')]));
+    return;
+  }
+
   const products = currentInitData.value?.[pdConst.RELATION_PRODUCTS];
   if (await products) {
     const rows = products
@@ -449,6 +455,13 @@ async function initGrid(data, view) {
       const pdCd = grid.getValue(itemIndex, 'basePdCd');
       await onClickStandardSchPopup(pdCd, itemIndex);
     }
+  };
+
+  view.onItemChecked = async (grid, itemIndex) => {
+    const sellChnlCd = grid.getValue(itemIndex, 'sellChnlCd');
+    grid.checkRows(gridUtil.getAllRowValues(view)
+      ?.filter((item) => item.sellChnlCd === sellChnlCd)
+      ?.map(({ dataRow }) => (dataRow)), grid.isCheckedRow(itemIndex), false, false);
   };
 
   await resetInitData();

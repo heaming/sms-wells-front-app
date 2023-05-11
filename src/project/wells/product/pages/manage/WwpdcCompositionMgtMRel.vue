@@ -74,7 +74,7 @@ const props = defineProps({
   readonly: { type: Boolean, default: false },
 });
 
-const { modal, notify } = useGlobal();
+const { alert, modal, notify } = useGlobal();
 const { t } = useI18n();
 
 // -------------------------------------------------------------------------------------------------
@@ -182,7 +182,20 @@ async function deleteCheckedRows(view) {
   await gridUtil.confirmDeleteCheckedRows(view);
 }
 
+async function isPriceData() {
+  const priceRows = currentInitData.value?.[pdConst.TBL_PD_PRC_FNL_DTL];
+  if (priceRows && priceRows.length) {
+    // 가격 정보가 입력되어 있어, 상품연결을 변경 할 수 없습니다.
+    alert(t('MSG_ALT_HAS_PRC_DO_NOT'));
+    return true;
+  }
+  return false;
+}
+
 async function onClickStandardSchPopup() {
+  if (await isPriceData()) {
+    return;
+  }
   const view = grdStandardRef.value.getView();
   searchParams.value.searchType = standardSearchType.value;
   searchParams.value.searchValue = standardSearchValue.value;
@@ -195,6 +208,9 @@ async function onClickStandardSchPopup() {
 }
 
 async function onClickStandardDelRows() {
+  if (await isPriceData()) {
+    return;
+  }
   const view = grdStandardRef.value.getView();
   await deleteCheckedRows(view);
   grdStandardRowCount.value = getGridRowCount(view);
