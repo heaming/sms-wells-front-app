@@ -338,14 +338,14 @@ function onClickNameTagPrint() {
   alert('페이지가 존재하지 않습니다.(개발중)');
 }
 
+const popupRef = ref();
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
 
   const response = await dataService.get(`${baseURI}/excel-download`, { params: cachedParams });
 
-  const { currentRoute } = useRouter();
   await gridUtil.exportView(view, {
-    fileName: currentRoute.value.meta.menuName,
+    fileName: popupRef.value.pageCtxTitle,
     timePostfix: true,
     exportData: response.data,
   });
