@@ -41,6 +41,7 @@
             icon="search"
             clearable
             rules="required"
+            :on-click-icon="onClickSearchNo"
           />
         </kw-search-item>
       </kw-search-row>
@@ -120,7 +121,7 @@
         <template #left>
           <h3>{{ t('MSG_TXT_BAS_IZ') }}</h3>
         </template>
-        <span class="ml8">({{ $t('MSG_TXT_UNIT') }}) : ({{ $t('MSG_TXT_CUR_WON') }})</span>
+        <span class="ml8">({{ $t('MSG_TXT_UNIT_COLON_WON') }})</span>
       </kw-action-top>
       <kw-form
         class="mt20"
@@ -431,7 +432,7 @@
 // -------------------------------------------------------------------------------------------------
 import { useDataService, getComponentType, stringUtil, modal, defineGrid } from 'kw-lib';
 import dayjs from 'dayjs';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, isEmpty } from 'lodash-es';
 
 const { t } = useI18n();
 const dataService = useDataService();
@@ -506,6 +507,25 @@ const info3 = ref({
 });
 
 let cachedParams;
+
+/*
+ *  Event - 번호 검색 아이콘 클릭 이벤트
+ */
+async function onClickSearchNo() {
+  const { result, payload } = await modal({
+    component: 'ZwogzPartnerListP',
+    componentProps: {
+      prtnrNo: searchParams.value.no,
+      ogTpCd: 'W03',
+    },
+  });
+
+  if (result) {
+    if (!isEmpty(payload)) {
+      searchParams.value.no = payload.prtnrNo;
+    }
+  }
+}
 
 /*
  *  Event - 수수료조정 버튼 클릭  ※현재 팝업화면 없음

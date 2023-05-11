@@ -41,6 +41,7 @@
             icon="search"
             clearable
             rules="required"
+            :on-click-icon="onClickSearchNo"
           />
         </kw-search-item>
       </kw-search-row>
@@ -94,7 +95,7 @@
         <div class="grid-horizontal-wrap__section">
           <h3>{{ t('MSG_TXT_VISIT_RECORD') }}</h3>
           <kw-action-top>
-            <span class="ml8">({{ $t('MSG_TXT_UNIT') }}) : ({{ $t('MSG_TXT_CUR_WON') }})</span>
+            <span class="ml8">({{ $t('MSG_TXT_UNIT_COLON_WON') }})</span>
           </kw-action-top>
           <kw-grid
             ref="grd1MainRef"
@@ -191,9 +192,9 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService, getComponentType, stringUtil, defineGrid, gridUtil, notify } from 'kw-lib';
+import { useDataService, getComponentType, stringUtil, defineGrid, gridUtil, notify, modal } from 'kw-lib';
 import dayjs from 'dayjs';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, isEmpty } from 'lodash-es';
 
 const { t } = useI18n();
 const dataService = useDataService();
@@ -284,6 +285,23 @@ async function onClickSave() {
   await dataService.post('/sms/wells/fee/wm-bs-fees', changedRows);
   notify(t('MSG_ALT_SAVE_DATA'));
   await onClickSearch();
+}
+
+// 번호 검색 아이콘 클릭 이벤트
+async function onClickSearchNo() {
+  const { result, payload } = await modal({
+    component: 'ZwogzPartnerListP',
+    componentProps: {
+      prtnrNo: searchParams.value.no,
+      ogTpCd: 'W03',
+    },
+  });
+
+  if (result) {
+    if (!isEmpty(payload)) {
+      searchParams.value.no = payload.prtnrNo;
+    }
+  }
 }
 
 // -------------------------------------------------------------------------------------------------
