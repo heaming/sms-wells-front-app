@@ -572,7 +572,7 @@ const initGrid2 = defineGrid((data, view) => {
       },
       editor: {
         type: 'line',
-        inputCharacters: ['0-9'],
+        inputCharacters: ['0-9', 'A-Z'],
         maxLength: 25,
       },
       rules: 'required',
