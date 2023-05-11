@@ -16,6 +16,7 @@
   <kw-page>
     <kw-search
       @search="onClickSearch"
+      @reset="fetchDefaultData"
     >
       <kw-search-row>
         <!-- 출고요청접수 -->
@@ -158,30 +159,20 @@ const codes = ref(await codeUtil.getMultiCodes(
 ));
 
 codes.value.OSTR_AK_TP_CD = codes.value.OSTR_AK_TP_CD.filter((v) => v.codeId === '310' || v.codeId === '320' || v.codeId === '330');
-console.log(dayjs().format('YYYYMMDD'));
+const toMonth = dayjs().format('YYYYMMDD');
+console.log(`toMonth : ${toMonth}`);
+
 const searchParams = ref({
-  strHopDtStr: dayjs().format('YYYYMMDD'),
-  strHopDtEnd: dayjs().format('YYYYMMDD'),
+  strHopDtStr: toMonth,
+  strHopDtEnd: toMonth,
   ostrCnfm: 'N',
   ostrAkTpCd: '',
   ostrOjWareNo: '',
   itmKndCd: '',
-  wareDvCd: '',
+  wareDvCd: '2',
   wareLocaraCd: '',
 });
 let cachedParams;
-
-async function fetchDefaultData() {
-  const defaultParams = ref({
-    apyYm: dayjs(searchParams.value.strHopDtStr).format('YYYYMM'),
-  });
-  const res = await dataService.get(wareURI, { params: defaultParams.value });
-  if (res.data.length === 0) {
-    return false;
-  }
-  codes.value.WARE_HOUSE = res.data.map((v) => ({ codeId: v.wareNo, codeName: v.wareNm }));
-  searchParams.value.ostrOjWareNo = codes.value.WARE_HOUSE[0].codeId;
-}
 
 const pageInfo = ref({
   totalCount: 0,
@@ -217,8 +208,19 @@ async function onClickExcelDownload() {
   });
 }
 
+async function fetchDefaultData() {
+  const defaultParams = ref({
+    apyYm: dayjs(searchParams.value.strHopDtStr).format('YYYYMM'),
+  });
+  const res = await dataService.get(wareURI, { params: defaultParams.value });
+  if (res.data.length === 0) {
+    return false;
+  }
+  codes.value.WARE_HOUSE = res.data.map((v) => ({ codeId: v.wareNo, codeName: v.wareNm }));
+  searchParams.value.ostrOjWareNo = codes.value.WARE_HOUSE[0].codeId;
+}
+
 onMounted(async () => {
-  searchParams.value.wareDvCd = '2';
   await fetchDefaultData();
 });
 // -------------------------------------------------------------------------------------------------
