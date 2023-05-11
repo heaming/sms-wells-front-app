@@ -265,7 +265,8 @@ const initGridTalk = defineGrid((data, view) => {
       button: 'action',
       rules: 'numeric||required',
       editor: {
-        type: 'number',
+        type: 'line',
+        inputCharacters: ['0-9'],
         maxLength: 10,
         positiveOnly: true,
       },
@@ -298,14 +299,18 @@ const initGridTalk = defineGrid((data, view) => {
     grid.checkItem(itemIndex, true);
   };
 
-  view.onCellButtonClicked = async (grid, { dataRow, column }) => {
+  view.onCellButtonClicked = async (grid, { dataRow, column, itemIndex }) => {
+    const { cstNo } = grid.getValues(itemIndex);
     if (column === 'cstNo') {
       const { result, payload } = await modal({
         component: 'ZwcsaCustomerListP',
+        componentProps: {
+          cstNo,
+        },
       });
       if (result) {
-        const { cstNo } = payload;
-        data.setValue(dataRow, 'cstNo', cstNo);
+        const { getCstNo } = payload;
+        data.setValue(dataRow, 'cstNo', getCstNo);
       }
     }
   };
