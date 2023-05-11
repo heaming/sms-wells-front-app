@@ -123,16 +123,13 @@
     <kw-grid
       ref="grdChangePrdRef"
       :visible-rows="1"
-      class="mb20"
       @init="initChangePrdGrid"
     />
     <kw-separator />
-    <kw-action-top class="mt40">
-      <span class="kw-fc---black3 text-weight-regular">({{ $t('MSG_TXT_UNIT') }} : {{ $t('MSG_TXT_CUR_WON') }})</span>
-    </kw-action-top>
 
     <kw-grid
       ref="grdMainRef"
+      class="mt40"
       name="grdMain"
       :visible-rows="5"
       @init="initGrid"
@@ -284,7 +281,7 @@ async function initServiceGrid(data, view) {
     // 주기단위/방문주기
     { fieldName: 'svVstPrdCdSet',
       header: t('MSG_TXT_PD_UNIT_VISIT_PERI'),
-      width: '187',
+      width: '170',
       styleName: 'text-center',
       displayCallback(grid, index) {
         const svPrdUnitCd = getCodeNames(codes.SV_PRD_UNIT_CD, grid.getValue(index.itemIndex, 'svPrdUnitCd'));
@@ -298,7 +295,7 @@ async function initServiceGrid(data, view) {
     // 주기단위/택배주기
     { fieldName: 'pcsvPrdCdSet',
       header: t('MSG_TXT_PD_UNIT_PARCEL_PERI'),
-      width: '187',
+      width: '170',
       styleName: 'text-center',
       displayCallback(grid, index) {
         const svPrdUnitCd = getCodeNames(codes.SV_PRD_UNIT_CD, grid.getValue(index.itemIndex, 'svPrdUnitCd'));
@@ -329,7 +326,7 @@ async function initStandardGrid(data, view) {
     // 기준상품코드
     { fieldName: 'pdCd', header: t('MSG_TXT_PD_STD_CODE'), width: '185', styleName: 'text-center' },
     // 판매유형
-    { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '187', styleName: 'text-center', options: codes.SELL_TP_CD },
+    { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '170', styleName: 'text-center', options: codes.SELL_TP_CD },
     // 판매채널
     { fieldName: 'channelId', header: t('MSG_TXT_SEL_CHNL'), width: '187', styleName: 'text-center', options: codes.SELL_CHNL_DTL_CD },
   ];
@@ -344,17 +341,17 @@ async function initStandardGrid(data, view) {
 async function initChangePrdGrid(data, view) {
   const columns = [
     // 제품분류
-    { fieldName: 'pdClsfNm', header: t('MSG_TXT_PRDT_CLSF'), width: '200' },
+    { fieldName: 'pdClsfNm', header: t('MSG_TXT_PRDT_CLSF'), width: '201' },
     // 제품명
     { fieldName: 'pdNm', header: t('MSG_TXT_GOODS_NM'), width: '206' },
     // 제품코드
-    { fieldName: 'pdCd', header: t('MSG_TXT_PROD_CD'), width: '163', styleName: 'text-center ' },
+    { fieldName: 'pdCd', header: t('MSG_TXT_PROD_CD'), width: '185', styleName: 'text-center ' },
     // 자재코드
-    { fieldName: 'sapMatCd', header: t('MSG_TXT_MATI_CD'), width: '123', styleName: 'text-center ' },
+    { fieldName: 'sapMatCd', header: t('MSG_TXT_MATI_CD'), width: '113', styleName: 'text-center ' },
     // 모델명
-    { fieldName: 'modelNm', header: t('MSG_TXT_MDL_NM'), width: '129' },
+    { fieldName: 'modelNm', header: t('MSG_TXT_MDL_NM'), width: '119' },
     // 모델NO
-    { fieldName: 'modelNo', header: t('MSG_TXT_PD_MODEL_NO'), width: '127', styleName: 'text-center ' },
+    { fieldName: 'modelNo', header: t('MSG_TXT_PD_MODEL_NO'), width: '122', styleName: 'text-center ' },
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   data.setFields(fields);
@@ -379,9 +376,9 @@ async function initGrid(data, view) {
     // LV.2(약정주기)
     { fieldName: 'stplPrdCd', header: t('MSG_TXT_PD_COM_PERI_LV2'), width: '120', styleName: 'text-right', options: codes.STPL_PRD_CD },
     // 할인유형 TODO (DSC_CD, SPAY_DSC_DV_CD) 코드 없음
-    { fieldName: 'dscCd', header: t('MSG_TXT_PD_DC_CLASS'), width: '120', styleName: 'text-right', options: codes.SPAY_DSC_DV_CD },
+    { fieldName: 'dscCd', header: t('MSG_TXT_PD_DC_CLASS'), width: '100', styleName: 'text-right', options: codes.SPAY_DSC_DV_CD },
     // 최종가격
-    { fieldName: 'fnlVal', header: t('MSG_TXT_PD_FNL_PRC'), width: '120', styleName: 'text-right', numberFormat: '#,##0.##', dataType: 'number' },
+    { fieldName: 'fnlVal', header: t('MSG_TXT_PD_FNL_PRC'), width: '100', styleName: 'text-right', numberFormat: '#,##0.##', dataType: 'number' },
   ];
 
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
