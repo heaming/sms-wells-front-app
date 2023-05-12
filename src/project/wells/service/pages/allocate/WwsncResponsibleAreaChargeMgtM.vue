@@ -164,7 +164,8 @@
 
       <kw-grid
         ref="grdMainRef"
-        :visible-rows="pageInfo.pageSize"
+        :page-size="pageInfo.pageSize"
+        :total-count="pageInfo.totalCount"
         @init="initGrdMain"
       />
 
