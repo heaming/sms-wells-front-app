@@ -14,7 +14,10 @@
 --->
 <template>
   <kw-page>
-    <kw-search @search="onClickSearch">
+    <kw-search
+      @search="onClickSearch"
+      @reset="onClickReset"
+    >
       <kw-search-row>
         <kw-search-item
           :label="$t('MSG_TXT_INQR_DV')"
@@ -285,7 +288,7 @@ async function fetchDefaultData() {
 
   responseMclsfIdOptions.data.forEach((v) => {
     if ((!isEmpty(v)) && (!isEmpty(v.pdClsfId))) {
-      initPdMclsfId.push({ codeId: v.pdClsfNm, codeName: v.pdClsfNm });
+      initPdMclsfId.push({ codeId: v.pdClsfCd, codeName: v.pdClsfNm });
     }
   });
   filteredDgr1LevlOgCds.value.forEach((v) => {
@@ -312,6 +315,13 @@ async function onUpdateDgr1Levl(selectedValues) {
     }
   });
   rgnlDivOptions.value = initdgr2LevlOgCd;
+}
+
+// 초기화버튼 클릭 이벤트
+async function onClickReset() {
+  const view = grdRentalAccountList.value.getView();
+  view.columnsByTag('prod').forEach((col) => { col.visible = true; });
+  view.columnsByTag('org').forEach((col) => { col.visible = false; });
 }
 
 onMounted(async () => {
