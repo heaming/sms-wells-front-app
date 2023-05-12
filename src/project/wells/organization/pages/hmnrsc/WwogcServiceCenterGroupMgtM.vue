@@ -15,6 +15,7 @@
 <template>
   <kw-page>
     <kw-search
+      :modified-targets="['grdMain']"
       @search="onClickSearch"
     >
       <kw-search-row>
@@ -33,19 +34,17 @@
             v-model="searchParams.wkGrpCd"
             :options="codes.WK_GRP_CD"
             :label="t('MSG_TXT_BZ_DV')"
-            first-option
-            first-option-label="전체"
+            first-option="all"
           />
         </kw-search-item>
         <kw-search-item
           :label="t('MSG_TXT_RSB')"
         >
           <kw-select
-            v-model="searchParams.egerRsbCd"
-            :options="codes.EGER_RSB_CD"
+            v-model="searchParams.rsbDvCd"
+            :options="codes.RSB_DV_CD"
             :label="t('MSG_TXT_BZ_DV')"
-            first-option
-            first-option-label="전체"
+            first-option="all"
           />
         </kw-search-item>
       </kw-search-row>
@@ -53,10 +52,8 @@
         <kw-search-item :label="t('MSG_TXT_SEQUENCE_NUMBER')">
           <kw-input
             v-model="searchParams.prtnrNo"
-            type="number"
             maxlength="10"
             clearable
-            rules="numeric"
             :placeholder="$t('MSG_TIT_PRTNR_NO')"
           />
           <kw-input
@@ -71,7 +68,11 @@
         <kw-search-item
           :label="t('MSG_TXT_APY_D_BASE_INQR')"
         >
-          <kw-date-picker v-model="searchParams.vlDt" />
+          <kw-date-picker
+            v-model="searchParams.vlDt"
+            rules="required"
+            :label="t('MSG_TXT_APY_D_BASE_INQR')"
+          />
         </kw-search-item>
       </kw-search-row>
     </kw-search>
@@ -102,7 +103,7 @@
           v-model="saveParams.rfltEnddt"
         />
         <kw-btn
-          :label="t('MSG_TXT_BK_RGST')"
+          :label="t('MSG_BTN_RFLT_DT_BLK_SAVE')"
           grid-action
           @click="onClickAllSave"
         />
@@ -168,6 +169,7 @@ const pageInfo = ref({
 
 const codes = await codeUtil.getMultiCodes(
   'EGER_RSB_CD',
+  'RSB_DV_CD',
   'WK_GRP_CD',
   'WKCR_CD',
 );
@@ -177,7 +179,7 @@ const searchParams = ref({
   ogLevlDvCd1: undefined,
   ogLevlDvCd2: undefined,
   wkGrpCd: undefined,
-  egerRsbCd: undefined,
+  rsbDvCd: undefined,
   prtnrNo: undefined,
   prtnrKnm: undefined,
   vlDt: dayjs().format('YYYYMMDD'),
@@ -246,20 +248,31 @@ async function onClickAllSave() {
   }
 
   if (isEmpty(saveParams.value.rfltAplyDt) || isEmpty(saveParams.value.rfltEnddt)) {
-    notify(t('MSG_ALT_CHK_RFLT_APY_D'));
+    notify(t('MSG_TXT_APY_DT_CONF'));
     return;
   }
-  if (saveParams.value.rfltAplyDt.length !== 8 || saveParams.value.rfltEnddt.length !== 8) {
-    notify(t('MSG_ALT_CHK_RFLT_APY_D'));
+  if (dayjs().format('YYYYMMDD') > saveParams.value.rfltAplyDt
+      || dayjs().format('YYYYMMDD') > saveParams.value.rfltEnddt) {
+    notify(t('MSG_TXT_APY_DT_CONF'));
     return;
-  } if (now.format('YYYYMM') !== saveParams.value.rfltAplyDt.substring(0, 6)
-    || now.format('YYYYMM') > saveParams.value.rfltEnddt.substring(0, 6)) {
-    notify(t('MSG_ALT_CHK_RFLT_APY_D'));
+  }
+  if (saveParams.value.rfltAplyDt > saveParams.value.rfltEnddt) {
+    notify(t('MSG_TXT_APY_DT_CONF'));
     return;
   }
 
-  const wkGrpCdYn = ref(false);
-  const wkcrCdYn = ref(false);
+  // eslint-disable-next-line no-restricted-syntax
+  for (const item of checkedRows) {
+    if (isEmpty(item.wkGrpCd)) {
+      notify(t('MSG_ALT_WK_GRP_NOT_EXIST'));
+      return;
+    }
+    if (isEmpty(item.wkcrCd)) {
+      notify(t('MSG_ALT_CO_NO_EXIST'));
+      return;
+    }
+  }
+
   checkedRows.forEach((obj) => {
     if (!isEmpty(obj.cralLocaraTno)) {
       const tel = obj.cralLocaraTno.replaceAll('-', '');
@@ -269,23 +282,7 @@ async function onClickAllSave() {
     }
     obj.vlStrtdt = saveParams.value.rfltAplyDt;
     obj.vlEnddt = saveParams.value.rfltEnddt;
-
-    if (isEmpty(obj.wkGrpCd)) {
-      wkGrpCdYn.value = true;
-    }
-    if (isEmpty(obj.wkcrCd)) {
-      wkcrCdYn.value = true;
-    }
   });
-
-  if (wkGrpCdYn.value) {
-    notify(t('MSG_ALT_WK_GRP_NOT_EXIST'));
-    return;
-  }
-  if (wkcrCdYn.value) {
-    notify(t('MSG_ALT_CO_NO_EXIST'));
-    return;
-  }
 
   await dataService.post('/sms/wells/partner-engineer/joe-management', checkedRows);
   notify(t('MSG_ALT_SAVE_DATA'));
@@ -300,17 +297,17 @@ async function onClickSave() {
 
   const changeRows = gridUtil.getChangedRowValues(view);
 
-  if (isEmpty(saveParams.value.rfltAplyDt) || isEmpty(saveParams.value.rfltEnddt)) {
-    notify(t('MSG_ALT_CHK_RFLT_APY_D'));
-    return;
-  }
-  if (saveParams.value.rfltAplyDt.length !== 8 || saveParams.value.rfltEnddt.length !== 8) {
-    notify(t('MSG_ALT_CHK_RFLT_APY_D'));
-    return;
-  } if (now.format('YYYYMM') !== saveParams.value.rfltAplyDt.substring(0, 6)
-      || now.format('YYYYMM') > saveParams.value.rfltEnddt.substring(0, 6)) {
-    notify(t('MSG_ALT_CHK_RFLT_APY_D'));
-    return;
+  // eslint-disable-next-line no-restricted-syntax
+  for (const item of changeRows) {
+    if (dayjs().format('YYYYMMDD') > item.vlStrtDt
+      || dayjs().format('YYYYMMDD') > item.vlEnddt) {
+      notify(t('MSG_TXT_APY_DT_CONF'));
+      return;
+    }
+    if (item.vlStrtDt > item.vlEnddt) {
+      notify(t('MSG_TXT_APY_DT_CONF'));
+      return;
+    }
   }
 
   changeRows.forEach((obj) => {
@@ -323,6 +320,7 @@ async function onClickSave() {
     obj.vlStrtdt = saveParams.value.rfltAplyDt;
     obj.vlEdndt = saveParams.value.rfltEnddt;
   });
+
   await dataService.post('/sms/wells/partner-engineer/joe-management', changeRows);
   notify(t('MSG_ALT_SAVE_DATA'));
   await onClickSearch();
@@ -375,11 +373,11 @@ const initGrdMain = defineGrid((data, view) => {
       },
     },
     {
-      fieldName: 'egerRsbCd',
+      fieldName: 'rsbDvCd',
       header: t('MSG_TXT_RSB'),
       width: '122',
       styleName: 'text-center',
-      options: codes.EGER_RSB_CD,
+      options: codes.RSB_DV_CD,
       editor: {
         type: 'dropdown',
       } },
@@ -393,13 +391,13 @@ const initGrdMain = defineGrid((data, view) => {
       editor: {
         type: 'dropdown',
       } },
-    { fieldName: 'cntrDt', header: t('MSG_TXT_ENTCO_DT'), width: '130', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd' },
-    { fieldName: 'vlStrtdt',
+    { fieldName: 'cntrDt', header: t('MSG_TXT_ENTCO_DT'), width: '130', styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'vlStrtDt',
       header: t('MSG_TXT_APPLY_DT'),
       width: '186',
       styleName: 'text-center',
       rules: 'required',
-      datetimeFormat: 'yyyy-MM-dd',
+      datetimeFormat: 'date',
       editor: {
         type: 'date',
       } },
@@ -408,7 +406,7 @@ const initGrdMain = defineGrid((data, view) => {
       width: '186',
       styleName: 'text-center',
       rules: 'required',
-      datetimeFormat: 'yyyy-MM-dd',
+      datetimeFormat: 'date',
       editor: {
         type: 'date',
       } },
@@ -423,7 +421,6 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'mexnoEncr', visible: false },
     { fieldName: 'cralIdvTno', visible: false },
     { fieldName: 'wkGrpCdNm', visible: false },
-    { fieldName: 'baseYm', visible: false },
     { fieldName: 'ogTpCd', visible: false },
     { fieldName: 'dtaDlYn', visible: false },
   ];
@@ -435,7 +432,7 @@ const initGrdMain = defineGrid((data, view) => {
   view.editOptions.editable = true;
 
   view.onCellEditable = (grid, index) => {
-    if (!gridUtil.isCreatedRow(grid, index.dataRow) && ['dgr1LevlOgNm', 'dgr2LevlOgNm', 'prtnrNo', 'prtnrKnm', 'egerRsbCd', 'cntrDt'].includes(index.column)) {
+    if (!gridUtil.isCreatedRow(grid, index.dataRow) && ['dgr1LevlOgNm', 'dgr2LevlOgNm', 'prtnrNo', 'prtnrKnm', 'rsbDvCd', 'cntrDt'].includes(index.column)) {
       return false;
     }
   };
