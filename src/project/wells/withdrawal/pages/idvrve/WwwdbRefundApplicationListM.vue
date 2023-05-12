@@ -24,12 +24,11 @@
         <!-- 2023.04.12 rules="date_range_months:1" 가 있으면, 공백 조회가 안됨. 추후 확인 필요. -->
         <kw-search-item
           :label="$t('MSG_TXT_RCPDT')"
-          required
         >
           <kw-date-range-picker
             v-model:from="searchParams.startDay"
             v-model:to="searchParams.endDay"
-            rules="date_range_required|date_range_months:1"
+            rules="date_range_months:1"
             :label="$t('MSG_TXT_RCPDT')"
           />
         </kw-search-item>
@@ -44,10 +43,10 @@
         </kw-search-item>
         <!-- 입금유형 -->
         <kw-search-item :label="$t('MSG_TXT_DP_TP')">
-          <!-- /* 수납구분코드(RVE_DV_CD)가 01.계약금, 15.기타선수금 */ -->
+          <!-- 수납구분코드(RVE_DV_CD)가 01.계약금, 15.기타선수금 20230504. 기타선수금삭제되서 98.기타선수 로 변경함 -->
           <kw-option-group
             v-model="searchParams.rveDvCd"
-            :options="codes.RVE_DV_CD.filter((v) => v.codeId === '15' || v.codeId === '01')"
+            :options="codes.RVE_DV_CD.filter((v) => v.codeId === '01' || v.codeId === '98')"
             type="radio"
           />
         </kw-search-item>
@@ -62,11 +61,12 @@
         </kw-search-item>
         <!-- 계약상세번호 -->
         <kw-search-item :label="$t('MSG_TXT_CNTR_DTL_NO')">
-          <kw-input
-            v-model="searchParams.cntrNoSn"
-            icon="search"
-            clearable
-            :on-click-icon="onClickSelectCntrnosn"
+          <zctz-contract-detail-number
+            ref="contractNumberRef"
+            v-model:cntr-no="searchParams.cntrNo"
+            v-model:cntr-sn="searchParams.cntrSn"
+            :label="$t('MSG_TXT_CNTR_DTL_NO')"
+            @selected="onClickSelectCntrno"
           />
         </kw-search-item>
         <!-- 고객번호 -->
@@ -165,24 +165,19 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 
-// eslint-disable-next-line no-unused-vars
 import { codeUtil, useGlobal, useMeta, defineGrid, getComponentType, gridUtil, useDataService, fileUtil, modal } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
+import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
 
 // const { openReportPopup } = useCmPopup();
-
-// eslint-disable-next-line no-unused-vars
 const { getConfig } = useMeta();
-
-// eslint-disable-next-line no-unused-vars
 const { t } = useI18n();
 const { notify } = useGlobal();
 const dataService = useDataService();
 
 const { getters } = useStore();
 const userInfo = getters['meta/getUserInfo'];
-// eslint-disable-next-line no-unused-vars
 const { upperDepartmentId } = userInfo;
 
 let cachedParams;
@@ -192,7 +187,6 @@ const { currentRoute } = useRouter();
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 const grdMainRef = ref(getComponentType('KwGrid'));
-// eslint-disable-next-line no-unused-vars
 const now = dayjs();
 
 const codes = await codeUtil.getMultiCodes(
@@ -217,26 +211,25 @@ const pageInfo = ref({
 });
 
 const searchParams = ref({
-  startDay: now.format('YYYYMM01'), // 접수일자 시작일
+  startDay: now.add(-1, 'M').add(1, 'day').format('YYYYMMDD'), // 접수일자 시작일 now.add(-30, 'day').format('YYYYMMDD') 1개월 이내로 하라고 에러뜸
   endDay: now.format('YYYYMMDD'), // 접수일자 종료일
   // startDay: undefined, // 접수일자 시작일
   // endDay: undefined, // 접수일자 종료일
   rfndStatCd: '01', // 환불상태
   rveDvCd: '01', // 입금유형
   rfndDsbDvCdCshBltf: undefined, // 처리구분
-  cntrNoSn: undefined, // 계약상세번호
+  cntrNo: '', // 계약번호
+  cntrSn: '', // 계약일련번호
   cstNo: undefined, // 고객번호
   bzrno: undefined, // 사업자등록번호
 });
 
 // 검색조건 : 계약상세번호
-async function onClickSelectCntrnosn() {
-  searchParams.value.cntrNoSn = '';
-  const { result, payload } = await modal({ component: 'WwctaContractNumberListP' });
-  if (result) {
-    searchParams.value.cntrNoSn = `${payload.cntrNo}-${payload.cntrSn}`;
-  }
+async function onClickSelectCntrno(cntrNo, cntrSn) {
+  searchParams.value.cntrNo = cntrNo;
+  searchParams.value.cntrSn = cntrSn;
 }
+
 // 검색조건 : 고객 번호
 async function onClickCstSearch() {
   const { result, payload } = await modal({
@@ -297,7 +290,7 @@ async function onClickExcelDownload() {
 // 본사 담당자 엑셀업로드 시 환불신청(등록) 및 승인처리 가능
 // 고객센터 엑셀업로드 시 환불신청(등록)만 됨
 async function onClickExcelUpload() {
-  // TODO: 엑셀 양식 만든 후 엑셀 업로드 만들기
+  // TODO: 환불신청 팝업 만든 후 엑셀 업로드 만들기
   const apiUrl = '/sms/wells/withdrawal/idvrve/refund-applications/excel-upload';
   const templateId = 'RefundApplication'; // 확인필요.
   const { result } = await modal({
@@ -312,19 +305,19 @@ async function onClickExcelUpload() {
 
 // 환불신청
 async function onClickApplicationRefund() {
-  // TODO: 일정을 위해 4월 21일까지로 미뤄짐
-  notify('개발중');
   await modal({
     component: 'WwwdbRefundApplicationRegP',
-    componentProps: {
-      startDay: searchParams.value.startDay, // 접수일자 시작일
-      endDay: searchParams.value.endDay, // 접수일자 종료일
-      rfndStatCd: searchParams.value.rfndStatCd, // 환불상태
-      rveDvCd: searchParams.value.rveDvCd, // 입금유형
-      rfndDsbDvCdCshBltf: searchParams.value.rfndDsbDvCdCshBltf, // 처리구분
-      cntrNoSn: searchParams.value.cntrNoSn, // 계약상세번호
-      cstNo: searchParams.value.cstNo, // 고객번호
-      bzrno: searchParams.value.bzrno }, // 사업자등록번호
+    // componentProps: {
+    //   startDay: searchParams.value.startDay, // 접수일자 시작일
+    //   endDay: searchParams.value.endDay, // 접수일자 종료일
+    //   rfndStatCd: searchParams.value.rfndStatCd, // 환불상태
+    //   rveDvCd: searchParams.value.rveDvCd, // 입금유형
+    //   rfndDsbDvCdCshBltf: searchParams.value.rfndDsbDvCdCshBltf, // 처리구분
+    //   cntrNo: searchParams.value.cntrNo, // 계약번호
+    //   cntrSn: searchParams.value.cntrSn, // 계약일련번호
+    //   cstNo: searchParams.value.cstNo, // 고객번호
+    //   bzrno: searchParams.value.bzrno // 사업자등록번호
+    // },
   });
 }
 
@@ -338,7 +331,8 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'col2' }, // 환불상세
     { fieldName: 'fnlMdfcDtm', dataType: 'date' }, // 접수일자
     { fieldName: 'cntrwTpCd' }, // 계약유형
-    { fieldName: 'cntrNoSn' }, // 계약상세번호
+    { fieldName: 'cntrNo' }, // 계약상세번호
+    { fieldName: 'cntrSn' },
     { fieldName: 'cstKnm' }, // 계약자
     { fieldName: 'cntrCnfmDtm', dataType: 'date' }, // 계약일자
     { fieldName: 'rveDvCd' }, // 입금유형
@@ -355,7 +349,8 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'rfndRsonCd' }, // 환불사유
     { fieldName: 'rfndRsonCn' }, // 환불내용
     { fieldName: 'rfndEvidMtrFileId' }, // 첨부파일
-
+    { fieldName: 'rfndRcpNo' }, // 환불접수번호
+    { fieldName: 'rfndRcpDtlSn' }, // 환불접수일련번호
   ];
 
   const columns = [
@@ -379,18 +374,26 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'fnlMdfcDtm', header: t('MSG_TXT_RCPDT'), width: '120', styleName: 'text-center', datetimeFormat: 'date' },
     // 계약유형 : 계약서유형코드
     { fieldName: 'cntrwTpCd', header: t('MSG_TXT_CONTR_TYPE'), width: '130', styleName: 'text-left', options: codes.CNTRW_TP_CD },
-    // 계약상세번호 : 표시방법 = 계약번호-계약일련번호
-    { fieldName: 'cntrNoSn', header: t('MSG_TXT_CNTR_DTL_NO'), width: '150', styleName: 'text-center' },
+    { // 계약상세번호 : 표시방법 = 계약번호-계약일련번호
+      fieldName: 'cntrNo',
+      header: t('MSG_TXT_CNTR_DTL_NO'),
+      width: '150',
+      styleName: 'text-center',
+      displayCallback(grid, index) {
+        const { cntrNo, cntrSn } = grid.getValues(index.itemIndex);
+        return `${cntrNo}-${cntrSn}`;
+      },
+    },
     // 계약자
     { fieldName: 'cstKnm', header: t('MSG_TXT_CNTRT'), width: '130', styleName: 'text-left' },
     // 계약일자
-    { fieldName: 'cntrCnfmDtm', header: t('MSG_TXT_CNTR_DATE'), width: '120', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd' },
+    { fieldName: 'cntrCnfmDtm', header: t('MSG_TXT_CNTR_DATE'), width: '120', styleName: 'text-center', datetimeFormat: 'date' },
     // 입금유형
     { fieldName: 'rveDvCd', header: t('MSG_TXT_DP_TP'), width: '120', styleName: 'text-left', options: codes.RVE_DV_CD },
     // 매출일자
-    { fieldName: 'rveDt', header: t('MSG_TXT_SL_DT'), width: '120', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd' },
+    { fieldName: 'rveDt', header: t('MSG_TXT_SL_DT'), width: '120', styleName: 'text-center', datetimeFormat: 'date' },
     // 취소일자
-    { fieldName: 'cntrCanDtm', header: t('MSG_TXT_CANC_DT'), width: '120', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd' },
+    { fieldName: 'cntrCanDtm', header: t('MSG_TXT_CANC_DT'), width: '120', styleName: 'text-center', datetimeFormat: 'date' },
     // 상품명
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '100', styleName: 'text-left' },
     // 환불요청금액(원)
@@ -400,11 +403,11 @@ const initGrdMain = defineGrid((data, view) => {
     // 번호
     { fieldName: 'fnlMdfcUsrId', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '100', styleName: 'text-center' },
     // 승인일자
-    { fieldName: 'rfndFshDt', header: t('MSG_TXT_APR_DT'), width: '120', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd' },
+    { fieldName: 'rfndFshDt', header: t('MSG_TXT_APR_DT'), width: '120', styleName: 'text-center', datetimeFormat: 'date' },
     // 처리내용
     { fieldName: 'exRfndRsonCn', header: t('MSG_TXT_PROCS_CN'), width: '100', styleName: 'text-left' },
     // 지급일자
-    { fieldName: 'rfndFshDtTmp', header: t('MSG_TXT_DSB_DT'), width: '120', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd' },
+    { fieldName: 'rfndFshDtTmp', header: t('MSG_TXT_DSB_DT'), width: '120', styleName: 'text-center', datetimeFormat: 'date' },
     // 처리구분 RFND_DSB_DV_CD_CSH_BLTF
     { fieldName: 'rfndDsbDvCdCshBltf', header: t('MSG_TXT_PROCS_DV'), width: '120', styleName: 'text-left', options: customCodes.RFND_DSB_DV_CD_CSH_BLTF },
     // 환불사유
@@ -434,7 +437,7 @@ const initGrdMain = defineGrid((data, view) => {
     'col2', // 환불상세
     'fnlMdfcDtm', // 접수일자
     'cntrwTpCd', // 계약유형
-    'cntrNoSn', // 계약상세번호
+    'cntrNo', // 계약상세번호
     'cstKnm', // 계약자
     'cntrCnfmDtm', // 계약일자
     'rveDvCd', // 입금유형
@@ -468,6 +471,10 @@ const initGrdMain = defineGrid((data, view) => {
     const {
       rfndStatCd, // 환불상태
       rfndEvidMtrFileId, // 첨부파일ID
+      cntrNo, // 계약번호
+      cntrSn, // 계약일련번호
+      rfndRcpNo, // 환불접수번호
+      rfndRcpDtlSn, // 환불접수일련번호
     } = gridUtil.getRowValue(grid, dataRow);
 
     if (column === 'rfndStatCd') { // 환불상태
@@ -475,12 +482,14 @@ const initGrdMain = defineGrid((data, view) => {
       // 접수, 진행중 클릭 시 환불신청[W-WD-U-108P01] 팝업 노출하여 신청내역 조회
       // 반려, 승인 클릭 시 환불상세[W-WD-U-108P03] 팝업 노출하여 신청결과 조회
       if (rfndStatCd === '01' || rfndStatCd === '05') { // 01.접수, 05.진행중
-        // TODO: 일정을 위해 4월 21일까지로 미뤄짐
-        notify('개발중 01.접수, 05.진행중');
         await modal({
           component: 'WwwdbRefundApplicationRegP', // W-WD-U-0108P01 환불신청팝업
           componentProps: {
             rfndStatCd, // 환불상태
+            cntrNo, // 계약번호
+            cntrSn, // 계약일련번호
+            rfndRcpNo, // 환불접수번호
+            rfndRcpDtlSn, // 환불접수일련번호
           },
         });
       }
