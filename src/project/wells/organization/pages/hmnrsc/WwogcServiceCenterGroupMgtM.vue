@@ -280,7 +280,7 @@ async function onClickAllSave() {
       obj.mexnoEncr = getPhoneNumber(tel, 2);
       obj.cralIdvTno = getPhoneNumber(tel, 3);
     }
-    obj.vlStrtdt = saveParams.value.rfltAplyDt;
+    obj.vlStrtDt = saveParams.value.rfltAplyDt;
     obj.vlEnddt = saveParams.value.rfltEnddt;
   });
 
@@ -317,7 +317,7 @@ async function onClickSave() {
       obj.mexnoEncr = getPhoneNumber(tel, 2);
       obj.cralIdvTno = getPhoneNumber(tel, 3);
     }
-    obj.vlStrtdt = saveParams.value.rfltAplyDt;
+    obj.vlStrtDt = saveParams.value.rfltAplyDt;
     obj.vlEdndt = saveParams.value.rfltEnddt;
   });
 
