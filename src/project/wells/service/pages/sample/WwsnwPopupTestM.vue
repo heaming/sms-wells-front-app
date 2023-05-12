@@ -125,7 +125,7 @@
           </kw-form-item>
           <kw-form-item :label="$t('MSG_TXT_DUTY_USE_MCNT_N')">
             <kw-input
-              placeholder="의무사용개월수 컬럼삭제됨"
+              v-model="customerData.recapDutyPtrmN"
               disable
             />
           </kw-form-item>
