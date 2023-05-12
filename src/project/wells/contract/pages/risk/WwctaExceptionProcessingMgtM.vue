@@ -194,7 +194,6 @@ async function onClickOpenEmployeeSearchPopup() {
   const { result, payload } = await modal({
     component: 'ZwogzPartnerListP',
     componentProps: {
-      ogTpCd: 'W01',
       prtnrNo: searchParams.value.prtnrNo,
     },
   });
@@ -402,7 +401,6 @@ const initGrid = defineGrid((data, view) => {
       const { result, payload } = await modal({
         component: 'ZwogzPartnerListP',
         componentProps: {
-          ogTpCd: 'W01',
           prtnrNo,
         },
       });
