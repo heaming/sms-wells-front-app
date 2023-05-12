@@ -324,7 +324,10 @@ async function onClickToolDsb() {
     component: 'WwsnaEngineerToolDsbRegP',
   });
 
-  if (result) await fetchData();
+  if (result) {
+    notify(t('MSG_ALT_TOOL_DSB_FSH'));
+    await fetchData();
+  }
 }
 
 // -------------------------------------------------------------------------------------------------

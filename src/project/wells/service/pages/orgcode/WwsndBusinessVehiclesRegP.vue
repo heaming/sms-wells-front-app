@@ -27,6 +27,7 @@
         <kw-form-item
           :label="$t('MSG_TXT_SV_CNR')"
           rules="required"
+          required
         >
           <kw-select
             v-model="propsParam.ogId"
@@ -105,6 +106,7 @@
         <kw-form-item
           :label="$t('MSG_TXT_CARNO')"
           rules="required"
+          required
         >
           <kw-select
             v-model="dataParams.carno"
