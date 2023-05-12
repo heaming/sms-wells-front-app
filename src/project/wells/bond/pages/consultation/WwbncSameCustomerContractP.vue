@@ -295,7 +295,12 @@
           v-model:selected-grid-row="selectedGridRow"
         />
       </kw-tab-panel>
-      <kw-tab-panel name="depositDetail" />
+      <kw-tab-panel name="depositDetail">
+        <wwbnc-same-customer-contract-p-deposit
+          ref="depositRef"
+          v-model:selected-grid-row="selectedGridRow"
+        />
+      </kw-tab-panel>
       <kw-tab-panel name="breachOfPromise">
         <wwbnc-same-customer-contract-p-breach-of-promise
           v-model:selected-grid-row="selectedGridRow"
@@ -309,30 +314,30 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService, getComponentType, defineGrid } from 'kw-lib';
+import { useDataService, getComponentType, defineGrid, stringUtil } from 'kw-lib';
 import WwbncSameCustomerContractPBreachOfPromise from './WwbncSameCustomerContractPBreachOfPromise.vue';
 import WwbncSameCustomerContractPSales from './WwbncSameCustomerContractPSales.vue';
+import WwbncSameCustomerContractPDeposit from './WwbncSameCustomerContractPDeposit.vue';
 
 const dataService = useDataService();
 const { t } = useI18n();
 
-// TODO: 전달파라미터 수정 필요, 하드코딩 제거 대상
 const props = defineProps({
   cstNo: {
     type: String,
-    default: () => '12345670',
+    default: () => '',
   },
   cntrNo: {
     type: String,
-    default: () => '1',
+    default: () => '',
   },
   cntrSn: {
-    type: Number,
-    default: () => 0,
+    type: String,
+    default: () => '',
   },
   bndBizDvCd: {
     type: String,
-    default: () => 'L20',
+    default: () => '',
   },
 });
 
@@ -345,11 +350,13 @@ const grdMembershipRef = ref(getComponentType('KwGrid'));
 
 const selectedTab = ref('deposit');
 const selectedGridRow = ref(null);
-const membership = ref();
-const lental = ref();
+const membership = ref(false);
+const lental = ref(false);
 const totalMainCount = ref(0);
 const totalLentalCount = ref(0);
 const totalMembershipCount = ref(0);
+const depositRef = ref();
+const deposit = ref({});
 
 watch(selectedGridRow, (newValue) => {
   if (!newValue) {
@@ -361,34 +368,10 @@ watch(selectedGridRow, (newValue) => {
 watch(() => selectedTab.value, () => {
   grdLentalRef.value.getView().refresh();
   grdMembershipRef.value.getView().refresh();
+  depositRef.value.refresh();
 });
 
-const deposit = ref({
-  ojAmt: '',
-  borAmt: '',
-  dlqAmt: '',
-  slAggAmt: '',
-  slDpAmt: '',
-  lsfe: '',
-  dlqDpAmt: '',
-  slDpAggAmt: '',
-  ojBlam: '',
-  dlqMcn: '',
-  dlqBlam: '',
-  dscAggAmt: '',
-  ucAmt: '',
-  thmChramAmt: '',
-  dlqAddAmt: '',
-  ctrAggAmt: '',
-  ucDpAmt: '',
-  thmChramDpAmt: '',
-  dlqAddDpAmt: '',
-  ucBlam: '',
-  thmChramBlam: '',
-  eotDlqAddAmt: '',
-});
-
-function settBndBizDvCd(bndBizDvCd) {
+function setBndBizDvCd(bndBizDvCd) {
   if (bndBizDvCd === 'L20') {
     lental.value = true;
     membership.value = false;
@@ -405,29 +388,52 @@ async function fetchDeposits() {
   let view;
   if (bndBizDvCd === 'L20') {
     view = grdLentalRef.value.getView();
+    totalLentalCount.value = deposits.length;
   } else {
     view = grdMembershipRef.value.getView();
+    totalMembershipCount.value = deposits.length;
   }
   view.getDataSource().setRows(deposits);
-  view.resetCurrent();
 }
 
 async function fetchDeposit() {
   const res = await dataService.get('/sms/wells/bond/same-customer-contracts/deposit', { params: selectedGridRow.value });
   deposit.value = res.data;
 
+  deposit.value.ojAmt = stringUtil.getNumberWithComma(deposit.value.ojAmt);
+  deposit.value.borAmt = stringUtil.getNumberWithComma(deposit.value.borAmt);
+  deposit.value.dlqAmt = stringUtil.getNumberWithComma(deposit.value.dlqAmt);
+  deposit.value.slAggAmt = stringUtil.getNumberWithComma(deposit.value.slAggAmt);
+  deposit.value.slDpAmt = stringUtil.getNumberWithComma(deposit.value.slDpAmt);
+  deposit.value.lsfe = stringUtil.getNumberWithComma(deposit.value.lsfe);
+  deposit.value.dlqDpAmt = stringUtil.getNumberWithComma(deposit.value.dlqDpAmt);
+  deposit.value.slDpAggAmt = stringUtil.getNumberWithComma(deposit.value.slDpAggAmt);
+  deposit.value.ojBlam = stringUtil.getNumberWithComma(deposit.value.ojBlam);
+  deposit.value.dlqBlam = stringUtil.getNumberWithComma(deposit.value.dlqBlam);
+  deposit.value.dscAggAmt = stringUtil.getNumberWithComma(deposit.value.dscAggAmt);
+  deposit.value.ucAmt = stringUtil.getNumberWithComma(deposit.value.ucAmt);
+  deposit.value.thmChramAmt = stringUtil.getNumberWithComma(deposit.value.thmChramAmt);
+  deposit.value.dlqAddAmt = stringUtil.getNumberWithComma(deposit.value.dlqAddAmt);
+  deposit.value.ctrAggAmt = stringUtil.getNumberWithComma(deposit.value.ctrAggAmt);
+  deposit.value.ucDpAmt = stringUtil.getNumberWithComma(deposit.value.ucDpAmt);
+  deposit.value.thmChramDpAmt = stringUtil.getNumberWithComma(deposit.value.thmChramDpAmt);
+  deposit.value.dlqAddDpAmt = stringUtil.getNumberWithComma(deposit.value.dlqAddDpAmt);
+  deposit.value.ucBlam = stringUtil.getNumberWithComma(deposit.value.ucBlam);
+  deposit.value.thmChramBlam = stringUtil.getNumberWithComma(deposit.value.thmChramBlam);
+  deposit.value.eotDlqAddAmt = stringUtil.getNumberWithComma(deposit.value.eotDlqAddAmt);
+
   await fetchDeposits();
 }
 
 async function fetchData() {
-  settBndBizDvCd(props.bndBizDvCd);
+  setBndBizDvCd(props.bndBizDvCd);
   selectedGridRow.value = props;
 
   const res = await dataService.get('/sms/wells/bond/same-customer-contracts', { params: props });
   const sameCustomers = res.data;
+  totalMainCount.value = sameCustomers.length;
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(sameCustomers);
-  view.resetCurrent();
 
   await fetchDeposit();
 }
@@ -443,8 +449,8 @@ const initMainGrid = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'mpyDpTpNm', header: t('MSG_TXT_FNT'), width: '100', styleName: 'text-center' },
     { fieldName: 'bndBizDvCd', header: t('TXT_MSG_SELL_TP_CD'), width: '100', styleName: 'text-left', visible: false },
-    { fieldName: 'bndBizDvNm', header: t('MSG_TXT_TASK_DIV'), width: '100', styleName: 'text-left' },
-    { fieldName: 'pdClsfNm', header: t('MSG_TXT_PRD_GRP'), width: '100', styleName: 'text-left' },
+    { fieldName: 'bndBizDvNm', header: t('MSG_TXT_TASK_DIV'), width: '100', styleName: 'text-center' },
+    { fieldName: 'pdClsfNm', header: t('MSG_TXT_PRD_GRP'), width: '100', styleName: 'text-center' },
     { fieldName: 'pdNm', header: t('MSG_TXT_GOODS_NM'), width: '130', styleName: 'text-left' },
     {
       fieldName: 'cntrNoSn',
@@ -459,13 +465,14 @@ const initMainGrid = defineGrid((data, view) => {
     },
     { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_NO'), width: '150', styleName: 'text-center', visible: false },
     { fieldName: 'cntrSn', header: t('MSG_TXT_CNTR_SN'), width: '50', styleName: 'text-center', visible: false },
-    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '100', styleName: 'text-left' },
+    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '100', styleName: 'text-center' },
     { fieldName: 'dlqMcn', header: t('MSG_TXT_DLQ_MCNT'), width: '100', styleName: 'text-center' },
     { fieldName: 'authRsgCnfmdt', header: t('MSG_TXT_AUTH_RSG_DT'), width: '152', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'ojAmt', header: t('MSG_TXT_OJ_AMT'), width: '155', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0.##' },
-    { fieldName: 'totOjDpAmt', header: t('MSG_TXT_OJ_DP'), width: '155', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0.##' },
-    { fieldName: 'totRemain', header: t('MSG_TXT_OJ_BLAM'), width: '155', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0.##' },
+    { fieldName: 'ojAmt', header: t('MSG_TXT_OJ_AMT'), width: '155', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'totOjDpAmt', header: t('MSG_TXT_OJ_DP'), width: '155', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'totRemain', header: t('MSG_TXT_OJ_BLAM'), width: '155', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
   ];
+
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
 
   data.setFields(fields);
@@ -477,13 +484,15 @@ const initMainGrid = defineGrid((data, view) => {
   view.displayOptions.minTableRowHeight = 34;
 
   view.onCellDblClicked = async (g, clickData) => {
-    const clickDatas = g.getValues(clickData.itemIndex);
-    settBndBizDvCd(clickDatas.bndBizDvCd);
-    selectedGridRow.value = null;
-    selectedGridRow.value = clickDatas;
-    selectedGridRow.value.checkSelectRow = 'Y';
+    if (clickData.cellType === 'data') {
+      const clickDatas = g.getValues(clickData.itemIndex);
+      setBndBizDvCd(clickDatas.bndBizDvCd);
+      selectedGridRow.value = null;
+      selectedGridRow.value = clickDatas;
+      selectedGridRow.value.checkSelectRow = 'Y';
 
-    await fetchDeposit();
+      await fetchDeposit();
+    }
   };
 });
 
@@ -491,10 +500,10 @@ const initLentalGrid = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'baseYm', header: t('MSG_TXT_PERF_MM'), width: '240', styleName: 'text-center' },
     { fieldName: 'rentalTn', header: t('MSG_TXT_NMN'), width: '240', styleName: 'text-center' },
-    { fieldName: 'thmSlSumAmt', header: t('MSG_TXT_SL_AMT'), width: '240', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0.##' },
-    { fieldName: 'lentalDpAmt', header: t('MSG_TXT_DP_AMT'), width: '240', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0.##' },
-    { fieldName: 'prmSlAmt', header: t('MSG_TXT_BZNS_PRPD_AMT'), width: '240', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0.##' },
-    { fieldName: 'dlqAmt', header: t('MSG_TXT_DLQ_AMT'), width: '242', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0.##' },
+    { fieldName: 'thmSlSumAmt', header: t('MSG_TXT_SL_AMT'), width: '240', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'lentalDpAmt', header: t('MSG_TXT_DP_AMT'), width: '240', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'prmSlAmt', header: t('MSG_TXT_BZNS_PRPD_AMT'), width: '240', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'dlqAmt', header: t('MSG_TXT_DLQ_AMT'), width: '242', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
   ];
 
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
@@ -511,14 +520,14 @@ const initLentalGrid = defineGrid((data, view) => {
 const initMembershipGrid = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'jTn', header: t('MSG_TXT_NMN'), width: '144', styleName: 'text-center' },
-    { fieldName: 'thmSlSumAmt', header: t('MSG_TXT_SL_AMT'), width: '144', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0.##' },
-    { fieldName: 'mshDpAmt', header: t('MSG_TXT_DP_AMT'), width: '144', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0.##' },
-    { fieldName: 'prmSlAmt', header: t('MSG_TXT_BZNS_PRPD_AMT'), width: '144', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0.##' },
-    { fieldName: 'dlqAmt', header: t('MSG_TXT_DLQ_AMT'), width: '144', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0.##' },
-    { fieldName: 'dlqMcn', header: t('MSG_TXT_DLQ_MCNT'), width: '144', styleName: 'text-center', dataType: 'number', numberFormat: '#,##0.##' },
+    { fieldName: 'thmSlSumAmt', header: t('MSG_TXT_SL_AMT'), width: '144', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'mshDpAmt', header: t('MSG_TXT_DP_AMT'), width: '144', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'prmSlAmt', header: t('MSG_TXT_BZNS_PRPD_AMT'), width: '144', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'dlqAmt', header: t('MSG_TXT_DLQ_AMT'), width: '144', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'dlqMcn', header: t('MSG_TXT_DLQ_MCNT'), width: '144', styleName: 'text-center', dataType: 'number', numberFormat: '#,##0' },
     { fieldName: 'dlqAddAmt', header: t('MSG_BTN_DLQ_ADAMT'), width: '144', styleName: 'text-right' },
-    { fieldName: 'dlqAddDpAmt', header: t('MSG_TXT_DLQ_ADD_DP'), width: '144', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0.##' },
-    { fieldName: 'eotDlqAddAmt', header: t('MSG_TXT_DLQ_ADD_BLAM'), width: '144', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0.##' },
+    { fieldName: 'dlqAddDpAmt', header: t('MSG_TXT_DLQ_ADD_DP'), width: '144', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'eotDlqAddAmt', header: t('MSG_TXT_DLQ_ADD_BLAM'), width: '144', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
   ];
 
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
