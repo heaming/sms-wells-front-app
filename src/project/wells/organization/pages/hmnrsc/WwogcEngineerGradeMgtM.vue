@@ -1,55 +1,42 @@
-<!----
-****************************************************************************************************
-* 프로그램 개요
-****************************************************************************************************
-1. 모듈 : OGC
-2. 프로그램 ID : WwogcEngineerGradeMgtM - 엔지니어 등급 관리
-3. 작성자 : gs.rahul.m
-4. 작성일 : 2023-05-08
-****************************************************************************************************
-* 프로그램 설명
-****************************************************************************************************
-- 엔지니어 등급 관리
-****************************************************************************************************
---->
 <template>
   <kw-page>
-    <kw-search>
+    <kw-search
+      @search="onClickSearch"
+    >
       <kw-search-row>
-        <kw-search-item :label="$t('MSG_TXT_MNGT_DV')">
+        <kw-search-item :label="t('MSG_TXT_MNGT_DV')">
           <kw-select
-            :model-value="[]"
-            :options="['엔지니어', 'B', 'C', 'D']"
+            v-model="searchParams.ogTpCd"
+            :options="codes.OG_TP_CD"
+            disable
           />
         </kw-search-item>
         <kw-search-item :label="$t('MSG_TXT_OG_LEVL')">
-          <kw-select
-            :model-value="[]"
-            :options="['전체', 'B', 'C', 'D']"
-          />
-          <kw-select
-            :model-value="[]"
-            :options="['전체', 'B', 'C', 'D']"
+          <zwog-level-select
+            v-model:og-levl-dv-cd1="searchParams.ogLevlDvCd1"
+            v-model:og-levl-dv-cd2="searchParams.ogLevlDvCd2"
+            :og-tp-cd="searchParams.ogTpCd"
+            :base-ym="searchParams.baseYm"
+            :start-level="1"
+            :end-level="2"
           />
         </kw-search-item>
-        <kw-search-item :label="$t('MSG_TXT_ROLE_1')">
+        <kw-search-item :label="t('MSG_TXT_ROLE_1')">
           <kw-select
-            :model-value="[]"
-            :options="['전체', 'B', 'C', 'D']"
+            v-model="searchParams.egerEvlGdCd"
+            :options="codes.EGER_EVL_GD_CD"
+            first-option
+            first-option-label="전체"
           />
         </kw-search-item>
       </kw-search-row>
       <kw-search-row>
-        <kw-search-item :label="$t('MSG_TXT_NO_RGS')">
-          <kw-field :model-value="[]">
-            <template #default="{ field }">
-              <kw-checkbox
-                v-bind="field"
-                label=""
-                val=""
-              />
-            </template>
-          </kw-field>
+        <kw-search-item :label="t('MSG_TXT_NO_RGS')">
+          <kw-checkbox
+            v-model="searchParams.chk"
+            :true-value="Y"
+            :false-value="N"
+          />
         </kw-search-item>
       </kw-search-row>
     </kw-search>
@@ -58,7 +45,8 @@
       <kw-action-top>
         <kw-btn
           grid-action
-          :label="$t('MSG_BTN_SAVE')"
+          :label="t('MSG_BTN_SAVE')"
+          @click="onClickSave"
         />
         <kw-separator
           vertical
@@ -70,25 +58,29 @@
           secondary
           dense
           :label="$t('MSG_TXT_EXCEL_DOWNLOAD')"
+          :disable="pageInfo.totalCount === 0"
+          @click="onClickExcelDownload"
         />
         <kw-btn
           icon="upload_on"
           secondary
           dense
-          :label="$t('MSG_TXT_EXCEL_UPLOAD')"
-          :disable="pageInfo.totalCount === 0"
-          @click="onClickExcelDownload"
+          :label="t('MSG_TXT_EXCEL_UPLOAD')"
+          @click="onClickExcelUpload"
         />
       </kw-action-top>
       <kw-grid
         ref="grdMainRef"
-        :visible-rows="10"
+        name="grdMain"
+        :page-size="pageInfo.pageSize"
+        :visible-rows="pageInfo.pageSize - 1"
+        :total-count="pageInfo.totalCount"
         @init="initGrdMain"
       />
-      <kw-pagination
+      <!-- <kw-pagination
         :model-value="1"
-        :total-count="pageInfo.totalCount"
-      />
+        :total-count="100"
+      /> -->
     </div>
   </kw-page>
 </template>
@@ -96,81 +88,186 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { defineGrid, getComponentType, gridUtil, useMeta } from 'kw-lib';
+import { useDataService, defineGrid, getComponentType, codeUtil, useMeta, gridUtil, useGlobal } from 'kw-lib';
+import ZwogLevelSelect from '~sms-common/organization/components/ZwogLevelSelect.vue';
+import dayjs from 'dayjs';
 
 const { t } = useI18n();
 const { getConfig } = useMeta();
+const dataService = useDataService();
+const { notify, modal } = useGlobal();
 const { currentRoute } = useRouter();
-
+// -------------------------------------------------------------------------------------------------
+// Function & Event
+// -------------------------------------------------------------------------------------------------
+const grdMainRef = ref(getComponentType('KwGrid'));
 const pageInfo = ref({
   totalCount: 0,
   pageIndex: 1,
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
 });
 
-const grdMainRef = ref(getComponentType('KwGrid'));
+const codes = await codeUtil.getMultiCodes(
+  'OG_TP_CD',
+  'EGER_EVL_GD_CD',
+  'ROL_DV_CD',
+);
 
-// -------------------------------------------------------------------------------------------------
-// Function & Event
-// -------------------------------------------------------------------------------------------------
+const searchParams = ref({
+  ogTpCd: 'W06',
+  ogLevlDvCd1: undefined,
+  ogLevlDvCd2: undefined,
+  egerEvlGdCd: undefined,
+  searchYm: dayjs().format('YYYYMM'),
+  baseYm: dayjs().format('YYYYMM'),
+  chk: 'N',
+});
 
+const now = dayjs().format('YYYYMM');
+
+// 조회
+async function fetchData() {
+  const res = await dataService.get('/sms/wells/partner-engineer/engineer-grade/paging', { params: { ...searchParams.value, ...pageInfo.value } });
+  const { list, pageInfo: pagingResult } = res.data;
+
+  pageInfo.value = pagingResult;
+
+  const view = grdMainRef.value.getView();
+  const data = view.getDataSource();
+
+  data.checkRowStates(false);
+  if (list.length > 0) {
+    view.getDataSource().addRows(list);
+  }
+  data.checkRowStates(true);
+}
+
+// 조회
+async function onClickSearch() {
+  grdMainRef.value.getData().clearRows();
+  pageInfo.value.pageIndex = 1;
+  await fetchData();
+}
+
+// 엑셀다운로드
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
+  const res = await dataService.get('/sms/wells/partner-engineer/engineer-grade/excel-download', { params: searchParams.value });
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
+    exportData: res.data,
   });
+}
+
+// 저장
+async function onClickSave() {
+  const view = grdMainRef.value.getView();
+  if (await gridUtil.alertIfIsNotModified(view)) { return; }
+  if (!await gridUtil.validate(view)) { return; }
+
+  const changedRows = gridUtil.getChangedRowValues(view);
+
+  // eslint-disable-next-line no-restricted-syntax
+  for (const item of changedRows) {
+    if (dayjs().format('YYYYMMDD') > item.apyStrtDt
+      || dayjs().format('YYYYMMDD') > item.apytEnddt) {
+      notify(t('MSG_TXT_APY_DT_CONF'));
+      return;
+    }
+    if (item.apyStrtDt > item.apyEnddt) {
+      notify(t('MSG_TXT_APY_DT_CONF'));
+      return;
+    }
+  }
+  await dataService.post('/sms/wells/partner-engineer/engineer-grade', changedRows);
+  notify(t('MSG_ALT_SAVE_DATA'));
+  await onClickSearch();
+}
+
+// 엑셀업로드
+async function onClickExcelUpload() {
+  const apiUrl = `sms/wells/partner-engineer/engineer-grade/excel-upload/${now}`;
+  const templateId = 'FOM_EGER_GD';
+  const {
+    payload,
+  } = await modal({
+    component: 'ZwcmzExcelUploadP',
+    componentProps: { apiUrl, templateId },
+  });
+
+  if (payload.status === 'S') {
+    notify(t('MSG_ALT_SAVE_DATA'));
+    await onClickSearch();
+  }
 }
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
 const initGrdMain = defineGrid((data, view) => {
-  const fields = [
-    { fieldName: 'col1' },
-    { fieldName: 'col2' },
-    { fieldName: 'col3' },
-    { fieldName: 'col4' },
-    { fieldName: 'col5' },
-    { fieldName: 'col6' },
-    { fieldName: 'col7' },
-    { fieldName: 'col8' },
-    { fieldName: 'col9' },
-    { fieldName: 'col10' },
-
-  ];
-
   const columns = [
-    { fieldName: 'col1', header: t('MSG_TXT_BLG'), width: '152', styleName: 'text-center' },
-    { fieldName: 'col2', header: t('MSG_TXT_EPNO'), width: '110', styleName: 'text-center' },
-    { fieldName: 'col3', header: t('MSG_TXT_EMPL_NM'), width: '166', styleName: 'text-center' },
-    { fieldName: 'col4', header: t('MSG_TXT_RSB'), width: '106', styleName: 'text-center' },
-    { fieldName: 'col5', header: t('MSG_TXT_ROLE_1'), width: '106', styleName: 'text-center' },
-    { fieldName: 'col6', header: t('MSG_TXT_ENTCO_DT'), width: '130', styleName: 'text-center' },
-    { fieldName: 'col7', header: t('MSG_TXT_GD'), width: '166', styleName: 'text-left' },
-    { fieldName: 'col8', header: t('MSG_TXT_APY_STRTDT'), width: '178', styleName: 'text-center ' },
-    { fieldName: 'col9', header: t('MSG_TXT_APY_ENDDT'), width: '178', styleName: 'text-center ' },
-    { fieldName: 'col10', header: t('MSG_TXT_NOTE'), width: '499.7', styleName: 'text-center' },
 
+    { fieldName: 'dgr2LevlOgNm', header: t('MSG_TXT_BLG'), width: '152', styleName: 'text-center' },
+    { fieldName: 'prtnrNo', header: t('MSG_TXT_EPNO'), width: '110', styleName: 'text-center' },
+    { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '166', styleName: 'text-center' },
+    { fieldName: 'rolDvCd', header: t('MSG_TXT_RSB'), width: '106', styleName: 'text-center', options: codes.ROL_DV_CD },
+    { fieldName: 'egerEvlGdCd', header: t('MSG_TXT_ROLE_1'), width: '106', styleName: 'text-center', options: codes.EGER_EVL_GD_CD },
+    { fieldName: 'cntrDt', header: t('MSG_TXT_ENTCO_DT'), width: '130', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd' },
+    {
+      fieldName: 'prtnrGdCd',
+      header: t('MSG_TXT_GD'),
+      width: '166',
+      styleName: 'text-center',
+      rules: 'required',
+      options: codes.EGER_EVL_GD_CD,
+      editor: {
+        type: 'dropdown',
+      },
+    },
+    { fieldName: 'apyStrtDt',
+      header: t('MSG_TXT_APY_STRTDT'),
+      width: '178',
+      styleName: 'text-center',
+      datetimeFormat: 'yyyy-MM-dd',
+      rules: 'required',
+      editor: {
+        type: 'date',
+      },
+    },
+    { fieldName: 'apyEnddt',
+      header: t('MSG_TXT_APY_ENDDT'),
+      width: '178',
+      styleName: 'text-center',
+      datetimeFormat: 'yyyy-MM-dd',
+      rules: 'required',
+      editor: {
+        type: 'date',
+      },
+    },
+    { fieldName: 'rmkCn', header: t('MSG_TXT_NOTE'), width: '499.7', styleName: 'text-left', editor: { maxLength: 4000 } },
+    { fieldName: 'ogTpCd', visible: false },
+    { fieldName: 'dtaDlYn', visible: false },
   ];
-  data.setFields(fields);
-  view.setColumns(columns);
 
+  data.setFields(columns.map((item) => ({ fieldName: item.fieldName })));
+  view.setColumns(columns);
   view.checkBar.visible = true;
   view.rowIndicator.visible = true;
+  view.editOptions.editable = true;
 
-  data.setRows([
-    { col1: '경남서비스센터', col2: '0000000', col3: '홍길동(0000000)', col4: '센터소장', col5: '정규직', col6: '2008-09-13', col7: '정규직', col8: '2022-09-13', col9: '2022-09-13', col10: '-' },
-    { col1: '경남서비스센터', col2: '0000000', col3: '유인열(0000000)', col4: '센터소장', col5: '정규직', col6: '2008-09-13', col7: '정규직', col8: '2022-09-24', col9: '2022-09-24', col10: '-' },
-    { col1: '경남서비스센터', col2: '0000000', col3: '강성환(0000000)', col4: '센터소장', col5: '정규직', col6: '2008-09-13', col7: '정규직', col8: '2022-09-15', col9: '2022-09-15', col10: '-' },
-    { col1: '경남서비스센터', col2: '0000000', col3: '김창민(0000000)', col4: '센터소장', col5: '정규직', col6: '2008-09-13', col7: '정규직', col8: '2022-09-13', col9: '2022-09-13', col10: '-' },
-    { col1: '경남서비스센터', col2: '0000000', col3: '박준찬(0000000)', col4: '센터소장', col5: '정규직', col6: '2008-09-13', col7: '정규직', col8: '2022-09-24', col9: '2022-09-24', col10: '-' },
-    { col1: '경남서비스센터', col2: '0000000', col3: '김종수(0000000)', col4: '-', col5: '정규직', col6: '2008-09-13', col7: '-', col8: '2022-09-15', col9: '2022-09-15', col10: '-' },
-    { col1: '경남서비스센터', col2: '0000000', col3: '유인열(0000000)', col4: '센터소장', col5: '정규직', col6: '2008-09-13', col7: '정규직', col8: '2022-09-13', col9: '2022-09-13', col10: '-' },
-    { col1: '경남서비스센터', col2: '0000000', col3: '강성환(0000000)', col4: '센터소장', col5: '정규직', col6: '2008-09-13', col7: '정규직', col8: '2022-09-24', col9: '2022-09-24', col10: '-' },
-    { col1: '경남서비스센터', col2: '0000000', col3: '김창민(0000000)', col4: '센터소장', col5: '정규직', col6: '2008-09-13', col7: '정규직', col8: '2022-09-15', col9: '2022-09-15', col10: '-' },
-    { col1: '경남서비스센터', col2: '0000000', col3: '박준찬(0000000)', col4: '센터소장', col5: '정규직', col6: '2008-09-13', col7: '정규직', col8: '2022-09-13', col9: '2022-09-13', col10: '-' },
+  view.onCellEditable = (grid, index) => {
+    if (!gridUtil.isCreatedRow(grid, index.dataRow) && ['dgr2LevlOgNm', 'prtnrNo', 'prtnrKnm', 'rolDvCd', 'egerEvlGdCd', 'cntrDt'].includes(index.column)) {
+      return false;
+    }
+  };
 
-  ]);
+  view.onScrollToBottom = async (g) => {
+    if (pageInfo.value.pageIndex * pageInfo.value.pageSize <= g.getItemCount()) {
+      pageInfo.value.pageIndex += 1;
+      await fetchData();
+    }
+  };
 });
+
 </script>
