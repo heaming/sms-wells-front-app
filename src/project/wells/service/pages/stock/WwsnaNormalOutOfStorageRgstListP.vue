@@ -454,7 +454,7 @@ const initGrdMain = defineGrid((data, view) => {
 
   view.onCellDblClicked = async (g, { column, dataRow }, v) => {
     // TODO: componentProps 와 함께 추가
-    const { itmPdCd, pdNm, strWareNo, ostrWareNm, outQty } = gridUtil.getRowValue(g, dataRow);
+    const { itmPdCd, pdNm, strWareNo, strWareNm, ostrAkQty } = gridUtil.getRowValue(g, dataRow);
     console.log(g, column, dataRow, v);
 
     const { result, payload } = await modal({
@@ -464,8 +464,8 @@ const initGrdMain = defineGrid((data, view) => {
         itmPdCd,
         itmPdNm: pdNm,
         strOjWareNo: strWareNo,
-        ostrOjWareNm: ostrWareNm,
-        ostrQty: outQty,
+        strOjWareNm: strWareNm,
+        ostrQty: ostrAkQty,
       },
     });
 
