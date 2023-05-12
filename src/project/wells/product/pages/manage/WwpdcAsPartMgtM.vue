@@ -54,7 +54,7 @@
                 :pd-tp-cd="pdConst.PD_TP_CD_MATERIAL"
                 :pd-grp-dv-cd="pdConst.PD_PRP_GRP_DV_CD_BASIC"
                 :pd-tp-dtl-cd="pdTpDtlCd"
-                @popup-callback="popupCallback"
+                @open-popup="openPopup"
               />
             </kw-step-panel>
             <!-- 2.등록정보 확인 -->
@@ -168,7 +168,7 @@ const props = defineProps({
 
 const { t } = useI18n();
 const dataService = useDataService();
-const { confirm, notify } = useGlobal();
+const { confirm, notify, modal } = useGlobal();
 const router = useRouter();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -397,6 +397,22 @@ async function popupCallback(payload) {
     prevStepData.value[bas].sapPlntCd = payload.sapPlntVal ?? '';
     prevStepData.value[bas].sapMatTpVal = payload.sapMatTpVal ?? '';
   }
+}
+
+async function openPopup(field) {
+  console.log('Open Popup : ', field.colNm, field.sourcInfCn);
+  const { payload } = await modal({
+    component: field.sourcInfCn,
+    componentProps: {
+      searchValue: field.initName,
+      searchType: pdConst.PD_SEARCH_PRODUCT,
+      selectType: pdConst.PD_SEARCH_SINGLE },
+  });
+  if (payload && payload.type !== 'click') {
+    field.initValue = payload.returnValue;
+    field.initName = payload.returnName;
+  }
+  await popupCallback(payload);
 }
 </script>
 <style lang="scss" scoped></style>
