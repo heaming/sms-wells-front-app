@@ -204,9 +204,6 @@ async function onSelectInqrDv() {
 
 let cachedParams;
 async function fetchData() {
-  cachedParams = cloneDeep(searchParams.value);
-  console.log(searchParams.value);
-
   const { inqrDv } = searchParams.value;
   let res;
   if (inqrDv === '1') { // 집계
@@ -224,10 +221,11 @@ async function fetchData() {
     mainView = grdProductRef.value.getView();
   }
   mainView.getDataSource().setRows(productAccountList);
-  mainView.resetCurrent();
 }
 
 async function onClickSearch() {
+  cachedParams = cloneDeep(searchParams.value);
+  console.log(searchParams.value);
   await fetchData();
 }
 
@@ -246,7 +244,6 @@ async function onClickExportView() {
 
 /** TODO : 엑셀 다운로드 컬럼 아직 정의가 안됨 */
 async function onClickDetailExportView() {
-  cachedParams = cloneDeep(searchParams.value);
   const view = grdExcelRef.value.getView();
   const response = await dataService.get('/sms/wells/closing/product-account/excel-download', { params: cachedParams });
   const dataSource = view.getDataSource();
@@ -265,15 +262,15 @@ async function onClickDetailExportView() {
 // -------------------------------------------------------------------------------------------------
 const initGrdTotal = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'baseYm', header: t('MSG_TXT_PERF_YM'), width: '100', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
-    { fieldName: 'sellTpCd', header: t('MSG_TXT_PERF_YM'), width: '100', styleName: 'text-center' },
-    { fieldName: 'sellTpDtlCd', header: t('MSG_TXT_PERF_YM'), width: '100', styleName: 'text-center' },
-    { fieldName: 'agrgCt1', header: t('MSG_TXT_CRDOVR'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'agrgCt2', header: t('MSG_TXT_SL'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'agrgCt3', header: t('MSG_TXT_CH'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'agrgCt4', header: t('MSG_TXT_CANCEL'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'agrgCt5', header: t('MSG_TXT_EXN'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'agrgCt6', header: t('MSG_TXT_SUM'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'baseYm', header: t('MSG_TXT_BASE_YM'), width: '120', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
+    { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '120', styleName: 'text-center' },
+    { fieldName: 'sellTpDtlCd', header: t('MSG_TXT_SELL_TP_DTL'), width: '120', styleName: 'text-center' },
+    { fieldName: 'agrgCt1', header: t('MSG_TXT_CRDOVR'), width: '120', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'agrgCt2', header: t('MSG_TXT_INFLW'), width: '120', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'agrgCt3', header: t('MSG_TXT_EXPIRED'), width: '120', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'agrgCt4', header: t('MSG_TXT_EXN'), width: '120', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'agrgCt5', header: t('MSG_TXT_NINC'), width: '120', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'agrgCt6', header: t('MSG_TXT_SUM'), width: '120', styleName: 'text-right', dataType: 'number' },
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   data.setFields(fields);
@@ -322,19 +319,19 @@ const initGrdTotal = defineGrid((data, view) => {
 
 const initGrdProduct = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'baseYm', header: t('MSG_TXT_PERF_YM'), width: '100', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
-    { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '100', styleName: 'text-center' },
-    { fieldName: 'sellTpDtlCd', header: t('MSG_TXT_SELL_TP_DTL'), width: '100', styleName: 'text-center' },
-    { fieldName: 'pdHclsfId', header: t('MSG_TXT_PD_HCLSF'), width: '100', styleName: 'text-center' },
-    { fieldName: 'pdMclsfId', header: t('MSG_TXT_PD_MCLSF'), width: '100', styleName: 'text-center' },
-    { fieldName: 'pdCd', header: t('MSG_TXT_PRDT_CODE'), width: '100', styleName: 'text-center' },
-    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '100', styleName: 'text-center' },
-    { fieldName: 'agrgCt1', header: t('MSG_TXT_CRDOVR'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'agrgCt2', header: t('MSG_TXT_SL'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'agrgCt3', header: t('MSG_TXT_CH'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'agrgCt4', header: t('MSG_TXT_CANCEL'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'agrgCt5', header: t('MSG_TXT_EXN'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'agrgCt6', header: t('MSG_TXT_SUM'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'baseYm', header: t('MSG_TXT_BASE_YM'), width: '120', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
+    { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '120', styleName: 'text-center' },
+    { fieldName: 'sellTpDtlCd', header: t('MSG_TXT_SELL_TP_DTL'), width: '116', styleName: 'text-center' },
+    { fieldName: 'pdHclsfId', header: t('MSG_TXT_PD_HCLSF'), width: '116', styleName: 'text-center' },
+    { fieldName: 'pdMclsfId', header: t('MSG_TXT_PD_MCLSF'), width: '116', styleName: 'text-center' },
+    { fieldName: 'pdCd', header: t('MSG_TXT_PRDT_CODE'), width: '116', styleName: 'text-center' },
+    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '239', styleName: 'text-center' },
+    { fieldName: 'agrgCt1', header: t('MSG_TXT_CRDOVR'), width: '120', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'agrgCt2', header: t('MSG_TXT_INFLW'), width: '120', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'agrgCt3', header: t('MSG_TXT_EXPIRED'), width: '120', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'agrgCt4', header: t('MSG_TXT_EXN'), width: '120', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'agrgCt5', header: t('MSG_TXT_NINC'), width: '120', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'agrgCt6', header: t('MSG_TXT_SUM'), width: '120', styleName: 'text-right', dataType: 'number' },
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   data.setFields(fields);
