@@ -26,6 +26,7 @@
           <kw-select
             v-model="searchParams.sellTpCd"
             :options="codes.SELL_TP_CD"
+            first-option="all"
           />
         </kw-search-item>
         <!-- 변수명 -->

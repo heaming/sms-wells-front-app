@@ -190,7 +190,7 @@ const pageInfo = ref({
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
 });
 
-const codes = await codeUtil.getMultiCodes('ALNCMP_CD', 'SELL_TP_CD', 'RENTAL_DSC_TP_CD', 'SELL_CHNL_DTL_CD', 'COD_PAGE_SIZE_OPTIONS');
+const codes = await codeUtil.getMultiCodes('ALNCMP_CD', 'SELL_TP_CD', 'RENTAL_DSC_TP_CD', 'OG_TP_CD', 'COD_PAGE_SIZE_OPTIONS');
 
 async function fetchData() {
   const res = await dataService.get('/sms/wells/product/alliances/paging', { params: { ...cachedParams, ...pageInfo.value } });
@@ -237,7 +237,7 @@ async function onClickRemoveRows() {
 async function onClickAdd() {
   const view = grdMainRef.value.getView();
   await gridUtil.insertRowAndFocus(view, 0, {
-    apyEnddt: '9999-12-31',
+    apyEnddt: '99991231',
   });
 }
 
@@ -356,14 +356,18 @@ const initGrdMain = defineGrid((data, view) => {
       dataType: 'date',
       styleName: 'text-center',
     },
-    // 판매채널
+    // 판매조직
     {
-      fieldName: 'sellChnlCds',
-      header: t('MSG_TXT_SEL_CHNL'),
+      fieldName: 'ogTpCd',
+      header: t('MSG_TXT_SELL_OG'),
       width: '110',
       styleName: 'text-center',
-      options: codes.SELL_CHNL_DTL_CD,
-      editable: false,
+      editor: { type: 'list' },
+      firstOption: 'ALL',
+      firstOptionValue: '',
+      firstOptionLabel: t('MSG_TIT_TOT'),
+      placeHolder: '',
+      options: codes.OG_TP_CD,
     },
     // 등록일
     { fieldName: 'fstRgstDtm', header: t('MSG_TXT_RGST_DT'), width: '100', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date', editable: false },
@@ -411,7 +415,9 @@ const initGrdMain = defineGrid((data, view) => {
       });
       if (payload) {
         const row = Array.isArray(payload) ? payload[0] : payload;
+        console.log('row : ', row);
         data.setValue(itemIndex, 'svPdCd', row.pdCd);
+        data.setValue(itemIndex, 'svcDurtion', row.svcDurtion);
       }
     }
   };
