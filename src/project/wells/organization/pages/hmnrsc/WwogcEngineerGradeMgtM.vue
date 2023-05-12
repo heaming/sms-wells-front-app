@@ -25,8 +25,7 @@
           <kw-select
             v-model="searchParams.egerEvlGdCd"
             :options="codes.EGER_EVL_GD_CD"
-            first-option
-            first-option-label="전체"
+            first-option="all"
           />
         </kw-search-item>
       </kw-search-row>
@@ -213,7 +212,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '166', styleName: 'text-center' },
     { fieldName: 'rolDvCd', header: t('MSG_TXT_RSB'), width: '106', styleName: 'text-center', options: codes.ROL_DV_CD },
     { fieldName: 'egerEvlGdCd', header: t('MSG_TXT_ROLE_1'), width: '106', styleName: 'text-center', options: codes.EGER_EVL_GD_CD },
-    { fieldName: 'cntrDt', header: t('MSG_TXT_ENTCO_DT'), width: '130', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd' },
+    { fieldName: 'cntrDt', header: t('MSG_TXT_ENTCO_DT'), width: '130', styleName: 'text-center', datetimeFormat: 'date' },
     {
       fieldName: 'prtnrGdCd',
       header: t('MSG_TXT_GD'),
@@ -229,7 +228,7 @@ const initGrdMain = defineGrid((data, view) => {
       header: t('MSG_TXT_APY_STRTDT'),
       width: '178',
       styleName: 'text-center',
-      datetimeFormat: 'yyyy-MM-dd',
+      datetimeFormat: 'date',
       rules: 'required',
       editor: {
         type: 'date',
@@ -239,7 +238,7 @@ const initGrdMain = defineGrid((data, view) => {
       header: t('MSG_TXT_APY_ENDDT'),
       width: '178',
       styleName: 'text-center',
-      datetimeFormat: 'yyyy-MM-dd',
+      datetimeFormat: 'date',
       rules: 'required',
       editor: {
         type: 'date',
