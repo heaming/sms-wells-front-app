@@ -85,12 +85,12 @@
       ref="grdStandardRef"
       name="grdStandardMain"
       :visible-rows="2"
-      class="mb20"
       @init="initStandardGrid"
     />
     <kw-separator />
     <kw-grid
       ref="grdMainRef"
+      class="mt40"
       name="grdMain"
       :visible-rows="5"
       @init="initGrid"
@@ -178,11 +178,11 @@ async function initStandardGrid(data, view) {
     // 기준상품명
     { fieldName: 'pdNm', header: t('MSG_TXT_PD_STD_NAME'), width: '206' },
     // 기준상품코드
-    { fieldName: 'pdCd', header: t('MSG_TXT_PD_STD_CODE'), width: '185', styleName: 'text-center' },
+    { fieldName: 'pdCd', header: t('MSG_TXT_PD_STD_CODE'), width: '140', styleName: 'text-center' },
     // 판매유형
-    { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '157', styleName: 'text-center', options: codes.SELL_TP_CD },
+    { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '120', styleName: 'text-center', options: codes.SELL_TP_CD },
     // 판매채널
-    { fieldName: 'channelId', header: t('MSG_TXT_SEL_CHNL'), width: '187', styleName: 'text-center', options: codes.SELL_CHNL_DTL_CD },
+    { fieldName: 'channelId', header: t('MSG_TXT_SEL_CHNL'), width: '250', styleName: 'text-center', options: codes.SELL_CHNL_DTL_CD },
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   fields.push({ fieldName: pdConst.REL_PD_ID });
