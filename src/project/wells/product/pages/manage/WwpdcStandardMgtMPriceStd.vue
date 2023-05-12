@@ -95,7 +95,7 @@ const { notify } = useGlobal();
 // -------------------------------------------------------------------------------------------------
 const grdMainRef = ref(getComponentType('KwGrid'));
 
-const readonlyFields = ref(['pdCd', pdConst.PRC_DETAIL_ID, 'verSn', 'crncyDvCd', 'sellTpCd']);
+const readonlyFields = ref(['pdCd', pdConst.PRC_DETAIL_ID, 'verSn']);
 const prcd = pdConst.TBL_PD_PRC_DTL;
 const priceStdRef = ref();
 const currentPdCd = ref();

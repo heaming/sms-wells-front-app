@@ -217,21 +217,23 @@ async function fetchInit() {
 }
 let cachedParams;
 async function fetchData() {
-  const res = await dataService.get('/sms/wells/service/normal-outofstorages/organization-center/paging', { params: { ...cachedParams, ...pageInfo.value } });
-  const { list: centers, pageInfo: pagingResult } = res.data;
+  if (searchParams.value.wareClsfCd === '10') {
+    const res = await dataService.get('/sms/wells/service/normal-outofstorages/organization-center/paging', { params: { ...cachedParams, ...pageInfo.value } });
+    const { list: centers, pageInfo: pagingResult } = res.data;
 
-  pageInfo.value = pagingResult;
-  const view = grdMainRef.value.getView();
-  view.getDataSource().setRows(centers);
-  view.resetCurrent();
+    pageInfo.value = pagingResult;
+    const view = grdMainRef.value.getView();
+    view.getDataSource().setRows(centers);
+    view.resetCurrent();
+  } else if (searchParams.value.wareClsfCd === '11') {
+    const res1 = await dataService.get('/sms/wells/service/normal-outofstorages/person-center/paging', { params: { ...cachedParams, ...pageInfo2.value } });
+    const { list: persons, pageInfo: pagingResult2 } = res1.data;
 
-  const res1 = await dataService.get('/sms/wells/service/normal-outofstorages/person-center/paging', { params: { ...cachedParams, ...pageInfo2.value } });
-  const { list: persons, pageInfo: pagingResult2 } = res1.data;
-
-  pageInfo2.value = pagingResult2;
-  const view2 = grdMainRef2.value.getView();
-  view2.getDataSource().setRows(persons);
-  view2.resetCurrent();
+    pageInfo2.value = pagingResult2;
+    const view2 = grdMainRef2.value.getView();
+    view2.getDataSource().setRows(persons);
+    view2.resetCurrent();
+  }
 }
 
 async function onChangeWareClsFCd() {
