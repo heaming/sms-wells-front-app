@@ -153,6 +153,8 @@ const wareDvCd = { WARE_DV_CD: [
   { codeId: '3', codeName: '영업센터' },
 ] };
 
+codes.WARE_DTL_DV_CD = codes.WARE_DTL_DV_CD.filter((v) => (Number(v.codeId) > 29 && Number(v.codeId) < 40));
+
 let cachedParams;
 
 const searchParams = ref({
