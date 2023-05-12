@@ -158,7 +158,8 @@
       </kw-action-top>
       <kw-grid
         ref="grdMainRef"
-        :visible-rows="pageInfo.pageSize"
+        :page-size="pageInfo.pageSize"
+        :total-count="pageInfo.totalCount"
         @init="initGrdMain"
       />
     </div>
@@ -262,6 +263,10 @@ const pageInfo = ref({
 const warehouses = ref([]);
 const ostrRsonCds = ref(codes.DSU_RSON_CD);
 
+function setTotalCount() {
+  pageInfo.value.totalCount = grdMainRef.value.getView().getItemCount();
+}
+
 function validateOstrQty(row, val) {
   const grid = grdMainRef.value.getView();
   const onQty = gridUtil.getCellValue(grid, row, 'onQty');
@@ -312,7 +317,7 @@ function getRowData(rowData) {
 async function openItemBasePopup(type, row) {
   const { result, payload } = await modal({
     component: 'WwsnaItemBaseInformationListP',
-    componentProps: { chk: '1' },
+    componentProps: { chk: '1', lpGbYn: type === 'U' ? 'Y' : '' },
   });
 
   if (result) {
@@ -325,6 +330,7 @@ async function openItemBasePopup(type, row) {
       const rowData = payload?.[0] || {};
       view.setValues(row, getRowData(rowData), true);
     }
+    setTotalCount();
   }
 }
 
@@ -434,6 +440,8 @@ async function onClickDelete() {
   }
 
   const deletedRows = await gridUtil.confirmDeleteCheckedRows(view);
+
+  setTotalCount();
 
   if (deletedRows.length > 0) {
     await dataService.delete('/sms/wells/service/returning-goods-out-of-storages', { data: deletedRows.map((v) => ({ ...searchParams.value, ...v })) });
