@@ -385,7 +385,7 @@ const initGrdMain = defineGrid((data, view) => {
       fieldName: 'wkcrCd',
       header: t('MSG_TXT_CO'),
       width: '166',
-      styleName: 'text-left',
+      styleName: 'text-center',
       rules: 'required',
       options: codes.WKCR_CD,
       editor: {
