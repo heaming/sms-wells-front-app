@@ -209,7 +209,15 @@ const initGrdMain = defineGrid((data, view) => {
 
     { fieldName: 'dgr2LevlOgNm', header: t('MSG_TXT_BLG'), width: '152', styleName: 'text-center' },
     { fieldName: 'prtnrNo', header: t('MSG_TXT_EPNO'), width: '110', styleName: 'text-center' },
-    { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '166', styleName: 'text-center' },
+    { fieldName: 'prtnrKnm',
+      header: t('MSG_TXT_EMPL_NM'),
+      width: '166',
+      styleName: 'text-center',
+      displayCallback(grid, index) {
+        const values = grid.getValues(index.itemIndex);
+        return `${values.prtnrKnm}(${values.prtnrNo})`;
+      },
+    },
     { fieldName: 'rolDvCd', header: t('MSG_TXT_RSB'), width: '106', styleName: 'text-center', options: codes.ROL_DV_CD },
     { fieldName: 'egerEvlGdCd', header: t('MSG_TXT_ROLE_1'), width: '106', styleName: 'text-center', options: codes.EGER_EVL_GD_CD },
     { fieldName: 'cntrDt', header: t('MSG_TXT_ENTCO_DT'), width: '130', styleName: 'text-center', datetimeFormat: 'date' },
