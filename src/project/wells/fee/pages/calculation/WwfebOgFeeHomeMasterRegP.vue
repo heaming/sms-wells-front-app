@@ -51,7 +51,7 @@ async function onClickCreate() {
         >
           <kw-select
             v-model="regData.feeCalcUnitTpCd"
-            :options="codes.FEE_CALC_UNIT_TP_CD.filter((v) => v.codeId === '501')"
+            :options="codes.FEE_CALC_UNIT_TP_CD.filter((v) => v.userDfn03 === 'W03')"
             rules="required"
             first-option="select"
             :label="$t('MSG_TXT_RSB_TP')"
@@ -98,8 +98,8 @@ const codes = await codeUtil.getMultiCodes(
 const popupRef = ref();
 const dataService = useDataService();
 const regData = ref({
-  feeCalcUnitTpCd: '501',
-  feeTcntDvCd: '02', // 2차수
+  feeCalcUnitTpCd: '301',
+  feeTcntDvCd: '01',
   perfYm: props.perfYm,
 });
 // 취소
