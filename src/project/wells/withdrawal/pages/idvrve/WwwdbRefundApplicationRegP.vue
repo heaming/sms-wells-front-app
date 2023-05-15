@@ -142,7 +142,7 @@
           :label="t('MSG_TXT_CLSF_REFUND')"
         >
           <kw-option-group
-            v-model="saveParams.saveList[0].rfndDvCd"
+            v-model="saveParams.details[0].rfndDvCd"
             type="radio"
             :options="codes.RFND_DV_CD"
           />
@@ -310,7 +310,7 @@
 
     <!-- 반복시작 -->
     <div
-      v-for="(item, i) in saveParams.saveList"
+      v-for="(item, i) in saveParams.details"
       :key="i"
     >
       <kw-separator />
@@ -320,15 +320,15 @@
           <h3>{{ t('MSG_TXT_APLC_RFND') }}</h3>
           <ul class="kw-notification ml8">
             <!-- 선환불의 경우 당일지급, 일반환불의 경우 D+2지급 입니다. -->
-            <li v-show="item.rfndDsbDvCd === '01' ? true : false">
+            <li v-show="item.rfndDsbDvCd === '01'">
               선환불의 경우 당일지급, 일반환불의 경우 D+2지급 입니다.
             </li>
             <!-- 카드 전금의 경우 입금 카드 정보 선택 바랍니다. -->
-            <li v-show="item.rfndDsbDvCd === '02' ? true : false">
+            <li v-show="item.rfndDsbDvCd === '02'">
               카드 전금의 경우 입금 카드 정보 선택 바랍니다.
             </li>
             <!-- 승인일로부터 90일 이후는 카드 할부 수수료 반환이 불가합니다. -->
-            <li v-show="item.rfndDsbDvCd === '03' ? true : false">
+            <li v-show="item.rfndDsbDvCd === '03'">
               승인일로부터 90일 이후는 카드 할부 수수료 반환이 불가합니다.
             </li>
           </ul>
@@ -364,11 +364,11 @@
           </kw-form-item>
           <!-- 현금환불 구분 -->
           <kw-form-item
-            v-if="item.rfndDsbDvCd === '01' ? true : false"
+            v-if="item.rfndDsbDvCd === '01'"
             :label="t('MSG_TXT_CASH_REFND') + t('MSG_TXT_DIV')"
           >
             <kw-option-group
-              v-if="item.rfndDsbDvCd === '01' ? true : false"
+              v-if="item.rfndDsbDvCd === '01'"
               v-model="item.cshRfndDvCd"
               type="radio"
               :options="codes.CSH_RFND_DV_CD"
@@ -376,11 +376,11 @@
           </kw-form-item>
           <!-- 환불계좌 구분 -->
           <kw-form-item
-            v-if="item.rfndDsbDvCd === '01' ? true : false"
+            v-if="item.rfndDsbDvCd === '01'"
             :label="t('MSG_TXT_RFND_AC') + t('MSG_TXT_DIV')"
           >
             <kw-option-group
-              v-if="item.rfndDsbDvCd === '01' ? true : false"
+              v-if="item.rfndDsbDvCd === '01'"
               v-model="item.rfndAcDvCd"
               type="radio"
               :options="codes.RFND_AC_DV_CD"
@@ -388,7 +388,7 @@
             <!-- TODO: 이체등록계좌 확인필요. 화면정의서에 내용 없이 버튼 그림만 있음 -->
             <!-- 이체등록계좌 -->
             <kw-btn
-              v-if="item.cshRfndDvCd === '03' ? true : false"
+              v-if="item.cshRfndDvCd === '03'"
               secondary
               dense
               :label="t('MSG_TXT_FNT_RGST_AC')"
@@ -396,11 +396,11 @@
           </kw-form-item>
           <!-- 승인일 -->
           <kw-form-item
-            v-if="item.rfndDsbDvCd === '02' ? true : false"
+            v-if="item.rfndDsbDvCd === '02'"
             :label="t('MSG_TXT_APR_D')"
           >
             <kw-date-range-picker
-              v-if="item.rfndDsbDvCd === '02' ? true : false"
+              v-if="item.rfndDsbDvCd === '02'"
               v-model:from="item.startDay"
               v-model:to="item.endDay"
               rules="date_range_months:1"
@@ -409,12 +409,12 @@
           </kw-form-item>
           <!-- 카드사/카드번호 -->
           <kw-form-item
-            v-if="item.rfndDsbDvCd === '02' ? true : false"
+            v-if="item.rfndDsbDvCd === '02'"
             :label="t('MSG_TXT_CDCO') + '/' + t('MSG_TXT_CARD_NO')"
             rules="required"
           >
             <kw-select
-              v-if="item.rfndDsbDvCd === '02' ? true : false"
+              v-if="item.rfndDsbDvCd === '02'"
               v-model="item.cardRfndFnitCd"
               :options="cardLists"
               option-label="fnitNm"
@@ -423,7 +423,7 @@
               :label="t('MSG_TXT_CDCO') + '/' + t('MSG_TXT_CARD_NO')"
             />
             <kw-input
-              v-if="item.rfndDsbDvCd === '02' ? true : false"
+              v-if="item.rfndDsbDvCd === '02'"
               v-model="item.cardRfndCrcdnoEncr"
               rules="required"
               :label="t('MSG_TXT_CDCO') + '/' + t('MSG_TXT_CARD_NO')"
@@ -431,11 +431,11 @@
           </kw-form-item>
           <!-- 전금구분 -->
           <kw-form-item
-            v-if="item.rfndDsbDvCd === '03' ? true : false"
+            v-if="item.rfndDsbDvCd === '03'"
             :label="t('MSG_TXT_BLTF_DV')"
           >
             <kw-option-group
-              v-if="item.rfndDsbDvCd === '03' ? true : false"
+              v-if="item.rfndDsbDvCd === '03'"
               v-model="item.bltfRfndDvCd"
               type="radio"
               :options="codes.BLTF_RFND_DV_CD"
@@ -443,11 +443,11 @@
           </kw-form-item>
           <!-- 회원구분 -->
           <kw-form-item
-            v-if="item.rfndDsbDvCd === '03' ? true : false"
+            v-if="item.rfndDsbDvCd === '03'"
             :label="t('MSG_TXT_MB_DV')"
           >
             <kw-option-group
-              v-if="item.rfndDsbDvCd === '03' ? true : false"
+              v-if="item.rfndDsbDvCd === '03'"
               v-model="item.bltfRfndMbDvCd"
               type="radio"
               :options="codes.BLTF_RFND_MB_DV_CD"
@@ -458,12 +458,12 @@
         <kw-form-row>
           <!-- 은행명 -->
           <kw-form-item
-            v-if="item.rfndDsbDvCd === '01' ? true : false"
+            v-if="item.rfndDsbDvCd === '01'"
             :label="t('MSG_TXT_BNK_NM')"
             required
           >
             <kw-select
-              v-if="item.rfndDsbDvCd === '01' ? true : false"
+              v-if="item.rfndDsbDvCd === '01'"
               v-model="item.cshRfndFnitCd"
               :options="bankLists"
               option-label="fnitNm"
@@ -474,12 +474,12 @@
           </kw-form-item>
           <!-- 계좌번호 -->
           <kw-form-item
-            v-if="item.rfndDsbDvCd === '01' ? true : false"
+            v-if="item.rfndDsbDvCd === '01'"
             :label="t('MSG_TXT_AC_NO')"
             required
           >
             <kw-input
-              v-if="item.rfndDsbDvCd === '01' ? true : false"
+              v-if="item.rfndDsbDvCd === '01'"
               v-model="item.cshRfndAcnoEncr"
               type="number"
               rules="required"
@@ -488,12 +488,12 @@
           </kw-form-item>
           <!-- 예금주 -->
           <kw-form-item
-            v-if="item.rfndDsbDvCd === '01' ? true : false"
+            v-if="item.rfndDsbDvCd === '01'"
             :label="t('MSG_TXT_ACHLDR')"
             required
           >
             <kw-input
-              v-if="item.rfndDsbDvCd === '01' ? true : false"
+              v-if="item.rfndDsbDvCd === '01'"
               v-model="item.cshRfndAcownNm"
               readonly
               rules="required"
@@ -503,7 +503,7 @@
             <!-- TODO: 유효성체크 방식 확인되지 않음. -->
             <kw-btn
               v-if="item.rfndDsbDvCd === '01'
-                && item.cshRfndDvCd !== '03' ? true : false"
+                && item.cshRfndDvCd !== '03'"
               secondary
               dense
               :label="t('MSG_BTN_EFTN_CHECK')"
@@ -512,17 +512,17 @@
           </kw-form-item>
           <!-- 카드환불 시작 -->
           <kw-form-item
-            v-show="item.rfndDsbDvCd === '02' ? true : false"
+            v-show="item.rfndDsbDvCd === '02'"
           />
           <!-- 환불사유 -->
           <kw-form-item
-            v-if="item.rfndDsbDvCd === '02' ? true : false"
+            v-if="item.rfndDsbDvCd === '02'"
             :label="t('MSG_TXT_RFND_RSON')"
             required
             :colspan="2"
           >
             <kw-select
-              v-if="item.rfndDsbDvCd === '02' ? true : false"
+              v-if="item.rfndDsbDvCd === '02'"
               v-model="item.rfndRsonCd"
               :options="codes.RFND_RSON_CD"
               :label="t('MSG_TXT_RFND_RSON')"
@@ -530,7 +530,7 @@
               class="w262"
             />
             <kw-input
-              v-if="item.rfndDsbDvCd === '02' ? true : false"
+              v-if="item.rfndDsbDvCd === '02'"
               v-model="item.rfndRsonCn"
               :readonly="item.rfndRsonCd !== '56'"
               :label="t('MSG_TXT_RFND_RSON')"
@@ -541,7 +541,7 @@
           <!-- 전금 시작 -->
           <!-- 고객번호 -->
           <kw-search-item
-            v-if="item.rfndDsbDvCd === '03' ? true : false"
+            v-if="item.rfndDsbDvCd === '03'"
             :label="$t('MSG_TXT_CST_NO')"
           >
             <kw-input
@@ -555,22 +555,22 @@
           </kw-search-item>
           <!-- 전금전 가상계좌 -->
           <kw-form-item
-            v-if="item.rfndDsbDvCd === '03' ? true : false"
+            v-if="item.rfndDsbDvCd === '03'"
             :label="t('MSG_TXT_BLTF_BF') + ' ' + t('MSG_TXT_VT_AC')"
           >
             <kw-input
-              v-if="item.rfndDsbDvCd === '03' ? true : false"
+              v-if="item.rfndDsbDvCd === '03'"
               v-model="item.bltfBfVacNoEncr"
               type="number"
             />
           </kw-form-item>
           <!-- 전금후 가상계좌 -->
           <kw-form-item
-            v-if="item.rfndDsbDvCd === '03' ? true : false"
+            v-if="item.rfndDsbDvCd === '03'"
             :label="t('MSG_TXT_BLTF_AF') + ' ' + t('MSG_TXT_VT_AC')"
           >
             <kw-input
-              v-if="item.rfndDsbDvCd === '03' ? true : false"
+              v-if="item.rfndDsbDvCd === '03'"
               v-model="item.bltfAfVacNoEncr"
               type="number"
             />
@@ -580,11 +580,11 @@
         <kw-form-row>
           <!-- 수취인 -->
           <kw-form-item
-            v-if="item.rfndDsbDvCd === '01' ? true : false"
+            v-if="item.rfndDsbDvCd === '01'"
             :label="t('MSG_TXT_ADRS')"
           >
             <kw-select
-              v-if="item.rfndDsbDvCd === '01' ? true : false"
+              v-if="item.rfndDsbDvCd === '01'"
               v-model="item.cshRfndAdrsDvCd"
               :options="codes.CSH_RFND_ADRS_DV_CD"
             />
@@ -592,23 +592,23 @@
           <!-- 대표자 확인 -->
           <!-- TODO: 대표자 확인 방식 확인되지 않음. -->
           <kw-form-item
-            v-if="item.rfndDsbDvCd === '01' ? true : false"
+            v-if="item.rfndDsbDvCd === '01'"
             :label="t('MSG_TXT_RPRS_NAME') + ' ' + t('MSG_TXT_CNTN_CONFRM')"
           >
             <kw-input
-              v-if="item.rfndDsbDvCd === '01' ? true : false"
+              v-if="item.rfndDsbDvCd === '01'"
               v-model="item.cshRfndDlgpsNm"
               readonly
             />
           </kw-form-item>
           <!-- 환불 신청금액(원) -->
           <kw-form-item
-            v-if="item.rfndDsbDvCd === '01' ? true : false"
+            v-if="item.rfndDsbDvCd === '01'"
             :label="t('MSG_TXT_RFND') + ' ' + t('MSG_TXT_APLC_AMT')+ '(' + t('MSG_TXT_CUR_WON') +')'"
             required
           >
             <kw-input
-              v-if="item.rfndDsbDvCd === '01' ? true : false"
+              v-if="item.rfndDsbDvCd === '01'"
               v-model="item.rfndAkAmt"
               type="number"
               rules="required"
@@ -617,11 +617,11 @@
           </kw-form-item>
           <!-- 전금 요청금액(원) -->
           <kw-form-item
-            v-if="item.rfndDsbDvCd === '03' ? true : false"
+            v-if="item.rfndDsbDvCd === '03'"
             :label="t('MSG_TXT_BLTF') + ' ' + t('MSG_TXT_AK_AMT')+ '(' + t('MSG_TXT_CUR_WON') +')'"
           >
             <kw-input
-              v-if="item.rfndDsbDvCd === '03' ? true : false"
+              v-if="item.rfndDsbDvCd === '03'"
               v-model="item.rfndAkAmt2"
               type="number"
               @update:model-value="onRefundReceiptTotalAmount"
@@ -629,11 +629,11 @@
           </kw-form-item>
           <!-- 전금사유 -->
           <kw-form-item
-            v-if="item.rfndDsbDvCd === '03' ? true : false"
+            v-if="item.rfndDsbDvCd === '03'"
             :label="t('MSG_TXT_BLTF_RSON')"
           >
             <kw-input
-              v-if="item.rfndDsbDvCd === '03' ? true : false"
+              v-if="item.rfndDsbDvCd === '03'"
               v-model="item.rfndRsonCn"
             />
           </kw-form-item>
@@ -642,13 +642,13 @@
         <kw-form-row>
           <!-- 환불사유 -->
           <kw-form-item
-            v-if="item.rfndDsbDvCd === '01' ? true : false"
+            v-if="item.rfndDsbDvCd === '01'"
             :label="t('MSG_TXT_RFND_RSON')"
             required
             :colspan="[ item.cshRfndDvCd === '03' ? 1 : 2 ]"
           >
             <kw-select
-              v-if="item.rfndDsbDvCd === '01' ? true : false"
+              v-if="item.rfndDsbDvCd === '01'"
               v-model="item.rfndRsonCd"
               :options="codes.RFND_RSON_CD"
               :label="t('MSG_TXT_RFND_RSON')"
@@ -658,7 +658,7 @@
 
             <kw-input
               v-if="item.rfndDsbDvCd === '01'
-                && item.cshRfndDvCd !== '03' ? true : false"
+                && item.cshRfndDvCd !== '03'"
               v-model="item.rfndRsonCn"
               :readonly="item.rfndRsonCd !== '56'"
               :label="t('MSG_TXT_RFND_RSON')"
@@ -669,12 +669,12 @@
           <!-- 승인일 -->
           <kw-form-item
             v-if="item.rfndDsbDvCd === '01'
-              && item.cshRfndDvCd === '03' ? true : false"
+              && item.cshRfndDvCd === '03'"
             :label="t('MSG_TXT_APR_D')"
           >
             <kw-date-range-picker
               v-if="item.rfndDsbDvCd === '01'
-                && item.cshRfndDvCd === '03' ? true : false"
+                && item.cshRfndDvCd === '03'"
               v-model:from="item.startDay"
               v-model:to="item.endDay"
               rules="date_range_months:1"
@@ -684,12 +684,12 @@
           <!-- 카드사/카드번호 -->
           <kw-form-item
             v-if="item.rfndDsbDvCd === '01'
-              && item.cshRfndDvCd === '03' ? true : false"
+              && item.cshRfndDvCd === '03'"
             :label="t('MSG_TXT_CDCO') + '/' + t('MSG_TXT_CARD_NO')"
           >
             <kw-select
               v-if="item.rfndDsbDvCd === '01'
-                && item.cshRfndDvCd === '03' ? true : false"
+                && item.cshRfndDvCd === '03'"
               v-model="item.cardRfndFnitCd"
               :options="cardLists"
               option-label="fnitNm"
@@ -699,7 +699,7 @@
             />
             <kw-input
               v-if="item.rfndDsbDvCd === '01'
-                && item.cshRfndDvCd === '03' ? true : false"
+                && item.cshRfndDvCd === '03'"
               v-model="item.cardRfndCrcdnoEncr"
               rules="required"
               type="number"
@@ -710,28 +710,28 @@
         <!-- 5번째 로우 시작 -->
         <kw-form-row
           v-if="item.rfndDsbDvCd === '01'
-            && item.cshRfndDvCd === '03' ? true : false"
+            && item.cshRfndDvCd === '03'"
         >
           <kw-form-item
             v-if="item.rfndDsbDvCd === '01'
-              && item.cshRfndDvCd === '03' ? true : false"
+              && item.cshRfndDvCd === '03'"
           >
             <!-- TODO: 화면에 그림만 있고 설명 없음. 무엇을 readonly로 표현하는지 확인 필요. -->
             <kw-input
               v-if="item.rfndDsbDvCd === '01'
-                && item.cshRfndDvCd === '03' ? true : false"
+                && item.cshRfndDvCd === '03'"
               readonly
             />
           </kw-form-item>
           <!-- 실 지급액(원) -->
           <kw-form-item
             v-if="item.rfndDsbDvCd === '01'
-              && item.cshRfndDvCd === '03' ? true : false"
+              && item.cshRfndDvCd === '03'"
             :label="t('MSG_TXT_ACL_DSB_AMT_WON')"
           >
             <kw-input
               v-if="item.rfndDsbDvCd === '01'
-                && item.cshRfndDvCd === '03' ? true : false"
+                && item.cshRfndDvCd === '03'"
               v-model="item.rfndDsbAmt"
               type="number"
             />
@@ -739,12 +739,12 @@
           <!-- 카드 공제액(%) -->
           <kw-form-item
             v-if="item.rfndDsbDvCd === '01'
-              && item.cshRfndDvCd === '03' ? true : false"
+              && item.cshRfndDvCd === '03'"
             :label="t('MSG_TXT_CARD_DDTN_AMT') + '(%)'"
           >
             <kw-input
               v-if="item.rfndDsbDvCd === '01'
-                && item.cshRfndDvCd === '03' ? true : false"
+                && item.cshRfndDvCd === '03'"
               v-model="item.cardRfndFer"
               type="number"
               @update:model-value="onCardRfndFer"
@@ -756,10 +756,10 @@
       <!-- 전금에 전금구분이 제3자회원인 경우만 표시 -->
       <!-- TODO: 증빙자료 파일첨부 확장자 확인되지 않음 -->
       <kw-separator
-        v-show="item.rfndDsbDvCd === '03' && item.bltfRfndMbDvCd === '02' ? true : false"
+        v-show="item.rfndDsbDvCd === '03' && item.bltfRfndMbDvCd === '02'"
       />
       <kw-action-top
-        v-show="item.rfndDsbDvCd === '03' && item.bltfRfndMbDvCd === '02' ? true : false"
+        v-show="item.rfndDsbDvCd === '03' && item.bltfRfndMbDvCd === '02'"
         class="mb20"
       >
         <template #left>
@@ -768,7 +768,7 @@
         </template>
       </kw-action-top>
       <kw-form
-        v-show="item.rfndDsbDvCd === '03' && item.bltfRfndMbDvCd === '02' ? true : false"
+        v-show="item.rfndDsbDvCd === '03' && item.bltfRfndMbDvCd === '02'"
         :cols="1"
       >
         <kw-form-row>
@@ -776,7 +776,7 @@
             :label="$t('MSG_TXT_FILE_ATTH')"
           >
             <zwcm-file-attacher
-              v-if="item.rfndDsbDvCd === '03' && item.bltfRfndMbDvCd === '02' ? true : false"
+              v-if="item.rfndDsbDvCd === '03' && item.bltfRfndMbDvCd === '02'"
               v-model="item.rfndEvidMtrFileId"
               attach-group-id="ATG_CMW_COMMON"
               :attach-document-id="item.rfndEvidMtrFileId"
@@ -875,14 +875,14 @@
     <!-- 환불상태코드가 없으면, 처리정보는 보이지 않고
           환불상태코드가 있으면, 처리정보를 보이게한다.  -->
     <h3
-      v-show="props.rfndStatCd !== '' ? true : false"
+      v-show="props.rfndStatCd !== ''"
       class="mb20"
     >
       <!-- 처리정보 -->
       {{ t('MSG_TXT_PCS_INF') }}
     </h3>
     <kw-grid
-      v-show="props.rfndStatCd !== '' ? true : false"
+      v-show="props.rfndStatCd !== ''"
       ref="grdPopRef3"
       name="grdPop3"
       :visible-rows="1"
@@ -893,21 +893,21 @@
     <template #action>
       <!-- 삭제 -->
       <kw-btn
-        v-if="props.rfndStatCd === '01' ? true : false"
+        v-if="props.rfndStatCd === '01'"
         negative
         :label="t('MSG_BTN_DEL')"
         @click="onClickDelete"
       />
       <!-- 저장 -->
       <kw-btn
-        v-if="props.rfndStatCd === '01' ? true : false"
+        v-if="props.rfndStatCd === '01'"
         primary
         :label="t('MSG_BTN_SAVE')"
         @click="onClickSave"
       />
       <!-- 신청 -->
       <kw-btn
-        v-if="props.rfndStatCd === '' ? true : false"
+        v-if="props.rfndStatCd === ''"
         primary
         :label="t('MSG_BTN_APPL')"
         @click="onClickApply"
@@ -1050,7 +1050,7 @@ async function onClickExcelDownload() {
 
 // 환불신청 저장값
 const saveParams = ref({
-  saveList: [{
+  details: [{
     rveNo: '', // 수납상세.수납번호
     rfndDvCd: '02', // 환불구분: 01.전체환불, 02.부분환불
     rfndDsbDvCd: '01', // 환불구분. 환불지급구분코드 01.현금환불, 02.카드환불, 03.전금
@@ -1135,10 +1135,10 @@ async function onClickCstSearch() {
 }
 
 async function onClickAdd() {
-  if (saveParams.value.saveList.length >= 5) { return notify('더 이상 추가할 수 없습니다.'); }
-  saveParams.value.saveList.push({
-    rveNo: saveParams.value.saveList[0].rveNo, // 수납상세.수납번호
-    rfndDvCd: saveParams.value.saveList[0].rfndDvCd, // 환불구분: 01.전체환불, 02.부분환불
+  if (saveParams.value.details.length >= 5) { return notify('더 이상 추가할 수 없습니다.'); }
+  saveParams.value.details.push({
+    rveNo: saveParams.value.details[0].rveNo, // 수납상세.수납번호
+    rfndDvCd: saveParams.value.details[0].rfndDvCd, // 환불구분: 01.전체환불, 02.부분환불
     rfndDsbDvCd: '01', // 환불구분. 환불지급구분코드 01.현금환불, 02.카드환불, 03.전금
     cshRfndDvCd: '01', // 현금환불 구분. 현금환불구분코드 01.선환불, 02.일반환불, 03.카드현금
     rfndAcDvCd: '01', // 환불계좌 구분. 환불계좌구분코드 01.기입금 계좌, 02.신규 계좌
@@ -1167,7 +1167,7 @@ async function onClickAdd() {
 }
 
 async function onClickDel(i) {
-  saveParams.value.saveList.splice(i, 1);
+  saveParams.value.details.splice(i, 1);
 }
 
 // 환불접수총액 계산
@@ -1177,11 +1177,11 @@ async function onRefundReceiptTotalAmount() {
   let sum3 = 0;
   let sum4 = 0;
   let sum5 = 0;
-  for (let i = 0; i < saveParams.value.saveList.length; i += 1) {
-    sum1 += Number(saveParams.value.saveList[i].rfndAkAmt);
-    // sum2 += Number(saveParams.value.saveList[i].?);
+  for (let i = 0; i < saveParams.value.details.length; i += 1) {
+    sum1 += Number(saveParams.value.details[i].rfndAkAmt);
+    // sum2 += Number(saveParams.value.details[i].?);
     sum2 += 0;
-    sum3 += Number(saveParams.value.saveList[i].rfndAkAmt2);
+    sum3 += Number(saveParams.value.details[i].rfndAkAmt2);
   }
   sum4 = sum1 + sum2 + sum3;
   sum5 = sum1 + sum2 + sum3;
@@ -1194,9 +1194,9 @@ async function onRefundReceiptTotalAmount() {
 
 // 카드공제액 계산
 async function onCardRfndFer() {
-  for (let i = 0; i < saveParams.value.saveList.length; i += 1) {
-    saveParams.value.saveList[i].rfndDsbAmt = saveParams.value.saveList[i].rfndAkAmt
-     - (saveParams.value.saveList[i].rfndAkAmt * (saveParams.value.saveList[i].cardRfndFer / 100));
+  for (let i = 0; i < saveParams.value.details.length; i += 1) {
+    saveParams.value.details[i].rfndDsbAmt = saveParams.value.details[i].rfndAkAmt
+     - (saveParams.value.details[i].rfndAkAmt * (saveParams.value.details[i].cardRfndFer / 100));
   }
 }
 
@@ -1212,8 +1212,8 @@ async function onClickSave() {
 
 // 신청
 async function onClickApply() {
-  console.log('신청');
-  console.log('saveParams.value', saveParams.value);
+  console.log('saveParams', saveParams);
+  console.log('신청 saveParams.value', saveParams.value);
   // if (!await alert(t('MSG_ALT_REQ_PRCD'))) return;
   if (!await confirm(t('MSG_ALT_REQ_PRCD'))) return;
   await dataService.post('/sms/wells/withdrawal/idvrve/refund-applications/reg/refund-possible-amount', { ...saveParams.value });
@@ -1228,8 +1228,13 @@ async function loadRefuncApplication() {
   searchParams.value.cntrSn = props.cntrSn;
   console.log('==============searchParams=============', searchParams);
   await onClickSearch();
+  // 계약상세
   const res = await dataService.get('/sms/wells/withdrawal/idvrve/refund-applications/reg/refund-possible-amount', { params: { cntrNo: props.cntrNo, cntrSn: props.cntrSn } });
   refundPossibleAmount.value = res.data;
+  // 환불구분, 환불신청, 예외환불사유, 환불접수총액, 처리정보
+  // eslint-disable-next-line max-len
+  // const res2 = await dataService.get('/sms/wells/withdrawal/idvrve/refund-applications/reg/refund-application-info', { params: { cntrNo: props.rfndRcpNo, cntrSn: props.rfndRcpDtlSn } });
+  // refundPossibleAmount.value = res2.data;
 }
 
 onMounted(async () => {
@@ -1277,7 +1282,7 @@ const initPopGrid1 = defineGrid((data, view) => {
       header: t('MSG_TXT_CNTR_DTL_NO'),
       width: '140',
       displayCallback(grid, index) {
-        const { cntrNo, cntrSn } = gridUtil.getRowValue(grid, index.itemIndex);
+        const { cntrNo, cntrSn } = gridUtil.getRowValue(grid, index.dataRow);
         return `${cntrNo}-${cntrSn}`;
       },
     },
@@ -1289,7 +1294,7 @@ const initPopGrid1 = defineGrid((data, view) => {
       width: '130',
       styleName: 'text-center',
       displayCallback(grid, index) {
-        const { bzrno, cntrCstNo } = gridUtil.getRowValue(grid, index.itemIndex);
+        const { bzrno, cntrCstNo } = gridUtil.getRowValue(grid, index.dataRow);
         if (!isEmpty(bzrno)) {
           return `${bzrno}`;
         }
@@ -1329,7 +1334,7 @@ const initPopGrid1 = defineGrid((data, view) => {
       saveParams.value.cntrNo = cntrNo;
       saveParams.value.cntrSn = cntrSn;
       saveParams.value.cstNo = cntrCstNo;
-      saveParams.value.saveList[0].rveNo = rveNo;
+      saveParams.value.details[0].rveNo = rveNo;
       const res = await dataService.get('/sms/wells/withdrawal/idvrve/refund-applications/reg/refund-possible-amount', { params: { cntrNo, cntrSn } });
       refundPossibleAmount.value = res.data;
     }
