@@ -252,6 +252,7 @@ async function onClickRemove() {
 
   if (deletedRows.length) {
     await dataService.delete('/sms/wells/contract/risk-audits/irregular-sales-actions/managerial-tasks', { data: deletedRows });
+    notify(t('MSG_ALT_DELETED'));
     await onClickSearch();
   }
 }
