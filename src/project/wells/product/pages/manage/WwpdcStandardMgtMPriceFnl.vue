@@ -100,7 +100,7 @@ async function getSaveData() {
     rowValues,
     currentMetaInfos.value,
     prcfd,
-    ['fnlVal', ...defaultFields.value],
+    ['fnlVal', 'sellTpCd', ...defaultFields.value],
     outKeys,
   );
 

@@ -347,7 +347,7 @@ async function fetchProduct() {
   if (currentPdCd.value) {
     const initData = {};
     const res = await dataService.get(`/sms/wells/product/compositions/${currentPdCd.value}`);
-    // console.log('WwpdcCompositionMgtM - fetchProduct - res.data', res.data);
+    console.log('WwpdcCompositionMgtM - fetchProduct - res.data', res.data);
     initData[bas] = res.data[bas];
     initData[dtl] = res.data[dtl];
     initData[ecom] = res.data[ecom];

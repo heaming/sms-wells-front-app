@@ -133,7 +133,7 @@ async function initGridRows() {
                                                 && item[pdConst.PRC_STD_ROW_ID] === row[pdConst.PRC_STD_ROW_ID])
                                             || item.pdPrcDtlId === row.pdPrcDtlId);
       row = pdMergeBy(row, stdRow);
-      row.sellTpCd = currentInitData.value[pdConst.TBL_PD_BAS]?.sellTpCd;
+      // row.sellTpCd = currentInitData.value[pdConst.TBL_PD_BAS]?.sellTpCd;
       return row;
     });
     if (searchParams.value.avlChnlId.length) {

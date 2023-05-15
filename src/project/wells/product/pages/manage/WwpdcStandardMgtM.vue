@@ -296,7 +296,7 @@ async function getSaveData() {
     subList[prcfd] = pdRemoveBy(subList[prcfd], removePriceRows.value);
     // console.log('removePriceRows - after : ', subList);
   }
-  console.log('WwpdcStandardMgtM - getSaveData - subList.isOnlyFileModified : ', subList.isOnlyFileModified);
+  // console.log('WwpdcStandardMgtM - getSaveData - subList.isOnlyFileModified : ', subList.isOnlyFileModified);
   // console.log('WwpdcStandardMgtM - getSaveData - subList : ', subList);
   return subList;
 }
