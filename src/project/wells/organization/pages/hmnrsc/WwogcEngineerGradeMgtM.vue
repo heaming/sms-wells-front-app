@@ -13,12 +13,12 @@
         </kw-search-item>
         <kw-search-item :label="$t('MSG_TXT_OG_LEVL')">
           <zwog-level-select
-            v-model:og-levl-dv-cd1="searchParams.ogLevlDvCd1"
             v-model:og-levl-dv-cd2="searchParams.ogLevlDvCd2"
+            v-model:og-levl-dv-cd3="searchParams.ogLevlDvCd3"
             :og-tp-cd="searchParams.ogTpCd"
             :base-ym="searchParams.baseYm"
-            :start-level="1"
-            :end-level="2"
+            :start-level="2"
+            :end-level="3"
           />
         </kw-search-item>
         <kw-search-item :label="t('MSG_TXT_ROLE_1')">
@@ -87,12 +87,11 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService, defineGrid, getComponentType, codeUtil, useMeta, gridUtil, useGlobal } from 'kw-lib';
+import { useDataService, defineGrid, getComponentType, codeUtil, gridUtil, useGlobal } from 'kw-lib';
 import ZwogLevelSelect from '~sms-common/organization/components/ZwogLevelSelect.vue';
 import dayjs from 'dayjs';
 
 const { t } = useI18n();
-const { getConfig } = useMeta();
 const dataService = useDataService();
 const { notify, modal } = useGlobal();
 const { currentRoute } = useRouter();
@@ -103,7 +102,7 @@ const grdMainRef = ref(getComponentType('KwGrid'));
 const pageInfo = ref({
   totalCount: 0,
   pageIndex: 1,
-  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
+  pageSize: 20,
 });
 
 const codes = await codeUtil.getMultiCodes(
@@ -114,8 +113,8 @@ const codes = await codeUtil.getMultiCodes(
 
 const searchParams = ref({
   ogTpCd: 'W06',
-  ogLevlDvCd1: undefined,
   ogLevlDvCd2: undefined,
+  ogLevlDvCd3: undefined,
   egerEvlGdCd: undefined,
   searchYm: dayjs().format('YYYYMM'),
   baseYm: dayjs().format('YYYYMM'),
