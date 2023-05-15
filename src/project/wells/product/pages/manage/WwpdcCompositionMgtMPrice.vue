@@ -157,13 +157,13 @@ async function getSaveData() {
     rowValues,
     metaInfos.value,
     prcd,
-    [pdConst.PRC_STD_ROW_ID, pdConst.PRC_DETAIL_ID, 'basePdCd'],
+    [pdConst.PRC_STD_ROW_ID, pdConst.PRC_DETAIL_ID, 'basePdCd', 'vlStrtDtm', 'vlEndDtm'],
   );
   const fnlValues = await getGridRowsToSavePdProps(
     rowValues,
     metaInfos.value,
     prcfd,
-    defaultFields.value,
+    [...defaultFields.value, 'basePdCd', 'vlStrtDtm', 'vlEndDtm'],
   );
   // console.log('WwpdcCompositionMgtMPriceStd - getSaveData - stdValues : ', stdValues);
   // console.log('WwpdcCompositionMgtMPriceStd - getSaveData - fnlValues : ', fnlValues);
@@ -242,8 +242,8 @@ async function onClickAdd() {
 
   const products = currentInitData.value?.[pdConst.RELATION_PRODUCTS];
   if (await products) {
-    const rows = products
-      ?.filter((svcItem) => svcItem[pdConst.PD_REL_TP_CD] === pdConst.PD_REL_TP_CD_C_TO_P);
+    const rows = cloneDeep(products
+      ?.filter((svcItem) => svcItem[pdConst.PD_REL_TP_CD] === pdConst.PD_REL_TP_CD_C_TO_P));
     rows.forEach((item) => {
       item.basePdTempSaveYn = item.tempSaveYn;
       item.basePdClsfNm = item.pdClsfNm;
@@ -402,7 +402,7 @@ async function initGrid(data, view) {
     // 판매유형
     { fieldName: 'baseSellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '87', styleName: 'text-center', options: props.codes?.SELL_TP_CD, editable: false },
     // 판매채널
-    { fieldName: 'sellChnlCd', header: t('MSG_TXT_SEL_CHNL'), width: '127', styleName: 'text-center', editor: { type: 'list' }, options: currentCodes.value.SELL_CHNL_DTL_CD },
+    { fieldName: 'sellChnlCd', header: t('MSG_TXT_SEL_CHNL'), width: '127', styleName: 'text-center', editable: false, options: currentCodes.value.SELL_CHNL_DTL_CD },
     // 적용시작일자
     { fieldName: 'vlStrtDtm', header: t('MSG_TXT_APY_STRTDT'), width: '127', styleName: 'text-center', editor: { type: 'date' } },
     // 적용종료일자

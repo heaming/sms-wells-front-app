@@ -27,7 +27,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService, codeUtil, gridUtil, getComponentType } from 'kw-lib';
+import { useDataService, codeUtil, gridUtil, stringUtil, getComponentType } from 'kw-lib';
 import pdConst from '~sms-common/product/constants/pdConst';
 import { merge, cloneDeep, isEmpty } from 'lodash-es';
 import { pdMergeBy, getPdMetaToCodeNames, getPropInfosToGridRows, getPdMetaToGridInfos } from '~sms-common/product/utils/pdUtil';
@@ -170,15 +170,28 @@ async function initGrid(data, view) {
     // 기준상품코드
     { fieldName: 'basePdCd', header: t('MSG_TXT_PD_STD_CODE'), width: '115', styleName: 'text-center', dataType: 'date' },
     // 판매유형
-    { fieldName: 'baseSellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '87', styleName: 'text-center', options: props.codes?.SELL_TP_CD },
+    { fieldName: 'baseSellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '107', styleName: 'text-center', options: props.codes?.SELL_TP_CD },
     // 판매채널
     { fieldName: 'sellChnlCd', header: t('MSG_TXT_SEL_CHNL'), width: '87', styleName: 'text-center', options: currentCodes.value.SELL_CHNL_DTL_CD },
-    // 적용시작일자
-    { fieldName: 'vlStrtDtm', header: t('MSG_TXT_APY_STRTDT'), width: '127', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date' },
-    // 적용종료일자
-    { fieldName: 'vlEndDtm', header: t('MSG_TXT_APY_ENDDT'), width: '127', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date' },
+    // 적용기간
+    { fieldName: 'applyPeriod',
+      header: t('MSG_TXT_ACEPT_PERIOD'),
+      width: '200',
+      styleName: 'text-center',
+      displayCallback(grid, index) {
+        const vlStrtDtm = grid.getValue(index.itemIndex, 'vlStrtDtm');
+        const vlEndDtm = grid.getValue(index.itemIndex, 'vlEndDtm');
+        if (vlStrtDtm || vlEndDtm) {
+          return `${stringUtil.getDateFormat(vlStrtDtm)} ~ ${stringUtil.getDateFormat(vlEndDtm)}`;
+        }
+        return '';
+      },
+    },
+
   ];
   const pdFields = pdColumns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
+  pdFields.push({ fieldName: 'vlStrtDtm' });
+  pdFields.push({ fieldName: 'vlEndDtm' });
 
   const { fields, columns } = await getPdMetaToGridInfos(
     metaInfos.value,

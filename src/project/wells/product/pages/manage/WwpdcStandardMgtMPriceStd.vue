@@ -222,7 +222,12 @@ async function onClickAdd(isForm) {
   const rowItem = isForm ? cloneDeep(savFields?.reduce((rtn, item) => {
     rtn[item.colNm] = item.initValue;
     return rtn;
-  }, {})) : {};
+  }, {})) : {
+    // 통화명
+    crncyDvCd: currentInitData.value[pdConst.TBL_PD_BAS]?.crncyDvCd,
+    // 판매유형
+    sellTpCd: currentInitData.value[pdConst.TBL_PD_BAS]?.sellTpCd,
+  };
   rowItem[pdConst.PRC_STD_ROW_ID] = stringUtil.getUid('STD');
   rowItem[pdConst.PRC_DETAIL_ID] = '';
   // console.log('rowItem : ', rowItem);
