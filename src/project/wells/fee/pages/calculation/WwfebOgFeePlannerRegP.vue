@@ -51,7 +51,7 @@ async function onClickCreate() {
         >
           <kw-select
             v-model="regData.feeCalcUnitTpCd"
-            :options="codes.FEE_CALC_UNIT_TP_CD.filter((v) => ['101', '102'].includes(v.codeId))"
+            :options="codes.FEE_CALC_UNIT_TP_CD.filter((v) => v.userDfn03 === 'W01')"
             rules="required"
             first-option="select"
             :label="$t('MSG_TXT_RSB_TP')"
@@ -99,7 +99,7 @@ const popupRef = ref();
 const dataService = useDataService();
 const regData = ref({
   feeCalcUnitTpCd: '101', // 101 [P추진단 플래너], 102 [P추진단 지국장]
-  feeTcntDvCd: '02', // 2차수
+  feeTcntDvCd: '01',
   perfYm: props.perfYm,
 });
 // 취소
