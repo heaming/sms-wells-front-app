@@ -76,8 +76,7 @@ import {
 // import { split } from 'lodash-es';
 
 const {
-  // notify,
-  alert,
+  notify,
   confirm,
 } = useGlobal();
 const { t } = useI18n();
@@ -110,10 +109,9 @@ async function onClicBiztalkSend() {
   if (!await frmMainRef.value.validate()) { return; }
   if (!await confirm(t('MSG_ALT_BIZTALK_CONFIRM'))) { return; }
 
-  const res = await dataService.post('/sms/wells/service/outsourcedpd-as-receipts/biztalk', biztalkParams.value);
-  if (res.data.processCount === 1) {
-    await alert(t('MSG_ALT_SEND_SUCCESS'));
-    ok();
-  }
+  await dataService.post('/sms/wells/service/outsourcedpd-as-receipts/biztalk', biztalkParams.value);
+
+  notify(t('MSG_ALT_SEND_SUCCESS'));
+  ok();
 }
 </script>

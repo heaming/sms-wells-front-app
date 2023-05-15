@@ -14,11 +14,13 @@
 --->
 <template>
   <kw-popup
+    ref="popupRef"
     size="3xl"
   >
     <kw-search
       :cols="2"
       one-row
+      :modified-targets="['grdMain']"
       @search="onClickSearch"
     >
       <kw-search-row>
@@ -132,7 +134,6 @@ const { t } = useI18n();
 const { getConfig } = useMeta();
 const dataService = useDataService();
 const grdMainRef = ref(getComponentType('KwGrid'));
-const { currentRoute } = useRouter();
 const { modal, notify } = useGlobal();
 const { ok } = useModal();
 // -------------------------------------------------------------------------------------------------
@@ -155,6 +156,7 @@ const pageInfo = ref({
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
 });
 
+const popupRef = ref();
 async function fetchData() {
   const res = await dataService.get('/sms/wells/service/outsourcedpd-as-receipts/business/paging', { params: { ...cachedParams, ...pageInfo.value } });
   const { list: receipts, pageInfo: pagingResult } = res.data;
@@ -178,7 +180,7 @@ async function onClickExcelDownload() {
   const response = await dataService.get('/sms/wells/service/outsourcedpd-as-receipts/business/excel-download', { params: cachedParams });
 
   await gridUtil.exportView(view, {
-    fileName: currentRoute.value.meta.menuName,
+    fileName: popupRef.value.pageCtxTitle,
     timePostfix: true,
     exportData: response.data,
     checkBar: 'hidden',
