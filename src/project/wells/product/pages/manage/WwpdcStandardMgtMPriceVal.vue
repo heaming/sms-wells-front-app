@@ -51,6 +51,8 @@
           <kw-option-group
             v-model="checkedSelVals"
             type="checkbox"
+            option-value="colNm"
+            option-label="codeName"
             :options="selectionVariables"
             @update:model-value="resetVisibleChannelColumns"
           />
@@ -226,7 +228,7 @@ async function resetInitData() {
   }, []);
   if (checkedVals && checkedVals.length) {
     selectionVariables.value?.forEach((item, idx) => {
-      checkedSelVals.value[idx] = checkedVals.includes(item.codeId) ? item.codeId : null;
+      checkedSelVals.value[idx] = checkedVals.includes(item.colNm) ? item.colNm : null;
     });
   }
   await initGridRows();
@@ -344,7 +346,7 @@ async function resetVisibleChannelColumns() {
   // console.log('checkedSelVals : ', checkedSelVals.value);
   selectionVariables.value.forEach((field) => {
     const view = grdMainRef.value.getView();
-    const column = view.columnByName(field.colNm);
+    const column = view.columnByName(field.codeId);
     if (column) {
       if (checkedSelVals.value && checkedSelVals.value.includes(field.colNm)) {
         column.visible = true;

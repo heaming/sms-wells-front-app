@@ -77,6 +77,7 @@ const currentInitData = ref(null);
 const currentMetaInfos = ref();
 const currentCodes = ref({});
 const usedChannelCds = ref([]);
+const selectionVariables = ref([]);
 const totalCount = ref(0);
 
 const searchParams = ref({
@@ -105,7 +106,8 @@ async function initGridRows() {
   if (checkedVals && checkedVals.length) {
     checkedVals.forEach((fieldName) => {
     // 선택변수 표시
-      const column = view.columnByName(fieldName);
+      const columnName = selectionVariables.value.find((item) => item.colNm === fieldName).codeId;
+      const column = view.columnByName(columnName);
       if (column) {
         column.visible = true;
       }
@@ -182,6 +184,11 @@ async function fetchData() {
       // 공통코드 없는 에러 때문에 임시 - 추후 Try catch 삭제
     }
   }
+
+  // 선택변수
+  const sellTpCd = currentInitData.value[pdConst.TBL_PD_BAS]?.sellTpCd;
+  const typeRes = await dataService.get('/sms/common/product/type-variables', { params: { sellTpCd } });
+  selectionVariables.value = typeRes.data;
 }
 
 async function initProps() {
