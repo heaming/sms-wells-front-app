@@ -400,9 +400,10 @@ async function onClickSave(tempSaveYn) {
   const subList = await getSaveData(tempSaveYn);
 
   // 4. 자재코드 중복검사.
-  if (!isEmpty(subList[bas].sapMatCd)) {
-    if (!await duplicationCheck('sapMatCd', subList)) return false;
-  }
+  // TODO 설계요청에 의해 임시주석처리 230516
+  // if (!isEmpty(subList[bas].sapMatCd)) {
+  //   if (!await duplicationCheck('sapMatCd', subList)) return false;
+  // }
 
   // 5. Insert or Update
   const rtn = currentPdCd.value
