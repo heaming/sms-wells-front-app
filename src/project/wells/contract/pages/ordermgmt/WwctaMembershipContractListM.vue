@@ -38,7 +38,7 @@
         <kw-date-range-picker
           v-model:from="searchParams.strtDt"
           v-model:to="searchParams.endDt"
-          rules="date_range_required|date_range_months:3"
+          rules="date_range_required|date_range_months:1"
         />
       </kw-search-item>
       <!-- 일자선택 -->
@@ -362,9 +362,7 @@ async function onClickSelectPdCd() {
 async function onClickSearchPrtnrNoPopup() {
   const { result, payload } = await modal({
     component: 'ZwogzPartnerListP',
-    componentProps: {
-      prtnrNo: searchParams.value.sellPrtnrNo,
-    },
+    componentProps: {},
   });
   if (result) {
     searchParams.value.sellPrtnrNo = payload.prtnrNo;
