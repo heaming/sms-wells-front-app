@@ -442,6 +442,31 @@ function initGrid(data, view) {
         data.setValue(updateDateRow, 'vlStrtDtm', vlEndDtm);
       }
     }
+    if (columnName === 'pdCd') {
+      const updateRow = view.getCurrent().dataRow;
+      const searchPopupParams = {
+        searchType: pdConst.PD_SEARCH_CODE,
+        searchValue: grid.getValues(itemIndex).pdCd,
+        selectType: '',
+      };
+
+      const returnPdInfo = await modal({
+        component: 'ZwpdcStandardListP', // 상품기준 목록조회 팝업
+        componentProps: searchPopupParams,
+      });
+
+      if (returnPdInfo.result) {
+        const pdClsfNm = returnPdInfo.payload?.[0].pdClsfNm.split('>');
+        data.setValue(itemIndex, 'pdCd', '');
+        data.setValue(itemIndex, 'pdNm', '');
+        data.setValue(itemIndex, 'pdMclsfNm', '');
+        data.setValue(itemIndex, 'pdLclsfNm', '');
+        data.setValue(updateRow, 'pdCd', returnPdInfo.payload?.[0].pdCd);
+        data.setValue(updateRow, 'pdNm', returnPdInfo.payload?.[0].pdNm);
+        data.setValue(updateRow, 'pdMclsfNm', !isEmpty(pdClsfNm[1]) ? pdClsfNm[1] : '');
+        data.setValue(updateRow, 'pdLclsfNm', !isEmpty(pdClsfNm[2]) ? pdClsfNm[2] : '');
+      }
+    }
   };
 }
 </script>
