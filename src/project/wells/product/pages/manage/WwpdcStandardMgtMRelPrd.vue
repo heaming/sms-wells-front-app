@@ -466,17 +466,17 @@ onMounted(async () => {
 async function initMaterialGrid(data, view) {
   const columns = [
     // 관계구분
-    { fieldName: 'pdRelTpCd', header: t('MSG_TXT_RELATION_CLSF'), width: '107', styleName: 'text-center', options: codes.PD_PDCT_REL_DV_CD, editable: false },
+    { fieldName: 'pdRelTpCd', header: t('MSG_TXT_RELATION_CLSF'), width: '85', styleName: 'text-center', options: codes.PD_PDCT_REL_DV_CD, editable: false },
     // 상태
-    { fieldName: 'tempSaveYn', header: t('MSG_TXT_STT'), width: '105', styleName: 'text-center', options: props.codes?.PD_TEMP_SAVE_CD, editable: false },
+    { fieldName: 'tempSaveYn', header: t('MSG_TXT_STT'), width: '85', styleName: 'text-center', options: props.codes?.PD_TEMP_SAVE_CD, editable: false },
     // 교재/자재 분류
-    { fieldName: 'pdClsfNm', header: t('MSG_TXT_PD_BOK_MTR_TYPE'), width: '201', editable: false },
+    { fieldName: 'pdClsfNm', header: t('MSG_TXT_PD_BOK_MTR_TYPE'), width: '170', editable: false },
     // 교재/자재명
-    { fieldName: 'pdNm', header: t('MSG_TXT_PD_BOK_MTR_NAME'), width: '206', editable: false },
+    { fieldName: 'pdNm', header: t('MSG_TXT_PD_BOK_MTR_NAME'), width: '200', editable: false },
     // 제품코드
-    { fieldName: 'pdCd', header: t('MSG_TXT_PROD_CD'), width: '85', styleName: 'text-center', editable: false },
+    { fieldName: 'pdCd', header: t('MSG_TXT_PROD_CD'), width: '120', styleName: 'text-center', editable: false },
     // 자재코드
-    { fieldName: 'sapMatCd', header: t('MSG_TXT_MATI_CD'), width: '87', styleName: 'text-center', editable: false },
+    { fieldName: 'sapMatCd', header: t('MSG_TXT_MATI_CD'), width: '140', styleName: 'text-center', editable: false },
     // 제품수량(개)
     { fieldName: 'itmQty',
       header: t('MSG_TXT_PRD_COUNT_EA'),
@@ -540,15 +540,15 @@ async function initServiceGrid(data, view) {
   // console.log('props.codes : ', props.codes.SV_VST_PRD_CD);
   const columns = [
     // 필수여부
-    { fieldName: 'mndtSvYn', header: t('MSG_TXT_NCSR_YN'), width: '95', styleName: 'text-center' },
+    { fieldName: 'mndtSvYn', header: t('MSG_TXT_NCSR_YN'), width: '85', styleName: 'text-center' },
     // 상태
-    { fieldName: 'tempSaveYn', header: t('MSG_TXT_STT'), width: '135', styleName: 'text-center', options: props.codes?.PD_TEMP_SAVE_CD },
+    { fieldName: 'tempSaveYn', header: t('MSG_TXT_STT'), width: '85', styleName: 'text-center', options: props.codes?.PD_TEMP_SAVE_CD },
     // 서비스 분류
-    { fieldName: 'pdClsfNm', header: t('MSG_TXT_SVC_CATG'), width: '371' },
+    { fieldName: 'pdClsfNm', header: t('MSG_TXT_SVC_CATG'), width: '170' },
     // 서비스명
-    { fieldName: 'pdNm', header: t('MSG_TXT_SVC_NAME'), width: '306' },
+    { fieldName: 'pdNm', header: t('MSG_TXT_SVC_NAME'), width: '200' },
     // 서비스코드
-    { fieldName: 'pdCd', header: t('MSG_TXT_SVC_CODE'), width: '185', styleName: 'text-center' },
+    { fieldName: 'pdCd', header: t('MSG_TXT_SVC_CODE'), width: '120', styleName: 'text-center' },
     // 주기단위/방문주기
     { fieldName: 'svVstPrdCdSet',
       header: t('MSG_TXT_PD_UNIT_VISIT_PERI'),
@@ -566,7 +566,7 @@ async function initServiceGrid(data, view) {
     // 주기단위/택배주기
     { fieldName: 'pcsvPrdCdSet',
       header: t('MSG_TXT_PD_UNIT_PARCEL_PERI'),
-      width: '187',
+      width: '180',
       styleName: 'text-center',
       displayCallback(grid, index) {
         const svPrdUnitCd = getCodeNames(props.codes?.SV_PRD_UNIT_CD, grid.getValue(index.itemIndex, 'svPrdUnitCd'));
@@ -594,28 +594,28 @@ async function initServiceGrid(data, view) {
 async function initStandardGrid(data, view) {
   const columns = [
     // 관계구분
-    { fieldName: 'pdRelTpCd', header: t('MSG_TXT_RELATION_CLSF'), width: '107', styleName: 'text-center', options: codes.BASE_PD_REL_DV_CD, editable: false },
+    { fieldName: 'pdRelTpCd', header: t('MSG_TXT_RELATION_CLSF'), width: '85', styleName: 'text-center', options: codes.BASE_PD_REL_DV_CD, editable: false },
     // 상태
-    { fieldName: 'tempSaveYn', header: t('MSG_TXT_STT'), width: '105', styleName: 'text-center', options: props.codes?.PD_TEMP_SAVE_CD, editable: false },
+    { fieldName: 'tempSaveYn', header: t('MSG_TXT_STT'), width: '85', styleName: 'text-center', options: props.codes?.PD_TEMP_SAVE_CD, editable: false },
     // 기준상품 분류
-    { fieldName: 'pdClsfNm', header: t('MSG_TXT_PD_STD_TYPE'), width: '271', editable: false },
+    { fieldName: 'pdClsfNm', header: t('MSG_TXT_PD_STD_TYPE'), width: '170', editable: false },
     // 기준상품명
-    { fieldName: 'pdNm', header: t('MSG_TXT_PD_STD_NAME'), width: '306', editable: false },
+    { fieldName: 'pdNm', header: t('MSG_TXT_PD_STD_NAME'), width: '200', editable: false },
     // 기준상품코드
-    { fieldName: 'pdCd', header: t('MSG_TXT_PD_STD_CODE'), width: '125', styleName: 'text-center', editable: false },
+    { fieldName: 'pdCd', header: t('MSG_TXT_PD_STD_CODE'), width: '120', styleName: 'text-center', editable: false },
     // 판매유형
-    { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '187', styleName: 'text-center', options: props.codes?.SELL_TP_CD, editable: false },
+    { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '140', styleName: 'text-center', options: props.codes?.SELL_TP_CD, editable: false },
     // 서비스명
     { fieldName: 'svPdNm',
       header: t('MSG_TXT_SVC_NAME'),
-      width: '256',
+      width: '165',
       editable: true,
       styleName: 'text-left rg-button-icon--search',
       editor: { maxLength: 10 },
       button: 'action',
     },
     // 서비스코드
-    { fieldName: 'svPdCd', header: t('MSG_TXT_SVC_CODE'), width: '125', editable: false },
+    { fieldName: 'svPdCd', header: t('MSG_TXT_SVC_CODE'), width: '120', editable: false },
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   fields.push({ fieldName: pdConst.REL_PD_ID });
