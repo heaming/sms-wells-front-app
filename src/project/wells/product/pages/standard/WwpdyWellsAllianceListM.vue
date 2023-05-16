@@ -153,7 +153,7 @@
 // -------------------------------------------------------------------------------------------------
 import { useDataService, useMeta, gridUtil, useGlobal, codeUtil, getComponentType, defineGrid } from 'kw-lib';
 import dayjs from 'dayjs';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, isEmpty } from 'lodash-es';
 import pdConst from '~sms-common/product/constants/pdConst';
 import ZwpdProductClassificationSelect from '~sms-common/product/pages/standard/components/ZwpdProductClassificationSelect.vue';
 import { setGridDateFromTo } from '~sms-common/product/utils/pdUtil';
@@ -312,13 +312,23 @@ const initGrdMain = defineGrid((data, view) => {
       editor: { maxLength: 100 },
       rules: 'required',
     },
-    // 서비스
+    // 서비스 코드
     { fieldName: 'svPdCd',
-      header: t('MSG_TXT_SERVICE'),
+      header: t('MSG_TXT_SVC_CODE'),
       width: '160',
       styleName: 'text-center',
-      editor: { maxLength: 100 },
+      editable: false,
+      rules: 'required',
+    },
+    // 서비스명
+    {
+      fieldName: 'svPdNm',
+      header: t('MSG_TXT_SVC_NAME'),
+      width: '207',
+      styleName: 'text-left',
       button: 'action',
+      editor: { maxLength: 100 },
+      rules: 'required',
     },
     // 할인유형
     {
@@ -392,14 +402,21 @@ const initGrdMain = defineGrid((data, view) => {
   view.onCellEdited = async (grid, itemIndex, row, fieldIndex) => {
     // 날짜값 조정
     await setGridDateFromTo(view, grid, itemIndex, fieldIndex, 'apyStrtdt', 'apyEnddt');
+    if (grid.getColumn(fieldIndex).fieldName === 'pdNm' && isEmpty(grid.getValue(itemIndex, 'pdNm'))) {
+      data.setValue(itemIndex, 'pdCd', null);
+    }
+    if (grid.getColumn(fieldIndex).fieldName === 'svPdNm' && isEmpty(grid.getValue(itemIndex, 'svPdNm'))) {
+      data.setValue(itemIndex, 'svPdCd', null);
+      data.setValue(itemIndex, 'svcDurtion', null);
+    }
   };
 
   view.onCellButtonClicked = async (grid, { column, itemIndex }) => {
     if (column === 'pdNm') {
-      const svPdNm = grid.getValue(itemIndex, 'pdNm');
+      const pdNm = grid.getValue(itemIndex, 'pdNm');
       const { payload } = await modal({
         component: 'ZwpdcStandardListP',
-        componentProps: { searchType: pdConst.PD_SEARCH_NAME, searchValue: svPdNm },
+        componentProps: { searchType: pdConst.PD_SEARCH_NAME, searchValue: pdNm },
       });
       if (payload) {
         const row = Array.isArray(payload) ? payload[0] : payload;
@@ -407,15 +424,16 @@ const initGrdMain = defineGrid((data, view) => {
         data.setValue(itemIndex, 'pdCd', row.pdCd);
       }
     }
-    if (column === 'svPdCd') {
-      const svPdCd = grid.getValue(itemIndex, 'svPdCd');
+    if (column === 'svPdNm') {
+      const svPdNm = grid.getValue(itemIndex, 'svPdNm');
       const { payload } = await modal({
         component: 'ZwpdcServiceListP',
-        componentProps: { searchType: pdConst.PD_SEARCH_CODE, searchValue: svPdCd },
+        componentProps: { searchType: pdConst.PD_SEARCH_NAME, searchValue: svPdNm },
       });
       if (payload) {
         const row = Array.isArray(payload) ? payload[0] : payload;
         console.log('row : ', row);
+        data.setValue(itemIndex, 'svPdNm', row.pdNm);
         data.setValue(itemIndex, 'svPdCd', row.pdCd);
         data.setValue(itemIndex, 'svcDurtion', row.svcDurtion);
       }
