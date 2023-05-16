@@ -62,7 +62,7 @@
           :label="$t('MSG_TXT_CST_NO')"
           icon="search"
           clearable
-          :on-click-icon="onClickSearchCntrCst"
+          :on-click-icon="onClickSearchCustomer"
           rules="max:10|numeric"
           :maxlength="10"
         />
@@ -357,13 +357,35 @@ async function onClickSelectPdCd() {
   }
 }
 
+// 계약번호 팝업조회
+async function onClickSelectCntrNo() {
+  const { result, payload } = await modal({ component: 'WwctaContractNumberListP',
+    // componentProps: { cntrCstNo: searchParams.value.cntrCstNo, cntrCstKnm: searchParams.value.cntrCstKnm },
+  });
+
+  if (result) {
+    searchParams.value.cntrNo = payload.cntrNo;
+    searchParams.value.cntrSn = payload.cntrSn;
+  }
+}
+
+// 고객번호 팝업조회
+async function onClickSearchCustomer() {
+  const { result, payload } = await modal({
+    component: 'ZwcsaCustomerListP',
+    componentProps: { cstType: '1', cstNo: searchParams.value.cntrCstNo },
+  });
+
+  if (result) {
+    searchParams.value.cntrCstNo = payload.cstNo;
+  }
+}
+
 // 파트너 검색 팝업 호출
 async function onClickSearchPrtnrNoPopup() {
   const { result, payload } = await modal({
     component: 'ZwogzPartnerListP',
-    componentProps: {
-      prtnrNo: searchParams.value.sellPrtnrNo,
-    },
+    componentProps: {},
   });
   if (result) {
     searchParams.value.sellPrtnrNo = payload.prtnrNo;

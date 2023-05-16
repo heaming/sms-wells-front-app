@@ -402,9 +402,7 @@ async function onClickSelectPdCd() {
 async function onClickSearchPrtnrNoPopup() {
   const { result, payload } = await modal({
     component: 'ZwogzPartnerListP',
-    componentProps: {
-      prtnrNo: searchParams.value.sellPrtnrNo,
-    },
+    componentProps: {},
   });
   if (result) {
     searchParams.value.sellPrtnrNo = payload.prtnrNo;
