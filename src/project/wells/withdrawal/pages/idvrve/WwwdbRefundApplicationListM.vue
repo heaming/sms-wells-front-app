@@ -103,6 +103,18 @@
             @change="fetchData"
           />
         </template>
+        <!-- 임시 서비스 환불 등록 확인 -->
+        <kw-btn
+          :label="$t('서비스 환불 등록(임시)')"
+          primary
+          dense
+          @click="onClickTemp"
+        />
+        <kw-separator
+          vertical
+          inset
+          spaced
+        />
         <!-- 리포트 보기 -->
         <kw-btn
           icon="report"
@@ -307,6 +319,24 @@ async function onClickExcelUpload() {
 async function onClickApplicationRefund() {
   await modal({
     component: 'WwwdbRefundApplicationRegP',
+    // componentProps: {
+    //   startDay: searchParams.value.startDay, // 접수일자 시작일
+    //   endDay: searchParams.value.endDay, // 접수일자 종료일
+    //   rfndStatCd: searchParams.value.rfndStatCd, // 환불상태
+    //   rveDvCd: searchParams.value.rveDvCd, // 입금유형
+    //   rfndDsbDvCdCshBltf: searchParams.value.rfndDsbDvCdCshBltf, // 처리구분
+    //   cntrNo: searchParams.value.cntrNo, // 계약번호
+    //   cntrSn: searchParams.value.cntrSn, // 계약일련번호
+    //   cstNo: searchParams.value.cstNo, // 고객번호
+    //   bzrno: searchParams.value.bzrno // 사업자등록번호
+    // },
+  });
+}
+
+// 서비스 환불 등록
+async function onClickTemp() {
+  await modal({
+    component: 'WwdbServiceRefundRegP',
     // componentProps: {
     //   startDay: searchParams.value.startDay, // 접수일자 시작일
     //   endDay: searchParams.value.endDay, // 접수일자 종료일
