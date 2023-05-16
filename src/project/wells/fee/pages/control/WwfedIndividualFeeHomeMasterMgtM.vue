@@ -200,7 +200,7 @@
           <kw-form-item
             :label="t('MSG_TXT_ACL_DSB_AMT')"
           >
-            <p>{{ stringUtil.getNumberWithComma(info1.aclDdbAmt) }}</p>
+            <p>{{ stringUtil.getNumberWithComma(info1.aclDsbAmt) }}</p>
           </kw-form-item>
         </kw-form-row>
       </kw-form>
@@ -344,7 +344,7 @@
           dense
           secondary
           :label="t('MSG_BTN_BU_DDTN')+t('MSG_BTN_CTR')"
-          @click="openBurdenDeductionControlPopup"
+          @click="openZwfedFeeBurdenDeductionRegP"
         />
         <kw-separator
           spaced
@@ -355,7 +355,7 @@
           dense
           secondary
           :label="t('MSG_BTN_PNPYAM')+t('MSG_BTN_CTR')"
-          @click="openPnpyamControlPopup"
+          @click="openZwfedFeePnpyamDeductionRegP"
         />
       </kw-action-top>
       <kw-form
@@ -469,7 +469,7 @@ const info1 = ref({
   akcda15: '',
   intbsSum: '',
   ddtnSum: '',
-  aclDdbAmt: '',
+  aclDsbAmt: '',
 });
 
 const info2 = ref({
@@ -543,34 +543,39 @@ async function openFeeControlPopup() {
 }
 
 /*
- *  Event - 부담공제조정 버튼 클릭  ※현재 팝업화면 없음
+ *  Event - 부담공제조정 버튼 클릭
  */
-async function openBurdenDeductionControlPopup() {
+async function openZwfedFeeBurdenDeductionRegP() {
   const param = {
-    perfYm: searchParams.value.perfYm,
-    no: searchParams.value.no,
+    dsbYm: searchParams.value.perfYm,
+    ogTpCd: 'W03',
+    ogTpCdTxt: '홈마스터',
+    coCd: '2000',
+    coCdTxt: 'WELLS',
+    prtnrNo: searchParams.value.no,
   };
-
   await modal({
-    component: 'openBurdenDeductionControlPopup',
+    component: 'ZwfedFeeBurdenDeductionRegP',
     componentProps: param,
   });
 }
 
 /*
- *  Event - 가지급금조정 버튼 클릭  ※현재 팝업화면 없음
+ *  Event - 가지급금조정 버튼 클릭
  */
-async function openPnpyamControlPopup() {
+async function openZwfedFeePnpyamDeductionRegP() {
   const param = {
-    perfYm: searchParams.value.perfYm,
-    no: searchParams.value.no,
+    ddtnYm: searchParams.value.perfYm,
+    ogTpCd: 'W03',
+    feeTcntDvCd: '02',
+    rsbDvCd: 'W302',
   };
-
   await modal({
-    component: 'openPnpyamControlPopup',
+    component: 'ZwfedFeePnpyamDeductionRegP',
     componentProps: param,
   });
 }
+
 async function fetchData(type) {
   const response = await dataService.get(`/sms/wells/fee/individual-fee/home-master/${type}`, { params: cachedParams });
   const resData = response.data;

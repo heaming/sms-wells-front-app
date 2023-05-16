@@ -445,8 +445,8 @@ async function onChangeInqrDv() {
  */
 async function openFeePerfCrtPopup() {
   const param = {
-    perfYm: now.add(-1, 'month').format('YYYYMMDD'),
-    ogTp: 'M',
+    perfYm: now.add(-1, 'month').format('YYYYMM'),
+    ogTp: 'W02',
     dv: 'CR',
   };
   await modal({
@@ -460,8 +460,8 @@ async function openFeePerfCrtPopup() {
  */
 async function openFeePerfCnfmPopup() {
   const param = {
-    perfYm: now.add(-1, 'month').format('YYYYMMDD'),
-    ogTp: 'M',
+    perfYm: now.add(-1, 'month').format('YYYYMM'),
+    ogTp: 'W02',
     dv: 'CO',
   };
   await modal({

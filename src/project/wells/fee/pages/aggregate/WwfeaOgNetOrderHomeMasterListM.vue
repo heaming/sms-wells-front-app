@@ -42,7 +42,7 @@
             <kw-select
               v-model="searchParams.schDv"
               :label="$t('MSG_TXT_DIV')"
-              :options="['매출', '접수', '예약', '수수료 실적 집계 대상']"
+              :options="customCodes.divCd"
               rules="required"
               @change="onChangeBizDv"
             />
@@ -54,7 +54,7 @@
             <kw-select
               v-model="searchParams.schPdctTp"
               :label="$t('MSG_TXT_PDCT_TP')"
-              :options="['전체', 'B', 'C', 'D']"
+              :options="customCodes.pdctTpCd"
               rules="required"
             />
           </kw-search-item>
@@ -117,7 +117,7 @@
             <kw-select
               v-model="searchParams.schDv"
               :label="$t('MSG_TXT_DIV')"
-              :options="['매출', '접수', '예약', '수수료 실적 집계 대상']"
+              :options="customCodes.divCd"
               rules="required"
               @change="onChangeBizDv"
             />
@@ -129,7 +129,7 @@
             <kw-select
               v-model="searchParams.schPdctTp"
               :label="$t('MSG_TXT_PDCT_TP')"
-              :options="['전체', 'B', 'C', 'D']"
+              :options="customCodes.pdctTpCd"
               rules="required"
             />
           </kw-search-item>
@@ -192,7 +192,7 @@
             <kw-select
               v-model="searchParams.schDv"
               :label="$t('MSG_TXT_DIV')"
-              :options="['매출', '접수', '예약', '수수료 실적 집계 대상']"
+              :options="customCodes.divCd"
               rules="required"
               @change="onChangeBizDv"
             />
@@ -204,7 +204,7 @@
             <kw-select
               v-model="searchParams.schPdctTp"
               :label="$t('MSG_TXT_PDCT_TP')"
-              :options="['전체', 'B', 'C', 'D']"
+              :options="customCodes.pdctTpCd"
               rules="required"
             />
           </kw-search-item>
@@ -258,7 +258,7 @@
             <kw-select
               v-model="searchParams.schDv"
               :label="$t('MSG_TXT_DIV')"
-              :options="['매출', '접수', '예약', '수수료 실적 집계 대상']"
+              :options="customCodes.divCd"
               rules="required"
               @change="onChangeBizDv"
             />
@@ -270,7 +270,7 @@
             <kw-select
               v-model="searchParams.schPdctTp"
               :label="$t('MSG_TXT_PDCT_TP')"
-              :options="['전체', 'B', 'C', 'D']"
+              :options="customCodes.pdctTpCd"
               rules="required"
             />
           </kw-search-item>
@@ -400,36 +400,44 @@ const isSelectVisile2 = ref(false);
 const isSelectVisile3 = ref(false);
 const isGridVisile = ref(true);
 const isGrid2Visile = ref(false);
+const customCodes = {
+  divCd: [{ codeId: '01', codeName: '매출' }, { codeId: '02', codeName: '접수' }, { codeId: '03', codeName: '예약' }, { codeId: '04', codeName: '수수료 실적 집계 대상' }],
+  pdctTpCd: [{ codeId: '01', codeName: '전체' }, { codeId: '02', codeName: '환경가전' }, { codeId: '03', codeName: '환경가전외' }, { codeId: '04', codeName: '홈케어' }, { codeId: '05', codeName: '정기구매' }],
+  tcntCd: [{ codeId: '01', codeName: '1차' }, { codeId: '02', codeName: '2차' }],
+};
 const searchParams = ref({
 
   schTcnt: t('MSG_TXT_1ST'),
-  schDv: '매출',
-  schPdctTp: '전체',
+  schDv: '01',
+  schPdctTp: '01',
   schPdCdStrt: '',
   schPdCdEnd: '',
-  schSlDtStrt: '',
-  schSlDtEnd: '',
+  schSlDtStrt: now.add(-1, 'month').startOf('month').format('YYYYMMDD'),
+  schSlDtEnd: now.add(-1, 'month').endOf('month').format('YYYYMMDD'),
   schRcpDtStrt: '',
   schRcpDtEnd: '',
   schPerfYm: '',
-  schVstDtStrt: '',
-  schVstDtEnd: '',
 });
 let cachedParams;
 
 /*
  *  Event - 조회조건 선택에 변경 param init
  */
-async function initSearchParams() {
+async function initSearchParams(b1, b2, b3, b4, b5, b6, dt1, dt2, dt3, dt4, dt5) {
+  isSelectVisile.value = b1;
+  isSelectVisile1.value = b2;
+  isSelectVisile2.value = b3;
+  isSelectVisile3.value = b4;
+  isGridVisile.value = b5;
+  isGrid2Visile.value = b6;
+  searchParams.value.schSlDtStrt = dt1;
+  searchParams.value.schSlDtEnd = dt2;
+  searchParams.value.schRcpDtStrt = dt3;
+  searchParams.value.schRcpDtEnd = dt4;
+  searchParams.value.schPerfYm = dt5;
   searchParams.value.schPdCdStrt = '';
   searchParams.value.schPdCdEnd = '';
-  searchParams.value.schPerfYm = '';
-  searchParams.value.schRcpDtStrt = '';
-  searchParams.value.schRcpDtEnd = '';
-  searchParams.value.schVstDtStrt = '';
-  searchParams.value.schVstDtEnd = '';
-  searchParams.value.schSlDtStrt = '';
-  searchParams.value.schSlDtEnd = '';
+  searchParams.value.schPdctTp = '01';
 }
 
 /*
@@ -438,45 +446,18 @@ async function initSearchParams() {
 
 async function onChangeBizDv() {
   const { schDv } = searchParams.value;
+  const strtDt = now.add(-1, 'month').startOf('month').format('YYYYMMDD');
+  const endDt = now.add(-1, 'month').endOf('month').format('YYYYMMDD');
+  const baseYm = now.add(-1, 'month').format('YYYYMM');
 
-  if (searchParams.value.schPdctTp.length === 0) {
-    searchParams.value.schPdctTp = '전체';
-  }
-
-  if (schDv === '매출' || schDv === '서비스 실적') {
-    searchParams.value.schDv = '매출';
-    isSelectVisile.value = true;
-    isSelectVisile1.value = false;
-    isSelectVisile2.value = false;
-    isSelectVisile3.value = false;
-    isGridVisile.value = true;
-    isGrid2Visile.value = false;
-    initSearchParams();
-  }
-  if (schDv === '접수') {
-    isSelectVisile.value = false;
-    isSelectVisile1.value = true;
-    isSelectVisile2.value = false;
-    isSelectVisile3.value = false;
-    isGridVisile.value = true;
-    isGrid2Visile.value = false;
-    await initSearchParams();
-  } else if (schDv === '예약') {
-    isSelectVisile.value = false;
-    isSelectVisile1.value = false;
-    isSelectVisile2.value = true;
-    isSelectVisile3.value = false;
-    isGridVisile.value = true;
-    isGrid2Visile.value = false;
-    initSearchParams();
-  } else if (schDv === '수수료 실적 집계 대상') {
-    isSelectVisile.value = false;
-    isSelectVisile1.value = false;
-    isSelectVisile2.value = false;
-    isSelectVisile3.value = true;
-    isGridVisile.value = false;
-    isGrid2Visile.value = true;
-    initSearchParams();
+  if (schDv === '01') {
+    initSearchParams(true, false, false, false, true, false, strtDt, endDt, '', '', '');
+  } else if (schDv === '02') {
+    await initSearchParams(false, true, false, false, true, false, '', '', strtDt, endDt, '');
+  } else if (schDv === '03') {
+    await initSearchParams(false, false, true, false, true, false, '', '', strtDt, endDt, '');
+  } else if (schDv === '04') {
+    initSearchParams(false, false, false, true, false, true, '', '', '', '', baseYm);
   }
 }
 
@@ -485,8 +466,8 @@ async function onChangeBizDv() {
  */
 async function openFeePerfCrtPopup() {
   const param = {
-    perfYm: now.add(-1, 'month').format('YYYYMMDD'),
-    ogTp: 'H',
+    perfYm: now.add(-1, 'month').format('YYYYMM'),
+    ogTp: 'W03',
     dv: 'CR',
   };
   await modal({
@@ -500,8 +481,8 @@ async function openFeePerfCrtPopup() {
  */
 async function openFeePerfCnfmPopup() {
   const param = {
-    perfYm: now.add(-1, 'month').format('YYYYMMDD'),
-    ogTp: 'H',
+    perfYm: now.add(-1, 'month').format('YYYYMM'),
+    ogTp: 'W03',
     dv: 'CO',
   };
   await modal({
@@ -525,9 +506,9 @@ async function onClickExcelDownload() {
 async function fetchData() {
   const { schDv } = searchParams.value;
   let uri = '';
-  if (schDv === '접수' || schDv === '예약' || schDv === '매출') {
+  if (schDv === '01' || schDv === '02' || schDv === '03') {
     uri = 's';
-  } else if (schDv === '수수료 실적 집계 대상') {
+  } else if (schDv === '04') {
     uri = '-sell-fees';
   }
   const response = await dataService.get(`/sms/wells/fee/organization-netorders/hmst${uri}`, { params: cachedParams });
