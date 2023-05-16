@@ -21,12 +21,12 @@
       <kw-search-row>
         <kw-search-item :label="$t('MSG_TXT_OG_LEVL')">
           <zwog-level-select
-            v-model:og-levl-dv-cd1="searchParams.ogLevlDvCd1"
             v-model:og-levl-dv-cd2="searchParams.ogLevlDvCd2"
+            v-model:og-levl-dv-cd3="searchParams.ogLevlDvCd3"
             :og-tp-cd="searchParams.ogTpCd"
             :base-ym="searchParams.baseYm"
-            :start-level="1"
-            :end-level="2"
+            :start-level="2"
+            :end-level="3"
           />
         </kw-search-item>
         <kw-search-item :label="t('MSG_TXT_WK_GRP')">
@@ -146,7 +146,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService, defineGrid, getComponentType, codeUtil, useMeta, gridUtil, useGlobal } from 'kw-lib';
+import { useDataService, defineGrid, getComponentType, codeUtil, gridUtil, useGlobal } from 'kw-lib';
 import ZwogLevelSelect from '~sms-common/organization/components/ZwogLevelSelect.vue';
 import { getPhoneNumber } from '~sms-common/organization/utils/ogUtil';
 import dayjs from 'dayjs';
@@ -154,7 +154,6 @@ import { isEmpty, replace } from 'lodash-es';
 
 const { t } = useI18n();
 const { modal, notify } = useGlobal();
-const { getConfig } = useMeta();
 const dataService = useDataService();
 const { currentRoute } = useRouter();
 // -------------------------------------------------------------------------------------------------
@@ -164,7 +163,7 @@ const grdMainRef = ref(getComponentType('KwGrid'));
 const pageInfo = ref({
   totalCount: 0,
   pageIndex: 1,
-  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
+  pageSize: 20,
 });
 
 const codes = await codeUtil.getMultiCodes(
@@ -176,8 +175,8 @@ const codes = await codeUtil.getMultiCodes(
 
 const searchParams = ref({
   ogTpCd: 'W06',
-  ogLevlDvCd1: undefined,
   ogLevlDvCd2: undefined,
+  ogLevlDvCd3: undefined,
   wkGrpCd: undefined,
   rsbDvCd: undefined,
   prtnrNo: undefined,
@@ -358,13 +357,13 @@ async function onClickPrtnrSea() {
 const initGrdMain = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'dgr1LevlOgNm', header: t('MSG_TXT_CENTER_DIVISION'), width: '162', styleName: 'text-center' },
-    { fieldName: 'dgr2LevlOgNm', header: t('MSG_TXT_BRANCH'), width: '110', styleName: 'text-center' },
+    { fieldName: 'dgr2LevlOgNm', header: t('MSG_TXT_BRANCH'), width: '125', styleName: 'text-center' },
     { fieldName: 'prtnrNo', header: t('MSG_TXT_EPNO'), width: '92', styleName: 'text-center' },
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '92', styleName: 'text-center' },
     {
       fieldName: 'wkGrpCd',
       header: t('MSG_TXT_WK_GRP'),
-      width: '166',
+      width: '144',
       styleName: 'text-center',
       rules: 'required',
       options: codes.WK_GRP_CD,
@@ -375,7 +374,7 @@ const initGrdMain = defineGrid((data, view) => {
     {
       fieldName: 'rsbDvCd',
       header: t('MSG_TXT_RSB'),
-      width: '122',
+      width: '110',
       styleName: 'text-center',
       options: codes.RSB_DV_CD,
       editor: {
@@ -384,7 +383,7 @@ const initGrdMain = defineGrid((data, view) => {
     {
       fieldName: 'wkcrCd',
       header: t('MSG_TXT_CO'),
-      width: '166',
+      width: '100',
       styleName: 'text-center',
       rules: 'required',
       options: codes.WKCR_CD,
@@ -394,7 +393,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'cntrDt', header: t('MSG_TXT_ENTCO_DT'), width: '130', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'vlStrtDt',
       header: t('MSG_TXT_APPLY_DT'),
-      width: '186',
+      width: '130',
       styleName: 'text-center',
       rules: 'required',
       datetimeFormat: 'date',
@@ -403,7 +402,7 @@ const initGrdMain = defineGrid((data, view) => {
       } },
     { fieldName: 'vlEnddt',
       header: t('MSG_TXT_END_DT'),
-      width: '186',
+      width: '130',
       styleName: 'text-center',
       rules: 'required',
       datetimeFormat: 'date',
