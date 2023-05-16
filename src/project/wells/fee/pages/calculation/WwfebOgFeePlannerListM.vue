@@ -377,7 +377,7 @@ async function onClickW102P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
 /*
  *  Event - 기타지원 업로드 클릭 ※업무개발에서 별도개발
  */
-async function onClickW105P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
+async function onClickW104P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
   await dataService.put(`/sms/common/fee/schedules/steps/${feeSchdId}/status/levels`, null, { params: { feeSchdLvCd, feeSchdLvStatCd } });
   fetchData();
 }
@@ -385,7 +385,7 @@ async function onClickW105P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
 /*
  *  Event - 세금공제 클릭 ※
  */
-async function onClickW106P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
+async function onClickW105P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
   const { schOrdr } = searchParams.value;
   const { codeName } = codes.FEE_TCNT_DV_CD.find((v) => v.codeId === searchParams.value.schOrdr);
   const { perfYm } = searchParams.value;
@@ -420,7 +420,7 @@ async function onClickW106P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
 /*
  *  Event - 원천세등록 클릭 ※팝업 개발 미완료 상태
  */
-async function onClickW107P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
+async function onClickW106P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
   await dataService.put(`/sms/common/fee/schedules/steps/${feeSchdId}/status/levels`, null, { params: { feeSchdLvCd, feeSchdLvStatCd } });
   fetchData();
 }
@@ -428,7 +428,7 @@ async function onClickW107P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
 /*
  *  Event - 고용보험 공제 클릭 ※
  */
-async function onClickW109P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
+async function onClickW108P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
   const { schOrdr } = searchParams.value;
   const { codeName } = codes.FEE_TCNT_DV_CD.find((v) => v.codeId === searchParams.value.schOrdr);
   const { perfYm } = searchParams.value;
@@ -462,7 +462,7 @@ async function onClickW109P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
 /*
  *  Event - 가지급금 공제 클릭 ※
  */
-async function onClickW110P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
+async function onClickW109P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
   const { schOrdr } = searchParams.value;
   const { perfYm } = searchParams.value;
   if (searchParams.value.rsbTp === '') {
@@ -493,7 +493,7 @@ async function onClickW110P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
 /*
  *  Event - 부담공제 클릭 ※
  */
-async function onClickW114P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
+async function onClickW113P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
   const { schOrdr } = searchParams.value;
   const { perfYm } = searchParams.value;
   if (searchParams.value.rsbTp === '') {
@@ -523,7 +523,7 @@ async function onClickW114P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
 /*
  *  Event - 보증예치금 적립 클릭 ※
  */
-async function onClickW116P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
+async function onClickW115P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
   const { schOrdr } = searchParams.value;
   const { perfYm } = searchParams.value;
   if (searchParams.value.rsbTp === '') {
@@ -554,7 +554,7 @@ async function onClickW116P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
 /*
  *  Event - 이체자료 생성 클릭 ※팝업 개발 미완료 상태
  */
-async function onClickW117P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
+async function onClickW116P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
   await dataService.put(`/sms/common/fee/schedules/steps/${feeSchdId}/status/levels`, null, { params: { feeSchdLvCd, feeSchdLvStatCd } });
   fetchData();
 }
@@ -562,7 +562,7 @@ async function onClickW117P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
 /*
  *  Event - 품의작성 클릭 ※TBD
  */
-async function onClickW119P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
+async function onClickW118P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
   await dataService.put(`/sms/common/fee/schedules/steps/${feeSchdId}/status/levels`, null, { params: { feeSchdLvCd, feeSchdLvStatCd } });
   fetchData();
 }
@@ -570,7 +570,7 @@ async function onClickW119P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
 /*
  *  Event - 전표생성 클릭 ※TBD
  */
-async function onClickW120P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
+async function onClickW119P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
   await dataService.put(`/sms/common/fee/schedules/steps/${feeSchdId}/status/levels`, null, { params: { feeSchdLvCd, feeSchdLvStatCd } });
   fetchData();
 }
@@ -579,7 +579,7 @@ async function onClickW120P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
  *  Event - 선급판매 수수료확정 클릭 ※팝업 개발 미완료 상태
 */
 
-async function onClickW121P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
+async function onClickW120P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
   await dataService.put(`/sms/common/fee/schedules/steps/${feeSchdId}/status/levels`, null, { params: { feeSchdLvCd, feeSchdLvStatCd } });
   fetchData();
 }
@@ -599,28 +599,28 @@ async function onclickStep(params) {
     await onClickW101P(params.feeSchdId, params.code, '03');
   } else if (params.code === 'W0102') { // 수수료 생성
     await onClickW102P(params.feeSchdId, params.code, '03');
-  } else if (params.code === 'W0105') { // 기타지원 업로드
+  } else if (params.code === 'W0104') { // 기타지원 업로드
+    await onClickW104P(params.feeSchdId, params.code, '03');
+  } else if (params.code === 'W0105') { // 세금공제
     await onClickW105P(params.feeSchdId, params.code, '03');
-  } else if (params.code === 'W0106') { // 세금공제
+  } else if (params.code === 'W0106') { // 원천세 생성
     await onClickW106P(params.feeSchdId, params.code, '03');
-  } else if (params.code === 'W0107') { // 원천세 생성
-    await onClickW107P(params.feeSchdId, params.code, '03');
-  } else if (params.code === 'W0109') { // 고용보험 공제
+  } else if (params.code === 'W0108') { // 고용보험 공제
+    await onClickW108P(params.feeSchdId, params.code, '03');
+  } else if (params.code === 'W0109') { // 가지급금 공제 생성
     await onClickW109P(params.feeSchdId, params.code, '03');
-  } else if (params.code === 'W0110') { // 가지급금 공제 생성
-    await onClickW110P(params.feeSchdId, params.code, '03');
-  } else if (params.code === 'W0114') { // 부담공제 생성
-    await onClickW114P(params.feeSchdId, params.code, '03');
-  } else if (params.code === 'W0116') { // 보증예치금 적립
+  } else if (params.code === 'W0113') { // 부담공제 생성
+    await onClickW113P(params.feeSchdId, params.code, '03');
+  } else if (params.code === 'W0115') { // 보증예치금 적립
+    await onClickW115P(params.feeSchdId, params.code, '03');
+  } else if (params.code === 'W0116') { // 이체자료 생성
     await onClickW116P(params.feeSchdId, params.code, '03');
-  } else if (params.code === 'W0117') { // 이체자료 생성
-    await onClickW117P(params.feeSchdId, params.code, '03');
-  } else if (params.code === 'W0119') { // 품의작성
+  } else if (params.code === 'W0118') { // 품의작성
+    await onClickW118P(params.feeSchdId, params.code, '03');
+  } else if (params.code === 'W0119') { // 전표생성
     await onClickW119P(params.feeSchdId, params.code, '03');
-  } else if (params.code === 'W0120') { // 전표생성
+  } else if (params.code === 'W0120') { // 선급판매 수수료 확정
     await onClickW120P(params.feeSchdId, params.code, '03');
-  } else if (params.code === 'W0121') { // 선급판매 수수료 확정
-    await onClickW121P(params.feeSchdId, params.code, '03');
   }
 }
 
