@@ -354,21 +354,21 @@ async function fetchData() {
 }
 
 // 중복체크 메소드 - 확장성 위해 'validationType' 추가.
-async function duplicationCheck(validationType, sourceData) {
-  const validationParams = {};
-  validationParams.validationType = validationType;
-  validationParams.pdCd = sourceData[bas].pdCd;
-  validationParams.sapMatCd = sourceData[bas].sapMatCd;
+// async function duplicationCheck(validationType, sourceData) {
+//   const validationParams = {};
+//   validationParams.validationType = validationType;
+//   validationParams.pdCd = sourceData[bas].pdCd;
+//   validationParams.sapMatCd = sourceData[bas].sapMatCd;
 
-  const res = await dataService.get(`${baseUrl}/check-validation`, { params: validationParams });
+//   const res = await dataService.get(`${baseUrl}/check-validation`, { params: validationParams });
 
-  if (res.data !== 'N') {
-    // 다른 교재/제품에서 이미 사용 중인 SAP자재코드입니다. (사용 교재/제품코드: {0}/{1}) - 교재명/자재코드
-    notify(t('MSG_ALT_EXIST_SAP_MAT_CD', [res.data, validationParams.sapMatCd]));
-    return false;
-  }
-  return true;
-}
+//   if (res.data !== 'N') {
+//     // 다른 교재/제품에서 이미 사용 중인 SAP자재코드입니다. (사용 교재/제품코드: {0}/{1}) - 교재명/자재코드
+//     notify(t('MSG_ALT_EXIST_SAP_MAT_CD', [res.data, validationParams.sapMatCd]));
+//     return false;
+//   }
+//   return true;
+// }
 
 async function onClickSave(tempSaveYn) {
   if (!(isTempSaveBtn.value && tempSaveYn === 'N')) {
@@ -400,9 +400,10 @@ async function onClickSave(tempSaveYn) {
   const subList = await getSaveData(tempSaveYn);
 
   // 4. 자재코드 중복검사.
-  if (!isEmpty(subList[bas].sapMatCd)) {
-    if (!await duplicationCheck('sapMatCd', subList)) return false;
-  }
+  // TODO 설계요청에 의해 임시주석처리 230516
+  // if (!isEmpty(subList[bas].sapMatCd)) {
+  //   if (!await duplicationCheck('sapMatCd', subList)) return false;
+  // }
 
   // 5. Insert or Update
   const rtn = currentPdCd.value
