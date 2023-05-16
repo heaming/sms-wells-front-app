@@ -337,17 +337,19 @@ async function onClickApplicationRefund() {
 async function onClickTemp() {
   await modal({
     component: 'WwdbServiceRefundRegP',
-    // componentProps: {
+    componentProps: {
     //   startDay: searchParams.value.startDay, // 접수일자 시작일
     //   endDay: searchParams.value.endDay, // 접수일자 종료일
     //   rfndStatCd: searchParams.value.rfndStatCd, // 환불상태
     //   rveDvCd: searchParams.value.rveDvCd, // 입금유형
     //   rfndDsbDvCdCshBltf: searchParams.value.rfndDsbDvCdCshBltf, // 처리구분
-    //   cntrNo: searchParams.value.cntrNo, // 계약번호
-    //   cntrSn: searchParams.value.cntrSn, // 계약일련번호
+      cntrNo: searchParams.value.cntrNo, // 계약번호
+      cntrSn: searchParams.value.cntrSn, // 계약일련번호
+      // cntrNo: 'W20226001983', // 계약번호 W20226001983
+      // cntrSn: '1', // 계약일련번호 1
     //   cstNo: searchParams.value.cstNo, // 고객번호
     //   bzrno: searchParams.value.bzrno // 사업자등록번호
-    // },
+    },
   });
 }
 
