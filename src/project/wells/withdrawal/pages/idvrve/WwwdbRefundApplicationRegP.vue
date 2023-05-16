@@ -535,7 +535,6 @@
               :readonly="item.rfndRsonCd !== '56'"
               :label="t('MSG_TXT_RFND_RSON')"
               maxlength="300"
-              rules="required"
             />
           </kw-form-item>
           <!-- 전금 시작 -->
@@ -545,12 +544,12 @@
             :label="$t('MSG_TXT_CST_NO')"
           >
             <kw-input
-              v-model="searchParams.cstNo"
+              v-model="item.bltfOjCntrSn"
               icon="search"
               clearable
               maxlength="20"
               :label="$t('MSG_TXT_CST_NO')"
-              @click-icon="onClickCstSearch"
+              @click-icon="onClickCstSearch2"
             />
           </kw-search-item>
           <!-- 전금전 가상계좌 -->
@@ -612,6 +611,7 @@
               v-model="item.rfndAkAmt"
               type="number"
               rules="required"
+              :label="t('MSG_TXT_RFND') + ' ' + t('MSG_TXT_APLC_AMT')+ '(' + t('MSG_TXT_CUR_WON') +')'"
               @update:model-value="onRefundReceiptTotalAmount"
             />
           </kw-form-item>
@@ -622,7 +622,7 @@
           >
             <kw-input
               v-if="item.rfndDsbDvCd === '03'"
-              v-model="item.rfndAkAmt2"
+              v-model="item.rfndAkAmt"
               type="number"
               @update:model-value="onRefundReceiptTotalAmount"
             />
@@ -663,7 +663,6 @@
               :readonly="item.rfndRsonCd !== '56'"
               :label="t('MSG_TXT_RFND_RSON')"
               maxlength="300"
-              rules="required"
             />
           </kw-form-item>
           <!-- 승인일 -->
@@ -855,19 +854,19 @@
       <tbody>
         <tr>
           <td class="text-right">
-            {{ saveParams.rfndCshAmt.toLocaleString() }}
+            {{ saveParams.rfndCshAmt }}
           </td>
           <td class="text-right">
-            {{ saveParams.rfndCardAmt.toLocaleString() }}
+            {{ saveParams.rfndCardAmt }}
           </td>
           <td class="text-right">
-            {{ saveParams.rfndBltfAmt.toLocaleString() }}
+            {{ saveParams.rfndBltfAmt }}
           </td>
           <td class="text-right">
-            {{ saveParams.rfndPsbResAmt.toLocaleString() }}
+            {{ saveParams.rfndPsbResAmt }}
           </td>
           <td class="text-right">
-            {{ saveParams.totRfndEtAmt.toLocaleString() }}
+            {{ saveParams.totRfndEtAmt }}
           </td>
         </tr>
       </tbody>
@@ -983,7 +982,6 @@ const searchParams = ref({
   bzrno: '', // 사업자번호
   cntrCstNo: '', // 고객번호
   cstKnm: '', // 계약자명
-  cntrCstNo2: '', // 번호. 설계서에 고객번호와 번호가 동일함
   cntrCnfmDtm: '', // 계약일자
   rveDt: '', // 매출일자
   tmp1: '', // 환불가능금액. 확인필요
@@ -1051,6 +1049,8 @@ async function onClickExcelDownload() {
 // 환불신청 저장값
 const saveParams = ref({
   details: [{
+    rfndRcpNo: '', // 환불접수번호
+    rfndRcpDtlSn: '',
     rveNo: '', // 수납상세.수납번호
     rfndDvCd: '02', // 환불구분: 01.전체환불, 02.부분환불
     rfndDsbDvCd: '01', // 환불구분. 환불지급구분코드 01.현금환불, 02.카드환불, 03.전금
@@ -1063,9 +1063,9 @@ const saveParams = ref({
     cshRfndDlgpsNm: '', // 대표자 확인
     startDay: now.format('YYYYMMDD'), // 승인일 시작
     endDay: now.format('YYYYMMDD'), // 승인일 종료
-    rfndAkAmt: 0, // 환불신청금액
+    rfndAkAmt: 0, // 환불신청금액, 전금 요청금액(원)
     rfndDsbAmt: 0, // 실지급액 (원)
-    rfndAkAmt2: 0, // 전금 요청금액(원)
+    rfndRsonCd: '', // 환불사유 코드
 
     cardRfndFnitCd: '', // 카드구분
     cardRfndCrcdnoEncr: '', // 카드번호
@@ -1074,10 +1074,12 @@ const saveParams = ref({
 
     bltfRfndDvCd: '01', // 전금구분
     bltfRfndMbDvCd: '01', // 회원구분
+    bltfOjCntrSn: '', // 전금할 고객번호
     bltfBfVacNoEncr: '', // 전금전 가상계좌
     bltfAfVacNoEncr: '', // 전금후 가상계좌
     rfndEvidMtrFileId: '', // 증빙자료 파일첨부
   }],
+  rfndRcpNo: '', // 환불접수번호
   cntrNo: '', // 계약번호
   cntrSn: '', // 계약일련번호
   cstNo: '', // 고객번호
@@ -1090,7 +1092,8 @@ const saveParams = ref({
 
   rfndRveDt: '', // 수납일자
   rfndPerfDt: '', // 실적일자
-  rfndFshDt: '', // 지급일자
+  rfndDsbDt: '', // 지급일자
+  // RFND_FSH_DT // 지급일자 입력할때만 사용하고, BASE, DETAIL 둘다 입력
   rfndStatCd: '', // 처리구분 (반려, 승인)
   rfndProcsCn: '', // 처리내용
 
@@ -1117,6 +1120,7 @@ const refundPossibleAmount = ref({
   refundRfndPsbAmt: 0, // 환불가능금액.환불가능금액
 });
 
+// 은행, 카드사 조회
 async function bankCard() {
   const bank = await dataService.get('/sms/wells/withdrawal/idvrve/refund-applications/reg/bank');
   bankLists.value = bank.data;
@@ -1124,13 +1128,23 @@ async function bankCard() {
   cardLists.value = card.data;
 }
 
-// 환불신청 > 전금 > 고객 번호
+// 검색 > 고객번호
 async function onClickCstSearch() {
   const { result, payload } = await modal({
     component: 'ZwcsaCustomerListP',
   });
   if (result) {
-    saveParams.value.cstNo = payload.cstNo;
+    searchParams.value.cntrCstNo = payload.cstNo;
+  }
+}
+
+// 환불신청 > 전금 > 고객 번호
+async function onClickCstSearch2() {
+  const { result, payload } = await modal({
+    component: 'ZwcsaCustomerListP',
+  });
+  if (result) {
+    saveParams.value.details.bltfOjCntrSn = payload.cstNo;
   }
 }
 
@@ -1149,9 +1163,8 @@ async function onClickAdd() {
     cshRfndDlgpsNm: '', // 대표자 확인
     startDay: now.format('YYYYMMDD'), // 승인일 시작
     endDay: now.format('YYYYMMDD'), // 승인일 종료
-    rfndAkAmt: 0, // 환불신청금액
+    rfndAkAmt: 0, // 환불신청금액, 전금 요청금액(원)
     rfndDsbAmt: 0, // 실지급액 (원)
-    rfndAkAmt2: 0, // 전금 요청금액(원)
 
     cardRfndFnitCd: '', // 카드구분
     cardRfndCrcdnoEncr: '', // 카드번호
@@ -1178,10 +1191,14 @@ async function onRefundReceiptTotalAmount() {
   let sum4 = 0;
   let sum5 = 0;
   for (let i = 0; i < saveParams.value.details.length; i += 1) {
-    sum1 += Number(saveParams.value.details[i].rfndAkAmt);
+    if (saveParams.value.details[i].rfndDsbDvCd === '01') {
+      sum1 += Number(saveParams.value.details[i].rfndAkAmt);
+    }
     // sum2 += Number(saveParams.value.details[i].?);
     sum2 += 0;
-    sum3 += Number(saveParams.value.details[i].rfndAkAmt2);
+    if (saveParams.value.details[i].rfndDsbDvCd === '03') {
+      sum3 += Number(saveParams.value.details[i].rfndAkAmt);
+    }
   }
   sum4 = sum1 + sum2 + sum3;
   sum5 = sum1 + sum2 + sum3;
@@ -1203,11 +1220,34 @@ async function onCardRfndFer() {
 // 삭제
 async function onClickDelete() {
   console.log('삭제');
+  console.log('props.rfndRcpNo', props.rfndRcpNo);
+  const data = cloneDeep(props.rfndRcpNo);
+  console.log('data', data);
+  await dataService.delete('/sms/wells/withdrawal/idvrve/refund-applications/status/refund-application-info', { params: { rfndRcpNo: props.rfndRcpNo } });
+  ok();
 }
 
 // 저장
 async function onClickSave() {
-  console.log('저장');
+  if (!await confirm(t('MSG_ALT_IS_SAV_DATA'))) { return; }
+  // if (await popupRef1.value.alertIfIsNotModified()) { return; }
+  // if (!await popupRef1.value.validate()) { return; }
+  // rfndRcpNo: '', // 환불접수번호
+  //   rfndRcpDtlSn: '',
+  const basic = cloneDeep(saveParams.value);
+  const details = cloneDeep(saveParams.value.details);
+  for (let i = 0; i < saveParams.value.details.length; i += 1) {
+    saveParams.value.details[i].rfndRcpNo = props.rfndRcpNo;
+  }
+  // cachedParams = {
+  //   basic,
+  //   details,
+  // };
+  console.log('저장 saveParams.value', saveParams.value);
+  console.log('basic', basic);
+  console.log('details', details);
+  await dataService.post('/sms/wells/withdrawal/idvrve/refund-applications/status/refund-application-info', { basic, details });
+  ok();
 }
 
 // 신청
@@ -1222,19 +1262,18 @@ async function onClickApply() {
 }
 
 // 메인화면에서 그리드 환불상태 버튼 클릭해서 넘어왔을때
-async function loadRefuncApplication() {
-  console.log('==============props=============', props);
+async function loadRefundApplication() {
   searchParams.value.cntrNo = props.cntrNo;
   searchParams.value.cntrSn = props.cntrSn;
-  console.log('==============searchParams=============', searchParams);
   await onClickSearch();
   // 계약상세
   const res = await dataService.get('/sms/wells/withdrawal/idvrve/refund-applications/reg/refund-possible-amount', { params: { cntrNo: props.cntrNo, cntrSn: props.cntrSn } });
   refundPossibleAmount.value = res.data;
   // 환불구분, 환불신청, 예외환불사유, 환불접수총액, 처리정보
-  // eslint-disable-next-line max-len
-  // const res2 = await dataService.get('/sms/wells/withdrawal/idvrve/refund-applications/reg/refund-application-info', { params: { cntrNo: props.rfndRcpNo, cntrSn: props.rfndRcpDtlSn } });
-  // refundPossibleAmount.value = res2.data;
+  const res2 = await dataService.get('/sms/wells/withdrawal/idvrve/refund-applications/status/refund-application-info', { params: { rfndRcpNo: props.rfndRcpNo } });
+
+  saveParams.value = res2.data.basic;
+  saveParams.value.details = res2.data.details;
 }
 
 onMounted(async () => {
@@ -1244,7 +1283,7 @@ onMounted(async () => {
   // }
 
   if (props.rfndStatCd !== '') {
-    await loadRefuncApplication();
+    await loadRefundApplication();
   }
 });
 
