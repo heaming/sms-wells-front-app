@@ -411,7 +411,15 @@ const initGrdEstimatedFeeDtl = defineGrid((data, view) => {
 
 const initGrdSalesHist = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '118', styleName: 'text-center' },
+    { fieldName: 'prtnrNo',
+      header: t('MSG_TXT_SEQUENCE_NUMBER'),
+      width: '118',
+      styleName: 'text-center',
+      headerSummary: {
+        styleName: 'text-center',
+        text: t('MSG_TXT_SUM'),
+      },
+    },
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '120' },
     { fieldName: 'perfDvCd', header: t('MSG_TXT_PERF_DV'), width: '118', options: codes.PERF_DV_CD },
     { fieldName: 'cntrwTpCd', header: t('MSG_TXT_PRDT_GUBUN'), width: '118', options: codes.CNTRW_TP_CD },
@@ -421,14 +429,48 @@ const initGrdSalesHist = defineGrid((data, view) => {
     { fieldName: 'pdNm', header: t('MSG_TXT_PD_IZ'), width: '287' },
     { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '118' },
     { fieldName: 'sellDvCd', header: t('MSG_TXT_SLS_CAT'), width: '118', styleName: 'text-center', options: codes.WELS_SELL_DV_CD },
-    { fieldName: 'amtSumElhm', header: t('MSG_TXT_ELHM'), width: '118', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'amtSumExceptElhm', header: t('MSG_TXT_EXCEPT_HOUSEHOLD_APPLIANCES'), width: '118', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'amtSumChng', header: t('MSG_TXT_CHNG'), width: '118', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'amtSumElhm',
+      header: t('MSG_TXT_ELHM'),
+      width: '118',
+      styleName: 'text-right',
+      dataType: 'number',
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+      },
+    },
+    { fieldName: 'amtSumExceptElhm',
+      header: t('MSG_TXT_EXCEPT_HOUSEHOLD_APPLIANCES'),
+      width: '118',
+      styleName: 'text-right',
+      dataType: 'number',
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+      },
+    },
+    { fieldName: 'amtSumChng',
+      header: t('MSG_TXT_CHNG'),
+      width: '118',
+      styleName: 'text-right',
+      dataType: 'number',
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+      },
+    },
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   data.setFields(fields);
   view.setColumns(columns);
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
+  view.setHeaderSummaries({
+    visible: true,
+    items: [
+      { height: 40 },
+    ],
+  });
+  view.layoutByColumn('prtnrNo').summaryUserSpans = [{ colspan: 10 }];
 });
 </script>
