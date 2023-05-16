@@ -88,7 +88,7 @@ const { notify } = useGlobal();
 const dataService = useDataService();
 const now = dayjs();
 
-const dateNow = ref(now.format('YYYYMMDD'));
+const dateNow = ref(now.format('YYYY년 MM월 DD일'));
 
 const refKwSign = ref();
 
@@ -191,11 +191,11 @@ onMounted(async () => {
   }
 
   &-wrap ::v-deep(.kw-radio .q-radio__bg) {
-    background: url(node_modules/kw-lib/src/assets/images/checkbox_off.svg) no-repeat center;
+    background: url(~@assets/images/checkbox_off.svg)  no-repeat center;
   }
 
   &-wrap ::v-deep(.kw-radio .q-radio__inner--truthy .q-radio__bg) {
-    background: url(node_modules/kw-lib/src/assets/images/checkbox_on.svg) no-repeat center;
+    background: url(~@assets/images/checkbox_on.svg)  no-repeat center;
   }
 
   &-date {
