@@ -48,7 +48,6 @@
       <kw-input
         v-model="consenterName"
         class="scoped-application-name"
-        rules="required"
       />
       <kw-sign
         ref="refKwSign"
@@ -60,16 +59,16 @@
       <div class="row justify-center scoped-application-bottom-box">
         <div class="row">
           <kw-btn
-            label="신청취소"
+            :label="$t('MSG_BTN_APPL_CNCL')"
             negative
             @click="onClickCancel"
-          />
+          /><!-- 신청취소 -->
           <kw-btn
-            label="신청완료"
+            :label="$t('MSG_BTN_APPL_CPLT')"
             primary
             class="ml8"
             @click="onClickComplete"
-          />
+          /><!-- 신청완료 -->
         </div>
       </div>
     </div>
@@ -119,21 +118,52 @@ let consenterNameCache = '';
 function onClickCancel() {
   refKwSign.value.reset();
 
-  additionalCustomerServiceAgreementStatus.value = '';
-  personalInformationAgreementStatus.value = '';
+  additionalCustomerServiceAgreementStatus.value = 'N';
+  personalInformationAgreementStatus.value = 'N';
   consenterName.value = consenterNameCache;
 }
 
 async function onClickComplete() {
   const { cntrNo, cntrSn, customerServiceCode } = props;
+  if (!cntrNo) {
+    notify(t('MSG_ALT_CNTR_NO_NOT_EXIST')); // 계약번호가 존재하지 않습니다.
+    return;
+  }
+  if (!cntrSn) {
+    notify(t('MSG_ALT_CNTR_SN_NOT_EXIST')); // 계약일련번호가 존재하지 않습니다.
+    return;
+  }
+
+  const customerServiceUseAgreeYn = additionalCustomerServiceAgreementStatus.value;
+  if (customerServiceUseAgreeYn !== 'Y') {
+    notify(t('MSG_ALT_CHK_HL_AG')); // 건강케어서비스 이용을 동의해주세요.
+    return;
+  }
+  const personalInfoAgreeYn = personalInformationAgreementStatus.value;
+  if (personalInfoAgreeYn !== 'Y') {
+    notify(t('MSG_ALT_CHK_PERS_INFO_PROC_AG')); // 개인정보 제3자 제공에 동의해주세요.
+    return;
+  }
+
+  const agreePersonName = consenterName.value;
+  if (!agreePersonName) {
+    notify(t('MSG_ALT_ENTR_AG_NM')); // 동의자(본인) 이름을 입력해주세요.
+    return;
+  }
+
+  if (!refKwSign.value.isSignExist) {
+    notify(t('MSG_ALT_SIGN')); // 서명해주세요.
+    return;
+  }
+
   const data = {
-    agreePersonName: consenterName.value,
+    agreePersonName,
     agreementImageContent: refKwSign.value.getSignData('image/jpeg'),
     cntrNo,
     cntrSn,
     customerServiceCode,
-    customerServiceUseAgreeYn: additionalCustomerServiceAgreementStatus.value,
-    personalInfoAgreeYn: personalInformationAgreementStatus.value,
+    customerServiceUseAgreeYn,
+    personalInfoAgreeYn,
   };
   await dataService.put('/sms/wells/service/healthcare-agreement', data);
   notify(t('MSG_ALT_PRGS_OK'));
