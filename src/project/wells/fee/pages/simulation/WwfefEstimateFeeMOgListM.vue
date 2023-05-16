@@ -21,7 +21,7 @@
           required
         >
           <kw-date-picker
-            v-model="searchParams.baseYm"
+            v-model="searchParams.perfYm"
             :label="$t('MSG_TXT_PERF_YM')"
             rules="required"
             type="month"
@@ -32,12 +32,12 @@
           required
         >
           <kw-option-group
-            v-model="searchParams.type"
+            v-model="searchParams.perType"
             :label="$t('MSG_TXT_PERF_INQR')"
             type="radio"
             rules="required"
-            :options="[{ codeId: '0', codeName: $t('MSG_TXT_RCP') },
-                       { codeId: '1', codeName: $t('MSG_TXT_SL') }]"
+            :options="[{ codeId: '00', codeName: $t('MSG_TXT_RCP') },
+                       { codeId: '01', codeName: $t('MSG_TXT_SL') }]"
           />
         </kw-search-item>
         <kw-search-item
@@ -67,49 +67,84 @@
         dense
       >
         <kw-form-row>
-          <kw-form-item
-            :label="$t('MSG_TXT_EMPL_NM')"
-          >
-            <p>{{ baseInfo.sample }}</p>
+          <!-- 성명 -->
+          <kw-form-item :label="$t('MSG_TXT_EMPL_NM')">
+            <kw-input
+              v-model="baseInfo.prtnrKnm"
+              readonly
+              underline
+              placeholder=""
+            />
           </kw-form-item>
-          <kw-form-item
-            :label="$t('MSG_TXT_BLG')"
-            align-content="left"
-          >
-            <p>{{ baseInfo.sample }}</p>
+          <!-- 소속 -->
+          <kw-form-item :label="$t('MSG_TXT_BLG')">
+            <kw-input
+              v-model="baseInfo.ogCd"
+              readonly
+              underline
+              placeholder=""
+            />
           </kw-form-item>
-          <kw-form-item
-            :label="$t('MSG_TXT_RSB')"
-          >
-            <p>{{ baseInfo.sample }}</p>
+          <!-- 직책 -->
+          <kw-form-item :label="$t('MSG_TXT_RSB')">
+            <kw-select
+              v-model="baseInfo.rsbDvCd"
+              :options="codes.RSB_DV_CD"
+              readonly
+              underline
+              placeholder=""
+            />
           </kw-form-item>
         </kw-form-row>
         <kw-form-row>
-          <kw-form-item
-            :label="$t('MSG_TXT_EST_SAL_COMM')"
-            align-content="right"
-          >
-            <p>{{ baseInfo.sample }}</p>
+          <!-- 예상판매수수료 -->
+          <kw-form-item :label="$t('MSG_TXT_EST_SAL_COMM')">
+            <kw-input
+              v-model="baseInfo.amtEstSalFee"
+              readonly
+              underline
+              placeholder=""
+              mask="###,###,###,###,###"
+            />
           </kw-form-item>
+          <!-- 예상bs수수료 -->
           <kw-form-item
             :label="$t('MSG_TXT_EST_BS_FEE')"
             align-content="right"
           >
-            <p>{{ baseInfo.sample }}</p>
+            <kw-input
+              v-model="baseInfo.amtEstBsFee"
+              readonly
+              underline
+              placeholder=""
+              mask="###,###,###,###,###"
+            />
           </kw-form-item>
+          <!-- 예상수수료합계 -->
           <kw-form-item
             :label="$t('MSG_TXT_TOT_EST_FEE')"
             align-content="right"
           >
-            <p>{{ baseInfo.sample }}</p>
+            <kw-input
+              v-model="baseInfo.amtFeeSum"
+              readonly
+              underline
+              placeholder=""
+              mask="###,###,###,###,###"
+            />
           </kw-form-item>
         </kw-form-row>
         <kw-form-row>
+          <!-- 개시차월 -->
           <kw-form-item
             :label="$t('MSG_TXT_OPNG_NMN')"
             align-content="left"
           >
-            <p>{{ baseInfo.sample }}</p>
+            <kw-date-picker
+              v-model="baseInfo.ojDsbYm"
+              type="month"
+              readonly
+            />
           </kw-form-item>
         </kw-form-row>
       </kw-form>
@@ -161,7 +196,7 @@
       </kw-action-top>
       <kw-grid
         ref="grdDstRef"
-        :visible-rows="2"
+        :visible-rows="1"
         @init="initGridDstDtl"
       />
       <kw-separator />
@@ -185,7 +220,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { defineGrid, useDataService, useGlobal, getComponentType } from 'kw-lib';
+import { defineGrid, useDataService, useGlobal, getComponentType, codeUtil } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
 
@@ -196,6 +231,12 @@ const dataService = useDataService();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
+const codes = await codeUtil.getMultiCodes(
+  'RSB_DV_CD',
+  'CNTRW_TP_CD',
+  'CNTR_TP_CD',
+);
+
 const grdDetailRef = ref(getComponentType('KwGrid'));
 const grdBsRef = ref(getComponentType('KwGrid'));
 const grdDstRef = ref(getComponentType('KwGrid'));
@@ -207,21 +248,27 @@ const grdSalesData = computed(() => grdSalesRef.value?.getData());
 
 let cachedParams;
 const searchParams = ref({
-  baseYm: now.format('YYYYMM'),
-  type: '0',
+  perfYm: now.format('YYYYMM'),
+  perType: '00',
   sellPrtnrNo: '',
 });
 const baseInfo = ref({
-  sample: 'test',
+  prtnrKnm: '',
+  ogCd: '',
+  rsbDvCd: '',
+  amtEstSalFee: null,
+  amtEstBsFee: null,
+  amtFeeSum: null,
+  ojDsbYm: '',
 });
-
 // 데이터 조회
 async function fetchData() {
-  const { data } = await dataService.get('API정의안됨', { params: { ...cachedParams } });
-  grdDetailData.value.setRows(data.list1);
-  grdBsData.value.setRows(data.list2);
-  grdDstData.value.setRows(data.list3);
-  grdSalesData.value.setRows(data.list4);
+  const { data } = await dataService.get('/sms/wells/fee/estimate/m-og', { params: { ...cachedParams } });
+  baseInfo.value = data.base;
+  grdDetailData.value.setRows(data.performances);
+  grdBsData.value.setRows(data.bses);
+  grdDstData.value.setRows(data.estimates);
+  grdSalesData.value.setRows(data.sales);
 }
 // 조회버튼
 async function onClickSearch() {
@@ -242,165 +289,328 @@ async function onClickSearchPrtnrNoPopup() {
 }
 // 실적내역 계산버튼 클릭
 async function onClickCalculateDetail() {
-  const { data } = await dataService.get('API정의안됨', { params: { ...cachedParams } });
-  console.log(data);
+  // 진건프로님 api 호출
 }
 
 // BS내역 계산버튼 클릭
 async function onClickCalculateBs() {
-  const { data } = await dataService.get('API정의안됨', { params: { ...cachedParams } });
-  console.log(data);
+  // 진건프로님 api 호출
 }
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
 const initGridDetail = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'col1', header: t('MSG_TXT_DIV'), width: '172', styleName: 'text-left' },
-    { fieldName: 'col2', header: t('MSG_TXT_ELHM_ACKMT_CT'), width: '171', styleName: 'text-right' },
-    { fieldName: 'col3', header: t('MSG_TXT_LUMP_SUM_INST'), width: '172', styleName: 'text-right' },
-    { fieldName: 'col4', header: t('MSG_TXT_BASE_RTLFE'), width: '172', styleName: 'text-right' },
-    { fieldName: 'col5', header: t('MSG_TXT_BFSVC_ACKMT_CT'), width: '172', styleName: 'text-right' },
-    { fieldName: 'col6', header: t('MSG_TXT_PLAR_SRTUP'), width: '172', styleName: 'text-center' },
-    { fieldName: 'col7', header: t('MSG_TXT_TOPMR_PLAR_STMNT'), width: '172', styleName: 'text-center' },
-    { fieldName: 'col8', header: t('MSG_TXT_PLAR_PRTIC'), width: '172', styleName: 'text-center' },
-    { fieldName: 'col9', header: t('MSG_TXT_MANAGER_SRTUP'), width: '171', styleName: 'text-center' },
-    { fieldName: 'col10', header: t('MSG_TXT_MANAGER_STMNT'), width: '172', styleName: 'text-center' },
-    { fieldName: 'col11', header: t('MSG_TXT_CMPF_EDUC'), width: '172', styleName: 'text-center' },
-    { fieldName: 'col12', header: t('MSG_TXT_METG_PRSC_DC'), width: '172', styleName: 'text-right' },
+    {
+      fieldName: 'type',
+      header: t('MSG_TXT_DIV'),
+      width: '220',
+      styleName: 'text-left',
+      displayCallback(grid, index, value) {
+        const title = { A: t('MSG_TXT_PERF_PS'), B: t('MSG_TXT_PRJTD_PERF') };
+        return title[value];
+      },
+    },
+    { fieldName: 'elhmAckmtCt', header: t('MSG_TXT_ELHM_ACKMT_CT'), width: '171', dataType: 'number', styleName: 'text-right' },
+    { fieldName: 'spayIstm', header: t('MSG_TXT_LUMP_SUM_INST'), width: '172', dataType: 'number', styleName: 'text-right' },
+    { fieldName: 'baseRtlfe', header: t('MSG_TXT_BASE_RTLFE'), width: '172', dataType: 'number', styleName: 'text-right' },
+    { fieldName: 'bfsvcAckmtCt', header: t('MSG_TXT_BFSVC_ACKMT_CT'), width: '172', dataType: 'number', styleName: 'text-right' },
+    {
+      fieldName: 'plarSrtup',
+      header: t('MSG_TXT_PLAR_SRTUP'),
+      width: '172',
+      styleName: 'text-center',
+      options: ['Y', 'N'].map((v) => ({ codeId: v, codeName: v })),
+      styleCallback(grid, dataCell) {
+        if (grid.getValue(dataCell.index.itemIndex, 'type') === 'B') {
+          return {
+            editable: false,
+            renderer: { type: 'radio' },
+          };
+        }
+        return { renderer: { type: 'text' } };
+      },
+    },
+    {
+      fieldName: 'topmrPlarStmnt',
+      header: t('MSG_TXT_TOPMR_PLAR_STMNT'),
+      width: '172',
+      styleName: 'text-center',
+      options: ['Y', 'N'].map((v) => ({ codeId: v, codeName: v })),
+      styleCallback(grid, dataCell) {
+        if (grid.getValue(dataCell.index.itemIndex, 'type') === 'B') {
+          return {
+            editable: false,
+            renderer: { type: 'radio' },
+          };
+        }
+        return { renderer: { type: 'text' } };
+      },
+    },
+    {
+      fieldName: 'plarPrtic',
+      header: t('MSG_TXT_PLAR_PRTIC'),
+      width: '172',
+      styleName: 'text-center',
+      options: ['Y', 'N'].map((v) => ({ codeId: v, codeName: v })),
+      styleCallback(grid, dataCell) {
+        if (grid.getValue(dataCell.index.itemIndex, 'type') === 'B') {
+          return {
+            editable: false,
+            renderer: { type: 'radio' },
+          };
+        }
+        return { renderer: { type: 'text' } };
+      },
+    },
+    {
+      fieldName: 'managerSrtup',
+      header: t('MSG_TXT_MANAGER_SRTUP'),
+      width: '171',
+      styleName: 'text-center',
+      options: ['Y', 'N'].map((v) => ({ codeId: v, codeName: v })),
+      styleCallback(grid, dataCell) {
+        if (grid.getValue(dataCell.index.itemIndex, 'type') === 'B') {
+          return {
+            editable: false,
+            renderer: { type: 'radio' },
+          };
+        }
+        return { renderer: { type: 'text' } };
+      },
+    },
+    {
+      fieldName: 'managerStmnt',
+      header: t('MSG_TXT_MANAGER_STMNT'),
+      width: '172',
+      styleName: 'text-center',
+      options: ['Y', 'N'].map((v) => ({ codeId: v, codeName: v })),
+      styleCallback(grid, dataCell) {
+        if (grid.getValue(dataCell.index.itemIndex, 'type') === 'B') {
+          return {
+            editable: false,
+            renderer: { type: 'radio' },
+          };
+        }
+        return { renderer: { type: 'text' } };
+      },
+    },
+    {
+      fieldName: 'cmpfEduc',
+      header: t('MSG_TXT_CMPF_EDUC'),
+      width: '172',
+      styleName: 'text-center',
+      options: ['Y', 'N'].map((v) => ({ codeId: v, codeName: v })),
+      styleCallback(grid, dataCell) {
+        if (grid.getValue(dataCell.index.itemIndex, 'type') === 'B') {
+          return {
+            editable: false,
+            renderer: { type: 'radio' },
+          };
+        }
+        return { renderer: { type: 'text' } };
+      },
+    },
+    {
+      fieldName: 'metgPrscDc',
+      header: t('MSG_TXT_METG_PRSC_DC'),
+      width: '172',
+      styleName: 'text-right',
+      options: ['Y', 'N'].map((v) => ({ codeId: v, codeName: v })),
+      styleCallback(grid, dataCell) {
+        if (grid.getValue(dataCell.index.itemIndex, 'type') === 'B') {
+          return {
+            editable: false,
+            renderer: { type: 'radio' },
+          };
+        }
+        return { renderer: { type: 'text' } };
+      },
+    },
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
-
   data.setFields(fields);
   view.setColumns(columns);
-
   view.checkBar.visible = false;
   view.rowIndicator.visible = false;
-
-  data.setRows([
-    { col1: '실적 현황', col2: '12', col3: '12,345,670', col4: '12,345,670', col5: '12', col6: '2022-11', col7: '2022-11', col8: '2022-11', col9: '2022-11', col10: '2022-11', col11: '2022-11', col12: '12' },
-    { col1: '예상 실적', col2: '12', col3: '12,345,670', col4: '12,345,670', col5: '12', col6: '2022-11', col7: '2022-11', col8: '2022-11', col9: '2022-11', col10: '2022-11', col11: '2022-11', col12: '12' },
-  ]);
+  view.editOptions.columnEditableFirst = true;
+  view.onCellEditable = (grid, index) => {
+    if (grid.getValue(index.itemIndex, 'type') === 'A') {
+      return false;
+    }
+  };
 });
 
 const initGridBs = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'col1', header: t('MSG_TXT_DIV'), styleName: 'text-center', width: '120' },
-    { fieldName: 'col2', header: `${t('MSG_TXT_WRFR')} 1`, styleName: 'text-right', width: '109' },
-    { fieldName: 'col3', header: `${t('MSG_TXT_WRFR')} 2`, styleName: 'text-right', width: '109' },
-    { fieldName: 'col4', header: `${t('MSG_TXT_WRFR')} 3`, styleName: 'text-right', width: '109' },
-    { fieldName: 'col5', header: `${t('MSG_TXT_WRFR')} 4`, styleName: 'text-right', width: '109' },
-    { fieldName: 'col6', header: t('MSG_TXT_UN_WRFR'), styleName: 'text-right', width: '109' },
-    { fieldName: 'col7', header: `${t('MSG_TXT_PUF')} 1`, styleName: 'text-right', width: '109' },
-    { fieldName: 'col8', header: `${t('MSG_TXT_PUF')} 2`, styleName: 'text-right', width: '109' },
-    { fieldName: 'col9', header: t('MSG_TXT_ETC_ITEMS_1'), styleName: 'text-right', width: '204' },
-    { fieldName: 'col10', header: t('MSG_TXT_ETC_ITEMS_2'), styleName: 'text-right', width: '115' },
-    { fieldName: 'col11', header: t('MSG_TXT_ETC_FXAM_DSB'), styleName: 'text-right', width: '129' },
-    { fieldName: 'col12', header: t('MSG_TXT_SUM'), styleName: 'text-right', width: '129' },
-    { fieldName: 'col13', header: t('MSG_TXT_BS_PROC_RATE'), styleName: 'text-right', width: '106' },
-    { fieldName: 'col14', header: t('W1'), styleName: 'text-right', width: '109' },
-    { fieldName: 'col15', header: t('W2'), styleName: 'text-right', width: '109' },
+    { fieldName: 'type',
+      header: t('MSG_TXT_DIV'),
+      styleName: 'text-center',
+      width: '120',
+      displayCallback(grid, index, value) {
+        const title = { A: t('MSG_TXT_ASGN_CT'), B: t('MSG_TXT_FHS_CT') };
+        return title[value];
+      },
+    },
+    { fieldName: 'wrfr01', header: `${t('MSG_TXT_WRFR')} 1`, styleName: 'text-right', dataType: 'number', width: '109' },
+    { fieldName: 'wrfr02', header: `${t('MSG_TXT_WRFR')} 2`, styleName: 'text-right', dataType: 'number', width: '109' },
+    { fieldName: 'wrfr03', header: `${t('MSG_TXT_WRFR')} 3`, styleName: 'text-right', dataType: 'number', width: '109' },
+    { fieldName: 'wrfr04', header: `${t('MSG_TXT_WRFR')} 4`, styleName: 'text-right', dataType: 'number', width: '109' },
+    { fieldName: 'unWrfr', header: t('MSG_TXT_UN_WRFR'), styleName: 'text-right', dataType: 'number', width: '109' },
+    { fieldName: 'puf01', header: `${t('MSG_TXT_PUF')} 1`, styleName: 'text-right', dataType: 'number', width: '109' },
+    { fieldName: 'puf02', header: `${t('MSG_TXT_PUF')} 2`, styleName: 'text-right', dataType: 'number', width: '109' },
+    { fieldName: 'otscEtc', header: t('MSG_TXT_ETC_ITEMS_1'), styleName: 'text-right', dataType: 'number', width: '204' },
+    { fieldName: 'bdtEtc', header: t('MSG_TXT_ETC_ITEMS_2'), styleName: 'text-right', dataType: 'number', width: '115' },
+    { fieldName: 'etcFxamDsb', header: t('MSG_TXT_ETC_FXAM_DSB'), styleName: 'text-right', dataType: 'number', width: '129' },
+    { fieldName: 'sum',
+      header: t('MSG_TXT_SUM'),
+      styleName: 'text-right',
+      width: '129',
+      dataType: 'number',
+      valueExpression: "values['wrfr01'] + values['wrfr02'] + values['wrfr03'] + values['wrfr04'] + values['unWrfr'] + values['puf01'] + values['puf02'] + values['otscEtc'] + values['bdtEtc'] + values['etcFxamDsb']",
+    },
+    { fieldName: 'procRate', header: t('MSG_TXT_BS_PROC_RATE'), styleName: 'text-right', width: '106' },
+    { fieldName: 'w1', header: t('W1'), styleName: 'text-right', dataType: 'number', width: '109' },
+    { fieldName: 'w2', header: t('W2'), styleName: 'text-right', dataType: 'number', width: '109' },
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
-
   data.setFields(fields);
   view.setColumns(columns);
-  view.checkBar.visible = false; // create checkbox column
-  view.rowIndicator.visible = false; // create number indicator column
-
-  // multi row header setting
+  view.checkBar.visible = false;
+  view.rowIndicator.visible = false;
+  view.editOptions.editable = true;
+  view.onCellEditable = (grid, index) => {
+    if (['A', 'B'].includes(grid.getValue(index.itemIndex, 'type'))) {
+      return false;
+    }
+  };
   view.setColumnLayout([
-    'col1',
+    'type',
     {
-      header: t('MSG_TXT_PRD_GRP'), // colspan title
-      direction: 'horizontal', // merge type
-      items: ['col2', 'col3', 'col4', 'col5', 'col6', 'col7', 'col8', 'col9', 'col10', 'col11', 'col12'],
+      header: t('MSG_TXT_PRD_GRP'),
+      direction: 'horizontal',
+      items: ['wrfr01', 'wrfr02', 'wrfr03', 'wrfr04', 'unWrfr', 'puf01', 'puf02', 'otscEtc', 'bdtEtc', 'etcFxamDsb', 'sum'],
     },
-    'col13',
+    'procRate',
     {
-      header: t('MSG_TXT_RGLVL'), // colspan title
-      direction: 'horizontal', // merge type
-      items: ['col14', 'col15'],
+      header: t('MSG_TXT_RGLVL'),
+      direction: 'horizontal',
+      items: ['w1', 'w2'],
     },
-  ]);
-
-  data.setRows([
-    { col1: '배정건수', col2: '10', col3: '10', col4: '10', col5: '10', col6: '10', col7: '10', col8: '10', col9: '10', col10: '10', col11: '10', col12: '10', col13: '-', col14: '10', col15: '10' },
-    { col1: '완료건수', col2: '10', col3: '10', col4: '10', col5: '10', col6: '10', col7: '10', col8: '10', col9: '10', col10: '10', col11: '10', col12: '10', col13: '-', col14: '10', col15: '10' },
-    { col1: '예상완료건수', col2: '10', col3: '10', col4: '10', col5: '10', col6: '10', col7: '10', col8: '10', col9: '10', col10: '10', col11: '10', col12: '10', col13: '-', col14: '10', col15: '10' },
   ]);
 });
 
 const initGridDstDtl = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'col1', header: t('MSG_TXT_DIV'), styleName: 'text-center', width: '145' },
-    { fieldName: 'col2', header: t('MSG_TXT_ELHM_PRPN'), styleName: 'text-right', width: '157' },
-    { fieldName: 'col3', header: t('MSG_TXT_ELHM_METG'), styleName: 'text-right', width: '157' },
-    { fieldName: 'col4', header: t('MSG_TXT_ELHM_EXCP_PRPN'), styleName: 'text-right', width: '157' },
-    { fieldName: 'col5', header: t('MSG_TXT_ELHM_EXCP_METG'), styleName: 'text-right', width: '157' },
-    { fieldName: 'col6', header: t('MSG_TXT_SAL_INTV'), styleName: 'text-right', width: '157' },
-    { fieldName: 'col7', header: t('MSG_TXT_EDUC'), styleName: 'text-right', width: '157' },
-    { fieldName: 'col8', header: t('MSG_TXT_STMNT'), styleName: 'text-right', width: '160' },
-    { fieldName: 'col9', header: t('MSG_TXT_BS_MGMT'), styleName: 'text-right', width: '151' },
-    { fieldName: 'col10', header: t('MSG_TXT_RGLVL'), styleName: 'text-right', width: '151' },
+    { fieldName: 'type',
+      header: t('MSG_TXT_DIV'),
+      styleName: 'text-center',
+      width: '145',
+      displayCallback() {
+        return t('MSG_TXT_EST_FEE');
+      },
+      footer: {
+        text: t('MSG_TXT_SUM'),
+        styleName: 'text-center',
+      },
+    },
+    { fieldName: 'amtSumElhmPrpn',
+      header: t('MSG_TXT_ELHM_PRPN'),
+      styleName: 'text-right',
+      width: '157',
+      dataType: 'number',
+      footer: {
+        expression: 'sum',
+        numberFormat: '#,##0',
+        valueCallback(grid) {
+          let sum = 0;
+          const prod = grid.getDataSource();
+          const cnt = prod.getRowCount();
+          for (let i = 0; i < cnt; i += 1) {
+            sum += prod.getValue(i, 'amtSumElhmPrpn');
+            sum += prod.getValue(i, 'amtSumElhmMetg');
+            sum += prod.getValue(i, 'amtSumElhmExcpPrpn');
+            sum += prod.getValue(i, 'amtSumElhmExcpMetg');
+            sum += prod.getValue(i, 'amtEdu');
+            sum += prod.getValue(i, 'amtSumStmnt');
+          }
+          return sum;
+        },
+      },
+    },
+    { fieldName: 'amtSumElhmMetg', header: t('MSG_TXT_ELHM_METG'), styleName: 'text-right', dataType: 'number', width: '157' },
+    { fieldName: 'amtSumElhmExcpPrpn', header: t('MSG_TXT_ELHM_EXCP_PRPN'), styleName: 'text-right', dataType: 'number', width: '157' },
+    { fieldName: 'amtSumElhmExcpMetg', header: t('MSG_TXT_ELHM_EXCP_METG'), styleName: 'text-right', dataType: 'number', width: '157' },
+    { fieldName: 'amtSumSalIntv', header: t('MSG_TXT_SAL_INTV'), styleName: 'text-right', dataType: 'number', width: '157' },
+    { fieldName: 'amtEdu', header: t('MSG_TXT_EDUC'), styleName: 'text-right', dataType: 'number', width: '157' },
+    { fieldName: 'amtSumStmnt', header: t('MSG_TXT_STMNT'), styleName: 'text-right', dataType: 'number', width: '160' },
+    {
+      fieldName: 'amtBsMgmt',
+      header: t('MSG_TXT_BS_MGMT'),
+      styleName: 'text-right',
+      dataType: 'number',
+      width: '151',
+      footer: {
+        expression: 'sum',
+        numberFormat: '#,##0',
+        valueCallback(grid) {
+          let sum = 0;
+          const prod = grid.getDataSource();
+          const cnt = prod.getRowCount();
+          for (let i = 0; i < cnt; i += 1) {
+            sum += prod.getValue(i, 'amtBsMgmt');
+            sum += prod.getValue(i, 'amtRglvl');
+          }
+          return sum;
+        },
+      },
+    },
+    { fieldName: 'amtRglvl', header: t('MSG_TXT_RGLVL'), styleName: 'text-right', dataType: 'number', width: '151' },
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
-
   data.setFields(fields);
   view.setColumns(columns);
-  view.checkBar.visible = false; // create checkbox column
-  view.rowIndicator.visible = false; // create number indicator column
-
-  // multi row header setting
+  view.checkBar.visible = false;
+  view.rowIndicator.visible = false;
   view.setColumnLayout([
-    'col1',
+    'type',
     {
-      header: t('MSG_TXT_EST_SAL_COMM'), // colspan title
-      direction: 'horizontal', // merge type
-      items: ['col2', 'col3', 'col4', 'col5', 'col6', 'col7', 'col8'],
+      header: t('MSG_TXT_EST_SAL_COMM'),
+      direction: 'horizontal',
+      items: ['amtSumElhmPrpn', 'amtSumElhmMetg', 'amtSumElhmExcpPrpn', 'amtSumElhmExcpMetg', 'amtSumSalIntv', 'amtEdu', 'amtSumStmnt'],
     },
     {
-      header: t('MSG_TXT_EST_BS_FEE'), // colspan title
-      direction: 'horizontal', // merge type
-      items: ['col9', 'col10'],
+      header: t('MSG_TXT_EST_BS_FEE'),
+      direction: 'horizontal',
+      items: ['amtBsMgmt', 'amtRglvl'],
     },
   ]);
-
-  data.setRows([
-    { col1: '예상수수료', col2: '1,234,500', col3: '1,234,500', col4: '1,234,500', col5: '1,234,500', col6: '1,234,500', col7: '1,234,500', col8: '1,234,500', col9: '1,234,500', col10: '1,234,500' },
-    { col1: '예상수수료', col2: '1,234,500', col3: '1,234,500', col4: '1,234,500', col5: '1,234,500', col6: '1,234,500', col7: '1,234,500', col8: '1,234,500', col9: '1,234,500', col10: '1,234,500' },
-  ]);
+  view.layoutByColumn('amtSumElhmPrpn').footerUserSpans = [{ colspan: 7 }];
+  view.layoutByColumn('amtBsMgmt').footerUserSpans = [{ colspan: 2 }];
+  view.setFooters({ visible: true, items: [{ height: 40 }] });
 });
 
 const initGridSalesHist = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'col1', header: t('MSG_TXT_RCPDT'), width: '112', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd' },
-    { fieldName: 'col2', header: t('MSG_TXT_SL_DT'), width: '120', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd' },
-    { fieldName: 'col3', header: t('MSG_TXT_CNTR_DTL_NO'), width: '155', styleName: 'text-center' },
-    { fieldName: 'col4', header: t('MSG_TXT_CNTRT'), width: '93', styleName: 'text-left' },
-    { fieldName: 'col5', header: t('MSG_TXT_PRDT_NM'), width: '187', styleName: 'text-left' },
-    { fieldName: 'col6', header: t('MSG_TXT_PRDT_GUBUN'), width: '101', styleName: 'text-left' },
-    { fieldName: 'col7', header: t('MSG_TXT_CONTR_TYPE'), width: '96', styleName: 'text-left' },
-    { fieldName: 'col8', header: t('MSG_TXT_PD_ACC_CNT'), width: '91', styleName: 'text-right' },
-    { fieldName: 'col9', header: t('MSG_TXT_BFSVC_ACKMT_CT'), width: '107', styleName: 'text-right' },
-    { fieldName: 'col10', header: t('MSG_TXT_ELHM_RENTAL'), width: '108', styleName: 'text-right' },
-    { fieldName: 'col11', header: t('MSG_TXT_ELHM_SPAY'), width: '112', styleName: 'text-right' },
-    { fieldName: 'col12', header: t('MSG_TXT_ELHM_EXCP_SPAY'), width: '118', styleName: 'text-right' },
-    { fieldName: 'col13', header: t('MSG_TXT_ETC'), width: '111', styleName: 'text-center' },
+    { fieldName: 'cntrRcpFshDtm', header: t('MSG_TXT_RCPDT'), width: '112', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd' },
+    { fieldName: 'cntrCnfmDtm', header: t('MSG_TXT_SL_DT'), width: '120', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd' },
+    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '155', styleName: 'text-center' },
+    { fieldName: 'cstKnm', header: t('MSG_TXT_CNTRT'), width: '93', styleName: 'text-left' },
+    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '187', styleName: 'text-left' },
+    { fieldName: 'cntrwTpCd', header: t('MSG_TXT_PRDT_GUBUN'), width: '101', styleName: 'text-left', options: codes.CNTRW_TP_CD },
+    { fieldName: 'cntrTpCd', header: t('MSG_TXT_CONTR_TYPE'), width: '96', styleName: 'text-left', options: codes.CNTR_TP_CD },
+    { fieldName: 'pdAccCnt', header: t('MSG_TXT_PD_ACC_CNT'), width: '91', styleName: 'text-right' },
+    { fieldName: 'bfsvcAckmtCt', header: t('MSG_TXT_BFSVC_ACKMT_CT'), width: '107', styleName: 'text-right' },
+    { fieldName: 'amtElhmRental', header: t('MSG_TXT_ELHM_RENTAL'), width: '108', styleName: 'text-right' },
+    { fieldName: 'amtElhmSpay', header: t('MSG_TXT_ELHM_SPAY'), width: '112', styleName: 'text-right' },
+    { fieldName: 'elhmExcpSpay', header: t('MSG_TXT_ELHM_EXCP_SPAY'), width: '118', styleName: 'text-right' },
+    { fieldName: 'etc', header: t('MSG_TXT_ETC'), width: '111', styleName: 'text-right' },
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
-
   data.setFields(fields);
   view.setColumns(columns);
-
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
-
-  data.setRows([
-    { col1: '2022-10-24', col2: '-', col3: '2022-1234567', col4: '김교원', col5: '비데(BM350)', col6: '렌탈', col7: '일반', col8: '1', col9: '1', col10: '1,234,500', col11: '1,234,500', col12: '1,234,500', col13: '-' },
-    { col1: '2022-10-24', col2: '-', col3: '2022-1234567', col4: '김교원', col5: '비데(BM350)', col6: '렌탈', col7: '일반', col8: '1', col9: '1', col10: '1,234,500', col11: '1,234,500', col12: '1,234,500', col13: '-' },
-    { col1: '2022-10-24', col2: '-', col3: '2022-1234567', col4: '김교원', col5: '비데(BM350)', col6: '렌탈', col7: '일반', col8: '1', col9: '1', col10: '1,234,500', col11: '1,234,500', col12: '1,234,500', col13: '-' },
-  ]);
 });
 
 </script>
