@@ -152,6 +152,10 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'subodCntrNo' },
     { fieldName: 'subDpTpCd' },
     { fieldName: 'errTyp' },
+    { fieldName: 'mAcnoEncr' },
+    { fieldName: 'sAcnoEncr' },
+    { fieldName: 'mCrcdnoEncr' },
+    { fieldName: 'sCrcdnoEncr' },
   ];
 
   const columns = [
@@ -161,7 +165,18 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'subSellTpCd', header: t('MSG_TXT_BNDL_ORD_SELL_TP'), width: '200', styleName: 'text-center', options: codes.SELL_TP_CD },
     { fieldName: 'subodCntrNo', header: t('MSG_TXT_BNDL_CNTR_NO'), width: '200', styleName: 'text-center' },
     { fieldName: 'subDpTpCd', header: t('MSG_TXT_BNDL_ORD_FNT_DV'), width: '159', styleName: 'text-center', options: codes.DP_TP_CD },
-    { fieldName: 'errTyp', header: t('MSG_TXT_ERR_RGST_IZ'), width: '300', styleName: 'text-left' },
+    { fieldName: 'errTyp',
+      header: t('MSG_TXT_ERR_RGST_IZ'),
+      width: '300',
+      styleName: 'text-left',
+      displayCallback(grid, item, value) {
+        // eslint-disable-next-line max-len
+        const { mAcnoEncr: encr, sAcnoEncr: subEcnr, mCrcdnoEncr: cardEncr, sCrcdnoEncr: subCardEncr } = gridUtil.getRowValue(grid, item.itemIndex);
+        // eslint-disable-next-line no-nested-ternary
+        return value === '01' ? `${t('MSG_TXT_AC_NO_DFRN')} ${encr} /  ${subEcnr}`
+          : value === '02' ? `${t('MSG_TXT_CARD_NO_DFRN')} ${cardEncr} / ${subCardEncr}` : value;
+      },
+    },
   ];
 
   data.setFields(fields);
