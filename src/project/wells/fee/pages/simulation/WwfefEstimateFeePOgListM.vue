@@ -325,13 +325,63 @@ const initGrdPerformanceDtl = defineGrid((data, view) => {
 
 const initGrdEstimatedFeeDtl = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'div', header: t('MSG_TXT_DIV'), width: '218' },
-    { fieldName: 'amtSumElhmPrpn', header: t('MSG_TXT_ELHM_PRPN'), styleName: 'text-right', width: '135', dataType: 'number' },
+    { fieldName: 'div',
+      header: t('MSG_TXT_DIV'),
+      width: '218',
+      footer: {
+        text: t('MSG_TXT_SUM'),
+        styleName: 'text-center',
+      },
+    },
+    { fieldName: 'amtSumElhmPrpn',
+      header: t('MSG_TXT_ELHM_PRPN'),
+      styleName: 'text-right',
+      width: '135',
+      dataType: 'number',
+      footer: {
+        expression: 'sum',
+        numberFormat: '#,##0',
+        valueCallback(grid) {
+          let sum = 0;
+          const prod = grid.getDataSource();
+          const cnt = prod.getRowCount();
+          for (let i = 0; i < cnt; i += 1) {
+            sum += prod.getValue(i, 'amtSumElhmPrpn');
+            sum += prod.getValue(i, 'amtSumElhmExcpPrpn');
+            sum += prod.getValue(i, 'amtSumSalIntv');
+            sum += prod.getValue(i, 'amtSumStmnt');
+            sum += prod.getValue(i, 'amtSumMutu');
+          }
+          return sum;
+        },
+      },
+    },
     { fieldName: 'amtSumElhmExcpPrpn', header: t('MSG_TXT_ELHM_EXCP_PRPN'), styleName: 'text-right', width: '135', dataType: 'number' },
     { fieldName: 'amtSumSalIntv', header: t('MSG_TXT_SAL_INTV'), styleName: 'text-right', width: '135', dataType: 'number' },
     { fieldName: 'amtSumStmnt', header: t('MSG_TXT_STMNT'), styleName: 'text-right', width: '135', dataType: 'number' },
     { fieldName: 'amtSumMutu', header: t('MSG_TXT_MUTU'), styleName: 'text-right', width: '135', dataType: 'number' },
-    { fieldName: 'amtSumOgElhmPrpn', header: t('MSG_TXT_ELHM_PRPN'), styleName: 'text-right', width: '165', dataType: 'number' },
+    { fieldName: 'amtSumOgElhmPrpn',
+      header: t('MSG_TXT_ELHM_PRPN'),
+      styleName: 'text-right',
+      width: '165',
+      dataType: 'number',
+      footer: {
+        expression: 'sum',
+        numberFormat: '#,##0',
+        valueCallback(grid) {
+          let sum = 0;
+          const prod = grid.getDataSource();
+          const cnt = prod.getRowCount();
+          for (let i = 0; i < cnt; i += 1) {
+            sum += prod.getValue(i, 'amtSumOgElhmPrpn');
+            sum += prod.getValue(i, 'amtSumOgElhmExcpPrpn');
+            sum += prod.getValue(i, 'amtSumOgSalIntv');
+            sum += prod.getValue(i, 'amtSumOgMutu');
+          }
+          return sum;
+        },
+      },
+    },
     { fieldName: 'amtSumOgElhmExcpPrpn', header: t('MSG_TXT_ELHM_EXCP_PRPN'), styleName: 'text-right', width: '165', dataType: 'number' },
     { fieldName: 'amtSumOgSalIntv', header: t('MSG_TXT_SAL_INTV'), styleName: 'text-right', width: '166', dataType: 'number' },
     { fieldName: 'amtSumOgMutu', header: t('MSG_TXT_MUTU'), styleName: 'text-right', width: '165', dataType: 'number' },
@@ -354,6 +404,9 @@ const initGrdEstimatedFeeDtl = defineGrid((data, view) => {
       items: ['amtSumOgElhmPrpn', 'amtSumOgElhmExcpPrpn', 'amtSumOgSalIntv', 'amtSumOgMutu'],
     },
   ]);
+  view.layoutByColumn('amtSumElhmPrpn').footerUserSpans = [{ colspan: 5 }];
+  view.layoutByColumn('amtSumOgElhmPrpn').footerUserSpans = [{ colspan: 4 }];
+  view.setFooters({ visible: true, items: [{ height: 40 }] });
 });
 
 const initGrdSalesHist = defineGrid((data, view) => {
