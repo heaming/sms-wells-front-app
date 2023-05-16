@@ -319,10 +319,11 @@ const now = dayjs();
 const { notify } = useGlobal();
 const { t } = useI18n();
 
+// 테스트 데이터 W20226001983-1
 const props = defineProps({
-  // cntrNo: { type: String, required: false, default: '' },
-  // cntrSn: { type: String, required: false, default: '' },
-  cntrNoSn: { type: String, required: false, default: '' },
+  cntrNo: { type: String, required: false, default: '' },
+  cntrSn: { type: String, required: false, default: '' },
+  // cntrNoSn: { type: String, required: false, default: '' },
 });
 
 // -------------------------------------------------------------------------------------------------
@@ -335,9 +336,9 @@ const codes = await codeUtil.getMultiCodes(
 
 const dataService = useDataService();
 const searchParams = ref({
-  // cntrNo: props.cntrNo,
-  // cntrSn: props.cntrSn,
-  cntrNoSn: props.cntrNoSn,
+  cntrNo: props.cntrNo,
+  cntrSn: props.cntrSn,
+  // cntrNoSn: props.cntrNoSn,
 });
 
 // 카드, 은행 구분 목록
