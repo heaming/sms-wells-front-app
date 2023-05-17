@@ -27,44 +27,36 @@
         :label="t('MSG_TXT_BNDL_RGST_HIST')"
       />
     </kw-tabs>
-
-    <kw-search
-      ref="searchRef"
-      :cols="3"
-      @reset="onClicckReset"
-      @search="onClickSearch"
-    >
-      <kw-search-row>
-        <kw-search-item
-          v-show="selectedTab === 'unrgPs'"
-          :label="t('MSG_TXT_CONT_CLASS')"
+    <kw-tab-panels v-model="selectedTab">
+      <kw-tab-panel name="unrgPs">
+        <kw-search
+          ref="searchRef"
+          :cols="3"
+          @reset="onClicckReset"
+          @search="onClickSearch"
         >
-          <kw-select
-            v-model="searchParams.unrgRsCd"
-            :options="codes.BNDL_WDRW_UNRG_OJ_DV_CD"
-            first-option="all"
-          />
-        </kw-search-item>
-        <kw-search-item
-          v-show="selectedTab === 'bndlRgstHist'"
-          :label="t('MSG_TXT_PROCS_RS')"
-        >
-          <kw-select
-            v-model="searchParams.unrgRsonCd"
-            :options="codes.AFTN_NOM_ERR_DV_CD"
-            first-option="all"
-          />
-        </kw-search-item>
-        <!-- 계약번호 -->
-        <kw-search-item
-          :label="t('MSG_TXT_CNTR_NO')"
-        >
-          <zctz-contract-detail-number
-            v-model:cntr-no="searchParams.cntrNo"
-            v-model:cntr-sn="searchParams.cntrSn"
-            :name="$t('MSG_TXT_CNTR_DTL_NO')"
-          />
-          <!-- <kw-input
+          <kw-search-row>
+            <!-- v-show="selectedTab === 'unrgPs'" -->
+            <kw-search-item
+              :label="t('MSG_TXT_CONT_CLASS')"
+            >
+              <kw-select
+                v-model="searchParams.unrgRsCd"
+                :options="codes.BNDL_WDRW_UNRG_OJ_DV_CD"
+                first-option="all"
+              />
+            </kw-search-item>
+            <!-- v-show="selectedTab === 'bndlRgstHist'" -->
+            <!-- 계약번호 -->
+            <kw-search-item
+              :label="t('MSG_TXT_CNTR_NO')"
+            >
+              <zctz-contract-detail-number
+                v-model:cntr-no="searchParams.cntrNo"
+                v-model:cntr-sn="searchParams.cntrSn"
+                :name="$t('MSG_TXT_CNTR_DTL_NO')"
+              />
+              <!-- <kw-input
             v-model="searchParams.cntr"
             type="number"
             :name="t('MSG_TXT_CNTR_NO')"
@@ -73,100 +65,153 @@
             clearable
             :on-click-icon="onClickSelectCntrnosn"
           /> -->
-        </kw-search-item>
-        <kw-search-item
-          :label="selectedTab === 'unrgPs' ? t('MSG_TXT_RCPDT') : t('MSG_TXT_PRCSDT')"
+            </kw-search-item>
+            <kw-search-item
+              :label="t('MSG_TXT_RCPDT')"
+            >
+              <kw-date-range-picker
+                v-model:from="searchParams.cntrPdStrtdt"
+                v-model:to="searchParams.cntrPdEnddt"
+                :from-placeholder="t('MSG_TXT_STRT_D_CHO')"
+                :to-placeholder="t('MSG_TXT_END_D_CHO')"
+                :label="t('MSG_TXT_VALID_PERIOD')"
+              />
+            </kw-search-item>
+          </kw-search-row>
+        </kw-search>
+
+        <div
+          class="result-area"
         >
-          <kw-date-range-picker
-            v-model:from="searchParams.cntrPdStrtdt"
-            v-model:to="searchParams.cntrPdEnddt"
-            :from-placeholder="t('MSG_TXT_STRT_D_CHO')"
-            :to-placeholder="t('MSG_TXT_END_D_CHO')"
-            :label="t('MSG_TXT_VALID_PERIOD')"
-          />
-        </kw-search-item>
-      </kw-search-row>
-    </kw-search>
+          <kw-action-top>
+            <template #left>
+              <kw-paging-info
+                v-model:page-index="pageInfo.pageIndex"
+                v-model:page-size="pageInfo.pageSize"
+                :total-count="pageInfo.totalCount"
+                @change="fetchData1"
+              />
+              <!-- <span class="ml8">{{ t('MSG_TXT_UNIT_WON') }}</span> -->
+            </template>
 
-    <div
-      v-show="selectedTab === 'unrgPs'"
-      class="result-area"
-    >
-      <kw-action-top>
-        <template #left>
-          <kw-paging-info
-            v-model:page-index="pageInfo.pageIndex"
-            v-model:page-size="pageInfo.pageSize"
+            <kw-btn
+              :disable="pageInfo.totalCount === 0"
+              icon="download_on"
+              dense
+              secondary
+              :label="t('MSG_TXT_EXCEL_DOWNLOAD')"
+              @click="onClickExcelDownload(1)"
+            />
+            <kw-separator
+              vertical
+              inset
+              spaced
+            />
+            <kw-btn
+
+              disable
+              grid-action
+              :label="t('MSG_TXT_BNDL_RGST')"
+              @click="alert('준비중입니다')"
+            />
+          </kw-action-top>
+
+          <kw-grid
+            ref="grdMainRef1"
+            name="grdMain"
+            :page-size="pageInfo.pageSize - 1"
             :total-count="pageInfo.totalCount"
-            @change="fetchData1"
+            @init="initGrid1"
           />
-          <!-- <span class="ml8">{{ t('MSG_TXT_UNIT_WON') }}</span> -->
-        </template>
+        </div>
+      </kw-tab-panel>
+      <kw-tab-panel name="bndlRgstHist">
+        <!-- v-show="selectedTab === 'bndlRgstHist'" -->
 
-        <kw-btn
-          :disable="pageInfo.totalCount === 0"
-          icon="download_on"
-          dense
-          secondary
-          :label="t('MSG_TXT_EXCEL_DOWNLOAD')"
-          @click="onClickExcelDownload(1)"
-        />
-        <kw-separator
-          vertical
-          inset
-          spaced
-        />
-        <kw-btn
+        <kw-search
+          ref="searchRef"
+          :cols="3"
+          @reset="onClicckReset"
+          @search="onClickSearch"
+        >
+          <kw-search-row>
+            <!-- v-show="selectedTab === 'unrgPs'" -->
 
-          disable
-          grid-action
-          :label="t('MSG_TXT_BNDL_RGST')"
-          @click="alert('준비중입니다')"
-        />
-      </kw-action-top>
+            <!-- v-show="selectedTab === 'bndlRgstHist'" -->
+            <kw-search-item
+              :label="t('MSG_TXT_PROCS_RS')"
+            >
+              <kw-select
+                v-model="searchParams.unrgRsonCd"
+                :options="codes.AFTN_NOM_ERR_DV_CD"
+                first-option="all"
+              />
+            </kw-search-item>
+            <!-- 계약번호 -->
+            <kw-search-item
+              :label="t('MSG_TXT_CNTR_NO')"
+            >
+              <zctz-contract-detail-number
+                v-model:cntr-no="searchParams.cntrNo"
+                v-model:cntr-sn="searchParams.cntrSn"
+                :name="$t('MSG_TXT_CNTR_DTL_NO')"
+              />
+              <!-- <kw-input
+            v-model="searchParams.cntr"
+            type="number"
+            :name="t('MSG_TXT_CNTR_NO')"
+            maxlength="17"
+            icon="search"
+            clearable
+            :on-click-icon="onClickSelectCntrnosn"
+          /> -->
+            </kw-search-item>
+            <kw-search-item
+              :label="t('MSG_TXT_PRCSDT')"
+            >
+              <kw-date-range-picker
+                v-model:from="searchParams.cntrPdStrtdt"
+                v-model:to="searchParams.cntrPdEnddt"
+                :from-placeholder="t('MSG_TXT_STRT_D_CHO')"
+                :to-placeholder="t('MSG_TXT_END_D_CHO')"
+                :label="t('MSG_TXT_VALID_PERIOD')"
+              />
+            </kw-search-item>
+          </kw-search-row>
+        </kw-search>
+        <div
+          class="result-area"
+        >
+          <kw-action-top>
+            <template #left>
+              <kw-paging-info
+                v-model:page-index="pageInfo2.pageIndex"
+                v-model:page-size="pageInfo2.pageSize"
+                :total-count="pageInfo2.totalCount"
+                @change="fetchData2"
+              />
+            <!-- <span class="ml8">{{ t('MSG_TXT_UNIT_WON') }}</span> -->
+            </template>
 
-      <kw-grid
-        ref="grdMainRef1"
-        name="grdMain"
-        :page-size="pageInfo.pageSize - 1"
-        :total-count="pageInfo.totalCount"
-        @init="initGrid1"
-      />
-    </div>
-
-    <div
-      v-show="selectedTab === 'bndlRgstHist'"
-      class="result-area"
-    >
-      <kw-action-top>
-        <template #left>
-          <kw-paging-info
-            v-model:page-index="pageInfo2.pageIndex"
-            v-model:page-size="pageInfo2.pageSize"
+            <kw-btn
+              :disable="pageInfo2.totalCount === 0"
+              icon="download_on"
+              dense
+              secondary
+              :label="t('MSG_TXT_EXCEL_DOWNLOAD')"
+              @click="onClickExcelDownload(2)"
+            />
+          </kw-action-top>
+          <kw-grid
+            ref="grdMainRef2"
+            name="grdMain2"
+            :page-size="pageInfo2.pageSize - 1"
             :total-count="pageInfo2.totalCount"
-            @change="fetchData2"
+            @init="initGrid2"
           />
-          <!-- <span class="ml8">{{ t('MSG_TXT_UNIT_WON') }}</span> -->
-        </template>
-
-        <kw-btn
-          :disable="pageInfo2.totalCount === 0"
-          icon="download_on"
-          dense
-          secondary
-          :label="t('MSG_TXT_EXCEL_DOWNLOAD')"
-          @click="onClickExcelDownload(2)"
-        />
-      </kw-action-top>
-
-      <kw-grid
-        ref="grdMainRef2"
-        name="grdMain2"
-        :page-size="pageInfo2.pageSize - 1"
-        :total-count="pageInfo2.totalCount"
-        @init="initGrid2"
-      />
-    </div>
+        </div>
+      </kw-tab-panel>
+    </kw-tab-panels>
   </kw-page>
 </template>
 
