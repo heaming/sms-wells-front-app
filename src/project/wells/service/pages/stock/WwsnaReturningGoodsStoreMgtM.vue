@@ -15,7 +15,6 @@
 
 <template>
   <kw-page>
-    <template #header />
     <kw-search
       :cols="4"
       @search="onClickSearch"
@@ -157,6 +156,7 @@
           dense
           secondary
           :label="$t('MSG_TXT_EXCEL_DOWNLOAD')"
+          :disable="totalCount === 0"
           @click="onClickExcelDownload"
         />
         <kw-separator
@@ -239,6 +239,7 @@ import ZwcmWareHouseSearch from '~sms-common/service/components/ZwsnzWareHouseSe
 
 const { t } = useI18n();
 const { notify } = useGlobal();
+const { currentRoute } = useRouter();
 const dataService = useDataService();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -377,6 +378,17 @@ async function fetchData() {
   view.setColumnFilters('itemGr', filters, true);
 }
 
+async function onClickExcelDownload() {
+  const view = grdMainRef.value.getView();
+  const res = await dataService.get('/sms/wells/service/returning-goods-store/excel-download', { params: cachedParams });
+  await gridUtil.exportView(view, {
+    fileName: currentRoute.value.meta.menuName,
+    timePostfix: true,
+    checkBar: 'hidden',
+    exportData: res.data,
+  });
+}
+
 async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
@@ -477,9 +489,9 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'itmPdNm', header: t('TXT_MSG_MAT_PD_NM'), width: '170', styleName: 'text-left' },
     { fieldName: 'itemGrNm', header: t('MSG_TXT_PD_GRP'), width: '170', styleName: 'text-left', visible: false },
     { fieldName: 'itemGr', header: t('MSG_TXT_PD_GRP_CD'), width: '170', styleName: 'text-left', visible: false, autoFilter: false },
-    { fieldName: 'istDt', header: t('MSG_TXT_IST_DT'), width: '120', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd' },
-    { fieldName: 'reqdDt', header: t('MSG_TXT_REQD_RQDT'), width: '120', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd' },
-    { fieldName: 'vstFshDt', header: t('MSG_TXT_WK_DT'), width: '170', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd' },
+    { fieldName: 'istDt', header: t('MSG_TXT_IST_DT'), width: '120', styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'reqdDt', header: t('MSG_TXT_REQD_RQDT'), width: '120', styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'vstFshDt', header: t('MSG_TXT_WK_DT'), width: '170', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'rtngdConfYn', header: t('MSG_TXT_RTNGD_CONF_YN'), width: '100', styleName: 'text-center' },
     { fieldName: 'col8', header: t('MSG_TXT_USE_DAY'), width: '100', styleName: 'text-right' },
     { fieldName: 'useMths', header: t('MSG_TXT_USE_MCNT'), width: '100', styleName: 'text-right' },
@@ -600,10 +612,10 @@ const initGrdMain = defineGrid((data, view) => {
     // const strRtngdProcsTpCd = grid.getValue(item.index, 'rtngdProcsTpCd');
     // const strOstrDt = grid.getValue(item.index, 'ostrDt');
 
-    if (rtngdProcsTpCd1 !== undefined && rtngdProcsTpCd1 !== null && rtngdProcsTpCd1 !== '') {
+    if (rtngdProcsTpCd1) {
       ret.editable = false;
     }
-    if (ostrConfDt1 !== undefined && ostrConfDt1 !== null && ostrConfDt1 !== '') {
+    if (ostrConfDt1) {
       ret.editable = false;
     }
     return ret;
