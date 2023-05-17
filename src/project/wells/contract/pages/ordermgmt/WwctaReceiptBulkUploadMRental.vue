@@ -13,111 +13,106 @@
 ****************************************************************************************************
 --->
 <template>
-  <kw-page>
-    <!-- To.개발 kw-tab-panel안에 kw-search로 시작하는 경우 kw-tabs에 .form-border 제거 / 그 외 추가 -->
-    <kw-tabs model-value="1">
-      <kw-tab
-        name="1"
-        :label="$t('MSG_TXT_RECP_RENT')"
-      />
-      <kw-tab
-        name="2"
-        :label="$t('MSG_TXT_RECP_LMP_SUM_PMT')"
-      />
-      <kw-tab
-        name="3"
-        :label="$t('MSG_TXT_INSTALL')"
-      />
-    </kw-tabs>
-    <kw-tab-panels model-value="1">
-      <kw-tab-panel name="1">
-        <kw-search :cols="4">
-          <kw-search-row>
-            <kw-search-item
-              :label="$t('MSG_TXT_LOOKUP_PERIOD')"
-              required
-              :colspan="2"
-            >
-              <kw-select
-                :label="$t('MSG_TXT_LOOKUP_PERIOD')"
-                :model-value="[]"
-                :options="['등록일', 'B', 'C', 'D']"
-                rules="required"
-                class="w187"
-              />
-              <kw-date-range-picker
-                rules="date_range_required|date_range_months:1"
-              />
-            </kw-search-item>
-            <kw-search-item :label="$t('MSG_TXT_RGR_NM')">
-              <kw-input />
-            </kw-search-item>
-            <kw-search-item :label="$t('MSG_TXT_RGR_EMPNO')">
-              <kw-input />
-            </kw-search-item>
-          </kw-search-row>
+  <kw-search :cols="4">
+    <kw-search-row>
+      <kw-search-item
+        :label="$t('MSG_TXT_LOOKUP_PERIOD')"
+        required
+        :colspan="2"
+      >
+        <kw-select
+          :label="$t('MSG_TXT_LOOKUP_PERIOD')"
+          :model-value="[]"
+          :options="['등록일', 'B', 'C', 'D']"
+          rules="required"
+          class="w187"
+        />
+        <kw-date-range-picker
+          :label="$t('MSG_TXT_LOOKUP_PERIOD')"
+          rules="date_range_required|date_range_months:1"
+        />
+      </kw-search-item>
+      <kw-search-item :label="$t('MSG_TXT_RGR_NM')">
+        <kw-input />
+      </kw-search-item>
+      <kw-search-item :label="$t('MSG_TXT_RGR_EMPNO')">
+        <kw-input />
+      </kw-search-item>
+    </kw-search-row>
 
-          <kw-search-row>
-            <kw-search-item
-              :label="$t('MSG_TXT_PDGRP')"
-              :colspan="2"
-            >
-              <kw-select
-                :model-value="[]"
-                :options="['대분류 전체', 'B', 'C', 'D']"
-              />
-              <kw-select
-                :model-value="[]"
-                :options="['중분류 전체', 'B', 'C', 'D']"
-              />
-            </kw-search-item>
-            <kw-search-item :label="$t('MSG_TXT_PRDT_CODE')">
-              <kw-input />
-            </kw-search-item>
-            <kw-search-item :label="$t('MSG_TXT_PRDT_NM')">
-              <kw-input />
-            </kw-search-item>
-          </kw-search-row>
-        </kw-search>
-        <div class="result-area">
-          <kw-action-top>
-            <template #left>
-              <kw-paging-info
-                :total-count="50"
-              />
-              <span class="ml8">{{ t('MSG_TXT_UNIT_WON') }}</span>
-            </template>
+    <kw-search-row>
+      <kw-search-item
+        :label="$t('MSG_TXT_PDGRP')"
+        :colspan="2"
+      >
+        <kw-select
+          :model-value="[]"
+          :options="['대분류 전체', 'B', 'C', 'D']"
+        />
+        <kw-select
+          :model-value="[]"
+          :options="['중분류 전체', 'B', 'C', 'D']"
+        />
+      </kw-search-item>
+      <kw-search-item :label="$t('MSG_TXT_PRDT_CODE')">
+        <kw-input />
+      </kw-search-item>
+      <kw-search-item :label="$t('MSG_TXT_PRDT_NM')">
+        <kw-input />
+      </kw-search-item>
+    </kw-search-row>
+  </kw-search>
+  <div class="result-area">
+    <kw-action-top>
+      <template #left>
+        <kw-paging-info
+          :total-count="pageInfo.totalCount"
+        />
+        <span class="ml8">{{ t('MSG_TXT_UNIT_WON') }}</span>
+      </template>
 
-            <kw-btn
-              icon="upload_on"
-              dense
-              secondary
-              :label="$t('MSG_TXT_UPL_BLK_APP_DATA')"
-            />
-          </kw-action-top>
+      <kw-btn
+        icon="upload_on"
+        dense
+        secondary
+        :label="$t('MSG_TXT_UPL_BLK_APP_DATA')"
+      />
+    </kw-action-top>
 
-          <kw-grid
-            name="grdMain"
-            :visible-rows="1"
-            @init="initGrdMain"
-          />
-        </div>
-      </kw-tab-panel>
-    </kw-tab-panels>
-  </kw-page>
+    <kw-grid
+      ref="grdMainRefRental"
+      v-model:page-size="pageInfo.pageSize"
+      name="grdRental"
+      :total-count="pageInfo.totalCount"
+      @init="initGrdRental"
+    />
+  </div>
 </template>
 <script setup>
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { defineGrid } from 'kw-lib';
+import { defineGrid, getComponentType, useMeta } from 'kw-lib';
 
 const { t } = useI18n();
+
+const { getConfig } = useMeta();
+
+const pageInfo = ref({
+  totalCount: 0,
+  pageIndex: 1,
+  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
+});
+
+// -------------------------------------------------------------------------------------------------
+// Function & Event
+// -------------------------------------------------------------------------------------------------
+const grdMainRefRental = ref(getComponentType('KwGrid'));
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
-const initGrdMain = defineGrid((data, view) => {
+const initGrdRental = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'col1' },
     { fieldName: 'col2' },

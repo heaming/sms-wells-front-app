@@ -59,7 +59,7 @@
 
     <kw-action-top>
       <template #left>
-        <kw-paging-info :total-count="0" />
+        <kw-paging-info :total-count="pageInfo.totalCount" />
         <ul class="kw-notification ml10">
           <li>
             주문번호 뒷번호, 7자리가 아니여도 앞에 0을 입력하지 않습니다.
@@ -93,8 +93,10 @@
     </kw-action-top>
 
     <kw-grid
+      ref="grdMainRef"
+      v-model:page-size="pageInfo.pageSize"
+      :total-count="pageInfo.totalCount"
       name="grdMain"
-      :visible-rows="2"
       @init="initGrdMain"
     />
     <template #action>
@@ -113,9 +115,21 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { defineGrid } from 'kw-lib';
+import { defineGrid, getComponentType, useMeta } from 'kw-lib';
 
 const { t } = useI18n();
+
+const { getConfig } = useMeta();
+
+const pageInfo = ref({
+  totalCount: 0,
+  pageIndex: 1,
+  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
+});
+// -------------------------------------------------------------------------------------------------
+// Function & Event
+// -------------------------------------------------------------------------------------------------
+const grdMainRef = ref(getComponentType('KwGrid'));
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
