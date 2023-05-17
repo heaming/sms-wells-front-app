@@ -162,7 +162,7 @@ async function onClickUrlCopy(no) {
 async function onClickChange(no) {
   const query = {
     vstYn: no === 1 ? 'Y' : 'N',
-    chRqrDvCd: no === 1 ? '20' : '10',
+    chRqrDvCd: no === 1 ? '2' : '1',
     aftnThpChYn: 'N',
     clctamMngtYn: 'N',
     cntrChPrtnrNo: userId,
@@ -177,7 +177,7 @@ async function onClickChange(no) {
 
 // 알림톡 발송
 async function onClickAlarmSend() {
-  // chRqrDvCd 방문 : '20' (교원) / 원거리 : '10' (고객)
+  // chRqrDvCd 방문 : '2' (교원) / 원거리 : '1' (고객)
   if (!await formRef.value.validate()) { return; }
   await dataService.post('sms/common/withdrawal/bilfnt/auto-transfer-change/notification-talk-send', inputParams.value);
 
