@@ -31,6 +31,7 @@
             :title="$t('MSG_TXT_BAS_ATTR_REG')"
             :prefix="pdConst.STANDARD_STEP_BASIC.step"
             :done="currentStep.step > pdConst.STANDARD_STEP_BASIC.step"
+            :sub-text="subTitle"
           />
           <kw-step
             :header-nav="!isTempSaveBtn || passedStep >= pdConst.STANDARD_STEP_REL_PROD.step"
@@ -38,6 +39,7 @@
             :title="$t('MSG_TXT_REL_PRDT_SEL')"
             :prefix="pdConst.STANDARD_STEP_REL_PROD.step"
             :done="currentStep.step > pdConst.STANDARD_STEP_REL_PROD.step"
+            :sub-text="subTitle"
           />
           <kw-step
             :header-nav="!isTempSaveBtn || passedStep >= pdConst.STANDARD_STEP_MANAGE.step"
@@ -45,6 +47,7 @@
             :title="$t('MSG_TXT_MGT_ATTR_REG')"
             :prefix="pdConst.STANDARD_STEP_MANAGE.step"
             :done="currentStep.step > pdConst.STANDARD_STEP_MANAGE.step"
+            :sub-text="subTitle"
           />
           <kw-step
             :header-nav="!isTempSaveBtn || passedStep >= pdConst.STANDARD_STEP_PRICE.step"
@@ -52,12 +55,14 @@
             :title="$t('MSG_TXT_PRC_INFO_REG')"
             :prefix="pdConst.STANDARD_STEP_PRICE.step"
             :done="currentStep.step > pdConst.STANDARD_STEP_PRICE.step"
+            :sub-text="subTitle"
           />
           <kw-step
             :header-nav="!isTempSaveBtn || passedStep >= pdConst.STANDARD_STEP_CHECK.step"
             :name="pdConst.STANDARD_STEP_CHECK.name"
             :title="$t('MSG_TXT_CHK_REG_INFO')"
             :prefix="pdConst.STANDARD_STEP_CHECK.step"
+            :sub-text="subTitle"
           />
           <kw-step-panel :name="pdConst.STANDARD_STEP_BASIC.name">
             <zwpdc-prop-groups-mgt
@@ -204,6 +209,7 @@ const prevStepData = ref({});
 const currentPdCd = ref();
 const isCreate = ref(false);
 const obsMainRef = ref();
+const subTitle = ref();
 
 const codes = await codeUtil.getMultiCodes(
   'PD_TP_CD',
@@ -298,6 +304,7 @@ async function getSaveData() {
   }
   // console.log('WwpdcStandardMgtM - getSaveData - subList.isOnlyFileModified : ', subList.isOnlyFileModified);
   // console.log('WwpdcStandardMgtM - getSaveData - subList : ', subList);
+  subTitle.value = subList[bas].pdCd ? `${subList[bas].pdNm} (${subList[bas].pdCd})` : subList[bas].pdNm;
   return subList;
 }
 
@@ -391,6 +398,7 @@ async function fetchProduct() {
     }));
     isTempSaveBtn.value = initData[bas].tempSaveYn === 'Y';
     prevStepData.value = initData;
+    subTitle.value = initData[bas].pdCd ? `${initData[bas].pdNm} (${initData[bas].pdCd})` : initData[bas].pdNm;
     await init();
   }
 }

@@ -226,7 +226,7 @@ async function resetInitData() {
     }
     return rtn;
   }, []);
-  if (checkedVals && checkedVals.length) {
+  if (checkedVals && checkedVals.length && selectionVariables.value) {
     selectionVariables.value?.forEach((item, idx) => {
       checkedSelVals.value[idx] = checkedVals.includes(item.colNm) ? item.colNm : null;
     });
@@ -337,7 +337,7 @@ async function onClickRemove() {
 
 async function fetchSelVarData() {
   const sellTpCd = currentInitData.value[pdConst.TBL_PD_BAS]?.sellTpCd;
-  const res = await dataService.get('/sms/common/product/type-variables', { params: { sellTpCd } });
+  const res = await dataService.get('/sms/common/product/type-variables', { params: { sellTpCd, choFxnDvCd: pdConst.CHO_FXN_DV_CD_CHOICE } });
   // console.log('selectionVariables.value : ', selectionVariables.value);
   selectionVariables.value = res.data;
 }
