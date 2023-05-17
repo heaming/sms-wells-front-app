@@ -259,6 +259,8 @@ const canFeasibleSearch = ref({
 });
 
 async function fetchData() {
+  pageInfo.value.pageIndex = 1;
+
   const res = await dataService.get('/sms/wells/bond/part-transfers', { params: cachedParams });
   const partTransfers = res.data;
 
@@ -285,7 +287,6 @@ async function onClickSearch() {
     return;
   }
   if (await hasPartTransfer()) {
-    pageInfo.value.pageIndex = 1;
     cachedParams = cloneDeep(searchParams.value);
     fetchData();
   }
@@ -364,7 +365,7 @@ async function onClickSave() {
   await dataService.put('/sms/wells/bond/part-transfers', changedRows);
 
   notify(t('MSG_ALT_SAVE_DATA'));
-  await fetchDetailsData();
+  await fetchData();
 }
 
 async function onClickCreate() {
@@ -415,7 +416,7 @@ const initGrdMain = defineGrid((data, view) => {
         text: t('MSG_TXT_SUM'),
         styleName: 'text-center',
       } },
-    { fieldName: 'clctamDvCd', header: t('MSG_TXT_CLCTAM_DV'), options: codes.CLCTAM_DV_CD, width: '75' },
+    { fieldName: 'clctamDvCd', header: t('MSG_TXT_CLCTAM_DV'), options: codes.CLCTAM_DV_CD, width: '75', styleName: 'text-center' },
     { fieldName: 'woCstCt', header: t('MSG_TXT_CST_N'), width: '80', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
     { fieldName: 'woCntrCt', header: t('MSG_TXT_CNTR_N'), width: '80', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
     { fieldName: 'woObjAmt', header: t('MSG_TXT_OJ_AMT'), width: '130', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
@@ -581,8 +582,8 @@ const initGrdSub = defineGrid((data, view) => {
       },
     ],
   });
-  // view.layoutByColumn('clctamDvCd').summaryUserSpans = { colspan: 7 }; // 결과 데이터 없으면 데이터 영역까지 colspan이 확장되서 우선 주석
-  // view.layoutByColumn('lwmTpCd').summaryUserSpans = { colspan: 5 }; // 결과 데이터 없으면 데이터 영역까지 colspan이 확장되서 우선 주석
+  view.layoutByColumn('clctamDvCd').summaryUserSpans = { colspan: 7 };
+  view.layoutByColumn('lwmTpCd').summaryUserSpans = { colspan: 5 };
 
   view.onCellClicked = () => {
     view.editOptions.editable = true;
