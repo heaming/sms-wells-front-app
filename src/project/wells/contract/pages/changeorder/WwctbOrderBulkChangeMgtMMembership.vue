@@ -13,77 +13,65 @@
 ****************************************************************************************************
 --->
 <template>
-  <kw-page>
-    <!-- To.개발 kw-tab-panel안에 kw-search로 시작하는 경우 kw-tabs에 .form-border 제거 / 그 외 추가 -->
-    <kw-tabs model-value="2">
-      <kw-tab
-        name="1"
-        :label="$t('MSG_TXT_RENTAL')"
-      />
-      <kw-tab
-        name="2"
-        :label="$t('MSG_TXT_MEM')"
-      />
-      <kw-tab
-        name="3"
-        :label="$t('MSG_TXT_SNGL_PMNT')"
-      />
-    </kw-tabs>
-    <kw-tab-panels model-value="2">
-      <kw-tab-panel name="2">
-        <kw-search
-          :cols="2"
-          one-row
-        >
-          <kw-search-row>
-            <kw-search-item :label="$t('MSG_TXT_CNTR_NO')">
-              <kw-input />
-            </kw-search-item>
-            <kw-search-item :label="$t('MSG_TXT_RFLCTN_DT')">
-              <kw-date-picker />
-            </kw-search-item>
-          </kw-search-row>
-        </kw-search>
+  <kw-search
+    :cols="2"
+    one-row
+  >
+    <kw-search-row>
+      <kw-search-item :label="$t('MSG_TXT_CNTR_NO')">
+        <kw-input />
+      </kw-search-item>
+      <kw-search-item :label="$t('MSG_TXT_RFLCTN_DT')">
+        <kw-date-picker />
+      </kw-search-item>
+    </kw-search-row>
+  </kw-search>
 
-        <div class="result-area">
-          <kw-action-top>
-            <template #left>
-              <kw-paging-info :total-count="156" />
-              <span class="ml8">(단위: 원)</span>
-            </template>
-            <kw-btn
-              :label="$t('MSG_TXT_BTCH_CHNG_REG')"
-              primary
-              dense
-            />
-          </kw-action-top>
-          <kw-grid
-            ref="grdMainRef"
-            name="grdMain"
-            :visible-rows="10"
-            @init="initGrdMain"
-          />
-        </div>
-      </kw-tab-panel>
-    </kw-tab-panels>
-  </kw-page>
+  <div class="result-area">
+    <kw-action-top>
+      <template #left>
+        <kw-paging-info :total-count="pageInfo.totalCount" />
+        <span class="ml8">{{ t('MSG_TXT_UNIT_WON') }}</span>
+      </template>
+      <kw-btn
+        :label="$t('MSG_TXT_BTCH_CHNG_REG')"
+        primary
+        dense
+      />
+    </kw-action-top>
+    <kw-grid
+      ref="grdMainRefMembership"
+      v-model:page-size="pageInfo.pageSize"
+      :total-count="pageInfo.totalCount"
+      name="grdMembership"
+      @init="initGrdMembership"
+    />
+  </div>
 </template>
 <script setup>
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { getComponentType, defineGrid } from 'kw-lib';
+import { defineGrid, getComponentType, useMeta } from 'kw-lib';
 
 const { t } = useI18n();
+
+const { getConfig } = useMeta();
+
+const pageInfo = ref({
+  totalCount: 0,
+  pageIndex: 1,
+  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
+});
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
-const grdMainRef = ref(getComponentType('KwGrid'));
+const grdMainRefMembership = ref(getComponentType('KwGrid'));
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
-const initGrdMain = defineGrid((data, view) => {
+const initGrdMembership = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'col1' },
     { fieldName: 'col2' },

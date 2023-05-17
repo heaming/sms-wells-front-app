@@ -548,16 +548,29 @@
         </kw-card>
       </div>
       <kw-pagination
-        :model-value="1"
-        :total-count="100"
+        v-model:page-size="pageInfo.pageSize"
+        v-model:page-index="pageInfo.pageIndex"
+        :total-count="pageInfo.totalCount"
       />
     </div>
   </kw-page>
 </template>
 
 <script setup>
-const checked = ref('N');
+// -------------------------------------------------------------------------------------------------
+// Import & Declaration
+// -------------------------------------------------------------------------------------------------
+import { useMeta } from 'kw-lib';
+
 const { t } = useI18n();
+const { getConfig } = useMeta();
+
+const pageInfo = ref({
+  totalCount: 0,
+  pageIndex: 1,
+  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
+});
+const checked = ref('N');
 </script>
 
 <style lang="scss" scoped>
