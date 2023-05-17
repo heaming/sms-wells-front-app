@@ -17,7 +17,10 @@
     <h3>{{ $t('MSG_TXT_DDLV_BASE_INF') }}</h3>
     <kw-form ref="frmMainRef">
       <kw-form-row>
-        <kw-form-item :label="$t('MSG_TXT_MGT_YNM')">
+        <kw-form-item
+          :label="$t('MSG_TXT_MGT_YNM')"
+          required
+        >
           <kw-date-picker
             v-model="basData.mngtYm"
             :label="$t('MSG_TXT_MGT_YNM')"
@@ -26,7 +29,10 @@
             :disable="isDisable"
           />
         </kw-form-item>
-        <kw-form-item :label="$t('MSG_TXT_ITM_NM')">
+        <kw-form-item
+          :label="$t('MSG_TXT_ITM_NM')"
+          required
+        >
           <kw-field-wrap>
             <kw-input
               v-model="basData.itmKnm"
@@ -46,9 +52,14 @@
             />
           </kw-field-wrap>
         </kw-form-item>
-        <kw-form-item :label="$t('MSG_TXT_STOC_UNIT_EA')">
+        <kw-form-item
+          :label="$t('MSG_TXT_STOC_UNIT')"
+          required
+        >
           <kw-select
             v-model="basData.mngtUnitCd"
+            rules="required"
+            :label="$t('MSG_TXT_STOC_UNIT')"
             :options="codes.MNGT_UNIT_CD"
             :disable="isDisable"
           />
@@ -92,7 +103,10 @@
       </kw-form-row>
       <h3>{{ $t('MSG_TXT_NWCMR') }}</h3>
       <kw-form-row>
-        <kw-form-item :label="$t('MSG_TXT_ORT_YN')">
+        <kw-form-item
+          :label="$t('MSG_TXT_ORT_YN')"
+          required
+        >
           <kw-select
             v-model="ddlvOjCd1Data.bfsvcCsmbDdlvOrtYn"
             :label="$t('MSG_TXT_ORT_YN')"
@@ -181,7 +195,10 @@
       </kw-form-row>
       <h3>{{ $t('MSG_TXT_INDV') }}</h3>
       <kw-form-row>
-        <kw-form-item :label="$t('MSG_TXT_ORT_YN')">
+        <kw-form-item
+          :label="$t('MSG_TXT_ORT_YN')"
+          required
+        >
           <kw-select
             v-model="ddlvOjCd2Data.bfsvcCsmbDdlvOrtYn"
             :label="$t('MSG_TXT_ORT_YN')"
@@ -271,7 +288,10 @@
       </kw-form-row>
       <h3>{{ $t('MSG_TXT_BUILDING') }}</h3>
       <kw-form-row>
-        <kw-form-item :label="$t('MSG_TXT_ORT_YN')">
+        <kw-form-item
+          :label="$t('MSG_TXT_ORT_YN')"
+          required
+        >
           <kw-select
             v-model="ddlvOjCd3Data.bfsvcCsmbDdlvOrtYn"
             :label="$t('MSG_TXT_ORT_YN')"
