@@ -45,17 +45,14 @@
           :label="$t('MSG_TXT_OG_LEVL')"
           colspan="2"
         >
-          <kw-select
-            v-model="searchParams.ogLevl1"
-            :options="['A', 'B', 'C', 'D']"
-          />
-          <kw-select
-            v-model="searchParams.ogLevl2"
-            :options="['A', 'B', 'C', 'D']"
-          />
-          <kw-select
-            v-model="searchParams.ogLevl3"
-            :options="['A', 'B', 'C', 'D']"
+          <zwog-level-select
+            v-model:og-levl-dv-cd1="searchParams.ogLevlDvCd1"
+            v-model:og-levl-dv-cd2="searchParams.ogLevlDvCd2"
+            v-model:og-levl-dv-cd3="searchParams.ogLevlDvCd3"
+            :og-tp-cd="searchParams.ogTpCd"
+            :base-ym="searchParams.baseYm"
+            :start-level="1"
+            :end-level="3"
           />
         </kw-search-item>
         <kw-search-item
@@ -101,6 +98,7 @@
 // -------------------------------------------------------------------------------------------------
 import { defineGrid, getComponentType, gridUtil, useDataService } from 'kw-lib';
 import dayjs from 'dayjs';
+import ZwogLevelSelect from '~sms-common/organization/components/ZwogLevelSelect.vue';
 
 const dataService = useDataService();
 const { t } = useI18n();
@@ -111,22 +109,22 @@ const { currentRoute } = useRouter();
 const totalCount = ref(0);
 const grdVisitFeeRef = ref(getComponentType('KwGrid'));
 const searchParams = ref({
-  baseYm: dayjs().subtract(1, 'month').format('YYYY-MM'),
+  baseYm: dayjs().subtract(1, 'month').format('YYYYMM'),
   inqrDv: t('MSG_TXT_MANAGEMENT_DEPARTMENT'),
-  ogLevl1: 'A',
-  ogLevl2: 'A',
-  ogLevl3: 'A',
+  ogTpCd: 'W02',
+  ogLevlDvCd1: '',
+  ogLevlDvCd2: '',
+  ogLevlDvCd3: '',
   no: '',
 });
 
 async function fetchData() {
-  const res = await dataService.get('/sms/wells/fee/manager-visit-fees', searchParams.value);
+  const res = await dataService.get('/sms/wells/fee/manager-visit-fees', { params: searchParams.value });
 
   totalCount.value = res.data.length;
 
   const view = grdVisitFeeRef.value.getView();
   view.getDataSource().setRows(res.data);
-  view.resetCurrent();
 }
 
 async function onClickSearch() {
@@ -147,17 +145,17 @@ async function onClickExcelDownload() {
 // -------------------------------------------------------------------------------------------------
 const initGridMain = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'col1', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '154', styleName: 'text-center' },
-    { fieldName: 'col2', header: t('MSG_TXT_EMPL_NM'), width: '92', styleName: 'text-center' },
-    { fieldName: 'col3', header: t('MSG_TXT_CST_CD'), width: '106', styleName: 'text-center' },
-    { fieldName: 'col4', header: t('MSG_TXT_PRDT_CODE'), width: '106', styleName: 'text-center' },
-    { fieldName: 'col5', header: t('MSG_TXT_PRDT_NM'), width: '300', styleName: 'text-left' },
-    { fieldName: 'col6', header: t('MSG_TXT_BS') + t('MSG_TXT_PDGRP'), width: '112', styleName: 'text-center' },
-    { fieldName: 'col7', header: t('MSG_TXT_BAS_FEE'), width: '122', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'col8', header: t('MSG_TXT_VST_FEE'), width: '122', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'col9', header: t('MSG_TXT_VST_RGLVL'), width: '106', styleName: 'text-center' },
-    { fieldName: 'col10', header: t('MSG_TXT_VST_DT'), width: '130', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'col11', header: t('MSG_TXT_CNCL_YN'), width: '106', styleName: 'text-center' },
+    { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '154', styleName: 'text-center' },
+    { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '92', styleName: 'text-center' },
+    { fieldName: 'cntrNo', header: t('MSG_TXT_CST_CD'), width: '106', styleName: 'text-center' },
+    { fieldName: 'basePdCd', header: t('MSG_TXT_PRDT_CODE'), width: '106', styleName: 'text-center' },
+    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '300', styleName: 'text-left' },
+    { fieldName: 'svFeePdDvNm', header: t('MSG_TXT_BS') + t('MSG_TXT_PDGRP'), width: '112', styleName: 'text-center' },
+    { fieldName: 'svFeeBaseAmt', header: t('MSG_TXT_BAS_FEE'), width: '122', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'feeCalcAmt', header: t('MSG_TXT_VST_FEE'), width: '122', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'vstRglvlGdNm', header: t('MSG_TXT_VST_RGLVL'), width: '106', styleName: 'text-center' },
+    { fieldName: 'wkExcnDt', header: t('MSG_TXT_VST_DT'), width: '130', styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'canYn', header: t('MSG_TXT_CNCL_YN'), width: '106', styleName: 'text-center' },
   ];
 
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
