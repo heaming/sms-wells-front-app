@@ -135,7 +135,7 @@ const searchParams = ref({
 async function fetchData() {
   const res = await dataService.get('/sms/wells/deduction/sole-distributors/management/paging', { params: { ...cachedParams, ...pageInfo.value } });
   const { list: redfes, pageInfo: pagingResult } = res.data;
-  console.log(res.data);
+
   pageInfo.value = pagingResult;
   const view = grdMgtMainRef.value.getView();
   const dataSource = view.getDataSource();
