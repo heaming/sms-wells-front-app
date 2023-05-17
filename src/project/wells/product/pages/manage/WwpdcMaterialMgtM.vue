@@ -35,6 +35,7 @@ const materialMainPage = '/product/zwpdc-material-list';
               :name="regSteps[0].name"
               :title="$t('MSG_TXT_BAS_ATTR_REG')"
               :prefix="regSteps[0].step"
+              :sub-text="subTitle"
             />
             <!-- 2.연결상품 선택 -->
             <kw-step
@@ -42,6 +43,7 @@ const materialMainPage = '/product/zwpdc-material-list';
               :name="regSteps[1].name"
               :title="$t('MSG_TXT_REL_PRDT_SEL')"
               :prefix="regSteps[1].step"
+              :sub-text="subTitle"
             />
             <!-- 3.관리속성 등록 -->
             <kw-step
@@ -49,6 +51,7 @@ const materialMainPage = '/product/zwpdc-material-list';
               :name="regSteps[2].name"
               :title="$t('MSG_TXT_MGT_ATTR_REG')"
               :prefix="regSteps[2].step"
+              :sub-text="subTitle"
             />
             <!-- 4.등록정보 확인 -->
             <kw-step
@@ -56,6 +59,7 @@ const materialMainPage = '/product/zwpdc-material-list';
               :name="regSteps[3].name"
               :title="$t('MSG_TXT_CHK_REG_INFO')"
               :prefix="regSteps[3].step"
+              :sub-text="subTitle"
             />
 
             <!-- 1. 기본속성 등록 -->
@@ -270,6 +274,7 @@ const isCreate = ref(false);
 const selectedTab = ref('attribute');
 const exceptPrpGrpCd = ref('PART');
 const isShowInitBtn = ref(false);
+const subTitle = ref();
 
 async function onClickReset() {
   await cmpStepRefs.value.forEach((item) => {
@@ -324,6 +329,7 @@ async function getSaveData(tempSaveYn) {
     }
   }));
   subList[bas].tempSaveYn = tempSaveYn;
+  subTitle.value = subList[bas].pdCd ? `${subList[bas].pdNm} (${subList[bas].pdCd})` : subList[bas].pdNm;
   return subList;
 }
 
@@ -349,6 +355,7 @@ async function fetchData() {
     initData[rel] = res.data[rel];
     isTempSaveBtn.value = initData[bas].tempSaveYn === 'Y';
     prevStepData.value = initData;
+    subTitle.value = initData[bas].pdCd ? `${initData[bas].pdNm} (${initData[bas].pdCd})` : initData[bas].pdNm;
     await init();
   }
 }

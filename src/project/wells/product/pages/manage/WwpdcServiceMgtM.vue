@@ -25,11 +25,6 @@
           :header-nav="!isTempSaveBtn || passedStep > 0"
           @update:model-value="onClickStep()"
         >
-          <div class="kw-stepper-headingtext">
-            <h2 class="h2-small">
-              <p>XXXXXXXXXXXXXXXX</p>
-            </h2>
-          </div>
           <slot>
             <kw-step
               :header-nav="!isTempSaveBtn || passedStep >= pdConst.W_SERVICE_STEP_BASIC.step"
@@ -37,6 +32,7 @@
               :title="$t('MSG_TXT_PROP_REG')"
               :prefix="pdConst.W_SERVICE_STEP_BASIC.step"
               :done="currentStep.step > pdConst.W_SERVICE_STEP_BASIC.step"
+              :sub-text="subTitle"
             />
             <kw-step
               :header-nav="!isTempSaveBtn || passedStep >= pdConst.W_SERVICE_STEP_FILTER.step"
@@ -44,12 +40,14 @@
               :title="$t('MSG_TXT_PD_FILT_CHG')"
               :prefix="pdConst.W_SERVICE_STEP_FILTER.step"
               :done="currentStep.step > pdConst.W_SERVICE_STEP_FILTER.step"
+              :sub-text="subTitle"
             />
             <kw-step
               :header-nav="!isTempSaveBtn || passedStep >= pdConst.W_SERVICE_STEP_CHECK.step"
               :name="pdConst.W_SERVICE_STEP_CHECK.name"
               :title="$t('MSG_TXT_CHK_REG_INFO')"
               :prefix="pdConst.W_SERVICE_STEP_CHECK.step"
+              :sub-text="subTitle"
             />
             <kw-step-panel :name="pdConst.W_SERVICE_STEP_BASIC.name">
               <zwpdc-prop-groups-mgt
@@ -176,6 +174,7 @@ const currentPdCd = ref();
 const isCreate = ref(false);
 const codes = await codeUtil.getMultiCodes('PD_TEMP_SAVE_CD');
 const obsMainRef = ref();
+const subTitle = ref();
 
 // 삭제 버튼
 async function onClickDelete() {
@@ -224,6 +223,7 @@ async function getSaveData() {
       }
     }
   }));
+  subTitle.value = subList[bas].pdCd ? `${subList[bas].pdNm} (${subList[bas].pdCd})` : subList[bas].pdNm;
   // console.log('subList : ', subList);
   return subList;
 }
@@ -284,6 +284,7 @@ async function fetchProduct() {
     initData[pdConst.RELATION_PRODUCTS] = res.data[pdConst.RELATION_PRODUCTS];
     isTempSaveBtn.value = initData[bas].tempSaveYn === 'Y';
     prevStepData.value = initData;
+    subTitle.value = initData[bas].pdCd ? `${initData[bas].pdNm} (${initData[bas].pdCd})` : initData[bas].pdNm;
     // console.log('res.data : ', res.data);
     await init();
   }
