@@ -108,7 +108,7 @@
     <kw-action-top>
       <template #left>
         <kw-paging-info
-          :total-count="pageInfo.totalCount"
+          :total-count="pricingPageInfo.totalCount"
         />
         <span class="ml8">{{ t('MSG_TXT_UNIT_WON') }}</span>
       </template>
@@ -116,8 +116,8 @@
 
     <kw-grid
       ref="grdPricingRef"
-      v-model:page-size="pageInfo.pageSize"
-      :total-count="pageInfo.totalCount"
+      v-model:page-size="pricingPageInfo.pageSize"
+      :total-count="pricingPageInfo.totalCount"
       name="grdPricing"
       @init="initGrdPricing"
     />
@@ -135,6 +135,12 @@ const { t } = useI18n();
 const { getConfig } = useMeta();
 
 const pageInfo = ref({
+  totalCount: 0,
+  pageIndex: 1,
+  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
+});
+
+const pricingPageInfo = ref({
   totalCount: 0,
   pageIndex: 1,
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
