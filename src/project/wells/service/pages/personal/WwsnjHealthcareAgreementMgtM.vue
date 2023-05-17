@@ -91,8 +91,8 @@ const dateNow = ref(now.format('YYYY년 MM월 DD일'));
 
 const refKwSign = ref();
 
-const additionalCustomerServiceAgreementStatus = ref('N');
-const personalInformationAgreementStatus = ref('N');
+const additionalCustomerServiceAgreementStatus = ref('');
+const personalInformationAgreementStatus = ref('');
 const consenterName = ref('');
 
 const props = defineProps({
@@ -118,8 +118,8 @@ let consenterNameCache = '';
 function onClickCancel() {
   refKwSign.value.reset();
 
-  additionalCustomerServiceAgreementStatus.value = 'N';
-  personalInformationAgreementStatus.value = 'N';
+  additionalCustomerServiceAgreementStatus.value = '';
+  personalInformationAgreementStatus.value = '';
   consenterName.value = consenterNameCache;
 }
 
