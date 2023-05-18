@@ -77,7 +77,7 @@
       <!-- STEPER -->
       <zwfey-fee-step
         ref="stepNaviRef"
-        :key="searchParams.perfYm"
+        :key="searchParams.perfYm+searchParams.awDv"
         v-model:base-ym="searchParams.perfYm"
         v-model:fee-schd-tp-cd="searchParams.feeSchdTpCd"
         v-model:fee-tcnt-dv-cd="searchParams.feeTcntDvCd"
@@ -191,7 +191,7 @@ const isGrdEgerMngerVisible = ref(false);
 const isBtnVisible = ref(true);
 const stepNaviRef = ref();
 const changedRows = [];
-// const confirmHdofRows = []; // 본사확정용 배열
+const confirmHdofRows = []; // 본사확정용 배열
 // TODO: 세션정보(직급/직무구분코드) & 센터확정일자에 따른 수당조정 가능 여부 체크
 // 확정이 되었는지 안되었는지도 체크함.
 // 확정이 되었으면 수정 못함.(센터)
@@ -362,16 +362,14 @@ async function onClickControl(feeSchdId, code, nextStep) {
 
 // 본사 수당확정
 async function onclickDtrm(feeSchdId, code, nextStep) {
-  if (!await confirm(t('MSG_ALT_WANT_DEL_SEL_ITEM'))) { return; }
+  if (!await confirm(t('MSG_ALT_DTRM'))) { return; }
   const view = grdEgerRef.value.getView();
   const dataProvider = view.getDataSource();
   const rowData = dataProvider.getJsonRow(0);
-  console.log(rowData);
-  console.log(feeSchdId, code, nextStep);
-  /*
   confirmHdofRows.push({
-    baseYm: rowData.perfYm,
-    ogCd: rowData.ogCd,
+    baseYm: rowData.baseYm,
+    ogCd: rowData.dgr2LevlOgCd,
+    prtnrNo: rowData.prtnrNo,
     type: 'H', // 본사 확정
     confirm: 'Y', // 확정(Y), 확정취소(N)
   });
@@ -380,7 +378,6 @@ async function onclickDtrm(feeSchdId, code, nextStep) {
 
   // 수수료 일정 단계 완료
   await onClickRetry(feeSchdId, code, nextStep);
-  */
 }
 
 /**
@@ -511,7 +508,7 @@ async function onClickConfirm() {
   confirmRows.forEach((e) => {
     confirmKeys.push({
       baseYm: e.baseYm,
-      ogCd: e.ogCd,
+      ogCd: e.dgr2LevlOgCd,
       prtnrNo: e.prtnrNo,
       type: 'C', // 센터 확정
       confirm: 'Y', // 확정(Y), 확정취소(N)
@@ -529,10 +526,10 @@ async function onClickConfirm() {
 const initEgerMain = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'baseYm', header: t('MSG_TXT_PERF_YM'), width: '146', styleName: 'text-left', visible: false },
-    { fieldName: 'ogId', header: t('MSG_TXT_CENTER_DIVISION'), width: '146', styleName: 'text-left', visible: false },
-    { fieldName: 'ogNm', header: t('MSG_TXT_CENTER_DIVISION'), width: '146', styleName: 'text-left', editable: false },
-    { fieldName: 'ogCd', header: t('MSG_TXT_CENTER_DIVISION'), width: '146', styleName: 'text-left', visible: false },
-    // { fieldName: 'col2', header: t('MSG_TXT_BRANCH'), width: '146', styleName: 'text-left' },
+    { fieldName: 'dgr2LevlOgId', header: t('MSG_TXT_CENTER_DIVISION'), width: '146', styleName: 'text-left', visible: false },
+    { fieldName: 'dgr2LevlOgNm', header: t('MSG_TXT_CENTER_DIVISION'), width: '146', styleName: 'text-left', editable: false },
+    { fieldName: 'dgr2LevlOgCd', header: t('MSG_TXT_CENTER_DIVISION'), width: '146', styleName: 'text-left', visible: false },
+    { fieldName: 'ogNm', header: t('MSG_TXT_BRANCH'), width: '146', styleName: 'text-left', editable: false },
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '90', styleName: 'text-left', editable: false },
     { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '94', styleName: 'text-center', editable: false },
     { fieldName: 'pstnDvNm', header: t('MSG_TXT_CRLV'), width: '94', styleName: 'text-center', editable: false },
@@ -626,7 +623,7 @@ const initEgerMain = defineGrid((data, view) => {
 
   // multi row header setting
   view.setColumnLayout([
-    'baseYm', 'ogId', 'ogNm', 'ogCd', 'prtnrKnm', 'prtnrNo', 'pstnDvNm', 'rsbDvNm',
+    'baseYm', 'dgr2LevlOgId', 'dgr2LevlOgNm', 'dgr2LevlOgCd', 'ogNm', 'prtnrKnm', 'prtnrNo', 'pstnDvNm', 'rsbDvNm',
     {
       name: t('MSG_TXT_SITE_AW') + t('MSG_TXT_INF'),
       direction: 'horizontal',
@@ -778,7 +775,7 @@ const initEgerMain = defineGrid((data, view) => {
     changedRows.push({
       perfYm: editRow.baseYm,
       ogId: editRow.ogId,
-      ogCd: editRow.ogCd,
+      ogCd: editRow.dgr2LevlOgCd,
       rsbDvCd: editRow.rsbDvCd,
       prtnrNo: editRow.prtnrNo,
       feeCd,
@@ -789,9 +786,9 @@ const initEgerMain = defineGrid((data, view) => {
 
 const initEgerMnger = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'ogId', header: t('MSG_TXT_CENTER_DIVISION'), width: '146', styleName: 'text-left', visible: false },
-    { fieldName: 'ogCd', header: t('MSG_TXT_CENTER_DIVISION'), width: '146', styleName: 'text-left', visible: false },
-    { fieldName: 'ogNm', header: t('MSG_TXT_CENTER_DIVISION'), width: '146', styleName: 'text-left' },
+    { fieldName: 'dgr2LevlOgId', header: t('MSG_TXT_CENTER_DIVISION'), width: '146', styleName: 'text-left', visible: false },
+    { fieldName: 'dgr2LevlOgCd', header: t('MSG_TXT_CENTER_DIVISION'), width: '146', styleName: 'text-left', visible: false },
+    { fieldName: 'dgr2LevlOgNm', header: t('MSG_TXT_CENTER_DIVISION'), width: '146', styleName: 'text-left' },
     { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '94', styleName: 'text-center' },
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '90', styleName: 'text-left' },
     { fieldName: 'rsbDvNm', header: t('MSG_TXT_RSB'), width: '126', styleName: 'text-left' },
@@ -811,7 +808,7 @@ const initEgerMnger = defineGrid((data, view) => {
 
   // multi row header setting
   view.setColumnLayout([
-    'ogId', 'ogCd', 'ogNm', 'prtnrNo', 'prtnrKnm', 'rsbDvNm', 'pstnDvNm',
+    'dgr2LevlOgId', 'dgr2LevlOgCd', 'dgr2LevlOgNm', 'prtnrNo', 'prtnrKnm', 'rsbDvNm', 'pstnDvNm',
     {
       header: t('MSG_TXT_AW') + t('MSG_TXT_INF'), // colspan title
       direction: 'horizontal', // merge type
