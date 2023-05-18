@@ -66,7 +66,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { codeUtil, gridUtil, defineGrid, getComponentType, useDataService, useGlobal } from 'kw-lib';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, isEmpty } from 'lodash-es';
 
 const { t } = useI18n();
 const { notify, confirm } = useGlobal();
@@ -125,7 +125,9 @@ async function onClickSeltSlipIntlz() {
 
 onMounted(async () => {
   console.log('props.sapAlrpySlpno:', props.sapAlrpySlpno);
-  await fetchData();
+  if (!isEmpty(props.sapAlrpySlpno)) {
+    await fetchData();
+  }
 });
 
 // -------------------------------------------------------------------------------------------------

@@ -26,7 +26,7 @@
           <p>{{ membershipDetail.cntrDtlNo }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_SL_YM')">
-          <p>{{ membershipDetail.slClYm }}</p>
+          <p>{{ stringUtil.getDateFormat(membershipDetail.slClYm, 'YYYY-MM').substring(0,7) }}</p>
         </kw-form-item>
       </kw-form-row>
     </kw-form>
@@ -38,24 +38,24 @@
     <kw-form dense>
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_PRDT_CODE')">
-          <p>{{ membershipDetail.pdNm }}</p>
+          <p>{{ membershipDetail.pdNm }} / {{ membershipDetail.pdCd }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_CNTR_DATE')">
           <p>{{ stringUtil.getDateFormat(membershipDetail.cntrDt) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_CNFM_DT')">
-          <p>{{ membershipDetail.cntrCnfmDtm }}</p>
+          <p>{{ stringUtil.getDateFormat(membershipDetail.slRcogDt) }}</p>
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_MM_SSPCS')">
-          <p>{{ membershipDetail.sellAmt }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(membershipDetail.rentalRgstCost)) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_DSC_AMT')">
-          <p>{{ membershipDetail.dscAmt }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(membershipDetail.dscAmt)) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_CANC_DT')">
-          <p>{{ stringUtil.getDateFormat(membershipDetail.col9) }}</p>
+          <p>{{ stringUtil.getDateFormat(membershipDetail.canDt) }}</p>
         </kw-form-item>
       </kw-form-row>
     </kw-form>
@@ -67,32 +67,32 @@
     <kw-form dense>
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_PRM_TN')">
-          <p>{{ membershipDetail.col10 }}</p>
+          <p>{{ membershipDetail.prmTn }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_PRM_MCNT')">
           <p>{{ membershipDetail.prmMcn }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_PRM_STRT')">
-          <p>{{ membershipDetail.prmStrt }}</p>
+          <p>{{ membershipDetail.lcpsYrmn }}</p>
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_PRM_END')">
-          <p>{{ membershipDetail.prmEnd }}</p>
+          <p>{{ membershipDetail.lcpeYrmn }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_PRM_DSCR_DSC_AMT')">
           <p>{{ membershipDetail.prmDscr }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_1PRM_AMT')">
-          <p>{{ membershipDetail.prmDpAmt }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(membershipDetail.lcpmo1)) }}</p>
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_2PRM_AMT')">
-          <p>{{ membershipDetail.col16 }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(membershipDetail.lcpmo2)) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_PRM_TAM')">
-          <p>{{ membershipDetail.col17 }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(membershipDetail.totPrmAmt)) }}</p>
         </kw-form-item>
       </kw-form-row>
     </kw-form>
@@ -110,51 +110,51 @@
           <p>{{ membershipDetail.rentalDc }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_J_DT')">
-          <p>{{ stringUtil.getDateFormat(membershipDetail.col20) }}</p>
+          <p>{{ stringUtil.getDateFormat(membershipDetail.lcentDt) }}</p>
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_NOM_SL_AMT')">
-          <p>{{ membershipDetail.nomSlAmt }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(membershipDetail.nomSlAmt)) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_NOM_DSC_AMT')">
-          <p>{{ membershipDetail.nomDscAmt }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(membershipDetail.nomDscAmt)) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_WDWAL_DT')">
-          <p>{{ membershipDetail.col23 }}</p>
+          <p>{{ stringUtil.getDateFormat(membershipDetail.lcoutDt) }}</p>
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_SPMT_SL_AMT')">
-          <p>{{ membershipDetail.spmtSlAmt }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(membershipDetail.spmtSlAmt)) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_SPMT_DSC_AMT')">
-          <p>{{ membershipDetail.spmtDscAmt }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(membershipDetail.spmtDscAmt)) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_FSH_DT')">
-          <p>{{ stringUtil.getDateFormat(membershipDetail.col26) }}</p>
+          <p>{{ stringUtil.getDateFormat(membershipDetail.lcwanDt) }}</p>
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_SL_AMT')">
-          <p>{{ membershipDetail.thmSlSumAmt }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(membershipDetail.thmSlSumAmt)) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_SL_VAT')">
-          <p>{{ membershipDetail.slSumVat }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(membershipDetail.slSumVat)) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_SL_CTR_AMT')">
-          <p>{{ membershipDetail.slCtrAmt }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(membershipDetail.slCtrAmt)) }}</p>
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_DSC_AGG_AMT')">
-          <p>{{ membershipDetail.col30 }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(membershipDetail.dscAggAmt)) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_CTR_AGG_AMT')">
-          <p>{{ membershipDetail.col31 }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(membershipDetail.ctrAggAmt)) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_SL_AGG_AMT')">
-          <p>{{ membershipDetail.slAggAmt }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(membershipDetail.slAggAmt)) }}</p>
         </kw-form-item>
       </kw-form-row>
     </kw-form>
@@ -166,57 +166,57 @@
     <kw-form dense>
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_PRM_BLAM')">
-          <p>{{ membershipDetail.prmBlamEotAmt }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(membershipDetail.prmBlamBtdAmt)) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_PRM_DP_AMT')">
-          <p>{{ membershipDetail.prmDpAmt }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(membershipDetail.prmDpAmt)) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_PRM_RFND_AMT')">
-          <p>{{ membershipDetail.prmRfndAmt }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(membershipDetail.prmRfndAmt)) }}</p>
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_PRM_RPLC_AMT')">
-          <p>{{ membershipDetail.prmRplcAmt }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(membershipDetail.prmRplcAmt)) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_PRM_SL_AMT')">
-          <p>{{ membershipDetail.prmSlAmt }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(membershipDetail.prmSlAmt)) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_PRM_EXP_AMT')">
-          <p>{{ membershipDetail.col38 }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(membershipDetail.prmExpAmt)) }}</p>
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_PRPD_BLAM')">
-          <p>{{ membershipDetail.eotAtam }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(membershipDetail.btdAtam)) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_PRPD_DP_AMT')">
-          <p>{{ membershipDetail.thmAtamDpAmt }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(membershipDetail.thmAtamDpAmt)) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_PRPD_RFND_AMT')">
-          <p>{{ membershipDetail.thmAtamRfndAmt }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(membershipDetail.thmAtamRfndAmt)) }}</p>
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_PRPD_RPLC_AMT')">
-          <p>{{ membershipDetail.col42 }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(membershipDetail.ovrCtrDpAmt)) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_PRPD_SL_AMT')">
-          <p>{{ membershipDetail.prpdSlAmt }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(membershipDetail.prpdSlAmt)) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_PRPD_TAM')">
-          <p>{{ membershipDetail.btdAtam }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(membershipDetail.eotAtam)) }}</p>
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_SL_DP_AMT')">
-          <p>{{ membershipDetail.slBndAlrpyAmt }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(membershipDetail.slBndAlrpyAmt)) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_DP_AGG_AMT')">
-          <p>{{ membershipDetail.slDpAggAmt }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(membershipDetail.slDpAggAmt)) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_UC_TAM')">
-          <p>{{ membershipDetail.thmUcBlam }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(membershipDetail.thmUcBlam)) }}</p>
         </kw-form-item>
       </kw-form-row>
     </kw-form>
@@ -228,24 +228,24 @@
     <kw-form dense>
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_DSC_DDTN_AMT')">
-          <p>{{ membershipDetail.col48 }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(membershipDetail.lcam51)) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_DSC_DP_AMT')">
-          <p>{{ membershipDetail.col49 }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(membershipDetail.lcam53)) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_DSC_UC_AMT')">
-          <p>{{ membershipDetail.col50 }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(membershipDetail.lcam55)) }}</p>
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_FILT_DDTN_AMT')">
-          <p>{{ membershipDetail.col51 }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(membershipDetail.lcam61)) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_FILT_DP_AMT')">
-          <p>{{ membershipDetail.col52 }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(membershipDetail.lcam63)) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_FILT_UC_AMT')">
-          <p>{{ membershipDetail.col53 }}</p>initGrdBondOrder
+          <p>{{ stringUtil.getNumberWithComma(toInteger(membershipDetail.lcam65)) }}</p>
         </kw-form-item>
       </kw-form-row>
     </kw-form>
@@ -257,24 +257,24 @@
     <kw-form dense>
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_ADAMT_BTD_AMT')">
-          <p>{{ membershipDetail.btdDlqAddAmt }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(membershipDetail.btdDlqAmt)) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_ADAMT_OC_AMT')">
-          <p>{{ membershipDetail.dlqAdamtOcAmt }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(membershipDetail.thmOcDlqAddAmt)) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_ADAMT_DDTN_AMT')">
-          <p>{{ membershipDetail.thmCtrDlqAddAmt }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(membershipDetail.thmCtrDlqAddAmt)) }}</p>
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_ADAMT_DP_AMT')">
-          <p>{{ membershipDetail.thmDlqDpSumAmt }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(membershipDetail.thmDlqAddDpSumAmt)) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_ADAMT_RFND_AMT')">
-          <p>{{ membershipDetail.thmDlqRfndSumAmt }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(membershipDetail.thmDlqAddRfndSumAmt)) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_ADAMT_EOT_AMT')">
-          <p>{{ membershipDetail.eotDlqAddAmt }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(membershipDetail.eotDlqAddAmt)) }}</p>
         </kw-form-item>
       </kw-form-row>
     </kw-form>
@@ -286,29 +286,29 @@
     <kw-form dense>
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_VST_PRD_VST_DT')">
-          <p>{{ membershipDetail.col60 }}</p>
+          <p>{{ membershipDetail.lcvisDt }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_DLQ_MCNT_AGG')">
-          <p>{{ membershipDetail.dlqMc }}</p>
+          <p>{{ membershipDetail.dlqMcn }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_DLQ_AMT')">
-          <p>{{ membershipDetail.thmOcDlqAmt }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(membershipDetail.eotDlqAmt)) }}</p>
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_DFA_AMT')">
-          <p>{{ membershipDetail.dfaAmt }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(membershipDetail.lcam67)) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_DFA_DP_AMT')">
-          <p>{{ membershipDetail.dfaDpAmt }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(membershipDetail.lcam68)) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_INCM_DT')">
-          <p>{{ membershipDetail.actcsDt }}</p>
+          <p>{{ stringUtil.getDateFormat(membershipDetail.actcsDt) }}</p>
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_CLCTAM_ICHR')">
-          <p>{{ membershipDetail.clctamPrtnrNo }}</p>
+          <p>{{ membershipDetail.prtnrKnm }}</p>
         </kw-form-item>
       </kw-form-row>
     </kw-form>
@@ -319,11 +319,16 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { useDataService, stringUtil } from 'kw-lib';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, toInteger } from 'lodash-es';
 
 const dataService = useDataService();
 const props = defineProps({
-  slDt: {
+  slClYm: {
+    type: String,
+    required: false,
+    default: '',
+  },
+  cntrDtlNo: {
     type: String,
     required: false,
     default: '',
@@ -336,7 +341,8 @@ const { t } = useI18n();
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 const searchParams = ref({
-  slDt: props.slDt,
+  slClYm: props.slClYm,
+  cntrDtlNo: props.cntrDtlNo,
 });
 
 const membershipDetail = ref({});
