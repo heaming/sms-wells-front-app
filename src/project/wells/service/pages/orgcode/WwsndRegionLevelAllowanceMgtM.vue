@@ -169,7 +169,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { defineGrid, getComponentType, gridUtil, useDataService, useGlobal, useMeta } from 'kw-lib';
-import { cloneDeep, isNumber } from 'lodash-es';
+import { cloneDeep, isNumber, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 
@@ -255,7 +255,7 @@ function getMoveTime(view, row, rglvlGdCd, value) {
   if (rglvlGdCd !== '25') {
     view.setValue(row, 'mmtDstn', value);
 
-    const mmtDstn = Number(value);
+    const mmtDstn = isEmpty(value) ? 0 : Number(value);
     const averageSpeed = Number(movementAverageSpeed);
     mmtLdtm = (mmtDstn * 60) / averageSpeed;
 
@@ -383,7 +383,7 @@ function onClickBizBulkApplyDate() {
 }
 
 async function fetchDefaultData(viewType) {
-  const res = await dataService.get('/sms/wells/service/region-level-allowances/base-information', { params: { ...searchParams.value } });
+  const res = await dataService.get('/sms/wells/service/region-level-allowances/base-information');
   const { movementBases, bizBases } = res.data;
 
   if (viewType === ALL || viewType === MOVEMENT) {
@@ -413,7 +413,6 @@ async function fetchData(viewType) {
     const movementLevelView = grdMovementLevelRef.value.getView();
     countInfo.value.movementTotalCount = movementAllowances.length;
     movementLevelView.getDataSource().setRows(movementAllowances);
-    movementLevelView.resetCurrent();
     originApplyDates.movementApplyDate = movementAllowances[0] ? movementAllowances[0].apyStrtdt : '';
   }
 
@@ -421,8 +420,6 @@ async function fetchData(viewType) {
     const bizLevelview = grdBizLevelRef.value.getView();
     countInfo.value.bizTotalCount = bizAllowances.length;
     bizLevelview.getDataSource().setRows(bizAllowances);
-    bizLevelview.resetCurrent();
-
     originApplyDates.bizApplyDate = bizAllowances[0] ? bizAllowances[0].apyStrtdt : '';
   }
 }
@@ -459,9 +456,13 @@ async function saveData(view, additionalInfo, viewType) {
 
   if (!validateApplyDate(view)) return;
 
-  const changedRows = gridUtil.getChangedRowValues(view);
+  const changedRows = gridUtil.getChangedRowValues(view).map((v) => {
+    const mmtDstn = isEmpty(v.mmtDstn) ? '0' : v.mmtDstn;
+    const mmtLdtm = isEmpty(v.mmtLdtm) ? '0' : v.mmtLdtm;
+    return { ...v, mmtDstn, mmtLdtm, ...additionalInfo };
+  });
 
-  await dataService.post('/sms/wells/service/region-level-allowances', changedRows.map((v) => ({ ...v, ...additionalInfo })));
+  await dataService.post('/sms/wells/service/region-level-allowances', changedRows);
 
   notify(t('MSG_ALT_SAVE_DATA'));
   await fetchData(viewType);
@@ -479,6 +480,15 @@ async function onClickBizSave() {
   const avVe = getFieldAirlift(bizManHour, bizFieldWeight);
   const additionalInfo = { minPerManho: bizManHour, rglvlWeit: bizFieldWeight, avVe };
   await saveData(grdBizLevelRef.value.getView(), additionalInfo, BIZ);
+}
+
+function setDisplayCallback(grid, index, value) {
+  if (value === '9999') {
+    return '섬';
+  } if (isEmpty(value)) {
+    return '0';
+  }
+  return value;
 }
 
 onMounted(async () => {
@@ -519,14 +529,14 @@ const initGrdMovementLevel = defineGrid((data, view) => {
         inputCharacters: '0-9',
       },
       styleName: 'text-right',
-      displayCallback: (grid, index, value) => (value === '9999' ? '섬' : value),
+      displayCallback: setDisplayCallback,
     },
     { fieldName: 'rglvlGdCd', header: t('MSG_TXT_GD'), width: '100', suffix: ' 급지' },
     { fieldName: 'mmtLdtm',
       header: t('MSG_TXT_MMT_HH_M'),
       width: '100',
       styleName: 'text-right',
-      displayCallback: (grid, index, value) => (value === '9999' ? '섬' : value),
+      displayCallback: setDisplayCallback,
     },
     { fieldName: 'rglvlAwAmt', header: t('MSG_TXT_RGLVL_AW_WON'), width: '100', styleName: 'text-right' },
     { fieldName: 'apyStrtdt',
@@ -601,7 +611,7 @@ const initGrdBizLevel = defineGrid((data, view) => {
       header: t('MSG_TXT_MMT_HH_M'),
       width: '100',
       styleName: 'text-right',
-      displayCallback: (grid, index, value) => (value === '9999' ? '섬' : value),
+      displayCallback: setDisplayCallback,
     },
     { fieldName: 'rglvlGdCd', header: t('MSG_TXT_GD'), width: '100', suffix: ' 급지' },
     { fieldName: 'rglvlAwAmt', header: t('MSG_TXT_RGLVL_AW_WON'), width: '100', styleName: 'text-right' },
