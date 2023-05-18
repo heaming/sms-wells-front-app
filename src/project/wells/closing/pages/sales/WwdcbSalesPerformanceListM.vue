@@ -718,7 +718,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, gridUtil, defineGrid, getComponentType, useDataService, useMeta, useGlobal, stringUtil } from 'kw-lib';
+import { codeUtil, gridUtil, defineGrid, getComponentType, useDataService, useMeta, useGlobal, stringUtil, notify } from 'kw-lib';
 import { cloneDeep, toInteger } from 'lodash-es';
 import dayjs from 'dayjs';
 import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
@@ -917,12 +917,19 @@ async function onClickCcamEt() {
 }
 
 async function onClickPrmEt() {
-  console.log('선납예상 팝업 추가');
-  // const cntrDtlNo = baseInformation.value.col2;
-  // await modal({
-  //  component: 'WwwdcPrepaymentEstimateAmountListP',
-  //  componentProps: { cntrDtlNo },
-  // });
+  // 선납예상 버튼
+  if (searchParams.value.cntrNo === '') {
+    // 검색버튼 클릭 후 버튼 클릭 바랍니다.
+    await notify(t('MSG_ALT_SRCH_AFTER_BTN_CLICK'));
+    return; // 계약상세번호 없을 시 false 반환
+  }
+  await modal({
+    component: 'WwdcPrepaymentEstimateAmountListP',
+    componentProps: {
+      cntrNo: searchParams.value.cntrNo,
+      cntrSn: searchParams.value.cntrSn,
+    },
+  });
 }
 
 // 통합입금대사현황(Z-WD-U-0051M01) 페이지 이동
@@ -930,8 +937,8 @@ async function onClickDpRfndIz() {
   await router.push({
     path: '/withdrawal/zwwdb-integrate-deposit-compare',
     query: {
-      cntrNo: searchParams.cntrNo,
-      cntrSn: searchParams.cntrSn,
+      cntrNo: searchParams.value.cntrNo,
+      cntrSn: searchParams.value.cntrSn,
     },
   });
 }
