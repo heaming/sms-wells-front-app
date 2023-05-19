@@ -24,6 +24,7 @@
           :label="$t('MSG_TXT_CTT_BZS')"
         >
           <kw-select
+            :label="$t('MSG_TXT_CTT_BZS')"
             model-value="[선택]"
             :options="['선택', 'B', 'C', 'D']"
             rules="required"
@@ -43,7 +44,7 @@
     <kw-action-top class="mt30">
       <template #left>
         <kw-paging-info
-          :total-count="128"
+          :total-count="pageInfo.totalCount"
         />
         <span class="ml8">{{ t('MSG_TXT_UNIT_WON') }}</span>
       </template>
@@ -57,14 +58,17 @@
       <kw-btn
         icon="download_on"
         dense
+        :disable="totalCount === 0"
         :label="$t('MSG_BTN_EXCEL_UP')"
         @click="onClickExcelDownload"
       />
     </kw-action-top>
 
     <kw-grid
+      ref="grdMainRef"
+      v-model:page-size="pageInfo.pageSize"
+      :total-count="pageInfo.totalCount"
       name="grdMain"
-      :visible-rows="3"
       @init="initGrdMain"
     />
 
@@ -84,9 +88,30 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { defineGrid } from 'kw-lib';
+import { defineGrid, getComponentType, gridUtil, useMeta } from 'kw-lib';
 
 const { t } = useI18n();
+const { currentRoute } = useRouter();
+const { getConfig } = useMeta();
+
+const pageInfo = ref({
+  totalCount: 0,
+  pageIndex: 1,
+  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
+});
+
+// -------------------------------------------------------------------------------------------------
+// Function & Event
+// -------------------------------------------------------------------------------------------------
+const grdMainRef = ref(getComponentType('KwGrid'));
+
+async function onClickExcelDownload() {
+  const view = grdMainRef.value.getView();
+  await gridUtil.exportView(view, {
+    fileName: currentRoute.value.meta.menuName,
+    timePostfix: true,
+  });
+}
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid

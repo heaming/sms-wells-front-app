@@ -294,6 +294,7 @@ async function initGrid(data, view) {
     if (item.fieldName === 'svPdCd') {
       item.editor = 'list';
       item.options = currentCodes.value.svPdCd;
+      item.styleName = 'text-left';
     }
     return item;
   });

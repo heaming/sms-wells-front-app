@@ -265,7 +265,7 @@ async function initStandardGrid(data, view) {
     // 판매유형
     { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '157', styleName: 'text-center', options: props.codes?.SELL_TP_CD },
     // 판매채널
-    { fieldName: 'channelId', header: t('MSG_TXT_SEL_CHNL'), width: '157', styleName: 'text-center', options: props.codes?.SELL_CHNL_DTL_CD },
+    { fieldName: 'channelId', header: t('MSG_TXT_SEL_CHNL'), width: '157', options: props.codes?.SELL_CHNL_DTL_CD },
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   fields.push({ fieldName: pdConst.REL_PD_ID });

@@ -77,6 +77,8 @@ const currentInitData = ref(null);
 const currentMetaInfos = ref();
 const currentCodes = ref({});
 const usedChannelCds = ref([]);
+const selectionVariables = ref([]);
+const feeVariables = ref([]);
 const totalCount = ref(0);
 
 const searchParams = ref({
@@ -94,23 +96,36 @@ async function resetData() {
 
 async function initGridRows() {
   const view = grdMainRef.value.getView();
-  // 선택변수
+
+  // 상품 선택변수
   const checkedVals = currentInitData.value?.[pdConst.TBL_PD_DSC_PRUM_DTL]?.reduce((rtn, item) => {
     if (item.pdDscPrumPrpVal01) {
       rtn.push(item.pdDscPrumPrpVal01);
     }
     return rtn;
   }, []);
+  // Grid visible 초기화
   resetVisibleGridColumns(currentMetaInfos.value, pdConst.PD_PRC_TP_CD_FINAL, view);
-  if (checkedVals && checkedVals.length) {
+  if (checkedVals && checkedVals.length && selectionVariables.value) {
+    // 상품 선택변수 visible 적용
     checkedVals.forEach((fieldName) => {
-    // 선택변수 표시
-      const column = view.columnByName(fieldName);
-      if (column) {
-        column.visible = true;
+      const columnName = selectionVariables.value?.find((item) => item.colNm === fieldName)?.codeId;
+      if (columnName) {
+        const column = view.columnByName(columnName);
+        if (column) {
+          column.visible = true;
+        }
       }
     });
   }
+
+  // 수수료 변수 visible 적용
+  feeVariables.value?.forEach((item) => {
+    const column = view.columnByName(item.codeId);
+    if (column) {
+      column.visible = true;
+    }
+  });
 
   if (currentInitData.value?.[prcfd]) {
     // 기준가 정보
@@ -182,6 +197,12 @@ async function fetchData() {
       // 공통코드 없는 에러 때문에 임시 - 추후 Try catch 삭제
     }
   }
+
+  // 선택변수
+  const sellTpCd = currentInitData.value[pdConst.TBL_PD_BAS]?.sellTpCd;
+  const typeRes = await dataService.get('/sms/common/product/type-variables', { params: { sellTpCd } });
+  selectionVariables.value = typeRes.data?.filter((item) => item.choFxnDvCd === pdConst.CHO_FXN_DV_CD_CHOICE);
+  feeVariables.value = typeRes.data?.filter((item) => item.choFxnDvCd === pdConst.CHO_FXN_DV_CD_FEE);
 }
 
 async function initProps() {
@@ -224,6 +245,7 @@ async function initGrid(data, view) {
 
   columns.forEach((item) => {
     if (item.fieldName === 'svPdCd') {
+      item.styleName = 'text-left';
       item.displayCallback = (grid, index) => {
         const { svPdCd, svPdNm } = grid.getValues(index.itemIndex);
         if (svPdNm) {

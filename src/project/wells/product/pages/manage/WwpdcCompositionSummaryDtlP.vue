@@ -102,7 +102,6 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { useDataService, codeUtil, stringUtil, getComponentType } from 'kw-lib';
-import { isEmpty } from 'lodash-es';
 import pdConst from '~sms-common/product/constants/pdConst';
 import { getCodeNames } from '~sms-common/product/utils/pdUtil';
 
@@ -133,25 +132,21 @@ async function fetchData() {
   const resPd = await dataService.get(`/sms/common/product/${currentPdCd.value}`);
   pdInfo.value = resPd.data?.product;
 
-  const resRel = await dataService.get(`/sms/common/product/relations/products/${currentPdCd.value}`, { params: { } });
+  const resRel = await dataService.get(`/sms/common/product/relations/products/${currentPdCd.value}`);
   pdRels.value = resRel.data;
 
-  const resPrc = await dataService.get(`/sms/common/product/prices/products/${currentPdCd.value}`, { params: { } });
+  const resPrc = await dataService.get(`/sms/common/product/prices/products/${currentPdCd.value}`);
   pdPrcs.value = resPrc.data?.prices;
 }
 
 async function initGridRows() {
-  const products = pdRels.value;
-  if (isEmpty(await products)) {
-    return;
+  if (pdRels.value && pdRels.value.length) {
+    const standardView = grdStandardRef.value?.getView();
+    if (standardView) {
+      standardView.getDataSource().setRows(pdRels.value
+        .filter((item) => item[pdConst.PD_REL_TP_CD] === pdConst.PD_REL_TP_CD_C_TO_P));
+    }
   }
-
-  const standardView = grdStandardRef.value?.getView();
-  if (standardView) {
-    standardView.getDataSource().setRows(products
-      .filter((item) => item[pdConst.PD_REL_TP_CD] === pdConst.PD_REL_TP_CD_C_TO_P));
-  }
-
   const view = grdMainRef.value?.getView();
   if (view) {
     view.getDataSource().setRows(pdPrcs.value);
@@ -182,7 +177,7 @@ async function initStandardGrid(data, view) {
     // 판매유형
     { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '120', styleName: 'text-center', options: codes.SELL_TP_CD },
     // 판매채널
-    { fieldName: 'channelId', header: t('MSG_TXT_SEL_CHNL'), width: '250', styleName: 'text-center', options: codes.SELL_CHNL_DTL_CD },
+    { fieldName: 'channelId', header: t('MSG_TXT_SEL_CHNL'), width: '250', options: codes.SELL_CHNL_DTL_CD },
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   fields.push({ fieldName: pdConst.REL_PD_ID });
@@ -198,7 +193,7 @@ async function initStandardGrid(data, view) {
 async function initGrid(data, view) {
   const columns = [
     // 판매채널
-    { fieldName: 'sellChnlCd', header: t('MSG_TXT_SEL_CHNL'), width: '128', options: codes.SELL_CHNL_DTL_CD, styleName: 'text-center' },
+    { fieldName: 'sellChnlCd', header: t('MSG_TXT_SEL_CHNL'), width: '128', styleName: 'text-center', options: codes.SELL_CHNL_DTL_CD },
     // 기준상품코드
     { fieldName: 'basePdCd', header: t('MSG_TXT_PD_STD_CODE'), width: '185', styleName: 'text-center' },
     // 기준상품명

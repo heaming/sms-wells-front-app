@@ -718,7 +718,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, gridUtil, defineGrid, getComponentType, useDataService, useMeta, useGlobal, stringUtil } from 'kw-lib';
+import { codeUtil, gridUtil, defineGrid, getComponentType, useDataService, useMeta, useGlobal, stringUtil, notify } from 'kw-lib';
 import { cloneDeep, toInteger } from 'lodash-es';
 import dayjs from 'dayjs';
 import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
@@ -758,7 +758,7 @@ const searchParams = ref({
 });
 
 const baseInfo = ref({});
-const baseInformationRental = ref({ thmUcBlam: 0 });
+const baseInformationRental = ref({});
 const baseInformationLease = ref({});
 const baseInformationMembership = ref({});
 const baseInformationRegular = ref({});
@@ -917,12 +917,19 @@ async function onClickCcamEt() {
 }
 
 async function onClickPrmEt() {
-  console.log('선납예상 팝업 추가');
-  // const cntrDtlNo = baseInformation.value.col2;
-  // await modal({
-  //  component: 'WwwdcPrepaymentEstimateAmountListP',
-  //  componentProps: { cntrDtlNo },
-  // });
+  // 선납예상 버튼
+  if (searchParams.value.cntrNo === '') {
+    // 검색버튼 클릭 후 버튼 클릭 바랍니다.
+    await notify(t('MSG_ALT_SRCH_AFTER_BTN_CLICK'));
+    return; // 계약상세번호 없을 시 false 반환
+  }
+  await modal({
+    component: 'WwdcPrepaymentEstimateAmountListP',
+    componentProps: {
+      cntrNo: searchParams.value.cntrNo,
+      cntrSn: searchParams.value.cntrSn,
+    },
+  });
 }
 
 // 통합입금대사현황(Z-WD-U-0051M01) 페이지 이동
@@ -930,8 +937,8 @@ async function onClickDpRfndIz() {
   await router.push({
     path: '/withdrawal/zwwdb-integrate-deposit-compare',
     query: {
-      cntrNo: searchParams.cntrNo,
-      cntrSn: searchParams.cntrSn,
+      cntrNo: searchParams.value.cntrNo,
+      cntrSn: searchParams.value.cntrSn,
     },
   });
 }
@@ -941,13 +948,24 @@ async function onClickDpRfndIz() {
 const initGrdRental = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '150', styleName: 'text-center' },
-    { fieldName: 'slClYm', header: t('MSG_TXT_SL_YM'), styleName: 'rg-button-link text-center', renderer: { type: 'button' } },
+    { fieldName: 'slClYm',
+      header: t('MSG_TXT_SL_YM'),
+      styleName: 'rg-button-link text-center',
+      renderer: { type: 'button' },
+      displayCallback(grid, index, value) {
+        let tmp = '';
+        tmp += value.substr(0, 4);
+        tmp += '-';
+        tmp += value.substr(4, 2);
+
+        return tmp;
+      } },
     { fieldName: 'slStpYn', header: t('MSG_TXT_SL_STP'), width: '100', styleName: 'text-center' },
     { fieldName: 'rentalTn', header: t('MSG_TXT_RENTAL_NMN'), width: '100', styleName: 'text-center' },
     { fieldName: 'prmMcn', header: t('MSG_TXT_PRM_MCNT'), width: '100', styleName: 'text-center' },
     { fieldName: 'lcam16', header: t('MSG_TXT_RENTAL_SL'), width: '100', styleName: 'text-right', dataType: 'number' },
     { fieldName: 'lcam4446', header: t('MSG_TXT_CCAM'), width: '100', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'lciamt', header: t('MSG_TXT_RENTAL_DP'), width: '100', styleName: 'rg-button-link text-right', renderer: { type: 'button' }, dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'lciamt', header: t('MSG_TXT_RENTAL_DP'), width: '100', styleName: 'rg-button-link text-right', renderer: { type: 'button' }, dataType: 'number', numberFormat: '#,###,###' },
     { fieldName: 'lcam3t', header: t('MSG_TXT_PRPD_AMT'), width: '100', styleName: 'text-right', dataType: 'number' },
     { fieldName: 'thmUcBlam', header: t('MSG_TXT_UC_AMT'), width: '100', styleName: 'text-right', dataType: 'number' },
     { fieldName: 'thmOcDlqAmt', header: t('MSG_TXT_DLQ_AMT'), width: '100', styleName: 'text-right', dataType: 'number' },
@@ -965,11 +983,11 @@ const initGrdRental = defineGrid((data, view) => {
   view.setColumns(columns);
 
   view.onCellItemClicked = async (grid, { column, itemIndex }) => {
-    const slClYm = grid.getValue(itemIndex, 'slClYm');
+    const { cntrDtlNo, slClYm } = grid.getValues(itemIndex);
     if (column === 'slClYm') {
       await modal({
         component: 'WwdcbRentalSalesDetailP',
-        componentProps: { slClYm },
+        componentProps: { slClYm, cntrDtlNo },
       });
     }
     if (column === 'lciamt') {
@@ -1018,7 +1036,18 @@ const initGrdRental = defineGrid((data, view) => {
 const initGrdLease = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '150', styleName: 'text-center' },
-    { fieldName: 'slClYm', header: t('MSG_TXT_SL_YM'), styleName: 'rg-button-link text-center', renderer: { type: 'button' } },
+    { fieldName: 'slClYm',
+      header: t('MSG_TXT_SL_YM'),
+      styleName: 'rg-button-link text-center',
+      renderer: { type: 'button' },
+      displayCallback(grid, index, value) {
+        let tmp = '';
+        tmp += value.substr(0, 4);
+        tmp += '-';
+        tmp += value.substr(4, 2);
+
+        return tmp;
+      } },
     { fieldName: 'slStpYn', header: t('MSG_TXT_SL_STP'), width: '100', styleName: 'text-center' },
     { fieldName: 'rentalTn', header: t('MSG_TXT_RENTAL_NMN'), width: '100', styleName: 'text-center' },
     { fieldName: 'prmMcn', header: t('MSG_TXT_PRM_MCNT'), width: '100', styleName: 'text-center' },
@@ -1042,11 +1071,11 @@ const initGrdLease = defineGrid((data, view) => {
   view.setColumns(columns);
 
   view.onCellItemClicked = async (grid, { column, itemIndex }) => {
-    const slClYm = grid.getValue(itemIndex, 'slClYm');
+    const { cntrDtlNo, slClYm } = grid.getValues(itemIndex);
     if (column === 'slClYm') {
       await modal({
         component: 'WwdcbLeaseSalesDetailP',
-        componentProps: { slClYm },
+        componentProps: { slClYm, cntrDtlNo },
       });
     }
     if (column === 'lciamt') {
@@ -1095,7 +1124,18 @@ const initGrdLease = defineGrid((data, view) => {
 const initGrdMembership = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '150', styleName: 'text-center' },
-    { fieldName: 'slClYm', header: t('MSG_TXT_SL_YM'), width: '100', styleName: 'rg-button-link text-center', renderer: { type: 'button' } },
+    { fieldName: 'slClYm',
+      header: t('MSG_TXT_SL_YM'),
+      styleName: 'rg-button-link text-center',
+      renderer: { type: 'button' },
+      displayCallback(grid, index, value) {
+        let tmp = '';
+        tmp += value.substr(0, 4);
+        tmp += '-';
+        tmp += value.substr(4, 2);
+
+        return tmp;
+      } },
     { fieldName: 'rentalTn', header: t('MSG_TXT_J_NMN'), width: '100', styleName: 'text-center' },
     { fieldName: 'lcmgub', header: t('MSG_TXT_MNGT_DV'), width: '100', styleName: 'text-center' },
     { fieldName: 'thmSlSumAmt', header: t('MSG_TXT_MSH_SL'), width: '100', styleName: 'text-right', dataType: 'number' },
@@ -1114,11 +1154,11 @@ const initGrdMembership = defineGrid((data, view) => {
   view.setColumns(columns);
 
   view.onCellItemClicked = async (grid, { column, itemIndex }) => {
-    const slClYm = grid.getValue(itemIndex, 'slClYm');
+    const { cntrDtlNo, slClYm } = grid.getValues(itemIndex);
     if (column === 'slClYm') {
       await modal({
         component: 'WwdcbMembershipSalesDetailP',
-        componentProps: { slClYm },
+        componentProps: { slClYm, cntrDtlNo },
       });
     }
     if (column === 'lciamt') {
@@ -1162,6 +1202,18 @@ const initGrdMembership = defineGrid((data, view) => {
 const initGrdRegular = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '100', styleName: 'text-center' },
+    { fieldName: 'slClYm',
+      header: t('MSG_TXT_SL_YM'),
+      styleName: 'rg-button-link text-center',
+      renderer: { type: 'button' },
+      displayCallback(grid, index, value) {
+        let tmp = '';
+        tmp += value.substr(0, 4);
+        tmp += '-';
+        tmp += value.substr(4, 2);
+
+        return tmp;
+      } },
     { fieldName: 'rentalTn', header: t('MSG_TXT_PRGS_NMN'), width: '100', styleName: 'text-center' },
     { fieldName: 'slStpYn', header: t('MSG_TXT_SL_YM'), width: '100', styleName: 'rg-button-link text-center', renderer: { type: 'button' } },
     { fieldName: 'thmSlSumAmt', header: t('MSG_TXT_SL_AMT'), width: '100', styleName: 'text-right', dataType: 'number' },
@@ -1176,11 +1228,11 @@ const initGrdRegular = defineGrid((data, view) => {
   view.setColumns(columns);
 
   view.onCellItemClicked = async (grid, { column, itemIndex }) => {
-    const slClYm = grid.getValue(itemIndex, 'slClYm');
+    const { cntrDtlNo, slClYm } = grid.getValues(itemIndex);
     if (column === 'slClYm') {
       await modal({
         component: 'WwdcbRegularShippingSalesDtlP',
-        componentProps: { slClYm },
+        componentProps: { slClYm, cntrDtlNo },
       });
     }
     if (column === 'thmAtamDpAmt') {
