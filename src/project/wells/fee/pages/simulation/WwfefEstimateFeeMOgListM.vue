@@ -225,7 +225,7 @@ import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
 
 const now = dayjs();
-const { modal } = useGlobal();
+const { modal, notify } = useGlobal();
 const { t } = useI18n();
 const dataService = useDataService();
 // -------------------------------------------------------------------------------------------------
@@ -289,12 +289,12 @@ async function onClickSearchPrtnrNoPopup() {
 }
 // 실적내역 계산버튼 클릭
 async function onClickCalculateDetail() {
-  // 진건프로님 api 호출
+  notify('수수료 계산 API 개발후 진행');
 }
 
 // BS내역 계산버튼 클릭
 async function onClickCalculateBs() {
-  // 진건프로님 api 호출
+  notify('수수료 계산 API 개발후 진행');
 }
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
@@ -462,18 +462,31 @@ const initGridBs = defineGrid((data, view) => {
     { fieldName: 'otscEtc', header: t('MSG_TXT_ETC_ITEMS_1'), styleName: 'text-right', dataType: 'number', width: '204' },
     { fieldName: 'bdtEtc', header: t('MSG_TXT_ETC_ITEMS_2'), styleName: 'text-right', dataType: 'number', width: '115' },
     { fieldName: 'etcFxamDsb', header: t('MSG_TXT_ETC_FXAM_DSB'), styleName: 'text-right', dataType: 'number', width: '129' },
-    { fieldName: 'sum',
-      header: t('MSG_TXT_SUM'),
-      styleName: 'text-right',
-      width: '129',
-      dataType: 'number',
-      valueExpression: "values['wrfr01'] + values['wrfr02'] + values['wrfr03'] + values['wrfr04'] + values['unWrfr'] + values['puf01'] + values['puf02'] + values['otscEtc'] + values['bdtEtc'] + values['etcFxamDsb']",
-    },
+    { fieldName: 'sum', header: t('MSG_TXT_SUM'), styleName: 'text-right', width: '129', dataType: 'number' },
     { fieldName: 'procRate', header: t('MSG_TXT_BS_PROC_RATE'), styleName: 'text-right', width: '106' },
     { fieldName: 'w1', header: t('W1'), styleName: 'text-right', dataType: 'number', width: '109' },
     { fieldName: 'w2', header: t('W2'), styleName: 'text-right', dataType: 'number', width: '109' },
   ];
-  const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
+  const fields = [
+    { fieldName: 'type' },
+    { fieldName: 'wrfr01', dataType: 'number' },
+    { fieldName: 'wrfr02', dataType: 'number' },
+    { fieldName: 'wrfr03', dataType: 'number' },
+    { fieldName: 'wrfr04', dataType: 'number' },
+    { fieldName: 'unWrfr', dataType: 'number' },
+    { fieldName: 'puf01', dataType: 'number' },
+    { fieldName: 'puf02', dataType: 'number' },
+    { fieldName: 'otscEtc', dataType: 'number' },
+    { fieldName: 'bdtEtc', dataType: 'number' },
+    { fieldName: 'etcFxamDsb', dataType: 'number' },
+    { fieldName: 'sum',
+      dataType: 'number',
+      valueExpression: "values['wrfr01'] + values['wrfr02'] + values['wrfr03'] + values['wrfr04'] + values['unWrfr'] + values['puf01'] + values['puf02'] + values['otscEtc'] + values['bdtEtc'] + values['etcFxamDsb']",
+    },
+    { fieldName: 'procRate' },
+    { fieldName: 'w1' },
+    { fieldName: 'w2' },
+  ];
   data.setFields(fields);
   view.setColumns(columns);
   view.checkBar.visible = false;
