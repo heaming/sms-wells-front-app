@@ -31,13 +31,16 @@
         icon="download_off"
         dense
         :label="$t('MSG_BTN_TEMP_DOWN')"
+        :disable="pageInfo.totalCount===0"
         @click="onClickExcelDownload"
       />
     </kw-action-top>
 
     <kw-grid
       ref="grdMainRef"
-      :visible-rows="1"
+      name="grdMain"
+      :page-size="pageInfo.pageSize"
+      :total-count="pageInfo.totalCount"
       @init="initGrdMain"
     />
 
@@ -57,13 +60,29 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { getComponentType, defineGrid } from 'kw-lib';
+import { getComponentType, defineGrid, gridUtil, useMeta } from 'kw-lib';
 
 const { t } = useI18n();
+const { getConfig } = useMeta();
+const { currentRoute } = useRouter();
+const pageInfo = ref({
+  totalCount: 0,
+  pageIndex: 1,
+  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
+});
+
+const grdMainRef = ref(getComponentType('KwGrid'));
+
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
-const grdMainRef = ref(getComponentType('KwGrid'));
+async function onClickExcelDownload() {
+  const view = grdMainRef.value.getView();
+  await gridUtil.exportView(view, {
+    fileName: currentRoute.value.meta.menuName,
+    timePostfix: true,
+  });
+}
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid

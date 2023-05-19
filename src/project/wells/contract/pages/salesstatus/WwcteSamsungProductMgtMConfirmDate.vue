@@ -51,7 +51,7 @@
     <h3>결과조회</h3>
     <kw-action-top>
       <template #left>
-        <kw-paging-info :total-count="100" />
+        <kw-paging-info :total-count="pageInfo.totalCount.grdMain" />
       </template>
       <kw-btn
         icon="download_off"
@@ -70,27 +70,30 @@
         dense
         secondary
         :label="$t('MSG_TXT_EXCEL_DOWNLOAD')"
+        :disable="pageInfo.totalCount.grdMain===0"
         @click="onClickExcelDownload"
       />
     </kw-action-top>
     <kw-grid
       ref="grdMainRef"
-      :visible-rows="1"
+      name="grdMain"
+      :page-size="pageInfo.pageSize"
+      :total-count="pageInfo.totalCount.grdMain"
       @init="initGrdMain"
     />
     <h3>업로드 미리보기</h3>
     <kw-action-top>
       <template #left>
         <kw-paging-info
-
-          :total-count="1"
+          :total-count="pageInfo.totalCount.grdUploadPrev"
         />
       </template>
     </kw-action-top>
     <kw-grid
       ref="grdUploadPrevRef"
-      :visible-rows="10"
       name="grdUploadPrev"
+      :page-size="pageInfo.pageSize"
+      :total-count="pageInfo.totalCount.grdUploadPrev"
       @init="initGrdUploadPrev"
     />
   </div>
@@ -99,14 +102,34 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { getComponentType, defineGrid } from 'kw-lib';
+import { getComponentType, defineGrid, gridUtil, useMeta } from 'kw-lib';
 
 const { t } = useI18n();
+const { getConfig } = useMeta();
+const { currentRoute } = useRouter();
+
+const pageInfo = ref({
+  totalCount: {
+    grdMain: 0,
+    grdUploadPrev: 0,
+  },
+  pageIndex: 1,
+  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
+});
+
+const grdMainRef = ref(getComponentType('KwGrid'));
+const grdUploadPrevRef = ref(getComponentType('KwGrid'));
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
-const grdMainRef = ref(getComponentType('KwGrid'));
-const grdUploadPrevRef = ref(getComponentType('KwGrid'));
+
+async function onClickExcelDownload() {
+  const view = grdMainRef.value.getView();
+  await gridUtil.exportView(view, {
+    fileName: currentRoute.value.meta.menuName,
+    timePostfix: true,
+  });
+}
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
