@@ -20,24 +20,19 @@
       @search="onClickSearch"
     >
       <kw-search-row>
-        <kw-search-item :label="$t('MSG_TXT_CNTR_NO')">
-          <kw-input
-            v-model="searchParams.cntrNo"
-            :label="$t('MSG_TXT_CNTR_NO')"
-            icon="search"
-            clearable
-            rules="max:12"
-            @click-icon="onClickCntrNoPop"
+        <kw-search-item :label="$t('MSG_TXT_CNTR_DTL_NO')">
+          <zctz-contract-detail-number
+            v-model:cntr-no="searchParams.cntrNo"
+            v-model:cntr-sn="searchParams.cntrSn"
+            :label="$t('MSG_TXT_CNTR_DTL_NO')"
           />
         </kw-search-item>
         <kw-search-item :label="$t('MSG_TXT_CNTOR_NM')">
           <kw-input
             v-model="searchParams.cstKnm"
             :label="$t('MSG_TXT_CNTOR_NM')"
-            icon="search"
             clearable
-            :maxlength="100"
-            @click-icon="onClickSelectCst('cntor')"
+            :maxlength="50"
           />
         </kw-search-item>
         <kw-search-item :label="$t('MSG_TXT_CST_NO')">
@@ -99,6 +94,7 @@
 // -------------------------------------------------------------------------------------------------
 import { codeUtil, defineGrid, getComponentType, gridUtil, useDataService, useGlobal, useMeta } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
+import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
 
 const { modal, notify } = useGlobal();
 const { t } = useI18n();
@@ -113,6 +109,7 @@ const codes = await codeUtil.getMultiCodes(
 
 const searchParams = ref({
   cntrNo: '',
+  cntrSn: '',
   cstKnm: '',
   cstNo: '',
   cralLocaraTno: '',
@@ -131,15 +128,6 @@ let cachedParams;
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
-async function onClickCntrNoPop() {
-  const { result, payload } = await modal({
-    component: 'WwctaContractNumberListP',
-  });
-  if (result) {
-    searchParams.value.cntrNo = payload.cntrNo;
-  }
-}
-
 async function onClickSelectCst(div) {
   let cpProps;
 
@@ -193,17 +181,24 @@ const initGrid = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'regButton', header: t('MSG_TIT_CNTRW_WRTE'), width: 120, renderer: { type: 'button', hideWhenEmpty: false }, displayCallback: () => t('MSG_TIT_CNTRW_WRTE') },
-    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_NO'), width: '157', styleName: 'text-center rg-button-link', renderer: { type: 'button' } },
-    { fieldName: 'cntrSn', header: t('MSG_TXT_CNTR_SN'), width: '120', styleName: 'text-center' },
+    { fieldName: 'regButton', header: t('MSG_TIT_CNTRW_WRTE'), width: '120', renderer: { type: 'button', hideWhenEmpty: false }, displayCallback: () => t('MSG_TIT_CNTRW_WRTE') },
+    { fieldName: 'cntrNo',
+      header: t('MSG_TXT_CNTR_DTL_NO'),
+      width: '157',
+      styleName: 'text-center rg-button-link',
+      renderer: { type: 'button', hideWhenEmpty: false },
+      displayCallback(grid, index) {
+        const { cntrNo, cntrSn } = grid.getValues(index.itemIndex);
+        return `${cntrNo}-${cntrSn}`;
+      } },
     { fieldName: 'cstKnm', header: t('MSG_TXT_CNTOR_NM'), width: '113', styleName: 'text-center rg-button-link', renderer: { type: 'button' } },
     { fieldName: 'cstNo', header: t('MSG_TXT_CST_NO'), width: '113', styleName: 'text-center' },
     { fieldName: 'mpNo', header: t('MSG_TXT_MPNO'), width: '143', styleName: 'text-center' },
     { fieldName: 'sellTpNm', header: t('MSG_TXT_CNTR_DV'), width: '109', styleName: 'text-center' },
     { fieldName: 'cntrDtlStatNm', header: t('MSG_TXT_STT'), width: '109', styleName: 'text-center' },
-    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '307' },
-    { fieldName: 'adr', header: t('MSG_TXT_STD_ADDR'), width: '380' },
-    { fieldName: 'dtlAdr', header: t('MSG_TXT_DETAIL_ADDR'), width: '288' },
+    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '250' },
+    { fieldName: 'adr', header: t('MSG_TXT_STD_ADDR'), width: '250' },
+    { fieldName: 'dtlAdr', header: t('MSG_TXT_DETAIL_ADDR'), width: '250' },
   ];
 
   data.setFields(fields);
@@ -214,7 +209,7 @@ const initGrid = defineGrid((data, view) => {
 
   view.onCellItemClicked = async (g, { column, itemIndex }) => {
     // TODO : 페이지 연결 확인
-
+    console.log(column);
     // 계약서작성 클릭 - 메뉴tab
     if (column === 'regButton') {
       notify('// TODO : W-SS-U-0022M01 통합계약서 화면으로 이동');
