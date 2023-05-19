@@ -112,7 +112,7 @@ const grdMainRef = ref(getComponentType('KwGrid'));
 const dataService = useDataService();
 const { currentRoute } = useRouter();
 const { getConfig } = useMeta();
-const apiUrl = '/sms/wells/withdrawal/idvrve/rental-exn-examt-inqrs';
+const apiUrl = '/sms/wells/withdrawal/idvrve/rental-exn-examt';
 
 const codes = await codeUtil.getMultiCodes(
   'INDV_CRP_CNTR_DV_CD', // 계약구분
