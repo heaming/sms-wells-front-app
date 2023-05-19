@@ -271,6 +271,7 @@ async function initGrid(data, view) {
 
   columns.map((item) => {
     if (item.fieldName === 'svPdCd') {
+      item.styleName = 'text-left';
       item.options = props.codes.svPdCd;
     }
     return item;
