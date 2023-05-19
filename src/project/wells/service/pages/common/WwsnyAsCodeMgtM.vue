@@ -180,6 +180,7 @@ async function fetchData() {
   const res = await dataService.get('/sms/wells/service/as-codes/paging', { params: { ...cachedParams, ...pageInfo.value } });
   const { list: products, pageInfo: pagingResult } = res.data;
   pageInfo.value = pagingResult;
+  console.log(pageInfo.value);
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(products);
   view.resetCurrent();
@@ -197,32 +198,29 @@ async function changePdGrpCd() {
   } else pds.value = [];
 }
 async function onClickExcelDownload() {
+  // const view = grdMainRef.value.getView();
+  // await gridUtil.exportView(view, {
+  //   fileName: 'asCodeMngt',
+  //   timePostfix: true,
+  // });
+  const res = await dataService.get(
+    '/sms/wells/service/as-codes/excel-download',
+    { params: { ...cachedParams } },
+  );
   const view = grdMainRef.value.getView();
-  // const exportLayout = [
-  //   'svBizHclsfCd',
-  //   { direction: 'horizontal', items: ['asLctCd', 'asLctNm'], header: { text: t('MSG_TXT_AS_LCT') } },
-  //   { direction: 'horizontal', items: ['asPhnCd', 'asPhnNm'], header: { text: t('MSG_TXT_AS_PHN') } },
-  //   { direction: 'horizontal', items: ['asCausCd', 'asCausNm'], header: { text: t('MSG_TXT_AS_CAUS') } },
-  //   { direction: 'horizontal', items: ['siteAwAtcCd', 'siteAwAtcNm', 'fuleyAwAmt'], header:
-  //   { text: t('MSG_TXT_SITE_AW') } },
-  //   { direction: 'horizontal', items: ['svAnaHclsfCd', 'svAnaHclsfNm'], header: {
-  //   text: t('MSG_TXT_SV_ANA_HCLSF_CD') } },
-  // ];
-
   await gridUtil.exportView(view, {
     fileName: 'asCodeMngt',
     timePostfix: true,
-    // exportLayout,
+    exportData: res.data,
   });
 }
 const onClickExcelUpload = async () => {
   cachedParams = cloneDeep(searchParams.value);
   const apiUrl = '/sms/wells/service/as-codes/excel-upload';
   const templateId = 'FOM_AS_CODE_MNGT';
+  console.log(cachedParams);
   const extraData = cachedParams;
-  const {
-    result,
-  } = await modal({
+  const { result } = await modal({
     component: 'ZwcmzExcelUploadP',
     componentProps: { apiUrl, templateId, extraData },
   });
@@ -230,6 +228,17 @@ const onClickExcelUpload = async () => {
     notify(t('MSG_ALT_SAVE_DATA'));
   }
 };
+
+// async function onClickExcelDownload() {
+//   const res = await dataService.get('/sms/common/promotion/components/excel-download'
+//   , { params: { ...cachedParams } });
+//   const view = grdMainRef.value.getView();
+//   await gridUtil.exportView(view, {
+//   fileName: currentRoute.value.meta.menuName,
+//   timePostfix: true,
+//   exportData: res.data,
+//   });
+// }
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
