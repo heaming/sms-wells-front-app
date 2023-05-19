@@ -78,10 +78,12 @@
         </template>
 
         <kw-btn
+          v-permission:download
           icon="download_on"
           dense
           secondary
           :label="t('MSG_BTN_EXCEL_DOWN')"
+          :disabled="pageInfo.totalCount === 0"
           @click="onClickExcelDownload"
         />
       </kw-action-top>
@@ -90,8 +92,6 @@
         ref="grdMainRef"
         name="grdMain"
         :visible-rows="10"
-        :page-size="pageInfo.pageSize"
-        :total-count="pageInfo.totalSize"
         @init="initGrid"
       />
     </div>
@@ -102,7 +102,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useMeta, defineGrid, getComponentType, gridUtil, codeUtil, useDataService } from 'kw-lib'; // useGlobal, useModal, useDataService,
+import { defineGrid, getComponentType, gridUtil, codeUtil, useDataService } from 'kw-lib'; // useMeta
 import { cloneDeep, isEmpty } from 'lodash-es'; // isEmpty
 import dayjs from 'dayjs';
 
@@ -111,7 +111,7 @@ const defaultMonth = dayjs().subtract(0, 'month').format('YYYYMM');
 const grdMainRef = ref(getComponentType('KwGrid'));
 const dataService = useDataService();
 const { currentRoute } = useRouter();
-const { getConfig } = useMeta();
+// const { getConfig } = useMeta();
 const apiUrl = '/sms/wells/withdrawal/idvrve/rental-exn-examt';
 
 const codes = await codeUtil.getMultiCodes(
@@ -130,7 +130,7 @@ const searchParams = ref({
 const pageInfo = ref({
   totalCount: 0,
   pageIndex: 1,
-  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
+  // pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
 });
 let cachedParams;
 // -------------------------------------------------------------------------------------------------
