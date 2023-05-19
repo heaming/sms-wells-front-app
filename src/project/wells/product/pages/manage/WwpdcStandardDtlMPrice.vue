@@ -245,6 +245,7 @@ async function initGrid(data, view) {
 
   columns.forEach((item) => {
     if (item.fieldName === 'svPdCd') {
+      item.styleName = 'text-left';
       item.displayCallback = (grid, index) => {
         const { svPdCd, svPdNm } = grid.getValues(index.itemIndex);
         if (svPdNm) {
