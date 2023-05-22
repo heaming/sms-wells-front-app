@@ -153,10 +153,10 @@ async function getCheckAndNotExistRows(view, rows) {
   if (alreadyItems.length > 0) {
     if (alreadyItems.length === 1) {
       // 이미 등록된 {pdCd}은(는) 제외 합니다.
-      notify(t('MSG_ALT_ALREADY_RGST_CUT', [alreadyItems[0].pdCd]));
+      notify(t('MSG_ALT_ALREADY_RGST_CUT', [`# ${`# ${alreadyItems[0].pdNm} #`} #`]));
     } else {
       // 이미 등록된 {pdCd} 외 {0} 건 은(는) 제외 합니다.
-      notify(t('MSG_ALT_ALREADY_RGST_CUT', [t('MSG_TXT_EXID_CNT', [alreadyItems[0].pdCd, alreadyItems.length - 1])]));
+      notify(t('MSG_ALT_ALREADY_RGST_CUT', [t('MSG_TXT_EXID_CNT', [`# ${`# ${alreadyItems[0].pdNm} #`} #`, alreadyItems.length - 1])]));
     }
     const alreadyPdCds = alreadyItems.reduce((rtns, item) => { rtns.push(item.pdCd); return rtns; }, []);
     return rows.reduce((rtns, item) => {
@@ -228,15 +228,15 @@ onMounted(async () => {
 async function initChangePrdGrid(data, view) {
   const columns = [
     // 기준상품 분류
-    { fieldName: 'pdClsfNm', header: t('MSG_TXT_PD_STD_TYPE'), width: '371' },
+    { fieldName: 'pdClsfNm', header: t('MSG_TXT_PD_STD_TYPE'), width: '170' },
     // 기준상품명
-    { fieldName: 'pdNm', header: t('MSG_TXT_PD_STD_NAME'), width: '306' },
+    { fieldName: 'pdNm', header: t('MSG_TXT_PD_STD_NAME'), width: '200' },
     // 기준상품코드
-    { fieldName: 'pdCd', header: t('MSG_TXT_PD_STD_CODE'), width: '185', styleName: 'text-center' },
+    { fieldName: 'pdCd', header: t('MSG_TXT_PD_STD_CODE'), width: '120', styleName: 'text-center' },
     // 판매유형
-    { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '187', styleName: 'text-center', options: props.codes?.SELL_TP_CD },
+    { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '140', styleName: 'text-center', options: props.codes?.SELL_TP_CD },
     // 판매기간
-    { fieldName: 'sellDurtion', header: t('MSG_TXT_PRDT_SLE_PRD'), width: '187', styleName: 'text-center' },
+    { fieldName: 'sellDurtion', header: t('MSG_TXT_PRDT_SLE_PRD'), width: '180', styleName: 'text-center' },
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   fields.push({ fieldName: pdConst.REL_PD_ID });

@@ -41,17 +41,6 @@
             :name="$t('MSG_TXT_CNTR_DTL_NO')"
             rules="required"
           />
-          <!-- <kw-input
-            v-model="searchParams.cntr"
-            :name="$t('MSG_TXT_CNTR_DTL_NO')"
-            rules="required"
-            type="number"
-            maxlength="16"
-            icon="search"
-            clearable
-            :label="$t('MSG_TXT_CNTR_DTL_NO')"
-            :on-click-icon="onClickSelectCntrnosn"
-          /> -->
         </kw-search-item>
       </kw-search-row>
     </kw-search>
@@ -160,29 +149,6 @@ const searchParams = ref({
   cntrNo: '',
   cntrSn: '',
 });
-
-// 계약상세번호 조회
-// eslint-disable-next-line no-unused-vars
-async function onClickSelectCntrnosn() {
-  // const { result, payload } = await modal({ component: 'WwctaContractNumberListP' });
-  // if (result) {
-  //   searchParams.value.cntrNoSn = payload.cntrNo + payload.cntrSn;
-  // }
-
-  /* 단위 테스트를 위한 코딩 추후 계약상세번호(공통) 팝업이 완성되면 삭제 예정 */
-  searchParams.value.cntr = '';
-  let returnCntrNoSn = await modal({ component: 'WwctaContractNumberListP' });
-  returnCntrNoSn = {
-    result: true,
-    payload: {
-      cntrNo: '',
-      cntrSn: '',
-    },
-  };
-  if (returnCntrNoSn.result) {
-    searchParams.value.cntr = returnCntrNoSn.payload.cntrNo + returnCntrNoSn.payload.cntrSn;
-  }
-}
 
 const possibleDay = codes.AUTO_FNT_FTD_ACD.map((v) => v.codeId).join(','); // 가능한 이체일 추후에 수정
 
@@ -297,8 +263,8 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'ucAmt', dataType: 'number' }, // 잔액
     { fieldName: 'dsnWdrwFntPrdCd' }, // 이체주기
     { fieldName: 'prtnrKnm' }, // 등록담당자
-    { fieldName: 'fnlMdfcUsrId' }, // 등록자사번
-    { fieldName: 'fnlMdfcDtm' }, // 등록일시
+    { fieldName: 'fstRgstUsrId' }, // 등록자번호
+    { fieldName: 'fstRgstDtm' }, // 등록일시
   ];
 
   const columns = [
@@ -369,10 +335,10 @@ const initGrid = defineGrid((data, view) => {
       styleName: 'text-right',
       editor: {
         type: 'number',
-        maxLength: 9,
+
       },
       numberFormat: '#,##0',
-      rules: 'required',
+      editable: false,
     },
     // 잔액
     { fieldName: 'ucAmt',
@@ -383,14 +349,14 @@ const initGrid = defineGrid((data, view) => {
       editable: false,
       numberFormat: '#,##0',
       // eslint-disable-next-line no-unused-vars
-      displayCallback(grid, index, value) {
-        // const dsnWdrwAmt = gridUtil.getCellValue(grid, index.itemIndex, 'dsnWdrwAmt');
-        // const dpAmt = gridUtil.getCellValue(grid, index.itemIndex, 'dpAmt');
-        const dsnWdrwAmt = gridUtil.getCellValue(grid, index.dataRow, 'dsnWdrwAmt');
-        const dpAmt = gridUtil.getCellValue(grid, index.dataRow, 'dpAmt');
+      // displayCallback(grid, index, value) {
+      //   // const dsnWdrwAmt = gridUtil.getCellValue(grid, index.itemIndex, 'dsnWdrwAmt');
+      //   // const dpAmt = gridUtil.getCellValue(grid, index.itemIndex, 'dpAmt');
+      //   const dsnWdrwAmt = gridUtil.getCellValue(grid, index.dataRow, 'dsnWdrwAmt');
+      //   const dpAmt = gridUtil.getCellValue(grid, index.dataRow, 'dpAmt');
 
-        return dsnWdrwAmt - dpAmt;
-      },
+      //   return dsnWdrwAmt - dpAmt;
+      // },
     },
     { fieldName: 'dsnWdrwFntPrdCd',
       header: t('MSG_TXT_FNT_PRD'),
@@ -402,8 +368,8 @@ const initGrid = defineGrid((data, view) => {
     },
 
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_RGST_PSIC'), width: '100', styleName: 'text-center', editable: false },
-    { fieldName: 'fnlMdfcUsrId', header: t('MSG_TXT_RGR_EMPNO'), width: '100', styleName: 'text-center', editable: false },
-    { fieldName: 'fnlMdfcDtm', header: t('MSG_TXT_RGST_DTM'), width: '155', styleName: 'text-center', editable: false, datetimeFormat: 'datetime' },
+    { fieldName: 'fstRgstUsrId', header: t('MSG_TXT_RGST_NO'), width: '100', styleName: 'text-center', editable: false },
+    { fieldName: 'fstRgstDtm', header: t('MSG_TXT_RGST_DTM'), width: '155', styleName: 'text-center', editable: false, datetimeFormat: 'datetime' },
 
   ];
 
@@ -421,29 +387,6 @@ const initGrid = defineGrid((data, view) => {
     }
   };
 
-  view.onEditCommit = async (grid, index, oldValue, newValue) => {
-    let canEdit = true;
-    // const { dsnWdrwAmt, dpAmt } = gridUtil.getRowValue(grid, index.dataRow);
-    const dsnWdrwAmt = gridUtil.getCellValue(grid, index.dataRow, 'dsnWdrwAmt');
-    const dpAmt = gridUtil.getCellValue(grid, index.dataRow, 'dpAmt');
-    if (index.column === 'dpAmt') {
-      if (dsnWdrwAmt < newValue) {
-        notify(t('MSG_ALT_DP_DSN_AMT_CMPR'));
-        canEdit = false;
-        // grid.setValue(index.itemIndex, 'dpAmt', oldValue ? 0 : oldValue);
-      }
-    }
-    if (index.column === 'dsnWdrwAmt') {
-      if (newValue < dpAmt) {
-        notify(t('MSG_ALT_DSN_DP_AMT_CMPR'));
-        canEdit = false;
-        // grid.setValue(index.itemIndex, 'dsnWdrwAmt', oldValue);
-      }
-    }
-
-    if (!canEdit) view.cancel();
-  };
-
   view.onScrollToBottom = async (g) => {
     if (pageInfo.value.pageIndex * pageInfo.value.pageSize <= g.getItemCount()) {
       pageInfo.value.pageIndex += 1;
@@ -459,11 +402,12 @@ const initGrid = defineGrid((data, view) => {
         componentProps: { cntrNo: cntr?.slice(0, 12), cntrSn: cntr?.slice(12) },
       });
       if (result) {
-        const { cntrNo: resCntrNo, cntrSn: resCntrSn, cntrCstKnm: cstKnm } = payload;
+        const { cntrNo: resCntrNo, cntrSn: resCntrSn, cntrCstKnm: cstKnm, sellTpCd } = payload;
         data.setValue(dataRow, 'cntrNo', resCntrNo);
         data.setValue(dataRow, 'cntrSn', resCntrSn);
         data.setValue(dataRow, 'cntr', `${resCntrNo}-${resCntrSn}`);
         data.setValue(dataRow, 'cstKnm', cstKnm);
+        data.setValue(dataRow, 'sellTpCd', sellTpCd);
       }
     }
   };

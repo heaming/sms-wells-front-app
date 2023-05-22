@@ -235,16 +235,16 @@ const initGrid = defineGrid((data, view) => {
   view.checkBar.visible = false; // create checkbox column
   view.rowIndicator.visible = true; // create number indicator column
 
-  view.onCellItemClicked = async (g, { dataRow, column }) => {
-    if (['cntrChPrgsStatNmEnd'].includes(column)) { // 기타종료
-      const paramCntrChRcpId = g.getValue(dataRow, 'cntrChRcpId');
-      const paramCstKnm = g.getValue(dataRow, 'cstKnm');
-      const paramCralLocaraTno = g.getValue(dataRow, 'cralLocaraTno');
-      const paramMexnoEncr = g.getValue(dataRow, 'mexnoEncr');
-      const paramCralIdvTno = g.getValue(dataRow, 'cralIdvTno');
+  view.onCellDblClicked = async (g, { dataRow }) => {
+    const paramCntrChRcpId = g.getValue(dataRow, 'cntrChRcpId'); // 접수번호
+    const paramCntrChTpCd = g.getValue(dataRow, 'cntrChTpCd'); // 접수유형
 
-      await modal({ component: 'WwctaDocumentRcpEtcEndChoDtlP', componentProps: { cntrChRcpId: paramCntrChRcpId, cstKnm: paramCstKnm, cralLocaraTno: paramCralLocaraTno, mexnoEncr: paramMexnoEncr, cralIdvTno: paramCralIdvTno } });
-    }
+    const res = await modal({
+      component: 'WwctaDocumentRcpDtlMgtP',
+      componentProps: { cntrChRcpId: paramCntrChRcpId,
+        cntrChTpCd: paramCntrChTpCd },
+    });
+    if (res.result) fetchData();
   };
 });
 </script>

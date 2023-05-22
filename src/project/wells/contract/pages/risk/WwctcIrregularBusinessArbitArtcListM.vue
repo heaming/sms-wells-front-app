@@ -222,7 +222,7 @@ async function fetchData() {
   const dataSource = view.getDataSource();
   dataSource.setRows(res.data);
   pageInfo.value.totalCount = view.getItemCount();
-
+  view.setCheckableExpression("values['dangChkId'] != ''", true);
   view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
@@ -257,12 +257,6 @@ async function onClickSearch() {
 async function onClickDelete() {
   const view = grdMainRef.value.getView();
   if (!await gridUtil.confirmIfIsModified(view)) { return; }
-  for (let i = 0; i < gridUtil.getCheckedRowValues(view).length; i += 1) {
-    if (isEmpty(gridUtil.getCheckedRowValues(view)[i].dangChkId)) {
-      notify(t('MSG_ALT_EXIST_BEAN_ID'));
-      return;
-    }
-  }
   const deletedRows = await gridUtil.confirmDeleteCheckedRows(view);
 
   if (deletedRows.length > 0) {

@@ -174,7 +174,6 @@ async function onClickToolDsb() {
 
   await dataService.post('/sms/wells/service/engineer-tools', dataParams.value);
 
-  notify(t('MSG_ALT_TOOL_DSB_FSH'));
   ok();
 }
 

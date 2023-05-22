@@ -1,29 +1,75 @@
-<!-- window.open 너비 1292px이상 설정 요망 -->
+<!----
+****************************************************************************************************
+* 프로그램 개요
+****************************************************************************************************
+1. 모듈 : CTA
+2. 프로그램 ID : WwctaOrderDetailCollectingAmountContactListP - 주문상세페이지 내부 팝업_집금컨택내용 관리
+3. 작성자 : hyeonjong.ra
+4. 작성일 : 2023.05.08
+****************************************************************************************************
+* 프로그램 설명
+****************************************************************************************************
+- [W-SS-U-0092P07] - 주문상세페이지 내부 팝업_집금컨택내용 관리 탭화면
+****************************************************************************************************
+--->
 <template>
   <kw-action-top class="mt30">
     <template #left>
       <kw-paging-info
-        :total-count="7"
+        :total-count="totalCount"
       />
     </template>
   </kw-action-top>
   <kw-grid
-    :visible-rows="10"
+    ref="grdMainRef"
+    :page-size="pageInfo.pageSize"
+    :total-count="totalCount"
     @init="initGrid"
   />
 </template>
+
 <script setup>
+// -------------------------------------------------------------------------------------------------
+// Import & Declaration
+// -------------------------------------------------------------------------------------------------
+import { useMeta, getComponentType, useDataService } from 'kw-lib';
+
+const { getConfig } = useMeta();
+const { t } = useI18n();
+const dataService = useDataService();
+
+// -------------------------------------------------------------------------------------------------
+// Function & Event
+// -------------------------------------------------------------------------------------------------
+const grdMainRef = ref(getComponentType('KwGrid'));
+
+const pageInfo = ref({
+  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
+});
+
+const totalCount = ref(0);
 
 const searchParams = ref({
   cntrNo: '',
   cntrSn: '',
 });
 
+// 조회
 async function fetchData() {
-  console.log('컨택내용의 fetchData');
-  console.log(searchParams.value.cntrNo, searchParams.value.cntrSn);
+  const params = {
+    cntrNo: searchParams.value.cntrNo,
+    cntrSn: searchParams.value.cntrSn,
+  };
+
+  const res = await dataService.get('/sms/wells/contract/contracts/order-details/collecting-amount-contact', { params });
+  totalCount.value = res.data.length;
+
+  const view = grdMainRef.value.getView();
+  view.getDataSource().setRows(res.data);
+  view.resetCurrent();
 }
 
+// 계약번호, 계약일련번호 세팅 (부모창에서 호출)
 async function setDatas(cntrNo, cntrSn) {
   searchParams.value.cntrNo = cntrNo;
   searchParams.value.cntrSn = cntrSn;
@@ -36,30 +82,36 @@ defineExpose({
   setDatas,
 });
 
+// -------------------------------------------------------------------------------------------------
+// Initialize Grid
+// -------------------------------------------------------------------------------------------------
 function initGrid(data, view) {
   const fields = [
-    { fieldName: 'col1' },
-    { fieldName: 'col2' },
-    { fieldName: 'col3' },
-    { fieldName: 'col4' },
-    { fieldName: 'col5' },
-    { fieldName: 'col6' },
-    { fieldName: 'col7' },
-    { fieldName: 'col8' },
-    { fieldName: 'col9' },
+    { fieldName: 'rnum' }, /* [순번] */
+    { fieldName: 'cntrNo' }, /* 계약번호 */
+    { fieldName: 'cntrSn' }, /* 계약일련번호 */
+    { fieldName: 'cttDt' }, /* [컨택일자] */
+    { fieldName: 'cttTm' }, /* [컨택시간] 컨택시각/최초등록시간 */
+    { fieldName: 'expDt' }, /* [예정일자] */
+    { fieldName: 'clctamCttCd' }, /* 집금컨택코드 */
+    { fieldName: 'clctamCttNm' }, /* [컨택사항] 집금컨택명 */
+    { fieldName: 'dlqMcn' }, /* [차월] 연체개월수 */
+    { fieldName: 'cttMoCn' }, /* [컨택메모] 컨택메모내용 */
+    { fieldName: 'sellOgTpCd' }, /* 판매조직유형코드 */
+    { fieldName: 'fstRgstUsrId' }, /* 최초등록사용자ID */
+    { fieldName: 'usrNm' }, /* [등록담당] 최초등록사용자명 */
+    { fieldName: 'modYn' }, /* 수정가능여부. TOBE에서는 삭제 컬럼이 삭제되면서 사용안함. */
   ];
 
   const columns = [
-    { fieldName: 'col1', header: '순번', width: '104', styleName: 'text-center' },
-    { fieldName: 'col2', header: '컨택일자', width: '132', styleName: 'text-center' },
-    { fieldName: 'col3', header: '컨택시간', width: '132', styleName: 'text-center' },
-    { fieldName: 'col4', header: '예정일자', width: '132', styleName: 'text-center' },
-    { fieldName: 'col5', header: '컨택사항', width: '194' },
-    { fieldName: 'col6', header: '차월', width: '104', styleName: 'text-center' },
-    { fieldName: 'col7', header: '컨택메모', width: '332' },
-    { fieldName: 'col8', header: '등록담당', width: '130', styleName: 'text-center' },
-    { fieldName: 'col9', header: '삭제', width: '130', styleName: 'text-center' },
-
+    { fieldName: 'rnum', header: t('MSG_TXT_SN'), width: '104', styleName: 'text-center' }, // [순번]
+    { fieldName: 'cttDt', header: t('MSG_TXT_CTT_DT'), width: '132', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date' }, // [컨택일자]
+    { fieldName: 'cttTm', header: t('MSG_TXT_CTT') + t('MSG_TXT_TIME'), width: '132', styleName: 'text-center' }, // [컨택시간]
+    { fieldName: 'expDt', header: t('MSG_TXT_SCHD_DT'), width: '132', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date' }, // [예정일자]
+    { fieldName: 'clctamCttNm', header: t('MSG_TXT_CNT_DET'), width: '194' }, // [컨택사항]
+    { fieldName: 'dlqMcn', header: t('MSG_TXT_NMN'), width: '104', styleName: 'text-center' }, // [차월]
+    { fieldName: 'cttMoCn', header: t('MSG_TXT_CTT_MO'), width: '332' }, // [컨택메모]
+    { fieldName: 'usrNm', header: t('MSG_TXT_RGST_ICHR'), width: '130', styleName: 'text-center' }, // [등록담당]
   ];
 
   data.setFields(fields);
@@ -67,9 +119,5 @@ function initGrid(data, view) {
 
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
-
-  data.setRows([
-    { col1: '-', col2: '2022-12-12', col3: '15 : 15', col4: '2022-12-12', col5: '블라블라블', col6: '-', col7: '블라블라블', col8: '김등록', col9: '-' },
-  ]);
 }
 </script>

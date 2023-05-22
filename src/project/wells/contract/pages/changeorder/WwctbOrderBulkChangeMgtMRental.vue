@@ -13,89 +13,76 @@
 ****************************************************************************************************
 --->
 <template>
-  <kw-page>
-    <!-- To.개발 kw-tab-panel안에 kw-search로 시작하는 경우 kw-tabs에 .form-border 제거 / 그 외 추가 -->
-    <kw-tabs model-value="1">
-      <kw-tab
-        name="1"
-        :label="$t('MSG_TXT_RENTAL')"
-      />
-      <kw-tab
-        name="2"
-        :label="$t('MSG_TXT_MEM')"
-      />
-      <kw-tab
-        name="3"
-        :label="$t('MSG_TXT_SNGL_PMNT')"
-      />
-    </kw-tabs>
-    <kw-tab-panels model-value="1">
-      <kw-tab-panel name="1">
-        <kw-search
-          one-row
-          :cols="2"
-        >
-          <kw-search-row>
-            <kw-search-item
-              :label="$t('MSG_TXT_PROCS_DV')"
-              required
-            >
-              <kw-select
-                :model-value="[]"
-                :options="['조회', '입력']"
-                rules="required"
-              />
-            </kw-search-item>
+  <kw-search
+    one-row
+    :cols="2"
+  >
+    <kw-search-row>
+      <kw-search-item
+        :label="$t('MSG_TXT_PROCS_DV')"
+        required
+      >
+        <kw-select
+          :model-value="[]"
+          :options="['조회', '입력']"
+          rules="required"
+        />
+      </kw-search-item>
 
-            <kw-search-item
-              :label="$t('MSG_TXT_CLSF_DET')"
-              required
-            >
-              <kw-select
-                :model-value="['']"
-                :options="['예정일자', 'B', 'C', 'D']"
-                rules="required"
-              />
-            </kw-search-item>
-          </kw-search-row>
-        </kw-search>
+      <kw-search-item
+        :label="$t('MSG_TXT_CLSF_DET')"
+        required
+      >
+        <kw-select
+          :model-value="['']"
+          :options="['예정일자', 'B', 'C', 'D']"
+          rules="required"
+        />
+      </kw-search-item>
+    </kw-search-row>
+  </kw-search>
 
-        <div class="result-area">
-          <kw-action-top>
-            <kw-btn
-              :label="$t('MSG_BTN_BK_RGST')"
-              primary
-              dense
-            />
-          </kw-action-top>
-          <kw-grid
-            name="grdMain"
-            :page-size="pageInfo.pageSize"
-            :total-count="pageInfo.totalCount"
-            @init="initGrdMain"
-          />
-        </div>
-      </kw-tab-panel>
-    </kw-tab-panels>
-  </kw-page>
+  <div class="result-area">
+    <kw-action-top>
+      <kw-btn
+        :label="$t('MSG_BTN_BK_RGST')"
+        primary
+        dense
+      />
+    </kw-action-top>
+    <kw-grid
+      ref="grdMainRefRental"
+      v-model:page-size="pageInfo.pageSize"
+      :total-count="pageInfo.totalCount"
+      name="grdRental"
+      @init="initGrdRental"
+    />
+  </div>
 </template>
 <script setup>
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { defineGrid, useMeta } from 'kw-lib';
+import { defineGrid, getComponentType, useMeta } from 'kw-lib';
 
 const { t } = useI18n();
+
 const { getConfig } = useMeta();
+
 const pageInfo = ref({
   totalCount: 0,
   pageIndex: 1,
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
 });
 // -------------------------------------------------------------------------------------------------
+// Function & Event
+// -------------------------------------------------------------------------------------------------
+const grdMainRefRental = ref(getComponentType('KwGrid'));
+
+// -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
-const initGrdMain = defineGrid((data, view) => {
+const initGrdRental = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'col1' },
     { fieldName: 'col2' },

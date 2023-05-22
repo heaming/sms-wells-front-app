@@ -87,6 +87,7 @@
 
         <kw-btn
           secondary
+          grid-action
           :label="$t('MSG_BTN_SAVE')"
           @click="onClickSave"
         />
@@ -105,6 +106,7 @@
           icon="download_on"
           :disable="pageInfo.totalCount === 0"
           secondary
+          dense
           :label="$t('엑셀다운로드')"
           @click="onClickExcelDownload"
         />
@@ -119,11 +121,7 @@
           :options="customCodes.DGR_2_LEVL_OG"
           option-value="ogCd"
           option-label="ogNm"
-        />
-        <kw-btn
-          secondary
-          :label="$t('이관지역단 일괄변경')"
-          @click="onClickSetWareAreaCd"
+          :placeholder="$t('이관지역단 선택')"
         />
         <kw-separator
           spaced
@@ -134,11 +132,12 @@
           v-model="gridParams.rsonCd"
           class="w200"
           :options="codes.TF_AK_RSON_CD"
+          :placeholder="$t('이관사유 선택')"
         />
         <kw-btn
           secondary
-          :label="$t('이관사유 일괄변경')"
-          @click="onClickSetRsonCd"
+          :label="$t('이관지역단 일괄변경')"
+          @click="onClickBatchUpdate"
         />
       </kw-action-top>
       <kw-grid
@@ -287,36 +286,63 @@ async function zipToPad() {
 /*
  *  Grid Value 일괄 변경을 위한 function
  */
-function setGridValueForChecked(columnName, setValue) {
-  if (isEmpty(columnName)) {
-    return;
-  }
+// function setGridValueForChecked(columnName, setValue) {
+//   if (isEmpty(columnName)) {
+//     return;
+//   }
+//   const view = gridMainRef.value.getView();
+//   const data = view.getDataSource();
+//   const checkedRows = gridUtil.getCheckedRowValues(view);
+
+//   if (checkedRows.length === 0) {
+//     alert(t('MSG_ALT_NO_CHECK_DATA')); // 선택된 데이터가 없습니다.
+//     return;
+//   }
+
+//   for (let idx = 0; idx < checkedRows.length; idx += 1) {
+//     // data.setValue(view.getDataRow(checkedRows[idx].dataRow), columnName, setValue);
+//     data.setValue(checkedRows[idx].dataRow, columnName, setValue);
+//   }
+// }
+
+/*
+ *  이관지역단 일괄변경
+ */
+// function onClickSetWareAreaCd() {
+//   setGridValueForChecked('mdfcBrchOgId', gridParams.value.wareAreaCd);
+// }
+
+/*
+ *  이관사유 일괄변경
+ */
+// function onClickSetRsonCd() {
+//   setGridValueForChecked('mdfcIchrLocaraCtrRsonCd', gridParams.value.rsonCd);
+// }
+
+/*
+ *  Grid Value 일괄 변경을 위한 function
+ */
+function setGridValueForChecked() {
   const view = gridMainRef.value.getView();
   const data = view.getDataSource();
   const checkedRows = gridUtil.getCheckedRowValues(view);
 
   if (checkedRows.length === 0) {
+    alert(t('MSG_ALT_NO_CHECK_DATA')); // 선택된 데이터가 없습니다.
     return;
   }
 
   for (let idx = 0; idx < checkedRows.length; idx += 1) {
-    // data.setValue(view.getDataRow(checkedRows[idx].dataRow), columnName, setValue);
-    data.setValue(checkedRows[idx].dataRow, columnName, setValue);
+    data.setValue(checkedRows[idx].dataRow, 'mdfcBrchOgId', gridParams.value.wareAreaCd);
+    data.setValue(checkedRows[idx].dataRow, 'mdfcIchrLocaraCtrRsonCd', gridParams.value.rsonCd);
   }
 }
 
 /*
- *  이관지역단 일괄변경
+ *  이관사유, 이관지역단 일괄변경
  */
-function onClickSetWareAreaCd() {
-  setGridValueForChecked('mdfcBrchOgId', gridParams.value.wareAreaCd);
-}
-
-/*
- *  이관사유 일괄변경
- */
-function onClickSetRsonCd() {
-  setGridValueForChecked('mdfcIchrLocaraCtrRsonCd', gridParams.value.rsonCd);
+function onClickBatchUpdate() {
+  setGridValueForChecked();
 }
 
 /*

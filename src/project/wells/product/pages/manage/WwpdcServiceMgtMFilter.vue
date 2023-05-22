@@ -236,9 +236,9 @@ async function getCheckAndNotExistRows(view, rows) {
   }
   if (alreadyItems.length > 0) {
     if (alreadyItems.length === 1) {
-      notify(t('MSG_ALT_ALREADY_RGST_CUT', [alreadyItems[0].pdCd]));
+      notify(t('MSG_ALT_ALREADY_RGST_CUT', [`# ${`# ${alreadyItems[0].pdNm} #`} #`]));
     } else {
-      notify(t('MSG_ALT_ALREADY_RGST_CUT', [t('MSG_TXT_EXID_CNT', [alreadyItems[0].pdCd, alreadyItems.length - 1])]));
+      notify(t('MSG_ALT_ALREADY_RGST_CUT', [t('MSG_TXT_EXID_CNT', [`# ${`# ${alreadyItems[0].pdNm} #`} #`, alreadyItems.length - 1])]));
     }
     const alreadyPdCds = alreadyItems.reduce((rtns, item) => { rtns.push(item.pdCd); return rtns; }, []);
     return rows.reduce((rtns, item) => {
@@ -280,15 +280,15 @@ watch(() => props.initData, (initData) => { currentInitData.value = initData; in
 async function initGrid(data, view) {
   const columns = [
     // 상태
-    { fieldName: 'tempSaveYn', header: t('MSG_TXT_STT'), width: '135', styleName: 'text-center', options: codes.PD_TEMP_SAVE_CD },
+    { fieldName: 'tempSaveYn', header: t('MSG_TXT_STT'), width: '80', styleName: 'text-center', options: codes.PD_TEMP_SAVE_CD },
     // 교재/자재 분류
-    { fieldName: 'pdClsfNm', header: t('MSG_TXT_PD_BOK_MTR_TYPE'), width: '371' },
+    { fieldName: 'pdClsfNm', header: t('MSG_TXT_PD_BOK_MTR_TYPE'), width: '230' },
     // 교재/자재명
-    { fieldName: 'pdNm', header: t('MSG_TXT_PD_BOK_MTR_NAME'), width: '306' },
+    { fieldName: 'pdNm', header: t('MSG_TXT_PD_BOK_MTR_NAME'), width: '250' },
     // 제품코드
-    { fieldName: 'pdCd', header: t('MSG_TXT_PROD_CD'), width: '185', styleName: 'text-center' },
+    { fieldName: 'pdCd', header: t('MSG_TXT_PROD_CD'), width: '120', styleName: 'text-center' },
     // 자재코드
-    { fieldName: 'sapMatCd', header: t('MSG_TXT_MATI_CD'), width: '187', styleName: 'text-center' },
+    { fieldName: 'sapMatCd', header: t('MSG_TXT_MATI_CD'), width: '180', styleName: 'text-center' },
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   fields.push({ fieldName: pdConst.REL_PD_ID });

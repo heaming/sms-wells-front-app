@@ -13,154 +13,122 @@
 ****************************************************************************************************
 --->
 <template>
-  <kw-page>
-    <!-- To.개발 kw-tab-panel안에 kw-search로 시작하는 경우 kw-tabs에 .form-border 제거 / 그 외 추가 -->
-    <kw-tabs
-      model-value="2"
-    >
-      <kw-tab
-        name="1"
-        :label="$t('MSG_TXT_RECP_RENT')"
+  <kw-search :cols="4">
+    <kw-search-row>
+      <kw-search-item
+        :label="$t('MSG_TXT_LOOKUP_PERIOD')"
+        required
+        :colspan="2"
+      >
+        <kw-select
+          class="w187"
+          :label="$t('MSG_TXT_LOOKUP_PERIOD')"
+          :model-value="[]"
+          :options="['등록일', 'B', 'C', 'D']"
+          rules="required"
+        />
+        <kw-date-range-picker
+          :label="$t('MSG_TXT_LOOKUP_PERIOD')"
+          rules="date_range_required|date_range_months:1"
+        />
+      </kw-search-item>
+      <kw-search-item
+        :label="$t('MSG_TXT_ALNC_CD')"
+        :colspan="1"
+      >
+        <kw-select
+          :model-value="[]"
+          :options="['주소', 'B', 'C', 'D']"
+        />
+      </kw-search-item>
+      <kw-search-item
+        :label="$t('MSG_TXT_DISC_CODE')"
+        :colspan="1"
+      >
+        <kw-select
+          :model-value="[]"
+          :options="['주소', 'B', 'C', 'D']"
+        />
+      </kw-search-item>
+    </kw-search-row>
+    <kw-search-row>
+      <kw-search-item
+        :label="$t('MSG_TXT_PRDT_CATE')"
+        :colspan="2"
+      >
+        <kw-select
+          :model-value="[]"
+          :options="['대분류 전체', 'B', 'C', 'D']"
+        />
+        <kw-select
+          :model-value="[]"
+          :options="['중분류 전체', 'B', 'C', 'D']"
+        />
+      </kw-search-item>
+      <kw-search-item
+        :label="$t('MSG_TXT_PRDT_CODE')"
+        :colspan="1"
+      >
+        <kw-input />
+      </kw-search-item>
+      <kw-search-item
+        :label="$t('MSG_TXT_PRDT_NM')"
+        :colspan="1"
+      >
+        <kw-input />
+      </kw-search-item>
+    </kw-search-row>
+  </kw-search>
+  <div class="result-area">
+    <kw-action-top>
+      <template #left>
+        <kw-paging-info
+          :total-count="pageInfo.totalCount"
+        />
+        <span class="ml8">{{ t('MSG_TXT_UNIT_WON') }}</span>
+      </template>
+
+      <kw-btn
+        icon="upload_on"
+        dense
+        secondary
+        :label="$t('MSG_TXT_UPL_BLK_APP_DATA')"
       />
-      <kw-tab
-        name="2"
-        :label="$t('MSG_TXT_RECP_LMP_SUM_PMT')"
-      />
-      <kw-tab
-        name="3"
-        :label="$t('MSG_TXT_INSTALL')"
-      />
-    </kw-tabs>
-    <kw-tab-panels
-      model-value="2"
-    >
-      <kw-tab-panel name="2">
-        <kw-search :cols="4">
-          <kw-search-row>
-            <kw-search-item
-              :label="$t('MSG_TXT_LOOKUP_PERIOD')"
-              required
-              :colspan="2"
-            >
-              <kw-select
-                class="w187"
-                :model-value="[]"
-                :options="['등록일', 'B', 'C', 'D']"
-                rules="required"
-              />
-              <kw-date-range-picker
-                rules="date_range_required|date_range_months:1"
-              />
-            </kw-search-item>
-            <kw-search-item
-              :label="$t('MSG_TXT_ALNC_CD')"
-              :colspan="1"
-            >
-              <kw-select
-                :model-value="[]"
-                :options="['주소', 'B', 'C', 'D']"
-              />
-            </kw-search-item>
-            <kw-search-item
-              :label="$t('MSG_TXT_DISC_CODE')"
-              :colspan="1"
-            >
-              <kw-select
-                :model-value="[]"
-                :options="['주소', 'B', 'C', 'D']"
-              />
-            </kw-search-item>
-          </kw-search-row>
-          <kw-search-row>
-            <kw-search-item
-              :label="$t('MSG_TXT_PRDT_CATE')"
-              :colspan="2"
-            >
-              <kw-select
-                :model-value="[]"
-                :options="['대분류 전체', 'B', 'C', 'D']"
-              />
-              <kw-select
-                :model-value="[]"
-                :options="['중분류 전체', 'B', 'C', 'D']"
-              />
-            </kw-search-item>
-            <kw-search-item
-              :label="$t('MSG_TXT_PRDT_CODE')"
-              :colspan="1"
-            >
-              <kw-input />
-            </kw-search-item>
-            <kw-search-item
-              :label="$t('MSG_TXT_PRDT_NM')"
-              :colspan="1"
-            >
-              <kw-input />
-            </kw-search-item>
-          </kw-search-row>
-        </kw-search>
-        <div class="result-area">
-          <kw-action-top>
-            <template #left>
-              <kw-paging-info
-                v-model:page-index="pageInfo.pageIndex"
-                v-model:page-size="pageInfo.pageSize"
-                :total-count="pageInfo.totalCount"
-                :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
-                @change="fetchData"
-              />
-              <span class="ml8">{{ t('MSG_TXT_UNIT_WON') }}</span>
-            </template>
+    </kw-action-top>
 
-            <kw-btn
-              icon="upload_on"
-              dense
-              secondary
-              :label="$t('MSG_TXT_UPL_BLK_APP_DATA')"
-            />
-          </kw-action-top>
+    <kw-grid
+      ref="grdMainRefPayment"
+      v-model:page-size="pageInfo.pageSize"
+      :total-count="pageInfo.totalCount"
+      name="grdPayment"
+      @init="initGrdPayment"
+    />
 
-          <kw-grid
-            ref="grdMainRef"
-            name="grdMain"
-            :page-size="pageInfo.pageSize"
-            :total-count="pageInfo.totalCount"
-            @init="initGrdMain"
-          />
+    <h3>{{ t('MSG_TXT_LS_PRICING_INFO') }}</h3>
+    <kw-action-top>
+      <template #left>
+        <kw-paging-info
+          :total-count="pricingPageInfo.totalCount"
+        />
+        <span class="ml8">{{ t('MSG_TXT_UNIT_WON') }}</span>
+      </template>
+    </kw-action-top>
 
-          <h3>{{ t('MSG_TXT_LS_PRICING_INFO') }}</h3>
-          <kw-action-top>
-            <template #left>
-              <kw-paging-info
-                v-model:page-index="pageInfo1.pageIndex"
-                v-model:page-size="pageInfo1.pageSize"
-                :total-count="pageInfo1.totalCount"
-                :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
-                @change="fetchPricingData"
-              />
-              <span class="ml8">{{ t('MSG_TXT_UNIT_WON') }}</span>
-            </template>
-          </kw-action-top>
-
-          <kw-grid
-            name="pricingGrid"
-            :page-size="pageInfo1.pageSize"
-            :total-count="pageInfo1.totalCount"
-            @init="initPricingGrid"
-          />
-        </div>
-      </kw-tab-panel>
-    </kw-tab-panels>
-  </kw-page>
+    <kw-grid
+      ref="grdPricingRef"
+      v-model:page-size="pricingPageInfo.pageSize"
+      :total-count="pricingPageInfo.totalCount"
+      name="grdPricing"
+      @init="initGrdPricing"
+    />
+  </div>
 </template>
 
 <script setup>
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { defineGrid, getComponentType, useMeta, codeUtil } from 'kw-lib';
-
-const { getConfig } = useMeta();
+import { defineGrid, getComponentType, useMeta } from 'kw-lib';
 
 const { t } = useI18n();
 const pageInfo = ref({
@@ -178,10 +146,30 @@ const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
 );
 
+const { getConfig } = useMeta();
+
+const pageInfo = ref({
+  totalCount: 0,
+  pageIndex: 1,
+  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
+});
+
+const pricingPageInfo = ref({
+  totalCount: 0,
+  pageIndex: 1,
+  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
+});
+
+// -------------------------------------------------------------------------------------------------
+// Function & Event
+// -------------------------------------------------------------------------------------------------
+const grdMainRefPayment = ref(getComponentType('KwGrid'));
+const grdPricingRef = ref(getComponentType('KwGrid'));
+
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
-const initGrdMain = defineGrid((data, view) => {
+const initGrdPayment = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'col1' },
     { fieldName: 'col2' },
@@ -250,7 +238,7 @@ const initGrdMain = defineGrid((data, view) => {
   ]);
 });
 
-const initPricingGrid = defineGrid((data, view) => {
+const initGrdPricing = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'col1' },
     { fieldName: 'col2' },

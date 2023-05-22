@@ -26,6 +26,7 @@
           <kw-select
             v-model="searchParams.sellTpCd"
             :options="codes.SELL_TP_CD"
+            first-option="all"
           />
         </kw-search-item>
         <!-- 변수명 -->
@@ -228,14 +229,14 @@ const initGrdMain = defineGrid((data, view) => {
     // 변수ID
     { fieldName: 'rgltnVarbId',
       header: t('MSG_TXT_VAL_ID'),
-      width: '86',
+      width: '126',
       styleName: 'text-center',
-      editor: { maxLength: 15 },
+      editor: { maxLength: 15, inputCharacters: 'A-Za-z0-9' },
       rules: 'required' },
     // 변수명
     { fieldName: 'rgltnVarbNm',
       header: t('MSG_TXT_VARB_NM'),
-      width: '182',
+      width: '162',
       editable: false,
       styleName: 'text-left',
       displayCallback(grid, index) {

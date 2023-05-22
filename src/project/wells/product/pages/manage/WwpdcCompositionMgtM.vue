@@ -15,141 +15,133 @@
 --->
 <template>
   <kw-page>
-    <div class="normal-area normal-area--button-set-bottom">
-      <kw-stepper
-        v-model="currentStep.name"
-        heading-text
-        :header-nav="!isTempSaveBtn || passedStep > 0"
-        @update:model-value="onClickStep()"
-      >
-        <kw-step
-          :header-nav="!isTempSaveBtn || passedStep >= pdConst.COMPOSITION_STEP_BASIC.step"
-          :name="pdConst.COMPOSITION_STEP_BASIC.name"
-          :title="$t('MSG_TXT_BAS_ATTR_REG')"
-          :prefix="pdConst.COMPOSITION_STEP_BASIC.step"
-          :done="currentStep.step > pdConst.COMPOSITION_STEP_BASIC.step"
-        />
-        <kw-step
-          :header-nav="!isTempSaveBtn || passedStep >= pdConst.COMPOSITION_STEP_REL_PROD.step"
-          :name="pdConst.COMPOSITION_STEP_REL_PROD.name"
-          :title="$t('MSG_TXT_REL_PRDT_SEL')"
-          :prefix="pdConst.COMPOSITION_STEP_REL_PROD.step"
-          :done="currentStep.step > pdConst.COMPOSITION_STEP_REL_PROD.step"
-        />
-        <kw-step
-          :header-nav="!isTempSaveBtn || passedStep >= pdConst.COMPOSITION_STEP_MANAGE.step"
-          :name="pdConst.COMPOSITION_STEP_MANAGE.name"
-          :title="$t('MSG_TXT_MGT_ATTR_REG')"
-          :prefix="pdConst.COMPOSITION_STEP_MANAGE.step"
-          :done="currentStep.step > pdConst.COMPOSITION_STEP_MANAGE.step"
-        />
-        <kw-step
-          :header-nav="!isTempSaveBtn || passedStep >= pdConst.COMPOSITION_STEP_PRICE.step"
-          :name="pdConst.COMPOSITION_STEP_PRICE.name"
-          :title="$t('MSG_TXT_PRC_INFO_REG')"
-          :prefix="pdConst.COMPOSITION_STEP_PRICE.step"
-          :done="currentStep.step > pdConst.COMPOSITION_STEP_PRICE.step"
-        />
-        <kw-step
-          :header-nav="!isTempSaveBtn || passedStep >= pdConst.COMPOSITION_STEP_CHECK.step"
-          :name="pdConst.COMPOSITION_STEP_CHECK.name"
-          :title="$t('MSG_TXT_CHK_REG_INFO')"
-          :prefix="pdConst.COMPOSITION_STEP_CHECK.step"
-        />
-        <kw-step-panel :name="pdConst.COMPOSITION_STEP_BASIC.name">
-          <zwpdc-prop-groups-mgt
-            :ref="cmpStepRefs[0]"
-            v-model:pd-cd="currentPdCd"
-            v-model:init-data="prevStepData"
-            :pd-tp-cd="pdConst.PD_TP_CD_COMPOSITION"
-            :pd-grp-dv-cd="pdConst.PD_PRP_GRP_DV_CD_BASIC"
+    <kw-observer
+      ref="obsMainRef"
+      name="obsMain"
+    >
+      <div class="normal-area normal-area--button-set-bottom">
+        <kw-stepper
+          v-model="currentStep.name"
+          heading-text
+          :header-nav="!isTempSaveBtn || passedStep > 0"
+          @update:model-value="onClickStep()"
+        >
+          <kw-step
+            :header-nav="!isTempSaveBtn || passedStep >= pdConst.COMPOSITION_STEP_BASIC.step"
+            :name="pdConst.COMPOSITION_STEP_BASIC.name"
+            :title="$t('MSG_TXT_BAS_ATTR_REG')"
+            :prefix="pdConst.COMPOSITION_STEP_BASIC.step"
+            :done="currentStep.step > pdConst.COMPOSITION_STEP_BASIC.step"
+            :sub-text="subTitle"
           />
-        </kw-step-panel>
-        <kw-step-panel :name="pdConst.COMPOSITION_STEP_REL_PROD.name">
-          <wwpdc-composition-mgt-m-rel
-            :ref="cmpStepRefs[1]"
-            v-model:pd-cd="currentPdCd"
-            v-model:init-data="prevStepData"
-            :codes="codes"
+          <kw-step
+            :header-nav="!isTempSaveBtn || passedStep >= pdConst.COMPOSITION_STEP_REL_PROD.step"
+            :name="pdConst.COMPOSITION_STEP_REL_PROD.name"
+            :title="$t('MSG_TXT_REL_PRDT_SEL')"
+            :prefix="pdConst.COMPOSITION_STEP_REL_PROD.step"
+            :done="currentStep.step > pdConst.COMPOSITION_STEP_REL_PROD.step"
+            :sub-text="subTitle"
           />
-        </kw-step-panel>
-        <kw-step-panel :name="pdConst.COMPOSITION_STEP_MANAGE.name">
-          <zwpdc-prop-groups-mgt
-            :ref="cmpStepRefs[2]"
-            v-model:pd-cd="currentPdCd"
-            v-model:init-data="prevStepData"
-            :pd-tp-cd="pdConst.PD_TP_CD_COMPOSITION"
-            :pd-grp-dv-cd="pdConst.PD_PRP_GRP_DV_CD_MANUAL"
+          <kw-step
+            :header-nav="!isTempSaveBtn || passedStep >= pdConst.COMPOSITION_STEP_PRICE.step"
+            :name="pdConst.COMPOSITION_STEP_PRICE.name"
+            :title="$t('MSG_TXT_PRC_INFO_REG')"
+            :prefix="pdConst.COMPOSITION_STEP_PRICE.step"
+            :done="currentStep.step > pdConst.COMPOSITION_STEP_PRICE.step"
+            :sub-text="subTitle"
           />
-        </kw-step-panel>
-        <kw-step-panel :name="pdConst.COMPOSITION_STEP_PRICE.name">
-          <wwpdc-composition-mgt-m-price
-            :ref="cmpStepRefs[3]"
-            v-model:pd-cd="currentPdCd"
-            v-model:init-data="prevStepData"
-            :codes="codes"
+          <kw-step
+            :header-nav="!isTempSaveBtn || passedStep >= pdConst.COMPOSITION_STEP_CHECK.step"
+            :name="pdConst.COMPOSITION_STEP_CHECK.name"
+            :title="$t('MSG_TXT_CHK_REG_INFO')"
+            :prefix="pdConst.COMPOSITION_STEP_CHECK.step"
+            :sub-text="subTitle"
           />
-        </kw-step-panel>
-        <kw-step-panel :name="pdConst.COMPOSITION_STEP_CHECK.name">
-          <wwpdc-composition-dtl-m-contents
-            v-model:pd-cd="currentPdCd"
-            v-model:init-data="prevStepData"
-            :is-history-tab="false"
-            :is-update-btn="false"
-            :codes="codes"
-            is-reg-check-page
-          />
-        </kw-step-panel>
-      </kw-stepper>
-      <div class="button-set--bottom">
-        <div class="button-set--bottom-left">
-          <kw-btn
-            v-show="isTempSaveBtn && currentStep.step > 1"
-            :label="$t('MSG_BTN_PREV')"
-            class="ml8"
-            @click="onClickPrevStep"
-          />
-        </div>
-        <div class="button-set--bottom-right">
-          <kw-btn
-            v-show="!isCreate"
-            :label="$t('MSG_BTN_DEL')"
-            @click="onClickDelete"
-          />
-          <!-- <kw-btn
+          <kw-step-panel :name="pdConst.COMPOSITION_STEP_BASIC.name">
+            <zwpdc-prop-groups-mgt
+              :ref="cmpStepRefs[0]"
+              v-model:pd-cd="currentPdCd"
+              v-model:init-data="prevStepData"
+              :pd-tp-cd="pdConst.PD_TP_CD_COMPOSITION"
+            />
+          </kw-step-panel>
+          <kw-step-panel :name="pdConst.COMPOSITION_STEP_REL_PROD.name">
+            <wwpdc-composition-mgt-m-rel
+              :ref="cmpStepRefs[1]"
+              v-model:pd-cd="currentPdCd"
+              v-model:init-data="prevStepData"
+              :codes="codes"
+            />
+          </kw-step-panel>
+          <kw-step-panel :name="pdConst.COMPOSITION_STEP_PRICE.name">
+            <wwpdc-composition-mgt-m-price
+              :ref="cmpStepRefs[2]"
+              v-model:pd-cd="currentPdCd"
+              v-model:init-data="prevStepData"
+              :codes="codes"
+            />
+          </kw-step-panel>
+          <kw-step-panel :name="pdConst.COMPOSITION_STEP_CHECK.name">
+            <wwpdc-composition-dtl-m-contents
+              v-model:pd-cd="currentPdCd"
+              v-model:init-data="prevStepData"
+              :is-history-tab="false"
+              :is-update-btn="false"
+              :codes="codes"
+              is-reg-check-page
+            />
+          </kw-step-panel>
+        </kw-stepper>
+        <div class="button-set--bottom">
+          <div class="button-set--bottom-left">
+            <kw-btn
+              v-show="isTempSaveBtn && currentStep.step > 1"
+              :label="$t('MSG_BTN_PREV')"
+              class="ml8"
+              @click="onClickPrevStep"
+            />
+          </div>
+          <div class="button-set--bottom-right">
+            <kw-btn
+              v-show="!isCreate"
+              :label="$t('MSG_BTN_DEL')"
+              @click="onClickDelete"
+            />
+            <!-- <kw-btn
             v-show="currentStep.step === 1 && isCreate"
             :label="$t('MSG_BTN_INTL')"
             class="ml8"
             @click="onClickReset"
           /> -->
-          <kw-btn
-            :label="$t('MSG_BTN_CANCEL')"
-            class="ml8"
-            @click="onClickCancel()"
-          />
-          <kw-btn
-            v-if="currentStep.step < regSteps.length && isTempSaveBtn"
-            :label="$t('MSG_BTN_TMP_SAVE')"
-            class="ml8"
-            @click="onClickSave('Y')"
-          />
-          <kw-btn
-            v-show="isTempSaveBtn && currentStep.step < regSteps.length"
-            :label="$t('MSG_BTN_NEXT')"
-            class="ml8"
-            primary
-            @click="onClickNextStep"
-          />
-          <kw-btn
-            v-show="!isTempSaveBtn || currentStep.step === regSteps.length"
-            :label="$t('MSG_BTN_SAVE')"
-            class="ml8"
-            primary
-            @click="onClickSave('N')"
-          />
+            <kw-btn
+              :label="$t('MSG_BTN_CANCEL')"
+              class="ml8"
+              @click="onClickCancel()"
+            />
+            <kw-btn
+              v-if="currentStep.step < regSteps.length && isTempSaveBtn"
+              :label="$t('MSG_BTN_TMP_SAVE')"
+              class="ml8"
+              @click="onClickSave('Y')"
+            />
+            <kw-btn
+              v-show="isTempSaveBtn && currentStep.step < regSteps.length"
+              :label="$t('MSG_BTN_NEXT')"
+              class="ml8"
+              primary
+              @click="onClickNextStep"
+            />
+            <kw-btn
+              v-show="!isTempSaveBtn || currentStep.step === regSteps.length"
+              :label="$t('MSG_BTN_SAVE')"
+              class="ml8"
+              primary
+              @click="onClickSave('N')"
+            />
+          </div>
         </div>
       </div>
-    </div>
+    </kw-observer>
   </kw-page>
 </template>
 <script setup>
@@ -190,13 +182,15 @@ const prumd = pdConst.TBL_PD_DSC_PRUM_DTL;
 
 const isTempSaveBtn = ref(true);
 const regSteps = ref([pdConst.COMPOSITION_STEP_BASIC, pdConst.COMPOSITION_STEP_REL_PROD,
-  pdConst.COMPOSITION_STEP_MANAGE, pdConst.COMPOSITION_STEP_PRICE, pdConst.COMPOSITION_STEP_CHECK]);
+  pdConst.COMPOSITION_STEP_PRICE, pdConst.COMPOSITION_STEP_CHECK]);
 const currentStep = ref(cloneDeep(pdConst.COMPOSITION_STEP_BASIC));
 const passedStep = ref(0);
-const cmpStepRefs = ref([ref(), ref(), ref(), ref()]);
+const cmpStepRefs = ref([ref(), ref(), ref()]);
 const prevStepData = ref({});
 const currentPdCd = ref();
 const isCreate = ref(false);
+const obsMainRef = ref();
+const subTitle = ref();
 
 const codes = await codeUtil.getMultiCodes(
   'PD_TP_CD',
@@ -205,6 +199,7 @@ const codes = await codeUtil.getMultiCodes(
   'COD_YN',
   'COD_PAGE_SIZE_OPTIONS',
   'PD_REL_TP_CD',
+  'PD_TEMP_SAVE_CD',
 );
 
 async function getSaveData() {
@@ -217,16 +212,12 @@ async function getSaveData() {
       subList.pdCd = subList.pdCd ?? saveData.pdCd;
       subList.pdTpCd = subList.pdTpCd ?? saveData.pdTpCd;
       // 기본속성, 관리 속성 수정여부
-      if (await isModified && (idx === 0 || idx === 2)) {
-        if (idx === 0 && isModified) {
-          subList.isOnlyFileModified = await item.value.isOnlyFileModified();
-        } else if (idx === 2 && isModified) {
-          subList.isOnlyFileModified = false;
-        }
+      if (await isModified && idx === (pdConst.COMPOSITION_STEP_BASIC.step - 1)) {
+        subList.isOnlyFileModified = await item.value.isOnlyFileModified();
         subList.isModifiedProp = true;
       }
       // 가격 수정여부
-      if (await isModified && idx === 3) {
+      if (await isModified && idx === (pdConst.COMPOSITION_STEP_PRICE.step - 1)) {
         subList.isModifiedPrice = true;
       }
       if (saveData[bas]) {
@@ -280,12 +271,14 @@ async function getSaveData() {
     }
   }));
   // console.log('WwpdcCompositionMgtM - getSaveData - subList : ', subList);
+  subTitle.value = subList[bas].pdCd ? `${subList[bas].pdNm} (${subList[bas].pdCd})` : subList[bas].pdNm;
   return subList;
 }
 
 async function onClickDelete() {
   if (await confirm(t('MSG_ALT_WANT_DEL_WCC'))) {
     await dataService.delete(`/sms/wells/product/compositions/${currentPdCd.value}`);
+    await obsMainRef.value.reset();
     await router.close();
     await router.push({ path: '/product/zwpdc-sale-product-list', query: { searchYn: 'Y' } });
   }
@@ -344,7 +337,10 @@ async function onClickStep() {
 
 // 취소 버튼
 async function onClickCancel() {
-  await router.close();
+  if (await obsMainRef.value.confirmIfIsModified()) {
+    await obsMainRef.value.reset();
+    await router.close();
+  }
 }
 
 async function init() {
@@ -357,7 +353,7 @@ async function fetchProduct() {
   if (currentPdCd.value) {
     const initData = {};
     const res = await dataService.get(`/sms/wells/product/compositions/${currentPdCd.value}`);
-    // console.log('WwpdcCompositionMgtM - fetchProduct - res.data', res.data);
+    console.log('WwpdcCompositionMgtM - fetchProduct - res.data', res.data);
     initData[bas] = res.data[bas];
     initData[dtl] = res.data[dtl];
     initData[ecom] = res.data[ecom];
@@ -368,6 +364,7 @@ async function fetchProduct() {
     initData[pdConst.RELATION_PRODUCTS] = res.data[pdConst.RELATION_PRODUCTS];
     isTempSaveBtn.value = initData[bas].tempSaveYn === 'Y';
     prevStepData.value = initData;
+    subTitle.value = initData[bas].pdCd ? `${initData[bas].pdNm} (${initData[bas].pdCd})` : initData[bas].pdNm;
     await init();
   }
 }

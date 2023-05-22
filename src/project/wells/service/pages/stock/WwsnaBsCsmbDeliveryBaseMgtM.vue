@@ -282,7 +282,7 @@ const initGrdMain = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'csmbPdCd', header: t('MSG_TXT_ITM_CD'), width: '120', styleName: 'text-center' },
     { fieldName: 'itmKnm', header: t('MSG_TXT_ITM_NM'), width: '150', styleName: 'text-center' },
-    { fieldName: 'mngtUnitNm', header: t('MSG_TXT_STOC_UNIT_EA'), width: '100', styleName: 'text-center' },
+    { fieldName: 'mngtUnitNm', header: t('MSG_TXT_STOC_UNIT'), width: '100', styleName: 'text-center' },
     { fieldName: 'goDvNm', header: t('MSG_TXT_GO_DV'), width: '100', styleName: 'text-center' },
     { fieldName: 'goUprc', header: t('MSG_TXT_UPRC'), width: '100', styleName: 'text-center' },
     { fieldName: 'boxUnitQty', header: t('MSG_TXT_BOX_UNIT_QTY'), width: '100', styleName: 'text-center' },

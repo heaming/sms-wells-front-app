@@ -3,7 +3,7 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : PDY (기준정보관리)
-2. 프로그램 ID : WwpdyHealthAllianceListM - 헬스 제휴관리
+2. 프로그램 ID : WwpdyWellsAllianceListM - 헬스 제휴관리
                 ( W-PD-U-0023M01 )
 3. 작성자 : jintae.choi
 4. 작성일 : 2023.05.01
@@ -17,11 +17,12 @@
   <kw-page>
     <kw-search @search="onClickSearch">
       <kw-search-row>
-        <!-- 제휴코드 -->
-        <kw-search-item :label="$t('MSG_TXT_ALNC_CD')">
-          <kw-input
+        <!-- 제휴사 -->
+        <kw-search-item :label="$t('MSG_TXT_ALLIANCE_COMP')">
+          <kw-select
             v-model="searchParams.alncmpCd"
-            maxlength="3"
+            :options="codes.ALNCMP_CD"
+            first-option="all"
           />
         </kw-search-item>
         <!-- 판매유형 -->
@@ -29,6 +30,7 @@
           <kw-select
             v-model="searchParams.sellTpCd"
             :options="codes.SELL_TP_CD"
+            first-option="all"
           />
         </kw-search-item>
         <!-- 상품명 -->
@@ -151,9 +153,10 @@
 // -------------------------------------------------------------------------------------------------
 import { useDataService, useMeta, gridUtil, useGlobal, codeUtil, getComponentType, defineGrid } from 'kw-lib';
 import dayjs from 'dayjs';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, isEmpty } from 'lodash-es';
 import pdConst from '~sms-common/product/constants/pdConst';
 import ZwpdProductClassificationSelect from '~sms-common/product/pages/standard/components/ZwpdProductClassificationSelect.vue';
+import { setGridDateFromTo } from '~sms-common/product/utils/pdUtil';
 
 const { notify, modal } = useGlobal();
 const router = useRouter();
@@ -187,7 +190,7 @@ const pageInfo = ref({
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
 });
 
-const codes = await codeUtil.getMultiCodes('SELL_TP_CD', 'RENTAL_DSC_TP_CD', 'SELL_CHNL_DTL_CD', 'COD_PAGE_SIZE_OPTIONS');
+const codes = await codeUtil.getMultiCodes('ALNCMP_CD', 'SELL_TP_CD', 'RENTAL_DSC_TP_CD', 'OG_TP_CD', 'COD_PAGE_SIZE_OPTIONS');
 
 async function fetchData() {
   const res = await dataService.get('/sms/wells/product/alliances/paging', { params: { ...cachedParams, ...pageInfo.value } });
@@ -234,7 +237,7 @@ async function onClickRemoveRows() {
 async function onClickAdd() {
   const view = grdMainRef.value.getView();
   await gridUtil.insertRowAndFocus(view, 0, {
-    apyEnddt: '9999-12-31',
+    apyEnddt: '99991231',
   });
 }
 
@@ -269,14 +272,15 @@ onMounted(async () => {
 // -------------------------------------------------------------------------------------------------
 const initGrdMain = defineGrid((data, view) => {
   const columns = [
-    // 제휴코드
+    // 제휴사
     {
       fieldName: 'alncmpCd',
-      header: t('MSG_TXT_ALNC_CD'),
-      width: '110',
+      header: t('MSG_TXT_ALLIANCE_COMP'),
+      width: '150',
       styleName: 'text-center',
+      editor: { type: 'list' },
       rules: 'required',
-      editor: { maxLength: 3 },
+      options: codes.ALNCMP_CD,
     },
     // 판매유형
     {
@@ -308,13 +312,23 @@ const initGrdMain = defineGrid((data, view) => {
       editor: { maxLength: 100 },
       rules: 'required',
     },
-    // 서비스
+    // 서비스 코드
     { fieldName: 'svPdCd',
-      header: t('MSG_TXT_SERVICE'),
+      header: t('MSG_TXT_SVC_CODE'),
       width: '160',
       styleName: 'text-center',
-      editor: { maxLength: 100 },
+      editable: false,
+      rules: 'required',
+    },
+    // 서비스명
+    {
+      fieldName: 'svPdNm',
+      header: t('MSG_TXT_SVC_NAME'),
+      width: '207',
+      styleName: 'text-left',
       button: 'action',
+      editor: { maxLength: 100 },
+      rules: 'required',
     },
     // 할인유형
     {
@@ -352,14 +366,18 @@ const initGrdMain = defineGrid((data, view) => {
       dataType: 'date',
       styleName: 'text-center',
     },
-    // 판매채널
+    // 판매조직
     {
-      fieldName: 'sellChnlCds',
-      header: t('MSG_TXT_SEL_CHNL'),
+      fieldName: 'ogTpCd',
+      header: t('MSG_TXT_SELL_OG'),
       width: '110',
       styleName: 'text-center',
-      options: codes.SELL_CHNL_DTL_CD,
-      editable: false,
+      editor: { type: 'list' },
+      firstOption: 'empty',
+      firstOptionValue: '',
+      firstOptionLabel: '',
+      placeHolder: '',
+      options: codes.OG_TP_CD,
     },
     // 등록일
     { fieldName: 'fstRgstDtm', header: t('MSG_TXT_RGST_DT'), width: '100', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date', editable: false },
@@ -381,12 +399,24 @@ const initGrdMain = defineGrid((data, view) => {
   view.sortingOptions.enabled = false;
   view.filteringOptions.enabled = false;
 
+  view.onCellEdited = async (grid, itemIndex, row, fieldIndex) => {
+    // 날짜값 조정
+    await setGridDateFromTo(view, grid, itemIndex, fieldIndex, 'apyStrtdt', 'apyEnddt');
+    if (grid.getColumn(fieldIndex).fieldName === 'pdNm' && isEmpty(grid.getValue(itemIndex, 'pdNm'))) {
+      data.setValue(itemIndex, 'pdCd', null);
+    }
+    if (grid.getColumn(fieldIndex).fieldName === 'svPdNm' && isEmpty(grid.getValue(itemIndex, 'svPdNm'))) {
+      data.setValue(itemIndex, 'svPdCd', null);
+      data.setValue(itemIndex, 'svcDurtion', null);
+    }
+  };
+
   view.onCellButtonClicked = async (grid, { column, itemIndex }) => {
     if (column === 'pdNm') {
-      const svPdNm = grid.getValue(itemIndex, 'pdNm');
+      const pdNm = grid.getValue(itemIndex, 'pdNm');
       const { payload } = await modal({
-        component: 'ZwpdcServiceListP',
-        componentProps: { searchType: pdConst.PD_SEARCH_NAME, searchValue: svPdNm },
+        component: 'ZwpdcStandardListP',
+        componentProps: { searchType: pdConst.PD_SEARCH_NAME, searchValue: pdNm },
       });
       if (payload) {
         const row = Array.isArray(payload) ? payload[0] : payload;
@@ -394,15 +424,18 @@ const initGrdMain = defineGrid((data, view) => {
         data.setValue(itemIndex, 'pdCd', row.pdCd);
       }
     }
-    if (column === 'svPdCd') {
-      const svPdCd = grid.getValue(itemIndex, 'svPdCd');
+    if (column === 'svPdNm') {
+      const svPdNm = grid.getValue(itemIndex, 'svPdNm');
       const { payload } = await modal({
         component: 'ZwpdcServiceListP',
-        componentProps: { searchType: pdConst.PD_SEARCH_CODE, searchValue: svPdCd },
+        componentProps: { searchType: pdConst.PD_SEARCH_NAME, searchValue: svPdNm },
       });
       if (payload) {
         const row = Array.isArray(payload) ? payload[0] : payload;
+        console.log('row : ', row);
+        data.setValue(itemIndex, 'svPdNm', row.pdNm);
         data.setValue(itemIndex, 'svPdCd', row.pdCd);
+        data.setValue(itemIndex, 'svcDurtion', row.svcDurtion);
       }
     }
   };

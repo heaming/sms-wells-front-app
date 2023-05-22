@@ -40,11 +40,10 @@
               :label="$t('MSG_TXT_CNTR_DTL_NO')"
               required
             >
-              <kw-input
-                v-model="searchParams.cntrDtlNo"
+              <zctz-contract-detail-number
+                v-model:cntr-no="searchParams.cntrNo"
+                v-model:cntr-sn="searchParams.cntrSn"
                 :label="$t('MSG_TXT_CNTR_DTL_NO')"
-                icon="search"
-                clearable
                 rules="required"
               />
             </kw-search-item>
@@ -72,7 +71,7 @@
           </kw-action-top>
 
           <kw-form
-            v-show="isShow1"
+            v-show="isShowRental"
             :cols="4"
             align-content="left"
             dense
@@ -81,7 +80,7 @@
               <kw-form-item
                 :label="$t('MSG_TXT_TASK_DIV')"
               >
-                <p>{{ baseInformationRental.sellTpCd }}</p>
+                <p>{{ baseInformationRental.sellTpDtlCd }}</p>
               </kw-form-item>
               <kw-form-item
                 :label="$t('MSG_TXT_CNTR_DTL_NO')"
@@ -104,22 +103,22 @@
               <kw-form-item
                 :label="$t('MSG_TXT_EXN_TP')"
               >
-                <p>{{ baseInformationRental.col5 }}</p>
+                <p>{{ baseInformationRental.lcmgu2Nm }}</p>
               </kw-form-item>
               <kw-form-item
                 :label="$t('MSG_TXT_ALNC_DV')"
               >
-                <p>{{ baseInformationRental.col6 }}</p>
+                <p>{{ baseInformationRental.lcetc8Nm }}</p>
               </kw-form-item>
               <kw-form-item
                 :label="$t('MSG_TXT_ATT_RCPDT')"
               >
-                <p>{{ baseInformationRental.cntrRcpFshDtm }}</p>
+                <p>{{ stringUtil.getDateFormat(baseInformationRental.cntrDt) }}</p>
               </kw-form-item>
               <kw-form-item
                 :label="$t('MSG_TXT_SL_DT')"
               >
-                <p>{{ baseInformationRental.slDt }}</p>
+                <p>{{ stringUtil.getDateFormat(baseInformationRental.slRcogDt) }}</p>
               </kw-form-item>
             </kw-form-row>
 
@@ -127,66 +126,70 @@
               <kw-form-item
                 :label="$t('MSG_TXT_CANC_DT')"
               >
-                <p>{{ baseInformationRental.cntrCanDtm }}</p>
+                <p>{{ stringUtil.getDateFormat(baseInformationRental.canDt) }}</p>
               </kw-form-item>
               <kw-form-item
                 :label="$t('MSG_TXT_FSH_DT')"
               >
-                <p>{{ baseInformationRental.col10 }}</p>
+                <p>{{ stringUtil.getDateFormat(baseInformationRental.fshDt) }}</p>
               </kw-form-item>
               <kw-form-item
                 :label="$t('MSG_TXT_REDF_DT')"
               >
-                <p>{{ baseInformationRental.redfDt }}</p>
+                <p>{{ stringUtil.getDateFormat(baseInformationRental.redfDt) }}</p>
               </kw-form-item>
               <kw-form-item
                 :label="$t('MSG_TXT_ADSB_DT')"
               >
-                <p>{{ baseInformationRental.adsbDt }}</p>
+                <p>{{ stringUtil.getDateFormat(baseInformationRental.adsbDt) }}</p>
               </kw-form-item>
             </kw-form-row>
             <kw-form-row>
               <kw-form-item
                 :label="$t('MSG_TXT_PD_DC_CLASS')"
               >
-                <p>{{ baseInformationRental.dscTpCd }}</p>
+                <p>{{ baseInformationRental.lcgub3 }}</p>
               </kw-form-item>
               <kw-form-item
                 :label="$t('MSG_TXT_FNT_INF_D')"
               >
-                <p>{{ baseInformationRental.dpTpCd }}</p>
+                <p>{{ baseInformationRental.sellDscDvCd }}</p>
               </kw-form-item>
               <kw-form-item
                 :label="$t('MSG_TXT_RGST_CS_DSC')"
               >
-                <p>{{ baseInformationRental.rentalRgstCost }}</p>
+                <p>
+                  {{ baseInformationRental.rentalRgstCost }}
+                </p>
               </kw-form-item>
               <kw-form-item
                 :label="$t('MSG_TXT_RTLFE1_MCNT_WON')"
               >
-                <p>{{ baseInformationRental.rentalPtrm }}</p>
+                <p>
+                  {{ baseInformationRental.rentalPtrm }}
+                </p>
               </kw-form-item>
             </kw-form-row>
             <kw-form-row>
               <kw-form-item
                 :label="$t('MSG_TXT_SL_AGG_AMT')"
               >
-                <p>{{ baseInformationRental.slAggAmt }}</p>
+                <p>{{ stringUtil.getNumberWithComma(toInteger(baseInformationRental.slAggAmt)) }}</p>
               </kw-form-item>
               <kw-form-item
                 :label="$t('MSG_TXT_DSC_AGG_AMT')"
               >
-                <p>{{ baseInformationRental.col18 }}</p>
+                <p>{{ stringUtil.getNumberWithComma(toInteger(baseInformationRental.dscAggAmt)) }}</p>
               </kw-form-item>
               <kw-form-item
                 :label="$t('MSG_TXT_CTR_AGG_AMT')"
               >
-                <p>{{ baseInformationRental.col19 }}</p>
+                <p>{{ stringUtil.getNumberWithComma(toInteger(baseInformationRental.ctrAggAmt)) }}</p>
               </kw-form-item>
               <kw-form-item
                 :label="$t('MSG_TXT_DP_AGG_AMT')"
               >
-                <p>{{ baseInformationRental.slDpAggAmt }}</p>
+                <p>{{ stringUtil.getNumberWithComma(toInteger(baseInformationRental.slDpAggAmt)) }}</p>
               </kw-form-item>
             </kw-form-row>
 
@@ -194,40 +197,40 @@
               <kw-form-item
                 :label="$t('MSG_TXT_UC_AMT')"
               >
-                <p>{{ baseInformationRental.col21 }}</p>
+                <p>{{ stringUtil.getNumberWithComma(toInteger(baseInformationRental.thmUcBlam)) }}</p>
               </kw-form-item>
               <kw-form-item
                 :label="$t('MSG_TXT_DLQ_AMT')"
               >
-                <p>{{ baseInformationRental.thmOcDlqAmt }}</p>
+                <p>{{ stringUtil.getNumberWithComma(toInteger(baseInformationRental.thmOcDlqAmt)) }}</p>
               </kw-form-item>
               <kw-form-item
                 :label="$t('MSG_TXT_SL_STP')"
               >
-                <p>{{ baseInformationRental.col23 }}</p>
+                <p>{{ stringUtil.getNumberWithComma(toInteger(baseInformationRental.slStpAmt)) }}</p>
               </kw-form-item>
               <kw-form-item
                 :label="$t('MSG_TXT_ADD_AMT')"
               >
-                <p>{{ baseInformationRental.eotDlqAddAmt }}</p>
+                <p>{{ stringUtil.getNumberWithComma(toInteger(baseInformationRental.eotDlqAddAmt)) }}</p>
               </kw-form-item>
             </kw-form-row>
             <kw-form-row>
               <kw-form-item
                 :label="$t('MSG_TXT_DFA_AMT')"
               >
-                <p>{{ baseInformationRental.dfaAmt }}</p>
+                <p>{{ stringUtil.getNumberWithComma(toInteger(baseInformationRental.dfaProcsAmt)) }}</p>
               </kw-form-item>
               <kw-form-item
                 :label="$t('MSG_TXT_DFA_DP_AMT')"
               >
-                <p>{{ baseInformationRental.dfaDpAmt }}</p>
+                <p>{{ stringUtil.getNumberWithComma(toInteger(baseInformationRental.dfaAmt)) }}</p>
               </kw-form-item>
             </kw-form-row>
           </kw-form>
 
           <kw-form
-            v-show="isShow2"
+            v-show="isShowLease"
             :cols="4"
             align-content="left"
             dense
@@ -236,7 +239,166 @@
               <kw-form-item
                 :label="$t('MSG_TXT_TASK_DIV')"
               >
-                <p>{{ baseInformationMembership.sellTpCd }}</p>
+                <p>{{ baseInformationLease.sellTpDtlCd }}</p>
+              </kw-form-item>
+              <kw-form-item
+                :label="$t('MSG_TXT_CNTR_DTL_NO')"
+              >
+                <p>{{ baseInformationLease.cntrDtlNo }}</p>
+              </kw-form-item>
+              <kw-form-item
+                :label="$t('MSG_TXT_CST_NM')"
+              >
+                <p>{{ baseInformationLease.cstKnm }}</p>
+              </kw-form-item>
+              <kw-form-item
+                :label="$t('MSG_TXT_PD_INF')"
+              >
+                <p>{{ baseInformationLease.pdNm }}</p>
+              </kw-form-item>
+            </kw-form-row>
+
+            <kw-form-row>
+              <kw-form-item
+                :label="$t('MSG_TXT_EXN_TP')"
+              >
+                <p>{{ baseInformationLease.lcmgu2Nm }}</p>
+              </kw-form-item>
+              <kw-form-item
+                :label="$t('MSG_TXT_ALNC_DV')"
+              >
+                <p>{{ baseInformationLease.lcetc8Nm }}</p>
+              </kw-form-item>
+              <kw-form-item
+                :label="$t('MSG_TXT_ATT_RCPDT')"
+              >
+                <p>{{ stringUtil.getDateFormat(baseInformationLease.cntrDt) }}</p>
+              </kw-form-item>
+              <kw-form-item
+                :label="$t('MSG_TXT_SL_DT')"
+              >
+                <p>{{ stringUtil.getDateFormat(baseInformationLease.slRcogDt) }}</p>
+              </kw-form-item>
+            </kw-form-row>
+
+            <kw-form-row>
+              <kw-form-item
+                :label="$t('MSG_TXT_CANC_DT')"
+              >
+                <p>{{ stringUtil.getDateFormat(baseInformationLease.canDt) }}</p>
+              </kw-form-item>
+              <kw-form-item
+                :label="$t('MSG_TXT_FSH_DT')"
+              >
+                <p>{{ stringUtil.getDateFormat(baseInformationLease.fshDt) }}</p>
+              </kw-form-item>
+              <kw-form-item
+                :label="$t('MSG_TXT_REDF_DT')"
+              >
+                <p>{{ stringUtil.getDateFormat(baseInformationLease.redfDt) }}</p>
+              </kw-form-item>
+              <kw-form-item
+                :label="$t('MSG_TXT_ADSB_DT')"
+              >
+                <p>{{ stringUtil.getDateFormat(baseInformationLease.adsbDt) }}</p>
+              </kw-form-item>
+            </kw-form-row>
+            <kw-form-row>
+              <kw-form-item
+                :label="$t('MSG_TXT_PD_DC_CLASS')"
+              >
+                <p>{{ baseInformationLease.lcgub3 }}</p>
+              </kw-form-item>
+              <kw-form-item
+                :label="$t('MSG_TXT_FNT_INF_D')"
+              >
+                <p>{{ baseInformationLease.sellDscDvCd }}</p>
+              </kw-form-item>
+              <kw-form-item
+                :label="$t('MSG_TXT_RGST_CS_DSC')"
+              >
+                <p>
+                  {{ baseInformationLease.rentalRgstCost }}
+                </p>
+              </kw-form-item>
+              <kw-form-item
+                :label="$t('MSG_TXT_RTLFE1_MCNT_WON')"
+              >
+                <p>
+                  {{ baseInformationLease.rentalPtrm }}
+                </p>
+              </kw-form-item>
+            </kw-form-row>
+            <kw-form-row>
+              <kw-form-item
+                :label="$t('MSG_TXT_SL_AGG_AMT')"
+              >
+                <p>{{ baseInformationLease.slAggAmt }}</p>
+              </kw-form-item>
+              <kw-form-item
+                :label="$t('MSG_TXT_DSC_AGG_AMT')"
+              >
+                <p>{{ baseInformationLease.dscAggAmt }}</p>
+              </kw-form-item>
+              <kw-form-item
+                :label="$t('MSG_TXT_CTR_AGG_AMT')"
+              >
+                <p>{{ baseInformationLease.ctrAggAmt }}</p>
+              </kw-form-item>
+              <kw-form-item
+                :label="$t('MSG_TXT_DP_AGG_AMT')"
+              >
+                <p>{{ baseInformationLease.slDpAggAmt }}</p>
+              </kw-form-item>
+            </kw-form-row>
+
+            <kw-form-row>
+              <kw-form-item
+                :label="$t('MSG_TXT_UC_AMT')"
+              >
+                <p>{{ stringUtil.getNumberWithComma(toInteger(baseInformationLease.thmUcBlam)) }}</p>
+              </kw-form-item>
+              <kw-form-item
+                :label="$t('MSG_TXT_DLQ_AMT')"
+              >
+                <p>{{ stringUtil.getNumberWithComma(toInteger(baseInformationLease.thmOcDlqAmt)) }}</p>
+              </kw-form-item>
+              <kw-form-item
+                :label="$t('MSG_TXT_SL_STP')"
+              >
+                <p>{{ stringUtil.getNumberWithComma(toInteger(baseInformationLease.slStpAmt)) }}</p>
+              </kw-form-item>
+              <kw-form-item
+                :label="$t('MSG_TXT_ADD_AMT')"
+              >
+                <p>{{ stringUtil.getNumberWithComma(toInteger(baseInformationLease.eotDlqAddAmt)) }}</p>
+              </kw-form-item>
+            </kw-form-row>
+            <kw-form-row>
+              <kw-form-item
+                :label="$t('MSG_TXT_DFA_AMT')"
+              >
+                <p>{{ stringUtil.getNumberWithComma(toInteger(baseInformationLease.dfaProcsAmt)) }}</p>
+              </kw-form-item>
+              <kw-form-item
+                :label="$t('MSG_TXT_DFA_DP_AMT')"
+              >
+                <p>{{ stringUtil.getNumberWithComma(toInteger(baseInformationLease.dfaAmt)) }}</p>
+              </kw-form-item>
+            </kw-form-row>
+          </kw-form>
+
+          <kw-form
+            v-show="isShowMembership"
+            :cols="4"
+            align-content="left"
+            dense
+          >
+            <kw-form-row>
+              <kw-form-item
+                :label="$t('MSG_TXT_TASK_DIV')"
+              >
+                <p>{{ baseInformationMembership.sellTpDtlCd }}</p>
               </kw-form-item>
               <kw-form-item
                 :label="$t('MSG_TXT_CNTR_DTL_NO')"
@@ -259,22 +421,22 @@
               <kw-form-item
                 :label="$t('MSG_TXT_FNT_INF')"
               >
-                <p>{{ baseInformationMembership.dpTpCd }}</p>
+                <p>{{ baseInformationMembership.sellDscDvCd }}</p>
               </kw-form-item>
               <kw-form-item
                 :label="$t('MSG_TXT_CNTR_DATE')"
               >
-                <p>{{ baseInformationMembership.cntrDt }}</p>
+                <p>{{ stringUtil.getDateFormat(baseInformationMembership.cntrDt) }}</p>
               </kw-form-item>
               <kw-form-item
                 :label="$t('MSG_TXT_CNFM_DT')"
               >
-                <p>{{ baseInformationMembership.cntrCnfmDtm }}</p>
+                <p>{{ stringUtil.getDateFormat(baseInformationMembership.slRcogDt) }}</p>
               </kw-form-item>
               <kw-form-item
                 :label="$t('MSG_TXT_CANC_DT')"
               >
-                <p>{{ baseInformationMembership.cntrCanDtm }}</p>
+                <p>{{ stringUtil.getDateFormat(baseInformationMembership.canDt) }}</p>
               </kw-form-item>
             </kw-form-row>
 
@@ -282,22 +444,22 @@
               <kw-form-item
                 :label="$t('MSG_TXT_J_DT')"
               >
-                <p>{{ baseInformationMembership.col9 }}</p>
+                <p>{{ stringUtil.getDateFormat(baseInformationMembership.fshDt) }}</p>
               </kw-form-item>
               <kw-form-item
                 :label="$t('MSG_TXT_WDWAL_DT')"
               >
-                <p>{{ baseInformationMembership.col10 }}</p>
+                <p>{{ stringUtil.getDateFormat(baseInformationMembership.redfDt) }}</p>
               </kw-form-item>
               <kw-form-item
                 :label="$t('MSG_TXT_FSH_DT')"
               >
-                <p>{{ baseInformationMembership.col11 }}</p>
+                <p>{{ stringUtil.getDateFormat(baseInformationMembership.adsbDt) }}</p>
               </kw-form-item>
               <kw-form-item
                 :label="$t('MSG_TXT_MM_SSPCS')"
               >
-                <p>{{ baseInformationMembership.sellAmt }}</p>
+                <p>{{ baseInformationMembership.rentalRgstCost }}</p>
               </kw-form-item>
             </kw-form-row>
             <kw-form-row>
@@ -314,12 +476,12 @@
               <kw-form-item
                 :label="$t('MSG_TXT_DSC_AGG_AMT')"
               >
-                <p>{{ baseInformationMembership.col15 }}</p>
+                <p>{{ baseInformationMembership.dscAggAmt }}</p>
               </kw-form-item>
               <kw-form-item
                 :label="$t('MSG_TXT_CTR_AGG_AMT')"
               >
-                <p>{{ baseInformationMembership.col16 }}</p>
+                <p>{{ baseInformationMembership.ctrAggAmt }}</p>
               </kw-form-item>
             </kw-form-row>
             <kw-form-row>
@@ -341,7 +503,7 @@
               <kw-form-item
                 :label="$t('MSG_TXT_DFA_AMT')"
               >
-                <p>{{ baseInformationMembership.dfaAmt }}</p>
+                <p>{{ baseInformationMembership.dfaProcsAmt }}</p>
               </kw-form-item>
             </kw-form-row>
 
@@ -349,13 +511,13 @@
               <kw-form-item
                 :label="$t('MSG_TXT_DFA_DP_AMT')"
               >
-                <p>{{ baseInformationMembership.dfaDpAmt }}</p>
+                <p>{{ baseInformationMembership.dfaAmt }}</p>
               </kw-form-item>
             </kw-form-row>
           </kw-form>
 
           <kw-form
-            v-show="isShow3"
+            v-show="isShowRegular"
             :cols="4"
             align-content="left"
             dense
@@ -364,7 +526,7 @@
               <kw-form-item
                 :label="$t('MSG_TXT_TASK_DIV')"
               >
-                <p>{{ baseInformationRegular.sellTpCd }}</p>
+                <p>{{ baseInformationRegular.sellTpDtlCd }}</p>
               </kw-form-item>
               <kw-form-item
                 :label="$t('MSG_TXT_CNTR_DTL_NO')"
@@ -379,40 +541,40 @@
               <kw-form-item
                 :label="$t('MSG_TXT_RCPDT')"
               >
-                <p>{{ baseInformationRegular.cntrRcpFshDtm }}</p>
+                <p>{{ stringUtil.getDateFormat(baseInformationRegular.cntrDt) }}</p>
               </kw-form-item>
             </kw-form-row>
             <kw-form-row>
               <kw-form-item
                 :label="$t('MSG_TXT_SL_DT')"
               >
-                <p>{{ baseInformationRegular.slDt }}</p>
+                <p>{{ stringUtil.getDateFormat(baseInformationRegular.slRcogDt) }}</p>
               </kw-form-item>
               <kw-form-item
                 :label="$t('MSG_TXT_PKG_INF')"
               >
-                <p>{{ baseInformationRegular.col6 }}</p>
+                <p>{{ baseInformationRegular.pdNm }}</p>
               </kw-form-item>
               <kw-form-item
                 :label="$t('MSG_TXT_MCHN_INF')"
               >
-                <p>{{ baseInformationRegular.col7 }}</p>
+                <p>{{ baseInformationRegular.lcck04 }}</p>
               </kw-form-item>
               <kw-form-item
                 :label="$t('MSG_TXT_CANC_DT')"
               >
-                <p>{{ baseInformationRegular.col8 }}</p>
+                <p>{{ stringUtil.getDateFormat(baseInformationRegular.canDt) }}</p>
               </kw-form-item>
             </kw-form-row><kw-form-row>
               <kw-form-item
                 :label="$t('MSG_TXT_SPP_DT')"
               >
-                <p>{{ baseInformationRegular.sppDtm }}</p>
+                <p>{{ stringUtil.getDateFormat(baseInformationRegular.sppDtm) }}</p>
               </kw-form-item>
               <kw-form-item
                 :label="$t('MSG_TXT_FNT_INF')"
               >
-                <p>{{ baseInformationRegular.dpTpCd }}</p>
+                <p>{{ baseInformationRegular.sellDscDvCd }}</p>
               </kw-form-item>
               <kw-form-item
                 :label="$t('MSG_TXT_SL_AGG_AMT')"
@@ -422,13 +584,13 @@
               <kw-form-item
                 :label="$t('MSG_TXT_DSC_AGG_AMT')"
               >
-                <p>{{ baseInformationRegular.col12 }}</p>
+                <p>{{ baseInformationRegular.dscAggAmt }}</p>
               </kw-form-item>
             </kw-form-row><kw-form-row>
               <kw-form-item
                 :label="$t('MSG_TXT_CTR_AGG_AMT')"
               >
-                <p>{{ baseInformationRegular.col13 }}</p>
+                <p>{{ baseInformationRegular.ctrAggAmt }}</p>
               </kw-form-item>
               <kw-form-item
                 :label="$t('MSG_TXT_DP_AGG_AMT')"
@@ -443,7 +605,7 @@
               <kw-form-item
                 :label="$t('MSG_TXT_BIL_UC_AMT')"
               >
-                <p>{{ baseInformationRegular.col16 }}</p>
+                <p>{{ baseInformationRegular.eotUcAmt }}</p>
               </kw-form-item>
             </kw-form-row><kw-form-row>
               <kw-form-item
@@ -504,29 +666,37 @@
               :label="$t('MSG_BTN_DP_RFND_IZ_INQR')"
               primary
               dense
+              @click="onClickDpRfndIz"
             />
           </kw-action-top>
 
           <kw-grid
-            v-show="isShow1"
-            ref="grdMainRef1"
-            name="grdMain1"
+            v-show="isShowRental"
+            ref="grdRentalRef"
+            name="grdRental"
             :visible-rows="pageInfo.pageSize - 1"
-            @init="initGridMain1"
+            @init="initGrdRental"
           />
           <kw-grid
-            v-show="isShow2"
-            ref="grdMainRef2"
-            name="grdMain2"
+            v-show="isShowLease"
+            ref="grdLeaseRef"
+            name="grdLease"
             :visible-rows="pageInfo.pageSize - 1"
-            @init="initGridMain2"
+            @init="initGrdLease"
           />
           <kw-grid
-            v-show="isShow3"
-            ref="grdMainRef3"
-            name="grdMain3"
+            v-show="isShowMembership"
+            ref="grdMembershipRef"
+            name="grdMembership"
             :visible-rows="pageInfo.pageSize - 1"
-            @init="initGridMain3"
+            @init="initGrdMembership"
+          />
+          <kw-grid
+            v-show="isShowRegular"
+            ref="grdRegularRef"
+            name="grdRegular"
+            :visible-rows="pageInfo.pageSize - 1"
+            @init="initGrdRegular"
           />
         </div>
         <kw-pagination
@@ -548,9 +718,10 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, gridUtil, defineGrid, getComponentType, useDataService, useMeta, useGlobal } from 'kw-lib';
-import { cloneDeep } from 'lodash-es';
+import { codeUtil, gridUtil, defineGrid, getComponentType, useDataService, useMeta, useGlobal, stringUtil, notify } from 'kw-lib';
+import { cloneDeep, toInteger } from 'lodash-es';
 import dayjs from 'dayjs';
+import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
 import WwdcbSalesPerformanceListMSinglePayment from './WwdcbSalesPerformanceListMSinglePayment.vue';
 
 const selectedTab = ref('mainTab');
@@ -560,30 +731,35 @@ const { modal } = useGlobal();
 const { getConfig } = useMeta();
 const dataService = useDataService();
 const { currentRoute } = useRouter();
+const router = useRouter();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
-const grdMainRef1 = ref(getComponentType('KwGrid'));
-const grdMainRef2 = ref(getComponentType('KwGrid'));
-const grdMainRef3 = ref(getComponentType('KwGrid'));
+const grdRentalRef = ref(getComponentType('KwGrid'));
+const grdLeaseRef = ref(getComponentType('KwGrid'));
+const grdMembershipRef = ref(getComponentType('KwGrid'));
+const grdRegularRef = ref(getComponentType('KwGrid'));
 
-const isShow1 = ref(true);
-const isShow2 = ref(false);
-const isShow3 = ref(false);
+const isShowRental = ref(true);
+const isShowLease = ref(false);
+const isShowMembership = ref(false);
+const isShowRegular = ref(false);
 
 const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
 );
 
 const searchParams = ref({
-  cntrDtlNo: '',
+  cntrNo: '', // 계약번호
+  cntrSn: '', // 계약상세번호
   baseYearFrom: now.format('YYYY'),
   baseYearTo: now.format('YYYY'),
 });
 
 const baseInfo = ref({});
 const baseInformationRental = ref({});
+const baseInformationLease = ref({});
 const baseInformationMembership = ref({});
 const baseInformationRegular = ref({});
 
@@ -597,6 +773,11 @@ let cachedParams;
 async function fetchRentalData() {
   const res = await dataService.get('/sms/wells/closing/sales-performance/rental', { params: cachedParams });
   baseInformationRental.value = res.data;
+}
+
+async function fetchLeaseData() {
+  const res = await dataService.get('/sms/wells/closing/sales-performance/lease', { params: cachedParams });
+  baseInformationLease.value = res.data;
 }
 
 async function fetchMembershipData() {
@@ -616,7 +797,17 @@ async function fetchRentalListData() {
   console.log('list:', res.data);
   const { list: mainList, pageInfo: pagingResult } = res.data;
   pageInfo.value = pagingResult;
-  const view = grdMainRef1.value.getView();
+  const view = grdRentalRef.value.getView();
+  view.getDataSource().setRows(mainList);
+  view.resetCurrent();
+}
+
+async function fetchLeaseListData() {
+  const res = await dataService.get('/sms/wells/closing/sales-performance/lease/paging', { params: { ...cachedParams, ...pageInfo.value } });
+  console.log('list:', res.data);
+  const { list: mainList, pageInfo: pagingResult } = res.data;
+  pageInfo.value = pagingResult;
+  const view = grdLeaseRef.value.getView();
   view.getDataSource().setRows(mainList);
   view.resetCurrent();
 }
@@ -626,7 +817,7 @@ async function fetchMembershipListData() {
   console.log('list:', res.data);
   const { list: mainList, pageInfo: pagingResult } = res.data;
   pageInfo.value = pagingResult;
-  const view = grdMainRef2.value.getView();
+  const view = grdMembershipRef.value.getView();
   view.getDataSource().setRows(mainList);
   view.resetCurrent();
 }
@@ -636,7 +827,7 @@ async function fetchRegularListData() {
   console.log('list:', res.data);
   const { list: mainList, pageInfo: pagingResult } = res.data;
   pageInfo.value = pagingResult;
-  const view = grdMainRef3.value.getView();
+  const view = grdRegularRef.value.getView();
   view.getDataSource().setRows(mainList);
   view.resetCurrent();
 }
@@ -645,23 +836,33 @@ async function fetchBaseData() {
   const res = await dataService.get('/sms/wells/closing/sales-performance/base-information', { params: cachedParams });
   console.log('res.data:', res.data);
   baseInfo.value = res.data;
-  // console.log('baseInfo.sellTpCd:', baseInfo.value.sellTpCd);
-  if (baseInfo.value.sellTpCd === '2') { // 렌탈, 리스
-    isShow1.value = true;
-    isShow2.value = false;
-    isShow3.value = false;
+  console.log('baseInfo.value.sellTpDtlCd:', baseInfo.value.sellTpDtlCd);
+  if (baseInfo.value.sellTpDtlCd === '21' || baseInfo.value.sellTpDtlCd === '23') { // 렌탈
+    isShowRental.value = true;
+    isShowLease.value = false;
+    isShowMembership.value = false;
+    isShowRegular.value = false;
     await fetchRentalData();
     await fetchRentalListData();
-  } else if (baseInfo.value.sellTpCd === '3') { // 멤버십
-    isShow1.value = false;
-    isShow2.value = true;
-    isShow3.value = false;
+  } else if (baseInfo.value.sellTpDtlCd === '22' || baseInfo.value.sellTpDtlCd === '24' || baseInfo.value.sellTpDtlCd === '25' || baseInfo.value.sellTpDtlCd === '26') { // 리스
+    isShowRental.value = false;
+    isShowLease.value = true;
+    isShowMembership.value = false;
+    isShowRegular.value = false;
+    await fetchLeaseData();
+    await fetchLeaseListData();
+  } else if (baseInfo.value.sellTpDtlCd === '31' || baseInfo.value.sellTpDtlCd === '32' || baseInfo.value.sellTpDtlCd === '33') { // 멤버십
+    isShowRental.value = false;
+    isShowLease.value = false;
+    isShowMembership.value = true;
+    isShowRegular.value = false;
     await fetchMembershipData();
     await fetchMembershipListData();
-  } else if (baseInfo.value.sellTpCd === '6') { // 정기배송
-    isShow1.value = false;
-    isShow2.value = false;
-    isShow3.value = true;
+  } else if (baseInfo.value.sellTpDtlCd === '61' || baseInfo.value.sellTpDtlCd === '62' || baseInfo.value.sellTpDtlCd === '63') { // 정기배송
+    isShowRental.value = false;
+    isShowLease.value = false;
+    isShowMembership.value = false;
+    isShowRegular.value = true;
     await fetchRegularData();
     await fetchRegularListData();
   }
@@ -674,24 +875,32 @@ async function onClickSearch() {
 
 async function onClickExportView() {
   console.log('baseInfo.value.sellTpCd:', baseInfo.value.sellTpCd);
-  if (baseInfo.value.sellTpCd === '2') {
-    const view = grdMainRef1.value.getView();
+  if (baseInfo.value.sellTpDtlCd === '21' || baseInfo.value.sellTpDtlCd === '23') { // 렌탈
+    const view = grdRentalRef.value.getView();
     const response = await dataService.get('/sms/wells/closing/sales-performance/rental/excel-download', { params: cachedParams });
     await gridUtil.exportView(view, {
       fileName: currentRoute.value.meta.menuName,
       timePostfix: true,
       exportData: response.data,
     });
-  } else if (baseInfo.value.sellTpCd === '3') {
-    const view = grdMainRef2.value.getView();
+  } else if (baseInfo.value.sellTpDtlCd === '22' || baseInfo.value.sellTpDtlCd === '24' || baseInfo.value.sellTpDtlCd === '25' || baseInfo.value.sellTpDtlCd === '26') { // 리스
+    const view = grdLeaseRef.value.getView();
+    const response = await dataService.get('/sms/wells/closing/sales-performance/lease/excel-download', { params: cachedParams });
+    await gridUtil.exportView(view, {
+      fileName: currentRoute.value.meta.menuName,
+      timePostfix: true,
+      exportData: response.data,
+    });
+  } else if (baseInfo.value.sellTpDtlCd === '31' || baseInfo.value.sellTpDtlCd === '32' || baseInfo.value.sellTpDtlCd === '33') { // 멤버십
+    const view = grdMembershipRef.value.getView();
     const response = await dataService.get('/sms/wells/closing/sales-performance/membership/excel-download', { params: cachedParams });
     await gridUtil.exportView(view, {
       fileName: currentRoute.value.meta.menuName,
       timePostfix: true,
       exportData: response.data,
     });
-  } else if (baseInfo.value.sellTpCd === '6') {
-    const view = grdMainRef3.value.getView();
+  } else if (baseInfo.value.sellTpDtlCd === '61' || baseInfo.value.sellTpDtlCd === '62' || baseInfo.value.sellTpDtlCd === '63') { // 정기배송
+    const view = grdRegularRef.value.getView();
     const response = await dataService.get('/sms/wells/closing/sales-performance/regular/excel-download', { params: cachedParams });
     await gridUtil.exportView(view, {
       fileName: currentRoute.value.meta.menuName,
@@ -708,68 +917,97 @@ async function onClickCcamEt() {
 }
 
 async function onClickPrmEt() {
-  console.log('선납예상 팝업 추가');
-  // const cntrDtlNo = baseInformation.value.col2;
-  // await modal({
-  //  component: 'WwwdcPrepaymentEstimateAmountListP',
-  //  componentProps: { cntrDtlNo },
-  // });
+  // 선납예상 버튼
+  if (searchParams.value.cntrNo === '') {
+    // 검색버튼 클릭 후 버튼 클릭 바랍니다.
+    await notify(t('MSG_ALT_SRCH_AFTER_BTN_CLICK'));
+    return; // 계약상세번호 없을 시 false 반환
+  }
+  await modal({
+    component: 'WwdcPrepaymentEstimateAmountListP',
+    componentProps: {
+      cntrNo: searchParams.value.cntrNo,
+      cntrSn: searchParams.value.cntrSn,
+    },
+  });
 }
 
+// 통합입금대사현황(Z-WD-U-0051M01) 페이지 이동
+async function onClickDpRfndIz() {
+  await router.push({
+    path: '/withdrawal/zwwdb-integrate-deposit-compare',
+    query: {
+      cntrNo: searchParams.value.cntrNo,
+      cntrSn: searchParams.value.cntrSn,
+    },
+  });
+}
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
-const initGridMain1 = defineGrid((data, view) => {
+const initGrdRental = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '100', styleName: 'text-center' },
-    { fieldName: 'slDt', header: t('MSG_TXT_SL_YM'), styleName: 'rg-button-link text-center', renderer: { type: 'button' } },
-    { fieldName: 'cntrDtlStatCd', header: t('MSG_TXT_SL_STP'), width: '100', styleName: 'text-center' },
-    { fieldName: 'col4', header: t('MSG_TXT_NMN'), width: '100', styleName: 'text-center' },
-    { fieldName: 'col5', header: t('MSG_TXT_MNGT_DV'), width: '100', styleName: 'text-center' },
-    { fieldName: 'prmMcn', header: t('MSG_TXT_PRM_MCNT'), width: '100', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'thmSlSumAmt', header: t('MSG_TXT_BIL_AMT'), width: '100', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'col8', header: t('MSG_TXT_CCAM'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'col9', header: t('MSG_TXT_DP'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'eotAtam', header: t('MSG_TXT_PRPD_AMT'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'thmUcBlam', header: t('MSG_TXT_UC_AMT'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'thmOcDlqAmt', header: t('MSG_TXT_DLQ_AMT'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'dlqMcn', header: t('MSG_TXT_DLQ_MCNT'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'btdDlqAddAmt', header: t('MSG_TXT_OCCR_AMT'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'thmOcDlqAddAmt', header: t('MSG_TXT_DDCTAM'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'thmCtrDlqAddAmt', header: t('MSG_TXT_DP_AMT'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'thmDlqDpSumAmt', header: t('MSG_TXT_RFND_AMT'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'thmDlqRfndSumAmt', header: t('MSG_TXT_EOT_AMT'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'eotDlqAddAmt', header: t('MSG_TXT_SL_STP_AMT'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '150', styleName: 'text-center' },
+    { fieldName: 'slClYm',
+      header: t('MSG_TXT_SL_YM'),
+      styleName: 'rg-button-link text-center',
+      renderer: { type: 'button' },
+      displayCallback(grid, index, value) {
+        let tmp = '';
+        tmp += value.substr(0, 4);
+        tmp += '-';
+        tmp += value.substr(4, 2);
+
+        return tmp;
+      } },
+    { fieldName: 'slStpYn', header: t('MSG_TXT_SL_STP'), width: '100', styleName: 'text-center' },
+    { fieldName: 'rentalTn', header: t('MSG_TXT_RENTAL_NMN'), width: '100', styleName: 'text-center' },
+    { fieldName: 'prmMcn', header: t('MSG_TXT_PRM_MCNT'), width: '100', styleName: 'text-center' },
+    { fieldName: 'lcam16', header: t('MSG_TXT_RENTAL_SL'), width: '100', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'lcam4446', header: t('MSG_TXT_CCAM'), width: '100', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'lciamt', header: t('MSG_TXT_RENTAL_DP'), width: '100', styleName: 'rg-button-link text-right', renderer: { type: 'button' }, dataType: 'number', numberFormat: '#,###,###' },
+    { fieldName: 'lcam3t', header: t('MSG_TXT_PRPD_AMT'), width: '100', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'thmUcBlam', header: t('MSG_TXT_UC_AMT'), width: '100', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'thmOcDlqAmt', header: t('MSG_TXT_DLQ_AMT'), width: '100', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'dlqMcn', header: t('MSG_TXT_DLQ_MCN'), width: '100', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'btdDlqAddAmt', header: t('MSG_TXT_BTD_AMT'), width: '100', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'thmOcDlqAddAmt', header: t('MSG_TXT_OCCR_AMT'), width: '100', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'thmCtrDlqAddAmt', header: t('MSG_TXT_DDCTAM'), width: '100', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'thmDlqDpSumAmt', header: t('MSG_TXT_DP_AMT'), width: '100', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'thmDlqRfndSumAmt', header: t('MSG_TXT_RFND_AMT'), width: '100', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'eotDlqAddAmt', header: t('MSG_TXT_EOT_AMT'), width: '100', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'lcam96', header: t('MSG_TXT_SL_STP_AMT'), width: '100', styleName: 'text-right', dataType: 'number' },
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   data.setFields(fields);
   view.setColumns(columns);
 
-  view.onCellItemClicked = async (grid, { column }) => {
-    const current = view.getCurrent();
-    const dataProvider = view.getDataSource();
-    const slDt = dataProvider.getValue(current.dataRow, 'slDt');
-    if (column === 'slDt') {
-      if (baseInfo.value.sellTpCd === '2') { // 렌탈, 리스
-        await modal({
-          component: 'WwdcbRentalSalesDetailP', // TODOL 조건 추가하기(리스 : WwdcbLeaseSalesDetailP)
-          componentProps: { slDt },
-        });
-      }
+  view.onCellItemClicked = async (grid, { column, itemIndex }) => {
+    const { cntrDtlNo, slClYm } = grid.getValues(itemIndex);
+    if (column === 'slClYm') {
+      await modal({
+        component: 'WwdcbRentalSalesDetailP',
+        componentProps: { slClYm, cntrDtlNo },
+      });
+    }
+    if (column === 'lciamt') {
+      await modal({
+        component: 'ZwwdbDepositPerformanceIzListP',
+        componentProps: { cntrNo: 'W20207661745', perfDt: '20230220' },
+      });
     }
   };
 
   const layout1 = [
     'cntrDtlNo',
-    'slDt',
-    'cntrDtlStatCd',
-    'col4',
-    'col5',
+    'slClYm',
+    'slStpYn',
+    'rentalTn',
     'prmMcn',
-    'thmSlSumAmt',
-    'col8',
-    'col9',
-    'eotAtam',
+    'lcam16',
+    'lcam4446',
+    'lciamt',
+    'lcam3t',
     'thmUcBlam',
     'thmOcDlqAmt',
     'dlqMcn',
@@ -782,58 +1020,162 @@ const initGridMain1 = defineGrid((data, view) => {
         'thmCtrDlqAddAmt',
         'thmDlqDpSumAmt',
         'thmDlqRfndSumAmt',
+        'eotDlqAddAmt',
       ],
       header: {
-        text: t('MSG_TXT_ADD_AMT'),
+        text: t('MSG_TXT_ADD_AM'),
       },
     },
-    'eotDlqAddAmt',
+    'lcam96',
   ];
   view.setColumnLayout(layout1);
 
   view.rowIndicator.visible = true;
 });
 
-const initGridMain2 = defineGrid((data, view) => {
+const initGrdLease = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '100', styleName: 'text-center' },
-    { fieldName: 'slDt', header: t('MSG_TXT_SL_YM'), width: '100', styleName: 'rg-button-link text-center', renderer: { type: 'button' } },
-    { fieldName: 'col3', header: t('MSG_TXT_J_NMN'), width: '100', styleName: 'text-center' },
-    { fieldName: 'col4', header: t('MSG_TXT_MNGT_DV'), width: '100', styleName: 'text-center' },
-    { fieldName: 'thmSlSumAmt', header: t('MSG_TXT_MSH_SL'), width: '100', styleName: 'text-center' },
-    { fieldName: 'thmAtamDpAmt', header: t('MSG_TXT_MSH_DP'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'eotAtam', header: t('MSG_TXT_PRPD_AMT'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'thmOcDlqAmt', header: t('MSG_TXT_DLQ_AMT'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'btdDlqAddAmt', header: t('MSG_TXT_BTD_AMT'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'thmOcDlqAddAmt', header: t('MSG_TXT_OCCR_AMT'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'thmCtrDlqAddAmt', header: t('MSG_TXT_DDCTAM'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'thmDlqDpSumAmt', header: t('MSG_TXT_DP_AMT'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'thmDlqRfndSumAmt', header: t('MSG_TXT_RFND_AMT'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'eotDlqAddAmt', header: t('MSG_TXT_EOT_AMT'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '150', styleName: 'text-center' },
+    { fieldName: 'slClYm',
+      header: t('MSG_TXT_SL_YM'),
+      styleName: 'rg-button-link text-center',
+      renderer: { type: 'button' },
+      displayCallback(grid, index, value) {
+        let tmp = '';
+        tmp += value.substr(0, 4);
+        tmp += '-';
+        tmp += value.substr(4, 2);
+
+        return tmp;
+      } },
+    { fieldName: 'slStpYn', header: t('MSG_TXT_SL_STP'), width: '100', styleName: 'text-center' },
+    { fieldName: 'rentalTn', header: t('MSG_TXT_RENTAL_NMN'), width: '100', styleName: 'text-center' },
+    { fieldName: 'prmMcn', header: t('MSG_TXT_PRM_MCNT'), width: '100', styleName: 'text-center' },
+    { fieldName: 'lcam16', header: t('MSG_TXT_RENTAL_SL'), width: '100', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'lcam4446', header: t('MSG_TXT_CCAM'), width: '100', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'lciamt', header: t('MSG_TXT_RENTAL_DP'), width: '100', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'lcam3t', header: t('MSG_TXT_PRPD_AMT'), width: '100', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'thmUcBlam', header: t('MSG_TXT_UC_AMT'), width: '100', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'thmOcDlqAmt', header: t('MSG_TXT_DLQ_AMT'), width: '100', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'dlqMcn', header: t('MSG_TXT_DLQ_MCN'), width: '100', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'btdDlqAddAmt', header: t('MSG_TXT_BTD_AMT'), width: '100', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'thmOcDlqAddAmt', header: t('MSG_TXT_OCCR_AMT'), width: '100', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'thmCtrDlqAddAmt', header: t('MSG_TXT_DDCTAM'), width: '100', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'thmDlqDpSumAmt', header: t('MSG_TXT_DP_AMT'), width: '100', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'thmDlqRfndSumAmt', header: t('MSG_TXT_RFND_AMT'), width: '100', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'eotDlqAddAmt', header: t('MSG_TXT_EOT_AMT'), width: '100', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'lcam96', header: t('MSG_TXT_SL_STP_AMT'), width: '100', styleName: 'text-right', dataType: 'number' },
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   data.setFields(fields);
   view.setColumns(columns);
 
-  view.onCellItemClicked = async (grid, { column }) => {
-    const current = view.getCurrent();
-    const dataProvider = view.getDataSource();
-    const slDt = dataProvider.getValue(current.dataRow, 'slDt');
-    if (column === 'slDt') {
+  view.onCellItemClicked = async (grid, { column, itemIndex }) => {
+    const { cntrDtlNo, slClYm } = grid.getValues(itemIndex);
+    if (column === 'slClYm') {
       await modal({
-        component: 'WwdcbMembershipSalesDetailP',
-        componentProps: { slDt },
+        component: 'WwdcbLeaseSalesDetailP',
+        componentProps: { slClYm, cntrDtlNo },
+      });
+    }
+    if (column === 'lciamt') {
+      await modal({
+        component: 'ZwwdbDepositPerformanceIzListP',
+        componentProps: { cntrNo: 'W20207661745', perfDt: '20230220' },
       });
     }
   };
 
   const layout1 = [
     'cntrDtlNo',
-    'slDt',
-    'col3',
-    'col4',
+    'slClYm',
+    'slStpYn',
+    'rentalTn',
+    'prmMcn',
+    'lcam16',
+    'lcam4446',
+    'lciamt',
+    'lcam3t',
+    'thmUcBlam',
+    'thmOcDlqAmt',
+    'dlqMcn',
+    {
+      name: 'normalGroup',
+      direction: 'horizontal',
+      items: [
+        'btdDlqAddAmt',
+        'thmOcDlqAddAmt',
+        'thmCtrDlqAddAmt',
+        'thmDlqDpSumAmt',
+        'thmDlqRfndSumAmt',
+        'eotDlqAddAmt',
+      ],
+      header: {
+        text: t('MSG_TXT_ADD_AM'),
+      },
+    },
+    'lcam96',
+  ];
+  view.setColumnLayout(layout1);
+
+  view.rowIndicator.visible = true;
+});
+
+const initGrdMembership = defineGrid((data, view) => {
+  const columns = [
+    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '150', styleName: 'text-center' },
+    { fieldName: 'slClYm',
+      header: t('MSG_TXT_SL_YM'),
+      styleName: 'rg-button-link text-center',
+      renderer: { type: 'button' },
+      displayCallback(grid, index, value) {
+        let tmp = '';
+        tmp += value.substr(0, 4);
+        tmp += '-';
+        tmp += value.substr(4, 2);
+
+        return tmp;
+      } },
+    { fieldName: 'rentalTn', header: t('MSG_TXT_J_NMN'), width: '100', styleName: 'text-center' },
+    { fieldName: 'lcmgub', header: t('MSG_TXT_MNGT_DV'), width: '100', styleName: 'text-center' },
+    { fieldName: 'thmSlSumAmt', header: t('MSG_TXT_MSH_SL'), width: '100', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'lciamt', header: t('MSG_TXT_MSH_DP'), width: '100', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'eotAtam', header: t('MSG_TXT_PRPD_AMT'), width: '100', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'thmOcDlqAmt', header: t('MSG_TXT_DLQ_AMT'), width: '100', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'btdDlqAddAmt', header: t('MSG_TXT_BTD_AMT'), width: '100', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'thmOcDlqAddAmt', header: t('MSG_TXT_OCCR_AMT'), width: '100', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'thmCtrDlqAddAmt', header: t('MSG_TXT_DDCTAM'), width: '100', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'thmDlqDpSumAmt', header: t('MSG_TXT_DP_AMT'), width: '100', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'thmDlqRfndSumAmt', header: t('MSG_TXT_RFND_AMT'), width: '100', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'eotDlqAddAmt', header: t('MSG_TXT_EOT_AMT'), width: '100', styleName: 'text-right', dataType: 'number' },
+  ];
+  const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
+  data.setFields(fields);
+  view.setColumns(columns);
+
+  view.onCellItemClicked = async (grid, { column, itemIndex }) => {
+    const { cntrDtlNo, slClYm } = grid.getValues(itemIndex);
+    if (column === 'slClYm') {
+      await modal({
+        component: 'WwdcbMembershipSalesDetailP',
+        componentProps: { slClYm, cntrDtlNo },
+      });
+    }
+    if (column === 'lciamt') {
+      await modal({
+        component: 'ZwwdbDepositPerformanceIzListP',
+        componentProps: { cntrNo: 'W20207661745', perfDt: '20230220' },
+      });
+    }
+  };
+
+  const layout1 = [
+    'cntrDtlNo',
+    'slClYm',
+    'rentalTn',
+    'lcmgub',
     'thmSlSumAmt',
-    'thmAtamDpAmt',
+    'lciamt',
     'eotAtam',
     'thmOcDlqAmt',
     {
@@ -857,31 +1199,46 @@ const initGridMain2 = defineGrid((data, view) => {
   view.rowIndicator.visible = true;
 });
 
-const initGridMain3 = defineGrid((data, view) => {
+const initGrdRegular = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '100', styleName: 'text-center' },
-    { fieldName: 'col2', header: t('MSG_TXT_PRGS_NMN'), width: '100', styleName: 'text-center' },
-    { fieldName: 'slDt', header: t('MSG_TXT_SL_YM'), width: '100', styleName: 'rg-button-link text-center', renderer: { type: 'button' } },
-    { fieldName: 'col4', header: t('MSG_TXT_SL_STP'), width: '100', styleName: 'text-center' },
-    { fieldName: 'thmSlSumAmt', header: t('MSG_TXT_SL_AMT'), width: '100', styleName: 'text-center' },
-    { fieldName: 'thmAtamDpAmt', header: t('MSG_TXT_DP_AMT'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'eotAtam', header: t('MSG_TXT_PRPD_AMT'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'thmUcBlam', header: t('MSG_TXT_UC_AMT'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'col8', header: t('MSG_TXT_BIL_UC'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'thmOcDlqAmt', header: t('MSG_TXT_DLQ_AMT'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'slClYm',
+      header: t('MSG_TXT_SL_YM'),
+      styleName: 'rg-button-link text-center',
+      renderer: { type: 'button' },
+      displayCallback(grid, index, value) {
+        let tmp = '';
+        tmp += value.substr(0, 4);
+        tmp += '-';
+        tmp += value.substr(4, 2);
+
+        return tmp;
+      } },
+    { fieldName: 'rentalTn', header: t('MSG_TXT_PRGS_NMN'), width: '100', styleName: 'text-center' },
+    { fieldName: 'slStpYn', header: t('MSG_TXT_SL_YM'), width: '100', styleName: 'rg-button-link text-center', renderer: { type: 'button' } },
+    { fieldName: 'thmSlSumAmt', header: t('MSG_TXT_SL_AMT'), width: '100', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'thmAtamDpAmt', header: t('MSG_TXT_DP_AMT'), width: '100', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'eotAtam', header: t('MSG_TXT_PRPD_AMT'), width: '100', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'thmUcBlam', header: t('MSG_TXT_UC_AMT'), width: '100', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'thmOcDlqAmt', header: t('MSG_TXT_BIL_UC'), width: '100', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'eotDlqAmt', header: t('MSG_TXT_DLQ_AMT'), width: '100', styleName: 'text-right', dataType: 'number' },
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   data.setFields(fields);
   view.setColumns(columns);
 
-  view.onCellItemClicked = async (grid, { column }) => {
-    const current = view.getCurrent();
-    const dataProvider = view.getDataSource();
-    const slDt = dataProvider.getValue(current.dataRow, 'slDt');
-    if (column === 'slDt') {
+  view.onCellItemClicked = async (grid, { column, itemIndex }) => {
+    const { cntrDtlNo, slClYm } = grid.getValues(itemIndex);
+    if (column === 'slClYm') {
       await modal({
         component: 'WwdcbRegularShippingSalesDtlP',
-        componentProps: { slDt },
+        componentProps: { slClYm, cntrDtlNo },
+      });
+    }
+    if (column === 'thmAtamDpAmt') {
+      await modal({
+        component: 'ZwwdbDepositPerformanceIzListP',
+        componentProps: { cntrNo: 'W20207661745', perfDt: '20230220' },
       });
     }
   };

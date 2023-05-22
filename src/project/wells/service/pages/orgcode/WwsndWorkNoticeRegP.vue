@@ -265,8 +265,8 @@ async function onClickSave() {
   } else {
     await dataService.post('/sms/wells/service/work-notices', workNotice.value);
   }
-  await notify(t('MSG_ALT_SAVE_DATA'));
   ok();
+  await notify(t('MSG_ALT_SAVE_DATA'));
 }
 
 onMounted(async () => {

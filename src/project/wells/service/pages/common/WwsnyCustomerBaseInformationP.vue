@@ -162,7 +162,7 @@ const searchParams = ref({
   mpNo: '',
   bzrno: '',
   bcNo: '',
-  canCtIncYn: '',
+  canCtIncYn: '1',
 });
 
 const returnValues = ref({
@@ -194,12 +194,12 @@ const cntrDtlNoMask = computed(() => (searchParams.value.cntrDtlNo.length === 12
 let cachedParams;
 async function fetchData() {
   if (searchParams.value.cstNm === '' && searchParams.value.bzrno === '' && searchParams.value.bcNo === ''
-  && searchParams.value.mpNo === '' && searchParams.value.telNo === '') {
+  && searchParams.value.mpNo === '' && searchParams.value.telNo === '' && searchParams.value.cntrDtlNo === '') {
     notify(t('MSG_ALT_MNDT_IN_CNDT'));
     return;
   }
 
-  const res = await dataService.get('/sms/wells/service/customer-base-informations/paging', { params: { ...cachedParams, ...pageInfo.value } });
+  const res = await dataService.get('/sms/wells/service/customers/paging', { params: { ...cachedParams, ...pageInfo.value } });
   const { list: customerBases, pageInfo: pagingResult } = res.data;
 
   pageInfo.value = pagingResult;
@@ -214,9 +214,8 @@ async function fetchData() {
 }
 
 async function onClickSearch() {
-  console.log(searchParams.value);
   if (searchParams.value.cstNm === '' && searchParams.value.bzrno === '' && searchParams.value.bcNo === ''
-  && searchParams.value.mpNo === '' && searchParams.value.telNo === '') {
+  && searchParams.value.mpNo === '' && searchParams.value.telNo === '' && searchParams.value.cntrDtlNo === '') {
     notify(t('MSG_ALT_MNDT_IN_CNDT'));
     return;
   }
@@ -272,7 +271,7 @@ async function onClickSearch() {
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
 
-  const res = await dataService.get('/sms/wells/service/customer-base-informations', { params: { ...cachedParams } });
+  const res = await dataService.get('/sms/wells/service/customers', { params: { ...cachedParams } });
 
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
@@ -297,8 +296,8 @@ const initGrdMain = defineGrid(async (data, view) => {
     { fieldName: 'rnadr' },
     { fieldName: 'rdadr' },
     { fieldName: 'adrNm' },
-    { fieldName: 'ogCd' },
-    { fieldName: 'ogNm' },
+    { fieldName: 'bznsCnr' },
+    { fieldName: 'svCnr' },
     { fieldName: 'locaraTno' },
     { fieldName: 'exnoEncr' },
     { fieldName: 'idvTno' },
@@ -326,8 +325,8 @@ const initGrdMain = defineGrid(async (data, view) => {
     { fieldName: 'cstNm', header: t('MSG_TXT_CST_NM'), width: '100', styleName: 'text-center' },
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '200', styleName: 'text-left' },
     { fieldName: 'newAdrZip', header: t('MSG_TXT_ZIP'), width: '100', styleName: 'text-center' },
-    { fieldName: 'ogCd', header: t('MSG_TXT_BSNS_CNTR'), width: '100', styleName: 'text-center' },
-    { fieldName: 'ogNm', header: t('MSG_TXT_SV_CNR'), width: '100', styleName: 'text-center' },
+    { fieldName: 'bznsCnr', header: t('MSG_TXT_BSNS_CNTR'), width: '100', styleName: 'text-center' },
+    { fieldName: 'svCnr', header: t('MSG_TXT_SV_CNR'), width: '100', styleName: 'text-center' },
     { fieldName: 'adrNm', header: t('MSG_TXT_INST_ADDR'), width: '400', styleName: 'text-center' },
     {
       fieldName: 'mpNo',

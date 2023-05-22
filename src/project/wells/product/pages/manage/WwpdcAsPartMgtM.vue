@@ -36,6 +36,7 @@
               :name="regSteps[0].name"
               :title="$t('MSG_TXT_BAS_ATTR_REG')"
               :prefix="regSteps[0].step"
+              :sub-text="subTitle"
             />
             <!-- 2.등록정보 확인 -->
             <kw-step
@@ -43,6 +44,7 @@
               :name="regSteps[1].name"
               :title="$t('MSG_TXT_CHK_REG_INFO')"
               :prefix="regSteps[1].step"
+              :sub-text="subTitle"
             />
 
             <!-- 1. 기본속성 등록 -->
@@ -54,7 +56,7 @@
                 :pd-tp-cd="pdConst.PD_TP_CD_MATERIAL"
                 :pd-grp-dv-cd="pdConst.PD_PRP_GRP_DV_CD_BASIC"
                 :pd-tp-dtl-cd="pdTpDtlCd"
-                @popup-callback="popupCallback"
+                @open-popup="openPopup"
               />
             </kw-step-panel>
             <!-- 2.등록정보 확인 -->
@@ -168,7 +170,7 @@ const props = defineProps({
 
 const { t } = useI18n();
 const dataService = useDataService();
-const { confirm, notify } = useGlobal();
+const { confirm, notify, modal } = useGlobal();
 const router = useRouter();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -198,6 +200,7 @@ const isCreate = ref(false);
 const isShowInitBtn = ref(false);
 
 const selectedTab = ref('attribute');
+const subTitle = ref();
 
 watch(() => props.pdCd, (val) => { currentPdCd.value = val; });
 watch(() => props.tempSaveYn, (val) => { isTempSaveBtn.value = val !== 'Y'; });
@@ -239,6 +242,7 @@ async function getSaveData(tempSaveYn) {
     }
   }));
   subList[bas].tempSaveYn = tempSaveYn;
+  subTitle.value = subList[bas].pdCd ? `${subList[bas].pdNm} (${subList[bas].pdCd})` : subList[bas].pdNm;
   return subList;
 }
 
@@ -263,6 +267,7 @@ async function fetchData() {
     initData[ecom] = res.data[ecom];
     isTempSaveBtn.value = initData[bas].tempSaveYn === 'Y';
     prevStepData.value = initData;
+    subTitle.value = initData[bas].pdCd ? `${initData[bas].pdNm} (${initData[bas].pdCd})` : initData[bas].pdNm;
     await init();
   }
 }
@@ -397,6 +402,22 @@ async function popupCallback(payload) {
     prevStepData.value[bas].sapPlntCd = payload.sapPlntVal ?? '';
     prevStepData.value[bas].sapMatTpVal = payload.sapMatTpVal ?? '';
   }
+}
+
+async function openPopup(field) {
+  console.log('Open Popup : ', field.colNm, field.sourcInfCn);
+  const { payload } = await modal({
+    component: field.sourcInfCn,
+    componentProps: {
+      searchValue: field.initName,
+      searchType: pdConst.PD_SEARCH_PRODUCT,
+      selectType: pdConst.PD_SEARCH_SINGLE },
+  });
+  if (payload && payload.type !== 'click') {
+    field.initValue = payload.returnValue;
+    field.initName = payload.returnName;
+  }
+  await popupCallback(payload);
 }
 </script>
 <style lang="scss" scoped></style>

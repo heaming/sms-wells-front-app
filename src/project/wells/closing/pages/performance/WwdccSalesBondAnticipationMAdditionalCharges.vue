@@ -19,7 +19,7 @@
         :label="$t('MSG_TXT_BASE_YM')"
       >
         <kw-date-picker
-          v-model="searchParams.perfYm"
+          v-model="searchParams.slClYm"
           type="month"
           rules="date_range_months:1"
         />
@@ -28,29 +28,63 @@
         <kw-option-group
           v-model="searchParams.agrgDv"
           type="radio"
-          :options="selectAgrgDv.options"
+          :options="aggregateDivide.filter((v) => ['1', '2'].includes(v.codeId))"
           @change="onChangeAgrgDv"
         />
       </kw-search-item>
-      <kw-search-item :label="$t('MSG_TXT_TASK_DIV')">
+      <kw-search-item :label="$t('MSG_TXT_SEL_TYPE')">
         <kw-select
           v-model="searchParams.sellTpCd"
-          :options="codes.SELL_TP_CD"
+          :options="codes.SELL_TP_CD.filter((v) => ['2', '3', '6'].includes(v.codeId))"
+          @change="onChangeBusinessDivide"
+        />
+        <kw-select
+          v-if="searchParams.sellTpCd === '1'"
+          v-model="searchParams.sellTpDtlCd"
+          :options="codes.SELL_TP_DTL_CD.filter((v) => v.codeId === '11' || v.codeId === '12' || v.codeId === '13')"
+          first-option="all"
+          first-option-value="ALL"
+        />
+        <kw-select
+          v-if="searchParams.sellTpCd === '2'"
+          v-model="searchParams.sellTpDtlCd"
+          :options="codes.SELL_TP_DTL_CD.filter((v) => v.codeId === '21' || v.codeId === '22' || v.codeId === '23' ||
+            v.codeId === '24' || v.codeId === '25'|| v.codeId === '26')"
+          @change="onChangeSellTpDtlCd"
+        />
+        <kw-select
+          v-if="searchParams.sellTpCd === '3'"
+          v-model="searchParams.sellTpDtlCd"
+          :options="codes.SELL_TP_DTL_CD.filter((v) => v.codeId === '31' || v.codeId === '32'
+            || v.codeId === '33' || v.codeId === '34')"
+          first-option="all"
+          first-option-value="ALL"
+        />
+        <kw-select
+          v-if="searchParams.sellTpCd === '6'"
+          v-model="searchParams.sellTpDtlCd"
+          :options="codes.SELL_TP_DTL_CD.filter((v) => v.codeId === '61' || v.codeId === '62' || v.codeId === '63')"
+          first-option="all"
+          first-option-value="ALL"
         />
       </kw-search-item>
     </kw-search-row>
     <kw-search-row>
-      <kw-search-item :label="$t('MSG_TXT_SEL_TYPE')">
-        <kw-select
-          v-model="searchParams.sellTpDtlCd"
-          :options="codes.SELL_TP_DTL_CD"
-        />
-      </kw-search-item>
       <kw-search-item :label="$t('MSG_TXT_SEL_CHNL')">
         <kw-select
           v-model="searchParams.sellChnlDtlCd"
           :options="codes.SELL_CHNL_DTL_CD"
         />
+      </kw-search-item>
+      <kw-search-item :label="$t('MSG_TXT_SAP_PD_DV_CD_NM')">
+        <kw-select
+          v-model="searchParams.sapPdDvCd"
+          :options="sapPdDv"
+          option-value="codeId"
+          option-label="codeName"
+          first-option="all"
+          first-option-value="ALL"
+        /><!--SAP상품구분코드명-->
       </kw-search-item>
     </kw-search-row>
   </kw-search>
@@ -100,6 +134,7 @@
 import { codeUtil, getComponentType, defineGrid, gridUtil, useDataService } from 'kw-lib';
 import dayjs from 'dayjs';
 import { cloneDeep } from 'lodash-es';
+import { getAggregateDivide } from '~/modules/sms-common/closing/utils/clUtil';
 
 const { t } = useI18n();
 const dataService = useDataService();
@@ -107,14 +142,20 @@ const dataService = useDataService();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
+// 검색조건 - 판매채널
+const sapPdDv = (await dataService.get('/sms/wells/closing/performance/overdue-penalty/code'))
+  .data.map((v) => ({ codeId: v.sapPdDvCd, codeName: v.sapPdDvNm }));
+
+const aggregateDivide = await getAggregateDivide();
 const totalCount = ref(0);
 const grdTenRef = ref(getComponentType('KwGrid'));
 const searchParams = ref({
-  perfYm: dayjs().add(-1, 'M').format('YYYYMM'),
+  slClYm: dayjs().add(-1, 'M').format('YYYYMM'),
   agrgDv: '1', // 집계구분
-  sellTpCd: '1', // 업무구분
-  sellTpDtlCd: '', // 판매유형
-  sellChnlDtlCd: '1',
+  sellTpCd: '2', // 판매유형
+  sellTpDtlCd: '', // 판매유형 상세
+  sellChnlDtlCd: 'ALL', // 판매채널
+  sapPdDvCd: 'ALL', // SAP상품구분코드
 });
 
 const codes = await codeUtil.getMultiCodes(
@@ -133,7 +174,19 @@ async function onClickExcelDownload() {
 }
 
 async function fetchData() {
-  const res = await dataService.get('/sms/wells/closing/performance/delinquent-additional-charges', { params: cachedParams });
+  const { sellTpCd } = searchParams.value;
+  const { agrgDv } = searchParams.value;
+  const { sellTpDtlCd } = searchParams.value;
+
+  cachedParams.sellTpCd = sellTpCd;
+  cachedParams.sellTpDtlCd = sellTpDtlCd;
+  let res;
+  if (agrgDv === '1') {
+    res = await dataService.get('/sms/wells/closing/performance/delinquent-additional-charges/aggregate', { params: cachedParams });
+  } else {
+    res = await dataService.get('/sms/wells/closing/performance/delinquent-additional-charges/orderUnit', { params: cachedParams });
+  }
+
   const delinquentAdditionalCharges = res.data;
 
   totalCount.value = delinquentAdditionalCharges.length;
@@ -151,14 +204,18 @@ async function onChangeAgrgDv() {
   const { agrgDv } = searchParams.value;
   const view = grdTenRef.value.getView();
   if (agrgDv === '1') {
-    view.columnByName('cntrNo').visible = false;
-    view.columnByName('col4').visible = false;
+    view.columnByName('cntrSn').visible = false;
+    view.columnByName('cstKnm').visible = false;
+
     view.layoutByColumn('perfYm').summaryUserSpans = [{ colspan: 2 }];
   } else if (agrgDv === '2') {
-    view.columnByName('cntrNo').visible = true;
-    view.columnByName('col4').visible = true;
+    view.columnByName('cntrSn').visible = true;
+    view.columnByName('cstKnm').visible = true;
+
     view.layoutByColumn('perfYm').summaryUserSpans = [{ colspan: 4 }];
   }
+
+  onClickSearch();
 }
 
 async function onClickOpenReport() {
@@ -170,84 +227,79 @@ async function onClickOpenReport() {
 // -------------------------------------------------------------------------------------------------
 
 const initGrdTen = defineGrid((data, view) => {
-  const fields = [
-    { fieldName: 'perfYm' },
-    { fieldName: 'col2' },
-    { fieldName: 'cntrNo' },
-    { fieldName: 'col4' },
-    { fieldName: 'btdDlqAddAmt', dataType: 'number' },
-    { fieldName: 'col6' },
-    { fieldName: 'col7' },
-    { fieldName: 'thmOcDlqAddAmt', dataType: 'number' },
-    { fieldName: 'col9' },
-    { fieldName: 'col10' },
-    { fieldName: 'thmDlqRfndSumAmt', dataType: 'number' },
-    { fieldName: 'eotDlqAddAmt', dataType: 'number' },
-  ];
   const columns = [
     { fieldName: 'perfYm',
       header: t('MSG_TXT_PERF_YM'),
       width: '150',
-      styleName: 'text-left',
+      styleName: 'text-center',
       headerSummary: {
         text: t('MSG_TXT_SUM'),
         styleName: 'text-center',
       },
+      datetimeFormat: 'yyyy-MM',
     }, // 실적년월
-    { fieldName: 'col2', header: t('MSG_TXT_SEL_CHNL'), width: '130', styleName: 'text-left' }, // 판매채널
-    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '130', styleName: 'text-right' }, // 계약상세번호
-    { fieldName: 'col4', header: t('MSG_TXT_CST_NM'), width: '130', styleName: 'text-left' }, // 고객명
-    { fieldName: 'btdDlqAddAmt',
+    { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '130', styleName: 'text-left' }, // 판매유형
+    { fieldName: 'sellTpDtlCd', header: t('MSG_TXT_SELL_TP_DTL'), width: '130', styleName: 'text-left' }, // 판매유형상세
+    { fieldName: 'sapPdDvCd', header: t('MSG_TXT_SAP_PD_DV_CD_NM'), width: '130', styleName: 'text-left' }, // SAP상품구분코드명
+    { fieldName: 'cntrSn', header: t('MSG_TXT_CNTR_DTL_NO'), width: '130', styleName: 'text-left' }, // 계약상세번호
+    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '130', styleName: 'text-left' }, // 고객명
+    { fieldName: 'w1Am01',
       header: t('MSG_TXT_FTRM_CRDOVR'),
       width: '130',
       styleName: 'text-right',
+      dataType: 'number',
       headerSummary: {
         expression: 'sum',
       },
     }, // 전기이월
-    { fieldName: 'thmOcDlqAddAmt',
+    { fieldName: 'w1Am02',
       header: t('MSG_TXT_THM_OC'),
       width: '130',
       styleName: 'text-right',
+      dataType: 'number',
       headerSummary: {
         expression: 'sum',
       } }, // 당월발생
-    { fieldName: 'col9',
+    { fieldName: 'w1Am03',
       header: t('MSG_TXT_THM_DDTN'),
       width: '130',
       styleName: 'text-right',
+      dataType: 'number',
       headerSummary: {
         expression: 'sum',
       } }, // 당월공제
-    { fieldName: 'col10',
+    { fieldName: 'w1Am04',
       header: t('MSG_TXT_THM_DP'),
       width: '130',
       styleName: 'text-right',
+      dataType: 'number',
       headerSummary: {
         expression: 'sum',
       } }, // 당월입금
-    { fieldName: 'thmDlqRfndSumAmt',
+    { fieldName: 'w1Am05',
       header: t('MSG_TXT_THM_RFND'),
       width: '130',
       styleName: 'text-right',
       headerSummary: {
         expression: 'sum',
       } }, // 당월환불
-    { fieldName: 'eotDlqAddAmt',
+    { fieldName: 'w1Am06',
       header: t('MSG_TXT_EOT_BLAM'),
       width: '130',
       styleName: 'text-right',
+      dataType: 'number',
       headerSummary: {
         expression: 'sum',
       } }, // 기말잔액
   ];
 
+  const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   data.setFields(fields);
   view.setColumns(columns);
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
 
-  // view.layoutByColumn('perfYm').summaryUserSpans = [{ colspan: 4 }];
+  // view.layoutByColumn('slClYm').summaryUserSpans = [{ colspan: 4 }];
 
   view.setHeaderSummaries({
     visible: true,
@@ -259,13 +311,10 @@ const initGrdTen = defineGrid((data, view) => {
   });
 });
 
-const selectAgrgDv = { // 집계구분 - TODO.공통코드가 없는 관계로 임시로
-  options: [{ codeId: '1', codeName: '집계' }, { codeId: '2', codeName: '주문별' }],
-};
 onMounted(async () => {
   const view = grdTenRef.value.getView();
-  view.columnByName('cntrNo').visible = false;
-  view.columnByName('col4').visible = false;
+  view.columnByName('cntrSn').visible = false;
+  view.columnByName('cstKnm').visible = false;
   view.layoutByColumn('perfYm').summaryUserSpans = [{ colspan: 2 }];
 });
 </script>

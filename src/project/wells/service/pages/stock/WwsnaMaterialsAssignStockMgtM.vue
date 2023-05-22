@@ -19,9 +19,6 @@
       @search="onClickSearch"
       @reset="searchDefaultCondition"
     >
-      <!-- TODO: 초기화 버튼클릭시 기본조건 셋팅
-                 @reset="searchDefaultCondition" (공통기능으로 되지않음.)
-      -->
       <kw-search-row>
         <!-- 기준년월 -->
         <kw-search-item :label="$t('MSG_TXT_BASE_YM')">
@@ -115,7 +112,8 @@
       <kw-grid
         ref="grdMainRef"
         name="grdMain"
-        :visible-rows="pageInfo.pageSize"
+        :page-size="pageInfo.pageSize"
+        :total-count="pageInfo.totalCount"
         @init="initGrdMain"
       />
       <kw-pagination
@@ -154,6 +152,8 @@ const codes = await codeUtil.getMultiCodes(
 const wareDvCd = { WARE_DV_CD: [
   { codeId: '3', codeName: '영업센터' },
 ] };
+
+codes.WARE_DTL_DV_CD = codes.WARE_DTL_DV_CD.filter((v) => (Number(v.codeId) > 29 && Number(v.codeId) < 40));
 
 let cachedParams;
 
@@ -226,9 +226,13 @@ function searchDefaultCondition() {
   searchParams.value.wareDtlDvCd = '';
 }
 
-async function onCellClickedPrtnrNo() {
+async function onCellClickedPrtnrNo(_baseYm, _wareNo) {
   const { result: isChanged } = await modal({
     component: 'WwsnaWarehouseOrganizationRegP',
+    componentProps: {
+      apyYm: _baseYm,
+      wareNo: _wareNo,
+    },
   });
 
   if (isChanged) {
@@ -270,6 +274,8 @@ const initGrdMain = defineGrid((data, view) => {
   const gridField = columns.map((v) => ({ fieldName: v.fieldName }));
   const fields = [...gridField,
     { fieldName: 'ogTpCd' },
+    { fieldName: 'baseYm' },
+    { fieldName: 'wareNo' },
   ];
 
   data.setFields(fields);
@@ -278,23 +284,19 @@ const initGrdMain = defineGrid((data, view) => {
   view.rowIndicator.visible = true;
   view.header.minRowHeight = 47;
 
-  // view.onCellDblClicked = (e, v) => {
-  //   if (v.column === 'qomAsnApyYn') {
-  //     view.editOptions.editable = true;
-  //   } else {
-  //     view.editOptions.editable = false;
-  //   }
-  // };
+  view.onCellItemClicked = (grid, cell, target) => {
+    console.log(grid, cell, target);
+    if (cell.column === 'prtnrNo') {
+      const { baseYm, wareNo } = grid.getValues(grid.getCurrent().itemIndex);
+      onCellClickedPrtnrNo(baseYm, wareNo);
+    }
+  };
 
   view.onCellClicked = (e, v) => {
     if (v.column === 'qomAsnApyYn') {
       view.editOptions.editable = true;
     } else {
       view.editOptions.editable = false;
-    }
-
-    if (v.column === 'prtnrNo') {
-      onCellClickedPrtnrNo();
     }
   };
 

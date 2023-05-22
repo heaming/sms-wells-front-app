@@ -25,7 +25,7 @@
           <kw-select
             v-model="searchParams.schDv"
             :label="$t('MSG_TXT_DIV')"
-            :options="['매출', '접수', '예약', '수수료 실적 집계 대상']"
+            :options="customCodes.divCd"
             rules="required"
             @change="onChangeDv"
           />
@@ -38,7 +38,7 @@
           <kw-select
             v-model="searchParams.schPdctTp"
             :label="$t('MSG_TXT_PDCT_TP')"
-            :options="['전체', '환경가전', '환경가전외', '홈케어', '정기구매']"
+            :options="customCodes.pdctTpCd"
             rules="required"
           />
         </kw-search-item>
@@ -54,20 +54,74 @@
           />
         </kw-search-item>
       </kw-search-row>
-
-      <kw-search-row>
-        <kw-search-item
-          :label="$t('MSG_TXT_DT_OF_SALE')"
-          required
-        >
-          <kw-date-range-picker
-            v-model:from="searchParams.schSlDtStrt"
-            v-model:to="searchParams.schSlDtEnd"
+      <div
+        v-if="isSelect1Visile"
+      >
+        <kw-search-row>
+          <kw-search-item
             :label="$t('MSG_TXT_DT_OF_SALE')"
-            rules="date_range_required|date_range_months:1"
-          />
-        </kw-search-item>
-      </kw-search-row>
+            required
+          >
+            <kw-date-range-picker
+              v-model:from="searchParams.schSlDtStrt"
+              v-model:to="searchParams.schSlDtEnd"
+              :label="$t('MSG_TXT_DT_OF_SALE')"
+              rules="date_range_required|date_range_months:1"
+            />
+          </kw-search-item>
+        </kw-search-row>
+      </div>
+      <div
+        v-if="isSelect2Visile"
+      >
+        <kw-search-row>
+          <kw-search-item
+            :label="$t('MSG_TXT_RCPDT')"
+            required
+          >
+            <kw-date-range-picker
+              v-model:from="searchParams.schRcpDtStrt"
+              v-model:to="searchParams.schRcpDtEnd"
+              :label="$t('MSG_TXT_RCPDT')"
+              rules="date_range_required|date_range_months:1"
+            />
+          </kw-search-item>
+        </kw-search-row>
+      </div>
+      <div
+        v-if="isSelect3Visile"
+      >
+        <kw-search-row>
+          <kw-search-item
+            :label="$t('MSG_TXT_RSV_DATE')"
+            required
+          >
+            <kw-date-range-picker
+              v-model:from="searchParams.schRsvDtStrt"
+              v-model:to="searchParams.schRsvDtEnd"
+              :label="$t('MSG_TXT_RSV_DATE')"
+              rules="date_range_required|date_range_months:1"
+            />
+          </kw-search-item>
+        </kw-search-row>
+      </div>
+      <div
+        v-if="isSelect4Visile"
+      >
+        <kw-search-row>
+          <kw-search-item
+            :label="$t('MSG_TXT_PERF_YM')"
+            required
+          >
+            <kw-date-picker
+              v-model="searchParams.perfYm"
+              :label="$t('MSG_TXT_PERF_YM')"
+              type="month"
+              rules="required"
+            />
+          </kw-search-item>
+        </kw-search-row>
+      </div>
     </kw-search>
 
     <div class="result-area">
@@ -76,7 +130,7 @@
           <kw-paging-info
             :total-count="totalCount"
           />
-          <span class="ml8">({{ $t('MSG_TXT_UNIT') }}) : ({{ $t('MSG_TXT_CUR_WON') }})</span>
+          <span class="ml8">({{ $t('MSG_TXT_UNIT_COLON_WON') }})</span>
         </template>
 
         <kw-btn
@@ -107,14 +161,14 @@
       </kw-action-top>
 
       <kw-grid
-        v-if="isSelectVisile1"
+        v-if="isGrid1Visile"
         ref="grdMainRef"
         name="grd1Main"
         :visible-rows="10"
         @init="initGrd1Main"
       />
       <kw-grid
-        v-if="isSelectVisile2"
+        v-if="isGrid2Visile"
         ref="grdMainRef"
         name="grd2Main"
         :visible-rows="10"
@@ -135,8 +189,12 @@ import { cloneDeep } from 'lodash-es';
 
 const { modal } = useGlobal();
 const dataService = useDataService();
-const isSelectVisile1 = ref(true);
-const isSelectVisile2 = ref(false);
+const isSelect1Visile = ref(true);
+const isSelect2Visile = ref(false);
+const isSelect3Visile = ref(false);
+const isSelect4Visile = ref(false);
+const isGrid1Visile = ref(true);
+const isGrid2Visile = ref(false);
 const { t } = useI18n();
 const currentRoute = useRouter();
 // -------------------------------------------------------------------------------------------------
@@ -146,14 +204,23 @@ const currentRoute = useRouter();
 const now = dayjs();
 const grdMainRef = ref(getComponentType('KwGrid'));
 const totalCount = ref(0);
+const customCodes = {
+  divCd: [{ codeId: '01', codeName: '매출' }, { codeId: '02', codeName: '접수' }, { codeId: '03', codeName: '예약' }, { codeId: '04', codeName: '수수료 실적 집계 대상' }],
+  pdctTpCd: [{ codeId: '01', codeName: '전체' }, { codeId: '02', codeName: '환경가전' }, { codeId: '03', codeName: '환경가전외' }, { codeId: '04', codeName: '홈케어' }, { codeId: '05', codeName: '정기구매' }],
+};
 const searchParams = ref({
 
-  schDv: '매출',
-  schPdctTp: '전체',
+  schDv: '01',
+  schPdctTp: '01',
   schPdCdStrt: '',
   schPdCdEnd: '',
   schSlDtStrt: now.add(-1, 'month').startOf('month').format('YYYYMMDD'),
   schSlDtEnd: now.add(-1, 'month').endOf('month').format('YYYYMMDD'),
+  schRcpDtStrt: '',
+  schRcpDtEnd: '',
+  schRsvDtStrt: '',
+  schRsvDtEnd: '',
+  perfYm: '',
 });
 let cachedParams;
 
@@ -162,8 +229,8 @@ let cachedParams;
  */
 async function openFeePerfCrtPopup() {
   const param = {
-    perfYm: now.add(-1, 'month').format('YYYYMMDD'),
-    ogTp: 'P',
+    perfYm: now.add(-1, 'month').format('YYYYMM'),
+    ogTp: 'W01',
     dv: 'CR',
   };
   await modal({
@@ -177,8 +244,8 @@ async function openFeePerfCrtPopup() {
  */
 async function openFeePerfCnfmPopup() {
   const param = {
-    perfYm: now.add(-1, 'month').format('YYYYMMDD'),
-    ogTp: 'P',
+    perfYm: now.add(-1, 'month').format('YYYYMM'),
+    ogTp: 'W01',
     dv: 'CO',
   };
   await modal({
@@ -199,21 +266,45 @@ async function onClickExcelDownload() {
  *  Event - 조회조건 선택에 따른 검색조건 및 그리드 변경
  */
 
+async function chSelectOption(bl1, bl2, bl3, bl4, bl5, bl6, dt1, dt2, dt3, dt4, dt5, dt6, dt7) {
+  isSelect1Visile.value = bl1;
+  isSelect2Visile.value = bl2;
+  isSelect3Visile.value = bl3;
+  isSelect4Visile.value = bl4;
+  isGrid1Visile.value = bl5;
+  isGrid2Visile.value = bl6;
+  searchParams.value.schSlDtStrt = dt1;
+  searchParams.value.schSlDtEnd = dt2;
+  searchParams.value.schRcpDtStrt = dt3;
+  searchParams.value.schRcpDtEnd = dt4;
+  searchParams.value.schRsvDtStrt = dt5;
+  searchParams.value.schRsvDtEnd = dt6;
+  searchParams.value.perfYm = dt7;
+}
+
+/*
+ *  Event - 조회조건 선택에 따른 조건변경
+ */
+
 async function onChangeDv() {
   const { schDv } = searchParams.value;
-
-  if (schDv === '매출' || schDv === '접수' || schDv === '예약') {
-    isSelectVisile1.value = true;
-    isSelectVisile2.value = false;
-  } else if (schDv === '수수료 실적 집계 대상') {
-    isSelectVisile1.value = false;
-    isSelectVisile2.value = true;
+  const strtDt = now.add(-1, 'month').startOf('month').format('YYYYMMDD');
+  const endSt = now.add(-1, 'month').endOf('month').format('YYYYMMDD');
+  const baseYm = now.add(-1, 'month').format('YYYYMM');
+  if (schDv === '01') {
+    chSelectOption(true, false, false, false, true, false, strtDt, endSt, '', '', '', '', '');
+  } else if (schDv === '02') {
+    chSelectOption(false, true, false, false, true, false, '', '', strtDt, endSt, '', '', '');
+  } else if (schDv === '03') {
+    chSelectOption(false, false, true, false, true, false, '', '', '', '', strtDt, endSt, '');
+  } else if (schDv === '04') {
+    chSelectOption(false, false, false, true, false, true, '', '', '', '', '', '', baseYm);
   }
 }
 
 async function fetchData() {
   let uri = 's';
-  if (isSelectVisile2.value === true) {
+  if (isGrid2Visile.value === true) {
     uri = '-sell-fees';
   }
   const response = await dataService.get(`/sms/wells/fee/organization-netorders/plar${uri}`, { params: cachedParams });

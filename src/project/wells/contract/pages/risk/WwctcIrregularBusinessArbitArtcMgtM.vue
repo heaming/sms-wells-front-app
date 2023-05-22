@@ -252,6 +252,7 @@ async function onClickRemove() {
 
   if (deletedRows.length) {
     await dataService.delete('/sms/wells/contract/risk-audits/irregular-sales-actions/managerial-tasks', { data: deletedRows });
+    notify(t('MSG_ALT_DELETED'));
     await onClickSearch();
   }
 }
@@ -480,29 +481,45 @@ const initGrid = defineGrid((data, view) => {
       notify(t('MSG_ALT_ACCESS_WHEN_REG_MODE'));
       return;
     }
-    const { result, payload } = await modal({
+    const { payload } = await modal({
       component: 'ZwogzPartnerListP',
       componentProps: {
-        prtnrNo: searchParams.value.prtnrNo,
+        prtnrNo: g.getValues(itemIndex).dangOjPrtnrNo,
         ogTpCd: userInfo.ogTpCd,
       },
     });
-    data.setValue(updateRow, 'dangOjPrtnrNo', '');
-    if (result) {
+    if (!isEmpty(payload)) {
       data.setValue(updateRow, 'dangOjPrtnrNo', payload.prtnrNo);
       onGroupFind(itemIndex);
     }
   };
   view.onCellEdited = async function cellEdited(grid, itemIndex, dataRow, fieldIndex) {
     const columnName = grid.getColumn(fieldIndex).fieldName;
-    if (columnName === 'dangOjPrtnrNo' || columnName === 'dangOcStrtmm') {
-      const updateDateRow = view.getCurrent().dataRow;
-      const dateParam = grid.getValue(updateDateRow, 1);
-      if (isEmpty(dateParam)) {
-        grid.commit();
-        data.setValue(updateDateRow, 'dangOcStrtmm', now.format('YYYYMM'));
-      }
+    if (columnName === 'dangOcStrtmm') {
       onGroupFind(itemIndex);
+    }
+    if (columnName === 'dangOjPrtnrNo') {
+      const updateRow = view.getCurrent().dataRow;
+      if (!isEmpty(data.getValue(updateRow, 18))) {
+        notify(t('MSG_ALT_ACCESS_WHEN_REG_MODE'));
+        return;
+      }
+      const { payload } = await modal({
+        component: 'ZwogzPartnerListP',
+        componentProps: {
+          prtnrNo: grid.getValues(itemIndex).dangOjPrtnrNo,
+          ogTpCd: userInfo.ogTpCd,
+        },
+      });
+      if (!isEmpty(payload)) {
+        data.setValue(updateRow, 'dangOjPrtnrNo', payload.prtnrNo);
+        const dateParam = grid.getValue(updateRow, 1);
+        if (isEmpty(dateParam)) {
+          grid.commit();
+          data.setValue(updateRow, 'dangOcStrtmm', now.format('YYYYMM'));
+        }
+        onGroupFind(itemIndex);
+      }
     }
   };
 });

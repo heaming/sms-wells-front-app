@@ -42,6 +42,7 @@
       grid-action
       dense
       :label="$t('MSG_BTN_DEL')"
+      :disable="grdStandardRowCount === 0"
       @click="onClickStandardDelRows"
     />
   </kw-action-top>
@@ -73,7 +74,7 @@ const props = defineProps({
   readonly: { type: Boolean, default: false },
 });
 
-const { modal, notify } = useGlobal();
+const { alert, modal, notify } = useGlobal();
 const { t } = useI18n();
 
 // -------------------------------------------------------------------------------------------------
@@ -181,7 +182,20 @@ async function deleteCheckedRows(view) {
   await gridUtil.confirmDeleteCheckedRows(view);
 }
 
+async function isPriceData() {
+  const priceRows = currentInitData.value?.[pdConst.TBL_PD_PRC_FNL_DTL];
+  if (priceRows && priceRows.length) {
+    // 가격 정보가 입력되어 있어, 상품연결을 변경 할 수 없습니다.
+    await alert(t('MSG_ALT_HAS_PRC_DO_NOT'));
+    return true;
+  }
+  return false;
+}
+
 async function onClickStandardSchPopup() {
+  if (await isPriceData()) {
+    return;
+  }
   const view = grdStandardRef.value.getView();
   searchParams.value.searchType = standardSearchType.value;
   searchParams.value.searchValue = standardSearchValue.value;
@@ -194,6 +208,9 @@ async function onClickStandardSchPopup() {
 }
 
 async function onClickStandardDelRows() {
+  if (await isPriceData()) {
+    return;
+  }
   const view = grdStandardRef.value.getView();
   await deleteCheckedRows(view);
   grdStandardRowCount.value = getGridRowCount(view);
@@ -208,7 +225,7 @@ async function initGridRows() {
   if (standardView) {
     standardView.getDataSource().clearRows();
     standardView.getDataSource().setRows(products
-      .filter((item) => item[pdConst.PD_REL_TP_CD] === pdConst.PD_REL_TP_CD_P_TO_P));
+      .filter((item) => item[pdConst.PD_REL_TP_CD] === pdConst.PD_REL_TP_CD_C_TO_P));
     grdStandardRowCount.value = getGridRowCount(standardView);
   }
 }
@@ -238,17 +255,17 @@ async function initStandardGrid(data, view) {
   // console.log('props.codes?.SELL_CHNL_DV_CD : ', props.codes?.SELL_CHNL_DTL_CD);
   const columns = [
     // 상태
-    { fieldName: 'tempSaveYn', header: t('MSG_TXT_STT'), width: '135', styleName: 'text-center', options: props.codes?.PD_TEMP_SAVE_CD },
+    { fieldName: 'tempSaveYn', header: t('MSG_TXT_STT'), width: '105', styleName: 'text-center', options: props.codes?.PD_TEMP_SAVE_CD },
     // 기준상품 분류
-    { fieldName: 'pdClsfNm', header: t('MSG_TXT_PD_STD_TYPE'), width: '371' },
+    { fieldName: 'pdClsfNm', header: t('MSG_TXT_PD_STD_TYPE'), width: '271' },
     // 기준상품명
-    { fieldName: 'pdNm', header: t('MSG_TXT_PD_STD_NAME'), width: '306' },
+    { fieldName: 'pdNm', header: t('MSG_TXT_PD_STD_NAME'), width: '206' },
     // 기준상품코드
     { fieldName: 'pdCd', header: t('MSG_TXT_PD_STD_CODE'), width: '185', styleName: 'text-center' },
     // 판매유형
-    { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '187', styleName: 'text-center', options: props.codes?.SELL_TP_CD },
+    { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '157', styleName: 'text-center', options: props.codes?.SELL_TP_CD },
     // 판매채널
-    { fieldName: 'channelId', header: t('MSG_TXT_SEL_CHNL'), width: '187', styleName: 'text-center', options: props.codes?.SELL_CHNL_DTL_CD },
+    { fieldName: 'channelId', header: t('MSG_TXT_SEL_CHNL'), width: '157', options: props.codes?.SELL_CHNL_DTL_CD },
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   fields.push({ fieldName: pdConst.REL_PD_ID });

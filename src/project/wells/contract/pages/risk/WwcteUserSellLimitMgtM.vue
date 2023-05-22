@@ -52,6 +52,10 @@
         <kw-search-item :label="t('MSG_TXT_PRDT_NM')">
           <kw-input
             v-model="searchParams.productName"
+            clearable
+            icon="search"
+            dense
+            @click-icon="onClickSelectPdNm()"
           />
         </kw-search-item>
         <kw-search-item :label="t('MSG_TXT_SEL_TYPE')">
@@ -149,6 +153,7 @@ const dataService = useDataService();
 const codes = await codeUtil.getMultiCodes(
   'PRTNR_CHNL_DV_ACD',
   'COPN_DV_CD',
+  'COD_PAGE_SIZE_OPTIONS',
 );
 
 const searchParams = ref({
@@ -265,6 +270,24 @@ async function onClickSave() {
   notify(t('MSG_ALT_SAVE_DATA'));
   await onClickSearch();
 }
+
+// 상품명 검색아이콘 클릭
+async function onClickSelectPdNm() {
+  const searchPopupParams = {
+    searchType: pdConst.PD_SEARCH_NAME,
+    searchValue: searchParams.value.productName,
+    selectType: '',
+  };
+
+  const returnPdInfo = await modal({
+    component: 'ZwpdcStandardListP', // 상품기준 목록조회 팝업
+    componentProps: searchPopupParams,
+  });
+
+  if (returnPdInfo.result) {
+    searchParams.value.productName = returnPdInfo.payload?.[0].pdNm;
+  }
+}
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
@@ -294,6 +317,7 @@ function initGrid(data, view) {
   ];
 
   const columns = [
+    { fieldName: 'sellBaseId', visible: false },
     { fieldName: 'sellBaseTpCd',
       header: t('MSG_TXT_SLS_CAT'),
       width: '142',
@@ -400,16 +424,47 @@ function initGrid(data, view) {
   };
   view.onCellEdited = async (grid, itemIndex, dataRow, fieldIndex) => {
     const columnName = grid.getColumn(fieldIndex).fieldName;
-
-    if (columnName === 'vlStrtDtm' || columnName === 'vlEndDtm') {
+    if (columnName === 'vlStrtDtm') {
       const { vlStrtDtm, vlEndDtm } = grid.getValues(itemIndex);
       if (vlStrtDtm > vlEndDtm
-        && !vlStrtDtm && !vlEndDtm) {
+        && vlStrtDtm && vlEndDtm) {
         grid.commit();
         const updateDateRow = view.getCurrent().dataRow;
-        notify(t('MSG_ALT_CHK_DT_RLT'));
-        data.setValue(updateDateRow, 'vlStrtDtm', '');
-        data.setValue(updateDateRow, 'vlEndDtm', '');
+        data.setValue(updateDateRow, 'vlEndDtm', vlStrtDtm);
+      }
+    }
+    if (columnName === 'vlEndDtm') {
+      const { vlStrtDtm, vlEndDtm } = grid.getValues(itemIndex);
+      if (vlStrtDtm > vlEndDtm
+        && vlStrtDtm && vlEndDtm) {
+        grid.commit();
+        const updateDateRow = view.getCurrent().dataRow;
+        data.setValue(updateDateRow, 'vlStrtDtm', vlEndDtm);
+      }
+    }
+    if (columnName === 'pdCd') {
+      const updateRow = view.getCurrent().dataRow;
+      const searchPopupParams = {
+        searchType: pdConst.PD_SEARCH_CODE,
+        searchValue: grid.getValues(itemIndex).pdCd,
+        selectType: '',
+      };
+
+      const returnPdInfo = await modal({
+        component: 'ZwpdcStandardListP', // 상품기준 목록조회 팝업
+        componentProps: searchPopupParams,
+      });
+
+      if (returnPdInfo.result) {
+        const pdClsfNm = returnPdInfo.payload?.[0].pdClsfNm.split('>');
+        data.setValue(itemIndex, 'pdCd', '');
+        data.setValue(itemIndex, 'pdNm', '');
+        data.setValue(itemIndex, 'pdMclsfNm', '');
+        data.setValue(itemIndex, 'pdLclsfNm', '');
+        data.setValue(updateRow, 'pdCd', returnPdInfo.payload?.[0].pdCd);
+        data.setValue(updateRow, 'pdNm', returnPdInfo.payload?.[0].pdNm);
+        data.setValue(updateRow, 'pdMclsfNm', !isEmpty(pdClsfNm[1]) ? pdClsfNm[1] : '');
+        data.setValue(updateRow, 'pdLclsfNm', !isEmpty(pdClsfNm[2]) ? pdClsfNm[2] : '');
       }
     }
   };

@@ -35,6 +35,7 @@ const materialMainPage = '/product/zwpdc-material-list';
               :name="regSteps[0].name"
               :title="$t('MSG_TXT_BAS_ATTR_REG')"
               :prefix="regSteps[0].step"
+              :sub-text="subTitle"
             />
             <!-- 2.연결상품 선택 -->
             <kw-step
@@ -42,6 +43,7 @@ const materialMainPage = '/product/zwpdc-material-list';
               :name="regSteps[1].name"
               :title="$t('MSG_TXT_REL_PRDT_SEL')"
               :prefix="regSteps[1].step"
+              :sub-text="subTitle"
             />
             <!-- 3.관리속성 등록 -->
             <kw-step
@@ -49,6 +51,7 @@ const materialMainPage = '/product/zwpdc-material-list';
               :name="regSteps[2].name"
               :title="$t('MSG_TXT_MGT_ATTR_REG')"
               :prefix="regSteps[2].step"
+              :sub-text="subTitle"
             />
             <!-- 4.등록정보 확인 -->
             <kw-step
@@ -56,6 +59,7 @@ const materialMainPage = '/product/zwpdc-material-list';
               :name="regSteps[3].name"
               :title="$t('MSG_TXT_CHK_REG_INFO')"
               :prefix="regSteps[3].step"
+              :sub-text="subTitle"
             />
 
             <!-- 1. 기본속성 등록 -->
@@ -67,7 +71,7 @@ const materialMainPage = '/product/zwpdc-material-list';
                 :pd-tp-cd="pdConst.PD_TP_CD_MATERIAL"
                 :pd-grp-dv-cd="pdConst.PD_PRP_GRP_DV_CD_BASIC"
                 :pd-tp-dtl-cd="pdTpDtlCd"
-                @popup-callback="popupCallback"
+                @open-popup="openPopup"
               />
             </kw-step-panel>
             <!-- 2.연결상품 선택 -->
@@ -237,7 +241,7 @@ const props = defineProps({
 
 const { t } = useI18n();
 const dataService = useDataService();
-const { confirm, notify } = useGlobal();
+const { confirm, notify, modal } = useGlobal();
 const router = useRouter();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -270,6 +274,7 @@ const isCreate = ref(false);
 const selectedTab = ref('attribute');
 const exceptPrpGrpCd = ref('PART');
 const isShowInitBtn = ref(false);
+const subTitle = ref();
 
 async function onClickReset() {
   await cmpStepRefs.value.forEach((item) => {
@@ -324,6 +329,7 @@ async function getSaveData(tempSaveYn) {
     }
   }));
   subList[bas].tempSaveYn = tempSaveYn;
+  subTitle.value = subList[bas].pdCd ? `${subList[bas].pdNm} (${subList[bas].pdCd})` : subList[bas].pdNm;
   return subList;
 }
 
@@ -349,26 +355,27 @@ async function fetchData() {
     initData[rel] = res.data[rel];
     isTempSaveBtn.value = initData[bas].tempSaveYn === 'Y';
     prevStepData.value = initData;
+    subTitle.value = initData[bas].pdCd ? `${initData[bas].pdNm} (${initData[bas].pdCd})` : initData[bas].pdNm;
     await init();
   }
 }
 
 // 중복체크 메소드 - 확장성 위해 'validationType' 추가.
-async function duplicationCheck(validationType, sourceData) {
-  const validationParams = {};
-  validationParams.validationType = validationType;
-  validationParams.pdCd = sourceData[bas].pdCd;
-  validationParams.sapMatCd = sourceData[bas].sapMatCd;
+// async function duplicationCheck(validationType, sourceData) {
+//   const validationParams = {};
+//   validationParams.validationType = validationType;
+//   validationParams.pdCd = sourceData[bas].pdCd;
+//   validationParams.sapMatCd = sourceData[bas].sapMatCd;
 
-  const res = await dataService.get(`${baseUrl}/check-validation`, { params: validationParams });
+//   const res = await dataService.get(`${baseUrl}/check-validation`, { params: validationParams });
 
-  if (res.data !== 'N') {
-    // 다른 교재/제품에서 이미 사용 중인 SAP자재코드입니다. (사용 교재/제품코드: {0}/{1}) - 교재명/자재코드
-    notify(t('MSG_ALT_EXIST_SAP_MAT_CD', [res.data, validationParams.sapMatCd]));
-    return false;
-  }
-  return true;
-}
+//   if (res.data !== 'N') {
+//     // 다른 교재/제품에서 이미 사용 중인 SAP자재코드입니다. (사용 교재/제품코드: {0}/{1}) - 교재명/자재코드
+//     notify(t('MSG_ALT_EXIST_SAP_MAT_CD', [res.data, validationParams.sapMatCd]));
+//     return false;
+//   }
+//   return true;
+// }
 
 async function onClickSave(tempSaveYn) {
   if (!(isTempSaveBtn.value && tempSaveYn === 'N')) {
@@ -400,9 +407,10 @@ async function onClickSave(tempSaveYn) {
   const subList = await getSaveData(tempSaveYn);
 
   // 4. 자재코드 중복검사.
-  if (!isEmpty(subList[bas].sapMatCd)) {
-    if (!await duplicationCheck('sapMatCd', subList)) return false;
-  }
+  // TODO 설계요청에 의해 임시주석처리 230516
+  // if (!isEmpty(subList[bas].sapMatCd)) {
+  //   if (!await duplicationCheck('sapMatCd', subList)) return false;
+  // }
 
   // 5. Insert or Update
   const rtn = currentPdCd.value
@@ -502,6 +510,22 @@ async function popupCallback(payload) {
     prevStepData.value[bas].sapPlntCd = payload.sapPlntVal ?? '';
     prevStepData.value[bas].sapMatTpVal = payload.sapMatTpVal ?? '';
   }
+}
+
+async function openPopup(field) {
+  console.log('Open Popup : ', field.colNm, field.sourcInfCn);
+  const { payload } = await modal({
+    component: field.sourcInfCn,
+    componentProps: {
+      searchValue: field.initName,
+      searchType: pdConst.PD_SEARCH_PRODUCT,
+      selectType: pdConst.PD_SEARCH_SINGLE },
+  });
+  if (payload && payload.type !== 'click') {
+    field.initValue = payload.returnValue;
+    field.initName = payload.returnName;
+  }
+  await popupCallback(payload);
 }
 
 watch(() => props.pdCd, (val) => { currentPdCd.value = val; });

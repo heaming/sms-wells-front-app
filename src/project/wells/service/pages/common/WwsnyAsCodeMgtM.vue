@@ -42,7 +42,7 @@
         <kw-search-item :label="$t('MSG_TXT_SV_TP')">
           <kw-select
             v-model="searchParams.svTpCd"
-            :options="codes.SV_BIZ_HCLSF_CD"
+            :options="codes.SV_DV_CD"
             first-option="all"
           />
         </kw-search-item>
@@ -86,12 +86,12 @@
             @change="fetchData"
           />
         </template>
-        <kw-btn
+        <!--        <kw-btn
           :label="$t('MSG_BTN_PRTG')"
           dense
           icon="print"
           secondary
-        />
+        />-->
         <kw-btn
           :label="$t('MSG_BTN_EXCEL_UP')"
           dense
@@ -141,7 +141,6 @@ import smsCommon from '~sms-wells/service/composables/useSnCode';
 const { getPartMaster } = smsCommon();
 
 const { t } = useI18n();
-const { currentRoute } = useRouter();
 const dataService = useDataService();
 const { getConfig } = useMeta();
 const grdMainRef = ref(getComponentType('KwGrid'));
@@ -163,7 +162,7 @@ const pageInfo = ref({
 const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
   'PD_GRP_CD',
-  'SV_BIZ_HCLSF_CD',
+  'SV_DV_CD',
   'AS_LCT_CD',
   'AS_PHN_CD',
   'AS_CAUS_CD',
@@ -171,8 +170,6 @@ const codes = await codeUtil.getMultiCodes(
   'SV_BIZ_DCLSF_CD',
 );
 
-codes.SV_BIZ_HCLSF_CD.splice(4, 3);
-console.log(codes.SV_BIZ_HCLSF_CD);
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -183,6 +180,7 @@ async function fetchData() {
   const res = await dataService.get('/sms/wells/service/as-codes/paging', { params: { ...cachedParams, ...pageInfo.value } });
   const { list: products, pageInfo: pagingResult } = res.data;
   pageInfo.value = pagingResult;
+  console.log(pageInfo.value);
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(products);
   view.resetCurrent();
@@ -200,41 +198,47 @@ async function changePdGrpCd() {
   } else pds.value = [];
 }
 async function onClickExcelDownload() {
+  // const view = grdMainRef.value.getView();
+  // await gridUtil.exportView(view, {
+  //   fileName: 'asCodeMngt',
+  //   timePostfix: true,
+  // });
+  const res = await dataService.get(
+    '/sms/wells/service/as-codes/excel-download',
+    { params: { ...cachedParams } },
+  );
   const view = grdMainRef.value.getView();
-  // const response = await dataService.get('/sms/wells/service/as-codes/excel-download'
-  // , { params: cachedParams, ...pageInfo.value });
-  const exportLayout = [
-    'svBizHclsfCd',
-    { direction: 'horizontal', items: ['asLctCd', 'asLctNm'], header: { text: t('MSG_TXT_AS_LCT') } },
-    { direction: 'horizontal', items: ['asPhnCd', 'asPhnNm'], header: { text: t('MSG_TXT_AS_PHN') } },
-    { direction: 'horizontal', items: ['asCausCd', 'asCausNm'], header: { text: t('MSG_TXT_AS_CAUS') } },
-    { direction: 'horizontal', items: ['siteAwAtcCd', 'siteAwAtcNm', 'fuleyAwAmt'], header: { text: t('MSG_TXT_SITE_AW') } },
-    { direction: 'horizontal', items: ['svAnaHclsfCd', 'svAnaHclsfNm'], header: { text: t('MSG_TXT_SV_ANA_HCLSF_CD') } },
-  ];
-
   await gridUtil.exportView(view, {
-    fileName: currentRoute.value.meta.menuName,
+    fileName: 'asCodeMngt',
     timePostfix: true,
-    // exportData: response.data,
-    exportLayout,
+    exportData: res.data,
   });
 }
 const onClickExcelUpload = async () => {
   cachedParams = cloneDeep(searchParams.value);
   const apiUrl = '/sms/wells/service/as-codes/excel-upload';
   const templateId = 'FOM_AS_CODE_MNGT';
+  console.log(cachedParams);
   const extraData = cachedParams;
-  const {
-    result,
-  } = await modal({
+  const { result } = await modal({
     component: 'ZwcmzExcelUploadP',
     componentProps: { apiUrl, templateId, extraData },
   });
   if (result.status === 'S') {
     notify(t('MSG_ALT_SAVE_DATA'));
   }
-  // await onClickSearch();
 };
+
+// async function onClickExcelDownload() {
+//   const res = await dataService.get('/sms/common/promotion/components/excel-download'
+//   , { params: { ...cachedParams } });
+//   const view = grdMainRef.value.getView();
+//   await gridUtil.exportView(view, {
+//   fileName: currentRoute.value.meta.menuName,
+//   timePostfix: true,
+//   exportData: res.data,
+//   });
+// }
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
@@ -262,52 +266,52 @@ const initGrdMain = defineGrid((data, view) => {
       options: codes.SV_BIZ_HCLSF_CD,
       styleName: 'text-center',
     },
-    { fieldName: 'asLctCd', header: t('MSG_TXT_CODE_ID'), width: '50', styleName: 'text-center' },
+    { fieldName: 'asLctCd', header: t('MSG_TXT_CODE'), width: '50', styleName: 'text-center' },
     {
       fieldName: 'asLctNm',
-      header: t('MSG_TXT_CODE_NAME'),
+      header: t('MSG_TXT_ALTN'),
       width: '100',
       options: codes.AS_LCT_CD,
     },
-    { fieldName: 'asPhnCd', header: t('MSG_TXT_CODE_ID'), width: '30', styleName: 'text-center' },
+    { fieldName: 'asPhnCd', header: t('MSG_TXT_CODE'), width: '30', styleName: 'text-center' },
     {
       fieldName: 'asPhnNm',
-      header: t('MSG_TXT_CODE_NAME'),
+      header: t('MSG_TXT_ALTN'),
       width: '100',
       options: codes.AS_PHN_CD,
     },
-    { fieldName: 'asCausCd', header: t('MSG_TXT_CODE_ID'), width: '30', styleName: 'text-center' },
+    { fieldName: 'asCausCd', header: t('MSG_TXT_CODE'), width: '30', styleName: 'text-center' },
     {
       fieldName: 'asCausNm',
-      header: t('MSG_TXT_CODE_NAME'),
+      header: t('MSG_TXT_ALTN'),
       width: '100',
       options: codes.AS_CAUS_CD,
     },
     {
       fieldName: 'siteAwAtcCd',
-      header: t('MSG_TXT_CODE_ID'),
+      header: t('MSG_TXT_CODE'),
       width: '30',
       styleName: 'text-center',
     },
     {
       fieldName: 'siteAwAtcNm',
-      header: t('MSG_TXT_CODE_NAME'),
+      header: t('MSG_TXT_ALTN'),
       width: '50',
       options: codes.SITE_AW_ATC_CD,
     },
-    { fieldName: 'fuleyAwAmt', header: t('MSG_TXT_FULEY_AW_AMT'), width: '80' },
+    { fieldName: 'fuleyAwAmt', header: t('MSG_TXT_AMT_WON'), width: '80' },
     {
       fieldName: 'svAnaHclsfCd',
-      header: t('MSG_TXT_CODE_ID'),
+      header: t('MSG_TXT_CODE'),
       width: '30',
       styleName: 'text-center',
     },
-    // {
-    //   fieldName: 'svAnaHclsfNm',
-    //   header: t('MSG_TXT_CODE_NAME'),
-    //   width: '100',
-    //   options: codes.SV_BIZ_DCLSF_CD,
-    // },
+    {
+      fieldName: 'svAnaHclsfNm',
+      header: t('MSG_TXT_ALTN'),
+      width: '100',
+      options: codes.SV_BIZ_DCLSF_CD,
+    },
   ];
 
   const columnLayout = [
@@ -316,18 +320,15 @@ const initGrdMain = defineGrid((data, view) => {
     { direction: 'horizontal', items: ['asPhnCd', 'asPhnNm'], header: { text: t('MSG_TXT_AS_PHN') } },
     { direction: 'horizontal', items: ['asCausCd', 'asCausNm'], header: { text: t('MSG_TXT_AS_CAUS') } },
     { direction: 'horizontal', items: ['siteAwAtcCd', 'siteAwAtcNm', 'fuleyAwAmt'], header: { text: t('MSG_TXT_SITE_AW') } },
-    // { direction: 'horizontal', items: ['svAnaHclsfCd', 'svAnaHclsfNm']
-    // , header: { text: t('MSG_TXT_SV_ANA_HCLSF_CD') } },
+    { direction: 'horizontal',
+      items: ['svAnaHclsfCd', 'svAnaHclsfNm'],
+      header: { text: t('MSG_TXT_TASK_TYPE') } },
   ];
 
   view.setColumnLayout(columnLayout);
 
   data.setFields(fields);
   view.setColumns(columns);
-  // view.checkBar.visible = true;
-
-  // view.onCellItemClicked = async (g, { column, itemIndex }) => {
-  //   console.log(g, column, itemIndex);
-  // };
+  view.rowIndicator.visible = true;
 });
 </script>

@@ -207,7 +207,7 @@ const codes = await codeUtil.getMultiCodes(
 // 임시 팝업 호출
 async function onClickPopup() {
   await modal({
-    component: 'ZwwdbGiroPlaceReceivedMgtP',
+    component: 'WwwdbGiroPlaceReceivedMgtP',
     componentProps: { cntrNo: 'W20222718343', cntrSn: '1' },
   });
 }

@@ -37,9 +37,6 @@
       />
     </div>
     <kw-action-top class="mt30">
-      <template #left>
-        <span>({{ $t('MSG_TXT_UNIT') }} : {{ $t('MSG_TXT_CUR_WON') }})</span>
-      </template>
       <kw-btn
         :label="$t('MSG_BTN_DEL')"
         grid-action
@@ -98,7 +95,7 @@ const { notify } = useGlobal();
 // -------------------------------------------------------------------------------------------------
 const grdMainRef = ref(getComponentType('KwGrid'));
 
-const readonlyFields = ref(['pdCd', pdConst.PRC_DETAIL_ID, 'verSn', 'crncyDvCd', 'sellTpCd']);
+const readonlyFields = ref(['pdCd', pdConst.PRC_DETAIL_ID, 'verSn']);
 const prcd = pdConst.TBL_PD_PRC_DTL;
 const priceStdRef = ref();
 const currentPdCd = ref();
@@ -225,7 +222,12 @@ async function onClickAdd(isForm) {
   const rowItem = isForm ? cloneDeep(savFields?.reduce((rtn, item) => {
     rtn[item.colNm] = item.initValue;
     return rtn;
-  }, {})) : {};
+  }, {})) : {
+    // 통화명
+    crncyDvCd: currentInitData.value[pdConst.TBL_PD_BAS]?.crncyDvCd,
+    // 판매유형
+    sellTpCd: currentInitData.value[pdConst.TBL_PD_BAS]?.sellTpCd,
+  };
   rowItem[pdConst.PRC_STD_ROW_ID] = stringUtil.getUid('STD');
   rowItem[pdConst.PRC_DETAIL_ID] = '';
   // console.log('rowItem : ', rowItem);
@@ -292,6 +294,7 @@ async function initGrid(data, view) {
     if (item.fieldName === 'svPdCd') {
       item.editor = 'list';
       item.options = currentCodes.value.svPdCd;
+      item.styleName = 'text-left';
     }
     return item;
   });

@@ -17,10 +17,6 @@
     <!-- 수수료 등록 -->
     <h3>{{ $t('MSG_TXT_PD_REG_FEE') }}</h3>
     <kw-action-top>
-      <template #left>
-        <!-- (단위:원) -->
-        <span>({{ $t('MSG_TXT_UNIT') }} : {{ $t('MSG_TXT_CUR_WON') }})</span>
-      </template>
       <kw-btn
         v-show="!props.readonly"
         :label="$t('MSG_BTN_DEL')"
@@ -43,7 +39,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { gridUtil, getComponentType } from 'kw-lib';
+import { gridUtil, useDataService, getComponentType } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import pdConst from '~sms-common/product/constants/pdConst';
 import { resetVisibleGridColumns, getGridRowCount, setPdGridRows, pdMergeBy, getGridRowsToSavePdProps, getPropInfosToGridRows, getPdMetaToGridInfos } from '~sms-common/product/utils/pdUtil';
@@ -61,6 +57,7 @@ const props = defineProps({
   readonly: { type: Boolean, default: false },
 });
 
+const dataService = useDataService();
 const { t } = useI18n();
 
 // -------------------------------------------------------------------------------------------------
@@ -76,6 +73,7 @@ const defaultFields = ref([pdConst.PRC_STD_ROW_ID, pdConst.PRC_FNL_ROW_ID,
 const currentPdCd = ref();
 const currentInitData = ref(null);
 const currentMetaInfos = ref();
+const feeVariables = ref([]);
 const removeObjects = ref([]);
 const gridRowCount = ref(0);
 
@@ -131,23 +129,31 @@ async function initGridRows() {
     return;
   }
 
-  // 선택변수
+  // 상품 선택변수
   const checkedVals = currentInitData.value?.[prumd]?.reduce((rtn, item) => {
     if (item.pdDscPrumPrpVal01) {
       rtn.push(item.pdDscPrumPrpVal01);
     }
     return rtn;
   }, []);
+  // Grid visible 초기화
   resetVisibleGridColumns(currentMetaInfos.value, pdConst.PD_PRC_TP_CD_FINAL, view);
+  // 상품 선택변수 visible 적용
   if (checkedVals && checkedVals.length) {
     checkedVals.forEach((fieldName) => {
-    // 선택변수 표시
       const column = view.columnByName(fieldName);
       if (column) {
         column.visible = true;
       }
     });
   }
+  // 수수료 변수 visible 적용
+  feeVariables.value?.forEach((item) => {
+    const column = view.columnByName(item.codeId);
+    if (column) {
+      column.visible = true;
+    }
+  });
 
   if (await currentInitData.value?.[prcfd]) {
     // 기준가 정보
@@ -199,6 +205,13 @@ async function onClickRemove() {
   gridRowCount.value = getGridRowCount(view);
 }
 
+async function fetchData() {
+  // 선택변수
+  const sellTpCd = currentInitData.value[pdConst.TBL_PD_BAS]?.sellTpCd;
+  const typeRes = await dataService.get('/sms/common/product/type-variables', { params: { sellTpCd, choFxnDvCd: pdConst.CHO_FXN_DV_CD_FEE } });
+  feeVariables.value = typeRes.data;
+}
+
 async function initProps() {
   const { pdCd, initData, metaInfos } = props;
   currentPdCd.value = pdCd;
@@ -207,6 +220,7 @@ async function initProps() {
 }
 
 await initProps();
+await fetchData();
 
 watch(() => props.pdCd, (val) => { currentPdCd.value = val; });
 watch(() => props.initData, (val) => { currentInitData.value = val; initGridRows(); }, { deep: true });
@@ -249,6 +263,7 @@ async function initGrid(data, view) {
 
   columns.map((item) => {
     if (item.fieldName === 'svPdCd') {
+      item.styleName = 'text-left';
       item.options = props.codes.svPdCd;
     }
     return item;

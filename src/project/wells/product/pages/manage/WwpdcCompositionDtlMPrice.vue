@@ -14,15 +14,7 @@
 ****************************************************************************************************
 --->
 <template>
-  <kw-action-top class="mt40">
-    <template #left>
-      <kw-paging-info
-        :total-count="totalCount"
-      />
-    </template>
-    <!-- (단위 : 원) -->
-    <span class="kw-fc---black3 text-weight-regular">({{ $t('MSG_TXT_UNIT') }} : {{ $t('MSG_TXT_CUR_WON') }})</span>
-  </kw-action-top>
+  <kw-action-top />
   <kw-grid
     ref="grdMainRef"
     name="grdDtlPrcMain"
@@ -35,7 +27,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService, codeUtil, gridUtil, getComponentType } from 'kw-lib';
+import { useDataService, codeUtil, gridUtil, stringUtil, getComponentType } from 'kw-lib';
 import pdConst from '~sms-common/product/constants/pdConst';
 import { merge, cloneDeep, isEmpty } from 'lodash-es';
 import { pdMergeBy, getPdMetaToCodeNames, getPropInfosToGridRows, getPdMetaToGridInfos } from '~sms-common/product/utils/pdUtil';
@@ -51,8 +43,8 @@ const props = defineProps({
   codes: { type: Object, default: null },
 });
 
+const { t } = useI18n();
 const dataService = useDataService();
-
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -65,6 +57,8 @@ const currentInitData = ref(null);
 const metaInfos = ref();
 const currentCodes = ref({});
 const totalCount = ref(0);
+const defaultFields = ref(['verSn', pdConst.PRC_STD_ROW_ID, pdConst.PRC_FNL_ROW_ID,
+  pdConst.PRC_DETAIL_ID, pdConst.PRC_DETAIL_FNL_ID, 'basePdTempSaveYn', 'basePdClsfNm', 'basePdNm', 'basePdCd', 'baseSellTpCd']);
 
 const searchParams = ref({
   pdTpCd: pdConst.PD_TP_CD_COMPOSITION,
@@ -80,6 +74,9 @@ async function resetData() {
 
 async function initGridRows() {
   const view = grdMainRef.value?.getView();
+  if (!view) {
+    return;
+  }
   if (await currentInitData.value?.[prcfd]) {
     // 기준가 정보
     const stdRows = await getPropInfosToGridRows(
@@ -93,7 +90,7 @@ async function initGridRows() {
       currentInitData.value?.[prcfd],
       metaInfos.value,
       prcfd,
-      [pdConst.PRC_STD_ROW_ID, pdConst.PRC_FNL_ROW_ID, 'pdPrcDtlId', 'pdPrcFnlDtlId'],
+      defaultFields.value,
     ));
     rows?.forEach((row) => {
       const stdRow = stdRows?.find((item) => (row[pdConst.PRC_STD_ROW_ID]
@@ -163,19 +160,54 @@ onMounted(async () => {
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
 async function initGrid(data, view) {
+  const pdColumns = [
+    // 상태
+    { fieldName: 'basePdTempSaveYn', header: t('MSG_TXT_STT'), width: '85', styleName: 'text-center', options: props.codes?.PD_TEMP_SAVE_CD },
+    // 기준상품 분류
+    { fieldName: 'basePdClsfNm', header: t('MSG_TXT_PD_STD_TYPE'), width: '171' },
+    // 기준상품명
+    { fieldName: 'basePdNm', header: t('MSG_TXT_PD_STD_NAME'), width: '126' },
+    // 기준상품코드
+    { fieldName: 'basePdCd', header: t('MSG_TXT_PD_STD_CODE'), width: '115', styleName: 'text-center', dataType: 'date' },
+    // 판매유형
+    { fieldName: 'baseSellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '107', styleName: 'text-center', options: props.codes?.SELL_TP_CD },
+    // 판매채널
+    { fieldName: 'sellChnlCd', header: t('MSG_TXT_SEL_CHNL'), width: '87', styleName: 'text-center', options: currentCodes.value.SELL_CHNL_DTL_CD },
+    // 적용기간
+    { fieldName: 'applyPeriod',
+      header: t('MSG_TXT_ACEPT_PERIOD'),
+      width: '200',
+      styleName: 'text-center',
+      displayCallback(grid, index) {
+        const vlStrtDtm = grid.getValue(index.itemIndex, 'vlStrtDtm');
+        const vlEndDtm = grid.getValue(index.itemIndex, 'vlEndDtm');
+        if (vlStrtDtm || vlEndDtm) {
+          return `${stringUtil.getDateFormat(vlStrtDtm)} ~ ${stringUtil.getDateFormat(vlEndDtm)}`;
+        }
+        return '';
+      },
+    },
+
+  ];
+  const pdFields = pdColumns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
+  pdFields.push({ fieldName: 'vlStrtDtm' });
+  pdFields.push({ fieldName: 'vlEndDtm' });
+
   const { fields, columns } = await getPdMetaToGridInfos(
     metaInfos.value,
     [pdConst.PD_PRC_TP_CD_COMPOSITION],
     currentCodes.value,
     [],
+    [],
+    [],
+    ['basePdCd', 'sellChnlCd', 'sellTpCd', 'vlStrtDtm', 'vlEndDtm'],
   );
-  // console.log('WwpdcCompositionDtlMPrice - initGr id - columns : ', columns);
-  // Grid 내부키 - '신규 Row 추가' 대응
-  fields.push({ fieldName: pdConst.PRC_STD_ROW_ID });
-  fields.push({ fieldName: pdConst.PRC_FNL_ROW_ID });
 
-  data.setFields(fields);
-  view.setColumns(columns);
+  pdColumns.push(...columns);
+  pdFields.push(...fields);
+
+  data.setFields(pdFields);
+  view.setColumns(pdColumns);
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
   view.editOptions.editable = false;

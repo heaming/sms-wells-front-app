@@ -31,7 +31,7 @@
           <p>{{ rentalSalesDetail.cntrDtlNo }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_SL_YM')">
-          <p>{{ rentalSalesDetail.slClYm }}</p>
+          <p>{{ stringUtil.getDateFormat(rentalSalesDetail.slClYm, 'YYYY-MM').substring(0,7) }}</p>
         </kw-form-item>
       </kw-form-row>
     </kw-form>
@@ -49,36 +49,36 @@
     >
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_PRDT')">
-          <p>{{ rentalSalesDetail.pdNm }}</p>
+          <p>{{ rentalSalesDetail.pdNm }} ( {{ rentalSalesDetail.pdCd }} )</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_RCP_D')">
-          <p>{{ rentalSalesDetail.col1 }}</p>
+          <p>{{ stringUtil.getDateFormat(rentalSalesDetail.cntrDt) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_DT_OF_SALE')">
-          <p>{{ rentalSalesDetail.slDt }}</p>
+          <p>{{ stringUtil.getDateFormat(rentalSalesDetail.slRcogDt) }}</p>
         </kw-form-item>
       </kw-form-row>
 
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_PRD_MCNT_USWY')">
-          <p>{{ rentalSalesDetail.svPrd }}</p>
+          <p>{{ rentalSalesDetail.svPrd }} / {{ rentalSalesDetail.lciuseNm }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_REG_FEE')">
-          <p>{{ rentalSalesDetail.rentalRgstCost }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(rentalSalesDetail.rentalRgstCost)) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_LEASE_TAM')">
-          <p>{{ rentalSalesDetail.istmAmt }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(rentalSalesDetail.istmAmt)) }}</p>
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_MM_RTLFE1_MCNT_WON')">
-          <p>{{ rentalSalesDetail.rentalPtrm }}</p>
+          <p>{{ rentalSalesDetail.rentalPtrm1 }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_MM_RTLFE2')">
           <p>{{ rentalSalesDetail.rentalPtrm2 }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_RSTL_DSC_AMT')">
-          <p>{{ rentalSalesDetail.rstlYn }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(rentalSalesDetail.stplDscAmt)) }}</p>
         </kw-form-item>
       </kw-form-row>
     </kw-form>
@@ -99,25 +99,28 @@
     >
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_ORDERSELECT_TITLE')">
-          <p>{{ rentalSalesDetail.col2 }}</p>
+          <p>{{ rentalSalesDetail.prmTn }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_PRM_MCNT')">
           <p>{{ rentalSalesDetail.prmMcn }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_DSCR_DSC_AMT')">
-          <p>{{ rentalSalesDetail.prmDscr }}</p>
+          <p>
+            {{ rentalSalesDetail.prmDscr }}
+            / {{ stringUtil.getNumberWithComma(toInteger(rentalSalesDetail.prmDscAmt)) }}
+          </p>
         </kw-form-item>
       </kw-form-row>
 
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_PRM_AMT')">
-          <p>{{ rentalSalesDetail.prmDpAmt }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(rentalSalesDetail.lcpam)) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_TAM')">
-          <p>{{ rentalSalesDetail.prmSlAmt }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(rentalSalesDetail.totPrmAmt)) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_PRM_EXN_CTT_ICHR')">
-          <p>{{ rentalSalesDetail.col3 }}</p>
+          <p>{{ rentalSalesDetail.cttPsicId }}</p>
         </kw-form-item>
       </kw-form-row>
     </kw-form>
@@ -142,55 +145,55 @@
           <p>{{ rentalSalesDetail.rentalDc }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_CANC_DT')">
-          <p>{{ rentalSalesDetail.col4 }}</p>
+          <p>{{ rentalSalesDetail.canDt }}</p>
         </kw-form-item>
       </kw-form-row>
 
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_NOM_SL_AMT')">
-          <p>{{ rentalSalesDetail.nomSlAmt }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(rentalSalesDetail.nomSlAmt)) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_NOM_DSC_AMT')">
-          <p>{{ rentalSalesDetail.nomDscAmt }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(rentalSalesDetail.nomDscAmt)) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_FSH_DT')">
-          <p>{{ rentalSalesDetail.col5 }}</p>
+          <p>{{ rentalSalesDetail.fshDt }}</p>
         </kw-form-item>
       </kw-form-row>
 
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_SPMT_SL_AMT')">
-          <p>{{ rentalSalesDetail.spmtSlAmt }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(rentalSalesDetail.spmtSlAmt)) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_SPMT_DSC_AMT')">
-          <p>{{ rentalSalesDetail.spmtDscAmt }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(rentalSalesDetail.spmtDscAmt)) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_SL_CTR_AMT')">
-          <p>{{ rentalSalesDetail.slCtrAmt }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(rentalSalesDetail.slCtrAmt)) }}</p>
         </kw-form-item>
       </kw-form-row>
 
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_SL_AMT')">
-          <p>{{ rentalSalesDetail.thmSlSumAmt }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(rentalSalesDetail.thmSlSumAmt)) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_SL_VAT')">
-          <p>{{ rentalSalesDetail.slSumVat }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(rentalSalesDetail.slSumVat)) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_SL_AGG_AMT')">
-          <p>{{ rentalSalesDetail.slAggAmt }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(rentalSalesDetail.slAggAmt)) }}</p>
         </kw-form-item>
       </kw-form-row>
 
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_DSC_AGG')">
-          <p>{{ rentalSalesDetail.col6 }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(rentalSalesDetail.dscAggAmt)) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_CTR_AGG')">
-          <p>{{ rentalSalesDetail.col7 }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(rentalSalesDetail.ctrAggAmt)) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_SL_BLAM')">
-          <p>{{ rentalSalesDetail.col8 }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(rentalSalesDetail.lcmjan)) }}</p>
         </kw-form-item>
       </kw-form-row>
     </kw-form>
@@ -209,43 +212,43 @@
     >
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_BTD_AMT')">
-          <p>{{ rentalSalesDetail.btdAtam }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(rentalSalesDetail.lcam31)) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_PRPD_DP_AMT')">
-          <p>{{ rentalSalesDetail.thmAtamDpAmt }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(rentalSalesDetail.lcam32)) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_PRPD_RFND_AMT')">
-          <p>{{ rentalSalesDetail.thmAtamRfndAmt }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(rentalSalesDetail.lcam33)) }}</p>
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_SL_RPLC_AMT')">
-          <p>{{ rentalSalesDetail.col9 }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(rentalSalesDetail.lcam35)) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_SL_DP_AMT')">
-          <p>{{ rentalSalesDetail.slBndAlrpyAmt }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(rentalSalesDetail.slBndAlrpyAmt)) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_DP_AGG_AMT')">
-          <p>{{ rentalSalesDetail.slDpAggAmt }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(rentalSalesDetail.slDpAggAmt)) }}</p>
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_PRPD_RPLC_AMT')">
-          <p>{{ rentalSalesDetail.col10 }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(rentalSalesDetail.ovrCtrDpAmt)) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_PRPD_TAM')">
-          <p>{{ rentalSalesDetail.eotTotalAmt }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(rentalSalesDetail.lcam3t)) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_PRM_BLAM')">
-          <p>{{ rentalSalesDetail.eotAtam }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(rentalSalesDetail.prmBlamEotAmt)) }}</p>
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_PR_BLAM')">
-          <p>{{ rentalSalesDetail.mlgEotPrpdAmt }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(rentalSalesDetail.mlgEotPrpdAmt)) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_PRPD_BLAM')">
-          <p>{{ rentalSalesDetail.col11 }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(rentalSalesDetail.eotAtam)) }}</p>
         </kw-form-item>
       </kw-form-row>
     </kw-form>
@@ -301,24 +304,24 @@
     >
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_ADAMT_BTD_AMT')">
-          <p>{{ rentalSalesDetail.btdDlqAddAmt }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(rentalSalesDetail.btdDlqAmt)) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_ADAMT_OC_AMT')">
-          <p>{{ rentalSalesDetail.dlqAdamtOcAmt }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(rentalSalesDetail.thmOcDlqAddAmt)) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_ADAMT_DDTN_AMT')">
-          <p>{{ rentalSalesDetail.thmCtrDlqAddAmt }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(rentalSalesDetail.thmCtrDlqAddAmt)) }}</p>
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_ADAMT_DP_AMT')">
-          <p>{{ rentalSalesDetail.thmDlqDpSumAmt }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(rentalSalesDetail.thmDlqAddDpSumAmt)) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_ADAMT_RFND_AMT')">
-          <p>{{ rentalSalesDetail.thmDlqRfndSumAmt }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(rentalSalesDetail.thmDlqAddRfndSumAmt)) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_ADAMT_EOT_AMT')">
-          <p>{{ rentalSalesDetail.eotDlqAddAmt }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(rentalSalesDetail.eotDlqAddAmt)) }}</p>
         </kw-form-item>
       </kw-form-row>
     </kw-form>
@@ -337,37 +340,37 @@
     >
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_KEEP_AW_AGG_AMT')">
-          <p>{{ rentalSalesDetail.col18 }}</p>
+          <p>{{ rentalSalesDetail.lccnt1 }} / {{ rentalSalesDetail.lccnt2 }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_DLQ_MCNT_AGG')">
-          <p>{{ rentalSalesDetail.dlqMcn }}</p>
+          <p>{{ rentalSalesDetail.dlqMcn }} / {{ rentalSalesDetail.dlqAcuMcn }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_DLQ_AMT')">
-          <p>{{ rentalSalesDetail.thmOcDlqAmt }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(rentalSalesDetail.eotDlqAmt)) }}</p>
         </kw-form-item>
       </kw-form-row>
 
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_DFA_AMT')">
-          <p>{{ rentalSalesDetail.dfaAmt }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(rentalSalesDetail.lcam62)) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_DFA_DP_AMT')">
-          <p>{{ rentalSalesDetail.dfaDpAmt }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(rentalSalesDetail.lcam63)) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_SL_STP')">
-          <p>{{ rentalSalesDetail.col19 }}</p>
+          <p>{{ rentalSalesDetail.slStpAmt }}</p>
         </kw-form-item>
       </kw-form-row>
 
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_ACTCS_DT')">
-          <p>{{ rentalSalesDetail.actcsDt }}</p>
+          <p>{{ rentalSalesDetail.bndAsnDt }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_CLCTAM_ICHR')">
-          <p>{{ rentalSalesDetail.clctamPrtnrNo }}</p>
+          <p>{{ rentalSalesDetail.prtnrKnm }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_FW_YM')">
-          <p>{{ rentalSalesDetail.col20 }}</p>
+          <p>{{ rentalSalesDetail.lcsndDt }}</p>
         </kw-form-item>
       </kw-form-row>
     </kw-form>
@@ -378,12 +381,17 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService } from 'kw-lib';
-import { cloneDeep } from 'lodash-es';
+import { useDataService, stringUtil } from 'kw-lib';
+import { cloneDeep, toInteger } from 'lodash-es';
 
 const dataService = useDataService();
 const props = defineProps({
-  slDt: {
+  slClYm: {
+    type: String,
+    required: false,
+    default: '',
+  },
+  cntrDtlNo: {
     type: String,
     required: false,
     default: '',
@@ -395,7 +403,8 @@ const { t } = useI18n();
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 const searchParams = ref({
-  slDt: props.slDt,
+  slClYm: props.slClYm,
+  cntrDtlNo: props.cntrDtlNo,
 });
 
 const rentalSalesDetail = ref({});

@@ -13,104 +13,92 @@
 ****************************************************************************************************
 --->
 <template>
-  <kw-page>
-    <!-- To.개발 kw-tab-panel안에 kw-search로 시작하는 경우 kw-tabs에 .form-border 제거 / 그 외 추가 -->
-    <kw-tabs
-      model-value="3"
-    >
-      <kw-tab
-        name="1"
-        :label="$t('MSG_TXT_RECP_RENT')"
+  <kw-search :cols="4">
+    <kw-search-row>
+      <kw-search-item
+        :label="$t('MSG_TXT_LOOKUP_PERIOD')"
+        required
+        :colspan="2"
+      >
+        <kw-select
+          :label="$t('MSG_TXT_LOOKUP_PERIOD')"
+          class="w187"
+          :model-value="[]"
+          :options="[$t('MSG_TXT_ADDR'), 'B', 'C', 'D']"
+          rules="required"
+        />
+        <kw-date-range-picker
+          :label="$t('MSG_TXT_LOOKUP_PERIOD')"
+          rules="date_range_required|date_range_months:1"
+        />
+      </kw-search-item>
+      <kw-search-item :label="$t('MSG_TXT_RGR_NM')">
+        <kw-input :label="$t('MSG_TXT_RGR_NM')" />
+      </kw-search-item>
+      <kw-search-item :label="$t('MSG_TXT_RGR_EMPNO')">
+        <kw-input :label="$t('MSG_TXT_RGR_EMPNO')" />
+      </kw-search-item>
+    </kw-search-row>
+    <kw-search-row>
+      <kw-search-item :label="$t('MSG_TXT_ISTLC_ADDR')">
+        <kw-input
+          :label="$t('MSG_TXT_ISTLC_ADDR')"
+          icon="search"
+          clearable
+        />
+      </kw-search-item>
+    </kw-search-row>
+  </kw-search>
+  <div class="result-area">
+    <h3>{{ $t('MSG_TXT_RES_INQ') }}</h3>
+    <kw-action-top>
+      <template #left>
+        <kw-paging-info
+          :total-count="pageInfo.totalCount"
+        />
+      </template>
+      <kw-btn
+        icon="upload_on"
+        dense
+        secondary
+        :label="$t('MSG_TXT_UPL_BLK_APP_DATA')"
       />
-      <kw-tab
-        name="2"
-        :label="$t('MSG_TXT_RECP_LMP_SUM_PMT')"
-      />
-      <kw-tab
-        name="3"
-        :label="$t('MSG_TXT_INSTALL')"
-      />
-    </kw-tabs>
-    <kw-tab-panels
-      model-value="3"
-    >
-      <kw-tab-panel name="3">
-        <kw-search :cols="4">
-          <kw-search-row>
-            <kw-search-item
-              :label="$t('MSG_TXT_LOOKUP_PERIOD')"
-              required
-              :colspan="2"
-            >
-              <kw-select
-                :label="$t('MSG_TXT_LOOKUP_PERIOD')"
-                class="w187"
-                :model-value="[]"
-                :options="[$t('MSG_TXT_ADDR'), 'B', 'C', 'D']"
-                rules="required"
-              />
-              <kw-date-range-picker
-                rules="date_range_required|date_range_months:1"
-              />
-            </kw-search-item>
-            <kw-search-item :label="$t('MSG_TXT_RGR_NM')">
-              <kw-input :label="$t('MSG_TXT_RGR_NM')" />
-            </kw-search-item>
-            <kw-search-item :label="$t('MSG_TXT_RGR_EMPNO')">
-              <kw-input :label="$t('MSG_TXT_RGR_EMPNO')" />
-            </kw-search-item>
-          </kw-search-row>
-          <kw-search-row>
-            <kw-search-item :label="$t('MSG_TXT_ISTLC_ADDR')">
-              <kw-input
-                :label="$t('MSG_TXT_ISTLC_ADDR')"
-                icon="search"
-                clearable
-              />
-            </kw-search-item>
-          </kw-search-row>
-        </kw-search>
-        <div class="result-area">
-          <h3>{{ $t('MSG_TXT_RES_INQ') }}</h3>
-          <kw-action-top>
-            <template #left>
-              <kw-paging-info :total-count="50" />
-            </template>
-            <kw-btn
-              icon="upload_on"
-              dense
-              secondary
-              :label="$t('MSG_TXT_UPL_BLK_APP_DATA')"
-            />
-          </kw-action-top>
+    </kw-action-top>
 
-          <kw-grid
-            ref="grdMainRef"
-            :visible-rows="1"
-            @init="initGrdMain"
-          />
-        </div>
-      </kw-tab-panel>
-    </kw-tab-panels>
-  </kw-page>
+    <kw-grid
+      ref="grdMainRefLocation"
+      v-model:page-size="pageInfo.pageSize"
+      name="grdLocation"
+      :total-count="pageInfo.totalCount"
+      @init="initGrdLocation"
+    />
+  </div>
 </template>
 
 <script setup>
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { getComponentType, defineGrid } from 'kw-lib';
+import { defineGrid, getComponentType, useMeta } from 'kw-lib';
 
 const { t } = useI18n();
+
+const { getConfig } = useMeta();
+
+const pageInfo = ref({
+  totalCount: 0,
+  pageIndex: 1,
+  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
+});
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
-const grdMainRef = ref(getComponentType('KwGrid'));
+const grdMainRefLocation = ref(getComponentType('KwGrid'));
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
-const initGrdMain = defineGrid((data, view) => {
+const initGrdLocation = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'col1' },
     { fieldName: 'col2' },

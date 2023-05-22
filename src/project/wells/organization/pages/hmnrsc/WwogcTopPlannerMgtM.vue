@@ -1,22 +1,36 @@
+<!----
+****************************************************************************************************
+* 프로그램 개요
+****************************************************************************************************
+1. 모듈 : OGC
+2. 프로그램 ID : WwogcTopPlannerMgtM - 수석플래너 관리 화면
+3. 작성자 : gs.ritvik.m
+4. 작성일 : 2023.05.09
+****************************************************************************************************
+* 프로그램 설명
+****************************************************************************************************
+- 수석플래너 관리 화면
+****************************************************************************************************
+--->
 <template>
   <kw-page>
-    <template #header>
-      <kw-page-header :options="['홈', 'nav', 'nav', '수석플래너 관리']" />
-    </template>
-
-    <kw-search :cols="4">
+    <kw-search
+      :modified-targets="['grdMain']"
+      :cols="4"
+    >
       <kw-search-row>
         <kw-search-item
-          label="관리년월"
+          :label="$t('MSG_TXT_MGT_YNM')"
           required
         >
           <kw-date-picker
+            :label="$t('MSG_TXT_MGT_YNM')"
             type="month"
             rules="required"
           />
         </kw-search-item>
         <kw-search-item
-          label="조직레벨"
+          :label="$t('MSG_TXT_OG_LEVL')"
           :colspan="2"
         >
           <kw-select
@@ -32,7 +46,7 @@
             :options="['전체', 'B', 'C', 'D']"
           />
         </kw-search-item>
-        <kw-search-item label="번호">
+        <kw-search-item :label="$t('MSG_TXT_SEQUENCE_NUMBER')">
           <kw-input
             clearable
             icon="search"
@@ -49,11 +63,11 @@
       >
         <kw-tab
           name="1"
-          label="승급"
+          :label="$t('MSG_TXT_ADVMNT')"
         />
         <kw-tab
           name="2"
-          label="강등"
+          :label="$t('MSG_TXT_DMTN')"
         />
       </kw-tabs>
       <kw-tab-panels model-value="1">
@@ -61,16 +75,19 @@
           <kw-action-top>
             <template #left>
               <kw-paging-info
-                :page-size="10"
-                :page-size-options="[10, 20, 30, 40]"
-                :total-count="7"
+                v-model:page-size="pageInfo.pageSize"
+                v-model:page-index="pageInfo.pageIndex"
+                :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
+                :total-count="pageInfo.totalCount"
               />
             </template>
             <kw-btn
               icon="download_on"
               dense
               secondary
-              label="엑셀다운로드"
+              :label="$t('MSG_TXT_EXCEL_DOWNLOAD')"
+              :disable="pageInfo.totalCount===0"
+              @click="onClickExcelDownload"
             />
             <kw-separator
               vertical
@@ -80,7 +97,7 @@
             <kw-btn
               dense
               secondary
-              label="수석업로드"
+              :label="$t('MSG_TXT_SEN_UPLD')"
             />
             <kw-separator
               vertical
@@ -90,12 +107,13 @@
             <kw-btn
               dense
               primary
-              label="수석확정"
+              :label="$t('MSG_TXT_SEN_CONF')"
             />
           </kw-action-top>
 
           <kw-grid
-            ref="grdRef"
+            ref="grdMainRef"
+            name="grdMain"
             :visible-rows="10"
             @init="initGrid"
           />
@@ -110,7 +128,43 @@
 </template>
 
 <script setup>
-function initGrid(data, view) {
+// -------------------------------------------------------------------------------------------------
+// Import & Declaration
+// -------------------------------------------------------------------------------------------------
+import { codeUtil, defineGrid, getComponentType, gridUtil, useMeta } from 'kw-lib';
+
+const { t } = useI18n();
+const { getConfig } = useMeta();
+const { currentRoute } = useRouter();
+
+const pageInfo = ref({
+  totalCount: 0,
+  pageIndex: 1,
+  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
+});
+
+const grdMainRef = ref(getComponentType('KwGrid'));
+
+const codes = await codeUtil.getMultiCodes(
+  'COD_PAGE_SIZE_OPTIONS',
+);
+
+// -------------------------------------------------------------------------------------------------
+// Function & Event
+// -------------------------------------------------------------------------------------------------
+
+async function onClickExcelDownload() {
+  const view = grdMainRef.value.getView();
+  await gridUtil.exportView(view, {
+    fileName: currentRoute.value.meta.menuName,
+    timePostfix: true,
+  });
+}
+
+// -------------------------------------------------------------------------------------------------
+// Initialize Grid
+// -------------------------------------------------------------------------------------------------
+const initGrid = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'col1' },
     { fieldName: 'col2' },
@@ -132,22 +186,22 @@ function initGrid(data, view) {
   ];
 
   const columns = [
-    { fieldName: 'col1', header: '총괄단', width: '92', styleName: 'text-center' },
-    { fieldName: 'col2', header: '지역단', width: '106', styleName: 'text-center' },
-    { fieldName: 'col3', header: '소속', width: '106', styleName: 'text-center' },
-    { fieldName: 'col4', header: '빌딩명', width: '160', styleName: 'text-center' },
-    { fieldName: 'col5', header: '번호', width: '110', styleName: 'text-center' },
-    { fieldName: 'col6', header: '성명', width: '92', styleName: 'text-center' },
-    { fieldName: 'col7', header: '직책', width: '92', styleName: 'text-center' },
-    { fieldName: 'col8', header: '최초개시', width: '130', styleName: 'text-center' },
-    { fieldName: 'col9', header: '최종해약', width: '130', styleName: 'text-center' },
-    { fieldName: 'col10', header: '강등', width: '130', styleName: 'text-center' },
-    { fieldName: 'col11', header: '해약', width: '130', styleName: 'text-center' },
-    { fieldName: 'col12', header: '누적건수인정시작월', width: '180', styleName: 'text-center' },
-    { fieldName: 'col13', header: '누적건수', width: '106', styleName: 'text-center' },
-    { fieldName: 'col14', header: '당월인정건수', width: '136', styleName: 'text-center' },
-    { fieldName: 'col15', header: '플래너스타트업', width: '152', styleName: 'text-center' },
-    { fieldName: 'col16', header: 'WM해약여부', width: '152', styleName: 'text-center' },
+    { fieldName: 'col1', header: t('MSG_TXT_MANAGEMENT_DEPARTMENT'), width: '92', styleName: 'text-center' },
+    { fieldName: 'col2', header: t('MSG_TXT_RGNL_GRP'), width: '106', styleName: 'text-center' },
+    { fieldName: 'col3', header: t('MSG_TXT_BLG'), width: '106', styleName: 'text-center' },
+    { fieldName: 'col4', header: t('MSG_TXT_BLD_NM'), width: '160', styleName: 'text-center' },
+    { fieldName: 'col5', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '110', styleName: 'text-center' },
+    { fieldName: 'col6', header: t('MSG_TXT_EMPL_NM'), width: '92', styleName: 'text-center' },
+    { fieldName: 'col7', header: t('MSG_TXT_RSB'), width: '92', styleName: 'text-center' },
+    { fieldName: 'col8', header: t('MSG_TXT_FST_OPNG'), width: '130', styleName: 'text-center' },
+    { fieldName: 'col9', header: t('MSG_TXT_FNL_CLTN'), width: '130', styleName: 'text-center' },
+    { fieldName: 'col10', header: t('MSG_TXT_DMTN'), width: '130', styleName: 'text-center' },
+    { fieldName: 'col11', header: t('MSG_TXT_CLTN'), width: '130', styleName: 'text-center' },
+    { fieldName: 'col12', header: t('MSG_TXT_STRT_MNTH_REG_CUM'), width: '180', styleName: 'text-center' },
+    { fieldName: 'col13', header: t('MSG_TXT_ACU_CT'), width: '106', styleName: 'text-center' },
+    { fieldName: 'col14', header: t('MSG_TXT_THM_ACKMT_CT'), width: '136', styleName: 'text-center' },
+    { fieldName: 'col15', header: t('MSG_TXT_PLANNER_STRTUP'), width: '152', styleName: 'text-center' },
+    { fieldName: 'col16', header: t('MSG_TXT_WM_CLTN_YN'), width: '152', styleName: 'text-center' },
 
   ];
 
@@ -164,7 +218,7 @@ function initGrid(data, view) {
   view.setColumnLayout([
 
     {
-      header: '소속',
+      header: t('MSG_TXT_BLG'),
       direction: 'horizontal',
       items: ['col1', 'col2', 'col3', 'col4'],
     },
@@ -172,23 +226,23 @@ function initGrid(data, view) {
     'col6',
     'col7',
     {
-      header: '수석플래너 현황',
+      header: t('MSG_TXT_TOPMR_PLAR_PS'),
       direction: 'horizontal',
       items: ['col8', 'col9', 'col10', 'col11'],
     },
     {
-      header: '환경가전 실적',
+      header: t('MSG_TXT_ENVR_ELHM_PERF'),
       direction: 'horizontal',
       items: ['col12', 'col13', 'col14'],
     },
     {
-      header: '교육현황',
+      header: t('MSG_TXT_EDUC_PS'),
       direction: 'horizontal',
       items: ['col15'],
     },
     'col16',
   ]);
-}
+});
 </script>
 
 <style scoped>

@@ -51,6 +51,8 @@
           <kw-option-group
             v-model="checkedSelVals"
             type="checkbox"
+            option-value="colNm"
+            option-label="codeName"
             :options="selectionVariables"
             @update:model-value="resetVisibleChannelColumns"
           />
@@ -68,9 +70,6 @@
     </kw-action-bottom>
 
     <kw-action-top>
-      <template #left>
-        <span>({{ $t('MSG_TXT_UNIT') }} : {{ $t('MSG_TXT_CUR_WON') }})</span>
-      </template>
       <kw-btn
         v-show="!props.readonly"
         :label="$t('MSG_BTN_DEL')"
@@ -227,9 +226,9 @@ async function resetInitData() {
     }
     return rtn;
   }, []);
-  if (checkedVals && checkedVals.length) {
+  if (checkedVals && checkedVals.length && selectionVariables.value) {
     selectionVariables.value?.forEach((item, idx) => {
-      checkedSelVals.value[idx] = checkedVals.includes(item.codeId) ? item.codeId : null;
+      checkedSelVals.value[idx] = checkedVals.includes(item.colNm) ? item.colNm : null;
     });
   }
   await initGridRows();
@@ -338,7 +337,7 @@ async function onClickRemove() {
 
 async function fetchSelVarData() {
   const sellTpCd = currentInitData.value[pdConst.TBL_PD_BAS]?.sellTpCd;
-  const res = await dataService.get('/sms/common/product/type-variables', { params: { sellTpCd } });
+  const res = await dataService.get('/sms/common/product/type-variables', { params: { sellTpCd, choFxnDvCd: pdConst.CHO_FXN_DV_CD_CHOICE } });
   // console.log('selectionVariables.value : ', selectionVariables.value);
   selectionVariables.value = res.data;
 }
@@ -347,7 +346,7 @@ async function resetVisibleChannelColumns() {
   // console.log('checkedSelVals : ', checkedSelVals.value);
   selectionVariables.value.forEach((field) => {
     const view = grdMainRef.value.getView();
-    const column = view.columnByName(field.colNm);
+    const column = view.columnByName(field.codeId);
     if (column) {
       if (checkedSelVals.value && checkedSelVals.value.includes(field.colNm)) {
         column.visible = true;
@@ -394,6 +393,7 @@ async function initGrid(data, view) {
   );
   columns.map((item) => {
     if (item.fieldName === 'svPdCd') {
+      item.styleName = 'text-left';
       item.options = props.codes.svPdCd;
     }
     return item;

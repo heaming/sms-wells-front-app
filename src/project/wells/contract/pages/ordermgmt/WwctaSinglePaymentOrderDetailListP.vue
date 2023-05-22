@@ -273,6 +273,7 @@
       ref="grdFreeGiftInformation"
       name="grdFreeGiftInformation"
       :visible-rows="pageInfo.totalCount"
+      style="width: 50%;"
       @init="initGridFreeGiftInformation"
     />
     <table class="kw-table--normal mt30">
@@ -1185,11 +1186,11 @@ const initGridCompositionProducts = defineGrid((data, view) => {
     { fieldName: 'pdClsfNm' }, // 상품분류명
   ];
   const columns = [
-    { fieldName: 'pdNm', header: t('MSG_TXT_PD_INF'), width: '333' }, // 상품정보
+    { fieldName: 'pdNm', header: t('MSG_TXT_PD_INF'), width: '333', styleName: 'text-left' }, // 상품정보
     { fieldName: 'pdQty', header: t('MSG_TXT_PROD_QUANT'), width: '76', styleName: 'text-right' }, // 상품수량
     { fieldName: 'fnlVal', header: t('MSG_TXT_UPRC'), width: '158', styleName: 'text-right' }, // 단가
     { fieldName: 'ctrVal', header: t('MSG_TXT_DSC'), width: '158', styleName: 'text-right' }, // 할인
-    { fieldName: 'pdClsfNm', header: t('MSG_TXT_PRDT_CATE'), width: '354' }, // 상품분류명
+    { fieldName: 'pdClsfNm', header: t('MSG_TXT_PRDT_CATE'), width: '354', styleName: 'text-left' }, // 상품분류명
   ];
 
   data.setFields(fields);
@@ -1205,7 +1206,7 @@ const initGridFreeGiftInformation = defineGrid((data, view) => {
     { fieldName: 'fgptQty' }, // 사은품수량
   ];
   const columns = [
-    { fieldName: 'fgptPdCd', header: t('MSG_TXT_FGPT'), width: '333' }, // 사은품 상품코드
+    { fieldName: 'fgptPdCd', header: t('MSG_TXT_FGPT'), width: '333', styleName: 'text-left' }, // 사은품 상품코드
     { fieldName: 'fgptQty', header: t('MSG_TXT_FGPT_QTY'), width: '76', styleName: 'text-right' }, // 사은품수량
   ];
 

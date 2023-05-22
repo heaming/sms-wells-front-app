@@ -136,9 +136,10 @@
 // -------------------------------------------------------------------------------------------------
 import { useDataService, useMeta, gridUtil, useGlobal, codeUtil, getComponentType, defineGrid } from 'kw-lib';
 import dayjs from 'dayjs';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, isEmpty } from 'lodash-es';
 import pdConst from '~sms-common/product/constants/pdConst';
 import ZwpdProductClassificationSelect from '~sms-common/product/pages/standard/components/ZwpdProductClassificationSelect.vue';
+import { setGridDateFromTo } from '~sms-common/product/utils/pdUtil';
 
 const { notify, modal } = useGlobal();
 const router = useRouter();
@@ -355,6 +356,14 @@ const initGrdMain = defineGrid((data, view) => {
 
   view.sortingOptions.enabled = false;
   view.filteringOptions.enabled = false;
+
+  view.onCellEdited = async (grid, itemIndex, row, fieldIndex) => {
+    // 날짜값 조정
+    await setGridDateFromTo(view, grid, itemIndex, fieldIndex, 'vlStrtDtm', 'vlEndDtm');
+    if (grid.getColumn(fieldIndex).fieldName === 'pdNm' && isEmpty(grid.getValue(itemIndex, 'pdNm'))) {
+      data.setValue(itemIndex, 'pdCd', null);
+    }
+  };
 
   view.onCellButtonClicked = async (grid, { column, itemIndex }) => {
     if (column === 'pdNm') {

@@ -126,7 +126,9 @@
       </kw-action-top>
       <kw-grid
         ref="grdPerfDtlRef"
-        :visible-rows="2"
+        name="grdPerfDtl"
+        :page-size="pageInfo.pageSize"
+        :total-count="pageInfo.totalCount.grdPerfDtl"
         @init="initGrdPerfDtl"
       />
       <kw-separator />
@@ -137,7 +139,9 @@
       </kw-action-top>
       <kw-grid
         ref="grdEstFeeDtlRef"
-        :visible-rows="2"
+        name="grdEstFeeDtl"
+        :page-size="pageInfo.pageSize"
+        :total-count="pageInfo.totalCount.grdEstFeeDtl"
         @init="initGrdEstFeeDtl"
       />
       <kw-separator />
@@ -148,7 +152,9 @@
       </kw-action-top>
       <kw-grid
         ref="grdSaleHistRef"
-        :visible-rows="5"
+        name="grdSaleHist"
+        :page-size="pageInfo.pageSize"
+        :total-count="pageInfo.totalCount.grdSaleHist"
         @init="initGrdSaleHist"
       />
     </div>
@@ -159,7 +165,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { getComponentType, defineGrid, useGlobal, useDataService } from 'kw-lib';
+import { getComponentType, defineGrid, useGlobal, useDataService, useMeta } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
 
@@ -167,6 +173,18 @@ const now = dayjs();
 const { modal } = useGlobal();
 const { t } = useI18n();
 const dataService = useDataService();
+const { getConfig } = useMeta();
+
+const pageInfo = ref({
+  totalCount: {
+    grdSaleHist: 0,
+    grdEstFeeDtl: 0,
+    grdPerfDtl: 0,
+  },
+  pageIndex: 1,
+  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
+});
+
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------

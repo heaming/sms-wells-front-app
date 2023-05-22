@@ -235,7 +235,7 @@
       <kw-action-top class="mt30">
         <template #left>
           <h3>{{ t('MSG_TXT_PNPYAM_DTLP_IZ') }}</h3>
-          <span class="ml8">({{ $t('MSG_TXT_UNIT') }}) : ({{ $t('MSG_TXT_CUR_WON') }})</span>
+          <span class="ml8">({{ $t('MSG_TXT_UNIT_COLON_WON') }})</span>
         </template>
         <kw-btn
           secondary
@@ -331,6 +331,7 @@ async function onClickSearchNo() {
     component: 'ZwogcPartnerListP',
     componentProps: {
       prtnrNo: searchParams.value.no,
+      ogTpCd: 'W03',
     },
   });
 

@@ -14,116 +14,124 @@
 --->
 <template>
   <kw-page>
-    <div class="normal-area normal-area--button-set-bottom">
-      <kw-stepper
-        v-model="currentStep.name"
-        heading-text
-        :header-nav="!isTempSaveBtn || passedStep > 0"
-        @update:model-value="onClickStep()"
-      >
-        <slot>
-          <kw-step
-            :header-nav="!isTempSaveBtn || passedStep >= pdConst.W_SERVICE_STEP_BASIC.step"
-            :name="pdConst.W_SERVICE_STEP_BASIC.name"
-            :title="$t('MSG_TXT_PROP_REG')"
-            :prefix="pdConst.W_SERVICE_STEP_BASIC.step"
-            :done="currentStep.step > pdConst.W_SERVICE_STEP_BASIC.step"
-          />
-          <kw-step
-            :header-nav="!isTempSaveBtn || passedStep >= pdConst.W_SERVICE_STEP_FILTER.step"
-            :name="pdConst.W_SERVICE_STEP_FILTER.name"
-            :title="$t('MSG_TXT_PD_FILT_CHG')"
-            :prefix="pdConst.W_SERVICE_STEP_FILTER.step"
-            :done="currentStep.step > pdConst.W_SERVICE_STEP_FILTER.step"
-          />
-          <kw-step
-            :header-nav="!isTempSaveBtn || passedStep >= pdConst.W_SERVICE_STEP_CHECK.step"
-            :name="pdConst.W_SERVICE_STEP_CHECK.name"
-            :title="$t('MSG_TXT_CHK_REG_INFO')"
-            :prefix="pdConst.W_SERVICE_STEP_CHECK.step"
-          />
-          <kw-step-panel :name="pdConst.W_SERVICE_STEP_BASIC.name">
-            <zwpdc-prop-groups-mgt
-              :ref="cmpStepRefs[0]"
-              v-model:pd-cd="currentPdCd"
-              v-model:init-data="prevStepData"
-              :pd-tp-cd="pdConst.PD_TP_CD_SERVICE"
-              is-auto-group-title
+    <kw-observer
+      ref="obsMainRef"
+      name="obsMain"
+    >
+      <div class="normal-area normal-area--button-set-bottom">
+        <kw-stepper
+          v-model="currentStep.name"
+          heading-text
+          :header-nav="!isTempSaveBtn || passedStep > 0"
+          @update:model-value="onClickStep()"
+        >
+          <slot>
+            <kw-step
+              :header-nav="!isTempSaveBtn || passedStep >= pdConst.W_SERVICE_STEP_BASIC.step"
+              :name="pdConst.W_SERVICE_STEP_BASIC.name"
+              :title="$t('MSG_TXT_PROP_REG')"
+              :prefix="pdConst.W_SERVICE_STEP_BASIC.step"
+              :done="currentStep.step > pdConst.W_SERVICE_STEP_BASIC.step"
+              :sub-text="subTitle"
             />
-          </kw-step-panel>
-          <kw-step-panel :name="pdConst.W_SERVICE_STEP_FILTER.name">
-            <wwpdc-service-mgt-m-filter
-              :ref="cmpStepRefs[1]"
-              v-model:pd-cd="currentPdCd"
-              v-model:init-data="prevStepData"
+            <kw-step
+              :header-nav="!isTempSaveBtn || passedStep >= pdConst.W_SERVICE_STEP_FILTER.step"
+              :name="pdConst.W_SERVICE_STEP_FILTER.name"
+              :title="$t('MSG_TXT_PD_FILT_CHG')"
+              :prefix="pdConst.W_SERVICE_STEP_FILTER.step"
+              :done="currentStep.step > pdConst.W_SERVICE_STEP_FILTER.step"
+              :sub-text="subTitle"
             />
-          </kw-step-panel>
-          <kw-step-panel :name="pdConst.W_SERVICE_STEP_CHECK.name">
-            <h3 class="mb20">
-              <!-- 기본속성 -->
-              {{ $t('MSG_TXT_BAS_ATTR') }}
-            </h3>
-            <wwpdc-service-dtl-m-contents
-              v-model:pd-cd="currentPdCd"
-              v-model:init-data="prevStepData"
-              :is-history-tab="false"
-              :is-update-btn="false"
-              :codes="codes"
-              is-reg-check-page
+            <kw-step
+              :header-nav="!isTempSaveBtn || passedStep >= pdConst.W_SERVICE_STEP_CHECK.step"
+              :name="pdConst.W_SERVICE_STEP_CHECK.name"
+              :title="$t('MSG_TXT_CHK_REG_INFO')"
+              :prefix="pdConst.W_SERVICE_STEP_CHECK.step"
+              :sub-text="subTitle"
             />
-          </kw-step-panel>
-        </slot>
-      </kw-stepper>
+            <kw-step-panel :name="pdConst.W_SERVICE_STEP_BASIC.name">
+              <zwpdc-prop-groups-mgt
+                :ref="cmpStepRefs[0]"
+                v-model:pd-cd="currentPdCd"
+                v-model:init-data="prevStepData"
+                :pd-tp-cd="pdConst.PD_TP_CD_SERVICE"
+                is-auto-group-title
+              />
+            </kw-step-panel>
+            <kw-step-panel :name="pdConst.W_SERVICE_STEP_FILTER.name">
+              <wwpdc-service-mgt-m-filter
+                :ref="cmpStepRefs[1]"
+                v-model:pd-cd="currentPdCd"
+                v-model:init-data="prevStepData"
+              />
+            </kw-step-panel>
+            <kw-step-panel :name="pdConst.W_SERVICE_STEP_CHECK.name">
+              <h3 class="mb20">
+                <!-- 기본속성 -->
+                {{ $t('MSG_TXT_BAS_ATTR') }}
+              </h3>
+              <wwpdc-service-dtl-m-contents
+                v-model:pd-cd="currentPdCd"
+                v-model:init-data="prevStepData"
+                :is-history-tab="false"
+                :is-update-btn="false"
+                :codes="codes"
+                is-reg-check-page
+              />
+            </kw-step-panel>
+          </slot>
+        </kw-stepper>
 
-      <div class="button-set--bottom">
-        <div class="button-set--bottom-left">
-          <kw-btn
-            v-show="isTempSaveBtn && currentStep.step > 1"
-            :label="$t('MSG_BTN_PREV')"
-            class="ml8"
-            @click="onClickPrevStep"
-          />
-        </div>
-        <div class="button-set--bottom-right">
-          <kw-btn
-            v-show="!isCreate"
-            :label="$t('MSG_BTN_DEL')"
-            @click="onClickDelete"
-          />
-          <!-- <kw-btn
+        <div class="button-set--bottom">
+          <div class="button-set--bottom-left">
+            <kw-btn
+              v-show="isTempSaveBtn && currentStep.step > 1"
+              :label="$t('MSG_BTN_PREV')"
+              class="ml8"
+              @click="onClickPrevStep"
+            />
+          </div>
+          <div class="button-set--bottom-right">
+            <kw-btn
+              v-show="!isCreate"
+              :label="$t('MSG_BTN_DEL')"
+              @click="onClickDelete"
+            />
+            <!-- <kw-btn
             v-show="currentStep.step === 1 && isCreate"
             :label="$t('MSG_BTN_INTL')"
             class="ml8"
             @click="onClickReset"
           /> -->
-          <kw-btn
-            :label="$t('MSG_BTN_CANCEL')"
-            class="ml8"
-            @click="onClickCancel()"
-          />
-          <kw-btn
-            v-if="currentStep.step < regSteps.length && isTempSaveBtn"
-            :label="$t('MSG_BTN_TMP_SAVE')"
-            class="ml8"
-            @click="onClickSave('Y')"
-          />
-          <kw-btn
-            v-show="isTempSaveBtn && currentStep.step < regSteps.length"
-            :label="$t('MSG_BTN_NEXT')"
-            class="ml8"
-            primary
-            @click="onClickNextStep"
-          />
-          <kw-btn
-            v-show="!isTempSaveBtn || currentStep.step === regSteps.length"
-            :label="$t('MSG_BTN_SAVE')"
-            class="ml8"
-            primary
-            @click="onClickSave('N')"
-          />
+            <kw-btn
+              :label="$t('MSG_BTN_CANCEL')"
+              class="ml8"
+              @click="onClickCancel()"
+            />
+            <kw-btn
+              v-if="currentStep.step < regSteps.length && isTempSaveBtn"
+              :label="$t('MSG_BTN_TMP_SAVE')"
+              class="ml8"
+              @click="onClickSave('Y')"
+            />
+            <kw-btn
+              v-show="isTempSaveBtn && currentStep.step < regSteps.length"
+              :label="$t('MSG_BTN_NEXT')"
+              class="ml8"
+              primary
+              @click="onClickNextStep"
+            />
+            <kw-btn
+              v-show="!isTempSaveBtn || currentStep.step === regSteps.length"
+              :label="$t('MSG_BTN_SAVE')"
+              class="ml8"
+              primary
+              @click="onClickSave('N')"
+            />
+          </div>
         </div>
       </div>
-    </div>
+    </kw-observer>
   </kw-page>
 </template>
 <script setup>
@@ -165,11 +173,14 @@ const prevStepData = ref({});
 const currentPdCd = ref();
 const isCreate = ref(false);
 const codes = await codeUtil.getMultiCodes('PD_TEMP_SAVE_CD');
+const obsMainRef = ref();
+const subTitle = ref();
 
 // 삭제 버튼
 async function onClickDelete() {
   if (await confirm(t('MSG_ALT_WANT_DEL_WCC'))) {
     await dataService.delete(`/sms/wells/product/services/${currentPdCd.value}`);
+    await obsMainRef.value.reset();
     await router.close();
     await router.push({ path: '/product/zwpdc-service-list',
       query: { searchYn: 'Y' }, /* 임시 아래 stateParam 될 때 삭제, props로 돌리는건 watch 문제가 있음 */
@@ -212,6 +223,7 @@ async function getSaveData() {
       }
     }
   }));
+  subTitle.value = subList[bas].pdCd ? `${subList[bas].pdNm} (${subList[bas].pdCd})` : subList[bas].pdNm;
   // console.log('subList : ', subList);
   return subList;
 }
@@ -250,7 +262,10 @@ async function onClickStep() {
 
 // 취소 버튼
 async function onClickCancel() {
-  await router.close();
+  if (await obsMainRef.value.confirmIfIsModified()) {
+    await obsMainRef.value.reset();
+    await router.close();
+  }
 }
 
 async function init() {
@@ -269,6 +284,7 @@ async function fetchProduct() {
     initData[pdConst.RELATION_PRODUCTS] = res.data[pdConst.RELATION_PRODUCTS];
     isTempSaveBtn.value = initData[bas].tempSaveYn === 'Y';
     prevStepData.value = initData;
+    subTitle.value = initData[bas].pdCd ? `${initData[bas].pdNm} (${initData[bas].pdCd})` : initData[bas].pdNm;
     // console.log('res.data : ', res.data);
     await init();
   }

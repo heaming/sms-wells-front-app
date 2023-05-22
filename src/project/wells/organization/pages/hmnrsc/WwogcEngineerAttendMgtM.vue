@@ -16,6 +16,7 @@
   <kw-page>
     <kw-search
       one-row
+      :modified-targets="['grdMain']"
       @search="onClickSearch"
     >
       <kw-search-row>
@@ -42,9 +43,11 @@
           <kw-paging-info :total-count="pageInfo.totalCount" />
         </template>
         <kw-btn
-          dense
-          secondary
+          v-permission:update
+          grid-action
           :label="$t('MSG_BTN_SAVE')"
+          :disable="pageInfo.totalCount === 0"
+          @click="onClickSave"
         />
         <kw-separator
           vertical
@@ -63,6 +66,7 @@
 
       <kw-grid
         ref="grdMainRef"
+        name="grdMain"
         :visible-rows="10"
         @init="initGrid"
       />
@@ -77,16 +81,18 @@
 import { codeUtil, useMeta, useDataService, getComponentType, gridUtil, useGlobal, defineGrid } from 'kw-lib';
 import dayjs from 'dayjs';
 import ZwogLevelSelect from '~sms-common/organization/components/ZwogLevelSelect.vue';
+import { SMS_WELLS_URI } from '~sms-wells/organization/constants/ogConst';
 
 const { getConfig } = useMeta();
 const dataService = useDataService();
-const { modal } = useGlobal();
+const { modal, notify } = useGlobal();
 const { currentRoute } = useRouter();
+
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 const { t } = useI18n();
-const codes = await codeUtil.getMultiCodes('DNL_RSON_CD', 'OG_TP_CD');
+const codes = await codeUtil.getMultiCodes('EGER_WRK_STAT_CD', 'OG_TP_CD');
 const grdMainRef = ref(getComponentType('KwGrid'));
 const now = dayjs().format('YYYYMMDD');
 const searchParams = ref({
@@ -99,10 +105,11 @@ const pageInfo = ref({
   totalCount: 0,
   pageIndex: 1,
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
+
 });
 
 async function fetchData() {
-  return await dataService.get('/sms/wells/partner-engineer/attend/paging', { params: { ...searchParams.value, ...pageInfo.value } });
+  return await dataService.get(`${SMS_WELLS_URI}/partner-engineer/attend/paging`, { params: { ...searchParams.value, ...pageInfo.value } });
 }
 
 async function onClickSearch() {
@@ -117,19 +124,35 @@ async function onClickSearch() {
 
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
-  const res = await dataService.get('/sms/wells/partner-engineer/attend/excel-download', { params: { ...searchParams.value } });
+  const res = await dataService.get(`${SMS_WELLS_URI}/partner-engineer/attend/excel-download`, { params: { ...searchParams.value } });
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
     exportData: res.data,
   });
 }
-function editableCallback() {
-  if (searchParams.value.baseDt < now) {
-    return { editable: false };
-  }
-  return { editable: true };
+
+// 행 저장
+async function onClickSave() {
+  const view = grdMainRef.value.getView();
+  if (await gridUtil.alertIfIsNotModified(view)) { return; }
+  if (!await gridUtil.validate(view)) { return; }
+
+  const changedRows = gridUtil.getChangedRowValues(view);
+  const { prtnrNo } = changedRows[0];
+
+  await dataService.post(`${SMS_WELLS_URI}/partner-engineer/${prtnrNo}`, changedRows);
+  await notify(t('MSG_ALT_SAVE_DATA'));
+  await onClickSearch();
 }
+
+// function editableCallback() {
+//   if (searchParams.value.baseDt < now) {
+//     return { editable: false };
+//   }
+//   return { editable: true };
+// }
+
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
@@ -144,60 +167,16 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'wkGrpNm', header: t('MSG_TXT_WK_GRP'), width: '106', styleName: 'text-center', editable: false },
     { fieldName: 'bizAgntYn', header: t('MSG_TXT_BIZ_AGNT'), width: '106', styleName: 'text-center', editable: false },
     { fieldName: 'wrkDt', header: t('MSG_TXT_WRK_DT'), width: '130', styleName: 'text-center', editable: false, datetimeFormat: 'date' },
-    { fieldName: 'wrkDy', header: t('MSG_TXT_WRK_DOW'), width: '106', styleName: 'text-center', editable: false },
-    { fieldName: 'dnlRsonNm',
-      header: t('MSG_TXT_WRK_STAT'),
-      options: codes.DNL_RSON_CD,
-      editor: { type: 'list' },
-      width: '166',
-      styleName: 'text-left',
-      styleCallback() {
-        return editableCallback();
-      },
-    },
-    { fieldName: 'rmkCn',
-      header: t('MSG_TXT_RMK_ARTC'),
-      width: '146',
-      styleName: 'text-center',
-      styleCallback() {
-        return editableCallback();
-      } },
-    { fieldName: 'vcnStrtDt',
-      header: t('MSG_TXT_STRT_DT'),
-      width: '178',
-      styleName: 'text-center',
-      editor: { type: 'btdate' },
-      styleCallback() {
-        return editableCallback();
-      } },
-    { fieldName: 'vcnEndDt',
-      header: t('MSG_TXT_END_DT'),
-      width: '178',
-      styleName: 'text-center',
-      editor: { type: 'btdate' },
-      styleCallback() {
-        return editableCallback();
-      } },
-    { fieldName: 'bizAgntPrtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '100', styleName: 'text-center', editable: false },
-    { fieldName: 'bizAgntPrtnrNo',
-      header: t('MSG_TXT_EPNO'),
-      width: '120',
-      styleName: 'text-left, rg-button-icon--search',
-      editor: { type: 'text' },
-      button: 'action',
-      styleCallback() {
-        if (now <= searchParams.value.baseDt) {
-          return { editable: true, styleName: 'text-left, rg-button-icon--search' };
-        }
-        return { editable: false, styleName: 'text-center' };
-      },
-      buttonVisibleCallback() {
-        return (now <= searchParams.value.baseDt);
-      },
-    },
-    { fieldName: 'col16', header: t('MSG_TXT_EMPL_NM'), width: '100', styleName: 'text-center', editable: false },
-    { fieldName: 'col17', header: t('MSG_TXT_EPNO'), width: '120', styleName: 'text-center', editable: false },
-    { fieldName: 'col18', header: t('MSG_TIT_PROC_DTM'), width: '182', styleName: 'text-center', editable: false },
+    { fieldName: 'wrkNm', header: t('MSG_TXT_WRK_DOW'), width: '106', styleName: 'text-center', editable: false },
+    { fieldName: 'egerWrkStatCd', header: t('MSG_TXT_WRK_STAT'), options: codes.EGER_WRK_STAT_CD, editor: { type: 'dropdown' } },
+    { fieldName: 'rmkCn', header: t('MSG_TXT_RMK_ARTC'), width: '146', styleName: 'text-center', editable: true, editor: { type: 'text', maxLength: 3500 } },
+    { fieldName: 'dnlStrtdt', header: t('MSG_TXT_STRT_DT'), width: '178', styleName: 'text-center', editor: { type: 'btdate' }, editable: true, datetimeFormat: 'date' },
+    { fieldName: 'dnlEnddt', header: t('MSG_TXT_END_DT'), width: '178', styleName: 'text-center', editor: { type: 'btdate' }, editable: true, datetimeFormat: 'date' },
+    { fieldName: 'bizAgntPrtnrNo', header: t('MSG_TXT_EPNO'), width: '128', styleName: 'text-left, rg-button-icon--search', editor: { type: 'text' }, editable: true, button: 'action' },
+    { fieldName: 'agntPrtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '100', styleName: 'text-center', editable: false },
+    { fieldName: 'pcpPrtnrNo', header: t('MSG_TXT_EPNO'), width: '120', styleName: 'text-center', editable: false },
+    { fieldName: 'pcpPrtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '100', styleName: 'text-center', editable: false },
+    { fieldName: 'procsDtm', header: t('MSG_TIT_PROC_DTM'), width: '182', styleName: 'text-center', editable: false, datetimeFormat: 'datetime' },
 
   ];
 
@@ -221,25 +200,25 @@ const initGrid = defineGrid((data, view) => {
     },
     'bizAgntYn',
     'wrkDt',
-    'wrkDy',
-    'dnlRsonNm',
+    'wrkNm',
+    'egerWrkStatCd',
     'rmkCn',
     {
       header: t('MSG_TXT_VCN_USE_PTRM'),
       direction: 'horizontal',
-      items: ['vcnStrtDt', 'vcnEndDt'],
+      items: ['dnlStrtdt', 'dnlEnddt'],
     },
     {
       header: t('MSG_TXT_BIZ_AGNT_PRTNR'),
       direction: 'horizontal',
-      items: ['bizAgntPrtnrKnm', 'bizAgntPrtnrNo'],
+      items: ['bizAgntPrtnrNo', 'agntPrtnrKnm'],
     },
     {
       header: t('MSG_TXT_PCP'),
       direction: 'horizontal',
-      items: ['col16', 'col17'],
+      items: ['pcpPrtnrNo', 'pcpPrtnrKnm'],
     },
-    'col18',
+    'procsDtm',
   ]);
 
   view.onScrollToBottom = async (g) => {
@@ -251,14 +230,14 @@ const initGrid = defineGrid((data, view) => {
   };
   view.onCellButtonClicked = async (grid, { dataRow, column }) => {
     if (column === 'bizAgntPrtnrNo') {
-      const { hooPrtnrNo } = gridUtil.getRowValue(grid, dataRow);
+      const { bizAgntPrtnrNo } = gridUtil.getRowValue(grid, dataRow);
       const { result, payload } = await modal({
         component: 'ZwogzPartnerListP',
-        componentProps: { prtnrNo: hooPrtnrNo, ogTpCd: 'W06' },
+        componentProps: { prtnrNo: bizAgntPrtnrNo, ogTpCd: 'W06' },
       });
       if (result) {
         data.setValue(dataRow, 'bizAgntPrtnrNo', payload.prtnrNo);
-        data.setValue(dataRow, 'bizAgntPrtnrKnm', payload.prtnrKnm);
+        data.setValue(dataRow, 'agntPrtnrKnm', payload.prtnrKnm);
       }
     }
   };
