@@ -145,12 +145,14 @@
       </template>
       <kw-btn
         icon="download_on"
+        :disable="pageInfo.totalCount === 0"
         secondary
         dense
         :label="$t('MSG_BTN_DOWN_COM_EXCEL')"
       />
       <kw-btn
         icon="download_on"
+        :disable="pageInfo.totalCount === 0"
         secondary
         dense
         :label="$t('MSG_BTN_EXCEL_DOWN')"

@@ -169,7 +169,7 @@ const { notify, modal, confirm } = useGlobal();
 const isGrid1Visile = ref(false);
 const isGrid2Visile = ref(false);
 const isGrid3Visile = ref(true);
-const currentRoute = useRouter();
+const { currentRoute } = useRouter();
 const stepNaviRef = ref();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
