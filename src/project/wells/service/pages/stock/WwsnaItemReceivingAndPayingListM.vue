@@ -3,7 +3,7 @@
  * 프로그램 개요
  ****************************************************************************************************
  1. 모듈 : SNA (재고관리)
- 2. 프로그램 ID : WwsnaItemReceivingAndPayingPsListM - 품목별 수불현황(W-SV-U-0252M01)
+ 2. 프로그램 ID : WwsnaItemReceivingAndPayingListM - 품목별 수불현황(W-SV-U-0252M01)
  3. 작성자 : SongTaeSung
  4. 작성일 : 2023.05.17
  ****************************************************************************************************
@@ -30,6 +30,7 @@
             v-model:from="searchParams.stFromYmd"
             v-model:to="searchParams.edToYmd"
             rules="date_range_months:1"
+            :label="t('MSG_TXT_RVPY_DT')"
           />
         </kw-search-item>
         <!-- 창고구분 -->
