@@ -239,7 +239,6 @@ const filterCodes = ref({
 filterCodes.value.filterOstrTpCd = codes.OSTR_AK_TP_CD.filter((v) => ['310', '320', '330'].includes(v.codeId));
 
 function changeOstrAkQty(row, val) {
-  debugger;
   console.log(val);
   const view = grdMainRef.value.getView();
   view.setValue(row, 'ostrCnfmQty', val);
@@ -270,12 +269,10 @@ async function onClickItemPop(type, row) {
 
     },
   });
-  debugger;
   // TODO: 연결화면 개발진행중이라, 받아와서 처리하는 로직은 임시값으로 테스트한 코드임. 팝업화면에서 넘어오는 형식따라 수정가능성있음.
   if (result) {
     const view = grdMainRef.value.getView();
     if (type === 'C') {
-      debugger;
       view.getDataSource().addRows(payload);
       view.resetCurrent();
     } else if (type === 'U') {
@@ -376,7 +373,7 @@ async function onClickDelete() {
   // TODO: 출고완료 전 삭제해야 테스트가능할듯. 저장테스트 미실시로 확인 불가.
   if (deletedRows.length > 0) {
     const result = await dataService.delete('/sms/wells/service/out-of-storage-asks', { data: checkedRows });
-    if (result > 0) {
+    if (result.data > 0) {
       notify(t('MSG_ALT_SAVE_COMP'));
     } else {
       notify(t('MSG_ALT_PROC_FAIL'));
@@ -388,7 +385,6 @@ async function onClickDelete() {
 async function onClickSave() {
   const view = grdMainRef.value.getView();
   const checkedRows = gridUtil.getCheckedRowValues(view);
-  debugger;
   if (checkedRows.length === 0) {
     notify(t('MSG_ALT_NOT_SELECT_OSTR'));
     return;
@@ -402,6 +398,7 @@ async function onClickSave() {
     const chkWarehouseQty = checkedRows[i].warehouseQty;
     const chkOstrAkQty = checkedRows[i].ostrAkQty;
     const chkRectOstrDt = checkedRows[i].rectOstrDt;
+    const chkOstrAkNo = searchParams.value.ostrAkNo;
 
     if (chkOstrAkTpCd === '310' && searchParams.value.ostrOjWareNo.substring(0, 1) === '3' && chkWarehouseQty === 0) {
       notify(t('MSG_ALT_NO_OSTR_WARE_STOC'));
@@ -415,6 +412,10 @@ async function onClickSave() {
     if (!isEmpty(chkRectOstrDt)) {
       notify(t('MSG_ALT_ARDY_OSTR', [t('MSG_TXT_MOD')]));
       return;
+    }
+
+    if (!isEmpty(chkOstrAkNo)) {
+      checkedRows[i].ostrAkNo = chkOstrAkNo;
     }
   }
   const params = searchParams.value;
@@ -431,7 +432,6 @@ async function onClickSave() {
 
 async function onChangeStrHopDt() {
   if (!searchParams.value.strHopDt) {
-    debugger;
     notify(t('MSG_ALT_NCELL_REQUIRED_VAL', [t('MSG_TXT_STR_HOP_D')]));
     searchParams.value.strHopDt = dayjs().format('YYYYMMDD');
     fetchOstrOjWare();
@@ -629,7 +629,7 @@ const initGrdMain = defineGrid((data, view) => {
     {
       fieldName: 'imgUrl',
       header: t('MSG_TXT_PHO'),
-      width: '100',
+      width: '130',
       styleName: 'text-center',
       renderer: {
         type: 'button',
@@ -640,7 +640,7 @@ const initGrdMain = defineGrid((data, view) => {
     {
       fieldName: 'rmkCn',
       header: t('MSG_TXT_NOTE'),
-      width: '100',
+      width: '250',
       styleName: 'text-left',
       editable: true,
     },
@@ -684,7 +684,6 @@ const initGrdMain = defineGrid((data, view) => {
 
   view.onGetEditValue = async (grid, index, editResult) => {
     grid.checkItem(index.itemIndex, true);
-    debugger;
     if (index.fieldName === 'ostrAkQty') {
       changeOstrAkQty(index.dataRow, editResult.value);
     }
