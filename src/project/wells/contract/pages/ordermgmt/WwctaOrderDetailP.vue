@@ -14,7 +14,7 @@
 --->
 <template>
   <kw-popup
-    size="4xl"
+    size="2xl"
     ignore-on-modified
   >
     <!-- 선택계약상품 -->
@@ -23,7 +23,7 @@
       <kw-form-row>
         <!-- 계약상세번호 -->
         <kw-form-item :label="$t('MSG_TXT_CNTR_DTL_NO')">
-          <p>{{ frmMainData.cntrNoFull }}</p>
+          <p>{{ frmMainData.cntrDtlNo }}</p>
         </kw-form-item>
         <!-- 계약상품리스트 -->
         <kw-form-item :label="$t('MSG_TXT_CNTRCT_PD_LIST')">
@@ -38,34 +38,37 @@
       </kw-form-row>
     </kw-form>
     <kw-separator />
-    <kw-tabs v-model="selectedTab">
-      <!-- 고객기본정보 -->
+    <kw-tabs model-value="1">
       <kw-tab
         name="1"
         :label="$t('MSG_TXT_CST_BAS_INF')"
       />
-      <!-- 판매정보 -->
       <kw-tab
         name="2"
-        :label="$t('MSG_TXT_SELL') + $t('MSG_TXT_INF')"
+        :label="$t('MSG_TXT_MGT_INF')"
       />
-      <!-- 입금내역 -->
       <kw-tab
         name="3"
         :label="$t('MSG_TXT_DP_IZ')"
       />
-      <!-- 세금계산서 -->
       <kw-tab
         name="4"
         :label="$t('MSG_TXT_TXINV')"
       />
-      <!-- 컨택내용 -->
       <kw-tab
         name="5"
-        :label="$t('MSG_TXT_CTT_CNTN')"
+        :label="$t('MSG_TXT_HW_CMNC_HIS')"
+      />
+      <kw-tab
+        name="6"
+        :label="$t('MSG_TXT_ELC_TASK_RQST')"
+      />
+      <kw-tab
+        name="7"
+        :label="$t('MSG_TXT_CLCTAM_CTT_CNTN')"
       />
     </kw-tabs>
-    <kw-tab-panels :model-value="selectedTab">
+    <kw-tab-panels model-value="1">
       <kw-tab-panel name="1">
         <kw-form
           :cols="2"
@@ -206,30 +209,6 @@
           </kw-form-row>
         </kw-form>
       </kw-tab-panel>
-      <!-- 판매정보 탭 -->
-      <kw-tab-panel name="2">
-        <kw-form
-          ref="tab2Ref"
-        />
-      </kw-tab-panel>
-      <!-- 입금내역 탭 -->
-      <kw-tab-panel name="3">
-        <kw-form
-          ref="tab3Ref"
-        />
-      </kw-tab-panel>
-      <!-- 세금계산서 탭 -->
-      <kw-tab-panel name="4">
-        <kw-form
-          ref="tab4Ref"
-        />
-      </kw-tab-panel>
-      <!-- 컨택내용 탭 -->
-      <kw-tab-panel name="5">
-        <wwcta-order-detail-collecting-amount-contact-list-p
-          ref="tab5Ref"
-        />
-      </kw-tab-panel>
     </kw-tab-panels>
   </kw-popup>
 </template>
@@ -239,8 +218,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { useDataService, stringUtil } from 'kw-lib';
-import { isNull, cloneDeep } from 'lodash-es';
-import WwctaOrderDetailCollectingAmountContactListP from './WwctaOrderDetailCollectingAmountContactListP.vue';
+import { cloneDeep, isNull, isEmpty } from 'lodash-es';
 
 const dataService = useDataService();
 // const { t } = useI18n();
@@ -258,21 +236,31 @@ const searchParams = ref({
 });
 
 const frmMainData = ref({
-  cntrNoFull: '', // 계약상세번호
+  cntrDtlNo: '', // 계약상세번호
   pdNm: '', // 상품명
   cstKnm: '', // 고객명
   cntrCstNo: '', // 고객번호
   cntrNo: '', // 계약번호
+  cntrSn: '', // 계약일련번호
   cstNo2: '', // 생년월일(개인법인에 따라 생년월일 또는 사업자번호 표시)
-  cralTno: '', // 휴대전화번호
+  cntrCralLocaraTno: '', // 계약자 휴대지역전화번호
+  cntrMexnoEncr: '', // 계약자 휴대전화국번호암호화
+  cntrCralIdvTno: '', // 계약자 휴대개별전화번호
+  cralTno: '', // 계약자 휴대전화번호
   cstGd: '', // 고객등급
   sexDvNm: '', // 성별
   cdcoNm: '', // 은행/카드 회사명
   aftnInfo: '', // 자동이체(계좌/카드자동이체를 표시)
+  dpTpCd: '', // 입금유형코드
+  acnoEncr: '', // 계좌번호
+  crcdnoEncr: '', // 카드번호
   sfkVal: '', // 세이프키
   vacInfo: '', // 가상계좌
-  cntrtAdr: '', // 주소
+  cntrtAdr: '', // 계약자 주소
   rcgvpKnm: '', // 설치(배송정보) 고객명
+  istCralLocaraTno: '', // 설치자 휴대지역전화번호
+  istMexnoEncr: '', // 설치자 휴대전화국번호암호화
+  istCralIdvTno: '', // 설치자 휴대개별전화번호
   rcgvpTno: '', // 설치(배송정보) 휴대전화번호
   rcgvpAdr: '', // 설치(배송정보) 주소
 });
@@ -280,12 +268,6 @@ const frmMainData = ref({
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
-const selectedTab = ref('1');
-const tab2Ref = ref(); // 판매정보 탭
-const tab3Ref = ref(); // 입금내역 탭
-const tab4Ref = ref(); // 세금계산서 탭
-const tab5Ref = ref(); // 컨택내용 탭
-
 // wells 주문 상세(고객기본정보) - 상세계약목록
 async function fetchDataContractLists() {
   // changing api & cacheparams according to search classification
@@ -305,83 +287,60 @@ async function fetchDataCustomerBase() {
   let res = '';
   cachedParams = cloneDeep(searchParams.value);
   res = await dataService.get('/sms/wells/contract/contracts/order-details/customer-bases', { params: cachedParams });
-  // console.log(res.data);
+  console.log(res.data);
 
   isVacInfo.value = false;
   if (res.data.length > 0) {
-    frmMainData.value.cntrNoFull = res.data[0].cntrNoFull;
-    frmMainData.value.pdNm = res.data[0].pdNm;
-    frmMainData.value.cstKnm = res.data[0].cstKnm;
-    frmMainData.value.cntrCstNo = res.data[0].cntrCstNo;
-    frmMainData.value.cntrNo = res.data[0].cntrNo;
-    frmMainData.value.cntrSn = res.data[0].cntrSn;
-    frmMainData.value.cstNo2 = res.data[0].cstNo2;
-    frmMainData.value.cralTno = res.data[0].cralTno;
-    frmMainData.value.cstGd = res.data[0].cstGd;
-    frmMainData.value.sexDvNm = res.data[0].sexDvNm;
+    frmMainData.value.cntrDtlNo = res.data[0].cntrDtlNo; // 계약상세번호
+    frmMainData.value.pdNm = res.data[0].pdNm; // 상품명
+    frmMainData.value.cstKnm = res.data[0].cstKnm; // 고객명
+    frmMainData.value.cntrCstNo = res.data[0].cntrCstNo; // 고객번호
+    frmMainData.value.cntrNo = res.data[0].cntrNo; // 계약번호
+    frmMainData.value.cntrSn = res.data[0].cntrSn; // 계약일련번호
+    frmMainData.value.cstNo2 = res.data[0].cstNo2; // 생년월일(개인법인에 따라 생년월일 또는 사업자번호 표시)
+    const { cntrCralLocaraTno } = res.data[0]; // 계약자 휴대지역전화번호
+    const { cntrMexnoEncr } = res.data[0]; // 계약자 휴대전화국번호암호화
+    const { cntrCralIdvTno } = res.data[0]; // 계약자 휴대개별전화번호
+    frmMainData.value.cralTno = !isEmpty(cntrCralLocaraTno) && !isEmpty(cntrMexnoEncr) && !isEmpty(cntrCralIdvTno) ? `${cntrCralLocaraTno}-${cntrMexnoEncr}-${cntrCralIdvTno}` : ''; // 계약자-휴대전화번호
+    frmMainData.value.cstGd = res.data[0].cstGd; // 고객등급
+    frmMainData.value.sexDvNm = res.data[0].sexDvNm; // 성별
+    frmMainData.value.dpTpCd = res.data[0].dpTpCd; // 입금유형코드
+    frmMainData.value.acnoEncr = res.data[0].acnoEncr; // 계좌번호
+    frmMainData.value.crcdnoEncr = res.data[0].crcdnoEncr; // 카드번호
+    // 계좌/카드자동이체 상세정보
     if (!isNull(res.data[0].aftnInfo)) {
-      frmMainData.value.cdcoNm = res.data[0].aftnInfo.split('-')[0];
+      frmMainData.value.cdcoNm = res.data[0].aftnInfo.split(' ')[0];
+      if (frmMainData.value.dpTpCd === '0102') {
+        frmMainData.value.aftnInfo = `${res.data[0].aftnInfo.split(' ')[1]} ${frmMainData.value.acnoEncr} ${res.data[0].aftnInfo.split(' ')[3]}`;
+      } else if (frmMainData.value.dpTpCd === '0203') {
+        frmMainData.value.aftnInfo = `${res.data[0].aftnInfo.split(' ')[1]} ${frmMainData.value.crcdnoEncr} ${res.data[0].aftnInfo.split(' ')[3]}`;
+      }
     }
-    frmMainData.value.aftnInfo = res.data[0].aftnInfo;
-    frmMainData.value.sfkVal = res.data[0].sfkVal;
-    frmMainData.value.vacInfo = res.data[0].vacInfo;
+    frmMainData.value.sfkVal = res.data[0].sfkVal; // 세이프키
+    frmMainData.value.vacInfo = res.data[0].vacInfo; // 가상계좌
     if (!isNull(res.data[0].vacInfo)) {
       isVacInfo.value = true;
     }
-    frmMainData.value.cntrtAdr = res.data[0].cntrtAdr;
-    frmMainData.value.rcgvpKnm = res.data[0].rcgvpKnm;
-    frmMainData.value.rcgvpTno = res.data[0].rcgvpTno;
-    frmMainData.value.rcgvpAdr = res.data[0].rcgvpAdr;
-  }
-}
-
-// 현재 열려있는 탭에서 조회하기
-async function currentTabFetchData() {
-  switch (selectedTab.value) {
-    case '1': // 고객기본정보
-      await fetchDataCustomerBase();
-      break;
-    case '2': // 판매정보
-      await tab2Ref.value.setDatas(
-        searchParams.value.cntrNo,
-        searchParams.value.cntrSn,
-      );
-      break;
-    case '3': // 입금내역
-      await tab3Ref.value.setDatas(
-        searchParams.value.cntrNo,
-        searchParams.value.cntrSn,
-      );
-      break;
-    case '4': // 세금계산서
-      await tab4Ref.value.setDatas(
-        searchParams.value.cntrNo,
-        searchParams.value.cntrSn,
-      );
-      break;
-    case '5': // 컨택내용
-      await tab5Ref.value.setDatas(
-        searchParams.value.cntrNo,
-        searchParams.value.cntrSn,
-      );
-      break;
+    frmMainData.value.cntrtAdr = res.data[0].cntrtAdr; // 계약자 주소
+    frmMainData.value.rcgvpKnm = res.data[0].rcgvpKnm; // 설치(배송정보) 고객명
+    const { istCralLocaraTno } = res.data[0]; // 설치자 휴대지역전화번호
+    const { istMexnoEncr } = res.data[0]; // 설치자 휴대전화국번호암호화
+    const { istCralIdvTno } = res.data[0]; // 설치자 휴대개별전화번호
+    frmMainData.value.rcgvpTno = !isEmpty(istCralLocaraTno) && !isEmpty(istMexnoEncr) && !isEmpty(istCralIdvTno) ? `${istCralLocaraTno}-${istMexnoEncr}-${istCralIdvTno}` : ''; // 설치(배송정보) 휴대전화번호
+    frmMainData.value.rcgvpAdr = res.data[0].rcgvpAdr; // 설치(배송정보) 주소
   }
 }
 
 // 상세계약목록 변경 시 Event
 async function onSelectCntrctPdList() {
   const { cntrSn } = frmMainData.value;
+  // console.log(cntrSn);
   searchParams.value.cntrSn = cntrSn;
-  await currentTabFetchData();
+  await fetchDataCustomerBase();
 }
 
 onMounted(async () => {
   await fetchDataContractLists();
-});
-
-// 탭 선택이 변경되었는지 감시하기
-watch(() => selectedTab.value, async () => {
-  currentTabFetchData();
 });
 
 // -------------------------------------------------------------------------------------------------
