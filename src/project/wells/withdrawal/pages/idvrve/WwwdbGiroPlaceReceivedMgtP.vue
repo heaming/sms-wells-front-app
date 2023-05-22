@@ -14,90 +14,91 @@
 --->
 <template>
   <kw-popup
-    class="kw-popup--xl"
-    :title="t('MSG_TIT_GIRO_PLRCV_MNGT')"
+    size="2xl"
   >
     <!-- title="지로 수신처 관리" -->
-    <kw-observer ref="obsMainRef">
-      <kw-form :cols="2">
-        <kw-form-row>
-          <kw-form-item
-            :label="t('MSG_TXT_CST_NM')"
-            required
-          >
-            <!-- label="고객명 " -->
-            <kw-input
-              v-model="giroPlrcv.cstFnm"
-              :label="t('MSG_TXT_CST_NM')"
-              :disable="isDisableChk"
-              maxlength="16"
-              icon="search"
-              :rules="validateCst"
-              :custom-messages="{ required:$t('MSG_ALT_USE_DT_SRCH_AF') }"
-              @click-icon="onClickSearchUser"
-              @keydown="onKeyDownSelectUser"
-              @clear="onClearSelectUser"
-            />
-          </kw-form-item>
-          <kw-form-item
-            :label="t('TXT_MSG_SELL_TP_CD')"
-            required
-          >
-            <!-- label="판매유형 " -->
-            <kw-select
-              v-model="giroPlrcv.giroBizTpCd"
-              :label="t('TXT_MSG_SELL_TP_CD')"
-              :options="portalList"
-              rules="required"
-              :disable="isDisableChk"
-            />
-          </kw-form-item>
-        </kw-form-row>
-        <kw-form-row>
-          <kw-form-item
-            :label="t('MSG_TXT_BIZ_ICHR')"
-          >
-            <!-- label="업무담당 " -->
-            <kw-input
-              v-model="giroPlrcv.fstRgstUsrId"
-              :disable="true"
-            />
-          </kw-form-item>
-          <kw-form-item
-            :label="t('MSG_TXT_DTM')"
-          >
-            <!-- label="일시 " -->
-            <kw-date-picker
-              v-model="giroPlrcv.giroPlrcvRgstDt"
-              :label="t('MSG_TXT_DTM')"
-              rules="required"
-              class="w319"
-            />
-            <!-- :disable="true" -->
-          </kw-form-item>
-        </kw-form-row>
-        <!-- <kw-form-row> -->
+
+    <kw-form
+      ref="frmMainRef"
+      :cols="2"
+    >
+      <kw-form-row>
         <kw-form-item
-          :label="t('MSG_TXT_ADDR')"
+          :label="t('MSG_TXT_CST_NM')"
           required
         >
-          <!-- label="주소" -->
-          <zwcm-post-code
-            ref="adrRef"
-            v-model:add-idx="giroPlrcv.adrDvCd"
-            v-model:zipCode="giroPlrcv.zip"
-            v-model:add1="giroPlrcv.basAdr"
-            v-model:add2="giroPlrcv.dtlAdr"
-            v-model:addKey="giroPlrcv.giroPlrcvAdrId"
-            readonly
-            class="kw-grow"
-            required
-            :label="t('MSG_TXT_ADDR')"
+          <!-- label="고객명 " -->
+          <kw-input
+            v-model="giroPlrcv.cstFnm"
+            :label="t('MSG_TXT_CST_NM')"
+            :disable="isDisableChk"
+            maxlength="16"
+            icon="search"
+            :rules="validateCst"
+            :custom-messages="{ required:$t('MSG_ALT_USE_DT_SRCH_AF') }"
+            @click-icon="onClickSearchUser"
+            @keydown="onKeyDownSelectUser"
+            @clear="onClearSelectUser"
           />
         </kw-form-item>
-        <!-- </kw-form-row> -->
-      </kw-form>
-    </kw-observer>
+        <kw-form-item
+          :label="t('TXT_MSG_SELL_TP_CD')"
+          required
+        >
+          <!-- label="판매유형 " -->
+          <kw-select
+            v-model="giroPlrcv.giroBizTpCd"
+            :label="t('TXT_MSG_SELL_TP_CD')"
+            :options="bizTpCd"
+            rules="required"
+            :disable="isDisableChk"
+          />
+        </kw-form-item>
+      </kw-form-row>
+      <kw-form-row>
+        <kw-form-item
+          :label="t('MSG_TXT_BIZ_ICHR')"
+        >
+          <!-- label="업무담당 " -->
+          <kw-input
+            v-model="giroPlrcv.fstRgstUsrId"
+            :disable="true"
+          />
+        </kw-form-item>
+        <kw-form-item
+          :label="t('MSG_TXT_DTM')"
+        >
+          <!-- label="일시 " -->
+          <kw-date-picker
+            v-model="giroPlrcv.giroPlrcvRgstDt"
+            :label="t('MSG_TXT_DTM')"
+            rules="required"
+            class="w319"
+          />
+          <!-- :disable="true" -->
+        </kw-form-item>
+      </kw-form-row>
+      <!-- <kw-form-row> -->
+      <kw-form-item
+        :label="t('MSG_TXT_ADDR')"
+        required
+      >
+        <!-- label="주소" -->
+        <zwcm-post-code
+          ref="adrRef"
+          v-model:add-idx="giroPlrcv.adrDvCd"
+          v-model:zipCode="giroPlrcv.zip"
+          v-model:add1="giroPlrcv.basAdr"
+          v-model:add2="giroPlrcv.dtlAdr"
+          v-model:addKey="giroPlrcv.giroPlrcvAdrId"
+          readonly
+          class="kw-grow"
+          required
+          :label="t('MSG_TXT_ADDR')"
+        />
+      </kw-form-item>
+      <!-- </kw-form-row> -->
+    </kw-form>
     <template #action>
       <kw-btn
         primary
@@ -131,10 +132,10 @@ const props = defineProps({
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 const { userName } = userInfo;
-const obsMainRef = ref(getComponentType('KwObserver'));
+const frmMainRef = ref(getComponentType('KwObserver'));
 const { ok, cancel: onClickCancel } = useModal();
 
-const portalList = ref([
+const bizTpCd = ref([
   {
     codeId: '1',
     codeName: t('MSG_TXT_SNGL_PMNT'),
@@ -258,8 +259,8 @@ async function onKeyDownSelectUser() {
 let saveParam;
 // 저장
 async function onClickSave() {
-  if (!await obsMainRef.value.validate()) { return; }
-  if (await obsMainRef.value.alertIfIsNotModified()) { return; }
+  if (!await frmMainRef.value.validate()) { return; }
+  if (await frmMainRef.value.alertIfIsNotModified()) { return; }
 
   saveParam = cloneDeep(giroPlrcv.value);
 
