@@ -131,6 +131,20 @@
 import { defineGrid, getComponentType, useMeta } from 'kw-lib';
 
 const { t } = useI18n();
+const pageInfo = ref({
+  totalCount: 0,
+  pageIndex: 1,
+  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
+});
+const pageInfo1 = ref({
+  totalCount: 0,
+  pageIndex: 1,
+  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
+});
+const grdMainRef = ref(getComponentType('KwGrid'));
+const codes = await codeUtil.getMultiCodes(
+  'COD_PAGE_SIZE_OPTIONS',
+);
 
 const { getConfig } = useMeta();
 

@@ -19,7 +19,13 @@
   >
     <kw-action-top class="mt30">
       <template #left>
-        <kw-paging-info :total-count="0" />
+        <kw-paging-info
+          v-model:page-index="pageInfo.pageIndex"
+          v-model:page-size="pageInfo.pageSize"
+          :total-count="pageInfo.totalCount"
+          :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
+          @change="fetchData"
+        />
       </template>
 
       <kw-btn
@@ -32,13 +38,15 @@
         icon="download_off"
         dense
         :label="$t('MSG_BTN_TEMP_DOWN')"
+        :disable="pageInfo.totalCount === 0"
         @click="onClickExcelDownload"
       />
     </kw-action-top>
 
     <kw-grid
       name="grdMain"
-      :visible-rows="3"
+      :page-size="pageInfo.pageSize"
+      :total-count="pageInfo.totalCount"
       @init="initGrdMain"
     />
 
@@ -58,10 +66,38 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { defineGrid } from 'kw-lib';
+import { defineGrid, getComponentType, useMeta, useDataService, gridUtil, codeUtil } from 'kw-lib';
+
+const { getConfig } = useMeta();
 
 const { t } = useI18n();
+const pageInfo = ref({
+  totalCount: 0,
+  pageIndex: 1,
+  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
+});
+const grdMainRef = ref(getComponentType('KwGrid'));
+const dataService = useDataService();
+const { currentRoute } = useRouter();
+let cachedParams;
+const codes = await codeUtil.getMultiCodes(
+  'COD_PAGE_SIZE_OPTIONS',
+);
 
+// -------------------------------------------------------------------------------------------------
+// Function & Event
+// -------------------------------------------------------------------------------------------------
+
+async function onClickExcelDownload() {
+  const view = grdMainRef.value.getView();
+
+  const res = await dataService.get('/sms/edu/contract/high-risk-partners/excel-download', { params: cachedParams });
+  await gridUtil.exportView(view, {
+    fileName: currentRoute.value.meta.menuName,
+    timePostfix: true,
+    exportData: res.data,
+  });
+}
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
