@@ -66,7 +66,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { defineGrid, getComponentType, useMeta, useDataService, gridUtil, codeUtil } from 'kw-lib';
+import { defineGrid, getComponentType, useMeta, gridUtil, codeUtil } from 'kw-lib';
 
 const { getConfig } = useMeta();
 
@@ -77,9 +77,7 @@ const pageInfo = ref({
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
 });
 const grdMainRef = ref(getComponentType('KwGrid'));
-const dataService = useDataService();
 const { currentRoute } = useRouter();
-let cachedParams;
 const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
 );
@@ -90,14 +88,12 @@ const codes = await codeUtil.getMultiCodes(
 
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
-
-  const res = await dataService.get('/sms/edu/contract/high-risk-partners/excel-download', { params: cachedParams });
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
-    exportData: res.data,
   });
 }
+
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
