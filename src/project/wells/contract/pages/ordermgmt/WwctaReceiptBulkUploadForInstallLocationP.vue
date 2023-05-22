@@ -15,24 +15,24 @@
 <template>
   <kw-popup
     size="md"
-    title="$t('MSG_TXT_UPL_MASS_APP_DATA')"
   >
     <kw-action-top>
       <template #left>
-        <span>총</span>
-        <span class="accent pl4">0건</span>
+        <kw-paging-info
+          :total-count="totalCount"
+        />
       </template>
       <kw-btn
         icon="upload_on"
         dense
         :label="$t('MSG_BTN_EXCEL_UP')"
+        @click="onClickExcelUpload"
       />
       <kw-btn
         icon="download_off"
         dense
         :label="$t('MSG_BTN_TEMP_DOWN')"
-        :disable="pageInfo.totalCount===0"
-        @click="onClickExcelDownload"
+        @click="onClickTemplateDownload"
       />
     </kw-action-top>
 
@@ -60,11 +60,10 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { getComponentType, defineGrid, gridUtil, useMeta } from 'kw-lib';
+import { getComponentType, defineGrid, useMeta } from 'kw-lib';
 
 const { t } = useI18n();
 const { getConfig } = useMeta();
-const { currentRoute } = useRouter();
 const pageInfo = ref({
   totalCount: 0,
   pageIndex: 1,
@@ -76,13 +75,6 @@ const grdMainRef = ref(getComponentType('KwGrid'));
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
-async function onClickExcelDownload() {
-  const view = grdMainRef.value.getView();
-  await gridUtil.exportView(view, {
-    fileName: currentRoute.value.meta.menuName,
-    timePostfix: true,
-  });
-}
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid

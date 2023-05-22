@@ -53,14 +53,13 @@
         icon="download_off"
         dense
         :label="$t('MSG_BTN_TEMP_DOWN')"
-        @click="onClickExcelDownload"
+        @click="onClickTemplateDownload"
       />
       <kw-btn
         icon="download_on"
         dense
-        :disable="totalCount === 0"
         :label="$t('MSG_BTN_EXCEL_UP')"
-        @click="onClickExcelDownload"
+        @click="onClickExcelUpload"
       />
     </kw-action-top>
 
@@ -88,10 +87,9 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { defineGrid, getComponentType, gridUtil, useMeta } from 'kw-lib';
+import { defineGrid, getComponentType, useMeta } from 'kw-lib';
 
 const { t } = useI18n();
-const { currentRoute } = useRouter();
 const { getConfig } = useMeta();
 
 const pageInfo = ref({
@@ -104,14 +102,6 @@ const pageInfo = ref({
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 const grdMainRef = ref(getComponentType('KwGrid'));
-
-async function onClickExcelDownload() {
-  const view = grdMainRef.value.getView();
-  await gridUtil.exportView(view, {
-    fileName: currentRoute.value.meta.menuName,
-    timePostfix: true,
-  });
-}
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
