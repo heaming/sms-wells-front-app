@@ -922,6 +922,7 @@
             v-model="saveParams.rfndStatCd"
             :options="codes.RFND_STAT_CD"
             rules="required"
+            :label="t('MSG_TXT_PROCS_DV')"
           />
         </kw-form-item>
         <!-- 처리내용 -->
@@ -949,19 +950,15 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-// eslint-disable-next-line no-unused-vars
-import { codeUtil, useGlobal, useModal, useMeta, defineGrid, getComponentType, gridUtil, useDataService, fileUtil, modal } from 'kw-lib';
+import { codeUtil, useGlobal, useModal, defineGrid, getComponentType, gridUtil, useDataService, modal } from 'kw-lib';
 import dayjs from 'dayjs';
-// eslint-disable-next-line no-unused-vars
-import { cloneDeep, isEmpty } from 'lodash-es';
+import { cloneDeep } from 'lodash-es';
 
 const { t } = useI18n();
 
 const { ok } = useModal();
 
 const { confirm, notify } = useGlobal();
-
-// const { getConfig } = useMeta();
 
 const props = defineProps({
   rfndStatCd: { type: String, required: false, default: '' },
@@ -985,11 +982,6 @@ const grdPopRef13 = ref(getComponentType('KwGrid'));
 const grdPopRef14 = ref(getComponentType('KwGrid'));
 const popupRef2 = ref();
 
-// const pageInfo = ref({
-//   totalCount: 0,
-//   pageIndex: 1,
-//   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
-// });
 const pageInfo = ref({
   totalCount: 0,
   pageIndex: 1,
@@ -1053,8 +1045,6 @@ const app = ref({
 
 });
 
-// 환불신청 입력부분
-
 // 환불신청 저장값
 const saveParams = ref({
   details: [{
@@ -1087,6 +1077,8 @@ const saveParams = ref({
     bltfBfVacNoEncr: '', // 전금전 가상계좌
     bltfAfVacNoEncr: '', // 전금후 가상계좌
     rfndEvidMtrFileId: '', // 증빙자료 파일첨부
+
+    rfndFshDt: '', // 지급일자2
   }],
   rfndRcpNo: '', // 환불접수번호
   cntrNo: '', // 계약번호
@@ -1102,6 +1094,7 @@ const saveParams = ref({
   rfndRveDt: '', // 수납일자
   rfndPerfDt: '', // 실적일자
   rfndDsbDt: '', // 지급일자
+  rfndFshDt: '', // 지급일자2
   // RFND_FSH_DT // 지급일자 입력할때만 사용하고, BASE, DETAIL 둘다 입력
   rfndStatCd: '', // 처리구분 (반려, 승인)
   rfndProcsCn: '', // 처리내용
@@ -1109,7 +1102,6 @@ const saveParams = ref({
 });
 
 // 카드, 은행 구분 목록
-// eslint-disable-next-line no-unused-vars
 const cardLists = ref([]);
 const bankLists = ref([]);
 
@@ -1125,18 +1117,13 @@ async function fetchData() {
 }
 
 // 계약정보, 환불신청, 처리정보
-// eslint-disable-next-line no-unused-vars
 async function fetchData2() {
+  console.log('props', props);
   const response = await dataService.get('/sms/wells/withdrawal/idvrve/refund-applications/detail/basic', { params: { cntrNo: props.cntrNo, cntrSn: props.cntrSn, rfndRcpNo: props.rfndRcpNo, rfndRcpDtlSn: props.rfndRcpDtlSn } });
   ctract.value = response.data.ctract; // 계약정보
   app.value = response.data.app; // 환불신청
   console.log('ctract', ctract);
   console.log('app', app);
-
-  // const view = grdPopRef11.value.getView();
-
-  // view.getDataSource().setRows(allBasic);
-  // view.resetCurrent();
 }
 
 // 컨텍트조회 팝업 버튼
@@ -1185,7 +1172,7 @@ async function onClickExcelDownload1() {
   const res = await dataService.get('/sms/wells/withdrawal/idvrve/refund-applications/detail/deposit/excel-download', { params: { cntrNo: props.cntrNo, cntrSn: props.cntrSn } });
 
   await gridUtil.exportView(view, {
-    fileName: `${currentRoute.value.meta.menuName}_${t('상세입금조회')}`, // 상세입금조회
+    fileName: `${currentRoute.value.meta.menuName}_${t('MSG_TXT_DTL_DP_INQR')}`, // 상세입금조회
     timePostfix: true,
     exportData: res.data,
   });
@@ -1209,7 +1196,7 @@ async function onClickExcelDownload2() {
   const res = await dataService.get('/sms/wells/withdrawal/idvrve/refund-applications/detail/performance/excel-download', { params: { cntrNo: props.cntrNo, cntrSn: props.cntrSn } });
 
   await gridUtil.exportView(view, {
-    fileName: `${currentRoute.value.meta.menuName}_${t('매출실적조회')}`, // 매출실적조회
+    fileName: `${currentRoute.value.meta.menuName}_${t('MSG_TXT_SL_PERF_INQR')}`, // 매출실적조회
     timePostfix: true,
     exportData: res.data,
   });
@@ -1235,7 +1222,6 @@ async function bankCard() {
 }
 
 // 환불신청 > 전금 > 고객 번호
-// eslint-disable-next-line no-unused-vars
 async function onClickCstSearch2() {
   const { result, payload } = await modal({
     component: 'ZwcsaCustomerListP',
@@ -1245,7 +1231,6 @@ async function onClickCstSearch2() {
   }
 }
 
-// eslint-disable-next-line no-unused-vars
 async function onClickAdd() {
   if (saveParams.value.details.length >= 5) { return notify('더 이상 추가할 수 없습니다.'); }
   saveParams.value.details.push({
@@ -1278,13 +1263,11 @@ async function onClickAdd() {
   console.log('saveParams.value.details', saveParams.value.details);
 }
 
-// eslint-disable-next-line no-unused-vars
 async function onClickDel(i) {
   saveParams.value.details.splice(i, 1);
 }
 
 // 환불접수총액 계산
-// eslint-disable-next-line no-unused-vars
 async function onRefundReceiptTotalAmount() {
   let sum1 = 0;
   let sum2 = 0;
@@ -1311,7 +1294,6 @@ async function onRefundReceiptTotalAmount() {
 }
 
 // 카드공제액 계산
-// eslint-disable-next-line no-unused-vars
 async function onCardRfndFer() {
   for (let i = 0; i < saveParams.value.details.length; i += 1) {
     saveParams.value.details[i].rfndDsbAmt = saveParams.value.details[i].rfndAkAmt
@@ -1326,16 +1308,17 @@ async function onClickSave() {
   // if (!await popupRef1.value.validate()) { return; }
   // rfndRcpNo: '', // 환불접수번호
   //   rfndRcpDtlSn: '',
+  saveParams.value.rfndFshDt = saveParams.value.rfndDsbDt;
   const basic = cloneDeep(saveParams.value);
   const details = cloneDeep(saveParams.value.details);
   for (let i = 0; i < saveParams.value.details.length; i += 1) {
     saveParams.value.details[i].rfndRcpNo = props.rfndRcpNo;
+    saveParams.value.details[i].rfndFshDt = saveParams.value.rfndFshDt;
   }
   // cachedParams = {
   //   basic,
   //   details,
   // };
-  console.log('저장 saveParams.value', saveParams.value);
   console.log('basic', basic);
   console.log('details', details);
   await dataService.post('/sms/wells/withdrawal/idvrve/refund-applications/status/refund-application-info', { basic, details });
@@ -1364,10 +1347,10 @@ const initGridPop11 = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'prtnrKnm', header: t('신청자'), width: '350' }, // 신청자
-    { fieldName: 'rfndRcpPrtnrNo', header: t('번호'), width: '350', styleName: 'text-center' }, // 번호
-    { fieldName: 'rfndRqdt', header: t('신청일시'), width: '350', styleName: 'text-center', datetimeFormat: 'date' }, // 신청일시
-    { fieldName: 'rfndStatCd', header: t('처리상태'), width: '350', options: codes.RFND_STAT_CD }, // 처리상태
+    { fieldName: 'prtnrKnm', header: t('MSG_TXT_APPL_USER'), width: '350' }, // 신청자
+    { fieldName: 'rfndRcpPrtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '350', styleName: 'text-center' }, // 번호
+    { fieldName: 'rfndRqdt', header: t('MSG_TXT_APPL_DTM'), width: '350', styleName: 'text-center', datetimeFormat: 'date' }, // 신청일시
+    { fieldName: 'rfndStatCd', header: t('MSG_TXT_PROCS_STAT'), width: '350', options: codes.RFND_STAT_CD }, // 처리상태
 
   ];
 
@@ -1392,13 +1375,13 @@ const initGridPop12 = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'dpAggAmt', header: t('총입금 누계금액'), width: '200', styleName: 'text-right' }, // 총입금 누계금액, 입금누계금액
-    { fieldName: 'dpAggAmt2', header: t('입금 누계금액'), width: '200', styleName: 'text-right' }, // 총입금 누계금액, 입금누계금액
-    { fieldName: 'lstmmDlqAmt', header: t('전월 연체금액'), width: '200', styleName: 'text-right' }, // 전월 연체금액
-    { fieldName: 'thmPrpdAmt', header: t('당월 선수금액'), width: '200', styleName: 'text-right' }, // 당월 선수금액
-    { fieldName: 'thmDlqAmt', header: t('당월 연체금액'), width: '200', styleName: 'text-right' }, // 당월 연체금액
-    { fieldName: 'thmDpAmt', header: t('환불 가능금액'), width: '200', styleName: 'text-right' }, // 당월 입금액
-    { fieldName: 'rfndPsbAmt', header: t('당월 입금액'), width: '200', styleName: 'text-right' }, // 환불가능금액
+    { fieldName: 'dpAggAmt', header: t('MSG_TXT_TOT_DP_AGG_AMT'), width: '200', styleName: 'text-right' }, // 총입금 누계금액, 입금누계금액
+    { fieldName: 'dpAggAmt2', header: t('MSG_TXT_DP_AGG_AMT'), width: '200', styleName: 'text-right' }, // 총입금 누계금액, 입금누계금액
+    { fieldName: 'lstmmDlqAmt', header: t('MSG_TXT_LSTMM_DLQ_AMT'), width: '200', styleName: 'text-right' }, // 전월 연체금액
+    { fieldName: 'thmPrpdAmt', header: t('MSG_TXT_THM_PRPD_AMT'), width: '200', styleName: 'text-right' }, // 당월 선수금액
+    { fieldName: 'thmDlqAmt', header: t('MSG_TXT_THM_DLQ_AMT'), width: '200', styleName: 'text-right' }, // 당월 연체금액
+    { fieldName: 'thmDpAmt', header: t('MSG_TXT_RFND_PSB_AMT'), width: '200', styleName: 'text-right' }, // 당월 입금액
+    { fieldName: 'rfndPsbAmt', header: t('MSG_TXT_THM_DP_AMT'), width: '200', styleName: 'text-right' }, // 환불가능금액
 
   ];
 
@@ -1431,30 +1414,30 @@ const initGridPop13 = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'rveSn', header: t('입금일련번호'), width: '117' },
-    { fieldName: 'dpDt', header: t('입금일자'), width: '120', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'perfDt', header: t('실적일자'), width: '120', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'rfndFshDt', header: t('지급일자'), width: '120', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'dpDvCd', header: t('입금구분'), width: '100' },
-    { fieldName: 'dpAmt', header: t('처리금액(원)'), width: '140', styleName: 'text-right' },
-    { fieldName: 'dpTpCd', header: t('입금유형'), width: '100' },
+    { fieldName: 'rveSn', header: t('MSG_TXT_DP_RLTD_NO'), width: '117' },
+    { fieldName: 'dpDt', header: t('MSG_TXT_DP_DT'), width: '120', styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'perfDt', header: t('MSG_TXT_PERF_DT'), width: '120', styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'rfndFshDt', header: t('MSG_TXT_DSB_DT'), width: '120', styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'dpDvCd', header: t('MSG_TXT_DP_DV'), width: '100' },
+    { fieldName: 'dpAmt', header: `${t('MSG_TXT_PROCS_AMT')}(${t('MSG_TXT_CUR_WON')})`, width: '140', styleName: 'text-right' },
+    { fieldName: 'dpTpCd', header: t('MSG_TXT_DP_TP'), width: '100' },
     {
       fieldName: 'cshCrd',
-      header: t('카드/현금구분'),
+      header: `${t('MSG_TXT_CARD')}/${t('MSG_TXT_CSH_DV')}`,
       width: '100',
       displayCallback(grid, index) {
         const { cshCrd } = gridUtil.getRowValue(grid, index.dataRow);
         if (cshCrd === '01') {
-          return t('현금');
+          return t('MSG_TXT_CASH');
         }
         if (cshCrd === '02') {
-          return t('카드');
+          return t('MSG_TXT_CARD');
         }
       },
     },
     {
       fieldName: 'fnitNm',
-      header: t('카드사'),
+      header: t('MSG_TXT_CDCO'),
       width: '100',
       displayCallback(grid, index) {
         const { cshCrd, fnitNm } = gridUtil.getRowValue(grid, index.dataRow);
@@ -1464,7 +1447,7 @@ const initGridPop13 = defineGrid((data, view) => {
       },
     },
     { fieldName: 'crcdnoEncr',
-      header: t('카드번호'),
+      header: t('MSG_TXT_CARD_NO'),
       width: '180',
       displayCallback(grid, index) {
         const { crcdnoEncr } = gridUtil.getRowValue(grid, index.dataRow);
@@ -1475,10 +1458,10 @@ const initGridPop13 = defineGrid((data, view) => {
         return crcdnoEncr;
       },
     },
-    { fieldName: 'crdcdAprno', header: t('승인번호'), width: '100' },
-    { fieldName: 'crdcdIstmMcn', header: t('할부개월수'), width: '100' },
+    { fieldName: 'crdcdAprno', header: t('MSG_TXT_APR_NO'), width: '100' },
+    { fieldName: 'crdcdIstmMcn', header: t('MSG_TXT_ISTM_MCN'), width: '100' },
     { fieldName: 'fnitNm2',
-      header: t('은행'),
+      header: t('MSG_TXT_BNK'),
       width: '102',
       displayCallback(grid, index) {
         const { cshCrd, fnitNm } = gridUtil.getRowValue(grid, index.dataRow);
@@ -1487,8 +1470,8 @@ const initGridPop13 = defineGrid((data, view) => {
         }
       },
     },
-    { fieldName: 'acnoEncr', header: t('계좌번호'), width: '180' },
-    { fieldName: 'dprNm', header: t('입금자'), width: '102' },
+    { fieldName: 'acnoEncr', header: t('MSG_TXT_AC_NO'), width: '180' },
+    { fieldName: 'dprNm', header: t('MSG_TXT_DPR'), width: '102' },
 
   ];
 
@@ -1506,43 +1489,43 @@ const initGridPop14 = defineGrid((data, view) => {
     { fieldName: 'slClYm' }, // 매출년월
     { fieldName: 'slStpYn' }, // 매출중지
     { fieldName: 'tmp1' }, // 리스차월
-    { fieldName: 'nomSlAmt' }, // 청구금액
-    { fieldName: 'borAmt' }, // 위약금액
-    { fieldName: 'fnnLeasePcamTam' }, // 리스입금액
-    { fieldName: 'prpdSlAmt' }, // 선수금액
-    { fieldName: 'totPcamUcAmt' }, // 미수금액
-    { fieldName: 'thmDlqRfndSumAmt' }, // 연체금액
+    { fieldName: 'nomSlAmt', dataType: 'number' }, // 청구금액
+    { fieldName: 'borAmt', dataType: 'number' }, // 위약금액
+    { fieldName: 'fnnLeasePcamTam', dataType: 'number' }, // 리스입금액
+    { fieldName: 'prpdSlAmt', dataType: 'number' }, // 선수금액
+    { fieldName: 'totPcamUcAmt', dataType: 'number' }, // 미수금액
+    { fieldName: 'thmDlqRfndSumAmt', dataType: 'number' }, // 연체금액
     { fieldName: 'dlqMcn' }, // 연체개월
-    { fieldName: 'btdDlqAmt' }, // 기초금액
-    { fieldName: 'thmOcDlqAmt' }, // 발생금액
+    { fieldName: 'btdDlqAmt', dataType: 'number' }, // 기초금액
+    { fieldName: 'thmOcDlqAmt', dataType: 'number' }, // 발생금액
     { fieldName: 'tmp2' }, // 공제금액
-    { fieldName: 'thmIstmTotDpAmt' }, // 입금액
-    { fieldName: 'thmIstmRfndAmt' }, // 환불금액
-    { fieldName: 'eotPcamBlam' }, // 기말금액
+    { fieldName: 'thmIstmTotDpAmt', dataType: 'number' }, // 입금액
+    { fieldName: 'thmIstmRfndAmt', dataType: 'number' }, // 환불금액
+    { fieldName: 'eotPcamBlam', dataType: 'number' }, // 기말금액
 
   ];
 
   const columns = [
-    { fieldName: 'cntrNo', header: t('계약번호'), width: '118', styleName: 'text-center' },
-    { fieldName: 'slClYm', header: t('매출년월'), width: '120', styleName: 'text-center' },
-    { fieldName: 'slStpYn', header: t('매출중지'), width: '80', styleName: 'text-center' },
-    { fieldName: 'tmp1', header: t('리스차월'), width: '80', styleName: 'text-center' },
-    { fieldName: 'nomSlAmt', header: t('청구금액'), width: '104', styleName: 'text-right' },
+    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_NO'), width: '118', styleName: 'text-center' },
+    { fieldName: 'slClYm', header: t('MSG_TXT_SL_YM'), width: '120', styleName: 'text-center' },
+    { fieldName: 'slStpYn', header: t('MSG_TXT_SL_STP'), width: '80', styleName: 'text-center' },
+    { fieldName: 'tmp1', header: t('MSG_TXT_LEASE_NMN'), width: '80', styleName: 'text-center' },
+    { fieldName: 'nomSlAmt', header: t('MSG_TXT_BIL_AMT'), width: '104', styleName: 'text-right' },
 
-    { fieldName: 'borAmt', header: t('위약금액'), width: '104', styleName: 'text-right' },
-    { fieldName: 'fnnLeasePcamTam', header: t('리스입금액'), width: '104', styleName: 'text-right' },
-    { fieldName: 'prpdSlAmt', header: t('선수금액'), width: '104', styleName: 'text-right' },
-    { fieldName: 'totPcamUcAmt', header: t('미수금액'), width: '104', styleName: 'text-right' },
-    { fieldName: 'thmDlqRfndSumAmt', header: t('연체금액'), width: '104', styleName: 'text-right' },
+    { fieldName: 'borAmt', header: t('MSG_TXT_BOR_AMT'), width: '104', styleName: 'text-right' },
+    { fieldName: 'fnnLeasePcamTam', header: t('MSG_TXT_LEASE_DP_AMT'), width: '104', styleName: 'text-right' },
+    { fieldName: 'prpdSlAmt', header: t('MSG_TXT_PRPD_AMT'), width: '104', styleName: 'text-right' },
+    { fieldName: 'totPcamUcAmt', header: t('MSG_TXT_UC_AMT'), width: '104', styleName: 'text-right' },
+    { fieldName: 'thmDlqRfndSumAmt', header: t('MSG_TXT_DLQ_AMT'), width: '104', styleName: 'text-right' },
 
-    { fieldName: 'dlqMcn', header: t('연체개월'), width: '80' },
-    { fieldName: 'btdDlqAmt', header: t('기초금액'), width: '80', styleName: 'text-right' },
-    { fieldName: 'thmOcDlqAmt', header: t('발생금액'), width: '80', styleName: 'text-right' },
-    { fieldName: 'tmp2', header: t('공제금액'), width: '80', styleName: 'text-right' },
-    { fieldName: 'thmIstmTotDpAmt', header: t('입금액'), width: '80', styleName: 'text-right' },
+    { fieldName: 'dlqMcn', header: t('MSG_TXT_DLQ_MCNT'), width: '80' },
+    { fieldName: 'btdDlqAmt', header: t('MSG_TXT_BTD_AMT'), width: '80', styleName: 'text-right' },
+    { fieldName: 'thmOcDlqAmt', header: t('MSG_TXT_OCCR_AMT'), width: '80', styleName: 'text-right' },
+    { fieldName: 'tmp2', header: t('MSG_TXT_DDCTAM'), width: '80', styleName: 'text-right' },
+    { fieldName: 'thmIstmTotDpAmt', header: t('MSG_TXT_DEPOSIT_AMT'), width: '80', styleName: 'text-right' },
 
-    { fieldName: 'thmIstmRfndAmt', header: t('환불금액'), width: '80', styleName: 'text-right' },
-    { fieldName: 'eotPcamBlam', header: t('기말금액'), width: '80', styleName: 'text-right' },
+    { fieldName: 'thmIstmRfndAmt', header: t('MSG_TXT_RFND_AMT'), width: '80', styleName: 'text-right' },
+    { fieldName: 'eotPcamBlam', header: t('MSG_TXT_EOT_AMT'), width: '80', styleName: 'text-right' },
 
   ];
 

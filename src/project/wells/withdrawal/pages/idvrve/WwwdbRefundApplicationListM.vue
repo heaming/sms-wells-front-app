@@ -551,10 +551,9 @@ const initGrdMain = defineGrid((data, view) => {
     }
     // 첨부파일 다운로드
     if (column === 'rfndEvidMtrFileId') {
-      // TODO: 일정을 위해 4월 21일까지로 미뤄짐
+      // TODO:
       // console.log(fileUtil.download);
       // fileUtil.download({ fileUid: rfndEvidMtrFileId }, 'storage');
-      notify('개발중');
       fileUtil.download(rfndEvidMtrFileId, 'storage');
     }
   };
