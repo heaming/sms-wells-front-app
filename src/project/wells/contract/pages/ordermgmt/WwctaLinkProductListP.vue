@@ -60,7 +60,7 @@ import { codeUtil, defineGrid, getComponentType, useDataService, useGlobal, grid
 
 const dataService = useDataService();
 const { t } = useI18n();
-const { alert, modal } = useGlobal();
+const { modal } = useGlobal();
 const { cancel: onClickClose } = useModal();
 
 const props = defineProps({
@@ -89,10 +89,6 @@ async function fetchData() {
   const res = await dataService.get('/sms/wells/contract/contracts/link-products/paging', { params: { cntrNo: props.cntrNo, cntrSn: props.cntrSn, ...pageInfo.value } });
 
   const { list, pageInfo: pagingResult } = res.data;
-  if (res.data.length === 0) {
-    await alert(t('MSG_ALT_NO_DATA')); // 데이터가 존재하지 않습니다.
-    return;
-  }
 
   pageInfo.value = pagingResult;
 
