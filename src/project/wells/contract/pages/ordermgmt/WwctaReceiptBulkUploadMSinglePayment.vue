@@ -103,7 +103,11 @@
           <kw-action-top>
             <template #left>
               <kw-paging-info
-                :total-count="7"
+                v-model:page-index="pageInfo.pageIndex"
+                v-model:page-size="pageInfo.pageSize"
+                :total-count="pageInfo.totalCount"
+                :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
+                @change="fetchData"
               />
               <span class="ml8">{{ t('MSG_TXT_UNIT_WON') }}</span>
             </template>
@@ -117,8 +121,10 @@
           </kw-action-top>
 
           <kw-grid
+            ref="grdMainRef"
             name="grdMain"
-            :visible-rows="1"
+            :page-size="pageInfo.pageSize"
+            :total-count="pageInfo.totalCount"
             @init="initGrdMain"
           />
 
@@ -126,7 +132,11 @@
           <kw-action-top>
             <template #left>
               <kw-paging-info
-                :total-count="156"
+                v-model:page-index="pageInfo1.pageIndex"
+                v-model:page-size="pageInfo1.pageSize"
+                :total-count="pageInfo1.totalCount"
+                :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
+                @change="fetchPricingData"
               />
               <span class="ml8">{{ t('MSG_TXT_UNIT_WON') }}</span>
             </template>
@@ -134,7 +144,8 @@
 
           <kw-grid
             name="pricingGrid"
-            :visible-rows="1"
+            :page-size="pageInfo1.pageSize"
+            :total-count="pageInfo1.totalCount"
             @init="initPricingGrid"
           />
         </div>
@@ -147,9 +158,25 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { defineGrid } from 'kw-lib';
+import { defineGrid, getComponentType, useMeta, codeUtil } from 'kw-lib';
+
+const { getConfig } = useMeta();
 
 const { t } = useI18n();
+const pageInfo = ref({
+  totalCount: 0,
+  pageIndex: 1,
+  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
+});
+const pageInfo1 = ref({
+  totalCount: 0,
+  pageIndex: 1,
+  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
+});
+const grdMainRef = ref(getComponentType('KwGrid'));
+const codes = await codeUtil.getMultiCodes(
+  'COD_PAGE_SIZE_OPTIONS',
+);
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid

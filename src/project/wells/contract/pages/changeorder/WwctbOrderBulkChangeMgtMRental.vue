@@ -70,7 +70,8 @@
           </kw-action-top>
           <kw-grid
             name="grdMain"
-            :visible-rows="10"
+            :page-size="pageInfo.pageSize"
+            :total-count="pageInfo.totalCount"
             @init="initGrdMain"
           />
         </div>
@@ -82,10 +83,15 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { defineGrid } from 'kw-lib';
+import { defineGrid, useMeta } from 'kw-lib';
 
 const { t } = useI18n();
-
+const { getConfig } = useMeta();
+const pageInfo = ref({
+  totalCount: 0,
+  pageIndex: 1,
+  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
+});
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
