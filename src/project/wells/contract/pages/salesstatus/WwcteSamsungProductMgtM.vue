@@ -4,7 +4,7 @@
 ****************************************************************************************************
 1. 모듈 : CTE
 2. 프로그램 ID : WwcteSamsungProductMgtM - 삼성전자 상품관리
-3. 작성자 : gs.ritvik.m
+3. 작성자 : gs.ritvik.m -> joobro
 4. 작성일 : 2023.04.03
 ****************************************************************************************************
 * 프로그램 설명
@@ -34,7 +34,6 @@
       >
         <component
           :is="tab.panel"
-          :test="testReactive"
         />
       </kw-tab-panel>
     </kw-tab-panels>
@@ -69,6 +68,6 @@ const tabs = [
   { name: 'freeAS', label: `${t('MSG_TXT_FREE')} A/S`, panel: WwcteSamsungProductMgtMFreeAs },
 ];
 
-const currentTab = ref(tabs[3].name);
+const currentTab = ref(tabs[2].name);
 
 </script>
