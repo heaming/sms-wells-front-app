@@ -78,7 +78,7 @@
     <kw-action-top>
       <template #left>
         <kw-paging-info
-          :total-count="100"
+          :total-count="pageInfo.totalCount"
         />
         <span class="ml8">{{ t('MSG_TXT_UNIT_WON_MCN') }}</span>
       </template>
@@ -87,12 +87,16 @@
         dense
         secondary
         :label="$t('MSG_TXT_EXCEL_DOWNLOAD')"
+        :disable="pageInfo.totalCount===0"
+        @click="onClickExcelDownload"
       />
     </kw-action-top>
     <kw-grid
-      ref="grdMainRef"
-      :visible-rows="1"
-      @init="initGrdMain"
+      ref="grdMainRefFreeAS"
+      v-model:page-size="pageInfo.pageSize"
+      :total-count="pageInfo.totalCount"
+      name="grdFreeAS"
+      @init="initGdFreeAS"
     />
   </div>
 </template>
@@ -101,16 +105,36 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { defineGrid, getComponentType } from 'kw-lib';
+import { getComponentType, defineGrid, gridUtil, useMeta } from 'kw-lib';
 
 const { t } = useI18n();
+const { getConfig } = useMeta();
+const { currentRoute } = useRouter();
+
+const pageInfo = ref({
+  totalCount: 0,
+  pageIndex: 1,
+  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
+});
+
+// -------------------------------------------------------------------------------------------------
+// Function & Event
+// -------------------------------------------------------------------------------------------------
+const grdMainRefFreeAS = ref(getComponentType('KwGrid'));
+
+async function onClickExcelDownload() {
+  const view = grdMainRefFreeAS.value.getView();
+  await gridUtil.exportView(view, {
+    fileName: currentRoute.value.meta.menuName,
+    timePostfix: true,
+  });
+}
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
-const grdMainRef = ref(getComponentType('KwGrid'));
 
-const initGrdMain = defineGrid((data, view) => {
+const initGdFreeAS = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'col1' },
     { fieldName: 'col2' },

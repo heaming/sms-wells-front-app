@@ -15,30 +15,31 @@
 <template>
   <kw-popup
     size="xl"
-    :title="$t('MSG_TIT_UPL_BULK_MAT')"
   >
     <kw-action-top class="mt30">
       <template #left>
-        <kw-paging-info :total-count="0" />
+        <kw-paging-info :total-count="pageInfo.totalCount" />
       </template>
 
       <kw-btn
         icon="upload_on"
         dense
         :label="$t('MSG_TXT_EXCEL_UPLOAD')"
-        @click="onClickExcelDownload"
+        @click="onClickExcelUpload"
       />
       <kw-btn
         icon="download_off"
         dense
         :label="$t('MSG_BTN_TEMP_DOWN')"
-        @click="onClickExcelDownload"
+        @click="onClickTemplateDownload"
       />
     </kw-action-top>
 
     <kw-grid
+      ref="grdMainRef"
+      v-model:page-size="pageInfo.pageSize"
       name="grdMain"
-      :visible-rows="3"
+      :total-count="pageInfo.totalCount"
       @init="initGrdMain"
     />
 
@@ -58,9 +59,16 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { defineGrid } from 'kw-lib';
+import { defineGrid, useMeta } from 'kw-lib';
 
 const { t } = useI18n();
+const { getConfig } = useMeta();
+
+const pageInfo = ref({
+  totalCount: 0,
+  pageIndex: 1,
+  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
+});
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid

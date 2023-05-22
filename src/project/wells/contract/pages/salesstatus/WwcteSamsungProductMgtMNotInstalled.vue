@@ -44,7 +44,7 @@
   <div class="result-area">
     <kw-action-top>
       <template #left>
-        <kw-paging-info :total-count="100" />
+        <kw-paging-info :total-count="pageInfo.totalCount" />
       </template>
       <kw-btn
         icon="download_off"
@@ -52,6 +52,7 @@
         dense
         class="mr8"
         :label="$t('MSG_BTN_TEMP_DOWN')"
+        @click="onClickTemplateDownload"
       />
       <kw-btn
         icon="upload_on"
@@ -59,11 +60,15 @@
         dense
         class="mr8"
         :label="$t('MSG_BTN_EXCEL_UP')"
+        @click="onClickExcelUpload"
       />
     </kw-action-top>
     <kw-grid
-      :visible-rows="10"
-      @init="initGrid"
+      ref="grdMainRefNotInstall"
+      v-model:page-size="pageInfo.pageSize"
+      :total-count="pageInfo.totalCount"
+      name="grdNotInstall"
+      @init="initGrdNotInstall"
     />
   </div>
 </template>
@@ -71,14 +76,22 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { defineGrid } from 'kw-lib';
+import { defineGrid, useMeta } from 'kw-lib';
 
 const { t } = useI18n();
+
+const { getConfig } = useMeta();
+
+const pageInfo = ref({
+  totalCount: 0,
+  pageIndex: 1,
+  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
+});
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
-const initGrid = defineGrid((data, view) => {
+const initGrdNotInstall = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'col1' },
     { fieldName: 'col2' },
