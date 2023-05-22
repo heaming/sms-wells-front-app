@@ -96,7 +96,7 @@
       v-model:page-size="pageInfo.pageSize"
       :total-count="pageInfo.totalCount"
       name="grdFreeAS"
-      @init="initGdFreeAS"
+      @init="initGrdFreeAS"
     />
   </div>
 </template>
@@ -134,7 +134,7 @@ async function onClickExcelDownload() {
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
 
-const initGdFreeAS = defineGrid((data, view) => {
+const initGrdFreeAS = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'col1' },
     { fieldName: 'col2' },
