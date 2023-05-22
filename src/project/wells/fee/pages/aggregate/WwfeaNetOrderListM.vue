@@ -119,7 +119,7 @@ import { cloneDeep } from 'lodash-es';
 const { modal } = useGlobal();
 const dataService = useDataService();
 const { t } = useI18n();
-const currentRoute = useRouter();
+const { currentRoute } = useRouter();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------

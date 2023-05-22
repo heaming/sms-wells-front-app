@@ -84,7 +84,7 @@ import { cloneDeep } from 'lodash-es';
 
 const { t } = useI18n();
 const dataService = useDataService();
-const currentRoute = useRouter();
+const { currentRoute } = useRouter();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
