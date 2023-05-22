@@ -89,6 +89,7 @@
           :label="$t('MSG_BTN_FEE_CRT')"
           primary
           dense
+          :disable="(totalCount === 0)"
           @click="onClickCreate"
         />
       </kw-action-top>
@@ -116,7 +117,7 @@ import dayjs from 'dayjs';
 const dataService = useDataService();
 const now = dayjs();
 const { t } = useI18n();
-const { modal } = useGlobal();
+const { modal, alert } = useGlobal();
 const { currentRoute } = useRouter();
 
 // -------------------------------------------------------------------------------------------------
@@ -164,6 +165,15 @@ async function onClickExcelDownload() {
 }
 // 수수료 생성 버튼
 async function onClickCreate() {
+  const view = grdType.value === 'A' ? grdRefA.value.getView() : grdRefB.value.getView();
+  const allRows = gridUtil.getAllRowValues(view, false);
+
+  if (allRows.some((row) => row.cnfmYn === 'Y')) {
+    // 이미 확정되어 수수료 생성이 불가합니다.
+    await alert(t('MSG_ALT_BF_CNFM_CONF_FEE'));
+    return;
+  }
+
   const { result: isChanged } = await modal({
     component: 'WwfebMutualAidFeeRegP',
     componentProps: {
@@ -216,6 +226,7 @@ const initGrdMainA = defineGrid((data, view) => {
 
 const initGrdMainB = defineGrid((data, view) => {
   const columns = [
+    { fieldName: 'cnfmYn', visible: false },
     { fieldName: 'baseYm', header: t('MSG_TXT_MNTH_OCCURENCE'), width: '103.8', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
     { fieldName: 'cntrStat', header: t('MSG_TXT_CLASFCTN_FEE'), width: '110.8', styleName: 'text-left' },
     { fieldName: 'ogCd', header: t('MSG_TXT_BLG'), width: '110.8', styleName: 'text-left' },
