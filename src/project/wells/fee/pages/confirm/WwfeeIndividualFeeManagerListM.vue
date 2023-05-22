@@ -333,11 +333,11 @@ const { prpartnerNo } = searchParams.value;
 let cachedParams;
 
 /*
- *  Event - 번호 검색 아이콘 클릭 이벤트 ※현재 팝업화면 없음
+ *  Event - 번호 검색 아이콘 클릭 이벤트
  */
 async function onClickSearchNo() {
   const { result, payload } = await modal({
-    component: 'ZwogcPartnerListP',
+    component: 'ZwogzPartnerListP',
     componentProps: {
       prtnrNo: searchParams.value.no,
     },

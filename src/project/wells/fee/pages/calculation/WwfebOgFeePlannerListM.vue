@@ -95,7 +95,7 @@
           dense
           secondary
           :label="$t('MSG_BTN_EXCEL_DOWN')"
-          :disable="totalCount.value === 0"
+          :disable="!isExcelDown"
           @click="onClickExcelDownload"
         />
         <kw-separator
@@ -152,7 +152,8 @@ const dataService = useDataService();
 const isGrid1Visile = ref(false);
 const isGrid2Visile = ref(false);
 const isGrid3Visile = ref(true);
-const currentRoute = useRouter();
+const isExcelDown = ref(false);
+const { currentRoute } = useRouter();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -304,6 +305,11 @@ async function fetchData() {
   const response = await dataService.get(`/sms/wells/fee/organization-fees/plars${uri}`, { params: cachedParams });
   const plarFees = response.data;
   totalCount.value = plarFees.length;
+  if (totalCount.value > 0) {
+    isExcelDown.value = true;
+  } else {
+    isExcelDown.value = false;
+  }
   if (prtnrNo !== '' && totalCount.value === 0) {
     notify(t('MSG_TXT_RPB_EMPNO_CONF'));
   }
