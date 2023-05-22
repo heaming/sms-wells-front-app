@@ -375,11 +375,11 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, router, useDataService, useGlobal } from 'kw-lib';
-import { cloneDeep } from 'lodash-es';
+import { consts, codeUtil, router, useDataService, useGlobal, popupUtil } from 'kw-lib';
+import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 
-const { notify, modal, confirm } = useGlobal();
+const { notify, alert, modal, confirm } = useGlobal();
 const dataService = useDataService();
 const getters = useStore();
 const { t } = useI18n();
@@ -407,7 +407,7 @@ const searchParams = ref({
   srchDv: 'NM',
   srchText: '',
   prtnrNm: '',
-  isBrmgr: (careerLevelCode === '7' ? 'Y' : ''), // TODO: 추후 지점장 여부 careerLevelCode=='7' 맞는지 확인
+  isBrmgr: (careerLevelCode === '7' ? 'Y' : ''),
   isBrmgrCntr: 'N',
 });
 
@@ -445,6 +445,12 @@ async function onClickSearch() {
 
   await fetchData();
   await fetchDataSummary();
+}
+
+async function getPrgsStatCd(cntrNo) {
+  const res = await dataService.get(`/sms/wells/contract/contracts/contract-lists/${cntrNo}`);
+
+  return Number(res.data);
 }
 
 async function onClickPrgsSearch(prgsCd) {
@@ -498,8 +504,16 @@ async function onClickModify(paramStatCd, paramCntrNo) {
 
 async function onClickNonFcfPayment(item) {
   if (item.cntrPrgsStatCd === '20' || item.cntrPrgsStatCd === '40') {
-    let message = `${item.cstKnm}의 휴대폰 ${item.mobileTelNo}로 결제URL을 발송하시겠습니까?`;
-    if (item.cntrPrgsStatCd === '40') message = `[재발송]${message}`;
+    // 계약진행상태코드 재확인
+    const nowPrgsStatCd = await getPrgsStatCd(item.cntrNo);
+    if (Number(item.cntrPrgsStatCd) !== nowPrgsStatCd) {
+      await alert(t('MSG_ALT_NOT_SYNC_REFRESH'));
+      await onClickSearch();
+      return;
+    }
+
+    let message = t('MSG_ALT_STLM_URL_CONFIRM', [item.cstKnm, item.mobileTelNo]);
+    if (item.cntrPrgsStatCd === '40') { message = `[${t('MSG_TXT_RESEND')}]${message}`; }
 
     if (!await confirm(message)) { return; }
 
@@ -515,12 +529,25 @@ async function onClickNonFcfPayment(item) {
 }
 
 async function onClickF2fPayment(item) {
-  if (item.cntrPrgsStatCd === '20' || item.cntrPrgsStatCd === '40') {
-    const res = await dataService.post('/sms/wells/contract/contracts/contract-lists/make-url', { url: `/payment?cntrNo=${item.cntrNo}` });
-    console.log(res.data); // url 리턴됨
+  console.log(item.cntrPrgsStatCd);
+  if (item.cntrPrgsStatCd === '20' || item.cntrPrgsStatCd === '60') {
+    // 계약진행상태코드 재확인
+    const nowPrgsStatCd = await getPrgsStatCd(item.cntrNo);
+    if (Number(item.cntrPrgsStatCd) !== nowPrgsStatCd) {
+      await alert(t('MSG_ALT_NOT_SYNC_REFRESH'));
+      await onClickSearch();
+      return;
+    }
 
-    // TODO : (확인) - 신규 윈도우 페이지에서 위 URL을 POST 로 전송한다.
-    // await popupUtil.open(`${defaultUrl}${detailUrl}`, { width: 488, height: 597 }, false);
+    // URL 암호화
+    const res = await dataService.post('/sms/wells/contract/contracts/contract-lists/make-url', { url: `${consts.HTTP_ORIGIN}/payment?cntrNo=${item.cntrNo}` });
+
+    // 신규 윈도우 페이지에서 위 URL을 POST 로 전송
+    if (!isEmpty(res.data)) {
+      // TODO : (확인) - 신규 윈도우 페이지에서 위 URL을 POST 로 전송한다.
+      // await window.open(`${res.data}`);
+      await popupUtil.open(`${res.data}`, { width: 500, height: 700 }, false);
+    }
   }
 }
 
@@ -564,10 +591,11 @@ async function onClickRequestDelete(item) {
 
 async function onClickContractDelete(item) {
   if (item.cntrPrgsStatCd === '20') {
-    await dataService.delete('/sms/wells/contract/contracts/contract-lists', { data: item.cnteNo });
+    if (!await confirm(t('MSG_ALT_WANT_DEL_WCC'))) { return; }
+
+    await dataService.delete('/sms/wells/contract/contracts/contract-lists/', { data: item.cnteNo });
   } else {
     notify('TODO : 계약삭제 1프로세스');
-
     // TODO : 계약삭제 프로세스
   }
 }
