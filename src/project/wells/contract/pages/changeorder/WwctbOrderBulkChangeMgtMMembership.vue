@@ -51,6 +51,7 @@
         :label="$t('MSG_TXT_BTCH_CHNG_REG')"
         primary
         dense
+        @click="onClickOpenChngReg"
       />
     </kw-action-top>
     <kw-grid
@@ -66,7 +67,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService, gridUtil, useMeta, getComponentType, defineGrid, codeUtil } from 'kw-lib';
+import { useDataService, gridUtil, useMeta, getComponentType, defineGrid, codeUtil, useGlobal } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
 import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
@@ -76,6 +77,7 @@ const { t } = useI18n();
 const now = dayjs();
 const dataService = useDataService();
 const { getConfig } = useMeta();
+const { notify } = useGlobal();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -111,6 +113,10 @@ async function fetchData() {
 async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
+}
+
+async function onClickOpenChngReg() {
+  notify(t('팝업 준비중 입니다.')); // W-SS-U-0113P02 팝업 확인 필요
 }
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
