@@ -258,6 +258,7 @@ const propsParams = ref({
   strWareNm: props.strWareNm,
   ostrWareNo: props.ostrWareNo,
   ostrWareNm: props.ostrWareNm,
+  ostrSn: props.ostrsn,
   itmPdNo: props.itmPdNo,
   itmPdNm: props.itmPdNm,
   strHopDt: props.strHopDt,
@@ -271,6 +272,7 @@ const searchParams = ref({
   itmStrNo: props.itmStrNo,
   strWareNo: props.strWareNo,
   ostrWareNo: props.ostrWareNo,
+  ostrSn: props.ostrSn,
   itmPdNo: props.itmPdNo,
   strHopDt: props.strHopDt,
   stckStdGb: '1',
@@ -302,15 +304,23 @@ async function fetchData() {
 async function onClickSave() {
   const dataParams = grdMainRef.value.getView();
   const rows = dataParams.getCheckedItems();
-  console.log(rows);
-  const { strSn, strQty, itmStrNo, strWareNo, itemGdCd, itmPdCd } = dataParams.getValues(0);
-  const confirmData = {
-    strSn, strQty, itmStrNo, strWareNo, itemGdCd, itmPdCd,
-  };
+
+  const confirmData = ref([]);
+  confirmData.value = rows.map((v) => {
+    const { strSn, strQty, itmStrNo, strWareNo, itemGdCd, itmPdCd } = dataParams.getValues(v);
+    return {
+      strSn: Number(strSn),
+      strQty: Number(strQty),
+      itmStrNo,
+      strWareNo,
+      itemGdCd,
+      itmPdCd,
+    };
+  });
 
   // 등록하시겠습니까?
   if (await confirm(t('MSG_ALT_RGST'))) {
-    const { result } = await dataService.put(baseURI, confirmData);
+    const { result } = await dataService.put(baseURI, { params: confirmData.value });
 
     if (result) {
       // 등록되었습니다.
