@@ -368,15 +368,15 @@ onMounted(async () => {
 // -------------------------------------------------------------------------------------------------
 const initGrdMain = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'pdPrpVal02',
+    { fieldName: 'svpdMgtTyp',
       header: t('MSG_TXT_STOC_TYPE'),
       width: '100',
       styleName: 'text-center',
       options: codes.value.MAT_MNGT_DV_CD,
     },
-    { fieldName: 'sapMatCd', header: t('MSG_TXT_SAP_CD'), width: '120', styleName: 'text-center' },
+    { fieldName: 'svpdSapCd', header: t('MSG_TXT_SAP_CD'), width: '120', styleName: 'text-center' },
     { fieldName: 'itmPdCd', header: t('MSG_TXT_ITM_CD'), width: '150', styleName: 'text-center' },
-    { fieldName: 'pdNm', header: t('MSG_TXT_ITM_NM'), width: '300' },
+    { fieldName: 'svpdNmKor', header: t('MSG_TXT_ITM_NM'), width: '300' },
     { fieldName: 'cfrmCnt', header: t('MSG_TXT_OSTR_FREQ'), width: '100', styleName: 'text-center' },
     { fieldName: 'itemLoc', header: t('MSG_TXT_ITM_LOC'), width: '150' },
     { fieldName: 'itmGdCd', header: t('MSG_TXT_GD'), width: '100', styleName: 'text-center' },
@@ -414,9 +414,9 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'flag' },
     { fieldName: 'ostrAkNo' },
     { fieldName: 'ostrAkSn' },
-    { fieldName: 'pdPrpVal15' },
-    { fieldName: 'pdPrpVal16' },
-    { fieldName: 'pdPrpVal19' },
+    { fieldName: 'svpdBaseGb' },
+    { fieldName: 'svpdBaseColorGb' },
+    { fieldName: 'svpdItemKnd' },
     { fieldName: 'ostrTpCd' },
     { fieldName: 'strWareNo' },
     { fieldName: 'ostrWareNo' },
@@ -455,7 +455,7 @@ const initGrdMain = defineGrid((data, view) => {
 
   view.onCellDblClicked = async (g, { column, dataRow }, v) => {
     // TODO: componentProps 와 함께 추가
-    const { itmPdCd, pdNm, strWareNo, strWareNm, ostrAkQty } = gridUtil.getRowValue(g, dataRow);
+    const { itmPdCd, svpdNmKor, strWareNo, strWareNm, ostrAkQty } = gridUtil.getRowValue(g, dataRow);
     console.log(g, column, dataRow, v);
 
     const { result, payload } = await modal({
@@ -463,7 +463,7 @@ const initGrdMain = defineGrid((data, view) => {
       component: 'WwsnaRequestMaterialHaveListP',
       componentProps: {
         itmPdCd,
-        itmPdNm: pdNm,
+        itmPdNm: svpdNmKor,
         strOjWareNo: strWareNo,
         strOjWareNm: strWareNm,
         ostrQty: ostrAkQty,
