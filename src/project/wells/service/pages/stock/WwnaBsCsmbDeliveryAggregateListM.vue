@@ -17,7 +17,7 @@
     <kw-search @search="onClickSearch">
       <kw-search-row>
         <kw-search-item
-          label="조회기간"
+          :label="$t('MSG_TXT_LOOKUP_PERIOD')"
         >
           <kw-date-range-picker
             v-model:from="searchParams.mngtYmFrom"
@@ -27,7 +27,7 @@
           />
         </kw-search-item>
         <kw-search-item
-          label="빌딩명"
+          :label="$t('MSG_TXT_BLD_NM')"
         >
           <kw-select
             v-model="searchParams.bldCds"
@@ -36,7 +36,7 @@
           />
         </kw-search-item>
         <kw-search-item
-          label="구분"
+          :label="$t('MSG_TXT_DIV')"
         >
           <kw-select
             v-model="searchParams.bfsvcCsmbDdlvOjCd"
@@ -47,7 +47,7 @@
       </kw-search-row>
       <kw-search-row>
         <kw-search-item
-          label="품목명"
+          :label="$t('MSG_TXT_ITM_NM')"
         >
           <kw-select
             v-model="searchParams.itmCds"
@@ -56,7 +56,7 @@
           />
         </kw-search-item>
         <kw-search-item
-          label="SAP코드"
+          :label="$t('MSG_TXT_SAP_CD')"
         >
           <kw-input
             v-model="searchParams.sapCdFrom"
@@ -176,20 +176,20 @@ let cachedParams;
 
 async function fetchData() {
   const res = await dataService.get('/sms/wells/service/delivery-aggregates/paging', { params: { ...cachedParams, ...pageInfo.value } });
-  const { list: bsCsmbDdlvAgrg, pageInfo: pagingResult } = res.data;
+  const { list: bsCsmbDdlvAgrgs, pageInfo: pagingResult } = res.data;
 
   pageInfo.value = pagingResult;
   const view = grdMainRef.value.getView();
 
-  view.getDataSource().setRows(bsCsmbDdlvAgrg);
+  view.getDataSource().setRows(bsCsmbDdlvAgrgs);
 
   const data = view.getDataSource();
 
-  if (bsCsmbDdlvAgrg.length > 0) {
-    for (let i = 0; i < bsCsmbDdlvAgrg.length; i += 1) {
+  if (bsCsmbDdlvAgrgs.length > 0) {
+    for (let i = 0; i < bsCsmbDdlvAgrgs.length; i += 1) {
       for (let j = 0; j < itemQtys.value.length; j += 1) {
-        if (bsCsmbDdlvAgrg[i].aclBldCd === itemQtys.value[j].bldCd
-            && bsCsmbDdlvAgrg[i].csmbPdCd === itemQtys.value[j].csmbPdCd) {
+        if (bsCsmbDdlvAgrgs[i].aclBldCd === itemQtys.value[j].bldCd
+            && bsCsmbDdlvAgrgs[i].csmbPdCd === itemQtys.value[j].csmbPdCd) {
           const yyyy = Number(itemQtys.value[j].mngtYm.substring(0, 4));
           const mm = Number(itemQtys.value[j].mngtYm.substring(4));
 
@@ -197,23 +197,9 @@ async function fetchData() {
         }
       }
     }
-
-    // for (let i = 0; i < bsCsmbDdlvAgrg.length; i += 1) {
-    //   if (bsCsmbDdlvAgrg[i].bldCd !== undefined && bsCsmbDdlvAgrg[i].bldCd !== '') {
-    //     // const j = i + 1;
-    //     const { bldCd } = bsCsmbDdlvAgrg[i];
-
-    //     for (let j = i + 1; j < bsCsmbDdlvAgrg.length; j += 1) {
-    //       if (bldCd === bsCsmbDdlvAgrg[j].bldCd) {
-    //         data.setValue(j, 'bldCd', null);
-    //         data.setValue(j, 'bldNm', null);
-    //         // data.setValue(j, 'bldCd', '');
-    //       }
-    //     }
-    //   }
-    // }
   }
 
+  view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
   view.resetCurrent();
 }
 
