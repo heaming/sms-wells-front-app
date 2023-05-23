@@ -76,6 +76,7 @@ const currentMetaInfos = ref();
 const feeVariables = ref([]);
 const removeObjects = ref([]);
 const gridRowCount = ref(0);
+const currentSellTpCd = ref(null);
 
 async function resetData() {
   currentPdCd.value = '';
@@ -138,6 +139,8 @@ async function initGridRows() {
   }, []);
   // Grid visible 초기화
   resetVisibleGridColumns(currentMetaInfos.value, pdConst.PD_PRC_TP_CD_FINAL, view);
+
+  await fetchFeeVariableData();
   // 상품 선택변수 visible 적용
   if (checkedVals && checkedVals.length) {
     checkedVals.forEach((fieldName) => {
@@ -205,11 +208,14 @@ async function onClickRemove() {
   gridRowCount.value = getGridRowCount(view);
 }
 
-async function fetchData() {
-  // 선택변수
+// 수수료 선택변수
+async function fetchFeeVariableData() {
   const sellTpCd = currentInitData.value[pdConst.TBL_PD_BAS]?.sellTpCd;
-  const typeRes = await dataService.get('/sms/common/product/type-variables', { params: { sellTpCd, choFxnDvCd: pdConst.CHO_FXN_DV_CD_FEE } });
-  feeVariables.value = typeRes.data;
+  if (sellTpCd && (isEmpty(currentSellTpCd.value) || sellTpCd !== currentSellTpCd.value)) {
+    currentSellTpCd.value = sellTpCd;
+    const typeRes = await dataService.get('/sms/common/product/type-variables', { params: { sellTpCd, choFxnDvCd: pdConst.CHO_FXN_DV_CD_FEE } });
+    feeVariables.value = typeRes.data;
+  }
 }
 
 async function initProps() {
@@ -220,7 +226,6 @@ async function initProps() {
 }
 
 await initProps();
-await fetchData();
 
 watch(() => props.pdCd, (val) => { currentPdCd.value = val; });
 watch(() => props.initData, (val) => { currentInitData.value = val; initGridRows(); }, { deep: true });
