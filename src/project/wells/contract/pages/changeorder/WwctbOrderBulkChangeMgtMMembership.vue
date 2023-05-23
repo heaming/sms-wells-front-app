@@ -4,8 +4,8 @@
 ****************************************************************************************************
 1. 모듈 : CTB
 2. 프로그램 ID : WwctbOrderBulkChangeMgtMMembership - 주문일괄변경 관리(멤버십) 화면
-3. 작성자 : gs.ritvik.m
-4. 작성일 : 2023.04.27
+3. 작성자 : JSY
+4. 작성일 : 2023.05.23
 ****************************************************************************************************
 * 프로그램 설명
 ****************************************************************************************************
@@ -16,13 +16,20 @@
   <kw-search
     :cols="2"
     one-row
+    :modified-targets="['grdMembershipBilkChangeList']"
+    @search="onClickSearch"
   >
     <kw-search-row>
+      <!-- 계약번호 -->
       <kw-search-item :label="$t('MSG_TXT_CNTR_NO')">
-        <kw-input />
+        <zctz-contract-detail-number
+          v-model:cntr-no="searchParams.cntrNo"
+          v-model:cntr-sn="searchParams.cntrSn"
+        />
       </kw-search-item>
+      <!-- 반영일 -->
       <kw-search-item :label="$t('MSG_TXT_RFLCTN_DT')">
-        <kw-date-picker />
+        <kw-date-picker v-model="searchParams.rfdt" />
       </kw-search-item>
     </kw-search-row>
   </kw-search>
@@ -30,9 +37,16 @@
   <div class="result-area">
     <kw-action-top>
       <template #left>
-        <kw-paging-info :total-count="pageInfo.totalCount" />
-        <span class="ml8">{{ t('MSG_TXT_UNIT_WON') }}</span>
+        <kw-paging-info
+          v-model:page-index="pageInfo.pageIndex"
+          v-model:page-size="pageInfo.pageSize"
+          :total-count="pageInfo.totalCount"
+          :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
+          @change="fetchData"
+        />
+        <span class="ml8">(단위: 원)</span>
       </template>
+      <!-- 일괄변경 등록 -->
       <kw-btn
         :label="$t('MSG_TXT_BTCH_CHNG_REG')"
         primary
@@ -40,11 +54,11 @@
       />
     </kw-action-top>
     <kw-grid
-      ref="grdMainRefMembership"
-      v-model:page-size="pageInfo.pageSize"
+      ref="grdMembershipBilkChangeList"
+      name="grdMembershipBilkChangeList"
+      :page-size="pageInfo.pageSize"
       :total-count="pageInfo.totalCount"
-      name="grdMembership"
-      @init="initGrdMembership"
+      @init="initMembershipBilkChangeList"
     />
   </div>
 </template>
@@ -52,112 +66,143 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { defineGrid, getComponentType, useMeta } from 'kw-lib';
+import { useDataService, gridUtil, useMeta, getComponentType, defineGrid, codeUtil } from 'kw-lib';
+import { cloneDeep } from 'lodash-es';
+import dayjs from 'dayjs';
+import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
 
+const grdMembershipBilkChangeList = ref(getComponentType('KwGrid'));
 const { t } = useI18n();
-
+const now = dayjs();
+const dataService = useDataService();
 const { getConfig } = useMeta();
+// -------------------------------------------------------------------------------------------------
+// Function & Event
+// -------------------------------------------------------------------------------------------------
+const codes = await codeUtil.getMultiCodes(
+  'COD_PAGE_SIZE_OPTIONS',
+);
+
+const searchParams = ref({
+  cntrNo: '',
+  cntrSn: '',
+  rfdt: now.format('YYYYMMDD'),
+});
 
 const pageInfo = ref({
   totalCount: 0,
   pageIndex: 1,
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
 });
-// -------------------------------------------------------------------------------------------------
-// Function & Event
-// -------------------------------------------------------------------------------------------------
-const grdMainRefMembership = ref(getComponentType('KwGrid'));
 
+let cachedParams;
+
+async function fetchData() {
+  const res = await dataService.get('/sms/wells/contract/changeorder/membership-bulk-change', { params: cachedParams });
+
+  const view = grdMembershipBilkChangeList.value.getView();
+  const dataSource = view.getDataSource();
+  dataSource.setRows(res.data);
+  pageInfo.value.totalCount = view.getItemCount();
+
+  view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
+}
+
+async function onClickSearch() {
+  cachedParams = cloneDeep(searchParams.value);
+  await fetchData();
+}
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
-const initGrdMembership = defineGrid((data, view) => {
+const initMembershipBilkChangeList = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'col1' },
-    { fieldName: 'col2' },
-    { fieldName: 'col3' },
-    { fieldName: 'col4' },
-    { fieldName: 'col5' },
-    { fieldName: 'col6' },
-    { fieldName: 'col7' },
-    { fieldName: 'col8' },
-    { fieldName: 'col9' },
-    { fieldName: 'col10' },
-    { fieldName: 'col11' },
-    { fieldName: 'col12' },
-    { fieldName: 'col13' },
-    { fieldName: 'col14' },
-    { fieldName: 'col15' },
-    { fieldName: 'col16' },
-    { fieldName: 'col17' },
-    { fieldName: 'col18' },
-    { fieldName: 'col19' },
-    { fieldName: 'col20' },
-    { fieldName: 'col21' },
-    { fieldName: 'col22' },
-    { fieldName: 'col23' },
-    { fieldName: 'col24' },
-    { fieldName: 'col25' },
-    { fieldName: 'col26' },
-    { fieldName: 'col27' },
-    { fieldName: 'col28' },
-    { fieldName: 'col29' },
-    { fieldName: 'col30' },
-    { fieldName: 'col31' },
-    { fieldName: 'col32' },
-    { fieldName: 'col33' },
-    { fieldName: 'col34' },
-    { fieldName: 'col35' },
-    { fieldName: 'col36' },
-    { fieldName: 'col37' },
-    { fieldName: 'col38' },
-    { fieldName: 'col39' },
-    { fieldName: 'col40' },
+    { fieldName: 'cntrDtlNo' },
+    { fieldName: 'cstKnm' },
+    { fieldName: 'sellInflwChnlDtlCd' },
+    { fieldName: 'sellTpDtlCd' },
+    { fieldName: 'sellPrtnrNo' },
+    { fieldName: 'prtnrNm' },
+    { fieldName: 'rveCd' },
+    { fieldName: 'reqdDt' },
+    { fieldName: 'cntrChRcpDtm' },
+    { fieldName: 'istDt' },
+    { fieldName: 'cntrStlmFshDtm' },
+    { fieldName: 'svPrd' },
+    { fieldName: 'useyn' },
+    { fieldName: 'basePdCd' },
+    { fieldName: 'pdNm' },
+    { fieldName: 'fnlAmt' },
+    { fieldName: 'stlmTpCd' },
+    { fieldName: 'frisuBfsvcPtrmN' },
+    { fieldName: 'cntrwTpCd' },
+    { fieldName: 'stplPtrm' },
+    { fieldName: 'cntrCnfmAprDtm' },
+    { fieldName: 'canDt' },
+    { fieldName: 'duedt' },
+    { fieldName: 'cntrCnfmDtm' },
+    { fieldName: 'wdwalDt' },
+    { fieldName: 'vstPrd' },
+    { fieldName: 'cttRsNm' },
+    { fieldName: 'cttPsicId' },
+    { fieldName: 'cttPsicNm' },
+    { fieldName: 'hcrDvCd' },
+    { fieldName: 'feeFxamYn' },
+    { fieldName: 'feeAckmtBaseAmt' },
+    { fieldName: 'sellDscDvCd' },
+    { fieldName: 'sellDscrCd' },
+    { fieldName: 'grpGbn' },
+    { fieldName: 'fstRgstDtm' },
+    { fieldName: 'fstRgstUsrId' },
+    { fieldName: 'fstRgstUsrNm' },
+    { fieldName: 'fnlMdfcDtm' },
+    { fieldName: 'fnlMdfcUsrId' },
+    { fieldName: 'fnlMdfcUsrNm' },
+    { fieldName: 'cntrChAkCn' },
   ];
 
   const columns = [
-    { fieldName: 'col1', header: t('MSG_TXT_CNTR_NO'), width: '152', styleName: 'text-center' },
-    { fieldName: 'col2', header: t('MSG_TXT_CNTOR_NM'), width: '117', styleName: 'text-center' },
-    { fieldName: 'col3', header: t('MSG_TXT_SLS_CAT'), width: '117', styleName: 'text-center' },
-    { fieldName: 'col4', header: t('MSG_TXT_SEL_TYPE'), width: '117', styleName: 'text-center' },
-    { fieldName: 'col5', header: t('MSG_TXT_PTNR_CD'), width: '117', styleName: 'text-center' },
-    { fieldName: 'col6', header: t('MSG_TXT_PTNR_NAME'), width: '117', styleName: 'text-center' },
-    { fieldName: 'col7', header: t('MSG_TXT_RVE_CD'), width: '117', styleName: 'text-center' },
-    { fieldName: 'col8', header: `KIWI${t('MSG_TXT_REQD_D')}`, width: '117', styleName: 'text-center' },
-    { fieldName: 'col9', header: t('MSG_TXT_RCP_D'), width: '117', styleName: 'text-center' },
-    { fieldName: 'col10', header: t('MSG_TXT_INST_DT'), width: '117', styleName: 'text-center' },
-    { fieldName: 'col11', header: t('MSG_TXT_DT_OF_SALE'), width: '117', styleName: 'text-center' },
-    { fieldName: 'col12', header: `BS ${t('MSG_TXT_CYCL')}`, width: '117', styleName: 'text-center' },
-    { fieldName: 'col13', header: t('MSG_TXT_USWY_DV'), width: '117', styleName: 'text-center' },
-    { fieldName: 'col14', header: t('MSG_TXT_PRDT_CODE'), width: '117', styleName: 'text-center' },
-    { fieldName: 'col15', header: t('MSG_TXT_PRDT_NM'), width: '224', styleName: 'text-left' },
+    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_NO'), width: '152', styleName: 'text-center' }, // 계약번호
+    { fieldName: 'cstKnm', header: t('MSG_TXT_CNTOR_NM'), width: '117', styleName: 'text-center' }, // 계약자명
+    { fieldName: 'sellInflwChnlDtlCd', header: t('MSG_TXT_SLS_CAT'), width: '117', styleName: 'text-center' }, // 판매구분
+    { fieldName: 'sellTpDtlCd', header: t('MSG_TXT_SEL_TYPE'), width: '117', styleName: 'text-center' }, // 판매유형
+    { fieldName: 'sellPrtnrNo', header: t('MSG_TXT_PTNR_CD'), width: '117', styleName: 'text-center' }, // 피트너코드
+    { fieldName: 'prtnrNm', header: t('MSG_TXT_PTNR_NAME'), width: '117', styleName: 'text-center' }, // 파트너명
+    { fieldName: 'rveCd', header: t('MSG_TXT_RVE_CD'), width: '117', styleName: 'text-center' }, // 수납코드
+    { fieldName: 'reqdDt', header: `KIWI${t('MSG_TXT_REQD_D')}`, width: '117', styleName: 'text-center', datetimeFormat: 'date' }, // KIWI철거일
+    { fieldName: 'cntrChRcpDtm', header: t('MSG_TXT_RCP_D'), width: '117', styleName: 'text-center', datetimeFormat: 'date' }, // 접수일
+    { fieldName: 'istDt', header: t('MSG_TXT_INST_DT'), width: '117', styleName: 'text-center', datetimeFormat: 'date' }, // 설치일
+    { fieldName: 'cntrStlmFshDtm', header: t('MSG_TXT_DT_OF_SALE'), width: '117', styleName: 'text-center', datetimeFormat: 'date' }, // 매출일
+    { fieldName: 'svPrd', header: t('MSG_TXT_BS_CYC'), width: '117', styleName: 'text-center' }, // BS주기
+    { fieldName: 'useyn', header: t('MSG_TXT_USWY_DV'), width: '117', styleName: 'text-center' }, // 용도구분
+    { fieldName: 'basePdCd', header: t('TXT_MSG_PD_CD'), width: '117', styleName: 'text-center' }, // 상품코드
+    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '224', styleName: 'text-left' }, // 상품명
 
-    { fieldName: 'col16', header: t('MSG_TXT_MEM_DUES'), width: '117', styleName: 'text-right' },
-    { fieldName: 'col17', header: t('MSG_TXT_PY_MTHD'), width: '117', styleName: 'text-center' },
-    { fieldName: 'col18', header: t('MSG_TXT_MEM_FEE'), width: '117', styleName: 'text-center' },
-    { fieldName: 'col19', header: t('MSG_TXT_MSH_DV'), width: '117', styleName: 'text-center' },
-    { fieldName: 'col20', header: t('MSG_TXT_MEM_PRD'), width: '117', styleName: 'text-center' },
-    { fieldName: 'col21', header: t('MSG_TXT_DTRM_DATE'), width: '117', styleName: 'text-center' },
-    { fieldName: 'col22', header: t('MSG_TXT_CAN_D'), width: '117', styleName: 'text-center' },
-    { fieldName: 'col23', header: t('MSG_TXT_DUEDT'), width: '117', styleName: 'text-center' },
-    { fieldName: 'col24', header: t('MSG_TXT_SUBS_DT'), width: '117', styleName: 'text-center' },
-    { fieldName: 'col25', header: t('MSG_TXT_WTDR_DT'), width: '117', styleName: 'text-center' },
-    { fieldName: 'col26', header: t('MSG_TXT_VST_PRD'), width: '117', styleName: 'text-center' },
-    { fieldName: 'col27', header: t('MSG_TXT_CTT_CD_NM'), width: '117', styleName: 'text-center' },
-    { fieldName: 'col28', header: t('MSG_TXT_CTT_ICHR'), width: '117', styleName: 'text-center' },
-    { fieldName: 'col29', header: `${t('MSG_TXT_PRDT_GUBUN')}1`, width: '117', styleName: 'text-center' },
-    { fieldName: 'col30', header: `${t('MSG_TXT_PRDT_GUBUN')}2`, width: '117', styleName: 'text-center' },
+    { fieldName: 'fnlAmt', header: t('MSG_TXT_MEM_DUES'), width: '117', styleName: 'text-right' }, // 멤버십회비
+    { fieldName: 'stlmTpCd', header: t('MSG_TXT_PY_MTHD'), width: '117', styleName: 'text-center' }, // 납입방법
+    { fieldName: 'frisuBfsvcPtrmN', header: t('MSG_TXT_MEM_FEE'), width: '117', styleName: 'text-center' }, // 멤버십무상
+    { fieldName: 'cntrwTpCd', header: t('MSG_TXT_MSH_DV'), width: '117', styleName: 'text-center' }, // 멤버십구분
+    { fieldName: 'stplPtrm', header: t('MSG_TXT_MEM_PRD'), width: '117', styleName: 'text-center' }, // 멤버십기간
+    { fieldName: 'cntrCnfmAprDtm', header: t('MSG_TXT_DTRM_DATE'), width: '117', styleName: 'text-center', datetimeFormat: 'date' }, // 확정일
+    { fieldName: 'canDt', header: t('MSG_TXT_CAN_D'), width: '117', styleName: 'text-center', datetimeFormat: 'date' }, // 취소일
+    { fieldName: 'duedt', header: t('MSG_TXT_DUEDT'), width: '117', styleName: 'text-center', datetimeFormat: 'date' }, // 예정일
+    { fieldName: 'cntrCnfmDtm', header: t('MSG_TXT_SUBS_DT'), width: '117', styleName: 'text-center', datetimeFormat: 'date' }, // 가입일
+    { fieldName: 'wdwalDt', header: t('MSG_TXT_WTDR_DT'), width: '117', styleName: 'text-center', datetimeFormat: 'date' }, // 탈퇴일
+    { fieldName: 'vstPrd', header: t('MSG_TXT_VST_PRD'), width: '117', styleName: 'text-center' }, // 방문주기
+    { fieldName: 'cttRsNm', header: t('MSG_TXT_CTT_CD_NM'), width: '117', styleName: 'text-center' }, // 컨택코드명
+    { fieldName: 'cttPsicNm', header: t('MSG_TXT_CTT_ICHR'), width: '117', styleName: 'text-center' }, // 컨택담당
+    { fieldName: 'hcrDvCd', header: t('MSG_TXT_PRDT_GUBUN'), width: '117', styleName: 'text-center' }, // 상품구분
 
-    { fieldName: 'col31', header: t('MSG_TXT_FXAM_YN'), width: '117', styleName: 'text-center' },
-    { fieldName: 'col32', header: t('MSG_TXT_PD_STD_FEE'), width: '117', styleName: 'text-center' },
-    { fieldName: 'col33', header: t('MSG_TXT_PD_DC_CLASS'), width: '117', styleName: 'text-center' },
-    { fieldName: 'col34', header: t('MSG_TXT_DISC_CODE'), width: '117', styleName: 'text-center' },
-    { fieldName: 'col35', header: t('MSG_TXT_GRP_DV'), width: '117', styleName: 'text-center' },
-    { fieldName: 'col36', header: t('MSG_TXT_RGST_DT'), width: '117', styleName: 'text-center' },
-    { fieldName: 'col37', header: t('MSG_TXT_FST_RGST_USR'), width: '117', styleName: 'text-center' },
-    { fieldName: 'col38', header: t('MSG_TXT_FNL_MDFC_D'), width: '117', styleName: 'text-center' },
-    { fieldName: 'col39', header: t('MSG_TXT_FNL_MDFC_USR'), width: '117', styleName: 'text-center' },
-    { fieldName: 'col40', header: t('MSG_TXT_CH_RSON'), width: '264', styleName: 'text-left' },
+    { fieldName: 'feeFxamYn', header: t('MSG_TXT_FXAM_YN'), width: '117', styleName: 'text-center' }, // 정액여부
+    { fieldName: 'feeAckmtBaseAmt', header: t('MSG_TXT_PD_STD_FEE'), width: '117', styleName: 'text-center' }, // 기준수수료
+    { fieldName: 'sellDscDvCd', header: t('MSG_TXT_PD_DC_CLASS'), width: '117', styleName: 'text-center' }, // 할인구분
+    { fieldName: 'sellDscrCd', header: t('TXT_MSG_DSC_TP'), width: '117', styleName: 'text-center' }, // 할인유형
+    { fieldName: 'grpGbn', header: t('MSG_TXT_GRP_DV'), width: '117', styleName: 'text-center' }, // 그룹구분
+    { fieldName: 'fstRgstDtm', header: t('MSG_TXT_RGST_DT'), width: '117', styleName: 'text-center', datetimeFormat: 'date' }, // 등록일
+    { fieldName: 'fstRgstUsrNm', header: t('MSG_TXT_RGST_USR'), width: '117', styleName: 'text-center' }, // 등록자
+    { fieldName: 'fnlMdfcDtm', header: t('MSG_TXT_FNL_MDFC_D'), width: '117', styleName: 'text-center', datetimeFormat: 'date' }, // 최종수정일
+    { fieldName: 'fnlMdfcUsrNm', header: t('MSG_TXT_FNL_MDFC_USR'), width: '117', styleName: 'text-center' }, // 최종수정자
+    { fieldName: 'cntrChAkCn', header: t('MSG_TXT_CH_RSON'), width: '264', styleName: 'text-left' }, // 변경사유
   ];
 
   data.setFields(fields);
@@ -165,11 +210,6 @@ const initGrdMembership = defineGrid((data, view) => {
 
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
-
-  data.setRows([
-    { col1: '2022-1234567-1', col2: '김고객', col3: '7', col4: '2', col5: '1234567', col6: '김판매', col7: '12345', col8: '-', col9: '2022-10-10', col10: '2022-10-10', col11: '2022-10-10', col12: '6', col13: '0', col14: '1234', col15: '웰스(PN5W1)', col16: '10,000', col17: '1', col18: '0', col19: '1', col20: '12', col21: '-', col22: '2022-10-10', col23: '-', col24: '-', col25: '-', col26: '3', col27: '취소요청', col28: '0', col29: '0', col30: '0', col31: '-', col32: '0', col33: '1', col34: '-', col35: '-', col36: '2022-10-21', col37: '김교원', col38: '2022-10-21', col39: '김교원', col40: '멤버십 확정 전 취소요청' },
-
-  ]);
 });
 </script>
 <style scoped>
