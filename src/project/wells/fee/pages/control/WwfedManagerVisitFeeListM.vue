@@ -133,10 +133,11 @@ async function onClickSearch() {
 
 async function onClickExcelDownload() {
   const view = grdVisitFeeRef.value.getView();
-
+  const response = await dataService.get('/sms/wells/fee/manager-visit-fees', { params: searchParams.value });
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
+    exportData: response.data,
   });
 }
 
