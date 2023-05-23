@@ -49,7 +49,6 @@
   <kw-grid
     ref="grdStandardRef"
     name="grdMgtRelMain"
-    :visible-rows="3"
     @init="initStandardGrid"
   />
 </template>
