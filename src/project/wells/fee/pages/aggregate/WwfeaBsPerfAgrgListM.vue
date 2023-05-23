@@ -37,9 +37,15 @@
         <kw-search-item
           :label="$t('MSG_TXT_PRDT_CODE')"
         >
-          <kw-input v-model="searchParams.strtPdCd" />
+          <kw-input
+            v-model="searchParams.strtPdCd"
+            :label="$t('MSG_TXT_PRDT_CODE')"
+          />
           <span>~</span>
-          <kw-input v-model="searchParams.endPdCd" />
+          <kw-input
+            v-model="searchParams.endPdCd"
+            :label="$t('MSG_TXT_PRDT_CODE')"
+          />
         </kw-search-item>
       </kw-search-row>
       <kw-search-row>
@@ -60,6 +66,7 @@
           <kw-date-range-picker
             v-model:from="searchParams.strtVstDt"
             v-model:to="searchParams.endVstDt"
+            :label="$t('MSG_TXT_VST_DT')"
             rules="date_range_months:1"
           />
         </kw-search-item>
