@@ -111,6 +111,7 @@
         @click="onClickCancel"
       />
       <kw-btn
+        v-if="isCheckbox"
         :label="$t('MSG_BTN_SELT')"
         primary
         @click="onClickSelect"
@@ -193,7 +194,7 @@ const searchParams = ref({
 let cachedParams;
 
 const isManagerSelected = computed(() => searchParams.value.mngrDvCd === '1');
-const isRadio = computed(() => props.checkType === 'radio');
+const isCheckbox = props.checkType === 'checkbox';
 
 const layouts = computed(() => {
   if (isManagerSelected.value) {
@@ -382,20 +383,24 @@ const initGrdMain = defineGrid((data, view) => {
   view.setColumns(columns);
   view.setColumnLayout(layouts.value);
 
-  view.checkBar.visible = true;
-  view.checkBar.exclusive = isRadio.value;
+  view.checkBar.visible = isCheckbox;
   view.rowIndicator.visible = true;
 
-  // 체크박스 설정
-  view.onCellClicked = (grid, clickData) => {
-    if (clickData.cellType === 'data') {
-      grid.checkItem(
-        clickData.itemIndex,
-        isRadio.value ? true : !grid.isCheckedItem(clickData.itemIndex),
-        isRadio.value,
-      );
-    }
-  };
+  if (isCheckbox) {
+    // 셀 클릭 시
+    view.onCellClicked = (grid, clickData) => {
+      if (clickData.cellType === 'data') {
+        grid.checkItem(clickData.itemIndex, !grid.isCheckedItem(clickData.itemIndex));
+      }
+    };
+  } else {
+    // 셀 더블클릭 시
+    view.onCellDblClicked = (grid, clickData) => {
+      if (clickData.cellType === 'data') {
+        ok([{ ...grid.getValues(clickData.itemIndex) }]);
+      }
+    };
+  }
 });
 
 onMounted(async () => {
