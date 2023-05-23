@@ -407,16 +407,20 @@ async function onclickStep(params) {
 
 // 엑셀다운로드
 async function onClickExcelDownload() {
+  let apiUrl;
   let view;
   if (searchParams.value.awDv === 'perf') {
+    apiUrl = 'engineers';
     view = grdEgerRef.value.getView();
   } else if (searchParams.value.awDv === 'rsb') {
+    apiUrl = 'engineer-managers';
     view = grdEgerMngerRef.value.getView();
   }
-
+  const response = await dataService.get(`/sms/wells/fee/eger-allowances/${apiUrl}`, { params: searchParams.value });
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
+    exportData: response.data,
   });
 }
 
