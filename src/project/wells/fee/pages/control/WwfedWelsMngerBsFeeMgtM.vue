@@ -95,7 +95,7 @@
         <div class="grid-horizontal-wrap__section">
           <h3>{{ t('MSG_TXT_VISIT_RECORD') }}</h3>
           <kw-action-top>
-            <span class="ml8">({{ $t('MSG_TXT_UNIT_COLON_WON') }})</span>
+            <span class="ml8">{{ $t('MSG_TXT_UNIT_COLON_WON') }}</span>
           </kw-action-top>
           <kw-grid
             ref="grd1MainRef"
@@ -249,12 +249,10 @@ async function fetchData(type) {
   } else if (type === 'visits') {
     const controlView = grd1MainRef.value.getView();
     controlView.getDataSource().setRows(resData);
-    controlView.resetCurrent();
   } else if (type === 'fees') {
     if (info1.value.thmBranch !== undefined) {
       const controlView = grd2MainRef.value.getView();
       controlView.getDataSource().setRows(resData);
-      controlView.resetCurrent();
     } else {
       grd2MainRef.value.getView().getDataSource().clearRows();
     }

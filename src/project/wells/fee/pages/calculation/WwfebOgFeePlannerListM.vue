@@ -88,7 +88,7 @@
           <kw-paging-info
             :total-count="totalCount"
           />
-          <span class="ml8">({{ $t('MSG_TXT_UNIT_COLON_WON') }})</span>
+          <span class="ml8">{{ $t('MSG_TXT_UNIT_COLON_WON') }}</span>
         </template>
         <kw-btn
           icon="download_on"
@@ -315,7 +315,6 @@ async function fetchData() {
   }
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(plarFees);
-  view.resetCurrent();
   await setTitle();
 }
 

@@ -141,7 +141,6 @@ async function fetchData() {
   totalCount.value = hmstPoints.length;
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(hmstPoints);
-  view.resetCurrent();
 }
 
 /*

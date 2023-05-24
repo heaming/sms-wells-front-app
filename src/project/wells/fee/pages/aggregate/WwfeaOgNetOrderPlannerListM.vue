@@ -54,74 +54,56 @@
           />
         </kw-search-item>
       </kw-search-row>
-      <div
-        v-if="isSelect1Visile"
-      >
-        <kw-search-row>
-          <kw-search-item
+      <kw-search-row>
+        <kw-search-item
+          v-if="isSelect1Visile"
+          :label="$t('MSG_TXT_DT_OF_SALE')"
+          required
+        >
+          <kw-date-range-picker
+            v-model:from="searchParams.schSlDtStrt"
+            v-model:to="searchParams.schSlDtEnd"
             :label="$t('MSG_TXT_DT_OF_SALE')"
-            required
-          >
-            <kw-date-range-picker
-              v-model:from="searchParams.schSlDtStrt"
-              v-model:to="searchParams.schSlDtEnd"
-              :label="$t('MSG_TXT_DT_OF_SALE')"
-              rules="date_range_required|date_range_months:1"
-            />
-          </kw-search-item>
-        </kw-search-row>
-      </div>
-      <div
-        v-if="isSelect2Visile"
-      >
-        <kw-search-row>
-          <kw-search-item
+            rules="date_range_required|date_range_months:1"
+          />
+        </kw-search-item>
+        <kw-search-item
+          v-if="isSelect2Visile"
+          :label="$t('MSG_TXT_RCPDT')"
+          required
+        >
+          <kw-date-range-picker
+            v-model:from="searchParams.schRcpDtStrt"
+            v-model:to="searchParams.schRcpDtEnd"
             :label="$t('MSG_TXT_RCPDT')"
-            required
-          >
-            <kw-date-range-picker
-              v-model:from="searchParams.schRcpDtStrt"
-              v-model:to="searchParams.schRcpDtEnd"
-              :label="$t('MSG_TXT_RCPDT')"
-              rules="date_range_required|date_range_months:1"
-            />
-          </kw-search-item>
-        </kw-search-row>
-      </div>
-      <div
-        v-if="isSelect3Visile"
-      >
-        <kw-search-row>
-          <kw-search-item
+            rules="date_range_required|date_range_months:1"
+          />
+        </kw-search-item>
+        <kw-search-item
+          v-if="isSelect3Visile"
+          :label="$t('MSG_TXT_RSV_DATE')"
+          required
+        >
+          <kw-date-range-picker
+            v-model:from="searchParams.schRsvDtStrt"
+            v-model:to="searchParams.schRsvDtEnd"
             :label="$t('MSG_TXT_RSV_DATE')"
-            required
-          >
-            <kw-date-range-picker
-              v-model:from="searchParams.schRsvDtStrt"
-              v-model:to="searchParams.schRsvDtEnd"
-              :label="$t('MSG_TXT_RSV_DATE')"
-              rules="date_range_required|date_range_months:1"
-            />
-          </kw-search-item>
-        </kw-search-row>
-      </div>
-      <div
-        v-if="isSelect4Visile"
-      >
-        <kw-search-row>
-          <kw-search-item
+            rules="date_range_required|date_range_months:1"
+          />
+        </kw-search-item>
+        <kw-search-item
+          v-if="isSelect4Visile"
+          :label="$t('MSG_TXT_PERF_YM')"
+          required
+        >
+          <kw-date-picker
+            v-model="searchParams.perfYm"
             :label="$t('MSG_TXT_PERF_YM')"
-            required
-          >
-            <kw-date-picker
-              v-model="searchParams.perfYm"
-              :label="$t('MSG_TXT_PERF_YM')"
-              type="month"
-              rules="required"
-            />
-          </kw-search-item>
-        </kw-search-row>
-      </div>
+            type="month"
+            rules="required"
+          />
+        </kw-search-item>
+      </kw-search-row>
     </kw-search>
 
     <div class="result-area">
@@ -130,7 +112,7 @@
           <kw-paging-info
             :total-count="totalCount"
           />
-          <span class="ml8">({{ $t('MSG_TXT_UNIT_COLON_WON') }})</span>
+          <span class="ml8">{{ $t('MSG_TXT_UNIT_COLON_WON') }}</span>
         </template>
 
         <kw-btn
@@ -318,7 +300,6 @@ async function fetchData() {
   }
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(plarFees);
-  view.resetCurrent();
 }
 
 async function onClickSearch() {
