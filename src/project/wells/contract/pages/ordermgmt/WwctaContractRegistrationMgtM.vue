@@ -224,7 +224,7 @@ const contract = ref({
   pdInfo: [],
   step1: {
     bas: {
-      cntrNo: '',
+      cntrNo: 'W20230001005',
     },
   },
   step2: {},

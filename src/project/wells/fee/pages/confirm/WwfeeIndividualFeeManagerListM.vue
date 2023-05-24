@@ -165,7 +165,7 @@
       <kw-action-top class="mt30">
         <template #left>
           <h3>{{ t('MSG_TXT_FEE_IZ') }}</h3>
-          <span class="ml8">({{ $t('MSG_TXT_UNIT_COLON_WON') }})</span>
+          <span class="ml8">{{ $t('MSG_TXT_UNIT_COLON_WON') }}</span>
         </template>
         <kw-btn
           secondary
@@ -445,17 +445,14 @@ async function fetchData(type) {
   } else if (type === 'etcs') {
     const etcView = grd1MainRef.value.getView();
     etcView.getDataSource().setRows(resData);
-    etcView.resetCurrent();
   } else if (type === 'fees') {
     const feeView = grd2MainRef.value.getView();
     feeView.getDataSource().setRows(resData);
-    feeView.resetCurrent();
   } else if (type === 'deductions') {
     info2.value = resData;
   } else if (type === 'pnpyam') {
     const pnpyamView = grd3MainRef.value.getView();
     pnpyamView.getDataSource().setRows(resData);
-    pnpyamView.resetCurrent();
   }
 }
 

@@ -282,7 +282,7 @@ async function fetchDetailData() {
   const view = grdDetailRef.value.getView();
 
   view.getDataSource().setRows(data);
-  view.resetCurrent();
+  // view.resetCurrent();
   view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageDetailInfo);
 }
 

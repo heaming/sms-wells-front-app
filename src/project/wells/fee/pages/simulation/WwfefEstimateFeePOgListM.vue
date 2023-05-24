@@ -66,63 +66,29 @@
         <kw-form-row>
           <!-- 성명 -->
           <kw-form-item :label="$t('MSG_TXT_EMPL_NM')">
-            <kw-input
-              v-model="baseInfo.prtnrKnm"
-              readonly
-              underline
-              placeholder=""
-            />
+            <p>{{ baseInfo.prtnrKnm }}</p>
           </kw-form-item>
           <!-- 소속 -->
           <kw-form-item :label="$t('MSG_TXT_BLG')">
-            <kw-input
-              v-model="baseInfo.ogCd"
-              readonly
-              underline
-              placeholder=""
-            />
+            <p>{{ baseInfo.ogCd }}</p>
           </kw-form-item>
           <!-- 직책 -->
           <kw-form-item :label="$t('MSG_TXT_RSB')">
-            <kw-select
-              v-model="baseInfo.rsbDvCd"
-              :options="codes.RSB_DV_CD"
-              readonly
-              underline
-              placeholder=""
-            />
+            <p>{{ codes.RSB_DV_CD.find((code) => code.codeId === baseInfo.rsbDvCd)?.codeName }}</p>
           </kw-form-item>
         </kw-form-row>
         <kw-form-row>
           <!-- 예상판매수수료 -->
           <kw-form-item :label="$t('MSG_TXT_EST_SAL_COMM')">
-            <kw-input
-              v-model="baseInfo.amtEstSalFee"
-              readonly
-              underline
-              placeholder=""
-              mask="###,###,###,###,###"
-            />
+            <p>{{ stringUtil.getNumberWithComma(baseInfo.amtEstSalFee) }}</p>
           </kw-form-item>
           <!-- 예상상조수수료 -->
           <kw-form-item :label="$t('MSG_TXT_EXP_MUT_AID_FEE')">
-            <kw-input
-              v-model="baseInfo.amtMutAidFee"
-              readonly
-              underline
-              placeholder=""
-              mask="###,###,###,###,###"
-            />
+            <p>{{ stringUtil.getNumberWithComma(baseInfo.amtMutAidFee) }}</p>
           </kw-form-item>
           <!-- 예상수수료합계 -->
           <kw-form-item :label="$t('MSG_TXT_TOT_EST_FEE')">
-            <kw-input
-              v-model="baseInfo.amtFeeSum"
-              readonly
-              underline
-              placeholder=""
-              mask="###,###,###,###,###"
-            />
+            <p>{{ stringUtil.getNumberWithComma(baseInfo.amtFeeSum) }}</p>
           </kw-form-item>
         </kw-form-row>
       </kw-form>
@@ -175,7 +141,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { defineGrid, useDataService, useGlobal, getComponentType, codeUtil } from 'kw-lib';
+import { defineGrid, useDataService, useGlobal, getComponentType, codeUtil, stringUtil } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
 
@@ -208,9 +174,9 @@ const baseInfo = ref({
   prtnrKnm: '',
   ogCd: '',
   rsbDvCd: '',
-  amtEstSalFee: null,
-  amtMutAidFee: null,
-  amtFeeSum: null,
+  amtEstSalFee: 0,
+  amtMutAidFee: 0,
+  amtFeeSum: 0,
 });
 
 // 데이터 조회

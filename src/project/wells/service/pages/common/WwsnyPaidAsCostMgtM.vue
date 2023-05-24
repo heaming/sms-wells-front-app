@@ -86,12 +86,12 @@
           vertical
           inset
         />
-        <kw-btn
+        <!-- <kw-btn
           icon="print"
           dense
           secondary
           :label="$t('MSG_BTN_PRTG')"
-        />
+        /> -->
         <kw-btn
           icon="download_on"
           dense
@@ -128,7 +128,7 @@
       <ul class="filter-box mb12">
         <li class="filter-box__item">
           <p class="filter-box__item-label">
-            자재구분
+            {{ $t('MSG_TXT_MAT_DV') }}
           </p>
           <kw-field
             v-model="searchParams.apyMtrChk"
@@ -383,13 +383,12 @@ const initGrdMain = defineGrid((data, view) => {
       width: '200',
       styleName: 'text-center',
       editable: false,
-      displayCallback(grid, index, value) {
+      displayCallback(grid, index) {
         const { csmrUprcAmt, tcfeeAmt } = grid.getValues(index.itemIndex);
 
-        if (csmrUprcAmt !== null || tcfeeAmt !== null) {
-          return parseInt(csmrUprcAmt, 10) + parseInt(tcfeeAmt, 10);
-        }
-        return isEmpty(value);
+        if (!isEmpty(csmrUprcAmt) && !isEmpty(tcfeeAmt)) { return parseInt(csmrUprcAmt, 10) + parseInt(tcfeeAmt, 10); }
+        if (!isEmpty(csmrUprcAmt)) { return parseInt(csmrUprcAmt, 10); }
+        if (!isEmpty(tcfeeAmt)) { return parseInt(tcfeeAmt, 10); }
       },
     }, // 합계(소비자가+기술료)
   ];

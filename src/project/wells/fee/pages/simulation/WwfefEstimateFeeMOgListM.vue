@@ -69,69 +69,35 @@
         <kw-form-row>
           <!-- 성명 -->
           <kw-form-item :label="$t('MSG_TXT_EMPL_NM')">
-            <kw-input
-              v-model="baseInfo.prtnrKnm"
-              readonly
-              underline
-              placeholder=""
-            />
+            <p>{{ baseInfo.prtnrKnm }}</p>
           </kw-form-item>
           <!-- 소속 -->
           <kw-form-item :label="$t('MSG_TXT_BLG')">
-            <kw-input
-              v-model="baseInfo.ogCd"
-              readonly
-              underline
-              placeholder=""
-            />
+            <p>{{ baseInfo.ogCd }}</p>
           </kw-form-item>
           <!-- 직책 -->
           <kw-form-item :label="$t('MSG_TXT_RSB')">
-            <kw-select
-              v-model="baseInfo.rsbDvCd"
-              :options="codes.RSB_DV_CD"
-              readonly
-              underline
-              placeholder=""
-            />
+            <p>{{ codes.RSB_DV_CD.find((code) => code.codeId === baseInfo.rsbDvCd)?.codeName }}</p>
           </kw-form-item>
         </kw-form-row>
         <kw-form-row>
           <!-- 예상판매수수료 -->
           <kw-form-item :label="$t('MSG_TXT_EST_SAL_COMM')">
-            <kw-input
-              v-model="baseInfo.amtEstSalFee"
-              readonly
-              underline
-              placeholder=""
-              mask="###,###,###,###,###"
-            />
+            <p>{{ stringUtil.getNumberWithComma(baseInfo.amtEstSalFee) }}</p>
           </kw-form-item>
           <!-- 예상bs수수료 -->
           <kw-form-item
             :label="$t('MSG_TXT_EST_BS_FEE')"
             align-content="right"
           >
-            <kw-input
-              v-model="baseInfo.amtEstBsFee"
-              readonly
-              underline
-              placeholder=""
-              mask="###,###,###,###,###"
-            />
+            <p>{{ stringUtil.getNumberWithComma(baseInfo.amtEstBsFee) }}</p>
           </kw-form-item>
           <!-- 예상수수료합계 -->
           <kw-form-item
             :label="$t('MSG_TXT_TOT_EST_FEE')"
             align-content="right"
           >
-            <kw-input
-              v-model="baseInfo.amtFeeSum"
-              readonly
-              underline
-              placeholder=""
-              mask="###,###,###,###,###"
-            />
+            <p>{{ stringUtil.getNumberWithComma(baseInfo.amtFeeSum) }}</p>
           </kw-form-item>
         </kw-form-row>
         <kw-form-row>
@@ -140,11 +106,7 @@
             :label="$t('MSG_TXT_OPNG_NMN')"
             align-content="left"
           >
-            <kw-date-picker
-              v-model="baseInfo.ojDsbYm"
-              type="month"
-              readonly
-            />
+            <p>{{ stringUtil.getDateFormat(baseInfo.ojDsbYm).substr(0,7) }}</p>
           </kw-form-item>
         </kw-form-row>
       </kw-form>
@@ -220,7 +182,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { defineGrid, useDataService, useGlobal, getComponentType, codeUtil } from 'kw-lib';
+import { defineGrid, useDataService, useGlobal, getComponentType, codeUtil, stringUtil } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
 
@@ -256,9 +218,9 @@ const baseInfo = ref({
   prtnrKnm: '',
   ogCd: '',
   rsbDvCd: '',
-  amtEstSalFee: null,
-  amtEstBsFee: null,
-  amtFeeSum: null,
+  amtEstSalFee: 0,
+  amtEstBsFee: 0,
+  amtFeeSum: 0,
   ojDsbYm: '',
 });
 // 데이터 조회
@@ -605,8 +567,8 @@ const initGridDstDtl = defineGrid((data, view) => {
 
 const initGridSalesHist = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'cntrRcpFshDtm', header: t('MSG_TXT_RCPDT'), width: '112', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd' },
-    { fieldName: 'cntrCnfmDtm', header: t('MSG_TXT_SL_DT'), width: '120', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd' },
+    { fieldName: 'cntrRcpFshDtm', header: t('MSG_TXT_RCPDT'), width: '112', styleName: 'text-center', datetimeFormat: 'datetime' },
+    { fieldName: 'cntrCnfmDtm', header: t('MSG_TXT_SL_DT'), width: '120', styleName: 'text-center', datetimeFormat: 'datetime' },
     { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '155', styleName: 'text-center' },
     { fieldName: 'cstKnm', header: t('MSG_TXT_CNTRT'), width: '93', styleName: 'text-left' },
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '187', styleName: 'text-left' },

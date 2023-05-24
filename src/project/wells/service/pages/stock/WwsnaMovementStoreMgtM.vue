@@ -246,10 +246,13 @@ const initGrdMain = defineGrid((data, view) => {
 
   const gridField = columns.map((v) => ({ fieldName: v.fieldName }));
   const fields = [...gridField,
+    { fieldName: 'ostrSn' },
+    { fieldName: 'strHopDt' },
     { fieldName: 'strWareNo' },
     { fieldName: 'itmPdNo' },
     { fieldName: 'ostrWareNo' },
-    { fieldName: 'ostrWareNm' }];
+    { fieldName: 'ostrWareNm' },
+  ];
 
   data.setFields(fields);
   view.setColumns(columns);
@@ -267,6 +270,8 @@ const initGrdMain = defineGrid((data, view) => {
       itmPdNm,
       ostrWareNo,
       ostrWareNm,
+      ostrSn,
+      strHopDt,
     } = gridUtil.getRowValue(g, dataRow);
     console.log(g, column, dataRow);
 
@@ -281,9 +286,10 @@ const initGrdMain = defineGrid((data, view) => {
         strWareNm: wareNm,
         ostrWareNo,
         ostrWareNm,
+        ostrSn,
         itmPdNo,
         itmPdNm,
-        strHopDt: '',
+        strHopDt,
         flagChk: 0,
       },
     });

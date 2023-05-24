@@ -164,11 +164,19 @@ watch(() => searchParams.value.perfYm, async (val) => {
 }, { immediate: false });
 
 async function onClickExcelDownload() {
-  const view = grdIndvRef.value.getView();
+  let type;
+  if (searchParams.value.inqrDv === 'indv') type = 'indv';
+  else if (searchParams.value.inqrDv === 'sum') type = 'sum';
+  const response = await dataService.get(`/sms/wells/fee/ledr-allowances/${type}`, { params: searchParams.value });
+
+  let view;
+  if (type === 'indv') view = grdIndvRef.value.getView();
+  else if (type === 'sum') view = grdSumRef.value.getView();
 
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
+    exportData: response.data,
   });
 }
 

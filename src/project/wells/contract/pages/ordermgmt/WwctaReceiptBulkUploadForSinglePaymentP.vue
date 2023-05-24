@@ -15,37 +15,30 @@
 <template>
   <kw-popup
     size="xl"
-    :title="$t('MSG_TIT_UPL_BULK_MAT')"
   >
     <kw-action-top class="mt30">
       <template #left>
-        <kw-paging-info
-          v-model:page-index="pageInfo.pageIndex"
-          v-model:page-size="pageInfo.pageSize"
-          :total-count="pageInfo.totalCount"
-          :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
-          @change="fetchData"
-        />
+        <kw-paging-info :total-count="pageInfo.totalCount" />
       </template>
 
       <kw-btn
         icon="upload_on"
         dense
         :label="$t('MSG_TXT_EXCEL_UPLOAD')"
-        @click="onClickExcelDownload"
+        @click="onClickExcelUpload"
       />
       <kw-btn
         icon="download_off"
         dense
         :label="$t('MSG_BTN_TEMP_DOWN')"
-        :disable="pageInfo.totalCount === 0"
-        @click="onClickExcelDownload"
+        @click="onClickTemplateDownload"
       />
     </kw-action-top>
 
     <kw-grid
+      ref="grdMainRef"
+      v-model:page-size="pageInfo.pageSize"
       name="grdMain"
-      :page-size="pageInfo.pageSize"
       :total-count="pageInfo.totalCount"
       @init="initGrdMain"
     />
@@ -68,9 +61,9 @@
 // -------------------------------------------------------------------------------------------------
 import { defineGrid, getComponentType, useMeta, gridUtil, codeUtil } from 'kw-lib';
 
+const { t } = useI18n();
 const { getConfig } = useMeta();
 
-const { t } = useI18n();
 const pageInfo = ref({
   totalCount: 0,
   pageIndex: 1,

@@ -273,7 +273,6 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-// import EctaProductModifyingList from '~sms-wells/contract/components/ordermgmt/EctaProductModifyingList.vue';
 import ZwcmCounter from '~common/components/ZwcmCounter.vue';
 import { codeUtil, stringUtil, useDataService, useGlobal } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
@@ -295,7 +294,7 @@ const products = shallowRef([]);
 const classfiedPds = computed(() => pdClsf.value.map((clsf) => ({
   clsfId: clsf.pdClsfId,
   label: clsf.pdClsfNm,
-  items: products.value.filter((item) => item.pdHclsfId === clsf.pdClsfId),
+  items: products.value.filter((item) => item.pdClsf === clsf.pdClsfId),
 })).filter((p) => p.items.length > 0));
 const codes = await codeUtil.getMultiCodes(
   'CNTR_TP_CD',
@@ -320,9 +319,10 @@ console.log(prtnrNo + ogTpCd + careerLevelCode + t + codes);
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 async function getProducts(cntrNo) {
-  const pds = await dataService.get('sms/wells/contract/contracts/lrnr-products', { params: { cntrNo, pdFilter: pdFilter.value } });
+  const pds = await dataService.get('sms/wells/contract/contracts/reg-products', { params: { cntrNo, pdFilter: pdFilter.value } });
   pdClsf.value = pds.data.pdClsf;
   products.value = pds.data.products;
+  debugger;
   console.log(classfiedPds.value);
 
   // 기존 상품 데이터가 존재하는 경우 추가

@@ -337,19 +337,17 @@ async function onClickApplicationRefund() {
 async function onClickTemp() {
   await modal({
     component: 'WwdbServiceRefundRegP',
-    componentProps: {
+    // componentProps: {
     //   startDay: searchParams.value.startDay, // 접수일자 시작일
     //   endDay: searchParams.value.endDay, // 접수일자 종료일
     //   rfndStatCd: searchParams.value.rfndStatCd, // 환불상태
     //   rveDvCd: searchParams.value.rveDvCd, // 입금유형
     //   rfndDsbDvCdCshBltf: searchParams.value.rfndDsbDvCdCshBltf, // 처리구분
-      cntrNo: searchParams.value.cntrNo, // 계약번호
-      cntrSn: searchParams.value.cntrSn, // 계약일련번호
-      // cntrNo: 'W20226001983', // 계약번호 W20226001983
-      // cntrSn: '1', // 계약일련번호 1
+    //   cntrNo: searchParams.value.cntrNo, // 계약번호
+    //   cntrSn: searchParams.value.cntrSn, // 계약일련번호
     //   cstNo: searchParams.value.cstNo, // 고객번호
     //   bzrno: searchParams.value.bzrno // 사업자등록번호
-    },
+    // },
   });
 }
 
@@ -526,33 +524,36 @@ const initGrdMain = defineGrid((data, view) => {
         });
       }
       if (rfndStatCd === '04' || rfndStatCd === '03') { // 04.반려, 03.승인
-        // TODO: 일정을 위해 4월 21일까지로 미뤄짐
-        notify('개발중 04.반려, 03.승인');
         await modal({
           component: 'WwwdbRefundApplicationDtlP', // W-WD-U-0108P03 환불상세팝업
           componentProps: {
             rfndStatCd, // 환불상태
+            cntrNo, // 계약번호
+            cntrSn, // 계약일련번호
+            rfndRcpNo, // 환불접수번호
+            rfndRcpDtlSn, // 환불접수일련번호
           },
         });
       }
     }
 
     if (column === 'col2') { // 환불상세
-      // TODO: 일정을 위해 4월 21일까지로 미뤄짐
-      notify('개발중 환불상세 팝업');
       await modal({
         component: 'WwwdbRefundApplicationDtlP',
         componentProps: {
           rfndStatCd, // 환불상태
+          cntrNo, // 계약번호
+          cntrSn, // 계약일련번호
+          rfndRcpNo, // 환불접수번호
+          rfndRcpDtlSn, // 환불접수일련번호
         },
       });
     }
     // 첨부파일 다운로드
     if (column === 'rfndEvidMtrFileId') {
-      // TODO: 일정을 위해 4월 21일까지로 미뤄짐
+      // TODO:
       // console.log(fileUtil.download);
       // fileUtil.download({ fileUid: rfndEvidMtrFileId }, 'storage');
-      notify('개발중');
       fileUtil.download(rfndEvidMtrFileId, 'storage');
     }
   };
