@@ -3,7 +3,7 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : withdrawal/idvrve
-2. 프로그램 ID :  WmwdbRefundCurrentStateListM - 웰스환불현황(통합) W-WD-U-0130M01
+2. 프로그램 ID :  WmwdbRefundListMCurrentState - 웰스환불현황(통합) W-WD-U-0130M01
 3. 작성자 : sonkiseok
 4. 작성일 : 2023.05.23
 ****************************************************************************************************
@@ -14,233 +14,209 @@
 ****************************************************************************************************
 --->
 <template>
-  <kw-page>
-    <kw-tabs v-model="selectedTab">
-      <kw-tab
-        name="1"
-        :label="$t('MSG_TXT_RFND_PS')"
-      />
-      <kw-tab
-        name="2"
-        :label="$t('MSG_TXT_CNTRAM_RFND_PS')"
-      />
-      <kw-tab
-        name="3"
-        :label="$t('MSG_TXT_ETC_ATAM_RFND_PS')"
-      />
-    </kw-tabs>
-    <kw-tab-panels v-model="selectedTab">
-      <kw-tab-panel name="1">
-        <kw-search
-          :cols="4"
-          @search="onClickSearch"
+  <kw-tab-panel name="1">
+    <kw-search
+      :cols="4"
+      @search="onClickSearch"
+    >
+      <kw-search-row>
+        <!-- 환불일자 -->
+        <kw-search-item
+          :label="$t('MSG_TXT_RFND_DT')"
+          required
+          :colspan="2"
         >
-          <kw-search-row>
-            <!-- 환불일자 -->
-            <kw-search-item
-              :label="$t('MSG_TXT_RFND_DT')"
-              required
-              :colspan="2"
-            >
-              <kw-date-range-picker
-                v-model:from="searchParams.rveDtStart"
-                v-model:to="searchParams.rveDtFinish"
-                rules="date_range_required|date_range_months:1"
-                :label="$t('MSG_TXT_RFND_DT')"
-              />
-            </kw-search-item>
-            <!-- 실적일자 -->
-            <kw-search-item
-              :label="$t('MSG_TXT_PERF_DT')"
-              required
-              :colspan="2"
-            >
-              <kw-date-range-picker
-                v-model:from="searchParams.perfDtStart"
-                v-model:to="searchParams.perfDtFinish"
-                rules="date_range_required|date_range_months:1"
-                :label="t('MSG_TXT_PERF_DT')"
-              />
-            </kw-search-item>
-          </kw-search-row>
-          <kw-search-row>
-            <!-- 일괄생성구분 -->
-            <kw-search-item
-              :label="t('MSG_TXT_BLK_CRT_DV')"
-              first-option="all"
-              first-option-value="ALL"
-            >
-              <kw-select
-                :model-value="[]"
-                :options="['일괄생성제외', '멤버십환불', '기변자동전금']"
-              />
-            </kw-search-item>
-            <!-- 귀속환불구분 -->
-            <kw-search-item
-              :label="t('MSG_TXT_BLNG_RFND_DV')"
-            >
-              <!-- 전체, 귀속환불만, 귀속환불제외 따로 만들어야할듯..-->
-              <kw-select
-                v-model="searchParams.rfndDsbDvCd"
-                first-option="all"
-                first-option-value="ALL"
-                :options="codes.RFND_DSB_DV_CD.filter((v) => v.codeId === '01' || v.codeId === '02')"
-              />
-            </kw-search-item>
-            <!-- 판매유형 -->
-            <kw-search-item
-              :label="t('MSG_TXT_SEL_TYPE')"
-            >
-              <!-- 렌탈, 멤버십, 정기배송 -->
-              <kw-select
-                v-model="searchParams.sellTpCd"
-                :options="codes.SELL_TP_CD.filter((v) => v.codeId === '2' || v.codeId === '3' || v.codeId === '6')"
-              />
-            </kw-search-item>
-            <!-- 판매유형상세 -->
-            <kw-search-item :label="t('MSG_TXT_SELL_TP_DTL')">
-              <kw-select
-                :model-value="[]"
-                first-option="all"
-                first-option-value="ALL"
-                :options="['일반', '금융리스', '장기할부']"
-              />
-            </kw-search-item>
-          </kw-search-row>
-          <kw-search-row>
-            <!-- 대손구분 -->
-            <kw-search-item
-              :label="t('MSG_TXT_DFA_DV')"
-            >
-              <kw-option-group
-                v-model="searchParams.rveDvCd"
-                type="radio"
-                :options="customCodes.RVE_DV_CD"
-              />
-            </kw-search-item>
-            <!-- 포인트구분 -->
-            <kw-search-item
-              :label="t('MSG_TXT_P_DV')"
-            >
-              <!-- 전체, 포인트만, 포인트 제외 중 택1 이것도 사용자 정의로 만들어야할듯.. -->
-              <kw-select
-                v-model="searchParams.dpMesCd"
-                first-option="all"
-                first-option-value="ALL"
-                :options="customCodes.DP_MES_CD"
-              />
-            </kw-search-item>
-          </kw-search-row>
-        </kw-search>
-        <div class="result-area">
-          <!-- 환불내역 -->
-          <h3>{{ $t('MSG_TXT_RFND_IZ') }}</h3>
-          <kw-action-top>
-            <template #left>
-              <kw-paging-info
-                v-model:page-index="pageInfo.pageIndex"
-                v-model:page-size="pageInfo.pageSize"
-                :total-count="pageInfo.totalCount"
-                @change="fetchData"
-              />
-              <!-- (단위:원) -->
-              <span class="ml8">{{ t('MSG_TXT_UNIT_WON') }}</span>
-            </template>
-            <!-- 리포트 보기 -->
-            <kw-btn
-              icon="report"
-              dense
-              secondary
-              :label="$t('MSG_BTN_RPT_BRWS')"
-              :disable="pageInfo.totalCount === 0"
-              @click="onClickReportView"
-            />
-            <!-- 엑셀다운로드 -->
-            <kw-btn
-              icon="excel"
-              dense
-              secondary
-              :label="$t('MSG_BTN_EXCEL_DOWN')"
-              :disable="pageInfo.totalCount === 0"
-              @click="onClickExcelDownload1"
-            />
-          </kw-action-top>
+          <kw-date-range-picker
+            v-model:from="searchParams.rveDtStart"
+            v-model:to="searchParams.rveDtFinish"
+            rules="date_range_required|date_range_months:1"
+            :label="$t('MSG_TXT_RFND_DT')"
+          />
+        </kw-search-item>
+        <!-- 실적일자 -->
+        <kw-search-item
+          :label="$t('MSG_TXT_PERF_DT')"
+          required
+          :colspan="2"
+        >
+          <kw-date-range-picker
+            v-model:from="searchParams.perfDtStart"
+            v-model:to="searchParams.perfDtFinish"
+            rules="date_range_required|date_range_months:1"
+            :label="t('MSG_TXT_PERF_DT')"
+          />
+        </kw-search-item>
+      </kw-search-row>
+      <kw-search-row>
+        <!-- 일괄생성구분 -->
+        <kw-search-item
+          :label="t('MSG_TXT_BLK_CRT_DV')"
+          first-option="all"
+          first-option-value="ALL"
+        >
+          <kw-select
+            :model-value="[]"
+            :options="['일괄생성제외', '멤버십환불', '기변자동전금']"
+          />
+        </kw-search-item>
+        <!-- 귀속환불구분 -->
+        <kw-search-item
+          :label="t('MSG_TXT_BLNG_RFND_DV')"
+        >
+          <!-- 전체, 귀속환불만, 귀속환불제외 따로 만들어야할듯..-->
+          <kw-select
+            v-model="searchParams.rfndDsbDvCd"
+            first-option="all"
+            first-option-value="ALL"
+            :options="codes.RFND_DSB_DV_CD.filter((v) => v.codeId === '01' || v.codeId === '02')"
+          />
+        </kw-search-item>
+        <!-- 판매유형 -->
+        <kw-search-item
+          :label="t('MSG_TXT_SEL_TYPE')"
+        >
+          <!-- 렌탈, 멤버십, 정기배송 -->
+          <kw-select
+            v-model="searchParams.sellTpCd"
+            :options="codes.SELL_TP_CD.filter((v) => v.codeId === '2' || v.codeId === '3' || v.codeId === '6')"
+          />
+        </kw-search-item>
+        <!-- 판매유형상세 -->
+        <kw-search-item :label="t('MSG_TXT_SELL_TP_DTL')">
+          <kw-select
+            :model-value="[]"
+            first-option="all"
+            first-option-value="ALL"
+            :options="['일반', '금융리스', '장기할부']"
+          />
+        </kw-search-item>
+      </kw-search-row>
+      <kw-search-row>
+        <!-- 대손구분 -->
+        <kw-search-item
+          :label="t('MSG_TXT_DFA_DV')"
+        >
+          <kw-option-group
+            v-model="searchParams.rveDvCd"
+            type="radio"
+            :options="customCodes.RVE_DV_CD"
+          />
+        </kw-search-item>
+        <!-- 포인트구분 -->
+        <kw-search-item
+          :label="t('MSG_TXT_P_DV')"
+        >
+          <!-- 전체, 포인트만, 포인트 제외 중 택1 이것도 사용자 정의로 만들어야할듯.. -->
+          <kw-select
+            v-model="searchParams.dpMesCd"
+            first-option="all"
+            first-option-value="ALL"
+            :options="customCodes.DP_MES_CD"
+          />
+        </kw-search-item>
+      </kw-search-row>
+    </kw-search>
+    <div class="result-area">
+      <!-- 환불내역 -->
+      <h3>{{ $t('MSG_TXT_RFND_IZ') }}</h3>
+      <kw-action-top>
+        <template #left>
+          <kw-paging-info
+            v-model:page-index="pageInfo.pageIndex"
+            v-model:page-size="pageInfo.pageSize"
+            :total-count="pageInfo.totalCount"
+            @change="fetchData"
+          />
+          <!-- (단위:원) -->
+          <span class="ml8">{{ t('MSG_TXT_UNIT_WON') }}</span>
+        </template>
+        <!-- 리포트 보기 -->
+        <kw-btn
+          icon="report"
+          dense
+          secondary
+          :label="$t('MSG_BTN_RPT_BRWS')"
+          :disable="pageInfo.totalCount === 0"
+          @click="onClickReportView"
+        />
+        <!-- 엑셀다운로드 -->
+        <kw-btn
+          icon="excel"
+          dense
+          secondary
+          :label="$t('MSG_BTN_EXCEL_DOWN')"
+          :disable="pageInfo.totalCount === 0"
+          @click="onClickExcelDownload1"
+        />
+      </kw-action-top>
 
-          <kw-grid
-            ref="grdMainRef1"
-            name="grdMain1"
-            :visible-rows="pageInfo.pageSize - 1"
-            @init="initGrdMain1"
+      <kw-grid
+        ref="grdMainRef1"
+        name="grdMain1"
+        :visible-rows="pageInfo.pageSize - 1"
+        @init="initGrdMain1"
+      />
+      <!-- 카드사별 환불내역 -->
+      <h3 class="mt30">
+        {{ t('MSG_TXT_CDCO_RFND_IZ') }}
+      </h3>
+      <kw-action-top>
+        <template #left>
+          <kw-paging-info
+            v-model:page-index="pageInfo2.pageIndex"
+            v-model:page-size="pageInfo2.pageSize"
+            :total-count="pageInfo2.totalCount"
+            @change="fetchData2"
           />
-          <!-- 카드사별 환불내역 -->
-          <h3 class="mt30">
-            {{ t('MSG_TXT_CDCO_RFND_IZ') }}
-          </h3>
-          <kw-action-top>
-            <template #left>
-              <kw-paging-info
-                v-model:page-index="pageInfo2.pageIndex"
-                v-model:page-size="pageInfo2.pageSize"
-                :total-count="pageInfo2.totalCount"
-                @change="fetchData2"
-              />
-              <!-- 단위:원 -->
-              <span class="ml8">{{ t('MSG_TXT_UNIT_WON') }}</span>
-            </template>
-            <kw-btn
-              icon="download_on"
-              dense
-              secondary
-              :label="$t('MSG_BTN_EXCEL_DOWN')"
-              :disable="pageInfo2.totalCount === 0"
-              @click="onClickExcelDownload2"
-            />
-          </kw-action-top>
-          <kw-grid
-            ref="grdMainRef12"
-            name="grdMain12"
-            :visible-rows="pageInfo2.pageSize - 1"
-            @init="initGrdMain12"
+          <!-- 단위:원 -->
+          <span class="ml8">{{ t('MSG_TXT_UNIT_WON') }}</span>
+        </template>
+        <kw-btn
+          icon="download_on"
+          dense
+          secondary
+          :label="$t('MSG_BTN_EXCEL_DOWN')"
+          :disable="pageInfo2.totalCount === 0"
+          @click="onClickExcelDownload2"
+        />
+      </kw-action-top>
+      <kw-grid
+        ref="grdMainRef12"
+        name="grdMain12"
+        :visible-rows="pageInfo2.pageSize - 1"
+        @init="initGrdMain12"
+      />
+      <!-- 전금내역 -->
+      <h3 class="mt30">
+        {{ t('MSG_TXT_BLTF_IZ') }}
+      </h3>
+      <kw-action-top>
+        <template #left>
+          <kw-paging-info
+            v-model:page-index="pageInfo3.pageIndex"
+            v-model:page-size="pageInfo3.pageSize"
+            :total-count="pageInfo3.totalCount"
+            @change="fetchData3"
           />
-          <!-- 전금내역 -->
-          <h3 class="mt30">
-            {{ t('MSG_TXT_BLTF_IZ') }}
-          </h3>
-          <kw-action-top>
-            <template #left>
-              <kw-paging-info
-                v-model:page-index="pageInfo3.pageIndex"
-                v-model:page-size="pageInfo3.pageSize"
-                :total-count="pageInfo3.totalCount"
-                @change="fetchData3"
-              />
-              <span class="ml8">{{ t('MSG_TXT_UNIT_WON') }}</span>
-            </template>
-            <kw-btn
-              icon="download_on"
-              dense
-              secondary
-              :label="$t('MSG_BTN_EXCEL_DOWN')"
-              :disable="pageInfo3.totalCount === 0"
-              @click="onClickExcelDownload3"
-            />
-          </kw-action-top>
-          <kw-grid
-            ref="grdMainRef13"
-            name="grdMain13"
-            :visible-rows="pageInfo3.pageSize - 1"
-            @init="initGrdMain13"
-          />
-        </div>
-      </kw-tab-panel>
-      <kw-tab-panel name="2">
-        <wmwdb-contract-amount-refund-list-m />
-      </kw-tab-panel>
-      <kw-tab-panel name="3">
-        <wmwdb-etc-amount-refund-list-m />
-      </kw-tab-panel>
-    </kw-tab-panels>
-  </kw-page>
+          <span class="ml8">{{ t('MSG_TXT_UNIT_WON') }}</span>
+        </template>
+        <kw-btn
+          icon="download_on"
+          dense
+          secondary
+          :label="$t('MSG_BTN_EXCEL_DOWN')"
+          :disable="pageInfo3.totalCount === 0"
+          @click="onClickExcelDownload3"
+        />
+      </kw-action-top>
+      <kw-grid
+        ref="grdMainRef13"
+        name="grdMain13"
+        :visible-rows="pageInfo3.pageSize - 1"
+        @init="initGrdMain13"
+      />
+    </div>
+  </kw-tab-panel>
 </template>
 
 <script setup>
@@ -252,8 +228,6 @@
 import { codeUtil, defineGrid, getComponentType, gridUtil, useDataService, useGlobal } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
-import WmwdbContractAmountRefundListM from './WmwdbContractAmountRefundListM.vue';
-import WmwdbEtcAmountRefundListM from './WmwdbEtcAmountRefundListM.vue';
 
 const { t } = useI18n();
 const { notify } = useGlobal();
@@ -285,7 +259,6 @@ const pageInfo3 = ref({
 const grdMainRef1 = ref(getComponentType('KwGrid'));
 const grdMainRef12 = ref(getComponentType('KwGrid'));
 const grdMainRef13 = ref(getComponentType('KwGrid'));
-const selectedTab = ref('1');
 const now = dayjs();
 
 const codes = await codeUtil.getMultiCodes(
