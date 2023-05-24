@@ -97,7 +97,7 @@
         <template #left>
           <h3>{{ t('MSG_TXT_BAS_IZ') }}</h3>
         </template>
-        <span class="ml8">({{ $t('MSG_TXT_UNIT_COLON_WON') }})</span>
+        <span class="ml8">{{ $t('MSG_TXT_UNIT_COLON_WON') }}</span>
       </kw-action-top>
       <kw-form
         dense
@@ -537,7 +537,6 @@ async function fetchData(type) {
   } else if (type === 'control') {
     const controlView = grdMainRef.value.getView();
     controlView.getDataSource().setRows(resData);
-    controlView.resetCurrent();
   }
 }
 

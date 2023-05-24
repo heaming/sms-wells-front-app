@@ -100,14 +100,14 @@
           <kw-paging-info
             :total-count="totalCount"
           />
-          <span class="ml8">({{ $t('MSG_TXT_UNIT_COLON_WON') }})</span>
+          <span class="ml8">{{ $t('MSG_TXT_UNIT_COLON_WON') }}</span>
         </template>
         <kw-btn
           icon="download_on"
           dense
           secondary
           :label="$t('MSG_BTN_EXCEL_DOWN')"
-          :disable="totalCount.value === 0"
+          :disable="!isExcelDown"
           @click="onClickExcelDownload"
         />
         <kw-separator
@@ -170,6 +170,7 @@ const isGrid1Visile = ref(false);
 const isGrid2Visile = ref(false);
 const isGrid3Visile = ref(true);
 const { currentRoute } = useRouter();
+const isExcelDown = ref(false);
 const stepNaviRef = ref();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -280,14 +281,17 @@ async function fetchData() {
   const response = await dataService.get(`/sms/wells/fee/organization-fees/mngers${uri}`, { params: cachedParams });
   const mngerFees = response.data;
   totalCount.value = mngerFees.length;
-
+  if (totalCount.value > 0) {
+    isExcelDown.value = true;
+  } else {
+    isExcelDown.value = false;
+  }
   if (prtnrNo !== '' && totalCount.value === 0) {
     notify(t('MSG_TXT_RPB_EMPNO_CONF'));
   }
 
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(mngerFees);
-  view.resetCurrent();
   await setTitle();
 }
 
@@ -751,7 +755,7 @@ const initGrd1Main = defineGrid((data, view) => {
     { fieldName: 'edu017', header: t('MSG_TXT_PRTIC'), width: '91.4', styleName: 'text-center' },
     { fieldName: 'ojtcnt', header: `OJT${t('MSG_TXT_DC')}`, width: '122.7', styleName: 'text-center' },
     { fieldName: 'akdsym', header: t('MSG_TXT_RGS') + t('MSG_TXT_BASE_MM'), width: '122.7', styleName: 'text-center' },
-    { fieldName: 'akdenm', header: t('MSG_TXT_FST') + t('MSG_TXT_BIZ_RGST_MM'), width: '97.3', styleName: 'text-center' },
+    { fieldName: 'akdenm', header: t('MSG_TXT_FST') + t('MSG_TXT_BIZ_RGST_MM'), width: '122.7', styleName: 'text-center' },
     { fieldName: 'akdjem', header: t('MSG_TXT_RETR') + t('MSG_TXT_MON'), width: '122.7', styleName: 'text-center' },
     { fieldName: 'akdlym', header: t('MSG_TXT_FNL_CLTN_MM'), width: '122.7', styleName: 'text-center' },
     { fieldName: 'akdcym', header: t('MSG_TXT_BIZ_CLTN_MON'), width: '122.7', styleName: 'text-center' },
@@ -771,7 +775,7 @@ const initGrd1Main = defineGrid((data, view) => {
     { fieldName: 'akcda18', header: t('MSG_TXT_SNGL_PMNT'), width: '110.4', styleName: 'text-right' },
     { fieldName: 'akcda1', header: t('MSG_TXT_ENVR') + t('MSG_TXT_ELHM') + t('MSG_TXT_EXCP'), width: '110.4', styleName: 'text-right' },
     { fieldName: 'akcdq1', header: t('MSG_TXT_ELHM') + t('MSG_TXT_NTOR') + t('MSG_TXT_COUNT'), width: '110.4', styleName: 'text-right' },
-    { fieldName: 'akcdq0', header: t('MSG_TXT_INDV') + t('MSG_TXT_ELHM') + t('MSG_TXT_ACKMT') + t('MSG_TXT_COUNT'), width: '110.4', styleName: 'text-right' },
+    { fieldName: 'akcdq0', header: t('MSG_TXT_INDV') + t('MSG_TXT_ELHM') + t('MSG_TXT_ACKMT') + t('MSG_TXT_COUNT'), width: '122.7', styleName: 'text-right' },
     { fieldName: 'akcdq7', header: `${t('MSG_TXT_INDV')}BS${t('MSG_TXT_ACKMT')}${t('MSG_TXT_COUNT')}`, width: '110.4', styleName: 'text-right' },
     { fieldName: 'akdet3', header: t('MSG_TXT_COUNT'), width: '110.4', styleName: 'text-right' },
     { fieldName: 'jasamt', header: t('MSG_TXT_AMT'), width: '110.4', styleName: 'text-right' },
@@ -781,7 +785,7 @@ const initGrd1Main = defineGrid((data, view) => {
     { fieldName: 'akcda15', header: t('MSG_TXT_SNGL_PMNT'), width: '122.7', styleName: 'text-right' },
     { fieldName: 'akcda16', header: t('MSG_TXT_FXAM'), width: '122.7', styleName: 'text-right' },
     { fieldName: 'akcdq5', header: t('MSG_TXT_LIVE_PAKG') + t('MSG_TXT_COUNT'), width: '110.4', styleName: 'text-right' },
-    { fieldName: 'akcdq6', header: t('MSG_TXT_INDV') + t('MSG_TXT_NEW') + t('MSG_TXT_SELL') + t('MSG_TXT_COUNT'), width: '110.4', styleName: 'text-right' },
+    { fieldName: 'akcdq6', header: t('MSG_TXT_INDV') + t('MSG_TXT_NEW') + t('MSG_TXT_SELL') + t('MSG_TXT_COUNT'), width: '122.7', styleName: 'text-right' },
     { fieldName: 'akcda19', header: t('MSG_TXT_HOME_CARE') + t('TXT_MSG_SELL_PRC'), width: '128.1', styleName: 'text-right' },
     { fieldName: 'jakcdq0', header: t('MSG_TXT_OG') + t('MSG_TXT_ELHM') + t('MSG_TXT_ACKMT') + t('MSG_TXT_COUNT'), width: '122.7', styleName: 'text-right' },
     { fieldName: 'jakcdq6', header: t('MSG_TXT_OG') + t('MSG_TXT_NEW') + t('MSG_TXT_SELL') + t('MSG_TXT_COUNT'), width: '122.7', styleName: 'text-right' },
@@ -879,7 +883,7 @@ const initGrd1Main = defineGrid((data, view) => {
     },
     'jasamt', 'akcda12', 'akcda13', 'akcda14', 'akcda15',
     {
-      header: `${t('SG_TXT_OG')}(${t('MSG_TXT_BASE') + t('MSG_TXT_AMT')})`,
+      header: `${t('MSG_TXT_OG')}(${t('MSG_TXT_BASE') + t('MSG_TXT_AMT')})`,
       direction: 'horizontal',
       items: ['akcda16', 'akcdq5', 'akcdq6'],
     },
@@ -996,7 +1000,7 @@ const initGrd2Main = defineGrid((data, view) => {
     { fieldName: 'edu017', header: t('MSG_TXT_PRTIC'), width: '91.4', styleName: 'text-center' },
     { fieldName: 'edu135', header: t('MSG_TXT_BRMGR') + t('MSG_TXT_ONL'), width: '88.7', styleName: 'text-right' },
     { fieldName: 'akdsym', header: t('MSG_TXT_RGS') + t('MSG_TXT_BASE_MM'), width: '122.7', styleName: 'text-center' },
-    { fieldName: 'akdenm', header: t('MSG_TXT_FST') + t('MSG_TXT_BIZ_RGST_MM'), width: '97.3', styleName: 'text-center' },
+    { fieldName: 'akdenm', header: t('MSG_TXT_FST') + t('MSG_TXT_BIZ_RGST_MM'), width: '122.7', styleName: 'text-center' },
     { fieldName: 'akdjem', header: t('MSG_TXT_RETR') + t('MSG_TXT_MON'), width: '122.7', styleName: 'text-center' },
     { fieldName: 'akdlym', header: t('MSG_TXT_FNL_CLTN_MM'), width: '122.7', styleName: 'text-center' },
     { fieldName: 'akdcym', header: t('MSG_TXT_BIZ_CLTN_MON'), width: '122.7', styleName: 'text-center' },
@@ -1015,7 +1019,7 @@ const initGrd2Main = defineGrid((data, view) => {
     { fieldName: 'akcda18', header: t('MSG_TXT_SNGL_PMNT'), width: '110.4', styleName: 'text-right' },
     { fieldName: 'akcda1', header: t('MSG_TXT_ENVR') + t('MSG_TXT_ELHM') + t('MSG_TXT_EXCP'), width: '110.4', styleName: 'text-right' },
     { fieldName: 'akcdq1', header: t('MSG_TXT_ELHM') + t('MSG_TXT_NTOR') + t('MSG_TXT_COUNT'), width: '110.4', styleName: 'text-right' },
-    { fieldName: 'akcdq0', header: t('MSG_TXT_INDV') + t('MSG_TXT_ELHM') + t('MSG_TXT_ACKMT') + t('MSG_TXT_COUNT'), width: '110.4', styleName: 'text-right' },
+    { fieldName: 'akcdq0', header: t('MSG_TXT_INDV') + t('MSG_TXT_ELHM') + t('MSG_TXT_ACKMT') + t('MSG_TXT_COUNT'), width: '122.7', styleName: 'text-right' },
     { fieldName: 'akcdq7', header: `${t('MSG_TXT_INDV')}BS${t('MSG_TXT_ACKMT')}${t('MSG_TXT_COUNT')}`, width: '110.4', styleName: 'text-right' },
     { fieldName: 'akdet3', header: t('MSG_TXT_COUNT'), width: '110.4', styleName: 'text-right' },
     { fieldName: 'jasamt', header: t('MSG_TXT_AMT'), width: '110.4', styleName: 'text-right' },
@@ -1025,7 +1029,7 @@ const initGrd2Main = defineGrid((data, view) => {
     { fieldName: 'akcda15', header: t('MSG_TXT_SNGL_PMNT'), width: '122.7', styleName: 'text-right' },
     { fieldName: 'akcda16', header: t('MSG_TXT_FXAM'), width: '122.7', styleName: 'text-right' },
     { fieldName: 'akcdq5', header: t('MSG_TXT_LIVE_PAKG') + t('MSG_TXT_COUNT'), width: '110.4', styleName: 'text-right' },
-    { fieldName: 'akcdq6', header: t('MSG_TXT_INDV') + t('MSG_TXT_NEW') + t('MSG_TXT_SELL') + t('MSG_TXT_COUNT'), width: '110.4', styleName: 'text-right' },
+    { fieldName: 'akcdq6', header: t('MSG_TXT_INDV') + t('MSG_TXT_NEW') + t('MSG_TXT_SELL') + t('MSG_TXT_COUNT'), width: '122.7', styleName: 'text-right' },
     { fieldName: 'akcda19', header: t('MSG_TXT_HOME_CARE') + t('TXT_MSG_SELL_PRC'), width: '128.1', styleName: 'text-right' },
     { fieldName: 'jakcdq0', header: t('MSG_TXT_OG') + t('MSG_TXT_ELHM') + t('MSG_TXT_ACKMT') + t('MSG_TXT_COUNT'), width: '122.7', styleName: 'text-right' },
     { fieldName: 'jakcdq6', header: t('MSG_TXT_OG') + t('MSG_TXT_NEW') + t('MSG_TXT_SELL') + t('MSG_TXT_COUNT'), width: '122.7', styleName: 'text-right' },
@@ -1120,7 +1124,7 @@ const initGrd2Main = defineGrid((data, view) => {
     },
     'akcda13', 'akcda14', 'akcda15', 'akcda16', 'akcdq5',
     {
-      header: `${t('SG_TXT_OG')}(${t('MSG_TXT_BASE') + t('MSG_TXT_AMT')})`,
+      header: `${t('MSG_TXT_OG')}(${t('MSG_TXT_BASE') + t('MSG_TXT_AMT')})`,
       direction: 'horizontal',
       items: ['akcdq6', 'akcda19', 'jakcdq0'],
     },
@@ -1242,7 +1246,7 @@ const initGrd3Main = defineGrid((data, view) => {
     { fieldName: 'edu135', header: t('MSG_TXT_BRMGR') + t('MSG_TXT_ONL'), width: '88.7', styleName: 'text-right' },
     { fieldName: 'ojtcnt', header: `OJT${t('MSG_TXT_DC')}`, width: '122.7', styleName: 'text-center' },
     { fieldName: 'akdsym', header: t('MSG_TXT_RGS') + t('MSG_TXT_BASE_MM'), width: '122.7', styleName: 'text-center' },
-    { fieldName: 'akdenm', header: t('MSG_TXT_FST') + t('MSG_TXT_BIZ_RGST_MM'), width: '97.3', styleName: 'text-center' },
+    { fieldName: 'akdenm', header: t('MSG_TXT_FST') + t('MSG_TXT_BIZ_RGST_MM'), width: '122.7', styleName: 'text-center' },
     { fieldName: 'akdjem', header: t('MSG_TXT_RETR') + t('MSG_TXT_MON'), width: '122.7', styleName: 'text-center' },
     { fieldName: 'akdlym', header: t('MSG_TXT_FNL_CLTN_MM'), width: '122.7', styleName: 'text-center' },
     { fieldName: 'akdcym', header: t('MSG_TXT_BIZ_CLTN_MON'), width: '122.7', styleName: 'text-center' },
@@ -1251,7 +1255,7 @@ const initGrd3Main = defineGrid((data, view) => {
     { fieldName: 'suscym', header: t('MSG_TXT_CLTN') + t('MSG_TXT_MON'), width: '91.4', styleName: 'text-center' },
     { fieldName: 'lccoym', header: `WM${t('MSG_TXT_OPNG')}`, width: '122.7', styleName: 'text-center' },
     { fieldName: 'lcccym', header: `WM${t('MSG_TXT_CLTN')}`, width: '122.7', styleName: 'text-center' },
-    { fieldName: 'dalsyn', header: t('MSG_TXT_ACL_ACTI') + t('MSG_TXT_ACHV'), width: '122.7' },
+    { fieldName: 'dalsyn', header: t('MSG_TXT_ACL_ACTI') + t('MSG_TXT_ACHV'), width: '122.7', styleName: 'text-right' },
     { fieldName: 'bondalsyn', header: t('MSG_TXT_MIN') + t('MSG_TXT_BASE') + t('MSG_TXT_ACHV'), width: '110.4', styleName: 'text-center' },
     { fieldName: 'sungnm', header: t('MSG_TXT_LSTMM') + t('MSG_TXT_CPR') + t('MSG_TXT_DIV'), width: '110.4', styleName: 'text-center' },
     { fieldName: 'wpscnt', header: 'WP', width: '110.4', styleName: 'text-center' },
@@ -1262,7 +1266,7 @@ const initGrd3Main = defineGrid((data, view) => {
     { fieldName: 'akcda18', header: t('MSG_TXT_SNGL_PMNT'), width: '110.4', styleName: 'text-right' },
     { fieldName: 'akcda1', header: t('MSG_TXT_ENVR') + t('MSG_TXT_ELHM') + t('MSG_TXT_EXCP'), width: '110.4', styleName: 'text-right' },
     { fieldName: 'akcdq1', header: t('MSG_TXT_ELHM') + t('MSG_TXT_NTOR') + t('MSG_TXT_COUNT'), width: '110.4', styleName: 'text-right' },
-    { fieldName: 'akcdq0', header: t('MSG_TXT_INDV') + t('MSG_TXT_ELHM') + t('MSG_TXT_ACKMT') + t('MSG_TXT_COUNT'), width: '110.4', styleName: 'text-right' },
+    { fieldName: 'akcdq0', header: t('MSG_TXT_INDV') + t('MSG_TXT_ELHM') + t('MSG_TXT_ACKMT') + t('MSG_TXT_COUNT'), width: '122.7', styleName: 'text-right' },
     { fieldName: 'akcdq7', header: `${t('MSG_TXT_INDV')}BS${t('MSG_TXT_ACKMT')}${t('MSG_TXT_COUNT')}`, width: '110.4', styleName: 'text-right' },
     { fieldName: 'akdet3', header: t('MSG_TXT_COUNT'), width: '110.4', styleName: 'text-right' },
     { fieldName: 'jasamt', header: t('MSG_TXT_AMT'), width: '110.4', styleName: 'text-right' },
@@ -1272,7 +1276,7 @@ const initGrd3Main = defineGrid((data, view) => {
     { fieldName: 'akcda15', header: t('MSG_TXT_SNGL_PMNT'), width: '122.7', styleName: 'text-right' },
     { fieldName: 'akcda16', header: t('MSG_TXT_FXAM'), width: '122.7', styleName: 'text-right' },
     { fieldName: 'akcdq5', header: t('MSG_TXT_LIVE_PAKG') + t('MSG_TXT_COUNT'), width: '110.4', styleName: 'text-right' },
-    { fieldName: 'akcdq6', header: t('MSG_TXT_INDV') + t('MSG_TXT_NEW') + t('MSG_TXT_SELL') + t('MSG_TXT_COUNT'), width: '110.4', styleName: 'text-right' },
+    { fieldName: 'akcdq6', header: t('MSG_TXT_INDV') + t('MSG_TXT_NEW') + t('MSG_TXT_SELL') + t('MSG_TXT_COUNT'), width: '122.7', styleName: 'text-right' },
     { fieldName: 'akcda19', header: t('MSG_TXT_HOME_CARE') + t('TXT_MSG_SELL_PRC'), width: '128.1', styleName: 'text-right' },
     { fieldName: 'jakcdq0', header: t('MSG_TXT_OG') + t('MSG_TXT_ELHM') + t('MSG_TXT_ACKMT') + t('MSG_TXT_COUNT'), width: '122.7', styleName: 'text-right' },
     { fieldName: 'jakcdq6', header: t('MSG_TXT_OG') + t('MSG_TXT_NEW') + t('MSG_TXT_SELL') + t('MSG_TXT_COUNT'), width: '122.7', styleName: 'text-right' },
@@ -1376,7 +1380,7 @@ const initGrd3Main = defineGrid((data, view) => {
     },
     'akcdq5', 'akcdq6', 'akcda19', 'jakcdq0', 'jakcdq6',
     {
-      header: `${t('SG_TXT_OG')}(${t('MSG_TXT_BASE') + t('MSG_TXT_AMT')})`,
+      header: `${t('MSG_TXT_OG')}(${t('MSG_TXT_BASE') + t('MSG_TXT_AMT')})`,
       direction: 'horizontal',
       items: ['jakcda12', 'jakcda13', 'jakcda15'],
     },
