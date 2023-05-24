@@ -66,26 +66,30 @@
           <kw-search-row>
             <!-- 일괄생성구분 -->
             <kw-search-item
-              :label="t('일괄생성구분')"
+              :label="t('MSG_TXT_BLK_CRT_DV')"
+              first-option="all"
+              first-option-value="ALL"
             >
               <kw-select
                 :model-value="[]"
-                :options="['전체', '일괄생성제외', '멤버십환불', '기변자동전금']"
+                :options="['일괄생성제외', '멤버십환불', '기변자동전금']"
               />
             </kw-search-item>
             <!-- 귀속환불구분 -->
             <kw-search-item
-              :label="t('귀속환불구분')"
+              :label="t('MSG_TXT_BLNG_RFND_DV')"
             >
               <!-- 전체, 귀속환불만, 귀속환불제외 따로 만들어야할듯..-->
               <kw-select
                 v-model="searchParams.rfndDsbDvCd"
+                first-option="all"
+                first-option-value="ALL"
                 :options="codes.RFND_DSB_DV_CD.filter((v) => v.codeId === '01' || v.codeId === '02')"
               />
             </kw-search-item>
             <!-- 판매유형 -->
             <kw-search-item
-              :label="t('판매유형')"
+              :label="t('MSG_TXT_SEL_TYPE')"
             >
               <!-- 렌탈, 멤버십, 정기배송 -->
               <kw-select
@@ -94,17 +98,19 @@
               />
             </kw-search-item>
             <!-- 판매유형상세 -->
-            <kw-search-item label="판매유형상세">
+            <kw-search-item :label="t('MSG_TXT_SELL_TP_DTL')">
               <kw-select
                 :model-value="[]"
-                :options="['전체', '일반', '금융리스', '장기할부']"
+                first-option="all"
+                first-option-value="ALL"
+                :options="['일반', '금융리스', '장기할부']"
               />
             </kw-search-item>
           </kw-search-row>
           <kw-search-row>
             <!-- 대손구분 -->
             <kw-search-item
-              :label="t('대손구분')"
+              :label="t('MSG_TXT_DFA_DV')"
             >
               <kw-option-group
                 v-model="searchParams.rveDvCd"
@@ -114,11 +120,13 @@
             </kw-search-item>
             <!-- 포인트구분 -->
             <kw-search-item
-              :label="t('포인트구분')"
+              :label="t('MSG_TXT_P_DV')"
             >
               <!-- 전체, 포인트만, 포인트 제외 중 택1 이것도 사용자 정의로 만들어야할듯.. -->
               <kw-select
                 v-model="searchParams.dpMesCd"
+                first-option="all"
+                first-option-value="ALL"
                 :options="customCodes.DP_MES_CD"
               />
             </kw-search-item>
@@ -166,7 +174,7 @@
           />
           <!-- 카드사별 환불내역 -->
           <h3 class="mt30">
-            {{ t('카드사별 환불내역') }}
+            {{ t('MSG_TXT_CDCO_RFND_IZ') }}
           </h3>
           <kw-action-top>
             <template #left>
@@ -176,7 +184,8 @@
                 :total-count="pageInfo2.totalCount"
                 @change="fetchData2"
               />
-              <span class="ml8">(단위:원)</span>
+              <!-- 단위:원 -->
+              <span class="ml8">{{ t('MSG_TXT_UNIT_WON') }}</span>
             </template>
             <kw-btn
               icon="download_on"
@@ -195,7 +204,7 @@
           />
           <!-- 전금내역 -->
           <h3 class="mt30">
-            {{ t('전금내역') }}
+            {{ t('MSG_TXT_BLTF_IZ') }}
           </h3>
           <kw-action-top>
             <template #left>
@@ -205,7 +214,7 @@
                 :total-count="pageInfo3.totalCount"
                 @change="fetchData3"
               />
-              <span class="ml8">(단위:원)</span>
+              <span class="ml8">{{ t('MSG_TXT_UNIT_WON') }}</span>
             </template>
             <kw-btn
               icon="download_on"
@@ -297,11 +306,11 @@ const searchParams = ref({
   perfDtStart: now.format('YYYYMM01'), // 실적일자.시작일
   perfDtFinish: now.format('YYYYMMDD'), // 실적일자.종료일
   // 일괄생성구분 은 설계자가 테이블 컬럼 매핑하지 못함. 알 수 없음이라고 작성되어 있음.
-  rfndDsbDvCd: '', // 귀속환불구분
-  sellTpCd: '', // 판매유형
+  rfndDsbDvCd: 'ALL', // 귀속환불구분
+  sellTpCd: '2', // 판매유형
   // 판매유형상세 은 설계자가 테이블 컬럼 매핑하지 못함. 알 수 없음이라고 작성되어 있음.
   rveDvCd: '-', // 대손구분
-  dpMesCd: '', // 포인트구분
+  dpMesCd: 'ALL', // 포인트구분
 });
 
 let cachedParams;
@@ -376,7 +385,7 @@ async function onClickExcelDownload1() {
   const view = grdMainRef1.value.getView();
 
   await gridUtil.exportView(view, {
-    fileName: `${currentRoute.value.meta.menuName}_${t('환불내역')}`,
+    fileName: `${currentRoute.value.meta.menuName}_${t('MSG_TXT_RFND_IZ')}`,
     timePostfix: true,
     exportData: response.data,
   });
@@ -387,7 +396,7 @@ async function onClickExcelDownload2() {
   const view = grdMainRef12.value.getView();
 
   await gridUtil.exportView(view, {
-    fileName: `${currentRoute.value.meta.menuName}_${t('카드사별 환불내역')}`,
+    fileName: `${currentRoute.value.meta.menuName}_${t('MSG_TXT_CDCO_RFND_IZ')}`,
     timePostfix: true,
     exportData: response.data,
   });
@@ -398,7 +407,7 @@ async function onClickExcelDownload3() {
   const view = grdMainRef13.value.getView();
 
   await gridUtil.exportView(view, {
-    fileName: `${currentRoute.value.meta.menuName}_${t('전금내역')}`,
+    fileName: `${currentRoute.value.meta.menuName}_${t('MSG_TXT_BLTF_IZ')}`,
     timePostfix: true,
     exportData: response.data,
   });
@@ -434,25 +443,25 @@ const initGrdMain1 = defineGrid((data, view) => {
   ];
 
   const columns = [
-    {
+    { // 계약상세번호
       fieldName: 'cntrNo',
-      header: '계약상세번호',
+      header: t('MSG_TXT_CNTR_DTL_NO'),
       width: '153',
       displayCallback(grid, index) {
         const { cntrNo, cntrSn } = grid.getValues(index.itemIndex);
         return `${cntrNo}-${cntrSn}`;
       },
     },
-    { fieldName: 'cstKnm', header: '고객명', width: '80' },
-    { fieldName: 'sellTpCd', header: '판매유형', width: '100', styleName: 'text-center', options: codes.SELL_TP_CD },
-    { fieldName: 'dpAmt', header: '입금총액', width: '100', styleName: 'text-right' },
-    { fieldName: 'rveAmt', header: '지급금액', width: '100', styleName: 'text-right' },
-    { fieldName: 'rfndDsbAmt', header: '환불금액', width: '100', styleName: 'text-right' },
-    { fieldName: 'rfndDsbPspInt', header: '지연이자', width: '100', styleName: 'text-right' },
-    { fieldName: 'rfndDdtnAmt', header: '카드공제', width: '100', styleName: 'text-right' },
+    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '80' }, // 고객명
+    { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '100', styleName: 'text-center', options: codes.SELL_TP_CD }, // 판매유형
+    { fieldName: 'dpAmt', header: t('MSG_TXT_DP_TAM'), width: '100', styleName: 'text-right' }, // 입금총액
+    { fieldName: 'rveAmt', header: t('MSG_TXT_DSB_AMT'), width: '100', styleName: 'text-right' }, // 지급금액
+    { fieldName: 'rfndDsbAmt', header: t('MSG_TXT_RFND_AMT'), width: '100', styleName: 'text-right' }, // 환불금액
+    { fieldName: 'rfndDsbPspInt', header: t('MSG_TXT_PSP_INT'), width: '100', styleName: 'text-right' }, // 지연이자
+    { fieldName: 'rfndDdtnAmt', header: t('MSG_TXT_CARD_DDTN'), width: '100', styleName: 'text-right' }, // 카드공제
     {
       fieldName: 'cshFnitNm',
-      header: '은행/카드사',
+      header: t('MSG_TXT_BNK_CDCO'),
       width: '100',
       displayCallback(grid, index) {
         const { cshFnitNm, cardFnitNm } = grid.getValues(index.itemIndex);
@@ -466,7 +475,7 @@ const initGrdMain1 = defineGrid((data, view) => {
     },
     {
       fieldName: 'cshRfndAcnoEncr',
-      header: '계좌/카드번호',
+      header: t('MSG_TXT_AC_CDNO'),
       width: '180',
       displayCallback(grid, index) {
         const { cshRfndAcnoEncr, cardRfndCrcdnoEncr } = grid.getValues(index.itemIndex);
@@ -485,7 +494,7 @@ const initGrdMain1 = defineGrid((data, view) => {
     },
     {
       fieldName: 'cshRfndAcownNm',
-      header: '예금주',
+      header: t('MSG_TXT_ACHLDR'),
       width: '100',
       displayCallback(grid, index) {
         const { cshRfndAcownNm, cardRfndCrdcdAprno } = grid.getValues(index.itemIndex);
@@ -497,10 +506,10 @@ const initGrdMain1 = defineGrid((data, view) => {
         }
       },
     },
-    { fieldName: 'tmp1', header: '판매유형', width: '100', styleName: 'text-center', options: codes.SELL_TP_CD },
-    { fieldName: 'rveDvCd', header: '입금유형', width: '100', options: codes.RVE_DV_CD },
-    { fieldName: 'cstNo', header: '전금고객번호', width: '180' },
-    { fieldName: 'tmp2', header: '전금고객명', width: '150' },
+    { fieldName: 'tmp1', header: t('MSG_TXT_SEL_TYPE'), width: '100', styleName: 'text-center', options: codes.SELL_TP_CD },
+    { fieldName: 'rveDvCd', header: t('MSG_TXT_DP_TP'), width: '100', options: codes.RVE_DV_CD },
+    { fieldName: 'cstNo', header: t('MSG_TXT_BLTF_CST_NO'), width: '180' },
+    { fieldName: 'tmp2', header: t('MSG_TXT_BLTF_CST_NM'), width: '150' },
   ];
 
   data.setFields(fields);
@@ -513,13 +522,13 @@ const initGrdMain1 = defineGrid((data, view) => {
     'cstKnm', // 고객명
     'sellTpCd', // 판매유형
     'dpAmt', // 입금총액
-    { // 지급총액, 환불금액, 지연이자, 카드공제, 은행/카드사, 계좌/카드번호, 예금주
-      header: '환불내역',
+    { // 환불내역 : 지급총액, 환불금액, 지연이자, 카드공제, 은행/카드사, 계좌/카드번호, 예금주
+      header: t('MSG_TXT_RFND_IZ'),
       direction: 'horizontal',
       items: ['rveAmt', 'rfndDsbAmt', 'rfndDsbPspInt', 'rfndDdtnAmt', 'cshFnitNm', 'cshRfndAcnoEncr', 'cshRfndAcownNm'],
     },
-    { // 판매유형, 입금유형, 전금고객번호, 전금고객명
-      header: '전금내역',
+    { // 전금내역 : 판매유형, 입금유형, 전금고객번호, 전금고객명
+      header: t('MSG_TXT_BLTF_IZ'),
       direction: 'horizontal',
       items: ['tmp1', 'rveDvCd', 'cstNo', 'tmp2'],
     },
@@ -572,19 +581,19 @@ const initGrdMain12 = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'refundDivision', header: '환불구분', width: '111', options: codes.SELL_TP_DTL_CD },
-    { fieldName: 'rfndDsbAmt', header: '현금', width: '111', styleName: 'text-right' },
-    { fieldName: 'rfndDdtnAmt', header: '카드공제', width: '111', styleName: 'text-right' },
-    { fieldName: 'bcRfndDsbAmt', header: '비씨', width: '111', styleName: 'text-right' },
-    { fieldName: 'kbRfndDsbAmt', header: '국민', width: '111', styleName: 'text-right' },
-    { fieldName: 'hnRfndDsbAmt', header: '외환', width: '111', styleName: 'text-right' },
-    { fieldName: 'shRfndDsbAmt', header: '신한', width: '111', styleName: 'text-right' },
-    { fieldName: 'ssRfndDsbAmt', header: '삼성', width: '111', styleName: 'text-right' },
-    { fieldName: 'hdRfndDsbAmt', header: '현대', width: '111', styleName: 'text-right' },
-    { fieldName: 'ltRfndDsbAmt', header: '롯데', width: '111', styleName: 'text-right' },
-    { fieldName: 'nhRfndDsbAmt', header: '농협', width: '111', styleName: 'text-right' },
-    { fieldName: 'sumRfndDsbDdtnAmt', header: '환불총계', width: '119', styleName: 'text-right' },
-    { fieldName: 'sumRfndDsbPspInt', header: '지연이자', width: '160', styleName: 'text-right' },
+    { fieldName: 'refundDivision', header: t('MSG_TXT_CLSF_REFUND'), width: '111', options: codes.SELL_TP_DTL_CD },
+    { fieldName: 'rfndDsbAmt', header: t('MSG_TXT_CASH'), width: '111', styleName: 'text-right' },
+    { fieldName: 'rfndDdtnAmt', header: t('MSG_TXT_CARD_DDTN'), width: '111', styleName: 'text-right' },
+    { fieldName: 'bcRfndDsbAmt', header: t('MSG_TXT_BC2'), width: '111', styleName: 'text-right' },
+    { fieldName: 'kbRfndDsbAmt', header: t('MSG_TXT_KB'), width: '111', styleName: 'text-right' },
+    { fieldName: 'hnRfndDsbAmt', header: t('MSG_TXT_FREX'), width: '111', styleName: 'text-right' },
+    { fieldName: 'shRfndDsbAmt', header: t('MSG_TXT_SH'), width: '111', styleName: 'text-right' },
+    { fieldName: 'ssRfndDsbAmt', header: t('MSG_TXT_SS'), width: '111', styleName: 'text-right' },
+    { fieldName: 'hdRfndDsbAmt', header: t('MSG_TXT_HD'), width: '111', styleName: 'text-right' },
+    { fieldName: 'ltRfndDsbAmt', header: t('MSG_TXT_LT'), width: '111', styleName: 'text-right' },
+    { fieldName: 'nhRfndDsbAmt', header: t('MSG_TXT_NH'), width: '111', styleName: 'text-right' },
+    { fieldName: 'sumRfndDsbDdtnAmt', header: t('MSG_TXT_RFND_TOT'), width: '119', styleName: 'text-right' },
+    { fieldName: 'sumRfndDsbPspInt', header: t('MSG_TXT_PSP_INT'), width: '160', styleName: 'text-right' },
   ];
 
   data.setFields(fields);
@@ -634,17 +643,17 @@ const initGrdMain13 = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'refundDivision', header: '전금구분', width: '176', options: codes.SELL_TP_DTL_CD },
-    { fieldName: 'rtRfndDsbAmt', header: '렌탈', width: '111', styleName: 'text-right' },
-    { fieldName: 'lsRfndDsbAmt', header: '리스', width: '111', styleName: 'text-right' },
-    { fieldName: 'elRfndDsbAmt', header: '환경리스', width: '111', styleName: 'text-right' },
-    { fieldName: 'mbRfndDsbAmt', header: '멤버십', width: '111', styleName: 'text-right' },
-    { fieldName: 'hcRfndDsbAmt', header: '홈케어멤버십', width: '150', styleName: 'text-right' },
-    { fieldName: 'lnRfndDsbAmt', header: '장기할부', width: '111', styleName: 'text-right' },
-    { fieldName: 'lmRfndDsbAmt', header: '할부금', width: '111', styleName: 'text-right' },
-    { fieldName: 'kmRfndDsbAmt', header: 'K머니', width: '111', styleName: 'text-right' },
-    { fieldName: 'rgRfndDsbAmt', header: '정기배송', width: '176', styleName: 'text-right' },
-    { fieldName: 'sumRfndDsbAmt', header: '전금합계', width: '213', styleName: 'text-right' },
+    { fieldName: 'refundDivision', header: t('MSG_TXT_BLTF_DV'), width: '176', options: codes.SELL_TP_DTL_CD },
+    { fieldName: 'rtRfndDsbAmt', header: t('MSG_TXT_RENTAL'), width: '111', styleName: 'text-right' },
+    { fieldName: 'lsRfndDsbAmt', header: t('MSG_TXT_LEASE'), width: '111', styleName: 'text-right' },
+    { fieldName: 'elRfndDsbAmt', header: t('MSG_TXT_ENVR_LEASE'), width: '111', styleName: 'text-right' },
+    { fieldName: 'mbRfndDsbAmt', header: t('MSG_TXT_MEMBERSHIP'), width: '111', styleName: 'text-right' },
+    { fieldName: 'hcRfndDsbAmt', header: t('MSG_TXT_HCR_MSH'), width: '150', styleName: 'text-right' },
+    { fieldName: 'lnRfndDsbAmt', header: t('MSG_TXT_LTM_ISTM'), width: '111', styleName: 'text-right' },
+    { fieldName: 'lmRfndDsbAmt', header: t('MSG_TXT_INTAM'), width: '111', styleName: 'text-right' },
+    { fieldName: 'kmRfndDsbAmt', header: t('MSG_TXT_K_MON'), width: '111', styleName: 'text-right' },
+    { fieldName: 'rgRfndDsbAmt', header: t('MSG_TXT_REG_DLVR'), width: '176', styleName: 'text-right' },
+    { fieldName: 'sumRfndDsbAmt', header: t('MSG_TXT_BLTF_SUM'), width: '213', styleName: 'text-right' },
   ];
 
   data.setFields(fields);
