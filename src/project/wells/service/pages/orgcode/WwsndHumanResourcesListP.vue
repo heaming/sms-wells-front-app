@@ -80,38 +80,38 @@
         </kw-search-item>
       </kw-search-row>
     </kw-search>
-    <div class="result-area">
-      <kw-action-top>
-        <template #left>
-          <kw-paging-info
-            v-model:page-index="pageInfo.pageIndex"
-            v-model:page-size="pageInfo.pageSize"
-            :total-count="pageInfo.totalCount"
-            :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
-            @change="getHumanResourcesPages"
-          />
-        </template>
-      </kw-action-top>
-      <kw-grid
-        ref="grdMainRef"
-        :page-size="pageInfo.pageSize"
-        :total-count="pageInfo.totalCount"
-        @init="initGrdMain"
-      />
-      <kw-pagination
-        v-model:page-index="pageInfo.pageIndex"
-        v-model:page-size="pageInfo.pageSize"
-        :total-count="pageInfo.totalCount"
-        @change="getHumanResourcesPages"
-      />
-    </div>
-    <template #action>
+    <kw-action-top>
+      <template #left>
+        <kw-paging-info
+          v-model:page-index="pageInfo.pageIndex"
+          v-model:page-size="pageInfo.pageSize"
+          :total-count="pageInfo.totalCount"
+          :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
+          @change="getHumanResourcesPages"
+        />
+      </template>
+    </kw-action-top>
+    <kw-grid
+      ref="grdMainRef"
+      :page-size="pageInfo.pageSize"
+      :total-count="pageInfo.totalCount"
+      @init="initGrdMain"
+    />
+    <kw-pagination
+      v-model:page-index="pageInfo.pageIndex"
+      v-model:page-size="pageInfo.pageSize"
+      :total-count="pageInfo.totalCount"
+      @change="getHumanResourcesPages"
+    />
+    <template
+      v-if="isCheckbox"
+      #action
+    >
       <kw-btn
         :label="$t('MSG_BTN_CANCEL')"
         @click="onClickCancel"
       />
       <kw-btn
-        v-if="isCheckbox"
         :label="$t('MSG_BTN_SELT')"
         primary
         @click="onClickSelect"
