@@ -1,7 +1,6 @@
 <template>
   <kw-popup
-    class="kw-popup--3xl"
-    no-action
+    size="2xl"
   >
     <kw-action-top>
       <template #left>
@@ -42,7 +41,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { defineGrid, getComponentType, useMeta, codeUtil, useDataService, gridUtil } from 'kw-lib';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, isEmpty } from 'lodash-es';
 
 const { t } = useI18n();
 const { currentRoute } = useRouter();
@@ -93,13 +92,9 @@ const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
 );
 
-function isNotEmpty(obj) {
-  return (obj !== undefined && obj !== null && obj !== '');
-}
-
 function hasProps() {
   // eslint-disable-next-line max-len
-  return isNotEmpty(props.itmPdCd) && isNotEmpty(props.wareNo) && isNotEmpty(props.strRgstFrom) && isNotEmpty(props.strRgstTo);
+  return !isEmpty(props.itmPdCd) && !isEmpty(props.wareNo) && !isEmpty(props.strRgstFrom) && !isEmpty(props.strRgstTo);
 }
 
 function setSearchParams() {
@@ -118,6 +113,7 @@ async function fetchData() {
   pageInfo.value = pagingResult;
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(receiving);
+  view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
 async function onClickExcelDownload() {
