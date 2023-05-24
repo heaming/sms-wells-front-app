@@ -75,9 +75,9 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { gridUtil, codeUtil, getComponentType, useGlobal } from 'kw-lib';
+import { gridUtil, stringUtil, codeUtil, getComponentType, useGlobal } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
-import { getAlreadyItems, getGridRowCount } from '~/modules/sms-common/product/utils/pdUtil';
+import { getAlreadyItems, getGridRowCount, setPdGridRows } from '~/modules/sms-common/product/utils/pdUtil';
 import pdConst from '~sms-common/product/constants/pdConst';
 
 /* eslint-disable no-use-before-define */
@@ -208,6 +208,7 @@ async function onClickMaterialSchPopup() {
       const data = view.getDataSource();
       const rows = rtn.payload.map((item) => ({
         ...item,
+        [pdConst.REL_PD_ID]: stringUtil.getUid('REL_TMP'),
         [pdConst.REL_OJ_PD_CD]: item.pdCd,
         [pdConst.PD_REL_TP_CD]: pdConst.PD_REL_TP_CD_PD_TO_FL }));
       const okRows = await getCheckAndNotExistRows(view, rows);
@@ -217,6 +218,7 @@ async function onClickMaterialSchPopup() {
       }
     } else {
       const row = Array.isArray(rtn.payload) ? rtn.payload[0] : rtn.payload;
+      row[pdConst.REL_PD_ID] = stringUtil.getUid('REL_TMP');
       row[pdConst.REL_OJ_PD_CD] = row.pdCd;
       row[pdConst.PD_REL_TP_CD] = pdConst.PD_REL_TP_CD_PD_TO_FL;
       const okRows = await getCheckAndNotExistRows(view, [row]);
@@ -256,9 +258,8 @@ async function initGridRows() {
   // console.log('WwpdcServiceMgtMFlt - initGridRows - products : ', products);
   const materialView = grdMainRef.value?.getView();
   if (materialView) {
-    materialView.getDataSource().clearRows();
-    materialView.getDataSource().setRows(products // 상품-필터
-      ?.filter((item) => item[pdConst.PD_REL_TP_CD] === pdConst.PD_REL_TP_CD_PD_TO_FL));
+    const materialRows = products.filter((item) => item[pdConst.PD_REL_TP_CD] === pdConst.PD_REL_TP_CD_PD_TO_FL);
+    await setPdGridRows(materialView, materialRows, pdConst.REL_PD_ID, [], true);
     grdRowCount.value = getGridRowCount(materialView);
   }
 }
