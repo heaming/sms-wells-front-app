@@ -1,10 +1,19 @@
+<!----
+****************************************************************************************************
+* 프로그램 개요
+****************************************************************************************************
+1. 모듈 : CTB
+2. 프로그램 ID : WwpsbZoomMgtM - 알림 ZOOM
+3. 작성자 : gs.piit225
+4. 작성일 : 2023.05.18
+****************************************************************************************************
+* 프로그램 설명
+****************************************************************************************************
+- 알림 ZOOM
+****************************************************************************************************
+--->
 <template>
   <kw-page>
-    <template #header>
-      <kw-page-header
-        :options="['홈', '역량총무' , '교육관리', '알려ZOOM']"
-      />
-    </template>
     <kw-search
       :cols="2"
       @search="onClickSearch"
@@ -12,46 +21,40 @@
     >
       <kw-search-row>
         <kw-search-item
-          label="관리구분"
+          :label="$t('MSG_TXT_MNGT_DV')"
           required
         >
           <kw-select
             v-model="searchParams.rsbDvCd"
             :options="rsbDvCd"
-            label="관리구분"
+            :label="$t('MSG_TXT_MNGT_DV')"
             rules="required"
             @change="oneDepthChange"
           />
         </kw-search-item>
         <kw-search-item
-          label="조회구분"
+          :label="$t('MSG_TXT_INQR_DV')"
           required
         >
           <kw-select
             v-model="searchParams.oneDepth"
             :options="oneDepth"
-            label="조회구분"
-            first-option
-            first-option-value=""
-            :first-option-label="$t('MSG_TXT_ALL')"
+            :label="$t('MSG_TXT_INQR_DV')"
+            first-option="all"
             rules="required"
             @change="twoDepthChange"
           />
           <kw-select
             v-model="searchParams.twoDepth"
             :options="twoDepth"
-            first-option
-            first-option-value=""
-            :first-option-label="$t('MSG_TXT_ALL')"
+            first-option="all"
             :disable="isTwoDepth"
             @change="threeDepthChange"
           />
           <kw-select
             v-model="searchParams.threeDepth"
             :options="threeDepth"
-            first-option
-            first-option-value=""
-            :first-option-label="$t('MSG_TXT_ALL')"
+            first-option="all"
             :disable="isThreeDepth"
           />
         </kw-search-item>
@@ -169,8 +172,8 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, useGlobal, useDataService, defineTreeGrid, gridUtil } from 'kw-lib';
-import { RowState, SelectionStyle } from 'realgrid';
+import { codeUtil, useGlobal, useDataService, gridUtil } from 'kw-lib';
+import { RowState } from 'realgrid';
 import { cloneDeep } from 'lodash-es';
 
 const { modal, confirm, notify } = useGlobal();
@@ -183,17 +186,14 @@ const codes = await codeUtil.getMultiCodes(
 rsbDvCd.value = codes.RSB_DV_CD.filter((v) => ['W0601', 'W0603'].includes(v.codeId));
 
 const zGrdTreeRef = ref({});
-let treeData = reactive([]);
+let treeData = ref([]);
 
 const selectedRowValue = ref(null);
 
 const isRoot = computed(() => selectedRowValue.value?.svEducMnalId === 'WELS0000000000');
 const isReadonly = computed(() => !selectedRowValue.value);
 
-// -------------------------------------------------------------------------------------------------
-// Function & Event
-// -------------------------------------------------------------------------------------------------
-const searchParams = reactive({
+const searchParams = ref({
   rsbDvCd: '',
   oneDepth: '',
   twoDepth: '',
@@ -207,25 +207,29 @@ const threeDepth = ref([]);
 const isTwoDepth = ref(true);
 const isThreeDepth = ref(true);
 
+// -------------------------------------------------------------------------------------------------
+// Function & Event
+// -------------------------------------------------------------------------------------------------
+
 async function fetchData() {
-  const cachedParams = { ...searchParams };
-  return await dataService.get('/sms/wells/competence/zoom-counsel/tree-list', { params: cachedParams });
+  const cachedParams = { ...searchParams.value };
+  return await dataService.get('/sms/wells/competence/zoom-counsel/trees', { params: cachedParams });
 }
 const totalCount = ref(0);
 async function init() {
   const view = zGrdTreeRef.value.getView();
   const data = view.getDataSource();
-  treeData = reactive([]);
+  treeData = ref([]);
   zGrdTreeRef.value.getData().clearRows();
 
   const res = await fetchData();
   const list = res.data;
 
-  treeData.push(...list);
-  data.setRows(treeData, 'orgPath', false, '');
+  treeData.value.push(...list);
+  data.setRows(treeData.value, 'orgPath', false, '');
   view.refresh();
   zGrdTreeRef.value.getView().expandAll();
-  totalCount.value = treeData.length;
+  totalCount.value = treeData.value.length;
   view.onCurrentRowChanged = (g, oldRow, newRow) => {
     if (newRow > -1) {
       selectedRowValue.value = { ...gridUtil.getRowValue(g, newRow) };
@@ -240,12 +244,12 @@ function oneDepthChange() {
   isThreeDepth.value = true;
   twoDepth.value = [];
   threeDepth.value = [];
-  searchParams.oneDepth = '';
-  searchParams.twoDepth = '';
-  searchParams.threeDepth = '';
+  searchParams.value.oneDepth = '';
+  searchParams.value.twoDepth = '';
+  searchParams.value.threeDepth = '';
 
-  treeData.forEach((obj) => {
-    if (obj.inqrLvTcnt === 1 && obj.rsbDvCd === searchParams.rsbDvCd) {
+  treeData.value.forEach((obj) => {
+    if (obj.inqrLvTcnt === 1 && obj.rsbDvCd === searchParams.value.rsbDvCd) {
       const addData = { codeId: '', codeName: '', prtsCodeId: '' };
       addData.codeId = obj.svEducMnalId;
       addData.codeName = obj.svEducMnalNm;
@@ -258,16 +262,16 @@ function oneDepthChange() {
 function twoDepthChange() {
   isTwoDepth.value = false;
   const depthData = [];
-  searchParams.twoDepth = '';
-  searchParams.threeDepth = '';
-  if (searchParams.oneDepth === '') {
+  searchParams.value.twoDepth = '';
+  searchParams.value.threeDepth = '';
+  if (searchParams.value.oneDepth === '') {
     isTwoDepth.value = true;
     isThreeDepth.value = true;
     twoDepth.value = [];
     threeDepth.value = [];
   }
-  treeData.forEach((obj) => {
-    if (obj.inqrLvTcnt === 2 && obj.hgrSvEducMnalId === searchParams.oneDepth) {
+  treeData.value.forEach((obj) => {
+    if (obj.inqrLvTcnt === 2 && obj.hgrSvEducMnalId === searchParams.value.oneDepth) {
       const addData = { codeId: '', codeName: '', prtsCodeId: '' };
       addData.codeId = obj.svEducMnalId;
       addData.codeName = obj.svEducMnalNm;
@@ -280,13 +284,13 @@ function twoDepthChange() {
 function threeDepthChange() {
   isThreeDepth.value = false;
   const depthData = [];
-  searchParams.threeDepth = '';
-  if (searchParams.twoDepth === '') {
+  searchParams.value.threeDepth = '';
+  if (searchParams.value.twoDepth === '') {
     isThreeDepth.value = true;
     threeDepth.value = [];
   }
-  treeData.forEach((obj) => {
-    if (obj.inqrLvTcnt === 3 && obj.hgrSvEducMnalId === searchParams.twoDepth) {
+  treeData.value.forEach((obj) => {
+    if (obj.inqrLvTcnt === 3 && obj.hgrSvEducMnalId === searchParams.value.twoDepth) {
       const addData = { codeId: '', codeName: '', prtsCodeId: '' };
       addData.codeId = obj.svEducMnalId;
       addData.codeName = obj.svEducMnalNm;
@@ -313,10 +317,11 @@ const onClickReset = async () => {
 
 async function onClickSearch() {
   cloneDeep(searchParams.value);
-  const sarchTreeData = reactive([]);
+  const sarchTreeData = ref([]);
   let addDepthText = 'WELS0000000000';
-  const cachedParams = { ...searchParams };
-  treeData.forEach((obj) => {
+  const cachedParams = { ...searchParams.value };
+
+  treeData.value.forEach((obj) => {
     if (obj.rsbDvCd === cachedParams.rsbDvCd) {
       if (cachedParams.oneDepth !== '') {
         if (obj.svEducMnalId === cachedParams.oneDepth) {
@@ -333,16 +338,14 @@ async function onClickSearch() {
           addDepthText += `.${obj.svEducMnalId}`;
         }
       }
-    } else {
-      addDepthText = '';
     }
   });
 
-  treeData.forEach((obj) => {
+  treeData.value.forEach((obj) => {
     let inOneDept = false;
     let inTwoDept = false;
     if (obj.svEducMnalId === 'WELS0200000000') {
-      sarchTreeData.push(obj);
+      sarchTreeData.value.push(obj);
     }
     if (cachedParams.oneDepth !== '') {
       if (obj.svEducMnalId === cachedParams.oneDepth) {
@@ -354,19 +357,19 @@ async function onClickSearch() {
         inTwoDept = true;
       }
     }
+
     if (addDepthText !== '' && (obj.orgPath.includes(addDepthText) || inOneDept || inTwoDept)) {
-      sarchTreeData.push(obj);
+      sarchTreeData.value.push(obj);
     }
   });
-
   const view = zGrdTreeRef.value.getView();
   const data = view.getDataSource();
   zGrdTreeRef.value.getData().clearRows();
   totalCount.value = 0;
-  data.setRows(sarchTreeData, 'orgPath', false, '');
+  data.setRows(sarchTreeData.value, 'orgPath', false, '');
   view.refresh();
   zGrdTreeRef.value.getView().expandAll();
-  totalCount.value = sarchTreeData.length;
+  totalCount.value = sarchTreeData.value.length;
 }
 
 function onClickMove(amount) {
@@ -382,8 +385,6 @@ function onClickMove(amount) {
   const siblings = gridUtil.getSiblings(view, dataRow);
   const newExpsrOdr = siblings.findIndex((v) => v === dataRow);
 
-  console.log('newExpsrOdr:', Number(newExpsrOdr) + 1);
-
   data.setValue(dataRow, 'expsrOdr', Number(newExpsrOdr) + 1);
   data.setValue(dataRow, 'rowState', 'update');
 }
@@ -398,7 +399,7 @@ async function onClickDelete() {
       data.removeRow(dataRow);
       await dataService.delete('/sms/wells/competence/zoom-counsel', { data: { svEducMnalId } });
       await init();
-      if (searchParams.oneDepth !== '') {
+      if (searchParams.value.oneDepth !== '') {
         onClickSearch();
       }
 
@@ -497,11 +498,11 @@ async function onClickSave() {
     }
     obj.rowState = 'updated';
   });
-  const response = await dataService.post('/sms/wells/competence/zoom-counsel/treeSave', saveData);
+  const response = await dataService.post('/sms/wells/competence/zoom-counsel/zooms', saveData);
   if (response.data) {
     notify(t('MSG_ALT_SAVE_DATA'));
     await init();
-    if (searchParams.oneDepth !== '') {
+    if (searchParams.value.oneDepth !== '') {
       onClickSearch();
     }
     selectedRowValue.value = null;
@@ -528,11 +529,11 @@ async function insertChildRow(rowValue) {
 3:WELS0201010000
 4:WELS0201010100
 */
-  const result1 = pSvEducMnalId.substr(0, 4);
-  const result2 = pSvEducMnalId.substr(0, 6);
-  const result3 = pSvEducMnalId.substr(0, 8);
-  const result4 = pSvEducMnalId.substr(0, 10);
-  const result5 = pSvEducMnalId.substr(0, 12);
+  const result1 = pSvEducMnalId.substring(0, 4);
+  const result2 = pSvEducMnalId.substring(0, 6);
+  const result3 = pSvEducMnalId.substring(0, 8);
+  const result4 = pSvEducMnalId.substring(0, 10);
+  const result5 = pSvEducMnalId.substring(0, 12);
 
   let svEducMnalId = '';
   if (inqrLvTcnt === 1) {
@@ -592,9 +593,8 @@ async function onClickDetail() {
 
   if (result) {
     console.log('payload', payload);
-    console.log('searchParams.value', searchParams.oneDepth);
     await init();
-    if (searchParams.oneDepth !== '') {
+    if (searchParams.value.oneDepth !== '') {
       onClickSearch();
     }
     selectedRowValue.value = null;
@@ -604,31 +604,23 @@ async function onClickDetail() {
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
 
-const initTreeGrid = defineTreeGrid(async (data, view) => {
-  const fields = [
-    { fieldName: 'svEducMnalId' },
-    { fieldName: 'hgrSvEducMnalId' },
-    { fieldName: 'rsbDvCd' },
-    { fieldName: 'svEducMnalNm' },
-    { fieldName: 'orgPath' },
-    { fieldName: 'svEducMnalCn' },
-    { fieldName: 'inqrLvTcnt' },
-    { fieldName: 'expsrOdr' },
-    { fieldName: 'rowState' },
-    { fieldName: 'orgCnt' },
-
-  ];
-
+const initTreeGrid = async (data, view) => {
   const treeColumns = [
-    { fieldName: 'svEducMnalNm', header: '트리명', width: '100', styleName: 'text-left' },
-
+    { fieldName: 'svEducMnalNm' },
+    { fieldName: 'hgrSvEducMnalId', visible: false },
+    { fieldName: 'svEducMnalId', visible: false },
+    { fieldName: 'rsbDvCd', visible: false },
+    { fieldName: 'orgPath', visible: false },
+    { fieldName: 'osvEducMnalCngId', visible: false },
+    { fieldName: 'svEducMnalCn', visible: false },
+    { fieldName: 'inqrLvTcnt', visible: false },
+    { fieldName: 'expsrOdr', visible: false },
+    { fieldName: 'rowState', visible: false },
   ];
-
-  data.setFields(fields);
+  data.setFields(treeColumns.map((item) => ({ fieldName: item.fieldName })));
   view.setColumns(treeColumns);
+
   view.header.visible = false;
-  view.displayOptions.selectionStyle = SelectionStyle.SINGLE;
-  view.editOptions.movable = true;
 
   view.onCellDblClicked = async (g, clickData) => {
     selectedRowValue.value = gridUtil.getRowValue(g, clickData.dataRow);
@@ -645,7 +637,7 @@ const initTreeGrid = defineTreeGrid(async (data, view) => {
       selectedRowValue.value = { ...gridUtil.getRowValue(g, newRow) };
     }
   };
-});
+};
 
 onMounted(() => {
   init();

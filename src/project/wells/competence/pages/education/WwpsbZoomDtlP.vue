@@ -1,7 +1,20 @@
+<!----
+****************************************************************************************************
+* 프로그램 개요
+****************************************************************************************************
+1. 모듈 : CTB
+2. 프로그램 ID : WwpsbZoomDtlP - 알림 ZOOM 상세 팝업
+3. 작성자 : gs.piit225
+4. 작성일 : 2023.05.18
+****************************************************************************************************
+* 프로그램 설명
+****************************************************************************************************
+- 알림 ZOOM 상세 팝업
+****************************************************************************************************
+--->
 <template>
   <kw-popup
-    class="kw-popup--xl"
-    title="상세정보"
+    size="xl"
   >
     <kw-form
       ref="frmMainRef"
@@ -9,24 +22,24 @@
     >
       <kw-form-row>
         <kw-form-item
-          label="메뉴명"
+          :label="$t('MSG_TXT_MENU_NM')"
           required
         >
           <kw-input
             v-model="frmMainData.svEducMnalNm"
             rules="required"
-            label="메뉴명"
+            :label="$t('MSG_TXT_MENU_NM')"
           />
         </kw-form-item>
         <kw-form-item
-          label="관리구분"
+          :label="$t('MSG_TXT_MNGT_DV')"
           required
         >
           <kw-select
             v-model="frmMainData.rsbDvCd"
             :options="rsbDvCd"
             rules="required"
-            :name="관리구분"
+            :label="$t('MSG_TXT_MNGT_DV')"
           />
         </kw-form-item>
       </kw-form-row>
@@ -122,6 +135,10 @@ const frmMainData = ref({
   svEducMnalCn: props.svEducMnalCn,
 });
 
+// -------------------------------------------------------------------------------------------------
+// Function & Event
+// -------------------------------------------------------------------------------------------------
+
 async function getSaveParams() {
   const data = frmMainData.value;
 
@@ -139,15 +156,11 @@ async function getSaveParams() {
   return params;
 }
 
-async function saveTerms() {
+async function onClickSave() {
+  if (await frmMainRef.value.alertIfIsNotModified()) { return; }
+  if (!await frmMainRef.value.validate()) { return; }
   const data = await getSaveParams();
   const response = await dataService.post('/sms/wells/competence/zoom-counsel', data);
-  return response;
-}
-
-async function onClickSave() {
-  if (!await frmMainRef.value.validate()) { return; }
-  const response = await saveTerms();
   if (response.data) {
     notify(t('MSG_ALT_SAVE_DATA'));
     ok(frmMainRef.value);
