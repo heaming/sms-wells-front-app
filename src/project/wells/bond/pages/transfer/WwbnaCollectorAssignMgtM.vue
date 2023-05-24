@@ -303,7 +303,7 @@ async function fetchData() {
   totalCount.value = partTransfers.length;
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(partTransfers);
-  view.resetCurrent();
+  // view.resetCurrent();
 }
 
 async function onClickSearch() {
@@ -338,7 +338,7 @@ async function fetchDetailsData() {
 
   const view = grdSubRef.value.getView();
   view.getDataSource().setRows(collectorAssigns);
-  view.resetCurrent();
+  // view.resetCurrent();
   view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
