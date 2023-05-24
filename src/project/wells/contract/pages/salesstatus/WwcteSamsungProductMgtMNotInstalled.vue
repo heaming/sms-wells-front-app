@@ -84,7 +84,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { defineGrid, getComponentType, useDataService, useMeta } from 'kw-lib';
+import { defineGrid, getComponentType, notify, modal, useDataService, useMeta } from 'kw-lib';
 import dayjs from 'dayjs';
 import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
 import useGridDataModel from '~sms-common/contract/composable/useGridDataModel';
@@ -130,8 +130,25 @@ async function onClickSearch() {
   await fetchPage(1);
 }
 
-function onClickExcelUpload() {
-
+async function onClickExcelUpload() {
+  const apiUrl = '/sms/wells/contract/sales-status/sec-product-management/not-installs/excel-upload';
+  const templateId = 'FOM_CTC_0001';
+  const { result, payload } = await modal({
+    component: 'ZwcmzExcelUploadP',
+    componentProps: { apiUrl, templateId },
+  });
+  if (result) {
+    const { status, errorInfo } = payload;
+    if (status === 'S') {
+      notify(t('MSG_ALT_SAVE_DATA'));
+      await fetchPage();
+    } else if (status === 'E' && errorInfo.length > 0) {
+      await modal({
+        component: 'ZwcmzExcelUploadErrorP',
+        componentProps: { errorInfo },
+      });
+    }
+  }
 }
 
 // -------------------------------------------------------------------------------------------------
