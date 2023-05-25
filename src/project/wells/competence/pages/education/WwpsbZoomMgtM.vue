@@ -188,6 +188,8 @@ rsbDvCd.value = codes.RSB_DV_CD.filter((v) => ['W0601', 'W0603'].includes(v.code
 const zGrdTreeRef = ref({});
 let treeData = ref([]);
 
+let lastSearchDepth = '';
+
 const selectedRowValue = ref(null);
 
 const isRoot = computed(() => selectedRowValue.value?.svEducMnalId === 'WELS0000000000');
@@ -316,6 +318,7 @@ const onClickReset = async () => {
 };
 
 async function onClickSearch() {
+  selectedRowValue.value = null;
   cloneDeep(searchParams.value);
   const sarchTreeData = ref([]);
   let addDepthText = 'WELS0000000000';
@@ -344,9 +347,7 @@ async function onClickSearch() {
   treeData.value.forEach((obj) => {
     let inOneDept = false;
     let inTwoDept = false;
-    if (obj.svEducMnalId === 'WELS0200000000') {
-      sarchTreeData.value.push(obj);
-    }
+
     if (cachedParams.oneDepth !== '') {
       if (obj.svEducMnalId === cachedParams.oneDepth) {
         inOneDept = true;
@@ -370,6 +371,16 @@ async function onClickSearch() {
   view.refresh();
   zGrdTreeRef.value.getView().expandAll();
   totalCount.value = sarchTreeData.value.length;
+
+  if (cachedParams.threeDepth !== '' && cachedParams.twoDepth !== '' && cachedParams.oneDepth !== '') {
+    lastSearchDepth = 'threeDepth';
+  } else if (cachedParams.threeDepth === '' && cachedParams.twoDepth !== '' && cachedParams.oneDepth !== '') {
+    lastSearchDepth = 'twoDepth';
+  } else if (cachedParams.threeDepth === '' && cachedParams.twoDepth === '' && cachedParams.oneDepth !== '') {
+    lastSearchDepth = 'oneDepth';
+  } else {
+    lastSearchDepth = '';
+  }
 }
 
 function onClickMove(amount) {
@@ -425,9 +436,11 @@ function createSaveData(view = zGrdTreeRef.value.getView(), dataRow = 1) {
 
 async function onClickSave() {
   if (isReadonly.value || isRoot.value) return;
+
   const saveData = createSaveData();
 
   const oneSvEducMnalId = 'WELS0200000000';
+  let hgrSvEducMnalId = 'WELS0000000000';
   let twoSvEducMnalId = '';
   let threeSvEducMnalId = '';
   let fourSvEducMnalId = '';
@@ -437,68 +450,91 @@ async function onClickSave() {
   let fourExpsrOdr = 1;
   let fiveExpsrOdr = 1;
 
+  const treeList = [];
   saveData.forEach((obj) => {
     if (obj.inqrLvTcnt === '2') {
       threeExpsrOdr = 1;
       fourExpsrOdr = 1;
       fiveExpsrOdr = 1;
-      const result2 = oneSvEducMnalId.substring(0, 6);
-      let newexpsrOdr = '';
-      if (twoExpsrOdr < 10) {
-        newexpsrOdr = `0${twoExpsrOdr}`;
-      } else {
-        newexpsrOdr = twoExpsrOdr;
+      if (lastSearchDepth === '' || lastSearchDepth === 'oneDepth') {
+        const result2 = oneSvEducMnalId.substring(0, 6);
+        let newexpsrOdr = '';
+        if (twoExpsrOdr < 10) {
+          newexpsrOdr = `0${twoExpsrOdr}`;
+        } else {
+          newexpsrOdr = twoExpsrOdr;
+        }
+        obj.svEducMnalId = (result2 + newexpsrOdr).padEnd(14, '0');
+        obj.hgrSvEducMnalId = oneSvEducMnalId;
+        obj.expsrOdr = newexpsrOdr;
+        twoExpsrOdr += 1;
       }
-      obj.svEducMnalId = (result2 + newexpsrOdr).padEnd(14, '0');
       twoSvEducMnalId = obj.svEducMnalId;
-      obj.hgrSvEducMnalId = oneSvEducMnalId;
-      obj.expsrOdr = newexpsrOdr;
-      twoExpsrOdr += 1;
     }
     if (obj.inqrLvTcnt === '3') {
       fourExpsrOdr = 1;
       fiveExpsrOdr = 1;
-      let newexpsrOdr = '';
-      if (threeExpsrOdr < 10) {
-        newexpsrOdr = `0${threeExpsrOdr}`;
-      } else {
-        newexpsrOdr = threeExpsrOdr;
+      if (lastSearchDepth === '' || lastSearchDepth === 'oneDepth' || lastSearchDepth === 'twoDepth') {
+        let newexpsrOdr = '';
+        if (threeExpsrOdr < 10) {
+          newexpsrOdr = `0${threeExpsrOdr}`;
+        } else {
+          newexpsrOdr = threeExpsrOdr;
+        }
+        const result3 = twoSvEducMnalId.substring(0, 8);
+        obj.svEducMnalId = (result3 + newexpsrOdr).padEnd(14, '0');
+        obj.hgrSvEducMnalId = twoSvEducMnalId;
+        threeExpsrOdr += 1;
       }
-      const result3 = twoSvEducMnalId.substring(0, 8);
-      obj.svEducMnalId = (result3 + newexpsrOdr).padEnd(14, '0');
       threeSvEducMnalId = obj.svEducMnalId;
-      obj.hgrSvEducMnalId = twoSvEducMnalId;
-      threeExpsrOdr += 1;
     }
     if (obj.inqrLvTcnt === '4') {
       fiveExpsrOdr = 1;
-      let newexpsrOdr = '';
-      if (fourExpsrOdr < 10) {
-        newexpsrOdr = `0${fourExpsrOdr}`;
-      } else {
-        newexpsrOdr = fourExpsrOdr;
+      if (lastSearchDepth === '' || lastSearchDepth === 'oneDepth' || lastSearchDepth === 'twoDepth' || lastSearchDepth === 'threeDepth') {
+        let newexpsrOdr = '';
+        if (fourExpsrOdr < 10) {
+          newexpsrOdr = `0${fourExpsrOdr}`;
+        } else {
+          newexpsrOdr = fourExpsrOdr;
+        }
+        const result4 = threeSvEducMnalId.substring(0, 10);
+        obj.svEducMnalId = (result4 + newexpsrOdr).padEnd(14, '0');
+        obj.hgrSvEducMnalId = threeSvEducMnalId;
+        fourExpsrOdr += 1;
       }
-      const result4 = threeSvEducMnalId.substring(0, 10);
-      obj.svEducMnalId = (result4 + newexpsrOdr).padEnd(14, '0');
       fourSvEducMnalId = obj.svEducMnalId;
-      obj.hgrSvEducMnalId = threeSvEducMnalId;
-      fourExpsrOdr += 1;
     }
     if (obj.inqrLvTcnt === '5') {
-      let newexpsrOdr = '';
-      if (fiveExpsrOdr < 10) {
-        newexpsrOdr = `0${fiveExpsrOdr}`;
-      } else {
-        newexpsrOdr = fiveExpsrOdr;
+      if (lastSearchDepth === '' || lastSearchDepth === 'oneDepth' || lastSearchDepth === 'twoDepth' || lastSearchDepth === 'threeDepth') {
+        let newexpsrOdr = '';
+        if (fiveExpsrOdr < 10) {
+          newexpsrOdr = `0${fiveExpsrOdr}`;
+        } else {
+          newexpsrOdr = fiveExpsrOdr;
+        }
+        const result5 = fourSvEducMnalId.substring(0, 12);
+        obj.svEducMnalId = (result5 + newexpsrOdr).padEnd(14, '0');
+        obj.hgrSvEducMnalId = fourSvEducMnalId;
+        fiveExpsrOdr += 1;
       }
-      const result5 = fourSvEducMnalId.substring(0, 12);
-      obj.svEducMnalId = (result5 + newexpsrOdr).padEnd(14, '0');
-      obj.hgrSvEducMnalId = fourSvEducMnalId;
-      fiveExpsrOdr += 1;
     }
     obj.rowState = 'updated';
+    treeList.push(obj);
   });
-  const response = await dataService.post('/sms/wells/competence/zoom-counsel/zooms', saveData);
+  if (lastSearchDepth === 'oneDepth') {
+    hgrSvEducMnalId = treeList[0].svEducMnalId.substring(0, 6);
+  } else if (lastSearchDepth === 'twoDepth') {
+    hgrSvEducMnalId = treeList[1].svEducMnalId.substring(0, 8);
+  } else if (lastSearchDepth === 'threeDepth') {
+    hgrSvEducMnalId = treeList[1].svEducMnalId.substring(0, 10);
+  }
+  console.log('saveData', saveData);
+  const dataParams = {
+    hgrSvEducMnalId,
+    treeList,
+  };
+
+  const response = await dataService.post('/sms/wells/competence/zoom-counsel/zooms', dataParams);
   if (response.data) {
     notify(t('MSG_ALT_SAVE_DATA'));
     await init();
