@@ -262,7 +262,7 @@ const initGrdMain = defineGrid((data, view) => {
   view.setColumns(columns);
   view.rowIndicator.visible = true;
   view.checkBar.visible = true;
-  view.displayOptions.selectionStyle = 'singleRow';
+  // view.displayOptions.selectionStyle = 'singleRow';
 
   view.onCellItemClicked = async (g, { column, itemIndex }) => {
     console.log('itemIndex', itemIndex);

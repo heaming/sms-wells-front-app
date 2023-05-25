@@ -186,7 +186,7 @@ const initGrd1st = defineGrid((data, view) => {
   view.setColumns(columns);
   view.rowIndicator.visible = false;
   view.checkBar.visible = false;
-  view.displayOptions.selectionStyle = 'singleRow';
+  // view.displayOptions.selectionStyle = 'singleRow';
 });
 
 const initGrd2nd = defineGrid((data, view) => {
@@ -196,7 +196,7 @@ const initGrd2nd = defineGrid((data, view) => {
   view.setColumns(columns);
   view.rowIndicator.visible = false;
   view.checkBar.visible = false;
-  view.displayOptions.selectionStyle = 'singleRow';
+  // view.displayOptions.selectionStyle = 'singleRow';
 });
 
 const initGrd3rd = defineGrid((data, view) => {
@@ -206,7 +206,7 @@ const initGrd3rd = defineGrid((data, view) => {
   view.setColumns(columns);
   view.rowIndicator.visible = false;
   view.checkBar.visible = false;
-  view.displayOptions.selectionStyle = 'singleRow';
+  // view.displayOptions.selectionStyle = 'singleRow';
 });
 
 async function setData() {
