@@ -36,7 +36,7 @@
           required
         >
           <kw-option-group
-            v-model="searchParams.rsbDv"
+            v-model="searchParams.rsbTp"
             :label="$t('MSG_TXT_RSB_DV')"
             type="radio"
             :options="filterRsbDvCd"
@@ -91,14 +91,14 @@
           <kw-paging-info
             :total-count="totalCount"
           />
-          <span class="ml8">({{ $t('MSG_TXT_UNIT_COLON_WON') }})</span>
+          <span class="ml8">{{ $t('MSG_TXT_UNIT_COLON_WON') }}</span>
         </template>
         <kw-btn
           icon="download_on"
           dense
           secondary
           :label="$t('MSG_BTN_EXCEL_DOWN')"
-          :disable="totalCount.value === 0"
+          :disable="!isExcelDown"
           @click="onClickExcelDownload"
         />
         <kw-separator
@@ -147,7 +147,8 @@ const dataService = useDataService();
 const { notify, modal, confirm, alert } = useGlobal();
 const isGrid1Visile = ref(true);
 const isGrid2Visile = ref(false);
-const currentRoute = useRouter();
+const isExcelDown = ref(false);
+const { currentRoute } = useRouter();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -163,7 +164,7 @@ const filterRsbDvCd = codes.RSB_DV_CD.filter((v) => ['W0302', 'W0301'].includes(
 const searchParams = ref({
 
   perfYm: now.format('YYYYMM'),
-  rsbDv: '홈마스터',
+  rsbTp: '',
   rsbTpTxt: '',
   ogLevl2: '',
   ogLevl3: '',
@@ -281,9 +282,13 @@ async function fetchData() {
   const response = await dataService.get(`/sms/wells/fee/organization-fees/hmsts${uri}`, { params: cachedParams });
   const hmstFees = response.data;
   totalCount.value = hmstFees.length;
+  if (totalCount.value > 0) {
+    isExcelDown.value = true;
+  } else {
+    isExcelDown.value = false;
+  }
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(hmstFees);
-  view.resetCurrent();
   await setTitle();
 }
 

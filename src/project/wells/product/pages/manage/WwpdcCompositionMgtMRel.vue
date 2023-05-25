@@ -49,7 +49,6 @@
   <kw-grid
     ref="grdStandardRef"
     name="grdMgtRelMain"
-    :visible-rows="3"
     @init="initStandardGrid"
   />
 </template>
@@ -57,9 +56,9 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { gridUtil, useGlobal, getComponentType } from 'kw-lib';
+import { gridUtil, stringUtil, useGlobal, getComponentType } from 'kw-lib';
 import { isEmpty, cloneDeep } from 'lodash-es';
-import { getAlreadyItems, getGridRowCount } from '~/modules/sms-common/product/utils/pdUtil';
+import { getAlreadyItems, getGridRowCount, setPdGridRows } from '~/modules/sms-common/product/utils/pdUtil';
 import pdConst from '~sms-common/product/constants/pdConst';
 
 /* eslint-disable no-use-before-define */
@@ -99,6 +98,7 @@ const standardSearchValue = ref();
 const searchParams = ref({
   searchType: null,
   searchValue: null,
+  exceptPdCd: null,
 });
 
 async function resetData() {
@@ -134,7 +134,10 @@ async function insertCallbackRows(view, rtn, pdRelTpCd) {
     if (Array.isArray(rtn.payload) && rtn.payload.length > 1) {
       const data = view.getDataSource();
       const rows = rtn.payload.map((item) => ({
-        ...item, [pdConst.REL_OJ_PD_CD]: item.pdCd, [pdConst.PD_REL_TP_CD]: pdRelTpCd }));
+        ...item,
+        [pdConst.REL_PD_ID]: stringUtil.getUid('REL_TMP'),
+        [pdConst.REL_OJ_PD_CD]: item.pdCd,
+        [pdConst.PD_REL_TP_CD]: pdRelTpCd }));
       const okRows = await getCheckAndNotExistRows(view, rows);
       if (okRows && okRows.length) {
         await data.insertRows(0, okRows);
@@ -142,6 +145,7 @@ async function insertCallbackRows(view, rtn, pdRelTpCd) {
       }
     } else {
       const row = Array.isArray(rtn.payload) ? rtn.payload[0] : rtn.payload;
+      row[pdConst.REL_PD_ID] = stringUtil.getUid('REL_TMP');
       row[pdConst.PD_REL_TP_CD] = pdRelTpCd;
       row[pdConst.REL_OJ_PD_CD] = row.pdCd;
       const okRows = await getCheckAndNotExistRows(view, [row]);
@@ -199,6 +203,7 @@ async function onClickStandardSchPopup() {
   const view = grdStandardRef.value.getView();
   searchParams.value.searchType = standardSearchType.value;
   searchParams.value.searchValue = standardSearchValue.value;
+  searchParams.value.exceptPdCd = currentPdCd.value;
   const rtn = await modal({
     component: 'ZwpdcStandardSimpleListP',
     componentProps: searchParams.value,
@@ -223,9 +228,8 @@ async function initGridRows() {
   }
   const standardView = grdStandardRef.value?.getView();
   if (standardView) {
-    standardView.getDataSource().clearRows();
-    standardView.getDataSource().setRows(products
-      .filter((item) => item[pdConst.PD_REL_TP_CD] === pdConst.PD_REL_TP_CD_C_TO_P));
+    const standardRows = products.filter((item) => item[pdConst.PD_REL_TP_CD] === pdConst.PD_REL_TP_CD_C_TO_P);
+    await setPdGridRows(standardView, standardRows, pdConst.REL_PD_ID, [], true);
     grdStandardRowCount.value = getGridRowCount(standardView);
   }
 }

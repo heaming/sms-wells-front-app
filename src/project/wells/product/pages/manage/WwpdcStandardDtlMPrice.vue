@@ -76,6 +76,7 @@ const currentPdCd = ref();
 const currentInitData = ref(null);
 const currentMetaInfos = ref();
 const currentCodes = ref({});
+const currentSellTpCd = ref(null);
 const usedChannelCds = ref([]);
 const selectionVariables = ref([]);
 const feeVariables = ref([]);
@@ -106,6 +107,10 @@ async function initGridRows() {
   }, []);
   // Grid visible 초기화
   resetVisibleGridColumns(currentMetaInfos.value, pdConst.PD_PRC_TP_CD_FINAL, view);
+
+  // 선택변수
+  await fetchSelectVariableData();
+
   if (checkedVals && checkedVals.length && selectionVariables.value) {
     // 상품 선택변수 visible 적용
     checkedVals.forEach((fieldName) => {
@@ -197,12 +202,18 @@ async function fetchData() {
       // 공통코드 없는 에러 때문에 임시 - 추후 Try catch 삭제
     }
   }
+}
 
-  // 선택변수
+// 수수료 선택변수
+async function fetchSelectVariableData() {
   const sellTpCd = currentInitData.value[pdConst.TBL_PD_BAS]?.sellTpCd;
-  const typeRes = await dataService.get('/sms/common/product/type-variables', { params: { sellTpCd } });
-  selectionVariables.value = typeRes.data?.filter((item) => item.choFxnDvCd === pdConst.CHO_FXN_DV_CD_CHOICE);
-  feeVariables.value = typeRes.data?.filter((item) => item.choFxnDvCd === pdConst.CHO_FXN_DV_CD_FEE);
+  if (sellTpCd && (isEmpty(currentSellTpCd.value) || sellTpCd !== currentSellTpCd.value)) {
+    currentSellTpCd.value = sellTpCd;
+    // 선택변수
+    const typeRes = await dataService.get('/sms/common/product/type-variables', { params: { sellTpCd } });
+    selectionVariables.value = typeRes.data?.filter((item) => item.choFxnDvCd === pdConst.CHO_FXN_DV_CD_CHOICE);
+    feeVariables.value = typeRes.data?.filter((item) => item.choFxnDvCd === pdConst.CHO_FXN_DV_CD_FEE);
+  }
 }
 
 async function initProps() {

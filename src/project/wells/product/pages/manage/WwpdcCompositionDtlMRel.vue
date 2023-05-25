@@ -19,7 +19,6 @@
   <kw-grid
     ref="grdStandardRef"
     name="grdDtlRelMain"
-    :visible-rows="3"
     ignore-on-modified
     @init="initStandardGrid"
   />

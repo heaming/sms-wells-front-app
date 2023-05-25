@@ -327,7 +327,7 @@
           <kw-paging-info
             :total-count="totalCount"
           />
-          <span class="ml8">({{ $t('MSG_TXT_UNIT_COLON_WON') }})</span>
+          <span class="ml8">{{ $t('MSG_TXT_UNIT_COLON_WON') }}</span>
         </template>
         <kw-btn
           dense
@@ -386,7 +386,7 @@ const { modal } = useGlobal();
 const dataService = useDataService();
 
 const { t } = useI18n();
-const currentRoute = useRouter();
+const { currentRoute } = useRouter();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -516,7 +516,6 @@ async function fetchData() {
   totalCount.value = hmstFees.length;
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(hmstFees);
-  view.resetCurrent();
 }
 
 async function onClickSearch() {

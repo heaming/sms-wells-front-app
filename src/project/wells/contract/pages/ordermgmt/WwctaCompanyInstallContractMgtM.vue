@@ -134,7 +134,7 @@
       <kw-action-top>
         <template #left>
           <kw-paging-info
-            :total-count="100"
+            :total-count="pageInfo.totalCount"
           />
           <span class="ml8">(단위: 개월)</span>
         </template>
@@ -150,6 +150,7 @@
           dense
           secondary
           :label="$t('MSG_TXT_EXCEL_DOWN')"
+          :disable="pageInfo.totalCount===0"
           @click="onClickExcelDownload"
         />
 
@@ -167,7 +168,8 @@
       <kw-grid
         ref="grdMainRef"
         name="grdMain"
-        :visible-rows="1"
+        :page-size="pageInfo.pageSize"
+        :total-count="pageInfo.totalCount"
         @init="initGrdMain"
       />
     </div>
@@ -177,14 +179,29 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { getComponentType, defineGrid } from 'kw-lib';
+import { getComponentType, defineGrid, useMeta, gridUtil } from 'kw-lib';
 
 const { t } = useI18n();
+const { getConfig } = useMeta();
+const { currentRoute } = useRouter();
+
+const pageInfo = ref({
+  totalCount: 0,
+  pageIndex: 1,
+  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
+});
+const grdMainRef = ref(getComponentType('KwGrid'));
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
-const grdMainRef = ref(getComponentType('KwGrid'));
 
+async function onClickExcelDownload() {
+  const view = grdMainRef.value.getView();
+  await gridUtil.exportView(view, {
+    fileName: currentRoute.value.meta.menuName,
+    timePostfix: true,
+  });
+}
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------

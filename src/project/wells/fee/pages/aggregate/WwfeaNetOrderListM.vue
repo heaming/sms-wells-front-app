@@ -23,9 +23,9 @@
           required
         >
           <kw-select
-            v-model="searchParams.dv"
+            v-model="searchParams.schDv"
             :label="$t('MSG_TXT_DIV')"
-            :options="['매출', 'B', 'C', 'D']"
+            :options="customCodes.divCd"
             rules="required"
           />
         </kw-search-item>
@@ -34,9 +34,9 @@
           required
         >
           <kw-select
-            v-model="searchParams.pdctTp"
+            v-model="searchParams.schPdctTp"
             :label="$t('MSG_TXT_PDCT_TP')"
-            :options="['전체', 'B', 'C', 'D']"
+            :options="customCodes.pdctTpCd"
             rules="required"
           />
         </kw-search-item>
@@ -44,11 +44,11 @@
           :label="$t('MSG_TXT_PRDT_CODE')"
         >
           <kw-input
-            v-model="searchParams.pdCdStrt"
+            v-model="searchParams.schPdCdStrt"
           />
           <span>~</span>
           <kw-input
-            v-model="searchParams.pdCdEnd"
+            v-model="searchParams.schPdCdEnd"
           />
         </kw-search-item>
       </kw-search-row>
@@ -58,8 +58,8 @@
           required
         >
           <kw-date-range-picker
-            v-model:from="searchParams.slDtStrt"
-            v-model:to="searchParams.slDtEnd"
+            v-model:from="searchParams.schSlDtStrt"
+            v-model:to="searchParams.schSlDtEnd"
             :label="$t('MSG_TXT_DT_OF_SALE')"
             rules="date_range_required|date_range_months:1"
           />
@@ -73,7 +73,7 @@
           <kw-paging-info
             :total-count="totalCount"
           />
-          <span class="ml8">({{ $t('MSG_TXT_UNIT_COLON_WON') }})</span>
+          <span class="ml8">{{ $t('MSG_TXT_UNIT_COLON_WON') }}</span>
         </template>
 
         <kw-btn
@@ -81,7 +81,7 @@
           secondary
           icon="download_on"
           :label="$t('MSG_BTN_EXCEL_DOWN')"
-          :disable="totalCount.value === 0"
+          :disable="!isExcelDown"
           @click="onClickExcelDownload"
         />
         <kw-separator
@@ -119,7 +119,8 @@ import { cloneDeep } from 'lodash-es';
 const { modal } = useGlobal();
 const dataService = useDataService();
 const { t } = useI18n();
-const currentRoute = useRouter();
+const { currentRoute } = useRouter();
+const isExcelDown = ref(false);
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -127,14 +128,19 @@ const currentRoute = useRouter();
 const now = dayjs();
 const grdMainRef = ref(getComponentType('KwGrid'));
 const totalCount = ref(0);
+const customCodes = {
+  divCd: [{ codeId: '01', codeName: '매출' }, { codeId: '02', codeName: '접수' }, { codeId: '03', codeName: '예약' }, { codeId: '04', codeName: '수수료 실적 집계 대상' }],
+  pdctTpCd: [{ codeId: '01', codeName: '전체' }, { codeId: '02', codeName: '환경가전' }, { codeId: '03', codeName: '환경가전외' }, { codeId: '04', codeName: '홈케어' }, { codeId: '05', codeName: '정기구매' }],
+};
+
 const searchParams = ref({
 
-  dv: '',
-  pdctTp: '',
-  pdCdStrt: '',
-  pdCdEnd: '',
-  slDtStrt: now.startOf('month').format('YYYYMMDD'),
-  slDtEnd: now.endOf('month').format('YYYYMMDD'),
+  schDv: '01',
+  schPdctTp: '01',
+  schPdCdStrt: '',
+  schPdCdEnd: '',
+  schSlDtStrt: now.startOf('month').format('YYYYMMDD'),
+  schSlDtEnd: now.endOf('month').format('YYYYMMDD'),
 
 });
 let cachedParams;
@@ -148,18 +154,27 @@ async function onClickExcelDownload() {
   });
 }
 
-async function fetchData() {
-  const response = await dataService.get('/sms/wells/fee/monthly-net-order', { params: cachedParams });
+async function fetchData(apiUrl) {
+  const response = await dataService.get(`/sms/wells/fee/monthly-net/${apiUrl}`, { params: cachedParams });
   const netOrders = response.data;
   totalCount.value = netOrders.length;
+  if (totalCount.value > 0) {
+    isExcelDown.value = true;
+  } else {
+    isExcelDown.value = false;
+  }
 
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(netOrders);
-  view.resetCurrent();
 }
 
 async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
+  if (searchParams.value.schDv === '04') {
+    await fetchData('orders');
+  } else {
+    await fetchData('fees');
+  }
   await fetchData();
 }
 
@@ -186,83 +201,83 @@ async function openNtorAgrgPopup() {
 // -------------------------------------------------------------------------------------------------
 const initGrdMain = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'col1' },
-    { fieldName: 'col2' },
-    { fieldName: 'col3' },
-    { fieldName: 'col4' },
-    { fieldName: 'col5' },
-    { fieldName: 'col6' },
-    { fieldName: 'col7' },
-    { fieldName: 'col8' },
-    { fieldName: 'col9' },
-    { fieldName: 'col10' },
-    { fieldName: 'col11' },
-    { fieldName: 'col12' },
-    { fieldName: 'col13' },
-    { fieldName: 'col14' },
-    { fieldName: 'col15' },
-    { fieldName: 'col16' },
-    { fieldName: 'col17' },
-    { fieldName: 'col18' },
-    { fieldName: 'col19' },
-    { fieldName: 'col20' },
-    { fieldName: 'col21' },
-    { fieldName: 'col22' },
-    { fieldName: 'col23' },
-    { fieldName: 'col24' },
-    { fieldName: 'col25' },
-    { fieldName: 'col26' },
-    { fieldName: 'col27' },
-    { fieldName: 'col28' },
-    { fieldName: 'col29' },
-    { fieldName: 'col30' },
-    { fieldName: 'col31' },
-    { fieldName: 'col32' },
-    { fieldName: 'col33' },
-    { fieldName: 'col34' },
-    { fieldName: 'col35' },
-    { fieldName: 'col36' },
-    { fieldName: 'col37' },
+    { fieldName: 'og1Nm' },
+    { fieldName: 'og2Nm' },
+    { fieldName: 'og3Nm' },
+    { fieldName: 'prtnrNo' },
+    { fieldName: 'prtnrKnm' },
+    { fieldName: 'gubn' },
+    { fieldName: 'prdtType' },
+    { fieldName: 'lcflg1' },
+    { fieldName: 'cntrNo' },
+    { fieldName: 'lccgub' },
+    { fieldName: 'pdNm' },
+    { fieldName: 'pdCd' },
+    { fieldName: 'useGubn' },
+    { fieldName: 'lcetc3' },
+    { fieldName: 'lcetc4' },
+    { fieldName: 'lcst11' },
+    { fieldName: 'lcst04' },
+    { fieldName: 'lcmont' },
+    { fieldName: 'lcbamt' },
+    { fieldName: 'lctamt' },
+    { fieldName: 'lcgub1' },
+    { fieldName: 'lcst13' },
+    { fieldName: 'leaseYn' },
+    { fieldName: 'lcpcnt' },
+    { fieldName: 'rcntYn' },
+    { fieldName: 'lccrtt' },
+    { fieldName: 'lcslet' },
+    { fieldName: 'lccant' },
+    { fieldName: 'akdbon' },
+    { fieldName: 'akdbnm' },
+    { fieldName: 'lcamt1' },
+    { fieldName: 'lcgub3' },
+    { fieldName: 'lcvmon' },
+    { fieldName: 'lcpamt' },
+    { fieldName: 'lcck02' },
+    { fieldName: 'lcgseq' },
+    { fieldName: 'lcpaym' },
   ];
 
   const columns = [
-    { fieldName: 'col1', header: t('MSG_TXT_MANAGEMENT_DEPARTMENT'), width: '98', styleName: 'text-left' },
-    { fieldName: 'col2', header: t('MSG_TXT_RGNL_GRP'), width: '98', styleName: 'text-left' },
-    { fieldName: 'col3', header: t('MSG_TXT_BRANCH'), width: '98', styleName: 'text-left' },
-    { fieldName: 'col4', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '112', styleName: 'text-center' },
-    { fieldName: 'col5', header: t('MSG_TXT_EMPL_NM'), width: '72', styleName: 'text-left' },
-    { fieldName: 'col6', header: t('MSG_TXT_SEL_TYPE'), width: '110', styleName: 'text-left' },
-    { fieldName: 'col7', header: t('MSG_TXT_PDCT_TP'), width: '110', styleName: 'text-left' },
-    { fieldName: 'col8', header: t('MSG_TXT_CHDVC_TP'), width: '110', styleName: 'text-left' },
-    { fieldName: 'col9', header: t('MSG_TXT_CNTR_DTL_NO'), width: '188', styleName: 'text-center' },
-    { fieldName: 'col10', header: t('MSG_TXT_CST_DV'), width: '83.5', styleName: 'text-left' },
-    { fieldName: 'col11', header: t('MSG_TXT_PRDT_NM'), width: '226.5', styleName: 'text-left' },
-    { fieldName: 'col12', header: t('MSG_TXT_PRDT_CODE'), width: '83.5', styleName: 'text-center' },
-    { fieldName: 'col13', header: t('MSG_TXT_USWY'), width: '108.8', styleName: 'text-left' },
-    { fieldName: 'col14', header: t('MSG_TXT_PD_DC_CLASS'), width: '83.5' },
-    { fieldName: 'col15', header: t('MSG_TXT_DISC_CODE'), width: '83.5' },
-    { fieldName: 'col16', header: t('MSG_TXT_DSC_SYST'), width: '83.5', styleName: 'text-right' },
-    { fieldName: 'col17', header: t('MSG_TXT_COMBI_DV'), width: '83.5', styleName: 'text-left' },
-    { fieldName: 'col18', header: t('MSG_TXT_ISTM'), width: '83.5', styleName: 'text-right' },
-    { fieldName: 'col19', header: t('MSG_TXT_BASE_PRC'), width: '141.8', styleName: 'text-right' },
-    { fieldName: 'col20', header: t('MSG_TXT_HOME_CARE'), width: '83.5', styleName: 'text-right' },
-    { fieldName: 'col21', header: t('MSG_TXT_HCR_MSH_Y3'), width: '141.2', styleName: 'text-left' },
-    { fieldName: 'col22', header: t('MSG_TXT_FXAM_YN'), width: '83.5', styleName: 'text-left' },
-    { fieldName: 'col23', header: t('MSG_TXT_FNN_LEASE'), width: '83.5', styleName: 'text-left' },
-    { fieldName: 'col24', header: t('MSG_TXT_PD_ACC_CNT'), width: '83.5', styleName: 'text-right' },
-    { fieldName: 'col25', header: t('MSG_TXT_RECOMMITMENT'), width: '113.2', styleName: 'text-left' },
-    { fieldName: 'col26', header: t('MSG_TXT_CNTR_DATE'), width: '113.2', styleName: 'text-center' },
-    { fieldName: 'col27', header: t('MSG_TXT_SL_DT'), width: '113.2', styleName: 'text-center' },
-    { fieldName: 'col28', header: t('MSG_TXT_CANC_DT'), width: '113.2', styleName: 'text-center' },
-    { fieldName: 'col29', header: t('MSG_TXT_BRMGR_NO'), width: '113.2', styleName: 'text-center' },
-    { fieldName: 'col30', header: t('MSG_TXT_BRMGR') + t('MSG_TXT_EMPL_NM'), width: '100', styleName: 'text-left' },
-    { fieldName: 'col31', header: t('MSG_TXT_RTLFE'), width: '104.3', styleName: 'text-right' },
-    { fieldName: 'col32', header: t('MSG_TXT_CONTRACT_PERI'), width: '83.5', styleName: 'text-right' },
-    { fieldName: 'col33', header: t('MSG_TXT_MNGT_PRD'), width: '83.5', styleName: 'text-right' },
-    { fieldName: 'col34', header: t('MSG_TXT_PD_ACC_RSLT'), width: '141.8', styleName: 'text-right' },
-    { fieldName: 'col35', header: t('MSG_TXT_PMOT_NO'), width: '104.3', styleName: 'text-right' },
-    { fieldName: 'col36', header: t('MSG_TXT_PKG_SN'), width: '135.1', styleName: 'text-left' },
-    { fieldName: 'col37', header: t('MSG_TXT_NTOR') + t('MSG_TXT_MON'), width: '113.2', styleName: 'text-center' },
+    { fieldName: 'og1Nm', header: t('MSG_TXT_MANAGEMENT_DEPARTMENT'), width: '98', styleName: 'text-left' },
+    { fieldName: 'og2Nm', header: t('MSG_TXT_RGNL_GRP'), width: '98', styleName: 'text-left' },
+    { fieldName: 'og3Nm', header: t('MSG_TXT_BRANCH'), width: '98', styleName: 'text-left' },
+    { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '112', styleName: 'text-center' },
+    { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '72', styleName: 'text-left' },
+    { fieldName: 'gubn', header: t('MSG_TXT_SEL_TYPE'), width: '110', styleName: 'text-left' },
+    { fieldName: 'prdtType', header: t('MSG_TXT_PDCT_TP'), width: '110', styleName: 'text-left' },
+    { fieldName: 'lcflg1', header: t('MSG_TXT_CHDVC_TP'), width: '110', styleName: 'text-left' },
+    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '188', styleName: 'text-center' },
+    { fieldName: 'lccgub', header: t('MSG_TXT_CST_DV'), width: '83.5', styleName: 'text-left' },
+    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '226.5', styleName: 'text-left' },
+    { fieldName: 'pdCd', header: t('MSG_TXT_PRDT_CODE'), width: '83.5', styleName: 'text-center' },
+    { fieldName: 'useGubn', header: t('MSG_TXT_USWY'), width: '108.8', styleName: 'text-left' },
+    { fieldName: 'lcetc3', header: t('MSG_TXT_PD_DC_CLASS'), width: '83.5' },
+    { fieldName: 'lcetc4', header: t('MSG_TXT_DISC_CODE'), width: '83.5' },
+    { fieldName: 'lcst11', header: t('MSG_TXT_DSC_SYST'), width: '83.5', styleName: 'text-right' },
+    { fieldName: 'lcst04', header: t('MSG_TXT_COMBI_DV'), width: '83.5', styleName: 'text-left' },
+    { fieldName: 'lcmont', header: t('MSG_TXT_ISTM'), width: '83.5', styleName: 'text-right' },
+    { fieldName: 'lcbamt', header: t('MSG_TXT_BASE_PRC'), width: '141.8', styleName: 'text-right' },
+    { fieldName: 'lctamt', header: t('MSG_TXT_HOME_CARE'), width: '83.5', styleName: 'text-right' },
+    { fieldName: 'lcgub1', header: t('MSG_TXT_HCR_MSH_Y3'), width: '141.2', styleName: 'text-left' },
+    { fieldName: 'lcst13', header: t('MSG_TXT_FXAM_YN'), width: '83.5', styleName: 'text-left' },
+    { fieldName: 'leaseYn', header: t('MSG_TXT_FNN_LEASE'), width: '83.5', styleName: 'text-left' },
+    { fieldName: 'lcpcnt', header: t('MSG_TXT_PD_ACC_CNT'), width: '83.5', styleName: 'text-right' },
+    { fieldName: 'rcntYn', header: t('MSG_TXT_RECOMMITMENT'), width: '113.2', styleName: 'text-left' },
+    { fieldName: 'lccrtt', header: t('MSG_TXT_CNTR_DATE'), width: '113.2', styleName: 'text-center' },
+    { fieldName: 'lcslet', header: t('MSG_TXT_SL_DT'), width: '113.2', styleName: 'text-center' },
+    { fieldName: 'lccant', header: t('MSG_TXT_CANC_DT'), width: '113.2', styleName: 'text-center' },
+    { fieldName: 'akdbon', header: t('MSG_TXT_BRMGR_NO'), width: '113.2', styleName: 'text-center' },
+    { fieldName: 'akdbnm', header: t('MSG_TXT_BRMGR') + t('MSG_TXT_EMPL_NM'), width: '100', styleName: 'text-left' },
+    { fieldName: 'lcamt1', header: t('MSG_TXT_RTLFE'), width: '104.3', styleName: 'text-right' },
+    { fieldName: 'lcgub3', header: t('MSG_TXT_CONTRACT_PERI'), width: '83.5', styleName: 'text-right' },
+    { fieldName: 'lcvmon', header: t('MSG_TXT_MNGT_PRD'), width: '83.5', styleName: 'text-right' },
+    { fieldName: 'lcpamt', header: t('MSG_TXT_PD_ACC_RSLT'), width: '141.8', styleName: 'text-right' },
+    { fieldName: 'lcck02', header: t('MSG_TXT_PMOT_NO'), width: '104.3', styleName: 'text-right' },
+    { fieldName: 'lcgseq', header: t('MSG_TXT_PKG_SN'), width: '135.1', styleName: 'text-left' },
+    { fieldName: 'lcpaym', header: t('MSG_TXT_NTOR') + t('MSG_TXT_MON'), width: '113.2', styleName: 'text-center' },
   ];
 
   data.setFields(fields);

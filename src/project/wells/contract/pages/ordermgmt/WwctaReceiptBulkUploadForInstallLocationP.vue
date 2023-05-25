@@ -15,29 +15,32 @@
 <template>
   <kw-popup
     size="md"
-    title="$t('MSG_TXT_UPL_MASS_APP_DATA')"
   >
     <kw-action-top>
       <template #left>
-        <span>총</span>
-        <span class="accent pl4">0건</span>
+        <kw-paging-info
+          :total-count="totalCount"
+        />
       </template>
       <kw-btn
         icon="upload_on"
         dense
         :label="$t('MSG_BTN_EXCEL_UP')"
+        @click="onClickExcelUpload"
       />
       <kw-btn
         icon="download_off"
         dense
         :label="$t('MSG_BTN_TEMP_DOWN')"
-        @click="onClickExcelDownload"
+        @click="onClickTemplateDownload"
       />
     </kw-action-top>
 
     <kw-grid
       ref="grdMainRef"
-      :visible-rows="1"
+      name="grdMain"
+      :page-size="pageInfo.pageSize"
+      :total-count="pageInfo.totalCount"
       @init="initGrdMain"
     />
 
@@ -57,13 +60,21 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { getComponentType, defineGrid } from 'kw-lib';
+import { getComponentType, defineGrid, useMeta } from 'kw-lib';
 
 const { t } = useI18n();
+const { getConfig } = useMeta();
+const pageInfo = ref({
+  totalCount: 0,
+  pageIndex: 1,
+  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
+});
+
+const grdMainRef = ref(getComponentType('KwGrid'));
+
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
-const grdMainRef = ref(getComponentType('KwGrid'));
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid

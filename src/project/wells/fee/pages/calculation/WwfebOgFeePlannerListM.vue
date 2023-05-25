@@ -88,14 +88,14 @@
           <kw-paging-info
             :total-count="totalCount"
           />
-          <span class="ml8">({{ $t('MSG_TXT_UNIT_COLON_WON') }})</span>
+          <span class="ml8">{{ $t('MSG_TXT_UNIT_COLON_WON') }}</span>
         </template>
         <kw-btn
           icon="download_on"
           dense
           secondary
           :label="$t('MSG_BTN_EXCEL_DOWN')"
-          :disable="totalCount.value === 0"
+          :disable="!isExcelDown"
           @click="onClickExcelDownload"
         />
         <kw-separator
@@ -152,7 +152,8 @@ const dataService = useDataService();
 const isGrid1Visile = ref(false);
 const isGrid2Visile = ref(false);
 const isGrid3Visile = ref(true);
-const currentRoute = useRouter();
+const isExcelDown = ref(false);
+const { currentRoute } = useRouter();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -304,12 +305,16 @@ async function fetchData() {
   const response = await dataService.get(`/sms/wells/fee/organization-fees/plars${uri}`, { params: cachedParams });
   const plarFees = response.data;
   totalCount.value = plarFees.length;
+  if (totalCount.value > 0) {
+    isExcelDown.value = true;
+  } else {
+    isExcelDown.value = false;
+  }
   if (prtnrNo !== '' && totalCount.value === 0) {
     notify(t('MSG_TXT_RPB_EMPNO_CONF'));
   }
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(plarFees);
-  view.resetCurrent();
   await setTitle();
 }
 

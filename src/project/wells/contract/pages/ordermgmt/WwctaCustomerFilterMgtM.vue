@@ -62,7 +62,7 @@
       <kw-action-top>
         <template #left>
           <kw-paging-info
-            :total-count="156"
+            :total-count="pageInfo.totalCount.grdMain"
           />
         </template>
         <span class="kw-fc--black3 text-weight-regular">(단위:원)</span>
@@ -71,7 +71,8 @@
       <kw-grid
         ref="grdMainRef"
         name="grdMain"
-        :visible-rows="4"
+        :page-size="pageInfo.pageSize"
+        :total-count="pageInfo.totalCount.grdMain"
         @init="initGrdMain"
       />
       <div class="grid-horizontal-wrap">
@@ -83,7 +84,7 @@
             <kw-action-top>
               <template #left>
                 <kw-paging-info
-                  :total-count="156"
+                  :total-count="pageInfo.totalCount.grdProdCustInfo"
                 />
                 <span class="ml8">(단위:원)</span>
               </template>
@@ -107,7 +108,8 @@
             <kw-grid
               ref="grdProdCustInfoRef"
               name="grdProdCustInfo"
-              :visible-rows="3"
+              :page-size="pageInfo.pageSize"
+              :total-count="pageInfo.totalCount.grdProdCustInfo"
               @init="initGrdProdCustInfo"
             />
           </div>
@@ -121,7 +123,7 @@
             <kw-action-top>
               <template #left>
                 <kw-paging-info
-                  :total-count="156"
+                  :total-count="pageInfo.totalCount.grdProdCustDet"
                 />
                 <span class="ml8">(단위:원)</span>
               </template>
@@ -129,7 +131,8 @@
             <kw-grid
               ref="grdProdCustDetRef"
               name="grdProdCustDet"
-              :visible-rows="3"
+              :page-size="pageInfo.pageSize"
+              :total-count="pageInfo.totalCount.grdProdCustDet"
               @init="initGrdProdCustDet"
             />
           </div>
@@ -143,15 +146,27 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { getComponentType, defineGrid } from 'kw-lib';
+import { getComponentType, defineGrid, useMeta } from 'kw-lib';
 
 const { t } = useI18n();
-// -------------------------------------------------------------------------------------------------
-// Function & Event
-// -------------------------------------------------------------------------------------------------
+const { getConfig } = useMeta();
+
+const pageInfo = ref({
+  totalCount: {
+    grdMain: 0,
+    grdProdCustInfo: 0,
+    grdProdCustDet: 0,
+  },
+  pageIndex: 1,
+  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
+});
+
 const grdMainRef = ref(getComponentType('KwGrid'));
 const grdProdCustInfoRef = ref(getComponentType('KwGrid'));
 const grdProdCustDetRef = ref(getComponentType('KwGrid'));
+// -------------------------------------------------------------------------------------------------
+// Function & Event
+// -------------------------------------------------------------------------------------------------
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid

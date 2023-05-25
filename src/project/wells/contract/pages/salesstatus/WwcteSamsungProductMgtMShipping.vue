@@ -141,25 +141,30 @@
   <div class="result-area">
     <kw-action-top>
       <template #left>
-        <kw-paging-info :total-count="4" />
+        <kw-paging-info :total-count="pageInfo.totalCount" />
       </template>
       <kw-btn
         icon="download_on"
+        :disable="pageInfo.totalCount === 0"
         secondary
         dense
         :label="$t('MSG_BTN_DOWN_COM_EXCEL')"
       />
       <kw-btn
         icon="download_on"
+        :disable="pageInfo.totalCount === 0"
         secondary
         dense
-        :label="$t('MSG_TXT_EXCEL_DOWNLOAD')"
+        :label="$t('MSG_BTN_EXCEL_DOWN')"
+        @click="onClickExcelDownload"
       />
     </kw-action-top>
     <kw-grid
-      ref="grdMainRef"
-      :visible-rows="4"
-      @init="initGrdMain"
+      ref="grdMainRefShipping"
+      v-model:page-size="pageInfo.pageSize"
+      :total-count="pageInfo.totalCount"
+      name="grdShipping"
+      @init="initGrdShipping"
     />
   </div>
 </template>
@@ -167,16 +172,36 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { defineGrid, getComponentType } from 'kw-lib';
+import { getComponentType, defineGrid, gridUtil, useMeta } from 'kw-lib';
 
 const { t } = useI18n();
+const { getConfig } = useMeta();
+const { currentRoute } = useRouter();
+
+const pageInfo = ref({
+  totalCount: 0,
+  pageIndex: 1,
+  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
+});
+
+// -------------------------------------------------------------------------------------------------
+// Function & Event
+// -------------------------------------------------------------------------------------------------
+const grdMainRefShipping = ref(getComponentType('KwGrid'));
+
+async function onClickExcelDownload() {
+  const view = grdMainRefShipping.value.getView();
+  await gridUtil.exportView(view, {
+    fileName: currentRoute.value.meta.menuName,
+    timePostfix: true,
+  });
+}
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
-const grdMainRef = ref(getComponentType('KwGrid'));
 
-const initGrdMain = defineGrid((data, view) => {
+const initGrdShipping = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'col1' },
     { fieldName: 'col2' },

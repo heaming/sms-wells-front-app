@@ -80,32 +80,33 @@
         </kw-search-item>
       </kw-search-row>
     </kw-search>
-    <div class="result-area">
-      <kw-action-top>
-        <template #left>
-          <kw-paging-info
-            v-model:page-index="pageInfo.pageIndex"
-            v-model:page-size="pageInfo.pageSize"
-            :total-count="pageInfo.totalCount"
-            :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
-            @change="getHumanResourcesPages"
-          />
-        </template>
-      </kw-action-top>
-      <kw-grid
-        ref="grdMainRef"
-        :page-size="pageInfo.pageSize"
-        :total-count="pageInfo.totalCount"
-        @init="initGrdMain"
-      />
-      <kw-pagination
-        v-model:page-index="pageInfo.pageIndex"
-        v-model:page-size="pageInfo.pageSize"
-        :total-count="pageInfo.totalCount"
-        @change="getHumanResourcesPages"
-      />
-    </div>
-    <template #action>
+    <kw-action-top>
+      <template #left>
+        <kw-paging-info
+          v-model:page-index="pageInfo.pageIndex"
+          v-model:page-size="pageInfo.pageSize"
+          :total-count="pageInfo.totalCount"
+          :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
+          @change="getHumanResourcesPages"
+        />
+      </template>
+    </kw-action-top>
+    <kw-grid
+      ref="grdMainRef"
+      :page-size="pageInfo.pageSize"
+      :total-count="pageInfo.totalCount"
+      @init="initGrdMain"
+    />
+    <kw-pagination
+      v-model:page-index="pageInfo.pageIndex"
+      v-model:page-size="pageInfo.pageSize"
+      :total-count="pageInfo.totalCount"
+      @change="getHumanResourcesPages"
+    />
+    <template
+      v-if="isCheckbox"
+      #action
+    >
       <kw-btn
         :label="$t('MSG_BTN_CANCEL')"
         @click="onClickCancel"
@@ -193,7 +194,7 @@ const searchParams = ref({
 let cachedParams;
 
 const isManagerSelected = computed(() => searchParams.value.mngrDvCd === '1');
-const isRadio = computed(() => props.checkType === 'radio');
+const isCheckbox = props.checkType === 'checkbox';
 
 const layouts = computed(() => {
   if (isManagerSelected.value) {
@@ -382,20 +383,24 @@ const initGrdMain = defineGrid((data, view) => {
   view.setColumns(columns);
   view.setColumnLayout(layouts.value);
 
-  view.checkBar.visible = true;
-  view.checkBar.exclusive = isRadio.value;
+  view.checkBar.visible = isCheckbox;
   view.rowIndicator.visible = true;
 
-  // 체크박스 설정
-  view.onCellClicked = (grid, clickData) => {
-    if (clickData.cellType === 'data') {
-      grid.checkItem(
-        clickData.itemIndex,
-        isRadio.value ? true : !grid.isCheckedItem(clickData.itemIndex),
-        isRadio.value,
-      );
-    }
-  };
+  if (isCheckbox) {
+    // 셀 클릭 시
+    view.onCellClicked = (grid, clickData) => {
+      if (clickData.cellType === 'data') {
+        grid.checkItem(clickData.itemIndex, !grid.isCheckedItem(clickData.itemIndex));
+      }
+    };
+  } else {
+    // 셀 더블클릭 시
+    view.onCellDblClicked = (grid, clickData) => {
+      if (clickData.cellType === 'data') {
+        ok([{ ...grid.getValues(clickData.itemIndex) }]);
+      }
+    };
+  }
 });
 
 onMounted(async () => {

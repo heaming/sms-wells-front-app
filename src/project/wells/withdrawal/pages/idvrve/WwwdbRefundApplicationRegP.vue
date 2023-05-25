@@ -308,7 +308,7 @@
       </div>
     </div>
 
-    <!-- 반복시작 -->
+    <!-- 반복 시작 -->
     <div
       v-for="(item, i) in saveParams.details"
       :key="i"
@@ -1274,6 +1274,8 @@ async function loadRefundApplication() {
 
   saveParams.value = res2.data.basic;
   saveParams.value.details = res2.data.details;
+  console.log('res.data', res.data);
+  console.log('saveParams.value', saveParams.value);
 }
 
 onMounted(async () => {
@@ -1282,6 +1284,7 @@ onMounted(async () => {
   //   await fetchData3();
   // }
 
+  // 환불신청버튼으로 팝업띄우면 빈값. 환불상태, 환불상세에서 띄우는 팝업이면 환불상태코드가 있음)
   if (props.rfndStatCd !== '') {
     await loadRefundApplication();
   }

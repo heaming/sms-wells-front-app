@@ -54,74 +54,56 @@
           />
         </kw-search-item>
       </kw-search-row>
-      <div
-        v-if="isSelect1Visile"
-      >
-        <kw-search-row>
-          <kw-search-item
+      <kw-search-row>
+        <kw-search-item
+          v-if="isSelect1Visile"
+          :label="$t('MSG_TXT_DT_OF_SALE')"
+          required
+        >
+          <kw-date-range-picker
+            v-model:from="searchParams.schSlDtStrt"
+            v-model:to="searchParams.schSlDtEnd"
             :label="$t('MSG_TXT_DT_OF_SALE')"
-            required
-          >
-            <kw-date-range-picker
-              v-model:from="searchParams.schSlDtStrt"
-              v-model:to="searchParams.schSlDtEnd"
-              :label="$t('MSG_TXT_DT_OF_SALE')"
-              rules="date_range_required|date_range_months:1"
-            />
-          </kw-search-item>
-        </kw-search-row>
-      </div>
-      <div
-        v-if="isSelect2Visile"
-      >
-        <kw-search-row>
-          <kw-search-item
+            rules="date_range_required|date_range_months:1"
+          />
+        </kw-search-item>
+        <kw-search-item
+          v-if="isSelect2Visile"
+          :label="$t('MSG_TXT_RCPDT')"
+          required
+        >
+          <kw-date-range-picker
+            v-model:from="searchParams.schRcpDtStrt"
+            v-model:to="searchParams.schRcpDtEnd"
             :label="$t('MSG_TXT_RCPDT')"
-            required
-          >
-            <kw-date-range-picker
-              v-model:from="searchParams.schRcpDtStrt"
-              v-model:to="searchParams.schRcpDtEnd"
-              :label="$t('MSG_TXT_RCPDT')"
-              rules="date_range_required|date_range_months:1"
-            />
-          </kw-search-item>
-        </kw-search-row>
-      </div>
-      <div
-        v-if="isSelect3Visile"
-      >
-        <kw-search-row>
-          <kw-search-item
+            rules="date_range_required|date_range_months:1"
+          />
+        </kw-search-item>
+        <kw-search-item
+          v-if="isSelect3Visile"
+          :label="$t('MSG_TXT_RSV_DATE')"
+          required
+        >
+          <kw-date-range-picker
+            v-model:from="searchParams.schRsvDtStrt"
+            v-model:to="searchParams.schRsvDtEnd"
             :label="$t('MSG_TXT_RSV_DATE')"
-            required
-          >
-            <kw-date-range-picker
-              v-model:from="searchParams.schRsvDtStrt"
-              v-model:to="searchParams.schRsvDtEnd"
-              :label="$t('MSG_TXT_RSV_DATE')"
-              rules="date_range_required|date_range_months:1"
-            />
-          </kw-search-item>
-        </kw-search-row>
-      </div>
-      <div
-        v-if="isSelect4Visile"
-      >
-        <kw-search-row>
-          <kw-search-item
+            rules="date_range_required|date_range_months:1"
+          />
+        </kw-search-item>
+        <kw-search-item
+          v-if="isSelect4Visile"
+          :label="$t('MSG_TXT_PERF_YM')"
+          required
+        >
+          <kw-date-picker
+            v-model="searchParams.perfYm"
             :label="$t('MSG_TXT_PERF_YM')"
-            required
-          >
-            <kw-date-picker
-              v-model="searchParams.perfYm"
-              :label="$t('MSG_TXT_PERF_YM')"
-              type="month"
-              rules="required"
-            />
-          </kw-search-item>
-        </kw-search-row>
-      </div>
+            type="month"
+            rules="required"
+          />
+        </kw-search-item>
+      </kw-search-row>
     </kw-search>
 
     <div class="result-area">
@@ -130,7 +112,7 @@
           <kw-paging-info
             :total-count="totalCount"
           />
-          <span class="ml8">({{ $t('MSG_TXT_UNIT_COLON_WON') }})</span>
+          <span class="ml8">{{ $t('MSG_TXT_UNIT_COLON_WON') }}</span>
         </template>
 
         <kw-btn
@@ -138,7 +120,7 @@
           dense
           secondary
           :label="$t('MSG_BTN_EXCEL_DOWN')"
-          :disable="totalCount.value === 0"
+          :disable="!isExcelDown"
           @click="onClickExcelDownload"
         />
         <kw-separator
@@ -195,8 +177,9 @@ const isSelect3Visile = ref(false);
 const isSelect4Visile = ref(false);
 const isGrid1Visile = ref(true);
 const isGrid2Visile = ref(false);
+const isExcelDown = ref(false);
 const { t } = useI18n();
-const currentRoute = useRouter();
+const { currentRoute } = useRouter();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -310,9 +293,13 @@ async function fetchData() {
   const response = await dataService.get(`/sms/wells/fee/organization-netorders/plar${uri}`, { params: cachedParams });
   const plarFees = response.data;
   totalCount.value = plarFees.length;
+  if (totalCount.value > 0) {
+    isExcelDown.value = true;
+  } else {
+    isExcelDown.value = false;
+  }
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(plarFees);
-  view.resetCurrent();
 }
 
 async function onClickSearch() {
@@ -369,7 +356,7 @@ const initGrd1Main = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'og1Nm', header: t('MSG_TXT_MANAGEMENT_DEPARTMENT'), width: '98', styleName: 'text-center' },
     { fieldName: 'og2Nm', header: t('MSG_TXT_RGNL_GRP'), width: '98', styleName: 'text-center' },
-    { fieldName: 'og3Nm', header: t('MSG_TXT_BRANCH'), width: '98', styleName: 'text-center' },
+    { fieldName: 'og3Nm', header: t('MSG_TXT_BRANCH'), width: '98', styleName: 'text-left' },
     { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '111.9', styleName: 'text-center' },
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '72', styleName: 'text-center' },
     { fieldName: 'gubn', header: t('MSG_TXT_SEL_TYPE'), width: '110', styleName: 'text-center' },
@@ -377,13 +364,13 @@ const initGrd1Main = defineGrid((data, view) => {
     { fieldName: 'lcflg1', header: t('MSG_TXT_CHDVC_TP'), width: '110', styleName: 'text-center' },
     { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '188', styleName: 'text-center' },
     { fieldName: 'lccgub', header: t('MSG_TXT_CST_DV'), width: '83.5', styleName: 'text-center' },
-    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '226.5', styleName: 'text-center' },
+    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '226.5', styleName: 'text-left' },
     { fieldName: 'pdCd', header: t('MSG_TXT_PRDT_CODE'), width: '83.5', styleName: 'text-center' },
     { fieldName: 'lciuse', header: t('MSG_TXT_USWY'), width: '110.9', styleName: 'text-center' },
     { fieldName: 'lcetc3', header: t('MSG_TXT_PD_DC_CLASS'), width: '83.5', styleName: 'text-center' },
     { fieldName: 'lcetc4', header: t('MSG_TXT_DISC_CODE'), width: '83.5', styleName: 'text-center' },
     { fieldName: 'lcst11', header: t('MSG_TXT_DSC_SYST'), width: '83.5', styleName: 'text-right' },
-    { fieldName: 'lcst04', header: t('MSG_TXT_COMBI_DV'), width: '83.5', styleName: 'text-' },
+    { fieldName: 'lcst04', header: t('MSG_TXT_COMBI_DV'), width: '83.5', styleName: 'text-left' },
     { fieldName: 'fnlVal', header: t('MSG_TXT_DP_PERF'), width: '141.8', styleName: 'text-right' },
     { fieldName: 'lcmont', header: t('MSG_TXT_ISTM'), width: '83.5', styleName: 'text-right' },
     { fieldName: 'lcbamt', header: t('MSG_TXT_BASE_PRC'), width: '123.8', styleName: 'text-right' },
@@ -396,7 +383,7 @@ const initGrd1Main = defineGrid((data, view) => {
     { fieldName: 'lccrtt', header: t('MSG_TXT_CNTR_DATE'), width: '113.2', styleName: 'text-center' },
     { fieldName: 'lcslet', header: t('MSG_TXT_SL_DT'), width: '113.2', styleName: 'text-center' },
     { fieldName: 'lccant', header: t('MSG_TXT_CANC_DT'), width: '113.2', styleName: 'text-center' },
-    { fieldName: 'akdbon', header: t('MSG_TXT_BRMGR'), width: '113', styleName: 'text-center' },
+    { fieldName: 'akdbon', header: t('MSG_TXT_BRMGR') + t('MSG_TXT_SEQUENCE_NUMBER'), width: '113', styleName: 'text-center' },
     { fieldName: 'akdbnm', header: t('MSG_TXT_BRMGR'), width: '100', styleName: 'text-center' },
     { fieldName: 'lcamt1', header: t('MSG_TXT_RTLFE'), width: '104.3', styleName: 'text-right' },
     { fieldName: 'lcgub3', header: t('MSG_TXT_CONTRACT_PERI'), width: '83.5', styleName: 'text-right' },

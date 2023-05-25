@@ -121,6 +121,8 @@
       </kw-action-top>
       <kw-grid
         ref="grdRef"
+        name="grdMain"
+        :total-count="totalCount"
         @init="initGrdMain"
       />
     </div>

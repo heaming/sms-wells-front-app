@@ -31,7 +31,7 @@
               :label="$t('MSG_TXT_INQR_DV')"
               rules="required"
               type="radio"
-              :options="['상세','집계']"
+              :options="customCodes.inqrCd"
               @change="onChangeInqrDv"
             />
           </kw-search-item>
@@ -44,7 +44,7 @@
               :label="$t('MSG_TXT_ORDR')"
               rules="required"
               type="radio"
-              :options="['1차','2차']"
+              :options="customCodes.tcntCd"
             />
           </kw-search-item>
           <kw-search-item
@@ -54,7 +54,7 @@
             <kw-select
               v-model="searchParams.schDiv"
               :label="$t('MSG_TXT_DIV')"
-              :options="['접수','예약','매출','수수료실적 집계대상']"
+              :options="customCodes.divCd"
               rules="required"
             />
           </kw-search-item>
@@ -65,7 +65,7 @@
           >
             <kw-select
               v-model="searchParams.schFeePerf"
-              :options="['전체','가전','가전외','기타','미지급']"
+              :options="customCodes.feePerfCd"
             />
           </kw-search-item>
           <kw-search-item
@@ -75,7 +75,7 @@
             <kw-select
               v-model="searchParams.schPdctTp"
               :label="$t('MSG_TXT_PDCT_TP')"
-              :options="['전체','환경','환경외','웰스팜','홈케어','캡슐','기타']"
+              :options="customCodes.pdctTpCd"
               rules="required"
             />
           </kw-search-item>
@@ -85,7 +85,7 @@
             <kw-select
               v-model="searchParams.schSelType"
               :label="$t('MSG_TXT_SEL_TYPE')"
-              :options="['전체','렌탈','정기구매','할부','홈케어','재약정','멤버십']"
+              :options="customCodes.selTpCd"
             />
           </kw-search-item>
         </kw-search-row>
@@ -168,7 +168,7 @@
               :label="$t('MSG_TXT_INQR_DV')"
               rules="required"
               type="radio"
-              :options="['상세','집계']"
+              :options="customCodes.inqrCd"
               @change="onChangeInqrDv"
             />
           </kw-search-item>
@@ -181,7 +181,7 @@
               :label="$t('MSG_TXT_ORDR')"
               rules="required"
               type="radio"
-              :options="['1차','2차']"
+              :options="customCodes.tcntCd"
             />
           </kw-search-item>
           <kw-search-item
@@ -206,7 +206,7 @@
               :label="$t('MSG_TXT_RSB_DV')"
               rules="required"
               type="radio"
-              :options="['전체','지구장이하','지점장이상']"
+              :options="customCodes.rsbDvCd"
             />
           </kw-search-item>
           <kw-search-item
@@ -239,7 +239,7 @@
           <kw-paging-info
             :total-count="totalCount"
           />
-          <span class="ml8">({{ $t('MSG_TXT_UNIT_COLON_WON') }})</span>
+          <span class="ml8">{{ $t('MSG_TXT_UNIT_COLON_WON') }}</span>
         </template>
         <kw-btn
           dense
@@ -248,17 +248,6 @@
           :label="$t('MSG_BTN_EXCEL_DOWN')"
           :disable="totalCount.value === 0"
           @click="onClickExcelDownload"
-        />
-        <kw-separator
-          vertical
-          inset
-          spaced
-        />
-        <kw-btn
-          :label="'BS'+$t('MSG_BTN_PERF_AGRG')"
-          secondary
-          dense
-          @click="openBfsvcPerfAgrgPopup"
         />
         <kw-separator
           vertical
@@ -295,7 +284,7 @@
           <kw-paging-info
             :total-count="totalCount"
           />
-          <span class="ml8">({{ $t('MSG_TXT_UNIT_COLON_WON') }})</span>
+          <span class="ml8">{{ $t('MSG_TXT_UNIT_COLON_WON') }}</span>
         </template>
         <kw-btn
           dense
@@ -304,17 +293,6 @@
           :label="$t('MSG_BTN_EXCEL_DOWN')"
           :disable="totalCount.value === 0"
           @click="onClickExcelDownload"
-        />
-        <kw-separator
-          vertical
-          inset
-          spaced
-        />
-        <kw-btn
-          :label="'BS'+$t('MSG_BTN_PERF_AGRG')"
-          secondary
-          dense
-          @click="openBfsvcPerfAgrgPopup"
         />
         <kw-separator
           vertical
@@ -353,9 +331,9 @@ import { useDataService, getComponentType, useGlobal, gridUtil, defineGrid } fro
 import { cloneDeep } from 'lodash-es';
 
 const { t } = useI18n();
-const { modal, notify } = useGlobal();
+const { modal } = useGlobal();
 const dataService = useDataService();
-const currentRoute = useRouter();
+const { currentRoute } = useRouter();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -365,18 +343,27 @@ const now = dayjs();
 const grd1MainRef = ref(getComponentType('KwGrid'));
 const grd2MainRef = ref(getComponentType('KwGrid'));
 const totalCount = ref(0);
+const customCodes = {
+  inqrCd: [{ codeId: '01', codeName: '상세' }, { codeId: '02', codeName: '집계' }],
+  divCd: [{ codeId: '01', codeName: '매출' }, { codeId: '02', codeName: '접수' }, { codeId: '03', codeName: '예약' }, { codeId: '04', codeName: '수수료 실적 집계 대상' }],
+  feePerfCd: [{ codeId: '01', codeName: '전체' }, { codeId: '02', codeName: '가전' }, { codeId: '03', codeName: '가전외' }, { codeId: '04', codeName: '기타' }, { codeId: '05', codeName: '미지급' }],
+  pdctTpCd: [{ codeId: '01', codeName: '전체' }, { codeId: '02', codeName: '환경가전' }, { codeId: '03', codeName: '환경가전외' }, { codeId: '04', codeName: '웰스팜' }, { codeId: '05', codeName: '홈케어' }, { codeId: '06', codeName: '캡슐' }, { codeId: '07', codeName: '기타' }],
+  tcntCd: [{ codeId: '01', codeName: '1차' }, { codeId: '02', codeName: '2차' }],
+  selTpCd: [{ codeId: '01', codeName: '전체' }, { codeId: '02', codeName: '렌탈' }, { codeId: '03', codeName: '정기구매' }, { codeId: '04', codeName: '할부' }, { codeId: '05', codeName: '홈케어' }, { codeId: '06', codeName: '재약정' }, { codeId: '07', codeName: '멤버십' }],
+  rsbDvCd: [{ codeId: '01', codeName: '전체' }, { codeId: '02', codeName: '지구장이하' }, { codeId: '03', codeName: '지점장이상' }],
+};
 const isSelectVisile1 = ref(true);
 const isSelectVisile2 = ref(false);
 const isGrid1Visile = ref(true);
 const isGrid2Visile = ref(false);
 
 const searchParams = ref({
-  schInqrDv: '상세',
-  schOrdr: '1차',
-  schDiv: '접수',
-  schFeePerf: '전체',
-  schPdctTp: '전체',
-  schSelType: '전체',
+  schInqrDv: '01',
+  schOrdr: '01',
+  schDiv: '02',
+  schFeePerf: '01',
+  schPdctTp: '01',
+  schSelType: '01',
   schDtStrt: now.add(-1, 'month').startOf('month').format('YYYYMMDD'),
   schDtEnd: now.add(-1, 'month').endOf('month').format('YYYYMMDD'),
   schCancDtStrt: '',
@@ -389,7 +376,7 @@ const searchParams = ref({
   schBlgEnd: '',
   schPrtnrNo: '',
   schPerfYm: '',
-  schRsbDv: '',
+  schRsbDv: '01',
 });
 
 let cachedParams;
@@ -398,11 +385,11 @@ let cachedParams;
  *  Event - 조회조건 선택에 변경 param init
  */
 async function initSearchParams() {
-  searchParams.value.schOrdr = '1차';
-  searchParams.value.schDiv = '접수';
-  searchParams.value.schFeePerf = '전체';
-  searchParams.value.schPdctTp = '전체';
-  searchParams.value.schSelType = '전체';
+  searchParams.value.schOrdr = '01';
+  searchParams.value.schDiv = '02';
+  searchParams.value.schFeePerf = '01';
+  searchParams.value.schPdctTp = '01';
+  searchParams.value.schSelType = '01';
   searchParams.value.schDtStrt = now.add(-1, 'month').startOf('month').format('YYYYMMDD');
   searchParams.value.schDtEnd = now.add(-1, 'month').endOf('month').format('YYYYMMDD');
   searchParams.value.schCancDtStrt = '';
@@ -415,7 +402,7 @@ async function initSearchParams() {
   searchParams.value.schBlgEnd = '';
   searchParams.value.schPrtnrNo = '';
   searchParams.value.schPerfYm = now.add(-1, 'month').format('YYYYMM');
-  searchParams.value.schRsbDv = '전체';
+  searchParams.value.schRsbDv = '01';
 }
 
 /*
@@ -425,13 +412,13 @@ async function initSearchParams() {
 async function onChangeInqrDv() {
   const { schInqrDv } = searchParams.value;
 
-  if (schInqrDv === '상세') {
+  if (schInqrDv === '01') {
     isSelectVisile1.value = true;
     isSelectVisile2.value = false;
     isGrid1Visile.value = true;
     isGrid2Visile.value = false;
     initSearchParams();
-  } else if (schInqrDv === '집계') {
+  } else if (schInqrDv === '02') {
     isSelectVisile1.value = false;
     isSelectVisile2.value = true;
     isGrid1Visile.value = false;
@@ -469,18 +456,6 @@ async function openFeePerfCnfmPopup() {
     componentProps: param,
   });
 }
-/*
- *  Event - BS실적집계 버튼 클릭
- */
-async function openBfsvcPerfAgrgPopup() {
-  const { result: isChanged } = await modal({
-    component: 'WwfeaOgNetOrderBsPerfAgrgRegP',
-  });
-
-  if (isChanged) {
-    await notify(t('MSG_ALT_CREATED'));
-  }
-}
 
 async function onClickExcelDownload() {
   const view = grd1MainRef.value.getView();
@@ -492,15 +467,12 @@ async function onClickExcelDownload() {
 }
 
 async function fetchData() {
-  const { schOrdr } = searchParams.value;
   const { schInqrDv } = searchParams.value;
   let uri = '';
-  if (schInqrDv === '판매' && (schOrdr === '접수' || schOrdr === '예약' || schOrdr === '매출')) {
+  if (schInqrDv === '01') {
     uri = 's';
-  } else if (schInqrDv === '판매' && schOrdr === '수수료 실적 집계 대상') {
+  } else if (schInqrDv === '02') {
     uri = '-sell-fees';
-  } else if (schInqrDv === 'BS') {
-    uri = '-before-services';
   }
   const response = await dataService.get(`/sms/wells/fee/organization-netorders/mnger${uri}`, { params: cachedParams });
   const mngerFees = response.data;
@@ -508,7 +480,6 @@ async function fetchData() {
 
   const view = grd1MainRef.value.getView();
   view.getDataSource().setRows(mngerFees);
-  view.resetCurrent();
 }
 
 async function onClickSearch() {
@@ -566,46 +537,46 @@ const initGrd1Main = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'col1', header: t('MSG_TXT_MANAGEMENT_DEPARTMENT'), width: '98' },
-    { fieldName: 'col2', header: t('MSG_TXT_RGNL_GRP'), width: '98' },
-    { fieldName: 'col3', header: t('MSG_TXT_BRANCH'), width: '98' },
-    { fieldName: 'col4', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '111.9', styleName: 'text-center' },
-    { fieldName: 'col5', header: t('MSG_TXT_EMPL_NM'), width: '72', styleName: 'text-center' },
-    { fieldName: 'col6', header: t('MSG_TXT_SEL_TYPE'), width: '110' },
-    { fieldName: 'col7', header: t('MSG_TXT_PDCT_TP'), width: '110' },
-    { fieldName: 'col8', header: t('MSG_TXT_PRC_TP'), width: '110' },
-    { fieldName: 'col9', header: t('MSG_TXT_CHDVC_TP'), width: '110' },
-    { fieldName: 'col10', header: t('MSG_TXT_CNTR_DTL_NO'), width: '188', styleName: 'text-center' },
-    { fieldName: 'col11', header: t('MSG_TXT_CST_DV'), width: '83.5' },
-    { fieldName: 'col12', header: t('MSG_TXT_PRDT_NM'), width: '226.5', styleName: 'text-' },
-    { fieldName: 'col13', header: t('MSG_TXT_PRDT_CODE'), width: '83.5', styleName: 'text-center' },
-    { fieldName: 'col14', header: t('MSG_TXT_USWY'), width: '110.9', styleName: 'text-' },
-    { fieldName: 'col15', header: t('MSG_TXT_PD_DC_CLASS'), width: '83.5', styleName: 'text-' },
-    { fieldName: 'col16', header: t('MSG_TXT_DISC_CODE'), width: '83.5', styleName: 'text-' },
-    { fieldName: 'col17', header: t('MSG_TXT_DSC_SYST'), width: '83.5', styleName: 'text-right' },
-    { fieldName: 'col18', header: t('MSG_TXT_COMBI_DV'), width: '83.5', styleName: 'text-' },
-    { fieldName: 'col19', header: t('MSG_TXT_DP_PERF'), width: '141.8', styleName: 'text-right' },
-    { fieldName: 'col20', header: t('MSG_TXT_ISTM'), width: '83.5', styleName: 'text-right' },
-    { fieldName: 'col21', header: t('MSG_TXT_DSC'), width: '83.5', styleName: 'text-right' },
-    { fieldName: 'col22', header: t('MSG_TXT_STPL_MCNT'), width: '84', styleName: 'text-right' },
-    { fieldName: 'col23', header: t('MSG_TXT_MNGT_PRD'), width: '84', styleName: 'text-right' },
-    { fieldName: 'col24', header: t('MSG_TXT_PD_ACC_RSLT'), width: '142', styleName: 'text-right' },
-    { fieldName: 'col25', header: t('MSG_TXT_BASE_PRC'), width: '123.8', styleName: 'text-right' },
-    { fieldName: 'col26', header: t('MSG_TXT_HOME_CARE'), width: '83.5', styleName: 'text-right' },
-    { fieldName: 'col27', header: `${t('MSG_TXT_HOME_CARE')}3${t('MSG_TXT_YEAR')}`, width: '141.2', styleName: 'text-' },
-    { fieldName: 'col28', header: t('MSG_TXT_FXAM_YN'), width: '83.5', styleName: 'text-' },
-    { fieldName: 'col29', header: t('MSG_TXT_FNN_LEASE'), width: '83.5', styleName: 'text-' },
-    { fieldName: 'col30', header: t('MSG_TXT_PD_ACC_CNT'), width: '83.5', styleName: 'text-right' },
-    { fieldName: 'col31', header: t('MSG_TXT_RECOMMITMENT'), width: '113.2', styleName: 'text-' },
-    { fieldName: 'col32', header: t('MSG_TXT_CNTR_DATE'), width: '113.2', styleName: 'text-center' },
-    { fieldName: 'col33', header: t('MSG_TXT_SL_DT'), width: '113.2', styleName: 'text-center' },
-    { fieldName: 'col34', header: t('MSG_TXT_CANC_DT'), width: '113.2', styleName: 'text-center' },
-    { fieldName: 'col35', header: t('MSG_TXT_BRMGR'), width: '113', styleName: 'text-center' },
-    { fieldName: 'col36', header: t('MSG_TXT_BRMGR'), width: '100', styleName: 'text-' },
-    { fieldName: 'col37', header: t('MSG_TXT_RTLFE'), width: '104.3', styleName: 'text-right' },
-    { fieldName: 'col38', header: t('MSG_TXT_PMOT_NO'), width: '104.3', styleName: 'text-right' },
-    { fieldName: 'col39', header: t('MSG_TXT_PKG_SN'), width: '135.1', styleName: 'text-' },
-    { fieldName: 'col40', header: t('MSG_TXT_MCHN') + t('MSG_TXT_CST_CD'), width: '113' },
+    { fieldName: 'col1', header: t('MSG_TXT_BLG'), width: '98' },
+    { fieldName: 'col2', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '98' },
+    { fieldName: 'col3', header: t('MSG_TXT_EMPL_NM'), width: '98' },
+    { fieldName: 'col4', header: t('MSG_TXT_SEL_TYPE'), width: '111.9', styleName: 'text-center' },
+    { fieldName: 'col5', header: t('MSG_TXT_PDCT_TP'), width: '72', styleName: 'text-center' },
+    { fieldName: 'col6', header: t('MSG_TXT_PRC_TP'), width: '110' },
+    { fieldName: 'col7', header: t('MSG_TXT_CHDVC_TP'), width: '110' },
+    { fieldName: 'col8', header: t('MSG_TXT_FEE') + t('MSG_TXT_PERF') + t('MSG_TXT_TYPE'), width: '110' },
+    { fieldName: 'col9', header: t('MSG_TXT_CNTR_DTL_NO'), width: '110' },
+    { fieldName: 'col10', header: t('MSG_TXT_CST_DV'), width: '188', styleName: 'text-center' },
+    { fieldName: 'col11', header: t('MSG_TXT_PRDT_NM'), width: '226.5', styleName: 'text-' },
+    { fieldName: 'col12', header: t('MSG_TXT_PRDT_CODE'), width: '83.5', styleName: 'text-center' },
+    { fieldName: 'col13', header: t('MSG_TXT_PD_DC_CLASS'), width: '83.5', styleName: 'text-' },
+    { fieldName: 'col14', header: t('MSG_TXT_DISC_CODE'), width: '83.5', styleName: 'text-' },
+    { fieldName: 'col15', header: t('MSG_TXT_DSC_SYST'), width: '83.5', styleName: 'text-right' },
+    { fieldName: 'col16', header: t('MSG_TXT_COMBI_DV'), width: '83.5', styleName: 'text-' },
+    { fieldName: 'col17', header: t('MSG_TXT_ISTM'), width: '83.5', styleName: 'text-right' },
+    { fieldName: 'col18', header: t('MSG_TXT_STPL_MCNT'), width: '84', styleName: 'text-right' },
+    { fieldName: 'col19', header: t('MSG_TXT_MNGT_PRD'), width: '84', styleName: 'text-right' },
+    { fieldName: 'col20', header: t('MSG_TXT_PD_ACC_RSLT'), width: '142', styleName: 'text-right' },
+    { fieldName: 'col21', header: t('MSG_TXT_BASE_PRC'), width: '123.8', styleName: 'text-right' },
+    { fieldName: 'col22', header: t('MSG_TXT_HOME_CARE'), width: '83.5', styleName: 'text-right' },
+    { fieldName: 'col23', header: t('MSG_TXT_HCR_MSH_Y3'), width: '141.2', styleName: 'text-' },
+    { fieldName: 'col24', header: t('MSG_TXT_FXAM_YN'), width: '83.5', styleName: 'text-' },
+    { fieldName: 'col25', header: t('MSG_TXT_FNN_LEASE'), width: '83.5', styleName: 'text-' },
+    { fieldName: 'col26', header: t('MSG_TXT_PD_ACC_CNT'), width: '83.5', styleName: 'text-right' },
+    { fieldName: 'col27', header: t('MSG_TXT_RECOMMITMENT'), width: '113.2', styleName: 'text-' },
+    { fieldName: 'col28', header: t('MSG_TXT_CNTR_DATE'), width: '113.2', styleName: 'text-center' },
+    { fieldName: 'col29', header: t('MSG_TXT_SL_DT'), width: '113.2', styleName: 'text-center' },
+    { fieldName: 'col30', header: t('MSG_TXT_CANC_DT'), width: '113.2', styleName: 'text-center' },
+    { fieldName: 'col31', header: t('MSG_TXT_BRMGR'), width: '113', styleName: 'text-center' },
+    { fieldName: 'col32', header: t('MSG_TXT_BRMGR'), width: '100', styleName: 'text-' },
+    { fieldName: 'col33', header: t('MSG_TXT_RTLFE'), width: '104.3', styleName: 'text-right' },
+    { fieldName: 'col34', header: t('MSG_TXT_PMOT_NO'), width: '104.3', styleName: 'text-right' },
+    { fieldName: 'col35', header: t('MSG_TXT_PKG_SN'), width: '135.1', styleName: 'text-' },
+    { fieldName: 'col36', header: t('MSG_TXT_MCHN') + t('MSG_TXT_CST_CD'), width: '113' },
+    { fieldName: 'col37', header: t('MSG_TXT_MCHN') + t('MSG_TXT_PRDT_CODE'), width: '113' },
+    { fieldName: 'col38', header: t('MSG_TXT_MCHN') + t('MSG_TXT_PRDT_CODE'), width: '113' },
+    { fieldName: 'col39', header: t('MSG_TXT_MCHN') + t('MSG_TXT_PRDT_CODE'), width: '113' },
+    { fieldName: 'col40', header: t('MSG_TXT_MCHN') + t('MSG_TXT_PRDT_CODE'), width: '113' },
     { fieldName: 'col41', header: t('MSG_TXT_MCHN') + t('MSG_TXT_PRDT_CODE'), width: '113' },
 
   ];
@@ -640,38 +611,63 @@ const initGrd2Main = defineGrid((data, view) => {
     { fieldName: 'col19' },
     { fieldName: 'col20' },
     { fieldName: 'col21' },
+
   ];
 
   const columns = [
-
-    { fieldName: 'col1', header: t('MSG_TXT_MANAGEMENT_DEPARTMENT'), width: '98' },
-    { fieldName: 'col2', header: t('MSG_TXT_RGNL_GRP'), width: '98' },
-    { fieldName: 'col3', header: t('MSG_TXT_BRANCH'), width: '98' },
-    { fieldName: 'col4', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '111.9', styleName: 'text-center' },
-    { fieldName: 'col5', header: t('MSG_TXT_EMPL_NM'), width: '72', styleName: 'text-center' },
-    { fieldName: 'col6', header: t('MSG_TXT_CNTR_DTL_NO'), width: '188', styleName: 'text-center' },
-    { fieldName: 'col7', header: t('MSG_TXT_PRDT_CODE'), width: '83.5' },
-    { fieldName: 'col8', header: t('MSG_TXT_PRDT_NM'), width: '83.5', styleName: 'text-center' },
-    { fieldName: 'col9', header: `BS${t('MSG_TXT_PDGRP')}`, width: '110' },
-    { fieldName: 'col10', header: t('MSG_TXT_BAS_FEE'), width: '188', styleName: 'text-center' },
-    { fieldName: 'col11', header: t('MSG_TXT_VST') + t('MSG_TXT_FEE'), width: '83.5' },
-    { fieldName: 'col12', header: t('MSG_TXT_WORK_TYPE'), width: '226.5', styleName: 'text-' },
-    { fieldName: 'col13', header: t('MSG_TXT_VST') + t('MSG_TXT_RGLVL'), width: '83.5' },
-    { fieldName: 'col14', header: t('MSG_TXT_FER'), width: '110.9', styleName: 'text-' },
-    { fieldName: 'col15', header: t('MSG_TXT_SLS_CAT'), width: '83.5', styleName: 'text-' },
-    { fieldName: 'col16', header: t('MSG_TXT_HSHD') + t('MSG_TXT_CODE'), width: '83.5', styleName: 'text-' },
-    { fieldName: 'col17', header: t('MSG_TXT_HSHD_N'), width: '83.5', styleName: 'text-right' },
-    { fieldName: 'col18', header: t('MSG_TXT_USWY') + t('MSG_TXT_DIV'), width: '83.5', styleName: 'text-' },
-    { fieldName: 'col19', header: t('MSG_TXT_EXP') + t('MSG_TXT_DT'), width: '141.8', styleName: 'text-right' },
-    { fieldName: 'col20', header: t('MSG_TXT_VST') + t('MSG_TXT_DT'), width: '83.5', styleName: 'text-right' },
-    { fieldName: 'col21', header: t('MSG_TXT_CNCL_YN'), width: '83.5', styleName: 'text-right' },
+    { fieldName: 'col1', header: t('MSG_TXT_BLG'), width: '120', styleName: 'text-center' },
+    { fieldName: 'col2', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '120', styleName: 'text-center' },
+    { fieldName: 'col3', header: t('MSG_TXT_EMPL_NM'), width: '120', styleName: 'text-center' },
+    { fieldName: 'col4', header: t('MSG_TXT_CRLV'), width: '120', styleName: 'text-center' },
+    { fieldName: 'col5', header: t('MSG_TXT_ELHM'), width: '120', styleName: 'text-center' },
+    { fieldName: 'col6', header: t('MSG_TXT_ELHM') + t('MSG_TXT_EXCP'), width: '120', styleName: 'text-center' },
+    { fieldName: 'col7', header: t('MSG_TXT_ETC'), width: '120', styleName: 'text-center' },
+    { fieldName: 'col8', header: t('MSG_TXT_PRDT_NM'), width: '120', styleName: 'text-center' },
+    { fieldName: 'col9', header: t('MSG_TXT_AGG'), width: '120', styleName: 'text-center' },
+    { fieldName: 'col10', header: t('MSG_TXT_ELHM'), width: '120', styleName: 'text-center' },
+    { fieldName: 'col11', header: t('MSG_TXT_ELHM') + t('MSG_TXT_EXCP'), width: '120', styleName: 'text-center' },
+    { fieldName: 'col12', header: t('MSG_TXT_ETC'), width: '120', styleName: 'text-center' },
+    { fieldName: 'col13', header: t('MSG_TXT_PRDT_NM'), width: '120', styleName: 'text-center' },
+    { fieldName: 'col14', header: t('MSG_TXT_AGG'), width: '120', styleName: 'text-center' },
+    { fieldName: 'col15', header: t('MSG_TXT_PD_ACC_CNT'), width: '120', styleName: 'text-center' },
+    { fieldName: 'col16', header: t('MSG_TXT_RENTAL') + t('MSG_TXT_PD_STD_FEE'), width: '120', styleName: 'text-center' },
+    { fieldName: 'col17', header: t('MSG_TXT_SNGL_PMNT') + t('MSG_TXT_PD_STD_FEE'), width: '120', styleName: 'text-center' },
+    { fieldName: 'col18', header: t('MSG_TXT_CHNG') + t('MSG_TXT_COUNT'), width: '120', styleName: 'text-center' },
+    { fieldName: 'col19', header: t('MSG_TXT_FXAM') + t('MSG_TXT_COUNT'), width: '120', styleName: 'text-center' },
+    { fieldName: 'col20', header: t('MSG_TXT_LIVE_PAKG') + t('MSG_TXT_COUNT'), width: '120', styleName: 'text-center' },
+    { fieldName: 'col21', header: t('MSG_TXT_HCR_MSH') + t('MSG_TXT_COUNT'), width: '120', styleName: 'text-center' },
 
   ];
 
   data.setFields(fields);
   view.setColumns(columns);
+  view.checkBar.visible = false; // create checkbox column
+  view.rowIndicator.visible = true; // create number indicator column
 
-  view.checkBar.visible = false;
-  view.rowIndicator.visible = true;
+  // multi row header setting
+  view.setColumnLayout([
+    'col1', 'col2', 'col3', 'col4',
+    {
+      header: t('MSG_TXT_FEE') + t('MSG_TXT_PERF_CT'),
+      direction: 'horizontal',
+      items: ['col5', 'col6', 'col7', 'col8', 'col9'],
+    },
+    {
+      header: t('MSG_TXT_PD_ACC_RSLT'),
+      direction: 'horizontal',
+      items: ['col10', 'col11', 'col12', 'col13', 'col14'],
+    },
+    {
+      header: t('MSG_TXT_ELHM'),
+      direction: 'horizontal',
+      items: ['col15', 'col16', 'col17', 'col18'],
+    },
+    {
+      header: t('MSG_TXT_ETC'),
+      direction: 'horizontal',
+      items: ['col19', 'col20', 'col21'],
+    },
+  ]);
 });
+
 </script>

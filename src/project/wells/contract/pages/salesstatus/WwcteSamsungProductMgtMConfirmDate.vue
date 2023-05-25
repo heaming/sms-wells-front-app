@@ -4,7 +4,7 @@
 ****************************************************************************************************
 1. 모듈 : CTE
 2. 프로그램 ID : WwcteSamsungProductMgtM - 삼성전자 상품관리
-3. 작성자 : gs.ritvik.m
+3. 작성자 : gs.ritvik.m -> joobro
 4. 작성일 : 2023.04.03
 ****************************************************************************************************
 * 프로그램 설명
@@ -13,85 +13,86 @@
 ****************************************************************************************************
 --->
 <template>
-  <kw-search>
+  <kw-search @search="onClickSearch">
     <kw-search-row>
       <kw-search-item
         :label="$t('MSG_TXT_DUEDT')"
         required
       >
         <kw-date-range-picker
-          rules="date_range_required|date_range_months:1"
+          v-model:from="searchParams.strtdt"
+          v-model:to="searchParams.enddt"
           :label="$t('MSG_TXT_DUEDT')"
+          rules="date_range_required"
         />
       </kw-search-item>
       <kw-search-item
         :label="$t('MSG_TXT_ORD_TYP')"
       >
         <kw-option-group
-          type="radio"
+          v-model="searchParams.sellTpCd"
           :label="$t('MSG_TXT_ORD_TYP')"
-          :options="[$t('MSG_TXT_ALL'), $t('MSG_TXT_RENTAL'), $t('MSG_TXT_SNGL_PMNT')]"
+          type="radio"
+          :options="codes.SUBSET_SELL_TP_CD"
         />
       </kw-search-item>
       <kw-search-item
         :label="$t('MSG_TXT_SM_ORD_NO')"
       >
-        <kw-input :label="$t('MSG_TXT_SM_ORD_NO')" />
+        <kw-input
+          v-model="searchParams.sppBzsOrdId"
+          :label="$t('MSG_TXT_SM_ORD_NO')"
+        />
       </kw-search-item>
     </kw-search-row>
     <kw-search-row>
       <kw-search-item
         :label="$t('MSG_TXT_SERIAL_NO')"
       >
-        <kw-input :label="$t('MSG_TXT_SERIAL_NO')" />
+        <kw-input
+          v-model="searchParams.pdctIdno"
+          :label="$t('MSG_TXT_SERIAL_NO')"
+        />
       </kw-search-item>
     </kw-search-row>
   </kw-search>
   <div class="result-area">
-    <h3>결과조회</h3>
     <kw-action-top>
       <template #left>
-        <kw-paging-info :total-count="100" />
+        <kw-paging-info
+          v-model:page-index="pageInfo.pageIndex"
+          v-model:page-size="pageInfo.pageSize"
+          :total-count="pageInfo.totalCount"
+          :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
+          @change="fetchPage"
+        />
       </template>
-      <kw-btn
-        icon="download_off"
-        dense
-        secondary
-        :label="$t('MSG_TXT_TEMP_DOWN')"
-      />
       <kw-btn
         icon="upload_on"
         dense
         secondary
         :label="$t('MSG_TXT_EXCEL_UPLOAD')"
+        @click="onClickExcelUpload"
       />
       <kw-btn
         icon="download_on"
         dense
         secondary
         :label="$t('MSG_TXT_EXCEL_DOWNLOAD')"
+        :disable="pageInfo.totalCount===0"
         @click="onClickExcelDownload"
       />
     </kw-action-top>
     <kw-grid
-      ref="grdMainRef"
-      :visible-rows="1"
-      @init="initGrdMain"
+      ref="grdRef"
+      name="grdConfirm"
+      @init="initGrd"
     />
-    <h3>업로드 미리보기</h3>
-    <kw-action-top>
-      <template #left>
-        <kw-paging-info
-
-          :total-count="1"
-        />
-      </template>
-    </kw-action-top>
-    <kw-grid
-      ref="grdUploadPrevRef"
-      :visible-rows="10"
-      name="grdUploadPrev"
-      @init="initGrdUploadPrev"
+    <kw-pagination
+      v-model:page-index="pageInfo.pageIndex"
+      v-model:page-size="pageInfo.pageSize"
+      :total-count="pageInfo.totalCount"
+      @change="fetchPage"
     />
   </div>
 </template>
@@ -99,100 +100,162 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { getComponentType, defineGrid } from 'kw-lib';
+import {
+  codeUtil,
+  defineGrid,
+  getComponentType,
+  gridUtil,
+  modal,
+  useDataService,
+  useMeta,
+} from 'kw-lib';
+import dayjs from 'dayjs';
+import useGridDataModel from '~sms-common/contract/composable/useGridDataModel';
 
+const meta = useMeta();
+const router = useRouter();
+const dataService = useDataService();
 const { t } = useI18n();
+const codes = await codeUtil.getMultiCodes(
+  'COD_PAGE_SIZE_OPTIONS',
+  'SELL_TP_CD',
+  'LC_CTT_RS_CD',
+);
+
+codes.SUBSET_SELL_TP_CD = [
+  { codeId: '', codeName: t('MSG_TXT_ALL') /* 전체' */ },
+  codes.SELL_TP_CD.find((code) => code.codeId === '2'),
+  codes.SELL_TP_CD.find((code) => code.codeId === '1'),
+];
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
-const grdMainRef = ref(getComponentType('KwGrid'));
-const grdUploadPrevRef = ref(getComponentType('KwGrid'));
+const grdRef = ref(getComponentType('KwGrid'));
+const grdView = computed(() => grdRef.value?.getView());
+const grdData = computed(() => grdRef.value?.getData());
+
+const pageInfo = ref({
+  totalCount: 0,
+  pageIndex: 1,
+  pageSize: Number(meta.getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
+});
+
+let cachedParams;
+const searchParams = reactive({
+  strtdt: dayjs()
+    .format('YYYYMMDD'),
+  enddt: dayjs()
+    .format('YYYYMMDD'),
+  sellTpCd: '',
+  sppBzsOrdId: '', /* 삼성주문번호 */
+  pdctIdno: '', /* 시리얼번호 */
+});
+
+const fetchPage = async (pageIndex = pageInfo.value.pageIndex, pageSize = pageInfo.value.pageSize) => {
+  const params = {
+    ...cachedParams,
+    pageIndex,
+    pageSize,
+  };
+  const response = await dataService.get('/sms/wells/contract/sales-status/sec-product-management/confirm-days/paging', { params });
+
+  pageInfo.value = response.data.pageInfo;
+  grdData.value.setRows(response.data.list);
+};
+
+async function onClickSearch() {
+  cachedParams = { ...toRaw(searchParams) };
+  pageInfo.value.pageIndex = 1;
+  await fetchPage(1);
+}
+
+async function onClickExcelUpload() {
+  const { result, payload } = await modal({
+    component: 'ZctzExcelUploadP',
+    componentProps: {
+      templateDocId: 'TMP_TEST_TS',
+      columns: {
+        // veeValidate 에서 요구하는 형식과 해당 lint 룰과 상충된다.
+        // eslint-disable-next-line no-useless-escape
+        cntrNo: { label: t('MSG_TXT_CNTR_NO'), width: 200, rules: 'regex:W\\d{11}', required: true },
+        cntrSn: { label: t('MSG_TXT_CNTR_SN'), type: Number, width: 100, rules: 'max:5', required: true },
+        notUse1: { label: t('MSG_TXT_WALL_MNT_ORD_NO') /* 벽걸이주문번호 */, width: 200 },
+        sppBzsOrdId: { label: t('MSG_TXT_ORD_NO') /* 주문번호 */, width: 200, required: true },
+        notUse3: { label: t('MSG_TXT_UNUITM') /* 특이사항 */, width: 200 },
+        sppFshDt: { label: t('MSG_TXT_INST_DT'), width: 120, datetimeFormat: 'date', required: true },
+        pdctIdno: { label: t('MSG_TXT_SERIAL_NO'), width: 100, required: true },
+        notUse4: { label: t('MSG_TXT_RSV_DATE') /* 예약일 */, width: 120, datetimeFormat: 'date' },
+        notUse5: { label: t('MSG_TXT_STOCK_DT') /* 재고입고일 */, width: 120, datetimeFormat: 'date' },
+        notUse6: { label: t('MSG_TXT_INST_CLS') /* 설치구분 */, width: 100 },
+        sppBzsModelId: { label: t('MSG_TXT_SPP_BIZ_MODEL'), width: 200, required: true },
+      },
+    },
+  });
+
+  const { list } = payload;
+
+  if (result) {
+    const response = await dataService.post('/sms/wells/contract/sales-status/sec-product-management/confirm-days/excel-upload', list);
+    if (response.data?.processCount > 0) {
+      fetchPage();
+    }
+  }
+}
+
+async function onClickExcelDownload() {
+  const exportData = await dataService.get('/sms/wells/contract/sales-status/sec-product-management/confirm-days', { params: cachedParams });
+  await gridUtil.exportView(grdView.value, {
+    fileName: router.currentRoute?.value.meta?.menuName,
+    timePostfix: true,
+    exportData,
+  });
+}
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
-const initGrdMain = defineGrid((data, view) => {
-  const fields = [
-    { fieldName: 'col1' },
-    { fieldName: 'col2' },
-    { fieldName: 'col3' },
-    { fieldName: 'col4' },
-    { fieldName: 'col5' },
-    { fieldName: 'col6' },
-    { fieldName: 'col7' },
-    { fieldName: 'col8' },
-    { fieldName: 'col9' },
-    { fieldName: 'col10' },
-    { fieldName: 'col11' },
-    { fieldName: 'col12' },
-    { fieldName: 'col13' },
-    { fieldName: 'col14' },
-  ];
-
-  const columns = [
-    { fieldName: 'col1', header: t('MSG_TXT_CNTR_NO'), width: '137', styleName: 'text-center' },
-    { fieldName: 'col2', header: t('MSG_TXT_CNTOR_NM'), width: '136', styleName: 'text-center' },
-    { fieldName: 'col3', header: t('MSG_TXT_ORD_TYP'), width: '136', styleName: 'text-center' },
-    { fieldName: 'col4', header: t('MSG_TXT_PRDT_NM'), width: '253' },
-    { fieldName: 'col5', header: t('MSG_TXT_PRDT_CODE'), width: '168', styleName: 'text-center' },
-    { fieldName: 'col6', header: t('MSG_TXT_SM_ORD_NO'), width: '168', styleName: 'text-center' },
-    { fieldName: 'col7', header: t('MSG_TXT_INST_DT'), width: '136', styleName: 'text-center' },
-    { fieldName: 'col8', header: t('MSG_TXT_CNT_CD'), width: '136', styleName: 'text-center' },
-    { fieldName: 'col9', header: t('MSG_TXT_CAN_D'), width: '136', styleName: 'text-center' },
-    { fieldName: 'col10', header: t('MSG_TXT_SERIAL_NO'), width: '152', styleName: 'text-center' },
-    { fieldName: 'col11', header: t('MSG_TXT_SM_MOD_NO'), width: '152', styleName: 'text-center' },
-    { fieldName: 'col12', header: t('MSG_TXT_EXL_UPL_DT'), width: '170', styleName: 'text-center' },
-    { fieldName: 'col13', header: t('MSG_TXT_BAT_EXEC_DT'), width: '170', styleName: 'text-center' },
-    { fieldName: 'col14', header: t('MSG_TXT_REG_NON_PMT'), width: '146.8', styleName: 'text-center' },
-  ];
-
-  data.setFields(fields);
-  view.setColumns(columns);
-
-  view.checkBar.visible = false;
-  view.rowIndicator.visible = true;
-
-  data.setRows([
-    { col1: '1234-1234567', col2: '김고객', col3: '렌탈', col4: '비스포크냉장고코타화이트', col5: '1234', col6: '1234567890', col7: '2022-10-05', col8: '(01)성공OK', col9: '-', col10: 'QX3F5AET900171', col11: 'DV17B8720BP', col12: '2022-10-01 09:23:10', col13: '2022-10-01 12:23:10', col14: 'Y' },
-  ]);
-});
-
-const initGrdUploadPrev = defineGrid((data, view) => {
-  const fields = [
-    { fieldName: 'col1' },
-    { fieldName: 'col2' },
-    { fieldName: 'col3' },
-    { fieldName: 'col4' },
-    { fieldName: 'col5' },
-    { fieldName: 'col6' },
-    { fieldName: 'col7' },
-    { fieldName: 'col8' },
-    { fieldName: 'col9' },
-    { fieldName: 'col10' },
-  ];
-
-  const columns = [
-    { fieldName: 'col1', header: t('MSG_TXT_CNTR_NO'), width: '137', styleName: 'text-center' },
-    { fieldName: 'col2', header: t('MSG_TXT_WALL_MNT_ORD_NO'), width: '148', styleName: 'text-center' },
-    { fieldName: 'col3', header: t('MSG_TXT_ORD_NO'), width: '148', styleName: 'text-center' },
-    { fieldName: 'col4', header: t('MSG_TXT_UNUITM'), width: '200' },
-    { fieldName: 'col5', header: t('MSG_TXT_INST_DT'), width: '136', styleName: 'text-center' },
-    { fieldName: 'col6', header: t('MSG_TXT_SERIAL_NO'), width: '152', styleName: 'text-center' },
-    { fieldName: 'col7', header: t('MSG_TXT_RSV_DATE'), width: '136', styleName: 'text-center' },
-    { fieldName: 'col8', header: t('MSG_TXT_STOCK_DT'), width: '136', styleName: 'text-center' },
-    { fieldName: 'col9', header: t('MSG_TXT_INST_CLS'), width: '136', styleName: 'text-center' },
-    { fieldName: 'col10', header: t('MSG_TXT_SM_SRV_MOD_NM'), width: '166', styleName: 'text-center' },
-  ];
-
-  data.setFields(fields);
-  view.setColumns(columns);
+const initGrd = defineGrid((data, view) => {
+  useGridDataModel(view, {
+    cntrNo: { displaying: false },
+    cntrSn: { displaying: false },
+    cntrNoSn: {
+      label: t('MSG_TXT_CNTR_DTL_NO'), /* 계약상세번호 */
+      width: 137,
+      valueExpression: 'values["cntrNo"] + "-" + values["cntrSn"]',
+      classes: 'text-center',
+    },
+    rcgvpKnm: { label: t('MSG_TXT_CNTOR_NM') /* 계약자명 */, width: 136, classes: 'text-center' },
+    sellTpCd: { label: t('MSG_TXT_ORD_TYP') /* 주문유형 */, width: 136, options: codes.SELL_TP_CD },
+    pdNm: { label: t('MSG_TXT_PRDT_NM') /* 상품명 */, width: 253 },
+    pdCd: { label: t('MSG_TXT_PRDT_CODE') /* 상품코드 */, width: 168, classes: 'text-center' },
+    sppBzsOrdId: { label: t('MSG_TXT_SM_ORD_NO') /* 삼성주문번호 */, width: 168, classes: 'text-center' },
+    sppFshDt: { label: t('MSG_TXT_INST_DT') /* 설치일 FIXME: 실제론 배송완료일시 */, width: 136, datetimeFormat: 'date' },
+    cttRsCd: {
+      label: t('MSG_TXT_CNT_CD'), /* 컨택코드 */
+      width: 136,
+      classes: 'text-center',
+      displaying: (val) => {
+        const code = codes.LC_CTT_RS_CD.find((c) => c.codeId === val);
+        if (!code) { return ''; }
+        return `(${code.codeId})${code.codeName}`;
+      },
+    },
+    canDt: { label: t('MSG_TXT_CAN_D') /* 취소일 */, width: 136, classes: 'text-center' },
+    pdctIdno: { label: t('MSG_TXT_SERIAL_NO') /* 시리얼번호 */, width: 152, classes: 'text-center' },
+    sppBzsModelId: { label: t('MSG_TXT_SM_MOD_NO') /* 삼성모델명 */, width: 152, classes: 'text-center' },
+    sppFshRgstDtm: { label: t('MSG_TXT_EXL_UPL_DT'), /* FIXME: 실제론 배송완료등록일시 */ width: 170, datetimeFormat: 'datetime' },
+    batWkFshDtm: { label: t('MSG_TXT_BAT_EXEC_DT'), width: 170, datetimeFormat: 'datetime' },
+    rgstFeeFlpymYn: { label: t('MSG_TXT_REG_NON_PMT'), width: 146.8, classes: 'text-center' },
+  });
 
   view.rowIndicator.visible = true;
-
-  data.setRows([
-    { col1: '1234-1234567', col2: '-', col3: '1234567890', col4: '특이사항내용이 들어감..', col5: '2022-10-05', col6: '003F5AET900171', col7: '2022-10-05', col8: '2022-10-05', col9: '-', col10: '-' },
-  ]);
+  view.setFixedOptions({
+    colCount: 3,
+  });
 });
+
+onClickSearch();
+
 </script>
 <style scoped>
 </style>

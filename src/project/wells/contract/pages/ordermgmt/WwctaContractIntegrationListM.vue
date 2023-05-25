@@ -46,8 +46,7 @@
           <kw-select
             v-model="searchParams.prtnrDv"
             :options="[{ codeId: '1', codeName: t('MSG_TXT_EPNO') },
-                       { codeId: '2', codeName: t('MSG_TXT_EMPL_NM') },
-                       { codeId: '3', codeName: t('MSG_TXT_DEPT_CD') }]"
+                       { codeId: '2', codeName: t('MSG_TXT_DEPT_CD') }]"
             @change="onChangePrtnrSeltDv"
           />
           <!-- 인사사원번호(사번) -->
@@ -59,13 +58,6 @@
             :placeholder="t('MSG_TXT_INP')"
             :maxlength="10"
             @click-icon="onClickSearchPrtnrNoPopup()"
-          />
-          <!-- 성명 -->
-          <kw-input
-            v-if="isSearchPrtnrKnmVisible"
-            v-model="searchParams.prtnrKnm"
-            :placeholder="t('MSG_TXT_INP')"
-            :maxlength="50"
           />
           <!-- 부서코드 -->
           <kw-input
@@ -205,10 +197,9 @@ const searchParams = ref({
   cntrCnfmStrtDtm: now.startOf('month').format('YYYYMMDD'), // 계약확정시작일시
   cntrCnfmFinsDtm: now.format('YYYYMMDD'), // 계약확정종료일시
   plarDv: '', // 플래너구분(판매자/관리자)
-  prtnrDv: '3', // 파트너내역구분(사번/성명/부서코드)
+  prtnrDv: '2', // 파트너내역구분(사번/부서코드)
   hmnrscEmpno: '', // 인사사원번호
   ogTpCd: '', // 조직유형코드
-  prtnrKnm: '', // 성명
   ogCd: '', // 부서코드(조직코드)
   cntrCstSeltDv: '1', // 고객선택구분
   cntrCstNo: '', // 고객번호(세이프키)
@@ -240,7 +231,6 @@ const pageInfo = ref({
 const grdMainRef = ref(getComponentType('KwGrid'));
 
 const isSearchHmnrscEmpnoVisible = ref(false); // 플래너(인사사원번호)
-const isSearchPrtnrKnmVisible = ref(false); // 플래너(성명)
 const isSearchOgCdVisible = ref(true); // 플래너(부서코드)
 
 const isSearchCstKnmVisible = ref(true); // 고객선택(고객명)
@@ -284,7 +274,6 @@ async function onClickReset() {
   searchParams.value.ogCd = ''; // 부서코드(조직코드)
 
   isSearchHmnrscEmpnoVisible.value = false;
-  isSearchPrtnrKnmVisible.value = false;
   isSearchOgCdVisible.value = true;
 
   searchParams.value.cntrCstSeltDv = '1'; // 고객선택
@@ -344,22 +333,12 @@ async function onChangePrtnrSeltDv() {
   // console.log(`prtnrDv : ${searchParams.value.prtnrDv}`);
   if (searchParams.value.prtnrDv === '1') { // 인사사원번호
     isSearchHmnrscEmpnoVisible.value = true;
-    isSearchPrtnrKnmVisible.value = false;
     isSearchOgCdVisible.value = false;
 
     searchParams.value.prtnrKnm = ''; // 성명
     searchParams.value.ogCd = ''; // 부서코드(조직코드)
-  } else if (searchParams.value.prtnrDv === '2') { // 성명
+  } else if (searchParams.value.prtnrDv === '2') { // 부서코드(조직코드)
     isSearchHmnrscEmpnoVisible.value = false;
-    isSearchPrtnrKnmVisible.value = true;
-    isSearchOgCdVisible.value = false;
-
-    searchParams.value.hmnrscEmpno = ''; // 인사사원번호
-    searchParams.value.ogTpCd = ''; // 조직유형코드
-    searchParams.value.ogCd = ''; // 부서코드(조직코드)
-  } else if (searchParams.value.prtnrDv === '3') { // 부서코드(조직코드)
-    isSearchHmnrscEmpnoVisible.value = false;
-    isSearchPrtnrKnmVisible.value = false;
     isSearchOgCdVisible.value = true;
 
     searchParams.value.hmnrscEmpno = ''; // 인사사원번호
@@ -367,7 +346,6 @@ async function onChangePrtnrSeltDv() {
     searchParams.value.prtnrKnm = ''; // 성명
   } else {
     isSearchHmnrscEmpnoVisible.value = false;
-    isSearchPrtnrKnmVisible.value = false;
     isSearchOgCdVisible.value = false;
 
     searchParams.value.hmnrscEmpno = ''; // 인사사원번호

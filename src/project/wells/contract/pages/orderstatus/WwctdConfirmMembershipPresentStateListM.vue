@@ -87,20 +87,27 @@
       <kw-action-top>
         <template #left>
           <kw-paging-info
-            :total-count="7000"
+            v-model:page-index="pageInfo.pageIndex"
+            v-model:page-size="pageInfo.pageSize"
+            :total-count="pageInfo.totalCount"
+            :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
+            @change="fetchData"
           />
         </template>
         <kw-btn
           icon="download_on"
+          :disable="pageInfo.totalCount === 0"
           dense
           secondary
           :label="$t('MSG_BTN_EXCEL_DOWN')"
+          @click="onClickExcelDownload"
         />
       </kw-action-top>
       <kw-grid
         ref="grdMainRef"
         name="grdMain"
-        :visible-rows="2"
+        :page-size="pageInfo.pageSize"
+        :total-count="pageInfo.totalCount"
         @init="initGrdMain"
       />
     </div>
@@ -111,14 +118,42 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { defineGrid, getComponentType } from 'kw-lib';
+import { defineGrid, getComponentType, useMeta, useDataService, gridUtil, codeUtil } from 'kw-lib';
+
+const { getConfig } = useMeta();
 
 const { t } = useI18n();
+const pageInfo = ref({
+  totalCount: 0,
+  pageIndex: 1,
+  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
+});
+const grdMainRef = ref(getComponentType('KwGrid'));
+const dataService = useDataService();
+const { currentRoute } = useRouter();
+let cachedParams;
+const codes = await codeUtil.getMultiCodes(
+  'COD_PAGE_SIZE_OPTIONS',
+);
+
+// -------------------------------------------------------------------------------------------------
+// Function & Event
+// -------------------------------------------------------------------------------------------------
+
+async function onClickExcelDownload() {
+  const view = grdMainRef.value.getView();
+
+  const res = await dataService.get('/sms/edu/contract/high-risk-partners/excel-download', { params: cachedParams });
+  await gridUtil.exportView(view, {
+    fileName: currentRoute.value.meta.menuName,
+    timePostfix: true,
+    exportData: res.data,
+  });
+}
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
-const grdMainRef = ref(getComponentType('KwGrid'));
 
 const initGrdMain = defineGrid((data, view) => {
   const fields = [

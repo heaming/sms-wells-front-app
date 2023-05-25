@@ -54,10 +54,10 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { gridUtil, useGlobal, getComponentType } from 'kw-lib';
+import { gridUtil, stringUtil, useGlobal, getComponentType } from 'kw-lib';
 import { isEmpty } from 'lodash-es';
 import pdConst from '~sms-common/product/constants/pdConst';
-import { getAlreadyItems, getGridRowCount } from '~sms-common/product/utils/pdUtil';
+import { getAlreadyItems, getGridRowCount, setPdGridRows } from '~sms-common/product/utils/pdUtil';
 
 /* eslint-disable no-use-before-define */
 defineExpose({
@@ -125,7 +125,10 @@ async function insertCallbackRows(view, rtn, pdRelTpCd) {
     if (Array.isArray(rtn.payload) && rtn.payload.length > 1) {
       const data = view.getDataSource();
       const rows = rtn.payload.map((item) => ({
-        ...item, [pdConst.REL_OJ_PD_CD]: item.pdCd, [pdConst.PD_REL_TP_CD]: pdRelTpCd }));
+        ...item,
+        [pdConst.REL_PD_ID]: stringUtil.getUid('REL_TMP'),
+        [pdConst.REL_OJ_PD_CD]: item.pdCd,
+        [pdConst.PD_REL_TP_CD]: pdRelTpCd }));
       const okRows = await getCheckAndNotExistRows(view, rows);
       if (okRows && okRows.length) {
         await data.insertRows(0, okRows);
@@ -133,6 +136,7 @@ async function insertCallbackRows(view, rtn, pdRelTpCd) {
       }
     } else {
       const row = Array.isArray(rtn.payload) ? rtn.payload[0] : rtn.payload;
+      row[pdConst.REL_PD_ID] = stringUtil.getUid('REL_TMP');
       row[pdConst.PD_REL_TP_CD] = pdRelTpCd;
       row[pdConst.REL_OJ_PD_CD] = row.pdCd;
       const okRows = await getCheckAndNotExistRows(view, [row]);
@@ -199,10 +203,9 @@ async function initGridRows() {
   }
   const changeView = grdChangePrdRef.value?.getView();
   if (changeView) {
-    changeView.getDataSource().clearRows();
     const changeRows = products
       ?.filter((item) => item[pdConst.PD_REL_TP_CD] === pdConst.PD_REL_TP_CD_CHANGE);
-    changeView.getDataSource().setRows(changeRows);
+    await setPdGridRows(changeView, changeRows, pdConst.REL_PD_ID, [], true);
   }
   grdChangeRowCount.value = getGridRowCount(changeView);
 }
