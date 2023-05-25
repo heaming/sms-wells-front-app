@@ -175,8 +175,8 @@ let cachedParams;
 
 const searchParams = ref({
   srchGbn: '', // 조회구분
-  srchDateGbn: '1', // 조회기간구분
-  strtdt: '20230210', // now.format('YYYYMM01'), // 조회기간시작
+  srchDateGbn: '', // 조회기간구분
+  strtdt: now.format('YYYYMM01'), // 조회기간시작
   enddt: now.format('YYYYMMDD'), // 조회기간끝
   bzrno: '', // 사업자번호
   leadCstNm: '', // 업체명
