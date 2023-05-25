@@ -59,7 +59,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { defineGrid, getComponentType, useMeta, gridUtil, codeUtil } from 'kw-lib';
+import { defineGrid, getComponentType, useMeta } from 'kw-lib';
 
 const { t } = useI18n();
 const { getConfig } = useMeta();
@@ -70,22 +70,10 @@ const pageInfo = ref({
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
 });
 const grdMainRef = ref(getComponentType('KwGrid'));
-const { currentRoute } = useRouter();
-const codes = await codeUtil.getMultiCodes(
-  'COD_PAGE_SIZE_OPTIONS',
-);
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
-
-async function onClickExcelDownload() {
-  const view = grdMainRef.value.getView();
-  await gridUtil.exportView(view, {
-    fileName: currentRoute.value.meta.menuName,
-    timePostfix: true,
-  });
-}
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
