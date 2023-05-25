@@ -175,8 +175,6 @@ const codes = await codeUtil.getMultiCodes(
   'EGER_ROL_CD',
 );
 
-const organizations = ref([]);
-
 const pageInfo = ref({
   totalCount: 0,
   pageIndex: 1,
@@ -224,17 +222,6 @@ const layouts = computed(() => {
     'cltnDt',
   ];
 });
-
-async function fetchOrganizations() {
-  return await dataService.get('/sms/wells/service/human-resources/organizations');
-}
-
-async function getOrganizations() {
-  const res = await fetchOrganizations();
-  organizations.value = res.data;
-}
-
-await getOrganizations();
 
 async function fetchHumanResourcesPages(params) {
   return await dataService.get('/sms/wells/service/human-resources/paging', params);
