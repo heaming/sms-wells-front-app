@@ -58,7 +58,10 @@
         <template #left>
           <kw-paging-info
             v-model:page-index="pageInfo.pageIndex"
+            v-model:page-size="pageInfo.pageSize"
             :total-count="pageInfo.totalCount"
+            :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
+            @change="fetchData"
           />
         </template>
 
@@ -93,6 +96,13 @@
         :visible-rows="pageInfo.pageSize"
         @init="initGrdMain"
       />
+
+      <kw-pagination
+        v-model:page-index="pageInfo.pageIndex"
+        v-model:page-size="pageInfo.pageSize"
+        :total-count="pageInfo.totalCount"
+        @change="fetchData"
+      />
     </div>
   </kw-page>
 </template>
@@ -104,6 +114,7 @@
 import { codeUtil, defineGrid, getComponentType, gridUtil, useDataService, useMeta } from 'kw-lib';
 import useSnCode from '~sms-wells/service/composables/useSnCode';
 import dayjs from 'dayjs';
+import { cloneDeep } from 'lodash-es';
 
 const { getServiceCenterOrgs } = useSnCode();
 
@@ -118,6 +129,7 @@ const { getConfig } = useMeta();
 // -------------------------------------------------------------------------------------------------
 const grdMainRef = ref(getComponentType('KwGrid'));
 
+let cachedParams;
 const searchParams = ref({
   ogId: '',
   wkExcnDtFrom: dayjs().format('YYYYMM').concat('01'),
@@ -128,6 +140,7 @@ const searchParams = ref({
 
 const pageInfo = ref({
   totalCount: 0,
+  pageIndex: 1,
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
 });
 
@@ -141,40 +154,41 @@ const filters = codes.PD_GRP_CD.map((v) => ({ name: v.codeId, criteria: `value =
 
 function onUpdateProductGroupCode(val) {
   const view = grdMainRef.value.getView();
-  view.activateAllColumnFilters('siteAwPdGrpCd', false);
+  view.activateAllColumnFilters('svpdItemGr', false);
 
-  if (val === '') {
-    pageInfo.value.totalCount = view.getItemCount();
-    return;
-  }
+  // if (val === '') {
+  //   pageInfo.value.totalCount = view.getItemCount();
+  //   return;
+  // }
 
-  view.activateColumnFilters('siteAwPdGrpCd', [val], true);
-  pageInfo.value.totalCount = view.getItemCount();
+  view.activateColumnFilters('svpdItemGr', [val], true);
+  // pageInfo.value.totalCount = view.getItemCount(); // 상품군에 따른 총건수 필터링
 }
 
 async function fetchData() {
-  const res = await dataService.get('/sms/wells/service/as-visit-state/product-services', { params: searchParams.value });
+  const res = await dataService.get('/sms/wells/service/as-visit-state/product-services/paging', { params: { ...cachedParams, ...pageInfo.value } });
+  const { list: services, pageInfo: pagingResult } = res.data;
 
-  pageInfo.value.totalCount = res.data.length;
-
+  pageInfo.value = pagingResult;
   const view = grdMainRef.value.getView();
-  view.getDataSource().setRows(res.data);
-  view.resetCurrent();
+  view.getDataSource().setRows(services);
 
   searchParams.value.pdGrpCd = '';
 
-  view.autoFiltersRefresh('siteAwPdGrpCd', false);
-  view.setColumnFilters('siteAwPdGrpCd', filters, true);
+  view.autoFiltersRefresh('svpdItemGr', false);
+  view.setColumnFilters('svpdItemGr', filters, true);
 }
 
 async function onClickSearch() {
+  pageInfo.value.pageIndex = 1;
+  cachedParams = cloneDeep(searchParams.value);
   await fetchData();
 }
 
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
 
-  const res = await dataService.get('/sms/wells/service/as-visit-state/product-services', { params: searchParams.value });
+  const res = await dataService.get('/sms/wells/service/as-visit-state/product-services/paging', { params: { ...cachedParams, ...pageInfo.value } });
 
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
@@ -192,7 +206,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'pdCd' },
     { fieldName: 'pdNm' },
     { fieldName: 'cntt', dataType: 'number' },
-    { fieldName: 'siteAwPdGrpCd' },
+    { fieldName: 'svpdItemGr' },
     { fieldName: 'cnt1110', dataType: 'number' },
     { fieldName: 'cnt1111', dataType: 'number' },
     { fieldName: 'cnt1122', dataType: 'number' },
@@ -225,7 +239,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'pdCd', header: t('MSG_TXT_PRDT_CODE'), width: '150', styleName: 'text-center' },
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '200' },
     { fieldName: 'cntt', header: t('MSG_TXT_TOT_SUM'), width: '96', styleName: 'text-right', footer: { text: t('MSG_TXT_SUM'), expression: 'sum' } },
-    { fieldName: 'siteAwPdGrpCd', header: t('MSG_TXT_PD_DV_CD'), width: '150', visible: false, autoFilter: false },
+    { fieldName: 'svpdItemGr', header: t('MSG_TXT_PD_DV_CD'), width: '150', visible: false, autoFilter: false },
     { fieldName: 'cnt1110', header: t('MSG_TXT_NW_IST'), width: '96', styleName: 'text-right', footer: { text: t('MSG_TXT_SUM'), expression: 'sum' } },
     { fieldName: 'cnt1111', header: t('MSG_TXT_IST_REQD'), width: '96', styleName: 'text-right', footer: { text: t('MSG_TXT_SUM'), expression: 'sum' } },
     { fieldName: 'cnt1122', header: t('MSG_TXT_MYCO_NCLT'), width: '96', styleName: 'text-right', footer: { text: t('MSG_TXT_SUM'), expression: 'sum' } },
@@ -260,7 +274,7 @@ const initGrdMain = defineGrid((data, view) => {
     {
       header: t('MSG_TXT_DIV'), // 구분
       direction: 'horizontal',
-      items: [{ column: 'sapMatCd', footerUserSpans: [{ colspan: 3 }] }, 'pdCd', 'pdNm', 'siteAwPdGrpCd'],
+      items: [{ column: 'sapMatCd', footerUserSpans: [{ colspan: 3 }] }, 'pdCd', 'pdNm', 'svpdItemGr'],
     },
     'cntt',
     {
