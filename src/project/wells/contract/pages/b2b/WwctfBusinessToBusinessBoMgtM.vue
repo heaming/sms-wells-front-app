@@ -398,7 +398,7 @@ const initBusinessToBusinessBoList = defineGrid((data, view) => {
     { fieldName: 'totQty', header: t('MSG_TXT_TOT_QTY'), width: '127', styleName: 'text-center', editable: false }, // 총 수량
     { fieldName: 'wrfrQty', header: t('MSG_TXT_WRFR'), width: '142', styleName: 'text-center', editable: false }, // 정수기
     { fieldName: 'arcleQty', header: t('MSG_TXT_PUF'), width: '142', styleName: 'text-center', editable: false }, // 청정기
-    { fieldName: 'bdtQty', header: t('MSG_TXT_PUF'), width: '142', styleName: 'text-center', editable: false }, // 비데
+    { fieldName: 'bdtQty', header: t('MSG_TXT_BDT'), width: '142', styleName: 'text-center', editable: false }, // 비데
     { fieldName: 'etcQty', header: t('MSG_TXT_ETC'), width: '142', styleName: 'text-center', editable: false }, // 기타
     { fieldName: 'etRcvodQty',
       header: `${t('MSG_BTN_ET')}${t('MSG_TXT_QTY')}`,
@@ -440,7 +440,7 @@ const initBusinessToBusinessBoList = defineGrid((data, view) => {
     { fieldName: 'maxStplPtrm', header: t('MSG_TXT_DUTY_STPL'), width: '142', styleName: 'text-center', editable: false }, // 의무약정
     { fieldName: 'biddBzsNm', header: `${t('MSG_TXT_BID')}${t('MSG_TXT_COMP')}`, width: '142', styleName: 'text-center' }, // 입찰업체
     { fieldName: 'unuitmCn', header: t('MSG_TXT_UNUITM'), width: '424' }, // 특이사항
-    { fieldName: 'fnlMdfcDt', header: t('MSG_TXT_FNL_MDFC_DT'), width: '142', styleName: 'text-center', editable: false }, // 최종수정일자
+    { fieldName: 'fnlMdfcDt', header: t('MSG_TXT_FNL_MDFC_DT'), width: '142', styleName: 'text-center', editable: false, datetimeFormat: 'date' }, // 최종수정일자
 
   ];
 
@@ -522,10 +522,18 @@ const initBusinessToBusinessBoList = defineGrid((data, view) => {
   view.setFixedOptions({
     colCount: 6,
   });
-  view.onCellDblClicked = (grid, clickData) => {
-    notify('팝업 준비중 입니다.');
-    console.log(grid);
-    console.log(clickData);
+  view.onCellDblClicked = async (g, { itemIndex }) => {
+    const rowValue = gridUtil.getRowValue(g, itemIndex);
+    const { result } = await modal({
+      // TODO: 요청자재보유현황 팝업페이지 연결확인
+      component: 'WwctfBusinessToBusinessBoDtlP',
+      componentProps: {
+        opptId: rowValue.opptId,
+      },
+    });
+    if (result) {
+      await fetchData();
+    }
   };
 });
 </script>
