@@ -524,15 +524,19 @@ const initBusinessToBusinessBoList = defineGrid((data, view) => {
   });
   view.onCellDblClicked = async (g, { itemIndex }) => {
     const rowValue = gridUtil.getRowValue(g, itemIndex);
-    const { result } = await modal({
+    if (isEmpty(rowValue.opptId)) {
+      notify(t('MSG_ALT_NOT_DTL_INFO'));
+    } else {
+      const { result } = await modal({
       // TODO: 요청자재보유현황 팝업페이지 연결확인
-      component: 'WwctfBusinessToBusinessBoDtlP',
-      componentProps: {
-        opptId: rowValue.opptId,
-      },
-    });
-    if (result) {
-      await fetchData();
+        component: 'WwctfBusinessToBusinessBoDtlP',
+        componentProps: {
+          opptId: rowValue.opptId,
+        },
+      });
+      if (result) {
+        await fetchData();
+      }
     }
   };
 });
