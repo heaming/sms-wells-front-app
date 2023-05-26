@@ -228,6 +228,18 @@ async function getSaveData() {
   return subList;
 }
 
+// 화면이동
+async function moveStepByIndex(stepIndex) {
+  prevStepData.value = await getSaveData();
+  currentStep.value = cloneDeep(regSteps.value[stepIndex]);
+}
+
+// 화면이동 - 스텝명
+async function moveStepByName(stepName) {
+  prevStepData.value = await getSaveData();
+  currentStep.value = cloneDeep(regSteps.value.find((item) => item.name === stepName));
+}
+
 // 다음 버튼
 async function onClickNextStep() {
   const currentStepIndex = currentStep.value.step - 1;
@@ -243,21 +255,20 @@ async function onClickNextStep() {
   }
 
   // 다음 이동
-  prevStepData.value = await getSaveData();
-  currentStep.value = cloneDeep(regSteps.value[(currentStep.value.step - 1) + 1]);
+  await moveStepByIndex(currentStepIndex + 1);
   passedStep.value = currentStep.value.step;
 }
 
 // 이전 버튼
 async function onClickPrevStep() {
-  currentStep.value = cloneDeep(regSteps.value[(currentStep.value.step - 1) - 1]);
+  const currentStepIndex = currentStep.value.step - 1;
+  await moveStepByIndex(currentStepIndex - 1);
 }
 
 // Stepper 클릭
 async function onClickStep() {
   const stepName = currentStep.value?.name;
-  prevStepData.value = await getSaveData();
-  currentStep.value = cloneDeep(regSteps.value.find((item) => item.name === stepName));
+  await moveStepByName(stepName);
 }
 
 // 취소 버튼
@@ -312,9 +323,9 @@ async function onClickSave(tempSaveYn) {
   // 2. Step별 필수여부 확인
   let isValidOk = true;
   await Promise.all(cmpStepRefs.value.map(async (item, idx) => {
-    if (!await item.value.validateProps()) {
+    if (isValidOk && !await item.value.validateProps()) {
       isValidOk = false;
-      currentStep.value = cloneDeep(regSteps.value[idx]);
+      await moveStepByIndex(idx);
     }
   }));
   if (!isValidOk) {
