@@ -105,6 +105,7 @@
           <kw-paging-info
             v-model:page-index="pageInfo.pageIndex"
             v-model:page-size="pageInfo.pageSize"
+            :total-count="pageInfo.totalCount"
             :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
             @change="fetchData"
           />
@@ -119,9 +120,10 @@
           icon="download_on"
           dense
           secondary
+          :disable="pageInfo.totalCount === 0"
           :label="$t('MSG_TXT_EXCEL_DOWNLOAD')"
           @click="onClickExcelDownload"
-        /><!-- :disable="totalCount === 0" --><!--엑셀다운로드-->
+        />
         <kw-separator
           spaced
           vertical
@@ -144,7 +146,18 @@
           vertical
           inset
         />
-        <kw-select
+        <kw-input
+          ref="tfPrtnrKnmRef"
+          v-model="updatePartnerObj.tfPrtnrKnm"
+          readonly
+          class="w110"
+          icon="search_24"
+          rules="required"
+          :label="$t('MSG_TXT_BLG')"
+          :placeholder="$t('MSG_TXT_BLG_SLCT')"
+          @click-icon="onClickIconPrtnrNoSearchPopup"
+        />
+        <!-- <kw-select
           ref="refTfOgId"
           v-model="updatePartnerObj.tfOgId"
           :options="organizationOptions"
@@ -158,7 +171,7 @@
           dense
           class="w110"
           @change="onChangeTfOgId"
-        /><!--소속 선택, 소속-->
+        />
         <kw-select
           ref="refTfPrtnrNo"
           v-model="updatePartnerObj.tfPrtnrNo"
@@ -172,9 +185,9 @@
           :label="$t('MSG_TXT_EMPL_NM')"
           dense
           class="w110"
-        /><!--성명 선택, 성명-->
+        /> -->
         <kw-select
-          ref="refTfAkRsonCd"
+          ref="tfAkRsonCdRef"
           v-model="updatePartnerObj.tfAkRsonCd"
           :options="codes.TF_AK_RSON_CD"
           first-option
@@ -226,7 +239,7 @@ import dayjs from 'dayjs';
 const now = dayjs();
 const dataService = useDataService();
 const { getConfig } = useMeta();
-const { notify } = useGlobal();
+const { notify, modal, alert } = useGlobal();
 const { t } = useI18n();
 const { currentRoute } = useRouter();
 
@@ -239,9 +252,8 @@ const codes = await codeUtil.getMultiCodes(
   'TF_AK_RSON_CD',
 );
 
-const refTfOgId = ref();
-const refTfPrtnrNo = ref();
-const refTfAkRsonCd = ref();
+const tfPrtnrKnmRef = ref();
+const tfAkRsonCdRef = ref();
 
 const grdMainRef = ref(getComponentType('KwGrid'));
 
@@ -261,7 +273,6 @@ const pageInfo = ref({
   totalCount: 0,
   pageIndex: 1,
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
-  needTotalCount: false,
 });
 
 async function fetchData() {
@@ -271,10 +282,10 @@ async function fetchData() {
 
   list.forEach((row) => { // 전화번호, 휴대전화번호 조합
     const { locaraTno, exnoEncr, idvTno } = row;
-    row.tno = `${locaraTno}-${exnoEncr}-${idvTno}`; // 전화번호
+    row.tno = locaraTno ? `${locaraTno}-${exnoEncr}-${idvTno}` : ''; // 전화번호
 
     const { cralLocaraTno, mexnoEncr, cralIdvTno } = row;
-    row.mobileTno = `${cralLocaraTno}-${mexnoEncr}-${cralIdvTno}`; // 휴대전화번호
+    row.mobileTno = cralLocaraTno ? `${cralLocaraTno}-${mexnoEncr}-${cralIdvTno}` : ''; // 휴대전화번호
   });
 
   const view = grdMainRef.value.getView();
@@ -313,23 +324,13 @@ async function onChangeOrganizationId() {
 const updatePartnerObj = ref({
   tfAkRsonCd: '', // 이관사유
   tfOgId: '', // 소속
+  tfOgNm: '',
   tfPrtnrNo: '', // 성명
+  tfPrtnrKnm: '',
 });
 
-const partnerOptionsForUpdatePartnerObj = ref([]);
-
-async function onChangeTfOgId() {
-  updatePartnerObj.value.tfPrtnrNo = '';
-
-  const ogId = updatePartnerObj.value.tfOgId;
-  const { data } = await dataService.get(`/sms/wells/service/before-service-period-customer/organizations/${ogId}/partners`);
-  partnerOptionsForUpdatePartnerObj.value = data;
-}
-
 async function onClickTf() {
-  if (!await refTfOgId.value.validate()
-  || !await refTfPrtnrNo.value.validate()
-  || !await refTfAkRsonCd.value.validate()) {
+  if (!await tfPrtnrKnmRef.value.validate() || !await tfAkRsonCdRef.value.validate()) {
     return;
   }
 
@@ -341,9 +342,7 @@ async function onClickTf() {
   }
   const data = view.getDataSource();
 
-  const tfOgNm = refTfOgId.value.getOptionLabel(updatePartnerObj.value.tfOgId);
-  const tfPrtnrKnm = refTfPrtnrNo.value.getOptionLabel(updatePartnerObj.value.tfPrtnrNo);
-  const { tfOgId, tfPrtnrNo, tfAkRsonCd } = updatePartnerObj.value;
+  const { tfOgId, tfPrtnrNo, tfAkRsonCd, tfOgNm, tfPrtnrKnm } = updatePartnerObj.value;
 
   data.beginUpdate();
   checkedRows.forEach((rowValue) => {
@@ -360,14 +359,17 @@ async function onClickTf() {
 
 function onClickTfHistory() {
   console.log('이관이력 조회 팝업(W-SV-U-0019P01)');
+  alert('이관이력 조회 팝업(W-SV-U-0019P01) WwsncTransferHistoryListP');
 }
 
 function onClickClientContactHistory() {
   console.log('고객 컨택이력 팝업(W-SV-U-0163P01)');
+  alert('고객 컨택이력 팝업(W-SV-U-0163P01) WwsncContactHistoryListP');
 }
 
 async function onClickTfConfirm() {
   console.log('이관 확정');
+  alert('이관 확정 로직 추가 필요');
 }
 
 async function onClickExcelDownload() {
@@ -376,6 +378,23 @@ async function onClickExcelDownload() {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
   });
+}
+
+async function onClickIconPrtnrNoSearchPopup() {
+  const { result, payload } = await modal({
+    component: 'WwsndHumanResourcesListP',
+    componentProps: {
+      mngrDvCd: '',
+      searchText: '',
+    },
+  });
+
+  if (result) {
+    updatePartnerObj.value.tfOgId = payload[0].ogId;
+    updatePartnerObj.value.tfOgNm = payload[0].ogNm;
+    updatePartnerObj.value.tfPrtnrNo = payload[0].prtnrNo;
+    updatePartnerObj.value.tfPrtnrKnm = payload[0].prtnrKnm;
+  }
 }
 
 // -------------------------------------------------------------------------------------------------
@@ -545,8 +564,8 @@ function initGrdMain(data, view) {
     if (column === 'cntrNo') {
       const cntrNo = g.getValue(itemIndex, 'cntrNo');
       console.log(cntrNo);
-
       console.log('개인별 서비스 현황 화면(W-SV-U-0072M01) 탭으로 호출');
+      alert('개인별 서비스 현황 화면(W-SV-U-0072M01) 탭으로 호출');
     }
   };
 }
