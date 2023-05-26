@@ -323,7 +323,7 @@ async function onClickNextStep() {
     if (nextStepRef && nextStepRef.resetFirstStep) {
       await nextStepRef.resetFirstStep();
     }
-    await moveStepByIndex(currentStepIndex + 1);
+    currentStep.value = cloneDeep(regSteps.value[currentStepIndex + 1]);
     passedStep.value = currentStep.value.step;
   }
 }
@@ -336,7 +336,7 @@ async function onClickPrevStep() {
   prevStepData.value = await getSaveData();
   const isMovedInnerStep = currentStepRef?.movePrevStep ? await currentStepRef?.movePrevStep() : false;
   if (!isMovedInnerStep) {
-    await moveStepByIndex(currentStepIndex - 1);
+    currentStep.value = cloneDeep(regSteps.value[currentStepIndex - 1]);
   }
 }
 

@@ -456,7 +456,7 @@ async function onClickPrevStep() {
   prevStepData.value = await getSaveData();
   const isMovedInnerStep = currentStepRef?.movePrevStep ? await currentStepRef?.movePrevStep() : false;
   if (!isMovedInnerStep) {
-    await moveStepByIndex(currentStepIndex - 1);
+    currentStep.value = cloneDeep(regSteps.value[currentStepIndex - 1]);
   }
 }
 
