@@ -3,13 +3,13 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : [CTA] 통합계약서 작성 Step3
-2. 프로그램 ID : EwctaContractRegistrationMgtMStep3
+2. 프로그램 ID : WwctaContractRegistrationMgtMStep3
 3. 작성자 : gs.piit159
-4. 작성일 : 2023.04.05
+4. 작성일 : 2023.05.26
 ****************************************************************************************************
 * 프로그램 설명
 ****************************************************************************************************
-- 통합계약서 작성 Step1
+- 통합계약서 작성 Step3
 ****************************************************************************************************
 --->
 <template>
@@ -17,383 +17,329 @@
     visible
     class="h490"
   >
-    <div class="pr40">
-      <h3 class="mt0">
-        {{ $t('MSG_TXT_SPP_INF') }}
-      </h3>
-
-      <kw-form :cols="2">
-        <kw-form-row>
-          <kw-form-item
-            :label="$t('MSG_TXT_RECIPIENT')"
-            required
-          >
-            <kw-input
-              v-model="step3.rcgvpKnm"
-              :label="$t('MSG_TXT_RECIPIENT')"
-              rules="required"
-              maxlength="100"
-            />
-          </kw-form-item>
-          <kw-form-item
-            :label="$t('MSG_TXT_MPNO')"
-            required
-          >
-            <zwcm-telephone-number
-              v-model:tel-no1="step3.cralLocaraTno"
-              v-model:tel-no2="step3.mexnoEncr"
-              v-model:tel-no3="step3.cralIdvTno"
-              required
-            />
-          </kw-form-item>
-        </kw-form-row>
-      </kw-form>
-      <kw-form
-        :cols="1"
-        class="mt16"
+    <template
+      v-for="(item, idx) in step3.dtls"
+      :key="idx"
+    >
+      <div
+        v-if="item.cntrSn === dtlSn"
+        class="pr20"
       >
-        <kw-form-row>
-          <kw-form-item
-            :label="$t('MSG_TXT_ADDR')"
-            required
-          >
-            <zwcm-post-code
-              v-model:zipCode="step3.zip"
-              v-model:add1="step3.adr"
-              v-model:add2="step3.adrDtl"
-              v-model:addKey="step3.adrId"
-              v-model:adrDvCd="step3.adrDvCd"
-              class="kw-grow"
-              readonly
-            />
-          </kw-form-item>
-        </kw-form-row>
-      </kw-form>
-      <kw-form
-        :cols="2"
-        class="mt16"
-      >
-        <kw-form-row>
-          <kw-form-item
-            :label="$t('MSG_TXT_SPP_HOP_DT')"
-            required
-          >
-            <kw-date-picker
-              v-model="step3.sppDuedt"
-              :label="$t('MSG_TXT_SPP_HOP_DT')"
-              rules="required"
-              class="w160"
-            />
-            <kw-select
-              v-model="step3.sppMthdTpCd"
-              :options="codes.SPP_MTHD_TP_CD.filter((v) => ['1', '2'].includes(v.codeId))"
-            />
-          </kw-form-item>
-          <kw-form-item
-            :label="$t('MSG_TXT_REL_CNTRT')"
-            required
-          >
-            <kw-select
-              v-model="step3.cntrtRelCd"
-              :label="$t('MSG_TXT_REL_CNTRT')"
-              :options="codes.CNTRT_REL_CD"
-            />
-          </kw-form-item>
-        </kw-form-row>
-      </kw-form>
-      <kw-separator />
+        <div class="row justify-between">
+          <div class="row items-center">
+            <h3 class="my0">
+              렌탈
+              <kw-separator
+                spaced
+                vertical
+                class="mx12 my5"
+              />
+              웰스정수기(KW-P27)
+              <kw-separator
+                spaced
+                vertical
+                class="mx12 my5"
+              />
+              W2022-1234567
+            </h3>
+          </div>
+          <div class="row items-center">
+            <p class="kw-fc--primary kw-font-subtitle">
+              월 9,000원(36개월)
+            </p>
 
-      <h3>{{ $t('MSG_TXT_STLM_INF') }}</h3>
+            <div class="row items-center ml20">
+              <kw-btn
+                icon="arrow_left_24"
+                borderless
+                class="kw-font-pt24"
+                @click="onClickPrevDtlSn"
+              />
+              <p class="kw-font-pt18 kw-fc--black1 mx4">
+                <span>{{ dtlSn }}</span>
+                <span class="kw-fc--placeholder">/{{ step3.dtls.length }}</span>
+              </p>
+              <kw-btn
+                icon="arrow_right_24"
+                borderless
+                class="kw-font-pt24"
+                @click="onClickNextDtlSn"
+              />
+            </div>
+          </div>
+        </div>
 
-      <kw-form :cols="2">
-        <kw-form-row>
-          <kw-form-item
-            :label="$t('MSG_TXT_PMT_TYP')"
-          >
-            <kw-option-group
-              v-model="step3.stlmTpCd"
-              type="radio"
-              :options="codes.STLM_TP_CD"
-            />
-          </kw-form-item>
-          <kw-form-item
-            v-if="'10' === step3.stlmTpCd"
-            :label="$t('MSG_TXT_SEA_CRD_INF')"
-            hint="a"
-          >
-            <kw-btn
-              padding="12px"
-              secondary
-              :label="$t('MSG_TXT_CDCO_ISTM_GUD')"
-              class="mr8"
-            />
-          </kw-form-item>
-          <kw-form-item
-            v-if="'20' === step3.stlmTpCd"
-            :label="$t('MSG_TXT_SEA_CRD_INF')"
-            hint="a"
-          >
-            <kw-btn
-              padding="12px"
-              secondary
-              :label="$t('MSG_TXT_AG_CHAR_FW')"
-              class="mr8"
-            />
-            <kw-btn
-              padding="12px"
-              secondary
-              :label="$t('MSG_TXT_SEA_CRD_INF')"
-            />
-          </kw-form-item>
-          <!-- // 할부 선택시 활성화  -->
-        </kw-form-row>
+        <kw-separator class="mt20" />
 
-        <!-- // 할부 -->
-        <template
-          v-if="'20' === step3.stlmTpCd"
+        <kw-action-top>
+          <template #left>
+            <h3>설치 및 배송 주소</h3>
+          </template>
+          <kw-btn
+            label="등록"
+            dense
+          />
+        </kw-action-top>
+
+        <kw-form
+          :cols="2"
+          class="mt20"
         >
-          <h3>계약금 결제정보</h3>
-          <kw-form>
-            <kw-form-item
-              :label="$t('MSG_TXT_STLM_MTHD')"
-            >
-              <kw-option-group
-                v-model="step3.cntramDpTpCd"
-                type="radio"
-                :options="codes.DP_TP_CD"
-              />
-            </kw-form-item>
-          </kw-form>
-
-          <kw-form-row
-            v-for="(mlg, mi) in step3.mlgs"
-            :key="mi"
-          >
-            <kw-form-item
-              :label="codes.MLG_TP_CD.find((code) => code.codeId === mlg.mlgTpCd)?.codeName +'(원)'"
-            >
-              <p>
-                보유: {{ stringUtil.getNumberWithComma(mlg.mlgResAmt||0) }}
-              </p>
-              <p>
-                &nbsp;잔여: {{ stringUtil.getNumberWithComma(mlg.resResAmt||0) }}
-              </p>
-            </kw-form-item>
-          </kw-form-row>
-          <kw-form-row>
-            <kw-form-item label="계약금(원)">
-              <p>
-                {{ stringUtil.getNumberWithComma(
-                  Number(step3.dtls.reduce((acc, cur) => Number(acc) + Number(cur.cntrAmt), 0)) || 0
-                ) }}
-              </p>
-            </kw-form-item>
-          </kw-form-row>
           <kw-form-row>
             <kw-form-item
+              label="주소 선택"
               :colspan="2"
-              no-label
             >
-              <ul class="scoped-setting-box kw-bc--bg-box px30 py20">
-                <template
-                  v-for="dtl in step3.dtls"
-                  :key="dtl.cntrSn"
+              <div class="row items-start justify-between full-width ">
+                <div
+                  class="row items-start"
+                  style="width: calc(100% - 60px);"
                 >
-                  <li>
-                    <div class="scoped-setting-box-main w270">
-                      <p class="ellipsis">
-                        {{ dtl.basePdCd }}
-                        <kw-tooltip>
-                          {{ dtl.basePdCd }}
-                        </kw-tooltip>
-                      </p>
-                      <span>
-                        ({{ stringUtil.getNumberWithComma(dtl.fnlAmt || 0) }}원)
-                      </span>
-                    </div>
-                    <div class="scoped-setting-box-middle row w300">
-                      <kw-input
-                        v-model="dtl.cntram"
-                        type="number"
-                        align="right"
-                        class="w190 ml8"
-                        maxlength="10"
-                        :max="Number(dtl.fnlAmt || 0) - Number(dtl.cntrAmt || 0) + Number(dtl.cntram || 0)"
-                        @keydown="onChangeCntram(dtl)"
-                        @blur="onChangeCntram(dtl)"
-                        @clear="onClearCntram(dtl)"
-                      />
-                    </div>
-                    <div class="scoped-setting-box-middle">
-                      <kw-field
-                        v-slot="{field}"
-                        v-model="dtl.mlgYn"
-                      >
-                        <kw-checkbox
-                          v-bind="field"
-                          :label="$t('MSG_TXT_MLG_USE')"
-                          :false-value="'N'"
-                          :true-value="'Y'"
-                        />
-                      </kw-field>
-                    </div>
-                  </li>
-                  <!-- 마일리지 활성화 시 보여짐 -->
-                  <li>
-                    <div class="scoped-setting-box-main scoped-setting-box-main--subtitle w270">
-                      <span>계약금액({{ stringUtil.getNumberWithComma(dtl.cntrAmt || 0) }}원)</span>
-                    </div>
-                    <ul
-                      v-if="'Y' === dtl.mlgYn"
-                      class="scoped-setting-box-options"
+                  <p class="kw-font-pt14">
+                    최근등록 주소 :
+                  </p>
+                  <div
+                    class="row items-start radio-multiline pl20"
+                    style=" width: calc(100% - 90px); gap: 12px 20px; min-height: 40px;"
+                  >
+                    <kw-field
+                      name="radio"
                     >
-                      <li
-                        v-for="(stlmRel, stlmIdx) in dtl.stlmRels"
-                        :key="stlmIdx"
-                        class="scoped-setting-box-options-item"
-                      >
-                        <div class="scoped-setting-box-options-form">
-                          <span class="scoped-setting-box-options-form-label">
-                            {{ codes.MLG_TP_CD.find((code) => code.codeId === stlmRel.dpTpCd)?.codeName }}
-                          </span>
-                          <span
-                            v-if="stlmRel.mlgTpCd === '0702'"
-                            class="mr12 w50 text-right"
-                          >
-                            0
-                          </span>
-                          <kw-input
-                            v-model="stlmRel.stlmAmt"
-                            type="number"
-                            align="right"
-                            maxlength="10"
-                            :max="Math.min(
-                              Number(step3.mlgs.find((mlg) => mlg.mlgTpCd === stlmRel.dpTpCd)?.resResAmt || 0),
-                              Number(dtl.fnlAmt || 0) - Number(dtl.cntrAmt || 0)
-                            ) + Number(stlmRel.stlmAmt || 0)"
-                            @keydown="onChangeCntramMlg(dtl, stlmRel)"
-                            @blur="onChangeCntramMlg(dtl, stlmRel)"
-                            @clear="onClearCntramMlg(dtl, stlmRel)"
+                      <template #default="{ field }">
+                        <kw-radio
+                          v-for="(item, idx) in adrs"
+                          v-bind="field"
+                          :key="idx"
+                          class="radio-close-button"
+                          :val="idx"
+                          @update:model-value="onClickRectRgstAdr(idx)"
+                        >
+                          {{ item.rcgvpKnm }}
+                          <kw-btn
+                            icon="close"
+                            borderless
+                            dense
+                            class="kw-fc--placeholder"
+                            @click="onClickRemoveRectRgstAdr(idx)"
                           />
-                        </div>
-                      </li>
-                    </ul>
-                  </li>
-                </template>
-                <!-- //마일리지 활성화 시 보여짐 -->
-              </ul>
-            </kw-form-item>
-          </kw-form-row>
-        </template>
-      </kw-form>
-
-      <!-- // 할부 -->
-      <template
-        v-if="'20' === step3.stlmTpCd"
-      >
-        <kw-form :cols="2">
-          <kw-form-row>
-            <kw-form-item label="결제방법">
-              <kw-option-group
-                v-model="step3.intamDpTpCd"
-                type="radio"
-                :options="codes.ISTM_DP_TP_CD"
-              />
-            </kw-form-item>
-          </kw-form-row>
-          <kw-form-row>
-            <kw-form-item label="할부개월">
-              <kw-option-group
-                v-model="step3.istmMcn"
-                type="radio"
-                :options="[12, 24]"
-                @change="onChangeIstmMcn"
-              />
-              <kw-field
-                v-slot="{field}"
-                v-model="step3.idvIstmYn"
-                @change="onChangeIstmMcn"
-              >
-                <kw-checkbox
-                  v-bind="field"
-                  label="세부설정"
-                  :false-value="'N'"
-                  :true-value="'Y'"
+                        </kw-radio>
+                      </template>
+                    </kw-field>
+                  </div>
+                </div>
+                <kw-btn
+                  :icon-right="showAllAdrs ? 'arrow_up' : 'arrow_down'"
+                  dense
+                  borderless
+                  label="더보기"
+                  class="kw-fc--black3 kw-font-pt14 self-start mt2"
+                  @click="showAllAdrs = !showAllAdrs"
                 />
-              </kw-field>
+              </div>
             </kw-form-item>
           </kw-form-row>
-          <!-- 세부설정 활성화 시 열림 -->
+
           <kw-form-row>
             <kw-form-item
-              :colspan="2"
-              no-label
+              :label="$t('MSG_TXT_RECIPIENT')"
+              required
             >
-              <ul class="scoped-setting-box kw-bc--bg-box px30 py20">
-                <template
-                  v-for="dtl in step3.dtls"
-                  :key="dtl.cntrSn"
-                >
-                  <li>
-                    <div class="scoped-setting-box-main">
-                      <p>{{ dtl.basePdCd }}</p>
-                      <span>
-                        ({{ stringUtil.getNumberWithComma(dtl.istmStlmAmt || 0) }}원)
-                      </span>
-                    </div>
-                    <div class="scoped-setting-box-middle">
-                      <kw-select
-                        v-model="dtl.istmMcn"
-                        :options="[12, 24]"
-                        :disable="step3.idvIstmYn === 'N'"
-                        @change="calcDtlAmts(dtl)"
-                      />
-                    </div>
-                    <div class="scoped-setting-box-last">
-                      <span>월 {{ stringUtil.getNumberWithComma(dtl.mmIstmAmt || 0) }}원</span>
-                    </div>
-                  </li>
-                </template>
-              </ul>
+              <kw-input
+                v-model="item.adrpc.rcgvpKnm"
+              />
+            </kw-form-item>
+            <kw-form-item
+              :label="$t('MSG_TXT_MPNO')"
+              required
+            >
+              <zwcm-telephone-number
+                v-model:tel-no1="item.adrpc.cralLocaraTno"
+                v-model:tel-no2="item.adrpc.mexnoEncr"
+                v-model:tel-no3="item.adrpc.cralIdvTno"
+                required
+              />
             </kw-form-item>
           </kw-form-row>
-        <!-- // 세부설정 활성화 시 열림 -->
         </kw-form>
-        <kw-separator class="mt16 mb0" />
-        <ul class="kw-inquiry-result__list kw-inquiry-result__list--bottom pb20">
-          <li class="row">
-            <p class="kw-font-subtitle">
-              <span>{{ $t('MSG_TXT_TOT_STLM_AMT') }}</span>
-            </p>
-            <div class="col">
-              <span class="kw-font-subtitle">{{ stringUtil.getNumberWithComma(
-                Number(step3.dtls.reduce((acc, cur) => Number(acc) + Number(cur.fnlAmt), 0))
-              ) }}원</span>
-            </div>
-          </li>
-          <li class="row">
-            <p class="kw-font-subtitle">
-              <span>선납금 일시불</span>
-            </p>
-            <div class="col">
-              <span class="kw-font-subtitle">{{ stringUtil.getNumberWithComma(
-                Number(step3.dtls.reduce((acc, cur) => Number(acc) + Number(cur.cntrAmt), 0))
-              ) }}원</span>
-            </div>
-          </li>
-          <li class="row">
-            <p class="kw-font-subtitle kw-fc--primary">
-              <span>총 월 할부금</span>
-            </p>
-            <div class="col">
-              <span class="kw-font-subtitle kw-fc--primary">{{ stringUtil.getNumberWithComma(
-                Number(step3.dtls.reduce((acc, cur) => Number(acc) + Number(cur.istmStlmAmt), 0))
-              ) }}원</span>
-            </div>
-          </li>
-        </ul>
-      </template>
-    </div>
+        <kw-form
+          :cols="1"
+          class="mt16"
+        >
+          <kw-form-row>
+            <kw-form-item
+              :label="$t('MSG_TXT_ADDR')"
+              :colspan="2"
+            >
+              <zwcm-post-code
+                v-model:zipCode="item.adrpc.zip"
+                v-model:add1="item.adrpc.adr"
+                v-model:add2="item.adrpc.adrDtl"
+                v-model:addKey="item.adrpc.adrId"
+                v-model:adrDvCd="item.adrpc.adrDvCd"
+                class="kw-grow"
+                readonly
+              />
+            </kw-form-item>
+          </kw-form-row>
+        </kw-form>
+        <kw-form
+          :cols="2"
+          class="mt16"
+        >
+          <kw-form-row>
+            <kw-form-item
+              :label="$t('MSG_TXT_REL_CNTRT')"
+              required
+            >
+              <kw-select
+                v-model="item.adrpc.cntrtRelCd"
+                :options="codes.CNTRT_REL_CD"
+              />
+            </kw-form-item>
+          </kw-form-row>
+        </kw-form>
+
+        <kw-separator />
+
+        <h3>설치환경 및 요청사항</h3>
+
+        <kw-form
+          :cols="2"
+          class="mt20"
+        >
+          <kw-form-row>
+            <kw-form-item
+              label="장소"
+              required
+            >
+              <kw-select
+                v-model="item.wellsDtl.istPlcTpCd"
+                :options="codes.IST_PLC_TP_CD"
+              />
+            </kw-form-item>
+            <kw-form-item
+              label="가구 구성원 수"
+              required
+            >
+              <kw-select
+                v-model="item.wellsDtl.fmmbN"
+                :options="codes.FMMB_N"
+              />
+            </kw-form-item>
+          </kw-form-row>
+          <kw-form-row>
+            <kw-form-item label="전압">
+              <kw-option-group
+                v-model="item.wellsDtl.useElectTpCd"
+                type="radio"
+                :options="codes.USE_ELECT_TP_CD"
+              />
+            </kw-form-item>
+            <kw-form-item label="수질">
+              <kw-select
+                v-model="item.wellsDtl.srcwtTpCd"
+                :options="codes.SRCWT_TP_CD"
+              />
+            </kw-form-item>
+          </kw-form-row>
+          <kw-form-row>
+            <kw-form-item label="수압">
+              <kw-option-group
+                v-model="item.wellsDtl.wprsItstTpCd"
+                type="radio"
+                :options="codes.WPRS_ITST_TP_CD"
+              />
+            </kw-form-item>
+          </kw-form-row>
+          <kw-form-row>
+            <kw-form-item
+              label="요청사항"
+              colspan="2"
+            >
+              <kw-input
+                v-model="item.wellsDtl.istAkArtcMoCn"
+                type="textarea"
+                maxlength="333"
+              />
+            </kw-form-item>
+          </kw-form-row>
+          <kw-form-row>
+            <kw-form-item
+              label="파트너명"
+              :colspan="2"
+            >
+              <p>(1+1)기존제품 12개월 유지, 미유지 시 할인 금액반환 및 렌탈료 원복</p>
+            </kw-form-item>
+          </kw-form-row>
+        </kw-form>
+
+        <kw-separator />
+
+        <h3>결제정보</h3>
+
+        <kw-form
+          :cols="2"
+          class="mt20"
+        >
+          <kw-form-row>
+            <kw-form-item
+              label="자동이체"
+            >
+              <kw-option-group
+                :model-value="'카드'"
+                type="radio"
+                :options="['카드', '계좌이체']"
+              />
+            </kw-form-item>
+            <kw-form-item no-label>
+              <p class="kw-fc--black2 kw-font-pt14 text-weight-regular">
+                월 렌탈료 : 30,000원
+              </p>
+            </kw-form-item>
+          </kw-form-row>
+          <kw-form-row>
+            <kw-form-item label="등록비결제유형">
+              <kw-option-group
+                :model-value="'카드'"
+                type="radio"
+                :options="['카드', '현금']"
+              />
+            </kw-form-item>
+            <kw-form-item no-label>
+              <p class="kw-fc--black2 kw-font-pt14 text-weight-regular">
+                등록비 : 200,000원
+              </p>
+            </kw-form-item>
+          </kw-form-row>
+          <kw-form-row>
+            <kw-form-item label="선납금결제유형">
+              <kw-option-group
+                :model-value="'카드'"
+                type="radio"
+                :options="['카드', '현금']"
+              />
+            </kw-form-item>
+            <kw-form-item no-label>
+              <p class="kw-fc--black2 kw-font-pt14 text-weight-regular">
+                선납비 : 100,000원
+              </p>
+            </kw-form-item>
+          </kw-form-row>
+          <kw-form-row>
+            <kw-form-item
+              no-label
+              :colspan="2"
+            >
+              <kw-checkbox
+                v-model="ynModel"
+                label="설정한 조건 나머지 상품에도 일괄적용"
+                val=""
+              />
+            </kw-form-item>
+          </kw-form-row>
+        </kw-form>
+      </div>
+    </template>
   </kw-scroll-area>
 </template>
 
@@ -403,7 +349,7 @@
 // -------------------------------------------------------------------------------------------------
 import ZwcmTelephoneNumber from '~common/components/ZwcmTelephoneNumber.vue';
 import ZwcmPostCode from '~common/components/ZwcmPostCode.vue';
-import { codeUtil, stringUtil, useDataService, useGlobal } from 'kw-lib';
+import { codeUtil, useDataService, useGlobal } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 
 const dataService = useDataService();
@@ -415,11 +361,23 @@ const { step3 } = toRefs(props.contract);
 const ogStep3 = ref({});
 const { t } = useI18n();
 const codes = await codeUtil.getMultiCodes(
-  'STLM_TP_CD',
-  'SPP_MTHD_TP_CD',
   'CNTRT_REL_CD',
-  'MLG_TP_CD',
+  'IST_PLC_TP_CD',
+  'WRFR_IST_MTH_CD',
+  'SRCWT_TP_CD',
+  'WPRS_ITST_TP_CD',
+  'USE_ELECT_TP_CD',
+  'HCR_DV_CD',
 );
+codes.FMMB_N = [
+  { codeId: 1, codeName: '1인가구' },
+  { codeId: 2, codeName: '2인가구' },
+  { codeId: 3, codeName: '3인가구' },
+  { codeId: 4, codeName: '4인가구 이상' },
+];
+const adrs = ref([]);
+const dtlSn = ref(1);
+const showAllAdrs = false;
 codes.DP_TP_CD = [
   { codeId: '0201', codeName: '카드' },
   { codeId: '0101', codeName: '가상계좌' },
@@ -430,53 +388,12 @@ codes.ISTM_DP_TP_CD = [
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
-function calcDtlAmts(dtl) {
-  // 금액 계산
-  const cntramMlgs = Number(dtl.stlmRels.reduce((acc, cur) => Number(acc) + Number(cur.stlmAmt), 0));
-  dtl.cntrAmt = Number(dtl.cntram || 0) + Number(cntramMlgs || 0);
-  dtl.istmStlmAmt = Number(dtl.fnlAmt || 0) - Number(dtl.cntrAmt || 0); // 계약결제관계의 결제금액
-  dtl.mmIstmAmt = Math.floor(Number(dtl.istmStlmAmt || 0) / Number(dtl.istmMcn || 1)); // 월할부금액
-}
-function onChangeCntram(dtl) {
-  calcDtlAmts(dtl);
-}
-function onClearCntram(dtl) {
-  dtl.cntram = 0;
-  onChangeCntram(dtl);
-}
-function onChangeCntramMlg(dtl, stlmRel) {
-  // 마일리지별 잔액 계산 ~ 계약상세별 계약결제관계 중 해당 마일리지코드와 일치하는 결제관계의 금액의 총합
-  // step3의 mlgs(마일리지)와 dtls 내부의 stlmRels는 유사하지만 한 화면에서 CRU가 이루어지므로 복잡한 구조를 갖게 됨
-  const m = step3.value.mlgs.find((mlg) => mlg.mlgTpCd === stlmRel.dpTpCd);
-  const usingMlgAmt = step3.value.dtls.reduce((acc, cur) => Number(acc) + Number(
-    cur.stlmRels.filter((stlm) => stlm.dpTpCd === stlmRel.dpTpCd).reduce((a, c) => Number(a) + Number(c.stlmAmt), 0),
-  ), 0);
-  m.resResAmt = Number(m.mlgResAmt || 0) - Number(usingMlgAmt || 0);
-  calcDtlAmts(dtl);
-}
-function onClearCntramMlg(dtl, stlmRel) {
-  stlmRel.stlmAmt = 0;
-  onChangeCntramMlg(dtl, stlmRel);
-}
-
-function onChangeIstmMcn() {
-  step3.value.dtls.forEach((dtl) => {
-    dtl.istmMcn = step3.value.istmMcn;
-    calcDtlAmts(dtl);
-  });
-}
-
 async function getCntrInfo(cntrNo) {
-  const cntr = await dataService.get('sms/edu/contract/contracts/cntr-info', { params: { cntrNo, step: 3 } });
+  const cntr = await dataService.get('sms/wells/contract/contracts/cntr-info', { params: { cntrNo, step: 3 } });
   step3.value = cntr.data.step3;
+  adrs.value[0] = step3.value.basAdrpc;
+  adrs.value[1] = step3.value.basAdrpc;
   console.log(step3.value);
-
-  step3.value.mlgs.forEach((mlg) => {
-    mlg.resResAmt = mlg.mlgResAmt;
-  });
-  step3.value.dtls.forEach((dtl) => {
-    onChangeCntram(dtl);
-  });
   ogStep3.value = cloneDeep(step3.value);
 }
 
@@ -485,10 +402,26 @@ function isChangedStep() {
 }
 
 async function saveStep() {
-  const savedCntr = await dataService.post('sms/edu/contract/contracts/save-cntr-step3', step3.value);
+  const savedCntr = await dataService.post('sms/wells/contract/contracts/save-cntr-step3', step3.value);
   notify(t('MSG_ALT_SAVE_DATA'));
   ogStep3.value = cloneDeep(step3.value);
   return savedCntr?.data?.key;
+}
+
+function onClickRectRgstAdr(idx) {
+  console.log(idx);
+}
+
+function onClickRemoveRectRgstAdr(idx) {
+  console.log(idx);
+}
+
+function onClickPrevDtlSn() {
+  if (dtlSn.value > 1) dtlSn.value -= 1;
+}
+
+function onClickNextDtlSn() {
+  if (dtlSn.value < step3.value.dtls.length) dtlSn.value += 1;
 }
 
 defineExpose({
@@ -499,11 +432,98 @@ defineExpose({
 onMounted(async () => {
 });
 </script>
-<style scoped lang="scss">
-// rev:230512 css 수정
-.scoped-setting-box {
+
+<style lang="scss" scoped>
+.normal-area--button-set-bottom {
+  max-height: calc(100vh - 222px);
+  min-height: 715px;
+}
+
+.step-list {
+  margin: 0;
+  padding-left: 0;
+  list-style: none;
+
+  & > li {
+    &::after {
+      content: "";
+      display: block;
+      margin: 12px 0;
+      border-bottom: 1px solid $line-bg;
+    }
+
+    &:last-child::after {
+      display: none;
+    }
+  }
+
+  &-title {
+    color: $black3;
+
+    span {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      margin-right: 4px;
+      text-align: center;
+      line-height: 1.4;
+      border-radius: 100%;
+      border: 1px solid $line-stroke;
+      font-size: 14px;
+      color: $black3;
+      font-weight: 500;
+    }
+
+    &--checked {
+      span {
+        border: none;
+        position: relative;
+        background: $line-bg;
+        font-size: 0;
+        vertical-align: text-bottom;
+
+        &::after {
+          content: "";
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          width: 15px;
+          height: 20px;
+          background: url("~@assets/icons/checked_stepper.svg") center no-repeat;
+          background-size: contain;
+        }
+      }
+    }
+
+    &--active {
+      color: #2f3c78;
+      font-weight: 500;
+
+      span {
+        border: none;
+        color: #fff;
+        background: #2f3c78;
+      }
+    }
+  }
+
+  &-content {
+    margin-top: 12px;
+    padding: 12px 20px;
+    background-color: #f5f5f5;
+
+    &--blue-bg {
+      padding: 20px;
+      background: rgb(47 138 243 / 10%);
+    }
+  }
+}
+
+.setting-box {
   width: 100%;
   margin: 0;
+  padding-left: 0;
   list-style: none;
 
   .kw-field {
@@ -513,42 +533,35 @@ onMounted(async () => {
     }
   }
 
-  > li {
+  li {
     display: flex;
     align-items: center;
-    gap: 0 20px;
 
     & + li {
       margin-top: 16px;
     }
+
+    div + div {
+      margin-left: 40px;
+    }
   }
 
   &-main {
-    min-width: 350px;
-    width: 350px;
-    display: flex;
-    align-items: baseline;
+    width: 240px;
 
     p {
-      display: inline-block;
-      padding-right: 4px;
-      font-size: 16px;
       color: $black1;
 
-      &.ellipsis {
-        max-width: 167px;
+      span {
+        margin-left: 4px;
+        color: $primary;
       }
-    }
-
-    span {
-      font-size: 14px;
-      color: $primary;
     }
 
     &--subtitle {
       font-size: 14px;
       color: #555;
-      padding: 10px 0;
+      width: 100%;
 
       &::before {
         content: "";
@@ -560,71 +573,140 @@ onMounted(async () => {
         border-left: 1px solid $line-stroke;
         border-bottom: 1px solid $line-stroke;
       }
-
-      span {
-        font-size: 14px;
-        color: #555;
-      }
     }
   }
 
   &-middle {
-    min-width: 250px;
     width: 250px;
   }
 
-  &-last {
-    span {
-      font-size: 14px;
-      color: $black2;
+  span {
+    font-size: 14px;
+    color: #555;
+  }
+}
+
+.product {
+  &-inside {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+
+  &-left-area {
+    width: 100%;
+    display: flex;
+    align-items: flex-start;
+  }
+
+  &-type {
+    width: 60px;
+    margin-right: 8px;
+    font-size: 14px;
+    color: $black3;
+    white-space: normal;
+  }
+
+  &-content {
+    display: flex;
+    align-items: left;
+    width: 100%;
+    flex-direction: column;
+    gap: 12px 0;
+  }
+
+  .kw-btn {
+    align-self: flex-start;
+  }
+
+  .setting-box {
+    padding-left: 68px;
+    padding-right: 44px;
+    margin-top: 12px;
+    width: 100%;
+
+    li + li {
+      margin-top: 12px;
+    }
+
+    .form-full-size {
+      column-gap: 8px;
+
+      .kw-date-picker {
+        min-width: 150px;
+      }
+
+      .kw-input,
+      .kw-select {
+        min-width: calc(100% / 4);
+        flex: 10000 1 0%;
+      }
     }
   }
 
-  &-options {
+  .sub-content {
     display: flex;
     align-items: center;
-    gap: 12px;
+    width: calc(100% - 28px);
+    margin-top: 12px;
 
-    &-item {
-      display: flex;
-      margin-top: 16px;
-      gap: 0 12px;
-
-      & + .scoped-setting-box-options-item {
-        margin-top: 0;
-      }
-
-      ::v-deep(.kw-input) {
-        width: 120px;
-      }
-
-      &:first-child {
-        margin-top: 0;
-      }
+    .sub-content-title {
+      width: 68px;
+      padding-right: 8px;
+      font-size: 14px;
+      color: $black3;
     }
 
-    &-form {
-      display: flex;
+    &-middle {
+      width: calc(100% - 68px);
       align-items: center;
-      flex-wrap: nowrap;
-      flex-shrink: 1 1 auto;
-      font-size: 14px;
-      color: #555;
+      justify-content: space-between;
+      display: flex;
+    }
 
-      &-label {
-        min-width: 60px;
-        max-width: 107px;
-        padding-right: 12px;
+    & + .sub-content {
+      margin-top: 12px;
+    }
+
+    &:last-child {
+      margin-bottom: 20px;
+    }
+  }
+}
+
+// rev;230405 스타일 수정
+.radio-multiline {
+  &::v-deep(.kw-radio) {
+    &.radio-close-button {
+      &.spaced-sibling + .spaced-sibling {
+        margin-left: 0;
+      }
+
+      .q-radio__inner--falsy {
+        & ~ .q-radio__label {
+          font-weight: 500;
+        }
+      }
+
+      .q-radio__label {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
         font-size: 14px;
         color: $black1;
       }
     }
   }
+
+  // // rev;230405 스타일 수정
+
+  .second-line {
+    display: inline-flex;
+    gap: 12px 20px;
+    min-height: 24px;
+  }
 }
 
-// rev:230512 css 수정
-
-.kw-inquiry-result__list--bottom {
-  column-gap: 20px;
-}
 </style>
