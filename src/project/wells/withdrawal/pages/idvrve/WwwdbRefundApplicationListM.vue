@@ -299,15 +299,15 @@ async function onClickExcelDownload() {
 }
 
 // 엑셀 업로드
-// 본사 담당자 엑셀업로드 시 환불신청(등록) 및 승인처리 가능
-// 고객센터 엑셀업로드 시 환불신청(등록)만 됨
+// 본사 담당자 엑셀업로드 시 환불신청(등록) 및 승인처리 가능 => 본사 담당자 구분값 확인되지 않음.
+// 고객센터 엑셀업로드 시 환불신청(등록)만 됨 => 고객센터 구분값 확인되지 않음.
 async function onClickExcelUpload() {
   // TODO: 환불신청 팝업 만든 후 엑셀 업로드 만들기
   const apiUrl = '/sms/wells/withdrawal/idvrve/refund-applications/excel-upload';
-  const templateId = 'RefundApplication'; // 확인필요.
+  const templateId = 'FOM_WDB_0002'; // 확인필요.
   const { result } = await modal({
     component: 'ZwcmzExcelUploadP',
-    componentProps: { apiUrl, templateId }, // 템플릿을 그리드 기준으로 작성해서 만듬
+    componentProps: { apiUrl, templateId },
   });
   if (result.status === 'S') {
     notify(t('MSG_ALT_SAVE_DATA'));
