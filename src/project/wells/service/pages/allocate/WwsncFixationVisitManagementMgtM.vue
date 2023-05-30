@@ -177,24 +177,16 @@ const pageInfo = ref({
 /*
  *  Search - 고정방문 관리 조회
  */
-const temp = ref({
-  qrcd: '111',
-});
 let cachedParams;
 async function getFixationRegistrationPages() {
-  // await dataService.get('/interface/sms/wells/service/eai-interface', { params: { ...cachedParams } });
-  // await dataService.post('/interface/sms/wells/service/regist-barcodes', { params: { qrcd: '111' } });
-  await dataService.post('/interface/sms/wells/service/regist-barcodes', temp.value);
+  const res = await dataService.get('/sms/wells/service/fixation-visit/paging', { params: { ...cachedParams, ...pageInfo.value } });
+  const { list: fixationVisits, pageInfo: pagingResult } = res.data;
 
-  // const res = await dataService.get('/sms/wells/service/fixation-visit/paging'
-  // , { params: { ...cachedParams, ...pageInfo.value } });
-  // const { list: fixationVisits, pageInfo: pagingResult } = res.data;
+  pageInfo.value = pagingResult;
 
-  // pageInfo.value = pagingResult;
-
-  // const view = gridMainRef.value.getView();
-  // view.getDataSource().setRows(fixationVisits);
-  // view.resetCurrent();
+  const view = gridMainRef.value.getView();
+  view.getDataSource().setRows(fixationVisits);
+  view.resetCurrent();
 }
 
 /*
