@@ -3,7 +3,7 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : SNC
-2. 프로그램 ID : WwsncFixationRegistrationMngtMgtM - 고정방문 관리
+2. 프로그램 ID : [W-SV-U-0046M01] WwsncFixationVisitManagementMgtM - 고정방문 관리
 3. 작성자 : juno.cha
 4. 작성일 : 2022.12.13
 ****************************************************************************************************
@@ -177,16 +177,24 @@ const pageInfo = ref({
 /*
  *  Search - 고정방문 관리 조회
  */
+const temp = ref({
+  qrcd: '111',
+});
 let cachedParams;
 async function getFixationRegistrationPages() {
-  const res = await dataService.get('/sms/wells/service/fixation-visit/paging', { params: { ...cachedParams, ...pageInfo.value } });
-  const { list: fixationVisits, pageInfo: pagingResult } = res.data;
+  // await dataService.get('/interface/sms/wells/service/eai-interface', { params: { ...cachedParams } });
+  // await dataService.post('/interface/sms/wells/service/regist-barcodes', { params: { qrcd: '111' } });
+  await dataService.post('/interface/sms/wells/service/regist-barcodes', temp.value);
 
-  pageInfo.value = pagingResult;
+  // const res = await dataService.get('/sms/wells/service/fixation-visit/paging'
+  // , { params: { ...cachedParams, ...pageInfo.value } });
+  // const { list: fixationVisits, pageInfo: pagingResult } = res.data;
 
-  const view = gridMainRef.value.getView();
-  view.getDataSource().setRows(fixationVisits);
-  view.resetCurrent();
+  // pageInfo.value = pagingResult;
+
+  // const view = gridMainRef.value.getView();
+  // view.getDataSource().setRows(fixationVisits);
+  // view.resetCurrent();
 }
 
 /*
