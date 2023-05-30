@@ -439,7 +439,7 @@ async function onClickSave(tempSaveYn) {
   if (tempSaveYn === 'N') {
     // 목록으로 이동
     await router.close();
-    await router.push({ path: '/product/zwpdc-sale-product-list', query: { searchYn: 'Y' } });
+    await router.push({ path: '/product/zwpdc-sale-product-list', query: { searchYn: 'Y', pdTpCd: pdConst.PD_TP_CD_COMPOSITION } });
     return;
   }
   if (isTempSaveBtn.value) {

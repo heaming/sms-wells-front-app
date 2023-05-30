@@ -402,9 +402,9 @@ async function initGrid(data, view) {
     // 판매채널
     { fieldName: 'sellChnlCd', header: t('MSG_TXT_SEL_CHNL'), width: '127', styleName: 'text-center', editable: false, options: currentCodes.value.SELL_CHNL_DTL_CD },
     // 적용시작일자
-    { fieldName: 'vlStrtDtm', header: t('MSG_TXT_APY_STRTDT'), width: '127', styleName: 'text-center', editor: { type: 'date' } },
+    { fieldName: 'vlStrtDtm', header: t('MSG_TXT_APY_STRTDT'), width: '127', styleName: 'text-center', editor: { type: 'date' }, rules: 'required' },
     // 적용종료일자
-    { fieldName: 'vlEndDtm', header: t('MSG_TXT_APY_ENDDT'), width: '127', styleName: 'text-center', editor: { type: 'date' } },
+    { fieldName: 'vlEndDtm', header: t('MSG_TXT_APY_ENDDT'), width: '127', styleName: 'text-center', editor: { type: 'date' }, rules: 'required' },
     // 서비스명
     { fieldName: 'priceSchBtn',
       header: t('MSG_TXT_PRICE'),
