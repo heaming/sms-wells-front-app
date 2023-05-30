@@ -17,8 +17,6 @@
     <kw-search
       one-row
       :cols="2"
-      @search="onClickSearch"
-      @reset="onClickReset"
     >
       <kw-search-row>
         <kw-search-item
@@ -94,14 +92,16 @@
           icon="excel"
           dense
           :label="$t('MSG_BTN_EXCEL_DOWN')"
+          :disable="pageInfo.totalCount === 0"
           @click="onClickExportView"
         />
       </kw-action-top>
       <kw-grid
         ref="grdMainRef"
         name="grdMain"
-        :visible-rows="10"
-        @init="initGrid"
+        :page-size="pageInfo.pageSize"
+        :total-count="pageInfo.totalCount"
+        @init="initGrdMain"
       />
       <kw-pagination
         :page-index="pageInfo.pageIndex"
@@ -116,7 +116,7 @@
 <script setup>
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
-import { getComponentType, gridUtil, codeUtil, useDataService, useGlobal, useMeta, notify } from 'kw-lib';
+import { defineGrid, getComponentType, gridUtil, codeUtil, useDataService, useGlobal, useMeta, notify } from 'kw-lib';
 import dayjs from 'dayjs';
 import { isEmpty, cloneDeep } from 'lodash-es';
 
@@ -182,7 +182,7 @@ async function onClickAdd() {
 }
 
 async function fetchData() {
-  const res = await dataService.get('/sms/wells/competence/voc-falsevisit/paging', { params: { ...cachedParams, ...pageInfo.value } });
+  const res = await dataService.get('/sms/wells/competence/falsevisit/paging', { params: { ...cachedParams, ...pageInfo.value } });
   const { list: products, pageInfo: pagingResult } = res.data;
 
   pageInfo.value = pagingResult;
@@ -208,7 +208,7 @@ async function onClickSave() {
   if (await gridUtil.alertIfIsNotModified(view)) { return; }
   if (!await gridUtil.validate(view)) { return; }
 
-  await dataService.post('/sms/wells/competence/voc-falsevisit', rows);
+  await dataService.post('/sms/wells/competence/falsevisit', rows);
 
   notify(t('MSG_ALT_SAVE_DATA'));
   grdMainRef.value.getData().clearRows();
@@ -220,8 +220,7 @@ async function onClickDelete() {
   const view = grdMainRef.value.getView();
   const deleteRows = await gridUtil.confirmDeleteCheckedRows(view);
   if (deleteRows.length > 0) {
-    await dataService.delete('/sms/wells/competence/voc-falsevisit', { data: [...deleteRows] });
-    notify(t('MSG_ALT_DELETED'));
+    await dataService.delete('/sms/wells/competence/falsevisit', { data: [...deleteRows] });
     await fetchData();
   }
 }
@@ -233,15 +232,11 @@ async function onClickExportView() {
     timePostfix: true,
   });
 }
-const onClickReset = async () => {
-  searchParams.value = {
-    ocYm: now.format('YYYYMM'),
-    prtnrNo: undefined,
-    prtnrKnm: undefined,
-  };
-};
 
-function initGrid(data, view) {
+// -------------------------------------------------------------------------------------------------
+// Initialize Grid
+// -------------------------------------------------------------------------------------------------
+const initGrdMain = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'ocYm' },
     { fieldName: 'rgstSn' },
@@ -319,6 +314,12 @@ function initGrid(data, view) {
   view.checkBar.visible = true;
   view.rowIndicator.visible = true;
 
+  /*
+  view.onCellEditable = (grid, index) => {
+    if (!gridUtil.isCreatedRow(grid, index.dataRow) && index.column === 'cntr') { return false; }
+  };
+  */
+
   view.onCellButtonClicked = async (g, { dataRow, column }) => {
     const { prtnrNo, cntrCstKnm/* cntrNo, cntrSn */ } = gridUtil.getRowValue(g, dataRow);
     if (column === 'prtnrNo') {
@@ -360,8 +361,9 @@ function initGrid(data, view) {
       }
     }
   };
-}
-onMounted(() => {
-  onClickSearch();
+});
+
+onMounted(async () => {
+  await onClickSearch();
 });
 </script>
