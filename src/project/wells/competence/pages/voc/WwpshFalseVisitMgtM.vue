@@ -17,6 +17,7 @@
     <kw-search
       one-row
       :cols="2"
+      @search="onClickSearch"
     >
       <kw-search-row>
         <kw-search-item
