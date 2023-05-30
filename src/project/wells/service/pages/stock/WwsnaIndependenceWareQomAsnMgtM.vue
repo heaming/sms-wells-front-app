@@ -213,18 +213,18 @@ async function onClickSearch() {
 // -------------------------------------------------------------------------------------------------
 const initGrdMain = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'col1', header: t('MSG_TXT_WARE_NO'), width: '100', styleName: 'text-center' },
-    { fieldName: 'col2', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '100', styleName: 'text-center' },
-    { fieldName: 'col3', header: t('MSG_TXT_PIC'), width: '86', styleName: 'text-center' },
-    { fieldName: 'col4', header: t('MSG_TXT_WARE_NM'), width: '160', styleName: 'text-center' },
-    { fieldName: 'col5', header: t('MSG_TXT_SAP_CD'), width: '146', styleName: 'text-center' },
-    { fieldName: 'col6', header: t('MSG_TXT_ITM_CD'), width: '146', styleName: 'text-center' },
-    { fieldName: 'col7', header: t('MSG_TXT_ITM_NAME'), width: '200', styleName: 'text-left' },
-    { fieldName: 'col8', header: t('MSG_TXT_MNGT_UNIT'), width: '106', styleName: 'text-center' },
-    { fieldName: 'col9', header: t('MSG_TXT_GD'), width: '78', styleName: 'text-center' },
-    { fieldName: 'col10', header: 'FULL', width: '94', styleName: 'text-right' },
-    { fieldName: 'col11', header: t('MSG_TXT_ASGN_QTY'), width: '94', styleName: 'text-right' },
-    { fieldName: 'col12', header: t('MSG_TXT_STOC_OG'), width: '118', styleName: 'text-right' },
+    { fieldName: 'warNo', header: t('MSG_TXT_WARE_NO'), width: '100', styleName: 'text-center' },
+    { fieldName: 'seqNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '100', styleName: 'text-center' },
+    { fieldName: 'mngtPrtnrNo', header: t('MSG_TXT_PIC'), width: '86', styleName: 'text-center' },
+    { fieldName: 'warNm', header: t('MSG_TXT_WARE_NM'), width: '160', styleName: 'text-center' },
+    { fieldName: 'sapCd', header: t('MSG_TXT_SAP_CD'), width: '146', styleName: 'text-center' },
+    { fieldName: 'itmCd', header: t('MSG_TXT_ITM_CD'), width: '146', styleName: 'text-center' },
+    { fieldName: 'itmNm', header: t('MSG_TXT_ITM_NAME'), width: '200', styleName: 'text-left' },
+    { fieldName: 'mngtUnit', header: t('MSG_TXT_MNGT_UNIT'), width: '106', styleName: 'text-center' },
+    { fieldName: 'itmGd', header: t('MSG_TXT_GD'), width: '78', styleName: 'text-center' },
+    { fieldName: 'fullQty', header: 'FULL', width: '94', styleName: 'text-right' },
+    { fieldName: 'asgnQty', header: t('MSG_TXT_ASGN_QTY'), width: '94', styleName: 'text-right' },
+    { fieldName: 'stocOgCd', header: t('MSG_TXT_STOC_OG'), width: '118', styleName: 'text-right' },
   ];
   const gridField = columns.map((v) => ({ fieldName: v.fieldName }));
   const fields = [...gridField];
@@ -247,19 +247,19 @@ const initGrdMain = defineGrid((data, view) => {
     {
       header: t('MSG_TXT_STR_WARE'), // colspan title
       direction: 'horizontal', // merge type
-      items: ['col1', 'col2', 'col3', 'col4'],
+      items: ['warNo', 'seqNo', 'mngtPrtnrNo', 'warNm'],
     },
-    'col5',
-    'col6',
-    'col7',
-    'col8',
-    'col9',
+    'sapCd',
+    'itmCd',
+    'itmNm',
+    'mngtUnit',
+    'itmGd',
     {
       header: t('MSG_TXT_THM_BS_QTY'),
       direction: 'horizontal',
-      items: ['col10', 'col11'],
+      items: ['fullQty', 'asgnQty'],
     },
-    'col12',
+    'stocOgCd',
 
   ]);
 });
