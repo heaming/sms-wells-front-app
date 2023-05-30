@@ -67,7 +67,7 @@ defineExpose({
 });
 
 const { t } = useI18n();
-const { notify, modal } = useGlobal();
+const { notify, modal, confirm } = useGlobal();
 const grdMainRef = ref(getComponentType('KwGrid'));
 
 const props = defineProps({
@@ -202,6 +202,10 @@ async function onClickRemove() {
     notify(t('MSG_ALT_DEL_NO_DATA'));
     return false;
   }
+
+  // 선택된 항목을 삭제하시겠습니까?
+  if (!await confirm(t('MSG_ALT_WANT_DEL_SEL_ITEM'))) return false;
+
   const dataProvider = view.getDataSource();
   dataProvider.removeRows(chkRows.map((v) => v.dataRow));
 }
