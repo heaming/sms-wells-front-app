@@ -47,6 +47,14 @@ import ZctzPopupTestItem from '~sms-common/contract/components/ZctzPopupTestItem
 // -------------------------------------------------------------------------------------------------
 const pops = [
   {
+    pname: 'WwctaSeedingMachineChoiceP',
+    title: '모종기기선택',
+    param: {
+      cntrCstNo: '040883641',
+      rglrSppMchnTpCd: '1',
+    },
+  },
+  {
     pname: 'WwctaContractNumberListP',
     title: '계약번호 조회(wells)',
     param: {

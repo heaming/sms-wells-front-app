@@ -3,7 +3,7 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : SND
-2. 프로그램 ID : [W-SV-U-0204P01] WwsndHumanResourcesListP - 인사기본정보 조회 팝업
+2. 프로그램 ID : [W-SV-U-0204P01] WwsndHumanResourcesListP - 인사기본정보
 3. 작성자 : KJ
 4. 작성일 : 2022.12.13
 ****************************************************************************************************
@@ -175,8 +175,6 @@ const codes = await codeUtil.getMultiCodes(
   'EGER_ROL_CD',
 );
 
-const organizations = ref([]);
-
 const pageInfo = ref({
   totalCount: 0,
   pageIndex: 1,
@@ -224,17 +222,6 @@ const layouts = computed(() => {
     'cltnDt',
   ];
 });
-
-async function fetchOrganizations() {
-  return await dataService.get('/sms/wells/service/human-resources/organizations');
-}
-
-async function getOrganizations() {
-  const res = await fetchOrganizations();
-  organizations.value = res.data;
-}
-
-await getOrganizations();
 
 async function fetchHumanResourcesPages(params) {
   return await dataService.get('/sms/wells/service/human-resources/paging', params);

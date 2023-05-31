@@ -49,7 +49,7 @@
           :total-count="grdRowCount"
         />
       </template>
-      <!-- 필터/부품 -->
+      <!-- 삭제 -->
       <kw-btn
         grid-action
         dense

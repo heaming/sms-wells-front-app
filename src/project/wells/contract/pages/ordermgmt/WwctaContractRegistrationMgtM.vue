@@ -218,7 +218,7 @@ const currentStepName = ref('step1');
 const currentStep = computed(() => steps.find((step) => step.name === currentStepName.value));
 const currentStepIndex = computed(() => steps.findIndex((step) => step.name === currentStepName.value));
 const contract = ref({
-  cntrNo: '',
+  cntrNo: 'W20230001005',
   selectedProduct: [],
   cntrCstNo: '',
   pdInfo: [],

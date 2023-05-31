@@ -72,7 +72,7 @@
           <kw-paging-info
             :total-count="totalCount"
           />
-          <span class="ml8">({{ $t('MSG_TXT_UNIT_COLON_WON') }})</span>
+          <span class="ml8">{{ $t('MSG_TXT_UNIT_COLON_WON') }}</span>
         </template>
 
         <kw-btn
@@ -93,6 +93,7 @@
           primary
           dense
           :disable="totalCount.value === 0"
+          @click="openManagementPopup('CREATE')"
         />
       </kw-action-top>
       <kw-grid
@@ -159,10 +160,15 @@ async function onClickSearch() {
   await fetchPage();
 }
 
-async function openManagementPopup() {
-  const managementPopupName = 'WwfeyEngineerAllowanceDsbUprcRegP';
+async function openManagementPopup(mode) {
+  const view = grdMainRef.value.getView();
+  const selectedRowData = gridUtil.getSelectedRowValues(view);
+  const managementPopupName = 'WwfeyEngineerAllowanceDsbUprcMgtP';
   const { result, payload } = await modal({
     component: managementPopupName,
+    componentProps: { mode,
+      searchParams: cloneDeep(searchParams.value),
+      modelValue: selectedRowData ? selectedRowData[0] : selectedRowData },
   });
   if (result) {
     if (payload === 'CREATE') {
@@ -177,7 +183,7 @@ async function openManagementPopup() {
 }
 
 const filterdGroupDetailCode = computed(() => {
-  const data = [{ codeId: '', codeName: '이전' }];
+  const data = [{ codeId: '', codeName: t('MSG_BTN_PREV') }];
   data.push(
     // eslint-disable-next-line no-unsafe-optional-chaining
     ...(codes?.PD_GRP_DTL_CD.filter((item) => item.userDfn03 === searchParams.value.productGroupCode)),
@@ -190,11 +196,12 @@ const filterdGroupDetailCode = computed(() => {
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
   await gridUtil.exportView(view, {
-    fileName: '엔지니어_수당_지급단가',
+    fileName: t('MSG_TXT_EGER_AW_UPRC'),
     timePostfix: true,
 
   });
 }
+
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
@@ -220,6 +227,8 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'indvEntrpAwAmt', dataType: 'number' },
     { fieldName: 'mngerWkUprc', dataType: 'number' },
     { fieldName: 'dsbBaseSn', dataType: 'number' },
+    { fieldName: 'rmkCn' },
+    { fieldName: 'useYn' },
   ];
 
   const columns = [
@@ -390,12 +399,9 @@ const initGrid = defineGrid((data, view) => {
   view.rowIndicator.visible = true;
 
   // region event callbacks for popup
-  view.onCellDblClicked = (grid, clickData) => {
-    const newRowValue = grid.getValues(clickData.itemIndex);
-    openManagementPopup(newRowValue);
+  view.onCellDblClicked = () => {
+    openManagementPopup('VIEW');
   };
-  // endregion section for popup
-
   onClickSearch();
 });
 
