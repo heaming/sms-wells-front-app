@@ -398,7 +398,7 @@ async function onClickRedfObjectCreate(param) {
     component: 'ZwdeaRedfObjectCreateP',
     componentProps: {
       tenantCd: userInfo.tenantCd,
-      selectType: param, /* param === 'all'이면 일괄생성(MSG_TXT_OG_TP 셀렉트박스 disable), 're'면 재생성(disable 안함) */
+      createType: param, /* param === 'all'이면 일괄생성(MSG_TXT_OG_TP 셀렉트박스 disable), 're'면 재생성(disable 안함) */
     },
   });
 }

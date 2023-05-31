@@ -825,7 +825,7 @@ const wpAndBrchColumnLayout = [
 const dlqColumnLayout = [
   'baseYm', 'perfYm', 'prtnrNo', 'prtnrKnm', 'ogTpNm', 'perfDvNm',
   {
-    header: t('MMSG_TXT_REDF_PERF'),
+    header: t('MSG_TXT_REDF_PERF'),
     direction: 'horizontal',
     items: ['col182', 'col183'],
   },
