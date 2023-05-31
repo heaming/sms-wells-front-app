@@ -170,14 +170,6 @@ const frmMainRef = ref(getComponentType('KwForm'));
 
 let cachedParams;
 
-const props = defineProps({
-  cntrNo: { type: String, required: true, default: '' }, // 계약번호
-  cntrSn: { type: String, required: false, default: '' }, // 계약일련번호
-});
-
-const orgCntrNo = ref(''); /* 변경전 계약번호 */
-const orgCntrSn = ref(''); /* 변경전 계약일련번호 */
-
 const fieldParams = ref({
   bzrno: '', /* 사업자등록번호 */
   cntrCnfmDtm: '', /* 계약확정일시 */
@@ -195,6 +187,8 @@ const fieldParams = ref({
   txinvPblOjYn: '', /* 세금계산서발행여부 */
   telNo: '', /* 전화번호 */
   bzrnoFormat: '', /* 사업자등록번호 format */
+  cntrNo: '',
+  cntrSn: '',
 });
 
 // -------------------------------------------------------------------------------------------------
@@ -203,12 +197,11 @@ const fieldParams = ref({
 
 // fetchData: 조회
 async function fetchData() {
+  console.log(fieldParams.value);
   if (!await frmMainRef.value.confirmIfIsModified()) { return; }
-  const res = await dataService.get('/sms/wells/contract/contract-info/tax-Invoices', { params: { cntrNo: props.cntrNo, cntrSn: props.cntrSn } });
+  const res = await dataService.get('/sms/wells/contract/contract-info/tax-Invoices', { params: { cntrNo: fieldParams.value.cntrNo, cntrSn: fieldParams.value.cntrSn } });
   if (!isEmpty(res.data)) {
     Object.assign(fieldParams.value, res.data);
-    fieldParams.value.cntrNo = props.cntrNo; // 계약번호
-    fieldParams.value.cntrSn = props.cntrSn; // 계약일련번호
     fieldParams.value.telNo = `${fieldParams.value.cralLocaraTno}${fieldParams.value.mexno}${fieldParams.value.cralIdvTno}`; // 전화번호
     fieldParams.value.bzrnoFormat = !isEmpty(res.data.bzrno) ? `${res.data.bzrno?.substring(0, 3)}-${res.data.bzrno?.substring(3, 5)}-${res.data.bzrno?.substring(5, 10)}` : '';
   }
@@ -244,16 +237,17 @@ async function onClickSave() {
   await alert(t('MSG_ALT_SAVE_DATA'));
 }
 
-// onActivated: Tab 변경시
-onActivated(() => {
-  // 부모창의 cntrNo랑 cntrSn이 바뀌지 않았으면,
-  if (orgCntrNo.value === props.cntrNo && orgCntrSn.value === props.cntrSn) {
-    // 리턴
-    return;
-  }
+// setDatas: 계약번호, 계약일련번호 세팅 (부모창에서 호출)
+async function setDatas(cntrNo, cntrSn) {
+  fieldParams.value.cntrNo = cntrNo;
+  fieldParams.value.cntrSn = cntrSn;
 
-  // 부모창의 cntrNo랑 cntrSn이 바꼈으면, 다시 조회한다.
-  orgCntrNo.value = props.cntrNo;
-  orgCntrSn.value = props.cntrSn;
+  await fetchData();
+}
+
+// 외부에서 사용할 수 있도록 노출 선언
+defineExpose({
+  setDatas,
 });
+
 </script>
