@@ -14,9 +14,6 @@
 --->
 <template>
   <kw-page>
-    <template #header>
-      <kw-page-header :options="['홈','판매관리', '리스크관리', '현장감사 판매리스트']" />
-    </template>
     <kw-search
       ref="srchMainRef"
       @search="onClickSearch"
@@ -664,3 +661,9 @@ function initGridExcel(data, view) {
   data.setRows([]);
 }
 </script>
+<style lang="scss">
+.select_og_cd {
+  min-width: 185.96px;
+  max-width: 33% !important;
+}
+</style>
