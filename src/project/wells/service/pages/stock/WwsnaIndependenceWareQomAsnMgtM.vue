@@ -55,7 +55,7 @@
       </kw-search-row>
       <kw-search-row>
         <kw-search-item
-          :label="$t('MSG_TXT_STR_WARE')"
+          :label="$t('MSG_TXT_ITM_KND')"
         >
           <kw-select
             v-model="searchParams.strWare"
@@ -148,15 +148,17 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, defineGrid, useDataService, getComponentType, useMeta } from 'kw-lib';
+import { codeUtil, defineGrid, gridUtil, useDataService, getComponentType, useMeta } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
 
 const { getConfig } = useMeta();
 const { t } = useI18n();
+const { currentRoute } = useRouter();
 
 const dataService = useDataService();
 const baseURI = '/sms/wells/service/qom-asn/independence-warehouse';
+const excelURI = `${baseURI}/excel-download`;
 const grdMainRef = ref(getComponentType('KwGrid'));
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -174,11 +176,12 @@ const searchParams = ref({
   asnOjYm: '',
   apyYm: '',
   cnt: '',
-  wareDvCd: '2',
+  wareDvCd: '',
   wareDtlDvCd: '',
   ostrWare: '',
   strWare: '',
-  itmCd: '',
+  itmCdStart: '',
+  itmCdEnd: '',
   strTpCd: '',
 });
 
@@ -208,6 +211,15 @@ async function onClickSearch() {
   await fetchData();
 }
 
+async function onClickExcelDownload() {
+  const view = grdMainRef.value.getView();
+  const res = await dataService.get(excelURI, { params: cachedParams });
+  await gridUtil.exportView(view, {
+    fileName: currentRoute.value.meta.menuName,
+    timePostfix: true,
+    exportData: res.data,
+  });
+}
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
