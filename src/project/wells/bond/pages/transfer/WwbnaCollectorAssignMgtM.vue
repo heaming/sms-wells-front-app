@@ -385,8 +385,7 @@ async function onClickCreate() {
   } else {
     notify(t('MSG_ALT_ALLO_OF_COLL_EXCN'));
   }
-  // TODO: 이주석이 살아 있는 경우 배치 동작 후 그 다음 작업 정의를 하지 않은 상태 임 확인 필요(배치는 호출 후 완료 여부를 알 수 없음)
-  // await dataService.post('/sms/edu/bond/collector-assigns', cachedParams);
+  await dataService.post('/sms/wells/bond/collector-assigns', cachedParams);
 }
 
 async function onClickPageMove() {
@@ -642,7 +641,7 @@ const initGrdSub = defineGrid((data, view) => {
     { fieldName: 'bfClctamPrtnrNo' },
     { fieldName: 'bfClctamPrtnrKnm' },
     { fieldName: 'cntrNo' },
-    { fieldName: 'cstKnm' },
+    { fieldName: 'cstNm' },
     { fieldName: 'cstNo' },
     { fieldName: 'pdDvKnm' },
     { fieldName: 'pdDvCd' },
@@ -664,7 +663,7 @@ const initGrdSub = defineGrid((data, view) => {
     { fieldName: 'lstmmClctamDvCd', header: t('MSG_TXT_LSTMM_ICHR_CLCTAM_DV'), width: '130', styleName: 'text-center', editable: false },
     { fieldName: 'bfClctamPrtnrKnm', header: t('MSG_TXT_LSTMM_PSIC'), width: '90', styleName: 'text-center', editable: false },
     { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '160', styleName: 'text-center', editable: false },
-    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '90', styleName: 'text-center', editable: false },
+    { fieldName: 'cstNm', header: t('MSG_TXT_CST_NM'), width: '90', styleName: 'text-center', editable: false },
     { fieldName: 'cstNo', header: t('MSG_TXT_CST_NO'), width: '130', styleName: 'text-center', editable: false },
     { fieldName: 'pdDvKnm', header: t('MSG_TXT_PRDT_GUBUN'), width: '90', styleName: 'text-center', editable: false },
     { fieldName: 'dlqMcn', header: t('MSG_TXT_DLQ_MCNT'), width: '86', styleName: 'text-right', editable: false },
