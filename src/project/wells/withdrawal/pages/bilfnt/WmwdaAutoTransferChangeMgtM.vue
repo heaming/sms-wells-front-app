@@ -144,8 +144,8 @@ const inputParams = ref({
 
 const strDomain = window.location.host;
 
-const visitCocnMshCh = `${strDomain}/#/withdrawal/zmwda-auto-transfer-payment-change`;
-const elsgLdstcCh = `${strDomain}/#/withdrawal/zmwda-auto-transfer-payment-change`;
+const visitCocnMshCh = `${strDomain}/#/withdrawal/zmwda-auto-transfer-payment-change?vstYn=Y&chRqrDvCd=2&aftnThpChYn=N&clctamMngtYn=N&cntrChPrtnrNo=${userId}&akChdt=${akChdt}`;
+const elsgLdstcCh = `${strDomain}/#/withdrawal/zmwda-auto-transfer-payment-change?vstYn=N&chRqrDvCd=1&aftnThpChYn=N&clctamMngtYn=N&cntrChPrtnrNo=${userId}&akChdt=${akChdt}`;
 
 async function onClickUrlCopy(no) {
   if (no === 1) {
@@ -183,9 +183,9 @@ async function onClickAlarmSend() {
   // const query = {
   //   vstYn: 'N',
   //   chRqrDvCd: '1',
+  //   cntrChPrtnrNo: userId,
   //   aftnThpChYn: 'N',
   //   clctamMngtYn: 'N',
-  //   cntrChPrtnrNo: userId,
   //   akChdt,
   // };
   // const path = url.slice(url.indexOf('#') + 1);

@@ -33,7 +33,7 @@
         <kw-btn
           :label="t('MSG_BTN_CH')"
           class="ml8"
-          @click="onClickChange(1)"
+          @click="onClickChange()"
         />
       </kw-field-wrap>
     </div>
@@ -52,11 +52,11 @@
           class="ml8"
           @click="onClickUrlCopy(2)"
         />
-        <kw-btn
+        <!-- <kw-btn
           :label="t('MSG_BTN_CH')"
           class="ml8"
           @click="onClickChange(2)"
-        />
+        /> -->
       </kw-field-wrap>
 
       <kw-separator />
@@ -147,8 +147,8 @@ const akChdt = now.format('YYYYMMDD');
 
 const strDomain = window.location.host;
 
-const visitCocnMshCh = `${strDomain}/#/withdrawal/ztwda-auto-transfer-payment-change`; // 방문
-const elsgLdstcCh = `${strDomain}/#/withdrawal/ztwda-auto-transfer-payment-change`; // 원거리 차이가 없음
+const visitCocnMshCh = `${strDomain}/#/withdrawal/ztwda-auto-transfer-payment-change?vstYn=Y&chRqrDvCd=2&aftnThpChYn=N&clctamMngtYn=N&cntrChPrtnrNo=${userId}&akChdt=${akChdt}`; // 방문
+const elsgLdstcCh = `${strDomain}/#/withdrawal/ztwda-auto-transfer-payment-change?vstYn=N&chRqrDvCd=1&aftnThpChYn=N&clctamMngtYn=N&cntrChPrtnrNo=${userId}&akChdt=${akChdt}`; // 원거리
 
 async function onClickUrlCopy(no) {
   if (no === 1) {
@@ -159,16 +159,16 @@ async function onClickUrlCopy(no) {
   notify(t('MSG_ALT_COPY_DATA'));
 }
 
-async function onClickChange(no) {
+async function onClickChange() {
   const query = {
-    vstYn: no === 1 ? 'Y' : 'N',
-    chRqrDvCd: no === 1 ? '2' : '1',
+    vstYn: 'Y',
+    chRqrDvCd: '2',
     aftnThpChYn: 'N',
     clctamMngtYn: 'N',
     cntrChPrtnrNo: userId,
     akChdt,
   };
-  const url = no === 1 ? visitCocnMshCh : elsgLdstcCh;
+  const url = visitCocnMshCh;
 
   const path = url.slice(url.indexOf('#') + 1);
 
@@ -185,10 +185,10 @@ async function onClickAlarmSend() {
 
   // const query = {
   //   vstYn: 'N',
-  //   chRqrDvCd: '10',
+  //   chRqrDvCd: '1',
+  //   cntrChPrtnrNo: userId,
   //   aftnThpChYn: 'N',
   //   clctamMngtYn: 'N',
-  //   cntrChPrtnrNo: userId,
   //   akChdt,
   // };
   // const url = elsgLdstcCh;
