@@ -114,6 +114,7 @@ const dataService = useDataService();
 const { getConfig } = useMeta();
 // const { modal, notify, alert } = useGlobal();
 const { modal, notify } = useGlobal();
+const store = useStore();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -136,7 +137,7 @@ const totalCount = ref(0);
 const wharehouseParams = ref({
   apyYm: dayjs().format('YYYYMM'),
   // WM : 1642720
-  userId: '36680',
+  userId: store.getters['meta/getUserInfo'].employeeIDNumber,
 });
 
 const pageInfo = ref({
@@ -233,7 +234,6 @@ async function fetchDefaultData() {
 }
 
 async function openOutOfStorageP(g, { column, dataRow }) {
-  debugger;
   console.log(g, { column, dataRow });
   const { ostrAkNo } = gridUtil.getRowValue(g, dataRow);
   const { ostrAkTpCd } = gridUtil.getRowValue(g, dataRow);
@@ -246,7 +246,6 @@ async function openOutOfStorageP(g, { column, dataRow }) {
   });
 
   if (result) {
-    debugger;
     await fetchData();
   }
 }
