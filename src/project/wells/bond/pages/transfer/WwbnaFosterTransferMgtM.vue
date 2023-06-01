@@ -316,6 +316,7 @@ async function onClickExcelDownload(gridType) {
     await gridUtil.exportView(excelView, {
       fileName: `${currentRoute.value.meta.menuName}_${t('MSG_TXT_AGRG_RS')}`,
       timePostfix: true,
+      exportData: gridUtil.getAllRowValues(excelView),
     });
   }
   if (gridType === 'detail') {
