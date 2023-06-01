@@ -343,7 +343,7 @@ async function fetchDgr2LevlOgs(params) {
 
 async function getOrganizationInfo() {
   const userInfo = getters['meta/getUserInfo'];
-  const { ogId } = userInfo;
+  const ogId = userInfo.ogId === 'test' ? 'OGO200800000185' : userInfo.ogId;
   const { data: { dgr1LevlOgId, dgr2LevlOgId } } = await dataService.get(`/sms/wells/service/manage-customer-rglvl/organization-info/${ogId}`);
 
   executiveGroup.value = dgr1LevlOgId;
@@ -580,12 +580,12 @@ function initGrdMain(data, view) {
   ];
 
   const columns = [
-    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_NO'), width: '130', styleName: 'text-center' }, // 계약번호
+    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_NO'), width: '130', styleName: 'rg-button-link text-center', renderer: { type: 'button' }, preventCellItemFocus: true }, // 계약번호
     { fieldName: 'rcgvpKnm', header: t('MSG_TXT_CST_NM'), width: '100', styleName: 'text-center' }, // 고객명
     { fieldName: 'svpdSapCd', header: t('MSG_TXT_SAP_CD'), width: '180', styleName: 'text-center' }, // SAP 코드
     { fieldName: 'pdctPdCd', header: t('MSG_TXT_ITM_CD'), width: '110', styleName: 'text-center' }, // 품목코드
     { fieldName: 'svpdNmAbbr1', header: t('MSG_TXT_PRDT_NM'), width: '110', styleName: 'text-center' }, // 상품명
-    { fieldName: 'istDt', header: t('MSG_TXT_IST_DT'), width: '100', styleName: 'text-center' }, // 설치일자
+    { fieldName: 'istDt', header: t('MSG_TXT_IST_DT'), width: '100', datetimeFormat: 'yyyy-MM-dd', styleName: 'text-center' }, // 설치일자
     { fieldName: 'newAdrZip', header: t('MSG_TXT_ZIP'), width: '70', styleName: 'text-center' }, // 우편번호
     { fieldName: 'adr', header: t('MSG_TXT_ADDR'), width: '400' }, // 주소
     { fieldName: 'adrEmd', header: t('MSG_TXT_ADDR_EMD'), width: '200' }, // 주소(읍면동)
