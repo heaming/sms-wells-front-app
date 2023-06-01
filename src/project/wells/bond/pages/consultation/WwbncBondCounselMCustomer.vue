@@ -37,16 +37,20 @@
           v-model="searchParams.schCstNo"
           icon="search"
           clearable
+          :regex="/^[0-9]*$/i"
           @click-icon="onClickSelectCustomer"
+          @change="onChangeCstNo"
         />
       </kw-search-item>
       <kw-search-item
         :label="$t('MSG_TXT_CNTR_MPNO')"
       >
         <kw-input
-          v-model="searchParams.schCntrMpno"
-          :maxlength="11"
-          :regex="/^[0-9]*$/i"
+          v-model="mpNo"
+          v-model:tel-no0="searchParams.schCralLocaraTno"
+          v-model:tel-no1="searchParams.schMexnoEncr"
+          v-model:tel-no2="searchParams.schCralIdvTno"
+          mask="telephone"
           :placeholder="$t('MSG_TXT_REPSN_DGT4_WO_NO_IN')"
         />
       </kw-search-item>
@@ -58,6 +62,7 @@
           icon="search"
           clearable
           @click-icon="onClickSelectCustomer"
+          @change="onChangeCstNo"
         />
       </kw-search-item>
     </kw-search-row>
@@ -75,16 +80,22 @@
       <kw-search-item
         :label="$t('MSG_TXT_SFK')"
       >
-        <kw-input v-model="searchParams.schSfK" />
+        <kw-input
+          v-model="searchParams.schSfK"
+          icon="search"
+          @click-icon="onClickSelectCustomer"
+        />
       </kw-search-item>
 
       <kw-search-item
         :label="$t('MSG_TXT_IST_MPNO')"
       >
         <kw-input
-          v-model="searchParams.schIstMpno"
-          :maxlength="11"
-          :regex="/^[0-9]*$/i"
+          v-model="IstMpNo"
+          v-model:tel-no0="searchParams.schIstCralLocaraTno"
+          v-model:tel-no1="searchParams.schIstMexnoEncr"
+          v-model:tel-no2="searchParams.schIstCralIdvTno"
+          mask="telephone"
           :placeholder="$t('MSG_TXT_REPSN_DGT4_WO_NO_IN')"
         />
       </kw-search-item>
@@ -96,11 +107,13 @@
         <kw-select
           v-model="searchParams.schDlqMcntStrt"
           :options="selectCodes.DLQ_MCNT"
+          first-option="all"
         />
         <span>-</span>
         <kw-select
           v-model="searchParams.schDlqMcntEnd"
           :options="selectCodes.DLQ_MCNT"
+          first-option="all"
         />
       </kw-search-item>
       <kw-search-item
@@ -110,16 +123,19 @@
         <kw-select
           v-model="searchParams.schFntDv"
           :options="selectCodes.FNT_DV"
+          first-option="all"
         />
         <span>-</span>
         <kw-select
           v-model="searchParams.schFntDtStrt"
           :options="selectCodes.FNT_DT"
+          first-option="all"
         />
         <span>-</span>
         <kw-select
           v-model="searchParams.schFntDtEnd"
           :options="selectCodes.FNT_DT"
+          first-option="all"
         />
       </kw-search-item>
       <kw-search-item
@@ -147,6 +163,7 @@
         <kw-select
           v-model="searchParams.schCpsnRsgYn"
           :options="selectCodes.AUTH_AUTH_RSG_YN"
+          first-option="all"
         />
       </kw-search-item>
     </kw-search-row>
@@ -174,11 +191,15 @@
         :label="$t('MSG_BTN_IST_CHAR_FW')"
         primary
         dense
+        :disable="totalCount === 0"
+        @click="onClickIstMessageSend"
       />
       <kw-btn
         :label="$t('MSG_BTN_CNTR_CHAR_FW')"
         primary
         dense
+        :disable="totalCount === 0"
+        @click="onClickCntrMessageSend"
       />
     </kw-action-top>
 
@@ -188,7 +209,7 @@
           {{ $t('MSG_TXT_DIV') }}
         </p>
         <kw-option-group
-          v-model="searchParams.dv"
+          v-model="searchParams.schDv"
           dense
           type="radio"
           :options="selectCodes.WELLS_CST_LIST_DV"
@@ -209,7 +230,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { defineGrid, gridUtil, codeUtil, getComponentType, modal, useDataService } from 'kw-lib';
+import { defineGrid, gridUtil, codeUtil, getComponentType, modal, useDataService, notify } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 import { getDlqMcnt, getFntDt, getWellsCstListDv, getAuthAuthRsgYn, getFntDv } from '~sms-common/bond/utils/bnUtil';
 
@@ -238,12 +259,15 @@ let cachedParams;
 const searchParams = ref({
   schClctamNo: '',
   schCstNo: '',
-  schCntrMpno: '',
+  schCralLocaraTno: '',
+  schMexnoEncr: '',
+  schCralIdvTno: '',
   schCstNm: '',
   schClctamPsic: '',
-  schClctamPsicNo: '',
   schSfK: '',
-  schIstMpno: '',
+  schIstCralLocaraTno: '',
+  schIstMexnoEncr: '',
+  schIstCralIdvTno: '',
   schDlqMcntStrt: '',
   schDlqMcntEnd: '',
   schFntDv: '',
@@ -254,14 +278,15 @@ const searchParams = ref({
   schCstDv: '01',
   schCpsnRsgYn: '',
   schDv: '',
-  dv: '01',
+  schCstNoYn: 'N',
 });
 
+const customerParams = ref({});
 const totalCount = ref(0);
 
 /** 고객리스트 조회 */
 async function fetchCustomers() {
-  const response = await dataService.get('/sms/wells/bond/bond-counsel/customers', { params: cachedParams });
+  const response = await dataService.get('/sms/wells/bond/bond-counsel/customers', { params: cachedParams, timeout: 200000 });
   const customers = response.data;
   totalCount.value = customers.length;
 
@@ -279,20 +304,29 @@ async function onClickExcelDownload() {
   });
 }
 
-/** 고객조회(공통) */
-async function onClickSelectCustomer() {
-  let returnCustomInfo = await modal({
-    component: 'ZwcsaCustomerListP',
-  });
-  /* 단위 테스트를 위한 코딩 추후 고객조회(공통) 팝업이 완성되면 삭제 예정 */
-  returnCustomInfo = {
-    cstNo: '015417731',
-    cstNm: '김지혜',
-  };
+// TODO: 고객번호/고객명 변경
+async function onChangeCstNo() {
+  searchParams.value.schCstNoYn = 'N';
+}
 
-  if (returnCustomInfo) {
-    searchParams.value.schCstNo = returnCustomInfo.cstNo;
-    searchParams.value.schCstNm = returnCustomInfo.cstNm;
+// TODO: 고객조회(공통)
+async function onClickSelectCustomer() {
+  const { result, payload } = await modal({
+    component: 'ZwbnyDelinquentCustomerP',
+    componentProps: {
+      baseYm: customerParams.value.baseYm,
+      cstNo: searchParams.value.schCstNo,
+      cstNm: searchParams.value.schCstNm,
+      sfkVal: searchParams.value.schSfK,
+
+    },
+  });
+  if (result) {
+    const { cstNo, cstNm, sfkVal } = payload;
+    searchParams.value.schCstNo = cstNo;
+    searchParams.value.schCstNm = cstNm;
+    searchParams.value.schSfK = sfkVal;
+    searchParams.value.schCstNoYn = 'Y';
   }
 }
 
@@ -305,26 +339,74 @@ const onClickClctamPsic = async () => {
     },
   });
   if (result) {
-    const { clctamPrtnrNm, clctamPrtnrNo } = payload;
-    searchParams.value.schClctamPsic = clctamPrtnrNm;
-    searchParams.value.schClctamPsicNo = clctamPrtnrNo;
+    searchParams.value.schClctamPsic = payload.prtnrKnm;
+    searchParams.value.schClctamNo = payload.prtnrNo;
   }
 };
 
+// TODO: 설치문자발송
+const onClickIstMessageSend = async () => {
+  const view = grdMainRef.value.getView();
+  const checkedRows = gridUtil.getCheckedRowValues(view);
+  if (checkedRows.length === 0) {
+    notify(t('MSG_ALT_NOT_SEL_ITEM'));
+    return;
+  }
+
+  await modal({
+    component: 'ZwbncMessageSendP',
+    componentProps: {
+      listType: 'customer',
+      dataList: checkedRows,
+      cntrType: 'i',
+    },
+  });
+};
+
+// TODO: 계약문자발송
+const onClickCntrMessageSend = async () => {
+  const view = grdMainRef.value.getView();
+  const checkedRows = gridUtil.getCheckedRowValues(view);
+  if (checkedRows.length === 0) {
+    notify(t('MSG_ALT_NOT_SEL_ITEM'));
+    return;
+  }
+
+  await modal({
+    component: 'ZwbncMessageSendP',
+    componentProps: {
+      listType: 'customer',
+      dataList: checkedRows,
+      cntrType: 'c',
+    },
+  });
+};
+
 async function onClickSearch() {
-  if (searchParams.value.dv === '02') {
-    searchParams.value.schDv = '2';
-  } else if (searchParams.value.dv === '03') {
-    searchParams.value.schDv = '3';
-  } else if (searchParams.value.dv === '04') {
-    searchParams.value.schDv = '4';
-  } else {
-    searchParams.value.schDv = '1';
+  const cstNo = searchParams.value.schCstNo;
+  const cstNm = searchParams.value.schCstNm;
+  const cstNoYn = searchParams.value.schCstNoYn;
+
+  if (cstNo !== '' || cstNm !== '') {
+    if (cstNoYn === 'N') {
+      notify(t('MSG_ALT_NAME_NO_IN'));
+      return;
+    }
   }
 
   cachedParams = cloneDeep(searchParams.value);
   await fetchCustomers();
 }
+
+async function fetchBaseYmData() {
+  const response = await dataService.get('/sms/wells/bond/bond-counsel/base-ym');
+  customerParams.value = response.data;
+}
+
+onMounted(async () => {
+  await fetchBaseYmData();
+});
+
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
@@ -379,7 +461,7 @@ const initGrdMain = defineGrid((data, view) => {
 
   const columns = [
     { fieldName: 'ctt', header: t('MSG_TXT_CTT'), width: '52', styleName: 'text-center', headerSummaries: { text: '합계', styleName: 'text-center' } },
-    { fieldName: 'fnt', header: t('MSG_TXT_FNT'), width: '52', styleName: 'text-center' },
+    { fieldName: 'fnt', header: t('MSG_TXT_FNT'), width: '120', styleName: 'text-center' },
     { fieldName: 'cstNo', header: t('MSG_TXT_CST_NO'), width: '100', styleName: 'text-center' },
     { fieldName: 'cstNm', header: t('MSG_TXT_CST_NM'), width: '80', styleName: 'text-center' },
     { fieldName: 'dlqMcnt', header: t('MSG_TXT_DLQ_MCNT'), width: '70', styleName: 'text-center' },
@@ -410,7 +492,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'rtlfeIstm1', header: t('MSG_TXT_RTLFE_1_ISTM'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
     { fieldName: 'rtlfe2', header: t('MSG_TXT_RTLFE2'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
     { fieldName: 'rtlfeIstm2', header: t('MSG_TXT_RTLFE_2_ISTM'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
-    { fieldName: 'clctamIchr', header: t('MSG_TXT_CLCTAM_PSIC'), width: '100' },
+    { fieldName: 'clctamIchr', header: t('MSG_TXT_CLCTAM_PSIC'), width: '100', styleName: 'text-center' },
     {
       fieldName: 'cntrMpno',
       header: t('MSG_TXT_CNTR_MPNO'),
@@ -438,14 +520,14 @@ const initGrdMain = defineGrid((data, view) => {
       },
     },
 
-    { fieldName: 'vtAcBnk', header: t('MSG_TXT_VT_AC_BNK'), width: '100' },
+    { fieldName: 'vtAcBnk', header: t('MSG_TXT_VT_AC_BNK'), width: '100', styleName: 'text-center' },
     { fieldName: 'vtAcNo', header: t('MSG_TXT_VT_AC_NO'), width: '130', styleName: 'text-center' },
-    { fieldName: 'sfk', header: t('MSG_TXT_SFK'), width: '100', styleName: 'text-center' },
-    { fieldName: 'clnPsbl', header: t('MSG_TXT_CLN_PSBL'), width: '100' },
-    { fieldName: 'clnPrcs', header: t('MSG_TXT_CLN_PRCS'), width: '100' },
-    { fieldName: 'cstStat', header: t('MSG_TXT_CST_STAT'), width: '100' },
-    { fieldName: 'cvcpInf', header: t('MSG_TXT_CVCP_INF'), width: '120' },
-    { fieldName: 'unuslArtc', header: t('MSG_TXT_UNUITM'), width: '120' },
+    { fieldName: 'sfk', header: t('MSG_TXT_SFK'), width: '120', styleName: 'text-center' },
+    { fieldName: 'clnPsbl', header: t('MSG_TXT_CLN_PSBL'), width: '100', styleName: 'text-center' },
+    { fieldName: 'clnPrcs', header: t('MSG_TXT_CLN_PRCS'), width: '100', styleName: 'text-center' },
+    { fieldName: 'cstStat', header: t('MSG_TXT_CST_STAT'), width: '100', styleName: 'text-center' },
+    { fieldName: 'cvcpInf', header: t('MSG_TXT_CVCP_INF'), width: '120', styleName: 'text-center' },
+    { fieldName: 'unuslArtc', header: t('MSG_TXT_UNUITM'), width: '120', styleName: 'text-center' },
     { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_NO'), width: '100', styleName: 'text-center', visible: false },
     { fieldName: 'cntrSn', header: t('MSG_TXT_CNTR_SN'), width: '100', styleName: 'text-center', visible: false },
   ];
@@ -468,7 +550,7 @@ const initGrdMain = defineGrid((data, view) => {
     const cntrNo = g.getValue(dataRow, 'cntrNo');
     const cntrSn = g.getValue(dataRow, 'cntrSn');
     if (cstNo) {
-      await window.open(`/popup/#/wwbnc-customer-dtl?cstNo=${cstNo}&cntrNo=${cntrNo}&cntrSn=${cntrSn}`, 'POPUP', 'width=1540, height=1100, menubar=no, location=no');
+      await window.open(`/popup/#/wwbnc-customer-dtl?cstNo=${cstNo}&cntrNo=${cntrNo}&cntrSn=${cntrSn}`, 'POPUP', 'width=2000, height=1100, menubar=no, location=no, resizable=yes');
     }
   };
 });
