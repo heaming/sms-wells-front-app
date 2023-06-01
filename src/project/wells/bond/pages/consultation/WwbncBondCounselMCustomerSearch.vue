@@ -156,6 +156,7 @@ const grdMainRef = ref(getComponentType('KwGrid'));
 const searchParams = reactive({});
 const totalCount = ref(0);
 const subModuleCodes = ref([]);
+const customerParams = ref({});
 
 const codes = await codeUtil.getMultiCodes(
   'BND_CLCTN_PRP_DV_CD',
@@ -182,32 +183,39 @@ async function onClickSearch() {
   await fetchData();
 }
 
-/** 고객조회(공통) */
 async function onClickSelectCustomer() {
   const { result, payload } = await modal({
-    component: 'ZwcsaCustomerListP',
+    component: 'ZwbnyDelinquentCustomerP',
     componentProps: {
-      name: searchParams.cstKnm,
-      cstType: '1', // '1': 개인 / '2': 법인
+      baseYm: customerParams.value.baseYm,
+      cstNm: searchParams.cstKnm,
     },
   });
-
   if (result) {
-    searchParams.cstKnm = payload.name; // 고객명
-    searchParams.cstNo = payload.cstNo; // 고객번호
+    const { cstNo, cstNm } = payload;
+    searchParams.cstNo = cstNo;
+    searchParams.cstKnm = cstNm;
   }
 }
 
 async function onClickExcelDownload() {
-  const res = await dataService.get('/sms/wells/bond/customer-search', { params: searchParams, timeout: 300000 });
   const view = grdMainRef.value.getView();
 
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
-    exportData: res.data,
+    exportData: gridUtil.getAllRowValues(view),
   });
 }
+
+async function fetchBaseYmData() {
+  const response = await dataService.get('/sms/common/bond/promise-customer/base-ym');
+  customerParams.value = response.data;
+}
+
+onMounted(async () => {
+  await fetchBaseYmData();
+});
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
