@@ -31,14 +31,6 @@
             rules="required"
           />
           <kw-date-range-picker
-            v-if="searchParams.apyCls === 1"
-            v-model:from="searchParams.strtYm"
-            v-model:to="searchParams.endYm"
-            :label="$t('MSG_TXT_ACEPT_PERIOD')"
-            rules="date_range_required"
-          />
-          <kw-date-range-picker
-            v-if="searchParams.apyCls === 2"
             v-model:from="searchParams.strtYm"
             v-model:to="searchParams.endYm"
             :label="$t('MSG_TXT_ACEPT_PERIOD')"
