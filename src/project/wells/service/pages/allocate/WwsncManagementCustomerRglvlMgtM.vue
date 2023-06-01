@@ -20,8 +20,9 @@
     >
       <kw-search-row>
         <kw-search-item
-          label="관리년월"
+          :label="$t('MSG_TXT_MGT_YNM')"
         >
+          <!--관리년월-->
           <kw-date-picker
             v-model="searchParams.manageYm"
             readonly
@@ -29,16 +30,18 @@
           />
         </kw-search-item>
 
-        <kw-search-item label="고객구분">
+        <kw-search-item :label="$t('MSG_TXT_CST_DV')">
+          <!--고객구분-->
           <kw-select
             v-model="searchParams.rcgvpDiv"
             :options="tempOptions"
           />
         </kw-search-item>
         <kw-search-item
-          label="우편번호"
+          :label="$t('MSG_TXT_ZIP')"
           :colspan="2"
         >
+          <!--우편번호-->
           <!-- <kw-select
             v-model="searchParams.selectDiv"
             :options="[{ codeId: 'ALL', codeName: t('전체') },
@@ -56,9 +59,9 @@
           >
             <kw-checkbox
               v-model="searchParams.exceptWellsManagerYn"
-              label="웰스매니저 미관리 제외"
+              :label="$t('MSG_TXT_EXCPT_WELS_MNGR')"
               val="Y"
-            />
+            /><!--웰스매니저 미관리 제외-->
           </kw-field>
         </kw-search-item>
       </kw-search-row>
@@ -77,6 +80,8 @@
           dgr2-levl-og-label="ogCdNm"
           dgr3-levl-og-label="ogCdNm"
           partner-label="prtnrNoNm"
+          dgr1-levl-og-readonly
+          dgr2-levl-og-readonly
         />
       </kw-search-row>
       <!-- <kw-search-row>
@@ -105,9 +110,9 @@
         </template>
         <kw-btn
           grid-action
-          label="저장"
+          :label="$t('MSG_BTN_SAVE')"
           @click="onClickSave"
-        />
+        /><!--저장-->
         <kw-separator
           vertical
           inset
@@ -117,15 +122,16 @@
           icon="print"
           dense
           secondary
-          label="인쇄"
-        />
+          :label="$t('MSG_BTN_PRTG')"
+        /><!--인쇄-->
         <kw-btn
           icon="download_on"
           dense
           secondary
-          label="엑셀다운로드"
+          :disable="pageInfo.totalCount === 0"
+          :label="$t('MSG_TXT_EXCEL_DOWNLOAD')"
           @click="onClickExcelDownload"
-        />
+        /><!--엑셀다운로드-->
         <kw-separator
           vertical
           inset
@@ -140,54 +146,57 @@
           first-option-value=""
           option-value="ogId"
           option-label="ogCdNm"
-          :first-option-label="$t('지점 선택')"
+          :first-option-label="$t('MSG_TXT_SLCT_BRANCH')"
           class="w110"
           rules="required"
-          :label="$t('지점')"
-        />
+          :label="$t('MSG_TXT_BRANCH')"
+        /><!--지점 선택, 지점-->
         <kw-select
           ref="mngtPrtnrNoRef"
           v-model="mngStd.mngtPrtnrNo"
           :options="mngStdPrtnrNoOptions"
           first-option
           first-option-value=""
-          :first-option-label="$t('매니저 선택')"
+          :first-option-label="$t('MSG_TXT_SLCT_MANAGER')"
           option-value="prtnrNo"
           option-label="prtnrNoNm"
           dense
           class="w110"
           rules="required"
-          :label="$t('매니저')"
-        />
+          :label="$t('MSG_TXT_MANAGER')"
+        /><!--매니저 선택, 매니저-->
         <kw-select
           ref="mngStdMngerRglvlDvCdRef"
           v-model="mngStd.mngStdMngerRglvlDvCd"
           :options="codes.RGLVL_DV_CD"
+          first-option
+          first-option-value=""
+          :first-option-label="$t('MSG_TXT_SLCT_MNGER_RGLVL_DV')"
           dense
           class="w110"
           rules="required"
-          :label="$t('관리기준급지')"
-        />
+          :label="$t('MSG_TXT_MNGER_RGLVL_DV')"
+        /><!--관리기준급지 선택, 관리기준급지-->
         <kw-btn
           secondary
           dense
-          label="관리계정 일괄변경"
+          :label="$t('MSG_BTN_MNG_ACC_BK_APPLY')"
           @click="onClickBulkUpdateMngStd"
-        />
+        /><!--관리계정 일괄변경-->
         <kw-select
           ref="asnPsicPrtnrOgTpCdRef"
           v-model="curMnthAlctn.asnPsicPrtnrOgTpCd"
           :options="prtnrOgTpOptions"
           first-option
           first-option-value=""
-          :first-option-label="$t('지점 선택')"
+          :first-option-label="$t('MSG_TXT_SLCT_BRANCH')"
           option-value="ogId"
           option-label="ogCdNm"
           dense
           class="w110"
           rules="required"
-          :label="$t('지점')"
-        />
+          :label="$t('MSG_TXT_BRANCH')"
+        /><!--지점 선택, 지점-->
         <kw-select
           ref="asnPsicPrtnrNoRef"
           v-model="curMnthAlctn.asnPsicPrtnrNo"
@@ -195,28 +204,31 @@
           dense
           first-option
           first-option-value=""
-          :first-option-label="$t('매니저 선택')"
+          :first-option-label="$t('MSG_TXT_SLCT_MANAGER')"
           option-value="prtnrNo"
           option-label="prtnrNoNm"
           class="w110"
           rules="required"
-          :label="$t('매니저')"
-        />
+          :label="$t('MSG_TXT_MANAGER')"
+        /><!--매니저 선택, 매니저-->
         <kw-select
           ref="curMnthAlctnMngerRglvlDvCdRef"
           v-model="curMnthAlctn.curMnthAlctnMngerRglvlDvCd"
           :options="codes.RGLVL_DV_CD"
+          first-option
+          first-option-value=""
+          :first-option-label="$t('MSG_TXT_SLCT_MNGER_RGLVL_DV')"
           dense
           class="w110"
           rules="required"
-          :label="$t('관리기준급지')"
-        />
+          :label="$t('MSG_TXT_MNGER_RGLVL_DV')"
+        /><!--관리기준급지 선택, 관리기준급지-->
         <kw-btn
           secondary
           dense
-          label="당월배정 일괄변경"
+          :label="$t('MSG_BTN_CRT_TRGT_BK_APPLY')"
           @click="onClickBulkUpdateCurMnthAlctn"
-        />
+        /><!--당월배정 일괄변경-->
       </kw-action-top>
       <kw-grid
         ref="grdMainRef"
@@ -256,16 +268,18 @@ const codes = await codeUtil.getMultiCodes(
 );
 
 const { getters } = useStore();
+const { currentRoute } = useRouter();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 
-const tempOptions = ref([{ codeId: 'ALL', codeName: t('전체') },
-  { codeId: '01', codeName: t('신규') },
-  { codeId: '02', codeName: t('작업대기') },
-  { codeId: '03', codeName: t('작업완료') },
-  { codeId: '00', codeName: t('예정') }]);
+const tempOptions = ref([
+  { codeId: 'ALL', codeName: t('MSG_TXT_ALL') },
+  { codeId: '01', codeName: t('MSG_TXT_NEW') }, // 신규
+  { codeId: '02', codeName: t('MSG_TXT_WORK_PENDING') }, // 작업대기
+  { codeId: '03', codeName: t('MSG_TXT_WK_FSH') }, // 작업완료
+  { codeId: '00', codeName: t('MSG_TXT_EXP') }]); // 예정
 
 const searchParams = ref({
   manageYm: now.format('YYYYMM'),
@@ -396,18 +410,18 @@ async function onClickBulkUpdateMngStd() {
     notify(t('MSG_ALT_NOT_SEL_ITEM'));
     return;
   }
-  const data = view.getDataSource();
 
   const { mngtPrtnrOgTpCd, mngtPrtnrNo, mngStdMngerRglvlDvCd } = mngStd.value;
-
   const { ogCd } = prtnrOgTpOptions.value.find((option) => mngtPrtnrOgTpCd === option.ogId);
+  const { prtnrNoNm } = mngStdPrtnrNoOptions.value.find((option) => mngtPrtnrNo === option.prtnrNo);
 
+  const data = view.getDataSource();
   data.beginUpdate();
   checkedRows.forEach((rowValue) => {
     data.updateRow(rowValue.dataRow, {
       mngStdDgr2LevlOgCd: localGroupCd.value,
       mngStdDgr3LevlOgCd: ogCd,
-      mngStdPrtnrKnm: mngtPrtnrNo,
+      mngStdPrtnrKnm: prtnrNoNm,
       mngtPrtnrOgTpCd: ogCd,
       mngtPrtnrNo,
       mngStdMngerRglvlDvCd,
@@ -461,13 +475,14 @@ async function onClickBulkUpdateCurMnthAlctn() {
   const { cnfmPsicPrtnrNo, curMnthAlctnMngerRglvlDvCd } = curMnthAlctn.value;
 
   const { ogCd } = prtnrOgTpOptions.value.find((option) => asnPsicPrtnrOgTpCd === option.ogId);
+  const { prtnrNoNm } = curMnthAlctnPrtnrNoOptions.value.find((option) => asnPsicPrtnrNo === option.prtnrNo);
 
   data.beginUpdate();
   checkedRows.forEach((rowValue) => {
     data.updateRow(rowValue.dataRow, {
       curMnthAlctnDgr2LevlOgCd: localGroupCd.value,
       curMnthAlctnDgr3LevlOgCd: ogCd,
-      curMnthAlctnPrtnrKnm: asnPsicPrtnrNo,
+      curMnthAlctnPrtnrKnm: prtnrNoNm,
       asnPsicPrtnrOgTpCd: ogCd,
       asnPsicPrtnrNo,
       cnfmPsicPrtnrOgTpCd: ogCd,
@@ -481,6 +496,11 @@ async function onClickBulkUpdateCurMnthAlctn() {
 async function onClickSave() {
   const view = grdMainRef.value.getView();
   const updatedRows = gridUtil.getUpdatedRowValues(view);
+  if (updatedRows.length === 0) {
+    notify(t('MSG_ALT_NO_ITEM', [t('MSG_TXT_SAVE')])); // 저장할 목록이 없습니다.
+    return;
+  }
+
   const data = updatedRows.map(({
     cntrNo,
     cntrSn,
@@ -506,11 +526,16 @@ async function onClickSave() {
     cnfmPsicPrtnrNo,
     curMnthAlctnMngerRglvlDvCd }));
 
-  console.log(updatedRows);
-  console.log(data);
-
   await dataService.put('/sms/wells/service/manage-customer-rglvl/partner-info', data);
   await fetchData();
+}
+
+async function onClickExcelDownload() {
+  const view = grdMainRef.value.getView();
+  await gridUtil.exportView(view, {
+    fileName: currentRoute.value.meta.menuName,
+    timePostfix: true,
+  });
 }
 
 // -------------------------------------------------------------------------------------------------
@@ -555,48 +580,48 @@ function initGrdMain(data, view) {
   ];
 
   const columns = [
-    { fieldName: 'cntrNo', header: t('계약번호'), width: '130', styleName: 'text-center' },
-    { fieldName: 'rcgvpKnm', header: t('고객명'), width: '100', styleName: 'text-center' },
-    { fieldName: 'svpdSapCd', header: t('SAP코드'), width: '180', styleName: 'text-center' },
-    { fieldName: 'pdctPdCd', header: t('품목코드'), width: '110', styleName: 'text-center' },
-    { fieldName: 'svpdNmAbbr1', header: t('상품명'), width: '100', styleName: 'text-center' },
-    { fieldName: 'istDt', header: t('설치일자'), width: '100', styleName: 'text-center' },
-    { fieldName: 'newAdrZip', header: t('우편번호'), width: '70', styleName: 'text-center' },
-    { fieldName: 'adr', header: t('주소'), width: '400' },
-    { fieldName: 'adrEmd', header: t('주소(읍면동)'), width: '200' },
+    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_NO'), width: '130', styleName: 'text-center' }, // 계약번호
+    { fieldName: 'rcgvpKnm', header: t('MSG_TXT_CST_NM'), width: '100', styleName: 'text-center' }, // 고객명
+    { fieldName: 'svpdSapCd', header: t('MSG_TXT_SAP_CD'), width: '180', styleName: 'text-center' }, // SAP 코드
+    { fieldName: 'pdctPdCd', header: t('MSG_TXT_ITM_CD'), width: '110', styleName: 'text-center' }, // 품목코드
+    { fieldName: 'svpdNmAbbr1', header: t('MSG_TXT_PRDT_NM'), width: '110', styleName: 'text-center' }, // 상품명
+    { fieldName: 'istDt', header: t('MSG_TXT_IST_DT'), width: '100', styleName: 'text-center' }, // 설치일자
+    { fieldName: 'newAdrZip', header: t('MSG_TXT_ZIP'), width: '70', styleName: 'text-center' }, // 우편번호
+    { fieldName: 'adr', header: t('MSG_TXT_ADDR'), width: '400' }, // 주소
+    { fieldName: 'adrEmd', header: t('MSG_TXT_ADDR_EMD'), width: '200' }, // 주소(읍면동)
     { fieldName: 'rcgvpDiv',
-      header: t('고객구분'),
+      header: t('MSG_TXT_CST_DV'),
       width: '100',
       styleName: 'text-center',
       options: tempOptions.value,
       editor: {
         type: 'dropdown',
-      } },
-    { fieldName: 'fix', header: t('고정'), width: '50', styleName: 'text-center' },
-    { fieldName: 'vstDuedt', header: t('차기방문월'), width: '100', styleName: 'text-center' },
-    { fieldName: 'mngStdDgr2LevlOgCd', header: t('지역단'), width: '100', styleName: 'text-center' }, // 관리기준(관리계정)
-    { fieldName: 'mngStdDgr3LevlOgCd', header: t('지점'), width: '100', styleName: 'text-center' }, // 관리기준(관리계정)
-    { fieldName: 'mngStdPrtnrKnm', header: t('매니저'), width: '100', styleName: 'text-center' }, // 관리기준(관리계정)
+      } }, // 고객구분
+    { fieldName: 'fix', header: t('MSG_TXT_FXN'), width: '50', styleName: 'text-center' }, // 고정
+    { fieldName: 'vstDuedt', header: t('MSG_TXT_NX_VISIT_MON'), width: '100', styleName: 'text-center' }, // 차기방문월
+    { fieldName: 'mngStdDgr2LevlOgCd', header: t('MSG_TXT_RGNL_GRP'), width: '100', styleName: 'text-center' }, // 관리기준(관리계정): 지역단
+    { fieldName: 'mngStdDgr3LevlOgCd', header: t('MSG_TXT_BRANCH'), width: '100', styleName: 'text-center' }, // 관리기준(관리계정): 지점
+    { fieldName: 'mngStdPrtnrKnm', header: t('MSG_TXT_MANAGER'), width: '100', styleName: 'text-center' }, // 관리기준(관리계정): 매니저
     { fieldName: 'mngStdMngerRglvlDvCd',
-      header: t('관리기준급지'),
+      header: t('MSG_TXT_MNGER_RGLVL_DV'),
       width: '100',
       styleName: 'text-center',
       options: codes.RGLVL_DV_CD,
       editor: {
         type: 'dropdown',
-      } }, // 관리기준(관리계정)
-    { fieldName: 'curMnthAlctnDgr2LevlOgCd', header: t('지역단'), width: '100', styleName: 'text-center' }, // 당월배정
-    { fieldName: 'curMnthAlctnDgr3LevlOgCd', header: t('지점'), width: '100', styleName: 'text-center' }, // 당월배정
-    { fieldName: 'curMnthAlctnPrtnrKnm', header: t('매니저'), width: '100', styleName: 'text-center' }, // 당월배정
+      } }, // 관리기준(관리계정): 관리기준급지
+    { fieldName: 'curMnthAlctnDgr2LevlOgCd', header: t('MSG_TXT_RGNL_GRP'), width: '100', styleName: 'text-center' }, // 당월배정: 지역단
+    { fieldName: 'curMnthAlctnDgr3LevlOgCd', header: t('MSG_TXT_BRANCH'), width: '100', styleName: 'text-center' }, // 당월배정: 지점
+    { fieldName: 'curMnthAlctnPrtnrKnm', header: t('MSG_TXT_MANAGER'), width: '100', styleName: 'text-center' }, // 당월배정: 매니저
     { fieldName: 'curMnthAlctnMngerRglvlDvCd',
-      header: t('관리기준급지'),
+      header: t('MSG_TXT_MNGER_RGLVL_DV'),
       width: '100',
       styleName: 'text-center',
       options: codes.RGLVL_DV_CD,
       editor: {
         type: 'dropdown',
       },
-    }, // 당월배정
+    }, // 당월배정: 관리기준급지
   ];
 
   data.setFields(fields);
@@ -618,12 +643,12 @@ function initGrdMain(data, view) {
     'fix',
     'vstDuedt',
     {
-      header: t('관리기준(관리계정)'), // colspan title
+      header: t('MSG_TXT_MNGER_RGLVL'), // 관리기준(관리계정)
       direction: 'horizontal', // merge type
       items: ['mngStdDgr2LevlOgCd', 'mngStdDgr3LevlOgCd', 'mngStdPrtnrKnm', 'mngStdMngerRglvlDvCd'],
     }, // 이관전담당자
     {
-      header: t('당월배정'),
+      header: t('MSG_TXT_CRT_TRGT'), // 당월배정
       direction: 'horizontal',
       items: ['curMnthAlctnDgr2LevlOgCd', 'curMnthAlctnDgr3LevlOgCd', 'curMnthAlctnPrtnrKnm', 'curMnthAlctnMngerRglvlDvCd'],
     }, // 이관후담당자
