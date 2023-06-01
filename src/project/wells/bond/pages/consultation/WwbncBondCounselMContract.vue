@@ -48,11 +48,13 @@
         <kw-select
           v-model="searchParams.schDlqMcntStrt"
           :options="selectCodes.DLQ_MCNT"
+          first-option="all"
         />
         <span>-</span>
         <kw-select
           v-model="searchParams.schDlqMcntEnd"
           :options="selectCodes.DLQ_MCNT"
+          first-option="all"
         />
       </kw-search-item>
       <kw-search-item
@@ -89,6 +91,7 @@
         <kw-select
           v-model="searchParams.schBizDv"
           :options="selectCodes.BIZ_DV"
+          first-option="all"
         />
       </kw-search-item>
       <kw-search-item
@@ -155,15 +158,18 @@
         <kw-select
           v-model="searchParams.schFntDv"
           :options="selectCodes.FNT_DV"
+          first-option="all"
         />
         <kw-select
           v-model="searchParams.schFntDtStrt"
           :options="selectCodes.FNT_DT"
+          first-option="all"
         />
         <span>-</span>
         <kw-select
           v-model="searchParams.schFntDtEnd"
           :options="selectCodes.FNT_DT"
+          first-option="all"
         />
       </kw-search-item>
       <kw-search-item
@@ -172,6 +178,7 @@
         <kw-select
           v-model="searchParams.schBilDv"
           :options="selectCodes.BIL_HD"
+          first-option="all"
         />
       </kw-search-item>
       <kw-search-item
@@ -181,6 +188,7 @@
           v-model="searchParams.schCstThmDp"
           type="radio"
           :options="selectCodes.CST_THM_DP"
+          first-option="all"
         />
       </kw-search-item>
     </kw-search-row>
@@ -191,6 +199,7 @@
         <kw-select
           v-model="searchParams.schAuthRsgYn"
           :options="selectCodes.AUTH_AUTH_RSG_YN"
+          first-option="all"
         />
       </kw-search-item>
     </kw-search-row>
@@ -310,9 +319,10 @@ const searchParams = ref({
   schCstThmDp: '02',
   schAuthRsgYn: '',
   schDv: '',
-  dv: '01',
+  schCstNoYn: 'N',
 });
 
+const customerParams = ref({});
 const totalCount = ref(0);
 
 /** 계약리스트 조회 */
@@ -335,20 +345,24 @@ async function onClickExcelDownload() {
   });
 }
 
-/** 고객조회(공통) */
+// TODO: 고객조회(공통)
 async function onClickSelectCustomer() {
-  let returnCustomInfo = await modal({
-    component: 'ZwcsaCustomerListP',
-  });
-  /* 단위 테스트를 위한 코딩 추후 고객조회(공통) 팝업이 완성되면 삭제 예정 */
-  returnCustomInfo = {
-    cstNo: '015417731',
-    cstNm: '김지혜',
-  };
+  const { result, payload } = await modal({
+    component: 'ZwbnyDelinquentCustomerP',
+    componentProps: {
+      baseYm: customerParams.value.baseYm,
+      cstNo: searchParams.value.schCstNo,
+      cstNm: searchParams.value.schCstNm,
+      sfkVal: searchParams.value.schSfK,
 
-  if (returnCustomInfo) {
-    searchParams.value.schCstNo = returnCustomInfo.cstNo;
-    searchParams.value.schCstNm = returnCustomInfo.cstNm;
+    },
+  });
+  if (result) {
+    const { cstNo, cstNm, sfkVal } = payload;
+    searchParams.value.schCstNo = cstNo;
+    searchParams.value.schCstNm = cstNm;
+    searchParams.value.schSfK = sfkVal;
+    searchParams.value.schCstNoYn = 'Y';
   }
 }
 
@@ -361,9 +375,8 @@ const onClickClctamPsic = async () => {
     },
   });
   if (result) {
-    const { clctamPrtnrNm, clctamPrtnrNo } = payload;
-    searchParams.value.schClctamPsic = clctamPrtnrNm;
-    searchParams.value.schClctamPsicNo = clctamPrtnrNo;
+    searchParams.value.schClctamPsic = payload.prtnrKnm;
+    searchParams.value.schClctamNo = payload.prtnrNo;
   }
 };
 
@@ -381,6 +394,15 @@ async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
   await fetchContracts();
 }
+
+async function fetchBaseYmData() {
+  const response = await dataService.get('/sms/wells/bond/bond-counsel/base-ym');
+  customerParams.value = response.data;
+}
+
+onMounted(async () => {
+  await fetchBaseYmData();
+});
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
