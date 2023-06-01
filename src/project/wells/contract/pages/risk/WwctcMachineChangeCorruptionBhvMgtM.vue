@@ -32,8 +32,8 @@
           />
           <kw-date-range-picker
             v-if="searchParams.apyCls === 1"
-            v-model:from="searchParams.strtDt"
-            v-model:to="searchParams.endDt"
+            v-model:from="searchParams.strtYm"
+            v-model:to="searchParams.endYm"
             :label="$t('MSG_TXT_ACEPT_PERIOD')"
             rules="date_range_required"
           />
@@ -62,8 +62,8 @@
           :label="$t('MSG_TXT_RGNL_GRP')"
         >
           <kw-input
-            v-model="searchParams.dgr1HgrOgCd"
-            maxlength="50"
+            v-model="searchParams.dgr2LevlOgCd"
+            maxlength="10"
           />
         </kw-search-item>
 
@@ -71,8 +71,8 @@
           :label="$t('MSG_TXT_BRANCH')"
         >
           <kw-input
-            v-model="searchParams.dgr2HgrOgCd"
-            maxlength="50"
+            v-model="searchParams.dgr3LevlOgCd"
+            maxlength="10"
           />
         </kw-search-item>
         <kw-search-item
@@ -94,6 +94,7 @@
             v-model:page-size="pageInfo.pageSize"
             :total-count="pageInfo.totalCount"
             :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
+            @change="fetchData"
           />
         </template>
         <kw-btn
@@ -133,8 +134,16 @@
       <kw-grid
         ref="grdMainRef"
         name="grdMain"
-        :visible-rows="10"
+        :page-size="pageInfo.pageSize"
+        :total-count="pageInfo.totalCount"
         @init="initGrid"
+      />
+
+      <kw-pagination
+        v-model:page-index="pageInfo.pageIndex"
+        v-model:page-size="pageInfo.pageSize"
+        :total-count="pageInfo.totalCount"
+        @change="fetchData"
       />
     </div>
   </kw-page>
@@ -157,13 +166,11 @@ const { currentRoute } = useRouter();
 const grdMainRef = ref(getComponentType('KwGrid'));
 const searchParams = ref({
   apyCls: 1,
-  strtDt: dayjs().format('YYYYMMDD'),
-  endDt: '',
   strtYm: dayjs().format('YYYYMM'),
-  endYm: '',
+  endYm: dayjs().format('YYYYMM'),
   cntrNo: '',
-  dgr1HgrOgCd: '',
-  dgr2HgrOgCd: '',
+  dgr2LevlOgCd: '',
+  dgr3LevlOgCd: '',
   prtnrKnm: '',
 });
 const codes = await codeUtil.getMultiCodes(
@@ -171,6 +178,7 @@ const codes = await codeUtil.getMultiCodes(
   'ICPT_SELL_PROCS_TP_CD',
 );
 codes.APY_CLS = [{ codeId: 1, codeName: t('MSG_TXT_FST_RGST_DT') }, { codeId: 2, codeName: t('MSG_TXT_YEAR_OCCURNCE') }];
+codes.ICPT_SELL_PROCS_TP_CD = [{ codeId: '030', codeName: '보류' }, { codeId: '040', codeName: '보류해제' }];
 const pageInfo = ref({
   totalCount: 0,
   pageIndex: 1,
@@ -194,18 +202,22 @@ async function onClickExcelDownload() {
 
 function onClickAdd() {
   const view = grdMainRef.value.getView();
-  gridUtil.insertRowAndFocus(view, 0, { icptSellExrDt: dayjs().format('YYYYMM') }, 'icptSellProcsTpCd');
+  gridUtil.insertRowAndFocus(view, 0, {
+    icptSellProcsTpCd: '030',
+    icptSellExrDt: dayjs().format('YYYYMM'),
+  }, 'icptSellRsonCn');
 }
 
 async function fetchData() {
   cachedParams = { ...cachedParams, ...pageInfo.value };
   const res = await dataService.get('/sms/wells/contract/incomplete-sales/paging', { params: cachedParams });
 
-  const { list: partners, pageInfo: pagingResult } = res.data;
+  const { list: izs, pageInfo: pagingResult } = res.data;
   pageInfo.value = pagingResult;
 
   const view = grdMainRef.value.getView();
-  view.getDataSource().setRows(partners);
+  console.log(izs);
+  view.getDataSource().setRows(izs);
   view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
@@ -282,8 +294,8 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'baseAdr' },
     { fieldName: 'prtnrKnm' },
     { fieldName: 'prtnrNo' },
-    { fieldName: 'locaraCd' },
-    { fieldName: 'ogCd' },
+    { fieldName: 'dgr2LevlOgCd' },
+    { fieldName: 'dgr3LevlOgCd' },
     { fieldName: 'ojChdvcRerntYn' },
     { fieldName: 'ojRcgvpKnm' },
     { fieldName: 'ojIstDt' },
@@ -293,6 +305,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'ojAdr' },
     { fieldName: 'fnlMdfcDtm' },
     { fieldName: 'icptSellId' },
+    { fieldName: 'isValidCntrs' },
   ];
 
   const columns = [
@@ -355,11 +368,16 @@ const initGrid = defineGrid((data, view) => {
     {
       fieldName: 'icptSellExrDt',
       header: t('MSG_TXT_AVAIL_TM'),
-      width: 120,
+      width: 140,
       editable: true,
       styleName: 'text-center',
       datetimeFormat: 'YYYY-MM',
-      editor: { type: 'btdate' },
+      editor: {
+        type: 'btdate',
+        btOptions: {
+          minViewMode: 1,
+        },
+      },
       required: true,
     },
     { fieldName: 'baseUsedCpsYn', header: t('MSG_TXT_CHG_RLS'), width: 120, styleName: 'text-center' },
@@ -373,8 +391,8 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'basePdCd', header: t('MSG_TXT_PRD_GRP'), width: 120, styleName: 'text-center' },
     { fieldName: 'baseAdr', header: t('MSG_TXT_INST_ADDR'), width: 250 },
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_PTNR_NAME'), width: 120, styleName: 'text-center' },
-    { fieldName: 'locaraCd', header: t('MSG_TXT_LOCARA_CD'), width: 120, styleName: 'text-center' },
-    { fieldName: 'ogCd', header: t('MSG_TXT_BRCH_CD'), width: 120, styleName: 'text-center' },
+    { fieldName: 'dgr2LevlOgCd', header: t('MSG_TXT_LOCARA_CD'), width: 120, styleName: 'text-center' },
+    { fieldName: 'dgr3LevlOgCd', header: t('MSG_TXT_BRCH_CD'), width: 120, styleName: 'text-center' },
     { fieldName: 'ojChdvcRerntYn', header: t('MSG_TXT_CHG_RLS'), width: 120, styleName: 'text-center' },
     { fieldName: 'ojRcgvpKnm', header: t('MSG_TXT_IST_NM'), width: 120, styleName: 'text-center' },
     { fieldName: 'ojIstDt', header: t('MSG_TXT_IST_DT'), width: 120, styleName: 'text-center', datetimeFormat: 'datetime' },
@@ -400,7 +418,7 @@ const initGrid = defineGrid((data, view) => {
     {
       header: t('MSG_TXT_NEW_CONT_INFO'),
       direction: 'horizontal',
-      items: ['baseUsedCpsYn', 'baseChdvcRerntYn', 'cntrPdStrtdt', 'baseRcgvpKnm', 'baseIstDt', 'baseReqdDt', 'baseIstGapMm', 'baseMpno', 'basePdCd', 'baseAdr', 'prtnrKnm', 'locaraCd', 'ogCd'],
+      items: ['baseUsedCpsYn', 'baseChdvcRerntYn', 'cntrPdStrtdt', 'baseRcgvpKnm', 'baseIstDt', 'baseReqdDt', 'baseIstGapMm', 'baseMpno', 'basePdCd', 'baseAdr', 'prtnrKnm', 'dgr2LevlOgCd', 'dgr3LevlOgCd'],
     },
     {
       header: t('MSG_TXT_PREV_CONT_INFO'),
@@ -420,10 +438,21 @@ const initGrid = defineGrid((data, view) => {
     if (['baseCntrNo', 'baseCntrSn', 'ojCntrNo', 'ojCntrSn'].includes(grid.getColumn(field).name)) {
       const { baseCntrNo, baseCntrSn, ojCntrNo, ojCntrSn } = grid.getValues(itemIndex);
       if (!!baseCntrNo && isNumber(baseCntrSn) && !!ojCntrNo && isNumber(ojCntrSn)) {
+        grid.setValue(itemIndex, 'isValidCntrs', 'N');
         const res = await dataService.get('/sms/wells/contract/incomplete-sales', { params: { baseCntrNo, baseCntrSn, ojCntrNo, ojCntrSn } });
         const info = res.data;
-        ['icptSellProcsTpCd', 'icptSellRsonCn', 'icptSellExrDt'].forEach((col) => delete info[col]); // FIXME 로직 확인
+        ['icptSellProcsTpCd', 'icptSellRsonCn', 'icptSellExrDt'].forEach((col) => {
+          info[col] = '';
+        }); // FIXME 로직 확인
         grid.setValues(itemIndex, res.data);
+        grid.setValue(itemIndex, 'isValidCntrs', 'Y');
+      }
+    }
+  };
+  view.onValidate = async (grid, index) => {
+    if (index.column === 'baseCntrNo') {
+      if (grid.getValue(index.itemIndex, 'isValidCntrs') === 'N') {
+        return t('MSG_ALT_INVALID_DEVICE_CHANGE');
       }
     }
   };
