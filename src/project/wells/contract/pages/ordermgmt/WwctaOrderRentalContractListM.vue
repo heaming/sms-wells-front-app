@@ -264,7 +264,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, getComponentType, useDataService, gridUtil, useGlobal } from 'kw-lib';
+import { codeUtil, defineGrid, getComponentType, useDataService, gridUtil, useGlobal } from 'kw-lib';
 import { cloneDeep, isEmpty, uniqBy } from 'lodash-es';
 import pdConst from '~sms-common/product/constants/pdConst';
 import dayjs from 'dayjs';
@@ -553,11 +553,11 @@ onMounted(async () => {
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
-function initGridRentalContractList(data, view) {
-// const initGridRentalContractList = defineGrid((data, view) => {
+const initGridRentalContractList = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'cntrDtlNo' }, // 계약번호
     { fieldName: 'ordrInfoView' }, // 주문정보 보기
+    { fieldName: 'sellTpCd' }, // 판매유형코드
     { fieldName: 'sellTpDtlNm' }, // 판매유형
     { fieldName: 'dgr3LevlDgPrtnrNo' }, // 파트너정보-지점장 사번
     { fieldName: 'dgr3LevlDgPrtnrNm' }, // 파트너정보-지점장명
@@ -935,16 +935,17 @@ function initGridRentalContractList(data, view) {
     const paramCntrDtlNo = gridUtil.getCellValue(g, dataRow, 'cntrDtlNo');
     const paramCntrNo = String(paramCntrDtlNo).split('-')[0];
     const paramCntrSn = String(paramCntrDtlNo).split('-')[1];
+    const { sellTpCd } = g.getValues(dataRow);
 
     if (['cntrDtlNo'].includes(column)) { // 계약상세(윈도우팝업)
-      await modal({ component: 'WwctaOrderDetailP', componentProps: { cntrNo: paramCntrNo, cntrSn: paramCntrSn } });
+      await modal({ component: 'WwctaOrderDetailP', componentProps: { cntrNo: paramCntrNo, cntrSn: paramCntrSn, sellTpCd } });
     } else if (['ordrInfoView'].includes(column)) { // 렌탈 주문정보 상세
       await modal({ component: 'WwctaOrderRentalDtlP', componentProps: { cntrNo: paramCntrNo, cntrSn: paramCntrSn } });
     } else if (['connPdView'].includes(column)) { // 연계상품 리스트 조회
       await alert('연계상품 리스트 팝업 조회');
     }
   };
-}
+});
 </script>
 <style lang="scss">
 .select_og_cd {

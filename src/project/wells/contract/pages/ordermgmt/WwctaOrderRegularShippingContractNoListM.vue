@@ -180,6 +180,7 @@ function initGridRglrDlvrContractNoList(data, view) {
   const fields = [
     { fieldName: 'cntrDtlNo' }, // 계약번호
     { fieldName: 'ordrInfoView' }, // 주문정보 보기
+    { fieldName: 'sellTpCd' }, // 판매유형코드
     { fieldName: 'dgr3LevlDgPrtnrNo' }, // 파트너정보-지점장 사번
     { fieldName: 'dgr3LevlDgPrtnrNm' }, // 파트너정보-지점장명
     { fieldName: 'dgr3LevlOgCd' }, // 파트너정보-지점코드
@@ -482,9 +483,10 @@ function initGridRglrDlvrContractNoList(data, view) {
     const paramCntrDtlNo = gridUtil.getCellValue(g, dataRow, 'cntrDtlNo');
     const paramCntrNo = String(paramCntrDtlNo).split('-')[0];
     const paramCntrSn = String(paramCntrDtlNo).split('-')[1];
+    const { sellTpCd } = g.getValues(dataRow);
 
     if (['cntrDtlNo'].includes(column)) { // 계약상세(윈도우팝업)
-      await modal({ component: 'WwctaOrderDetailP', componentProps: { cntrNo: paramCntrNo, cntrSn: paramCntrSn } });
+      await modal({ component: 'WwctaOrderDetailP', componentProps: { cntrNo: paramCntrNo, cntrSn: paramCntrSn, sellTpCd } });
     } else if (['ordrInfoView'].includes(column)) { // 정기배송 주문정보 상세
       await modal({ component: 'WwctaOrderRegularShippingDtlP', componentProps: { cntrNo: paramCntrNo, cntrSn: paramCntrSn } });
     } else if (['connPdView'].includes(column)) { // 연계상품 리스트 조회
