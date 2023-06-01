@@ -9,7 +9,7 @@
 ****************************************************************************************************
 * 프로그램 설명
 ****************************************************************************************************
-- 조직별, 개인별 신규 기변 실적을 조회하는 화면
+- [W-SS-U-0063M01] 조직별, 개인별 신규 기변 실적을 조회하는 화면
 - 특이사항 1. INFINITE SCROLL
 ****************************************************************************************************
 --->
@@ -56,6 +56,7 @@
           />
         </kw-search-item>
       </kw-search-row>
+
       <kw-search-row>
         <kw-search-item
           :label="$t('MSG_TXT_INQR_DV')"
@@ -69,41 +70,37 @@
                        { codeId: '4', codeName: t('MSG_TXT_INDV') }]"
           />
         </kw-search-item>
-        <kw-search-item :label="$t('MSG_TXT_MANAGEMENT_DEPARTMENT')">
+        <kw-search-item
+          colspan="2"
+          :label="$t('MSG_TXT_OG_CD')"
+        >
           <kw-select
             v-model="searchParams.dgr1LevlOgId"
             :options="codesDgr1Levl"
             option-value="dgr1LevlOgCd"
             option-label="dgr1LevlOgNm"
-            first-option="all"
-            first-option-value=""
+            first-option="select"
+            :first-option-label="$t('MSG_TXT_GNRDV_CHO')"
             @change="onUpdateDgr1Levl"
           />
-        </kw-search-item>
-        <kw-search-item :label="$t('MSG_TXT_RGNL_GRP')">
           <kw-select
             v-model="searchParams.dgr2LevlOgId"
             :options="filteredDgr2LevlOgCds"
             option-value="dgr2LevlOgCd"
             option-label="dgr2LevlOgNm"
-            first-option="all"
-            first-option-value=""
+            first-option="select"
+            :first-option-label="$t('MSG_TXT_RGNL_GRP')+ ' ' +$t('MSG_TXT_SELT')"
             @change="onUpdateDgr2Levl"
           />
-        </kw-search-item>
-        <kw-search-item :label="t('MSG_TXT_BRANCH')">
           <kw-select
             v-model="searchParams.dgr3LevlOgId"
             :options="filteredDgr3LevlOgCds"
             option-value="dgr3LevlOgCd"
             option-label="dgr3LevlOgNm"
-            first-option="all"
-            first-option-value=""
+            first-option="select"
+            :first-option-label="$t('MSG_TXT_SLCT_BRANCH')"
           />
         </kw-search-item>
-      </kw-search-row>
-
-      <kw-search-row>
         <kw-search-item :label="$t('MSG_TXT_SELL_OG') + ' ' + $t('MSG_TXT_DIV')">
           <kw-select
             v-model="searchParams.ogTpCd"
@@ -359,7 +356,7 @@ const initGrid = defineGrid((data, view) => {
       styleName: 'text-center',
       options: codes.OPTN_DV,
       headerSummaries: { text: '', styleName: 'text-center' } },
-    { fieldName: 'rsbDvCd', header: t('MSG_TXT_RSB'), width: '120', styleName: 'text-center', options: codes.RSB_DV_CD },
+    { fieldName: 'rsbDvCd', header: t('MSG_TXT_CRLV'), width: '120', styleName: 'text-center', options: codes.RSB_DV_CD },
     { fieldName: 'dgr1LevlOgNm', header: t('MSG_TXT_MANAGEMENT_DEPARTMENT'), width: '120', styleName: 'text-center' },
     { fieldName: 'dgr2LevlOgNm', header: t('MSG_TXT_RGNL_GRP'), width: '120', styleName: 'text-center' },
     { fieldName: 'dgr3LevlOgNm', header: t('MSG_TXT_BRANCH'), width: '120', styleName: 'text-center' },

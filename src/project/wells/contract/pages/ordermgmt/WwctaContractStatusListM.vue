@@ -9,7 +9,7 @@
 ****************************************************************************************************
 * 프로그램 설명
 ****************************************************************************************************
-- 계약현황 목록
+- [W-SS-U-0097M01] 계약현황 목록
 ****************************************************************************************************
 --->
 
@@ -112,8 +112,8 @@
           <kw-select
             v-model="searchParams.srchDv"
             class="w120"
-            :options="[{codeId:'NM', codeName:'계약자명'},
-                       {codeId:'NO', codeName:'계약번호'},
+            :options="[{codeId:'NM', codeName:t('MSG_TXT_CNTOR_NM')},
+                       {codeId:'NO', codeName:t('MSG_TXT_CNTR_NO')},
             ]"
           />
           <kw-input
@@ -260,6 +260,7 @@
           >
             <kw-btn
               :label="$t('MSG_BTN_MOD')"
+              padding="12px"
               @click="onClickModify(item.cntrPrgsStatCd, item.cntrNo)"
             />
           </div>
@@ -270,20 +271,29 @@
           >
             <kw-btn
               :label="$t('MSG_BTN_MOD')"
+              padding="12px"
               @click="onClickModify(item.cntrPrgsStatCd, item.cntrNo)"
+            />
+            <kw-separator
+              vertical
+              inset
+              spaced="0px"
             />
             <kw-btn
               v-if="item.cstStlmInMthCd === '20' && item.pymnSkipYn === 'N'"
               :label="$t('MSG_TXT_NON_FCF_PYMNT')"
+              padding="12px"
               @click="onClickNonFcfPayment(item)"
             />
             <kw-btn
               v-if="item.pymnSkipYn === 'Y'"
               :label="$t('MSG_BTN_F2F_PYMNT')"
+              padding="12px"
               @click="onClickF2fPayment(item)"
             />
             <kw-btn
               :label="$t('MSG_BTN_DEL')"
+              padding="12px"
               @click="onClickContractDelete(item)"
             />
           </div>
@@ -294,10 +304,17 @@
           >
             <kw-btn
               :label="$t('MSG_BTN_INQR')"
+              padding="12px"
               @click="onClickModify(item.cntrPrgsStatCd, item.cntrNo)"
+            />
+            <kw-separator
+              vertical
+              inset
+              spaced="0px"
             />
             <kw-btn
               :label="$t('MSG_BTN_F2F_PYMNT')"
+              padding="12px"
               @click="onClickF2fPayment(item)"
             />
           </div>
@@ -308,22 +325,31 @@
           >
             <kw-btn
               :label="$t('MSG_BTN_INQR')"
+              padding="12px"
               @click="onClickModify(item.cntrPrgsStatCd, item.cntrNo)"
+            />
+            <kw-separator
+              vertical
+              inset
+              spaced="0px"
             />
             <kw-btn
               v-if="searchParams.isBrmgr !='Y' && item.dfntaprcnt > 0 && item.pymnSkipYn === 'Y'"
               :label="$t('MSG_BTN_DTRM')+$t('MSG_BTN_RQST')"
+              padding="12px"
               @click="onClickRequestConfirm(item)"
             />
             <!-- TODO : 결재완료 / 지점장 일때 비대면결제 버튼 노출 조건 확인 -->
             <kw-btn
               v-if="searchParams.isBrmgr ==='Y'"
               :label="$t('MSG_TXT_NON_FCF_PYMNT')"
+              padding="12px"
               @click="onClickNonFcfPayment(item)"
             />
             <kw-btn
               v-if="searchParams.isBrmgr ==='Y' && item.dfntaprcnt > 0"
               :label="$t('MSG_BTN_DTRM')"
+              padding="12px"
               @click="onClickApprovalConfirm(item)"
             />
           </div>
@@ -334,15 +360,23 @@
           >
             <kw-btn
               :label="$t('MSG_BTN_INQR')"
+              padding="12px"
               @click="onClickModify(item.cntrPrgsStatCd, item.cntrNo)"
+            />
+            <kw-separator
+              vertical
+              inset
+              spaced="0px"
             />
             <kw-btn
               :label="$t('MSG_BTN_CNTCT_ASSGNMNT')"
+              padding="12px"
               @click="onClickAssignContact(item)"
             />
             <kw-btn
               :label="$t('MSG_TXT_CNTRCT')+$t('MSG_BTN_CH')"
-              @click="onClickContractModify(item)"
+              padding="12px"
+              @click="onClickModify(item.cntrPrgsStatCd, item.cntrNo)"
             />
             <!-- TODO : 확정 / 삭제 버튼 노출 조건 확인 : 계약접수완료일시===now
                                삭제/삭제요청 버튼 비노출 조건 문의 : 설치가 완료된 건일 경우
@@ -350,11 +384,13 @@
             <kw-btn
               v-if="item.cntrRcpFshDtm === dayjs().format('YYYYMMDD')"
               :label="$t('MSG_BTN_DEL')"
+              padding="12px"
               @click="onClickContractDelete(item)"
             />
             <kw-btn
               v-else-if="item.cntrRcpFshDtm >= dayjs().add(-5, 'day').format('YYYYMMDD')"
               :label="$t('MSG_TXT_DEL_REQ')"
+              padding="12px"
               @click="onClickRequestDelete(item)"
             />
           </div>
@@ -375,15 +411,15 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { consts, codeUtil, router, useDataService, useGlobal, popupUtil } from 'kw-lib';
+import { consts, codeUtil, router, useDataService, useGlobal, popupUtil, useMeta } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 
 const { notify, alert, modal, confirm } = useGlobal();
 const dataService = useDataService();
-const getters = useStore();
 const { t } = useI18n();
-const careerLevelCode = getters['meta/getUserInfo'];
+const { getUserInfo } = useMeta();
+const sessionUserInfo = getUserInfo();
 
 const resultList = ref({});
 const summary = ref({
@@ -407,7 +443,7 @@ const searchParams = ref({
   srchDv: 'NM',
   srchText: '',
   prtnrNm: '',
-  isBrmgr: (careerLevelCode === '7' ? 'Y' : ''),
+  isBrmgr: (sessionUserInfo.careerLevelCode === '7' ? 'Y' : ''),
   isBrmgrCntr: 'N',
 });
 
@@ -427,6 +463,8 @@ const cntrPrgsStatCds = codes.CNTR_PRGS_STAT_CD.filter((v) => ((searchParams.val
 // -------------------------------------------------------------------------------------------------
 
 async function fetchData() {
+  if (isEmpty(cachedParams)) return;
+
   const res = await dataService.get('/sms/wells/contract/contracts/contract-lists', { params: { ...cachedParams, ...pageInfo.value } });
   const { list: details, pageInfo: pagingResult } = res.data;
 
@@ -435,6 +473,8 @@ async function fetchData() {
 }
 
 async function fetchDataSummary() {
+  if (isEmpty(cachedParams)) return;
+
   const res = await dataService.get('/sms/wells/contract/contracts/contract-lists/summary', { params: { ...cachedParams } });
   summary.value = res.data;
 }
@@ -478,28 +518,13 @@ async function onClickConfirmTarget(paramCntrNo) {
 
 // 수정
 async function onClickModify(paramStatCd, paramCntrNo) {
-  notify(`// TODO : W-SS-U-0022M01 통합계약서${paramStatCd} ${paramCntrNo} 화면으로 이동`);
-
-/*
-  let url;
-  switch (paramStatCd) {
-    case '10':
-      url = ''; // STEP1 페이지로 이동
-      break;
-    case '12':
-      url = ''; // STEP2 페이지로 이동
-      break;
-    case '14':
-      url = ''; // STEP3 페이지로 이동
-      break;
-    default:
-      url = ''; // (param 없을 때도,)STEP4 페이지로 이동
-      break;
-  }
-  router.replace(
-    { path: url },
-  );
-  */
+  router.replace({
+    path: 'wwcta-contract-registration-mgt',
+    query: {
+      cntrNo: paramCntrNo,
+      cntrPrgsStatCd: paramStatCd,
+    },
+  });
 }
 
 async function onClickNonFcfPayment(item) {
@@ -529,7 +554,6 @@ async function onClickNonFcfPayment(item) {
 }
 
 async function onClickF2fPayment(item) {
-  console.log(item.cntrPrgsStatCd);
   if (item.cntrPrgsStatCd === '20' || item.cntrPrgsStatCd === '60') {
     // 계약진행상태코드 재확인
     const nowPrgsStatCd = await getPrgsStatCd(item.cntrNo);
@@ -574,12 +598,6 @@ async function onClickAssignContact(item) {
   notify('TODO : 컨택배정 프로세스');
 
   // TODO : 컨택배정 프로세스.
-}
-
-async function onClickContractModify(item) {
-  notify(`TODO : ${item.cntrNo} - 계약변경 프로세스`);
-
-  // TODO : 계약변경 프로세스.
 }
 
 async function onClickRequestDelete(item) {
