@@ -403,12 +403,12 @@ async function onClickSearchPrtnrNoPopup() {
   const { result, payload } = await modal({
     component: 'ZwogzPartnerListP',
     componentProps: {
-      prtnrNo: searchParams.value.pntnrNo,
+      prtnrNo: searchParams.value.prtnrNo,
       ogTpCd: userInfo.ogTpCd,
     },
   });
   if (result) {
-    searchParams.value.pntnrNo = payload.prtnrNo;
+    searchParams.value.prtnrNo = payload.prtnrNo;
   }
 }
 

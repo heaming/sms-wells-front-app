@@ -75,11 +75,7 @@
       <kw-action-top>
         <template #left>
           <kw-paging-info
-            v-model:page-index="pageInfo.pageIndex"
-            v-model:page-size="pageInfo.pageSize"
             :total-count="pageInfo.totalCount"
-            :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
-            @change="fetchData"
           />
         </template>
         <kw-btn
@@ -140,7 +136,7 @@ import dayjs from 'dayjs';
 
 const { notify, modal } = useGlobal();
 const { t } = useI18n();
-const { getConfig, getUserInfo } = useMeta();
+const { getUserInfo } = useMeta();
 const now = dayjs();
 const userInfo = getUserInfo();
 const dataService = useDataService();
@@ -180,13 +176,12 @@ const grdMainRef = ref(getComponentType('KwGrid'));
 const codes = await codeUtil.getMultiCodes(
   'PNTSC_ARBIT_ATC_CD',
   'PNTSC_ARBIT_DEPT_CD',
-  'COD_PAGE_SIZE_OPTIONS',
 );
 
 const pageInfo = ref({
   totalCount: 0,
   pageIndex: 1,
-  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
+  pageSize: 10,
 });
 
 async function calChange() {

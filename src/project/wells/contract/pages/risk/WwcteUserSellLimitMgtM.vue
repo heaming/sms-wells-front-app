@@ -77,11 +77,7 @@
       <kw-action-top>
         <template #left>
           <kw-paging-info
-            v-model:page-index="pageInfo.pageIndex"
-            v-model:page-size="pageInfo.pageSize"
             :total-count="pageInfo.totalCount"
-            :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
-            @change="fetchData"
           />
         </template>
         <kw-btn
@@ -134,7 +130,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { getComponentType, gridUtil, useGlobal, codeUtil, useDataService, useMeta } from 'kw-lib';
+import { getComponentType, gridUtil, useGlobal, codeUtil, useDataService } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 import pdConst from '~sms-common/product/constants/pdConst';
@@ -142,7 +138,6 @@ import pdConst from '~sms-common/product/constants/pdConst';
 const gridMainRef = ref(getComponentType('KwGrid'));
 const { notify, modal } = useGlobal();
 const { currentRoute } = useRouter();
-const { getConfig } = useMeta();
 const { t } = useI18n();
 
 const now = dayjs();
@@ -153,7 +148,6 @@ const dataService = useDataService();
 const codes = await codeUtil.getMultiCodes(
   'PRTNR_CHNL_DV_ACD',
   'COPN_DV_CD',
-  'COD_PAGE_SIZE_OPTIONS',
 );
 
 const searchParams = ref({
@@ -171,7 +165,7 @@ const searchParams = ref({
 const pageInfo = ref({
   totalCount: 0,
   pageIndex: 1,
-  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
+  pageSize: 10,
 });
 
 let cachedParams;
