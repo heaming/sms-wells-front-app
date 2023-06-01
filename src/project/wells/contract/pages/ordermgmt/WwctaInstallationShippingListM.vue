@@ -512,7 +512,7 @@ const wrkGrpCode = [
 ];
 
 const searchParams = ref({
-  cntrCnfmDtFr: now.format('YYYYMMDD') - 1, // 계약기간 From
+  cntrCnfmDtFr: now.add('-1', 'day').format('YYYYMMDD'), // 계약기간 From
   cntrCnfmDtTo: now.format('YYYYMMDD'), // 계약기간 To
   istPcsvDvCd: '1', // 구분
   statDv: 'A', // 상태
