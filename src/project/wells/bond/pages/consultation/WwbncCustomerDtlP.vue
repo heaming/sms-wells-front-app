@@ -355,7 +355,7 @@
                   :label="$t('MSG_TXT_DSMN_CTPLC')"
                 >
                   <p class="w100">
-                    {{ customer.dsmnMpno }}
+                    {{ customer.dsmnCralLocaraTno }}-{{ customer.dsmnMexnoEncr }}-{{ customer.dsmnCralIdvTno }}
                   </p>
                   <kw-btn
                     borderless
@@ -627,93 +627,98 @@
               />
               <kw-tab
                 name="tab2"
-                :label="$t('MSG_TXT_NICESVC_CNSL_HIST')"
-              />
-              <kw-tab
-                name="tab3"
                 :label="$t('MSG_TXT_SMS_HIST')"
               />
               <kw-tab
-                name="tab4"
+                name="tab3"
                 :label="$t('MSG_TXT_PROM_HIST')"
               />
               <kw-tab
-                name="tab5"
+                name="tab4"
                 :label="$t('MSG_TXT_LWM_HIST')"
               />
               <kw-tab
-                name="tab6"
+                name="tab5"
                 :label="$t('MSG_TXT_VST_HIST')"
               />
               <kw-tab
-                name="tab7"
+                name="tab6"
                 :label="$t('MSG_TXT_DLGTN_ACTI_HIST')"
               />
               <kw-tab
-                name="tab8"
+                name="tab7"
                 :label="$t('MSG_TXT_CST_CNR_CNSL_HIST')"
               />
+              <kw-tab
+                name="tab8"
+                :label="$t('MSG_TXT_HPCALL_CNSL_HIST')"
+              />
             </kw-tabs>
-            <kw-tab-panels v-model="selectedTab">
-              <kw-tab-panel name="tab1">
-                <wwbnc-customer-dtl-p-counsel-history
-                  v-model:cst-no="customer.cstNo"
-                  v-model:cntr-no="customer.cntrNo"
-                  v-model:cntr-sn="customer.cntrSn"
-                />
-              </kw-tab-panel>
-              <kw-tab-panel name="tab2">
-                <wwbna-counsel-wells-contract-list02
-                  v-model:cst-no="customer.cstNo"
-                  v-model:cntr-no="customer.cntrNo"
-                  v-model:cntr-sn="customer.cntrSn"
-                />
-              </kw-tab-panel>
-              <kw-tab-panel name="tab3">
-                <zwbnc-customer-dtl-p-sms
-                  :ref="(vm) => tabRefs.tab3 = vm"
-                  v-model:cst-no="customer.cstNo"
-                  v-model:cntr-no="customer.cntrNo"
-                  v-model:cntr-sn="customer.cntrSn"
-                />
-              </kw-tab-panel>
-              <kw-tab-panel name="tab4">
-                <zwbnc-customer-dtl-p-promise
-                  v-model:cst-no="customer.cstNo"
-                  v-model:cntr-no="customer.cntrNo"
-                  v-model:cntr-sn="customer.cntrSn"
-                />
-              </kw-tab-panel>
-              <kw-tab-panel name="tab5">
-                <zwbnc-customer-dtl-p-law-measure
-                  v-model:cst-no="customer.cstNo"
-                  v-model:cntr-no="customer.cntrNo"
-                  v-model:cntr-sn="customer.cntrSn"
-                />
-              </kw-tab-panel>
-              <kw-tab-panel name="tab6">
-                <zwbnc-customer-dtl-p-visit
-                  ref="visitRef"
-                  v-model:cst-no="customer.cstNo"
-                  v-model:cntr-no="customer.cntrNo"
-                  v-model:cntr-sn="customer.cntrSn"
-                />
-              </kw-tab-panel>
-              <kw-tab-panel name="tab7">
-                <wwbna-counsel-wells-contract-list07
-                  v-model:cst-no="customer.cstNo"
-                  v-model:cntr-no="customer.cntrNo"
-                  v-model:cntr-sn="customer.cntrSn"
-                />
-              </kw-tab-panel>
-              <kw-tab-panel name="tab8">
-                <zwbnc-customer-dtl-p-customer-center
-                  v-model:cst-no="customer.cstNo"
-                  v-model:cntr-no="customer.cntrNo"
-                  v-model:cntr-sn="customer.cntrSn"
-                />
-              </kw-tab-panel>
-            </kw-tab-panels>
+            <kw-observer
+              ref="obsTabRef"
+              name="obsTab"
+            >
+              <kw-tab-panels v-model="selectedTab">
+                <kw-tab-panel name="tab1">
+                  <Wwbnc-customer-dtl-p-counsel-history
+                    v-model:cst-no="customer.cstNo"
+                    v-model:cntr-no="customer.cntrNo"
+                    v-model:cntr-sn="customer.cntrSn"
+                  />
+                </kw-tab-panel>
+                <kw-tab-panel name="tab2">
+                  <zwbnc-customer-dtl-p-sms
+                    v-model:cst-no="customer.cstNo"
+                    v-model:cntr-no="customer.cntrNo"
+                    v-model:cntr-sn="customer.cntrSn"
+                  />
+                </kw-tab-panel>
+                <kw-tab-panel name="tab3">
+                  <zwbnc-customer-dtl-p-promise
+                    v-model:cst-no="customer.cstNo"
+                    v-model:cntr-no="customer.cntrNo"
+                    v-model:cntr-sn="customer.cntrSn"
+                  />
+                </kw-tab-panel>
+                <kw-tab-panel name="tab4">
+                  <zwbnc-customer-dtl-p-law-measure
+                    ref="lawMeasureRef"
+                    v-model:cst-no="customer.cstNo"
+                    v-model:cntr-no="customer.cntrNo"
+                    v-model:cntr-sn="customer.cntrSn"
+                  />
+                </kw-tab-panel>
+                <kw-tab-panel name="tab5">
+                  <zwbnc-customer-dtl-p-visit
+                    ref="visitRef"
+                    v-model:cst-no="customer.cstNo"
+                    v-model:cntr-no="customer.cntrNo"
+                    v-model:cntr-sn="customer.cntrSn"
+                  />
+                </kw-tab-panel>
+                <kw-tab-panel name="tab6">
+                  <zwbnc-customer-dtl-p-foster-counsel
+                    v-model:cst-no="customer.cstNo"
+                    v-model:cntr-no="customer.cntrNo"
+                    v-model:cntr-sn="customer.cntrSn"
+                  />
+                </kw-tab-panel>
+                <kw-tab-panel name="tab7">
+                  <zwbnc-customer-dtl-p-customer-center
+                    v-model:cst-no="customer.cstNo"
+                    v-model:cntr-no="customer.cntrNo"
+                    v-model:cntr-sn="customer.cntrSn"
+                  />
+                </kw-tab-panel>
+                <kw-tab-panel name="tab8">
+                  <wwbnc-customer-dtl-p-happy-call
+                    v-model:cst-no="customer.cstNo"
+                    v-model:cntr-no="customer.cntrNo"
+                    v-model:cntr-sn="customer.cntrSn"
+                  />
+                </kw-tab-panel>
+              </kw-tab-panels>
+            </kw-observer>
           </div>
         </kw-scroll-area>
       </div>
@@ -1000,11 +1005,14 @@ import ZwbncCustomerDtlPLawMeasure from '~sms-common/bond/pages/consultation/Zwb
 import ZwbncCustomerDtlPPromise from '~sms-common/bond/pages/consultation/ZwbncCustomerDtlPPromise.vue';
 import ZwbncCustomerDtlPCustomerCenter from '~sms-common/bond/pages/consultation/ZwbncCustomerDtlPCustomerCenter.vue';
 import ZwbncCustomerDtlPVisit from '~sms-common/bond/pages/consultation/ZwbncCustomerDtlPVisit.vue';
+import ZwbncCustomerDtlPFosterCounsel from '~sms-common/bond/pages/consultation/ZwbncCustomerDtlPFosterCounsel.vue';
 import WwbncCustomerDtlPCounselHistory from './WwbncCustomerDtlPCounselHistory.vue';
 
 const { t } = useI18n();
 const dataService = useDataService();
 const { modal, notify } = useGlobal();
+
+const obsTabRef = ref();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -1041,10 +1049,10 @@ const props = defineProps({
 });
 
 const grdMainRef = ref(getComponentType('KwGrid'));
-const tabRefs = reactive({});
 const selectedTab = ref('tab1');
 const selectedGridRow = ref(null);
 const visitRef = ref();
+const lawMeasureRef = ref();
 
 watch(selectedGridRow, (newValue) => {
   if (!newValue) {
@@ -1125,6 +1133,9 @@ async function fetchData() {
   }
   const response = await dataService.get('/sms/wells/bond/bond-counsel/customer-detail', { params: cachedParams });
   customer.value = response.data;
+
+  const res = await dataService.get('/sms/wells/bond/bond-counsel/unusual-articles', { params: cachedParams });
+  customer.value.cnslUnuitmCn = res.data.cnslUnuitmCn;
 
   await fetchCustomerDetail();
 }
@@ -1244,7 +1255,7 @@ async function onClickCounselSave() {
   const res = await dataService.post('/sms/wells/bond/bond-counsel/customer-detail/counsel', cachedSaveParams);
 
   if (res.data) {
-    await fetchData();
+    window.location.reload();
   }
 }
 
@@ -1299,22 +1310,24 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'rtlfe2', dataType: 'number' },
     { fieldName: 'rtlfeIstm2', dataType: 'number' },
     { fieldName: 'dprNm' },
+    { fieldName: 'clctamPrtnrNo' },
     { fieldName: 'clctamIchr' },
     { fieldName: 'tfDt' },
     { fieldName: 'sfk' },
   ];
 
   const columns = [
-    { fieldName: 'mpyBsdt', header: t('MSG_TXT_FNT'), width: '60', styleName: 'text-left', headerSummaries: { text: '합계', styleName: 'text-center' } },
-    { fieldName: 'sellTpCd', header: t('MSG_TXT_TASK_DIV'), width: '80', styleName: 'text-left' },
-    { fieldName: 'prdf', header: t('MSG_TXT_PRD_GRP'), width: '100', styleName: 'text-left' },
-    { fieldName: 'pdNm', header: t('MSG_TXT_GOODS_NM'), width: '190', styleName: 'text-left' },
+    { fieldName: 'mpyBsdt', header: t('MSG_TXT_FNT'), width: '60', styleName: 'text-center', headerSummaries: { text: '합계', styleName: 'text-center' } },
+    { fieldName: 'sellTpCd', header: t('MSG_TXT_TASK_DIV'), width: '80', styleName: 'text-center' },
+    { fieldName: 'prdf', header: t('MSG_TXT_PRD_GRP'), width: '100', styleName: 'text-center' },
+    { fieldName: 'pdNm', header: t('MSG_TXT_GOODS_NM'), width: '300', styleName: 'text-center' },
     { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_NO'), width: '100', styleName: 'text-center', visible: 'false' },
     { fieldName: 'cntrSn', header: t('MSG_TXT_CNTR_SN'), width: '100', styleName: 'text-center', visible: 'false' },
-    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '150', styleName: 'text-center' },
-    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '120', styleName: 'text-left' },
-    { fieldName: 'dlqMcn', header: t('MSG_TXT_DLQ_MCNT'), width: '80', styleName: 'text-right' },
-    { fieldName: 'cntrRsgDt', header: t('MSG_TXT_AUTH_RSG_DT'), width: '130', styleName: 'text-right' },
+    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '200', styleName: 'text-center' },
+    { fieldName: 'cstNo', header: '', width: '100', styleName: 'text-center', visible: 'center' },
+    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '120', styleName: 'text-center' },
+    { fieldName: 'dlqMcn', header: t('MSG_TXT_DLQ_MCNT'), width: '80', styleName: 'text-center' },
+    { fieldName: 'cntrRsgDt', header: t('MSG_TXT_AUTH_RSG_DT'), width: '130', styleName: 'text-center' },
     { fieldName: 'ojAmt', header: t('MSG_TXT_OJ_AMT'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
     { fieldName: 'ojDp', header: t('MSG_TXT_OJ_DP'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
     { fieldName: 'ojBlam', header: t('MSG_TXT_OJ_BLAM'), width: '110', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
@@ -1324,7 +1337,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'mmChramAmt', header: t('MSG_TXT_MM_CHRAM_AMT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
     { fieldName: 'mmChramDp', header: t('MSG_TXT_MM_CHRAM_DP'), width: '130', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
     { fieldName: 'mmChramBlam', header: t('MSG_TXT_MM_CHRAM_BLAM'), width: '130', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
-    { fieldName: 'dlqAddWmt', header: t('MSG_TXT_DLQ_ADD_AMT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
+    { fieldName: 'dlqAddAmt', header: t('MSG_TXT_DLQ_ADD_AMT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
     { fieldName: 'dlqAddDp', header: t('MSG_TXT_DLQ_ADD_DP'), width: '130', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
     { fieldName: 'dlqAdamtBlam', header: t('MSG_TXT_DLQ_ADD_BLAM'), width: '130', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
     { fieldName: 'svCs', header: t('MSG_TXT_SV_CS'), width: '130', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
@@ -1336,19 +1349,20 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'totDpAmt', header: t('MSG_TXT_TOT_DP_AMT'), styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
     { fieldName: 'spmtSl', header: t('MSG_TXT_SPMT_SL'), width: '90', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
     { fieldName: 'lsRntf', header: t('MSG_TXT_PD_LENT_LOST_LOG'), width: '90', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
-    { fieldName: 'vtAcDv', header: t('MSG_TXT_VT_AC_DV'), width: '100', styleName: 'text-left' },
-    { fieldName: 'vtAcBnk', header: t('MSG_TXT_VT_AC_BNK'), width: '120', styleName: 'text-left' },
-    { fieldName: 'vtAcNo', header: t('MSG_TXT_VT_AC_NO'), width: '160', styleName: 'text-left' },
+    { fieldName: 'vtAcDv', header: t('MSG_TXT_VT_AC_DV'), width: '100', styleName: 'text-center' },
+    { fieldName: 'vtAcBnk', header: t('MSG_TXT_VT_AC_BNK'), width: '120', styleName: 'text-center' },
+    { fieldName: 'vtAcNo', header: t('MSG_TXT_VT_AC_NO'), width: '160', styleName: 'text-center' },
     { fieldName: 'ccam', header: t('MSG_TXT_CCAM'), styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
     { fieldName: 'lsfe', header: t('MSG_TXT_LSFE'), styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
     { fieldName: 'rtlfe1', header: t('MSG_TXT_RTLFE1'), styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
     { fieldName: 'rtlfeIstm1', header: t('MSG_TXT_RTLFE_1_ISTM'), styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
     { fieldName: 'rtlfe2', header: t('MSG_TXT_RTLFE2'), styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
     { fieldName: 'rtlfeIstm2', header: t('MSG_TXT_RTLFE_2_ISTM'), styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
-    { fieldName: 'dprNm', header: t('MSG_TXT_DPR'), styleName: 'text-right' },
-    { fieldName: 'clctamIchr', header: t('MSG_TXT_CLCTAM_ICHR'), styleName: 'text-left' },
-    { fieldName: 'tfDt', header: t('MSG_TXT_TF_DT'), styleName: 'text-center' },
-    { fieldName: 'sfk', header: t('MSG_TXT_SFK'), styleName: 'text-center' },
+    { fieldName: 'dprNm', header: t('MSG_TXT_DPR'), styleName: 'text-center' },
+    { fieldName: 'cstNo', header: '', width: '100', styleName: 'text-center', visible: 'false' },
+    { fieldName: 'clctamPrtnrNo', header: t('MSG_TXT_CLCTAM_ICHR'), styleName: 'text-center' },
+    { fieldName: 'tfDt', header: t('MSG_TXT_TF_DT'), styleName: 'text-center', width: '120' },
+    { fieldName: 'sfk', header: t('MSG_TXT_SFK'), styleName: 'text-center', width: '150' },
   ];
 
   data.setFields(fields);
