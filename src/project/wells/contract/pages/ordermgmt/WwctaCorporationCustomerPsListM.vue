@@ -271,9 +271,8 @@ import pdConst from '~sms-common/product/constants/pdConst';
 const dataService = useDataService();
 const { currentRoute } = useRouter();
 const { notify, modal } = useGlobal();
-const { getConfig, getUserInfo } = useMeta();
+const { getConfig } = useMeta();
 const { t } = useI18n();
-const userInfo = getUserInfo();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -404,7 +403,6 @@ async function onClickSearchPrtnrNoPopup() {
     component: 'ZwogzPartnerListP',
     componentProps: {
       prtnrNo: searchParams.value.prtnrNo,
-      ogTpCd: userInfo.ogTpCd,
     },
   });
   if (result) {

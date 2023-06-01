@@ -326,8 +326,7 @@ async function onClickOpenPartnerListPopup() {
   const { result, payload } = await modal({
     component: 'ZwogzPartnerListP',
     componentProps: {
-      prtnrNo: searchParams.value.prtnrNo,
-      ogTpCd: userInfo.ogTpCd,
+      prtnrNo: searchParams.value.dangOjPrtnrNo,
     },
   });
   if (result) {
@@ -480,7 +479,6 @@ const initGrid = defineGrid((data, view) => {
       component: 'ZwogzPartnerListP',
       componentProps: {
         prtnrNo: g.getValues(itemIndex).dangOjPrtnrNo,
-        ogTpCd: userInfo.ogTpCd,
       },
     });
     if (!isEmpty(payload)) {
@@ -503,7 +501,6 @@ const initGrid = defineGrid((data, view) => {
         component: 'ZwogzPartnerListP',
         componentProps: {
           prtnrNo: grid.getValues(itemIndex).dangOjPrtnrNo,
-          ogTpCd: userInfo.ogTpCd,
         },
       });
       if (!isEmpty(payload)) {

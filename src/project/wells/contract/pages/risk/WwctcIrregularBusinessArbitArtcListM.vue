@@ -126,16 +126,14 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { gridUtil, defineGrid, getComponentType, useDataService, useMeta, useGlobal } from 'kw-lib';
+import { gridUtil, defineGrid, getComponentType, useDataService, useGlobal } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 
 const { notify, modal } = useGlobal();
-const { getUserInfo } = useMeta();
 const dataService = useDataService();
 const { t } = useI18n();
 const { currentRoute } = useRouter();
-const userInfo = getUserInfo();
 const now = dayjs();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -199,7 +197,6 @@ async function onClickSearchPartnerId() {
     component: 'ZwogzPartnerListP',
     componentProps: {
       prtnrNo: searchParams.value.dangOjPrtnrNo,
-      ogTpCd: userInfo.ogTpCd,
     },
   });
   if (result) {
