@@ -38,38 +38,35 @@
       </kw-form-row>
     </kw-form>
     <kw-separator />
-    <kw-tabs model-value="1">
+    <kw-tabs v-model="selectedTab">
+      <!-- 고객기본정보 -->
       <kw-tab
-        name="1"
+        name="cstBaseInfo"
         :label="$t('MSG_TXT_CST_BAS_INF')"
       />
+      <!-- 판매정보 -->
       <kw-tab
-        name="2"
-        :label="$t('MSG_TXT_MGT_INF')"
+        name="sellInfo"
+        :label="$t('MSG_TXT_SELL_INF')"
       />
+      <!-- 입금내역 -->
       <kw-tab
-        name="3"
+        name="dpIz"
         :label="$t('MSG_TXT_DP_IZ')"
       />
+      <!-- 세금계산서 -->
       <kw-tab
-        name="4"
+        name="txinv"
         :label="$t('MSG_TXT_TXINV')"
       />
+      <!-- 컨택 내용 -->
       <kw-tab
-        name="5"
-        :label="$t('MSG_TXT_HW_CMNC_HIS')"
-      />
-      <kw-tab
-        name="6"
-        :label="$t('MSG_TXT_ELC_TASK_RQST')"
-      />
-      <kw-tab
-        name="7"
-        :label="$t('MSG_TXT_CLCTAM_CTT_CNTN')"
+        name="cttCntn"
+        :label="$t('MSG_TXT_CTT_CNTN')"
       />
     </kw-tabs>
-    <kw-tab-panels model-value="1">
-      <kw-tab-panel name="1">
+    <kw-tab-panels v-model="selectedTab">
+      <kw-tab-panel name="cstBaseInfo">
         <kw-form
           :cols="2"
           dense
@@ -209,6 +206,30 @@
           </kw-form-row>
         </kw-form>
       </kw-tab-panel>
+      <!-- 판매정보 -->
+      <kw-tab-panel name="sellInfo">
+        <wwcta-order-detail-management-inf-dtl-p
+          ref="tabSellInfoRef"
+        />
+      </kw-tab-panel>
+      <!-- 입금내역 -->
+      <kw-tab-panel name="dpIz">
+        <wwcta-order-detail-deposit-iz-dtl-p
+          ref="tabDpIzRef"
+        />
+      </kw-tab-panel>
+      <!-- 세금계산서 -->
+      <kw-tab-panel name="txinv">
+        <wwcta-order-detail-tax-invoice-dtl-p
+          ref="tabTxinvRef"
+        />
+      </kw-tab-panel>
+      <!-- 컨택내용 -->
+      <kw-tab-panel name="cttCntn">
+        <wwcta-order-detail-collecting-amount-contact-list-p
+          ref="tabCttCntnRef"
+        />
+      </kw-tab-panel>
     </kw-tab-panels>
   </kw-popup>
 </template>
@@ -219,13 +240,19 @@
 // -------------------------------------------------------------------------------------------------
 import { useDataService, stringUtil } from 'kw-lib';
 import { cloneDeep, isNull, isEmpty } from 'lodash-es';
+import WwctaOrderDetailManagementInfDtlP from './WwctaOrderDetailManagementInfDtlP.vue';
+import WwctaOrderDetailDepositIzDtlP from './WwctaOrderDetailDepositIzDtlP.vue';
+import WwctaOrderDetailTaxInvoiceDtlP from './WwctaOrderDetailTaxInvoiceDtlP.vue';
+import WwctaOrderDetailCollectingAmountContactListP from './WwctaOrderDetailCollectingAmountContactListP.vue';
 
 const dataService = useDataService();
 // const { t } = useI18n();
 const optionList = ref([]);
 const props = defineProps({
   cntrNo: { type: String, required: true, default: '' },
-  cntrSn: { type: String, required: false, default: '' },
+  cntrSn: { type: String, required: true, default: '' },
+  sellTpCd: { type: String, required: true, default: '' },
+  cntrCstNo: { type: String, required: false, default: '' },
 });
 const isVacInfo = ref();
 
@@ -268,6 +295,12 @@ const frmMainData = ref({
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
+const selectedTab = ref('cstBaseInfo'); // 계약상세정보(고객기본정보)
+const tabSellInfoRef = ref(); // 판매정보 탭
+const tabDpIzRef = ref(); // 입금내역 탭
+const tabTxinvRef = ref(); // 세금계산서 탭
+const tabCttCntnRef = ref(); // 컨택내용 탭
+
 // wells 주문 상세(고객기본정보) - 상세계약목록
 async function fetchDataContractLists() {
   // changing api & cacheparams according to search classification
@@ -331,16 +364,58 @@ async function fetchDataCustomerBase() {
   }
 }
 
+// 현재 열려있는 탭에서 조회하기
+async function currentTabFetchData() {
+  switch (selectedTab.value) {
+    case 'cstBaseInfo': // 고객기본정보
+      await fetchDataCustomerBase();
+      break;
+    case 'sellInfo': // 판매정보
+      await tabSellInfoRef.value.setDatas(
+        searchParams.value.cntrNo,
+        searchParams.value.cntrSn,
+        props.sellTpCd,
+      );
+      break;
+    case 'dpIz': // 입금내역
+      await tabDpIzRef.value.setDatas(
+        searchParams.value.cntrNo,
+        searchParams.value.cntrSn,
+        props.sellTpCd,
+        props.cntrCstNo,
+      );
+      break;
+    case 'txinv': // 세금계산서
+      await tabTxinvRef.value.setDatas(
+        searchParams.value.cntrNo,
+        searchParams.value.cntrSn,
+      );
+      break;
+    case 'cttCntn': // 컨택내용
+      await tabCttCntnRef.value.setDatas(
+        searchParams.value.cntrNo,
+        searchParams.value.cntrSn,
+      );
+      break;
+  }
+}
+
 // 상세계약목록 변경 시 Event
 async function onSelectCntrctPdList() {
   const { cntrSn } = frmMainData.value;
   // console.log(cntrSn);
   searchParams.value.cntrSn = cntrSn;
-  await fetchDataCustomerBase();
+  await currentTabFetchData();
 }
 
 onMounted(async () => {
+  // console.log(`sellTpCd : ${props.sellTpCd}`);
   await fetchDataContractLists();
+});
+
+// 탭 선택이 변경되었는지 감시하기
+watch(() => selectedTab.value, async () => {
+  currentTabFetchData();
 });
 
 // -------------------------------------------------------------------------------------------------
