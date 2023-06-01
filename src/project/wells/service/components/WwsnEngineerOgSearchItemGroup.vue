@@ -27,6 +27,7 @@
       :first-option="dgr1LevlOgFirstOption"
       :label="$t('MSG_TXT_SV_CNR')"
       :rules="dgr1LevlOgRequired ? 'required' : undefined"
+      :readonly="dgr1LevlOgReadonly"
       @update:model-value="onChangeDgr1LevlOgId"
     />
   </kw-search-item>
@@ -44,6 +45,7 @@
       :first-option="partnerFirstOption"
       :label="$t('MSG_TXT_EGER')"
       :rules="partnerRequired ? 'required' : undefined"
+      :readonly="partnerReadonly"
       @update:model-value="onChangePrtnrNo"
     />
   </kw-search-item>
@@ -81,6 +83,10 @@ const props = defineProps({
   // Selected Object
   dgr1LevlOg: { type: Object, default: undefined },
   partner: { type: Object, default: undefined },
+
+  // Select Read Only
+  dgr1LevlOgReadonly: { type: Boolean, default: false },
+  partnerReadonly: { type: Boolean, default: false },
 });
 
 // -------------------------------------------------------------------------------------------------
