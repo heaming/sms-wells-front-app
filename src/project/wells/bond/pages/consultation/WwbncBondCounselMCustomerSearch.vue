@@ -199,13 +199,12 @@ async function onClickSelectCustomer() {
 }
 
 async function onClickExcelDownload() {
-  const res = await dataService.get('/sms/wells/bond/customer-search', { params: searchParams, timeout: 300000 });
   const view = grdMainRef.value.getView();
 
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
-    exportData: res.data,
+    exportData: gridUtil.getAllRowValues(view),
   });
 }
 
