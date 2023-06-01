@@ -109,11 +109,7 @@
       <kw-action-top>
         <template #left>
           <kw-paging-info
-            v-model:page-index="pageInfo.pageIndex"
-            v-model:page-size="pageInfo.pageSize"
             :total-count="pageInfo.totalCount"
-            :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
-            @change="fetchData"
           />
         </template>
         <kw-btn
@@ -141,12 +137,11 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, gridUtil, defineGrid, getComponentType, useDataService, useGlobal, useMeta } from 'kw-lib';
+import { codeUtil, gridUtil, defineGrid, getComponentType, useDataService, useGlobal } from 'kw-lib';
 import { cloneDeep, isEmpty, uniqBy } from 'lodash-es';
 import dayjs from 'dayjs';
 import pdConst from '~sms-common/product/constants/pdConst';
 
-const { getConfig } = useMeta();
 const { t } = useI18n();
 const dataService = useDataService();
 const { modal } = useGlobal();
@@ -180,7 +175,6 @@ const grdRentalAccountList = ref(getComponentType('KwGrid'));
 
 const codes = await codeUtil.getMultiCodes(
   'COPN_DV_CD',
-  'COD_PAGE_SIZE_OPTIONS',
 );
 
 const pdMclsfIdOptions = ref([]);
@@ -192,7 +186,7 @@ const isProd = computed(() => searchParams.value.srchGbn === 1);
 const pageInfo = ref({
   totalCount: 0,
   pageIndex: 1,
-  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
+  pageSize: 10,
 });
 
 // Updating the col visibility as per search classification
