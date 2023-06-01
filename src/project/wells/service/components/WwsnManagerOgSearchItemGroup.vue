@@ -27,6 +27,7 @@
       :first-option="dgr1LevlOgFirstOption"
       :label="$t('MSG_TXT_MANAGEMENT_DEPARTMENT')"
       :rules="dgr1LevlOgRequired ? 'required' : undefined"
+      :readonly="dgr1LevlOgReadonly"
       @update:model-value="onChangeDgr1LevlOgId"
     />
   </kw-search-item>
@@ -44,6 +45,7 @@
       :first-option="dgr2LevlOgFirstOption"
       :label="$t('MSG_TXT_RGNL_GRP')"
       :rules="dgr2LevlOgRequired ? 'required' : undefined"
+      :readonly="dgr2LevlOgReadonly"
       @update:model-value="onChangeDgr2LevlOgId"
     />
   </kw-search-item>
@@ -61,6 +63,7 @@
       :first-option="dgr3LevlOgFirstOption"
       :label="$t('MSG_TXT_BRANCH')"
       :rules="dgr3LevlOgRequired ? 'required' : undefined"
+      :readonly="dgr3LevlOgReadonly"
       @update:model-value="onChangeDgr3LevlOgId"
     />
   </kw-search-item>
@@ -78,6 +81,7 @@
       :first-option="partnerFirstOption"
       :label="$t('MSG_TXT_MANAGER')"
       :rules="partnerRequired ? 'required' : undefined"
+      :readonly="partnerReadonly"
       @update:model-value="onChangePrtnrNo"
     />
   </kw-search-item>
@@ -125,6 +129,12 @@ const props = defineProps({
   dgr2LevlOg: { type: Object, default: undefined },
   dgr3LevlOg: { type: Object, default: undefined },
   partner: { type: Object, default: undefined },
+
+  // Select Read Only
+  dgr1LevlOgReadonly: { type: Boolean, default: false },
+  dgr2LevlOgReadonly: { type: Boolean, default: false },
+  dgr3LevlOgReadonly: { type: Boolean, default: false },
+  partnerReadonly: { type: Boolean, default: false },
 });
 
 // -------------------------------------------------------------------------------------------------
