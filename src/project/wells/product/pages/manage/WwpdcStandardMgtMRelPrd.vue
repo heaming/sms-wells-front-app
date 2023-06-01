@@ -352,7 +352,7 @@ async function onClickServiceSchPopup() {
   searchParams.value.pdTpCd = pdConst.PD_TP_CD_SERVICE;
 
   const materialCds = gridUtil.getAllRowValues(grdMaterialRef.value.getView())
-    ?.reduce((rtn, item) => { rtn.push(item.pdCd); return rtn; }, []);
+    ?.reduce((rtn, item) => { rtn.push({ codeId: item.pdCd, codeName: item.pdNm }); return rtn; }, []);
   const rtn = await modal({
     component: 'ZwpdcServiceSimpleListP',
     componentProps: { ...searchParams.value, relationCds: materialCds },
