@@ -33,7 +33,7 @@
             option-label="dgr1LevlOgNm"
             first-option="all"
             :first-option-label="$t('MSG_TXT_ALL')"
-            first-option-value="ALL"
+            first-option-value=""
             @update:model-value="onUpdateDgr1Levl"
           />
           <!-- 지역단 선택 -->
@@ -46,7 +46,7 @@
             option-label="dgr2LevlOgNm"
             first-option="all"
             :first-option-label="$t('MSG_TXT_ALL')"
-            first-option-value="ALL"
+            first-option-value=""
             @update:model-value="onUpdateDgr2Levl"
           />
           <!-- 지점 선택 -->
@@ -59,7 +59,7 @@
             option-label="dgr3LevlOgNm"
             first-option="all"
             :first-option-label="$t('MSG_TXT_ALL')"
-            first-option-value="ALL"
+            first-option-value=""
           />
         </kw-search-item>
 
@@ -84,6 +84,7 @@
           <kw-select
             :model-value="searchParams.ptrmDv"
             :options="periodOptions"
+            style="max-width: 33%;"
             required
           />
           <kw-date-range-picker
@@ -136,7 +137,7 @@
             option-label="pdClsfNm"
             first-option="all"
             :first-option-label="$t('MSG_TXT_ALL')"
-            first-option-value="ALL"
+            first-option-value=""
           />
         </kw-search-item>
       </kw-search-row>
@@ -159,6 +160,7 @@
           dense
           secondary
           :label="$t('MSG_BTN_EXCEL_DOWN')"
+          :disable="pageInfo.totalCount===0"
           @click="onClickExcelDownload"
         />
       </kw-action-top>
@@ -614,18 +616,18 @@ function initGridExcel(data, view) {
     { fieldName: 'crcdnoEncr1', header: `${t('MSG_TXT_CARD_NO')}1`, width: '200', styleName: 'text-center' },
     { fieldName: 'cdcoNm1', header: `${t('MSG_TXT_CDCO')}1`, width: '100', styleName: 'text-center' },
     { fieldName: 'cdcoOwrKnm1', header: `${t('MSG_TXT_CARD_STOCK')}1`, width: '100', styleName: 'text-center' },
-    { fieldName: 'crdcdIstmMcn1', header: `${t('MSG_TXT_ISTM')}1`, width: '100', styleName: 'text-center' },
+    { fieldName: 'crdcdIstmMcn1', header: `${t('MSG_TXT_ISTM')}1`, width: '100', styleName: 'text-right' },
     { fieldName: 'cardTotAmt2', header: `${t('MSG_TXT_CARD')}${t('MSG_TXT_STLM_AMT')}2`, width: '100', styleName: 'text-right' },
     { fieldName: 'crcdnoEncr2', header: `${t('MSG_TXT_CARD_NO')}2`, width: '200', styleName: 'text-center' },
     { fieldName: 'cdcoNm2', header: `${t('MSG_TXT_CDCO')}2`, width: '100', styleName: 'text-center' },
     { fieldName: 'cdcoOwrKnm2', header: `${t('MSG_TXT_CARD_STOCK')}2`, width: '100', styleName: 'text-center' },
-    { fieldName: 'crdcdIstmMcn2', header: `${t('MSG_TXT_ISTM')}2`, width: '100', styleName: 'text-center' },
-    { fieldName: 'initBlam', header: t('MSG_TXT_INIT_BLAM'), width: '100', styleName: 'text-center' },
-    { fieldName: 'nowBlam', header: t('MSG_TXT_RES_ISTM_AMT'), width: '100', styleName: 'text-center' },
-    { fieldName: 'blam1', header: `${t('MSG_TXT_RES_ISTM_AMT')}-1${t('MSG_TXT_MCNT')}`, width: '100', styleName: 'text-center' },
-    { fieldName: 'blam2', header: `${t('MSG_TXT_RES_ISTM_AMT')}-2${t('MSG_TXT_MCNT')}`, width: '100', styleName: 'text-center' },
-    { fieldName: 'blam3', header: `${t('MSG_TXT_RES_ISTM_AMT')}-3${t('MSG_TXT_MCNT')}`, width: '100', styleName: 'text-center' },
-    { fieldName: 'blam4', header: `${t('MSG_TXT_RES_ISTM_AMT')}-4${t('MSG_TXT_MCNT')}`, width: '100', styleName: 'text-center' },
+    { fieldName: 'crdcdIstmMcn2', header: `${t('MSG_TXT_ISTM')}2`, width: '100', styleName: 'text-right' },
+    { fieldName: 'initBlam', header: t('MSG_TXT_INIT_BLAM'), width: '100', styleName: 'text-right' },
+    { fieldName: 'nowBlam', header: t('MSG_TXT_RES_ISTM_AMT'), width: '100', styleName: 'text-right' },
+    { fieldName: 'blam1', header: `${t('MSG_TXT_RES_ISTM_AMT')}-1${t('MSG_TXT_MCNT')}`, width: '100', styleName: 'text-right' },
+    { fieldName: 'blam2', header: `${t('MSG_TXT_RES_ISTM_AMT')}-2${t('MSG_TXT_MCNT')}`, width: '100', styleName: 'text-right' },
+    { fieldName: 'blam3', header: `${t('MSG_TXT_RES_ISTM_AMT')}-3${t('MSG_TXT_MCNT')}`, width: '100', styleName: 'text-right' },
+    { fieldName: 'blam4', header: `${t('MSG_TXT_RES_ISTM_AMT')}-4${t('MSG_TXT_MCNT')}`, width: '100', styleName: 'text-right' },
     { fieldName: 'buNotiDt', header: `${t('MSG_TXT_BU')}${t('MSG_TXT_NTFC')}${t('MSG_TXT_D')}`, width: '100', styleName: 'text-center' },
     { fieldName: 'buPrtnrNo', header: `${t('MSG_TXT_BU')}${t('MSG_TXT_NTFC')}${t('MSG_TXT_EPNO')}`, width: '100', styleName: 'text-center' },
     { fieldName: 'buPrtnrNm', header: `${t('MSG_TXT_BU')}${t('MSG_TXT_NOTI_USR')}`, width: '100', styleName: 'text-center' },
