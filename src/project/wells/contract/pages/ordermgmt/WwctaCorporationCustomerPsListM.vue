@@ -139,6 +139,7 @@
         >
           <kw-input
             v-model="searchParams.pdNm"
+            :maxlength="100"
           />
         </kw-search-item>
         <kw-search-item
@@ -208,6 +209,7 @@
         >
           <kw-input
             v-model="searchParams.dlpnrItemNm"
+            :maxlength="50"
           />
         </kw-search-item>
         <kw-search-item
@@ -215,6 +217,7 @@
         >
           <kw-input
             v-model="searchParams.dlpnrBzclNm"
+            :maxlength="50"
           />
         </kw-search-item>
       </kw-search-row>
