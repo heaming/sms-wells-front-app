@@ -497,5 +497,15 @@ const initGrid = defineGrid((data, view) => {
 
   view.checkBar.visible = true;
   view.rowIndicator.visible = true;
+
+  view.setCheckableCallback((dataSource, item) => {
+    const index = item.dataRow;
+    const afchCssrIsNo = gridUtil.getCellValue(view, index, 'afchCssrIsNo');
+
+    if (isEmpty(afchCssrIsNo)) {
+      return true;
+    }
+    return false;
+  }, true);
 });
 </script>
