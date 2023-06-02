@@ -492,7 +492,10 @@ const initGridSnglPmntContractorList = defineGrid((data, view) => {
       // component: 'WwctaSinglePaymentOrderDetailListP',
       // });
     } else if (column === 'relPdSearch') {
-      notify(t('팝업 준비중 입니다.')); // 'W-SS-U-0129P07' 팝업 준비 중
+      await modal({
+        component: 'WwctaLinkProductListP',
+        componentProps: { cntrNo, cntrSn },
+      });
     }
   };
 });
