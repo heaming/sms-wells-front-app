@@ -222,8 +222,8 @@ let cachedParams;
 
 // 저장 버튼
 async function onClickSave() {
-  if (await frmMainRef.value.alertIfIsNotModified()) { return; }
   if (!await frmMainRef.value.validate()) { return; }
+  if (await frmMainRef.value.alertIfIsNotModified()) { return; }
 
   const mainData = cloneDeep(regMainData.value);
   cachedParams = {

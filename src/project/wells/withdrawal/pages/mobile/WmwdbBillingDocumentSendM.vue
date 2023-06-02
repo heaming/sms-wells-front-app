@@ -26,7 +26,9 @@
         class="mb20"
         @change="fetchData"
       />
-      <kw-form>
+      <kw-form
+        ref="frmMainRef"
+      >
         <!-- label="발신자" -->
         <kw-form-item
           v-if="sendMainData.bildcFwTpCd !== 'K'"
@@ -40,9 +42,9 @@
           required
         />
 
+        <!-- ref="testRef" -->
         <zwcm-telephone-number
           v-if="sendMainData.bildcFwTpCd === 'K'"
-          ref="testRef"
           v-model:tel-no1="telNos.telNo1"
           v-model:tel-no2="telNos.telNo2"
           v-model:tel-no3="telNos.telNo3"
@@ -55,11 +57,12 @@
           required
           class="mb20"
         />
-      </kw-form>
+        <!-- </kw-form>
 
       <kw-form
+        ref="frmMainRef"
         class="mb20"
-      >
+      > -->
         <!-- label="수신자" -->
         <kw-form-item
           v-if="sendMainData.bildcFwTpCd !== 'K'"
@@ -72,6 +75,7 @@
           :label="t('MSG_TXT_RECP_NO')"
           required
         />
+        <!-- ref="testRef" -->
         <zwcm-telephone-number
           v-if="sendMainData.bildcFwTpCd === 'K'"
           v-model:tel-no1="telNos2.telNo1"
@@ -195,6 +199,8 @@ const props = defineProps({
 
 });
 
+const frmMainRef = ref();
+
 const codes = await codeUtil.getMultiCodes(
   'BILDC_FW_TP_CD',
 );
@@ -262,6 +268,9 @@ async function fetchData() {
 
 let paramData;
 async function onClickSend() {
+  if (!await frmMainRef.value.validate()) { return; }
+  if (await frmMainRef.value.alertIfIsNotModified()) { return; }
+
   if (!await confirm(t('MSG_ALT_WANT_SEND'))) { return; }
 
   sendMainData.value.destInfo = telNos.value.telNo1 + telNos.value.telNo2 + telNos.value.telNo3;
