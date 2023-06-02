@@ -175,6 +175,7 @@ async function onClickChange() {
 async function onClickAlarmSend() {
   // chRqrDvCd 방문 : '2' (교원) / 원거리 : '1' (고객)
   if (!await formRef.value.validate()) { return; }
+  inputParams.value = { ...inputParams.value, url: elsgLdstcCh };
   await dataService.post('sms/common/withdrawal/bilfnt/auto-transfer-change/notification-talk-send', inputParams.value);
 
   notify(t('MSG_ALT_BIZTALK_SEND_SUCCESS'));
