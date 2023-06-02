@@ -77,6 +77,8 @@
             v-model="searchParams.istNmnN"
             :label="$t('MSG_TXT_RENTAL_NMN')"
             rules="required"
+            type="number"
+            maxlength="3"
             class="w240"
           />
         </kw-search-item>
@@ -105,6 +107,7 @@
           <kw-input
             v-model="searchParams.pdCd"
             icon="search"
+            maxlength="10"
             @click-icon="onClickSelectPdCd"
           />
         </kw-search-item>
@@ -114,6 +117,7 @@
         >
           <kw-input
             v-model="searchParams.pdNm"
+            maxlength="100"
           />
         </kw-search-item>
       </kw-search-row>
@@ -277,7 +281,7 @@ codes.SRCH_PERIOD_GBN = [
 codes.CST_AG_YN = [
   {
     codeId: 'Y',
-    codeName: t('MSG_TXT_AGRT'), // 동의
+    codeName: t('MSG_TXT_AGREEMENT'), // 동의
   },
   {
     codeId: 'N',
@@ -453,7 +457,7 @@ function initGrid(data, view) {
     { fieldName: 'pdNm' }, // [상품명] 상품명
     { fieldName: 'ogCd' }, // [조직코드] 조직코드(판매자의조직코드)
     { fieldName: 'cstAgYn' }, // [마케팅동의여부] 마케팅동의여부
-    { fieldName: 'slDt' }, // [매출일] 매출일자
+    { fieldName: 'slRcogDt' }, // [매출일] 매출인식일자
     { fieldName: 'asnDvCd' }, // [배정구분] 배정구분
     { fieldName: 'asnDvNm' }, // [배정구분명] 배정구분명
     { fieldName: 'asnDt' }, // [배정일] 배정일자
@@ -494,7 +498,7 @@ function initGrid(data, view) {
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '220' }, // [상품명] 상품명
     { fieldName: 'ogCd', header: t('MSG_TXT_OG_CD'), width: '100', styleName: 'text-center' }, // [조직코드] 조직코드(판매자의조직코드)
     { fieldName: 'cstAgYn', header: `${t('MSG_TXT_MARKETING')} ${t('MSG_TXT_AG_YN')}`, width: '120', styleName: 'text-center' }, // [마케팅동의여부] 마케팅동의여부
-    { fieldName: 'slDt', header: t('MSG_TXT_DT_OF_SALE'), width: '120', styleName: 'text-center', dataType: 'date' }, // [매출일] 매출일자
+    { fieldName: 'slRcogDt', header: t('MSG_TXT_DT_OF_SALE'), width: '120', styleName: 'text-center', dataType: 'date' }, // [매출일] 매출인식일자
     { fieldName: 'asnDvCd', header: t('MSG_TXT_ASN_DV'), width: '80', styleName: 'text-center' }, // [배정구분] 배정구분
     { fieldName: 'asnDvNm', header: t('MSG_TXT_ASN_DV') + t('MSG_TXT_NM'), width: '120', styleName: 'text-center' }, // [배정구분명] 배정구분명
     { fieldName: 'asnDt', header: t('MSG_TXT_ASND_ON'), width: '120', styleName: 'text-center', dataType: 'date' }, // [배정일] 배정일자
