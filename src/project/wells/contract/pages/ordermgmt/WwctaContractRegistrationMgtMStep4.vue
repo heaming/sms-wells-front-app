@@ -29,8 +29,8 @@
             :label="$t('MSG_TXT_CNTRT')"
           >
             <p>
-              {{ `${step4.cntrt.cstKnm} / ${stringUtil.getDateFormat(step4.cntrt.bryyMmdd)} /
-${step4.cntrt.sexDvNm}` }}
+              {{ `${step4.cntrt.cstKnm || ''} / ${stringUtil.getDateFormat(step4.cntrt.bryyMmdd)} /
+${step4.cntrt.sexDvNm || ''}` }}
             </p>
           </kw-form-item>
           <kw-form-item
@@ -439,15 +439,23 @@ ${step4.cntrt.sexDvNm}` }}
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import ZwcmFileAttacher from '~common/components/ZwcmFileAttacher.vue';
-import { codeUtil, defineGrid, getComponentType, stringUtil, useDataService, useGlobal } from 'kw-lib';
+import {
+  codeUtil,
+  defineGrid,
+  getComponentType,
+  stringUtil,
+  useDataService,
+  useGlobal,
+} from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 
 const dataService = useDataService();
 const { notify } = useGlobal();
 const props = defineProps({
   contract: { type: String, required: true },
+  onChildMounted: { type: Function, required: true },
 });
-const { step4 } = toRefs(props.contract);
+const { cntrNo: pCntrNo, step4 } = toRefs(props.contract);
 step4.value = {
   bas: {},
   cntrt: {},
@@ -502,16 +510,22 @@ function setGrid() {
 async function getCntrInfo(cntrNo) {
   const cntr = await dataService.get('sms/wells/contract/contracts/cntr-info', { params: { cntrNo, step: 4 } });
   step4.value = cntr.data.step4;
+  pCntrNo.value = step4.value.bas.cntrNo;
   console.log(step4.value);
   // 총판채널인 경우 고객센터 이관만 보이도록
   codes.CST_STLM_IN_MTH_CD = codes.CST_STLM_IN_MTH_CD.filter((code) => (step4.value.bas.cstStlmInMthCd === '30' ? code.codeId === '30' : code.codeId !== '30'));
 
   ogStep4.value = cloneDeep(step4.value);
+  console.log(step4.value);
   setGrid();
 }
 
 function isChangedStep() {
   return JSON.stringify(ogStep4.value) !== JSON.stringify(step4.value);
+}
+
+async function isValidStep() {
+  return true;
 }
 
 async function saveStep() {
@@ -532,7 +546,12 @@ function onClickNextDtlSn() {
 defineExpose({
   getCntrInfo,
   isChangedStep,
+  isValidStep,
   saveStep,
+});
+
+onMounted(async () => {
+  props.onChildMounted(4);
 });
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
