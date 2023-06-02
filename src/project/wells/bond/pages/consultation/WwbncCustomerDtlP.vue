@@ -322,7 +322,7 @@
                   :label="$t('MSG_TXT_SELLER_CTPLC')"
                 >
                   <p class="w100">
-                    {{ customer.plarMpno }}
+                    {{ customer.plarCralLocaraTno }}-{{ customer.plarMexnoEncr }}-{{ customer.plarCralIdvTno }}
                   </p>
                   <kw-btn
                     borderless
@@ -807,7 +807,7 @@
                   :label="$t('MSG_TXT_DPR')"
                 >
                   <kw-input
-                    v-model="customer.dpr"
+                    v-model="customer.dprNm"
                     dense
                   />
                 </kw-form-item>
@@ -1144,7 +1144,7 @@ async function onClickCnslRgstReset() {
   customer.value.cnslPh = '';
   customer.value.crncyRs = '';
   customer.value.cstPrp = '';
-  customer.value.dpr = '';
+  customer.value.dprNm = '';
   customer.value.cnslTp = '';
   customer.value.cstStat = '';
   customer.value.clnPsbl = '';
@@ -1245,7 +1245,7 @@ async function onClickCounselSave() {
   saveCounselParams.value.telCnslPhCd = customer.value.cnslPh;
   saveCounselParams.value.telCnslRsCd = customer.value.crncyRs;
   saveCounselParams.value.cnslCstPrpCd = customer.value.cstPrp;
-  saveCounselParams.value.dprNm = customer.value.dpr;
+  saveCounselParams.value.dprNm = customer.value.dprNm;
   saveCounselParams.value.bndCntrTpCd = customer.value.cnslTp;
   saveCounselParams.value.bndCnslCstStatCd = customer.value.cstStat;
   saveCounselParams.value.bndClnPsblDvCd = customer.value.clnPsbl;
@@ -1288,7 +1288,6 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'cntrNo' },
     { fieldName: 'cntrSn' },
     { fieldName: 'cntrDtlNo' },
-    { fieldName: 'cstNo' },
     { fieldName: 'cstKnm' },
     { fieldName: 'dlqMcn' },
     { fieldName: 'cntrRsgDt' },
@@ -1323,6 +1322,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'rtlfe2', dataType: 'number' },
     { fieldName: 'rtlfeIstm2', dataType: 'number' },
     { fieldName: 'dprNm' },
+    { fieldName: 'cstNo' },
     { fieldName: 'clctamPrtnrNo' },
     { fieldName: 'clctamIchr' },
     { fieldName: 'tfDt' },
@@ -1335,10 +1335,21 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'sellTpCd', header: t('MSG_TXT_TASK_DIV'), width: '80', styleName: 'text-center' },
     { fieldName: 'prdf', header: t('MSG_TXT_PRD_GRP'), width: '100', styleName: 'text-center' },
     { fieldName: 'pdNm', header: t('MSG_TXT_GOODS_NM'), width: '300', styleName: 'text-center' },
-    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_NO'), width: '100', styleName: 'text-center', visible: 'false' },
-    { fieldName: 'cntrSn', header: t('MSG_TXT_CNTR_SN'), width: '100', styleName: 'text-center', visible: 'false' },
-    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '200', styleName: 'text-center' },
-    { fieldName: 'cstNo', header: '', width: '100', styleName: 'text-center', visible: 'center' },
+    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_NO'), width: '100', styleName: 'text-center', visible: false },
+    { fieldName: 'cntrSn', header: t('MSG_TXT_CNTR_SN'), width: '100', styleName: 'text-center', visible: false },
+    {
+      fieldName: 'cntrDtlNo',
+      header: t('MSG_TXT_CNTR_DTL_NO'),
+      styleName: 'text-center',
+      width: '160',
+
+      displayCallback(grid, index) {
+        const { cntrNo: no1, cntrSn: no2 } = grid.getValues(index.itemIndex);
+        if (no1 != null) {
+          return `${no1}-${no2}`;
+        }
+      },
+    },
     { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '120', styleName: 'text-center' },
     { fieldName: 'dlqMcn', header: t('MSG_TXT_DLQ_MCNT'), width: '80', styleName: 'text-center' },
     { fieldName: 'cntrRsgDt', header: t('MSG_TXT_AUTH_RSG_DT'), width: '130', styleName: 'text-center' },
@@ -1373,7 +1384,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'rtlfe2', header: t('MSG_TXT_RTLFE2'), styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
     { fieldName: 'rtlfeIstm2', header: t('MSG_TXT_RTLFE_2_ISTM'), styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
     { fieldName: 'dprNm', header: t('MSG_TXT_DPR'), styleName: 'text-center' },
-    { fieldName: 'cstNo', header: '', width: '100', styleName: 'text-center', visible: 'false' },
+    { fieldName: 'cstNo', header: '', width: '100', styleName: 'text-center', visible: false },
     { fieldName: 'clctamPrtnrNo', header: t('MSG_TXT_CLCTAM_ICHR'), styleName: 'text-center' },
     { fieldName: 'tfDt', header: t('MSG_TXT_TF_DT'), styleName: 'text-center', width: '120' },
     { fieldName: 'sfk', header: t('MSG_TXT_SFK'), styleName: 'text-center', width: '150' },
@@ -1391,9 +1402,9 @@ const initGrdMain = defineGrid((data, view) => {
     visible: true,
     items: [{ height: 40 }],
   });
-  view.layoutByColumn('fnt').summaryUserSpans = [{ colspan: 8 }];
+  view.layoutByColumn('mpyBsdt').summaryUserSpans = [{ colspan: 11 }];
   view.layoutByColumn('vtAcDv').summaryUserSpans = [{ colspan: 3 }];
-  view.layoutByColumn('dpr').summaryUserSpans = [{ colspan: 4 }];
+  view.layoutByColumn('dprNm').summaryUserSpans = [{ colspan: 4 }];
 
   view.onCurrentRowChanged = (grid, oldRow, newRow) => {
     const rowData = gridUtil.getRowValue(grid, newRow);
