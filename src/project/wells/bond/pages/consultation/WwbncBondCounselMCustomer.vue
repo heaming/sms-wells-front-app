@@ -141,9 +141,9 @@
       <kw-search-item
         :label="$t('MSG_TXT_OJ_BLAM')"
       >
-        <kw-input v-model="searchParams.seachOjBlamStrt" />
+        <kw-input v-model="searchParams.schOjBlamStrt" />
         <span>-</span>
-        <kw-input v-model="searchParams.seachOjBlamEnd" />
+        <kw-input v-model="searchParams.schOjBlamEnd" />
       </kw-search-item>
     </kw-search-row>
 
@@ -236,6 +236,7 @@ import { getDlqMcnt, getFntDt, getWellsCstListDv, getAuthAuthRsgYn, getFntDv } f
 
 const { t } = useI18n();
 const dataService = useDataService();
+const { currentRoute } = useRouter();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -273,8 +274,8 @@ const searchParams = ref({
   schFntDv: '',
   schFntDtStrt: '',
   schFntDtEnd: '',
-  seachOjBlamStrt: '',
-  seachOjBlamEnd: '',
+  schOjBlamStrt: '',
+  schOjBlamEnd: '',
   schCstDv: '01',
   schCpsnRsgYn: '',
   schDv: '',
@@ -298,7 +299,7 @@ async function fetchCustomers() {
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
   await gridUtil.exportView(view, {
-    fileName: 'customerList',
+    fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
 
   });
@@ -385,6 +386,7 @@ const onClickCntrMessageSend = async () => {
 async function onClickSearch() {
   const cstNo = searchParams.value.schCstNo;
   const cstNm = searchParams.value.schCstNm;
+  const sfkVal = searchParams.value.schSfK;
   const cstNoYn = searchParams.value.schCstNoYn;
 
   if (cstNo !== '' || cstNm !== '') {
@@ -392,6 +394,41 @@ async function onClickSearch() {
       notify(t('MSG_ALT_NAME_NO_IN'));
       return;
     }
+  }
+  if (sfkVal !== '') {
+    if (cstNoYn === 'N') {
+      notify(t('MSG_ALT_SFK_IN'));
+      return;
+    }
+  }
+
+  const dlqMcntStrt = searchParams.value.schDlqMcntStrt;
+  const dlqMcntEnd = searchParams.value.schDlqMcntEnd;
+  const fntDv = searchParams.value.schFntDv;
+  const fntDtStrt = searchParams.value.schFntDtStrt;
+  const fntDtEnd = searchParams.value.schFntDtEnd;
+  const ojBlamStrt = searchParams.value.schOjBlamStrt;
+  const ojBlamEnd = searchParams.value.schOjBlamEnd;
+
+  if (dlqMcntStrt > dlqMcntEnd) {
+    await notify(t('MSG_ALT_STRT_YM_END_YM_BIG', [t('MSG_TXT_DLQ_MCNT') + t('MSG_TXT_RSV_STRT_DTM'), t('MSG_TXT_RSV_END_DTM')]));
+    return false;
+  }
+
+  if (fntDtStrt !== '' && fntDtEnd !== '') {
+    if (fntDv === '') {
+      notify(t('MSG_ALT_FNT_DV'));
+      return;
+    }
+  }
+  if (fntDtStrt > fntDtEnd) {
+    await notify(t('MSG_ALT_STRT_YM_END_YM_BIG', [t('MSG_TXT_FNT_DT') + t('MSG_TXT_RSV_STRT_DTM'), t('MSG_TXT_RSV_END_DTM')]));
+    return false;
+  }
+
+  if (Number(ojBlamStrt) > Number(ojBlamEnd)) {
+    await notify(t('MSG_ALT_STRT_YM_END_YM_BIG', [t('MSG_TXT_OJ_BLAM') + t('MSG_TXT_RSV_STRT_DTM'), t('MSG_TXT_RSV_END_DTM')]));
+    return false;
   }
 
   cachedParams = cloneDeep(searchParams.value);
