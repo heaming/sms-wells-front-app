@@ -82,7 +82,7 @@
           required
         >
           <kw-select
-            :model-value="searchParams.ptrmDv"
+            v-model="searchParams.ptrmDv"
             :options="periodOptions"
             style="max-width: 33%;"
             required
@@ -100,7 +100,7 @@
           :label="$t('MSG_TXT_STAT_DV')"
         >
           <kw-select
-            :model-value="searchParams.cntrStatCd"
+            v-model="searchParams.cntrStatCd"
             :options="codes.CNTR_STAT_CD"
             first-option="all"
           />
@@ -329,13 +329,13 @@ async function onClickSearch() {
   // 선택한 조직 코드에 해당하는 조직 ID 세팅
   searchParams.value.dgr1LevlOgCd = codesDgr1Levl.value
     .find((v) => selectedDgr1LevlOgCds.value.includes(v.dgr1LevlOgCd))
-    ?.dgr1LevlOgCd;
+    ?.dgr1LevlOgCd || ''; // undefined 인 경우, emptry string 로 변경
   searchParams.value.dgr2LevlOgCd = codesDgr2Levl.value
     .find((v) => selectedDgr2LevlOgCds.value.includes(v.dgr2LevlOgCd))
-    ?.dgr2LevlOgCd;
+    ?.dgr2LevlOgCd || '';
   searchParams.value.dgr3LevlOgCd = codesDgr3Levl.value
     .find((v) => selectedDgr3LevlOgCds.value.includes(v.dgr3LevlOgCd))
-    ?.dgr3LevlOgCd;
+    ?.dgr3LevlOgCd || '';
 
   pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
