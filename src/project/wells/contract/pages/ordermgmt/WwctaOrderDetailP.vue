@@ -113,6 +113,7 @@
             <!-- 자동이체 -->
             <kw-form-item :label="$t('MSG_TXT_AUTO_FNT')">
               <kw-chip
+                v-show="isAftnInfo"
                 :label="frmMainData.cdcoNm"
                 color="placeholder"
                 outline
@@ -141,7 +142,7 @@
                 dense
                 secondary
                 :label="$t('MSG_BTN_VT_AC_CFDC')"
-                @click="onClick"
+                @click="onClickVtAcCfdc"
               />
               <kw-separator
                 vertical
@@ -154,7 +155,7 @@
                 dense
                 secondary
                 :label="$t('MSG_BTN_CHAR_FW')"
-                @click="onClick"
+                @click="onClickCharFw"
               />
               <kw-separator
                 vertical
@@ -167,7 +168,7 @@
                 dense
                 secondary
                 :label="$t('MSG_BTN_EMAIL_SEND')"
-                @click="onClick"
+                @click="onClickEmailSend"
               />
               <p>{{ frmMainData.vacInfo }}</p>
             </kw-form-item>
@@ -238,8 +239,8 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService, stringUtil } from 'kw-lib';
-import { cloneDeep, isNull, isEmpty } from 'lodash-es';
+import { useDataService, useGlobal, stringUtil } from 'kw-lib';
+import { cloneDeep, isEmpty } from 'lodash-es';
 import WwctaOrderDetailManagementInfDtlP from './WwctaOrderDetailManagementInfDtlP.vue';
 import WwctaOrderDetailDepositIzDtlP from './WwctaOrderDetailDepositIzDtlP.vue';
 import WwctaOrderDetailTaxInvoiceDtlP from './WwctaOrderDetailTaxInvoiceDtlP.vue';
@@ -247,6 +248,7 @@ import WwctaOrderDetailCollectingAmountContactListP from './WwctaOrderDetailColl
 
 const dataService = useDataService();
 // const { t } = useI18n();
+const { alert } = useGlobal();
 const optionList = ref([]);
 const props = defineProps({
   cntrNo: { type: String, required: true, default: '' },
@@ -254,7 +256,9 @@ const props = defineProps({
   sellTpCd: { type: String, required: true, default: '' },
   cntrCstNo: { type: String, required: false, default: '' },
 });
-const isVacInfo = ref();
+
+const isAftnInfo = ref(false);
+const isVacInfo = ref(false);
 
 let cachedParams;
 const searchParams = ref({
@@ -341,7 +345,8 @@ async function fetchDataCustomerBase() {
     frmMainData.value.acnoEncr = res.data[0].acnoEncr; // 계좌번호
     frmMainData.value.crcdnoEncr = res.data[0].crcdnoEncr; // 카드번호
     // 계좌/카드자동이체 상세정보
-    if (!isNull(res.data[0].aftnInfo)) {
+    if (!isEmpty(res.data[0].aftnInfo)) {
+      isAftnInfo.value = true;
       frmMainData.value.cdcoNm = res.data[0].aftnInfo.split(' ')[0];
       if (frmMainData.value.dpTpCd === '0102') {
         frmMainData.value.aftnInfo = `${res.data[0].aftnInfo.split(' ')[1]} ${frmMainData.value.acnoEncr} ${res.data[0].aftnInfo.split(' ')[3]}`;
@@ -351,7 +356,7 @@ async function fetchDataCustomerBase() {
     }
     frmMainData.value.sfkVal = res.data[0].sfkVal; // 세이프키
     frmMainData.value.vacInfo = res.data[0].vacInfo; // 가상계좌
-    if (!isNull(res.data[0].vacInfo)) {
+    if (!isEmpty(res.data[0].vacInfo)) {
       isVacInfo.value = true;
     }
     frmMainData.value.cntrtAdr = res.data[0].cntrtAdr; // 계약자 주소
@@ -406,6 +411,21 @@ async function onSelectCntrctPdList() {
   // console.log(cntrSn);
   searchParams.value.cntrSn = cntrSn;
   await currentTabFetchData();
+}
+
+// 가상계좌확인서
+async function onClickVtAcCfdc() {
+  await alert('가상계좌확인서 팝업은 개발예정입니다.');
+}
+
+// 문자발송
+async function onClickCharFw() {
+  await alert('문자발송 팝업은 개발예정입니다.');
+}
+
+// 메일발송
+async function onClickEmailSend() {
+  await alert('메일발송 팝업은 개발예정입니다.');
 }
 
 onMounted(async () => {

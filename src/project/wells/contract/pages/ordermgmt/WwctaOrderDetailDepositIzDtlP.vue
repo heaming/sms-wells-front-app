@@ -286,7 +286,7 @@ import { cloneDeep, isEmpty } from 'lodash-es';
 
 const dataService = useDataService();
 const { t } = useI18n();
-const { notify, modal } = useGlobal();
+const { alert, notify, modal } = useGlobal();
 const props = defineProps({
   cntrNo: { type: String, required: true, default: '' },
   cntrSn: { type: String, required: true, default: '' },
@@ -347,16 +347,7 @@ const isSearchPrepaymentVisible = ref(true); // 선납버튼
 
 // 입금등록 버튼 팝업 호출
 async function onClickDepositRgst() {
-  const searchPopupParams = {
-    cntrNo: searchParams.value.cntrNo,
-    cntrSn: searchParams.value.cntrSn,
-    prtnrKnm: frmMainData.value.prtnrKnm,
-  };
-
-  await modal({
-    component: 'WwctaOrderDetailDepositRgstMgtP', // 입금등록
-    componentProps: searchPopupParams,
-  });
+  await alert('입금내역 팝업은 개발예정입니다.');
 }
 
 // 선납버튼 팝업 호출
