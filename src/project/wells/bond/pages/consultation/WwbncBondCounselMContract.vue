@@ -24,7 +24,7 @@
         required
       >
         <kw-input
-          v-model="searchParams.schClctamNo"
+          v-model="searchParams.schClctamPsic"
           :label="$t('MSG_TXT_CLCTAM_PSIC')"
           clearable
           icon="search"
