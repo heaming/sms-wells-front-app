@@ -160,7 +160,7 @@
           dense
           secondary
           :label="$t('MSG_TXT_EXCEL_DOWNLOAD')"
-          :disable="totalCount === 0"
+          :disable="pageInfo.totalCount === 0"
           @click="onClickExcelDownload"
         />
         <kw-separator
@@ -370,19 +370,18 @@ watch(() => searchParams.value.itmKndCd, (val) => {
 
 let cachedParams;
 
-const totalCount = ref(0);
 const filters = codes.PD_GRP_CD.map((v) => ({ name: v.codeId, criteria: `value = '${v.codeId}'` }));
 function onUpdateProductGroupCode(val) {
   const view = grdMainRef.value.getView();
   view.activateAllColumnFilters('itemGr', false);
 
   if (val === '') {
-    totalCount.value = view.getItemCount();
+    pageInfo.value.totalCount.value = view.getItemCount();
     return;
   }
 
   view.activateColumnFilters('itemGr', [val], true);
-  totalCount.value = view.getItemCount();
+  pageInfo.value.totalCount.value = view.getItemCount();
 }
 
 async function fetchData() {

@@ -76,7 +76,7 @@
           dense
           secondary
           :label="$t('MSG_BTN_EXCEL_DOWN')"
-          :disable="totalCount === 0"
+          :disable="pageInfo.totalCount === 0"
           @click="onClickExcelDownload"
         />
         <kw-separator
@@ -142,7 +142,6 @@ const searchParams = ref({
   endStrHopDt: dayjs().format('YYYYMMDD'), // 입고희망일자 종료일
   wareDvCd: '1', // 출고요청 창고구분코드
 });
-const totalCount = ref(0);
 
 const wharehouseParams = ref({
   apyYm: dayjs().format('YYYYMM'),
