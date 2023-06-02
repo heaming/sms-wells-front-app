@@ -380,8 +380,9 @@ const { notify } = useGlobal();
 
 const props = defineProps({
   contract: { type: String, required: true },
+  onChildMounted: { type: Function, required: true },
 });
-const { step2 } = toRefs(props.contract);
+const { cntrNo: pCntrNo, step2 } = toRefs(props.contract);
 const ogStep2 = ref({});
 const pdFilter = ref('');
 const classfiedPds = ref([]);
@@ -485,6 +486,7 @@ async function getCntrInfo(cntrNo) {
       if (Number.isInteger(dtl[col])) dtl[col] = String(dtl[col]);
     });
   });
+  pCntrNo.value = step2.value.bas.cntrNo;
   console.log(step2.value);
   ogStep2.value = cloneDeep(step2.value);
 }
@@ -513,6 +515,9 @@ defineExpose({
   isValidStep,
   saveStep,
   getProducts,
+});
+onMounted(async () => {
+  props.onChildMounted(2);
 });
 </script>
 

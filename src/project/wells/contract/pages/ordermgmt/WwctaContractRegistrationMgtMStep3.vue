@@ -482,8 +482,9 @@ const dataService = useDataService();
 const { notify } = useGlobal();
 const props = defineProps({
   contract: { type: String, required: true },
+  onChildMounted: { type: Function, required: true },
 });
-const { step3 } = toRefs(props.contract);
+const { cntrNo: pCntrNo, step3 } = toRefs(props.contract);
 const ogStep3 = ref({});
 const { t } = useI18n();
 const codes = await codeUtil.getMultiCodes(
@@ -522,6 +523,7 @@ async function getCntrInfo(cntrNo) {
   const cntr = await dataService.get('sms/wells/contract/contracts/cntr-info', { params: { cntrNo, step: 3 } });
   step3.value = cntr.data.step3;
   adrs.value[0] = step3.value.basAdrpc;
+  pCntrNo.value = step3.value.bas.cntrNo;
   console.log(step3.value);
   ogStep3.value = cloneDeep(step3.value);
 
@@ -540,6 +542,10 @@ async function getCntrInfo(cntrNo) {
 
 function isChangedStep() {
   return JSON.stringify(ogStep3.value) !== JSON.stringify(step3.value);
+}
+
+async function isValidStep() {
+  return true;
 }
 
 async function saveStep() {
@@ -604,9 +610,11 @@ function onChangeSodbtNftfCntr(v) {
 defineExpose({
   getCntrInfo,
   isChangedStep,
+  isValidStep,
   saveStep,
 });
 onMounted(async () => {
+  props.onChildMounted(3);
 });
 </script>
 

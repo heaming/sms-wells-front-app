@@ -322,15 +322,16 @@ const router = useRouter();
 
 const props = defineProps({
   contract: { type: String, required: true },
+  onChildMounted: { type: Function, required: true },
 });
-const { step1 } = toRefs(props.contract);
+const { cntrNo: pCntrNo, step1 } = toRefs(props.contract);
 const ogStep1 = ref({});
 const codes = await codeUtil.getMultiCodes(
   'CNTR_TP_CD',
   'COPN_DV_CD',
 );
 const searchParams = ref({
-  cntrNo: props.cntrNo,
+  cntrNo: step1.value.bas?.cntrNo,
   cntrTpCd: '01',
   copnDvCd: '1',
   cstKnm: '이지원',
@@ -357,6 +358,7 @@ async function getCntrInfo(cntrNo) {
     step: 1,
   } });
   step1.value = cntr.data.step1;
+  pCntrNo.value = step1.value.bas.cntrNo;
   console.log(step1.value);
   ogStep1.value = cloneDeep(step1.value);
   if (isEmpty(step1.value.bas.cntrNo)) {
@@ -490,6 +492,7 @@ async function saveStep() {
 }
 
 onMounted(async () => {
+  props.onChildMounted(1);
   if (await isPartnerStpa()) {
     await alert('휴업');
   } else if (isEmpty(props.cntrNo)) {
@@ -499,7 +502,7 @@ onMounted(async () => {
     }
   }
   // 기존 계약 조회
-  if (!isEmpty(step1.value.bas.cntrNo)) {
+  if (!isEmpty(step1.value.bas?.cntrNo)) {
     await getCntrInfo(step1.value.bas.cntrNo);
   }
 });
