@@ -355,7 +355,7 @@ async function onClickExcelDownload() {
     fileName: currentRoute.value.meta.menuName, // 메뉴명으로 다운로드 엑셀 파일명 세팅
     timePostfix: true, // 엑셀 파일명에 _YYYYMMDDHHMISS 붙여줌
     exportData: res.data, // 현재 그리드에 보여지는 데이터가 아닌 전체 데이터 다운로드 시 사용
-    searchCondition: false,
+    searchCondition: true,
   });
 }
 
