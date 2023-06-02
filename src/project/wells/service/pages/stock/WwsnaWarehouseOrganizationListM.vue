@@ -105,7 +105,7 @@
           dense
           secondary
           :label="$t('MSG_BTN_EXCEL_DOWN')"
-          :disable="totalCount === 0"
+          :disable="pageInfo.totalCount === 0"
           @click="onClickExcelDownload"
         />
         <kw-separator
@@ -236,8 +236,6 @@ watch(() => searchParams.value.wareDvCd, (val) => {
   }
   onChangeWareDvCd();
 });
-
-const totalCount = ref(0);
 
 // const carriedParams = ref({
 //   baseYm: dayjs().format('YYYYMM'), // 기준년월
