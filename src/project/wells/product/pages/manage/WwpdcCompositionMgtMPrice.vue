@@ -386,7 +386,7 @@ async function initGridRows() {
     rows?.forEach((row) => {
       const stdRow = stdRows?.find((item) => (row[pdConst.PRC_STD_ROW_ID]
                                                 && item[pdConst.PRC_STD_ROW_ID] === row[pdConst.PRC_STD_ROW_ID])
-                                            || item.pdPrcDtlId === row.pdPrcDtlId);
+                                              || (row.pdPrcDtlId && item.pdPrcDtlId === row.pdPrcDtlId));
       row = pdMergeBy(row, stdRow);
       row[pdConst.PRC_STD_ROW_ID] = row[pdConst.PRC_STD_ROW_ID] ?? row.pdPrcDtlId;
       row[pdConst.PRC_FNL_ROW_ID] = row[pdConst.PRC_FNL_ROW_ID] ?? row.pdPrcFnlDtlId;
