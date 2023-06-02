@@ -432,6 +432,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'depositDetail' }, // 입금내역
     { fieldName: 'cstGdCd' }, // 고객등급
     { fieldName: 'pdNm' }, // 상품명
+    { fieldName: 'sellTpCd' }, // 판매유형코드
     { fieldName: 'cntrCnfmDtm' }, // 계약일
     { fieldName: 'istDt' }, // 설치일
     { fieldName: 'cntrStat' }, // 사용구분
@@ -636,12 +637,14 @@ const initGrid = defineGrid((data, view) => {
     const paramCntrDtlNo = gridUtil.getCellValue(g, dataRow, 'cntrDtlNo');
     const paramCntrNo = String(paramCntrDtlNo).split('-')[0];
     const paramCntrSn = String(paramCntrDtlNo).split('-')[1];
-    const paramSellPrtnrKnm = gridUtil.getCellValue(g, dataRow, 'sellPrtnrKnm');
+    const { sellTpCd } = g.getValues(dataRow);
+    const { cntrCstNo } = g.getValues(dataRow);
+    // const paramSellPrtnrKnm = gridUtil.getCellValue(g, dataRow, 'sellPrtnrKnm');
 
     if (['cntrDtlNo'].includes(column)) { // 계약상세(윈도우팝업)
-      await modal({ component: 'WwctaOrderDetailP', componentProps: { cntrNo: paramCntrNo, cntrSn: paramCntrSn } });
+      await modal({ component: 'WwctaOrderDetailP', componentProps: { cntrNo: paramCntrNo, cntrSn: paramCntrSn, sellTpCd, cntrCstNo } });
     } else if (['depositDetail'].includes(column)) { // 입금내역
-      await modal({ component: 'WwctaOrderDetailDepositRgstMgtP', componentProps: { cntrNo: paramCntrNo, cntrSn: paramCntrSn, prtnrKnm: paramSellPrtnrKnm } });
+      await alert('입금내역 팝업은 개발예정입니다.');
     }
   };
 });
