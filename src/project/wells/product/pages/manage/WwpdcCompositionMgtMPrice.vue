@@ -60,6 +60,27 @@
       />
     </kw-action-bottom>
     <kw-action-top>
+      <!-- 행복사 -->
+      <kw-btn
+        :label="$t('MSG_BTN_MSG_BTN_ROW_COPY')"
+        grid-action
+        dense
+        :disable="gridRowCount === 0"
+        @click="onClickRowCopy"
+      />
+      <!-- 행삭제 -->
+      <kw-btn
+        :label="$t('MSG_BTN_ROW_DEL')"
+        grid-action
+        dense
+        :disable="gridRowCount === 0"
+        @click="onClickRowRemove"
+      />
+      <kw-separator
+        vertical
+        inset
+        spaced
+      />
       <!-- 삭제 -->
       <kw-btn
         grid-action
@@ -270,6 +291,39 @@ async function onClickAdd() {
     }
   }
   notify(t('MSG_ALT_NO_LINK_PDS'));
+}
+
+async function onClickRowCopy() {
+  const view = grdMainRef.value.getView();
+  const selectedRows = cloneDeep(gridUtil.getSelectedRowValues(view));
+  if (selectedRows.length < 1) {
+    notify(t('MSG_ALT_NOT_SEL_ITEM'));
+    return;
+  }
+  selectedRows.forEach((rowItem) => {
+    rowItem[pdConst.PRC_STD_ROW_ID] = stringUtil.getUid('STD');
+    rowItem[pdConst.PRC_FNL_ROW_ID] = stringUtil.getUid('FNL');
+    rowItem[pdConst.PRC_DETAIL_ID] = '';
+    rowItem[pdConst.PRC_DETAIL_FNL_ID] = '';
+    rowItem.vlStrtDtm = '';
+    rowItem.vlEndDtm = '';
+  });
+  await gridUtil.insertRowAndFocus(view, view.getSelectedRows()[0] + 1, selectedRows[0]);
+  gridRowCount.value = getGridRowCount(view);
+}
+
+async function onClickRowRemove() {
+  const view = grdMainRef.value.getView();
+  const deletedRowValues = await gridUtil.confirmDeleteSelectedRows(view);
+  if (deletedRowValues && deletedRowValues.length) {
+    removeObjects.value.push(...deletedRowValues.reduce((rtn, item) => {
+      if (item[pdConst.PRC_STD_ROW_ID]) {
+        rtn.push({ [pdConst.PRC_STD_ROW_ID]: item[pdConst.PRC_STD_ROW_ID] });
+      }
+      return rtn;
+    }, []));
+  }
+  gridRowCount.value = getGridRowCount(view);
 }
 
 async function onClickStandardSchPopup(pdCd, rowId) {
