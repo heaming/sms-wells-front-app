@@ -70,6 +70,7 @@
         >
           <kw-input
             v-model="searchParams.rgrp"
+            maxlength="10"
           />
         </kw-search-item>
         <kw-search-item
@@ -77,6 +78,7 @@
         >
           <kw-input
             v-model="searchParams.brch"
+            maxlength="10"
           />
         </kw-search-item>
         <kw-search-item
@@ -85,6 +87,7 @@
           <kw-input
             v-model="searchParams.dangOjPrtnrNo"
             icon="search"
+            maxlength="10"
             @click-icon="onClickSearchPartnerId"
           />
         </kw-search-item>
