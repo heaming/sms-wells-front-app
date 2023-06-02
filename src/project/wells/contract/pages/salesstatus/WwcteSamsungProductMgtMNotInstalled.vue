@@ -78,6 +78,12 @@
       name="grdNotInstalled"
       @init="initGrid"
     />
+    <kw-pagination
+      v-model:page-index="pageInfo.pageIndex"
+      v-model:page-size="pageInfo.pageSize"
+      :total-count="pageInfo.totalCount"
+      @change="fetchPage"
+    />
   </div>
 </template>
 <script setup>
