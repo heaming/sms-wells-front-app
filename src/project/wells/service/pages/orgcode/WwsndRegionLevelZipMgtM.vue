@@ -57,20 +57,25 @@
 
       <kw-search-row>
         <!-- 작업그룹 -->
-        <kw-search-item :label="$t('MSG_TXT_WK_GRP')">
+        <kw-search-item
+          :label="$t('MSG_TXT_WK_GRP')"
+          required
+        >
           <kw-select
             v-model="searchParams.wkGrpCd"
             :options="codes.WK_GRP_CD"
+            :label="$t('MSG_TXT_WK_GRP')"
+            rules="required"
           />
         </kw-search-item>
         <!-- 서비스센터 -->
         <kw-search-item :label="$t('MSG_TXT_SV_CNR')">
           <kw-select
-            v-model="searchParams.ogCd"
+            v-model="searchParams.ogId"
             :options="serviceCenter"
             first-option="all"
             option-label="ogNm"
-            option-value="ogCd"
+            option-value="ogId"
           />
         </kw-search-item>
       </kw-search-row>
@@ -156,7 +161,7 @@ const searchParams = ref({
   ctpvNm: '',
   ctctyNm: '',
   wkGrpCd: '10',
-  ogCd: '',
+  ogId: '',
 });
 
 const pageInfo = ref({
@@ -169,6 +174,7 @@ const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
   'WK_GRP_CD',
   'LOCARA_MNGT_DV_CD',
+  'LOCARA_VST_PRD_CD',
 );
 
 const serviceCenter = await getServiceCenterOrgs();
@@ -203,7 +209,7 @@ async function onClickExcelDownload() {
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
-    exportData: res.data.list,
+    exportData: res.data,
   });
 }
 
@@ -250,7 +256,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'rpbLocaraCd' },
     { fieldName: 'rpbLocaraGrpCd' },
     { fieldName: 'ogNm' },
-    { fieldName: 'ichrPrtnrNo' },
+    { fieldName: 'prtnrNo' },
     { fieldName: 'prtnrKnm' },
     { fieldName: 'vstDowVal' },
     { fieldName: 'emdSn' },
@@ -273,9 +279,9 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'rpbLocaraCd', header: t('MSG_TXT_LOCARA_CMN_CD'), width: '100', styleName: 'text-center' },
     { fieldName: 'rpbLocaraGrpCd', header: t('MSG_TXT_LOCARA_GRP_CD'), width: '100', styleName: 'text-center' },
     { fieldName: 'ogNm', header: t('MSG_TXT_CENTER_DIVISION'), width: '150' },
-    { fieldName: 'ichrPrtnrNo', header: t('MSG_TXT_RPB_PRTNR_NO'), width: '100', styleName: 'text-center' },
+    { fieldName: 'prtnrNo', header: t('MSG_TXT_RPB_PRTNR_NO'), width: '100', styleName: 'text-center' },
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_RPB_ICHR'), width: '100' },
-    { fieldName: 'vstDowVal', header: t('MSG_TXT_VST_DOW'), width: '100' },
+    { fieldName: 'vstDowVal', header: t('MSG_TXT_VST_DOW'), width: '100', options: codes.LOCARA_VST_PRD_CD },
     {
       fieldName: 'pdlvNm',
       header: t('MSG_TXT_AMTD_RSDT_CNR'),
@@ -312,7 +318,7 @@ const initGrdMain = defineGrid((data, view) => {
     'rpbLocaraCd',
     'rpbLocaraGrpCd',
     'ogNm',
-    'ichrPrtnrNo',
+    'prtnrNo',
     'prtnrKnm',
     'vstDowVal',
     {
