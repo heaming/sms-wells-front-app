@@ -58,7 +58,10 @@
       <kw-action-top>
         <template #left>
           <kw-paging-info
-            :total-count="totalCount"
+            v-model:page-index="pageInfo.pageIndex"
+            v-model:page-size="pageInfo.pageSize"
+            :total-count="pageInfo.totalCount"
+            :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
             @change="fetchData"
           />
         </template>
@@ -92,8 +95,15 @@
 
       <kw-grid
         ref="grdMainRef"
-        :visible-rows="pageInfo.pageSize"
+        :page-size="pageInfo.pageSize"
+        :total-count="pageInfo.totalCount"
         @init="initGrdMain"
+      />
+      <kw-pagination
+        v-model:page-index="pageInfo.pageIndex"
+        v-model:page-size="pageInfo.pageSize"
+        :total-count="pageInfo.totalCount"
+        @change="fetchData"
       />
     </div>
   </kw-page>
@@ -169,18 +179,12 @@ codes.OSTR_AK_TP_CD.forEach((e) => {
 });
 
 async function fetchData() {
-  const res = await dataService.get('/sms/wells/service/out-of-storage-asks', { params: cachedParams });
-  const newOutOfStorageAsks = res.data.map((v) => {
-    const { codeName } = codes.OSTR_AK_TP_CD.find((c) => c.codeId === v.ostrAkTpCd);
-    return { ...v, ostrAkTpNm: codeName };
-  });
+  const res = await dataService.get('/sms/wells/service/out-of-storage-asks/paging', { params: { ...cachedParams, ...pageInfo.value } });
+  const { list: newOutOfStorageAsks, pageInfo: pagingResult } = res.data;
+  pageInfo.value = pagingResult;
 
   const view = grdMainRef.value.getView();
-  const outOflength = res.data;
-  totalCount.value = outOflength.length;
-
   view.getDataSource().setRows(newOutOfStorageAsks);
-  view.resetCurrent();
 }
 
 async function onClickSearch() {
