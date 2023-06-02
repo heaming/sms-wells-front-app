@@ -491,7 +491,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'depositDetail', header: t('MSG_TXT_DP_IZ'), width: '130', styleName: 'text-center', renderer: { type: 'button', hideWhenEmpty: false }, displayCallback: () => t('MSG_TXT_DP_IZ') }, // 입금내역
     { fieldName: 'cstGdCd', header: t('MSG_TXT_CST_GRD'), width: '130', styleName: 'text-center' }, // 고객등급
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '250', styleName: 'text-center' }, // 상품명
-    { fieldName: 'cntrCnfmDtm', header: t('MSG_TXT_CNTRCT_DT'), width: '160', styleName: 'text-center', datetimeFormat: 'datetime' }, // 계약일
+    { fieldName: 'cntrCnfmDtm', header: t('MSG_TXT_CNTRCT_DT'), width: '160', styleName: 'text-center', datetimeFormat: 'date' }, // 계약일
     { fieldName: 'istDt', header: t('MSG_TXT_INST_DT'), width: '130', styleName: 'text-center', datetimeFormat: 'date' }, // 설치일
     { fieldName: 'cntrStat', header: t('MSG_TXT_USG'), width: '130', styleName: 'text-center' }, // 사용구분
     { fieldName: 'svPrd', header: t('MSG_TXT_CYCL'), width: '130', styleName: 'text-right' }, // 주기
@@ -636,11 +636,12 @@ const initGrid = defineGrid((data, view) => {
     const paramCntrDtlNo = gridUtil.getCellValue(g, dataRow, 'cntrDtlNo');
     const paramCntrNo = String(paramCntrDtlNo).split('-')[0];
     const paramCntrSn = String(paramCntrDtlNo).split('-')[1];
+    const paramSellPrtnrKnm = gridUtil.getCellValue(g, dataRow, 'sellPrtnrKnm');
 
     if (['cntrDtlNo'].includes(column)) { // 계약상세(윈도우팝업)
       await modal({ component: 'WwctaOrderDetailP', componentProps: { cntrNo: paramCntrNo, cntrSn: paramCntrSn } });
     } else if (['depositDetail'].includes(column)) { // 입금내역
-      await alert('입금내역 팝업조회 작업예정');
+      await modal({ component: 'WwctaOrderDetailDepositRgstMgtP', componentProps: { cntrNo: paramCntrNo, cntrSn: paramCntrSn, prtnrKnm: paramSellPrtnrKnm } });
     }
   };
 });

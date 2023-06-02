@@ -305,7 +305,16 @@ async function onClickCcamEt() {
 
 // 프로모션 팝업 호출
 async function onClickPmot() {
-  await alert('프로모션 팝업 조회');
+  // await alert('프로모션 팝업 조회');
+  const searchPopupParams = {
+    cntrNo: searchParams.value.cntrNo,
+    cntrSn: searchParams.value.cntrSn,
+  };
+
+  await modal({
+    component: 'WwctaOrderDetailMngtInfPmotListP', // 프로모션
+    componentProps: searchPopupParams,
+  });
 }
 
 // 연관계약리스트 팝업 호출
