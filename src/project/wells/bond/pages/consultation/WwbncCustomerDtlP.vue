@@ -77,6 +77,7 @@
                     secondary
                     class="kw-font-caption py2 ml4"
                     style="min-height: 20px;"
+                    @click="onClickTelephoneRej"
                   />
                 </kw-form-item>
                 <kw-form-item
@@ -161,6 +162,7 @@
                     secondary
                     class="kw-font-caption py2 ml4"
                     style="min-height: 20px;"
+                    @click="onClickTelephoneRej"
                   />
                 </kw-form-item>
                 <kw-form-item
@@ -188,13 +190,14 @@
                     secondary
                     class="kw-font-caption py2 ml4"
                     style="min-height: 20px;"
+                    @click="onClickTelephoneRej"
                   />
                 </kw-form-item>
               </kw-form-row>
               <kw-form-row>
                 <kw-form-item
                   :label="$t('MSG_TXT_CNTR_ADR')"
-                  colspan="2"
+                  :colspan="2"
                 >
                   <p>({{ customer.cntrSppZip }}){{ customer.cntrSppAdr }} {{ customer.cntrSppDtlAdr }}</p>
                 </kw-form-item>
@@ -207,7 +210,7 @@
               <kw-form-row>
                 <kw-form-item
                   :label="$t('MSG_TXT_INST_ADDR')"
-                  colspan="2"
+                  :colspan="2"
                 >
                   <p>({{ customer.istSppZip }}){{ customer.istSppAdr }} {{ customer.istSppDtlAdr }}</p>
                 </kw-form-item>
@@ -485,6 +488,7 @@
                     secondary
                     class="kw-font-caption py2 ml4"
                     style="min-height: 20px;"
+                    @click="onClickLawMeasure"
                   />
 
                   <kw-btn
@@ -605,6 +609,7 @@
                     secondary
                     class="kw-font-caption py2 ml4"
                     style="min-height: 20px;"
+                    @click="onClickService"
                   />
                 </kw-form-item>
               </kw-form-row>
@@ -648,10 +653,6 @@
               <kw-tab
                 name="tab7"
                 :label="$t('MSG_TXT_CST_CNR_CNSL_HIST')"
-              />
-              <kw-tab
-                name="tab8"
-                :label="$t('MSG_TXT_HPCALL_CNSL_HIST')"
               />
             </kw-tabs>
             <kw-observer
@@ -710,13 +711,6 @@
                     v-model:cntr-sn="customer.cntrSn"
                   />
                 </kw-tab-panel>
-                <kw-tab-panel name="tab8">
-                  <wwbnc-customer-dtl-p-happy-call
-                    v-model:cst-no="customer.cstNo"
-                    v-model:cntr-no="customer.cntrNo"
-                    v-model:cntr-sn="customer.cntrSn"
-                  />
-                </kw-tab-panel>
               </kw-tab-panels>
             </kw-observer>
           </div>
@@ -762,7 +756,7 @@
 
             <kw-form
               ref="frmMainRef"
-              cols="1"
+              :cols="1"
               dense
               :label-size="112"
             >
@@ -903,7 +897,7 @@
                     ref="frmSubRef"
                     :label-size="100"
                     dense
-                    cols="1"
+                    :cols="1"
                   >
                     <kw-form-row>
                       <kw-form-item
@@ -1010,7 +1004,7 @@ import WwbncCustomerDtlPCounselHistory from './WwbncCustomerDtlPCounselHistory.v
 
 const { t } = useI18n();
 const dataService = useDataService();
-const { modal, notify } = useGlobal();
+const { modal } = useGlobal();
 
 const obsTabRef = ref();
 
@@ -1172,32 +1166,51 @@ async function onClickCustomerCardPrint() {
   });
 }
 
-// TODO: 방문이력 관리 팝업
-async function onClickVisit() {
-  // TODO:고객번호, 고객명, 계약번호, 계약일련번호, 채권업무구분코드 전달필요
-  const { cstNo } = '016568225';
+async function onClickTelephoneRej() {
+  await modal({
+    component: 'ZwbncCounselTelephoneRejMgtP',
+    componentProps: customer.value,
+  });
+}
 
+async function onClickService() {
+  await modal({
+    component: 'WwbncServiceDtlP',
+    componentProps: customer.value,
+  });
+}
+
+async function onClickLawMeasure() {
   const { result: isChanged } = await modal({
-    component: 'ZwbncVisitMgtP',
-    componentProps: { cstNo },
+    component: 'ZwbncLawMeasureMgtP',
+    componentProps: customer.value,
   });
 
   if (isChanged) {
-    notify(t('MSG_ALT_REGISTERED'));
-    selectedTab.value = 'tab5';
-    await visitRef.value.fetchData();
+    selectedTab.value = 'tab4';
+    await lawMeasureRef.value.fetchData();
   }
 }
 
 // TODO: 가상상세 목록 팝업
 async function onClickVirtualAccount() {
-  // TODO:고객번호, 고객명, 계약번호, 계약일련번호 전달필요
-  const { cstNo } = '016568225';
-
   await modal({
     component: 'ZwbncVirtualAccountP',
-    componentProps: { cstNo },
+    componentProps: customer.value,
   });
+}
+
+// TODO: 방문이력 관리 팝업
+async function onClickVisit() {
+  const { result: isChanged } = await modal({
+    component: 'ZwbncVisitMgtP',
+    componentProps: customer.value,
+  });
+
+  if (isChanged) {
+    selectedTab.value = 'tab5';
+    await visitRef.value.fetchData();
+  }
 }
 
 // TODO: 소장 생성 팝업
@@ -1314,6 +1327,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'clctamIchr' },
     { fieldName: 'tfDt' },
     { fieldName: 'sfk' },
+    { fieldName: 'bndBizDvCd' },
   ];
 
   const columns = [
@@ -1363,6 +1377,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'clctamPrtnrNo', header: t('MSG_TXT_CLCTAM_ICHR'), styleName: 'text-center' },
     { fieldName: 'tfDt', header: t('MSG_TXT_TF_DT'), styleName: 'text-center', width: '120' },
     { fieldName: 'sfk', header: t('MSG_TXT_SFK'), styleName: 'text-center', width: '150' },
+    { fieldName: 'bndBizDvCd', width: '100', styleName: 'text-center', visible: false },
   ];
 
   data.setFields(fields);
@@ -1388,8 +1403,11 @@ const initGrdMain = defineGrid((data, view) => {
 
   view.onCellDblClicked = async (g, { dataRow }) => {
     const cstNo = g.getValue(dataRow, 'cstNo');
+    const cntrNo = g.getValue(dataRow, 'cntrNo');
+    const cntrSn = g.getValue(dataRow, 'cntrSn');
+    const bndBizDvCd = g.getValue(dataRow, 'bndBizDvCd');
     if (cstNo) {
-      await window.open(`/popup/#/wwbnc-same-customer-contract?cstNo=${cstNo}`, 'popup', 'width=1200, height=1100, menubar=no, location=no');
+      await window.open(`/popup/#/wwbnc-same-customer-contract?cstNo=${cstNo}&cntrNo=${cntrNo}&cntrSn=${cntrSn}&bndBizDvCd=${bndBizDvCd}`, 'popup', 'width=1200, height=1100, menubar=no, location=no');
     }
   };
 });
