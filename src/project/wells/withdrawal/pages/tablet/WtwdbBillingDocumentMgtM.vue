@@ -38,6 +38,7 @@
             v-model="searchParams.cstFnm"
             :label="t('MSG_TXT_CST_NM')"
             icon="search"
+            rules="required|max:16"
             @click-icon="onClickSearchUser"
           />
         </kw-search-item>

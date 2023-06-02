@@ -21,6 +21,7 @@
     </h3>
 
     <kw-form
+      ref="frmMainRef"
       :cols="2"
     >
       <kw-form-row>
@@ -58,6 +59,7 @@
           <zwcm-email-address
             v-model="sendMainData.toMail"
             required
+            readonly
           />
         </kw-form-item>
         <!-- label="수신번호" -->
@@ -167,6 +169,7 @@ import dayjs from 'dayjs';
 const router = useRouter();
 const dataService = useDataService();
 const { t } = useI18n();
+const { getters } = useStore();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -202,6 +205,9 @@ const props = defineProps({
 
 });
 
+const frmMainRef = ref();
+const userInfo = getters['meta/getUserInfo'];
+
 const codes = await codeUtil.getMultiCodes(
   'BILDC_FW_TP_CD',
 );
@@ -216,7 +222,7 @@ const sendMainData = ref({
   destInfo: '', // 받는사람
   callback: '', // 보내는사람
   fromMail: '',
-  toMail: '',
+  toMail: userInfo.email,
 
 });
 
@@ -273,6 +279,9 @@ async function fetchData() {
 
 let paramData;
 async function onClickSend() {
+  if (!await frmMainRef.value.validate()) { return; }
+  if (await frmMainRef.value.alertIfIsNotModified()) { return; }
+
   if (await confirm(t('MSG_ALT_WANT_SEND?'))) {
     sendMainData.value.destInfo = telNos.value.telNo1 + telNos.value.telNo2 + telNos.value.telNo3;
     sendMainData.value.callback = telNos2.value.telNo1 + telNos2.value.telNo2 + telNos2.value.telNo3;
