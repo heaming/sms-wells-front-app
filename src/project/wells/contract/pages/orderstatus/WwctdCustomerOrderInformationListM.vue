@@ -9,7 +9,8 @@
 ****************************************************************************************************
 * 프로그램 설명
 ****************************************************************************************************
-- 플래너 본인 담당 고객 및 주문 정보 조회
+- [W-SS-U-0009M01] 플래너 본인 담당 고객 및 주문 정보 조회
+- // TODO : W-CU-U-0006M01 고객 SingleView (wells) 화면으로 이동
 ****************************************************************************************************
 --->
 
@@ -48,7 +49,6 @@
         </kw-search-item>
         <kw-search-item :label="$t('MSG_TXT_MPNO')">
           <kw-input
-            v-model:model-value="totalTelephoneNumber"
             v-model:telNo0="searchParams.cralLocaraTno"
             v-model:telNo1="searchParams.mexno"
             v-model:telNo2="searchParams.cralIdvTno"
@@ -92,7 +92,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, defineGrid, getComponentType, gridUtil, useDataService, useGlobal, useMeta } from 'kw-lib';
+import { codeUtil, defineGrid, getComponentType, gridUtil, router, useDataService, useGlobal, useMeta } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
 
@@ -178,6 +178,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'pdNm' }, // 상품명
     { fieldName: 'adr' }, // 계약주소
     { fieldName: 'dtlAdr' }, // 상세주소
+    { fieldName: 'cntrPrgsStatCd' }, // 계약진행상태코드
   ];
 
   const columns = [
@@ -208,21 +209,14 @@ const initGrid = defineGrid((data, view) => {
   view.rowIndicator.visible = true;
 
   view.onCellItemClicked = async (g, { column, itemIndex }) => {
-    // TODO : 페이지 연결 확인
-    console.log(column);
-    // 계약서작성 클릭 - 메뉴tab
     if (column === 'regButton') {
-      notify('// TODO : W-SS-U-0022M01 통합계약서 화면으로 이동');
-      /*
-      const cstNo = g.getValue(itemIndex, 'cstNo');
-      router.replace(
-        {
-          path: '/contract/wwcta-contract-registration-level1-mgt',
-          query: { cstNo },
-          // 혹은 params: { cstNo: cstNo},
+      router.replace({
+        path: 'wwcta-contract-registration-mgt',
+        query: {
+          cntrNo: g.getValue(itemIndex, 'cntrNo'),
+          cntrPrgsStatCd: g.getValue(itemIndex, 'cntrPrgsStatCd'),
         },
-      );
-      */
+      });
     }
 
     // 계약번호 클릭 - 팝업
