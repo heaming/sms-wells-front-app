@@ -495,7 +495,6 @@ codes.DP_TP_CD_AFTN = [
   { codeId: '0102', codeName: '계좌이체' },
 ];
 const dtlSn = ref(1);
-console.log(stringUtil);
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -514,9 +513,7 @@ async function getCntrInfo(cntrNo) {
   console.log(step4.value);
   // 총판채널인 경우 고객센터 이관만 보이도록
   codes.CST_STLM_IN_MTH_CD = codes.CST_STLM_IN_MTH_CD.filter((code) => (step4.value.bas.cstStlmInMthCd === '30' ? code.codeId === '30' : code.codeId !== '30'));
-
   ogStep4.value = cloneDeep(step4.value);
-  console.log(step4.value);
   setGrid();
 }
 

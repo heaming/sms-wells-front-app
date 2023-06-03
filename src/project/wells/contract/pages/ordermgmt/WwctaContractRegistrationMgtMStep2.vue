@@ -369,12 +369,10 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, stringUtil, useDataService, useGlobal } from 'kw-lib';
+import { stringUtil, useDataService, useGlobal } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 
 const { t } = useI18n();
-const { getters } = useStore();
-const { employeeIDNumber: prtnrNo, ogTpCd, careerLevelCode } = getters['meta/getUserInfo'];
 const dataService = useDataService();
 const { notify } = useGlobal();
 
@@ -386,11 +384,6 @@ const { cntrNo: pCntrNo, step2 } = toRefs(props.contract);
 const ogStep2 = ref({});
 const pdFilter = ref('');
 const classfiedPds = ref([]);
-const codes = await codeUtil.getMultiCodes(
-  'CNTR_TP_CD',
-  'CNTR_CST_REL_TP_CD',
-  'SEX_DV_CD',
-);
 const isItem = {
   spay: (i) => i.sellTpCd === '1',
   rntl: (i) => i.sellTpCd === '2',
@@ -399,14 +392,12 @@ const isItem = {
   welsf: (i) => i.lclsfVal === '05001003',
   hcf: (i) => i.lclsfVal === '01003001',
 };
-console.log(prtnrNo + ogTpCd + careerLevelCode + t + codes);
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 async function getProducts(cntrNo) {
   const pds = await dataService.get('sms/wells/contract/contracts/reg-products', { params: { cntrNo, pdFilter: pdFilter.value } });
   classfiedPds.value = pds.data.pdClsf;
-  console.log(classfiedPds.value);
 }
 
 async function getPdAmts(pd) {
@@ -482,7 +473,7 @@ async function getCntrInfo(cntrNo) {
       'frisuBfsvcPtrmN', // 일시불
       'stplPtrm', 'cntrPtrm', 'cntrAmt', 'sellDscTpCd', // 렌탈
     ].forEach((col) => {
-      // codeId는 모두 String이므로 불러온 값이 자동으로 세팅되도록 number값을 string으로 변환
+      // codeId는 모두 String이므로 불러온 값이 자동으로 세팅되도록 number값을 string으로 변환(또는 v-model을 String casting)
       if (Number.isInteger(dtl[col])) dtl[col] = String(dtl[col]);
     });
   });
@@ -497,7 +488,7 @@ async function isChangedStep() {
 
 async function isValidStep() {
   if (isEmpty(step2.value.dtls)) {
-    console.log('상품을 선택해주세요.');
+    await alert('상품을 선택해주세요.');
     return false;
   }
   return true;
