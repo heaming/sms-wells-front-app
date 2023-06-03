@@ -474,11 +474,11 @@ async function isValidStep() {
    */
   if (!isEmpty(step1.value.pextCntr)) {
     // TODO 메시지 처리
-    console.log('작성중인 전자계약이 있습니다.');
+    await alert('작성중인 전자계약이 있습니다.');
     return false;
   }
   if (isEmpty(step1.value.cntrt)) {
-    console.log('계약자를 선택해주세요.');
+    await alert('계약자를 선택해주세요.');
     return false;
   }
   return true;
@@ -500,10 +500,6 @@ onMounted(async () => {
     if (await isClosingTime()) {
       await alert('마감');
     }
-  }
-  // 기존 계약 조회
-  if (!isEmpty(step1.value.bas?.cntrNo)) {
-    await getCntrInfo(step1.value.bas.cntrNo);
   }
 });
 

@@ -264,7 +264,6 @@ async function getCntrInfo(step, cntrNo) {
     await panelsRefs[currentStepName.value].getProducts(cntrNo);
   }
   await panelsRefs[currentStepName.value].getCntrInfo(cntrNo);
-  debugger;
 }
 
 async function getExistedCntr() {
