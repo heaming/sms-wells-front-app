@@ -78,7 +78,7 @@
           :label="$t('MSG_TXT_WK_GRP')"
         >
           <kw-select
-            v-model="searchParams.wrkGrpCd"
+            v-model="searchParams.wkGrpCd"
             :options="codes.WK_GRP_CD"
             option-label="codeName"
             option-value="codeId"
@@ -90,6 +90,7 @@
         >
           <kw-date-picker
             v-model="searchParams.applyDate"
+            rule="reauired"
           />
         </kw-search-item>
         <!--지역코드-->
@@ -154,7 +155,8 @@
       <kw-grid
         ref="grdMainRef"
         name="grdMain"
-        :visible-rows="pageInfo.pageSize - 2"
+        :page-size="pageInfo.pageSize"
+        :total-count="pageInfo.totalCount"
         @init="initGrdMain"
       />
       <kw-pagination
@@ -225,7 +227,7 @@ const searchParams = ref({
   fr2pLgldCd: '',
   ctctyNm: '',
   ogId: '',
-  wrkGrpCd: '10',
+  wkGrpCd: '10',
   applyDate: now.format('YYYYMMDD'),
   locaraCdFrom: '',
   locaraCdTo: '',
@@ -251,7 +253,7 @@ async function fetchData() {
   pageInfo.value = pagingResult;
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(products);
-  view.resetCurrent();
+  // view.resetCurrent();
   if (pagingResult.totalCount === 0) { notify(t('MSG_ALT_NO_INFO_SRCH')); }
 }
 
@@ -270,6 +272,7 @@ async function onClickExcelDownload() {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
     exportData: response.data,
+    checkBar: 'hidden',
   });
 }
 
@@ -308,7 +311,11 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'ogNm' },
     { fieldName: 'ichrPrtnrNo' },
     { fieldName: 'prtnrKnm' },
+    { fieldName: 'vstDowNm' },
+    { fieldName: 'mmtAvLdtm' },
+    { fieldName: 'locaraCenStruAdr' }, // 화면표시
     { fieldName: 'vstDowVal' },
+    { fieldName: 'locaraSn' },
   ];
 
   const columns = [
@@ -411,8 +418,18 @@ const initGrdMain = defineGrid((data, view) => {
       width: '100',
     },
     {
-      fieldName: 'vstDowVal',
+      fieldName: 'vstDowNm',
       header: t('MSG_TXT_VST_DOW'),
+      width: '100',
+    },
+    {
+      fieldName: 'mmtAvLdtm',
+      header: t('MSG_TXT_MMT_AV_NED_HH'),
+      width: '100',
+    },
+    {
+      fieldName: 'locaraCenStruAdr',
+      header: t('MSG_TXT_LOCARA_CEN_STRU_ADR'),
       width: '100',
     },
   ];
@@ -435,7 +452,9 @@ const initGrdMain = defineGrid((data, view) => {
     'ogNm',
     'ichrPrtnrNo',
     'prtnrKnm',
-    'vstDowVal',
+    'vstDowNm',
+    'mmtAvLdtm',
+    'locaraCenStruAdr',
   ];
 
   data.setFields(fields);
