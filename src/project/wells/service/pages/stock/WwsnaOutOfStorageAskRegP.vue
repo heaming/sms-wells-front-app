@@ -252,10 +252,6 @@ function changeOstrAkQty(row, val) {
   view.setValue(row, 'ostrCnfmQty', val);
 }
 
-// function isExistData(dataList, selectedData) {
-//   return dataList.some((x) => x.itmPdCd === selectedData.itmPdCd);
-// }
-
 function getRowData(rowData) {
   return { ...rowData, sapCd: rowData.sapCd, warehouseQty: rowData.warehouseQty || 0 };
 }
@@ -285,12 +281,10 @@ async function onClickItemPop(type, row) {
   const target = [];
   // TODO: 연결화면 개발진행중이라, 받아와서 처리하는 로직은 임시값으로 테스트한 코드임. 팝업화면에서 넘어오는 형식따라 수정가능성있음.
   if (result) {
-    debugger;
     const view = grdMainRef.value.getView();
     const list = gridUtil.getAllRowValues(view, false);
     if (type === 'C') {
       payload.forEach((obj) => {
-        debugger;
         if (list.find((i) => i.itmPdCd === obj.itmPdCd)) {
           return true;
         }
