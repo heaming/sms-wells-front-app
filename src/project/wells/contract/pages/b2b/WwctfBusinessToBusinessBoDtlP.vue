@@ -125,9 +125,6 @@ async function fetchData() {
 
   const dataSource = view.getDataSource();
   dataSource.setRows(res.data);
-  for (let i = 0; i < res.length; i += 1) {
-    view.setValue(i, 'leadCstRlpplNm', view.getValues(i).leadCstNm);
-  }
   pageInfo.value.totalCount = view.getItemCount();
 
   view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
