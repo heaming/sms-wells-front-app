@@ -376,12 +376,12 @@ function onUpdateProductGroupCode(val) {
   view.activateAllColumnFilters('itemGr', false);
 
   if (val === '') {
-    pageInfo.value.totalCount.value = view.getItemCount();
+    pageInfo.value.totalCount = view.getItemCount();
     return;
   }
 
   view.activateColumnFilters('itemGr', [val], true);
-  pageInfo.value.totalCount.value = view.getItemCount();
+  pageInfo.value.totalCount = view.getItemCount();
 }
 
 async function fetchData() {
