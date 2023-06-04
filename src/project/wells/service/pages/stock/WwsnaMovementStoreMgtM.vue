@@ -268,6 +268,7 @@ const initGrdMain = defineGrid((data, view) => {
       ostrWareNo,
       ostrWareNm,
       ostrSn,
+      strSn,
       strHopDt,
     } = gridUtil.getRowValue(g, dataRow);
     console.log(g, column, dataRow);
@@ -284,6 +285,7 @@ const initGrdMain = defineGrid((data, view) => {
         ostrWareNo,
         ostrWareNm,
         ostrSn,
+        strSn,
         itmPdNo,
         itmPdNm,
         strHopDt,

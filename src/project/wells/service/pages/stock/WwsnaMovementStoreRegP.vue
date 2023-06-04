@@ -225,6 +225,14 @@ const props = defineProps({
     type: String,
     default: '',
   },
+  ostrSn: {
+    type: String,
+    default: '',
+  },
+  strSn: {
+    type: String,
+    default: '',
+  },
   itmPdNo: {
     type: String,
     default: '',
@@ -259,6 +267,7 @@ const propsParams = ref({
   ostrWareNo: props.ostrWareNo,
   ostrWareNm: props.ostrWareNm,
   ostrSn: props.ostrsn,
+  strSn: props.strSn,
   itmPdNo: props.itmPdNo,
   itmPdNm: props.itmPdNm,
   strHopDt: props.strHopDt,
@@ -273,6 +282,7 @@ const searchParams = ref({
   strWareNo: props.strWareNo,
   ostrWareNo: props.ostrWareNo,
   ostrSn: props.ostrSn,
+  strSn: props.strSn,
   itmPdNo: props.itmPdNo,
   strHopDt: props.strHopDt,
   stckStdGb: '1',
@@ -288,6 +298,7 @@ const pageInfo = ref({
 });
 
 async function fetchData() {
+  console.log('fetchData~~~~~~~~~~~~~~~~~~~~~~~');
   const res = await dataService.get(baseURI, { params: { ...cachedParams, ...pageInfo.value } });
   const { list: searchData, pageInfo: pagingResult } = res.data;
 
@@ -302,30 +313,34 @@ async function fetchData() {
 }
 
 async function onClickSave() {
+  console.log('onClickSave~~~~~~~~~~~~~~~~~~~~~~~~~');
   const dataParams = grdMainRef.value.getView();
   const rows = dataParams.getCheckedItems();
 
   const confirmData = ref([]);
   confirmData.value = rows.map((v) => {
-    const { strSn, strQty, itmStrNo, strWareNo, itemGdCd, itmPdCd } = dataParams.getValues(v);
+    const { strSn, strQty, itmStrNo, strWareNo, itmGdCd, itmPdCd } = dataParams.getValues(v);
     return {
-      strSn: Number(strSn),
-      strQty: Number(strQty),
       itmStrNo,
+      strSn: Number(strSn),
       strWareNo,
-      itemGdCd,
+      itmGdCd,
       itmPdCd,
+      strQty: Number(strQty),
     };
   });
 
   // 등록하시겠습니까?
   if (await confirm(t('MSG_ALT_RGST'))) {
-    const { result } = await dataService.put(baseURI, { params: confirmData.value });
+    // const { result } = await dataService.put(baseURI, { params: confirmData.value });
+    const { result } = await dataService.put(baseURI, confirmData.value);
 
     if (result) {
       // 등록되었습니다.
       alert(t('MSG_ALT_RGSTD'));
       await fetchData();
+    } else {
+      console.log(`result: ${result}`);
     }
   }
 }
@@ -372,7 +387,7 @@ onMounted(async () => {
 // -------------------------------------------------------------------------------------------------
 const initGrdMain = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'sapMaptCd', header: t('MSG_TXT_SAP_CD'), width: '124', styleName: 'text-center' },
+    { fieldName: 'sapMatCd', header: t('MSG_TXT_SAP_CD'), width: '124', styleName: 'text-center' },
     { fieldName: 'itmPdCd', header: t('MSG_TXT_ITM_CD'), width: '130', styleName: 'text-center' },
     { fieldName: 'itmPdNm', header: t('MSG_TXT_ITM_NM'), width: '210', styleName: 'text-left' },
     { fieldName: 'itemLoc', header: t('MSG_TXT_ITM_LOC'), width: '141', styleName: 'text-left' },
