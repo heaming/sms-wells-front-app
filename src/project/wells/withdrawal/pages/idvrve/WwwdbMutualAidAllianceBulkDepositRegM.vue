@@ -229,7 +229,7 @@
 // -------------------------------------------------------------------------------------------------
 
 import dayjs from 'dayjs';
-import { codeUtil, defineGrid, getComponentType, gridUtil, modal, notify, useDataService, useMeta, confirm } from 'kw-lib';
+import { codeUtil, defineGrid, getComponentType, gridUtil, modal, notify, useDataService, useMeta, confirm, alert } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 
 const dataService = useDataService();
@@ -401,6 +401,13 @@ async function onClickCreate() {
   if (!await confirm(t('MSG_ALT_IS_MUTU_DP_MM_CREATE', [
     lifAlncDvNm[0].codeName,
     dayjs(searchParams.value.lifSpptYm).format('YYYY-MM')]))) { return; }
+
+  const date = dayjs().subtract(1, 'month').format('YYYYMM');
+
+  if (date !== searchParams.value.lifSpptYm) {
+    await alert('상조입금 생성은 전월만 가능합니다.');
+    return;
+  }
 
   const view = grdSubRef.value.getView();
   const amtSum = gridUtil.getCellValue(view, 0, 'amtSum');
