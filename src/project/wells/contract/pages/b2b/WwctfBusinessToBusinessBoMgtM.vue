@@ -59,7 +59,7 @@
           <kw-input
             v-model="searchParams.bzrno"
             mask="###-##-#####"
-            :max="10"
+            maxlength="10"
           />
         </kw-search-item>
       </kw-search-row>
@@ -70,7 +70,7 @@
         >
           <kw-input
             v-model="searchParams.leadCstNm"
-            :max="50"
+            maxlength="50"
           />
         </kw-search-item>
         <!-- 프로젝트ID -->
@@ -79,7 +79,7 @@
         >
           <kw-input
             v-model="searchParams.prjNm"
-            :max="50"
+            maxlength="50"
           />
         </kw-search-item>
       </kw-search-row>
