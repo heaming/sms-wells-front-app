@@ -354,7 +354,6 @@ function validateChangeCode() {
 async function fetchDefaultData() {
   // TODO: 알맞는 값 없어서 하드코딩. session값 맞아지면 userInfo.employeeIDNumber 로 변경. WM: 1642720
 
-  debugger;
   const { apyYm } = loginUserParams.value;
   const { userId } = loginUserParams.value;
   warehouses.value = await getMonthWarehouse(userId, apyYm);
@@ -457,7 +456,6 @@ async function onClickSave() {
   const params = searchParams.value;
 
   params.ostrAkRgstDt = dayjs().format('YYYYMMDD');
-  // TODO: 데이터 생기면 테스트.
   const result = await dataService.post('/sms/wells/service/out-of-storage-asks', checkedRows.map((v) => ({ ...v, ...params })));
   if (result > 0) {
     notify(t('MSG_ALT_SAVE_DATA'));
@@ -711,11 +709,11 @@ const initGrdMain = defineGrid((data, view) => {
   view.rowIndicator.visible = true;
   view.editOptions.columnEditableFirst = true;
 
-  view.onCellClicked = async (grid, { column, dataRow }) => {
-    if (column === 'itmPdCd') {
-      await onClickItemPop('U', dataRow);
-    }
-  };
+  // view.onCellClicked = async (grid, { column, dataRow }) => {
+  //   if (column === 'itmPdCd') {
+  //     await onClickItemPop('U', dataRow);
+  //   }
+  // };
 
   view.onGetEditValue = async (grid, index, editResult) => {
     grid.checkItem(index.itemIndex, true);
