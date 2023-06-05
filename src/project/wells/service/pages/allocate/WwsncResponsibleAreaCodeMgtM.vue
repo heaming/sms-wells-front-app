@@ -55,8 +55,6 @@
             v-model="searchParams.ctctyNm"
             :options="sigungu"
             first-option="all"
-            option-label="sgg"
-            option-value="sggNm"
           />
         </kw-search-item>
         <!--서비스센터-->
@@ -68,7 +66,7 @@
             :options="svcCode"
             first-option="all"
             option-label="ogNm"
-            option-value="ogCd"
+            option-value="ogId"
           />
         </kw-search-item>
       </kw-search-row>
@@ -99,12 +97,12 @@
         >
           <kw-input
             v-model="searchParams.locaraCdFrom"
-            mask="###"
+            maxlength="4"
           />
           <span>~</span>
           <kw-input
             v-model="searchParams.locaraCdTo"
-            mask="###"
+            maxlength="4"
           />
         </kw-search-item>
       </kw-search-row>
@@ -193,7 +191,6 @@ const { currentRoute } = useRouter();
 
 const {
   getDistricts,
-  getServiceCenterOrgs,
   getLgldCtpvLocaras,
 } = smsCommon();
 
@@ -211,7 +208,7 @@ const {
 const grdMainRef = ref(getComponentType('KwGrid'));
 const now = dayjs();
 /* 공통코드 가져오기(임시) */
-const svcCode = await getServiceCenterOrgs();
+const svcCode = (await dataService.get('/sms/wells/service/organizations/service-center')).data;
 const sido = await getDistricts('sido');
 const sigungu = ref([]);
 
@@ -243,7 +240,7 @@ async function changeSido() {
   if (searchParams.value.fr2pLgldCd === '') {
     sigungu.value = [];
   } else {
-    sigungu.value = (await getDistricts('gu', searchParams.value.fr2pLgldCd)).map((v) => ({ sgg: v.ctctyNm, sggNm: v.ctctyNm }));
+    sigungu.value = (await getDistricts('gu', searchParams.value.fr2pLgldCd)).map((v) => ({ codeId: v.ctctyNm, codeName: v.ctctyNm }));
   }
 }
 
@@ -368,7 +365,7 @@ const initGrdMain = defineGrid((data, view) => {
       header: t('MSG_TXT_CH_LOCARA'),
       width: '100',
       styleName: 'text-center',
-      editor: { type: 'list' },
+      editor: { type: 'dropdown' },
       editable: true,
       styleCallback: (grid, dataCell) => {
         const ctpvNm = grid.getValue(dataCell.index.itemIndex, 'ctpvNm');
