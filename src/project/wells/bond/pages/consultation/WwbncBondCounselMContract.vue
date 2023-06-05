@@ -250,11 +250,15 @@
         :label="$t('MSG_BTN_IST_CHAR_FW')"
         primary
         dense
+        :disable="totalCount === 0"
+        @click="onClickIstMessageSend"
       />
       <kw-btn
         :label="$t('MSG_BTN_CNTR_CHAR_FW')"
         primary
         dense
+        :disable="totalCount === 0"
+        @click="onClickCntrMessageSend"
       />
     </kw-action-top>
     <ul class="filter-box mb12">
