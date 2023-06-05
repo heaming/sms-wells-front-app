@@ -560,6 +560,10 @@ const initBusinessToBusinessBoList = defineGrid((data, view) => {
         },
       });
       if (result) {
+        if (gridUtil.isModified(view)) {
+          alert(t('MSG_ALT_CHG_CNTN_AFTER_SAVE'));
+          return;
+        }
         await fetchData();
       }
     }
