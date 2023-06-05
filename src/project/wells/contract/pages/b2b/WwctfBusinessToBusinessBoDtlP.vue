@@ -99,7 +99,7 @@ const { cancel, ok } = useModal();
 const dataService = useDataService();
 const { getConfig } = useMeta();
 const { currentRoute } = useRouter();
-const { modal, notify, confirm } = useGlobal();
+const { modal, notify, alert } = useGlobal();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -176,9 +176,8 @@ async function onClickExcelDownload() {
 async function onClickConfirm() {
   const view = grdBusinessToBusinessBoLDetailist.value.getView();
   if (gridUtil.isModified(view)) {
-    if (!await confirm(t('MSG_ALT_CHG_CNTN_AFTER_SAVE'))) {
-      return;
-    }
+    alert(t('MSG_ALT_CHG_CNTN_AFTER_SAVE'));
+    return;
   }
   ok();
 }
