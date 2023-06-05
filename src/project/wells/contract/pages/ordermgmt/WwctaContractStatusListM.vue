@@ -10,6 +10,7 @@
 * 프로그램 설명
 ****************************************************************************************************
 - [W-SS-U-0097M01] 계약현황 목록
+- // TODO 버튼 이벤트
 ****************************************************************************************************
 --->
 
@@ -174,20 +175,20 @@
         >
           <div class="row items-center justify-between">
             <p
-              v-if="item.numprds > 0"
+              v-if="item.numprds > 1"
               class="kw-font-pt18 kw-fc--primary"
             >
               {{ item.sellTpDtlNm }} 외 {{ item.numprds }}건
             </p>
             <p
               v-else
-              class="kw-font-pt14 kw-fc--black2"
+              class="kw-font-pt18 kw-fc--primary"
             >
               {{ item.sellTpNm }}
             </p>
           </div>
           <p class="kw-font-subtitle mt20">
-            {{ item.cstKnm }}({{ item.bryyMmdd }})
+            {{ item.cstKnm }}({{ item.bryyMmdd?dayjs(item.bryyMmdd).format('YYYY-MM-DD'):'' }})
 
             <kw-chip
               color="placeholder"
@@ -226,7 +227,7 @@
                 {{ t('MSG_TXT_DPST_AMT') }}
               </p>
               <span class="text-weight-bold kw-fc--error">
-                {{ item.pymnamt }}원
+                {{ item.pymnamt||0 }}원
               </span>
             </li>
             <li v-if="searchParams.isBrmgr === 'Y'">
@@ -420,6 +421,7 @@ const dataService = useDataService();
 const { t } = useI18n();
 const { getUserInfo } = useMeta();
 const sessionUserInfo = getUserInfo();
+const now = dayjs();
 
 const resultList = ref({});
 const summary = ref({
@@ -436,8 +438,8 @@ const codes = await codeUtil.getMultiCodes(
 );
 
 const searchParams = ref({
-  rcpStrtDt: '',
-  rcpEndDt: '',
+  rcpStrtDt: now.startOf('month').format('YYYYMMDD'),
+  rcpEndDt: now.format('YYYYMMDD'),
   cntrPrgsStatCd: '',
   pdDvCd: '',
   srchDv: 'NM',
@@ -485,6 +487,15 @@ async function onClickSearch() {
 
   await fetchData();
   await fetchDataSummary();
+}
+async function onClickCntrNoPop() {
+  const { result, payload } = await modal({
+    component: 'WwctaContractNumberListP',
+    componentProps: { cntrNo: searchParams.value.cntrNo },
+  });
+  if (result) {
+    searchParams.value.cntrNo = payload.cntrNo;
+  }
 }
 
 async function getPrgsStatCd(cntrNo) {
