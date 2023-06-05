@@ -149,9 +149,8 @@ const { getConfig } = useMeta();
 
 const grdPageRef = ref(getComponentType('KwGrid'));
 const userInfo = getters['meta/getUserInfo'];
+const { userName, employeeIDNumber } = userInfo;
 
-const { loginId, userName } = userInfo;
-console.log(userInfo);
 const props = defineProps({
   bildcPblNo: {
     type: String,
@@ -178,7 +177,7 @@ const regMainData = ref({
   // bildcPblSn: '',
   cstFnm: '', // 고객명
   bildcWrteDt: now.format('YYYYMMDD'), // 작성일자
-  sellPrtnrNo: loginId.substring(0, 10), // 이건 나중에 사번으로 바꿔야함
+  sellPrtnrNo: employeeIDNumber, // 이건 나중에 사번으로 바꿔야함
   sellPrtnrNm: userName,
   state: '',
   isSearchChk: false,
