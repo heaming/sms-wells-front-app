@@ -81,7 +81,7 @@
       <kw-btn
         primary
         :label="$t('MSG_BTN_CONFIRM')"
-        @click="ok"
+        @click="onClickConfirm"
       />
     </template>
   </kw-popup>
@@ -99,7 +99,7 @@ const { cancel, ok } = useModal();
 const dataService = useDataService();
 const { getConfig } = useMeta();
 const { currentRoute } = useRouter();
-const { modal, notify } = useGlobal();
+const { modal, notify, confirm } = useGlobal();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -171,6 +171,16 @@ async function onClickExcelDownload() {
     timePostfix: true,
     exportData: res.data,
   });
+}
+
+async function onClickConfirm() {
+  const view = grdBusinessToBusinessBoLDetailist.value.getView();
+  if (gridUtil.isModified(view)) {
+    if (!await confirm(t('MSG_ALT_CHG_CNTN_AFTER_SAVE'))) {
+      return;
+    }
+  }
+  ok();
 }
 
 onMounted(async () => {
