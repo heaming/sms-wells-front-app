@@ -68,6 +68,6 @@ const tabs = [
   { name: 'freeAS', label: `${t('MSG_TXT_FREE')} A/S`, panel: WwcteSamsungProductMgtMFreeAs },
 ];
 
-const currentTab = ref(tabs[2].name);
+const currentTab = ref(tabs[0].name);
 
 </script>

@@ -56,10 +56,9 @@
           />
         </kw-search-item>
         <kw-search-item
-          v-model="searchParams.no"
           :label="$t('MSG_TXT_SEQUENCE_NUMBER')"
         >
-          <kw-input />
+          <kw-input v-model="searchParams.no" />
         </kw-search-item>
       </kw-search-row>
     </kw-search>
@@ -119,7 +118,7 @@ const searchParams = ref({
 });
 
 async function fetchData() {
-  const res = await dataService.get('/sms/wells/fee/manager-visit-fees', { params: searchParams.value });
+  const res = await dataService.get('/sms/wells/fee/manager-visit-fees', { params: searchParams.value, timeout: 200000 });
 
   totalCount.value = res.data.length;
 

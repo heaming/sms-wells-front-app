@@ -257,6 +257,7 @@ const initGridSnglPmntContractorList = defineGrid((data, view) => {
     { fieldName: 'cntrNo' }, // 계약번호
     { fieldName: 'cntrSn' }, // 계약일련번호
     { fieldName: 'orderInfView' }, // 주문정보 보기
+    { fieldName: 'sellTpCd' }, // 판매유형코드
     { fieldName: 'cstKnm' }, // 계약자명
     { fieldName: 'copnDvCd' }, // 법인격구분코드
     { fieldName: 'copnDvNm' }, // 고객구분
@@ -411,7 +412,7 @@ const initGridSnglPmntContractorList = defineGrid((data, view) => {
     { fieldName: 'crpUc', header: t('MSG_TXT_CRP_UC'), width: '138', styleName: 'text-right', dataType: 'number' }, // 법인미수
     { fieldName: 'totDscAmt', header: t('MSG_TXT_TOT_DSC_AMT'), width: '138', styleName: 'text-right', dataType: 'number' }, // 총할인금액
     { fieldName: 'feeAckmtCt', header: t('TXT_MSG_ACKMT_CT'), width: '138', styleName: 'text-right' }, // 인정건수
-    { fieldName: 'ackmtPerfAmt', header: `${t('MSG_TXT_COM_TOT')}${t('TXT_MSG_ACKMT_AMT')}`, width: '138', styleName: 'text-right', dataType: 'number' }, // 총인정금액
+    { fieldName: 'ackmtPerfAmt', header: `${t('MSG_TXT_COM_TOT')}${t('MSG_TXT_RECOG_AMT')}`, width: '138', styleName: 'text-right', dataType: 'number' }, // 총인정금액
     { fieldName: 'feeAckmtTotAmt', header: `${t('MSG_TXT_COM_TOT')}${t('MSG_TXT_PD_STD_FEE')}`, width: '138', styleName: 'text-right', dataType: 'number' }, // 총기준수수료
     { fieldName: 'feeFxamYn', header: t('MSG_TXT_PD_FEE_FIX'), width: '138', styleName: 'text-right' }, // 수수료정액여부
     { fieldName: 'pdSaleFee', header: t('MSG_TXT_PD_SALE_FEE'), width: '138', styleName: 'text-right', dataType: 'number' }, // 판매수수료
@@ -478,18 +479,25 @@ const initGridSnglPmntContractorList = defineGrid((data, view) => {
     // TODO: 현재 출고요청등록 팝업화면 개발진행 후 변경 예정
     const cntrNo = g.getValue(dataRow, 'cntrNo');
     const cntrSn = g.getValue(dataRow, 'cntrSn');
+    const { sellTpCd } = g.getValues(dataRow);
+    const { cntrCstNo } = g.getValues(dataRow);
+    const { copnDvCd } = g.getValues(dataRow);
+
     if (column === 'cntrDtlNo') {
       await modal({
         component: 'WwctaOrderDetailP',
-        componentProps: { cntrNo, cntrSn },
+        componentProps: { cntrNo, cntrSn, sellTpCd, cntrCstNo, copnDvCd },
       });
     } else if (column === 'orderInfView') {
-      notify(t('팝업 준비중 입니다.'));
-      // await modal({
-      // component: 'WwctaSinglePaymentOrderDetailListP',
-      // });
+      await modal({
+        component: 'WwctaSinglePaymentOrderDetailListP',
+        componentProps: { cntrNo, cntrSn },
+      });
     } else if (column === 'relPdSearch') {
-      notify(t('팝업 준비중 입니다.')); // 'W-SS-U-0129P07' 팝업 준비 중
+      await modal({
+        component: 'WwctaLinkProductListP',
+        componentProps: { cntrNo, cntrSn },
+      });
     }
   };
 });

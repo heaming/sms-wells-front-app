@@ -24,7 +24,7 @@
         required
       >
         <kw-input
-          v-model="searchParams.schClctamNo"
+          v-model="searchParams.schClctamPsic"
           :label="$t('MSG_TXT_CLCTAM_PSIC')"
           clearable
           icon="search"
@@ -48,20 +48,24 @@
         <kw-select
           v-model="searchParams.schDlqMcntStrt"
           :options="selectCodes.DLQ_MCNT"
+          first-option="all"
         />
         <span>-</span>
         <kw-select
           v-model="searchParams.schDlqMcntEnd"
           :options="selectCodes.DLQ_MCNT"
+          first-option="all"
         />
       </kw-search-item>
       <kw-search-item
         :label="$t('MSG_TXT_IST_TNO')"
       >
         <kw-input
-          v-model="searchParams.schIstTno"
-          :maxlength="11"
-          :regex="/^[0-9]*$/i"
+          v-model="istTno"
+          v-model:tel-no0="searchParams.schIstLocaraTno"
+          v-model:tel-no1="searchParams.schIstExnoEncr"
+          v-model:tel-no2="searchParams.schIstIdvTno"
+          mask="telephone"
           :placeholder="$t('MSG_TXT_REPSN_DGT4_WO_NO_IN')"
         />
       </kw-search-item>
@@ -89,15 +93,18 @@
         <kw-select
           v-model="searchParams.schBizDv"
           :options="selectCodes.BIZ_DV"
+          first-option="all"
         />
       </kw-search-item>
       <kw-search-item
         :label="$t('MSG_TXT_IST_MPNO')"
       >
         <kw-input
-          v-model="searchParams.schIstMpno"
-          :maxlength="11"
-          :regex="/^[0-9]*$/i"
+          v-model="istMpno"
+          v-model:tel-no0="searchParams.schIstCralLocaraTno"
+          v-model:tel-no1="searchParams.schIstMexnoEncr"
+          v-model:tel-no2="searchParams.schIstCralIdvTno"
+          mask="telephone"
           :placeholder="$t('MSG_TXT_REPSN_DGT4_WO_NO_IN')"
         />
       </kw-search-item>
@@ -107,12 +114,23 @@
       <kw-search-item
         :label="$t('MSG_TXT_TEL_NO')"
       >
-        <kw-input v-model="searchParams.schTno" />
+        <kw-input
+          v-model="tno"
+          v-model:tel-no0="searchParams.schCntrLocaraTno"
+          v-model:tel-no1="searchParams.schCntrExnoEncr"
+          v-model:tel-no2="searchParams.schCntrIdvTno"
+          mask="telephone"
+          :placeholder="$t('MSG_TXT_REPSN_DGT4_WO_NO_IN')"
+        />
       </kw-search-item>
       <kw-search-item
         :label="$t('MSG_TXT_SFK')"
       >
-        <kw-input v-model="searchParams.schSfK" />
+        <kw-input
+          v-model="searchParams.schSfK"
+          icon="search"
+          @click-icon="onClickSelectCustomer"
+        />
       </kw-search-item>
       <kw-search-item
         :label="$t('MSG_TXT_CST_DV')"
@@ -120,6 +138,7 @@
         <kw-select
           v-model="searchParams.schCstDv"
           :options="codes.CST_SE_APY_DV_CD"
+          first-option="all"
         />
       </kw-search-item>
       <kw-search-item
@@ -135,7 +154,14 @@
       <kw-search-item
         :label="$t('MSG_TXT_MPNO')"
       >
-        <kw-input v-model="searchParams.schMpno" />
+        <kw-input
+          v-model="mpno"
+          v-model:tel-no0="searchParams.schCntrCralLocaraTno"
+          v-model:tel-no1="searchParams.schCntrMexnoEncr"
+          v-model:tel-no2="searchParams.schCntrCralIdvTno"
+          mask="telephone"
+          :placeholder="$t('MSG_TXT_REPSN_DGT4_WO_NO_IN')"
+        />
       </kw-search-item>
       <kw-search-item
         :label="$t('MSG_TXT_TF_DT')"
@@ -143,7 +169,6 @@
         <kw-date-range-picker
           v-model:from="searchParams.schTfDtStrt"
           v-model:to="searchParams.schTfDtEnd"
-          rules="date_range_required|date_range_months:1"
         />
       </kw-search-item>
     </kw-search-row>
@@ -155,15 +180,18 @@
         <kw-select
           v-model="searchParams.schFntDv"
           :options="selectCodes.FNT_DV"
+          first-option="all"
         />
         <kw-select
           v-model="searchParams.schFntDtStrt"
           :options="selectCodes.FNT_DT"
+          first-option="all"
         />
         <span>-</span>
         <kw-select
           v-model="searchParams.schFntDtEnd"
           :options="selectCodes.FNT_DT"
+          first-option="all"
         />
       </kw-search-item>
       <kw-search-item
@@ -172,6 +200,7 @@
         <kw-select
           v-model="searchParams.schBilDv"
           :options="selectCodes.BIL_HD"
+          first-option="all"
         />
       </kw-search-item>
       <kw-search-item
@@ -181,6 +210,7 @@
           v-model="searchParams.schCstThmDp"
           type="radio"
           :options="selectCodes.CST_THM_DP"
+          first-option="all"
         />
       </kw-search-item>
     </kw-search-row>
@@ -191,6 +221,7 @@
         <kw-select
           v-model="searchParams.schAuthRsgYn"
           :options="selectCodes.AUTH_AUTH_RSG_YN"
+          first-option="all"
         />
       </kw-search-item>
     </kw-search-row>
@@ -219,11 +250,15 @@
         :label="$t('MSG_BTN_IST_CHAR_FW')"
         primary
         dense
+        :disable="totalCount === 0"
+        @click="onClickIstMessageSend"
       />
       <kw-btn
         :label="$t('MSG_BTN_CNTR_CHAR_FW')"
         primary
         dense
+        :disable="totalCount === 0"
+        @click="onClickCntrMessageSend"
       />
     </kw-action-top>
     <ul class="filter-box mb12">
@@ -232,7 +267,7 @@
           {{ $t('MSG_TXT_DIV') }}
         </p>
         <kw-option-group
-          v-model="searchParams.dv"
+          v-model="searchParams.schDv"
           dense
           type="radio"
           :options="selectCodes.WELLS_CNTR_LIST_DV"
@@ -253,15 +288,14 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { defineGrid, gridUtil, codeUtil, getComponentType, modal, useDataService } from 'kw-lib';
+import { defineGrid, gridUtil, codeUtil, getComponentType, modal, useDataService, notify } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 import { getDlqMcnt, getFntDt, getWellsCntrListDv, getAuthAuthRsgYn, getFntDv, getCstThmDp, getWellsBilDv, getBizDv } from '~sms-common/bond/utils/bnUtil';
-import dayjs from 'dayjs';
 
 const { t } = useI18n();
-const now = dayjs();
 
 const dataService = useDataService();
+const { currentRoute } = useRouter();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -301,18 +335,19 @@ const searchParams = ref({
   schOjBlamStrt: '',
   schOjBlamEnd: '',
   schMpno: '',
-  schTfDtStrt: now.subtract(1, 'day').format('YYYYMMDD'),
-  schTfDtEnd: now.subtract(1, 'day').format('YYYYMMDD'),
+  schTfDtStrt: '',
+  schTfDtEnd: '',
   schFntDv: '',
   schFntDtStrt: '',
   schFntDtEnd: '',
   schBilDv: '',
-  schCstThmDp: '02',
+  schCstThmDp: '',
   schAuthRsgYn: '',
   schDv: '',
-  dv: '01',
+  schCstNoYn: 'N',
 });
 
+const customerParams = ref({});
 const totalCount = ref(0);
 
 /** 계약리스트 조회 */
@@ -329,26 +364,30 @@ async function fetchContracts() {
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
   await gridUtil.exportView(view, {
-    fileName: 'contractList',
+    fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
 
   });
 }
 
-/** 고객조회(공통) */
+// TODO: 고객조회(공통)
 async function onClickSelectCustomer() {
-  let returnCustomInfo = await modal({
-    component: 'ZwcsaCustomerListP',
-  });
-  /* 단위 테스트를 위한 코딩 추후 고객조회(공통) 팝업이 완성되면 삭제 예정 */
-  returnCustomInfo = {
-    cstNo: '015417731',
-    cstNm: '김지혜',
-  };
+  const { result, payload } = await modal({
+    component: 'ZwbnyDelinquentCustomerP',
+    componentProps: {
+      baseYm: customerParams.value.baseYm,
+      cstNo: searchParams.value.schCstNo,
+      cstNm: searchParams.value.schCstNm,
+      sfkVal: searchParams.value.schSfK,
 
-  if (returnCustomInfo) {
-    searchParams.value.schCstNo = returnCustomInfo.cstNo;
-    searchParams.value.schCstNm = returnCustomInfo.cstNm;
+    },
+  });
+  if (result) {
+    const { cstNo, cstNm, sfkVal } = payload;
+    searchParams.value.schCstNo = cstNo;
+    searchParams.value.schCstNm = cstNm;
+    searchParams.value.schSfK = sfkVal;
+    searchParams.value.schCstNoYn = 'Y';
   }
 }
 
@@ -361,26 +400,63 @@ const onClickClctamPsic = async () => {
     },
   });
   if (result) {
-    const { clctamPrtnrNm, clctamPrtnrNo } = payload;
-    searchParams.value.schClctamPsic = clctamPrtnrNm;
-    searchParams.value.schClctamPsicNo = clctamPrtnrNo;
+    searchParams.value.schClctamPsic = payload.prtnrKnm;
+    searchParams.value.schClctamNo = payload.prtnrNo;
   }
 };
 
 async function onClickSearch() {
-  if (searchParams.value.dv === '02') {
-    searchParams.value.schDv = '2';
-  } else if (searchParams.value.dv === '03') {
-    searchParams.value.schDv = '3';
-  } else if (searchParams.value.dv === '04') {
-    searchParams.value.schDv = '4';
-  } else {
-    searchParams.value.schDv = '1';
+  const cstNo = searchParams.value.schCstNo;
+  const cstNm = searchParams.value.schCstNm;
+  const sfkVal = searchParams.value.schSfK;
+  const cstNoYn = searchParams.value.schCstNoYn;
+
+  if (cstNo !== '' || cstNm !== '') {
+    if (cstNoYn === 'N') {
+      notify(t('MSG_ALT_NAME_NO_IN'));
+      return;
+    }
+  }
+  if (sfkVal !== '') {
+    if (cstNoYn === 'N') {
+      notify(t('MSG_ALT_SFK_IN'));
+      return;
+    }
+  }
+
+  const dlqMcntStrt = searchParams.value.schDlqMcntStrt;
+  const dlqMcntEnd = searchParams.value.schDlqMcntEnd;
+  const fntDtStrt = searchParams.value.schFntDtStrt;
+  const fntDtEnd = searchParams.value.schFntDtEnd;
+  const ojBlamStrt = searchParams.value.schOjBlamStrt;
+  const ojBlamEnd = searchParams.value.schOjBlamEnd;
+
+  if (dlqMcntStrt > dlqMcntEnd) {
+    await notify(t('MSG_ALT_STRT_YM_END_YM_BIG', [t('MSG_TXT_DLQ_MCNT') + t('MSG_TXT_RSV_STRT_DTM'), t('MSG_TXT_RSV_END_DTM')]));
+    return false;
+  }
+  if (fntDtStrt > fntDtEnd) {
+    await notify(t('MSG_ALT_STRT_YM_END_YM_BIG', [t('MSG_TXT_FNT_DT') + t('MSG_TXT_RSV_STRT_DTM'), t('MSG_TXT_RSV_END_DTM')]));
+    return false;
+  }
+
+  if (Number(ojBlamStrt) > Number(ojBlamEnd)) {
+    await notify(t('MSG_ALT_STRT_YM_END_YM_BIG', [t('MSG_TXT_OJ_BLAM') + t('MSG_TXT_RSV_STRT_DTM'), t('MSG_TXT_RSV_END_DTM')]));
+    return false;
   }
 
   cachedParams = cloneDeep(searchParams.value);
   await fetchContracts();
 }
+
+async function fetchBaseYmData() {
+  const response = await dataService.get('/sms/wells/bond/bond-counsel/base-ym');
+  customerParams.value = response.data;
+}
+
+onMounted(async () => {
+  await fetchBaseYmData();
+});
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
@@ -408,7 +484,6 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'mmChramBlam', dataType: 'number' },
     { fieldName: 'dlqAddAmt', dataType: 'number' },
     { fieldName: 'dlqAddDp', dataType: 'number' },
-    { fieldName: 'dlqAddBlam', dataType: 'number' },
     { fieldName: 'ucAmt', dataType: 'number' },
     { fieldName: 'ucDp', dataType: 'number' },
     { fieldName: 'ucBlam', dataType: 'number' },
@@ -455,12 +530,12 @@ const initGrdMain = defineGrid((data, view) => {
 
   const columns = [
     { fieldName: 'ctt', header: t('MSG_TXT_CTT'), width: '52', styleName: 'text-center', headerSummaries: { text: '합계', styleName: 'text-center' } },
-    { fieldName: 'bizDv', header: t('MSG_TXT_TASK_DIV'), width: '100', styleName: 'text-left' },
-    { fieldName: 'prdf', header: t('MSG_TXT_PRD_GRP'), width: '100', styleName: 'text-left' },
-    { fieldName: 'pdctNm', header: t('MSG_TXT_GOODS_NM'), width: '130', styleName: 'text-left' },
+    { fieldName: 'bizDv', header: t('MSG_TXT_TASK_DIV'), width: '100', styleName: 'text-center' },
+    { fieldName: 'prdf', header: t('MSG_TXT_PRD_GRP'), width: '100', styleName: 'text-center' },
+    { fieldName: 'pdctNm', header: t('MSG_TXT_GOODS_NM'), width: '200', styleName: 'text-center' },
     { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_NO'), width: '140', styleName: 'text-center' },
-    { fieldName: 'cntrSn', header: t('MSG_TXT_CNTR_SN'), width: '100', styleName: 'text-center', visible: 'false' },
-    { fieldName: 'cstNm', header: t('MSG_TXT_CST_NM'), width: '100', styleName: 'text-left' },
+    { fieldName: 'cntrSn', header: t('MSG_TXT_CNTR_SN'), width: '100', styleName: 'text-center', visible: false },
+    { fieldName: 'cstNm', header: t('MSG_TXT_CST_NM'), width: '100', styleName: 'text-center' },
     { fieldName: 'dlqMcnt', header: t('MSG_TXT_DLQ_MCNT'), width: '70', styleName: 'text-center' },
     { fieldName: 'ojAmt', header: t('MSG_TXT_OJ_AMT'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
     { fieldName: 'ojDp', header: t('MSG_TXT_OJ_DP'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
@@ -476,7 +551,6 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'mmChramBlam', header: t('MSG_TXT_MM_CHRAM_BLAM'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
     { fieldName: 'dlqAddAmt', header: t('MSG_TXT_DLQ_ADD_AMT'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
     { fieldName: 'dlqAddDp', header: t('MSG_TXT_DLQ_ADD_DP'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
-    { fieldName: 'dlqAddBlam', header: t('MSG_TXT_DLQ_ADD_BLAM'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
     { fieldName: 'ucAmt', header: t('MSG_TXT_UC_AMT'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
     { fieldName: 'ucDp', header: t('MSG_TXT_UC_DP'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
     { fieldName: 'ucBlam', header: t('MSG_TXT_UC_BLAM'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
@@ -489,17 +563,41 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'rtlfe2', header: t('MSG_TXT_RTLFE2'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
     { fieldName: 'rtlfeIstm2', header: t('MSG_TXT_RTLFE_2_ISTM'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
     { fieldName: 'promDt', header: t('MSG_TXT_PROM_DT'), width: '100', styleName: 'text-center' },
-    { fieldName: 'dprNm', header: t('MSG_TXT_DPR_NM'), width: '100', styleName: 'text-left' },
-    { fieldName: 'cvcpInf', header: t('MSG_TXT_CVCP_INF'), width: '120', styleName: 'text-left' },
-    { fieldName: 'clctamIchr', header: t('MSG_TXT_CLCTAM_ICHR'), width: '100', styleName: 'text-left' },
+    { fieldName: 'dprNm', header: t('MSG_TXT_DPR_NM'), width: '100', styleName: 'text-center' },
+    { fieldName: 'cvcpInf', header: t('MSG_TXT_CVCP_INF'), width: '120', styleName: 'text-center' },
+    { fieldName: 'clctamIchr', header: t('MSG_TXT_CLCTAM_ICHR'), width: '100', styleName: 'text-center' },
     { fieldName: 'cntrMpno', header: t('MSG_TXT_CNTR_MPNO'), width: '130', styleName: 'text-center' },
     { fieldName: 'cntrTno', header: t('MSG_TXT_CNTR_TNO'), width: '130', styleName: 'text-center' },
-    { fieldName: 'istMpno', header: t('MSG_TXT_IST_MPNO'), width: '130', styleName: 'text-center' },
-    { fieldName: 'istTno', header: t('MSG_TXT_IST_TNO'), width: '130', styleName: 'text-center' },
+    {
+      fieldName: 'istMpno',
+      header: t('MSG_TXT_IST_MPNO'),
+      styleName: 'text-center',
+      width: '130',
+
+      displayCallback(grid, index) {
+        const { istCralLocaraTno: no1, istMexnoEncr: no2, istCralIdvTno: no3 } = grid.getValues(index.itemIndex);
+        if (no1 != null) {
+          return `${no1}-${no2}-${no3}`;
+        }
+      },
+    },
+    {
+      fieldName: 'istTno',
+      header: t('MSG_TXT_IST_TNO'),
+      styleName: 'text-center',
+      width: '130',
+
+      displayCallback(grid, index) {
+        const { istLocaraTno: no1, istExnoEncr: no2, istIdvTno: no3 } = grid.getValues(index.itemIndex);
+        if (no1 != null) {
+          return `${no1}-${no2}-${no3}`;
+        }
+      },
+    },
     { fieldName: 'cstNo', header: t('MSG_TXT_CST_NO'), width: '100', styleName: 'text-center' },
     { fieldName: 'tfDt', header: t('MSG_TXT_TF_DT'), width: '100', styleName: 'text-center' },
     { fieldName: 'buNotiDt', header: t('MSG_TXT_BU_NOTI_DT'), width: '100', styleName: 'text-center' },
-    { fieldName: 'buNotiTp', header: t('MSG_TXT_BU_NOTI_TP'), width: '150', styleName: 'text-left' },
+    { fieldName: 'buNotiTp', header: t('MSG_TXT_BU_NOTI_TP'), width: '150', styleName: 'text-center' },
     { fieldName: 'cntrZip', header: t('MSG_TXT_CNTR_ZIP'), width: '100', styleName: 'text-center' },
     { fieldName: 'cntrAdr', header: t('MSG_TXT_CNTR_ADR'), width: '200', styleName: 'text-left' },
     { fieldName: 'istZip', header: t('MSG_TXT_IST_ZIP'), width: '100', styleName: 'text-center' },
@@ -517,8 +615,8 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'cujOvrd', header: t('MSG_TXT_CUJ_DFLT'), width: '100', styleName: 'text-center' },
     { fieldName: 'vstRs', header: t('MSG_TXT_VST_RS'), width: '140', styleName: 'text-left' },
     { fieldName: 'vstDt', header: t('MSG_TXT_VST_DT'), width: '100', styleName: 'text-center' },
-    { fieldName: 'sfk', header: t('MSG_TXT_SFK'), width: '100', styleName: 'text-center' },
-    { fieldName: 'unuitm', header: t('MSG_TXT_UNUITM'), width: '120', styleName: 'text-left' },
+    { fieldName: 'sfk', header: t('MSG_TXT_SFK'), width: '140', styleName: 'text-center' },
+    { fieldName: 'unuitm', header: t('MSG_TXT_UNUITM'), width: '200', styleName: 'text-center' },
   ];
 
   data.setFields(fields);

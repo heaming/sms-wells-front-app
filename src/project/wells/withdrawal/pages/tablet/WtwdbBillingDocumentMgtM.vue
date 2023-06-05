@@ -38,6 +38,7 @@
             v-model="searchParams.cstFnm"
             :label="t('MSG_TXT_CST_NM')"
             icon="search"
+            rules="required|max:16"
             @click-icon="onClickSearchUser"
           />
         </kw-search-item>
@@ -98,7 +99,6 @@
                   <kw-form-item
                     :label="t('MSG_TXT_CST_NM')"
                   >
-                    >
                     <p>{{ item.cstFnm }}</p>
                   </kw-form-item>
                   <!-- label="작성일자" -->
@@ -291,7 +291,7 @@ async function onClickSearchUser() {
 async function onClickRegP() {
   router.replace(
     {
-      path: '/ns/wtwdb-billing-document-write-reg',
+      path: '/withdrawal/wtwdb-billing-document-write-reg',
       query: {
         searchCstFnm: searchParams.value.cstFnm, // 조회조건
         searchBildcWrteDt: searchParams.value.bildcWrteDt, // 조회조건
@@ -325,7 +325,7 @@ async function onClickRegP() {
 async function onClickMove(data) {
   router.replace(
     {
-      path: '/ns/wtwdb-billing-document-fw-reg',
+      path: '/withdrawal/wtwdb-billing-document-fw-reg',
       query: {
         searchCstFnm: searchParams.value.cstFnm, // 조회조건
         searchBildcWrteDt: searchParams.value.bildcWrteDt, // 조회조건

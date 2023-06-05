@@ -35,8 +35,10 @@
         <kw-input
           v-model="searchParams.cstKnm"
           icon="search"
+          regex="alpha_hangul"
           clearable
           :label="$t('MSG_TXT_CST_NM')"
+          @change="onChangeCstKnm"
           @click-icon="onClickSelectCustomer"
         />
       </kw-search-item>
@@ -44,7 +46,6 @@
         :label="$t('MSG_TXT_MPNO')"
       >
         <kw-input
-          v-model="mpNo"
           v-model:tel-no0="searchParams.cntrCralLocaraTno"
           v-model:tel-no1="searchParams.cntrMexnoEncr"
           v-model:tel-no2="searchParams.cntrCralIdvTno"
@@ -57,7 +58,6 @@
         :label="$t('MSG_TXT_IST_MPNO')"
       >
         <kw-input
-          v-model="istMpNo"
           v-model:tel-no0="searchParams.istCralLocaraTno"
           v-model:tel-no1="searchParams.istMexnoEncr"
           v-model:tel-no2="searchParams.istCralIdvTno"
@@ -85,7 +85,6 @@
         :label="$t('MSG_TXT_TEL_NO')"
       >
         <kw-input
-          v-model="telNo"
           v-model:tel-no0="searchParams.cntrLocaraTno"
           v-model:tel-no1="searchParams.cntrExnoEncr"
           v-model:tel-no2="searchParams.cntrIdvTno"
@@ -97,7 +96,6 @@
         :label="$t('MSG_TXT_IST_TNO')"
       >
         <kw-input
-          v-model="istTelNo"
           v-model:tel-no0="searchParams.istLocaraTno"
           v-model:tel-no1="searchParams.istExnoEncr"
           v-model:tel-no2="searchParams.istIdvTno"
@@ -134,7 +132,6 @@
     <kw-grid
       ref="grdMainRef"
       name="grdMain"
-      :visible-rows="10"
       @init="initGrid"
     />
   </div>
@@ -156,33 +153,10 @@ const { currentRoute } = useRouter();
 // -------------------------------------------------------------------------------------------------
 const grdMainRef = ref(getComponentType('KwGrid'));
 
-const searchParams = reactive({
-  bndClctnPrpDvCd: '',
-  bndClctnPrpRsonCd: '',
-  clctamPrtnrNo: '',
-  cstKnm: '',
-  cntrCralLocaraTno: '',
-  cntrMexnoEncr: '',
-  cntrCralIdvTno: '',
-  istCralLocaraTno: '',
-  istMexnoEncr: '',
-  istCralIdvTno: '',
-  istLocaraTno: '',
-  istExnoEncr: '',
-  istIdvTno: '',
-  cntrLocaraTno: '',
-  cntrExnoEncr: '',
-  cntrIdvTno: '',
-  adr: '',
-  cstNo: '',
-});
-
-const mpNo = ref('');
-const istMpNo = ref('');
-const telNo = ref('');
-const istTelNo = ref('');
+const searchParams = reactive({});
 const totalCount = ref(0);
 const subModuleCodes = ref([]);
+const customerParams = ref({});
 
 const codes = await codeUtil.getMultiCodes(
   'BND_CLCTN_PRP_DV_CD',
@@ -193,32 +167,34 @@ watch(() => searchParams.bndClctnPrpDvCd, async (newValue) => {
   subModuleCodes.value = newValue !== '' ? await codeUtil.getSubCodes('BND_CLCTN_PRP_RSON_CD', newValue) : [];
 }, { immediate: true });
 
+async function onChangeCstKnm() {
+  searchParams.cstNo = '';
+}
+
 async function fetchData() {
-  const res = await dataService.get('/sms/wells/bond/customer-search', { params: searchParams });
-  const customerList = res.data;
-  totalCount.value = customerList.length;
+  const res = await dataService.get('/sms/wells/bond/customer-search', { params: searchParams, timeout: 300000 });
+  const customers = res.data;
+  totalCount.value = customers.length;
   const view = grdMainRef.value.getView();
-  view.getDataSource().setRows(customerList);
-  view.resetCurrent();
+  view.getDataSource().setRows(customers);
 }
 
 async function onClickSearch() {
   await fetchData();
 }
 
-/** 고객조회(공통) */
 async function onClickSelectCustomer() {
   const { result, payload } = await modal({
-    component: 'ZwcsaCustomerListP',
+    component: 'ZwbnyDelinquentCustomerP',
     componentProps: {
-      name: searchParams.cstKnm,
-      cstType: '1', // '1': 개인 / '2': 법인
+      baseYm: customerParams.value.baseYm,
+      cstNm: searchParams.cstKnm,
     },
   });
-
   if (result) {
-    searchParams.cstKnm = payload.name; // 고객명
-    searchParams.cstNo = payload.cstNo; // 고객번호
+    const { cstNo, cstNm } = payload;
+    searchParams.cstNo = cstNo;
+    searchParams.cstKnm = cstNm;
   }
 }
 
@@ -228,8 +204,18 @@ async function onClickExcelDownload() {
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
+    exportData: gridUtil.getAllRowValues(view),
   });
 }
+
+async function fetchBaseYmData() {
+  const response = await dataService.get('/sms/common/bond/promise-customer/base-ym');
+  customerParams.value = response.data;
+}
+
+onMounted(async () => {
+  await fetchBaseYmData();
+});
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
@@ -247,13 +233,10 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'cntrTelNo' },
     { fieldName: 'cntrMpNo' },
     { fieldName: 'cstNo' },
-    { fieldName: 'sppAdr' },
     { fieldName: 'istTelNo' },
     { fieldName: 'istMpNo' },
     { fieldName: 'bndClctnPrpDvNm' },
     { fieldName: 'bndClctnPrpRsonDvNm' },
-    { fieldName: 'sppZip' },
-    { fieldName: 'sppDtlAdr' },
     { fieldName: 'adr' },
     { fieldName: 'cntrLocaraTno' },
     { fieldName: 'cntrExnoEncr' },
@@ -321,7 +304,6 @@ const initGrid = defineGrid((data, view) => {
     },
     { fieldName: 'cstNo', header: t('MSG_TXT_CST_NO'), width: '100', styleName: 'text-center' },
     { fieldName: 'adr', header: t('MSG_TXT_ADDR'), width: '100', styleName: 'text-left' },
-    { fieldName: 'sppAdr', header: t('MSG_TXT_ADDR'), width: '100', styleName: 'text-left', visible: false },
     {
       fieldName: 'istTelNo',
       header: t('MSG_TXT_IST_TNO'),
@@ -350,8 +332,6 @@ const initGrid = defineGrid((data, view) => {
     },
     { fieldName: 'bndClctnPrpDvNm', header: t('MSG_TXT_BND_PRP'), width: '100', styleName: 'text-center' },
     { fieldName: 'bndClctnPrpRsonDvNm', header: t('MSG_TXT_PRP_RSON'), width: '100', styleName: 'text-center' },
-    { fieldName: 'sppZip', header: t('MSG_TXT_CNTR_ZIP'), width: '100', styleName: 'text-left', visible: false },
-    { fieldName: 'sppDtlAdr', header: t('MSG_TXT_BND_BIZ_DV_CD'), width: '100', styleName: 'text-left', visible: false },
     { fieldName: 'cntrLocaraTno', header: t('MSG_TXT_BND_BIZ_DV_CD'), width: '100', styleName: 'text-left', visible: false },
     { fieldName: 'cntrExnoEncr', header: t('MSG_TXT_BND_BIZ_DV_CD'), width: '100', styleName: 'text-left', visible: false },
     { fieldName: 'cntrIdvTno', header: t('MSG_TXT_BND_BIZ_DV_CD'), width: '100', styleName: 'text-left', visible: false },

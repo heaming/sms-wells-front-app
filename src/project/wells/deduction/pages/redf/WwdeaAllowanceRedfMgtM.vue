@@ -398,7 +398,7 @@ async function onClickRedfObjectCreate(param) {
     component: 'ZwdeaRedfObjectCreateP',
     componentProps: {
       tenantCd: userInfo.tenantCd,
-      selectType: param, /* param === 'all'이면 일괄생성(MSG_TXT_OG_TP 셀렉트박스 disable), 're'면 재생성(disable 안함) */
+      createType: param, /* param === 'all'이면 일괄생성(MSG_TXT_OG_TP 셀렉트박스 disable), 're'면 재생성(disable 안함) */
     },
   });
 }
@@ -412,8 +412,7 @@ async function onClickPageMove(routerType) {
   } if (routerType === 'B2B') {
     pageUrl = '/fee/wwdea-sole-distributor-mgt';
   } else if (routerType === 'HM') {
-    await alert(t('현재 미개발된 화면으로 이동 불가합니다.'));
-    return;
+    pageUrl = '/fee/wwdea-home-master-redf-create';
   } else if (routerType === 'MUTU') {
     pageUrl = '/fee/wwdea-mutual-aid-fee-mgt';
   }

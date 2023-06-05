@@ -99,7 +99,7 @@ const props = defineProps({
 
 const biztalkParams = ref({
   cnrNm: props.cnrNm,
-  cnrTno: props.cnrTno,
+  svCnrTno: props.cnrTno,
   cstTno: '',
 });
 

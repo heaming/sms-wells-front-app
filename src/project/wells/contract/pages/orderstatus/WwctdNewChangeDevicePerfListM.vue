@@ -9,8 +9,9 @@
 ****************************************************************************************************
 * 프로그램 설명
 ****************************************************************************************************
-- 조직별, 개인별 신규 기변 실적을 조회하는 화면
+- [W-SS-U-0063M01] 조직별, 개인별 신규 기변 실적을 조회하는 화면
 - 특이사항 1. INFINITE SCROLL
+- // TODO : 출력 기능 연결
 ****************************************************************************************************
 --->
 
@@ -56,6 +57,7 @@
           />
         </kw-search-item>
       </kw-search-row>
+
       <kw-search-row>
         <kw-search-item
           :label="$t('MSG_TXT_INQR_DV')"
@@ -69,41 +71,37 @@
                        { codeId: '4', codeName: t('MSG_TXT_INDV') }]"
           />
         </kw-search-item>
-        <kw-search-item :label="$t('MSG_TXT_MANAGEMENT_DEPARTMENT')">
+        <kw-search-item
+          colspan="2"
+          :label="$t('MSG_TXT_OG_CD')"
+        >
           <kw-select
-            v-model="searchParams.dgr1LevlOgId"
+            v-model="searchParams.dgr1LevlOgCd"
             :options="codesDgr1Levl"
             option-value="dgr1LevlOgCd"
             option-label="dgr1LevlOgNm"
-            first-option="all"
-            first-option-value=""
+            first-option="select"
+            :first-option-label="$t('MSG_TXT_GNRDV_CHO')"
             @change="onUpdateDgr1Levl"
           />
-        </kw-search-item>
-        <kw-search-item :label="$t('MSG_TXT_RGNL_GRP')">
           <kw-select
-            v-model="searchParams.dgr2LevlOgId"
+            v-model="searchParams.dgr2LevlOgCd"
             :options="filteredDgr2LevlOgCds"
             option-value="dgr2LevlOgCd"
             option-label="dgr2LevlOgNm"
-            first-option="all"
-            first-option-value=""
+            first-option="select"
+            :first-option-label="$t('MSG_TXT_RGNL_GRP')+ ' ' +$t('MSG_TXT_SELT')"
             @change="onUpdateDgr2Levl"
           />
-        </kw-search-item>
-        <kw-search-item :label="t('MSG_TXT_BRANCH')">
           <kw-select
-            v-model="searchParams.dgr3LevlOgId"
+            v-model="searchParams.dgr3LevlOgCd"
             :options="filteredDgr3LevlOgCds"
             option-value="dgr3LevlOgCd"
             option-label="dgr3LevlOgNm"
-            first-option="all"
-            first-option-value=""
+            first-option="select"
+            :first-option-label="$t('MSG_TXT_SLCT_BRANCH')"
           />
         </kw-search-item>
-      </kw-search-row>
-
-      <kw-search-row>
         <kw-search-item :label="$t('MSG_TXT_SELL_OG') + ' ' + $t('MSG_TXT_DIV')">
           <kw-select
             v-model="searchParams.ogTpCd"
@@ -184,9 +182,9 @@ const searchParams = ref({
   perfDv: 'T', // 실적구분 (default : 총주문)
   optnDv: '', // 가동구분
   inqrDv: '1', // 조회구분 (default : 총괄단)
-  dgr1LevlOgId: '', // 조직코드-총괄단
-  dgr2LevlOgId: '', // 조직코드-지역단
-  dgr3LevlOgId: '', // 조직코드-지점
+  dgr1LevlOgCd: '', // 조직코드-총괄단
+  dgr2LevlOgCd: '', // 조직코드-지역단
+  dgr3LevlOgCd: '', // 조직코드-지점
   ogTpCd: '', // 조직구분
 });
 
@@ -253,8 +251,8 @@ async function onUpdateDgr1Levl(selectedValues) {
   filteredDgr2LevlOgCds.value = codesDgr2Levl.value.filter((v) => selectedValues.includes(v.dgr1LevlOgCd));
 
   // value init
-  searchParams.value.dgr2LevlOgId = '';
-  searchParams.value.dgr3LevlOgId = '';
+  searchParams.value.dgr2LevlOgCd = '';
+  searchParams.value.dgr3LevlOgCd = '';
 }
 
 // 조직코드 지역단 변경 이벤트
@@ -265,11 +263,11 @@ async function onUpdateDgr2Levl(selectedValues) {
   filteredDgr3LevlOgCds.value = codesDgr3Levl.value.filter((v) => selectedValues.includes(v.dgr2LevlOgCd));
 
   // value init
-  searchParams.value.dgr3LevlOgId = '';
+  searchParams.value.dgr3LevlOgCd = '';
 }
 
 async function fetchData() {
-  cachedParams = cloneDeep(searchParams.value);
+  if (isEmpty(cachedParams)) return;
 
   const res = await dataService.get('/sms/wells/contract/contracts/new-machine-changes/paging', { params: { ...cachedParams, ...pageInfo.value } });
   const { list: pages, pageInfo: pagingResult } = res.data;
@@ -283,7 +281,7 @@ async function fetchData() {
 }
 
 async function fetchSummaryData() {
-  cachedParams = cloneDeep(searchParams.value);
+  if (isEmpty(cachedParams)) return;
 
   const res = await dataService.get('/sms/wells/contract/contracts/new-machine-changes/summary', { params: { ...cachedParams } });
   summaryData.value = res.data;
@@ -292,6 +290,21 @@ async function fetchSummaryData() {
 async function onClickSearch() {
   grdMainRef.value.getData().clearRows();
   pageInfo.value.pageIndex = 1;
+  cachedParams = cloneDeep(searchParams.value);
+
+  // 서버 검색 조건에 ogCd -> ogId 변경(속도개선)
+  if (!isEmpty(cachedParams.dgr1LevlOgCd)) {
+    const selId = (codesDgr1Levl.value.filter((v) => v.dgr1LevlOgCd === cachedParams.dgr1LevlOgCd))[0].dgr1LevlOgId;
+    cachedParams.dgr1LevlOgId = selId;
+  }
+  if (!isEmpty(cachedParams.dgr2LevlOgCd)) {
+    const selId = (codesDgr2Levl.value.filter((v) => v.dgr2LevlOgCd === cachedParams.dgr2LevlOgCd))[0].dgr2LevlOgId;
+    cachedParams.dgr2LevlOgId = selId;
+  }
+  if (!isEmpty(cachedParams.dgr3LevlOgCd)) {
+    const selId = (codesDgr3Levl.value.filter((v) => v.dgr3LevlOgCd === cachedParams.dgr3LevlOgCd))[0].dgr3LevlOgId;
+    cachedParams.dgr3LevlOgId = selId;
+  }
 
   await fetchSummaryData();
   await fetchData();
@@ -359,7 +372,7 @@ const initGrid = defineGrid((data, view) => {
       styleName: 'text-center',
       options: codes.OPTN_DV,
       headerSummaries: { text: '', styleName: 'text-center' } },
-    { fieldName: 'rsbDvCd', header: t('MSG_TXT_RSB'), width: '120', styleName: 'text-center', options: codes.RSB_DV_CD },
+    { fieldName: 'rsbDvCd', header: t('MSG_TXT_CRLV'), width: '120', styleName: 'text-center', options: codes.RSB_DV_CD },
     { fieldName: 'dgr1LevlOgNm', header: t('MSG_TXT_MANAGEMENT_DEPARTMENT'), width: '120', styleName: 'text-center' },
     { fieldName: 'dgr2LevlOgNm', header: t('MSG_TXT_RGNL_GRP'), width: '120', styleName: 'text-center' },
     { fieldName: 'dgr3LevlOgNm', header: t('MSG_TXT_BRANCH'), width: '120', styleName: 'text-center' },

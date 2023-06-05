@@ -262,7 +262,7 @@ async function fetchTrdSpcData() {
   // changing api & cacheparams according to search classification
   let res = '';
   cachedParams = cloneDeep(searchParams.value);
-  console.log(cachedParams);
+  // console.log(cachedParams);
 
   if (searchParams.value.docDvCd === '1') { // 입금내역서
     res = await dataService.get('/sms/wells/contract/contracts/order-details/specification/deposit-itemizations', { params: { ...cachedParams } });
@@ -280,7 +280,7 @@ async function fetchTrdSpcData() {
     return;
   }
 
-  console.log(res.data);
+  // console.log(res.data);
 
   const view = grdRef.value.getView();
   view.getDataSource().setRows(res.data);
@@ -307,7 +307,7 @@ async function fetchCtnrLstData() {
     return;
   }
 
-  console.log(res.data);
+  // console.log(res.data);
 
   const view = grdContracts.value.getView();
   view.getDataSource().setRows(res.data);

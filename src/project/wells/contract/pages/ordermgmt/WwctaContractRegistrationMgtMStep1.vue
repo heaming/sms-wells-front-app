@@ -322,15 +322,16 @@ const router = useRouter();
 
 const props = defineProps({
   contract: { type: String, required: true },
+  onChildMounted: { type: Function, required: true },
 });
-const { step1 } = toRefs(props.contract);
+const { cntrNo: pCntrNo, step1 } = toRefs(props.contract);
 const ogStep1 = ref({});
 const codes = await codeUtil.getMultiCodes(
   'CNTR_TP_CD',
   'COPN_DV_CD',
 );
 const searchParams = ref({
-  cntrNo: props.cntrNo,
+  cntrNo: step1.value.bas?.cntrNo,
   cntrTpCd: '01',
   copnDvCd: '1',
   cstKnm: '이지원',
@@ -357,6 +358,7 @@ async function getCntrInfo(cntrNo) {
     step: 1,
   } });
   step1.value = cntr.data.step1;
+  pCntrNo.value = step1.value.bas.cntrNo;
   console.log(step1.value);
   ogStep1.value = cloneDeep(step1.value);
   if (isEmpty(step1.value.bas.cntrNo)) {
@@ -469,26 +471,15 @@ async function isValidStep() {
   /**
    * 0. 기존계약 존재여부
    * 1. 계약자 선택여부
-   * 2. 학습자 선택여부
-   * 4. 학년 선택여부
-   * 5. 백점이 입력시 연도 4자리 충족여부 - 숫자, 11자리로 input 제한하는 방안 vs 검증로직
-   * 6. 재택TM 시 홍보교사사번 존재여부 - 없어질 것 같음
-   * 7. 본인인증미완료인 경우 - 보류
-   * 8. 당월 타 판매자와 계약이 있는 경우 - 당월계약건 리스트 있는 경우 오류
    */
-  if (!isEmpty(step1.value.cntrt.pextCntr)) {
+  if (!isEmpty(step1.value.pextCntr)) {
     // TODO 메시지 처리
-    console.log('작성중인 전자계약이 있습니다.');
+    await alert('작성중인 전자계약이 있습니다.');
     return false;
   }
   if (isEmpty(step1.value.cntrt)) {
-    console.log('계약자를 선택해주세요.');
+    await alert('계약자를 선택해주세요.');
     return false;
-  }
-  if (step1.value.cntrt.lnfDvCd === '0') {
-    if (!confirm('외국인 고객은 프리패스 할부 불가(완독, 도요새 프리패스 비기너 제외)\n여신한도 최대 300만원')) {
-      return false;
-    }
   }
   return true;
 }
@@ -501,6 +492,7 @@ async function saveStep() {
 }
 
 onMounted(async () => {
+  props.onChildMounted(1);
   if (await isPartnerStpa()) {
     await alert('휴업');
   } else if (isEmpty(props.cntrNo)) {
@@ -508,10 +500,6 @@ onMounted(async () => {
     if (await isClosingTime()) {
       await alert('마감');
     }
-  }
-  // 기존 계약 조회
-  if (!isEmpty(step1.value.bas.cntrNo)) {
-    await getCntrInfo(step1.value.bas.cntrNo);
   }
 });
 

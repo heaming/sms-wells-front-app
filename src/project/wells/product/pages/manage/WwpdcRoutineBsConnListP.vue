@@ -333,11 +333,11 @@ async function onClickSave() {
   }
 
   const subList = { svPdCd, pdctPdCd, bases, details };
-  console.log('WwpdcRoutineBsConnListP - onClickSave - subList : ', subList);
+  // console.log('WwpdcRoutineBsConnListP - onClickSave - subList : ', subList);
   await dataService.put('/sms/wells/product/bs-works', subList);
 
   notify(t('MSG_ALT_SAVE_DATA'));
-  gridUtil.reset(grdMainRef.value.getView());
+  gridUtil.reset(view);
   await fetchData();
 }
 
@@ -373,7 +373,7 @@ const initGridMain = defineGrid((data, view) => {
       width: '60',
       styleName: 'text-center',
       rules: 'required',
-      editor: { type: 'number', positiveOnly: true },
+      editor: { type: 'number', editFormat: '99', positiveOnly: true, maxLength: 2 },
       dataType: 'number',
     },
     // 필터/부품명
@@ -400,14 +400,14 @@ const initGridMain = defineGrid((data, view) => {
       width: '90',
       styleName: 'text-center',
       rules: 'required',
-      editor: { type: 'number', editFormat: '999', maxLength: 3, positiveOnly: true },
+      editor: { type: 'number', editFormat: '99', maxLength: 2, positiveOnly: true },
       dataType: 'number' },
     // 시작월
     { fieldName: 'svStrtmmN',
       header: t('MSG_TXT_STRT_MM'),
       width: '60',
       styleName: 'text-center',
-      editor: { type: 'number', editFormat: '999', maxLength: 3, positiveOnly: true },
+      editor: { type: 'number', editFormat: '99', maxLength: 2, positiveOnly: true },
     },
     // 반복횟수
     { fieldName: 'svTms',
@@ -415,14 +415,14 @@ const initGridMain = defineGrid((data, view) => {
       width: '60',
       styleName: 'text-right',
       rules: 'required',
-      editor: { type: 'number', editFormat: '999', maxLength: 3, positiveOnly: true },
+      editor: { type: 'number', editFormat: '99', maxLength: 2, positiveOnly: true },
       dataType: 'number' },
     // 총약정개월
     { fieldName: 'totStplMcn',
       header: t('MSG_TXT_TOT_COMMIT_MM'),
       width: '60',
       styleName: 'text-right',
-      editor: { type: 'number', editFormat: '99', maxLength: 4, positiveOnly: true },
+      editor: { type: 'number', editFormat: '99', maxLength: 2, positiveOnly: true },
       dataType: 'number' },
     // 제외월
     { fieldName: 'excdMmVal',
@@ -432,7 +432,7 @@ const initGridMain = defineGrid((data, view) => {
     // 설치월
     { fieldName: 'istMm',
       header: t('MSG_TXT_SETUP_MON'),
-      placeHolder: t('MSG_TXT_SELT'),
+      placeHolder: '',
       width: '60',
       styleName: 'text-center',
       firstOption: 'empty',
@@ -450,7 +450,7 @@ const initGridMain = defineGrid((data, view) => {
     // 작업월
     { fieldName: 'wkMm',
       header: t('MSG_TXT_JOB_MON'),
-      placeHolder: t('MSG_TXT_SELT'),
+      placeHolder: '',
       width: '60',
       styleName: 'text-center',
       firstOption: 'empty',
@@ -475,26 +475,25 @@ const initGridMain = defineGrid((data, view) => {
   view.filteringOptions.enabled = false;
   view.onCellEdited = async (grid, itemIndex, row, fieldIndex) => {
     const changedFieldName = grid.getColumn(fieldIndex).fieldName;
-    if (['svPrdMmN', 'svStrtmmN', 'svTms', 'excdMmVal', 'istMm', 'wkMm'].includes(changedFieldName)) {
-      const servicePeriod = Number(grid.getValue(itemIndex, 'svPrdMmN'));
+    if (['svStrtmmN', 'istMm', 'wkMm'].includes(changedFieldName)) {
+      // const servicePeriod = Number(grid.getValue(itemIndex, 'svPrdMmN'));
       const startMonth = Number(grid.getValue(itemIndex, 'svStrtmmN'));
-      const repeatCount = Number(grid.getValue(itemIndex, 'svTms'));
+      // const repeatCount = Number(grid.getValue(itemIndex, 'svTms'));
       // 제외월
-      const exceptMonth = grid.getValue(itemIndex, 'excdMmVal');
-      const exceptMonths = split(exceptMonth, ',').reduce((rtns, mon) => { if (Number(mon)) rtns.push(Number(mon)); return rtns; }, []);
+      // const exceptMonth = grid.getValue(itemIndex, 'excdMmVal');
+      // const exceptMonths = split(exceptMonth, ',')
+      //   .reduce((rtns, mon) => { if (Number(mon)) rtns.push(Number(mon)); return rtns; }, []);
       // 설치월
       const installMonth = Number(grid.getValue(itemIndex, 'istMm'));
       // 작업월
       const workMonth = Number(grid.getValue(itemIndex, 'wkMm'));
       if (changedFieldName === 'svStrtmmN' && startMonth) {
-        console.log(`servicePeriod: ${servicePeriod} startMonth: ${startMonth} repeatCount: ${repeatCount} exceptMonths: ${exceptMonths.length}`);
         grid.setValue(itemIndex, 'istMm', null);
         grid.setValue(itemIndex, 'strtWkYVal', null);
         grid.setValue(itemIndex, 'wkMm', null);
         // const countTotalValue = (startMonth * (repeatCount + exceptMonths.length)) + servicePeriod;
         // grid.setValue(itemIndex, 'totStplMcn', countTotalValue);
       } else if (['istMm', 'wkMm'].includes(changedFieldName) && (installMonth || workMonth)) {
-        console.log(`installMonth: ${installMonth} workMonth: ${workMonth} repeatCount: ${repeatCount} exceptMonths: ${exceptMonths.length}`);
         grid.setValue(itemIndex, 'svStrtmmN', null);
         grid.setValue(itemIndex, 'excdMmVal', null);
         // const countTotalValue = (installMonth * (repeatCount + exceptMonths.length)) + servicePeriod;

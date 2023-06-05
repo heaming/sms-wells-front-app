@@ -142,6 +142,7 @@
           :label="$t('MSG_BTN_DTRM')"
           secondary
           dense
+          :disable="isNotActivated"
           @click="onClickConfirm"
         />
         <kw-btn
@@ -159,6 +160,7 @@
           primary
           dense
           :label="$t('MSG_BTN_CNTN_CREATE')"
+          :disable="isNotActivated"
           @click="onClickCreate"
         />
       </kw-action-top>
@@ -183,6 +185,7 @@
         <kw-btn
           grid-action
           :label="$t('MSG_BTN_SAVE')"
+          :disable="isNotActivated"
           @click="onClickSave"
         />
         <kw-separator
@@ -248,6 +251,7 @@ const filteredCodes = ref({ CLCTAM_DV_CD: codes.CLCTAM_DV_CD.filter((obj) => (ob
 const kwSearchRef = ref(getComponentType('KwSearch'));
 const grdMainRef = ref(getComponentType('KwGrid'));
 const grdSubRef = ref(getComponentType('KwGrid'));
+const isNotActivated = ref(false);
 const totalCount = ref(0);
 const pageInfo = ref({
   totalCount: 0,
@@ -293,6 +297,14 @@ const pageMove = ref({
   url: '/bond/zwbny-assign-weight-mgt',
 });
 
+async function hasAssignConfirmed() {
+  // TODO: 단위테스트 시 버튼 막아야 해서 임시 작업, 바로 수정 작업 진행 해야함 6월7일 까지는 작업 시작 해야함, 확정된 상태인 경우 버튼 비활성화
+  const hasAssignConfirmedParams = cloneDeep(searchParams.value);
+  hasAssignConfirmedParams.tfBizDvCd = '05';
+  const response = await dataService.get('/sms/common/bond/collector-changes/has-collector-assing', { params: hasAssignConfirmedParams });
+  isNotActivated.value = response.data;
+}
+
 async function fetchData() {
   const subView = grdSubRef.value.getView();
   subView.getDataSource().setRows();
@@ -304,6 +316,11 @@ async function fetchData() {
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(partTransfers);
   // view.resetCurrent();
+
+  grdSubRef.value?.getView().getDataSource().clearRows();
+  pageInfo.value.totalCount = 0;
+
+  await hasAssignConfirmed();
 }
 
 async function onClickSearch() {
@@ -349,6 +366,7 @@ async function onClickExcelDownload() {
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
+    exportData: gridUtil.getAllRowValues(view),
   });
 }
 
@@ -385,8 +403,7 @@ async function onClickCreate() {
   } else {
     notify(t('MSG_ALT_ALLO_OF_COLL_EXCN'));
   }
-  // TODO: 이주석이 살아 있는 경우 배치 동작 후 그 다음 작업 정의를 하지 않은 상태 임 확인 필요(배치는 호출 후 완료 여부를 알 수 없음)
-  // await dataService.post('/sms/edu/bond/collector-assigns', cachedParams);
+  await dataService.post('/sms/wells/bond/collector-assigns', cachedParams);
 }
 
 async function onClickPageMove() {
@@ -642,7 +659,7 @@ const initGrdSub = defineGrid((data, view) => {
     { fieldName: 'bfClctamPrtnrNo' },
     { fieldName: 'bfClctamPrtnrKnm' },
     { fieldName: 'cntrNo' },
-    { fieldName: 'cstKnm' },
+    { fieldName: 'cstNm' },
     { fieldName: 'cstNo' },
     { fieldName: 'pdDvKnm' },
     { fieldName: 'pdDvCd' },
@@ -663,8 +680,16 @@ const initGrdSub = defineGrid((data, view) => {
     { fieldName: 'clctamPrtnrKnm', header: t('MSG_TXT_PIC_NM'), width: '98', styleName: 'text-center, rg-button-icon--search', button: 'action' },
     { fieldName: 'lstmmClctamDvCd', header: t('MSG_TXT_LSTMM_ICHR_CLCTAM_DV'), width: '130', styleName: 'text-center', editable: false },
     { fieldName: 'bfClctamPrtnrKnm', header: t('MSG_TXT_LSTMM_PSIC'), width: '90', styleName: 'text-center', editable: false },
-    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '160', styleName: 'text-center', editable: false },
-    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '90', styleName: 'text-center', editable: false },
+    { fieldName: 'cntrNo',
+      header: t('MSG_TXT_CNTR_DTL_NO'),
+      width: '160',
+      styleName: 'text-center',
+      editable: false,
+      displayCallback(grid, index) {
+        const { cntrNo, cntrSn } = grid.getValues(index.itemIndex);
+        return `${cntrNo}-${cntrSn}`;
+      } },
+    { fieldName: 'cstNm', header: t('MSG_TXT_CST_NM'), width: '90', styleName: 'text-center', editable: false },
     { fieldName: 'cstNo', header: t('MSG_TXT_CST_NO'), width: '130', styleName: 'text-center', editable: false },
     { fieldName: 'pdDvKnm', header: t('MSG_TXT_PRDT_GUBUN'), width: '90', styleName: 'text-center', editable: false },
     { fieldName: 'dlqMcn', header: t('MSG_TXT_DLQ_MCNT'), width: '86', styleName: 'text-right', editable: false },

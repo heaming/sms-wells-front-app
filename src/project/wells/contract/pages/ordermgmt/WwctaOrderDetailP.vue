@@ -38,38 +38,51 @@
       </kw-form-row>
     </kw-form>
     <kw-separator />
-    <kw-tabs model-value="1">
+    <kw-tabs v-model="selectedTab">
+      <!-- 고객기본정보 -->
       <kw-tab
-        name="1"
+        name="cstBaseInfo"
         :label="$t('MSG_TXT_CST_BAS_INF')"
       />
+      <!-- 판매정보 -->
       <kw-tab
-        name="2"
-        :label="$t('MSG_TXT_MGT_INF')"
+        name="sellInfo"
+        :label="$t('MSG_TXT_SELL_INF')"
       />
+      <!-- 입금내역 -->
       <kw-tab
-        name="3"
+        name="dpIz"
         :label="$t('MSG_TXT_DP_IZ')"
       />
+      <!-- 현금영수증 -->
+      <slot v-if="props.copnDvCd === '1'">
+        <kw-tab
+          name="cashRcp"
+          :label="$t('MSG_TXT_CASH_RCP')"
+        />
+      </slot>
+      <!-- 계산서 -->
+      <slot v-else-if="props.copnDvCd === '2'&&props.sellTpCd === '6'">
+        <kw-tab
+          name="bill"
+          :label="$t('MSG_TXT_BILL')"
+        />
+      </slot>
+      <!-- 세금계산서 -->
+      <slot v-else-if="props.copnDvCd === '2'&&props.sellTpCd !== '6'">
+        <kw-tab
+          name="txinv"
+          :label="$t('MSG_TXT_TXINV')"
+        />
+      </slot>
+      <!-- 컨택 내용 -->
       <kw-tab
-        name="4"
-        :label="$t('MSG_TXT_TXINV')"
-      />
-      <kw-tab
-        name="5"
-        :label="$t('MSG_TXT_HW_CMNC_HIS')"
-      />
-      <kw-tab
-        name="6"
-        :label="$t('MSG_TXT_ELC_TASK_RQST')"
-      />
-      <kw-tab
-        name="7"
-        :label="$t('MSG_TXT_CLCTAM_CTT_CNTN')"
+        name="cttCntn"
+        :label="$t('MSG_TXT_CTT_CNTN')"
       />
     </kw-tabs>
-    <kw-tab-panels model-value="1">
-      <kw-tab-panel name="1">
+    <kw-tab-panels v-model="selectedTab">
+      <kw-tab-panel name="cstBaseInfo">
         <kw-form
           :cols="2"
           dense
@@ -116,6 +129,7 @@
             <!-- 자동이체 -->
             <kw-form-item :label="$t('MSG_TXT_AUTO_FNT')">
               <kw-chip
+                v-show="isAftnInfo"
                 :label="frmMainData.cdcoNm"
                 color="placeholder"
                 outline
@@ -144,7 +158,7 @@
                 dense
                 secondary
                 :label="$t('MSG_BTN_VT_AC_CFDC')"
-                @click="onClick"
+                @click="onClickVtAcCfdc"
               />
               <kw-separator
                 vertical
@@ -157,7 +171,7 @@
                 dense
                 secondary
                 :label="$t('MSG_BTN_CHAR_FW')"
-                @click="onClick"
+                @click="onClickCharFw"
               />
               <kw-separator
                 vertical
@@ -170,7 +184,7 @@
                 dense
                 secondary
                 :label="$t('MSG_BTN_EMAIL_SEND')"
-                @click="onClick"
+                @click="onClickEmailSend"
               />
               <p>{{ frmMainData.vacInfo }}</p>
             </kw-form-item>
@@ -209,6 +223,48 @@
           </kw-form-row>
         </kw-form>
       </kw-tab-panel>
+      <!-- 판매정보 -->
+      <kw-tab-panel name="sellInfo">
+        <wwcta-order-detail-management-inf-dtl-p
+          ref="tabSellInfoRef"
+        />
+      </kw-tab-panel>
+      <!-- 입금내역 -->
+      <kw-tab-panel name="dpIz">
+        <wwcta-order-detail-deposit-iz-dtl-p
+          ref="tabDpIzRef"
+        />
+      </kw-tab-panel>
+      <!-- 현금영수증 -->
+      <slot v-if="props.copnDvCd === '1'">
+        <kw-tab-panel name="cashRcp">
+          <wwcta-order-detail-cash-sales-receipt-mgt-p
+            ref="tabCashRcpRef"
+          />
+        </kw-tab-panel>
+      </slot>
+      <!-- 계산서 -->
+      <slot v-else-if="props.copnDvCd === '2'&&props.sellTpCd === '6'">
+        <kw-tab-panel name="bill">
+          <wwcta-order-detail-tax-invoice-dtl-p
+            ref="tabBillRef"
+          />
+        </kw-tab-panel>
+      </slot>
+      <!-- 세금계산서 -->
+      <slot v-else-if="props.copnDvCd === '2'&&props.sellTpCd !== '6'">
+        <kw-tab-panel name="txinv">
+          <wwcta-order-detail-tax-invoice-dtl-p
+            ref="tabTxinvRef"
+          />
+        </kw-tab-panel>
+      </slot>
+      <!-- 컨택내용 -->
+      <kw-tab-panel name="cttCntn">
+        <wwcta-order-detail-collecting-amount-contact-list-p
+          ref="tabCttCntnRef"
+        />
+      </kw-tab-panel>
     </kw-tab-panels>
   </kw-popup>
 </template>
@@ -217,17 +273,28 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService, stringUtil } from 'kw-lib';
-import { cloneDeep, isNull, isEmpty } from 'lodash-es';
+import { useDataService, useGlobal, stringUtil } from 'kw-lib';
+import { cloneDeep, isEmpty } from 'lodash-es';
+import WwctaOrderDetailManagementInfDtlP from './WwctaOrderDetailManagementInfDtlP.vue';
+import WwctaOrderDetailDepositIzDtlP from './WwctaOrderDetailDepositIzDtlP.vue';
+import WwctaOrderDetailCashSalesReceiptMgtP from './WwctaOrderDetailCashSalesReceiptMgtP.vue';
+import WwctaOrderDetailTaxInvoiceDtlP from './WwctaOrderDetailTaxInvoiceDtlP.vue';
+import WwctaOrderDetailCollectingAmountContactListP from './WwctaOrderDetailCollectingAmountContactListP.vue';
 
 const dataService = useDataService();
 // const { t } = useI18n();
+const { alert } = useGlobal();
 const optionList = ref([]);
 const props = defineProps({
   cntrNo: { type: String, required: true, default: '' },
-  cntrSn: { type: String, required: false, default: '' },
+  cntrSn: { type: String, required: true, default: '' },
+  sellTpCd: { type: String, required: true, default: '' },
+  cntrCstNo: { type: String, required: false, default: '' },
+  copnDvCd: { type: String, required: false, default: '' },
 });
-const isVacInfo = ref();
+
+const isAftnInfo = ref(false);
+const isVacInfo = ref(false);
 
 let cachedParams;
 const searchParams = ref({
@@ -268,6 +335,14 @@ const frmMainData = ref({
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
+const selectedTab = ref('cstBaseInfo'); // 계약상세정보(고객기본정보)
+const tabSellInfoRef = ref(); // 판매정보 탭
+const tabDpIzRef = ref(); // 입금내역 탭
+const tabCashRcpRef = ref(); // 현금영수증 탭
+const tabBillRef = ref(); // 계산서 탭
+const tabTxinvRef = ref(); // 세금계산서 탭
+const tabCttCntnRef = ref(); // 컨택내용 탭
+
 // wells 주문 상세(고객기본정보) - 상세계약목록
 async function fetchDataContractLists() {
   // changing api & cacheparams according to search classification
@@ -308,17 +383,27 @@ async function fetchDataCustomerBase() {
     frmMainData.value.acnoEncr = res.data[0].acnoEncr; // 계좌번호
     frmMainData.value.crcdnoEncr = res.data[0].crcdnoEncr; // 카드번호
     // 계좌/카드자동이체 상세정보
-    if (!isNull(res.data[0].aftnInfo)) {
+    if (!isEmpty(res.data[0].aftnInfo)) {
       frmMainData.value.cdcoNm = res.data[0].aftnInfo.split(' ')[0];
       if (frmMainData.value.dpTpCd === '0102') {
-        frmMainData.value.aftnInfo = `${res.data[0].aftnInfo.split(' ')[1]} ${frmMainData.value.acnoEncr} ${res.data[0].aftnInfo.split(' ')[3]}`;
+        if (!isEmpty(frmMainData.value.acnoEncr)) {
+          isAftnInfo.value = true;
+          frmMainData.value.aftnInfo = `${res.data[0].aftnInfo.split(' ')[1]} ${frmMainData.value.acnoEncr} ${res.data[0].aftnInfo.split(' ')[3]}`;
+        } else {
+          frmMainData.value.aftnInfo = `${res.data[0].aftnInfo.split(' ')[1]} ${res.data[0].aftnInfo.split(' ')[3]}`;
+        }
       } else if (frmMainData.value.dpTpCd === '0203') {
-        frmMainData.value.aftnInfo = `${res.data[0].aftnInfo.split(' ')[1]} ${frmMainData.value.crcdnoEncr} ${res.data[0].aftnInfo.split(' ')[3]}`;
+        if (!isEmpty(frmMainData.value.crcdnoEncr)) {
+          isAftnInfo.value = true;
+          frmMainData.value.aftnInfo = `${res.data[0].aftnInfo.split(' ')[1]} ${frmMainData.value.crcdnoEncr} ${res.data[0].aftnInfo.split(' ')[3]}`;
+        } else {
+          frmMainData.value.aftnInfo = `${res.data[0].aftnInfo.split(' ')[1]} ${res.data[0].aftnInfo.split(' ')[3]}`;
+        }
       }
     }
     frmMainData.value.sfkVal = res.data[0].sfkVal; // 세이프키
     frmMainData.value.vacInfo = res.data[0].vacInfo; // 가상계좌
-    if (!isNull(res.data[0].vacInfo)) {
+    if (!isEmpty(res.data[0].vacInfo)) {
       isVacInfo.value = true;
     }
     frmMainData.value.cntrtAdr = res.data[0].cntrtAdr; // 계약자 주소
@@ -331,16 +416,86 @@ async function fetchDataCustomerBase() {
   }
 }
 
+// 현재 열려있는 탭에서 조회하기
+async function currentTabFetchData() {
+  switch (selectedTab.value) {
+    case 'cstBaseInfo': // 고객기본정보
+      await fetchDataCustomerBase();
+      break;
+    case 'sellInfo': // 판매정보
+      await tabSellInfoRef.value.setDatas(
+        searchParams.value.cntrNo,
+        searchParams.value.cntrSn,
+        props.sellTpCd,
+      );
+      break;
+    case 'dpIz': // 입금내역
+      await tabDpIzRef.value.setDatas(
+        searchParams.value.cntrNo,
+        searchParams.value.cntrSn,
+        props.sellTpCd,
+        props.cntrCstNo,
+      );
+      break;
+    case 'cashRcp': // 현금영수증
+      await tabCashRcpRef.value.setDatas(
+        searchParams.value.cntrNo,
+        searchParams.value.cntrSn,
+      );
+      break;
+    case 'bill': // 계산서
+      await tabBillRef.value.setDatas(
+        searchParams.value.cntrNo,
+        searchParams.value.cntrSn,
+      );
+      break;
+    case 'txinv': // 세금계산서
+      await tabTxinvRef.value.setDatas(
+        searchParams.value.cntrNo,
+        searchParams.value.cntrSn,
+      );
+      break;
+    case 'cttCntn': // 컨택내용
+      await tabCttCntnRef.value.setDatas(
+        searchParams.value.cntrNo,
+        searchParams.value.cntrSn,
+      );
+      break;
+  }
+}
+
 // 상세계약목록 변경 시 Event
 async function onSelectCntrctPdList() {
   const { cntrSn } = frmMainData.value;
   // console.log(cntrSn);
   searchParams.value.cntrSn = cntrSn;
-  await fetchDataCustomerBase();
+  await currentTabFetchData();
+}
+
+// 가상계좌확인서
+async function onClickVtAcCfdc() {
+  await alert('가상계좌확인서 팝업은 개발예정입니다.');
+}
+
+// 문자발송
+async function onClickCharFw() {
+  await alert('문자발송 팝업은 개발예정입니다.');
+}
+
+// 메일발송
+async function onClickEmailSend() {
+  await alert('메일발송 팝업은 개발예정입니다.');
 }
 
 onMounted(async () => {
+  console.log(`sellTpCd : ${props.sellTpCd}`);
+  console.log(`copnDvCd : ${props.copnDvCd}`);
   await fetchDataContractLists();
+});
+
+// 탭 선택이 변경되었는지 감시하기
+watch(() => selectedTab.value, async () => {
+  currentTabFetchData();
 });
 
 // -------------------------------------------------------------------------------------------------

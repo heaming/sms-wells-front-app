@@ -78,6 +78,12 @@
       name="grdNotInstalled"
       @init="initGrid"
     />
+    <kw-pagination
+      v-model:page-index="pageInfo.pageIndex"
+      v-model:page-size="pageInfo.pageSize"
+      :total-count="pageInfo.totalCount"
+      @change="fetchPage"
+    />
   </div>
 </template>
 <script setup>
@@ -127,12 +133,13 @@ const fetchPage = async (pageIndex = pageInfo.value.pageIndex, pageSize = pageIn
 
 async function onClickSearch() {
   cachedParams = { ...toRaw(searchParams) };
+  pageInfo.value.pageIndex = 1;
   await fetchPage(1);
 }
 
 async function onClickExcelUpload() {
   const apiUrl = '/sms/wells/contract/sales-status/sec-product-management/not-installs/excel-upload';
-  const templateId = 'FOM_CTC_0001';
+  const templateId = 'FOM_CTE_0001';
   const { result, payload } = await modal({
     component: 'ZwcmzExcelUploadP',
     componentProps: { apiUrl, templateId },

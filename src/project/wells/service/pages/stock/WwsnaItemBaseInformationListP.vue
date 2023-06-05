@@ -151,7 +151,6 @@ const aplcList = ref();
 const checkField = ref();
 
 const totalCount = ref(0);
-debugger;
 // TODO: 현재 테스트진행중 chk가 2인경우는 출고요청등록에서 들어온경우
 const props = defineProps({
   chk: {
@@ -198,7 +197,6 @@ const searchParams = ref({
 const isRadio = computed(() => props.lpGbYn === 'Y');
 
 async function onClickSelt() {
-  debugger;
   let view;
 
   if (props.chk === '1') {
@@ -242,7 +240,6 @@ async function fetchData() {
 
 async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
-  debugger;
   await fetchData();
 }
 // 기본정보 세팅

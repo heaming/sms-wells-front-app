@@ -173,7 +173,7 @@ async function onClickExcelUpload() {
   const { result, payload } = await modal({
     component: 'ZctzExcelUploadP',
     componentProps: {
-      templateDocId: 'TMP_TEST_TS',
+      templateDocId: 'FOM_CTE_0002',
       columns: {
         // veeValidate 에서 요구하는 형식과 해당 lint 룰과 상충된다.
         // eslint-disable-next-line no-useless-escape
@@ -203,11 +203,12 @@ async function onClickExcelUpload() {
 }
 
 async function onClickExcelDownload() {
-  const exportData = await dataService.get('/sms/wells/contract/sales-status/sec-product-management/confirm-days', { params: cachedParams });
+  if (!cachedParams) { cachedParams = { ...toRaw(searchParams) }; }
+  const response = await dataService.get('/sms/wells/contract/sales-status/sec-product-management/confirm-days', { params: cachedParams });
   await gridUtil.exportView(grdView.value, {
     fileName: router.currentRoute?.value.meta?.menuName,
     timePostfix: true,
-    exportData,
+    exportData: response.data,
   });
 }
 

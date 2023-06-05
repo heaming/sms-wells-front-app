@@ -137,7 +137,11 @@
       <kw-action-top>
         <template #left>
           <kw-paging-info
-            :total-count="totalCount"
+            v-model:page-index="pageInfo.pageIndex"
+            v-model:page-size="pageInfo.pageSize"
+            :total-count="pageInfo.totalCount"
+            :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
+            @change="fetchData"
           />
         </template>
         <!-- 저장 -->
@@ -156,7 +160,7 @@
           dense
           secondary
           :label="$t('MSG_TXT_EXCEL_DOWNLOAD')"
-          :disable="totalCount === 0"
+          :disable="pageInfo.totalCount === 0"
           @click="onClickExcelDownload"
         />
         <kw-separator
@@ -220,8 +224,15 @@
       </ul>
       <kw-grid
         ref="grdMainRef"
-        :total-count="totalCount"
+        :page-size="pageInfo.pageSize"
+        :total-count="pageInfo.totalCount"
         @init="initGrdMain"
+      />
+      <kw-pagination
+        v-model:page-index="pageInfo.pageIndex"
+        v-model:page-size="pageInfo.pageSize"
+        :total-count="pageInfo.totalCount"
+        @change="fetchData"
       />
     </div>
   </kw-page>
@@ -231,7 +242,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, useDataService, getComponentType, defineGrid, useGlobal, gridUtil } from 'kw-lib';
+import { codeUtil, useDataService, getComponentType, defineGrid, useGlobal, gridUtil, useMeta } from 'kw-lib';
 import dayjs from 'dayjs';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import ZwcmWareHouseSearch from '~sms-common/service/components/ZwsnzWareHouseSearch.vue';
@@ -240,6 +251,7 @@ import ZwcmWareHouseSearch from '~sms-common/service/components/ZwsnzWareHouseSe
 const { t } = useI18n();
 const { notify } = useGlobal();
 const { currentRoute } = useRouter();
+const { getConfig } = useMeta();
 const dataService = useDataService();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -247,6 +259,7 @@ const dataService = useDataService();
 const grdMainRef = ref(getComponentType('KwGrid'));
 
 const codes = await codeUtil.getMultiCodes(
+  'COD_PAGE_SIZE_OPTIONS',
   'PD_GD_CD', // 상품등급
   'PD_GRP_CD', // 상품그룹코드
   'ITM_KND_CD', // 품목종류코드
@@ -255,6 +268,12 @@ const codes = await codeUtil.getMultiCodes(
   'RTNGD_PROCS_TP_CD', // 반품처리유형
   'WARE_DV_CD', // 창고구분코드
 );
+
+const pageInfo = ref({
+  totalCount: 0,
+  pageIndex: 1,
+  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
+});
 
 const filterCodes = ref({
   filterPdGdCd: [],
@@ -351,25 +370,24 @@ watch(() => searchParams.value.itmKndCd, (val) => {
 
 let cachedParams;
 
-const totalCount = ref(0);
 const filters = codes.PD_GRP_CD.map((v) => ({ name: v.codeId, criteria: `value = '${v.codeId}'` }));
 function onUpdateProductGroupCode(val) {
   const view = grdMainRef.value.getView();
   view.activateAllColumnFilters('itemGr', false);
 
   if (val === '') {
-    totalCount.value = view.getItemCount();
+    pageInfo.value.totalCount = view.getItemCount();
     return;
   }
 
   view.activateColumnFilters('itemGr', [val], true);
-  totalCount.value = view.getItemCount();
+  pageInfo.value.totalCount = view.getItemCount();
 }
 
 async function fetchData() {
-  const res = await dataService.get('/sms/wells/service/returning-goods-store', { params: cachedParams });
-  const goods = res.data;
-  totalCount.value = goods.length;
+  const res = await dataService.get('/sms/wells/service/returning-goods-store/paging', { params: { ...cachedParams, ...pageInfo.value } });
+  const { list: goods, pageInfo: pagingResult } = res.data;
+  pageInfo.value = pagingResult;
 
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(goods);

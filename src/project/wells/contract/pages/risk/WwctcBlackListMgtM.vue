@@ -24,6 +24,8 @@
           <kw-input
             v-model="searchParams.cntrCstNo"
             icon="search_24"
+            rules="numeric|max:10"
+            :label="$t('MSG_TXT_CST_NO')"
             @click-icon="onClickSearchCst"
           />
         </kw-search-item>
@@ -42,12 +44,12 @@
         <kw-search-item :label="$t('MSG_TXT_ADD_PST_CD')">
           <kw-select
             v-model="searchParams.adrCl"
-            first-option="all"
             class="w103"
             :options="codes.ADR_CL"
           />
           <kw-input
             v-model="searchParams.adr"
+            :placeholder="$t('MSG_TXT_DEFAULT_PLACEHOLDER')"
           />
         </kw-search-item>
         <kw-search-item :label="$t('MSG_TXT_MPNO')">
@@ -56,10 +58,18 @@
             v-model:tel-no1="searchParams.mexnoEncr"
             v-model:tel-no2="searchParams.cralIdvTno"
             mask="telephone"
+            :placeholder="$t('MSG_TXT_REPSN_DGT4_WO_NO_IN')"
           />
         </kw-search-item>
-        <kw-search-item :label="$t('MSG_TXT_PRTNR')">
-          <kw-input v-model="searchParams.prtnrInfo" />
+        <kw-search-item :label="$t('MSG_TXT_PRTNR_EMP_NO')">
+          <kw-input
+            v-model="searchParams.prtnrInfo"
+            icon="search"
+            clearable
+            :label="$t('MSG_TXT_PRTNR_EMP_NO')"
+            rules="numeric|max:10"
+            @click-icon="onClickOpenPartnerListPopup"
+          />
         </kw-search-item>
       </kw-search-row>
     </kw-search>
@@ -147,7 +157,7 @@ const searchParams = ref({
   cntrCstNo: '',
   cntrNo: '',
   cstKnm: '',
-  adrCl: '',
+  adrCl: 1,
   adr: '',
   cralLocaraTno: '',
   mexnoEncr: '',
@@ -174,7 +184,20 @@ async function onClickSearchCst() {
     component: 'ZwcsaCustomerListP',
   });
   if (result) {
-    searchParams.cntrCstNo(payload.cstNo);
+    searchParams.value.cntrCstNo = payload.cstNo;
+  }
+}
+
+// 파트너 조회 팝업
+async function onClickOpenPartnerListPopup() {
+  const { result, payload } = await modal({
+    component: 'ZwogzPartnerListP',
+    componentProps: {
+      prtnrNo: searchParams.value.prtnrInfo,
+    },
+  });
+  if (result) {
+    searchParams.value.prtnrInfo = payload.prtnrNo;
   }
 }
 
@@ -234,6 +257,8 @@ async function onClickDelete() {
 
   if (deleteKeys.length) {
     await dataService.delete('/sms/wells/contract/sales-limits/blacklists', { data: deleteKeys });
+
+    notify(t('MSG_ALT_DELETED'));
     await fetchData();
   }
 }

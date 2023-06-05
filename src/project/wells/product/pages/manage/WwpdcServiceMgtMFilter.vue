@@ -41,7 +41,7 @@
     <kw-btn
       grid-action
       dense
-      :disable="!currentPdCd || grdRowCount === 0"
+      :disable="grdRowCount === 0"
       :label="$t('MSG_BTN_DEL')"
       @click="onClickRemoveRows"
     />
@@ -257,7 +257,7 @@ async function initGridRows() {
   const products = cloneDeep(currentInitData.value?.[pdConst.RELATION_PRODUCTS]);
   // console.log('WwpdcServiceMgtMFlt - initGridRows - products : ', products);
   const materialView = grdMainRef.value?.getView();
-  if (materialView) {
+  if (products && materialView) {
     const materialRows = products.filter((item) => item[pdConst.PD_REL_TP_CD] === pdConst.PD_REL_TP_CD_PD_TO_FL);
     await setPdGridRows(materialView, materialRows, pdConst.REL_PD_ID, [], true);
     grdRowCount.value = getGridRowCount(materialView);

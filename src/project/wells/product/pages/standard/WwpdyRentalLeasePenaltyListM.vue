@@ -20,23 +20,28 @@
         <!-- 상품분류 -->
         <kw-search-item
           :label="$t('MSG_TXT_PRDT_CATE')"
+          :colspan="2"
         >
           <zwpd-product-classification-select
-            ref="classfySelRef"
             v-model:product1-level="searchParams.prdtCateHigh"
             v-model:product2-level="searchParams.prdtCateMid"
-            :pd-tp-cd="pdConst.PD_TP_CD_SERVICE"
-            search-lvl="2"
+            v-model:product3-level="searchParams.prdtCateLow"
+            v-model:product4-level="searchParams.prdtCateLowDtl"
+            v-model:pd-tp-cd="searchParams.pdTpCd"
+            :search-lvl="prdtCateLevel"
             first-option="all"
+            :is-show-keyword="false"
           />
         </kw-search-item>
-        <!-- 상품명 -->
-        <kw-search-item :label="$t('MSG_TXT_PRDT_NM')">
-          <kw-input
-            v-model="searchParams.pdNm"
-            maxlength="100"
+        <!-- 적용기간 -->
+        <kw-search-item :label="$t('MSG_TXT_ACEPT_PERIOD')">
+          <kw-date-range-picker
+            v-model:from="searchParams.svcStartDt"
+            v-model:to="searchParams.svcEndDt"
           />
         </kw-search-item>
+      </kw-search-row>
+      <kw-search-row>
         <!-- 상품코드 -->
         <kw-search-item :label="$t('MSG_TXT_PRDT_CODE')">
           <kw-input
@@ -47,15 +52,12 @@
             @click-icon="onClickSearchPdCdPopup()"
           />
         </kw-search-item>
-      </kw-search-row>
-      <kw-search-row>
-        <!-- 적용기간 -->
-        <kw-search-item :label="$t('MSG_TXT_ACEPT_PERIOD')">
-          <kw-date-range-picker
-            v-model:from="searchParams.svcStartDt"
-            v-model:to="searchParams.svcEndDt"
+        <!-- 상품명 -->
+        <kw-search-item :label="$t('MSG_TXT_PRDT_NM')">
+          <kw-input
+            v-model="searchParams.pdNm"
+            maxlength="100"
           />
-          <!-- rules="date_range_months:1" -->
         </kw-search-item>
       </kw-search-row>
     </kw-search>
@@ -152,18 +154,20 @@ const { getConfig } = useMeta();
 // -------------------------------------------------------------------------------------------------
 const now = dayjs();
 const grdMainRef = ref(getComponentType('KwGrid'));
-const classfySelRef = ref();
 const currentSearchYn = ref();
 
 let cachedParams;
 const searchParams = ref({
   prdtCateHigh: '',
   prdtCateMid: '',
+  prdtCateLow: '',
+  prdtCateLowDtl: '',
   pdNm: '',
   pdCd: '',
   svcStartDt: '',
   svcEndDt: now.format('YYYYMMDD'),
 });
+const searchedProduct = ref();
 
 const pageInfo = ref({
   totalCount: 0,
@@ -189,10 +193,11 @@ async function onClickSearchPdCdPopup() {
     selectType: pdConst.PD_SEARCH_SINGLE,
   };
   const rtn = await modal({
-    component: 'ZwpdcServiceListP',
+    component: 'ZwpdcStandardListP',
     componentProps: searchPopupParams,
   });
   searchParams.value.pdCd = rtn.payload?.[0]?.pdCd;
+  searchedProduct.value = rtn.payload?.[0];
 }
 
 async function onClickSearch() {
@@ -217,7 +222,12 @@ async function onClickRemoveRows() {
 
 async function onClickAdd() {
   const view = grdMainRef.value.getView();
+  if (searchedProduct.value?.pdCd && searchedProduct.value.pdCd !== searchParams.value.pdCd) {
+    searchedProduct.value = null;
+  }
   await gridUtil.insertRowAndFocus(view, 0, {
+    pdCd: searchedProduct.value?.pdCd,
+    pdNm: searchedProduct.value?.pdNm,
     vlEndDtm: '9999-12-31',
   });
 }
@@ -369,7 +379,7 @@ const initGrdMain = defineGrid((data, view) => {
     if (column === 'pdNm') {
       const svPdNm = grid.getValue(itemIndex, 'pdNm');
       const { payload } = await modal({
-        component: 'ZwpdcServiceListP',
+        component: 'ZwpdcStandardListP',
         componentProps: { searchType: pdConst.PD_SEARCH_NAME, searchValue: svPdNm },
       });
       if (payload) {

@@ -3,13 +3,13 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : [CTA] 통합계약서 작성 Step2
-2. 프로그램 ID : EwctaContractRegistrationMgtMStep2
+2. 프로그램 ID : WwctaContractRegistrationMgtMStep2
 3. 작성자 : gs.piit159
-4. 작성일 : 2023.04.05
+4. 작성일 : 2023.05.20
 ****************************************************************************************************
 * 프로그램 설명
 ****************************************************************************************************
-- 통합계약서 작성 Step1
+- 통합계약서 작성 Step2
 ****************************************************************************************************
 --->
 <template>
@@ -58,7 +58,7 @@
         >
           <kw-expansion-item
             v-for="clsf in classfiedPds"
-            :key="`product-type-${clsf.clsfId}`"
+            :key="`product-type-${clsf.pdClsfId}`"
             padding-target="header"
             expansion-icon-align="center"
             expand-icon="arrow_down"
@@ -66,14 +66,14 @@
             <template #header>
               <kw-item-section>
                 <kw-item-label font="body">
-                  {{ clsf.label }}
+                  {{ clsf.pdClsfNm }}
                 </kw-item-label>
               </kw-item-section>
             </template>
             <kw-list
               class="scoped-product-picker-list"
               item-class="scoped-product-picker-list__item"
-              :items="clsf.items"
+              :items="clsf.products"
             >
               <template #item="{item}">
                 <kw-item-section>
@@ -165,13 +165,13 @@
                   </kw-item-label>
                   <div class="scoped-item__chips">
                     <kw-chip
-                      v-if="!isEmpty(item.pdChip1)"
+                      v-if="item.pdChip1"
                       :label="item.pdChip1"
                       color="primary"
                       outline
                     />
                     <kw-chip
-                      v-if="!isEmpty(item.pdChip2)"
+                      v-if="item.pdChip2"
                       :label="item.pdChip2"
                       color="primary"
                       outline
@@ -224,19 +224,21 @@
                   >
                     <div class="scoped-item__field-row mb10">
                       <kw-select
+                        v-if="item.sellDscDvCds"
                         v-model="item.sellDscDvCd"
                         :options="item.sellDscDvCds"
                         placeholder="할인구분"
                         @change="getPdAmts(item)"
                       />
                       <kw-select
+                        v-if="item.frisuBfsvcPtrmNs"
                         v-model="item.frisuBfsvcPtrmN"
                         :options="item.frisuBfsvcPtrmNs"
                         placeholder="무상멤버십기간"
                         @change="getPdAmts(item)"
                       />
                       <kw-select
-                        v-if="item.svPdCds.length > 0"
+                        v-if="item.svPdCds"
                         v-model="item.svPdCd"
                         :options="item.svPdCds"
                         placeholder="서비스(용도/방문주기)"
@@ -275,18 +277,21 @@
                   >
                     <div class="scoped-item__field-row mb10">
                       <kw-select
+                        v-if="item.stplPtrms"
                         v-model="item.stplPtrm"
                         :options="item.stplPtrms"
                         placeholder="약정기간"
                         @change="getPdAmts(item)"
                       />
                       <kw-select
+                        v-if="item.cntrPtrms"
                         v-model="item.cntrPtrm"
                         :options="item.cntrPtrms"
                         placeholder="계약기간"
                         @change="getPdAmts(item)"
                       />
                       <kw-select
+                        v-if="item.rgstCss"
                         v-model="item.cntrAmt"
                         :options="item.rgstCss"
                         placeholder="등록비"
@@ -295,18 +300,21 @@
                     </div>
                     <div class="scoped-item__field-row mb10">
                       <kw-select
+                        v-if="item.sellDscTpCds"
                         v-model="item.sellDscTpCd"
                         :options="item.sellDscTpCds"
                         placeholder="렌탈할인유형"
                         @change="getPdAmts(item)"
                       />
                       <kw-select
+                        v-if="item.sellDscDvCds"
                         v-model="item.sellDscDvCd"
                         :options="item.sellDscDvCds"
                         placeholder="렌탈할인구분"
                         @change="getPdAmts(item)"
                       />
                       <kw-select
+                        v-if="item.svPdCds"
                         v-model="item.svPdCd"
                         :options="item.svPdCds"
                         placeholder="서비스(용도/방문주기)"
@@ -339,6 +347,7 @@
                           placeholder="법인추가할인"
                         />
                         <kw-select
+                          v-if="item.sellDscrCds"
                           v-model="item.sellDscrCd"
                           :options="item.sellDscrCds"
                           placeholder="렌탈법인할인율"
@@ -360,33 +369,21 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, stringUtil, useDataService, useGlobal } from 'kw-lib';
+import { stringUtil, useDataService, useGlobal } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 
 const { t } = useI18n();
-const { getters } = useStore();
-const { employeeIDNumber: prtnrNo, ogTpCd, careerLevelCode } = getters['meta/getUserInfo'];
 const dataService = useDataService();
 const { notify } = useGlobal();
 
 const props = defineProps({
   contract: { type: String, required: true },
+  onChildMounted: { type: Function, required: true },
 });
-const { step2 } = toRefs(props.contract);
+const { cntrNo: pCntrNo, step2 } = toRefs(props.contract);
 const ogStep2 = ref({});
 const pdFilter = ref('');
-const pdClsf = ref([]);
-const products = shallowRef([]);
-const classfiedPds = computed(() => pdClsf.value.map((clsf) => ({
-  clsfId: clsf.pdClsfId,
-  label: clsf.pdClsfNm,
-  items: products.value.filter((item) => item.pdClsf === clsf.pdClsfId),
-})).filter((p) => p.items.length > 0));
-const codes = await codeUtil.getMultiCodes(
-  'CNTR_TP_CD',
-  'CNTR_CST_REL_TP_CD',
-  'SEX_DV_CD',
-);
+const classfiedPds = ref([]);
 const isItem = {
   spay: (i) => i.sellTpCd === '1',
   rntl: (i) => i.sellTpCd === '2',
@@ -395,15 +392,12 @@ const isItem = {
   welsf: (i) => i.lclsfVal === '05001003',
   hcf: (i) => i.lclsfVal === '01003001',
 };
-console.log(prtnrNo + ogTpCd + careerLevelCode + t + codes);
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 async function getProducts(cntrNo) {
   const pds = await dataService.get('sms/wells/contract/contracts/reg-products', { params: { cntrNo, pdFilter: pdFilter.value } });
-  pdClsf.value = pds.data.pdClsf;
-  products.value = pds.data.products;
-  console.log(classfiedPds.value);
+  classfiedPds.value = pds.data.pdClsf;
 }
 
 async function getPdAmts(pd) {
@@ -454,7 +448,6 @@ function resetCntrSn() {
 }
 
 async function onClickProduct(pd) {
-  pd.pdClsfNm = pdClsf.value.find((clsf) => clsf.pdClsfId === pd.pdClsf)?.pdClsfNm;
   const npd = cloneDeep(pd);
   const sels = await getPdSels(pd);
   ['svPdCds', 'sellDscrCds', 'sellDscDvCds', 'alncmpCntrDrmVals',
@@ -475,6 +468,16 @@ function onClickDelete(pd) {
 async function getCntrInfo(cntrNo) {
   const cntr = await dataService.get('sms/wells/contract/contracts/cntr-info', { params: { cntrNo, step: 2 } });
   step2.value = cntr.data.step2;
+  step2.value.dtls.forEach((dtl) => {
+    ['svPdCd', 'sellDscrCd', 'sellDscDvCd', 'alncmpCntrDrmVal',
+      'frisuBfsvcPtrmN', // 일시불
+      'stplPtrm', 'cntrPtrm', 'cntrAmt', 'sellDscTpCd', // 렌탈
+    ].forEach((col) => {
+      // codeId는 모두 String이므로 불러온 값이 자동으로 세팅되도록 number값을 string으로 변환(또는 v-model을 String casting)
+      if (Number.isInteger(dtl[col])) dtl[col] = String(dtl[col]);
+    });
+  });
+  pCntrNo.value = step2.value.bas.cntrNo;
   console.log(step2.value);
   ogStep2.value = cloneDeep(step2.value);
 }
@@ -485,7 +488,7 @@ async function isChangedStep() {
 
 async function isValidStep() {
   if (isEmpty(step2.value.dtls)) {
-    console.log('상품을 선택해주세요.');
+    await alert('상품을 선택해주세요.');
     return false;
   }
   return true;
@@ -503,6 +506,9 @@ defineExpose({
   isValidStep,
   saveStep,
   getProducts,
+});
+onMounted(async () => {
+  props.onChildMounted(2);
 });
 </script>
 

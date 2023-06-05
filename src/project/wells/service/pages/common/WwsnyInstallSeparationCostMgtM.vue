@@ -275,7 +275,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'sepIstCsDtlCd' },
     { fieldName: 'apyStrtdt' },
     { fieldName: 'apyEnddt' },
-    { fieldName: 'wkCsAmt' },
+    { fieldName: 'wkCsAmt', dataType: 'number' },
     { fieldName: 'recapSvYn' },
     { fieldName: 'rmkCn' },
     { fieldName: 'izSn' },
@@ -341,12 +341,14 @@ const initGrdMain = defineGrid((data, view) => {
       editor: { type: 'btdate' },
       styleName: 'text-center',
       rules: 'required',
+      datetimeFormat: 'date',
     }, // 적용시작일
     { fieldName: 'apyEnddt',
       header: t('MSG_TXT_APY_END_DAY'),
       width: '150',
       styleName: 'text-center',
       editable: false,
+      datetimeFormat: 'date',
     }, // 적용종료일
     {
       fieldName: 'wkCsAmt',
@@ -361,6 +363,7 @@ const initGrdMain = defineGrid((data, view) => {
       },
       styleName: 'text-right',
       rules: 'required',
+      numberFormat: '#,##0',
     }, // 단가(원)
     {
       fieldName: 'recapSvYn',

@@ -113,7 +113,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { defineGrid, useMeta, codeUtil, getComponentType, useDataService, useGlobal, gridUtil } from 'kw-lib';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 
 const { t } = useI18n();
@@ -218,11 +218,71 @@ const initGrdSub = defineGrid((data, view) => {
     { fieldName: 'bldCd', visible: false }, // 빌딩 // CD
     { fieldName: 'bldNm', header: t('MSG_TXT_BUILDING'), width: '200', styleName: 'text-left' }, // 빌딩 //NM
     { fieldName: 'aplcDt', header: t('MSG_TXT_APPL_DATE'), width: '200', styleName: 'text-center', dataType: 'date', datetimeFormat: 'datetime' }, // 신청일
-    { fieldName: 'aplcnsNm', header: t('MSG_TXT_APPL_DATE'), width: '200', styleName: 'text-center' }, // 신청자
-    { fieldName: 'cntrwApnFileId', header: t('MSG_TXT_CNTRW'), width: '200', styleName: 'text-center', renderer: { type: 'button', hideWhenEmpty: false }, displayCallback: () => t('MSG_BTN_CLINR_MNGT_BRWS') }, // 계약서
-    { fieldName: 'cntrLroreApnFileId', header: t('MSG_TXT_A_CON_TERM_AGE'), width: '200', styleName: 'text-center', renderer: { type: 'button', hideWhenEmpty: false }, displayCallback: () => t('MSG_BTN_CLINR_MNGT_BRWS') }, // 계약해지원
-    { fieldName: 'idfApnFileId', header: t('MSG_TXT_IDF_CY'), width: '200', styleName: 'text-center', renderer: { type: 'button', hideWhenEmpty: false }, displayCallback: () => t('MSG_BTN_CLINR_MNGT_BRWS') }, // 신분증사본
-    { fieldName: 'bnkbApnFileId', header: t('MSG_TXT_IDF_CY'), width: '200', styleName: 'text-center', renderer: { type: 'button', hideWhenEmpty: false }, displayCallback: () => t('MSG_BTN_CLINR_MNGT_BRWS') }, // 통장사본
+    { fieldName: 'aplcnsNm', header: t('MSG_TXT_APPL_USER'), width: '200', styleName: 'text-center' }, // 신청자
+    { fieldName: 'cntrwApnFileId',
+      header: t('MSG_TXT_CNTRW'),
+      width: '200',
+      styleName: 'text-center',
+      renderer: { type: 'button', hideWhenEmpty: false },
+      dataType: 'file',
+      editor: {
+        type: 'file',
+        attachDocumentId: 'cntrwApnFileId',
+        attachGroupId: 'ATG_DCD_CLING_COST',
+        downloadable: true,
+        multiple: true,
+        editable: true,
+        readonly: true,
+      },
+      displayCallback: () => t('MSG_BTN_CLINR_MNGT_BRWS') }, // 계약서
+    { fieldName: 'cntrLroreApnFileId',
+      header: t('MSG_TXT_A_CON_TERM_AGE'),
+      width: '200',
+      styleName: 'text-center',
+      renderer: { type: 'button', hideWhenEmpty: false },
+      dataType: 'file',
+      editor: {
+        type: 'file',
+        attachDocumentId: 'cntrLroreApnFileId',
+        attachGroupId: 'ATG_DCD_CLING_COST',
+        downloadable: true,
+        multiple: true,
+        editable: true,
+        readonly: true,
+      },
+      displayCallback: () => t('MSG_BTN_CLINR_MNGT_BRWS') }, // 계약해지원
+    { fieldName: 'idfApnFileId',
+      header: t('MSG_TXT_IDF_CY'),
+      width: '200',
+      styleName: 'text-center',
+      renderer: { type: 'button', hideWhenEmpty: false },
+      dataType: 'file',
+      editor: {
+        type: 'file',
+        attachDocumentId: 'idfApnFileId',
+        attachGroupId: 'ATG_DCD_CLING_COST',
+        downloadable: true,
+        multiple: true,
+        editable: true,
+        readonly: true,
+      },
+      displayCallback: () => t('MSG_BTN_CLINR_MNGT_BRWS') }, // 신분증사본
+    { fieldName: 'bnkbApnFileId',
+      header: t('MSG_TXT_BNKB_CY'),
+      width: '200',
+      styleName: 'text-center',
+      renderer: { type: 'button', hideWhenEmpty: false },
+      dataType: 'file',
+      editor: {
+        type: 'file',
+        attachDocumentId: 'bnkbApnFileId',
+        attachGroupId: 'ATG_DCD_CLING_COST',
+        downloadable: true,
+        multiple: true,
+        editable: true,
+        readonly: true,
+      },
+      displayCallback: () => t('MSG_BTN_CLINR_MNGT_BRWS') }, // 통장사본
     { fieldName: 'fmnCoSpptAmt', header: t('MSG_TXT_CO_SUFD_MM'), width: '182', styleName: 'text-center', dataType: 'number' }, // 회사지원금(월)
     { fieldName: 'clinrFxnAmt', header: t('MSG_TXT_FXN_AMT_MM'), width: '182', styleName: 'text-center', dataType: 'number' }, // 고정금(월)
     { fieldName: 'taxDdctam', header: t('MSG_TXT_TAX_DDTN_WON'), width: '182', styleName: 'text-right', dataType: 'number' }, // 세금공제(원)
@@ -270,6 +330,27 @@ const initGrdSub = defineGrid((data, view) => {
       }
     }
   };
+
+  const f1 = function (grid, model) {
+    if (isEmpty(model.value.__atthDocumentId)) {
+      return {
+        styleName: 'custom-negative-cell',
+        renderer: {
+          type: 'text',
+        },
+      };
+    }
+  };
+
+  const cntrwApnFileIdColumn = view.columnByName('cntrwApnFileId');
+  const cntrLroreApnFileIdColumn = view.columnByName('cntrLroreApnFileId');
+  const idfApnFileIdColumn = view.columnByName('idfApnFileId');
+  const bnkbApnFileIdColumn = view.columnByName('bnkbApnFileId');
+
+  cntrwApnFileIdColumn.styleCallback = f1;
+  cntrLroreApnFileIdColumn.styleCallback = f1;
+  idfApnFileIdColumn.styleCallback = f1;
+  bnkbApnFileIdColumn.styleCallback = f1;
 });
 
 </script>

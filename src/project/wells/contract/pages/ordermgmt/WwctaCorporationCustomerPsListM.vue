@@ -139,6 +139,7 @@
         >
           <kw-input
             v-model="searchParams.pdNm"
+            :maxlength="100"
           />
         </kw-search-item>
         <kw-search-item
@@ -208,6 +209,7 @@
         >
           <kw-input
             v-model="searchParams.dlpnrItemNm"
+            :maxlength="50"
           />
         </kw-search-item>
         <kw-search-item
@@ -215,6 +217,7 @@
         >
           <kw-input
             v-model="searchParams.dlpnrBzclNm"
+            :maxlength="50"
           />
         </kw-search-item>
       </kw-search-row>
@@ -271,9 +274,8 @@ import pdConst from '~sms-common/product/constants/pdConst';
 const dataService = useDataService();
 const { currentRoute } = useRouter();
 const { notify, modal } = useGlobal();
-const { getConfig, getUserInfo } = useMeta();
+const { getConfig } = useMeta();
 const { t } = useI18n();
-const userInfo = getUserInfo();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -403,12 +405,11 @@ async function onClickSearchPrtnrNoPopup() {
   const { result, payload } = await modal({
     component: 'ZwogzPartnerListP',
     componentProps: {
-      prtnrNo: searchParams.value.pntnrNo,
-      ogTpCd: userInfo.ogTpCd,
+      prtnrNo: searchParams.value.prtnrNo,
     },
   });
   if (result) {
-    searchParams.value.pntnrNo = payload.prtnrNo;
+    searchParams.value.prtnrNo = payload.prtnrNo;
   }
 }
 

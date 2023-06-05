@@ -104,8 +104,8 @@
     <kw-action-top>
       <template #left>
         <kw-paging-info
-          v-model.trim:page-index="pageInfo.pageIndex"
-          v-model.trim:page-size="pageInfo.pageSize"
+          v-model:page-index="pageInfo.pageIndex"
+          v-model:page-size="pageInfo.pageSize"
           :total-count="pageInfo.totalCount"
           :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
           @change="fetchData"
@@ -121,8 +121,8 @@
     />
 
     <kw-pagination
-      v-model.trim:page-index="pageInfo.pageIndex"
-      v-model.trim:page-size="pageInfo.pageSize"
+      v-model:page-index="pageInfo.pageIndex"
+      v-model:page-size="pageInfo.pageSize"
       :total-count="pageInfo.totalCount"
       @change="fetchData"
     />

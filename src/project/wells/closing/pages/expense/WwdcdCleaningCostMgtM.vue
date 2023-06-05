@@ -138,7 +138,6 @@ import { defineGrid, useMeta, codeUtil, getComponentType, useDataService, useGlo
 import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 import { openReportPopup } from '~common/utils/cmPopupUtil';
-import ZwcmFileAttacher from '~common/components/ZwcmFileAttacher.vue';
 import WwdcdCleaningCostMgtMCleaner from './WwdcdCleaningCostMgtMCleaner.vue';
 
 const selectedTab = ref('manageCleaningSuppliesCostsList');
@@ -148,6 +147,7 @@ const { modal, notify, ok } = useGlobal();
 const { getConfig } = useMeta();
 const dataService = useDataService();
 const { currentRoute } = useRouter();
+
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -232,7 +232,11 @@ async function onClickExcelDownload() {
 
 async function onClickOpenReport() {
   // TODO. 오즈 개발완료되면 수정할 예정
-  openReportPopup('/eformsample.ozr', '/eformsample.odi');
+  openReportPopup(
+    '/ksswells/ord/er/V4.90/contractL23.ozr',
+    '/ksswells/ord/er/V4.90/contractL23',
+    { wpnSeq: '202206671335' },
+  );
 }
 
 // -------------------------------------------------------------------------------------------------
@@ -252,9 +256,15 @@ const initGrdMain = defineGrid((data, view) => {
       header: t('MSG_TXT_SRCP_APN'),
       width: '121',
       styleName: 'text-right',
-      renderer: {
-        type: 'button',
-        hideWhenEmpty: false,
+      dataType: 'file',
+      editor: {
+        type: 'file',
+        attachDocumentId: 'clingCostSrcpApnFileId',
+        attachGroupId: 'ATG_DCD_CLING_COST',
+        downloadable: true,
+        multiple: true,
+        editable: true,
+        readonly: true,
       },
       displayCallback: () => t('MSG_BTN_CLINR_MNGT_BRWS'),
     }, // 영수증첨부
@@ -268,13 +278,6 @@ const initGrdMain = defineGrid((data, view) => {
 
   view.checkBar.visible = true;
   view.rowIndicator.visible = true;
-
-  view.onCellItemClicked = async (grid, { itemIndex }) => {
-    // TODO. 그리드에서 업로드한 파일 다운로드 기능이 없음...
-    const { clingCostSrcpApnFileId } = grid.getValues(itemIndex);
-    if (isEmpty(clingCostSrcpApnFileId)) { return; }
-    ZwcmFileAttacher.props.downloadable(clingCostSrcpApnFileId);
-  };
 
   view.onCellClicked = async (grid, { column, itemIndex }) => {
     if (column === 'clingCostSrcpApnFileId') { return; }
@@ -292,6 +295,20 @@ const initGrdMain = defineGrid((data, view) => {
       }
     }
   };
+
+  const f1 = function (grid, model) {
+    if (isEmpty(model.value.__atthDocumentId)) {
+      return {
+        styleName: 'custom-negative-cell',
+        renderer: {
+          type: 'text',
+        },
+      };
+    }
+  };
+
+  const column = view.columnByName('clingCostSrcpApnFileId');
+  column.styleCallback = f1;
 });
 
 onMounted(async () => {

@@ -3,7 +3,7 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : CTA
-2. 프로그램 ID : WwctaSelfConversionContractListM -
+2. 프로그램 ID : WwctaSelfConversionContractListM - 만료/자가 전환 조회
 3. 작성자 : SAVEMEGOAT
 4. 작성일 : 2023-04-02
 ****************************************************************************************************
@@ -15,11 +15,10 @@
 <template>
   <kw-page>
     <kw-search
-      :cols="0"
       @search="onClickSearch"
       @reset="onReset"
     >
-      <kw-search-row>
+      <kw-search-row :cols="2">
         <kw-search-item
           :label="$t('MSG_TXT_PRD_ENQRY')/* 기간조회 */"
           required
@@ -68,7 +67,7 @@
           />
         </kw-search-item>
       </kw-search-row>
-      <kw-search-row>
+      <kw-search-row :cols="4">
         <kw-search-item
           :label="$t('MSG_TXT_PRDT_CODE')/* 상품코드 */"
         >
@@ -88,12 +87,28 @@
         <kw-search-item
           v-model="searchParams.pdNm"
           :label="$t('MSG_TXT_OG_CD')/* 조직코드 */"
+          :colspan="2"
         >
           <kw-input
-            v-model="searchParams.ogCd"
+            v-model="searchParams.strtOgCd"
+            maxlength="10"
+            upper-case
+            :rules="{'required': !!searchParams.endOgCd}"
+            :custom-messages="{'required': $t('MSG_ALT_CHK_NCSR', [$t('MSG_TXT_OG_CD')])}"
+            :label="$t('MSG_TXT_OG_CD')/* 조직코드 */"
+          />
+          <span>~</span>
+          <kw-input
+            v-model="searchParams.endOgCd"
+            maxlength="10"
+            upper-case
+            :rules="{'required': !!searchParams.strtOgCd}"
+            :custom-messages="{'required': $t('MSG_ALT_CHK_NCSR', [$t('MSG_TXT_OG_CD')])}"
             :label="$t('MSG_TXT_OG_CD')/* 조직코드 */"
           />
         </kw-search-item>
+      </kw-search-row>
+      <kw-search-row :cols="4">
         <kw-search-item
           :label="$t('MSG_TXT_INDI_CORP')/* 개인/법인 */"
         >
@@ -222,7 +237,8 @@ const searchParams = reactive({
   pdHclsfId: '',
   pdMclsfId: '',
   pdNm: '',
-  ogCd: '',
+  strtOgCd: '',
+  endOgCd: '',
   copnDvCd: '',
 });
 
@@ -407,7 +423,7 @@ const initGrd = defineGrid((data, view) => {
       label: `${t('MSG_TXT_RTLFE')}(${t('MSG_TXT_MPY_ING')})` /* 렌탈료(납부중인) */,
       width: 130,
     },
-    recapDutyPtrmN: {
+    stplPtrm: {
       type: Number,
       label: t('MSG_TXT_LCK_IN_PRD_MN') /* 의무사용기간' */,
       width: 184,

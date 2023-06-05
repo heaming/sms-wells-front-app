@@ -82,6 +82,7 @@
             v-model="regMainData.pdSellAmt"
             :label="t('MSG_TXT_UPRC_TAM')"
             rules="required|max:20"
+            type="number"
             maxlength="20"
           />
         </kw-form-item>
@@ -171,19 +172,19 @@ const props = defineProps({
 });
 
 const userInfo = getters['meta/getUserInfo'];
-const { userId, userName } = userInfo;
+const { employeeIDNumber, userName } = userInfo;
 
 const regMainData = ref({
   bildcPblNo: '',
   bildcPblSn: '',
   cstFnm: '', // 고객명
   bildcWrteDt: now.format('YYYYMMDD'), // 작성일자
-  sellPrtnrNo: userId, // 이건 나중에 사번으로 바꿔야함
+  sellPrtnrNo: employeeIDNumber, // 이건 나중에 사번으로 바꿔야함
   sellPrtnrNm: userName,
   state: '',
   rowState: '',
   pdNm: '', // 상품명
-  pdQty: '', // 수량
+  pdQty: 0, // 수량
   pdSellAmt: '', // 단가(총액)
   rmkCn: '', // 비고
 });
@@ -205,7 +206,7 @@ async function onClickSearchUser() {
 async function onClickBefore() {
   await router.push(
     {
-      path: '/ns/wtwdb-billing-document-mgt',
+      path: '/withdrawal/wtwdb-billing-document-mgt',
       query: {
         searchCstFnm: props.searchCstFnm, // 조회조건
         searchBildcWrteDt: props.searchBildcWrteDt, // 조회조건
@@ -234,9 +235,10 @@ let cachedParams;
 
 // 저장 버튼
 async function onClickSave() {
-  if (!await confirm(t('MSG_ALT_IS_SAV_DATA'))) { return; }
-  if (await pageRef.value.alertIfIsNotModified()) { return; }
   if (!await pageRef.value.validate()) { return; }
+  if (await pageRef.value.alertIfIsNotModified()) { return; }
+
+  if (!await confirm(t('MSG_ALT_IS_SAV_DATA'))) { return; }
 
   const mainData = cloneDeep(regMainData.value);
   cachedParams = {
@@ -250,7 +252,8 @@ async function onClickSave() {
 
   notify(t('MSG_ALT_SAVE_DATA'));
   regMainData.value.isSearchChk = true;
-  await fetchData();
+  // await fetchData();
+  await onClickBefore();
 }
 
 async function initProps() {

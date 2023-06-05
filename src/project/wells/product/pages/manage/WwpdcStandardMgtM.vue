@@ -227,15 +227,6 @@ const codes = await codeUtil.getMultiCodes(
   'MSH_SELL_DTL_TP_CD', // 멤버십 판매상세유형 : 판매유형 - 3
 );
 
-async function onClickDelete() {
-  if (await confirm(t('MSG_ALT_WANT_DEL_WCC'))) {
-    await dataService.delete(`/sms/wells/product/standards/${currentPdCd.value}`);
-    await obsMainRef.value.reset();
-    await router.close();
-    await router.push({ path: '/product/zwpdc-sale-product-list', query: { searchYn: 'Y' } });
-  }
-}
-
 async function getSaveData() {
   const subList = { isModifiedProp: false, isOnlyFileModified: false, isModifiedPrice: false };
   await Promise.all(cmpStepRefs.value.map(async (item, idx) => {
@@ -308,13 +299,34 @@ async function getSaveData() {
   return subList;
 }
 
+async function onClickDelete() {
+  if (await confirm(t('MSG_ALT_WANT_DEL_WCC'))) {
+    await dataService.delete(`/sms/wells/product/standards/${currentPdCd.value}`);
+    await obsMainRef.value.reset();
+    await router.close();
+    await router.push({ path: '/product/zwpdc-sale-product-list', query: { searchYn: 'Y' } });
+  }
+}
+
+// 화면이동
+async function moveStepByIndex(stepIndex) {
+  prevStepData.value = await getSaveData();
+  currentStep.value = cloneDeep(regSteps.value[stepIndex]);
+}
+
+// 화면이동 - 스텝명
+async function moveStepByName(stepName) {
+  prevStepData.value = await getSaveData();
+  currentStep.value = cloneDeep(regSteps.value.find((item) => item.name === stepName));
+}
+
 // 다음 버튼
 async function onClickNextStep() {
   const currentStepIndex = currentStep.value.step - 1;
   // 현재 Step 필수여부 확인
   const currentStepRef = await cmpStepRefs.value[currentStepIndex].value;
   if (isEmpty(currentStepRef)) {
-    currentStep.value = cloneDeep(regSteps.value[currentStepIndex + 1]);
+    await moveStepByIndex(currentStepIndex + 1);
     return;
   }
   // 가격의 경우 별도 Step
@@ -326,8 +338,8 @@ async function onClickNextStep() {
   }
 
   // 다음 이동
-  prevStepData.value = await getSaveData();
   // Child 페이지 내에서 다음 스텝이 없으면(false), 현재 페이지에서 다음으로 진행
+  prevStepData.value = await getSaveData();
   const isMovedInnerStep = currentStepRef?.moveNextStep ? await currentStepRef?.moveNextStep() : false;
   if (!isMovedInnerStep) {
     const nextStepRef = cmpStepRefs.value[currentStepIndex + 1]?.value;
@@ -342,9 +354,9 @@ async function onClickNextStep() {
 // 이전 버튼
 async function onClickPrevStep() {
   const currentStepIndex = currentStep.value.step - 1;
-  prevStepData.value = await getSaveData();
   const currentStepRef = await cmpStepRefs.value[currentStepIndex]?.value;
   // Child 페이지 내에서 이전 스텝이 없으면(false), 현재 페이지에서 이전으로 진행
+  prevStepData.value = await getSaveData();
   const isMovedInnerStep = currentStepRef?.movePrevStep ? await currentStepRef?.movePrevStep() : false;
   if (!isMovedInnerStep) {
     currentStep.value = cloneDeep(regSteps.value[currentStepIndex - 1]);
@@ -354,8 +366,7 @@ async function onClickPrevStep() {
 // Stepper 클릭
 async function onClickStep() {
   const stepName = currentStep.value?.name;
-  prevStepData.value = await getSaveData();
-  currentStep.value = cloneDeep(regSteps.value.find((item) => item.name === stepName));
+  await moveStepByName(stepName);
 }
 
 // 하위 컴포넌트 탭 이동시 호출
@@ -429,7 +440,7 @@ async function onClickSave(tempSaveYn) {
     await Promise.all(cmpStepRefs.value.map(async (item, idx) => {
       if (isValidOk && !await item.value.validateProps()) {
         isValidOk = false;
-        currentStep.value = cloneDeep(regSteps.value[idx]);
+        await moveStepByIndex(idx);
       }
     }));
   }
@@ -462,7 +473,7 @@ async function onClickSave(tempSaveYn) {
   if (tempSaveYn === 'N') {
     // 목록으로 이동
     await router.close();
-    await router.push({ path: '/product/zwpdc-sale-product-list', query: { searchYn: 'Y' } });
+    await router.push({ path: '/product/zwpdc-sale-product-list', query: { searchYn: 'Y', pdTpCd: pdConst.PD_TP_CD_STANDARD } });
     return;
   }
   if (isTempSaveBtn.value) {

@@ -316,6 +316,7 @@ async function onClickExcelDownload(gridType) {
     await gridUtil.exportView(excelView, {
       fileName: `${currentRoute.value.meta.menuName}_${t('MSG_TXT_AGRG_RS')}`,
       timePostfix: true,
+      exportData: gridUtil.getAllRowValues(excelView),
     });
   }
   if (gridType === 'detail') {
@@ -327,7 +328,6 @@ async function onClickExcelDownload(gridType) {
       fileName: `${currentRoute.value.meta.menuName}_${t('MSG_TXT_AGRG_RS_DTL')}`,
       timePostfix: true,
       exportData: res.data,
-      searchCondition: false,
     });
   }
 }
@@ -481,12 +481,13 @@ const initGridDetail = ((data, view) => {
     { fieldName: 'clctnOjPrtnrNo', header: t('MSG_TXT_PIC_NM'), width: '98', styleName: 'text-center' },
     { fieldName: 'jbfClctamDvCd', header: t('MSG_TXT_JBF_ICHR_CLCTAM_DV'), styleName: 'text-center', width: '130', options: codes.CLCTAM_DV_CD },
     { fieldName: 'jbfClctamPrtnrNo', header: t('MSG_TXT_JBF_PSIC'), styleName: 'text-center', width: '90' },
-    { fieldName: 'cntrNo',
+    { fieldName: 'cntrNoSn',
       header: t('MSG_TXT_CNTR_NO'),
       width: '160',
       styleName: 'text-center',
-      displayCallback(grid, index, value) {
-        return !isEmpty(value) ? `${value.substring(0, 4)}-${value.substring(4, 11)}-${value.substring(11, 13)}` : value;
+      displayCallback(grid, index) {
+        const { cntrNo, cntrSn } = grid.getValues(index.itemIndex);
+        return `${cntrNo}-${cntrSn}`;
       } },
     { fieldName: 'cstNm', header: t('MSG_TXT_CST_NM'), width: '90', styleName: 'text-center' },
     { fieldName: 'cstNo', header: t('MSG_TXT_CST_NO'), width: '130', styleName: 'text-center' },
@@ -507,6 +508,7 @@ const initGridDetail = ((data, view) => {
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   fields.push(
+    { fieldName: 'cntrNo' },
     { fieldName: 'cntrSn' },
   );
   data.setFields(fields);

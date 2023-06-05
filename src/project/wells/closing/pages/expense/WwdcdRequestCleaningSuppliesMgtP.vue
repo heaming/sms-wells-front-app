@@ -25,6 +25,7 @@
             icon="search"
             clearable
             rules="required"
+            :disable="isDisable"
             @click-icon="onClickClaimantName"
           />
         </kw-form-item>
@@ -40,6 +41,7 @@
             option-value="bldCd"
             option-label="bldNm"
             rules="required"
+            :disable="isDisable"
             :label="$t('MSG_TXT_BUILDING')"
           />
         </kw-form-item>
@@ -55,6 +57,7 @@
             :label="$t('MSG_TXT_AMT')"
             rules="required"
             :regex="/^[0-9]*$/i"
+            :disable="isDisable"
           />
         </kw-form-item>
       </kw-form-row>
@@ -68,6 +71,7 @@
             v-model="saveParams.cardPsrNm"
             :label="$t('MSG_TXT_CARD_PSR')"
             rules="required"
+            :disable="isDisable"
           />
         </kw-form-item>
       </kw-form-row>
@@ -85,6 +89,7 @@
               saveParams.idvTno"
             :label="$t('MSG_TXT_CONTACT')"
             rules="required"
+            :disable="isDisable"
           />
         </kw-form-item>
       </kw-form-row>
@@ -98,6 +103,7 @@
             type="date"
             rules="required"
             :label="$t('MSG_TXT_APPL_DATE')"
+            :disable="isDisable"
           />
         </kw-form-item>
       </kw-form-row>
@@ -114,6 +120,7 @@
             :attach-document-id="saveParams.clingCostSrcpApnFileId"
             rules="required"
             :label="$t('MSG_TXT_SRCP_APN')"
+            :disable="isDisable"
           />
         </kw-form-item>
       </kw-form-row>
@@ -122,6 +129,7 @@
       <kw-btn
         primary
         :label="$t('MSG_BTN_APPL')"
+        :disable="isApplication"
         @click="onClickApplication"
       />
     </template>
@@ -147,6 +155,8 @@ const { ok } = useModal();
 // -------------------------------------------------------------------------------------------------
 let dataParams;
 const attachFiles = ref([]);
+const isApplication = ref(false);
+const isDisable = ref(false);
 const props = defineProps({
   clingCostAdjRcpNo: {
     type: String,
@@ -154,7 +164,7 @@ const props = defineProps({
   },
 });
 
-const { userName, ogTpCd, prtnrNo } = store.getters['meta/getUserInfo'];
+const { userName, ogTpCd, prtnrNo, careerLevelCode } = store.getters['meta/getUserInfo'];
 // 본사 영업관리자, 본사담당자 - 청구(영수)인 성명, 카드소유주
 // -돋보기 클릭하여 [Z-OG-U-0050P01] 팝업창 호출하여 리턴 값으로 세팅 : 지역단장 조직유형코드, 지역단장 파트너번호, 지역단장명
 // - 청구(영수)인 성명 : 지역단장명
@@ -167,33 +177,52 @@ const saveParams = ref({
   clingCostAdjRcpNo: '',
   bldCd: '', // 빌딩코드
   bilAmt: '', // 금액
-  claimNm: userName, // 청구인
-  cardPsrNm: userName, // 카드소유주명
+  claimNm: careerLevelCode === '2' ? userName : '', // 청구인
+  cardPsrNm: careerLevelCode === '2' ? userName : '', // 카드소유주명
   locaraTno: '', // 지역번호
   exnoEncr: '', // 전화국별
   idvTno: '', // 개별전화번호
   aplcDt: dayjs().format('YYYYMMDD'), // 신청일
   clingCostSignApnFileId: '',
   attachFiles: [],
+  ogTpCd: '', // 빌딩코드를 조회하기 위한
+  prtnrNo: '', // 빌딩코드를 조회하기 위한
 });
 
 const buildingCodes = ref([]);
 async function buildingCode() {
-  const sessionParans = { ogTpCd, prtnrNo };
-  const res = await dataService.get('/sms/wells/closing/expense/cleaning-cost/request-cleaning-supplies/code', { params: sessionParans });
+  let sessionParams = {};
+  if (careerLevelCode === '2') { // 지역단장
+    sessionParams = { ogTpCd, prtnrNo };
+  } else {
+    sessionParams.ogTpCd = saveParams.value.ogTpCd;
+    sessionParams.prtnrNo = saveParams.value.prtnrNo;
+  }
+  debugger;
+  const res = await dataService.get('/sms/wells/closing/expense/cleaning-cost/request-cleaning-supplies/code', { params: sessionParams });
   buildingCodes.value = res.data;
 }
 
 async function onClickClaimantName() {
-  const { result } = await modal({
-    component: 'ZwogzPartnerListP', // Z-OG-U-0050P01
-    componentProps: {
-      configGroup: '',
-    },
-  });
-  if (result) {
+  const { clingCostAdjRcpNo } = props;
 
-    // 선택한 지역단장 조직유형코드, 지역단장 파트너번호, 지역단장명 set 해야함
+  if (isEmpty(clingCostAdjRcpNo)) {
+    const { result, payload } = await modal({
+      component: 'ZwogzPartnerListP', // Z-OG-U-0050P01
+      componentProps: {
+        prtnrNo: saveParams.value.prtnrNo,
+      },
+    });
+    if (result) {
+      debugger;
+      saveParams.value.claimNm = payload.prtnrKnm;
+      saveParams.value.cardPsrNm = payload.prtnrKnm;
+      saveParams.value.prtnrNo = payload.prtnrNo;
+      saveParams.value.ogTpCd = payload.ogTpCd;
+      // 선택한 지역단장 조직유형코드, 지역단장 파트너번호, 지역단장명 set 해야함
+
+      buildingCode();
+    }
   }
 }
 
@@ -217,11 +246,14 @@ async function fetchData() {
     const res = await dataService.get(`/sms/wells/closing/expense/cleaning-cost/request-cleaning-supplies/${clingCostAdjRcpNo}`, { params: dataParams });
     debugger;
     saveParams.value = res.data;
+    isApplication.value = true;
+    isDisable.value = true;
+
+    await buildingCode();
   }
 }
 
 onMounted(async () => {
-  await buildingCode();
   await fetchData();
 });
 </script>

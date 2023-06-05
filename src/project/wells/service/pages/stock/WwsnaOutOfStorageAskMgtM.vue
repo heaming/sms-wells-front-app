@@ -58,7 +58,10 @@
       <kw-action-top>
         <template #left>
           <kw-paging-info
-            :total-count="totalCount"
+            v-model:page-index="pageInfo.pageIndex"
+            v-model:page-size="pageInfo.pageSize"
+            :total-count="pageInfo.totalCount"
+            :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
             @change="fetchData"
           />
         </template>
@@ -73,7 +76,7 @@
           dense
           secondary
           :label="$t('MSG_BTN_EXCEL_DOWN')"
-          :disable="totalCount === 0"
+          :disable="pageInfo.totalCount === 0"
           @click="onClickExcelDownload"
         />
         <kw-separator
@@ -92,8 +95,15 @@
 
       <kw-grid
         ref="grdMainRef"
-        :visible-rows="pageInfo.pageSize"
+        :page-size="pageInfo.pageSize"
+        :total-count="pageInfo.totalCount"
         @init="initGrdMain"
+      />
+      <kw-pagination
+        v-model:page-index="pageInfo.pageIndex"
+        v-model:page-size="pageInfo.pageSize"
+        :total-count="pageInfo.totalCount"
+        @change="fetchData"
       />
     </div>
   </kw-page>
@@ -114,6 +124,7 @@ const dataService = useDataService();
 const { getConfig } = useMeta();
 // const { modal, notify, alert } = useGlobal();
 const { modal, notify } = useGlobal();
+const store = useStore();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -131,12 +142,11 @@ const searchParams = ref({
   endStrHopDt: dayjs().format('YYYYMMDD'), // 입고희망일자 종료일
   wareDvCd: '1', // 출고요청 창고구분코드
 });
-const totalCount = ref(0);
 
 const wharehouseParams = ref({
   apyYm: dayjs().format('YYYYMM'),
   // WM : 1642720
-  userId: '36680',
+  userId: store.getters['meta/getUserInfo'].employeeIDNumber,
 });
 
 const pageInfo = ref({
@@ -168,18 +178,12 @@ codes.OSTR_AK_TP_CD.forEach((e) => {
 });
 
 async function fetchData() {
-  const res = await dataService.get('/sms/wells/service/out-of-storage-asks', { params: cachedParams });
-  const newOutOfStorageAsks = res.data.map((v) => {
-    const { codeName } = codes.OSTR_AK_TP_CD.find((c) => c.codeId === v.ostrAkTpCd);
-    return { ...v, ostrAkTpNm: codeName };
-  });
+  const res = await dataService.get('/sms/wells/service/out-of-storage-asks/paging', { params: { ...cachedParams, ...pageInfo.value } });
+  const { list: newOutOfStorageAsks, pageInfo: pagingResult } = res.data;
+  pageInfo.value = pagingResult;
 
   const view = grdMainRef.value.getView();
-  const outOflength = res.data;
-  totalCount.value = outOflength.length;
-
   view.getDataSource().setRows(newOutOfStorageAsks);
-  view.resetCurrent();
 }
 
 async function onClickSearch() {
@@ -233,7 +237,6 @@ async function fetchDefaultData() {
 }
 
 async function openOutOfStorageP(g, { column, dataRow }) {
-  debugger;
   console.log(g, { column, dataRow });
   const { ostrAkNo } = gridUtil.getRowValue(g, dataRow);
   const { ostrAkTpCd } = gridUtil.getRowValue(g, dataRow);
@@ -246,7 +249,6 @@ async function openOutOfStorageP(g, { column, dataRow }) {
   });
 
   if (result) {
-    debugger;
     await fetchData();
   }
 }

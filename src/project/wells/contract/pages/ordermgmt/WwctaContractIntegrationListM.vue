@@ -432,6 +432,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'depositDetail' }, // 입금내역
     { fieldName: 'cstGdCd' }, // 고객등급
     { fieldName: 'pdNm' }, // 상품명
+    { fieldName: 'sellTpCd' }, // 판매유형코드
     { fieldName: 'cntrCnfmDtm' }, // 계약일
     { fieldName: 'istDt' }, // 설치일
     { fieldName: 'cntrStat' }, // 사용구분
@@ -455,6 +456,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'istCralLocaraTno' }, // 설치자 휴대지역전화번호
     { fieldName: 'istMexnoEncr' }, // 설치자 휴대전화국번호암호화
     { fieldName: 'istCralIdvTno' }, // 설치자 휴대개별전화번호
+    { fieldName: 'copnDvCd' }, // 고객구분코드(1:개인, 2:법인)
     { fieldName: 'dpTpCd' }, // 이체방식 납부방식유형코드
     { fieldName: 'dpTpNm' }, // 이체방식 납부방식유형코드명
     { fieldName: 'mpyBsdt' }, // 이체일
@@ -491,7 +493,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'depositDetail', header: t('MSG_TXT_DP_IZ'), width: '130', styleName: 'text-center', renderer: { type: 'button', hideWhenEmpty: false }, displayCallback: () => t('MSG_TXT_DP_IZ') }, // 입금내역
     { fieldName: 'cstGdCd', header: t('MSG_TXT_CST_GRD'), width: '130', styleName: 'text-center' }, // 고객등급
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '250', styleName: 'text-center' }, // 상품명
-    { fieldName: 'cntrCnfmDtm', header: t('MSG_TXT_CNTRCT_DT'), width: '160', styleName: 'text-center', datetimeFormat: 'datetime' }, // 계약일
+    { fieldName: 'cntrCnfmDtm', header: t('MSG_TXT_CNTRCT_DT'), width: '160', styleName: 'text-center', datetimeFormat: 'date' }, // 계약일
     { fieldName: 'istDt', header: t('MSG_TXT_INST_DT'), width: '130', styleName: 'text-center', datetimeFormat: 'date' }, // 설치일
     { fieldName: 'cntrStat', header: t('MSG_TXT_USG'), width: '130', styleName: 'text-center' }, // 사용구분
     { fieldName: 'svPrd', header: t('MSG_TXT_CYCL'), width: '130', styleName: 'text-right' }, // 주기
@@ -636,11 +638,15 @@ const initGrid = defineGrid((data, view) => {
     const paramCntrDtlNo = gridUtil.getCellValue(g, dataRow, 'cntrDtlNo');
     const paramCntrNo = String(paramCntrDtlNo).split('-')[0];
     const paramCntrSn = String(paramCntrDtlNo).split('-')[1];
+    const { sellTpCd } = g.getValues(dataRow);
+    const { cntrCstNo } = g.getValues(dataRow);
+    const { copnDvCd } = g.getValues(dataRow);
+    // const paramSellPrtnrKnm = gridUtil.getCellValue(g, dataRow, 'sellPrtnrKnm');
 
     if (['cntrDtlNo'].includes(column)) { // 계약상세(윈도우팝업)
-      await modal({ component: 'WwctaOrderDetailP', componentProps: { cntrNo: paramCntrNo, cntrSn: paramCntrSn } });
+      await modal({ component: 'WwctaOrderDetailP', componentProps: { cntrNo: paramCntrNo, cntrSn: paramCntrSn, sellTpCd, cntrCstNo, copnDvCd } });
     } else if (['depositDetail'].includes(column)) { // 입금내역
-      await alert('입금내역 팝업조회 작업예정');
+      await alert('입금내역 팝업은 개발예정입니다.');
     }
   };
 });
