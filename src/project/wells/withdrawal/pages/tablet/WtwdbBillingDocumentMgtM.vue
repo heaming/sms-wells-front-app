@@ -99,7 +99,6 @@
                   <kw-form-item
                     :label="t('MSG_TXT_CST_NM')"
                   >
-                    >
                     <p>{{ item.cstFnm }}</p>
                   </kw-form-item>
                   <!-- label="작성일자" -->
