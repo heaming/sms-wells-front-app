@@ -74,7 +74,7 @@
             :on-click-icon="openSearchUserPopup"
             clearable
             :on-keydown-no-click="true"
-            @keydown.enter="isCustomer('type1')"
+            @keydown.enter="isCustomer($event, 'type1')"
           />
         </kw-search-item>
         <kw-search-item
@@ -88,7 +88,7 @@
             clearable
             :on-keydown-no-click="true"
             regex="alpha_hangul"
-            @keydown.enter="isCustomer('type2')"
+            @keydown.enter="isCustomer($event, 'type2')"
           />
         </kw-search-item>
         <kw-search-item
@@ -98,7 +98,7 @@
             v-model="searchParams.phoneNumber"
             type="telephone"
             :on-keydown-no-click="true"
-            @keydown.enter="isCustomer('type3')"
+            @keydown.enter="isCustomer($event, 'type3')"
           />
         </kw-search-item>
       </kw-search-row>
@@ -349,7 +349,11 @@ async function openSearchUserPopup() {
   await openSearchUserCommonPopup(searchParams, canFeasibleSearch);
 }
 
-async function isCustomer(workType = 'type1') {
+async function isCustomer(event, workType = 'type1') {
+  if (!event.target.value) {
+    await openSearchUserCommonPopup(searchParams, canFeasibleSearch);
+    return;
+  }
   searchParams.value.workType = workType;
   const notifyMessage = await isCustomerCommon(searchParams, canFeasibleSearch);
   if (notifyMessage) {
