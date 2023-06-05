@@ -194,7 +194,7 @@ async function onClickBefore() {
   frmMainRef.value.reset();
   await router.push(
     {
-      path: '/ns/wmwdb-billing-document-mgt',
+      path: '/withdrawal/wmwdb-billing-document-mgt',
       query: {
         searchCstFnm: props.searchCstFnm, // 조회조건
         searchBildcWrteDt: props.searchBildcWrteDt, // 조회조건
