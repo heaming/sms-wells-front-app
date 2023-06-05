@@ -144,6 +144,12 @@
         :total-count="pageInfo.totalCount"
         @init="initGrdMain"
       />
+      <kw-pagination
+        v-model:page-index="pageInfo.pageIndex"
+        v-model:page-size="pageInfo.pageSize"
+        :total-count="pageInfo.totalCount"
+        @change="fetchData"
+      />
     </div>
   </kw-page>
 </template>
@@ -316,7 +322,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'pdHclsfNm', header: t('MSG_TXT_PD_HCLSF'), width: '112', styleName: 'text-center' },
     { fieldName: 'pdMclsfNm', header: t('TXT_MSG_PD_MCLSF_ID'), width: '112', styleName: 'text-center' },
     { fieldName: 'basePdCd', header: t('MSG_TXT_PRDT_CODE'), width: '112', styleName: 'text-center' },
-    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '159' },
+    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '250' },
     { fieldName: 'frisuBfsvcPtrmN', header: t('MSG_TXT_MEM_FREE_MN'), width: '154', styleName: 'text-center' },
     { fieldName: 'frisuMshCrtYn', header: t('MSG_TXT_FREE_MEM_CRT'), width: '154', styleName: 'text-center' },
     { fieldName: 'nationSptYn', header: t('MSG_TXT_STT_SUB'), width: '154', styleName: 'text-center' },
