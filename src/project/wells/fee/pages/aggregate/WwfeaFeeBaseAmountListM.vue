@@ -40,7 +40,8 @@
             rules="required"
             type="radio"
             :label="$t('MSG_TXT_OG_TP')"
-            :options="['M추진단', 'P추진단', '홈마스터']"
+            :options="filterOgTpCd"
+            @change="ogTpChange"
           />
         </kw-search-item>
       </kw-search-row>
@@ -79,7 +80,7 @@
 // -------------------------------------------------------------------------------------------------
 import dayjs from 'dayjs';
 
-import { useDataService, getComponentType, gridUtil, defineGrid } from 'kw-lib';
+import { useDataService, getComponentType, gridUtil, defineGrid, codeUtil } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 
 const { t } = useI18n();
@@ -93,10 +94,14 @@ const { currentRoute } = useRouter();
 const now = dayjs();
 const grdMainRef = ref(getComponentType('KwGrid'));
 const totalCount = ref(0);
+const codes = await codeUtil.getMultiCodes(
+  'OG_TP_CD',
+);
+const filterOgTpCd = codes.OG_TP_CD.filter((v) => ['W02', 'W01', 'W03'].includes(v.codeId));
 const searchParams = ref({
 
-  perfYm: now.format('YYYYMM'),
-  ogtp: '',
+  perfYm: now.add(-1, 'month').startOf('M').format('YYYYMM'),
+  ogtp: 'W02',
 
 });
 let cachedParams;
@@ -124,62 +129,88 @@ async function onClickSearch() {
   await fetchData();
 }
 
+async function ogTpChange() {
+  const view = grdMainRef.value.getView();
+  if (searchParams.value.ogtp === 'W03') {
+    view.columnByName('og1Nm').visible = false;
+  } else {
+    view.columnByName('og1Nm').visible = true;
+  }
+}
+
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
 const initGrdMain = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'col1' },
-    { fieldName: 'col2' },
-    { fieldName: 'col3' },
-    { fieldName: 'col4' },
-    { fieldName: 'col5' },
-    { fieldName: 'col6' },
-    { fieldName: 'col7' },
-    { fieldName: 'col8' },
-    { fieldName: 'col9' },
-    { fieldName: 'col10' },
-    { fieldName: 'col11' },
-    { fieldName: 'col12' },
-    { fieldName: 'col13' },
-    { fieldName: 'col14' },
-    { fieldName: 'col15' },
-    { fieldName: 'col16' },
-    { fieldName: 'col17' },
-    { fieldName: 'col18' },
-    { fieldName: 'col19' },
-    { fieldName: 'col20' },
-    { fieldName: 'col21' },
-    { fieldName: 'col22' },
-    { fieldName: 'col23' },
+    { fieldName: 'lccode' },
+    { fieldName: 'lccrtt' },
+    { fieldName: 'sellTpCd' },
+    { fieldName: 'lccgub' },
+    { fieldName: 'og1Nm' },
+    { fieldName: 'og2Nm' },
+    { fieldName: 'og3Nm' },
+    { fieldName: 'prtnrNo' },
+    { fieldName: 'prtnrKnm' },
+    { fieldName: 'lcicde' },
+    { fieldName: 'kaina1' },
+    { fieldName: 'lcprat' },
+    { fieldName: 'lcpamt' },
+    { fieldName: 'lcgub5' },
+    { fieldName: 'l115Bam1' },
+    { fieldName: 'promBam1' },
+    { fieldName: 'lcamt1' },
+    { fieldName: 'etc3Etc4' },
+    { fieldName: 'imonIuse' },
+    { fieldName: 'lcflg4' },
+    { fieldName: 'lcetc7' },
+    { fieldName: 'lccbu1' },
+    { fieldName: 'lcflag' },
+    { fieldName: 'lcrate' },
+    { fieldName: 'lccod1' },
+    { fieldName: 'lccod2' },
+    { fieldName: 'lcetc8' },
+    { fieldName: 'lcck02' },
+    { fieldName: 'lcepgm' },
+    { fieldName: 'lcecde' },
+    { fieldName: 'lcmpgm' },
+    { fieldName: 'lcmcde' },
 
   ];
 
   const columns = [
-    { fieldName: 'col1', header: t('MSG_TXT_CNTR_NO'), width: '130', styleName: 'text-center' },
-    { fieldName: 'col2', header: t('MSG_TXT_RCPDT'), width: '104', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'col3', header: t('MSG_TXT_SEL_TYPE'), width: '100', styleName: 'text-center' },
-    { fieldName: 'col4', header: t('MSG_TXT_INDV_DV'), width: '89', styleName: 'text-center ' },
-    { fieldName: 'col5', header: t('MSG_TXT_SELL_OG'), width: '104', styleName: 'text-center' },
-    { fieldName: 'col6', header: t('MSG_TXT_SELLER_NO'), width: '104', styleName: 'text-right' },
-    { fieldName: 'col7', header: t('MSG_TXT_SALE_PROD'), width: '91', styleName: 'text-center' },
-    { fieldName: 'col8', header: t('MSG_TXT_SELL_PD_NM'), width: '159', styleName: 'text-left' },
-    { fieldName: 'col9', header: t('MSG_TXT_ACKMT_PFR'), width: '104', styleName: 'text-right' },
-    { fieldName: 'col10', header: t('MSG_TXT_ACKMT_PERF_AMT'), width: '131', styleName: 'text-right' },
-    { fieldName: 'col11', header: t('MSG_TXT_BASE_FEE_ORD_MST'), width: '160', styleName: 'text-right' },
-    { fieldName: 'col12', header: t('MSG_TXT_BASE_FEE_PRC_BASE'), width: '160', styleName: 'text-right' },
-    { fieldName: 'col13', header: t('MSG_TXT_BASE_FEE_PMOT'), width: '160', styleName: 'text-right' },
-    { fieldName: 'col14', header: t('MSG_TXT_RTLFE_DSC_RFLT'), width: '160', styleName: 'text-right' },
-    { fieldName: 'col15', header: t('MSG_TXT_DISC_CODE'), width: '83', styleName: 'text-center' },
-    { fieldName: 'col16', header: t('MSG_TXT_PRD_USWY'), width: '83', styleName: 'text-center' },
-    { fieldName: 'col17', header: t('MSG_TXT_RE_RENTAL') + 1 + 1, width: '98', styleName: 'text-center' },
-    { fieldName: 'col18', header: t('MSG_TXT_CHDVC_YN'), width: '88', styleName: 'text-center' },
-    { fieldName: 'col19', header: t('MSG_TXT_INDV_DV'), width: '119', styleName: 'text-center' },
-    { fieldName: 'col20', header: t('MSG_TXT_TYPE'), width: '83', styleName: 'text-center' },
-    { fieldName: 'col21', header: t('MSG_TXT_PFR'), width: '103', styleName: 'text-right' },
-    { fieldName: 'col22', header: t('MSG_TXT_PFR') + 1 + t('MSG_TXT_Y'), width: '130', styleName: 'text-center' },
-    { fieldName: 'col23', header: t('MSG_TXT_PFR') + 2 + t('MSG_TXT_Y'), width: '130', styleName: 'text-center' },
-
+    { fieldName: 'lccode', header: t('MSG_TXT_CNTR_DTL_NO'), width: '130', styleName: 'text-center' },
+    { fieldName: 'lccrtt', header: t('MSG_TXT_RCPDT'), width: '104', styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '100', styleName: 'text-center' },
+    { fieldName: 'lccgub', header: t('MSG_TXT_INDV_DV'), width: '89', styleName: 'text-center ' },
+    { fieldName: 'og1Nm', header: t('MSG_TXT_MANAGEMENT_DEPARTMENT'), width: '104', styleName: 'text-center' },
+    { fieldName: 'og2Nm', header: t('MSG_TXT_RGNL_GRP'), width: '104', styleName: 'text-right' },
+    { fieldName: 'og3Nm', header: t('MSG_TXT_BRANCH'), width: '91', styleName: 'text-center' },
+    { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '159', styleName: 'text-left' },
+    { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '104', styleName: 'text-right' },
+    { fieldName: 'lcicde', header: t('MSG_TXT_SALE_PROD'), width: '131', styleName: 'text-right' },
+    { fieldName: 'kaina1', header: t('MSG_TXT_SELL_PD_NM'), width: '160', styleName: 'text-right' },
+    { fieldName: 'lcprat', header: t('MSG_TXT_ACKMT_PFR'), width: '160', styleName: 'text-right' },
+    { fieldName: 'lcpamt', header: t('MSG_TXT_ACKMT_PERF_AMT'), width: '160', styleName: 'text-right' },
+    { fieldName: 'lcgub5', header: t('MSG_TXT_BASE_FEE_ORD_MST'), width: '160', styleName: 'text-right' },
+    { fieldName: 'l115Bam1', header: t('MSG_TXT_BASE_FEE_PRC_BASE'), width: '160', styleName: 'text-center' },
+    { fieldName: 'promBam1', header: t('MSG_TXT_BASE_FEE_PMOT'), width: '160', styleName: 'text-center' },
+    { fieldName: 'lcamt1', header: t('MSG_TXT_RTLFE_DSC_RFLT'), width: '160', styleName: 'text-center' },
+    { fieldName: 'etc3Etc4', header: t('MSG_TXT_DISC_CODE'), width: '88', styleName: 'text-center' },
+    { fieldName: 'imonIuse', header: t('MSG_TXT_PRD_USWY'), width: '119', styleName: 'text-center' },
+    { fieldName: 'lcflg4', header: `${t('MSG_TXT_RE_RENTAL')}/1+1`, width: '83', styleName: 'text-center' },
+    { fieldName: 'lcetc7', header: t('MSG_TXT_CHDVC_YN'), width: '103', styleName: 'text-right' },
+    { fieldName: 'lccbu1', header: t('MSG_TXT_CHNG') + t('MSG_TXT_INDV_DV'), width: '130', styleName: 'text-center' },
+    { fieldName: 'lcflag', header: t('MSG_TXT_CHDVC_TP'), width: '130', styleName: 'text-center' },
+    { fieldName: 'lcrate', header: t('MSG_TXT_CHNG') + t('MSG_TXT_PFR'), width: '130', styleName: 'text-center' },
+    { fieldName: 'lccod1', header: t('MSG_TXT_CHNG') + 1 + t('MSG_TXT_Y'), width: '130', styleName: 'text-center' },
+    { fieldName: 'lccod2', header: t('MSG_TXT_CHNG') + 2 + t('MSG_TXT_Y'), width: '130', styleName: 'text-center' },
+    { fieldName: 'lcetc8', header: t('MSG_TXT_ALNC_CD'), width: '130', styleName: 'text-center' },
+    { fieldName: 'lcck02', header: t('MSG_TXT_PMOT_NO'), width: '130', styleName: 'text-center' },
+    { fieldName: 'lcepgm', header: `${t('MSG_TXT_RGS')}PGM`, width: '130', styleName: 'text-center' },
+    { fieldName: 'lcecde', header: t('MSG_TXT_RGS') + t('MSG_TXT_SEQUENCE_NUMBER'), width: '130', styleName: 'text-center' },
+    { fieldName: 'lcmpgm', header: `${t('MSG_TXT_MOD')}PGM`, width: '130', styleName: 'text-center' },
+    { fieldName: 'lcmcde', header: t('MSG_TXT_MOD') + t('MSG_TXT_SEQUENCE_NUMBER'), width: '130', styleName: 'text-center' },
   ];
 
   data.setFields(fields);
@@ -187,16 +218,5 @@ const initGrdMain = defineGrid((data, view) => {
 
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
-
-  // multi row header setting
-  view.setColumnLayout([
-    'col1', 'col2', 'col3', 'col4', 'col5', 'col6', 'col7', 'col8', 'col9', 'col10', 'col11', 'col12', 'col13', 'col14', 'col15', 'col16', 'col17', 'col18',
-    {
-      header: t('MSG_TXT_CHNG'), // colspan title
-      direction: 'horizontal', // merge type
-      items: ['col19', 'col20', 'col21'],
-    },
-    'col22', 'col23',
-  ]);
 });
 </script>
