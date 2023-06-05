@@ -45,7 +45,10 @@
         </kw-search-item>
       </kw-search-row>
       <kw-search-row>
-        <kw-search-item :label="t('MSG_TXT_YEAR_OCCURNCE')">
+        <kw-search-item
+          :label="t('MSG_TXT_YEAR_OCCURNCE')"
+          required
+        >
           <kw-date-picker
             v-model="searchParams.redfAdsbOcYm"
             :label="t('MSG_TXT_YEAR_OCCURNCE')"
