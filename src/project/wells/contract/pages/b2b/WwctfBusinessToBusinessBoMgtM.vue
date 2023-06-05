@@ -59,7 +59,7 @@
           <kw-input
             v-model="searchParams.bzrno"
             mask="###-##-#####"
-            :max="10"
+            maxlength="10"
           />
         </kw-search-item>
       </kw-search-row>
@@ -70,7 +70,7 @@
         >
           <kw-input
             v-model="searchParams.leadCstNm"
-            :max="50"
+            maxlength="50"
           />
         </kw-search-item>
         <!-- 프로젝트ID -->
@@ -79,7 +79,7 @@
         >
           <kw-input
             v-model="searchParams.prjNm"
-            :max="50"
+            maxlength="50"
           />
         </kw-search-item>
       </kw-search-row>
@@ -155,7 +155,7 @@ const now = dayjs();
 const dataService = useDataService();
 const { getConfig } = useMeta();
 const { currentRoute } = useRouter();
-const { notify, modal } = useGlobal();
+const { notify, modal, alert } = useGlobal();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -197,9 +197,6 @@ async function fetchData() {
 
   const dataSource = view.getDataSource();
   dataSource.setRows(res.data);
-  for (let i = 0; i < res.length; i += 1) {
-    view.setValue(i, 'leadCstRlpplNm', view.getValues(i).leadCstNm);
-  }
   pageInfo.value.totalCount = view.getItemCount();
 
   view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
@@ -218,13 +215,23 @@ async function onClickExcelDownload() {
     exportData: res.data,
   });
 }
-
+function validateEmail(strEmail) {
+  const re = /^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$/i;
+  return re.test(strEmail);
+}
 async function onClickSave() {
   const view = grdBusinessToBusinessBoList.value.getView();
   if (await gridUtil.alertIfIsNotModified(view)) { return; }
   if (!await gridUtil.validate(view)) { return; }
 
   const changedRows = gridUtil.getChangedRowValues(view);
+  for (let i = 0; i < changedRows.length; i += 1) {
+    if (!validateEmail(changedRows[i].emadrCn)) {
+      alert(t('MSG_ALT_EMAIL'));
+      return;
+    }
+  }
+
   await dataService.post('/sms/wells/contract/business-to-business/business-opportunities', changedRows);
 
   notify(t('MSG_ALT_SAVE_DATA'));
@@ -242,6 +249,7 @@ async function onClickDelete() {
     await onClickSearch();
   }
 }
+
 async function onClickAdd() {
   const view = grdBusinessToBusinessBoList.value.getView();
   const row = view.getCurrent().dataRow < 0 ? '0' : view.getCurrent().dataRow;
@@ -293,11 +301,9 @@ const initBusinessToBusinessBoList = defineGrid((data, view) => {
     { fieldName: 'bzrno' }, // 사업자번호
     { fieldName: 'leadCstNm' }, // 업체명
     { fieldName: 'leadCstRlpplNm' }, // 업체담당자(KEY-MAN)
-    { fieldName: 'clsfConta1' }, // 업체연락처1
     { fieldName: 'locaraTno' }, // 업체연락처1-1
     { fieldName: 'exnoEncr' }, // 업체연락처1-2
     { fieldName: 'idvTno' }, // 업체연락처1-3
-    { fieldName: 'clsfConta2' }, // 업체연락처2
     { fieldName: 'cralLocaraTno' }, // 업체연락처2-1
     { fieldName: 'mexnoEncr' }, // 업체연락처2-2
     { fieldName: 'cralIdvTno' }, // 업체연락처2-3
@@ -385,38 +391,12 @@ const initBusinessToBusinessBoList = defineGrid((data, view) => {
       editor: {
         maxLength: 100,
       } }, // 업체담당자
-    { fieldName: 'clsfConta1',
-      header: `${t('MSG_TXT_COMP')}${t('MSG_TXT_CONTACT')}1`,
-      width: '142',
-      styleName: 'text-center',
-      editor: {
-        inputCharacters: ['0-9'],
-        maxLength: 11,
-        type: 'telephone',
-      },
-      displayCallback(grid, index) {
-        const { locaraTno, exnoEncr, idvTno } = grid.getValues(index.itemIndex);
-        return !isEmpty(locaraTno) && !isEmpty(exnoEncr) && !isEmpty(idvTno) ? `${locaraTno}-${exnoEncr}-${idvTno}` : '';
-      } }, // 업체연락처1
-    { fieldName: 'locaraTno', visible: false },
-    { fieldName: 'exnoEncr', visible: false },
-    { fieldName: 'idvTno', visible: false },
-    { fieldName: 'clsfConta2',
-      header: `${t('MSG_TXT_COMP')}${t('MSG_TXT_CONTACT')}2`,
-      width: '142',
-      styleName: 'text-center',
-      editor: {
-        inputCharacters: ['0-9'],
-        maxLength: 11,
-        type: 'telephone',
-      },
-      displayCallback(grid, index) {
-        const { cralLocaraTno, mexnoEncr, cralIdvTno } = grid.getValues(index.itemIndex);
-        return !isEmpty(cralLocaraTno) && !isEmpty(mexnoEncr) && !isEmpty(cralIdvTno) ? `${cralLocaraTno}-${mexnoEncr}-${cralIdvTno}` : '';
-      } }, // 업체연락처2
-    { fieldName: 'cralLocaraTno', visible: false },
-    { fieldName: 'mexnoEncr', visible: false },
-    { fieldName: 'cralIdvTno', visible: false },
+    { fieldName: 'locaraTno', header: `${t('MSG_TXT_CRAL_LOCARA_TNO')}1`, width: '150', styleName: 'text-center', editor: { inputCharacters: ['0-9'], maxLength: 4 } },
+    { fieldName: 'exnoEncr', header: `${t('MSG_TXT_MEXNO')}1`, width: '150', styleName: 'text-center', editor: { inputCharacters: ['0-9'], maxLength: 4 } },
+    { fieldName: 'idvTno', header: `${t('MSG_TXT_CRAL_IDV_TNO')}1`, width: '150', styleName: 'text-center', editor: { inputCharacters: ['0-9'], maxLength: 4 } },
+    { fieldName: 'cralLocaraTno', header: `${t('MSG_TXT_CRAL_LOCARA_TNO')}2`, width: '150', styleName: 'text-center', editor: { inputCharacters: ['0-9'], maxLength: 4 } },
+    { fieldName: 'mexnoEncr', header: `${t('MSG_TXT_MEXNO')}2`, width: '150', styleName: 'text-center', editor: { inputCharacters: ['0-9'], maxLength: 4 } },
+    { fieldName: 'cralIdvTno', header: `${t('MSG_TXT_CRAL_IDV_TNO')}2`, width: '150', styleName: 'text-center', editor: { inputCharacters: ['0-9'], maxLength: 4 } },
     { fieldName: 'emadrCn',
       header: t('MSG_TXT_EMAIL'),
       width: '193',
@@ -518,7 +498,7 @@ const initBusinessToBusinessBoList = defineGrid((data, view) => {
     {
       header: t('Key-Man'), // colspan title
       direction: 'horizontal', // merge type
-      items: ['leadCstRlpplNm', 'clsfConta1', 'clsfConta2', 'emadrCn'],
+      items: ['leadCstRlpplNm', 'locaraTno', 'exnoEncr', 'idvTno', 'cralLocaraTno', 'mexnoEncr', 'cralIdvTno', 'emadrCn'],
     },
     'crdrVal', 'etBiddDt', 'opptCntrFomCd', 'totQty',
     {
@@ -563,22 +543,6 @@ const initBusinessToBusinessBoList = defineGrid((data, view) => {
       if (!isEmpty(bzrnoParam) && !isEmpty(leadCstNmParam)) {
         onKeyManFind(itemIndex);
       }
-    }
-    if (columnName === 'clsfConta1') {
-      const telNo = grid.getValue(updateRow, fieldIndex);
-      const telNos = telNo.split('-');
-      grid.commit();
-      data.setValue(updateRow, 'locaraTno', telNos[0]);
-      data.setValue(updateRow, 'exnoEncr', telNos[1]);
-      data.setValue(updateRow, 'idvTno', telNos[2]);
-    }
-    if (columnName === 'clsfConta2') {
-      const telNo = grid.getValue(updateRow, fieldIndex);
-      const telNos = telNo.split('-');
-      grid.commit();
-      data.setValue(updateRow, 'cralLocaraTno', telNos[0]);
-      data.setValue(updateRow, 'mexnoEncr', telNos[1]);
-      data.setValue(updateRow, 'cralIdvTno', telNos[2]);
     }
   };
   view.setFixedOptions({

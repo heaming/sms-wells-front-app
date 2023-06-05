@@ -125,9 +125,6 @@ async function fetchData() {
 
   const dataSource = view.getDataSource();
   dataSource.setRows(res.data);
-  for (let i = 0; i < res.length; i += 1) {
-    view.setValue(i, 'leadCstRlpplNm', view.getValues(i).leadCstNm);
-  }
   pageInfo.value.totalCount = view.getItemCount();
 
   view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
@@ -202,7 +199,11 @@ const initBusinessToBusinessBoDetailList = defineGrid((data, view) => {
       header: t('MSG_TXT_PRDT_CODE'),
       width: '132',
       styleName: 'text-center rg-button-icon--search',
-      button: 'action' }, // 상품코드
+      button: 'action',
+      rules: 'required',
+      editor: {
+        maxLength: 10,
+      } }, // 상품코드
     { fieldName: 'pdQty',
       header: t('MSG_TXT_QTY'),
       width: '134',
@@ -211,6 +212,7 @@ const initBusinessToBusinessBoDetailList = defineGrid((data, view) => {
       editor: {
         type: 'number',
         editFormat: '#,##0',
+        maxLength: 12,
       } }, // 수량
     { fieldName: 'fnlAmt',
       header: `${t('MSG_TXT_BID')}${t('MSG_TXT_PRICE')}`,
@@ -220,8 +222,14 @@ const initBusinessToBusinessBoDetailList = defineGrid((data, view) => {
       editor: {
         type: 'number',
         editFormat: '#,##0',
+        maxLength: 20,
       } }, // 입찰가격
-    { fieldName: 'unuitmCn', header: t('MSG_TXT_UNUITM'), width: '376' }, // 특이사항
+    { fieldName: 'unuitmCn',
+      header: t('MSG_TXT_UNUITM'),
+      width: '376',
+      editor: {
+        maxLength: 2000,
+      } }, // 특이사항
   ];
 
   data.setFields(fields);
@@ -234,7 +242,7 @@ const initBusinessToBusinessBoDetailList = defineGrid((data, view) => {
     const updateRow = view.getCurrent().dataRow;
     const searchPopupParams = {
       searchType: pdConst.PD_SEARCH_CODE,
-      searchValue: g.getValues(itemIndex).pdCd,
+      searchValue: g.getValues(itemIndex).basePdCd,
       selectType: '',
     };
 
@@ -248,6 +256,29 @@ const initBusinessToBusinessBoDetailList = defineGrid((data, view) => {
       data.setValue(updateRow, 'basePdCd', isEmpty(returnPdInfo.payload?.[0].pdCd) ? '' : returnPdInfo.payload?.[0].pdCd);
       data.setValue(updateRow, 'pdNm', isEmpty(returnPdInfo.payload?.[0].pdNm) ? '' : returnPdInfo.payload?.[0].pdNm);
       data.setValue(updateRow, 'pdClsfNm', !isEmpty(pdClsfNm[1]) ? pdClsfNm[1] : '');
+    }
+  };
+  view.onCellEdited = async function cellEdited(grid, itemIndex, dataRow, fieldIndex) {
+    const columnName = grid.getColumn(fieldIndex).fieldName;
+    const updateRow = view.getCurrent().dataRow;
+    if (columnName === 'basePdCd') {
+      const searchPopupParams = {
+        searchType: pdConst.PD_SEARCH_CODE,
+        searchValue: grid.getValues(itemIndex).basePdCd,
+        selectType: '',
+      };
+
+      const returnPdInfo = await modal({
+        component: 'ZwpdcStandardListP', // 상품기준 목록조회 팝업
+        componentProps: searchPopupParams,
+      });
+
+      if (returnPdInfo.result) {
+        const pdClsfNm = returnPdInfo.payload?.[0].pdClsfNm.split('>');
+        data.setValue(updateRow, 'basePdCd', isEmpty(returnPdInfo.payload?.[0].pdCd) ? '' : returnPdInfo.payload?.[0].pdCd);
+        data.setValue(updateRow, 'pdNm', isEmpty(returnPdInfo.payload?.[0].pdNm) ? '' : returnPdInfo.payload?.[0].pdNm);
+        data.setValue(updateRow, 'pdClsfNm', !isEmpty(pdClsfNm[1]) ? pdClsfNm[1] : '');
+      }
     }
   };
 });
