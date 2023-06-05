@@ -372,9 +372,10 @@ const initGridSnglPmntContractNoList = defineGrid((data, view) => {
     const paramCntrSn = String(paramCntrNoFull).split('-')[1];
     const { sellTpCd } = g.getValues(dataRow);
     const { cntrCstNo } = g.getValues(dataRow);
+    const { copnDvCd } = g.getValues(dataRow);
 
     if (['cntrDtlNo'].includes(column)) { // 계약상세(윈도우팝업)
-      await modal({ component: 'WwctaOrderDetailP', componentProps: { cntrNo: paramCntrNo, cntrSn: paramCntrSn, sellTpCd, cntrCstNo } });
+      await modal({ component: 'WwctaOrderDetailP', componentProps: { cntrNo: paramCntrNo, cntrSn: paramCntrSn, sellTpCd, cntrCstNo, copnDvCd } });
     } else if (['ordrInfoView'].includes(column)) { // 렌탈 주문정보 상세
       await modal({ component: 'WwctaSinglePaymentOrderDetailListP', componentProps: { cntrNo: paramCntrNo, cntrSn: paramCntrSn } });
     } else if (['connPdView'].includes(column)) { // 연계상품 리스트 조회

@@ -226,6 +226,7 @@ function initGridRentalInstallerList(data, view) {
     { fieldName: 'pdctIdno' }, // 설치정보-S N 번호
     { fieldName: 'istAkDt' }, // 설치요청일
     { fieldName: 'sellInflwChnlDtlNm' }, // 판매구분
+    { fieldName: 'copnDvCd' }, // 고객구분코드(1:개인, 2:법인)
     { fieldName: 'copnDvNm' }, // 고객구분
     { fieldName: 'pdClsfNm' }, // 상품 정보-상품분류
     { fieldName: 'pdNm' }, // 상품 정보-상품명
@@ -566,9 +567,10 @@ function initGridRentalInstallerList(data, view) {
     const paramCntrSn = String(paramCntrDtlNo).split('-')[1];
     const { sellTpCd } = g.getValues(dataRow);
     const { cntrCstNo } = g.getValues(dataRow);
+    const { copnDvCd } = g.getValues(dataRow);
 
     if (['cntrDtlNo'].includes(column)) { // 계약상세(윈도우팝업)
-      await modal({ component: 'WwctaOrderDetailP', componentProps: { cntrNo: paramCntrNo, cntrSn: paramCntrSn, sellTpCd, cntrCstNo } });
+      await modal({ component: 'WwctaOrderDetailP', componentProps: { cntrNo: paramCntrNo, cntrSn: paramCntrSn, sellTpCd, cntrCstNo, copnDvCd } });
     } else if (['ordrInfoView'].includes(column)) { // 렌탈 주문정보 상세
       await modal({ component: 'WwctaOrderRentalDtlP', componentProps: { cntrNo: paramCntrNo, cntrSn: paramCntrSn } });
     } else if (['connPdView'].includes(column)) { // 연계상품 리스트 조회

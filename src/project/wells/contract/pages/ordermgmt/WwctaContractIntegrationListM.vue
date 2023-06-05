@@ -456,6 +456,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'istCralLocaraTno' }, // 설치자 휴대지역전화번호
     { fieldName: 'istMexnoEncr' }, // 설치자 휴대전화국번호암호화
     { fieldName: 'istCralIdvTno' }, // 설치자 휴대개별전화번호
+    { fieldName: 'copnDvCd' }, // 고객구분코드(1:개인, 2:법인)
     { fieldName: 'dpTpCd' }, // 이체방식 납부방식유형코드
     { fieldName: 'dpTpNm' }, // 이체방식 납부방식유형코드명
     { fieldName: 'mpyBsdt' }, // 이체일
@@ -639,10 +640,11 @@ const initGrid = defineGrid((data, view) => {
     const paramCntrSn = String(paramCntrDtlNo).split('-')[1];
     const { sellTpCd } = g.getValues(dataRow);
     const { cntrCstNo } = g.getValues(dataRow);
+    const { copnDvCd } = g.getValues(dataRow);
     // const paramSellPrtnrKnm = gridUtil.getCellValue(g, dataRow, 'sellPrtnrKnm');
 
     if (['cntrDtlNo'].includes(column)) { // 계약상세(윈도우팝업)
-      await modal({ component: 'WwctaOrderDetailP', componentProps: { cntrNo: paramCntrNo, cntrSn: paramCntrSn, sellTpCd, cntrCstNo } });
+      await modal({ component: 'WwctaOrderDetailP', componentProps: { cntrNo: paramCntrNo, cntrSn: paramCntrSn, sellTpCd, cntrCstNo, copnDvCd } });
     } else if (['depositDetail'].includes(column)) { // 입금내역
       await alert('입금내역 팝업은 개발예정입니다.');
     }

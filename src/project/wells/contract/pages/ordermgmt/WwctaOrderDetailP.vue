@@ -54,11 +54,27 @@
         name="dpIz"
         :label="$t('MSG_TXT_DP_IZ')"
       />
+      <!-- 현금영수증 -->
+      <slot v-if="props.copnDvCd === '1'">
+        <kw-tab
+          name="cashRcp"
+          :label="$t('MSG_TXT_CASH_RCP')"
+        />
+      </slot>
+      <!-- 계산서 -->
+      <slot v-else-if="props.copnDvCd === '2'&&props.sellTpCd === '6'">
+        <kw-tab
+          name="bill"
+          :label="$t('MSG_TXT_BILL')"
+        />
+      </slot>
       <!-- 세금계산서 -->
-      <kw-tab
-        name="txinv"
-        :label="$t('MSG_TXT_TXINV')"
-      />
+      <slot v-else-if="props.copnDvCd === '2'&&props.sellTpCd !== '6'">
+        <kw-tab
+          name="txinv"
+          :label="$t('MSG_TXT_TXINV')"
+        />
+      </slot>
       <!-- 컨택 내용 -->
       <kw-tab
         name="cttCntn"
@@ -219,12 +235,30 @@
           ref="tabDpIzRef"
         />
       </kw-tab-panel>
+      <!-- 현금영수증 -->
+      <slot v-if="props.copnDvCd === '1'">
+        <kw-tab-panel name="cashRcp">
+          <wwcta-order-detail-cash-sales-receipt-mgt-p
+            ref="tabCashRcpRef"
+          />
+        </kw-tab-panel>
+      </slot>
+      <!-- 계산서 -->
+      <slot v-else-if="props.copnDvCd === '2'&&props.sellTpCd === '6'">
+        <kw-tab-panel name="bill">
+          <wwcta-order-detail-tax-invoice-dtl-p
+            ref="tabBillRef"
+          />
+        </kw-tab-panel>
+      </slot>
       <!-- 세금계산서 -->
-      <kw-tab-panel name="txinv">
-        <wwcta-order-detail-tax-invoice-dtl-p
-          ref="tabTxinvRef"
-        />
-      </kw-tab-panel>
+      <slot v-else-if="props.copnDvCd === '2'&&props.sellTpCd !== '6'">
+        <kw-tab-panel name="txinv">
+          <wwcta-order-detail-tax-invoice-dtl-p
+            ref="tabTxinvRef"
+          />
+        </kw-tab-panel>
+      </slot>
       <!-- 컨택내용 -->
       <kw-tab-panel name="cttCntn">
         <wwcta-order-detail-collecting-amount-contact-list-p
@@ -243,6 +277,7 @@ import { useDataService, useGlobal, stringUtil } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import WwctaOrderDetailManagementInfDtlP from './WwctaOrderDetailManagementInfDtlP.vue';
 import WwctaOrderDetailDepositIzDtlP from './WwctaOrderDetailDepositIzDtlP.vue';
+import WwctaOrderDetailCashSalesReceiptMgtP from './WwctaOrderDetailCashSalesReceiptMgtP.vue';
 import WwctaOrderDetailTaxInvoiceDtlP from './WwctaOrderDetailTaxInvoiceDtlP.vue';
 import WwctaOrderDetailCollectingAmountContactListP from './WwctaOrderDetailCollectingAmountContactListP.vue';
 
@@ -255,6 +290,7 @@ const props = defineProps({
   cntrSn: { type: String, required: true, default: '' },
   sellTpCd: { type: String, required: true, default: '' },
   cntrCstNo: { type: String, required: false, default: '' },
+  copnDvCd: { type: String, required: false, default: '' },
 });
 
 const isAftnInfo = ref(false);
@@ -302,6 +338,8 @@ const frmMainData = ref({
 const selectedTab = ref('cstBaseInfo'); // 계약상세정보(고객기본정보)
 const tabSellInfoRef = ref(); // 판매정보 탭
 const tabDpIzRef = ref(); // 입금내역 탭
+const tabCashRcpRef = ref(); // 현금영수증 탭
+const tabBillRef = ref(); // 계산서 탭
 const tabTxinvRef = ref(); // 세금계산서 탭
 const tabCttCntnRef = ref(); // 컨택내용 탭
 
@@ -346,12 +384,21 @@ async function fetchDataCustomerBase() {
     frmMainData.value.crcdnoEncr = res.data[0].crcdnoEncr; // 카드번호
     // 계좌/카드자동이체 상세정보
     if (!isEmpty(res.data[0].aftnInfo)) {
-      isAftnInfo.value = true;
       frmMainData.value.cdcoNm = res.data[0].aftnInfo.split(' ')[0];
       if (frmMainData.value.dpTpCd === '0102') {
-        frmMainData.value.aftnInfo = `${res.data[0].aftnInfo.split(' ')[1]} ${frmMainData.value.acnoEncr} ${res.data[0].aftnInfo.split(' ')[3]}`;
+        if (!isEmpty(frmMainData.value.acnoEncr)) {
+          isAftnInfo.value = true;
+          frmMainData.value.aftnInfo = `${res.data[0].aftnInfo.split(' ')[1]} ${frmMainData.value.acnoEncr} ${res.data[0].aftnInfo.split(' ')[3]}`;
+        } else {
+          frmMainData.value.aftnInfo = `${res.data[0].aftnInfo.split(' ')[1]} ${res.data[0].aftnInfo.split(' ')[3]}`;
+        }
       } else if (frmMainData.value.dpTpCd === '0203') {
-        frmMainData.value.aftnInfo = `${res.data[0].aftnInfo.split(' ')[1]} ${frmMainData.value.crcdnoEncr} ${res.data[0].aftnInfo.split(' ')[3]}`;
+        if (!isEmpty(frmMainData.value.crcdnoEncr)) {
+          isAftnInfo.value = true;
+          frmMainData.value.aftnInfo = `${res.data[0].aftnInfo.split(' ')[1]} ${frmMainData.value.crcdnoEncr} ${res.data[0].aftnInfo.split(' ')[3]}`;
+        } else {
+          frmMainData.value.aftnInfo = `${res.data[0].aftnInfo.split(' ')[1]} ${res.data[0].aftnInfo.split(' ')[3]}`;
+        }
       }
     }
     frmMainData.value.sfkVal = res.data[0].sfkVal; // 세이프키
@@ -388,6 +435,18 @@ async function currentTabFetchData() {
         searchParams.value.cntrSn,
         props.sellTpCd,
         props.cntrCstNo,
+      );
+      break;
+    case 'cashRcp': // 현금영수증
+      await tabCashRcpRef.value.setDatas(
+        searchParams.value.cntrNo,
+        searchParams.value.cntrSn,
+      );
+      break;
+    case 'bill': // 계산서
+      await tabBillRef.value.setDatas(
+        searchParams.value.cntrNo,
+        searchParams.value.cntrSn,
       );
       break;
     case 'txinv': // 세금계산서
@@ -429,7 +488,8 @@ async function onClickEmailSend() {
 }
 
 onMounted(async () => {
-  // console.log(`sellTpCd : ${props.sellTpCd}`);
+  console.log(`sellTpCd : ${props.sellTpCd}`);
+  console.log(`copnDvCd : ${props.copnDvCd}`);
   await fetchDataContractLists();
 });
 
