@@ -244,7 +244,7 @@ const telNos2 = ref({
 async function onClickBefore() {
   await router.push(
     {
-      path: '/ns/wtwdb-billing-document-mgt',
+      path: '/withdrawal/wtwdb-billing-document-mgt',
       query: {
         searchCstFnm: props.searchCstFnm, // 조회조건
         searchBildcWrteDt: props.searchBildcWrteDt, // 조회조건

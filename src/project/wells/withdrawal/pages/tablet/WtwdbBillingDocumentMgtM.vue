@@ -292,7 +292,7 @@ async function onClickSearchUser() {
 async function onClickRegP() {
   router.replace(
     {
-      path: '/ns/wtwdb-billing-document-write-reg',
+      path: '/withdrawal/wtwdb-billing-document-write-reg',
       query: {
         searchCstFnm: searchParams.value.cstFnm, // 조회조건
         searchBildcWrteDt: searchParams.value.bildcWrteDt, // 조회조건
@@ -326,7 +326,7 @@ async function onClickRegP() {
 async function onClickMove(data) {
   router.replace(
     {
-      path: '/ns/wtwdb-billing-document-fw-reg',
+      path: '/withdrawal/wtwdb-billing-document-fw-reg',
       query: {
         searchCstFnm: searchParams.value.cstFnm, // 조회조건
         searchBildcWrteDt: searchParams.value.bildcWrteDt, // 조회조건
