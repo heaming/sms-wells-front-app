@@ -207,9 +207,8 @@
         >
           <p>
             {{ frmMainData.sellAmt+$t('MSG_TXT_CUR_WON')
-              +'('+$t('MSG_TXT_PCSV_SPMT')+': '+frmMainData.sellAmt+$t('MSG_TXT_MCNT')+')' }}
+              +'('+$t('MSG_TXT_PCSV_SPMT')+': '+frmMainData.pcsvSpmt+$t('MSG_TXT_CUR_WON')+')' }}
           </p>
-          <p>{{ frmMainData.sellAmt+$t('MSG_TXT_CUR_WON') }}</p>
         </kw-form-item>
         <!-- 판매총액 -->
         <kw-form-item
@@ -251,13 +250,13 @@
         <kw-form-item
           :label="$t('MSG_TXT_DLQ_AMT')"
         >
-          <p>{{ frmMainData.dlqAmt+$t('MSG_TXT_CUR_WON') }}</p>
+          <p>{{ frmMainData.thmOcDlqAmt+$t('MSG_TXT_CUR_WON') }}</p>
         </kw-form-item>
         <!-- 미수금액 -->
         <kw-form-item
           :label="$t('MSG_TXT_UC_AMT')"
         >
-          <p>{{ frmMainData.ucAmt+$t('MSG_TXT_CUR_WON') }}</p>
+          <p>{{ frmMainData.thmUcBlam+$t('MSG_TXT_CUR_WON') }}</p>
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
@@ -286,7 +285,7 @@ import { cloneDeep, isEmpty } from 'lodash-es';
 
 const dataService = useDataService();
 const { t } = useI18n();
-const { alert, notify, modal } = useGlobal();
+const { notify, modal } = useGlobal();
 const props = defineProps({
   cntrNo: { type: String, required: true, default: '' },
   cntrSn: { type: String, required: true, default: '' },
@@ -336,6 +335,7 @@ const frmMainData = ref({
   thmUcBlam: '', // 당월미수잔액
   eotAtam: '', // 기말선수금(선수금액)
   eotUcAmt: '', // 기말미수금액(청구미수)
+  pcsvSpmt: '', // 택배추가
 
   prtnrKnm: '', // 판매자성명
 });
@@ -347,7 +347,17 @@ const isSearchPrepaymentVisible = ref(true); // 선납버튼
 
 // 입금등록 버튼 팝업 호출
 async function onClickDepositRgst() {
-  await alert('입금내역 팝업은 개발예정입니다.');
+  // await alert('입금내역 팝업은 개발예정입니다.');
+  const searchPopupParams = {
+    cntrNo: searchParams.value.cntrNo,
+    cntrSn: searchParams.value.cntrSn,
+    prtnrKnm: frmMainData.value.prtnrKnm,
+  };
+
+  await modal({
+    component: 'WwctaOrderDetailDepositRgstMgtP', // 입금등록
+    componentProps: searchPopupParams,
+  });
 }
 
 // 선납버튼 팝업 호출
@@ -483,6 +493,8 @@ async function fetchData() {
     frmMainData.value.eotAtam = stringUtil.getNumberWithComma(Number(res.data.searchRegularShippingsDepositIzResList[0].eotAtam), 0); // 기말선수금(선수금액)
     // eslint-disable-next-line max-len
     frmMainData.value.eotUcAmt = stringUtil.getNumberWithComma(Number(res.data.searchRegularShippingsDepositIzResList[0].eotUcAmt), 0); // 기말미수금액(청구미수)
+    // eslint-disable-next-line max-len
+    frmMainData.value.pcsvSpmt = stringUtil.getNumberWithComma(Number(res.data.searchRegularShippingsDepositIzResList[0].pcsvSpmt), 0); // 택배추가
     frmMainData.value.prtnrKnm = res.data.searchRegularShippingsDepositIzResList[0].prtnrKnm; // 판매자성명
   }
   // 여신한도조회
