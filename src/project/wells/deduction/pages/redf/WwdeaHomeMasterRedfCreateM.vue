@@ -216,7 +216,7 @@ async function fetchData() {
 }
 
 async function fetchData2() {
-  const res = await dataService.get('/sms/wells/deduction/redf/home-master/delinquent-paging', { params: { ...cachedParams, ...pageSecondInfo.value }, timeout: 60000 });
+  const res = await dataService.get('/sms/wells/deduction/redf/home-master/delinquent/paging', { params: { ...cachedParams, ...pageSecondInfo.value }, timeout: 60000 });
   const { list: redfes, pageInfo: pagingResult } = res.data;
 
   pageSecondInfo.value = pagingResult;
@@ -252,7 +252,7 @@ async function onClickExcelDownload() {
   } else if (searchParams.value.redfAdsbTpCd === '0203') {
     /* 연체 세팅 */
     view = grdSecondRef.value.getView();
-    res = await dataService.get('/sms/wells/deduction/redf/home-master/delinquent-excel-download', { params: cachedParams, timeout: 60000 });
+    res = await dataService.get('/sms/wells/deduction/redf/home-master/delinquent/excel-download', { params: cachedParams, timeout: 60000 });
   }
 
   await gridUtil.exportView(view, {
