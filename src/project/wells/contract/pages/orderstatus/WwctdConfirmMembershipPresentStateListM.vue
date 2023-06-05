@@ -14,31 +14,55 @@
 --->
 <template>
   <kw-page>
-    <kw-search :cols="3">
+    <kw-search
+      :cols="3"
+      @search="onClickSearch"
+    >
       <kw-search-row>
         <kw-search-item
           :label="$t('MSG_TXT_APPL_PRD')"
           required
         >
           <kw-date-range-picker
+            v-model:from="searchParams.rcpStrtDt"
+            v-model:to="searchParams.rcpEndDt"
             :label="$t('MSG_TXT_APPL_PRD')"
-            rules="date_range_required|date_range_months:1"
+            :from-placeholder="$t('MSG_TXT_START_DATE')"
+            :to-placeholder="$t('MSG_TXT_END_DATE')"
+            rules="date_range_required"
           />
         </kw-search-item>
 
         <kw-search-item :label="$t('MSG_TXT_PRDT_CATE')">
           <kw-select
-            :model-value="['']"
-            :options="['대분류 전체','B','C']"
+            v-model="searchParams.pdHclsfId"
+            :options="codes.PD_HCLSF"
+            first-option="all"
+            first-option-val=""
+            :placeholder="$t('MSG_TXT_ALL_CATG_LV1')"
+            @change="onChangeHclsf"
           />
           <kw-select
-            :model-value="['']"
-            :options="['중분류 전체','B','C']"
+            v-model="searchParams.pdMclsfId"
+            :options="codes.PD_MCLSF"
+            first-option="all"
+            first-option-val=""
+            :placeholder="$t('MSG_TXT_ALL_CATG_LV2')"
           />
         </kw-search-item>
 
-        <kw-search-item :label="$t('MSG_TXT_PRDT_CODE')">
-          <kw-input />
+        <!-- 상품코드 -->
+        <kw-search-item
+          :label="$t('MSG_TXT_PRDT_CODE')"
+        >
+          <kw-input
+            v-model="searchParams.basePdCd"
+            clearable
+            icon="search"
+            :maxlength="10"
+            dense
+            @click-icon="onClickSelectPdCd"
+          />
         </kw-search-item>
       </kw-search-row>
       <kw-search-row>
@@ -47,38 +71,48 @@
           required
         >
           <kw-date-range-picker
+            v-model:from="searchParams.cnfmStrtDt"
+            v-model:to="searchParams.cnfmEndDt"
             :label="$t('MSG_TXT_FXD_PRD')"
-            rules="date_range_required|date_range_months:1"
+            :from-placeholder="$t('MSG_TXT_START_DATE')"
+            :to-placeholder="$t('MSG_TXT_END_DATE')"
+            rules="date_range_required"
           />
         </kw-search-item>
         <kw-search-item :label="$t('MSG_TXT_PRDT_NM')">
-          <kw-input />
+          <kw-input
+            v-model="searchParams.pdNm"
+          />
         </kw-search-item>
+        <!-- 판매 구분 (판매조직유형코드) -->
         <kw-search-item :label="$t('MSG_TXT_SLS_CAT')">
           <kw-select
-            :model-value="[]"
-            :options="['전체','1. EDU','4. TM','7. 영업부','10. 회사']"
+            v-model="searchParams.sellOgTpCd"
+            :options="codes.OG_TP_CD"
+            first-option="all"
+            first-option-value=""
           />
-          <kw-field
-            :model-value="[]"
-          >
-            <template #default="{ field }">
-              <kw-checkbox
-                v-bind="field"
-                :label="$t('MSG_TXT_EXL_AUT_GEN')"
-                :val="$t('MSG_TXT_EXL_AUT_GEN')"
-              />
-            </template>
-          </kw-field>
+          <span>&nbsp;</span>
+          <kw-checkbox
+            v-model="searchParams.frisuMshCrtYn"
+            :label="$t('MSG_TXT_EXL_AUT_GEN')"
+            :false-value="N"
+            :true-value="Y"
+          />
         </kw-search-item>
       </kw-search-row>
       <kw-search-row>
         <kw-search-item
-          :label="$t('MSG_TXT_PRTNR_CD')"
+          :label="$t('MSG_TXT_PRTNR_NUM')"
         >
-          <kw-input />
-          <span>~</span>
-          <kw-input />
+          <kw-input
+            v-model="searchParams.prtnrNo"
+            icon="search"
+            clearable
+            :label="$t('MSG_TXT_PRTNR_NUM')"
+            rules="numeric|max:10"
+            @click-icon="onClickOpenPartnerListPopup"
+          />
         </kw-search-item>
       </kw-search-row>
     </kw-search>
@@ -118,91 +152,186 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { defineGrid, getComponentType, useMeta, gridUtil, codeUtil } from 'kw-lib';
+import { defineGrid, getComponentType, useMeta, useGlobal, useDataService, gridUtil, codeUtil } from 'kw-lib';
+import { cloneDeep, isEmpty } from 'lodash-es';
+import pdConst from '~sms-common/product/constants/pdConst';
+import dayjs from 'dayjs';
 
 const { getConfig } = useMeta();
-
+const { modal } = useGlobal();
 const { t } = useI18n();
+const now = dayjs();
+const dataService = useDataService();
+
 const pageInfo = ref({
   totalCount: 0,
   pageIndex: 1,
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
 });
 const grdMainRef = ref(getComponentType('KwGrid'));
-const { currentRoute } = useRouter();
+
 const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
+  'OG_TP_CD',
 );
 
+await Promise.allSettled([
+  dataService.get('/sms/common/contract/products/hclsf')
+    .then((response) => { codes.PD_HCLSF = response.data; }),
+  dataService.get('/sms/common/contract/products/mclsf')
+    .then((response) => { codes.PD_MCLSF_ALL = response.data; }),
+]);
+
+codes.PD_MCLSF = cloneDeep(codes.PD_MCLSF_ALL);
+
+const searchParams = ref({
+  rcpStrtDt: now.format('YYYYMM01'),
+  rcpEndDt: now.format('YYYYMMDD'),
+  pdHclsfId: '',
+  pdMclsfId: '',
+  basePdCd: '',
+  cnfmStrtDt: now.format('YYYYMM01'),
+  cnfmEndDt: now.format('YYYYMMDD'),
+  pdNm: '',
+  sellOgTpCd: '',
+  frisuMshCrtYn: 'N',
+  prtnrNo: '',
+});
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
+async function onChangeHclsf(hclsf) {
+  if (isEmpty(hclsf)) {
+    codes.PD_MCLSF = codes.PD_MCLSF_ALL;
+  } else {
+    codes.PD_MCLSF = codes.PD_MCLSF_ALL.filter((code) => hclsf === code.hgrPdClsfId);
+  }
+  searchParams.value.pdMclsfId = '';
+}
+// 상품코드 검색아이콘 클릭
+async function onClickSelectPdCd() {
+  const searchPopupParams = {
+    searchType: pdConst.PD_SEARCH_CODE,
+    searchValue: searchParams.value.basePdCd,
+    selectType: '',
+  };
 
+  const returnPdInfo = await modal({
+    component: 'ZwpdcStandardListP', // 상품기준 목록조회 팝업
+    componentProps: searchPopupParams,
+  });
+
+  if (returnPdInfo.result) {
+    searchParams.value.basePdCd = returnPdInfo.payload?.[0].pdCd;
+  }
+}
+
+// 파트너 조회 팝업
+async function onClickOpenPartnerListPopup() {
+  const { result, payload } = await modal({
+    component: 'ZwogzPartnerListP',
+    componentProps: {
+      prtnrNo: searchParams.value.prtnrNo,
+    },
+  });
+  if (result) {
+    searchParams.value.prtnrNo = payload.prtnrNo;
+  }
+}
+
+let cachedParams;
+async function fetchData() {
+  const res = await dataService.get('/sms/wells/contract/contracts/memberships/paging', { params: { ...cachedParams, ...pageInfo.value } });
+
+  // console.log(res.status);
+  // console.log(res.data);
+  const { list: details, pageInfo: pagingResult } = res.data;
+
+  if (pagingResult) {
+    pageInfo.value = pagingResult;
+  }
+
+  const view = grdMainRef.value.getView();
+  view.getDataSource().setRows(details);
+  view.resetCurrent();
+  if (details?.length > 0) {
+    view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
+  }
+}
+
+async function onClickSearch() {
+  cachedParams = cloneDeep(searchParams.value);
+  console.log(cachedParams);
+
+  await fetchData();
+}
+
+const { currentRoute } = useRouter();
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
+  const res = await dataService.get('/sms/wells/contract/contracts/memberships/excel-download', { params: cachedParams });
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
+    exportData: res.data,
+    searchConditions: true,
   });
 }
-
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
 
 const initGrdMain = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'col1' },
-    { fieldName: 'col2' },
-    { fieldName: 'col3' },
-    { fieldName: 'col4' },
-    { fieldName: 'col5' },
-    { fieldName: 'col6' },
-    { fieldName: 'col7' },
-    { fieldName: 'col8' },
-    { fieldName: 'col9' },
-    { fieldName: 'col10' },
-    { fieldName: 'col11' },
-    { fieldName: 'col12' },
-    { fieldName: 'col13' },
-    { fieldName: 'col14' },
-    { fieldName: 'col15' },
-    { fieldName: 'col16' },
-    { fieldName: 'col17' },
-    { fieldName: 'col18' },
-    { fieldName: 'col19' },
-    { fieldName: 'col20' },
-    { fieldName: 'col21' },
-    { fieldName: 'col22' },
-    { fieldName: 'col23' },
-
+    { fieldName: 'cntrDtlNo' },
+    { fieldName: 'cstKnm' },
+    { fieldName: 'sellTpNm' },
+    { fieldName: 'sellOgTpNm' },
+    { fieldName: 'pdHclsfNm' },
+    { fieldName: 'pdMclsfNm' },
+    { fieldName: 'basePdCd' },
+    { fieldName: 'pdNm' },
+    { fieldName: 'frisuBfsvcPtrmN' },
+    { fieldName: 'frisuMshCrtYn' },
+    { fieldName: 'nationSptYn' },
+    { fieldName: 'feeYn' },
+    { fieldName: 'prmYn' },
+    { fieldName: 'ogCd' },
+    { fieldName: 'sellPrtnrNo' },
+    { fieldName: 'prtnrKnm' },
+    { fieldName: 'rsbDvNm' },
+    { fieldName: 'cntrRcpFshDt' },
+    { fieldName: 'cntrCnfmYn' },
+    { fieldName: 'cntrCnfmDt' },
+    { fieldName: 'cntrPdStrtdt' },
+    { fieldName: 'cntrPdEnddt' },
+    { fieldName: 'cntrCanDt' },
   ];
 
   const columns = [
-    { fieldName: 'col1', header: t('MSG_TXT_CNTR_NO'), width: '151', styleName: 'text-center' },
-    { fieldName: 'col2', header: t('MSG_TXT_CNTOR_NM'), width: '112', styleName: 'text-center' },
-    { fieldName: 'col3', header: t('MSG_TXT_SEL_TYPE'), width: '112', styleName: 'text-center' },
-    { fieldName: 'col4', header: t('MSG_TXT_SLS_CAT'), width: '112', styleName: 'text-center' },
-    { fieldName: 'col5', header: t('MSG_TXT_PRDT_CLSF'), width: '112', styleName: 'text-center' },
-    { fieldName: 'col6', header: t('MSG_TXT_TXT_MSG_PD_MCLSF_ID'), width: '112', styleName: 'text-center' },
-    { fieldName: 'col7', header: t('MSG_TXT_PRDT_CODE'), width: '112', styleName: 'text-center' },
-    { fieldName: 'col8', header: t('MSG_TXT_PRDT_NM'), width: '159' },
-    { fieldName: 'col9', header: t('MSG_TXT_MEM_FREE_MN'), width: '154', styleName: 'text-center' },
-    { fieldName: 'col10', header: t('MSG_TXT_FREE_MEM_CRT'), width: '154', styleName: 'text-center' },
-    { fieldName: 'col11', header: t('MSG_TXT_STT_SUB'), width: '154', styleName: 'text-center' },
-    { fieldName: 'col12', header: t('MSG_TXT_FEE_PD_YN'), width: '154', styleName: 'text-center' },
-    { fieldName: 'col13', header: t('MSG_TXT_PRE_PAY'), width: '154', styleName: 'text-center' },
-    { fieldName: 'col14', header: t('MSG_TXT_HDQ'), width: '154' },
-    { fieldName: 'col15', header: t('MSG_TXT_PRTNR_CD'), width: '154' },
-    { fieldName: 'col16', header: t('MSG_TXT_PTNR_NAME'), width: '154', styleName: 'text-center' },
-    { fieldName: 'col17', header: t('MSG_TXT_CRLV'), width: '154', styleName: 'text-center' },
-    { fieldName: 'col18', header: t('MSG_TXT_RECPETN_DT'), width: '154', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'col19', header: t('MSG_TXT_DTRM_YN'), width: '154', styleName: 'text-center' },
-    { fieldName: 'col20', header: t('MSG_TXT_DTRM_DATE'), width: '154', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'col21', header: t('MSG_TXT_SUBS_DT'), width: '154', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'col22', header: t('MSG_TXT_RSGN_D'), width: '154', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'col23', header: t('MSG_TXT_CAN_D'), width: '154', styleName: 'text-center', datetimeFormat: 'date' },
-
+    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '151', styleName: 'text-center' },
+    { fieldName: 'cstKnm', header: t('MSG_TXT_CNTOR_NM'), width: '112', styleName: 'text-center' },
+    { fieldName: 'sellTpNm', header: t('MSG_TXT_SEL_TYPE'), width: '112', styleName: 'text-center' },
+    { fieldName: 'sellOgTpNm', header: t('MSG_TXT_SLS_CAT'), width: '112', styleName: 'text-center' },
+    { fieldName: 'pdHclsfNm', header: t('MSG_TXT_PD_HCLSF'), width: '112', styleName: 'text-center' },
+    { fieldName: 'pdMclsfNm', header: t('TXT_MSG_PD_MCLSF_ID'), width: '112', styleName: 'text-center' },
+    { fieldName: 'basePdCd', header: t('MSG_TXT_PRDT_CODE'), width: '112', styleName: 'text-center' },
+    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '159' },
+    { fieldName: 'frisuBfsvcPtrmN', header: t('MSG_TXT_MEM_FREE_MN'), width: '154', styleName: 'text-center' },
+    { fieldName: 'frisuMshCrtYn', header: t('MSG_TXT_FREE_MEM_CRT'), width: '154', styleName: 'text-center' },
+    { fieldName: 'nationSptYn', header: t('MSG_TXT_STT_SUB'), width: '154', styleName: 'text-center' },
+    { fieldName: 'feeYn', header: t('MSG_TXT_FEE_PD_YN'), width: '154', styleName: 'text-center' },
+    { fieldName: 'prmYn', header: t('MSG_TXT_PRE_PAY'), width: '154', styleName: 'text-center' },
+    { fieldName: 'ogCd', header: t('MSG_TXT_HDQ'), width: '154' },
+    { fieldName: 'sellPrtnrNo', header: t('MSG_TXT_PRTNR_NO'), width: '154' },
+    { fieldName: 'prtnrKnm', header: t('MSG_TXT_PTNR_NAME'), width: '154', styleName: 'text-center' },
+    { fieldName: 'rsbDvNm', header: t('MSG_TXT_CRLV'), width: '154', styleName: 'text-center' },
+    { fieldName: 'cntrRcpFshDt', header: t('MSG_TXT_RCP_D'), width: '154', styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'cntrCnfmYn', header: t('MSG_TXT_DTRM_YN'), width: '154', styleName: 'text-center' },
+    { fieldName: 'cntrCnfmDt', header: t('MSG_TXT_DTRM_DATE'), width: '154', styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'cntrPdStrtdt', header: t('MSG_TXT_SUBS_DT'), width: '154', styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'cntrPdEnddt', header: t('MSG_TXT_RSGN_D'), width: '154', styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'cntrCanDt', header: t('MSG_TXT_CAN_D'), width: '154', styleName: 'text-center', datetimeFormat: 'date' },
   ];
 
   data.setFields(fields);
@@ -210,31 +339,28 @@ const initGrdMain = defineGrid((data, view) => {
 
   view.rowIndicator.visible = true;
   view.setColumnLayout([
-
     {
       header: t('MSG_TXT_MEM_APPL_CONF_STT'), // colspan title
       direction: 'horizontal', // merge type
-      items: ['col1', 'col2', 'col3', 'col4', 'col5', 'col6', 'col7', 'col8'],
+      items: ['cntrDtlNo', 'cstKnm', 'sellTpNm', 'sellOgTpNm', 'pdHclsfNm',
+        'pdMclsfNm', 'basePdCd', 'pdNm'],
     },
 
     {
       header: t('MSG_TXT_ONE_TIM_PAY_ORD_STT'),
       direction: 'horizontal',
-      items: ['col9', 'col10', 'col11', 'col12'],
+      items: ['frisuBfsvcPtrmN', 'frisuMshCrtYn', 'nationSptYn', 'feeYn'],
     },
 
     {
       header: t('MSG_TXT_MEM_APPL_CONF_STT'),
       direction: 'horizontal',
-      items: ['col13', 'col14', 'col15', 'col16', 'col17', 'col18', 'col19', 'col20', 'col21', 'col22', 'col23'],
+      items: ['prmYn', 'ogCd', 'sellPrtnrNo', 'prtnrKnm', 'rsbDvNm', 'cntrRcpFshDt',
+        'cntrCnfmYn', 'cntrCnfmDt', 'cntrPdStrtdt', 'cntrPdEnddt', 'cntrCanDt'],
     },
-
   ]);
 
-  data.setRows([
-    { col1: 'W2022-1234567-1', col2: '김교원', col3: '렌탈', col4: '웰스', col5: '환경가전', col6: '정수기', col7: '1234', col8: 'KW-PN5W1', col9: '-', col10: '-', col11: '-', col12: '-', col13: 'Y', col14: 'D949330', col15: '1490318', col16: '김웰스', col17: '웰스매니저', col18: '2022-06-08', col19: 'Y', col20: '2022-06-30', col21: '2022-07-01', col22: '-', col23: '-' },
-    { col1: 'W2022-1234567-1', col2: '김교원', col3: '렌탈', col4: '웰스', col5: '환경가전', col6: '정수기', col7: '1234', col8: 'KW-PN5W1', col9: '-', col10: '-', col11: '-', col12: '-', col13: 'Y', col14: 'D949330', col15: '1490318', col16: '김웰스', col17: '웰스매니저', col18: '2022-06-08', col19: 'Y', col20: '2022-06-30', col21: '2022-07-01', col22: '-', col23: '-' },
-  ]);
+  data.setRows([]);
 });
 </script>
 
