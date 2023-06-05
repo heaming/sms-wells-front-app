@@ -243,6 +243,7 @@ async function onClickSearchPrtnrNoPopup() {
     component: 'ZwogzPartnerListP',
     componentProps: {
       prtnrNo: searchParams.value.sellPrtnrNo,
+      ogTpCd: 'W02', // M조직
     },
   });
   if (result) {
