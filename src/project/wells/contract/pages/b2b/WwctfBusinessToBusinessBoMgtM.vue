@@ -532,8 +532,11 @@ const initBusinessToBusinessBoList = defineGrid((data, view) => {
         },
       });
       if (!isEmpty(payload)) {
+        console.log('test = ');
+        console.log(payload);
         data.setValue(updateRow, 'opptIchrPrtnrNo', payload.prtnrNo);
         data.setValue(updateRow, 'prtnrKnm', payload.prtnrKnm);
+        data.setValue(updateRow, 'dgr3LevlOgCd', payload.dgr3LevlOgCd);
       }
     }
     if (columnName === 'bzrno' || columnName === 'leadCstNm') {
