@@ -166,6 +166,8 @@ const { ok } = useModal();
 const { getConfig } = useMeta();
 const { modal, notify } = useGlobal();
 const { getMonthWarehouse } = useSnCode();
+const store = useStore();
+const { currentRoute } = useRouter();
 // const { getters } = useStore();
 // const userInfo = getters['meta/getUserInfo'];
 
@@ -214,6 +216,12 @@ const searchParams = ref({
   ostrOjWareNo: '',
   strHopDt: dayjs().format('YYYYMMDD'), // 입고희망일자
   ostrAkRgstDt: '',
+});
+
+const loginUserParams = ref({
+  apyYm: dayjs().format('YYYYMM'),
+  userId: store.getters['meta/getUserInfo'].employeeIDNumber,
+
 });
 
 const pageInfo = ref({
@@ -266,15 +274,27 @@ async function onClickItemPop(type, row) {
       itmKndCd: searchParams.value.ostrItmNo,
       wareNo: searchParams.value.strOjWareNo,
       ostrWareNo: searchParams.value.ostrOjWareNo,
+      multiple: true,
 
     },
   });
+  const target = [];
   // TODO: 연결화면 개발진행중이라, 받아와서 처리하는 로직은 임시값으로 테스트한 코드임. 팝업화면에서 넘어오는 형식따라 수정가능성있음.
   if (result) {
     const view = grdMainRef.value.getView();
+    const list = gridUtil.getAllRowValues(view, false);
     if (type === 'C') {
-      view.getDataSource().addRows(payload);
-      view.resetCurrent();
+      payload.forEach((obj) => {
+        if (list.find((i) => i.itmPdCd === obj.itmPdCd)) {
+          return true;
+        }
+        target.push(obj);
+        return false;
+      });
+      // view.getDataSource().addRows(payload.map((v) => getRowData(v)));
+      view.getDataSource().addRows(target);
+
+      // view.resetCurrent();
     } else if (type === 'U') {
       const rowData = payload?.[0] || {};
       view.setValues(row, getRowData(rowData), true);
@@ -333,7 +353,11 @@ function validateChangeCode() {
 
 async function fetchDefaultData() {
   // TODO: 알맞는 값 없어서 하드코딩. session값 맞아지면 userInfo.employeeIDNumber 로 변경. WM: 1642720
-  warehouses.value = await getMonthWarehouse('36680', dayjs().format('YYYYMM'));
+
+  debugger;
+  const { apyYm } = loginUserParams.value;
+  const { userId } = loginUserParams.value;
+  warehouses.value = await getMonthWarehouse(userId, apyYm);
 
   searchParams.value.strOjWareNo = warehouses.value[0].codeId;
   validateChangeCode();
@@ -353,6 +377,18 @@ async function fetchOstrAkDataItem() {
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(outOfStorages);
   view.resetCurrent();
+}
+
+async function onClickExcelDownload() {
+  const view = grdMainRef.value.getView();
+
+  const res = await dataService.get('/sms/wells/service/out-of-storage-asks/out-of-storage-items/excel-download', { params: searchParams.value });
+
+  await gridUtil.exportView(view, {
+    fileName: currentRoute.value.meta.menuName,
+    timePostfix: true,
+    exportData: res.data,
+  });
 }
 
 // TODO: 데이터 생기면 확인해볼것
@@ -525,8 +561,7 @@ const initGrdMain = defineGrid((data, view) => {
       fieldName: 'itmPdCd',
       header: t('MSG_TXT_ITM_CD'),
       width: '200',
-      button: 'action',
-      styleName: 'rg-button-icon--search',
+      styleName: 'text-center',
     },
     {
       fieldName: 'itmPdNm',
