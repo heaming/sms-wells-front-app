@@ -45,7 +45,7 @@
               v-model:tel-no2="fieldBaseParams.cralIdvTno"
               class="px5"
               :mask="fieldBaseParams.mask"
-              :rules="cssrIsDvCdRules(fieldBaseParams.afchCssrIsDvCd)"
+              :rules="cssrIsDvCdRules(fieldBaseParams.afchCssrIsDvCd, isCssrEmpty)"
               :label="t('MSG_TXT_ISSUANCE_CLAR')"
               :readonly="isCssrEmpty"
             />
@@ -136,7 +136,7 @@
             v-model:tel-no2="fieldRpblParams.cralIdvTno"
             class="px5"
             :mask="fieldRpblParams.mask"
-            :rules="cssrIsDvCdRules(fieldRpblParams.cssrIsDvCd)"
+            :rules="cssrIsDvCdRules(fieldRpblParams.cssrIsDvCd, isCssrRpblEmpty)"
             :label="t('MSG_TXT_ISSUANCE_CLAR')"
             :readonly="isCssrRpblEmpty"
           />
@@ -334,6 +334,10 @@ async function onClickSave() {
       break;
   }
 
+  if (fieldRpblParams.value.cssrIsDvCd === '4') {
+    fieldBaseParams.afchCssrIsNo = `${fieldBaseParams.value.cralLocaraTno}${fieldBaseParams.value.mexnoEncr}${fieldBaseParams.value.cralIdvTno}`;
+  }
+
   await dataService.post('/sms/wells/contract/contracts/order-details/cash-sales-receipts', fieldBaseParams.value);
   notify(t('MSG_ALT_SAVE_DATA'));
 }
@@ -342,6 +346,7 @@ async function onClickSave() {
 async function onClickRpbl() {
   let view = '';
   let checkItem = '';
+  let cssrIsNo = '';
 
   view = grdMainRef.value.getView();
   checkItem = gridUtil.getCheckedRowValues(view);
@@ -364,15 +369,24 @@ async function onClickRpbl() {
       break;
   }
 
+  if (fieldRpblParams.value.cssrIsDvCd === '4') {
+    cssrIsNo = `${fieldRpblParams.value.cralLocaraTno}${fieldRpblParams.value.mexnoEncr}${fieldRpblParams.value.cralIdvTno}`;
+  } else {
+    cssrIsNo = fieldRpblParams.value.cssrIsNo;
+  }
+
   checkItem.forEach((p1) => {
     p1.afchCssrIsDvCd = fieldRpblParams.value.cssrIsDvCd; // 발행구분
-    p1.afchCssrIsNo = fieldRpblParams.value.cssrIsNo; // 발행번호 (입력한 사업자등록번호, 휴대전화...)
+    p1.afchCssrIsNo = cssrIsNo; // 발행번호 (입력한 사업자등록번호, 휴대전화...)
     p1.afchCssrTrdDvCd = fieldRpblParams.value.afchCssrTrdDvCd; // 공제구분
     p1.chRsonCn = fieldRpblParams.value.chRsonCn; // 변경사유
+    p1.cntrNo = searchParams.value.cntrNo; // 계약번호
+    p1.cntrSn = searchParams.value.cntrSn; // 계약일련번호
+    p1.cstNo = searchParams.value.cstNo;
   });
 
   // await dataService.post('/sms/common/withdrawal/pchssl/cash-sales-receipt-approval-state/history', checkItem);
-  await dataService.post('/sms/common/withdrawal/pchssl/cash-sales-receipt-approval-state/history', checkItem);
+  await dataService.post('/sms/wells/contract/contracts/order-details/cash-sales-receipt-rpbls', checkItem);
   notify(t('MSG_ALT_SAVE_DATA'));
   fetchData();
 }
@@ -409,25 +423,27 @@ async function onChangedCssrIsDvCd() {
 // }
 
 // 발행구분 규칙함수
-function cssrIsDvCdRules(cssrIsDvCd) {
+function cssrIsDvCdRules(cssrIsDvCd, readOnly) {
   let rule = '';
 
-  switch (cssrIsDvCd) {
-    case '4': // 휴대전화
-      rule = 'required|telephone';
-      break;
+  if (!readOnly) {
+    switch (cssrIsDvCd) {
+      case '4': // 휴대전화
+        rule = 'required|telephone';
+        break;
 
-    case '3': // 사업자등록번호
-      rule = 'required|min:10';
-      break;
+      case '3': // 사업자등록번호
+        rule = 'required|min:10';
+        break;
 
-    case '1': // 카드번호
-      rule = 'required|min:16';
-      break;
+      case '1': // 카드번호
+        rule = 'required|min:16';
+        break;
 
-    default:
-      rule = 'required';
-      break;
+      default:
+        rule = 'required';
+        break;
+    }
   }
   return rule;
 }
@@ -472,6 +488,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'bfchCssrTrdAmt', dataType: 'number' },
     { fieldName: 'bfchCssrAprRsCd' },
     { fieldName: 'afchCssrIsNo' },
+    { fieldName: 'afchCssrIsDvCd' },
     { fieldName: 'chRsonCn' },
     { fieldName: 'fnlMdfcDtm' },
     { fieldName: 'fnlMdfcUsrNm' },
@@ -481,10 +498,10 @@ const initGrid = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'rveDt', header: t('MSG_TXT_RVE_DT'), width: '131', styleName: 'text-center', datetimeFormat: 'date' }, // 수납일자
     { fieldName: 'cssrIsDvCd', header: t('MSG_TXT_ISSUANCE_CLAR'), width: '131', styleName: 'text-center', options: codes.CSSR_IS_DV_CD }, // 발행구분
-    { fieldName: 'bfchCssrIsNo', header: `${t('MSG_TXT_BFCH')} ${t('MSG_TXT_PBL_NO')}`, width: '131', styleName: 'text-center' }, // 변경 전
+    { fieldName: 'bfchCssrIsNo', header: `${t('MSG_TXT_BFCH')} ${t('MSG_TXT_PBL_NO')}`, width: '131', styleName: 'text-center' }, // 변경 전 발핸번호
     { fieldName: 'bfchCssrTrdAmt', header: t('MSG_TXT_AMT'), width: '131', styleName: 'text-right' }, // 금액
     { fieldName: 'bfchCssrAprRsCd', header: t('MSG_TXT_APR_RS'), width: '131', styleName: 'text-center', options: codes.CSSR_APR_RS_CD }, // 승인결과
-    { fieldName: 'afchCssrIsNo', header: `${t('MSG_TXT_AFCH')} ${t('MSG_TXT_PBL_NO')}`, width: '131', styleName: 'text-center' }, // 변경 후
+    { fieldName: 'afchCssrIsNo', header: `${t('MSG_TXT_AFCH')} ${t('MSG_TXT_PBL_NO')}`, width: '131', styleName: 'text-center' }, // 변경 후 발행번호
     { fieldName: 'chRsonCn', header: t('MSG_TXT_CH_RSON'), width: '99', styleName: 'text-center' }, // 변경사유
     { fieldName: 'fnlMdfcDtm', header: t('MSG_TXT_RGST_DT'), width: '99', styleName: 'text-center', datetimeFormat: 'datetime' }, // 등록일
     { fieldName: 'fnlMdfcUsrNm', header: t('MSG_TXT_FST_RGST_USR'), width: '99', styleName: 'text-center' }, // 등록자

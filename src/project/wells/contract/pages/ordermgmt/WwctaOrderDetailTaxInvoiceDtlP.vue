@@ -107,7 +107,7 @@
           v-model:tel-no1="fieldParams.mexno"
           v-model:tel-no2="fieldParams.cralIdvTno"
           mask="telephone"
-          rules="required|telephone"
+          :rules="fieldParams.rules"
           :readonly="isReadonly"
           :label="t('MSG_TXT_TEL_NO')"
         />
@@ -194,6 +194,7 @@ const fieldParams = ref({
   bzrnoFormat: '', /* 사업자등록번호 format */
   cntrNo: '',
   cntrSn: '',
+  rules: '',
 });
 
 // -------------------------------------------------------------------------------------------------
@@ -256,6 +257,15 @@ async function setDatas(cntrNo, cntrSn) {
 // 외부에서 사용할 수 있도록 노출 선언
 defineExpose({
   setDatas,
+});
+
+// 읽기전용인지 아닌지 감시하기
+watch(() => isReadonly.value, async () => {
+  let rules = '';
+  if (!isReadonly.value) {
+    rules = 'required|telephone';
+  }
+  fieldParams.value.rules = rules;
 });
 
 </script>
