@@ -3,7 +3,7 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : [WSNC] allocate(배정관리)
-2. 프로그램 ID : WwsncTimeTableSellListM - 타임테이블 조회(판매)
+2. 프로그램 ID : WwsncTimeTableSellListP - 타임테이블 조회(판매)
 3. 작성자 : gs.piit122 김동엽
 4. 작성일 : 2023-06-06
 ****************************************************************************************************
@@ -14,7 +14,7 @@
 ****************************************************************************************************
 -->
 <template>
-  <kw-page>
+  <kw-popup size="xl">
     <!-- To. 개발  window popup width size: 940px  -->
     <h1>엔지니어 Time table</h1>
     <div class="normal-area normal-area--button-set-bottom pt30 mt15 w860">
@@ -240,7 +240,7 @@
         />
       </div>
     </div>
-  </kw-page>
+  </kw-popup>
 </template>
 <script setup></script>
 <style lang="scss" scoped>
