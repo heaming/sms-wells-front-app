@@ -127,12 +127,18 @@
         v-show="searchParams.redfAdsbTpCd === '0202' "
         ref="grdMainRef"
         name="grdMain"
+        :visible-rows="10"
+        :page-size="pageMainInfo.pageSize-1"
+        :total-count="pageMainInfo.totalCount"
         @init="initGrid"
       />
       <kw-grid
         v-show="searchParams.redfAdsbTpCd === '0203' "
         ref="grdSecondRef"
         name="grdSecond"
+        :visible-rows="10"
+        :page-size="pageSecondInfo.pageSize-1"
+        :total-count="pageSecondInfo.totalCount"
         @init="initGrid2"
       />
     </div>
