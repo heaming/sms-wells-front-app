@@ -334,11 +334,11 @@ const searchParams = ref({
   cntrNo: step1.value.bas?.cntrNo,
   cntrTpCd: '01',
   copnDvCd: '1',
-  cstKnm: '이지원',
+  cstKnm: '강태욱',
   bzrno: '',
   cralLocaraTno: '010',
-  mexnoEncr: '0988',
-  cralIdvTno: '5638',
+  mexnoEncr: '5322',
+  cralIdvTno: '7170',
 });
 const cntrTpIs = ref({
   indv: computed(() => searchParams.value.cntrTpCd === '01'), // 개인

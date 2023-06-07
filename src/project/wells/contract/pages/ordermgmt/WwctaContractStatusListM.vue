@@ -210,9 +210,8 @@
               <p class="w90">
                 {{ t('MSG_TXT_RCP_D') }}
               </p>
-              <span>
-                {{ dayjs( item.cntrRcpFshDtm).format('YYYY-MM-DD') }}
-              </span>
+              <span v-if="item.cntrPrgsStatCd < 60">{{ dayjs( item.cntrTempSaveDtm).format('YYYY-MM-DD') }}</span>
+              <span v-if="item.cntrPrgsStatCd >= 60">{{ dayjs( item.cntrRcpFshDtm).format('YYYY-MM-DD') }}</span>
             </li>
             <li>
               <p class="w90">
@@ -227,7 +226,7 @@
                 {{ t('MSG_TXT_DPST_AMT') }}
               </p>
               <span class="text-weight-bold kw-fc--error">
-                {{ item.pymnamt||0 }}원
+                {{ stringUtil.getNumberWithComma(item.pymnamt||0) }}원
               </span>
             </li>
             <li v-if="searchParams.isBrmgr === 'Y'">
@@ -264,6 +263,16 @@
               padding="12px"
               @click="onClickModify(item.cntrPrgsStatCd, item.cntrNo)"
             />
+            <kw-separator
+              vertical
+              inset
+              spaced="0px"
+            />
+            <kw-btn
+              :label="$t('MSG_BTN_DEL')"
+              padding="12px"
+              @click="onClickContractDelete(item)"
+            />
           </div>
           <!-- 작성완료 -->
           <div
@@ -287,7 +296,6 @@
               @click="onClickNonFcfPayment(item)"
             />
             <kw-btn
-              v-if="item.pymnSkipYn === 'Y'"
               :label="$t('MSG_BTN_F2F_PYMNT')"
               padding="12px"
               @click="onClickF2fPayment(item)"
@@ -412,7 +420,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { consts, codeUtil, router, useDataService, useGlobal, popupUtil, useMeta } from 'kw-lib';
+import { consts, codeUtil, router, useDataService, useGlobal, popupUtil, useMeta, stringUtil } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 
@@ -619,15 +627,17 @@ async function onClickRequestDelete(item) {
 }
 
 async function onClickContractDelete(item) {
-  if (item.cntrPrgsStatCd === '20') {
+  if (item.cntrPrgsStatCd <= '20') {
     if (!await confirm(t('MSG_ALT_WANT_DEL_WCC'))) { return; }
 
-    await dataService.delete('/sms/wells/contract/contracts/contract-lists/', { data: item.cnteNo });
-  } else {
-    notify('TODO : 계약삭제 1프로세스');
-    // TODO : 계약삭제 프로세스
+    await dataService.delete(`/sms/wells/contract/contracts/contract-lists/${item.cntrNo}`);
+    onClickSearch();
   }
 }
+
+onActivated(async () => {
+  await onClickSearch();
+});
 
 onMounted(async () => {
   await onClickSearch();

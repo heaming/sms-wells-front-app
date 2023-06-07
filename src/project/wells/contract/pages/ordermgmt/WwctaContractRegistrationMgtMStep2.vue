@@ -161,7 +161,7 @@
                   <kw-item-label
                     class="scoped-item__product-name"
                   >
-                    {{ item.pdNm }}
+                    {{ item.pdNm }} {{ item.pdCd }}
                   </kw-item-label>
                   <div class="scoped-item__chips">
                     <kw-chip
@@ -189,12 +189,14 @@
                     label="기기변경"
                     class="mr8"
                     dense
+                    @click="onClickDeviceChahge(item)"
                   />
                   <kw-btn
                     v-if="isItem.rntl(item)"
                     label="1+1"
                     class="mr10"
                     dense
+                    @click="onClickOnePlusOne(item)"
                   />
                   <kw-btn
                     borderless
@@ -216,7 +218,7 @@
                       금액
                     </p>
                     <span class="kw-fc--black1 text-bold ml8">
-                      {{ stringUtil.getNumberWithComma(item.fnlAmt || 0) }}
+                      {{ stringUtil.getNumberWithComma(item.fnlAmt || 0) }} 원
                     </span>
                   </div>
                   <template
@@ -304,6 +306,7 @@
                         v-model="item.sellDscTpCd"
                         :options="item.sellDscTpCds"
                         placeholder="렌탈할인유형"
+                        first-option="select"
                         @change="getPdAmts(item)"
                       />
                       <kw-select
@@ -311,6 +314,7 @@
                         v-model="item.sellDscDvCd"
                         :options="item.sellDscDvCds"
                         placeholder="렌탈할인구분"
+                        first-option="select"
                         @change="getPdAmts(item)"
                       />
                       <kw-select
@@ -374,7 +378,7 @@ import { cloneDeep, isEmpty } from 'lodash-es';
 
 const { t } = useI18n();
 const dataService = useDataService();
-const { notify } = useGlobal();
+const { notify, modal } = useGlobal();
 
 const props = defineProps({
   contract: { type: String, required: true },
@@ -463,6 +467,44 @@ async function onClickProduct(pd) {
 function onClickDelete(pd) {
   step2.value.dtls = step2.value.dtls.filter((spd) => pd.cntrSn !== spd.cntrSn);
   resetCntrSn();
+}
+
+async function onClickDeviceChahge(pd) {
+  console.log(props.contract);
+
+  await modal({
+    component: 'WwctaMachineChangeCustomerDtlP',
+    componentProps: {
+      baseCntrNo: pd.cntrNo,
+      baseCntrSn: pd.cntrSn,
+      cstNo: step2.value.bas?.cntrCstNo,
+      indvCrpDv: step2.value.bas?.copnDvCd,
+      pdCd: pd.pdCd,
+      dscDv: pd.sellDscDvCd,
+      dscTp: pd.sellDscTpCd,
+      sellTpCd: pd.sellTpCd,
+      alncmpCd: pd.alncmpCntrDrmVal,
+      rgstMdfcDv: '1', // FIXME: 등록, 수정 구분 필요
+    },
+  });
+
+  // baseCntrNo: { type: String, default: '' }, // 현재 진행중인 계약번호
+  // baseCntrSn: { type: String, default: '' }, // 현재 진행중인 계약일련번호
+  // cstNo: { type: String, required: true, default: '' }, // 계약자 고객번호
+  // indvCrpDv: { type: String, required: true, default: '' }, // 법인격구분코드(1.개인, 2.법인)
+  // pdCd: { type: String, required: true, default: '' }, // 기준상품코드
+  // dscDv: { type: String, default: '' }, // 할인적용유형코드
+  // dscTp: { type: String, default: '' }, // 할인적용상세코드
+  // sellTpCd: { type: String, required: true, default: '' }, // 판매유형코드
+  // alncmpCd: { type: String, default: '' }, // 제휴사코드
+  // rgstMdfcDv: { type: String, required: true, default: '' }, // 등록/수정여부(1.등록, 2.수정)
+}
+
+async function onClickOnePlusOne(pd) {
+  await modal({
+    component: 'WwctaOnePlusOneContractListP',
+    componentProps: { cntrNo: pd.cntrNo },
+  });
 }
 
 async function getCntrInfo(cntrNo) {

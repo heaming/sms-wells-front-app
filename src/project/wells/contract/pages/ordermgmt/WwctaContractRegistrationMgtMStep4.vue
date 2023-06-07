@@ -518,7 +518,7 @@ async function getCntrInfo(cntrNo) {
 }
 
 function isChangedStep() {
-  return JSON.stringify(ogStep4.value) !== JSON.stringify(step4.value);
+  return true;
 }
 
 async function isValidStep() {

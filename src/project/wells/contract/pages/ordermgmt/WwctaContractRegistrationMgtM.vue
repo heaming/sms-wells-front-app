@@ -83,22 +83,20 @@
                       </kw-item-label>
                     </kw-item-section>
                   </template>
-                  <div class="like-vertical-stepper__step-content">
-                    <ul class="card-text">
-                      <li>
-                        <p>계약유형</p>
-                        <span>{{ step1?.bas?.cntrTpNm }}</span>
-                      </li>
-                      <li>
-                        <p>계약자</p>
-                        <span>{{ step1?.cntrt?.cstKnm }}</span>
-                      </li>
-                      <li>
-                        <p>학습자</p>
-                        <span>{{ step1?.lrnr?.cstKnm }}</span>
-                      </li>
-                    </ul>
-                  </div>
+                  <template v-if="true">
+                    <div class="like-vertical-stepper__step-content">
+                      <ul class="card-text">
+                        <li>
+                          <p>계약유형</p>
+                          <span>{{ step1?.bas?.cntrTpNm }}</span>
+                        </li>
+                        <li>
+                          <p>계약자</p>
+                          <span>{{ step1?.cntrt?.cstKnm }}</span>
+                        </li>
+                      </ul>
+                    </div>
+                  </template>
                 </kw-expansion-item>
               </kw-list>
               <div class="contract-summary">
@@ -259,7 +257,7 @@ function showStep(step) {
   currentStepName.value = `step${step}`;
 }
 async function getCntrInfo(step, cntrNo) {
-  if (step === 2) {
+  if ((step + 1) === 2) {
     // step2일 때 상품 조회
     await panelsRefs[currentStepName.value].getProducts(cntrNo);
   }
@@ -297,11 +295,11 @@ async function onClickTempSave() {
 }
 
 async function onClickNext() {
-  const { cntrNo } = contract.value;
-  const step = currentStepIndex + 1;
+  let { cntrNo } = contract.value;
+  const step = currentStepIndex.value + 1;
   if (await panelsRefs[currentStepName.value].isChangedStep()) {
     if (await panelsRefs[currentStepName.value].isValidStep()) {
-      await panelsRefs[currentStepName.value].saveStep();
+      cntrNo = await panelsRefs[currentStepName.value].saveStep();
     } else {
       return;
     }
