@@ -137,7 +137,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { codeUtil, defineGrid, getComponentType, gridUtil, useDataService, useMeta, useGlobal } from 'kw-lib';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, isEmpty } from 'lodash-es';
 import useSnCode from '~sms-wells/service/composables/useSnCode';
 
 const { getDistricts, getServiceCenterOrgs } = useSnCode();
@@ -232,9 +232,9 @@ async function onClickSave() {
   }
 
   if (!await gridUtil.alertIfIsNotModified(view)) {
-    const changedRows = gridUtil.getChangedRowValues(view);
+    const changedRows = gridUtil.getChangedRowValues(view).map((v) => ({ ...v, pdlvNo: v.pdlvNo === '' ? '0' : v.pdlvNo }));
 
-    await dataService.put('/sms/wells/service/region-level-zips', changedRows);
+    await dataService.put('/sms/wells/service/region-level-zips', changedRows.map((v) => ({ ...v, pdlvNo: v.pdlvNo === '' ? '0' : v.pdlvNo })));
 
     notify(t('MSG_ALT_SAVE_DATA'));
     await fetchData();
@@ -344,6 +344,12 @@ const initGrdMain = defineGrid((data, view) => {
 
   view.onGetEditValue = async (grid, index, editResult) => {
     grid.checkItem(index.itemIndex, true);
+
+    if (isEmpty(editResult.value)) {
+      grid.setValue(index.dataRow, 'pdlvNo', '');
+      grid.setValue(index.dataRow, 'pdlvAdr', '');
+      return;
+    }
 
     const { placeOfDeliveries: pdlvs } = cachedZips[index.dataRow];
     const { pdlvNo, pdlvAdr } = pdlvs.find((v) => v.pdlvNm === editResult.value);
