@@ -68,7 +68,7 @@
         <kw-form-row>
           <kw-form-item
             :label="t('MSG_TXT_NOTAK_RCV_CST_NAME')"
-            requried
+            required
           >
             <kw-input
               v-model="inputParams.cstNm"
@@ -80,7 +80,7 @@
           </kw-form-item>
           <kw-form-item
             :label="t('MSG_TXT_NOTAK_RCV_CST_NO')"
-            requried
+            required
           >
             <kw-input
               v-model:tel-no0="inputParams.cralLocaraTno"
