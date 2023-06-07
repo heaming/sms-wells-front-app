@@ -14,81 +14,79 @@
 ****************************************************************************************************
 --->
 <template>
-  <div class="normal-area">
-    <!-- 판매채널 -->
-    <h3>{{ $t('MSG_TXT_SEL_CHNL') }}</h3>
-    <kw-form
-      ref="frmChannelRef"
-      :cols="2"
-      dense
-      ignore-on-modified
-    >
-      <kw-form-row>
-        <!-- 판매채널 -->
-        <kw-form-item
+  <!-- 판매채널 -->
+  <h3>{{ $t('MSG_TXT_SEL_CHNL') }}</h3>
+  <kw-form
+    ref="frmChannelRef"
+    :cols="2"
+    dense
+    ignore-on-modified
+  >
+    <kw-form-row>
+      <!-- 판매채널 -->
+      <kw-form-item
+        :label="$t('MSG_TXT_SEL_CHNL')"
+        required
+      >
+        <kw-select
+          ref="usedChannelRef"
+          v-model="addChannelId"
+          first-option="select"
+          :options="usedChannelCds"
+          rules="required"
           :label="$t('MSG_TXT_SEL_CHNL')"
-          required
-        >
-          <kw-select
-            ref="usedChannelRef"
-            v-model="addChannelId"
-            first-option="select"
-            :options="usedChannelCds"
-            rules="required"
-            :label="$t('MSG_TXT_SEL_CHNL')"
-          />
-        </kw-form-item>
-        <!-- 판매채널 -->
-        <kw-form-item
+        />
+      </kw-form-item>
+      <!-- 판매채널 -->
+      <kw-form-item
+        :label="$t('MSG_TXT_ACEPT_PERIOD')"
+        required
+      >
+        <kw-date-range-picker
+          v-model:from="vlStrtDtm"
+          v-model:to="vlEndDtm"
           :label="$t('MSG_TXT_ACEPT_PERIOD')"
-          required
-        >
-          <kw-date-range-picker
-            v-model:from="vlStrtDtm"
-            v-model:to="vlEndDtm"
-            :label="$t('MSG_TXT_ACEPT_PERIOD')"
-          />
-        </kw-form-item>
-      </kw-form-row>
-    </kw-form>
-    <kw-separator />
-    <kw-action-bottom class="mb30">
-      <kw-btn
-        :label="$t('MSG_BTN_ADD')"
-        dense
-        @click="onClickAdd"
-      />
-    </kw-action-bottom>
-    <kw-action-top>
-      <!-- 복사 -->
-      <kw-btn
-        :label="$t('MSG_BTN_CNTN_COPY')"
-        grid-action
-        dense
-        :disable="gridRowCount === 0"
-        @click="onClickRowCopy"
-      />
-      <kw-separator
-        vertical
-        inset
-        spaced
-      />
-      <!-- 삭제 -->
-      <kw-btn
-        grid-action
-        dense
-        :label="$t('MSG_BTN_DEL')"
-        :disable="gridRowCount === 0"
-        @click="onClickRemove"
-      />
-    </kw-action-top>
-    <!-- 가격 -->
-    <kw-grid
-      ref="grdMainRef"
-      name="grdMgtPrcMain"
-      @init="initGrid"
+        />
+      </kw-form-item>
+    </kw-form-row>
+  </kw-form>
+  <kw-separator />
+  <kw-action-bottom class="mb30">
+    <kw-btn
+      :label="$t('MSG_BTN_ADD')"
+      dense
+      @click="onClickAdd"
     />
-  </div>
+  </kw-action-bottom>
+  <kw-action-top>
+    <!-- 복사 -->
+    <kw-btn
+      :label="$t('MSG_BTN_CNTN_COPY')"
+      grid-action
+      dense
+      :disable="gridRowCount === 0"
+      @click="onClickRowCopy"
+    />
+    <kw-separator
+      vertical
+      inset
+      spaced
+    />
+    <!-- 삭제 -->
+    <kw-btn
+      grid-action
+      dense
+      :label="$t('MSG_BTN_DEL')"
+      :disable="gridRowCount === 0"
+      @click="onClickRemove"
+    />
+  </kw-action-top>
+  <!-- 가격 -->
+  <kw-grid
+    ref="grdMainRef"
+    name="grdMgtPrcMain"
+    @init="initGrid"
+  />
 </template>
 <script setup>
 // -------------------------------------------------------------------------------------------------
@@ -128,7 +126,6 @@ const prcd = pdConst.TBL_PD_PRC_DTL;
 const prcfd = pdConst.TBL_PD_PRC_FNL_DTL;
 const currentPdCd = ref();
 const currentInitData = ref(null);
-const priceFieldData = ref({});
 const metaInfos = ref();
 const removeObjects = ref([]);
 const currentCodes = ref({});
@@ -206,11 +203,6 @@ async function validateProps() {
 
 async function resetInitData() {
   Object.assign(removeObjects.value, []);
-  priceFieldData.value[prcd] = {
-    pdExtsPrpGrpCd: 'PRC',
-    // 통화명
-    crncyDvCd: currentInitData.value[pdConst.TBL_PD_BAS]?.crncyDvCd,
-  };
   await setChannels();
   await initGridRows();
 }
@@ -407,9 +399,6 @@ async function initProps() {
   currentPdCd.value = pdCd;
   currentInitData.value = cloneDeep(initData);
   currentCodes.value = cloneDeep(pdMergeBy(currentCodes.value, codes));
-  priceFieldData.value[pdConst.TBL_PD_PRC_DTL] = [];
-  priceFieldData.value[pdConst.TBL_PD_PRC_DTL]
-    .push({ pdExtsPrpGrpCd: pdConst.PD_PRP_GRP_CD_CMN, pdCd: currentPdCd.value });
   // console.log(`WwpdcCompositionMgtMPriceStd - initProps - pdCd : ${currentPdCd.value}
   // , initData : `, currentInitData.value);
   await setChannels();

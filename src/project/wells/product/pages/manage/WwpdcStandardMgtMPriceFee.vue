@@ -13,27 +13,25 @@
 ****************************************************************************************************
 --->
 <template>
-  <div class="result-area">
-    <!-- 수수료 등록 -->
-    <h3>{{ $t('MSG_TXT_PD_REG_FEE') }}</h3>
-    <kw-action-top>
-      <kw-btn
-        v-show="!props.readonly"
-        :label="$t('MSG_BTN_DEL')"
-        grid-action
-        secondary
-        dense
-        :disable="gridRowCount === 0"
-        @click="onClickRemove"
-      />
-    </kw-action-top>
-    <kw-grid
-      ref="grdMainRef"
-      name="grdMgtPrcFeeMain"
-      :visible-rows="10"
-      @init="initGrid"
+  <!-- 수수료 등록 -->
+  <h3>{{ $t('MSG_TXT_PD_REG_FEE') }}</h3>
+  <kw-action-top>
+    <kw-btn
+      v-show="!props.readonly"
+      :label="$t('MSG_BTN_DEL')"
+      grid-action
+      secondary
+      dense
+      :disable="gridRowCount === 0"
+      @click="onClickRemove"
     />
-  </div>
+  </kw-action-top>
+  <kw-grid
+    ref="grdMainRef"
+    name="grdMgtPrcFeeMain"
+    :visible-rows="10"
+    @init="initGrid"
+  />
 </template>
 <script setup>
 // -------------------------------------------------------------------------------------------------
