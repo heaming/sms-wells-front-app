@@ -231,13 +231,24 @@ async function onClickExcelDownload() {
     exportData: res.data,
   });
 }
-
+function validateEmail(strEmail) {
+  const re = /^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$/i;
+  return re.test(strEmail);
+}
 async function onClickSave() {
   const view = grdTradeSpcshBlkPrntList.value.getView();
   if (await gridUtil.alertIfIsNotModified(view)) { return; }
   if (!await gridUtil.validate(view)) { return; }
 
   const changedRows = gridUtil.getChangedRowValues(view);
+  for (let i = 0; i < changedRows.length; i += 1) {
+    if (!isEmpty(changedRows[i].emadrCn)) {
+      if (!validateEmail(changedRows[i].emadrCn)) {
+        alert(t('MSG_ALT_EMAIL'));
+        return;
+      }
+    }
+  }
   await dataService.post('sms/wells/contract/contracts/trade-specification-sheets', changedRows);
 
   notify(t('MSG_ALT_SAVE_DATA'));
