@@ -108,7 +108,7 @@ const templateCn = (await dataService.post('/sflex/common/common/templates/TMP_S
 async function onClicBiztalkSend() {
   if (!await frmMainRef.value.validate()) { return; }
   if (!await confirm(t('MSG_ALT_BIZTALK_CONFIRM'))) { return; }
-
+  biztalkParams.value.cstTno = (biztalkParams.value.cstTno).replaceAll('-', '');
   await dataService.post('/sms/wells/service/outsourcedpd-as-receipts/biztalk', biztalkParams.value);
 
   notify(t('MSG_ALT_SEND_SUCCESS'));
