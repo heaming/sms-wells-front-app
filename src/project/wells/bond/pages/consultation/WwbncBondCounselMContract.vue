@@ -61,7 +61,6 @@
         :label="$t('MSG_TXT_IST_TNO')"
       >
         <kw-input
-          v-model="istTno"
           v-model:tel-no0="searchParams.schIstLocaraTno"
           v-model:tel-no1="searchParams.schIstExnoEncr"
           v-model:tel-no2="searchParams.schIstIdvTno"
@@ -100,7 +99,6 @@
         :label="$t('MSG_TXT_IST_MPNO')"
       >
         <kw-input
-          v-model="istMpno"
           v-model:tel-no0="searchParams.schIstCralLocaraTno"
           v-model:tel-no1="searchParams.schIstMexnoEncr"
           v-model:tel-no2="searchParams.schIstCralIdvTno"
@@ -115,7 +113,6 @@
         :label="$t('MSG_TXT_TEL_NO')"
       >
         <kw-input
-          v-model="tno"
           v-model:tel-no0="searchParams.schCntrLocaraTno"
           v-model:tel-no1="searchParams.schCntrExnoEncr"
           v-model:tel-no2="searchParams.schCntrIdvTno"
@@ -137,7 +134,7 @@
       >
         <kw-select
           v-model="searchParams.schCstDv"
-          :options="codes.CST_SE_APY_DV_CD"
+          :options="codes.CST_SE_APY_DV_CD.filter((v) => ['01', '02'].includes(v.codeId))"
           first-option="all"
         />
       </kw-search-item>
@@ -155,7 +152,6 @@
         :label="$t('MSG_TXT_MPNO')"
       >
         <kw-input
-          v-model="mpno"
           v-model:tel-no0="searchParams.schCntrCralLocaraTno"
           v-model:tel-no1="searchParams.schCntrMexnoEncr"
           v-model:tel-no2="searchParams.schCntrCralIdvTno"
@@ -408,7 +404,7 @@ const onClickClctamPsic = async () => {
 async function onClickSearch() {
   const cstNo = searchParams.value.schCstNo;
   const cstNm = searchParams.value.schCstNm;
-  const sfkVal = searchParams.value.schSfK;
+  const sfk = searchParams.value.schSfK;
   const cstNoYn = searchParams.value.schCstNoYn;
 
   if (cstNo !== '' || cstNm !== '') {
@@ -417,7 +413,7 @@ async function onClickSearch() {
       return;
     }
   }
-  if (sfkVal !== '') {
+  if (sfk !== '') {
     if (cstNoYn === 'N') {
       notify(t('MSG_ALT_SFK_IN'));
       return;
