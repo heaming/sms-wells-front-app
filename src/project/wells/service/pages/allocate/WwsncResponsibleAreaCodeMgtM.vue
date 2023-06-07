@@ -281,10 +281,12 @@ async function onClickSave() {
     notify(t('MSG_ALT_NOT_SEL_ITEM'));
     return;
   }
-  await dataService.post('/sms/wells/service/responsible-area-codes', chkRows.filter((v) => v.rowState === 'updated'));
 
-  notify(t('MSG_ALT_SAVE_DATA'));
-  await fetchData();
+  if (await gridUtil.validate(view, { isCheckedOnly: true })) {
+    await dataService.post('/sms/wells/service/responsible-area-codes', chkRows.filter((v) => v.rowState === 'updated'));
+    notify(t('MSG_ALT_SAVE_DATA'));
+    await fetchData();
+  }
 }
 
 // -------------------------------------------------------------------------------------------------
@@ -375,6 +377,7 @@ const initGrdMain = defineGrid((data, view) => {
           .reduce((a, v) => (a.includes(v) ? a : [...a, v]), []);
         return { editor: { type: 'list', labels: rpbLocaraCd, values: rpbLocaraCd } };
       },
+      rules: 'required',
     },
     {
       fieldName: 'apyStrtdt',
@@ -383,6 +386,7 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-center',
       editable: true,
       editor: { type: 'btdate' },
+      rules: 'required',
     },
     {
       fieldName: 'apyEnddt',
@@ -391,6 +395,7 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-center',
       editable: true,
       editor: { type: 'btdate' },
+      rules: 'required',
     },
     {
       fieldName: 'rpbLocaraGrpCd',
