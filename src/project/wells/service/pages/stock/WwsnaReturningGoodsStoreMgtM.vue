@@ -505,6 +505,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'prtnrNm' }, // 접수자명
     { fieldName: 'badDvNm' }, // 불량구분
     { fieldName: 'rtngdRvpyProcsYn' },
+    { fieldName: 'wkWareNo' },
 
   ];
 
