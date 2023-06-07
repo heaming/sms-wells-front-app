@@ -182,7 +182,6 @@ import { cloneDeep } from 'lodash-es';
 const { getConfig } = useMeta();
 const { modal, confirm, notify } = useGlobal();
 const { t } = useI18n();
-// const { ok } = useModal();
 
 const dataService = useDataService();
 
@@ -204,38 +203,6 @@ const props = defineProps({
     type: String,
     default: '',
   },
-  // ostrAkTpCd: {
-  //   type: String,
-  //   default: '',
-  // },
-  // strHopDt: {
-  //   type: String,
-  //   default: '',
-  // },
-  // ostrOjWareNo: {
-  //   type: String,
-  //   default: '',
-  // },
-  // strOjWareNo: {
-  //   type: String,
-  //   default: '',
-  // },
-  // ostrOjWareNm: {
-  //   type: String,
-  //   default: '',
-  // },
-  // strOjWareNm: {
-  //   type: String,
-  //   default: '',
-  // },
-  // itmPdCd: {
-  //   type: String,
-  //   default: '',
-  // },
-  // pageId: {
-  //   type: String,
-  //   default: '',
-  // },
 });
 
 const codes = ref(await codeUtil.getMultiCodes(
@@ -294,6 +261,7 @@ async function onClickDelete() {
 function getSaveParams() {
   const checkedValues = gridUtil.getCheckedRowValues(grdMainRef.value.getView());
   console.log(checkedValues);
+
   return checkedValues;
 }
 
@@ -327,8 +295,15 @@ async function onclickStandard() {
 
 async function onClickConfirm() {
   if (await confirm(t('MSG_ALT_WANT_DTRM'))) {
+    const view = grdMainRef.value.getView();
+    // 변경된 data가 있는지 체크
+    if (await gridUtil.alertIfIsNotModified(view)) { return; }
+    // validate
+    if (!await gridUtil.validate(view)) { return; }
+
     const saveParams = getSaveParams();
     await dataService.put(detailURI, saveParams);
+    notify(t('MSG_ALT_SAVE_DATA'));
     await fetchData();
   }
 }
@@ -403,12 +378,16 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'ostrAggQty', header: t('MSG_TXT_OSTR_AGG'), width: '100', styleName: 'text-center' },
     { fieldName: 'outQty',
       header: t('MSG_TXT_OSTR_QTY'),
+      editable: true,
+      rules: 'required|max:12',
+      numberFormat: '#,##0',
+      editor: {
+        type: 'number',
+        editFormat: '#,##0',
+        maxLength: 12,
+      },
       width: '100',
       styleName: 'text-center',
-      editor: {
-        type: 'input',
-      },
-      editable: true,
     },
     { fieldName: 'rmkCn',
       header: t('MSG_TXT_NOTE'),
@@ -416,6 +395,7 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-center',
       editor: {
         type: 'input',
+        maxLength: '1300',
       },
       editable: true },
     { fieldName: 'mgtUntNm', header: t('TXT_MSG_MNGT_UNIT_CD'), width: '100', styleName: 'text-center' },
@@ -451,6 +431,7 @@ const initGrdMain = defineGrid((data, view) => {
 
   view.checkBar.visible = true;
   view.rowIndicator.visible = true;
+  view.editOptions.editable = true;
 
   const editFields = ['outQty', 'rmkCn'];
   view.onCellEditable = (grid, clickData) => {
