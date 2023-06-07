@@ -62,7 +62,7 @@
             {'codeName':t('MSG_TXT_N_PBL'), 'codeId':'N'}
           ]"
           :disable="isReadonly"
-          rules="required"
+          :rules="setComnponetRule('required')"
         />
       </kw-form-item>
       <!-- 발행유형 -->
@@ -93,7 +93,7 @@
           maxlength="500"
           :readonly="isReadonly"
           :label="t('MSG_TXT_PIC_NM')"
-          rules="required"
+          :rules="setComnponetRule('required')"
         />
       </kw-form-item>
       <!-- 전화번호 -->
@@ -107,7 +107,7 @@
           v-model:tel-no1="fieldParams.mexno"
           v-model:tel-no2="fieldParams.cralIdvTno"
           mask="telephone"
-          :rules="fieldParams.rules"
+          :rules="setComnponetRule('required|telephone')"
           :readonly="isReadonly"
           :label="t('MSG_TXT_TEL_NO')"
         />
@@ -208,10 +208,11 @@ async function fetchData() {
     Object.assign(fieldParams.value, res.data);
     fieldParams.value.telNo = `${fieldParams.value.cralLocaraTno}${fieldParams.value.mexno}${fieldParams.value.cralIdvTno}`; // 전화번호
     fieldParams.value.bzrnoFormat = !isEmpty(res.data.bzrno) ? `${res.data.bzrno?.substring(0, 3)}-${res.data.bzrno?.substring(3, 5)}-${res.data.bzrno?.substring(5, 10)}` : '';
-
-    fieldParams.value.cntrNo = searchParams.value.cntrNo;
-    fieldParams.value.cntrSn = searchParams.value.cntrSn;
+  } else {
+    fieldParams.value = {};
   }
+  fieldParams.value.cntrNo = searchParams.value.cntrNo;
+  fieldParams.value.cntrSn = searchParams.value.cntrSn;
   console.log(fieldParams);
 }
 
@@ -260,12 +261,9 @@ defineExpose({
 });
 
 // 읽기전용인지 아닌지 감시하기
-watch(() => isReadonly.value, async () => {
-  let rules = '';
+function setComnponetRule(msg) {
   if (!isReadonly.value) {
-    rules = 'required|telephone';
+    return msg;
   }
-  fieldParams.value.rules = rules;
-});
-
+}
 </script>
