@@ -23,7 +23,10 @@
     </h3>
     <kw-form>
       <kw-form-row>
-        <kw-form-item>
+        <kw-form-item
+          rules="required"
+          :label="t('MSG_TXT_CST_NM')"
+        >
           <kw-input
             v-model="regMainData.cstFnm"
             :label="t('MSG_TXT_CST_NM')"
@@ -36,13 +39,14 @@
             @click-icon="onClickSearchUser"
           />
         </kw-form-item>
-        <kw-form-item>
+        <kw-form-item
+          :label="t('MSG_TIT_DRAT_DT')"
+        >
           <kw-date-picker
             v-model="regMainData.bildcWrteDt"
             :label="t('MSG_TIT_DRAT_DT')"
             rules="required"
           />
-          <!-- label="작성일" -->
         </kw-form-item>
       </kw-form-row>
     </kw-form>
@@ -56,8 +60,9 @@
 
     <kw-form>
       <kw-form-row>
-        <kw-form-item>
-          <!-- label="상품명" -->
+        <kw-form-item
+          :label="t('MSG_TXT_PRDT_NM')"
+        >
           <kw-input
             v-model="regMainData.pdNm"
             :label="t('MSG_TXT_PRDT_NM')"
@@ -65,8 +70,9 @@
             maxlength="33"
           />
         </kw-form-item>
-        <kw-form-item>
-          <!-- label="수량" -->
+        <kw-form-item
+          :label="t('MSG_TXT_QTY')"
+        >
           <zwcm-counter
             v-model="regMainData.pdQty"
             :label="t('MSG_TXT_QTY')"
@@ -76,8 +82,9 @@
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
-        <kw-form-item>
-          <!-- label="단가(총액)" -->
+        <kw-form-item
+          :label="t('MSG_TXT_UPRC_TAM')"
+        >
           <kw-input
             v-model="regMainData.pdSellAmt"
             :label="t('MSG_TXT_UPRC_TAM')"
@@ -86,8 +93,10 @@
             maxlength="20"
           />
         </kw-form-item>
-        <kw-form-item>
-          <!-- label="비고" -->
+        <kw-form-item
+
+          :label="t('MSG_TXT_NOTE')"
+        >
           <kw-input
             v-model="regMainData.rmkCn"
             :label="t('MSG_TXT_NOTE')"

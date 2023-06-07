@@ -30,10 +30,10 @@
       @search="onClickSearch"
     >
       <kw-search-row>
-        <kw-search-item>
-          <!-- required -->
-          <!-- rules="required" -->
-          <!-- label="고객명"             -->
+        <kw-search-item
+          rules="required"
+          :label="t('MSG_TXT_CST_NM')"
+        >
           <kw-input
             v-model="searchParams.cstFnm"
             :label="t('MSG_TXT_CST_NM')"
@@ -42,12 +42,13 @@
             @click-icon="onClickSearchUser"
           />
         </kw-search-item>
-        <kw-search-item>
+        <kw-search-item
+          :label="t('MSG_TIT_DRAT_DT')"
+        >
           <kw-date-picker
             v-model="searchParams.bildcWrteDt"
             :label="t('MSG_TIT_DRAT_DT')"
           />
-          <!-- label="작성일" -->
         </kw-search-item>
       </kw-search-row>
     </kw-search>
