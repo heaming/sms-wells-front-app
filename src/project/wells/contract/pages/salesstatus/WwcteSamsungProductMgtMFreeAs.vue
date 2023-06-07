@@ -237,7 +237,7 @@ async function onClickExcelDownload() {
   if (!cachedParams) { return; }
   const response = await dataService.get('/sms/wells/contract/sales-status/sec-product-management/free-after-services', { params: cachedParams });
   await gridUtil.exportView(grdView.value, {
-    fileName: currentRoute.value.meta.menuName,
+    fileName: `${currentRoute?.value.meta?.menuName}(${t('MSG_TXT_FREE')})`,
     timePostfix: true,
     exportData: response.data,
   });

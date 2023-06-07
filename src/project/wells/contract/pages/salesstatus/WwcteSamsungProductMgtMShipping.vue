@@ -236,7 +236,7 @@ async function onClickCombiExcelDownload() {
   };
   const response = await dataService.get('/sms/wells/contract/sales-status/sec-product-management/shipping-items', { params });
   await gridUtil.exportView(grdView.value, {
-    fileName: currentRoute.value.meta.menuName,
+    fileName: `${currentRoute?.value.meta?.menuName}(${t('MSG_TXT_DLVRY')})_콤비`,
     timePostfix: true,
     exportData: response.data,
   });
@@ -246,7 +246,7 @@ async function onClickExcelDownload() {
   if (!cachedParams) { cacheParams(); }
   const response = await dataService.get('/sms/wells/contract/sales-status/sec-product-management/shipping-items', { params: cachedParams });
   await gridUtil.exportView(grdView.value, {
-    fileName: currentRoute.value.meta.menuName,
+    fileName: `${currentRoute?.value.meta?.menuName}(${t('MSG_TXT_DLVRY')})`,
     timePostfix: true,
     exportData: response.data,
   });
