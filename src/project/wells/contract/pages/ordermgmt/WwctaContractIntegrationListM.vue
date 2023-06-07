@@ -108,6 +108,16 @@
             rules="required|max:10|numeric"
             :maxlength="10"
           />
+          <!-- 휴대전화번호(계약자/설치자) -->
+          <kw-input
+            v-if="isSearchMpnoVisible"
+            v-model:model-value="searchParams.cntrCstMpno"
+            v-model:telNo0="searchParams.cralLocaraTno"
+            v-model:telNo1="searchParams.mexnoEncr"
+            v-model:telNo2="searchParams.cralIdvTno"
+            :placeholder="t('MSG_TXT_INP')"
+            mask="telephone"
+          />
           <!-- 사업자번호 -->
           <kw-input
             v-if="isSearchBzrnoVisible"
@@ -119,15 +129,16 @@
             :regex="/^[0-9]*$/i"
             :maxlength="10"
           />
-          <!-- 휴대전화번호(계약자/설치자) -->
+          <!-- 세이프키값 -->
           <kw-input
-            v-if="isSearchMpnoVisible"
-            v-model:model-value="searchParams.cntrCstMpno"
-            v-model:telNo0="searchParams.cralLocaraTno"
-            v-model:telNo1="searchParams.mexnoEncr"
-            v-model:telNo2="searchParams.cralIdvTno"
+            v-if="isSearchSfkValVisible"
+            v-model="searchParams.sfkVal"
             :placeholder="t('MSG_TXT_INP')"
-            mask="telephone"
+            rules="required|max:100|numeric"
+            :label="$t('MSG_TXT_SFK')"
+            :type="number"
+            :regex="/^[0-9]*$/i"
+            :maxlength="100"
           />
         </kw-search-item>
         <!-- 관리구분(판매유형코드) -->
@@ -202,13 +213,14 @@ const searchParams = ref({
   ogTpCd: '', // 조직유형코드
   ogCd: '', // 부서코드(조직코드)
   cntrCstSeltDv: '1', // 고객선택구분
-  cntrCstNo: '', // 고객번호(세이프키)
+  cntrCstNo: '', // 고객번호
   cntrCstNm: '', // 고객명(계약자/설치자)
   cntrCstMpno: '', // 휴대전화번호(계약자/설치자)
   cralLocaraTno: '', // 휴대지역전화번호(계약자/설치자)
   mexnoEncr: '', // 휴대전화국번호암호화(계약자/설치자)
   cralIdvTno: '', // 휴대개별전화번호(계약자/설치자)
   bzrno: '', // 사업자번호
+  sfkVal: '', // 세이프키값
   sellTpCd: [''], // 계약구분(판매유형코드)
 });
 
@@ -234,9 +246,10 @@ const isSearchHmnrscEmpnoVisible = ref(false); // 플래너(인사사원번호)
 const isSearchOgCdVisible = ref(true); // 플래너(부서코드)
 
 const isSearchCstKnmVisible = ref(true); // 고객선택(고객명)
-const isSearchCntrCstNoVisible = ref(false); // 고객선택(고객번호/세이프키)
-const isSearchBzrnoVisible = ref(false); // 고객선택(사업자번호)
+const isSearchCntrCstNoVisible = ref(false); // 고객선택(고객번호)
 const isSearchMpnoVisible = ref(false); // 고객선택(휴대전화번호)
+const isSearchBzrnoVisible = ref(false); // 고객선택(사업자번호)
+const isSearchSfkValVisible = ref(false); // 고객선택(세이프키)
 
 async function fetchData() {
   // changing api & cacheparams according to search classification
@@ -278,17 +291,19 @@ async function onClickReset() {
 
   searchParams.value.cntrCstSeltDv = '1'; // 고객선택
   searchParams.value.cntrCstNm = ''; // 고객명(계약자/설치자)
-  searchParams.value.cntrCstNo = ''; // 고객번호(세이프키)
+  searchParams.value.cntrCstNo = ''; // 고객번호
   searchParams.value.bzrno = ''; // 사업자번호
+  searchParams.value.sfkVal = ''; // 세이프키
   searchParams.value.cntrCstMpno = ''; // 휴대전화번호(계약자/설치자)
   searchParams.value.cralLocaraTno = ''; // 휴대지역전화번호(계약자/설치자)
   searchParams.value.mexnoEncr = ''; // 휴대전화국번호암호화(계약자/설치자)
   searchParams.value.cralIdvTno = ''; // 휴대개별전화번호(계약자/설치자)
 
   isSearchCstKnmVisible.value = true;
-  isSearchCntrCstNoVisible.value = false;
   isSearchBzrnoVisible.value = false;
   isSearchMpnoVisible.value = false;
+  isSearchCntrCstNoVisible.value = false;
+  isSearchSfkValVisible.value = false;
 }
 
 // 고객번호 검색 팝업조회
@@ -361,23 +376,27 @@ async function onChangeCntrCstSeltDv() {
   if (['1', '4'].includes(searchParams.value.cntrCstSeltDv)) { // 고객명(계약자/설치자)
     isSearchCstKnmVisible.value = true;
     isSearchCntrCstNoVisible.value = false;
-    isSearchBzrnoVisible.value = false;
     isSearchMpnoVisible.value = false;
+    isSearchBzrnoVisible.value = false;
+    isSearchSfkValVisible.value = false;
 
-    searchParams.value.cntrCstNo = ''; // 고객번호(세이프키)
+    searchParams.value.cntrCstNo = ''; // 고객번호
     searchParams.value.bzrno = ''; // 사업자번호
+    searchParams.value.sfkVal = ''; // 세이프키
     searchParams.value.cntrCstMpno = ''; // 휴대전화번호(계약자/설치자)
     searchParams.value.cralLocaraTno = ''; // 휴대지역전화번호(계약자/설치자)
     searchParams.value.mexnoEncr = ''; // 휴대전화국번호암호화(계약자/설치자)
     searchParams.value.cralIdvTno = ''; // 휴대개별전화번호(계약자/설치자)
-  } else if (['2', '7'].includes(searchParams.value.cntrCstSeltDv)) { // 고객번호(세이프키)
+  } else if (searchParams.value.cntrCstSeltDv === '2') { // 고객번호
     isSearchCstKnmVisible.value = false;
     isSearchCntrCstNoVisible.value = true;
+    isSearchSfkValVisible.value = false;
     isSearchBzrnoVisible.value = false;
     isSearchMpnoVisible.value = false;
 
     searchParams.value.cntrCstNm = ''; // 고객명(계약자/설치자)
     searchParams.value.bzrno = ''; // 사업자번호
+    searchParams.value.sfkVal = ''; // 세이프키
     searchParams.value.cntrCstMpno = ''; // 휴대전화번호(계약자/설치자)
     searchParams.value.cralLocaraTno = ''; // 휴대지역전화번호(계약자/설치자)
     searchParams.value.mexnoEncr = ''; // 휴대전화국번호암호화(계약자/설치자)
@@ -385,20 +404,38 @@ async function onChangeCntrCstSeltDv() {
   } else if (['3', '5'].includes(searchParams.value.cntrCstSeltDv)) { // 휴대전화번호(계약자/설치자)
     isSearchCstKnmVisible.value = false;
     isSearchCntrCstNoVisible.value = false;
+    isSearchSfkValVisible.value = false;
     isSearchBzrnoVisible.value = false;
     isSearchMpnoVisible.value = true;
 
     searchParams.value.cntrCstNm = ''; // 고객명(계약자/설치자)
-    searchParams.value.cntrCstNo = ''; // 고객번호(세이프키)
+    searchParams.value.cntrCstNo = ''; // 고객번호
+    searchParams.value.sfkVal = ''; // 세이프키
     searchParams.value.bzrno = ''; // 사업자번호
   } else if (searchParams.value.cntrCstSeltDv === '6') { // 사업자번호
     isSearchCstKnmVisible.value = false;
     isSearchCntrCstNoVisible.value = false;
+    isSearchSfkValVisible.value = false;
     isSearchBzrnoVisible.value = true;
     isSearchMpnoVisible.value = false;
 
     searchParams.value.cntrCstNm = ''; // 고객명(계약자/설치자)
-    searchParams.value.cntrCstNo = ''; // 고객번호(세이프키)
+    searchParams.value.cntrCstNo = ''; // 고객번호
+    searchParams.value.sfkVal = ''; // 세이프키
+    searchParams.value.cntrCstMpno = ''; // 휴대전화번호(계약자/설치자)
+    searchParams.value.cralLocaraTno = ''; // 휴대지역전화번호(계약자/설치자)
+    searchParams.value.mexnoEncr = ''; // 휴대전화국번호암호화(계약자/설치자)
+    searchParams.value.cralIdvTno = ''; // 휴대개별전화번호(계약자/설치자)
+  } else if (searchParams.value.cntrCstSeltDv === '7') { // 세이프키
+    isSearchCstKnmVisible.value = false;
+    isSearchCntrCstNoVisible.value = false;
+    isSearchSfkValVisible.value = true;
+    isSearchBzrnoVisible.value = false;
+    isSearchMpnoVisible.value = false;
+
+    searchParams.value.cntrCstNm = ''; // 고객명(계약자/설치자)
+    searchParams.value.cntrCstNo = ''; // 고객번호
+    searchParams.value.bzrno = ''; // 사업자번호
     searchParams.value.cntrCstMpno = ''; // 휴대전화번호(계약자/설치자)
     searchParams.value.cralLocaraTno = ''; // 휴대지역전화번호(계약자/설치자)
     searchParams.value.mexnoEncr = ''; // 휴대전화국번호암호화(계약자/설치자)
