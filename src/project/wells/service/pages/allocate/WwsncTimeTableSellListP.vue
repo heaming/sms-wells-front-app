@@ -32,10 +32,51 @@
             </ul>
           </h3>
           <div class="border-box mt20 px35 py0 row justify-center">
-            <kw-date
+            <!--            <kw-date
               class="reservation-datepicker"
               style="width: 268px; height: 295px;"
-            />
+            />-->
+            <!--######################## 달력 #########################-->
+            <table class="calendar">
+              <colgroup>
+                <col
+                  v-for="i in [0, 1, 2, 3, 4, 5, 6]"
+                  :key="i"
+                >
+              </colgroup>
+
+              <tr class="calendar-days">
+                <th class="kw-fc--accent">
+                  {{ $t('MSG_TXT_SUN' /*일*/) }}
+                </th>
+                <th>{{ $t('MSG_TXT_MON' /*월*/) }}</th>
+                <th>{{ $t('MSG_TXT_TUE_ABB'/*화*/) }}</th>
+                <th>{{ $t('MSG_TXT_WED_ABB'/*수*/) }}</th>
+                <th>{{ $t('MSG_TXT_THU_ABB'/*목*/) }}</th>
+                <th>{{ $t('MSG_TXT_FRI_ABB'/*금*/) }}</th>
+                <th>{{ $t('MSG_TXT_SAT_ABB'/*토*/) }}</th>
+              </tr>
+              <tr
+                v-for="weekIdx of scheduleInfo.weekCnt"
+                :key="weekIdx"
+                class="calendar-date"
+              >
+                <td
+                  v-for="dayIdx of scheduleInfo.dayCnt"
+                  :key="weekIdx * 0 + dayIdx"
+                  @click="onClickCalendar($event)"
+                >
+                  <span
+                    :class="{ 'calendar-inactive-date': /*비활성화*/ isOpacity(getDayCnt(weekIdx, dayIdx)),
+                              'calendar-current-date': /*오늘*/isToday(getDayCnt(weekIdx, dayIdx)),
+                              'holiday': /*휴일*/isHoliday(getDayCnt(weekIdx, dayIdx)) }"
+                  >
+                    {{ getDayText(getDayCnt(weekIdx, dayIdx)) }}
+                  </span>
+                </td>
+              </tr>
+            </table>
+            <!--######################## 달력 #########################-->
           </div>
         </div>
         <div class="col">
@@ -50,11 +91,11 @@
                     김교원
                   </h3>
                   <kw-chip
-                    label="엔지니어"
+                    class="ml8"
                     color="primary"
+                    label="엔지니어"
                     square
                     text-color="primary"
-                    class="ml8"
                   />
                 </div>
                 <div class="column mt12">
@@ -66,10 +107,10 @@
                       010-1234-5678
                     </p>
                     <kw-btn
-                      icon="sms_24"
                       borderless
-                      style="font-size: 24px;"
                       class="ml4"
+                      icon="sms_24"
+                      style="font-size: 24px;"
                     />
                   </div>
                   <div class="row items-center">
@@ -77,18 +118,18 @@
                       032-1234-5678
                     </p>
                     <kw-btn
-                      icon="sms_24"
                       borderless
-                      style="font-size: 24px;"
                       class="ml4"
+                      icon="sms_24"
+                      style="font-size: 24px;"
                     />
                   </div>
                 </div>
               </div>
               <kw-avatar size="60px">
                 <img
-                  src="node_modules/kw-lib/src/assets/images/example_profile.png"
                   alt="profile"
+                  src="node_modules/kw-lib/src/assets/images/example_profile.png"
                 >
               </kw-avatar>
             </div>
@@ -101,11 +142,11 @@
                     박교원
                   </h3>
                   <kw-chip
-                    label="매니저"
+                    class="ml8"
                     color="primary"
+                    label="매니저"
                     square
                     text-color="primary"
-                    class="ml8"
                   />
                 </div>
                 <div class="column mt12">
@@ -138,8 +179,8 @@
           </div>
         </div>
         <kw-separator
-          vertical
           spaced="20px"
+          vertical
         />
         <div class="col">
           <h3 class="mt0">
@@ -223,26 +264,103 @@
       <kw-separator />
       <h3>엔지니어 전달메모</h3>
       <kw-input
-        type="textarea"
+        class="mt20 mb18"
         counter
         maxlength="500"
-        class="mt20 mb18"
+        type="textarea"
       />
       <div class="button-set--bottom row justify-center">
         <kw-btn
-          negative
           label="취소"
+          negative
         />
         <kw-btn
-          label="저장"
           class="ml8"
+          label="저장"
           primary
         />
       </div>
     </div>
   </kw-popup>
 </template>
-<script setup></script>
+<script setup>
+// -------------------------------------------------------------------------------------------------
+// Import & Declaration
+// -------------------------------------------------------------------------------------------------
+import { useDataService/* , useModal, alert */ } from 'kw-lib';
+import dayjs from 'dayjs';
+import { cloneDeep } from 'lodash-es';
+
+const dataService = useDataService();
+
+// const DATE_FORMAT_YM = 'YYYYMM';
+const DATE_FORMAT_YMD = 'YYYYMMDD';
+
+const props = defineProps({
+  baseYm: { type: String, default: '202306' },
+  prtnrNo: { type: String, default: '38764' /* 37000 */ },
+  prevTag: { type: String, default: 'timeAssign' },
+  dataGb: { type: String, default: '1' },
+  dataStus: { type: String, default: '0' },
+  cntrNo: { type: String, default: 'W20222324935' },
+  saleCd: { type: String, default: 'WP02110409' },
+  wrkTypDtl: { type: String, default: '3110' },
+});
+// -------------------------------------------------------------------------------------------------
+// Function & Event
+// -------------------------------------------------------------------------------------------------
+const schedules = ref([]);
+const scheduleInfo = ref({
+  weekCnt: 0,
+  dayCnt: 7,
+});
+
+let cachedParams;
+const searchParams = ref({
+  baseYm: props.baseYm,
+  prtnrNo: props.prtnrNo,
+  prevTag: props.prevTag,
+  dataGb: props.dataGb,
+  dataStus: props.dataStus,
+  cntrNo: props.cntrNo,
+  saleCd: props.saleCd,
+  wrkTypDtl: props.wrkTypDtl,
+});
+
+async function getTimeTables() {
+  cachedParams = cloneDeep(searchParams.value);
+  console.log(cachedParams);
+  const res = await dataService.get('/sms/wells/service/time-table', { params: { ...cachedParams } });
+  console.log(res.data);
+  schedules.value = res.data;
+  scheduleInfo.value.weekCnt = schedules.value.length / scheduleInfo.value.dayCnt;
+}
+
+function onClickCalendar($event) {
+  document.querySelectorAll('tr.calendar-date > td > span').forEach((element) => {
+    element.classList.remove('calendar-selected-date');
+  });
+  $event.target.classList.toggle('calendar-selected-date');
+}
+
+function isHoliday(dayCnt) {
+  return schedules.value[dayCnt - 1]?.dfYn === 'Y' || schedules.value[dayCnt - 1]?.phldYn === 'Y';
+}
+
+function isOpacity(dayCnt) {
+  return !(schedules.value[dayCnt - 1]?.baseMm === searchParams.value.baseYm.substring(4));
+}
+
+function isToday(dayCnt) {
+  if (!schedules.value[dayCnt - 1]) return false;
+  const { baseY, baseMm, baseD } = schedules.value[dayCnt - 1];
+  return `${baseY}${baseMm}${baseD}` === dayjs().format(DATE_FORMAT_YMD);
+}
+
+onMounted(async () => {
+  await getTimeTables();
+});
+</script>
 <style lang="scss" scoped>
 h3 {
   margin: 0;

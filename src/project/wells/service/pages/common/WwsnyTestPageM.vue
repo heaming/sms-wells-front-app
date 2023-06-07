@@ -74,6 +74,25 @@ const movePages = [
         props: {
           cntrNo: 'W20222324935',
           cntrSn: '1',
+          prtnrNo: '37000',
+          inputGb: '3', // 입력구분
+          wkGb: '1', // 작업구분
+          // workDt: '20230601', // 작업일자
+          // asIstOjNo: '1', // 작업순번
+          // acpgDiv: '', // 접수구분
+          // basePdCd: 'WP02110409', // 상품코드
+          // svBizDclsfCd: '', // 서비스업무세분류코드
+          prevTag: 'timeAssign',
+          dataGb: '1',
+        },
+      },
+      /* {
+        btnName: '타임테이블 조회(판매) 팝업',
+        type: 'modal',
+        call: 'WwsncTimeTableSellListP',
+        props: {
+          cntrNo: 'W20222324935',
+          cntrSn: '1',
           prtnrNo: '38764',
           inputGb: '3', // 입력구분
           wkGb: '1', // 작업구분
@@ -84,8 +103,9 @@ const movePages = [
           // istPcsvDvCd: searchParams.value.istPcsvDvCd, // 설치택배구분
           // mnftCoId: dataList.mnftCoId, // 제조사(LCJEJO)
           svBizDclsfCd: '', // 서비스업무세분류코드
+          prevTag: 'mng_as_schedule',
         },
-      },
+      }, */
     ],
   },
 ];
