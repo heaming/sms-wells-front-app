@@ -133,7 +133,7 @@ async function onClickSearch() {
 }
 
 async function onClickExcelDownload() {
-  const response = await dataService.get('/sms/wells/contract/sales-status/sec-product-management/reservation-days/paging', { params: cachedParams });
+  const response = await dataService.get('/sms/wells/contract/sales-status/sec-product-management/reservation-days', { params: cachedParams });
   await gridUtil.exportView(grdView.value, {
     fileName: router.currentRoute?.value.meta?.menuName,
     timePostfix: true,
