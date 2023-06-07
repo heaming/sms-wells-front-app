@@ -46,7 +46,6 @@
         :label="$t('MSG_TXT_CNTR_MPNO')"
       >
         <kw-input
-          v-model="mpNo"
           v-model:tel-no0="searchParams.schCralLocaraTno"
           v-model:tel-no1="searchParams.schMexnoEncr"
           v-model:tel-no2="searchParams.schCralIdvTno"
@@ -91,7 +90,6 @@
         :label="$t('MSG_TXT_IST_MPNO')"
       >
         <kw-input
-          v-model="IstMpNo"
           v-model:tel-no0="searchParams.schIstCralLocaraTno"
           v-model:tel-no1="searchParams.schIstMexnoEncr"
           v-model:tel-no2="searchParams.schIstCralIdvTno"
