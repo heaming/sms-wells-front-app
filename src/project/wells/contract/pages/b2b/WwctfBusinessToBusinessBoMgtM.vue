@@ -325,7 +325,7 @@ const initBusinessToBusinessBoList = defineGrid((data, view) => {
     { fieldName: 'biddBzsNm' }, // 입찰업체명
     { fieldName: 'unuitmCn' }, // 특이사항
     { fieldName: 'fnlMdfcDt' }, // 최종수정일자
-
+    { fieldName: 'ogTpCd' }, // 조직코드
   ];
 
   const columns = [
@@ -483,7 +483,7 @@ const initBusinessToBusinessBoList = defineGrid((data, view) => {
         maxLength: 2000,
       } }, // 특이사항
     { fieldName: 'fnlMdfcDt', header: t('MSG_TXT_FNL_MDFC_DT'), width: '142', styleName: 'text-center', editable: false, datetimeFormat: 'date' }, // 최종수정일자
-
+    { fieldName: 'ogTpCd', visible: false },
   ];
 
   data.setFields(fields);
@@ -519,6 +519,8 @@ const initBusinessToBusinessBoList = defineGrid((data, view) => {
     if (!isEmpty(payload)) {
       data.setValue(updateRow, 'opptIchrPrtnrNo', payload.prtnrNo);
       data.setValue(updateRow, 'prtnrKnm', payload.prtnrKnm);
+      data.setValue(updateRow, 'dgr3LevlOgCd', payload.dgr3LevlOgCd);
+      data.setValue(updateRow, 'ogTpCd', payload.ogTpCd);
     }
   };
   view.onCellEdited = async function cellEdited(grid, itemIndex, dataRow, fieldIndex) {
@@ -532,11 +534,10 @@ const initBusinessToBusinessBoList = defineGrid((data, view) => {
         },
       });
       if (!isEmpty(payload)) {
-        console.log('test = ');
-        console.log(payload);
         data.setValue(updateRow, 'opptIchrPrtnrNo', payload.prtnrNo);
         data.setValue(updateRow, 'prtnrKnm', payload.prtnrKnm);
         data.setValue(updateRow, 'dgr3LevlOgCd', payload.dgr3LevlOgCd);
+        data.setValue(updateRow, 'ogTpCd', payload.ogTpCd);
       }
     }
     if (columnName === 'bzrno' || columnName === 'leadCstNm') {
