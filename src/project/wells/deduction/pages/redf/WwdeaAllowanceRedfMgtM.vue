@@ -208,6 +208,7 @@
         v-show="searchType.ogTpCdW01AndW02"
         ref="grdMainRef"
         name="grdMain"
+        :visible-rows="10"
         :page-size="pageMainInfo.pageSize-1"
         :total-count="pageMainInfo.totalCount"
         @init="initGrid"
@@ -217,6 +218,7 @@
         v-show="searchType.ogTpCdW04AndW05"
         ref="grdSecondRef"
         name="grdSecond"
+        :visible-rows="10"
         :page-size="pageSecondInfo.pageSize-1"
         :total-count="pageSecondInfo.totalCount"
         @init="initGrid2"
@@ -412,8 +414,7 @@ async function onClickPageMove(routerType) {
   } if (routerType === 'B2B') {
     pageUrl = '/fee/wwdea-sole-distributor-mgt';
   } else if (routerType === 'HM') {
-    await alert(t('현재 미개발된 화면으로 이동 불가합니다.'));
-    return;
+    pageUrl = '/fee/wwdea-home-master-redf-create';
   } else if (routerType === 'MUTU') {
     pageUrl = '/fee/wwdea-mutual-aid-fee-mgt';
   }

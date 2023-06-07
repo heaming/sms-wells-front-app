@@ -480,19 +480,24 @@ const initGridSnglPmntContractorList = defineGrid((data, view) => {
     const cntrNo = g.getValue(dataRow, 'cntrNo');
     const cntrSn = g.getValue(dataRow, 'cntrSn');
     const { sellTpCd } = g.getValues(dataRow);
+    const { cntrCstNo } = g.getValues(dataRow);
+    const { copnDvCd } = g.getValues(dataRow);
 
     if (column === 'cntrDtlNo') {
       await modal({
         component: 'WwctaOrderDetailP',
-        componentProps: { cntrNo, cntrSn, sellTpCd },
+        componentProps: { cntrNo, cntrSn, sellTpCd, cntrCstNo, copnDvCd },
       });
     } else if (column === 'orderInfView') {
-      notify(t('팝업 준비중 입니다.'));
-      // await modal({
-      // component: 'WwctaSinglePaymentOrderDetailListP',
-      // });
+      await modal({
+        component: 'WwctaSinglePaymentOrderDetailListP',
+        componentProps: { cntrNo, cntrSn },
+      });
     } else if (column === 'relPdSearch') {
-      notify(t('팝업 준비중 입니다.')); // 'W-SS-U-0129P07' 팝업 준비 중
+      await modal({
+        component: 'WwctaLinkProductListP',
+        componentProps: { cntrNo, cntrSn },
+      });
     }
   };
 });

@@ -672,17 +672,17 @@ const initGridCntrChgHist = defineGrid((data, view) => {
     { fieldName: 'cntrTempSaveDtm', header: t('MSG_TXT_CNTR_TEMP_SAVE_DTM'), width: '200', styleName: 'text-center', datetimeFormat: 'datetime' }, // 계약임시저장일시
     { fieldName: 'cntrRcpFshDtm', header: t('MSG_TXT_CNTR_RCP_FSH_DTM'), width: '200', styleName: 'text-center', datetimeFormat: 'datetime' }, // 계약접수완료일시
     { fieldName: 'cntrStlmFshDtm', header: t('MSG_TXT_CNTR_STLM_FSH_DTM'), width: '200', styleName: 'text-center', datetimeFormat: 'datetime' }, // 계약결제완료일시
-    { fieldName: 'cntrCnfmAprAkDtm', header: t('MSG_TXT_CNTR_DTL_NO'), width: '200', styleName: 'text-center', datetimeFormat: 'datetime' }, // 계약확정승인요청일시
-    { fieldName: 'cntrCnfmAprDtm', header: t('MSG_TXT_CNTR_DTL_NO'), width: '200', styleName: 'text-center', datetimeFormat: 'datetime' }, // 계약확정승인일시
-    { fieldName: 'cntrCnfmDtm', header: t('MSG_TXT_CNTR_DTL_NO'), width: '200', styleName: 'text-center', datetimeFormat: 'datetime' }, // 계약확정일시
-    { fieldName: 'cntrCanDtm', header: t('MSG_TXT_CNTR_DTL_NO'), width: '200', styleName: 'text-center', datetimeFormat: 'datetime' }, // 계약취소일시
-    { fieldName: 'cntrCanRsonCd', header: t('MSG_TXT_CNTR_DTL_NO'), width: '200', styleName: 'text-left' }, // 계약취소사유코드
-    { fieldName: 'cntrPrgsStatMoCn', header: t('MSG_TXT_CNTR_DTL_NO'), width: '250', styleName: 'text-left' }, // 계약진행상태메모내용
-    { fieldName: 'dsbGurTpCd', header: t('MSG_TXT_CNTR_DTL_NO'), width: '200', styleName: 'text-left' }, // 지급보증유형코드
-    { fieldName: 'cntrInflwPhDvCd', header: t('MSG_TXT_CNTR_DTL_NO'), width: '250', styleName: 'text-left' }, // 계약유입경로구분코드
-    { fieldName: 'pspcCstId', header: t('MSG_TXT_CNTR_DTL_NO'), width: '200', styleName: 'text-center' }, // 가망고객ID
-    { fieldName: 'cntrChRcpId', header: t('MSG_TXT_CNTR_DTL_NO'), width: '200', styleName: 'text-center' }, // 계약변경접수ID
-    { fieldName: 'dcevdnDocId', header: t('MSG_TXT_CNTR_DTL_NO'), width: '200', styleName: 'text-center' }, // 증빙서류문서ID
+    { fieldName: 'cntrCnfmAprAkDtm', header: t('MSG_TXT_CNTR_CNFM_APR_AK_DTM'), width: '200', styleName: 'text-center', datetimeFormat: 'datetime' }, // 계약확정승인요청일시
+    { fieldName: 'cntrCnfmAprDtm', header: t('MSG_TXT_CNTR_CNFM_APR_DTM'), width: '200', styleName: 'text-center', datetimeFormat: 'datetime' }, // 계약확정승인일시
+    { fieldName: 'cntrCnfmDtm', header: t('MSG_TXT_CNTR_CNFM_DTM'), width: '200', styleName: 'text-center', datetimeFormat: 'datetime' }, // 계약확정일시
+    { fieldName: 'cntrCanDtm', header: t('MSG_TXT_CNTR_CAN_DTM'), width: '200', styleName: 'text-center', datetimeFormat: 'datetime' }, // 계약취소일시
+    { fieldName: 'cntrCanRsonCd', header: t('MSG_TXT_CNTR_CAN_RSON_CD'), width: '200', styleName: 'text-left' }, // 계약취소사유코드
+    { fieldName: 'cntrPrgsStatMoCn', header: t('MSG_TXT_CNTR_PRGS_STAT_MO_CN'), width: '250', styleName: 'text-left' }, // 계약진행상태메모내용
+    { fieldName: 'dsbGurTpCd', header: t('MSG_TXT_DSB_GUR_TP_CD'), width: '200', styleName: 'text-left' }, // 지급보증유형코드
+    { fieldName: 'cntrInflwPhDvCd', header: t('MSG_TXT_CNTR_INFLW_PH_DV_CD'), width: '250', styleName: 'text-left' }, // 계약유입경로구분코드
+    { fieldName: 'pspcCstId', header: t('MSG_TXT_PSPC_CST_ID'), width: '200', styleName: 'text-center' }, // 가망고객ID
+    { fieldName: 'cntrChRcpId', header: t('MSG_TXT_CNTR_CH_RCP_ID'), width: '200', styleName: 'text-center' }, // 계약변경접수ID
+    { fieldName: 'dcevdnDocId', header: t('MSG_TXT_DCEVDN_DCMT_ID'), width: '200', styleName: 'text-center' }, // 증빙서류문서ID
 
     { fieldName: 'dtaDlYn', header: t('MSG_TXT_DTA_DEL_YN'), width: '200', styleName: 'text-center' }, // 데이터삭제여부
     { fieldName: 'fstRgstDtm', header: t('MSG_TXT_FRST_RGST_DTM'), width: '200', styleName: 'text-center', datetimeFormat: 'datetime' }, // 최초등록일시

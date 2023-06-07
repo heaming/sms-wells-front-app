@@ -473,7 +473,7 @@ const initGrid = defineGrid((data, view) => {
       width: '208',
       rules: 'required',
       editor: { type: 'dropdown' },
-      options: codes.SL_CTR_MTR_TP_CD,
+      options: codes.SL_CTR_DSC_TP_CD,
     },
     {
       fieldName: 'slCtrDscTpCd',

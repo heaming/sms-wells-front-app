@@ -293,6 +293,7 @@ const initGridMembershipContractorList = defineGrid((data, view) => {
     { fieldName: 'cntrDtlNo' }, // 계약번호
     { fieldName: 'cstKnm' }, // 계약자명
     { fieldName: 'sellTpCd' }, // 판매유형코드
+    { fieldName: 'copnDvCd' }, // 고객구분코드(1:개인, 2:법인)
     { fieldName: 'rcgvpKnm' }, // 설치자명
     { fieldName: 'ojSellTpNm' }, // 계약구분
     { fieldName: 'mshDvNm' }, // 멤버십구분
@@ -351,9 +352,11 @@ const initGridMembershipContractorList = defineGrid((data, view) => {
     const paramCntrNo = String(paramCntrDtlNo).split('-')[0];
     const paramCntrSn = String(paramCntrDtlNo).split('-')[1];
     const { sellTpCd } = g.getValues(dataRow);
+    const { cntrCstNo } = g.getValues(dataRow);
+    const { copnDvCd } = g.getValues(dataRow);
 
     if (['cntrDtlNo'].includes(column)) { // 계약상세(윈도우팝업)
-      await modal({ component: 'WwctaOrderDetailP', componentProps: { cntrNo: paramCntrNo, cntrSn: paramCntrSn, sellTpCd } });
+      await modal({ component: 'WwctaOrderDetailP', componentProps: { cntrNo: paramCntrNo, cntrSn: paramCntrSn, sellTpCd, cntrCstNo, copnDvCd } });
     }
   };
 });

@@ -60,6 +60,19 @@
       />
     </kw-action-bottom>
     <kw-action-top>
+      <!-- 복사 -->
+      <kw-btn
+        :label="$t('MSG_BTN_CNTN_COPY')"
+        grid-action
+        dense
+        :disable="gridRowCount === 0"
+        @click="onClickRowCopy"
+      />
+      <kw-separator
+        vertical
+        inset
+        spaced
+      />
       <!-- 삭제 -->
       <kw-btn
         grid-action
@@ -272,6 +285,30 @@ async function onClickAdd() {
   notify(t('MSG_ALT_NO_LINK_PDS'));
 }
 
+async function onClickRowCopy() {
+  const view = grdMainRef.value.getView();
+  const checkedRows = cloneDeep(gridUtil.getCheckedRowValues(view));
+  if (checkedRows.length < 1) {
+    notify(t('MSG_ALT_NOT_SEL_ITEM'));
+    return;
+  }
+  if (checkedRows.length > 1) {
+    notify(t('MSG_ALT_SELT_ONE_ITEM'));
+    return;
+  }
+  checkedRows.forEach((rowItem) => {
+    rowItem[pdConst.PRC_STD_ROW_ID] = stringUtil.getUid('STD');
+    rowItem[pdConst.PRC_FNL_ROW_ID] = stringUtil.getUid('FNL');
+    rowItem[pdConst.PRC_DETAIL_ID] = '';
+    rowItem[pdConst.PRC_DETAIL_FNL_ID] = '';
+    rowItem.vlStrtDtm = '';
+    rowItem.vlEndDtm = '';
+  });
+  await gridUtil.insertRowAndFocus(view, view.getCheckedRows()[0] + 1, checkedRows[0]);
+  gridRowCount.value = getGridRowCount(view);
+  // await data.insertRows(view.getSelectedRows().findLast() + 1, checkedRows);
+}
+
 async function onClickStandardSchPopup(pdCd, rowId) {
   searchParams.value.searchValue = pdCd;
   const rtn = await modal({
@@ -332,7 +369,7 @@ async function initGridRows() {
     rows?.forEach((row) => {
       const stdRow = stdRows?.find((item) => (row[pdConst.PRC_STD_ROW_ID]
                                                 && item[pdConst.PRC_STD_ROW_ID] === row[pdConst.PRC_STD_ROW_ID])
-                                            || item.pdPrcDtlId === row.pdPrcDtlId);
+                                              || (row.pdPrcDtlId && item.pdPrcDtlId === row.pdPrcDtlId));
       row = pdMergeBy(row, stdRow);
       row[pdConst.PRC_STD_ROW_ID] = row[pdConst.PRC_STD_ROW_ID] ?? row.pdPrcDtlId;
       row[pdConst.PRC_FNL_ROW_ID] = row[pdConst.PRC_FNL_ROW_ID] ?? row.pdPrcFnlDtlId;
@@ -387,6 +424,7 @@ watch(() => props.initData, (val) => { currentInitData.value = cloneDeep(val); r
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
+// const criteriaRule = 'values["sellChnlCd"] + value';
 async function initGrid(data, view) {
   const pdColumns = [
     // 상태
@@ -400,7 +438,7 @@ async function initGrid(data, view) {
     // 판매유형
     { fieldName: 'baseSellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '87', styleName: 'text-center', options: props.codes?.SELL_TP_CD, editable: false },
     // 판매채널
-    { fieldName: 'sellChnlCd', header: t('MSG_TXT_SEL_CHNL'), width: '127', styleName: 'text-center', editable: false, options: currentCodes.value.SELL_CHNL_DTL_CD },
+    { fieldName: 'sellChnlCd', header: t('MSG_TXT_SEL_CHNL'), width: '127', styleName: 'rg-button-link text-center', editable: false, options: currentCodes.value.SELL_CHNL_DTL_CD, renderer: { type: 'button' } },
     // 적용시작일자
     { fieldName: 'vlStrtDtm', header: t('MSG_TXT_APY_STRTDT'), width: '127', styleName: 'text-center', editor: { type: 'date' }, rules: 'required' },
     // 적용종료일자
@@ -455,11 +493,13 @@ async function initGrid(data, view) {
     }
   };
 
-  view.onItemChecked = async (grid, itemIndex) => {
-    const sellChnlCd = grid.getValue(itemIndex, 'sellChnlCd');
-    grid.checkRows(gridUtil.getAllRowValues(view)
-      ?.filter((item) => item.sellChnlCd === sellChnlCd)
-      ?.map(({ dataRow }) => (dataRow)), grid.isCheckedRow(itemIndex), false, false);
+  view.onCellItemClicked = async (grid, { column, itemIndex }) => {
+    if (column === 'sellChnlCd') {
+      const sellChnlCd = grid.getValue(itemIndex, 'sellChnlCd');
+      grid.checkRows(gridUtil.getAllRowValues(view)
+        ?.filter((item) => item.sellChnlCd === sellChnlCd)
+        ?.map(({ dataRow }) => (dataRow)), !grid.isCheckedRow(itemIndex), false, false);
+    }
   };
 
   await resetInitData();

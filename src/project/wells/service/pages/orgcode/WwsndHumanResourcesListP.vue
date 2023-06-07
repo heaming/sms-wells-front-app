@@ -289,7 +289,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'sapDlpnrDtlIzRfltDt' }, // SAP거래처상세내역반영일자
     { fieldName: 'wkGrpCd' }, // 작업그룹코드
     { fieldName: 'wkGrpNm' }, // 작업그룹명
-    { fieldName: 'wkcrNo' }, // 작업조번호
+    { fieldName: 'wkcrCd' }, // 작업조번호
     { fieldName: 'rcrtWrteDt' }, // 리쿠르팅작성일자
     { fieldName: 'fstCntrDt' }, // 최초계약일자
     { fieldName: 'fnlCltnDt' }, // 최종해약일자

@@ -26,6 +26,7 @@
                 :is="step.panel"
                 :ref="(el) => panelsRefs[step.name] = el"
                 :contract="contract"
+                :on-child-mounted="onChildMounted"
               />
             </kw-step-panel>
           </kw-stepper>
@@ -123,12 +124,15 @@
           </kw-scroll-area>
         </div>
       </div>
-      <div class="button-set--bottom">
+      <div
+        v-if="!isReadOnly"
+        class="button-set--bottom"
+      >
         <div class="button-set--bottom-left">
           <kw-btn
             v-if="currentStepIndex > 0"
             :label="$t('MSG_BTN_PREV')"
-            @click="previous"
+            @click="onClickPrevious"
           />
         </div>
         <div class="button-set--bottom-right">
@@ -136,55 +140,55 @@
             <kw-btn
               :label="$t('MSG_BTN_TEMP_SAVE')"
               class="ml8"
-              @click="onClickStep1TempSave"
+              @click="onClickTempSave"
             />
             <kw-btn
               v-if="currentStepIndex === 0"
               :label="$t('MSG_BTN_NEXT')"
               class="ml8"
               primary
-              @click="onClickStep1Next"
+              @click="onClickNext"
             />
           </template>
           <template v-if="currentStepIndex === 1">
             <kw-btn
               :label="$t('MSG_BTN_TEMP_SAVE')"
               class="ml8"
-              @click="onClickStep2TempSave"
+              @click="onClickTempSave"
             />
             <kw-btn
               v-if="currentStepIndex === 1"
               :label="$t('상품확정')"
               class="ml8"
               primary
-              @click="onClickStep2Next"
+              @click="onClickNext"
             />
           </template>
           <template v-if="currentStepIndex === 2">
             <kw-btn
               :label="$t('MSG_BTN_TEMP_SAVE')"
               class="ml8"
-              @click="onClickStep3TempSave"
+              @click="onClickTempSave"
             />
             <kw-btn
               :label="$t('MSG_BTN_NEXT')"
               class="ml8"
               primary
-              @click="onClickStep3Next"
+              @click="onClickNext"
             />
           </template>
           <template v-if="currentStepIndex === 3">
             <kw-btn
               :label="$t('MSG_BTN_TEMP_SAVE')"
               class="ml8"
-              @click="onClickStep4TempSave"
+              @click="onClickTempSave"
             />
             <kw-btn
               v-if="currentStepIndex === 3"
               :label="$t('작성완료')"
               class="ml8"
               primary
-              @click="onClickStep4Next"
+              @click="onClickNext"
             />
           </template>
         </div>
@@ -217,111 +221,110 @@ const steps = shallowReactive([
 const currentStepName = ref('step1');
 const currentStep = computed(() => steps.find((step) => step.name === currentStepName.value));
 const currentStepIndex = computed(() => steps.findIndex((step) => step.name === currentStepName.value));
+// 계약 현황 목록에서 진입한 경우
+const props = defineProps({
+  cntrNo: { type: String, required: true },
+  cntrPrgsStatCd: { type: String, required: true },
+});
 const contract = ref({
   cntrNo: '',
-  selectedProduct: [],
-  cntrCstNo: '',
-  pdInfo: [],
-  step1: {
-    bas: {
-      cntrNo: '',
-    },
-  },
+  step1: {},
   step2: {},
   step3: {},
   step4: {},
 });
-
+const isReadOnly = ref(false);
+const stepsStatus = reactive([false, false, false, false]);
 watch(currentStepName, (value) => {
-  console.log(`${currentStepName.value}, value: ${value}`);
+  console.log(value);
   // sideStepRefs[value].show();
 });
-
-function next() {
-  currentStep.value.done = true;
-  if (currentStepIndex.value === steps.length - 1) { return; }
-  const nextStep = steps[currentStepIndex.value + 1];
-  currentStepName.value = nextStep.name;
-  // sideStepRefs[nextStep.name].show(); /* 명시적으로 열어주는 것도 좋을 듯 합니다. */
+// -------------------------------------------------------------------------------------------------
+// Function & Event
+// -------------------------------------------------------------------------------------------------
+function onChildMounted(step) {
+  // 하위화면 로딩완료 여부 확인, defineExpose 시점문제로 delay 1 할당
+  setTimeout(() => {
+    stepsStatus[step - 1] = true;
+  }, 1);
+}
+function showStep(step) {
+  [0, 1, 2].forEach((n) => {
+    if (n < step - 1) {
+      steps[n].done = true;
+    } else {
+      return false;
+    }
+  });
+  currentStepName.value = `step${step}`;
+}
+async function getCntrInfo(step, cntrNo) {
+  if (step === 2) {
+    // step2일 때 상품 조회
+    await panelsRefs[currentStepName.value].getProducts(cntrNo);
+  }
+  await panelsRefs[currentStepName.value].getCntrInfo(cntrNo);
 }
 
-async function previous() {
+async function getExistedCntr() {
+  const { cntrNo, cntrPrgsStatCd } = props;
+  if (!cntrNo || !cntrPrgsStatCd) return;
+  isReadOnly.value = props.cntrPrgsStatCd > 20;
+  const step = {
+    10: 1,
+    12: 2,
+    14: 3,
+  }[props.cntrPrgsStatCd] || 4;
+  showStep(step);
+  await getCntrInfo(step, cntrNo);
+}
+
+async function onClickPrevious() {
   if (currentStepIndex.value === 0) { return; }
-  await panelsRefs[steps[currentStepIndex.value - 1].name].getCntrInfo?.(contract.value.cntrNo);
+  await panelsRefs[steps[currentStepIndex.value - 1].name].getCntrInfo(contract.value.cntrNo);
   const previousStep = steps[currentStepIndex.value - 1];
   currentStepName.value = previousStep.name;
 }
 
-async function onClickStep1TempSave() {
-  if (await panelsRefs[currentStepName.value].isChangedStep?.()) {
-    if (await panelsRefs[currentStepName.value].isValidStep?.()) {
-      await panelsRefs[currentStepName.value].saveStep?.();
+async function onClickTempSave() {
+  if (await panelsRefs[currentStepName.value].isChangedStep()) {
+    if (await panelsRefs[currentStepName.value].isValidStep()) {
+      await panelsRefs[currentStepName.value].saveStep();
     }
   } else {
     await alert(t('MSG_ALT_NO_CHG_CNTN'));
   }
 }
-async function onClickStep2TempSave() {
-  if (await panelsRefs[currentStepName.value].isChangedStep?.()) {
-    await panelsRefs[currentStepName.value].saveStep?.();
-  } else {
-    await alert(t('MSG_ALT_NO_CHG_CNTN'));
-  }
-}
-async function onClickStep3TempSave() {
-  if (await panelsRefs[currentStepName.value].isChangedStep?.()) {
-    await panelsRefs[currentStepName.value].saveStep?.();
-  } else {
-    await alert(t('MSG_ALT_NO_CHG_CNTN'));
-  }
-}
-async function onClickStep4TempSave() {
-  if (await panelsRefs[currentStepName.value].isChangedStep?.()) {
-    await panelsRefs[currentStepName.value].saveStep?.();
-  } else {
-    await alert(t('MSG_ALT_NO_CHG_CNTN'));
-  }
-}
-async function onClickStep1Next() {
-  let { cntrNo } = contract.value.step1.bas;
-  if (await panelsRefs[currentStepName.value].isChangedStep?.()) {
-    if (await panelsRefs[currentStepName.value].isValidStep?.()) {
-      cntrNo = await panelsRefs[currentStepName.value].saveStep?.();
+
+async function onClickNext() {
+  const { cntrNo } = contract.value;
+  const step = currentStepIndex + 1;
+  if (await panelsRefs[currentStepName.value].isChangedStep()) {
+    if (await panelsRefs[currentStepName.value].isValidStep()) {
+      await panelsRefs[currentStepName.value].saveStep();
     } else {
       return;
     }
   }
-  next();
-  await panelsRefs[currentStepName.value].getCntrInfo?.(cntrNo);
-  await panelsRefs[currentStepName.value].getProducts?.(cntrNo);
-}
-async function onClickStep2Next() {
-  const { cntrNo } = contract.value.step2.bas;
-  if (await panelsRefs[currentStepName.value].isChangedStep?.()) {
-    if (await panelsRefs[currentStepName.value].isValidStep?.()) {
-      await panelsRefs[currentStepName.value].saveStep?.();
-    } else {
-      return;
-    }
+  if (step === 4) {
+    // step4에서 '다음'은 계약 현황 목록으로 화면 이동
+    await router.push({ path: '/contract/wwcta-contract-status-list' });
+  } else {
+    currentStep.value.done = true;
+    if (currentStepIndex.value === steps.length - 1) { return; }
+    const nextStep = steps[currentStepIndex.value + 1];
+    currentStepName.value = nextStep.name;
+    // sideStepRefs[nextStep.name].show(); /* 명시적으로 열어주는 것도 좋을 듯 합니다. */
+    await getCntrInfo(step, cntrNo);
   }
-  next();
-  await panelsRefs[currentStepName.value].getCntrInfo?.(cntrNo);
 }
-async function onClickStep3Next() {
-  const { cntrNo } = contract.value.step3.bas;
-  if (panelsRefs[currentStepName.value].isChangedStep?.()) {
-    await panelsRefs[currentStepName.value].saveStep?.();
+
+watch(stepsStatus, () => {
+  // child 화면까지 완료되면 onMounted의 역할을 할 함수 수행
+  if (stepsStatus.every((s) => s)) {
+    getExistedCntr();
   }
-  next();
-  await panelsRefs[currentStepName.value].getCntrInfo?.(cntrNo);
-}
-async function onClickStep4Next() {
-  if (panelsRefs[currentStepName.value].isChangedStep?.()) {
-    await panelsRefs[currentStepName.value].saveStep?.();
-  }
-  // 계약 현황 목록으로 화면 이동
-  await router.push({ path: '/contract/wwcta-contract-status-list' });
-}
+});
 </script>
 
 <style lang="scss" scoped>

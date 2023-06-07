@@ -24,6 +24,8 @@
           <kw-input
             v-model="searchParams.cntrCstNo"
             icon="search_24"
+            rules="numeric|max:10"
+            :label="$t('MSG_TXT_CST_NO')"
             @click-icon="onClickSearchCst"
           />
         </kw-search-item>
@@ -64,6 +66,8 @@
             v-model="searchParams.prtnrInfo"
             icon="search"
             clearable
+            :label="$t('MSG_TXT_PRTNR_EMP_NO')"
+            rules="numeric|max:10"
             @click-icon="onClickOpenPartnerListPopup"
           />
         </kw-search-item>
@@ -153,7 +157,7 @@ const searchParams = ref({
   cntrCstNo: '',
   cntrNo: '',
   cstKnm: '',
-  adrCl: '',
+  adrCl: 1,
   adr: '',
   cralLocaraTno: '',
   mexnoEncr: '',

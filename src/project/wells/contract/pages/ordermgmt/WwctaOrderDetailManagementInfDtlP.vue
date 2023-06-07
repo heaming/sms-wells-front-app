@@ -300,12 +300,12 @@ const frmMainData = ref({
 // -------------------------------------------------------------------------------------------------
 // 위약금예상 팝업 호출
 async function onClickCcamEt() {
-  await alert('위약금예상 팝업 조회');
+  await alert('위약금예상 팝업은 개발예정입니다.');
 }
 
 // 프로모션 팝업 호출
 async function onClickPmot() {
-  await alert('프로모션 팝업 조회');
+  await alert('프로모션 팝업은 개발예정입니다.');
 }
 
 // 연관계약리스트 팝업 호출

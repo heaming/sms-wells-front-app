@@ -55,8 +55,6 @@
             v-model="searchParams.ctctyNm"
             :options="sigungu"
             first-option="all"
-            option-label="sgg"
-            option-value="sggNm"
           />
         </kw-search-item>
         <!--서비스센터-->
@@ -68,7 +66,7 @@
             :options="svcCode"
             first-option="all"
             option-label="ogNm"
-            option-value="ogCd"
+            option-value="ogId"
           />
         </kw-search-item>
       </kw-search-row>
@@ -78,7 +76,7 @@
           :label="$t('MSG_TXT_WK_GRP')"
         >
           <kw-select
-            v-model="searchParams.wrkGrpCd"
+            v-model="searchParams.wkGrpCd"
             :options="codes.WK_GRP_CD"
             option-label="codeName"
             option-value="codeId"
@@ -90,6 +88,7 @@
         >
           <kw-date-picker
             v-model="searchParams.applyDate"
+            rule="reauired"
           />
         </kw-search-item>
         <!--지역코드-->
@@ -98,12 +97,12 @@
         >
           <kw-input
             v-model="searchParams.locaraCdFrom"
-            mask="###"
+            maxlength="4"
           />
           <span>~</span>
           <kw-input
             v-model="searchParams.locaraCdTo"
-            mask="###"
+            maxlength="4"
           />
         </kw-search-item>
       </kw-search-row>
@@ -154,7 +153,8 @@
       <kw-grid
         ref="grdMainRef"
         name="grdMain"
-        :visible-rows="pageInfo.pageSize - 2"
+        :page-size="pageInfo.pageSize"
+        :total-count="pageInfo.totalCount"
         @init="initGrdMain"
       />
       <kw-pagination
@@ -191,7 +191,6 @@ const { currentRoute } = useRouter();
 
 const {
   getDistricts,
-  getServiceCenterOrgs,
   getLgldCtpvLocaras,
 } = smsCommon();
 
@@ -209,7 +208,7 @@ const {
 const grdMainRef = ref(getComponentType('KwGrid'));
 const now = dayjs();
 /* 공통코드 가져오기(임시) */
-const svcCode = await getServiceCenterOrgs();
+const svcCode = (await dataService.get('/sms/wells/service/organizations/service-center')).data;
 const sido = await getDistricts('sido');
 const sigungu = ref([]);
 
@@ -225,7 +224,7 @@ const searchParams = ref({
   fr2pLgldCd: '',
   ctctyNm: '',
   ogId: '',
-  wrkGrpCd: '10',
+  wkGrpCd: '10',
   applyDate: now.format('YYYYMMDD'),
   locaraCdFrom: '',
   locaraCdTo: '',
@@ -241,7 +240,7 @@ async function changeSido() {
   if (searchParams.value.fr2pLgldCd === '') {
     sigungu.value = [];
   } else {
-    sigungu.value = (await getDistricts('gu', searchParams.value.fr2pLgldCd)).map((v) => ({ sgg: v.ctctyNm, sggNm: v.ctctyNm }));
+    sigungu.value = (await getDistricts('gu', searchParams.value.fr2pLgldCd)).map((v) => ({ codeId: v.ctctyNm, codeName: v.ctctyNm }));
   }
 }
 
@@ -251,7 +250,7 @@ async function fetchData() {
   pageInfo.value = pagingResult;
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(products);
-  view.resetCurrent();
+  // view.resetCurrent();
   if (pagingResult.totalCount === 0) { notify(t('MSG_ALT_NO_INFO_SRCH')); }
 }
 
@@ -270,6 +269,7 @@ async function onClickExcelDownload() {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
     exportData: response.data,
+    checkBar: 'hidden',
   });
 }
 
@@ -281,10 +281,12 @@ async function onClickSave() {
     notify(t('MSG_ALT_NOT_SEL_ITEM'));
     return;
   }
-  await dataService.post('/sms/wells/service/responsible-area-codes', chkRows.filter((v) => v.rowState === 'updated'));
 
-  notify(t('MSG_ALT_SAVE_DATA'));
-  await fetchData();
+  if (await gridUtil.validate(view, { isCheckedOnly: true })) {
+    await dataService.post('/sms/wells/service/responsible-area-codes', chkRows.filter((v) => v.rowState === 'updated'));
+    notify(t('MSG_ALT_SAVE_DATA'));
+    await fetchData();
+  }
 }
 
 // -------------------------------------------------------------------------------------------------
@@ -308,7 +310,11 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'ogNm' },
     { fieldName: 'ichrPrtnrNo' },
     { fieldName: 'prtnrKnm' },
+    { fieldName: 'vstDowNm' },
+    { fieldName: 'mmtAvLdtm' },
+    { fieldName: 'locaraCenStruAdr' }, // 화면표시
     { fieldName: 'vstDowVal' },
+    { fieldName: 'locaraSn' },
   ];
 
   const columns = [
@@ -361,7 +367,7 @@ const initGrdMain = defineGrid((data, view) => {
       header: t('MSG_TXT_CH_LOCARA'),
       width: '100',
       styleName: 'text-center',
-      editor: { type: 'list' },
+      editor: { type: 'dropdown' },
       editable: true,
       styleCallback: (grid, dataCell) => {
         const ctpvNm = grid.getValue(dataCell.index.itemIndex, 'ctpvNm');
@@ -371,6 +377,7 @@ const initGrdMain = defineGrid((data, view) => {
           .reduce((a, v) => (a.includes(v) ? a : [...a, v]), []);
         return { editor: { type: 'list', labels: rpbLocaraCd, values: rpbLocaraCd } };
       },
+      rules: 'required',
     },
     {
       fieldName: 'apyStrtdt',
@@ -379,6 +386,7 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-center',
       editable: true,
       editor: { type: 'btdate' },
+      rules: 'required',
     },
     {
       fieldName: 'apyEnddt',
@@ -387,6 +395,7 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-center',
       editable: true,
       editor: { type: 'btdate' },
+      rules: 'required',
     },
     {
       fieldName: 'rpbLocaraGrpCd',
@@ -411,8 +420,18 @@ const initGrdMain = defineGrid((data, view) => {
       width: '100',
     },
     {
-      fieldName: 'vstDowVal',
+      fieldName: 'vstDowNm',
       header: t('MSG_TXT_VST_DOW'),
+      width: '100',
+    },
+    {
+      fieldName: 'mmtAvLdtm',
+      header: t('MSG_TXT_MMT_AV_NED_HH'),
+      width: '100',
+    },
+    {
+      fieldName: 'locaraCenStruAdr',
+      header: t('MSG_TXT_LOCARA_CEN_STRU_ADR'),
       width: '100',
     },
   ];
@@ -435,7 +454,9 @@ const initGrdMain = defineGrid((data, view) => {
     'ogNm',
     'ichrPrtnrNo',
     'prtnrKnm',
-    'vstDowVal',
+    'vstDowNm',
+    'mmtAvLdtm',
+    'locaraCenStruAdr',
   ];
 
   data.setFields(fields);

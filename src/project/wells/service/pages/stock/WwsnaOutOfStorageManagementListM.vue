@@ -62,10 +62,10 @@
           first-option="all"
           sub-first-option="all"
           :colspan="2"
-          label1="출고기간"
+          :label1="$t('MSG_TXT_OSTR_PTRM')"
           :label2="$t('MSG_TXT_STR_WARE')"
-          label3="창고"
-          label4="창고"
+          :label3="$t('MSG_TXT_WARE')"
+          :label4="$t('MSG_TXT_WARE')"
         />
       </kw-search-row>
     </kw-search>
@@ -73,7 +73,11 @@
       <kw-action-top>
         <template #left>
           <kw-paging-info
-            :total-count="totalCount"
+            v-model:page-index="pageInfo.pageIndex"
+            v-model:page-size="pageInfo.pageSize"
+            :total-count="pageInfo.totalCount"
+            :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
+            @change="fetchData"
           />
         </template>
         <kw-btn
@@ -81,14 +85,21 @@
           dense
           secondary
           :label="$t('MSG_BTN_EXCEL_DOWN')"
-          :disable="totalCount === 0"
+          :disable="pageInfo.totalCount === 0"
           @click="onClickExcelDownload"
         />
       </kw-action-top>
       <kw-grid
         ref="grdMainRef"
-        :total-count="totalCount"
+        :page-size="pageInfo.pageSize"
+        :total-count="pageInfo.totalCount"
         @init="initGrdMain"
+      />
+      <kw-pagination
+        v-model:page-index="pageInfo.pageIndex"
+        v-model:page-size="pageInfo.pageSize"
+        :total-count="pageInfo.totalCount"
+        @change="fetchData"
       />
     </div>
   </kw-page>
@@ -100,7 +111,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 
-import { useGlobal, codeUtil, defineGrid, useDataService, getComponentType, gridUtil, popupUtil } from 'kw-lib';
+import { useGlobal, codeUtil, defineGrid, useDataService, getComponentType, gridUtil, popupUtil, useMeta } from 'kw-lib';
 import snConst from '~sms-wells/service/constants/snConst';
 // TODO: 추후 공통서비스 변경후 적용 예정 (조직창고 , 조직창고에 해당하는 엔지니어조회)
 import ZwcmWareHouseSearch from '~sms-common/service/components/ZwsnzWareHouseSearch.vue';
@@ -114,8 +125,10 @@ const grdMainRef = ref(getComponentType('KwGrid'));
 const dataService = useDataService();
 
 const { t } = useI18n();
-const { alert } = useGlobal();
+const { alert, modal } = useGlobal();
+const { getConfig } = useMeta();
 const { getMonthWarehouse } = useSnCode();
+const store = useStore();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -135,16 +148,20 @@ const searchParams = ref({
 
 const wharehouseParams = ref({
   apyYm: dayjs().format('YYYYMM'),
-  // TODO: 임시 사용자 사번정보
-  userId: '36680',
+  userId: store.getters['meta/getUserInfo'].employeeIDNumber,
+});
+
+const pageInfo = ref({
+  totalCount: 0,
+  pageIndex: 1,
+  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
 });
 
 const codes = await codeUtil.getMultiCodes(
+  'COD_PAGE_SIZE_OPTIONS',
   'OSTR_TP_CD',
   'WARE_DV_CD',
 );
-
-const totalCount = ref(0);
 
 const filterOstrTpCd = codes.OSTR_TP_CD.filter((v) => v.codeId !== '211');
 
@@ -161,9 +178,10 @@ searchParams.value.edOstrDt = dayjs().format('YYYYMMDD');
 let cachedParams;
 async function fetchData() {
   console.log(searchParams.value.divide);
-  const res = await dataService.get('/sms/wells/service/out-of-storage-itemizations', { params: cachedParams });
-  const outOfItem = res.data;
-  totalCount.value = outOfItem.length;
+  const res = await dataService.get('/sms/wells/service/out-of-storage-itemizations/paging', { params: { ...cachedParams, ...pageInfo.value } });
+  const { list: outOfItem, pageInfo: pagingResult } = res.data;
+  pageInfo.value = pagingResult;
+
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(outOfItem.map((v) => ({ ...v, txtNote: ' ' })));
   view.resetCurrent();
@@ -237,7 +255,9 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'strWareNo' },
     { fieldName: 'itmOstrNo' },
     { fieldName: 'itmStrNo' },
+    { fieldName: 'ostrAkNo' },
     { fieldName: 'ostrDt' },
+    { fieldName: 'strHopDt' },
     { fieldName: 'ostrSn' },
     { fieldName: 'wareNm' },
     { fieldName: 'wareAdrId' },
@@ -291,19 +311,34 @@ const initGrdMain = defineGrid((data, view) => {
     //   url = 'http://localhost:3000';
     // }
     console.log(gridUtil.getRowValue(g, dataRow));
-    const { ostrTpCd, ostrWareNo, ostrDt, strWareNo, itmOstrNo } = gridUtil.getRowValue(g, dataRow);
+    // eslint-disable-next-line max-len
+    const { ostrTpCd, ostrWareNo, ostrDt, strWareNo, itmOstrNo, ostrAkNo, ostrAkSn } = gridUtil.getRowValue(g, dataRow);
+    // const ostrAkTpCd = g.getValue(dataRow, 'ostrTpCd');
+    // const ostrOjWareNo = g.getValue(dataRow, 'ostrWareNo');
+    // const strOjWareNo = g.getValue(dataRow, 'strWareNo');
 
     if (column === 'txtNote') {
       if (ostrTpCd === '217') {
         alert('현재 단위 테스트 대상이 아닙니다.(개발중)');
         return;
       } if (['221', '222', '223'].includes(ostrTpCd)) {
-        alert('현재 단위 테스트 대상이 아닙니다.(개발중)');
+        // eslint-disable-next-line max-len
+        // await popupUtil.open(`/popup#/service/wwsna-normal-out-of-storage-rgst-list?ostrAkNo=${ostrAkNo}ostrAkTpCd=${ostrTpCd}&ostrOjWareNo=${ostrWareNo}&ostrDt=${ostrDt}&strOjWareNo=${strWareNo}&itmOstrNo=${itmOstrNo}`, { width: 1800, height: 1000 }, false);
+        const { result } = await modal({
+          component: 'WwsnaNormalOutOfStorageRgstListP',
+          componentProps: { ostrAkNo, ostrAkSn },
+        });
+
+        if (result) {
+          await fetchData();
+        }
+
         return;
       } if (ostrTpCd === '217') {
         alert('현재 단위 테스트 대상이 아닙니다.(개발중)');
         return;
       } if (['212', '261', '262'].includes(ostrTpCd)) {
+        // eslint-disable-next-line max-len
         await popupUtil.open(`/popup#/service/wwsna-returning-goods-out-of-storage-reg?ostrTpCd=${ostrTpCd}&ostrWareNo=${ostrWareNo}&ostrDt=${ostrDt}&strWareNo=${strWareNo}&itmOstrNo=${itmOstrNo}`, { width: 1800, height: 1000 }, false);
       }
     }

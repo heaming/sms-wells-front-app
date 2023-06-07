@@ -61,6 +61,7 @@
             v-model="searchParams.prtnrNo"
             type="number"
             icon="search"
+            :maxlength="10"
             clearable
             @click-icon="onClickSearchPartner"
           />
@@ -101,6 +102,7 @@
         v-show="gridVshow"
         ref="grdMainRef"
         name="grdMain"
+        :visible-rows="10"
         :page-size="pageInfo.pageSize -1"
         :total-count="pageInfo.totalCount"
         @init="initGrid"
@@ -109,6 +111,7 @@
         v-show="!gridVshow"
         ref="grdSubRef"
         name="grdSub"
+        :visible-rows="10"
         :page-size="pageInfo.pageSize -1"
         :total-count="pageInfo.totalCount"
         @init="initGrid2"
@@ -229,7 +232,6 @@ async function onClickSearch() {
 }
 
 async function onClickSearchPartner() {
-  /* TODO: 임직원 검색 컴포넌트 개발 시, 변경 될 수 있음 */
   const { result, payload } = await modal({
     component: 'ZwogzPartnerListP',
     componentProps: {

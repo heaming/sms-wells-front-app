@@ -74,7 +74,7 @@
             :on-click-icon="openSearchUserPopup"
             clearable
             :on-keydown-no-click="true"
-            @keydown.enter="isCustomer('type1')"
+            @keydown.enter="isCustomer($event, 'type1')"
           />
         </kw-search-item>
         <kw-search-item
@@ -88,7 +88,7 @@
             clearable
             :on-keydown-no-click="true"
             regex="alpha_hangul"
-            @keydown.enter="isCustomer('type2')"
+            @keydown.enter="isCustomer($event, 'type2')"
           />
         </kw-search-item>
         <kw-search-item
@@ -98,7 +98,7 @@
             v-model="searchParams.phoneNumber"
             type="telephone"
             :on-keydown-no-click="true"
-            @keydown.enter="isCustomer('type3')"
+            @keydown.enter="isCustomer($event, 'type3')"
           />
         </kw-search-item>
       </kw-search-row>
@@ -349,7 +349,11 @@ async function openSearchUserPopup() {
   await openSearchUserCommonPopup(searchParams, canFeasibleSearch);
 }
 
-async function isCustomer(workType = 'type1') {
+async function isCustomer(event, workType = 'type1') {
+  if (!event.target.value) {
+    await openSearchUserCommonPopup(searchParams, canFeasibleSearch);
+    return;
+  }
   searchParams.value.workType = workType;
   const notifyMessage = await isCustomerCommon(searchParams, canFeasibleSearch);
   if (notifyMessage) {
@@ -555,7 +559,15 @@ const initGrdSub = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'clctamDvCd', header: t('MSG_TXT_CLCTAM_DV'), options: filteredCodes.value.CLCTAM_DV_CD, optionValue: 'codeId', optionLabel: 'codeName', editor: { type: 'list' }, width: '100' },
     { fieldName: 'bfPrtnrKnm', header: t('MSG_TXT_LSTMM_PSIC'), width: '100', styleName: 'text-center', editable: false },
-    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '170', styleName: 'text-center', editable: false },
+    { fieldName: 'cntrNo',
+      header: t('MSG_TXT_CNTR_DTL_NO'),
+      width: '170',
+      styleName: 'text-center',
+      editable: false,
+      displayCallback(grid, index) {
+        const { cntrNo, cntrSn } = grid.getValues(index.itemIndex);
+        return `${cntrNo}-${cntrSn}`;
+      } },
     { fieldName: 'cstNm', header: t('MSG_TXT_CST_NM'), width: '100', styleName: 'text-center', editable: false },
     { fieldName: 'cstNo', header: t('MSG_TXT_CST_NO'), width: '135', styleName: 'text-center', editable: false },
     { fieldName: 'bndBizDvCd', header: t('MSG_TXT_PRDT_GUBUN'), width: '100', options: codes.BND_BIZ_DV_CD, editable: false },

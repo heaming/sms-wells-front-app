@@ -88,7 +88,7 @@
             icon="search"
             :on-click-icon="openSearchUserPopup"
             :on-keydown-no-click="true"
-            @keydown.enter="isCustomer('type1')"
+            @keydown.enter="isCustomer($event, 'type1')"
           />
         </kw-search-item>
         <kw-search-item
@@ -101,7 +101,7 @@
             :on-click-icon="openSearchUserPopup"
             :on-keydown-no-click="true"
             regex="alpha_hangul"
-            @keydown.enter="isCustomer('type2')"
+            @keydown.enter="isCustomer($event, 'type2')"
           />
         </kw-search-item>
         <kw-search-item
@@ -111,7 +111,7 @@
             v-model="searchParams.phoneNumber"
             type="telephone"
             :on-keydown-no-click="true"
-            @keydown.enter="isCustomer('type3')"
+            @keydown.enter="isCustomer($event, 'type3')"
           />
         </kw-search-item>
       </kw-search-row>
@@ -440,7 +440,11 @@ const onClickCollector = async () => {
   }
 };
 
-async function isCustomer(workType = 'type1') {
+async function isCustomer(event, workType = 'type1') {
+  if (!event.target.value) {
+    await openSearchUserCommonPopup(searchParams, canFeasibleSearch);
+    return;
+  }
   searchParams.value.workType = workType;
   const notifyMessage = await isCustomerCommon(searchParams, canFeasibleSearch);
   if (notifyMessage) {
@@ -680,7 +684,15 @@ const initGrdSub = defineGrid((data, view) => {
     { fieldName: 'clctamPrtnrKnm', header: t('MSG_TXT_PIC_NM'), width: '98', styleName: 'text-center, rg-button-icon--search', button: 'action' },
     { fieldName: 'lstmmClctamDvCd', header: t('MSG_TXT_LSTMM_ICHR_CLCTAM_DV'), width: '130', styleName: 'text-center', editable: false },
     { fieldName: 'bfClctamPrtnrKnm', header: t('MSG_TXT_LSTMM_PSIC'), width: '90', styleName: 'text-center', editable: false },
-    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '160', styleName: 'text-center', editable: false },
+    { fieldName: 'cntrNo',
+      header: t('MSG_TXT_CNTR_DTL_NO'),
+      width: '160',
+      styleName: 'text-center',
+      editable: false,
+      displayCallback(grid, index) {
+        const { cntrNo, cntrSn } = grid.getValues(index.itemIndex);
+        return `${cntrNo}-${cntrSn}`;
+      } },
     { fieldName: 'cstNm', header: t('MSG_TXT_CST_NM'), width: '90', styleName: 'text-center', editable: false },
     { fieldName: 'cstNo', header: t('MSG_TXT_CST_NO'), width: '130', styleName: 'text-center', editable: false },
     { fieldName: 'pdDvKnm', header: t('MSG_TXT_PRDT_GUBUN'), width: '90', styleName: 'text-center', editable: false },

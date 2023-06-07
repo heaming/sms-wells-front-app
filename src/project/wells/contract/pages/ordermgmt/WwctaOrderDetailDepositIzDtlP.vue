@@ -24,6 +24,7 @@
     />
     <!-- 선납 -->
     <kw-btn
+      v-if="isSearchPrepaymentVisible"
       dense
       secondary
       :label="$t('MSG_BTN_PRM')"
@@ -206,9 +207,8 @@
         >
           <p>
             {{ frmMainData.sellAmt+$t('MSG_TXT_CUR_WON')
-              +'('+$t('MSG_TXT_PCSV_SPMT')+': '+frmMainData.sellAmt+$t('MSG_TXT_MCNT')+')' }}
+              +'('+$t('MSG_TXT_PCSV_SPMT')+': '+frmMainData.pcsvSpmt+$t('MSG_TXT_CUR_WON')+')' }}
           </p>
-          <p>{{ frmMainData.sellAmt+$t('MSG_TXT_CUR_WON') }}</p>
         </kw-form-item>
         <!-- 판매총액 -->
         <kw-form-item
@@ -250,13 +250,13 @@
         <kw-form-item
           :label="$t('MSG_TXT_DLQ_AMT')"
         >
-          <p>{{ frmMainData.dlqAmt+$t('MSG_TXT_CUR_WON') }}</p>
+          <p>{{ frmMainData.thmOcDlqAmt+$t('MSG_TXT_CUR_WON') }}</p>
         </kw-form-item>
         <!-- 미수금액 -->
         <kw-form-item
           :label="$t('MSG_TXT_UC_AMT')"
         >
-          <p>{{ frmMainData.ucAmt+$t('MSG_TXT_CUR_WON') }}</p>
+          <p>{{ frmMainData.thmUcBlam+$t('MSG_TXT_CUR_WON') }}</p>
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
@@ -284,8 +284,8 @@ import { useDataService, useGlobal, stringUtil } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 
 const dataService = useDataService();
-// const { t } = useI18n();
-const { alert, modal } = useGlobal();
+const { t } = useI18n();
+const { notify, modal } = useGlobal();
 const props = defineProps({
   cntrNo: { type: String, required: true, default: '' },
   cntrSn: { type: String, required: true, default: '' },
@@ -335,6 +335,7 @@ const frmMainData = ref({
   thmUcBlam: '', // 당월미수잔액
   eotAtam: '', // 기말선수금(선수금액)
   eotUcAmt: '', // 기말미수금액(청구미수)
+  pcsvSpmt: '', // 택배추가
 
   prtnrKnm: '', // 판매자성명
 });
@@ -342,8 +343,11 @@ const frmMainData = ref({
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
+const isSearchPrepaymentVisible = ref(true); // 선납버튼
+
 // 입금등록 버튼 팝업 호출
 async function onClickDepositRgst() {
+  // await alert('입금내역 팝업은 개발예정입니다.');
   const searchPopupParams = {
     cntrNo: searchParams.value.cntrNo,
     cntrSn: searchParams.value.cntrSn,
@@ -351,19 +355,40 @@ async function onClickDepositRgst() {
   };
 
   await modal({
-    component: 'WwctaOrderDetailDepositRgstMgtP', // 입금등록 팝업
+    component: 'WwctaOrderDetailDepositRgstMgtP', // 입금등록
     componentProps: searchPopupParams,
   });
 }
 
 // 선납버튼 팝업 호출
 async function onClickPrepayment() {
-  await alert('선납 팝업 조회');
+  // 선납예상 버튼
+  if (searchParams.value.cntrNo === '') {
+    // 검색버튼 클릭 후 버튼 클릭 바랍니다.
+    await notify(t('MSG_ALT_SRCH_AFTER_BTN_CLICK'));
+    return; // 계약상세번호 없을 시 false 반환
+  }
+  await modal({
+    component: 'WwdcPrepaymentEstimateAmountListP', // 선납예상금액 조회(청구이체)
+    componentProps: {
+      cntrNo: searchParams.value.cntrNo,
+      cntrSn: searchParams.value.cntrSn,
+    },
+  });
 }
 
 // 상세버튼 팝업 호출
 async function onClickDetail() {
-  await alert('상세 팝업 조회');
+  const searchPopupParams = {
+    cntrNo: searchParams.value.cntrNo,
+    cntrSn: searchParams.value.cntrSn,
+    cntrCstNo: searchParams.value.cntrCstNo,
+  };
+
+  await modal({
+    component: 'WwctaTradeSpecificationSheetListP', // 거래명세서 목록 조회
+    componentProps: searchPopupParams,
+  });
 }
 
 // wells 주문 상세(판매내역)
@@ -425,7 +450,7 @@ async function fetchData() {
     frmMainData.value.slStpAmt = stringUtil.getNumberWithComma(Number(res.data.searchMembershipDepositIzResList[0].slStpAmt), 0); // 매출중지금액
     // eslint-disable-next-line max-len
     frmMainData.value.etMshAmt = stringUtil.getNumberWithComma(Number(res.data.searchMembershipDepositIzResList[0].etMshAmt), 0); // 예상멤버십 금액
-    frmMainData.value.prtnrKnm = res.data.searchRentalDepositIzResList[0].prtnrKnm; // 판매자성명
+    frmMainData.value.prtnrKnm = res.data.searchMembershipDepositIzResList[0].prtnrKnm; // 판매자성명
   } else if (!isEmpty(res.data.searchSpayCntrtDepositIzResList)
           && res.data.searchSpayCntrtDepositIzResList.length > 0) {
     // eslint-disable-next-line max-len
@@ -446,7 +471,7 @@ async function fetchData() {
     frmMainData.value.ldLimUseTam = stringUtil.getNumberWithComma(Number(res.data.searchSpayCntrtDepositIzResList[0].sellAmt), 0); // 여신한도 사용/총액
     // eslint-disable-next-line max-len
     frmMainData.value.ldLimBlam = stringUtil.getNumberWithComma(Number(res.data.searchSpayCntrtDepositIzResList[0].sellAmt), 0); // 여신한도 잔액
-    frmMainData.value.prtnrKnm = res.data.searchRentalDepositIzResList[0].prtnrKnm; // 판매자성명
+    frmMainData.value.prtnrKnm = res.data.searchSpayCntrtDepositIzResList[0].prtnrKnm; // 판매자성명
   } else if (!isEmpty(res.data.searchRegularShippingsDepositIzResList)
           && res.data.searchRegularShippingsDepositIzResList.length > 0) {
     // eslint-disable-next-line max-len
@@ -468,7 +493,9 @@ async function fetchData() {
     frmMainData.value.eotAtam = stringUtil.getNumberWithComma(Number(res.data.searchRegularShippingsDepositIzResList[0].eotAtam), 0); // 기말선수금(선수금액)
     // eslint-disable-next-line max-len
     frmMainData.value.eotUcAmt = stringUtil.getNumberWithComma(Number(res.data.searchRegularShippingsDepositIzResList[0].eotUcAmt), 0); // 기말미수금액(청구미수)
-    frmMainData.value.prtnrKnm = res.data.searchRentalDepositIzResList[0].prtnrKnm; // 판매자성명
+    // eslint-disable-next-line max-len
+    frmMainData.value.pcsvSpmt = stringUtil.getNumberWithComma(Number(res.data.searchRegularShippingsDepositIzResList[0].pcsvSpmt), 0); // 택배추가
+    frmMainData.value.prtnrKnm = res.data.searchRegularShippingsDepositIzResList[0].prtnrKnm; // 판매자성명
   }
   // 여신한도조회
   const totalMisuAmt = ref(0); // 총미수금액
@@ -516,6 +543,13 @@ async function setDatas(cntrNo, cntrSn, sellTpCd, cntrCstNo) {
   console.log(`cntrSn : ${cntrSn}`);
   console.log(`sellTpCd : ${sellTpCd}`);
   console.log(`cntrCstNo : ${cntrCstNo}`);
+
+  // 정기배송(판매유형코드: '6')일 경우 선납버튼 Visible false
+  if (sellTpCd === '6') {
+    isSearchPrepaymentVisible.value = false;
+  } else {
+    isSearchPrepaymentVisible.value = true;
+  }
 
   await fetchData();
 }

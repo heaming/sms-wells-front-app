@@ -33,7 +33,7 @@
             option-label="dgr1LevlOgNm"
             first-option="all"
             :first-option-label="$t('MSG_TXT_ALL')"
-            first-option-value="ALL"
+            first-option-value=""
             @update:model-value="onUpdateDgr1Levl"
           />
           <!-- 지역단 선택 -->
@@ -46,7 +46,7 @@
             option-label="dgr2LevlOgNm"
             first-option="all"
             :first-option-label="$t('MSG_TXT_ALL')"
-            first-option-value="ALL"
+            first-option-value=""
             @update:model-value="onUpdateDgr2Levl"
           />
           <!-- 지점 선택 -->
@@ -59,7 +59,7 @@
             option-label="dgr3LevlOgNm"
             first-option="all"
             :first-option-label="$t('MSG_TXT_ALL')"
-            first-option-value="ALL"
+            first-option-value=""
           />
         </kw-search-item>
 
@@ -82,8 +82,9 @@
           required
         >
           <kw-select
-            :model-value="searchParams.ptrmDv"
+            v-model="searchParams.ptrmDv"
             :options="periodOptions"
+            style="max-width: 33%;"
             required
           />
           <kw-date-range-picker
@@ -99,7 +100,7 @@
           :label="$t('MSG_TXT_STAT_DV')"
         >
           <kw-select
-            :model-value="searchParams.cntrStatCd"
+            v-model="searchParams.cntrStatCd"
             :options="codes.CNTR_STAT_CD"
             first-option="all"
           />
@@ -136,7 +137,7 @@
             option-label="pdClsfNm"
             first-option="all"
             :first-option-label="$t('MSG_TXT_ALL')"
-            first-option-value="ALL"
+            first-option-value=""
           />
         </kw-search-item>
       </kw-search-row>
@@ -159,6 +160,7 @@
           dense
           secondary
           :label="$t('MSG_BTN_EXCEL_DOWN')"
+          :disable="pageInfo.totalCount===0"
           @click="onClickExcelDownload"
         />
       </kw-action-top>
@@ -327,13 +329,13 @@ async function onClickSearch() {
   // 선택한 조직 코드에 해당하는 조직 ID 세팅
   searchParams.value.dgr1LevlOgCd = codesDgr1Levl.value
     .find((v) => selectedDgr1LevlOgCds.value.includes(v.dgr1LevlOgCd))
-    ?.dgr1LevlOgCd;
+    ?.dgr1LevlOgCd || ''; // undefined 인 경우, emptry string 로 변경
   searchParams.value.dgr2LevlOgCd = codesDgr2Levl.value
     .find((v) => selectedDgr2LevlOgCds.value.includes(v.dgr2LevlOgCd))
-    ?.dgr2LevlOgCd;
+    ?.dgr2LevlOgCd || '';
   searchParams.value.dgr3LevlOgCd = codesDgr3Levl.value
     .find((v) => selectedDgr3LevlOgCds.value.includes(v.dgr3LevlOgCd))
-    ?.dgr3LevlOgCd;
+    ?.dgr3LevlOgCd || '';
 
   pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
@@ -355,7 +357,7 @@ async function onClickExcelDownload() {
     fileName: currentRoute.value.meta.menuName, // 메뉴명으로 다운로드 엑셀 파일명 세팅
     timePostfix: true, // 엑셀 파일명에 _YYYYMMDDHHMISS 붙여줌
     exportData: res.data, // 현재 그리드에 보여지는 데이터가 아닌 전체 데이터 다운로드 시 사용
-    searchCondition: false,
+    searchCondition: true,
   });
 }
 
@@ -614,18 +616,18 @@ function initGridExcel(data, view) {
     { fieldName: 'crcdnoEncr1', header: `${t('MSG_TXT_CARD_NO')}1`, width: '200', styleName: 'text-center' },
     { fieldName: 'cdcoNm1', header: `${t('MSG_TXT_CDCO')}1`, width: '100', styleName: 'text-center' },
     { fieldName: 'cdcoOwrKnm1', header: `${t('MSG_TXT_CARD_STOCK')}1`, width: '100', styleName: 'text-center' },
-    { fieldName: 'crdcdIstmMcn1', header: `${t('MSG_TXT_ISTM')}1`, width: '100', styleName: 'text-center' },
+    { fieldName: 'crdcdIstmMcn1', header: `${t('MSG_TXT_ISTM')}1`, width: '100', styleName: 'text-right' },
     { fieldName: 'cardTotAmt2', header: `${t('MSG_TXT_CARD')}${t('MSG_TXT_STLM_AMT')}2`, width: '100', styleName: 'text-right' },
     { fieldName: 'crcdnoEncr2', header: `${t('MSG_TXT_CARD_NO')}2`, width: '200', styleName: 'text-center' },
     { fieldName: 'cdcoNm2', header: `${t('MSG_TXT_CDCO')}2`, width: '100', styleName: 'text-center' },
     { fieldName: 'cdcoOwrKnm2', header: `${t('MSG_TXT_CARD_STOCK')}2`, width: '100', styleName: 'text-center' },
-    { fieldName: 'crdcdIstmMcn2', header: `${t('MSG_TXT_ISTM')}2`, width: '100', styleName: 'text-center' },
-    { fieldName: 'initBlam', header: t('MSG_TXT_INIT_BLAM'), width: '100', styleName: 'text-center' },
-    { fieldName: 'nowBlam', header: t('MSG_TXT_RES_ISTM_AMT'), width: '100', styleName: 'text-center' },
-    { fieldName: 'blam1', header: `${t('MSG_TXT_RES_ISTM_AMT')}-1${t('MSG_TXT_MCNT')}`, width: '100', styleName: 'text-center' },
-    { fieldName: 'blam2', header: `${t('MSG_TXT_RES_ISTM_AMT')}-2${t('MSG_TXT_MCNT')}`, width: '100', styleName: 'text-center' },
-    { fieldName: 'blam3', header: `${t('MSG_TXT_RES_ISTM_AMT')}-3${t('MSG_TXT_MCNT')}`, width: '100', styleName: 'text-center' },
-    { fieldName: 'blam4', header: `${t('MSG_TXT_RES_ISTM_AMT')}-4${t('MSG_TXT_MCNT')}`, width: '100', styleName: 'text-center' },
+    { fieldName: 'crdcdIstmMcn2', header: `${t('MSG_TXT_ISTM')}2`, width: '100', styleName: 'text-right' },
+    { fieldName: 'initBlam', header: t('MSG_TXT_INIT_BLAM'), width: '100', styleName: 'text-right' },
+    { fieldName: 'nowBlam', header: t('MSG_TXT_RES_ISTM_AMT'), width: '100', styleName: 'text-right' },
+    { fieldName: 'blam1', header: `${t('MSG_TXT_RES_ISTM_AMT')}-1${t('MSG_TXT_MCNT')}`, width: '100', styleName: 'text-right' },
+    { fieldName: 'blam2', header: `${t('MSG_TXT_RES_ISTM_AMT')}-2${t('MSG_TXT_MCNT')}`, width: '100', styleName: 'text-right' },
+    { fieldName: 'blam3', header: `${t('MSG_TXT_RES_ISTM_AMT')}-3${t('MSG_TXT_MCNT')}`, width: '100', styleName: 'text-right' },
+    { fieldName: 'blam4', header: `${t('MSG_TXT_RES_ISTM_AMT')}-4${t('MSG_TXT_MCNT')}`, width: '100', styleName: 'text-right' },
     { fieldName: 'buNotiDt', header: `${t('MSG_TXT_BU')}${t('MSG_TXT_NTFC')}${t('MSG_TXT_D')}`, width: '100', styleName: 'text-center' },
     { fieldName: 'buPrtnrNo', header: `${t('MSG_TXT_BU')}${t('MSG_TXT_NTFC')}${t('MSG_TXT_EPNO')}`, width: '100', styleName: 'text-center' },
     { fieldName: 'buPrtnrNm', header: `${t('MSG_TXT_BU')}${t('MSG_TXT_NOTI_USR')}`, width: '100', styleName: 'text-center' },

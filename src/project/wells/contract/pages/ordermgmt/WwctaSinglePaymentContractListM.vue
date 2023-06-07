@@ -505,7 +505,7 @@ const initGridSnglPmntContractList = defineGrid((data, view) => {
     { fieldName: 'ordrInfoView' }, // 주문정보 보기
     { fieldName: 'sellTpCd' }, // 판매유형코드
     { fieldName: 'cstKnm' }, // 계약자명
-    { fieldName: 'copnDvCd' }, // 법인격구분코드
+    { fieldName: 'copnDvCd' }, // 고객구분코드(1:개인, 2:법인)
     { fieldName: 'copnDvNm' }, // 고객구분
     { fieldName: 'bzrno' }, // 계약자 사업자등록번호
     { fieldName: 'bryyMmdd' }, // 계약자 생년월일
@@ -719,13 +719,17 @@ const initGridSnglPmntContractList = defineGrid((data, view) => {
     const paramCntrSn = String(paramCntrNoFull).split('-')[1];
     const { sellTpCd } = g.getValues(dataRow);
     const { cntrCstNo } = g.getValues(dataRow);
+    const { copnDvCd } = g.getValues(dataRow);
 
     if (['cntrDtlNo'].includes(column)) { // 계약상세(윈도우팝업)
-      await modal({ component: 'WwctaOrderDetailP', componentProps: { cntrNo: paramCntrNo, cntrSn: paramCntrSn, sellTpCd, cntrCstNo } });
+      await modal({ component: 'WwctaOrderDetailP', componentProps: { cntrNo: paramCntrNo, cntrSn: paramCntrSn, sellTpCd, cntrCstNo, copnDvCd } });
     } else if (['ordrInfoView'].includes(column)) { // 일시불 주문정보 상세
       await modal({ component: 'WwctaSinglePaymentOrderDetailListP', componentProps: { cntrNo: paramCntrNo, cntrSn: paramCntrSn } });
     } else if (['connPdView'].includes(column)) { // 연계상품 리스트 조회
-      await alert('연계상품 리스트 팝업 조회');
+      await modal({
+        component: 'WwctaLinkProductListP',
+        componentProps: { cntrNo: paramCntrNo, cntrSn: paramCntrSn },
+      });
     }
   };
 });

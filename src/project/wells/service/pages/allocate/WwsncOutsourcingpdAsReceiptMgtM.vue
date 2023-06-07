@@ -155,6 +155,7 @@ const codes = await codeUtil.getMultiCodes(
 const searchParams = ref({
   cnrNm: '',
   pdNm: '',
+  device: 'W',
 });
 
 let cachedParams;
@@ -228,10 +229,28 @@ async function onClickSave() {
   }
 }
 
-function onClicBiztalkSend() {
-  modal({
+async function onClicBiztalkSend() {
+  const view = grdMainRef.value.getView();
+  const chkRows = gridUtil.getCheckedRowValues(view);
+
+  if (chkRows.length > 1) {
+    notify(t('MSG_ALT_MDFC_SEL'));
+    return;
+  }
+  if (chkRows[0].rowState !== 'none') {
+    notify(t('MSG_ALT_CHG_CNTN_AFTER_SAVE'));
+    return;
+  }
+
+  await modal({
     component: 'WwsncOutsourcingpdAsReceiptBiztalkP',
+    componentProps: {
+      cnrNm: chkRows[0].svCnrNm,
+      cnrTno: chkRows[0].svCnrTno,
+    },
   });
+
+  await fetchData();
 }
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid

@@ -19,9 +19,6 @@
       @search="onClickSearch"
       @reset="fetchDefaultData"
     >
-      <!-- TODO: 초기화 버튼클릭시 기본조건 셋팅
-                 @reset="searchDefaultCondition" (공통기능으로 되지않음.)
-      -->
       <kw-search-row>
         <!-- 입고창고 -->
         <kw-search-item
@@ -127,6 +124,7 @@ import useSnCode from '~sms-wells/service/composables/useSnCode';
 const { getConfig } = useMeta();
 const { modal, notify } = useGlobal();
 const { t } = useI18n();
+const store = useStore();
 
 const dataService = useDataService();
 const baseURI = '/sms/wells/service/movement-stores/management';
@@ -155,10 +153,9 @@ filterCodes.value.filterStrTpCd = codes.STR_TP_CD.filter((v) => ['121', '122', '
 let cachedParams;
 // const totalCount = ref(0);
 
-// @TODO TEMP_CODE
 const wharehouseParams = ref({
   apyYm: dayjs().format('YYYYMM'),
-  userId: '36680', // @TODO TEMP_CODE : USER_ID로 정리되어야함(임시로 사용)
+  userId: store.getters['meta/getUserInfo'].employeeIDNumber,
 });
 
 const searchParams = ref({
@@ -271,6 +268,7 @@ const initGrdMain = defineGrid((data, view) => {
       ostrWareNo,
       ostrWareNm,
       ostrSn,
+      strSn,
       strHopDt,
     } = gridUtil.getRowValue(g, dataRow);
     console.log(g, column, dataRow);
@@ -287,6 +285,7 @@ const initGrdMain = defineGrid((data, view) => {
         ostrWareNo,
         ostrWareNm,
         ostrSn,
+        strSn,
         itmPdNo,
         itmPdNm,
         strHopDt,

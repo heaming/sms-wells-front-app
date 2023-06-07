@@ -141,6 +141,7 @@
       v-show="searchType.prtnrAndW05"
       ref="grdCrtMainRef"
       name="grdMain"
+      :visible-rows="10"
       :page-size="pageMainInfo.pageSize-1"
       :total-count="pageMainInfo.totalCount"
       @init="initGrid"
@@ -149,6 +150,7 @@
       v-show="searchType.contract"
       ref="grdSecondRef"
       name="grdSecond"
+      :visible-rows="10"
       :page-size="pageSecondInfo.pageSize-1"
       :total-count="pageSecondInfo.totalCount"
       @init="initGrid2"
@@ -157,6 +159,7 @@
       v-show="searchType.prtnrAndW04"
       ref="grdThirdRef"
       name="grdThird"
+      :visible-rows="10"
       :page-size="pageThirdInfo.pageSize-1"
       :total-count="pageThirdInfo.totalCount"
       @init="initGrid3"
@@ -255,7 +258,7 @@ const selectedCondition = ref([
 async function fetchData() {
   const res = await dataService.get('/sms/wells/deduction/sole-distributors/partner/paging', { params: { ...cachedParams, ...pageMainInfo.value } });
   const { list: redfes, pageInfo: pagingResult } = res.data;
-  console.log(res.data);
+
   pageMainInfo.value = pagingResult;
   const view = grdCrtMainRef.value.getView();
   const dataSource = view.getDataSource();
@@ -268,7 +271,7 @@ async function fetchData() {
 async function fetchData2() {
   const res = await dataService.get('/sms/wells/deduction/sole-distributors/contract/paging', { params: { ...cachedParams, ...pageSecondInfo.value } });
   const { list: redfes, pageInfo: pagingResult } = res.data;
-  console.log(res.data);
+
   pageSecondInfo.value = pagingResult;
   const view = grdSecondRef.value.getView();
   const dataSource = view.getDataSource();
@@ -281,7 +284,7 @@ async function fetchData2() {
 async function fetchData3() {
   const res = await dataService.get('/sms/wells/deduction/sole-distributors/management/paging', { params: { ...cachedParams, ...pageThirdInfo.value } });
   const { list: redfes, pageInfo: pagingResult } = res.data;
-  console.log(res.data);
+
   pageThirdInfo.value = pagingResult;
   const view = grdThirdRef.value.getView();
   const dataSource = view.getDataSource();

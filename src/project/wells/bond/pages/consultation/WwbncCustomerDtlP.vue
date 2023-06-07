@@ -77,6 +77,7 @@
                     secondary
                     class="kw-font-caption py2 ml4"
                     style="min-height: 20px;"
+                    @click="onClickTelephoneRej"
                   />
                 </kw-form-item>
                 <kw-form-item
@@ -161,6 +162,7 @@
                     secondary
                     class="kw-font-caption py2 ml4"
                     style="min-height: 20px;"
+                    @click="onClickTelephoneRej"
                   />
                 </kw-form-item>
                 <kw-form-item
@@ -188,13 +190,14 @@
                     secondary
                     class="kw-font-caption py2 ml4"
                     style="min-height: 20px;"
+                    @click="onClickTelephoneRej"
                   />
                 </kw-form-item>
               </kw-form-row>
               <kw-form-row>
                 <kw-form-item
                   :label="$t('MSG_TXT_CNTR_ADR')"
-                  colspan="2"
+                  :colspan="2"
                 >
                   <p>({{ customer.cntrSppZip }}){{ customer.cntrSppAdr }} {{ customer.cntrSppDtlAdr }}</p>
                 </kw-form-item>
@@ -207,7 +210,7 @@
               <kw-form-row>
                 <kw-form-item
                   :label="$t('MSG_TXT_INST_ADDR')"
-                  colspan="2"
+                  :colspan="2"
                 >
                   <p>({{ customer.istSppZip }}){{ customer.istSppAdr }} {{ customer.istSppDtlAdr }}</p>
                 </kw-form-item>
@@ -319,7 +322,7 @@
                   :label="$t('MSG_TXT_SELLER_CTPLC')"
                 >
                   <p class="w100">
-                    {{ customer.plarMpno }}
+                    {{ customer.plarCralLocaraTno }}-{{ customer.plarMexnoEncr }}-{{ customer.plarCralIdvTno }}
                   </p>
                   <kw-btn
                     borderless
@@ -485,6 +488,7 @@
                     secondary
                     class="kw-font-caption py2 ml4"
                     style="min-height: 20px;"
+                    @click="onClickLawMeasure"
                   />
 
                   <kw-btn
@@ -605,6 +609,7 @@
                     secondary
                     class="kw-font-caption py2 ml4"
                     style="min-height: 20px;"
+                    @click="onClickService"
                   />
                 </kw-form-item>
               </kw-form-row>
@@ -648,10 +653,6 @@
               <kw-tab
                 name="tab7"
                 :label="$t('MSG_TXT_CST_CNR_CNSL_HIST')"
-              />
-              <kw-tab
-                name="tab8"
-                :label="$t('MSG_TXT_HPCALL_CNSL_HIST')"
               />
             </kw-tabs>
             <kw-observer
@@ -710,13 +711,6 @@
                     v-model:cntr-sn="customer.cntrSn"
                   />
                 </kw-tab-panel>
-                <kw-tab-panel name="tab8">
-                  <wwbnc-customer-dtl-p-happy-call
-                    v-model:cst-no="customer.cstNo"
-                    v-model:cntr-no="customer.cntrNo"
-                    v-model:cntr-sn="customer.cntrSn"
-                  />
-                </kw-tab-panel>
               </kw-tab-panels>
             </kw-observer>
           </div>
@@ -762,7 +756,7 @@
 
             <kw-form
               ref="frmMainRef"
-              cols="1"
+              :cols="1"
               dense
               :label-size="112"
             >
@@ -813,7 +807,7 @@
                   :label="$t('MSG_TXT_DPR')"
                 >
                   <kw-input
-                    v-model="customer.dpr"
+                    v-model="customer.dprNm"
                     dense
                   />
                 </kw-form-item>
@@ -903,7 +897,7 @@
                     ref="frmSubRef"
                     :label-size="100"
                     dense
-                    cols="1"
+                    :cols="1"
                   >
                     <kw-form-row>
                       <kw-form-item
@@ -1010,7 +1004,7 @@ import WwbncCustomerDtlPCounselHistory from './WwbncCustomerDtlPCounselHistory.v
 
 const { t } = useI18n();
 const dataService = useDataService();
-const { modal, notify } = useGlobal();
+const { modal } = useGlobal();
 
 const obsTabRef = ref();
 
@@ -1150,7 +1144,7 @@ async function onClickCnslRgstReset() {
   customer.value.cnslPh = '';
   customer.value.crncyRs = '';
   customer.value.cstPrp = '';
-  customer.value.dpr = '';
+  customer.value.dprNm = '';
   customer.value.cnslTp = '';
   customer.value.cstStat = '';
   customer.value.clnPsbl = '';
@@ -1172,32 +1166,51 @@ async function onClickCustomerCardPrint() {
   });
 }
 
-// TODO: 방문이력 관리 팝업
-async function onClickVisit() {
-  // TODO:고객번호, 고객명, 계약번호, 계약일련번호, 채권업무구분코드 전달필요
-  const { cstNo } = '016568225';
+async function onClickTelephoneRej() {
+  await modal({
+    component: 'ZwbncCounselTelephoneRejMgtP',
+    componentProps: customer.value,
+  });
+}
 
+async function onClickService() {
+  await modal({
+    component: 'WwbncServiceDtlP',
+    componentProps: customer.value,
+  });
+}
+
+async function onClickLawMeasure() {
   const { result: isChanged } = await modal({
-    component: 'ZwbncVisitMgtP',
-    componentProps: { cstNo },
+    component: 'ZwbncLawMeasureMgtP',
+    componentProps: customer.value,
   });
 
   if (isChanged) {
-    notify(t('MSG_ALT_REGISTERED'));
-    selectedTab.value = 'tab5';
-    await visitRef.value.fetchData();
+    selectedTab.value = 'tab4';
+    await lawMeasureRef.value.fetchData();
   }
 }
 
 // TODO: 가상상세 목록 팝업
 async function onClickVirtualAccount() {
-  // TODO:고객번호, 고객명, 계약번호, 계약일련번호 전달필요
-  const { cstNo } = '016568225';
-
   await modal({
     component: 'ZwbncVirtualAccountP',
-    componentProps: { cstNo },
+    componentProps: customer.value,
   });
+}
+
+// TODO: 방문이력 관리 팝업
+async function onClickVisit() {
+  const { result: isChanged } = await modal({
+    component: 'ZwbncVisitMgtP',
+    componentProps: customer.value,
+  });
+
+  if (isChanged) {
+    selectedTab.value = 'tab5';
+    await visitRef.value.fetchData();
+  }
 }
 
 // TODO: 소장 생성 팝업
@@ -1232,7 +1245,7 @@ async function onClickCounselSave() {
   saveCounselParams.value.telCnslPhCd = customer.value.cnslPh;
   saveCounselParams.value.telCnslRsCd = customer.value.crncyRs;
   saveCounselParams.value.cnslCstPrpCd = customer.value.cstPrp;
-  saveCounselParams.value.dprNm = customer.value.dpr;
+  saveCounselParams.value.dprNm = customer.value.dprNm;
   saveCounselParams.value.bndCntrTpCd = customer.value.cnslTp;
   saveCounselParams.value.bndCnslCstStatCd = customer.value.cstStat;
   saveCounselParams.value.bndClnPsblDvCd = customer.value.clnPsbl;
@@ -1275,7 +1288,6 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'cntrNo' },
     { fieldName: 'cntrSn' },
     { fieldName: 'cntrDtlNo' },
-    { fieldName: 'cstNo' },
     { fieldName: 'cstKnm' },
     { fieldName: 'dlqMcn' },
     { fieldName: 'cntrRsgDt' },
@@ -1310,10 +1322,12 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'rtlfe2', dataType: 'number' },
     { fieldName: 'rtlfeIstm2', dataType: 'number' },
     { fieldName: 'dprNm' },
+    { fieldName: 'cstNo' },
     { fieldName: 'clctamPrtnrNo' },
     { fieldName: 'clctamIchr' },
     { fieldName: 'tfDt' },
     { fieldName: 'sfk' },
+    { fieldName: 'bndBizDvCd' },
   ];
 
   const columns = [
@@ -1321,10 +1335,21 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'sellTpCd', header: t('MSG_TXT_TASK_DIV'), width: '80', styleName: 'text-center' },
     { fieldName: 'prdf', header: t('MSG_TXT_PRD_GRP'), width: '100', styleName: 'text-center' },
     { fieldName: 'pdNm', header: t('MSG_TXT_GOODS_NM'), width: '300', styleName: 'text-center' },
-    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_NO'), width: '100', styleName: 'text-center', visible: 'false' },
-    { fieldName: 'cntrSn', header: t('MSG_TXT_CNTR_SN'), width: '100', styleName: 'text-center', visible: 'false' },
-    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '200', styleName: 'text-center' },
-    { fieldName: 'cstNo', header: '', width: '100', styleName: 'text-center', visible: 'center' },
+    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_NO'), width: '100', styleName: 'text-center', visible: false },
+    { fieldName: 'cntrSn', header: t('MSG_TXT_CNTR_SN'), width: '100', styleName: 'text-center', visible: false },
+    {
+      fieldName: 'cntrDtlNo',
+      header: t('MSG_TXT_CNTR_DTL_NO'),
+      styleName: 'text-center',
+      width: '160',
+
+      displayCallback(grid, index) {
+        const { cntrNo: no1, cntrSn: no2 } = grid.getValues(index.itemIndex);
+        if (no1 != null) {
+          return `${no1}-${no2}`;
+        }
+      },
+    },
     { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '120', styleName: 'text-center' },
     { fieldName: 'dlqMcn', header: t('MSG_TXT_DLQ_MCNT'), width: '80', styleName: 'text-center' },
     { fieldName: 'cntrRsgDt', header: t('MSG_TXT_AUTH_RSG_DT'), width: '130', styleName: 'text-center' },
@@ -1359,10 +1384,11 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'rtlfe2', header: t('MSG_TXT_RTLFE2'), styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
     { fieldName: 'rtlfeIstm2', header: t('MSG_TXT_RTLFE_2_ISTM'), styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
     { fieldName: 'dprNm', header: t('MSG_TXT_DPR'), styleName: 'text-center' },
-    { fieldName: 'cstNo', header: '', width: '100', styleName: 'text-center', visible: 'false' },
+    { fieldName: 'cstNo', header: '', width: '100', styleName: 'text-center', visible: false },
     { fieldName: 'clctamPrtnrNo', header: t('MSG_TXT_CLCTAM_ICHR'), styleName: 'text-center' },
     { fieldName: 'tfDt', header: t('MSG_TXT_TF_DT'), styleName: 'text-center', width: '120' },
     { fieldName: 'sfk', header: t('MSG_TXT_SFK'), styleName: 'text-center', width: '150' },
+    { fieldName: 'bndBizDvCd', width: '100', styleName: 'text-center', visible: false },
   ];
 
   data.setFields(fields);
@@ -1376,9 +1402,9 @@ const initGrdMain = defineGrid((data, view) => {
     visible: true,
     items: [{ height: 40 }],
   });
-  view.layoutByColumn('fnt').summaryUserSpans = [{ colspan: 8 }];
+  view.layoutByColumn('mpyBsdt').summaryUserSpans = [{ colspan: 11 }];
   view.layoutByColumn('vtAcDv').summaryUserSpans = [{ colspan: 3 }];
-  view.layoutByColumn('dpr').summaryUserSpans = [{ colspan: 4 }];
+  view.layoutByColumn('dprNm').summaryUserSpans = [{ colspan: 4 }];
 
   view.onCurrentRowChanged = (grid, oldRow, newRow) => {
     const rowData = gridUtil.getRowValue(grid, newRow);
@@ -1388,8 +1414,11 @@ const initGrdMain = defineGrid((data, view) => {
 
   view.onCellDblClicked = async (g, { dataRow }) => {
     const cstNo = g.getValue(dataRow, 'cstNo');
+    const cntrNo = g.getValue(dataRow, 'cntrNo');
+    const cntrSn = g.getValue(dataRow, 'cntrSn');
+    const bndBizDvCd = g.getValue(dataRow, 'bndBizDvCd');
     if (cstNo) {
-      await window.open(`/popup/#/wwbnc-same-customer-contract?cstNo=${cstNo}`, 'popup', 'width=1200, height=1100, menubar=no, location=no');
+      await window.open(`/popup/#/wwbnc-same-customer-contract?cstNo=${cstNo}&cntrNo=${cntrNo}&cntrSn=${cntrSn}&bndBizDvCd=${bndBizDvCd}`, 'popup', 'width=1200, height=1100, menubar=no, location=no');
     }
   };
 });

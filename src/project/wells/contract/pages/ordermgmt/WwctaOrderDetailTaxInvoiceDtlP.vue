@@ -107,7 +107,7 @@
           v-model:tel-no1="fieldParams.mexno"
           v-model:tel-no2="fieldParams.cralIdvTno"
           mask="telephone"
-          rules="required|telephone"
+          :rules="fieldParams.rules"
           :readonly="isReadonly"
           :label="t('MSG_TXT_TEL_NO')"
         />
@@ -170,6 +170,11 @@ const frmMainRef = ref(getComponentType('KwForm'));
 
 let cachedParams;
 
+const searchParams = ref({
+  cntrNo: '',
+  cntrSn: '',
+});
+
 const fieldParams = ref({
   bzrno: '', /* 사업자등록번호 */
   cntrCnfmDtm: '', /* 계약확정일시 */
@@ -189,6 +194,7 @@ const fieldParams = ref({
   bzrnoFormat: '', /* 사업자등록번호 format */
   cntrNo: '',
   cntrSn: '',
+  rules: '',
 });
 
 // -------------------------------------------------------------------------------------------------
@@ -197,18 +203,21 @@ const fieldParams = ref({
 
 // fetchData: 조회
 async function fetchData() {
-  console.log(fieldParams.value);
-  if (!await frmMainRef.value.confirmIfIsModified()) { return; }
-  const res = await dataService.get('/sms/wells/contract/contract-info/tax-Invoices', { params: { cntrNo: fieldParams.value.cntrNo, cntrSn: fieldParams.value.cntrSn } });
+  const res = await dataService.get('/sms/wells/contract/contract-info/tax-Invoices', { params: { cntrNo: searchParams.value.cntrNo, cntrSn: searchParams.value.cntrSn } });
   if (!isEmpty(res.data)) {
     Object.assign(fieldParams.value, res.data);
     fieldParams.value.telNo = `${fieldParams.value.cralLocaraTno}${fieldParams.value.mexno}${fieldParams.value.cralIdvTno}`; // 전화번호
     fieldParams.value.bzrnoFormat = !isEmpty(res.data.bzrno) ? `${res.data.bzrno?.substring(0, 3)}-${res.data.bzrno?.substring(3, 5)}-${res.data.bzrno?.substring(5, 10)}` : '';
+
+    fieldParams.value.cntrNo = searchParams.value.cntrNo;
+    fieldParams.value.cntrSn = searchParams.value.cntrSn;
   }
+  console.log(fieldParams);
 }
 
 // onClickSearch: 조회버튼 클릭 시
 async function onClickSearch() {
+  if (!await frmMainRef.value.confirmIfIsModified()) { return; }
   fetchData();
 }
 
@@ -239,8 +248,8 @@ async function onClickSave() {
 
 // setDatas: 계약번호, 계약일련번호 세팅 (부모창에서 호출)
 async function setDatas(cntrNo, cntrSn) {
-  fieldParams.value.cntrNo = cntrNo;
-  fieldParams.value.cntrSn = cntrSn;
+  searchParams.value.cntrNo = cntrNo;
+  searchParams.value.cntrSn = cntrSn;
 
   await fetchData();
 }
@@ -248,6 +257,15 @@ async function setDatas(cntrNo, cntrSn) {
 // 외부에서 사용할 수 있도록 노출 선언
 defineExpose({
   setDatas,
+});
+
+// 읽기전용인지 아닌지 감시하기
+watch(() => isReadonly.value, async () => {
+  let rules = '';
+  if (!isReadonly.value) {
+    rules = 'required|telephone';
+  }
+  fieldParams.value.rules = rules;
 });
 
 </script>

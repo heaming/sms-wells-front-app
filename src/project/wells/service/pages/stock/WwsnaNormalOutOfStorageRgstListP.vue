@@ -185,8 +185,12 @@ const { t } = useI18n();
 // const { ok } = useModal();
 
 const dataService = useDataService();
-const baseURI = '/sms/wells/service/normal-outofstorages/detail';
-const standardURI = '/sms/wells/service/normal-outofstorages/standard-ware';
+
+const baseURI = '/sms/wells/service/normal-outofstorages';
+const detailURI = `${baseURI}/detail`;
+const standardURI = `${baseURI}/standard-ware`;
+const pathUri = `${baseURI}/monthly-warehouse`;
+const itmOstrAkUri = `${baseURI}/itm-ostr-ak`;
 const grdMainRef = ref(getComponentType('KwGrid'));
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -196,34 +200,42 @@ const props = defineProps({
     type: String,
     default: '',
   },
-  ostrAkTpCd: {
+  ostrAkSn: {
     type: String,
     default: '',
   },
-  strHopDt: {
-    type: String,
-    default: '',
-  },
-  ostrOjWareNo: {
-    type: String,
-    default: '',
-  },
-  strOjWareNo: {
-    type: String,
-    default: '',
-  },
-  ostrOjWareNm: {
-    type: String,
-    default: '',
-  },
-  strOjWareNm: {
-    type: String,
-    default: '',
-  },
-  itmPdCd: {
-    type: String,
-    default: '',
-  },
+  // ostrAkTpCd: {
+  //   type: String,
+  //   default: '',
+  // },
+  // strHopDt: {
+  //   type: String,
+  //   default: '',
+  // },
+  // ostrOjWareNo: {
+  //   type: String,
+  //   default: '',
+  // },
+  // strOjWareNo: {
+  //   type: String,
+  //   default: '',
+  // },
+  // ostrOjWareNm: {
+  //   type: String,
+  //   default: '',
+  // },
+  // strOjWareNm: {
+  //   type: String,
+  //   default: '',
+  // },
+  // itmPdCd: {
+  //   type: String,
+  //   default: '',
+  // },
+  // pageId: {
+  //   type: String,
+  //   default: '',
+  // },
 });
 
 const codes = ref(await codeUtil.getMultiCodes(
@@ -236,25 +248,8 @@ const codes = ref(await codeUtil.getMultiCodes(
   'MAT_MNGT_DV_CD',
 ));
 
-const searchParams = ref({
-  ostrAkTpCd: props.ostrAkTpCd,
-  ostrAkTpNm: codes.value.OSTR_AK_TP_CD.find((v) => v.codeId === props.ostrAkTpCd).codeName,
-  ostrWareNo: props.ostrOjWareNo,
-  strWareNo: props.ostrJWareNo,
-  strHopDt: props.strHopDt,
-  ostrAkNo: props.ostrAkNo,
-  ostrOjWareNm: props.ostrOjWareNm,
-  strOjWareNm: props.strOjWareNm,
-  ostrAkRgstDt: props.strHopDt,
-  itmPdCd: props.itmPdCd,
-  stckStdGb: '0',
-  stckNoStdGb: 'N',
-  rgstDt: dayjs().format('YYYYMMDD'),
-  apyYm: dayjs().format('YYYYMM'),
-});
+const searchParams = ref({});
 let cachedParams;
-
-console.log(`searchParams.value.ostrAkRgstDt : ${searchParams.value.ostrAkRgstDt}`);
 
 const pageInfo = ref({
   totalCount: 0,
@@ -263,7 +258,7 @@ const pageInfo = ref({
 });
 
 async function fetchData() {
-  const res = await dataService.get(baseURI, { params: { ...cachedParams, ...pageInfo.value } });
+  const res = await dataService.get(detailURI, { params: { ...cachedParams, ...pageInfo.value } });
   const { list: searchData, pageInfo: pagingResult } = res.data;
 
   pageInfo.value = pagingResult;
@@ -282,7 +277,7 @@ async function onClickSearch() {
 
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
-  const res = await dataService.get(`${baseURI}/excel-download`, { params: cachedParams });
+  const res = await dataService.get(`${detailURI}/excel-download`, { params: cachedParams });
   await gridUtil.exportView(view, {
     fileName: 'NomalOutOfStorageRgstListP',
     timePostfix: true,
@@ -323,15 +318,9 @@ async function setStandardCheckbox() {
 
 async function onclickStandard() {
   searchParams.value.stckStdGb = searchParams.value.stckNoStdGb === 'N' ? '1' : '0';
-  // if (searchParams.value.stckNoStdGb === 'N') {
-  //   searchParams.value.stckStdGb = '1';
-  // } else {
-  //   searchParams.value.stckStdGb = '0';
-  // }
 
   const { ostrWareNo, apyYm, stckStdGb } = searchParams.value;
-  // const pathUri = `/sms/wells/service/normal-outofstorages/monthly-warehouse/${apyYm}-${ostrWareNo}`;
-  const pathUri = '/sms/wells/service/normal-outofstorages/monthly-warehouse';
+
   const res = await dataService.put(pathUri, { apyYm, stckStdGb, wareNo: ostrWareNo });
   console.log(res);
 }
@@ -339,7 +328,7 @@ async function onclickStandard() {
 async function onClickConfirm() {
   if (await confirm(t('MSG_ALT_WANT_DTRM'))) {
     const saveParams = getSaveParams();
-    await dataService.put(baseURI, saveParams);
+    await dataService.put(detailURI, saveParams);
     await fetchData();
   }
 }
@@ -354,14 +343,39 @@ async function onChangeRgstDt() {
   await onClickSearch();
 }
 
-onMounted(async () => {
-  searchParams.value.ostrWareNo = props.ostrOjWareNo;
-  searchParams.value.strWareNo = props.strOjWareNo;
-  console.log(searchParams.value.ostrWareNo);
-  console.log(searchParams.value.strWareNo);
+async function getItmOstrAk() {
+  const ostrAkParams = {
+    ostrAkNo: props.ostrAkNo,
+    ostrAkSn: props.ostrAkSn,
+  };
+
+  console.log(`props.ostrAkNo : ${props.ostrAkNo}`);
+  console.log(`props.ostrAkSn : ${props.ostrAkSn}`);
+
+  const res = await dataService.get(itmOstrAkUri, { params: ostrAkParams });
+
+  searchParams.value.ostrAkTpCd = res.data.ostrAkTpCd;
+  searchParams.value.ostrAkTpNm = res.data.ostrAkTpNm;
+  searchParams.value.ostrWareNo = res.data.ostrOjWareNo;
+  searchParams.value.strWareNo = res.data.strOjWareNo;
+  searchParams.value.strHopDt = res.data.strHopDt;
+  searchParams.value.ostrAkNo = res.data.ostrAkNo;
+  searchParams.value.ostrOjWareNm = res.data.ostrOjWareNm;
+  searchParams.value.strOjWareNm = res.data.strOjWareNm;
+  searchParams.value.ostrAkRgstDt = res.data.ostrAkRgstDt;
+  searchParams.value.itmPdCd = res.data.itmPdCd;
+
+  searchParams.value.stckStdGb = '0';
+  searchParams.value.stckNoStdGb = 'N';
+  searchParams.value.rgstDt = dayjs().format('YYYYMMDD');
+  searchParams.value.apyYm = dayjs().format('YYYYMM');
 
   await setStandardCheckbox();
   await onClickSearch();
+}
+
+onMounted(async () => {
+  await getItmOstrAk();
 });
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
