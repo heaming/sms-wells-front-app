@@ -17,6 +17,7 @@
     <kw-search
       :cols="3"
       @search="onClickSearch"
+      @reset="resetFrisuMshCrtYn"
     >
       <kw-search-row>
         <kw-search-item
@@ -96,8 +97,6 @@
           <kw-checkbox
             v-model="searchParams.frisuMshCrtYn"
             :label="$t('MSG_TXT_EXL_AUT_GEN')"
-            :false-value="N"
-            :true-value="Y"
           />
         </kw-search-item>
       </kw-search-row>
@@ -206,6 +205,9 @@ const searchParams = ref({
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
+async function resetFrisuMshCrtYn() {
+  searchParams.value.frisuMshCrtYn = 'N';
+}
 async function onChangeHclsf(hclsf) {
   if (isEmpty(hclsf)) {
     codes.PD_MCLSF = codes.PD_MCLSF_ALL;
@@ -336,7 +338,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'cntrCnfmYn', header: t('MSG_TXT_DTRM_YN'), width: '154', styleName: 'text-center' },
     { fieldName: 'cntrCnfmDt', header: t('MSG_TXT_DTRM_DATE'), width: '154', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'cntrPdStrtdt', header: t('MSG_TXT_SUBS_DT'), width: '154', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'cntrPdEnddt', header: t('MSG_TXT_RSGN_D'), width: '154', styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'cntrPdEnddt', header: t('MSG_TXT_WDWAL_DT'), width: '154', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'cntrCanDt', header: t('MSG_TXT_CAN_D'), width: '154', styleName: 'text-center', datetimeFormat: 'date' },
   ];
 
