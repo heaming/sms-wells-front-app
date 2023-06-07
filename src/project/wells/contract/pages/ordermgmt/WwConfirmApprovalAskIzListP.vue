@@ -174,7 +174,7 @@ const initSubGrid = defineGrid((data, view) => {
     { fieldName: 'rcgvpKnm', header: t('MSG_TXT_INST_CST_NM'), width: '135', styleName: 'text-center' },
     { fieldName: 'adr', header: t('MSG_TXT_INST_ADDR'), width: '482', styleName: 'text-left' },
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '246', styleName: 'text-left' },
-    { fieldName: 'istDt', header: t('MSG_TXT_IST_DT'), width: '135', styleName: 'text-center' },
+    { fieldName: 'istDt', header: t('MSG_TXT_IST_DT'), width: '135', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'useDiv', header: t('MSG_TXT_USG'), width: '78', styleName: 'text-center' },
     { fieldName: 'apyTn', header: t('MSG_TXT_RNTL_SN'), width: '78', styleName: 'text-center' },
     { fieldName: 'dlqInfo', header: t('MSG_TXT_DLQ_MCNT_AMT'), width: '135', styleName: 'text-center' },
