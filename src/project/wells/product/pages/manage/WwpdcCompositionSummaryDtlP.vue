@@ -84,7 +84,7 @@
     <kw-grid
       ref="grdStandardRef"
       name="grdStandardMain"
-      :visible-rows="2"
+      :visible-rows="3"
       @init="initStandardGrid"
     />
     <kw-separator />
@@ -126,6 +126,8 @@ const codes = await codeUtil.getMultiCodes(
   'SELL_CHNL_DTL_CD',
   'CRNCY_DV_CD',
   'SELL_TP_CD',
+  'STPL_PRD_CD',
+  'RENTAL_DSC_DV_CD',
 );
 
 async function fetchData() {
@@ -145,6 +147,7 @@ async function initGridRows() {
     if (standardView) {
       standardView.getDataSource().setRows(pdRels.value
         .filter((item) => item[pdConst.PD_REL_TP_CD] === pdConst.PD_REL_TP_CD_C_TO_P));
+      standardView.displayOptions.rowHeight = -1;
     }
   }
   const view = grdMainRef.value?.getView();
@@ -173,11 +176,18 @@ async function initStandardGrid(data, view) {
     // 기준상품명
     { fieldName: 'pdNm', header: t('MSG_TXT_PD_STD_NAME'), width: '206' },
     // 기준상품코드
-    { fieldName: 'pdCd', header: t('MSG_TXT_PD_STD_CODE'), width: '140', styleName: 'text-center' },
+    { fieldName: 'pdCd', header: t('MSG_TXT_PD_STD_CODE'), width: '120', styleName: 'text-center' },
+    // 연결상품
+    { fieldName: 'stdRelProducts',
+      header: t('MSG_TXT_REL_PRDT'),
+      width: '287',
+      styleName: 'multiline',
+      displayCallback(grid, index) {
+        const { stdRelProducts } = grid.getValues(index.itemIndex);
+        return stdRelProducts;
+      } },
     // 판매유형
     { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '120', styleName: 'text-center', options: codes.SELL_TP_CD },
-    // 판매채널
-    { fieldName: 'channelId', header: t('MSG_TXT_SEL_CHNL'), width: '250', options: codes.SELL_CHNL_DTL_CD },
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   fields.push({ fieldName: pdConst.REL_PD_ID });
@@ -193,17 +203,21 @@ async function initStandardGrid(data, view) {
 async function initGrid(data, view) {
   const columns = [
     // 판매채널
-    { fieldName: 'sellChnlCd', header: t('MSG_TXT_SEL_CHNL'), width: '128', styleName: 'text-center', options: codes.SELL_CHNL_DTL_CD },
+    { fieldName: 'sellChnlCd', header: t('MSG_TXT_SEL_CHNL'), width: '90', styleName: 'text-center', options: codes.SELL_CHNL_DTL_CD },
     // 기준상품코드
-    { fieldName: 'basePdCd', header: t('MSG_TXT_PD_STD_CODE'), width: '185', styleName: 'text-center' },
+    { fieldName: 'basePdCd', header: t('MSG_TXT_PD_STD_CODE'), width: '110', styleName: 'text-center' },
     // 기준상품명
     { fieldName: 'basePdNm', header: t('MSG_TXT_PD_STD_NAME'), width: '206' },
     // 판매유형
-    { fieldName: 'baseSellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '157', styleName: 'text-center', options: codes.SELL_TP_CD },
-    // 약정개월
-    { fieldName: 'stplPrdCd', header: t('MSG_TXT_STPL_MCNT'), width: '120', styleName: 'text-right', numberFormat: '#,##0.##', dataType: 'number' },
+    { fieldName: 'baseSellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '90', styleName: 'text-center', options: codes.SELL_TP_CD },
+    // LV.1(SVC명)
+    { fieldName: 'svPdNm', header: t('MSG_TXT_PD_FEE_LV1'), width: '180' },
+    // LV.2(약정주기)
+    { fieldName: 'stplPrdCd', header: t('MSG_TXT_PD_COM_PERI_LV2'), width: '110', styleName: 'text-center', options: codes.STPL_PRD_CD },
+    // (랜탈)할인구분
+    { fieldName: 'rentalDscDvCd', header: t('MSG_TXT_PD_DC_CLASS'), width: '80', styleName: 'text-center', options: codes.RENTAL_DSC_DV_CD },
     // 최종가격
-    { fieldName: 'fnlVal', header: t('MSG_TXT_PD_FNL_PRC'), width: '120', styleName: 'text-right', numberFormat: '#,##0.##', dataType: 'number' },
+    { fieldName: 'fnlVal', header: t('MSG_TXT_PD_FNL_PRC'), width: '80', styleName: 'text-right', numberFormat: '#,##0.##', dataType: 'number' },
   ];
 
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
@@ -217,4 +231,9 @@ async function initGrid(data, view) {
 }
 
 </script>
-<style scoped></style>
+<style lang="scss">
+.multiline {
+  word-break: break-word;
+  white-space: pre;
+}
+</style>

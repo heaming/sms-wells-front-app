@@ -277,7 +277,7 @@ const initGrdMain = defineGrid((data, view) => {
       fieldName: 'pdNm',
       header: t('MSG_TXT_PRDT_NM'),
       width: '203',
-      styleName: 'text-left',
+      styleName: 'text-left rg-button-icon--search',
       button: 'action',
       rules: 'required',
       editor: { maxLength: 100 },
