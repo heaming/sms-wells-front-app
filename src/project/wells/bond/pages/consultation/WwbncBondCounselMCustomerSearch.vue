@@ -20,13 +20,11 @@
     <kw-search-row>
       <kw-search-item
         :label="$t('MSG_TXT_CLCTAM_ICHR_EMPNO')"
-        required
       >
         <kw-input
           v-model="searchParams.clctamPrtnrNo"
           :label="$t('MSG_TXT_CLCTAM_ICHR_EMPNO')"
           :regex="/^[0-9]*$/i"
-          rules="required"
         />
       </kw-search-item>
       <kw-search-item
@@ -141,12 +139,13 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService, getComponentType, codeUtil, modal, gridUtil, defineGrid } from 'kw-lib';
+import { useDataService, getComponentType, codeUtil, modal, gridUtil, defineGrid, useGlobal } from 'kw-lib';
 import { isEmpty } from 'lodash-es';
 
 const { t } = useI18n();
 const dataService = useDataService();
 const { currentRoute } = useRouter();
+const { alert } = useGlobal();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -180,6 +179,11 @@ async function fetchData() {
 }
 
 async function onClickSearch() {
+  const notEmpty = Object.values(searchParams).some((val) => !isEmpty(val));
+  if (!notEmpty) {
+    return await alert(t('MSG_ALT_INQR_CNDT_AT_LEAST_ONE'));
+  }
+
   await fetchData();
 }
 
