@@ -458,6 +458,7 @@ const initGrdMain = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'sapCd' }, // SAP코드
     { fieldName: 'itmPdCd' }, // 품목상품코드,
+    { fieldName: 'cstSvAsnNo' }, // 고객서비스배정내역,
     { fieldName: 'itmPdNm' }, // 품목상품명
     { fieldName: 'itemGrNm' }, // 품목그룹명
     { fieldName: 'itemGr' }, // 품목그룹
