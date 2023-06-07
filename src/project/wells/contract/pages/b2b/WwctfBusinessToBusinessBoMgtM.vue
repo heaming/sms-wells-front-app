@@ -556,15 +556,13 @@ const initBusinessToBusinessBoList = defineGrid((data, view) => {
     if (isEmpty(rowValue.opptId)) {
       notify(t('MSG_ALT_NOT_DTL_INFO'));
     } else {
-      const { result } = await modal({
+      await modal({
         component: 'WwctfBusinessToBusinessBoDtlP',
         componentProps: {
           opptId: rowValue.opptId,
         },
       });
-      if (result) {
-        await fetchData();
-      }
+      await fetchData();
     }
   };
 });
