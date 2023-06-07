@@ -54,7 +54,6 @@
       >
         <kw-option-group
           v-model="fieldParams.txinvPblOjYn"
-          :model-value="fieldParams.txinvPblOjYn"
           :label="t('MSG_TXT_ISSUANCE_CLAR')"
           type="radio"
           :options="[
@@ -136,7 +135,6 @@
         <p class="ml8">
           <kw-option-group
             v-model="fieldParams.txinvPblD"
-            :model-value="fieldParams.txinvPblD"
             :label="t('MSG_TXT_PBL_DT')"
             rules="required"
             type="radio"
