@@ -51,6 +51,7 @@
           v-model="searchParams.cntrDtlStatCd"
           :label="$t('MSG_TXT_CNTR_STAT')"
           :options="codes.CNTR_DTL_STAT_CD"
+          first-option="all"
         />
       </kw-search-item>
       <kw-search-item :label="$t('MSG_TXT_CNTR_NO')">
