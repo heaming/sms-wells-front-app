@@ -68,7 +68,7 @@
         <kw-search-item :label="t('MSG_TXT_PRTNR_NUM')">
           <kw-input
             v-model="searchParams.prtnrNo"
-            type="number"
+            regex="num"
             icon="search"
             :label="t('MSG_TXT_PRTNR_NUM')"
             rules="max:10|numeric"
