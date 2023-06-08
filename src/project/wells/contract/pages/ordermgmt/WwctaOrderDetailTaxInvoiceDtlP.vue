@@ -100,11 +100,11 @@
         :label="t('MSG_TXT_TEL_NO')"
         required
       >
-        <kw-input
-          v-model="fieldParams.telNo"
-          v-model:tel-no0="fieldParams.cralLocaraTno"
-          v-model:tel-no1="fieldParams.mexno"
-          v-model:tel-no2="fieldParams.cralIdvTno"
+        <zwcm-telephone-number
+          v-model:tel-no0="fieldParams.telNo"
+          v-model:tel-no1="fieldParams.cralLocaraTno"
+          v-model:tel-no2="fieldParams.mexno"
+          v-model:tel-no3="fieldParams.cralIdvTno"
           mask="telephone"
           :rules="setComnponetRule('required|telephone')"
           :readonly="isReadonly"
@@ -113,7 +113,7 @@
       </kw-form-item>
     </kw-form-row>
 
-    <kw-form-row>
+    <kw-form-row class="mb30">
       <!-- 전자메일 -->
       <kw-form-item
         :label="t('MSG_TXT_EMAIL')"
@@ -159,6 +159,7 @@
 import { useDataService, getComponentType, useGlobal } from 'kw-lib';
 import { isEmpty, cloneDeep } from 'lodash-es';
 import ZwcmEmailAddress from '~common/components/ZwcmEmailAddress.vue';
+import ZwcmTelephoneNumber from '~common/components/ZwcmTelephoneNumber.vue';
 
 const { confirm, alert } = useGlobal();
 const { t } = useI18n();
