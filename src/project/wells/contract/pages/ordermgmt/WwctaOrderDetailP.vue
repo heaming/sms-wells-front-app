@@ -155,6 +155,15 @@
             </kw-form-item>
             <!-- 가상계좌 -->
             <kw-form-item :label="$t('MSG_TXT_VT_AC')">
+              <kw-chip
+                v-show="isVacInfo"
+                :label="frmMainData.vacBnkNm"
+                color="placeholder"
+                outline
+              />
+              <p class="ml8">
+                {{ frmMainData.vacInfo }}
+              </p>
               <kw-separator
                 vertical
                 spaced="2px"
@@ -194,7 +203,6 @@
                 :label="$t('MSG_BTN_EMAIL_SEND')"
                 @click="onClickEmailSend"
               />
-              <p>{{ frmMainData.vacInfo }}</p>
             </kw-form-item>
           </kw-form-row>
 
@@ -331,6 +339,7 @@ const frmMainData = ref({
   acnoEncr: '', // 계좌번호
   crcdnoEncr: '', // 카드번호
   sfkVal: '', // 세이프키
+  vacBnkNm: '', // 가상계좌은행명
   vacInfo: '', // 가상계좌
   cntrtAdr: '', // 계약자 주소
   rcgvpKnm: '', // 설치(배송정보) 고객명
@@ -419,16 +428,20 @@ async function fetchDataCustomerBase() {
       }
     }
     frmMainData.value.sfkVal = res.data[0].sfkVal; // 세이프키
-    frmMainData.value.vacInfo = res.data[0].vacInfo; // 가상계좌
     if (!isEmpty(res.data[0].vacInfo)) {
-      isVacInfo.value = true;
-    }
+      console.log(res.data[0].vacInfo.length + isVacInfo.value);
+      if (res.data[0].vacInfo.length > 2) {
+        isVacInfo.value = true;
+        frmMainData.value.vacBnkNm = res.data[0].vacInfo.split('$')[0];
+        frmMainData.value.vacInfo = `${res.data[0].vacInfo.split('$')[1]} ${res.data[0].vacInfo.split('$')[2]}`;
+      }
+    } // 가상계좌
     frmMainData.value.cntrtAdr = res.data[0].cntrtAdr; // 계약자 주소
     frmMainData.value.rcgvpKnm = res.data[0].rcgvpKnm; // 설치(배송정보) 고객명
     const { istCralLocaraTno } = res.data[0]; // 설치자 휴대지역전화번호
-    const { istMexnoEncr } = res.data[0]; // 설치자 휴대전화국번호암호화
+    const { istMexnoEncr } = isEmpty(res.data[0]) ? '' : res.data[0]; // 설치자 휴대전화국번호암호화
     const { istCralIdvTno } = res.data[0]; // 설치자 휴대개별전화번호
-    frmMainData.value.rcgvpTno = !isEmpty(istCralLocaraTno) && !isEmpty(istMexnoEncr) && !isEmpty(istCralIdvTno) ? `${istCralLocaraTno}-${istMexnoEncr}-${istCralIdvTno}` : ''; // 설치(배송정보) 휴대전화번호
+    frmMainData.value.rcgvpTno = isEmpty(istCralLocaraTno) && isEmpty(istMexnoEncr) && isEmpty(istCralIdvTno) ? '' : `${istCralLocaraTno}-${istMexnoEncr}-${istCralIdvTno}`; // 설치(배송정보) 휴대전화번호
     frmMainData.value.rcgvpAdr = res.data[0].rcgvpAdr; // 설치(배송정보) 주소
   }
 }

@@ -127,9 +127,9 @@
       >
         <p>{{ stringUtil.getDateFormat(frmMainData.chdvcDt) }}</p>
       </kw-form-item>
-      <!-- 상태코드 -->
+      <!-- 상대코드 -->
       <kw-form-item
-        :label="$t('MSG_TXT_STT_CD')"
+        :label="$t('MSG_TXT_PTY_CD')"
       >
         <p>{{ frmMainData.ptyCd }}</p>
       </kw-form-item>
@@ -243,7 +243,7 @@ import { cloneDeep } from 'lodash-es';
 
 const dataService = useDataService();
 // const { t } = useI18n();
-const { alert, modal } = useGlobal();
+const { modal } = useGlobal();
 const props = defineProps({
   cntrNo: { type: String, required: true, default: '' },
   cntrSn: { type: String, required: true, default: '' },
@@ -300,12 +300,30 @@ const frmMainData = ref({
 // -------------------------------------------------------------------------------------------------
 // 위약금예상 팝업 호출
 async function onClickCcamEt() {
-  await alert('위약금예상 팝업은 개발예정입니다.');
+  // await alert('위약금예상 팝업은 개발예정입니다.');
+  const searchPopupParams = {
+    cntrNo: searchParams.value.cntrNo,
+    cntrSn: searchParams.value.cntrSn,
+  };
+
+  await modal({
+    component: 'WwctaEstimateCcamDtlP', // 위약금예상 조회
+    componentProps: searchPopupParams,
+  });
 }
 
 // 프로모션 팝업 호출
 async function onClickPmot() {
-  await alert('프로모션 팝업은 개발예정입니다.');
+  // await alert('프로모션 팝업은 개발예정입니다.');
+  const searchPopupParams = {
+    cntrNo: searchParams.value.cntrNo,
+    cntrSn: searchParams.value.cntrSn,
+  };
+
+  await modal({
+    component: 'WwctaOrderDetailMngtInfPmotListP', // 프로모션
+    componentProps: searchPopupParams,
+  });
 }
 
 // 연관계약리스트 팝업 호출
