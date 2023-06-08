@@ -164,7 +164,7 @@ async function onClickRemoveRows() {
   if (!await gridUtil.confirmIfIsModified(view)) { return; }
   const deletedRows = await gridUtil.confirmDeleteCheckedRows(view);
   if (deletedRows.length) {
-    // console.log('deletedRows : ', deletedRows);
+    console.log('deletedRows : ', deletedRows);
     await dataService.delete('/sms/wells/product/variables', { data: deletedRows });
     gridUtil.reset(view);
     await fetchData();
@@ -260,6 +260,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'fnlMdfcUsrNm', header: t('MSG_TXT_FNL_MDFC_USR'), width: '100', styleName: 'text-center', editable: false },
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
+  fields.push({ fieldName: 'varbSn' });
   data.setFields(fields);
   view.setColumns(columns);
   view.checkBar.visible = true;
