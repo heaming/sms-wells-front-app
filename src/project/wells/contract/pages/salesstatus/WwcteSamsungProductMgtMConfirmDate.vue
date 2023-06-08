@@ -113,7 +113,7 @@ import dayjs from 'dayjs';
 import useGridDataModel from '~sms-common/contract/composable/useGridDataModel';
 
 const meta = useMeta();
-const router = useRouter();
+const { currentRoute } = useRouter();
 const dataService = useDataService();
 const { t } = useI18n();
 const codes = await codeUtil.getMultiCodes(
@@ -206,7 +206,7 @@ async function onClickExcelDownload() {
   if (!cachedParams) { cachedParams = { ...toRaw(searchParams) }; }
   const response = await dataService.get('/sms/wells/contract/sales-status/sec-product-management/confirm-days', { params: cachedParams });
   await gridUtil.exportView(grdView.value, {
-    fileName: router.currentRoute?.value.meta?.menuName,
+    fileName: `${currentRoute?.value.meta?.menuName}(${t('MSG_TXT_DTRM_DATE')})`,
     timePostfix: true,
     exportData: response.data,
   });

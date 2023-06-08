@@ -51,6 +51,7 @@
           v-model="searchParams.cntrDtlStatCd"
           :label="$t('MSG_TXT_CNTR_STAT')"
           :options="codes.CNTR_DTL_STAT_CD"
+          first-option="all"
         />
       </kw-search-item>
       <kw-search-item :label="$t('MSG_TXT_CNTR_NO')">
@@ -236,7 +237,7 @@ async function onClickExcelDownload() {
   if (!cachedParams) { return; }
   const response = await dataService.get('/sms/wells/contract/sales-status/sec-product-management/free-after-services', { params: cachedParams });
   await gridUtil.exportView(grdView.value, {
-    fileName: currentRoute.value.meta.menuName,
+    fileName: `${currentRoute?.value.meta?.menuName}(${t('MSG_TXT_FREE')})`,
     timePostfix: true,
     exportData: response.data,
   });

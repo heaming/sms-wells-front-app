@@ -17,10 +17,13 @@
     <kw-search-row>
       <kw-search-item
         :label="$t('MSG_TXT_APPL_PRD')"
+        required
       >
         <kw-date-range-picker
           v-model:from="searchParams.strtdt"
           v-model:to="searchParams.enddt"
+          :label="$t('MSG_TXT_APPL_PRD')"
+          rules="date_range_required"
         />
       </kw-search-item>
       <kw-search-item
