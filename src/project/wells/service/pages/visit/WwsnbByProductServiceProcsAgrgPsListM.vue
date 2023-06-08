@@ -297,7 +297,7 @@ const initGrdMain = defineGrid((data, view) => {
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
   view.setFixedOptions({ colCount: 2 });
-  view.setFooters({ visible: true });
+  view.setFooters({ visible: true, items: [{ height: 40 }] });
   view.filteringOptions.enabled = false;
 });
 </script>
