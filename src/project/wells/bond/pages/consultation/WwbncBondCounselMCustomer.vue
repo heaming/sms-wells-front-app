@@ -152,7 +152,8 @@
         <kw-option-group
           v-model="searchParams.schCstDv"
           type="radio"
-          :options="codes.CST_SE_APY_DV_CD"
+          :options="codes.CST_SE_APY_DV_CD.filter((v) => ['01', '02'].includes(v.codeId))"
+          first-option="all"
         />
       </kw-search-item>
       <kw-search-item
@@ -274,7 +275,7 @@ const searchParams = ref({
   schFntDtEnd: '',
   schOjBlamStrt: '',
   schOjBlamEnd: '',
-  schCstDv: '01',
+  schCstDv: '',
   schCpsnRsgYn: '',
   schDv: '',
   schCstNoYn: 'N',
@@ -402,7 +403,6 @@ async function onClickSearch() {
 
   const dlqMcntStrt = searchParams.value.schDlqMcntStrt;
   const dlqMcntEnd = searchParams.value.schDlqMcntEnd;
-  const fntDv = searchParams.value.schFntDv;
   const fntDtStrt = searchParams.value.schFntDtStrt;
   const fntDtEnd = searchParams.value.schFntDtEnd;
   const ojBlamStrt = searchParams.value.schOjBlamStrt;
@@ -413,12 +413,6 @@ async function onClickSearch() {
     return false;
   }
 
-  if (fntDtStrt !== '' && fntDtEnd !== '') {
-    if (fntDv === '') {
-      notify(t('MSG_ALT_FNT_DV'));
-      return;
-    }
-  }
   if (fntDtStrt > fntDtEnd) {
     await notify(t('MSG_ALT_STRT_YM_END_YM_BIG', [t('MSG_TXT_FNT_DT') + t('MSG_TXT_RSV_STRT_DTM'), t('MSG_TXT_RSV_END_DTM')]));
     return false;
@@ -572,6 +566,10 @@ const initGrdMain = defineGrid((data, view) => {
 
   view.checkBar.visible = true;
   view.rowIndicator.visible = true;
+
+  view.setFixedOptions({
+    colCount: 4,
+  });
 
   view.setHeaderSummaries({
     visible: true,
