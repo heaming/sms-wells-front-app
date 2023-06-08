@@ -1,3 +1,4 @@
+<!-- eslint-disable max-len -->
 <!----
 ****************************************************************************************************
 * 프로그램 개요
@@ -35,6 +36,7 @@
         <kw-date-range-picker
           v-model:from="searchParams.strtDt"
           v-model:to="searchParams.endDt"
+          :label="searchParams.prdEnqry === '1' ? $t('MSG_TXT_RCP_D') : searchParams.prdEnqry === '2' ? $t('MSG_TXT_DT_OF_SALE') : searchParams.prdEnqry === '3' ? $t('MSG_TXT_CAN_D') : ''"
           rules="date_range_required|date_range_months:1"
         />
       </kw-search-item>
@@ -660,13 +662,13 @@ const initGridSnglPmntContractList = defineGrid((data, view) => {
     { fieldName: 'feeAckmtCt', header: t('TXT_MSG_ACKMT_CT'), width: '138', styleName: 'text-right' }, // 인정건수
     { fieldName: 'ackmtPerfAmt', header: `${t('MSG_TXT_COM_TOT')}${t('MSG_TXT_RECOG_AMT')}`, width: '138', styleName: 'text-right' }, // 총인정금액
     { fieldName: 'feeAckmtTotAmt', header: `${t('MSG_TXT_COM_TOT')}${t('MSG_TXT_PD_STD_FEE')}`, width: '138', styleName: 'text-right' }, // 총기준수수료
-    { fieldName: 'feeFxamYn', header: t('MSG_TXT_PD_FEE_FIX'), width: '138', styleName: 'text-right' }, // 수수료정액여부
+    { fieldName: 'feeFxamYn', header: t('MSG_TXT_PD_FEE_FIX'), width: '138', styleName: 'text-center' }, // 수수료정액여부
     { fieldName: 'pdSaleFee', header: t('MSG_TXT_PD_SALE_FEE'), width: '138', styleName: 'text-right' }, // 판매수수료
     { fieldName: 'cashBlam', header: `${t('MSG_TXT_CASH')}${t('MSG_TXT_BLAM')}`, width: '138', styleName: 'text-right' }, // 현금잔액
     { fieldName: 'istmMcn', header: t('MSG_TXT_ISTM_MCN'), width: '138', styleName: 'text-right' }, // 할부개월수
     { fieldName: 'mmIstmAmt', header: t('MSG_TXT_MM_INTAM'), width: '138', styleName: 'text-right' }, // 월할부금
     { fieldName: 'istmPcamAmt', header: `${t('MSG_TXT_COM_TOT')} ${t('MSG_TXT_ISTM_AMT')}`, width: '138', styleName: 'text-right' }, // 총할부금액
-    { fieldName: 'cntrCstNo', header: t('MSG_TXT_CST_NO'), width: '138', styleName: 'text-right' }, // 고객번호
+    { fieldName: 'cntrCstNo', header: t('MSG_TXT_CST_NO'), width: '138', styleName: 'text-center' }, // 고객번호
     {
       fieldName: 'cntrMpno',
       header: `${t('MSG_TXT_CNTRT')} ${t('MSG_TXT_MPNO')}`,
@@ -677,9 +679,9 @@ const initGridSnglPmntContractList = defineGrid((data, view) => {
         return !isEmpty(cralLocaraTno) && !isEmpty(mexnoEncr) && !isEmpty(cralIdvTno) ? `${cralLocaraTno}-${mexnoEncr}-${cralIdvTno}` : '';
       },
     }, // 계약자 휴대전화번호
-    { fieldName: 'newAdrZip', header: `${t('MSG_TXT_CNTRT')} ${t('MSG_TXT_ZIP')}`, width: '144', styleName: 'text-right' }, // 계약자 우편번호
+    { fieldName: 'newAdrZip', header: `${t('MSG_TXT_CNTRT')} ${t('MSG_TXT_ZIP')}`, width: '144', styleName: 'text-center' }, // 계약자 우편번호
     { fieldName: 'rnadr', header: `${t('MSG_TXT_CNTRT')} ${t('MSG_TXT_STD_ADDR')}`, width: '312', styleName: 'text-center' }, // 계약자 기준주소
-    { fieldName: 'rdadr', header: `${t('MSG_TXT_CNTRT')} ${t('MSG_TXT_DETAIL_ADDR')}`, width: '284', styleName: 'text-right' }, // 계약자 상세주소
+    { fieldName: 'rdadr', header: `${t('MSG_TXT_CNTRT')} ${t('MSG_TXT_DETAIL_ADDR')}`, width: '284', styleName: 'text-left' }, // 계약자 상세주소
     { fieldName: 'rcgvpKnm', header: t('MSG_TXT_IST_NM'), width: '144', styleName: 'text-center' }, // 설치자명
     {
       fieldName: 'istlcMpno',
