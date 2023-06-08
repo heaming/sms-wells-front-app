@@ -148,6 +148,7 @@
         <kw-btn
           grid-action
           :label="$t('MSG_BTN_SAVE')"
+          @click="onClickRtnGd"
         />
         <kw-separator
           vertical
@@ -371,16 +372,17 @@ let cachedParams;
 
 const filters = codes.PD_GRP_CD.map((v) => ({ name: v.codeId, criteria: `value = '${v.codeId}'` }));
 function onUpdateProductGroupCode(val) {
+  debugger;
   const view = grdMainRef.value.getView();
   view.activateAllColumnFilters('itemGr', false);
 
-  if (val === '') {
-    pageInfo.value.totalCount = view.getItemCount();
-    return;
-  }
+  // if (val === '') {
+  //   pageInfo.value.totalCount = view.getItemCount();
+  //   return;
+  // }
 
   view.activateColumnFilters('itemGr', [val], true);
-  pageInfo.value.totalCount = view.getItemCount();
+  // pageInfo.value.totalCount = view.getItemCount();
 }
 
 async function fetchData() {
@@ -448,6 +450,42 @@ async function onClickSave() {
     // TODO : 등급오류건 항목이 있는지 체크로직 추가 필요
   }
   await dataService.post('/sms/wells/service/returning-goods-store', checkedRows);
+
+  notify(t('MSG_ALT_SAVE_DATA'));
+
+  await fetchData();
+}
+
+async function onClickRtnGd() {
+  debugger;
+  const view = grdMainRef.value.getView();
+  const checkedRows = gridUtil.getCheckedRowValues(view);
+
+  if (gridUtil.getCheckedRowValues(view).length === 0) {
+    notify(t('MSG_ALT_NO_APPY_OBJ_DT'));
+  }
+
+  if (!(await gridUtil.validate(view, { isCheckedOnly: true }))) { return; }
+
+  const strRtngdConfYn = ['10', '11', '20', '21', '22', '80', '81', '82'];
+
+  for (let i = 0; i < checkedRows.length; i += 1) {
+    const { rtngdRvpyProcsYn, rtngdProcsTpCd } = checkedRows[i];
+    if (rtngdRvpyProcsYn === 'Y') {
+      // 이미 반품 완료된 건이 포함되었습니다. \n확인해주십시오.
+      notify(t('MSG_ALT_RTNGD_FSH_INC_CONF'));
+      return;
+    }
+
+    if (strRtngdConfYn.includes(rtngdProcsTpCd)) {
+      // 처리할 수 없는 유형이 포함되었습니다. \n확인해주십시오.
+      notify(t('MSG_ALT_PROCS_IMP_TP_INC_CONF'));
+      return;
+    }
+  }
+  await dataService.post('/sms/wells/service/returning-goods-store/confirmation-type', checkedRows);
+  notify(t('MSG_ALT_SAVE_DATA'));
+  await fetchData();
 }
 
 // -------------------------------------------------------------------------------------------------
@@ -506,6 +544,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'badDvNm' }, // 불량구분
     { fieldName: 'rtngdRvpyProcsYn' },
     { fieldName: 'wkWareNo' },
+    { fieldName: 'wkOstrSn' },
 
   ];
 
@@ -631,6 +670,7 @@ const initGrdMain = defineGrid((data, view) => {
   view.rowIndicator.visible = true;
   view.setFixedOptions({ colCount: 4, resizable: true });
   view.editOptions.columnEditableFirst = true;
+  view.filteringOptions.enabled = false;
 
   view.setRowStyleCallback((grid, item) => {
     const ret = {};
