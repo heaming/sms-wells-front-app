@@ -28,10 +28,10 @@
         <!-- 계약상품리스트 -->
         <kw-form-item :label="$t('MSG_TXT_CNTRCT_PD_LIST')">
           <kw-select
-            v-model="frmMainData.cntrNo"
+            v-model="frmMainData.cntrDtlNo"
             :options="optionList"
             option-label="pdNm"
-            option-value="cntrNo"
+            option-value="cntrDtlNo"
             @change="onSelectCntrctPdList"
           />
         </kw-form-item>
@@ -429,7 +429,7 @@ async function fetchDataCustomerBase() {
     }
     frmMainData.value.sfkVal = res.data[0].sfkVal; // 세이프키
     if (!isEmpty(res.data[0].vacInfo)) {
-      console.log(res.data[0].vacInfo.length + isVacInfo.value);
+      // console.log(res.data[0].vacInfo.length + isVacInfo.value);
       if (res.data[0].vacInfo.length > 2) {
         isVacInfo.value = true;
         frmMainData.value.vacBnkNm = res.data[0].vacInfo.split('$')[0];
@@ -439,7 +439,7 @@ async function fetchDataCustomerBase() {
     frmMainData.value.cntrtAdr = res.data[0].cntrtAdr; // 계약자 주소
     frmMainData.value.rcgvpKnm = res.data[0].rcgvpKnm; // 설치(배송정보) 고객명
     const { istCralLocaraTno } = res.data[0]; // 설치자 휴대지역전화번호
-    const { istMexnoEncr } = isEmpty(res.data[0]) ? '' : res.data[0]; // 설치자 휴대전화국번호암호화
+    const { istMexnoEncr } = isEmpty(res.data[0].istMexnoEncr) ? '' : res.data[0]; // 설치자 휴대전화국번호암호화
     const { istCralIdvTno } = res.data[0]; // 설치자 휴대개별전화번호
     frmMainData.value.rcgvpTno = isEmpty(istCralLocaraTno) && isEmpty(istMexnoEncr) && isEmpty(istCralIdvTno) ? '' : `${istCralLocaraTno}-${istMexnoEncr}-${istCralIdvTno}`; // 설치(배송정보) 휴대전화번호
     frmMainData.value.rcgvpAdr = res.data[0].rcgvpAdr; // 설치(배송정보) 주소
@@ -497,9 +497,13 @@ async function currentTabFetchData() {
 
 // 상세계약목록 변경 시 Event
 async function onSelectCntrctPdList() {
-  const { cntrNo } = frmMainData.value;
+  const cntrNo = frmMainData.value.cntrDtlNo.split('-')[0];
+  const cntrSn = frmMainData.value.cntrDtlNo.split('-')[1];
   console.log(cntrNo);
+  console.log(cntrSn);
   searchParams.value.cntrNo = cntrNo;
+  searchParams.value.cntrSn = cntrSn;
+
   await currentTabFetchData();
 }
 

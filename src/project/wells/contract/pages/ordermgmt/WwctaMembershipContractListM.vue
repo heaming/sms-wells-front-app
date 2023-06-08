@@ -594,7 +594,7 @@ const initGridMembershipContractList = defineGrid((data, view) => {
     { fieldName: 'cntrDtlStatNm', header: t('MSG_TXT_MSH_STAT'), width: '138', styleName: 'text-center' }, // 멤버십상태
     { fieldName: 'dscApyTpCdNm', header: `${t('MSG_TXT_SSPCS')}/${t('MSG_TXT_MTR_DV')}`, width: '138' }, // 회비자료구분
     { fieldName: 'feeAckmtCt', header: t('MSG_TXT_PD_ACC_CNT'), width: '138', styleName: 'text-right' }, // 인정건수
-    { fieldName: 'ackmtPerfAmt', header: t('TXT_MSG_ACKMT_AMT'), width: '138', styleName: 'text-right' }, // 인정금액
+    { fieldName: 'ackmtPerfAmt', header: t('MSG_TXT_RECOG_AMT'), width: '138', styleName: 'text-right' }, // 인정금액
     { fieldName: 'cntrCtrAmt', header: t('MSG_TXT_DSC_AMT'), width: '138', styleName: 'text-right' }, // 할인금액
     { fieldName: 'stlmTpNm', header: t('MSG_TXT_PY_DV'), width: '138' }, // 납입구분
     { fieldName: 'prmPtrmMcn', header: t('MSG_TXT_PRM_DV'), width: '138' }, // 선납구분
