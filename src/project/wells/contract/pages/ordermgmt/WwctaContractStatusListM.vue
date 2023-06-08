@@ -116,19 +116,22 @@
             :options="[{codeId:'NM', codeName:t('MSG_TXT_CNTOR_NM')},
                        {codeId:'NO', codeName:t('MSG_TXT_CNTR_NO')},
             ]"
+            @change="onChangeSearchDiv"
           />
           <kw-input
             v-if="searchParams.srchDv === 'NM'"
-            v-model="searchParams.srchText"
+            v-model="searchParams.srchCstNm"
             maxlength="50"
           />
           <kw-input
             v-else
-            v-model="searchParams.srchText"
+            v-model="searchParams.srchCntrNo"
             icon="search"
+            clearable
             maxlength="12"
             @click-icon="onClickCntrNoPop"
           />
+          <!--   console.log(payload); -->
         </kw-search-item>
         <kw-search-item
           v-if="searchParams.isBrmgr === 'Y'"
@@ -296,6 +299,7 @@
               @click="onClickNonFcfPayment(item)"
             />
             <kw-btn
+              v-if="item.pymnSkipYn === 'Y'"
               :label="$t('MSG_BTN_F2F_PYMNT')"
               padding="12px"
               @click="onClickF2fPayment(item)"
@@ -452,6 +456,8 @@ const searchParams = ref({
   pdDvCd: '',
   srchDv: 'NM',
   srchText: '',
+  srchCstNm: '',
+  srchCntrNo: '',
   prtnrNm: '',
   isBrmgr: (sessionUserInfo.careerLevelCode === '7' ? 'Y' : ''),
   isBrmgrCntr: 'N',
@@ -475,6 +481,11 @@ const cntrPrgsStatCds = codes.CNTR_PRGS_STAT_CD.filter((v) => ((searchParams.val
 async function fetchData() {
   if (isEmpty(cachedParams)) return;
 
+  if (!isEmpty(cachedParams.srchDv)) {
+    cachedParams.srchText = (cachedParams.srchDv === 'NO') ? cachedParams.srchCntrNo : cachedParams.srchCstNm;
+  }
+  console.log(cachedParams);
+
   const res = await dataService.get('/sms/wells/contract/contracts/contract-lists', { params: { ...cachedParams, ...pageInfo.value } });
   const { list: details, pageInfo: pagingResult } = res.data;
 
@@ -496,22 +507,34 @@ async function onClickSearch() {
   await fetchData();
   await fetchDataSummary();
 }
+
 async function onClickCntrNoPop() {
+  if (searchParams.value.srchDv !== 'NO') { return; }
+
   const { result, payload } = await modal({
     component: 'WwctaContractNumberListP',
-    componentProps: { cntrNo: searchParams.value.cntrNo },
+    componentProps: { cntrNo: searchParams.value.srchCntrNo },
   });
+
   if (result) {
-    searchParams.value.cntrNo = payload.cntrNo;
+    searchParams.value.srchCntrNo = payload.cntrNo;
   }
 }
 
+function onChangeSearchDiv() {
+  searchParams.value.srchCntrNo = '';
+  searchParams.value.srchCstNm = '';
+  searchParams.value.srchText = '';
+}
+
+// 카드 하단 버튼 클릭 전, 계약상태코드 재조회
 async function getPrgsStatCd(cntrNo) {
   const res = await dataService.get(`/sms/wells/contract/contracts/contract-lists/${cntrNo}`);
 
   return Number(res.data);
 }
 
+// 화면 상단 summary 클릭
 async function onClickPrgsSearch(prgsCd) {
   if (prgsCd) {
     searchParams.value.cntrPrgsStatCd = prgsCd;
@@ -519,6 +542,7 @@ async function onClickPrgsSearch(prgsCd) {
   await onClickSearch();
 }
 
+// 계약관리 클릭
 async function onClickManage() {
   router.replace(
     {
@@ -596,6 +620,7 @@ async function onClickF2fPayment(item) {
 
 async function onClickRequestConfirm(item) {
   console.log(item);
+
   if (!await confirm('해당 주문을 확정 요청 하시겠습니까?')) { return; }
 
   // 사내메신져로 확정요청 발송 (/reqDfntAckd/{wpnSeq} 참조)
@@ -630,14 +655,9 @@ async function onClickContractDelete(item) {
   if (item.cntrPrgsStatCd <= '20') {
     if (!await confirm(t('MSG_ALT_WANT_DEL_WCC'))) { return; }
 
-    await dataService.delete(`/sms/wells/contract/contracts/contract-lists/${item.cntrNo}`);
-    onClickSearch();
+    await dataService.delete('/sms/wells/contract/contracts/contract-lists/', { params: { cntrNo: item.cntrNo } });
   }
 }
-
-onActivated(async () => {
-  await onClickSearch();
-});
 
 onMounted(async () => {
   await onClickSearch();
