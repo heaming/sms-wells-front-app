@@ -226,12 +226,13 @@ async function onClickSave() {
 
   const changedRows = gridUtil.getChangedRowValues(view);
   for (let i = 0; i < changedRows.length; i += 1) {
-    if (!validateEmail(changedRows[i].emadrCn)) {
-      alert(t('MSG_ALT_EMAIL'));
-      return;
+    if (!isEmpty(changedRows[i].emadrCn)) {
+      if (!validateEmail(changedRows[i].emadrCn)) {
+        alert(t('MSG_ALT_EMAIL'));
+        return;
+      }
     }
   }
-
   await dataService.post('/sms/wells/contract/business-to-business/business-opportunities', changedRows);
 
   notify(t('MSG_ALT_SAVE_DATA'));
