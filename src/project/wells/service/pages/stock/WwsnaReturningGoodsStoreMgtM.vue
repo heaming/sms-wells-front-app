@@ -467,7 +467,7 @@ async function onClickRtnGd() {
 
   if (!(await gridUtil.validate(view, { isCheckedOnly: true }))) { return; }
 
-  const strRtngdConfYn = ['10', '11', '20', '21', '22', '80', '81', '82'];
+  const strRtngdProcsTpCd = ['10', '11', '20', '21', '22', '80', '81', '82'];
 
   for (let i = 0; i < checkedRows.length; i += 1) {
     const { rtngdRvpyProcsYn, rtngdProcsTpCd } = checkedRows[i];
@@ -477,7 +477,7 @@ async function onClickRtnGd() {
       return;
     }
 
-    if (strRtngdConfYn.includes(rtngdProcsTpCd)) {
+    if (strRtngdProcsTpCd.includes(rtngdProcsTpCd)) {
       // 처리할 수 없는 유형이 포함되었습니다. \n확인해주십시오.
       notify(t('MSG_ALT_PROCS_IMP_TP_INC_CONF'));
       return;
