@@ -27,7 +27,6 @@
           <kw-date-range-picker
             v-model:from="searchParams.cntrCnfmStrtDtm"
             v-model:to="searchParams.cntrCnfmFinsDtm"
-            rules="date_range_required|date_range_months:1"
           />
         </kw-search-item>
         <!-- 플래너 -->
@@ -93,7 +92,6 @@
             v-if="isSearchCstKnmVisible"
             v-model="searchParams.cntrCstNm"
             :label="$t('MSG_TXT_CST_NM')"
-            rules="required"
             :placeholder="t('MSG_TXT_INP')"
             :maxlength="50"
           />
@@ -105,7 +103,7 @@
             icon="search"
             clearable
             :on-click-icon="onClickSearchCustomer"
-            rules="required|max:10|numeric"
+            rules="max:10|numeric"
             :maxlength="10"
           />
           <!-- 휴대전화번호(계약자/설치자) -->
@@ -203,10 +201,10 @@ const { alert, modal } = useGlobal();
 const { currentRoute } = useRouter();
 
 let cachedParams;
-const now = dayjs();
+// const now = dayjs();
 const searchParams = ref({
-  cntrCnfmStrtDtm: now.startOf('month').format('YYYYMMDD'), // 계약확정시작일시
-  cntrCnfmFinsDtm: now.format('YYYYMMDD'), // 계약확정종료일시
+  cntrCnfmStrtDtm: '', // 계약확정시작일시
+  cntrCnfmFinsDtm: '', // 계약확정종료일시
   plarDv: '', // 플래너구분(판매자/관리자)
   prtnrDv: '2', // 파트너내역구분(사번/부서코드)
   hmnrscEmpno: '', // 인사사원번호
@@ -276,6 +274,40 @@ async function fetchData() {
 
 // 조회버튼 클릭 이벤트
 async function onClickSearch() {
+  // 조회조건 3가지 중 최소 한개 이상 적용
+  if (isEmpty(searchParams.value.cntrCnfmStrtDtm)
+   && isEmpty(searchParams.value.cntrCnfmFinsDtm)
+   && isEmpty(searchParams.value.hmnrscEmpno)
+   && isEmpty(searchParams.value.ogCd)
+   && isEmpty(searchParams.value.cntrCstNo)
+   && isEmpty(searchParams.value.cntrCstNm)
+   && isEmpty(searchParams.value.cntrCstMpno)
+   && isEmpty(searchParams.value.bzrno)
+   && isEmpty(searchParams.value.sfkVal)) {
+    await alert(t('MSG_ALT_SRCH_CNDT_NEED_ONE')); // 하나 이상의 검색조건이 필요합니다.
+    return;
+  // eslint-disable-next-line no-else-return
+  } else if ((isEmpty(searchParams.value.cntrCnfmStrtDtm)
+           && !isEmpty(searchParams.value.cntrCnfmFinsDtm))) {
+    if (isEmpty(searchParams.value.cntrCnfmStrtDtm)) {
+      await alert(t('MSG_ALT_INPUT_COMMON', [t('MSG_TXT_CNTR_STRTDT')])); // 계약시작일자를 입력하세요.
+      return;
+    }
+  } else if ((!isEmpty(searchParams.value.cntrCnfmStrtDtm)
+           && isEmpty(searchParams.value.cntrCnfmFinsDtm))) {
+    await alert(t('MSG_ALT_SRCH_CNTR_DT_CNDT_MAX_DC', ['31'])); // 계약일자 조건은 최대 {0}일까지 검색할 수 있습니다.
+    searchParams.value.cntrCnfmFinsDtm = dayjs(searchParams.value.cntrCnfmStrtDtm).add(31, 'day').format('YYYYMMDD');
+  } else if ((!isEmpty(searchParams.value.cntrCnfmStrtDtm)
+           && !isEmpty(searchParams.value.cntrCnfmFinsDtm))) {
+    const diff = dayjs(searchParams.value.cntrCnfmFinsDtm).diff(searchParams.value.cntrCnfmStrtDtm, 'day');
+    // console.log(`diff : ${diff}`);
+    if (diff > 31) {
+      await alert(t('MSG_ALT_SRCH_CNTR_DT_CNDT_MAX_DC', ['31'])); // 계약일자 조건은 최대 {0}일까지 검색할 수 있습니다.
+      return;
+    }
+  }
+
+  // await alert('11111');
   await fetchData();
 }
 
