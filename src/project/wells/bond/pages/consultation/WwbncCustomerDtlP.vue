@@ -1418,7 +1418,7 @@ const initGrdMain = defineGrid((data, view) => {
     const cntrSn = g.getValue(dataRow, 'cntrSn');
     const bndBizDvCd = g.getValue(dataRow, 'bndBizDvCd');
     if (cstNo) {
-      await window.open(`/popup/#/wwbnc-same-customer-contract?cstNo=${cstNo}&cntrNo=${cntrNo}&cntrSn=${cntrSn}&bndBizDvCd=${bndBizDvCd}`, 'popup', 'width=1200, height=1100, menubar=no, location=no');
+      await window.open(`/popup/#/wwbnc-same-customer-contract?cstNo=${cstNo}&cntrNo=${cntrNo}&cntrSn=${cntrSn}&bndBizDvCd=${bndBizDvCd}`, 'popup', 'width=1292, height=1100, menubar=no, location=no');
     }
   };
 });
