@@ -299,10 +299,15 @@ async function onChangeDetailPageInfo() {
 
 const onClickCustomer = async () => {
   const { result, payload } = await modal({
-    component: 'ZwcsaCustomerListP',
+    component: 'ZwbnyDelinquentCustomerP',
+    componentProps: {
+      baseYm: searchParams.value.baseYm,
+      cstNm: searchParams.value.cstNm,
+      bndClctnPrpDvCd: '03',
+    },
   });
   if (result) {
-    searchParams.value.cstNm = payload.name;
+    searchParams.value.cstNm = payload.cstNm;
     searchParams.value.cstNo = payload.cstNo;
   }
 };
