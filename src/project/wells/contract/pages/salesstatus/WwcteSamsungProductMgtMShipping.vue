@@ -66,18 +66,18 @@
       </template>
       <kw-btn
         icon="download_on"
-        :disable="pageInfo.totalCount === 0"
         secondary
         dense
         :label="$t('MSG_BTN_DOWN_COM_EXCEL')"
+        :disable="pageInfo.totalCount === 0"
         @click="onClickCombiExcelDownload"
       />
       <kw-btn
         icon="download_on"
-        :disable="pageInfo.totalCount === 0"
         secondary
         dense
         :label="$t('MSG_BTN_EXCEL_DOWN')"
+        :disable="pageInfo.totalCount === 0"
         @click="onClickExcelDownload"
       />
     </kw-action-top>
@@ -113,6 +113,7 @@ const dataService = useDataService();
 const codes = await codeUtil.getMultiCodes(
   'COD_YN',
   'SELL_TP_CD',
+  'COD_PAGE_SIZE_OPTIONS',
 );
 
 // -------------------------------------------------------------------------------------------------

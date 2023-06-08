@@ -43,13 +43,20 @@
   <div class="result-area">
     <kw-action-top>
       <template #left>
-        <kw-paging-info :total-count="pageInfo.totalCount" />
+        <kw-paging-info
+          v-model:page-index="pageInfo.pageIndex"
+          v-model:page-size="pageInfo.pageSize"
+          :total-count="pageInfo.totalCount"
+          :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
+          @change="fetchPage"
+        />
       </template>
       <kw-btn
         icon="download_on"
         dense
         secondary
         :label="$t('MSG_BTN_EXCEL_DOWN')"
+        :disable="pageInfo.totalCount === 0"
         @click="onClickExcelDownload"
       />
     </kw-action-top>
@@ -78,6 +85,7 @@ import dayjs from 'dayjs';
 const { t } = useI18n();
 const codes = await codeUtil.getMultiCodes(
   'SELL_TP_CD',
+  'COD_PAGE_SIZE_OPTIONS',
 );
 
 codes.SUBSET_SELL_TP_CD = [
