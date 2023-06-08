@@ -317,16 +317,18 @@ async function onClickRetry(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
 
 // 실적집계
 async function onClickAggregate(feeSchdId, code, nextStep) {
-  const { result: isChanged } = await modal({
+  const { result, payload } = await modal({
     component: 'WwfeaEngineerAllowancePerfAgrgRegP',
     componentProps: {
       perfYm: searchParams.value.perfYm,
-      rsbTp: searchParams.value.rsbDvCd, // TODO: 팝업 완료 후 수정 필요
+      rsbTp: 'E',
     },
   });
-  if (isChanged) {
-    // 수수료 일정 단계 완료
-    await onClickRetry(feeSchdId, code, nextStep);
+  if (result) {
+    if (payload === 'S') {
+      // 수수료 일정 단계 완료
+      await onClickRetry(feeSchdId, code, nextStep);
+    }
   }
 }
 
