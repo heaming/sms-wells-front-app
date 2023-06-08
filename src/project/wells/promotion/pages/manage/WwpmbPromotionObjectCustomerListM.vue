@@ -315,7 +315,7 @@ const initGrid = defineGrid((data, view) => {
         if (result) {
           grid.setValue(itemIndex, 'cntrNo', payload.cntrNo);
           grid.setValue(itemIndex, 'cntrSn', payload.cntrSn);
-          const response = await dataService.get('/sms/common/promotion/object-customers/contract-info', { params: payload });
+          const response = await dataService.get('/sms/common/promotion/object-customers/contracts', { params: payload });
           grid.setValue(itemIndex, 'sellTpCd', response.data?.sellTpCd);
         }
       }
