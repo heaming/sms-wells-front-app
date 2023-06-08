@@ -120,8 +120,7 @@
           />
         </template>
         <kw-btn
-          dense
-          secondary
+          grid-action
           :label="$t('MSG_BTN_SAVE')"
           @click="onClickSave"
         />
