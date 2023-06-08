@@ -118,11 +118,6 @@
             :total-count="pageInfo.totalCount"
             @change="fetchData"
           />
-          <kw-separator
-            vertical
-            inset
-            spaced
-          />
         </template>
         <kw-btn
           dense
@@ -135,12 +130,12 @@
           inset
           spaced
         />
-        <kw-btn
+        <!-- <kw-btn
           icon="print"
           dense
           secondary
           :label="$t('MSG_BTN_PRTG')"
-        />
+        /> -->
         <kw-btn
           icon="download_on"
           dense
