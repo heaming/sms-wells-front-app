@@ -18,13 +18,6 @@
       v-show="isReadonly"
       dense
       secondary
-      :label="t('MSG_BTN_INQR')"
-      @click="onClickSearch"
-    />
-    <kw-btn
-      v-show="isReadonly"
-      dense
-      secondary
       :label="t('MSG_BTN_CH')"
       @click="onClickEdit"
     />
@@ -58,6 +51,7 @@
           v-model="fieldParams.txinvPblOjYn"
           :label="t('MSG_TXT_ISSUANCE_CLAR')"
           type="radio"
+          class="kw-option-group--multi-line"
           :options="[
             {'codeName':t('MSG_TXT_PBL'), 'codeId':'Y'},
             {'codeName':t('MSG_TXT_N_PBL'), 'codeId':'N'}
@@ -216,12 +210,6 @@ async function fetchData() {
   console.log(fieldParams);
 }
 
-// onClickSearch: 조회버튼 클릭 시
-async function onClickSearch() {
-  if (!await frmMainRef.value.validate()) { if (!await frmMainRef.value.confirmIfIsModified()) { return; } }
-  fetchData();
-}
-
 // onClickEdit: 수정버튼 클릭 시
 async function onClickEdit() {
   isReadonly.value = !isReadonly.value;
@@ -230,6 +218,7 @@ async function onClickEdit() {
 // onClickCancel: 취소버튼 클릭 시
 async function onClickCancel() {
   if (!await frmMainRef.value.confirmIfIsModified()) { return; }
+
   fetchData();
   isReadonly.value = true;
 }
@@ -246,6 +235,8 @@ async function onClickSave() {
 
   await dataService.post('/sms/wells/contract/contract-info/tax-Invoices', cachedParams);
   await alert(t('MSG_ALT_SAVE_DATA'));
+
+  fetchData();
 }
 
 // setDatas: 계약번호, 계약일련번호 세팅 (부모창에서 호출)
