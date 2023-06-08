@@ -205,7 +205,6 @@ async function onClickDelete() {
   const deletedRows = await gridUtil.confirmDeleteCheckedRows(view);
   if (deletedRows.length > 0) {
     await dataService.delete('/sms/common/promotion/object-customers', { data: [...deletedRows] });
-    notify(t('MSG_ALT_DELETED'));
     await fetchData();
   }
 }
@@ -280,7 +279,7 @@ const initGrid = defineGrid((data, view) => {
         return (rowState === 'created');
       },
       styleCallback(grid, dataCell) {
-        if (gridUtil.isCreatedRow(grid, dataCell.index.itemIndex)) {
+        if (gridUtil.isCreatedRow(grid, dataCell.index.dataRow)) {
           return { styleName: 'rg-button-icon--search' };
         }
         return { styleName: 'text-center' };
@@ -305,8 +304,9 @@ const initGrid = defineGrid((data, view) => {
   view.rowIndicator.visible = true;
   view.editOptions.editable = true;
   view.onCellButtonClicked = async (grid, { column, itemIndex }) => {
+    const current = view.getCurrent();
     if (column === 'cntrNo') {
-      if (gridUtil.isCreatedRow(grid, itemIndex)) {
+      if (gridUtil.isCreatedRow(grid, current.dataRow)) {
         const { cntrNo, cntrSn } = grid.getValues(itemIndex);
         const { result, payload } = await modal({
           component: 'WwctaContractNumberListP',
@@ -324,21 +324,20 @@ const initGrid = defineGrid((data, view) => {
     grid.commitEditor();
   };
 
-  view.onEditChange = async (grid, { column, dataRow }) => {
-    if (column === 'cntrNo' || column === 'cntrSn') {
-      grid.commit();
-      data.setValue(dataRow, 'sellTpCd', '');
+  // 셀 수정 commit callBack
+  view.onCellEdited = (grid, itemIndex) => {
+    const { fieldName } = grid.getCurrent();
+    if (fieldName === 'cntrNo' || fieldName === 'cntrSn') {
+      grid.setValue(itemIndex, 'sellTpCd', '');
     }
-    if (column === 'vlStrtDtm') {
-      grid.commit();
-      if (data.getValue(dataRow, 'vlEndDtm') < data.getValue(dataRow, 'vlStrtDtm')) {
-        data.setValue(dataRow, 'vlEndDtm', data.getValue(dataRow, 'vlStrtDtm'));
+    if (fieldName === 'vlStrtDtm') {
+      if (grid.getValue(itemIndex, 'vlEndDtm') < grid.getValue(itemIndex, 'vlStrtDtm')) {
+        grid.setValue(itemIndex, 'vlEndDtm', grid.getValue(itemIndex, 'vlStrtDtm'));
       }
     }
-    if (column === 'vlEndDtm') {
-      grid.commit();
-      if (data.getValue(dataRow, 'vlStrtDtm') > data.getValue(dataRow, 'vlEndDtm')) {
-        data.setValue(dataRow, 'vlStrtDtm', data.getValue(dataRow, 'vlEndDtm'));
+    if (fieldName === 'vlEndDtm') {
+      if (grid.getValue(itemIndex, 'vlStrtDtm') > grid.getValue(itemIndex, 'vlEndDtm')) {
+        grid.setValue(itemIndex, 'vlStrtDtm', grid.getValue(itemIndex, 'vlEndDtm'));
       }
     }
   };
