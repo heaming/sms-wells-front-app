@@ -66,10 +66,6 @@
               />
             </kw-step-panel>
             <kw-step-panel :name="pdConst.W_SERVICE_STEP_CHECK.name">
-              <h3 class="mb20">
-                <!-- 기본속성 -->
-                {{ $t('MSG_TXT_BAS_ATTR') }}
-              </h3>
               <wwpdc-service-dtl-m-contents
                 v-model:pd-cd="currentPdCd"
                 v-model:init-data="prevStepData"
