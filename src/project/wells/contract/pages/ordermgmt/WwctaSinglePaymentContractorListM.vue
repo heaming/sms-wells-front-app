@@ -63,10 +63,9 @@
       >
         <kw-input
           v-model="searchParams.cstKnm"
-          icon="search"
           clearable
           :placeholder="t('MSG_TXT_INP_AND_SELT')"
-          @click-icon="onClickSearchCstKnm"
+          :maxlength="50"
         />
       </kw-search-item>
       <kw-search-item
@@ -157,7 +156,7 @@ const dataService = useDataService();
 const { getConfig } = useMeta();
 const { t } = useI18n();
 const { currentRoute } = useRouter();
-const { notify, modal } = useGlobal();
+const { modal } = useGlobal();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -224,30 +223,16 @@ async function onClickExcelDownload() {
 }
 
 async function onClickSearchCntrCstNo() {
-  const cpProps = { cntrCstNo: searchParams.value.cntrCstNo };
-
   const { result, payload } = await modal({
     component: 'ZwcsaCustomerListP',
-    componentProps: cpProps,
+    componentProps: { cstType: '1', cstNo: searchParams.value.cntrCstNo },
   });
+
   if (result) {
-    console.log(payload);
-    notify(t('팝업 준비중 입니다.')); // 공통 팝업 피완성. 값을 받아오지 못합니다.
+    searchParams.value.cntrCstNo = payload.cstNo;
   }
 }
 
-async function onClickSearchCstKnm() {
-  const cpProps = { cntrCstKnm: searchParams.value.cstKnm };
-
-  const { result, payload } = await modal({
-    component: 'ZwcsaCustomerListP',
-    componentProps: cpProps,
-  });
-  if (result) {
-    console.log(payload);
-    notify(t('팝업 준비중 입니다.')); // 공통 팝업 피완성. 값을 받아오지 못합니다.
-  }
-}
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
@@ -257,6 +242,7 @@ const initGridSnglPmntContractorList = defineGrid((data, view) => {
     { fieldName: 'cntrNo' }, // 계약번호
     { fieldName: 'cntrSn' }, // 계약일련번호
     { fieldName: 'orderInfView' }, // 주문정보 보기
+    { fieldName: 'sellTpCd' }, // 판매유형코드
     { fieldName: 'cstKnm' }, // 계약자명
     { fieldName: 'copnDvCd' }, // 법인격구분코드
     { fieldName: 'copnDvNm' }, // 고객구분
@@ -411,9 +397,9 @@ const initGridSnglPmntContractorList = defineGrid((data, view) => {
     { fieldName: 'crpUc', header: t('MSG_TXT_CRP_UC'), width: '138', styleName: 'text-right', dataType: 'number' }, // 법인미수
     { fieldName: 'totDscAmt', header: t('MSG_TXT_TOT_DSC_AMT'), width: '138', styleName: 'text-right', dataType: 'number' }, // 총할인금액
     { fieldName: 'feeAckmtCt', header: t('TXT_MSG_ACKMT_CT'), width: '138', styleName: 'text-right' }, // 인정건수
-    { fieldName: 'ackmtPerfAmt', header: `${t('MSG_TXT_COM_TOT')}${t('TXT_MSG_ACKMT_AMT')}`, width: '138', styleName: 'text-right', dataType: 'number' }, // 총인정금액
+    { fieldName: 'ackmtPerfAmt', header: `${t('MSG_TXT_COM_TOT')}${t('MSG_TXT_RECOG_AMT')}`, width: '138', styleName: 'text-right', dataType: 'number' }, // 총인정금액
     { fieldName: 'feeAckmtTotAmt', header: `${t('MSG_TXT_COM_TOT')}${t('MSG_TXT_PD_STD_FEE')}`, width: '138', styleName: 'text-right', dataType: 'number' }, // 총기준수수료
-    { fieldName: 'feeFxamYn', header: t('MSG_TXT_PD_FEE_FIX'), width: '138', styleName: 'text-right' }, // 수수료정액여부
+    { fieldName: 'feeFxamYn', header: t('MSG_TXT_PD_FEE_FIX'), width: '138', styleName: 'text-center' }, // 수수료정액여부
     { fieldName: 'pdSaleFee', header: t('MSG_TXT_PD_SALE_FEE'), width: '138', styleName: 'text-right', dataType: 'number' }, // 판매수수료
     { fieldName: 'cashBlam', header: `${t('MSG_TXT_CASH')}${t('MSG_TXT_BLAM')}`, width: '138', styleName: 'text-right', dataType: 'number' }, // 현금잔액
     { fieldName: 'istmMcn', header: t('MSG_TXT_ISTM_MCN'), width: '138', styleName: 'text-right' }, // 할부개월수
@@ -422,7 +408,7 @@ const initGridSnglPmntContractorList = defineGrid((data, view) => {
 
     { fieldName: 'cntrCstNo', header: `${t('MSG_TXT_ISTM')} ${t('MSG_TXT_FNT_INF')}`, width: '138', styleName: 'text-right' }, // 할부이체정보
     { fieldName: 'cntrCstNo', header: `${t('MSG_TXT_ISTM')} ${t('MSG_TXT_FTD')}`, width: '138', styleName: 'text-center' }, // 할부이체일
-    { fieldName: 'cntrCstNo', header: t('MSG_TXT_CST_NO'), width: '138', styleName: 'text-right' }, // 고객번호
+    { fieldName: 'cntrCstNo', header: t('MSG_TXT_CST_NO'), width: '138', styleName: 'text-center' }, // 고객번호
     {
       fieldName: 'cntrMpno',
       header: `${t('MSG_TXT_CNTRT')} ${t('MSG_TXT_MPNO')}`,
@@ -433,9 +419,9 @@ const initGridSnglPmntContractorList = defineGrid((data, view) => {
         return !isEmpty(cralLocaraTno) && !isEmpty(mexnoEncr) && !isEmpty(cralIdvTno) ? `${cralLocaraTno}-${mexnoEncr}-${cralIdvTno}` : '';
       },
     }, // 계약자 휴대전화번호
-    { fieldName: 'newAdrZip', header: `${t('MSG_TXT_CNTRT')} ${t('MSG_TXT_ZIP')}`, width: '144', styleName: 'text-right' }, // 계약자 우편번호
+    { fieldName: 'newAdrZip', header: `${t('MSG_TXT_CNTRT')} ${t('MSG_TXT_ZIP')}`, width: '144', styleName: 'text-center' }, // 계약자 우편번호
     { fieldName: 'rnadr', header: `${t('MSG_TXT_CNTRT')} ${t('MSG_TXT_STD_ADDR')}`, width: '312', styleName: 'text-center' }, // 계약자 기준주소
-    { fieldName: 'rdadr', header: `${t('MSG_TXT_CNTRT')} ${t('MSG_TXT_DETAIL_ADDR')}`, width: '284', styleName: 'text-right' }, // 계약자 상세주소
+    { fieldName: 'rdadr', header: `${t('MSG_TXT_CNTRT')} ${t('MSG_TXT_DETAIL_ADDR')}`, width: '284', styleName: 'text-left' }, // 계약자 상세주소
 
     { fieldName: 'rcgvpKnm', header: t('MSG_TXT_IST_NM'), width: '144', styleName: 'text-center' }, // 설치자명
     {
@@ -478,18 +464,25 @@ const initGridSnglPmntContractorList = defineGrid((data, view) => {
     // TODO: 현재 출고요청등록 팝업화면 개발진행 후 변경 예정
     const cntrNo = g.getValue(dataRow, 'cntrNo');
     const cntrSn = g.getValue(dataRow, 'cntrSn');
+    const { sellTpCd } = g.getValues(dataRow);
+    const { cntrCstNo } = g.getValues(dataRow);
+    const { copnDvCd } = g.getValues(dataRow);
+
     if (column === 'cntrDtlNo') {
       await modal({
         component: 'WwctaOrderDetailP',
-        componentProps: { cntrNo, cntrSn },
+        componentProps: { cntrNo, cntrSn, sellTpCd, cntrCstNo, copnDvCd },
       });
     } else if (column === 'orderInfView') {
-      notify(t('팝업 준비중 입니다.'));
-      // await modal({
-      // component: 'WwctaSinglePaymentOrderDetailListP',
-      // });
+      await modal({
+        component: 'WwctaSinglePaymentOrderDetailListP',
+        componentProps: { cntrNo, cntrSn },
+      });
     } else if (column === 'relPdSearch') {
-      notify(t('팝업 준비중 입니다.')); // 'W-SS-U-0129P07' 팝업 준비 중
+      await modal({
+        component: 'WwctaLinkProductListP',
+        componentProps: { cntrNo, cntrSn },
+      });
     }
   };
 });

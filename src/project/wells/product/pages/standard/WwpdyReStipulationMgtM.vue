@@ -11,6 +11,7 @@
 ****************************************************************************************************
 - 재약정 기준정보 관리 프로그램
 ****************************************************************************************************
+#1. RealGrid Rendering에 bug가 있어 CSS로 핸들링 처리.
 --TODO LIST
 --->
 <template>
@@ -194,6 +195,9 @@ async function onClickAdd() {
     apyStrtdt: dayjs().format('YYYY-MM-DD'),
     apyEnddt: '9999-12-31',
   });
+  view.setColumnProperty('pdCd', 'styleName', 'btnshow');
+  view.setColumnProperty('pdNm', 'styleName', 'btnshow');
+  view.commit();
 }
 
 async function onClickRemove() {
@@ -269,11 +273,9 @@ const initGrdMain = defineGrid((data, view) => {
       button: 'action',
       rules: 'required',
       styleCallback(grid, dataCell) {
-        return dataCell.item.rowState === 'created' ? { editable: true,
-          styleName: 'text-left rg-button-icon--search',
-          editor: {
-            type: 'text',
-          } } : { styleName: 'text-left rg-button-icon--search', editable: false };
+        return dataCell.item.rowState === 'created'
+          ? { editable: true, styleName: 'text-left rg-button-icon--search btnshow', editor: { type: 'text' } }
+          : { styleName: 'text-left btnhide', editable: false };
       },
     },
     /* 상품명 */
@@ -283,11 +285,9 @@ const initGrdMain = defineGrid((data, view) => {
       button: 'action',
       rules: 'required',
       styleCallback(grid, dataCell) {
-        return dataCell.item.rowState === 'created' ? { editable: true,
-          styleName: 'text-left rg-button-icon--search',
-          editor: {
-            type: 'text',
-          } } : { styleName: 'text-left rg-button-icon--search', editable: false };
+        return dataCell.item.rowState === 'created'
+          ? { editable: true, styleName: 'text-left rg-button-icon--search btnshow', editor: { type: 'text' } }
+          : { styleName: 'text-left btnhide', editable: false };
       },
     },
     { fieldName: 'rstlBaseTpCd', header: t('MSG_TXT_STPL_TYPE'), width: '80', styleName: 'text-center', rules: 'required', options: codes.RSTL_BASE_TP_CD, editor: { type: 'dropdown', rules: 'required' } }, /* 약정유형 */
@@ -399,3 +399,16 @@ const initGrdMain = defineGrid((data, view) => {
 });
 
 </script>
+
+<style>
+.btnshow div .rg-button-action {
+  visibility: visible !important;
+  overflow: visible !important;
+}
+
+.btnhide div .rg-button-action {
+  visibility: hidden !important;
+  overflow: hidden !important;
+}
+
+</style>

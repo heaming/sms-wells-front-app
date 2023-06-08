@@ -66,18 +66,18 @@
       </template>
       <kw-btn
         icon="download_on"
-        :disable="pageInfo.totalCount === 0"
         secondary
         dense
         :label="$t('MSG_BTN_DOWN_COM_EXCEL')"
+        :disable="pageInfo.totalCount === 0"
         @click="onClickCombiExcelDownload"
       />
       <kw-btn
         icon="download_on"
-        :disable="pageInfo.totalCount === 0"
         secondary
         dense
         :label="$t('MSG_BTN_EXCEL_DOWN')"
+        :disable="pageInfo.totalCount === 0"
         @click="onClickExcelDownload"
       />
     </kw-action-top>
@@ -113,6 +113,7 @@ const dataService = useDataService();
 const codes = await codeUtil.getMultiCodes(
   'COD_YN',
   'SELL_TP_CD',
+  'COD_PAGE_SIZE_OPTIONS',
 );
 
 // -------------------------------------------------------------------------------------------------
@@ -236,7 +237,7 @@ async function onClickCombiExcelDownload() {
   };
   const response = await dataService.get('/sms/wells/contract/sales-status/sec-product-management/shipping-items', { params });
   await gridUtil.exportView(grdView.value, {
-    fileName: currentRoute.value.meta.menuName,
+    fileName: `${currentRoute?.value.meta?.menuName}(${t('MSG_TXT_DLVRY')})_콤비`,
     timePostfix: true,
     exportData: response.data,
   });
@@ -246,7 +247,7 @@ async function onClickExcelDownload() {
   if (!cachedParams) { cacheParams(); }
   const response = await dataService.get('/sms/wells/contract/sales-status/sec-product-management/shipping-items', { params: cachedParams });
   await gridUtil.exportView(grdView.value, {
-    fileName: currentRoute.value.meta.menuName,
+    fileName: `${currentRoute?.value.meta?.menuName}(${t('MSG_TXT_DLVRY')})`,
     timePostfix: true,
     exportData: response.data,
   });

@@ -25,6 +25,7 @@
             icon="search"
             clearable
             rules="required"
+            :disable="isDisable"
             @click-icon="onClickClaimantName"
           />
         </kw-form-item>
@@ -40,6 +41,7 @@
             option-value="bldCd"
             option-label="bldNm"
             rules="required"
+            :disable="isDisable"
             :label="$t('MSG_TXT_BUILDING')"
           />
         </kw-form-item>
@@ -55,6 +57,7 @@
             :label="$t('MSG_TXT_AMT')"
             rules="required"
             :regex="/^[0-9]*$/i"
+            :disable="isDisable"
           />
         </kw-form-item>
       </kw-form-row>
@@ -68,6 +71,7 @@
             v-model="saveParams.cardPsrNm"
             :label="$t('MSG_TXT_CARD_PSR')"
             rules="required"
+            :disable="isDisable"
           />
         </kw-form-item>
       </kw-form-row>
@@ -85,6 +89,7 @@
               saveParams.idvTno"
             :label="$t('MSG_TXT_CONTACT')"
             rules="required"
+            :disable="isDisable"
           />
         </kw-form-item>
       </kw-form-row>
@@ -98,6 +103,7 @@
             type="date"
             rules="required"
             :label="$t('MSG_TXT_APPL_DATE')"
+            :disable="isDisable"
           />
         </kw-form-item>
       </kw-form-row>
@@ -114,6 +120,7 @@
             :attach-document-id="saveParams.clingCostSrcpApnFileId"
             rules="required"
             :label="$t('MSG_TXT_SRCP_APN')"
+            :disable="isDisable"
           />
         </kw-form-item>
       </kw-form-row>
@@ -122,6 +129,7 @@
       <kw-btn
         primary
         :label="$t('MSG_BTN_APPL')"
+        :disable="isApplication"
         @click="onClickApplication"
       />
     </template>
@@ -147,6 +155,8 @@ const { ok } = useModal();
 // -------------------------------------------------------------------------------------------------
 let dataParams;
 const attachFiles = ref([]);
+const isApplication = ref(false);
+const isDisable = ref(false);
 const props = defineProps({
   clingCostAdjRcpNo: {
     type: String,
@@ -194,21 +204,25 @@ async function buildingCode() {
 }
 
 async function onClickClaimantName() {
-  const { result, payload } = await modal({
-    component: 'ZwogzPartnerListP', // Z-OG-U-0050P01
-    componentProps: {
-      prtnrNo: saveParams.value.prtnrNo,
-    },
-  });
-  if (result) {
-    debugger;
-    saveParams.value.claimNm = payload.prtnrKnm;
-    saveParams.value.cardPsrNm = payload.prtnrKnm;
-    saveParams.value.prtnrNo = payload.prtnrNo;
-    saveParams.value.ogTpCd = payload.ogTpCd;
-    // 선택한 지역단장 조직유형코드, 지역단장 파트너번호, 지역단장명 set 해야함
+  const { clingCostAdjRcpNo } = props;
 
-    buildingCode();
+  if (isEmpty(clingCostAdjRcpNo)) {
+    const { result, payload } = await modal({
+      component: 'ZwogzPartnerListP', // Z-OG-U-0050P01
+      componentProps: {
+        prtnrNo: saveParams.value.prtnrNo,
+      },
+    });
+    if (result) {
+      debugger;
+      saveParams.value.claimNm = payload.prtnrKnm;
+      saveParams.value.cardPsrNm = payload.prtnrKnm;
+      saveParams.value.prtnrNo = payload.prtnrNo;
+      saveParams.value.ogTpCd = payload.ogTpCd;
+      // 선택한 지역단장 조직유형코드, 지역단장 파트너번호, 지역단장명 set 해야함
+
+      buildingCode();
+    }
   }
 }
 
@@ -232,11 +246,14 @@ async function fetchData() {
     const res = await dataService.get(`/sms/wells/closing/expense/cleaning-cost/request-cleaning-supplies/${clingCostAdjRcpNo}`, { params: dataParams });
     debugger;
     saveParams.value = res.data;
+    isApplication.value = true;
+    isDisable.value = true;
+
+    await buildingCode();
   }
 }
 
 onMounted(async () => {
-  await buildingCode();
   await fetchData();
 });
 </script>

@@ -218,7 +218,7 @@ const initGrdSub = defineGrid((data, view) => {
     { fieldName: 'bldCd', visible: false }, // 빌딩 // CD
     { fieldName: 'bldNm', header: t('MSG_TXT_BUILDING'), width: '200', styleName: 'text-left' }, // 빌딩 //NM
     { fieldName: 'aplcDt', header: t('MSG_TXT_APPL_DATE'), width: '200', styleName: 'text-center', dataType: 'date', datetimeFormat: 'datetime' }, // 신청일
-    { fieldName: 'aplcnsNm', header: t('MSG_TXT_APPL_DATE'), width: '200', styleName: 'text-center' }, // 신청자
+    { fieldName: 'aplcnsNm', header: t('MSG_TXT_APPL_USER'), width: '200', styleName: 'text-center' }, // 신청자
     { fieldName: 'cntrwApnFileId',
       header: t('MSG_TXT_CNTRW'),
       width: '200',

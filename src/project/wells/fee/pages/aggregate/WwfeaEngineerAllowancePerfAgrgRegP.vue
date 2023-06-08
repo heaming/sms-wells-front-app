@@ -24,7 +24,7 @@
         <kw-form-item
           :label="$t('MSG_TXT_PERF_YM')"
         >
-          <p>{{ params.perfYm }}</p>
+          <p>{{ params.perfYm.substring(0,4)+'-'+params.perfYm.substring(4) }}</p>
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
@@ -85,7 +85,7 @@ async function onClickCancel() {
 
 async function onClickSave() {
   if (!await confirm(t('MSG_ALT_AGRG'))) { return; }
-  const response = dataService.post('/sms/wells/fee/eger-allowances/aggregates', params.value);
-  ok(response.data);
+  const response = await dataService.post('/sms/wells/fee/eger-allowances/aggregates', params.value);
+  if (response.data === 'S') ok(response.data);
 }
 </script>

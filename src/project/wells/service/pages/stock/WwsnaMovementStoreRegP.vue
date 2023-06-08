@@ -19,7 +19,7 @@
   >
     <kw-form :cols="2">
       <kw-form-row>
-        <!-- 출고관리번호 -->
+        <!-- 입고관리번호 -->
         <kw-form-item
           :label="$t('MSG_TXT_STR_MNGT_NO')"
         >
@@ -29,8 +29,8 @@
             mask="###-########-#######"
           />
         </kw-form-item>
-        <!-- //출고관리번호 -->
-        <!-- 출고창고 -->
+        <!-- //입고관리번호 -->
+        <!-- 입고창고 -->
         <kw-form-item
           :label="$t('MSG_TXT_STR_WARE')"
         >
@@ -39,7 +39,7 @@
             :disable="true"
           />
         </kw-form-item>
-        <!-- //출고창고 -->
+        <!-- //입고창고 -->
       </kw-form-row>
       <kw-form-row>
         <!-- 입고희망일자 -->
@@ -53,7 +53,7 @@
           />
         </kw-form-item>
         <!-- //입고희망일자 -->
-        <!-- 출고유형 -->
+        <!-- 입고유형 -->
         <kw-form-item
           :label="$t('MSG_TXT_STR_TP')"
         >
@@ -62,7 +62,7 @@
             :disable="true"
           />
         </kw-form-item>
-        <!-- //출고유형 -->
+        <!-- //입고유형 -->
       </kw-form-row>
       <kw-form-row>
         <!-- 입고일자 -->
@@ -74,16 +74,24 @@
           />
         </kw-form-item>
         <!-- //입고일자 -->
-        <!-- 입고창고 -->
         <kw-form-item
           :label="$t('MSG_TXT_OSTR_WARE')"
         >
+          <!-- 출고창고 -->
           <kw-input
             v-model="propsParams.ostrWareNm"
             :disable="true"
           />
+          <!-- //출고창고 -->
+          <!-- 표준 미적용 -->
+          <kw-checkbox
+            v-model="searchParams.stckStdGb"
+            class="ml20"
+            :label="$t('MSG_TXT_STD_NO_APY')"
+            @change="onClickLocationStandard"
+          />
+          <!-- //표준 미적용 -->
         </kw-form-item>
-        <!-- //입고창고 -->
       </kw-form-row>
     </kw-form>
 
@@ -98,14 +106,7 @@
           @change="fetchData"
         />
       </template>
-      <!--
-      <kw-btn
-        icon="print"
-        secondary
-        :label="$t('MSG_BTN_PRTG')"
-        dense
-      />
- -->
+
       <kw-btn
         dense
         secondary
@@ -119,22 +120,6 @@
         vertical
         inset
       />
-      <!-- 품목위치 표준미적용 -->
-      <kw-btn
-        dense
-        secondary
-        :label="$t('MSG_TXT_ITM_LOC_STD_NO_APY')"
-        @click="onClickLocationStandardNoApply"
-      />
-      <!-- //품목위치 표준미적용 -->
-      <!-- 품목위치 표준적용 -->
-      <kw-btn
-        dense
-        secondary
-        :label="$t('MSG_TXT_ITM_LOC_STD_APY')"
-        @click="onClickLocationStandardApply"
-      />
-      <!-- //품목위치 표준적용 -->
       <kw-btn
         dense
         secondary
@@ -225,6 +210,14 @@ const props = defineProps({
     type: String,
     default: '',
   },
+  ostrSn: {
+    type: String,
+    default: '',
+  },
+  strSn: {
+    type: String,
+    default: '',
+  },
   itmPdNo: {
     type: String,
     default: '',
@@ -259,6 +252,7 @@ const propsParams = ref({
   ostrWareNo: props.ostrWareNo,
   ostrWareNm: props.ostrWareNm,
   ostrSn: props.ostrsn,
+  strSn: props.strSn,
   itmPdNo: props.itmPdNo,
   itmPdNm: props.itmPdNm,
   strHopDt: props.strHopDt,
@@ -273,9 +267,10 @@ const searchParams = ref({
   strWareNo: props.strWareNo,
   ostrWareNo: props.ostrWareNo,
   ostrSn: props.ostrSn,
+  strSn: props.strSn,
   itmPdNo: props.itmPdNo,
   strHopDt: props.strHopDt,
-  stckStdGb: '1',
+  stckStdGb: 'N',
   strDt: dayjs().format('YYYYMMDD'),
 });
 
@@ -288,6 +283,7 @@ const pageInfo = ref({
 });
 
 async function fetchData() {
+  console.log('fetchData~~~~~~~~~~~~~~~~~~~~~~~');
   const res = await dataService.get(baseURI, { params: { ...cachedParams, ...pageInfo.value } });
   const { list: searchData, pageInfo: pagingResult } = res.data;
 
@@ -302,30 +298,34 @@ async function fetchData() {
 }
 
 async function onClickSave() {
+  console.log('onClickSave~~~~~~~~~~~~~~~~~~~~~~~~~');
   const dataParams = grdMainRef.value.getView();
   const rows = dataParams.getCheckedItems();
 
   const confirmData = ref([]);
   confirmData.value = rows.map((v) => {
-    const { strSn, strQty, itmStrNo, strWareNo, itemGdCd, itmPdCd } = dataParams.getValues(v);
+    const { strSn, strQty, itmStrNo, strWareNo, itmGdCd, itmPdCd } = dataParams.getValues(v);
     return {
-      strSn: Number(strSn),
-      strQty: Number(strQty),
       itmStrNo,
+      strSn: Number(strSn),
       strWareNo,
-      itemGdCd,
+      itmGdCd,
       itmPdCd,
+      strQty: Number(strQty),
     };
   });
 
   // 등록하시겠습니까?
   if (await confirm(t('MSG_ALT_RGST'))) {
-    const { result } = await dataService.put(baseURI, { params: confirmData.value });
+    // const { result } = await dataService.put(baseURI, { params: confirmData.value });
+    const { result } = await dataService.put(baseURI, confirmData.value);
 
     if (result) {
       // 등록되었습니다.
       alert(t('MSG_ALT_RGSTD'));
       await fetchData();
+    } else {
+      console.log(`result: ${result}`);
     }
   }
 }
@@ -334,15 +334,20 @@ async function onClickRemove() {
   console.log(res.data);
 }
 
-async function onClickLocationStandardNoApply() {
-  searchParams.value.stckStdGb = '0';
+async function onClickLocationStandard() {
+  cachedParams = cloneDeep(searchParams.value);
   await fetchData();
 }
 
-async function onClickLocationStandardApply() {
-  searchParams.value.stckStdGb = '1';
-  await fetchData();
-}
+// async function onClickLocationStandardNoApply() {
+//   searchParams.value.stckStdGb = '0';
+//   await fetchData();
+// }
+
+// async function onClickLocationStandardApply() {
+//   searchParams.value.stckStdGb = '1';
+//   await fetchData();
+// }
 
 // TODO: W-SV-U-0169P02 - 네임텍 출력 개발 진행 후 반영 예정
 function onClickNameTagPrint() {
@@ -372,7 +377,7 @@ onMounted(async () => {
 // -------------------------------------------------------------------------------------------------
 const initGrdMain = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'sapMaptCd', header: t('MSG_TXT_SAP_CD'), width: '124', styleName: 'text-center' },
+    { fieldName: 'sapMatCd', header: t('MSG_TXT_SAP_CD'), width: '124', styleName: 'text-center' },
     { fieldName: 'itmPdCd', header: t('MSG_TXT_ITM_CD'), width: '130', styleName: 'text-center' },
     { fieldName: 'itmPdNm', header: t('MSG_TXT_ITM_NM'), width: '210', styleName: 'text-left' },
     { fieldName: 'itemLoc', header: t('MSG_TXT_ITM_LOC'), width: '141', styleName: 'text-left' },

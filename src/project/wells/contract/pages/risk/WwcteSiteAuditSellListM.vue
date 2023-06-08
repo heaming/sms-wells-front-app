@@ -33,7 +33,7 @@
             option-label="dgr1LevlOgNm"
             first-option="all"
             :first-option-label="$t('MSG_TXT_ALL')"
-            first-option-value="ALL"
+            first-option-value=""
             @update:model-value="onUpdateDgr1Levl"
           />
           <!-- 지역단 선택 -->
@@ -46,7 +46,7 @@
             option-label="dgr2LevlOgNm"
             first-option="all"
             :first-option-label="$t('MSG_TXT_ALL')"
-            first-option-value="ALL"
+            first-option-value=""
             @update:model-value="onUpdateDgr2Levl"
           />
           <!-- 지점 선택 -->
@@ -59,7 +59,7 @@
             option-label="dgr3LevlOgNm"
             first-option="all"
             :first-option-label="$t('MSG_TXT_ALL')"
-            first-option-value="ALL"
+            first-option-value=""
           />
         </kw-search-item>
 
@@ -82,8 +82,9 @@
           required
         >
           <kw-select
-            :model-value="searchParams.ptrmDv"
+            v-model="searchParams.ptrmDv"
             :options="periodOptions"
+            style="max-width: 33%;"
             required
           />
           <kw-date-range-picker
@@ -99,7 +100,7 @@
           :label="$t('MSG_TXT_STAT_DV')"
         >
           <kw-select
-            :model-value="searchParams.cntrStatCd"
+            v-model="searchParams.cntrStatCd"
             :options="codes.CNTR_STAT_CD"
             first-option="all"
           />
@@ -136,7 +137,7 @@
             option-label="pdClsfNm"
             first-option="all"
             :first-option-label="$t('MSG_TXT_ALL')"
-            first-option-value="ALL"
+            first-option-value=""
           />
         </kw-search-item>
       </kw-search-row>
@@ -150,6 +151,7 @@
             v-model:page-size="pageInfo.pageSize"
             :total-count="pageInfo.totalCount"
             :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
+            @change="fetchData"
           />
           <span class="ml8">{{ $t('MSG_TXT_UNIT_COLON_WON') }}</span>
         </template>
@@ -159,6 +161,7 @@
           dense
           secondary
           :label="$t('MSG_BTN_EXCEL_DOWN')"
+          :disable="pageInfo.totalCount===0"
           @click="onClickExcelDownload"
         />
       </kw-action-top>
@@ -206,6 +209,7 @@ const codes = await codeUtil.getMultiCodes(
   'CNTR_STAT_CD',
   'SELL_TP_CD',
   'SELL_TP_DTL_CD',
+  'COD_PAGE_SIZE_OPTIONS',
 );
 
 // 조직코드 조회
@@ -327,13 +331,13 @@ async function onClickSearch() {
   // 선택한 조직 코드에 해당하는 조직 ID 세팅
   searchParams.value.dgr1LevlOgCd = codesDgr1Levl.value
     .find((v) => selectedDgr1LevlOgCds.value.includes(v.dgr1LevlOgCd))
-    ?.dgr1LevlOgCd;
+    ?.dgr1LevlOgCd || ''; // undefined 인 경우, emptry string 로 변경
   searchParams.value.dgr2LevlOgCd = codesDgr2Levl.value
     .find((v) => selectedDgr2LevlOgCds.value.includes(v.dgr2LevlOgCd))
-    ?.dgr2LevlOgCd;
+    ?.dgr2LevlOgCd || '';
   searchParams.value.dgr3LevlOgCd = codesDgr3Levl.value
     .find((v) => selectedDgr3LevlOgCds.value.includes(v.dgr3LevlOgCd))
-    ?.dgr3LevlOgCd;
+    ?.dgr3LevlOgCd || '';
 
   pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
@@ -355,7 +359,7 @@ async function onClickExcelDownload() {
     fileName: currentRoute.value.meta.menuName, // 메뉴명으로 다운로드 엑셀 파일명 세팅
     timePostfix: true, // 엑셀 파일명에 _YYYYMMDDHHMISS 붙여줌
     exportData: res.data, // 현재 그리드에 보여지는 데이터가 아닌 전체 데이터 다운로드 시 사용
-    searchCondition: false,
+    searchCondition: true,
   });
 }
 
@@ -367,14 +371,14 @@ function initGrid(data, view) {
     { fieldName: 'dgr1LevlOgCd' },
     { fieldName: 'dgr2LevlOgCd' },
     { fieldName: 'dgr3LevlOgCd' },
-    { fieldName: 'perfCnt' },
+    { fieldName: 'perfCnt', dataType: 'number', numberFormat: '#,##0' },
   ];
 
   const columns = [
     { fieldName: 'dgr1LevlOgCd', header: t('MSG_TXT_MANAGEMENT_DEPARTMENT'), width: '312', styleName: 'text-center' },
     { fieldName: 'dgr2LevlOgCd', header: t('MSG_TXT_RGNL_GRP'), width: '300', styleName: 'text-center' },
     { fieldName: 'dgr3LevlOgCd', header: t('MSG_TXT_BRANCH'), width: '299', styleName: 'text-center' },
-    { fieldName: 'perfCnt', header: t('MSG_TXT_PERF'), width: '305', styleName: 'text-center' },
+    { fieldName: 'perfCnt', header: t('MSG_TXT_PERF'), width: '200', styleName: 'text-right' },
   ];
 
   data.setFields(fields);
@@ -422,19 +426,19 @@ function initGridExcel(data, view) {
     { fieldName: 'reqdDt' },
     { fieldName: 'cntrCstNo' },
     { fieldName: 'cstRgstDt' },
-    { fieldName: 'sellAmt' },
-    { fieldName: 'ackmtPerfAmt' },
-    { fieldName: 'ackmtPerfRt' },
+    { fieldName: 'sellAmt', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'ackmtPerfAmt', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'ackmtPerfRt', dataType: 'number', numberFormat: '#,##0' },
     { fieldName: 'booSellTpYn' },
     { fieldName: 'dlqMcn' },
-    { fieldName: 'eotDlqAmt' },
+    { fieldName: 'eotDlqAmt', dataType: 'number', numberFormat: '#,##0' },
     { fieldName: 'initDqmYm' },
-    { fieldName: 'dpTotAmt' },
-    { fieldName: 'eotUcAmt' },
+    { fieldName: 'dpTotAmt', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'eotUcAmt', dataType: 'number', numberFormat: '#,##0' },
     { fieldName: 'slStpYn' },
     { fieldName: 'rentalTn' },
-    { fieldName: 'cntrAmt' },
-    { fieldName: 'ramt' },
+    { fieldName: 'cntrAmt', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'ramt', dataType: 'number', numberFormat: '#,##0' },
     { fieldName: 'prchDv' },
     { fieldName: 'sellDscCd' },
     { fieldName: 'pmotCd' },
@@ -455,27 +459,27 @@ function initGridExcel(data, view) {
     { fieldName: 'pdMclsfNm' },
     { fieldName: 'pdNm' },
     { fieldName: 'pdCd' },
-    { fieldName: 'pdqty' },
-    { fieldName: 'subscAmt' },
-    { fieldName: 'mmIstmAmt' },
-    { fieldName: 'istmMcn' },
-    { fieldName: 'cashTotAmt' },
-    { fieldName: 'cardTotAmt1' },
+    { fieldName: 'pdqty', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'subscAmt', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'mmIstmAmt', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'istmMcn', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'cashTotAmt', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'cardTotAmt1', dataType: 'number', numberFormat: '#,##0' },
     { fieldName: 'crcdnoEncr1' },
     { fieldName: 'cdcoNm1' },
     { fieldName: 'cdcoOwrKnm1' },
-    { fieldName: 'crdcdIstmMcn1' },
-    { fieldName: 'cardTotAmt2' },
+    { fieldName: 'crdcdIstmMcn1', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'cardTotAmt2', dataType: 'number', numberFormat: '#,##0' },
     { fieldName: 'crcdnoEncr2' },
     { fieldName: 'cdcoNm2' },
     { fieldName: 'cdcoOwrKnm2' },
-    { fieldName: 'crdcdIstmMcn2' },
-    { fieldName: 'initBlam' },
-    { fieldName: 'nowBlam' },
-    { fieldName: 'blam1' },
-    { fieldName: 'blam2' },
-    { fieldName: 'blam3' },
-    { fieldName: 'blam4' },
+    { fieldName: 'crdcdIstmMcn2', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'initBlam', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'nowBlam', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'blam1', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'blam2', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'blam3', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'blam4', dataType: 'number', numberFormat: '#,##0' },
     { fieldName: 'buNotiDt' },
     { fieldName: 'buPrtnrNo' },
     { fieldName: 'buPrtnrNm' },
@@ -543,7 +547,7 @@ function initGridExcel(data, view) {
     { fieldName: 'dtlCntrNo', header: t('MSG_TXT_CST_CD'), width: '150', styleName: 'text-center' },
     { fieldName: 'cstKnm', header: t('MSG_TXT_APPL_USER'), width: '100', styleName: 'text-center' },
     { fieldName: 'copnDvCd', header: t('MSG_TXT_INDV_CRP_DV'), width: '100', styleName: 'text-center' },
-    { fieldName: 'bryyBzrno', header: t('MSG_TXT_BRYY_MMDD_ENTRP_NO'), width: '100', styleName: 'text-center' },
+    { fieldName: 'bryyBzrno', header: t('MSG_TXT_BRYY_MMDD_ENTRP_NO'), width: '150', styleName: 'text-center' },
     { fieldName: 'rcgvpKnm', header: t('MSG_TXT_INSTR'), width: '100', styleName: 'text-center' },
     { fieldName: 'alncmpCd', header: t('MSG_TXT_ALNC_CD'), width: '100', styleName: 'text-center' },
     { fieldName: 'cntrCnfmDt', header: t('MSG_TXT_RCPDT'), width: '100', styleName: 'text-center' },
@@ -578,19 +582,19 @@ function initGridExcel(data, view) {
     {
       fieldName: 'ojPdNm',
       header: t('MSG_TXT_CONN') + t('MSG_TXT_CODE_NAME') + t('MSG_TXT_GOODS_NM'),
-      width: '100',
-      styleName: 'text-center',
+      width: '250',
+      styleName: 'text-left',
     },
     {
       fieldName: 'vlStrtDt',
       header: t('MSG_TXT_CONN') + t('MSG_TXT_CODE_NAME') + t('MSG_TXT_KEEP_PTRM'),
-      width: '100',
+      width: '150',
       styleName: 'text-center',
     },
     {
       fieldName: 'vlEndDt',
       header: t('MSG_TXT_CONN') + t('MSG_TXT_CODE_NAME') + t('MSG_TXT_CANCEL') + t('MSG_TXT_PRD'),
-      width: '100',
+      width: '150',
       styleName: 'text-center',
     },
     { fieldName: 'bnkOwrKnm', header: t('MSG_TXT_BNK_AC_OWN'), width: '100', styleName: 'text-center' },
@@ -603,7 +607,7 @@ function initGridExcel(data, view) {
     { fieldName: 'cdcoMpyBsdt', header: t('MSG_TXT_FNT_DT'), width: '100', styleName: 'text-center' },
     { fieldName: 'pdHclsfNm', header: t('MSG_TXT_PD_HCLSF'), width: '100', styleName: 'text-center' },
     { fieldName: 'pdMclsfNm', header: t('MSG_TXT_PD_MCLSF'), width: '100', styleName: 'text-center' },
-    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '300', styleName: 'text-center' },
+    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '300', styleName: 'text-left' },
     { fieldName: 'pdCd', header: t('MSG_TXT_PRDT_CODE'), width: '100', styleName: 'text-center' },
     { fieldName: 'pdqty', header: t('MSG_TXT_ENU'), width: '100', styleName: 'text-right' },
     { fieldName: 'subscAmt', header: t('MSG_TXT_SBSCM'), width: '100', styleName: 'text-right' },
@@ -614,18 +618,18 @@ function initGridExcel(data, view) {
     { fieldName: 'crcdnoEncr1', header: `${t('MSG_TXT_CARD_NO')}1`, width: '200', styleName: 'text-center' },
     { fieldName: 'cdcoNm1', header: `${t('MSG_TXT_CDCO')}1`, width: '100', styleName: 'text-center' },
     { fieldName: 'cdcoOwrKnm1', header: `${t('MSG_TXT_CARD_STOCK')}1`, width: '100', styleName: 'text-center' },
-    { fieldName: 'crdcdIstmMcn1', header: `${t('MSG_TXT_ISTM')}1`, width: '100', styleName: 'text-center' },
+    { fieldName: 'crdcdIstmMcn1', header: `${t('MSG_TXT_ISTM')}1`, width: '100', styleName: 'text-right' },
     { fieldName: 'cardTotAmt2', header: `${t('MSG_TXT_CARD')}${t('MSG_TXT_STLM_AMT')}2`, width: '100', styleName: 'text-right' },
     { fieldName: 'crcdnoEncr2', header: `${t('MSG_TXT_CARD_NO')}2`, width: '200', styleName: 'text-center' },
     { fieldName: 'cdcoNm2', header: `${t('MSG_TXT_CDCO')}2`, width: '100', styleName: 'text-center' },
     { fieldName: 'cdcoOwrKnm2', header: `${t('MSG_TXT_CARD_STOCK')}2`, width: '100', styleName: 'text-center' },
-    { fieldName: 'crdcdIstmMcn2', header: `${t('MSG_TXT_ISTM')}2`, width: '100', styleName: 'text-center' },
-    { fieldName: 'initBlam', header: t('MSG_TXT_INIT_BLAM'), width: '100', styleName: 'text-center' },
-    { fieldName: 'nowBlam', header: t('MSG_TXT_RES_ISTM_AMT'), width: '100', styleName: 'text-center' },
-    { fieldName: 'blam1', header: `${t('MSG_TXT_RES_ISTM_AMT')}-1${t('MSG_TXT_MCNT')}`, width: '100', styleName: 'text-center' },
-    { fieldName: 'blam2', header: `${t('MSG_TXT_RES_ISTM_AMT')}-2${t('MSG_TXT_MCNT')}`, width: '100', styleName: 'text-center' },
-    { fieldName: 'blam3', header: `${t('MSG_TXT_RES_ISTM_AMT')}-3${t('MSG_TXT_MCNT')}`, width: '100', styleName: 'text-center' },
-    { fieldName: 'blam4', header: `${t('MSG_TXT_RES_ISTM_AMT')}-4${t('MSG_TXT_MCNT')}`, width: '100', styleName: 'text-center' },
+    { fieldName: 'crdcdIstmMcn2', header: `${t('MSG_TXT_ISTM')}2`, width: '100', styleName: 'text-right' },
+    { fieldName: 'initBlam', header: t('MSG_TXT_INIT_BLAM'), width: '100', styleName: 'text-right' },
+    { fieldName: 'nowBlam', header: t('MSG_TXT_RES_ISTM_AMT'), width: '100', styleName: 'text-right' },
+    { fieldName: 'blam1', header: `${t('MSG_TXT_RES_ISTM_AMT')}-1${t('MSG_TXT_MCNT')}`, width: '100', styleName: 'text-right' },
+    { fieldName: 'blam2', header: `${t('MSG_TXT_RES_ISTM_AMT')}-2${t('MSG_TXT_MCNT')}`, width: '100', styleName: 'text-right' },
+    { fieldName: 'blam3', header: `${t('MSG_TXT_RES_ISTM_AMT')}-3${t('MSG_TXT_MCNT')}`, width: '100', styleName: 'text-right' },
+    { fieldName: 'blam4', header: `${t('MSG_TXT_RES_ISTM_AMT')}-4${t('MSG_TXT_MCNT')}`, width: '100', styleName: 'text-right' },
     { fieldName: 'buNotiDt', header: `${t('MSG_TXT_BU')}${t('MSG_TXT_NTFC')}${t('MSG_TXT_D')}`, width: '100', styleName: 'text-center' },
     { fieldName: 'buPrtnrNo', header: `${t('MSG_TXT_BU')}${t('MSG_TXT_NTFC')}${t('MSG_TXT_EPNO')}`, width: '100', styleName: 'text-center' },
     { fieldName: 'buPrtnrNm', header: `${t('MSG_TXT_BU')}${t('MSG_TXT_NOTI_USR')}`, width: '100', styleName: 'text-center' },

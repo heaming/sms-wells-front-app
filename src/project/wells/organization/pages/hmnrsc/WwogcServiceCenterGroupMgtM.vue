@@ -32,7 +32,7 @@
         <kw-search-item :label="t('MSG_TXT_WK_GRP')">
           <kw-select
             v-model="searchParams.wkGrpCd"
-            :options="codes.WK_GRP_CD"
+            :options="codes.EGER_WK_GRP_CD"
             :label="t('MSG_TXT_BZ_DV')"
             first-option="all"
           />
@@ -42,7 +42,7 @@
         >
           <kw-select
             v-model="searchParams.rsbDvCd"
-            :options="codes.RSB_DV_CD"
+            :options="codes.EGER_RSB_CD"
             :label="t('MSG_TXT_BZ_DV')"
             first-option="all"
           />
@@ -50,19 +50,9 @@
       </kw-search-row>
       <kw-search-row>
         <kw-search-item :label="t('MSG_TXT_SEQUENCE_NUMBER')">
-          <kw-input
-            v-model="searchParams.prtnrNo"
-            maxlength="10"
-            clearable
-            :placeholder="$t('MSG_TIT_PRTNR_NO')"
-          />
-          <kw-input
-            v-model="searchParams.prtnrKnm"
-            icon="search"
-            clearable
-            readonly
-            :placeholder="$t('MSG_TXT_EMPL_NM')"
-            :on-click-icon="onClickPrtnrSea"
+          <zwog-partner-search
+            v-model:prtnr-no="searchParams.prtnrNo"
+            class="w113"
           />
         </kw-search-item>
         <kw-search-item
@@ -148,12 +138,13 @@
 // -------------------------------------------------------------------------------------------------
 import { useDataService, defineGrid, getComponentType, codeUtil, gridUtil, useGlobal } from 'kw-lib';
 import ZwogLevelSelect from '~sms-common/organization/components/ZwogLevelSelect.vue';
+import ZwogPartnerSearch from '~sms-common/organization/components/ZwogPartnerSearch.vue';
 import { getPhoneNumber } from '~sms-common/organization/utils/ogUtil';
 import dayjs from 'dayjs';
 import { isEmpty, replace } from 'lodash-es';
 
 const { t } = useI18n();
-const { modal, notify } = useGlobal();
+const { notify } = useGlobal();
 const dataService = useDataService();
 const { currentRoute } = useRouter();
 // -------------------------------------------------------------------------------------------------
@@ -167,10 +158,9 @@ const pageInfo = ref({
 });
 
 const codes = await codeUtil.getMultiCodes(
-  'EGER_RSB_CD',
-  'RSB_DV_CD',
-  'WK_GRP_CD',
-  'WKCR_CD',
+  'EGER_RSB_CD', // 직책
+  'EGER_WK_GRP_CD', // 작업그룹
+  'WKCR_CD', // 조
 );
 
 const searchParams = ref({
@@ -241,6 +231,7 @@ async function onClickAllSave() {
   if (!await gridUtil.validate(view)) { return; }
 
   const checkedRows = gridUtil.getCheckedRowValues(view);
+
   if (checkedRows.length === 0) { // 대상자 체크박스 선택 없을때
     notify(t('MSG_ALT_CHG_HLDY_DATA'));
     return;
@@ -251,7 +242,7 @@ async function onClickAllSave() {
     return;
   }
   if (dayjs().format('YYYYMMDD') > saveParams.value.rfltAplyDt
-      || dayjs().format('YYYYMMDD') > saveParams.value.rfltEnddt) {
+    || dayjs().format('YYYYMMDD') > saveParams.value.rfltEnddt) {
     notify(t('MSG_TXT_APY_DT_CONF'));
     return;
   }
@@ -291,13 +282,17 @@ async function onClickAllSave() {
 // 저장
 async function onClickSave() {
   const view = grdMainRef.value.getView();
-  // if (await gridUtil.alertIfIsNotModified(view)) { return; }
+  if (await gridUtil.alertIfIsNotModified(view)) { return; }
   if (!await gridUtil.validate(view)) { return; }
 
   const changeRows = gridUtil.getChangedRowValues(view);
 
   // eslint-disable-next-line no-restricted-syntax
   for (const item of changeRows) {
+    if (isEmpty(item.vlStrtDt) || isEmpty(item.vlEnddt)) {
+      notify(t('MSG_ALT_CHK_REQ_DT'));
+      return;
+    }
     if (dayjs().format('YYYYMMDD') > item.vlStrtDt
       || dayjs().format('YYYYMMDD') > item.vlEnddt) {
       notify(t('MSG_TXT_APY_DT_CONF'));
@@ -329,27 +324,15 @@ watch(() => saveParams.value.chk, async (newVal) => {
   if (newVal) {
     const view = grdMainRef.value.getView();
     const changeRows = gridUtil.getChangedRowValues(view);
+    const dataSource = view.getDataSource();
+    dataSource.checkRowStates(false);
     view.getDataSource().setRows(changeRows);
+    view.checkAll(true);
+    dataSource.checkRowStates(false);
   } else {
     await onClickSearch();
   }
 });
-
-// 파트너 검색 공통팝업
-async function onClickPrtnrSea() {
-  const { result, payload } = await modal({
-    component: 'ZwogzPartnerListP',
-    componentProps: {
-      prtnrNo: searchParams.value.prtnrNo,
-      ogTpCd: 'W06',
-    },
-  });
-
-  if (result) {
-    searchParams.value.prtnrNo = payload.prtnrNo;
-    searchParams.value.prtnrKnm = payload.prtnrKnm;
-  }
-}
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
@@ -366,17 +349,17 @@ const initGrdMain = defineGrid((data, view) => {
       width: '144',
       styleName: 'text-center',
       rules: 'required',
-      options: codes.WK_GRP_CD,
+      options: codes.EGER_WK_GRP_CD,
       editor: {
         type: 'dropdown',
       },
     },
     {
-      fieldName: 'rsbDvCd',
+      fieldName: 'egerRsbCd',
       header: t('MSG_TXT_RSB'),
       width: '110',
       styleName: 'text-center',
-      options: codes.RSB_DV_CD,
+      options: codes.EGER_RSB_CD,
       editor: {
         type: 'dropdown',
       } },
@@ -395,7 +378,7 @@ const initGrdMain = defineGrid((data, view) => {
       header: t('MSG_TXT_APPLY_DT'),
       width: '130',
       styleName: 'text-center',
-      rules: 'required',
+      // rules: 'required',
       datetimeFormat: 'date',
       editor: {
         type: 'date',
@@ -404,7 +387,7 @@ const initGrdMain = defineGrid((data, view) => {
       header: t('MSG_TXT_END_DT'),
       width: '130',
       styleName: 'text-center',
-      rules: 'required',
+      // rules: 'required',
       datetimeFormat: 'date',
       editor: {
         type: 'date',
@@ -431,7 +414,7 @@ const initGrdMain = defineGrid((data, view) => {
   view.editOptions.editable = true;
 
   view.onCellEditable = (grid, index) => {
-    if (!gridUtil.isCreatedRow(grid, index.dataRow) && ['dgr1LevlOgNm', 'dgr2LevlOgNm', 'prtnrNo', 'prtnrKnm', 'rsbDvCd', 'cntrDt'].includes(index.column)) {
+    if (!gridUtil.isCreatedRow(grid, index.dataRow) && ['dgr1LevlOgNm', 'dgr2LevlOgNm', 'prtnrNo', 'prtnrKnm', 'egerRsbCd', 'cntrDt'].includes(index.column)) {
       return false;
     }
   };
@@ -453,6 +436,8 @@ const initGrdMain = defineGrid((data, view) => {
     const { cralLocaraTno } = g.getValues(index.dataRow);
     if (cralLocaraTno.replaceAll('-', '').length > 0) {
       if (cralLocaraTno.replaceAll('-', '').length !== 11) {
+        const vw = grdMainRef.value.getView();
+        gridUtil.focusCellInput(vw, index.dataRow, 'cralLocaraTno');
         return t('MSG_ALT_TEL_NO_IN');
       }
     }

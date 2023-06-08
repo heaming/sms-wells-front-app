@@ -47,6 +47,15 @@ import ZctzPopupTestItem from '~sms-common/contract/components/ZctzPopupTestItem
 // -------------------------------------------------------------------------------------------------
 const pops = [
   {
+    pname: 'WwctaCapsuleSeedingChoiceP',
+    title: '캡슐/모종 선택 팝업',
+    param: {
+      basePdCd: 'WP01160135',
+      rglrSppMchnTpCd: '1',
+      rglrSppPrcDvCd: '4',
+    },
+  },
+  {
     pname: 'WwctaSeedingMachineChoiceP',
     title: '모종기기선택',
     param: {

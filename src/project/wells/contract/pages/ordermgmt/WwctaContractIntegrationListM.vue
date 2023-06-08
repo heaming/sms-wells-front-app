@@ -27,7 +27,6 @@
           <kw-date-range-picker
             v-model:from="searchParams.cntrCnfmStrtDtm"
             v-model:to="searchParams.cntrCnfmFinsDtm"
-            rules="date_range_required|date_range_months:1"
           />
         </kw-search-item>
         <!-- 플래너 -->
@@ -93,7 +92,6 @@
             v-if="isSearchCstKnmVisible"
             v-model="searchParams.cntrCstNm"
             :label="$t('MSG_TXT_CST_NM')"
-            rules="required"
             :placeholder="t('MSG_TXT_INP')"
             :maxlength="50"
           />
@@ -105,8 +103,18 @@
             icon="search"
             clearable
             :on-click-icon="onClickSearchCustomer"
-            rules="required|max:10|numeric"
+            rules="max:10|numeric"
             :maxlength="10"
+          />
+          <!-- 휴대전화번호(계약자/설치자) -->
+          <kw-input
+            v-if="isSearchMpnoVisible"
+            v-model:model-value="searchParams.cntrCstMpno"
+            v-model:telNo0="searchParams.cralLocaraTno"
+            v-model:telNo1="searchParams.mexnoEncr"
+            v-model:telNo2="searchParams.cralIdvTno"
+            :placeholder="t('MSG_TXT_INP')"
+            mask="telephone"
           />
           <!-- 사업자번호 -->
           <kw-input
@@ -119,15 +127,16 @@
             :regex="/^[0-9]*$/i"
             :maxlength="10"
           />
-          <!-- 휴대전화번호(계약자/설치자) -->
+          <!-- 세이프키값 -->
           <kw-input
-            v-if="isSearchMpnoVisible"
-            v-model:model-value="searchParams.cntrCstMpno"
-            v-model:telNo0="searchParams.cralLocaraTno"
-            v-model:telNo1="searchParams.mexnoEncr"
-            v-model:telNo2="searchParams.cralIdvTno"
+            v-if="isSearchSfkValVisible"
+            v-model="searchParams.sfkVal"
             :placeholder="t('MSG_TXT_INP')"
-            mask="telephone"
+            rules="required|max:100|numeric"
+            :label="$t('MSG_TXT_SFK')"
+            :type="number"
+            :regex="/^[0-9]*$/i"
+            :maxlength="100"
           />
         </kw-search-item>
         <!-- 관리구분(판매유형코드) -->
@@ -192,23 +201,24 @@ const { alert, modal } = useGlobal();
 const { currentRoute } = useRouter();
 
 let cachedParams;
-const now = dayjs();
+// const now = dayjs();
 const searchParams = ref({
-  cntrCnfmStrtDtm: now.startOf('month').format('YYYYMMDD'), // 계약확정시작일시
-  cntrCnfmFinsDtm: now.format('YYYYMMDD'), // 계약확정종료일시
+  cntrCnfmStrtDtm: '', // 계약확정시작일시
+  cntrCnfmFinsDtm: '', // 계약확정종료일시
   plarDv: '', // 플래너구분(판매자/관리자)
   prtnrDv: '2', // 파트너내역구분(사번/부서코드)
   hmnrscEmpno: '', // 인사사원번호
   ogTpCd: '', // 조직유형코드
   ogCd: '', // 부서코드(조직코드)
   cntrCstSeltDv: '1', // 고객선택구분
-  cntrCstNo: '', // 고객번호(세이프키)
+  cntrCstNo: '', // 고객번호
   cntrCstNm: '', // 고객명(계약자/설치자)
   cntrCstMpno: '', // 휴대전화번호(계약자/설치자)
   cralLocaraTno: '', // 휴대지역전화번호(계약자/설치자)
   mexnoEncr: '', // 휴대전화국번호암호화(계약자/설치자)
   cralIdvTno: '', // 휴대개별전화번호(계약자/설치자)
   bzrno: '', // 사업자번호
+  sfkVal: '', // 세이프키값
   sellTpCd: [''], // 계약구분(판매유형코드)
 });
 
@@ -234,9 +244,10 @@ const isSearchHmnrscEmpnoVisible = ref(false); // 플래너(인사사원번호)
 const isSearchOgCdVisible = ref(true); // 플래너(부서코드)
 
 const isSearchCstKnmVisible = ref(true); // 고객선택(고객명)
-const isSearchCntrCstNoVisible = ref(false); // 고객선택(고객번호/세이프키)
-const isSearchBzrnoVisible = ref(false); // 고객선택(사업자번호)
+const isSearchCntrCstNoVisible = ref(false); // 고객선택(고객번호)
 const isSearchMpnoVisible = ref(false); // 고객선택(휴대전화번호)
+const isSearchBzrnoVisible = ref(false); // 고객선택(사업자번호)
+const isSearchSfkValVisible = ref(false); // 고객선택(세이프키)
 
 async function fetchData() {
   // changing api & cacheparams according to search classification
@@ -263,6 +274,40 @@ async function fetchData() {
 
 // 조회버튼 클릭 이벤트
 async function onClickSearch() {
+  // 조회조건 3가지 중 최소 한개 이상 적용
+  if (isEmpty(searchParams.value.cntrCnfmStrtDtm)
+   && isEmpty(searchParams.value.cntrCnfmFinsDtm)
+   && isEmpty(searchParams.value.hmnrscEmpno)
+   && isEmpty(searchParams.value.ogCd)
+   && isEmpty(searchParams.value.cntrCstNo)
+   && isEmpty(searchParams.value.cntrCstNm)
+   && isEmpty(searchParams.value.cntrCstMpno)
+   && isEmpty(searchParams.value.bzrno)
+   && isEmpty(searchParams.value.sfkVal)) {
+    await alert(t('MSG_ALT_SRCH_CNDT_NEED_ONE')); // 하나 이상의 검색조건이 필요합니다.
+    return;
+  // eslint-disable-next-line no-else-return
+  } else if ((isEmpty(searchParams.value.cntrCnfmStrtDtm)
+           && !isEmpty(searchParams.value.cntrCnfmFinsDtm))) {
+    if (isEmpty(searchParams.value.cntrCnfmStrtDtm)) {
+      await alert(t('MSG_ALT_INPUT_COMMON', [t('MSG_TXT_CNTR_STRTDT')])); // 계약시작일자를 입력하세요.
+      return;
+    }
+  } else if ((!isEmpty(searchParams.value.cntrCnfmStrtDtm)
+           && isEmpty(searchParams.value.cntrCnfmFinsDtm))) {
+    await alert(t('MSG_ALT_SRCH_CNTR_DT_CNDT_MAX_DC', ['31'])); // 계약일자 조건은 최대 {0}일까지 검색할 수 있습니다.
+    searchParams.value.cntrCnfmFinsDtm = dayjs(searchParams.value.cntrCnfmStrtDtm).add(31, 'day').format('YYYYMMDD');
+  } else if ((!isEmpty(searchParams.value.cntrCnfmStrtDtm)
+           && !isEmpty(searchParams.value.cntrCnfmFinsDtm))) {
+    const diff = dayjs(searchParams.value.cntrCnfmFinsDtm).diff(searchParams.value.cntrCnfmStrtDtm, 'day');
+    // console.log(`diff : ${diff}`);
+    if (diff > 31) {
+      await alert(t('MSG_ALT_SRCH_CNTR_DT_CNDT_MAX_DC', ['31'])); // 계약일자 조건은 최대 {0}일까지 검색할 수 있습니다.
+      return;
+    }
+  }
+
+  // await alert('11111');
   await fetchData();
 }
 
@@ -278,17 +323,19 @@ async function onClickReset() {
 
   searchParams.value.cntrCstSeltDv = '1'; // 고객선택
   searchParams.value.cntrCstNm = ''; // 고객명(계약자/설치자)
-  searchParams.value.cntrCstNo = ''; // 고객번호(세이프키)
+  searchParams.value.cntrCstNo = ''; // 고객번호
   searchParams.value.bzrno = ''; // 사업자번호
+  searchParams.value.sfkVal = ''; // 세이프키
   searchParams.value.cntrCstMpno = ''; // 휴대전화번호(계약자/설치자)
   searchParams.value.cralLocaraTno = ''; // 휴대지역전화번호(계약자/설치자)
   searchParams.value.mexnoEncr = ''; // 휴대전화국번호암호화(계약자/설치자)
   searchParams.value.cralIdvTno = ''; // 휴대개별전화번호(계약자/설치자)
 
   isSearchCstKnmVisible.value = true;
-  isSearchCntrCstNoVisible.value = false;
   isSearchBzrnoVisible.value = false;
   isSearchMpnoVisible.value = false;
+  isSearchCntrCstNoVisible.value = false;
+  isSearchSfkValVisible.value = false;
 }
 
 // 고객번호 검색 팝업조회
@@ -361,23 +408,27 @@ async function onChangeCntrCstSeltDv() {
   if (['1', '4'].includes(searchParams.value.cntrCstSeltDv)) { // 고객명(계약자/설치자)
     isSearchCstKnmVisible.value = true;
     isSearchCntrCstNoVisible.value = false;
-    isSearchBzrnoVisible.value = false;
     isSearchMpnoVisible.value = false;
+    isSearchBzrnoVisible.value = false;
+    isSearchSfkValVisible.value = false;
 
-    searchParams.value.cntrCstNo = ''; // 고객번호(세이프키)
+    searchParams.value.cntrCstNo = ''; // 고객번호
     searchParams.value.bzrno = ''; // 사업자번호
+    searchParams.value.sfkVal = ''; // 세이프키
     searchParams.value.cntrCstMpno = ''; // 휴대전화번호(계약자/설치자)
     searchParams.value.cralLocaraTno = ''; // 휴대지역전화번호(계약자/설치자)
     searchParams.value.mexnoEncr = ''; // 휴대전화국번호암호화(계약자/설치자)
     searchParams.value.cralIdvTno = ''; // 휴대개별전화번호(계약자/설치자)
-  } else if (['2', '7'].includes(searchParams.value.cntrCstSeltDv)) { // 고객번호(세이프키)
+  } else if (searchParams.value.cntrCstSeltDv === '2') { // 고객번호
     isSearchCstKnmVisible.value = false;
     isSearchCntrCstNoVisible.value = true;
+    isSearchSfkValVisible.value = false;
     isSearchBzrnoVisible.value = false;
     isSearchMpnoVisible.value = false;
 
     searchParams.value.cntrCstNm = ''; // 고객명(계약자/설치자)
     searchParams.value.bzrno = ''; // 사업자번호
+    searchParams.value.sfkVal = ''; // 세이프키
     searchParams.value.cntrCstMpno = ''; // 휴대전화번호(계약자/설치자)
     searchParams.value.cralLocaraTno = ''; // 휴대지역전화번호(계약자/설치자)
     searchParams.value.mexnoEncr = ''; // 휴대전화국번호암호화(계약자/설치자)
@@ -385,20 +436,38 @@ async function onChangeCntrCstSeltDv() {
   } else if (['3', '5'].includes(searchParams.value.cntrCstSeltDv)) { // 휴대전화번호(계약자/설치자)
     isSearchCstKnmVisible.value = false;
     isSearchCntrCstNoVisible.value = false;
+    isSearchSfkValVisible.value = false;
     isSearchBzrnoVisible.value = false;
     isSearchMpnoVisible.value = true;
 
     searchParams.value.cntrCstNm = ''; // 고객명(계약자/설치자)
-    searchParams.value.cntrCstNo = ''; // 고객번호(세이프키)
+    searchParams.value.cntrCstNo = ''; // 고객번호
+    searchParams.value.sfkVal = ''; // 세이프키
     searchParams.value.bzrno = ''; // 사업자번호
   } else if (searchParams.value.cntrCstSeltDv === '6') { // 사업자번호
     isSearchCstKnmVisible.value = false;
     isSearchCntrCstNoVisible.value = false;
+    isSearchSfkValVisible.value = false;
     isSearchBzrnoVisible.value = true;
     isSearchMpnoVisible.value = false;
 
     searchParams.value.cntrCstNm = ''; // 고객명(계약자/설치자)
-    searchParams.value.cntrCstNo = ''; // 고객번호(세이프키)
+    searchParams.value.cntrCstNo = ''; // 고객번호
+    searchParams.value.sfkVal = ''; // 세이프키
+    searchParams.value.cntrCstMpno = ''; // 휴대전화번호(계약자/설치자)
+    searchParams.value.cralLocaraTno = ''; // 휴대지역전화번호(계약자/설치자)
+    searchParams.value.mexnoEncr = ''; // 휴대전화국번호암호화(계약자/설치자)
+    searchParams.value.cralIdvTno = ''; // 휴대개별전화번호(계약자/설치자)
+  } else if (searchParams.value.cntrCstSeltDv === '7') { // 세이프키
+    isSearchCstKnmVisible.value = false;
+    isSearchCntrCstNoVisible.value = false;
+    isSearchSfkValVisible.value = true;
+    isSearchBzrnoVisible.value = false;
+    isSearchMpnoVisible.value = false;
+
+    searchParams.value.cntrCstNm = ''; // 고객명(계약자/설치자)
+    searchParams.value.cntrCstNo = ''; // 고객번호
+    searchParams.value.bzrno = ''; // 사업자번호
     searchParams.value.cntrCstMpno = ''; // 휴대전화번호(계약자/설치자)
     searchParams.value.cralLocaraTno = ''; // 휴대지역전화번호(계약자/설치자)
     searchParams.value.mexnoEncr = ''; // 휴대전화국번호암호화(계약자/설치자)
@@ -432,6 +501,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'depositDetail' }, // 입금내역
     { fieldName: 'cstGdCd' }, // 고객등급
     { fieldName: 'pdNm' }, // 상품명
+    { fieldName: 'sellTpCd' }, // 판매유형코드
     { fieldName: 'cntrCnfmDtm' }, // 계약일
     { fieldName: 'istDt' }, // 설치일
     { fieldName: 'cntrStat' }, // 사용구분
@@ -455,6 +525,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'istCralLocaraTno' }, // 설치자 휴대지역전화번호
     { fieldName: 'istMexnoEncr' }, // 설치자 휴대전화국번호암호화
     { fieldName: 'istCralIdvTno' }, // 설치자 휴대개별전화번호
+    { fieldName: 'copnDvCd' }, // 고객구분코드(1:개인, 2:법인)
     { fieldName: 'dpTpCd' }, // 이체방식 납부방식유형코드
     { fieldName: 'dpTpNm' }, // 이체방식 납부방식유형코드명
     { fieldName: 'mpyBsdt' }, // 이체일
@@ -491,7 +562,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'depositDetail', header: t('MSG_TXT_DP_IZ'), width: '130', styleName: 'text-center', renderer: { type: 'button', hideWhenEmpty: false }, displayCallback: () => t('MSG_TXT_DP_IZ') }, // 입금내역
     { fieldName: 'cstGdCd', header: t('MSG_TXT_CST_GRD'), width: '130', styleName: 'text-center' }, // 고객등급
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '250', styleName: 'text-center' }, // 상품명
-    { fieldName: 'cntrCnfmDtm', header: t('MSG_TXT_CNTRCT_DT'), width: '160', styleName: 'text-center', datetimeFormat: 'datetime' }, // 계약일
+    { fieldName: 'cntrCnfmDtm', header: t('MSG_TXT_CNTRCT_DT'), width: '160', styleName: 'text-center', datetimeFormat: 'date' }, // 계약일
     { fieldName: 'istDt', header: t('MSG_TXT_INST_DT'), width: '130', styleName: 'text-center', datetimeFormat: 'date' }, // 설치일
     { fieldName: 'cntrStat', header: t('MSG_TXT_USG'), width: '130', styleName: 'text-center' }, // 사용구분
     { fieldName: 'svPrd', header: t('MSG_TXT_CYCL'), width: '130', styleName: 'text-right' }, // 주기
@@ -636,11 +707,15 @@ const initGrid = defineGrid((data, view) => {
     const paramCntrDtlNo = gridUtil.getCellValue(g, dataRow, 'cntrDtlNo');
     const paramCntrNo = String(paramCntrDtlNo).split('-')[0];
     const paramCntrSn = String(paramCntrDtlNo).split('-')[1];
+    const { sellTpCd } = g.getValues(dataRow);
+    const { cntrCstNo } = g.getValues(dataRow);
+    const { copnDvCd } = g.getValues(dataRow);
+    // const paramSellPrtnrKnm = gridUtil.getCellValue(g, dataRow, 'sellPrtnrKnm');
 
     if (['cntrDtlNo'].includes(column)) { // 계약상세(윈도우팝업)
-      await modal({ component: 'WwctaOrderDetailP', componentProps: { cntrNo: paramCntrNo, cntrSn: paramCntrSn } });
+      await modal({ component: 'WwctaOrderDetailP', componentProps: { cntrNo: paramCntrNo, cntrSn: paramCntrSn, sellTpCd, cntrCstNo, copnDvCd } });
     } else if (['depositDetail'].includes(column)) { // 입금내역
-      await alert('입금내역 팝업조회 작업예정');
+      await alert('입금내역 팝업은 개발예정입니다.');
     }
   };
 });

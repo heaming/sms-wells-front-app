@@ -15,12 +15,6 @@
 <template>
   <kw-action-top class="mt30">
     <kw-btn
-      dense
-      secondary
-      :label="t('MSG_BTN_INQR')"
-      @click="onClickSearch"
-    />
-    <kw-btn
       v-show="isReadonly"
       dense
       secondary
@@ -35,6 +29,7 @@
       @click="onClickSave"
     />
     <kw-btn
+      v-show="!isReadonly"
       dense
       secondary
       :label="t('MSG_BTN_CANCEL')"
@@ -54,7 +49,6 @@
       >
         <kw-option-group
           v-model="fieldParams.txinvPblOjYn"
-          :model-value="fieldParams.txinvPblOjYn"
           :label="t('MSG_TXT_ISSUANCE_CLAR')"
           type="radio"
           :options="[
@@ -62,7 +56,7 @@
             {'codeName':t('MSG_TXT_N_PBL'), 'codeId':'N'}
           ]"
           :disable="isReadonly"
-          rules="required"
+          :rules="setComnponetRule('required')"
         />
       </kw-form-item>
       <!-- 발행유형 -->
@@ -93,7 +87,7 @@
           maxlength="500"
           :readonly="isReadonly"
           :label="t('MSG_TXT_PIC_NM')"
-          rules="required"
+          :rules="setComnponetRule('required')"
         />
       </kw-form-item>
       <!-- 전화번호 -->
@@ -101,20 +95,20 @@
         :label="t('MSG_TXT_TEL_NO')"
         required
       >
-        <kw-input
-          v-model="fieldParams.telNo"
-          v-model:tel-no0="fieldParams.cralLocaraTno"
-          v-model:tel-no1="fieldParams.mexno"
-          v-model:tel-no2="fieldParams.cralIdvTno"
+        <zwcm-telephone-number
+          v-model:tel-no0="fieldParams.telNo"
+          v-model:tel-no1="fieldParams.cralLocaraTno"
+          v-model:tel-no2="fieldParams.mexno"
+          v-model:tel-no3="fieldParams.cralIdvTno"
           mask="telephone"
-          rules="required|telephone"
+          :required="!isReadonly"
           :readonly="isReadonly"
           :label="t('MSG_TXT_TEL_NO')"
         />
       </kw-form-item>
     </kw-form-row>
 
-    <kw-form-row>
+    <kw-form-row class="mb30">
       <!-- 전자메일 -->
       <kw-form-item
         :label="t('MSG_TXT_EMAIL')"
@@ -122,9 +116,9 @@
       >
         <zwcm-email-address
           v-model="fieldParams.emadr"
+          :required="!isReadonly"
           :readonly="isReadonly"
           :label="t('MSG_TXT_EMAIL')"
-          :required="true"
           rules="required"
         />
       </kw-form-item>
@@ -136,9 +130,8 @@
         <p class="ml8">
           <kw-option-group
             v-model="fieldParams.txinvPblD"
-            :model-value="fieldParams.txinvPblD"
             :label="t('MSG_TXT_PBL_DT')"
-            rules="required"
+            :rules="setComnponetRule('required')"
             type="radio"
             :options="[
               {'codeName':t('MSG_TXT_DAY', [15]), 'codeId':'15'},
@@ -161,6 +154,7 @@
 import { useDataService, getComponentType, useGlobal } from 'kw-lib';
 import { isEmpty, cloneDeep } from 'lodash-es';
 import ZwcmEmailAddress from '~common/components/ZwcmEmailAddress.vue';
+import ZwcmTelephoneNumber from '~common/components/ZwcmTelephoneNumber.vue';
 
 const { confirm, alert } = useGlobal();
 const { t } = useI18n();
@@ -170,13 +164,10 @@ const frmMainRef = ref(getComponentType('KwForm'));
 
 let cachedParams;
 
-const props = defineProps({
-  cntrNo: { type: String, required: true, default: '' }, // 계약번호
-  cntrSn: { type: String, required: false, default: '' }, // 계약일련번호
+const searchParams = ref({
+  cntrNo: '',
+  cntrSn: '',
 });
-
-const orgCntrNo = ref(''); /* 변경전 계약번호 */
-const orgCntrSn = ref(''); /* 변경전 계약일련번호 */
 
 const fieldParams = ref({
   bzrno: '', /* 사업자등록번호 */
@@ -195,6 +186,9 @@ const fieldParams = ref({
   txinvPblOjYn: '', /* 세금계산서발행여부 */
   telNo: '', /* 전화번호 */
   bzrnoFormat: '', /* 사업자등록번호 format */
+  cntrNo: '',
+  cntrSn: '',
+  rules: '',
 });
 
 // -------------------------------------------------------------------------------------------------
@@ -203,20 +197,16 @@ const fieldParams = ref({
 
 // fetchData: 조회
 async function fetchData() {
-  if (!await frmMainRef.value.confirmIfIsModified()) { return; }
-  const res = await dataService.get('/sms/wells/contract/contract-info/tax-Invoices', { params: { cntrNo: props.cntrNo, cntrSn: props.cntrSn } });
+  frmMainRef.value.init();
+  const res = await dataService.get('/sms/wells/contract/contract-info/tax-Invoices', { params: { cntrNo: searchParams.value.cntrNo, cntrSn: searchParams.value.cntrSn } });
   if (!isEmpty(res.data)) {
     Object.assign(fieldParams.value, res.data);
-    fieldParams.value.cntrNo = props.cntrNo; // 계약번호
-    fieldParams.value.cntrSn = props.cntrSn; // 계약일련번호
     fieldParams.value.telNo = `${fieldParams.value.cralLocaraTno}${fieldParams.value.mexno}${fieldParams.value.cralIdvTno}`; // 전화번호
     fieldParams.value.bzrnoFormat = !isEmpty(res.data.bzrno) ? `${res.data.bzrno?.substring(0, 3)}-${res.data.bzrno?.substring(3, 5)}-${res.data.bzrno?.substring(5, 10)}` : '';
   }
-}
-
-// onClickSearch: 조회버튼 클릭 시
-async function onClickSearch() {
-  fetchData();
+  fieldParams.value.cntrNo = searchParams.value.cntrNo;
+  fieldParams.value.cntrSn = searchParams.value.cntrSn;
+  console.log(fieldParams);
 }
 
 // onClickEdit: 수정버튼 클릭 시
@@ -227,6 +217,8 @@ async function onClickEdit() {
 // onClickCancel: 취소버튼 클릭 시
 async function onClickCancel() {
   if (!await frmMainRef.value.confirmIfIsModified()) { return; }
+
+  fetchData();
   isReadonly.value = true;
 }
 
@@ -242,18 +234,27 @@ async function onClickSave() {
 
   await dataService.post('/sms/wells/contract/contract-info/tax-Invoices', cachedParams);
   await alert(t('MSG_ALT_SAVE_DATA'));
+
+  fetchData();
 }
 
-// onActivated: Tab 변경시
-onActivated(() => {
-  // 부모창의 cntrNo랑 cntrSn이 바뀌지 않았으면,
-  if (orgCntrNo.value === props.cntrNo && orgCntrSn.value === props.cntrSn) {
-    // 리턴
-    return;
-  }
+// setDatas: 계약번호, 계약일련번호 세팅 (부모창에서 호출)
+async function setDatas(cntrNo, cntrSn) {
+  searchParams.value.cntrNo = cntrNo;
+  searchParams.value.cntrSn = cntrSn;
 
-  // 부모창의 cntrNo랑 cntrSn이 바꼈으면, 다시 조회한다.
-  orgCntrNo.value = props.cntrNo;
-  orgCntrSn.value = props.cntrSn;
+  await fetchData();
+}
+
+// 외부에서 사용할 수 있도록 노출 선언
+defineExpose({
+  setDatas,
 });
+
+// 읽기전용인지 아닌지 감시하기
+function setComnponetRule(msg) {
+  if (!isReadonly.value) {
+    return msg;
+  }
+}
 </script>

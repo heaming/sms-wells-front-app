@@ -102,7 +102,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import dayjs from 'dayjs';
-import { modal, useDataService, useModal, alert } from 'kw-lib';
+import { modal, useDataService, useModal, alert, confirm } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 
 const { t } = useI18n();
@@ -110,6 +110,7 @@ const { t } = useI18n();
 const now = dayjs();
 const dataService = useDataService();
 const { ok } = useModal();
+const store = useStore();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -128,6 +129,7 @@ const props = defineProps({
   },
 
 });
+const { companyCode } = store.getters['meta/getUserInfo'];
 
 const searchParams = ref({
   perfDt: now.format('YYYYMMDD'), // 실적일자
@@ -137,17 +139,23 @@ const searchParams = ref({
   itgDpNo: '', // 통합입금번호
   lifAlncDvCd: '',
   lifSpptYm: '',
+  dpTpCd: '', // 입금유형
+  kwGrpCoCd: companyCode, // 수납코드
 });
 
 const obsRef = ref();
 
 async function onKeyDownSelectRveCd() {
   searchParams.value.rveNm = '';
+  searchParams.value.itgDpNo = '';
+  searchParams.value.dpTpCd = '';
 }
 
 async function onClearSelectRveCd() {
   searchParams.value.rveCd = '';
   searchParams.value.rveNm = '';
+  searchParams.value.itgDpNo = '';
+  searchParams.value.dpTpCd = '';
 }
 
 // 수납코드 조회 팝업
@@ -158,33 +166,41 @@ async function onClickSelectRveCd() {
   if (result) {
     searchParams.value.rveCd = payload.rveCd;
     searchParams.value.rveNm = payload.rveNm;
+    searchParams.value.itgDpNo = '';
+    searchParams.value.dpTpCd = '';
   }
 }
 
 // // 통합입금번호
 async function onClickSelectIntegrationDeposit() {
+  console.log(searchParams.value.rveCd);
+  console.log(searchParams.value.rveNm);
+
   const { result, payload } = await modal({
     component: 'WwdbIntegrationDepositListP',
-    componentProps: { itgDpNo: searchParams.value.itgDpNo },
+    componentProps: {
+      itgDpNo: searchParams.value.itgDpNo,
+      rveCd: searchParams.value.rveCd,
+      rveNm: searchParams.value.rveNm,
+      // dpTpCd: searchParams.value.dpTpCd,
+    },
   });
 
   if (result) {
+    if (payload.dpBlam <= 0) {
+      await alert(t('통합 입금잔액이 없습니다.'));
+      return;
+    }
+
     if (props.dpObjAmtSum !== payload.dpBlam) {
       await alert(t('MSG_ALT_MUTU_DP_IZ_AMT_GAP'));
       return;
     }
 
     searchParams.value.itgDpNo = payload.itgDpNo; // 입금잔액
-
-    // if (payload.dpBlam || payload.dpDtm) {
-    //   console.log(payload.dpBlam);
-    //   console.log(payload.dpDtm);
-
-    //   // data.setValue(0, 'dpBlam', payload.dpBlam);
-    //   // data.setValue(0, 'dpDtm', payload.dpDtm);
-
-    //   searchParams.value.itgDpNo = payload.dpBlam;
-    // }
+    searchParams.value.rveCd = payload.rveCd;
+    searchParams.value.rveNm = payload.rveNm;
+    searchParams.value.dpTpCd = payload.dpTpCd;
   }
 }
 let cachedParams;
@@ -194,6 +210,33 @@ async function onClickCreate() {
 
   if (await obsRef.value.alertIfIsNotModified()) { return; }
 
+  const today = now.format('YYYYMMDD');
+  const month = now.format('YYYYMM');
+
+  if (today < searchParams.value.perfDt) {
+    await alert('실적일자는 현재일 과 이전만 가능 합니다.');
+    return;
+  }
+
+  if (month !== searchParams.value.perfDt.substring(0, 6)) {
+    await alert('실적일자는 현재월 만 가능 합니다.');
+    return;
+  }
+
+  if (today < searchParams.value.rveDt) {
+    await alert('수납일자는 현재일 과 이전만 가능 합니다.');
+    return;
+  }
+
+  if (month !== searchParams.value.rveDt.substring(0, 6)) {
+    await alert('수납일자는 현재월 만 가능 합니다.');
+    return;
+  }
+
+  if (!await confirm('생성하시겠습니까?')) {
+    return;
+  }
+
   cachedParams = cloneDeep(searchParams.value);
 
   await dataService.post('/sms/wells/withdrawal/idvrve/mutual-alliance-bulk-deposit/create', cachedParams);
@@ -202,11 +245,11 @@ async function onClickCreate() {
 }
 
 async function initProps() {
-  const { lifAlncDvCd, lifSpptYm } = props;
+  const { lifAlncDvCd, lifSpptYm, dpObjAmtSum } = props;
 
   searchParams.value.lifAlncDvCd = lifAlncDvCd;
   searchParams.value.lifSpptYm = lifSpptYm;
-  searchParams.value.lifSpptYm = lifSpptYm;
+  searchParams.value.dpObjAmtSum = dpObjAmtSum;
 }
 
 onMounted(async () => {

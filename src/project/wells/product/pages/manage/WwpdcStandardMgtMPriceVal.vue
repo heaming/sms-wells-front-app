@@ -13,79 +13,77 @@
 ****************************************************************************************************
 --->
 <template>
-  <div class="normal-area">
-    <!-- 선택변수 등록 -->
-    <h3>{{ $t('MSG_TXT_PD_REG_SEL_VAR') }}</h3>
-    <kw-form
-      ref="frmChannelRef"
-      :cols="2"
-      dense
-      ignore-on-modified
-    >
-      <kw-form-row>
-        <!-- 판매채널 -->
-        <kw-form-item
+  <!-- 선택변수 등록 -->
+  <h3>{{ $t('MSG_TXT_PD_REG_SEL_VAR') }}</h3>
+  <kw-form
+    ref="frmChannelRef"
+    :cols="2"
+    dense
+    ignore-on-modified
+  >
+    <kw-form-row>
+      <!-- 판매채널 -->
+      <kw-form-item
+        :label="$t('MSG_TXT_SEL_CHNL')"
+        required
+      >
+        <kw-select
+          ref="usedChannelRef"
+          v-model="addChannelId"
+          first-option="select"
+          :options="usedChannelCds"
+          rules="required"
           :label="$t('MSG_TXT_SEL_CHNL')"
-          required
-        >
-          <kw-select
-            ref="usedChannelRef"
-            v-model="addChannelId"
-            first-option="select"
-            :options="usedChannelCds"
-            rules="required"
-            :label="$t('MSG_TXT_SEL_CHNL')"
-          />
-        </kw-form-item>
-      </kw-form-row>
-    </kw-form>
-    <kw-separator />
-    <kw-form
-      ref="frmVariableRef"
-      :cols="2"
+        />
+      </kw-form-item>
+    </kw-form-row>
+  </kw-form>
+  <kw-separator />
+  <kw-form
+    ref="frmVariableRef"
+    :cols="2"
+    dense
+  >
+    <kw-form-row>
+      <!-- 선택변수 -->
+      <kw-form-item :label="$t('MSG_TXT_PD_SEL_VAL')">
+        <kw-option-group
+          v-model="checkedSelVals"
+          type="checkbox"
+          option-value="colNm"
+          option-label="codeName"
+          :options="selectionVariables"
+          @update:model-value="resetVisibleChannelColumns"
+        />
+      </kw-form-item>
+    </kw-form-row>
+  </kw-form>
+  <kw-separator />
+  <kw-action-bottom class="mb30">
+    <kw-btn
+      v-show="!props.readonly"
+      :label="$t('MSG_BTN_ADD')"
       dense
-    >
-      <kw-form-row>
-        <!-- 선택변수 -->
-        <kw-form-item :label="$t('MSG_TXT_PD_SEL_VAL')">
-          <kw-option-group
-            v-model="checkedSelVals"
-            type="checkbox"
-            option-value="colNm"
-            option-label="codeName"
-            :options="selectionVariables"
-            @update:model-value="resetVisibleChannelColumns"
-          />
-        </kw-form-item>
-      </kw-form-row>
-    </kw-form>
-    <kw-separator />
-    <kw-action-bottom class="mb30">
-      <kw-btn
-        v-show="!props.readonly"
-        :label="$t('MSG_BTN_ADD')"
-        dense
-        @click="onClickAdd"
-      />
-    </kw-action-bottom>
-
-    <kw-action-top>
-      <kw-btn
-        v-show="!props.readonly"
-        :label="$t('MSG_BTN_DEL')"
-        grid-action
-        dense
-        :disable="gridRowCount === 0"
-        @click="onClickRemove"
-      />
-    </kw-action-top>
-    <kw-grid
-      ref="grdMainRef"
-      name="grdMgtPrcValMain"
-      :visible-rows="5"
-      @init="initGrid"
+      @click="onClickAdd"
     />
-  </div>
+  </kw-action-bottom>
+
+  <kw-action-top>
+    <kw-btn
+      v-show="!props.readonly"
+      :label="$t('MSG_BTN_DEL')"
+      grid-action
+      dense
+      :disable="gridRowCount === 0"
+      @click="onClickRemove"
+    />
+  </kw-action-top>
+  <kw-grid
+    ref="grdMainRef"
+    name="grdMgtPrcValMain"
+    :visible-rows="5"
+    @init="initGrid"
+  />
 </template>
 <script setup>
 // -------------------------------------------------------------------------------------------------

@@ -283,10 +283,13 @@ async function fetchData() {
 
 // 고객번호 팝업 호출
 async function onClickSearchCntrCst() {
-  const res = await modal({ component: 'ZwcsaCustomerListP' });
-  if (res.result && res.payload) {
-    // searchParams.cntrCstKnm(res.payload.name);
-    searchParams.cntrCstNo(res.payload.cstNo);
+  const { result, payload } = await modal({
+    component: 'ZwcsaCustomerListP',
+    componentProps: { cstType: '1', cstNo: searchParams.value.cntrCstNo },
+  });
+
+  if (result) {
+    searchParams.value.cntrCstNo = payload.cstNo;
   }
 }
 
@@ -386,6 +389,7 @@ function initGridRglrDlvrContractList(data, view) {
   const fields = [
     { fieldName: 'cntrDtlNo' }, // 계약번호
     { fieldName: 'ordrInfoView' }, // 주문정보 보기
+    { fieldName: 'sellTpCd' }, // 판매유형코드
     { fieldName: 'dgr3LevlDgPrtnrNo' }, // 파트너정보-지점장 사번
     { fieldName: 'dgr3LevlDgPrtnrNm' }, // 파트너정보-지점장명
     { fieldName: 'dgr3LevlOgCd' }, // 파트너정보-지점코드
@@ -411,7 +415,8 @@ function initGridRglrDlvrContractList(data, view) {
     { fieldName: 'shpadrRdadr' }, // 설치정보-상세주소
     { fieldName: 'sellInflwChnlDtlNm' }, // 판매구분
     { fieldName: 'empDvVal' }, // 직원구분
-    { fieldName: 'copnDvNm' }, // 계약자구분
+    { fieldName: 'copnDvCd' }, // 고객구분코드(1:개인, 2:법인)
+    { fieldName: 'copnDvNm' }, // 고객구분명
     { fieldName: 'mchnSellTpNm' }, // 기기정보-판매유형(원주문)
     { fieldName: 'mchnCntrNo' }, // 기기계약번호
     { fieldName: 'mchnRcgvpKnm' }, // 기기주문자 명
@@ -688,13 +693,19 @@ function initGridRglrDlvrContractList(data, view) {
     const paramCntrDtlNo = gridUtil.getCellValue(g, dataRow, 'cntrDtlNo');
     const paramCntrNo = String(paramCntrDtlNo).split('-')[0];
     const paramCntrSn = String(paramCntrDtlNo).split('-')[1];
+    const { sellTpCd } = g.getValues(dataRow);
+    const { cntrCstNo } = g.getValues(dataRow);
+    const { copnDvCd } = g.getValues(dataRow);
 
     if (['cntrDtlNo'].includes(column)) { // 계약상세(윈도우팝업)
-      await modal({ component: 'WwctaOrderDetailP', componentProps: { cntrNo: paramCntrNo, cntrSn: paramCntrSn } });
+      await modal({ component: 'WwctaOrderDetailP', componentProps: { cntrNo: paramCntrNo, cntrSn: paramCntrSn, sellTpCd, cntrCstNo, copnDvCd } });
     } else if (['ordrInfoView'].includes(column)) { // 정기배송 주문정보 상세
       await modal({ component: 'WwctaOrderRegularShippingDtlP', componentProps: { cntrNo: paramCntrNo, cntrSn: paramCntrSn } });
     } else if (['connPdView'].includes(column)) { // 연계상품 리스트 조회
-      await alert('연계상품 리스트 팝업 조회');
+      await modal({
+        component: 'WwctaLinkProductListP',
+        componentProps: { cntrNo: paramCntrNo, cntrSn: paramCntrSn },
+      });
     }
   };
 }

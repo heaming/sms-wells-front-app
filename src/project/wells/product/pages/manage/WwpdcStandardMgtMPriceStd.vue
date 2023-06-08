@@ -13,57 +13,55 @@
 ****************************************************************************************************
 --->
 <template>
-  <div class="normal-area">
-    <!-- 기준가(고정변수) 등록 -->
-    <h3>{{ $t('MSG_TXT_PD_STD_PRC_FIX_VAL') }}</h3>
-    <!-- v-model:init-data="priceFieldData" -->
-    <zwpdc-prop-meta
-      ref="priceStdRef"
-      v-model:pd-cd="currentPdCd"
-      v-model:init-data="priceFieldData"
-      v-model:codes="currentCodes"
-      :pd-prc-tp-cd="pdConst.PD_PRC_TP_CD_BASIC"
-      :readonly-fields="readonlyFields"
-      :use-rule="false"
-      ignore-on-modified
-    />
-    <div class="row justify-end mt20 mb30">
-      <kw-btn
-        v-show="!props.readonly"
-        secondary
-        dense
-        :label="$t('MSG_BTN_ADD')"
-        @click="onClickAdd(true)"
-      />
-    </div>
-    <kw-action-top class="mt30">
-      <kw-btn
-        :label="$t('MSG_BTN_DEL')"
-        grid-action
-        dense
-        :disable="gridRowCount === 0"
-        @click="onClickRemove"
-      />
-      <kw-separator
-        vertical
-        inset
-        spaced
-      />
-      <kw-btn
-        v-show="!props.readonly"
-        :label="$t('MSG_BTN_ROW_ADD')"
-        grid-action
-        dense
-        @click="onClickAdd(false)"
-      />
-    </kw-action-top>
-    <kw-grid
-      ref="grdMainRef"
-      name="grdMgtPrcStdMain"
-      :visible-rows="5"
-      @init="initGrid"
+  <!-- 기준가(고정변수) 등록 -->
+  <h3>{{ $t('MSG_TXT_PD_STD_PRC_FIX_VAL') }}</h3>
+  <!-- v-model:init-data="priceFieldData" -->
+  <zwpdc-prop-meta
+    ref="priceStdRef"
+    v-model:pd-cd="currentPdCd"
+    v-model:init-data="priceFieldData"
+    v-model:codes="currentCodes"
+    :pd-prc-tp-cd="pdConst.PD_PRC_TP_CD_BASIC"
+    :readonly-fields="readonlyFields"
+    :use-rule="false"
+    ignore-on-modified
+  />
+  <div class="row justify-end mt20 mb30">
+    <kw-btn
+      v-show="!props.readonly"
+      secondary
+      dense
+      :label="$t('MSG_BTN_ADD')"
+      @click="onClickAdd(true)"
     />
   </div>
+  <kw-action-top class="mt30">
+    <kw-btn
+      :label="$t('MSG_BTN_DEL')"
+      grid-action
+      dense
+      :disable="gridRowCount === 0"
+      @click="onClickRemove"
+    />
+    <kw-separator
+      vertical
+      inset
+      spaced
+    />
+    <kw-btn
+      v-show="!props.readonly"
+      :label="$t('MSG_BTN_ROW_ADD')"
+      grid-action
+      dense
+      @click="onClickAdd(false)"
+    />
+  </kw-action-top>
+  <kw-grid
+    ref="grdMainRef"
+    name="grdMgtPrcStdMain"
+    :visible-rows="5"
+    @init="initGrid"
+  />
 </template>
 <script setup>
 // -------------------------------------------------------------------------------------------------

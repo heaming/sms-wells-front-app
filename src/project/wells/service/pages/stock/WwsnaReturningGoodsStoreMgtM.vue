@@ -101,13 +101,13 @@
         <!-- 확인일자 -->
         <kw-search-item :label="$t('MSG_TXT_CONF_DT')">
           <kw-date-picker
-            v-model="searchParams.ostrConfDt"
+            v-model="searchParams.stOstrConfDt"
           />
           <!-- 반품처리유형 -->
         </kw-search-item>
         <kw-search-item :label="$t('MSG_TXT_RTNGD_PROCS_TP')">
           <kw-select
-            v-model="searchParams.rtngdProcsTpCd"
+            v-model="searchParams.stRtngdProcsTpCd"
             :options="codes.RTNGD_PROCS_TP_CD"
             first-option=""
           />
@@ -137,7 +137,11 @@
       <kw-action-top>
         <template #left>
           <kw-paging-info
-            :total-count="totalCount"
+            v-model:page-index="pageInfo.pageIndex"
+            v-model:page-size="pageInfo.pageSize"
+            :total-count="pageInfo.totalCount"
+            :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
+            @change="fetchData"
           />
         </template>
         <!-- 저장 -->
@@ -156,7 +160,7 @@
           dense
           secondary
           :label="$t('MSG_TXT_EXCEL_DOWNLOAD')"
-          :disable="totalCount === 0"
+          :disable="pageInfo.totalCount === 0"
           @click="onClickExcelDownload"
         />
         <kw-separator
@@ -220,8 +224,15 @@
       </ul>
       <kw-grid
         ref="grdMainRef"
-        :total-count="totalCount"
+        :page-size="pageInfo.pageSize"
+        :total-count="pageInfo.totalCount"
         @init="initGrdMain"
+      />
+      <kw-pagination
+        v-model:page-index="pageInfo.pageIndex"
+        v-model:page-size="pageInfo.pageSize"
+        :total-count="pageInfo.totalCount"
+        @change="fetchData"
       />
     </div>
   </kw-page>
@@ -231,7 +242,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, useDataService, getComponentType, defineGrid, useGlobal, gridUtil } from 'kw-lib';
+import { codeUtil, useDataService, getComponentType, defineGrid, useGlobal, gridUtil, useMeta } from 'kw-lib';
 import dayjs from 'dayjs';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import ZwcmWareHouseSearch from '~sms-common/service/components/ZwsnzWareHouseSearch.vue';
@@ -240,6 +251,7 @@ import ZwcmWareHouseSearch from '~sms-common/service/components/ZwsnzWareHouseSe
 const { t } = useI18n();
 const { notify } = useGlobal();
 const { currentRoute } = useRouter();
+const { getConfig } = useMeta();
 const dataService = useDataService();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -247,6 +259,7 @@ const dataService = useDataService();
 const grdMainRef = ref(getComponentType('KwGrid'));
 
 const codes = await codeUtil.getMultiCodes(
+  'COD_PAGE_SIZE_OPTIONS',
   'PD_GD_CD', // 상품등급
   'PD_GRP_CD', // 상품그룹코드
   'ITM_KND_CD', // 품목종류코드
@@ -255,6 +268,12 @@ const codes = await codeUtil.getMultiCodes(
   'RTNGD_PROCS_TP_CD', // 반품처리유형
   'WARE_DV_CD', // 창고구분코드
 );
+
+const pageInfo = ref({
+  totalCount: 0,
+  pageIndex: 1,
+  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
+});
 
 const filterCodes = ref({
   filterPdGdCd: [],
@@ -274,10 +293,10 @@ const searchParams = ref({
   itmKndCd: '',
   stFnlVstFshDtFrom: dayjs().set('date', 1).format('YYYYMMDD'),
   edFnlVstFshDtTo: dayjs().format('YYYYMMDD'),
-  rtngdProcsTpCd: '',
+  stRtngdProcsTpCd: '',
   svBizDclsfCd: '', // 서비스업무세분류코드
   strConfYnCd: '', // 입고확인여부코드
-  ostrConfDt: '', // 확인일자
+  stOstrConfDt: '', // 확인일자
   strWareDvCd: '2',
   strWareNoM: '',
   strWareNoD: '',
@@ -311,7 +330,6 @@ function validateIsApplyRowExists() {
 }
 
 function onClickGridBulkChange(val, type) {
-  debugger;
   const inputType = type === 'rtngdProcsTpCd' ? '반품처리유형' : '확인일자';
 
   if (!validateInputValueExists(val, inputType)) return;
@@ -325,7 +343,7 @@ function onClickGridBulkChange(val, type) {
     console.log(chkValue);
     if (isEmpty(chkValue.ostrConfDt) || isEmpty(chkValue.rtngdProcsTpCd)) {
       view.setValue(dataRow, type, val);
-      view.checkRow(dataRow, true, true, false);
+      view.checkRow(dataRow, true);
     }
   }
 
@@ -351,25 +369,24 @@ watch(() => searchParams.value.itmKndCd, (val) => {
 
 let cachedParams;
 
-const totalCount = ref(0);
 const filters = codes.PD_GRP_CD.map((v) => ({ name: v.codeId, criteria: `value = '${v.codeId}'` }));
 function onUpdateProductGroupCode(val) {
   const view = grdMainRef.value.getView();
   view.activateAllColumnFilters('itemGr', false);
 
   if (val === '') {
-    totalCount.value = view.getItemCount();
+    pageInfo.value.totalCount = view.getItemCount();
     return;
   }
 
   view.activateColumnFilters('itemGr', [val], true);
-  totalCount.value = view.getItemCount();
+  pageInfo.value.totalCount = view.getItemCount();
 }
 
 async function fetchData() {
-  const res = await dataService.get('/sms/wells/service/returning-goods-store', { params: cachedParams });
-  const goods = res.data;
-  totalCount.value = goods.length;
+  const res = await dataService.get('/sms/wells/service/returning-goods-store/paging', { params: { ...cachedParams, ...pageInfo.value } });
+  const { list: goods, pageInfo: pagingResult } = res.data;
+  pageInfo.value = pagingResult;
 
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(goods);
@@ -399,7 +416,7 @@ async function onClickSave() {
   const view = grdMainRef.value.getView();
   const checkedRows = gridUtil.getCheckedRowValues(view);
 
-  const params = searchParams.value;
+  // const params = searchParams.value;
 
   if (gridUtil.getCheckedRowValues(view).length === 0) {
     notify(t('MSG_ALT_NO_APPY_OBJ_DT'));
@@ -411,20 +428,26 @@ async function onClickSave() {
     const checkedOstrConfDt = checkedRows[i].ostrConfDt;
     const checkedRtngdProcsTpCd = checkedRows[i].rtngdProcsTpCd;
 
-    if (isNotEmpty(checkedOstrConfDt) || isEmpty(checkedRtngdProcsTpCd)) {
+    if (isNotEmpty(checkedOstrConfDt) && isEmpty(checkedRtngdProcsTpCd)) {
       // 반품처리유형 항목에 값이 누락되었습니다.
       notify(t('MSG_ALT_RTNGD_PROCS_TP_ATC'));
       return;
     }
-    if (isEmpty(checkedOstrConfDt) || isNotEmpty(checkedRtngdProcsTpCd)) {
+    if (isEmpty(checkedOstrConfDt) && isNotEmpty(checkedRtngdProcsTpCd)) {
       // 확인일자 항목에 값이 누락되었습니다.
       notify(t('MSG_ALT_CONF_DT_ATC_IS_NULL'));
       return;
     }
 
+    if (isEmpty(checkedOstrConfDt) && isEmpty(checkedRtngdProcsTpCd)) {
+      // 확인일자 및 반품처리유형 항목에 값이 없습니다.
+      notify(t('MSG_ALT_CONF_DT_RTNGD_PROCS_TP_ZR'));
+      return;
+    }
+
     // TODO : 등급오류건 항목이 있는지 체크로직 추가 필요
   }
-  await dataService.post('/sms/wells/service/returning-goods-store', checkedRows.map((v) => ({ ...v, ...params })));
+  await dataService.post('/sms/wells/service/returning-goods-store', checkedRows);
 }
 
 // -------------------------------------------------------------------------------------------------
@@ -435,6 +458,7 @@ const initGrdMain = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'sapCd' }, // SAP코드
     { fieldName: 'itmPdCd' }, // 품목상품코드,
+    { fieldName: 'cstSvAsnNo' }, // 고객서비스배정내역,
     { fieldName: 'itmPdNm' }, // 품목상품명
     { fieldName: 'itemGrNm' }, // 품목그룹명
     { fieldName: 'itemGr' }, // 품목그룹
@@ -480,6 +504,8 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'col23' }, // 접수자소속
     { fieldName: 'prtnrNm' }, // 접수자명
     { fieldName: 'badDvNm' }, // 불량구분
+    { fieldName: 'rtngdRvpyProcsYn' },
+    { fieldName: 'wkWareNo' },
 
   ];
 
@@ -536,7 +562,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'cntrNoNew', header: t('MSG_TXT_NW_CST_NO'), width: '100', styleName: 'text-center' },
     { fieldName: 'barCd', header: t('MSG_TXT_NW_CST_NO'), width: '150', styleName: 'text-center' },
     { fieldName: 'asLctNm', header: t('MSG_TXT_LCT'), width: '100', styleName: 'text-center' },
-    { fieldName: 'asphnNm', header: t('MSG_TXT_LCT'), width: '100', styleName: 'text-center' },
+    { fieldName: 'asphnNm', header: t('MSG_TXT_PHN'), width: '100', styleName: 'text-center' },
     { fieldName: 'asCausNm', header: t('MSG_TXT_CAUS'), width: '100', styleName: 'text-center' },
     { fieldName: 'svProcsCn', header: t('MSG_TIT_APRV_DTLS'), width: '397', styleName: 'text-center' },
     { fieldName: 'ichrPrtnrNo', header: t('MSG_TXT_ICHR_EGER'), width: '100', styleName: 'text-center' },

@@ -223,7 +223,6 @@ async function onClickSave() {
 async function onClickBzSelect() {
   const view = grdMainRef.value.getView();
   const chkRows = gridUtil.getCheckedRowValues(view);
-  debugger;
   if (chkRows.length === 0) {
     notify(t('MSG_ALT_NOT_SEL_ITEM'));
     return;
@@ -360,6 +359,7 @@ const initGrdMain = defineGrid((data, view) => {
     if (column === 'button') {
       const { result, payload } = await modal({
         component: 'ZwcmzAddressInfoP',
+        componentProps: { ...dataRow },
       });
 
       if (result) {

@@ -159,14 +159,14 @@ const props = defineProps({
 });
 
 const userInfo = getters['meta/getUserInfo'];
-const { userId, userName } = userInfo;
+const { userName, employeeIDNumber } = userInfo;
 
 const regMainData = ref({
   bildcPblNo: '',
   bildcPblSn: '',
   cstFnm: '', // 고객명
   bildcWrteDt: now.format('YYYYMMDD'), // 작성일자
-  sellPrtnrNo: userId, // 이건 나중에 사번으로 바꿔야함
+  sellPrtnrNo: employeeIDNumber, // 이건 나중에 사번으로 바꿔야함
   sellPrtnrNm: userName,
   state: '',
   rowState: '',
@@ -194,7 +194,7 @@ async function onClickBefore() {
   frmMainRef.value.reset();
   await router.push(
     {
-      path: '/ns/wmwdb-billing-document-mgt',
+      path: '/withdrawal/wmwdb-billing-document-mgt',
       query: {
         searchCstFnm: props.searchCstFnm, // 조회조건
         searchBildcWrteDt: props.searchBildcWrteDt, // 조회조건
@@ -222,8 +222,8 @@ let cachedParams;
 
 // 저장 버튼
 async function onClickSave() {
-  if (await frmMainRef.value.alertIfIsNotModified()) { return; }
   if (!await frmMainRef.value.validate()) { return; }
+  if (await frmMainRef.value.alertIfIsNotModified()) { return; }
 
   const mainData = cloneDeep(regMainData.value);
   cachedParams = {

@@ -15,7 +15,7 @@
 <template>
   <kw-page>
     <kw-search
-      :cols="3"
+      :cols="4"
       :modified-targets="['grdBusinessToBusinessBoList']"
       @search="onClickSearch"
     >
@@ -35,6 +35,7 @@
         <!-- 조회기간 -->
         <kw-search-item
           :label="$t('MSG_TXT_LOOKUP_PERIOD')"
+          :colspan="2"
           required
         >
           <kw-select
@@ -55,7 +56,11 @@
         <kw-search-item
           :label="$t('MSG_TXT_ENTRP_NO')"
         >
-          <kw-input v-model="searchParams.bzrno" />
+          <kw-input
+            v-model="searchParams.bzrno"
+            mask="###-##-#####"
+            maxlength="10"
+          />
         </kw-search-item>
       </kw-search-row>
       <kw-search-row>
@@ -63,13 +68,19 @@
         <kw-search-item
           :label="$t('MSG_TXT_CORP_NAME')"
         >
-          <kw-input v-model="searchParams.leadCstNm" />
+          <kw-input
+            v-model="searchParams.leadCstNm"
+            maxlength="50"
+          />
         </kw-search-item>
         <!-- 프로젝트ID -->
         <kw-search-item
           :label="$t('MSG_TXT_PROJECT_ID')"
         >
-          <kw-input v-model="searchParams.prjNm" />
+          <kw-input
+            v-model="searchParams.prjNm"
+            maxlength="50"
+          />
         </kw-search-item>
       </kw-search-row>
     </kw-search>
@@ -77,11 +88,7 @@
       <kw-action-top>
         <template #left>
           <kw-paging-info
-            v-model:page-index="pageInfo.pageIndex"
-            v-model:page-size="pageInfo.pageSize"
             :total-count="pageInfo.totalCount"
-            :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
-            @change="fetchData"
           />
         </template>
         <!-- 삭제 -->
@@ -148,14 +155,13 @@ const now = dayjs();
 const dataService = useDataService();
 const { getConfig } = useMeta();
 const { currentRoute } = useRouter();
-const { notify, modal } = useGlobal();
+const { notify, modal, alert } = useGlobal();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 const grdBusinessToBusinessBoList = ref(getComponentType('KwGrid'));
 const codes = await codeUtil.getMultiCodes(
   'PRJ_FOM_CD',
-  'COD_PAGE_SIZE_OPTIONS',
   'OPPT_CNTR_FOM_CD',
   'RCVOD_PRBL_ACD',
 );
@@ -191,9 +197,6 @@ async function fetchData() {
 
   const dataSource = view.getDataSource();
   dataSource.setRows(res.data);
-  for (let i = 0; i < res.length; i += 1) {
-    view.setValue(i, 'leadCstRlpplNm', view.getValues(i).leadCstNm);
-  }
   pageInfo.value.totalCount = view.getItemCount();
 
   view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
@@ -212,13 +215,24 @@ async function onClickExcelDownload() {
     exportData: res.data,
   });
 }
-
+function validateEmail(strEmail) {
+  const re = /^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$/i;
+  return re.test(strEmail);
+}
 async function onClickSave() {
   const view = grdBusinessToBusinessBoList.value.getView();
   if (await gridUtil.alertIfIsNotModified(view)) { return; }
   if (!await gridUtil.validate(view)) { return; }
 
   const changedRows = gridUtil.getChangedRowValues(view);
+  for (let i = 0; i < changedRows.length; i += 1) {
+    if (!isEmpty(changedRows[i].emadrCn)) {
+      if (!validateEmail(changedRows[i].emadrCn)) {
+        alert(t('MSG_ALT_EMAIL'));
+        return;
+      }
+    }
+  }
   await dataService.post('/sms/wells/contract/business-to-business/business-opportunities', changedRows);
 
   notify(t('MSG_ALT_SAVE_DATA'));
@@ -236,6 +250,7 @@ async function onClickDelete() {
     await onClickSearch();
   }
 }
+
 async function onClickAdd() {
   const view = grdBusinessToBusinessBoList.value.getView();
   const row = view.getCurrent().dataRow < 0 ? '0' : view.getCurrent().dataRow;
@@ -287,11 +302,9 @@ const initBusinessToBusinessBoList = defineGrid((data, view) => {
     { fieldName: 'bzrno' }, // 사업자번호
     { fieldName: 'leadCstNm' }, // 업체명
     { fieldName: 'leadCstRlpplNm' }, // 업체담당자(KEY-MAN)
-    { fieldName: 'clsfConta1' }, // 업체연락처1
     { fieldName: 'locaraTno' }, // 업체연락처1-1
     { fieldName: 'exnoEncr' }, // 업체연락처1-2
     { fieldName: 'idvTno' }, // 업체연락처1-3
-    { fieldName: 'clsfConta2' }, // 업체연락처2
     { fieldName: 'cralLocaraTno' }, // 업체연락처2-1
     { fieldName: 'mexnoEncr' }, // 업체연락처2-2
     { fieldName: 'cralIdvTno' }, // 업체연락처2-3
@@ -313,13 +326,20 @@ const initBusinessToBusinessBoList = defineGrid((data, view) => {
     { fieldName: 'biddBzsNm' }, // 입찰업체명
     { fieldName: 'unuitmCn' }, // 특이사항
     { fieldName: 'fnlMdfcDt' }, // 최종수정일자
-
+    { fieldName: 'ogTpCd' }, // 조직코드
   ];
 
   const columns = [
     { fieldName: 'leadCstId', visible: false },
     { fieldName: 'leadCstRlpplId', visible: false },
-    { fieldName: 'prjNm', header: t('MSG_TXT_PROJECT_ID'), width: '142', styleName: 'text-center', rules: 'required' }, // 프로젝트ID
+    { fieldName: 'prjNm',
+      header: t('MSG_TXT_PROJECT_ID'),
+      width: '142',
+      styleName: 'text-center',
+      rules: 'required',
+      editor: {
+        maxLength: 50,
+      } }, // 프로젝트ID
     { fieldName: 'opptId', header: t('MSG_TXT_UNIQUE_NUM'), width: '142', styleName: 'text-center', editable: false }, // 고유번호
     { fieldName: 'fstRgstDt', header: `BO${t('MSG_TXT_RGST_DT')}`, width: '142', styleName: 'text-center', editable: false }, // BO등록일
     { fieldName: 'dgr3LevlOgCd', header: t('MSG_TXT_BRANCH'), width: '142', styleName: 'text-center', editable: false }, // 지점
@@ -328,7 +348,10 @@ const initBusinessToBusinessBoList = defineGrid((data, view) => {
       width: '142',
       styleName: 'text-center rg-button-icon--search',
       button: 'action',
-      rules: 'required' }, // 사번
+      rules: 'required',
+      editor: {
+        maxLength: 10,
+      } }, // 사번
     { fieldName: 'prtnrKnm', header: `${t('MSG_TXT_PRACTICE_PSIC')}(${t('MSG_TXT_KW')})`, width: '142', styleName: 'text-center', editable: false }, // 실무담당자(교원)
     { fieldName: 'prjFomCd',
       header: t('MSG_TXT_SAP_TYPE'),
@@ -347,40 +370,48 @@ const initBusinessToBusinessBoList = defineGrid((data, view) => {
         mask: {
           editMask: '999-99-99999',
         },
+
+      },
+      displayCallback(grid, index, value) {
+        // 사업자번호 3-2-5 형식으로 표시
+        if (!isEmpty(value) && value.length === 10) {
+          return `${value.substr(0, 3)}-${value.substr(3, 2)}-${value.substr(5, 5)}`;
+        }
       },
     }, // 사업자번호
-    { fieldName: 'leadCstNm', header: t('MSG_TXT_CORP_NAME'), width: '214' }, // 업체명
-    { fieldName: 'leadCstRlpplNm', header: t('MSG_TXT_COMP_RSP_USR'), width: '212', styleName: 'text-center' }, // 업체담당자
-    { fieldName: 'clsfConta1',
-      header: `${t('MSG_TXT_COMP')}${t('MSG_TXT_CONTACT')}1`,
-      width: '142',
+    { fieldName: 'leadCstNm',
+      header: t('MSG_TXT_CORP_NAME'),
+      width: '214',
+      editor: {
+        maxLength: 50,
+      } }, // 업체명
+    { fieldName: 'leadCstRlpplNm',
+      header: t('MSG_TXT_COMP_RSP_USR'),
+      width: '212',
       styleName: 'text-center',
       editor: {
-        type: 'telephone',
-      },
-      displayCallback(grid, index) {
-        const { locaraTno, exnoEncr, idvTno } = grid.getValues(index.itemIndex);
-        return !isEmpty(locaraTno) && !isEmpty(exnoEncr) && !isEmpty(idvTno) ? `${locaraTno}-${exnoEncr}-${idvTno}` : '';
-      } }, // 업체연락처1
-    { fieldName: 'locaraTno', visible: false },
-    { fieldName: 'exnoEncr', visible: false },
-    { fieldName: 'idvTno', visible: false },
-    { fieldName: 'clsfConta2',
-      header: `${t('MSG_TXT_COMP')}${t('MSG_TXT_CONTACT')}2`,
-      width: '142',
+        maxLength: 100,
+      } }, // 업체담당자
+    { fieldName: 'locaraTno', header: `${t('MSG_TXT_CRAL_LOCARA_TNO')}1`, width: '150', styleName: 'text-center', editor: { inputCharacters: ['0-9'], maxLength: 4 } },
+    { fieldName: 'exnoEncr', header: `${t('MSG_TXT_MEXNO')}1`, width: '150', styleName: 'text-center', editor: { inputCharacters: ['0-9'], maxLength: 4 } },
+    { fieldName: 'idvTno', header: `${t('MSG_TXT_CRAL_IDV_TNO')}1`, width: '150', styleName: 'text-center', editor: { inputCharacters: ['0-9'], maxLength: 4 } },
+    { fieldName: 'cralLocaraTno', header: `${t('MSG_TXT_CRAL_LOCARA_TNO')}2`, width: '150', styleName: 'text-center', editor: { inputCharacters: ['0-9'], maxLength: 4 } },
+    { fieldName: 'mexnoEncr', header: `${t('MSG_TXT_MEXNO')}2`, width: '150', styleName: 'text-center', editor: { inputCharacters: ['0-9'], maxLength: 4 } },
+    { fieldName: 'cralIdvTno', header: `${t('MSG_TXT_CRAL_IDV_TNO')}2`, width: '150', styleName: 'text-center', editor: { inputCharacters: ['0-9'], maxLength: 4 } },
+    { fieldName: 'emadrCn',
+      header: t('MSG_TXT_EMAIL'),
+      width: '193',
       styleName: 'text-center',
       editor: {
-        type: 'telephone',
-      },
-      displayCallback(grid, index) {
-        const { cralLocaraTno, mexnoEncr, cralIdvTno } = grid.getValues(index.itemIndex);
-        return !isEmpty(cralLocaraTno) && !isEmpty(mexnoEncr) && !isEmpty(cralIdvTno) ? `${cralLocaraTno}-${mexnoEncr}-${cralIdvTno}` : '';
-      } }, // 업체연락처2
-    { fieldName: 'cralLocaraTno', visible: false },
-    { fieldName: 'mexnoEncr', visible: false },
-    { fieldName: 'cralIdvTno', visible: false },
-    { fieldName: 'emadrCn', header: t('MSG_TXT_EMAIL'), width: '193', styleName: 'text-center' }, // 이메일
-    { fieldName: 'crdrVal', header: t('MSG_TXT_CRED_GRD'), width: '127', styleName: 'text-center' }, // 신용등급
+        maxLength: 1000,
+      } }, // 이메일
+    { fieldName: 'crdrVal',
+      header: t('MSG_TXT_CRED_GRD'),
+      width: '127',
+      styleName: 'text-center',
+      editor: {
+        maxLength: 10,
+      } }, // 신용등급
     { fieldName: 'etBiddDt',
       header: `${t('MSG_TXT_BID')}${t('MSG_TXT_DUEDT')}`,
       width: '127',
@@ -406,6 +437,7 @@ const initBusinessToBusinessBoList = defineGrid((data, view) => {
       styleName: 'text-center',
       editor: {
         type: 'number',
+        maxLength: 12,
       } }, // 예상수량
     { fieldName: 'etRcvodRat',
       header: t('MSG_TXT_ORDERS_RT'),
@@ -438,10 +470,21 @@ const initBusinessToBusinessBoList = defineGrid((data, view) => {
         type: 'date',
       } }, // 계약시작일
     { fieldName: 'maxStplPtrm', header: t('MSG_TXT_DUTY_STPL'), width: '142', styleName: 'text-center', editable: false }, // 의무약정
-    { fieldName: 'biddBzsNm', header: `${t('MSG_TXT_BID')}${t('MSG_TXT_COMP')}`, width: '142', styleName: 'text-center' }, // 입찰업체
-    { fieldName: 'unuitmCn', header: t('MSG_TXT_UNUITM'), width: '424' }, // 특이사항
+    { fieldName: 'biddBzsNm',
+      header: `${t('MSG_TXT_BID')}${t('MSG_TXT_COMP')}`,
+      width: '142',
+      styleName: 'text-center',
+      editor: {
+        maxLength: 100,
+      } }, // 입찰업체
+    { fieldName: 'unuitmCn',
+      header: t('MSG_TXT_UNUITM'),
+      width: '424',
+      editor: {
+        maxLength: 2000,
+      } }, // 특이사항
     { fieldName: 'fnlMdfcDt', header: t('MSG_TXT_FNL_MDFC_DT'), width: '142', styleName: 'text-center', editable: false, datetimeFormat: 'date' }, // 최종수정일자
-
+    { fieldName: 'ogTpCd', visible: false },
   ];
 
   data.setFields(fields);
@@ -456,7 +499,7 @@ const initBusinessToBusinessBoList = defineGrid((data, view) => {
     {
       header: t('Key-Man'), // colspan title
       direction: 'horizontal', // merge type
-      items: ['leadCstRlpplNm', 'clsfConta1', 'clsfConta2', 'emadrCn'],
+      items: ['leadCstRlpplNm', 'locaraTno', 'exnoEncr', 'idvTno', 'cralLocaraTno', 'mexnoEncr', 'cralIdvTno', 'emadrCn'],
     },
     'crdrVal', 'etBiddDt', 'opptCntrFomCd', 'totQty',
     {
@@ -477,6 +520,8 @@ const initBusinessToBusinessBoList = defineGrid((data, view) => {
     if (!isEmpty(payload)) {
       data.setValue(updateRow, 'opptIchrPrtnrNo', payload.prtnrNo);
       data.setValue(updateRow, 'prtnrKnm', payload.prtnrKnm);
+      data.setValue(updateRow, 'dgr3LevlOgCd', payload.dgr3LevlOgCd);
+      data.setValue(updateRow, 'ogTpCd', payload.ogTpCd);
     }
   };
   view.onCellEdited = async function cellEdited(grid, itemIndex, dataRow, fieldIndex) {
@@ -492,6 +537,8 @@ const initBusinessToBusinessBoList = defineGrid((data, view) => {
       if (!isEmpty(payload)) {
         data.setValue(updateRow, 'opptIchrPrtnrNo', payload.prtnrNo);
         data.setValue(updateRow, 'prtnrKnm', payload.prtnrKnm);
+        data.setValue(updateRow, 'dgr3LevlOgCd', payload.dgr3LevlOgCd);
+        data.setValue(updateRow, 'ogTpCd', payload.ogTpCd);
       }
     }
     if (columnName === 'bzrno' || columnName === 'leadCstNm') {
@@ -502,22 +549,6 @@ const initBusinessToBusinessBoList = defineGrid((data, view) => {
         onKeyManFind(itemIndex);
       }
     }
-    if (columnName === 'clsfConta1') {
-      const telNo = grid.getValue(updateRow, fieldIndex);
-      const telNos = telNo.split('-');
-      grid.commit();
-      data.setValue(updateRow, 'locaraTno', telNos[0]);
-      data.setValue(updateRow, 'exnoEncr', telNos[1]);
-      data.setValue(updateRow, 'idvTno', telNos[2]);
-    }
-    if (columnName === 'clsfConta2') {
-      const telNo = grid.getValue(updateRow, fieldIndex);
-      const telNos = telNo.split('-');
-      grid.commit();
-      data.setValue(updateRow, 'cralLocaraTno', telNos[0]);
-      data.setValue(updateRow, 'mexnoEncr', telNos[1]);
-      data.setValue(updateRow, 'cralIdvTno', telNos[2]);
-    }
   };
   view.setFixedOptions({
     colCount: 6,
@@ -527,16 +558,13 @@ const initBusinessToBusinessBoList = defineGrid((data, view) => {
     if (isEmpty(rowValue.opptId)) {
       notify(t('MSG_ALT_NOT_DTL_INFO'));
     } else {
-      const { result } = await modal({
-      // TODO: 요청자재보유현황 팝업페이지 연결확인
+      await modal({
         component: 'WwctfBusinessToBusinessBoDtlP',
         componentProps: {
           opptId: rowValue.opptId,
         },
       });
-      if (result) {
-        await fetchData();
-      }
+      await fetchData();
     }
   };
 });

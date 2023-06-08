@@ -87,7 +87,7 @@
         >
           <kw-input
             v-model="searchParams.prtnrNo"
-            type="number"
+            regex="num"
             icon="search"
             :label="t('MSG_TXT_PRTNR_NUM')"
             rules="max:10|numeric"
@@ -129,6 +129,7 @@
       <kw-grid
         ref="grdMainRef"
         name="grdMain"
+        :visible-rows="10"
         :page-size="pageInfo.pageSize-1"
         :total-count="pageInfo.totalCount"
         @init="initGrid"
@@ -825,7 +826,7 @@ const wpAndBrchColumnLayout = [
 const dlqColumnLayout = [
   'baseYm', 'perfYm', 'prtnrNo', 'prtnrKnm', 'ogTpNm', 'perfDvNm',
   {
-    header: t('MMSG_TXT_REDF_PERF'),
+    header: t('MSG_TXT_REDF_PERF'),
     direction: 'horizontal',
     items: ['col182', 'col183'],
   },

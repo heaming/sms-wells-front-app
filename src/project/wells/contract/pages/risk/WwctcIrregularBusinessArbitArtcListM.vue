@@ -70,6 +70,7 @@
         >
           <kw-input
             v-model="searchParams.rgrp"
+            maxlength="10"
           />
         </kw-search-item>
         <kw-search-item
@@ -77,6 +78,7 @@
         >
           <kw-input
             v-model="searchParams.brch"
+            maxlength="10"
           />
         </kw-search-item>
         <kw-search-item
@@ -85,6 +87,7 @@
           <kw-input
             v-model="searchParams.dangOjPrtnrNo"
             icon="search"
+            maxlength="10"
             @click-icon="onClickSearchPartnerId"
           />
         </kw-search-item>
@@ -94,11 +97,7 @@
       <kw-action-top>
         <template #left>
           <kw-paging-info
-            v-model:page-index="pageInfo.pageIndex"
-            v-model:page-size="pageInfo.pageSize"
             :total-count="pageInfo.totalCount"
-            :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
-            @change="fetchData"
           />
         </template>
         <kw-btn
@@ -130,16 +129,14 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { gridUtil, defineGrid, getComponentType, useDataService, useMeta, useGlobal, codeUtil } from 'kw-lib';
+import { gridUtil, defineGrid, getComponentType, useDataService, useGlobal } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 
 const { notify, modal } = useGlobal();
-const { getConfig, getUserInfo } = useMeta();
 const dataService = useDataService();
 const { t } = useI18n();
 const { currentRoute } = useRouter();
-const userInfo = getUserInfo();
 const now = dayjs();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -157,9 +154,6 @@ const searchParams = ref({
   dangOjPrtnrNo: '',
 });
 
-const codes = await codeUtil.getMultiCodes(
-  'COD_PAGE_SIZE_OPTIONS',
-);
 const prdDivOption = ref([{ codeId: 1, codeName: t('MSG_TXT_FST_RGST_DT') },
   { codeId: 2, codeName: t('MSG_TXT_YEAR_OCCURNCE') }]);
 
@@ -186,7 +180,7 @@ const orgOptions = ref([
 const pageInfo = ref({
   totalCount: 0,
   pageIndex: 1,
-  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
+  pageSize: 10,
 });
 
 let cachedParams;
@@ -206,7 +200,6 @@ async function onClickSearchPartnerId() {
     component: 'ZwogzPartnerListP',
     componentProps: {
       prtnrNo: searchParams.value.dangOjPrtnrNo,
-      ogTpCd: userInfo.ogTpCd,
     },
   });
   if (result) {

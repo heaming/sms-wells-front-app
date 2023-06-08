@@ -42,9 +42,11 @@
           />
           <kw-input
             v-model="searchParams.deptCd"
+            maxlength="100"
           />
           <kw-input
             v-model="searchParams.user"
+            maxlength="100"
           />
         </kw-search-item>
       </kw-search-row>
@@ -55,6 +57,7 @@
             clearable
             icon="search"
             dense
+            maxlength="100"
             @click-icon="onClickSelectPdNm()"
           />
         </kw-search-item>
@@ -77,11 +80,7 @@
       <kw-action-top>
         <template #left>
           <kw-paging-info
-            v-model:page-index="pageInfo.pageIndex"
-            v-model:page-size="pageInfo.pageSize"
             :total-count="pageInfo.totalCount"
-            :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
-            @change="fetchData"
           />
         </template>
         <kw-btn
@@ -134,7 +133,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { getComponentType, gridUtil, useGlobal, codeUtil, useDataService, useMeta } from 'kw-lib';
+import { getComponentType, gridUtil, useGlobal, codeUtil, useDataService } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 import pdConst from '~sms-common/product/constants/pdConst';
@@ -142,7 +141,6 @@ import pdConst from '~sms-common/product/constants/pdConst';
 const gridMainRef = ref(getComponentType('KwGrid'));
 const { notify, modal } = useGlobal();
 const { currentRoute } = useRouter();
-const { getConfig } = useMeta();
 const { t } = useI18n();
 
 const now = dayjs();
@@ -153,7 +151,6 @@ const dataService = useDataService();
 const codes = await codeUtil.getMultiCodes(
   'PRTNR_CHNL_DV_ACD',
   'COPN_DV_CD',
-  'COD_PAGE_SIZE_OPTIONS',
 );
 
 const searchParams = ref({
@@ -171,7 +168,7 @@ const searchParams = ref({
 const pageInfo = ref({
   totalCount: 0,
   pageIndex: 1,
-  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
+  pageSize: 10,
 });
 
 let cachedParams;
@@ -333,8 +330,8 @@ function initGrid(data, view) {
       placeHolder: '전체',
       editor: { type: 'list' },
     },
-    { fieldName: 'deptCd', header: t('MSG_TXT_OG'), width: '126', styleName: 'text-center', placeHolder: 'ALL' },
-    { fieldName: 'sellBaseUsr', header: t('MSG_TXT_USR'), width: '126', styleName: 'text-center', placeHolder: 'ALL' },
+    { fieldName: 'deptCd', header: t('MSG_TXT_OG'), width: '126', styleName: 'text-center', placeHolder: 'ALL', editor: { maxLength: 100 } },
+    { fieldName: 'sellBaseUsr', header: t('MSG_TXT_USR'), width: '126', styleName: 'text-center', placeHolder: 'ALL', editor: { maxLength: 100 } },
     { fieldName: 'copnDvCd',
       header: t('MSG_TXT_INDI_CORP'),
       width: '142',
@@ -346,11 +343,12 @@ function initGrid(data, view) {
       header: t('MSG_TXT_PRDT_CODE'),
       width: '180',
       styleName: 'text-center rg-button-icon--search',
-      button: 'action' },
+      button: 'action',
+      editor: { maxLength: 10 } },
     { fieldName: 'pdMclsfNm', header: t('MSG_TXT_PRDT_CATE'), width: '142', editable: false },
     { fieldName: 'pdLclsfNm', header: t('MSG_TXT_PRDT_TYPE'), width: '142', editable: false },
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '220', editable: false },
-    { fieldName: 'sellBasePrd', header: t('MSG_TXT_CYCL'), width: '131', placeHolder: 'ALL' },
+    { fieldName: 'sellBasePrd', header: t('MSG_TXT_CYCL'), width: '131', placeHolder: 'ALL', editor: { maxLength: 100 } },
     { fieldName: 'sellBaseSellTp',
       header: t('MSG_TXT_SEL_TYPE'),
       width: '142',
@@ -380,7 +378,7 @@ function initGrid(data, view) {
         type: 'btdate',
       },
     },
-    { fieldName: 'sellBaseApyCn', header: t('MSG_TXT_NOTE'), width: '220' },
+    { fieldName: 'sellBaseApyCn', header: t('MSG_TXT_NOTE'), width: '220', editor: { maxLength: 2000 } },
     { fieldName: 'fstRgstDtm', header: t('MSG_TXT_RGST_DT'), datetimeFormat: 'date', width: '196', styleName: 'text-center', editable: false },
     { fieldName: 'fstRgstUsrId', header: t('MSG_TXT_FST_RGST_USR'), width: '131', editable: false },
     { fieldName: 'fnlMdfcDtm', header: t('MSG_TXT_MDFC_DT'), datetimeFormat: 'date', width: '196', styleName: 'text-center', editable: false },

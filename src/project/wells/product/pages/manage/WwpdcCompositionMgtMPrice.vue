@@ -14,68 +14,79 @@
 ****************************************************************************************************
 --->
 <template>
-  <div class="normal-area">
-    <!-- 판매채널 -->
-    <h3>{{ $t('MSG_TXT_SEL_CHNL') }}</h3>
-    <kw-form
-      ref="frmChannelRef"
-      :cols="2"
-      dense
-      ignore-on-modified
-    >
-      <kw-form-row>
-        <!-- 판매채널 -->
-        <kw-form-item
+  <!-- 판매채널 -->
+  <h3>{{ $t('MSG_TXT_SEL_CHNL') }}</h3>
+  <kw-form
+    ref="frmChannelRef"
+    :cols="2"
+    dense
+    ignore-on-modified
+  >
+    <kw-form-row>
+      <!-- 판매채널 -->
+      <kw-form-item
+        :label="$t('MSG_TXT_SEL_CHNL')"
+        required
+      >
+        <kw-select
+          ref="usedChannelRef"
+          v-model="addChannelId"
+          first-option="select"
+          :options="usedChannelCds"
+          rules="required"
           :label="$t('MSG_TXT_SEL_CHNL')"
-          required
-        >
-          <kw-select
-            ref="usedChannelRef"
-            v-model="addChannelId"
-            first-option="select"
-            :options="usedChannelCds"
-            rules="required"
-            :label="$t('MSG_TXT_SEL_CHNL')"
-          />
-        </kw-form-item>
-        <!-- 판매채널 -->
-        <kw-form-item
+        />
+      </kw-form-item>
+      <!-- 판매채널 -->
+      <kw-form-item
+        :label="$t('MSG_TXT_ACEPT_PERIOD')"
+        required
+      >
+        <kw-date-range-picker
+          v-model:from="vlStrtDtm"
+          v-model:to="vlEndDtm"
           :label="$t('MSG_TXT_ACEPT_PERIOD')"
-          required
-        >
-          <kw-date-range-picker
-            v-model:from="vlStrtDtm"
-            v-model:to="vlEndDtm"
-            :label="$t('MSG_TXT_ACEPT_PERIOD')"
-          />
-        </kw-form-item>
-      </kw-form-row>
-    </kw-form>
-    <kw-separator />
-    <kw-action-bottom class="mb30">
-      <kw-btn
-        :label="$t('MSG_BTN_ADD')"
-        dense
-        @click="onClickAdd"
-      />
-    </kw-action-bottom>
-    <kw-action-top>
-      <!-- 삭제 -->
-      <kw-btn
-        grid-action
-        dense
-        :label="$t('MSG_BTN_DEL')"
-        :disable="gridRowCount === 0"
-        @click="onClickRemove"
-      />
-    </kw-action-top>
-    <!-- 가격 -->
-    <kw-grid
-      ref="grdMainRef"
-      name="grdMgtPrcMain"
-      @init="initGrid"
+        />
+      </kw-form-item>
+    </kw-form-row>
+  </kw-form>
+  <div class="row justify-end mt20">
+    <kw-btn
+      secondary
+      dense
+      :label="$t('MSG_BTN_ADD')"
+      @click="onClickAdd"
     />
   </div>
+  <kw-action-top class="mt30">
+    <!-- 삭제 -->
+    <kw-btn
+      grid-action
+      dense
+      :label="$t('MSG_BTN_DEL')"
+      :disable="gridRowCount === 0"
+      @click="onClickRemove"
+    />
+    <kw-separator
+      vertical
+      inset
+      spaced
+    />
+    <!-- 복사 -->
+    <kw-btn
+      :label="$t('MSG_BTN_CNTN_COPY')"
+      grid-action
+      dense
+      :disable="gridRowCount === 0"
+      @click="onClickRowCopy"
+    />
+  </kw-action-top>
+  <!-- 가격 -->
+  <kw-grid
+    ref="grdMainRef"
+    name="grdMgtPrcMain"
+    @init="initGrid"
+  />
 </template>
 <script setup>
 // -------------------------------------------------------------------------------------------------
@@ -115,7 +126,6 @@ const prcd = pdConst.TBL_PD_PRC_DTL;
 const prcfd = pdConst.TBL_PD_PRC_FNL_DTL;
 const currentPdCd = ref();
 const currentInitData = ref(null);
-const priceFieldData = ref({});
 const metaInfos = ref();
 const removeObjects = ref([]);
 const currentCodes = ref({});
@@ -193,11 +203,6 @@ async function validateProps() {
 
 async function resetInitData() {
   Object.assign(removeObjects.value, []);
-  priceFieldData.value[prcd] = {
-    pdExtsPrpGrpCd: 'PRC',
-    // 통화명
-    crncyDvCd: currentInitData.value[pdConst.TBL_PD_BAS]?.crncyDvCd,
-  };
   await setChannels();
   await initGridRows();
 }
@@ -272,6 +277,30 @@ async function onClickAdd() {
   notify(t('MSG_ALT_NO_LINK_PDS'));
 }
 
+async function onClickRowCopy() {
+  const view = grdMainRef.value.getView();
+  const checkedRows = cloneDeep(gridUtil.getCheckedRowValues(view));
+  if (checkedRows.length < 1) {
+    notify(t('MSG_ALT_NOT_SEL_ITEM'));
+    return;
+  }
+  if (checkedRows.length > 1) {
+    notify(t('MSG_ALT_SELT_ONE_ITEM'));
+    return;
+  }
+  checkedRows.forEach((rowItem) => {
+    rowItem[pdConst.PRC_STD_ROW_ID] = stringUtil.getUid('STD');
+    rowItem[pdConst.PRC_FNL_ROW_ID] = stringUtil.getUid('FNL');
+    rowItem[pdConst.PRC_DETAIL_ID] = '';
+    rowItem[pdConst.PRC_DETAIL_FNL_ID] = '';
+    rowItem.vlStrtDtm = '';
+    rowItem.vlEndDtm = '';
+  });
+  await gridUtil.insertRowAndFocus(view, view.getCheckedRows()[0] + 1, checkedRows[0]);
+  gridRowCount.value = getGridRowCount(view);
+  // await data.insertRows(view.getSelectedRows().findLast() + 1, checkedRows);
+}
+
 async function onClickStandardSchPopup(pdCd, rowId) {
   searchParams.value.searchValue = pdCd;
   const rtn = await modal({
@@ -332,7 +361,7 @@ async function initGridRows() {
     rows?.forEach((row) => {
       const stdRow = stdRows?.find((item) => (row[pdConst.PRC_STD_ROW_ID]
                                                 && item[pdConst.PRC_STD_ROW_ID] === row[pdConst.PRC_STD_ROW_ID])
-                                            || item.pdPrcDtlId === row.pdPrcDtlId);
+                                              || (row.pdPrcDtlId && item.pdPrcDtlId === row.pdPrcDtlId));
       row = pdMergeBy(row, stdRow);
       row[pdConst.PRC_STD_ROW_ID] = row[pdConst.PRC_STD_ROW_ID] ?? row.pdPrcDtlId;
       row[pdConst.PRC_FNL_ROW_ID] = row[pdConst.PRC_FNL_ROW_ID] ?? row.pdPrcFnlDtlId;
@@ -370,9 +399,6 @@ async function initProps() {
   currentPdCd.value = pdCd;
   currentInitData.value = cloneDeep(initData);
   currentCodes.value = cloneDeep(pdMergeBy(currentCodes.value, codes));
-  priceFieldData.value[pdConst.TBL_PD_PRC_DTL] = [];
-  priceFieldData.value[pdConst.TBL_PD_PRC_DTL]
-    .push({ pdExtsPrpGrpCd: pdConst.PD_PRP_GRP_CD_CMN, pdCd: currentPdCd.value });
   // console.log(`WwpdcCompositionMgtMPriceStd - initProps - pdCd : ${currentPdCd.value}
   // , initData : `, currentInitData.value);
   await setChannels();
@@ -387,6 +413,7 @@ watch(() => props.initData, (val) => { currentInitData.value = cloneDeep(val); r
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
+// const criteriaRule = 'values["sellChnlCd"] + value';
 async function initGrid(data, view) {
   const pdColumns = [
     // 상태
@@ -400,7 +427,7 @@ async function initGrid(data, view) {
     // 판매유형
     { fieldName: 'baseSellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '87', styleName: 'text-center', options: props.codes?.SELL_TP_CD, editable: false },
     // 판매채널
-    { fieldName: 'sellChnlCd', header: t('MSG_TXT_SEL_CHNL'), width: '127', styleName: 'text-center', editable: false, options: currentCodes.value.SELL_CHNL_DTL_CD },
+    { fieldName: 'sellChnlCd', header: t('MSG_TXT_SEL_CHNL'), width: '127', styleName: 'rg-button-link text-center', editable: false, options: currentCodes.value.SELL_CHNL_DTL_CD, renderer: { type: 'button' } },
     // 적용시작일자
     { fieldName: 'vlStrtDtm', header: t('MSG_TXT_APY_STRTDT'), width: '127', styleName: 'text-center', editor: { type: 'date' }, rules: 'required' },
     // 적용종료일자
@@ -455,11 +482,13 @@ async function initGrid(data, view) {
     }
   };
 
-  view.onItemChecked = async (grid, itemIndex) => {
-    const sellChnlCd = grid.getValue(itemIndex, 'sellChnlCd');
-    grid.checkRows(gridUtil.getAllRowValues(view)
-      ?.filter((item) => item.sellChnlCd === sellChnlCd)
-      ?.map(({ dataRow }) => (dataRow)), grid.isCheckedRow(itemIndex), false, false);
+  view.onCellItemClicked = async (grid, { column, itemIndex }) => {
+    if (column === 'sellChnlCd') {
+      const sellChnlCd = grid.getValue(itemIndex, 'sellChnlCd');
+      grid.checkRows(gridUtil.getAllRowValues(view)
+        ?.filter((item) => item.sellChnlCd === sellChnlCd)
+        ?.map(({ dataRow }) => (dataRow)), !grid.isCheckedRow(itemIndex), false, false);
+    }
   };
 
   await resetInitData();

@@ -17,10 +17,13 @@
     <kw-search-row>
       <kw-search-item
         :label="$t('MSG_TXT_APPL_PRD')"
+        required
       >
         <kw-date-range-picker
           v-model:from="searchParams.strtdt"
           v-model:to="searchParams.enddt"
+          :label="$t('MSG_TXT_APPL_PRD')"
+          rules="date_range_required"
         />
       </kw-search-item>
       <kw-search-item
@@ -63,7 +66,13 @@
   <div class="result-area">
     <kw-action-top>
       <template #left>
-        <kw-paging-info :total-count="pageInfo.totalCount" />
+        <kw-paging-info
+          v-model:page-index="pageInfo.pageIndex"
+          v-model:page-size="pageInfo.pageSize"
+          :total-count="pageInfo.totalCount"
+          :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
+          @change="fetchPage"
+        />
       </template>
       <kw-btn
         icon="upload_on"
@@ -78,13 +87,27 @@
       name="grdNotInstalled"
       @init="initGrid"
     />
+    <kw-pagination
+      v-model:page-index="pageInfo.pageIndex"
+      v-model:page-size="pageInfo.pageSize"
+      :total-count="pageInfo.totalCount"
+      @change="fetchPage"
+    />
   </div>
 </template>
 <script setup>
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { defineGrid, getComponentType, notify, modal, useDataService, useMeta } from 'kw-lib';
+import {
+  defineGrid,
+  getComponentType,
+  notify,
+  modal,
+  useDataService,
+  useMeta,
+  codeUtil,
+} from 'kw-lib';
 import dayjs from 'dayjs';
 import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
 import useGridDataModel from '~sms-common/contract/composable/useGridDataModel';
@@ -92,6 +115,9 @@ import useGridDataModel from '~sms-common/contract/composable/useGridDataModel';
 const dataService = useDataService();
 const { t } = useI18n();
 const { getConfig } = useMeta();
+const codes = await codeUtil.getMultiCodes(
+  'COD_PAGE_SIZE_OPTIONS',
+);
 
 const grdRef = ref(getComponentType('KwGrid'));
 // const grdView = computed(() => grdRef.value?.getView());
@@ -127,6 +153,7 @@ const fetchPage = async (pageIndex = pageInfo.value.pageIndex, pageSize = pageIn
 
 async function onClickSearch() {
   cachedParams = { ...toRaw(searchParams) };
+  pageInfo.value.pageIndex = 1;
   await fetchPage(1);
 }
 

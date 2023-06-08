@@ -2,7 +2,7 @@
  ****************************************************************************************************
  * 프로그램 개요
  ****************************************************************************************************
- 1. 모듈 : SNJ
+ 1. 모듈 : SNC
  2. 프로그램 ID : WwsncBsPeriodicalCustomerTransferMgtM - 정기BS 고객이관 관리
  3. 작성자 : YeongJoong Kim
  4. 작성일 : 2023.05.17
@@ -16,6 +16,7 @@
   <kw-page>
     <kw-search
       :cols="4"
+      :modified-targets="['grdMain']"
       @search="onClickSearch"
     >
       <kw-search-row>
@@ -357,14 +358,40 @@ async function onClickTf() {
   data.endUpdate();
 }
 
-function onClickTfHistory() {
-  console.log('이관이력 조회 팝업(W-SV-U-0019P01)');
-  alert('이관이력 조회 팝업(W-SV-U-0019P01) WwsncTransferHistoryListP');
+async function onClickTfHistory() {
+  const view = grdMainRef.value.getView();
+  const checkedRows = gridUtil.getCheckedRowValues(view);
+  if (checkedRows.length === 0) {
+    notify(t('MSG_ALT_NOT_SEL_ITEM'));
+    return;
+  }
+
+  const { cstSvAsnNo } = checkedRows[0];
+
+  await modal({
+    component: 'WwsncTransferHistoryListP',
+    componentProps: {
+      cstSvAsnNo,
+    },
+  });
 }
 
-function onClickClientContactHistory() {
-  console.log('고객 컨택이력 팝업(W-SV-U-0163P01)');
-  alert('고객 컨택이력 팝업(W-SV-U-0163P01) WwsncContactHistoryListP');
+async function onClickClientContactHistory() {
+  const view = grdMainRef.value.getView();
+  const checkedRows = gridUtil.getCheckedRowValues(view);
+  if (checkedRows.length === 0) {
+    notify(t('MSG_ALT_NOT_SEL_ITEM'));
+    return;
+  }
+
+  const { cstSvAsnNo } = checkedRows[0];
+
+  await modal({
+    component: 'WwsncContactHistoryListP',
+    componentProps: {
+      cstSvAsnNo,
+    },
+  });
 }
 
 async function onClickTfConfirm() {
@@ -442,6 +469,8 @@ function initGrdMain(data, view) {
     { fieldName: 'tfFnOgNm' },
     { fieldName: 'tfFnPrtnrKnm' },
 
+    { fieldName: 'cstSvAsnNo' },
+
     // 조작된 데이터
     { fieldName: 'tno' }, // 전화번호
     { fieldName: 'mobileTno' }, // 휴대전화번호
@@ -513,6 +542,7 @@ function initGrdMain(data, view) {
   data.setFields(fields);
   view.setColumns(columns);
   view.checkBar.visible = true; // create checkbox column
+  view.checkBar.exclusive = true;
   view.rowIndicator.visible = true; // create number indicator column
 
   view.setColumnLayout([

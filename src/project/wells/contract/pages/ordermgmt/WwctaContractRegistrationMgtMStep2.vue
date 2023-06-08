@@ -161,7 +161,7 @@
                   <kw-item-label
                     class="scoped-item__product-name"
                   >
-                    {{ item.pdNm }}
+                    {{ item.pdNm }} {{ item.pdCd }}
                   </kw-item-label>
                   <div class="scoped-item__chips">
                     <kw-chip
@@ -189,12 +189,14 @@
                     label="기기변경"
                     class="mr8"
                     dense
+                    @click="onClickDeviceChahge(item)"
                   />
                   <kw-btn
                     v-if="isItem.rntl(item)"
                     label="1+1"
                     class="mr10"
                     dense
+                    @click="onClickOnePlusOne(item)"
                   />
                   <kw-btn
                     borderless
@@ -216,7 +218,7 @@
                       금액
                     </p>
                     <span class="kw-fc--black1 text-bold ml8">
-                      {{ stringUtil.getNumberWithComma(item.fnlAmt || 0) }}
+                      {{ stringUtil.getNumberWithComma(item.fnlAmt || 0) }} 원
                     </span>
                   </div>
                   <template
@@ -304,6 +306,7 @@
                         v-model="item.sellDscTpCd"
                         :options="item.sellDscTpCds"
                         placeholder="렌탈할인유형"
+                        first-option="select"
                         @change="getPdAmts(item)"
                       />
                       <kw-select
@@ -311,6 +314,7 @@
                         v-model="item.sellDscDvCd"
                         :options="item.sellDscDvCds"
                         placeholder="렌탈할인구분"
+                        first-option="select"
                         @change="getPdAmts(item)"
                       />
                       <kw-select
@@ -369,27 +373,21 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, stringUtil, useDataService, useGlobal } from 'kw-lib';
+import { stringUtil, useDataService, useGlobal } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 
 const { t } = useI18n();
-const { getters } = useStore();
-const { employeeIDNumber: prtnrNo, ogTpCd, careerLevelCode } = getters['meta/getUserInfo'];
 const dataService = useDataService();
-const { notify } = useGlobal();
+const { notify, modal } = useGlobal();
 
 const props = defineProps({
   contract: { type: String, required: true },
+  onChildMounted: { type: Function, required: true },
 });
-const { step2 } = toRefs(props.contract);
+const { cntrNo: pCntrNo, step2 } = toRefs(props.contract);
 const ogStep2 = ref({});
 const pdFilter = ref('');
 const classfiedPds = ref([]);
-const codes = await codeUtil.getMultiCodes(
-  'CNTR_TP_CD',
-  'CNTR_CST_REL_TP_CD',
-  'SEX_DV_CD',
-);
 const isItem = {
   spay: (i) => i.sellTpCd === '1',
   rntl: (i) => i.sellTpCd === '2',
@@ -398,14 +396,12 @@ const isItem = {
   welsf: (i) => i.lclsfVal === '05001003',
   hcf: (i) => i.lclsfVal === '01003001',
 };
-console.log(prtnrNo + ogTpCd + careerLevelCode + t + codes);
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 async function getProducts(cntrNo) {
   const pds = await dataService.get('sms/wells/contract/contracts/reg-products', { params: { cntrNo, pdFilter: pdFilter.value } });
   classfiedPds.value = pds.data.pdClsf;
-  console.log(classfiedPds.value);
 }
 
 async function getPdAmts(pd) {
@@ -473,6 +469,44 @@ function onClickDelete(pd) {
   resetCntrSn();
 }
 
+async function onClickDeviceChahge(pd) {
+  console.log(props.contract);
+
+  await modal({
+    component: 'WwctaMachineChangeCustomerDtlP',
+    componentProps: {
+      baseCntrNo: pd.cntrNo,
+      baseCntrSn: pd.cntrSn,
+      cstNo: step2.value.bas?.cntrCstNo,
+      indvCrpDv: step2.value.bas?.copnDvCd,
+      pdCd: pd.pdCd,
+      dscDv: pd.sellDscDvCd,
+      dscTp: pd.sellDscTpCd,
+      sellTpCd: pd.sellTpCd,
+      alncmpCd: pd.alncmpCntrDrmVal,
+      rgstMdfcDv: '1', // FIXME: 등록, 수정 구분 필요
+    },
+  });
+
+  // baseCntrNo: { type: String, default: '' }, // 현재 진행중인 계약번호
+  // baseCntrSn: { type: String, default: '' }, // 현재 진행중인 계약일련번호
+  // cstNo: { type: String, required: true, default: '' }, // 계약자 고객번호
+  // indvCrpDv: { type: String, required: true, default: '' }, // 법인격구분코드(1.개인, 2.법인)
+  // pdCd: { type: String, required: true, default: '' }, // 기준상품코드
+  // dscDv: { type: String, default: '' }, // 할인적용유형코드
+  // dscTp: { type: String, default: '' }, // 할인적용상세코드
+  // sellTpCd: { type: String, required: true, default: '' }, // 판매유형코드
+  // alncmpCd: { type: String, default: '' }, // 제휴사코드
+  // rgstMdfcDv: { type: String, required: true, default: '' }, // 등록/수정여부(1.등록, 2.수정)
+}
+
+async function onClickOnePlusOne(pd) {
+  await modal({
+    component: 'WwctaOnePlusOneContractListP',
+    componentProps: { cntrNo: pd.cntrNo },
+  });
+}
+
 async function getCntrInfo(cntrNo) {
   const cntr = await dataService.get('sms/wells/contract/contracts/cntr-info', { params: { cntrNo, step: 2 } });
   step2.value = cntr.data.step2;
@@ -481,10 +515,11 @@ async function getCntrInfo(cntrNo) {
       'frisuBfsvcPtrmN', // 일시불
       'stplPtrm', 'cntrPtrm', 'cntrAmt', 'sellDscTpCd', // 렌탈
     ].forEach((col) => {
-      // codeId는 모두 String이므로 불러온 값이 자동으로 세팅되도록 number값을 string으로 변환
+      // codeId는 모두 String이므로 불러온 값이 자동으로 세팅되도록 number값을 string으로 변환(또는 v-model을 String casting)
       if (Number.isInteger(dtl[col])) dtl[col] = String(dtl[col]);
     });
   });
+  pCntrNo.value = step2.value.bas.cntrNo;
   console.log(step2.value);
   ogStep2.value = cloneDeep(step2.value);
 }
@@ -495,7 +530,7 @@ async function isChangedStep() {
 
 async function isValidStep() {
   if (isEmpty(step2.value.dtls)) {
-    console.log('상품을 선택해주세요.');
+    await alert('상품을 선택해주세요.');
     return false;
   }
   return true;
@@ -513,6 +548,9 @@ defineExpose({
   isValidStep,
   saveStep,
   getProducts,
+});
+onMounted(async () => {
+  props.onChildMounted(2);
 });
 </script>
 

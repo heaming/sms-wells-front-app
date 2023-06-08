@@ -210,6 +210,7 @@ async function onClickSearchPrtnrNoPopup() {
     component: 'ZwogzPartnerListP',
     componentProps: {
       prtnrNo: searchParams.value.sellPrtnrNo,
+      ogTpCd: 'W03', // 홈마스터
     },
   });
   if (result) {
