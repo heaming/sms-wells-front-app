@@ -15,6 +15,7 @@
 <template>
   <kw-action-top class="mt30">
     <kw-btn
+      v-show="isReadonly"
       dense
       secondary
       :label="t('MSG_BTN_INQR')"
@@ -35,6 +36,7 @@
       @click="onClickSave"
     />
     <kw-btn
+      v-show="!isReadonly"
       dense
       secondary
       :label="t('MSG_BTN_CANCEL')"
@@ -106,7 +108,7 @@
           v-model:tel-no2="fieldParams.mexno"
           v-model:tel-no3="fieldParams.cralIdvTno"
           mask="telephone"
-          :rules="setComnponetRule('required|telephone')"
+          :required="!isReadonly"
           :readonly="isReadonly"
           :label="t('MSG_TXT_TEL_NO')"
         />
@@ -121,9 +123,9 @@
       >
         <zwcm-email-address
           v-model="fieldParams.emadr"
+          :required="!isReadonly"
           :readonly="isReadonly"
           :label="t('MSG_TXT_EMAIL')"
-          :required="true"
           rules="required"
         />
       </kw-form-item>
@@ -136,7 +138,7 @@
           <kw-option-group
             v-model="fieldParams.txinvPblD"
             :label="t('MSG_TXT_PBL_DT')"
-            rules="required"
+            :rules="setComnponetRule('required')"
             type="radio"
             :options="[
               {'codeName':t('MSG_TXT_DAY', [15]), 'codeId':'15'},
@@ -202,13 +204,12 @@ const fieldParams = ref({
 
 // fetchData: 조회
 async function fetchData() {
+  frmMainRef.value.init();
   const res = await dataService.get('/sms/wells/contract/contract-info/tax-Invoices', { params: { cntrNo: searchParams.value.cntrNo, cntrSn: searchParams.value.cntrSn } });
   if (!isEmpty(res.data)) {
     Object.assign(fieldParams.value, res.data);
     fieldParams.value.telNo = `${fieldParams.value.cralLocaraTno}${fieldParams.value.mexno}${fieldParams.value.cralIdvTno}`; // 전화번호
     fieldParams.value.bzrnoFormat = !isEmpty(res.data.bzrno) ? `${res.data.bzrno?.substring(0, 3)}-${res.data.bzrno?.substring(3, 5)}-${res.data.bzrno?.substring(5, 10)}` : '';
-  } else {
-    fieldParams.value = {};
   }
   fieldParams.value.cntrNo = searchParams.value.cntrNo;
   fieldParams.value.cntrSn = searchParams.value.cntrSn;
@@ -217,7 +218,7 @@ async function fetchData() {
 
 // onClickSearch: 조회버튼 클릭 시
 async function onClickSearch() {
-  if (!await frmMainRef.value.confirmIfIsModified()) { return; }
+  if (!await frmMainRef.value.validate()) { if (!await frmMainRef.value.confirmIfIsModified()) { return; } }
   fetchData();
 }
 
@@ -229,6 +230,7 @@ async function onClickEdit() {
 // onClickCancel: 취소버튼 클릭 시
 async function onClickCancel() {
   if (!await frmMainRef.value.confirmIfIsModified()) { return; }
+  fetchData();
   isReadonly.value = true;
 }
 
