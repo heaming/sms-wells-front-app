@@ -104,10 +104,18 @@
             <kw-form-item :label="$t('MSG_TXT_CNTR_NO')">
               <p>{{ frmMainData.cntrNo }}</p>
             </kw-form-item>
-            <!-- 생년월일 -->
-            <kw-form-item :label="$t('MSG_TXT_BIRTH_DATE')">
-              <p>{{ stringUtil.getDateFormat(frmMainData.cstNo2) }}</p>
-            </kw-form-item>
+            <slot v-if="props.copnDvCd === '1'">
+              <!-- 생년월일 -->
+              <kw-form-item :label="$t('MSG_TXT_BIRTH_DATE')">
+                <p>{{ stringUtil.getDateFormat(frmMainData.cstNo2) }}</p>
+              </kw-form-item>
+            </slot>
+            <slot v-if="props.copnDvCd === '2'">
+              <!-- 사업자등록번호 -->
+              <kw-form-item :label="$t('MSG_TXT_CRNO')">
+                <p>{{ frmMainData.cstNo2 }}</p>
+              </kw-form-item>
+            </slot>
           </kw-form-row>
 
           <kw-form-row>
@@ -309,7 +317,7 @@ const frmMainData = ref({
   cntrCstNo: '', // 고객번호
   cntrNo: '', // 계약번호
   cntrSn: '', // 계약일련번호
-  cstNo2: '', // 생년월일(개인법인에 따라 생년월일 또는 사업자번호 표시)
+  cstNo2: '', // 생년월일(개인법인에 따라 생년월일 또는 사업자등록번호 표시)
   cntrCralLocaraTno: '', // 계약자 휴대지역전화번호
   cntrMexnoEncr: '', // 계약자 휴대전화국번호암호화
   cntrCralIdvTno: '', // 계약자 휴대개별전화번호
@@ -372,7 +380,14 @@ async function fetchDataCustomerBase() {
     frmMainData.value.cntrCstNo = res.data[0].cntrCstNo; // 고객번호
     frmMainData.value.cntrNo = res.data[0].cntrNo; // 계약번호
     frmMainData.value.cntrSn = res.data[0].cntrSn; // 계약일련번호
-    frmMainData.value.cstNo2 = res.data[0].cstNo2; // 생년월일(개인법인에 따라 생년월일 또는 사업자번호 표시)
+    if (props.copnDvCd === '1') { // 생년월일
+      frmMainData.value.cstNo2 = res.data[0].cstNo2;
+    } else if (props.copnDvCd === '2') { // 사업자등록번호
+      // 사업자등록번호 3-2-5 형식으로 표시
+      if (!isEmpty(res.data[0].cstNo2) && res.data[0].cstNo2.length === 10) {
+        frmMainData.value.cstNo2 = `${res.data[0].cstNo2.substr(0, 3)}-${res.data[0].cstNo2.substr(3, 2)}-${res.data[0].cstNo2.substr(5, 5)}`;
+      }
+    }
     const { cntrCralLocaraTno } = res.data[0]; // 계약자 휴대지역전화번호
     const { cntrMexnoEncr } = res.data[0]; // 계약자 휴대전화국번호암호화
     const { cntrCralIdvTno } = res.data[0]; // 계약자 휴대개별전화번호
