@@ -3,76 +3,61 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : PDY (기준정보관리)
-2. 프로그램 ID : WwpdyWellsAllianceListM - 헬스 제휴관리
-                ( W-PD-U-0023M01 )
+2. 프로그램 ID : WwpdySeedProductPriceListM - 모종제품가격 관리
+                ( W-PD-U-0024M01 )
 3. 작성자 : jintae.choi
-4. 작성일 : 2023.05.01
+4. 작성일 : 2023.06.30
 ****************************************************************************************************
 * 프로그램 설명
 ****************************************************************************************************
-- 상품 - 기준정보관리 - 헬스 제휴관리 프로그램
+- 상품 - 기준정보관리 - 모종제품가격 관리
 ****************************************************************************************************
 --->
 <template>
   <kw-page>
     <kw-search @search="onClickSearch">
       <kw-search-row>
-        <!-- 제휴사 -->
-        <kw-search-item :label="$t('MSG_TXT_ALLIANCE_COMP')">
-          <kw-select
-            v-model="searchParams.alncmpCd"
-            :options="codes.ALNCMP_CD"
-            first-option="all"
+        <!-- 적용기간 -->
+        <kw-search-item :label="$t('MSG_TXT_ACEPT_PERIOD')">
+          <kw-date-range-picker
+            v-model:from="searchParams.apyStrtdt"
+            v-model:to="searchParams.apyEnddt"
           />
         </kw-search-item>
-        <!-- 판매유형 -->
-        <kw-search-item :label="$t('MSG_TXT_SEL_TYPE')">
-          <kw-select
-            v-model="searchParams.sellTpCd"
-            :options="codes.SELL_TP_CD"
-            first-option="all"
-          />
-        </kw-search-item>
-        <!-- 상품명 -->
-        <kw-search-item :label="$t('MSG_TXT_PRDT_NM')">
+        <!-- 제품명 -->
+        <kw-search-item :label="$t('MSG_TXT_GOODS_NM')">
           <kw-input
-            v-model="searchParams.pdNm"
+            v-model="searchParams.pdctPdNm"
             maxlength="100"
           />
         </kw-search-item>
-      </kw-search-row>
-
-      <kw-search-row>
-        <!-- 상품코드 -->
-        <kw-search-item :label="$t('MSG_TXT_PRDT_CODE')">
+        <!-- 제품코드 -->
+        <kw-search-item :label="$t('MSG_TXT_PROD_CD')">
           <kw-input
-            v-model="searchParams.pdCd"
-            maxlength="10"
+            v-model.trim="searchParams.pdctPdCd"
+            :maxlength="10"
             clearable
             icon="search"
             @click-icon="onClickSearchPdCdPopup()"
           />
         </kw-search-item>
-        <!-- 상품분류 -->
-        <kw-search-item
-          :label="$t('MSG_TXT_PRDT_CATE')"
-        >
-          <zwpd-product-classification-select
-            ref="classfySelRef"
-            v-model:product1-level="searchParams.prdtCateHigh"
-            v-model:product2-level="searchParams.prdtCateMid"
-            :pd-tp-cd="pdConst.PD_TP_CD_STANDARD"
-            search-lvl="2"
+      </kw-search-row>
+      <kw-search-row>
+        <!-- 기기유형 -->
+        <kw-search-item :label="$t('MSG_TXT_UNIT_TYPE')">
+          <kw-select
+            v-model="searchParams.rglrSppMchnTpCd"
+            :options="codes.SAP_MAT_TP_CD"
             first-option="all"
           />
         </kw-search-item>
-        <!-- 적용기간 -->
-        <kw-search-item :label="$t('MSG_TXT_ACEPT_PERIOD')">
-          <kw-date-range-picker
-            v-model:from="searchParams.svcStartDt"
-            v-model:to="searchParams.svcEndDt"
+        <!-- 가격구분 -->
+        <kw-search-item :label="$t('MSG_TXT_PRC_TYPE')">
+          <kw-select
+            v-model="searchParams.rglrSppPrcDvCd"
+            :options="codes.RGLR_SPP_PRC_DV_CD"
+            first-option="all"
           />
-          <!-- rules="date_range_months:1" -->
         </kw-search-item>
       </kw-search-row>
     </kw-search>
@@ -87,6 +72,8 @@
             :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
             @change="fetchData"
           />
+          <!-- (단위:원) -->
+          <span class="ml8">{{ $t('MSG_TXT_UNIT_COLON_WON') }}</span>
         </template>
 
         <kw-btn
@@ -152,11 +139,9 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { useDataService, useMeta, gridUtil, useGlobal, codeUtil, getComponentType, defineGrid } from 'kw-lib';
-import dayjs from 'dayjs';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import pdConst from '~sms-common/product/constants/pdConst';
-import ZwpdProductClassificationSelect from '~sms-common/product/pages/standard/components/ZwpdProductClassificationSelect.vue';
-import { getAlreadyItems, setGridDateFromTo } from '~sms-common/product/utils/pdUtil';
+import { setGridDateFromTo } from '~sms-common/product/utils/pdUtil';
 
 const { notify, modal } = useGlobal();
 const router = useRouter();
@@ -167,21 +152,17 @@ const { getConfig } = useMeta();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
-const now = dayjs();
 const grdMainRef = ref(getComponentType('KwGrid'));
-const classfySelRef = ref();
 const currentSearchYn = ref();
 
 let cachedParams;
 const searchParams = ref({
-  alncmpCd: '',
-  sellTpCd: '',
-  pdNm: '',
-  pdCd: '',
-  prdtCateHigh: '',
-  prdtCateMid: '',
-  svcStartDt: '',
-  svcEndDt: '',
+  apyStrtdt: '',
+  apyEnddt: '',
+  pdctPdNm: '',
+  pdctPdCd: '',
+  rglrSppMchnTpCd: '',
+  rglrSppPrcDvCd: '',
 });
 
 const pageInfo = ref({
@@ -190,19 +171,10 @@ const pageInfo = ref({
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
 });
 
-const codes = await codeUtil.getMultiCodes(
-  'ALNCMP_CD',
-  'SELL_TP_CD',
-  'STPL_PRD_CD',
-  'RENTAL_DSC_DV_CD',
-  'RENTAL_DSC_TP_CD',
-  'RENTAL_CRP_DSCR_CD',
-  'OG_TP_CD',
-  'COD_PAGE_SIZE_OPTIONS',
-);
+const codes = await codeUtil.getMultiCodes('SAP_MAT_TP_CD', 'RGLR_SPP_PRC_DV_CD', 'SELL_TP_CD', 'COD_YN', 'PD_TP_DTL_CD', 'COD_PAGE_SIZE_OPTIONS');
 
 async function fetchData() {
-  const res = await dataService.get('/sms/wells/product/alliances/paging', { params: { ...cachedParams, ...pageInfo.value } });
+  const res = await dataService.get('/sms/wells/product/seedling-price/paging', { params: { ...cachedParams, ...pageInfo.value } });
   const { list: services, pageInfo: pagingResult } = res.data;
   pageInfo.value = pagingResult;
   const view = grdMainRef.value.getView();
@@ -213,14 +185,15 @@ async function fetchData() {
 async function onClickSearchPdCdPopup() {
   const searchPopupParams = {
     searchType: pdConst.PD_SEARCH_CODE,
-    searchValue: searchParams.value.pdCd,
+    searchValue: searchParams.value.pdctPdCd,
     selectType: pdConst.PD_SEARCH_SINGLE,
+    searchLvl: 3,
   };
   const rtn = await modal({
-    component: 'ZwpdcStandardListP',
+    component: 'ZwpdcMaterialsSelectListP',
     componentProps: searchPopupParams,
   });
-  searchParams.value.pdCd = rtn.payload?.[0]?.pdCd;
+  searchParams.value.pdctPdCd = rtn.payload?.[0]?.pdCd;
 }
 
 async function onClickSearch() {
@@ -237,7 +210,7 @@ async function onClickRemoveRows() {
   const deletedRows = await gridUtil.confirmDeleteCheckedRows(view);
   if (deletedRows.length) {
     // console.log('deletedRows : ', deletedRows);
-    await dataService.delete('/sms/wells/product/alliances', { data: deletedRows });
+    await dataService.delete('/sms/wells/product/seedling-price', { data: deletedRows });
     gridUtil.reset(view);
     await fetchData();
   }
@@ -246,37 +219,18 @@ async function onClickRemoveRows() {
 async function onClickAdd() {
   const view = grdMainRef.value.getView();
   await gridUtil.insertRowAndFocus(view, 0, {
-    apyStrtdt: now.format('YYYYMMDD'),
     apyEnddt: '99991231',
   });
-}
-
-async function checkDuplication() {
-  const view = grdMainRef.value.getView();
-  const createdRows = gridUtil.getCreatedRowValues(view);
-
-  if (createdRows.length === 0) {
-    return false;
-  }
-
-  const { data: dupData } = await dataService.post('/sms/wells/product/alliances/duplication-check', createdRows);
-  if (dupData.data) {
-    const { pdNm } = createdRows.find((item) => item.pdCd === dupData.data);
-    // 은(는) 이미 DB에 등록되어 있습니다.
-    notify(t('MSG_ALT_EXIST_IN_DB', [pdNm]));
-    return true;
-  }
-  return false;
 }
 
 async function onClickSave() {
   const view = grdMainRef.value.getView();
   if (await gridUtil.alertIfIsNotModified(view)) { return; } // 수정된 행 없음
   if (!await gridUtil.validate(view)) { return; } // 유효성 검사
-  if (await checkDuplication()) { return; } // 중복 검사
+  // if (await checkDuplication()) { return; } // 중복 검사
 
   const changedRows = gridUtil.getChangedRowValues(view);
-  await dataService.post('/sms/wells/product/alliances', { bases: changedRows });
+  await dataService.post('/sms/wells/product/seedling-price', { bases: changedRows });
   notify(t('MSG_ALT_SAVE_DATA'));
 
   await fetchData();
@@ -284,7 +238,7 @@ async function onClickSave() {
 
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
-  const res = await dataService.get('/sms/wells/product/alliances', { params: cachedParams });
+  const res = await dataService.get('/sms/wells/product/seedling-price', { params: cachedParams });
   await gridUtil.exportView(view, {
     fileName: router.currentRoute.value.meta.menuName,
     timePostfix: true,
@@ -301,20 +255,30 @@ onMounted(async () => {
 // -------------------------------------------------------------------------------------------------
 const initGrdMain = defineGrid((data, view) => {
   const columns = [
-    // 제휴사
+    // 제품코드
     {
-      fieldName: 'alncmpCd',
-      header: t('MSG_TXT_ALLIANCE_COMP'),
-      width: '150',
+      fieldName: 'pdctPdCd',
+      header: t('MSG_TXT_PROD_CD'),
+      width: '160',
       styleName: 'text-center',
-      editor: { type: 'list' },
+      editable: false,
       rules: 'required',
-      options: codes.ALNCMP_CD,
     },
-    // 판매유형
+    // 제품명
     {
-      fieldName: 'sellTpCd',
-      header: t('MSG_TXT_SEL_TYPE'),
+      fieldName: 'pdctPdNm',
+      header: t('MSG_TXT_GOODS_NM'),
+      width: '207',
+      styleName: 'text-left rg-button-icon--search',
+      button: 'action',
+      editor: { maxLength: 100 },
+      rules: 'required',
+    },
+
+    // 기기종류
+    {
+      fieldName: 'rglrSppMchnKndCd',
+      header: t('MSG_TXT_MCHN_KND'),
       width: '130',
       styleName: 'text-center',
       placeHolder: t('MSG_TXT_SELT'),
@@ -322,124 +286,127 @@ const initGrdMain = defineGrid((data, view) => {
       rules: 'required',
       options: codes.SELL_TP_CD,
     },
-    // 상품코드
+    // 기기유형
     {
-      fieldName: 'pdCd',
-      header: t('MSG_TXT_PRDT_CODE'),
-      width: '160',
+      fieldName: 'rglrSppMchnTpCd',
+      header: t('MSG_TXT_UNIT_TYPE'),
+      width: '130',
       styleName: 'text-center',
-      editable: false,
+      placeHolder: t('MSG_TXT_SELT'),
+      editor: { type: 'list' },
       rules: 'required',
+      options: codes.SELL_TP_CD,
     },
-    // 상품명
+    // 가격구분
     {
-      fieldName: 'pdNm',
-      header: t('MSG_TXT_PRDT_NM'),
-      width: '207',
-      styleName: 'text-left rg-button-icon--search',
-      button: 'action',
-      editor: { maxLength: 100 },
-      rules: 'required',
-    },
-    // 서비스 코드
-    { fieldName: 'svPdCd',
-      header: t('MSG_TXT_SVC_CODE'),
-      width: '160',
+      fieldName: 'rglrSppPrcDvCd',
+      header: t('MSG_TXT_PRC_TYPE'),
+      width: '130',
       styleName: 'text-center',
-      editable: false,
+      placeHolder: t('MSG_TXT_SELT'),
+      editor: { type: 'list' },
       rules: 'required',
+      options: codes.SELL_TP_CD,
     },
-    // 서비스명
+    // 수량
+    { fieldName: 'sdingQty',
+      header: t('MSG_TXT_WK_QTY'),
+      width: '80',
+      styleName: 'text-right',
+      editor: { type: 'number', editFormat: '#,##0', maxLength: 12, positiveOnly: true },
+      dataType: 'number' },
+    // 가격차수
     {
-      fieldName: 'svPdNm',
-      header: t('MSG_TXT_SVC_NAME'),
-      width: '207',
-      styleName: 'text-left rg-button-icon--search',
-      button: 'action',
-      editor: { maxLength: 100 },
-      rules: 'required',
-    },
-    // 약정개월
-    { fieldName: 'stplPrdCd',
-      header: t('MSG_TXT_STPL_MCNT'),
-      width: '110',
+      fieldName: 'pdPrcTcnt',
+      header: t('MSG_TXT_PRC_SEQ'),
+      width: '79',
+      dataType: 'number',
       styleName: 'text-center',
-      editor: { type: 'list' },
-      rules: 'required',
-      options: codes.STPL_PRD_CD,
-    },
-    // 렌탈할인구분
-    { fieldName: 'rentalDscDvCd',
-      header: t('TXT_MSG_RENTAL_DSC_DV_CD'),
-      width: '110',
+      editable: false },
+    // 판매금액
+    {
+      fieldName: 'sellAmt',
+      header: t('MSG_TXT_SALE_PRICE'),
+      width: '80',
+      styleName: 'text-right',
+      editor: { type: 'number', editFormat: '#,##0', maxLength: 12, positiveOnly: true },
+      dataType: 'number' },
+    // 공급가액
+    {
+      fieldName: 'splAmt',
+      header: t('MSG_TXT_SUPPLY_AMOUNT'),
+      width: '80',
+      styleName: 'text-right',
+      editor: { type: 'number', editFormat: '#,##0', maxLength: 12, positiveOnly: true },
+      dataType: 'number' },
+    // 부가세액
+    {
+      fieldName: 'vat',
+      header: t('MSG_TXT_VAT_AMOUNT'),
+      width: '80',
+      styleName: 'text-right',
+      editor: { type: 'number', editFormat: '#,##0', maxLength: 12, positiveOnly: true },
+      dataType: 'number' },
+    // A/S금액
+    {
+      fieldName: 'asSellAmt',
+      header: t('MSG_TXT_AS_PRICE'),
+      width: '80',
+      styleName: 'text-right',
+      editor: { type: 'number', editFormat: '#,##0', maxLength: 12, positiveOnly: true },
+      dataType: 'number' },
+    // 사용유무
+    {
+      fieldName: 'useYn',
+      header: t('MSG_TXT_USE_EYN'),
+      width: '80',
       styleName: 'text-center',
+      placeHolder: t('MSG_TXT_SELT'),
       editor: { type: 'list' },
-      rules: 'required',
-      options: codes.RENTAL_DSC_DV_CD,
+      options: codes.COD_YN,
     },
-    // 렌탈할인유형
-    { fieldName: 'rentalDscTpCd',
-      header: t('MSG_TXT_RENTAL_DSC_TP_CD'),
-      width: '110',
-      styleName: 'text-center',
-      editor: { type: 'list' },
-      rules: 'required',
-      options: codes.RENTAL_DSC_TP_CD,
-    },
-    // 렌탈법인할인율
-    { fieldName: 'rentalCrpDscrCd',
-      header: t('MSG_TXT_RENTAL_CRP_DSC_RT_CD'),
-      width: '110',
-      styleName: 'text-center',
-      editor: { type: 'list' },
-      rules: 'required',
-      options: codes.RENTAL_CRP_DSCR_CD,
-    },
-    // 적용시작일자
+    // 시작일
     {
       fieldName: 'apyStrtdt',
-      header: t('MSG_TXT_APY_STRTDT'),
+      header: t('MSG_TXT_START_DATE'),
       width: '133',
       editor: { type: 'date' },
       dataType: 'date',
-      rules: 'required',
       styleName: 'text-center',
     },
-    // 적용종료일자
+    // 종료일
     {
       fieldName: 'apyEnddt',
-      header: t('MSG_TXT_APY_ENDDT'),
+      header: t('MSG_TXT_END_DATE'),
       width: '129',
       editor: { type: 'date' },
       dataType: 'date',
-      rules: 'required',
       styleName: 'text-center',
     },
-    // 판매조직
+
+    // 상품분류
     {
-      fieldName: 'ogTpCd',
-      header: t('MSG_TXT_SELL_OG'),
-      width: '110',
-      styleName: 'text-center',
-      editor: { type: 'list' },
-      firstOption: 'empty',
-      firstOptionValue: '',
-      firstOptionLabel: '',
-      placeHolder: '',
-      rules: 'required',
-      options: codes.OG_TP_CD,
+      fieldName: 'pdClsfNm',
+      header: t('MSG_TXT_PRDT_CATE'),
+      width: '130',
+      editable: false,
     },
-    // 등록일
-    { fieldName: 'fstRgstDtm', header: t('MSG_TXT_RGST_DT'), width: '100', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date', editable: false },
-    // 등록자
-    { fieldName: 'fstRgstUsrNm', header: t('MSG_TXT_FST_RGST_USR'), width: '100', styleName: 'text-center', editable: false },
+    // 상품유형
+    {
+      fieldName: 'pdTpDtlCd',
+      header: t('MSG_TXT_PRDT_TYPE'),
+      width: '130',
+      styleName: 'text-center',
+      editable: false,
+      options: codes.PD_TP_DTL_CD,
+    },
     // 최종수정일
     { fieldName: 'fnlMdfcDtm', header: t('MSG_TXT_FNL_MDFC_D'), width: '110', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date', editable: false },
     // 최종수정자
     { fieldName: 'fnlMdfcUsrNm', header: t('MSG_TXT_FNL_MDFC_USR'), width: '100', styleName: 'text-center', editable: false },
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
-  fields.push({ fieldName: 'pdAlncmpBaseId' });
+  fields.push({ fieldName: 'rglrSppSdingPrcId' });
   data.setFields(fields);
   view.setColumns(columns);
   view.checkBar.visible = true;
@@ -452,46 +419,26 @@ const initGrdMain = defineGrid((data, view) => {
   view.onCellEdited = async (grid, itemIndex, row, fieldIndex) => {
     // 날짜값 조정
     await setGridDateFromTo(view, grid, itemIndex, fieldIndex, 'apyStrtdt', 'apyEnddt');
-    if (grid.getColumn(fieldIndex).fieldName === 'pdNm' && isEmpty(grid.getValue(itemIndex, 'pdNm'))) {
-      data.setValue(itemIndex, 'pdCd', null);
-    }
-    if (grid.getColumn(fieldIndex).fieldName === 'svPdNm' && isEmpty(grid.getValue(itemIndex, 'svPdNm'))) {
-      data.setValue(itemIndex, 'svPdCd', null);
-      data.setValue(itemIndex, 'svcDurtion', null);
+    // 상품 초기화
+    if (grid.getColumn(fieldIndex).fieldName === 'pdctPdNm' && isEmpty(grid.getValue(itemIndex, 'pdctPdNm'))) {
+      data.setValue(itemIndex, 'pdctPdCd', null);
     }
   };
 
   view.onCellButtonClicked = async (grid, { column, itemIndex }) => {
-    if (column === 'pdNm') {
-      const pdNm = grid.getValue(itemIndex, 'pdNm');
+    if (column === 'pdctPdNm') {
+      const pdctPdNm = grid.getValue(itemIndex, 'pdctPdNm');
       const { payload } = await modal({
-        component: 'ZwpdcStandardListP',
-        componentProps: { searchType: pdConst.PD_SEARCH_NAME, searchValue: pdNm },
+        component: 'ZwpdcMaterialsSelectListP',
+        componentProps: { searchType: pdConst.PD_SEARCH_NAME,
+          searchValue: pdctPdNm,
+          selectType: pdConst.PD_SEARCH_SINGLE,
+          searchLvl: 3 },
       });
       if (payload) {
         const row = Array.isArray(payload) ? payload[0] : payload;
-        const alreadyItems = getAlreadyItems(view, [row], 'pdCd');
-        if (alreadyItems.length) {
-          // 이미 등록된 {상품} 입니다.
-          notify(t('MSG_ALT_ALREADY_RGST', [t('MSG_TXT_PRDT')]));
-          return;
-        }
-        data.setValue(itemIndex, 'pdNm', row.pdNm);
-        data.setValue(itemIndex, 'pdCd', row.pdCd);
-      }
-    }
-    if (column === 'svPdNm') {
-      const svPdNm = grid.getValue(itemIndex, 'svPdNm');
-      const { payload } = await modal({
-        component: 'ZwpdcServiceListP',
-        componentProps: { searchType: pdConst.PD_SEARCH_NAME, searchValue: svPdNm },
-      });
-      if (payload) {
-        const row = Array.isArray(payload) ? payload[0] : payload;
-        console.log('row : ', row);
-        data.setValue(itemIndex, 'svPdNm', row.pdNm);
-        data.setValue(itemIndex, 'svPdCd', row.pdCd);
-        data.setValue(itemIndex, 'svcDurtion', row.svcDurtion);
+        data.setValue(itemIndex, 'pdctPdNm', row.pdNm);
+        data.setValue(itemIndex, 'pdctPdCd', row.pdCd);
       }
     }
   };
