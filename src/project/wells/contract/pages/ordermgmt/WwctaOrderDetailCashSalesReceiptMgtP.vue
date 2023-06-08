@@ -123,23 +123,25 @@
           :label="t('MSG_TXT_ISSUANCE_CLAR')"
           required
         >
-          <kw-select
-            v-model="fieldRpblParams.cssrIsDvCd"
-            :options="codes.CSSR_IS_DV_CD"
-            rules="required"
-            @change="onChangedCssrIsDvCdRpbl"
-          />
-          <kw-input
-            v-model="fieldRpblParams.cssrIsNo"
-            v-model:tel-no0="fieldRpblParams.cralLocaraTno"
-            v-model:tel-no1="fieldRpblParams.mexnoEncr"
-            v-model:tel-no2="fieldRpblParams.cralIdvTno"
-            class="px5"
-            :mask="fieldRpblParams.mask"
-            :rules="cssrIsDvCdRules(fieldRpblParams.cssrIsDvCd, isCssrRpblEmpty)"
-            :label="t('MSG_TXT_ISSUANCE_CLAR')"
-            :readonly="isCssrRpblEmpty"
-          />
+          <kw-field-wrap>
+            <kw-select
+              v-model="fieldRpblParams.cssrIsDvCd"
+              :options="codes.CSSR_IS_DV_CD"
+              rules="required"
+              @change="onChangedCssrIsDvCdRpbl"
+            />
+            <kw-input
+              v-model="fieldRpblParams.cssrIsNo"
+              v-model:tel-no0="fieldRpblParams.cralLocaraTno"
+              v-model:tel-no1="fieldRpblParams.mexnoEncr"
+              v-model:tel-no2="fieldRpblParams.cralIdvTno"
+              class="px5"
+              :mask="fieldRpblParams.mask"
+              :rules="cssrIsDvCdRules(fieldRpblParams.cssrIsDvCd, isCssrRpblEmpty)"
+              :label="t('MSG_TXT_ISSUANCE_CLAR')"
+              :readonly="isCssrRpblEmpty"
+            />
+          </kw-field-wrap>
         </kw-form-item>
         <!-- 변경사유 -->
         <kw-form-item
