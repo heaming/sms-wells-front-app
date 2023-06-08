@@ -224,15 +224,13 @@ async function onClickExcelDownload() {
 }
 
 async function onClickSearchCntrCstNo() {
-  const cpProps = { cntrCstNo: searchParams.value.cntrCstNo };
-
   const { result, payload } = await modal({
     component: 'ZwcsaCustomerListP',
-    componentProps: cpProps,
+    componentProps: { cstType: '1', cstNo: searchParams.value.cntrCstNo },
   });
+
   if (result) {
-    console.log(payload);
-    notify(t('팝업 준비중 입니다.')); // 공통 팝업 피완성. 값을 받아오지 못합니다.
+    searchParams.value.cntrCstNo = payload.cstNo;
   }
 }
 

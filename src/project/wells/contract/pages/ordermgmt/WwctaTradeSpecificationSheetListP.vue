@@ -141,7 +141,7 @@ import { cloneDeep } from 'lodash-es';
 
 const dataService = useDataService();
 const { t } = useI18n();
-const { alert } = useGlobal();
+const { notify } = useGlobal();
 const props = defineProps({
   cntrNo: { type: String, required: false, default: '' },
   cntrSn: { type: String, required: false, default: '' },
@@ -276,7 +276,7 @@ async function fetchTrdSpcData() {
 
   // const { list: details } = res.data;
   if (res.data.length === 0) {
-    await alert(t('MSG_ALT_NO_DATA')); // 데이터가 존재하지 않습니다.
+    await notify(t('MSG_ALT_NO_DATA')); // 데이터가 존재하지 않습니다.
     return;
   }
 
@@ -300,10 +300,8 @@ async function fetchCtnrLstData() {
   console.log(cachedParams);
 
   res = await dataService.get('/sms/wells/contract/contracts/order-details/specification/contracts', { params: { ...cachedParams } });
-
-  // const { list: details } = res.data;
   if (res.data.length === 0) {
-    await alert(t('MSG_ALT_NO_DATA')); // 데이터가 존재하지 않습니다.
+    await notify(t('MSG_ALT_NO_DATA')); // 데이터가 존재하지 않습니다.
     return;
   }
 

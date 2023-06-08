@@ -283,10 +283,13 @@ async function fetchData() {
 
 // 고객번호 팝업 호출
 async function onClickSearchCntrCst() {
-  const res = await modal({ component: 'ZwcsaCustomerListP' });
-  if (res.result && res.payload) {
-    // searchParams.cntrCstKnm(res.payload.name);
-    searchParams.cntrCstNo(res.payload.cstNo);
+  const { result, payload } = await modal({
+    component: 'ZwcsaCustomerListP',
+    componentProps: { cstType: '1', cstNo: searchParams.value.cntrCstNo },
+  });
+
+  if (result) {
+    searchParams.value.cntrCstNo = payload.cstNo;
   }
 }
 

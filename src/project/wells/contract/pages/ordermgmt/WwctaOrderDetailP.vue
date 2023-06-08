@@ -28,10 +28,10 @@
         <!-- 계약상품리스트 -->
         <kw-form-item :label="$t('MSG_TXT_CNTRCT_PD_LIST')">
           <kw-select
-            v-model="frmMainData.cntrSn"
+            v-model="frmMainData.cntrNo"
             :options="optionList"
             option-label="pdNm"
-            option-value="cntrSn"
+            option-value="cntrNo"
             @change="onSelectCntrctPdList"
           />
         </kw-form-item>
@@ -308,6 +308,7 @@ let cachedParams;
 const searchParams = ref({
   cntrNo: props.cntrNo,
   cntrSn: props.cntrSn,
+  cntrCstNo: props.cntrCstNo,
 });
 
 const frmMainData = ref({
@@ -356,6 +357,7 @@ async function fetchDataContractLists() {
   // changing api & cacheparams according to search classification
   let res = '';
   cachedParams = cloneDeep(searchParams.value);
+  console.log(cachedParams);
   res = await dataService.get('/sms/wells/contract/contracts/order-details/customer-bases/contract-lists', { params: cachedParams });
   // console.log(res.data);
   optionList.value = res.data;
@@ -433,6 +435,7 @@ async function fetchDataCustomerBase() {
 
 // 현재 열려있는 탭에서 조회하기
 async function currentTabFetchData() {
+  console.log(selectedTab.value);
   switch (selectedTab.value) {
     case 'cstBaseInfo': // 고객기본정보
       await fetchDataCustomerBase();
@@ -481,9 +484,9 @@ async function currentTabFetchData() {
 
 // 상세계약목록 변경 시 Event
 async function onSelectCntrctPdList() {
-  const { cntrSn } = frmMainData.value;
-  // console.log(cntrSn);
-  searchParams.value.cntrSn = cntrSn;
+  const { cntrNo } = frmMainData.value;
+  console.log(cntrNo);
+  searchParams.value.cntrNo = cntrNo;
   await currentTabFetchData();
 }
 

@@ -79,6 +79,9 @@
           :options="filteredMiddleClasses"
           option-value="refPdClsfVal"
           option-label="pdClsfNm"
+          first-option="all"
+          :first-option-label="$t('MSG_TXT_PD_MCLSF_ID') + ' ' + $t('MSG_TXT_SELT')"
+          first-option-value=""
         />
       </kw-search-item>
     </kw-search-row>
