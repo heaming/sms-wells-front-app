@@ -50,28 +50,15 @@
       </kw-form-item>
     </kw-form-row>
   </kw-form>
-  <kw-separator />
-  <kw-action-bottom class="mb30">
+  <div class="row justify-end mt20">
     <kw-btn
-      :label="$t('MSG_BTN_ADD')"
+      secondary
       dense
+      :label="$t('MSG_BTN_ADD')"
       @click="onClickAdd"
     />
-  </kw-action-bottom>
-  <kw-action-top>
-    <!-- 복사 -->
-    <kw-btn
-      :label="$t('MSG_BTN_CNTN_COPY')"
-      grid-action
-      dense
-      :disable="gridRowCount === 0"
-      @click="onClickRowCopy"
-    />
-    <kw-separator
-      vertical
-      inset
-      spaced
-    />
+  </div>
+  <kw-action-top class="mt30">
     <!-- 삭제 -->
     <kw-btn
       grid-action
@@ -79,6 +66,19 @@
       :label="$t('MSG_BTN_DEL')"
       :disable="gridRowCount === 0"
       @click="onClickRemove"
+    />
+    <kw-separator
+      vertical
+      inset
+      spaced
+    />
+    <!-- 복사 -->
+    <kw-btn
+      :label="$t('MSG_BTN_CNTN_COPY')"
+      grid-action
+      dense
+      :disable="gridRowCount === 0"
+      @click="onClickRowCopy"
     />
   </kw-action-top>
   <!-- 가격 -->
