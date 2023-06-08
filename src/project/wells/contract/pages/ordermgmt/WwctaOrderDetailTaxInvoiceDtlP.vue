@@ -51,7 +51,6 @@
           v-model="fieldParams.txinvPblOjYn"
           :label="t('MSG_TXT_ISSUANCE_CLAR')"
           type="radio"
-          class="kw-option-group--multi-line"
           :options="[
             {'codeName':t('MSG_TXT_PBL'), 'codeId':'Y'},
             {'codeName':t('MSG_TXT_N_PBL'), 'codeId':'N'}
