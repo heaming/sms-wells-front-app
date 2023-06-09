@@ -372,7 +372,6 @@ let cachedParams;
 
 const filters = codes.PD_GRP_CD.map((v) => ({ name: v.codeId, criteria: `value = '${v.codeId}'` }));
 function onUpdateProductGroupCode(val) {
-  debugger;
   const view = grdMainRef.value.getView();
   view.activateAllColumnFilters('itemGr', false);
 
@@ -390,8 +389,12 @@ async function fetchData() {
   const { list: goods, pageInfo: pagingResult } = res.data;
   pageInfo.value = pagingResult;
 
+  console.log(goods);
+
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(goods);
+
+  searchParams.value.pdGrpCd = '';
 
   view.autoFiltersRefresh('itemGr', false);
   view.setColumnFilters('itemGr', filters, true);
