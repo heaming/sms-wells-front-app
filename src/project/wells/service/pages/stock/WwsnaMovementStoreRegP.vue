@@ -85,10 +85,10 @@
           <!-- //출고창고 -->
           <!-- 표준 미적용 -->
           <kw-checkbox
-            v-model="searchParams.stckStdGb"
+            v-model="searchParams.stckNoStdGb"
             class="ml20"
             :label="$t('MSG_TXT_STD_NO_APY')"
-            @change="onClickLocationStandard"
+            @update:model-value="onCheckedStckNoStdGb"
           />
           <!-- //표준 미적용 -->
         </kw-form-item>
@@ -173,10 +173,11 @@ import { cloneDeep } from 'lodash-es';
 const { getConfig } = useMeta();
 const { alert, confirm, notify, modal } = useGlobal();
 const { t } = useI18n();
-const { ok } = useModal;
+const { ok } = useModal();
 
 const dataService = useDataService();
 const baseURI = '/sms/wells/service/movement-stores/registration';
+const stdWareUri = '/sms/wells/service/normal-outofstorages/standard-ware';
 const grdMainRef = ref(getComponentType('KwGrid'));
 const props = defineProps({
   strRgstDt: {
@@ -271,7 +272,7 @@ const searchParams = ref({
   strSn: props.strSn,
   itmPdNo: props.itmPdNo,
   strHopDt: props.strHopDt,
-  stckStdGb: 'N',
+  stckNoStdGb: 'N',
   strDt: dayjs().format('YYYYMMDD'),
 });
 
@@ -282,6 +283,15 @@ const pageInfo = ref({
   pageIndex: 1,
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
 });
+
+async function stckStdGbFetchData() {
+  const apyYm = searchParams.value.strRgstDt.substring(0, 6);
+  const wareNo = searchParams.value.ostrWareNo;
+  const res = await dataService.get(stdWareUri, { params: { apyYm, wareNo } });
+  const { stckStdGb } = res.data;
+  console.log(res);
+  searchParams.value.stckNoStdGb = stckStdGb === 'Y' ? 'N' : 'Y';
+}
 
 async function fetchData() {
   console.log('fetchData~~~~~~~~~~~~~~~~~~~~~~~');
@@ -296,6 +306,17 @@ async function fetchData() {
   view.resetCurrent();
 
   view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
+}
+
+async function onCheckedStckNoStdGb() {
+  const stckStdGb = searchParams.value.stckNoStdGb === 'N' ? 'Y' : 'N';
+  const apyYm = searchParams.value.baseYm;
+  const wareNo = searchParams.value.ostrWareNo;
+
+  const res = await dataService.put(stdWareUri, { apyYm, stckStdGb, wareNo });
+  console.log(res);
+  notify(t('MSG_ALT_CHG_DATA'));
+  fetchData();
 }
 
 async function onClickSave() {
@@ -322,12 +343,11 @@ async function onClickSave() {
     const { result } = await dataService.put(baseURI, confirmData.value);
 
     if (result) {
-      // 등록되었습니다.
-      // alert(t('MSG_ALT_RGSTD'));
-      // await fetchData();
       ok();
+      notify(t('MSG_ALT_SAVE_DTA'));
     } else {
       console.log(`result: ${result}`);
+      notify(t('MSG_ALT_SVE_ERR'));
     }
   }
 }
@@ -336,13 +356,12 @@ async function onClickRemove() {
   console.log(res.data);
 }
 
-async function onClickLocationStandard() {
-  cachedParams = cloneDeep(searchParams.value);
-  await fetchData();
-}
+// async function onClickLocationStandard() {
+//   cachedParams = cloneDeep(searchParams.value);
+//   await fetchData();
+// }
 
 // async function onClickLocationStandardNoApply() {
-//   searchParams.value.stckStdGb = '0';
 //   await fetchData();
 // }
 
@@ -372,6 +391,7 @@ async function onClickExcelDownload() {
 onMounted(async () => {
   pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
+  await stckStdGbFetchData();
   await fetchData();
 });
 // -------------------------------------------------------------------------------------------------
@@ -416,20 +436,22 @@ const initGrdMain = defineGrid((data, view) => {
     console.log(searchParams.value.ostrWareNo);
 
     if (c.column === 'itemLoc') {
-      const { result: isChanged } = await modal({
+      const { result, payload } = await modal({
         component: 'WwsnaItemLocationMgtP',
         componentProps: {
           wareNo: searchParams.value.ostrWareNo,
           itmPdCd,
         },
       });
-      console.log(isChanged);
-    }
+      console.log(`result : ${result}`);
+      console.log(`payload : ${payload}`);
 
-    // if (isChanged) {
-    //   notify(t('MSG_ALT_SAVE_DATA'));
-    //   await fetchData();
-    // }
+      if (result) {
+        stckStdGbFetchData();
+        fetchData();
+        console.log('재검색 하였습니다.');
+      }
+    }
   };
 
   view.onItemChecked = async (grid, i, checkedVal) => {
