@@ -118,7 +118,7 @@
 // -------------------------------------------------------------------------------------------------
 
 // eslint-disable-next-line no-unused-vars
-import { useDataService, modal, router, useGlobal } from 'kw-lib';
+import { useDataService, modal, router, useGlobal, popupUtil } from 'kw-lib';
 // eslint-disable-next-line no-unused-vars
 import { isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
@@ -199,5 +199,16 @@ async function onClickAlarmSend() {
   // const path = url.slice(url.indexOf('#') + 1);
   // await router.push({ path, query });
 }
+
+onMounted(async () => {
+  const path = '/tablet/#/withdrawal/wtwda-auto-transfer-change-mgt';
+  if (!window.opener) {
+    const size = {
+      width: 1138,
+      height: 712,
+    };
+    await popupUtil.open(`${path}`, size, false);
+  }
+});
 
 </script>
