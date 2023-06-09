@@ -283,7 +283,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { defineGrid, gridUtil, codeUtil, getComponentType, modal, useDataService, notify } from 'kw-lib';
+import { defineGrid, gridUtil, codeUtil, getComponentType, modal, useDataService, notify, popupUtil } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 import { getDlqMcnt, getFntDt, getWellsCntrListDv, getAuthAuthRsgYn, getFntDv, getCstThmDp, getWellsBilDv, getBizDv } from '~sms-common/bond/utils/bnUtil';
 
@@ -633,17 +633,10 @@ const initGrdMain = defineGrid((data, view) => {
 
   view.onCellDblClicked = async (g, { dataRow }) => {
     const cstNo = g.getValue(dataRow, 'cstNo');
-    if (cstNo) {
-      await window.open(`/popup/#/wwbnc-customer-dtl?cstNo=${cstNo}`, 'POPUP', 'width=1540, height=1100, menubar=no, location=no');
-    }
-  };
-
-  view.onCellDblClicked = async (g, { dataRow }) => {
-    const cstNo = g.getValue(dataRow, 'cstNo');
     const cntrNo = g.getValue(dataRow, 'cntrNo');
     const cntrSn = g.getValue(dataRow, 'cntrSn');
     if (cstNo) {
-      await window.open(`/popup/#/wwbnc-customer-dtl?cstNo=${cstNo}&cntrNo=${cntrNo}&cntrSn=${cntrSn}`, 'POPUP', 'width=1540, height=1100, menubar=no, location=no');
+      await popupUtil.open(`/popup/#/wwbnc-customer-dtl?cstNo=${cstNo}&cntrNo=${cntrNo}&cntrSn=${cntrSn}`, { width: 2000, height: 1100 }, false);
     }
   };
 });
