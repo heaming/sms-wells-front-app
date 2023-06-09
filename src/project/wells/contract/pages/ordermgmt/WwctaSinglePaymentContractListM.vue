@@ -183,7 +183,7 @@
       >
         <!-- 총괄단 선택 -->
         <kw-select
-          v-model="searchParams.dgr1LevlOgId"
+          v-model="selectedDgr1LevlOgCds"
           class="select_og_cd"
           :placeholder="$t('MSG_TXT_MANAGEMENT_DEPARTMENT') + ' ' + $t('MSG_TXT_SELT')"
           :options="filteredDgr1LevlOgCds"
@@ -194,7 +194,7 @@
         />
         <!-- 지역단 선택 -->
         <kw-select
-          v-model="searchParams.dgr2LevlOgId"
+          v-model="selectedDgr2LevlOgCds"
           class="select_og_cd"
           :placeholder="$t('MSG_TXT_RGNL_GRP') + ' ' + $t('MSG_TXT_SELT')"
           :options="filteredDgr2LevlOgCds"
@@ -205,7 +205,7 @@
         />
         <!-- 지점 선택 -->
         <kw-select
-          v-model="searchParams.dgr3LevlOgId"
+          v-model="selectedDgr3LevlOgCds"
           class="select_og_cd"
           :placeholder="$t('MSG_TXT_BRANCH') + ' ' + $t('MSG_TXT_SELT')"
           :options="filteredDgr3LevlOgCds"
@@ -406,6 +406,10 @@ const filteredDgr1LevlOgCds = ref([]); // 필터링된 총괄단 코드
 const filteredDgr2LevlOgCds = ref([]); // 필터링된 지역단 코드
 const filteredDgr3LevlOgCds = ref([]); // 필터링된 지점 코드
 
+const selectedDgr1LevlOgCds = ref([]); // 선택한 총괄단 코드
+const selectedDgr2LevlOgCds = ref([]); // 선택한 지역단 코드
+const selectedDgr3LevlOgCds = ref([]); // 선택한 지점 코드
+
 async function getDgrOgInfos() {
   let res = [];
   res = await dataService.get('/sms/wells/contract/partners/general-divisions'); // 총괄단
@@ -424,8 +428,8 @@ getDgrOgInfos();
 // 조직코드 총괄단 변경 이벤트
 async function onUpdateDgr1Levl(selectedValues) {
   // 선택한 지역단, 지점 초기화
-  searchParams.value.dgr2LevlOgId = [];
-  searchParams.value.dgr3LevlOgId = [];
+  selectedDgr2LevlOgCds.value = [];
+  selectedDgr3LevlOgCds.value = [];
 
   // 지역단 코드 필터링. 선택한 총괄단의 하위 지역단으로 필터링
   filteredDgr2LevlOgCds.value = codesDgr2Levl.value.filter((v) => selectedValues.includes(v.dgr1LevlOgCd));
@@ -437,7 +441,7 @@ async function onUpdateDgr1Levl(selectedValues) {
 // 조직코드 지역단 변경 이벤트
 async function onUpdateDgr2Levl(selectedValues) {
   // 선택한 지점 초기화
-  searchParams.value.dgr3LevlOgId = [];
+  selectedDgr3LevlOgCds.value = [];
 
   // 지점 코드 필터링. 선택한 지역단의 하위 지점으로 필터링.
   filteredDgr3LevlOgCds.value = codesDgr3Levl.value.filter((v) => selectedValues.includes(v.dgr2LevlOgCd));
@@ -475,6 +479,17 @@ async function onUpdateHighClasses(selectedValues) {
 }
 
 async function onClickSearch() {
+  // 선택한 조직 코드에 해당하는 조직 ID 세팅
+  searchParams.value.dgr1LevlOgId = codesDgr1Levl.value
+    .filter((v) => selectedDgr1LevlOgCds.value.includes(v.dgr1LevlOgCd))
+    .map((v) => v.dgr1LevlOgId);
+  searchParams.value.dgr2LevlOgId = codesDgr2Levl.value
+    .filter((v) => selectedDgr2LevlOgCds.value.includes(v.dgr2LevlOgCd))
+    .map((v) => v.dgr2LevlOgId);
+  searchParams.value.dgr3LevlOgId = codesDgr3Levl.value
+    .filter((v) => selectedDgr3LevlOgCds.value.includes(v.dgr3LevlOgCd))
+    .map((v) => v.dgr3LevlOgId);
+
   // 선택한 상품분류 코드에 해당하는 참조상품분류값 세팅
   const highClasses = ref();
   highClasses.value = codesHighClasses.value
