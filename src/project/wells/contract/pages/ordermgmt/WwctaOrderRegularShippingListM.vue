@@ -543,7 +543,11 @@ function initGridRglrDlvrContractList(data, view) {
       displayCallback(grid, index) {
         // eslint-disable-next-line max-len
         const { shpadrCralLocaraTno: no1, shpadrMexnoEncr: no2, shpadrCralIdvTno: no3 } = grid.getValues(index.itemIndex);
-        return isEmpty(no1) && isEmpty(no2) && isEmpty(no3) ? '' : `${no1}-${no2}-${no3}`;
+        const { shpadrCralTno } = grid.getValues(index.itemIndex);
+        if (!isEmpty(no2)) {
+          return isEmpty(no1) && isEmpty(no2) && isEmpty(no3) ? '' : `${no1}-${no2}-${no3}`;
+        }
+        return shpadrCralTno;
       },
     }, // 설치정보-휴대전화번호
     { fieldName: 'shpadrAdrZip', header: t('MSG_TXT_ZIP'), width: '138', styleName: 'text-center' }, // 설치정보-우편번호
