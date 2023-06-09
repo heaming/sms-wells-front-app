@@ -63,9 +63,9 @@
       >
         <p>{{ stringUtil.getDateFormat(frmMainData.istDt) }}</p>
       </kw-form-item>
-      <!-- 계약구분 -->
+      <!-- 판매유형(+판매상세유형) -->
       <kw-form-item
-        :label="$t('MSG_TXT_CNTR_DV')"
+        :label="$t('MSG_TXT_SEL_TYPE')+'(+'+$t('MSG_TXT_SEL_TYPE')+')'"
       >
         <p>{{ frmMainData.sellTpNm }}</p>
       </kw-form-item>
@@ -75,11 +75,11 @@
       <kw-form-item
         :label="$t('MSG_TXT_PD_DC_CLASS')"
       >
-        <p>{{ frmMainData.dscDv }}</p>
+        <p>{{ frmMainData.dscDvNm }}</p>
       </kw-form-item>
-      <!-- 유형 -->
+      <!-- 할인유형 -->
       <kw-form-item
-        :label="$t('MSG_TXT_TYPE')"
+        :label="$t('MSG_TXT_DISC_CODE')"
       >
         <p>{{ frmMainData.sellDscrNm }}</p>
       </kw-form-item>
@@ -107,15 +107,15 @@
       </kw-form-item>
     </kw-form-row>
     <kw-form-row>
-      <!-- 판매자 소속 -->
+      <!-- 소속코드(지점명) -->
       <kw-form-item
-        :label="$t('MSG_TXT_SELLER_BLG')"
+        :label="$t('MSG_TXT_BLG_CD')+'('+$t('MSG_TXT_BRCH_NM')+')'"
       >
         <p>{{ frmMainData.sellPrtnrBlgNm }}</p>
       </kw-form-item>
-      <!-- 판매자 성명 -->
+      <!-- 성명(업무등록사번) -->
       <kw-form-item
-        :label="$t('MSG_TXT_SELLER_FNM')"
+        :label="$t('MSG_TXT_EMPL_NM')+'('+$t('MSG_TXT_BIZ_RGST')+$t('MSG_TXT_EPNO')+')'"
       >
         <p>{{ frmMainData.sellPrtnrNm }}</p>
       </kw-form-item>
@@ -135,9 +135,9 @@
       </kw-form-item>
     </kw-form-row>
     <kw-form-row>
-      <!-- 제휴상태코드 -->
+      <!-- 제휴상대코드 -->
       <kw-form-item
-        :label="$t('MSG_TXT_ALNC_STT_CD')"
+        :label="$t('MSG_TXT_ALNC_PTY_CD')"
       >
         <p>{{ frmMainData.alncPtyCd }}</p>
       </kw-form-item>
@@ -265,7 +265,7 @@ const frmMainData = ref({
   pdQty: '', // 상품수량
   istDt: '', // 설치일자
   sellTpNm: '', // 계약구분명(판매유형코드명)
-  dscDv: '', // 할인구분(판매할인구분코드)
+  dscDvNm: '', // 할인구분(판매할인구분코드)
   dscTpNm: '', // 할인유형명
   stplPtrm: '', // 약정기간
   prd: '', // 주기
@@ -354,7 +354,7 @@ async function fetchData() {
     frmMainData.value.pdCd = res.data[0].pdCd; // 상품코드
     frmMainData.value.istDt = res.data[0].istDt; // 설치일자
     frmMainData.value.sellTpNm = res.data[0].sellTpNm; // 계약구분명(판매유형코드명)
-    frmMainData.value.dscDv = res.data[0].dscDv; // 할인구분(판매할인구분코드)
+    frmMainData.value.dscDvNm = res.data[0].dscDvNm; // 할인구분(판매할인구분코드)
     frmMainData.value.dscTpNm = res.data[0].dscTpNm; // 할인유형명
     frmMainData.value.stplPtrm = res.data[0].stplPtrm; // 약정기간
     frmMainData.value.prd = res.data[0].prd; // 주기

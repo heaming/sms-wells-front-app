@@ -206,7 +206,6 @@
           v-model="searchParams.schCstThmDp"
           type="radio"
           :options="selectCodes.CST_THM_DP"
-          first-option="all"
         />
       </kw-search-item>
     </kw-search-row>
@@ -337,7 +336,7 @@ const searchParams = ref({
   schFntDtStrt: '',
   schFntDtEnd: '',
   schBilDv: '',
-  schCstThmDp: '',
+  schCstThmDp: '01',
   schAuthRsgYn: '',
   schDv: '',
   schCstNoYn: 'N',
@@ -620,6 +619,10 @@ const initGrdMain = defineGrid((data, view) => {
 
   view.checkBar.visible = true;
   view.rowIndicator.visible = true;
+
+  view.setFixedOptions({
+    colCount: 6,
+  });
 
   view.setHeaderSummaries({
     visible: true,
