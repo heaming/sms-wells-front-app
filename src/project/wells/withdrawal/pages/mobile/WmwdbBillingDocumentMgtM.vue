@@ -102,12 +102,12 @@
 
               <!-- label="작성일자" -->
               <kw-form-item :label="t('MSG_TXT_WRTE_DT')">
-                <p>{{ item.bildcWrteDt }}</p>
+                <p>{{ stringUtil.getDateFormat(item.bildcWrteDt) }}</p>
               </kw-form-item>
 
               <!-- label="발송일자" -->
               <kw-form-item :label="t('MSG_TXT_FW_DT')">
-                <p>{{ item.bildcFwDtm }}</p>
+                <p>{{ stringUtil.getDateFormat(item.bildcFwDtm) }}</p>
               </kw-form-item>
 
               <!-- label="상품명" -->
@@ -230,15 +230,15 @@ async function onLoad(pageIdx) {
 
   pageInfo.value = pagingResult;
 
-  pages.forEach((data) => {
-    if (data.bildcWrteDt) {
-      data.bildcWrteDt = dayjs(data.fstRgstDtm).format('YYYY-MM-DD');
-    }
+  // pages.forEach((data) => {
+  //   if (data.bildcWrteDt) {
+  //     data.bildcWrteDt = dayjs(data.fstRgstDtm).format('YYYY-MM-DD');
+  //   }
 
-    if (data.bildcFwDtm) {
-      data.bildcFwDtm = dayjs(data.bildcFwDtm).format('YYYY-MM-DD');
-    }
-  });
+  //   if (data.bildcFwDtm) {
+  //     data.bildcFwDtm = dayjs(data.bildcFwDtm).format('YYYY-MM-DD');
+  //   }
+  // });
 
   items.value.push(...pages);
 

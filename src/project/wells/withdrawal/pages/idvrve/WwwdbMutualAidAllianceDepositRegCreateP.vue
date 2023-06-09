@@ -77,11 +77,14 @@
             <kw-input
               v-model="searchParams.itgDpNo"
               :readonly="true"
-              icon="search"
               clearable
               rules="required"
               :label="t('MSG_TXT_ITG_DP_NO')"
-              @click-icon="onClickSelectIntegrationDeposit"
+            />
+            <!-- @click-icon="onClickSelectIntegrationDeposit" -->
+            <kw-btn
+              icon="search"
+              @click="onClickSelectIntegrationDeposit"
             />
           </kw-form-item>
         </kw-form-row>

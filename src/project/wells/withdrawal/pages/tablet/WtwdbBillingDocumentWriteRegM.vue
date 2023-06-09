@@ -76,8 +76,7 @@
           <zwcm-counter
             v-model="regMainData.pdQty"
             :label="t('MSG_TXT_QTY')"
-            rules="required|max:12"
-            maxlength="12"
+            :min="1"
           />
         </kw-form-item>
       </kw-form-row>
@@ -134,7 +133,7 @@
 // -------------------------------------------------------------------------------------------------
 
 import dayjs from 'dayjs';
-import { modal, notify, router, useDataService, confirm } from 'kw-lib';
+import { modal, notify, router, useDataService, confirm, alert } from 'kw-lib';
 import ZwcmCounter from '~common/components/ZwcmCounter.vue';
 import { cloneDeep } from 'lodash-es';
 
@@ -193,7 +192,7 @@ const regMainData = ref({
   state: '',
   rowState: '',
   pdNm: '', // 상품명
-  pdQty: 0, // 수량
+  pdQty: '', // 수량
   pdSellAmt: '', // 단가(총액)
   rmkCn: '', // 비고
 });
@@ -246,6 +245,11 @@ let cachedParams;
 async function onClickSave() {
   if (!await pageRef.value.validate()) { return; }
   if (await pageRef.value.alertIfIsNotModified()) { return; }
+
+  if (regMainData.value.pdQty < 1 || regMainData.value.pdQty === '') {
+    await alert('수량의 경우 0보다 커야합니다.');
+    return;
+  }
 
   if (!await confirm(t('MSG_ALT_IS_SAV_DATA'))) { return; }
 
