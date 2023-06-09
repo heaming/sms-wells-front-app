@@ -166,13 +166,14 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, useDataService, getComponentType, useMeta, defineGrid, gridUtil, useGlobal } from 'kw-lib';
+import { codeUtil, useDataService, getComponentType, useMeta, defineGrid, gridUtil, useGlobal, useModal } from 'kw-lib';
 import dayjs from 'dayjs';
 import { cloneDeep } from 'lodash-es';
 
 const { getConfig } = useMeta();
 const { alert, confirm, notify, modal } = useGlobal();
 const { t } = useI18n();
+const { ok } = useModal;
 
 const dataService = useDataService();
 const baseURI = '/sms/wells/service/movement-stores/registration';
@@ -322,8 +323,9 @@ async function onClickSave() {
 
     if (result) {
       // 등록되었습니다.
-      alert(t('MSG_ALT_RGSTD'));
-      await fetchData();
+      // alert(t('MSG_ALT_RGSTD'));
+      // await fetchData();
+      ok();
     } else {
       console.log(`result: ${result}`);
     }

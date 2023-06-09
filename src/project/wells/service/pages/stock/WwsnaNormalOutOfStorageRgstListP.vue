@@ -174,7 +174,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, useDataService, getComponentType, useMeta, defineGrid, useGlobal, gridUtil } from 'kw-lib';
+import { codeUtil, useDataService, getComponentType, useMeta, defineGrid, useGlobal, gridUtil, useModal } from 'kw-lib';
 import dayjs from 'dayjs';
 import { cloneDeep } from 'lodash-es';
 // import { cloneDeep, isEmpty } from 'lodash-es';
@@ -182,6 +182,7 @@ import { cloneDeep } from 'lodash-es';
 const { getConfig } = useMeta();
 const { modal, confirm, notify } = useGlobal();
 const { t } = useI18n();
+const { ok } = useModal();
 
 const dataService = useDataService();
 
@@ -305,6 +306,7 @@ async function onClickConfirm() {
     await dataService.put(detailURI, saveParams);
     notify(t('MSG_ALT_SAVE_DATA'));
     await fetchData();
+    ok();
   }
 }
 
