@@ -69,8 +69,8 @@
         <!-- 적용기간 -->
         <kw-search-item :label="$t('MSG_TXT_ACEPT_PERIOD')">
           <kw-date-range-picker
-            v-model:from="searchParams.svcStartDt"
-            v-model:to="searchParams.svcEndDt"
+            v-model:from="searchParams.apyStrtdt"
+            v-model:to="searchParams.apyEnddt"
           />
           <!-- rules="date_range_months:1" -->
         </kw-search-item>
@@ -180,8 +180,8 @@ const searchParams = ref({
   pdCd: '',
   prdtCateHigh: '',
   prdtCateMid: '',
-  svcStartDt: '',
-  svcEndDt: '',
+  apyStrtdt: '',
+  apyEnddt: '',
 });
 
 const pageInfo = ref({
@@ -457,7 +457,6 @@ const initGrdMain = defineGrid((data, view) => {
     }
     if (grid.getColumn(fieldIndex).fieldName === 'svPdNm' && isEmpty(grid.getValue(itemIndex, 'svPdNm'))) {
       data.setValue(itemIndex, 'svPdCd', null);
-      data.setValue(itemIndex, 'svcDurtion', null);
     }
   };
 
@@ -491,7 +490,6 @@ const initGrdMain = defineGrid((data, view) => {
         console.log('row : ', row);
         data.setValue(itemIndex, 'svPdNm', row.pdNm);
         data.setValue(itemIndex, 'svPdCd', row.pdCd);
-        data.setValue(itemIndex, 'svcDurtion', row.svcDurtion);
       }
     }
   };

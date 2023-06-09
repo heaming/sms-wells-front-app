@@ -47,7 +47,7 @@
         <kw-search-item :label="$t('MSG_TXT_UNIT_TYPE')">
           <kw-select
             v-model="searchParams.rglrSppMchnTpCd"
-            :options="codes.SAP_MAT_TP_CD"
+            :options="codes.RGLR_SPP_MCHN_TP_CD"
             first-option="all"
           />
         </kw-search-item>
@@ -139,6 +139,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { useDataService, useMeta, gridUtil, useGlobal, codeUtil, getComponentType, defineGrid } from 'kw-lib';
+import dayjs from 'dayjs';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import pdConst from '~sms-common/product/constants/pdConst';
 import { setGridDateFromTo } from '~sms-common/product/utils/pdUtil';
@@ -152,6 +153,7 @@ const { getConfig } = useMeta();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
+const now = dayjs();
 const grdMainRef = ref(getComponentType('KwGrid'));
 const currentSearchYn = ref();
 
@@ -171,7 +173,14 @@ const pageInfo = ref({
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
 });
 
-const codes = await codeUtil.getMultiCodes('SAP_MAT_TP_CD', 'RGLR_SPP_PRC_DV_CD', 'SELL_TP_CD', 'COD_YN', 'PD_TP_DTL_CD', 'COD_PAGE_SIZE_OPTIONS');
+const codes = await codeUtil.getMultiCodes(
+  'RGLR_SPP_PRC_DV_CD',
+  'RGLR_SPP_MCHN_KND_CD',
+  'RGLR_SPP_MCHN_TP_CD',
+  'COD_YN',
+  'PD_TP_DTL_CD',
+  'COD_PAGE_SIZE_OPTIONS',
+);
 
 async function fetchData() {
   const res = await dataService.get('/sms/wells/product/seedling-price/paging', { params: { ...cachedParams, ...pageInfo.value } });
@@ -193,7 +202,7 @@ async function onClickSearchPdCdPopup() {
     component: 'ZwpdcMaterialsSelectListP',
     componentProps: searchPopupParams,
   });
-  searchParams.value.pdctPdCd = rtn.payload?.[0]?.pdCd;
+  searchParams.value.pdctPdCd = rtn.payload?.checkedRows?.[0]?.pdCd;
 }
 
 async function onClickSearch() {
@@ -219,7 +228,9 @@ async function onClickRemoveRows() {
 async function onClickAdd() {
   const view = grdMainRef.value.getView();
   await gridUtil.insertRowAndFocus(view, 0, {
+    apyStrtdt: now.format('YYYYMMDD'),
     apyEnddt: '99991231',
+    useYn: 'Y',
   });
 }
 
@@ -256,8 +267,7 @@ onMounted(async () => {
 const initGrdMain = defineGrid((data, view) => {
   const columns = [
     // 제품코드
-    {
-      fieldName: 'pdctPdCd',
+    { fieldName: 'pdctPdCd',
       header: t('MSG_TXT_PROD_CD'),
       width: '160',
       styleName: 'text-center',
@@ -265,8 +275,7 @@ const initGrdMain = defineGrid((data, view) => {
       rules: 'required',
     },
     // 제품명
-    {
-      fieldName: 'pdctPdNm',
+    { fieldName: 'pdctPdNm',
       header: t('MSG_TXT_GOODS_NM'),
       width: '207',
       styleName: 'text-left rg-button-icon--search',
@@ -276,37 +285,34 @@ const initGrdMain = defineGrid((data, view) => {
     },
 
     // 기기종류
-    {
-      fieldName: 'rglrSppMchnKndCd',
+    { fieldName: 'rglrSppMchnKndCd',
       header: t('MSG_TXT_MCHN_KND'),
       width: '130',
       styleName: 'text-center',
       placeHolder: t('MSG_TXT_SELT'),
       editor: { type: 'list' },
       rules: 'required',
-      options: codes.SELL_TP_CD,
+      options: codes.RGLR_SPP_MCHN_KND_CD,
     },
     // 기기유형
-    {
-      fieldName: 'rglrSppMchnTpCd',
+    { fieldName: 'rglrSppMchnTpCd',
       header: t('MSG_TXT_UNIT_TYPE'),
       width: '130',
       styleName: 'text-center',
       placeHolder: t('MSG_TXT_SELT'),
       editor: { type: 'list' },
       rules: 'required',
-      options: codes.SELL_TP_CD,
+      options: codes.RGLR_SPP_MCHN_TP_CD,
     },
     // 가격구분
-    {
-      fieldName: 'rglrSppPrcDvCd',
+    { fieldName: 'rglrSppPrcDvCd',
       header: t('MSG_TXT_PRC_TYPE'),
       width: '130',
       styleName: 'text-center',
       placeHolder: t('MSG_TXT_SELT'),
       editor: { type: 'list' },
       rules: 'required',
-      options: codes.SELL_TP_CD,
+      options: codes.RGLR_SPP_PRC_DV_CD,
     },
     // 수량
     { fieldName: 'sdingQty',
@@ -316,58 +322,50 @@ const initGrdMain = defineGrid((data, view) => {
       editor: { type: 'number', editFormat: '#,##0', maxLength: 12, positiveOnly: true },
       dataType: 'number' },
     // 가격차수
-    {
-      fieldName: 'pdPrcTcnt',
+    { fieldName: 'pdPrcTcnt',
       header: t('MSG_TXT_PRC_SEQ'),
       width: '79',
       dataType: 'number',
       styleName: 'text-center',
       editable: false },
     // 판매금액
-    {
-      fieldName: 'sellAmt',
+    { fieldName: 'sellAmt',
       header: t('MSG_TXT_SALE_PRICE'),
       width: '80',
       styleName: 'text-right',
       editor: { type: 'number', editFormat: '#,##0', maxLength: 12, positiveOnly: true },
       dataType: 'number' },
     // 공급가액
-    {
-      fieldName: 'splAmt',
+    { fieldName: 'splAmt',
       header: t('MSG_TXT_SUPPLY_AMOUNT'),
       width: '80',
       styleName: 'text-right',
       editor: { type: 'number', editFormat: '#,##0', maxLength: 12, positiveOnly: true },
       dataType: 'number' },
     // 부가세액
-    {
-      fieldName: 'vat',
+    { fieldName: 'vat',
       header: t('MSG_TXT_VAT_AMOUNT'),
       width: '80',
       styleName: 'text-right',
       editor: { type: 'number', editFormat: '#,##0', maxLength: 12, positiveOnly: true },
       dataType: 'number' },
     // A/S금액
-    {
-      fieldName: 'asSellAmt',
+    { fieldName: 'asSellAmt',
       header: t('MSG_TXT_AS_PRICE'),
       width: '80',
       styleName: 'text-right',
       editor: { type: 'number', editFormat: '#,##0', maxLength: 12, positiveOnly: true },
       dataType: 'number' },
     // 사용유무
-    {
-      fieldName: 'useYn',
+    { fieldName: 'useYn',
       header: t('MSG_TXT_USE_EYN'),
       width: '80',
       styleName: 'text-center',
       placeHolder: t('MSG_TXT_SELT'),
-      editor: { type: 'list' },
-      options: codes.COD_YN,
+      editor: { type: 'list', labels: pdConst.YN_CODE, values: pdConst.YN_CODE },
     },
     // 시작일
-    {
-      fieldName: 'apyStrtdt',
+    { fieldName: 'apyStrtdt',
       header: t('MSG_TXT_START_DATE'),
       width: '133',
       editor: { type: 'date' },
@@ -375,8 +373,7 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-center',
     },
     // 종료일
-    {
-      fieldName: 'apyEnddt',
+    { fieldName: 'apyEnddt',
       header: t('MSG_TXT_END_DATE'),
       width: '129',
       editor: { type: 'date' },
@@ -385,15 +382,13 @@ const initGrdMain = defineGrid((data, view) => {
     },
 
     // 상품분류
-    {
-      fieldName: 'pdClsfNm',
+    { fieldName: 'pdClsfNm',
       header: t('MSG_TXT_PRDT_CATE'),
       width: '130',
       editable: false,
     },
     // 상품유형
-    {
-      fieldName: 'pdTpDtlCd',
+    { fieldName: 'pdTpDtlCd',
       header: t('MSG_TXT_PRDT_TYPE'),
       width: '130',
       styleName: 'text-center',
@@ -422,6 +417,8 @@ const initGrdMain = defineGrid((data, view) => {
     // 상품 초기화
     if (grid.getColumn(fieldIndex).fieldName === 'pdctPdNm' && isEmpty(grid.getValue(itemIndex, 'pdctPdNm'))) {
       data.setValue(itemIndex, 'pdctPdCd', null);
+      data.setValue(itemIndex, 'pdClsfNm', null);
+      data.setValue(itemIndex, 'pdTpDtlCd', null);
     }
   };
 
@@ -435,10 +432,12 @@ const initGrdMain = defineGrid((data, view) => {
           selectType: pdConst.PD_SEARCH_SINGLE,
           searchLvl: 3 },
       });
-      if (payload) {
-        const row = Array.isArray(payload) ? payload[0] : payload;
+      if (payload && payload.checkedRows) {
+        const row = Array.isArray(payload.checkedRows) ? payload.checkedRows[0] : payload.checkedRows;
         data.setValue(itemIndex, 'pdctPdNm', row.pdNm);
         data.setValue(itemIndex, 'pdctPdCd', row.pdCd);
+        data.setValue(itemIndex, 'pdClsfNm', row.pdClsfNm);
+        data.setValue(itemIndex, 'pdTpDtlCd', row.pdTpDtlCd);
       }
     }
   };
