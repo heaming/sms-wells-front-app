@@ -253,17 +253,29 @@ async function onClickAdd() {
 
 async function checkDuplication() {
   const view = grdMainRef.value.getView();
-  const createdRows = gridUtil.getCreatedRowValues(view);
+  const changedRows = gridUtil.getChangedRowValues(view);
+  const alreadyItems = getAlreadyItems(view, changedRows, 'pdCd', 'svPdCd', 'stplPrdCd');
+  if (alreadyItems.length > 1) {
+    // {상품명/서비스명/약정개월}이(가) 중복됩니다.
+    const dupItem = `${alreadyItems[0].pdNm}/${alreadyItems[0].svPdNm}/${alreadyItems[0].stplPrdCd}`;
+    notify(t('MSG_ALT_DUP_NCELL', [dupItem]));
+    return true;
+  }
 
+  const createdRows = gridUtil.getCreatedRowValues(view);
   if (createdRows.length === 0) {
     return false;
   }
 
   const { data: dupData } = await dataService.post('/sms/wells/product/alliances/duplication-check', createdRows);
   if (dupData.data) {
-    const { pdNm } = createdRows.find((item) => item.pdCd === dupData.data);
+    const dupCodes = dupData.data.split(',', -1);
+    const { pdNm, svPdNm, stplPrdCd } = createdRows.find((item) => item.pdCd === dupCodes[0]
+        && item.svPdCd === dupCodes[1]
+        && item.stplPrdCd === dupCodes[2]);
+    const dupItem = `${pdNm}/${svPdNm}/${stplPrdCd}`;
     // 은(는) 이미 DB에 등록되어 있습니다.
-    notify(t('MSG_ALT_EXIST_IN_DB', [pdNm]));
+    notify(t('MSG_ALT_EXIST_IN_DB', [dupItem]));
     return true;
   }
   return false;
@@ -347,7 +359,6 @@ const initGrdMain = defineGrid((data, view) => {
       width: '160',
       styleName: 'text-center',
       editable: false,
-      rules: 'required',
     },
     // 서비스명
     {
@@ -357,7 +368,6 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-left rg-button-icon--search',
       button: 'action',
       editor: { maxLength: 100 },
-      rules: 'required',
     },
     // 약정개월
     { fieldName: 'stplPrdCd',
@@ -365,7 +375,6 @@ const initGrdMain = defineGrid((data, view) => {
       width: '110',
       styleName: 'text-center',
       editor: { type: 'list' },
-      rules: 'required',
       options: codes.STPL_PRD_CD,
     },
     // 렌탈할인구분
@@ -395,20 +404,20 @@ const initGrdMain = defineGrid((data, view) => {
       rules: 'required',
       options: codes.RENTAL_CRP_DSCR_CD,
     },
-    // 적용시작일자
+    // 적용시작일
     {
       fieldName: 'apyStrtdt',
-      header: t('MSG_TXT_APY_STRTDT'),
+      header: t('MSG_TXT_APY_STRT_DAY'),
       width: '133',
       editor: { type: 'date' },
       dataType: 'date',
       rules: 'required',
       styleName: 'text-center',
     },
-    // 적용종료일자
+    // 적용종료일
     {
       fieldName: 'apyEnddt',
-      header: t('MSG_TXT_APY_ENDDT'),
+      header: t('MSG_TXT_APY_END_DAY'),
       width: '129',
       editor: { type: 'date' },
       dataType: 'date',
@@ -469,12 +478,6 @@ const initGrdMain = defineGrid((data, view) => {
       });
       if (payload) {
         const row = Array.isArray(payload) ? payload[0] : payload;
-        const alreadyItems = getAlreadyItems(view, [row], 'pdCd');
-        if (alreadyItems.length) {
-          // 이미 등록된 {상품} 입니다.
-          notify(t('MSG_ALT_ALREADY_RGST', [t('MSG_TXT_PRDT')]));
-          return;
-        }
         data.setValue(itemIndex, 'pdNm', row.pdNm);
         data.setValue(itemIndex, 'pdCd', row.pdCd);
       }

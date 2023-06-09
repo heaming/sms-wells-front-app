@@ -230,6 +230,7 @@ async function onClickAdd() {
   await gridUtil.insertRowAndFocus(view, 0, {
     apyStrtdt: now.format('YYYYMMDD'),
     apyEnddt: '99991231',
+    pdPrcTcnt: 1,
     useYn: 'Y',
   });
 }
@@ -433,6 +434,7 @@ const initGrdMain = defineGrid((data, view) => {
           searchLvl: 3 },
       });
       if (payload && payload.checkedRows) {
+        console.log('payload : ', payload);
         const row = Array.isArray(payload.checkedRows) ? payload.checkedRows[0] : payload.checkedRows;
         data.setValue(itemIndex, 'pdctPdNm', row.pdNm);
         data.setValue(itemIndex, 'pdctPdCd', row.pdCd);
