@@ -120,9 +120,9 @@ import { codeUtil, useDataService, getComponentType, gridUtil, defineGrid, useMo
 import { cloneDeep } from 'lodash-es';
 
 const { getConfig } = useMeta();
-const { confirm } = useGlobal();
+const { confirm, notify } = useGlobal();
 const { t } = useI18n();
-const { ok } = useModal;
+const { ok } = useModal();
 
 const dataService = useDataService();
 const grdMainRef = ref(getComponentType('KwGrid'));
@@ -216,16 +216,13 @@ async function onClickSave() {
 
   // 등록하시겠습니까?
   if (await confirm(t('MSG_ALT_RGST'))) {
-    // const { result } = await dataService.put(baseURI, { params: confirmData.value });
-    const { result } = await dataService.put(baseURI, confirmData.value);
-
-    if (result) {
-      // 등록되었습니다.
-      // alert(t('MSG_ALT_RGSTD'));
-      // await fetchData();
+    const res = await dataService.put(baseURI, confirmData.value);
+    if (res.data.processCount) {
       ok();
+      notify(t('MSG_ALT_SAVE_DTA'));
     } else {
-      console.log(`result: ${result}`);
+      console.log(res);
+      notify(t('MSG_ALT_SVE_ERR'));
     }
   }
 }
