@@ -112,7 +112,8 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 
-import { useDataService, router, useGlobal } from 'kw-lib';
+// eslint-disable-next-line no-unused-vars
+import { useDataService, router, useGlobal, popupUtil } from 'kw-lib';
 // eslint-disable-next-line no-unused-vars
 import { isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
@@ -144,8 +145,8 @@ const inputParams = ref({
 
 const strDomain = window.location.host;
 
-const visitCocnMshCh = `${strDomain}/#/withdrawal/zmwda-auto-transfer-payment-change?vstYn=Y&chRqrDvCd=2&aftnThpChYn=N&clctamMngtYn=N&cntrChPrtnrNo=${userId}&akChdt=${akChdt}`;
-const elsgLdstcCh = `${strDomain}/#/withdrawal/zmwda-auto-transfer-payment-change?vstYn=N&chRqrDvCd=1&aftnThpChYn=N&clctamMngtYn=N&cntrChPrtnrNo=${userId}&akChdt=${akChdt}`;
+const visitCocnMshCh = `${strDomain}/mobile/#/withdrawal/zmwda-auto-transfer-payment-change?vstYn=Y&chRqrDvCd=2&aftnThpChYn=N&clctamMngtYn=N&cntrChPrtnrNo=${userId}&akChdt=${akChdt}`;
+const elsgLdstcCh = `${strDomain}/mobile/#/withdrawal/zmwda-auto-transfer-payment-change?vstYn=N&chRqrDvCd=1&aftnThpChYn=N&clctamMngtYn=N&cntrChPrtnrNo=${userId}&akChdt=${akChdt}`;
 
 async function onClickUrlCopy(no) {
   if (no === 1) {
@@ -194,6 +195,16 @@ async function onClickAlarmSend() {
   // await router.push({ path, query });
 }
 
+onMounted(async () => {
+  if (!window.opener) {
+    const path = '/mobile/#/withdrawal/wmwda-auto-transfer-change-mgt';
+    const size = {
+      width: 320,
+      height: 658,
+    };
+    await popupUtil.open(`${path}`, size, false);
+  }
+});
 </script>
 
 <style scoped lang="scss">

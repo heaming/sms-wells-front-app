@@ -118,7 +118,7 @@
 // -------------------------------------------------------------------------------------------------
 
 // eslint-disable-next-line no-unused-vars
-import { useDataService, modal, router, useGlobal } from 'kw-lib';
+import { useDataService, modal, router, useGlobal, popupUtil } from 'kw-lib';
 // eslint-disable-next-line no-unused-vars
 import { isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
@@ -149,8 +149,8 @@ const akChdt = now.format('YYYYMMDD');
 
 const strDomain = window.location.host;
 
-const visitCocnMshCh = `${strDomain}/#/withdrawal/ztwda-auto-transfer-payment-change?vstYn=Y&chRqrDvCd=2&aftnThpChYn=N&clctamMngtYn=N&cntrChPrtnrNo=${userId}&akChdt=${akChdt}`; // 방문
-const elsgLdstcCh = `${strDomain}/#/withdrawal/ztwda-auto-transfer-payment-change?vstYn=N&chRqrDvCd=1&aftnThpChYn=N&clctamMngtYn=N&cntrChPrtnrNo=${userId}&akChdt=${akChdt}`; // 원거리
+const visitCocnMshCh = `${strDomain}/tablet/#/withdrawal/ztwda-auto-transfer-payment-change?vstYn=Y&chRqrDvCd=2&aftnThpChYn=N&clctamMngtYn=N&cntrChPrtnrNo=${userId}&akChdt=${akChdt}`; // 방문
+const elsgLdstcCh = `${strDomain}/tablet/#/withdrawal/ztwda-auto-transfer-payment-change?vstYn=N&chRqrDvCd=1&aftnThpChYn=N&clctamMngtYn=N&cntrChPrtnrNo=${userId}&akChdt=${akChdt}`; // 원거리
 
 async function onClickUrlCopy(no) {
   if (no === 1) {
@@ -199,5 +199,16 @@ async function onClickAlarmSend() {
   // const path = url.slice(url.indexOf('#') + 1);
   // await router.push({ path, query });
 }
+
+onMounted(async () => {
+  const path = '/tablet/#/withdrawal/wtwda-auto-transfer-change-mgt';
+  if (!window.opener) {
+    const size = {
+      width: 1138,
+      height: 712,
+    };
+    await popupUtil.open(`${path}`, size, false);
+  }
+});
 
 </script>
