@@ -43,7 +43,8 @@
             v-model:og-levl-dv-cd1="searchParams.ogLevlDvCd1"
             :og-tp-cd="searchParams.ogTpCd"
             :base-ym="searchParams.perfYm"
-            :start-level="1"
+            :start-level="2"
+            :end-level="2"
           />
         </kw-search-item>
       </kw-search-row>
@@ -191,7 +192,7 @@ const isGrdEgerMngerVisible = ref(false);
 const isBtnVisible = ref(true);
 const stepNaviRef = ref();
 const changedRows = [];
-const confirmHdofRows = []; // 본사확정용 배열
+const currentStep = ref('');
 // TODO: 세션정보(직급/직무구분코드) & 센터확정일자에 따른 수당조정 가능 여부 체크
 // 확정이 되었는지 안되었는지도 체크함.
 // 확정이 되었으면 수정 못함.(센터)
@@ -221,6 +222,26 @@ const searchParams = ref({
   coCd: '2000',
 });
 
+// 수수료 일정 현재 단계 조회
+async function fetchDataFeeSchedule() {
+  const { data } = await dataService.get('/sms/common/fee/schedules/step-navi', {
+    params: { baseYm: searchParams.value.perfYm,
+      feeSchdTpCd: searchParams.value.feeSchdTpCd,
+      feeTcntDvCd: searchParams.value.feeTcntDvCd,
+      coCd: searchParams.value.coCd },
+  });
+
+  currentStep.value = data.filter((row) => row.stat === 'do').map((c) => c.feeSchdLvCd)[0];
+  console.log('현재 단계 갱신');
+  console.log(data);
+  console.log(currentStep.value);
+}
+
+// stepper 변경시 현재 단계를 재조회
+watch(() => stepNaviRef.value, async () => {
+  await fetchDataFeeSchedule();
+});
+
 // 수당구분 변경
 let rsbDvCd;
 watch(() => searchParams.value.awDv, async (val) => {
@@ -241,11 +262,15 @@ watch(() => searchParams.value.awDv, async (val) => {
 
 // 수정 버튼 클릭 이벤트
 // TODO: 권한 체크(센터장, 센터지원만 수정 가능)
-// TODO: 수당 생성 이후에 수정하도록 막아두기(수수료 일정관리)
 async function onClickMod(bool) {
   // 수정 모드 진입
   if (bool && totalCount.value === 0) {
     alert(t('MSG_ALT_NO_INFO_SRCH'));
+    return;
+  }
+
+  if (bool && currentStep.value !== 'W0603') {
+    alert('수당 생성 후 진행해주세요.');
     return;
   }
 
@@ -313,6 +338,9 @@ async function onClickRetry(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
   } else if (searchParams.value.awDv === 'rsb') {
     await fetchData('engineer-managers');
   }
+
+  // 현재 단계 갱신
+  await fetchDataFeeSchedule();
 }
 
 // 실적집계
@@ -364,18 +392,35 @@ async function onClickControl(feeSchdId, code, nextStep) {
 
 // 본사 수당확정
 async function onclickDtrm(feeSchdId, code, nextStep) {
+  let view;
+  if (searchParams.value.awDv === 'perf') {
+    view = grdEgerRef.value.getView();
+  } else if (searchParams.value.awDv === 'rsb') {
+    view = grdEgerMngerRef.value.getView();
+  }
+
+  const dataSource = view.getDataSource();
+  const confirmRows = dataSource.getJsonRows();
+  const confirmKeys = [];
+
+  if (confirmRows.length === 0) {
+    alert(t('MSG_ALT_USE_DT_SRCH_AF')); // 데이터 조회 후 사용해주세요.
+    return;
+  }
+
   if (!await confirm(t('MSG_ALT_DTRM'))) { return; }
-  const view = grdEgerRef.value.getView();
-  const dataProvider = view.getDataSource();
-  const rowData = dataProvider.getJsonRow(0);
-  confirmHdofRows.push({
-    baseYm: rowData.baseYm,
-    ogCd: rowData.dgr2LevlOgCd,
-    prtnrNo: rowData.prtnrNo,
-    type: 'H', // 본사 확정
-    confirm: 'Y', // 확정(Y), 확정취소(N)
+
+  confirmRows.forEach((e) => {
+    confirmKeys.push({
+      baseYm: e.baseYm,
+      ogCd: e.dgr2LevlOgCd,
+      prtnrNo: e.prtnrNo,
+      type: 'H', // 센터 확정
+      confirm: 'Y', // 확정(Y), 확정취소(N)
+    });
   });
-  await dataService.put('/sms/wells/fee/eger-allowances/confirm', confirmHdofRows);
+
+  await dataService.put('/sms/wells/fee/eger-allowances/confirm', confirmKeys);
   notify(t('MSG_ALT_CNFM_COMPLETE')); // 확정 완료했습니다.
 
   // 수수료 일정 단계 완료
@@ -399,10 +444,12 @@ async function onclickStep(params) {
       await onClickCreate(params.feeSchdId, params.code, '03');
     }
     if (params.code === 'W0603') { // 수당 조정
-      await onClickControl(params.feeSchdId, params.code, '03');
+      // await onClickControl(params.feeSchdId, params.code, '03');
+      await onclickDtrm(params.feeSchdId, params.code, '03');
     }
     if (params.code === 'W0604') { // 수당 확정
-      await onclickDtrm(params.feeSchdId, params.code, '03');
+      // await onclickDtrm(params.feeSchdId, params.code, '03');
+      await onClickControl(params.feeSchdId, params.code, '03');
     }
   }
 }
@@ -473,13 +520,17 @@ async function onClickHisMgt() {
 
 // 저장 버튼 클릭 이벤트
 // TODO: 권한 체크
-// TODO: 수당 생성 이후에 수정하도록 막아두기(수수료 일정관리)
 async function onClickSave() {
   let view;
   if (searchParams.value.awDv === 'perf') {
     view = grdEgerRef.value.getView();
   } else if (searchParams.value.awDv === 'rsb') {
     view = grdEgerMngerRef.value.getView();
+  }
+
+  if (currentStep.value !== 'W0603') {
+    alert('수당 생성 후 진행해주세요.');
+    return;
   }
 
   if (await gridUtil.alertIfIsNotModified(view)) { return; }
@@ -494,7 +545,6 @@ async function onClickSave() {
 
 // 센터별 확정 버튼 클릭 이벤트
 // TODO: 권한 체크(센터장, 센터지원만 수정 가능)
-// TODO: 수당 생성 이후에 수정하도록 막아두기(수수료 일정관리)
 async function onClickConfirm() {
   let view;
   if (searchParams.value.awDv === 'perf') {
@@ -503,13 +553,23 @@ async function onClickConfirm() {
     view = grdEgerMngerRef.value.getView();
   }
 
-  if (gridUtil.isModified(view)) {
-    alert(t('MSG_ALT_CHG_CNTN_AFTER_SAVE'));
-  }
-
   const dataSource = view.getDataSource();
   const confirmRows = dataSource.getJsonRows();
   const confirmKeys = [];
+
+  if (confirmRows.length === 0) {
+    alert(t('MSG_ALT_USE_DT_SRCH_AF')); // 데이터 조회 후 사용해주세요.
+    return;
+  }
+
+  if (currentStep.value !== 'W0603') {
+    alert('확정 기간이 아닙니다.');
+    return;
+  }
+
+  if (gridUtil.isModified(view)) {
+    alert(t('MSG_ALT_CHG_CNTN_AFTER_SAVE'));
+  }
 
   confirmRows.forEach((e) => {
     confirmKeys.push({
