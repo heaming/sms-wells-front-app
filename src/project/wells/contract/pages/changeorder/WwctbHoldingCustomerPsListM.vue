@@ -15,6 +15,7 @@
 <template>
   <kw-page>
     <kw-search
+      ref="srchMainRef"
       @search="onClickSearch"
     >
       <kw-search-row>
@@ -37,8 +38,6 @@
           <zctz-contract-detail-number
             v-model:cntr-no="searchParams.cntrNo"
             v-model:cntr-sn="searchParams.cntrSn"
-            :label="$t('MSG_TXT_CNTR_NO')"
-            disable-popup
           />
         </kw-search-item>
       </kw-search-row>
@@ -60,16 +59,17 @@
         name="grdMain"
         :page-size="pageInfo.pageSize"
         :total-count="pageInfo.totalCount"
-        @init="initGrdMain"
+        @init="initGrid"
       />
       <kw-pagination
         v-model:page-index="pageInfo.pageIndex"
         v-model:page-size="pageInfo.pageSize"
         :total-count="pageInfo.totalCount"
-        @change="onChangePageInfo"
+        @change="fetchPage"
       />
       <h3>{{ t('MSG_TXT_CNT_DTL') }}</h3>
       <kw-input
+        v-if="isShow"
         v-model="selectedMemo"
         type="textarea"
         :rows="3"
@@ -84,37 +84,30 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { getComponentType, defineGrid, useDataService, useMeta, codeUtil, gridUtil } from 'kw-lib';
+import { getComponentType, useDataService, useMeta, codeUtil, gridUtil } from 'kw-lib';
 import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
 import dayjs from 'dayjs';
-import useGridDataModel from '~sms-common/contract/composable/useGridDataModel';
+import { cloneDeep, isEmpty } from 'lodash-es';
 
 const { t } = useI18n();
 const { getConfig } = useMeta();
 const dataService = useDataService();
-const codes = {
-  cttYn: [
-    {
-      codeId: 'Y',
-      codeName: t('MSG_TXT_NOT_INSTL'), /* 미설치' */
-    },
-    {
-      codeId: 'N',
-      codeName: t('MSG_TXT_NOT_CTT'), /* 미컨택' */
-    },
-  ],
-  ...(await codeUtil.getMultiCodes(
-    'COD_PAGE_SIZE_OPTIONS',
-    'LC_CTT_RS_CD',
-  )),
-};
+
+const codes = await codeUtil.getMultiCodes(
+  'LC_CTT_RS_CD',
+  'COD_PAGE_SIZE_OPTIONS',
+);
+
+codes.cttYn = [
+  { codeId: 'Y', codeName: t('MSG_TXT_NOT_INSTL') }, /* 미설치' */
+  { codeId: 'N', codeName: t('MSG_TXT_NOT_CTT') }, /* 미컨택' */
+];
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
+const srchMainRef = ref(getComponentType('KwSearch'));
 const grdRef = ref(getComponentType('KwGrid'));
-// const grdView = computed(() => grdRef.value?.getView());
-const grdData = computed(() => grdRef.value?.getData());
 
 const pageInfo = ref({
   totalCount: 0,
@@ -122,134 +115,107 @@ const pageInfo = ref({
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
 });
 
-let cachedParams;
-const searchParams = reactive({
-  startDt: dayjs()
-    .startOf('M')
-    .format('YYYYMMDD'),
-  endDt: dayjs()
-    .format('YYYYMMDD'),
+const isShow = ref(false);
+
+const searchParams = ref({
+  startDt: dayjs().startOf('M').format('YYYYMMDD'),
+  endDt: dayjs().format('YYYYMMDD'),
   cttYn: '',
-  cntrNo: undefined,
-  cntrSn: undefined,
+  cntrNo: '',
+  cntrSn: '',
 });
 
-let initialData = [];
-const fetchPage = async (pageIndex = pageInfo.value.pageIndex, pageSize = pageInfo.value.pageSize) => {
-  const params = {
-    ...cachedParams,
-    pageIndex,
-    pageSize,
-  };
-  const response = await dataService.get('/sms/wells/contract/holding-customers/paging', { params });
+let cachedParams;
+async function fetchPage() {
+  // 조회 전 필수체크 (페이징사이즈 변경시 필요함.)
+  if (!await srchMainRef.value.validate()) { return; }
 
-  pageInfo.value = response.data.pageInfo;
-  if (grdData.value) {
-    grdData.value.setRows(response.data.list);
-  } else {
-    initialData = response.data.list;
-  }
-};
+  cachedParams = { ...cachedParams, ...pageInfo.value };
+  const res = await dataService.get('/sms/wells/contract/holding-customers/paging', { params: cachedParams });
+  const { list: pages, pageInfo: pagingResult } = res.data;
 
-function onChangePageInfo(pageIndex, pageSize) {
-  fetchPage(pageIndex, pageSize);
+  pageInfo.value = pagingResult;
+
+  const view = grdRef.value.getView();
+  const dataSource = view.getDataSource();
+
+  dataSource.setRows(pages);
+  view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
 async function onClickSearch() {
-  cachedParams = { ...toRaw(searchParams) };
+  cachedParams = cloneDeep(searchParams.value);
   pageInfo.value.pageIndex = 1;
-  await fetchPage(1);
+  isShow.value = false;
+
+  await fetchPage();
 }
 
-const selectedMemo = ref(`1. 김교원
-2. 비데(BN150RWA), 렌탈료 8900
-`);
+const selectedMemo = ref('');
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
-const initGrdMain = defineGrid((data, view) => {
-  useGridDataModel(view, {
-    ogCd: {
-      label: t('MSG_TXT_BLG'),
-      width: 120,
-      classes: 'text-center',
-    },
-    prtnrKnm: {
-      label: t('MSG_TXT_GNR_MNG'),
-      width: 100,
-      classes: 'text-center',
-    },
-    cntrCnfmDtm: {
-      label: t('MSG_TXT_RCPDT'),
-      width: 120,
-      datetimeFormat: 'date',
-    },
-    cttYn: {
-      label: t('MSG_TXT_DIV'), /* 구분 */
-      width: 100,
-      options: codes.cttYn,
-    },
-    cntrNo: { displaying: false },
-    cntrSn: {
-      type: Number,
-      displaying: false,
-    },
-    cntrNoSn: {
-      label: t('MSG_TXT_CNTR_NO'),
-      valueExpression: 'values["cntrNo"] + "-" + values["cntrSn"]',
-    },
-    cstKnm: {
-      label: t('MSG_TXT_CST_NM'),
-      width: 100,
-    },
-    pdNm: {
-      label: t('MSG_TXT_PRDT_NM'),
-      width: 200,
-    },
-    cttRsCd: {
-      label: t('MSG_TXT_CTT_CNTN'),
-      width: 410,
-      displaying: (cd) => {
-        if (!cd || !codes.LC_CTT_RS_CD) { return ''; }
-        return `${cd}. ${codes.LC_CTT_RS_CD.find((code) => code.codeId === cd)?.codeName || ''}`;
+function initGrid(data, view) {
+  const fields = [
+    { fieldName: 'ogCd' },
+    { fieldName: 'prtnrKnm' },
+    { fieldName: 'cntrCnfmDtm' },
+    { fieldName: 'cttYn' },
+    { fieldName: 'cntrDtlNo' },
+    { fieldName: 'cntrNoSn' },
+    { fieldName: 'cstKnm' },
+    { fieldName: 'pdNm' },
+    { fieldName: 'cttRsCd' },
+    { fieldName: 'cttMoCn' },
+  ];
+
+  const columns = [
+    { fieldName: 'ogCd', header: t('MSG_TXT_BLG'), width: '120', styleName: 'text-center' },
+    { fieldName: 'prtnrKnm', header: t('MSG_TXT_GNR_MNG'), width: '100', styleName: 'text-center' },
+    { fieldName: 'cntrCnfmDtm', header: t('MSG_TXT_RCPDT'), width: '180', styleName: 'text-center', datetimeFormat: 'datetime' },
+    { fieldName: 'cttYn', header: t('MSG_TXT_DIV'), width: '100', styleName: 'text-center', options: codes.cttYn },
+    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '150', styleName: 'text-center' },
+    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '100', styleName: 'text-center' },
+    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '250' },
+    {
+      fieldName: 'cttRsCd',
+      header: t('MSG_TXT_CTT_CNTN'),
+      width: '200',
+      displayCallback: (cd) => {
+        // console.log(cd.cttRsCd);
+        if (isEmpty(cd.cttRsCd) || isEmpty(codes.LC_CTT_RS_CD)) { return ''; }
+        return `${cd.cttRsCd}. ${codes.LC_CTT_RS_CD.find((code) => code.codeId === cd.cttRsCd)?.codeName || ''}`;
       },
     },
-    cttMoCn: {
-      label: t('MSG_TXT_SHOW_DETAIL') /* 상세보기' */,
-      displaying: {
-        value: t('MSG_BTN_DTL_BRWS'),
-        renderer: { type: 'button' },
+    {
+      fieldName: 'cttMoCn',
+      header: t('MSG_TXT_SHOW_DETAIL'),
+      renderer: {
+        type: 'button',
+        hideWhenEmpty: false, // default value, 생략 가능
       },
+      displayCallback: () => t('MSG_TXT_SHOW_DETAIL'),
     },
-  });
+  ];
 
-  view.checkBar.visible = false; // create checkbox column
-  view.rowIndicator.visible = true; // create number indicator column
+  data.setFields(fields);
+  view.setColumns(columns);
 
-  view.onCellItemClicked = (g, { dataRow }) => {
-    const row = gridUtil.getRowValue(view, dataRow);
-    selectedMemo.value = row.cttMoCn;
-    return false;
+  view.checkBar.visible = false;
+  view.rowIndicator.visible = true;
+  view.editOptions.editable = false;
+
+  view.onCellItemClicked = async (g, { dataRow }) => {
+    const moCn = g.getValue(dataRow, 'cttMoCn');
+
+    isShow.value = true;
+    if (isEmpty(moCn)) {
+      selectedMemo.value = '';
+    } else {
+      selectedMemo.value = moCn;
+    }
   };
 
-  data.setRows(initialData);
-});
-
-/* const testFun = () => {
-  initialData = Array.from({ length: 7 }).fill(
-    {
-      cntrNo: 'W20231231987',
-      cntrSn: 123,
-      cntrCnfmDtm: '20230303125959',
-      pdNm: '상품명',
-      cttRsCd: '23',
-      cttMoCn: '다시 찾아가야 함.',
-      ogCd: '조직코도',
-      prtnrKnm: '김파트너',
-      cttYn: 'Y',
-      cstKnm: '이고객',
-    },
-  );
-};
-testFun(); */
+  data.setRows([]);
+}
 </script>
