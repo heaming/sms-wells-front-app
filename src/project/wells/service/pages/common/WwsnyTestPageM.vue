@@ -72,18 +72,14 @@ const movePages = [
         type: 'modal',
         call: 'WwsncTimeTableSellListP',
         props: {
-          cntrNo: 'W20222324935',
-          cntrSn: '1',
-          prtnrNo: '37000',
-          inputGb: '3', // 입력구분
-          wkGb: '1', // 작업구분
-          // workDt: '20230601', // 작업일자
-          // asIstOjNo: '1', // 작업순번
-          // acpgDiv: '', // 접수구분
-          // basePdCd: 'WP02110409', // 상품코드
-          // svBizDclsfCd: '', // 서비스업무세분류코드
-          prevTag: 'timeAssign',
+          baseYm: '202306',
+          cntrNo: 'W20232786947',
+          gdsCd: 'WP01110220',
+          prtnrNo: '37172',
           dataGb: '1',
+          wrkTypDtl: '3110',
+          prevTag: 'timeAssign',
+          selDate: '20230601',
         },
       },
       /* {

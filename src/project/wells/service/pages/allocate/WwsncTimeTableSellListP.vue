@@ -297,14 +297,14 @@ const dataService = useDataService();
 const DATE_FORMAT_YMD = 'YYYYMMDD';
 
 const props = defineProps({
-  baseYm: { type: String, default: '202306' },
-  prtnrNo: { type: String, default: '38764' /* 37000 */ },
-  prevTag: { type: String, default: 'timeAssign' },
-  dataGb: { type: String, default: '1' },
-  dataStus: { type: String, default: '0' },
-  cntrNo: { type: String, default: 'W20222324935' },
-  saleCd: { type: String, default: 'WP02110409' },
-  wrkTypDtl: { type: String, default: '3110' },
+  baseYm: { type: String, default: '' },
+  cntrNo: { type: String, default: '' },
+  gdsCd: { type: String, default: '' },
+  prtnrNo: { type: String, default: '' },
+  prevTag: { type: String, default: '' },
+  dataGb: { type: String, default: '' },
+  wrkTypDtl: { type: String, default: '' },
+  selDate: { type: String, default: '' },
 });
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -323,8 +323,9 @@ const searchParams = ref({
   dataGb: props.dataGb,
   dataStus: props.dataStus,
   cntrNo: props.cntrNo,
-  saleCd: props.saleCd,
+  gdsCd: props.gdsCd,
   wrkTypDtl: props.wrkTypDtl,
+  selDate: props.selDate,
 });
 
 async function getTimeTables() {
