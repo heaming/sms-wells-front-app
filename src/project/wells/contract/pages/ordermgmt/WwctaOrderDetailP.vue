@@ -438,9 +438,7 @@ async function fetchDataCustomerBase() {
     } // 가상계좌
     frmMainData.value.cntrtAdr = res.data[0].cntrtAdr; // 계약자 주소
     frmMainData.value.rcgvpKnm = res.data[0].rcgvpKnm; // 설치(배송정보) 고객명
-    const { istCralLocaraTno } = res.data[0]; // 설치자 휴대지역전화번호
-    const { istMexnoEncr } = isEmpty(res.data[0].istMexnoEncr) ? '' : res.data[0]; // 설치자 휴대전화국번호암호화
-    const { istCralIdvTno } = res.data[0]; // 설치자 휴대개별전화번호
+    const { istCralLocaraTno, istMexnoEncr, istCralIdvTno } = res.data[0]; // 설치자 휴대지역전화번호
     frmMainData.value.rcgvpTno = isEmpty(istCralLocaraTno) && isEmpty(istMexnoEncr) && isEmpty(istCralIdvTno) ? '' : `${istCralLocaraTno}-${istMexnoEncr}-${istCralIdvTno}`; // 설치(배송정보) 휴대전화번호
     frmMainData.value.rcgvpAdr = res.data[0].rcgvpAdr; // 설치(배송정보) 주소
   }

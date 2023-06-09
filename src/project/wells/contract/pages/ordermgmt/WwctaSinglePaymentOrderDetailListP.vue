@@ -273,16 +273,16 @@
       ref="grdFreeGiftInformation"
       name="grdFreeGiftInformation"
       :visible-rows="pageInfo.totalCount"
-      style="width: 50%;"
+      style="width: 100%;"
       @init="initGridFreeGiftInformation"
     />
     <table class="kw-table--normal mt30">
       <colgroup>
-        <col style="width: 10%;">
-        <col style="width: 10%;">
-        <col style="width: 26.6%;">
-        <col style="width: 26.6%;">
-        <col style="width: 26.6%;">
+        <col style="width: 25%;">
+        <col style="width: 25%;">
+        <col style="width: 25%;">
+        <col style="width: 25%;">
+        <col style="width: 25%;">
       </colgroup>
       <tbody>
         <tr>
