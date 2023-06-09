@@ -24,9 +24,10 @@
         </p>
         <p class="kw-state-list__num">
           <a
-            href="#"
+            href="javascript:void(0);"
             class="kw-state-list__under-line"
-          >7</a>
+            @click="onClickReStipulation()"
+          >{{ dashboardCounts.restipulationCnt }}</a>
           <span class="kw-state-list__unit">명</span>
         </p>
       </li>
@@ -36,9 +37,10 @@
         </p>
         <p class="kw-state-list__num">
           <a
-            href="#"
+            href="javascript:void(0);"
             class="kw-state-list__under-line"
-          >7</a>
+            @click="onClickMembership()"
+          >{{ dashboardCounts.membershipCnt }}</a>
           <span class="kw-state-list__unit">명</span>
         </p>
       </li>
@@ -348,6 +350,11 @@ const cntrTpIs = ref({
   rstl: computed(() => searchParams.value.cntrTpCd === '08'), // 재약정
   quot: computed(() => searchParams.value.cntrTpCd === '09'), // 견적서
 });
+
+const dashboardCounts = ref({
+  restipulationCnt: 0,
+  membershipCnt: 0,
+});
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -435,6 +442,32 @@ async function onClickSearchCntrtInfo() {
   }
 }
 
+async function onClickReStipulation() {
+  const res = await modal({
+    component: 'WwctaMshRstlOjCstListP',
+    componentProps: {
+      prtnrNo: step1.value.prtnrNo,
+      ogTpCd: step1.value.ogTpCd,
+      cntrTpCd: 'RSTL',
+      copnDvCd: '1',
+    },
+  });
+  console.log(res);
+}
+
+async function onClickMembership() {
+  const res = await modal({
+    component: 'WwctaMshRstlOjCstListP',
+    componentProps: {
+      prtnrNo: step1.value.prtnrNo,
+      ogTpCd: step1.value.ogTpCd,
+      cntrTpCd: 'MSH',
+      copnDvCd: '1',
+    },
+  });
+  console.log(res);
+}
+
 async function resetSearchConds() {
   ['cstKnm', 'bzrno', 'cralLocaraTno', 'mexnoEncr', 'cralIdvTno'].forEach((key) => {
     searchParams.value[key] = '';
@@ -469,14 +502,8 @@ function isChangedStep() {
 
 async function isValidStep() {
   /**
-   * 0. 기존계약 존재여부
    * 1. 계약자 선택여부
    */
-  if (!isEmpty(step1.value.pextCntr)) {
-    // TODO 메시지 처리
-    await alert('작성중인 전자계약이 있습니다.');
-    return false;
-  }
   if (isEmpty(step1.value.cntrt)) {
     await alert('계약자를 선택해주세요.');
     return false;
@@ -495,11 +522,16 @@ onMounted(async () => {
   props.onChildMounted(1);
   if (await isPartnerStpa()) {
     await alert('휴업');
-  } else if (isEmpty(props.cntrNo)) {
-    // 신규, 마감시간 검사 후 유효하다면
-    if (await isClosingTime()) {
-      await alert('마감');
+  } else {
+    if (isEmpty(props.cntrNo)) {
+      if (await isClosingTime()) {
+        await alert('마감');
+      }
     }
+    const res = await dataService.get('/sms/wells/contract/membership/customers/counts', { params: { copnDvCd: '1' } });
+    const res2 = await dataService.get('/sms/wells/contract/re-stipulation/customers/counts', { params: { copnDvCd: '1' } });
+    dashboardCounts.value.restipulationCnt = res.data;
+    dashboardCounts.value.membershipCnt = res2.data;
   }
 });
 
