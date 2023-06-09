@@ -55,6 +55,7 @@
           <kw-select
             v-model="searchParams.ostrTpCd"
             :options="codes.OSTR_TP_CD"
+            first-option="all"
           />
         </kw-search-item>
         <!-- //출고유형 -->
@@ -98,7 +99,8 @@
             first-option="all"
           />
           <kw-select
-            :options="['전체' , 'B']"
+            v-model="searchParams.itmPdCd"
+            :options="itmPdCdFilter"
             first-option="all"
           />
         </kw-search-item>
@@ -176,6 +178,7 @@ const dataService = useDataService();
 const { t } = useI18n();
 
 const baseURI = '/sms/wells/service/out-of-storage-iz-dtls';
+const itemsURI = '/sms/wells/service/individual-ware-ostrs/filter-items';
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -190,6 +193,10 @@ const codes = await codeUtil.getMultiCodes(
   'COD_YN',
   'USE_YN',
 );
+
+const itmPdCdFilter = ref();
+// 품목코드
+// codes.value.ITM_PD_CD = [{}];
 
 const grdMainRef = ref(getComponentType('KwGrid'));
 
@@ -213,8 +220,16 @@ const searchParams = ref({
   ostrWareDtlDvCd: '',
   ostrWareNo: '',
   itmKndCd: '',
+  itmPdCd: '',
   useYn: '',
   apyYm: '',
+});
+
+// 품목코드 가져오기
+watch(() => searchParams.value.itmKndCd, async () => {
+  const { itmKndCd } = searchParams.value;
+  const { data } = await dataService.get(itemsURI, { params: { itmKndCd } });
+  itmPdCdFilter.value = data;
 });
 
 async function fetchData() {
@@ -271,7 +286,13 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'sapMatCd', header: t('MSG_TXT_SAP_CD'), width: '150', styleName: 'text-center' },
     { fieldName: 'itmPdCd', header: t('MSG_TXT_ITM_CD'), width: '150', styleName: 'text-center' },
     { fieldName: 'pdNm', header: t('MSG_TXT_ITM_NM'), width: '300', styleName: 'text-left' },
-    { fieldName: 'ostrTpCd', header: t('MSG_TXT_OSTR_TP'), width: '100', styleName: 'text-center' },
+    { fieldName: 'ostrTpCd',
+      header: t('MSG_TXT_OSTR_TP'),
+      options: codes.OSTR_TP_CD,
+      editor: { type: 'list' },
+      editable: false,
+      width: '100',
+      styleName: 'text-center' },
     { fieldName: 'mngtUnitCd', header: t('MSG_TXT_MNGT_UNIT'), width: '100', styleName: 'text-center' },
     { fieldName: 'itmGdCd', header: t('MSG_TXT_GD'), width: '100', styleName: 'text-center' },
     { fieldName: 'strQty', header: t('MSG_TXT_QTY'), width: '100', styleName: 'text-center' },
