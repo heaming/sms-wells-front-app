@@ -167,6 +167,8 @@ const { currentRoute } = useRouter();
 const dataService = useDataService();
 const { getConfig } = useMeta();
 const currentMonth = dayjs().subtract(0, 'month').format('YYYYMM');
+const { getUserInfo } = useMeta();
+const userInfo = getUserInfo();
 
 const codes = await codeUtil.getMultiCodes(
   'REDF_OG_TP_CD',
@@ -308,7 +310,7 @@ async function onClickSearchPartner() {
     component: 'ZwogzPartnerListP',
     componentProps: {
       prtnrNo: searchParams.value.prtnrNo,
-      ogTpCd: searchParams.value.ogTpCd,
+      ogTpCd: searchParams.value.ogTpCd === 'ALL' ? userInfo.ogTpCd : searchParams.value.ogTpCd,
     },
   });
   if (result) {
