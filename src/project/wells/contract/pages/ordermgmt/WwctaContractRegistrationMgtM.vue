@@ -306,6 +306,7 @@ async function onClickNext() {
   }
   if (step === 4) {
     // step4에서 '다음'은 계약 현황 목록으로 화면 이동
+    await router.close(0, true);
     await router.push({ path: '/contract/wwcta-contract-status-list' });
   } else {
     currentStep.value.done = true;

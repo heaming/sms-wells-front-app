@@ -115,6 +115,12 @@ import {
   useModal,
 } from 'kw-lib';
 
+const props = defineProps({
+  cntrTpCd: { type: String, required: true },
+  prtnrNo: { type: String, required: true },
+  ogTpCd: { type: String, required: true },
+});
+
 const { ok, cancel } = useModal();
 const { getConfig } = useMeta();
 const { t } = useI18n();
@@ -151,7 +157,7 @@ const pageInfo = ref({
 let cachedParams;
 const searchParams = reactive({
   cntrTpCd: codes.CNTR_TP_CD[0].codeId,
-  copnDvCd: codes.COPN_DV_CD[0].codeId,
+  copnDvCd: '1',
   cstKnm: '',
   cralLocaraTno: '',
   mexnoEncr: '',
@@ -165,6 +171,8 @@ async function fetchPage(pageIndex = pageInfo.value.pageIndex, pageSize = pageIn
     pageSize,
   };
 
+  console.log(params.cntrTpCd);
+  console.log(codes.CNTR_TP_CD);
   const { url } = codes.CNTR_TP_CD.find((code) => code.codeId === params.cntrTpCd);
   const response = await dataService.get(url, { params });
 
@@ -181,6 +189,15 @@ async function onSearch() {
 function onClickClose() {
   cancel();
 }
+
+onMounted(async () => {
+  searchParams.cntrTpCd = props.cntrTpCd;
+  searchParams.prtnrNo = props.prtnrNo;
+  searchParams.ogTpCd = props.ogTpCd;
+  searchParams.copnDvCd = props.copnDvCd;
+
+  onSearch();
+});
 
 const initGrd = defineGrid((data, view) => {
   useGridDataModel(view, {
