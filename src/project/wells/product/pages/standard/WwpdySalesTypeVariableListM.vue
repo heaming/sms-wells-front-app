@@ -114,7 +114,8 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { useDataService, useMeta, gridUtil, useGlobal, codeUtil, getComponentType, defineGrid } from 'kw-lib';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, isEmpty } from 'lodash-es';
+import pdConst from '~sms-common/product/constants/pdConst';
 
 const { notify } = useGlobal();
 const router = useRouter();
@@ -127,6 +128,7 @@ const { getConfig } = useMeta();
 // -------------------------------------------------------------------------------------------------
 const grdMainRef = ref(getComponentType('KwGrid'));
 const currentSearchYn = ref();
+const variableCodes = ref([]);
 
 let cachedParams;
 const searchParams = ref({
@@ -198,6 +200,26 @@ async function onClickExcelDownload() {
   });
 }
 
+async function fetchVariables() {
+  if (isEmpty(variableCodes.value.length)) {
+    const res = await dataService.get('/sms/common/product/meta-properties', { params: { pdPrcTpCd: pdConst.PD_PRC_TP_CD_ALL } });
+    if (isEmpty(res.data)) {
+      return;
+    }
+    console.log('WwpdySalesTypeVariableListM - fetchVariables - res : ', res);
+    variableCodes.value = res.data.map(({ pdPrpMetaId, uiLblCdv }) => ({
+      codeId: pdPrpMetaId, codeName: t(uiLblCdv) })) ?? [];
+    // const view = grdMainRef.value?.getView();
+    // if (view && variableCodes.value.length) {
+    //   const rgltnVarbId = view.columnByName('rgltnVarbId');
+    //   rgltnVarbId.labels = variableCodes.value.map((item) => (item.codeId));
+    //   rgltnVarbId.values = variableCodes.value.map((item) => (item.codeId));
+    // }
+  }
+}
+
+await fetchVariables();
+
 onMounted(async () => {
   console.log('Start');
 });
@@ -208,8 +230,7 @@ onMounted(async () => {
 const initGrdMain = defineGrid((data, view) => {
   const columns = [
     // 판매유형
-    {
-      fieldName: 'sellTpCd',
+    { fieldName: 'sellTpCd',
       header: t('MSG_TXT_SEL_TYPE'),
       width: '94',
       styleName: 'text-center',
@@ -226,29 +247,34 @@ const initGrdMain = defineGrid((data, view) => {
       editor: { type: 'list' },
       rules: 'required',
       options: codes.CHO_FXN_DV_CD },
+    // 변수명
+    { fieldName: 'rgltnVarbNm',
+      header: t('MSG_TXT_VARB_NM'),
+      width: '162',
+      editor: { type: 'list' },
+      rules: 'required',
+      options: variableCodes.value,
+      // displayCallback(grid, index) {
+      //   const { rgltnVarbId } = grid.getValues(index.itemIndex);
+      //   if (rgltnVarbNm && (rgltnVarbNm.indexOf('MSG_TXT') > -1 || rgltnVarbNm.indexOf('TXT_MSG') > -1)) {
+      //     return t(rgltnVarbNm);
+      //   }
+      //   return rgltnVarbNm;
+      // },
+    },
     // 변수ID
     { fieldName: 'rgltnVarbId',
       header: t('MSG_TXT_VAL_ID'),
       width: '126',
       styleName: 'text-center',
-      editor: { maxLength: 15, inputCharacters: 'A-Za-z0-9' },
-      rules: 'required' },
-    // 변수명
-    { fieldName: 'rgltnVarbNm',
-      header: t('MSG_TXT_VARB_NM'),
-      width: '162',
+      rules: 'required',
       editable: false,
-      styleName: 'text-left',
-      displayCallback(grid, index) {
-        const { rgltnVarbNm } = grid.getValues(index.itemIndex);
-        return rgltnVarbNm ? t(rgltnVarbNm) : '';
-      },
     },
     // 노출순서
     { fieldName: 'sortOdr',
       header: t('MSG_TXT_EXPSR_ODR'),
       width: '79',
-      editor: { type: 'number', editFormat: '9', maxLength: 1, positiveOnly: true },
+      editor: { type: 'number', editFormat: '99', maxLength: 2, positiveOnly: true },
       dataType: 'number' },
     // 등록일
     { fieldName: 'fstRgstDtm', header: t('MSG_TXT_RGST_DT'), width: '100', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date', editable: false },
@@ -269,6 +295,12 @@ const initGrdMain = defineGrid((data, view) => {
 
   view.sortingOptions.enabled = false;
   view.filteringOptions.enabled = false;
+  view.onCellEdited = async (grid, itemIndex, row, fieldIndex) => {
+    const changedFieldName = grid.getColumn(fieldIndex).fieldName;
+    if (changedFieldName === 'rgltnVarbNm') {
+      view.setValue(itemIndex, 'rgltnVarbId', grid.getValue(itemIndex, 'rgltnVarbNm'));
+    }
+  };
 });
 </script>
 <style scoped></style>
