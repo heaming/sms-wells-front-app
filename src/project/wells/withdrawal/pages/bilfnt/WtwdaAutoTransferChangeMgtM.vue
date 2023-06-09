@@ -72,6 +72,7 @@
           >
             <kw-input
               v-model="inputParams.cstNm"
+              :regex="/^[A-Z가-힣ㄱ-ㅎ]*$/i"
               :label="t('MSG_TXT_NOTAK_RCV_CST_NAME')"
               maxlength="15"
               :placeholder="t('MSG_TXT_INP')"
@@ -201,12 +202,13 @@ async function onClickAlarmSend() {
 }
 
 onMounted(async () => {
-  const path = '/tablet/#/withdrawal/wtwda-auto-transfer-change-mgt';
   if (!window.opener) {
+    const path = '/tablet/#/withdrawal/wtwda-auto-transfer-change-mgt';
     const size = {
       width: 1138,
       height: 712,
     };
+    await router.close(0, true);
     await popupUtil.open(`${path}`, size, false);
   }
 });

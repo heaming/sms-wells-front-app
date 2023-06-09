@@ -65,6 +65,7 @@
         <h4>{{ t('MSG_TXT_NOTAK_RCV_CST_NAME') }}</h4>
         <kw-input
           v-model.trim="inputParams.cstNm"
+          :regex="/^[A-Z가-힣ㄱ-ㅎ]*$/i"
           :label="t('MSG_TXT_NOTAK_RCV_CST_NAME')"
           :placeholder="t('MSG_TXT_INP')"
           grow
@@ -199,9 +200,10 @@ onMounted(async () => {
   if (!window.opener) {
     const path = '/mobile/#/withdrawal/wmwda-auto-transfer-change-mgt';
     const size = {
-      width: 320,
-      height: 658,
+      width: 390,
+      height: 844,
     };
+    await router.close(0, true);
     await popupUtil.open(`${path}`, size, false);
   }
 });
