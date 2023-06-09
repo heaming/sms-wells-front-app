@@ -136,6 +136,7 @@ const grdView = computed(() => grdRef.value?.getView());
 const grdData = computed(() => grdRef.value?.getData());
 
 const grdCombiView = computed(() => grdCombiRef.value?.getView());
+const grdCombiData = computed(() => grdCombiRef.value?.getData());
 
 const pageInfo = ref({
   totalCount: 0,
@@ -253,21 +254,27 @@ async function onClickCombiExcelDownload() {
       : combiPdCds.join(','),
     isCombi: 'Y',
   };
-  const response = await dataService.get('/sms/wells/contract/sales-status/sec-product-management/shipping-items', { params });
+  const res = await dataService.get('/sms/wells/contract/sales-status/sec-product-management/shipping-items', { params });
+
+  grdCombiData.value.setRows(res.data);
+  grdCombiView.value.resetCurrent();
+
   await gridUtil.exportView(grdCombiView.value, {
     fileName: `${currentRoute?.value.meta?.menuName}(${t('MSG_TXT_DLVRY')})_콤비`,
     timePostfix: true,
-    exportData: response.data,
+    exportData: res.data,
+    searchCondition: true,
   });
 }
 
 async function onClickExcelDownload() {
   if (!cachedParams) { cacheParams(); }
-  const response = await dataService.get('/sms/wells/contract/sales-status/sec-product-management/shipping-items', { params: cachedParams });
+  const res = await dataService.get('/sms/wells/contract/sales-status/sec-product-management/shipping-items', { params: cachedParams });
   await gridUtil.exportView(grdView.value, {
     fileName: `${currentRoute?.value.meta?.menuName}(${t('MSG_TXT_DLVRY')})`,
     timePostfix: true,
-    exportData: response.data,
+    exportData: res.data,
+    searchCondition: true,
   });
 }
 
