@@ -27,8 +27,7 @@
       </kw-search-item>
       <kw-search-item
         :label="$t('MSG_TXT_PRDT_GUBUN')"
-        required
-        :colspan="2"
+        colspan="2"
       >
         <kw-field-wrap
           grow
@@ -40,6 +39,8 @@
             v-model="searchParams.pdMclsfIds"
             multiple
             :options="mclsfs"
+            :placeholder="$t('MSG_TXT_CLSF') + $t('MSG_TXT_SELT')"
+            style="max-width: 33%;"
           />
           <kw-select
             ref="selPdsRef"
@@ -48,6 +49,8 @@
             :options="products"
             option-value="pdCd"
             option-label="pdNm"
+            :placeholder="$t('MSG_TXT_MDL_NM') + $t('MSG_TXT_SELT')"
+            style="max-width: 33%;"
           />
         </kw-field-wrap>
       </kw-search-item>
@@ -94,6 +97,13 @@
       :total-count="pageInfo.totalCount"
       @change="onChangePageInfo"
     />
+    <kw-grid
+      ref="grdCombiRef"
+      name="grdCombi"
+      style="max-width: 0; max-height: 0;"
+      @init="initGrdCombi"
+    />
+    <!-- 숨기기 처리시 grid 초기화되지 않는 이슈로 인해 width, height 설정으로 회피 -->
   </div>
 </template>
 <script setup>
@@ -119,10 +129,14 @@ const codes = await codeUtil.getMultiCodes(
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
-
 const grdRef = ref(getComponentType('KwGrid'));
+const grdCombiRef = ref(getComponentType('KwGrid'));
+
 const grdView = computed(() => grdRef.value?.getView());
 const grdData = computed(() => grdRef.value?.getData());
+
+const grdCombiView = computed(() => grdCombiRef.value?.getView());
+const grdCombiData = computed(() => grdCombiRef.value?.getData());
 
 const pageInfo = ref({
   totalCount: 0,
@@ -136,6 +150,7 @@ const searchParams = reactive({
   enddt: dayjs().format('YYYYMMDD'),
   pdMclsfIds: [],
   pdCds: [],
+  isCombi: 'N',
 });
 
 const selMclsfsRef = ref(getComponentType('KwSelect'));
@@ -201,9 +216,11 @@ const fetchPage = async (pageIndex = pageInfo.value.pageIndex, pageSize = pageIn
     pageSize,
   };
   const response = await dataService.get('/sms/wells/contract/sales-status/sec-product-management/shipping-items/paging', { params });
-
+  // console.log(response);
   pageInfo.value = response.data.pageInfo;
   grdData.value.setRows(response.data.list);
+
+  grdView.value.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 };
 
 function cacheParams() {
@@ -212,6 +229,7 @@ function cacheParams() {
     enddt: searchParams.enddt,
     pdMclsfIds: searchParams.pdMclsfIds.join(','),
     pdCds: searchParams.pdCds.join(','),
+    isCombi: 'N',
   };
 }
 
@@ -234,40 +252,62 @@ async function onClickCombiExcelDownload() {
     pdCds: cachedParams.pdCds
       ? cachedParams.pdCds.split(',').filter((pdCd) => combiPdCds.includes(pdCd)).join(',')
       : combiPdCds.join(','),
+    isCombi: 'Y',
   };
-  const response = await dataService.get('/sms/wells/contract/sales-status/sec-product-management/shipping-items', { params });
-  await gridUtil.exportView(grdView.value, {
+  const res = await dataService.get('/sms/wells/contract/sales-status/sec-product-management/shipping-items', { params });
+
+  grdCombiData.value.setRows(res.data);
+  grdCombiView.value.resetCurrent();
+
+  await gridUtil.exportView(grdCombiView.value, {
     fileName: `${currentRoute?.value.meta?.menuName}(${t('MSG_TXT_DLVRY')})_콤비`,
     timePostfix: true,
-    exportData: response.data,
+    exportData: res.data,
+    searchCondition: true,
   });
 }
 
 async function onClickExcelDownload() {
   if (!cachedParams) { cacheParams(); }
-  const response = await dataService.get('/sms/wells/contract/sales-status/sec-product-management/shipping-items', { params: cachedParams });
+  const res = await dataService.get('/sms/wells/contract/sales-status/sec-product-management/shipping-items', { params: cachedParams });
   await gridUtil.exportView(grdView.value, {
     fileName: `${currentRoute?.value.meta?.menuName}(${t('MSG_TXT_DLVRY')})`,
     timePostfix: true,
-    exportData: response.data,
+    exportData: res.data,
+    searchCondition: true,
   });
 }
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
-
 const initGrd = defineGrid((data, view) => {
   useGridDataModel(view, {
+    blkYn1: { displaying: false },
+    blkYn2: { displaying: false },
+    blkYn3: { displaying: false },
+    blkYn4: { displaying: false },
     blkList: {
       label: t('MSG_TXT_SUS_CUST'),
       width: 100,
-      options: [
-        { codeId: 'CNTR_CST_NO', codeName: `${t('MSG_TXT_KWK') /* 교원키 */} ${t('MSG_TIT_DUB') /* 의심 */}` },
-        { codeId: 'CST_KNM', codeName: `${t('MSG_TXT_CST_NM') /* 고객명 */} ${t('MSG_TIT_DUB') /* 의심 */}` },
-        { codeId: 'TNO', codeName: `${t('MSG_TXT_CONTACT') /* 연락처 */} ${t('MSG_TIT_DUB') /* 의심 */}` },
-        { codeId: 'ADR_ID', codeName: `${t('MSG_TXT_ADDR') /* 주소 */} ${t('MSG_TIT_DUB') /* 의심 */}` },
-      ],
+      valueCallback: (gridBase, rowId, fieldName, fields, values) => {
+        const yn1 = values[fields.indexOf('blkYn1')];
+        const yn2 = values[fields.indexOf('blkYn2')];
+        const yn3 = values[fields.indexOf('blkYn3')];
+        const yn4 = values[fields.indexOf('blkYn4')];
+
+        let res = '';
+        if (yn1 === '1') {
+          res = `${t('MSG_TXT_KWK') /* 교원키 */} ${t('MSG_TIT_DUB') /* 의심 */}`;
+        } else if (yn2 === '1') {
+          res = `${t('MSG_TXT_CST_NM') /* 고객명 */} ${t('MSG_TIT_DUB') /* 의심 */}`;
+        } else if (yn3 === '1') {
+          res = `${t('MSG_TXT_CONTACT') /* 연락처 */} ${t('MSG_TIT_DUB') /* 의심 */}`;
+        } else if (yn4 === '1') {
+          res = `${t('MSG_TXT_ADDR') /* 주소 */} ${t('MSG_TIT_DUB') /* 의심 */}`;
+        }
+        return res;
+      },
     },
     cttOrCnfmDtm: {
       label: t('MSG_TXT_ORD_INQ_DT'),
@@ -279,7 +319,7 @@ const initGrd = defineGrid((data, view) => {
     cntrSn: { displaying: false },
     cntrNoSn: {
       label: t('MSG_TXT_CNTR_DTL_NO'),
-      width: 120,
+      width: 150,
       valueExpression: 'values["cntrNo"] + "-" + values["cntrSn"]',
       classes: 'text-center',
     },
@@ -289,7 +329,125 @@ const initGrd = defineGrid((data, view) => {
       classes: 'text-center',
     },
     rcgvpKnm: {
-      label: t('MSG_TXT_EXTRAD'), width: 100, classes: 'text-left',
+      label: t('MSG_TXT_EXTRAD'), width: 100, classes: 'text-center',
+    },
+    zip: {
+      label: t('MSG_TXT_ZIP'), width: 120, classes: 'text-center',
+    },
+    adr: { displaying: false },
+    dtlAdr: { displaying: false },
+    address: {
+      label: t('MSG_TXT_ADDR'),
+      width: 400,
+      valueCallback: (gridBase, rowId, fieldName, fields, values) => {
+        const adr = values[fields.indexOf('adr')];
+        const dtlAdr = values[fields.indexOf('dtlAdr')];
+        if (!adr) {
+          return '';
+        }
+        return `${adr}${dtlAdr ? ` ${dtlAdr}` : ''}`;
+      },
+    },
+    pdMclsfId: { displaying: false },
+    pdMclsfNm: {
+      label: `${t('MSG_TXT_PRDT_NM')}(${t('MSG_TXT_PD_MCLSF_ID')})`,
+      width: 240,
+    },
+    pdCd: { displaying: false },
+    pdNm: { displaying: false },
+    pd: {
+      label: t('MSG_TXT_PRDT_NM'),
+      width: 240,
+      valueCallback: (gridBase, rowId, fieldName, fields, values) => {
+        const pdNm = values[fields.indexOf('pdNm')];
+        const pdCd = values[fields.indexOf('pdCd')];
+        if (!pdNm) {
+          return '';
+        }
+        return `${pdNm}${pdCd ? `(${pdCd})` : ''}`;
+      },
+    },
+    cralLocaraTno: { displaying: false },
+    mexnoEncr: { displaying: false },
+    cralIdvTno: { displaying: false },
+    shpadrTno: {
+      label: `${t('MSG_TXT_SHPADR')} ${t('MSG_TXT_TEL_NO')}` /* 배송지 전화번호 */,
+      width: 180,
+      valueCallback: (gridBase, rowId, fieldName, fields, values) => {
+        const tno1 = values[fields.indexOf('cralLocaraTno')];
+        const tno2 = values[fields.indexOf('mexnoEncr')];
+        const tno3 = values[fields.indexOf('cralIdvTno')];
+        return (tno1 && tno2 && tno3) ? `${tno1}-${tno2}-${tno3}` : '';
+      },
+      classes: 'text-center',
+    },
+    prtnrCralLocaraTno: { displaying: false },
+    prtnrMexnoEncr: { displaying: false },
+    prtnrCralIdvTno: { displaying: false },
+    prtnrTno: {
+      label: `${t('MSG_TXT_PRTNR')} ${t('MSG_TXT_TEL_NO')}` /* 파트너 전화번호 */,
+      width: 180,
+      valueCallback: (gridBase, rowId, fieldName, fields, values) => {
+        const tno1 = values[fields.indexOf('prtnrCralLocaraTno')];
+        const tno2 = values[fields.indexOf('prtnrMexnoEncr')];
+        const tno3 = values[fields.indexOf('prtnrCralIdvTno')];
+        return (tno1 && tno2 && tno3) ? `${tno1}-${tno2}-${tno3}` : '';
+      },
+      classes: 'text-center',
+    },
+    unuitm: {
+      label: t('MSG_TXT_UNUITM'),
+      width: 200,
+      classes: 'text-left',
+    },
+    istYn: {
+      label: t('MSG_TXT_INST'),
+      width: 134,
+      options: codes.COD_YN,
+    },
+    istDt: {
+      label: t('MSG_TXT_INST_DT'),
+      width: 134,
+      datetimeFormat: 'date',
+    },
+    pdctIdno: {
+      label: t('MSG_TXT_SR_NUM'),
+      width: 134,
+      classes: 'text-center',
+    },
+    sellTpCd: {
+      label: t('MSG_TXT_ORD_TYP'),
+      width: 134,
+      options: codes.SELL_TP_CD,
+    },
+  });
+  view.checkBar.visible = false; // create checkbox column
+  view.rowIndicator.visible = true; // create number indicator column
+
+  // 스크롤 고정 - 의심고객, 주문 조회 일, 계약상세번호 고정
+  view.setFixedOptions({ colCount: 3 });
+});
+
+const initGrdCombi = defineGrid((data, view) => {
+  useGridDataModel(view, {
+    cntrNo: { displaying: false },
+    cntrSn: { displaying: false },
+    cntrNoSn: {
+      label: t('MSG_TXT_CNTR_DTL_NO'),
+      width: 150,
+      valueExpression: 'values["cntrNo"] + "-" + values["cntrSn"]',
+      classes: 'text-center',
+    },
+    ojDtlCntrNo: { displaying: false },
+    ojDtlCntrSn: { displaying: false },
+    ojDtlCntrNoSn: {
+      label: `${t('MSG_TXT_CNTR_DTL_NO')}(${t('MSG_TXT_COM_WALL')})`,
+      width: 180,
+      valueExpression: 'values["ojDtlCntrNo"] + "-" + values["ojDtlCntrSn"]',
+      classes: 'text-center',
+    },
+    rcgvpKnm: {
+      label: t('MSG_TXT_EXTRAD'), width: 100, classes: 'text-center',
     },
     zip: {
       label: t('MSG_TXT_ZIP'), width: 120, classes: 'text-center',
