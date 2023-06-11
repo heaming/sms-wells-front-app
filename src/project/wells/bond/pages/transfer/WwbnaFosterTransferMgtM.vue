@@ -167,8 +167,8 @@
       />
 
       <kw-pagination
-        :page-index="pageDetailInfo.pageIndex"
-        :page-size="pageDetailInfo.pageSize"
+        v-model:page-index="pageDetailInfo.pageIndex"
+        v-model:page-size="pageDetailInfo.pageSize"
         :total-count="pageDetailInfo.totalCount"
         @change="onChangeDetailPageInfo"
       />
