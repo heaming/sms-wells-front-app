@@ -74,7 +74,7 @@
 // -------------------------------------------------------------------------------------------------
 import { defineGrid, getComponentType, gridUtil, useDataService, useMeta, codeUtil } from 'kw-lib';
 import dayjs from 'dayjs';
-import { cloneDeep } from 'lodash';
+import { cloneDeep } from 'lodash-es';
 
 // const { t } = useI18n();
 const now = dayjs();
