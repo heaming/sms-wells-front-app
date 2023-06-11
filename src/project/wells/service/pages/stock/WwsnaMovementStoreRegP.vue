@@ -431,8 +431,8 @@ const initGrdMain = defineGrid((data, view) => {
   view.rowIndicator.visible = true;
 
   view.onCellDblClicked = async (g, c) => {
-    const { itmPdCd, itmPdNm } = g.getValues(g.getCurrent().itemIndex);
-    console.log(itmPdNm, itmPdNm);
+    const { itmPdCd, itmPdNm, strRgstDt } = g.getValues(g.getCurrent().itemIndex);
+    console.log(itmPdNm, itmPdNm, strRgstDt);
     console.log(searchParams.value.ostrWareNo);
 
     if (c.column === 'itemLoc') {
@@ -441,16 +441,18 @@ const initGrdMain = defineGrid((data, view) => {
         componentProps: {
           wareNo: searchParams.value.ostrWareNo,
           itmPdCd,
+          apyYm: strRgstDt,
         },
       });
       console.log(`result : ${result}`);
       console.log(`payload : ${payload}`);
 
       if (result) {
-        stckStdGbFetchData();
         fetchData();
         console.log('재검색 하였습니다.');
       }
+
+      stckStdGbFetchData();
     }
   };
 
