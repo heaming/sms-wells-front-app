@@ -141,7 +141,7 @@ import dayjs from 'dayjs';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import pdConst from '~sms-common/product/constants/pdConst';
 import ZwpdProductClassificationSelect from '~sms-common/product/pages/standard/components/ZwpdProductClassificationSelect.vue';
-import { setGridDateFromTo } from '~sms-common/product/utils/pdUtil';
+import { setGridDateFromTo, getAlreadyItems } from '~sms-common/product/utils/pdUtil';
 
 const { notify, modal } = useGlobal();
 const router = useRouter();
@@ -232,10 +232,30 @@ async function onClickAdd() {
   });
 }
 
+async function checkDuplication() {
+  const view = grdMainRef.value.getView();
+  const createdRows = gridUtil.getCreatedRowValues(view);
+
+  if (createdRows.length === 0) {
+    return false;
+  }
+
+  const { data: dupData } = await dataService.post('/sms/wells/product/cancel-charges/duplication-check', createdRows);
+  if (dupData.data) {
+    const dupCodes = dupData.data.split(',', -1);
+    const { pdNm } = createdRows.find((item) => item.pdCd === dupCodes[0]);
+    // 은(는) 이미 DB에 등록되어 있습니다.
+    notify(t('MSG_ALT_EXIST_IN_DB', [pdNm]));
+    return true;
+  }
+  return false;
+}
+
 async function onClickSave() {
   const view = grdMainRef.value.getView();
   if (await gridUtil.alertIfIsNotModified(view)) { return; } // 수정된 행 없음
   if (!await gridUtil.validate(view)) { return; } // 유효성 검사
+  if (await checkDuplication()) { return; } // 중복 검사
 
   const changedRows = gridUtil.getChangedRowValues(view);
   await dataService.post('/sms/wells/product/cancel-charges', { bases: changedRows });
@@ -384,6 +404,12 @@ const initGrdMain = defineGrid((data, view) => {
       });
       if (payload) {
         const row = Array.isArray(payload) ? payload[0] : payload;
+        const alreadyItems = getAlreadyItems(view, [row], 'pdCd');
+        if (alreadyItems.length) {
+          // 이미 등록된 {상품} 입니다.
+          notify(t('MSG_ALT_ALREADY_RGST', [t('MSG_TXT_PRDT')]));
+          return;
+        }
         data.setValue(itemIndex, 'pdNm', row.pdNm);
         data.setValue(itemIndex, 'pdCd', row.pdCd);
       }
