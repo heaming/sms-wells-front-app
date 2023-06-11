@@ -184,7 +184,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { codeUtil, defineGrid, getComponentType, gridUtil, useDataService, useGlobal, useMeta } from 'kw-lib';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, isEmpty } from 'lodash-es';
 import useSnCode from '~sms-wells/service/composables/useSnCode';
 import dayjs from 'dayjs';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
@@ -345,7 +345,14 @@ function setPersonInChargeCellData(view, row, value, column) {
     view.setValue(row, `${column[1]}`, ogNm);
     view.setValue(row, `${column[2]}`, value);
     view.setValue(row, `${column[3]}`, prtnrNm);
+  } else {
+    view.setValue(row, `${column[0]}`, '');
+    view.setValue(row, `${column[1]}`, '');
+    view.setValue(row, `${column[2]}`, '');
+    view.setValue(row, `${column[3]}`, '');
+    notify(t('MSG_ALT_EQ_EGER_NTHNG'));
   }
+  view.commit();
 }
 
 // 적용일자 일괄입력
@@ -371,11 +378,7 @@ async function onClickSave() {
 
   if (!await gridUtil.alertIfIsNotModified(view)) {
     const changedRows = gridUtil.getChangedRowValues(view);
-
-    const isNotMatched = changedRows.find((v) => {
-      const matchedEngineer = engineers.find((x) => x.prtnrNo === v.ichrPrtnrNo);
-      return matchedEngineer === null;
-    });
+    const isNotMatched = changedRows.find((v) => isEmpty(v.ichrPrtnrNo));
 
     if (isNotMatched) {
       notify(t('MSG_TXT_RPB_EMPNO_CONF'));
