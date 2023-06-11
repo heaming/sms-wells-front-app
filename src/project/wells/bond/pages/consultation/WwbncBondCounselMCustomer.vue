@@ -229,7 +229,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { defineGrid, gridUtil, codeUtil, getComponentType, modal, useDataService, notify } from 'kw-lib';
+import { defineGrid, gridUtil, codeUtil, getComponentType, modal, useDataService, notify, popupUtil } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 import { getDlqMcnt, getFntDt, getWellsCstListDv, getAuthAuthRsgYn, getFntDv } from '~sms-common/bond/utils/bnUtil';
 
@@ -583,7 +583,7 @@ const initGrdMain = defineGrid((data, view) => {
     const cntrNo = g.getValue(dataRow, 'cntrNo');
     const cntrSn = g.getValue(dataRow, 'cntrSn');
     if (cstNo) {
-      await window.open(`/popup/#/wwbnc-customer-dtl?cstNo=${cstNo}&cntrNo=${cntrNo}&cntrSn=${cntrSn}`, 'POPUP', 'width=2000, height=1100, menubar=no, location=no, resizable=yes');
+      await popupUtil.open(`/popup/#/wwbnc-customer-dtl?cstNo=${cstNo}&cntrNo=${cntrNo}&cntrSn=${cntrSn}`, { width: 2000, height: 1100 }, false);
     }
   };
 });
