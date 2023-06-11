@@ -139,26 +139,27 @@
 import { useDataService, stringUtil, useGlobal } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 import { SMS_COMMON_URI } from '~sms-common/organization/constants/ogConst';
+import { setPhoneNumber } from '~sms-common/organization/utils/ogUtil';
 
 const { t } = useI18n();
 const dataService = useDataService();
-const { getters } = useStore();
 const { modal, notify } = useGlobal();
+const { getters } = useStore();
 const userInfo = getters['meta/getUserInfo'];
-const { ogTpCd } = userInfo;
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 let cachedParams;
 const resultList = ref({});
 const searchParams = ref({
-  prcsStrtDt: undefined,
-  prcsEndDt: undefined,
+  writeStrtDt: undefined,
+  writeEndDt: undefined,
   rcrtStrtDt: undefined,
   rcrtEndDt: undefined,
   apprGubun: '50',
   prtnrKnm: undefined,
-  ogTpCd,
+  ogTpCd: userInfo.ogTpCd,
+  ogId: userInfo.ogId,
 });
 
 const apprvGubun = ref([
@@ -176,6 +177,11 @@ const totalCount = ref(0);
 async function fetchData() {
   const res = await dataService.get(`${SMS_COMMON_URI}/recruitings/recruiting`, { params: { ...cachedParams } });
   const list = res.data;
+  resultList.value = list.filter((obj) => {
+    obj.rrno = `${obj.rrnoFrpsnVal}-${obj.rrnoEncr}`;
+    obj.phoneNumber = setPhoneNumber(`${obj.cralLocaraTno}${obj.mexnoEncr}${obj.cralIdvTno}`);
+    return obj;
+  });
   resultList.value = list;
   totalCount.value = list.length;
 }

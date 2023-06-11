@@ -2,14 +2,14 @@
 ****************************************************************************************************
 * 프로그램 개요
 ****************************************************************************************************
-1. 모듈 : OGT
-2. 프로그램 ID : WwogtRecruitingUrlSendListM - 플래너 업무등록 현황(모바일) //현재 안쓰임
-3. 작성자 : 김동석
-4. 작성일 : 2023-01-25
+1. 모듈 : OGB
+2. 프로그램 ID : WwogtRecruitingUrlSendListM - 플래너 업무등록 현황(태블릿)
+3. 작성자 : 한용희
+4. 작성일 : 2023-03-24
 ****************************************************************************************************
 * 프로그램 설명
 ****************************************************************************************************
-- 플래너 업무등록 현황(모바일)
+- 플래너 업무등록 현황(태블릿)
 ****************************************************************************************************
 --->
 <template>
@@ -21,16 +21,14 @@
       <kw-search-row>
         <kw-search-item :label="t('MSG_TXT_WRTE_DT')">
           <kw-date-range-picker
-            v-model:from="searchParams.prcsStrtDt"
-            v-model:to="searchParams.prcsEndDt"
-            rules="date_range_months:1"
+            v-model:from="searchParams.writeStrtDt"
+            v-model:to="searchParams.writeEndDt"
           />
         </kw-search-item>
         <kw-search-item :label="t('MSG_TXT_RCRT_DT')">
           <kw-date-range-picker
             v-model:from="searchParams.rcrtStrtDt"
             v-model:to="searchParams.rcrtEndDt"
-            rules="date_range_months:1"
           />
         </kw-search-item>
       </kw-search-row>
@@ -61,16 +59,15 @@
           />
         </template>
       </kw-action-top>
-
       <template
         v-for="(item, index) of resultList"
         :key="index"
       >
         <div class="row justify-between">
-          <div class="col border-box mb20 mx20">
+          <div class="col border-box mb20">
             <div class="row justify-between item-center">
               <p class="kw-fc--black2 kw-font-pt14">
-                {{ item.rcrtAprLvCdNm }} {{ index }}
+                {{ item.rcrtAprLvCdNm }}
               </p>
               <kw-chip
                 :label="item.rgstTpCd === '01' ? t('MSG_TXT_NEW') : t('MSG_TXT_RETR')"
@@ -101,75 +98,27 @@
             >
               <kw-form-item :label="$t('MSG_TIT_DRAT_DT')">
                 <p class="kw-font-pt14 text-weight-regular">
-                  2022-08-15{{ stringUtil.getDateFormat(item.contractDt) }}
+                  {{ stringUtil.getDateFormat(item.writeDt) }}
                 </p>
               </kw-form-item>
               <kw-form-item :label="t('MSG_TXT_CNTRCT_DT')">
                 <p class="kw-font-pt14 text-weight-regular">
-                  2022-08-15 {{ stringUtil.getDateFormat(item.contractDt) }}
+                  {{ stringUtil.getDateFormat(item.contractDt) }}
                 </p>
               </kw-form-item>
             </kw-form>
           </div>
-          <!-- <div
-            v-else
-            class="col border-box mb20 mx20"
-          >
-            <div class="row justify-between item-center">
-              <p class="kw-fc--black2 kw-font-pt14">
-                최종확정 {{ item.rcrtAprLvCdNm }} {{ index }}
-              </p>
-              <kw-chip
-                :label="item.rgstTpCd === '01' ? t('MSG_TXT_NEW') : t('MSG_TXT_RETR')"
-                :color="item.rgstTpCd === '01' ? 'placeholder' : 'primary'"
-                outline
-              />
-            </div>
-            <h3 class="mt20 mb12">
-              남궁교원(1234567)
-              {{ `${item.prtnrKnm}(${item.prtnrNo})` }}
-            </h3>
-            <p class="kw-font-pt14">
-              강남센터 B010160
-              {{ `${item.orgNm}(${item.prtnrNo})` }}
-            </p>
-            <p class="kw-font-pt14">
-              20221224 - 2******
-              {{ item.rrnoEncr }}
-            </p>
-            <p class="kw-font-pt14">
-              010-9000-8000
-            </p>
-            <kw-separator class="my20" />
-            <p class="kw-font-pt14">
-              김발송(1234567) {{ item.urlSendNm }}
-            </p>
-
-            <kw-form
-              dense
-              :label-size="60"
-            >
-              <kw-form-item :label="$t('MSG_TIT_DRAT_DT')">
-                <p class="kw-font-pt14 text-weight-regular">
-                  2022-08-15{{ stringUtil.getDateFormat(item.contractDt) }}
-                </p>
-              </kw-form-item>
-              <kw-form-item :label="t('MSG_TXT_CNTRCT_DT')">
-                <p class="kw-font-pt14 text-weight-regular">
-                  2022-08-15 {{ stringUtil.getDateFormat(item.contractDt) }}
-                </p>
-              </kw-form-item>
-            </kw-form>
-          </div> -->
         </div>
       </template>
     </div>
+
     <template #action>
       <div class="tablet-action-left" />
       <div class="tablet-action-right">
         <kw-btn
           primary
-          label="등록 URL 발송"
+          :label="t('MSG_BTN_RGST_URL_FW')"
+          @click="onClickUrlSend"
         />
       </div>
     </template>
@@ -179,25 +128,31 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService, stringUtil } from 'kw-lib';
+import { useDataService, stringUtil, useGlobal } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 import { SMS_COMMON_URI } from '~sms-common/organization/constants/ogConst';
+import { setPhoneNumber } from '~sms-common/organization/utils/ogUtil';
 
 const { t } = useI18n();
+const { modal, notify } = useGlobal();
 const dataService = useDataService();
+const { getters } = useStore();
+const userInfo = getters['meta/getUserInfo'];
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 let cachedParams;
 const totalCount = ref(0);
-const resultList = ref();
+const resultList = ref({});
 const searchParams = ref({
-  prcsStrtDt: undefined,
-  prcsEndDt: undefined,
+  writeStrtDt: undefined,
+  writeEndDt: undefined,
   rcrtStrtDt: undefined,
   rcrtEndDt: undefined,
   apprGubun: '50',
   prtnrKnm: undefined,
+  ogTpCd: userInfo.ogTpCd,
+  ogId: userInfo.ogId,
 });
 
 const apprvGubun = ref([
@@ -213,16 +168,34 @@ const apprvGubun = ref([
 async function fetchData() {
   const res = await dataService.get(`${SMS_COMMON_URI}/recruitings/recruiting`, { params: { ...cachedParams } });
   const list = res.data;
-  resultList.value = list;
+  resultList.value = list.filter((obj) => {
+    obj.rrno = `${obj.rrnoFrpsnVal}-${obj.rrnoEncr}`;
+    obj.phoneNumber = setPhoneNumber(`${obj.cralLocaraTno}${obj.mexnoEncr}${obj.cralIdvTno}`);
+    return obj;
+  });
   totalCount.value = resultList.length;
 }
 
+// 조회
 async function onclickSearch() {
   cachedParams = cloneDeep(searchParams.value);
-
+  resultList.value = {};
   await fetchData();
+}
+
+// 리쿠르팅 등록 URL 발송
+async function onClickUrlSend() {
+  const { result: isChanged } = await modal({
+    component: 'WwogtRecruitingUrlSendRegP',
+    componentProps: { undefined },
+  });
+
+  if (isChanged) {
+    notify(t('MSG_ALT_SEND'));
+  }
 }
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
+
 </script>
