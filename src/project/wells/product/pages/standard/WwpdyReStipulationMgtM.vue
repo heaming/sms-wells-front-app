@@ -30,8 +30,8 @@
             :maxlength="100"
           />
         </kw-search-item>
-        <!-- 제품코드 -->
-        <kw-search-item :label="$t('MSG_TXT_PROD_CD')">
+        <!-- 상품코드 -->
+        <kw-search-item :label="$t('MSG_TXT_PRDT_CODE')">
           <kw-input
             v-model.trim="searchParams.pdCd"
             :maxlength="10"
@@ -41,11 +41,15 @@
           />
         </kw-search-item>
 
-        <kw-search-item :label="t('MSG_TXT_ACEPT_PERIOD')">
+        <kw-search-item
+          :label="t('MSG_TXT_ACEPT_PERIOD')"
+          required
+        >
           <kw-date-range-picker
             v-model:from="searchParams.startDate"
             v-model:to="searchParams.endDate"
             rules="date_range_required"
+            :label="t('MSG_TXT_ACEPT_PERIOD')"
           />
         </kw-search-item>
       </kw-search-row>
@@ -338,9 +342,16 @@ const initGrdMain = defineGrid((data, view) => {
         selectType: pdConst.PD_SEARCH_SINGLE,
         searchType: column === 'pdCd' ? pdConst.PD_SEARCH_CODE : pdConst.PD_SEARCH_NAME,
         searchValue: g.getValue(itemIndex, column),
+        sellTpCd: '2', // 렌탈/리스
       };
       const { result, payload } = await modal({ component: 'ZwpdcStandardListP', componentProps });
       if (result) {
+        if (payload[0].sellTpCd !== '2') {
+          // 등록 불가한 판매유형 상품입니다.(렌탈/리스만 가능)
+          notify(t('MSG_ALT_INVAILD_SELL_TP_ONLY_RENTAL'));
+          return false;
+        }
+
         g.setValue(itemIndex, 'pdCd', payload[0].pdCd);
         g.setValue(itemIndex, 'pdNm', payload[0].pdNm);
       }
