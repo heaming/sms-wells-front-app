@@ -316,6 +316,7 @@ const props = defineProps({
   svBizDclsfCd: { type: String, default: '' },
   newAdrZip: { type: String, default: '' },
   cntrNo: { type: String, default: '' },
+  cntrSn: { type: String, default: '' },
   sidingCd: { type: String, default: '' },
   inGb: { type: String, default: '' },
   basePdCd: { type: String, default: '' },
@@ -355,6 +356,7 @@ const searchParams = ref({
   svBizDclsfCd: props.svBizDclsfCd,
   newAdrZip: props.newAdrZip,
   cntrNo: props.cntrNo,
+  cntrSn: props.cntrSn,
   sidingCd: props.sidingCd,
   inGb: props.inGb,
   basePdCd: props.basePdCd,
@@ -368,7 +370,8 @@ const searchParams = ref({
 async function getTimeTables() {
   cachedParams = cloneDeep(searchParams.value);
   console.log(cachedParams);
-  const res = await dataService.get('/sms/wells/service/time-table', { params: { ...cachedParams } });
+  const res = await dataService.get('/sms/wells/service/time-table/time-assign-sales', { params: { ...cachedParams,
+  } });
   console.log(res.data);
   schedules.value = res.data;
   scheduleInfo.value.weekCnt = schedules.value.length / scheduleInfo.value.dayCnt;

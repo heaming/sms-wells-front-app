@@ -72,18 +72,16 @@ const movePages = [
         type: 'modal',
         call: 'WwsncTimeTableSellListP',
         props: {
-          prevTag: 'timeAssign',
-          sellDate: '20230601',
+          sellDate: '20230701',
           baseYm: '202306',
-          chnlDvCd: '',
-          svDvCd: '1',
-          prtnrNo: '',
-          svBizDclsfCd: '3110',
-          adrZip: '',
-          cntrNo: 'W20232786947',
-          basePdCd: 'WP01110220',
-          dtaStatCd: '1',
+          chnlDvCd: 'K', // W: 웰스, K: KSS, C: CubicCC, P: K-MEMBERS, I || E: 엔지니어, M: 매니저
+          svDvCd: '1', // 1:설치, 2:BS, 3:AS, 4:홈케어
+          svBizDclsfCd: '1110', // 판매인 경우 1110(신규설치) fix
+          cntrNo: 'W20220137399',
+          cntrSn: '1',
+          dataStatCd: '1', // 1: 신규, 2: 수정, 3: 삭제
           userId: '37172',
+          inGb: '1',
         },
       },
       /* {
