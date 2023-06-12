@@ -156,7 +156,7 @@ import dayjs from 'dayjs';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import pdConst from '~sms-common/product/constants/pdConst';
 import ZwpdProductClassificationSelect from '~sms-common/product/pages/standard/components/ZwpdProductClassificationSelect.vue';
-import { getAlreadyItems, setGridDateFromTo } from '~sms-common/product/utils/pdUtil';
+import { getCodeNames, getAlreadyItems, setGridDateFromTo } from '~sms-common/product/utils/pdUtil';
 
 const { notify, modal } = useGlobal();
 const router = useRouter();
@@ -257,7 +257,7 @@ async function checkDuplication() {
   const alreadyItems = getAlreadyItems(view, changedRows, 'pdCd', 'svPdCd', 'stplPrdCd');
   if (alreadyItems.length > 1) {
     // {상품명/서비스명/약정개월}이(가) 중복됩니다.
-    const dupItem = `${alreadyItems[0].pdNm}/${alreadyItems[0].svPdNm}/${alreadyItems[0].stplPrdCd}`;
+    const dupItem = `${alreadyItems[0].pdNm}/${alreadyItems[0].svPdNm}/${getCodeNames(codes, alreadyItems[0].stplPrdCd, 'STPL_PRD_CD')}`;
     notify(t('MSG_ALT_DUP_NCELL', [dupItem]));
     return true;
   }
@@ -273,7 +273,7 @@ async function checkDuplication() {
     const { pdNm, svPdNm, stplPrdCd } = createdRows.find((item) => item.pdCd === dupCodes[0]
         && item.svPdCd === dupCodes[1]
         && item.stplPrdCd === dupCodes[2]);
-    const dupItem = `${pdNm}/${svPdNm}/${stplPrdCd}`;
+    const dupItem = `${pdNm}/${svPdNm}/${getCodeNames(codes, stplPrdCd, 'STPL_PRD_CD')}`;
     // 은(는) 이미 DB에 등록되어 있습니다.
     notify(t('MSG_ALT_EXIST_IN_DB', [dupItem]));
     return true;
@@ -281,11 +281,31 @@ async function checkDuplication() {
   return false;
 }
 
+async function checkValidation() {
+  const view = grdMainRef.value.getView();
+  const changedRows = gridUtil.getChangedRowValues(view);
+  if (changedRows.length === 0) {
+    return true;
+  }
+  const { data: issueData } = await dataService.post('/sms/wells/product/alliances/validation-check', changedRows);
+  if (issueData.data) {
+    const issueItem = issueData.data.split(',', -1);
+    const { pdNm, svPdNm, stplPrdCd } = changedRows.find((item) => item.pdCd === issueItem[0]
+        && item.svPdCd === issueItem[1]
+        && item.stplPrdCd === issueItem[2]);
+    // {상품명}의 {서비스명}, {약정개월}은 존재하지 않습니다.
+    notify(t('MSG_ALT_PDPRC_NOT_EXISTED', [pdNm, svPdNm, getCodeNames(codes, stplPrdCd, 'STPL_PRD_CD')]));
+    return false;
+  }
+  return true;
+}
+
 async function onClickSave() {
   const view = grdMainRef.value.getView();
   if (await gridUtil.alertIfIsNotModified(view)) { return; } // 수정된 행 없음
   if (!await gridUtil.validate(view)) { return; } // 유효성 검사
   if (await checkDuplication()) { return; } // 중복 검사
+  if (!await checkValidation()) { return; } // 유효 가격 검사
 
   const changedRows = gridUtil.getChangedRowValues(view);
   await dataService.post('/sms/wells/product/alliances', { bases: changedRows });

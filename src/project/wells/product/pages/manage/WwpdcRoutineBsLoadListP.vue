@@ -55,31 +55,29 @@
         </kw-search-item>
       </kw-search-row>
     </kw-search>
-    <div class="result-area">
-      <kw-action-top>
-        <template #left>
-          <kw-paging-info
-            v-model:page-index="pageInfo.pageIndex"
-            v-model:page-size="pageInfo.pageSize"
-            :total-count="pageInfo.totalCount"
-            :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
-            @change="fetchData"
-          />
-        </template>
-      </kw-action-top>
-      <kw-grid
-        ref="grdMainRef"
-        name="grdMain"
-        :visible-rows="pageInfo.pageSize"
-        @init="initGrdMain"
-      />
-      <kw-pagination
-        v-model:page-index="pageInfo.pageIndex"
-        v-model:page-size="pageInfo.pageSize"
-        :total-count="pageInfo.totalCount"
-        @change="fetchData"
-      />
-    </div>
+    <kw-action-top>
+      <template #left>
+        <kw-paging-info
+          v-model:page-index="pageInfo.pageIndex"
+          v-model:page-size="pageInfo.pageSize"
+          :total-count="pageInfo.totalCount"
+          :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
+          @change="fetchData"
+        />
+      </template>
+    </kw-action-top>
+    <kw-grid
+      ref="grdMainRef"
+      name="grdMain"
+      :visible-rows="pageInfo.pageSize"
+      @init="initGrdMain"
+    />
+    <kw-pagination
+      v-model:page-index="pageInfo.pageIndex"
+      v-model:page-size="pageInfo.pageSize"
+      :total-count="pageInfo.totalCount"
+      @change="fetchData"
+    />
     <template #action>
       <!-- 정기 B/S투입정보 복사 -->
       <kw-btn
