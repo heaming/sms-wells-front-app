@@ -297,14 +297,33 @@ const dataService = useDataService();
 const DATE_FORMAT_YMD = 'YYYYMMDD';
 
 const props = defineProps({
+  // baseYm: { type: String, default: '' },
+  // cntrNo: { type: String, default: '' },
+  // basePdCd: { type: String, default: '' },
+  // prtnrNo: { type: String, default: '' },
+  // prevTag: { type: String, default: '' },
+  // svDvCd: { type: String, default: '' },
+  // svBizDclsfCd: { type: String, default: '' },
+  // sellDAte: { type: String, default: '' },
+
   baseYm: { type: String, default: '' },
-  cntrNo: { type: String, default: '' },
-  gdsCd: { type: String, default: '' },
-  prtnrNo: { type: String, default: '' },
   prevTag: { type: String, default: '' },
-  dataGb: { type: String, default: '' },
-  wrkTypDtl: { type: String, default: '' },
-  selDate: { type: String, default: '' },
+  chnlDvCd: { type: String, default: '' },
+  svDvCd: { type: String, default: '' },
+  prtnrNo: { type: String, default: '' },
+  sellDate: { type: String, default: '' },
+  ordSeq: { type: String, default: '' },
+  svBizDclsfCd: { type: String, default: '' },
+  newAdrZip: { type: String, default: '' },
+  cntrNo: { type: String, default: '' },
+  sidingCd: { type: String, default: '' },
+  inGb: { type: String, default: '' },
+  basePdCd: { type: String, default: '' },
+  wrkDt: { type: String, default: '' },
+  seq: { type: String, default: '' },
+  dtaStatCd: { type: String, default: '' },
+  returnUrl: { type: String, default: '' },
+  userId: { type: String, default: '' },
 });
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -317,15 +336,33 @@ const scheduleInfo = ref({
 
 let cachedParams;
 const searchParams = ref({
+  // baseYm: props.baseYm,
+  // prtnrNo: props.prtnrNo,
+  // prevTag: props.prevTag,
+  // svDvCd: props.svDvCd, // dataGb
+  // dataStus: props.dataStus,
+  // cntrNo: props.cntrNo,
+  // gdsCd: props.gdsCd,
+  // svBizDclsfCd: props.svBizDclsfCd,
+  // sellDate: props.sellDate,
   baseYm: props.baseYm,
-  prtnrNo: props.prtnrNo,
   prevTag: props.prevTag,
-  dataGb: props.dataGb,
-  dataStus: props.dataStus,
+  chnlDvCd: props.chnlDvCd,
+  svDvCd: props.svDvCd,
+  prtnrNo: props.prtnrNo,
+  sellDate: props.sellDate,
+  ordSeq: props.ordSeq,
+  svBizDclsfCd: props.svBizDclsfCd,
+  newAdrZip: props.newAdrZip,
   cntrNo: props.cntrNo,
-  gdsCd: props.gdsCd,
-  wrkTypDtl: props.wrkTypDtl,
-  selDate: props.selDate,
+  sidingCd: props.sidingCd,
+  inGb: props.inGb,
+  basePdCd: props.basePdCd,
+  wrkDt: props.wrkDt,
+  seq: props.seq,
+  dtaStatCd: props.dtaStatCd,
+  returnUrl: props.returnUrl,
+  userId: props.userId,
 });
 
 async function getTimeTables() {
