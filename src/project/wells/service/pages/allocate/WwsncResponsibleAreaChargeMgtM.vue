@@ -365,9 +365,10 @@ async function onClickApplyDateBulkApply() {
   const checkedRows = gridUtil.getCheckedRowValues(view);
 
   for (let i = 0; i < checkedRows.length; i += 1) {
-    view.setValue(checkedRows[i].dataRow, 'apyStrtdt', baseInfo.value.applyDateFrom);
-    view.setValue(checkedRows[i].dataRow, 'apyEnddt', baseInfo.value.applyDateTo);
+    view.setValue(view.getItemIndex(checkedRows[i].dataRow), 'apyStrtdt', baseInfo.value.applyDateFrom);
+    view.setValue(view.getItemIndex(checkedRows[i].dataRow), 'apyEnddt', baseInfo.value.applyDateTo);
   }
+  view.commit();
 }
 
 async function onClickSave() {
@@ -563,12 +564,12 @@ const initGrdMain = defineGrid((data, view) => {
       const matchedIndex = index.column.search(regExp);
 
       if (matchedIndex === 0) { // 책임담당사번
-        setPersonInChargeCellData(grid, index.dataRow, editResult.value, ['ogTpCd', 'ogNm', 'ichrPrtnrNo', 'prtnrKnm']);
+        setPersonInChargeCellData(grid, index.itemIndex, editResult.value, ['ogTpCd', 'ogNm', 'ichrPrtnrNo', 'prtnrKnm']);
       } else if (matchedIndex > 0) { // 예비담당사번
         const columnSlices = index.column.split(regExp);
         const column = ['pprnIchrPrtnrOgTpCd', `ogNm${columnSlices[1]}`, `pprnIchrPrtnrNo4${columnSlices[1]}`, `pprnIchrPrtnrKnm${columnSlices[1]}`];
 
-        setPersonInChargeCellData(grid, index.dataRow, editResult.value, column);
+        setPersonInChargeCellData(grid, index.itemIndex, editResult.value, column);
       }
     }
   };

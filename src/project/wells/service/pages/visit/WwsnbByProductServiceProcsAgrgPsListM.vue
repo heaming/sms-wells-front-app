@@ -93,7 +93,8 @@
       <kw-grid
         ref="grdMainRef"
         class="mt12"
-        :visible-rows="pageInfo.pageSize"
+        :page-size="pageInfo.pageSize"
+        :total-count="pageInfo.totalCount"
         @init="initGrdMain"
       />
 
@@ -129,7 +130,6 @@ const { getConfig } = useMeta();
 // -------------------------------------------------------------------------------------------------
 const grdMainRef = ref(getComponentType('KwGrid'));
 
-let cachedParams;
 const searchParams = ref({
   ogId: '',
   wkExcnDtFrom: dayjs().format('YYYYMM').concat('01'),
@@ -137,6 +137,7 @@ const searchParams = ref({
   refriDvCd: '',
   pdGrpCd: '',
 });
+let cachedParams = cloneDeep(searchParams.value);
 
 const pageInfo = ref({
   totalCount: 0,
@@ -145,6 +146,7 @@ const pageInfo = ref({
 });
 
 const codes = await codeUtil.getMultiCodes(
+  'COD_PAGE_SIZE_OPTIONS',
   'REFRI_DV_CD',
   'PD_GRP_CD',
 );
@@ -188,12 +190,12 @@ async function onClickSearch() {
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
 
-  const res = await dataService.get('/sms/wells/service/as-visit-state/product-services/paging', { params: { ...cachedParams, ...pageInfo.value } });
+  const res = await dataService.get('/sms/wells/service/as-visit-state/product-services/excel-download', { params: cachedParams });
 
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
-    exportData: res.data.list,
+    exportData: res.data,
   });
 }
 
