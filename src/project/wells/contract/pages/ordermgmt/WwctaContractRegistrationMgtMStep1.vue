@@ -285,7 +285,7 @@ ${step1.cntrt.sexDvNm}` }}
             </kw-form-row>
           </template>
           <template
-            v-if="cntrTpIs.ensm"
+            v-else-if="cntrTpIs.ensm"
           >
             <kw-form-row>
               <kw-form-item
@@ -299,8 +299,33 @@ ${step1.cntrt.sexDvNm}` }}
                 <p>{{ step1.prtnr.prtnrNo }}</p>
               </kw-form-item>
             </kw-form-row>
-            <kw-form-row />
-            <kw-form-row />
+            <kw-form-row>
+              <kw-form-item
+                :label="$t('MSG_TXT_ALNC_PRTNR')"
+              >
+                <p>{{ step1.prtnr.prtnrKnm }}</p>
+              </kw-form-item>
+            </kw-form-row>
+            <kw-form-row>
+              <kw-form-item
+                :label="$t('MSG_TXT_ALNC_PRTNR_NM')"
+              >
+                <kw-input
+                  v-model="step1.alncPrtnrNm"
+                  :label="$t('MSG_TXT_ALNC_PRTNR_NM')"
+                  maxlength="10"
+                />
+              </kw-form-item>
+              <kw-form-item
+                :label="$t('MSG_TXT_ALNC_PRTNR_NO')"
+              >
+                <kw-input
+                  v-model="step1.alncPrtnrNo"
+                  :label="$t('MSG_TXT_ALNC_PRTNR_NO')"
+                  maxlength="10"
+                />
+              </kw-form-item>
+            </kw-form-row>
           </template>
         </template>
       </kw-form>

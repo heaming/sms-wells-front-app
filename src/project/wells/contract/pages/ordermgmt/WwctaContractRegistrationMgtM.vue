@@ -83,16 +83,48 @@
                       </kw-item-label>
                     </kw-item-section>
                   </template>
-                  <template v-if="true">
+                  <template
+                    v-if="index === 0 && Object.keys(contract.step1 || {}).length !== 0"
+                  >
                     <div class="like-vertical-stepper__step-content">
                       <ul class="card-text">
                         <li>
                           <p>계약유형</p>
-                          <span>{{ step1?.bas?.cntrTpNm }}</span>
+                          <span>{{ smr.cntrTpNm }}</span>
                         </li>
                         <li>
                           <p>계약자</p>
-                          <span>{{ step1?.cntrt?.cstKnm }}</span>
+                          <span>{{ smr.cntrtKnm }}</span>
+                        </li>
+                      </ul>
+                    </div>
+                  </template>
+                  <template
+                    v-else-if="index === 1 && Object.keys(contract.step2 || {}).length !== 0"
+                  >
+                    <div class="like-vertical-stepper__step-content">
+                      <ul class="card-text">
+                        <li
+                          v-for="(pd, i) in smr.products"
+                          :key="i"
+                        >
+                          <p>{{ pd.pdNm }}</p>
+                        </li>
+                      </ul>
+                    </div>
+                  </template>
+                  <template
+                    v-else-if="index === 2 && Object.keys(contract.step3 || {}).length !== 0"
+                  >
+                    <div class="like-vertical-stepper__step-content">
+                      <ul class="card-text">
+                        <li>
+                          <p>결제유형</p>
+                          <span>{{ smr.stlmTpNm }}</span>
+                        </li>
+                        <li>
+                          <p>결제방법</p>
+                          <span>{{ smr.stlmMthNm }}</span>
                         </li>
                       </ul>
                     </div>
@@ -106,7 +138,9 @@
                       <p>
                         상품금액
                       </p>
-                      <span>0 원</span>
+                      <span>
+                        {{ smr.pdAmt }}
+                      </span>
                     </li>
                   </ul>
                   <kw-separator class="my16" />
@@ -199,7 +233,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useGlobal } from 'kw-lib';
+import { codeUtil, stringUtil, useDataService, useGlobal } from 'kw-lib';
 import WwctaContractRegistrationMgtMStep1 from './WwctaContractRegistrationMgtMStep1.vue';
 import WwctaContractRegistrationMgtMStep2 from './WwctaContractRegistrationMgtMStep2.vue';
 import WwctaContractRegistrationMgtMStep3 from './WwctaContractRegistrationMgtMStep3.vue';
@@ -207,6 +241,7 @@ import WwctaContractRegistrationMgtMStep4 from './WwctaContractRegistrationMgtMS
 
 const { t } = useI18n();
 const { alert } = useGlobal();
+const dataService = useDataService();
 const router = useRouter();
 const sideStepRefs = reactive({});
 const panelsRefs = reactive({});
@@ -224,12 +259,31 @@ const props = defineProps({
   cntrNo: { type: String, required: true },
   cntrPrgsStatCd: { type: String, required: true },
 });
+const codes = await codeUtil.getMultiCodes(
+  'CNTR_TP_CD',
+  'STLM_TP_CD',
+);
+codes.DP_TP_CD = [
+  { codeId: '0201', codeName: '카드' },
+  { codeId: '0101', codeName: '가상계좌' },
+  { codeId: '0203', codeName: '카드자동이체' },
+];
 const contract = ref({
   cntrNo: '',
   step1: {},
   step2: {},
   step3: {},
   step4: {},
+});
+const smr = ref({
+  cntrTpNm: computed(() => codes.CNTR_TP_CD.find((c) => c.codeId === contract.value.step1.bas?.cntrTpCd)?.codeName),
+  cntrtKnm: computed(() => contract.value.step1.cntrt?.cstKnm),
+  products: computed(() => contract.value.step2.dtls),
+  stlmTpNm: computed(() => codes.STLM_TP_CD.find((c) => c.codeId === contract.value.step3.stlmTpCd)?.codeName),
+  stlmMthNm: computed(() => codes.DP_TP_CD.find((c) => c.codeId === contract.value.step3.cntramDpTpCd)?.codeName),
+  pdAmt: computed(() => stringUtil.getNumberWithComma(
+    Number(contract.value.step2.dtls?.reduce((acc, cur) => Number(acc) + Number(cur.fnlAmt), 0)) || 0,
+  )),
 });
 const isReadOnly = ref(false);
 const stepsStatus = reactive([false, false, false, false]);
@@ -257,7 +311,7 @@ function showStep(step) {
   currentStepName.value = `step${step}`;
 }
 async function getCntrInfo(step, cntrNo) {
-  if ((step + 1) === 2) {
+  if (step === 2) {
     // step2일 때 상품 조회
     await panelsRefs[currentStepName.value].getProducts(cntrNo);
   }
@@ -274,14 +328,22 @@ async function getExistedCntr() {
     14: 3,
   }[props.cntrPrgsStatCd] || 4;
   showStep(step);
+  // 기존계약 조회하는 경우에는 summary 따로 조회 필요
+  const smrs = await dataService.get('sms/wells/contract/contracts/summaries', { params: { cntrNo } });
+  // contract.value = smrs.data;
+  if (step >= 1) contract.value.step1 = smrs.data.step1;
+  if (step >= 2) contract.value.step2 = smrs.data.step2;
+  if (step >= 3) contract.value.step3 = smrs.data.step3;
+  if (step >= 4) contract.value.step4 = smrs.data.step4;
   await getCntrInfo(step, cntrNo);
 }
 
 async function onClickPrevious() {
   if (currentStepIndex.value === 0) { return; }
-  await panelsRefs[steps[currentStepIndex.value - 1].name].getCntrInfo(contract.value.cntrNo);
   const previousStep = steps[currentStepIndex.value - 1];
+  // contract.value[currentStepName.value] = {};
   currentStepName.value = previousStep.name;
+  await getCntrInfo(currentStepIndex.value + 1, contract.value.cntrNo);
 }
 
 async function onClickTempSave() {
@@ -296,7 +358,7 @@ async function onClickTempSave() {
 
 async function onClickNext() {
   let { cntrNo } = contract.value;
-  const step = currentStepIndex.value + 1;
+  const nextStep = currentStepIndex.value + 2;
   if (await panelsRefs[currentStepName.value].isChangedStep()) {
     if (await panelsRefs[currentStepName.value].isValidStep()) {
       cntrNo = await panelsRefs[currentStepName.value].saveStep();
@@ -304,17 +366,17 @@ async function onClickNext() {
       return;
     }
   }
-  if (step === 4) {
+  if (nextStep > 4) {
     // step4에서 '다음'은 계약 현황 목록으로 화면 이동
     await router.close(0, true);
     await router.push({ path: '/contract/wwcta-contract-status-list' });
   } else {
     currentStep.value.done = true;
     if (currentStepIndex.value === steps.length - 1) { return; }
-    const nextStep = steps[currentStepIndex.value + 1];
-    currentStepName.value = nextStep.name;
+    const nextStepObj = steps[currentStepIndex.value + 1];
+    currentStepName.value = nextStepObj.name;
     // sideStepRefs[nextStep.name].show(); /* 명시적으로 열어주는 것도 좋을 듯 합니다. */
-    await getCntrInfo(step, cntrNo);
+    await getCntrInfo(nextStep, cntrNo);
   }
 }
 
