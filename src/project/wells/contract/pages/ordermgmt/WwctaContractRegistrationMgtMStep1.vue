@@ -48,7 +48,7 @@
     <kw-search
       :cols="3"
       @search="onClickSearchCntrtInfo"
-      @reset="resetSearchConds"
+      @reset="onClickReset"
     >
       <kw-search-row>
         <kw-search-item
@@ -60,7 +60,7 @@
             :label="$t('MSG_TXT_CONTR_TYPE')"
             :options="codes.CNTR_TP_CD"
             rules="required"
-            @change="resetSearchConds"
+            @change="onChangeCntrtTpCd"
           />
         </kw-search-item>
         <kw-search-item
@@ -72,7 +72,7 @@
             :label="$t('MSG_TXT_CNTRT_TP')"
             :options="codes.COPN_DV_CD"
             rules="required"
-            :disable="cntrTpIs.indv || cntrTpIs.crp"
+            :disable="cntrTpIs.indv || cntrTpIs.crp || cntrTpIs.ensm"
           />
         </kw-search-item>
         <kw-search-item
@@ -88,7 +88,7 @@
           />
         </kw-search-item>
         <kw-search-item
-          v-if="!cntrTpIs.crp"
+          v-if="!cntrTpIs.crp && !cntrTpIs.ensm"
           :label="$t('MSG_TXT_NAME')"
           required
         >
@@ -100,7 +100,9 @@
           />
         </kw-search-item>
       </kw-search-row>
-      <kw-search-row>
+      <kw-search-row
+        v-if="!cntrTpIs.ensm"
+      >
         <kw-search-item
           v-if="cntrTpIs.crp"
           :label="$t('MSG_TXT_CRNO')"
@@ -389,14 +391,21 @@ async function getCntrInfo(cntrNo) {
     cstNo: step1.value?.bas?.cntrCstNo,
     step: 1,
   } });
-  step1.value = cntr.data.step1;
-  pCntrNo.value = step1.value.bas.cntrNo;
-  console.log(step1.value);
-  ogStep1.value = cloneDeep(step1.value);
-  if (isEmpty(step1.value.bas.cntrNo)) {
-    step1.value.bas.cntrTpCd = searchParams.value.cntrTpCd;
-    step1.value.bas.copnDvCd = searchParams.value.copnDvCd;
+  if (!isEmpty(step1.value.bas?.cntrNo)) {
+    searchParams.value.cntrTpCd = step1.value.bas.cntrTpCd;
+    searchParams.value.copnDvCd = step1.value.bas.copnDvCd;
   }
+  // 조회한 계약유형코드에 따라 컴포넌트변경 시간차
+  setTimeout(() => {
+    step1.value = cntr.data.step1;
+    pCntrNo.value = step1.value.bas.cntrNo;
+    console.log(step1.value);
+    ogStep1.value = cloneDeep(step1.value);
+    if (isEmpty(step1.value.bas.cntrNo)) {
+      step1.value.bas.cntrTpCd = searchParams.value.cntrTpCd;
+      step1.value.bas.copnDvCd = searchParams.value.copnDvCd;
+    }
+  }, 10);
 }
 
 async function setCntrInfo(cstNo) {
@@ -407,7 +416,7 @@ async function setCntrInfo(cstNo) {
 }
 
 async function onClickSearchCntrtInfo() {
-  if (cntrTpIs.value.indv || cntrTpIs.value.ensm) {
+  if (cntrTpIs.value.indv) {
     // 개인 / 임직원
     const isExistCntrt = await dataService.get('sms/wells/contract/contracts/is-exist-cntrt-info', { params: searchParams.value });
     if (!isExistCntrt.data) {
@@ -434,6 +443,15 @@ async function onClickSearchCntrtInfo() {
       }
       // await setCntrInfo('017448860');
     }
+  } else if (cntrTpIs.value.ensm) {
+    // 임직원
+    // 파트너와 계약자 모두 본인
+    const cstNo = await dataService.get('sms/wells/contract/contracts/prtnr-cst-no', { params: { prtnrNo } });
+    if (!cstNo.data) {
+      await alert('파트너의 고객번호가 존재하지 않습니다.');
+      return;
+    }
+    await setCntrInfo(cstNo.data);
   } else if (cntrTpIs.value.crp) {
     // 법인
     const isExistCntrt = await dataService.get('sms/wells/contract/contracts/is-exist-cntrt-info', { params: searchParams.value });
@@ -503,6 +521,15 @@ async function resetSearchConds() {
   cntrtInfo.value = ref({});
   lrnrInfo.value = ref({});
    */
+}
+
+async function onChangeCntrtTpCd(v) {
+  await resetSearchConds();
+  if (v === '02') searchParams.value.copnDvCd = '2';
+}
+
+async function onClickReset() {
+  await resetSearchConds();
 }
 
 async function isPartnerStpa() {
