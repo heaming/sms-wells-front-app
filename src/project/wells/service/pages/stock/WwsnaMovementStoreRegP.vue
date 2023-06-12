@@ -177,6 +177,7 @@ const { ok } = useModal();
 
 const dataService = useDataService();
 const baseURI = '/sms/wells/service/movement-stores/registration';
+const colsedUri = '/sms/wells/service/movement-stores/strware-monthly-end';
 const stdWareUri = '/sms/wells/service/normal-outofstorages/standard-ware';
 const grdMainRef = ref(getComponentType('KwGrid'));
 const props = defineProps({
@@ -243,6 +244,8 @@ const props = defineProps({
 const codes = ref(await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
 ));
+
+const today = dayjs().format('YYYYMMDD');
 
 const propsParams = ref({
   strRgstDt: props.strRgstDt,
@@ -319,27 +322,97 @@ async function onCheckedStckNoStdGb() {
   fetchData();
 }
 
+async function strWareMonthlyClosed() {
+  const apyYm = searchParams.value.strRgstDt.substring(0, 6);
+  const wareNo = searchParams.value.strWareNo;
+  const closedParams = {
+    apyYm,
+    wareNo,
+  };
+
+  const res = dataService.get(colsedUri, { params: closedParams });
+  console.log(res);
+  return false;
+}
+
+function saveValidation() {
+  let checked = true;
+  const view = grdMainRef.value.getView();
+  const rows = view.getCheckedItems();
+
+  if (rows.length === 0) {
+    // 입고등록 처리를 위해 선택된 건이 없습니다.
+    notify(t('MSG_ALT_NOT_SELECT_STR'));
+    return false;
+  }
+
+  if (!searchParams.value.strDt) {
+    // 입고 일자가 누락되었습니다.
+    // 입고 일자를 선택해 주세요
+    notify(t('MSG_ALT_INP_WRHS_NOT_DY'));
+    return false;
+  }
+
+  if (searchParams.value.strRgstDt > today) {
+    // 입고 일자는 오늘이거나 이전 일자만 선택이 가능합니다.
+    notify(t('MSG_ALT_STR_DT_TO_BEFORE_DT'));
+    return false;
+  }
+
+  for (let i = 0; i < rows.length; i += 1) {
+    const { strQty, ostrQty, strConfDt } = view.getValues(rows[i]);
+
+    if (strConfDt) {
+      // '이미 입고확인이 처리된 품목입니다.'
+      notify(t('MSG_ALT_ITM_ALRDY_CNFM_RCPT'));
+      checked = false;
+      return checked;
+    }
+
+    if ((Number(strQty) - Number(ostrQty)) !== 0) {
+      // 입고출고 수량이 일치하지 않습니다.
+      notify(t('MSG_ALT_RCPT_RLS_QTTS_NO_MATCH'));
+      checked = false;
+      return checked;
+    }
+  }
+
+  // 입고창고의 마감여부 체크
+  if (strWareMonthlyClosed()) {
+    // 해당 입고년월은 이미 마감이 완료되어, 입고작업이 불가합니다.
+    // 해당 입고일자는 이미 마감이 완료되어, 입고작업이 불가합니다.
+    notify(t('MSG_ALT_DATE_EDIT_IN_PUT'));
+    return false;
+  }
+
+  return checked;
+}
+
 async function onClickSave() {
   console.log('onClickSave~~~~~~~~~~~~~~~~~~~~~~~~~');
-  const dataParams = grdMainRef.value.getView();
-  const rows = dataParams.getCheckedItems();
-
-  const confirmData = ref([]);
-  confirmData.value = rows.map((v) => {
-    const { strSn, strQty, itmStrNo, strWareNo, itmGdCd, itmPdCd } = dataParams.getValues(v);
-    return {
-      itmStrNo,
-      strSn: Number(strSn),
-      strWareNo,
-      itmGdCd,
-      itmPdCd,
-      strQty: Number(strQty),
-    };
-  });
+  const view = grdMainRef.value.getView();
+  const rows = view.getCheckedItems();
 
   // 등록하시겠습니까?
   if (await confirm(t('MSG_ALT_RGST'))) {
+    if (!saveValidation()) {
+      return false;
+    }
+
     // const { result } = await dataService.put(baseURI, { params: confirmData.value });
+    const confirmData = ref([]);
+    confirmData.value = rows.map((v) => {
+      const { strSn, strQty, itmStrNo, strWareNo, itmGdCd, itmPdCd } = view.getValues(v);
+      return {
+        itmStrNo,
+        strSn: Number(strSn),
+        strWareNo,
+        itmGdCd,
+        itmPdCd,
+        strQty: Number(strQty),
+      };
+    });
+
     const { result } = await dataService.put(baseURI, confirmData.value);
 
     if (result) {
@@ -355,20 +428,6 @@ async function onClickRemove() {
   const res = await dataService.delete(baseURI, { params: {} });
   console.log(res.data);
 }
-
-// async function onClickLocationStandard() {
-//   cachedParams = cloneDeep(searchParams.value);
-//   await fetchData();
-// }
-
-// async function onClickLocationStandardNoApply() {
-//   await fetchData();
-// }
-
-// async function onClickLocationStandardApply() {
-//   searchParams.value.stckStdGb = '1';
-//   await fetchData();
-// }
 
 // TODO: W-SV-U-0169P02 - 네임텍 출력 개발 진행 후 반영 예정
 function onClickNameTagPrint() {
@@ -462,15 +521,12 @@ const initGrdMain = defineGrid((data, view) => {
     const { strQty, ostrQty, strConfDt } = grid.getValues(i);
     console.log(strConfDt);
 
-    if (strConfDt !== null) {
+    if (strConfDt) {
       // '이미 입고확인이 처리된 품목입니다.'
       notify(t('MSG_ALT_ITM_ALRDY_CNFM_RCPT'));
     }
 
-    if ((Number(strQty) - Number(ostrQty)) === 0) {
-      // 입고출고 수량이 같음
-      notify(t('MSG_ALT_RCPT_RLS_QTTS_SAME'));
-    } else {
+    if ((Number(strQty) - Number(ostrQty)) !== 0) {
       // 입고출고 수량이 일치하지 않습니다.
       notify(t('MSG_ALT_RCPT_RLS_QTTS_NO_MATCH'));
     }
