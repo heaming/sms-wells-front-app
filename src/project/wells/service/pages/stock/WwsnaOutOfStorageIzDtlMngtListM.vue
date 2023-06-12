@@ -17,6 +17,7 @@
     <kw-search
       :cols="3"
       @search="onClickSearch"
+      @reset="onClickReset"
     >
       <kw-search-row>
         <!-- 출고기간-->
@@ -256,7 +257,8 @@ async function onClickExcelDownload() {
   });
 }
 
-onMounted(async () => {
+// 초기값 설정
+function defaultSet() {
   const now = dayjs();
   const toDay = now.format('YYYYMMDD');
   const startMonth = now.format('YYYYMM').concat('01');
@@ -265,6 +267,14 @@ onMounted(async () => {
   console.log(`startMonth : ${startMonth}`);
   searchParams.value.stOstrDt = startMonth;
   searchParams.value.edOstrDt = toDay;
+}
+
+function onClickReset() {
+  defaultSet();
+}
+
+onMounted(async () => {
+  defaultSet();
 });
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
