@@ -303,7 +303,7 @@ const initGridMembershipContractorList = defineGrid((data, view) => {
     { fieldName: 'stplPtrm' }, // 약정개월
     { fieldName: 'cntrRcpFshDt' }, // 접수일
     { fieldName: 'cntrCnfmDt' }, // 확정일
-    { fieldName: 'cntrTempSaveDt' }, // 가입일
+    { fieldName: 'cntrPdStrtdt' }, // 가입일
     { fieldName: 'cntrPdEnddt' }, // 탈퇴일
     { fieldName: 'canDt' }, // 취소일
     { fieldName: 'fstRgstDt' }, // 등록일
@@ -328,7 +328,7 @@ const initGridMembershipContractorList = defineGrid((data, view) => {
     { fieldName: 'stplPtrm', header: t('MSG_TXT_STPL_MCNT'), width: '138', styleName: 'text-right' }, // 약정개월
     { fieldName: 'cntrRcpFshDt', header: t('MSG_TXT_RCP_D'), width: '138', styleName: 'text-center', datetimeFormat: 'date' }, // 접수일
     { fieldName: 'cntrCnfmDt', header: t('MSG_TXT_DTRM_DATE'), width: '136', styleName: 'text-center', datetimeFormat: 'date' }, // 확정일
-    { fieldName: 'cntrTempSaveDt', header: t('MSG_TXT_SUBS_DT'), width: '136', styleName: 'text-center', datetimeFormat: 'date' }, // 가입일
+    { fieldName: 'cntrPdStrtdt', header: t('MSG_TXT_SUBS_DT'), width: '136', styleName: 'text-center', datetimeFormat: 'date' }, // 가입일
     { fieldName: 'cntrPdEnddt', header: t('MSG_TXT_WTDR_DT'), width: '136', styleName: 'text-center', datetimeFormat: 'date' }, // 탈퇴일
     { fieldName: 'canDt', header: t('MSG_TXT_CAN_D'), width: '136', styleName: 'text-center', datetimeFormat: 'date' }, // 취소일
     { fieldName: 'fstRgstDt', header: t('MSG_TXT_RGST_DT'), width: '136', styleName: 'text-center', datetimeFormat: 'date' }, // 등록일

@@ -515,7 +515,7 @@ const initGridMembershipContractList = defineGrid((data, view) => {
     { fieldName: 'cntrRcpFshDt' }, // 접수일
     { fieldName: 'cntrCnfmYn' }, // 확정여부
     { fieldName: 'cntrCnfmDt' }, // 확정일
-    { fieldName: 'cntrTempSaveDt' }, // 가입일
+    { fieldName: 'cntrPdStrtdt' }, // 가입일
     { fieldName: 'hcrDuedt' }, // 홈케어예정일
     { fieldName: 'istDt' }, // 설치일
     { fieldName: 'dutyExnDtFrisu' }, // 의무만료일(무상)
@@ -604,15 +604,15 @@ const initGridMembershipContractList = defineGrid((data, view) => {
     { fieldName: 'cntrRcpFshDt', header: t('MSG_TXT_RCP_D'), width: '138', styleName: 'text-center', datetimeFormat: 'date' }, // 접수일
     { fieldName: 'cntrCnfmYn', header: t('MSG_TXT_DTRM_YN'), width: '136', styleName: 'text-center' }, // 확정여부
     { fieldName: 'cntrCnfmDt', header: t('MSG_TXT_DTRM_DATE'), width: '136', styleName: 'text-center', datetimeFormat: 'date' }, // 확정일
-    { fieldName: 'cntrTempSaveDt', header: t('MSG_TXT_SUBS_DT'), width: '136', styleName: 'text-center', datetimeFormat: 'date' }, // 가입일
+    { fieldName: 'cntrPdStrtdt', header: t('MSG_TXT_SUBS_DT'), width: '136', styleName: 'text-center', datetimeFormat: 'date' }, // 가입일
     { fieldName: 'hcrDuedt', header: t('MSG_TXT_HCR_DUEDT'), width: '136', styleName: 'text-center', datetimeFormat: 'date' }, // 홈케어예정일
-    { fieldName: 'istDt', header: t('MSG_TXT_INST_DT'), width: '136', styleName: 'text-center' }, // 설치일
-    { fieldName: 'dutyExnDtFrisu', header: t('MSG_TXT_MAND_EXP_DT_FRISU'), width: '136', styleName: 'text-center' }, // 의무만료일(무상)
-    { fieldName: 'dutyExnDtRecap', header: t('MSG_TXT_MAND_EXP_DT_RECAP'), width: '136', styleName: 'text-center' }, // 의무만료일자(유상)
+    { fieldName: 'istDt', header: t('MSG_TXT_INST_DT'), width: '136', styleName: 'text-center', datetimeFormat: 'date' }, // 설치일
+    { fieldName: 'dutyExnDtFrisu', header: t('MSG_TXT_MAND_EXP_DT_FRISU'), width: '136', styleName: 'text-center', datetimeFormat: 'date' }, // 의무만료일(무상)
+    { fieldName: 'dutyExnDtRecap', header: t('MSG_TXT_MAND_EXP_DT_RECAP'), width: '136', styleName: 'text-center', datetimeFormat: 'date' }, // 의무만료일자(유상)
     { fieldName: 'cntrPdEnddt', header: t('MSG_TXT_WTDR_DT'), width: '136', styleName: 'text-center', datetimeFormat: 'date' }, // 탈퇴일
     { fieldName: 'canDt', header: t('MSG_TXT_CAN_D'), width: '136', styleName: 'text-center', datetimeFormat: 'date' }, // 취소일
     { fieldName: 'vstDuedt', header: t('MSG_TXT_VISIT_DATE'), width: '136', styleName: 'text-center', datetimeFormat: 'date' }, // 방문일
-    { fieldName: 'cttFshDt', header: t('MSG_TXT_CTT_DT'), width: '136', styleName: 'text-center' }, // 컨택일
+    { fieldName: 'cttFshDt', header: t('MSG_TXT_CTT_DT'), width: '136', styleName: 'text-center', datetimeFormat: 'date' }, // 컨택일
     { fieldName: 'cntrCanRsonCd', header: t('MSG_TXT_WTDR_TP_CD'), width: '136', styleName: 'text-center' }, // 탈퇴유형코드
     { fieldName: 'cntrCanRsonNm', header: t('MSG_TXT_WTDR_TP_NM'), width: '136', styleName: 'text-center' }, // 탈퇴유형명
     { fieldName: 'hcrOstrDvNm', header: t('MSG_TXT_OSTR_DV'), width: '136', styleName: 'text-center' }, // 홈케어출고구분
