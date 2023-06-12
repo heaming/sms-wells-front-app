@@ -4,7 +4,7 @@
 ****************************************************************************************************
 1. 모듈 : OGC
 2. 프로그램 ID : WwogcServiceCenterGroupMgtM - 서비스센터 조 관리
-3. 작성자 : 한용희
+3. 작성자 : gs.piit158
 4. 작성일 : 2023-05-08
 ****************************************************************************************************
 * 프로그램 설명
@@ -293,11 +293,12 @@ async function onClickSave() {
       notify(t('MSG_ALT_CHK_REQ_DT'));
       return;
     }
-    if (dayjs().format('YYYYMMDD') > item.vlStrtDt
-      || dayjs().format('YYYYMMDD') > item.vlEnddt) {
-      notify(t('MSG_TXT_APY_DT_CONF'));
-      return;
-    }
+    // 임시 조건 제거
+    // if (dayjs().format('YYYYMMDD') > item.vlStrtDt
+    //   || dayjs().format('YYYYMMDD') > item.vlEnddt) {
+    //   notify(t('MSG_TXT_APY_DT_CONF'));
+    //   return;
+    // }
     if (item.vlStrtDt > item.vlEnddt) {
       notify(t('MSG_TXT_APY_DT_CONF'));
       return;
