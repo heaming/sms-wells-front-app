@@ -529,8 +529,9 @@ async function getCntrInfo(cntrNo) {
 
   // 일괄적용 여부
   const baseDtl = step3.value.dtls[0];
-  // eslint-disable-next-line no-restricted-syntax
-  for (const dtl in step3.value.dtls) {
+  // eslint-disable-next-line no-restricted-syntax, guard-for-in
+  for (const i in step3.value.dtls) {
+    const dtl = step3.value.dtls[i];
     if (baseDtl.recapMshPtrm !== dtl.recapMshPtrm
     || baseDtl.sellTpCd !== dtl.sellTpCd
     || baseDtl.sellTpDtlCd !== dtl.sellTpDtlCd) {
