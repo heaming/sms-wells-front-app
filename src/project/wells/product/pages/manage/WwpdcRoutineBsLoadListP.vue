@@ -128,7 +128,7 @@ const pageInfo = ref({
   pageIndex: 1,
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
 });
-const codes = await codeUtil.getMultiCodes('SV_BIZ_DCLSF_CD', 'MM_CD', 'SV_PRD_UNIT_CD', 'VST_DV_CD');
+const codes = await codeUtil.getMultiCodes('SV_BIZ_DCLSF_CD', 'MM_CD', 'SV_PRD_UNIT_CD', 'VST_DV_CD', 'COD_PAGE_SIZE_OPTIONS');
 codes.MM_CD.map((item) => { item.codeId = Number(item.codeId); return item; });
 
 const serviceSelectItems = ref([
