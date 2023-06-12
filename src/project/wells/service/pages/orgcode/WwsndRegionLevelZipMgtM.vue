@@ -154,7 +154,6 @@ const dataService = useDataService();
 // -------------------------------------------------------------------------------------------------
 const grdMainRef = ref(getComponentType('KwGrid'));
 
-let cachedParams;
 const searchParams = ref({
   zipFrom: '',
   zipTo: '',
@@ -163,6 +162,7 @@ const searchParams = ref({
   wkGrpCd: '10',
   ogId: '',
 });
+let cachedParams = cloneDeep(searchParams.value);
 
 const pageInfo = ref({
   totalCount: 0,
