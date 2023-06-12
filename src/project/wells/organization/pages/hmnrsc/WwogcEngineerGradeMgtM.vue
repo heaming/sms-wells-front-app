@@ -1,3 +1,17 @@
+<!----
+****************************************************************************************************
+* 프로그램 개요
+****************************************************************************************************
+1. 모듈 : OGC
+2. 프로그램 ID : WwogcEngineerGradeMgtM - 서비스센터 등급관리
+3. 작성자 : g
+4. 작성일 : 2023-05-08
+****************************************************************************************************
+* 프로그램 설명
+****************************************************************************************************
+- 서비스센터 등급 관리
+****************************************************************************************************
+--->
 <template>
   <kw-page>
     <kw-search
@@ -42,6 +56,9 @@
 
     <div class="result-area">
       <kw-action-top>
+        <template #left>
+          <kw-paging-info :total-count="pageInfo.totalCount" />
+        </template>
         <kw-btn
           grid-action
           :label="t('MSG_BTN_SAVE')"
@@ -168,11 +185,12 @@ async function onClickSave() {
 
   // eslint-disable-next-line no-restricted-syntax
   for (const item of changedRows) {
-    if (dayjs().format('YYYYMMDD') > item.apyStrtDt
-      || dayjs().format('YYYYMMDD') > item.apytEnddt) {
-      notify(t('MSG_TXT_APY_DT_CONF'));
-      return;
-    }
+    // 임시조건제거
+    // if (dayjs().format('YYYYMMDD') > item.apyStrtDt
+    //   || dayjs().format('YYYYMMDD') > item.apytEnddt) {
+    //   notify(t('MSG_TXT_APY_DT_CONF'));
+    //   return;
+    // }
     if (item.apyStrtDt > item.apyEnddt) {
       notify(t('MSG_TXT_APY_DT_CONF'));
       return;
