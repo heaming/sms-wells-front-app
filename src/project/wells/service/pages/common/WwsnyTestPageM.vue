@@ -72,7 +72,7 @@ const movePages = [
         type: 'modal',
         call: 'WwsncTimeTableSellListP',
         props: {
-          sellDate: '20230701',
+          sellDate: '20230601',
           baseYm: '202306',
           chnlDvCd: 'K', // W: 웰스, K: KSS, C: CubicCC, P: K-MEMBERS, I || E: 엔지니어, M: 매니저
           svDvCd: '1', // 1:설치, 2:BS, 3:AS, 4:홈케어
@@ -80,7 +80,7 @@ const movePages = [
           cntrNo: 'W20220137399',
           cntrSn: '1',
           dataStatCd: '1', // 1: 신규, 2: 수정, 3: 삭제
-          userId: '37172',
+          userId: '27536',
           inGb: '1',
         },
       },
