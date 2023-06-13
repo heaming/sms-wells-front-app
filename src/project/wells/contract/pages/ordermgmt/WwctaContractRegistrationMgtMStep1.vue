@@ -18,32 +18,53 @@
     scroll-style="padding-right: 40px;"
   >
     <ul class="kw-state-list kw-state-list--second-line col pt20">
-      <li class="kw-state-list__item">
-        <p class="kw-state-list__top">
-          재약정대상
-        </p>
-        <p class="kw-state-list__num">
-          <a
-            href="javascript:void(0);"
-            class="kw-state-list__under-line"
-            @click="onClickReStipulation()"
-          >{{ dashboardCounts.restipulationCnt }}</a>
-          <span class="kw-state-list__unit">명</span>
-        </p>
-      </li>
-      <li class="kw-state-list__item">
-        <p class="kw-state-list__top">
-          멤버십대상
-        </p>
-        <p class="kw-state-list__num">
-          <a
-            href="javascript:void(0);"
-            class="kw-state-list__under-line"
-            @click="onClickMembership()"
-          >{{ dashboardCounts.membershipCnt }}</a>
-          <span class="kw-state-list__unit">명</span>
-        </p>
-      </li>
+      <template
+        v-if="careerLevelCode === '7'"
+      >
+        <li class="kw-state-list__item">
+          <p class="kw-state-list__top">
+            소속파트너
+          </p>
+          <p class="kw-state-list__num">
+            <a
+              href="javascript:void(0);"
+              class="kw-state-list__under-line"
+              @click="onClickBelongPartner()"
+            >{{ dashboardCounts.belongPartnerCnt }}</a>
+            <span class="kw-state-list__unit">명</span>
+          </p>
+        </li>
+      </template>
+      <template
+        v-else
+      >
+        <li class="kw-state-list__item">
+          <p class="kw-state-list__top">
+            재약정대상
+          </p>
+          <p class="kw-state-list__num">
+            <a
+              href="javascript:void(0);"
+              class="kw-state-list__under-line"
+              @click="onClickReStipulation()"
+            >{{ dashboardCounts.restipulationCnt }}</a>
+            <span class="kw-state-list__unit">명</span>
+          </p>
+        </li>
+        <li class="kw-state-list__item">
+          <p class="kw-state-list__top">
+            멤버십대상
+          </p>
+          <p class="kw-state-list__num">
+            <a
+              href="javascript:void(0);"
+              class="kw-state-list__under-line"
+              @click="onClickMembership()"
+            >{{ dashboardCounts.membershipCnt }}</a>
+            <span class="kw-state-list__unit">명</span>
+          </p>
+        </li>
+      </template>
     </ul>
     <kw-search
       :cols="3"
@@ -58,7 +79,7 @@
           <kw-select
             v-model="searchParams.cntrTpCd"
             :label="$t('MSG_TXT_CONTR_TYPE')"
-            :options="codes.CNTR_TP_CD"
+            :options="cntrTpCdOptions"
             rules="required"
             @change="onChangeCntrtTpCd"
           />
@@ -258,31 +279,31 @@ ${step1.cntrt.sexDvNm}` }}
               <kw-form-item
                 :label="$t('MSG_TXT_PTNR_NAME')"
               >
-                <p>{{ step1.prtnr.prtnrKnm }}</p>
+                <p>{{ step1.prtnr?.prtnrKnm }}</p>
               </kw-form-item>
               <kw-form-item
                 :label="$t('MSG_TXT_PRTNR_NUM')"
               >
-                <p>{{ step1.prtnr.prtnrNo }}</p>
+                <p>{{ step1.prtnr?.prtnrNo }}</p>
               </kw-form-item>
             </kw-form-row>
             <kw-form-row>
               <kw-form-item
                 :label="$t('MSG_TXT_MANAGEMENT_DEPARTMENT')"
               >
-                <p>{{ step1.prtnr.dgr1LevlOgNm }}</p>
+                <p>{{ step1.prtnr?.dgr1LevlOgNm }}</p>
               </kw-form-item>
               <kw-form-item
                 :label="$t('MSG_TXT_RGNL_GRP')"
               >
-                <p>{{ step1.prtnr.dgr2LevlOgNm }}</p>
+                <p>{{ step1.prtnr?.dgr2LevlOgNm }}</p>
               </kw-form-item>
             </kw-form-row>
             <kw-form-row>
               <kw-form-item
                 :label="$t('MSG_TXT_BRANCH')"
               >
-                <p>{{ step1.prtnr.dgr3LevlOgNm }}</p>
+                <p>{{ step1.prtnr?.dgr3LevlOgNm }}</p>
               </kw-form-item>
             </kw-form-row>
           </template>
@@ -293,19 +314,19 @@ ${step1.cntrt.sexDvNm}` }}
               <kw-form-item
                 :label="$t('MSG_TXT_PTNR_NAME')"
               >
-                <p>{{ step1.prtnr.prtnrKnm }}</p>
+                <p>{{ step1.prtnr?.prtnrKnm }}</p>
               </kw-form-item>
               <kw-form-item
                 :label="$t('MSG_TXT_PRTNR_NUM')"
               >
-                <p>{{ step1.prtnr.prtnrNo }}</p>
+                <p>{{ step1.prtnr?.prtnrNo }}</p>
               </kw-form-item>
             </kw-form-row>
             <kw-form-row>
               <kw-form-item
                 :label="$t('MSG_TXT_ALNC_PRTNR')"
               >
-                <p>{{ step1.prtnr.prtnrKnm }}</p>
+                <p>{{ step1.prtnr?.prtnrKnm }}</p>
               </kw-form-item>
             </kw-form-row>
             <kw-form-row>
@@ -359,6 +380,11 @@ const codes = await codeUtil.getMultiCodes(
   'CNTR_TP_CD',
   'COPN_DV_CD',
 );
+const cntrTpCdOptions = computed(() => (
+  careerLevelCode === '7'
+    ? codes.CNTR_TP_CD.filter((code) => ['01', '02'].includes(code.codeId))
+    : codes.CNTR_TP_CD
+));
 const searchParams = ref({
   cntrNo: step1.value.bas?.cntrNo,
   cntrTpCd: '01',
@@ -377,23 +403,18 @@ const cntrTpIs = ref({
   rstl: computed(() => searchParams.value.cntrTpCd === '08'), // 재약정
   quot: computed(() => searchParams.value.cntrTpCd === '09'), // 견적서
 });
-
 const dashboardCounts = ref({
+  belongPartnerCnt: 0,
   restipulationCnt: 0,
   membershipCnt: 0,
 });
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
-async function getCntrInfo(cntrNo) {
-  const cntr = await dataService.get('sms/wells/contract/contracts/cntr-info', { params: {
-    cntrNo,
-    cstNo: step1.value?.bas?.cntrCstNo,
-    step: 1,
-  } });
-  if (!isEmpty(step1.value.bas?.cntrNo)) {
-    searchParams.value.cntrTpCd = step1.value.bas.cntrTpCd;
-    searchParams.value.copnDvCd = step1.value.bas.copnDvCd;
+async function afterGetCntrInfo(cntr) {
+  if (cntr.data.step1.bas?.cntrNo && cntr.data.step1.bas?.cntrTpCd) {
+    searchParams.value.cntrTpCd = cntr.data.step1.bas.cntrTpCd;
+    searchParams.value.copnDvCd = cntr.data.step1.bas.copnDvCd;
   }
   // 조회한 계약유형코드에 따라 컴포넌트변경 시간차
   setTimeout(() => {
@@ -401,21 +422,35 @@ async function getCntrInfo(cntrNo) {
     pCntrNo.value = step1.value.bas.cntrNo;
     console.log(step1.value);
     ogStep1.value = cloneDeep(step1.value);
-    if (isEmpty(step1.value.bas.cntrNo)) {
-      step1.value.bas.cntrTpCd = searchParams.value.cntrTpCd;
-      step1.value.bas.copnDvCd = searchParams.value.copnDvCd;
-    }
+    step1.value.bas.cntrTpCd = searchParams.value.cntrTpCd;
+    step1.value.bas.copnDvCd = searchParams.value.copnDvCd;
   }, 10);
 }
 
-async function setCntrInfo(cstNo) {
-  step1.value.bas = {
-    cntrCstNo: cstNo,
-  };
-  await getCntrInfo();
+async function getCntrInfo(cntrNo) {
+  const cntr = await dataService.get('sms/wells/contract/contracts/cntr-info', { params: {
+    cntrNo,
+    step: 1,
+  } });
+  await afterGetCntrInfo(cntr);
+}
+
+async function getCntrInfoByCst(cstNo) {
+  const cntr = await dataService.get('sms/wells/contract/contracts/cntr-info', { params: {
+    cntrNo: step1.value.bas?.cntrNo,
+    cstNo,
+    prtnrNo: step1.value.prtnr?.prtnrNo,
+    ogTpCd: step1.value.prtnr?.ogTpCd,
+    step: 1,
+  } });
+  await afterGetCntrInfo(cntr);
 }
 
 async function onClickSearchCntrtInfo() {
+  if (careerLevelCode === '7' && !step1.value.prtnr) {
+    await alert('먼저 소속파트너를 선택해주세요.');
+    return;
+  }
   if (cntrTpIs.value.indv) {
     // 개인 / 임직원
     const isExistCntrt = await dataService.get('sms/wells/contract/contracts/is-exist-cntrt-info', { params: searchParams.value });
@@ -439,9 +474,8 @@ async function onClickSearchCntrtInfo() {
         },
       });
       if (res.result && res.payload) {
-        await setCntrInfo(res.payload.cstNo);
+        await getCntrInfoByCst(res.payload.cstNo);
       }
-      // await setCntrInfo('017448860');
     }
   } else if (cntrTpIs.value.ensm) {
     // 임직원
@@ -451,7 +485,7 @@ async function onClickSearchCntrtInfo() {
       await alert('파트너의 고객번호가 존재하지 않습니다.');
       return;
     }
-    await setCntrInfo(cstNo.data);
+    await getCntrInfoByCst(cstNo.data);
   } else if (cntrTpIs.value.crp) {
     // 법인
     const isExistCntrt = await dataService.get('sms/wells/contract/contracts/is-exist-cntrt-info', { params: searchParams.value });
@@ -465,23 +499,39 @@ async function onClickSearchCntrtInfo() {
     } else {
       // 조회된 고객이 있다면, 계약자: 공통고객 조회 팝업, 학습자: 학습자용 고객 조회 팝업 호출
       const crpCond = {
-        cstKnm: searchParams.value.cstKnm,
+        cstType: '2',
+        dlpnrNm: searchParams.value.cstKnm,
         bzrno: searchParams.value.bzrno,
       };
-      console.log(crpCond);
-      /* FIXME 고객 조회 팝업 데이터 수신 로직 변경되면 수정
       const res = await modal({
         component: 'ZwcsaCustomerListP',
         // 법인: 공통팝업(이름, 사업자등록번호)
         // 개인: 공통팝업(이름, 성별, 생년월일, 휴대전화번호)
         componentProps: crpCond,
-      })
+      });
       if (res.result && res.payload) {
-        await setCntrInfo(res.payload.cstNo);
+        await getCntrInfoByCst(res.payload.cstNo);
       }
-     */
-      await setCntrInfo('008446558');
     }
+  }
+}
+
+async function onClickBelongPartner() {
+  const res = await modal({
+    component: 'WwctaBelongPartnerChoiceListP',
+    componentProps: {
+      dsmnPrtnrNo: prtnrNo,
+      ogTpCd,
+    },
+  });
+  if (res.result && res.payload) {
+    step1.value.prtnr = {
+      prtnrKnm: res.payload.prtnrKnm,
+      prtnrNo: res.payload.prtnrNo,
+      dgr1LevlOgNm: res.payload.dgr1LevlOgNm,
+      dgr2LevlOgNm: res.payload.dgr2LevlOgNm,
+      dgr3LevlOgNm: res.payload.dgr3LevlOgNm,
+    };
   }
 }
 
