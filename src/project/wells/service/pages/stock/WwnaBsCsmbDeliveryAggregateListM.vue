@@ -167,12 +167,13 @@ async function getBldCode() {
   bldCodes.value = codeData.map((v) => ({ codeId: v.bldCd, codeName: v.bldNm }));
 }
 
+let cachedParams;
 async function getItemQtys() {
-  const res = await dataService.get(`/sms/wells/service/delivery-aggregates/${searchParams.value.mngtYmFrom}-${searchParams.value.mngtYmTo}`);
+  cachedParams = cloneDeep(searchParams.value);
+
+  const res = await dataService.get('/sms/wells/service/delivery-aggregates/item-quantity', { params: { ...cachedParams, ...pageInfo.value } });
   itemQtys.value = res.data;
 }
-
-let cachedParams;
 
 async function fetchData() {
   const res = await dataService.get('/sms/wells/service/delivery-aggregates/paging', { params: { ...cachedParams, ...pageInfo.value } });
