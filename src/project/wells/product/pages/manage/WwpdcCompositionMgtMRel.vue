@@ -205,7 +205,7 @@ async function onClickStandardSchPopup() {
   searchParams.value.searchValue = standardSearchValue.value;
   searchParams.value.exceptPdCd = currentPdCd.value;
   const rtn = await modal({
-    component: 'ZwpdcStandardSimpleListP',
+    component: 'ZwpdcStandardListP',
     componentProps: searchParams.value,
   });
   await insertCallbackRows(view, rtn, pdConst.PD_REL_TP_CD_C_TO_P);

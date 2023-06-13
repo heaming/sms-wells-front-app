@@ -165,7 +165,7 @@ const searchParams = ref({
   pdNm: '',
   pdCd: '',
   svcStartDt: '',
-  svcEndDt: now.format('YYYYMMDD'),
+  svcEndDt: '',
 });
 const searchedProduct = ref();
 
@@ -228,7 +228,8 @@ async function onClickAdd() {
   await gridUtil.insertRowAndFocus(view, 0, {
     pdCd: searchedProduct.value?.pdCd,
     pdNm: searchedProduct.value?.pdNm,
-    vlEndDtm: '9999-12-31',
+    vlStrtDtm: now.format('YYYYMMDD'),
+    vlEndDtm: '99991231',
   });
 }
 
