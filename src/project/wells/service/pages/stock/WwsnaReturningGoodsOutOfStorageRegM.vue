@@ -527,7 +527,6 @@ const initGrdMain = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'sapMatCd' },
     { fieldName: 'itmPdCd' },
-    { fieldName: 'itmCd' },
     { fieldName: 'itmPdNm' },
     { fieldName: 'itmGdCd' },
     { fieldName: 'onQty', dataType: 'number' },
@@ -547,7 +546,6 @@ const initGrdMain = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'sapMatCd', header: t('MSG_TXT_SAP_CD'), width: '170', styleName: 'text-center' },
     { fieldName: 'itmPdCd', header: t('MSG_TXT_ITM_CD'), width: '140', styleName: 'text-center' },
-    { fieldName: 'itmCd' },
     { fieldName: 'itmPdNm',
       header: t('MSG_TXT_ITM_NM'),
       width: '200',
