@@ -87,6 +87,14 @@
           <span class="ml8">{{ t('MSG_TXT_UNIT_WON') }}</span>
         </template>
 
+        <!-- 테스트용 재지급팝업 연결 -->
+        <kw-btn
+          primary
+          dense
+          :label="t('재지급(팝업)')"
+          @click="onClickTest"
+        />
+
         <kw-btn
           icon="download_on"
           dense
@@ -337,6 +345,19 @@ async function onClickAdsbObjAndAmtCreate() {
     component: 'ZwdebAdsbObjectAndAmtBulkCreateP',
     componentProps: {
       ogTpCd: 'W',
+    },
+  });
+  if (result) {
+    await onClickSearch();
+  }
+}
+
+async function onClickTest() {
+  const result = await modal({
+    component: 'WwdebAgainDisbursementDetailP',
+    componentProps: {
+      prtnrNo: searchParams.value.prtnrNo,
+      ogTpCd: searchParams.value.ogTpCd,
     },
   });
   if (result) {
