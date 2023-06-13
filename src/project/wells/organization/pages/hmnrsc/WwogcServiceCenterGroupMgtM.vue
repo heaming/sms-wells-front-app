@@ -241,11 +241,13 @@ async function onClickAllSave() {
     notify(t('MSG_TXT_APY_DT_CONF'));
     return;
   }
+  /* 임시주석
   if (dayjs().format('YYYYMMDD') > saveParams.value.rfltAplyDt
     || dayjs().format('YYYYMMDD') > saveParams.value.rfltEnddt) {
     notify(t('MSG_TXT_APY_DT_CONF'));
     return;
   }
+  */
   if (saveParams.value.rfltAplyDt > saveParams.value.rfltEnddt) {
     notify(t('MSG_TXT_APY_DT_CONF'));
     return;
@@ -293,12 +295,13 @@ async function onClickSave() {
       notify(t('MSG_ALT_CHK_REQ_DT'));
       return;
     }
-    // 임시 조건 제거
-    // if (dayjs().format('YYYYMMDD') > item.vlStrtDt
-    //   || dayjs().format('YYYYMMDD') > item.vlEnddt) {
-    //   notify(t('MSG_TXT_APY_DT_CONF'));
-    //   return;
-    // }
+    /* 임시주석
+    if (dayjs().format('YYYYMMDD') > item.vlStrtDt
+      || dayjs().format('YYYYMMDD') > item.vlEnddt) {
+      notify(t('MSG_TXT_APY_DT_CONF'));
+      return;
+    }
+    */
     if (item.vlStrtDt > item.vlEnddt) {
       notify(t('MSG_TXT_APY_DT_CONF'));
       return;
@@ -312,8 +315,6 @@ async function onClickSave() {
       obj.mexnoEncr = getPhoneNumber(tel, 2);
       obj.cralIdvTno = getPhoneNumber(tel, 3);
     }
-    obj.vlStrtDt = saveParams.value.rfltAplyDt;
-    obj.vlEdndt = saveParams.value.rfltEnddt;
   });
 
   await dataService.post('/sms/wells/partner-engineer/joe-management', changeRows);
