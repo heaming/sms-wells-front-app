@@ -211,6 +211,7 @@ onMounted(async () => {
     await router.close(0, true);
     await popupUtil.open(`${path}`, size, false);
   }
+  formRef.value.reset();
 });
 
 </script>
