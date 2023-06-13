@@ -80,8 +80,8 @@
           v-model:tel-no2="inputParams.cralIdvTno"
           :label="$t('MSG_TXT_NOTAK_RCV_CST_NO')"
           mask="telephone"
+          rules="telephone|required"
           class="mt20"
-          :rules="'required|telephone'"
         />
         <!-- <kw-input
         v-model="inputParams.phone"
@@ -203,9 +203,11 @@ onMounted(async () => {
       width: 390,
       height: 844,
     };
+
     await router.close(0, true);
     await popupUtil.open(`${path}`, size, false);
   }
+  formRef.value.reset();
 });
 </script>
 
