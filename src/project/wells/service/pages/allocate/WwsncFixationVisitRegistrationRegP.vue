@@ -276,6 +276,7 @@ const contractSaveInfo = ref({
   chMngrDvCd: '',
   fnlMdfcDtm: '',
   fxnPrtnrDvCd: '',
+  fxnPrtnrOgTpCd: '',
   fxnPrtnrNo: '',
   fxnPrtnrKnm: '',
   chRsonCn: '',
