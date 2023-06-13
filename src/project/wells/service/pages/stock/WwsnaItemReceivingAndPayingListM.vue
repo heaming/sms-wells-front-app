@@ -93,10 +93,6 @@
           <kw-input
             v-model="searchParams.itmPdCdFrom"
           />
-          <span>~</span>
-          <kw-input
-            v-model="searchParams.itmPdCdTo"
-          />
         </kw-form-item>
         <!-- SAP코드 -->
         <kw-form-item
@@ -201,7 +197,6 @@ const searchParams = ref({
   strWareNoD: '',
   itmKnd: '4',
   itmPdCdFrom: '',
-  itmPdCdTo: '',
   sapMatCdFrom: '',
   sapMatCdTo: '',
   sapMatDpct: '',
