@@ -450,7 +450,6 @@
               <kw-field
                 v-slot="{field}"
                 v-model="item.blkApy"
-                @change="onChangeSodbtNftfCntr"
               >
                 <kw-checkbox
                   v-bind="field"
@@ -524,21 +523,28 @@ async function getCntrInfo(cntrNo) {
   step3.value = cntr.data.step3;
   adrs.value[0] = step3.value.basAdrpc;
   pCntrNo.value = step3.value.bas.cntrNo;
-  console.log(step3.value);
-  ogStep3.value = cloneDeep(step3.value);
 
-  // 일괄적용 여부
+  // 일괄적용 여부(렌탈이면서 유상멤버십기간, 판매유형코드, 판매유형상세코드 등이 일치해야 함)
   const baseDtl = step3.value.dtls[0];
   // eslint-disable-next-line no-restricted-syntax, guard-for-in
   for (const i in step3.value.dtls) {
     const dtl = step3.value.dtls[i];
     if (baseDtl.recapMshPtrm !== dtl.recapMshPtrm
     || baseDtl.sellTpCd !== dtl.sellTpCd
-    || baseDtl.sellTpDtlCd !== dtl.sellTpDtlCd) {
+    || baseDtl.sellTpDtlCd !== dtl.sellTpDtlCd
+    || dtl.sellTpCd !== '2') {
       isPsbBlkApy.value = false;
       break;
     }
   }
+  if (isPsbBlkApy.value) {
+    step3.value.dtls.forEach((dtl) => {
+      dtl.blkApy = 'N';
+    });
+  }
+
+  console.log(step3.value);
+  ogStep3.value = cloneDeep(step3.value);
 }
 
 function isChangedStep() {

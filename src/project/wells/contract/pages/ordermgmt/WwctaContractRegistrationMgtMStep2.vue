@@ -302,17 +302,17 @@
                     </div>
                     <div class="scoped-item__field-row mb10">
                       <kw-select
-                        v-if="item.sellDscTpCds"
-                        v-model="item.sellDscTpCd"
-                        :options="item.sellDscTpCds"
-                        placeholder="렌탈할인유형"
-                        @change="getPdAmts(item)"
-                      />
-                      <kw-select
                         v-if="item.sellDscDvCds"
                         v-model="item.sellDscDvCd"
                         :options="item.sellDscDvCds"
                         placeholder="렌탈할인구분"
+                        @change="getPdAmts(item)"
+                      />
+                      <kw-select
+                        v-if="item.sellDscTpCds && item.sellDscDvCd === '5'"
+                        v-model="item.sellDscTpCd"
+                        :options="item.sellDscTpCds"
+                        placeholder="렌탈할인유형"
                         @change="getPdAmts(item)"
                       />
                       <kw-select
