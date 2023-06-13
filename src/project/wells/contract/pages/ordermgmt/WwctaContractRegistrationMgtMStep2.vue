@@ -530,7 +530,7 @@ async function isChangedStep() {
 }
 
 async function isValidStep() {
-  if (isEmpty(step2.value.dtls)) {
+  if (step2.value.dtls.length === 0) {
     await alert('상품을 선택해주세요.');
     return false;
   }

@@ -24,40 +24,93 @@
         dense
         class="mt20"
       >
-        <kw-form-row>
-          <kw-form-item
-            :label="$t('MSG_TXT_CNTRT')"
-          >
-            <p>
-              {{ `${step4.cntrt.cstKnm || ''} / ${stringUtil.getDateFormat(step4.cntrt.bryyMmdd)} /
+        <template
+          v-if="cntrTpIs.indv || cntrTpIs.ensm || cntrTpIs.msh"
+        >
+          <kw-form-row>
+            <kw-form-item
+              :label="$t('MSG_TXT_CNTRT')"
+            >
+              <p>
+                {{ `${step4.cntrt.cstKnm || ''} / ${stringUtil.getDateFormat(step4.cntrt.bryyMmdd)} /
 ${step4.cntrt.sexDvNm || ''}` }}
-            </p>
-          </kw-form-item>
-          <kw-form-item
-            :label="$t('MSG_TXT_CST_NO')"
-          >
-            <p>
-              {{ step4.cntrt.cstNo }}
-            </p>
-          </kw-form-item>
-        </kw-form-row>
-        <kw-form-row>
-          <kw-form-item
-            :label="$t('MSG_TXT_MPNO')"
-          >
-            <p>
-              {{ step4.cntrt.cralLocaraTno }}-{{ step4.cntrt.mexnoEncr }}-{{ step4.cntrt.cralIdvTno }}
-            </p>
-          </kw-form-item>
-          <kw-form-item
-            :label="$t('MSG_TXT_ADDR')"
-          >
-            <p>
-              {{ step4.cntrt.zip }}<br>
-              {{ step4.cntrt.adr }} {{ step4.cntrt.adrDtl }}
-            </p>
-          </kw-form-item>
-        </kw-form-row>
+              </p>
+            </kw-form-item>
+            <kw-form-item
+              :label="$t('MSG_TXT_CST_NO')"
+            >
+              <p>
+                {{ step4.cntrt.cstNo }}
+              </p>
+            </kw-form-item>
+          </kw-form-row>
+          <kw-form-row>
+            <kw-form-item
+              :label="$t('MSG_TXT_MPNO')"
+            >
+              <p>
+                {{ step4.cntrt.cralLocaraTno }}-{{ step4.cntrt.mexnoEncr }}-{{ step4.cntrt.cralIdvTno }}
+              </p>
+            </kw-form-item>
+            <kw-form-item
+              :label="$t('MSG_TXT_ADDR')"
+            >
+              <p>
+                {{ step4.cntrt.zip }}<br>
+                {{ step4.cntrt.adr }} {{ step4.cntrt.adrDtl }}
+              </p>
+            </kw-form-item>
+          </kw-form-row>
+        </template>
+        <template
+          v-else-if="cntrTpIs.crp"
+        >
+          <kw-form-row>
+            <kw-form-item
+              :label="$t('MSG_TXT_CNTRT')"
+            >
+              <p>{{ step4.cntrt.cstKnm }}</p>
+            </kw-form-item>
+            <kw-form-item
+              :label="$t('MSG_TXT_CRNO')"
+            >
+              <p>{{ step4.cntrt.bzrno }}</p>
+            </kw-form-item>
+          </kw-form-row>
+          <kw-form-row>
+            <kw-form-item
+              :label="$t('MSG_TXT_CST_NO')"
+            >
+              <p>{{ step4.cntrt.cstNo }}</p>
+            </kw-form-item>
+          </kw-form-row>
+          <kw-form-row>
+            <kw-form-item
+              :label="$t('MSG_TXT_MPNO')"
+            >
+              <p>
+                {{ step4.cntrt.cralLocaraTno }}-{{ step4.cntrt.mexnoEncr }}-{{ step4.cntrt.cralIdvTno }}
+              </p>
+            </kw-form-item>
+            <kw-form-item
+              :label="$t('MSG_TXT_TEL_NO')"
+            >
+              <p>
+                {{ step4.cntrt.locaraTno }}-{{ step4.cntrt.exnoEncr }}-{{ step4.cntrt.idvTno }}
+              </p>
+            </kw-form-item>
+          </kw-form-row>
+          <kw-form-row>
+            <kw-form-item
+              :label="$t('MSG_TXT_ADDR')"
+            >
+              <p>
+                {{ step4.cntrt.zip }}<br>
+                {{ step4.cntrt.adr }} {{ step4.cntrt.adrDtl }}
+              </p>
+            </kw-form-item>
+          </kw-form-row>
+        </template>
       </kw-form>
 
       <kw-separator />
@@ -439,14 +492,7 @@ ${step4.cntrt.sexDvNm || ''}` }}
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import ZwcmFileAttacher from '~common/components/ZwcmFileAttacher.vue';
-import {
-  codeUtil,
-  defineGrid,
-  getComponentType,
-  stringUtil,
-  useDataService,
-  useGlobal,
-} from 'kw-lib';
+import { codeUtil, defineGrid, getComponentType, stringUtil, useDataService, useGlobal } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 
 const dataService = useDataService();
@@ -495,6 +541,14 @@ codes.DP_TP_CD_AFTN = [
   { codeId: '0102', codeName: '계좌이체' },
 ];
 const dtlSn = ref(1);
+const cntrTpIs = ref({
+  indv: computed(() => step4.value.bas?.cntrTpCd === '01'), // 개인
+  crp: computed(() => step4.value.bas?.cntrTpCd === '02'), // 법인
+  ensm: computed(() => step4.value.bas?.cntrTpCd === '03'), // 임직원
+  msh: computed(() => step4.value.bas?.cntrTpCd === '07'), // 멤버십
+  rstl: computed(() => step4.value.bas?.cntrTpCd === '08'), // 재약정
+  quot: computed(() => step4.value.bas?.cntrTpCd === '09'), // 견적서
+});
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
