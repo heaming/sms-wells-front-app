@@ -37,6 +37,7 @@
     "axios": "^0.27.2",
     "dayjs": "^1.11.4",
     "kw-lib": "^0.1.85",
+    "lodash": "^4.17.21",
     "lodash-es": "^4.17.21",
     "realgrid": "^2.5.4",
     "vue": "^3.2.25",
@@ -53,6 +54,11 @@
     "stylelint": "^14.8.2"
   },
   "bundledDependencies": [
+    "~collaboration",
+    "~common",
+    "~sms-common"
+  ],
+  "bundleDependencies": [
     "~collaboration",
     "~common",
     "~sms-common"
