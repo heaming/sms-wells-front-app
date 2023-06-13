@@ -114,6 +114,7 @@
         </kw-stepper>
         <div class="button-set--bottom">
           <div class="button-set--bottom-left">
+            <!-- 이전 -->
             <kw-btn
               v-show="isTempSaveBtn && currentStep.step > 1"
               :label="$t('MSG_BTN_PREV')"
@@ -122,28 +123,33 @@
             />
           </div>
           <div class="button-set--bottom-right">
+            <!-- 삭제 -->
             <kw-btn
               v-show="!isCreate"
               :label="$t('MSG_BTN_DEL')"
               @click="onClickDelete"
             />
-            <!-- <kw-btn
-            v-show="currentStep.step === 1 && isCreate"
-            :label="$t('MSG_BTN_INTL')"
-            class="ml8"
-            @click="onClickReset"
-          /> -->
+            <!-- 초기화 -->
+            <kw-btn
+              v-show="!isCreate"
+              :label="$t('MSG_BTN_INTL')"
+              class="ml8"
+              @click="onClickReset"
+            />
+            <!-- 취소 -->
             <kw-btn
               :label="$t('MSG_BTN_CANCEL')"
               class="ml8"
               @click="onClickCancel()"
             />
+            <!-- 임시저장 -->
             <kw-btn
               v-if="currentStep.step < regSteps.length && isTempSaveBtn"
               :label="$t('MSG_BTN_TMP_SAVE')"
               class="ml8"
               @click="onClickSave('Y')"
             />
+            <!-- 다음 -->
             <kw-btn
               v-show="isTempSaveBtn && currentStep.step < regSteps.length"
               :label="$t('MSG_BTN_NEXT')"
@@ -151,6 +157,7 @@
               primary
               @click="onClickNextStep"
             />
+            <!-- 저장 -->
             <kw-btn
               v-show="!isTempSaveBtn || currentStep.step === regSteps.length"
               :label="$t('MSG_BTN_SAVE')"
@@ -414,6 +421,7 @@ async function fetchProduct() {
   }
 }
 
+// 저장 버튼
 async function onClickSave(tempSaveYn) {
   // 1. Step별 수정여부 확인
   // '임시저장 ==> 저장' 경우를 제외하고 수정여부 체크
@@ -508,18 +516,31 @@ async function onUpdateBasicValue(field) {
 }
 
 // 초기화
-async function onClickReset() {
-  currentPdCd.value = '';
-  isCreate.value = true;
-  isTempSaveBtn.value = true;
+async function resetData() {
+  if (isEmpty(currentPdCd.value)) {
+    isCreate.value = true;
+    passedStep.value = 0;
+    isTempSaveBtn.value = true;
+  }
   currentStep.value = cloneDeep(pdConst.STANDARD_STEP_BASIC);
-  passedStep.value = 0;
   prevStepData.value = {};
-  removePriceRows.value = [];
   await Promise.all(cmpStepRefs.value.map(async (item) => {
     if (item.value?.resetData) await item.value?.resetData();
     if (item.value?.init) await item.value?.init();
   }));
+}
+
+async function setMountData() {
+  // 판매 상세 유형 초기값 설정
+  const mgtNameFields = await cmpStepRefs.value[0]?.value.getNameFields();
+  await setSellDetailTypeCodes(mgtNameFields.sellTpCd?.initValue);
+}
+
+// 초기화 버튼
+async function onClickReset() {
+  await resetData();
+  await fetchProduct();
+  await setMountData();
 }
 
 async function initProps() {
@@ -555,6 +576,7 @@ watch(() => route.params.newRegYn, async (newRegYn) => {
   if (!route.path.includes('zwpdc-sale-product-list')) return;
   console.log(`WwpdcStandardMgtM - newRegYn : ${newRegYn}`, route);
   if (newRegYn === 'Y') {
+    currentPdCd.value = '';
     await onClickReset();
   }
 });
@@ -571,9 +593,7 @@ watch(() => route.params.reloadYn, async (reloadYn) => {
 });
 
 onMounted(async () => {
-  // 판매 상세 유형 초기값 설정
-  const mgtNameFields = await cmpStepRefs.value[0]?.value.getNameFields();
-  await setSellDetailTypeCodes(mgtNameFields.sellTpCd?.initValue);
+  await setMountData();
 });
 
 </script>
