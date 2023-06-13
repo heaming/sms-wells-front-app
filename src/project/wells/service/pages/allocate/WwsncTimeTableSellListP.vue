@@ -370,8 +370,9 @@ const searchParams = ref({
 async function getTimeTables() {
   cachedParams = cloneDeep(searchParams.value);
   console.log(cachedParams);
-  const res = await dataService.get('/sms/wells/service/time-table/time-assign-sales', { params: { ...cachedParams,
-  } });
+  const res = await dataService.get('/sms/wells/service/time-tables/sales', { params:
+   { ...cachedParams,
+   } });
   console.log(res.data);
   schedules.value = res.data;
   scheduleInfo.value.weekCnt = schedules.value.length / scheduleInfo.value.dayCnt;
