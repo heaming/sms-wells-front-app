@@ -260,12 +260,15 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'rnadr' },
     { fieldName: 'rdadr' },
     { fieldName: 'cralLocaraTno' },
+    { fieldName: 'mexnoEncr' },
     { fieldName: 'cralIdvTno' },
     { fieldName: 'locaraTno' },
+    { fieldName: 'exnoEncr' },
     { fieldName: 'idvTno' },
     { fieldName: 'sellTpCd' },
     { fieldName: 'fxnPrtnrDvCd' },
     { fieldName: 'fxnPrtnrNo' },
+    { fieldName: 'fxnPrtnrKnm' },
     { fieldName: 'apyStrtYm' },
     { fieldName: 'chRsonCn' },
     { fieldName: 'fnlMdfcDtm' },
@@ -301,10 +304,12 @@ const initGrid = defineGrid((data, view) => {
       styleName: 'text-center',
       displayCallback(grid, index, value) {
         const cralLocaraTno = grid.getValue(index.itemIndex, 'cralLocaraTno') ?? '';
+        const mexnoEncr = grid.getValue(index.itemIndex, 'mexnoEncr') ?? '';
         const cralIdvTno = value ?? '';
-        const div = (!isEmpty(cralLocaraTno) && !isEmpty(cralIdvTno)) ? '-' : '';
+        const div = (!isEmpty(cralLocaraTno) && !isEmpty(mexnoEncr)) ? '-' : '';
+        const div2 = (!isEmpty(mexnoEncr) && !isEmpty(cralIdvTno)) ? '-' : '';
 
-        return `${cralLocaraTno}${div}${cralIdvTno}`;
+        return `${cralLocaraTno}${div}${mexnoEncr}${div2}${cralIdvTno}`;
       },
     },
     {
@@ -314,23 +319,25 @@ const initGrid = defineGrid((data, view) => {
       styleName: 'text-center',
       displayCallback(grid, index, value) {
         const locaraTno = grid.getValue(index.itemIndex, 'locaraTno') ?? '';
+        const exnoEncr = grid.getValue(index.itemIndex, 'exnoEncr') ?? '';
         const idvTno = value ?? '';
-        const div = (!isEmpty(locaraTno) && !isEmpty(idvTno)) ? '-' : '';
+        const div = (!isEmpty(locaraTno) && !isEmpty(exnoEncr)) ? '-' : '';
+        const div2 = (!isEmpty(exnoEncr) && !isEmpty(idvTno)) ? '-' : '';
 
-        return `${locaraTno}${div}${idvTno}`;
+        return `${locaraTno}${div}${exnoEncr}${div2}${idvTno}`;
       },
     },
     { fieldName: 'col4', header: '상품명', width: '250', styleName: 'text-center' },
-    { fieldName: 'sellTpCd', header: '판매유형', width: '100', styleName: 'text-center' },
-    { fieldName: 'fxnPrtnrDvCd', header: '관리구분', width: '100', styleName: 'text-center' },
+    { fieldName: 'sellTpCd', header: '판매유형', width: '100', styleName: 'text-center', options: codes.SELL_TP_CD },
+    { fieldName: 'fxnPrtnrDvCd', header: '관리구분', width: '100', styleName: 'text-center', options: codes.MNGR_DV_CD },
     { fieldName: 'col5', header: '담당센터', width: '100', styleName: 'text-center' },
     { fieldName: 'fxnPrtnrNo', header: '번호', width: '100', styleName: 'text-center' },
     { fieldName: 'col6', header: '방문담당자', width: '100', styleName: 'text-center' },
     { fieldName: 'col7', header: '퇴사일자', width: '100', styleName: 'text-center' },
     { fieldName: 'col8', header: '기존담당자', width: '100', styleName: 'text-center' },
-    { fieldName: 'apyStrtYm', header: '적용일자', width: '100', styleName: 'text-center' },
+    { fieldName: 'apyStrtYm', header: '적용일자', width: '100', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
     { fieldName: 'chRsonCn', header: '변경사유', width: '300', styleName: 'text-left' },
-    { fieldName: 'fnlMdfcDtm', header: '지정일자', width: '100', styleName: 'text-center' },
+    { fieldName: 'fnlMdfcDtm', header: '지정일자', width: '200', styleName: 'text-center', datetimeFormat: 'datetime' },
     { fieldName: 'fnlMdfcUsrId', header: '등록자', width: '100', styleName: 'text-center' },
   ];
 
