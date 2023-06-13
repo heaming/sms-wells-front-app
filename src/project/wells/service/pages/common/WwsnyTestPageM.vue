@@ -72,8 +72,8 @@ const movePages = [
         type: 'modal',
         call: 'WwsncTimeTableSellListP',
         props: {
-          sellDate: '20230601',
-          baseYm: '202306',
+          sellDate: '20230601', // 판매일자
+          baseYm: '202306', // 달력 초기 월
           chnlDvCd: 'K', // W: 웰스, K: KSS, C: CubicCC, P: K-MEMBERS, I || E: 엔지니어, M: 매니저
           svDvCd: '1', // 1:설치, 2:BS, 3:AS, 4:홈케어
           svBizDclsfCd: '1110', // 판매인 경우 1110(신규설치) fix
