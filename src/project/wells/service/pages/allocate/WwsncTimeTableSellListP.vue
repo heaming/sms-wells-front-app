@@ -287,44 +287,29 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService/* , useModal, alert */ } from 'kw-lib';
+// import { useDataService/* , useModal, alert */ } from 'kw-lib';
 import dayjs from 'dayjs';
-import { cloneDeep } from 'lodash-es';
-
-const dataService = useDataService();
+// import { cloneDeep } from 'lodash-es';
+// const dataService = useDataService();
 
 // const DATE_FORMAT_YM = 'YYYYMM';
 const DATE_FORMAT_YMD = 'YYYYMMDD';
 
 const props = defineProps({
-  // baseYm: { type: String, default: '' },
-  // cntrNo: { type: String, default: '' },
-  // basePdCd: { type: String, default: '' },
-  // prtnrNo: { type: String, default: '' },
-  // prevTag: { type: String, default: '' },
-  // svDvCd: { type: String, default: '' },
-  // svBizDclsfCd: { type: String, default: '' },
-  // sellDAte: { type: String, default: '' },
-
   baseYm: { type: String, default: '' },
-  prevTag: { type: String, default: '' },
   chnlDvCd: { type: String, default: '' },
   svDvCd: { type: String, default: '' },
-  prtnrNo: { type: String, default: '' },
   sellDate: { type: String, default: '' },
-  ordSeq: { type: String, default: '' },
   svBizDclsfCd: { type: String, default: '' },
-  newAdrZip: { type: String, default: '' },
-  cntrNo: { type: String, default: '' },
-  cntrSn: { type: String, default: '' },
-  sidingCd: { type: String, default: '' },
   inGb: { type: String, default: '' },
   basePdCd: { type: String, default: '' },
   wrkDt: { type: String, default: '' },
-  seq: { type: String, default: '' },
-  dtaStatCd: { type: String, default: '' },
+  dataStatCd: { type: String, default: '' },
   returnUrl: { type: String, default: '' },
   userId: { type: String, default: '' },
+  mkCo: { type: String, default: '' },
+  cntrNo: { type: String, default: '' },
+  cntrSn: { type: String, default: '' },
 });
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -335,47 +320,292 @@ const scheduleInfo = ref({
   dayCnt: 7,
 });
 
-let cachedParams;
 const searchParams = ref({
-  // baseYm: props.baseYm,
-  // prtnrNo: props.prtnrNo,
-  // prevTag: props.prevTag,
-  // svDvCd: props.svDvCd, // dataGb
-  // dataStus: props.dataStus,
-  // cntrNo: props.cntrNo,
-  // gdsCd: props.gdsCd,
-  // svBizDclsfCd: props.svBizDclsfCd,
-  // sellDate: props.sellDate,
   baseYm: props.baseYm,
-  prevTag: props.prevTag,
   chnlDvCd: props.chnlDvCd,
   svDvCd: props.svDvCd,
-  prtnrNo: props.prtnrNo,
   sellDate: props.sellDate,
-  ordSeq: props.ordSeq,
   svBizDclsfCd: props.svBizDclsfCd,
-  newAdrZip: props.newAdrZip,
-  cntrNo: props.cntrNo,
-  cntrSn: props.cntrSn,
-  sidingCd: props.sidingCd,
   inGb: props.inGb,
   basePdCd: props.basePdCd,
   wrkDt: props.wrkDt,
-  seq: props.seq,
-  dtaStatCd: props.dtaStatCd,
+  dataStatCd: props.dataStatCd,
   returnUrl: props.returnUrl,
   userId: props.userId,
+  mkCo: props.mkCo,
+  cntrNo: props.cntrNo,
+  cntrSn: props.cntrSn,
 });
 
+// let cachedParams;
 async function getTimeTables() {
-  cachedParams = cloneDeep(searchParams.value);
-  console.log(cachedParams);
-  const res = await dataService.get('/sms/wells/service/time-tables/sales', { params:
+  /* cachedParams = cloneDeep(searchParams.value);
+  const res1 = await dataService.get('/sms/wells/service/time-tables/sales', { params:
    { ...cachedParams,
-   } });
+   } }); */
+
+  const res = {
+    data: {
+      dowDvCd: null,
+      svBizDclsfCd: '1110',
+      inGb: '1',
+      chnlDvCd: 'K',
+      svDvCd: null,
+      cntrNo: 'W20220137399',
+      cntrSn: '1',
+      sellDate: '20230601',
+      empId: null,
+      curDateTimeString: '20230613',
+      wrkDt: null,
+      dataStatCd: '1',
+      basePdCd: 'WP01120367',
+      lcst09: null,
+      newAdrZip: '07333',
+      userId: '27536',
+      sowDay: null,
+      returnurl: null,
+      mkCo: null,
+      // left_info
+      offDays: [
+        '2023041727536', '2023042127536', '2023042227536', '2023042627536', '2023042727536',
+        '2023042827536', '2023042927536', '2023043027536', '2023050127536', '2023051827536',
+        '2023052927536', '2023061827536', '2023062827536', '2023070927536', '2023072427536',
+        '2023082027536', '2023082127536', '2023091327536', '2023091427536', '2023101127536',
+        '2023102227536', '2023110227536', '2023110327536', '2023111927536', '2023120427536',
+        '2023122027536', '2023122827536', '2023010727536', '2023012227536', '2023020527536',
+        '2023021127536', '2023021927536', '2023031427536', '2023032527536', '2023040827536',
+        '2023042327536', '2023051127536', '2023053027536', '2023060727536', '2023062527536',
+      ],
+      psicDataDvos: [
+        {
+          ac021EmpId: '621303',
+          ac021EmpNm: '정민희',
+          ac025EmpOr: '110',
+          ac112AdmCd: '11',
+          ac125DeptCd: 'KH210',
+          ac125DeptNm: '상동지국',
+          ac146LocalGb: 'A073',
+          ac146Sat13WrkYn: 'N',
+          ac146TtbUse: 'Y',
+          ac146UaUse: 'Y',
+          ac146VstCycl: '월화수목금토',
+          ac221CfrmDt: '20230601',
+          amWrkCnt: '6',
+          asCnt: '0',
+          bsCnt: '0',
+          co160Days: '5',
+          co160OffdayGb: 'N',
+          cralIdvTno: '9915',
+          cralLocaraTno: '010',
+          degNm: 'A-평일-14',
+          empPic: 'http://kiwi-m.kyowon.co.kr/KIWI-M/upload_file/upload_file/621303.jpg',
+          exnoEncr: '05yOz0YKOjie7oAp3ng5aw==',
+          idvTno: '1127',
+          instCnt: '0',
+          iscgubNm: null,
+          isjmcdNm: '엔지니어',
+          locaraTno: '032',
+          mexnoEncr: '9182',
+          pmWrkCnt: '8',
+          sjHp1: null,
+          sjHp2: null,
+          sjHp3: null,
+          twrkCnt: '1',
+          vstPos: '방문가능',
+        },
+      ],
+      assignTimeDvos: [
+        { vstDt: null, empId: null, tm: '090000', wrkCnt: 0, wrkTCnt: 0, wrkCCnt: 0, wrkTChk: null, wrkTRn: 0, wrkNextChk: -1, wrkNextChk2: -1, wrkChk2: 'N', wrkChk1Rn: '1', empTWrkCnt: 0, degWrkCnt: null, twrkCnt: 1 },
+        { vstDt: null, empId: null, tm: '091000', wrkCnt: 0, wrkTCnt: 0, wrkCCnt: 0, wrkTChk: null, wrkTRn: 0, wrkNextChk: -1, wrkNextChk2: -1, wrkChk2: 'N', wrkChk1Rn: '2', empTWrkCnt: 0, degWrkCnt: null, twrkCnt: 1 },
+        { vstDt: null, empId: null, tm: '092000', wrkCnt: 0, wrkTCnt: 0, wrkCCnt: 0, wrkTChk: null, wrkTRn: 0, wrkNextChk: -1, wrkNextChk2: -1, wrkChk2: 'N', wrkChk1Rn: '3', empTWrkCnt: 0, degWrkCnt: null, twrkCnt: 1 },
+        { vstDt: null, empId: null, tm: '093000', wrkCnt: 0, wrkTCnt: 0, wrkCCnt: 0, wrkTChk: null, wrkTRn: 0, wrkNextChk: -1, wrkNextChk2: -1, wrkChk2: 'N', wrkChk1Rn: '4', empTWrkCnt: 0, degWrkCnt: null, twrkCnt: 1 },
+        { vstDt: null, empId: null, tm: '094000', wrkCnt: 0, wrkTCnt: 0, wrkCCnt: 0, wrkTChk: null, wrkTRn: 0, wrkNextChk: -1, wrkNextChk2: -1, wrkChk2: 'N', wrkChk1Rn: '5', empTWrkCnt: 0, degWrkCnt: null, twrkCnt: 1 },
+        { vstDt: null, empId: null, tm: '095000', wrkCnt: 0, wrkTCnt: 0, wrkCCnt: 0, wrkTChk: null, wrkTRn: 0, wrkNextChk: -1, wrkNextChk2: -1, wrkChk2: 'N', wrkChk1Rn: '6', empTWrkCnt: 0, degWrkCnt: null, twrkCnt: 1 },
+        { vstDt: null, empId: null, tm: '100000', wrkCnt: 0, wrkTCnt: 0, wrkCCnt: 0, wrkTChk: null, wrkTRn: 0, wrkNextChk: -1, wrkNextChk2: -1, wrkChk2: 'N', wrkChk1Rn: '7', empTWrkCnt: 0, degWrkCnt: null, twrkCnt: 1 },
+        { vstDt: null, empId: null, tm: '101000', wrkCnt: 0, wrkTCnt: 0, wrkCCnt: 0, wrkTChk: null, wrkTRn: 0, wrkNextChk: -1, wrkNextChk2: -1, wrkChk2: 'N', wrkChk1Rn: '8', empTWrkCnt: 0, degWrkCnt: null, twrkCnt: 1 },
+        { vstDt: null, empId: null, tm: '102000', wrkCnt: 0, wrkTCnt: 0, wrkCCnt: 0, wrkTChk: null, wrkTRn: 0, wrkNextChk: -1, wrkNextChk2: -1, wrkChk2: 'N', wrkChk1Rn: '9', empTWrkCnt: 0, degWrkCnt: null, twrkCnt: 1 },
+        { vstDt: null, empId: null, tm: '103000', wrkCnt: 0, wrkTCnt: 0, wrkCCnt: 0, wrkTChk: null, wrkTRn: 0, wrkNextChk: -1, wrkNextChk2: -1, wrkChk2: 'N', wrkChk1Rn: '10', empTWrkCnt: 0, degWrkCnt: null, twrkCnt: 1 },
+        { vstDt: null, empId: null, tm: '104000', wrkCnt: 0, wrkTCnt: 0, wrkCCnt: 0, wrkTChk: null, wrkTRn: 0, wrkNextChk: -1, wrkNextChk2: -1, wrkChk2: 'N', wrkChk1Rn: '11', empTWrkCnt: 0, degWrkCnt: null, twrkCnt: 1 },
+        { vstDt: null, empId: null, tm: '105000', wrkCnt: 0, wrkTCnt: 0, wrkCCnt: 0, wrkTChk: null, wrkTRn: 0, wrkNextChk: -1, wrkNextChk2: -1, wrkChk2: 'N', wrkChk1Rn: '12', empTWrkCnt: 0, degWrkCnt: null, twrkCnt: 1 },
+        { vstDt: null, empId: null, tm: '110000', wrkCnt: 0, wrkTCnt: 0, wrkCCnt: 0, wrkTChk: null, wrkTRn: 0, wrkNextChk: -1, wrkNextChk2: -1, wrkChk2: 'N', wrkChk1Rn: '13', empTWrkCnt: 0, degWrkCnt: null, twrkCnt: 1 },
+        { vstDt: null, empId: null, tm: '111000', wrkCnt: 0, wrkTCnt: 0, wrkCCnt: 0, wrkTChk: null, wrkTRn: 0, wrkNextChk: -1, wrkNextChk2: -1, wrkChk2: 'N', wrkChk1Rn: '14', empTWrkCnt: 0, degWrkCnt: null, twrkCnt: 1 },
+        { vstDt: null, empId: null, tm: '112000', wrkCnt: 0, wrkTCnt: 0, wrkCCnt: 0, wrkTChk: null, wrkTRn: 0, wrkNextChk: -1, wrkNextChk2: -1, wrkChk2: 'N', wrkChk1Rn: '15', empTWrkCnt: 0, degWrkCnt: null, twrkCnt: 1 },
+        { vstDt: null, empId: null, tm: '113000', wrkCnt: 0, wrkTCnt: 0, wrkCCnt: 0, wrkTChk: null, wrkTRn: 0, wrkNextChk: -1, wrkNextChk2: -1, wrkChk2: 'N', wrkChk1Rn: '16', empTWrkCnt: 0, degWrkCnt: null, twrkCnt: 1 },
+        { vstDt: null, empId: null, tm: '114000', wrkCnt: 0, wrkTCnt: 0, wrkCCnt: 0, wrkTChk: null, wrkTRn: 0, wrkNextChk: -1, wrkNextChk2: -1, wrkChk2: 'N', wrkChk1Rn: '17', empTWrkCnt: 0, degWrkCnt: null, twrkCnt: 1 },
+        { vstDt: null, empId: null, tm: '115000', wrkCnt: 0, wrkTCnt: 0, wrkCCnt: 0, wrkTChk: null, wrkTRn: 0, wrkNextChk: -1, wrkNextChk2: -1, wrkChk2: 'N', wrkChk1Rn: '18', empTWrkCnt: 0, degWrkCnt: null, twrkCnt: 1 },
+        { vstDt: null, empId: null, tm: '120000', wrkCnt: 0, wrkTCnt: 0, wrkCCnt: 0, wrkTChk: null, wrkTRn: 0, wrkNextChk: -1, wrkNextChk2: -1, wrkChk2: 'N', wrkChk1Rn: '19', empTWrkCnt: 0, degWrkCnt: null, twrkCnt: 1 },
+        { vstDt: null, empId: null, tm: '121000', wrkCnt: 0, wrkTCnt: 0, wrkCCnt: 0, wrkTChk: null, wrkTRn: 0, wrkNextChk: -1, wrkNextChk2: -1, wrkChk2: 'N', wrkChk1Rn: '20', empTWrkCnt: 0, degWrkCnt: null, twrkCnt: 1 },
+        { vstDt: null, empId: null, tm: '122000', wrkCnt: 0, wrkTCnt: 0, wrkCCnt: 0, wrkTChk: null, wrkTRn: 0, wrkNextChk: -1, wrkNextChk2: -1, wrkChk2: 'N', wrkChk1Rn: '21', empTWrkCnt: 0, degWrkCnt: null, twrkCnt: 1 },
+        { vstDt: null, empId: null, tm: '123000', wrkCnt: 0, wrkTCnt: 0, wrkCCnt: 0, wrkTChk: null, wrkTRn: 0, wrkNextChk: -1, wrkNextChk2: -1, wrkChk2: 'N', wrkChk1Rn: '22', empTWrkCnt: 0, degWrkCnt: null, twrkCnt: 1 },
+        { vstDt: null, empId: null, tm: '124000', wrkCnt: 0, wrkTCnt: 0, wrkCCnt: 0, wrkTChk: null, wrkTRn: 0, wrkNextChk: -1, wrkNextChk2: -1, wrkChk2: 'N', wrkChk1Rn: '23', empTWrkCnt: 0, degWrkCnt: null, twrkCnt: 1 },
+        { vstDt: null, empId: null, tm: '125000', wrkCnt: 0, wrkTCnt: 0, wrkCCnt: 0, wrkTChk: null, wrkTRn: 0, wrkNextChk: -1, wrkNextChk2: -1, wrkChk2: 'N', wrkChk1Rn: '24', empTWrkCnt: 0, degWrkCnt: null, twrkCnt: 1 },
+        { vstDt: null, empId: null, tm: '130000', wrkCnt: 0, wrkTCnt: 0, wrkCCnt: 0, wrkTChk: null, wrkTRn: 0, wrkNextChk: -1, wrkNextChk2: -1, wrkChk2: 'N', wrkChk1Rn: '25', empTWrkCnt: 0, degWrkCnt: null, twrkCnt: 1 },
+        { vstDt: null, empId: null, tm: '131000', wrkCnt: 0, wrkTCnt: 0, wrkCCnt: 0, wrkTChk: null, wrkTRn: 0, wrkNextChk: -1, wrkNextChk2: -1, wrkChk2: 'N', wrkChk1Rn: '26', empTWrkCnt: 0, degWrkCnt: null, twrkCnt: 1 },
+        { vstDt: null, empId: null, tm: '132000', wrkCnt: 0, wrkTCnt: 0, wrkCCnt: 0, wrkTChk: null, wrkTRn: 0, wrkNextChk: -1, wrkNextChk2: -1, wrkChk2: 'N', wrkChk1Rn: '27', empTWrkCnt: 0, degWrkCnt: null, twrkCnt: 1 },
+        { vstDt: null, empId: null, tm: '133000', wrkCnt: 0, wrkTCnt: 0, wrkCCnt: 0, wrkTChk: null, wrkTRn: 0, wrkNextChk: -1, wrkNextChk2: -1, wrkChk2: 'N', wrkChk1Rn: '28', empTWrkCnt: 0, degWrkCnt: null, twrkCnt: 1 },
+        { vstDt: null, empId: null, tm: '134000', wrkCnt: 0, wrkTCnt: 0, wrkCCnt: 0, wrkTChk: null, wrkTRn: 0, wrkNextChk: -1, wrkNextChk2: -1, wrkChk2: 'N', wrkChk1Rn: '29', empTWrkCnt: 0, degWrkCnt: null, twrkCnt: 1 },
+        { vstDt: null, empId: null, tm: '135000', wrkCnt: 0, wrkTCnt: 0, wrkCCnt: 0, wrkTChk: null, wrkTRn: 0, wrkNextChk: -1, wrkNextChk2: -1, wrkChk2: 'N', wrkChk1Rn: '30', empTWrkCnt: 0, degWrkCnt: null, twrkCnt: 1 },
+        { vstDt: null, empId: null, tm: '140000', wrkCnt: 0, wrkTCnt: 0, wrkCCnt: 0, wrkTChk: null, wrkTRn: 0, wrkNextChk: -1, wrkNextChk2: -1, wrkChk2: 'N', wrkChk1Rn: '31', empTWrkCnt: 0, degWrkCnt: null, twrkCnt: 1 },
+        { vstDt: null, empId: null, tm: '141000', wrkCnt: 0, wrkTCnt: 0, wrkCCnt: 0, wrkTChk: null, wrkTRn: 0, wrkNextChk: -1, wrkNextChk2: -1, wrkChk2: 'N', wrkChk1Rn: '32', empTWrkCnt: 0, degWrkCnt: null, twrkCnt: 1 },
+        { vstDt: null, empId: null, tm: '142000', wrkCnt: 0, wrkTCnt: 0, wrkCCnt: 0, wrkTChk: null, wrkTRn: 0, wrkNextChk: -1, wrkNextChk2: -1, wrkChk2: 'N', wrkChk1Rn: '33', empTWrkCnt: 0, degWrkCnt: null, twrkCnt: 1 },
+        { vstDt: null, empId: null, tm: '143000', wrkCnt: 0, wrkTCnt: 0, wrkCCnt: 0, wrkTChk: null, wrkTRn: 0, wrkNextChk: -1, wrkNextChk2: -1, wrkChk2: 'N', wrkChk1Rn: '34', empTWrkCnt: 0, degWrkCnt: null, twrkCnt: 1 },
+        { vstDt: null, empId: null, tm: '144000', wrkCnt: 0, wrkTCnt: 0, wrkCCnt: 0, wrkTChk: null, wrkTRn: 0, wrkNextChk: -1, wrkNextChk2: -1, wrkChk2: 'N', wrkChk1Rn: '35', empTWrkCnt: 0, degWrkCnt: null, twrkCnt: 1 },
+        { vstDt: null, empId: null, tm: '145000', wrkCnt: 0, wrkTCnt: 0, wrkCCnt: 0, wrkTChk: null, wrkTRn: 0, wrkNextChk: -1, wrkNextChk2: -1, wrkChk2: 'N', wrkChk1Rn: '36', empTWrkCnt: 0, degWrkCnt: null, twrkCnt: 1 },
+        { vstDt: null, empId: null, tm: '150000', wrkCnt: 0, wrkTCnt: 0, wrkCCnt: 0, wrkTChk: null, wrkTRn: 0, wrkNextChk: -1, wrkNextChk2: -1, wrkChk2: 'N', wrkChk1Rn: '37', empTWrkCnt: 0, degWrkCnt: null, twrkCnt: 1 },
+        { vstDt: null, empId: null, tm: '151000', wrkCnt: 0, wrkTCnt: 0, wrkCCnt: 0, wrkTChk: null, wrkTRn: 0, wrkNextChk: -1, wrkNextChk2: -1, wrkChk2: 'N', wrkChk1Rn: '38', empTWrkCnt: 0, degWrkCnt: null, twrkCnt: 1 },
+        { vstDt: null, empId: null, tm: '152000', wrkCnt: 0, wrkTCnt: 0, wrkCCnt: 0, wrkTChk: null, wrkTRn: 0, wrkNextChk: -1, wrkNextChk2: -1, wrkChk2: 'N', wrkChk1Rn: '39', empTWrkCnt: 0, degWrkCnt: null, twrkCnt: 1 },
+        { vstDt: null, empId: null, tm: '153000', wrkCnt: 0, wrkTCnt: 0, wrkCCnt: 0, wrkTChk: null, wrkTRn: 0, wrkNextChk: -1, wrkNextChk2: -1, wrkChk2: 'N', wrkChk1Rn: '40', empTWrkCnt: 0, degWrkCnt: null, twrkCnt: 1 },
+        { vstDt: null, empId: null, tm: '154000', wrkCnt: 0, wrkTCnt: 0, wrkCCnt: 0, wrkTChk: null, wrkTRn: 0, wrkNextChk: -1, wrkNextChk2: -1, wrkChk2: 'N', wrkChk1Rn: '41', empTWrkCnt: 0, degWrkCnt: null, twrkCnt: 1 },
+        { vstDt: null, empId: null, tm: '155000', wrkCnt: 0, wrkTCnt: 0, wrkCCnt: 0, wrkTChk: null, wrkTRn: 0, wrkNextChk: -1, wrkNextChk2: -1, wrkChk2: 'N', wrkChk1Rn: '42', empTWrkCnt: 0, degWrkCnt: null, twrkCnt: 1 },
+        { vstDt: null, empId: null, tm: '160000', wrkCnt: 0, wrkTCnt: 0, wrkCCnt: 0, wrkTChk: null, wrkTRn: 0, wrkNextChk: -1, wrkNextChk2: -1, wrkChk2: 'N', wrkChk1Rn: '43', empTWrkCnt: 0, degWrkCnt: null, twrkCnt: 1 },
+        { vstDt: null, empId: null, tm: '161000', wrkCnt: 0, wrkTCnt: 0, wrkCCnt: 0, wrkTChk: null, wrkTRn: 0, wrkNextChk: -1, wrkNextChk2: -1, wrkChk2: 'N', wrkChk1Rn: '44', empTWrkCnt: 0, degWrkCnt: null, twrkCnt: 1 },
+        { vstDt: null, empId: null, tm: '162000', wrkCnt: 0, wrkTCnt: 0, wrkCCnt: 0, wrkTChk: null, wrkTRn: 0, wrkNextChk: -1, wrkNextChk2: -1, wrkChk2: 'N', wrkChk1Rn: '45', empTWrkCnt: 0, degWrkCnt: null, twrkCnt: 1 },
+        { vstDt: null, empId: null, tm: '163000', wrkCnt: 0, wrkTCnt: 0, wrkCCnt: 0, wrkTChk: null, wrkTRn: 0, wrkNextChk: -1, wrkNextChk2: -1, wrkChk2: 'N', wrkChk1Rn: '46', empTWrkCnt: 0, degWrkCnt: null, twrkCnt: 1 },
+        { vstDt: null, empId: null, tm: '164000', wrkCnt: 0, wrkTCnt: 0, wrkCCnt: 0, wrkTChk: null, wrkTRn: 0, wrkNextChk: -1, wrkNextChk2: -1, wrkChk2: 'N', wrkChk1Rn: '47', empTWrkCnt: 0, degWrkCnt: null, twrkCnt: 1 },
+        { vstDt: null, empId: null, tm: '165000', wrkCnt: 0, wrkTCnt: 0, wrkCCnt: 0, wrkTChk: null, wrkTRn: 0, wrkNextChk: -1, wrkNextChk2: -1, wrkChk2: 'N', wrkChk1Rn: '48', empTWrkCnt: 0, degWrkCnt: null, twrkCnt: 1 },
+        { vstDt: null, empId: null, tm: '170000', wrkCnt: 0, wrkTCnt: 0, wrkCCnt: 0, wrkTChk: null, wrkTRn: 0, wrkNextChk: -1, wrkNextChk2: -1, wrkChk2: 'N', wrkChk1Rn: '49', empTWrkCnt: 0, degWrkCnt: null, twrkCnt: 1 },
+        { vstDt: null, empId: null, tm: '171000', wrkCnt: 0, wrkTCnt: 0, wrkCCnt: 0, wrkTChk: null, wrkTRn: 0, wrkNextChk: -1, wrkNextChk2: -1, wrkChk2: 'N', wrkChk1Rn: '50', empTWrkCnt: 0, degWrkCnt: null, twrkCnt: 1 },
+        { vstDt: null, empId: null, tm: '172000', wrkCnt: 0, wrkTCnt: 0, wrkCCnt: 0, wrkTChk: null, wrkTRn: 0, wrkNextChk: -1, wrkNextChk2: -1, wrkChk2: 'N', wrkChk1Rn: '51', empTWrkCnt: 0, degWrkCnt: null, twrkCnt: 1 },
+        { vstDt: null, empId: null, tm: '173000', wrkCnt: 0, wrkTCnt: 0, wrkCCnt: 0, wrkTChk: null, wrkTRn: 0, wrkNextChk: -1, wrkNextChk2: -1, wrkChk2: 'N', wrkChk1Rn: '52', empTWrkCnt: 0, degWrkCnt: null, twrkCnt: 1 },
+        { vstDt: null, empId: null, tm: '174000', wrkCnt: 0, wrkTCnt: 0, wrkCCnt: 0, wrkTChk: null, wrkTRn: 0, wrkNextChk: -1, wrkNextChk2: -1, wrkChk2: 'N', wrkChk1Rn: '53', empTWrkCnt: 0, degWrkCnt: null, twrkCnt: 1 },
+        { vstDt: null, empId: null, tm: '175000', wrkCnt: 0, wrkTCnt: 0, wrkCCnt: 0, wrkTChk: null, wrkTRn: 0, wrkNextChk: -1, wrkNextChk2: -1, wrkChk2: 'N', wrkChk1Rn: '54', empTWrkCnt: 0, degWrkCnt: null, twrkCnt: 1 },
+        { vstDt: null, empId: null, tm: '180000', wrkCnt: 0, wrkTCnt: 0, wrkCCnt: 0, wrkTChk: null, wrkTRn: 0, wrkNextChk: -1, wrkNextChk2: -1, wrkChk2: 'N', wrkChk1Rn: '55', empTWrkCnt: 0, degWrkCnt: null, twrkCnt: 1 },
+      ],
+      // list2
+      disableDayDvos: [
+        { disableDay: '2023-10-1', disableFulday: '2023-10-01', tcMsg: '법정휴무일 또는 회사휴무' },
+        { disableDay: '2023-10-15', disableFulday: '2023-10-15', tcMsg: '법정휴무일 또는 회사휴무' },
+        { disableDay: '2023-10-22', disableFulday: '2023-10-22', tcMsg: '법정휴무일 또는 회사휴무' },
+        { disableDay: '2023-10-29', disableFulday: '2023-10-29', tcMsg: '법정휴무일 또는 회사휴무' },
+        { disableDay: '2023-10-3', disableFulday: '2023-10-03', tcMsg: '법정휴무일 또는 회사휴무' },
+        { disableDay: '2023-10-8', disableFulday: '2023-10-08', tcMsg: '법정휴무일 또는 회사휴무' },
+        { disableDay: '2023-10-9', disableFulday: '2023-10-09', tcMsg: '법정휴무일 또는 회사휴무' },
+        { disableDay: '2023-11-12', disableFulday: '2023-11-12', tcMsg: '법정휴무일 또는 회사휴무' },
+        { disableDay: '2023-11-19', disableFulday: '2023-11-19', tcMsg: '법정휴무일 또는 회사휴무' },
+        { disableDay: '2023-11-26', disableFulday: '2023-11-26', tcMsg: '법정휴무일 또는 회사휴무' },
+        { disableDay: '2023-11-5', disableFulday: '2023-11-05', tcMsg: '법정휴무일 또는 회사휴무' },
+        { disableDay: '2023-12-10', disableFulday: '2023-12-10', tcMsg: '법정휴무일 또는 회사휴무' },
+        { disableDay: '2023-12-3', disableFulday: '2023-12-03', tcMsg: '법정휴무일 또는 회사휴무' },
+        { disableDay: '2023-6-18', disableFulday: '2023-06-18', tcMsg: '법정휴무일 또는 회사휴무' },
+        { disableDay: '2023-6-25', disableFulday: '2023-06-25', tcMsg: '법정휴무일 또는 회사휴무' },
+        { disableDay: '2023-7-16', disableFulday: '2023-07-16', tcMsg: '법정휴무일 또는 회사휴무' },
+        { disableDay: '2023-7-2', disableFulday: '2023-07-02', tcMsg: '법정휴무일 또는 회사휴무' },
+        { disableDay: '2023-7-23', disableFulday: '2023-07-23', tcMsg: '법정휴무일 또는 회사휴무' },
+        { disableDay: '2023-7-30', disableFulday: '2023-07-30', tcMsg: '법정휴무일 또는 회사휴무' },
+        { disableDay: '2023-7-9', disableFulday: '2023-07-09', tcMsg: '법정휴무일 또는 회사휴무' },
+        { disableDay: '2023-8-13', disableFulday: '2023-08-13', tcMsg: '법정휴무일 또는 회사휴무' },
+        { disableDay: '2023-8-15', disableFulday: '2023-08-15', tcMsg: '법정휴무일 또는 회사휴무' },
+        { disableDay: '2023-8-20', disableFulday: '2023-08-20', tcMsg: '법정휴무일 또는 회사휴무' },
+        { disableDay: '2023-8-27', disableFulday: '2023-08-27', tcMsg: '법정휴무일 또는 회사휴무' },
+        { disableDay: '2023-8-6', disableFulday: '2023-08-06', tcMsg: '법정휴무일 또는 회사휴무' },
+        { disableDay: '2023-9-10', disableFulday: '2023-09-10', tcMsg: '법정휴무일 또는 회사휴무' },
+        { disableDay: '2023-9-17', disableFulday: '2023-09-17', tcMsg: '법정휴무일 또는 회사휴무' },
+        { disableDay: '2023-9-24', disableFulday: '2023-09-24', tcMsg: '법정휴무일 또는 회사휴무' },
+        { disableDay: '2023-9-28', disableFulday: '2023-09-28', tcMsg: '법정휴무일 또는 회사휴무' },
+        { disableDay: '2023-9-29', disableFulday: '2023-09-29', tcMsg: '법정휴무일 또는 회사휴무' },
+        { disableDay: '2023-9-3', disableFulday: '2023-09-03', tcMsg: '법정휴무일 또는 회사휴무' },
+      ],
+      arrSm: [],
+      arrAm: [
+        { time: '09:00', cnt: '0', ablYn: 'N' },
+        { time: '09:10', cnt: '0', ablYn: 'N' },
+        { time: '09:20', cnt: '0', ablYn: 'N' },
+        { time: '09:30', cnt: '0', ablYn: 'N' },
+        { time: '09:40', cnt: '0', ablYn: 'N' },
+        { time: '09:50', cnt: '0', ablYn: 'N' },
+        { time: '10:00', cnt: '0', ablYn: 'N' },
+        { time: '10:10', cnt: '0', ablYn: 'N' },
+        { time: '10:20', cnt: '0', ablYn: 'N' },
+        { time: '10:30', cnt: '0', ablYn: 'N' },
+        { time: '10:40', cnt: '0', ablYn: 'N' },
+        { time: '10:50', cnt: '0', ablYn: 'N' },
+        { time: '11:00', cnt: '0', ablYn: 'N' },
+        { time: '11:10', cnt: '0', ablYn: 'N' },
+        { time: '11:20', cnt: '0', ablYn: 'N' },
+        { time: '11:30', cnt: '0', ablYn: 'N' },
+        { time: '11:40', cnt: '0', ablYn: 'N' },
+        { time: '11:50', cnt: '0', ablYn: 'N' },
+        { time: '12:00', cnt: '0', ablYn: 'N' },
+        { time: '12:10', cnt: '0', ablYn: 'N' },
+        { time: '12:20', cnt: '0', ablYn: 'N' },
+        { time: '12:30', cnt: '0', ablYn: 'N' },
+        { time: '12:40', cnt: '0', ablYn: 'N' },
+        { time: '12:50', cnt: '0', ablYn: 'N' },
+        { time: '13:00', cnt: '0', ablYn: 'N' },
+        { time: '13:10', cnt: '0', ablYn: 'N' },
+        { time: '13:20', cnt: '0', ablYn: 'N' },
+        { time: '13:30', cnt: '0', ablYn: 'N' },
+        { time: '13:40', cnt: '0', ablYn: 'N' },
+        { time: '13:50', cnt: '0', ablYn: 'N' },
+      ],
+      arrPm1: [
+        { time: '14:00', cnt: '0', ablYn: 'N' },
+        { time: '14:10', cnt: '0', ablYn: 'N' },
+        { time: '14:20', cnt: '0', ablYn: 'N' },
+        { time: '14:30', cnt: '0', ablYn: 'N' },
+        { time: '14:40', cnt: '0', ablYn: 'N' },
+        { time: '14:50', cnt: '0', ablYn: 'N' },
+        { time: '15:00', cnt: '0', ablYn: 'N' },
+        { time: '15:10', cnt: '0', ablYn: 'N' },
+        { time: '15:20', cnt: '0', ablYn: 'N' },
+        { time: '15:30', cnt: '0', ablYn: 'N' },
+        { time: '15:40', cnt: '0', ablYn: 'N' },
+        { time: '15:50', cnt: '0', ablYn: 'N' },
+        { time: '16:00', cnt: '0', ablYn: 'N' },
+        { time: '16:10', cnt: '0', ablYn: 'N' },
+        { time: '16:20', cnt: '0', ablYn: 'N' },
+        { time: '16:30', cnt: '0', ablYn: 'N' },
+        { time: '16:40', cnt: '0', ablYn: 'N' },
+        { time: '16:50', cnt: '0', ablYn: 'N' },
+        { time: '17:00', cnt: '0', ablYn: 'N' },
+        { time: '17:10', cnt: '0', ablYn: 'N' },
+        { time: '17:20', cnt: '0', ablYn: 'N' },
+        { time: '17:30', cnt: '0', ablYn: 'N' },
+        { time: '17:40', cnt: '0', ablYn: 'N' },
+        { time: '17:50', cnt: '0', ablYn: 'N' },
+      ],
+      arrPm2: [
+        { time: '18:00', cnt: '0', ablYn: 'N' },
+      ],
+    },
+  };
+
   console.log(res.data);
+  console.log('dowDvCd: ', res.data.dowDvCd);
+  console.log('svBizDclsfCd: ', res.data.svBizDclsfCd);
+  console.log('inGb: ', res.data.inGb);
+  console.log('chnlDvCd: ', res.data.chnlDvCd);
+  console.log('svDvCd: ', res.data.svDvCd);
+  console.log('cntrNo: ', res.data.cntrNo);
+  console.log('cntrSn: ', res.data.cntrSn);
+  console.log('sellDate: ', res.data.sellDate);
+  console.log('empId: ', res.data.empId);
+  console.log('offDays: ', res.data.offDays);
+  console.log('curDateTimeString: ', res.data.curDateTimeString);
+  console.log('wrkDt: ', res.data.wrkDt);
+  console.log('dataStatCd: ', res.data.dataStatCd);
+  console.log('basePdCd: ', res.data.basePdCd);
+  console.log('lcst09: ', res.data.lcst09);
+  console.log('newAdrZip: ', res.data.newAdrZip);
+  console.log('userId: ', res.data.userId);
+  console.log('sowDay: ', res.data.sowDay);
+  console.log('returnurl: ', res.data.returnurl);
+  console.log('mkCo: ', res.data.mkCo);
+
+  console.log('sidingDayDvos: ', res.data.sidingDayDvos);
+  console.log('disableDayDvos: ', res.data.disableDayDvos);
+  console.log('psicDataDvos: ', res.data.psicDataDvos);
+  console.log('assignTimeDvos: ', res.data.assignTimeDvos);
+  console.log('offDays: ', res.data.offDays);
+
+  console.log('arrSm: ', res.data.arrSm);
+  console.log('arrAm: ', res.data.arrAm);
+  console.log('arrPm1: ', res.data.arrPm1);
+  console.log('arrPm2: ', res.data.arrPm2);
+  console.log('arrNt: ', res.data.arrNt);
+
   schedules.value = res.data;
-  scheduleInfo.value.weekCnt = schedules.value.length / scheduleInfo.value.dayCnt;
+  // scheduleInfo.value.weekCnt = schedules.value.length / scheduleInfo.value.dayCnt;
 }
 
 function onClickCalendar($event) {
