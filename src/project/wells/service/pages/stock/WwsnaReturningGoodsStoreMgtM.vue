@@ -425,6 +425,7 @@ async function onClickSave() {
 
   if (gridUtil.getCheckedRowValues(view).length === 0) {
     notify(t('MSG_ALT_NO_APPY_OBJ_DT'));
+    return;
   }
 
   if (!(await gridUtil.validate(view, { isCheckedOnly: true }))) { return; }
@@ -466,6 +467,7 @@ async function onClickRtnGd() {
 
   if (gridUtil.getCheckedRowValues(view).length === 0) {
     notify(t('MSG_ALT_NO_APPY_OBJ_DT'));
+    return;
   }
 
   if (!(await gridUtil.validate(view, { isCheckedOnly: true }))) { return; }
