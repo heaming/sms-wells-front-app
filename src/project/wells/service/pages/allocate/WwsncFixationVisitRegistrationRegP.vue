@@ -388,6 +388,7 @@ async function onFxnPrtnrNoSearchPopup() {
   if (isChanged) {
     contractInfo.value.fxnPrtnrNo = payload[0].prtnrNo;
     contractInfo.value.fxnPrtnrKnm = payload[0].prtnrKnm;
+    contractInfo.value.fxnPrtnrOgTpCd = payload[0].ogTpCd;
   }
 }
 
@@ -449,6 +450,8 @@ async function onClickSearchContract() {
     // 기존담당
     // 담당자
     contractInfo.value.prtnrKnm = '';
+    contractInfo.value.fxnPrtnrNo = '';
+    contractInfo.value.fxnPrtnrOgTpCd = '';
     // 활동중지일
     contractInfo.value.cltnDt = '';
 
