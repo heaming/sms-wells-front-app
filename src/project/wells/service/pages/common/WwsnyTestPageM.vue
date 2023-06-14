@@ -64,7 +64,12 @@ const router = useRouter();
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 const movePages = [
-  { pageId: '1',
+  { pageId: '1', pageName: 'W-MP-U-0186P01', btns: [{ btnName: '타임테이블 일정선택 매니저 AS 신청하는 타임테이블 캘린더', type: 'modal', call: 'WmsncTimeTableDateChoiceListP', props: {} }] },
+  { pageId: '2', pageName: 'W-MP-U-0187P01', btns: [{ btnName: '타임테이블 시간선택 매니저 AS 신청하는 타임테이블 시간 선택', type: 'modal', call: 'WmsncTimeTableHourChoiceListP', props: {} }] },
+  { pageId: '3', pageName: 'W-SV-U-0034M01', btns: [{ btnName: '타임테이블 조회(CC) Cubig CC 타임테이블 조회(팝업)', type: 'modal', call: 'WwsncTimeTableCustomerCenterListM', props: {} }] },
+  { pageId: '4', pageName: 'W-SV-U-0063M01', btns: [{ btnName: '타임테이블 조회(K멤버스) K멤버스 타임테이블 다건 장바구니 조회(팝업)', type: 'modal', call: 'WwsncTimeTableKMembersListM', props: {} }] },
+  {
+    pageId: '5',
     pageName: 'W-SV-U-0062M01',
     btns: [
       {
@@ -72,40 +77,30 @@ const movePages = [
         type: 'modal',
         call: 'WwsncTimeTableSellListP',
         props: {
-          sellDate: '20230601', // 판매일자
-          baseYm: '202306', // 달력 초기 월
-          chnlDvCd: 'K', // W: 웰스, K: KSS, C: CubicCC, P: K-MEMBERS, I || E: 엔지니어, M: 매니저
-          svDvCd: '1', // 1:설치, 2:BS, 3:AS, 4:홈케어
-          svBizDclsfCd: '1110', // 판매인 경우 1110(신규설치) fix
+          sellDate: '20230601',
+          baseYm: '202306',
+          chnlDvCd: 'K',
+          svDvCd: '1',
+          svBizDclsfCd: '1110',
           cntrNo: 'W20220137399',
           cntrSn: '1',
-          dataStatCd: '1', // 1: 신규, 2: 수정, 3: 삭제
+          dataStatCd: '1',
           userId: '27536',
-          inGb: '1',
+          inflwChnl: '3',
         },
       },
-      /* {
-        btnName: '타임테이블 조회(판매) 팝업',
-        type: 'modal',
-        call: 'WwsncTimeTableSellListP',
-        props: {
-          cntrNo: 'W20222324935',
-          cntrSn: '1',
-          prtnrNo: '38764',
-          inputGb: '3', // 입력구분
-          wkGb: '1', // 작업구분
-          workDt: '20230601', // 작업일자
-          asIstOjNo: '1', // 작업순번
-          acpgDiv: '', // 접수구분
-          basePdCd: 'WP02110409', // 상품코드
-          // istPcsvDvCd: searchParams.value.istPcsvDvCd, // 설치택배구분
-          // mnftCoId: dataList.mnftCoId, // 제조사(LCJEJO)
-          svBizDclsfCd: '', // 서비스업무세분류코드
-          prevTag: 'mng_as_schedule',
-        },
-      }, */
     ],
   },
+  { pageId: '6', pageName: 'W-MP-U-0190M01', btns: [{ btnName: '타임테이블 조회(홈페이지_웰스팜)', type: 'modal', call: 'WmsncTimeTableWellsFarmListM', props: {} }] },
+  { pageId: '7', pageName: 'W-MP-U-0191M01', btns: [{ btnName: '타임테이블 조회(홈페이지)', type: 'modal', call: 'WmsncTimeTableWellsHomepageListM', props: {} }] },
+  { pageId: '8', pageName: 'W-MP-U-0188M01', btns: [{ btnName: '타임테이블 조회', type: 'modal', call: 'WmsncTimeTableSellListM', props: {} }] },
+  { pageId: '9', pageName: 'W-MP-U-0189M01', btns: [{ btnName: '타임테이블 조회(K멤버스)', type: 'modal', call: 'WmsncTimeTableKMembersListM', props: {} }] },
+  { pageId: '10', pageName: 'W-MP-U-0033P01', btns: [{ btnName: '타임테이블 시간선택(일정변경)', type: 'modal', call: 'WmsncTimeTableHourChoiceScheduleListP', props: {} }] },
+  { pageId: '11', pageName: 'W-MT-U-0188M01', btns: [{ btnName: '타임테이블 조회', type: 'modal', call: 'WtsncTimeTableSellListM', props: {} }] },
+  { pageId: '12', pageName: 'W-MT-U-0189M01', btns: [{ btnName: '타임테이블 조회(K멤버스)', type: 'modal', call: 'WmsncTimeTableKMembersListM', props: {} }] },
+  { pageId: '13', pageName: 'W-MT-U-0030P01', btns: [{ btnName: '타임테이블 시간선택(일정변경)', type: 'modal', call: 'WtsncTimeTableHourChoiceScheduleListP', props: {} }] },
+  { pageId: '14', pageName: 'W-MT-U-0186P01', btns: [{ btnName: '타임테이블 일정선택', type: 'modal', call: 'WtsncTimeTableDateChoiceListP', props: {} }] },
+  { pageId: '15', pageName: 'W-MT-U-0187P01', btns: [{ btnName: '타임테이블 시간선택', type: 'modal', call: 'WtsncTimeTableHourChoiceListP', props: {} }] },
 ];
 
 async function onClickMovePage(call, props, type) {
