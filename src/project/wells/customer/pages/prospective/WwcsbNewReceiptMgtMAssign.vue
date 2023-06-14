@@ -34,7 +34,10 @@
 
       <!-- 배정담당자 사번 -->
       <kw-search-item :label="$t('MSG_TXT_ASSIGNER_EP_NO')">
-        <kw-input v-model.trim="searchParams.ichrPrtnrNo" />
+        <kw-input
+          v-model.trim="searchParams.ichrPrtnrNo"
+          maxlength="10"
+        />
       </kw-search-item>
 
       <!-- 상품구분 -->
