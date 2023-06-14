@@ -284,10 +284,8 @@ const initGrdMain = defineGrid((data, view) => {
         attachGroupId: 'ATG_DCD_CLING_COST',
         downloadable: true,
         multiple: true,
-        editable: true,
-        readonly: true,
+        editable: false,
       },
-      readonly: true,
       displayCallback: () => t('MSG_BTN_CLINR_MNGT_BRWS'),
     }, // 영수증첨부
 
