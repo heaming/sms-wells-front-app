@@ -287,6 +287,7 @@ const initGrdMain = defineGrid((data, view) => {
         editable: true,
         readonly: true,
       },
+      readonly: true,
       displayCallback: () => t('MSG_BTN_CLINR_MNGT_BRWS'),
     }, // 영수증첨부
 
