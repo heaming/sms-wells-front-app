@@ -23,7 +23,7 @@
       >
         <kw-date-picker
           v-model="searchParams.aplcDt"
-          type="month"
+          type="year"
           rules="required"
           :label="$t('MSG_TXT_APL_DATE')"
         />
@@ -135,7 +135,7 @@ const pageInfo = ref({
 });
 
 const searchParams = ref({
-  aplcDt: dayjs().format('YYYYMM'),
+  aplcDt: dayjs().format('YYYY'),
   clinrNm: '',
   bldCd: '',
   bldNm: '',
@@ -212,8 +212,8 @@ const initGrdSub = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'clinrRgno', visible: false }, // 청소원등록번호
     { fieldName: 'rcpYm', visible: false }, // 청소원등록번호
-    { fieldName: 'fstRgstDtm', header: t('MSG_TXT_RGST_DTM'), width: '174', styleName: 'text-center', dataType: 'date', datetimeFormat: 'datetime' }, // 등록일시
-    { fieldName: 'fnlMdfcDtm', header: t('MSG_TXT_CH_DTM'), width: '174', styleName: 'text-center', dataType: 'date', datetimeFormat: 'datetime' }, // 변경일시
+    { fieldName: 'fstRgstDtm', header: t('MSG_TXT_RGST_DTM'), width: '174', styleName: 'text-center', datetimeFormat: 'datetime' }, // 등록일시
+    { fieldName: 'fnlMdfcDtm', header: t('MSG_TXT_CH_DTM'), width: '174', styleName: 'text-center', datetimeFormat: 'datetime' }, // 변경일시
     { fieldName: 'clinrNm', header: t('MSG_TXT_CLINR'), width: '200', styleName: 'rg-button-link', renderer: { type: 'button' } }, // 청소원
     { fieldName: 'bldCd', visible: false }, // 빌딩 // CD
     { fieldName: 'bldNm', header: t('MSG_TXT_BUILDING'), width: '200', styleName: 'text-left' }, // 빌딩 //NM

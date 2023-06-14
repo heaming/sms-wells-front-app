@@ -124,7 +124,7 @@
             :attach-document-id="saveParams.clingCostSrcpApnFileId"
             rules="required"
             :label="$t('MSG_TXT_SRCP_APN')"
-            :disable="isDisable"
+            :readonly="isDisable"
           />
         </kw-form-item>
       </kw-form-row>
