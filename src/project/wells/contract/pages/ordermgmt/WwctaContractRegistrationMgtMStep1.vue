@@ -408,6 +408,12 @@ const dashboardCounts = ref({
   restipulationCnt: 0,
   membershipCnt: 0,
 });
+
+const emits = defineEmits([
+  'membership',
+  'restipulation',
+]);
+
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -536,29 +542,38 @@ async function onClickBelongPartner() {
 }
 
 async function onClickReStipulation() {
-  const res = await modal({
+  const { result, payload } = await modal({
     component: 'WwctaMshRstlOjCstListP',
     componentProps: {
-      prtnrNo: step1.value.prtnrNo,
-      ogTpCd: step1.value.ogTpCd,
-      cntrTpCd: 'RSTL',
       copnDvCd: '1',
+      cntrTpCd: '2',
+      prtnrNo,
+      ogTpCd,
     },
   });
-  console.log(res);
+  console.log(result);
+
+  if (result) {
+    emits('restipulation', payload.cntrNo, payload.cntrSn);
+  }
 }
 
 async function onClickMembership() {
-  const res = await modal({
+  const { result, payload } = await modal({
     component: 'WwctaMshRstlOjCstListP',
     componentProps: {
-      prtnrNo: step1.value.prtnrNo,
-      ogTpCd: step1.value.ogTpCd,
-      cntrTpCd: 'MSH',
       copnDvCd: '1',
+      cntrTpCd: '1',
+      prtnrNo,
+      ogTpCd,
     },
   });
-  console.log(res);
+  console.log(result);
+
+  if (result) {
+    console.log(payload);
+    emits('membership', payload.cntrNo, payload.cntrSn);
+  }
 }
 
 async function resetSearchConds() {
@@ -630,8 +645,8 @@ onMounted(async () => {
         await alert('마감');
       }
     }
-    const res = await dataService.get('/sms/wells/contract/membership/customers/counts', { params: { copnDvCd: '1' } });
-    const res2 = await dataService.get('/sms/wells/contract/re-stipulation/customers/counts', { params: { copnDvCd: '1' } });
+    const res = await dataService.get('/sms/wells/contract/re-stipulation/customers/counts', { params: { copnDvCd: '1' } });
+    const res2 = await dataService.get('/sms/wells/contract/membership/customers/counts', { params: { copnDvCd: '1' } });
     dashboardCounts.value.restipulationCnt = res.data;
     dashboardCounts.value.membershipCnt = res2.data;
   }

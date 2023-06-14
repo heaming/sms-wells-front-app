@@ -27,6 +27,8 @@
                 :ref="(el) => panelsRefs[step.name] = el"
                 :contract="contract"
                 :on-child-mounted="onChildMounted"
+                @restipulation="eventStipulation"
+                @membership="eventMembership"
               />
             </kw-step-panel>
           </kw-stepper>
@@ -378,6 +380,21 @@ async function onClickNext() {
     // sideStepRefs[nextStep.name].show(); /* 명시적으로 열어주는 것도 좋을 듯 합니다. */
     await getCntrInfo(nextStep, cntrNo);
   }
+}
+
+async function eventStipulation(cntrNo, cntrSn) {
+  // 재약정계약
+  console.log(cntrNo);
+  const previousStep = steps[3];
+  currentStepName.value = previousStep.name;
+  await panelsRefs[currentStepName.value].setRestipulation(true, cntrSn);
+  console.log(currentStepName.value);
+
+  await getCntrInfo(3, cntrNo);
+}
+
+async function eventMembership() {
+  // 멤버십계약
 }
 
 watch(stepsStatus, () => {

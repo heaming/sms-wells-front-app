@@ -477,6 +477,54 @@ ${step4.cntrt.sexDvNm || ''}` }}
           </kw-form>
         </template>
       </template>
+
+      <template v-if="isRestipulation === true">
+        <h3>재약정</h3>
+
+        <kw-form
+          :cols="2"
+          class="mt20"
+        >
+          <kw-form-row>
+            <kw-form-item
+              label="약정유형"
+            >
+              <kw-select
+                :options="restipulationBasInfo.text"
+              />
+            </kw-form-item>
+            <kw-form-item
+              label="약정개월"
+            >
+              <p>12</p>
+            </kw-form-item>
+          </kw-form-row>
+          <kw-form-row>
+            <kw-form-item
+              label="약정시작"
+            >
+              <p>2022-12-12</p>
+            </kw-form-item>
+            <kw-form-item
+              label="약정종료"
+            >
+              <p>2022-12-11</p>
+            </kw-form-item>
+          </kw-form-row>
+          <kw-form-row>
+            <kw-form-item
+              label="약정요금"
+            >
+              <p>16.900</p>
+            </kw-form-item>
+            <kw-form-item
+              label="약정할인"
+            >
+              <p>2,000</p>
+            </kw-form-item>
+          </kw-form-row>
+        </kw-form>
+      </template>
     </div>
   </kw-scroll-area>
   <kw-separator
@@ -511,6 +559,9 @@ step4.value = {
   stlmDtls: [{}],
 };
 const ogStep4 = ref({});
+const isRestipulation = ref(false);
+const restipulationCntrSn = ref(0);
+const restipulationBasInfo = ref({});
 const { t } = useI18n();
 const grdMainRef = ref(getComponentType('KwGrid'));
 const grdStlmRef = ref(getComponentType('KwGrid'));
@@ -569,6 +620,22 @@ async function getCntrInfo(cntrNo) {
   codes.CST_STLM_IN_MTH_CD = codes.CST_STLM_IN_MTH_CD.filter((code) => (step4.value.bas.cstStlmInMthCd === '30' ? code.codeId === '30' : code.codeId !== '30'));
   ogStep4.value = cloneDeep(step4.value);
   setGrid();
+
+  if (isRestipulation.value === true) {
+    const cntrSn = restipulationCntrSn.value;
+    const res = await dataService.get(
+      'sms/wells/contract/re-stipulation/standard-info',
+      { params: { cntrNo, cntrSn } },
+    );
+    console.log(res);
+    restipulationBasInfo.value = cloneDeep(res);
+  }
+}
+
+async function setRestipulation(flag, cntrSn) {
+  isRestipulation.value = flag;
+  restipulationCntrSn.value = cntrSn;
+  console.log(isRestipulation.value);
 }
 
 function isChangedStep() {
@@ -599,6 +666,7 @@ defineExpose({
   isChangedStep,
   isValidStep,
   saveStep,
+  setRestipulation,
 });
 
 onMounted(async () => {
