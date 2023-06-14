@@ -273,11 +273,11 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'chRsonCn' },
     { fieldName: 'fnlMdfcDtm' },
     { fieldName: 'fnlMdfcUsrId' },
-    { fieldName: 'col4' },
-    { fieldName: 'col5' },
-    { fieldName: 'col6' },
-    { fieldName: 'col7' },
-    { fieldName: 'col8' },
+    { fieldName: 'fnlMdfcUsrNm' },
+    { fieldName: 'pdctPdNm' },
+    { fieldName: 'ogNm' },
+    { fieldName: 'cltnDt' },
+    { fieldName: 'prtnrKnm' },
   ];
 
   const columns = [
@@ -327,18 +327,18 @@ const initGrid = defineGrid((data, view) => {
         return `${locaraTno}${div}${exnoEncr}${div2}${idvTno}`;
       },
     },
-    { fieldName: 'col4', header: '상품명', width: '250', styleName: 'text-center' },
+    { fieldName: 'pdctPdNm', header: '상품명', width: '250', styleName: 'text-center' },
     { fieldName: 'sellTpCd', header: '판매유형', width: '100', styleName: 'text-center', options: codes.SELL_TP_CD },
     { fieldName: 'fxnPrtnrDvCd', header: '관리구분', width: '100', styleName: 'text-center', options: codes.MNGR_DV_CD },
-    { fieldName: 'col5', header: '담당센터', width: '100', styleName: 'text-center' },
+    { fieldName: 'ogNm', header: '담당센터', width: '100', styleName: 'text-center' },
     { fieldName: 'fxnPrtnrNo', header: '번호', width: '100', styleName: 'text-center' },
-    { fieldName: 'col6', header: '방문담당자', width: '100', styleName: 'text-center' },
-    { fieldName: 'col7', header: '퇴사일자', width: '100', styleName: 'text-center' },
-    { fieldName: 'col8', header: '기존담당자', width: '100', styleName: 'text-center' },
+    { fieldName: 'fxnPrtnrKnm', header: '방문담당자', width: '100', styleName: 'text-center' },
+    { fieldName: 'cltnDt', header: '퇴사일자', width: '100', styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'prtnrKnm', header: '기존담당자', width: '100', styleName: 'text-center' },
     { fieldName: 'apyStrtYm', header: '적용일자', width: '100', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
     { fieldName: 'chRsonCn', header: '변경사유', width: '300', styleName: 'text-left' },
     { fieldName: 'fnlMdfcDtm', header: '지정일자', width: '200', styleName: 'text-center', datetimeFormat: 'datetime' },
-    { fieldName: 'fnlMdfcUsrId', header: '등록자', width: '100', styleName: 'text-center' },
+    { fieldName: 'fnlMdfcUsrNm', header: '등록자', width: '100', styleName: 'text-center' },
   ];
 
   data.setFields(fields);
@@ -358,16 +358,16 @@ const initGrid = defineGrid((data, view) => {
     {
       header: '상품정보',
       direction: 'horizontal',
-      items: ['col4', 'sellTpCd'],
+      items: ['pdctPdNm', 'sellTpCd'],
     },
     {
       header: '변경 담당 정보',
       direction: 'horizontal',
-      items: ['fxnPrtnrDvCd', 'col5', 'fxnPrtnrNo', 'col6', 'col7', 'col8', 'apyStrtYm'],
+      items: ['fxnPrtnrDvCd', 'ogNm', 'fxnPrtnrNo', 'fxnPrtnrKnm', 'cltnDt', 'prtnrKnm', 'apyStrtYm'],
     },
     'chRsonCn',
     'fnlMdfcDtm',
-    'fnlMdfcUsrId',
+    'fnlMdfcUsrNm',
   ]);
 });
 
