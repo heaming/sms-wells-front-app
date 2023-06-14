@@ -287,10 +287,11 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-// import { useDataService/* , useModal, alert */ } from 'kw-lib';
+import { useDataService/* , useModal, alert */ } from 'kw-lib';
 import dayjs from 'dayjs';
-// import { cloneDeep } from 'lodash-es';
-// const dataService = useDataService();
+import { cloneDeep } from 'lodash-es';
+
+const dataService = useDataService();
 
 // const DATE_FORMAT_YM = 'YYYYMM';
 const DATE_FORMAT_YMD = 'YYYYMMDD';
@@ -301,7 +302,7 @@ const props = defineProps({
   svDvCd: { type: String, default: '' },
   sellDate: { type: String, default: '' },
   svBizDclsfCd: { type: String, default: '' },
-  inGb: { type: String, default: '' },
+  inflwChnl: { type: String, default: '' },
   basePdCd: { type: String, default: '' },
   wrkDt: { type: String, default: '' },
   dataStatCd: { type: String, default: '' },
@@ -320,13 +321,16 @@ const scheduleInfo = ref({
   dayCnt: 7,
 });
 
+// const ableDays = ref([]);
+// const dddAbleDays = ref([]);
+
 const searchParams = ref({
   baseYm: props.baseYm,
   chnlDvCd: props.chnlDvCd,
   svDvCd: props.svDvCd,
   sellDate: props.sellDate,
   svBizDclsfCd: props.svBizDclsfCd,
-  inGb: props.inGb,
+  inflwChnl: props.inflwChnl,
   basePdCd: props.basePdCd,
   wrkDt: props.wrkDt,
   dataStatCd: props.dataStatCd,
@@ -337,20 +341,20 @@ const searchParams = ref({
   cntrSn: props.cntrSn,
 });
 
-// let cachedParams;
+let cachedParams;
 async function getTimeTables() {
-  /* cachedParams = cloneDeep(searchParams.value);
-  const res1 = await dataService.get('/sms/wells/service/time-tables/sales', { params:
+  cachedParams = cloneDeep(searchParams.value);
+  const res = await dataService.get('/sms/wells/service/time-tables/sales', { params:
    { ...cachedParams,
-   } }); */
+   } });
 
-  const res = {
+  const res1 = {
     data: {
       dowDvCd: null,
       svBizDclsfCd: '1110',
-      inGb: '1',
+      inflwChnl: '3',
       chnlDvCd: 'K',
-      svDvCd: null,
+      svDvCd: '1', // 1:설치, 2:BS, 3:AS, 4:홈케어
       cntrNo: 'W20220137399',
       cntrSn: '1',
       sellDate: '20230601',
@@ -471,7 +475,6 @@ async function getTimeTables() {
         { vstDt: null, empId: null, tm: '175000', wrkCnt: 0, wrkTCnt: 0, wrkCCnt: 0, wrkTChk: null, wrkTRn: 0, wrkNextChk: -1, wrkNextChk2: -1, wrkChk2: 'N', wrkChk1Rn: '54', empTWrkCnt: 0, degWrkCnt: null, twrkCnt: 1 },
         { vstDt: null, empId: null, tm: '180000', wrkCnt: 0, wrkTCnt: 0, wrkCCnt: 0, wrkTChk: null, wrkTRn: 0, wrkNextChk: -1, wrkNextChk2: -1, wrkChk2: 'N', wrkChk1Rn: '55', empTWrkCnt: 0, degWrkCnt: null, twrkCnt: 1 },
       ],
-      // list2
       disableDayDvos: [
         { disableDay: '2023-10-1', disableFulday: '2023-10-01', tcMsg: '법정휴무일 또는 회사휴무' },
         { disableDay: '2023-10-15', disableFulday: '2023-10-15', tcMsg: '법정휴무일 또는 회사휴무' },
@@ -569,11 +572,12 @@ async function getTimeTables() {
       ],
     },
   };
+  console.log(res1);
 
   console.log(res.data);
   console.log('dowDvCd: ', res.data.dowDvCd);
   console.log('svBizDclsfCd: ', res.data.svBizDclsfCd);
-  console.log('inGb: ', res.data.inGb);
+  console.log('inflwChnl: ', res.data.inGb);
   console.log('chnlDvCd: ', res.data.chnlDvCd);
   console.log('svDvCd: ', res.data.svDvCd);
   console.log('cntrNo: ', res.data.cntrNo);
@@ -592,17 +596,27 @@ async function getTimeTables() {
   console.log('returnurl: ', res.data.returnurl);
   console.log('mkCo: ', res.data.mkCo);
 
-  console.log('sidingDayDvos: ', res.data.sidingDayDvos);
-  console.log('disableDayDvos: ', res.data.disableDayDvos);
-  console.log('psicDataDvos: ', res.data.psicDataDvos);
-  console.log('assignTimeDvos: ', res.data.assignTimeDvos);
-  console.log('offDays: ', res.data.offDays);
+  // console.log('sidingDayDvos: ', res.data.sidingDayDvos);
+  // console.log('disableDayDvos: ', res.data.disableDayDvos);
+  // console.log('psicDataDvos: ', res.data.psicDataDvos);
+  // console.log('assignTimeDvos: ', res.data.assignTimeDvos);
+  // console.log('offDays: ', res.data.offDays);
 
   console.log('arrSm: ', res.data.arrSm);
   console.log('arrAm: ', res.data.arrAm);
   console.log('arrPm1: ', res.data.arrPm1);
   console.log('arrPm2: ', res.data.arrPm2);
   console.log('arrNt: ', res.data.arrNt);
+
+  // 모종이라면
+  // if (res.data.sidingDayDvos) {
+  //   ableDays.value = res.data.sidingDayDvos;
+  // dddAbleDays.value = res.data.disableDayDvos.map(item => {item.});
+  // } else {
+  //   ableDays.value = res.data.disableDayDvos;
+  // }
+
+  // console.log('ableDays: ', ableDays.value); // list2
 
   schedules.value = res.data;
   // scheduleInfo.value.weekCnt = schedules.value.length / scheduleInfo.value.dayCnt;
