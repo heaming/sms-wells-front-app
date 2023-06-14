@@ -337,7 +337,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'prtnrKnm', header: '기존담당자', width: '100', styleName: 'text-center' },
     { fieldName: 'apyStrtYm', header: '적용일자', width: '100', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
     { fieldName: 'chRsonCn', header: '변경사유', width: '300', styleName: 'text-left' },
-    { fieldName: 'fnlMdfcDtm', header: '지정일자', width: '200', styleName: 'text-center', datetimeFormat: 'datetime' },
+    { fieldName: 'fnlMdfcDtm', header: '지정일자', width: '100', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'fnlMdfcUsrNm', header: '등록자', width: '100', styleName: 'text-center' },
   ];
 
