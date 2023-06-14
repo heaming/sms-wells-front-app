@@ -651,7 +651,10 @@ const initGridMembershipContractList = defineGrid((data, view) => {
       styleName: 'text-center',
       displayCallback(grid, index) {
         const { istCralLocaraTno: no1, istMexnoEncr: no2, istCralIdvTno: no3 } = grid.getValues(index.itemIndex);
-        return !isEmpty(no1) && !isEmpty(no2) && !isEmpty(no3) ? `${no1}-${no2}-${no3}` : '';
+        if (!isEmpty(no1) && isEmpty(no2) && !isEmpty(no3)) {
+          return `${no1}--${no3}`;
+        }
+        return isEmpty(no1) && isEmpty(no2) && isEmpty(no3) ? '' : `${no1}-${no2}-${no3}`;
       },
     }, // 설치정보-휴대전화번호
     { fieldName: 'istAdrZip', header: `${t('MSG_TXT_INSTR')}${t('MSG_TXT_ZIP')}`, width: '136', styleName: 'text-center' }, // 설치자우편번호

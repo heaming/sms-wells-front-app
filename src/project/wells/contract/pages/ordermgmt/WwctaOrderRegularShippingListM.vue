@@ -443,8 +443,8 @@ function initGridRglrDlvrContractList(data, view) {
     { fieldName: 'mchnPdLclsfNm' }, // 기기구분
 
     { fieldName: 'pdTpCm' }, // 상품선택유형
-    { fieldName: 'recapDutyPtrmN' }, // 의무기간
-    { fieldName: 'stplPtrm' }, // 계약기간
+    { fieldName: 'stplPtrm' }, // 의무기간
+    { fieldName: 'cntrPtrm' }, // 계약기간
     { fieldName: 'fnlAmt', dataType: 'number' }, // 판매가격
     { fieldName: 'sellAmt', dataType: 'number' }, // 공급가
     { fieldName: 'vat', dataType: 'number' }, // 부가세
@@ -543,11 +543,10 @@ function initGridRglrDlvrContractList(data, view) {
       displayCallback(grid, index) {
         // eslint-disable-next-line max-len
         const { shpadrCralLocaraTno: no1, shpadrMexnoEncr: no2, shpadrCralIdvTno: no3 } = grid.getValues(index.itemIndex);
-        const { shpadrCralTno } = grid.getValues(index.itemIndex);
-        if (!isEmpty(no2)) {
-          return isEmpty(no1) && isEmpty(no2) && isEmpty(no3) ? '' : `${no1}-${no2}-${no3}`;
+        if (!isEmpty(no1) && isEmpty(no2) && !isEmpty(no3)) {
+          return `${no1}--${no3}`;
         }
-        return shpadrCralTno;
+        return isEmpty(no1) && isEmpty(no2) && isEmpty(no3) ? '' : `${no1}-${no2}-${no3}`;
       },
     }, // 설치정보-휴대전화번호
     { fieldName: 'shpadrAdrZip', header: t('MSG_TXT_ZIP'), width: '138', styleName: 'text-center' }, // 설치정보-우편번호
@@ -567,8 +566,8 @@ function initGridRglrDlvrContractList(data, view) {
     { fieldName: 'mchnPdLclsfNm', header: t('MSG_TXT_MCHN_DV'), width: '134', styleName: 'text-center' }, // 기기구분
 
     { fieldName: 'pdTpCm', header: t('MSG_TXT_PRDT_SELT_TP'), width: '138', styleName: 'text-center' }, // 상품선택유형
-    { fieldName: 'recapDutyPtrmN', header: t('MSG_TXT_DUTY_PTRM'), width: '136', styleName: 'text-right' }, // 의무기간
-    { fieldName: 'stplPtrm', header: t('MSG_TXT_CNTR_PTRM'), width: '136', styleName: 'text-right' }, // 계약기간
+    { fieldName: 'stplPtrm', header: t('MSG_TXT_DUTY_PTRM'), width: '136', styleName: 'text-right' }, // 의무기간
+    { fieldName: 'cntrPtrm', header: t('MSG_TXT_CNTR_PTRM'), width: '136', styleName: 'text-right' }, // 계약기간
     { fieldName: 'fnlAmt', header: t('MSG_TXT_SLE_PRC'), width: '134', styleName: 'text-right' }, // 판매가격
     { fieldName: 'sellAmt', header: t('MSG_TXT_SUPPLY_AMOUNT'), width: '134', styleName: 'text-right' }, // 공급가액
     { fieldName: 'vat', header: t('MSG_TXT_VAT'), width: '134', styleName: 'text-right' }, // 부가세
@@ -671,7 +670,7 @@ function initGridRglrDlvrContractList(data, view) {
     {
       header: t('MSG_TXT_PD_INF'), // 상품정보
       direction: 'horizontal', // merge type
-      items: ['pdTpCm', 'recapDutyPtrmN', 'stplPtrm', 'fnlAmt', 'sellAmt', 'vat', 'cntrAmt', 'mmBilAmt', 'pdBaseAmt', 'ackmtPerfRt', 'ackmtPerfAmt', 'dscMcn', 'ctrAmt', 'svTpNm', 'spcYn', 'svPrd', 'sppFshDt', 'sppMthdTpNm', 'lctjobNm', 'rglrSppBilDvNm', 'mpyMthdTpNm', 'txinvPblOjYn', 'frisuBfsvcPtrmN', 'lcmcnt', 'lcck05Nm'],
+      items: ['pdTpCm', 'stplPtrm', 'cntrPtrm', 'fnlAmt', 'sellAmt', 'vat', 'cntrAmt', 'mmBilAmt', 'pdBaseAmt', 'ackmtPerfRt', 'ackmtPerfAmt', 'dscMcn', 'ctrAmt', 'svTpNm', 'spcYn', 'svPrd', 'sppFshDt', 'sppMthdTpNm', 'lctjobNm', 'rglrSppBilDvNm', 'mpyMthdTpNm', 'txinvPblOjYn', 'frisuBfsvcPtrmN', 'lcmcnt', 'lcck05Nm'],
     },
     {
       header: t('MSG_TXT_RCPT_BASE'), // 접수기준
