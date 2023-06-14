@@ -225,7 +225,6 @@ watch(() => searchParams.value.itmKndCd, async () => {
 });
 
 async function fetchData() {
-  console.log('fetchData~~~~~~~~~~~~~~~~~~~~~~~');
   const res = await dataService.get(baseURI, { params: { ...cachedParams, ...pageInfo.value } });
   const { list: searchData, pageInfo: pagingResult } = res.data;
 
@@ -263,10 +262,28 @@ function defaultSet() {
   const toDay = now.format('YYYYMMDD');
   const startMonth = now.format('YYYYMM').concat('01');
 
-  console.log(`today : ${toDay}`);
-  console.log(`startMonth : ${startMonth}`);
+  searchParams.value = {
+    stOstrDt: '',
+    edOstrDt: '',
+    strTpCd: '',
+    ostrTpCd: '',
+    pdGbCd: '',
+    strWareDvCd: '2',
+    strWareDtlDvCd: '',
+    strWareNo: '',
+    ostrWareDvCd: '1',
+    ostrWareDtlDvCd: '',
+    ostrWareNo: '',
+    itmKndCd: '',
+    itmPdCd: '',
+    useYn: '',
+    apyYm: '',
+  };
+
   searchParams.value.stOstrDt = startMonth;
   searchParams.value.edOstrDt = toDay;
+  console.log(`today : ${toDay}`);
+  console.log(`startMonth : ${startMonth}`);
 }
 
 function onClickReset() {
