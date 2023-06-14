@@ -44,11 +44,8 @@
               />
             </kw-search-item>
             <kw-search-item :label="$t('MSG_TXT_BUILDING')">
-              <kw-select
-                :v-model="searchParams.bldCd"
-                :options="buildingCodes"
-                option-value="bldCd"
-                option-label="bldNm"
+              <kw-input
+                v-model="searchParams.bldNm"
               />
             </kw-search-item>
           </kw-search-row>
@@ -143,7 +140,7 @@ import WwdcdCleaningCostMgtMCleaner from './WwdcdCleaningCostMgtMCleaner.vue';
 const selectedTab = ref('manageCleaningSuppliesCostsList');
 const selectedLinkId = ref(null);
 const { t } = useI18n();
-const { modal, notify, ok } = useGlobal();
+const { modal, notify } = useGlobal();
 const { getConfig } = useMeta();
 const dataService = useDataService();
 const { currentRoute } = useRouter();
@@ -160,11 +157,14 @@ const pageInfo = ref({
   needTotalCount: true,
 });
 
+const defaultDate = dayjs().format('YYYY-MM');
+
 const searchParams = ref({
   aplcStartDt: dayjs().format('YYYYMM'),
   aplcEndDt: dayjs().format('YYYYMM'),
   clinrNm: '',
   bldCd: '',
+  bldNm: '',
 });
 
 const codes = await codeUtil.getMultiCodes(
@@ -212,10 +212,23 @@ async function onClickDelete() {
   const deleteRows = await gridUtil.confirmDeleteCheckedRows(view);
 
   if (deleteRows.length > 0) {
+    let isCheckCanceled = true;
+    deleteRows.forEach((obj) => {
+      const { fstRgstDtm } = obj;
+      if (!fstRgstDtm.startsWith(defaultDate)) { // 해당 년도 등록건만 삭제 가능
+        isCheckCanceled = false;
+        return false;
+      }
+    });
+    if (!isCheckCanceled) {
+      notify('당월 등록데이터만 삭제 할 수 있습니다.'); // TODO: 설계자 메시지 확인 후 수정 예정
+      fetchData();
+      return;
+    }
     const clingCostAdjRcpNos = deleteRows.map(({ clingCostAdjRcpNo }) => clingCostAdjRcpNo);
     await dataService.delete('/sms/wells/closing/expense/cleaning-cost', { data: [...clingCostAdjRcpNos] });
     fetchData();
-    ok();
+    // ok();
   }
 }
 
@@ -243,6 +256,14 @@ async function onClickOpenReport() {
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
 const initGrdMain = defineGrid((data, view) => {
+  // TODO: 삭제 버튼 과 연결 되는 체크박스를 아예 안나오게 하려는 함수 스타일 정의 필요 사용 안하는 경우 삭제
+  const checkboxDisplayNone = (grid, type, index) => {
+    if (!grid.getValue(index, 'fstRgstDtm').startsWith(defaultDate)) {
+      return 'checkbox-dn';
+    }
+  };
+  view.setCheckBar({ cellStyleCallback: checkboxDisplayNone });
+
   const columns = [
     { fieldName: 'clingCostAdjRcpNo', visible: false }, // 청소비정산접수번호
     { fieldName: 'fstRgstDtm', header: t('MSG_TXT_RGST_DTM'), width: '174', styleName: 'text-center', datetimeFormat: 'datetime' }, // 등록일시
@@ -296,7 +317,7 @@ const initGrdMain = defineGrid((data, view) => {
     }
   };
 
-  const f1 = function (grid, model) {
+  const f1 = (grid, model) => {
     if (isEmpty(model.value.__atthDocumentId)) {
       return {
         styleName: 'custom-negative-cell',

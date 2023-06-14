@@ -15,7 +15,7 @@
     size="sm"
   >
     <kw-form
-      ref="saveRef"
+      ref="frmMainRef"
       :cols="1"
     >
       <kw-form-row>
@@ -25,7 +25,6 @@
         >
           <kw-input
             v-model="saveParams.claimNm"
-            :label="$t('MSG_TXT_BIL_RCPT_FNM')"
             icon="search"
             clearable
             rules="required"
@@ -62,6 +61,7 @@
             rules="required"
             :regex="/^[0-9]*$/i"
             :disable="isDisable"
+            mask="number"
           />
         </kw-form-item>
       </kw-form-row>
@@ -92,8 +92,8 @@
             v-model:tel-no3="
               saveParams.idvTno"
             :label="$t('MSG_TXT_CONTACT')"
+            rules="required"
             :disable="isDisable"
-            required
           />
         </kw-form-item>
       </kw-form-row>
@@ -143,7 +143,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService, useGlobal, useModal, getComponentType, alert } from 'kw-lib';
+import { useDataService, useGlobal, useModal, getComponentType } from 'kw-lib';
 import dayjs from 'dayjs';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import ZwcmTelephoneNumber from '~common/components/ZwcmTelephoneNumber.vue';
@@ -167,8 +167,8 @@ const props = defineProps({
     default: null,
   },
 });
+const frmMainRef = ref(getComponentType('KwForm'));
 
-const saveRef = ref(getComponentType('KwForm'));
 const { userName, ogTpCd, prtnrNo, careerLevelCode } = store.getters['meta/getUserInfo'];
 // 본사 영업관리자, 본사담당자 - 청구(영수)인 성명, 카드소유주
 // -돋보기 클릭하여 [Z-OG-U-0050P01] 팝업창 호출하여 리턴 값으로 세팅 : 지역단장 조직유형코드, 지역단장 파트너번호, 지역단장명
@@ -197,21 +197,19 @@ const saveParams = ref({
 const buildingCodes = ref([]);
 async function buildingCode() {
   let sessionParams = {};
-  console.log('careerLevelCode:', careerLevelCode);
   if (careerLevelCode === '2') { // 지역단장
     sessionParams = { ogTpCd, prtnrNo };
   } else {
     sessionParams.ogTpCd = saveParams.value.ogTpCd;
     sessionParams.prtnrNo = saveParams.value.prtnrNo;
   }
-  debugger;
   const res = await dataService.get('/sms/wells/closing/expense/cleaning-cost/request-cleaning-supplies/code', { params: sessionParams });
   buildingCodes.value = res.data;
 }
 
 async function onClickClaimantName() {
   const { clingCostAdjRcpNo } = props;
-  let searchRsbDvCdParams = {};
+
   if (isEmpty(clingCostAdjRcpNo)) {
     const { result, payload } = await modal({
       component: 'ZwogzPartnerListP', // Z-OG-U-0050P01
@@ -220,30 +218,18 @@ async function onClickClaimantName() {
       },
     });
     if (result) {
-      searchRsbDvCdParams = { ogTpCd: payload.ogTpCd, prtnrNo: payload.prtnrNo };
-      console.log('searchRsbDvCdParams:', searchRsbDvCdParams);
-      const res = await dataService.get('/sms/wells/closing/expense/cleaning-cost/request-cleaning-supplies/rsbDvcd', { params: searchRsbDvCdParams });
-      console.log('res.data:', res.data);
-      if (res.data.rsbDvCd !== 'W0203') {
-        await alert('MSG_ALT_RSB_LCMGR_APLC_PSB'); // 직책이 지역단장만 신청 가능합니다.
-        saveParams.value.prtnrNo = undefined;
-        buildingCodes.value = [];
-        saveRef.value.reset();
-      } else {
-        saveParams.value.claimNm = payload.prtnrKnm;
-        saveParams.value.cardPsrNm = payload.prtnrKnm;
-        saveParams.value.prtnrNo = payload.prtnrNo;
-        saveParams.value.ogTpCd = payload.ogTpCd;
-        // 선택한 지역단장 조직유형코드, 지역단장 파트너번호, 지역단장명 set 해야함
-        buildingCode();
-      }
+      saveParams.value.claimNm = payload.prtnrKnm;
+      saveParams.value.cardPsrNm = payload.prtnrKnm;
+      saveParams.value.prtnrNo = payload.prtnrNo;
+      saveParams.value.ogTpCd = payload.ogTpCd;
+      // 선택한 지역단장 조직유형코드, 지역단장 파트너번호, 지역단장명 set 해야함
+
+      buildingCode();
     }
   }
 }
 
 async function onClickApplication() {
-  if (await saveRef.value.alertIfIsNotModified()) { return; }
-  if (!await saveRef.value.validate()) { return; }
   if (!await confirm(t('MSG_ALT_WANT_SAVE'))) { return; }
 
   saveParams.value.attachFiles = attachFiles.value;
@@ -261,10 +247,10 @@ async function fetchData() {
   if (!isEmpty(clingCostAdjRcpNo)) {
     dataParams = { clingCostAdjRcpNo: cloneDeep(clingCostAdjRcpNo) };
     const res = await dataService.get(`/sms/wells/closing/expense/cleaning-cost/request-cleaning-supplies/${clingCostAdjRcpNo}`, { params: dataParams });
-    debugger;
     saveParams.value = res.data;
     isApplication.value = true;
     isDisable.value = true;
+    frmMainRef.value.init();
 
     await buildingCode();
   }
