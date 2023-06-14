@@ -152,7 +152,7 @@ async function onSelect() {
     notify(t('MSG_ALT_SELECT_ONE_ROW', [t('MSG_TXT_COPY')]));
   } else {
     if (props.selectType === pdConst.PD_SEARCH_SINGLE && checkedRows.length !== 1) {
-      notify(t('MSG_ALT_MDFC_SEL'));
+      notify(t('MSG_ALT_SELT_ONE_ITEM'));
       return;
     }
 
