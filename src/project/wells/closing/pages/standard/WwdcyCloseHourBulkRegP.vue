@@ -45,11 +45,13 @@
             v-model="frmMainData.clPsicNo"
             type="radio"
             :options="clPsicCodes"
+            @change="onChangePersonCharge"
           />
           <kw-input
             v-model="frmMainData.prtnrNo"
             icon="search"
             clearable
+            :readonly="isRtnrNo"
             @click-icon="onClickIcon"
           />
         </kw-form-item>
@@ -286,11 +288,23 @@ const { modal } = useGlobal();
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 const frmMainRef = ref();
+const isRtnrNo = ref(true);
 const userInfo = getters['meta/getUserInfo'];
 const codes = await codeUtil.getMultiCodes(
   'CL_BIZ_TP_CD', // [마감업무유형코드],
   'KW_GRP_CO_CD',
 );
+
+const props = defineProps({
+  clBizTpCd: {
+    type: String,
+    default: null,
+  },
+  baseYm: {
+    type: String,
+    default: null,
+  },
+});
 
 // TODO. 확정되면 수정
 const dtDvCodes = ref([
@@ -303,21 +317,23 @@ const clPsicCodes = ref([
   { codeId: '', codeName: '담당자' },
 ]);
 
+const clDtDate = new Date(dayjs().format('YYYY'), dayjs().format('MM'), 0);
+
 // TODO: 초기 설정 정보 명세서 기준으로 작업(참고 명세서 완료본 아니기 때문에 마무리전 반드시 확인 필요)
 // TODO: 마감담당자(clPsicNo ) 관련 키 인데... 화면에는 공통이라는 내용이 있음 어떻게 해야 하는지 명세서에 없음 확인 필요 테스트 하느라 임의값 셋팅
 // TODO. 법인, 마감구분, 기준년월 제외하고 다 수정해야됨
 const frmMainData = ref({
   kwGrpCoCd: store.getters['meta/getUserInfo'].companyCode, // 1200 교원 / 2000 교원 프러퍼티
-  clBizTpCd: '11',
+  clBizTpCd: props.clBizTpCd,
   clPsicNo: '0',
   prtnrNo: '', // 담당자 구분
-  baseYm: dayjs().format('YYYYMM'),
-  crtDt: dayjs().format('YYYYMMDD'), // 생성일자
+  baseYm: props.baseYm,
+  crtDt: `${dayjs().format('YYYYMM')}01`, // 생성일자
   crtDtTmFrom: '0800',
   crtDtTmTo: '2359',
   crtDtPerfDtDvVal: '1',
 
-  clDt: dayjs().format('YYYYMMDD'), // 마감일자
+  clDt: dayjs().format('YYYYMM') + clDtDate.getDate(), // 마감일자
   ddClDtTmFrom: '0800',
   ddClDtTmTo: '2359',
   ddClPerfDtDvVal: '1',
@@ -344,8 +360,22 @@ const frmMainData = ref({
 
 });
 
+async function onChangePersonCharge() {
+  const { clPsicNo } = frmMainData.value;
+
+  if (clPsicNo === '0') {
+    frmMainData.value.prtnrNo = '';
+    isRtnrNo.value = true;
+  } else {
+    isRtnrNo.value = false;
+  }
+}
+
 // 파트너 검색 팝업
 async function onClickIcon() {
+  if (frmMainData.value.clPsicNo === '0') {
+    return;
+  }
   const { result, payload } = await modal({
     component: 'ZwogzPartnerListP',
     componentProps: {
@@ -358,6 +388,10 @@ async function onClickIcon() {
 }
 
 async function onClickSave() {
+  if (frmMainData.value.clPsicNo !== '0' && isEmpty(frmMainData.value.prtnrNo)) {
+    notify('담당자를 입력해 주세요.');
+    return;
+  }
   if (await frmMainRef.value.alertIfIsNotModified()) { return; }
   if (!await frmMainRef.value.validate()) { return; }
   const { clPsicNo } = frmMainData.value;
@@ -373,8 +407,8 @@ async function onClickSave() {
 
 const closeDivideCodes = ref({ clBizTpCd: [] });
 codes.CL_BIZ_TP_CD.forEach((data) => {
-  if (store.getters['meta/getUserInfo'].tenantId === clConst.TENANT_ID_WELLS && (data.codeId === '11' || data.codeId === '12'
-        || data.codeId === '21' || data.codeId === '22' || data.codeId === '30')) {
+  if (store.getters['meta/getUserInfo'].tenantId === clConst.TENANT_ID_WELLS && (data.codeId === '11'
+        || data.codeId === '21' || data.codeId === '30')) {
     closeDivideCodes.value.clBizTpCd.push({ codeId: data.codeId, codeName: data.codeName });
   }
 });
