@@ -147,17 +147,17 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'booSellYn' }, // [예약여부]
     { fieldName: 'booSellTpCd' }, // 예약판매유형코드
     { fieldName: 'booSellTpNm' }, // 예약판매유형명
-    { fieldName: 'feeAckmtCt' }, // [인정건수] 수수료인정건수
-    { fieldName: 'ackmtPerfAmt' }, // [인정금액] 인정실적금액
+    { fieldName: 'feeAckmtCt', dataType: 'number' }, // [인정건수] 수수료인정건수
+    { fieldName: 'ackmtPerfAmt', dataType: 'number' }, // [인정금액] 인정실적금액
     { fieldName: 'ackmtPerfRt' }, // [인정율(%)] 인정실적율
-    { fieldName: 'feeAckmtBaseAmt' }, // [기준수수료] 수수료인정기준금액
+    { fieldName: 'feeAckmtBaseAmt', dataType: 'number' }, // [기준수수료] 수수료인정기준금액
     { fieldName: 'feeFxamYn' }, // [정액여부] 수수료정액여부
     { fieldName: 'dpTpCd' }, // [할부이체] 입금유형코드
     { fieldName: 'bfsvcBzsDvCd' }, // [할부실적] BS업체구분코드
     { fieldName: 'mmbsDpTpCd' }, // [멤버십이체] 입금유형코드
     { fieldName: 'copnDvYn' }, // [멤버십원장]
-    { fieldName: 'frisuBfsvcPtrmN' }, // [무상멤버십] 무상BS기간수
-    { fieldName: 'frisuAsPtrmN' }, // [무상A/S] 무상AS기간수
+    { fieldName: 'frisuBfsvcPtrmN', dataType: 'number' }, // [무상멤버십] 무상BS기간수
+    { fieldName: 'frisuAsPtrmN', dataType: 'number' }, // [무상A/S] 무상AS기간수
     { fieldName: 'sellEvCd' }, // [행사코드] 판매행사코드
     { fieldName: 'rgstDtm' }, // [등록일]
     { fieldName: 'rgstUsrId' }, // 등록자ID
@@ -168,18 +168,28 @@ const initGrdMain = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '152', styleName: 'text-center' }, // [계약상세번호]
+    { fieldName: 'cntrNo',
+      header: t('MSG_TXT_CNTR_DTL_NO'),
+      width: '152',
+      styleName: 'text-center',
+      displayCallback(grid, index) {
+        const { cntrNo, cntrSn } = grid.getValues(index.itemIndex);
+        if (!isEmpty(cntrNo)) {
+          return `${cntrNo}-${cntrSn}`;
+        }
+      },
+    }, // [계약상세번호]
     { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '117', styleName: 'text-center' }, // [계약자명]
     { fieldName: 'rveCd', header: t('MSG_TXT_RVE_CD'), width: '117', styleName: 'text-center' }, // [수납코드]
     { fieldName: 'basePdCd', header: t('MSG_TXT_PRDT_CODE'), width: '117', styleName: 'text-center' }, // [상품코드]
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '264' }, // [상품명]
     { fieldName: 'cntrRcpFshDtm', header: t('MSG_TXT_RCP_D'), width: '117', styleName: 'text-center', datetimeFormat: 'date' }, // [접수일] 계약접수완료일시
     { fieldName: 'istDt', header: t('MSG_TXT_INST_DT'), width: '117', styleName: 'text-center', datetimeFormat: 'date' }, // [설치일] 설치일자
-    { fieldName: 'cntrCanDt', header: t('MSG_TXT_CAN_D'), width: '117', styleName: 'text-center' }, // [취소일] 계약취소일자
-    { fieldName: 'cpsDt', header: t('MSG_TXT_COMP_D'), width: '117', styleName: 'text-center' }, // [보상일] 보상일자
+    { fieldName: 'cntrCanDt', header: t('MSG_TXT_CAN_D'), width: '117', styleName: 'text-center', datetimeFormat: 'date' }, // [취소일] 계약취소일자
+    { fieldName: 'cpsDt', header: t('MSG_TXT_COMP_D'), width: '117', styleName: 'text-center', datetimeFormat: 'date' }, // [보상일] 보상일자
     { fieldName: 'sppDuedt', header: t('MSG_TXT_DUEDT'), width: '117', styleName: 'text-center', datetimeFormat: 'date' }, // [예정일] 배송예정일자
-    { fieldName: 'canPerfDt', header: t('MSG_TXT_PRFMC_CNCL_DT'), width: '117', styleName: 'text-center' }, // [실적취소일]
-    { fieldName: 'reqdDt', header: `KIWI${t('MSG_TXT_REQD_D')}`, width: '117', styleName: 'text-center' }, // [kiwi철거일] 철거일자
+    { fieldName: 'canPerfDt', header: t('MSG_TXT_PRFMC_CNCL_DT'), width: '117', styleName: 'text-center', datetimeFormat: 'date' }, // [실적취소일]
+    { fieldName: 'reqdDt', header: `KIWI${t('MSG_TXT_REQD_D')}`, width: '117', styleName: 'text-center', datetimeFormat: 'date' }, // [kiwi철거일] 철거일자
     { fieldName: 'cttRsNm', header: t('MSG_TXT_CNTCT_NM'), width: '264' }, // [컨택명] 컨택결과명
     { fieldName: 'booSellYn', header: t('MSG_TXT_RSV_YN'), width: '117', styleName: 'text-center' }, // [예약여부]
     { fieldName: 'feeAckmtCt', header: t('MSG_TXT_PD_ACC_CNT'), width: '117', styleName: 'text-right' }, // [인정건수] 수수료인정건수
@@ -194,7 +204,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'frisuBfsvcPtrmN', header: t('MSG_TXT_FRISU_MSH'), width: '117', styleName: 'text-right' }, // [무상멤버십] 무상BS기간수
     { fieldName: 'frisuAsPtrmN', header: t('MSG_TXT_FRISU_AS'), width: '117', styleName: 'text-right' }, // [무상A/S] 무상AS기간수
     { fieldName: 'sellEvCd', header: t('MSG_TXT_EV_CD'), width: '117', styleName: 'text-center' }, // [행사코드] 판매행사코드
-    { fieldName: 'rgstDtm', header: t('MSG_TXT_RGST_DT'), width: '117', styleName: 'text-center' }, // [등록일]
+    { fieldName: 'rgstDtm', header: t('MSG_TXT_RGST_DT'), width: '117', styleName: 'text-center', datetimeFormat: 'date' }, // [등록일]
     { fieldName: 'rgstUsrNm', header: t('MSG_TXT_FST_RGST_USR'), width: '117', styleName: 'text-center' }, // [등록자]
     { fieldName: 'mdfcDtm', header: t('MSG_TXT_FNL_MDFC_D'), width: '117', styleName: 'text-center', datetimeFormat: 'date' }, // [최종수정일]
     { fieldName: 'mdfcUsrNm', header: t('MSG_TXT_FNL_MDFC_USR'), width: '117', styleName: 'text-center' }, // [최종수정자]
