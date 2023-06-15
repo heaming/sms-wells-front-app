@@ -3,7 +3,7 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : SND
-2. 프로그램 ID : [W-SV-U-0204P01] WwsndHumanResourcesListP - 인사기본정보 조회 팝업
+2. 프로그램 ID : [W-SV-U-0204P01] WwsndHumanResourcesListP - 인사기본정보
 3. 작성자 : KJ
 4. 작성일 : 2022.12.13
 ****************************************************************************************************
@@ -80,32 +80,33 @@
         </kw-search-item>
       </kw-search-row>
     </kw-search>
-    <div class="result-area">
-      <kw-action-top>
-        <template #left>
-          <kw-paging-info
-            v-model:page-index="pageInfo.pageIndex"
-            v-model:page-size="pageInfo.pageSize"
-            :total-count="pageInfo.totalCount"
-            :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
-            @change="getHumanResourcesPages"
-          />
-        </template>
-      </kw-action-top>
-      <kw-grid
-        ref="grdMainRef"
-        :page-size="pageInfo.pageSize"
-        :total-count="pageInfo.totalCount"
-        @init="initGrdMain"
-      />
-      <kw-pagination
-        v-model:page-index="pageInfo.pageIndex"
-        v-model:page-size="pageInfo.pageSize"
-        :total-count="pageInfo.totalCount"
-        @change="getHumanResourcesPages"
-      />
-    </div>
-    <template #action>
+    <kw-action-top>
+      <template #left>
+        <kw-paging-info
+          v-model:page-index="pageInfo.pageIndex"
+          v-model:page-size="pageInfo.pageSize"
+          :total-count="pageInfo.totalCount"
+          :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
+          @change="getHumanResourcesPages"
+        />
+      </template>
+    </kw-action-top>
+    <kw-grid
+      ref="grdMainRef"
+      :page-size="pageInfo.pageSize"
+      :total-count="pageInfo.totalCount"
+      @init="initGrdMain"
+    />
+    <kw-pagination
+      v-model:page-index="pageInfo.pageIndex"
+      v-model:page-size="pageInfo.pageSize"
+      :total-count="pageInfo.totalCount"
+      @change="getHumanResourcesPages"
+    />
+    <template
+      v-if="isCheckbox"
+      #action
+    >
       <kw-btn
         :label="$t('MSG_BTN_CANCEL')"
         @click="onClickCancel"
@@ -174,8 +175,6 @@ const codes = await codeUtil.getMultiCodes(
   'EGER_ROL_CD',
 );
 
-const organizations = ref([]);
-
 const pageInfo = ref({
   totalCount: 0,
   pageIndex: 1,
@@ -193,7 +192,7 @@ const searchParams = ref({
 let cachedParams;
 
 const isManagerSelected = computed(() => searchParams.value.mngrDvCd === '1');
-const isRadio = computed(() => props.checkType === 'radio');
+const isCheckbox = props.checkType === 'checkbox';
 
 const layouts = computed(() => {
   if (isManagerSelected.value) {
@@ -223,17 +222,6 @@ const layouts = computed(() => {
     'cltnDt',
   ];
 });
-
-async function fetchOrganizations() {
-  return await dataService.get('/sms/wells/service/human-resources/organizations');
-}
-
-async function getOrganizations() {
-  const res = await fetchOrganizations();
-  organizations.value = res.data;
-}
-
-await getOrganizations();
 
 async function fetchHumanResourcesPages(params) {
   return await dataService.get('/sms/wells/service/human-resources/paging', params);
@@ -301,7 +289,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'sapDlpnrDtlIzRfltDt' }, // SAP거래처상세내역반영일자
     { fieldName: 'wkGrpCd' }, // 작업그룹코드
     { fieldName: 'wkGrpNm' }, // 작업그룹명
-    { fieldName: 'wkcrNo' }, // 작업조번호
+    { fieldName: 'wkcrCd' }, // 작업조번호
     { fieldName: 'rcrtWrteDt' }, // 리쿠르팅작성일자
     { fieldName: 'fstCntrDt' }, // 최초계약일자
     { fieldName: 'fnlCltnDt' }, // 최종해약일자
@@ -382,20 +370,24 @@ const initGrdMain = defineGrid((data, view) => {
   view.setColumns(columns);
   view.setColumnLayout(layouts.value);
 
-  view.checkBar.visible = true;
-  view.checkBar.exclusive = isRadio.value;
+  view.checkBar.visible = isCheckbox;
   view.rowIndicator.visible = true;
 
-  // 체크박스 설정
-  view.onCellClicked = (grid, clickData) => {
-    if (clickData.cellType === 'data') {
-      grid.checkItem(
-        clickData.itemIndex,
-        isRadio.value ? true : !grid.isCheckedItem(clickData.itemIndex),
-        isRadio.value,
-      );
-    }
-  };
+  if (isCheckbox) {
+    // 셀 클릭 시
+    view.onCellClicked = (grid, clickData) => {
+      if (clickData.cellType === 'data') {
+        grid.checkItem(clickData.itemIndex, !grid.isCheckedItem(clickData.itemIndex));
+      }
+    };
+  } else {
+    // 셀 더블클릭 시
+    view.onCellDblClicked = (grid, clickData) => {
+      if (clickData.cellType === 'data') {
+        ok([{ ...grid.getValues(clickData.itemIndex) }]);
+      }
+    };
+  }
 });
 
 onMounted(async () => {

@@ -1,1 +1,101 @@
 @import "~@css/index";
+
+.normal-area--button-set-bottom {
+  .normal-area__content {
+    position: absolute;
+    inset: 0 30px 120px 30px; // same with normal-area-padding
+  }
+}
+
+.stepper-layout-tweak-wrapper {
+  $-stepper-height: 74px;
+  $-stepper-panel-padding-top: 30px;
+
+  width: 100%;
+  height: 100%;
+  position: relative;
+  padding-top: $-stepper-height + $-stepper-panel-padding-top;
+  display: flex;
+  flex-flow: row nowrap;
+
+  > .kw-stepper {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+  }
+
+  > .kw-stepper__panels {
+    flex: auto;
+  }
+}
+
+.like-vertical-stepper {
+  $block: &;
+
+  padding-top: 8px;
+
+  &.kw-list.q-list--separator {
+    > .q-expansion-item:last-child.q-item-type {
+      border-bottom: none; // remove last separator
+    }
+  }
+
+  &__step {
+    color: $black3;
+    padding: 12px 0;
+
+    &--active {
+      @include typo("body");
+
+      color: $secondary;
+
+      #{$block}__step-icon.kw-avatar {
+        &::after {
+          display: none;
+        }
+
+        background: $secondary;
+        color: $bg-white;
+      }
+    }
+
+    // checked is stronger then active
+    &--checked {
+      #{$block}__step-icon.kw-avatar {
+        &::after {
+          display: none;
+        }
+
+        background: $line-bg;
+        color: $black3;
+      }
+    }
+
+    &--summary {
+      border-top: none !important; /* remove separator */
+      padding: 20px;
+      background: rgb(47 138 243 / 10%);
+    }
+  }
+
+  &__step-icon.kw-avatar {
+    font-size: 20px;
+
+    &::after {
+      border-color: $line-stroke;
+    }
+
+    .q-avatar__content {
+      @include typo("dense");
+
+      line-height: 1.4; // design detail!!!
+    }
+  }
+
+  &__step-content {
+    background: $bg-box;
+    margin-top: 12px;
+    padding: 12px 20px;
+  }
+}

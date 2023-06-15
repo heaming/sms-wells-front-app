@@ -3,7 +3,7 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : SNC
-2. 프로그램 ID : WwsncTransferHistoryListP - 이관이력 조회
+2. 프로그램 ID : [W-SV-U-0019P01] WwsncTransferHistoryListP - 이관이력 조회
 3. 작성자 : juno.cha
 4. 작성일 : 2023.05.03
 ****************************************************************************************************
@@ -121,7 +121,7 @@ const initGrid = defineGrid((data, view) => {
       items: ['bfOgNm', 'bfCnfmPsicPrtnrNo', 'bfPrtnrKnm'],
     },
     {
-      header: t('이관 전 담당자'),
+      header: t('이관 후 담당자'),
       direction: 'horizontal',
       items: ['afOgNm', 'afCnfmPsicPrtnrNo', 'afPrtnrKnm'],
     },

@@ -17,6 +17,7 @@
     <kw-search
       :cols="3"
       @search="onClickSearch"
+      @reset="onClickReset"
     >
       <kw-search-row>
         <!-- 출고기간-->
@@ -25,7 +26,7 @@
         >
           <kw-date-range-picker
             v-model:from="searchParams.stOstrDt"
-            v-model:to="searchParams.edOStrDt"
+            v-model:to="searchParams.edOstrDt"
             rules="date_range_months:1"
           />
         </kw-search-item>
@@ -33,12 +34,13 @@
         <!-- 출고창고 -->
         <ZwcmWareHouseSearch
           v-model:start-ym="searchParams.stOstrDt"
-          v-model:end-ym="searchParams.edOStrDt"
+          v-model:end-ym="searchParams.edOstrDt"
           v-model:options-ware-dv-cd="strWareDvCd"
           v-model:ware-dv-cd="searchParams.ostrWareDvCd"
-          v-model:ware-no-m="searchParams.ostrWareNoM"
-          v-model:ware-no-d="searchParams.ostrWareNoD"
+          v-model:ware-no-m="searchParams.ostrWareDtlDvCd"
+          v-model:ware-no-d="searchParams.ostrWareNo"
           first-option="all"
+          sub-first-option="all"
           :colspan="2"
           :label2="$t('MSG_TXT_OSTR_WARE')"
           :label3="$t('MSG_TXT_HGR_WARE')"
@@ -52,19 +54,22 @@
           :label="$t('MSG_TXT_OSTR_TP')"
         >
           <kw-select
+            v-model="searchParams.ostrTpCd"
             :options="codes.OSTR_TP_CD"
+            first-option="all"
           />
         </kw-search-item>
         <!-- //출고유형 -->
         <!-- 입고창고-->
         <ZwcmWareHouseSearch
           v-model:start-ym="searchParams.stOstrDt"
-          v-model:end-ym="searchParams.edOStrDt"
+          v-model:end-ym="searchParams.edOstrDt"
           v-model:options-ware-dv-cd="strWareDvCd"
           v-model:ware-dv-cd="searchParams.strWareDvCd"
-          v-model:ware-no-m="searchParams.strWareNoM"
-          v-model:ware-no-d="searchParams.strWareNoD"
+          v-model:ware-no-m="searchParams.strWareDtlDvCd"
+          v-model:ware-no-d="searchParams.strWareNo"
           first-option="all"
+          sub-first-option="all"
           :colspan="2"
           :label2="$t('MSG_TXT_STR_WARE')"
           :label3="$t('MSG_TXT_HGR_WARE')"
@@ -78,6 +83,7 @@
           :label="$t('MSG_TXT_GD')"
         >
           <kw-select
+            v-model="searchParams.pdGbCd"
             :options="codes.PD_GD_CD"
             first-option="all"
           />
@@ -88,12 +94,14 @@
           :label="$t('MSG_TXT_ITM_CD')"
         >
           <kw-select
+            v-model="searchParams.itmKndCd"
             class="w100"
             :options="codes.ITM_KND_CD"
             first-option="all"
           />
           <kw-select
-            :options="['전체' , 'B']"
+            v-model="searchParams.itmPdCd"
+            :options="itmPdCdFilter"
             first-option="all"
           />
         </kw-search-item>
@@ -122,11 +130,7 @@
             @change="fetchData"
           />
         </template>
-        <kw-separator
-          spaced
-          vertical
-          inset
-        />
+
         <kw-btn
           secondary
           dense
@@ -134,11 +138,6 @@
           :label="$t('MSG_BTN_EXCEL_DOWN')"
           :disable="pageInfo.totalCount === 0"
           @click="onClickExcelDownload"
-        />
-        <kw-separator
-          spaced
-          vertical
-          inset
         />
       </kw-action-top>
       <kw-grid
@@ -171,9 +170,7 @@ const dataService = useDataService();
 const { t } = useI18n();
 
 const baseURI = '/sms/wells/service/out-of-storage-iz-dtls';
-const now = dayjs();
-const toDay = now.format('YYYYMMDD');
-const toMonth = now.format('YYYYMM');
+const itemsURI = '/sms/wells/service/individual-ware-ostrs/filter-items';
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -189,6 +186,10 @@ const codes = await codeUtil.getMultiCodes(
   'USE_YN',
 );
 
+const itmPdCdFilter = ref();
+// 품목코드
+// codes.value.ITM_PD_CD = [{}];
+
 const grdMainRef = ref(getComponentType('KwGrid'));
 
 const pageInfo = ref({
@@ -199,19 +200,28 @@ const pageInfo = ref({
 
 let cachedParams;
 const searchParams = ref({
-  stOstrDt: `${toMonth}01`,
-  edOStrDt: toDay,
+  stOstrDt: '',
+  edOstrDt: '',
   strTpCd: '',
   ostrTpCd: '',
   pdGbCd: '',
   strWareDvCd: '2',
-  strWareNoD: '',
-  strWareNoM: '',
+  strWareDtlDvCd: '',
+  strWareNo: '',
   ostrWareDvCd: '1',
-  ostrWareNoD: '',
-  ostrWareNoM: '',
+  ostrWareDtlDvCd: '',
+  ostrWareNo: '',
   itmKndCd: '',
+  itmPdCd: '',
   useYn: '',
+  apyYm: '',
+});
+
+// 품목코드 가져오기
+watch(() => searchParams.value.itmKndCd, async () => {
+  const { itmKndCd } = searchParams.value;
+  const { data } = await dataService.get(itemsURI, { params: { itmKndCd } });
+  itmPdCdFilter.value = data;
 });
 
 async function fetchData() {
@@ -228,7 +238,10 @@ async function fetchData() {
 
 async function onClickSearch() {
   pageInfo.value.pageIndex = 1;
+  const apyYm = searchParams.value.stOstrDt.substring(0, 6).concat('');
 
+  searchParams.value.apyYm = apyYm;
+  console.log(`apyYm : ${searchParams.value.apyYm}`);
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
 }
@@ -242,32 +255,81 @@ async function onClickExcelDownload() {
     exportData: res.data,
   });
 }
+
+// 초기값 설정
+function defaultSet() {
+  const now = dayjs();
+  const toDay = now.format('YYYYMMDD');
+  const startMonth = now.format('YYYYMM').concat('01');
+
+  searchParams.value = {
+    stOstrDt: '',
+    edOstrDt: '',
+    strTpCd: '',
+    ostrTpCd: '',
+    pdGbCd: '',
+    strWareDvCd: '2',
+    strWareDtlDvCd: '',
+    strWareNo: '',
+    ostrWareDvCd: '1',
+    ostrWareDtlDvCd: '',
+    ostrWareNo: '',
+    itmKndCd: '',
+    itmPdCd: '',
+    useYn: '',
+    apyYm: '',
+  };
+
+  searchParams.value.stOstrDt = startMonth;
+  searchParams.value.edOstrDt = toDay;
+  console.log(`today : ${toDay}`);
+  console.log(`startMonth : ${startMonth}`);
+}
+
+function onClickReset() {
+  defaultSet();
+}
+
+onMounted(async () => {
+  defaultSet();
+});
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
 const initGrdMain = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'inWareNm', header: t('MSG_TXT_STR_WARE'), width: '150', styleName: 'text-left' },
-    { fieldName: 'inWareMngtPrtnrNo', header: t('MSG_TXT_STR_WARE_MNGT_PRTNR_NO'), width: '150', styleName: 'text-center' },
+    { fieldName: 'inWareMngtPrtnrNo', header: t('MSG_TXT_STR_WARE_MNGT_PRTNR_NO'), width: '180', styleName: 'text-center' },
     { fieldName: 'ostrDt', header: t('MSG_TXT_OSTR_DT'), width: '100', styleName: 'text-center' },
-    { fieldName: 'sapCd', header: t('MSG_TXT_SAP_CD'), width: '150', styleName: 'text-center' },
-    { fieldName: 'itmCd', header: t('MSG_TXT_ITM_CD'), width: '150', styleName: 'text-center' },
-    { fieldName: 'itmNm', header: t('MSG_TXT_ITM_NM'), width: '300', styleName: 'text-left' },
-    { fieldName: 'ostrTpCd', header: t('MSG_TXT_OSTR_TP'), width: '100', styleName: 'text-center' },
+    { fieldName: 'sapMatCd', header: t('MSG_TXT_SAP_CD'), width: '150', styleName: 'text-center' },
+    { fieldName: 'itmPdCd', header: t('MSG_TXT_ITM_CD'), width: '150', styleName: 'text-center' },
+    { fieldName: 'pdNm', header: t('MSG_TXT_ITM_NM'), width: '300', styleName: 'text-left' },
+    { fieldName: 'ostrTpCd',
+      header: t('MSG_TXT_OSTR_TP'),
+      options: codes.OSTR_TP_CD,
+      editor: { type: 'list' },
+      editable: false,
+      width: '100',
+      styleName: 'text-center' },
     { fieldName: 'mngtUnitCd', header: t('MSG_TXT_MNGT_UNIT'), width: '100', styleName: 'text-center' },
     { fieldName: 'itmGdCd', header: t('MSG_TXT_GD'), width: '100', styleName: 'text-center' },
     { fieldName: 'strQty', header: t('MSG_TXT_QTY'), width: '100', styleName: 'text-center' },
     { fieldName: 'boxUnitQty', header: t('MSG_TXT_BOX_UNIT_QTY'), width: '100', styleName: 'text-center' },
     { fieldName: 'didyDvCd', header: t('MSG_TXT_DIDY_COS'), width: '100', styleName: 'text-center' },
     { fieldName: 'outWareNm', header: t('MSG_TXT_OSTR_WARE'), width: '100', styleName: 'text-center' },
-    { fieldName: 'inWareNm', header: t('MSG_TXT_STR_WARE'), width: '100', styleName: 'text-center' },
+    { fieldName: 'inWareNmSub', header: t('MSG_TXT_STR_WARE'), width: '100', styleName: 'text-center' },
     { fieldName: 'strRgstDt', header: t('MSG_TXT_STR_DT'), width: '100', styleName: 'text-center' },
     { fieldName: 'ostrAkNo', header: t('MSG_TXT_OSTR_AK_NO'), width: '100', styleName: 'text-center' },
     { fieldName: 'itmOstrNo', header: t('MSG_TXT_OSTR_MNGT_NO'), width: '100', styleName: 'text-center' },
     { fieldName: 'itmStrNo', header: t('MSG_TXT_STR_MNGT_NO'), width: '100', styleName: 'text-center' },
     { fieldName: 'rmkCn', header: t('MSG_TXT_NOTE'), width: '100', styleName: 'text-center' },
   ];
-  const fields = columns.map((v) => ({ fieldName: v.fieldName }));
+
+  const gridField = columns.map((v) => ({ fieldName: v.fieldName }));
+  // const fields = columns.map((v) => ({ fieldName: v.fieldName }));
+  const fields = [...gridField,
+    { fieldName: 'itmCd' },
+  ];
 
   data.setFields(fields);
   view.setColumns(columns);

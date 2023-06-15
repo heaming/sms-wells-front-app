@@ -174,7 +174,14 @@ const props = defineProps({
     type: String,
     default: null,
   },
-
+  rveCd: {
+    type: String,
+    default: null,
+  },
+  rveNm: {
+    type: String,
+    default: null,
+  },
 });
 
 const grdMainRef = ref(getComponentType('KwGrid'));
@@ -281,13 +288,18 @@ async function onClickExcelDownload() {
 }
 
 async function initProps() {
-  const { itgDpNo } = props;
+  const { rveCd, rveNm } = props;
 
-  if (itgDpNo) {
-    // searchParams.value.itgDpNo = itgDpNo;
+  // if (itgDpNo) {
+  // searchParams.value.itgDpNo = itgDpNo;
+  searchParams.value.rveCd = rveCd;
+  searchParams.value.rveNm = rveNm;
 
-    // await onClickSearch();
-  }
+  // console.log(itgDpNo);
+  console.log(rveCd);
+  console.log(rveNm);
+  // await onClickSearch();
+  // }
 }
 
 onMounted(async () => {
@@ -303,6 +315,7 @@ const initGrid = defineGrid((data, view) => {
 
     { fieldName: 'itgDpNo' }, /* 통합입금번호 */
     { fieldName: 'rveCd' }, /* 수납코드 */
+    { fieldName: 'rveNm' }, /* 수납명 */
     { fieldName: 'prtnrClsfCd' }, /* 판매자구분 */
     { fieldName: 'prtnrNo' }, /* 파트너번호 */
     { fieldName: 'dpTpCd' }, /* 입금유형코드 */

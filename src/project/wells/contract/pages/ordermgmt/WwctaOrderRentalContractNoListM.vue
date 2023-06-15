@@ -178,6 +178,7 @@ const initGridRentalContractorNoList = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'cntrDtlNo' }, // 계약번호
     { fieldName: 'ordrInfoView' }, // 주문정보 보기
+    { fieldName: 'sellTpCd' }, // 판매유형코드
     { fieldName: 'sellTpDtlNm' }, // 판매유형
     { fieldName: 'dgr3LevlDgPrtnrNo' }, // 파트너정보-지점장 사번
     { fieldName: 'dgr3LevlDgPrtnrNm' }, // 파트너정보-지점장명
@@ -210,6 +211,7 @@ const initGridRentalContractorNoList = defineGrid((data, view) => {
     { fieldName: 'pdctIdno' }, // 설치정보-S N 번호
     { fieldName: 'istAkDt' }, // 설치요청일
     { fieldName: 'sellInflwChnlDtlNm' }, // 판매구분
+    { fieldName: 'copnDvCd' }, // 고객구분코드(1:개인, 2:법인)
     { fieldName: 'copnDvNm' }, // 고객구분
     { fieldName: 'pdClsfNm' }, // 상품 정보-상품분류
     { fieldName: 'pdNm' }, // 상품 정보-상품명
@@ -222,7 +224,7 @@ const initGridRentalContractorNoList = defineGrid((data, view) => {
     { fieldName: 'sppDuedt' }, // 예정일
     { fieldName: 'istDt' }, // 설치일
     { fieldName: 'slDt' }, // 매출일
-    { fieldName: 'istmMcn' }, // 계약기간
+    { fieldName: 'cntrPtrm' }, // 계약기간
     { fieldName: 'cntrPdEnddt' }, // 만료일
     { fieldName: 'canDt' }, // 취소일
     { fieldName: 'reqdDt' }, // 철거일
@@ -230,8 +232,8 @@ const initGridRentalContractorNoList = defineGrid((data, view) => {
     { fieldName: 'recapDutyPtrmN' }, // 의무기간
     { fieldName: 'cntrAmt', dataType: 'number' }, // 등록비
     { fieldName: 'cntrCtrAmt', dataType: 'number' }, // 등록할인
-    { fieldName: 'pdBaseAmt', dataType: 'number' }, // 렌탈료1
-    { fieldName: 'ctrVal', dataType: 'number' }, // 렌탈할인1
+    { fieldName: 'rentalAmt1', dataType: 'number' }, // 렌탈료1
+    { fieldName: 'rentalDscAmt1', dataType: 'number' }, // 렌탈할인1
     { fieldName: 'rentalAmt2', dataType: 'number' }, // 렌탈료2
     { fieldName: 'rentalDscAmt2', dataType: 'number' }, // 렌탈할인2
     { fieldName: 'rentalDscDfam' }, // 할인차액
@@ -358,7 +360,10 @@ const initGridRentalContractorNoList = defineGrid((data, view) => {
       styleName: 'text-center',
       displayCallback(grid, index) {
         const { istCralLocaraTno: no1, istMexnoEncr: no2, istCralIdvTno: no3 } = grid.getValues(index.itemIndex);
-        return !isEmpty(no1) && !isEmpty(no2) && !isEmpty(no3) ? `${no1}-${no2}-${no3}` : '';
+        if (!isEmpty(no1) && isEmpty(no2) && !isEmpty(no3)) {
+          return `${no1}--${no3}`;
+        }
+        return isEmpty(no1) && isEmpty(no2) && isEmpty(no3) ? '' : `${no1}-${no2}-${no3}`;
       },
     }, // 설치정보-휴대전화번호
     { fieldName: 'istAdrZip', header: t('MSG_TXT_ZIP'), width: '138', styleName: 'text-center' }, // 설치정보-우편번호
@@ -380,7 +385,7 @@ const initGridRentalContractorNoList = defineGrid((data, view) => {
     { fieldName: 'sppDuedt', header: t('MSG_TXT_DUEDT'), width: '136', styleName: 'text-center', datetimeFormat: 'date' }, // 예정일
     { fieldName: 'istDt', header: t('MSG_TXT_INST_DT'), width: '136', styleName: 'text-center', datetimeFormat: 'date' }, // 설치일
     { fieldName: 'slDt', header: t('MSG_TXT_DT_OF_SALE'), width: '136', styleName: 'text-center', datetimeFormat: 'date' }, // 매출일
-    { fieldName: 'istmMcn', header: t('MSG_TXT_CNTR_PTRM'), width: '136', styleName: 'text-right' }, // 계약기간
+    { fieldName: 'cntrPtrm', header: t('MSG_TXT_CNTR_PTRM'), width: '136', styleName: 'text-right' }, // 계약기간
     { fieldName: 'cntrPdEnddt', header: t('MSG_TXT_EXP_DT'), width: '136', styleName: 'text-center', datetimeFormat: 'date' }, // 만료일
     { fieldName: 'canDt', header: t('MSG_TXT_CAN_D'), width: '136', styleName: 'text-center', datetimeFormat: 'date' }, // 취소일
     { fieldName: 'reqdDt', header: t('MSG_TXT_REQD_D'), width: '136', styleName: 'text-center', datetimeFormat: 'date' }, // 철거일
@@ -388,8 +393,8 @@ const initGridRentalContractorNoList = defineGrid((data, view) => {
     { fieldName: 'recapDutyPtrmN', header: t('MSG_TXT_DUTY_PTRM'), width: '136', styleName: 'text-right' }, // 의무기간
     { fieldName: 'cntrAmt', header: t('MSG_TXT_RGST_FEE'), width: '136', styleName: 'text-right' }, // 등록비
     { fieldName: 'cntrCtrAmt', header: t('MSG_TXT_RGST_DSC'), width: '136', styleName: 'text-right' }, // 등록할인
-    { fieldName: 'pdBaseAmt', header: t('MSG_TXT_RTLFE1'), width: '136', styleName: 'text-right' }, // 렌탈료1
-    { fieldName: 'ctrVal', header: t('MSG_TXT_RNTL_DSC_1'), width: '136', styleName: 'text-right' }, // 렌탈할인1
+    { fieldName: 'rentalAmt1', header: t('MSG_TXT_RTLFE1'), width: '136', styleName: 'text-right' }, // 렌탈료1
+    { fieldName: 'rentalDscAmt1', header: t('MSG_TXT_RNTL_DSC_1'), width: '136', styleName: 'text-right' }, // 렌탈할인1
     { fieldName: 'rentalAmt2', header: t('MSG_TXT_RTLFE2'), width: '136', styleName: 'text-right' }, // 렌탈료2
     { fieldName: 'rentalDscAmt2', header: t('MSG_TXT_RNTL_DSC_2'), width: '136', styleName: 'text-right' }, // 렌탈할인2
     { fieldName: 'rentalDscDfam', header: t('MSG_TXT_DSC_DIFF'), width: '136', styleName: 'text-right' }, // 할인차액
@@ -513,7 +518,7 @@ const initGridRentalContractorNoList = defineGrid((data, view) => {
       direction: 'horizontal', // merge type
       items: ['pdClsfNm', 'pdNm', 'basePdCd', 'pdTpNm', 'svPrd', 'svTpCd', 'svTpNm'],
     },
-    'cntrRcpFshDt', 'sppDuedt', 'istDt', 'slDt', 'istmMcn', 'cntrPdEnddt', 'canDt', 'reqdDt', 'exnReqdDt', 'recapDutyPtrmN', 'cntrAmt', 'cntrCtrAmt', 'pdBaseAmt', 'ctrVal', 'rentalAmt2', 'rentalDscAmt2', 'rentalDscDfam', 'booSellYn', 'mchnChYn', 'mchnCpsApyr', 'ackmtPerfAmt', 'ackmtPerfRt', 'feeAckmtBaseAmt', 'feeFxamYn', 'dscApyDtlCd', 'dscApyTpCd', 'dscPmotCd', 'mchnChTpCd', 'ojCntrDtlNo', 'ojBasePdCd', 'ojPdNm', 'bogoCd', 'bogoPdCd', 'bogoPdNm',
+    'cntrRcpFshDt', 'sppDuedt', 'istDt', 'slDt', 'cntrPtrm', 'cntrPdEnddt', 'canDt', 'reqdDt', 'exnReqdDt', 'recapDutyPtrmN', 'cntrAmt', 'cntrCtrAmt', 'rentalAmt1', 'rentalDscAmt1', 'rentalAmt2', 'rentalDscAmt2', 'rentalDscDfam', 'booSellYn', 'mchnChYn', 'mchnCpsApyr', 'ackmtPerfAmt', 'ackmtPerfRt', 'feeAckmtBaseAmt', 'feeFxamYn', 'dscApyDtlCd', 'dscApyTpCd', 'dscPmotCd', 'mchnChTpCd', 'ojCntrDtlNo', 'ojBasePdCd', 'ojPdNm', 'bogoCd', 'bogoPdCd', 'bogoPdNm',
     {
       header: `${t('MSG_TXT_AC')}${t('MSG_TXT_INF')}`, // 계좌정보
       direction: 'horizontal', // merge type
@@ -548,13 +553,19 @@ const initGridRentalContractorNoList = defineGrid((data, view) => {
     const paramCntrDtlNo = gridUtil.getCellValue(g, dataRow, 'cntrDtlNo');
     const paramCntrNo = String(paramCntrDtlNo).split('-')[0];
     const paramCntrSn = String(paramCntrDtlNo).split('-')[1];
+    const { sellTpCd } = g.getValues(dataRow);
+    const { cntrCstNo } = g.getValues(dataRow);
+    const { copnDvCd } = g.getValues(dataRow);
 
     if (['cntrDtlNo'].includes(column)) { // 계약상세(윈도우팝업)
-      await modal({ component: 'WwctaOrderDetailP', componentProps: { cntrNo: paramCntrNo, cntrSn: paramCntrSn } });
+      await modal({ component: 'WwctaOrderDetailP', componentProps: { cntrNo: paramCntrNo, cntrSn: paramCntrSn, sellTpCd, cntrCstNo, copnDvCd } });
     } else if (['ordrInfoView'].includes(column)) { // 렌탈 주문정보 상세
       await modal({ component: 'WwctaOrderRentalDtlP', componentProps: { cntrNo: paramCntrNo, cntrSn: paramCntrSn } });
     } else if (['connPdView'].includes(column)) { // 연계상품 리스트 조회
-      await alert('연계상품 리스트 팝업 조회');
+      await modal({
+        component: 'WwctaLinkProductListP',
+        componentProps: { cntrNo: paramCntrNo, cntrSn: paramCntrSn },
+      });
     }
   };
 });

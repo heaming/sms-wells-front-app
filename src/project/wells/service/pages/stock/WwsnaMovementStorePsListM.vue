@@ -104,6 +104,7 @@ import useSnCode from '~sms-wells/service/composables/useSnCode';
 
 const grdMainRef = ref(getComponentType('KwGrid'));
 const dataService = useDataService();
+const store = useStore();
 
 const { t } = useI18n();
 const { getMonthWarehouse } = useSnCode();
@@ -135,8 +136,7 @@ const strTpCds = codes.STR_TP_CD.filter((v) => v.codeId !== '110');
 
 const wharehouseParams = ref({
   apyYm: dayjs().format('YYYYMM'),
-  // TODO: 임시 사용자 사번정보
-  userId: '36680',
+  userId: store.getters['meta/getUserInfo'].employeeIDNumber,
 });
 
 searchParams.value.stStrDt = dayjs().format('YYYYMMDD');
@@ -202,7 +202,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'itmOstrNo' },
     { fieldName: 'wareNm' },
     { fieldName: 'strDelButn' },
-
+    { fieldName: 'strHopDt' },
   ];
 
   const columns = [
@@ -225,7 +225,6 @@ const initGrdMain = defineGrid((data, view) => {
   view.setColumns(columns);
   view.rowIndicator.visible = true;
 
-  // TODO: W-SV-U-0169P01 - 이관입고 팝업 개발 진행 후 반영 예정
   view.onCellItemClicked = async (g, { column, dataRow }) => {
     console.log(gridUtil.getRowValue(g, dataRow));
     const {
@@ -233,11 +232,13 @@ const initGrdMain = defineGrid((data, view) => {
       strTpCd,
       itmStrNo,
       strWareNo,
-      wareNm,
+      strWareNm: wareNm,
       // itmPdNo,
       // itmPdNm,
       ostrWareNo,
       // ostrWareNm,
+      ostrSn,
+      strHopDt,
     } = gridUtil.getRowValue(g, dataRow);
     console.log(g, column, dataRow);
 
@@ -252,9 +253,10 @@ const initGrdMain = defineGrid((data, view) => {
         strWareNm: wareNm,
         ostrWareNo,
         ostrWareNm: '',
+        ostrSn,
         itmPdNo: '',
         itmPdNm: '',
-        strHopDt: '',
+        strHopDt,
         flagChk: 1,
       },
     });

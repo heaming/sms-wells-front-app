@@ -58,7 +58,7 @@
           dense
           secondary
           :label="$t('MSG_BTN_EXCEL_DOWN')"
-          :disable="totalCount.value === 0"
+          :disable="!isExcelDown"
           @click="onClickExcelDownload"
         />
         <kw-separator
@@ -107,6 +107,7 @@ import { cloneDeep } from 'lodash-es';
 const { t } = useI18n();
 const dataService = useDataService();
 const { currentRoute } = useRouter();
+const isExcelDown = ref(false);
 // const { modal } = useGlobal();
 
 // -------------------------------------------------------------------------------------------------
@@ -139,10 +140,14 @@ async function fetchData() {
   const response = await dataService.get('/sms/wells/fee/home-master-grades', { params: cachedParams });
   const hmstGds = response.data;
   totalCount.value = hmstGds.length;
+  if (totalCount.value > 0) {
+    isExcelDown.value = true;
+  } else {
+    isExcelDown.value = false;
+  }
 
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(hmstGds);
-  view.resetCurrent();
 }
 
 async function onClickSearch() {

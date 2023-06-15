@@ -73,17 +73,12 @@
           />
         </kw-form-item>
       </kw-form-row>
-    </kw-form>
-    <kw-separator />
-    <ul class="kw-notification">
-      <li>
-        <span class="kw-fc--primary">{{ t('MSG_TXT_FOR_EMPL_WORK_SALES_DEPA_CANN_REG_CLEA') }}</span>
-      </li>
-    </ul>
-    <kw-form
-      :cols="2"
-      class="mt20"
-    >
+      <kw-separator />
+      <ul class="kw-notification">
+        <li>
+          <span class="kw-fc--primary">{{ t('MSG_TXT_FOR_EMPL_WORK_SALES_DEPA_CANN_REG_CLEA') }}</span>
+        </li>
+      </ul>
       <kw-form-row>
         <kw-form-item
           :label="$t('MSG_TXT_CLINR_FNM')"
@@ -104,11 +99,12 @@
             :label="$t('MSG_TXT_RRNO')"
             rules="required"
             :regex="/^[0-9]*$/i"
-            :maxlength="8"
+            :maxlength="6"
           />
           <span>-</span>
           <kw-input
             v-model="saveParams.backRrnoEncr"
+            :label="$t('MSG_TXT_RRNO')"
             rules="required"
             :regex="/^[0-9]*$/i"
             :maxlength="7"
@@ -143,7 +139,8 @@
           required
         >
           <!--청소원고정금액-->
-          <p>{{ t('MSG_TXT_FXN_SAL') }}</p>
+
+          {{ t('MSG_TXT_FXN_SAL') }}
           <kw-input
             v-model="saveParams.clinrFxnAmt"
             class="ml8"
@@ -185,7 +182,7 @@
             v-model:add1="saveParams.basAdr"
             v-model:add2="saveParams.dtlAdr"
             :label="$t('MSG_TXT_RRGT_ADRR')"
-            rules="required"
+            required
           />
         </kw-form-item>
         <kw-form-item
@@ -200,7 +197,7 @@
             v-model:tel-no3="
               saveParams.idvTno"
             :label="$t('MSG_TXT_CONTACT')"
-            rules="required"
+            required
           />
         </kw-form-item>
       </kw-form-row>
@@ -214,7 +211,7 @@
             v-model="attachFiles1"
             :label="$t('MSG_TXT_IDF_CY_RGST')"
             attach-group-id="ATG_DCD_CLING_COST"
-            :attach-document-id="saveParams.clinrRgno"
+            :attach-document-id="saveParams.idfApnFileId"
             rules="required"
           />
         </kw-form-item>
@@ -247,7 +244,7 @@
             v-model="attachFiles2"
             :label="$t('MSG_TXT_BNKB_CY_RGST')"
             attach-group-id="ATG_DCD_CLING_COST"
-            :attach-document-id="saveParams.clinrRgno"
+            :attach-document-id="saveParams.bnkbApnFileId"
             rules="required"
           />
         </kw-form-item>
@@ -263,7 +260,7 @@
             v-model="attachFiles3"
             :label="$t('MSG_TXT_CNTRW_APN')"
             attach-group-id="ATG_DCD_CLING_COST"
-            :attach-document-id="saveParams.clinrRgno"
+            :attach-document-id="saveParams.cntrwApnFileId"
             rules="required"
           />
           <kw-btn
@@ -286,7 +283,7 @@
             v-model="attachFiles4"
             :label="$t('MSG_TXT_CNTR_RSG_ONE_APN')"
             attach-group-id="ATG_DCD_CLING_COST"
-            :attach-document-id="saveParams.clinrRgno"
+            :attach-document-id="saveParams.cntrLroreApnFileId"
             rules="required"
           />
           <kw-btn
@@ -312,16 +309,16 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService, useGlobal, useModal, codeUtil } from 'kw-lib';
+import { useDataService, useGlobal, useModal, codeUtil, getComponentType } from 'kw-lib';
 import ZwcmPostCode from '~common/components/ZwcmPostCode.vue';
+import { cloneDeep, isEmpty } from 'lodash-es';
+import dayjs from 'dayjs';
 import ZwcmTelephoneNumber from '~common/components/ZwcmTelephoneNumber.vue';
 import ZwcmFileAttacher from '~common/components/ZwcmFileAttacher.vue';
-import { cloneDeep, isEmpty } from 'lodash-es';
 
-import dayjs from 'dayjs';
+import useCmFile from '~common/composables/useCmFile';
 
-const { notify, confirm, modal } = useGlobal();
-const { getters } = useStore();
+const { notify, confirm } = useGlobal();
 const dataService = useDataService();
 
 const { ok } = useModal();
@@ -339,12 +336,12 @@ const isDisableAplcDt = ref(false);
 const isDisableBldCd = ref(false);
 const newReg = ref(false);
 const chReg = ref(false);
-const userInfo = getters['meta/getUserInfo'];
-const saveRef = ref();
+const store = useStore();
+// const saveRef = ref();
 const codes = await codeUtil.getMultiCodes(
   'BNK_CD', // 은행코드
 );
-
+const saveRef = ref(getComponentType('KwForm'));
 const props = defineProps({
   clinrRgno: {
     type: String,
@@ -364,7 +361,7 @@ const saveParams = ref({
   dsbAmt: '', // clinrFxnAmt - taxDdctam (실지급 금액)
   clinrNm: '', // 청소원 명
   wrkStrtdt: dayjs().format('YYYYMMDD'), // 근무시작일자
-  wrkEnddt: dayjs().format('YYYYMMDD'), // 근무종료일자
+  wrkEnddt: `${dayjs().format('YYYY')}1230`, // 근무종료일자
   frontRrnoEncr: '', // 앞 주민등록번호
   backRrnoEncr: '', // 뒤 주민번호
   rrnoEncr: '', // 주민번호 전체
@@ -381,17 +378,21 @@ const saveParams = ref({
   attachFiles3: [], // 계약서첨부파일
   attachFiles4: [], // 계약해지 첨부파일
   fnlMdfcDtm: '',
+  idfApnFileId: '', // 신분증첨부파일
+  bnkbApnFileId: '', // 통장사본 첨부파일
+  cntrwApnFileId: '', // 계약서첨부파일
+  cntrLroreApnFileId: '', // 계약해지 첨부파일
 });
 
-//  idfApnFileId: '', // 신분증첨부파일
-//  bnkbApnFileId: '', // 통장사본 첨부파일
-//  cntrwApnFileId: '', // 계약서첨부파일
-//  cntrLroreApnFileId: '', // 계약해지 첨부파일
+const { ogTpCd, careerLevelCode } = store.getters['meta/getUserInfo'];
 
 const buildingCodes = ref([]);
 async function buildingCode() {
-  const sessenParam = { ogTpCd: userInfo.ogTpCd, prtnrNo: userInfo.prtnrNo };
-  const res = await dataService.get('/sms/wells/closing/expense/cleaners/cleaners-reqeust-change/code', { params: sessenParam });
+  let sessionParams = {};
+  if (careerLevelCode === '2') { // 지역단장
+    sessionParams = { ogTpCd };
+  }
+  const res = await dataService.get('/sms/wells/closing/expense/cleaners/cleaners-reqeust-change/code', { params: sessionParams });
   buildingCodes.value = res.data;
 }
 
@@ -408,6 +409,8 @@ async function fetchData() {
     isDisableAplcDt.value = true;
     isDisableBldCd.value = true;
     newReg.value = true;
+
+    debugger;
   } else {
     saveParams.value.flag = '0';
     chReg.value = true;
@@ -433,24 +436,15 @@ async function onClickSave() {
   ok();
 }
 
+const { getStandardFormFile } = useCmFile();
 async function onClickContractDocumentFormat() {
   // FOM_CNTRW_APN
-  await modal({
-    component: 'ZwcmzStandardFormFileDownloadP', // Z-CD-U-0125
-    componentProps: {
-      configGroup: '',
-    },
-  });
+  getStandardFormFile('FOM_CNTRW_APN');
 }
 
 async function ContractDocumentResignFormat() {
   // FOM_CNTR_LRORE_APN
-  await modal({
-    component: 'ZwcmzStandardFormFileDownloadP', // Z-CD-U-0125
-    componentProps: {
-      configGroup: '',
-    },
-  });
+  getStandardFormFile('FOM_CNTR_LRORE_APN');
 }
 
 async function onBlurFixationAmount() {

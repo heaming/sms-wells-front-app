@@ -65,6 +65,7 @@
         <h4>{{ t('MSG_TXT_NOTAK_RCV_CST_NAME') }}</h4>
         <kw-input
           v-model.trim="inputParams.cstNm"
+          :regex="/^[A-Z가-힣ㄱ-ㅎ]*$/i"
           :label="t('MSG_TXT_NOTAK_RCV_CST_NAME')"
           :placeholder="t('MSG_TXT_INP')"
           grow
@@ -79,8 +80,8 @@
           v-model:tel-no2="inputParams.cralIdvTno"
           :label="$t('MSG_TXT_NOTAK_RCV_CST_NO')"
           mask="telephone"
+          rules="telephone|required"
           class="mt20"
-          :rules="'required|telephone'"
         />
         <!-- <kw-input
         v-model="inputParams.phone"
@@ -112,7 +113,8 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 
-import { useDataService, router, useGlobal } from 'kw-lib';
+// eslint-disable-next-line no-unused-vars
+import { useDataService, router, useGlobal, popupUtil } from 'kw-lib';
 // eslint-disable-next-line no-unused-vars
 import { isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
@@ -144,8 +146,8 @@ const inputParams = ref({
 
 const strDomain = window.location.host;
 
-const visitCocnMshCh = `${strDomain}/#/withdrawal/zmwda-auto-transfer-payment-change`;
-const elsgLdstcCh = `${strDomain}/#/withdrawal/zmwda-auto-transfer-payment-change`;
+const visitCocnMshCh = `${strDomain}/mobile/#/withdrawal/zmwda-auto-transfer-payment-change?vstYn=Y&chRqrDvCd=2&aftnThpChYn=N&clctamMngtYn=N&cntrChPrtnrNo=${userId}&akChdt=${akChdt}`;
+const elsgLdstcCh = `${strDomain}/mobile/#/withdrawal/zmwda-auto-transfer-payment-change?vstYn=N&chRqrDvCd=1&aftnThpChYn=N&clctamMngtYn=N&cntrChPrtnrNo=${userId}&akChdt=${akChdt}`;
 
 async function onClickUrlCopy(no) {
   if (no === 1) {
@@ -175,6 +177,7 @@ async function onClickChange() {
 async function onClickAlarmSend() {
   // chRqrDvCd 방문 : '2' (교원) / 원거리 : '1' (고객)
   if (!await formRef.value.validate()) { return; }
+  inputParams.value = { ...inputParams.value, url: elsgLdstcCh };
   await dataService.post('sms/common/withdrawal/bilfnt/auto-transfer-change/notification-talk-send', inputParams.value);
 
   notify(t('MSG_ALT_BIZTALK_SEND_SUCCESS'));
@@ -183,9 +186,9 @@ async function onClickAlarmSend() {
   // const query = {
   //   vstYn: 'N',
   //   chRqrDvCd: '1',
+  //   cntrChPrtnrNo: userId,
   //   aftnThpChYn: 'N',
   //   clctamMngtYn: 'N',
-  //   cntrChPrtnrNo: userId,
   //   akChdt,
   // };
   // const path = url.slice(url.indexOf('#') + 1);
@@ -193,6 +196,19 @@ async function onClickAlarmSend() {
   // await router.push({ path, query });
 }
 
+onMounted(async () => {
+  if (!window.opener) {
+    const path = '/mobile/#/withdrawal/wmwda-auto-transfer-change-mgt';
+    const size = {
+      width: 390,
+      height: 844,
+    };
+
+    await router.close(0, true);
+    await popupUtil.open(`${path}`, size, false);
+  }
+  formRef.value.reset();
+});
 </script>
 
 <style scoped lang="scss">

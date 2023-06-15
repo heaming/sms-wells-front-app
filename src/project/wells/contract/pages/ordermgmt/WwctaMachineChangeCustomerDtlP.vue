@@ -209,7 +209,6 @@ async function fetchData() {
   cachedParams = cloneDeep(searchParams.value);
 
   const res = await dataService.get('/sms/wells/contract/contracts/machine-changes', { params: { ...cachedParams } });
-  console.log(res.data);
 
   frmMainData.value.workFlag = res.data.workFlag;
   frmMainData.value.resultDvCheck = res.data.resultDvCheck;

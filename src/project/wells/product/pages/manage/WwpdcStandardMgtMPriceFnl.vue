@@ -13,26 +13,24 @@
 ****************************************************************************************************
 --->
 <template>
-  <div class="normal-area">
-    <!-- 최종가격 조정 -->
-    <h3>{{ $t('MSG_TXT_PD_FNL_PRC_ADJ') }}</h3>
-    <kw-action-top>
-      <kw-btn
-        v-show="!props.readonly"
-        :label="$t('MSG_BTN_DEL')"
-        grid-action
-        dense
-        :disable="gridRowCount === 0"
-        @click="onClickRemove"
-      />
-    </kw-action-top>
-    <kw-grid
-      ref="grdMainRef"
-      name="grdMgtPrcFnlMain"
-      :visible-rows="5"
-      @init="initGrid"
+  <!-- 최종가격 조정 -->
+  <h3>{{ $t('MSG_TXT_PD_FNL_PRC_ADJ') }}</h3>
+  <kw-action-top>
+    <kw-btn
+      v-show="!props.readonly"
+      :label="$t('MSG_BTN_DEL')"
+      grid-action
+      dense
+      :disable="gridRowCount === 0"
+      @click="onClickRemove"
     />
-  </div>
+  </kw-action-top>
+  <kw-grid
+    ref="grdMainRef"
+    name="grdMgtPrcFnlMain"
+    :visible-rows="5"
+    @init="initGrid"
+  />
 </template>
 <script setup>
 // -------------------------------------------------------------------------------------------------

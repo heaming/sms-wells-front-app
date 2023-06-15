@@ -268,14 +268,16 @@ const initGrdMain = defineGrid((data, view) => {
       },
       displayCallback: () => t('MSG_TXT_NOM_OSTR_RGST'),
     },
-    { fieldName: 'ostrOjWareNo', header: '', width: '0', styleName: 'text-left', visible: false },
-    { fieldName: 'ostrOjWareNm', header: '', width: '0', styleName: 'text-left', visible: false },
-    { fieldName: 'strOjWareNo', header: '', width: '0', styleName: 'text-left', visible: false },
-    // { fieldName: 'strOjWareNm', header: '', width: '0', styleName: 'text-left', visible: false },
-    { fieldName: 'itmPdCd', header: '', width: '0', styleName: 'text-left', visible: false },
   ];
 
-  const fields = columns.map((v) => ({ fieldName: v.fieldName }));
+  const gridField = columns.map((v) => ({ fieldName: v.fieldName }));
+  // const fields = columns.map((v) => ({ fieldName: v.fieldName }));
+  const fields = [...gridField,
+    { fieldName: 'ostrOjWareNo' },
+    { fieldName: 'ostrOjWareNm' },
+    { fieldName: 'strOjWareNo' },
+    { fieldName: 'ostrAkSn' },
+    { fieldName: 'itmPdCd' }];
 
   data.setFields(fields);
   view.setColumns(columns);
@@ -284,34 +286,23 @@ const initGrdMain = defineGrid((data, view) => {
   view.rowIndicator.visible = true;
   view.onCellItemClicked = async (g, { column, dataRow }, v) => {
     const {
-      ostrAkTpCd,
-      ostrOjWareNo,
-      strOjWareNo,
-      strHopDt,
       ostrAkNo,
-      ostrOjWareNm,
-      strOjWareNm,
-      itmPdCd,
+      ostrAkSn,
     } = gridUtil.getRowValue(g, dataRow);
     console.log(g, column, dataRow, v);
 
     if (column === 'rmkCn') {
-      const { result, payload } = await modal({
+      const { result } = await modal({
         component: 'WwsnaNormalOutOfStorageRgstListP',
         componentProps: {
-          ostrAkTpCd,
-          ostrOjWareNo,
-          strOjWareNo,
-          strHopDt,
           ostrAkNo,
-          ostrOjWareNm,
-          strOjWareNm,
-          itmPdCd,
+          ostrAkSn,
         },
       });
 
       if (result) {
-        console.log(payload[0]);
+        // console.log(payload[0]);
+        await fetchData();
       }
     }
   };

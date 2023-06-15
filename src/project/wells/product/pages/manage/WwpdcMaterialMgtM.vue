@@ -333,10 +333,21 @@ async function getSaveData(tempSaveYn) {
   return subList;
 }
 
-async function onClickStep() {
-  const stepName = currentStep.value?.name;
+// 화면이동
+async function moveStepByIndex(stepIndex) {
+  prevStepData.value = await getSaveData();
+  currentStep.value = cloneDeep(regSteps.value[stepIndex]);
+}
+
+// 화면이동 - 스텝명
+async function moveStepByName(stepName) {
   prevStepData.value = await getSaveData();
   currentStep.value = cloneDeep(regSteps.value.find((item) => item.name === stepName));
+}
+
+async function onClickStep() {
+  const stepName = currentStep.value?.name;
+  await moveStepByName(stepName);
 }
 
 async function init() {
@@ -398,7 +409,7 @@ async function onClickSave(tempSaveYn) {
   await Promise.all(cmpStepRefs.value.map(async (item, idx) => {
     if (!await item.value.validateProps()) {
       isValidOk = false;
-      currentStep.value = cloneDeep(regSteps.value[idx]);
+      await moveStepByIndex(idx);
     }
   }));
   if (!isValidOk) return;
@@ -429,21 +440,20 @@ async function onClickSave(tempSaveYn) {
 }
 
 async function onClickNextStep() {
+  const currentStepIndex = currentStep.value.step - 1;
   // Validation Check 1- 현재 Step 필수여부 확인
-  const isValidOk = await (cmpStepRefs.value[currentStep.value.step - 1].value.validateProps());
+  const isValidOk = await (cmpStepRefs.value[currentStepIndex].value.validateProps());
   if (!isValidOk) return false;
 
-  if (isEmpty(prevStepData.value)) prevStepData.value = {};
-  prevStepData.value = await getSaveData();
-  currentStep.value = cloneDeep(regSteps.value[(currentStep.value.step - 1) + 1]);
+  await moveStepByIndex(currentStepIndex + 1);
   passedStep.value = currentStep.value.step;
 }
 
 async function onClickPrevStep() {
   const currentStepIndex = currentStep.value.step - 1;
-  prevStepData.value = await getSaveData();
   const currentStepRef = await cmpStepRefs.value[currentStepIndex]?.value;
   // Child 페이지 내에서 이전 스텝이 없으면(false), 현재 페이지에서 이전으로 진행
+  prevStepData.value = await getSaveData();
   const isMovedInnerStep = currentStepRef?.movePrevStep ? await currentStepRef?.movePrevStep() : false;
   if (!isMovedInnerStep) {
     currentStep.value = cloneDeep(regSteps.value[currentStepIndex - 1]);

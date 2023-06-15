@@ -139,15 +139,15 @@ onMounted(async () => {
 // -------------------------------------------------------------------------------------------------
 const initGrid = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'cntrNo' },
-    { fieldName: 'cstKnm' },
-    { fieldName: 'canAkDt' },
-    { fieldName: 'canDt' },
-    { fieldName: 'mlgResAmt' },
-    { fieldName: 'dlvrYn' },
-    { fieldName: 'procsBsdt' },
-    { fieldName: 'trsDt' },
-    { fieldName: 'cnfmDt' },
+    { fieldName: 'cntrNo' }, // 계약번호
+    { fieldName: 'cstKnm' }, // 고객명
+    { fieldName: 'canAkDt' }, // 취소 요청일자
+    { fieldName: 'canDt' }, // 취소일자
+    { fieldName: 'mlgResAmt' }, // 잔여포인트
+    { fieldName: 'dlvrYn' }, // 전달여부
+    { fieldName: 'procsBsdt' }, // 처리기준일자
+    { fieldName: 'trsDt' }, // 전송일자
+    { fieldName: 'cnfmDt' }, // 확정일자
   ];
 
   const columns = [

@@ -27,7 +27,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService, useGlobal } from 'kw-lib';
+import { useDataService, useGlobal, gridUtil } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 
 const { t } = useI18n();
@@ -39,7 +39,14 @@ const props = defineProps({
     type: String,
     required: true,
   },
-
+  cntrNo: {
+    type: String,
+    required: true,
+  },
+  cntrSn: {
+    type: String,
+    required: true,
+  },
 });
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -47,7 +54,7 @@ const props = defineProps({
 let cachedParams;
 const searchParams = ref({
   schBaseYm: '',
-  schCstNo: props.cstNo,
+  schCstNo: '',
   schCntrNo: '',
   schCntrSn: '',
 });
@@ -55,15 +62,22 @@ const searchParams = ref({
 const grdMainRef = ref();
 
 async function fetchCounselHistory() {
+  searchParams.value.schCstNo = props.cstNo;
+  searchParams.value.schCntrNo = props.cntrNo;
+  searchParams.value.schCntrSn = props.cntrSn;
+
+  cachedParams = cloneDeep(searchParams.value);
+
   const response = await dataService.get('/sms/wells/bond/bond-counsel/counsel-history', { params: cachedParams });
   const historys = response.data;
   const gridView = grdMainRef.value.getView();
   gridView.getDataSource().setRows(historys);
 }
 
-onMounted(async () => {
-  cachedParams = cloneDeep(searchParams.value);
-  await fetchCounselHistory();
+watch(() => props.cstNo, async (newVal) => {
+  if (newVal) {
+    fetchCounselHistory();
+  }
 });
 
 // -------------------------------------------------------------------------------------------------
@@ -71,6 +85,7 @@ onMounted(async () => {
 // -------------------------------------------------------------------------------------------------
 function initGrdMain(data, view) {
   const fields = [
+    { fieldName: 'telCnslId' },
     { fieldName: 'inDt' },
     { fieldName: 'inIchr' },
     { fieldName: 'inIchrNm' },
@@ -80,15 +95,15 @@ function initGrdMain(data, view) {
     { fieldName: 'cnslCn' },
 
   ];
-
   const columns = [
-    { fieldName: 'inDt', header: t('MSG_TXT_IN_DT'), width: '200', styleName: 'text-center' },
-    { fieldName: 'inIchr', header: t('MSG_TXT_IN_ICHR'), width: '100', styleName: 'text-center' },
-    { fieldName: 'inIchrNm', header: t('MSG_TXT_IN_ICHR_NM'), width: '90', styleName: 'text-left' },
+    { fieldName: 'telCnslId', width: '200', styleName: 'text-center', visible: false },
+    { fieldName: 'inDt', header: t('MSG_TXT_IN_DTM'), width: '200', styleName: 'text-center' },
+    { fieldName: 'inIchr', header: t('MSG_TXT_RGST_ICHR_EPNO'), width: '100', styleName: 'text-center' },
+    { fieldName: 'inIchrNm', header: t('MSG_TXT_RGST_PSIC'), width: '90', styleName: 'text-center' },
     { fieldName: 'cnslPh', header: t('MSG_TXT_CNSL_PH'), width: '90', styleName: 'text-center' },
-    { fieldName: 'crncyRs', header: t('MSG_TXT_CRNCY_RS'), width: '110', styleName: 'text-left' },
-    { fieldName: 'dprNm', header: t('MSG_TXT_DPR_NM'), width: '120' },
-    { fieldName: 'cnslCn', header: t('MSG_TXT_CNSL_CN'), styleName: 'text-cenleftter' },
+    { fieldName: 'crncyRs', header: t('MSG_TXT_CRNCY_RS'), width: '110', styleName: 'text-center' },
+    { fieldName: 'dprNm', header: t('MSG_TXT_DPR_NM'), width: '120', styleName: 'text-center' },
+    { fieldName: 'cnslCn', header: t('MSG_TXT_CNSL_CN'), styleName: 'text-center' },
 
   ];
 
@@ -96,12 +111,16 @@ function initGrdMain(data, view) {
   view.setColumns(columns);
   view.rowIndicator.visible = true;
 
-  view.onCellDblClicked = async (g, { dataRow }) => {
-    const inDt = g.getValue(dataRow, 'inDt');
-    await modal({
-      component: 'ZwbncCounselDtlP',
-      componentProps: { inDt },
-    });
+  view.onCellDblClicked = async (g, clickData) => {
+    if (clickData.cellType === 'data') {
+      const { telCnslId } = gridUtil.getRowValue(g, clickData.itemIndex);
+      if (telCnslId) {
+        await modal({
+          component: 'ZwbncCounselDtlP',
+          componentProps: { telCnslId },
+        });
+      }
+    }
   };
 }
 </script>

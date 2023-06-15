@@ -27,6 +27,8 @@
         >
           <kw-select
             v-model="searchParams.pdGr"
+            first-option="all"
+            :first-option-label="$t('MSG_TXT_ALL')"
             :options="codes.PD_GRP_CD"
           />
         </kw-search-item>
@@ -36,6 +38,8 @@
         >
           <kw-select
             v-model="searchParams.pdCd"
+            first-option="all"
+            :first-option-label="$t('MSG_TXT_ALL')"
             :options="pdNm"
           />
           <kw-field
@@ -160,7 +164,7 @@ const pdNm = ref([]);
 /* 조회조건 */
 const searchParams = ref({
   pdCd: '', /* 상품코드 */
-  pdGr: '1',
+  pdGr: '',
   apyMtrChk: 'N',
 });
 
@@ -179,12 +183,12 @@ async function onChangePdGr() {
 watch(() => searchParams.value.pdGr, async (val) => {
   if (val === '') {
     pdNm.value = [];
+    searchParams.value.pdCd = '';
   }
   await onChangePdGr();
 });
 
 let cachedParams;
-
 async function fetchData() {
   const res = await dataService.get('/sms/wells/service/installation-separation-costs/paging', { params: { ...cachedParams, ...pageInfo.value } });
   const { list: installSeperationCsMgt, pageInfo: pagingResult } = res.data;
@@ -275,7 +279,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'sepIstCsDtlCd' },
     { fieldName: 'apyStrtdt' },
     { fieldName: 'apyEnddt' },
-    { fieldName: 'wkCsAmt' },
+    { fieldName: 'wkCsAmt', dataType: 'number' },
     { fieldName: 'recapSvYn' },
     { fieldName: 'rmkCn' },
     { fieldName: 'izSn' },
@@ -341,12 +345,14 @@ const initGrdMain = defineGrid((data, view) => {
       editor: { type: 'btdate' },
       styleName: 'text-center',
       rules: 'required',
+      datetimeFormat: 'date',
     }, // 적용시작일
     { fieldName: 'apyEnddt',
       header: t('MSG_TXT_APY_END_DAY'),
       width: '150',
       styleName: 'text-center',
       editable: false,
+      datetimeFormat: 'date',
     }, // 적용종료일
     {
       fieldName: 'wkCsAmt',
@@ -361,6 +367,7 @@ const initGrdMain = defineGrid((data, view) => {
       },
       styleName: 'text-right',
       rules: 'required',
+      numberFormat: '#,##0',
     }, // 단가(원)
     {
       fieldName: 'recapSvYn',

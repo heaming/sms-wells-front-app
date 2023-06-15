@@ -79,7 +79,7 @@ onMounted(async () => {
 const initGrid = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'sepIstCsDtlNm', header: t('MSG_TXT_TYPE'), width: '160', styleName: 'text-center' },
-    { fieldName: 'vstFshDt', header: t('MSG_TXT_PRCSDT'), width: '235', styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'vstFshDtHh', header: t('MSG_TXT_PRCSDT'), width: '235', styleName: 'text-center', datetimeFormat: 'datetime' },
     { fieldName: 'asCausNm', header: t('MSG_TXT_PROCS_CN'), width: '160', styleName: 'text-left' },
     { fieldName: 'bilOjAmt', header: t('MSG_TXT_SV_CS'), width: '160', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
     { fieldName: 'dpSumAmt', header: t('MSG_TXT_DP'), width: '160', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },

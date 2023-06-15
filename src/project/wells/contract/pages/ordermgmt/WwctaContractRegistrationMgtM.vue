@@ -26,6 +26,9 @@
                 :is="step.panel"
                 :ref="(el) => panelsRefs[step.name] = el"
                 :contract="contract"
+                :on-child-mounted="onChildMounted"
+                @restipulation="eventStipulation"
+                @membership="eventMembership"
               />
             </kw-step-panel>
           </kw-stepper>
@@ -82,22 +85,52 @@
                       </kw-item-label>
                     </kw-item-section>
                   </template>
-                  <div class="like-vertical-stepper__step-content">
-                    <ul class="card-text">
-                      <li>
-                        <p>계약유형</p>
-                        <span>{{ step1?.bas?.cntrTpNm }}</span>
-                      </li>
-                      <li>
-                        <p>계약자</p>
-                        <span>{{ step1?.cntrt?.cstKnm }}</span>
-                      </li>
-                      <li>
-                        <p>학습자</p>
-                        <span>{{ step1?.lrnr?.cstKnm }}</span>
-                      </li>
-                    </ul>
-                  </div>
+                  <template
+                    v-if="index === 0 && Object.keys(contract.step1 || {}).length !== 0"
+                  >
+                    <div class="like-vertical-stepper__step-content">
+                      <ul class="card-text">
+                        <li>
+                          <p>계약유형</p>
+                          <span>{{ smr.cntrTpNm }}</span>
+                        </li>
+                        <li>
+                          <p>계약자</p>
+                          <span>{{ smr.cntrtKnm }}</span>
+                        </li>
+                      </ul>
+                    </div>
+                  </template>
+                  <template
+                    v-else-if="index === 1 && Object.keys(contract.step2 || {}).length !== 0"
+                  >
+                    <div class="like-vertical-stepper__step-content">
+                      <ul class="card-text">
+                        <li
+                          v-for="(pd, i) in smr.products"
+                          :key="i"
+                        >
+                          <p>{{ pd.pdNm }}</p>
+                        </li>
+                      </ul>
+                    </div>
+                  </template>
+                  <template
+                    v-else-if="index === 2 && Object.keys(contract.step3 || {}).length !== 0"
+                  >
+                    <div class="like-vertical-stepper__step-content">
+                      <ul class="card-text">
+                        <li>
+                          <p>결제유형</p>
+                          <span>{{ smr.stlmTpNm }}</span>
+                        </li>
+                        <li>
+                          <p>결제방법</p>
+                          <span>{{ smr.stlmMthNm }}</span>
+                        </li>
+                      </ul>
+                    </div>
+                  </template>
                 </kw-expansion-item>
               </kw-list>
               <div class="contract-summary">
@@ -107,7 +140,9 @@
                       <p>
                         상품금액
                       </p>
-                      <span>0 원</span>
+                      <span>
+                        {{ smr.pdAmt }}
+                      </span>
                     </li>
                   </ul>
                   <kw-separator class="my16" />
@@ -123,12 +158,15 @@
           </kw-scroll-area>
         </div>
       </div>
-      <div class="button-set--bottom">
+      <div
+        v-if="!isReadOnly"
+        class="button-set--bottom"
+      >
         <div class="button-set--bottom-left">
           <kw-btn
             v-if="currentStepIndex > 0"
             :label="$t('MSG_BTN_PREV')"
-            @click="previous"
+            @click="onClickPrevious"
           />
         </div>
         <div class="button-set--bottom-right">
@@ -136,55 +174,55 @@
             <kw-btn
               :label="$t('MSG_BTN_TEMP_SAVE')"
               class="ml8"
-              @click="onClickStep1TempSave"
+              @click="onClickTempSave"
             />
             <kw-btn
               v-if="currentStepIndex === 0"
               :label="$t('MSG_BTN_NEXT')"
               class="ml8"
               primary
-              @click="onClickStep1Next"
+              @click="onClickNext"
             />
           </template>
           <template v-if="currentStepIndex === 1">
             <kw-btn
               :label="$t('MSG_BTN_TEMP_SAVE')"
               class="ml8"
-              @click="onClickStep2TempSave"
+              @click="onClickTempSave"
             />
             <kw-btn
               v-if="currentStepIndex === 1"
               :label="$t('상품확정')"
               class="ml8"
               primary
-              @click="onClickStep2Next"
+              @click="onClickNext"
             />
           </template>
           <template v-if="currentStepIndex === 2">
             <kw-btn
               :label="$t('MSG_BTN_TEMP_SAVE')"
               class="ml8"
-              @click="onClickStep3TempSave"
+              @click="onClickTempSave"
             />
             <kw-btn
               :label="$t('MSG_BTN_NEXT')"
               class="ml8"
               primary
-              @click="onClickStep3Next"
+              @click="onClickNext"
             />
           </template>
           <template v-if="currentStepIndex === 3">
             <kw-btn
               :label="$t('MSG_BTN_TEMP_SAVE')"
               class="ml8"
-              @click="onClickStep4TempSave"
+              @click="onClickTempSave"
             />
             <kw-btn
               v-if="currentStepIndex === 3"
               :label="$t('작성완료')"
               class="ml8"
               primary
-              @click="onClickStep4Next"
+              @click="onClickNext"
             />
           </template>
         </div>
@@ -197,7 +235,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useGlobal } from 'kw-lib';
+import { codeUtil, stringUtil, useDataService, useGlobal } from 'kw-lib';
 import WwctaContractRegistrationMgtMStep1 from './WwctaContractRegistrationMgtMStep1.vue';
 import WwctaContractRegistrationMgtMStep2 from './WwctaContractRegistrationMgtMStep2.vue';
 import WwctaContractRegistrationMgtMStep3 from './WwctaContractRegistrationMgtMStep3.vue';
@@ -205,6 +243,7 @@ import WwctaContractRegistrationMgtMStep4 from './WwctaContractRegistrationMgtMS
 
 const { t } = useI18n();
 const { alert } = useGlobal();
+const dataService = useDataService();
 const router = useRouter();
 const sideStepRefs = reactive({});
 const panelsRefs = reactive({});
@@ -217,111 +256,153 @@ const steps = shallowReactive([
 const currentStepName = ref('step1');
 const currentStep = computed(() => steps.find((step) => step.name === currentStepName.value));
 const currentStepIndex = computed(() => steps.findIndex((step) => step.name === currentStepName.value));
+// 계약 현황 목록에서 진입한 경우
+const props = defineProps({
+  cntrNo: { type: String, required: true },
+  cntrPrgsStatCd: { type: String, required: true },
+});
+const codes = await codeUtil.getMultiCodes(
+  'CNTR_TP_CD',
+  'STLM_TP_CD',
+);
+codes.DP_TP_CD = [
+  { codeId: '0201', codeName: '카드' },
+  { codeId: '0101', codeName: '가상계좌' },
+  { codeId: '0203', codeName: '카드자동이체' },
+];
 const contract = ref({
   cntrNo: '',
-  selectedProduct: [],
-  cntrCstNo: '',
-  pdInfo: [],
-  step1: {
-    bas: {
-      cntrNo: '',
-    },
-  },
+  step1: {},
   step2: {},
   step3: {},
   step4: {},
 });
-
+const smr = ref({
+  cntrTpNm: computed(() => codes.CNTR_TP_CD.find((c) => c.codeId === contract.value.step1.bas?.cntrTpCd)?.codeName),
+  cntrtKnm: computed(() => contract.value.step1.cntrt?.cstKnm),
+  products: computed(() => contract.value.step2.dtls),
+  stlmTpNm: computed(() => codes.STLM_TP_CD.find((c) => c.codeId === contract.value.step3.stlmTpCd)?.codeName),
+  stlmMthNm: computed(() => codes.DP_TP_CD.find((c) => c.codeId === contract.value.step3.cntramDpTpCd)?.codeName),
+  pdAmt: computed(() => stringUtil.getNumberWithComma(
+    Number(contract.value.step2.dtls?.reduce((acc, cur) => Number(acc) + Number(cur.fnlAmt), 0)) || 0,
+  )),
+});
+const isReadOnly = ref(false);
+const stepsStatus = reactive([false, false, false, false]);
 watch(currentStepName, (value) => {
-  console.log(`${currentStepName.value}, value: ${value}`);
+  console.log(value);
   // sideStepRefs[value].show();
 });
-
-function next() {
-  currentStep.value.done = true;
-  if (currentStepIndex.value === steps.length - 1) { return; }
-  const nextStep = steps[currentStepIndex.value + 1];
-  currentStepName.value = nextStep.name;
-  // sideStepRefs[nextStep.name].show(); /* 명시적으로 열어주는 것도 좋을 듯 합니다. */
+// -------------------------------------------------------------------------------------------------
+// Function & Event
+// -------------------------------------------------------------------------------------------------
+function onChildMounted(step) {
+  // 하위화면 로딩완료 여부 확인, defineExpose 시점문제로 delay 1 할당
+  setTimeout(() => {
+    stepsStatus[step - 1] = true;
+  }, 1);
+}
+function showStep(step) {
+  [0, 1, 2].forEach((n) => {
+    if (n < step - 1) {
+      steps[n].done = true;
+    } else {
+      return false;
+    }
+  });
+  currentStepName.value = `step${step}`;
+}
+async function getCntrInfo(step, cntrNo, getExistCntr) {
+  if (step === 2) {
+    // step2일 때 상품 조회
+    await panelsRefs[currentStepName.value].getProducts(cntrNo);
+  }
+  await panelsRefs[currentStepName.value].getCntrInfo(cntrNo, getExistCntr);
 }
 
-async function previous() {
+async function getExistedCntr() {
+  const { cntrNo, cntrPrgsStatCd } = props;
+  if (!cntrNo || !cntrPrgsStatCd) return;
+  isReadOnly.value = props.cntrPrgsStatCd > 20;
+  const step = {
+    10: 1,
+    12: 2,
+    14: 3,
+  }[props.cntrPrgsStatCd] || 4;
+  showStep(step);
+  // 기존계약 조회하는 경우에는 summary 따로 조회 필요
+  const smrs = await dataService.get('sms/wells/contract/contracts/summaries', { params: { cntrNo } });
+  // contract.value = smrs.data;
+  if (step >= 1) contract.value.step1 = smrs.data.step1;
+  if (step >= 2) contract.value.step2 = smrs.data.step2;
+  if (step >= 3) contract.value.step3 = smrs.data.step3;
+  if (step >= 4) contract.value.step4 = smrs.data.step4;
+  await getCntrInfo(step, cntrNo, true);
+}
+
+async function onClickPrevious() {
   if (currentStepIndex.value === 0) { return; }
-  await panelsRefs[steps[currentStepIndex.value - 1].name].getCntrInfo?.(contract.value.cntrNo);
   const previousStep = steps[currentStepIndex.value - 1];
+  // contract.value[currentStepName.value] = {};
   currentStepName.value = previousStep.name;
+  await getCntrInfo(currentStepIndex.value + 1, contract.value.cntrNo);
 }
 
-async function onClickStep1TempSave() {
-  if (await panelsRefs[currentStepName.value].isChangedStep?.()) {
-    if (await panelsRefs[currentStepName.value].isValidStep?.()) {
-      await panelsRefs[currentStepName.value].saveStep?.();
+async function onClickTempSave() {
+  if (await panelsRefs[currentStepName.value].isChangedStep()) {
+    if (await panelsRefs[currentStepName.value].isValidStep()) {
+      await panelsRefs[currentStepName.value].saveStep();
     }
   } else {
     await alert(t('MSG_ALT_NO_CHG_CNTN'));
   }
 }
-async function onClickStep2TempSave() {
-  if (await panelsRefs[currentStepName.value].isChangedStep?.()) {
-    await panelsRefs[currentStepName.value].saveStep?.();
-  } else {
-    await alert(t('MSG_ALT_NO_CHG_CNTN'));
-  }
-}
-async function onClickStep3TempSave() {
-  if (await panelsRefs[currentStepName.value].isChangedStep?.()) {
-    await panelsRefs[currentStepName.value].saveStep?.();
-  } else {
-    await alert(t('MSG_ALT_NO_CHG_CNTN'));
-  }
-}
-async function onClickStep4TempSave() {
-  if (await panelsRefs[currentStepName.value].isChangedStep?.()) {
-    await panelsRefs[currentStepName.value].saveStep?.();
-  } else {
-    await alert(t('MSG_ALT_NO_CHG_CNTN'));
-  }
-}
-async function onClickStep1Next() {
-  let { cntrNo } = contract.value.step1.bas;
-  if (await panelsRefs[currentStepName.value].isChangedStep?.()) {
-    if (await panelsRefs[currentStepName.value].isValidStep?.()) {
-      cntrNo = await panelsRefs[currentStepName.value].saveStep?.();
+
+async function onClickNext() {
+  let { cntrNo } = contract.value;
+  const nextStep = currentStepIndex.value + 2;
+  if (await panelsRefs[currentStepName.value].isChangedStep()) {
+    if (await panelsRefs[currentStepName.value].isValidStep()) {
+      cntrNo = await panelsRefs[currentStepName.value].saveStep();
     } else {
       return;
     }
   }
-  next();
-  await panelsRefs[currentStepName.value].getCntrInfo?.(cntrNo);
-  await panelsRefs[currentStepName.value].getProducts?.(cntrNo);
-}
-async function onClickStep2Next() {
-  const { cntrNo } = contract.value.step2.bas;
-  if (await panelsRefs[currentStepName.value].isChangedStep?.()) {
-    if (await panelsRefs[currentStepName.value].isValidStep?.()) {
-      await panelsRefs[currentStepName.value].saveStep?.();
-    } else {
-      return;
-    }
+  if (nextStep > 4) {
+    // step4에서 '다음'은 계약 현황 목록으로 화면 이동
+    await router.close(0, true);
+    await router.push({ path: '/contract/wwcta-contract-status-list' });
+  } else {
+    currentStep.value.done = true;
+    if (currentStepIndex.value === steps.length - 1) { return; }
+    const nextStepObj = steps[currentStepIndex.value + 1];
+    currentStepName.value = nextStepObj.name;
+    // sideStepRefs[nextStep.name].show(); /* 명시적으로 열어주는 것도 좋을 듯 합니다. */
+    await getCntrInfo(nextStep, cntrNo);
   }
-  next();
-  await panelsRefs[currentStepName.value].getCntrInfo?.(cntrNo);
 }
-async function onClickStep3Next() {
-  const { cntrNo } = contract.value.step3.bas;
-  if (panelsRefs[currentStepName.value].isChangedStep?.()) {
-    await panelsRefs[currentStepName.value].saveStep?.();
+
+async function eventStipulation(cntrNo, cntrSn) {
+  // 재약정계약
+  console.log(cntrNo);
+  const previousStep = steps[3];
+  currentStepName.value = previousStep.name;
+  await panelsRefs[currentStepName.value].setRestipulation(true, cntrSn);
+  console.log(currentStepName.value);
+
+  await getCntrInfo(3, cntrNo);
+}
+
+async function eventMembership() {
+  // 멤버십계약
+}
+
+watch(stepsStatus, () => {
+  // child 화면까지 완료되면 onMounted의 역할을 할 함수 수행
+  if (stepsStatus.every((s) => s)) {
+    getExistedCntr();
   }
-  next();
-  await panelsRefs[currentStepName.value].getCntrInfo?.(cntrNo);
-}
-async function onClickStep4Next() {
-  if (panelsRefs[currentStepName.value].isChangedStep?.()) {
-    await panelsRefs[currentStepName.value].saveStep?.();
-  }
-  // 계약 현황 목록으로 화면 이동
-  await router.push({ path: '/contract/wwcta-contract-status-list' });
-}
+});
 </script>
 
 <style lang="scss" scoped>

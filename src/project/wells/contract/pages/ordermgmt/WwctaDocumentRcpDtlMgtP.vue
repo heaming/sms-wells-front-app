@@ -712,7 +712,8 @@ const frmMainData = ref({
   cntrChDocSeq: '', // 첨부파일종류 문서순번
   cntrChTpCd: '', // 계약변경유형코드
 
-  nmchgIdfCyFileNm: '166730259072721428.jpg', // (개명신청)신분증사본 파일명
+  // nmchgIdfCyFileNm: '166730259072721428.jpg', // (개명신청)신분증사본 파일명
+  nmchgIdfCyFileNm: '', // (개명신청)신분증사본 파일명
   nmchgIdfCyRealFpath: '', // (개명신청)신분증사본 파일실제경로
   nmchgIdfCyFnlMdfcDtm: '', // (개명신청)신분증사본 파일최종등록일시
   nmchgIdfCyFileUid: '', // (개명신청)신분증사본 파일UID

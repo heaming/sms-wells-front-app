@@ -70,7 +70,7 @@ const dataService = useDataService();
 const { t } = useI18n();
 const { notify } = useGlobal();
 const optionList = ref([{
-  codeId: '50',
+  codeId: '55',
   codeName: t('MSG_TXT_CST_CH_RQST') }, // 고객변경 요청
 {
   codeId: '60',
@@ -91,7 +91,7 @@ const { ok, cancel } = useModal();
 let cachedParams;
 const searchParams = ref({
   cntrChRcpId: props.cntrChRcpId, // 접수번호
-  cntrChPrgsStatCd: '50', // 기타종료코드(계약변경진행상태코드)
+  cntrChPrgsStatCd: '55', // 기타종료코드(계약변경진행상태코드)
   cstKnm: props.cstKnm, // 고객명
   cralLocaraTno: props.cralLocaraTno, // 휴대지역전화번호
   mexnoEncr: props.mexnoEncr, // 휴대전화국번호암호화
@@ -111,7 +111,7 @@ async function fetchData() {
   // console.log(res.data);
 
   if (res.data >= 1) {
-    if (searchParams.value.cntrChPrgsStatCd === '50') {
+    if (searchParams.value.cntrChPrgsStatCd === '55') {
       cntrChPrgsStatNm = optionList.value[0].codeName;
     } else if (searchParams.value.cntrChPrgsStatCd === '60') {
       cntrChPrgsStatNm = optionList.value[1].codeName;

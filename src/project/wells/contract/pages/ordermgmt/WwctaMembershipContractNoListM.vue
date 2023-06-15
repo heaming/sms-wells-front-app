@@ -208,9 +208,11 @@ const initGridMembershipContractNoList = defineGrid((data, view) => {
     { fieldName: 'cntrDtlNo' }, // 계약상세번호
     { fieldName: 'ordrInfoView' }, // 주문정보 보기
     { fieldName: 'cntrSn' }, // 순번
+    { fieldName: 'sellTpCd' }, // 판매유형코드
+    { fieldName: 'copnDvCd' }, // 고객구분코드(1:개인, 2:법인)
     { fieldName: 'cstKnm' }, // 계약자명
     { fieldName: 'rcgvpKnm' }, // 설치자명
-    { fieldName: 'ojSellTpNm' }, // 계약구분
+    { fieldName: 'sellTpDtlNm' }, // 계약구분
     { fieldName: 'mshDvNm' }, // 멤버십구분
     { fieldName: 'pdClsfNm' }, // 상품분류
     { fieldName: 'pdCd' }, // 상품코드
@@ -224,7 +226,8 @@ const initGridMembershipContractNoList = defineGrid((data, view) => {
     { fieldName: 'pdLclsfNm' }, // 상품구분1
     { fieldName: 'pdDclsfNm' }, // 상품구분2
     { fieldName: 'cntrDtlStatNm' }, // 멤버십상태
-    { fieldName: 'dscApyTpCdNm' }, // 회비자료구분
+    { fieldName: 'dscApyTpNm' }, // 할인적용유형명
+    { fieldName: 'dscApyDtlNm' }, // 할인적용상세명
     { fieldName: 'feeAckmtCt' }, // 인정건수
     { fieldName: 'ackmtPerfAmt', dataType: 'number' }, // 인정금액
     { fieldName: 'cntrCtrAmt', dataType: 'number' }, // 할인금액
@@ -236,7 +239,7 @@ const initGridMembershipContractNoList = defineGrid((data, view) => {
     { fieldName: 'cntrRcpFshDt' }, // 접수일
     { fieldName: 'cntrCnfmYn' }, // 확정여부
     { fieldName: 'cntrCnfmDt' }, // 확정일
-    { fieldName: 'cntrTempSaveDt' }, // 가입일
+    { fieldName: 'cntrPdStrtdt' }, // 가입일
     { fieldName: 'hcrDuedt' }, // 홈케어예정일
     { fieldName: 'istDt' }, // 설치일
     { fieldName: 'dutyExnDtFrisu' }, // 의무만료일(무상)
@@ -299,7 +302,7 @@ const initGridMembershipContractNoList = defineGrid((data, view) => {
     { fieldName: 'cntrSn', header: t('MSG_TXT_CNTR_SN'), width: '138', styleName: 'text-center' }, // 순번
     { fieldName: 'cstKnm', header: t('MSG_TXT_CNTOR_NM'), width: '138', styleName: 'text-center' }, // 계약자명
     { fieldName: 'rcgvpKnm', header: t('MSG_TXT_IST_NM'), width: '138', styleName: 'text-center' }, // 설치자명
-    { fieldName: 'ojSellTpNm', header: t('MSG_TXT_CNTR_DV'), width: '138' }, // 계약구분
+    { fieldName: 'sellTpDtlNm', header: t('MSG_TXT_CNTR_DV'), width: '138' }, // 계약구분
     { fieldName: 'mshDvNm', header: t('MSG_TXT_MSH_DV'), width: '138' }, // 멤버십구분
     { fieldName: 'pdClsfNm', header: t('MSG_TXT_PRDT_CATE'), width: '138' }, // 상품분류
     { fieldName: 'pdCd', header: t('MSG_TXT_PRDT_CODE'), width: '138', styleName: 'text-center' }, // 상품코드
@@ -313,9 +316,9 @@ const initGridMembershipContractNoList = defineGrid((data, view) => {
     { fieldName: 'pdLclsfNm', header: t('MSG_TXT_PRDT_GUBUN') + 1, width: '138' }, // 상품구분1
     { fieldName: 'pdDclsfNm', header: t('MSG_TXT_PRDT_GUBUN') + 2, width: '138' }, // 상품구분2
     { fieldName: 'cntrDtlStatNm', header: t('MSG_TXT_MSH_STAT'), width: '138', styleName: 'text-center' }, // 멤버십상태
-    { fieldName: 'dscApyTpCdNm', header: `${t('MSG_TXT_SSPCS')}/${t('MSG_TXT_MTR_DV')}`, width: '138' }, // 회비자료구분
+    { fieldName: 'dscApyTpNm', header: `${t('MSG_TXT_SSPCS')}/${t('MSG_TXT_MTR_DV')}`, width: '138' }, // 할인적용유형명
     { fieldName: 'feeAckmtCt', header: t('MSG_TXT_PD_ACC_CNT'), width: '138', styleName: 'text-right' }, // 인정건수
-    { fieldName: 'ackmtPerfAmt', header: t('TXT_MSG_ACKMT_AMT'), width: '138', styleName: 'text-right' }, // 인정금액
+    { fieldName: 'ackmtPerfAmt', header: t('MSG_TXT_RECOG_AMT'), width: '138', styleName: 'text-right' }, // 인정금액
     { fieldName: 'cntrCtrAmt', header: t('MSG_TXT_DSC_AMT'), width: '138', styleName: 'text-right' }, // 할인금액
     { fieldName: 'stlmTpNm', header: t('MSG_TXT_PY_DV'), width: '138' }, // 납입구분
     { fieldName: 'prmPtrmMcn', header: t('MSG_TXT_PRM_DV'), width: '138' }, // 선납구분
@@ -325,7 +328,7 @@ const initGridMembershipContractNoList = defineGrid((data, view) => {
     { fieldName: 'cntrRcpFshDt', header: t('MSG_TXT_RCP_D'), width: '138', styleName: 'text-center', datetimeFormat: 'date' }, // 접수일
     { fieldName: 'cntrCnfmYn', header: t('MSG_TXT_DTRM_YN'), width: '136', styleName: 'text-center' }, // 확정여부
     { fieldName: 'cntrCnfmDt', header: t('MSG_TXT_DTRM_DATE'), width: '136', styleName: 'text-center', datetimeFormat: 'date' }, // 확정일
-    { fieldName: 'cntrTempSaveDt', header: t('MSG_TXT_SUBS_DT'), width: '136', styleName: 'text-center', datetimeFormat: 'date' }, // 가입일
+    { fieldName: 'cntrPdStrtdt', header: t('MSG_TXT_SUBS_DT'), width: '136', styleName: 'text-center', datetimeFormat: 'date' }, // 가입일
     { fieldName: 'hcrDuedt', header: t('MSG_TXT_HCR_DUEDT'), width: '136', styleName: 'text-center', datetimeFormat: 'date' }, // 홈케어예정일
     { fieldName: 'istDt', header: t('MSG_TXT_INST_DT'), width: '136', styleName: 'text-center', datetimeFormat: 'date' }, // 설치일
     { fieldName: 'dutyExnDtFrisu', header: t('MSG_TXT_MAND_EXP_DT_FRISU'), width: '136', styleName: 'text-center', datetimeFormat: 'date' }, // 의무만료일(무상)
@@ -333,7 +336,7 @@ const initGridMembershipContractNoList = defineGrid((data, view) => {
     { fieldName: 'cntrPdEnddt', header: t('MSG_TXT_WTDR_DT'), width: '136', styleName: 'text-center', datetimeFormat: 'date' }, // 탈퇴일
     { fieldName: 'canDt', header: t('MSG_TXT_CAN_D'), width: '136', styleName: 'text-center', datetimeFormat: 'date' }, // 취소일
     { fieldName: 'vstDuedt', header: t('MSG_TXT_VISIT_DATE'), width: '136', styleName: 'text-center', datetimeFormat: 'date' }, // 방문일
-    { fieldName: 'cttFshDt', header: t('MSG_TXT_CTT_DT'), width: '136', styleName: 'text-center' }, // 컨택일
+    { fieldName: 'cttFshDt', header: t('MSG_TXT_CTT_DT'), width: '136', styleName: 'text-center', datetimeFormat: 'date' }, // 컨택일
     { fieldName: 'cntrCanRsonCd', header: t('MSG_TXT_WTDR_TP_CD'), width: '136', styleName: 'text-center' }, // 탈퇴유형코드
     { fieldName: 'cntrCanRsonNm', header: t('MSG_TXT_WTDR_TP_NM'), width: '136', styleName: 'text-center' }, // 탈퇴유형명
     { fieldName: 'hcrOstrDvNm', header: t('MSG_TXT_OSTR_DV'), width: '136', styleName: 'text-center' }, // 홈케어출고구분
@@ -359,7 +362,10 @@ const initGridMembershipContractNoList = defineGrid((data, view) => {
       styleName: 'text-center',
       displayCallback(grid, index) {
         const { cntrCralLocaraTno: no1, cntrMexnoEncr: no2, cntrCralIdvTno: no3 } = grid.getValues(index.itemIndex);
-        return !isEmpty(no1) && !isEmpty(no2) && !isEmpty(no3) ? `${no1}-${no2}-${no3}` : '';
+        if (!isEmpty(no1) && isEmpty(no2) && !isEmpty(no3)) {
+          return `${no1}--${no3}`;
+        }
+        return isEmpty(no1) && isEmpty(no2) && isEmpty(no3) ? '' : `${no1}-${no2}-${no3}`;
       },
     }, // 계약자 휴대폰번호
     { fieldName: 'adrZip', header: `${t('MSG_TXT_CNTRT')}${t('MSG_TXT_ZIP')}`, width: '136', styleName: 'text-center' }, // 계약자우편번호
@@ -403,9 +409,12 @@ const initGridMembershipContractNoList = defineGrid((data, view) => {
     const paramCntrDtlNo = gridUtil.getCellValue(g, dataRow, 'cntrDtlNo');
     const paramCntrNo = String(paramCntrDtlNo).split('-')[0];
     const paramCntrSn = String(paramCntrDtlNo).split('-')[1];
+    const { sellTpCd } = g.getValues(dataRow);
+    const { cntrCstNo } = g.getValues(dataRow);
+    const { copnDvCd } = g.getValues(dataRow);
 
     if (['cntrDtlNo'].includes(column)) { // 계약상세(윈도우팝업)
-      await modal({ component: 'WwctaOrderDetailP', componentProps: { cntrNo: paramCntrNo, cntrSn: paramCntrSn } });
+      await modal({ component: 'WwctaOrderDetailP', componentProps: { cntrNo: paramCntrNo, cntrSn: paramCntrSn, sellTpCd, cntrCstNo, copnDvCd } });
     } else if (['ordrInfoView'].includes(column)) { // 멤버쉽 주문정보 상세
       await modal({ component: 'WwctaOrderMembershipDtlP', componentProps: { cntrNo: paramCntrNo, cntrSn: paramCntrSn } });
     }

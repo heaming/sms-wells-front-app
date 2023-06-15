@@ -33,7 +33,7 @@
         <kw-btn
           :label="t('MSG_BTN_CH')"
           class="ml8"
-          @click="onClickChange(1)"
+          @click="onClickChange()"
         />
       </kw-field-wrap>
     </div>
@@ -52,11 +52,11 @@
           class="ml8"
           @click="onClickUrlCopy(2)"
         />
-        <kw-btn
+        <!-- <kw-btn
           :label="t('MSG_BTN_CH')"
           class="ml8"
           @click="onClickChange(2)"
-        />
+        /> -->
       </kw-field-wrap>
 
       <kw-separator />
@@ -68,9 +68,11 @@
         <kw-form-row>
           <kw-form-item
             :label="t('MSG_TXT_NOTAK_RCV_CST_NAME')"
+            required
           >
             <kw-input
               v-model="inputParams.cstNm"
+              :regex="/^[A-Z가-힣ㄱ-ㅎ]*$/i"
               :label="t('MSG_TXT_NOTAK_RCV_CST_NAME')"
               maxlength="15"
               :placeholder="t('MSG_TXT_INP')"
@@ -79,6 +81,7 @@
           </kw-form-item>
           <kw-form-item
             :label="t('MSG_TXT_NOTAK_RCV_CST_NO')"
+            required
           >
             <kw-input
               v-model:tel-no0="inputParams.cralLocaraTno"
@@ -116,7 +119,7 @@
 // -------------------------------------------------------------------------------------------------
 
 // eslint-disable-next-line no-unused-vars
-import { useDataService, modal, router, useGlobal } from 'kw-lib';
+import { useDataService, modal, router, useGlobal, popupUtil } from 'kw-lib';
 // eslint-disable-next-line no-unused-vars
 import { isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
@@ -147,8 +150,8 @@ const akChdt = now.format('YYYYMMDD');
 
 const strDomain = window.location.host;
 
-const visitCocnMshCh = `${strDomain}/#/withdrawal/ztwda-auto-transfer-payment-change`; // 방문
-const elsgLdstcCh = `${strDomain}/#/withdrawal/ztwda-auto-transfer-payment-change`; // 원거리 차이가 없음
+const visitCocnMshCh = `${strDomain}/tablet/#/withdrawal/ztwda-auto-transfer-payment-change?vstYn=Y&chRqrDvCd=2&aftnThpChYn=N&clctamMngtYn=N&cntrChPrtnrNo=${userId}&akChdt=${akChdt}`; // 방문
+const elsgLdstcCh = `${strDomain}/tablet/#/withdrawal/ztwda-auto-transfer-payment-change?vstYn=N&chRqrDvCd=1&aftnThpChYn=N&clctamMngtYn=N&cntrChPrtnrNo=${userId}&akChdt=${akChdt}`; // 원거리
 
 async function onClickUrlCopy(no) {
   if (no === 1) {
@@ -159,16 +162,16 @@ async function onClickUrlCopy(no) {
   notify(t('MSG_ALT_COPY_DATA'));
 }
 
-async function onClickChange(no) {
+async function onClickChange() {
   const query = {
-    vstYn: no === 1 ? 'Y' : 'N',
-    chRqrDvCd: no === 1 ? '2' : '1',
+    vstYn: 'Y',
+    chRqrDvCd: '2',
     aftnThpChYn: 'N',
     clctamMngtYn: 'N',
     cntrChPrtnrNo: userId,
     akChdt,
   };
-  const url = no === 1 ? visitCocnMshCh : elsgLdstcCh;
+  const url = visitCocnMshCh;
 
   const path = url.slice(url.indexOf('#') + 1);
 
@@ -179,16 +182,17 @@ async function onClickChange(no) {
 async function onClickAlarmSend() {
   // chRqrDvCd 방문 : '2' (교원) / 원거리 : '1' (고객)
   if (!await formRef.value.validate()) { return; }
+  inputParams.value = { ...inputParams.value, url: elsgLdstcCh };
   await dataService.post('sms/common/withdrawal/bilfnt/auto-transfer-change/notification-talk-send', inputParams.value);
 
   notify(t('MSG_ALT_BIZTALK_SEND_SUCCESS'));
 
   // const query = {
   //   vstYn: 'N',
-  //   chRqrDvCd: '10',
+  //   chRqrDvCd: '1',
+  //   cntrChPrtnrNo: userId,
   //   aftnThpChYn: 'N',
   //   clctamMngtYn: 'N',
-  //   cntrChPrtnrNo: userId,
   //   akChdt,
   // };
   // const url = elsgLdstcCh;
@@ -196,5 +200,18 @@ async function onClickAlarmSend() {
   // const path = url.slice(url.indexOf('#') + 1);
   // await router.push({ path, query });
 }
+
+onMounted(async () => {
+  if (!window.opener) {
+    const path = '/tablet/#/withdrawal/wtwda-auto-transfer-change-mgt';
+    const size = {
+      width: 1138,
+      height: 712,
+    };
+    await router.close(0, true);
+    await popupUtil.open(`${path}`, size, false);
+  }
+  formRef.value.reset();
+});
 
 </script>

@@ -184,7 +184,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { codeUtil, defineGrid, getComponentType, gridUtil, useDataService, useGlobal, useMeta } from 'kw-lib';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, isEmpty } from 'lodash-es';
 import useSnCode from '~sms-wells/service/composables/useSnCode';
 import dayjs from 'dayjs';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
@@ -272,7 +272,7 @@ async function onClickExcelDownload() {
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
-    exportData: res.data.list,
+    exportData: res.data,
   });
 }
 
@@ -345,7 +345,14 @@ function setPersonInChargeCellData(view, row, value, column) {
     view.setValue(row, `${column[1]}`, ogNm);
     view.setValue(row, `${column[2]}`, value);
     view.setValue(row, `${column[3]}`, prtnrNm);
+  } else {
+    view.setValue(row, `${column[0]}`, '');
+    view.setValue(row, `${column[1]}`, '');
+    view.setValue(row, `${column[2]}`, '');
+    view.setValue(row, `${column[3]}`, '');
+    notify(t('MSG_ALT_EQ_EGER_NTHNG'));
   }
+  view.commit();
 }
 
 // 적용일자 일괄입력
@@ -358,9 +365,10 @@ async function onClickApplyDateBulkApply() {
   const checkedRows = gridUtil.getCheckedRowValues(view);
 
   for (let i = 0; i < checkedRows.length; i += 1) {
-    view.setValue(checkedRows[i].dataRow, 'apyStrtdt', baseInfo.value.applyDateFrom);
-    view.setValue(checkedRows[i].dataRow, 'apyEnddt', baseInfo.value.applyDateTo);
+    view.setValue(view.getItemIndex(checkedRows[i].dataRow), 'apyStrtdt', baseInfo.value.applyDateFrom);
+    view.setValue(view.getItemIndex(checkedRows[i].dataRow), 'apyEnddt', baseInfo.value.applyDateTo);
   }
+  view.commit();
 }
 
 async function onClickSave() {
@@ -371,11 +379,7 @@ async function onClickSave() {
 
   if (!await gridUtil.alertIfIsNotModified(view)) {
     const changedRows = gridUtil.getChangedRowValues(view);
-
-    const isNotMatched = changedRows.find((v) => {
-      const matchedEngineer = engineers.find((x) => x.prtnrNo === v.ichrPrtnrNo);
-      return matchedEngineer === null;
-    });
+    const isNotMatched = changedRows.find((v) => isEmpty(v.ichrPrtnrNo));
 
     if (isNotMatched) {
       notify(t('MSG_TXT_RPB_EMPNO_CONF'));
@@ -560,12 +564,12 @@ const initGrdMain = defineGrid((data, view) => {
       const matchedIndex = index.column.search(regExp);
 
       if (matchedIndex === 0) { // 책임담당사번
-        setPersonInChargeCellData(grid, index.dataRow, editResult.value, ['ogTpCd', 'ogNm', 'ichrPrtnrNo', 'prtnrKnm']);
+        setPersonInChargeCellData(grid, index.itemIndex, editResult.value, ['ogTpCd', 'ogNm', 'ichrPrtnrNo', 'prtnrKnm']);
       } else if (matchedIndex > 0) { // 예비담당사번
         const columnSlices = index.column.split(regExp);
         const column = ['pprnIchrPrtnrOgTpCd', `ogNm${columnSlices[1]}`, `pprnIchrPrtnrNo4${columnSlices[1]}`, `pprnIchrPrtnrKnm${columnSlices[1]}`];
 
-        setPersonInChargeCellData(grid, index.dataRow, editResult.value, column);
+        setPersonInChargeCellData(grid, index.itemIndex, editResult.value, column);
       }
     }
   };

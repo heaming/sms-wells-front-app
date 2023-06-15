@@ -57,12 +57,16 @@
           <kw-input
             v-model="searchParams.fromGrpNo"
             :name="t('MSG_TXT_GRP_NO')"
+            mask="#####"
+            maxlength="5"
             rules="required"
           />
           <span>~</span>
           <kw-input
             v-model="searchParams.toGrpNo"
             :name="t('MSG_TXT_GRP_NO')"
+            mask="#####"
+            maxlength="5"
             rules="required"
           />
         </kw-form-item>

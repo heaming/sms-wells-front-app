@@ -94,7 +94,7 @@
     <div class="result-area">
       <kw-action-top>
         <template #left>
-          <span class="ml8">({{ $t('MSG_TXT_UNIT_COLON_WON') }})</span>
+          <span class="ml8">{{ $t('MSG_TXT_UNIT_COLON_WON') }}</span>
         </template>
         <kw-separator
           vertical
@@ -209,11 +209,9 @@ async function fetchData(uri) {
   if (isSelectVisile.value) {
     const managerView = grd1MainRef.value.getView();
     managerView.getDataSource().setRows(fees);
-    managerView.resetCurrent();
   } else if (isSelectVisile2.value) {
     const homeMasterView = grd2MainRef.value.getView();
     homeMasterView.getDataSource().setRows(fees);
-    homeMasterView.resetCurrent();
   }
 }
 

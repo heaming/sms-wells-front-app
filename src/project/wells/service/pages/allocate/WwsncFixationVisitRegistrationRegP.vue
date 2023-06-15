@@ -3,7 +3,7 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : SNC
-2. 프로그램 ID : WwsncFixationVisitRegistrationRegP - 고정방문 등록
+2. 프로그램 ID : [W-SV-U-0162P01] WwsncFixationVisitRegistrationRegP - 고정방문 등록
 3. 작성자 : juno.cha
 4. 작성일 : 2022.12.13
 ****************************************************************************************************
@@ -163,9 +163,7 @@
       </kw-form-row>
       <kw-form-row>
         <kw-form-item :label="$t('변경등록일자')">
-          <kw-date-picker
-            v-model="contractInfo.fnlMdfcDtm"
-          />
+          <p>{{ stringUtil.getDateFormat(contractInfo.fnlMdfcDtm) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('지정대상')">
           <kw-select
@@ -276,6 +274,7 @@ const contractSaveInfo = ref({
   chMngrDvCd: '',
   fnlMdfcDtm: '',
   fxnPrtnrDvCd: '',
+  fxnPrtnrOgTpCd: '',
   fxnPrtnrNo: '',
   fxnPrtnrKnm: '',
   chRsonCn: '',
@@ -387,6 +386,7 @@ async function onFxnPrtnrNoSearchPopup() {
   if (isChanged) {
     contractInfo.value.fxnPrtnrNo = payload[0].prtnrNo;
     contractInfo.value.fxnPrtnrKnm = payload[0].prtnrKnm;
+    contractInfo.value.fxnPrtnrOgTpCd = payload[0].ogTpCd;
   }
 }
 
@@ -448,6 +448,8 @@ async function onClickSearchContract() {
     // 기존담당
     // 담당자
     contractInfo.value.prtnrKnm = '';
+    contractInfo.value.fxnPrtnrNo = '';
+    contractInfo.value.fxnPrtnrOgTpCd = '';
     // 활동중지일
     contractInfo.value.cltnDt = '';
 

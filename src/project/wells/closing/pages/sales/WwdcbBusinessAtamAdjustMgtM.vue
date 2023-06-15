@@ -320,7 +320,7 @@ const initGrdTotal = defineGrid((data, view) => {
         numberFormat: '#,##0',
         expression: 'sum',
       } },
-    { fieldName: 'slBndBlam',
+    { fieldName: 'ucAmt',
       header: t('MSG_TXT_ALRPY_AFT_BND_BLAM'),
       width: '150',
       styleName: 'text-right',
@@ -345,7 +345,7 @@ const initGrdTotal = defineGrid((data, view) => {
   view.columnByName('sellTpCd').setHeaderSummaries({ text: t('MSG_TXT_SUM'), styleName: 'text-center' });
   view.columnByName('slBndAlrpyAmt').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
   view.columnByName('dpBlam').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
-  view.columnByName('slBndBlam').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
+  view.columnByName('ucAmt').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
 
   view.layoutByColumn('sellTpCd').summaryUserSpans = [{ colspan: 5 }];
 
@@ -391,7 +391,7 @@ const initGrdDetail = defineGrid((data, view) => {
     { fieldName: 'slRcogDt', header: t('MSG_TXT_BND_OC_DT'), width: '120', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'slBndOcAmt', header: t('MSG_TXT_BND_OC_AMT'), width: '120', styleName: 'text-right', dataType: 'number' },
     { fieldName: 'sapSlSlpno', header: t('MSG_TXT_SL_SLIP_NO'), width: '120', styleName: 'text-center' },
-    { fieldName: 'slBndBlam',
+    { fieldName: 'ucAmt',
       header: t('MSG_TXT_ALRPY_AFT_BND_BLAM'),
       width: '150',
       styleName: 'text-right',
@@ -417,7 +417,7 @@ const initGrdDetail = defineGrid((data, view) => {
   view.columnByName('sellTpCd').setHeaderSummaries({ text: t('MSG_TXT_SUM'), styleName: 'text-center' });
   view.columnByName('slBndAlrpyAmt').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
   view.columnByName('dpBlam').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
-  view.columnByName('slBndBlam').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
+  view.columnByName('ucAmt').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
 
   view.layoutByColumn('sellTpCd').summaryUserSpans = [{ colspan: 8 }];
   view.checkBar.visible = true;

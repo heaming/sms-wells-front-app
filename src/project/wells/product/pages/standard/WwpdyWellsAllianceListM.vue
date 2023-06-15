@@ -69,8 +69,8 @@
         <!-- 적용기간 -->
         <kw-search-item :label="$t('MSG_TXT_ACEPT_PERIOD')">
           <kw-date-range-picker
-            v-model:from="searchParams.svcStartDt"
-            v-model:to="searchParams.svcEndDt"
+            v-model:from="searchParams.apyStrtdt"
+            v-model:to="searchParams.apyEnddt"
           />
           <!-- rules="date_range_months:1" -->
         </kw-search-item>
@@ -156,7 +156,7 @@ import dayjs from 'dayjs';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import pdConst from '~sms-common/product/constants/pdConst';
 import ZwpdProductClassificationSelect from '~sms-common/product/pages/standard/components/ZwpdProductClassificationSelect.vue';
-import { setGridDateFromTo } from '~sms-common/product/utils/pdUtil';
+import { getCodeNames, getAlreadyItems, setGridDateFromTo } from '~sms-common/product/utils/pdUtil';
 
 const { notify, modal } = useGlobal();
 const router = useRouter();
@@ -180,8 +180,8 @@ const searchParams = ref({
   pdCd: '',
   prdtCateHigh: '',
   prdtCateMid: '',
-  svcStartDt: '',
-  svcEndDt: now.format('YYYYMMDD'),
+  apyStrtdt: '',
+  apyEnddt: '',
 });
 
 const pageInfo = ref({
@@ -190,7 +190,16 @@ const pageInfo = ref({
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
 });
 
-const codes = await codeUtil.getMultiCodes('ALNCMP_CD', 'SELL_TP_CD', 'RENTAL_DSC_TP_CD', 'OG_TP_CD', 'COD_PAGE_SIZE_OPTIONS');
+const codes = await codeUtil.getMultiCodes(
+  'ALNCMP_CD',
+  'SELL_TP_CD',
+  'STPL_PRD_CD',
+  'RENTAL_DSC_DV_CD',
+  'RENTAL_DSC_TP_CD',
+  'RENTAL_CRP_DSCR_CD',
+  'OG_TP_CD',
+  'COD_PAGE_SIZE_OPTIONS',
+);
 
 async function fetchData() {
   const res = await dataService.get('/sms/wells/product/alliances/paging', { params: { ...cachedParams, ...pageInfo.value } });
@@ -208,7 +217,7 @@ async function onClickSearchPdCdPopup() {
     selectType: pdConst.PD_SEARCH_SINGLE,
   };
   const rtn = await modal({
-    component: 'ZwpdcServiceListP',
+    component: 'ZwpdcStandardListP',
     componentProps: searchPopupParams,
   });
   searchParams.value.pdCd = rtn.payload?.[0]?.pdCd;
@@ -237,14 +246,66 @@ async function onClickRemoveRows() {
 async function onClickAdd() {
   const view = grdMainRef.value.getView();
   await gridUtil.insertRowAndFocus(view, 0, {
+    apyStrtdt: now.format('YYYYMMDD'),
     apyEnddt: '99991231',
   });
+}
+
+async function checkDuplication() {
+  const view = grdMainRef.value.getView();
+  const changedRows = gridUtil.getChangedRowValues(view);
+  const alreadyItems = getAlreadyItems(view, changedRows, 'pdCd', 'svPdCd', 'stplPrdCd');
+  if (alreadyItems.length > 1) {
+    // {상품명/서비스명/약정개월}이(가) 중복됩니다.
+    const dupItem = `${alreadyItems[0].pdNm}/${alreadyItems[0].svPdNm}/${getCodeNames(codes, alreadyItems[0].stplPrdCd, 'STPL_PRD_CD')}`;
+    notify(t('MSG_ALT_DUP_NCELL', [dupItem]));
+    return true;
+  }
+
+  const createdRows = gridUtil.getCreatedRowValues(view);
+  if (createdRows.length === 0) {
+    return false;
+  }
+
+  const { data: dupData } = await dataService.post('/sms/wells/product/alliances/duplication-check', createdRows);
+  if (dupData.data) {
+    const dupCodes = dupData.data.split(',', -1);
+    const { pdNm, svPdNm, stplPrdCd } = createdRows.find((item) => item.pdCd === dupCodes[0]
+        && item.svPdCd === dupCodes[1]
+        && item.stplPrdCd === dupCodes[2]);
+    const dupItem = `${pdNm}/${svPdNm}/${getCodeNames(codes, stplPrdCd, 'STPL_PRD_CD')}`;
+    // 은(는) 이미 DB에 등록되어 있습니다.
+    notify(t('MSG_ALT_EXIST_IN_DB', [dupItem]));
+    return true;
+  }
+  return false;
+}
+
+async function checkValidation() {
+  const view = grdMainRef.value.getView();
+  const changedRows = gridUtil.getChangedRowValues(view);
+  if (changedRows.length === 0) {
+    return true;
+  }
+  const { data: issueData } = await dataService.post('/sms/wells/product/alliances/validation-check', changedRows);
+  if (issueData.data) {
+    const issueItem = issueData.data.split(',', -1);
+    const { pdNm, svPdNm, stplPrdCd } = changedRows.find((item) => item.pdCd === issueItem[0]
+        && item.svPdCd === issueItem[1]
+        && item.stplPrdCd === issueItem[2]);
+    // {상품명}의 {서비스명}, {약정개월}은 존재하지 않습니다.
+    notify(t('MSG_ALT_PDPRC_NOT_EXISTED', [pdNm, svPdNm, getCodeNames(codes, stplPrdCd, 'STPL_PRD_CD')]));
+    return false;
+  }
+  return true;
 }
 
 async function onClickSave() {
   const view = grdMainRef.value.getView();
   if (await gridUtil.alertIfIsNotModified(view)) { return; } // 수정된 행 없음
   if (!await gridUtil.validate(view)) { return; } // 유효성 검사
+  if (await checkDuplication()) { return; } // 중복 검사
+  if (!await checkValidation()) { return; } // 유효 가격 검사
 
   const changedRows = gridUtil.getChangedRowValues(view);
   await dataService.post('/sms/wells/product/alliances', { bases: changedRows });
@@ -307,7 +368,7 @@ const initGrdMain = defineGrid((data, view) => {
       fieldName: 'pdNm',
       header: t('MSG_TXT_PRDT_NM'),
       width: '207',
-      styleName: 'text-left',
+      styleName: 'text-left rg-button-icon--search',
       button: 'action',
       editor: { maxLength: 100 },
       rules: 'required',
@@ -318,52 +379,69 @@ const initGrdMain = defineGrid((data, view) => {
       width: '160',
       styleName: 'text-center',
       editable: false,
-      rules: 'required',
     },
     // 서비스명
     {
       fieldName: 'svPdNm',
       header: t('MSG_TXT_SVC_NAME'),
       width: '207',
-      styleName: 'text-left',
+      styleName: 'text-left rg-button-icon--search',
       button: 'action',
       editor: { maxLength: 100 },
-      rules: 'required',
     },
-    // 할인유형
-    {
-      fieldName: 'rentalDscTpCd',
-      header: t('MSG_TXT_DISC_CODE'),
+    // 약정개월
+    { fieldName: 'stplPrdCd',
+      header: t('MSG_TXT_STPL_MCNT'),
       width: '110',
-      styleName: 'text-left',
+      styleName: 'text-center',
+      editor: { type: 'list' },
+      options: codes.STPL_PRD_CD,
+    },
+    // 렌탈할인구분
+    { fieldName: 'rentalDscDvCd',
+      header: t('TXT_MSG_RENTAL_DSC_DV_CD'),
+      width: '110',
+      styleName: 'text-center',
+      editor: { type: 'list' },
+      rules: 'required',
+      options: codes.RENTAL_DSC_DV_CD,
+    },
+    // 렌탈할인유형
+    { fieldName: 'rentalDscTpCd',
+      header: t('MSG_TXT_RENTAL_DSC_TP_CD'),
+      width: '110',
+      styleName: 'text-center',
       editor: { type: 'list' },
       rules: 'required',
       options: codes.RENTAL_DSC_TP_CD,
     },
-    // 약정기간
-    {
-      fieldName: 'svcDurtion',
-      header: t('MSG_TXT_CONTRACT_PERI'),
-      width: '220',
-      styleName: 'text-right',
-      editable: false,
+    // 렌탈법인할인율
+    { fieldName: 'rentalCrpDscrCd',
+      header: t('MSG_TXT_RENTAL_CRP_DSC_RT_CD'),
+      width: '110',
+      styleName: 'text-center',
+      editor: { type: 'list' },
+      rules: 'required',
+      options: codes.RENTAL_CRP_DSCR_CD,
     },
-    // 시작일
+    // 적용시작일
     {
       fieldName: 'apyStrtdt',
-      header: t('MSG_TXT_START_DATE'),
+      header: t('MSG_TXT_APY_STRT_DAY'),
       width: '133',
       editor: { type: 'date' },
       dataType: 'date',
+      rules: 'required',
       styleName: 'text-center',
     },
-    // 종료일
+    // 적용종료일
     {
       fieldName: 'apyEnddt',
-      header: t('MSG_TXT_END_DATE'),
+      header: t('MSG_TXT_APY_END_DAY'),
       width: '129',
       editor: { type: 'date' },
       dataType: 'date',
+      rules: 'required',
       styleName: 'text-center',
     },
     // 판매조직
@@ -377,6 +455,7 @@ const initGrdMain = defineGrid((data, view) => {
       firstOptionValue: '',
       firstOptionLabel: '',
       placeHolder: '',
+      rules: 'required',
       options: codes.OG_TP_CD,
     },
     // 등록일
@@ -407,7 +486,6 @@ const initGrdMain = defineGrid((data, view) => {
     }
     if (grid.getColumn(fieldIndex).fieldName === 'svPdNm' && isEmpty(grid.getValue(itemIndex, 'svPdNm'))) {
       data.setValue(itemIndex, 'svPdCd', null);
-      data.setValue(itemIndex, 'svcDurtion', null);
     }
   };
 
@@ -435,7 +513,6 @@ const initGrdMain = defineGrid((data, view) => {
         console.log('row : ', row);
         data.setValue(itemIndex, 'svPdNm', row.pdNm);
         data.setValue(itemIndex, 'svPdCd', row.pdCd);
-        data.setValue(itemIndex, 'svcDurtion', row.svcDurtion);
       }
     }
   };

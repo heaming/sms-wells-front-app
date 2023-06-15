@@ -20,23 +20,28 @@
         <!-- 상품분류 -->
         <kw-search-item
           :label="$t('MSG_TXT_PRDT_CATE')"
+          :colspan="2"
         >
           <zwpd-product-classification-select
-            ref="classfySelRef"
             v-model:product1-level="searchParams.prdtCateHigh"
             v-model:product2-level="searchParams.prdtCateMid"
-            :pd-tp-cd="pdConst.PD_TP_CD_SERVICE"
-            search-lvl="2"
+            v-model:product3-level="searchParams.prdtCateLow"
+            v-model:product4-level="searchParams.prdtCateLowDtl"
+            v-model:pd-tp-cd="searchParams.pdTpCd"
+            :search-lvl="prdtCateLevel"
             first-option="all"
+            :is-show-keyword="false"
           />
         </kw-search-item>
-        <!-- 상품명 -->
-        <kw-search-item :label="$t('MSG_TXT_PRDT_NM')">
-          <kw-input
-            v-model="searchParams.pdNm"
-            maxlength="100"
+        <!-- 적용기간 -->
+        <kw-search-item :label="$t('MSG_TXT_ACEPT_PERIOD')">
+          <kw-date-range-picker
+            v-model:from="searchParams.svcStartDt"
+            v-model:to="searchParams.svcEndDt"
           />
         </kw-search-item>
+      </kw-search-row>
+      <kw-search-row>
         <!-- 상품코드 -->
         <kw-search-item :label="$t('MSG_TXT_PRDT_CODE')">
           <kw-input
@@ -47,15 +52,12 @@
             @click-icon="onClickSearchPdCdPopup()"
           />
         </kw-search-item>
-      </kw-search-row>
-      <kw-search-row>
-        <!-- 적용기간 -->
-        <kw-search-item :label="$t('MSG_TXT_ACEPT_PERIOD')">
-          <kw-date-range-picker
-            v-model:from="searchParams.svcStartDt"
-            v-model:to="searchParams.svcEndDt"
+        <!-- 상품명 -->
+        <kw-search-item :label="$t('MSG_TXT_PRDT_NM')">
+          <kw-input
+            v-model="searchParams.pdNm"
+            maxlength="100"
           />
-          <!-- rules="date_range_months:1" -->
         </kw-search-item>
       </kw-search-row>
     </kw-search>
@@ -139,7 +141,7 @@ import dayjs from 'dayjs';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import pdConst from '~sms-common/product/constants/pdConst';
 import ZwpdProductClassificationSelect from '~sms-common/product/pages/standard/components/ZwpdProductClassificationSelect.vue';
-import { setGridDateFromTo } from '~sms-common/product/utils/pdUtil';
+import { setGridDateFromTo, getAlreadyItems } from '~sms-common/product/utils/pdUtil';
 
 const { notify, modal } = useGlobal();
 const router = useRouter();
@@ -152,18 +154,20 @@ const { getConfig } = useMeta();
 // -------------------------------------------------------------------------------------------------
 const now = dayjs();
 const grdMainRef = ref(getComponentType('KwGrid'));
-const classfySelRef = ref();
 const currentSearchYn = ref();
 
 let cachedParams;
 const searchParams = ref({
   prdtCateHigh: '',
   prdtCateMid: '',
+  prdtCateLow: '',
+  prdtCateLowDtl: '',
   pdNm: '',
   pdCd: '',
   svcStartDt: '',
-  svcEndDt: now.format('YYYYMMDD'),
+  svcEndDt: '',
 });
+const searchedProduct = ref();
 
 const pageInfo = ref({
   totalCount: 0,
@@ -189,10 +193,11 @@ async function onClickSearchPdCdPopup() {
     selectType: pdConst.PD_SEARCH_SINGLE,
   };
   const rtn = await modal({
-    component: 'ZwpdcServiceListP',
+    component: 'ZwpdcStandardListP',
     componentProps: searchPopupParams,
   });
   searchParams.value.pdCd = rtn.payload?.[0]?.pdCd;
+  searchedProduct.value = rtn.payload?.[0];
 }
 
 async function onClickSearch() {
@@ -217,15 +222,41 @@ async function onClickRemoveRows() {
 
 async function onClickAdd() {
   const view = grdMainRef.value.getView();
+  if (searchedProduct.value?.pdCd && searchedProduct.value.pdCd !== searchParams.value.pdCd) {
+    searchedProduct.value = null;
+  }
   await gridUtil.insertRowAndFocus(view, 0, {
-    vlEndDtm: '9999-12-31',
+    pdCd: searchedProduct.value?.pdCd,
+    pdNm: searchedProduct.value?.pdNm,
+    vlStrtDtm: now.format('YYYYMMDD'),
+    vlEndDtm: '99991231',
   });
+}
+
+async function checkDuplication() {
+  const view = grdMainRef.value.getView();
+  const createdRows = gridUtil.getCreatedRowValues(view);
+
+  if (createdRows.length === 0) {
+    return false;
+  }
+
+  const { data: dupData } = await dataService.post('/sms/wells/product/cancel-charges/duplication-check', createdRows);
+  if (dupData.data) {
+    const dupCodes = dupData.data.split(',', -1);
+    const { pdNm } = createdRows.find((item) => item.pdCd === dupCodes[0]);
+    // 은(는) 이미 DB에 등록되어 있습니다.
+    notify(t('MSG_ALT_EXIST_IN_DB', [pdNm]));
+    return true;
+  }
+  return false;
 }
 
 async function onClickSave() {
   const view = grdMainRef.value.getView();
   if (await gridUtil.alertIfIsNotModified(view)) { return; } // 수정된 행 없음
   if (!await gridUtil.validate(view)) { return; } // 유효성 검사
+  if (await checkDuplication()) { return; } // 중복 검사
 
   const changedRows = gridUtil.getChangedRowValues(view);
   await dataService.post('/sms/wells/product/cancel-charges', { bases: changedRows });
@@ -267,7 +298,7 @@ const initGrdMain = defineGrid((data, view) => {
       fieldName: 'pdNm',
       header: t('MSG_TXT_PRDT_NM'),
       width: '203',
-      styleName: 'text-left',
+      styleName: 'text-left rg-button-icon--search',
       button: 'action',
       rules: 'required',
       editor: { maxLength: 100 },
@@ -369,11 +400,17 @@ const initGrdMain = defineGrid((data, view) => {
     if (column === 'pdNm') {
       const svPdNm = grid.getValue(itemIndex, 'pdNm');
       const { payload } = await modal({
-        component: 'ZwpdcServiceListP',
+        component: 'ZwpdcStandardListP',
         componentProps: { searchType: pdConst.PD_SEARCH_NAME, searchValue: svPdNm },
       });
       if (payload) {
         const row = Array.isArray(payload) ? payload[0] : payload;
+        const alreadyItems = getAlreadyItems(view, [row], 'pdCd');
+        if (alreadyItems.length) {
+          // 이미 등록된 {상품} 입니다.
+          notify(t('MSG_ALT_ALREADY_RGST', [t('MSG_TXT_PRDT')]));
+          return;
+        }
         data.setValue(itemIndex, 'pdNm', row.pdNm);
         data.setValue(itemIndex, 'pdCd', row.pdCd);
       }

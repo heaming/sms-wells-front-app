@@ -30,23 +30,25 @@
       @search="onClickSearch"
     >
       <kw-search-row>
-        <kw-search-item>
-          <!-- required -->
-          <!-- rules="required" -->
-          <!-- label="고객명"             -->
+        <kw-search-item
+          rules="required"
+          :label="t('MSG_TXT_CST_NM')"
+        >
           <kw-input
             v-model="searchParams.cstFnm"
             :label="t('MSG_TXT_CST_NM')"
             icon="search"
+            rules="required|max:16"
             @click-icon="onClickSearchUser"
           />
         </kw-search-item>
-        <kw-search-item>
+        <kw-search-item
+          :label="t('MSG_TIT_DRAT_DT')"
+        >
           <kw-date-picker
             v-model="searchParams.bildcWrteDt"
             :label="t('MSG_TIT_DRAT_DT')"
           />
-          <!-- label="작성일" -->
         </kw-search-item>
       </kw-search-row>
     </kw-search>
@@ -98,20 +100,19 @@
                   <kw-form-item
                     :label="t('MSG_TXT_CST_NM')"
                   >
-                    >
                     <p>{{ item.cstFnm }}</p>
                   </kw-form-item>
                   <!-- label="작성일자" -->
                   <kw-form-item
                     :label="t('MSG_TXT_WRTE_DT')"
                   >
-                    <p>{{ item.bildcWrteDt }}</p>
+                    <p>{{ stringUtil.getDateFormat(item.bildcWrteDt) }}</p>
                   </kw-form-item>
                   <!-- label="발송일자" -->
                   <kw-form-item
                     :label="t('MSG_TXT_FW_DT')"
                   >
-                    <p>{{ item.bildcFwDtm }}</p>
+                    <p>{{ stringUtil.getDateFormat(item.bildcFwDtm) }}</p>
                   </kw-form-item>
                 </kw-form-row>
                 <kw-form-row>
@@ -245,17 +246,19 @@ async function onLoad(pageIdx) {
   const res = await dataService.get('/sms/wells/withdrawal/idvrve/billing-document-orders/paging', { params: cachedParams });
   const { list: pages, pageInfo: pagingResult } = res.data;
 
+  console.log(pages);
+
   pageInfo.value = pagingResult;
 
-  pages.forEach((data) => {
-    if (data.bildcWrteDt) {
-      data.bildcWrteDt = dayjs(data.fstRgstDtm).format('YYYY-MM-DD');
-    }
+  // pages.forEach((data) => {
+  //   if (data.bildcWrteDt) {
+  //     data.bildcWrteDt = dayjs(data.fstRgstDtm).format('YYYY-MM-DD');
+  //   }
 
-    if (data.bildcFwDtm) {
-      data.bildcFwDtm = dayjs(data.bildcFwDtm).format('YYYY-MM-DD');
-    }
-  });
+  //   if (data.bildcFwDtm) {
+  //     data.bildcFwDtm = dayjs(data.bildcFwDtm).format('YYYY-MM-DD');
+  //   }
+  // });
 
   items.value.push(...pages);
 
@@ -291,7 +294,7 @@ async function onClickSearchUser() {
 async function onClickRegP() {
   router.replace(
     {
-      path: '/ns/wtwdb-billing-document-write-reg',
+      path: '/withdrawal/wtwdb-billing-document-write-reg',
       query: {
         searchCstFnm: searchParams.value.cstFnm, // 조회조건
         searchBildcWrteDt: searchParams.value.bildcWrteDt, // 조회조건
@@ -325,7 +328,7 @@ async function onClickRegP() {
 async function onClickMove(data) {
   router.replace(
     {
-      path: '/ns/wtwdb-billing-document-fw-reg',
+      path: '/withdrawal/wtwdb-billing-document-fw-reg',
       query: {
         searchCstFnm: searchParams.value.cstFnm, // 조회조건
         searchBildcWrteDt: searchParams.value.bildcWrteDt, // 조회조건

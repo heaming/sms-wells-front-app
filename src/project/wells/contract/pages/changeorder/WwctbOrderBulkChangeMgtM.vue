@@ -22,7 +22,7 @@
         <wwctb-order-bulk-change-mgt-m-membership />
       </kw-tab-panel>
       <kw-tab-panel name="payment">
-        <wwctb-order-bulk-change-mgt-m-sinle-payment />
+        <wwctb-single-payment-bulk-change-mgt-m />
       </kw-tab-panel>
     </kw-tab-panels>
   </kw-page>
@@ -33,7 +33,7 @@
 // -------------------------------------------------------------------------------------------------
 import WwctbOrderBulkChangeMgtMRental from './WwctbOrderBulkChangeMgtMRental.vue';
 import WwctbOrderBulkChangeMgtMMembership from './WwctbOrderBulkChangeMgtMMembership.vue';
-import WwctbOrderBulkChangeMgtMSinlePayment from './WwctbOrderBulkChangeMgtMSinlePayment.vue';
+import WwctbSinglePaymentBulkChangeMgtM from './WwctbSinglePaymentBulkChangeMgtM.vue';
 
 const selectedTab = ref('rental');
 </script>

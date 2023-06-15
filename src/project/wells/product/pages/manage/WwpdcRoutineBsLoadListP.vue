@@ -55,31 +55,29 @@
         </kw-search-item>
       </kw-search-row>
     </kw-search>
-    <div class="result-area">
-      <kw-action-top>
-        <template #left>
-          <kw-paging-info
-            v-model:page-index="pageInfo.pageIndex"
-            v-model:page-size="pageInfo.pageSize"
-            :total-count="pageInfo.totalCount"
-            :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
-            @change="fetchData"
-          />
-        </template>
-      </kw-action-top>
-      <kw-grid
-        ref="grdMainRef"
-        name="grdMain"
-        :visible-rows="pageInfo.pageSize"
-        @init="initGrdMain"
-      />
-      <kw-pagination
-        v-model:page-index="pageInfo.pageIndex"
-        v-model:page-size="pageInfo.pageSize"
-        :total-count="pageInfo.totalCount"
-        @change="fetchData"
-      />
-    </div>
+    <kw-action-top>
+      <template #left>
+        <kw-paging-info
+          v-model:page-index="pageInfo.pageIndex"
+          v-model:page-size="pageInfo.pageSize"
+          :total-count="pageInfo.totalCount"
+          :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
+          @change="fetchData"
+        />
+      </template>
+    </kw-action-top>
+    <kw-grid
+      ref="grdMainRef"
+      name="grdMain"
+      :visible-rows="pageInfo.pageSize"
+      @init="initGrdMain"
+    />
+    <kw-pagination
+      v-model:page-index="pageInfo.pageIndex"
+      v-model:page-size="pageInfo.pageSize"
+      :total-count="pageInfo.totalCount"
+      @change="fetchData"
+    />
     <template #action>
       <!-- 정기 B/S투입정보 복사 -->
       <kw-btn
@@ -130,7 +128,7 @@ const pageInfo = ref({
   pageIndex: 1,
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
 });
-const codes = await codeUtil.getMultiCodes('SV_BIZ_DCLSF_CD', 'MM_CD', 'SV_PRD_UNIT_CD', 'VST_DV_CD');
+const codes = await codeUtil.getMultiCodes('SV_BIZ_DCLSF_CD', 'MM_CD', 'SV_PRD_UNIT_CD', 'VST_DV_CD', 'COD_PAGE_SIZE_OPTIONS');
 codes.MM_CD.map((item) => { item.codeId = Number(item.codeId); return item; });
 
 const serviceSelectItems = ref([
@@ -154,7 +152,7 @@ async function onSelect() {
     notify(t('MSG_ALT_SELECT_ONE_ROW', [t('MSG_TXT_COPY')]));
   } else {
     if (props.selectType === pdConst.PD_SEARCH_SINGLE && checkedRows.length !== 1) {
-      notify(t('MSG_ALT_MDFC_SEL'));
+      notify(t('MSG_ALT_SELT_ONE_ITEM'));
       return;
     }
 

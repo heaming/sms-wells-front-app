@@ -11,6 +11,7 @@
 ****************************************************************************************************
 - 재약정 기준정보 관리 프로그램
 ****************************************************************************************************
+#1. RealGrid Rendering에 bug가 있어 CSS로 핸들링 처리.
 --TODO LIST
 --->
 <template>
@@ -29,8 +30,8 @@
             :maxlength="100"
           />
         </kw-search-item>
-        <!-- 제품코드 -->
-        <kw-search-item :label="$t('MSG_TXT_PROD_CD')">
+        <!-- 상품코드 -->
+        <kw-search-item :label="$t('MSG_TXT_PRDT_CODE')">
           <kw-input
             v-model.trim="searchParams.pdCd"
             :maxlength="10"
@@ -40,11 +41,15 @@
           />
         </kw-search-item>
 
-        <kw-search-item :label="t('MSG_TXT_ACEPT_PERIOD')">
+        <kw-search-item
+          :label="t('MSG_TXT_ACEPT_PERIOD')"
+          required
+        >
           <kw-date-range-picker
             v-model:from="searchParams.startDate"
             v-model:to="searchParams.endDate"
             rules="date_range_required"
+            :label="t('MSG_TXT_ACEPT_PERIOD')"
           />
         </kw-search-item>
       </kw-search-row>
@@ -161,16 +166,36 @@ const searchParams = ref({
 
 // 제품코드 조회팝업
 async function onClickProduct() {
-  const { result, payload } = await modal({
-    component: 'ZwpdcMaterialsSelectListP',
-    componentProps: {
-      searchType: pdConst.PD_SEARCH_CODE,
-      searchValue: searchParams.value.pdCd,
-      selectType: pdConst.PD_SEARCH_SINGLE,
-      searchLvl: 3,
-    },
-  });
-  if (result) searchParams.value.pdCd = Array.isArray(payload.checkedRows) ? payload.checkedRows[0].pdCd : payload.pdCd;
+  // const { result, payload } = await modal({
+  //   component: 'ZwpdcMaterialsSelectListP',
+  //   componentProps: {
+  //     searchType: pdConst.PD_SEARCH_CODE,
+  //     searchValue: searchParams.value.pdCd,
+  //     selectType: pdConst.PD_SEARCH_SINGLE,
+  //     searchLvl: 3,
+  //   },
+  // });
+  // if (result) searchParams.value.pdCd = Array.isArray(payload.checkedRows)
+  // ? payload.checkedRows[0].pdCd
+  // : payload.pdCd;
+
+  const componentProps = {
+    selectType: pdConst.PD_SEARCH_SINGLE,
+    searchType: pdConst.PD_SEARCH_CODE,
+    searchValue: searchParams.value.pdCd,
+    sellTpCd: '2', // 렌탈/리스
+  };
+  const { result, payload } = await modal({ component: 'ZwpdcStandardListP', componentProps });
+  if (result) {
+    if (payload[0].sellTpCd !== '2') {
+      // 등록 불가한 판매유형 상품입니다.(렌탈/리스만 가능)
+      notify(t('MSG_ALT_INVAILD_SELL_TP_ONLY_RENTAL'));
+      return false;
+    }
+    searchParams.value.pdCd = payload[0].pdCd;
+    // g.setValue(itemIndex, 'pdCd', payload[0].pdCd);
+    // g.setValue(itemIndex, 'pdNm', payload[0].pdNm);
+  }
 }
 
 async function fetchData() {
@@ -194,6 +219,9 @@ async function onClickAdd() {
     apyStrtdt: dayjs().format('YYYY-MM-DD'),
     apyEnddt: '9999-12-31',
   });
+  view.setColumnProperty('pdCd', 'styleName', 'btnshow');
+  view.setColumnProperty('pdNm', 'styleName', 'btnshow');
+  view.commit();
 }
 
 async function onClickRemove() {
@@ -269,11 +297,9 @@ const initGrdMain = defineGrid((data, view) => {
       button: 'action',
       rules: 'required',
       styleCallback(grid, dataCell) {
-        return dataCell.item.rowState === 'created' ? { editable: true,
-          styleName: 'text-left rg-button-icon--search',
-          editor: {
-            type: 'text',
-          } } : { styleName: 'text-left rg-button-icon--search', editable: false };
+        return dataCell.item.rowState === 'created'
+          ? { editable: true, styleName: 'text-left rg-button-icon--search btnshow', editor: { type: 'text' } }
+          : { styleName: 'text-left btnhide', editable: false };
       },
     },
     /* 상품명 */
@@ -283,11 +309,9 @@ const initGrdMain = defineGrid((data, view) => {
       button: 'action',
       rules: 'required',
       styleCallback(grid, dataCell) {
-        return dataCell.item.rowState === 'created' ? { editable: true,
-          styleName: 'text-left rg-button-icon--search',
-          editor: {
-            type: 'text',
-          } } : { styleName: 'text-left rg-button-icon--search', editable: false };
+        return dataCell.item.rowState === 'created'
+          ? { editable: true, styleName: 'text-left rg-button-icon--search btnshow', editor: { type: 'text' } }
+          : { styleName: 'text-left btnhide', editable: false };
       },
     },
     { fieldName: 'rstlBaseTpCd', header: t('MSG_TXT_STPL_TYPE'), width: '80', styleName: 'text-center', rules: 'required', options: codes.RSTL_BASE_TP_CD, editor: { type: 'dropdown', rules: 'required' } }, /* 약정유형 */
@@ -338,9 +362,16 @@ const initGrdMain = defineGrid((data, view) => {
         selectType: pdConst.PD_SEARCH_SINGLE,
         searchType: column === 'pdCd' ? pdConst.PD_SEARCH_CODE : pdConst.PD_SEARCH_NAME,
         searchValue: g.getValue(itemIndex, column),
+        sellTpCd: '2', // 렌탈/리스
       };
       const { result, payload } = await modal({ component: 'ZwpdcStandardListP', componentProps });
       if (result) {
+        if (payload[0].sellTpCd !== '2') {
+          // 등록 불가한 판매유형 상품입니다.(렌탈/리스만 가능)
+          notify(t('MSG_ALT_INVAILD_SELL_TP_ONLY_RENTAL'));
+          return false;
+        }
+
         g.setValue(itemIndex, 'pdCd', payload[0].pdCd);
         g.setValue(itemIndex, 'pdNm', payload[0].pdNm);
       }
@@ -399,3 +430,16 @@ const initGrdMain = defineGrid((data, view) => {
 });
 
 </script>
+
+<style>
+.btnshow div .rg-button-action {
+  visibility: visible !important;
+  overflow: visible !important;
+}
+
+.btnhide div .rg-button-action {
+  visibility: hidden !important;
+  overflow: hidden !important;
+}
+
+</style>

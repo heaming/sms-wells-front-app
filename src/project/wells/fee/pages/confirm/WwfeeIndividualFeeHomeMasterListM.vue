@@ -51,7 +51,7 @@
       <kw-action-top>
         <template #left>
           <h3>{{ t('MSG_TXT_BASIC_INFO') }}</h3>
-          <span class="ml8">({{ $t('MSG_TXT_UNIT') }}) : ({{ $t('MSG_TXT_CUR_WON') }})</span>
+          <span class="ml8">{{ $t('MSG_TXT_UNIT_COLON_WON') }}</span>
         </template>
         <kw-btn
           secondary
@@ -138,7 +138,7 @@
       <kw-action-top>
         <template #left>
           <h3>{{ t('MSG_TXT_SELL_ETC_IZ') }}</h3>
-          <span class="ml8">({{ $t('MSG_TXT_UNIT') }}) : ({{ $t('MSG_TXT_CUR_WON') }})</span>
+          <span class="ml8">{{ $t('MSG_TXT_UNIT_COLON_WON') }}</span>
         </template>
         <kw-btn
           secondary
@@ -156,7 +156,7 @@
       <kw-action-top class="mt30">
         <template #left>
           <h3>{{ t('MSG_TXT_FEE_IZ') }}</h3>
-          <span class="ml8">({{ $t('MSG_TXT_UNIT') }}) : ({{ $t('MSG_TXT_CUR_WON') }})</span>
+          <span class="ml8">{{ $t('MSG_TXT_UNIT_COLON_WON') }}</span>
         </template>
         <kw-btn
           secondary
@@ -174,7 +174,7 @@
       <kw-action-top class="mt30">
         <template #left>
           <h3>{{ t('MSG_TXT_DDTN_IZ') }}</h3>
-          <span class="ml8">({{ $t('MSG_TXT_UNIT') }}) : ({{ $t('MSG_TXT_CUR_WON') }})</span>
+          <span class="ml8">{{ $t('MSG_TXT_UNIT_COLON_WON') }}</span>
         </template>
         <kw-btn
           secondary
@@ -183,59 +183,17 @@
           @click="openBurdenDeductionPopup"
         />
       </kw-action-top>
-      <kw-form
-        :cols="4"
-        align-content="left"
-        dense
-      >
-        <kw-form-row>
-          <kw-form-item
-            :label="t('MSG_TXT_ERNTX')"
-          >
-            <p>{{ stringUtil.getNumberWithComma(info2.erntx) }}</p>
-          </kw-form-item>
-          <kw-form-item
-            :label="t('MSG_TXT_RSDNTX')"
-          >
-            <p>{{ stringUtil.getNumberWithComma(info2.rsdntx) }}</p>
-          </kw-form-item>
-          <kw-form-item
-            :label="t('MSG_TXT_RDS')"
-          >
-            <p>{{ stringUtil.getNumberWithComma(info2.rds) }}</p>
-          </kw-form-item>
-          <kw-form-item
-            :label="t('MSG_TXT_HIR_INSR')"
-          >
-            <p>{{ stringUtil.getNumberWithComma(info2.hirInsr) }}</p>
-          </kw-form-item>
-        </kw-form-row>
-        <kw-form-row>
-          <kw-form-item :label="t('MSG_TXT_INDD_INSR')">
-            <p>{{ stringUtil.getNumberWithComma(info2.inddInsr) }}</p>
-          </kw-form-item>
-          <kw-form-item
-            :label="t('MSG_TXT_BU_DDTN')"
-          >
-            <p>{{ stringUtil.getNumberWithComma(info2.buDdtn) }}</p>
-          </kw-form-item>
-          <kw-form-item
-            :label="t('MSG_TXT_REDF')"
-          >
-            <p>{{ stringUtil.getNumberWithComma(info2.redf) }}</p>
-          </kw-form-item>
-          <kw-form-item
-            :label="t('MSG_TXT_DLQ')+t('MSG_TXT_REDF')"
-          >
-            <p>{{ stringUtil.getNumberWithComma(info2.dlqRedf) }}</p>
-          </kw-form-item>
-        </kw-form-row>
-      </kw-form>
+      <kw-grid
+        ref="grd3MainRef"
+        name="grd3Main"
+        :visible-rows="4"
+        @init="initGrd3Main"
+      />
       <kw-separator />
       <kw-action-top class="mt30">
         <template #left>
           <h3>{{ t('MSG_TXT_PNPYAM_DTLP_IZ') }}</h3>
-          <span class="ml8">({{ $t('MSG_TXT_UNIT_COLON_WON') }})</span>
+          <span class="ml8">{{ $t('MSG_TXT_UNIT_COLON_WON') }}</span>
         </template>
         <kw-btn
           secondary
@@ -245,10 +203,10 @@
         />
       </kw-action-top>
       <kw-grid
-        ref="grd3MainRef"
-        name="grd3Main"
+        ref="grd4MainRef"
+        name="grd4Main"
         :visible-rows="4"
-        @init="initGrd3Main"
+        @init="initGrd4Main"
       />
     </div>
   </kw-page>
@@ -284,6 +242,7 @@ const now = dayjs();
 const grd1MainRef = ref(getComponentType('KwGrid'));
 const grd2MainRef = ref(getComponentType('KwGrid'));
 const grd3MainRef = ref(getComponentType('KwGrid'));
+const grd4MainRef = ref(getComponentType('KwGrid'));
 const totalCount = ref(0);
 const searchParams = ref({
 
@@ -305,17 +264,6 @@ const info = ref({
   aclDsb: '',
   dsbBnk: '',
   dsbAc: '',
-});
-
-const info2 = ref({
-  rds: '',
-  erntx: '',
-  rsdntx: '',
-  buDdtn: '',
-  hirInsr: '',
-  inddInsr: '',
-  redf: '',
-  dlqRedf: '',
 });
 
 const { prPerfYm } = searchParams.value;
@@ -420,17 +368,15 @@ async function fetchData(type) {
   } else if (type === 'etcs') {
     const etcView = grd1MainRef.value.getView();
     etcView.getDataSource().setRows(resData);
-    etcView.resetCurrent();
   } else if (type === 'fees') {
     const feeView = grd2MainRef.value.getView();
     feeView.getDataSource().setRows(resData);
-    feeView.resetCurrent();
   } else if (type === 'deductions') {
-    info2.value = resData;
+    const deductionView = grd3MainRef.value.getView();
+    deductionView.getDataSource().setRows(resData);
   } else if (type === 'pnpyam') {
-    const pnpyamView = grd3MainRef.value.getView();
+    const pnpyamView = grd4MainRef.value.getView();
     pnpyamView.getDataSource().setRows(resData);
-    pnpyamView.resetCurrent();
   }
 }
 
@@ -528,6 +474,30 @@ const initGrd2Main = defineGrid((data, view) => {
 });
 
 const initGrd3Main = defineGrid((data, view) => {
+  const fields = [
+    { fieldName: 'item1' },
+    { fieldName: 'amt1', dataType: 'number' },
+    { fieldName: 'item2' },
+    { fieldName: 'amt2', dataType: 'number' },
+
+  ];
+
+  const columns = [
+    { fieldName: 'item1', header: t('MSG_TXT_ITEM'), width: '194', styleName: 'text-left' },
+    { fieldName: 'amt1', header: t('MSG_TXT_AMT'), width: '203', styleName: 'text-right' },
+    { fieldName: 'item2', header: t('MSG_TXT_ITEM'), width: '194', styleName: 'text-left' },
+    { fieldName: 'amt2', header: t('MSG_TXT_AMT'), width: '203', styleName: 'text-right' },
+
+  ];
+
+  data.setFields(fields);
+  view.setColumns(columns);
+
+  view.checkBar.visible = false;
+  view.rowIndicator.visible = false;
+});
+
+const initGrd4Main = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'item' },
     { fieldName: 'lstmm', dataType: 'number' },

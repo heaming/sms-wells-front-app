@@ -24,7 +24,7 @@
         <kw-form-item
           :label="$t('MSG_TXT_PERF_YM')"
         >
-          <p>{{ params.perfYm }}</p>
+          <p>{{ params.perfYm.substring(0,4)+'-'+params.perfYm.substring(4) }}</p>
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
@@ -55,10 +55,11 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { useDataService, useGlobal, useModal } from 'kw-lib';
+import dayjs from 'dayjs';
 
 const { cancel, ok } = useModal();
 const { t } = useI18n();
-const { confirm } = useGlobal();
+const { confirm, alert } = useGlobal();
 const dataService = useDataService();
 const props = defineProps({
   perfYm: { // 실적년월
@@ -74,6 +75,7 @@ const props = defineProps({
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
+const now = dayjs().format('YYYYMM');
 const params = ref({
   perfYm: props.perfYm,
   rsbTp: props.rsbTp,
@@ -84,8 +86,14 @@ async function onClickCancel() {
 }
 
 async function onClickSave() {
+  // 현재년월에는 일 30분씩 배치가 돌고 있기 때문에 배치 호출 못하게 우선 막음.
+  if (now === params.value.perfYm) {
+    alert('집계가 가능한 실적년월이 아닙니다.');
+    return;
+  }
+
   if (!await confirm(t('MSG_ALT_AGRG'))) { return; }
-  const response = dataService.post('/sms/wells/fee/eger-allowances/aggregates', params.value);
-  ok(response.data);
+  const response = await dataService.post('/sms/wells/fee/eger-allowances/aggregates', params.value);
+  if (response.data === 'S') ok(response.data);
 }
 </script>

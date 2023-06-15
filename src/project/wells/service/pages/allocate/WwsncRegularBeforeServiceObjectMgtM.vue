@@ -3,7 +3,7 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : SNC
-2. 프로그램 ID : WwsncRegularBeforeServiceObjectMgtM - 정기 B/S 대상 선정
+2. 프로그램 ID : [W-SV-U-0043M01] WwsncRegularBeforeServiceObjectMgtM - 정기 B/S 대상 선정
 3. 작성자 : juno.cha
 4. 작성일 : 2022.12.30
 ****************************************************************************************************
@@ -24,7 +24,7 @@
         <kw-form-row>
           <kw-form-item :label="$t('배정년월')">
             <kw-date-picker
-              v-model="searchParams.allocateYm"
+              v-model="searchParams.asnOjYm"
               type="month"
             />
           </kw-form-item>
@@ -72,7 +72,7 @@ import dayjs from 'dayjs';
 import { useDataService, useGlobal } from 'kw-lib';
 
 const { t } = useI18n();
-const { confirm, alert } = useGlobal();
+const { confirm, notify } = useGlobal();
 
 const dataService = useDataService();
 
@@ -80,7 +80,7 @@ const dataService = useDataService();
  *  Search Parameter
  */
 const searchParams = ref({
-  allocateYm: dayjs().format('YYYYMM'),
+  asnOjYm: dayjs().format('YYYYMM'),
   createTarget: 'A',
 });
 
@@ -106,13 +106,13 @@ const customCodes = {
  *  Event - 생성 버튼 클릭
  */
 async function onClickCreate() {
-  if (true) {
-    await alert('배치 개발 중입니다.');
-    return;
-  }
+  // if (true) {
+  //   await alert('배치 개발 중입니다.');
+  //   return;
+  // }
   if (!await confirm(t('MSG_ALT_IS_CRT_DATA'))) { return; }
   await dataService.post('/sms/wells/service/regular-bs-object', searchParams.value);
-  // await notify(t('MSG_ALT_CREATED'));
+  await notify(t('MSG_ALT_CREATED'));
 }
 
 // -------------------------------------------------------------------------------------------------

@@ -179,7 +179,6 @@ export default () => {
   async function getWarehouseCloseCheck(apyYm, wareNo) {
     const result = await dataService.get('/sms/wells/common/sms-wells-codes/warehouse-close-check', { params: { apyYm, wareNo } });
     console.log(result);
-    debugger;
     return result.data !== '0';
   }
 

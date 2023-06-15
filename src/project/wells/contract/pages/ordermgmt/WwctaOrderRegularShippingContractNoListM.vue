@@ -84,7 +84,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, getComponentType, useDataService, gridUtil, useGlobal } from 'kw-lib';
+import { codeUtil, getComponentType, useDataService, gridUtil, useGlobal, defineGrid } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
 
@@ -175,11 +175,11 @@ onMounted(async () => {
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
-function initGridRglrDlvrContractNoList(data, view) {
-// const initGridRglrDlvrContractNoList = defineGrid((data, view) => {
+const initGridRglrDlvrContractNoList = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'cntrDtlNo' }, // 계약번호
     { fieldName: 'ordrInfoView' }, // 주문정보 보기
+    { fieldName: 'sellTpCd' }, // 판매유형코드
     { fieldName: 'dgr3LevlDgPrtnrNo' }, // 파트너정보-지점장 사번
     { fieldName: 'dgr3LevlDgPrtnrNm' }, // 파트너정보-지점장명
     { fieldName: 'dgr3LevlOgCd' }, // 파트너정보-지점코드
@@ -205,6 +205,7 @@ function initGridRglrDlvrContractNoList(data, view) {
     { fieldName: 'shpadrRdadr' }, // 설치정보-상세주소
     { fieldName: 'sellInflwChnlDtlNm' }, // 판매구분
     { fieldName: 'empDvVal' }, // 직원구분
+    { fieldName: 'copnDvCd' }, // 고객구분코드(1:개인, 2:법인)
     { fieldName: 'copnDvNm' }, // 계약자구분
     { fieldName: 'mchnSellTpNm' }, // 기기정보-판매유형(원주문)
     { fieldName: 'mchnCntrNo' }, // 기기계약번호
@@ -217,8 +218,8 @@ function initGridRglrDlvrContractNoList(data, view) {
     { fieldName: 'mchnPdLclsfNm' }, // 기기구분
 
     { fieldName: 'pdTpCm' }, // 상품선택유형
-    { fieldName: 'recapDutyPtrmN' }, // 의무기간
-    { fieldName: 'stplPtrm' }, // 계약기간
+    { fieldName: 'stplPtrm' }, // 의무기간
+    { fieldName: 'cntrPtrm' }, // 계약기간
     { fieldName: 'fnlAmt', dataType: 'number' }, // 판매가격
     { fieldName: 'sellAmt', dataType: 'number' }, // 공급가
     { fieldName: 'vat', dataType: 'number' }, // 부가세
@@ -317,7 +318,10 @@ function initGridRglrDlvrContractNoList(data, view) {
       displayCallback(grid, index) {
         // eslint-disable-next-line max-len
         const { shpadrCralLocaraTno: no1, shpadrMexnoEncr: no2, shpadrCralIdvTno: no3 } = grid.getValues(index.itemIndex);
-        return !isEmpty(no1) && !isEmpty(no2) && !isEmpty(no3) ? `${no1}-${no2}-${no3}` : '';
+        if (!isEmpty(no1) && isEmpty(no2) && !isEmpty(no3)) {
+          return `${no1}--${no3}`;
+        }
+        return isEmpty(no1) && isEmpty(no2) && isEmpty(no3) ? '' : `${no1}-${no2}-${no3}`;
       },
     }, // 설치정보-휴대전화번호
     { fieldName: 'shpadrAdrZip', header: t('MSG_TXT_ZIP'), width: '138', styleName: 'text-center' }, // 설치정보-우편번호
@@ -337,8 +341,8 @@ function initGridRglrDlvrContractNoList(data, view) {
     { fieldName: 'mchnPdLclsfNm', header: t('MSG_TXT_MCHN_DV'), width: '134', styleName: 'text-center' }, // 기기구분
 
     { fieldName: 'pdTpCm', header: t('MSG_TXT_PRDT_SELT_TP'), width: '138', styleName: 'text-center' }, // 상품선택유형
-    { fieldName: 'recapDutyPtrmN', header: t('MSG_TXT_DUTY_PTRM'), width: '136', styleName: 'text-right' }, // 의무기간
-    { fieldName: 'stplPtrm', header: t('MSG_TXT_CNTR_PTRM'), width: '136', styleName: 'text-center' }, // 계약기간
+    { fieldName: 'stplPtrm', header: t('MSG_TXT_DUTY_PTRM'), width: '136', styleName: 'text-right' }, // 의무기간
+    { fieldName: 'cntrPtrm', header: t('MSG_TXT_CNTR_PTRM'), width: '136', styleName: 'text-right' }, // 계약기간
     { fieldName: 'fnlAmt', header: t('MSG_TXT_SLE_PRC'), width: '134', styleName: 'text-right' }, // 판매가격
     { fieldName: 'sellAmt', header: t('MSG_TXT_SUPPLY_AMOUNT'), width: '134', styleName: 'text-right' }, // 공급가액
     { fieldName: 'vat', header: t('MSG_TXT_VAT'), width: '134', styleName: 'text-right' }, // 부가세
@@ -441,7 +445,7 @@ function initGridRglrDlvrContractNoList(data, view) {
     {
       header: t('MSG_TXT_PD_INF'), // 상품정보
       direction: 'horizontal', // merge type
-      items: ['pdTpCm', 'recapDutyPtrmN', 'stplPtrm', 'fnlAmt', 'sellAmt', 'vat', 'cntrAmt', 'mmBilAmt', 'pdBaseAmt', 'ackmtPerfRt', 'ackmtPerfAmt', 'dscMcn', 'ctrAmt', 'svTpNm', 'spcYn', 'svPrd', 'sppFshDt', 'sppMthdTpNm', 'lctjobNm', 'rglrSppBilDvNm', 'mpyMthdTpNm', 'txinvPblOjYn', 'frisuBfsvcPtrmN', 'lcmcnt', 'lcck05Nm'],
+      items: ['pdTpCm', 'stplPtrm', 'cntrPtrm', 'fnlAmt', 'sellAmt', 'vat', 'cntrAmt', 'mmBilAmt', 'pdBaseAmt', 'ackmtPerfRt', 'ackmtPerfAmt', 'dscMcn', 'ctrAmt', 'svTpNm', 'spcYn', 'svPrd', 'sppFshDt', 'sppMthdTpNm', 'lctjobNm', 'rglrSppBilDvNm', 'mpyMthdTpNm', 'txinvPblOjYn', 'frisuBfsvcPtrmN', 'lcmcnt', 'lcck05Nm'],
     },
     {
       header: t('MSG_TXT_RCPT_BASE'), // 접수기준
@@ -482,16 +486,22 @@ function initGridRglrDlvrContractNoList(data, view) {
     const paramCntrDtlNo = gridUtil.getCellValue(g, dataRow, 'cntrDtlNo');
     const paramCntrNo = String(paramCntrDtlNo).split('-')[0];
     const paramCntrSn = String(paramCntrDtlNo).split('-')[1];
+    const { sellTpCd } = g.getValues(dataRow);
+    const { cntrCstNo } = g.getValues(dataRow);
+    const { copnDvCd } = g.getValues(dataRow);
 
     if (['cntrDtlNo'].includes(column)) { // 계약상세(윈도우팝업)
-      await modal({ component: 'WwctaOrderDetailP', componentProps: { cntrNo: paramCntrNo, cntrSn: paramCntrSn } });
+      await modal({ component: 'WwctaOrderDetailP', componentProps: { cntrNo: paramCntrNo, cntrSn: paramCntrSn, sellTpCd, cntrCstNo, copnDvCd } });
     } else if (['ordrInfoView'].includes(column)) { // 정기배송 주문정보 상세
       await modal({ component: 'WwctaOrderRegularShippingDtlP', componentProps: { cntrNo: paramCntrNo, cntrSn: paramCntrSn } });
     } else if (['connPdView'].includes(column)) { // 연계상품 리스트 조회
-      await alert('연계상품 리스트 팝업 조회');
+      await modal({
+        component: 'WwctaLinkProductListP',
+        componentProps: { cntrNo: paramCntrNo, cntrSn: paramCntrSn },
+      });
     }
   };
-}
+});
 </script>
 <style scoped>
 </style>

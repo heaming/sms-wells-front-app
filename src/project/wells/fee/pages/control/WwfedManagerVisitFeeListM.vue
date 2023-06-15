@@ -56,10 +56,9 @@
           />
         </kw-search-item>
         <kw-search-item
-          v-model="searchParams.no"
           :label="$t('MSG_TXT_SEQUENCE_NUMBER')"
         >
-          <kw-input />
+          <kw-input v-model="searchParams.no" />
         </kw-search-item>
       </kw-search-row>
     </kw-search>
@@ -119,7 +118,7 @@ const searchParams = ref({
 });
 
 async function fetchData() {
-  const res = await dataService.get('/sms/wells/fee/manager-visit-fees', { params: searchParams.value });
+  const res = await dataService.get('/sms/wells/fee/manager-visit-fees', { params: searchParams.value, timeout: 200000 });
 
   totalCount.value = res.data.length;
 
@@ -133,10 +132,11 @@ async function onClickSearch() {
 
 async function onClickExcelDownload() {
   const view = grdVisitFeeRef.value.getView();
-
+  const response = await dataService.get('/sms/wells/fee/manager-visit-fees', { params: searchParams.value });
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
+    exportData: response.data,
   });
 }
 

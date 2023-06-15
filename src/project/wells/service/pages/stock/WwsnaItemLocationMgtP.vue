@@ -57,6 +57,7 @@
             v-model="propParams.stdWareUseYn"
             class="ml20"
             :label="$t('MSG_TXT_STD_NO_APY')"
+            @update:model-value="onCheckedStckNoStdGb"
           />
           <!-- //표준 미적용 -->
         </kw-form-item>
@@ -69,7 +70,10 @@
     <kw-action-top>
       <template #left>
         <kw-paging-info
-          :total-count="propParams.totalCount"
+          v-model:page-index="pageInfo.pageIndex"
+          v-model:page-size="pageInfo.pageSize"
+          :total-count="pageInfo.totalCount"
+          :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
           @change="fetchData"
         />
       </template>
@@ -95,8 +99,16 @@
     <kw-grid
       ref="grdMainRef"
       name="grdMain"
-      :total-count="propParams.totalCount"
+      :page-size="pageInfo.pageSize"
+      :total-count="pageInfo.totalCount"
       @init="initGrdMain"
+    />
+
+    <kw-pagination
+      v-model:page-index="pageInfo.pageIndex"
+      v-model:page-size="pageInfo.pageSize"
+      :total-count="pageInfo.totalCount"
+      @change="fetchData"
     />
   </kw-popup>
 </template>
@@ -105,18 +117,18 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import {
-  codeUtil,
-  useDataService,
-  getComponentType,
-  gridUtil,
-  defineGrid } from 'kw-lib';
+import { codeUtil, useDataService, getComponentType, gridUtil, defineGrid, useModal, useMeta, useGlobal } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 
+const { getConfig } = useMeta();
+const { confirm, notify } = useGlobal();
 const { t } = useI18n();
+const { ok } = useModal();
+
 const dataService = useDataService();
-const grdMainRef = getComponentType('KwGrid');
+const grdMainRef = ref(getComponentType('KwGrid'));
 const baseURI = '/sms/wells/service/item-locations';
+const stdWareUri = '/sms/wells/service/normal-outofstorages/standard-ware';
 
 const props = defineProps({
   itmPdCd: {
@@ -124,6 +136,10 @@ const props = defineProps({
     default: '',
   },
   wareNo: {
+    type: String,
+    default: '',
+  },
+  apyYm: {
     type: String,
     default: '',
   },
@@ -142,6 +158,7 @@ const codes = await codeUtil.getMultiCodes(
 const propParams = ref({
   itmPdCd: props.itmPdCd,
   wareNo: props.wareNo,
+  apyYm: props.apyYm,
   wareNm: '',
   itmPdNm: '',
   stdWareUseYn: 'N',
@@ -155,23 +172,87 @@ const searchParams = ref({
 
 let cachedParams;
 
-async function fetchData() {
-  const res = await dataService.get(baseURI, { params: { ...cachedParams } });
-  // const { list: searchData } = res.data;
+const pageInfo = ref({
+  totalCount: 0,
+  pageIndex: 1,
+  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
+});
 
-  propParams.value.totalCount = res.data.length;
-  propParams.value.itmPdNm = res.data[0].pdAbbrNm;
-  propParams.value.wareNm = res.data[0].wareNm;
+async function stckStdGbFetchData() {
+  const apyYm = propParams.value.apyYm.substring(0, 6);
+  const { wareNo } = propParams.value;
+  const res = await dataService.get(stdWareUri, { params: { apyYm, wareNo } });
+  const { stckStdGb } = res.data;
+  console.log(res);
+  propParams.value.stdWareUseYn = stckStdGb === 'Y' ? 'N' : 'Y';
+}
+
+async function fetchData() {
+  const res = await dataService.get(baseURI, { params: { ...cachedParams, ...pageInfo.value } });
+  const { list: searchData, pageInfo: pagingResult } = res.data;
+
+  pageInfo.value = pagingResult;
+
+  propParams.value.totalCount = searchData.length;
+  propParams.value.itmPdNm = searchData[0].pdAbbrNm;
+  propParams.value.wareNm = searchData[0].wareNm;
 
   const view = grdMainRef.value.getView();
   const datasSource = view.getDataSource();
-  datasSource.setRows(res.data);
+  datasSource.setRows(searchData);
   view.resetCurrent();
 }
+
+async function onCheckedStckNoStdGb() {
+  const stckStdGb = propParams.value.stdWareUseYn === 'N' ? 'Y' : 'N';
+  const apyYm = propParams.value.apyYm.substring(0, 6);
+  const { wareNo } = propParams.value;
+
+  const res = await dataService.put(stdWareUri, { apyYm, stckStdGb, wareNo });
+  console.log(res);
+  notify(t('MSG_ALT_CHG_DATA'));
+  fetchData();
+}
+
 async function onClickSave() {
   const dataParams = grdMainRef.value.getView();
   const rows = dataParams.getCheckedItems();
   console.log(rows);
+
+  const confirmData = ref([]);
+  confirmData.value = rows.map((v) => {
+    const {
+      wareNo,
+      itmPdCd,
+      itmLctAngleVal,
+      itmLctCofVal,
+      itmLctFlorNoVal,
+      itmLctMatGrpCd,
+      itmKndCd,
+    } = dataParams.getValues(v);
+
+    return {
+      wareNo,
+      itmPdCd,
+      itmLctAngleVal,
+      itmLctCofVal,
+      itmLctFlorNoVal,
+      itmLctMatGrpCd,
+      itmKndCd,
+    };
+  });
+
+  // 등록하시겠습니까?
+  if (await confirm(t('MSG_ALT_RGST'))) {
+    const res = await dataService.put(baseURI, confirmData.value);
+    if (res.data.processCount) {
+      ok();
+      notify(t('MSG_ALT_SAVE_DTA'));
+    } else {
+      console.log(res);
+      notify(t('MSG_ALT_SVE_ERR'));
+    }
+  }
 }
 
 async function onClickExcelDownload() {
@@ -188,6 +269,7 @@ async function onClickExcelDownload() {
 
 onMounted(async () => {
   cachedParams = cloneDeep(searchParams.value);
+  await stckStdGbFetchData();
   await fetchData();
 });
 // -------------------------------------------------------------------------------------------------
@@ -203,7 +285,7 @@ const initGrdMain = defineGrid((data, view) => {
       header: t('MSG_TXT_ANGLE'),
       width: '80',
       styleName: 'text-center',
-      options: codes.value.LCT_ANGLE_CD,
+      options: codes.LCT_ANGLE_CD,
       editor: { type: 'list' },
       editable: true,
       editOptions: { editable: true },
@@ -212,7 +294,7 @@ const initGrdMain = defineGrid((data, view) => {
       header: t('MSG_TXT_FLOR_CNT'),
       width: '80',
       styleName: 'text-center',
-      options: codes.value.LCT_COF_CD,
+      options: codes.LCT_COF_CD,
       editor: { type: 'list' },
       editable: true,
     },
@@ -220,7 +302,7 @@ const initGrdMain = defineGrid((data, view) => {
       header: t('MSG_TXT_FLOR_NO'),
       width: '96',
       styleName: 'text-center',
-      options: codes.value.LCT_FLOR_NO_CD,
+      options: codes.LCT_FLOR_NO_CD,
       editor: { type: 'list' },
       editable: true,
     },
@@ -228,7 +310,7 @@ const initGrdMain = defineGrid((data, view) => {
       header: t('MSG_TXT_SAP_GRP'),
       width: '118',
       styleName: 'text-center',
-      options: codes.value.LCT_MAT_GRP_CD,
+      options: codes.LCT_MAT_GRP_CD,
       editor: { type: 'list' },
       editable: true,
     },
@@ -244,8 +326,9 @@ const initGrdMain = defineGrid((data, view) => {
   view.setColumns(columns);
   view.checkBar.visible = true;
   view.rowIndicator.visible = true;
-  // view.editOptions.editable = true;
+  view.editOptions.editable = true;
   const editFields = ['itmLctAngleVal', 'itmLctCofVal', 'itmLctFlorNoVal', 'itmLctMatGrpCd'];
+
   view.onCellEditable = (grid, clickData) => {
     if (!editFields.includes(clickData.column)) {
       return false;

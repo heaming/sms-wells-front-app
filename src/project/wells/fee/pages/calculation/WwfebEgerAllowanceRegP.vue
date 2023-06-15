@@ -14,6 +14,7 @@
 --->
 <template>
   <kw-popup
+    ref="popupRef"
     size="sm"
   >
     <kw-form
@@ -24,16 +25,24 @@
         <!-- 실적년월 -->
         <kw-form-item
           :label="$t('MSG_TXT_PERF_YM')"
+          required
         >
-          <p>{{ params.param1 }}</p>
+          <kw-date-picker
+            v-model="params.perfYm"
+            rules="required"
+            type="month"
+            :label="$t('MSG_TXT_PERF_YM')"
+          />
         </kw-form-item>
       </kw-form-row>
-      <kw-form-row>
+      <kw-form-row
+        v-if="!isEmpty(params.rsbTp)"
+      >
         <!-- 직책유형 -->
         <kw-form-item
           :label="$t('MSG_TXT_RSB_TP')"
         >
-          <p>{{ params.param2 }}</p>
+          <p>{{ codes.RSB_DV_CD.find((v) => v.codeId === params.rsbTp).codeName }}</p>
         </kw-form-item>
       </kw-form-row>
     </kw-form>
@@ -55,40 +64,48 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService, useGlobal, useModal } from 'kw-lib';
+import { useDataService, useGlobal, useModal, codeUtil } from 'kw-lib';
+import { isEmpty } from 'lodash-es';
 
 const { cancel, ok } = useModal();
 const { t } = useI18n();
-const { confirm } = useGlobal();
+const { notify } = useGlobal();
 const dataService = useDataService();
 
 const props = defineProps({
-  param1: { // 실적년월
+  perfYm: { // 실적년월
     type: String,
     required: true,
   },
-  param2: { // 직책유형
+  rsbTp: { // 직책유형
     type: String,
-    required: true,
+    default: '',
   },
 });
-
 const params = ref({
-  param1: props.param1,
-  param2: props.param2,
+  perfYm: props.perfYm,
+  rsbTp: props.rsbTp,
+  feeTcntDvCd: '02',
+  feeCalcUnitTpCd: '601',
 });
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
+const popupRef = ref();
+const codes = await codeUtil.getMultiCodes(
+  'RSB_DV_CD',
+);
 async function onClickCancel() {
   cancel();
 }
 
 async function onClickCreate() {
-  if (!await confirm(t('MSG_ALT_CREATED'))) { return; }
-  const response = await dataService.post('/sms/wells/fee/eger-allowances/creates', params.value);
-  ok(response.data);
+  // const response = await dataService.post('/sms/wells/fee/eger-allowances/creates', params.value);
+  if (!await popupRef.value.validate()) { return; }
+  await dataService.post(`/sms/common/fee/fee-calculation/${params.perfYm}-${params.feeTcntDvCd}-${params.feeCalcUnitTpCd}`);
+  notify(t('MSG_ALT_SAVE_DATA'));
+  ok(true);
 }
 
 </script>

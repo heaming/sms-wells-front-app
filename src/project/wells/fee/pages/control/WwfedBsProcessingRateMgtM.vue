@@ -133,11 +133,13 @@ async function onClickSearch() {
 
 // 엑셀다운로드
 async function onClickExcelDownload() {
+  const response = await dataService.get('/sms/wells/fee/bs-processing-rate', { params: searchParams.value });
   const view = grdMainRef.value.getView();
 
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
+    exportData: response.data,
   });
 }
 

@@ -19,7 +19,7 @@
   >
     <kw-form :cols="2">
       <kw-form-row>
-        <!-- 출고관리번호 -->
+        <!-- 입고관리번호 -->
         <kw-form-item
           :label="$t('MSG_TXT_STR_MNGT_NO')"
         >
@@ -29,8 +29,8 @@
             mask="###-########-#######"
           />
         </kw-form-item>
-        <!-- //출고관리번호 -->
-        <!-- 출고창고 -->
+        <!-- //입고관리번호 -->
+        <!-- 입고창고 -->
         <kw-form-item
           :label="$t('MSG_TXT_STR_WARE')"
         >
@@ -39,7 +39,7 @@
             :disable="true"
           />
         </kw-form-item>
-        <!-- //출고창고 -->
+        <!-- //입고창고 -->
       </kw-form-row>
       <kw-form-row>
         <!-- 입고희망일자 -->
@@ -53,7 +53,7 @@
           />
         </kw-form-item>
         <!-- //입고희망일자 -->
-        <!-- 출고유형 -->
+        <!-- 입고유형 -->
         <kw-form-item
           :label="$t('MSG_TXT_STR_TP')"
         >
@@ -62,7 +62,7 @@
             :disable="true"
           />
         </kw-form-item>
-        <!-- //출고유형 -->
+        <!-- //입고유형 -->
       </kw-form-row>
       <kw-form-row>
         <!-- 입고일자 -->
@@ -74,16 +74,24 @@
           />
         </kw-form-item>
         <!-- //입고일자 -->
-        <!-- 입고창고 -->
         <kw-form-item
           :label="$t('MSG_TXT_OSTR_WARE')"
         >
+          <!-- 출고창고 -->
           <kw-input
             v-model="propsParams.ostrWareNm"
             :disable="true"
           />
+          <!-- //출고창고 -->
+          <!-- 표준 미적용 -->
+          <kw-checkbox
+            v-model="searchParams.stckNoStdGb"
+            class="ml20"
+            :label="$t('MSG_TXT_STD_NO_APY')"
+            @update:model-value="onCheckedStckNoStdGb"
+          />
+          <!-- //표준 미적용 -->
         </kw-form-item>
-        <!-- //입고창고 -->
       </kw-form-row>
     </kw-form>
 
@@ -98,14 +106,7 @@
           @change="fetchData"
         />
       </template>
-      <!--
-      <kw-btn
-        icon="print"
-        secondary
-        :label="$t('MSG_BTN_PRTG')"
-        dense
-      />
- -->
+
       <kw-btn
         dense
         secondary
@@ -119,22 +120,6 @@
         vertical
         inset
       />
-      <!-- 품목위치 표준미적용 -->
-      <kw-btn
-        dense
-        secondary
-        :label="$t('MSG_TXT_ITM_LOC_STD_NO_APY')"
-        @click="onClickLocationStandardNoApply"
-      />
-      <!-- //품목위치 표준미적용 -->
-      <!-- 품목위치 표준적용 -->
-      <kw-btn
-        dense
-        secondary
-        :label="$t('MSG_TXT_ITM_LOC_STD_APY')"
-        @click="onClickLocationStandardApply"
-      />
-      <!-- //품목위치 표준적용 -->
       <kw-btn
         dense
         secondary
@@ -181,16 +166,19 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, useDataService, getComponentType, useMeta, defineGrid, gridUtil, useGlobal } from 'kw-lib';
+import { codeUtil, useDataService, getComponentType, useMeta, defineGrid, gridUtil, useGlobal, useModal } from 'kw-lib';
 import dayjs from 'dayjs';
 import { cloneDeep } from 'lodash-es';
 
 const { getConfig } = useMeta();
 const { alert, confirm, notify, modal } = useGlobal();
 const { t } = useI18n();
+const { ok } = useModal();
 
 const dataService = useDataService();
 const baseURI = '/sms/wells/service/movement-stores/registration';
+const colsedUri = '/sms/wells/service/movement-stores/strware-monthly-end';
+const stdWareUri = '/sms/wells/service/normal-outofstorages/standard-ware';
 const grdMainRef = ref(getComponentType('KwGrid'));
 const props = defineProps({
   strRgstDt: {
@@ -225,6 +213,14 @@ const props = defineProps({
     type: String,
     default: '',
   },
+  ostrSn: {
+    type: String,
+    default: '',
+  },
+  strSn: {
+    type: String,
+    default: '',
+  },
   itmPdNo: {
     type: String,
     default: '',
@@ -249,6 +245,8 @@ const codes = ref(await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
 ));
 
+const today = dayjs().format('YYYYMMDD');
+
 const propsParams = ref({
   strRgstDt: props.strRgstDt,
   strTpCd: props.strTpCd,
@@ -258,6 +256,8 @@ const propsParams = ref({
   strWareNm: props.strWareNm,
   ostrWareNo: props.ostrWareNo,
   ostrWareNm: props.ostrWareNm,
+  ostrSn: props.ostrsn,
+  strSn: props.strSn,
   itmPdNo: props.itmPdNo,
   itmPdNm: props.itmPdNm,
   strHopDt: props.strHopDt,
@@ -271,9 +271,11 @@ const searchParams = ref({
   itmStrNo: props.itmStrNo,
   strWareNo: props.strWareNo,
   ostrWareNo: props.ostrWareNo,
+  ostrSn: props.ostrSn,
+  strSn: props.strSn,
   itmPdNo: props.itmPdNo,
   strHopDt: props.strHopDt,
-  stckStdGb: '1',
+  stckNoStdGb: 'N',
   strDt: dayjs().format('YYYYMMDD'),
 });
 
@@ -285,7 +287,17 @@ const pageInfo = ref({
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
 });
 
+async function stckStdGbFetchData() {
+  const apyYm = searchParams.value.strRgstDt.substring(0, 6);
+  const wareNo = searchParams.value.ostrWareNo;
+  const res = await dataService.get(stdWareUri, { params: { apyYm, wareNo } });
+  const { stckStdGb } = res.data;
+  console.log(res);
+  searchParams.value.stckNoStdGb = stckStdGb === 'Y' ? 'N' : 'Y';
+}
+
 async function fetchData() {
+  console.log('fetchData~~~~~~~~~~~~~~~~~~~~~~~');
   const res = await dataService.get(baseURI, { params: { ...cachedParams, ...pageInfo.value } });
   const { list: searchData, pageInfo: pagingResult } = res.data;
 
@@ -299,39 +311,166 @@ async function fetchData() {
   view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
-async function onClickSave() {
-  const dataParams = grdMainRef.value.getView();
-  const rows = dataParams.getCheckedItems();
-  console.log(rows);
-  const { strSn, strQty, itmStrNo, strWareNo, itemGdCd, itmPdCd } = dataParams.getValues(0);
-  const confirmData = {
-    strSn, strQty, itmStrNo, strWareNo, itemGdCd, itmPdCd,
+async function onCheckedStckNoStdGb() {
+  const stckStdGb = searchParams.value.stckNoStdGb === 'N' ? 'Y' : 'N';
+  const apyYm = searchParams.value.baseYm;
+  const wareNo = searchParams.value.ostrWareNo;
+
+  const res = await dataService.put(stdWareUri, { apyYm, stckStdGb, wareNo });
+  console.log(res);
+  notify(t('MSG_ALT_CHG_DATA'));
+  fetchData();
+}
+
+async function strWareMonthlyClosed() {
+  const apyYm = searchParams.value.strRgstDt.substring(0, 6);
+  const wareNo = searchParams.value.strWareNo;
+  const closedParams = {
+    apyYm,
+    wareNo,
   };
+
+  const res = await dataService.get(colsedUri, { params: closedParams });
+  console.log(res);
+  if (res.data > 0) {
+    return true;
+  }
+  return false;
+}
+
+async function saveValidation() {
+  let checked = true;
+  const view = grdMainRef.value.getView();
+  const rows = view.getCheckedItems();
+
+  if (rows.length === 0) {
+    // 입고등록 처리를 위해 선택된 건이 없습니다.
+    notify(t('MSG_ALT_NOT_SELECT_STR'));
+    return false;
+  }
+
+  if (!searchParams.value.strDt) {
+    // 입고 일자가 누락되었습니다.
+    // 입고 일자를 선택해 주세요
+    notify(t('MSG_ALT_INP_WRHS_NOT_DY'));
+    return false;
+  }
+
+  if (searchParams.value.strRgstDt > today) {
+    // 입고 일자는 오늘이거나 이전 일자만 선택이 가능합니다.
+    notify(t('MSG_ALT_STR_DT_TO_BEFORE_DT'));
+    return false;
+  }
+
+  for (let i = 0; i < rows.length; i += 1) {
+    const { strQty, ostrQty, strConfDt } = view.getValues(rows[i]);
+
+    if (strConfDt) {
+      // '이미 입고확인이 처리된 품목입니다.'
+      notify(t('MSG_ALT_ITM_ALRDY_CNFM_RCPT'));
+      checked = false;
+      return checked;
+    }
+
+    if ((Number(strQty) - Number(ostrQty)) !== 0) {
+      // 입고출고 수량이 일치하지 않습니다.
+      notify(t('MSG_ALT_RCPT_RLS_QTTS_NO_MATCH'));
+      checked = false;
+      return checked;
+    }
+  }
+
+  const closedChk = await strWareMonthlyClosed();
+  // 입고창고의 마감여부 체크
+  if (closedChk) {
+    // 해당 입고년월은 이미 마감이 완료되어, 입고작업이 불가합니다.
+    // 해당 입고일자는 이미 마감이 완료되어, 입고작업이 불가합니다.
+    notify(t('MSG_ALT_DATE_EDIT_IN_PUT'));
+    return false;
+  }
+
+  return checked;
+}
+
+async function removeValidation() {
+  const checked = true;
+
+  return checked;
+}
+
+async function onClickSave() {
+  console.log('onClickSave~~~~~~~~~~~~~~~~~~~~~~~~~');
+  const view = grdMainRef.value.getView();
+  const rows = view.getCheckedItems();
 
   // 등록하시겠습니까?
   if (await confirm(t('MSG_ALT_RGST'))) {
-    const { result } = await dataService.put(baseURI, confirmData);
+    if (await !saveValidation()) {
+      return false;
+    }
 
-    if (result) {
-      // 등록되었습니다.
-      alert(t('MSG_ALT_RGSTD'));
-      await fetchData();
+    // const { result } = await dataService.put(baseURI, { params: confirmData.value });
+    const confirmData = ref([]);
+    confirmData.value = rows.map((v) => {
+      const { strSn, strQty, itmStrNo, strWareNo, itmGdCd, itmPdCd } = view.getValues(v);
+      return {
+        itmStrNo,
+        strSn: Number(strSn),
+        strWareNo,
+        itmGdCd,
+        itmPdCd,
+        strQty: Number(strQty),
+      };
+    });
+
+    const res = await dataService.put(baseURI, confirmData.value);
+    console.log(`result : ${res}`);
+    if (res.data) {
+      ok();
+      notify(t('MSG_ALT_SAVE_DTA'));
+    } else {
+      console.log(`등록 실패: result: ${res}`);
+      notify(t('MSG_ALT_SVE_ERR'));
     }
   }
 }
 async function onClickRemove() {
-  const res = await dataService.delete(baseURI, { params: {} });
-  console.log(res.data);
-}
+  console.log('onClickRemove~~~~~~~~~~~~~~~~~~~~~~~~~');
+  const view = grdMainRef.value.getView();
+  const rows = view.getCheckedItems();
 
-async function onClickLocationStandardNoApply() {
-  searchParams.value.stckStdGb = '0';
-  await fetchData();
-}
+  // 삭제하시겠습니까?
+  if (await confirm(t('MSG_ALT_WANT_DELT'))) {
+    if (await !removeValidation()) {
+      return false;
+    }
 
-async function onClickLocationStandardApply() {
-  searchParams.value.stckStdGb = '1';
-  await fetchData();
+    const removeData = ref([]);
+    removeData.value = rows.map((v) => {
+      const { strSn, strQty, itmStrNo, strWareNo, itmGdCd, itmPdCd } = view.getValues(v);
+      return {
+        itmStrNo,
+        strSn: Number(strSn),
+        strWareNo,
+        itmGdCd,
+        itmPdCd,
+        strQty: Number(strQty),
+      };
+    });
+
+    const { result } = await dataService.delete(baseURI, { params: {} });
+    console.log(`result : ${result}`);
+
+    if (result) {
+      ok();
+      // 삭제 되었습니다.
+      notify(t('MSG_ALT_DELETED'));
+    } else {
+      console.log(`삭제 실패 : result: ${result}`);
+      // 삭제에 실패 하였습니다.
+      notify(t('MSG_ALT_DEL_ERR'));
+    }
+  }
 }
 
 // TODO: W-SV-U-0169P02 - 네임텍 출력 개발 진행 후 반영 예정
@@ -355,6 +494,7 @@ async function onClickExcelDownload() {
 onMounted(async () => {
   pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
+  await stckStdGbFetchData();
   await fetchData();
 });
 // -------------------------------------------------------------------------------------------------
@@ -362,7 +502,7 @@ onMounted(async () => {
 // -------------------------------------------------------------------------------------------------
 const initGrdMain = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'sapMaptCd', header: t('MSG_TXT_SAP_CD'), width: '124', styleName: 'text-center' },
+    { fieldName: 'sapMatCd', header: t('MSG_TXT_SAP_CD'), width: '124', styleName: 'text-center' },
     { fieldName: 'itmPdCd', header: t('MSG_TXT_ITM_CD'), width: '130', styleName: 'text-center' },
     { fieldName: 'itmPdNm', header: t('MSG_TXT_ITM_NM'), width: '210', styleName: 'text-left' },
     { fieldName: 'itemLoc', header: t('MSG_TXT_ITM_LOC'), width: '141', styleName: 'text-left' },
@@ -394,25 +534,29 @@ const initGrdMain = defineGrid((data, view) => {
   view.rowIndicator.visible = true;
 
   view.onCellDblClicked = async (g, c) => {
-    const { itmPdCd, itmPdNm } = g.getValues(g.getCurrent().itemIndex);
-    console.log(itmPdNm, itmPdNm);
+    const { itmPdCd, itmPdNm, strRgstDt } = g.getValues(g.getCurrent().itemIndex);
+    console.log(itmPdNm, itmPdNm, strRgstDt);
     console.log(searchParams.value.ostrWareNo);
 
     if (c.column === 'itemLoc') {
-      const { result: isChanged } = await modal({
+      const { result, payload } = await modal({
         component: 'WwsnaItemLocationMgtP',
         componentProps: {
           wareNo: searchParams.value.ostrWareNo,
           itmPdCd,
+          apyYm: strRgstDt,
         },
       });
-      console.log(isChanged);
-    }
+      console.log(`result : ${result}`);
+      console.log(`payload : ${payload}`);
 
-    // if (isChanged) {
-    //   notify(t('MSG_ALT_SAVE_DATA'));
-    //   await fetchData();
-    // }
+      if (result) {
+        fetchData();
+        console.log('재검색 하였습니다.');
+      }
+
+      stckStdGbFetchData();
+    }
   };
 
   view.onItemChecked = async (grid, i, checkedVal) => {
@@ -421,15 +565,12 @@ const initGrdMain = defineGrid((data, view) => {
     const { strQty, ostrQty, strConfDt } = grid.getValues(i);
     console.log(strConfDt);
 
-    if (strConfDt !== null) {
+    if (strConfDt) {
       // '이미 입고확인이 처리된 품목입니다.'
       notify(t('MSG_ALT_ITM_ALRDY_CNFM_RCPT'));
     }
 
-    if ((Number(strQty) - Number(ostrQty)) === 0) {
-      // 입고출고 수량이 같음
-      notify(t('MSG_ALT_RCPT_RLS_QTTS_SAME'));
-    } else {
+    if ((Number(strQty) - Number(ostrQty)) !== 0) {
       // 입고출고 수량이 일치하지 않습니다.
       notify(t('MSG_ALT_RCPT_RLS_QTTS_NO_MATCH'));
     }

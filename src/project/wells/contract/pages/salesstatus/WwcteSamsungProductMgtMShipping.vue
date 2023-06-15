@@ -13,171 +13,130 @@
 ****************************************************************************************************
 --->
 <template>
-  <kw-search>
+  <kw-search @search="onClickSearch">
     <kw-search-row>
       <kw-search-item
         :label="$t('MSG_TXT_LOOKUP_PERIOD')"
         required
       >
         <kw-date-range-picker
+          v-model:from="searchParams.strtdt"
+          v-model:to="searchParams.enddt"
           :label="$t('MSG_TXT_LOOKUP_PERIOD')"
-          rules="date_range_required|date_range_months:1"
         />
       </kw-search-item>
       <kw-search-item
         :label="$t('MSG_TXT_PRDT_GUBUN')"
-        required
+        colspan="2"
       >
-        <kw-field :model-value="[]">
-          <template #default="{ field }">
-            <kw-checkbox
-              v-bind="field"
-              :label="$t('MSG_TXT_PROD_CLSF_DET')"
-              val=""
-            />
-          </template>
-        </kw-field>
-      </kw-search-item>
-    </kw-search-row>
-    <kw-search-row
-      v-if="true"
-    >
-      <kw-search-item
-        :colspan="3"
-        :label="$t('MSG_TXT_PD_DTL')"
-        required
-      >
-        <kw-list class="checkbox-group col">
-          <kw-item>
-            <kw-field :model-value="[]">
-              <template #default="{ field }">
-                <kw-checkbox
-                  v-bind="field"
-                  :label="$t('MSG_TXT_WASHER')"
-                  val=""
-                />
-              </template>
-            </kw-field>
-            <kw-separator
-              vertical
-              inset
-              spaced="20px"
-            />
-            <kw-option-group
-              :model-value="[]"
-              type="checkbox"
-              :options="['세탁기(WV20M9670)', '세탁기(WV20M9670)', '세탁기(WF21T6500)', '세탁기(WF21N8750)',
-                         '비스포크 세탁기 실버','비스포크 세탁기 화이트']"
-            />
-          </kw-item>
-          <kw-item>
-            <kw-field :model-value="[]">
-              <template #default="{ field }">
-                <kw-checkbox
-                  v-bind="field"
-                  :label="$t('MSG_TXT_DRYER')"
-                  val=""
-                />
-              </template>
-            </kw-field>
-            <kw-separator
-              vertical
-              inset
-              spaced="20px"
-            />
-            <kw-option-group
-              :model-value="[]"
-              type="checkbox"
-              :options="['건조기-DV90M53더오름', '건조기(DV14T8520)', '건조기(DV16T8740)']"
-            />
-          </kw-item>
-          <kw-item>
-            <kw-field :model-value="[]">
-              <template #default="{ field }">
-                <kw-checkbox
-                  v-bind="field"
-                  :label="$t('MSG_TXT_DRESSER')"
-                  val=""
-                />
-              </template>
-            </kw-field>
-            <kw-separator
-              vertical
-              inset
-              spaced="20px"
-            />
-            <kw-option-group
-              :model-value="[]"
-              type="checkbox"
-              :options="['드레서(우드브라운)', '드레서(우드로즈)', '드레서(버건디미러)', '드레서(크리스탈미러)',
-                         '드레서 일반 크리스탈미러','드레서 일반 글램화이트' ,'드레서 대용량 크리스탈미러']"
-            />
-          </kw-item>
-          <kw-item>
-            <kw-field :model-value="[]">
-              <template #default="{ field }">
-                <kw-checkbox
-                  v-bind="field"
-                  :label="$t('MSG_TXT_ARCN')"
-                  val=""
-                />
-              </template>
-            </kw-field>
-            <kw-separator
-              vertical
-              inset
-              spaced="20px"
-            />
-            <kw-option-group
-              :model-value="[]"
-              type="checkbox"
-              :options="['무풍갤러리(AF18R)', '무풍갤러리멀티전용']"
-            />
-          </kw-item>
-        </kw-list>
+        <kw-field-wrap
+          grow
+          control-class="gap-xs"
+          class="equal_division--2"
+        >
+          <kw-select
+            ref="selMclsfsRef"
+            v-model="searchParams.pdMclsfIds"
+            multiple
+            :options="mclsfs"
+            :placeholder="$t('MSG_TXT_CLSF') + $t('MSG_TXT_SELT')"
+            style="max-width: 33%;"
+          />
+          <kw-select
+            ref="selPdsRef"
+            v-model="searchParams.pdCds"
+            multiple
+            :options="products"
+            option-value="pdCd"
+            option-label="pdNm"
+            :placeholder="$t('MSG_TXT_MDL_NM') + $t('MSG_TXT_SELT')"
+            style="max-width: 33%;"
+          />
+        </kw-field-wrap>
       </kw-search-item>
     </kw-search-row>
   </kw-search>
   <div class="result-area">
     <kw-action-top>
       <template #left>
-        <kw-paging-info :total-count="pageInfo.totalCount" />
+        <kw-paging-info
+          v-model:page-index="pageInfo.pageIndex"
+          v-model:page-size="pageInfo.pageSize"
+          :total-count="pageInfo.totalCount"
+          :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
+          @change="fetchPage"
+        />
       </template>
       <kw-btn
         icon="download_on"
-        :disable="pageInfo.totalCount === 0"
         secondary
         dense
         :label="$t('MSG_BTN_DOWN_COM_EXCEL')"
+        :disable="pageInfo.totalCount === 0"
+        @click="onClickCombiExcelDownload"
       />
       <kw-btn
         icon="download_on"
-        :disable="pageInfo.totalCount === 0"
         secondary
         dense
         :label="$t('MSG_BTN_EXCEL_DOWN')"
-        :disable="pageInfo.totalCount===0"
+        :disable="pageInfo.totalCount === 0"
         @click="onClickExcelDownload"
       />
     </kw-action-top>
     <kw-grid
-      ref="grdMainRefShipping"
+      ref="grdRef"
       v-model:page-size="pageInfo.pageSize"
       :total-count="pageInfo.totalCount"
       name="grdShipping"
-      @init="initGrdShipping"
+      @init="initGrd"
     />
+    <kw-pagination
+      v-model:page-index="pageInfo.pageIndex"
+      v-model:page-size="pageInfo.pageSize"
+      :total-count="pageInfo.totalCount"
+      @change="onChangePageInfo"
+    />
+    <kw-grid
+      ref="grdCombiRef"
+      name="grdCombi"
+      style="max-width: 0; max-height: 0;"
+      @init="initGrdCombi"
+    />
+    <!-- 숨기기 처리시 grid 초기화되지 않는 이슈로 인해 width, height 설정으로 회피 -->
   </div>
 </template>
 <script setup>
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { getComponentType, defineGrid, gridUtil, useMeta } from 'kw-lib';
+import { codeUtil, defineGrid, getComponentType, gridUtil, useDataService, useMeta } from 'kw-lib';
+import useGridDataModel from '~sms-common/contract/composable/useGridDataModel';
+import dayjs from 'dayjs';
+import { differenceBy, uniq, xor } from 'lodash-es';
 
 const { t } = useI18n();
 const { getConfig } = useMeta();
 const { currentRoute } = useRouter();
+const dataService = useDataService();
+
+const codes = await codeUtil.getMultiCodes(
+  'COD_YN',
+  'SELL_TP_CD',
+  'COD_PAGE_SIZE_OPTIONS',
+);
+
+// -------------------------------------------------------------------------------------------------
+// Function & Event
+// -------------------------------------------------------------------------------------------------
+const grdRef = ref(getComponentType('KwGrid'));
+const grdCombiRef = ref(getComponentType('KwGrid'));
+
+const grdView = computed(() => grdRef.value?.getView());
+const grdData = computed(() => grdRef.value?.getData());
+
+const grdCombiView = computed(() => grdCombiRef.value?.getView());
+const grdCombiData = computed(() => grdCombiRef.value?.getData());
 
 const pageInfo = ref({
   totalCount: 0,
@@ -185,173 +144,403 @@ const pageInfo = ref({
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
 });
 
-// -------------------------------------------------------------------------------------------------
-// Function & Event
-// -------------------------------------------------------------------------------------------------
-const grdMainRefShipping = ref(getComponentType('KwGrid'));
+let cachedParams;
+const searchParams = reactive({
+  strtdt: dayjs().startOf('M').format('YYYYMMDD'),
+  enddt: dayjs().format('YYYYMMDD'),
+  pdMclsfIds: [],
+  pdCds: [],
+  isCombi: 'N',
+});
+
+const selMclsfsRef = ref(getComponentType('KwSelect'));
+const selPdsRef = ref(getComponentType('KwSelect'));
+
+const unsorted = await dataService.get('/sms/wells/contract/sales-status/sec-product-management/medium-clsfs').then((response) => response.data);
+const mclsfs = [];
+const grouped = unsorted?.reduce((acc, cur) => {
+  const key = cur.pdMclsfId;
+  if (Array.isArray(acc[key])) {
+    acc[key].push(cur);
+  } else {
+    /* notify! side effect */
+    mclsfs.push({ codeId: key, codeName: cur.pdMclsfNm });
+    acc[key] = [cur];
+  }
+  return acc;
+}, {}) ?? {};
+const products = Object.entries(grouped)
+  .reduce((arr, entry) => {
+    const partials = entry[1];
+    const last = partials.at(partials.length - 1);
+    if (last) { last.separator = false; } /* unique key bug exist on library... */
+    arr.push(...partials);
+    return arr;
+  }, []);
+const dictByPdCode = products.reduce((dict, pd) => { dict[pd.pdCd] = pd; return dict; }, {});
+const selectedProducts = computed(() => searchParams.pdCds.map((pdCd) => (dictByPdCode[pdCd])));
+
+watch(() => searchParams.pdMclsfIds, (value, oldValue) => {
+  if (selPdsRef.value.pending) {
+    return;
+  }
+  let currentProducts = [...selectedProducts.value];
+  const added = differenceBy(value, oldValue);
+  const pdMclsfIdsByPdCds = uniq(currentProducts.map((product) => product.pdMclsfId));
+  added.forEach((pdMclsfId) => {
+    /* 선택 된 상품 중 하나라도 해당 중분류를 가지는 값이 있다면 넘어간다. */
+    if (pdMclsfIdsByPdCds.includes(pdMclsfId)) { return; }
+    currentProducts.push(...grouped[pdMclsfId]);
+  });
+  const removed = differenceBy(oldValue, value);
+  currentProducts = currentProducts.filter((product) => !removed.includes(product.pdMclsfId));
+  if (added.length || removed.length) {
+    searchParams.pdCds = currentProducts.map((product) => product.pdCd);
+  }
+});
+
+watch(() => searchParams.pdCds, (value) => {
+  if (selMclsfsRef.value.pending) {
+    return;
+  }
+  const pdMclsfIdsByPdCds = uniq(value.map((pdCd) => dictByPdCode[pdCd].pdMclsfId));
+  if (xor(pdMclsfIdsByPdCds, searchParams.pdMclsfIds)) {
+    searchParams.pdMclsfIds = pdMclsfIdsByPdCds;
+  }
+});
+
+const fetchPage = async (pageIndex = pageInfo.value.pageIndex, pageSize = pageInfo.value.pageSize) => {
+  const params = {
+    ...cachedParams,
+    pageIndex,
+    pageSize,
+  };
+  const response = await dataService.get('/sms/wells/contract/sales-status/sec-product-management/shipping-items/paging', { params });
+  // console.log(response);
+  pageInfo.value = response.data.pageInfo;
+  grdData.value.setRows(response.data.list);
+
+  grdView.value.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
+};
+
+function cacheParams() {
+  cachedParams = {
+    strtdt: searchParams.strtdt,
+    enddt: searchParams.enddt,
+    pdMclsfIds: searchParams.pdMclsfIds.join(','),
+    pdCds: searchParams.pdCds.join(','),
+    isCombi: 'N',
+  };
+}
+
+async function onClickSearch() {
+  cacheParams();
+  pageInfo.value.pageIndex = 1;
+  await fetchPage();
+}
+
+function onChangePageInfo(pageIndex, pageSize) {
+  fetchPage(pageIndex, pageSize);
+}
+
+async function onClickCombiExcelDownload() {
+  const combiPdCds = ['WP02120302', 'WP02120313', 'WP02120586', 'WP02120589', 'WP02120592', 'WP02120069', 'WP02120428'];
+  const params = {
+    strtdt: cachedParams.strtdt,
+    enddt: cachedParams.enddt,
+    pdMclsfIds: cachedParams.pdMclsfIds,
+    pdCds: cachedParams.pdCds
+      ? cachedParams.pdCds.split(',').filter((pdCd) => combiPdCds.includes(pdCd)).join(',')
+      : combiPdCds.join(','),
+    isCombi: 'Y',
+  };
+  const res = await dataService.get('/sms/wells/contract/sales-status/sec-product-management/shipping-items', { params });
+
+  grdCombiData.value.setRows(res.data);
+  grdCombiView.value.resetCurrent();
+
+  await gridUtil.exportView(grdCombiView.value, {
+    fileName: `${currentRoute?.value.meta?.menuName}(${t('MSG_TXT_DLVRY')})_콤비`,
+    timePostfix: true,
+    exportData: res.data,
+    searchCondition: true,
+  });
+}
 
 async function onClickExcelDownload() {
-  const view = grdMainRefShipping.value.getView();
-  await gridUtil.exportView(view, {
-    fileName: currentRoute.value.meta.menuName,
+  if (!cachedParams) { cacheParams(); }
+  const res = await dataService.get('/sms/wells/contract/sales-status/sec-product-management/shipping-items', { params: cachedParams });
+  await gridUtil.exportView(grdView.value, {
+    fileName: `${currentRoute?.value.meta?.menuName}(${t('MSG_TXT_DLVRY')})`,
     timePostfix: true,
+    exportData: res.data,
+    searchCondition: true,
   });
 }
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
+const initGrd = defineGrid((data, view) => {
+  useGridDataModel(view, {
+    blkYn1: { displaying: false },
+    blkYn2: { displaying: false },
+    blkYn3: { displaying: false },
+    blkYn4: { displaying: false },
+    blkList: {
+      label: t('MSG_TXT_SUS_CUST'),
+      width: 100,
+      valueCallback: (gridBase, rowId, fieldName, fields, values) => {
+        const yn1 = values[fields.indexOf('blkYn1')];
+        const yn2 = values[fields.indexOf('blkYn2')];
+        const yn3 = values[fields.indexOf('blkYn3')];
+        const yn4 = values[fields.indexOf('blkYn4')];
 
-const initGrdShipping = defineGrid((data, view) => {
-  const fields = [
-    { fieldName: 'col1' },
-    { fieldName: 'col2' },
-    { fieldName: 'col3' },
-    { fieldName: 'col4' },
-    { fieldName: 'col5' },
-    { fieldName: 'col6' },
-    { fieldName: 'col7' },
-    { fieldName: 'col8' },
-    { fieldName: 'col9' },
-    { fieldName: 'col10' },
-    { fieldName: 'col11' },
-    { fieldName: 'col12' },
-    { fieldName: 'col13' },
-    { fieldName: 'col14' },
-    { fieldName: 'col15' },
-    { fieldName: 'col16' },
-  ];
-
-  const columns = [
-    { fieldName: 'col1', header: t('MSG_TXT_SUS_CUST'), width: '100', styleName: 'text-left' },
-    {
-      fieldName: 'col2',
-      header: t('MSG_TXT_ORD_INQ_DT'),
-      width: '120',
-      styleName: 'text-center',
+        let res = '';
+        if (yn1 === '1') {
+          res = `${t('MSG_TXT_KWK') /* 교원키 */} ${t('MSG_TIT_DUB') /* 의심 */}`;
+        } else if (yn2 === '1') {
+          res = `${t('MSG_TXT_CST_NM') /* 고객명 */} ${t('MSG_TIT_DUB') /* 의심 */}`;
+        } else if (yn3 === '1') {
+          res = `${t('MSG_TXT_CONTACT') /* 연락처 */} ${t('MSG_TIT_DUB') /* 의심 */}`;
+        } else if (yn4 === '1') {
+          res = `${t('MSG_TXT_ADDR') /* 주소 */} ${t('MSG_TIT_DUB') /* 의심 */}`;
+        }
+        return res;
+      },
+    },
+    cttOrCnfmDtm: {
+      label: t('MSG_TXT_ORD_INQ_DT'),
+      width: 120,
+      classes: 'text-center',
       datetimeFormat: 'date',
     },
-    { fieldName: 'col3', header: t('MSG_TXT_CNTR_DTL_NO'), width: '120', styleName: 'text-center' },
-    {
-      fieldName: 'col4',
-      header: `${t('MSG_TXT_ORD_NO')}(${t('MSG_TXT_SEC')})`,
-      width: '180',
-      styleName: 'text-center',
+    cntrNo: { displaying: false },
+    cntrSn: { displaying: false },
+    cntrNoSn: {
+      label: t('MSG_TXT_CNTR_DTL_NO'),
+      width: 150,
+      valueExpression: 'values["cntrNo"] + "-" + values["cntrSn"]',
+      classes: 'text-center',
     },
-    { fieldName: 'col5', header: t('MSG_TXT_EXTRAD'), width: '100', styleName: 'text-left' },
-    { fieldName: 'col6', header: t('MSG_TXT_ZIP'), width: '120', styleName: 'text-center' },
-    { fieldName: 'col7', header: t('MSG_TXT_ADDR'), width: '400', styleName: 'text-left' },
-    {
-      fieldName: 'col8',
-      header: `${t('MSG_TXT_PRDT_NM')}(${t('MSG_TXT_TXT_MSG_PD_HCLSF_ID')})`,
-      width: '240',
-      styleName: 'text-left',
+    sppBzsOrdId: {
+      label: `${t('MSG_TXT_ORD_NO')}(${t('MSG_TXT_SEC')})`,
+      width: 180,
+      classes: 'text-center',
     },
-    {
-      fieldName: 'col9',
-      header: `${t('MSG_TXT_PRDT_NM')}(${t('MSG_TXT_TXT_MSG_PD_LCLSF_ID')})`,
-      width: '240',
-      styleName: 'text-left',
+    rcgvpKnm: {
+      label: t('MSG_TXT_EXTRAD'), width: 100, classes: 'text-center',
     },
-    { fieldName: 'col10', header: t('MSG_TXT_TEL_NO'), width: '180', styleName: 'text-center' },
-    { fieldName: 'col11', header: t('MSG_TXT_MPNO'), width: '134', styleName: 'text-center' },
-    { fieldName: 'col12', header: t('MSG_TXT_UNUITM'), width: '200', styleName: 'text-left' },
-    { fieldName: 'col13', header: t('MSG_TXT_INST'), width: '134', styleName: 'text-center' },
-    {
-      fieldName: 'col14',
-      header: t('MSG_TXT_INST_DT'),
-      width: '134',
-      styleName: 'text-center',
+    zip: {
+      label: t('MSG_TXT_ZIP'), width: 120, classes: 'text-center',
+    },
+    adr: { displaying: false },
+    dtlAdr: { displaying: false },
+    address: {
+      label: t('MSG_TXT_ADDR'),
+      width: 400,
+      valueCallback: (gridBase, rowId, fieldName, fields, values) => {
+        const adr = values[fields.indexOf('adr')];
+        const dtlAdr = values[fields.indexOf('dtlAdr')];
+        if (!adr) {
+          return '';
+        }
+        return `${adr}${dtlAdr ? ` ${dtlAdr}` : ''}`;
+      },
+    },
+    pdMclsfId: { displaying: false },
+    pdMclsfNm: {
+      label: `${t('MSG_TXT_PRDT_NM')}(${t('MSG_TXT_PD_MCLSF_ID')})`,
+      width: 240,
+      classes: 'text-center',
+    },
+    pdCd: { displaying: false },
+    pdNm: { displaying: false },
+    pd: {
+      label: t('MSG_TXT_PRDT_NM'),
+      width: 240,
+      valueCallback: (gridBase, rowId, fieldName, fields, values) => {
+        const pdNm = values[fields.indexOf('pdNm')];
+        const pdCd = values[fields.indexOf('pdCd')];
+        if (!pdNm) {
+          return '';
+        }
+        return `${pdNm}${pdCd ? `(${pdCd})` : ''}`;
+      },
+    },
+    cralLocaraTno: { displaying: false },
+    mexnoEncr: { displaying: false },
+    cralIdvTno: { displaying: false },
+    shpadrTno: {
+      label: `${t('MSG_TXT_SHPADR')} ${t('MSG_TXT_TEL_NO')}` /* 배송지 전화번호 */,
+      width: 180,
+      valueCallback: (gridBase, rowId, fieldName, fields, values) => {
+        const tno1 = values[fields.indexOf('cralLocaraTno')];
+        const tno2 = values[fields.indexOf('mexnoEncr')];
+        const tno3 = values[fields.indexOf('cralIdvTno')];
+        return (tno1 && tno2 && tno3) ? `${tno1}-${tno2}-${tno3}` : '';
+      },
+      classes: 'text-center',
+    },
+    prtnrCralLocaraTno: { displaying: false },
+    prtnrMexnoEncr: { displaying: false },
+    prtnrCralIdvTno: { displaying: false },
+    prtnrTno: {
+      label: `${t('MSG_TXT_PRTNR')} ${t('MSG_TXT_TEL_NO')}` /* 파트너 전화번호 */,
+      width: 180,
+      valueCallback: (gridBase, rowId, fieldName, fields, values) => {
+        const tno1 = values[fields.indexOf('prtnrCralLocaraTno')];
+        const tno2 = values[fields.indexOf('prtnrMexnoEncr')];
+        const tno3 = values[fields.indexOf('prtnrCralIdvTno')];
+        return (tno1 && tno2 && tno3) ? `${tno1}-${tno2}-${tno3}` : '';
+      },
+      classes: 'text-center',
+    },
+    unuitm: {
+      label: t('MSG_TXT_UNUITM'),
+      width: 200,
+      classes: 'text-left',
+    },
+    istYn: {
+      label: t('MSG_TXT_INST'),
+      width: 134,
+      options: codes.COD_YN,
+    },
+    istDt: {
+      label: t('MSG_TXT_INST_DT'),
+      width: 134,
       datetimeFormat: 'date',
     },
-    { fieldName: 'col15', header: t('MSG_TXT_SR_NUM'), width: '134', styleName: 'text-center' },
-    { fieldName: 'col16', header: t('MSG_TXT_ORD_TYP'), width: '134', styleName: 'text-center' },
-  ];
-
-  data.setFields(fields);
-  view.setColumns(columns);
+    pdctIdno: {
+      label: t('MSG_TXT_SR_NUM'),
+      width: 134,
+      classes: 'text-center',
+    },
+    sellTpCd: {
+      label: t('MSG_TXT_ORD_TYP'),
+      width: 134,
+      options: codes.SELL_TP_CD,
+    },
+  });
   view.checkBar.visible = false; // create checkbox column
   view.rowIndicator.visible = true; // create number indicator column
 
-  data.setRows([
-    {
-      col1: '고객명 의심',
-      col2: '2022-10-01',
-      col3: '1234-567890',
-      col4: '000000000',
-      col5: '김고객',
-      col6: '12345',
-      col7: '서울 관악구 난곡로 00길 1-1 교원A동 105호',
-      col8: '삼성 건조기 9kg',
-      col9: '건조기(DV90T5540)',
-      col10: '02-111-1234',
-      col11: '010-1234-1234',
-      col12: '-',
-      col13: 'Y',
-      col14: '2022-10-10',
-      col15: '-',
-      col16: 'L20',
+  // 스크롤 고정 - 의심고객, 주문 조회 일, 계약상세번호 고정
+  view.setFixedOptions({ colCount: 3 });
+});
+
+const initGrdCombi = defineGrid((data, view) => {
+  useGridDataModel(view, {
+    cntrNo: { displaying: false },
+    cntrSn: { displaying: false },
+    cntrNoSn: {
+      label: t('MSG_TXT_CNTR_DTL_NO'),
+      width: 150,
+      valueExpression: 'values["cntrNo"] + "-" + values["cntrSn"]',
+      classes: 'text-center',
     },
-    {
-      col1: '고객명 의심',
-      col2: '2022-10-01',
-      col3: '1234-567890',
-      col4: '000000000',
-      col5: '김고객',
-      col6: '12345',
-      col7: '서울 관악구 난곡로 00길 1-1 교원A동 105호',
-      col8: '삼성 건조기 9kg',
-      col9: '건조기(DV90T5540)',
-      col10: '02-111-1234',
-      col11: '010-1234-1234',
-      col12: '-',
-      col13: 'Y',
-      col14: '2022-10-10',
-      col15: '-',
-      col16: 'L20',
+    ojDtlCntrNo: { displaying: false },
+    ojDtlCntrSn: { displaying: false },
+    ojDtlCntrNoSn: {
+      label: `${t('MSG_TXT_CNTR_DTL_NO')}(${t('MSG_TXT_COM_WALL')})`,
+      width: 180,
+      valueExpression: 'values["ojDtlCntrNo"] + "-" + values["ojDtlCntrSn"]',
+      classes: 'text-center',
     },
-    {
-      col1: '고객명 의심',
-      col2: '2022-10-01',
-      col3: '1234-567890',
-      col4: '000000000',
-      col5: '김고객',
-      col6: '12345',
-      col7: '서울 관악구 난곡로 00길 1-1 교원A동 105호',
-      col8: '삼성 건조기 9kg',
-      col9: '건조기(DV90T5540)',
-      col10: '02-111-1234',
-      col11: '010-1234-1234',
-      col12: '-',
-      col13: 'Y',
-      col14: '2022-10-10',
-      col15: '-',
-      col16: 'L20',
+    rcgvpKnm: {
+      label: t('MSG_TXT_EXTRAD'), width: 100, classes: 'text-center',
     },
-    {
-      col1: '고객명 의심',
-      col2: '2022-10-01',
-      col3: '1234-567890',
-      col4: '000000000',
-      col5: '김고객',
-      col6: '12345',
-      col7: '서울 관악구 난곡로 00길 1-1 교원A동 105호',
-      col8: '삼성 건조기 9kg',
-      col9: '건조기(DV90T5540)',
-      col10: '02-111-1234',
-      col11: '010-1234-1234',
-      col12: '-',
-      col13: 'Y',
-      col14: '2022-10-10',
-      col15: '-',
-      col16: 'L20',
+    zip: {
+      label: t('MSG_TXT_ZIP'), width: 120, classes: 'text-center',
     },
-  ]);
+    adr: { displaying: false },
+    dtlAdr: { displaying: false },
+    address: {
+      label: t('MSG_TXT_ADDR'),
+      width: 400,
+      valueCallback: (gridBase, rowId, fieldName, fields, values) => {
+        const adr = values[fields.indexOf('adr')];
+        const dtlAdr = values[fields.indexOf('dtlAdr')];
+        if (!adr) {
+          return '';
+        }
+        return `${adr}${dtlAdr ? ` ${dtlAdr}` : ''}`;
+      },
+    },
+    pdMclsfId: { displaying: false },
+    pdMclsfNm: {
+      label: `${t('MSG_TXT_PRDT_NM')}(${t('MSG_TXT_PD_MCLSF_ID')})`,
+      width: 240,
+    },
+    pdCd: { displaying: false },
+    pdNm: { displaying: false },
+    pd: {
+      label: t('MSG_TXT_PRDT_NM'),
+      width: 240,
+      valueCallback: (gridBase, rowId, fieldName, fields, values) => {
+        const pdNm = values[fields.indexOf('pdNm')];
+        const pdCd = values[fields.indexOf('pdCd')];
+        if (!pdNm) {
+          return '';
+        }
+        return `${pdNm}${pdCd ? `(${pdCd})` : ''}`;
+      },
+    },
+    cralLocaraTno: { displaying: false },
+    mexnoEncr: { displaying: false },
+    cralIdvTno: { displaying: false },
+    shpadrTno: {
+      label: `${t('MSG_TXT_SHPADR')} ${t('MSG_TXT_TEL_NO')}` /* 배송지 전화번호 */,
+      width: 180,
+      valueCallback: (gridBase, rowId, fieldName, fields, values) => {
+        const tno1 = values[fields.indexOf('cralLocaraTno')];
+        const tno2 = values[fields.indexOf('mexnoEncr')];
+        const tno3 = values[fields.indexOf('cralIdvTno')];
+        return (tno1 && tno2 && tno3) ? `${tno1}-${tno2}-${tno3}` : '';
+      },
+      classes: 'text-center',
+    },
+    prtnrCralLocaraTno: { displaying: false },
+    prtnrMexnoEncr: { displaying: false },
+    prtnrCralIdvTno: { displaying: false },
+    prtnrTno: {
+      label: `${t('MSG_TXT_PRTNR')} ${t('MSG_TXT_TEL_NO')}` /* 파트너 전화번호 */,
+      width: 180,
+      valueCallback: (gridBase, rowId, fieldName, fields, values) => {
+        const tno1 = values[fields.indexOf('prtnrCralLocaraTno')];
+        const tno2 = values[fields.indexOf('prtnrMexnoEncr')];
+        const tno3 = values[fields.indexOf('prtnrCralIdvTno')];
+        return (tno1 && tno2 && tno3) ? `${tno1}-${tno2}-${tno3}` : '';
+      },
+      classes: 'text-center',
+    },
+    unuitm: {
+      label: t('MSG_TXT_UNUITM'),
+      width: 200,
+      classes: 'text-left',
+    },
+    istYn: {
+      label: t('MSG_TXT_INST'),
+      width: 134,
+      options: codes.COD_YN,
+    },
+    istDt: {
+      label: t('MSG_TXT_INST_DT'),
+      width: 134,
+      datetimeFormat: 'date',
+    },
+    pdctIdno: {
+      label: t('MSG_TXT_SR_NUM'),
+      width: 134,
+      classes: 'text-center',
+    },
+    sellTpCd: {
+      label: t('MSG_TXT_ORD_TYP'),
+      width: 134,
+      options: codes.SELL_TP_CD,
+    },
+  });
+  view.checkBar.visible = false; // create checkbox column
+  view.rowIndicator.visible = true; // create number indicator column
 });
 </script>
-<style scoped lang="scss">
-.border-top {
-  border-top: 1px solid $line-line;
-}
-
-</style>

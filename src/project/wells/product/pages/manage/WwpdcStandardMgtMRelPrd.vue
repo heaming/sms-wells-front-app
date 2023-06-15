@@ -150,8 +150,8 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { gridUtil, useGlobal, getComponentType, codeUtil } from 'kw-lib';
-import { getCodeNames, getAlreadyItems, getGridRowCount, pdMergeBy } from '~/modules/sms-common/product/utils/pdUtil';
+import { gridUtil, stringUtil, useGlobal, getComponentType, codeUtil } from 'kw-lib';
+import { getCodeNames, getAlreadyItems, getGridRowCount, pdMergeBy, setPdGridRows } from '~/modules/sms-common/product/utils/pdUtil';
 import pdConst from '~sms-common/product/constants/pdConst';
 
 /* eslint-disable no-use-before-define */
@@ -217,6 +217,7 @@ const standardSearchValue = ref();
 const searchParams = ref({
   searchType: null,
   searchValue: null,
+  exceptPdCd: null,
   pdTpCd: '',
 });
 
@@ -276,27 +277,10 @@ async function insertCallbackRows(view, rtn, pdRelTpCd) {
     if (Array.isArray(rtn.payload) && rtn.payload.length > 1) {
       const data = view.getDataSource();
       const rows = rtn.payload.map((item) => ({
-        ...item, [pdConst.REL_OJ_PD_CD]: item.pdCd, [pdConst.PD_REL_TP_CD]: pdRelTpCd }));
-      const okRows = await getCheckAndNotExistRows(view, rows);
-      if (okRows && okRows.length) {
-        await data.insertRows(0, okRows);
-        await gridUtil.focusCellInput(view, 0);
-      }
-    } else if (rtn.payload.payload) {
-      // TODO 삭제 필요
-      const data = view.getDataSource();
-      const rows = rtn.payload.payload.map((item) => ({
-        ...item, [pdConst.REL_OJ_PD_CD]: item.pdCd, [pdConst.PD_REL_TP_CD]: pdRelTpCd }));
-      const okRows = await getCheckAndNotExistRows(view, rows);
-      if (okRows && okRows.length) {
-        await data.insertRows(0, okRows);
-        await gridUtil.focusCellInput(view, 0);
-      }
-    } else if (rtn.payload.checkedRows) {
-      // TODO 삭제 필요
-      const data = view.getDataSource();
-      const rows = rtn.payload.checkedRows.map((item) => ({
-        ...item, [pdConst.REL_OJ_PD_CD]: item.pdCd, [pdConst.PD_REL_TP_CD]: pdRelTpCd }));
+        ...item,
+        [pdConst.REL_PD_ID]: stringUtil.getUid('REL_TMP'),
+        [pdConst.REL_OJ_PD_CD]: item.pdCd,
+        [pdConst.PD_REL_TP_CD]: pdRelTpCd }));
       const okRows = await getCheckAndNotExistRows(view, rows);
       if (okRows && okRows.length) {
         await data.insertRows(0, okRows);
@@ -304,6 +288,7 @@ async function insertCallbackRows(view, rtn, pdRelTpCd) {
       }
     } else {
       const row = Array.isArray(rtn.payload) ? rtn.payload[0] : rtn.payload;
+      row[pdConst.REL_PD_ID] = stringUtil.getUid('REL_TMP');
       row[pdConst.PD_REL_TP_CD] = pdRelTpCd;
       row[pdConst.REL_OJ_PD_CD] = row.pdCd;
       const okRows = await getCheckAndNotExistRows(view, [row]);
@@ -367,7 +352,7 @@ async function onClickServiceSchPopup() {
   searchParams.value.pdTpCd = pdConst.PD_TP_CD_SERVICE;
 
   const materialCds = gridUtil.getAllRowValues(grdMaterialRef.value.getView())
-    ?.reduce((rtn, item) => { rtn.push(item.pdCd); return rtn; }, []);
+    ?.reduce((rtn, item) => { rtn.push({ codeId: item.pdCd, codeName: item.pdNm }); return rtn; }, []);
   const rtn = await modal({
     component: 'ZwpdcServiceSimpleListP',
     componentProps: { ...searchParams.value, relationCds: materialCds },
@@ -384,6 +369,7 @@ async function onClickStandardSchPopup() {
   searchParams.value.searchType = pdConst.PD_SEARCH_NAME;
   searchParams.value.searchValue = standardSearchValue.value;
   searchParams.value.pdTpCd = pdConst.PD_TP_CD_STANDARD;
+  searchParams.value.exceptPdCd = currentPdCd.value;
   const rtn = await modal({
     component: 'ZwpdcStandardSimpleListP',
     componentProps: searchParams.value,
@@ -415,32 +401,29 @@ async function initGridRows() {
   // console.log('WwpdcStandardMgtMRelPrd - initGridRows - products : ', products);
   const materialView = grdMaterialRef.value?.getView();
   if (materialView) {
-    materialView.getDataSource().clearRows();
     const materialCodeValues = codes.PD_PDCT_REL_DV_CD
       .reduce((rtns, code) => { rtns.push(code.codeId); return rtns; }, []);
     const materialRows = products
       ?.filter((item) => materialCodeValues.includes(item[pdConst.PD_REL_TP_CD]));
-    materialView.getDataSource().setRows(materialRows);
+    await setPdGridRows(materialView, materialRows, pdConst.REL_PD_ID, [], true);
     grdMaterialRowCount.value = getGridRowCount(materialView);
   }
 
   const serviceView = grdServiceRef.value?.getView();
   if (serviceView) {
-    serviceView.getDataSource().clearRows();
     const serviceRows = products
       ?.filter((item) => item[pdConst.PD_REL_TP_CD] === pdConst.PD_REL_TP_CD_P_TO_S);
-    serviceView.getDataSource().setRows(serviceRows);
+    await setPdGridRows(serviceView, serviceRows, pdConst.REL_PD_ID, [], true);
     grdServiceRowCount.value = getGridRowCount(serviceView);
   }
 
   const standardView = grdStandardRef.value?.getView();
   if (standardView) {
-    standardView.getDataSource().clearRows();
     const standardCodeValues = codes.BASE_PD_REL_DV_CD
       .reduce((rtns, code) => { rtns.push(code.codeId); return rtns; }, []);
     const standardRows = products
       ?.filter((item) => standardCodeValues.includes(item[pdConst.PD_REL_TP_CD]));
-    standardView.getDataSource().setRows(standardRows);
+    await setPdGridRows(standardView, standardRows, pdConst.REL_PD_ID, [], true);
     grdStandardRowCount.value = getGridRowCount(standardView);
   }
 }
@@ -482,7 +465,7 @@ async function initMaterialGrid(data, view) {
       header: t('MSG_TXT_PRD_COUNT_EA'),
       width: '87',
       styleName: 'text-right',
-      editor: { type: 'number', editFormat: '#,##0', maxLength: 12, positiveOnly: true },
+      editor: { type: 'number', editFormat: '#,##0', maxLength: 12, positiveOnly: true, maxLengthExceptComma: true },
       dataType: 'number',
     },
     // 판매금액
@@ -490,21 +473,21 @@ async function initMaterialGrid(data, view) {
       header: t('MSG_TXT_SALE_PRICE'),
       width: '107',
       styleName: 'text-right',
-      editor: { type: 'number', editFormat: '#,##0.##', maxLength: 12, positiveOnly: true },
+      editor: { type: 'number', editFormat: '#,##0.##', maxLength: 12, positiveOnly: true, maxLengthExceptComma: true },
       dataType: 'number' },
     // 공급가액
     { fieldName: 'splAmt',
       header: t('MSG_TXT_SUPPLY_AMOUNT'),
       width: '107',
       styleName: 'text-right',
-      editor: { type: 'number', editFormat: '#,##0.##', maxLength: 12, positiveOnly: true },
+      editor: { type: 'number', editFormat: '#,##0.##', maxLength: 12, positiveOnly: true, maxLengthExceptComma: true },
       dataType: 'number' },
     // 부가세액
     { fieldName: 'vat',
       header: t('MSG_TXT_VAT_AMOUNT'),
       width: '107',
       styleName: 'text-right',
-      editor: { type: 'number', editFormat: '#,##0.##', maxLength: 12, positiveOnly: true },
+      editor: { type: 'number', editFormat: '#,##0.##', maxLength: 12, positiveOnly: true, maxLengthExceptComma: true },
       dataType: 'number' },
     // 안분비율(%)
     { fieldName: 'diviRat',

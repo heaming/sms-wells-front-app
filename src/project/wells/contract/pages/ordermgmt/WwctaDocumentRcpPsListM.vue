@@ -15,7 +15,10 @@
 --->
 <template>
   <kw-page>
-    <kw-search @search="onClickSearch">
+    <kw-search
+      @search="onClickSearch"
+      @reset="onClickReset"
+    >
       <kw-search-row>
         <!-- 접수일자 -->
         <kw-search-item :label="$t('MSG_TXT_RCP_D')">
@@ -158,6 +161,14 @@ async function fetchData() {
   pageInfo.value.totalCount = view.getItemCount();
   view.resetCurrent();
   // view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
+}
+
+// 초기화버튼 클릭 이벤트
+async function onClickReset() {
+  searchParams.value.cntrCralTno = ''; // 계약자 휴대전화번호
+  searchParams.value.cralLocaraTno = ''; // 계약자 휴대지역전화번호
+  searchParams.value.mexnoEncr = ''; // 계약자 휴대전화국번호암호화
+  searchParams.value.cralIdvTno = ''; // 계약자 휴대개별전화번호
 }
 
 async function onClickSearch() {

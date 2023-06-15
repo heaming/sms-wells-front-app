@@ -86,7 +86,7 @@
       >
         <!-- 총괄단 선택 -->
         <kw-select
-          v-model="searchParams.dgr1LevlOgId"
+          v-model="selectedDgr1LevlOgCds"
           class="select_og_cd"
           :placeholder="$t('MSG_TXT_MANAGEMENT_DEPARTMENT') + ' ' + $t('MSG_TXT_SELT')"
           :options="filteredDgr1LevlOgCds"
@@ -97,7 +97,7 @@
         />
         <!-- 지역단 선택 -->
         <kw-select
-          v-model="searchParams.dgr2LevlOgId"
+          v-model="selectedDgr2LevlOgCds"
           class="select_og_cd"
           :placeholder="$t('MSG_TXT_RGNL_GRP') + ' ' + $t('MSG_TXT_SELT')"
           :options="filteredDgr2LevlOgCds"
@@ -108,7 +108,7 @@
         />
         <!-- 지점 선택 -->
         <kw-select
-          v-model="searchParams.dgr3LevlOgId"
+          v-model="selectedDgr3LevlOgCds"
           class="select_og_cd"
           :placeholder="$t('MSG_TXT_BRANCH') + ' ' + $t('MSG_TXT_SELT')"
           :options="filteredDgr3LevlOgCds"
@@ -126,9 +126,9 @@
       >
         <kw-select
           v-model="searchParams.mchnDv"
-          :options="[{ codeId: '0', codeName: '해당없음' },
-                     { codeId: '1', codeName: '모종' },
-                     { codeId: '2', codeName: '커피캡슐' }]"
+          :options="[{ codeId: '61', codeName: '해당없음' },
+                     { codeId: '62', codeName: '모종' },
+                     { codeId: '63', codeName: '캡슐' }]"
           :model-value="searchParams.mchnDv ? searchParams.mchnDv : []"
           :multiple="true"
         />
@@ -195,7 +195,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, getComponentType, useDataService, gridUtil, useGlobal } from 'kw-lib';
+import { codeUtil, getComponentType, useDataService, gridUtil, useGlobal, defineGrid } from 'kw-lib';
 import { cloneDeep, isEmpty, uniqBy } from 'lodash-es';
 import dayjs from 'dayjs';
 
@@ -283,10 +283,13 @@ async function fetchData() {
 
 // 고객번호 팝업 호출
 async function onClickSearchCntrCst() {
-  const res = await modal({ component: 'ZwcsaCustomerListP' });
-  if (res.result && res.payload) {
-    // searchParams.cntrCstKnm(res.payload.name);
-    searchParams.cntrCstNo(res.payload.cstNo);
+  const { result, payload } = await modal({
+    component: 'ZwcsaCustomerListP',
+    componentProps: { cstType: '1', cstNo: searchParams.value.cntrCstNo },
+  });
+
+  if (result) {
+    searchParams.value.cntrCstNo = payload.cstNo;
   }
 }
 
@@ -310,6 +313,10 @@ const filteredDgr1LevlOgCds = ref([]); // 필터링된 총괄단 코드
 const filteredDgr2LevlOgCds = ref([]); // 필터링된 지역단 코드
 const filteredDgr3LevlOgCds = ref([]); // 필터링된 지점 코드
 
+const selectedDgr1LevlOgCds = ref([]); // 선택한 총괄단 코드
+const selectedDgr2LevlOgCds = ref([]); // 선택한 지역단 코드
+const selectedDgr3LevlOgCds = ref([]); // 선택한 지점 코드
+
 async function getDgrOgInfos() {
   let res = [];
   res = await dataService.get('/sms/wells/contract/partners/general-divisions'); // 총괄단
@@ -328,8 +335,8 @@ getDgrOgInfos();
 // 조직코드 총괄단 변경 이벤트
 async function onUpdateDgr1Levl(selectedValues) {
   // 선택한 지역단, 지점 초기화
-  searchParams.value.dgr2LevlOgId = [];
-  searchParams.value.dgr3LevlOgId = [];
+  selectedDgr2LevlOgCds.value = [];
+  selectedDgr3LevlOgCds.value = [];
 
   // 지역단 코드 필터링. 선택한 총괄단의 하위 지역단으로 필터링
   filteredDgr2LevlOgCds.value = codesDgr2Levl.value.filter((v) => selectedValues.includes(v.dgr1LevlOgCd));
@@ -341,7 +348,7 @@ async function onUpdateDgr1Levl(selectedValues) {
 // 조직코드 지역단 변경 이벤트
 async function onUpdateDgr2Levl(selectedValues) {
   // 선택한 지점 초기화
-  searchParams.value.dgr3LevlOgId = [];
+  selectedDgr3LevlOgCds.value = [];
 
   // 지점 코드 필터링. 선택한 지역단의 하위 지점으로 필터링.
   filteredDgr3LevlOgCds.value = codesDgr3Levl.value.filter((v) => selectedValues.includes(v.dgr2LevlOgCd));
@@ -349,6 +356,17 @@ async function onUpdateDgr2Levl(selectedValues) {
 
 // 조회버튼 클릭 이벤트
 async function onClickSearch() {
+  // 선택한 조직 코드에 해당하는 조직 ID 세팅
+  searchParams.value.dgr1LevlOgId = codesDgr1Levl.value
+    .filter((v) => selectedDgr1LevlOgCds.value.includes(v.dgr1LevlOgCd))
+    .map((v) => v.dgr1LevlOgId);
+  searchParams.value.dgr2LevlOgId = codesDgr2Levl.value
+    .filter((v) => selectedDgr2LevlOgCds.value.includes(v.dgr2LevlOgCd))
+    .map((v) => v.dgr2LevlOgId);
+  searchParams.value.dgr3LevlOgId = codesDgr3Levl.value
+    .filter((v) => selectedDgr3LevlOgCds.value.includes(v.dgr3LevlOgCd))
+    .map((v) => v.dgr3LevlOgId);
+
   await fetchData();
 }
 
@@ -381,11 +399,11 @@ onMounted(async () => {
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
-function initGridRglrDlvrContractList(data, view) {
-// const initGridRglrDlvrContractList = defineGrid((data, view) => {
+const initGridRglrDlvrContractList = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'cntrDtlNo' }, // 계약번호
     { fieldName: 'ordrInfoView' }, // 주문정보 보기
+    { fieldName: 'sellTpCd' }, // 판매유형코드
     { fieldName: 'dgr3LevlDgPrtnrNo' }, // 파트너정보-지점장 사번
     { fieldName: 'dgr3LevlDgPrtnrNm' }, // 파트너정보-지점장명
     { fieldName: 'dgr3LevlOgCd' }, // 파트너정보-지점코드
@@ -411,7 +429,8 @@ function initGridRglrDlvrContractList(data, view) {
     { fieldName: 'shpadrRdadr' }, // 설치정보-상세주소
     { fieldName: 'sellInflwChnlDtlNm' }, // 판매구분
     { fieldName: 'empDvVal' }, // 직원구분
-    { fieldName: 'copnDvNm' }, // 계약자구분
+    { fieldName: 'copnDvCd' }, // 고객구분코드(1:개인, 2:법인)
+    { fieldName: 'copnDvNm' }, // 고객구분명
     { fieldName: 'mchnSellTpNm' }, // 기기정보-판매유형(원주문)
     { fieldName: 'mchnCntrNo' }, // 기기계약번호
     { fieldName: 'mchnRcgvpKnm' }, // 기기주문자 명
@@ -423,8 +442,8 @@ function initGridRglrDlvrContractList(data, view) {
     { fieldName: 'mchnPdLclsfNm' }, // 기기구분
 
     { fieldName: 'pdTpCm' }, // 상품선택유형
-    { fieldName: 'recapDutyPtrmN' }, // 의무기간
-    { fieldName: 'stplPtrm' }, // 계약기간
+    { fieldName: 'stplPtrm' }, // 의무기간
+    { fieldName: 'cntrPtrm' }, // 계약기간
     { fieldName: 'fnlAmt', dataType: 'number' }, // 판매가격
     { fieldName: 'sellAmt', dataType: 'number' }, // 공급가
     { fieldName: 'vat', dataType: 'number' }, // 부가세
@@ -523,7 +542,10 @@ function initGridRglrDlvrContractList(data, view) {
       displayCallback(grid, index) {
         // eslint-disable-next-line max-len
         const { shpadrCralLocaraTno: no1, shpadrMexnoEncr: no2, shpadrCralIdvTno: no3 } = grid.getValues(index.itemIndex);
-        return !isEmpty(no1) && !isEmpty(no2) && !isEmpty(no3) ? `${no1}-${no2}-${no3}` : '';
+        if (!isEmpty(no1) && isEmpty(no2) && !isEmpty(no3)) {
+          return `${no1}--${no3}`;
+        }
+        return isEmpty(no1) && isEmpty(no2) && isEmpty(no3) ? '' : `${no1}-${no2}-${no3}`;
       },
     }, // 설치정보-휴대전화번호
     { fieldName: 'shpadrAdrZip', header: t('MSG_TXT_ZIP'), width: '138', styleName: 'text-center' }, // 설치정보-우편번호
@@ -543,8 +565,8 @@ function initGridRglrDlvrContractList(data, view) {
     { fieldName: 'mchnPdLclsfNm', header: t('MSG_TXT_MCHN_DV'), width: '134', styleName: 'text-center' }, // 기기구분
 
     { fieldName: 'pdTpCm', header: t('MSG_TXT_PRDT_SELT_TP'), width: '138', styleName: 'text-center' }, // 상품선택유형
-    { fieldName: 'recapDutyPtrmN', header: t('MSG_TXT_DUTY_PTRM'), width: '136', styleName: 'text-right' }, // 의무기간
-    { fieldName: 'stplPtrm', header: t('MSG_TXT_CNTR_PTRM'), width: '136', styleName: 'text-right' }, // 계약기간
+    { fieldName: 'stplPtrm', header: t('MSG_TXT_DUTY_PTRM'), width: '136', styleName: 'text-right' }, // 의무기간
+    { fieldName: 'cntrPtrm', header: t('MSG_TXT_CNTR_PTRM'), width: '136', styleName: 'text-right' }, // 계약기간
     { fieldName: 'fnlAmt', header: t('MSG_TXT_SLE_PRC'), width: '134', styleName: 'text-right' }, // 판매가격
     { fieldName: 'sellAmt', header: t('MSG_TXT_SUPPLY_AMOUNT'), width: '134', styleName: 'text-right' }, // 공급가액
     { fieldName: 'vat', header: t('MSG_TXT_VAT'), width: '134', styleName: 'text-right' }, // 부가세
@@ -598,9 +620,9 @@ function initGridRglrDlvrContractList(data, view) {
     { fieldName: 'lkCstKnm', header: t('MSG_TXT_CNTOR_NM'), width: '134', styleName: 'text-center' }, // 연계정보-계약자명
     { fieldName: 'lkPdCd', header: t('MSG_TXT_PRDT_CODE'), width: '134', styleName: 'text-center' }, // 연계정보-상품코드
     { fieldName: 'lkPdNm', header: t('MSG_TXT_PRDT_NM'), width: '274', styleName: 'text-center' }, // 연계정보-상품명
-    { fieldName: 'lkIstDt', header: t('MSG_TXT_INST_DT'), width: '134', styleName: 'text-center' }, // 연계정보-설치일
+    { fieldName: 'lkIstDt', header: t('MSG_TXT_INST_DT'), width: '134', styleName: 'text-center', datetimeFormat: 'date' }, // 연계정보-설치일
     { fieldName: 'lkIstNmnN', header: t('MSG_TXT_INST_OVER'), width: '134', styleName: 'text-center' }, // 연계정보-설치차월
-    { fieldName: 'lkReqdDt', header: t('MSG_TXT_DEM_DT'), width: '134', styleName: 'text-center' }, // 연계정보-철거일자
+    { fieldName: 'lkReqdDt', header: t('MSG_TXT_DEM_DT'), width: '134', styleName: 'text-center', datetimeFormat: 'date' }, // 연계정보-철거일자
     { fieldName: 'connPdView', header: t('MSG_TXT_CONN_PD_VIEW'), width: '197', styleName: 'text-center', renderer: { type: 'button', hideWhenEmpty: false }, displayCallback: () => t('MSG_TXT_CONN_PD_VIEW') },
     { fieldName: 'pmotNm', header: t('MSG_TXT_PMOT_NM'), width: '395', styleName: 'text-center' }, // 프로모션명
     { fieldName: 'pmotTpCd', header: t('MSG_TXT_PMOT_TP'), width: '274', styleName: 'text-center' }, // 프로모션유형
@@ -647,7 +669,7 @@ function initGridRglrDlvrContractList(data, view) {
     {
       header: t('MSG_TXT_PD_INF'), // 상품정보
       direction: 'horizontal', // merge type
-      items: ['pdTpCm', 'recapDutyPtrmN', 'stplPtrm', 'fnlAmt', 'sellAmt', 'vat', 'cntrAmt', 'mmBilAmt', 'pdBaseAmt', 'ackmtPerfRt', 'ackmtPerfAmt', 'dscMcn', 'ctrAmt', 'svTpNm', 'spcYn', 'svPrd', 'sppFshDt', 'sppMthdTpNm', 'lctjobNm', 'rglrSppBilDvNm', 'mpyMthdTpNm', 'txinvPblOjYn', 'frisuBfsvcPtrmN', 'lcmcnt', 'lcck05Nm'],
+      items: ['pdTpCm', 'stplPtrm', 'cntrPtrm', 'fnlAmt', 'sellAmt', 'vat', 'cntrAmt', 'mmBilAmt', 'pdBaseAmt', 'ackmtPerfRt', 'ackmtPerfAmt', 'dscMcn', 'ctrAmt', 'svTpNm', 'spcYn', 'svPrd', 'sppFshDt', 'sppMthdTpNm', 'lctjobNm', 'rglrSppBilDvNm', 'mpyMthdTpNm', 'txinvPblOjYn', 'frisuBfsvcPtrmN', 'lcmcnt', 'lcck05Nm'],
     },
     {
       header: t('MSG_TXT_RCPT_BASE'), // 접수기준
@@ -688,16 +710,22 @@ function initGridRglrDlvrContractList(data, view) {
     const paramCntrDtlNo = gridUtil.getCellValue(g, dataRow, 'cntrDtlNo');
     const paramCntrNo = String(paramCntrDtlNo).split('-')[0];
     const paramCntrSn = String(paramCntrDtlNo).split('-')[1];
+    const { sellTpCd } = g.getValues(dataRow);
+    const { cntrCstNo } = g.getValues(dataRow);
+    const { copnDvCd } = g.getValues(dataRow);
 
     if (['cntrDtlNo'].includes(column)) { // 계약상세(윈도우팝업)
-      await modal({ component: 'WwctaOrderDetailP', componentProps: { cntrNo: paramCntrNo, cntrSn: paramCntrSn } });
+      await modal({ component: 'WwctaOrderDetailP', componentProps: { cntrNo: paramCntrNo, cntrSn: paramCntrSn, sellTpCd, cntrCstNo, copnDvCd } });
     } else if (['ordrInfoView'].includes(column)) { // 정기배송 주문정보 상세
       await modal({ component: 'WwctaOrderRegularShippingDtlP', componentProps: { cntrNo: paramCntrNo, cntrSn: paramCntrSn } });
     } else if (['connPdView'].includes(column)) { // 연계상품 리스트 조회
-      await alert('연계상품 리스트 팝업 조회');
+      await modal({
+        component: 'WwctaLinkProductListP',
+        componentProps: { cntrNo: paramCntrNo, cntrSn: paramCntrSn },
+      });
     }
   };
-}
+});
 </script>
 <style lang="scss">
 .select_og_cd {

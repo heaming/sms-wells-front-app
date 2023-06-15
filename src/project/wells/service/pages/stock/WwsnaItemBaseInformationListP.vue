@@ -69,9 +69,11 @@
         >
           <kw-select
             v-show="aplcList"
+            v-model="aplcParams.aplcList"
             :options="codes.APLC_DV_ACD"
             first-option="all"
             @change="onChangeAplcDvAcd"
+            @update:model-value="onUpdateAplcDvAcd"
           />
         </kw-search-item>
       </kw-search-row>
@@ -151,7 +153,6 @@ const aplcList = ref();
 const checkField = ref();
 
 const totalCount = ref(0);
-debugger;
 // TODO: 현재 테스트진행중 chk가 2인경우는 출고요청등록에서 들어온경우
 const props = defineProps({
   chk: {
@@ -195,10 +196,14 @@ const searchParams = ref({
 
 });
 
+const aplcParams = ref({
+  itmKndCd: searchParams.value.itmKndCd,
+  aplcList: '',
+});
+
 const isRadio = computed(() => props.lpGbYn === 'Y');
 
 async function onClickSelt() {
-  debugger;
   let view;
 
   if (props.chk === '1') {
@@ -221,6 +226,36 @@ function validateChangeCode() {
     isKndCd.value = true;
   }
 }
+
+const aplcLists = ref([]);
+let target = [];
+let list = [];
+async function fetchAplcLists() {
+  const res = await dataService.get('/sms/wells/service/item-base-informations/aplclists', { params: aplcParams.value });
+  console.log(aplcParams.value);
+  aplcLists.value = res.data;
+  console.log(res.data);
+
+  const view = grdMainRef.value.getView();
+
+  target = [];
+
+  res.data.forEach((obj) => {
+    const temp = list.find((i) => i.itmPdCd === obj.itmPdCd);
+    if (temp) {
+      target.push(temp);
+      return true;
+    }
+    return false;
+  });
+  view.getDataSource().setRows(target);
+}
+
+async function onUpdateAplcDvAcd(val) {
+  console.log(val);
+
+  await fetchAplcLists();
+}
 let cachedParams;
 async function fetchData() {
   let itemBase;
@@ -234,17 +269,26 @@ async function fetchData() {
     itemBase = res.data;
     view = grdMainRef.value.getView();
   }
+
   totalCount.value = itemBase.length;
   view.getDataSource().setRows(itemBase);
-  view.resetCurrent();
   validateChangeCode();
+
+  list = gridUtil.getAllRowValues(view, false);
 }
 
 async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
-  debugger;
   await fetchData();
 }
+
+// watch(() => aplcParams.value.aplcList, (val) => {
+//   if (aplcParams.value.aplcList !== val) {
+//     aplcParams.value.aplcList = val;
+//   }
+//   onChangeAplcDvAcd();
+// });
+
 // 기본정보 세팅
 async function initData() {
   if (props.chk === '1') {
@@ -294,7 +338,7 @@ const initGrdMain = defineGrid((data, view) => {
 
   const columns = [
     { fieldName: 'sapCd', header: t('MSG_TXT_SAP_CD'), width: '150', styleName: 'text-center' },
-    { fieldName: 'itmPdCd', header: t('MSG_TXT_ITM_CD'), width: '150', styleName: 'text-center' },
+    { fieldName: 'itmPdCd', header: t('MSG_TXT_ITM_CD'), width: '150', styleName: 'text-center', autoFilter: false },
     { fieldName: 'itmPdNm', header: t('MSG_TXT_ITM_NM'), width: '250' },
     { fieldName: 'imgUrl', header: t('MSG_TXT_PHO'), width: '100', styleName: 'text-center' },
     { fieldName: 'warehouseQty', header: t('MSG_TXT_LGST'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
@@ -312,6 +356,7 @@ const initGrdMain = defineGrid((data, view) => {
 
   view.checkBar.visible = true;
   view.rowIndicator.visible = true;
+  view.filteringOptions.enabled = false;
 });
 
 const initGrdMain2 = defineGrid((data, view) => {

@@ -16,9 +16,11 @@
 
       <web-left-drawer />
       <web-tab-view />
+      <dev-env-sign :mode="MODE" />
     </template>
     <template #unauthenticated>
       <web-fallback-login />
+      <dev-env-sign :mode="MODE" />
     </template>
   </web-layout>
 </template>
@@ -26,7 +28,7 @@
 <script setup>
 import {
   useSession,
-  WebLayout, WebHeader, WebLeftDrawer, WebTabView, WebFallbackLogin, CustDoaminError,
+  WebLayout, WebHeader, WebLeftDrawer, WebTabView, WebFallbackLogin, CustDoaminError, DevEnvSign,
 } from 'kw-lib';
 
 const {
@@ -34,4 +36,5 @@ const {
 } = useSession();
 
 await isReady();
+const { MODE } = import.meta.env;
 </script>

@@ -16,7 +16,6 @@
   <kw-page>
     <kw-tabs
       v-model="selectedTab"
-      class="px0"
     >
       <kw-tab
         name="tab1"

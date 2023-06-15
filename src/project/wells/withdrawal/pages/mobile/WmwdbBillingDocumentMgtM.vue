@@ -102,12 +102,12 @@
 
               <!-- label="작성일자" -->
               <kw-form-item :label="t('MSG_TXT_WRTE_DT')">
-                <p>{{ item.bildcWrteDt }}</p>
+                <p>{{ stringUtil.getDateFormat(item.bildcWrteDt) }}</p>
               </kw-form-item>
 
               <!-- label="발송일자" -->
               <kw-form-item :label="t('MSG_TXT_FW_DT')">
-                <p>{{ item.bildcFwDtm }}</p>
+                <p>{{ stringUtil.getDateFormat(item.bildcFwDtm) }}</p>
               </kw-form-item>
 
               <!-- label="상품명" -->
@@ -230,15 +230,15 @@ async function onLoad(pageIdx) {
 
   pageInfo.value = pagingResult;
 
-  pages.forEach((data) => {
-    if (data.bildcWrteDt) {
-      data.bildcWrteDt = dayjs(data.fstRgstDtm).format('YYYY-MM-DD');
-    }
+  // pages.forEach((data) => {
+  //   if (data.bildcWrteDt) {
+  //     data.bildcWrteDt = dayjs(data.fstRgstDtm).format('YYYY-MM-DD');
+  //   }
 
-    if (data.bildcFwDtm) {
-      data.bildcFwDtm = dayjs(data.bildcFwDtm).format('YYYY-MM-DD');
-    }
-  });
+  //   if (data.bildcFwDtm) {
+  //     data.bildcFwDtm = dayjs(data.bildcFwDtm).format('YYYY-MM-DD');
+  //   }
+  // });
 
   items.value.push(...pages);
 
@@ -274,7 +274,7 @@ async function onClickSearchUser() {
 async function onClickRegP() {
   await router.push(
     {
-      path: '/ns/wmwdb-billing-document-write',
+      path: '/withdrawal/wmwdb-billing-document-write',
       query: {
         searchCstFnm: searchParams.value.cstFnm, // 조회조건
         searchBildcWrteDt: searchParams.value.bildcWrteDt, // 조회조건
@@ -287,7 +287,7 @@ async function onClickRegP() {
 async function onClickMove(data) {
   router.replace(
     {
-      path: '/ns/wmwdb-billing-document-send',
+      path: '/withdrawal/wmwdb-billing-document-send',
       query: {
         searchCstFnm: searchParams.value.cstFnm, // 조회조건
         searchBildcWrteDt: searchParams.value.bildcWrteDt, // 조회조건

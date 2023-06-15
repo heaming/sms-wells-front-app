@@ -403,7 +403,10 @@ function initGrid(data, view) {
       const ichrUsrId = g.getValue(itemIndex, 'ichrUsrId');
       const { result, payload } = await modal({
         component: 'ZwcmzSingleSelectUserListP',
-        componentProps: { searchEmplCond: '2', searchCodEmplText: ichrUsrId },
+        componentProps: {
+          searchEmplCond: '3',
+          searchCodEmplText: ichrUsrId,
+        },
       });
       if (result) {
         g.setValue(itemIndex, 'ichrUsrId', payload.employeeIDNumber);
