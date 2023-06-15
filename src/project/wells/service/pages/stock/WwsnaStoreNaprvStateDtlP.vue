@@ -40,7 +40,7 @@
           <kw-date-range-picker
             v-model:from="searchParams.startDate"
             v-model:to="searchParams.endDate"
-            type=""
+            type="date"
             rules="date_range_months:1"
           />
         </kw-search-item>
@@ -105,18 +105,19 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, getComponentType, gridUtil, useDataService, defineGrid } from 'kw-lib';
+import { codeUtil, getComponentType, gridUtil, useDataService, defineGrid, useGlobal, useModal } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
-// import useSnCode from '~sms-wells/service/composables/useSnCode';
 
-// const { t } = useI18n();
+const { getters } = useStore();
+const { t } = useI18n();
 const dataService = useDataService();
-// const { ok } = useModal();
+const { ok } = useModal();
 
-// const { notify } = useGlobal();
+const { notify } = useGlobal();
 const { currentRoute } = useRouter();
-// const userInfo = getters['meta/getUserInfo'];
+const { userId } = getters['meta/getUserInfo'];
+
 const now = dayjs();
 const grdMainRef = ref(getComponentType('KwGrid'));
 let cachedParams;
@@ -161,7 +162,9 @@ const searchParams = ref({
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 async function fetchData() {
-  console.log(searchParams.data);
+  console.log(props);
+  const params = { strWareNo: props.strWareNo, itmPdCd: props.itmPdCd, ...cachedParams, ...pageInfo.value };
+  console.log(params);
   // eslint-disable-next-line max-len
   const res = await dataService.get('/sms/wells/service/store-naprv-state-dtl/paging', { params: { strWareNo: props.strWareNo, itmPdCd: props.itmPdCd, ...cachedParams, ...pageInfo.value } });
   const { list: state, pageInfo: pagingResult } = res.data;
@@ -183,6 +186,7 @@ async function fetchData() {
 async function onClickSearch() {
   pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
+  console.log(cachedParams);
   await fetchData();
 }
 
@@ -190,7 +194,7 @@ async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
 
   // eslint-disable-next-line max-len
-  const res = await dataService.get('/sms/wells/service/out-of-storage-asks/out-of-storage-items/excel-download', { params: searchParams.value });
+  const res = await dataService.get('/sms/wells/service/store-naprv-state-dtl/excel-download', { params: searchParams.value });
 
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
@@ -199,64 +203,32 @@ async function onClickExcelDownload() {
   });
 }
 
-// async function onClickSave() {
-//   const view = grdMainRef.value.getView();
-//   const checkedRows = gridUtil.getCheckedRowValues(view);
-//   if (checkedRows.length === 0) {
-//     notify(t('MSG_ALT_NOT_SELECT_OSTR'));
-//     return;
-//   }
+/*
+ *  Save - 입고 미승인상세정보 저장
+ */
+async function onClickSave() {
+  const view = grdMainRef.value.getView();
+  const checkedRows = gridUtil.getCheckedRowValues(view);
 
-//   if (!(await gridUtil.validate(view, { isCheckedOnly: true }))) { return; }
+  if (checkedRows.length === 0) {
+    notify(t('MSG_ALT_NOT_SEL_ITEM'));
+    return;
+  }
 
-//   const chkOstrAkTpCd = searchParams.value.ostrAkTpCd;
+  // eslint-disable-next-line max-len
+  console.log(checkedRows);
+  const result = await dataService.post('/sms/wells/service/store-naprv-state-dtl/str-confirm-detail', checkedRows.map((v) => ({
+    userId,
+    strWareNo: props.strWareNo,
+    ...v,
+  })));
 
-//   for (let i = 0; i < checkedRows.length; i += 1) {
-//     const chkWarehouseQty = checkedRows[i].warehouseQty;
-//     const chkOstrAkQty = checkedRows[i].ostrAkQty;
-//     const chkRectOstrDt = checkedRows[i].rectOstrDt;
-//     const chkOstrAkNo = searchParams.value.ostrAkNo;
+  if (result > 0) {
+    notify(t('MSG_ALT_SAVE_DATA'));
+  }
 
-// eslint-disable-next-line max-len
-//     if (chkOstrAkTpCd === '310' && searchParams.value.ostrOjWareNo.substring(0, 1) === '3' && chkWarehouseQty === 0) {
-//       notify(t('MSG_ALT_NO_OSTR_WARE_STOC'));
-//       return;
-//     }
-//     if (chkOstrAkQty <= 0) {
-//       notify(t('MSG_ALT_OSTR_QTY_ZERO_BE_BIG'));
-//       return;
-//     }
-
-//     if (!isEmpty(chkRectOstrDt)) {
-//       notify(t('MSG_ALT_ARDY_OSTR', [t('MSG_TXT_MOD')]));
-//       return;
-//     }
-
-//     if (!isEmpty(chkOstrAkNo)) {
-//       checkedRows[i].ostrAkNo = chkOstrAkNo;
-//     }
-// eslint-disable-next-line max-len
-//     const result = await dataService.post('/sms/wells/service/out-of-storage-asks', checkedRows.map((v) => ({ ...v, ...params })));
-//     if (result > 0) {
-//       notify(t('MSG_ALT_SAVE_DATA'));
-//     }
-//     // await fetchOstrAkDataItem();
-//     ok();
-//   }
-// }
-
-// onMounted(async () => {
-//   let searchFlag = false;
-
-//   if (!isEmpty(props.ostrAkNo)) {
-//     searchParams.value.ostrAkNo = props.ostrAkNo;
-//     searchFlag = true;
-//   } else {
-//     await fetchDefaultData();
-//   }
-
-//   if (searchFlag) await fetchOstrAkDataItem();
-// });
+  ok();
+}
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
@@ -270,15 +242,26 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'itmStrNo' },
     { fieldName: 'ostrWareNm' },
     { fieldName: 'itmPdCd' },
+    { fieldName: 'itmGdCd' },
+    { fieldName: 'itmOstrNo' },
+    { fieldName: 'ostrSn' },
+    { fieldName: 'strQty' },
+    { fieldName: 'strSn' },
+
   ];
 
   const columns = [
     { fieldName: 'strRgstDt', header: '입고일자', width: '100', styleName: 'text-center' },
     { fieldName: 'strWareNm', header: '입고창고', width: '150', styleName: 'text-center' },
-    { fieldName: 'strTpCd', header: '입고유형', width: '120', styleName: 'text-center' },
+    { fieldName: 'strTpCd', header: '입고유형', width: '120', styleName: 'text-center', options: codes.STR_TP_CD },
     { fieldName: 'itmStrNo', header: '입고관리번호', width: '250', styleName: 'text-center' },
     { fieldName: 'ostrWareNm', header: '출고창고', width: '150', styleName: 'text-center' },
     { fieldName: 'itmPdCd', header: '품목코드', width: '93', styleName: 'text-center' },
+    { fieldName: 'itmGdCd', visible: false },
+    { fieldName: 'itmOstrNo', visible: false },
+    { fieldName: 'ostrSn', visible: false },
+    { fieldName: 'strQty', visible: false },
+    { fieldName: 'strSn', visible: false },
   ];
 
   data.setFields(fields);
@@ -288,20 +271,6 @@ const initGrid = defineGrid((data, view) => {
 
   view.checkBar.visible = true;
   view.rowIndicator.visible = true;
-  view.editOptions.columnEditableFirst = true;
-
-  // view.onCellClicked = async (grid, { column, dataRow }) => {
-  //   if (column === 'itmPdCd') {
-  //     await onClickItemPop('U', dataRow);
-  //   }
-  // };
-
-  // view.onGetEditValue = async (grid, index, editResult) => {
-  //   grid.checkItem(index.itemIndex, true);
-  //   if (index.fieldName === 'ostrAkQty') {
-  //     changeOstrAkQty(index.dataRow, editResult.value);
-  //   }
-  // };
 });
 
 </script>
