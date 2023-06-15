@@ -31,9 +31,9 @@
           :label="$t('MSG_TXT_AW_DV')"
         >
           <kw-option-group
-            v-model="searchParams.awDv"
+            v-model="searchParams.feeSchdTpCd"
             type="radio"
-            :options="awDv"
+            :options="feeSchdTpCd"
           />
         </kw-search-item>
         <kw-search-item
@@ -73,12 +73,12 @@
     <div class="result-area">
       <h3>
         {{ searchParams.perfYm.substring(0,4)+'-'+searchParams.perfYm.substring(4) }}
-        {{ searchParams.awDv==='perf'?'실적수당':'직책수당' }} {{ $t('MSG_TXT_PRGS_STE') }}
+        {{ searchParams.feeSchdTpCd==='601'?'실적수당':'직책수당' }} {{ $t('MSG_TXT_PRGS_STE') }}
       </h3>
       <!-- STEPER -->
       <zwfey-fee-step
         ref="stepNaviRef"
-        :key="searchParams.perfYm+searchParams.awDv"
+        :key="searchParams.perfYm+searchParams.feeSchdTpCd"
         v-model:base-ym="searchParams.perfYm"
         v-model:fee-schd-tp-cd="searchParams.feeSchdTpCd"
         v-model:fee-tcnt-dv-cd="searchParams.feeTcntDvCd"
@@ -204,15 +204,14 @@ const codes = await codeUtil.getMultiCodes(
 );
 
 // 수당구분
-const awDv = [
-  { codeId: 'perf', codeName: t('MSG_TXT_PERF_AW') },
-  { codeId: 'rsb', codeName: t('MSG_TXT_RSB_AW') },
+const feeSchdTpCd = [
+  { codeId: '601', codeName: t('MSG_TXT_PERF_AW') },
+  { codeId: '602', codeName: t('MSG_TXT_RSB_AW') },
 ];
 
 // 조회조건
 const searchParams = ref({
   perfYm: dayjs().subtract(1, 'month').format('YYYYMM'),
-  awDv: 'perf',
   rsbDvCd: '',
   prtnrNo: '',
   ogTpCd: 'W06',
@@ -244,7 +243,7 @@ watch(() => stepNaviRef.value, async () => {
 
 // 수당구분 변경
 let rsbDvCd;
-watch(() => searchParams.value.awDv, async (val) => {
+watch(() => searchParams.value.feeSchdTpCd, async (val) => {
   totalCount.value = 0;
 
   if (val === 'perf') {
@@ -280,9 +279,9 @@ async function onClickMod(bool) {
   }
 
   let view;
-  if (searchParams.value.awDv === 'perf') {
+  if (searchParams.value.feeSchdTpCd === '601') {
     view = grdEgerRef.value.getView();
-  } else if (searchParams.value.awDv === 'rsb') {
+  } else if (searchParams.value.feeSchdTpCd === '602') {
     view = grdEgerMngerRef.value.getView();
   }
 
@@ -319,9 +318,9 @@ async function fetchData(apiUrl) {
 
 // 조회 버튼 클릭 이벤트
 async function onClickSearch() {
-  if (searchParams.value.awDv === 'perf') {
+  if (searchParams.value.feeSchdTpCd === '601') {
     await fetchData('engineers');
-  } else if (searchParams.value.awDv === 'rsb') {
+  } else if (searchParams.value.feeSchdTpCd === '602') {
     await fetchData('engineer-managers');
   }
 }
@@ -333,9 +332,9 @@ async function onClickRetry(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
   }
   await dataService.put(`/sms/common/fee/schedules/steps/${feeSchdId}/status/levels`, null, { params: { feeSchdLvCd, feeSchdLvStatCd } });
   notify(t('MSG_ALT_SAVE_DATA'));
-  if (searchParams.value.awDv === 'perf') {
+  if (searchParams.value.feeSchdTpCd === '601') {
     await fetchData('engineers');
-  } else if (searchParams.value.awDv === 'rsb') {
+  } else if (searchParams.value.feeSchdTpCd === '602') {
     await fetchData('engineer-managers');
   }
 
@@ -393,9 +392,9 @@ async function onClickControl(feeSchdId, code, nextStep) {
 // 본사 수당확정
 async function onclickDtrm(feeSchdId, code, nextStep) {
   let view;
-  if (searchParams.value.awDv === 'perf') {
+  if (searchParams.value.feeSchdTpCd === '601') {
     view = grdEgerRef.value.getView();
-  } else if (searchParams.value.awDv === 'rsb') {
+  } else if (searchParams.value.feeSchdTpCd === '602') {
     view = grdEgerMngerRef.value.getView();
   }
 
@@ -458,10 +457,10 @@ async function onclickStep(params) {
 async function onClickExcelDownload() {
   let apiUrl;
   let view;
-  if (searchParams.value.awDv === 'perf') {
+  if (searchParams.value.feeSchdTpCd === '601') {
     apiUrl = 'engineers';
     view = grdEgerRef.value.getView();
-  } else if (searchParams.value.awDv === 'rsb') {
+  } else if (searchParams.value.feeSchdTpCd === '602') {
     apiUrl = 'engineer-managers';
     view = grdEgerMngerRef.value.getView();
   }
@@ -522,9 +521,9 @@ async function onClickHisMgt() {
 // TODO: 권한 체크
 async function onClickSave() {
   let view;
-  if (searchParams.value.awDv === 'perf') {
+  if (searchParams.value.feeSchdTpCd === '601') {
     view = grdEgerRef.value.getView();
-  } else if (searchParams.value.awDv === 'rsb') {
+  } else if (searchParams.value.feeSchdTpCd === '602') {
     view = grdEgerMngerRef.value.getView();
   }
 
@@ -547,9 +546,9 @@ async function onClickSave() {
 // TODO: 권한 체크(센터장, 센터지원만 수정 가능)
 async function onClickConfirm() {
   let view;
-  if (searchParams.value.awDv === 'perf') {
+  if (searchParams.value.feeSchdTpCd === '601') {
     view = grdEgerRef.value.getView();
-  } else if (searchParams.value.awDv === 'rsb') {
+  } else if (searchParams.value.feeSchdTpCd === '602') {
     view = grdEgerMngerRef.value.getView();
   }
 
