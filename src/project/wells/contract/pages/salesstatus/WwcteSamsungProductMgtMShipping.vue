@@ -352,6 +352,7 @@ const initGrd = defineGrid((data, view) => {
     pdMclsfNm: {
       label: `${t('MSG_TXT_PRDT_NM')}(${t('MSG_TXT_PD_MCLSF_ID')})`,
       width: 240,
+      classes: 'text-center',
     },
     pdCd: { displaying: false },
     pdNm: { displaying: false },
