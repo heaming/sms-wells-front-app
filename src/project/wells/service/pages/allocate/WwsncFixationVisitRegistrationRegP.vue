@@ -163,9 +163,7 @@
       </kw-form-row>
       <kw-form-row>
         <kw-form-item :label="$t('변경등록일자')">
-          <kw-date-picker
-            v-model="contractInfo.fnlMdfcDtm"
-          />
+          <p>{{ stringUtil.getDateFormat(contractInfo.fnlMdfcDtm) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('지정대상')">
           <kw-select
