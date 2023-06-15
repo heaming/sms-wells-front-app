@@ -15,7 +15,7 @@
     size="sm"
   >
     <kw-form
-      ref="saveRef"
+      ref="frmSaveRef"
       :cols="1"
     >
       <kw-form-row>
@@ -60,7 +60,7 @@
             v-model="saveParams.bilAmt"
             :label="$t('MSG_TXT_AMT')"
             rules="required"
-            :regex="/^[0-9]*$/i"
+            :regex="num"
             :disable="isDisable"
           />
         </kw-form-item>
@@ -168,7 +168,7 @@ const props = defineProps({
   },
 });
 
-const saveRef = ref(getComponentType('KwForm'));
+const frmSaveRef = ref(getComponentType('KwForm'));
 const { userName, ogTpCd, prtnrNo, careerLevelCode } = store.getters['meta/getUserInfo'];
 // 본사 영업관리자, 본사담당자 - 청구(영수)인 성명, 카드소유주
 // -돋보기 클릭하여 [Z-OG-U-0050P01] 팝업창 호출하여 리턴 값으로 세팅 : 지역단장 조직유형코드, 지역단장 파트너번호, 지역단장명
@@ -228,7 +228,7 @@ async function onClickClaimantName() {
         await alert('MSG_ALT_RSB_LCMGR_APLC_PSB'); // 직책이 지역단장만 신청 가능합니다.
         saveParams.value.prtnrNo = undefined;
         buildingCodes.value = [];
-        saveRef.value.reset();
+        frmSaveRef.value.reset();
       } else {
         saveParams.value.claimNm = payload.prtnrKnm;
         saveParams.value.cardPsrNm = payload.prtnrKnm;
@@ -242,8 +242,8 @@ async function onClickClaimantName() {
 }
 
 async function onClickApplication() {
-  if (await saveRef.value.alertIfIsNotModified()) { return; }
-  if (!await saveRef.value.validate()) { return; }
+  if (await frmSaveRef.value.alertIfIsNotModified()) { return; }
+  if (!await frmSaveRef.value.validate()) { return; }
   if (!await confirm(t('MSG_ALT_WANT_SAVE'))) { return; }
 
   saveParams.value.attachFiles = attachFiles.value;
