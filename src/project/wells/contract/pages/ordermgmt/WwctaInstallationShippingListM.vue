@@ -688,11 +688,15 @@ async function onClickInstallEtc(dataList) {
   });
 }
 
-// 설치/배송 취소
-async function callKiwiTimeAssign(dataList) {
+// 설치/배송 호출
+async function callKiwiTimeAssign(dataList, prdDiv) {
   let workDt = '';
   let asIstOjNo = '';
   let acpgDiv = '';
+
+  let pkgYn = '';
+  let sellTpCd = '';
+  let kaetc1 = '';
 
   if (dataList.lcCanyn !== 'Y') {
     if (dataList.acpgStat === '1' || dataList.acpgStat === '9') {
@@ -727,31 +731,99 @@ async function callKiwiTimeAssign(dataList) {
       }
       // if () 개발환경 /// 분기처리
       // alert('처리되었습니다.(개발환경에선 처리 안됨)');
-      const res = await dataService.post('/sms/wells/contract/contracts/installation-shippings', saveParams); // 체크
+      const res = await dataService.post('/sms/wells/contract/contracts/installation-shippings', saveParams.value); // 체크
       if (!isEmpty(res)) {
         alert(t('MSG_ALT_SPP_SUCCESS'));
         fetchData();
       }
     } else {
-      alert('서비스 파트에서 화면 개발 완료 시, 추가 예정 ([W-SV-U-0062M01] 타임테이블 조회(판매))');
-      // const url = '/sms/wells/contract/contracts/view/installation-shippings';
-      // const popupParams = ref({
-      //   cntrNo: dataList.cntrNo,
-      //   cntrSn: dataList.cntrSn,
-      //   prtnrNo: sessionUserInfo.employeeIDNumber,
-      //   inputGb: '3', // 입력구분
-      //   wkGb: '1', // 작업구분
-      //   workDt, // 작업일자
-      //   asIstOjNo, // 작업순번
-      //   acpgDiv, // 접수구분
-      //   basePdCd: dataList.basePdCd, // 상품코드
-      //   istPcsvDvCd: searchParams.value.istPcsvDvCd, // 설치택배구분
-      //   mnftCoId: dataList.mnftCoId, // 제조사(LCJEJO)
-      //   svBizDclsfCd: '', // 서비스업무세분류코드
-      // });
+      let svBizDclsfCdParam = '';
+      let svDvCdParam = '';
+      pkgYn = dataList.pkgYn;
+      sellTpCd = dataList.sellTpCd;
+      kaetc1 = dataList.kaetc1;
+
+      if (kaetc1 === '8') {
+        svDvCdParam = '4';
+        if (sellTpCd === '1') {
+          svBizDclsfCdParam = '4110';
+        } else if (pkgYn === 'Y') {
+          if (sellTpCd === '1') {
+            svBizDclsfCdParam = '4130';
+          } else {
+            svBizDclsfCdParam = '4120';
+          }
+        }
+      } else {
+        svDvCdParam = '1';
+        svBizDclsfCdParam = '1110';
+      }
+      const { result } = await modal({
+        component: 'WwsncTimeTableSellListP',
+        componentProps: {
+          sellDate: dataList.rcpdt, // 판매일자
+          baseYm: dataList.rcpdt.substr(0, 6), // 달력 초기 월
+          chnlDvCd: dataList.inChnlDvCd, // W: 웰스, K: KSS, C: CubicCC, P: K-MEMBERS, I || E: 엔지니어, M: 매니저
+          svDvCd: svDvCdParam, // 1:설치, 2:BS, 3:AS, 4:홈케어
+          svBizDclsfCd: svBizDclsfCdParam, // 판매인 경우 1110(신규설치) fix
+          cntrNo: dataList.cntrNo,
+          cntrSn: dataList.cntrSn,
+          dataStatCd: prdDiv, // 1: 신규, 2: 수정, 3: 삭제
+          userId: sessionUserInfo.employeeIDNumber,
+        },
+      });
+
+      if (result) {
+        console.log(result);
+      }
     }
   }
 }
+
+// async function onClickTest(dataList) {
+//   let pkgYn = '';
+//   let sellTpCd = '';
+//   let kaetc1 = '';
+//   let svBizDclsfCdParam = '';
+//   let svDvCdParam = '';
+//   pkgYn = dataList.pkgYn;
+//   sellTpCd = dataList.sellTpCd;
+//   kaetc1 = dataList.kaetc1;
+
+//   if (kaetc1 === '8') {
+//     svDvCdParam = '4';
+//     if (sellTpCd === '1') {
+//       svBizDclsfCdParam = '4110';
+//     } else if (pkgYn === 'Y') {
+//       if (sellTpCd === '1') {
+//         svBizDclsfCdParam = '4130';
+//       } else {
+//         svBizDclsfCdParam = '4120';
+//       }
+//     }
+//   } else {
+//     svDvCdParam = '1';
+//     svBizDclsfCdParam = '1110';
+//   }
+//   const { result } = await modal({
+//     component: 'WwsncTimeTableSellListP',
+//     componentProps: {
+//       sellDate: dataList.vstCnfmdt, // 판매일자
+//       baseYm: dataList.vstCnfmdt.substr(0, 6), // 달력 초기 월
+//       chnlDvCd: dataList.inChnlDvCd, // W: 웰스, K: KSS, C: CubicCC, P: K-MEMBERS, I || E: 엔지니어, M: 매니저
+//       svDvCd: svDvCdParam, // 1:설치, 2:BS, 3:AS, 4:홈케어
+//       svBizDclsfCd: svBizDclsfCdParam, // 판매인 경우 1110(신규설치) fix
+//       cntrNo: dataList.cntrNo,
+//       cntrSn: dataList.cntrSn,
+//       dataStatCd: '1', // 1: 신규, 2: 수정, 3: 삭제
+//       userId: sessionUserInfo.employeeIDNumber,
+//     },
+//   });
+
+//   if (result) {
+//     console.log(result);
+//   }
+// }
 
 // 설치/배송 취소
 async function cancelKiwiTimeAssign(dataList) {
@@ -779,7 +851,7 @@ async function cancelKiwiTimeAssign(dataList) {
       cntrSn: dataList.cntrSn,
       ordrNo3: '0',
     });
-    const res = await dataService.post('/sms/wells/contract/contracts/installation-shippings/due-date-cancel', saveCheckParams); // 취소
+    const res = await dataService.post('/sms/wells/contract/contracts/installation-shippings/due-date-cancel', saveCheckParams.value); // 취소
     if (!isEmpty(res)) {
       alert(t('MSG_ALT_SPP_CAN_EXP_DT_CANCEL'));
     }
@@ -807,7 +879,7 @@ async function cancelKiwiTimeAssign(dataList) {
       saveParams.value.svBizDclsfCd = '4130';
     }
   }
-  const res = await dataService.post('/sms/wells/contract/contracts/installation-shippings', saveParams); // 체크
+  const res = await dataService.post('/sms/wells/contract/contracts/installation-shippings', saveParams.value); // 체크
   if (!isEmpty(res)) {
     alert(t('MSG_ALT_SPP_SUCCESS'));
     fetchData();
@@ -826,10 +898,10 @@ async function checkKiwiTimeAssign(dataList, prdDiv) {
   if (dataList.lcCanyn !== 'Y') {
     if (dataList.kaetc1 === '7') {
       if (prdDiv !== '3') {
-        callKiwiTimeAssign(dataList);
+        callKiwiTimeAssign(dataList, prdDiv);
         return;
       }
-      cancelKiwiTimeAssign(dataList);
+      cancelKiwiTimeAssign(dataList, prdDiv);
       return;
     }
     if (dataList.acpgStat === '1' || dataList.acpgStat === '9') {
@@ -866,7 +938,7 @@ async function checkKiwiTimeAssign(dataList, prdDiv) {
         saveParams.value.svBizDclsfCd = '4130';
       }
     }
-    const res = await dataService.post('/sms/wells/contract/contracts/installation-shippings/checks', saveParams); // 체크
+    const res = await dataService.post('/sms/wells/contract/contracts/installation-shippings/checks', saveParams.value); // 체크
     if (!isEmpty(res)) {
       if (prdDiv !== '3') {
         callKiwiTimeAssign(dataList);

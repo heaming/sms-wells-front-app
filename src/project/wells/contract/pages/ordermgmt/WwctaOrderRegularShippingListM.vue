@@ -195,7 +195,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, getComponentType, useDataService, gridUtil, useGlobal } from 'kw-lib';
+import { codeUtil, getComponentType, useDataService, gridUtil, useGlobal, defineGrid } from 'kw-lib';
 import { cloneDeep, isEmpty, uniqBy } from 'lodash-es';
 import dayjs from 'dayjs';
 
@@ -399,8 +399,7 @@ onMounted(async () => {
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
-function initGridRglrDlvrContractList(data, view) {
-// const initGridRglrDlvrContractList = defineGrid((data, view) => {
+const initGridRglrDlvrContractList = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'cntrDtlNo' }, // 계약번호
     { fieldName: 'ordrInfoView' }, // 주문정보 보기
@@ -621,9 +620,9 @@ function initGridRglrDlvrContractList(data, view) {
     { fieldName: 'lkCstKnm', header: t('MSG_TXT_CNTOR_NM'), width: '134', styleName: 'text-center' }, // 연계정보-계약자명
     { fieldName: 'lkPdCd', header: t('MSG_TXT_PRDT_CODE'), width: '134', styleName: 'text-center' }, // 연계정보-상품코드
     { fieldName: 'lkPdNm', header: t('MSG_TXT_PRDT_NM'), width: '274', styleName: 'text-center' }, // 연계정보-상품명
-    { fieldName: 'lkIstDt', header: t('MSG_TXT_INST_DT'), width: '134', styleName: 'text-center' }, // 연계정보-설치일
+    { fieldName: 'lkIstDt', header: t('MSG_TXT_INST_DT'), width: '134', styleName: 'text-center', datetimeFormat: 'date' }, // 연계정보-설치일
     { fieldName: 'lkIstNmnN', header: t('MSG_TXT_INST_OVER'), width: '134', styleName: 'text-center' }, // 연계정보-설치차월
-    { fieldName: 'lkReqdDt', header: t('MSG_TXT_DEM_DT'), width: '134', styleName: 'text-center' }, // 연계정보-철거일자
+    { fieldName: 'lkReqdDt', header: t('MSG_TXT_DEM_DT'), width: '134', styleName: 'text-center', datetimeFormat: 'date' }, // 연계정보-철거일자
     { fieldName: 'connPdView', header: t('MSG_TXT_CONN_PD_VIEW'), width: '197', styleName: 'text-center', renderer: { type: 'button', hideWhenEmpty: false }, displayCallback: () => t('MSG_TXT_CONN_PD_VIEW') },
     { fieldName: 'pmotNm', header: t('MSG_TXT_PMOT_NM'), width: '395', styleName: 'text-center' }, // 프로모션명
     { fieldName: 'pmotTpCd', header: t('MSG_TXT_PMOT_TP'), width: '274', styleName: 'text-center' }, // 프로모션유형
@@ -726,7 +725,7 @@ function initGridRglrDlvrContractList(data, view) {
       });
     }
   };
-}
+});
 </script>
 <style lang="scss">
 .select_og_cd {

@@ -274,7 +274,7 @@
 // -------------------------------------------------------------------------------------------------
 import { codeUtil, useDataService, useGlobal, useModal } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
-import dayjs from 'dayjs';
+// import dayjs from 'dayjs';
 import clConst from '~sms-common/closing/constants/clConst';
 
 const { ok } = useModal();
@@ -317,7 +317,7 @@ const clPsicCodes = ref([
   { codeId: '', codeName: '담당자' },
 ]);
 
-const clDtDate = new Date(dayjs().format('YYYY'), dayjs().format('MM'), 0);
+const clDtDate = new Date(props.baseYm.substring(0, 4), props.baseYm.substring(4, 6), 0);
 
 // TODO: 초기 설정 정보 명세서 기준으로 작업(참고 명세서 완료본 아니기 때문에 마무리전 반드시 확인 필요)
 // TODO: 마감담당자(clPsicNo ) 관련 키 인데... 화면에는 공통이라는 내용이 있음 어떻게 해야 하는지 명세서에 없음 확인 필요 테스트 하느라 임의값 셋팅

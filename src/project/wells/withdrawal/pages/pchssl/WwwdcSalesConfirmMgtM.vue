@@ -86,6 +86,7 @@
           <zctz-contract-detail-number
             v-model:cntr-no="searchParams.cntrNo"
             v-model:cntr-sn="searchParams.cntrSn"
+            readonly
           />
         </kw-search-item>
       </kw-search-row>
@@ -94,8 +95,7 @@
       <kw-action-top>
         <template #left>
           <kw-paging-info
-
-            :total-count="165"
+            :total-count="pageInfo.totalCount"
           />
           <!-- 단위:(원)-->
           <span class="ml8">{{ t('MSG_TXT_UNIT_COLON_WON') }} </span>
@@ -144,6 +144,12 @@
         :total-count="pageInfo.totalCount"
         @init="initGrid"
       />
+      <kw-pagination
+        v-model:page-index="pageInfo.pageIndex"
+        v-model:page-size="pageInfo.pageSize"
+        :total-count="pageInfo.totalCount"
+        @change="fetchData"
+      />
     </div>
   </kw-page>
 </template>
@@ -165,7 +171,7 @@ const dataService = useDataService();
 const { getConfig } = useMeta();
 const store = useStore();
 const { t } = useI18n();
-const now = dayjs().format('YYYYMMDD');
+const now = dayjs();
 const apiUrl = '/sms/wells/withdrawal/pchssl/sales-confirm';
 const { confirm, alert, notify } = useGlobal();
 
@@ -177,8 +183,8 @@ const searchParams = ref({
   dgr2LevlOgId: '', // 조직레벨LV2
   // dgr3LevlOgId: '', // 설계서상x
   ogTpCd: 'W02', // **테스트설정값.
-  dtFrom: now, // 매출인식일 From
-  dtTo: now, // 매출인식일 To
+  dtFrom: now.format('YYYYMM01'), // 매출인식일 From
+  dtTo: now.format('YYYYMMDD'), // 매출인식일 To
   sellChnl: 'ALL', // 판매채널
   slRcogDv: 'ALL', // 판매인식구분
 });
@@ -204,10 +210,13 @@ async function fetchData() {
   const { list: pages, pageInfo: pagingResult } = res.data;
 
   pageInfo.value = pagingResult;
-
   const view = grdMainRef.value.getView();
-  view.getDataSource().setRows(pages);
-  view.resetCurrent();
+  const data = view.getDataSource();
+
+  data.checkRowStates(false);
+  data.setRows(pages);
+  view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
+  data.checkRowStates(true);
 }
 
 async function onClickSearch() {
@@ -271,7 +280,7 @@ async function onClickSalesRecognize() {
   // TODO: 인식상태코드 현재 없음. 추후 수정시 상태값 확인必
   await changeState('R'); // *임시 상태값 - 상태값(R: Recoginize)
   // console.log('매출 재인식: 서비스 UPDATE');
-  notify(t('CHO_DTA_SL_RCOG_STAT_CH'));
+  notify(t('MSG_ALT_CHO_DTA_SL_RCOG_STAT_CH'));
 }
 
 // -------------------------------------------------------------------------------------------------
@@ -353,37 +362,10 @@ const initGrid = defineGrid((data, view) => {
     visible: true,
     items: [{ height: 40 }],
   });
+
   view.layoutByColumn('ogCd').summaryUserSpans = [{ colspan: 7 }];
   view.layoutByColumn('rentalPtrm').summaryUserSpans = [{ colspan: 3 }];
   view.layoutByColumn('useDt').summaryUserSpans = [{ colspan: 12 }];
-
-  // data.setRows([
-  //   { col1: 'A030010',
-  //     col2: '1743838',
-  //     col3: '이현영',
-  //     col4: '2022-6958518',
-  //     col5: '강영우',
-  //     col6: '렌탈',
-  //     col7: '비데(BM550RWA)',
-  //     col8: '660,000',
-  //     col9: '24',
-  //     col10: '2',
-  //     col11: '18,000',
-  //     col12: '120,000',
-  //     col13: '120,000',
-  //     col14: '23',
-  //     col15: '인식',
-  //     col16: '-',
-  //     col17: '설치',
-  //     col18: '월',
-  //     col19: '2022-10-07',
-  //     col20: '2022-10-07',
-  //     col21: '2022-10-07',
-  //     col22: '2022-10-07',
-  //     col23: '2022-10-08',
-  //     col24: '2022-10-07',
-  //     col25: '김온달' },
-  // ]);
 });
 </script>
 
