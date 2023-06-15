@@ -437,7 +437,7 @@ ${step4.cntrt.sexDvNm || ''}` }}
               label="약정유형"
             >
               <kw-select
-                v-model="restipulationBasInfo.rstlTpCd"
+                v-model="restipulationBasInfo.stplTpCd"
                 :options="restipulationBasInfo.data"
                 option-value="rstlBaseTpCd"
                 option-label="text"
@@ -447,31 +447,37 @@ ${step4.cntrt.sexDvNm || ''}` }}
             <kw-form-item
               label="재약정개월"
             >
-              <p>{{ restipulationBasInfo.rstlMcn }} 개월</p>
+              <p>{{ restipulationBasInfo.stplPtrm }} 개월</p>
             </kw-form-item>
           </kw-form-row>
           <kw-form-row>
             <kw-form-item
               label="약정시작"
             >
-              <p>2022-12-12</p>
+              <p>{{ stringUtil.getDateFormat(restipulationBasInfo.stplStrtdt) }}</p>
             </kw-form-item>
             <kw-form-item
               label="약정종료"
             >
-              <p>2022-12-11</p>
+              <p>{{ stringUtil.getDateFormat(restipulationBasInfo.stplEndDt) }}</p>
             </kw-form-item>
           </kw-form-row>
           <kw-form-row>
             <kw-form-item
               label="약정요금"
             >
-              <p>{{ stringUtil.getNumberWithComma(restipulationBasInfo.newFnlValue) }} 원</p>
+              <p>
+                {{ restipulationBasInfo.newFnlValue?
+                  stringUtil.getNumberWithComma(restipulationBasInfo.newFnlValue):'' }} 원
+              </p>
             </kw-form-item>
             <kw-form-item
               label="재약정할인"
             >
-              <p>{{ stringUtil.getNumberWithComma(restipulationBasInfo.stplDscAmt) }} 원</p>
+              <p>
+                {{ restipulationBasInfo.stplDscAmt?
+                  stringUtil.getNumberWithComma(restipulationBasInfo.stplDscAmt):'' }} 원
+              </p>
             </kw-form-item>
           </kw-form-row>
         </kw-form>
@@ -500,6 +506,7 @@ import {
   useGlobal,
 } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
+import dayjs from 'dayjs';
 
 const dataService = useDataService();
 const { notify } = useGlobal();
@@ -507,6 +514,8 @@ const props = defineProps({
   contract: { type: String, required: true },
   onChildMounted: { type: Function, required: true },
 });
+const { getters } = useStore();
+const sessionUserId = getters['meta/getUserInfo'];
 const { cntrNo: pCntrNo, step4 } = toRefs(props.contract);
 step4.value = {
   bas: {},
@@ -550,6 +559,7 @@ codes.DP_TP_CD_AFTN = [
   { codeId: '0102', codeName: '계좌이체' },
 ];
 const dtlSn = ref(1);
+const now = dayjs();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -594,17 +604,17 @@ async function calcRestipulation() {
   const datas = restipulationBasInfo.value.data;
 
   datas.forEach((element) => {
-    if (restipulationBasInfo.value.rstlTpCd === element.rstlBaseTpCd) {
+    if (restipulationBasInfo.value.stplTpCd === element.rstlBaseTpCd) {
       restipulationBasInfo.value.stplDscAmt = element.stplDscAmt;
-      restipulationBasInfo.value.rstlMcn = element.rstlMcn;
+      restipulationBasInfo.value.stplPtrm = element.rstlMcn;
       restipulationBasInfo.value.minRentalAmt = element.minRentalAmt;
       // 약정요금 재계산
       // 기존요금
       console.log(step4.value.dtls);
+
       step4.value.dtls.forEach((v) => {
         console.log(restipulationBasInfo.value.cntrSn);
         if (Number(v.cntrSn) === Number(restipulationBasInfo.value.cntrSn)) {
-          console.log(v);
           const prevRentalAmt = v.fnlAmt;
           console.log(prevRentalAmt);
           restipulationBasInfo.value.newFnlValue = Number(prevRentalAmt)
@@ -621,6 +631,37 @@ async function calcRestipulation() {
       });
     }
   });
+
+  console.log('다왔다');
+  console.log(restipulationBasInfo.value.newFnlValue);
+  if (restipulationBasInfo.value.newFnlValue) {
+    const { cntrNo } = step4.value.bas;
+    const { cntrSn } = restipulationBasInfo.value;
+    const res = await dataService.get(
+      'sms/wells/contract/re-stipulation/contract-info',
+      { params: { cntrNo, cntrSn } },
+    );
+
+    console.log(res);
+    const data = cloneDeep(res.data);
+    const stplStrtdt = data.rentalTn >= data.stplPtrm ? now.add(1, 'month').startOf('M').format('YYYYMMDD')
+      : dayjs(data.istDt, 'YYYYMMDD').add(Number(data.stplPtrm), 'month').startOf('M').format('YYYYMMDD');
+    const stplEndDt = dayjs(stplStrtdt, 'YYYYMMDD').add(Number(restipulationBasInfo.value.stplPtrm), 'month').endOf('M').format('YYYYMMDD');
+
+    console.log('저장준비');
+    console.log(restipulationBasInfo.value.stplPtrm);
+    console.log(stplStrtdt);
+    console.log(stplEndDt);
+
+    restipulationBasInfo.value.cntrNo = data.cntrNo;
+    restipulationBasInfo.value.stplStrtdt = stplStrtdt;
+    restipulationBasInfo.value.stplEndDt = stplEndDt;
+    restipulationBasInfo.value.rstlStatCd = '010'; // 접수
+    restipulationBasInfo.value.stplRcpDtm = now.format('YYYYMMDDHHmmss');
+    restipulationBasInfo.value.rcpOgTpCd = sessionUserId.ogTpCd;
+    restipulationBasInfo.value.rcpPrtnrNo = sessionUserId.employeeIDNumber;
+    restipulationBasInfo.value.stplTn = Number(data.stplTn) + 1;
+  }
 }
 
 function isChangedStep() {
@@ -632,6 +673,11 @@ async function isValidStep() {
 }
 
 async function saveStep() {
+  if (isRestipulation.value === true) {
+    const savedCntr = await dataService.post('sms/wells/contract/re-stipulation/save-contract', restipulationBasInfo.value);
+    console.log(savedCntr);
+    return savedCntr?.data?.key;
+  }
   const savedCntr = await dataService.post('sms/wells/contract/contracts/save-cntr-step4', step4.value);
   notify(t('MSG_ALT_SAVE_DATA'));
   ogStep4.value = cloneDeep(step4.value);
