@@ -72,7 +72,7 @@
             v-model="searchParams.ctrTp"
             first-option="all"
             first-option-value="ALL"
-            :options="codes.SL_CTR_DSC_TP_CD"
+            :options="codes.SL_CTR_MTR_TP_CD"
           />
         </kw-search-item>
         <!-- 자료구분 -->
@@ -110,7 +110,6 @@
         <!-- (입력담당자, 사용자) / 등록자 선택 -->
         <kw-search-item :label="t('MSG_TXT_RGST_USR')">
           <kw-input
-
             v-model="searchParams.userName"
             icon="search"
             clearable
@@ -228,12 +227,19 @@ const grdMainRef = ref(getComponentType('KwGrid'));
 const { currentRoute } = useRouter();
 
 const codes = await codeUtil.getMultiCodes(
-  'SELL_TP_CD', //  판매유형코드
-  'SL_CTR_MTR_DV_CD', // 조정자료구분코드 - 위약금x
-  'SL_CTR_DSC_TP_CD', // 조정할인유형코드
-  'SL_CTR_DV_CD', // 조정구분 - 부과/할인
-  'SL_CTR_TP_CD', // 매출조정유형코드 - 할인
-  'SL_CTR_MTR_TP_CD', // 매출조정자료유형코드
+  // 'SELL_TP_CD', //  판매유형코드
+  // 'SL_CTR_MTR_DV_CD', // 조정자료구분코드 - 위약금x
+  // 'SL_CTR_DSC_TP_CD', // 조정할인유형코드
+  // 'SL_CTR_DV_CD', // 조정구분 - 부과/할인
+  // 'SL_CTR_TP_CD', // 매출조정유형코드 - 할인
+  // 'SL_CTR_MTR_TP_CD', // 매출조정자료유형코드
+
+  /* 코드값이 약간 상이한관계로 차례대로 작성 */
+  'SL_CTR_MTR_DV_CD', /* 자료구분 */
+  'SELL_TP_CD', /* 판매유형 */
+  'SL_CTR_DV_CD', /* 조정구분 */
+  'SL_CTR_MTR_TP_CD', /* 조정유형 */
+  'SL_CTR_TP_CD', /* 할인 */
 );
 const searchParams = ref({
   sellTp: 'ALL', // 판매유형
@@ -246,7 +252,7 @@ const searchParams = ref({
   mtrDv: 'ALL', // 자료구분
   ctrDv: 'ALL', // 조정구분
   dsc: 'ALL', // 할인구분
-  fstRgstUsrId: '', // 등록자 아이디
+  prtnrNo: '', // 등록자 아이디 -> 파트너 아이디
   slCtrPrcsStrtDt: '', // 등록일자 From
   slCtrPrcsFshDt: '', // 등록일자 To
 });
@@ -281,13 +287,24 @@ async function onClickSearch() {
   await fetchData();
 }
 
-// 사용자 조회 팝업
+// 사용자 조회 팝업 -> 파트너 조회
 async function onClickSelectUser() {
-  const { result, payload } = await modal({ component: 'ZwcmzSingleSelectUserListP' });
+  const { result, payload } = await modal({
+    component: 'ZwogzPartnerListP', // Z-OG-U-0050P01
+    componentProps: {
+      prtnrNo: searchParams.value.prtnrNo,
+    },
+  });
   if (result) {
-    searchParams.value.fstRgstUsrId = payload.userId;
-    // searchParams.value.userName = payload.userName; // 유저명(불필요한 데이터로 인한 주석)
+    // searchParams.value.claimNm = payload.prtnrKnm;
+    // searchParams.value.cardPsrNm = payload.prtnrKnm;
+    searchParams.value.prtnrNo = payload.prtnrNo;
+    searchParams.value.ogTpCd = payload.ogTpCd;
   }
+}
+async function onClearSelectUser() {
+  searchParams.value.cstNo = '';
+  searchParams.value.cstFnm = '';
 }
 
 async function onClickAdd() {
@@ -361,7 +378,10 @@ async function onClickSave() {
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
-
+/**
+ *  TODO: 23.06 기준 설계서 수정 (방학면제 버튼에 따른 컬럼 추가).
+ *  컬럼 추가 -> 버튼에 따른 Editable 처리인지, 그리드 컬럼 자체가 바뀌는것인지 문의.
+*/
 const initGrid = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'cntrNo' }, /* 계약번호  */
@@ -417,7 +437,10 @@ const initGrid = defineGrid((data, view) => {
       rules: 'required',
       width: '100',
       styleName: 'text-center',
-      editor: { type: 'btdate' },
+      editor: { type: 'btdate',
+        btOptions: {
+          minViewMode: 1, // 캘린더 연월일->연/월(연월) 변경 기능
+        } },
       datetimeFormat: 'yyyy-MM',
       editable: true,
     },
@@ -425,7 +448,10 @@ const initGrid = defineGrid((data, view) => {
       header: t('MSG_TXT_END_YM'),
       width: '100',
       styleName: 'text-center',
-      editor: { type: 'btdate' },
+      editor: { type: 'btdate',
+        btOptions: {
+          minViewMode: 1,
+        } },
       datetimeFormat: 'yyyy-MM',
       editable: true },
     {
@@ -473,7 +499,7 @@ const initGrid = defineGrid((data, view) => {
       width: '208',
       rules: 'required',
       editor: { type: 'dropdown' },
-      options: codes.SL_CTR_DSC_TP_CD,
+      options: codes.SL_CTR_MTR_TP_CD,
     },
     {
       fieldName: 'slCtrDscTpCd',
@@ -537,27 +563,6 @@ const initGrid = defineGrid((data, view) => {
       }
     }
   };
-
-  // data.setRows([
-  //   { cntrDtlNo: '2020-5886575',
-  // cstKnm: '김온달',
-  // slCtrStrtYm: '2022-11',
-  //  slCtrEndYm: '2022-12',
-  //  slCtrMtrDvCd: '위약금',
-  //   slCtrSellTpCd: '금융리스',
-  //    pdCd: '6200',
-  //    pdNm: '더원 데스크(WN678C)',
-  //     slCtrMtrTpCd: '부과',
-  //     col10: '매출조정(매출오류)',
-  //      col11: '전체할인',
-  //       col12: 'N',
-  //        col13: '29,900',
-  //         col14: '0',
-  //         col15: '0',
-  //         col16: '클레임방어',
-  //          slCtrPrcsdt: '2022-12-05',
-  //           col18: '김준혁', col19: '36641' },
-  // ]);
 });
 </script>
 <style scoped> </style>
