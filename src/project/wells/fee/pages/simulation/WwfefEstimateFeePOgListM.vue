@@ -88,7 +88,7 @@
           </kw-form-item>
           <!-- 예상수수료합계 -->
           <kw-form-item :label="$t('MSG_TXT_TOT_EST_FEE')">
-            <p>{{ baseInfo?.amtFeeSum ? stringUtil.getNumberWithComma(baseInfo?.amtFeeSum) :'' }}</p>
+            <p>{{ baseInfo?.amtFeeSum ? stringUtil.getNumberWithComma(baseInfo?.amtFeeSum) : '' }}</p>
           </kw-form-item>
         </kw-form-row>
       </kw-form>
