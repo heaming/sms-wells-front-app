@@ -47,6 +47,7 @@
     </ul>
     <kw-search
       :cols="3"
+      :disable="isExistCntr"
       @search="onClickSearchCntrtInfo"
       @reset="onClickReset"
     >
@@ -58,8 +59,9 @@
           <kw-select
             v-model="searchParams.cntrTpCd"
             :label="$t('MSG_TXT_CONTR_TYPE')"
-            :options="codes.CNTR_TP_CD"
+            :options="cntrTpCdOptions"
             rules="required"
+            :disable="isExistCntr"
             @change="onChangeCntrtTpCd"
           />
         </kw-search-item>
@@ -72,7 +74,7 @@
             :label="$t('MSG_TXT_CNTRT_TP')"
             :options="codes.COPN_DV_CD"
             rules="required"
-            :disable="cntrTpIs.indv || cntrTpIs.crp || cntrTpIs.ensm"
+            :disable="cntrTpIs.indv || cntrTpIs.crp || cntrTpIs.ensm || isExistCntr"
           />
         </kw-search-item>
         <kw-search-item
@@ -85,6 +87,7 @@
             :label="$t('MSG_TXT_CRP_NM')"
             maxlength="50"
             rules="required"
+            :disable="isExistCntr"
           />
         </kw-search-item>
         <kw-search-item
@@ -97,6 +100,7 @@
             :label="$t('MSG_TXT_NAME')"
             maxlength="50"
             rules="required"
+            :disable="isExistCntr"
           />
         </kw-search-item>
       </kw-search-row>
@@ -113,6 +117,7 @@
             :label="$t('MSG_TXT_CRNO')"
             rules="required"
             maxlength="10"
+            :disable="isExistCntr"
           />
         </kw-search-item>
         <kw-search-item
@@ -128,6 +133,7 @@
             mask="telephone"
             :unmasked-value="false"
             rules="required"
+            :disable="isExistCntr"
           />
         </kw-search-item>
       </kw-search-row>
@@ -258,31 +264,31 @@ ${step1.cntrt.sexDvNm}` }}
               <kw-form-item
                 :label="$t('MSG_TXT_PTNR_NAME')"
               >
-                <p>{{ step1.prtnr.prtnrKnm }}</p>
+                <p>{{ step1.prtnr?.prtnrKnm }}</p>
               </kw-form-item>
               <kw-form-item
                 :label="$t('MSG_TXT_PRTNR_NUM')"
               >
-                <p>{{ step1.prtnr.prtnrNo }}</p>
+                <p>{{ step1.prtnr?.prtnrNo }}</p>
               </kw-form-item>
             </kw-form-row>
             <kw-form-row>
               <kw-form-item
                 :label="$t('MSG_TXT_MANAGEMENT_DEPARTMENT')"
               >
-                <p>{{ step1.prtnr.dgr1LevlOgNm }}</p>
+                <p>{{ step1.prtnr?.dgr1LevlOgNm }}</p>
               </kw-form-item>
               <kw-form-item
                 :label="$t('MSG_TXT_RGNL_GRP')"
               >
-                <p>{{ step1.prtnr.dgr2LevlOgNm }}</p>
+                <p>{{ step1.prtnr?.dgr2LevlOgNm }}</p>
               </kw-form-item>
             </kw-form-row>
             <kw-form-row>
               <kw-form-item
                 :label="$t('MSG_TXT_BRANCH')"
               >
-                <p>{{ step1.prtnr.dgr3LevlOgNm }}</p>
+                <p>{{ step1.prtnr?.dgr3LevlOgNm }}</p>
               </kw-form-item>
             </kw-form-row>
           </template>
@@ -293,39 +299,12 @@ ${step1.cntrt.sexDvNm}` }}
               <kw-form-item
                 :label="$t('MSG_TXT_PTNR_NAME')"
               >
-                <p>{{ step1.prtnr.prtnrKnm }}</p>
+                <p>{{ step1.prtnr?.prtnrKnm }}</p>
               </kw-form-item>
               <kw-form-item
                 :label="$t('MSG_TXT_PRTNR_NUM')"
               >
-                <p>{{ step1.prtnr.prtnrNo }}</p>
-              </kw-form-item>
-            </kw-form-row>
-            <kw-form-row>
-              <kw-form-item
-                :label="$t('MSG_TXT_ALNC_PRTNR')"
-              >
-                <p>{{ step1.prtnr.prtnrKnm }}</p>
-              </kw-form-item>
-            </kw-form-row>
-            <kw-form-row>
-              <kw-form-item
-                :label="$t('MSG_TXT_ALNC_PRTNR_NM')"
-              >
-                <kw-input
-                  v-model="step1.alncPrtnrNm"
-                  :label="$t('MSG_TXT_ALNC_PRTNR_NM')"
-                  maxlength="10"
-                />
-              </kw-form-item>
-              <kw-form-item
-                :label="$t('MSG_TXT_ALNC_PRTNR_NO')"
-              >
-                <kw-input
-                  v-model="step1.alncPrtnrNo"
-                  :label="$t('MSG_TXT_ALNC_PRTNR_NO')"
-                  maxlength="10"
-                />
+                <p>{{ step1.prtnr?.prtnrNo }}</p>
               </kw-form-item>
             </kw-form-row>
           </template>
@@ -359,15 +338,20 @@ const codes = await codeUtil.getMultiCodes(
   'CNTR_TP_CD',
   'COPN_DV_CD',
 );
+const cntrTpCdOptions = computed(() => (
+  careerLevelCode === '7'
+    ? codes.CNTR_TP_CD.filter((code) => ['01', '02'].includes(code.codeId))
+    : codes.CNTR_TP_CD
+));
 const searchParams = ref({
   cntrNo: step1.value.bas?.cntrNo,
   cntrTpCd: '01',
   copnDvCd: '1',
-  cstKnm: '강태욱',
+  cstKnm: '',
   bzrno: '',
-  cralLocaraTno: '010',
-  mexnoEncr: '5322',
-  cralIdvTno: '7170',
+  cralLocaraTno: '',
+  mexnoEncr: '',
+  cralIdvTno: '',
 });
 const cntrTpIs = ref({
   indv: computed(() => searchParams.value.cntrTpCd === '01'), // 개인
@@ -377,8 +361,8 @@ const cntrTpIs = ref({
   rstl: computed(() => searchParams.value.cntrTpCd === '08'), // 재약정
   quot: computed(() => searchParams.value.cntrTpCd === '09'), // 견적서
 });
-
 const dashboardCounts = ref({
+  belongPartnerCnt: 0,
   restipulationCnt: 0,
   membershipCnt: 0,
 });
@@ -387,19 +371,45 @@ const emits = defineEmits([
   'membership',
   'restipulation',
 ]);
+const isExistCntr = ref(false);
 
+/**
+ * TODO 제휴파트너 로직 추가
+ *             <kw-form-row>
+ *               <kw-form-item
+ *                 :label="$t('MSG_TXT_ALNC_PRTNR')"
+ *               >
+ *                 <p>{{ step1.prtnr?.prtnrKnm }}</p>
+ *               </kw-form-item>
+ *             </kw-form-row>
+ *             <kw-form-row>
+ *               <kw-form-item
+ *                 :label="$t('MSG_TXT_ALNC_PRTNR_NM')"
+ *               >
+ *                 <kw-input
+ *                   v-model="step1.alncPrtnrNm"
+ *                   :label="$t('MSG_TXT_ALNC_PRTNR_NM')"
+ *                   maxlength="10"
+ *                 />
+ *               </kw-form-item>
+ *               <kw-form-item
+ *                 :label="$t('MSG_TXT_ALNC_PRTNR_NO')"
+ *               >
+ *                 <kw-input
+ *                   v-model="step1.alncPrtnrNo"
+ *                   :label="$t('MSG_TXT_ALNC_PRTNR_NO')"
+ *                   maxlength="10"
+ *                 />
+ *               </kw-form-item>
+ *             </kw-form-row>
+ */
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
-async function getCntrInfo(cntrNo) {
-  const cntr = await dataService.get('sms/wells/contract/contracts/cntr-info', { params: {
-    cntrNo,
-    cstNo: step1.value?.bas?.cntrCstNo,
-    step: 1,
-  } });
-  if (!isEmpty(step1.value.bas?.cntrNo)) {
-    searchParams.value.cntrTpCd = step1.value.bas.cntrTpCd;
-    searchParams.value.copnDvCd = step1.value.bas.copnDvCd;
+async function afterGetCntrInfo(cntr) {
+  if (cntr.data.step1.bas?.cntrNo && cntr.data.step1.bas?.cntrTpCd) {
+    searchParams.value.cntrTpCd = cntr.data.step1.bas.cntrTpCd;
+    searchParams.value.copnDvCd = cntr.data.step1.bas.copnDvCd;
   }
   // 조회한 계약유형코드에 따라 컴포넌트변경 시간차
   setTimeout(() => {
@@ -407,23 +417,34 @@ async function getCntrInfo(cntrNo) {
     pCntrNo.value = step1.value.bas.cntrNo;
     console.log(step1.value);
     ogStep1.value = cloneDeep(step1.value);
-    if (isEmpty(step1.value.bas.cntrNo)) {
-      step1.value.bas.cntrTpCd = searchParams.value.cntrTpCd;
-      step1.value.bas.copnDvCd = searchParams.value.copnDvCd;
-    }
+    step1.value.bas.cntrTpCd = searchParams.value.cntrTpCd;
+    step1.value.bas.copnDvCd = searchParams.value.copnDvCd;
   }, 10);
 }
 
-async function setCntrInfo(cstNo) {
-  step1.value.bas = {
-    cntrCstNo: cstNo,
-  };
-  await getCntrInfo();
+async function getCntrInfo(cntrNo, getExistCntr) {
+  const cntr = await dataService.get('sms/wells/contract/contracts/cntr-info', { params: {
+    cntrNo,
+    step: 1,
+  } });
+  isExistCntr.value = getExistCntr;
+  await afterGetCntrInfo(cntr);
+}
+
+async function getCntrInfoByCst(cstNo) {
+  const cntr = await dataService.get('sms/wells/contract/contracts/cntr-info', { params: {
+    cstNo,
+    cntrNo: step1.value.bas?.cntrNo,
+    cntrPrtnrNo: step1.value.prtnr?.prtnrNo,
+    ogTpCd: step1.value.prtnr?.ogTpCd,
+    step: 1,
+  } });
+  await afterGetCntrInfo(cntr);
 }
 
 async function onClickSearchCntrtInfo() {
   if (cntrTpIs.value.indv) {
-    // 개인 / 임직원
+    // 개인
     const isExistCntrt = await dataService.get('sms/wells/contract/contracts/is-exist-cntrt-info', { params: searchParams.value });
     if (!isExistCntrt.data) {
       // 조회된 고객이 없다면
@@ -445,9 +466,21 @@ async function onClickSearchCntrtInfo() {
         },
       });
       if (res.result && res.payload) {
-        await setCntrInfo(res.payload.cstNo);
+        if (careerLevelCode === '7') {
+          // 지국장인 경우 소속파트너 선택
+          const pRes = await modal({
+            component: 'WwctaBelongPartnerChoiceListP',
+            componentProps: {
+              dsmnPrtnrNo: prtnrNo,
+              ogTpCd,
+            },
+          });
+          if (pRes.result && pRes.payload) {
+            step1.value.prtnr = pRes.payload;
+          }
+        }
+        await getCntrInfoByCst(res.payload.cstNo);
       }
-      // await setCntrInfo('017448860');
     }
   } else if (cntrTpIs.value.ensm) {
     // 임직원
@@ -457,7 +490,7 @@ async function onClickSearchCntrtInfo() {
       await alert('파트너의 고객번호가 존재하지 않습니다.');
       return;
     }
-    await setCntrInfo(cstNo.data);
+    await getCntrInfoByCst(cstNo.data);
   } else if (cntrTpIs.value.crp) {
     // 법인
     const isExistCntrt = await dataService.get('sms/wells/contract/contracts/is-exist-cntrt-info', { params: searchParams.value });
@@ -470,27 +503,34 @@ async function onClickSearchCntrtInfo() {
       }
     } else {
       // 조회된 고객이 있다면, 계약자: 공통고객 조회 팝업, 학습자: 학습자용 고객 조회 팝업 호출
-      const crpCond = {
-        cstKnm: searchParams.value.cstKnm,
-        bzrno: searchParams.value.bzrno,
-      };
-      console.log(crpCond);
-      /* FIXME 고객 조회 팝업 데이터 수신 로직 변경되면 수정
       const res = await modal({
         component: 'ZwcsaCustomerListP',
         // 법인: 공통팝업(이름, 사업자등록번호)
-        // 개인: 공통팝업(이름, 성별, 생년월일, 휴대전화번호)
-        componentProps: crpCond,
-      })
+        componentProps: {
+          cstType: '2',
+          dlpnrNm: searchParams.value.cstKnm,
+          bzrno: searchParams.value.bzrno,
+        },
+      });
       if (res.result && res.payload) {
-        await setCntrInfo(res.payload.cstNo);
+        if (careerLevelCode === '7') {
+          // 지국장인 경우 소속파트너 선택
+          const pRes = await modal({
+            component: 'WwctaBelongPartnerChoiceListP',
+            componentProps: {
+              dsmnPrtnrNo: prtnrNo,
+              ogTpCd,
+            },
+          });
+          if (pRes.result && pRes.payload) {
+            step1.value.prtnr = pRes.payload;
+          }
+        }
+        await getCntrInfoByCst(res.payload.cstNo);
       }
-     */
-      await setCntrInfo('008446558');
     }
   }
 }
-
 async function onClickReStipulation() {
   const { result, payload } = await modal({
     component: 'WwctaMshRstlOjCstListP',

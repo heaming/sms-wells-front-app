@@ -330,12 +330,15 @@ async function strWareMonthlyClosed() {
     wareNo,
   };
 
-  const res = dataService.get(colsedUri, { params: closedParams });
+  const res = await dataService.get(colsedUri, { params: closedParams });
   console.log(res);
+  if (res.data > 0) {
+    return true;
+  }
   return false;
 }
 
-function saveValidation() {
+async function saveValidation() {
   let checked = true;
   const view = grdMainRef.value.getView();
   const rows = view.getCheckedItems();
@@ -377,13 +380,20 @@ function saveValidation() {
     }
   }
 
+  const closedChk = await strWareMonthlyClosed();
   // 입고창고의 마감여부 체크
-  if (strWareMonthlyClosed()) {
+  if (closedChk) {
     // 해당 입고년월은 이미 마감이 완료되어, 입고작업이 불가합니다.
     // 해당 입고일자는 이미 마감이 완료되어, 입고작업이 불가합니다.
     notify(t('MSG_ALT_DATE_EDIT_IN_PUT'));
     return false;
   }
+
+  return checked;
+}
+
+async function removeValidation() {
+  const checked = true;
 
   return checked;
 }
@@ -395,7 +405,7 @@ async function onClickSave() {
 
   // 등록하시겠습니까?
   if (await confirm(t('MSG_ALT_RGST'))) {
-    if (!saveValidation()) {
+    if (await !saveValidation()) {
       return false;
     }
 
@@ -413,20 +423,54 @@ async function onClickSave() {
       };
     });
 
-    const { result } = await dataService.put(baseURI, confirmData.value);
-
-    if (result) {
+    const res = await dataService.put(baseURI, confirmData.value);
+    console.log(`result : ${res}`);
+    if (res.data) {
       ok();
       notify(t('MSG_ALT_SAVE_DTA'));
     } else {
-      console.log(`result: ${result}`);
+      console.log(`등록 실패: result: ${res}`);
       notify(t('MSG_ALT_SVE_ERR'));
     }
   }
 }
 async function onClickRemove() {
-  const res = await dataService.delete(baseURI, { params: {} });
-  console.log(res.data);
+  console.log('onClickRemove~~~~~~~~~~~~~~~~~~~~~~~~~');
+  const view = grdMainRef.value.getView();
+  const rows = view.getCheckedItems();
+
+  // 삭제하시겠습니까?
+  if (await confirm(t('MSG_ALT_WANT_DELT'))) {
+    if (await !removeValidation()) {
+      return false;
+    }
+
+    const removeData = ref([]);
+    removeData.value = rows.map((v) => {
+      const { strSn, strQty, itmStrNo, strWareNo, itmGdCd, itmPdCd } = view.getValues(v);
+      return {
+        itmStrNo,
+        strSn: Number(strSn),
+        strWareNo,
+        itmGdCd,
+        itmPdCd,
+        strQty: Number(strQty),
+      };
+    });
+
+    const { result } = await dataService.delete(baseURI, { params: {} });
+    console.log(`result : ${result}`);
+
+    if (result) {
+      ok();
+      // 삭제 되었습니다.
+      notify(t('MSG_ALT_DELETED'));
+    } else {
+      console.log(`삭제 실패 : result: ${result}`);
+      // 삭제에 실패 하였습니다.
+      notify(t('MSG_ALT_DEL_ERR'));
+    }
+  }
 }
 
 // TODO: W-SV-U-0169P02 - 네임텍 출력 개발 진행 후 반영 예정

@@ -63,9 +63,9 @@
       >
         <p>{{ stringUtil.getDateFormat(frmMainData.istDt) }}</p>
       </kw-form-item>
-      <!-- 판매유형(+판매상세유형) -->
+      <!-- 판매유형 -->
       <kw-form-item
-        :label="$t('MSG_TXT_SEL_TYPE')+'(+'+$t('MSG_TXT_SEL_TYPE')+')'"
+        :label="$t('MSG_TXT_SEL_TYPE')"
       >
         <p>{{ frmMainData.sellTpNm }}</p>
       </kw-form-item>
@@ -107,17 +107,17 @@
       </kw-form-item>
     </kw-form-row>
     <kw-form-row>
-      <!-- 소속코드(지점명) -->
+      <!-- 소속코드 -->
       <kw-form-item
-        :label="$t('MSG_TXT_BLG_CD')+'('+$t('MSG_TXT_BRCH_NM')+')'"
+        :label="$t('MSG_TXT_BLG_CD')"
       >
-        <p>{{ frmMainData.sellPrtnrBlgNm }}</p>
+        <p>{{ frmMainData.sellPrtnrBlgCd+'('+frmMainData.sellPrtnrBlgNm+')' }}</p>
       </kw-form-item>
-      <!-- 성명(업무등록사번) -->
+      <!-- 성명 -->
       <kw-form-item
-        :label="$t('MSG_TXT_EMPL_NM')+'('+$t('MSG_TXT_BIZ_RGST')+$t('MSG_TXT_EPNO')+')'"
+        :label="$t('MSG_TXT_EMPL_NM')"
       >
-        <p>{{ frmMainData.sellPrtnrNm }}</p>
+        <p>{{ frmMainData.sellPrtnrNm+'('+frmMainData.sellPrtnrNo+')' }}</p>
       </kw-form-item>
     </kw-form-row>
     <kw-form-row>

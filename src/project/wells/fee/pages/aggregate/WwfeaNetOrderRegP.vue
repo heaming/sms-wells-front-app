@@ -23,7 +23,7 @@
         <kw-form-item
           :label="$t('MSG_TXT_PERF_YM')"
         >
-          <p>{{ data.perfYm }}</p>
+          <p>{{ data.baseYm }}</p>
         </kw-form-item>
       </kw-form-row>
     </kw-form>
@@ -58,11 +58,18 @@ const props = defineProps({
     type: String,
     default: '',
   },
+  tcntDvCd: {
+    type: String,
+    default: '',
+  },
 });
 
 const data = ref({
-  perfYm: props.perfYm,
+  baseYm: props.perfYm,
+  perfYm: props.perfYm.replaceAll(/[^0-9]/g, ''),
+  tcntDvCd: props.tcntDvCd,
 });
+
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -70,11 +77,18 @@ async function onClickCancel() {
   cancel();
 }
 
+/*
+ *  Event - 수수료 집계정보 생성
+ */
 async function onClickSave() {
   if (!await confirm(t('MSG_ALT_AGRG'))) { return; }
-
-  const response = await dataService.post('/sms/wells/fee/monthly-net-order', data.value);
-
-  ok(response.data);
+  const response = await dataService.post('/sms/wells/fee/monthly-net/aggregations', data.value);
+  const netOrders = response.data;
+  if (netOrders.length === undefined) {
+    alert(t('MSG_ALT_CRT_FAIL'));
+  } else {
+    ok(response.data);
+  }
 }
+
 </script>

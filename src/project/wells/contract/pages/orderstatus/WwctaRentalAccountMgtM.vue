@@ -282,7 +282,7 @@ async function fetchDefaultData() {
 
   responseMclsfIdOptions.data.forEach((v) => {
     if ((!isEmpty(v)) && (!isEmpty(v.pdClsfId))) {
-      initPdMclsfId.push({ codeId: v.pdClsfCd, codeName: v.pdClsfNm });
+      initPdMclsfId.push({ codeId: v.refPdClsfVal, codeName: v.pdClsfNm });
     }
   });
   filteredDgr1LevlOgCds.value.forEach((v) => {

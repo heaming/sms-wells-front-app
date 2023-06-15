@@ -69,35 +69,35 @@
         <kw-form-row>
           <!-- 성명 -->
           <kw-form-item :label="$t('MSG_TXT_EMPL_NM')">
-            <p>{{ baseInfo.prtnrKnm }}</p>
+            <p>{{ baseInfo?.prtnrKnm }}</p>
           </kw-form-item>
           <!-- 소속 -->
           <kw-form-item :label="$t('MSG_TXT_BLG')">
-            <p>{{ baseInfo.ogCd }}</p>
+            <p>{{ baseInfo?.ogCd }}</p>
           </kw-form-item>
           <!-- 직책 -->
           <kw-form-item :label="$t('MSG_TXT_RSB')">
-            <p>{{ codes.RSB_DV_CD.find((code) => code.codeId === baseInfo.rsbDvCd)?.codeName }}</p>
+            <p>{{ codes.RSB_DV_CD.find((code) => code.codeId === baseInfo?.rsbDvCd)?.codeName }}</p>
           </kw-form-item>
         </kw-form-row>
         <kw-form-row>
           <!-- 예상판매수수료 -->
           <kw-form-item :label="$t('MSG_TXT_EST_SAL_COMM')">
-            <p>{{ stringUtil.getNumberWithComma(baseInfo.amtEstSalFee) }}</p>
+            <p>{{ baseInfo?.amtEstSalFee ? stringUtil.getNumberWithComma(baseInfo?.amtEstSalFee) : '' }}</p>
           </kw-form-item>
           <!-- 예상bs수수료 -->
           <kw-form-item
             :label="$t('MSG_TXT_EST_BS_FEE')"
             align-content="right"
           >
-            <p>{{ stringUtil.getNumberWithComma(baseInfo.amtEstBsFee) }}</p>
+            <p>{{ baseInfo?.amtEstBsFee ? stringUtil.getNumberWithComma(baseInfo?.amtEstBsFee) : '' }}</p>
           </kw-form-item>
           <!-- 예상수수료합계 -->
           <kw-form-item
             :label="$t('MSG_TXT_TOT_EST_FEE')"
             align-content="right"
           >
-            <p>{{ stringUtil.getNumberWithComma(baseInfo.amtFeeSum) }}</p>
+            <p>{{ baseInfo?.amtFeeSum ? stringUtil.getNumberWithComma(baseInfo?.amtFeeSum) : '' }}</p>
           </kw-form-item>
         </kw-form-row>
         <kw-form-row>
@@ -106,7 +106,7 @@
             :label="$t('MSG_TXT_OPNG_NMN')"
             align-content="left"
           >
-            <p>{{ stringUtil.getDateFormat(baseInfo.ojDsbYm).substr(0,7) }}</p>
+            <p>{{ baseInfo?.ojDsbYm ? stringUtil.getDateFormat(baseInfo?.ojDsbYm).substr(0,7) : '' }}</p>
           </kw-form-item>
         </kw-form-row>
       </kw-form>

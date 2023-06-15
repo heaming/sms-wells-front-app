@@ -292,7 +292,7 @@ const initGrdMain = defineGrid((data, view) => {
     console.log(g, column, dataRow, v);
 
     if (column === 'rmkCn') {
-      const { result, payload } = await modal({
+      const { result } = await modal({
         component: 'WwsnaNormalOutOfStorageRgstListP',
         componentProps: {
           ostrAkNo,
@@ -301,7 +301,8 @@ const initGrdMain = defineGrid((data, view) => {
       });
 
       if (result) {
-        console.log(payload[0]);
+        // console.log(payload[0]);
+        await fetchData();
       }
     }
   };

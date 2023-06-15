@@ -3,13 +3,14 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : PDC (상품운영관리)
-2. 프로그램 ID : WwpdcRoutineBsInputListP - 서비스 - 정기B/S투입정보 (W-PD-U-0043P04)
+2. 프로그램 ID : WwpdcRoutineBsInputListP - 서비스 - 정기B/S투입정보 상세/수정
+                (W-PD-U-0043P05)
 3. 작성자 : jintae.choi
 4. 작성일 : 2022.03.31
 ****************************************************************************************************
 * 프로그램 설명
 ****************************************************************************************************
-- 상품 서비스 목록 조회 및 선택 프로그램
+- 상품 정기B/S투입정보 상세/수정 프로그램
 ****************************************************************************************************
 --->
 <template>
@@ -54,35 +55,31 @@
         :label="$t('MSG_BTN_DEL')"
         @click="onClickRemoveRows"
       />
+      <kw-separator
+        spaced
+        vertical
+        inset
+      />
+      <!-- 저장 -->
+      <kw-btn
+        dense
+        secondary
+        :label="$t('MSG_BTN_SAVE')"
+        @click="onClickSave"
+      />
     </kw-action-top>
-
     <kw-grid
       ref="grdMainRef"
       name="grdMain"
       @init="initGrdMain"
     />
-
-    <template #action>
-      <!-- 취소 -->
-      <kw-btn
-        :label="$t('MSG_BTN_CANCEL')"
-        negative
-        @click="onClickCancel"
-      />
-      <!-- 저장 -->
-      <kw-btn
-        primary
-        :label="$t('MSG_BTN_SAVE')"
-        @click="onClickSave()"
-      />
-    </template>
   </kw-popup>
 </template>
 <script setup>
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, gridUtil, useDataService, useModal, useGlobal, getComponentType, defineGrid } from 'kw-lib';
+import { codeUtil, gridUtil, useDataService, useGlobal, getComponentType, defineGrid } from 'kw-lib';
 import { isEmpty } from 'lodash-es';
 // import pdConst from '~sms-common/product/constants/pdConst';
 import { getGridRowCount } from '~/modules/sms-common/product/utils/pdUtil';
@@ -94,7 +91,6 @@ const props = defineProps({
   pdctPdNm: { type: String, default: '' },
 });
 
-const { cancel: onClickCancel } = useModal();
 const { notify } = useGlobal();
 const { t } = useI18n();
 const dataService = useDataService();

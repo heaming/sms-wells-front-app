@@ -341,7 +341,7 @@ const initBusinessToBusinessBoList = defineGrid((data, view) => {
         maxLength: 50,
       } }, // 프로젝트ID
     { fieldName: 'opptId', header: t('MSG_TXT_UNIQUE_NUM'), width: '142', styleName: 'text-center', editable: false }, // 고유번호
-    { fieldName: 'fstRgstDt', header: `BO${t('MSG_TXT_RGST_DT')}`, width: '142', styleName: 'text-center', editable: false }, // BO등록일
+    { fieldName: 'fstRgstDt', header: `BO${t('MSG_TXT_RGST_DT')}`, width: '142', styleName: 'text-center', editable: false, datetimeFormat: 'date' }, // BO등록일
     { fieldName: 'dgr3LevlOgCd', header: t('MSG_TXT_BRANCH'), width: '142', styleName: 'text-center', editable: false }, // 지점
     { fieldName: 'opptIchrPrtnrNo',
       header: t('MSG_TXT_EPNO'),
@@ -350,6 +350,7 @@ const initBusinessToBusinessBoList = defineGrid((data, view) => {
       button: 'action',
       rules: 'required',
       editor: {
+        inputCharacters: ['0-9'],
         maxLength: 10,
       } }, // 사번
     { fieldName: 'prtnrKnm', header: `${t('MSG_TXT_PRACTICE_PSIC')}(${t('MSG_TXT_KW')})`, width: '142', styleName: 'text-center', editable: false }, // 실무담당자(교원)

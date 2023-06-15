@@ -121,7 +121,7 @@ const initGrid = defineGrid((data, view) => {
       items: ['bfOgNm', 'bfCnfmPsicPrtnrNo', 'bfPrtnrKnm'],
     },
     {
-      header: t('이관 전 담당자'),
+      header: t('이관 후 담당자'),
       direction: 'horizontal',
       items: ['afOgNm', 'afCnfmPsicPrtnrNo', 'afPrtnrKnm'],
     },

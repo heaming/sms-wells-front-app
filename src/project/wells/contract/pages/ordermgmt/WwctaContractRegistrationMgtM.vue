@@ -312,12 +312,12 @@ function showStep(step) {
   });
   currentStepName.value = `step${step}`;
 }
-async function getCntrInfo(step, cntrNo) {
+async function getCntrInfo(step, cntrNo, getExistCntr) {
   if (step === 2) {
     // step2일 때 상품 조회
     await panelsRefs[currentStepName.value].getProducts(cntrNo);
   }
-  await panelsRefs[currentStepName.value].getCntrInfo(cntrNo);
+  await panelsRefs[currentStepName.value].getCntrInfo(cntrNo, getExistCntr);
 }
 
 async function getExistedCntr() {
@@ -337,7 +337,7 @@ async function getExistedCntr() {
   if (step >= 2) contract.value.step2 = smrs.data.step2;
   if (step >= 3) contract.value.step3 = smrs.data.step3;
   if (step >= 4) contract.value.step4 = smrs.data.step4;
-  await getCntrInfo(step, cntrNo);
+  await getCntrInfo(step, cntrNo, true);
 }
 
 async function onClickPrevious() {

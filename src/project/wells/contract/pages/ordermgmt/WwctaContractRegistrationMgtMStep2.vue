@@ -526,12 +526,16 @@ async function getCntrInfo(cntrNo) {
 }
 
 async function isChangedStep() {
-  return JSON.stringify(ogStep2.value) !== JSON.stringify(step2.value);
+  return step2.value.bas.cntrPrgsStatCd < 12 || JSON.stringify(ogStep2.value) !== JSON.stringify(step2.value);
 }
 
 async function isValidStep() {
-  if (isEmpty(step2.value.dtls)) {
+  if (step2.value.dtls.length === 0) {
     await alert('상품을 선택해주세요.');
+    return false;
+  }
+  if (step2.value.dtls.find((dtl) => (Number.isNaN(dtl.fnlAmt) || dtl.fnlAmt <= 0))) {
+    await alert('상품 금액을 확인해주세요.');
     return false;
   }
   return true;

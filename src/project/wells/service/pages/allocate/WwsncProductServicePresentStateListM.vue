@@ -80,7 +80,9 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, defineGrid, getComponentType, gridUtil, useDataService, useMeta } from 'kw-lib';
+import { codeUtil, defineGrid, getComponentType, gridUtil, useDataService,
+  // useMeta
+} from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
 import useSnCode from '~sms-wells/service/composables/useSnCode';
@@ -88,7 +90,7 @@ import useSnCode from '~sms-wells/service/composables/useSnCode';
 const { t } = useI18n();
 const dataService = useDataService();
 
-const { getConfig } = useMeta();
+// const { getConfig } = useMeta();
 
 const { getPartMaster } = useSnCode();
 
@@ -109,7 +111,7 @@ const searchParams = ref({
 const pageInfo = ref({
   totalCount: 0,
   pageIndex: 1,
-  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
+  pageSize: 0,
 });
 
 const codes = await codeUtil.getMultiCodes(

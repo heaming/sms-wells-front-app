@@ -439,8 +439,8 @@ async function fetchDataCustomerBase() {
     frmMainData.value.cntrtAdr = res.data[0].cntrtAdr; // 계약자 주소
     frmMainData.value.rcgvpKnm = res.data[0].rcgvpKnm; // 설치(배송정보) 고객명
     const { istCralLocaraTno, istMexnoEncr, istCralIdvTno } = res.data[0]; // 설치자 휴대지역전화번호
-    if (isEmpty(istMexnoEncr)) {
-      frmMainData.value.rcgvpTno = res.data[0].rcgvpTno;
+    if (!isEmpty(istCralLocaraTno) && isEmpty(istMexnoEncr) && !isEmpty(istCralIdvTno)) {
+      frmMainData.value.rcgvpTno = `${istCralLocaraTno}--${istCralIdvTno}`;
     } else {
       frmMainData.value.rcgvpTno = isEmpty(istCralLocaraTno) && isEmpty(istMexnoEncr) && isEmpty(istCralIdvTno) ? '' : `${istCralLocaraTno}-${istMexnoEncr}-${istCralIdvTno}`; // 설치(배송정보) 휴대전화번호
     }
