@@ -15,24 +15,13 @@
 <template>
   <kw-page>
     <kw-search
-      :cols="3"
+      :cols="4"
       @search="onClickSearch"
     >
       <div
         v-if="isSelectVisile"
       >
         <kw-search-row>
-          <kw-search-item
-            :label="$t('MSG_TXT_INQR_DV')"
-          >
-            <kw-option-group
-              v-model="searchParams.schDvCd"
-              :label="$t('MSG_TXT_INQR_DV')"
-              type="radio"
-              :options="customCodes.div2Cd"
-              @change="onChangedDvcd"
-            />
-          </kw-search-item>
           <kw-search-item
             :label="$t('MSG_TXT_ORDR')"
             required
@@ -43,6 +32,17 @@
               rules="required"
               type="radio"
               :options="customCodes.div1Cd"
+            />
+          </kw-search-item>
+          <kw-search-item
+            :label="$t('MSG_TXT_INQR_DV')"
+          >
+            <kw-option-group
+              v-model="searchParams.schDvCd"
+              :label="$t('MSG_TXT_INQR_DV')"
+              type="radio"
+              :options="customCodes.div2Cd"
+              @change="onChangedDvcd"
             />
           </kw-search-item>
           <kw-search-item
@@ -57,8 +57,6 @@
               :first-option-label="$t('MSG_TXT_ALL')"
             />
           </kw-search-item>
-        </kw-search-row>
-        <kw-search-row>
           <kw-search-item
             :label="$t('MSG_TXT_DIV')"
             required
@@ -68,9 +66,10 @@
               :label="$t('MSG_TXT_DIV')"
               :options="customCodes.div4Cd"
               rules="required"
-              @change="onChangedDvcd"
             />
           </kw-search-item>
+        </kw-search-row>
+        <kw-search-row>
           <kw-search-item
             :label="$t('MSG_TXT_PDCT_TP')"
             required
@@ -96,8 +95,6 @@
               :first-option-label="$t('MSG_TXT_ALL')"
             />
           </kw-search-item>
-        </kw-search-row>
-        <kw-search-row>
           <kw-search-item
             :label="$t('MSG_TXT_DT')"
             required
@@ -118,27 +115,20 @@
               :label="$t('MSG_TXT_CANC_DT')"
             />
           </kw-search-item>
+        </kw-search-row>
+        <kw-search-row>
           <kw-search-item
             :label="$t('MSG_TXT_PRDT_CODE')"
           >
             <kw-input
               v-model="searchParams.schPdCdStrt"
-              maxlength="10"
-              clearable
-              icon="search"
-              @click-icon="onClickSearchPdCdPopup('S')"
             />
             <span>~</span>
             <kw-input
               v-model="searchParams.schPdCdEnd"
-              maxlength="10"
-              clearable
-              icon="search"
-              @click-icon="onClickSearchPdCdPopup('E')"
             />
           </kw-search-item>
-        </kw-search-row>
-        <kw-search-row>
+
           <kw-search-item
             :label="$t('MSG_TXT_PKG_CD')"
           >
@@ -150,19 +140,17 @@
               v-model="searchParams.schPkgdEnd"
             />
           </kw-search-item>
-          <kw-search-item :label="t('MSG_TXT_OG_LEVL')">
-            <zwog-level-select
-              v-model:og-levl-dv-cd1="searchParams.ogLevl1"
-              v-model:og-levl-dv-cd2="searchParams.ogLevl2"
-              v-model:og-levl-dv-cd3="searchParams.ogLevl3"
-              :og-tp-cd="searchParams.ogDvCd"
-              :base-ym="searchParams.perfYm"
-              :start-level="1"
-              :end-level="3"
+          <kw-search-item
+            :label="$t('MSG_TXT_BLG')"
+          >
+            <kw-input
+              v-model="searchParams.schBlgCdStrt"
+            />
+            <span>~</span>
+            <kw-input
+              v-model="searchParams.schBlgCdEnd"
             />
           </kw-search-item>
-        </kw-search-row>
-        <kw-search-row>
           <kw-search-item
             :label="$t('MSG_TXT_SEQUENCE_NUMBER')"
           >
@@ -181,17 +169,6 @@
       >
         <kw-search-row>
           <kw-search-item
-            :label="$t('MSG_TXT_INQR_DV')"
-          >
-            <kw-option-group
-              v-model="searchParams.schDvCd"
-              :label="$t('MSG_TXT_INQR_DV')"
-              type="radio"
-              :options="customCodes.div2Cd"
-              @change="onChangedDvcd"
-            />
-          </kw-search-item>
-          <kw-search-item
             :label="$t('MSG_TXT_ORDR')"
             required
           >
@@ -204,37 +181,6 @@
             />
           </kw-search-item>
           <kw-search-item
-            :label="$t('MSG_TXT_PERF_YM')"
-          >
-            <kw-date-picker
-              v-model="searchParams.perfYm"
-              rules="required"
-              type="month"
-              :label="$t('MSG_TXT_PERF_YM')"
-            />
-          </kw-search-item>
-        </kw-search-row>
-        <kw-search-row>
-          <kw-search-item
-            :label="$t('MSG_TXT_OG_DV')"
-          >
-            <kw-select
-              v-model="searchParams.ogDvCd"
-              :label="$t('MSG_TXT_OG_DV')"
-              :options="customCodes.div3Cd"
-              first-option
-              first-option-value=""
-              :first-option-label="$t('MSG_TXT_ALL')"
-              @change="onChangedDvcd"
-            />
-          </kw-search-item>
-        </kw-search-row>
-      </div>
-      <div
-        v-if="isSelectVisile3"
-      >
-        <kw-search-row>
-          <kw-search-item
             :label="$t('MSG_TXT_INQR_DV')"
           >
             <kw-option-group
@@ -246,15 +192,13 @@
             />
           </kw-search-item>
           <kw-search-item
-            :label="$t('MSG_TXT_ORDR')"
-            required
+            :label="$t('MSG_TXT_PERF_YM')"
           >
-            <kw-option-group
-              v-model="searchParams.tcntDvCd"
-              :label="$t('MSG_TXT_ORDR')"
+            <kw-date-picker
+              v-model="searchParams.perfYm"
               rules="required"
-              type="radio"
-              :options="customCodes.div1Cd"
+              type="month"
+              :label="$t('MSG_TXT_PERF_YM')"
             />
           </kw-search-item>
           <kw-search-item
@@ -267,30 +211,6 @@
               first-option
               first-option-value=""
               :first-option-label="$t('MSG_TXT_ALL')"
-            />
-          </kw-search-item>
-        </kw-search-row>
-        <kw-search-row>
-          <kw-search-item
-            :label="$t('MSG_TXT_DIV')"
-            required
-          >
-            <kw-select
-              v-model="searchParams.schDv"
-              :label="$t('MSG_TXT_DIV')"
-              :options="customCodes.div4Cd"
-              rules="required"
-              @change="onChangedDvcd"
-            />
-          </kw-search-item>
-          <kw-search-item
-            :label="$t('MSG_TXT_PERF_YM')"
-          >
-            <kw-date-picker
-              v-model="searchParams.perfYm"
-              rules="required"
-              type="month"
-              :label="$t('MSG_TXT_PERF_YM')"
             />
           </kw-search-item>
         </kw-search-row>
@@ -313,34 +233,32 @@
           :disable="!isExcelDown"
           @click="onClickExcelDownload"
         />
-        <kw-separator
-          v-if="isSelectVisile4"
-          vertical
-          inset
-          spaced
-        />
-        <kw-btn
-          v-if="isSelectVisile4"
-          :label="$t('MSG_BTN_HDQ_PERF')+$t('MSG_BTN_AGRG')"
-          secondary
-          dense
-          :disable="!isReg"
-          @click="openNtorAgrgPopup"
-        />
-        <kw-separator
-          v-if="isSelectVisile4"
-          vertical
-          inset
-          spaced
-        />
-        <kw-btn
-          v-if="isSelectVisile4"
-          :label="$t('MSG_BTN_HDQ_PERF')+$t('MSG_BTN_DTRM')"
-          secondary
-          dense
-          :disable="!isConfirm"
-          @click="openNtorConfirmPopup"
-        />
+        <div
+          v-if="isSelectVisile"
+        >
+          <kw-separator
+            vertical
+            inset
+            spaced
+          />
+          <kw-btn
+            :label="$t('MSG_BTN_NTOR_AGRG')"
+            secondary
+            dense
+            @click="openNtorAgrgPopup"
+          />
+          <kw-separator
+            vertical
+            inset
+            spaced
+          />
+          <kw-btn
+            :label="$t('MSG_BTN_NTOR_AGRG')"
+            secondary
+            dense
+            @click="openNtorAgrgPopup"
+          />
+        </div>
       </kw-action-top>
       <kw-grid
         v-if="isGrid1Visile"
@@ -365,8 +283,6 @@
 // -------------------------------------------------------------------------------------------------
 import dayjs from 'dayjs';
 
-import ZwogLevelSelect from '~sms-common/organization/components/ZwogLevelSelect.vue';
-import pdConst from '~sms-common/product/constants/pdConst';
 import { useDataService, getComponentType, useGlobal, gridUtil, defineGrid } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 
@@ -376,16 +292,12 @@ const dataService = useDataService();
 const { t } = useI18n();
 const { currentRoute } = useRouter();
 const isExcelDown = ref(false);
-const isReg = ref(false);
-const isConfirm = ref(false);
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 
 const isSelectVisile = ref(true);
 const isSelectVisile2 = ref(false);
-const isSelectVisile3 = ref(false);
-const isSelectVisile4 = ref(true);
 const isGrid1Visile = ref(true);
 const isGrid2Visile = ref(false);
 const now = dayjs();
@@ -395,15 +307,15 @@ const totalCount = ref(0);
 const customCodes = {
   div1Cd: [{ codeId: '01', codeName: '1차' }, { codeId: '02', codeName: '2차' }],
   div2Cd: [{ codeId: '01', codeName: '상세' }, { codeId: '02', codeName: '집계' }],
-  div3Cd: [{ codeId: 'W02', codeName: 'M추진단' }, { codeId: 'W01', codeName: 'P추진단' }, { codeId: 'W03', codeName: '홈마스터' }, { codeId: 'W04', codeName: 'B2B' }, { codeId: 'W05', codeName: '총판' }, { codeId: 'W06', codeName: '기타' }],
+  div3Cd: [{ codeId: '01', codeName: 'M추진단' }, { codeId: '02', codeName: 'P추진단' }, { codeId: '03', codeName: '홈마스터' }, { codeId: '04', codeName: 'B2B' }, { codeId: '05', codeName: '총판' }, { codeId: '06', codeName: '기타' }],
   div4Cd: [{ codeId: '01', codeName: '접수' }, { codeId: '02', codeName: '예약' }, { codeId: '03', codeName: '매출' }, { codeId: '04', codeName: '수수료 실적 집계 대상' }],
   div5Cd: [{ codeId: '01', codeName: '환경' }, { codeId: '02', codeName: '환경외' }, { codeId: '03', codeName: '웰스팜' }, { codeId: '04', codeName: '홈케어' }, { codeId: '05', codeName: '캡슐' }, { codeId: '06', codeName: '기타' }],
-  div6Cd: [{ codeId: '2', codeName: '렌탈/리스' }, { codeId: '1', codeName: '일시불' }, { codeId: '6', codeName: '정기배송' }, { codeId: '7', codeName: '재약정' }, { codeId: '3', codeName: '홈케어멤버십' }],
+  div6Cd: [{ codeId: '01', codeName: '렌탈' }, { codeId: '02', codeName: '정기구매' }, { codeId: '03', codeName: '할부' }, { codeId: '04', codeName: '홈케어' }, { codeId: '05', codeName: '재약정' }, { codeId: '06', codeName: '멤버십' }],
 };
 
 const searchParams = ref({
-  schDvCd: '01',
   tcntDvCd: '01',
+  schDvCd: '01',
   ogDvCd: '',
   schDv: '01',
   pdctTp: '',
@@ -416,44 +328,28 @@ const searchParams = ref({
   schPdCdEnd: '',
   schPkgCdStrt: '',
   schPkgdEnd: '',
-  ogLevl1: '',
-  ogLevl2: '',
-  ogLevl3: '',
+  schBlgCdStrt: '',
+  schBlgCdEnd: '',
   prtnrNo: '',
   perfYm: now.add(-1, 'month').format('YYYYMM'),
-  pdCd: '',
 });
-
-const info = ref({
-  cnfmChk: '',
-});
-
 let cachedParams;
 
 /*
  *  Event - 조회구분 선택 시 하단 그리드 변경※
  */
 async function onChangedDvcd() {
-  const { schDvCd, schDv } = searchParams.value;
+  const { schDvCd } = searchParams.value;
   if (schDvCd === '01') { /* 상세선택 */
-    if (schDv === '04') {
-      isSelectVisile.value = false;
-      isSelectVisile3.value = true;
-    } else {
-      isSelectVisile.value = true;
-      isSelectVisile3.value = false;
-    }
-    isSelectVisile2.value = false;
-    isSelectVisile4.value = true;
     isGrid1Visile.value = true;
     isGrid2Visile.value = false;
+    isSelectVisile.value = true;
+    isSelectVisile2.value = false;
   } else if (schDvCd === '02') { /* 집계선택 */
     isGrid1Visile.value = false;
     isGrid2Visile.value = true;
     isSelectVisile.value = false;
     isSelectVisile2.value = true;
-    isSelectVisile3.value = false;
-    isSelectVisile4.value = false;
   }
 }
 
@@ -475,63 +371,20 @@ async function fetchData(apiUrl) {
   } else {
     isExcelDown.value = false;
   }
-  if (apiUrl === 'fees') {
-    const view = grdMain2Ref.value.getView();
-    view.getDataSource().setRows(netOrders);
-  } else if (apiUrl === 'confirmChk') {
-    info.value = netOrders;
-    if (info.value.cnfmChk === 'Y') {
-      isReg.value = false;
-      isConfirm.value = false;
-    } else if (info.value.cnfmChk === 'N') {
-      isReg.value = true;
-      isConfirm.value = true;
-    } else {
-      isReg.value = true;
-      isConfirm.value = false;
-    }
-  } else {
-    const view = grdMain1Ref.value.getView();
-    view.getDataSource().setRows(netOrders);
-  }
+
+  const view = grdMain1Ref.value.getView();
+  view.getDataSource().setRows(netOrders);
 }
 
 async function onClickSearch() {
-  const { schDvCd, schDv } = searchParams.value;
+  const { schDvCd } = searchParams.value;
   cachedParams = cloneDeep(searchParams.value);
-  await fetchData('confirmChk');
-  if (schDvCd === '01') { /* 상세선택 */
-    if (schDv === '04') {
-      await fetchData('aggreateOrders');
-    } else {
-      await fetchData('orders');
-    }
+  if (schDvCd === '01') {
+    await fetchData('orders');
   } else {
     await fetchData('fees');
   }
-}
-
-// 상품코드 검색 아이콘 클릭 이벤트
-async function onClickSearchPdCdPopup(arg) {
-  if (arg === 'S') {
-    searchParams.value.pdCd = searchParams.value.schPdCdStrt;
-  } else {
-    searchParams.value.pdCd = searchParams.value.schPdCdEnd;
-  }
-  const searchPopupParams = {
-    searchType: pdConst.PD_SEARCH_CODE,
-    searchValue: searchParams.value.pdCd,
-    selectType: pdConst.PD_SEARCH_SINGLE,
-  };
-  const rtn = await modal({
-    component: 'ZwpdcStandardListP',
-    componentProps: searchPopupParams,
-  });
-  if (arg === 'S') {
-    searchParams.value.schPdCdStrt = rtn.payload?.[0]?.pdCd;
-  } else {
-    searchParams.value.schPdCdEnd = rtn.payload?.[0]?.pdCd;
-  }
+  await fetchData();
 }
 
 // 번호 검색 아이콘 클릭 이벤트
@@ -540,7 +393,7 @@ async function onClickSearchNo() {
     component: 'ZwogzPartnerListP',
     componentProps: {
       prtnrNo: searchParams.value.prtnrNo,
-      ogTpCd: searchParams.value.ogDvCd,
+      ogTpCd: 'W02',
     },
   });
 
@@ -557,7 +410,6 @@ async function onClickSearchNo() {
 async function openNtorAgrgPopup() {
   const param = {
     perfYm: now.add(-1, 'month').format('YYYY-MM'),
-    tcntDvCd: searchParams.value.tcntDvCd,
   };
 
   const { result: isChanged } = await modal({
@@ -566,32 +418,9 @@ async function openNtorAgrgPopup() {
   });
 
   if (isChanged) {
-    await onClickSearch();
+    await fetchData();
   }
 }
-
-/*
- *  Event - 순주문 확정 버튼 클릭
- */
-async function openNtorConfirmPopup() {
-  const param = {
-    perfYm: now.add(-1, 'month').format('YYYY-MM'),
-    tcntDvCd: searchParams.value.tcntDvCd,
-  };
-
-  const { result: isChanged } = await modal({
-    component: 'WwfeaNetOrderConfirmP',
-    componentProps: param,
-  });
-
-  if (isChanged) {
-    await onClickSearch();
-  }
-}
-
-onMounted(async () => {
-  await onClickSearch();
-});
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
@@ -613,7 +442,7 @@ const initGrd1Main = defineGrid((data, view) => {
     { fieldName: 'stplMcnt' },
     { fieldName: 'cntrDate' },
     { fieldName: 'slDt' },
-    { fieldName: 'canDt' },
+    { fieldName: 'cancDt' },
     { fieldName: 'demDt' },
     { fieldName: 'rtlfe' },
   ];
@@ -634,7 +463,7 @@ const initGrd1Main = defineGrid((data, view) => {
     { fieldName: 'stplMcnt', header: t('MSG_TXT_STPL_MCNT'), width: '120', styleName: 'text-center' },
     { fieldName: 'cntrDate', header: t('MSG_TXT_CNTR_DATE'), width: '120', styleName: 'text-center' },
     { fieldName: 'slDt', header: t('MSG_TXT_SL_DT'), width: '120', styleName: 'text-center' },
-    { fieldName: 'canDt', header: t('MSG_TXT_CANC_DT'), width: '120', styleName: 'text-center' },
+    { fieldName: 'cancDt', header: t('MSG_TXT_CANC_DT'), width: '120', styleName: 'text-center' },
     { fieldName: 'demDt', header: t('MSG_TXT_DEM_DT'), width: '120', styleName: 'text-center' },
     { fieldName: 'rtlfe', header: t('MSG_TXT_RTLFE'), width: '120', styleName: 'text-center' },
   ];
@@ -649,176 +478,53 @@ const initGrd1Main = defineGrid((data, view) => {
 const initGrd2Main = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'sellOg' },
-    { fieldName: 'totCt', dataType: 'number' },
-    { fieldName: 'rental', dataType: 'number' },
-    { fieldName: 'snglPmnt', dataType: 'number' },
-    { fieldName: 'regDlvr', dataType: 'number' },
-    { fieldName: 'rstl', dataType: 'number' },
-    { fieldName: 'hcrMsh', dataType: 'number' },
-    { fieldName: 'envr', dataType: 'number' },
-    { fieldName: 'welsf', dataType: 'number' },
-    { fieldName: 'bh', dataType: 'number' },
-    { fieldName: 'capsl', dataType: 'number' },
-    { fieldName: 'homeCare', dataType: 'number' },
-    { fieldName: 'csmb', dataType: 'number' },
-    { fieldName: 'acsr', dataType: 'number' },
+    { fieldName: 'totCt' },
+    { fieldName: 'rental' },
+    { fieldName: 'rglr' },
+    { fieldName: 'istm' },
+    { fieldName: 'homeCare1' },
+    { fieldName: 'rstl' },
+    { fieldName: 'membership' },
+    { fieldName: 'envr' },
+    { fieldName: 'envrExcp' },
+    { fieldName: 'welsf' },
+    { fieldName: 'homeCare2' },
+    { fieldName: 'capsl' },
+    { fieldName: 'etc' },
 
   ];
 
   const columns = [
-    { fieldName: 'sellOg',
-      header: t('MSG_TXT_SELL_OG'),
-      width: '120',
-      styleName: 'text-center',
-      headerSummary: {
-        styleName: 'text-center',
-        text: t('MSG_TXT_SUM'), // 합계
-      },
-    },
-    { fieldName: 'totCt',
-      header: t('MSG_TXT_TOT_CT'),
-      width: '120',
-      styleName: 'text-right',
-      numberFormat: '#,##0',
-      headerSummary: {
-        numberFormat: '#,##0',
-        expression: 'sum',
-      } },
-    { fieldName: 'rental',
-      header: `${t('MSG_TXT_RENTAL')}/${t('MSG_TXT_LEASE')}`,
-      width: '120',
-      styleName: 'text-right',
-      numberFormat: '#,##0',
-      headerSummary: {
-        numberFormat: '#,##0',
-        expression: 'sum',
-      } },
-    { fieldName: 'snglPmnt',
-      header: t('MSG_TXT_SNGL_PMNT'),
-      width: '120',
-      styleName: 'text-right',
-      numberFormat: '#,##0',
-      headerSummary: {
-        numberFormat: '#,##0',
-        expression: 'sum',
-      } },
-    { fieldName: 'regDlvr',
-      header: t('MSG_TXT_REG_DLVR'),
-      width: '120',
-      styleName: 'text-right',
-      numberFormat: '#,##0',
-      headerSummary: {
-        numberFormat: '#,##0',
-        expression: 'sum',
-      } },
-    { fieldName: 'rstl',
-      header: t('MSG_TXT_RSTL'),
-      width: '120',
-      styleName: 'text-right',
-      numberFormat: '#,##0',
-      headerSummary: {
-        numberFormat: '#,##0',
-        expression: 'sum',
-      } },
-    { fieldName: 'hcrMsh',
-      header: t('MSG_TXT_HCR_MSH'),
-      width: '120',
-      styleName: 'text-right',
-      numberFormat: '#,##0',
-      headerSummary: {
-        numberFormat: '#,##0',
-        expression: 'sum',
-      } },
-    { fieldName: 'envr',
-      header: t('MSG_TXT_ENVR'),
-      width: '120',
-      styleName: 'text-right',
-      numberFormat: '#,##0',
-      headerSummary: {
-        numberFormat: '#,##0',
-        expression: 'sum',
-      } },
-    { fieldName: 'welsf',
-      header: t('MSG_TXT_WELSF'),
-      width: '120',
-      styleName: 'text-right',
-      numberFormat: '#,##0',
-      headerSummary: {
-        numberFormat: '#,##0',
-        expression: 'sum',
-      } },
-    { fieldName: 'bh',
-      header: 'BH',
-      width: '120',
-      styleName: 'text-right',
-      numberFormat: '#,##0',
-      headerSummary: {
-        numberFormat: '#,##0',
-        expression: 'sum',
-      } },
-    { fieldName: 'capsl',
-      header: t('MSG_TXT_CAPSL'),
-      width: '120',
-      styleName: 'text-right',
-      numberFormat: '#,##0',
-      headerSummary: {
-        numberFormat: '#,##0',
-        expression: 'sum',
-      } },
-    { fieldName: 'homeCare',
-      header: t('MSG_TXT_HOME_CARE'),
-      width: '120',
-      styleName: 'text-right',
-      numberFormat: '#,##0',
-      headerSummary: {
-        numberFormat: '#,##0',
-        expression: 'sum',
-      } },
-    { fieldName: 'csmb',
-      header: t('MSG_TXT_CSMB'),
-      width: '120',
-      styleName: 'text-right',
-      numberFormat: '#,##0',
-      headerSummary: {
-        numberFormat: '#,##0',
-        expression: 'sum',
-      } },
-    { fieldName: 'acsr',
-      header: t('MSG_TXT_ACCESSORIES'),
-      width: '120',
-      styleName: 'text-right',
-      numberFormat: '#,##0',
-      headerSummary: {
-        numberFormat: '#,##0',
-        expression: 'sum',
-      } },
+    { fieldName: 'sellOg', header: t('MSG_TXT_SELL_OG'), width: '120', styleName: 'text-center' },
+    { fieldName: 'totCt', header: t('MSG_TXT_TOT_CT'), width: '120', styleName: 'text-center' },
+    { fieldName: 'rental', header: t('MSG_TXT_RENTAL'), width: '120', styleName: 'text-center' },
+    { fieldName: 'rglr', header: t('MSG_TXT_RGLR'), width: '120', styleName: 'text-center' },
+    { fieldName: 'istm', header: t('MSG_TXT_ISTM'), width: '120', styleName: 'text-center' },
+    { fieldName: 'homeCare1', header: t('MSG_TXT_HOME_CARE'), width: '120', styleName: 'text-center' },
+    { fieldName: 'rstl', header: t('MSG_TXT_RSTL'), width: '120', styleName: 'text-center' },
+    { fieldName: 'membership', header: t('MSG_TXT_MEMBERSHIP'), width: '120', styleName: 'text-center' },
+    { fieldName: 'envr', header: t('MSG_TXT_ENVR'), width: '120', styleName: 'text-center' },
+    { fieldName: 'envrExcp', header: t('MSG_TXT_ENVR_EXCP'), width: '120', styleName: 'text-center' },
+    { fieldName: 'welsf', header: t('MSG_TXT_WELSF'), width: '120', styleName: 'text-center' },
+    { fieldName: 'homeCare2', header: t('MSG_TXT_HOME_CARE'), width: '120', styleName: 'text-center' },
+    { fieldName: 'capsl', header: t('MSG_TXT_CAPSL'), width: '120', styleName: 'text-center' },
+    { fieldName: 'etc', header: t('MSG_TXT_ETC'), width: '120', styleName: 'text-center' },
   ];
 
   // multi row header setting
   view.setColumnLayout([
-    'sellOg', 'totCt',
+    'sellOg', 'totCt', 'rental',
     {
       header: t('MSG_TXT_SEL_TYPE'),
       direction: 'horizontal',
-      items: ['rental', 'snglPmnt', 'regDlvr', 'rstl', 'hcrMsh'],
+      items: ['rglr', 'istm', 'homeCare1', 'rstl', 'membership'],
     },
     {
       header: t('MSG_TXT_PDCT_TP'),
       direction: 'horizontal',
-      items: ['envr', 'welsf', 'bh', 'capsl', 'homeCare', 'csmb', 'acsr'],
+      items: ['envr', 'envrExcp', 'welsf', 'homeCare2', 'capsl', 'etc'],
     },
   ]);
-
-  // 헤더쪽 합계 행고정, summary
-  view.headerSummaries.visible = true;
-  view.setHeaderSummaries({
-    visible: true,
-    items: [
-      {
-        height: 40,
-      },
-    ],
-  });
 
   data.setFields(fields);
   view.setColumns(columns);
