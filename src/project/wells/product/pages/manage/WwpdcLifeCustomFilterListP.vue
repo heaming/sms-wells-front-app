@@ -70,6 +70,13 @@
         :label="$t('MSG_BTN_ROW_ADD')"
         @click="onClickAdd"
       />
+      <!-- 저장 -->
+      <kw-btn
+        dense
+        secondary
+        :label="$t('MSG_BTN_SAVE')"
+        @click="onClickSave"
+      />
       <kw-separator
         vertical
         inset
@@ -89,13 +96,6 @@
       name="grdMain"
       @init="initGrid"
     />
-    <template #action>
-      <kw-btn
-        primary
-        :label="$t('MSG_BTN_SAVE')"
-        @click="onClickSave()"
-      />
-    </template>
   </kw-popup>
 </template>
 <script setup>
