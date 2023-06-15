@@ -640,9 +640,23 @@ async function onClickApprovalConfirm(item) {
 
 async function onClickAssignContact(item) {
   console.log(item);
-  notify('TODO : 컨택배정 프로세스');
+  // 설치오더 시작
+  const res = await modal({
+    component: 'WwsncTimeTableSellListP',
+    componentProps: {
+      sellDate: item.cntrCnfmDtm.substring(0, 8), // 판매일자
+      baseYm: now.format('YYYYMM'), // 달력 초기 월
+      chnlDvCd: 'K', // W: 웰스, K: KSS, C: CubicCC, P: K-MEMBERS, I || E: 엔지니어, M: 매니저
+      svDvCd: '1', // 1:설치, 2:BS, 3:AS, 4:홈케어
+      svBizDclsfCd: '1110', // 판매인 경우 1110(신규설치) fix
+      cntrNo: item.cntrNo,
+      cntrSn: Number(item.cntrSn),
+      dataStatCd: '1', // 1: 신규, 2: 수정, 3: 삭제
+      userId: item.sellPrtnrNo,
+    },
+  });
 
-  // TODO : 컨택배정 프로세스.
+  console.log(res);
 }
 
 async function onClickRequestDelete(item) {

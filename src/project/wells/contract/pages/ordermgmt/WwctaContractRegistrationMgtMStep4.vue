@@ -605,6 +605,7 @@ codes.DP_TP_CD_AFTN = [
   { codeId: '0102', codeName: '계좌이체' },
 ];
 const dtlSn = ref(1);
+const now = dayjs();
 const cntrTpIs = ref({
   indv: computed(() => step4.value.bas?.cntrTpCd === '01'), // 개인
   crp: computed(() => step4.value.bas?.cntrTpCd === '02'), // 법인
