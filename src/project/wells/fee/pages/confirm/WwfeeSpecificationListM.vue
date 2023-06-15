@@ -248,12 +248,12 @@ onMounted(async () => {
 fieldsObj = {
 
   defaultFields: [// 그리드 앞부분 기본 공통컬럼
-    { fieldName: 'dgr1LevlOgNm', header: t('MSG_TXT_MANAGEMENT_DEPARTMENT'), width: '103.8', styleName: 'text-left' }, // 총괄단
-    { fieldName: 'dgr2LevlOgNm', header: t('MSG_TXT_RGNL_GRP'), width: '103.8', styleName: 'text-left' }, // 지역단
-    { fieldName: 'dgr3LevlOgNm', header: t('MSG_TXT_BRANCH'), width: '103.8', styleName: 'text-left' }, // 지점
+    { fieldName: 'dgr1LevlOgNm', header: t('MSG_TXT_MANAGEMENT_DEPARTMENT'), width: '103.8', styleName: 'text-center' }, // 총괄단
+    { fieldName: 'dgr2LevlOgNm', header: t('MSG_TXT_RGNL_GRP'), width: '103.8', styleName: 'text-center' }, // 지역단
+    { fieldName: 'dgr3LevlOgNm', header: t('MSG_TXT_BRANCH'), width: '103.8', styleName: 'text-center' }, // 지점
     { fieldName: 'prtNrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '110.8', styleName: 'text-center' }, // 번호
-    { fieldName: 'prtNrKNm', header: t('MSG_TXT_EMPL_NM'), width: '110.8', styleName: 'text-left' }, // 성명
-    { fieldName: 'rsbDvNm', header: t('MSG_TXT_RSB'), width: '88.7', styleName: 'text-left' }, // 직책
+    { fieldName: 'prtNrKNm', header: t('MSG_TXT_EMPL_NM'), width: '110.8', styleName: 'text-center' }, // 성명
+    { fieldName: 'rsbDvNm', header: t('MSG_TXT_RSB'), width: '88.7', styleName: 'text-center' }, // 직책
     { fieldName: 'meetDates', header: t('MSG_TXT_METG_PRSC_DC'), width: '93.1', styleName: 'text-right', dataType: 'number' }, // 미팅참석일수
   ],
   mp: { // M추진단 / 플래너
@@ -330,7 +330,7 @@ fieldsObj = {
     const ddenSumFields = { fieldName: 'ddtnsum', header: t('MSG_TXT_DDTN_SUM'), width: '142.8', styleName: 'text-right', dataType: 'number' }; // 공제계
     const dsbAmtFields = { fieldName: 'dsbamt', header: t('MSG_TXT_PAYOUTS'), width: '142.8', styleName: 'text-right', dataType: 'number' }; // 지급액
 
-    const tmpFeeFields = cashedFeeCodes.map((obj) => ({ fieldName: obj.feeCd, header: obj.feeNm, width: '142.8', styleName: 'text-right', dataType: 'number' }));
+    const tmpFeeFields = cashedFeeCodes.map((obj) => ({ fieldName: obj.feeNm, header: obj.feeNm, width: '142.8', styleName: 'text-right', dataType: 'number' }));
 
     if (searchParams.value.feeCalcUnitTpCd === '102') { // P추진단 / 지점장
       const { perfFields } = fieldsObj.pm;
