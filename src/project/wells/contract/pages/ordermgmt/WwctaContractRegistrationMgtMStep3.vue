@@ -552,10 +552,14 @@ async function getCntrInfo(cntrNo) {
 }
 
 function isChangedStep() {
-  return JSON.stringify(ogStep3.value) !== JSON.stringify(step3.value);
+  return step3.value.bas.cntrPrgsStatCd < 14 || JSON.stringify(ogStep3.value) !== JSON.stringify(step3.value);
 }
 
 async function isValidStep() {
+  if (step3.value.dtls.find((dtl) => (dtl.sellTpCd === '1' && (Number.isNaN(dtl.cntrAmt) || dtl.cntrAmt <= 0)))) {
+    alert('일시불 계약금을 확인해주세요.');
+    return false;
+  }
   return true;
 }
 
