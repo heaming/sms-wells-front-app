@@ -3,13 +3,13 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : FEA
-2. 프로그램 ID : WwfeaNetOrderRegP - 월 순주문 집계-순주문 집계
+2. 프로그램 ID : WwfeaNetOrderConfirmP - 월 순주문 집계 확정
 3. 작성자 : gs.piit150
-4. 작성일 : 2023.02.17
+4. 작성일 : 2023.06.15
 ****************************************************************************************************
 * 프로그램 설명
 ****************************************************************************************************
-- 월 순주문 집계 등록 팝업 화면
+- 월 순주문 집계 확정 팝업 화면
 ****************************************************************************************************
 --->
 <template>
@@ -34,7 +34,7 @@
         @click="onClickCancel"
       />
       <kw-btn
-        :label="$t('MSG_BTN_AGRG')"
+        :label="$t('MSG_BTN_DTRM')"
         primary
         @click="onClickSave"
       />
@@ -78,17 +78,12 @@ async function onClickCancel() {
 }
 
 /*
- *  Event - 수수료 집계정보 생성
+ *  Event - 수수료 집계정보 확정
  */
 async function onClickSave() {
-  if (!await confirm(t('MSG_ALT_AGRG'))) { return; }
-  const response = await dataService.post('/sms/wells/fee/monthly-net/aggregations', data.value);
-  const netOrders = response.data;
-  if (netOrders.length === undefined) {
-    alert(t('MSG_ALT_CRT_FAIL'));
-  } else {
-    ok(response.data);
-  }
+  if (!await confirm(t('MSG_ALT_DTRM'))) { return; }
+  const response = await dataService.post('/sms/wells/fee/monthly-net/confirm', data.value);
+  ok(response.data);
 }
 
 </script>
