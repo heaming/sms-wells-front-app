@@ -397,9 +397,10 @@ const initGrid = defineGrid((data, view) => {
   view.onCellButtonClicked = async (g, { column, dataRow }) => {
     if (column === 'cntr') {
       const { cntr } = gridUtil.getRowValue(g, dataRow);
+      const cntrNoSn = cntr.replaceAll('-', '');
       const { result, payload } = await modal({
         component: 'WwctaContractNumberListP',
-        componentProps: { cntrNo: cntr?.slice(0, 12), cntrSn: cntr?.slice(12) },
+        componentProps: { cntrNo: cntrNoSn?.slice(0, 12), cntrSn: cntrNoSn?.slice(12) },
       });
       if (result) {
         const { cntrNo: resCntrNo, cntrSn: resCntrSn, cntrCstKnm: cstKnm, sellTpCd } = payload;
