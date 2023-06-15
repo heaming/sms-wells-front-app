@@ -66,29 +66,29 @@
         <kw-form-row>
           <!-- 성명 -->
           <kw-form-item :label="$t('MSG_TXT_EMPL_NM')">
-            <p>{{ baseInfo.prtnrKnm }}</p>
+            <p>{{ baseInfo?.prtnrKnm }}</p>
           </kw-form-item>
           <!-- 소속 -->
           <kw-form-item :label="$t('MSG_TXT_BLG')">
-            <p>{{ baseInfo.ogCd }}</p>
+            <p>{{ baseInfo?.ogCd }}</p>
           </kw-form-item>
           <!-- 직책 -->
           <kw-form-item :label="$t('MSG_TXT_RSB')">
-            <p>{{ codes.RSB_DV_CD.find((code) => code.codeId === baseInfo.rsbDvCd)?.codeName }}</p>
+            <p>{{ codes.RSB_DV_CD.find((code) => code.codeId === baseInfo?.rsbDvCd)?.codeName }}</p>
           </kw-form-item>
         </kw-form-row>
         <kw-form-row>
           <!-- 예상판매수수료 -->
           <kw-form-item :label="$t('MSG_TXT_EST_SAL_COMM')">
-            <p>{{ stringUtil.getNumberWithComma(baseInfo.amtEstSalFee) }}</p>
+            <p>{{ baseInfo?.amtEstSalFee ? stringUtil.getNumberWithComma(baseInfo?.amtEstSalFee) : '' }}</p>
           </kw-form-item>
           <!-- 예상상조수수료 -->
           <kw-form-item :label="$t('MSG_TXT_EXP_MUT_AID_FEE')">
-            <p>{{ stringUtil.getNumberWithComma(baseInfo.amtMutAidFee) }}</p>
+            <p>{{ baseInfo?.amtMutAidFee ? stringUtil.getNumberWithComma(baseInfo?.amtMutAidFee) : '' }}</p>
           </kw-form-item>
           <!-- 예상수수료합계 -->
           <kw-form-item :label="$t('MSG_TXT_TOT_EST_FEE')">
-            <p>{{ stringUtil.getNumberWithComma(baseInfo.amtFeeSum) }}</p>
+            <p>{{ baseInfo?.amtFeeSum ? stringUtil.getNumberWithComma(baseInfo?.amtFeeSum) : '' }}</p>
           </kw-form-item>
         </kw-form-row>
       </kw-form>
