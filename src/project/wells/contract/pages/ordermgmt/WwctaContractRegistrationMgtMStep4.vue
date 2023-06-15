@@ -437,13 +437,17 @@ ${step4.cntrt.sexDvNm || ''}` }}
               label="약정유형"
             >
               <kw-select
-                :options="restipulationBasInfo.text"
+                v-model="restipulationBasInfo.rstlTpCd"
+                :options="restipulationBasInfo.data"
+                option-value="rstlBaseTpCd"
+                option-label="text"
+                @change="calcRestipulation"
               />
             </kw-form-item>
             <kw-form-item
-              label="약정개월"
+              label="재약정개월"
             >
-              <p>12</p>
+              <p>{{ restipulationBasInfo.rstlMcn }} 개월</p>
             </kw-form-item>
           </kw-form-row>
           <kw-form-row>
@@ -462,12 +466,12 @@ ${step4.cntrt.sexDvNm || ''}` }}
             <kw-form-item
               label="약정요금"
             >
-              <p>16.900</p>
+              <p>{{ stringUtil.getNumberWithComma(restipulationBasInfo.newFnlValue) }} 원</p>
             </kw-form-item>
             <kw-form-item
-              label="약정할인"
+              label="재약정할인"
             >
-              <p>2,000</p>
+              <p>{{ stringUtil.getNumberWithComma(restipulationBasInfo.stplDscAmt) }} 원</p>
             </kw-form-item>
           </kw-form-row>
         </kw-form>
@@ -575,6 +579,8 @@ async function getCntrInfo(cntrNo) {
     );
     console.log(res);
     restipulationBasInfo.value = cloneDeep(res);
+    restipulationBasInfo.value.cntrSn = cntrSn;
+    console.log(restipulationBasInfo.value.data);
   }
 }
 
@@ -582,6 +588,39 @@ async function setRestipulation(flag, cntrSn) {
   isRestipulation.value = flag;
   restipulationCntrSn.value = cntrSn;
   console.log(isRestipulation.value);
+}
+
+async function calcRestipulation() {
+  const datas = restipulationBasInfo.value.data;
+
+  datas.forEach((element) => {
+    if (restipulationBasInfo.value.rstlTpCd === element.rstlBaseTpCd) {
+      restipulationBasInfo.value.stplDscAmt = element.stplDscAmt;
+      restipulationBasInfo.value.rstlMcn = element.rstlMcn;
+      restipulationBasInfo.value.minRentalAmt = element.minRentalAmt;
+      // 약정요금 재계산
+      // 기존요금
+      console.log(step4.value.dtls);
+      step4.value.dtls.forEach((v) => {
+        console.log(restipulationBasInfo.value.cntrSn);
+        if (Number(v.cntrSn) === Number(restipulationBasInfo.value.cntrSn)) {
+          console.log(v);
+          const prevRentalAmt = v.fnlAmt;
+          console.log(prevRentalAmt);
+          restipulationBasInfo.value.newFnlValue = Number(prevRentalAmt)
+            - Number(restipulationBasInfo.value.stplDscAmt);
+          console.log(restipulationBasInfo.value.newFnlValue);
+
+          // 최소금액 이하로 떨어지는 경우 로직 보완
+          if (Number(restipulationBasInfo.value.newFnlValue) < Number(restipulationBasInfo.value.minRentalAmt)) {
+            restipulationBasInfo.value.newFnlValue = restipulationBasInfo.value.minRentalAmt;
+            restipulationBasInfo.value.stplDscAmt = Number(restipulationBasInfo.value.stplDscAmt)
+            - (Number(restipulationBasInfo.value.minRentalAmt) - Number(restipulationBasInfo.value.newFnlValue));
+          }
+        }
+      });
+    }
+  });
 }
 
 function isChangedStep() {
