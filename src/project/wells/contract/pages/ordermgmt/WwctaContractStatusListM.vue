@@ -191,7 +191,8 @@
             </p>
           </div>
           <p class="kw-font-subtitle mt20">
-            {{ item.cstKnm }}({{ item.bryyMmdd?dayjs(item.bryyMmdd).format('YYYY-MM-DD'):'' }})
+            {{ item.cstKnm }}({{ item.copnDvNm==='개인'?
+              (item.bryyMmdd?dayjs(item.bryyMmdd).format('YYYY-MM-DD'):''):item.bryyMmdd }})
 
             <kw-chip
               color="placeholder"

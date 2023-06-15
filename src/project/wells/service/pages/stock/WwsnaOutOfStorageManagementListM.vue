@@ -24,7 +24,7 @@
           :label="$t('MSG_TXT_OSTR_WARE')"
         >
           <kw-select
-            v-model="searchParams.strOjWareNo"
+            v-model="searchParams.ostrWareNo"
             :options="warehouses"
           />
         </kw-search-item>
@@ -127,6 +127,7 @@ const dataService = useDataService();
 const { t } = useI18n();
 const { alert, modal } = useGlobal();
 const { getConfig } = useMeta();
+const { currentRoute } = useRouter();
 const { getMonthWarehouse } = useSnCode();
 const store = useStore();
 
@@ -139,7 +140,7 @@ const searchParams = ref({
   edOstrDt: '',
   ostrTpCd: '',
   wareDvCd: '',
-  strOjWareNo: '',
+  ostrWareNo: '',
   ostrWareDvCd: '2',
   ostrWareNoD: '',
   ostrWareNoM: '',
@@ -184,14 +185,13 @@ async function fetchData() {
 
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(outOfItem.map((v) => ({ ...v, txtNote: ' ' })));
-  view.resetCurrent();
 }
 
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
   const res = await dataService.get('/sms/wells/service/out-of-storage-itemizations/excel-download', { params: cachedParams });
   await gridUtil.exportView(view, {
-    fileName: 'outOfStorageManagementList',
+    fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
     exportData: res.data,
   });
@@ -208,7 +208,7 @@ async function fetchDefaultData() {
   const { userId } = wharehouseParams.value;
 
   warehouses.value = await getMonthWarehouse(userId, apyYm);
-  searchParams.value.strOjWareNo = warehouses.value[0].codeId;
+  searchParams.value.ostrWareNo = warehouses.value[0].codeId;
 }
 
 const divideData = (val) => {
@@ -256,6 +256,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'itmOstrNo' },
     { fieldName: 'itmStrNo' },
     { fieldName: 'ostrAkNo' },
+    { fieldName: 'ostrAkSn' },
     { fieldName: 'ostrDt' },
     { fieldName: 'strHopDt' },
     { fieldName: 'ostrSn' },
@@ -305,7 +306,6 @@ const initGrdMain = defineGrid((data, view) => {
   view.rowIndicator.visible = true;
 
   view.onCellItemClicked = async (g, { column, dataRow }) => {
-    debugger;
     // let url = '';
     // if (window.location.href.includes('localhost')) {
     //   url = 'http://localhost:3000';
@@ -313,9 +313,6 @@ const initGrdMain = defineGrid((data, view) => {
     console.log(gridUtil.getRowValue(g, dataRow));
     // eslint-disable-next-line max-len
     const { ostrTpCd, ostrWareNo, ostrDt, strWareNo, itmOstrNo, ostrAkNo, ostrAkSn } = gridUtil.getRowValue(g, dataRow);
-    // const ostrAkTpCd = g.getValue(dataRow, 'ostrTpCd');
-    // const ostrOjWareNo = g.getValue(dataRow, 'ostrWareNo');
-    // const strOjWareNo = g.getValue(dataRow, 'strWareNo');
 
     if (column === 'txtNote') {
       if (ostrTpCd === '217') {

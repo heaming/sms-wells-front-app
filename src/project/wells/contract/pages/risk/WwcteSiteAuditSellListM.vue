@@ -108,7 +108,7 @@
       </kw-search-row>
       <kw-search-row>
         <kw-search-item
-          :label="$t('MSG_TXT_SLS_CAT')"
+          :label="$t('MSG_TXT_SEL_TYPE')"
         >
           <kw-select
             v-model="searchParams.sellTpCd"
@@ -118,7 +118,7 @@
         </kw-search-item>
 
         <kw-search-item
-          :label="$t('MSG_TXT_SEL_TYPE')"
+          :label="$t('MSG_TXT_SELL_TP_DTL_CD')"
         >
           <kw-select
             v-model="searchParams.sellTpDtlCd"
@@ -127,7 +127,7 @@
           />
         </kw-search-item>
         <kw-search-item
-          :label="$t('MSG_TXT_PRD_GRP')"
+          :label="$t('TXT_MSG_PD_MCLSF_ID')"
         >
           <kw-select
             v-model="searchParams.pdMclsfId"

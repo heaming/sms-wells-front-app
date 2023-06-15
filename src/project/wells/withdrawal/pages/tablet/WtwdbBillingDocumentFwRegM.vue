@@ -282,7 +282,7 @@ async function onClickSend() {
   if (!await frmMainRef.value.validate()) { return; }
   if (await frmMainRef.value.alertIfIsNotModified()) { return; }
 
-  if (await confirm(t('MSG_ALT_WANT_SEND?'))) {
+  if (await confirm(t('MSG_ALT_WANT_SEND'))) {
     sendMainData.value.destInfo = telNos.value.telNo1 + telNos.value.telNo2 + telNos.value.telNo3;
     sendMainData.value.callback = telNos2.value.telNo1 + telNos2.value.telNo2 + telNos2.value.telNo3;
 

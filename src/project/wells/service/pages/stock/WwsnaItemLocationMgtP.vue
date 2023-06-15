@@ -57,6 +57,7 @@
             v-model="propParams.stdWareUseYn"
             class="ml20"
             :label="$t('MSG_TXT_STD_NO_APY')"
+            @update:model-value="onCheckedStckNoStdGb"
           />
           <!-- //표준 미적용 -->
         </kw-form-item>
@@ -120,13 +121,14 @@ import { codeUtil, useDataService, getComponentType, gridUtil, defineGrid, useMo
 import { cloneDeep } from 'lodash-es';
 
 const { getConfig } = useMeta();
-const { confirm } = useGlobal();
+const { confirm, notify } = useGlobal();
 const { t } = useI18n();
-const { ok } = useModal;
+const { ok } = useModal();
 
 const dataService = useDataService();
 const grdMainRef = ref(getComponentType('KwGrid'));
 const baseURI = '/sms/wells/service/item-locations';
+const stdWareUri = '/sms/wells/service/normal-outofstorages/standard-ware';
 
 const props = defineProps({
   itmPdCd: {
@@ -134,6 +136,10 @@ const props = defineProps({
     default: '',
   },
   wareNo: {
+    type: String,
+    default: '',
+  },
+  apyYm: {
     type: String,
     default: '',
   },
@@ -152,6 +158,7 @@ const codes = await codeUtil.getMultiCodes(
 const propParams = ref({
   itmPdCd: props.itmPdCd,
   wareNo: props.wareNo,
+  apyYm: props.apyYm,
   wareNm: '',
   itmPdNm: '',
   stdWareUseYn: 'N',
@@ -171,6 +178,15 @@ const pageInfo = ref({
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
 });
 
+async function stckStdGbFetchData() {
+  const apyYm = propParams.value.apyYm.substring(0, 6);
+  const { wareNo } = propParams.value;
+  const res = await dataService.get(stdWareUri, { params: { apyYm, wareNo } });
+  const { stckStdGb } = res.data;
+  console.log(res);
+  propParams.value.stdWareUseYn = stckStdGb === 'Y' ? 'N' : 'Y';
+}
+
 async function fetchData() {
   const res = await dataService.get(baseURI, { params: { ...cachedParams, ...pageInfo.value } });
   const { list: searchData, pageInfo: pagingResult } = res.data;
@@ -186,6 +202,18 @@ async function fetchData() {
   datasSource.setRows(searchData);
   view.resetCurrent();
 }
+
+async function onCheckedStckNoStdGb() {
+  const stckStdGb = propParams.value.stdWareUseYn === 'N' ? 'Y' : 'N';
+  const apyYm = propParams.value.apyYm.substring(0, 6);
+  const { wareNo } = propParams.value;
+
+  const res = await dataService.put(stdWareUri, { apyYm, stckStdGb, wareNo });
+  console.log(res);
+  notify(t('MSG_ALT_CHG_DATA'));
+  fetchData();
+}
+
 async function onClickSave() {
   const dataParams = grdMainRef.value.getView();
   const rows = dataParams.getCheckedItems();
@@ -216,16 +244,13 @@ async function onClickSave() {
 
   // 등록하시겠습니까?
   if (await confirm(t('MSG_ALT_RGST'))) {
-    // const { result } = await dataService.put(baseURI, { params: confirmData.value });
-    const { result } = await dataService.put(baseURI, confirmData.value);
-
-    if (result) {
-      // 등록되었습니다.
-      // alert(t('MSG_ALT_RGSTD'));
-      // await fetchData();
+    const res = await dataService.put(baseURI, confirmData.value);
+    if (res.data.processCount) {
       ok();
+      notify(t('MSG_ALT_SAVE_DTA'));
     } else {
-      console.log(`result: ${result}`);
+      console.log(res);
+      notify(t('MSG_ALT_SVE_ERR'));
     }
   }
 }
@@ -244,6 +269,7 @@ async function onClickExcelDownload() {
 
 onMounted(async () => {
   cachedParams = cloneDeep(searchParams.value);
+  await stckStdGbFetchData();
   await fetchData();
 });
 // -------------------------------------------------------------------------------------------------

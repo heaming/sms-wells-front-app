@@ -17,6 +17,7 @@
     <kw-search
       :cols="3"
       @search="onClickSearch"
+      @reset="onClickReset"
     >
       <kw-search-row>
         <!-- 출고기간-->
@@ -55,6 +56,7 @@
           <kw-select
             v-model="searchParams.ostrTpCd"
             :options="codes.OSTR_TP_CD"
+            first-option="all"
           />
         </kw-search-item>
         <!-- //출고유형 -->
@@ -98,7 +100,8 @@
             first-option="all"
           />
           <kw-select
-            :options="['전체' , 'B']"
+            v-model="searchParams.itmPdCd"
+            :options="itmPdCdFilter"
             first-option="all"
           />
         </kw-search-item>
@@ -127,11 +130,7 @@
             @change="fetchData"
           />
         </template>
-        <kw-separator
-          spaced
-          vertical
-          inset
-        />
+
         <kw-btn
           secondary
           dense
@@ -139,11 +138,6 @@
           :label="$t('MSG_BTN_EXCEL_DOWN')"
           :disable="pageInfo.totalCount === 0"
           @click="onClickExcelDownload"
-        />
-        <kw-separator
-          spaced
-          vertical
-          inset
         />
       </kw-action-top>
       <kw-grid
@@ -176,6 +170,7 @@ const dataService = useDataService();
 const { t } = useI18n();
 
 const baseURI = '/sms/wells/service/out-of-storage-iz-dtls';
+const itemsURI = '/sms/wells/service/individual-ware-ostrs/filter-items';
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -190,6 +185,10 @@ const codes = await codeUtil.getMultiCodes(
   'COD_YN',
   'USE_YN',
 );
+
+const itmPdCdFilter = ref();
+// 품목코드
+// codes.value.ITM_PD_CD = [{}];
 
 const grdMainRef = ref(getComponentType('KwGrid'));
 
@@ -213,12 +212,19 @@ const searchParams = ref({
   ostrWareDtlDvCd: '',
   ostrWareNo: '',
   itmKndCd: '',
+  itmPdCd: '',
   useYn: '',
   apyYm: '',
 });
 
+// 품목코드 가져오기
+watch(() => searchParams.value.itmKndCd, async () => {
+  const { itmKndCd } = searchParams.value;
+  const { data } = await dataService.get(itemsURI, { params: { itmKndCd } });
+  itmPdCdFilter.value = data;
+});
+
 async function fetchData() {
-  console.log('fetchData~~~~~~~~~~~~~~~~~~~~~~~');
   const res = await dataService.get(baseURI, { params: { ...cachedParams, ...pageInfo.value } });
   const { list: searchData, pageInfo: pagingResult } = res.data;
 
@@ -250,15 +256,42 @@ async function onClickExcelDownload() {
   });
 }
 
-onMounted(async () => {
+// 초기값 설정
+function defaultSet() {
   const now = dayjs();
   const toDay = now.format('YYYYMMDD');
   const startMonth = now.format('YYYYMM').concat('01');
 
-  console.log(`today : ${toDay}`);
-  console.log(`startMonth : ${startMonth}`);
+  searchParams.value = {
+    stOstrDt: '',
+    edOstrDt: '',
+    strTpCd: '',
+    ostrTpCd: '',
+    pdGbCd: '',
+    strWareDvCd: '2',
+    strWareDtlDvCd: '',
+    strWareNo: '',
+    ostrWareDvCd: '1',
+    ostrWareDtlDvCd: '',
+    ostrWareNo: '',
+    itmKndCd: '',
+    itmPdCd: '',
+    useYn: '',
+    apyYm: '',
+  };
+
   searchParams.value.stOstrDt = startMonth;
   searchParams.value.edOstrDt = toDay;
+  console.log(`today : ${toDay}`);
+  console.log(`startMonth : ${startMonth}`);
+}
+
+function onClickReset() {
+  defaultSet();
+}
+
+onMounted(async () => {
+  defaultSet();
 });
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
@@ -271,7 +304,13 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'sapMatCd', header: t('MSG_TXT_SAP_CD'), width: '150', styleName: 'text-center' },
     { fieldName: 'itmPdCd', header: t('MSG_TXT_ITM_CD'), width: '150', styleName: 'text-center' },
     { fieldName: 'pdNm', header: t('MSG_TXT_ITM_NM'), width: '300', styleName: 'text-left' },
-    { fieldName: 'ostrTpCd', header: t('MSG_TXT_OSTR_TP'), width: '100', styleName: 'text-center' },
+    { fieldName: 'ostrTpCd',
+      header: t('MSG_TXT_OSTR_TP'),
+      options: codes.OSTR_TP_CD,
+      editor: { type: 'list' },
+      editable: false,
+      width: '100',
+      styleName: 'text-center' },
     { fieldName: 'mngtUnitCd', header: t('MSG_TXT_MNGT_UNIT'), width: '100', styleName: 'text-center' },
     { fieldName: 'itmGdCd', header: t('MSG_TXT_GD'), width: '100', styleName: 'text-center' },
     { fieldName: 'strQty', header: t('MSG_TXT_QTY'), width: '100', styleName: 'text-center' },

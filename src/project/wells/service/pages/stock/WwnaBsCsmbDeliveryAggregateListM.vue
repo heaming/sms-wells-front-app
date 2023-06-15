@@ -167,14 +167,16 @@ async function getBldCode() {
   bldCodes.value = codeData.map((v) => ({ codeId: v.bldCd, codeName: v.bldNm }));
 }
 
+let cachedParams;
 async function getItemQtys() {
-  const res = await dataService.get(`/sms/wells/service/delivery-aggregates/${searchParams.value.mngtYmFrom}-${searchParams.value.mngtYmTo}`);
+  // cachedParams = cloneDeep(searchParams.value);
+  const res = await dataService.get('/sms/wells/service/delivery-aggregates/item-quantity', { params: { ...cachedParams, ...pageInfo.value } });
   itemQtys.value = res.data;
 }
 
-let cachedParams;
-
 async function fetchData() {
+  await getItemQtys();
+
   const res = await dataService.get('/sms/wells/service/delivery-aggregates/paging', { params: { ...cachedParams, ...pageInfo.value } });
   const { list: bsCsmbDdlvAgrgs, pageInfo: pagingResult } = res.data;
 
@@ -206,12 +208,12 @@ async function fetchData() {
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
 
-  const res = await dataService.get('/sms/wells/service/delivery-aggregates', { params: cachedParams });
+  // const res = await dataService.get('/sms/wells/service/delivery-aggregates', { params: cachedParams });
 
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
-    exportData: res.data,
+    exportData: gridUtil.getAllRowValues(view),
   });
 }
 
@@ -383,7 +385,7 @@ async function onChangeMngtYm() {
 onMounted(async () => {
   await getBldCode();
   await getItemCode();
-  await getItemQtys();
+  // await getItemQtys();
 });
 
 // -------------------------------------------------------------------------------------------------

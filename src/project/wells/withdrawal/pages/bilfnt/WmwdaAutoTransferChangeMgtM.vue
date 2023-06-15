@@ -65,6 +65,7 @@
         <h4>{{ t('MSG_TXT_NOTAK_RCV_CST_NAME') }}</h4>
         <kw-input
           v-model.trim="inputParams.cstNm"
+          :regex="/^[A-Z가-힣ㄱ-ㅎ]*$/i"
           :label="t('MSG_TXT_NOTAK_RCV_CST_NAME')"
           :placeholder="t('MSG_TXT_INP')"
           grow
@@ -79,8 +80,8 @@
           v-model:tel-no2="inputParams.cralIdvTno"
           :label="$t('MSG_TXT_NOTAK_RCV_CST_NO')"
           mask="telephone"
+          rules="telephone|required"
           class="mt20"
-          :rules="'required|telephone'"
         />
         <!-- <kw-input
         v-model="inputParams.phone"
@@ -199,11 +200,14 @@ onMounted(async () => {
   if (!window.opener) {
     const path = '/mobile/#/withdrawal/wmwda-auto-transfer-change-mgt';
     const size = {
-      width: 320,
-      height: 658,
+      width: 390,
+      height: 844,
     };
+
+    await router.close(0, true);
     await popupUtil.open(`${path}`, size, false);
   }
+  formRef.value.reset();
 });
 </script>
 

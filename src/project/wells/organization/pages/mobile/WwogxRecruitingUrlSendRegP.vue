@@ -3,59 +3,48 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : OGB
-2. 프로그램 ID : WwogtRecruitingUrlSendRegP - 플래너 업무등록 - URL 발송(태블릿)
+2. 프로그램 ID : WwogxRecruitingUrlSendRegP - 리쿠르팅 등록 URL발송
 3. 작성자 : 홍태기
 4. 작성일 : 2023-03-10
 ****************************************************************************************************
 * 프로그램 설명
 ****************************************************************************************************
-- 플래너 업무등록 - URL 발송(태블릿)
+- 리쿠르팅 등록 URL발송
 ****************************************************************************************************
 --->
 <template>
-  <kw-popup size="sm">
-    <kw-form
-      ref="frmMainRef"
-      :cols="1"
-    >
-      <kw-form-row>
-        <kw-form-item
+  <kw-popup>
+    <div class="pa20">
+      <kw-form
+        ref="frmMainRef"
+        :cols="1"
+      >
+        <kw-input
           :label="$t('MSG_TXT_EMPL_NM')"
-          required
-        >
-          <kw-input
-            v-model="urlSendInfo.rcvrNm"
-            :label="$t('MSG_TXT_EMPL_NM')"
-            rules="required"
-          />
-        </kw-form-item>
-      </kw-form-row>
-      <kw-form-row>
-        <kw-form-item
+          :placeholder="$t('MSG_TXT_EMPL_NM')"
+          class=".kw-font-pt14 mb20"
+        />
+        <kw-input
           :label="$t('MSG_TXT_MPNO')"
-          required
-        >
-          <kw-input
-            v-model="urlSendInfo.phoneNumber"
-            :label="$t('MSG_TXT_MPNO')"
-            rules="required"
-          />
-        </kw-form-item>
-      </kw-form-row>
-      <kw-form-row>
-        <kw-form-item :label="$t('MSG_TXT_FRNR_YN')">
-          <kw-checkbox v-model="urlSendInfo.frnrYn" />
-        </kw-form-item>
-      </kw-form-row>
-    </kw-form>
+          :placeholder="$t('MSG_TXT_MPNO')"
+          class=".kw-font-pt14 mb20"
+        />
 
+        <kw-checkbox
+          v-model="urlSendInfo.frnrYn"
+          :label="$t('MSG_TXT_FRNR_YN')"
+        />
+      </kw-form>
+    </div>
     <template #action>
       <kw-btn
+        filled
         negative
         :label="$t('MSG_BTN_CANCEL')"
         @click="onClickCancel"
       />
       <kw-btn
+        filled
         primary
         :label="$t('MSG_BTN_SEND')"
         @click="onClickSend"
@@ -68,22 +57,25 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useModal, useDataService, getComponentType, useGlobal } from 'kw-lib';
+import { useModal, useDataService, getComponentType, useGlobal, useMeta } from 'kw-lib';
 import { SMS_COMMON_URI } from '~sms-common/organization/constants/ogConst';
 import { getPhoneNumber } from '~sms-common/organization/utils/ogUtil';
+import dayjs from 'dayjs';
 
-const frmMainRef = ref(getComponentType('KwForm'));
 const dataService = useDataService();
 
 const { t } = useI18n();
 const { notify } = useGlobal();
 const { ok, cancel: onClickCancel } = useModal();
-const { getters } = useStore();
+const { getUserInfo } = useMeta();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
-const userInfo = getters['meta/getUserInfo'];
-const { ogTpCd } = userInfo;
+const frmMainRef = ref(getComponentType('KwForm'));
+const { ogTpCd: userOgTpCd, employeeIDNumber } = getUserInfo();
+const now = dayjs();
+const res = await dataService.get(`${SMS_COMMON_URI}/partners/${employeeIDNumber}-${userOgTpCd}/month/${now.format('YYYYMM')}`);
+const { ogTpCd, ogId } = await res.data;
 
 const urlSendInfo = ref({
   rcvrNm: undefined,
@@ -99,15 +91,18 @@ async function onClickSend() {
   const mexnoEncr = getPhoneNumber(urlSendInfo.value.phoneNumber, 2);
   const cralIdvTno = getPhoneNumber(urlSendInfo.value.phoneNumber, 3);
 
-  const smsFwUrlNm = `${window.location.origin}/#/ogmngt/zwogt-recruiting-reg?frnrYn=${urlSendInfo.value.frnrYn}`;
-
+  const smsFwUrlNm = `/#/ns/zwogx-recruiting-reg?frnrYn=${urlSendInfo.value.frnrYn}`;
+  const smsUrl = '/anonymous/login?redirectUrl=';
   const param = {
     rcvrNm: urlSendInfo.value.rcvrNm,
+    prtnrNo: employeeIDNumber,
+    ogId,
     ogTpCd,
     cralLocaraTno,
     mexnoEncr,
     cralIdvTno,
     smsFwUrlNm,
+    smsUrl,
   };
   await dataService.post(`${SMS_COMMON_URI}/recruitings/url-send-info`, param);
   notify(t('MSG_ALT_SEND'));

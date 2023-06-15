@@ -106,13 +106,13 @@
                   <kw-form-item
                     :label="t('MSG_TXT_WRTE_DT')"
                   >
-                    <p>{{ item.bildcWrteDt }}</p>
+                    <p>{{ stringUtil.getDateFormat(item.bildcWrteDt) }}</p>
                   </kw-form-item>
                   <!-- label="발송일자" -->
                   <kw-form-item
                     :label="t('MSG_TXT_FW_DT')"
                   >
-                    <p>{{ item.bildcFwDtm }}</p>
+                    <p>{{ stringUtil.getDateFormat(item.bildcFwDtm) }}</p>
                   </kw-form-item>
                 </kw-form-row>
                 <kw-form-row>
@@ -246,17 +246,19 @@ async function onLoad(pageIdx) {
   const res = await dataService.get('/sms/wells/withdrawal/idvrve/billing-document-orders/paging', { params: cachedParams });
   const { list: pages, pageInfo: pagingResult } = res.data;
 
+  console.log(pages);
+
   pageInfo.value = pagingResult;
 
-  pages.forEach((data) => {
-    if (data.bildcWrteDt) {
-      data.bildcWrteDt = dayjs(data.fstRgstDtm).format('YYYY-MM-DD');
-    }
+  // pages.forEach((data) => {
+  //   if (data.bildcWrteDt) {
+  //     data.bildcWrteDt = dayjs(data.fstRgstDtm).format('YYYY-MM-DD');
+  //   }
 
-    if (data.bildcFwDtm) {
-      data.bildcFwDtm = dayjs(data.bildcFwDtm).format('YYYY-MM-DD');
-    }
-  });
+  //   if (data.bildcFwDtm) {
+  //     data.bildcFwDtm = dayjs(data.bildcFwDtm).format('YYYY-MM-DD');
+  //   }
+  // });
 
   items.value.push(...pages);
 

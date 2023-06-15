@@ -4,7 +4,7 @@
 ****************************************************************************************************
 1. 모듈 : OGC
 2. 프로그램 ID : WwogcServiceCenterGroupMgtM - 서비스센터 조 관리
-3. 작성자 : 한용희
+3. 작성자 : gs.piit158
 4. 작성일 : 2023-05-08
 ****************************************************************************************************
 * 프로그램 설명
@@ -241,11 +241,13 @@ async function onClickAllSave() {
     notify(t('MSG_TXT_APY_DT_CONF'));
     return;
   }
+  /* 임시주석
   if (dayjs().format('YYYYMMDD') > saveParams.value.rfltAplyDt
     || dayjs().format('YYYYMMDD') > saveParams.value.rfltEnddt) {
     notify(t('MSG_TXT_APY_DT_CONF'));
     return;
   }
+  */
   if (saveParams.value.rfltAplyDt > saveParams.value.rfltEnddt) {
     notify(t('MSG_TXT_APY_DT_CONF'));
     return;
@@ -293,11 +295,13 @@ async function onClickSave() {
       notify(t('MSG_ALT_CHK_REQ_DT'));
       return;
     }
+    /* 임시주석
     if (dayjs().format('YYYYMMDD') > item.vlStrtDt
       || dayjs().format('YYYYMMDD') > item.vlEnddt) {
       notify(t('MSG_TXT_APY_DT_CONF'));
       return;
     }
+    */
     if (item.vlStrtDt > item.vlEnddt) {
       notify(t('MSG_TXT_APY_DT_CONF'));
       return;
@@ -311,8 +315,6 @@ async function onClickSave() {
       obj.mexnoEncr = getPhoneNumber(tel, 2);
       obj.cralIdvTno = getPhoneNumber(tel, 3);
     }
-    obj.vlStrtDt = saveParams.value.rfltAplyDt;
-    obj.vlEdndt = saveParams.value.rfltEnddt;
   });
 
   await dataService.post('/sms/wells/partner-engineer/joe-management', changeRows);

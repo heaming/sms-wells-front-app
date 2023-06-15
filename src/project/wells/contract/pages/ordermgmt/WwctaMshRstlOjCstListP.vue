@@ -119,6 +119,7 @@ const props = defineProps({
   cntrTpCd: { type: String, required: true },
   prtnrNo: { type: String, required: true },
   ogTpCd: { type: String, required: true },
+  copnDvCd: { type: String, required: true },
 });
 
 const { ok, cancel } = useModal();
@@ -131,12 +132,12 @@ const codes = await codeUtil.getMultiCodes(
 );
 codes.CNTR_TP_CD = [
   {
-    codeId: 'MSH',
+    codeId: '1',
     codeName: t('MSG_TXT_MMBR') /* 멤버쉽 */,
     url: '/sms/wells/contract/membership/customers/paging',
   },
   {
-    codeId: 'RSTL',
+    codeId: '2',
     codeName: t('MSG_TXT_RSTL') /* 재약정 */,
     url: '/sms/wells/contract/re-stipulation/customers/paging',
   },
@@ -171,10 +172,10 @@ async function fetchPage(pageIndex = pageInfo.value.pageIndex, pageSize = pageIn
     pageSize,
   };
 
-  console.log(params.cntrTpCd);
-  console.log(codes.CNTR_TP_CD);
-  const { url } = codes.CNTR_TP_CD.find((code) => code.codeId === params.cntrTpCd);
-  const response = await dataService.get(url, { params });
+  const response = await dataService.get(
+    codes.CNTR_TP_CD[codes.CNTR_TP_CD.findIndex((code) => code.codeId === params.cntrTpCd)].url,
+    { params },
+  );
 
   pageInfo.value = response.data.pageInfo;
   grdData.value.setRows(response.data.list);
@@ -196,6 +197,7 @@ onMounted(async () => {
   searchParams.ogTpCd = props.ogTpCd;
   searchParams.copnDvCd = props.copnDvCd;
 
+  console.log(searchParams);
   onSearch();
 });
 
@@ -248,8 +250,10 @@ const initGrd = defineGrid((data, view) => {
   view.rowIndicator.visible = true;
 
   view.onCellDblClicked = (g, clickData) => {
+    console.log(clickData);
     if (clickData.cellType === 'data') {
       const currentRowData = gridUtil.getCurrentRowValue(view);
+      console.log(currentRowData);
       return ok(currentRowData);
     }
   };

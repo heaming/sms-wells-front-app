@@ -189,7 +189,8 @@ const dataService = useDataService();
 const baseURI = '/sms/wells/service/normal-outofstorages';
 const detailURI = `${baseURI}/detail`;
 const standardURI = `${baseURI}/standard-ware`;
-const pathUri = `${baseURI}/monthly-warehouse`;
+// const stdWareUri = '/sms/wells/service/normal-outofstorages/standard-ware';
+// const pathUri = `${baseURI}/monthly-warehouse`;
 const itmOstrAkUri = `${baseURI}/itm-ostr-ak`;
 const grdMainRef = ref(getComponentType('KwGrid'));
 // -------------------------------------------------------------------------------------------------
@@ -266,34 +267,6 @@ function getSaveParams() {
   return checkedValues;
 }
 
-async function getStandardWare() {
-  const { ostrWareNo } = searchParams.value;
-  console.log(`searchParams.value.ostrWareNo:${searchParams.value.ostrWareNo}`);
-  const res = await dataService.get(standardURI, { params: { ostrWareNo, stckStdGb: '' } });
-  console.log(`res : ${res.data.stckStdGb}`);
-  return res.data.stckStdGb;
-}
-
-async function setStandardCheckbox() {
-  const stdWare = await getStandardWare();
-  if (stdWare === '1') {
-    searchParams.value.stckNoStdGb = 'N';
-    searchParams.value.stckStdGb = '1';
-  } else {
-    searchParams.value.stckNoStdGb = 'Y';
-    searchParams.value.stckStdGb = '0';
-  }
-}
-
-async function onclickStandard() {
-  searchParams.value.stckStdGb = searchParams.value.stckNoStdGb === 'N' ? '1' : '0';
-
-  const { ostrWareNo, apyYm, stckStdGb } = searchParams.value;
-
-  const res = await dataService.put(pathUri, { apyYm, stckStdGb, wareNo: ostrWareNo });
-  console.log(res);
-}
-
 async function onClickConfirm() {
   if (await confirm(t('MSG_ALT_WANT_DTRM'))) {
     const view = grdMainRef.value.getView();
@@ -320,17 +293,7 @@ async function onChangeRgstDt() {
   await onClickSearch();
 }
 
-async function getItmOstrAk() {
-  const ostrAkParams = {
-    ostrAkNo: props.ostrAkNo,
-    ostrAkSn: props.ostrAkSn,
-  };
-
-  console.log(`props.ostrAkNo : ${props.ostrAkNo}`);
-  console.log(`props.ostrAkSn : ${props.ostrAkSn}`);
-
-  const res = await dataService.get(itmOstrAkUri, { params: ostrAkParams });
-
+async function setSearchParams(res) {
   searchParams.value.ostrAkTpCd = res.data.ostrAkTpCd;
   searchParams.value.ostrAkTpNm = res.data.ostrAkTpNm;
   searchParams.value.ostrWareNo = res.data.ostrOjWareNo;
@@ -342,16 +305,55 @@ async function getItmOstrAk() {
   searchParams.value.ostrAkRgstDt = res.data.ostrAkRgstDt;
   searchParams.value.itmPdCd = res.data.itmPdCd;
 
-  searchParams.value.stckStdGb = '0';
+  // searchParams.value.stckStdGb = '';
   searchParams.value.stckNoStdGb = 'N';
   searchParams.value.rgstDt = dayjs().format('YYYYMMDD');
   searchParams.value.apyYm = dayjs().format('YYYYMM');
+}
 
-  await setStandardCheckbox();
+async function stckStdGbFetchData() {
+  if (searchParams.value.ostrAkRgstDtstrRgstDt === undefined) {
+    searchParams.value.ostrAkRgstDtstrRgstDt = '';
+  }
+
+  const apyYm = searchParams.value.ostrAkRgstDtstrRgstDt.substring(0, 6);
+  const wareNo = searchParams.value.ostrWareNo;
+  const res = await dataService.get(standardURI, { params: { apyYm, wareNo } });
+  const { stckStdGb } = res.data;
+  console.log(res);
+  searchParams.value.stckNoStdGb = stckStdGb === 'Y' ? 'N' : 'Y';
+}
+
+async function onclickStandard() {
+  const stckStdGb = searchParams.value.stckNoStdGb === 'N' ? 'Y' : 'N';
+  const apyYm = searchParams.value.baseYm;
+  const wareNo = searchParams.value.ostrWareNo;
+
+  const res = await dataService.put(standardURI, { apyYm, stckStdGb, wareNo });
+  console.log(res);
+  notify(t('MSG_ALT_CHG_DATA'));
+  fetchData();
+}
+
+async function getItmOstrAk() {
+  const ostrAkParams = {
+    ostrAkNo: props.ostrAkNo,
+    ostrAkSn: props.ostrAkSn,
+  };
+
+  console.log(`props.ostrAkNo : ${props.ostrAkNo}`);
+  console.log(`props.ostrAkSn : ${props.ostrAkSn}`);
+
+  const res = await dataService.get(itmOstrAkUri, { params: ostrAkParams });
+
+  await setSearchParams(res);
+
+  await stckStdGbFetchData();
   await onClickSearch();
 }
 
 onMounted(async () => {
+  await stckStdGbFetchData();
   await getItmOstrAk();
 });
 // -------------------------------------------------------------------------------------------------

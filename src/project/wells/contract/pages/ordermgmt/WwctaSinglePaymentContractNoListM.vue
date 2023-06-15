@@ -337,8 +337,11 @@ const initGridSnglPmntContractNoList = defineGrid((data, view) => {
       width: '160',
       styleName: 'text-center',
       displayCallback(grid, index) {
-        const { istlcCralLocaraTno, istlcMexnoEncr, istlcCralIdvTno } = grid.getValues(index.itemIndex);
-        return !isEmpty(istlcCralLocaraTno) && !isEmpty(istlcMexnoEncr) && !isEmpty(istlcCralIdvTno) ? `${istlcCralLocaraTno}-${istlcMexnoEncr}-${istlcCralIdvTno}` : '';
+        const { istCralLocaraTno: no1, istMexnoEncr: no2, istCralIdvTno: no3 } = grid.getValues(index.itemIndex);
+        if (!isEmpty(no1) && isEmpty(no2) && !isEmpty(no3)) {
+          return `${no1}--${no3}`;
+        }
+        return isEmpty(no1) && isEmpty(no2) && isEmpty(no3) ? '' : `${no1}-${no2}-${no3}`;
       },
     }, // 설치자 휴대전화번호
     { fieldName: 'istlcAdrZip', header: `${t('MSG_TXT_INSTR')} ${t('MSG_TXT_ZIP')}`, width: '144', styleName: 'text-center' }, // 설치자 우편번호

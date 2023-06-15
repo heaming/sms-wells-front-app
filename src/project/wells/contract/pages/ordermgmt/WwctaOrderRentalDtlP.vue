@@ -1666,7 +1666,7 @@ import { cloneDeep, isEmpty } from 'lodash-es';
 
 const dataService = useDataService();
 const { t } = useI18n();
-const { alert } = useGlobal();
+const { alert, modal } = useGlobal();
 const { cancel } = useModal();
 const props = defineProps({
   cntrNo: { type: String, required: true, default: '' },
@@ -1879,7 +1879,13 @@ const frmMainData = ref({
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 async function onClickSearchReltPrdt() {
-  await alert('연계상품 리스트 팝업 조회');
+  const paramCntrNo = String(frmMainData.value.cntrDtlNo).split('-')[0];
+  const paramCntrSn = String(frmMainData.value.cntrDtlNo).split('-')[1];
+
+  await modal({
+    component: 'WwctaLinkProductListP',
+    componentProps: { cntrNo: paramCntrNo, cntrSn: paramCntrSn },
+  });
 }
 
 async function fetchData() {

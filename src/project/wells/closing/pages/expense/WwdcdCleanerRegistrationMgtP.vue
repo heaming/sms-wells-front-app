@@ -73,17 +73,12 @@
           />
         </kw-form-item>
       </kw-form-row>
-    </kw-form>
-    <kw-separator />
-    <ul class="kw-notification">
-      <li>
-        <span class="kw-fc--primary">{{ t('MSG_TXT_FOR_EMPL_WORK_SALES_DEPA_CANN_REG_CLEA') }}</span>
-      </li>
-    </ul>
-    <kw-form
-      :cols="2"
-      class="mt20"
-    >
+      <kw-separator />
+      <ul class="kw-notification">
+        <li>
+          <span class="kw-fc--primary">{{ t('MSG_TXT_FOR_EMPL_WORK_SALES_DEPA_CANN_REG_CLEA') }}</span>
+        </li>
+      </ul>
       <kw-form-row>
         <kw-form-item
           :label="$t('MSG_TXT_CLINR_FNM')"
@@ -109,6 +104,7 @@
           <span>-</span>
           <kw-input
             v-model="saveParams.backRrnoEncr"
+            :label="$t('MSG_TXT_RRNO')"
             rules="required"
             :regex="/^[0-9]*$/i"
             :maxlength="7"
@@ -143,7 +139,8 @@
           required
         >
           <!--청소원고정금액-->
-          <p>{{ t('MSG_TXT_FXN_SAL') }}</p>
+
+          {{ t('MSG_TXT_FXN_SAL') }}
           <kw-input
             v-model="saveParams.clinrFxnAmt"
             class="ml8"
@@ -185,7 +182,7 @@
             v-model:add1="saveParams.basAdr"
             v-model:add2="saveParams.dtlAdr"
             :label="$t('MSG_TXT_RRGT_ADRR')"
-            rules="required"
+            required
           />
         </kw-form-item>
         <kw-form-item
@@ -200,7 +197,7 @@
             v-model:tel-no3="
               saveParams.idvTno"
             :label="$t('MSG_TXT_CONTACT')"
-            rules="required"
+            required
           />
         </kw-form-item>
       </kw-form-row>
@@ -312,13 +309,12 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService, useGlobal, useModal, codeUtil } from 'kw-lib';
+import { useDataService, useGlobal, useModal, codeUtil, getComponentType } from 'kw-lib';
 import ZwcmPostCode from '~common/components/ZwcmPostCode.vue';
+import { cloneDeep, isEmpty } from 'lodash-es';
+import dayjs from 'dayjs';
 import ZwcmTelephoneNumber from '~common/components/ZwcmTelephoneNumber.vue';
 import ZwcmFileAttacher from '~common/components/ZwcmFileAttacher.vue';
-import { cloneDeep, isEmpty } from 'lodash-es';
-
-import dayjs from 'dayjs';
 
 import useCmFile from '~common/composables/useCmFile';
 
@@ -341,11 +337,11 @@ const isDisableBldCd = ref(false);
 const newReg = ref(false);
 const chReg = ref(false);
 const store = useStore();
-const saveRef = ref();
+// const saveRef = ref();
 const codes = await codeUtil.getMultiCodes(
   'BNK_CD', // 은행코드
 );
-
+const saveRef = ref(getComponentType('KwForm'));
 const props = defineProps({
   clinrRgno: {
     type: String,

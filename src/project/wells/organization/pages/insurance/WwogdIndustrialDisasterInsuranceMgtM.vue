@@ -30,19 +30,9 @@
           />
         </kw-search-item>
         <kw-search-item :label="t('MSG_TXT_SEQUENCE_NUMBER')">
-          <kw-input
-            v-model="searchParams.prtnrNo"
-            clearable
-            :placeholder="$t('MSG_TIT_PRTNR_NO')"
-          />
-
-          <kw-input
-            v-model="searchParams.prtnrKnm"
-            icon="search"
-            clearable
-            readonly
-            :placeholder="$t('MSG_TXT_EMPL_NM')"
-            :on-click-icon="onClickPrtnrSea"
+          <zwog-partner-search
+            v-model:prtnr-no="searchParams.prtnrNo"
+            class="w113"
           />
         </kw-search-item>
         <kw-search-item
@@ -124,6 +114,7 @@
 // -------------------------------------------------------------------------------------------------
 import { getComponentType, useGlobal, useMeta, useDataService, gridUtil, defineGrid } from 'kw-lib';
 import dayjs from 'dayjs';
+import ZwogPartnerSearch from '~sms-common/organization/components/ZwogPartnerSearch.vue';
 
 const dataService = useDataService();
 const { t } = useI18n();
@@ -149,27 +140,16 @@ const pageInfo = ref({
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
 });
 
-// 파트너 검색
-async function onClickPrtnrSea() {
-  const { result, payload } = await modal({
-    component: 'ZwogzPartnerListP',
-    componentProps: {
-      prtnrNo: searchParams.value.prtnrNo,
-    },
-  });
-
-  if (result) {
-    searchParams.value.prtnrNo = payload.prtnrNo;
-    searchParams.value.prtnrKnm = payload.prtnrKnm;
-    searchParams.value.ogTpCd = payload.ogTpCd;
-  }
-}
-
 // 파트너 번호 삭제 시
 watch(() => searchParams.value.prtnrNo, async (newVal) => {
   if (!newVal) {
     searchParams.value.prtnrKnm = undefined;
   }
+}, { immediate: true });
+
+// 관리년월 변경에 따른 후속 처리
+watch(() => searchParams.value.baseYm, async (newVal) => {
+  baseYm = newVal;
 }, { immediate: true });
 
 async function fetchData() {
@@ -263,7 +243,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'pstnDvCd', header: t('MSG_TXT_CRLV'), width: '110', styleName: 'text-center' },
     { fieldName: 'cltnDt', header: t('MSG_TXT_CLTN_DT'), width: '106', styleName: 'text-center' },
     { fieldName: 'inddInsrDdctam', header: t('MSG_TXT_DDCTAM'), width: '130', styleName: 'text-center' },
-    { fieldName: 'inddInsrUcamAmt', header: t('MSG_TXT_INDD_INSRFE_DDTN_PNPYAM_SUM'), width: '138', styleName: 'text-right' },
+    { fieldName: 'inddInsrUcamAmt', header: t('MSG_TXT_PNPYAM_SUM'), width: '180', styleName: 'text-right' },
     { fieldName: 'inddInsrFnlCnfmYn', header: t('MSG_TXT_DTRM_YN'), width: '130', styleName: 'text-center' },
     { fieldName: 'dsbYm', visible: false },
     { fieldName: 'ogTpCd', visible: false },
@@ -274,7 +254,15 @@ const initGrid = defineGrid((data, view) => {
 
   view.checkBar.visible = true;
   view.rowIndicator.visible = true;
-
+  view.setColumnLayout([
+    'level2Nm', 'ogCd', 'prtnrKnm', 'prtnrNo', 'pstnDvCd', 'cltnDt', 'inddInsrDdctam',
+    {
+      header: t('MSG_TXT_INDD_INSRFE_DDTN'),
+      direction: 'horizontal',
+      items: ['inddInsrUcamAmt'],
+    },
+    'inddInsrFnlCnfmYn',
+  ]);
   // 스크롤 다운 이벤트
   view.onScrollToBottom = async (g) => {
     if (pageInfo.value.pageIndex * pageInfo.value.pageSize <= g.getItemCount()) {

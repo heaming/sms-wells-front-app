@@ -302,19 +302,17 @@
                     </div>
                     <div class="scoped-item__field-row mb10">
                       <kw-select
-                        v-if="item.sellDscTpCds"
-                        v-model="item.sellDscTpCd"
-                        :options="item.sellDscTpCds"
-                        placeholder="렌탈할인유형"
-                        first-option="select"
-                        @change="getPdAmts(item)"
-                      />
-                      <kw-select
                         v-if="item.sellDscDvCds"
                         v-model="item.sellDscDvCd"
                         :options="item.sellDscDvCds"
                         placeholder="렌탈할인구분"
-                        first-option="select"
+                        @change="getPdAmts(item)"
+                      />
+                      <kw-select
+                        v-if="item.sellDscTpCds && item.sellDscDvCd === '5'"
+                        v-model="item.sellDscTpCd"
+                        :options="item.sellDscTpCds"
+                        placeholder="렌탈할인유형"
                         @change="getPdAmts(item)"
                       />
                       <kw-select
@@ -392,7 +390,7 @@ const isItem = {
   spay: (i) => i.sellTpCd === '1',
   rntl: (i) => i.sellTpCd === '2',
   rgsp: (i) => i.sellTpCd === '6',
-  crpCntr: () => step2.value.bas.cntrTpCd === '02',
+  crpCntr: () => step2.value.bas?.cntrTpCd === '02',
   welsf: (i) => i.lclsfVal === '05001003',
   hcf: (i) => i.lclsfVal === '01003001',
 };
@@ -402,6 +400,9 @@ const isItem = {
 async function getProducts(cntrNo) {
   const pds = await dataService.get('sms/wells/contract/contracts/reg-products', { params: { cntrNo, pdFilter: pdFilter.value } });
   classfiedPds.value = pds.data.pdClsf;
+  if (classfiedPds.value.length === 0) {
+    await alert('판매 가능한 상품이 없습니다.');
+  }
 }
 
 async function getPdAmts(pd) {
@@ -529,7 +530,7 @@ async function isChangedStep() {
 }
 
 async function isValidStep() {
-  if (isEmpty(step2.value.dtls)) {
+  if (step2.value.dtls.length === 0) {
     await alert('상품을 선택해주세요.');
     return false;
   }

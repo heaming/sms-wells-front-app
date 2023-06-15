@@ -24,40 +24,93 @@
         dense
         class="mt20"
       >
-        <kw-form-row>
-          <kw-form-item
-            :label="$t('MSG_TXT_CNTRT')"
-          >
-            <p>
-              {{ `${step4.cntrt.cstKnm || ''} / ${stringUtil.getDateFormat(step4.cntrt.bryyMmdd)} /
+        <template
+          v-if="cntrTpIs.indv || cntrTpIs.ensm || cntrTpIs.msh"
+        >
+          <kw-form-row>
+            <kw-form-item
+              :label="$t('MSG_TXT_CNTRT')"
+            >
+              <p>
+                {{ `${step4.cntrt.cstKnm || ''} / ${stringUtil.getDateFormat(step4.cntrt.bryyMmdd)} /
 ${step4.cntrt.sexDvNm || ''}` }}
-            </p>
-          </kw-form-item>
-          <kw-form-item
-            :label="$t('MSG_TXT_CST_NO')"
-          >
-            <p>
-              {{ step4.cntrt.cstNo }}
-            </p>
-          </kw-form-item>
-        </kw-form-row>
-        <kw-form-row>
-          <kw-form-item
-            :label="$t('MSG_TXT_MPNO')"
-          >
-            <p>
-              {{ step4.cntrt.cralLocaraTno }}-{{ step4.cntrt.mexnoEncr }}-{{ step4.cntrt.cralIdvTno }}
-            </p>
-          </kw-form-item>
-          <kw-form-item
-            :label="$t('MSG_TXT_ADDR')"
-          >
-            <p>
-              {{ step4.cntrt.zip }}<br>
-              {{ step4.cntrt.adr }} {{ step4.cntrt.adrDtl }}
-            </p>
-          </kw-form-item>
-        </kw-form-row>
+              </p>
+            </kw-form-item>
+            <kw-form-item
+              :label="$t('MSG_TXT_CST_NO')"
+            >
+              <p>
+                {{ step4.cntrt.cstNo }}
+              </p>
+            </kw-form-item>
+          </kw-form-row>
+          <kw-form-row>
+            <kw-form-item
+              :label="$t('MSG_TXT_MPNO')"
+            >
+              <p>
+                {{ step4.cntrt.cralLocaraTno }}-{{ step4.cntrt.mexnoEncr }}-{{ step4.cntrt.cralIdvTno }}
+              </p>
+            </kw-form-item>
+            <kw-form-item
+              :label="$t('MSG_TXT_ADDR')"
+            >
+              <p>
+                {{ step4.cntrt.zip }}<br>
+                {{ step4.cntrt.adr }} {{ step4.cntrt.adrDtl }}
+              </p>
+            </kw-form-item>
+          </kw-form-row>
+        </template>
+        <template
+          v-else-if="cntrTpIs.crp"
+        >
+          <kw-form-row>
+            <kw-form-item
+              :label="$t('MSG_TXT_CNTRT')"
+            >
+              <p>{{ step4.cntrt.cstKnm }}</p>
+            </kw-form-item>
+            <kw-form-item
+              :label="$t('MSG_TXT_CRNO')"
+            >
+              <p>{{ step4.cntrt.bzrno }}</p>
+            </kw-form-item>
+          </kw-form-row>
+          <kw-form-row>
+            <kw-form-item
+              :label="$t('MSG_TXT_CST_NO')"
+            >
+              <p>{{ step4.cntrt.cstNo }}</p>
+            </kw-form-item>
+          </kw-form-row>
+          <kw-form-row>
+            <kw-form-item
+              :label="$t('MSG_TXT_MPNO')"
+            >
+              <p>
+                {{ step4.cntrt.cralLocaraTno }}-{{ step4.cntrt.mexnoEncr }}-{{ step4.cntrt.cralIdvTno }}
+              </p>
+            </kw-form-item>
+            <kw-form-item
+              :label="$t('MSG_TXT_TEL_NO')"
+            >
+              <p>
+                {{ step4.cntrt.locaraTno }}-{{ step4.cntrt.exnoEncr }}-{{ step4.cntrt.idvTno }}
+              </p>
+            </kw-form-item>
+          </kw-form-row>
+          <kw-form-row>
+            <kw-form-item
+              :label="$t('MSG_TXT_ADDR')"
+            >
+              <p>
+                {{ step4.cntrt.zip }}<br>
+                {{ step4.cntrt.adr }} {{ step4.cntrt.adrDtl }}
+              </p>
+            </kw-form-item>
+          </kw-form-row>
+        </template>
       </kw-form>
 
       <kw-separator />
@@ -424,6 +477,58 @@ ${step4.cntrt.sexDvNm || ''}` }}
           </kw-form>
         </template>
       </template>
+
+      <template v-if="isRestipulation === true">
+        <h3>재약정</h3>
+
+        <kw-form
+          :cols="2"
+          class="mt20"
+        >
+          <kw-form-row>
+            <kw-form-item
+              label="약정유형"
+            >
+              <kw-select
+                v-model="restipulationBasInfo.rstlTpCd"
+                :options="restipulationBasInfo.data"
+                option-value="rstlBaseTpCd"
+                option-label="text"
+                @change="calcRestipulation"
+              />
+            </kw-form-item>
+            <kw-form-item
+              label="재약정개월"
+            >
+              <p>{{ restipulationBasInfo.rstlMcn }} 개월</p>
+            </kw-form-item>
+          </kw-form-row>
+          <kw-form-row>
+            <kw-form-item
+              label="약정시작"
+            >
+              <p>2022-12-12</p>
+            </kw-form-item>
+            <kw-form-item
+              label="약정종료"
+            >
+              <p>2022-12-11</p>
+            </kw-form-item>
+          </kw-form-row>
+          <kw-form-row>
+            <kw-form-item
+              label="약정요금"
+            >
+              <p>{{ stringUtil.getNumberWithComma(restipulationBasInfo.newFnlValue) }} 원</p>
+            </kw-form-item>
+            <kw-form-item
+              label="재약정할인"
+            >
+              <p>{{ stringUtil.getNumberWithComma(restipulationBasInfo.stplDscAmt) }} 원</p>
+            </kw-form-item>
+          </kw-form-row>
+        </kw-form>
+      </template>
     </div>
   </kw-scroll-area>
   <kw-separator
@@ -439,14 +544,7 @@ ${step4.cntrt.sexDvNm || ''}` }}
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import ZwcmFileAttacher from '~common/components/ZwcmFileAttacher.vue';
-import {
-  codeUtil,
-  defineGrid,
-  getComponentType,
-  stringUtil,
-  useDataService,
-  useGlobal,
-} from 'kw-lib';
+import { codeUtil, defineGrid, getComponentType, stringUtil, useDataService, useGlobal } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 
 const dataService = useDataService();
@@ -465,6 +563,9 @@ step4.value = {
   stlmDtls: [{}],
 };
 const ogStep4 = ref({});
+const isRestipulation = ref(false);
+const restipulationCntrSn = ref(0);
+const restipulationBasInfo = ref({});
 const { t } = useI18n();
 const grdMainRef = ref(getComponentType('KwGrid'));
 const grdStlmRef = ref(getComponentType('KwGrid'));
@@ -495,6 +596,14 @@ codes.DP_TP_CD_AFTN = [
   { codeId: '0102', codeName: '계좌이체' },
 ];
 const dtlSn = ref(1);
+const cntrTpIs = ref({
+  indv: computed(() => step4.value.bas?.cntrTpCd === '01'), // 개인
+  crp: computed(() => step4.value.bas?.cntrTpCd === '02'), // 법인
+  ensm: computed(() => step4.value.bas?.cntrTpCd === '03'), // 임직원
+  msh: computed(() => step4.value.bas?.cntrTpCd === '07'), // 멤버십
+  rstl: computed(() => step4.value.bas?.cntrTpCd === '08'), // 재약정
+  quot: computed(() => step4.value.bas?.cntrTpCd === '09'), // 견적서
+});
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -515,6 +624,57 @@ async function getCntrInfo(cntrNo) {
   codes.CST_STLM_IN_MTH_CD = codes.CST_STLM_IN_MTH_CD.filter((code) => (step4.value.bas.cstStlmInMthCd === '30' ? code.codeId === '30' : code.codeId !== '30'));
   ogStep4.value = cloneDeep(step4.value);
   setGrid();
+
+  if (isRestipulation.value === true) {
+    const cntrSn = restipulationCntrSn.value;
+    const res = await dataService.get(
+      'sms/wells/contract/re-stipulation/standard-info',
+      { params: { cntrNo, cntrSn } },
+    );
+    console.log(res);
+    restipulationBasInfo.value = cloneDeep(res);
+    restipulationBasInfo.value.cntrSn = cntrSn;
+    console.log(restipulationBasInfo.value.data);
+  }
+}
+
+async function setRestipulation(flag, cntrSn) {
+  isRestipulation.value = flag;
+  restipulationCntrSn.value = cntrSn;
+  console.log(isRestipulation.value);
+}
+
+async function calcRestipulation() {
+  const datas = restipulationBasInfo.value.data;
+
+  datas.forEach((element) => {
+    if (restipulationBasInfo.value.rstlTpCd === element.rstlBaseTpCd) {
+      restipulationBasInfo.value.stplDscAmt = element.stplDscAmt;
+      restipulationBasInfo.value.rstlMcn = element.rstlMcn;
+      restipulationBasInfo.value.minRentalAmt = element.minRentalAmt;
+      // 약정요금 재계산
+      // 기존요금
+      console.log(step4.value.dtls);
+      step4.value.dtls.forEach((v) => {
+        console.log(restipulationBasInfo.value.cntrSn);
+        if (Number(v.cntrSn) === Number(restipulationBasInfo.value.cntrSn)) {
+          console.log(v);
+          const prevRentalAmt = v.fnlAmt;
+          console.log(prevRentalAmt);
+          restipulationBasInfo.value.newFnlValue = Number(prevRentalAmt)
+            - Number(restipulationBasInfo.value.stplDscAmt);
+          console.log(restipulationBasInfo.value.newFnlValue);
+
+          // 최소금액 이하로 떨어지는 경우 로직 보완
+          if (Number(restipulationBasInfo.value.newFnlValue) < Number(restipulationBasInfo.value.minRentalAmt)) {
+            restipulationBasInfo.value.newFnlValue = restipulationBasInfo.value.minRentalAmt;
+            restipulationBasInfo.value.stplDscAmt = Number(restipulationBasInfo.value.stplDscAmt)
+            - (Number(restipulationBasInfo.value.minRentalAmt) - Number(restipulationBasInfo.value.newFnlValue));
+          }
+        }
+      });
+    }
+  });
 }
 
 function isChangedStep() {
@@ -545,6 +705,7 @@ defineExpose({
   isChangedStep,
   isValidStep,
   saveStep,
+  setRestipulation,
 });
 
 onMounted(async () => {

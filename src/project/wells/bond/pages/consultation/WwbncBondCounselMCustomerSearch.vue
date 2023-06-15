@@ -24,7 +24,7 @@
         <kw-input
           v-model="searchParams.clctamPrtnrNo"
           :label="$t('MSG_TXT_CLCTAM_ICHR_EMPNO')"
-          :regex="/^[0-9]*$/i"
+          regex="num"
         />
       </kw-search-item>
       <kw-search-item
@@ -139,7 +139,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService, getComponentType, codeUtil, modal, gridUtil, defineGrid, useGlobal } from 'kw-lib';
+import { useDataService, getComponentType, codeUtil, modal, gridUtil, defineGrid, useGlobal, popupUtil } from 'kw-lib';
 import { isEmpty } from 'lodash-es';
 
 const { t } = useI18n();
@@ -363,7 +363,7 @@ const initGrid = defineGrid((data, view) => {
     if (clickData.cellType === 'data') {
       const { cstNo, cntrNo, cntrSn } = gridUtil.getRowValue(g, clickData.itemIndex);
       if (cstNo) {
-        await window.open(`/popup/#/wwbnc-customer-dtl?cstNo=${cstNo}&cntrNo=${cntrNo}&cntrSn=${cntrSn}`, 'POPUP', 'width=2000, height=1100, menubar=no, location=no, resizable=yes');
+        await popupUtil.open(`/popup/#/wwbnc-customer-dtl?cstNo=${cstNo}&cntrNo=${cntrNo}&cntrSn=${cntrSn}`, { width: 2000, height: 1100 }, false);
       }
     }
   };
