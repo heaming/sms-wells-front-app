@@ -328,12 +328,12 @@ const frmMainData = ref({
   clPsicNo: '0',
   prtnrNo: '', // 담당자 구분
   baseYm: props.baseYm,
-  crtDt: `${dayjs().format('YYYYMM')}01`, // 생성일자
+  crtDt: `${props.baseYm}01`, // 생성일자
   crtDtTmFrom: '0800',
   crtDtTmTo: '2359',
   crtDtPerfDtDvVal: '1',
 
-  clDt: dayjs().format('YYYYMM') + clDtDate.getDate(), // 마감일자
+  clDt: props.baseYm + clDtDate.getDate(), // 마감일자
   ddClDtTmFrom: '0800',
   ddClDtTmTo: '2359',
   ddClPerfDtDvVal: '1',
@@ -392,7 +392,6 @@ async function onClickSave() {
     notify('담당자를 입력해 주세요.');
     return;
   }
-  if (await frmMainRef.value.alertIfIsNotModified()) { return; }
   if (!await frmMainRef.value.validate()) { return; }
   const { clPsicNo } = frmMainData.value;
   // 담당자구분이 담당자이면 파트너 번호로
