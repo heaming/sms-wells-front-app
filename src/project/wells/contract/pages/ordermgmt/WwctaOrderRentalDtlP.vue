@@ -477,7 +477,7 @@
         <!-- 렌탈료1(원) -->
         <kw-form-item :label="$t('MSG_TXT_RTLFE1')">
           <kw-input
-            v-model="frmMainData.pdBaseAmt"
+            v-model="frmMainData.rentalAmt1"
             align="right"
             placeholder=""
             readonly
@@ -515,7 +515,7 @@
         <!-- 렌탈할인1 -->
         <kw-form-item :label="$t('MSG_TXT_RNTL_DSC_1')">
           <kw-input
-            v-model="frmMainData.ctrVal"
+            v-model="frmMainData.rentalDscAmt1"
             align="right"
             placeholder=""
             readonly
@@ -534,6 +534,7 @@
         <kw-form-item :label="$t('MSG_TXT_DUTY_PTRM')">
           <kw-input
             v-model="frmMainData.recapDutyPtrmN"
+            align="right"
             placeholder=""
             readonly
           />
@@ -782,6 +783,7 @@
         <kw-form-item :label="$t('MSG_TXT_FRE_MCNT')">
           <kw-input
             v-model="frmMainData.frisuBfsvcPtrmN"
+            align="right"
             placeholder=""
             readonly
           />
@@ -936,6 +938,7 @@
         <kw-form-item :label="$t('MSG_TXT_PDCT_CHNG_PREV_NMN')">
           <kw-input
             v-model="frmMainData.pdChBfNmnN"
+            align="right"
             placeholder=""
             readonly
           />
@@ -954,6 +957,7 @@
         <kw-form-item :label="$t('MSG_TXT_PRM_APY_DV')">
           <kw-input
             v-model="frmMainData.prmApyDvCd"
+            align="right"
             placeholder=""
             readonly
           />
@@ -1022,7 +1026,7 @@
         <kw-form-item :label="$t('MSG_TXT_FTD')">
           <kw-input
             v-model="frmMainData.mpyBsdt"
-            mask="####-##-##"
+            align="right"
             placeholder=""
             readonly
           />
@@ -1186,6 +1190,7 @@
         >
           <kw-input
             v-model="frmMainData.ackmtPerfRt"
+            align="right"
             placeholder=""
             readonly
           />
@@ -1196,6 +1201,7 @@
         >
           <kw-input
             v-model="frmMainData.ackmtPerfAmt"
+            align="right"
             placeholder=""
             readonly
           />
@@ -1206,6 +1212,7 @@
         >
           <kw-input
             v-model="frmMainData.ackmtPerfCt"
+            align="right"
             placeholder=""
             readonly
           />
@@ -1234,6 +1241,7 @@
         <kw-form-item :label="$t('MSG_TXT_FEE_BASE_AMT')">
           <kw-input
             v-model="frmMainData.feeAckmtBaseAmt"
+            align="right"
             placeholder=""
             readonly
           />
@@ -1458,6 +1466,7 @@
           <!-- 수량 -->
           <kw-input
             v-model="frmMainData.fgpt1Qty"
+            align="right"
             placeholder=""
             readonly
           />
@@ -1479,6 +1488,7 @@
           <!-- 수량 -->
           <kw-input
             v-model="frmMainData.fgpt2Qty"
+            align="right"
             placeholder=""
             readonly
           />
@@ -1502,6 +1512,7 @@
           <!-- 수량 -->
           <kw-input
             v-model="frmMainData.fgpt3Qty"
+            align="right"
             placeholder=""
             readonly
           />
@@ -1523,6 +1534,7 @@
           <!-- 수량 -->
           <kw-input
             v-model="frmMainData.fgpt4Qty"
+            align="right"
             placeholder=""
             readonly
           />
@@ -1546,6 +1558,7 @@
           <!-- 수량 -->
           <kw-input
             v-model="frmMainData.fgpt5Qty"
+            align="right"
             placeholder=""
             readonly
           />
@@ -1567,6 +1580,7 @@
           <!-- 수량 -->
           <kw-input
             v-model="frmMainData.fgpt6Qty"
+            align="right"
             placeholder=""
             readonly
           />
@@ -1590,6 +1604,7 @@
           <!-- 수량 -->
           <kw-input
             v-model="frmMainData.fgpt7Qty"
+            align="right"
             placeholder=""
             readonly
           />
@@ -1611,6 +1626,7 @@
           <!-- 수량 -->
           <kw-input
             v-model="frmMainData.fgpt8Qty"
+            align="right"
             placeholder=""
             readonly
           />
@@ -1938,7 +1954,14 @@ async function fetchData() {
     // 계약자 정보
     // -------------------------------------------------------------------------------------------------
     frmMainData.value.cstKnm = pages[0].cstKnm; // 계약자 명
-    frmMainData.value.bryyBzrno = pages[0].bryyBzrno; // 사업자등록/주민번호
+    if (pages[0].copnDvCd === '1') { // 생년월일
+      frmMainData.value.bryyBzrno = stringUtil.getDateFormat(pages[0].bryyBzrno);
+    } else if (pages[0].copnDvCd === '2') { // 사업자등록번호
+      // 사업자등록번호 3-2-5 형식으로 표시
+      if (!isEmpty(pages[0].bryyBzrno) && pages[0].bryyBzrno.length === 10) {
+        frmMainData.value.bryyBzrno = `${pages[0].bryyBzrno.substr(0, 3)}-${pages[0].bryyBzrno.substr(3, 2)}-${pages[0].bryyBzrno.substr(5, 5)}`;
+      }
+    }
     const { cntrCralLocaraTno } = pages[0];
     const { cntrMexnoEncr } = pages[0];
     const { cntrCralIdvTno } = pages[0];
@@ -1950,10 +1973,12 @@ async function fetchData() {
     // 설치처 정보
     // -------------------------------------------------------------------------------------------------
     frmMainData.value.rcgvpKnm = pages[0].rcgvpKnm; // 설치정보-설치자명
-    const { istCralLocaraTno } = pages[0];
-    const { istMexnoEncr } = pages[0];
-    const { istCralIdvTno } = pages[0];
-    frmMainData.value.istCralTno = !isEmpty(istCralLocaraTno) && !isEmpty(istMexnoEncr) && !isEmpty(istCralIdvTno) ? `${istCralLocaraTno}-${istMexnoEncr}-${istCralIdvTno}` : ''; // 설치자-휴대전화번호
+    const { istCralLocaraTno, istMexnoEncr, istCralIdvTno } = pages[0]; // 설치자 휴대지역전화번호
+    if (!isEmpty(istCralLocaraTno) && isEmpty(istMexnoEncr) && !isEmpty(istCralIdvTno)) {
+      frmMainData.value.istCralTno = `${istCralLocaraTno}--${istCralIdvTno}`;
+    } else {
+      frmMainData.value.istCralTno = isEmpty(istCralLocaraTno) && isEmpty(istMexnoEncr) && isEmpty(istCralIdvTno) ? '' : `${istCralLocaraTno}-${istMexnoEncr}-${istCralIdvTno}`; // 설치(배송정보) 휴대전화번호
+    }
     frmMainData.value.istAkDt = pages[0].istAkDt; // 설치 요청일
     frmMainData.value.istAdrZip = pages[0].istAdrZip; // 설치처 우편번호
     frmMainData.value.istRnadr = pages[0].istRnadr; // 설치자 주소(기준주소)

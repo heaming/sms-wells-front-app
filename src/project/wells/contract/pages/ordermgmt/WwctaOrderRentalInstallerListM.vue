@@ -251,7 +251,7 @@ function initGridRentalInstallerList(data, view) {
     { fieldName: 'rentalDscAmt1', dataType: 'number' }, // 렌탈할인1
     { fieldName: 'rentalAmt2', dataType: 'number' }, // 렌탈료2
     { fieldName: 'rentalDscAmt2', dataType: 'number' }, // 렌탈할인2
-    { fieldName: 'rentalDscDfam' }, // 할인차액
+    { fieldName: 'rentalDscDfam', dataType: 'number' }, // 할인차액
     { fieldName: 'booSellYn' }, // 예약
     { fieldName: 'mchnChYn' }, // 기변
     { fieldName: 'mchnCpsApyr' }, // 기변실적율
@@ -424,7 +424,7 @@ function initGridRentalInstallerList(data, view) {
     { fieldName: 'feeFxamYn', header: t('MSG_TXT_PD_FEE_FIX'), width: '136', styleName: 'text-center' }, // 수수료정액여부
     { fieldName: 'sellDscDvNm', header: t('MSG_TXT_PD_DC_CLASS'), width: '136', styleName: 'text-right' }, // 할인구분
     { fieldName: 'sellDscTpNm', header: t('MSG_TXT_DISC_CODE'), width: '136', styleName: 'text-right' }, // 할인유형
-    { fieldName: 'dscPmotCd', header: t('MSG_TXT_DSC_SYST'), width: '136', styleName: 'text-right' }, // 할인제도
+    { fieldName: 'dscPmotCd', header: t('MSG_TXT_DSC_SYST'), width: '136', styleName: 'text-center' }, // 할인제도
     { fieldName: 'mchnChTpCd', header: t('MSG_TXT_CHDVC_TP'), width: '136', styleName: 'text-right' }, // 기변유형
     { fieldName: 'ojCntrDtlNo', header: t('MSG_TXT_CHNG_PTY_CD'), width: '136', styleName: 'text-center' }, // 기변상대코드
     { fieldName: 'ojBasePdCd', header: t('MSG_TXT_CHNG_PREV_PRDT'), width: '136', styleName: 'text-center' }, // 기변이전상품
