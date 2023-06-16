@@ -516,7 +516,7 @@ function initGrid(data, view) {
     { fieldName: 'pdGub', header: t('MSG_TXT_PRDT_GUBUN'), width: '100', styleName: 'text-center' },
     { fieldName: 'envrYn', header: t('MSG_TXT_ENVR_YN'), width: '100', styleName: 'text-center' },
     { fieldName: 'pdCd', header: t('MSG_TXT_PRDT_CODE'), width: '140', styleName: 'text-center' },
-    { fieldName: 'pdClsfNm', header: t('MSG_TXT_PRDT_NM'), width: '100', styleName: 'text-center' },
+    { fieldName: 'pdClsfNm', header: t('MSG_TXT_PRDT_NM'), width: '100', styleName: 'text-left' },
     { fieldName: 'cntrNoSn', header: t('MSG_TXT_CNTR_DTL_NO'), width: '140', styleName: 'text-center' },
     { fieldName: 'cstKnm', header: t('MSG_TXT_CUST_STMT'), width: '100', styleName: 'text-center' },
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_SELLER_PERSON'), width: '100', styleName: 'text-center' },
