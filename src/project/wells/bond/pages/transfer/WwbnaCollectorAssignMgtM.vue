@@ -64,8 +64,10 @@
             icon="search"
             clearable
             :label="$t('MSG_TXT_CLCTAM_PSIC')"
+            :on-click-icon="openSearchClctamPsicPopup"
+            :on-keydown-no-click="true"
             regex="alpha_hangul"
-            @click-icon="onClickCollector"
+            @keydown.enter="fetchPartnerNo"
           />
         </kw-search-item>
       </kw-search-row>
@@ -226,7 +228,7 @@ import { useGlobal, codeUtil, getComponentType, router, useMeta, useDataService,
 import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
 import { getBzHdqDvcd } from '~sms-common/bond/utils/bnUtil';
-import { chkInputSearchComplete, openSearchUserCommonPopup, isCustomerCommon } from '~sms-common/bond/pages/transfer/utils/bnaTransferUtils';
+import { chkInputSearchComplete, openSearchUserCommonPopup, isCustomerCommon, openSearchClctamPsicCommonPopup, fetchPartnerNoCommon } from '~sms-common/bond/pages/transfer/utils/bnaTransferUtils';
 
 const { t } = useI18n();
 const { getConfig } = useMeta();
@@ -425,20 +427,16 @@ async function onClickConfirm() {
   }
 }
 
-// 집금담당자 조회 팝업
-const onClickCollector = async () => {
-  const { result, payload } = await modal({
-    component: 'ZwbnyCollectorListP',
-    componentProps: {
-      clctamPrtnrNm: '',
-    },
-  });
-  if (result) {
-    const { prtnrKnm, prtnrNo } = payload;
-    searchParams.value.clctamPrtnrNm = prtnrKnm;
-    searchParams.value.clctamPrtnrNo = prtnrNo;
+async function openSearchClctamPsicPopup() {
+  await openSearchClctamPsicCommonPopup(searchParams, canFeasibleSearch);
+}
+
+async function fetchPartnerNo() {
+  const notifyMessage = await fetchPartnerNoCommon(searchParams, canFeasibleSearch);
+  if (notifyMessage) {
+    notify(notifyMessage);
   }
-};
+}
 
 async function isCustomer(event, workType = 'type1') {
   if (!event.target.value) {
@@ -475,6 +473,11 @@ watch(() => searchParams.value.phoneNumber, async () => {
     canFeasibleSearch.value.popSearchComplate = false;
   } else {
     canFeasibleSearch.value.type3 = false;
+  }
+});
+watch(() => searchParams.value.clctamPrtnrNm, async (clctamPrtnrNm) => {
+  if (!clctamPrtnrNm) {
+    searchParams.value.clctamPrtnrNo = '';
   }
 });
 // -------------------------------------------------------------------------------------------------
