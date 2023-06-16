@@ -437,13 +437,13 @@
         <kw-form-item :label="$t('MSG_TXT_PD_DC_CLASS')">
           <!-- 할인구분코드 -->
           <kw-input
-            v-model="frmMainData.dscApyTpCd"
+            v-model="frmMainData.sellDscDvCd"
             placeholder=""
             readonly
           />
           <!-- 할인구분코드명-->
           <kw-input
-            v-model="frmMainData.dscApyTpCdNm"
+            v-model="frmMainData.sellDscDvNm"
             placeholder=""
             readonly
           />
@@ -452,13 +452,13 @@
         <kw-form-item :label="$t('MSG_TXT_DISC_CODE')">
           <!-- 할인유형코드-->
           <kw-input
-            v-model="frmMainData.dscApyDtlCd"
+            v-model="frmMainData.sellDscTpCd"
             placeholder=""
             readonly
           />
           <!-- 할인유형코드명-->
           <kw-input
-            v-model="frmMainData.dscApyDtlCdNm"
+            v-model="frmMainData.sellDscTpNm"
             placeholder=""
             readonly
           />
@@ -808,10 +808,10 @@ const frmMainData = ref({
   cttRsNmUsrId: '', // 컨택담당
   cttRsCd: '', // 컨택코드
   cttRsNm: '', // 컨택내용
-  dscApyTpCd: '', // 할인구분-코드
-  dscApyTpCdNm: '', // 할인구분-코드명
-  dscApyDtlCd: '', // 할인유형-코드명
-  dscApyDtlCdNm: '', // 할인유형-코드명
+  sellDscDvCd: '', // 할인구분-코드
+  sellDscDvNm: '', // 할인구분-코드명
+  sellDscTpCd: '', // 할인유형-코드명
+  sellDscTpNm: '', // 할인유형-코드명
   svPrd: '', // 관리주기
   svTpNm: '', // 용도구분
   pdBaseAmt: '', // 회비
@@ -892,10 +892,12 @@ async function fetchData() {
     // 배송처 정보
     // -------------------------------------------------------------------------------------------------
     frmMainData.value.rcgvpKnm = pages[0].rcgvpKnm; // 설치정보-설치자명
-    const { istCralLocaraTno } = pages[0];
-    const { istMexnoEncr } = pages[0];
-    const { istCralIdvTno } = pages[0];
-    frmMainData.value.istCralTno = !isEmpty(istCralLocaraTno) && !isEmpty(istMexnoEncr) && !isEmpty(istCralIdvTno) ? `${istCralLocaraTno}-${istMexnoEncr}-${istCralIdvTno}` : ''; // 설치자-휴대전화번호
+    const { istCralLocaraTno, istMexnoEncr, istCralIdvTno } = pages[0]; // 설치자 휴대지역전화번호
+    if (!isEmpty(istCralLocaraTno) && isEmpty(istMexnoEncr) && !isEmpty(istCralIdvTno)) {
+      frmMainData.value.istCralTno = `${istCralLocaraTno}--${istCralIdvTno}`;
+    } else {
+      frmMainData.value.istCralTno = isEmpty(istCralLocaraTno) && isEmpty(istMexnoEncr) && isEmpty(istCralIdvTno) ? '' : `${istCralLocaraTno}-${istMexnoEncr}-${istCralIdvTno}`; // 설치(배송정보) 휴대전화번호
+    }
     frmMainData.value.istAdrZip = pages[0].istAdrZip; // 설치처 우편번호
     frmMainData.value.istRnadr = pages[0].istRnadr; // 설치자 주소(기준주소)
     frmMainData.value.istRdadr = pages[0].istRdadr; // 설치자 주소(상세주소)
@@ -928,10 +930,10 @@ async function fetchData() {
     // -------------------------------------------------------------------------------------------------
     // 금액정보
     // -------------------------------------------------------------------------------------------------
-    frmMainData.value.dscApyTpCd = pages[0].dscApyTpCd; // 할인구분-코드
-    frmMainData.value.dscApyTpCdNm = pages[0].dscApyTpCdNm; // 할인구분-코드명
-    frmMainData.value.dscApyDtlCd = pages[0].dscApyDtlCd; // 할인유형-코드
-    frmMainData.value.dscApyDtlCdNm = pages[0].dscApyDtlCdNm; // 할인유형-코드명
+    frmMainData.value.sellDscDvCd = pages[0].sellDscDvCd; // 할인구분-코드
+    frmMainData.value.sellDscDvNm = pages[0].sellDscDvNm; // 할인구분-코드명
+    frmMainData.value.sellDscTpCd = pages[0].sellDscTpCd; // 할인유형-코드
+    frmMainData.value.sellDscTpNm = pages[0].sellDscTpNm; // 할인유형-코드명
     frmMainData.value.svPrd = pages[0].svPrd; // 관리주기
     frmMainData.value.svTpNm = pages[0].svTpNm; // 용도구분
     frmMainData.value.pdBaseAmt = stringUtil.getNumberWithComma(Number(pages[0].pdBaseAmt), 0); // 회비
