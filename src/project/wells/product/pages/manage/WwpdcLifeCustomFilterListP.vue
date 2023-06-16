@@ -72,6 +72,7 @@
       />
       <!-- 저장 -->
       <kw-btn
+        grid-action
         dense
         secondary
         :label="$t('MSG_BTN_SAVE')"
