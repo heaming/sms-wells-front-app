@@ -136,7 +136,7 @@ async function fetchData() {
 
   pageInfo.value.totalCount = tcntTotal;
   pageInfo.value.pageSize = totalCustomers.length;
-  console.log(pageInfo.value.pageSize);
+
   view.getDataSource().setRows(totalCustomers);
   view.resetCurrent();
 }
@@ -206,14 +206,14 @@ const initGrdMain = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'yyyy',
       header: '년도',
-      width: '50',
+      width: '80',
       styleName: 'text-center',
       footer: {
         text: t('MSG_TXT_SUM'),
       } },
     { fieldName: 'typNm',
       header: t('MSG_TXT_DV_NM'),
-      width: '100',
+      width: '80',
       styleName: 'text-center',
     },
     { fieldName: 'acol1',
@@ -326,16 +326,10 @@ const initGrdMain = defineGrid((data, view) => {
   view.checkBar.visible = false; // create checkbox column
   view.setFooters({
     visible: true,
-    items: [{ height: 30 }],
+    items: [{ height: 42 }],
   });
   view.rowIndicator.visible = false; // create number indicator column
   view.editOptions.editable = false; // Grid Editable On
   view.setOptions({ summaryMode: 'statistical' });
-
-  // view.groupBy(['yyyy']);
-  // view.setRowGroup({ mergeMode: true });
-
-  view.groupBy(['yyyy']);
-  view.setRowGroup({ expandedAdornments: 'summary', collapsedAdornments: 'footer' });
 });
 </script>
