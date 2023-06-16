@@ -1192,7 +1192,7 @@
         </kw-form-item>
         <!-- 인정금액 -->
         <kw-form-item
-          :label="$t('TXT_MSG_ACKMT_AMT')"
+          :label="$t('MSG_TXT_RECOG_AMT')"
         >
           <kw-input
             v-model="frmMainData.ackmtPerfAmt"
@@ -1748,7 +1748,7 @@ const frmMainData = ref({
   fnlPdCd: '', // 총판매제품
   fnlPdNm: '', // 최종판매제품 명
   rentalPtrm: '', // 렌탈기간1(개월)
-  pdBaseAmt: '', // 렌탈료1(원)
+  rentalAmt1: '', // 렌탈료1(원)
   rentalPtrm2: '', // 렌탈기간2(개월)
   rentalAmt2: '', // 렌탈료2
   cntrCtrAmt: '', // 등록할인(원)
@@ -1756,10 +1756,10 @@ const frmMainData = ref({
   rentalDscAmt2: '', // 렌탈할인2
   recapDutyPtrmN: '', // 의무기간
   leaseDvNm: '', // 렌탈/리스 구분
-  dscApyTpCd: '', // 할인구분-코드
-  dscApyTpCdNm: '', // 할인구분-코드명
-  dscApyDtlCd: '', // 할인유형-코드명
-  dscApyDtlCdNm: '', // 할인유형-코드명
+  sellDscDvCd: '', // 할인적용구분
+  sellDscDvNm: '', // 할인적용구분명
+  sellDscTpCd: '', // 할인적용상세
+  sellDscTpNm: '', // 할인적용상세명
   dscPmotCd: '', // 할인제도
   svPrdInfo: '', // 관리/방문/택배 주기
   lcetc7: '', // 기변 여부
@@ -1973,7 +1973,7 @@ async function fetchData() {
     frmMainData.value.fnlPdCd = pages[0].fnlPdCd; // 총판매제품
     frmMainData.value.fnlPdNm = pages[0].fnlPdNm; // 최종판매제품 명
     frmMainData.value.rentalPtrm = pages[0].rentalPtrm; // 렌탈기간1(개월)
-    frmMainData.value.pdBaseAmt = stringUtil.getNumberWithComma(Number(pages[0].pdBaseAmt), 0); // 렌탈료1(원)
+    frmMainData.value.rentalAmt1 = stringUtil.getNumberWithComma(Number(pages[0].rentalAmt1), 0); // 렌탈료1(원)
     frmMainData.value.rentalPtrm2 = pages[0].rentalPtrm2; // 렌탈기간2(개월)
     frmMainData.value.rentalAmt2 = stringUtil.getNumberWithComma(Number(pages[0].rentalAmt2), 0); // 렌탈료2
     frmMainData.value.cntrCtrAmt = stringUtil.getNumberWithComma(Number(pages[0].cntrCtrAmt), 0); // 등록할인(원)
@@ -1981,10 +1981,10 @@ async function fetchData() {
     frmMainData.value.rentalDscAmt2 = pages[0].rentalDscAmt2; // 렌탈할인2
     frmMainData.value.recapDutyPtrmN = pages[0].recapDutyPtrmN; // 의무기간
     frmMainData.value.leaseDvNm = pages[0].leaseDvNm; // 렌탈/리스 구분
-    frmMainData.value.dscApyTpCd = pages[0].dscApyTpCd; // 할인구분-코드
-    frmMainData.value.dscApyTpCdNm = pages[0].dscApyTpCdNm; // 할인구분-코드명
-    frmMainData.value.dscApyDtlCd = pages[0].dscApyDtlCd; // 할인유형-코드
-    frmMainData.value.dscApyDtlCdNm = pages[0].dscApyDtlCdNm; // 할인유형-코드명
+    frmMainData.value.sellDscDvCd = pages[0].sellDscDvCd; // 할인적용구분
+    frmMainData.value.sellDscDvNm = pages[0].sellDscDvNm; // 할인적용구분명
+    frmMainData.value.sellDscTpCd = pages[0].sellDscTpCd; // 할인적용상세
+    frmMainData.value.sellDscTpNm = pages[0].sellDscTpNm; // 할인적용상세명
     frmMainData.value.dscPmotCd = pages[0].dscPmotCd; // 할인제도
     frmMainData.value.svPrdInfo = pages[0].svPrdInfo; // 관리/방문/택배 주기
     frmMainData.value.lcetc7 = pages[0].lcetc7; // 기변 여부

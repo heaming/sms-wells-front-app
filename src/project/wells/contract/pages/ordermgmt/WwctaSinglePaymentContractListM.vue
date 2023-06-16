@@ -537,7 +537,7 @@ const initGridSnglPmntContractList = defineGrid((data, view) => {
     { fieldName: 'basePdNm' }, // 상품명
     { fieldName: 'sellDscDvCd' }, // 할인구분
     { fieldName: 'sellDscDvNm' }, // 할인구분명
-    { fieldName: 'sellDscrCd' }, // 할인유형
+    { fieldName: 'sellDscTpCd' }, // 할인유형
     { fieldName: 'sellDscTpNm' }, // 할인유형명
     { fieldName: 'cntrRcpFshDtm' }, // 접수일
     { fieldName: 'sppDuedt' }, // 예정일
@@ -635,7 +635,7 @@ const initGridSnglPmntContractList = defineGrid((data, view) => {
     { fieldName: 'basePdNm', header: t('MSG_TXT_PRDT_NM'), width: '292' }, // 상품명
     { fieldName: 'sellDscDvCd', header: t('MSG_TXT_PD_DC_CLASS'), width: '138', styleName: 'text-center' }, // 할인구분
     { fieldName: 'sellDscDvNm', header: `${t('MSG_TXT_PD_DC_CLASS')}${t('MSG_TXT_NM')}`, width: '138', styleName: 'text-center' }, //  할인구분명
-    { fieldName: 'sellDscrCd', header: t('MSG_TXT_DISC_CODE'), width: '138', styleName: 'text-center' }, // 할인유형
+    { fieldName: 'sellDscTpCd', header: t('MSG_TXT_DISC_CODE'), width: '138', styleName: 'text-center' }, // 할인유형
     { fieldName: 'sellDscTpNm', header: `${t('MSG_TXT_DISC_CODE')}${t('MSG_TXT_NM')}`, width: '138', styleName: 'text-center' }, // 할인유형명
     { fieldName: 'cntrRcpFshDtm', header: t('MSG_TXT_RCP_D'), width: '136', styleName: 'text-center', datetimeFormat: 'date' }, // 접수일
     { fieldName: 'sppDuedt', header: t('MSG_TXT_DUEDT'), width: '136', styleName: 'text-center', datetimeFormat: 'date' }, // 예정일
