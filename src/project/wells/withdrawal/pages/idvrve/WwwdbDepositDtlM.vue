@@ -3,7 +3,7 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : WDB
-2. 프로그램 ID : WwwdbDepositDetailM - 입금내역 조회 (웰스 입금 상세)
+2. 프로그램 ID : WwwdbDepositDtlM - 입금내역 조회 (웰스 입금 상세)
 3. 작성자 : sojeong.Shin
 4. 작성일 : 2023.06.14
 ****************************************************************************************************
@@ -180,7 +180,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
-import { useMeta, codeUtil, useDataService, gridUtil } from 'kw-lib';
+import { useMeta, codeUtil, useDataService, gridUtil, getComponentType, defineGrid } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 
@@ -193,6 +193,8 @@ const { currentRoute } = useRouter();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
+const grdMainRef = ref(getComponentType('KwGrid'));
+
 const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
   'SELL_TP_CD', /* 판매유형코드 */
@@ -202,8 +204,6 @@ const codes = await codeUtil.getMultiCodes(
   'VNCO_DV_CD', /* VAN사구분코드 */
   'OG_TP_CD', /* 조직유형코드 */
 );
-
-const grdMainRef = ref();
 
 const pageInfo = ref({
   totalCount: 0,
@@ -273,7 +273,7 @@ async function onClickExcelDownload() {
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
-function initGrid(data, view) {
+const initGrid = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'cntrNo' },
     { fieldName: 'cntrSn' },
@@ -439,5 +439,5 @@ function initGrid(data, view) {
 
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
-}
+});
 </script>

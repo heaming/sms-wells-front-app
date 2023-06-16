@@ -136,7 +136,7 @@
 // -------------------------------------------------------------------------------------------------
 
 import dayjs from 'dayjs';
-import { codeUtil, defineGrid, getComponentType, gridUtil, modal, useDataService, useModal, useMeta } from 'kw-lib';
+import { codeUtil, defineGrid, getComponentType, gridUtil, modal, useDataService, useModal, useMeta, alert } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 
 const dataService = useDataService();
@@ -149,8 +149,8 @@ const userInfo = getUserInfo();
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 const props = defineProps({
-  itgDpNo: {
-    type: String,
+  sumAmt: {
+    type: Number,
     default: null,
   },
 });
@@ -272,21 +272,22 @@ const onSelect = async (data) => {
     await alert(t('MSG_ALT_NOT_SEL_ITEM')); // 선택한 행이없음
     return;
   }
+
+  if (data.dpBlam === 0) {
+    await alert(t('MSG_ALT_SELECT_ITEM_DP_BLAM')); // 입금잔액이 존재하는 데이터를 선택해주세요.
+    return;
+  }
+
+  if (data.dpBlam < props.sumAmt) {
+    await alert(t('MSG_ALT_SUM_AMTM_DP_BLAM_CHECK')); // 합계 금액이 입금 잔액보다 클 수 없습니다.
+    return;
+  }
+
   ok(data.itgDpNo);
 };
 
-async function initProps() {
-  const { itgDpNo } = props;
-
-  if (itgDpNo) {
-    // searchParams.value.itgDpNo = itgDpNo;
-    console.log(itgDpNo);
-    // await onClickSearch();
-  }
-}
-
 onMounted(async () => {
-  await initProps();
+  console.log(props.sumAmt);
 });
 
 // -------------------------------------------------------------------------------------------------
