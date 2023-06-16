@@ -175,6 +175,7 @@ async function fetchData() {
   const totalCustomers = calcData(res.data);
 
   pageInfo.value.totalCount = totalCustomers.length;
+  pageInfo.value.pageSize = totalCustomers.length;
 
   view.getDataSource().setRows(totalCustomers);
   view.resetCurrent();
