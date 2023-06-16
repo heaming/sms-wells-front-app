@@ -16,7 +16,7 @@
   <kw-scroll-area class="h490">
     <div class="pr20">
       <h3 class="mt0">
-        계약자정보-{{ codes.CNTR_TP_CD.find((code) => code.codeId === step4.bas.cntrTpCd)?.codeName }}
+        계약자정보-{{ codes.CNTR_TP_CD.find((code) => code.codeId === step4.bas?.cntrTpCd)?.codeName }}
       </h3>
 
       <kw-form
@@ -124,7 +124,7 @@ ${step4.cntrt.sexDvNm || ''}` }}
         <kw-form-row>
           <kw-form-item label="고객결제방법선택">
             <kw-option-group
-              v-model="step4.bas.cstStlmInMthCd"
+              :v-model="step4.bas ? step4.bas.cstStlmInMthCd : ''"
               type="radio"
               :options="codes.CST_STLM_IN_MTH_CD"
             />
@@ -171,7 +171,7 @@ ${step4.cntrt.sexDvNm || ''}` }}
       <kw-separator />
 
       <template
-        v-if="step4.bas.cntrTpCd === '2' && step4.isUseAttach === 'Y'"
+        v-if="step4.bas?.cntrTpCd === '2' && step4.isUseAttach === 'Y'"
       >
         <h3>다자녀 첨부파일</h3>
 
@@ -284,13 +284,13 @@ ${step4.cntrt.sexDvNm || ''}` }}
             <h3>결제정보</h3>
 
             <kw-form
-              v-if="step4.bas.cstStlmInMthCd !== '30'"
+              v-if="step4.bas?.cstStlmInMthCd !== '30'"
               :cols="2"
               class="mt20"
               dense
             >
               <kw-form-row
-                v-if="step4.bas.cntrTpCd === '02'"
+                v-if="step4.bas?.cntrTpCd === '02'"
               >
                 <kw-form-item label=" 세금계산서발행">
                   <p>
