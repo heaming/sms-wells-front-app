@@ -473,14 +473,14 @@ const initGridMain = defineGrid((data, view) => {
       width: '90',
       styleName: 'text-center',
       rules: 'required',
-      editor: { type: 'number', editFormat: '99', maxLength: 2, positiveOnly: true },
+      editor: { type: 'number', editFormat: '999', maxLength: 3, positiveOnly: true },
       dataType: 'number' },
     // 시작월
     { fieldName: 'svStrtmmN',
       header: t('MSG_TXT_STRT_MM'),
       width: '60',
       styleName: 'text-center',
-      editor: { type: 'number', editFormat: '99', maxLength: 2, positiveOnly: true },
+      editor: { type: 'number', editFormat: '999', maxLength: 3, positiveOnly: true },
     },
     // 반복횟수
     { fieldName: 'svTms',
@@ -488,14 +488,14 @@ const initGridMain = defineGrid((data, view) => {
       width: '60',
       styleName: 'text-right',
       rules: 'required',
-      editor: { type: 'number', editFormat: '99', maxLength: 2, positiveOnly: true },
+      editor: { type: 'number', editFormat: '999', maxLength: 3, positiveOnly: true },
       dataType: 'number' },
     // 총약정개월
     { fieldName: 'totStplMcn',
       header: t('MSG_TXT_TOT_COMMIT_MM'),
       width: '60',
       styleName: 'text-right',
-      editor: { type: 'number', editFormat: '99', maxLength: 2, positiveOnly: true },
+      editor: { type: 'number', editFormat: '999', maxLength: 3, positiveOnly: true },
       dataType: 'number' },
     // 제외월
     { fieldName: 'excdMmVal',
