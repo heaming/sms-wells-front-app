@@ -124,7 +124,7 @@ ${step4.cntrt.sexDvNm || ''}` }}
         <kw-form-row>
           <kw-form-item label="고객결제방법선택">
             <kw-option-group
-              :v-model="step4.bas ? step4.bas.cstStlmInMthCd : ''"
+              :model-value="step4.bas?.cstStlmInMthCd"
               type="radio"
               :options="codes.CST_STLM_IN_MTH_CD"
             />
@@ -203,18 +203,18 @@ ${step4.cntrt.sexDvNm || ''}` }}
       >
         <kw-form-row>
           <kw-form-item label="파트너명">
-            <p>{{ step4.prtnr.prtnrKnm }}</p>
+            <p>{{ step4.prtnr?.prtnrKnm }}</p>
           </kw-form-item>
           <kw-form-item label="사번">
-            <p>{{ step4.prtnr.prtnrNo }}</p>
+            <p>{{ step4.prtnr?.prtnrNo }}</p>
           </kw-form-item>
         </kw-form-row>
         <kw-form-row>
           <kw-form-item label="지국명">
-            <p>{{ step4.prtnr.dgr3LevlOgNm }}</p>
+            <p>{{ step4.prtnr?.dgr3LevlOgNm }}</p>
           </kw-form-item>
           <kw-form-item label="지국장명">
-            <p>{{ step4.prtnr.hooPrtnrNm }}</p>
+            <p>{{ step4.prtnr?.hooPrtnrNm }}</p>
           </kw-form-item>
         </kw-form-row>
       </kw-form>
