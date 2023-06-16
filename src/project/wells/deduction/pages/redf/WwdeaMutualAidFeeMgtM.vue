@@ -331,10 +331,10 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'rsbDvCd', header: t('MSG_TXT_CRLV'), width: '80', styleName: 'text-center' }, // 직급
     { fieldName: 'brmgrPrtnrNo', header: t('MSG_TXT_BRMGR'), width: '150', styleName: 'text-center' }, // 지점장
     { fieldName: 'cntrNoSn', header: t('MSG_TXT_CNTR_NO'), width: '150', styleName: 'text-center' }, // 계약번호
-    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '150' }, // 상품명
+    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '150', styleName: 'text-left' }, // 상품명
     { fieldName: 'istDt', header: t('MSG_TXT_INST_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' }, // 설치일
     { fieldName: 'lifCntrNo', header: t('MSG_TXT_MUTU_CNTR_NUM'), width: '120', styleName: 'text-center' }, // 상조 계약번호
-    { fieldName: 'lifPdNm', header: t('MSG_TXT_MUTU_PD_NM'), width: '80', styleName: 'text-center' }, // 상조상품명
+    { fieldName: 'lifPdNm', header: t('MSG_TXT_MUTU_PD_NM'), width: '80', styleName: 'text-left' }, // 상조상품명
     { fieldName: 'rcpdt', header: t('MSG_TXT_RCP_D'), width: '100', styleName: 'text-center', datetimeFormat: 'date' }, // 접수일
     { fieldName: 'cntrDt', header: `${t('MSG_TXT_CNTRCT_DT')}(${t('MSG_TXT_1ST_WTHDRWL_DT')})`, width: '150', styleName: 'text-center', datetimeFormat: 'date' }, // 계약일(1회출금일)
     { fieldName: 'canDt', header: t('MSG_TXT_CAN_D'), width: '100', styleName: 'text-center', datetimeFormat: 'date' }, // 취소일
