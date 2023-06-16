@@ -242,11 +242,17 @@ async function onClickSave() {
 
   const changedRows = gridUtil.getChangedRowValues(view);
   for (let i = 0; i < changedRows.length; i += 1) {
-    if (!isEmpty(changedRows[i].emadrCn)) {
-      if (!validateEmail(changedRows[i].emadrCn)) {
+    if (!isEmpty(changedRows[i].emadr)) {
+      if (!validateEmail(changedRows[i].emadr)) {
         alert(t('MSG_ALT_EMAIL'));
         return;
       }
+    }
+    const row = gridUtil.findDataRow(view, (e) => (e.spectxGrpNo === changedRows[i].spectxGrpNo)
+    && (e.cntrDtlNo === changedRows[i].cntrDtlNo));
+    if (row !== i) {
+      notify(t('MSG_ALT_DUP_NCELL', [t('MSG_TXT_CNTR_DTL_NO')]));
+      return;
     }
   }
   await dataService.post('sms/wells/contract/contracts/trade-specification-sheets', changedRows);
