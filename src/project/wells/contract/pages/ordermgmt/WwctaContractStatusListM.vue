@@ -300,7 +300,6 @@
               @click="onClickNonFcfPayment(item)"
             />
             <kw-btn
-              v-if="item.pymnSkipYn === 'Y'"
               :label="$t('MSG_BTN_F2F_PYMNT')"
               padding="12px"
               @click="onClickF2fPayment(item)"
@@ -671,6 +670,7 @@ async function onClickContractDelete(item) {
     if (!await confirm(t('MSG_ALT_WANT_DEL_WCC'))) { return; }
 
     await dataService.delete('/sms/wells/contract/contracts/contract-lists/', { params: { cntrNo: item.cntrNo } });
+    onClickSearch();
   }
 }
 
