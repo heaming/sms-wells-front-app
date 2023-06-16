@@ -42,13 +42,13 @@
               v-if="item.sellTpCd === '1'"
               class="kw-fc--primary kw-font-subtitle"
             >
-              {{ stringUtil.getNumberWithComma(item.fnlAmt || 0) }}원
+              {{ stringUtil.getNumberWithComma(item.sellAmt || 0) }}원
             </p>
             <p
               v-else
               class="kw-fc--primary kw-font-subtitle"
             >
-              월 {{ stringUtil.getNumberWithComma(item.fnlAmt || 0) }}원({{ item.stplPtrm }}개월)
+              월 {{ stringUtil.getNumberWithComma(item.sellAmt || 0) }}원({{ item.stplPtrm }}개월)
             </p>
 
             <div class="row items-center ml20">
@@ -118,6 +118,7 @@
                             v-for="(adr, i) in adrs"
                             v-bind="field"
                             :key="i"
+                            v-model="adrsVal"
                             class="radio-close-button"
                             :val="i"
                             @update:model-value="onClickRectRgstAdr(item, adr)"
@@ -352,7 +353,7 @@
                   :colspan="2"
                 >
                   <h3 class="my0">
-                    결제금액 : {{ stringUtil.getNumberWithComma(item.fnlAmt || 0) }}원
+                    결제금액 : {{ stringUtil.getNumberWithComma(item.sellAmt || 0) }}원
                   </h3>
                   <ul class="kw-notification pl12">
                     <li>
@@ -365,7 +366,7 @@
                 <kw-form-item label="계약금(가상계좌)">
                   <kw-input
                     v-model="item.cntrAmt"
-                    :min="Number(item.fnlAmt) / 10"
+                    :min="Number(item.sellAmt) / 10"
                     type="number"
                     align="right"
                     maxlength="10"
@@ -420,7 +421,7 @@
                 </kw-form-item>
                 <kw-form-item no-label>
                   <p class="kw-fc--black2 kw-font-pt14 text-weight-regular">
-                    월 렌탈료 : {{ stringUtil.getNumberWithComma(item.fnlAmt || 0) }}원
+                    월 렌탈료 : {{ stringUtil.getNumberWithComma(item.sellAmt || 0) }}원
                   </p>
                 </kw-form-item>
               </kw-form-row>
@@ -511,6 +512,7 @@ codes.DP_TP_CD_AFTN = [
   { codeId: '0102', codeName: '계좌이체' },
 ];
 const adrs = ref([]);
+const adrsVal = ref('');
 const obsAdrRef = ref();
 const dtlSn = ref(1);
 const showAllAdrs = false;
@@ -586,6 +588,8 @@ async function onClickAddRectRgstAdr(dtl) {
   } else {
     adrs.value.push(newAdr);
   }
+  // radio 초기화
+  adrsVal.value = '';
 }
 
 function onClickRectRgstAdr(dtl, adr) {
@@ -609,11 +613,11 @@ function onClickNextDtlSn() {
 }
 
 function onChangeCntram(dtl) {
-  if (dtl.cntrAmt > dtl.fnlAmt) {
-    dtl.cntrAmt = Number(dtl.fnlAmt) / 10;
+  if (dtl.cntrAmt > dtl.sellAmt) {
+    dtl.cntrAmt = Number(dtl.sellAmt) / 10;
     alert('계약금이 결제금액보다 클 수 없습니다.');
   }
-  dtl.pdAmt = Number(dtl.fnlAmt || 0) - Math.max(Number(dtl.cntrAmt || 0), Number(dtl.fnlAmt) / 10);
+  dtl.pdAmt = Number(dtl.sellAmt || 0) - Math.max(Number(dtl.cntrAmt || 0), Number(dtl.sellAmt) / 10);
 }
 
 function onChangeSodbtNftfCntr(v) {

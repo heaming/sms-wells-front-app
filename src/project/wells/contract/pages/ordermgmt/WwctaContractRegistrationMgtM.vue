@@ -149,7 +149,9 @@
                   <ul class="card-text card-text--bigger card-text--between">
                     <li class="pt0">
                       <p>총 상품금액</p>
-                      <span class="text-bold kw-font-pt20">0 원</span>
+                      <span class="text-bold kw-font-pt20">
+                        {{ smr.pdAmt }}
+                      </span>
                     </li>
                   </ul>
                 </div>
@@ -284,7 +286,8 @@ const smr = ref({
   stlmTpNm: computed(() => codes.STLM_TP_CD.find((c) => c.codeId === contract.value.step3.stlmTpCd)?.codeName),
   stlmMthNm: computed(() => codes.DP_TP_CD.find((c) => c.codeId === contract.value.step3.cntramDpTpCd)?.codeName),
   pdAmt: computed(() => stringUtil.getNumberWithComma(
-    Number(contract.value.step2.dtls?.reduce((acc, cur) => Number(acc) + Number(cur.fnlAmt), 0)) || 0,
+    // dtl.sellAmt 판매금액(수량xfnlAmt)의 합
+    Number(contract.value.step2.dtls?.reduce((acc, cur) => Number(acc) + Number(cur.sellAmt), 0)) || 0,
   )),
 });
 const isReadOnly = ref(false);
