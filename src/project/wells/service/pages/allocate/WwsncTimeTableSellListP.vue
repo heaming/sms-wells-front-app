@@ -18,9 +18,9 @@
     <!-- To. 개발  window popup width size: 940px  -->
     <h1>엔지니어 Time table</h1>
     <div class="normal-area normal-area--button-set-bottom pt30 mt15 w860">
-      <p>{{ data.sellDate }}</p>
-      <p>{{ data.sellTime }}</p>
-      <p>{{ data.cntrNo }}</p>
+      <!--      <p>{{ data.sellDate }}</p>-->
+      <!--      <p>{{ data.sellTime }}</p>-->
+      <!--      <p>{{ data.cntrNo }}</p>-->
       <p class="kw-font--14">
         서비스 방문 희망일자를 선택하세요
       </p>
@@ -484,8 +484,8 @@ import dayjs from 'dayjs';
 import { cloneDeep, toInteger } from 'lodash-es';
 
 const dataService = useDataService();
-// const { t } = useI18n();
-const { ok, cancel } = useModal();
+const { t } = useI18n();
+const { /* ok, */ cancel } = useModal();
 
 const DATE_FORMAT_YM = 'YYYYMM';
 const DATE_FORMAT_YMD = 'YYYYMMDD';
@@ -982,8 +982,8 @@ async function onClickSave() {
   };
   console.log(sendData);
   // await dataService.post(`/sflex/common/common/roles/${selectedRoleId}/data-services`, sendData);
-  // await notify(t('MSG_ALT_SAVE_DATA'));
-  ok(sendData);
+  await notify(t('MSG_ALT_SAVE_DATA'));
+  // ok(sendData);
 }
 
 onMounted(async () => {
