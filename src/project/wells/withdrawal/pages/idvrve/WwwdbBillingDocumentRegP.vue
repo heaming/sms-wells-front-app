@@ -216,13 +216,30 @@ const validateCst = computed(() => async (val, options) => {
   return errors[0] || true;
 });
 
+async function validateGrid(grid) {
+  let flag = 0;
+  grid.forEach((data) => {
+    if (data.pdQty < 1 || data.pdQty === '') {
+      flag += 1;
+    }
+  });
+  return flag;
+}
 // 저장 버튼
 async function onClickSave() {
   const view = grdPageRef.value.getView();
+  const list = gridUtil.getAllRowValues(view);
 
   if (!await obsRef.value.validate()) { return; }
 
   if (!await gridUtil.validate(view)) { return; }
+
+  // 추가된 데이터중 수량 0 또는 빈칸이 존재할경우 validate
+  if (await validateGrid(list) > 0) {
+    // 수량은(는) 0보다 커야합니다.
+    await alert(t('MSG_ALT_ZERO_IS_BIG', [t('MSG_TXT_QTY')]));
+    return;
+  }
 
   console.log(obsRef.value.isModified());
   console.log(!gridUtil.isModified(view));

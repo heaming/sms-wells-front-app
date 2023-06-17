@@ -55,6 +55,7 @@
           v-if="sendMainData.bildcFwTpCd !== 'K'"
           v-model="sendMainData.toMail"
           required
+          readonly
           class="mb20"
         />
         <!-- </kw-form>
@@ -161,9 +162,10 @@ import ZwcmEmailAddress from '~common/components/ZwcmEmailAddress.vue';
 import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
 
+const { getters } = useStore();
 const dataService = useDataService();
 const { t } = useI18n();
-
+const userInfo = getters['meta/getUserInfo'];
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -215,7 +217,7 @@ const sendMainData = ref({
   destInfo: '', // 받는사람
   callback: '', // 보내는사람
   fromMail: '',
-  toMail: '',
+  toMail: userInfo.email,
 
 });
 
