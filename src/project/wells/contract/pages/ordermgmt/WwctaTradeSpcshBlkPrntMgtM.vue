@@ -242,11 +242,17 @@ async function onClickSave() {
 
   const changedRows = gridUtil.getChangedRowValues(view);
   for (let i = 0; i < changedRows.length; i += 1) {
-    if (!isEmpty(changedRows[i].emadrCn)) {
-      if (!validateEmail(changedRows[i].emadrCn)) {
+    if (!isEmpty(changedRows[i].emadr)) {
+      if (!validateEmail(changedRows[i].emadr)) {
         alert(t('MSG_ALT_EMAIL'));
         return;
       }
+    }
+    const row = gridUtil.findDataRow(view, (e) => (e.spectxGrpNo === changedRows[i].spectxGrpNo)
+    && (e.cntrDtlNo === changedRows[i].cntrDtlNo));
+    if (row !== i) {
+      notify(t('MSG_ALT_DUP_NCELL', [t('MSG_TXT_CNTR_DTL_NO')]));
+      return;
     }
   }
   await dataService.post('sms/wells/contract/contracts/trade-specification-sheets', changedRows);
@@ -378,7 +384,7 @@ const initGridTradeSpcshBlkPrntList = defineGrid((data, view) => {
         const { payload } = await modal({
           component: 'WwctaContractNumberListP',
           componentProps: {
-            componentProps: { paramCntrNo, paramCntrSn },
+            cntrNo: paramCntrNo, cntrSn: paramCntrSn,
           },
         });
         if (!isEmpty(payload)) {
@@ -398,6 +404,7 @@ const initGridTradeSpcshBlkPrntList = defineGrid((data, view) => {
             data.setValue(dataRow, 'cstNm', res.data.cstKnm);
             data.setValue(dataRow, 'cntrNo', cntrNo);
             data.setValue(dataRow, 'cntrSn', cntrSn);
+            data.setValue(dataRow, 'cntrDtlNo', `${cntrNo}-${cntrSn}`);
             for (let i = 0; i < rows.length; i += 1) {
               const row = gridUtil.findDataRow(view, (e) => e.spectxGrpNo === spectxGrpNo
               && (e.emadr !== res.data.emadr)); // 같은 그룹번호의 이메일, 팩스번호 동일하게 셋팅
@@ -471,7 +478,7 @@ const initGridTradeSpcshBlkPrntList = defineGrid((data, view) => {
     const { payload } = await modal({
       component: 'WwctaContractNumberListP',
       componentProps: {
-        prtnrNo: g.getValues(itemIndex).cntrDtlNo,
+        cntrNo: g.getValues(itemIndex).cntrNo, cntrSn: g.getValues(itemIndex).cntrSn,
       },
     });
     if (!isEmpty(payload)) {
@@ -492,6 +499,7 @@ const initGridTradeSpcshBlkPrntList = defineGrid((data, view) => {
         data.setValue(updateRow, 'cstNm', res.data.cstKnm);
         data.setValue(updateRow, 'cntrNo', cntrNo);
         data.setValue(updateRow, 'cntrSn', cntrSn);
+        data.setValue(updateRow, 'cntrDtlNo', `${cntrNo}-${cntrSn}`);
         for (let i = 0; i < rows.length; i += 1) {
           const row = gridUtil.findDataRow(view, (e) => e.spectxGrpNo === spectxGrpNo
               && (e.emadr !== res.data.emadr)); // 같은 그룹번호의 이메일, 팩스번호 동일하게 셋팅

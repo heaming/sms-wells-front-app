@@ -113,7 +113,7 @@ const pageInfo = ref({
 });
 
 async function fetchData() {
-  const res = await dataService.get('/sms/wells/withdrawal/bilfnt/result-bundle-error', { params: { ...cachedParams, ...pageInfo.value } });
+  const res = await dataService.get('/sms/wells/withdrawal/bilfnt/result-bundle-error', { params: { ...cachedParams, ...pageInfo.value }, timeout: 300000 });
   const { list, pageInfo: pagingResult } = res.data;
 
   pageInfo.value = pagingResult;
@@ -130,7 +130,7 @@ async function onClickSearch() {
 
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
-  const res = await dataService.get('/sms/wells/withdrawal/bilfnt/result-bundle-error/excel-download', { params: cachedParams });
+  const res = await dataService.get('/sms/wells/withdrawal/bilfnt/result-bundle-error/excel-download', { params: cachedParams, timeout: 300000 });
 
   await gridUtil.exportView(view, {
     fileName: `${currentRoute.value.meta.menuName}_${props.itemsChecked}`,

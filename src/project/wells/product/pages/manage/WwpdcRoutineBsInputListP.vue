@@ -62,7 +62,7 @@
       />
       <!-- 저장 -->
       <kw-btn
-        dense
+        grid-action
         secondary
         :label="$t('MSG_BTN_SAVE')"
         @click="onClickSave"
@@ -193,7 +193,7 @@ const initGrdMain = defineGrid((data, view) => {
       header: t('MSG_TXT_VISIT_MON'),
       width: '80',
       styleName: 'text-right',
-      editor: { type: 'number', editFormat: '99', maxLength: 2, positiveOnly: true },
+      editor: { type: 'number', editFormat: '999', maxLength: 3, positiveOnly: true },
       dataType: 'number' },
     // 설치월
     { fieldName: 'istMm',

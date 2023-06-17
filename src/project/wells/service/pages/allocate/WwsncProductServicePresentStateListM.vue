@@ -308,7 +308,7 @@ const initGrdMain = defineGrid((data, view) => {
   ];
   view.setFooters({
     visible: true,
-    items: [{ height: 30 }],
+    items: [{ height: 42 }],
   });
   view.setColumnLayout(columnLayout);
   data.setFields(fields);
