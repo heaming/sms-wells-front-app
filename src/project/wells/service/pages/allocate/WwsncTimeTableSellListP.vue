@@ -485,7 +485,7 @@ import { cloneDeep, toInteger } from 'lodash-es';
 
 const dataService = useDataService();
 const { t } = useI18n();
-const { /* ok, */ cancel } = useModal();
+const { ok, cancel } = useModal();
 
 const DATE_FORMAT_YM = 'YYYYMM';
 const DATE_FORMAT_YMD = 'YYYYMMDD';
@@ -494,10 +494,10 @@ const props = defineProps({
   baseYm: { type: String, default: '' },
   userId: { type: String, default: '' },
   chnlDvCd: { type: String, default: '' },
+  inflwChnl: { type: String, default: '' },
   svDvCd: { type: String, default: '' },
   sellDate: { type: String, default: '' },
   svBizDclsfCd: { type: String, default: '' },
-  inflwChnl: { type: String, default: '' },
   basePdCd: { type: String, default: '' },
   wrkDt: { type: String, default: '' },
   dataStatCd: { type: String, default: '' },
@@ -507,12 +507,24 @@ const props = defineProps({
   cntrSn: { type: String, default: '' },
   seq: { type: String, default: '' },
 });
-console.group('props');
-console.log(`returnUrl: ${props.returnUrl}`);
-console.groupEnd();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
+// if (props.baseYm === '') alert('baseYm');
+// if (props.chnlDvCd === '') alert('chnlDvCd');
+// if (props.svDvCd === '') alert('svDvCd');
+// if (props.sellDate === '') alert('sellDate');
+// if (props.svBizDclsfCd === '') alert('svBizDclsfCd');
+// if (props.inflwChnl === '') alert('inflwChnl');
+// if (props.basePdCd === '') alert('basePdCd');
+// if (props.wrkDt === '') alert('wrkDt');
+// if (props.dataStatCd === '') alert('dataStatCd');
+// if (props.returnUrl === '') alert('returnUrl');
+// if (props.mkCo === '') alert('mkCo');
+// if (props.cntrNo === '') alert('cntrNo');
+// if (props.cntrSn === '') alert('cntrSn');
+// if (props.seq === '') alert('seq');
+
 const currentDay = dayjs().format('YYYYMMDD');
 const currentTime = dayjs().format('HHmm');
 const nextDay = dayjs().add(1, 'day').format('YYYYMMDD');
@@ -551,9 +563,31 @@ const searchParams = ref({
   cntrSn: props.cntrSn,
   seq: props.seq,
 });
-// console.group('searchParams');
-// console.log(searchParams.value);
-// console.groupEnd();
+if (searchParams.value.chnlDvCd === 'K' && searchParams.value.inflwChnl === '') { // KSS
+  searchParams.value.inflwChnl = '3';
+}
+
+if (searchParams.value.chnlDvCd === 'C' && searchParams.value.inflwChnl === '') { // CubigCC
+  searchParams.value.inflwChnl = '1';
+}
+
+console.group('searchParams');
+console.log(`baseYm: ${searchParams.value.baseYm}`);
+console.log(`userId: ${searchParams.value.userId}`);
+console.log(`chnlDvCd: ${searchParams.value.chnlDvCd}`);
+console.log(`svDvCd: ${searchParams.value.svDvCd}`);
+console.log(`sellDate: ${searchParams.value.sellDate}`);
+console.log(`svBizDclsfCd: ${searchParams.value.svBizDclsfCd}`);
+console.log(`inflwChnl: ${searchParams.value.inflwChnl}`);
+console.log(`basePdCd: ${searchParams.value.basePdCd}`);
+console.log(`wrkDt: ${searchParams.value.wrkDt}`);
+console.log(`dataStatCd: ${searchParams.value.dataStatCd}`);
+console.log(`returnUrl: ${searchParams.value.returnUrl}`);
+console.log(`mkCo: ${searchParams.value.mkCo}`);
+console.log(`cntrNo: ${searchParams.value.cntrNo}`);
+console.log(`cntrSn: ${searchParams.value.cntrSn}`);
+console.log(`seq: ${searchParams.value.seq}`);
+console.groupEnd();
 
 const data = ref({
   svBizDclsfCd: '',
@@ -570,6 +604,7 @@ const data = ref({
   lcst09: '',
   newAdrZip: '',
   userId: '',
+  rcpOgTpCd: '',
   sowDay: '',
   returnUrl: '',
   mkCo: '',
@@ -596,6 +631,8 @@ const data = ref({
   pmShowVar: 0,
   egerMemo: '',
   seq: 0,
+  prtnrNo: '',
+  ogTpCd: '',
 });
 
 function getCurrentDate() {
@@ -614,45 +651,25 @@ async function getTimeTables() {
   disableDays.value = [];
   timeConstMsg.value = [];
 
-  // const ttbUse = data.value.psicDataDvos.ac146TtbUse;
-  // const uaUse = data.value.psicDataDvos.ac146UaUse;
-  // const { vstPos } = data.value.psicDataDvos;
-  // const empOr = data.value.psicDataDvos.ac025EmpOr;
-  // const amWrkCnt = 0;
-  // const pmWrkCnt = 0;
-  // const amAbleCnt = data.value.psicDataDvos.amWrkCnt;
-  // const pmAbleCnt = data.value.psicDataDvos.pmWrkCnt;
-  // const { tWrkCnt } = data.value.psicDataDvos;
-  // console.log('ttbUse: ', ttbUse);
-  // console.log('uaUse: ', uaUse);
-  // console.log('vstPos: ', vstPos);
-  // console.log('empOr: ', empOr);
-  // console.log('amWrkCnt: ', amWrkCnt);
-  // console.log('pmWrkCnt: ', pmWrkCnt);
-  // console.log('amAbleCnt: ', amAbleCnt);
-  // console.log('pmAbleCnt: ', pmAbleCnt);
-  // console.log('tWrkCnt: ', tWrkCnt);
-
   //---------------------------------------------------------------
+  // test
   // data.value.lcst09 = '09';
-  // data.value.sidingYn = 'Y';
   // data.value.spayYn = 'N';
   // data.value.sowDay = '20230621';
   // data.value.offDays = [{ hsOffDays: '20230628621303' }];
+  // data.value.sidingYn = 'N';
   // data.value.sidingDayDvos = [
-  //   { ablDays: '2023-6-17', sumCnt: '500', w3th: '', sowDay: '20230617' },
-  //   { ablDays: '2023-6-19', sumCnt: '500', w3th: '', sowDay: '20230619' },
-  //   { ablDays: '2023-6-20', sumCnt: '500', w3th: '', sowDay: '20230620' },
-  //   { ablDays: '2023-6-22', sumCnt: '500', w3th: '', sowDay: '20230622' },
-  //   { ablDays: '2023-6-23', sumCnt: '500', w3th: '', sowDay: '20230623' },
-  //   { ablDays: '2023-6-24', sumCnt: '500', w3th: '', sowDay: '20230624' },
+  // { ablDays: '2023-06-17', sumCnt: '500', w3th: '20230617', sowDay: '20230617' },
+  // { ablDays: '2023-06-19', sumCnt: '500', w3th: '20230619', sowDay: '20230619' },
+  // { ablDays: '2023-06-20', sumCnt: '500', w3th: '20230620', sowDay: '20230620' },
+  // { ablDays: '2023-06-22', sumCnt: '500', w3th: '20230622', sowDay: '20230622' },
+  // { ablDays: '2023-06-23', sumCnt: '500', w3th: '20230623', sowDay: '20230623' },
+  // { ablDays: '2023-06-24', sumCnt: '500', w3th: '20230624', sowDay: '20230624' },
   // ];
   // data.value.disableDayDvos = [
-  //   {
-  //     disableDays: '2023-6-29',
-  //     disableFuldays: '2023-06-29',
-  //     tcMsg: '법정휴무일 또는 회사휴무',
-  //   }];
+  //   { disableDays: '2023-6-23', disableFuldays: '2023-06-23', tcMsg: '111법정휴무일 또는 회사휴무' },
+  //   { disableDays: '2023-6-29', disableFuldays: '2023-06-29', tcMsg: '222법정휴무일 또는 회사휴무' },
+  // ];
   // data.value.psicDataDvos = {
   //   ac021EmpId: '621303',
   //   empPic: 'http://kiwi-m.kyowon.co.kr/KIWI-M/upload_file/upload_file/621303.jpg',
@@ -744,32 +761,36 @@ async function getTimeTables() {
   //   { time: '17:40', cnt: '0', ablYn: 'N' },
   //   { time: '17:50', cnt: '0', ablYn: 'N' }];
   // data.value.arrPm2 = [{ time: '18:00', cnt: '1', ablYn: 'N' }];
-
   // data.value.psicDataDvos.ac146TtbUse = 'N';
   // data.value.psicDataDvos.ac146UaUse = 'Y';
   // data.value.psicDataDvos.vstPos = '방문가능';
   // data.value.psicDataDvos.ac025EmpOr = '10';
 
-  // console.log(JSON.stringify(data.value));
   // test
   //---------------------------------------------------------------
 
   // 모종이라면
   if (data.value.sidingYn === 'Y') {
-    // list2
+    // abledDays
     data.value.sidingDayDvos.forEach((item) => {
       ableDays.value.push(item.ablDays);
+      console.log('ablDays', item.ablDays);
+    });
+
+    // ddd_abledays
+    if (data.value.disableDayDvos.length > 0) {
+      data.value.disableDayDvos.forEach((item) => {
+        disableDays.value.push(item.disableFuldays);
+        console.log('disableDays', item.disableFuldays, item.tcMsg);
+      });
+    }
+  } else {
+    // abledDays
+    data.value.disableDayDvos.forEach((item) => {
+      ableDays.value.push(item.disableFuldays);
+      console.log('disableDays', item.disableFuldays, item.tcMsg);
     });
   }
-  data.value.disableDayDvos.forEach((item) => {
-    disableDays.value.push(item.disableFuldays.replace(/-/g, ''));
-    timeConstMsg.value.push(item.tcMsg);
-  });
-
-  // console.log('selectedDay:', selectedDay.value);
-  // console.log('disableDays: ', JSON.stringify(disableDays.value));
-  // console.log('timeConstMsg: ', JSON.stringify(timeConstMsg.value));
-  // console.log(disableDays.value.includes(selectedDay.value));
 
   data.value.amWrkCnt = 0; // am_wrk_cnt
   data.value.pmWrkCnt = 0; // pm_wrk_cnt
@@ -820,17 +841,68 @@ function isHoliday(dayCnt) {
 
 // eslint-disable-next-line no-unused-vars
 function isAble(dayCnt, isNotifyMessage) {
-  /* const date = getYmdText(dayCnt);
-  if (data.sidingYn === 'Y') {
-    console.log('isAble > ableAllTheseDays', date);
-  } else if (searchParams.value.svDvCd === '4') {
-    console.log('isAble > homecareAllTheseDays', date);
-  } else {
-    console.log('isAble > disableAllTheseDays', date);
-    if (isNotifyMessage) {notify('!');
+  const pointedDate = getYmdText(dayCnt).replace(/-/g, '');
+
+  function ableAllTheseDays(inDate) {
+    // let cnt = 0;
+    // data.value.sidingDayDvos.forEach((item) => {
+    //   cnt = date === item.ablDays ? item.sumCnt : cnt;
+    // });
+    if (data.value.sidingDayDvos.find((item) => item.ablDays.replace(/-/g, '') === inDate)) {
+      if (data.value.disableDayDvos.find((item) => item.disableFuldays.replace(/-/g, '') === inDate)) {
+        if (isNotifyMessage)alert('접수제한');
+        return false;
+      }
+      return true;
+    }
+    return false;
+  }
+  function homecareAllTheseDays(inDate) {
+    const today = dayjs().format('YYYYMMDD');
+    const twoMonth = dayjs(`${today.substr(0, 6)}01`).add(4, 'month').format('YYYYMMDD');
+    if (data.value.disableDayDvos.find((item) => item.disableFuldays.replace(/-/g, '') === inDate)) {
+      const message = data.value.disableDayDvos.find((item) => item.disableFuldays.replace(
+        /-/g,
+        '',
+      ) === inDate).tcMsg;
+
+      if (isNotifyMessage) alert(message);
+      return false;
+    }
+    if (inDate >= twoMonth) {
+      if (isNotifyMessage)alert('2개월 접수제한');
+      return false;
+    }
     return true;
-  } */
-  return true;
+  }
+  function disableAllTheseDays(inDate) {
+    const today = dayjs().format('YYYYMMDD');
+    const twoMonth = dayjs(`${today.substr(0, 6)}01`).add(4, 'month').format('YYYYMMDD');
+    if (data.value.disableDayDvos.find((item) => item.disableFuldays.replace(/-/g, '') === inDate)) {
+      const message = data.value.disableDayDvos.find((item) => item.disableFuldays.replace(
+        /-/g,
+        '',
+      ) === inDate).tcMsg;
+
+      if (isNotifyMessage) alert(message);
+      return false;
+    }
+    if (inDate > twoMonth) {
+      if (isNotifyMessage)alert('2개월 접수제한');
+      return false;
+    }
+    return true;
+  }
+
+  if (data.value.sidingYn === 'Y') {
+    return ableAllTheseDays(pointedDate);
+  }
+
+  if (data.value.svDvCd === '4') {
+    return homecareAllTheseDays(pointedDate);
+  }
+
+  return disableAllTheseDays(pointedDate);
 }
 
 function isOpacity(dayCnt) {
@@ -916,10 +988,10 @@ async function onClickNextMonth() {
 
 async function onClickAm() {
   clickedBtn.value = '0';
-  // console.log('totalMaxAbleCnt', data.value.totalMaxAbleCnt);
-  // console.log('totalAbleCnt', data.value.totalAbleCnt);
-  // console.log('tWrkCnt', toInteger(data.value.psicDataDvos.tWrkCnt));
-  // console.log('amAlloCnt', data.value.amAlloCnt);
+  console.log('totalMaxAbleCnt', data.value.totalMaxAbleCnt);
+  console.log('totalAbleCnt', data.value.totalAbleCnt);
+  console.log('tWrkCnt', toInteger(data.value.psicDataDvos.tWrkCnt));
+  console.log('amAlloCnt', data.value.amAlloCnt);
   let time = '';
   if (data.value.totalMaxAbleCnt > 0 && data.value.amAlloCnt > 0
                 && data.value.amAlloCnt >= toInteger(data.value.psicDataDvos.tWrkCnt)) {
@@ -935,10 +1007,10 @@ async function onClickAm() {
 }
 async function onClickPm() {
   clickedBtn.value = '1';
-  // console.log('totalMaxAbleCnt', data.value.totalMaxAbleCnt);
-  // console.log('totalAbleCnt', data.value.totalAbleCnt);
-  // console.log('tWrkCnt', toInteger(data.value.psicDataDvos.tWrkCnt));
-  // console.log('pmAlloCnt', data.value.pmAlloCnt);
+  console.log('totalMaxAbleCnt', data.value.totalMaxAbleCnt);
+  console.log('totalAbleCnt', data.value.totalAbleCnt);
+  console.log('tWrkCnt', toInteger(data.value.psicDataDvos.tWrkCnt));
+  console.log('pmAlloCnt', data.value.pmAlloCnt);
   let time = '';
   if (data.value.totalMaxAbleCnt > 0
       && data.value.pmAlloCnt > 0
@@ -952,6 +1024,7 @@ async function onClickPm() {
   } else {
     time = '';
   }
+  console.log(time);
   data.value.sellTime = time;
 }
 async function onClickWait() {
@@ -964,13 +1037,23 @@ async function onClickCancel() {
 }
 
 async function onClickSave() {
+  // 일시불 모종
+  if (data.value.spayYn === 'Y') {
+    data.value.sellTime = '0100';
+  }
+
+  // if (data.value.sellTime === '') {
+  //   alert('시간을 선택해주세요');
+  //   return;
+  // }
+
   const sendData = {
     cntrNo: searchParams.value.cntrNo,
     sellDate: searchParams.value.sellDate,
     sellTime: data.value.sellTime,
     inflwChnl: searchParams.value.inflwChnl,
     svDvCd: searchParams.value.svDvCd,
-    wrkDt: searchParams.value.wrkDt,
+    wrkDt: data.value.wrkDt,
     seq: searchParams.value.seq,
     dataStatCd: searchParams.value.dataStatCd,
     svBizDclsfCd: searchParams.value.svBizDclsfCd,
@@ -978,12 +1061,15 @@ async function onClickSave() {
     smsYn: 'N',
     pdGdCd: 'A',
     userId: searchParams.value.userId,
+    rcpOgTpCd: data.value.rcpOgTpCd,
     egerMemo: data.value.egerMemo,
+    ogTpCd: data.value.ogTpCd,
+    prtnrNo: data.value.prtnrNo,
   };
-  console.log(sendData);
+  // console.log(sendData);
   // await dataService.post(`/sflex/common/common/roles/${selectedRoleId}/data-services`, sendData);
   await notify(t('MSG_ALT_SAVE_DATA'));
-  // ok(sendData);
+  ok(sendData);
 }
 
 onMounted(async () => {
