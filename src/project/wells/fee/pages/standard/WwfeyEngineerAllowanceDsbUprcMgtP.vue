@@ -24,7 +24,6 @@
         <!-- 상품그룹 -->
         <kw-form-item
           :label="$t('MSG_TXT_PD_GRP')"
-          required
         >
           <kw-select
             v-model="feeStandard.pdGrpCd"
@@ -42,15 +41,16 @@
           <kw-select
             v-model="feeStandard.pdGrpDtlCd"
             :label="$t('MSG_TXT_PRDT_TYPE')"
-            :options="codes.PD_GRP_DTL_CD.filter((item) => item.userDfn03 === feeStandard.pdGrpCd)"
+            :options="codes.PD_GRP_DTL_CD.filter((item) => item.userDfn03 ===
+              (feeStandard.pdGrpCd === '' ? 'DUMMY' : feeStandard.pdGrpCd))"
             :readonly="screenMode !== 'CREATE'"
+            first-option="select"
             rules="required"
           />
         </kw-form-item>
         <!-- 급지구분 -->
         <kw-form-item
           :label="$t('MSG_TXT_RGLVL_DV')"
-          required
         >
           <kw-select
             v-model="feeStandard.rglvlDvCd"
@@ -65,7 +65,6 @@
         <!-- 서비스유형 -->
         <kw-form-item
           :label="$t('MSG_TXT_SV_TP')"
-          required
         >
           <kw-select
             v-model="feeStandard.svTpCd"
@@ -83,8 +82,10 @@
           <kw-select
             v-model="feeStandard.siteAwGrpCd"
             :label="$t('MSG_TXT_SITE_AW_GRP')"
-            :options="codes.SITE_AW_GRP_CD.filter((item) => item.codeId.startsWith(feeStandard.pdGrpDtlCd))"
+            :options="codes.SITE_AW_GRP_CD.filter((item) => item.codeId.startsWith(
+              (feeStandard.pdGrpDtlCd === '' ? 'DUMMY' : feeStandard.pdGrpDtlCd)))"
             :readonly="screenMode !== 'CREATE'"
+            first-option="select"
             rules="required"
           />
         </kw-form-item>
@@ -96,8 +97,10 @@
           <kw-select
             v-model="feeStandard.siteAwAtcCd"
             :label="$t('MSG_TXT_SITE_AW_ATC')"
-            :options="codes.SITE_AW_ATC_CD.filter((item) => item.codeId.startsWith(feeStandard.siteAwGrpCd))"
+            :options="codes.SITE_AW_ATC_CD.filter((item) => item.codeId.startsWith(
+              (feeStandard.siteAwGrpCd === '' ? 'DUMMY' : feeStandard.siteAwGrpCd)))"
             :readonly="screenMode !== 'CREATE'"
+            first-option="select"
             rules="required"
           />
         </kw-form-item>
@@ -382,7 +385,7 @@ const tommorowDash = dayjs().add(1, 'day').format('YYYY-MM-DD');
 const frmRef = ref();
 const feeStandard = ref(props.modelValue);
 const defaultFeeStandard = {
-  svTpCd: undefined,
+  svTpCd: '1',
   siteAwAtcCd: undefined,
   siteAwGrpCd: undefined,
   pdGrpCd: undefined,
