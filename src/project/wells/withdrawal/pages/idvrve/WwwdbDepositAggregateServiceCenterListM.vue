@@ -4,7 +4,7 @@
 ****************************************************************************************************
 1. 모듈 : WDB
 2. 프로그램 ID : WwwdbDepositAggregateServiceCenterListM
-3. 작성자 : es.ha
+3. 작성자 : eunsun.ha
 4. 작성일 : 2023.06.14 ~
 ****************************************************************************************************
 * 프로그램 설명
@@ -23,12 +23,12 @@
         <kw-search-item
           :label="t('MSG_TXT_SV_DT')"
           required
-          rules="required"
         >
           <!-- // rev:230420 kw-search-item  안에 required 추가 -->
           <kw-date-range-picker
             v-model:from="searchParams.strtSvDt"
             v-model:to="searchParams.endSvDt"
+            :label="t('MSG_TXT_SV_DT')"
             rules="date_range_required|date_range_months:1"
           />
         </kw-search-item>
@@ -43,9 +43,8 @@
             :options="svCnrList"
             option-value="ogId"
             option-label="ogNm"
-            first-option
-            first-option-value=""
-            :first-option-label="$t('MSG_TXT_ALL')"
+            first-option="all"
+            first-option-value="ALL"
           />
         </kw-search-item>
         <!-- //rev:230420 kw-search-item label 텍스트변경 / kw-select 추가-->
@@ -69,13 +68,15 @@
       <kw-action-top>
         <template #left>
           <kw-paging-info
-            :page-size="30"
-            :page-size-options="[30,60,90,120]"
+            v-model:page-index="pageInfo.pageIndex"
+            v-model:page-size="pageInfo.pageSize"
             :total-count="pageInfo.totalCount"
+            :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
+            @change="fetchData"
           />
           <span class="ml8">(단위: 원)</span>
         </template>
-
+        <!-- 엑셀다운로드 -->
         <kw-btn
           icon="download_on"
           dense
@@ -84,16 +85,11 @@
           @click="onClickExcelDownload"
         />
       </kw-action-top>
-
       <kw-grid
         ref="grdMainRef"
-        name="grdMain"
-        :page-size="pageInfo.pageSize"
-        :total-count="pageInfo.totalSize"
         :visible-rows="6"
         @init="initGrid"
       />
-
       <kw-pagination
         v-model:page-index="pageInfo.pageIndex"
         v-model:page-size="pageInfo.pageSize"
@@ -108,23 +104,30 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useMeta, defineGrid, useDataService, getComponentType, gridUtil, modal } from 'kw-lib';
+import { codeUtil, useMeta, defineGrid, useDataService, getComponentType, gridUtil, modal } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
 
-const apiUri = '/sms/wells/withdrawal/idvrve/aggregate-service-centers';
 const dataService = useDataService();
 const { getConfig } = useMeta();
+const now = dayjs();
 const { t } = useI18n();
-const grdMainRef = ref(getComponentType('KwGrid'));
 const { currentRoute } = useRouter();
+const apiUri = '/sms/wells/withdrawal/idvrve/aggregate-service-centers';
+// -------------------------------------------------------------------------------------------------
+// Function & Event
+// -------------------------------------------------------------------------------------------------
 
-const defaultProcsDt = dayjs().subtract(1, 'month').subtract(-1, 'day').format('YYYYMMDD');
-const defaultDate = dayjs().format('YYYYMMDD');
+const grdMainRef = ref(getComponentType('KwGrid'));
+const codes = await codeUtil.getMultiCodes(
+  'COD_PAGE_SIZE_OPTIONS',
+);
+const svCnrList = ref([]);
+let cachedParams;
 
 const searchParams = ref({
-  strtSvDt: defaultProcsDt, // 서비스일자시작
-  endSvDt: defaultDate, // 서비스일자종료
+  strtSvDt: now.subtract(1, 'month').subtract(-1, 'day').format('YYYYMMDD'), // 서비스일자시작
+  endSvDt: now.format('YYYYMMDD'), // 서비스일자종료
   svCnr: '', // 서비스 센터
   prtnrKnm: '', // 엔지니어 이름
 });
@@ -148,16 +151,8 @@ const pageInfo = ref({
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
 });
 
-const svCnrList = ref([]);
-
-let startYm = dayjs(searchParams.value.strtSvDt).format('YYYYMM');
-let endYm = dayjs(searchParams.value.endSvDt).format('YYYYMM');
-let cachedParams;
-// -------------------------------------------------------------------------------------------------
-// Function & Event
-// -------------------------------------------------------------------------------------------------
-
 async function fetchData() {
+  console.log('call fetchData');
   cachedParams = { ...cachedParams, ...pageInfo.value };
   const res = await dataService.get(`${apiUri}/paging`, { params: cachedParams });
   const { list: pages, pageInfo: pagingResult } = res.data;
@@ -210,10 +205,10 @@ async function getSvCnrList() {
 
 async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
-
+  console.log('call onClickSearch');
   const totRes = await dataService.get(`${apiUri}/total`, { params: cachedParams });
   totalParams.value = totRes.data;
-
+  console.log('totRes = ', totalParams.value);
   await fetchData();
 }
 
@@ -221,6 +216,8 @@ onMounted(async () => {
   await getSvCnrList();
 });
 
+let startYm = dayjs(searchParams.value.strtSvDt).format('YYYYMM');
+let endYm = dayjs(searchParams.value.endSvDt).format('YYYYMM');
 watch(() => [searchParams.value.strtSvDt, searchParams.value.endSvDt], (val) => {
   const chngStartYm = dayjs(val[0]).format('YYYYMM');
   const chngEndYm = dayjs(val[1]).format('YYYYMM');
