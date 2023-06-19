@@ -469,6 +469,7 @@ async function onClickRtnGd() {
   }
 
   // if (!(await gridUtil.validate(view, { isCheckedOnly: true }))) { return; }
+  if (await gridUtil.alertIfIsNotModified(view)) { return; }
 
   const strRtngdProcsTpCd = ['10', '11', '20', '21', '22', '80', '81', '82'];
 
@@ -608,7 +609,7 @@ const initGrdMain = defineGrid((data, view) => {
       editor: { type: 'list' },
       // styleCallback: setCellEditableFalse,
     },
-    { fieldName: 'rmkCn', header: t('MSG_TXT_UNUITM'), width: '150', styleName: 'text-center' },
+    { fieldName: 'rmkCn', header: t('MSG_TXT_UNUITM'), width: '150', styleName: 'text-center', editable: true },
     { fieldName: 'cntrNoNew', header: t('MSG_TXT_NW_CST_NO'), width: '100', styleName: 'text-center' },
     { fieldName: 'barCd', header: t('MSG_TXT_NW_CST_NO'), width: '150', styleName: 'text-center' },
     { fieldName: 'asLctNm', header: t('MSG_TXT_LCT'), width: '100', styleName: 'text-center' },
@@ -687,17 +688,18 @@ const initGrdMain = defineGrid((data, view) => {
 
   view.setRowStyleCallback((grid, item) => {
     const ret = {};
-    const { ostrConfDt1, rtngdRvpyProcsYn } = gridUtil.getRowValue(grid, item.index);
+    const { ostrConfDt1 } = gridUtil.getRowValue(grid, item.index);
     // const strRtngdProcsTpCd = grid.getValue(item.index, 'rtngdProcsTpCd');
     // const strOstrDt = grid.getValue(item.index, 'ostrDt');
+    // , rtngdRvpyProcsYn
 
     if (ostrConfDt1) {
       ret.editable = false;
     }
 
-    if (rtngdRvpyProcsYn !== 'Y') {
-      ret.editable = false;
-    }
+    // if (rtngdRvpyProcsYn !== 'Y') {
+    //   ret.editable = false;
+    // }
     return ret;
   });
 
