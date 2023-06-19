@@ -18,14 +18,14 @@
   >
     <kw-search-row>
       <kw-search-item
-        :label="$t('MSG_TXT_APL_DATE')"
+        :label="$t('MSG_TXT_APLC_Y')"
         required
       >
         <kw-date-picker
           v-model="searchParams.aplcDt"
           type="year"
           rules="required"
-          :label="$t('MSG_TXT_APL_DATE')"
+          :label="$t('MSG_TXT_APLC_Y')"
         />
       </kw-search-item>
       <kw-search-item :label="$t('MSG_TXT_CLINR')">
