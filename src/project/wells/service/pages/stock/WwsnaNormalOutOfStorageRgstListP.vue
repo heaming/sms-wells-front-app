@@ -205,6 +205,10 @@ const props = defineProps({
     type: String,
     default: '',
   },
+  page: {
+    type: String,
+    default: '',
+  },
 });
 
 const codes = ref(await codeUtil.getMultiCodes(
