@@ -79,7 +79,7 @@ const movePages = [
       {
         btnName: '타임테이블 조회(판매) 팝업',
         type: 'modal',
-        call: 'WwsncTimeTableSellListP',
+        call: 'WwsncTimeTableForContractP',
         props: {
           sellDate: '20230601',
           baseYm: '202306',
