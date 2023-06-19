@@ -343,7 +343,10 @@
           </font>
         </li>
       </ul>
-      <ul v-else-if="data.psicDatas.rsbDvCd === '10' ">
+      <ul
+        v-else-if="data.psicDatas.rsbDvCd === 'W0103' // 직책(AC025_EMP_OR) = 10 센터장, 직책(RSB_DV_CD) = W0103 센터장
+        "
+      >
         <kw-separator />
         <li>
           <font size="4px">
@@ -427,9 +430,10 @@
       </ul>
 
       <div
-        v-if="data.psicDatas.udsnUseYn === 'Y' &&
+        v-if="data.psicDatas.udsnUseYn === 'Y' && // 미지정사용여부
           data.psicDatas.vstPos=== '방문가능' &&
-          data.psicDatas.rsbDvCd === '10' "
+          data.psicDatas.rsbDvCd === 'W0103' // 직책(AC025_EMP_OR) = 10 센터장, 직책(RSB_DV_CD) = W0103 센터장
+        "
         class="row reservation-select q-gutter-x-sm"
       >
         <div
@@ -571,25 +575,6 @@ if (searchParams.value.chnlDvCd === 'K' && searchParams.value.inflwChnl === '') 
 if (searchParams.value.chnlDvCd === 'C' && searchParams.value.inflwChnl === '') { // CubigCC
   searchParams.value.inflwChnl = '1';
 }
-
-console.group('searchParams');
-console.log(`baseYm: ${searchParams.value.baseYm}`);
-console.log(`userId: ${searchParams.value.userId}`);
-console.log(`chnlDvCd: ${searchParams.value.chnlDvCd}`);
-console.log(`svDvCd: ${searchParams.value.svDvCd}`);
-console.log(`sellDate: ${searchParams.value.sellDate}`);
-console.log(`svBizDclsfCd: ${searchParams.value.svBizDclsfCd}`);
-console.log(`inflwChnl: ${searchParams.value.inflwChnl}`);
-console.log(`basePdCd: ${searchParams.value.basePdCd}`);
-console.log(`wrkDt: ${searchParams.value.wrkDt}`);
-console.log(`dataStatCd: ${searchParams.value.dataStatCd}`);
-console.log(`returnUrl: ${searchParams.value.returnUrl}`);
-console.log(`mkCo: ${searchParams.value.mkCo}`);
-console.log(`cntrNo: ${searchParams.value.cntrNo}`);
-console.log(`cntrSn: ${searchParams.value.cntrSn}`);
-console.log(`seq: ${searchParams.value.seq}`);
-console.groupEnd();
-
 const data = ref({
   svBizDclsfCd: '',
   chnlDvCd: '',
@@ -642,6 +627,24 @@ function getCurrentDate() {
 // eslint-disable-next-line no-unused-vars
 let cachedParams;
 async function getTimeTables() {
+  console.group('searchParams');
+  console.log(`baseYm: ${searchParams.value.baseYm}`);
+  console.log(`userId: ${searchParams.value.userId}`);
+  console.log(`chnlDvCd: ${searchParams.value.chnlDvCd}`);
+  console.log(`svDvCd: ${searchParams.value.svDvCd}`);
+  console.log(`sellDate: ${searchParams.value.sellDate}`);
+  console.log(`svBizDclsfCd: ${searchParams.value.svBizDclsfCd}`);
+  console.log(`inflwChnl: ${searchParams.value.inflwChnl}`);
+  console.log(`basePdCd: ${searchParams.value.basePdCd}`);
+  console.log(`wrkDt: ${searchParams.value.wrkDt}`);
+  console.log(`dataStatCd: ${searchParams.value.dataStatCd}`);
+  console.log(`returnUrl: ${searchParams.value.returnUrl}`);
+  console.log(`mkCo: ${searchParams.value.mkCo}`);
+  console.log(`cntrNo: ${searchParams.value.cntrNo}`);
+  console.log(`cntrSn: ${searchParams.value.cntrSn}`);
+  console.log(`seq: ${searchParams.value.seq}`);
+  console.groupEnd();
+
   cachedParams = cloneDeep(searchParams.value);
   const res = await dataService.get('/sms/wells/service/time-tables/sales', { params:
    { ...cachedParams,
@@ -651,6 +654,7 @@ async function getTimeTables() {
   enableDays.value = [];
   disableDays.value = [];
   timeConstMsg.value = [];
+  data.value.sellTime = '';
 
   // console.log(JSON.stringify(data.value));
 
@@ -778,21 +782,21 @@ async function getTimeTables() {
     // abledDays
     data.value.sidingDays.forEach((item) => {
       enableDays.value.push(item.ablDays);
-      console.log('ablDays', item.ablDays);
+      // console.log('ablDays', item.ablDays);
     });
 
     // ddd_abledays
     if (data.value.disableDays.length > 0) {
       data.value.disableDays.forEach((item) => {
         disableDays.value.push(item.disableFuldays);
-        console.log('disableDays', item.disableFuldays, item.tcMsg);
+        // console.log('disableDays', item.disableFuldays, item.tcMsg);
       });
     }
   } else {
     // abledDays
     data.value.disableDays.forEach((item) => {
       disableDays.value.push(item.disableFuldays);
-      console.log('disableDays', item.disableFuldays, item.tcMsg);
+      // console.log('disableDays', item.disableFuldays, item.tcMsg);
     });
   }
 
@@ -806,6 +810,9 @@ async function getTimeTables() {
   data.value.pmShowVar = 0; // pm_show_var
   const amAbleCnt = toInteger(data.value.psicDatas.amWrkCnt);
   const pmAbleCnt = toInteger(data.value.psicDatas.pmWrkCnt);
+
+  // console.log(amAbleCnt);
+
   data.value.arrAm.forEach((item) => {
     data.value.amWrkCnt += toInteger(item.cnt);
   });
@@ -813,6 +820,9 @@ async function getTimeTables() {
     data.value.pmWrkCnt += toInteger(item.cnt);
   });
   data.value.amAlloCnt = amAbleCnt - data.value.amWrkCnt < 0 ? 0 : amAbleCnt - data.value.amWrkCnt;
+  // console.log(data.value.amAlloCnt);
+  // console.log(amAbleCnt, '-', data.value.amWrkCnt);
+
   data.value.pmAlloCnt = pmAbleCnt - data.value.pmWrkCnt < 0 ? 0 : pmAbleCnt - data.value.pmWrkCnt;
   data.value.totalAbleCnt = data.value.amAlloCnt + data.value.pmAlloCnt;
   data.value.totalMaxAbleCnt = amAbleCnt + pmAbleCnt - data.value.amWrkCnt + data.value.pmWrkCnt;
