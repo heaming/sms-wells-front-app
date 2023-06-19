@@ -481,6 +481,7 @@
 // -------------------------------------------------------------------------------------------------
 import { notify, useDataService, useModal /* , alert */ } from 'kw-lib';
 import dayjs from 'dayjs';
+// eslint-disable-next-line no-unused-vars
 import { cloneDeep, toInteger } from 'lodash-es';
 
 const dataService = useDataService();
@@ -542,7 +543,7 @@ const scheduleInfo = ref({
 
 const clickedBtn = ref(''); // 0:오전, 1:오후
 
-const ableDays = ref([]);
+const enableDays = ref([]);
 const disableDays = ref([]);
 const timeConstMsg = ref([]);
 
@@ -638,6 +639,7 @@ function getCurrentDate() {
   return dayjs(`${searchParams.value.baseYm}01`).format(DATE_FORMAT_YM);
 }
 
+// eslint-disable-next-line no-unused-vars
 let cachedParams;
 async function getTimeTables() {
   cachedParams = cloneDeep(searchParams.value);
@@ -646,9 +648,11 @@ async function getTimeTables() {
    } });
 
   data.value = res.data;
-  ableDays.value = [];
+  enableDays.value = [];
   disableDays.value = [];
   timeConstMsg.value = [];
+
+  // console.log(JSON.stringify(data.value));
 
   //---------------------------------------------------------------
   // test
@@ -656,50 +660,51 @@ async function getTimeTables() {
   // data.value.spayYn = 'N';
   // data.value.sowDay = '20230621';
   // data.value.offDays = [{ hsOffDays: '20230628621303' }];
-  data.value.sidingYn = 'N';
-  data.value.sidingDays = [
-    { ablDays: '2023-06-17', sumCnt: '500', w3th: '20230617', sowDay: '20230617' },
-    { ablDays: '2023-06-19', sumCnt: '500', w3th: '20230619', sowDay: '20230619' },
-    { ablDays: '2023-06-20', sumCnt: '500', w3th: '20230620', sowDay: '20230620' },
-    { ablDays: '2023-06-22', sumCnt: '500', w3th: '20230622', sowDay: '20230622' },
-    { ablDays: '2023-06-23', sumCnt: '500', w3th: '20230623', sowDay: '20230623' },
-    { ablDays: '2023-06-24', sumCnt: '500', w3th: '20230624', sowDay: '20230624' },
-  ];
-  data.value.disableDays = [
-    { disableDays: '2023-06-23', disableFuldays: '2023-06-23', tcMsg: '111법정휴무일 또는 회사휴무' },
-    { disableDays: '2023-06-29', disableFuldays: '2023-06-29', tcMsg: '222법정휴무일 또는 회사휴무' },
-  ];
+  // data.value.sidingYn = 'N';
+  // data.value.sidingDays = [
+  //   { ablDays: '2023-06-17', sumCnt: '500', w3th: '20230617', sowDay: '20230617' },
+  //   { ablDays: '2023-06-19', sumCnt: '500', w3th: '20230619', sowDay: '20230619' },
+  //   { ablDays: '2023-06-20', sumCnt: '500', w3th: '20230620', sowDay: '20230620' },
+  //   { ablDays: '2023-06-22', sumCnt: '500', w3th: '20230622', sowDay: '20230622' },
+  //   { ablDays: '2023-06-23', sumCnt: '500', w3th: '20230623', sowDay: '20230623' },
+  //   { ablDays: '2023-06-24', sumCnt: '500', w3th: '20230624', sowDay: '20230624' },
+  // ];
+  // data.value.disableDays = [
+  //   { disableFuldays: '2023-06-23', tcMsg: '111법정휴무일 또는 회사휴무' },
+  //   { disableFuldays: '2023-06-29', tcMsg: '222법정휴무일 또는 회사휴무' },
+  // ];
   // data.value.psicDatas = {
-  //   prtnrNo: '621303',
-  //   empPic: 'http://kiwi-m.kyowon.co.kr/KIWI-M/upload_file/upload_file/621303.jpg',
-  //   sellDate: '20230601',
-  //   ogNm: '상동지국',
-  //   ogId: 'KH210',
-  //   prtnrKnm: '정민희',
-  //   degNm: 'A-평일-14xxxxxxxx',
-  //   amWrkCnt: '6',
-  //   pmWrkCnt: '8',
-  //   rsbDvCd: '110',
-  //   locaraTno: '032',
-  //   exnoEncr: '504',
-  //   idvTno: '1127',
-  //   cralLocaraTno: '010',
-  //   mexnoEncr: '9182',
-  //   cralIdvTno: '9915',
+  //   prtnrNo: '36870',
+  //   sellDate: '20230616',
+  //   iscgubNm: '2급 중',
   //   rolDvNm: '엔지니어',
+  //   sjHp1: '010',
+  //   sjHp2: '5774',
+  //   sjHp3: '7039',
+  //   rpbLocaraCd: '243',
+  //   ogNm: '하남서비스센터',
+  //   ogId: 'OGO198500002397',
+  //   prtnrKnm2: '정민수',
   //   vstDowVal: '월화수목금토',
-  //   vstPos: '방문가능',
-  //   ac146TtbUse: 'Y',
-  //   ac146UaUse: 'Y',
-  //   rpbLocaraCd: 'A073',
+  //   instCnt: '3',
+  //   bsCnt: '0',
+  //   asCnt: '0',
   //   satWrkYn: 'N',
   //   dfYn: 'N',
-  //   dowDvCd: '5',
-  //   fr2pLgldCd: '11',
-  //   instCnt: '3',
-  //   bsCnt: '4',
-  //   asCnt: '1',
-  //   tWrkCnt: '1',
+  //   dowDvCd: '6',
+  //   fr2pLgldCd: '41',
+  //   rstrCndtUseYn: 'Y',
+  //   udsnUseYn: 'Y',
+  //   vstPos: '방문가능',
+  //   rsbDvCd: 'W0602',
+  //   empPic: 'http://kiwi-m.kyowon.co.kr/KIWI-M/upload_file/upload_file/36870.jpg',
+  //   locaraTno: '031',
+  //   exnoEncr: '793',
+  //   idvTno: '9351',
+  //   cralLocaraTno: '010',
+  //   mexnoEncr: '5774',
+  //   cralIdvTno: '0110',
+  //   twrkCnt: '1',
   // };
   // data.value.psicDatas.rsbDvCd = '0';
   // data.value.arrAm = [
@@ -772,7 +777,7 @@ async function getTimeTables() {
   if (data.value.sidingYn === 'Y') {
     // abledDays
     data.value.sidingDays.forEach((item) => {
-      ableDays.value.push(item.ablDays);
+      enableDays.value.push(item.ablDays);
       console.log('ablDays', item.ablDays);
     });
 
@@ -786,7 +791,7 @@ async function getTimeTables() {
   } else {
     // abledDays
     data.value.disableDays.forEach((item) => {
-      ableDays.value.push(item.disableFuldays);
+      disableDays.value.push(item.disableFuldays);
       console.log('disableDays', item.disableFuldays, item.tcMsg);
     });
   }
@@ -838,77 +843,75 @@ function isHoliday(dayCnt) {
   return schedules.value[dayCnt - 1]?.dfYn === 'Y' || schedules.value[dayCnt - 1]?.phldYn === 'Y';
 }
 
+//---------------------------------------------------
+function enableAllTheseDays(inDate, isNotifyMessage) {
+  if (data.value.sidingDays.find((item) => item.ablDays.replace(/-/g, '') === inDate)) {
+    if (data.value.disableDays.find((item) => item.disableFuldays.replace(/-/g, '') === inDate)) {
+      if (isNotifyMessage) notify('접수제한');
+      return 'N';
+    }
+    return 'Y';
+  }
+  return 'N';
+}
+//---------------------------------------------------
 // eslint-disable-next-line no-unused-vars
-async function isAble(dayCnt, isNotifyMessage) {
+function homecareAllTheseDays(inDate, isNotifyMessage) {
+  const today = dayjs().format('YYYYMMDD');
+  const twoMonth = dayjs(`${today.substr(0, 6)}01`).add(4, 'month').format('YYYYMMDD');
+  const isFind = data.value.disableDays.find((item) => item.disableFuldays.replace(/-/g, '')
+    === inDate);
+  if (isFind) {
+    const message = isFind.tcMsg;
+    if (isNotifyMessage) notify(message, message);
+    return 'N';
+  }
+
+  if (inDate >= twoMonth) {
+    if (isNotifyMessage) notify('2개월 접수제한');
+    return 'N';
+  }
+  return 'Y';
+}
+//---------------------------------------------------
+// eslint-disable-next-line no-unused-vars
+function disableAllTheseDays(inDate, isNotifyMessage) {
+  const today = dayjs().format('YYYYMMDD');
+  const twoMonth = dayjs(`${today.substr(0, 6)}01`).add(4, 'month').format('YYYYMMDD');
+  const isFind = data.value.disableDays.find((item) => item.disableFuldays.replace(/-/g, '')
+    === inDate);
+  if (isFind) {
+    const message = isFind.tcMsg;
+    if (isNotifyMessage) notify(message, message);
+    return 'N';
+  }
+  if (inDate > twoMonth) {
+    if (isNotifyMessage) notify('2개월 접수제한');
+    return 'N';
+  }
+  return 'Y';
+}
+//---------------------------------------------------
+// eslint-disable-next-line no-unused-vars
+function isEnable(dayCnt, isNotifyMessage) {
+  // console.group('isEnable');
   const pointedDate = getYmdText(dayCnt).replace(/-/g, '');
 
-  async function enableAllTheseDays(inDate) {
-    // let cnt = 0;
-    // data.value.sidingDays.forEach((item) => {
-    //   cnt = date === item.ablDays ? item.sumCnt : cnt;
-    // });
-    if (data.value.sidingDays.find((item) => item.ablDays.replace(/-/g, '') === inDate)) {
-      if (data.value.disableDays.find((item) => item.disableFuldays.replace(/-/g, '') === inDate)) {
-        if (isNotifyMessage) await alert('접수제한');
-        return false;
-      }
-      return true;
-    }
-    return false;
-  }
-  async function homecareAllTheseDays(inDate) {
-    const today = dayjs().format('YYYYMMDD');
-    const twoMonth = dayjs(`${today.substr(0, 6)}01`).add(4, 'month').format('YYYYMMDD');
-    if (data.value.disableDays.find((item) => item.disableFuldays.replace(/-/g, '') === inDate)) {
-      const message = data.value.disableDays.find((item) => item.disableFuldays.replace(
-        /-/g,
-        '',
-      ) === inDate).tcMsg;
-
-      if (isNotifyMessage) await alert(message);
-      return false;
-    }
-    if (inDate >= twoMonth) {
-      if (isNotifyMessage) await alert('2개월 접수제한');
-      return false;
-    }
-    return true;
-  }
-  async function disableAllTheseDays(inDate) {
-    const today = dayjs().format('YYYYMMDD');
-    const twoMonth = dayjs(`${today.substr(0, 6)}01`).add(4, 'month').format('YYYYMMDD');
-    if (data.value.disableDays.find((item) => item.disableFuldays.replace(/-/g, '') === inDate)) {
-      const message = data.value.disableDays.find((item) => item.disableFuldays.replace(
-        /-/g,
-        '',
-      ) === inDate).tcMsg;
-
-      if (isNotifyMessage) await alert(message);
-      return false;
-    }
-    if (inDate > twoMonth) {
-      if (isNotifyMessage) await alert('2개월 접수제한');
-      return false;
-    }
-    return true;
-  }
-
   if (data.value.sidingYn === 'Y') {
-    return enableAllTheseDays(pointedDate);
+    return enableAllTheseDays(pointedDate, isNotifyMessage);
   }
 
   if (data.value.svDvCd === '4') {
-    return homecareAllTheseDays(pointedDate);
+    return homecareAllTheseDays(pointedDate, isNotifyMessage);
   }
-
-  return disableAllTheseDays(pointedDate);
+  return disableAllTheseDays(pointedDate, isNotifyMessage);
 }
 
+// eslint-disable-next-line no-unused-vars
 function isOpacity(dayCnt) {
-  const checkAble = isAble(dayCnt, false);
-  if (!checkAble) {
-    // console.log('isOpacity > checkAble');
-    return !checkAble;
+  const enable = isEnable(dayCnt, false);
+  if (enable === 'N') {
+    return true;
   }
   return !(schedules.value[dayCnt - 1]?.baseMm === searchParams.value.baseYm.substring(4));
 }
@@ -950,27 +953,32 @@ async function onClickCalendar($event, weekIdx, dayIdx) {
   //
   // }
 
-  // 선택 불가
-  if (!isAble(dayCnt, true)) {
-    return;
-  }
+  const enable = isEnable(dayCnt, true);
+  // console.log('enable', enable);
 
-  // 선택 시 active 처리
-  document.querySelectorAll('tr.calendar-date > td').forEach((element) => {
-    element.classList.remove('active');
-  });
-  $event.target.classList.toggle('active');
-  // 선택 시 active 처리
-
-  // 의미없음
-  // if (searchParams.value.chnlDvCd === 'K' // KSS
-  //   || searchParams.value.chnlDvCd === 'I' // 엔지니어
-  //   || searchParams.value.chnlDvCd === 'E' //  엔지니어
-  //   || searchParams.value.chnlDvCd === 'M' //  매니저
-  // ) {
-  searchParams.value.sellDate = selectedDay;
-  await getTimeTables();
+  // if (enable === 'N') {
+  //   notify('당일날짜는 선택불가 합니다');
   // }
+
+  // 선택 불가 확인
+  if (enable === 'Y') {
+    console.log('선택 시 active 처리');
+    document.querySelectorAll('tr.calendar-date > td').forEach((element) => {
+      element.classList.remove('active');
+    });
+    $event.target.classList.toggle('active');
+    // 선택 시 active 처리
+
+    // 의미없음
+    // if (searchParams.value.chnlDvCd === 'K' // KSS
+    //   || searchParams.value.chnlDvCd === 'I' // 엔지니어
+    //   || searchParams.value.chnlDvCd === 'E' //  엔지니어
+    //   || searchParams.value.chnlDvCd === 'M' //  매니저
+    // ) {
+    searchParams.value.sellDate = selectedDay;
+    await getTimeTables();
+    // }
+  }
 }
 
 async function onClickPrevMonth() {
@@ -987,10 +995,10 @@ async function onClickNextMonth() {
 
 async function onClickAm() {
   clickedBtn.value = '0';
-  console.log('totalMaxAbleCnt', data.value.totalMaxAbleCnt);
-  console.log('totalAbleCnt', data.value.totalAbleCnt);
-  console.log('tWrkCnt', toInteger(data.value.psicDatas.tWrkCnt));
-  console.log('amAlloCnt', data.value.amAlloCnt);
+  // console.log('totalMaxAbleCnt', data.value.totalMaxAbleCnt);
+  // console.log('totalAbleCnt', data.value.totalAbleCnt);
+  // console.log('tWrkCnt', toInteger(data.value.psicDatas.tWrkCnt));
+  // console.log('amAlloCnt', data.value.amAlloCnt);
   let time = '';
   if (data.value.totalMaxAbleCnt > 0 && data.value.amAlloCnt > 0
                 && data.value.amAlloCnt >= toInteger(data.value.psicDatas.tWrkCnt)) {
@@ -1006,10 +1014,10 @@ async function onClickAm() {
 }
 async function onClickPm() {
   clickedBtn.value = '1';
-  console.log('totalMaxAbleCnt', data.value.totalMaxAbleCnt);
-  console.log('totalAbleCnt', data.value.totalAbleCnt);
-  console.log('tWrkCnt', toInteger(data.value.psicDatas.tWrkCnt));
-  console.log('pmAlloCnt', data.value.pmAlloCnt);
+  // console.log('totalMaxAbleCnt', data.value.totalMaxAbleCnt);
+  // console.log('totalAbleCnt', data.value.totalAbleCnt);
+  // console.log('tWrkCnt', toInteger(data.value.psicDatas.tWrkCnt));
+  // console.log('pmAlloCnt', data.value.pmAlloCnt);
   let time = '';
   if (data.value.totalMaxAbleCnt > 0
       && data.value.pmAlloCnt > 0
