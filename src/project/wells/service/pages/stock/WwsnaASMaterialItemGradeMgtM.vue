@@ -206,6 +206,8 @@ filterCodes.value.wareDtlDvCd = codes.WARE_DTL_DV_CD.filter((v) => ['20', '21'].
 
 // 창고번호 조회
 const onChangeWareHouse = async () => {
+  // 창고번호 클리어
+  searchParams.value.wareNo = '';
   const result = await dataService.get(
     '/sms/wells/service/as-materials-item-grade/ware-houses',
     { params: {
