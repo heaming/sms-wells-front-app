@@ -116,13 +116,11 @@ const { confirm, notify } = useGlobal();
 const props = defineProps({
   cntrNo: {
     type: String,
-    default: 'W20222441418',
-    // required: true,
+    required: true,
   },
   cntrSn: {
     type: Number,
-    default: 1,
-    // required: true,
+    required: true,
   },
 });
 
