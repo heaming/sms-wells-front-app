@@ -56,13 +56,17 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useGlobal } from 'kw-lib';
+import { useGlobal, useMeta } from 'kw-lib';
 
 const { modal } = useGlobal();
 const router = useRouter();
+const { getUserInfo } = useMeta();
+
+const sessionUserInfo = getUserInfo();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
+console.log(sessionUserInfo.userId);
 const movePages = [
   // eslint-disable-next-line max-len
   // { pageId: '1', pageName: 'W-MP-U-0186P01', btns: [{ btnName: '타임테이블 일정선택 매니저 AS 신청하는 타임테이블 캘린더', type: 'modal', call: 'WmsncTimeTableDateChoiceListP', props: {} }] },
@@ -81,15 +85,15 @@ const movePages = [
         type: 'modal',
         call: 'WwsncTimeTableForContractP',
         props: {
-          sellDate: '20230601',
+          sellDate: '20230616',
           baseYm: '202306',
           chnlDvCd: 'K',
           svDvCd: '1',
           svBizDclsfCd: '1110',
-          cntrNo: 'W20220137399',
+          cntrNo: 'W20230001513',
           cntrSn: '1',
           dataStatCd: '1',
-          userId: '27536',
+          userId: sessionUserInfo.userId,
           inflwChnl: '3',
           returnUrl: 'http://www.naver.com',
           seq: '1',

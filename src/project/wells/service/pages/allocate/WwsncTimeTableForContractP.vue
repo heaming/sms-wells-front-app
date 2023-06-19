@@ -3,7 +3,7 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : [WSNC] allocate(배정관리)
-2. 프로그램 ID : WwsncTimeTableSellListP - 타임테이블 조회(판매)
+2. 프로그램 ID : WwsncTimeTableForContractP - 타임테이블 조회(판매)
 3. 작성자 : gs.piit122 김동엽
 4. 작성일 : 2023-06-06
 ****************************************************************************************************
@@ -1047,26 +1047,29 @@ async function onClickSave() {
   // }
 
   const sendData = {
-    cntrNo: searchParams.value.cntrNo,
-    sellDate: searchParams.value.sellDate,
-    sellTime: data.value.sellTime,
-    inflwChnl: searchParams.value.inflwChnl,
-    svDvCd: searchParams.value.svDvCd,
-    wrkDt: data.value.wrkDt,
-    seq: searchParams.value.seq,
-    dataStatCd: searchParams.value.dataStatCd,
+    inChnlDvCd: data.value.chnlDvCd,
+    asIstOjNo: searchParams.value.seq,
+    svBizHclsfCd: searchParams.value.svDvCd,
+    rcpdt: data.value.wrkDt,
+    dtaStatCd: searchParams.value.dataStatCd,
     svBizDclsfCd: searchParams.value.svBizDclsfCd,
     urgtYn: 'N',
-    smsYn: 'N',
+    vstRqdt: searchParams.value.sellDate,
+    vstAkHh: data.value.sellTime,
+    smsFwYn: 'N',
+    cnslMoCn: data.value.egerMemo,
+    ogTpCd: data.value.ogTpCd, // 엔지니어 조직유형
+    ichrPrtnrNo: data.value.prtnrNo, // 엔지니어 파트너번호
+    cntrNo: searchParams.value.cntrNo,
+    cntrSn: searchParams.value.cntrSn,
+    // #####################################################
+    inflwChnl: searchParams.value.inflwChnl,
     pdGdCd: 'A',
-    userId: searchParams.value.userId,
-    rcpOgTpCd: data.value.rcpOgTpCd,
-    egerMemo: data.value.egerMemo,
-    ogTpCd: data.value.ogTpCd,
-    prtnrNo: data.value.prtnrNo,
+    userId: searchParams.value.userId, // 로그인한 사용자
+    rcpOgTpCd: data.value.rcpOgTpCd, // 로그인한 사용자 조직유형
+
   };
-  // console.log(sendData);
-  // await dataService.post(`/sflex/common/common/roles/${selectedRoleId}/data-services`, sendData);
+  await dataService.post('/sms/wells/service/installation-works', sendData);
   notify(t('MSG_ALT_SAVE_DATA'));
   ok(sendData);
 }
