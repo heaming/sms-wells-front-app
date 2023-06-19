@@ -121,6 +121,7 @@
             rules="required"
             :label="$t('MSG_TXT_SRCP_APN')"
             :readonly="isDisable"
+            downloadable
           />
         </kw-form-item>
       </kw-form-row>
