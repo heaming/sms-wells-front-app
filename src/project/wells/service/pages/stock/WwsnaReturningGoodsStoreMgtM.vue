@@ -417,7 +417,6 @@ async function onClickSearch() {
 }
 
 async function onClickSave() {
-  debugger;
   const view = grdMainRef.value.getView();
   const checkedRows = gridUtil.getCheckedRowValues(view);
 
@@ -461,7 +460,6 @@ async function onClickSave() {
 }
 
 async function onClickRtnGd() {
-  debugger;
   const view = grdMainRef.value.getView();
   const checkedRows = gridUtil.getCheckedRowValues(view);
 
