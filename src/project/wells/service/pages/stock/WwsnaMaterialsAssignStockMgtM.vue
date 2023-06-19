@@ -280,7 +280,7 @@ const initGrdMain = defineGrid((data, view) => {
 
   data.setFields(fields);
   view.setColumns(columns);
-  view.checkBar.visible = false;
+  view.checkBar.visible = true;
   view.rowIndicator.visible = true;
   view.header.minRowHeight = 47;
 

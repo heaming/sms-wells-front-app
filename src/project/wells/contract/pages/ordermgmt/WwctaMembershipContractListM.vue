@@ -87,9 +87,9 @@
         :colspan="2"
       >
         <kw-option-group
-          v-model="searchParams.sellTpCd"
+          v-model="searchParams.sellTpDtlCd"
           type="radio"
-          :options="codes.SELL_TP_CD.filter((v) => v.codeId === '1' || v.codeId === '2' || v.codeId === '3')"
+          :options="codes.SELL_TP_DTL_CD.filter((v) => v.codeId === '31' || v.codeId === '32' || v.codeId === '33')"
           first-option="all"
           first-option-value=""
         />
@@ -285,7 +285,7 @@ const searchParams = ref({
   choStrtDt: '',
   choEndDt: '',
   cntrNo: '',
-  sellTpCd: '',
+  sellTpDtlCd: '',
   cntrwTpCd: '',
   sellInflwChnlDtlCd: '',
   hcsfVal: '',
@@ -299,7 +299,7 @@ const searchParams = ref({
 const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
   'SELL_CHNL_DTL_CD', // 판매유입채널상세코드
-  'SELL_TP_CD', // 판매유형코드
+  'SELL_TP_DTL_CD', // 판매유형상세코드
   'CNTRW_TP_CD', // 멤버십구분
 );
 
@@ -489,7 +489,7 @@ const initGridMembershipContractList = defineGrid((data, view) => {
     { fieldName: 'copnDvCd' }, // 고객구분코드(1:개인, 2:법인)
     { fieldName: 'cstKnm' }, // 계약자명
     { fieldName: 'rcgvpKnm' }, // 설치자명
-    { fieldName: 'ojSellTpNm' }, // 계약구분
+    { fieldName: 'sellTpDtlNm' }, // 계약구분
     { fieldName: 'mshDvNm' }, // 멤버십구분
     { fieldName: 'pdClsfNm' }, // 상품분류
     { fieldName: 'pdCd' }, // 상품코드
@@ -503,7 +503,8 @@ const initGridMembershipContractList = defineGrid((data, view) => {
     { fieldName: 'pdLclsfNm' }, // 상품구분1
     { fieldName: 'pdDclsfNm' }, // 상품구분2
     { fieldName: 'cntrDtlStatNm' }, // 멤버십상태
-    { fieldName: 'dscApyTpCdNm' }, // 회비자료구분
+    { fieldName: 'sellDscDvNm' }, // 할인적용유형명
+    { fieldName: 'sellDscTpNm' }, // 할인적용상세명
     { fieldName: 'feeAckmtCt' }, // 인정건수
     { fieldName: 'ackmtPerfAmt' }, // 인정금액
     { fieldName: 'cntrCtrAmt' }, // 할인금액
@@ -578,7 +579,7 @@ const initGridMembershipContractList = defineGrid((data, view) => {
     { fieldName: 'cntrSn', header: t('MSG_TXT_CNTR_SN'), width: '138', styleName: 'text-center' }, // 순번
     { fieldName: 'cstKnm', header: t('MSG_TXT_CNTOR_NM'), width: '138', styleName: 'text-left' }, // 계약자명
     { fieldName: 'rcgvpKnm', header: t('MSG_TXT_IST_NM'), width: '138', styleName: 'text-left' }, // 설치자명
-    { fieldName: 'ojSellTpNm', header: t('MSG_TXT_CNTR_DV'), width: '138' }, // 계약구분
+    { fieldName: 'sellTpDtlNm', header: t('MSG_TXT_CNTR_DV'), width: '138' }, // 계약구분
     { fieldName: 'mshDvNm', header: t('MSG_TXT_MSH_DV'), width: '138' }, // 멤버십구분
     { fieldName: 'pdClsfNm', header: t('MSG_TXT_PRDT_CATE'), width: '138' }, // 상품분류
     { fieldName: 'pdCd', header: t('MSG_TXT_PRDT_CODE'), width: '138', styleName: 'text-center' }, // 상품코드
@@ -592,7 +593,7 @@ const initGridMembershipContractList = defineGrid((data, view) => {
     { fieldName: 'pdLclsfNm', header: t('MSG_TXT_PRDT_GUBUN') + 1, width: '138' }, // 상품구분1
     { fieldName: 'pdDclsfNm', header: t('MSG_TXT_PRDT_GUBUN') + 2, width: '138' }, // 상품구분2
     { fieldName: 'cntrDtlStatNm', header: t('MSG_TXT_MSH_STAT'), width: '138', styleName: 'text-center' }, // 멤버십상태
-    { fieldName: 'dscApyTpCdNm', header: `${t('MSG_TXT_SSPCS')}/${t('MSG_TXT_MTR_DV')}`, width: '138' }, // 회비자료구분
+    { fieldName: 'sellDscDvNm', header: `${t('MSG_TXT_SSPCS')}/${t('MSG_TXT_MTR_DV')}`, width: '138' }, // 할인적용구분명
     { fieldName: 'feeAckmtCt', header: t('MSG_TXT_PD_ACC_CNT'), width: '138', styleName: 'text-right' }, // 인정건수
     { fieldName: 'ackmtPerfAmt', header: t('MSG_TXT_RECOG_AMT'), width: '138', styleName: 'text-right' }, // 인정금액
     { fieldName: 'cntrCtrAmt', header: t('MSG_TXT_DSC_AMT'), width: '138', styleName: 'text-right' }, // 할인금액

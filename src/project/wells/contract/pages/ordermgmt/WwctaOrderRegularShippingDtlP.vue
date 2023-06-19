@@ -511,6 +511,7 @@
         <kw-form-item :label="$t('MSG_TXT_CNTRCT_AMT')">
           <kw-input
             v-model="frmMainData.cntrAmt"
+            align="right"
             placeholder=""
             readonly
           />
@@ -599,6 +600,7 @@
         <kw-form-item :label="$t('MSG_TXT_SPP_PRD')">
           <kw-input
             v-model="frmMainData.svPrd"
+            align="right"
             placeholder=""
             readonly
           />
@@ -1231,10 +1233,12 @@ async function fetchData() {
     // 배송처 정보
     // -------------------------------------------------------------------------------------------------
     frmMainData.value.rcgvpKnm = pages[0].rcgvpKnm; // 설치정보-설치자명
-    const { istCralLocaraTno } = pages[0];
-    const { istMexnoEncr } = pages[0];
-    const { istCralIdvTno } = pages[0];
-    frmMainData.value.istCralTno = !isEmpty(istCralLocaraTno) && !isEmpty(istMexnoEncr) && !isEmpty(istCralIdvTno) ? `${istCralLocaraTno}-${istMexnoEncr}-${istCralIdvTno}` : ''; // 설치자-휴대전화번호
+    const { istCralLocaraTno, istMexnoEncr, istCralIdvTno } = pages[0]; // 설치자 휴대지역전화번호
+    if (!isEmpty(istCralLocaraTno) && isEmpty(istMexnoEncr) && !isEmpty(istCralIdvTno)) {
+      frmMainData.value.istCralTno = `${istCralLocaraTno}--${istCralIdvTno}`;
+    } else {
+      frmMainData.value.istCralTno = isEmpty(istCralLocaraTno) && isEmpty(istMexnoEncr) && isEmpty(istCralIdvTno) ? '' : `${istCralLocaraTno}-${istMexnoEncr}-${istCralIdvTno}`; // 설치(배송정보) 휴대전화번호
+    }
     frmMainData.value.istAdrZip = pages[0].istAdrZip; // 설치처 우편번호
     frmMainData.value.istRnadr = pages[0].istRnadr; // 설치자 주소(기준주소)
     frmMainData.value.istRdadr = pages[0].istRdadr; // 설치자 주소(상세주소)

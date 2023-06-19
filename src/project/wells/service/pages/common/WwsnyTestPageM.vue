@@ -56,18 +56,26 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useGlobal } from 'kw-lib';
+import { useGlobal, useMeta } from 'kw-lib';
 
 const { modal } = useGlobal();
 const router = useRouter();
+const { getUserInfo } = useMeta();
+
+const sessionUserInfo = getUserInfo();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
+console.log(sessionUserInfo.userId);
 const movePages = [
-  { pageId: '1', pageName: 'W-MP-U-0186P01', btns: [{ btnName: '타임테이블 일정선택 매니저 AS 신청하는 타임테이블 캘린더', type: 'modal', call: 'WmsncTimeTableDateChoiceListP', props: {} }] },
-  { pageId: '2', pageName: 'W-MP-U-0187P01', btns: [{ btnName: '타임테이블 시간선택 매니저 AS 신청하는 타임테이블 시간 선택', type: 'modal', call: 'WmsncTimeTableHourChoiceListP', props: {} }] },
-  { pageId: '3', pageName: 'W-SV-U-0034M01', btns: [{ btnName: '타임테이블 조회(CC) Cubig CC 타임테이블 조회(팝업)', type: 'modal', call: 'WwsncTimeTableCustomerCenterListM', props: {} }] },
-  { pageId: '4', pageName: 'W-SV-U-0063M01', btns: [{ btnName: '타임테이블 조회(K멤버스) K멤버스 타임테이블 다건 장바구니 조회(팝업)', type: 'modal', call: 'WwsncTimeTableKMembersListM', props: {} }] },
+  // eslint-disable-next-line max-len
+  // { pageId: '1', pageName: 'W-MP-U-0186P01', btns: [{ btnName: '타임테이블 일정선택 매니저 AS 신청하는 타임테이블 캘린더', type: 'modal', call: 'WmsncTimeTableDateChoiceListP', props: {} }] },
+  // eslint-disable-next-line max-len
+  // { pageId: '2', pageName: 'W-MP-U-0187P01', btns: [{ btnName: '타임테이블 시간선택 매니저 AS 신청하는 타임테이블 시간 선택', type: 'modal', call: 'WmsncTimeTableHourChoiceListP', props: {} }] },
+  // eslint-disable-next-line max-len
+  // { pageId: '3', pageName: 'W-SV-U-0034M01', btns: [{ btnName: '타임테이블 조회(CC) Cubig CC 타임테이블 조회(팝업)', type: 'modal', call: 'WwsncTimeTableCustomerCenterListM', props: {} }] },
+  // eslint-disable-next-line max-len
+  // { pageId: '4', pageName: 'W-SV-U-0063M01', btns: [{ btnName: '타임테이블 조회(K멤버스) K멤버스 타임테이블 다건 장바구니 조회(팝업)', type: 'modal', call: 'WwsncTimeTableKMembersListM', props: {} }] },
   {
     pageId: '5',
     pageName: 'W-SV-U-0062M01',
@@ -75,32 +83,46 @@ const movePages = [
       {
         btnName: '타임테이블 조회(판매) 팝업',
         type: 'modal',
-        call: 'WwsncTimeTableSellListP',
+        call: 'WwsncTimeTableForContractP',
         props: {
-          sellDate: '20230601',
+          sellDate: '20230616',
           baseYm: '202306',
           chnlDvCd: 'K',
           svDvCd: '1',
           svBizDclsfCd: '1110',
-          cntrNo: 'W20220137399',
+          cntrNo: 'W20230001513',
           cntrSn: '1',
           dataStatCd: '1',
-          userId: '27536',
+          userId: sessionUserInfo.userId,
           inflwChnl: '3',
+          returnUrl: 'http://www.naver.com',
+          seq: '1',
+          wrkDt: '20230609',
         },
       },
     ],
   },
-  { pageId: '6', pageName: 'W-MP-U-0190M01', btns: [{ btnName: '타임테이블 조회(홈페이지_웰스팜)', type: 'modal', call: 'WmsncTimeTableWellsFarmListM', props: {} }] },
-  { pageId: '7', pageName: 'W-MP-U-0191M01', btns: [{ btnName: '타임테이블 조회(홈페이지)', type: 'modal', call: 'WmsncTimeTableWellsHomepageListM', props: {} }] },
-  { pageId: '8', pageName: 'W-MP-U-0188M01', btns: [{ btnName: '타임테이블 조회', type: 'modal', call: 'WmsncTimeTableSellListM', props: {} }] },
-  { pageId: '9', pageName: 'W-MP-U-0189M01', btns: [{ btnName: '타임테이블 조회(K멤버스)', type: 'modal', call: 'WmsncTimeTableKMembersListM', props: {} }] },
-  { pageId: '10', pageName: 'W-MP-U-0033P01', btns: [{ btnName: '타임테이블 시간선택(일정변경)', type: 'modal', call: 'WmsncTimeTableHourChoiceScheduleListP', props: {} }] },
-  { pageId: '11', pageName: 'W-MT-U-0188M01', btns: [{ btnName: '타임테이블 조회', type: 'modal', call: 'WtsncTimeTableSellListM', props: {} }] },
-  { pageId: '12', pageName: 'W-MT-U-0189M01', btns: [{ btnName: '타임테이블 조회(K멤버스)', type: 'modal', call: 'WmsncTimeTableKMembersListM', props: {} }] },
-  { pageId: '13', pageName: 'W-MT-U-0030P01', btns: [{ btnName: '타임테이블 시간선택(일정변경)', type: 'modal', call: 'WtsncTimeTableHourChoiceScheduleListP', props: {} }] },
-  { pageId: '14', pageName: 'W-MT-U-0186P01', btns: [{ btnName: '타임테이블 일정선택', type: 'modal', call: 'WtsncTimeTableDateChoiceListP', props: {} }] },
-  { pageId: '15', pageName: 'W-MT-U-0187P01', btns: [{ btnName: '타임테이블 시간선택', type: 'modal', call: 'WtsncTimeTableHourChoiceListP', props: {} }] },
+  // eslint-disable-next-line max-len
+  // { pageId: '6', pageName: 'W-MP-U-0190M01', btns: [{ btnName: '타임테이블 조회(홈페이지_웰스팜)', type: 'modal', call: 'WmsncTimeTableWellsFarmListM', props: {} }] },
+  // eslint-disable-next-line max-len
+  // eslint-disable-next-line max-len
+  // { pageId: '7', pageName: 'W-MP-U-0191M01', btns: [{ btnName: '타임테이블 조회(홈페이지)', type: 'modal', call: 'WmsncTimeTableWellsHomepageListM', props: {} }] },
+  // eslint-disable-next-line max-len
+  // { pageId: '8', pageName: 'W-MP-U-0188M01', btns: [{ btnName: '타임테이블 조회', type: 'modal', call: 'WmsncTimeTableSellListM', props: {} }] },
+  // eslint-disable-next-line max-len
+  // { pageId: '9', pageName: 'W-MP-U-0189M01', btns: [{ btnName: '타임테이블 조회(K멤버스)', type: 'modal', call: 'WmsncTimeTableKMembersListM', props: {} }] },
+  // eslint-disable-next-line max-len
+  // { pageId: '10', pageName: 'W-MP-U-0033P01', btns: [{ btnName: '타임테이블 시간선택(일정변경)', type: 'modal', call: 'WmsncTimeTableHourChoiceScheduleListP', props: {} }] },
+  // eslint-disable-next-line max-len
+  // { pageId: '11', pageName: 'W-MT-U-0188M01', btns: [{ btnName: '타임테이블 조회', type: 'modal', call: 'WtsncTimeTableSellListM', props: {} }] },
+  // eslint-disable-next-line max-len
+  // { pageId: '12', pageName: 'W-MT-U-0189M01', btns: [{ btnName: '타임테이블 조회(K멤버스)', type: 'modal', call: 'WmsncTimeTableKMembersListM', props: {} }] },
+  // eslint-disable-next-line max-len
+  // { pageId: '13', pageName: 'W-MT-U-0030P01', btns: [{ btnName: '타임테이블 시간선택(일정변경)', type: 'modal', call: 'WtsncTimeTableHourChoiceScheduleListP', props: {} }] },
+  // eslint-disable-next-line max-len
+  // { pageId: '14', pageName: 'W-MT-U-0186P01', btns: [{ btnName: '타임테이블 일정선택', type: 'modal', call: 'WtsncTimeTableDateChoiceListP', props: {} }] },
+  // eslint-disable-next-line max-len
+  // { pageId: '15', pageName: 'W-MT-U-0187P01', btns: [{ btnName: '타임테이블 시간선택', type: 'modal', call: 'WtsncTimeTableHourChoiceListP', props: {} }] },
 ];
 
 async function onClickMovePage(call, props, type) {

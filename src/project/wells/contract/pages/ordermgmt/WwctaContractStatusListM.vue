@@ -226,11 +226,28 @@
               </span>
             </li>
             <li>
-              <p class="w90">
+              <p
+                v-if="Number(item.pymnamt) > 0 && item.cntrPrgsStatCd < 60"
+                class="w90"
+              >
                 {{ t('MSG_TXT_DPST_AMT') }}
               </p>
-              <span class="text-weight-bold kw-fc--error">
+              <p
+                v-else
+                class="w90"
+              >
+                <br>
+              </p>
+              <span
+                v-if="Number(item.pymnamt) > 0 && item.cntrPrgsStatCd < 60"
+                class="text-weight-bold kw-fc--error"
+              >
                 {{ stringUtil.getNumberWithComma(item.pymnamt||0) }}원
+              </span>
+              <span
+                v-else
+              >
+                <br>
               </span>
             </li>
             <li v-if="searchParams.isBrmgr === 'Y'">
@@ -300,7 +317,6 @@
               @click="onClickNonFcfPayment(item)"
             />
             <kw-btn
-              v-if="item.pymnSkipYn === 'Y'"
               :label="$t('MSG_BTN_F2F_PYMNT')"
               padding="12px"
               @click="onClickF2fPayment(item)"
@@ -425,7 +441,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { consts, codeUtil, router, useDataService, useGlobal, popupUtil, useMeta, stringUtil } from 'kw-lib';
+import { codeUtil, router, useDataService, useGlobal, popupUtil, useMeta, stringUtil } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 
@@ -607,8 +623,11 @@ async function onClickF2fPayment(item) {
       return;
     }
 
+    /*
+    // 통테 이후 주석 제거 (암호화 하지 않음)
     // URL 암호화
-    const res = await dataService.post('/sms/wells/contract/contracts/contract-lists/make-url', { url: `${consts.HTTP_ORIGIN}/payment?cntrNo=${item.cntrNo}` });
+    const res = await dataService.post('/sms/wells/contract/contracts/contract-lists/make-url',
+     { url: `${consts.HTTP_ORIGIN}/payment?cntrNo=${item.cntrNo}` });
 
     // 신규 윈도우 페이지에서 위 URL을 POST 로 전송
     if (!isEmpty(res.data)) {
@@ -616,6 +635,15 @@ async function onClickF2fPayment(item) {
       // await window.open(`${res.data}`);
       await popupUtil.open(`${res.data}`, { width: 500, height: 700 }, false);
     }
+    */
+
+    const { cntrNo } = item;
+    const routeParams = new URLSearchParams({ cntrNo });
+    const routePath = '/wwcta-contract-settlement-login-mgt';
+    const hash = `#${routePath}/?${routeParams.toString()}`;
+    const url = `/mobile${hash}`;
+
+    popupUtil.open(url, { width: 360, height: 740 });
   }
 }
 
@@ -640,9 +668,23 @@ async function onClickApprovalConfirm(item) {
 
 async function onClickAssignContact(item) {
   console.log(item);
-  notify('TODO : 컨택배정 프로세스');
+  // 설치오더 시작
+  const res = await modal({
+    component: 'WwsncTimeTableSellListP',
+    componentProps: {
+      sellDate: item.cntrCnfmDtm.substring(0, 8), // 판매일자
+      baseYm: now.format('YYYYMM'), // 달력 초기 월
+      chnlDvCd: 'K', // W: 웰스, K: KSS, C: CubicCC, P: K-MEMBERS, I || E: 엔지니어, M: 매니저
+      svDvCd: '1', // 1:설치, 2:BS, 3:AS, 4:홈케어
+      svBizDclsfCd: '1110', // 판매인 경우 1110(신규설치) fix
+      cntrNo: item.cntrNo,
+      cntrSn: Number(item.cntrSn),
+      dataStatCd: '1', // 1: 신규, 2: 수정, 3: 삭제
+      userId: item.sellPrtnrNo,
+    },
+  });
 
-  // TODO : 컨택배정 프로세스.
+  console.log(res);
 }
 
 async function onClickRequestDelete(item) {
@@ -657,6 +699,7 @@ async function onClickContractDelete(item) {
     if (!await confirm(t('MSG_ALT_WANT_DEL_WCC'))) { return; }
 
     await dataService.delete('/sms/wells/contract/contracts/contract-lists/', { params: { cntrNo: item.cntrNo } });
+    onClickSearch();
   }
 }
 

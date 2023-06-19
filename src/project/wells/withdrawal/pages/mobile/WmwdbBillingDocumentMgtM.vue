@@ -324,12 +324,12 @@ async function onClickRemove() {
 }
 
 async function initProps() {
-  if (props.searchCstFnm || props.searchBildcWrteDt) {
+  if (props.searchCstFnm && props.searchBildcWrteDt) {
     const { searchCstFnm, searchBildcWrteDt } = props;
     searchParams.value.cstFnm = searchCstFnm;
     searchParams.value.bildcWrteDt = searchBildcWrteDt;
+    await onClickSearch();
   }
-  await onClickSearch();
 }
 
 onMounted(async () => {

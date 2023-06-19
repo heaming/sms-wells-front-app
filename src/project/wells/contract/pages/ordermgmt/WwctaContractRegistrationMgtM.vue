@@ -149,7 +149,9 @@
                   <ul class="card-text card-text--bigger card-text--between">
                     <li class="pt0">
                       <p>총 상품금액</p>
-                      <span class="text-bold kw-font-pt20">0 원</span>
+                      <span class="text-bold kw-font-pt20">
+                        {{ smr.pdAmt }}
+                      </span>
                     </li>
                   </ul>
                 </div>
@@ -284,7 +286,8 @@ const smr = ref({
   stlmTpNm: computed(() => codes.STLM_TP_CD.find((c) => c.codeId === contract.value.step3.stlmTpCd)?.codeName),
   stlmMthNm: computed(() => codes.DP_TP_CD.find((c) => c.codeId === contract.value.step3.cntramDpTpCd)?.codeName),
   pdAmt: computed(() => stringUtil.getNumberWithComma(
-    Number(contract.value.step2.dtls?.reduce((acc, cur) => Number(acc) + Number(cur.fnlAmt), 0)) || 0,
+    // dtl.sellAmt 판매금액(수량xfnlAmt)의 합
+    Number(contract.value.step2.dtls?.reduce((acc, cur) => Number(acc) + Number(cur.sellAmt), 0)) || 0,
   )),
 });
 const isReadOnly = ref(false);
@@ -312,12 +315,12 @@ function showStep(step) {
   });
   currentStepName.value = `step${step}`;
 }
-async function getCntrInfo(step, cntrNo) {
+async function getCntrInfo(step, cntrNo, getExistCntr) {
   if (step === 2) {
     // step2일 때 상품 조회
     await panelsRefs[currentStepName.value].getProducts(cntrNo);
   }
-  await panelsRefs[currentStepName.value].getCntrInfo(cntrNo);
+  await panelsRefs[currentStepName.value].getCntrInfo(cntrNo, getExistCntr);
 }
 
 async function getExistedCntr() {
@@ -337,7 +340,7 @@ async function getExistedCntr() {
   if (step >= 2) contract.value.step2 = smrs.data.step2;
   if (step >= 3) contract.value.step3 = smrs.data.step3;
   if (step >= 4) contract.value.step4 = smrs.data.step4;
-  await getCntrInfo(step, cntrNo);
+  await getCntrInfo(step, cntrNo, true);
 }
 
 async function onClickPrevious() {

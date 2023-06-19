@@ -5,7 +5,7 @@
         <kw-btn
           dense
           secondary
-          label="고객 기본정보 테스트"
+          label="입고 미승인상세현황"
           @click="onClickCustomers"
         />
       </kw-action-top>
@@ -192,34 +192,48 @@ const customerData = ref({
   cycleCode: '',
 });
 
+// const storeData = ref({
+//   strWareNo: '',
+//   itmPdCd: '',
+// });
+
 async function onClickCustomers() {
+  const strWareNo = '302548';
+  const itmPdCd = 'WM07104750';
+
   const { result, payload } = await modal({
-    component: 'WwsnyCustomerBaseInformationP',
+    component: 'WwsnaStoreNaprvStateDtlP',
+    componentProps: { strWareNo, itmPdCd },
   });
 
   if (result) {
-    customerData.value.cntrNo = payload.cntrNo ?? '';
-    customerData.value.cntrSn = payload.cntrSn ?? '';
-    customerData.value.cstNm = payload.cstNm ?? '';
-    customerData.value.newAdrZip = payload.newAdrZip ?? '';
-    customerData.value.rnadr = payload.rnadr ?? '';
-    customerData.value.rdadr = payload.rdadr ?? '';
-    customerData.value.cralLocaraTno = payload.cralLocaraTno ?? '';
-    customerData.value.mexnoEncr = payload.mexnoEncr ?? '';
-    customerData.value.cralIdvTno = payload.cralIdvTno ?? '';
-    customerData.value.locaraTno = payload.locaraTno ?? '';
-    customerData.value.exnoEncr = payload.exnoEncr ?? '';
-    customerData.value.idvTno = payload.idvTno ?? '';
-    customerData.value.istDt = payload.istDt ?? '';
-    customerData.value.sellTpCd = payload.sellTpCd ?? '';
-    customerData.value.pdCd = payload.pdCd ?? '';
-    customerData.value.bcNo = payload.bcNo ?? '';
-    customerData.value.svStpDt = payload.svStpDt ?? '';
-    customerData.value.recapDutyPtrmN = payload.recapDutyPtrmN ?? '';
-    customerData.value.frisuAsPtrmN = payload.frisuAsPtrmN ?? '';
-    customerData.value.frisuBfsvcPtrmN = payload.frisuBfsvcPtrmN ?? '';
-    customerData.value.cycleCode = payload.cycleCode ?? '';
+    payload.value.strWareNo = payload.value.strWareNo ?? '302548';
+    payload.value.itmPdCd = payload.value.itmPdCd ?? 'WM07104750';
   }
+
+  // if (result) {
+  //   customerData.value.cntrNo = payload.cntrNo ?? '';
+  //   customerData.value.cntrSn = payload.cntrSn ?? '';
+  //   customerData.value.cstNm = payload.cstNm ?? '';
+  //   customerData.value.newAdrZip = payload.newAdrZip ?? '';
+  //   customerData.value.rnadr = payload.rnadr ?? '';
+  //   customerData.value.rdadr = payload.rdadr ?? '';
+  //   customerData.value.cralLocaraTno = payload.cralLocaraTno ?? '';
+  //   customerData.value.mexnoEncr = payload.mexnoEncr ?? '';
+  //   customerData.value.cralIdvTno = payload.cralIdvTno ?? '';
+  //   customerData.value.locaraTno = payload.locaraTno ?? '';
+  //   customerData.value.exnoEncr = payload.exnoEncr ?? '';
+  //   customerData.value.idvTno = payload.idvTno ?? '';
+  //   customerData.value.istDt = payload.istDt ?? '';
+  //   customerData.value.sellTpCd = payload.sellTpCd ?? '';
+  //   customerData.value.pdCd = payload.pdCd ?? '';
+  //   customerData.value.bcNo = payload.bcNo ?? '';
+  //   customerData.value.svStpDt = payload.svStpDt ?? '';
+  //   customerData.value.recapDutyPtrmN = payload.recapDutyPtrmN ?? '';
+  //   customerData.value.frisuAsPtrmN = payload.frisuAsPtrmN ?? '';
+  //   customerData.value.frisuBfsvcPtrmN = payload.frisuBfsvcPtrmN ?? '';
+  //   customerData.value.cycleCode = payload.cycleCode ?? '';
+  // }
 }
 
 </script>

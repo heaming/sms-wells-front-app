@@ -68,6 +68,18 @@
         @click="onClickRemoveRows"
       />
       <kw-separator
+        vertical
+        inset
+        spaced
+      />
+      <kw-btn
+        grid-action
+        dense
+        secondary
+        :label="$t('MSG_BTN_ROW_ADD')"
+        @click="onClickAdd"
+      />
+      <kw-separator
         spaced
         vertical
         inset
@@ -78,6 +90,13 @@
         secondary
         :label="$t('MSG_BTN_LOAD_ROUTINE_BS_FLT_PART')"
         @click="onClickLoadRoutineBsFltPart"
+      />
+      <!-- 정기B/S투입정보 상세/수정-->
+      <kw-btn
+        dense
+        :disable="dtlRowYn === 'N'"
+        :label="$t('MSG_TXT_PD_SCH_BS_INFO')"
+        @click="onClickBsInfos"
       />
       <kw-separator
         spaced
@@ -102,6 +121,12 @@
 
     <!-- 정기 B/S투입정보 생성 -->
     <template #action>
+      <!-- 취소 -->
+      <kw-btn
+        :label="$t('MSG_BTN_CANCEL')"
+        negative
+        @click="onClickCancel"
+      />
       <kw-btn
         primary
         :label="$t('MSG_BTN_REG_ROUTINE_BS_INFO')"
@@ -114,7 +139,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, gridUtil, useGlobal, useDataService, getComponentType, defineGrid } from 'kw-lib';
+import { codeUtil, gridUtil, useModal, useGlobal, useDataService, getComponentType, defineGrid } from 'kw-lib';
 import { cloneDeep, isEmpty, split, merge } from 'lodash-es';
 // import pdConst from '~sms-common/product/constants/pdConst';
 import { getAlreadyItems, getGridRowCount } from '~/modules/sms-common/product/utils/pdUtil';
@@ -127,7 +152,8 @@ const props = defineProps({
   pdctPdNm: { type: String, default: '' },
 });
 
-const { modal, notify } = useGlobal();
+const { cancel: onClickCancel } = useModal();
+const { modal, notify, confirm } = useGlobal();
 const { t } = useI18n();
 const dataService = useDataService();
 const serviceName = ref();
@@ -138,6 +164,7 @@ const productName = ref();
 // -------------------------------------------------------------------------------------------------
 const grdMainRef = ref(getComponentType('KwGrid'));
 const grdRowCount = ref(0);
+const dtlRowYn = ref('N');
 const searchParams = ref({
   searchType: pdConst.PD_SEARCH_NAME,
   searchValue: null,
@@ -151,17 +178,41 @@ const materialSelectItems = ref([
 const codes = await codeUtil.getMultiCodes('SV_BIZ_DCLSF_CD', 'MM_CD', 'VST_DV_CD');
 codes.MM_CD = codes.MM_CD.map((item) => { item.codeId = Number(item.codeId); return item; });
 
+async function onClickBsInfos() {
+  const { svPdCd, pdctPdCd } = props;
+  await modal({
+    component: 'WwpdcRoutineBsInputListP',
+    componentProps: {
+      svPdCd,
+      pdctPdCd,
+      svPdNm: serviceName.value,
+      pdctPdNm: productName.value,
+    },
+  });
+}
+
 async function onClickLifeFiltMgt() {
   const view = grdMainRef.value.getView();
-  if (!view.getCheckedRows().length) {
+  const checkedRows = gridUtil.getCheckedRowValues(view);
+
+  // [생활맞춤형필터 관리] 하려는 데이터는 선택하세요
+  if (!checkedRows.length) {
     notify(t('MSG_ALT_SELECT_ONE_ROW', [t('MSG_BTN_LIFE_FILT_MGT')]));
     return;
   }
-  if (view.getCheckedRows().length > 1) {
+
+  // 데이터를 한 개만 선택해 주세요.
+  if (checkedRows.length > 1) {
     notify(t('MSG_ALT_SELT_ONE_ITEM'));
     return;
   }
-  const checkedRows = gridUtil.getCheckedRowValues(view);
+
+  // 선택하신 데이터는 [생활맞춤형필터 관리] 대상이 아닙니다.
+  if (isEmpty(checkedRows[0].partPdCd)) {
+    notify(t('MSG_ALT_ITEM_NOT_SOM_TARGET', [t('MSG_BTN_LIFE_FILT_MGT')]));
+    return;
+  }
+
   const { partPdCd, partPdNm } = checkedRows[0];
   if (partPdCd) {
     const { svPdCd, pdctPdCd } = props;
@@ -261,13 +312,27 @@ async function onClickRemoveRows() {
   grdRowCount.value = getGridRowCount(view);
 }
 
+async function onClickAdd() {
+  const { svPdCd, pdctPdCd } = props;
+  const view = grdMainRef.value.getView();
+  await gridUtil.insertRowAndFocus(view, 0, { svPdCd, pdctPdCd, filtChngLvCd: 1 }, false);
+  grdRowCount.value = getGridRowCount(view);
+}
+
 async function fetchData() {
   const { svPdCd, pdctPdCd } = props;
   if (isEmpty(svPdCd) || isEmpty(pdctPdCd)) {
     return;
   }
   const res = await dataService.get('/sms/wells/product/bs-works/standards', { params: { svPdCd, pdctPdCd } });
-  // console.log('WwpdcRoutineBsConnListP - fetchData - res : ', res.data);
+  console.log('WwpdcRoutineBsConnListP - fetchData - res : ', res.data);
+
+  res.data?.forEach((item) => {
+    if (item.dtlHasYn === 'Y') {
+      dtlRowYn.value = 'Y';
+    }
+  });
+
   const view = grdMainRef.value?.getView();
   view.getDataSource().setRows(res.data ?? []);
   grdRowCount.value = getGridRowCount(view);
@@ -285,6 +350,14 @@ async function onClickSave() {
   }
 
   const bases = gridUtil.getAllRowValues(view);
+  if (!bases.length) {
+    // 추가된 필터/부품이 없습니다
+    notify(t('MSG_ALT_PD_NO_ADD_FILT_PART'));
+    return;
+  }
+
+  if (!await confirm(t('MSG_ALT_PD_DO_REG_BS_INFO'))) { return; }
+
   const details = [];
   if (bases.length) {
     bases.forEach((base) => {
@@ -400,14 +473,14 @@ const initGridMain = defineGrid((data, view) => {
       width: '90',
       styleName: 'text-center',
       rules: 'required',
-      editor: { type: 'number', editFormat: '99', maxLength: 2, positiveOnly: true },
+      editor: { type: 'number', editFormat: '999', maxLength: 3, positiveOnly: true },
       dataType: 'number' },
     // 시작월
     { fieldName: 'svStrtmmN',
       header: t('MSG_TXT_STRT_MM'),
       width: '60',
       styleName: 'text-center',
-      editor: { type: 'number', editFormat: '99', maxLength: 2, positiveOnly: true },
+      editor: { type: 'number', editFormat: '999', maxLength: 3, positiveOnly: true },
     },
     // 반복횟수
     { fieldName: 'svTms',
@@ -415,14 +488,14 @@ const initGridMain = defineGrid((data, view) => {
       width: '60',
       styleName: 'text-right',
       rules: 'required',
-      editor: { type: 'number', editFormat: '99', maxLength: 2, positiveOnly: true },
+      editor: { type: 'number', editFormat: '999', maxLength: 3, positiveOnly: true },
       dataType: 'number' },
     // 총약정개월
     { fieldName: 'totStplMcn',
       header: t('MSG_TXT_TOT_COMMIT_MM'),
       width: '60',
       styleName: 'text-right',
-      editor: { type: 'number', editFormat: '99', maxLength: 2, positiveOnly: true },
+      editor: { type: 'number', editFormat: '999', maxLength: 3, positiveOnly: true },
       dataType: 'number' },
     // 제외월
     { fieldName: 'excdMmVal',

@@ -177,15 +177,20 @@ async function onClickBsConnect() {
 
 async function onClickBsInfos() {
   const view = grdMainRef.value.getView();
-  if (!view.getCheckedRows().length) {
+  const checkedRows = gridUtil.getCheckedRowValues(view);
+
+  // [정기B/S투입정보] 하려는 데이터는 선택하세요!
+  if (!checkedRows.length) {
     notify(t('MSG_ALT_SELECT_ONE_ROW', [t('MSG_TXT_PD_SCH_BS_INFO')]));
     return;
   }
-  if (view.getCheckedRows().length > 1) {
+
+  // 데이터를 한 개만 선택해 주세요.
+  if (checkedRows.length > 1) {
     notify(t('MSG_ALT_SELT_ONE_ITEM'));
     return;
   }
-  const checkedRows = gridUtil.getCheckedRowValues(view);
+
   await modal({
     component: 'WwpdcRoutineBsInputListP',
     componentProps: { svPdCd: currentPdCd.value,

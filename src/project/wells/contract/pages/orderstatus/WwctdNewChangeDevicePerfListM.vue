@@ -134,9 +134,8 @@
           spaced
         />
         <kw-btn
-          icon="print"
+          icon="report"
           dense
-          primary
           :label="$t('MSG_BTN_PRINT')"
           :disable="!pageInfo.totalCount"
           @click="onClickPrint"

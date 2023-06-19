@@ -121,9 +121,13 @@
         </kw-form-item>
       </kw-form-row>
     </kw-form>
-    <h3 class="pt0">
-      {{ t('MSG_TXT_EGER_AW_UPRC') }}
-    </h3>
+    <kw-separator />
+    <kw-action-top class="mb20 mt30">
+      <template #left>
+        <h3>{{ $t('MSG_TXT_EGER_AW_UPRC') }}</h3>
+      </template>
+      <span class="kw-fc--black3 text-weight-regular">{{ $t('MSG_TXT_UNIT_WON') }}</span>
+    </kw-action-top>
     <kw-form
       :cols="3"
     >
@@ -137,10 +141,9 @@
             :label="t('MSG_TXT_PRMEMP')"
             mask="number"
             :maxlength="5"
-            align="right"
+            align="left"
             :readonly="screenMode === 'VIEW'"
-            counter
-          /><p>{{ t('MSG_TXT_CUR_WON') }}</p>
+          />
         </kw-form-item>
         <!-- 직무1급 수석 -->
         <kw-form-item
@@ -151,10 +154,9 @@
             :label="t('MSG_TXT_ROL_LYR1_TOPMR')"
             mask="number"
             :maxlength="5"
-            align="right"
+            align="left"
             :readonly="screenMode === 'VIEW'"
-            counter
-          /><p>{{ t('MSG_TXT_CUR_WON') }}</p>
+          />
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
@@ -167,10 +169,9 @@
             :label="t('MSG_TXT_ROL_LYR1_H')"
             mask="number"
             :maxlength="5"
-            align="right"
+            align="left"
             :readonly="screenMode === 'VIEW'"
-            counter
-          /><p>{{ t('MSG_TXT_CUR_WON') }}</p>
+          />
         </kw-form-item>
         <!-- 직무1급 중 -->
         <kw-form-item
@@ -181,10 +182,9 @@
             :label="t('MSG_TXT_ROL_LYR1_M')"
             mask="number"
             :maxlength="5"
-            align="right"
+            align="left"
             :readonly="screenMode === 'VIEW'"
-            counter
-          /><p>{{ t('MSG_TXT_CUR_WON') }}</p>
+          />
         </kw-form-item>
         <!-- 직무1급 하 -->
         <kw-form-item
@@ -195,10 +195,9 @@
             :label="t('MSG_TXT_ROL_LYR1_L')"
             mask="number"
             :maxlength="5"
-            align="right"
+            align="left"
             :readonly="screenMode === 'VIEW'"
-            counter
-          /><p>{{ t('MSG_TXT_CUR_WON') }}</p>
+          />
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
@@ -211,10 +210,9 @@
             :label="t('MSG_TXT_ROL_L2_H')"
             mask="number"
             :maxlength="5"
-            align="right"
+            align="left"
             :readonly="screenMode === 'VIEW'"
-            counter
-          /><p>{{ t('MSG_TXT_CUR_WON') }}</p>
+          />
         </kw-form-item>
         <!-- 직무2급 중 -->
         <kw-form-item
@@ -225,10 +223,9 @@
             :label="t('MSG_TXT_ROL_L2_M')"
             mask="number"
             :maxlength="5"
-            align="right"
+            align="left"
             :readonly="screenMode === 'VIEW'"
-            counter
-          /><p>{{ t('MSG_TXT_CUR_WON') }}</p>
+          />
         </kw-form-item>
         <!-- 직무2급 하 -->
         <kw-form-item
@@ -239,10 +236,9 @@
             :label="t('MSG_TXT_ROL_L2_L')"
             mask="number"
             :maxlength="5"
-            align="right"
+            align="left"
             :readonly="screenMode === 'VIEW'"
-            counter
-          /><p>{{ t('MSG_TXT_CUR_WON') }}</p>
+          />
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
@@ -255,10 +251,9 @@
             :label="t('MSG_TXT_ROL_L3')"
             mask="number"
             :maxlength="5"
-            align="right"
+            align="left"
             :readonly="screenMode === 'VIEW'"
-            counter
-          /><p>{{ t('MSG_TXT_CUR_WON') }}</p>
+          />
         </kw-form-item>
         <!-- 계약직 -->
         <kw-form-item
@@ -269,10 +264,9 @@
             :label="t('MSG_TXT_CRWK')"
             mask="number"
             :maxlength="5"
-            align="right"
+            align="left"
             :readonly="screenMode === 'VIEW'"
-            counter
-          /><p>{{ t('MSG_TXT_CUR_WON') }}</p>
+          />
         </kw-form-item>
         <!-- 개인사업자 -->
         <kw-form-item
@@ -283,10 +277,9 @@
             :label="t('MSG_TXT_PRVT_BUSINESS')"
             mask="number"
             :maxlength="5"
-            align="right"
+            align="left"
             :readonly="screenMode === 'VIEW'"
-            counter
-          /><p>{{ t('MSG_TXT_CUR_WON') }}</p>
+          />
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
@@ -302,7 +295,6 @@
             :maxlength="4000"
             :rows="5"
             :readonly="screenMode === 'VIEW'"
-            counter
           />
         </kw-form-item>
       </kw-form-row>

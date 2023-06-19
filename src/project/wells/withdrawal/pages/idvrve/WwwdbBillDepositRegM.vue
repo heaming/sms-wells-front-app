@@ -27,7 +27,7 @@
           <kw-date-range-picker
             v-model:from="searchParams.rcpStartDt"
             v-model:to="searchParams.rcpEndDt"
-            rules="required"
+            rules="date_range_required"
             required
           />
         </kw-search-item>
@@ -461,7 +461,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'mconBzsNm',
       header: '거래처명',
       width: '125',
-      styleName: 'rg-button-link',
+      styleName: 'rg-button-link text-center',
       renderer: { type: 'button' } },
     { fieldName: 'billRmkCn',
       header: t('MSG_TXT_BILL_DV'),

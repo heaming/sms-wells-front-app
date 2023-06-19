@@ -15,6 +15,7 @@
 <template>
   <kw-page>
     <kw-search
+      one-row
       :cols="2"
       @search="onClickSearch"
     >
@@ -33,7 +34,7 @@
             v-model="searchParams.pdGrpCd"
             :label="$t('MSG_TXT_PD_GRP')"
             :options="codes.PD_GRP_CD"
-            rules="required"
+            first-option="all"
           />
           <kw-select
             v-model="searchParams.pdCd"
@@ -45,27 +46,27 @@
     </kw-search>
     <div class="result-area">
       <kw-action-top>
-        <kw-btn
-          :label="$t('MSG_BTN_PRTG')"
-          dense
-          icon="print"
-          secondary
-        />
+        <template #left>
+          <kw-paging-info
+
+            :total-count="pageInfo.totalCount"
+          />
+          <span class="ml8">(단위:명)</span>
+        </template>
         <kw-btn
           :label="$t('MSG_BTN_EXCEL_DOWN')"
           dense
           icon="download_on"
           secondary
+          :disable="pageInfo.totalCount === 0"
           @click="onClickExcelDownload"
         />
       </kw-action-top>
-      <h3>{{ $t('MSG_TXT_SRCH_RSLT') }}</h3>
       <kw-grid
         ref="grdMainRef"
-        :visible-rows="5"
+        :visible-rows="pageInfo.pageSize"
         @init="initGrdMain"
       />
-      <kw-action-bottom />
     </div>
   </kw-page>
 </template>
@@ -96,9 +97,13 @@ const { getPartMaster } = smsCommon();
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 const grdMainRef = ref(getComponentType('KwGrid'));
+const pageInfo = ref({
+  totalCount: 0,
+  pageSize: 0,
+});
 let cachedParams;
 const searchParams = ref({
-  pdGrpCd: 'A',
+  pdGrpCd: '',
   pdCd: '',
   year: stringUtil.getDateFormat(dayjs().format(), 'yyyyMMdd').substring(0, 4),
 });
@@ -112,7 +117,8 @@ const productCode = ref();
 
 watch(() => [searchParams.value.year, searchParams.value.pdGrpCd], async () => {
   // productCode.value = await getMcbyCstSvOjIz(searchParams.value.year, searchParams.value.pdGrpCd);
-  productCode.value = await getPartMaster(undefined, searchParams.value.pdGrpCd);
+  const tempVal = await getPartMaster(undefined, searchParams.value.pdGrpCd);
+  productCode.value = tempVal.map((v) => ({ codeId: v.cd, codeName: v.codeName }));
 }, { immediate: true });
 
 async function fetchData() {
@@ -127,6 +133,10 @@ async function fetchData() {
   totalCustomers.forEach((item, idx) => {
     totalCustomers[idx].per = ((item.tcnt / tcntTotal) * 100).toFixed(2);
   });
+
+  pageInfo.value.totalCount = tcntTotal;
+  pageInfo.value.pageSize = totalCustomers.length;
+
   view.getDataSource().setRows(totalCustomers);
   view.resetCurrent();
 }
@@ -144,8 +154,11 @@ async function onClickExcelDownload() {
     {
       header: t('MSG_TXT_DIV'), // colspan title
       direction: 'horizontal', // merge type
+      hideChildHeaders: true,
       items: ['yyyy', 'typNm'],
     },
+    'tcnt',
+    'per',
     'acol1',
     'acol2',
     'acol3',
@@ -158,8 +171,6 @@ async function onClickExcelDownload() {
     'acol10',
     'acol11',
     'acol12',
-    'tcnt',
-    'per',
   ];
 
   await gridUtil.exportView(view, {
@@ -193,19 +204,24 @@ const initGrdMain = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'yyyy', header: '년도', width: '50', styleName: 'text-center' },
-    { fieldName: 'typNm',
-      header: t('MSG_TXT_DV_NM'),
-      width: '100',
+    { fieldName: 'yyyy',
+      header: '년도',
+      width: '80',
       styleName: 'text-center',
       footer: {
         text: t('MSG_TXT_SUM'),
       } },
+    { fieldName: 'typNm',
+      header: t('MSG_TXT_DV_NM'),
+      width: '80',
+      styleName: 'text-center',
+    },
     { fieldName: 'acol1',
       header: `1${t('MSG_TXT_MON')}`,
       width: '50',
       styleName: 'text-right',
-      numberFormat: '#,##0' },
+      numberFormat: '#,##0',
+      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
     { fieldName: 'acol2',
       header: `2${t('MSG_TXT_MON')}`,
       width: '50',
@@ -275,7 +291,7 @@ const initGrdMain = defineGrid((data, view) => {
       footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
     { fieldName: 'tcnt',
       header: t('MSG_TXT_SUM'),
-      width: '50',
+      width: '100',
       styleName: 'text-right',
       footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
     { fieldName: 'per',
@@ -286,7 +302,9 @@ const initGrdMain = defineGrid((data, view) => {
   ];
 
   const columnLayout = [
-    { direction: 'horizontal', items: ['yyyy', 'typNm'], header: { text: t('MSG_TXT_DIV') } },
+    { direction: 'horizontal', hideChildHeaders: true, items: ['yyyy', 'typNm'], header: { text: t('MSG_TXT_DIV') } },
+    'tcnt',
+    'per',
     'acol1',
     'acol2',
     'acol3',
@@ -299,9 +317,8 @@ const initGrdMain = defineGrid((data, view) => {
     'acol10',
     'acol11',
     'acol12',
-    'tcnt',
-    'per',
   ];
+
   view.setColumnLayout(columnLayout);
 
   data.setFields(fields);
@@ -309,7 +326,7 @@ const initGrdMain = defineGrid((data, view) => {
   view.checkBar.visible = false; // create checkbox column
   view.setFooters({
     visible: true,
-    items: [{ height: 30 }],
+    items: [{ height: 42 }],
   });
   view.rowIndicator.visible = false; // create number indicator column
   view.editOptions.editable = false; // Grid Editable On

@@ -228,7 +228,7 @@ function initGrid(data, view) {
     { fieldName: 'sellTpNm',
       header: t('MSG_TXT_PRDT'), // 상품
       width: '120',
-      styleName: 'text-center' },
+      styleName: 'text-left' },
 
   ];
 

@@ -22,7 +22,6 @@
         <!-- 상품그룹 -->
         <kw-search-item
           :label="t('MSG_TXT_PD_GRP')"
-          required
         >
           <kw-select
             v-model="searchParams.productGroupCode"
@@ -33,7 +32,6 @@
         <!-- 상품유형 -->
         <kw-search-item
           :label="t('MSG_TXT_PRDT_TYPE')"
-          required
         >
           <kw-select
             v-model="searchParams.productGroupDetailCode"
@@ -44,7 +42,6 @@
         <!-- 급지 -->
         <kw-search-item
           :label="t('MSG_TXT_RGLVL')"
-          required
         >
           <kw-select
             v-model="searchParams.regionLevelDivideCode"
@@ -99,7 +96,7 @@
       <kw-grid
         ref="grdMainRef"
         class="fee-standard-page__grid"
-        :visible-rows="30"
+        :visible-rows="pageSize"
         @init="initGrid"
       />
     </div>
@@ -123,7 +120,6 @@ import { cloneDeep } from 'lodash-es';
 
 const dataService = useDataService('PGE_FEY_00052');
 const { t } = useI18n();
-
 const codes = await codeUtil.getMultiCodes(
   'RGLVL_DV_CD',
   'PD_GRP_CD',
@@ -139,6 +135,7 @@ const codes = await codeUtil.getMultiCodes(
 const grdMainRef = ref(getComponentType('KwGrid'));
 
 const totalCount = ref(0);
+const pageSize = ref(30);
 let cachedParams;
 const searchParams = ref({
   regionLevelDivideCode: '1', // 급지구분코드
@@ -153,6 +150,11 @@ async function fetchPage() {
   totalCount.value = response.data.length;
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(response.data);
+  if (totalCount.value < 30) {
+    pageSize.value = totalCount.value;
+  } else {
+    pageSize.value = 30;
+  }
 }
 
 async function onClickSearch() {

@@ -198,7 +198,7 @@ function initGrid(data, view) {
   ];
 
   const columns = [
-    { fieldName: 'ogNm', header: t('MSG_TXT_CORP_NAME'), width: '217' },
+    { fieldName: 'ogNm', header: t('MSG_TXT_CORP_NAME'), width: '217', styleName: 'text-center' },
     { fieldName: 'ogCd', header: t('MSG_TXT_BLG_CD'), width: '120', styleName: 'text-center' },
     { fieldName: 'prtnrNo', header: t('MSG_TXT_PRTNR_NUM'), width: '120', styleName: 'text-center' },
     { fieldName: 'redfDdtnBlamCrdovrAmt', header: t('MSG_TXT_LSTMM_BLAM'), width: '200', styleName: 'text-right', numberFormat: '#,##0' },

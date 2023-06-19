@@ -84,7 +84,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, getComponentType, useDataService, gridUtil, useGlobal } from 'kw-lib';
+import { codeUtil, getComponentType, useDataService, gridUtil, useGlobal, defineGrid } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
 
@@ -175,8 +175,7 @@ onMounted(async () => {
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
-function initGridRglrDlvrContractNoList(data, view) {
-// const initGridRglrDlvrContractNoList = defineGrid((data, view) => {
+const initGridRglrDlvrContractNoList = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'cntrDtlNo' }, // 계약번호
     { fieldName: 'ordrInfoView' }, // 주문정보 보기
@@ -502,7 +501,7 @@ function initGridRglrDlvrContractNoList(data, view) {
       });
     }
   };
-}
+});
 </script>
 <style scoped>
 </style>
