@@ -186,9 +186,11 @@ import WwpdcStandardDtlMContents from './WwpdcStandardDtlMContents.vue';
 
 const props = defineProps({
   pdCd: { type: String, default: null },
+  newRegYn: { type: String, default: null },
+  reloadYn: { type: String, default: null },
+  copyPdCd: { type: String, default: null },
 });
 
-const route = useRoute();
 const router = useRouter();
 const { t } = useI18n();
 const dataService = useDataService();
@@ -214,6 +216,9 @@ const cmpStepRefs = ref([ref(), ref(), ref(), ref()]);
 const removePriceRows = ref([]);
 const prevStepData = ref({});
 const currentPdCd = ref();
+const currentNewRegYn = ref();
+const currentReloadYn = ref();
+const currentCopyPdCd = ref();
 const isCreate = ref(false);
 const obsMainRef = ref();
 const subTitle = ref();
@@ -311,7 +316,7 @@ async function onClickDelete() {
     await dataService.delete(`/sms/wells/product/standards/${currentPdCd.value}`);
     await obsMainRef.value.reset();
     await router.close();
-    await router.push({ path: '/product/zwpdc-sale-product-list', query: { searchYn: 'Y' } });
+    await router.push({ path: '/product/zwpdc-sale-product-list', state: { stateParam: { searchYn: 'Y' } } });
   }
 }
 
@@ -470,18 +475,18 @@ async function onClickSave(tempSaveYn) {
 
   // 4. 생성 or 저장
   let rtn;
-  if (!isCreate.value) {
-    rtn = await dataService.put(`/sms/wells/product/standards/${currentPdCd.value}`, subList);
-  } else {
+  if (isCreate.value) {
     rtn = await dataService.post('/sms/wells/product/standards', subList);
+  } else {
+    rtn = await dataService.put(`/sms/wells/product/standards/${currentPdCd.value}`, subList);
   }
   notify(t('MSG_ALT_SAVE_DATA'));
   await init();
 
   if (tempSaveYn === 'N') {
     // 목록으로 이동
-    await router.close();
-    await router.push({ path: '/product/zwpdc-sale-product-list', query: { searchYn: 'Y', pdTpCd: pdConst.PD_TP_CD_STANDARD } });
+    // await router.close();
+    await router.push({ path: '/product/zwpdc-sale-product-list', state: { stateParam: { searchYn: 'Y', pdTpCd: pdConst.PD_TP_CD_STANDARD } } });
     return;
   }
   if (isTempSaveBtn.value) {
@@ -489,7 +494,7 @@ async function onClickSave(tempSaveYn) {
     if (rtn.data?.data?.pdCd !== currentPdCd.value) {
       currentPdCd.value = rtn.data?.data?.pdCd;
       isCreate.value = isEmpty(currentPdCd.value);
-      await router.push({ path: '/product/zwpdc-sale-product-list/wwpdc-standard-mgt', query: { pdCd: currentPdCd.value } });
+      await router.push({ path: '/product/zwpdc-sale-product-list/wwpdc-standard-mgt', query: { pdCd: currentPdCd.value }, state: { stateParam: { newRegYn: 'N', reloadYn: 'N', copyPdCd: '' } } });
     } else {
       await fetchProduct();
     }
@@ -521,6 +526,9 @@ async function resetData() {
     isCreate.value = true;
     passedStep.value = 0;
     isTempSaveBtn.value = true;
+    subTitle.value = '';
+  } else {
+    isCreate.value = false;
   }
   currentStep.value = cloneDeep(pdConst.STANDARD_STEP_BASIC);
   prevStepData.value = {};
@@ -544,8 +552,11 @@ async function onClickReset() {
 }
 
 async function initProps() {
-  const { pdCd } = props;
+  const { pdCd, newRegYn, reloadYn, copyPdCd } = props;
   currentPdCd.value = pdCd;
+  currentNewRegYn.value = newRegYn;
+  currentReloadYn.value = reloadYn;
+  currentCopyPdCd.value = copyPdCd;
   if (currentPdCd.value) {
     await fetchProduct();
   } else {
@@ -556,41 +567,48 @@ async function initProps() {
 
 await initProps();
 
-// 화면(탭) OPEN 상태에서, 다른 상품코드로 정보 변환
-watch(() => route.params.pdCd, async (pdCd) => {
-  if (!route.path.includes('zwpdc-sale-product-list')) return;
-  console.log(`WwpdcStandardMgtM - currentPdCd.value : ${currentPdCd.value}, route.params.pdCd : ${pdCd}`, route);
+watch(() => props, async ({ pdCd, newRegYn, reloadYn, copyPdCd }) => {
+  console.log(` WwpdcStandardMgtM - watch - pdCd: ${pdCd} newRegYn: ${newRegYn} reloadYn: ${reloadYn} copyPdCd: ${copyPdCd}`);
   if (pdCd && currentPdCd.value !== pdCd) {
-    await onClickReset();
+    // 상품코드 변경
     currentPdCd.value = pdCd;
-    isCreate.value = isEmpty(currentPdCd.value);
-    if (isCreate.value) {
-      isTempSaveBtn.value = true;
-    }
+    currentNewRegYn.value = 'N';
+    currentReloadYn.value = 'N';
+    currentCopyPdCd.value = '';
+    await resetData();
     await fetchProduct();
-  }
-}, { immediate: true });
-
-// 화면(탭) OPEN 상태에서, 신규등록
-watch(() => route.params.newRegYn, async (newRegYn) => {
-  if (!route.path.includes('zwpdc-sale-product-list')) return;
-  console.log(`WwpdcStandardMgtM - newRegYn : ${newRegYn}`, route);
-  if (newRegYn === 'Y') {
+    await setMountData();
+  } else if (newRegYn && currentNewRegYn.value !== newRegYn) {
+    // 신규등록
     currentPdCd.value = '';
-    await onClickReset();
+    currentNewRegYn.value = newRegYn;
+    currentReloadYn.value = 'N';
+    currentCopyPdCd.value = '';
+    if (newRegYn === 'Y') {
+      await resetData();
+    }
+  } else if (reloadYn && currentReloadYn.value !== reloadYn && reloadYn === 'Y') {
+    // Reload
+    currentNewRegYn.value = 'N';
+    currentReloadYn.value = reloadYn;
+    currentCopyPdCd.value = '';
+    if (reloadYn === 'Y') {
+      await resetData();
+      await fetchProduct();
+      await setMountData();
+    }
+  } else if (copyPdCd && currentCopyPdCd.value !== copyPdCd) {
+    // 복사
+    if (copyPdCd) {
+      await resetData();
+      // TODO
+    }
+    currentPdCd.value = '';
+    currentNewRegYn.value = 'N';
+    currentReloadYn.value = 'N';
+    currentCopyPdCd.value = copyPdCd;
   }
-});
-
-// 화면(탭) OPEN 상태에서, 상품정보 갱신
-watch(() => route.params.reloadYn, async (reloadYn) => {
-  if (!route.path.includes('zwpdc-sale-product-list')) return;
-  console.log(`WwpdcStandardMgtM - watch - route.params.reloadYn: ${reloadYn}`, route);
-  if (reloadYn === 'Y') {
-    currentStep.value = cloneDeep(pdConst.STANDARD_STEP_BASIC);
-    passedStep.value = 0;
-    await fetchProduct();
-  }
-});
+}, { deep: true });
 
 onMounted(async () => {
   await setMountData();

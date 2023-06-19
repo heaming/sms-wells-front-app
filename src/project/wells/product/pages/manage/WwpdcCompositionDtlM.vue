@@ -49,9 +49,9 @@ import WwpdcCompositionDtlMContents from './WwpdcCompositionDtlMContents.vue';
 
 const props = defineProps({
   pdCd: { type: String, default: null },
+  reloadYn: { type: String, default: null },
 });
 
-const route = useRoute();
 const dataService = useDataService();
 
 // -------------------------------------------------------------------------------------------------
@@ -88,28 +88,18 @@ async function initProps() {
 
 await initProps();
 
-// 화면(탭) OPEN 상태에서, 다른 상품코드로 정보 변환
-watch(() => route.params.pdCd, async (pdCd) => {
-  if (!route.path.includes('zwpdc-sale-product-list')) return;
-  console.log(`WwpdcCompositionDtlM - currentPdCd.value : ${currentPdCd.value}, route.params.pdCd : ${pdCd}`);
-  if (pdCd) {
-    // 초기화
-    await cmpRef.value?.resetData();
+watch(() => props, async ({ pdCd, reloadYn }) => {
+  console.log(` WwpdcCompositionDtlM - watch - pdCd: ${pdCd} reloadYn: ${reloadYn}`);
+  if (pdCd && currentPdCd.value !== pdCd) {
     currentPdCd.value = pdCd;
-    await fetchProduct();
-  }
-}, { immediate: true });
-
-// 화면(탭) OPEN 상태에서, 상품정보 갱신
-watch(() => route.params.reloadYn, async (reloadYn) => {
-  if (!route.path.includes('zwpdc-sale-product-list')) return;
-  console.log(`WwpdcCompositionDtlM - watch - route.params.reloadYn: ${reloadYn}`);
-  if (reloadYn === 'Y') {
     await cmpRef.value?.resetData();
-    currentPdCd.value = props.pdCd;
+    await fetchProduct();
+  } else if (reloadYn && reloadYn === 'Y') {
+    // Reload
+    await cmpRef.value?.resetData();
     await fetchProduct();
   }
-});
+}, { deep: true });
 
 </script>
 <style scoped></style>
