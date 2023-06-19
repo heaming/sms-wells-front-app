@@ -24,7 +24,6 @@
           :label="t('MSG_TXT_SV_DT')"
           required
         >
-          <!-- // rev:230420 kw-search-item  안에 required 추가 -->
           <kw-date-range-picker
             v-model:from="searchParams.strtSvDt"
             v-model:to="searchParams.endSvDt"
@@ -32,9 +31,6 @@
             rules="date_range_required|date_range_months:1"
           />
         </kw-search-item>
-
-        <!-- rev:230424 kw-search-item label 텍스트변경 / kw-select 한개 제거-->
-        <!-- rev:230420 kw-search-item label 텍스트변경 / kw-select 추가-->
         <kw-search-item
           :label="t('MSG_TXT_SV_CNR')"
         >
@@ -47,19 +43,15 @@
             first-option-value="ALL"
           />
         </kw-search-item>
-        <!-- //rev:230420 kw-search-item label 텍스트변경 / kw-select 추가-->
-        <!-- //rev:230424 kw-search-item label 텍스트변경 / kw-select 한개 제거-->
         <kw-search-item
           :label="t('MSG_TXT_EGER')"
         >
-          <!-- rev:230420 수정 -->
           <kw-input
             v-model="searchParams.prtnrKnm"
             icon="search"
             clearable
             @click-icon="onClickSearchPrtnrKnm"
           />
-        <!-- // rev:230420 수정 -->
         </kw-search-item>
       </kw-search-row>
     </kw-search>
@@ -152,7 +144,6 @@ const pageInfo = ref({
 });
 
 async function fetchData() {
-  console.log('call fetchData');
   cachedParams = { ...cachedParams, ...pageInfo.value };
   const res = await dataService.get(`${apiUri}/paging`, { params: cachedParams });
   const { list: pages, pageInfo: pagingResult } = res.data;
@@ -205,10 +196,8 @@ async function getSvCnrList() {
 
 async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
-  console.log('call onClickSearch');
   const totRes = await dataService.get(`${apiUri}/total`, { params: cachedParams });
   totalParams.value = totRes.data;
-  console.log('totRes = ', totalParams.value);
   await fetchData();
 }
 
@@ -268,7 +257,6 @@ const initGrid = defineGrid((data, view) => {
         styleName: 'text-right',
       },
       footer: {
-        expression: 'sum',
         numberFormat: '#,##0',
         styleName: 'text-right',
         valueCallback() {
@@ -285,7 +273,6 @@ const initGrid = defineGrid((data, view) => {
         styleName: 'text-right',
       },
       footer: {
-        expression: 'sum',
         numberFormat: '#,##0',
         styleName: 'text-right',
         valueCallback() {
@@ -302,7 +289,6 @@ const initGrid = defineGrid((data, view) => {
         styleName: 'text-right',
       },
       footer: {
-        expression: 'sum',
         numberFormat: '#,##0',
         styleName: 'text-right',
         valueCallback() {
@@ -319,7 +305,6 @@ const initGrid = defineGrid((data, view) => {
         styleName: 'text-right',
       },
       footer: {
-        expression: 'sum',
         numberFormat: '#,##0',
         styleName: 'text-right',
         valueCallback() {
@@ -336,7 +321,6 @@ const initGrid = defineGrid((data, view) => {
         styleName: 'text-right',
       },
       footer: {
-        expression: 'sum',
         numberFormat: '#,##0',
         styleName: 'text-right',
         valueCallback() {
@@ -353,7 +337,6 @@ const initGrid = defineGrid((data, view) => {
         styleName: 'text-right',
       },
       footer: {
-        expression: 'sum',
         numberFormat: '#,##0',
         styleName: 'text-right',
         valueCallback() {
@@ -370,7 +353,6 @@ const initGrid = defineGrid((data, view) => {
         styleName: 'text-right',
       },
       footer: {
-        expression: 'sum',
         numberFormat: '#,##0',
         styleName: 'text-right',
         valueCallback() {
@@ -387,7 +369,6 @@ const initGrid = defineGrid((data, view) => {
         styleName: 'text-right',
       },
       footer: {
-        expression: 'sum',
         numberFormat: '#,##0',
         styleName: 'text-right',
         valueCallback() {
@@ -404,7 +385,6 @@ const initGrid = defineGrid((data, view) => {
         styleName: 'text-right',
       },
       footer: {
-        expression: 'sum',
         numberFormat: '#,##0',
         styleName: 'text-right',
         valueCallback() {
@@ -421,7 +401,6 @@ const initGrid = defineGrid((data, view) => {
         styleName: 'text-right',
       },
       footer: {
-        expression: 'sum',
         numberFormat: '#,##0',
         styleName: 'text-right',
         valueCallback() {
@@ -462,5 +441,4 @@ const initGrid = defineGrid((data, view) => {
 
   ]);
 });
-
 </script>
