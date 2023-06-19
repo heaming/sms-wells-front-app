@@ -3,7 +3,7 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : [WSNC] allocate(배정관리)
-2. 프로그램 ID : WwsncTimeTableSellListP - 타임테이블 조회(판매)
+2. 프로그램 ID : WwsncTimeTableForContractP - 타임테이블 조회(판매)
 3. 작성자 : gs.piit122 김동엽
 4. 작성일 : 2023-06-06
 ****************************************************************************************************
@@ -177,24 +177,24 @@
                       {{ data.psicDatas.cralLocaraTno }}-{{ data.psicDatas.mexnoEncr }}-{{
                         data.psicDatas.cralIdvTno }}
                     </p>
-                    <kw-btn
+                    <!--                    <kw-btn
                       borderless
                       class="ml4"
                       icon="sms_24"
                       style="font-size: 24px;"
-                    />
+                    />-->
                   </div>
                   <div class="row items-center">
                     <p class="kw-font--14">
                       {{ data.psicDatas.locaraTno }}-{{ data.psicDatas.exnoEncr }}-{{
                         data.psicDatas.idvTno }}
                     </p>
-                    <kw-btn
+                    <!--                    <kw-btn
                       borderless
                       class="ml4"
                       icon="sms_24"
                       style="font-size: 24px;"
-                    />
+                    />-->
                   </div>
                 </div>
               </div>
@@ -656,19 +656,19 @@ async function getTimeTables() {
   // data.value.spayYn = 'N';
   // data.value.sowDay = '20230621';
   // data.value.offDays = [{ hsOffDays: '20230628621303' }];
-  // data.value.sidingYn = 'N';
-  // data.value.sidingDays = [
-  // { ablDays: '2023-06-17', sumCnt: '500', w3th: '20230617', sowDay: '20230617' },
-  // { ablDays: '2023-06-19', sumCnt: '500', w3th: '20230619', sowDay: '20230619' },
-  // { ablDays: '2023-06-20', sumCnt: '500', w3th: '20230620', sowDay: '20230620' },
-  // { ablDays: '2023-06-22', sumCnt: '500', w3th: '20230622', sowDay: '20230622' },
-  // { ablDays: '2023-06-23', sumCnt: '500', w3th: '20230623', sowDay: '20230623' },
-  // { ablDays: '2023-06-24', sumCnt: '500', w3th: '20230624', sowDay: '20230624' },
-  // ];
-  // data.value.disableDays = [
-  //   { disableDays: '2023-6-23', disableFuldays: '2023-06-23', tcMsg: '111법정휴무일 또는 회사휴무' },
-  //   { disableDays: '2023-6-29', disableFuldays: '2023-06-29', tcMsg: '222법정휴무일 또는 회사휴무' },
-  // ];
+  data.value.sidingYn = 'N';
+  data.value.sidingDays = [
+    { ablDays: '2023-06-17', sumCnt: '500', w3th: '20230617', sowDay: '20230617' },
+    { ablDays: '2023-06-19', sumCnt: '500', w3th: '20230619', sowDay: '20230619' },
+    { ablDays: '2023-06-20', sumCnt: '500', w3th: '20230620', sowDay: '20230620' },
+    { ablDays: '2023-06-22', sumCnt: '500', w3th: '20230622', sowDay: '20230622' },
+    { ablDays: '2023-06-23', sumCnt: '500', w3th: '20230623', sowDay: '20230623' },
+    { ablDays: '2023-06-24', sumCnt: '500', w3th: '20230624', sowDay: '20230624' },
+  ];
+  data.value.disableDays = [
+    { disableDays: '2023-06-23', disableFuldays: '2023-06-23', tcMsg: '111법정휴무일 또는 회사휴무' },
+    { disableDays: '2023-06-29', disableFuldays: '2023-06-29', tcMsg: '222법정휴무일 또는 회사휴무' },
+  ];
   // data.value.psicDatas = {
   //   prtnrNo: '621303',
   //   empPic: 'http://kiwi-m.kyowon.co.kr/KIWI-M/upload_file/upload_file/621303.jpg',
@@ -1047,26 +1047,29 @@ async function onClickSave() {
   // }
 
   const sendData = {
-    cntrNo: searchParams.value.cntrNo,
-    sellDate: searchParams.value.sellDate,
-    sellTime: data.value.sellTime,
-    inflwChnl: searchParams.value.inflwChnl,
-    svDvCd: searchParams.value.svDvCd,
-    wrkDt: data.value.wrkDt,
-    seq: searchParams.value.seq,
-    dataStatCd: searchParams.value.dataStatCd,
+    inChnlDvCd: data.value.chnlDvCd,
+    asIstOjNo: searchParams.value.seq,
+    svBizHclsfCd: searchParams.value.svDvCd,
+    rcpdt: data.value.wrkDt,
+    dtaStatCd: searchParams.value.dataStatCd,
     svBizDclsfCd: searchParams.value.svBizDclsfCd,
     urgtYn: 'N',
-    smsYn: 'N',
+    vstRqdt: searchParams.value.sellDate,
+    vstAkHh: data.value.sellTime,
+    smsFwYn: 'N',
+    cnslMoCn: data.value.egerMemo,
+    ogTpCd: data.value.ogTpCd, // 엔지니어 조직유형
+    ichrPrtnrNo: data.value.prtnrNo, // 엔지니어 파트너번호
+    cntrNo: searchParams.value.cntrNo,
+    cntrSn: searchParams.value.cntrSn,
+    // #####################################################
+    inflwChnl: searchParams.value.inflwChnl,
     pdGdCd: 'A',
-    userId: searchParams.value.userId,
-    rcpOgTpCd: data.value.rcpOgTpCd,
-    egerMemo: data.value.egerMemo,
-    ogTpCd: data.value.ogTpCd,
-    prtnrNo: data.value.prtnrNo,
+    userId: searchParams.value.userId, // 로그인한 사용자
+    rcpOgTpCd: data.value.rcpOgTpCd, // 로그인한 사용자 조직유형
+
   };
-  // console.log(sendData);
-  // await dataService.post(`/sflex/common/common/roles/${selectedRoleId}/data-services`, sendData);
+  await dataService.post('/sms/wells/service/installation-works', sendData);
   notify(t('MSG_ALT_SAVE_DATA'));
   ok(sendData);
 }
