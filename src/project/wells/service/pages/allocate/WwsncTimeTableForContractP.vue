@@ -177,24 +177,24 @@
                       {{ data.psicDatas.cralLocaraTno }}-{{ data.psicDatas.mexnoEncr }}-{{
                         data.psicDatas.cralIdvTno }}
                     </p>
-                    <kw-btn
+                    <!--                    <kw-btn
                       borderless
                       class="ml4"
                       icon="sms_24"
                       style="font-size: 24px;"
-                    />
+                    />-->
                   </div>
                   <div class="row items-center">
                     <p class="kw-font--14">
                       {{ data.psicDatas.locaraTno }}-{{ data.psicDatas.exnoEncr }}-{{
                         data.psicDatas.idvTno }}
                     </p>
-                    <kw-btn
+                    <!--                    <kw-btn
                       borderless
                       class="ml4"
                       icon="sms_24"
                       style="font-size: 24px;"
-                    />
+                    />-->
                   </div>
                 </div>
               </div>
@@ -656,19 +656,19 @@ async function getTimeTables() {
   // data.value.spayYn = 'N';
   // data.value.sowDay = '20230621';
   // data.value.offDays = [{ hsOffDays: '20230628621303' }];
-  // data.value.sidingYn = 'N';
-  // data.value.sidingDays = [
-  // { ablDays: '2023-06-17', sumCnt: '500', w3th: '20230617', sowDay: '20230617' },
-  // { ablDays: '2023-06-19', sumCnt: '500', w3th: '20230619', sowDay: '20230619' },
-  // { ablDays: '2023-06-20', sumCnt: '500', w3th: '20230620', sowDay: '20230620' },
-  // { ablDays: '2023-06-22', sumCnt: '500', w3th: '20230622', sowDay: '20230622' },
-  // { ablDays: '2023-06-23', sumCnt: '500', w3th: '20230623', sowDay: '20230623' },
-  // { ablDays: '2023-06-24', sumCnt: '500', w3th: '20230624', sowDay: '20230624' },
-  // ];
-  // data.value.disableDays = [
-  //   { disableDays: '2023-6-23', disableFuldays: '2023-06-23', tcMsg: '111법정휴무일 또는 회사휴무' },
-  //   { disableDays: '2023-6-29', disableFuldays: '2023-06-29', tcMsg: '222법정휴무일 또는 회사휴무' },
-  // ];
+  data.value.sidingYn = 'N';
+  data.value.sidingDays = [
+    { ablDays: '2023-06-17', sumCnt: '500', w3th: '20230617', sowDay: '20230617' },
+    { ablDays: '2023-06-19', sumCnt: '500', w3th: '20230619', sowDay: '20230619' },
+    { ablDays: '2023-06-20', sumCnt: '500', w3th: '20230620', sowDay: '20230620' },
+    { ablDays: '2023-06-22', sumCnt: '500', w3th: '20230622', sowDay: '20230622' },
+    { ablDays: '2023-06-23', sumCnt: '500', w3th: '20230623', sowDay: '20230623' },
+    { ablDays: '2023-06-24', sumCnt: '500', w3th: '20230624', sowDay: '20230624' },
+  ];
+  data.value.disableDays = [
+    { disableDays: '2023-06-23', disableFuldays: '2023-06-23', tcMsg: '111법정휴무일 또는 회사휴무' },
+    { disableDays: '2023-06-29', disableFuldays: '2023-06-29', tcMsg: '222법정휴무일 또는 회사휴무' },
+  ];
   // data.value.psicDatas = {
   //   prtnrNo: '621303',
   //   empPic: 'http://kiwi-m.kyowon.co.kr/KIWI-M/upload_file/upload_file/621303.jpg',
