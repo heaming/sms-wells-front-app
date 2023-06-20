@@ -373,9 +373,14 @@
         >
           <h3>
             시간선택
-            <ul class="kw-notification">
-              <li>*()접수가능 건수</li>
-            </ul>
+            <!--            <ul class="kw-notification">
+              <li>
+                *()접수가능 건수
+              </li>
+            </ul>-->
+            <div class="kw-notification">
+              *()접수가능 건수
+            </div>
           </h3>
           <div class="row justify-between items-center mt20">
             <p class="kw-font--14">
@@ -547,9 +552,9 @@ const scheduleInfo = ref({
 
 const clickedBtn = ref(''); // 0:오전, 1:오후
 
-const enableDays = ref([]);
+// const enableDays = ref([]);
 const disableDays = ref([]);
-const timeConstMsg = ref([]);
+// const timeConstMsg = ref([]);
 
 const searchParams = ref({
   baseYm: props.baseYm,
@@ -615,7 +620,8 @@ const data = ref({
   amShowVar: 0,
   pmShowVar: 0,
   egerMemo: '',
-  seq: 0,
+  seq: '',
+  cstSvAsnNo: '',
   prtnrNo: '',
   ogTpCd: '',
 });
@@ -651,9 +657,9 @@ async function getTimeTables() {
    } });
 
   data.value = res.data;
-  enableDays.value = [];
+  // enableDays.value = [];
   disableDays.value = [];
-  timeConstMsg.value = [];
+  // timeConstMsg.value = [];
   data.value.sellTime = '';
 
   // console.log(JSON.stringify(data.value));
@@ -780,10 +786,9 @@ async function getTimeTables() {
   // 모종이라면
   if (data.value.sidingYn === 'Y') {
     // abledDays
-    data.value.sidingDays.forEach((item) => {
-      enableDays.value.push(item.ablDays);
-      // console.log('ablDays', item.ablDays);
-    });
+    // data.value.sidingDays.forEach((item) => {
+    //  enableDays.value.push(item.ablDays);
+    // });
 
     // ddd_abledays
     if (data.value.disableDays.length > 0) {
@@ -855,7 +860,9 @@ function isHoliday(dayCnt) {
 
 //---------------------------------------------------
 function enableAllTheseDays(inDate, isNotifyMessage) {
+  // 모종 가능할 일자 중에
   if (data.value.sidingDays.find((item) => item.ablDays.replace(/-/g, '') === inDate)) {
+    // 엔지니어 배정 불가능한 날짜이면
     if (data.value.disableDays.find((item) => item.disableFuldays.replace(/-/g, '') === inDate)) {
       if (isNotifyMessage) notify('접수제한');
       return 'N';
@@ -1066,7 +1073,7 @@ async function onClickSave() {
 
   const sendData = {
     inChnlDvCd: data.value.chnlDvCd,
-    asIstOjNo: searchParams.value.seq,
+    asIstOjNo: data.value.inflwChnl + data.value.svDvCd + data.value.wrkDt + data.value.seq,
     svBizHclsfCd: searchParams.value.svDvCd,
     rcpdt: data.value.wrkDt,
     dtaStatCd: searchParams.value.dataStatCd,
@@ -1085,8 +1092,10 @@ async function onClickSave() {
     pdGdCd: 'A',
     userId: searchParams.value.userId, // 로그인한 사용자
     rcpOgTpCd: data.value.rcpOgTpCd, // 로그인한 사용자 조직유형
+    cstSvAsnNo: data.value.cstSvAsnNo,
 
   };
+  console.log(sendData);
   await dataService.post('/sms/wells/service/installation-works', sendData);
   notify(t('MSG_ALT_SAVE_DATA'));
   ok(sendData);
