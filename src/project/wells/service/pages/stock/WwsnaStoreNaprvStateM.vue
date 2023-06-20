@@ -106,7 +106,7 @@ const codes = await codeUtil.getMultiCodes(
 );
 
 /*
- *  Select Setting - 입고창고 (2 서비스센터 / 3 영업센터)
+ *  Select Setting - 입고창고
  */
 let userWareDvCd = codes.WARE_DV_CD;
 if (ogTpCd === 'W01') {
@@ -181,32 +181,28 @@ async function onClickExcelDownload() {
 
 const initGrid = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'strWareNm' },
+    { fieldName: 'wareNm' },
     { fieldName: 'strWareNo' },
-    { fieldName: 'itmPdNm' },
+    { fieldName: 'pdNm' },
     { fieldName: 'itmPdCd' },
     { fieldName: 'naprvQty' },
   ];
 
   const columns = [
-    { fieldName: 'strWareNm', header: t('MSG_TXT_WARE_NM'), width: '150', styleName: 'text-center' },
-    { fieldName: 'strWareNo', header: t('MSG_TXT_WARE_NM'), width: '100', styleName: 'text-center' },
-    { fieldName: 'itmPdNm', header: t('MSG_TXT_STR_TP'), width: '400', styleName: 'text-center' },
-    { fieldName: 'itmPdCd', header: t('MSG_TXT_STR_MNGT_NO'), width: '150', styleName: 'text-center' },
-    { fieldName: 'naprvQty', header: t('MSG_TXT_OSTR_WARE'), width: '100', styleName: 'text-center' },
+    { fieldName: 'wareNm', header: t('MSG_TXT_WARE_NM'), width: '150', styleName: 'text-center' },
+    { fieldName: 'strWareNo', header: t('MSG_TXT_WARE_CD'), width: '100', styleName: 'text-center' },
+    { fieldName: 'pdNm', header: t('MSG_TXT_MATI_NM'), width: '400', styleName: 'text-center' },
+    { fieldName: 'itmPdCd', header: t('MSG_TXT_MATI_CD'), width: '150', styleName: 'text-center' },
+    { fieldName: 'naprvQty', header: t('MSG_TXT_UNAPPR') + t('MSG_TXT_QTY'), width: '100', styleName: 'text-center' },
   ];
 
   data.setFields(fields);
   view.setColumns(columns);
-  view.setFooters({ visible: true });
-  view.setOptions({ summaryMode: 'aggregate' });
-
-  view.checkBar.visible = true;
   view.rowIndicator.visible = true;
 
   // dbclick row
   view.onCellDblClicked = async (grid, clickData) => {
-    if (isEmpty(grid.getValue(clickData.dataRow, 'itmPdCd')) || isEmpty(grid.getValue(clickData.dataRow, 'strWareNo'))) {
+    if (isEmpty(grid.getValue(clickData.dataRow('strWareNo'))) || isEmpty(grid.getValue(clickData.dataRow('itmPdCd')))) {
       return;
     }
 
