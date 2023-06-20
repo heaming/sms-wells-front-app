@@ -1073,7 +1073,7 @@ async function onClickSave() {
 
   const sendData = {
     inChnlDvCd: data.value.chnlDvCd,
-    asIstOjNo: searchParams.value.seq,
+    asIstOjNo: data.value.inflwChnl + data.value.svDvCd + data.value.wrkDt + data.value.seq,
     svBizHclsfCd: searchParams.value.svDvCd,
     rcpdt: data.value.wrkDt,
     dtaStatCd: searchParams.value.dataStatCd,
@@ -1092,7 +1092,6 @@ async function onClickSave() {
     pdGdCd: 'A',
     userId: searchParams.value.userId, // 로그인한 사용자
     rcpOgTpCd: data.value.rcpOgTpCd, // 로그인한 사용자 조직유형
-    seq: data.value.seq,
     cstSvAsnNo: data.value.cstSvAsnNo,
 
   };
