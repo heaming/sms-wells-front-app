@@ -116,6 +116,7 @@
 import { useDataService, useMeta, gridUtil, useGlobal, codeUtil, getComponentType, defineGrid } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import pdConst from '~sms-common/product/constants/pdConst';
+import { getCodeNames, getAlreadyItems } from '~sms-common/product/utils/pdUtil';
 
 const { notify } = useGlobal();
 const router = useRouter();
@@ -165,6 +166,7 @@ async function onClickRemoveRows() {
 
   if (!await gridUtil.confirmIfIsModified(view)) { return; }
   const deletedRows = await gridUtil.confirmDeleteCheckedRows(view);
+  pageInfo.value.totalCount = Number(gridUtil.getAllRowValues(view)?.length);
   if (deletedRows.length) {
     console.log('deletedRows : ', deletedRows);
     await dataService.delete('/sms/wells/product/variables', { data: deletedRows });
@@ -176,11 +178,51 @@ async function onClickRemoveRows() {
 async function onClickAdd() {
   const view = grdMainRef.value.getView();
   await gridUtil.insertRowAndFocus(view, 0, { });
+  pageInfo.value.totalCount += 1;
+}
+
+async function checkDuplication() {
+  const view = grdMainRef.value.getView();
+  const changedRows = gridUtil.getChangedRowValues(view);
+  const alreadyItems = getAlreadyItems(view, changedRows, 'sellTpCd', 'choFxnDvCd', 'rgltnVarbNm');
+  if (alreadyItems.length > 1) {
+    // {판매유형/변수구분/변수명}이(가) 중복됩니다.
+    let dupItem = getCodeNames(codes, alreadyItems[0].sellTpCd, 'SELL_TP_CD');
+    if (alreadyItems[0].choFxnDvCd) {
+      dupItem += `/${getCodeNames(codes, alreadyItems[0].choFxnDvCd, 'CHO_FXN_DV_CD')}`;
+    }
+    if (alreadyItems[0].rgltnVarbId) {
+      dupItem += `/${getCodeNames(variableCodes.value, alreadyItems[0].rgltnVarbId)}`;
+    }
+    notify(t('MSG_ALT_DUP_NCELL', [dupItem]));
+    return true;
+  }
+
+  const createdRows = gridUtil.getCreatedRowValues(view);
+  if (createdRows.length === 0) {
+    return false;
+  }
+
+  const { data: dupData } = await dataService.post('/sms/wells/product/variables/duplication-check', createdRows);
+  if (dupData.data) {
+    const dupCodes = dupData.data.split(',', -1);
+    const { sellTpCd, choFxnDvCd, rgltnVarbId } = createdRows.find((item) => item.sellTpCd === dupCodes[0]
+        && item.choFxnDvCd === dupCodes[1]
+        && item.rgltnVarbId === dupCodes[2]);
+    const dupItem = `${getCodeNames(codes, sellTpCd, 'SELL_TP_CD')}
+                      /${getCodeNames(codes, choFxnDvCd, 'CHO_FXN_DV_CD')}
+                      /${getCodeNames(variableCodes.value, rgltnVarbId)}`;
+    // 은(는) 이미 DB에 등록되어 있습니다.
+    notify(t('MSG_ALT_EXIST_IN_DB', [dupItem]));
+    return true;
+  }
+  return false;
 }
 
 async function onClickSave() {
   const view = grdMainRef.value.getView();
   if (await gridUtil.alertIfIsNotModified(view)) { return; } // 수정된 행 없음
+  if (await checkDuplication()) { return; } // 중복 검사
   if (!await gridUtil.validate(view)) { return; } // 유효성 검사
 
   const changedRows = gridUtil.getChangedRowValues(view);

@@ -209,11 +209,13 @@ async function onClickAdd() {
   view.setColumnProperty('pdCd', 'styleName', 'btnshow');
   view.setColumnProperty('pdNm', 'styleName', 'btnshow');
   view.commit();
+  pageInfo.value.totalCount += 1;
 }
 
 async function onClickRemove() {
   const view = grdMainRef.value.getView();
   const deletedRows = await gridUtil.confirmDeleteCheckedRows(view);
+  pageInfo.value.totalCount = Number(gridUtil.getAllRowValues(view)?.length);
   console.log('deletedRows', deletedRows);
   if (deletedRows.length > 0) {
     await dataService.delete(baseUrl, { data: deletedRows });
