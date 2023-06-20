@@ -129,7 +129,7 @@
           <kw-input
             v-model="warehouseInfo.wareNm"
             :label="$t('MSG_TXT_WARE_NM')"
-            :readonly="hasProps() || !isOrgWarehouse"
+            :readonly="!isOrgWarehouse"
           />
         </kw-form-item>
       </kw-form-row>
@@ -351,6 +351,18 @@ function validateWareDvCd() {
   return true;
 }
 
+function getWareNm(payload) {
+  let wareNm = '';
+  if (isOrgWarehouse.value) {
+    wareNm = `${warehouseInfo.value.bldNm}`;
+  } else if (warehouseInfo.value.wareDvCd === WARE_DV_SERVICE) { // 서비스센터일 경우
+    wareNm = `${payload.dgr1LevlOgNm?.split('서비스센터')[0]} (${payload.prtnrKnm})`;
+  } else {
+    wareNm = `${warehouseInfo.value.bldNm} (${payload.prtnrKnm})`;
+  }
+  return wareNm;
+}
+
 async function onClickOpenHumanResourcesPopup() {
   if (!validateWareDvCd()) return;
 
@@ -380,8 +392,8 @@ async function onClickOpenHumanResourcesPopup() {
     warehouseInfo.value.dgr2LevlOgCd = payload[0].dgr2LevlOgCd;
     warehouseInfo.value.dgr2LevlOgNm = payload[0].dgr2LevlOgNm;
     warehouseInfo.value.bldNm = payload[0].bldNm ?? '';
-    warehouseInfo.value.wareNm = isOrgWarehouse.value ? `${warehouseInfo.value.bldNm}` : `${warehouseInfo.value.bldNm} (${payload[0].prtnrKnm})`;
-    warehouseInfo.value.dgr1LevlOgCdNm = `[${payload[0].dgr1LevlOgCd}] ${payload[0].dgr1LevlOgNm}`;
+    warehouseInfo.value.wareNm = getWareNm(payload[0]);
+    warehouseInfo.value.dgr1LevlOgCdNm = payload[0].dgr1LevlOgCd ? `[${payload[0].dgr1LevlOgCd}] ${payload[0].dgr1LevlOgNm}` : '-';
     warehouseInfo.value.dgr2LevlOgCdNm = payload[0].dgr2LevlOgCd ? `[${payload[0].dgr2LevlOgCd}] ${payload[0].dgr2LevlOgNm}` : '-';
 
     await fetchHigherWarehouses();
