@@ -152,6 +152,24 @@
         </kw-form-row>
       </kw-form>
     </div>
+    <kw-action-top>
+      <kw-btn
+        dense
+        secondary
+        label="고객 설치확인서"
+        @click="onClickInstDoc"
+      />
+    </kw-action-top>
+    <kw-form-item :label="$t('MSG_TXT_CNTR_NO')">
+      <kw-input
+        v-model="docData.cntrNo"
+      />
+    </kw-form-item>
+    <kw-form-item :label="$t('MSG_TXT_CNTR_SN')">
+      <kw-input
+        v-model="docData.cntrSn"
+      />
+    </kw-form-item>
   </kw-page>
 </template>
 <script setup>
@@ -190,6 +208,11 @@ const customerData = ref({
   frisuAsPtrmN: '',
   frisuBfsvcPtrmN: '',
   cycleCode: '',
+});
+
+const docData = ref({
+  cntrNo: '',
+  cntrSn: '',
 });
 
 // const storeData = ref({
@@ -234,6 +257,16 @@ async function onClickCustomers() {
   //   customerData.value.frisuBfsvcPtrmN = payload.frisuBfsvcPtrmN ?? '';
   //   customerData.value.cycleCode = payload.cycleCode ?? '';
   // }
+}
+
+async function onClickInstDoc() {
+  await modal({
+    component: 'WwsnbInstallationConfirmationDocumentP',
+    componentProps: {
+      cntrNo: docData.value.cntrNo,
+      cntrSn: docData.value.cntrSn,
+    },
+  });
 }
 
 </script>
