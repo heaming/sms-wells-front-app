@@ -193,6 +193,8 @@ const searchParams = ref({
   lpGbYn: props.lpGbYn,
   wareNo: props.wareNo,
   ostrWareNo: props.ostrWareNo,
+  wareDvCd: '',
+  wareDtlDvCd: '',
 
 });
 
@@ -289,6 +291,14 @@ async function onClickSearch() {
 //   onChangeAplcDvAcd();
 // });
 
+async function initDefault() {
+  debugger;
+  cachedParams = cloneDeep(searchParams.value);
+  const res = await dataService.get('/sms/wells/service/item-base-informations/checked-code', { params: cachedParams });
+  searchParams.value.wareDvCd = res.data[0].wareDvCd;
+  searchParams.value.wareDtlDvCd = res.data[0].wareDtlDvCd;
+}
+
 // 기본정보 세팅
 async function initData() {
   if (props.chk === '1') {
@@ -309,6 +319,10 @@ onMounted(async () => {
   if (isEmpty(props.itmKndCd)) {
     searchParams.value.itmKndCd = '4';
   }
+  if (props.chk === '2') {
+    await initDefault();
+  }
+
   await initData();
 });
 
