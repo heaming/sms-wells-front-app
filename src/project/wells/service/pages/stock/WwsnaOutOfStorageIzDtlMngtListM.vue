@@ -39,7 +39,6 @@
           v-model:ware-dv-cd="searchParams.ostrWareDvCd"
           v-model:ware-no-m="searchParams.ostrWareDtlDvCd"
           v-model:ware-no-d="searchParams.ostrWareNo"
-          first-option="all"
           sub-first-option="all"
           :colspan="2"
           :label2="$t('MSG_TXT_OSTR_WARE')"
@@ -68,7 +67,6 @@
           v-model:ware-dv-cd="searchParams.strWareDvCd"
           v-model:ware-no-m="searchParams.strWareDtlDvCd"
           v-model:ware-no-d="searchParams.strWareNo"
-          first-option="all"
           sub-first-option="all"
           :colspan="2"
           :label2="$t('MSG_TXT_STR_WARE')"
@@ -83,7 +81,7 @@
           :label="$t('MSG_TXT_GD')"
         >
           <kw-select
-            v-model="searchParams.pdGbCd"
+            v-model="searchParams.itmGdCd"
             :options="codes.PD_GD_CD"
             first-option="all"
           />
@@ -111,6 +109,7 @@
           :label="$t('MSG_TXT_USE_SEL')"
         >
           <kw-select
+            v-model="searchParams.useYn"
             :options="codes.USE_YN"
             first-option="all"
           />
@@ -204,15 +203,15 @@ const searchParams = ref({
   edOstrDt: '',
   strTpCd: '',
   ostrTpCd: '',
-  pdGbCd: '',
+  itmGdCd: '',
+  itmKndCd: '',
+  itmPdCd: '',
   strWareDvCd: '2',
   strWareDtlDvCd: '',
   strWareNo: '',
   ostrWareDvCd: '1',
   ostrWareDtlDvCd: '',
   ostrWareNo: '',
-  itmKndCd: '',
-  itmPdCd: '',
   useYn: '',
   apyYm: '',
 });
@@ -222,6 +221,7 @@ watch(() => searchParams.value.itmKndCd, async () => {
   const { itmKndCd } = searchParams.value;
   const { data } = await dataService.get(itemsURI, { params: { itmKndCd } });
   itmPdCdFilter.value = data;
+  searchParams.value.itmPdCd = '';
 });
 
 async function fetchData() {
@@ -257,41 +257,43 @@ async function onClickExcelDownload() {
 }
 
 // 초기값 설정
-function defaultSet() {
+async function defaultSet() {
   const now = dayjs();
   const toDay = now.format('YYYYMMDD');
-  const startMonth = now.format('YYYYMM').concat('01');
+  const startMonth = now.format('YYYYMM');
+  const startDay = startMonth.concat('01');
 
   searchParams.value = {
-    stOstrDt: '',
-    edOstrDt: '',
+    stOstrDt: startDay,
+    edOstrDt: toDay,
     strTpCd: '',
     ostrTpCd: '',
-    pdGbCd: '',
+    itmGdCd: '',
+    itmKndCd: '',
+    itmPdCd: '',
     strWareDvCd: '2',
     strWareDtlDvCd: '',
     strWareNo: '',
     ostrWareDvCd: '1',
     ostrWareDtlDvCd: '',
     ostrWareNo: '',
-    itmKndCd: '',
-    itmPdCd: '',
     useYn: '',
-    apyYm: '',
+    apyYm: startMonth,
   };
 
-  searchParams.value.stOstrDt = startMonth;
-  searchParams.value.edOstrDt = toDay;
-  console.log(`today : ${toDay}`);
-  console.log(`startMonth : ${startMonth}`);
+  console.log('================================================');
+  console.log('초기값 ~~~~~~');
+  console.log(`toDay : ${toDay} :: startMonth : ${startMonth} :: startDay : ${startDay}`);
+  console.log(`searchParams.stOstrDt : ${searchParams.value.stOstrDt} :: searchParams.stOstrDt : ${searchParams.value.edOstrDt} :: searchParams.apyYm : ${searchParams.value.apyYm}`);
+  console.log('================================================');
 }
 
-function onClickReset() {
-  defaultSet();
+async function onClickReset() {
+  await defaultSet();
 }
 
 onMounted(async () => {
-  defaultSet();
+  await defaultSet();
 });
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
@@ -327,9 +329,7 @@ const initGrdMain = defineGrid((data, view) => {
 
   const gridField = columns.map((v) => ({ fieldName: v.fieldName }));
   // const fields = columns.map((v) => ({ fieldName: v.fieldName }));
-  const fields = [...gridField,
-    { fieldName: 'itmCd' },
-  ];
+  const fields = [...gridField];
 
   data.setFields(fields);
   view.setColumns(columns);

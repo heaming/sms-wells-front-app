@@ -297,6 +297,7 @@
           <!-- 수량 -->
           <kw-input
             v-model="frmMainData.pdQty"
+            align="right"
             placeholder=""
             readonly
           />
@@ -467,6 +468,7 @@
         <kw-form-item :label="$t('MSG_TXT_MNGT_PRD')">
           <kw-input
             v-model="frmMainData.svPrd"
+            align="right"
             placeholder=""
             readonly
           />
@@ -569,6 +571,7 @@
         <kw-form-item :label="$t('MSG_TXT_STPL_MCNT')">
           <kw-input
             v-model="frmMainData.stplPtrm"
+            align="right"
             placeholder=""
             readonly
           />
@@ -579,6 +582,7 @@
         >
           <kw-input
             v-model="frmMainData.ackmtPerfCt"
+            align="right"
             placeholder=""
             readonly
           />

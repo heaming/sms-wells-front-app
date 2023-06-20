@@ -468,12 +468,21 @@ async function onClickRtnGd() {
     return;
   }
 
-  if (!(await gridUtil.validate(view, { isCheckedOnly: true }))) { return; }
+  // if (!(await gridUtil.validate(view, { isCheckedOnly: true }))) { return; }
+  if (await gridUtil.alertIfIsNotModified(view)) { return; }
 
   const strRtngdProcsTpCd = ['10', '11', '20', '21', '22', '80', '81', '82'];
 
   for (let i = 0; i < checkedRows.length; i += 1) {
     const { rtngdRvpyProcsYn, rtngdProcsTpCd } = checkedRows[i];
+
+    const checkedRtngdProcsTpCd = checkedRows[i].rtngdProcsTpCd;
+
+    if (isEmpty(checkedRtngdProcsTpCd)) {
+      // 반품처리유형 항목에 값이 누락되었습니다.
+      notify(t('MSG_ALT_RTNGD_PROCS_TP_ATC'));
+      return;
+    }
     if (rtngdRvpyProcsYn === 'Y') {
       // 이미 반품 완료된 건이 포함되었습니다. \n확인해주십시오.
       notify(t('MSG_ALT_RTNGD_FSH_INC_CONF'));
@@ -600,7 +609,7 @@ const initGrdMain = defineGrid((data, view) => {
       editor: { type: 'list' },
       // styleCallback: setCellEditableFalse,
     },
-    { fieldName: 'rmkCn', header: t('MSG_TXT_UNUITM'), width: '150', styleName: 'text-center' },
+    { fieldName: 'rmkCn', header: t('MSG_TXT_UNUITM'), width: '150', styleName: 'text-center', editable: true },
     { fieldName: 'cntrNoNew', header: t('MSG_TXT_NW_CST_NO'), width: '100', styleName: 'text-center' },
     { fieldName: 'barCd', header: t('MSG_TXT_NW_CST_NO'), width: '150', styleName: 'text-center' },
     { fieldName: 'asLctNm', header: t('MSG_TXT_LCT'), width: '100', styleName: 'text-center' },
@@ -675,23 +684,27 @@ const initGrdMain = defineGrid((data, view) => {
   view.editOptions.columnEditableFirst = true;
   view.filteringOptions.enabled = false;
 
+  // RTNGD_RVPY_PROCS_YN
+
   view.setRowStyleCallback((grid, item) => {
     const ret = {};
-    const { rtngdProcsTpCd1, ostrConfDt1 } = gridUtil.getRowValue(grid, item.index);
+    const { ostrConfDt1 } = gridUtil.getRowValue(grid, item.index);
     // const strRtngdProcsTpCd = grid.getValue(item.index, 'rtngdProcsTpCd');
     // const strOstrDt = grid.getValue(item.index, 'ostrDt');
+    // , rtngdRvpyProcsYn
 
-    if (rtngdProcsTpCd1) {
-      ret.editable = false;
-    }
     if (ostrConfDt1) {
       ret.editable = false;
     }
+
+    // if (rtngdRvpyProcsYn !== 'Y') {
+    //   ret.editable = false;
+    // }
     return ret;
   });
 
   const f = function checked(dataSource, item) {
-    if ((data.getValue(item.dataRow, 'rtngdProcsTpCd1') !== undefined) || (data.getValue(item.dataRow, 'ostrConfDt1') !== undefined)) {
+    if ((data.getValue(item.dataRow, 'rtngdRvpyProcsYn') !== 'N') || (data.getValue(item.dataRow, 'ostrConfDt1') !== undefined)) {
       return false;
     }
     return true;

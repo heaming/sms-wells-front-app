@@ -205,6 +205,10 @@ const props = defineProps({
     type: String,
     default: '',
   },
+  page: {
+    type: String,
+    default: '',
+  },
 });
 
 const codes = ref(await codeUtil.getMultiCodes(
@@ -242,6 +246,12 @@ async function onClickSearch() {
   pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
+  const view = grdMainRef.value.getView();
+  view.checkAll(true);
+  const checkedRows = gridUtil.getCheckedRowValues(view);
+  if (checkedRows.length === 0) {
+    view.checkAll(false);
+  }
 }
 
 async function onClickExcelDownload() {
@@ -261,31 +271,55 @@ async function onClickDelete() {
 }
 
 function getSaveParams() {
-  const checkedValues = gridUtil.getCheckedRowValues(grdMainRef.value.getView());
-  console.log(checkedValues);
+  const checkedValues = ref(gridUtil.getCheckedRowValues(grdMainRef.value.getView()));
+  checkedValues.value.forEach((v) => {
+    v.outQty = v.dummyQty;
+  });
+  console.log(checkedValues.value);
 
-  return checkedValues;
+  return checkedValues.value;
 }
 
 async function onClickConfirm() {
   if (await confirm(t('MSG_ALT_WANT_DTRM'))) {
     const view = grdMainRef.value.getView();
-    // 변경된 data가 있는지 체크
-    if (await gridUtil.alertIfIsNotModified(view)) { return; }
-    // validate
-    if (!await gridUtil.validate(view)) { return; }
+    const checkedRows = gridUtil.getCheckedRowValues(view);
 
-    const saveParams = getSaveParams();
-    await dataService.put(detailURI, saveParams);
-    notify(t('MSG_ALT_SAVE_DATA'));
-    await fetchData();
-    ok();
+    if (await checkedRows.length === 0) {
+      notify(t('MSG_ALT_NO_APPY_OBJ_DT'));
+      return false;
+    } if (await gridUtil.validate(view, { isCheckedOnly: true })) {
+      // 변경된 data가 있는지 체크
+      if (await gridUtil.alertIfIsNotModified(view)) { return; }
+      // validate :: view.onValidate 호출
+      // if (!await gridUtil.validate(view)) { return; }
+      let checkedErrQty = false;
+      checkedRows.forEach((v) => {
+        const { outQty, dummyQty } = v;
+        if (outQty < dummyQty) {
+          checkedErrQty = true;
+        }
+      });
+
+      if (checkedErrQty) {
+        notify(t('MSG_ALT_OSTR_QTY_REQ_QTY'));
+        return;
+      }
+
+      const saveParams = getSaveParams();
+      console.log(saveParams);
+      await dataService.put(detailURI, saveParams);
+      notify(t('MSG_ALT_SAVE_DATA'));
+      // await fetchData();
+      ok();
+    }
   }
 }
 
 async function onClickConfirmAfterMove() {
   if (await confirm(t('MSG_ALT_WANT_DTRM'))) {
-    notify(t('MSG_TXT_CNFM_SCS'));
+    // notify(t('MSG_TXT_CNFM_SCS'));
+    notify('출력기능이 개발되지 않았습니다.');
   }
 }
 
@@ -376,11 +410,11 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'reqStckQty', header: t('MSG_TXT_OSTR_WARE_STOC'), width: '100', styleName: 'text-center' },
     { fieldName: 'qty', header: t('MSG_TXT_STR_WARE_STOC'), width: '100', styleName: 'text-center' },
     { fieldName: 'avgOut', header: t('MSG_TXT_CNTR_AV_OSTR_QTY'), width: '100', styleName: 'text-center' },
-    { fieldName: 'ostrAkQty', header: t('MSG_TXT_RQST_QTY'), width: '100', styleName: 'text-center' },
-    { fieldName: 'ostrCnfmQty', header: t('MSG_TXT_CNFM_QTY'), width: '100', styleName: 'text-center' },
-    { fieldName: 'strHopDt', header: t('MSG_TXT_STR_HOP_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'ostrAggQty', header: t('MSG_TXT_OSTR_AGG'), width: '100', styleName: 'text-center' },
-    { fieldName: 'outQty',
+    { fieldName: 'ostrAkQty', header: t('MSG_TXT_RQST_QTY'), width: '100', styleName: 'text-center' }, // 신청수량
+    { fieldName: 'ostrCnfmQty', header: t('MSG_TXT_CNFM_QTY'), width: '100', styleName: 'text-center' }, // 확정수량
+    { fieldName: 'strHopDt', header: t('MSG_TXT_STR_HOP_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' }, // 입고희망일자
+    { fieldName: 'ostrAggQty', header: t('MSG_TXT_OSTR_AGG'), width: '100', styleName: 'text-center' }, // 출고누계
+    { fieldName: 'dummyQty',
       header: t('MSG_TXT_OSTR_QTY'),
       editable: true,
       rules: 'required|max:12',
@@ -393,10 +427,10 @@ const initGrdMain = defineGrid((data, view) => {
       width: '100',
       styleName: 'text-center',
     },
-    { fieldName: 'rmkCn',
+    { fieldName: 'rmkCn', // 비고
       header: t('MSG_TXT_NOTE'),
       width: '100',
-      styleName: 'text-center',
+      styleName: 'text-left',
       editor: {
         type: 'input',
         maxLength: '1300',
@@ -428,6 +462,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'strWareDvCd' },
     { fieldName: 'strWareNm' },
     { fieldName: 'ostrWareNm' },
+    { fieldName: 'outQty' }, // 출고수량
   ];
 
   data.setFields(fields);
@@ -435,20 +470,99 @@ const initGrdMain = defineGrid((data, view) => {
 
   view.checkBar.visible = true;
   view.rowIndicator.visible = true;
-  view.editOptions.editable = true;
+  view.editOptions.columnEditableFirst = true;
+  // view.checkAll(true);
 
-  const editFields = ['outQty', 'rmkCn'];
-  view.onCellEditable = (grid, clickData) => {
-    if (!editFields.includes(clickData.column)) {
-      return false;
+  view.onCellEdited = async (grid, itemIndex, row, field) => {
+    // grid.checkItem(itemIndex, true); //checked true
+    const { ostrAkQty, ostrCnfmQty, outQty, dummyQty, ostrAggQty, rmkCn } = grid.getValues(itemIndex);
+    const changedFieldName = grid.getDataSource().getOrgFieldName(field);
+    // const checkedValue = grid.isCheckedRow(itemIndex);
+    const checkedValue = grid.isCheckedItem(itemIndex);
+    if (changedFieldName === 'dummyQty') {
+      console.log(`dummyQty :: ostrAkQty : ${ostrAkQty}`);
+      console.log(`dummyQty :: ostrCnfmQty : ${ostrCnfmQty}`);
+      console.log(`dummyQty :: outQty : ${outQty}`);
+      console.log(`dummyQty :: dummyQty : ${dummyQty}`);
+      console.log(`dummyQty :: ostrAggQty : ${ostrAggQty}`);
+      console.log(`dummyQty :: row : ${itemIndex} :: checkedValue : ${checkedValue}`);
+      let chkErrData = false;
+      if (dummyQty > outQty) {
+        console.log(`dummyQty checked : ${dummyQty}`);
+        chkErrData = true;
+      }
+
+      console.log(`dummyQty :: chkErrData : ${chkErrData}`);
+      if (dummyQty > 0) {
+        if (chkErrData) {
+          notify('출고수량이 신청수량보다 많습니다');
+          // grid.checkItem(itemIndex, false);
+          // grid.setValue(itemIndex, 'dummyQty', '0');
+          // 체크값에 따른 다르게 값을 셋팅한다.
+          if (checkedValue) {
+            // outQty 0 인경우 체크를 해제한다.
+            if (outQty === '0') {
+              grid.checkItem(itemIndex, false);
+            }
+
+            grid.setValue(itemIndex, 'dummyQty', outQty);
+          } else {
+            grid.setValue(itemIndex, 'dummyQty', '0');
+          }
+        } else {
+          grid.checkItem(itemIndex, true);
+        }
+      } else {
+        grid.checkItem(itemIndex, false);
+        grid.setValue(itemIndex, 'dummyQty', '0');
+      }
+    } else if (changedFieldName === 'rmkCn') {
+      console.log(`rmkCn :: rmkCn : ${rmkCn}`);
     }
   };
 
-  view.onCellClicked = (grid, clickData) => {
-    if (editFields.includes(clickData.column)) {
-      view.editOptions.editable = true;
+  view.onItemChecked = async (grid, itemIndex, checked) => {
+    console.log(grid);
+    console.log(itemIndex);
+    console.log(checked);
+    // const checkedValue = grid.isCheckedRow(itemIndex);
+    const checkedValue = grid.isCheckedItem(itemIndex);
+    console.log(`row : ${itemIndex} :: checkedValue : ${checkedValue}`);
+    const { outQty, rmkCn, dummyQty } = grid.getValues(itemIndex);
+    console.log(`outQty : ${outQty} :: rmkCn : ${rmkCn} :: dummyQty : ${dummyQty}`);
+
+    if (checkedValue) {
+      // outQty 값이 0인지 체크
+      if (outQty > 0) {
+        grid.setValue(itemIndex, 'dummyQty', outQty);
+      } else {
+        grid.checkItem(itemIndex, false);
+        grid.setValue(itemIndex, 'dummyQty', '0');
+      }
     } else {
-      view.editOptions.editable = false;
+      grid.setValue(itemIndex, 'dummyQty', '0');
+    }
+  };
+
+  view.onItemAllChecked = async (grid, checked) => {
+    console.log(`checked : ${checked}`);
+    console.log(`grid : ${grid}`);
+
+    if (checked) {
+      const checkedRows = gridUtil.getCheckedRowValues(grid);
+      checkedRows.forEach((v, i) => {
+        grid.setValue(i, 'dummyQty', v.outQty);
+      });
+      // allRows.forEach((v, i) => {
+      //   console.log(`v : ${v} : i :${i}`);
+      //   grid.setValue(i, 'dummyQty', v.outQty);
+      // });
+    } else {
+      const allRows = gridUtil.getAllRowValues(grid);
+      allRows.forEach((v, i) => {
+        console.log(`v : ${v} : i :${i}`);
+        grid.setValue(i, 'dummyQty', '0');
+      });
     }
   };
 

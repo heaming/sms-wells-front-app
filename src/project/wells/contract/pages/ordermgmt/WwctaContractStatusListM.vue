@@ -670,7 +670,7 @@ async function onClickAssignContact(item) {
   console.log(item);
   // 설치오더 시작
   const res = await modal({
-    component: 'WwsncTimeTableSellListP',
+    component: 'WwsncTimeTableForContractP',
     componentProps: {
       sellDate: item.cntrCnfmDtm.substring(0, 8), // 판매일자
       baseYm: now.format('YYYYMM'), // 달력 초기 월

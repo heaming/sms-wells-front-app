@@ -222,7 +222,7 @@ async function onClickClaimantName() {
       const res = await dataService.get('/sms/wells/closing/expense/cleaning-cost/request-cleaning-supplies/rsbDvcd', { params: searchRsbDvCdParams });
       console.log('res.data:', res.data);
       if (res.data.rsbDvCd !== 'W0203') {
-        await alert('MSG_ALT_RSB_LCMGR_APLC_PSB'); // 직책이 지역단장만 신청 가능합니다.
+        await alert(t('MSG_ALT_RSB_LCMGR_APLC_PSB')); // 직책이 지역단장만 신청 가능합니다.
         saveParams.value.prtnrNo = undefined;
         buildingCodes.value = [];
         frmSaveRef.value.reset();

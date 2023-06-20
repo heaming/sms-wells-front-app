@@ -136,7 +136,7 @@ const codes = await codeUtil.getMultiCodes(
 
 // 채널 구분
 const ogTp = [
-  { codeId: 'W02', codeName: t('MSG_TXT_MNGER_OG') },
+  { codeId: 'W02', codeName: t('MSG_TXT_SLS') },
   { codeId: 'W03', codeName: t('MSG_TXT_HMST') },
 ];
 

@@ -8,14 +8,14 @@
       <kw-action-top>
         <template #left>
           <kw-paging-info
-            :total-count="totalCount1"
+            :total-count="totalCountPmot"
           />
         </template>
       </kw-action-top>
       <kw-grid
         ref="grdMainRef"
         name="grdMain"
-        :visible-rows="1"
+        :visible-rows="totalCountPmot === 0 ? 1 : totalCountPmot"
         @init="initGridMainList"
       />
     </kw-form>
@@ -25,14 +25,14 @@
       <kw-action-top>
         <template #left>
           <kw-paging-info
-            :total-count="totalCount2"
+            :total-count="totalCountFgpt"
           />
         </template>
       </kw-action-top>
       <kw-grid
         ref="grdDetailRef"
         name="grdDetail"
-        :visible-rows="1"
+        :visible-rows="totalCountFgpt === 0 ? 1 : totalCountFgpt"
         @init="initGridDetailList"
       />
     </kw-form>
@@ -40,8 +40,8 @@
       <!-- 닫기 -->
       <kw-btn
         negative
-        :label="$t('MSG_BTN_CLOSE')"
-        @click="onClickClose"
+        :label="$t('MSG_BTN_CONFIRM')"
+        @click="onClickConfirm"
       />
     </template>
   </kw-popup>
@@ -56,8 +56,8 @@ const dataService = useDataService();
 const { t } = useI18n();
 const { cancel } = useModal();
 
-const totalCount1 = ref(0);
-const totalCount2 = ref(0);
+const totalCountPmot = ref(0);
+const totalCountFgpt = ref(0);
 
 const props = defineProps({
   cntrNo: { type: String, required: true, default: '' },
@@ -73,8 +73,8 @@ const grdDetailRef = ref(getComponentType('KwGrid'));
 async function fetchData() {
   const res = await dataService.get('/sms/wells/contract/contracts/order-details/apply-promotions', { params: props });
 
-  totalCount1.value = res.data.searchCntrPmotResList.length;
-  totalCount2.value = res.data.searchFgptCntrResList.length;
+  totalCountPmot.value = res.data.searchCntrPmotResList.length;
+  totalCountFgpt.value = res.data.searchFgptCntrResList.length;
 
   const view1 = grdMainRef.value.getView();
   view1.getDataSource().setRows(res.data.searchCntrPmotResList);
@@ -85,7 +85,7 @@ async function fetchData() {
   view2.resetCurrent();
 }
 
-async function onClickClose() {
+async function onClickConfirm() {
   cancel();
 }
 
@@ -124,7 +124,7 @@ const initGridDetailList = defineGrid((data, view) => {
 
   const columns = [
     { fieldName: 'pdNm', header: t('MSG_TXT_FGPT_NM'), width: 100, styleName: 'text-left' }, // 사은품명(상품명)
-    { fieldName: 'fgptQty', header: t('MSG_TXT_QTY'), width: 100, styleName: 'text-left' }, // 사은품수량
+    { fieldName: 'fgptQty', header: t('MSG_TXT_QTY'), width: 100, styleName: 'text-right' }, // 사은품수량
   ];
 
   data.setFields(fields);

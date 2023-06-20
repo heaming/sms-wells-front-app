@@ -49,9 +49,9 @@ import WwpdcServiceDtlMContents from './WwpdcServiceDtlMContents.vue';
 
 const props = defineProps({
   pdCd: { type: String, default: null },
+  reloadYn: { type: String, default: null },
 });
 
-const route = useRoute();
 const dataService = useDataService();
 
 // -------------------------------------------------------------------------------------------------
@@ -63,7 +63,7 @@ const pdBas = ref({});
 const currentInitData = ref({});
 const codes = await codeUtil.getMultiCodes('PD_TEMP_SAVE_CD');
 
-async function fetchData() {
+async function fetchProduct() {
   if (currentPdCd.value) {
     const res = await dataService.get(`/sms/wells/product/services/${currentPdCd.value}`);
     pdBas.value = res.data[pdConst.TBL_PD_BAS];
@@ -74,32 +74,23 @@ async function fetchData() {
 async function initProps() {
   const { pdCd } = props;
   currentPdCd.value = pdCd;
-  await fetchData();
+  await fetchProduct();
 }
 
 await initProps();
 
-// 화면(탭) OPEN 상태에서, 다른 상품코드로 정보 변환
-watch(() => route.params.pdCd, async (pdCd) => {
-  if (!route.path.includes('zwpdc-service-list')) return;
-  console.log(`WwpdcServiceDtlM - watch - currentPdCd.value: ${currentPdCd.value} route.params.pdCd: ${pdCd}`);
-  if (pdCd) {
-    await cmpRef.value?.resetData();
+watch(() => props, async ({ pdCd, reloadYn }) => {
+  console.log(` WwpdcServiceDtlM - watch - pdCd: ${pdCd} reloadYn: ${reloadYn}`);
+  if (pdCd && currentPdCd.value !== pdCd) {
     currentPdCd.value = pdCd;
-    await fetchData();
-  }
-}, { immediate: true });
-
-// 화면(탭) OPEN 상태에서, 상품정보 갱신
-watch(() => route.params.reloadYn, async (reloadYn) => {
-  if (!route.path.includes('zwpdc-service-list')) return;
-  console.log(`WwpdcServiceDtlM - watch - route.params.reloadYn: ${reloadYn}`);
-  if (reloadYn === 'Y') {
     await cmpRef.value?.resetData();
-    currentPdCd.value = props.pdCd;
-    await fetchData();
+    await fetchProduct();
+  } else if (reloadYn && reloadYn === 'Y') {
+    // Reload
+    await cmpRef.value?.resetData();
+    await fetchProduct();
   }
-});
+}, { deep: true });
 
 </script>
 <style scoped></style>
