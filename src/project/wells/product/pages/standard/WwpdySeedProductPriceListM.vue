@@ -217,6 +217,7 @@ async function onClickRemoveRows() {
 
   if (!await gridUtil.confirmIfIsModified(view)) { return; }
   const deletedRows = await gridUtil.confirmDeleteCheckedRows(view);
+  pageInfo.value.totalCount = Number(gridUtil.getAllRowValues(view)?.length);
   if (deletedRows.length) {
     // console.log('deletedRows : ', deletedRows);
     await dataService.delete('/sms/wells/product/seedling-price', { data: deletedRows });
@@ -233,6 +234,7 @@ async function onClickAdd() {
     pdPrcTcnt: 1,
     useYn: 'Y',
   });
+  pageInfo.value.totalCount += 1;
 }
 
 async function onClickSave() {
