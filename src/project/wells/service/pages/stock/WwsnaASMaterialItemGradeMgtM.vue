@@ -60,6 +60,7 @@
           <kw-select
             v-model="searchParams.itmMngtGdCd"
             :options="['S', 'A', 'B', 'C', 'D', 'S+A+B', 'C+D']"
+            :label="$t('MSG_TXT_ITM_MNGT_GD')"
             first-option="all"
           />
         </kw-search-item>
@@ -67,6 +68,7 @@
           <kw-select
             v-model="searchParams.useYn"
             :options="codes.USE_YN"
+            :label="$t('MSG_TXT_USE_YN')"
             first-option="all"
           />
         </kw-search-item>
@@ -85,12 +87,15 @@
           <kw-input
             v-model="searchParams.itmPdCd"
             type="text"
+            :label="$t('MSG_TXT_ITM_CD')"
+            rules="alpha_num"
           />
         </kw-search-item>
         <kw-search-item :label="t('MSG_TXT_MAT_DV')">
           <kw-select
             v-model="searchParams.matUtlzDvCd"
             :options="codes.MAT_UTLZ_DV_CD"
+            :label="$t('MSG_TXT_MAT_DV')"
             first-option="all"
           />
         </kw-search-item>
@@ -134,8 +139,10 @@
         @init="initGrid"
       />
       <kw-pagination
-        :model-value="1"
-        :total-count="100"
+        v-model:page-index="pageInfo.pageIndex"
+        v-model:page-size="pageInfo.pageSize"
+        :total-count="pageInfo.totalCount"
+        @change="fetchData"
       />
     </div>
   </kw-page>
@@ -179,6 +186,16 @@ const searchParams = ref({
   matUtlzDvCd: '',
 });
 
+const pageInfo = ref({
+  totalCount: 0,
+  pageIndex: 1,
+  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
+});
+
+const filterCodes = ref({
+  wareDtlDvCd: [],
+});
+
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -192,16 +209,6 @@ const codes = await codeUtil.getMultiCodes(
   'MAT_UTLZ_DV_CD',
 );
 
-const pageInfo = ref({
-  totalCount: 0,
-  pageIndex: 1,
-  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
-});
-
-const filterCodes = ref({
-  wareDtlDvCd: [],
-});
-
 filterCodes.value.wareDtlDvCd = codes.WARE_DTL_DV_CD.filter((v) => ['20', '21'].includes(v.codeId));
 
 // 창고번호 조회
@@ -209,7 +216,7 @@ const onChangeWareHouse = async () => {
   // 창고번호 클리어
   searchParams.value.wareNo = '';
   const result = await dataService.get(
-    '/sms/wells/service/as-materials-item-grade/ware-houses',
+    '/sms/wells/service/as-material-item-grades/ware-houses',
     { params: {
       baseYm: searchParams.value.baseYm,
       wareDvCd: searchParams.value.wareDvCd,
@@ -259,28 +266,33 @@ function onClickReset() {
 
 // 조회
 async function fetchData() {
-  const res = await dataService.get('/sms/wells/service/as-materials-item-grade/paging', { params: { ...cachedParams, ...pageInfo.value } });
+  const res = await dataService.get('/sms/wells/service/as-material-item-grades/paging', { params: { ...cachedParams, ...pageInfo.value } });
   const { list: itmGd, pageInfo: pagingResult } = res.data;
   pageInfo.value = pagingResult;
+
+  const { baseYm } = searchParams.value;
 
   if (itmGd.length === 0) {
     await alert(t('MSG_ALT_CRSP_MM_NO_DATA_MTR_CRT'));
 
-    const validRes = await dataService.get('/sms/wells/service/as-materials-item-grade/duplication-check', { params: { ...cachedParams } });
+    const validRes = await dataService.get('/sms/wells/service/as-material-item-grades/duplication-check', { params: { ...cachedParams } });
     const { data: validYn } = validRes;
 
     // 데이터가 생성되지 않았을 경우만 생성
     if (validYn === 'N') {
-      await dataService.post('/sms/wells/service/as-materials-item-grade/item-grades', {
-        baseYm: `${searchParams.value.baseYm}`,
-        itmKndCd: `${searchParams.value.itmKndCd}`,
+      const createRes = await dataService.post('/sms/wells/service/as-material-item-grades/item-grades', {
+        baseYm: searchParams.value.baseYm,
+        itmKndCd: searchParams.value.itmKndCd,
       });
-      await fetchData();
+      const { processCount } = createRes.data;
+      if (processCount > 0) {
+        // {0} 월 데이터가 신규 생성되었습니다.
+        notify(baseYm.substr(0, 4) - baseYm.substr(4, 2) + t('MSG_ALT_CREATED_NEW_DATA'));
+        await fetchData();
+      }
       return;
     }
-
-    const baseYm = `${searchParams.value.baseYm}`;
-    await alert(`${baseYm.substr(0, 4)}-${baseYm.substr(4, 2)}${t('MSG_TXT_EXIST_NEW_DATA')}`);
+    await alert(baseYm.substr(0, 4) - baseYm.substr(4, 2) + t('MSG_TXT_EXIST_NEW_DATA'));
   }
 
   const view = grdMainRef.value.getView();
@@ -304,6 +316,7 @@ async function onClickSearch() {
   }
 }
 
+// 저장
 async function onClickSave() {
   const view = grdMainRef.value.getView();
   if (await gridUtil.alertIfIsNotModified(view)) { return; }
@@ -313,15 +326,19 @@ async function onClickSave() {
     item.mngtYm = `${searchParams.value.baseYm}`;
   });
 
-  await dataService.post('/sms/wells/service/as-materials-item-grade', modifedData);
-  await notify(t('MSG_ALT_SAVE_DATA'));
-  await fetchData();
+  const res = await dataService.post('/sms/wells/service/as-material-item-grades', modifedData);
+  const { processCount } = res.data;
+  if (processCount > 0) {
+    notify(t('MSG_ALT_SAVE_DATA'));
+    await fetchData();
+  }
 }
 
+// 엑셀다운로드
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
 
-  const res = await dataService.get('/sms/wells/service/as-materials-item-grade/excel-download', { params: cachedParams });
+  const res = await dataService.get('/sms/wells/service/as-material-item-grades/excel-download', { params: cachedParams });
   await gridUtil.exportView(view, {
     fileName: 'asMaterialItemGradeList',
     timePostfix: true,
@@ -366,6 +383,7 @@ function initGrid(data, view) {
       header: t('MSG_TXT_CTR_RSON'),
       width: '348',
       styleName: 'text-left',
+      rules: 'max:4000',
       editor: {
         type: 'text',
         editable: true,
