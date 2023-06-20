@@ -52,7 +52,10 @@
           <kw-select
             v-model="searchParams.dangMngtPrtnrNo"
             first-option="all"
-            :options="orgOptions"
+            :options="codes.PSTN_DV_CD.filter((v) => v.codeId === '2'
+              || v.codeId === '4'
+              || v.codeId === '5'
+              || v.codeId === '7')"
           />
         </kw-search-item>
       </kw-search-row>
@@ -62,7 +65,8 @@
         >
           <kw-select
             v-model="searchParams.gnrdv"
-            :options="gnrlMngTeamOptions"
+            first-option="all"
+            :options="codes.GNRDV_ACD"
           />
         </kw-search-item>
         <kw-search-item
@@ -129,7 +133,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { gridUtil, defineGrid, getComponentType, useDataService, useGlobal } from 'kw-lib';
+import { gridUtil, defineGrid, getComponentType, useDataService, useGlobal, codeUtil } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 
@@ -157,31 +161,16 @@ const searchParams = ref({
 const prdDivOption = ref([{ codeId: 1, codeName: t('MSG_TXT_FST_RGST_DT') },
   { codeId: 2, codeName: t('MSG_TXT_YEAR_OCCURNCE') }]);
 
-const gnrlMngTeamOptions = ref([
-  { codeId: '', codeName: t('MSG_TXT_ALL') },
-  { codeId: 'A', codeName: `A${t('MSG_TXT_MANAGEMENT_DEPARTMENT')}` },
-  { codeId: 'B', codeName: `B${t('MSG_TXT_MANAGEMENT_DEPARTMENT')}` },
-  { codeId: 'C', codeName: `C${t('MSG_TXT_MANAGEMENT_DEPARTMENT')}` },
-  { codeId: 'D', codeName: `D${t('MSG_TXT_MANAGEMENT_DEPARTMENT')}` },
-  { codeId: 'E', codeName: `E${t('MSG_TXT_MANAGEMENT_DEPARTMENT')}` },
-  { codeId: 'F', codeName: `F${t('MSG_TXT_MANAGEMENT_DEPARTMENT')}` },
-  { codeId: 'G', codeName: `G${t('MSG_TXT_MANAGEMENT_DEPARTMENT')}` },
-  { codeId: 'H', codeName: `H${t('MSG_TXT_MANAGEMENT_DEPARTMENT')}` },
-  { codeId: 'P', codeName: `P${t('MSG_TXT_MANAGEMENT_DEPARTMENT')}` },
-]);
-
-const orgOptions = ref([
-  { codeId: '2', codeName: t('MSG_TXT_GNLR_LEDR') },
-  { codeId: '4', codeName: t('MSG_TXT_REG_DIR') },
-  { codeId: '5', codeName: t('MSG_TXT_BM') },
-  { codeId: '7', codeName: t('MSG_TXT_BRMGR') },
-]);
-
 const pageInfo = ref({
   totalCount: 0,
   pageIndex: 1,
   pageSize: 10,
 });
+
+const codes = await codeUtil.getMultiCodes(
+  'GNRDV_ACD',
+  'PSTN_DV_CD',
+);
 
 let cachedParams;
 
@@ -216,7 +205,6 @@ async function fetchData() {
   dataSource.setRows(res.data);
   pageInfo.value.totalCount = view.getItemCount();
   view.setCheckableExpression("values['dangChkId'] != ''", true);
-  view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
 async function onClickSearch() {
