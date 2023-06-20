@@ -75,7 +75,7 @@
         <!-- 통화명 -->
         <kw-form-item :label="$t('MSG_TXT_CUR_NAME')">
           <p>
-            {{ getCodeNames(codes, 'KRW', 'CRNCY_DV_CD') }}
+            {{ pdInfo.crncyDvCd }}
           </p>
         </kw-form-item>
       </kw-form-row>
@@ -124,7 +124,6 @@ const pdRels = ref([]);
 const pdPrcs = ref([]);
 const codes = await codeUtil.getMultiCodes(
   'SELL_CHNL_DTL_CD',
-  'CRNCY_DV_CD',
   'SELL_TP_CD',
   'STPL_PRD_CD',
   'RENTAL_DSC_DV_CD',
