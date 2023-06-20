@@ -1059,11 +1059,11 @@ async function fetchData() {
     // 설치처 정보
     // -------------------------------------------------------------------------------------------------
     frmMainData.value.rcgvpKnm = pages[0].rcgvpKnm; // 설치정보-설치자명
-    const { istCralLocaraTno, istMexnoEncr, istCralIdvTno } = pages[0]; // 설치자 휴대지역전화번호
-    if (!isEmpty(istCralLocaraTno) && isEmpty(istMexnoEncr) && !isEmpty(istCralIdvTno)) {
-      frmMainData.value.istCralTno = `${istCralLocaraTno}--${istCralIdvTno}`;
+    const { istlcCralLocaraTno, istlcMexnoEncr, istlcCralIdvTno } = pages[0]; // 설치자 휴대지역전화번호
+    if (!isEmpty(istlcCralLocaraTno) && isEmpty(istlcMexnoEncr) && !isEmpty(istlcCralIdvTno)) {
+      frmMainData.value.istCralTno = `${istlcCralLocaraTno}--${istlcCralIdvTno}`;
     } else {
-      frmMainData.value.istCralTno = isEmpty(istCralLocaraTno) && isEmpty(istMexnoEncr) && isEmpty(istCralIdvTno) ? '' : `${istCralLocaraTno}-${istMexnoEncr}-${istCralIdvTno}`; // 설치(배송정보) 휴대전화번호
+      frmMainData.value.istCralTno = isEmpty(istlcCralLocaraTno) && isEmpty(istlcMexnoEncr) && isEmpty(istlcCralIdvTno) ? '' : `${istlcCralLocaraTno}-${istlcMexnoEncr}-${istlcCralIdvTno}`; // 설치(배송정보) 휴대전화번호
     }
     frmMainData.value.istlcAdrZip = pages[0].istlcAdrZip; // 설치처 우편번호
     frmMainData.value.istlcAdr = pages[0].istlcAdr; // 설치자 주소(기준주소)

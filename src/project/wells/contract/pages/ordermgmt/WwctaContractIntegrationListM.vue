@@ -673,7 +673,17 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'dpTpNm', header: t('MSG_TXT_FNT_MTHD'), width: '130', styleName: 'text-center' }, // 이체방식 납부방식유형코드명
     { fieldName: 'mpyBsdt', header: t('MSG_TXT_FTD'), width: '130', styleName: 'text-center' }, // 이체일
     { fieldName: 'bryyMmdd', header: t('MSG_TXT_BIRTH_DATE'), width: '130', styleName: 'text-center', datetimeFormat: 'date' }, // 생년월일
-    { fieldName: 'bzrno', header: t('MSG_TXT_ENTRP_NO'), width: '130', styleName: 'text-center' }, // 사업자번호
+    { fieldName: 'bzrno',
+      header: t('MSG_TXT_ENTRP_NO'),
+      width: '150',
+      styleName: 'text-center',
+      displayCallback(grid, index, value) {
+        // 사업자번호 3-2-5 형식으로 표시
+        if (!isEmpty(value) && value.length === 10) {
+          return `${value.substr(0, 3)}-${value.substr(3, 2)}-${value.substr(5, 5)}`;
+        }
+      },
+    }, // 사업자등록번호 [사업자번호]
     { fieldName: 'txinvPblOjYn', header: t('MSG_TXT_TXINV'), width: '127', styleName: 'text-center' }, // 세금계산서
     { fieldName: 'sexDvNm', header: t('MSG_TXT_GENDER'), width: '130', styleName: 'text-center' }, // 성별
     { fieldName: 'cntrCstNo', header: t('MSG_TXT_CST_NO'), width: '130', styleName: 'text-center' }, // 고객번호

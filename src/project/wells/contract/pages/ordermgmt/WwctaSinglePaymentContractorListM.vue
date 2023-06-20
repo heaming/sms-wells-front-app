@@ -149,7 +149,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, useDataService, gridUtil, useMeta, getComponentType, useGlobal, defineGrid } from 'kw-lib';
+import { codeUtil, useDataService, gridUtil, stringUtil, useMeta, getComponentType, useGlobal, defineGrid } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 
 const dataService = useDataService();
@@ -349,7 +349,20 @@ const initGridSnglPmntContractorList = defineGrid((data, view) => {
     { fieldName: 'orderInfView', header: t('MSG_TXT_ODER_INF_VIEW'), width: '180', styleName: 'text-center', renderer: { type: 'button', hideWhenEmpty: false }, displayCallback: () => t('MSG_TXT_ODER_INF_VIEW') }, // 주문정보 보기
     { fieldName: 'cstKnm', header: t('MSG_TXT_CNTOR_NM'), width: '138', styleName: 'text-center' }, // 계약자명
     { fieldName: 'copnDvNm', header: t('MSG_TXT_CST_DV'), width: '138' }, // 고객구분
-    { fieldName: 'rnmno', header: `${t('MSG_TXT_RRNO')}/${t('MSG_TXT_ENTRP_NO')}`, width: '160', styleName: 'text-center' }, // 주민등록번호/사업자번호
+    { fieldName: 'rnmno',
+      header: `${t('MSG_TXT_RRNO')}/${t('MSG_TXT_ENTRP_NO')}`,
+      width: '160',
+      styleName: 'text-center',
+      displayCallback(grid, index, value) {
+        // 사업자번호 3-2-5 형식으로 표시
+        if (!isEmpty(value) && value.length === 10) {
+          return `${value.substr(0, 3)}-${value.substr(3, 2)}-${value.substr(5, 5)}`;
+        }
+        if (!isEmpty(value) && value.length === 8) {
+          return stringUtil.getDateFormat(value);
+        }
+      },
+    }, // 주민등록번호/사업자번호
     { fieldName: 'basePdCd', header: t('MSG_TXT_PRDT_CODE'), width: '138', styleName: 'text-center' }, // 상품코드
     { fieldName: 'basePdNm', header: t('MSG_TXT_PRDT_NM'), width: '292' }, // 상품명
     { fieldName: 'sellDscDvCd', header: t('MSG_TXT_PD_DC_CLASS'), width: '138', styleName: 'text-center' }, // 할인구분
