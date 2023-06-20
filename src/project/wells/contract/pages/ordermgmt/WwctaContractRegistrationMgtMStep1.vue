@@ -644,7 +644,7 @@ async function isValidStep() {
     return false;
   }
 
-  if (!step1.value.cntrt.cikVal) {
+  if (!step1.value.cntrt.cikVal && step1.value.bas.copnDvCd === '1') {
     await alert('본인인증을 먼저 진행해주세요.');
     return false;
   }
