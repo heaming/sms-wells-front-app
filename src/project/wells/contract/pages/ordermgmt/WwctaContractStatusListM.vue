@@ -181,7 +181,7 @@
               v-if="item.numprds > 1"
               class="kw-font-pt18 kw-fc--primary"
             >
-              {{ item.sellTpDtlNm }} 외 {{ item.numprds }}건
+              {{ item.sellTpNm }} 외 {{ item.numprds }}건
             </p>
             <p
               v-else
@@ -214,8 +214,7 @@
               <p class="w90">
                 {{ t('MSG_TXT_RCP_D') }}
               </p>
-              <span v-if="item.cntrPrgsStatCd < 60">{{ dayjs( item.cntrTempSaveDtm).format('YYYY-MM-DD') }}</span>
-              <span v-if="item.cntrPrgsStatCd >= 60">{{ dayjs( item.cntrRcpFshDtm).format('YYYY-MM-DD') }}</span>
+              <span>{{ dayjs( item.viewRcpFshDtm).format('YYYY-MM-DD') }}</span>
             </li>
             <li>
               <p class="w90">
@@ -227,7 +226,7 @@
             </li>
             <li>
               <p
-                v-if="Number(item.pymnamt) > 0 && item.cntrPrgsStatCd < 60"
+                v-if="Number(item.pymnamt) > 0 && item.viewCntrPrgsStatCd < 60"
                 class="w90"
               >
                 {{ t('MSG_TXT_DPST_AMT') }}
@@ -239,7 +238,7 @@
                 <br>
               </p>
               <span
-                v-if="Number(item.pymnamt) > 0 && item.cntrPrgsStatCd < 60"
+                v-if="Number(item.pymnamt) > 0 && item.viewCntrPrgsStatCd < 60"
                 class="text-weight-bold kw-fc--error"
               >
                 {{ stringUtil.getNumberWithComma(item.pymnamt||0) }}원
@@ -265,7 +264,7 @@
           </kw-chip>
           <!-- 확정요청대상조회 -->
           <span
-            v-if="item.cntrPrgsStatCd === '50' && searchParams.isBrmgr != 'Y'"
+            v-if="item.viewCntrPrgsStatCd === '50' && searchParams.isBrmgr != 'Y'"
             style="float: right;"
             @click="onClickConfirmTarget(item.cntrNo)"
           >
@@ -276,7 +275,7 @@
 
           <!-- 임시저장 -->
           <div
-            v-if="Number(item.cntrPrgsStatCd) < 20"
+            v-if="Number(item.viewCntrPrgsStatCd) < 20"
             class="button-wrap"
           >
             <kw-btn
@@ -297,7 +296,7 @@
           </div>
           <!-- 작성완료 -->
           <div
-            v-else-if="item.cntrPrgsStatCd === '20'"
+            v-else-if="item.viewCntrPrgsStatCd === '20'"
             class="button-wrap"
           >
             <kw-btn
@@ -311,7 +310,7 @@
               spaced="0px"
             />
             <kw-btn
-              v-if="item.cntrPrgsStatCd === '20' && item.pymnSkipYn === 'N'"
+              v-if="item.viewCntrPrgsStatCd === '20' && item.pymnSkipYn === 'N'"
               :label="$t('MSG_TXT_NON_FCF_PYMNT')"
               padding="12px"
               @click="onClickNonFcfPayment(item)"
@@ -329,7 +328,7 @@
           </div>
           <!-- 결제중 -->
           <div
-            v-else-if="item.cntrPrgsStatCd === '40'"
+            v-else-if="item.viewCntrPrgsStatCd === '40'"
             class="button-wrap"
           >
             <kw-btn
@@ -350,7 +349,7 @@
           </div>
           <!-- 결제완료 -->
           <div
-            v-else-if="item.cntrPrgsStatCd === '50'"
+            v-else-if="item.viewCntrPrgsStatCd === '50'"
             class="button-wrap"
           >
             <kw-btn
@@ -385,7 +384,7 @@
           </div>
           <!-- 확정 -->
           <div
-            v-else-if="item.cntrPrgsStatCd === '60'"
+            v-else-if="item.viewCntrPrgsStatCd === '60'"
             class="button-wrap"
           >
             <kw-btn
@@ -494,6 +493,11 @@ const cntrPrgsStatCds = codes.CNTR_PRGS_STAT_CD.filter((v) => ((searchParams.val
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
+/*
+item.viewCntrPrgsStatCd :
+ - 일반 : CNTR_PRGS_STAT_CD
+ - 재약정 : RSTL_STAT_CD 010 -> 20(접수) / 020 -> 60(확정)
+*/
 
 async function fetchData() {
   if (isEmpty(cachedParams)) return;
@@ -578,6 +582,8 @@ async function onClickConfirmTarget(paramCntrNo) {
 
 // 수정
 async function onClickModify(paramStatCd, paramCntrNo) {
+  console.log(` onClickModify paramStatCd : ${paramStatCd}, paramCntrNo : ${paramCntrNo}`);
+
   router.replace({
     path: 'wwcta-contract-registration-mgt',
     query: {
@@ -588,17 +594,17 @@ async function onClickModify(paramStatCd, paramCntrNo) {
 }
 
 async function onClickNonFcfPayment(item) {
-  if (item.cntrPrgsStatCd === '20' || item.cntrPrgsStatCd === '40') {
+  if (item.viewCntrPrgsStatCd === '20' || item.viewCntrPrgsStatCd === '40') {
     // 계약진행상태코드 재확인
     const nowPrgsStatCd = await getPrgsStatCd(item.cntrNo);
-    if (Number(item.cntrPrgsStatCd) !== nowPrgsStatCd) {
+    if (Number(item.viewCntrPrgsStatCd) !== nowPrgsStatCd) {
       await alert(t('MSG_ALT_NOT_SYNC_REFRESH'));
       await onClickSearch();
       return;
     }
 
     let message = t('MSG_ALT_STLM_URL_CONFIRM', [item.cstKnm, item.mobileTelNo]);
-    if (item.cntrPrgsStatCd === '40') { message = `[${t('MSG_TXT_RESEND')}]${message}`; }
+    if (item.viewCntrPrgsStatCd === '40') { message = `[${t('MSG_TXT_RESEND')}]${message}`; }
 
     if (!await confirm(message)) { return; }
 
@@ -614,10 +620,10 @@ async function onClickNonFcfPayment(item) {
 }
 
 async function onClickF2fPayment(item) {
-  if (item.cntrPrgsStatCd === '20' || item.cntrPrgsStatCd === '60') {
+  if (item.viewCntrPrgsStatCd === '20' || item.viewCntrPrgsStatCd === '60') {
     // 계약진행상태코드 재확인
     const nowPrgsStatCd = await getPrgsStatCd(item.cntrNo);
-    if (Number(item.cntrPrgsStatCd) !== nowPrgsStatCd) {
+    if (Number(item.viewCntrPrgsStatCd) !== nowPrgsStatCd) {
       await alert(t('MSG_ALT_NOT_SYNC_REFRESH'));
       await onClickSearch();
       return;
@@ -695,7 +701,7 @@ async function onClickRequestDelete(item) {
 }
 
 async function onClickContractDelete(item) {
-  if (item.cntrPrgsStatCd <= '20') {
+  if (item.viewCntrPrgsStatCd <= '20') {
     if (!await confirm(t('MSG_ALT_WANT_DEL_WCC'))) { return; }
 
     await dataService.delete('/sms/wells/contract/contracts/contract-lists/', { params: { cntrNo: item.cntrNo } });
