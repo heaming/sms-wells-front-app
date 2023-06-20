@@ -231,8 +231,7 @@ const initGrdSub = defineGrid((data, view) => {
         attachGroupId: 'ATG_DCD_CLING_COST',
         downloadable: true,
         multiple: true,
-        editable: true,
-        readonly: true,
+        editable: false,
       },
       displayCallback: () => t('MSG_BTN_CLINR_MNGT_BRWS') }, // 계약서
     { fieldName: 'cntrLroreApnFileId',
@@ -247,8 +246,7 @@ const initGrdSub = defineGrid((data, view) => {
         attachGroupId: 'ATG_DCD_CLING_COST',
         downloadable: true,
         multiple: true,
-        editable: true,
-        readonly: true,
+        editable: false,
       },
       displayCallback: () => t('MSG_BTN_CLINR_MNGT_BRWS') }, // 계약해지원
     { fieldName: 'idfApnFileId',
@@ -263,8 +261,7 @@ const initGrdSub = defineGrid((data, view) => {
         attachGroupId: 'ATG_DCD_CLING_COST',
         downloadable: true,
         multiple: true,
-        editable: true,
-        readonly: true,
+        editable: false,
       },
       displayCallback: () => t('MSG_BTN_CLINR_MNGT_BRWS') }, // 신분증사본
     { fieldName: 'bnkbApnFileId',
@@ -279,8 +276,7 @@ const initGrdSub = defineGrid((data, view) => {
         attachGroupId: 'ATG_DCD_CLING_COST',
         downloadable: true,
         multiple: true,
-        editable: true,
-        readonly: true,
+        editable: false,
       },
       displayCallback: () => t('MSG_BTN_CLINR_MNGT_BRWS') }, // 통장사본
     { fieldName: 'fmnCoSpptAmt', header: t('MSG_TXT_CO_SUFD_MM'), width: '182', styleName: 'text-center', dataType: 'number' }, // 회사지원금(월)
