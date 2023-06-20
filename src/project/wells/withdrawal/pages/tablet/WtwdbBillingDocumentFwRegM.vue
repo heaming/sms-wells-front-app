@@ -43,11 +43,19 @@
           :label="t('MSG_TXT_DSPH_NO')"
           required
         >
-          <zwcm-telephone-number
+          <!-- <zwcm-telephone-number
             v-model:tel-no1="telNos.telNo1"
             v-model:tel-no2="telNos.telNo2"
             v-model:tel-no3="telNos.telNo3"
             required
+          /> -->
+          <kw-input
+            v-model="sendMainData.destInfo"
+            mask="###########"
+            rules="length:11"
+            :label="$t('MSG_TXT_DSPH_NO')"
+            required
+            clearable
           />
         </kw-form-item>
         <!-- label="발신자" -->
@@ -68,11 +76,19 @@
           :label="t('MSG_TXT_RECP_NO')"
           required
         >
-          <zwcm-telephone-number
+          <!-- <zwcm-telephone-number
             v-model:tel-no1="telNos2.telNo1"
             v-model:tel-no2="telNos2.telNo2"
             v-model:tel-no3="telNos2.telNo3"
             required
+          /> -->
+          <kw-input
+            v-model="sendMainData.callback"
+            mask="###########"
+            rules="length:11"
+            :label="t('MSG_TXT_RECP_NO')"
+            required
+            clearable
           />
         </kw-form-item>
         <!-- label="수신자" -->
@@ -161,7 +177,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { codeUtil, notify, useDataService, confirm } from 'kw-lib';
-import ZwcmTelephoneNumber from '~common/components/ZwcmTelephoneNumber.vue';
+// import ZwcmTelephoneNumber from '~common/components/ZwcmTelephoneNumber.vue';
 import ZwcmEmailAddress from '~common/components/ZwcmEmailAddress.vue';
 import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
@@ -228,17 +244,17 @@ const sendMainData = ref({
 
 const items = ref([]);
 
-const telNos = ref({
-  telNo1: '',
-  telNo2: '',
-  telNo3: '',
-});
+// const telNos = ref({
+//   telNo1: '',
+//   telNo2: '',
+//   telNo3: '',
+// });
 
-const telNos2 = ref({
-  telNo1: '',
-  telNo2: '',
-  telNo3: '',
-});
+// const telNos2 = ref({
+//   telNo1: '',
+//   telNo2: '',
+//   telNo3: '',
+// });
 
 // 이전 버튼 클릭
 async function onClickBefore() {
@@ -283,8 +299,8 @@ async function onClickSend() {
   if (await frmMainRef.value.alertIfIsNotModified()) { return; }
 
   if (await confirm(t('MSG_ALT_WANT_SEND'))) {
-    sendMainData.value.destInfo = telNos.value.telNo1 + telNos.value.telNo2 + telNos.value.telNo3;
-    sendMainData.value.callback = telNos2.value.telNo1 + telNos2.value.telNo2 + telNos2.value.telNo3;
+    // sendMainData.value.destInfo = telNos.value.telNo1 + telNos.value.telNo2 + telNos.value.telNo3;
+    // sendMainData.value.callback = telNos2.value.telNo1 + telNos2.value.telNo2 + telNos2.value.telNo3;
 
     // if (sendMainData.value.bildcFwTpCd === 'K') {
     //   if (!telNos.value.telNo1 || !telNos.value.telNo2 || !telNos.value.telNo3) {
