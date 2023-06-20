@@ -311,7 +311,7 @@
               spaced="0px"
             />
             <kw-btn
-              v-if="item.cstStlmInMthCd === '20' && item.pymnSkipYn === 'N'"
+              v-if="item.cntrPrgsStatCd === '20' && item.pymnSkipYn === 'N'"
               :label="$t('MSG_TXT_NON_FCF_PYMNT')"
               padding="12px"
               @click="onClickNonFcfPayment(item)"
