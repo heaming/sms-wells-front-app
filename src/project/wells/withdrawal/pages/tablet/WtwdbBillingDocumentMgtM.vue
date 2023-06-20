@@ -25,13 +25,15 @@
         @click="onClickRegP"
       />
     </template>
-    <!-- one-row -->
     <kw-search
+      one-row
+      :cols="2"
       @search="onClickSearch"
     >
       <kw-search-row>
         <kw-search-item
           rules="required"
+          required
           :label="t('MSG_TXT_CST_NM')"
         >
           <kw-input
@@ -60,8 +62,8 @@
             v-model:page-index="pageInfo.pageIndex"
             v-model:page-size="pageInfo.pageSize"
             :total-count="pageInfo.totalCount"
-            :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
           />
+          <!-- :page-size-options="codes.COD_PAGE_SIZE_OPTIONS" -->
         </template>
         <!-- label="편집" -->
         <kw-btn
@@ -72,11 +74,12 @@
           @click="onClickedit"
         />
       </kw-action-top>
-      <kw-separator
+      <!-- 디바이더 삭제요청에 따른 2023-06-20
+        <kw-separator
         v-if="!isEditChk"
         color="black1"
         spaced="0"
-      />
+      /> -->
       <kw-list
         v-model:selected="arrModel"
         :items="items"
