@@ -404,7 +404,7 @@ const initGrdMain = defineGrid((data, view) => {
       },
       footer: { expression: 'sum', numberFormat: '#,##0.##', styleName: 'text-right' } },
     { fieldName: 'bilAgg',
-      header: t('MSG_TXT_BIL_AGG'),
+      header: t('MSG_TXT_SL_AGG'),
       width: '130',
       styleName: 'text-right',
       hint: t('MSG_TXT_ACU_BIL_AMT'),
