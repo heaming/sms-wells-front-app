@@ -161,7 +161,7 @@
       </kw-action-top>
       <kw-grid
         ref="grdDetailRef"
-        :visible-rows="pageDetailInfo.pageSize"
+        :visible-rows="pageDetailInfo.visibleRowNumber"
         name="grdDetail"
         @init="initGridDetail"
       />
@@ -179,17 +179,10 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import {
-  useDataService,
-  getComponentType,
-  gridUtil,
-  defineGrid,
-  useMeta,
-  codeUtil,
-  useGlobal,
-} from 'kw-lib';
+import { useDataService, getComponentType, gridUtil, defineGrid, useMeta, codeUtil, useGlobal } from 'kw-lib';
 import dayjs from 'dayjs';
 import { cloneDeep, isEmpty } from 'lodash-es';
+import { getGridVisibleRowNumber } from '~sms-common/bond/utils/bnUtil';
 
 const dataService = useDataService();
 const router = useRouter();
@@ -204,6 +197,7 @@ const pageDetailInfo = ref({
   totalCount: 0,
   pageIndex: 1,
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
+  visibleRowNumber: getGridVisibleRowNumber(),
 });
 const totalCount = ref(0);
 // -------------------------------------------------------------------------------------------------

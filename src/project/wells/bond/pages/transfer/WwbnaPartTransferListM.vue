@@ -96,8 +96,8 @@
         >
           <kw-input
             v-model="searchParams.phoneNumber"
-            type="telephone"
             :on-keydown-no-click="true"
+            mask="telephone"
             @keydown.enter="isCustomer($event, 'type3')"
           />
         </kw-search-item>
@@ -172,7 +172,7 @@
       <kw-grid
         ref="grdSubRef"
         name="grdSub"
-        :visible-rows="9"
+        :visible-rows="pageInfo.visibleRowNumber"
         @init="initGrdSub"
       />
       <kw-pagination
@@ -192,7 +192,7 @@
 import { useGlobal, codeUtil, getComponentType, useMeta, useDataService, defineGrid, gridUtil } from 'kw-lib';
 import dayjs from 'dayjs';
 import { cloneDeep } from 'lodash-es';
-import { getBzHdqDvcd } from '~sms-common/bond/utils/bnUtil';
+import { getBzHdqDvcd, getGridVisibleRowNumber } from '~sms-common/bond/utils/bnUtil';
 import { chkInputSearchComplete, openSearchUserCommonPopup, isCustomerCommon } from '~sms-common/bond/pages/transfer/utils/bnaTransferUtils';
 
 const { t } = useI18n();
@@ -225,6 +225,7 @@ const pageInfo = ref({
   pageIndex: 1,
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
   needTotalCount: true,
+  visibleRowNumber: getGridVisibleRowNumber(),
 });
 
 const defaultDate = dayjs().format('YYYYMM');
