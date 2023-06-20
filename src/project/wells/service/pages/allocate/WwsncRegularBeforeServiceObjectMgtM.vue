@@ -112,7 +112,7 @@ async function onClickCreate() {
   // }
   if (!await confirm(t('MSG_ALT_IS_CRT_DATA'))) { return; }
   await dataService.post('/sms/wells/service/regular-bs-object', searchParams.value);
-  await notify(t('MSG_ALT_CREATED'));
+  await notify(t('MSG_ALT_CRT_FSH')); // 생성 되었습니다.
 }
 
 // -------------------------------------------------------------------------------------------------
