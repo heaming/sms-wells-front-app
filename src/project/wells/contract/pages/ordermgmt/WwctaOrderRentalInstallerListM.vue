@@ -311,7 +311,7 @@ const initGridRentalInstallerList = defineGrid((data, view) => {
     { fieldName: 'dntcYn' }, // 두낫콜 여부
     { fieldName: 'baseCntrInfo' }, // 이후 기변정보
     { fieldName: 'basePdNm' }, // 이후 기변정보-제품명
-    { fieldName: 'baseRentalAmt' }, // 이후 기변정보-사용렌탈료
+    { fieldName: 'baseRentalAmt', dataType: 'number' }, // 이후 기변정보-사용렌탈료
     { fieldName: 'baseSvPrd' }, // 이후 기변정보-관리주기
     { fieldName: 'stplDscAmt', dataType: 'number' }, // 재약정 가입정보-할인금액
     { fieldName: 'stplStrtdt' }, // 재약정 가입정보-시작일
