@@ -287,17 +287,19 @@ async function fetchData() {
       const { processCount } = createRes.data;
       if (processCount > 0) {
         // {0} 월 데이터가 신규 생성되었습니다.
-        notify(baseYm.substr(0, 4) - baseYm.substr(4, 2) + t('MSG_ALT_CREATED_NEW_DATA'));
+        notify(`${baseYm.substr(0, 4)}-${baseYm.substr(4, 2)}${t('MSG_ALT_CREATED_NEW_DATA')}`);
         await fetchData();
       }
       return;
     }
-    await alert(baseYm.substr(0, 4) - baseYm.substr(4, 2) + t('MSG_TXT_EXIST_NEW_DATA'));
+    await alert(`${baseYm.substr(0, 4)}-${baseYm.substr(4, 2)}${t('MSG_TXT_EXIST_NEW_DATA')}`);
   }
 
-  const view = grdMainRef.value.getView();
-  view.getDataSource().setRows(itmGd);
-  view.resetCurrent();
+  if (grdMainRef.value != null) {
+    const view = grdMainRef.value.getView();
+    view.getDataSource().setRows(itmGd);
+    view.resetCurrent();
+  }
 }
 
 async function onClickSearch() {
@@ -386,8 +388,7 @@ function initGrid(data, view) {
       rules: 'max:4000',
       editor: {
         type: 'text',
-        editable: true,
-        maxLength: 1000 } },
+        editable: true } },
   ];
 
   data.setFields(fields);
