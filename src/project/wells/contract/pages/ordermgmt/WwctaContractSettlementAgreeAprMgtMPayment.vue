@@ -25,6 +25,7 @@
     :cntr-cst-info="contractor"
     :crdcd-stlms="crdcdStlms"
     :mileage-stlms="mileageStlms"
+    :contract="contract"
     @approved="onApprovedSpayStlms"
   />
   <card-automatic-transfer-approval
@@ -108,6 +109,8 @@ const stlmInfo = computed(() => stlmRels.value
     merged[cntrStlmId] ??= stlm;
     merged[cntrStlmId].stlmAmt ??= 0;
     merged[cntrStlmId].stlmAmt += stlmAmt || 0;
+    merged[cntrStlmId].stlmRels ??= [];
+    merged[cntrStlmId].stlmRels.push({ ...stlmRel });
     return merged;
   }, {}));
 

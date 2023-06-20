@@ -123,7 +123,7 @@
               <kw-select
                 v-model="approvalRequest.istmMcn"
                 label="할부"
-                :options="codes.ISTM_MCT_CD"
+                :options="codes.ISTM_MCNT_CD"
                 class="col text-right"
               />
             </div>
@@ -155,7 +155,7 @@
               readonly
             />
             <kw-input
-              :model-value="approvalResponse.aprno"
+              :model-value="approvalResponse.aprNo"
               label="승인번호"
               readonly
             />
@@ -174,7 +174,7 @@
 </template>
 
 <script setup>
-import { codeUtil, confirm, getComponentType, notify, stringUtil } from 'kw-lib';
+import { codeUtil, confirm, getComponentType, notify, stringUtil, useDataService } from 'kw-lib';
 import WwctaContractSettlementAgreeItem
   from '~sms-wells/contract/components/ordermgmt/WwctaContractSettlementAgreeItem.vue';
 import CrdcdExpSelect
@@ -182,6 +182,7 @@ import CrdcdExpSelect
 import { warn } from 'vue';
 
 const props = defineProps({
+  contract: { type: Object, default: undefined },
   cntrCstInfo: { type: Object, default: undefined },
   crdcdStlms: {
     type: Array,
@@ -198,6 +199,7 @@ const props = defineProps({
   },
 });
 
+const dataService = useDataService();
 const emit = defineEmits(['approved']);
 
 const exposed = {};
@@ -205,20 +207,13 @@ defineExpose(exposed);
 
 const codes = await codeUtil.getMultiCodes(
   'DP_TP_CD',
+  'ISTM_MCNT_CD',
 );
 const MERGED_CREDIT_CARD_SPAY_CD = '02';
 codes.DP_TP_CD.push({
   codeId: MERGED_CREDIT_CARD_SPAY_CD,
   codeName: '신용카드',
 }); /* sorry for dirty. */
-codes.ISTM_MCT_CD = [
-  { codeId: 1, codeName: '일시불' },
-  { codeId: 2, codeName: '2개월' },
-  { codeId: 3, codeName: '3개월' },
-  { codeId: 12, codeName: '12개월' },
-  { codeId: 24, codeName: '24개월' },
-  { codeId: 36, codeName: '36개월' },
-]; /* TODO: 할부 개월 수 어디서 가져올 지 확인 후 수정 */
 
 const frmRef = ref(getComponentType('KwForm'));
 
@@ -323,15 +318,33 @@ function getStlmsUpdateInfo() {
 
 async function requestApproval() {
   return new Promise((resolve) => {
-    const testResponse = {
-      data: {
-        aprno: 'test123456789', /* 승인번호, 저장은 안하지만 와야함. */
-        cdcoCd: '02', /* 카드사 코드 */
-        fnitAprRsCd: 'Y', /* 금융기관승인결과코드 */
-        fnitAprFshDtm: undefined, /* 금융기관승인완료일시 */
-      },
+    console.log(props.crdcdStlms[0].stlmRels);
+
+    const dataParams = {
+      cardExpdtYm: approvalRequest.value.cardExpdtYm,
+      crcdnoEncr: approvalRequest.value.crcdnoEncr,
+      istmMcn: approvalRequest.value.istmMcn,
+      owrKnm: approvalRequest.value.owrKnm,
+      stlmAmt: approvalRequest.value.stlmAmt,
+      cntrNo: stlmBas.value.cntrNo,
+      stlmRels: props.crdcdStlms[0].stlmRels,
     };
-    setTimeout(() => resolve(testResponse), 100);
+
+    console.log(dataParams);
+
+    // 수납요청 데이터 생성 및 카드승인..
+    const res = dataService.post('/sms/wells/contract/contracts/settlements/credit-card-spay', dataParams);
+    console.log(res);
+
+    // const testResponse = {
+    //   data: {
+    //     aprno: 'test123456789', /* 승인번호, 저장은 안하지만 와야함. */
+    //     cdcoCd: '02', /* 카드사 코드 */
+    //     fnitAprRsCd: 'Y', /* 금융기관승인결과코드 */
+    //     fnitAprFshDtm: undefined, /* 금융기관승인완료일시 */
+    //   },
+    // };
+    setTimeout(() => resolve(res), 100);
   });
 }
 
@@ -339,7 +352,9 @@ async function onClickApproval() {
   if (!await frmRef.value.validate()) { return; }
   if (!await confirm('카드승인 요청을 하시겠습니까?')) { return; }
   const response = await requestApproval();
-  approvalResponse.value = response.data;
+  console.log(response.data.data[0]);
+  approvalResponse.value = response.data.data[0];
+  // approvalResponse.value.aprNo = 'TEMP012345';
   emit('approved', getStlmsUpdateInfo());
 }
 
@@ -355,7 +370,7 @@ async function validate() {
   if (!approvalRequest.value.stlmAmt) {
     return true;
   }
-  const valid = approvalResponse.value?.fnitAprRsCd === 'Y';
+  const valid = approvalResponse.value?.aprNo !== '';
   if (!valid) {
     notify('카드 승인 요청을 해주세요.');
     scrollTo(topRef);

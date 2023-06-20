@@ -53,28 +53,26 @@
       >
         <kw-form-item label="의무기간">
           <p>
-            {{ `${product.duty}개월` }}
+            {{ `${product.stplPtrm}개월` }}
           </p>
         </kw-form-item>
         <kw-form-item label="등록비">
           <p>
-            0원
+            {{ `${stringUtil.getNumberWithComma(product.cntrAmt)}원` }}
           </p>
         </kw-form-item>
-        <kw-form-item label="방문주기">
+        <!-- <kw-form-item label="방문주기">
           <p>
-            3개월
+            {{ `${product.svPrd}개월` }}
           </p>
-        </kw-form-item>
+        </kw-form-item> -->
         <kw-form-item label="월 렌탈료">
           <p>
-            {{ stringUtil.getNumberWithComma(14900) + '원' }}
+            {{ stringUtil.getNumberWithComma(product.sellAmt) + '원' }}
           </p>
         </kw-form-item>
         <kw-form-item label="프로모션">
-          <p>
-            14,900원
-          </p>
+          <p>-</p>
         </kw-form-item>
       </kw-form>
     </kw-expansion-item>
