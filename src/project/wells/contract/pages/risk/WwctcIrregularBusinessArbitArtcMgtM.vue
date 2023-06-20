@@ -290,8 +290,6 @@ async function onGroupFind(dataRow) {
       view.setValue(dataRow, 'dgr2LevlDgPrtnrNm', resData.dgr2LevlDgPrtnrNm);
       view.setValue(dataRow, 'bznsSpptPrtnrNo', resData.bizSpptPrtnrNo);
       view.setValue(dataRow, 'bznsSpptPrtnrNm', resData.bizSpptPrtnrNm);
-      view.setValue(dataRow, 'dgr3LevlDgPrtnrNo', resData.dgr3LevlDgPrtnrNo);
-      view.setValue(dataRow, 'dgr3LevlDgPrtnrNm', resData.dgr3LevlDgPrtnrNm);
       view.setValue(dataRow, 'ogTpCd', resData.ogTpCd);
     }
   }
