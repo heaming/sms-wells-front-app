@@ -310,12 +310,13 @@
               spaced="0px"
             />
             <kw-btn
-              v-if="item.viewCntrPrgsStatCd === '20' && item.pymnSkipYn === 'N'"
+              v-if="item.cntrPrgsStatCd === '20' && item.pymnSkipYn === 'N'"
               :label="$t('MSG_TXT_NON_FCF_PYMNT')"
               padding="12px"
               @click="onClickNonFcfPayment(item)"
             />
             <kw-btn
+              v-if="item.cntrPrgsStatCd === '20'"
               :label="$t('MSG_BTN_F2F_PYMNT')"
               padding="12px"
               @click="onClickF2fPayment(item)"
@@ -398,6 +399,7 @@
               spaced="0px"
             />
             <kw-btn
+              v-if="item.cntrPrgsStatCd === '60'"
               :label="$t('MSG_BTN_CNTCT_ASSGNMNT')"
               padding="12px"
               @click="onClickAssignContact(item)"
