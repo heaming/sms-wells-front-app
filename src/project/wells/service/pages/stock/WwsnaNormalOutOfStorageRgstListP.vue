@@ -246,6 +246,12 @@ async function onClickSearch() {
   pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
+  const view = grdMainRef.value.getView();
+  view.checkAll(true);
+  const checkedRows = gridUtil.getCheckedRowValues(view);
+  if (checkedRows.length === 0) {
+    view.checkAll(false);
+  }
 }
 
 async function onClickExcelDownload() {
@@ -265,10 +271,13 @@ async function onClickDelete() {
 }
 
 function getSaveParams() {
-  const checkedValues = gridUtil.getCheckedRowValues(grdMainRef.value.getView());
-  console.log(checkedValues);
+  const checkedValues = ref(gridUtil.getCheckedRowValues(grdMainRef.value.getView()));
+  checkedValues.value.forEach((v) => {
+    v.outQty = v.dummyQty;
+  });
+  console.log(checkedValues.value);
 
-  return checkedValues;
+  return checkedValues.value;
 }
 
 async function onClickConfirm() {
@@ -462,6 +471,7 @@ const initGrdMain = defineGrid((data, view) => {
   view.checkBar.visible = true;
   view.rowIndicator.visible = true;
   view.editOptions.columnEditableFirst = true;
+  // view.checkAll(true);
 
   view.onCellEdited = async (grid, itemIndex, row, field) => {
     // grid.checkItem(itemIndex, true); //checked true
@@ -531,6 +541,28 @@ const initGrdMain = defineGrid((data, view) => {
       }
     } else {
       grid.setValue(itemIndex, 'dummyQty', '0');
+    }
+  };
+
+  view.onItemAllChecked = async (grid, checked) => {
+    console.log(`checked : ${checked}`);
+    console.log(`grid : ${grid}`);
+
+    if (checked) {
+      const checkedRows = gridUtil.getCheckedRowValues(grid);
+      checkedRows.forEach((v, i) => {
+        grid.setValue(i, 'dummyQty', v.outQty);
+      });
+      // allRows.forEach((v, i) => {
+      //   console.log(`v : ${v} : i :${i}`);
+      //   grid.setValue(i, 'dummyQty', v.outQty);
+      // });
+    } else {
+      const allRows = gridUtil.getAllRowValues(grid);
+      allRows.forEach((v, i) => {
+        console.log(`v : ${v} : i :${i}`);
+        grid.setValue(i, 'dummyQty', '0');
+      });
     }
   };
 
