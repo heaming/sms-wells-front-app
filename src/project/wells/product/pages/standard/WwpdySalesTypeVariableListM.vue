@@ -209,9 +209,7 @@ async function checkDuplication() {
     const { sellTpCd, choFxnDvCd, rgltnVarbId } = createdRows.find((item) => item.sellTpCd === dupCodes[0]
         && item.choFxnDvCd === dupCodes[1]
         && item.rgltnVarbId === dupCodes[2]);
-    const dupItem = `${getCodeNames(codes, sellTpCd, 'SELL_TP_CD')}
-                      /${getCodeNames(codes, choFxnDvCd, 'CHO_FXN_DV_CD')}
-                      /${getCodeNames(variableCodes.value, rgltnVarbId)}`;
+    const dupItem = `${getCodeNames(codes, sellTpCd, 'SELL_TP_CD')}/${getCodeNames(codes, choFxnDvCd, 'CHO_FXN_DV_CD')}/${getCodeNames(variableCodes.value, rgltnVarbId)}`;
     // 은(는) 이미 DB에 등록되어 있습니다.
     notify(t('MSG_ALT_EXIST_IN_DB', [dupItem]));
     return true;
