@@ -94,7 +94,7 @@
         <kw-search-item :label="t('MSG_TXT_MAT_DV')">
           <kw-select
             v-model="searchParams.matUtlzDvCd"
-            :options="codes.MAT_UTLZ_DV_CD"
+            :options="codes.CMN_PART_DV_CD"
             :label="$t('MSG_TXT_MAT_DV')"
             first-option="all"
           />
@@ -134,7 +134,6 @@
       </kw-action-top>
       <kw-grid
         ref="grdMainRef"
-        :visible-rows="pageInfo.pageSize"
         :total-count="pageInfo.totalCount"
         @init="initGrid"
       />
@@ -206,7 +205,7 @@ const codes = await codeUtil.getMultiCodes(
   'WARE_DTL_DV_CD',
   'USE_YN',
   'ITM_KND_CD',
-  'MAT_UTLZ_DV_CD',
+  'CMN_PART_DV_CD',
 );
 
 filterCodes.value.wareDtlDvCd = codes.WARE_DTL_DV_CD.filter((v) => ['20', '21'].includes(v.codeId));
@@ -276,7 +275,7 @@ async function fetchData() {
     await alert(t('MSG_ALT_CRSP_MM_NO_DATA_MTR_CRT'));
 
     const validRes = await dataService.get('/sms/wells/service/as-material-item-grades/duplication-check', { params: { ...cachedParams } });
-    const { data: validYn } = validRes;
+    const validYn = validRes.data;
 
     // 데이터가 생성되지 않았을 경우만 생성
     if (validYn === 'N') {
@@ -304,14 +303,14 @@ async function fetchData() {
 
 async function onClickSearch() {
   const currentMonth = dayjs().format('YYYYMM');
-  const searchBaseYm = `${searchParams.value.baseYm}`;
+  const searchBaseYm = searchParams.value.baseYm;
 
   if (searchBaseYm > currentMonth) {
     // 기준년월 > 현재년월일 경우 메시지 처리, 현재 월까지만 조회 가능합니다
     await alert(t('MSG_ALT_INQR_CRTL_MM_PSB'));
   } else {
     pageInfo.value.pageIndex = 1;
-    const itmMngtGdCd = `${searchParams.value.itmMngtGdCd}`;
+    const { itmMngtGdCd } = searchParams.value;
     searchParams.value.itmMngtGdCd = itmMngtGdCd.replace(/\+/gi, '');
     cachedParams = cloneDeep(searchParams.value);
     await fetchData();
@@ -325,7 +324,7 @@ async function onClickSave() {
   if (!await gridUtil.validate(view)) { return; }
   const modifedData = gridUtil.getChangedRowValues(view);
   modifedData.forEach((item) => {
-    item.mngtYm = `${searchParams.value.baseYm}`;
+    item.mngtYm = searchParams.value.baseYm;
   });
 
   const res = await dataService.post('/sms/wells/service/as-material-item-grades', modifedData);
