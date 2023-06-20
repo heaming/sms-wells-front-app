@@ -252,9 +252,6 @@ async function onClickSearch() {
   if (checkedRows.length === 0) {
     view.checkAll(false);
   }
-  for (let i = 0; i < checkedRows.length; i += 1) {
-    view.setValue(i, 'dummyQty', view.getValue(i, 'outQty'));
-  }
 }
 
 async function onClickExcelDownload() {
