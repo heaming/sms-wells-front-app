@@ -347,6 +347,10 @@ const initGrdMain = defineGrid((data, view) => {
         view.setValue(itemIndex, 'dlpnrNm', bzrno[0].dlpnrNm);
         view.setValue(itemIndex, 'dlgpsNm', bzrno[0].dlgpsNm);
         view.setValue(itemIndex, 'bryyMmdd', bzrno[0].bryyMmdd);
+      } else {
+        view.setValue(itemIndex, 'dlpnrNm', '');
+        view.setValue(itemIndex, 'dlgpsNm', '');
+        view.setValue(itemIndex, 'bryyMmdd', '');
       }
     } else if (fieldName === 'sellLmRlsDtm') {
       if (!isEmpty(sellLmRlsDtm)) {
