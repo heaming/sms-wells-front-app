@@ -200,7 +200,8 @@ ${step1.cntrt.sexDvNm}` }}
             >
               <p>
                 {{ step1.cntrt.zip }}<br>
-                {{ step1.cntrt.adr }} {{ step1.cntrt.adrDtl }}
+                {{ step1.cntrt.adr }}<br>
+                {{ step1.cntrt.adrDtl }}
               </p>
             </kw-form-item>
           </kw-form-row>
@@ -249,7 +250,8 @@ ${step1.cntrt.sexDvNm}` }}
             >
               <p>
                 {{ step1.cntrt.zip }}<br>
-                {{ step1.cntrt.adr }} {{ step1.cntrt.adrDtl }}
+                {{ step1.cntrt.adr }}<br>
+                {{ step1.cntrt.adrDtl }}
               </p>
             </kw-form-item>
           </kw-form-row>
