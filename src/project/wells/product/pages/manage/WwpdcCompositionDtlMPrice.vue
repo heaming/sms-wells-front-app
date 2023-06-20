@@ -192,7 +192,7 @@ async function initGrid(data, view) {
   const pdFields = pdColumns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   pdFields.push({ fieldName: 'vlStrtDtm' });
   pdFields.push({ fieldName: 'vlEndDtm' });
-
+  metaInfos.value.map((item) => { item.readEuYn = 'Y'; return item; });
   const { fields, columns } = await getPdMetaToGridInfos(
     metaInfos.value,
     [pdConst.PD_PRC_TP_CD_COMPOSITION],
