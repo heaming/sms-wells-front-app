@@ -185,6 +185,13 @@ const sellTpCds = ref([
   { codeId: '1', codeName: t('MSG_TXT_SNGL_PMNT') },
   { codeId: '2', codeName: t('MSG_TXT_RENTAL') },
   { codeId: '5', codeName: t('MSG_TXT_HOME_CARE') },
+]);
+
+const sellTpCdGrids = ref([
+  { codeId: 'A', codeName: t('MSG_TXT_ALL') },
+  { codeId: '1', codeName: t('MSG_TXT_SNGL_PMNT') },
+  { codeId: '2', codeName: t('MSG_TXT_RENTAL') },
+  { codeId: '5', codeName: t('MSG_TXT_HOME_CARE') },
   { codeId: '6', codeName: t('MSG_TXT_REG_DLVR') },
 ]);
 
@@ -352,8 +359,7 @@ function initGrid(data, view) {
     { fieldName: 'sellBaseSellTp',
       header: t('MSG_TXT_SEL_TYPE'),
       width: '142',
-      options: sellTpCds.value,
-      firstOption: 'all',
+      options: sellTpCdGrids.value,
       editor: { type: 'list' } },
     { fieldName: 'sellPrmitDvCd',
       header: t('MSG_TXT_SLS_RSTR'),
