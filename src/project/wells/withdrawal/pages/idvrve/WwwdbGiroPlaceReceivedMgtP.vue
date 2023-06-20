@@ -78,26 +78,26 @@
           <!-- :disable="true" -->
         </kw-form-item>
       </kw-form-row>
-      <!-- <kw-form-row> -->
-      <kw-form-item
-        :label="t('MSG_TXT_ADDR')"
-        required
-      >
-        <!-- label="주소" -->
-        <zwcm-post-code
-          ref="adrRef"
-          v-model:add-idx="giroPlrcv.adrDvCd"
-          v-model:zipCode="giroPlrcv.zip"
-          v-model:add1="giroPlrcv.basAdr"
-          v-model:add2="giroPlrcv.dtlAdr"
-          v-model:addKey="giroPlrcv.giroPlrcvAdrId"
-          readonly
-          class="kw-grow"
-          required
+      <kw-form-row>
+        <kw-form-item
           :label="t('MSG_TXT_ADDR')"
-        />
-      </kw-form-item>
-      <!-- </kw-form-row> -->
+          required
+        >
+          <!-- label="주소" -->
+          <zwcm-post-code
+            ref="adrRef"
+            v-model:add-idx="giroPlrcv.adrDvCd"
+            v-model:zipCode="giroPlrcv.zip"
+            v-model:add1="giroPlrcv.basAdr"
+            v-model:add2="giroPlrcv.dtlAdr"
+            v-model:addKey="giroPlrcv.giroPlrcvAdrId"
+            readonly
+            class="kw-grow"
+            required
+            :label="t('MSG_TXT_ADDR')"
+          />
+        </kw-form-item>
+      </kw-form-row>
     </kw-form>
     <template #action>
       <kw-btn
