@@ -596,7 +596,7 @@ const initGrid = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'sellDvNm', header: t('MSG_TXT_RCP_DV'), width: '129', styleName: 'text-center' }, // 접수구분
     { fieldName: 'dpTpNm', header: t('MSG_TXT_FNT_DV'), width: '129', styleName: 'text-center' }, // 이체구분
-    { fieldName: 'mpyBsdt', header: t('MSG_TXT_FNT_STPL_D'), width: '129', styleName: 'text-center', datetimeFormat: 'date' }, // 이체약정일
+    { fieldName: 'mpyBsdt', header: t('MSG_TXT_FNT_STPL_D'), width: '129', styleName: 'text-center' }, // 이체약정일
     { fieldName: 'newCstYn', header: `${t('MSG_TXT_KWK')} ${t('MSG_TXT_NEW')}`, width: '129', styleName: 'text-center' }, // 교원키 신규
     { fieldName: 'mchnCh', header: t('MSG_TXT_CHNG'), width: '129', styleName: 'text-center' }, // 기변
     { fieldName: 'rentalYn', header: t('MSG_TXT_RE_RENTAL'), width: '129', styleName: 'text-center' }, // 재렌탈
