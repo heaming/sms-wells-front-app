@@ -70,7 +70,7 @@ const frmRef = ref();
 const basicInfo = ref();
 const isCooperation = computed(() => basicInfo.value.copnDvCd === '2' /* sorry, haha. */);
 const authInfo = reactive({
-  cntrCstBryyMmdd: '19840114', /* 강태욱 19840114, 한상문 19790115, 유기림 19800221 */
+  cntrCstBryyMmdd: '', /* 강태욱 19840114, 한상문 19790115, 유기림 19800221 */
   bzrno: '', /* 베베 1273173234 */
 });
 
