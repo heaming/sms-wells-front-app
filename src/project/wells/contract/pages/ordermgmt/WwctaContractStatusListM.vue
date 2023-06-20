@@ -622,7 +622,7 @@ async function onClickNonFcfPayment(item) {
 }
 
 async function onClickF2fPayment(item) {
-  if (item.viewCntrPrgsStatCd === '20' || item.viewCntrPrgsStatCd === '60') {
+  if (item.viewCntrPrgsStatCd === '20' || item.viewCntrPrgsStatCd === '40') {
     // 계약진행상태코드 재확인
     const nowPrgsStatCd = await getPrgsStatCd(item.cntrNo);
     if (Number(item.viewCntrPrgsStatCd) !== nowPrgsStatCd) {

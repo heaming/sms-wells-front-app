@@ -77,6 +77,7 @@ async function fetchContract() {
     cntrNo: props.cntrNo,
   });
   contract.value = response.data;
+  console.log(contract.value);
 }
 
 function onConfirmAgrees(agreedInfos) {
@@ -89,7 +90,15 @@ async function onSettlementConfirmed() {
   if (!reqData) { return; }
   stlmsUpdateRequestBody.stlmBases = reqData.stlmBases;
   stlmsUpdateRequestBody.adrpcs = reqData.adrpcs;
-  await dataService.post('/sms/wells/contract/contracts/settlements/confirm', stlmsUpdateRequestBody);
+  const res = await dataService.post('/sms/wells/contract/contracts/settlements/confirm', stlmsUpdateRequestBody);
+
+  console.log(res);
+
+  if (res.data.result === true) {
+    await alert('계약이 확정되었습니다');
+
+    window.close();
+  }
 }
 
 await fetchContract();
