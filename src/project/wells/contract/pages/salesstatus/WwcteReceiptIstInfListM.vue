@@ -248,14 +248,13 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService, codeUtil, useMeta, defineGrid, useGlobal, getComponentType, gridUtil } from 'kw-lib';
+import { useDataService, codeUtil, defineGrid, useGlobal, getComponentType, gridUtil } from 'kw-lib';
 import { isEmpty, cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
 import pdConst from '~sms-common/product/constants/pdConst';
 
 const { t } = useI18n();
 const dataService = useDataService();
-const { getConfig } = useMeta();
 const now = dayjs();
 const { modal } = useGlobal();
 const { currentRoute } = useRouter();
@@ -287,18 +286,18 @@ const grdMainRef = ref(getComponentType('KwGrid'));
 let cachedParams;
 const isSppDuedtYn = ref(false);
 
-const pageInfo = ref({
-  totalCount: 0,
-  pageIndex: 1,
-  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
-});
-
 const commonCodes = await codeUtil.getMultiCodes(
   'COPN_DV_CD', // 법인격구분코드
   'SELL_TP_CD', // 판매유형코드
   'SELL_CHNL_DTL_CD', // 판매채널상세코드
   'COD_PAGE_SIZE_OPTIONS',
 );
+
+const pageInfo = ref({
+  totalCount: 0,
+  pageIndex: 1,
+  pageSize: Number(commonCodes.COD_PAGE_SIZE_OPTIONS[0].codeName),
+});
 
 const codes = ref({
   highClass: [],
