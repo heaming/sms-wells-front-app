@@ -49,13 +49,11 @@
         <kw-search-item
           :label="$t('MSG_TXT_POSIT')"
         >
+          <!-- 직위 직급구분코드 공통코드 사용 (2: 총괄단장, 4: 지역단장: 5:BM, 7:지점장) -->
           <kw-select
             v-model="searchParams.dangMngtPrtnrNo"
             first-option="all"
-            :options="codes.PSTN_DV_CD.filter((v) => v.codeId === '2'
-              || v.codeId === '4'
-              || v.codeId === '5'
-              || v.codeId === '7')"
+            :options="codes.PSTN_DV_CD.filter((v) => ['2', '4', '5', '7'].includes(v.codeId))"
           />
         </kw-search-item>
       </kw-search-row>
