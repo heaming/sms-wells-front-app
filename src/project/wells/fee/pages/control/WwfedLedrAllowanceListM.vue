@@ -199,6 +199,7 @@ async function onClickSearchNo() {
     component: 'ZwogzPartnerListP',
     componentProps: {
       prtnrNo: searchParams.value.no,
+      ogTpCd: 'HR1',
     },
   });
 
