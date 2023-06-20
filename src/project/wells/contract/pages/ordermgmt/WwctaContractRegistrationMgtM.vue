@@ -138,17 +138,19 @@
                   <ul class="card-text card-text--bigger card-text--between">
                     <li>
                       <p>
-                        상품금액
+                        계약금(일시불)
                       </p>
-                      <span>
-                        {{ smr.pdAmt }}
+                      <span class="text-bold kw-font-pt20">
+                        {{ smr.pdCntrAmt }}
                       </span>
                     </li>
                   </ul>
                   <kw-separator class="my16" />
                   <ul class="card-text card-text--bigger card-text--between">
-                    <li class="pt0">
-                      <p>총 상품금액</p>
+                    <li>
+                      <p>
+                        월납부금
+                      </p>
                       <span class="text-bold kw-font-pt20">
                         {{ smr.pdAmt }}
                       </span>
@@ -285,9 +287,12 @@ const smr = ref({
   products: computed(() => contract.value.step2.dtls),
   stlmTpNm: computed(() => codes.STLM_TP_CD.find((c) => c.codeId === contract.value.step3.stlmTpCd)?.codeName),
   stlmMthNm: computed(() => codes.DP_TP_CD.find((c) => c.codeId === contract.value.step3.cntramDpTpCd)?.codeName),
+  pdCntrAmt: computed(() => stringUtil.getNumberWithComma(
+    Number(contract.value.step2.dtls?.reduce((acc, cur) => Number(acc) + Number(cur.cntrAmt), 0)) || 0,
+  )),
   pdAmt: computed(() => stringUtil.getNumberWithComma(
     // dtl.sellAmt 판매금액(수량xfnlAmt)의 합
-    Number(contract.value.step2.dtls?.reduce((acc, cur) => Number(acc) + Number(cur.sellAmt), 0)) || 0,
+    Number(contract.value.step2.dtls?.reduce((acc, cur) => Number(acc) + Number(cur.fnlAmt), 0)) || 0,
   )),
 });
 const isReadOnly = ref(false);
