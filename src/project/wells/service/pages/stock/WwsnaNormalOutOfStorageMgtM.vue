@@ -155,7 +155,7 @@ const codes = ref(await codeUtil.getMultiCodes(
   'OSTR_AK_TP_CD',
   'WARE_DV_CD',
   'ITM_KND_CD',
-  'OVIV_FOM_CD',
+  'OVIV_TP_CD',
 ));
 
 codes.value.OSTR_AK_TP_CD = codes.value.OSTR_AK_TP_CD.filter((v) => v.codeId === '310' || v.codeId === '320' || v.codeId === '330');
@@ -255,7 +255,7 @@ const initGrdMain = defineGrid((data, view) => {
       header: t('MSG_TXT_OVIV_FOM'),
       width: '100',
       styleName: 'text-center',
-      options: codes.value.OVIV_FOM_CD,
+      options: codes.value.OVIV_TP_CD,
     },
     { fieldName: 'rectOstrDt', header: t('MSG_TXT_RECT_OSTR_DT'), width: '150', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'ostrDtrnYn', header: t('MSG_TXT_OSTR_DTRM_YN'), width: '150', styleName: 'text-center' },
