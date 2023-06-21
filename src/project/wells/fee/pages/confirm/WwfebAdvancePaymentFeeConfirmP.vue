@@ -51,6 +51,20 @@ W0319: 선급판매수수료 확정
           />
         </kw-form-item>
       </kw-form-row>
+      <kw-form-row>
+        <kw-form-item
+          :label="$t('MSG_TXT_ORDR')"
+          required
+        >
+          <kw-select
+            v-model="regData.feeTcntDvCd"
+            :options="codes.FEE_TCNT_DV_CD"
+            rules="required"
+            :label="$t('MSG_TXT_ORDR')"
+            readonly
+          />
+        </kw-form-item>
+      </kw-form-row>
     </kw-form>
     <template #action>
       <kw-btn
@@ -90,6 +104,7 @@ const codes = await codeUtil.getMultiCodes(
   'FEE_SCHD_LV_CD',
   'FEE_SCHD_TP_CD',
   'RSB_DV_CD',
+  'FEE_TCNT_DV_CD',
 );
 const regData = ref({
   feeSchdId: props.feeSchdId,
