@@ -2,7 +2,7 @@
 ****************************************************************************************************
 * 프로그램 개요
 ****************************************************************************************************
-1. 모듈 : BND
+1. 모듈 : WBND
 2. 프로그램 ID : WwbndRentalCbMgtM - 렌탈 CB 관리
 3. 작성자 : gilyong.han
 4. 작성일 : 2023.03.24
@@ -38,8 +38,16 @@
         v-model="selectedTab"
         keep-alive
       >
-        <kw-tab-panel name="object" />
-        <kw-tab-panel name="hist" />
+        <kw-tab-panel name="object">
+          <wwbnd-rental-cb-mgt-m-object
+            :ref="(vm) => tabRefs.object = vm"
+          />
+        </kw-tab-panel>
+        <kw-tab-panel name="hist">
+          <wwbnd-rental-cb-mgt-m-history
+            :ref="(vm) => tabRefs.talk = vm"
+          />
+        </kw-tab-panel> />
         <kw-tab-panel name="talk">
           <wwbnd-rental-cb-mgt-m-talk
             :ref="(vm) => tabRefs.talk = vm"
@@ -50,8 +58,10 @@
   </kw-page>
 </template>
 <script setup>
+import WwbndRentalCbMgtMObject from './WwbndRentalCbMgtMObject.vue';
+import WwbndRentalCbMgtMHistory from './WwbndRentalCbMgtMHistory.vue';
 import WwbndRentalCbMgtMTalk from './WwbndRentalCbMgtMTalk.vue';
 
 const tabRefs = reactive({});
-const selectedTab = ref('talk');
+const selectedTab = ref('object');
 </script>
