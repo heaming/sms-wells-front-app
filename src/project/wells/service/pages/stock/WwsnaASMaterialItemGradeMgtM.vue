@@ -134,6 +134,7 @@
       </kw-action-top>
       <kw-grid
         ref="grdMainRef"
+        :page-size="pageInfo.pageSize"
         :total-count="pageInfo.totalCount"
         @init="initGrid"
       />

@@ -51,7 +51,11 @@
       <kw-action-top>
         <template #left>
           <kw-paging-info
-            :total-count="totalCount"
+            v-model:page-index="pageInfo.pageIndex"
+            v-model:page-size="pageInfo.pageSize"
+            :total-count="pageInfo.totalCount"
+            :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
+            @change="fetchData"
           />
         </template>
 
@@ -60,15 +64,22 @@
           dense
           secondary
           :label="$t('MSG_BTN_EXCEL_DOWN')"
-          :disable="totalCount === 0"
+          :disable="pageInfo.totalCount === 0"
           @click="onClickExcelDownload"
         />
       </kw-action-top>
 
       <kw-grid
         ref="grdMainRef"
-        :total-count="totalCount"
+        :page-size="pageInfo.pageSize"
+        :total-count="pageInfo.totalCount"
         @init="initGrid"
+      />
+      <kw-pagination
+        v-model:page-index="pageInfo.pageIndex"
+        v-model:page-size="pageInfo.pageSize"
+        :total-count="pageInfo.totalCount"
+        @change="fetchData"
       />
     </div>
   </kw-page>
@@ -80,22 +91,29 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 
-import { codeUtil, useGlobal, useDataService, getComponentType, gridUtil, defineGrid } from 'kw-lib';
+import { codeUtil, useMeta, useGlobal, useDataService, getComponentType, gridUtil, defineGrid } from 'kw-lib';
 import dayjs from 'dayjs';
 import { cloneDeep } from 'lodash-es';
 
+const { getConfig } = useMeta();
 const { alert } = useGlobal();
 const { t } = useI18n();
 
 const dataService = useDataService();
 const grdMainRef = ref(getComponentType('KwGrid'));
-const totalCount = ref(0);
 
 let cachedParams;
 const searchParams = ref({
   baseYm: dayjs().format('YYYYMM'), // 기준년월
   useYn: 'Y',
   matUtlzDvCd: '',
+});
+
+const pageInfo = ref({
+  totalCount: 0,
+  pageIndex: 1,
+  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
+  needTotalCount: true,
 });
 
 let gridView;
@@ -107,6 +125,7 @@ let tmpFields = [];
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 const codes = await codeUtil.getMultiCodes(
+  'COD_PAGE_SIZE_OPTIONS',
   'USE_YN',
   'CMN_PART_DV_CD',
 );
@@ -150,12 +169,16 @@ async function getWareHouseList() {
 
 // 조회
 async function fetchData() {
-  const res = await dataService.get('/sms/wells/service/as-material-item-grade-state', { params: { ...cachedParams } });
-  const datas = res.data;
-  totalCount.value = datas.length;
+  const res = await dataService.get('/sms/wells/service/as-material-item-grade-state/paging', { params: { ...cachedParams, ...pageInfo.value } });
+  const { list: itmGd, pageInfo: pagingResult } = res.data;
+  // fetch시에는 총 건수 조회하지 않도록 변경
+  pagingResult.needTotalCount = false;
+  pageInfo.value = pagingResult;
 
-  const view = grdMainRef.value.getView();
-  view.getDataSource().setRows(datas);
+  if (grdMainRef.value != null) {
+    const view = grdMainRef.value.getView();
+    view.getDataSource().setRows(itmGd);
+  }
 }
 
 async function onClickSearch() {
@@ -166,6 +189,9 @@ async function onClickSearch() {
     // 기준년월 > 현재년월일 경우 메시지 처리, 현재 월까지만 조회 가능합니다
     await alert(t('MSG_ALT_INQR_CRTL_MM_PSB'));
   } else {
+    pageInfo.value.pageIndex = 1;
+    // 조회버튼 클릭 시에만 총 건수 조회하도록
+    pageInfo.value.needTotalCount = true;
     cachedParams = cloneDeep(searchParams.value);
     tmpFields = [];
     // 창고조회
@@ -177,7 +203,7 @@ async function onClickSearch() {
 // 엑셀 다운로드
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
-  const res = await dataService.get('/sms/wells/service/as-material-item-grade-state', { params: cachedParams });
+  const res = await dataService.get('/sms/wells/service/as-material-item-grade-state/excel-download', { params: cachedParams });
 
   gridUtil.exportView(view, {
     fileName: 'asMaterialItemGradePsList',
