@@ -711,6 +711,10 @@ async function onClickContractDelete(item) {
   }
 }
 
+onActivated(async () => {
+  await onClickSearch();
+});
+
 onMounted(async () => {
   await onClickSearch();
 });
