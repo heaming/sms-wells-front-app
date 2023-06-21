@@ -282,9 +282,15 @@ async function checkDuplication() {
   if (dupData.data) {
     const dupCodes = dupData.data.split(',', -1);
     const { pdNm, svPdNm, stplPrdCd } = createdRows.find((item) => item.pdCd === dupCodes[0]
-        && item.svPdCd === dupCodes[1]
-        && item.stplPrdCd === dupCodes[2]);
-    const dupItem = `${pdNm}/${svPdNm}/${getCodeNames(codes, stplPrdCd, 'STPL_PRD_CD')}`;
+        && ((isEmpty(item.svPdCd) && isEmpty(dupCodes[1])) || item.svPdCd === dupCodes[1])
+        && ((isEmpty(item.stplPrdCd) && isEmpty(dupCodes[2])) || item.stplPrdCd === dupCodes[2]));
+    let dupItem = pdNm;
+    if (svPdNm) {
+      dupItem += `/${svPdNm}`;
+    }
+    if (stplPrdCd && stplPrdCd !== '00') {
+      dupItem += `/${getCodeNames(codes, stplPrdCd, 'STPL_PRD_CD')}`;
+    }
     // 은(는) 이미 DB에 등록되어 있습니다.
     notify(t('MSG_ALT_EXIST_IN_DB', [dupItem]));
     return true;
@@ -303,7 +309,7 @@ async function checkValidation() {
     const issueItem = issueData.data.split(',', -1);
     const { pdNm, svPdNm, stplPrdCd } = changedRows.find((item) => item.pdCd === issueItem[0]
         && ((isEmpty(item.svPdCd) && isEmpty(issueItem[1])) || item.svPdCd === issueItem[1])
-        && ((isEmpty(item.stplPrdCd) && isEmpty(issueItem[2])) || issueItem[2] === 'null' || item.stplPrdCd === issueItem[2]));
+        && ((isEmpty(item.stplPrdCd) && isEmpty(issueItem[2])) || item.stplPrdCd === issueItem[2]));
     const nonLabel = t('MSG_TXT_NONE');
     const contrMonth = stplPrdCd ? getCodeNames(codes, stplPrdCd, 'STPL_PRD_CD') : nonLabel;
     // {0}의 가격정보를 확인하여 주십시오. {(서비스코드 : 없음, 약정개월 : 없음)}가격정보는 존재하지 않습니다.
