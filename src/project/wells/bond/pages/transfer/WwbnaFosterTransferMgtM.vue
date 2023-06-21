@@ -338,11 +338,14 @@ const onClickChangeView = async () => {
 const onClickSend = async () => {
   const view = grdDetailRef.value.getView();
   const dataRows = await gridUtil.getAllRowValues(view);
-
   if (dataRows.length > 0) {
-    await dataService.post(`${baseUrl}/send`, cachedParams);
-    notify(t('MSG_ALT_FOSTER_SEND_SUCCESS'));
+    notify(t('MSG_ALT_NO_SRCH_DATA')); return;
   }
+  if (cachedParams.baseYm !== now.format('YYYYMM')) {
+    notify(t('MSG_ALT_THM_DTA_SEND_ONLY')); return;
+  }
+  await dataService.post(`${baseUrl}/send`, cachedParams);
+  notify(t('MSG_ALT_FOSTER_SEND_SUCCESS'));
 };
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
