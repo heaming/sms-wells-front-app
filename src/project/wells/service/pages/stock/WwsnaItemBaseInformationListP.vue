@@ -292,7 +292,6 @@ async function onClickSearch() {
 // });
 
 async function initDefault() {
-  debugger;
   cachedParams = cloneDeep(searchParams.value);
   const res = await dataService.get('/sms/wells/service/item-base-informations/checked-code', { params: cachedParams });
   searchParams.value.wareDvCd = res.data[0].wareDvCd;
