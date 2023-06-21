@@ -20,24 +20,20 @@
       <kw-search-row>
         <kw-search-item
           :label="$t('MSG_TXT_BASE_YM')"
-          required
         >
           <kw-date-picker
             v-model="searchParams.baseYm"
             :label="$t('MSG_TXT_BASE_YM')"
-            rules="required"
             type="month"
             @change="onChangeBaseYm"
           />
         </kw-search-item>
         <kw-search-item
           :label="$t('MSG_TXT_ORDR')"
-          required
         >
           <kw-option-group
             v-model="searchParams.tcntDvCd"
             :label="$t('MSG_TXT_ORDR')"
-            rules="required"
             type="radio"
             :options="codes.FEE_TCNT_DV_CD"
             @change="onChangeBaseYm"
@@ -51,13 +47,16 @@
             icon="search"
             clearable
             :on-click-icon="onClickSearchNo"
+            :placeholder="$t('MSG_TXT_SEQUENCE_NUMBER')"
+          />
+          <kw-input
+            v-model="searchParams.prtnrKnm"
+            :placeholder="$t('MSG_TXT_EMPL_NM')"
+            readonly
           />
         </kw-search-item>
       </kw-search-row>
       <kw-search-row>
-        <kw-search-item :label="t('MSG_TXT_EMPL_NM')">
-          <kw-input v-model="searchParams.prtnrKnm" />
-        </kw-search-item>
         <kw-search-item :label="$t('MSG_TXT_DIV')">
           <kw-select
             v-model="searchParams.schDiv"
@@ -67,7 +66,7 @@
             :first-option-label="$t('MSG_TXT_ALL')"
           />
         </kw-search-item>
-        <kw-search-item :label="$t('MSG_TXT_PSTN_DV')">
+        <kw-search-item :label="$t('MSG_TXT_RSB_DV')">
           <kw-select
             v-model="searchParams.schRsbDvCd"
             :options="filterRsbDvCd"
@@ -86,6 +85,18 @@
           />
         </template>
         <kw-btn
+          :label="$t('MSG_BTN_SAVE')"
+          secondary
+          primary
+          dense
+          @click="onClickSave"
+        />
+        <kw-separator
+          vertical
+          inset
+          spaced
+        />
+        <kw-btn
           dense
           secondary
           icon="download_on"
@@ -99,18 +110,8 @@
           spaced
         />
         <kw-btn
-          :label="$t('MSG_BTN_SAVE')"
-          primary
-          dense
-          @click="onClickSave"
-        />
-        <kw-separator
-          vertical
-          inset
-          spaced
-        />
-        <kw-btn
           :label="$t('MSG_BTN_OPNG_TP')+$t('MSG_BTN_CNTN_CREATE')"
+          secondary
           primary
           dense
           @click="onClickCreate"
@@ -122,6 +123,7 @@
         />
         <kw-btn
           :label="$t('MSG_BTN_OPNG_TP')+$t('MSG_BTN_DTRM')"
+          secondary
           primary
           dense
           @click="onClickDtrm"
@@ -133,6 +135,7 @@
         />
         <kw-btn
           :label="$t('MSG_BTN_OPNG_TP')+$t('MSG_BTN_DTRM')+$t('MSG_BTN_CANCEL')"
+          secondary
           primary
           dense
           @click="onClickDtrmCan"
@@ -243,6 +246,7 @@ async function onClickSearchNo() {
   if (result) {
     if (!isEmpty(payload)) {
       searchParams.value.prtnrNo = payload.prtnrNo;
+      searchParams.value.prtnrKnm = payload.prtnrKnm;
     }
   }
 }
