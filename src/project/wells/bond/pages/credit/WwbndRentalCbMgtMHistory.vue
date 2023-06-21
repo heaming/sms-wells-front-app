@@ -138,7 +138,7 @@
           </ul> -->
     <!-- // rev:230616 제거 -->
     <kw-grid
-      :ref="'grdMainRef'"
+      ref="grdMainRef"
       name="grdMain"
       class="mt20"
       :visible-rows="10"

@@ -100,14 +100,14 @@
     </kw-action-top>
     <kw-grid
       v-show="isCustomer"
-      :ref="'grdCustomerRef'"
+      ref="grdCustomerRef"
       name="grdCustomer"
       :visible-rows="10"
       @init="initCustomerGrid"
     />
     <kw-grid
       v-show="!isCustomer"
-      :ref="'grdContractRef'"
+      ref="grdContractRef"
       name="grdContract"
       :visible-rows="10"
       @init="initContractGrid"
@@ -184,8 +184,8 @@ async function fetchData() {
   const { data } = await dataService.get(baseUrl, { params: { ...cachedParams } });
   totalCount.value = data?.length;
 
-  const view = searchParams.value.selGbn === '1' ? grdCustomerRef.value.getView() : grdContractRef.value.getView();
   isCustomer.value = searchParams.value.selGbn === '1';
+  const view = isCustomer.value ? grdCustomerRef.value.getView() : grdContractRef.value.getView();
   view.getDataSource().setRows(data);
   // view.resetCurrent()
 }
@@ -197,7 +197,7 @@ async function onClickSearch() {
 // 알림톡 대상생성
 let gridIndex;
 async function onClickSave() {
-  const view = searchParams.value.selGbn === '1' ? grdCustomerRef.value.getView() : grdContractRef.value.getView();
+  const view = isCustomer.value ? grdCustomerRef.value.getView() : grdContractRef.value.getView();
   // 조회구분이 "계약별" 선택된 경우
   if (searchParams.value.selGbn !== '1') {
     // 조회구분이 "고객별" 이 선택되었을때에만 저장 가능합니다.
@@ -227,7 +227,7 @@ async function onClickSave() {
 
 const { currentRoute } = useRouter();
 async function onClickExcelDownload() {
-  const view = searchParams.value.selGbn === '1' ? grdCustomerRef.value.getView() : grdContractRef.value.getView();
+  const view = isCustomer.value ? grdCustomerRef.value.getView() : grdContractRef.value.getView();
   if (await gridUtil.isModified(view)) { await notify(t('MSG_TXT_NEED_SAVE_EXCEL_DOWNLOAD')); return; }
 
   await gridUtil.exportView(view, {
