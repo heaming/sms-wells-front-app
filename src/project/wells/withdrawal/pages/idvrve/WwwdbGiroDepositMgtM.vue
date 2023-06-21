@@ -492,7 +492,7 @@ function initGrid(data, view) {
       header: t('MSG_TXT_CST_NM'),
       // header: '고객명',
       width: '147',
-      styleName: 'text-left' },
+      styleName: 'text-center' },
     { fieldName: 'rveDt',
       header: t('MSG_TXT_DP_DT'),
       datetimeFormat: 'date',

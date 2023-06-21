@@ -27,6 +27,7 @@
           <kw-date-range-picker
             v-model:from="searchParams.rcpStartDt"
             v-model:to="searchParams.rcpEndDt"
+            :label="t('MSG_TXT_RCPDT')"
             rules="date_range_required"
             required
           />
