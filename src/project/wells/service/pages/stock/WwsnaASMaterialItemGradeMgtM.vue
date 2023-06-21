@@ -393,7 +393,7 @@ function initGrid(data, view) {
   data.setFields(fields);
   view.setColumns(columns);
 
-  view.checkBar.visible = true;
+  view.checkBar.visible = false;
   view.rowIndicator.visible = true;
   view.editOptions.editable = true;
 
