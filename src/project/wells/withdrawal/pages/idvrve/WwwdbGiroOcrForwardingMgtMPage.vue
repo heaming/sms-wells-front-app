@@ -231,7 +231,7 @@ const searchParams = ref({
   giroOcrPblDtm: now.format('YYYYMMDD'),
 });
 
-console.log(searchParams.value.giroOcrPblDtm);
+// console.log(searchParams.value.giroOcrPblDtm);
 
 let cachedParams;
 
@@ -291,7 +291,7 @@ async function onClickExcelDownload() {
   const view = grdLinkRef.value.getView();
 
   const res = await dataService.get('/sms/wells/withdrawal/idvrve/giro-ocr-forwardings/excel-download', { params: cachedParams });
-  console.log(res.data);
+  // console.log(res.data);
 
   await gridUtil.exportView(view, {
     fileName: `${currentRoute.value.meta.menuName}_${props.itemsChecked}`,
@@ -360,7 +360,7 @@ async function onClickPrintCreate() {
     giroOcrPblOjStrtdt: searchParams.value.giroOcrPblDtm,
   };
 
-  console.log(paramData);
+  // console.log(paramData);
 
   await dataService.post('/sms/wells/withdrawal/idvrve/giro-ocr-forwardings/print', paramData);
 
@@ -630,15 +630,15 @@ const initGrid = defineGrid((data, view) => {
   };
 
   // 체크박스 설정
-  view.onCellClicked = (grid, clickData) => {
-    if (clickData.cellType === 'data') {
-      grid.checkItem(clickData.itemIndex, !grid.isCheckedItem(clickData.itemIndex));
-    }
-  };
+  // view.onCellClicked = (grid, clickData) => {
+  //   if (clickData.cellType === 'data') {
+  //     grid.checkItem(clickData.itemIndex, !grid.isCheckedItem(clickData.itemIndex));
+  //   }
+  // };
 
   view.onCellButtonClicked = async (g, { column, itemIndex }) => {
     if (column === 'cntr') {
-      console.log(column);
+      // console.log(column);
       console.log(itemIndex);
     }
   };
@@ -670,7 +670,7 @@ const initGrid = defineGrid((data, view) => {
 
   view.onCellButtonClicked = async (g, { column, itemIndex }) => {
     if (column === 'cntr') {
-      console.log(itemIndex);
+      // console.log(itemIndex);
 
       const { result, payload } = await modal({
         component: 'WwctaContractNumberListP',
@@ -681,7 +681,7 @@ const initGrid = defineGrid((data, view) => {
         // const cntrSn = payload.cntrSn;
         const res = await dataService.get(`/sms/wells/withdrawal/idvrve/giro-ocr-forwardings/objects/${cntr}`);
 
-        console.log(res.data);
+        // console.log(res.data);
 
         if (!res.data.length > 0) {
           await alert('선택한 계약 관련하여 매출정보가 등록되지 않아 추가가 불가능합니다.');

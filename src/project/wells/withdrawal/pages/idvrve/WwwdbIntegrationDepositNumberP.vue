@@ -168,8 +168,6 @@ const grdMainRef = ref(getComponentType('KwGrid'));
 
 const DP_TP_CD = codes.DP_TP_CD.filter((e) => ['0101', '0104', '0201'].includes(e.codeId));
 
-console.log(DP_TP_CD);
-
 const searchParams = ref({
   rveCd: '', // 수납코드
   rveNm: '',
@@ -194,9 +192,7 @@ async function onClickSelectRveCd() {
   const { result, payload } = await modal({ component: 'ZwwdyDivisionReceiveCodeRegP',
     componentProps: { rveCd: searchParams.value.rveCd, rveNm: searchParams.value.rveNm },
   });
-  console.log(payload);
   if (result) {
-    console.log(payload);
     searchParams.value.rveCd = payload.rveCd;
     searchParams.value.rveNm = payload.rveNm;
   }
@@ -210,8 +206,6 @@ async function fetchData() {
   const res = await dataService.get('/sms/wells/withdrawal/idvrve/integration-deposit-number/paging', { params: cachedParams });
   const { list: pages, pageInfo: pagingResult } = res.data;
   pageInfo.value = pagingResult;
-
-  console.log(pages);
 
   const view = grdMainRef.value.getView();
 
@@ -236,8 +230,8 @@ async function onClickSearch() {
 
 // 파트너 검색 팝업 호출
 async function onClickSearchPrtnrNoPopup() {
-  console.log(searchParams.value.sellPrtnrNo);
-  console.log(userInfo.ogTpCd);
+  // console.log(searchParams.value.sellPrtnrNo);
+  // console.log(userInfo.ogTpCd);
 
   const { result, payload } = await modal({
     component: 'ZwogzPartnerListP',
@@ -266,8 +260,6 @@ async function onClickExcelDownload() {
 
 // 그리드 더블클릭 이벤트
 const onSelect = async (data) => {
-  console.log(data);
-
   if (!data || data.length === 0) {
     await alert(t('MSG_ALT_NOT_SEL_ITEM')); // 선택한 행이없음
     return;
@@ -287,7 +279,7 @@ const onSelect = async (data) => {
 };
 
 onMounted(async () => {
-  console.log(props.sumAmt);
+  // console.log(props.sumAmt);
 });
 
 // -------------------------------------------------------------------------------------------------

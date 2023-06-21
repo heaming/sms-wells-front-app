@@ -246,8 +246,6 @@ async function fetchData() {
   const res = await dataService.get('/sms/wells/withdrawal/idvrve/bill-deposits/paging', { params: cachedParams });
   const { list: pages, pageInfo: pagingResult } = res.data;
 
-  console.log(pages);
-
   pageInfo.value = pagingResult;
 
   const view = grdMainRef.value.getView();
@@ -277,7 +275,6 @@ async function onClickSelectCntr() {
     // componentProps: { rveCd: searchParams.value.rveCd, rveNm: searchParams.value.rveNm },
   });
   if (result) {
-    console.log(payload);
     searchParams.value.cntrNo = payload.cntrNo;
     searchParams.value.cntrSn = payload.cntrSn;
     searchParams.value.cntr = payload.cntrNo + payload.cntrSn;
@@ -344,8 +341,6 @@ async function removeData(params) {
 
   const allValues = gridUtil.getAllRowValues(view);
   const data = view.getDataSource();
-  console.log(allValues);
-  console.log(params);
 
   allValues.forEach((param) => {
     if ((param.cntrNo === params.cntrNo) && (param.itgDpNo === params.itgDpNo)) {
@@ -402,7 +397,6 @@ async function onClickExcelSubDownload() {
 async function onClickSave() {
   const view = grdMainRef2.value.getView();
   const changedRows = gridUtil.getAllRowValues(view);
-  console.log(changedRows);
 
   if (await gridUtil.alertIfIsNotModified(view)) { return; }
 
@@ -414,8 +408,6 @@ async function onClickSave() {
     saveMainReq: changedRows[0],
     SaveMainDtlReq: changedRows,
   };
-
-  // console.log(changedRows);
 
   await dataService.post('/sms/wells/withdrawal/idvrve/bill-deposits/electronic', cachedParam);
 
