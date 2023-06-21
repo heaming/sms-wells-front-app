@@ -14,7 +14,9 @@
 ****************************************************************************************************
 -->
 <template>
-  <kw-popup>
+  <kw-popup
+    size="xl"
+  >
     <!-- To. 개발  window popup width size: 940px  -->
     <h1>엔지니어 Time table</h1>
     <!--      <p>{{ data.sellDate }}</p>-->
@@ -27,7 +29,7 @@
     <!--    <p>{{ data.chnlDvCd }}</p>-->
     <!--    <p>{{ data.psicDatas.vstPos }}</p>
     <p>{{ data.sellDate }}</p>-->
-    <div class="normal-area normal-area--button-set-bottom pt30 mt15 w860">
+    <div class="normal-area normal-area--button-set-bottom pt30 mt15 w940">
       <p class="kw-font--14">
         서비스 방문 희망일자를 선택하세요
       </p>
@@ -650,7 +652,7 @@ async function getTimeTables() {
    { ...cachedParams,
    } });
 
-  console.log(res);
+  // console.log(res);
 
   data.value = res.data;
   // enableDays.value = [];
@@ -675,10 +677,10 @@ async function getTimeTables() {
   //   { ablDays: '2023-06-23', sumCnt: '500', w3th: '20230623', sowDay: '20230623' },
   //   { ablDays: '2023-06-24', sumCnt: '500', w3th: '20230624', sowDay: '20230624' },
   // ];
-  data.value.disableDays = [
-    { disableFuldays: '2023-06-23', tcMsg: '111법정휴무일 또는 회사휴무' },
-    { disableFuldays: '2023-06-29', tcMsg: '222법정휴무일 또는 회사휴무' },
-  ];
+  // data.value.disableDays = [
+  //   { disableFuldays: '2023-06-23', tcMsg: '111법정휴무일 또는 회사휴무' },
+  //   { disableFuldays: '2023-06-29', tcMsg: '222법정휴무일 또는 회사휴무' },
+  // ];
   // data.value.psicDatas = {
   //   prtnrNo: '36870',
   //   sellDate: '20230616',
@@ -809,8 +811,6 @@ async function getTimeTables() {
   data.value.pmShowVar = 0; // pm_show_var
   const amAbleCnt = toInteger(data.value.psicDatas.amWrkCnt);
   const pmAbleCnt = toInteger(data.value.psicDatas.pmWrkCnt);
-
-  // console.log(amAbleCnt);
 
   data.value.arrAm.forEach((item) => {
     data.value.amWrkCnt += toInteger(item.cnt);
@@ -971,7 +971,6 @@ async function onClickCalendar($event, weekIdx, dayIdx) {
   // }
 
   const enable = isEnable(dayCnt, true);
-  // console.log('enable', enable);
 
   // if (enable === 'N') {
   //   notify('당일날짜는 선택불가 합니다');
@@ -980,7 +979,6 @@ async function onClickCalendar($event, weekIdx, dayIdx) {
   // 선택 불가 확인
   if (enable === 'Y') {
     searchParams.value.sellDate = selectedDay;
-    // console.log(selectedDay);
     await getTimeTables();
     document.querySelectorAll('tr.calendar-date > td').forEach((element) => {
       element.classList.remove('active');
@@ -1011,10 +1009,6 @@ async function onClickNextMonth() {
 
 async function onClickAm() {
   clickedBtn.value = '0';
-  // console.log('totalMaxAbleCnt', data.value.totalMaxAbleCnt);
-  // console.log('totalAbleCnt', data.value.totalAbleCnt);
-  // console.log('tWrkCnt', toInteger(data.value.psicDatas.tWrkCnt));
-  // console.log('amAlloCnt', data.value.amAlloCnt);
   let time = '';
   if (data.value.totalMaxAbleCnt > 0 && data.value.amAlloCnt > 0
                 && data.value.amAlloCnt >= toInteger(data.value.psicDatas.tWrkCnt)) {
@@ -1030,10 +1024,6 @@ async function onClickAm() {
 }
 async function onClickPm() {
   clickedBtn.value = '1';
-  // console.log('totalMaxAbleCnt', data.value.totalMaxAbleCnt);
-  // console.log('totalAbleCnt', data.value.totalAbleCnt);
-  // console.log('tWrkCnt', toInteger(data.value.psicDatas.tWrkCnt));
-  // console.log('pmAlloCnt', data.value.pmAlloCnt);
   let time = '';
   if (data.value.totalMaxAbleCnt > 0
       && data.value.pmAlloCnt > 0
@@ -1047,7 +1037,6 @@ async function onClickPm() {
   } else {
     time = '';
   }
-  // console.log(time);
   data.value.sellTime = time;
 }
 async function onClickWait() {
