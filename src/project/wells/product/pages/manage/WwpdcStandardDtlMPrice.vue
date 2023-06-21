@@ -19,6 +19,9 @@
       :cols="2"
       class="mt24"
       @search="onClickSearch"
+      @reset="() => {
+        searchParams.avlChnlId = usedChannelCds?.map(({ codeId }) => codeId);
+      }"
     >
       <kw-search-row>
         <kw-search-item :label="$t('MSG_TXT_SEL_CHNL')">
@@ -85,7 +88,7 @@ const totalCount = ref(0);
 const searchParams = ref({
   pdTpCd: pdConst.PD_TP_CD_STANDARD,
   pdCd: '',
-  avlChnlId: [],
+  avlChnlId: ['all'],
 });
 
 async function resetData() {
