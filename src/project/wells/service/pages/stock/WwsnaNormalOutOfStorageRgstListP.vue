@@ -407,8 +407,8 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'cfrmCnt', header: t('MSG_TXT_OSTR_FREQ'), width: '100', styleName: 'text-center' },
     { fieldName: 'itemLoc', header: t('MSG_TXT_ITM_LOC'), width: '150' },
     { fieldName: 'itmGdCd', header: t('MSG_TXT_GD'), width: '100', styleName: 'text-center' },
-    { fieldName: 'reqStckQty', header: t('MSG_TXT_OSTR_WARE_STOC'), width: '100', styleName: 'text-center' },
-    { fieldName: 'qty', header: t('MSG_TXT_STR_WARE_STOC'), width: '100', styleName: 'text-center' },
+    { fieldName: 'qty', header: t('MSG_TXT_OSTR_WARE_STOC'), width: '100', styleName: 'text-center' },
+    { fieldName: 'reqStckQty', header: t('MSG_TXT_STR_WARE_STOC'), width: '100', styleName: 'text-center' },
     { fieldName: 'avgOut', header: t('MSG_TXT_CNTR_AV_OSTR_QTY'), width: '100', styleName: 'text-center' },
     { fieldName: 'ostrAkQty', header: t('MSG_TXT_RQST_QTY'), width: '100', styleName: 'text-center' }, // 신청수량
     { fieldName: 'ostrCnfmQty', header: t('MSG_TXT_CNFM_QTY'), width: '100', styleName: 'text-center' }, // 확정수량
