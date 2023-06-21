@@ -191,7 +191,7 @@ const searchParams = ref({
 const approval = ref({
   gb: 'ngt002', /* formId를 식별하는 구분 */
   empno: sessionUserInfo.userId, /* 결재자 사번 */
-  formId: '2023000036', /* M조직 품의결재 폼ID */
+  formId: '2023000036', /* P조직 품의결재 폼ID */
   appKey: '', /* 업무단에서 해당 결재를 확인할 KEY */
 });
 
@@ -612,20 +612,26 @@ async function onClickW116P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
 async function onClickW118P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
   const response = await dataService.get('/sms/wells/fee/organization-fees/dsbCnst', searchParams.value); /* 품의진행상태 조회 */
   const resData = response.data;
+  approval.value.appKey = `FEAM${dayjs().format('YYYYMMDDHHmmss')}`; /* 18자리 appKey 생성 */
+  const params = approval.value;
+  saveInfo.value.appKey = approval.value.appKey;
+  saveInfo.value.perfYm = searchParams.value.perfYm;
+
   if (resData.dsbCnstYn === 'Y') {
-    await dataService.post('/sms/wells/fee/organization-fees/dsbCnst-udpate', searchParams.value); /* 품의결재 이력 최종여부 수정 */
     await notify(t('MSG_ALT_PMT_BEEN_APRV')); /* 결재가 승인 되었습니다 > NEXT STEP */
     await dataService.put(`/sms/common/fee/schedules/steps/${feeSchdId}/status/levels`, null, { params: { feeSchdLvCd, feeSchdLvStatCd } });
     fetchData();
   } else if (resData.dsbCnstYn === 'N') {
     await notify(t('MSG_ALT_CHK_IN_PRGS')); /* 결재가 진행중입니다 */
+  } else if (resData.dsbCnstYn === 'P') { /* 이전 품의 반송, 회수 등의 이유로 재결재 */
+    if (await confirm(t('MSG_ALT_PROC_TO_CHK'))) { /* 결재를 진행하시겠습니까? > Kportal popup */
+      await openApprovalPopup(params); /* Kportal popup */
+      await dataService.post('/sms/wells/fee/organization-fees/dsbCnst-udpate', saveInfo.value); /* 이전 품의결재 이력 최종여부 N 수정 */
+      await dataService.post('/sms/wells/fee/organization-fees/dsbCnst-save', saveInfo.value); /* 신규 품의결재 이력 저장 */
+    }
   } else if (await confirm(t('MSG_ALT_PROC_TO_CHK'))) { /* 결재를 진행하시겠습니까? > Kportal popup */
-    approval.value.appKey = `FEAM${dayjs().format('YYYYMMDDHHmmss')}`; /* 18자리 appKey 생성 */
-    const params = approval.value;
     await openApprovalPopup(params); /* Kportal popup */
-    saveInfo.value.appKey = approval.value.appKey;
-    saveInfo.value.perfYm = searchParams.value.perfYm;
-    await dataService.post('/sms/wells/fee/organization-fees/dsbCnst-save', saveInfo.value); /* 품의결재 이력 저장 */
+    await dataService.post('/sms/wells/fee/organization-fees/dsbCnst-save', saveInfo.value); /* 신규 품의결재 이력 저장 */
   }
 }
 
