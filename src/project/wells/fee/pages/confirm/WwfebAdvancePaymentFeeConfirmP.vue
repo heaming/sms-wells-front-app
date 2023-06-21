@@ -76,7 +76,7 @@ const { cancel, ok } = useModal();
 const { notify } = useGlobal();
 const { t } = useI18n();
 const props = defineProps({
-  feeSchdId: {
+  feeSchdId: { // baseYm + feeSchdTpCd + feeTcntDvCd + coCd
     type: String,
     required: true,
   },
