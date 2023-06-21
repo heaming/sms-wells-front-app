@@ -203,6 +203,8 @@
             v-model="contractInfo.chRsonCn"
             type="textarea"
             :rows="3"
+            :maxlength="2000"
+            :counter="true"
           />
         </kw-form-item>
       </kw-form-row>

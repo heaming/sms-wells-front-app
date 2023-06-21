@@ -235,6 +235,7 @@ async function onClickRemoveRows() {
 
   if (!await gridUtil.confirmIfIsModified(view)) { return; }
   const deletedRows = await gridUtil.confirmDeleteCheckedRows(view);
+  pageInfo.value.totalCount = Number(gridUtil.getAllRowValues(view)?.length);
   if (deletedRows.length) {
     // console.log('deletedRows : ', deletedRows);
     await dataService.delete('/sms/wells/product/alliances', { data: deletedRows });
@@ -246,9 +247,13 @@ async function onClickRemoveRows() {
 async function onClickAdd() {
   const view = grdMainRef.value.getView();
   await gridUtil.insertRowAndFocus(view, 0, {
+    rentalDscDvCd: 'A',
+    rentalDscTpCd: 'A',
+    rentalCrpDscrCd: 'A',
     apyStrtdt: now.format('YYYYMMDD'),
     apyEnddt: '99991231',
   });
+  pageInfo.value.totalCount += 1;
 }
 
 async function checkDuplication() {
@@ -257,7 +262,13 @@ async function checkDuplication() {
   const alreadyItems = getAlreadyItems(view, changedRows, 'pdCd', 'svPdCd', 'stplPrdCd');
   if (alreadyItems.length > 1) {
     // {상품명/서비스명/약정개월}이(가) 중복됩니다.
-    const dupItem = `${alreadyItems[0].pdNm}/${alreadyItems[0].svPdNm}/${getCodeNames(codes, alreadyItems[0].stplPrdCd, 'STPL_PRD_CD')}`;
+    let dupItem = alreadyItems[0].pdNm;
+    if (alreadyItems[0].svPdNm) {
+      dupItem += `/${alreadyItems[0].svPdNm}`;
+    }
+    if (alreadyItems[0].stplPrdCd) {
+      dupItem += `/${getCodeNames(codes, alreadyItems[0].stplPrdCd, 'STPL_PRD_CD')}`;
+    }
     notify(t('MSG_ALT_DUP_NCELL', [dupItem]));
     return true;
   }
@@ -291,10 +302,13 @@ async function checkValidation() {
   if (issueData.data) {
     const issueItem = issueData.data.split(',', -1);
     const { pdNm, svPdNm, stplPrdCd } = changedRows.find((item) => item.pdCd === issueItem[0]
-        && item.svPdCd === issueItem[1]
-        && item.stplPrdCd === issueItem[2]);
-    // {상품명}의 {서비스명}, {약정개월}은 존재하지 않습니다.
-    notify(t('MSG_ALT_PDPRC_NOT_EXISTED', [pdNm, svPdNm, getCodeNames(codes, stplPrdCd, 'STPL_PRD_CD')]));
+        && ((isEmpty(item.svPdCd) && isEmpty(issueItem[1])) || item.svPdCd === issueItem[1])
+        && ((isEmpty(item.stplPrdCd) && isEmpty(issueItem[2])) || issueItem[2] === 'null' || item.stplPrdCd === issueItem[2]));
+    const nonLabel = t('MSG_TXT_NONE');
+    const contrMonth = stplPrdCd ? getCodeNames(codes, stplPrdCd, 'STPL_PRD_CD') : nonLabel;
+    // {0}의 가격정보를 확인하여 주십시오. {(서비스코드 : 없음, 약정개월 : 없음)}가격정보는 존재하지 않습니다.
+    const svcAddInfo = `(${t('MSG_TXT_SVC_CODE')} : ${svPdNm ?? nonLabel}, ${t('MSG_TXT_STPL_MCNT')} : ${contrMonth})`;
+    notify(t('MSG_ALT_PDPRC_NOT_EXISTED', [pdNm, svcAddInfo]));
     return false;
   }
   return true;
@@ -404,7 +418,10 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-center',
       editor: { type: 'list' },
       rules: 'required',
-      options: codes.RENTAL_DSC_DV_CD,
+      options: [
+        { codeId: 'A', codeName: t('MSG_TXT_ALL') },
+        ...codes.RENTAL_DSC_DV_CD,
+      ],
     },
     // 렌탈할인유형
     { fieldName: 'rentalDscTpCd',
@@ -422,7 +439,10 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-center',
       editor: { type: 'list' },
       rules: 'required',
-      options: codes.RENTAL_CRP_DSCR_CD,
+      options: [
+        { codeId: 'A', codeName: t('MSG_TXT_ALL') },
+        ...codes.RENTAL_CRP_DSCR_CD,
+      ],
     },
     // 적용시작일
     {

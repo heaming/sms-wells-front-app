@@ -182,7 +182,7 @@ const { getConfig } = useMeta();
 const { modal, notify } = useGlobal();
 
 const { getWarehouseCloseCheck } = useSnCode();
-const { userId: sessionUserId } = getters['meta/getUserInfo'];
+const { employeeIDNumber } = getters['meta/getUserInfo'];
 
 // TODO: 출고관리(W-SV-U-0141M01) 그리드 내부 버튼으로 호출된 경우 사용
 const props = defineProps({
@@ -395,8 +395,7 @@ async function fetchData() {
 }
 
 async function fetchDefaultData() {
-  console.log(sessionUserId); // TODO: 수정 필요
-  const res = await dataService.get('/sms/wells/service/returning-goods-out-of-storages/warehouses', { params: { userId: '36680', apyYm: dayjs().format('YYYYMM') } });
+  const res = await dataService.get('/sms/wells/service/returning-goods-out-of-storages/warehouses', { params: { userId: employeeIDNumber, apyYm: dayjs().format('YYYYMM') } });
   warehouses.value = res.data;
   if (!res.data[0]) return;
 

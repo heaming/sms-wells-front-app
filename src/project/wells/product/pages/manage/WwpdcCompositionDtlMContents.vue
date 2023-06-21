@@ -138,7 +138,7 @@ async function resetData() {
 async function onClickUpdate() {
   const { pdCd } = props;
   await router.close();
-  await router.push({ path: '/product/zwpdc-sale-product-list/wwpdc-composition-mgt', query: { pdCd, reloadYn: 'Y' } });
+  await router.push({ path: '/product/zwpdc-sale-product-list/wwpdc-composition-mgt', query: { pdCd }, state: { stateParam: { newRegYn: 'N', reloadYn: 'Y', copyPdCd: '' } } });
 }
 
 async function onClickTab(selTab) {

@@ -268,7 +268,7 @@
         <!-- 설치처 휴대전화번호 -->
         <kw-form-item :label="$t('MSG_TXT_ISTLC_MPNO')">
           <kw-input
-            v-model="frmMainData.istCralTno"
+            v-model="frmMainData.shpadrCralTno"
             placeholder=""
             readonly
           />
@@ -278,7 +278,7 @@
         <!-- 설치처 우편번호 -->
         <kw-form-item :label="$t('MSG_TXT_ISTLC_ZIP')">
           <kw-input
-            v-model="frmMainData.istAdrZip"
+            v-model="frmMainData.shpadrAdrZip"
             placeholder=""
             readonly
           />
@@ -290,13 +290,13 @@
         >
           <!-- 설치처 주소(기준주소) -->
           <kw-input
-            v-model="frmMainData.istRnadr"
+            v-model="frmMainData.shpadrRnadr"
             placeholder=""
             readonly
           />
           <!-- 설치처 주소(상세주소) -->
           <kw-input
-            v-model="frmMainData.istRdadr"
+            v-model="frmMainData.shpadrRdadr"
             placeholder=""
             readonly
           />
@@ -511,6 +511,7 @@
         <kw-form-item :label="$t('MSG_TXT_CNTRCT_AMT')">
           <kw-input
             v-model="frmMainData.cntrAmt"
+            align="right"
             placeholder=""
             readonly
           />
@@ -599,6 +600,7 @@
         <kw-form-item :label="$t('MSG_TXT_SPP_PRD')">
           <kw-input
             v-model="frmMainData.svPrd"
+            align="right"
             placeholder=""
             readonly
           />
@@ -1093,13 +1095,13 @@ const frmMainData = ref({
   cntrCstRnadr: '', // 계약자 주소(기준주소)
   cntrCstRdadr: '', // 계약자 주소(상세주소)
   rcgvpKnm: '', // 설치정보-설치자명
-  istCralTno: '', // 설치자 휴대전화번호
-  istCralLocaraTno: '', // 설치자 휴대지역전화번호
-  istMexnoEncr: '', // 설치자 휴대전화국번호암호화
-  istCralIdvTno: '', // 설치자 휴대개별전화번호
-  istAdrZip: '', // 설치처 우편번호
-  istRnadr: '', // 설치자 주소(기준주소)
-  istRdadr: '', // 설치자 주소(상세주소)
+  shpadrCralTno: '', // 설치자 휴대전화번호
+  shpadrCralLocaraTno: '', // 설치자 휴대지역전화번호
+  shpadrMexnoEncr: '', // 설치자 휴대전화국번호암호화
+  shpadrCralIdvTno: '', // 설치자 휴대개별전화번호
+  shpadrAdrZip: '', // 설치처 우편번호
+  shpadrRnadr: '', // 설치자 주소(기준주소)
+  shpadrRdadr: '', // 설치자 주소(상세주소)
   mchnSellTpNm: '', // 기기정보
   mchnCntrNo: '', // 기기주문번호
   mchnRcgvpKnm: '', // 기기주문자 명
@@ -1219,11 +1221,20 @@ async function fetchData() {
     // 계약자 정보
     // -------------------------------------------------------------------------------------------------
     frmMainData.value.cstKnm = pages[0].cstKnm; // 계약자 명
-    frmMainData.value.cstNo = pages[0].cstNo; // 계약자사업/주민번호
-    const { cntrCralLocaraTno } = pages[0];
-    const { cntrMexnoEncr } = pages[0];
-    const { cntrCralIdvTno } = pages[0];
-    frmMainData.value.cntrCralTno = !isEmpty(cntrCralLocaraTno) && !isEmpty(cntrMexnoEncr) && !isEmpty(cntrCralIdvTno) ? `${cntrCralLocaraTno}-${cntrMexnoEncr}-${cntrCralIdvTno}` : ''; // 계약자-휴대전화번호
+    if (pages[0].copnDvCd === '1') { // 생년월일
+      frmMainData.value.cstNo = stringUtil.getDateFormat(pages[0].cstNo);
+    } else if (pages[0].copnDvCd === '2') { // 사업자등록번호
+      // 사업자등록번호 3-2-5 형식으로 표시
+      if (!isEmpty(pages[0].cstNo) && pages[0].cstNo.length === 10) {
+        frmMainData.value.cstNo = `${pages[0].cstNo.substr(0, 3)}-${pages[0].cstNo.substr(3, 2)}-${pages[0].cstNo.substr(5, 5)}`;
+      }
+    }
+    const { cntrCralLocaraTno, cntrMexnoEncr, cntrCralIdvTno } = pages[0]; // 계약자 휴대지역전화번호
+    if (!isEmpty(cntrCralLocaraTno) && isEmpty(cntrMexnoEncr) && !isEmpty(cntrCralIdvTno)) {
+      frmMainData.value.cntrCralTno = `${cntrCralLocaraTno}--${cntrCralIdvTno}`;
+    } else {
+      frmMainData.value.cntrCralTno = isEmpty(cntrCralLocaraTno) && isEmpty(cntrMexnoEncr) && isEmpty(cntrCralIdvTno) ? '' : `${cntrCralLocaraTno}-${cntrMexnoEncr}-${cntrCralIdvTno}`; // 계약자 휴대전화번호
+    }
     frmMainData.value.adrZip = pages[0].adrZip; // 계약자 우편번호
     frmMainData.value.cntrCstRnadr = pages[0].cntrCstRnadr; // 계약자 주소(기준주소)
     frmMainData.value.cntrCstRdadr = pages[0].cntrCstRdadr; // 계약자 주소(상세주소)
@@ -1231,13 +1242,15 @@ async function fetchData() {
     // 배송처 정보
     // -------------------------------------------------------------------------------------------------
     frmMainData.value.rcgvpKnm = pages[0].rcgvpKnm; // 설치정보-설치자명
-    const { istCralLocaraTno } = pages[0];
-    const { istMexnoEncr } = pages[0];
-    const { istCralIdvTno } = pages[0];
-    frmMainData.value.istCralTno = !isEmpty(istCralLocaraTno) && !isEmpty(istMexnoEncr) && !isEmpty(istCralIdvTno) ? `${istCralLocaraTno}-${istMexnoEncr}-${istCralIdvTno}` : ''; // 설치자-휴대전화번호
-    frmMainData.value.istAdrZip = pages[0].istAdrZip; // 설치처 우편번호
-    frmMainData.value.istRnadr = pages[0].istRnadr; // 설치자 주소(기준주소)
-    frmMainData.value.istRdadr = pages[0].istRdadr; // 설치자 주소(상세주소)
+    const { shpadrCralLocaraTno, shpadrMexnoEncr, shpadrCralIdvTno } = pages[0]; // 설치자 휴대지역전화번호
+    if (!isEmpty(shpadrCralLocaraTno) && isEmpty(shpadrMexnoEncr) && !isEmpty(shpadrCralIdvTno)) {
+      frmMainData.value.shpadrCralTno = `${shpadrCralLocaraTno}--${shpadrCralIdvTno}`;
+    } else {
+      frmMainData.value.shpadrCralTno = isEmpty(shpadrCralLocaraTno) && isEmpty(shpadrMexnoEncr) && isEmpty(shpadrCralIdvTno) ? '' : `${shpadrCralLocaraTno}-${shpadrMexnoEncr}-${shpadrCralIdvTno}`; // 설치(배송정보) 휴대전화번호
+    }
+    frmMainData.value.shpadrAdrZip = pages[0].shpadrAdrZip; // 설치처 우편번호
+    frmMainData.value.shpadrRnadr = pages[0].shpadrRnadr; // 설치자 주소(기준주소)
+    frmMainData.value.shpadrRdadr = pages[0].shpadrRdadr; // 설치자 주소(상세주소)
     // -------------------------------------------------------------------------------------------------
     // 기기 정보
     // -------------------------------------------------------------------------------------------------

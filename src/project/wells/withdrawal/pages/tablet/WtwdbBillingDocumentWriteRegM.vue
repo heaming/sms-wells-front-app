@@ -22,9 +22,10 @@
       고객정보
     </h3>
     <kw-form>
-      <kw-form-row>
+      <kw-form-row :cols="2">
         <kw-form-item
           rules="required"
+          required
           :label="t('MSG_TXT_CST_NM')"
         >
           <kw-input
@@ -40,6 +41,7 @@
           />
         </kw-form-item>
         <kw-form-item
+          required
           :label="t('MSG_TIT_DRAT_DT')"
         >
           <kw-date-picker
@@ -59,9 +61,10 @@
     </h3>
 
     <kw-form>
-      <kw-form-row>
+      <kw-form-row :cols="2">
         <kw-form-item
           :label="t('MSG_TXT_PRDT_NM')"
+          required
         >
           <kw-input
             v-model="regMainData.pdNm"
@@ -71,17 +74,20 @@
           />
         </kw-form-item>
         <kw-form-item
+          required
           :label="t('MSG_TXT_QTY')"
         >
           <zwcm-counter
             v-model="regMainData.pdQty"
+            class="zwcm-counter"
             :label="t('MSG_TXT_QTY')"
             :min="1"
           />
         </kw-form-item>
       </kw-form-row>
-      <kw-form-row>
+      <kw-form-row :cols="2">
         <kw-form-item
+          required
           :label="t('MSG_TXT_UPRC_TAM')"
         >
           <kw-input
@@ -93,7 +99,6 @@
           />
         </kw-form-item>
         <kw-form-item
-
           :label="t('MSG_TXT_NOTE')"
         >
           <kw-input
@@ -195,11 +200,14 @@ const regMainData = ref({
   pdQty: '', // 수량
   pdSellAmt: '', // 단가(총액)
   rmkCn: '', // 비고
+  isSearchChk: false,
 });
 
 const pageRef = ref();
 
 const isUseChk = ref(false);
+let dataParam;
+let cachedParams;
 
 // 고객명 찾기 이벤트
 async function onClickSearchUser() {
@@ -210,20 +218,32 @@ async function onClickSearchUser() {
   }
 }
 
-// 이전 버튼 클릭
+// 하단 버튼 클릭
 async function onClickBefore() {
-  await router.push(
-    {
-      path: '/withdrawal/wtwdb-billing-document-mgt',
-      query: {
-        searchCstFnm: props.searchCstFnm, // 조회조건
-        searchBildcWrteDt: props.searchBildcWrteDt, // 조회조건
+  // 저장버튼 시
+  if (regMainData.value.isSearchChk) {
+    await router.push(
+      {
+        path: '/withdrawal/wtwdb-billing-document-mgt',
+        query: {
+          searchCstFnm: regMainData.value.cstFnm, // 조회조건
+          searchBildcWrteDt: regMainData.value.bildcWrteDt, // 조회조건
+        },
       },
-    },
-  );
+    );
+  // 이전 버튼시
+  } else {
+    await router.push(
+      {
+        path: '/withdrawal/wtwdb-billing-document-mgt',
+        query: {
+          searchCstFnm: props.searchCstFnm, // 조회조건
+          searchBildcWrteDt: props.searchBildcWrteDt, // 조회조건
+        },
+      },
+    );
+  }
 }
-
-let dataParam;
 
 async function fetchData() {
   dataParam = cloneDeep(regMainData.value);
@@ -239,15 +259,14 @@ async function fetchData() {
   console.log(regMainData.value);
 }
 
-let cachedParams;
-
 // 저장 버튼
 async function onClickSave() {
   if (!await pageRef.value.validate()) { return; }
   if (await pageRef.value.alertIfIsNotModified()) { return; }
 
   if (regMainData.value.pdQty < 1 || regMainData.value.pdQty === '') {
-    await alert('수량의 경우 0보다 커야합니다.');
+    // 수량은(는) 0보다 커야합니다.
+    await alert(t('MSG_ALT_ZERO_IS_BIG', [t('MSG_TXT_QTY')]));
     return;
   }
 
@@ -279,7 +298,7 @@ async function initProps() {
     regMainData.value.state = 'updated';
     regMainData.value.rowState = 'updated';
     isUseChk.value = true;
-    regMainData.value.isSearchChk = true;
+    // regMainData.value.isSearchChk = true;
     console.log(regMainData.value.bildcPblNo);
 
     await fetchData();
@@ -295,3 +314,10 @@ onMounted(async () => {
 });
 
 </script>
+
+<style scoped lang="scss">
+.zwcm-counter {
+  width: 150px;
+  color: #ccc;
+}
+</style>

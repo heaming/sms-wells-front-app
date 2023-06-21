@@ -64,8 +64,10 @@
             icon="search"
             clearable
             :label="$t('MSG_TXT_CLCTAM_PSIC')"
+            :on-click-icon="openSearchClctamPsicPopup"
+            :on-keydown-no-click="true"
             regex="alpha_hangul"
-            @click-icon="onClickCollector"
+            @keydown.enter="fetchPartnerNo"
           />
         </kw-search-item>
       </kw-search-row>
@@ -109,7 +111,7 @@
         >
           <kw-input
             v-model="searchParams.phoneNumber"
-            type="telephone"
+            mask="telephone"
             :on-keydown-no-click="true"
             @keydown.enter="isCustomer($event, 'type3')"
           />
@@ -205,7 +207,7 @@
       <kw-grid
         ref="grdSubRef"
         name="grdSub"
-        :visible-rows="10"
+        :visible-rows="pageInfo.visibleRowNumber"
         @init="initGrdSub"
       />
       <kw-pagination
@@ -225,8 +227,8 @@
 import { useGlobal, codeUtil, getComponentType, router, useMeta, useDataService, defineGrid, gridUtil } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
-import { getBzHdqDvcd } from '~sms-common/bond/utils/bnUtil';
-import { chkInputSearchComplete, openSearchUserCommonPopup, isCustomerCommon } from '~sms-common/bond/pages/transfer/utils/bnaTransferUtils';
+import { getBzHdqDvcd, getGridVisibleRowNumber } from '~sms-common/bond/utils/bnUtil';
+import { chkInputSearchComplete, openSearchUserCommonPopup, isCustomerCommon, openSearchClctamPsicCommonPopup, fetchPartnerNoCommon } from '~sms-common/bond/pages/transfer/utils/bnaTransferUtils';
 
 const { t } = useI18n();
 const { getConfig } = useMeta();
@@ -258,6 +260,7 @@ const pageInfo = ref({
   pageIndex: 1,
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
   needTotalCount: true,
+  visibleRowNumber: getGridVisibleRowNumber(),
 });
 
 const defaultDate = dayjs().format('YYYYMM');
@@ -425,20 +428,16 @@ async function onClickConfirm() {
   }
 }
 
-// 집금담당자 조회 팝업
-const onClickCollector = async () => {
-  const { result, payload } = await modal({
-    component: 'ZwbnyCollectorListP',
-    componentProps: {
-      clctamPrtnrNm: '',
-    },
-  });
-  if (result) {
-    const { prtnrKnm, prtnrNo } = payload;
-    searchParams.value.clctamPrtnrNm = prtnrKnm;
-    searchParams.value.clctamPrtnrNo = prtnrNo;
+async function openSearchClctamPsicPopup() {
+  await openSearchClctamPsicCommonPopup(searchParams, canFeasibleSearch);
+}
+
+async function fetchPartnerNo() {
+  const notifyMessage = await fetchPartnerNoCommon(searchParams, canFeasibleSearch);
+  if (notifyMessage) {
+    notify(notifyMessage);
   }
-};
+}
 
 async function isCustomer(event, workType = 'type1') {
   if (!event.target.value) {
@@ -475,6 +474,11 @@ watch(() => searchParams.value.phoneNumber, async () => {
     canFeasibleSearch.value.popSearchComplate = false;
   } else {
     canFeasibleSearch.value.type3 = false;
+  }
+});
+watch(() => searchParams.value.clctamPrtnrNm, async (clctamPrtnrNm) => {
+  if (!clctamPrtnrNm) {
+    searchParams.value.clctamPrtnrNo = '';
   }
 });
 // -------------------------------------------------------------------------------------------------

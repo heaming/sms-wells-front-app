@@ -49,10 +49,11 @@
         <kw-search-item
           :label="$t('MSG_TXT_POSIT')"
         >
+          <!-- 직위 직급구분코드 공통코드 사용 (2: 총괄단장, 4: 지역단장: 5:BM, 7:지점장) -->
           <kw-select
             v-model="searchParams.dangMngtPrtnrNo"
             first-option="all"
-            :options="orgOptions"
+            :options="codes.PSTN_DV_CD.filter((v) => ['2', '4', '5', '7'].includes(v.codeId))"
           />
         </kw-search-item>
       </kw-search-row>
@@ -62,7 +63,8 @@
         >
           <kw-select
             v-model="searchParams.gnrdv"
-            :options="gnrlMngTeamOptions"
+            first-option="all"
+            :options="codes.GNRDV_ACD"
           />
         </kw-search-item>
         <kw-search-item
@@ -129,7 +131,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { gridUtil, defineGrid, getComponentType, useDataService, useGlobal } from 'kw-lib';
+import { gridUtil, defineGrid, getComponentType, useDataService, useGlobal, codeUtil } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 
@@ -157,31 +159,16 @@ const searchParams = ref({
 const prdDivOption = ref([{ codeId: 1, codeName: t('MSG_TXT_FST_RGST_DT') },
   { codeId: 2, codeName: t('MSG_TXT_YEAR_OCCURNCE') }]);
 
-const gnrlMngTeamOptions = ref([
-  { codeId: '', codeName: t('MSG_TXT_ALL') },
-  { codeId: 'A', codeName: `A${t('MSG_TXT_MANAGEMENT_DEPARTMENT')}` },
-  { codeId: 'B', codeName: `B${t('MSG_TXT_MANAGEMENT_DEPARTMENT')}` },
-  { codeId: 'C', codeName: `C${t('MSG_TXT_MANAGEMENT_DEPARTMENT')}` },
-  { codeId: 'D', codeName: `D${t('MSG_TXT_MANAGEMENT_DEPARTMENT')}` },
-  { codeId: 'E', codeName: `E${t('MSG_TXT_MANAGEMENT_DEPARTMENT')}` },
-  { codeId: 'F', codeName: `F${t('MSG_TXT_MANAGEMENT_DEPARTMENT')}` },
-  { codeId: 'G', codeName: `G${t('MSG_TXT_MANAGEMENT_DEPARTMENT')}` },
-  { codeId: 'H', codeName: `H${t('MSG_TXT_MANAGEMENT_DEPARTMENT')}` },
-  { codeId: 'P', codeName: `P${t('MSG_TXT_MANAGEMENT_DEPARTMENT')}` },
-]);
-
-const orgOptions = ref([
-  { codeId: '2', codeName: t('MSG_TXT_GNLR_LEDR') },
-  { codeId: '4', codeName: t('MSG_TXT_REG_DIR') },
-  { codeId: '5', codeName: t('MSG_TXT_BM') },
-  { codeId: '7', codeName: t('MSG_TXT_BRMGR') },
-]);
-
 const pageInfo = ref({
   totalCount: 0,
   pageIndex: 1,
   pageSize: 10,
 });
+
+const codes = await codeUtil.getMultiCodes(
+  'GNRDV_ACD',
+  'PSTN_DV_CD',
+);
 
 let cachedParams;
 
@@ -216,7 +203,6 @@ async function fetchData() {
   dataSource.setRows(res.data);
   pageInfo.value.totalCount = view.getItemCount();
   view.setCheckableExpression("values['dangChkId'] != ''", true);
-  view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
 async function onClickSearch() {
@@ -299,7 +285,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'dangOjPrtnrNm', header: t('MSG_TXT_EMPL_NM'), width: '129', styleName: 'text-left' },
     { fieldName: 'dangOjPrtnrNo', header: t('MSG_TXT_EPNO'), width: '129' },
     { fieldName: 'dangOjPrtnrPstnDvNm', header: t('MSG_TXT_CRLV'), width: '129', styleName: 'text-left' },
-    { fieldName: 'dangOcStrtmm', header: t('MSG_TXT_YEAR_OCCURNCE'), width: '129', styleName: 'text-left' },
+    { fieldName: 'dangOcStrtmm', header: t('MSG_TXT_YEAR_OCCURNCE'), width: '129', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
     { fieldName: 'dangArbitOgNm', header: t('MSG_TXT_ACTN_DPT'), width: '306', styleName: 'text-center' },
     { fieldName: 'dangChkNm', header: t('MSG_TXT_CHRGS'), width: '306', styleName: 'text-left' },
     { fieldName: 'dangArbitCdNm', header: t('MSG_TXT_ACTN_ITM'), width: '306', styleName: 'text-left' },

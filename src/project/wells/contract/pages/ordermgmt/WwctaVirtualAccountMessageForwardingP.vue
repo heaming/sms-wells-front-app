@@ -43,6 +43,7 @@
               v-model:tel-no2="fieldParam.mexnoEncr"
               v-model:tel-no3="fieldParam.cralIdvTno"
               :tel-no1-clearable="false"
+              :name="t('MSG_TXT_CRAL_NO')"
               required
             />
           </kw-form-item>
@@ -61,7 +62,7 @@
     <template #action>
       <kw-btn
         negative
-        :label="t('MSG_BTN_CLOSE')"
+        :label="t('MSG_BTN_CANCEL')"
         @click="cancel()"
       />
       <kw-btn

@@ -297,6 +297,7 @@ const initGrdMain = defineGrid((data, view) => {
         componentProps: {
           ostrAkNo,
           ostrAkSn,
+          page: '정상출고관리',
         },
       });
 

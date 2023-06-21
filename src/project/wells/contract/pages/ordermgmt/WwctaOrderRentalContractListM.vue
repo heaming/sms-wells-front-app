@@ -617,7 +617,7 @@ const initGridRentalContractList = defineGrid((data, view) => {
     { fieldName: 'rentalDscAmt1', dataType: 'number' }, // 렌탈할인1
     { fieldName: 'rentalAmt2', dataType: 'number' }, // 렌탈료2
     { fieldName: 'rentalDscAmt2', dataType: 'number' }, // 렌탈할인2
-    { fieldName: 'rentalDscDfam' }, // 할인차액
+    { fieldName: 'rentalDscDfam', dataType: 'number' }, // 할인차액
     { fieldName: 'booSellYn' }, // 예약
     { fieldName: 'mchnChYn' }, // 기변
     { fieldName: 'mchnCpsApyr' }, // 기변실적율
@@ -677,6 +677,10 @@ const initGridRentalContractList = defineGrid((data, view) => {
     { fieldName: 'cntrMexnoEncr' }, // 계약자 휴대전화국번호암호화
     { fieldName: 'cntrCralIdvTno' }, // 계약자 휴대개별전화번호
     { fieldName: 'dntcYn' }, // 두낫콜 여부
+    { fieldName: 'baseCntrInfo' }, // 이후 기변정보
+    { fieldName: 'basePdNm' }, // 이후 기변정보-제품명
+    { fieldName: 'baseRentalAmt', dataType: 'number' }, // 이후 기변정보-사용렌탈료
+    { fieldName: 'baseSvPrd' }, // 이후 기변정보-관리주기
     { fieldName: 'stplDscAmt', dataType: 'number' }, // 재약정 가입정보-할인금액
     { fieldName: 'stplStrtdt' }, // 재약정 가입정보-시작일
     { fieldName: 'stplCanDt' }, // 재약정 가입정보-취소일
@@ -765,8 +769,8 @@ const initGridRentalContractList = defineGrid((data, view) => {
     { fieldName: 'istAkDt', header: `${t('MSG_TXT_INSTALLATION')} ${t('MSG_TXT_REQ_DATE')}`, width: '136', styleName: 'text-center', datetimeFormat: 'date' }, // 설치요청일
     { fieldName: 'sellInflwChnlDtlNm', header: t('MSG_TXT_SLS_CAT'), width: '136', styleName: 'text-center' }, // 판매구분
     { fieldName: 'copnDvNm', header: t('MSG_TXT_CST_DV'), width: '136', styleName: 'text-center' }, // 고객구분
-    { fieldName: 'pdClsfNm', header: t('MSG_TXT_PRDT_CATE'), width: '275', styleName: 'text-center' }, // 상품 정보-상품분류
-    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '275', styleName: 'text-center' }, // 상품 정보-상품명
+    { fieldName: 'pdClsfNm', header: t('MSG_TXT_PRDT_CATE'), width: '275', styleName: 'text-left' }, // 상품 정보-상품분류
+    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '275', styleName: 'text-left' }, // 상품 정보-상품명
     { fieldName: 'basePdCd', header: t('MSG_TXT_PRDT_CODE'), width: '138', styleName: 'text-center' }, // 상품 정보-상품코드
     { fieldName: 'pdTpNm', header: t('MSG_TXT_PRDT_TYPE'), width: '138', styleName: 'text-center' }, // 상품 정보-상품유형
     { fieldName: 'svPrd', header: t('MSG_TXT_CYCL'), width: '138', styleName: 'text-right' }, // 상품 정보-주기
@@ -798,14 +802,14 @@ const initGridRentalContractList = defineGrid((data, view) => {
     { fieldName: 'feeFxamYn', header: t('MSG_TXT_PD_FEE_FIX'), width: '136', styleName: 'text-center' }, // 수수료정액여부
     { fieldName: 'sellDscDvNm', header: t('MSG_TXT_PD_DC_CLASS'), width: '136', styleName: 'text-right' }, // 할인구분명
     { fieldName: 'sellDscTpNm', header: t('MSG_TXT_DISC_CODE'), width: '136', styleName: 'text-right' }, // 할인유형명
-    { fieldName: 'dscPmotCd', header: t('MSG_TXT_DSC_SYST'), width: '136', styleName: 'text-right' }, // 할인제도
+    { fieldName: 'dscPmotCd', header: t('MSG_TXT_DSC_SYST'), width: '136', styleName: 'text-center' }, // 할인제도
     { fieldName: 'mchnChTpCd', header: t('MSG_TXT_CHDVC_TP'), width: '136', styleName: 'text-right' }, // 기변유형
     { fieldName: 'ojCntrDtlNo', header: t('MSG_TXT_CHNG_PTY_CD'), width: '136', styleName: 'text-center' }, // 기변상대코드
     { fieldName: 'ojBasePdCd', header: t('MSG_TXT_CHNG_PREV_PRDT'), width: '136', styleName: 'text-center' }, // 기변이전상품
     { fieldName: 'ojPdNm', header: t('MSG_TXT_CHNG_PREV_PRDT_NM'), width: '136', styleName: 'text-center' }, // 기변이전상품명
     { fieldName: 'bogoCd', header: t('MSG_TXT_1PLUS1_LK_CD'), width: '136', styleName: 'text-center' }, // １＋１연계코드
     { fieldName: 'bogoPdCd', header: t('MSG_TXT_1PLUS1_CHNG_PREV_PRDT'), width: '136', styleName: 'text-center' }, // １＋１이전상품
-    { fieldName: 'bogoPdNm', header: t('MSG_TXT_1PLUS1_CHNG_PREV_PRDT_NM'), width: '136', styleName: 'text-center' }, // １＋１이전상품명
+    { fieldName: 'bogoPdNm', header: t('MSG_TXT_1PLUS1_CHNG_PREV_PRDT_NM'), width: '136', styleName: 'text-left' }, // １＋１이전상품명
     { fieldName: 'mpyMthdTpNm', header: t('MSG_TXT_AUTO_FNT'), width: '138', styleName: 'text-center' }, // 계좌정보-자동이체
     { fieldName: 'aftnInf', header: t('MSG_TXT_CARD_ACNO'), width: '138', styleName: 'text-center' }, // 계좌정보-카드／계좌번호
     { fieldName: 'aftnOwrKnm', header: t('MSG_TXT_DPO_CDONR'), width: '138', styleName: 'text-center' }, // 계좌정보-예금／카드주명
@@ -852,6 +856,10 @@ const initGridRentalContractList = defineGrid((data, view) => {
       },
     }, // 계약자 휴대폰번호
     { fieldName: 'dntcYn', header: t('MSG_TXT_DNC_YN'), width: '136', styleName: 'text-center' }, // 두낫콜 여부
+    { fieldName: 'baseCntrInfo', header: t('MSG_TXT_AF_MCHN_CH_INFO'), width: '136', styleName: 'text-center' }, // 이후 기변정보
+    { fieldName: 'basePdNm', header: t('MSG_TXT_GOODS_NM'), width: '136', styleName: 'text-left' }, // 이후 기변정보-제품명
+    { fieldName: 'baseRentalAmt', header: t('MSG_TXT_USE_RTLFE'), width: '136', styleName: 'text-right' }, // 이후 기변정보-사용렌탈료
+    { fieldName: 'baseSvPrd', header: t('MSG_TXT_MNGT_PRD'), width: '136', styleName: 'text-right' }, // 이후 기변정보-관리주기
     { fieldName: 'stplDscAmt', header: t('MSG_TXT_DSC_AMT'), width: '138', styleName: 'text-right' }, // 재약정 가입정보-할인금액
     { fieldName: 'stplStrtdt', header: t('MSG_TXT_STRT_DT'), width: '138', styleName: 'text-center', datetimeFormat: 'date' }, // 재약정 가입정보-시작일
     { fieldName: 'stplCanDt', header: t('MSG_TXT_CAN_D'), width: '138', styleName: 'text-center', datetimeFormat: 'date' }, // 재약정 가입정보-취소일
@@ -922,6 +930,11 @@ const initGridRentalContractList = defineGrid((data, view) => {
       items: ['pmotCd', 'pmotFvrMcn', 'pmotFvrAmt', 'frisuBfsvcPtrmN'],
     },
     'connPdView', 'canPdGdCd', 'freExpnYn', 'freExpnCnfmStrtdt', 'freExpnCnfmYn', 'freExpnCnfmDt', 'combiNm', 'fstRgstDt', 'fstRgstTm', 'z11Yn', 'z13Yn', 'z15Yn', 'w22Yn', 'cntrCralTno', 'dntcYn',
+    {
+      header: t('MSG_TXT_AF_MCHN_CH_INFO'), // 이후 기변정보
+      direction: 'horizontal', // merge type
+      items: ['baseCntrInfo', 'basePdNm', 'baseRentalAmt', 'baseSvPrd'],
+    },
     {
       header: `${t('MSG_TXT_RSTL')} ${t('MSG_TXT_JOIN')} ${t('MSG_TXT_INF')}`, // 재약정 가입 정보
       direction: 'horizontal', // merge type

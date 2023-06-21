@@ -624,8 +624,11 @@ const initGrid = defineGrid((data, view) => {
       width: '130',
       styleName: 'text-center',
       displayCallback(grid, index) {
-        const { cntrLocaraTno, cntrExnoEncr, cntrIdvTno } = grid.getValues(index.itemIndex);
-        return !isEmpty(cntrLocaraTno) && !isEmpty(cntrExnoEncr) && !isEmpty(cntrIdvTno) ? `${cntrLocaraTno}-${cntrExnoEncr}-${cntrIdvTno}` : '';
+        const { cntrLocaraTno: no1, cntrExnoEncr: no2, cntrIdvTno: no3 } = grid.getValues(index.itemIndex);
+        if (!isEmpty(no1) && isEmpty(no2) && !isEmpty(no3)) {
+          return `${no1}--${no3}`;
+        }
+        return isEmpty(no1) && isEmpty(no2) && isEmpty(no3) ? '' : `${no1}-${no2}-${no3}`;
       },
     }, // 계약자 전화번호
     {
@@ -634,8 +637,11 @@ const initGrid = defineGrid((data, view) => {
       width: '130',
       styleName: 'text-center',
       displayCallback(grid, index) {
-        const { cntrCralLocaraTno, cntrMexnoEncr, cntrCralIdvTno } = grid.getValues(index.itemIndex);
-        return !isEmpty(cntrCralLocaraTno) && !isEmpty(cntrMexnoEncr) && !isEmpty(cntrCralIdvTno) ? `${cntrCralLocaraTno}-${cntrMexnoEncr}-${cntrCralIdvTno}` : '';
+        const { cntrCralLocaraTno: no1, cntrMexnoEncr: no2, cntrCralIdvTno: no3 } = grid.getValues(index.itemIndex);
+        if (!isEmpty(no1) && isEmpty(no2) && !isEmpty(no3)) {
+          return `${no1}--${no3}`;
+        }
+        return isEmpty(no1) && isEmpty(no2) && isEmpty(no3) ? '' : `${no1}-${no2}-${no3}`;
       },
     }, // 계약자 휴대전화번호
     {
@@ -644,8 +650,11 @@ const initGrid = defineGrid((data, view) => {
       width: '130',
       styleName: 'text-center',
       displayCallback(grid, index) {
-        const { istLocaraTno, istExnoEncr, istIdvTno } = grid.getValues(index.itemIndex);
-        return !isEmpty(istLocaraTno) && !isEmpty(istExnoEncr) && !isEmpty(istIdvTno) ? `${istLocaraTno}-${istExnoEncr}-${istIdvTno}` : '';
+        const { istLocaraTno: no1, istExnoEncr: no2, istIdvTno: no3 } = grid.getValues(index.itemIndex);
+        if (!isEmpty(no1) && isEmpty(no2) && !isEmpty(no3)) {
+          return `${no1}--${no3}`;
+        }
+        return isEmpty(no1) && isEmpty(no2) && isEmpty(no3) ? '' : `${no1}-${no2}-${no3}`;
       },
     }, // 설치자 전화번호
     {
@@ -654,14 +663,27 @@ const initGrid = defineGrid((data, view) => {
       width: '130',
       styleName: 'text-center',
       displayCallback(grid, index) {
-        const { istCralLocaraTno, istMexnoEncr, istCralIdvTno } = grid.getValues(index.itemIndex);
-        return !isEmpty(istCralLocaraTno) && !isEmpty(istMexnoEncr) && !isEmpty(istCralIdvTno) ? `${istCralLocaraTno}-${istMexnoEncr}-${istCralIdvTno}` : '';
+        const { istCralLocaraTno: no1, istMexnoEncr: no2, istCralIdvTno: no3 } = grid.getValues(index.itemIndex);
+        if (!isEmpty(no1) && isEmpty(no2) && !isEmpty(no3)) {
+          return `${no1}--${no3}`;
+        }
+        return isEmpty(no1) && isEmpty(no2) && isEmpty(no3) ? '' : `${no1}-${no2}-${no3}`;
       },
     }, // 설치자 휴대전화번호
     { fieldName: 'dpTpNm', header: t('MSG_TXT_FNT_MTHD'), width: '130', styleName: 'text-center' }, // 이체방식 납부방식유형코드명
     { fieldName: 'mpyBsdt', header: t('MSG_TXT_FTD'), width: '130', styleName: 'text-center' }, // 이체일
     { fieldName: 'bryyMmdd', header: t('MSG_TXT_BIRTH_DATE'), width: '130', styleName: 'text-center', datetimeFormat: 'date' }, // 생년월일
-    { fieldName: 'bzrno', header: t('MSG_TXT_ENTRP_NO'), width: '130', styleName: 'text-center' }, // 사업자번호
+    { fieldName: 'bzrno',
+      header: t('MSG_TXT_ENTRP_NO'),
+      width: '150',
+      styleName: 'text-center',
+      displayCallback(grid, index, value) {
+        // 사업자번호 3-2-5 형식으로 표시
+        if (!isEmpty(value) && value.length === 10) {
+          return `${value.substr(0, 3)}-${value.substr(3, 2)}-${value.substr(5, 5)}`;
+        }
+      },
+    }, // 사업자등록번호 [사업자번호]
     { fieldName: 'txinvPblOjYn', header: t('MSG_TXT_TXINV'), width: '127', styleName: 'text-center' }, // 세금계산서
     { fieldName: 'sexDvNm', header: t('MSG_TXT_GENDER'), width: '130', styleName: 'text-center' }, // 성별
     { fieldName: 'cntrCstNo', header: t('MSG_TXT_CST_NO'), width: '130', styleName: 'text-center' }, // 고객번호
@@ -677,22 +699,27 @@ const initGrid = defineGrid((data, view) => {
       width: '130',
       styleName: 'text-center',
       displayCallback(grid, index) {
-        const { sellCralLocaraTno, sellMexnoEncr, sellCralIdvTno } = grid.getValues(index.itemIndex);
-        return !isEmpty(sellCralLocaraTno) && !isEmpty(sellMexnoEncr) && !isEmpty(sellCralIdvTno) ? `${sellCralLocaraTno}-${sellMexnoEncr}-${sellCralIdvTno}` : '';
+        const { sellCralLocaraTno: no1, sellMexnoEncr: no2, sellCralIdvTno: no3 } = grid.getValues(index.itemIndex);
+        if (!isEmpty(no1) && isEmpty(no2) && !isEmpty(no3)) {
+          return `${no1}--${no3}`;
+        }
+        return isEmpty(no1) && isEmpty(no2) && isEmpty(no3) ? '' : `${no1}-${no2}-${no3}`;
       },
     }, // 판매자 휴대전화번호
     { fieldName: 'bsOgNm', header: t('MSG_TXT_BLG_CD'), width: '130', styleName: 'text-center' }, // 소속코드
     { fieldName: 'bsPrtnrNo', header: t('MSG_TXT_MNGER_EPNO'), width: '134', styleName: 'text-center' }, // 웰스매니저 사번
     { fieldName: 'bsPrtnrKnm', header: t('MSG_TXT_MNGER_NM'), width: '135', styleName: 'text-center' }, // 웰스매니저명
-    { fieldName: 'bsCralTno', header: t('MSG_TXT_MPNO'), width: '161', styleName: 'text-center' }, // 웰스매니저 휴대전화번호
     {
       fieldName: 'bsCralTno',
       header: t('MSG_TXT_MPNO'),
       width: '130',
       styleName: 'text-center',
       displayCallback(grid, index) {
-        const { bsCralLocaraTno, bsMexnoEncr, bsCralIdvTno } = grid.getValues(index.itemIndex);
-        return !isEmpty(bsCralLocaraTno) && !isEmpty(bsMexnoEncr) && !isEmpty(bsCralIdvTno) ? `${bsCralLocaraTno}-${bsMexnoEncr}-${bsCralIdvTno}` : '';
+        const { bsCralLocaraTno: no1, bsMexnoEncr: no2, bsCralIdvTno: no3 } = grid.getValues(index.itemIndex);
+        if (!isEmpty(no1) && isEmpty(no2) && !isEmpty(no3)) {
+          return `${no1}--${no3}`;
+        }
+        return isEmpty(no1) && isEmpty(no2) && isEmpty(no3) ? '' : `${no1}-${no2}-${no3}`;
       },
     }, // 웰스매니저 휴대전화번호
   ];

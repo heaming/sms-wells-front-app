@@ -148,10 +148,10 @@ const initGridNewCstInfo = defineGrid((data, viewNewCstInfo) => {
     { fieldName: 'sellTpNm' },
     { fieldName: 'keepPtrm' },
     { fieldName: 'rentalNmn' },
-    { fieldName: 'fnlVal' },
-    { fieldName: 'dscAmt' },
-    { fieldName: 'allDscAmt' },
-    { fieldName: 'rcvryAmt' },
+    { fieldName: 'fnlVal', dataType: 'number' },
+    { fieldName: 'dscAmt', dataType: 'number' },
+    { fieldName: 'allDscAmt', dataType: 'number' },
+    { fieldName: 'rcvryAmt', dataType: 'number' },
     { fieldName: 'mutuYn' },
   ];
 
@@ -161,7 +161,7 @@ const initGridNewCstInfo = defineGrid((data, viewNewCstInfo) => {
     { fieldName: 'basePdCd', header: t('MSG_TXT_PRDT_CODE'), width: '131', styleName: 'text-center' }, // 상품코드
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '131', styleName: 'text-center' }, // 상품명
     { fieldName: 'sellTpNm', header: t('MSG_TXT_TYPE'), width: '131', styleName: 'text-center' }, // 유형
-    { fieldName: 'keepPtrm', header: t('MSG_TXT_KEEP_PTRM'), width: '96', styleName: 'text-center' }, // 유지기간
+    { fieldName: 'keepPtrm', header: t('MSG_TXT_KEEP_PTRM'), width: '196', styleName: 'text-center' }, // 유지기간
     { fieldName: 'rentalNmn', header: t('MSG_TXT_NTXM'), width: '74', styleName: 'text-center' }, // 차월
     { fieldName: 'fnlVal', header: t('MSG_TXT_CRTL_CHRAM'), width: '115', styleName: 'text-center' }, // 현요금
     { fieldName: 'dscAmt', header: t('MSG_TXT_DSC'), width: '115', styleName: 'text-center' }, // 할인

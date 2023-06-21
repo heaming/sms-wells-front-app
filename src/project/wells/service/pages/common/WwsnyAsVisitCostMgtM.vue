@@ -24,17 +24,14 @@
         <kw-search-item :label="$t('MSG_TXT_PD_GRP')">
           <kw-select
             v-model="searchParams.pdGrpCd"
+            :label="$t('MSG_TXT_PD_GRP')"
             :options="codes.PD_GRP_CD"
-            class="w150"
             first-option="all"
-            @change="changePdGrpCd"
           />
           <kw-select
             v-model="searchParams.pdCd"
-            :options="pds"
+            :options="productCode"
             first-option="all"
-            option-label="cdNm"
-            option-value="cd"
           />
         </kw-search-item>
       </kw-search-row>
@@ -152,6 +149,7 @@ const { currentRoute } = useRouter();
 const grdMainRef = ref(getComponentType('KwGrid'));
 let cachedParams;
 const searchParams = ref({
+  pdGrpCd: '',
   pdCd: '',
 });
 const pageInfo = ref({
@@ -159,8 +157,16 @@ const pageInfo = ref({
   pageIndex: 1,
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
 });
-const codes = await codeUtil.getMultiCodes('COD_PAGE_SIZE_OPTIONS', 'PD_GRP_CD');
-const pds = ref([]);// = await getPartMaster('4', '1', 'M');
+const codes = await codeUtil.getMultiCodes(
+  'COD_PAGE_SIZE_OPTIONS',
+  'PD_GRP_CD',
+);
+const productCode = ref();
+watch(() => [searchParams.value.year, searchParams.value.pdGrpCd], async () => {
+  // productCode.value = await getMcbyCstSvOjIz(searchParams.value.year, searchParams.value.pdGrpCd);
+  const tempVal = await getPartMaster(undefined, searchParams.value.pdGrpCd);
+  productCode.value = tempVal.map((v) => ({ codeId: v.cd, codeName: v.codeName }));
+}, { immediate: true });
 
 async function fetchData() {
   const res = await dataService.get('/sms/wells/service/as-visit-costs/paging', { params: {
@@ -210,13 +216,13 @@ async function onClickDelete() {
   gridUtil.deleteCheckedRows(view);
 }
 
-async function changePdGrpCd() {
-  if (searchParams.value.pdGrpCd) {
-    pds.value = await getPartMaster('4', searchParams.value.pdGrpCd, 'M');
-  } else pds.value = [];
-}
-pds.value = await getPartMaster('4', null, 'M');
-console.log(pds.value);
+// async function changePdGrpCd() {
+//   if (searchParams.value.pdGrpCd) {
+//     pds.value = await getPartMaster('4', searchParams.value.pdGrpCd, 'M');
+//   } else pds.value = [];
+// }
+// pds.value = await getPartMaster('4', null, 'M');
+// console.log(pds.value);
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
@@ -241,7 +247,7 @@ const initGrdMain = defineGrid((data, view) => {
       width: '150',
       styleName: 'text-center',
       editor: { type: 'dropdown' },
-      options: pds.value.map((x) => ({ codeId: x.cd ? x.cd : '', codeName: x.cdNm ? x.cdNm : '' })),
+      options: codes.PD_CD,
       rules: 'required',
     },
     /* 상품명 */

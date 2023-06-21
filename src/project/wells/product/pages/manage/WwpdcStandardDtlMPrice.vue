@@ -239,6 +239,7 @@ onMounted(async () => {
 // -------------------------------------------------------------------------------------------------
 async function initGrid(data, view) {
   currentMetaInfos.value.map((item) => {
+    item.readEuYn = 'Y';
     if (item.colNm === 'fnlVal') {
       // 최종가격
       item.prpNm = t('MSG_TXT_PD_FNL_PRC');

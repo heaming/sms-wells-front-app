@@ -46,7 +46,7 @@
         <kw-form-item :label="$t('MSG_TXT_OVIV_FOM')">
           <kw-select
             v-model="searchParams.ovivTpCd"
-            :options="codes.OVIV_FOM_CD"
+            :options="codes.OVIV_TP_CD"
             :readonly="isOviv"
           />
         </kw-form-item>
@@ -210,7 +210,7 @@ const searchParams = ref({
   strOjWareNo: '', // 출고요청창고번호
   wareNm: '', // 창고명
   ostrAkNo: '', // 출고요청관리번호
-  ovivTpCd: '0', // 배차유형코드
+  ovivTpCd: '00', // 배차유형코드
   ostrAkTpCd: '', // 출고요청유형코드
   ostrItmNo: '', // 품목종류
   ostrOjWareNo: '',
@@ -233,7 +233,7 @@ const pageInfo = ref({
 
 const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
-  'OVIV_FOM_CD',
+  'OVIV_TP_CD',
   'OSTR_AK_TP_CD', // check: 출고요청유형코드 공통코드에서 가져오는데 갯수가 많음.
   'ITM_KND_CD',
 
@@ -417,7 +417,9 @@ async function onClickDelete() {
   }
 }
 
+let params;
 async function onClickSave() {
+  debugger;
   const view = grdMainRef.value.getView();
   const checkedRows = gridUtil.getCheckedRowValues(view);
   if (checkedRows.length === 0) {
@@ -453,14 +455,16 @@ async function onClickSave() {
       checkedRows[i].ostrAkNo = chkOstrAkNo;
     }
   }
-  const params = searchParams.value;
+  // const params = searchParams.value;
+  params = searchParams.value;
 
   params.ostrAkRgstDt = dayjs().format('YYYYMMDD');
+  // eslint-disable-next-line max-len
   const result = await dataService.post('/sms/wells/service/out-of-storage-asks', checkedRows.map((v) => ({ ...v, ...params })));
   if (result > 0) {
     notify(t('MSG_ALT_SAVE_DATA'));
   }
-  // await fetchOstrAkDataItem();
+  await fetchOstrAkDataItem();
   ok();
 }
 
@@ -514,6 +518,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'itmKnd' }, /* 품목종류 */
     { fieldName: 'itmKndNm' }, /* 품목종류명 */
     { fieldName: 'imgUrl' }, /* imgUrl */
+    { fieldName: 'ovivTpCd' }, /* 배차형태 */
     { fieldName: 'ostrAkWareDvCd' }, /* 출고요청창고구분코드 */
     { fieldName: 'wareMngtPrtnrNo' }, /* 창고관리파트너번호 */
     { fieldName: 'warehouseQty', dataType: 'number' }, /* 재고 */
@@ -714,6 +719,17 @@ const initGrdMain = defineGrid((data, view) => {
   //     await onClickItemPop('U', dataRow);
   //   }
   // };
+
+  view.onCellItemClicked = async (g, { column, itemIndex }) => {
+    const { imgUrl } = g.getValues(itemIndex);
+    if (column === 'imgUrl') {
+      await modal({
+        component: 'ZwcmzImagePreviewP',
+        componentProps: { files: [imgUrl] }, // fileUid만 주면 됨
+        // componentProps: { files: ['FIL-E9E84666-BFC3-44E2-9EC1-D3AFD05BF77B'] }, // fileUid만 주면 됨
+      });
+    }
+  };
 
   view.onGetEditValue = async (grid, index, editResult) => {
     grid.checkItem(index.itemIndex, true);

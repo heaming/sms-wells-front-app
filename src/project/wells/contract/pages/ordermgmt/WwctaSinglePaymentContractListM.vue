@@ -267,7 +267,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, defineGrid, getComponentType, useDataService, gridUtil, useGlobal } from 'kw-lib';
+import { codeUtil, defineGrid, getComponentType, useDataService, gridUtil, stringUtil, useGlobal } from 'kw-lib';
 import { cloneDeep, isEmpty, uniqBy } from 'lodash-es';
 import pdConst from '~sms-common/product/constants/pdConst';
 import dayjs from 'dayjs';
@@ -630,7 +630,20 @@ const initGridSnglPmntContractList = defineGrid((data, view) => {
     { fieldName: 'ordrInfoView', header: t('MSG_TXT_ODER_INF_VIEW'), width: '180', styleName: 'text-center', renderer: { type: 'button', hideWhenEmpty: false }, displayCallback: () => t('MSG_TXT_ODER_INF_VIEW') }, // 주문정보 보기
     { fieldName: 'cstKnm', header: t('MSG_TXT_CNTOR_NM'), width: '138', styleName: 'text-center' }, // 계약자명
     { fieldName: 'copnDvNm', header: t('MSG_TXT_CST_DV'), width: '138', styleName: 'text-center' }, // 고객구분
-    { fieldName: 'rnmno', header: `${t('MSG_TXT_RRNO')}/${t('MSG_TXT_ENTRP_NO')}`, width: '160', styleName: 'text-center' }, // 주민등록번호/사업자번호
+    { fieldName: 'rnmno',
+      header: `${t('MSG_TXT_RRNO')}/${t('MSG_TXT_ENTRP_NO')}`,
+      width: '160',
+      styleName: 'text-center',
+      displayCallback(grid, index, value) {
+        // 사업자번호 3-2-5 형식으로 표시
+        if (!isEmpty(value) && value.length === 10) {
+          return `${value.substr(0, 3)}-${value.substr(3, 2)}-${value.substr(5, 5)}`;
+        }
+        if (!isEmpty(value) && value.length === 8) {
+          return stringUtil.getDateFormat(value);
+        }
+      },
+    }, // 주민등록번호/사업자번호
     { fieldName: 'basePdCd', header: t('MSG_TXT_PRDT_CODE'), width: '138', styleName: 'text-center' }, // 상품코드
     { fieldName: 'basePdNm', header: t('MSG_TXT_PRDT_NM'), width: '292' }, // 상품명
     { fieldName: 'sellDscDvCd', header: t('MSG_TXT_PD_DC_CLASS'), width: '138', styleName: 'text-center' }, // 할인구분
@@ -704,7 +717,7 @@ const initGridSnglPmntContractList = defineGrid((data, view) => {
       width: '160',
       styleName: 'text-center',
       displayCallback(grid, index) {
-        const { istCralLocaraTno: no1, istMexnoEncr: no2, istCralIdvTno: no3 } = grid.getValues(index.itemIndex);
+        const { istlcCralLocaraTno: no1, istlcMexnoEncr: no2, istlcCralIdvTno: no3 } = grid.getValues(index.itemIndex);
         if (!isEmpty(no1) && isEmpty(no2) && !isEmpty(no3)) {
           return `${no1}--${no3}`;
         }

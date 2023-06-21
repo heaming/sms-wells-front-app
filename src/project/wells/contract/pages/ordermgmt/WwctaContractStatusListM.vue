@@ -181,7 +181,7 @@
               v-if="item.numprds > 1"
               class="kw-font-pt18 kw-fc--primary"
             >
-              {{ item.sellTpDtlNm }} 외 {{ item.numprds }}건
+              {{ item.sellTpNm }} 외 {{ item.numprds }}건
             </p>
             <p
               v-else
@@ -214,8 +214,7 @@
               <p class="w90">
                 {{ t('MSG_TXT_RCP_D') }}
               </p>
-              <span v-if="item.cntrPrgsStatCd < 60">{{ dayjs( item.cntrTempSaveDtm).format('YYYY-MM-DD') }}</span>
-              <span v-if="item.cntrPrgsStatCd >= 60">{{ dayjs( item.cntrRcpFshDtm).format('YYYY-MM-DD') }}</span>
+              <span>{{ dayjs( item.viewRcpFshDtm).format('YYYY-MM-DD') }}</span>
             </li>
             <li>
               <p class="w90">
@@ -226,11 +225,28 @@
               </span>
             </li>
             <li>
-              <p class="w90">
+              <p
+                v-if="Number(item.pymnamt) > 0 && item.viewCntrPrgsStatCd < 60"
+                class="w90"
+              >
                 {{ t('MSG_TXT_DPST_AMT') }}
               </p>
-              <span class="text-weight-bold kw-fc--error">
+              <p
+                v-else
+                class="w90"
+              >
+                <br>
+              </p>
+              <span
+                v-if="Number(item.pymnamt) > 0 && item.viewCntrPrgsStatCd < 60"
+                class="text-weight-bold kw-fc--error"
+              >
                 {{ stringUtil.getNumberWithComma(item.pymnamt||0) }}원
+              </span>
+              <span
+                v-else
+              >
+                <br>
               </span>
             </li>
             <li v-if="searchParams.isBrmgr === 'Y'">
@@ -248,7 +264,7 @@
           </kw-chip>
           <!-- 확정요청대상조회 -->
           <span
-            v-if="item.cntrPrgsStatCd === '50' && searchParams.isBrmgr != 'Y'"
+            v-if="item.viewCntrPrgsStatCd === '50' && searchParams.isBrmgr != 'Y'"
             style="float: right;"
             @click="onClickConfirmTarget(item.cntrNo)"
           >
@@ -259,7 +275,7 @@
 
           <!-- 임시저장 -->
           <div
-            v-if="Number(item.cntrPrgsStatCd) < 20"
+            v-if="Number(item.viewCntrPrgsStatCd) < 20"
             class="button-wrap"
           >
             <kw-btn
@@ -280,7 +296,7 @@
           </div>
           <!-- 작성완료 -->
           <div
-            v-else-if="item.cntrPrgsStatCd === '20'"
+            v-else-if="item.viewCntrPrgsStatCd === '20'"
             class="button-wrap"
           >
             <kw-btn
@@ -294,13 +310,13 @@
               spaced="0px"
             />
             <kw-btn
-              v-if="item.cstStlmInMthCd === '20' && item.pymnSkipYn === 'N'"
+              v-if="item.cntrPrgsStatCd === '20' && item.pymnSkipYn === 'N'"
               :label="$t('MSG_TXT_NON_FCF_PYMNT')"
               padding="12px"
               @click="onClickNonFcfPayment(item)"
             />
             <kw-btn
-              v-if="item.pymnSkipYn === 'Y'"
+              v-if="item.cntrPrgsStatCd === '20'"
               :label="$t('MSG_BTN_F2F_PYMNT')"
               padding="12px"
               @click="onClickF2fPayment(item)"
@@ -313,7 +329,7 @@
           </div>
           <!-- 결제중 -->
           <div
-            v-else-if="item.cntrPrgsStatCd === '40'"
+            v-else-if="item.viewCntrPrgsStatCd === '40'"
             class="button-wrap"
           >
             <kw-btn
@@ -334,7 +350,7 @@
           </div>
           <!-- 결제완료 -->
           <div
-            v-else-if="item.cntrPrgsStatCd === '50'"
+            v-else-if="item.viewCntrPrgsStatCd === '50'"
             class="button-wrap"
           >
             <kw-btn
@@ -369,7 +385,7 @@
           </div>
           <!-- 확정 -->
           <div
-            v-else-if="item.cntrPrgsStatCd === '60'"
+            v-else-if="item.viewCntrPrgsStatCd === '60'"
             class="button-wrap"
           >
             <kw-btn
@@ -383,6 +399,7 @@
               spaced="0px"
             />
             <kw-btn
+              v-if="item.cntrPrgsStatCd === '60'"
               :label="$t('MSG_BTN_CNTCT_ASSGNMNT')"
               padding="12px"
               @click="onClickAssignContact(item)"
@@ -425,7 +442,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { consts, codeUtil, router, useDataService, useGlobal, popupUtil, useMeta, stringUtil } from 'kw-lib';
+import { codeUtil, router, useDataService, useGlobal, popupUtil, useMeta, stringUtil } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 
@@ -478,6 +495,11 @@ const cntrPrgsStatCds = codes.CNTR_PRGS_STAT_CD.filter((v) => ((searchParams.val
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
+/*
+item.viewCntrPrgsStatCd :
+ - 일반 : CNTR_PRGS_STAT_CD
+ - 재약정 : RSTL_STAT_CD 010 -> 20(접수) / 020 -> 60(확정)
+*/
 
 async function fetchData() {
   if (isEmpty(cachedParams)) return;
@@ -562,6 +584,8 @@ async function onClickConfirmTarget(paramCntrNo) {
 
 // 수정
 async function onClickModify(paramStatCd, paramCntrNo) {
+  console.log(` onClickModify paramStatCd : ${paramStatCd}, paramCntrNo : ${paramCntrNo}`);
+
   router.replace({
     path: 'wwcta-contract-registration-mgt',
     query: {
@@ -572,17 +596,17 @@ async function onClickModify(paramStatCd, paramCntrNo) {
 }
 
 async function onClickNonFcfPayment(item) {
-  if (item.cntrPrgsStatCd === '20' || item.cntrPrgsStatCd === '40') {
+  if (item.viewCntrPrgsStatCd === '20' || item.viewCntrPrgsStatCd === '40') {
     // 계약진행상태코드 재확인
     const nowPrgsStatCd = await getPrgsStatCd(item.cntrNo);
-    if (Number(item.cntrPrgsStatCd) !== nowPrgsStatCd) {
+    if (Number(item.viewCntrPrgsStatCd) !== nowPrgsStatCd) {
       await alert(t('MSG_ALT_NOT_SYNC_REFRESH'));
       await onClickSearch();
       return;
     }
 
     let message = t('MSG_ALT_STLM_URL_CONFIRM', [item.cstKnm, item.mobileTelNo]);
-    if (item.cntrPrgsStatCd === '40') { message = `[${t('MSG_TXT_RESEND')}]${message}`; }
+    if (item.viewCntrPrgsStatCd === '40') { message = `[${t('MSG_TXT_RESEND')}]${message}`; }
 
     if (!await confirm(message)) { return; }
 
@@ -598,17 +622,20 @@ async function onClickNonFcfPayment(item) {
 }
 
 async function onClickF2fPayment(item) {
-  if (item.cntrPrgsStatCd === '20' || item.cntrPrgsStatCd === '60') {
+  if (item.viewCntrPrgsStatCd === '20' || item.viewCntrPrgsStatCd === '40') {
     // 계약진행상태코드 재확인
     const nowPrgsStatCd = await getPrgsStatCd(item.cntrNo);
-    if (Number(item.cntrPrgsStatCd) !== nowPrgsStatCd) {
+    if (Number(item.viewCntrPrgsStatCd) !== nowPrgsStatCd) {
       await alert(t('MSG_ALT_NOT_SYNC_REFRESH'));
       await onClickSearch();
       return;
     }
 
+    /*
+    // 통테 이후 주석 제거 (암호화 하지 않음)
     // URL 암호화
-    const res = await dataService.post('/sms/wells/contract/contracts/contract-lists/make-url', { url: `${consts.HTTP_ORIGIN}/payment?cntrNo=${item.cntrNo}` });
+    const res = await dataService.post('/sms/wells/contract/contracts/contract-lists/make-url',
+     { url: `${consts.HTTP_ORIGIN}/payment?cntrNo=${item.cntrNo}` });
 
     // 신규 윈도우 페이지에서 위 URL을 POST 로 전송
     if (!isEmpty(res.data)) {
@@ -616,6 +643,15 @@ async function onClickF2fPayment(item) {
       // await window.open(`${res.data}`);
       await popupUtil.open(`${res.data}`, { width: 500, height: 700 }, false);
     }
+    */
+
+    const { cntrNo } = item;
+    const routeParams = new URLSearchParams({ cntrNo });
+    const routePath = '/wwcta-contract-settlement-login-mgt';
+    const hash = `#${routePath}/?${routeParams.toString()}`;
+    const url = `/mobile${hash}`;
+
+    popupUtil.open(url, { width: 360, height: 740 });
   }
 }
 
@@ -642,7 +678,7 @@ async function onClickAssignContact(item) {
   console.log(item);
   // 설치오더 시작
   const res = await modal({
-    component: 'WwsncTimeTableSellListP',
+    component: 'WwsncTimeTableForContractP',
     componentProps: {
       sellDate: item.cntrCnfmDtm.substring(0, 8), // 판매일자
       baseYm: now.format('YYYYMM'), // 달력 초기 월
@@ -667,10 +703,11 @@ async function onClickRequestDelete(item) {
 }
 
 async function onClickContractDelete(item) {
-  if (item.cntrPrgsStatCd <= '20') {
+  if (item.viewCntrPrgsStatCd <= '20') {
     if (!await confirm(t('MSG_ALT_WANT_DEL_WCC'))) { return; }
 
     await dataService.delete('/sms/wells/contract/contracts/contract-lists/', { params: { cntrNo: item.cntrNo } });
+    onClickSearch();
   }
 }
 

@@ -112,12 +112,12 @@
 // -------------------------------------------------------------------------------------------------
 
 import { useGlobal, codeUtil, defineGrid, useDataService, getComponentType, gridUtil, popupUtil, useMeta } from 'kw-lib';
-import snConst from '~sms-wells/service/constants/snConst';
 // TODO: 추후 공통서비스 변경후 적용 예정 (조직창고 , 조직창고에 해당하는 엔지니어조회)
 import ZwcmWareHouseSearch from '~sms-common/service/components/ZwsnzWareHouseSearch.vue';
-import useSnCode from '~sms-wells/service/composables/useSnCode';
 import dayjs from 'dayjs';
 import { cloneDeep } from 'lodash-es';
+import useSnCode from '~sms-wells/service/composables/useSnCode';
+import snConst from '~sms-wells/service/constants/snConst';
 // 로그인한 사용자의 창고정보 조회
 
 const grdMainRef = ref(getComponentType('KwGrid'));
@@ -323,7 +323,7 @@ const initGrdMain = defineGrid((data, view) => {
         // await popupUtil.open(`/popup#/service/wwsna-normal-out-of-storage-rgst-list?ostrAkNo=${ostrAkNo}ostrAkTpCd=${ostrTpCd}&ostrOjWareNo=${ostrWareNo}&ostrDt=${ostrDt}&strOjWareNo=${strWareNo}&itmOstrNo=${itmOstrNo}`, { width: 1800, height: 1000 }, false);
         const { result } = await modal({
           component: 'WwsnaNormalOutOfStorageRgstListP',
-          componentProps: { ostrAkNo, ostrAkSn },
+          componentProps: { ostrAkNo, ostrAkSn, page: '출고관리' },
         });
 
         if (result) {

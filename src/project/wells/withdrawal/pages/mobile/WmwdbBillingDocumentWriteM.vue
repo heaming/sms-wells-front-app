@@ -65,13 +65,14 @@
           :label="t('MSG_TXT_QTY')"
           class="pt20"
           rules="required|max:12"
+          :min="1"
           maxlength="12"
           clearable
         />
         <!-- label="단가(총액)" -->
         <kw-input
           v-model="regMainData.pdSellAmt"
-          type="number"
+          mask="number"
           :label="t('MSG_TXT_UPRC_TAM')"
           class="pt20"
           rules="required|max:20"
@@ -113,7 +114,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import dayjs from 'dayjs';
-import { modal, notify, router, useDataService } from 'kw-lib';
+import { modal, notify, router, useDataService, alert } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 
 const now = dayjs();
@@ -174,6 +175,7 @@ const regMainData = ref({
   pdQty: '', // 수량
   pdSellAmt: '', // 단가(총액)
   rmkCn: '', // 비고
+  isSearchChk: false,
 });
 
 const frmMainRef = ref();
@@ -192,15 +194,27 @@ async function onClickSearchUser() {
 // 이전 버튼 클릭
 async function onClickBefore() {
   frmMainRef.value.reset();
-  await router.push(
-    {
-      path: '/withdrawal/wmwdb-billing-document-mgt',
-      query: {
-        searchCstFnm: props.searchCstFnm, // 조회조건
-        searchBildcWrteDt: props.searchBildcWrteDt, // 조회조건
+  if (regMainData.value.isSearchChk) {
+    await router.push(
+      {
+        path: '/withdrawal/wmwdb-billing-document-mgt',
+        query: {
+          searchCstFnm: regMainData.value.cstFnm, // 조회조건
+          searchBildcWrteDt: regMainData.value.bildcWrteDt, // 조회조건
+        },
       },
-    },
-  );
+    );
+  } else {
+    await router.push(
+      {
+        path: '/withdrawal/wmwdb-billing-document-mgt',
+        query: {
+          searchCstFnm: props.searchCstFnm, // 조회조건
+          searchBildcWrteDt: props.searchBildcWrteDt, // 조회조건
+        },
+      },
+    );
+  }
 }
 
 let dataParam;
@@ -224,6 +238,11 @@ let cachedParams;
 async function onClickSave() {
   if (!await frmMainRef.value.validate()) { return; }
   if (await frmMainRef.value.alertIfIsNotModified()) { return; }
+  if (regMainData.value.pdQty < 1 || regMainData.value.pdQty === '') {
+    // 수량은(는) 0보다 커야합니다.
+    await alert(t('MSG_ALT_ZERO_IS_BIG', [t('MSG_TXT_QTY')]));
+    return;
+  }
 
   const mainData = cloneDeep(regMainData.value);
   cachedParams = {
@@ -249,7 +268,7 @@ async function initProps() {
     regMainData.value.state = 'updated';
     regMainData.value.rowState = 'updated';
     isUseChk.value = true;
-    regMainData.value.isSearchChk = true;
+    // regMainData.value.isSearchChk = true;
 
     await fetchData();
   } else {

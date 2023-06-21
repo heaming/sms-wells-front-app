@@ -48,7 +48,8 @@
         <kw-search-item :label="$t('MSG_TXT_MANAGEMENT_DEPARTMENT')">
           <kw-select
             v-model="searchParams.gnrdv"
-            :options="gnrlMngTeamOptions"
+            first-option="all"
+            :options="codes.GNRDV_ACD"
           />
         </kw-search-item>
       </kw-search-row>
@@ -130,31 +131,17 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, defineGrid, getComponentType, gridUtil, useDataService, useGlobal, useMeta } from 'kw-lib';
+import { codeUtil, defineGrid, getComponentType, gridUtil, useDataService, useGlobal } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 
 const { notify, modal } = useGlobal();
 const { t } = useI18n();
-const { getUserInfo } = useMeta();
 const now = dayjs();
-const userInfo = getUserInfo();
 const dataService = useDataService();
 const { currentRoute } = useRouter();
 const prdDivOption = ref([{ codeId: 1, codeName: t('MSG_TXT_FST_RGST_DT') },
   { codeId: 2, codeName: t('MSG_TXT_YEAR_OCCURNCE') }]);
-const gnrlMngTeamOptions = ref([
-  { codeId: '', codeName: t('MSG_TXT_ALL') },
-  { codeId: 'A', codeName: `A${t('MSG_TXT_MANAGEMENT_DEPARTMENT')}` },
-  { codeId: 'B', codeName: `B${t('MSG_TXT_MANAGEMENT_DEPARTMENT')}` },
-  { codeId: 'C', codeName: `C${t('MSG_TXT_MANAGEMENT_DEPARTMENT')}` },
-  { codeId: 'D', codeName: `D${t('MSG_TXT_MANAGEMENT_DEPARTMENT')}` },
-  { codeId: 'E', codeName: `E${t('MSG_TXT_MANAGEMENT_DEPARTMENT')}` },
-  { codeId: 'F', codeName: `F${t('MSG_TXT_MANAGEMENT_DEPARTMENT')}` },
-  { codeId: 'G', codeName: `G${t('MSG_TXT_MANAGEMENT_DEPARTMENT')}` },
-  { codeId: 'H', codeName: `H${t('MSG_TXT_MANAGEMENT_DEPARTMENT')}` },
-  { codeId: 'P', codeName: `P${t('MSG_TXT_MANAGEMENT_DEPARTMENT')}` },
-]);
 
 let cachedParams;
 const searchParams = ref({
@@ -176,6 +163,7 @@ const grdMainRef = ref(getComponentType('KwGrid'));
 const codes = await codeUtil.getMultiCodes(
   'PNTSC_ARBIT_ATC_CD',
   'PNTSC_ARBIT_DEPT_CD',
+  'GNRDV_ACD',
 );
 
 const pageInfo = ref({
@@ -288,24 +276,11 @@ async function onGroupFind(dataRow) {
       params: {
         baseYm: view.getValues(dataRow).dangOcStrtmm,
         prtnrNo: view.getValues(dataRow).dangOjPrtnrNo,
-        ogTpCd: userInfo.ogTpCd,
       },
     });
-    view.setValue(dataRow, 'dangOjPrtnrNm', '');
-    view.setValue(dataRow, 'dangOjOgId', '');
-    view.setValue(dataRow, 'dangOjPstnDvCd', '');
-    view.setValue(dataRow, 'dgr1LevlDgPrtnrNo', '');
-    view.setValue(dataRow, 'dgr1LevlDgPrtnrNm', '');
-    view.setValue(dataRow, 'dgr2LevlDgPrtnrNo', '');
-    view.setValue(dataRow, 'dgr2LevlDgPrtnrNm', '');
-    view.setValue(dataRow, 'bznsSpptPrtnrNo', '');
-    view.setValue(dataRow, 'bznsSpptPrtnrNm', '');
-    view.setValue(dataRow, 'dgr3LevlDgPrtnrNo', '');
-    view.setValue(dataRow, 'dgr3LevlDgPrtnrNm', '');
-    view.setValue(dataRow, 'ogTpCd', '');
     const resData = res.data;
-
-    if ((!isEmpty(res.data))) {
+    if ((!isEmpty(resData))) {
+      console.log(resData);
       view.setValue(dataRow, 'dangOjPrtnrNm', resData.prtnrKnm);
       view.setValue(dataRow, 'dangOjOgId', resData.ogCd);
       view.setValue(dataRow, 'dangOjPstnDvCd', resData.pstnDvCd);
@@ -315,8 +290,6 @@ async function onGroupFind(dataRow) {
       view.setValue(dataRow, 'dgr2LevlDgPrtnrNm', resData.dgr2LevlDgPrtnrNm);
       view.setValue(dataRow, 'bznsSpptPrtnrNo', resData.bizSpptPrtnrNo);
       view.setValue(dataRow, 'bznsSpptPrtnrNm', resData.bizSpptPrtnrNm);
-      view.setValue(dataRow, 'dgr3LevlDgPrtnrNo', resData.dgr3LevlDgPrtnrNo);
-      view.setValue(dataRow, 'dgr3LevlDgPrtnrNm', resData.dgr3LevlDgPrtnrNm);
       view.setValue(dataRow, 'ogTpCd', resData.ogTpCd);
     }
   }
@@ -372,10 +345,11 @@ const initGrid = defineGrid((data, view) => {
       styleCallback(grid, dataCell) {
         return { editable: dataCell.item.rowState === 'created' };
       },
-    },
+    }, // 행위자사번
     { fieldName: 'dangOcStrtmm',
       header: t('MSG_TXT_YEAR_OCCURNCE'),
       width: '165',
+      styleName: 'text-center',
       datetimeFormat: 'yyyy-MM',
       rules: 'required',
       editor: {
@@ -388,15 +362,15 @@ const initGrid = defineGrid((data, view) => {
       styleCallback(grid, dataCell) {
         return { editable: dataCell.item.rowState === 'created' };
       },
-    },
-    { fieldName: 'dangOjOgId', header: t('MSG_TXT_BLG'), width: '129', editable: false },
-    { fieldName: 'dangOjPrtnrNm', header: t('MSG_TXT_EMPL_NM'), width: '129', editable: false },
-    { fieldName: 'dangOjPstnDvCd', header: t('MSG_TXT_CRLV'), width: '129', editable: false },
-    { fieldName: 'dgr1LevlDgPrtnrNm', header: t('MSG_TXT_MANAGEMENT_DEPARTMENT'), width: '129', editable: false },
-    { fieldName: 'dgr2LevlDgPrtnrNm', header: t('MSG_TXT_RGNL_GRP'), width: '129', editable: false },
-    { fieldName: 'bznsSpptPrtnrNm', header: 'BM', width: '129', editable: false },
-    { fieldName: 'dgr3LevlDgPrtnrNm', header: t('MSG_TXT_BRANCH'), width: '129', editable: false },
-    { fieldName: 'dangChkNm', header: t('MSG_TXT_CHRGS'), width: '306', rules: 'required' },
+    }, // 발생년월
+    { fieldName: 'dangOjOgId', styleName: 'text-center', header: t('MSG_TXT_BLG'), width: '129', editable: false }, // 소속
+    { fieldName: 'dangOjPrtnrNm', styleName: 'text-center', header: t('MSG_TXT_EMPL_NM'), width: '129', editable: false }, // 성명
+    { fieldName: 'dangOjPstnDvCd', header: t('MSG_TXT_CRLV'), styleName: 'text-center', width: '129', editable: false }, // 직급
+    { fieldName: 'dgr1LevlDgPrtnrNm', styleName: 'text-center', header: t('MSG_TXT_MANAGEMENT_DEPARTMENT'), width: '129', editable: false }, // 총괄단
+    { fieldName: 'dgr2LevlDgPrtnrNm', styleName: 'text-center', header: t('MSG_TXT_RGNL_GRP'), width: '129', editable: false }, // 지역단
+    { fieldName: 'bznsSpptPrtnrNm', styleName: 'text-center', header: 'BM', width: '129', editable: false }, // BM
+    { fieldName: 'dgr3LevlDgPrtnrNm', styleName: 'text-center', header: t('MSG_TXT_BRANCH'), width: '129', editable: false }, // 지점
+    { fieldName: 'dangChkNm', header: t('MSG_TXT_CHRGS'), width: '306', rules: 'required' }, // 부과내역
     { fieldName: 'dangArbitCd',
       header: t('MSG_TXT_ACTN_ITM'),
       width: '306',
@@ -434,12 +408,13 @@ const initGrid = defineGrid((data, view) => {
       header: t('MSG_TXT_FST_RGST_USR'),
       width: '146',
       styleName: 'text-center',
-      editable: false },
+      editable: false }, // 등록자
     { fieldName: 'fstRgstDt',
       header: t('MSG_TXT_FST_RGST_DT'),
+      styleName: 'text-center',
       width: '165',
       datetimeFormat: 'date',
-      editable: false },
+      editable: false }, // 등록일자
   ];
 
   data.setFields(fields);
@@ -483,6 +458,7 @@ const initGrid = defineGrid((data, view) => {
     });
     if (!isEmpty(payload)) {
       data.setValue(updateRow, 'dangOjPrtnrNo', payload.prtnrNo);
+      data.setValue(updateRow, 'dangOcStrtmm', now.format('YYYYMM'));
       onGroupFind(itemIndex);
     }
   };

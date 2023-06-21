@@ -12,11 +12,11 @@
 --->
 <template>
   <kw-popup
-    size="sm"
+    size="lg"
   >
     <kw-form
       ref="frmSaveRef"
-      :cols="1"
+      :cols="2"
     >
       <kw-form-row>
         <kw-form-item
@@ -33,8 +33,6 @@
             @click-icon="onClickClaimantName"
           />
         </kw-form-item>
-      </kw-form-row>
-      <kw-form-row>
         <kw-form-item
           :label="$t('MSG_TXT_BUILDING')"
           required
@@ -64,9 +62,7 @@
             :disable="isDisable"
           />
         </kw-form-item>
-      </kw-form-row>
 
-      <kw-form-row>
         <kw-form-item
           :label="$t('MSG_TXT_CARD_PSR')"
           required
@@ -96,8 +92,7 @@
             required
           />
         </kw-form-item>
-      </kw-form-row>
-      <kw-form-row>
+
         <kw-form-item
           :label="$t('MSG_TXT_APPL_DATE')"
           required
@@ -116,6 +111,7 @@
           :label="$t('MSG_TXT_SRCP_APN')"
           required
           :hint="$t('MSG_TXT_PLEA_CONTA_RECE_CLEA_SUPP_PLE_CONTA_CH_APP_REC')"
+          colspan="2"
         >
           <zwcm-file-attacher
             ref="attachFileRef"
@@ -125,6 +121,7 @@
             rules="required"
             :label="$t('MSG_TXT_SRCP_APN')"
             :readonly="isDisable"
+            downloadable
           />
         </kw-form-item>
       </kw-form-row>
@@ -225,7 +222,7 @@ async function onClickClaimantName() {
       const res = await dataService.get('/sms/wells/closing/expense/cleaning-cost/request-cleaning-supplies/rsbDvcd', { params: searchRsbDvCdParams });
       console.log('res.data:', res.data);
       if (res.data.rsbDvCd !== 'W0203') {
-        await alert('MSG_ALT_RSB_LCMGR_APLC_PSB'); // 직책이 지역단장만 신청 가능합니다.
+        await alert(t('MSG_ALT_RSB_LCMGR_APLC_PSB')); // 직책이 지역단장만 신청 가능합니다.
         saveParams.value.prtnrNo = undefined;
         buildingCodes.value = [];
         frmSaveRef.value.reset();

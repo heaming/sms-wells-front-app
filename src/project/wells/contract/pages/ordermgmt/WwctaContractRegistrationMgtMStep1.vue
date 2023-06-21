@@ -172,7 +172,11 @@ ${step1.cntrt.sexDvNm}` }}
               <p
                 v-if="!step1.cntrt.cikVal"
               >
-                본인인증필요
+                <kw-btn
+                  dense
+                  :label="$t('MSG_TXT_SELF_AUTH_REQUIRED')"
+                  @click="onClickSelfAuth"
+                />
               </p>
             </kw-form-item>
           </kw-form-row>
@@ -196,7 +200,8 @@ ${step1.cntrt.sexDvNm}` }}
             >
               <p>
                 {{ step1.cntrt.zip }}<br>
-                {{ step1.cntrt.adr }} {{ step1.cntrt.adrDtl }}
+                {{ step1.cntrt.adr }}<br>
+                {{ step1.cntrt.adrDtl }}
               </p>
             </kw-form-item>
           </kw-form-row>
@@ -245,7 +250,8 @@ ${step1.cntrt.sexDvNm}` }}
             >
               <p>
                 {{ step1.cntrt.zip }}<br>
-                {{ step1.cntrt.adr }} {{ step1.cntrt.adrDtl }}
+                {{ step1.cntrt.adr }}<br>
+                {{ step1.cntrt.adrDtl }}
               </p>
             </kw-form-item>
           </kw-form-row>
@@ -442,6 +448,30 @@ async function getCntrInfoByCst(cstNo) {
   await afterGetCntrInfo(cntr);
 }
 
+async function onClickSelfAuth() {
+  if (await confirm('본인인증 알림톡을 발송하시겠습니까?')) {
+    // 본인인증 알림톡 어떻게 발송하는지 확인필요
+    // URL을 서비스를 통해 발송한다.
+    const mobileNo = step1.value.cntrt.cralLocaraTno + step1.value.cntrt.mexnoEncr + step1.value.cntrt.cralIdvTno;
+    const data = {
+      dispatchMedium: 'A', // 카카오 비즈톡
+      templateCd: '01', // 본인인증
+      subject: '',
+      msgContent: '',
+      callback: '15776688',
+      destInfo: `${step1.value.cntrt.cstKnm}^${mobileNo}`,
+      cstNoInfo: `${step1.value.cntrt.cstKnm}^${mobileNo}^${step1.value.cntrt.cstNo}`,
+      scheduleType: '0',
+      sendDatetime: '',
+    };
+
+    console.log(data);
+    await dataService.post('/sms/common/customer/url-messages', data);
+    alert('URL 발송이 완료되었습니다.');
+    notify(t('MSG_ALT_URL_TRS_FSH'));
+  }
+}
+
 async function onClickSearchCntrtInfo() {
   if (cntrTpIs.value.indv) {
     // 개인
@@ -615,6 +645,12 @@ async function isValidStep() {
     await alert('계약자를 선택해주세요.');
     return false;
   }
+
+  if (!step1.value.cntrt.cikVal && step1.value.bas.copnDvCd === '1') {
+    await alert('본인인증을 먼저 진행해주세요.');
+    return false;
+  }
+
   return true;
 }
 

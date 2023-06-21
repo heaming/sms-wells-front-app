@@ -248,14 +248,13 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService, codeUtil, useMeta, defineGrid, useGlobal, getComponentType, gridUtil } from 'kw-lib';
+import { useDataService, codeUtil, defineGrid, useGlobal, getComponentType, gridUtil } from 'kw-lib';
 import { isEmpty, cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
 import pdConst from '~sms-common/product/constants/pdConst';
 
 const { t } = useI18n();
 const dataService = useDataService();
-const { getConfig } = useMeta();
 const now = dayjs();
 const { modal } = useGlobal();
 const { currentRoute } = useRouter();
@@ -287,18 +286,18 @@ const grdMainRef = ref(getComponentType('KwGrid'));
 let cachedParams;
 const isSppDuedtYn = ref(false);
 
-const pageInfo = ref({
-  totalCount: 0,
-  pageIndex: 1,
-  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
-});
-
 const commonCodes = await codeUtil.getMultiCodes(
   'COPN_DV_CD', // 법인격구분코드
   'SELL_TP_CD', // 판매유형코드
   'SELL_CHNL_DTL_CD', // 판매채널상세코드
   'COD_PAGE_SIZE_OPTIONS',
 );
+
+const pageInfo = ref({
+  totalCount: 0,
+  pageIndex: 1,
+  pageSize: Number(commonCodes.COD_PAGE_SIZE_OPTIONS[0].codeName),
+});
 
 const codes = ref({
   highClass: [],
@@ -597,7 +596,7 @@ const initGrid = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'sellDvNm', header: t('MSG_TXT_RCP_DV'), width: '129', styleName: 'text-center' }, // 접수구분
     { fieldName: 'dpTpNm', header: t('MSG_TXT_FNT_DV'), width: '129', styleName: 'text-center' }, // 이체구분
-    { fieldName: 'mpyBsdt', header: t('MSG_TXT_FNT_STPL_D'), width: '129', styleName: 'text-center', datetimeFormat: 'date' }, // 이체약정일
+    { fieldName: 'mpyBsdt', header: t('MSG_TXT_FNT_STPL_D'), width: '129', styleName: 'text-center' }, // 이체약정일
     { fieldName: 'newCstYn', header: `${t('MSG_TXT_KWK')} ${t('MSG_TXT_NEW')}`, width: '129', styleName: 'text-center' }, // 교원키 신규
     { fieldName: 'mchnCh', header: t('MSG_TXT_CHNG'), width: '129', styleName: 'text-center' }, // 기변
     { fieldName: 'rentalYn', header: t('MSG_TXT_RE_RENTAL'), width: '129', styleName: 'text-center' }, // 재렌탈

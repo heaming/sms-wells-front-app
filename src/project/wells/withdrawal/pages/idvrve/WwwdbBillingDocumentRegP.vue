@@ -37,13 +37,13 @@
               :label="t('MSG_TXT_CUSTOMER')"
               :disable="regMainData.isSearchChk"
               maxlength="48"
-              counter
               :rules="validateCst"
               :custom-messages="{ required:$t('MSG_ALT_USE_DT_SRCH_AF') }"
               @click-icon="onClickSearchUser"
               @keydown="onKeyDownSelectUser"
               @clear="onClearSelectUser"
             />
+            <!-- 23-06-20 요청에 따라 제거 counter -->
             <!-- rules="required|max:16" -->
           </kw-form-item>
           <kw-form-item
@@ -78,9 +78,10 @@
         /> -->
       </template>
       <kw-btn
-        dense
-        secondary
         :label="t('MSG_BTN_DEL')"
+        dense
+        grid-action
+        color="line-bg"
         @click="onClickRemove"
       />
       <!-- label="삭제" -->
@@ -93,7 +94,8 @@
       <kw-btn
         :label="t('MSG_TXT_ROW_SPMT')"
         dense
-        secondary
+        grid-action
+        color="line-bg"
         @click="onClickAddRow"
       />
       <!-- label="행 추가" -->
@@ -216,13 +218,30 @@ const validateCst = computed(() => async (val, options) => {
   return errors[0] || true;
 });
 
+async function validateGrid(grid) {
+  let flag = 0;
+  grid.forEach((data) => {
+    if (data.pdQty < 1 || data.pdQty === '') {
+      flag += 1;
+    }
+  });
+  return flag;
+}
 // 저장 버튼
 async function onClickSave() {
   const view = grdPageRef.value.getView();
+  const list = gridUtil.getAllRowValues(view);
 
   if (!await obsRef.value.validate()) { return; }
 
   if (!await gridUtil.validate(view)) { return; }
+
+  // 추가된 데이터중 수량 0 또는 빈칸이 존재할경우 validate
+  if (await validateGrid(list) > 0) {
+    // 수량은(는) 0보다 커야합니다.
+    await alert(t('MSG_ALT_ZERO_IS_BIG', [t('MSG_TXT_QTY')]));
+    return;
+  }
 
   console.log(obsRef.value.isModified());
   console.log(!gridUtil.isModified(view));

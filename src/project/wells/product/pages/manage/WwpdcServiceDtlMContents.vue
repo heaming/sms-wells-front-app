@@ -124,7 +124,7 @@ async function resetData() {
 async function onClickUpdate() {
   const { pdCd } = props;
   await router.close();
-  await router.push({ path: '/product/zwpdc-service-list/wwpdc-service-mgt', query: { pdCd, reloadYn: 'Y' } });
+  await router.push({ path: '/product/zwpdc-service-list/wwpdc-service-mgt', query: { pdCd }, state: { stateParam: { newRegYn: 'N', reloadYn: 'Y', copyPdCd: '' } } });
 }
 
 async function initProps() {

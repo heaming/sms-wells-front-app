@@ -128,7 +128,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { codeUtil, defineGrid, getComponentType, gridUtil, useDataService, useGlobal, useMeta } from 'kw-lib';
-import { cloneDeep, isEmpty } from 'lodash-es';
+import { cloneDeep, isEmpty } from 'lodash-es'; // groupBy
 import dayjs from 'dayjs';
 import pdConst from '~sms-common/product/constants/pdConst';
 
@@ -166,19 +166,6 @@ const searchParams = ref({
 
 // 제품코드 조회팝업
 async function onClickProduct() {
-  // const { result, payload } = await modal({
-  //   component: 'ZwpdcMaterialsSelectListP',
-  //   componentProps: {
-  //     searchType: pdConst.PD_SEARCH_CODE,
-  //     searchValue: searchParams.value.pdCd,
-  //     selectType: pdConst.PD_SEARCH_SINGLE,
-  //     searchLvl: 3,
-  //   },
-  // });
-  // if (result) searchParams.value.pdCd = Array.isArray(payload.checkedRows)
-  // ? payload.checkedRows[0].pdCd
-  // : payload.pdCd;
-
   const componentProps = {
     selectType: pdConst.PD_SEARCH_SINGLE,
     searchType: pdConst.PD_SEARCH_CODE,
@@ -222,11 +209,13 @@ async function onClickAdd() {
   view.setColumnProperty('pdCd', 'styleName', 'btnshow');
   view.setColumnProperty('pdNm', 'styleName', 'btnshow');
   view.commit();
+  pageInfo.value.totalCount += 1;
 }
 
 async function onClickRemove() {
   const view = grdMainRef.value.getView();
   const deletedRows = await gridUtil.confirmDeleteCheckedRows(view);
+  pageInfo.value.totalCount = Number(gridUtil.getAllRowValues(view)?.length);
   console.log('deletedRows', deletedRows);
   if (deletedRows.length > 0) {
     await dataService.delete(baseUrl, { data: deletedRows });
@@ -234,28 +223,80 @@ async function onClickRemove() {
   }
 }
 async function checkDuplicationByPk() {
+  let isInvailVal = false;
+  let dupPdNm = '';
   // #1. 신규 입력항목들 사이에 중복값 체크.
   const view = grdMainRef.value.getView();
   const createdRows = gridUtil.getCreatedRowValues(view);
   if (createdRows.length === 0) return await false;
 
-  const result = createdRows.filter((item1, idx1) => createdRows.findIndex((item2) => item1.pdCd === item2.pdCd
-          && item1.rstlBaseTpCd === item2.rstlBaseTpCd
-          && item1.stplTn === item2.stplTn
-          && item1.rstlSellChnlDvCd === item2.rstlSellChnlDvCd
-          && item1.apyStrtdt === item2.apyStrtdt) === idx1);
+  for (let i = 0; i < createdRows.length; i += 1) {
+    const baseRow = createdRows[i];
+    for (let j = 1; j < createdRows.length; j += 1) {
+      const targetRow = createdRows[j];
 
-  if (createdRows.length !== result.length) {
-    notify(t('MSG_ALT_EXIST_IN_NEW_INPUT_DATAS'));
+      if (i !== j
+      && baseRow.pdCd === targetRow.pdCd
+      && baseRow.rstlBaseTpCd === targetRow.rstlBaseTpCd
+      && baseRow.rstlMcn === targetRow.rstlMcn
+      && baseRow.stplTn === targetRow.stplTn
+      && baseRow.rstlSellChnlDvCd === targetRow.rstlSellChnlDvCd) {
+        const bs = Number(baseRow.apyStrtdt.replaceAll('-', ''));
+        const be = Number(baseRow.apyEnddt.replaceAll('-', ''));
+        const ts = Number(targetRow.apyStrtdt.replaceAll('-', ''));
+        const te = Number(targetRow.apyEnddt.replaceAll('-', ''));
+
+        // Error Ver.1
+        // if (i !== j && ((baseStrt <= TargetStrt <= baseEnd) || baseStrt <= TargetEnd <= baseEnd)) {
+        //   console.log('ovewrab');
+        //   aaaa = true;
+        //   break;
+        // }
+        console.log(bs, be, ts, te);
+        if (
+          (((ts >= bs && ts <= be) || (te <= bs && te <= be)) && (te >= bs))
+          || ((ts <= bs) && (te >= bs && te <= be))
+          || ((ts >= bs && ts <= be) && (te >= be))
+          || ((ts <= bs) && (te >= be))
+        ) {
+          console.log('error');
+          isInvailVal = true;
+          dupPdNm = baseRow.pdNm;
+          break;
+        } else {
+          console.log('OK');
+        }
+      }
+    }// j - FOR
+
+    // if (isDup) break;
+  } // i - FOR
+
+  console.log('isInvailVal', isInvailVal);
+  if (isInvailVal) {
+    notify(t('EXIST_DUP_RANGE_PD', [dupPdNm]));
     return await true;
   }
+
+  // NEW VERSION (bRow: BaseRow, tRow: TargetRow)
+  // const result = groupBy(createdRows, (v) => v.pdCd + v.rstlBaseTpCd + v.rstlMcn + v.stplTn + v.rstlSellChnlDvCd);
+  // const dups = Object.keys(result);
+  // dups.forEach((v, idx) => {
+  //   console.log(idx, result[v]);
+  //   const temp = result[v];
+  //   const invails = temp.filter((base, idx1) => temp.findIndex(
+  //     (target) => Number(base.apyStrtdt.replaceAll('-', '')) <= Number(target.apyStrtdt.replaceAll('-', ''))
+  //         || Number(base.apyEnddt.replaceAll('-', '')) >= Number(target.apyEnddt.replaceAll('-', '')),
+  //   ) === idx1);
+  //   console.log(invails);
+  // });
 
   // #2. 신규 입력항목들이 DB에 기입력되어 있는지 체크.
   const { data: checkedData } = await dataService.post(`${baseUrl}/duplication-check`, createdRows);
   console.debug('checkedData', checkedData);
   if (checkedData.dupliYn === 'Y') {
     // 은(는) 이미 DB에 등록되어 있습니다.
-    notify(t('MSG_ALT_EXIST_IN_DB', [checkedData.prpNm]));
+    notify(t('MSG_ALT_EXIST_IN_DB', [checkedData.pdNm]));
     return await true;
   }
   return await false;
@@ -284,6 +325,72 @@ async function onClickExcelDownload() {
 }
 
 onMounted(async () => {
+  /*
+            3 -------------------6
+C1              OOOOOOOOOOOOO
+C2  OOOOOOOOOOOOO
+C3                            OOOOOOOOOOOOO
+C4    OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
+  */
+  /*
+  ------------------------------------------
+      1   2   3   4   5   6   7   8
+-----------------B--------------------
+              3           6
+-----------------T------------------------
+                  4   5
+          2       4
+                  4
+                              7
+          2                   7
+ */
+  // const bs = 3;
+  // const be = 6;
+  // ERROR- C1
+  // const ts = 4;
+  // const te = 5;
+  // ERROR- C2
+  // const ts = 2;
+  // const te = 4;
+  // ERROR- C3
+  // const ts = 4;
+  // const te = 7;
+  // ERROR- C4
+  // const ts = 2;
+  // const te = 7;
+
+  // 정상케이스 1
+  // const ts = 1;
+  // const te = 2;
+  // 정상케이스 1
+  // const ts = 6;
+  // const te = 7;
+
+  // console.log(bs, be);
+  // console.log(ts, te);
+
+  // if (
+  //   (((ts >= bs && ts <= be) || (te <= bs && te <= be)) && (te >= bs))
+  //   || ((ts <= bs) && (te >= bs && te <= be))
+  //   || ((ts >= bs && ts <= be) && (te >= be))
+  //   || ((ts <= bs) && (te >= be))
+  // ) {
+  //   console.log('error');
+  // } else {
+  //   console.log('OK');
+  // }
+
+  // if ((bs <= ts) && (te <= be)) {
+  //   console.log('error C1');
+  // } else if ((bs >= ts) && (te <= be) && (te >= bs)) {
+  //   console.log('error C2');
+  // } else if ((bs <= ts) && (te >= be)) {
+  //   console.log('error C3');
+  // } else if ((bs >= ts) && (te >= be)) {
+  //   console.log('error C4');
+  // } else {
+  //   console.log('OK');
+  // }
 });
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
