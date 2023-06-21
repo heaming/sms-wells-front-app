@@ -17,10 +17,12 @@
     <kw-search
       :cols="4"
       @search="onClickSearch"
-      @reset="onClickReset"
     >
       <kw-search-row>
-        <kw-search-item :label="$t('MSG_TXT_BASE_YM')">
+        <kw-search-item
+          :label="$t('MSG_TXT_BASE_YM')"
+          required
+        >
           <kw-date-picker
             v-model="searchParams.baseYm"
             type="month"
@@ -50,6 +52,8 @@
           <kw-select
             v-model="searchParams.wareNo"
             :options="optionsWareNo"
+            option-value="wareNo"
+            option-label="wareNm"
             :label="$t('MSG_TXT_MNGT_WARE_NO')"
             first-option="all"
           />
@@ -72,7 +76,10 @@
             first-option="all"
           />
         </kw-search-item>
-        <kw-search-item :label="$t('MSG_TXT_ITM_DV')">
+        <kw-search-item
+          :label="$t('MSG_TXT_ITM_DV')"
+          required
+        >
           <kw-select
             v-model="searchParams.itmKndCd"
             :options="codes.ITM_KND_CD"
@@ -116,6 +123,7 @@
         <kw-btn
           :label="$t('MSG_TXT_SAVE')"
           grid-action
+          :disable="pageInfo.totalCount === 0"
           @click="onClickSave"
         />
         <kw-separator
@@ -134,9 +142,10 @@
       </kw-action-top>
       <kw-grid
         ref="grdMainRef"
+        name="grdMain"
         :page-size="pageInfo.pageSize"
         :total-count="pageInfo.totalCount"
-        @init="initGrid"
+        @init="initGrdMain"
       />
       <kw-pagination
         v-model:page-index="pageInfo.pageIndex"
@@ -153,25 +162,21 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 
-import { codeUtil, useMeta, useGlobal, useDataService, getComponentType, gridUtil } from 'kw-lib';
+import { codeUtil, useMeta, useGlobal, useDataService, getComponentType, gridUtil, defineGrid } from 'kw-lib';
 import dayjs from 'dayjs';
 import { cloneDeep } from 'lodash-es';
 
+const { t } = useI18n();
 const { getConfig } = useMeta();
 const { notify, alert } = useGlobal();
-const { t } = useI18n();
-
+const { currentRoute } = useRouter();
 const dataService = useDataService();
+
+// -------------------------------------------------------------------------------------------------
+// Function & Event
+// -------------------------------------------------------------------------------------------------
+
 const grdMainRef = ref(getComponentType('KwGrid'));
-
-const optionsWareNo = ref();
-
-const optionsCrtItmMngtGdCd = [];
-optionsCrtItmMngtGdCd.push({ codeId: 'S', codeName: 'S' });
-optionsCrtItmMngtGdCd.push({ codeId: 'A', codeName: 'A' });
-optionsCrtItmMngtGdCd.push({ codeId: 'B', codeName: 'B' });
-optionsCrtItmMngtGdCd.push({ codeId: 'C', codeName: 'C' });
-optionsCrtItmMngtGdCd.push({ codeId: 'D', codeName: 'D' });
 
 let cachedParams;
 const searchParams = ref({
@@ -193,14 +198,6 @@ const pageInfo = ref({
   needTotalCount: true,
 });
 
-const filterCodes = ref({
-  wareDtlDvCd: [],
-});
-
-// -------------------------------------------------------------------------------------------------
-// Function & Event
-// -------------------------------------------------------------------------------------------------
-
 const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
   'WARE_DV_CD',
@@ -210,8 +207,25 @@ const codes = await codeUtil.getMultiCodes(
   'CMN_PART_DV_CD',
 );
 
-filterCodes.value.wareDtlDvCd = codes.WARE_DTL_DV_CD.filter((v) => ['20', '21'].includes(v.codeId));
+const filterCodes = ref({
+  wareDtlDvCd: [],
+});
 
+function wareDtlDvCdFilter() {
+  filterCodes.value.wareDtlDvCd = codes.WARE_DTL_DV_CD.filter((v) => ['20', '21'].includes(v.codeId));
+}
+
+const optionsCrtItmMngtGdCd = [];
+
+function makeCrtItmMngtGdCd() {
+  optionsCrtItmMngtGdCd.push({ codeId: 'S', codeName: 'S' });
+  optionsCrtItmMngtGdCd.push({ codeId: 'A', codeName: 'A' });
+  optionsCrtItmMngtGdCd.push({ codeId: 'B', codeName: 'B' });
+  optionsCrtItmMngtGdCd.push({ codeId: 'C', codeName: 'C' });
+  optionsCrtItmMngtGdCd.push({ codeId: 'D', codeName: 'D' });
+}
+
+const optionsWareNo = ref();
 // 창고번호 조회
 const onChangeWareHouse = async () => {
   // 창고번호 클리어
@@ -224,17 +238,12 @@ const onChangeWareHouse = async () => {
       wareDtlDvCd: searchParams.value.wareDtlDvCd,
     } },
   );
-  if (result.data.length > 0) {
-    optionsWareNo.value = result.data.map((x) => ({
-      codeId: x.wareNo,
-      codeName: x.wareNm,
-    }));
-  } else {
-    optionsWareNo.value = [];
-  }
+  optionsWareNo.value = result.data;
 };
 
 await Promise.all([
+  wareDtlDvCdFilter(),
+  makeCrtItmMngtGdCd(),
   onChangeWareHouse(),
 ]);
 
@@ -248,23 +257,6 @@ function onChangeWareDtlDvCd() {
   onChangeWareHouse();
 }
 
-// 초기화
-function searchConditionReset() {
-  searchParams.value.baseYm = dayjs().format('YYYYMM');
-  searchParams.value.wareDvCd = '2';
-  searchParams.value.wareDtlDvCd = '';
-  searchParams.value.wareNo = '';
-  searchParams.value.itmKndCd = '6';
-  searchParams.value.useYn = 'Y';
-  searchParams.value.itmMngtGdCd = '';
-  searchParams.value.itmPdCd = '';
-  searchParams.value.matUtlzDvCd = '';
-}
-
-function onClickReset() {
-  searchConditionReset();
-}
-
 // 조회
 async function fetchData() {
   const res = await dataService.get('/sms/wells/service/as-material-item-grades/paging', { params: { ...cachedParams, ...pageInfo.value } });
@@ -273,9 +265,9 @@ async function fetchData() {
   pagingResult.needTotalCount = false;
   pageInfo.value = pagingResult;
 
-  const { baseYm } = searchParams.value;
-
   if (itmGd.length === 0) {
+    const { baseYm } = cachedParams;
+
     await alert(t('MSG_ALT_CRSP_MM_NO_DATA_MTR_CRT'));
 
     const validRes = await dataService.get('/sms/wells/service/as-material-item-grades/duplication-check', { params: { ...cachedParams } });
@@ -284,18 +276,21 @@ async function fetchData() {
     // 데이터가 생성되지 않았을 경우만 생성
     if (validYn === 'N') {
       const createRes = await dataService.post('/sms/wells/service/as-material-item-grades/item-grades', {
-        baseYm: searchParams.value.baseYm,
-        itmKndCd: searchParams.value.itmKndCd,
+        baseYm: cachedParams.baseYm,
+        itmKndCd: cachedParams.itmKndCd,
       });
       const { processCount } = createRes.data;
       if (processCount > 0) {
         // {0} 월 데이터가 신규 생성되었습니다.
-        notify(`${baseYm.substr(0, 4)}-${baseYm.substr(4, 2)}${t('MSG_ALT_CREATED_NEW_DATA')}`);
+        notify(`${baseYm.substring(0, 4)}-${baseYm.substring(4, 6)}${t('MSG_ALT_CREATED_NEW_DATA')}`);
+        // 자료 생성 후 총 건수 표기
+        pageInfo.value.needTotalCount = true;
         await fetchData();
       }
       return;
     }
-    await alert(`${baseYm.substr(0, 4)}-${baseYm.substr(4, 2)}${t('MSG_TXT_EXIST_NEW_DATA')}`);
+    await alert(`${baseYm.substring(0, 4)}-${baseYm.substring(4, 6)}${t('MSG_TXT_EXIST_NEW_DATA')}`);
+    return;
   }
 
   if (grdMainRef.value != null) {
@@ -312,15 +307,16 @@ async function onClickSearch() {
   if (searchBaseYm > currentMonth) {
     // 기준년월 > 현재년월일 경우 메시지 처리, 현재 월까지만 조회 가능합니다
     await alert(t('MSG_ALT_INQR_CRTL_MM_PSB'));
-  } else {
-    pageInfo.value.pageIndex = 1;
-    // 조회버튼 클릭 시에만 총 건수 조회하도록
-    pageInfo.value.needTotalCount = true;
-    const { itmMngtGdCd } = searchParams.value;
-    searchParams.value.itmMngtGdCd = itmMngtGdCd.replace(/\+/gi, '');
-    cachedParams = cloneDeep(searchParams.value);
-    await fetchData();
+    return;
   }
+
+  pageInfo.value.pageIndex = 1;
+  // 조회버튼 클릭 시에만 총 건수 조회하도록
+  pageInfo.value.needTotalCount = true;
+  const { itmMngtGdCd } = searchParams.value;
+  searchParams.value.itmMngtGdCd = itmMngtGdCd.replace(/\+/gi, '');
+  cachedParams = cloneDeep(searchParams.value);
+  await fetchData();
 }
 
 // 저장
@@ -347,7 +343,7 @@ async function onClickExcelDownload() {
 
   const res = await dataService.get('/sms/wells/service/as-material-item-grades/excel-download', { params: cachedParams });
   await gridUtil.exportView(view, {
-    fileName: 'asMaterialItemGradeList',
+    fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
     exportData: res.data,
   });
@@ -357,7 +353,7 @@ async function onClickExcelDownload() {
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
 
-function initGrid(data, view) {
+const initGrdMain = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'sapCd' },
     { fieldName: 'itmPdCd' },
@@ -410,7 +406,7 @@ function initGrid(data, view) {
     }
     return false;
   };
-}
+});
 
 </script>
 <style scoped>
