@@ -14,13 +14,22 @@
 ****************************************************************************************************
 -->
 <template>
-  <kw-popup size="xl">
+  <kw-popup
+    size="xl"
+  >
     <!-- To. 개발  window popup width size: 940px  -->
     <h1>엔지니어 Time table</h1>
-    <div class="normal-area normal-area--button-set-bottom pt30 mt15 w860">
-      <!--      <p>{{ data.sellDate }}</p>-->
-      <!--      <p>{{ data.sellTime }}</p>-->
-      <!--      <p>{{ data.cntrNo }}</p>-->
+    <!--      <p>{{ data.sellDate }}</p>-->
+    <!--      <p>{{ data.sellTime }}</p>-->
+    <!--      <p>{{ data.cntrNo }}</p>-->
+    <!--    <p>
+      {{ (data.chnlDvCd === 'K' || data.chnlDvCd === 'P'|| data.chnlDvCd === 'W')
+        && data.psicDatas.vstPos === '해당일 방문불가' }}
+    </p>-->
+    <!--    <p>{{ data.chnlDvCd }}</p>-->
+    <!--    <p>{{ data.psicDatas.vstPos }}</p>
+    <p>{{ data.sellDate }}</p>-->
+    <div class="normal-area normal-area--button-set-bottom pt30 mt15 w940">
       <p class="kw-font--14">
         서비스 방문 희망일자를 선택하세요
       </p>
@@ -358,13 +367,16 @@
           </font>(방문시간 예약접수가 필요한 경우 다른 날짜를 선택해 주세요.)
         </li>
       </ul>
-      <ul v-else-if="disableDays.includes(selectedDay)">
+      <!--      <ul
+        v-else-if="data.disableDays.find((item) =>
+          item.disableFuldays.replace(/-/g, '') === selectedDay) !== undefined"
+      >
         <li>
           <font size="4px">
             [접수불가]<br><br>해당 날짜는 방문예약이 마감되었습니다.
           </font>
         </li>
-      </ul>
+      </ul>-->
       <!--################################-->
       <ul v-else>
         <li
@@ -465,6 +477,9 @@
           counter
           maxlength="500"
           type="textarea"
+          :disable="(data.chnlDvCd === 'K' || data.chnlDvCd === 'P'|| data.chnlDvCd === 'W') &&
+            data.psicDatas.vstPos
+            === '해당일 방문불가'"
         />
       </div>
 
@@ -478,6 +493,9 @@
           class="ml8"
           label="저장"
           primary
+          :disable="(data.chnlDvCd === 'K' || data.chnlDvCd === 'P'|| data.chnlDvCd === 'W') &&
+            data.psicDatas.vstPos
+            === '해당일 방문불가'"
           @click="onClickSave"
         />
       </div>
@@ -488,7 +506,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { notify, useDataService, useModal /* , alert */ } from 'kw-lib';
+import { notify, useDataService, useModal, alert } from 'kw-lib';
 import dayjs from 'dayjs';
 // eslint-disable-next-line no-unused-vars
 import { cloneDeep, toInteger } from 'lodash-es';
@@ -502,7 +520,7 @@ const DATE_FORMAT_YMD = 'YYYYMMDD';
 
 const props = defineProps({
   baseYm: { type: String, default: '' },
-  userId: { type: String, default: '' },
+  // userId: { type: String, default: '' },
   chnlDvCd: { type: String, default: '' },
   inflwChnl: { type: String, default: '' },
   svDvCd: { type: String, default: '' },
@@ -535,15 +553,11 @@ const props = defineProps({
 // if (props.cntrSn === '') alert('cntrSn');
 // if (props.seq === '') alert('seq');
 
-const currentDay = dayjs().format('YYYYMMDD');
+// const currentDay = dayjs().format('YYYYMMDD');
 const currentTime = dayjs().format('HHmm');
 const nextDay = dayjs().add(1, 'day').format('YYYYMMDD');
 
-// console.log('currentDay=', currentDay);
-// console.log('currentTime=', currentTime);
-// console.log('nextDay=', nextDay);
-
-const selectedDay = ref('');
+// const selectedDay = ref('');
 const schedules = ref([]);
 const scheduleInfo = ref({
   weekCnt: 0,
@@ -558,7 +572,7 @@ const disableDays = ref([]);
 
 const searchParams = ref({
   baseYm: props.baseYm,
-  userId: props.userId,
+  // userId: props.userId,
   chnlDvCd: props.chnlDvCd,
   svDvCd: props.svDvCd,
   sellDate: props.sellDate,
@@ -633,28 +647,12 @@ function getCurrentDate() {
 // eslint-disable-next-line no-unused-vars
 let cachedParams;
 async function getTimeTables() {
-  console.group('searchParams');
-  console.log(`baseYm: ${searchParams.value.baseYm}`);
-  console.log(`userId: ${searchParams.value.userId}`);
-  console.log(`chnlDvCd: ${searchParams.value.chnlDvCd}`);
-  console.log(`svDvCd: ${searchParams.value.svDvCd}`);
-  console.log(`sellDate: ${searchParams.value.sellDate}`);
-  console.log(`svBizDclsfCd: ${searchParams.value.svBizDclsfCd}`);
-  console.log(`inflwChnl: ${searchParams.value.inflwChnl}`);
-  console.log(`basePdCd: ${searchParams.value.basePdCd}`);
-  console.log(`wrkDt: ${searchParams.value.wrkDt}`);
-  console.log(`dataStatCd: ${searchParams.value.dataStatCd}`);
-  console.log(`returnUrl: ${searchParams.value.returnUrl}`);
-  console.log(`mkCo: ${searchParams.value.mkCo}`);
-  console.log(`cntrNo: ${searchParams.value.cntrNo}`);
-  console.log(`cntrSn: ${searchParams.value.cntrSn}`);
-  console.log(`seq: ${searchParams.value.seq}`);
-  console.groupEnd();
-
   cachedParams = cloneDeep(searchParams.value);
   const res = await dataService.get('/sms/wells/service/time-tables/sales', { params:
    { ...cachedParams,
    } });
+
+  // console.log(res);
 
   data.value = res.data;
   // enableDays.value = [];
@@ -794,14 +792,12 @@ async function getTimeTables() {
     if (data.value.disableDays.length > 0) {
       data.value.disableDays.forEach((item) => {
         disableDays.value.push(item.disableFuldays);
-        // console.log('disableDays', item.disableFuldays, item.tcMsg);
       });
     }
   } else {
     // abledDays
     data.value.disableDays.forEach((item) => {
       disableDays.value.push(item.disableFuldays);
-      // console.log('disableDays', item.disableFuldays, item.tcMsg);
     });
   }
 
@@ -816,33 +812,34 @@ async function getTimeTables() {
   const amAbleCnt = toInteger(data.value.psicDatas.amWrkCnt);
   const pmAbleCnt = toInteger(data.value.psicDatas.pmWrkCnt);
 
-  // console.log(amAbleCnt);
-
   data.value.arrAm.forEach((item) => {
     data.value.amWrkCnt += toInteger(item.cnt);
   });
   data.value.arrPm1.forEach((item) => {
     data.value.pmWrkCnt += toInteger(item.cnt);
   });
-  data.value.amAlloCnt = amAbleCnt - data.value.amWrkCnt < 0 ? 0 : amAbleCnt - data.value.amWrkCnt;
-  // console.log(data.value.amAlloCnt);
-  // console.log(amAbleCnt, '-', data.value.amWrkCnt);
 
+  data.value.amAlloCnt = amAbleCnt - data.value.amWrkCnt < 0 ? 0 : amAbleCnt - data.value.amWrkCnt;
   data.value.pmAlloCnt = pmAbleCnt - data.value.pmWrkCnt < 0 ? 0 : pmAbleCnt - data.value.pmWrkCnt;
+
   data.value.totalAbleCnt = data.value.amAlloCnt + data.value.pmAlloCnt;
   data.value.totalMaxAbleCnt = amAbleCnt + pmAbleCnt - data.value.amWrkCnt + data.value.pmWrkCnt;
+
   data.value.amShowVar = data.value.amAlloCnt;
   if (data.value.totalMaxAbleCnt < data.value.amAlloCnt) {
     data.value.amShowVar = data.value.totalMaxAbleCnt;
   } else {
     data.value.amShowVar = data.value.amAlloCnt;
   }
+
   data.value.pmShowVar = data.value.pmAlloCnt;
   if (data.value.totalMaxAbleCnt < data.value.pmAlloCnt) {
     data.value.pmShowVar = data.value.totalMaxAbleCnt;
   } else {
     data.value.pmShowVar = data.value.pmAlloCnt;
   }
+
+  clickedBtn.value = '0';
 
   schedules.value = data.value.days;
   scheduleInfo.value.weekCnt = schedules.value.length / scheduleInfo.value.dayCnt;
@@ -949,19 +946,22 @@ function getDayText(dayCnt) {
 
 async function onClickCalendar($event, weekIdx, dayIdx) {
   const dayCnt = getDayCnt(weekIdx, dayIdx);
-  selectedDay.value = getYmdText(dayCnt);
+  // selectedDay.value = getYmdText(dayCnt);
+  const selectedDay = getYmdText(dayCnt);
 
-  if (((searchParams.value.chnlDvCd === 'W' || searchParams.value.chnlDvCd === 'P') && selectedDay.value
-  === currentDay) || (searchParams.value.chnlDvCd === 'K' && searchParams.value.svDvCd === '1'
-  && selectedDay.value === currentDay)) {
+  if (((searchParams.value.chnlDvCd === 'W' || searchParams.value.chnlDvCd === 'P')
+    && selectedDay === dayjs().format('YYYYMMDD'))
+    || (searchParams.value.chnlDvCd === 'K' && searchParams.value.svDvCd === '4'
+    && selectedDay === dayjs().format('YYYYMMDD'))) {
     notify('당일날짜는 선택불가 합니다');
     return;
   }
 
-  if (selectedDay.value < currentDay) {
+  if (selectedDay < dayjs().format('YYYYMMDD')) {
     notify('날짜를 오늘 이후로 선택하여 주십시오');
     return;
   }
+
   // 의미없음
   // if (searchParams.value.chnlDvCd === 'C' // CubicCC
   //   || searchParams.value.chnlDvCd === 'W' // 웰스
@@ -971,7 +971,6 @@ async function onClickCalendar($event, weekIdx, dayIdx) {
   // }
 
   const enable = isEnable(dayCnt, true);
-  // console.log('enable', enable);
 
   // if (enable === 'N') {
   //   notify('당일날짜는 선택불가 합니다');
@@ -979,12 +978,12 @@ async function onClickCalendar($event, weekIdx, dayIdx) {
 
   // 선택 불가 확인
   if (enable === 'Y') {
-    console.log('선택 시 active 처리');
+    searchParams.value.sellDate = selectedDay;
+    await getTimeTables();
     document.querySelectorAll('tr.calendar-date > td').forEach((element) => {
       element.classList.remove('active');
     });
     $event.target.classList.toggle('active');
-    // 선택 시 active 처리
 
     // 의미없음
     // if (searchParams.value.chnlDvCd === 'K' // KSS
@@ -992,8 +991,6 @@ async function onClickCalendar($event, weekIdx, dayIdx) {
     //   || searchParams.value.chnlDvCd === 'E' //  엔지니어
     //   || searchParams.value.chnlDvCd === 'M' //  매니저
     // ) {
-    searchParams.value.sellDate = selectedDay;
-    await getTimeTables();
     // }
   }
 }
@@ -1012,10 +1009,6 @@ async function onClickNextMonth() {
 
 async function onClickAm() {
   clickedBtn.value = '0';
-  // console.log('totalMaxAbleCnt', data.value.totalMaxAbleCnt);
-  // console.log('totalAbleCnt', data.value.totalAbleCnt);
-  // console.log('tWrkCnt', toInteger(data.value.psicDatas.tWrkCnt));
-  // console.log('amAlloCnt', data.value.amAlloCnt);
   let time = '';
   if (data.value.totalMaxAbleCnt > 0 && data.value.amAlloCnt > 0
                 && data.value.amAlloCnt >= toInteger(data.value.psicDatas.tWrkCnt)) {
@@ -1031,10 +1024,6 @@ async function onClickAm() {
 }
 async function onClickPm() {
   clickedBtn.value = '1';
-  // console.log('totalMaxAbleCnt', data.value.totalMaxAbleCnt);
-  // console.log('totalAbleCnt', data.value.totalAbleCnt);
-  // console.log('tWrkCnt', toInteger(data.value.psicDatas.tWrkCnt));
-  // console.log('pmAlloCnt', data.value.pmAlloCnt);
   let time = '';
   if (data.value.totalMaxAbleCnt > 0
       && data.value.pmAlloCnt > 0
@@ -1048,7 +1037,6 @@ async function onClickPm() {
   } else {
     time = '';
   }
-  console.log(time);
   data.value.sellTime = time;
 }
 async function onClickWait() {
@@ -1066,9 +1054,47 @@ async function onClickSave() {
     data.value.sellTime = '0100';
   }
 
-  // if (data.value.sellTime === '') {
-  //   alert('시간을 선택해주세요');
-  //   return;
+  if (data.value.sellTime === '') {
+    alert('시간을 선택해주세요');
+    return;
+  }
+
+  if (data.value.sellDate === dayjs().format('YYYYMMDD')
+    && parseInt(data.value.sellTime, 10) <= (parseInt(`${dayjs().format('HHmm')}`, 10) + 100)
+  ) {
+    if (data.value.sellTime !== '0100'
+      && data.value.sellTime !== '0200'
+      && data.value.sellTime !== '0300'
+      && data.value.sellTime !== '0400') {
+      alert('현재 이후시간을 선택하여 주세요!');
+      return;
+    }
+  }
+
+  if (data.value.sellDate === dayjs().format('YYYYMMDD')
+    && (data.value.sellTime === '0100' || data.value.sellTime === '0200' || data.value.sellTime === '0300' || data.value.sellTime === '0400')
+  ) {
+    if (data.value.sellTime === '0100'
+      && parseInt(dayjs().format('HHmm'), 10) > 1200) {
+      alert('미배정 오전 시간을 배정할 수 없습니다.');
+      return;
+    }
+    if (data.value.sellTime === '0200'
+      && parseInt(dayjs().format('HHmm'), 10) > 1600) {
+      alert('미배정 오후1 시간을 배정할 수 없습니다.');
+      return;
+    }
+  }
+
+  // 의미없음
+  // if (data.value.chnlDvCd === 'C') {
+  //   parent.callback($("#seldate").val(), $("#seltime").val() + '00', $("#hp").val(), $("#sj_hp").val());
+  //   window.close();
+  // } else if (data.value.chnlDvCd === 'W' || data.value.chnlDvCd === 'P') {
+  //   location.href = '${returnurl}?SEL_DATE=' + $("#seldate").val() + '&SEL_TIME=' + $("#seltime").val();
+  // } else {
+  //  if (data.value.svDvCd === '4') {
+  //  }
   // }
 
   const sendData = {
@@ -1090,7 +1116,7 @@ async function onClickSave() {
     // #####################################################
     inflwChnl: searchParams.value.inflwChnl,
     pdGdCd: 'A',
-    userId: searchParams.value.userId, // 로그인한 사용자
+    userId: data.value.userId, // 로그인한 사용자
     rcpOgTpCd: data.value.rcpOgTpCd, // 로그인한 사용자 조직유형
     cstSvAsnNo: data.value.cstSvAsnNo,
 
