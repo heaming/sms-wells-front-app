@@ -824,19 +824,20 @@ async function getTimeTables() {
   data.value.arrPm1.forEach((item) => {
     data.value.pmWrkCnt += toInteger(item.cnt);
   });
-  data.value.amAlloCnt = amAbleCnt - data.value.amWrkCnt < 0 ? 0 : amAbleCnt - data.value.amWrkCnt;
-  // console.log(data.value.amAlloCnt);
-  // console.log(amAbleCnt, '-', data.value.amWrkCnt);
 
+  data.value.amAlloCnt = amAbleCnt - data.value.amWrkCnt < 0 ? 0 : amAbleCnt - data.value.amWrkCnt;
   data.value.pmAlloCnt = pmAbleCnt - data.value.pmWrkCnt < 0 ? 0 : pmAbleCnt - data.value.pmWrkCnt;
+
   data.value.totalAbleCnt = data.value.amAlloCnt + data.value.pmAlloCnt;
   data.value.totalMaxAbleCnt = amAbleCnt + pmAbleCnt - data.value.amWrkCnt + data.value.pmWrkCnt;
+
   data.value.amShowVar = data.value.amAlloCnt;
   if (data.value.totalMaxAbleCnt < data.value.amAlloCnt) {
     data.value.amShowVar = data.value.totalMaxAbleCnt;
   } else {
     data.value.amShowVar = data.value.amAlloCnt;
   }
+
   data.value.pmShowVar = data.value.pmAlloCnt;
   if (data.value.totalMaxAbleCnt < data.value.pmAlloCnt) {
     data.value.pmShowVar = data.value.totalMaxAbleCnt;
