@@ -3,7 +3,7 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : WDA
-2. 프로그램 ID : WwwdbIntegrationDepositNumberInquiryP - 통합입금번호조회
+2. 프로그램 ID : WwwdbIntegrationDepositNumberP  - 통합입금번호조회
 3. 작성자 : heungjun.lee
 4. 작성일 : 2023.03.31
 ****************************************************************************************************
@@ -54,10 +54,10 @@
         <kw-form-item
           :label="t('MSG_TXT_DP_TP')"
         >
-          <kw-option-group
+          <kw-select
             v-model="searchParams.dpTpCd"
-            :options="DP_TP_CD"
-            type="radio"
+            :options="codes.DP_TP_CD.filter(({codeId}) => ['0101','0104','0201'].includes(codeId))"
+            first-option="all"
           />
         </kw-form-item>
       </kw-search-row>
@@ -102,7 +102,7 @@
         </kw-search-item>
       </kw-search-row>
     </kw-search>
-    <kw-action-bar class="mt30">
+    <kw-action-top>
       <template #left>
         <kw-paging-info
           v-model:page-index="pageInfo.pageIndex"
@@ -121,7 +121,7 @@
         @click="onClickExcelDownload"
       />
       <!-- label="엑셀 다운로드" -->
-    </kw-action-bar>
+    </kw-action-top>
     <kw-grid
       ref="grdMainRef"
       name="grdMain"
@@ -166,14 +166,14 @@ const popupRef = ref();
 
 const grdMainRef = ref(getComponentType('KwGrid'));
 
-const DP_TP_CD = codes.DP_TP_CD.filter((e) => ['0101', '0104', '0201'].includes(e.codeId));
+// const DP_TP_CD = codes.DP_TP_CD.filter((e) => ['0101', '0104', '0201'].includes(e.codeId));
 
 const searchParams = ref({
   rveCd: '', // 수납코드
   rveNm: '',
   dpStartDtm: now.format('YYYYMM01'),
   dpEndDtm: now.format('YYYYMMDD'),
-  dpTpCd: '0101',
+  dpTpCd: '',
   acnoEncr: '', // 계좌번호
   sellPrtnrNo: '', // 판매자번호
   crcdnoEncr: '', // 카드번호
@@ -436,6 +436,7 @@ const initGrid = defineGrid((data, view) => {
 
   data.setFields(fields);
   view.setColumns(columns);
+  view.setFixedOptions({ colCount: 5 });
 
   view.onScrollToBottom = async (g) => {
     if (pageInfo.value.pageIndex * pageInfo.value.pageSize <= g.getItemCount()) {
