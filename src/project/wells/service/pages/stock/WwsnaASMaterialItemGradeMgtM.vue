@@ -189,6 +189,7 @@ const pageInfo = ref({
   totalCount: 0,
   pageIndex: 1,
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
+  needTotalCount: true,
 });
 
 const filterCodes = ref({
@@ -267,6 +268,8 @@ function onClickReset() {
 async function fetchData() {
   const res = await dataService.get('/sms/wells/service/as-material-item-grades/paging', { params: { ...cachedParams, ...pageInfo.value } });
   const { list: itmGd, pageInfo: pagingResult } = res.data;
+  // fetch시에는 총 건수 조회하지 않도록 변경
+  pagingResult.needTotalCount = false;
   pageInfo.value = pagingResult;
 
   const { baseYm } = searchParams.value;
@@ -310,6 +313,8 @@ async function onClickSearch() {
     await alert(t('MSG_ALT_INQR_CRTL_MM_PSB'));
   } else {
     pageInfo.value.pageIndex = 1;
+    // 조회버튼 클릭 시에만 총 건수 조회하도록
+    pageInfo.value.needTotalCount = true;
     const { itmMngtGdCd } = searchParams.value;
     searchParams.value.itmMngtGdCd = itmMngtGdCd.replace(/\+/gi, '');
     cachedParams = cloneDeep(searchParams.value);
