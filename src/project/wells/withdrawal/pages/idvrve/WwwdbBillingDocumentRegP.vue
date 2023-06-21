@@ -324,6 +324,8 @@ async function onClickRemove() {
     }
   });
 
+  grdPageRef.value.getData().clearRows();
+
   const mainData = cloneDeep(regMainData.value);
 
   cachedParams = {
