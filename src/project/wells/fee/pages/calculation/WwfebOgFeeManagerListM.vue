@@ -158,10 +158,11 @@
 // -------------------------------------------------------------------------------------------------
 import dayjs from 'dayjs';
 
-import { useDataService, getComponentType, gridUtil, useGlobal, defineGrid, codeUtil } from 'kw-lib';
+import { useDataService, useMeta, getComponentType, gridUtil, useGlobal, defineGrid, codeUtil } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import ZwogLevelSelect from '~sms-common/organization/components/ZwogLevelSelect.vue';
 import ZwfeyFeeStep from '~sms-common/fee/pages/schedule/ZwfeyFeeStep.vue';
+import { openApprovalPopup } from '~common/utils/cmPopupUtil';
 
 const { t } = useI18n();
 const dataService = useDataService();
@@ -186,6 +187,8 @@ const codes = await codeUtil.getMultiCodes(
 
 );
 
+const { getUserInfo } = useMeta();
+const sessionUserInfo = getUserInfo();
 const filterRsbDvCd = codes.RSB_DV_CD.filter((v) => ['W0205', 'W0204'].includes(v.codeId));
 const searchParams = ref({
 
@@ -200,6 +203,19 @@ const searchParams = ref({
   feeSchdTpCd: '',
   coCd: '2000',
 
+});
+
+const approval = ref({
+  gb: 'ngt002', /* formId를 식별하는 구분 */
+  empno: sessionUserInfo.userId, /* 결재자 사번 */
+  formId: '2023000037', /* M조직 품의결재 폼ID */
+  appKey: '', /* 업무단에서 해당 결재를 확인할 KEY */
+});
+
+const saveInfo = ref({
+  perfYm: '',
+  ogTp: 'W02',
+  appKey: '',
 });
 
 let cachedParams;
@@ -359,11 +375,17 @@ async function onClickW201P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
 }
 
 /*
- *  Event - 수수료생성 클릭 ※팝업 개발 미완료 상태
+ *  Event - 수수료생성 클릭
  */
 async function onClickW202P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
-  await dataService.put(`/sms/common/fee/schedules/steps/${feeSchdId}/status/levels`, null, { params: { feeSchdLvCd, feeSchdLvStatCd } });
-  fetchData();
+  const { result: isUploadSuccess } = await modal({
+    component: 'WwfebOgFeeMlannerRegP',
+    componentProps: { perfYm: searchParams.value.perfYm },
+  });
+  if (isUploadSuccess) {
+    await dataService.put(`/sms/common/fee/schedules/steps/${feeSchdId}/status/levels`, null, { params: { feeSchdLvCd, feeSchdLvStatCd } });
+    fetchData();
+  }
 }
 
 /*
@@ -410,11 +432,22 @@ async function onClickW206P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
 }
 
 /*
- *  Event - 원천세등록 클릭 ※팝업 개발 미완료 상태
+ *  Event - 원천세등록 클릭
  */
 async function onClickW207P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
-  await dataService.put(`/sms/common/fee/schedules/steps/${feeSchdId}/status/levels`, null, { params: { feeSchdLvCd, feeSchdLvStatCd } });
-  fetchData();
+  const { result: isUploadSuccess } = await modal({
+    component: 'ZwfebFeeCreationWhtxRegP',
+    componentProps: {
+      perfYm: searchParams.value.perfYm,
+      ogTpCd: searchParams.value.ogTp,
+      rsbDvCd: searchParams.value.rsbTp,
+    },
+  });
+
+  if (isUploadSuccess) {
+    await dataService.put(`/sms/common/fee/schedules/steps/${feeSchdId}/status/levels`, null, { params: { feeSchdLvCd, feeSchdLvStatCd } });
+    fetchData();
+  }
 }
 
 /*
@@ -544,19 +577,44 @@ async function onClickW216P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
 }
 
 /*
- *  Event - 이체자료 생성 클릭 ※팝업 개발 미완료 상태
+ *  Event - 이체자료 생성 클릭
  */
 async function onClickW217P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
-  await dataService.put(`/sms/common/fee/schedules/steps/${feeSchdId}/status/levels`, null, { params: { feeSchdLvCd, feeSchdLvStatCd } });
-  fetchData();
+  const { result: isUploadSuccess } = await modal({
+    component: 'ZwfebFeeCreationFntIzRegP',
+    componentProps: {
+      perfYm: searchParams.value.perfYm,
+      ogTpCd: searchParams.value.ogTp,
+      rsbDvCd: searchParams.value.rsbTp,
+    },
+  });
+  if (isUploadSuccess) {
+    await dataService.put(`/sms/common/fee/schedules/steps/${feeSchdId}/status/levels`, null, { params: { feeSchdLvCd, feeSchdLvStatCd } });
+    fetchData();
+  }
 }
 
 /*
  *  Event - 품의작성 클릭 ※TBD
  */
 async function onClickW219P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
-  await dataService.put(`/sms/common/fee/schedules/steps/${feeSchdId}/status/levels`, null, { params: { feeSchdLvCd, feeSchdLvStatCd } });
-  fetchData();
+  const response = await dataService.get('/sms/wells/fee/organization-fees/dsbCnst', searchParams.value); /* 품의진행상태 조회 */
+  const resData = response.data;
+  if (resData.dsbCnstYn === 'Y') {
+    await dataService.post('/sms/wells/fee/organization-fees/dsbCnst-udpate', searchParams.value); /* 품의결재 이력 최종여부 수정 */
+    await notify(t('MSG_ALT_PMT_BEEN_APRV')); /* 결재가 승인 되었습니다 > NEXT STEP */
+    await dataService.put(`/sms/common/fee/schedules/steps/${feeSchdId}/status/levels`, null, { params: { feeSchdLvCd, feeSchdLvStatCd } });
+    fetchData();
+  } else if (resData.dsbCnstYn === 'N') {
+    await notify(t('MSG_ALT_CHK_IN_PRGS')); /* 결재가 진행중입니다 */
+  } else if (await confirm(t('MSG_ALT_PROC_TO_CHK'))) { /* 결재를 진행하시겠습니까? > Kportal popup */
+    approval.value.appKey = `FEAM${dayjs().format('YYYYMMDDHHmmss')}`; /* 18자리 appKey 생성 */
+    const params = approval.value;
+    await openApprovalPopup(params); /* Kportal popup */
+    saveInfo.value.appKey = approval.value.appKey;
+    saveInfo.value.perfYm = searchParams.value.perfYm;
+    await dataService.post('/sms/wells/fee/organization-fees/dsbCnst-save', saveInfo.value); /* 품의결재 이력 저장 */
+  }
 }
 
 /*
