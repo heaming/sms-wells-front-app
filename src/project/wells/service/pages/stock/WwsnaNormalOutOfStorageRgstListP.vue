@@ -319,7 +319,7 @@ async function onClickConfirm() {
 async function onClickConfirmAfterMove() {
   if (await confirm(t('MSG_ALT_WANT_DTRM'))) {
     // notify(t('MSG_TXT_CNFM_SCS'));
-    notify('출력기능이 개발되지 않았습니다.');
+    notify('오즈리포트 기능입니다.');
   }
 }
 
