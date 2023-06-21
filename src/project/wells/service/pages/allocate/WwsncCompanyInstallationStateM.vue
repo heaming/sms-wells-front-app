@@ -14,10 +14,6 @@
 --->
 <template>
   <kw-page>
-    <template #header>
-      <kw-page-header :options="['홈', '설치관리', '설치현황', '회사설치(8888코드) 현황']" />
-    </template>
-    <!-- To.개발 kw-tab-panel안에 kw-search로 시작하는 경우 kw-tabs에 .form-border 제거 / 그 외 추가 -->
     <kw-tabs
       v-model="currentTab"
     >
