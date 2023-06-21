@@ -206,10 +206,18 @@ async function checkDuplication() {
   const { data: dupData } = await dataService.post('/sms/wells/product/variables/duplication-check', createdRows);
   if (dupData.data) {
     const dupCodes = dupData.data.split(',', -1);
-    const { sellTpCd, choFxnDvCd, rgltnVarbId } = createdRows.find((item) => item.sellTpCd === dupCodes[0]
+    const { sellTpCd, choFxnDvCd, rgltnVarbId } = createdRows
+      .find((item) => item.sellTpCd === dupCodes[0]
         && item.choFxnDvCd === dupCodes[1]
         && item.rgltnVarbId === dupCodes[2]);
-    const dupItem = `${getCodeNames(codes, sellTpCd, 'SELL_TP_CD')}/${getCodeNames(codes, choFxnDvCd, 'CHO_FXN_DV_CD')}/${getCodeNames(variableCodes.value, rgltnVarbId)}`;
+    // {판매유형/변수구분/변수명}이(가) 중복됩니다.
+    let dupItem = getCodeNames(codes, sellTpCd, 'SELL_TP_CD');
+    if (choFxnDvCd) {
+      dupItem += `/${getCodeNames(codes, choFxnDvCd, 'CHO_FXN_DV_CD')}`;
+    }
+    if (rgltnVarbId) {
+      dupItem += `/${getCodeNames(variableCodes.value, rgltnVarbId)}`;
+    }
     // 은(는) 이미 DB에 등록되어 있습니다.
     notify(t('MSG_ALT_EXIST_IN_DB', [dupItem]));
     return true;

@@ -239,6 +239,8 @@ const pageInfoSecond = ref({
 let cachedParams;
 
 async function fetchData() {
+  grdMainRef2.value.getData().clearRows();
+
   cachedParams = { ...cachedParams, ...pageInfo.value };
 
   const res = await dataService.get('/sms/wells/withdrawal/idvrve/bill-deposits/paging', { params: cachedParams });
@@ -263,8 +265,6 @@ async function fetchData() {
 
 async function onClickSearch() {
   pageInfo.value.pageIndex = 1;
-
-  grdMainRef2.value.getData().clearRows();
 
   cachedParams = cloneDeep(searchParams.value);
 
@@ -532,6 +532,7 @@ const initGrid = defineGrid((data, view) => {
 
   view.checkBar.visible = true;
   view.rowIndicator.visible = true;
+  view.checkBar.showAll = false;
 
   view.onItemChecked = (grid, itemIndex) => {
     const checkState = grid.isCheckedItem(itemIndex);
