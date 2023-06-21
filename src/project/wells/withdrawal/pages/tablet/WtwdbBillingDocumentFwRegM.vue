@@ -36,10 +36,13 @@
           />
         </kw-form-item>
       </kw-form-row>
-      <kw-form-row>
+
+      <kw-form-row
+        v-if="sendMainData.bildcFwTpCd === 'K'"
+        :cols="2"
+      >
         <!-- label="발신번호" -->
         <kw-form-item
-          v-if="sendMainData.bildcFwTpCd === 'K'"
           :label="t('MSG_TXT_DSPH_NO')"
           required
         >
@@ -58,21 +61,9 @@
             clearable
           />
         </kw-form-item>
-        <!-- label="발신자" -->
-        <kw-form-item
-          v-else
-          :label="t('MSG_TXT_DSPTR')"
-          required
-        >
-          <zwcm-email-address
-            v-model="sendMainData.toMail"
-            required
-            readonly
-          />
-        </kw-form-item>
+
         <!-- label="수신번호" -->
         <kw-form-item
-          v-if="sendMainData.bildcFwTpCd === 'K'"
           :label="t('MSG_TXT_RECP_NO')"
           required
         >
@@ -91,9 +82,27 @@
             clearable
           />
         </kw-form-item>
+      </kw-form-row>
+      <kw-form-row
+        v-if="sendMainData.bildcFwTpCd === 'E'"
+      >
+        <!-- label="발신자" -->
+        <kw-form-item
+          :label="t('MSG_TXT_DSPTR')"
+          required
+        >
+          <zwcm-email-address
+            v-model="sendMainData.toMail"
+            required
+            readonly
+          />
+        </kw-form-item>
+      </kw-form-row>
+      <kw-form-row
+        v-if="sendMainData.bildcFwTpCd === 'E'"
+      >
         <!-- label="수신자" -->
         <kw-form-item
-          v-else
           :label="t('MSG_TXT_RECP_USR')"
         >
           <zwcm-email-address
