@@ -55,7 +55,7 @@
             v-model:page-size="pageInfo.pageSize"
             :total-count="pageInfo.totalCount"
             :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
-            @change="fetchBasics"
+            @change="fetchData"
           />
         </template>
         <kw-btn
@@ -154,8 +154,8 @@ async function fetchData() {
   const { data: { list, pageInfo: pageInfoObj } } = await dataService.get('sms/wells/service/wells-service-cfdc/paging', { params: { ...cachedParams, ...pageInfo.value } });
 
   list.forEach((row) => {
-    row.mobileTno = `${row.cralLocaraTno}-${row.mexnoEncr}-${row.cralIdvTno}`;
-    row.homeTno = `${row.locaraTno}-${row.exnoEncr}-${row.idvTno}`;
+    if (row.cralLocaraTno && row.mexnoEncr && row.cralIdvTno) { row.mobileTno = `${row.cralLocaraTno}-${row.mexnoEncr}-${row.cralIdvTno}`; }
+    if (row.locaraTno && row.exnoEncr && row.idvTno) { row.homeTno = `${row.locaraTno}-${row.exnoEncr}-${row.idvTno}`; }
   });
 
   pageInfo.value = pageInfoObj;
