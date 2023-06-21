@@ -160,9 +160,6 @@ async function fetchData() {
   const data = view.getDataSource();
   data.checkRowStates(false);
 
-  console.log(pages);
-  console.log(pages.length);
-
   data.setRows(pages);
 
   // // 데이터필드 기본값 셋팅
@@ -278,11 +275,11 @@ const initGrid = defineGrid((data, view) => {
   view.setColumns(columns);
 
   // 체크박스 설정
-  view.onCellClicked = (grid, clickData) => {
-    if (clickData.cellType === 'data') {
-      grid.checkItem(clickData.itemIndex, !grid.isCheckedItem(clickData.itemIndex));
-    }
-  };
+  // view.onCellClicked = (grid, clickData) => {
+  //   if (clickData.cellType === 'data') {
+  //     grid.checkItem(clickData.itemIndex, !grid.isCheckedItem(clickData.itemIndex));
+  //   }
+  // };
 
   view.onCellItemClicked = async (g, { column, dataRow }) => {
     const cwwDte = g.getValue(dataRow, 'giroOcrPblDtm');

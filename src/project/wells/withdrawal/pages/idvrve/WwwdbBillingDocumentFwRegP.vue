@@ -132,7 +132,6 @@ const { ok } = useModal();
 // -------------------------------------------------------------------------------------------------
 const { getters } = useStore();
 const userInfo = getters['meta/getUserInfo'];
-console.log(userInfo.email);
 
 const grdPageRef = ref(getComponentType('KwGrid'));
 
@@ -197,8 +196,6 @@ const sendMainData = ref({
 
 let paramData;
 async function onClickSend() {
-  console.log(sendMainData.value.toMail);
-
   if (!await obsRef.value.validate()) { return; }
 
   if (await obsRef.value.alertIfIsNotModified()) { return; }
@@ -221,7 +218,6 @@ async function fetchData() {
   cachedParams = cloneDeep(sendMainData.value);
 
   const res = await dataService.get('/sms/wells/withdrawal/idvrve/billing-document-orders/forwardings', { params: cachedParams });
-  console.log(res.data);
 
   const list = res.data;
 

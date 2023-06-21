@@ -455,7 +455,7 @@ const { ok } = useModal();
 const { getters } = useStore();
 const userInfo = getters['meta/getUserInfo'];
 const { companyCode, employeeIDNumber } = userInfo;
-console.log(userInfo); // employeeIDNumber "9000054" 파트너번호로 추측해서 사용함. 추후 확인 필요.
+// console.log(userInfo); // employeeIDNumber "9000054" 파트너번호로 추측해서 사용함. 추후 확인 필요.
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -555,9 +555,6 @@ async function fetchData() {
   saveParams.value.rveNo = response.data.rveNo; // 수납번호
   saveParams.value.rfndRcpNo = response.data.rfndRcpNo; // 환불접수번호
   saveParams.value.rfndRcpDtlSn = response.data.rfndRcpDtlSn; // 환불접수일련번호
-
-  console.log('saveParams.value', saveParams.value);
-  console.log('response.data', response.data);
 }
 
 // 카드사, 은행 목록
@@ -576,7 +573,6 @@ async function onClickSearchContractNumber() {
     component: 'WwctaContractNumberListP',
   });
   if (result) {
-    console.log(payload);
     saveParams.value.cntrNo = payload.cntrNo;
     saveParams.value.cntrSn = payload.cntrSn;
     contractInfo.value.cntrNo = payload.cntrNo;
