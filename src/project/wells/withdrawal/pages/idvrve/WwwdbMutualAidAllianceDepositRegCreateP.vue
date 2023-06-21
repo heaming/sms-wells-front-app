@@ -176,8 +176,8 @@ async function onClickSelectRveCd() {
 
 // // 통합입금번호
 async function onClickSelectIntegrationDeposit() {
-  console.log(searchParams.value.rveCd);
-  console.log(searchParams.value.rveNm);
+  // console.log(searchParams.value.rveCd);
+  // console.log(searchParams.value.rveNm);
 
   const { result, payload } = await modal({
     component: 'WwdbIntegrationDepositListP',

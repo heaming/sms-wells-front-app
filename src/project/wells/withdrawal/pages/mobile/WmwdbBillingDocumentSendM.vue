@@ -36,21 +36,31 @@
           required
         />
         <!-- label="발신번호" -->
-        <kw-form-item
+        <!-- <kw-form-item
           v-if="sendMainData.bildcFwTpCd === 'K'"
           :label="t('MSG_TXT_DSPH_NO')"
           required
-        />
-
+        /> -->
         <!-- ref="testRef" -->
-        <zwcm-telephone-number
+        <!-- <zwcm-telephone-number
           v-if="sendMainData.bildcFwTpCd === 'K'"
           v-model:tel-no1="telNos.telNo1"
           v-model:tel-no2="telNos.telNo2"
           v-model:tel-no3="telNos.telNo3"
           required
           class="mb20"
+        /> -->
+        <kw-input
+          v-if="sendMainData.bildcFwTpCd === 'K'"
+          v-model="sendMainData.destInfo"
+          type="text"
+          mask="###########"
+          rules="length:11"
+          :label="t('MSG_TXT_DSPH_NO')"
+          required
+          clearable
         />
+
         <zwcm-email-address
           v-if="sendMainData.bildcFwTpCd !== 'K'"
           v-model="sendMainData.toMail"
@@ -71,18 +81,28 @@
           required
         />
         <!-- label="수신번호" -->
-        <kw-form-item
+        <!-- <kw-form-item
           v-if="sendMainData.bildcFwTpCd === 'K'"
           :label="t('MSG_TXT_RECP_NO')"
           required
-        />
+        /> -->
         <!-- ref="testRef" -->
-        <zwcm-telephone-number
+        <!-- <zwcm-telephone-number
           v-if="sendMainData.bildcFwTpCd === 'K'"
           v-model:tel-no1="telNos2.telNo1"
           v-model:tel-no2="telNos2.telNo2"
           v-model:tel-no3="telNos2.telNo3"
           required
+        /> -->
+        <kw-input
+          v-if="sendMainData.bildcFwTpCd === 'K'"
+          v-model="sendMainData.callback"
+          type="text"
+          mask="###########"
+          rules="length:11"
+          :label="t('MSG_TXT_RECP_NO')"
+          required
+          clearable
         />
         <zwcm-email-address
           v-if="sendMainData.bildcFwTpCd !== 'K'"
@@ -94,7 +114,9 @@
     </div>
     <kw-separator
       divider
+      size="30px"
     />
+    <!-- spaced="20" -->
     <div class="pa20">
       <h3>{{ t('MSG_TXT_DSPH_IZ') }}</h3>
       <!-- <h3>발신 내역</h3> -->
@@ -157,7 +179,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { codeUtil, confirm, router, useDataService } from 'kw-lib';
-import ZwcmTelephoneNumber from '~common/components/ZwcmTelephoneNumber.vue';
+// import ZwcmTelephoneNumber from '~common/components/ZwcmTelephoneNumber.vue';
 import ZwcmEmailAddress from '~common/components/ZwcmEmailAddress.vue';
 import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
@@ -223,17 +245,17 @@ const sendMainData = ref({
 
 const items = ref([]);
 
-const telNos = ref({
-  telNo1: '',
-  telNo2: '',
-  telNo3: '',
-});
+// const telNos = ref({
+//   telNo1: '',
+//   telNo2: '',
+//   telNo3: '',
+// });
 
-const telNos2 = ref({
-  telNo1: '',
-  telNo2: '',
-  telNo3: '',
-});
+// const telNos2 = ref({
+//   telNo1: '',
+//   telNo2: '',
+//   telNo3: '',
+// });
 
 // 취소 버튼 클릭
 async function onClickCancell() {
@@ -275,8 +297,8 @@ async function onClickSend() {
 
   if (!await confirm(t('MSG_ALT_WANT_SEND'))) { return; }
 
-  sendMainData.value.destInfo = telNos.value.telNo1 + telNos.value.telNo2 + telNos.value.telNo3;
-  sendMainData.value.callback = telNos2.value.telNo1 + telNos2.value.telNo2 + telNos2.value.telNo3;
+  // sendMainData.value.destInfo = telNos.value.telNo1 + telNos.value.telNo2 + telNos.value.telNo3;
+  // sendMainData.value.callback = telNos2.value.telNo1 + telNos2.value.telNo2 + telNos2.value.telNo3;
 
   // if (sendMainData.value.bildcFwTpCd === 'K') {
   //   if (!telNos.value.telNo1 || !telNos.value.telNo2 || !telNos.value.telNo3) {

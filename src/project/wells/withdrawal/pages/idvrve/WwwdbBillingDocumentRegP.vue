@@ -37,13 +37,13 @@
               :label="t('MSG_TXT_CUSTOMER')"
               :disable="regMainData.isSearchChk"
               maxlength="48"
-              counter
               :rules="validateCst"
               :custom-messages="{ required:$t('MSG_ALT_USE_DT_SRCH_AF') }"
               @click-icon="onClickSearchUser"
               @keydown="onKeyDownSelectUser"
               @clear="onClearSelectUser"
             />
+            <!-- 23-06-20 요청에 따라 제거 counter -->
             <!-- rules="required|max:16" -->
           </kw-form-item>
           <kw-form-item
@@ -78,9 +78,10 @@
         /> -->
       </template>
       <kw-btn
-        dense
-        secondary
         :label="t('MSG_BTN_DEL')"
+        dense
+        grid-action
+        color="line-bg"
         @click="onClickRemove"
       />
       <!-- label="삭제" -->
@@ -93,7 +94,8 @@
       <kw-btn
         :label="t('MSG_TXT_ROW_SPMT')"
         dense
-        secondary
+        grid-action
+        color="line-bg"
         @click="onClickAddRow"
       />
       <!-- label="행 추가" -->
@@ -241,8 +243,8 @@ async function onClickSave() {
     return;
   }
 
-  console.log(obsRef.value.isModified());
-  console.log(!gridUtil.isModified(view));
+  // console.log(obsRef.value.isModified());
+  // console.log(!gridUtil.isModified(view));
 
   if (await !obsRef.value.isModified() && await !gridUtil.isModified(view)) {
     await alert(t('MSG_ALT_NO_CHG_CNTN'));
@@ -260,14 +262,12 @@ async function onClickSave() {
   const changedRows = gridUtil.getChangedRowValues(view);
   const mainData = cloneDeep(regMainData.value);
 
-  console.log(mainData);
-
   cachedParams = {
     saveDtlsReq: changedRows,
     saveMainReq: mainData,
   };
 
-  console.log(cachedParams);
+  // console.log(cachedParams);
 
   await dataService.post('/sms/wells/withdrawal/idvrve/billing-document-orders/details', cachedParams);
 
@@ -324,14 +324,14 @@ async function onClickRemove() {
     }
   });
 
+  grdPageRef.value.getData().clearRows();
+
   const mainData = cloneDeep(regMainData.value);
 
   cachedParams = {
     saveDtlsReq: deletedRows,
     saveMainReq: mainData,
   };
-
-  console.log(deletedRows);
 
   if (deletedRows.length > 0) {
     await dataService.post('/sms/wells/withdrawal/idvrve/billing-document-orders/details', cachedParams);
@@ -447,11 +447,11 @@ const initGrid = defineGrid((data, view) => {
   view.setColumns(columns);
 
   // 체크박스 설정
-  view.onCellClicked = (grid, clickData) => {
-    if (clickData.cellType === 'data') {
-      grid.checkItem(clickData.itemIndex, !grid.isCheckedItem(clickData.itemIndex));
-    }
-  };
+  // view.onCellClicked = (grid, clickData) => {
+  //   if (clickData.cellType === 'data') {
+  //     grid.checkItem(clickData.itemIndex, !grid.isCheckedItem(clickData.itemIndex));
+  //   }
+  // };
 
   view.onScrollToBottom = async (g) => {
     if (pageInfo.value.pageIndex * pageInfo.value.pageSize <= g.getItemCount()) {

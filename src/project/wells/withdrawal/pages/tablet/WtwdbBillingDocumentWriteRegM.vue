@@ -22,9 +22,10 @@
       고객정보
     </h3>
     <kw-form>
-      <kw-form-row>
+      <kw-form-row :cols="2">
         <kw-form-item
           rules="required"
+          required
           :label="t('MSG_TXT_CST_NM')"
         >
           <kw-input
@@ -40,6 +41,7 @@
           />
         </kw-form-item>
         <kw-form-item
+          required
           :label="t('MSG_TIT_DRAT_DT')"
         >
           <kw-date-picker
@@ -59,9 +61,10 @@
     </h3>
 
     <kw-form>
-      <kw-form-row>
+      <kw-form-row :cols="2">
         <kw-form-item
           :label="t('MSG_TXT_PRDT_NM')"
+          required
         >
           <kw-input
             v-model="regMainData.pdNm"
@@ -71,17 +74,20 @@
           />
         </kw-form-item>
         <kw-form-item
+          required
           :label="t('MSG_TXT_QTY')"
         >
           <zwcm-counter
             v-model="regMainData.pdQty"
+            class="zwcm-counter"
             :label="t('MSG_TXT_QTY')"
             :min="1"
           />
         </kw-form-item>
       </kw-form-row>
-      <kw-form-row>
+      <kw-form-row :cols="2">
         <kw-form-item
+          required
           :label="t('MSG_TXT_UPRC_TAM')"
         >
           <kw-input
@@ -93,7 +99,6 @@
           />
         </kw-form-item>
         <kw-form-item
-
           :label="t('MSG_TXT_NOTE')"
         >
           <kw-input
@@ -309,3 +314,10 @@ onMounted(async () => {
 });
 
 </script>
+
+<style scoped lang="scss">
+.zwcm-counter {
+  width: 150px;
+  color: #ccc;
+}
+</style>

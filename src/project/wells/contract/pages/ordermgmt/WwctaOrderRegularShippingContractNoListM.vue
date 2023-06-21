@@ -334,7 +334,7 @@ const initGridRglrDlvrContractNoList = defineGrid((data, view) => {
     { fieldName: 'mchnCntrNo', header: t('MSG_TXT_MCHN_CNTR_NO'), width: '138', styleName: 'text-center' }, // 기기계약번호
     { fieldName: 'mchnRcgvpKnm', header: t('MSG_TXT_MCHN_ORDR_NM'), width: '134', styleName: 'text-center' }, // 기기주문자명
     { fieldName: 'mchnPdCd', header: t('MSG_TXT_MCHN_PRDT'), width: '134', styleName: 'text-center' }, // 기기상품
-    { fieldName: 'mchnPdNm', header: t('MSG_TXT_MCHN_PRDT_NM'), width: '134', styleName: 'text-center' }, // 기기상품명
+    { fieldName: 'mchnPdNm', header: t('MSG_TXT_MCHN_PRDT_NM'), width: '134', styleName: 'text-left' }, // 기기상품명
     { fieldName: 'mchnSvTpNm', header: t('MSG_TXT_MCHN_USWY'), width: '134', styleName: 'text-center' }, // 기기용도
     { fieldName: 'mchnSvPrd', header: t('MSG_TXT_MCHN_PRD'), width: '134', styleName: 'text-center' }, // 기기주기
     { fieldName: 'mchnPdMclsfNm', header: t('MSG_TXT_MCHN_KND'), width: '134', styleName: 'text-center' }, // 기기종류
@@ -368,12 +368,12 @@ const initGridRglrDlvrContractNoList = defineGrid((data, view) => {
 
     { fieldName: 'rcpPkgYn', header: t('MSG_TXT_PKG_YN'), width: '134', styleName: 'text-center' }, // 패키지여부
     { fieldName: 'rcpPkgCd', header: t('MSG_TXT_PKG_CD'), width: '134', styleName: 'text-center' }, // 패키지코드
-    { fieldName: 'rcpPkgNm', header: t('MSG_TXT_PKG_NM'), width: '274', styleName: 'text-center' }, // 패키지명
+    { fieldName: 'rcpPkgNm', header: t('MSG_TXT_PKG_NM'), width: '274', styleName: 'text-left' }, // 패키지명
     { fieldName: 'pkgYn', header: t('MSG_TXT_PKG_YN'), width: '134', styleName: 'text-center' }, // 패키지여부
     { fieldName: 'pkgPrcApy', header: `${t('MSG_TXT_PKG_PRC')} ${t('MSG_TXT_APPLY')}`, width: '134', styleName: 'text-center' }, // 패키지가격 적용
     { fieldName: 'pkgclsfNm', header: t('MSG_TXT_PKG_GRP'), width: '134', styleName: 'text-center' }, // 패키지군
     { fieldName: 'pkgCd', header: t('MSG_TXT_PKG_CD'), width: '134', styleName: 'text-center' }, // 패키지코드
-    { fieldName: 'pkgNm', header: t('MSG_TXT_PKG_NM'), width: '274', styleName: 'text-center' }, // 패키지명
+    { fieldName: 'pkgNm', header: t('MSG_TXT_PKG_NM'), width: '274', styleName: 'text-left' }, // 패키지명
     { fieldName: 'lcscnt', header: t('MSG_TXT_SPP_STD_TMS'), width: '134', styleName: 'text-center' }, // 배송기준횟수
     { fieldName: 'freCnfmYn', header: t('MSG_TXT_CNFM_EYN'), width: '134', styleName: 'text-center' }, // 확정유무
     { fieldName: 'ordCnfmYn', header: `${t('MSG_TXT_ODER')}${t('MSG_TXT_CNFM_EYN')}`, width: '134', styleName: 'text-center' }, // 주문확정유무
@@ -400,7 +400,7 @@ const initGridRglrDlvrContractNoList = defineGrid((data, view) => {
     { fieldName: 'lkIstNmnN', header: t('MSG_TXT_INST_OVER'), width: '134', styleName: 'text-center' }, // 연계정보-설치차월
     { fieldName: 'lkReqdDt', header: t('MSG_TXT_DEM_DT'), width: '134', styleName: 'text-center' }, // 연계정보-철거일자
     { fieldName: 'connPdView', header: t('MSG_TXT_CONN_PD_VIEW'), width: '197', styleName: 'text-center', renderer: { type: 'button', hideWhenEmpty: false }, displayCallback: () => t('MSG_TXT_CONN_PD_VIEW') },
-    { fieldName: 'pmotNm', header: t('MSG_TXT_PMOT_NM'), width: '395', styleName: 'text-center' }, // 프로모션명
+    { fieldName: 'pmotNm', header: t('MSG_TXT_PMOT_NM'), width: '395', styleName: 'text-left' }, // 프로모션명
     { fieldName: 'pmotTpCd', header: t('MSG_TXT_PMOT_TP'), width: '274', styleName: 'text-center' }, // 프로모션유형
     { fieldName: 'pmotCd', header: t('MSG_TXT_PMOT_CD'), width: '134', styleName: 'text-center' }, // 프로모션 코드
     { fieldName: 'pmotSn', header: t('MSG_TXT_PMOT_SEQN'), width: '134', styleName: 'text-center' }, // 프로모션 순번

@@ -72,7 +72,7 @@
         <!-- label="단가(총액)" -->
         <kw-input
           v-model="regMainData.pdSellAmt"
-          type="number"
+          mask="number"
           :label="t('MSG_TXT_UPRC_TAM')"
           class="pt20"
           rules="required|max:20"

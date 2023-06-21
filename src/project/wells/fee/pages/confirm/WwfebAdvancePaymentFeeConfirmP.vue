@@ -10,6 +10,11 @@
 * 프로그램 설명
 ****************************************************************************************************
 wells 수수료 생성관리-선급판매수수료 확정
+E0117: 선급판매수수료 확정
+W0121: 선급판매수수료 확정
+W0222 :선급판매수수료 확정
+W0319: 선급판매수수료 확정
+가 진행중 상태일때만 사용가능
 ****************************************************************************************************
 --->
 <template>
@@ -21,21 +26,43 @@ wells 수수료 생성관리-선급판매수수료 확정
       <kw-form-row>
         <kw-form-item
           :label="$t('MSG_TXT_PERF_YM')"
+          required
         >
           <kw-date-picker
             v-model="regData.baseYm"
             rules="required"
             type="month"
             :label="$t('MSG_TXT_PERF_YM')"
+            readonly
           />
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
         <kw-form-item
           :label="$t('MSG_TXT_RSB_TP')"
-          align-content="left"
+          required
         >
-          <p>{{ regData.type }}</p>
+          <kw-select
+            v-model="regData.feeSchdTpCd"
+            :options="codes.FEE_SCHD_TP_CD"
+            rules="required"
+            :label="$t('MSG_TXT_RSB_TP')"
+            readonly
+          />
+        </kw-form-item>
+      </kw-form-row>
+      <kw-form-row>
+        <kw-form-item
+          :label="$t('MSG_TXT_ORDR')"
+          required
+        >
+          <kw-select
+            v-model="regData.feeTcntDvCd"
+            :options="codes.FEE_TCNT_DV_CD"
+            rules="required"
+            :label="$t('MSG_TXT_ORDR')"
+            readonly
+          />
         </kw-form-item>
       </kw-form-row>
     </kw-form>
@@ -57,20 +84,15 @@ wells 수수료 생성관리-선급판매수수료 확정
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useModal, useDataService, useGlobal } from 'kw-lib';
+import { useModal, useDataService, useGlobal, codeUtil } from 'kw-lib';
 
 const { cancel, ok } = useModal();
 const { notify } = useGlobal();
-
 const { t } = useI18n();
 const props = defineProps({
-  type: {
+  feeSchdId: { // baseYm + feeSchdTpCd + feeTcntDvCd + coCd
     type: String,
-    default: '',
-  },
-  baseYm: {
-    type: String,
-    default: '',
+    required: true,
   },
 });
 // -------------------------------------------------------------------------------------------------
@@ -78,24 +100,67 @@ const props = defineProps({
 // -------------------------------------------------------------------------------------------------
 const popupRef = ref();
 const dataService = useDataService();
+const codes = await codeUtil.getMultiCodes(
+  'FEE_SCHD_LV_CD',
+  'FEE_SCHD_TP_CD',
+  'RSB_DV_CD',
+  'FEE_TCNT_DV_CD',
+);
 const regData = ref({
-  type: props.type,
-  baseYm: props.baseYm,
+  feeSchdId: props.feeSchdId,
+  baseYm: props.feeSchdId.substr(0, 6),
+  feeSchdTpCd: props.feeSchdId.substr(6, 3),
+  feeTcntDvCd: props.feeSchdId.substr(9, 2),
+  coCd: props.feeSchdId.substr(11, 4),
 });
+const presentStep = ref([{
+  feeSchdId: '',
+  feeSchdLvCd: '',
+  feeSchdLvNm: '',
+  feeSchdLvDgPsicId: '',
+  feeSchdLvSubpId: '',
+  lvFshPrgUseYn: '',
+  feeCrtMarkYn: '',
+  canPsbYn: '',
+  feeSchdLvStatCd: '',
+}]);
+// 진행중 단계 조회
+async function fetchStepStatus() {
+  const { data } = await dataService.get('/sms/common/fee/schedules/present-step', {
+    params: {
+      baseYm: regData.value.baseYm,
+      feeSchdTpCd: regData.value.feeSchdTpCd,
+      feeTcntDvCd: regData.value.feeTcntDvCd,
+      coCd: regData.value.coCd,
+    },
+  });
+  presentStep.value = data;
+}
+// 수수료 일정 단계 상태 변경
+async function confirmStat(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
+  await dataService.put(`/sms/common/fee/schedules/steps/${feeSchdId}/status/levels`, null, { params: { feeSchdLvCd, feeSchdLvStatCd } });
+  notify(t('MSG_TXT_CRDCD_STLM_FSH'));
+  ok(true);
+}
 // 취소
 async function onClickCancel() {
   cancel();
 }
-// 확정
+// 생성
 async function onClickConfirm() {
   if (!await popupRef.value.validate()) { return; }
-  const res = await dataService.post('API정의안됨', { regData });
-  const { key: rtnKey } = res.data;
-  notify(t('MSG_ALT_SAVE_DATA'));
-  ok(true, { rtnKey });
+  const useLevels = codes.FEE_SCHD_LV_CD.filter((v) => v.userDfn03 === 'PIA'); // 선급판매 단계
+  if (!presentStep.value.some((v) => useLevels.map((x) => x.codeId).includes(v.feeSchdLvCd))) {
+    notify(t('MSG_ALT_CANNOT_PAY_CONF')); // 선급판매 수수료 확정이 불가능한 단계입니다.
+    return;
+  }
+  const { feeSchdId, feeSchdLvCd } = presentStep.value.find(
+    (v) => useLevels.map((x) => x.codeId).includes(v.feeSchdLvCd),
+  );
+  await confirmStat(feeSchdId, feeSchdLvCd, '03');
 }
-// -------------------------------------------------------------------------------------------------
-// Initialize Grid
-// -------------------------------------------------------------------------------------------------
 
+onMounted(async () => {
+  fetchStepStatus();
+});
 </script>

@@ -57,13 +57,13 @@
             v-model:page-index="pageInfo.pageIndex"
             v-model:page-size="pageInfo.pageSize"
             :total-count="pageInfo.totalCount"
-            :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
           />
+          <!-- :page-size-options="codes.COD_PAGE_SIZE_OPTIONS" -->
         </template>
 
         <!-- label="편집" -->
         <kw-btn
-          v-if="!isEditChk"
+          v-if="!isEditChk&&pageInfo.totalCount!==0"
           :label="t('MSG_BTN_EDIT')"
           secondary
           dense
@@ -71,13 +71,14 @@
           @click="onClickedit"
         />
       </kw-action-top>
-      <kw-separator
+      <!-- 디바이더 삭제요청으로 인한제거 2023-06-20
+        <kw-separator
         v-if="!isEditChk"
         divider
         :spaced="`false`"
         size="1px"
         color="black1"
-      />
+      /> -->
 
       <kw-list
         ref="mlist"
@@ -127,6 +128,7 @@
 
               <!-- label="청구서 발송" -->
               <kw-btn
+                v-if="!isEditChk"
                 secondary
                 :label="t('MSG_TXT_BILDC_FW')"
                 class="full-width mt12"

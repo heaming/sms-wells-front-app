@@ -1118,17 +1118,16 @@ async function fetchData() {
 
 // 계약정보, 환불신청, 처리정보
 async function fetchData2() {
-  console.log('props', props);
+  // console.log('props', props);
   const response = await dataService.get('/sms/wells/withdrawal/idvrve/refund-applications/detail/basic', { params: { cntrNo: props.cntrNo, cntrSn: props.cntrSn, rfndRcpNo: props.rfndRcpNo, rfndRcpDtlSn: props.rfndRcpDtlSn } });
   ctract.value = response.data.ctract; // 계약정보
   app.value = response.data.app; // 환불신청
-  console.log('ctract', ctract);
-  console.log('app', app);
+  // console.log('ctract', ctract);
+  // console.log('app', app);
 }
 
 // 컨텍트조회 팝업 버튼
 async function onClickContect() {
-  console.log('콘택조회');
   const { cntrNo } = props;
   await modal({
     component: 'WwwdbRefundApplicationConnectHistoryP',
@@ -1204,14 +1203,13 @@ async function onClickExcelDownload2() {
 
 // 환불신청
 async function fetchData6() {
-  console.log('fetchData6');
   // 환불신청, 예외환불사유, 환불접수총액, 처리정보
   const res = await dataService.get('/sms/wells/withdrawal/idvrve/refund-applications/status/refund-application-info', { params: { rfndRcpNo: props.rfndRcpNo } });
 
   saveParams.value = res.data.basic;
   saveParams.value.details = res.data.details;
-  console.log('res.data', res.data);
-  console.log('saveParams.value', saveParams.value);
+  // console.log('res.data', res.data);
+  // console.log('saveParams.value', saveParams.value);
 }
 // 은행, 카드사 조회
 async function bankCard() {
@@ -1260,7 +1258,7 @@ async function onClickAdd() {
     bltfAfVacNoEncr: '', // 전금후 가상계좌
     rfndEvidMtrFileId: '', // 증빙자료 파일첨부
   });
-  console.log('saveParams.value.details', saveParams.value.details);
+  // console.log('saveParams.value.details', saveParams.value.details);
 }
 
 async function onClickDel(i) {
@@ -1319,8 +1317,6 @@ async function onClickSave() {
   //   basic,
   //   details,
   // };
-  console.log('basic', basic);
-  console.log('details', details);
   await dataService.post('/sms/wells/withdrawal/idvrve/refund-applications/status/refund-application-info', { basic, details });
   ok();
 }

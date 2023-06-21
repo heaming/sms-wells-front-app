@@ -162,9 +162,9 @@ const { getConfig } = useMeta();
 const codes = await codeUtil.getMultiCodes('COD_PAGE_SIZE_OPTIONS', 'COD_MSG_RESO_TYPE', 'COD_EXCEL_UPD_RESULT_TYPE', 'PROCS_ERR_TP_CD', 'DP_MES_CD', 'SELL_TP_CD', 'DP_TP_CD');
 const grdMainRef = ref(getComponentType('KwGrid'));
 const file = ref(null);
-const { getters } = useStore();
-const userInfo = getters['meta/getUserInfo'];
-console.log(userInfo);
+// const { getters } = useStore();
+// const userInfo = getters['meta/getUserInfo'];
+// console.log(userInfo);
 
 const pageInfo = ref({
   totalCount: 0,
@@ -260,7 +260,7 @@ async function addRow() {
   const view = grdMainRef.value.getView();
   const dataSource = view.getDataSource();
 
-  console.log(fileData);
+  // console.log(fileData);
 
   paramData = fileData;
 
@@ -310,7 +310,7 @@ async function addRow() {
   result = sum1;
   giroResult = sum2;
 
-  console.log(result);
+  // console.log(result);
   dataSource.setRows(gridSetData);
 
   gridSetData = [];
@@ -380,8 +380,8 @@ async function onClickSave() {
 
   paramData = fileData;
 
-  console.log(paramData);
-  console.log(paramData.length);
+  // console.log(paramData);
+  // console.log(paramData.length);
 
   if (paramData.length < 1) {
     notify(t('MSG_ALT_ULD_PRGS_GIRO_FILE_NOT')); // 업로드 진행 한 지로 파일이 없습니다.
@@ -396,7 +396,7 @@ async function onClickSave() {
 
   const resResult = res.data;
 
-  console.log(resResult);
+  // console.log(resResult);
 
   if (resResult.itgDpProcsYCnt > 0) {
     await alert(t('MSG_ALT_ITG_DP_RGST_CPRCNF_PROCS_ULD_NOT')); // '통합입금에 등록된 후 대사 처리된 Data는 업로드할 수 없습니다.'
@@ -419,7 +419,7 @@ async function onClickExcelUpload() {
 
   const gridData = gridUtil.getAllRowValues(view);
 
-  console.log(gridData);
+  // console.log(gridData);
 
   if (gridData.length > 0) {
     if (!await confirm('조회 또는 입력한 내용이 초기화됩니다.지로업로드를 진행하시겠습니까?')) { return; }
@@ -437,7 +437,7 @@ async function onClickCreate() {
   if (await confirm('입금등록을 진행하시겠습니까?')) {
     createParam = cloneDeep(searchParams.value);
 
-    console.log(createParam);
+    // console.log(createParam);
 
     await dataService.post('/sms/wells/withdrawal/idvrve/giro-deposits/create', createParam);
 
@@ -492,7 +492,7 @@ function initGrid(data, view) {
       header: t('MSG_TXT_CST_NM'),
       // header: '고객명',
       width: '147',
-      styleName: 'text-left' },
+      styleName: 'text-center' },
     { fieldName: 'rveDt',
       header: t('MSG_TXT_DP_DT'),
       datetimeFormat: 'date',
@@ -560,11 +560,11 @@ function initGrid(data, view) {
   view.setColumns(columns);
 
   // 체크박스 설정
-  view.onCellClicked = (grid, clickData) => {
-    if (clickData.cellType === 'data') {
-      grid.checkItem(clickData.itemIndex, !grid.isCheckedItem(clickData.itemIndex));
-    }
-  };
+  // view.onCellClicked = (grid, clickData) => {
+  //   if (clickData.cellType === 'data') {
+  //     grid.checkItem(clickData.itemIndex, !grid.isCheckedItem(clickData.itemIndex));
+  //   }
+  // };
 
   // summary 병합
   view.layoutByColumn('cntrNo').summaryUserSpans = [{ colspan: 4 }];

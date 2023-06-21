@@ -142,7 +142,7 @@ import { useDataService, useMeta, gridUtil, useGlobal, codeUtil, getComponentTyp
 import dayjs from 'dayjs';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import pdConst from '~sms-common/product/constants/pdConst';
-import { setGridDateFromTo } from '~sms-common/product/utils/pdUtil';
+import { getCodeNames, getAlreadyItems, setGridDateFromTo } from '~sms-common/product/utils/pdUtil';
 
 const { notify, modal } = useGlobal();
 const router = useRouter();
@@ -237,11 +237,61 @@ async function onClickAdd() {
   pageInfo.value.totalCount += 1;
 }
 
+async function checkDuplication() {
+  const view = grdMainRef.value.getView();
+  const changedRows = gridUtil.getChangedRowValues(view);
+  const alreadyItems = getAlreadyItems(view, changedRows, 'pdctPdCd', 'rglrSppMchnKndCd', 'rglrSppMchnTpCd', 'rglrSppPrcDvCd');
+  if (alreadyItems.length > 1) {
+    // {제품명/기기종류/기기유형/가격구분}이(가) 중복됩니다.
+    let dupItem = alreadyItems[0].pdctPdNm;
+    if (alreadyItems[0].rglrSppMchnKndCd) {
+      dupItem += `/${getCodeNames(codes, alreadyItems[0].rglrSppMchnKndCd, 'RGLR_SPP_MCHN_KND_CD')}`;
+    }
+    if (alreadyItems[0].rglrSppMchnTpCd) {
+      dupItem += `/${getCodeNames(codes, alreadyItems[0].rglrSppMchnTpCd, 'RGLR_SPP_MCHN_TP_CD')}`;
+    }
+    if (alreadyItems[0].rglrSppPrcDvCd) {
+      dupItem += `/${getCodeNames(codes, alreadyItems[0].rglrSppPrcDvCd, 'RGLR_SPP_PRC_DV_CD')}`;
+    }
+    notify(t('MSG_ALT_DUP_NCELL', [dupItem]));
+    return true;
+  }
+
+  const createdRows = gridUtil.getCreatedRowValues(view);
+  if (createdRows.length === 0) {
+    return false;
+  }
+
+  const { data: dupData } = await dataService.post('/sms/wells/product/seedling-price/duplication-check', createdRows);
+  if (dupData.data) {
+    const dupCodes = dupData.data.split(',', -1);
+    const { pdctPdNm, rglrSppMchnKndCd, rglrSppMchnTpCd, rglrSppPrcDvCd } = createdRows
+      .find((item) => item.pdctPdCd === dupCodes[0]
+        && item.rglrSppMchnKndCd === dupCodes[1]
+        && item.rglrSppMchnTpCd === dupCodes[2]
+        && item.rglrSppPrcDvCd === dupCodes[3]);
+    let dupItem = pdctPdNm;
+    if (rglrSppMchnKndCd) {
+      dupItem += `/${getCodeNames(codes, rglrSppMchnKndCd, 'RGLR_SPP_MCHN_KND_CD')}`;
+    }
+    if (rglrSppMchnTpCd) {
+      dupItem += `/${getCodeNames(codes, rglrSppMchnTpCd, 'RGLR_SPP_MCHN_TP_CD')}`;
+    }
+    if (rglrSppPrcDvCd) {
+      dupItem += `/${getCodeNames(codes, rglrSppPrcDvCd, 'RGLR_SPP_PRC_DV_CD')}`;
+    }
+    // {제품명/기기종류/기기유형/가격구분} 은(는) 이미 DB에 등록되어 있습니다.
+    notify(t('MSG_ALT_EXIST_IN_DB', [dupItem]));
+    return true;
+  }
+  return false;
+}
+
 async function onClickSave() {
   const view = grdMainRef.value.getView();
   if (await gridUtil.alertIfIsNotModified(view)) { return; } // 수정된 행 없음
   if (!await gridUtil.validate(view)) { return; } // 유효성 검사
-  // if (await checkDuplication()) { return; } // 중복 검사
+  if (await checkDuplication()) { return; } // 중복 검사
 
   const changedRows = gridUtil.getChangedRowValues(view);
   await dataService.post('/sms/wells/product/seedling-price', { bases: changedRows });

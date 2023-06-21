@@ -289,11 +289,11 @@ const initGrid = defineGrid((data, view) => {
   view.rowIndicator.visible = true;
 
   // 체크박스 설정
-  view.onCellClicked = (grid, clickData) => {
-    if (clickData.cellType === 'data') {
-      grid.checkItem(clickData.itemIndex, !grid.isCheckedItem(clickData.itemIndex));
-    }
-  };
+  // view.onCellClicked = (grid, clickData) => {
+  //   if (clickData.cellType === 'data') {
+  //     grid.checkItem(clickData.itemIndex, !grid.isCheckedItem(clickData.itemIndex));
+  //   }
+  // };
 
   view.onCellButtonClicked = async (g, { column, itemIndex }) => {
     if (column === 'cntr') {

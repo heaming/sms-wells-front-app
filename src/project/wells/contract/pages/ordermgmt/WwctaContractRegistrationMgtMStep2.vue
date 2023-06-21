@@ -309,9 +309,11 @@
                         @change="getPdAmts(item)"
                       />
                       <kw-select
-                        v-if="item.sellDscTpCds && item.sellDscDvCd === '5'"
+                        v-if="item.sellDscTpCds"
                         v-model="item.sellDscTpCd"
                         :options="item.sellDscTpCds"
+                        first-option=""
+                        first-option-value=""
                         placeholder="렌탈할인유형"
                         @change="getPdAmts(item)"
                       />
@@ -349,7 +351,7 @@
                           placeholder="법인추가할인"
                         />
                         <kw-select
-                          v-if="item.sellDscrCds"
+                          v-if="item.sellDscrCds && item.sellDscDvCd === '5'"
                           v-model="item.sellDscrCd"
                           :options="item.sellDscrCds"
                           placeholder="렌탈법인할인율"

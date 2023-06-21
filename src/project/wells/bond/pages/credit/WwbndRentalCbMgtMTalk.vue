@@ -2,7 +2,7 @@
 ****************************************************************************************************
 * 프로그램 개요
 ****************************************************************************************************
-1. 모듈 : BND
+1. 모듈 : WBND
 2. 프로그램 ID : WwbndRentalCbMgtMTalk ( W-BN-U-0067M01 )- 렌탈CB 알림톡 발송 제외
 3. 작성자 : gilyong.han
 4. 작성일 : 2023.03.24
@@ -26,6 +26,7 @@
           v-model="searchParams.cstNo"
           icon="search"
           clearable
+          maxlength="11"
           @click-icon="onClickCustomer"
         />
       </kw-search-item>
@@ -137,7 +138,7 @@ const pageInfo = ref({
 const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
 );
-const baseUrl = '/sms/wells/bond/rental-cb/notification-talks';
+const baseUrl = '/sms/wells/bond/rental-cb-mgt/message-excludes';
 const searchParams = ref({
   cstNo: '',
   cstKnm: '',
@@ -273,12 +274,6 @@ const initGridTalk = defineGrid((data, view) => {
       numberFormat: '###0' },
     { fieldName: 'apyStrtdt', header: t('MSG_TXT_APY_STRT_YM'), styleName: 'text-center', editor: { type: 'btdate', btOptions: btOpt }, datetimeFormat: 'YYYY-MM', rules: 'required' },
     { fieldName: 'apyEnddt', header: t('MSG_TXT_APY_END_YM'), styleName: 'text-center', editor: { type: 'btdate', btOptions: btOpt }, datetimeFormat: 'YYYY-MM', rules: 'required' },
-    // { fieldName: 'bndCntcExcdOjId', visible: false },
-    // { fieldName: 'ctntExcdBndBizCd', visible: false },
-    // { fieldName: 'ctntExcdOjTpCd', visible: false },
-    // { fieldName: 'ctntExcdMediTpCd', visible: false },
-    // { fieldName: 'ctntExcdRsonDvCd', visible: false },
-    // { fieldName: 'fnlMdfcDtm', visible: false },
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   fields.push(

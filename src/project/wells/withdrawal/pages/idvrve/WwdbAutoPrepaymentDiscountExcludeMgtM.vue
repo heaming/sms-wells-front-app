@@ -170,7 +170,6 @@ let cachedParams;
 
 async function fetchData() {
   cachedParams = { ...cachedParams, ...pageInfo.value };
-  console.log(cachedParams);
   const res = await dataService.get('/sms/wells/withdrawal/idvrve/auto-prepayment-discount-exclude/paging', { params: cachedParams });
   const { list: pages, pageInfo: pagingResult } = res.data;
 
@@ -425,12 +424,12 @@ const initGrid = defineGrid((data, view) => {
   view.rowIndicator.visible = true;
   view.editOptions.editable = true;
 
-  // 체크박스 설정
-  view.onCellClicked = (grid, clickData) => {
-    if (clickData.cellType === 'data') {
-      grid.checkItem(clickData.itemIndex, !grid.isCheckedItem(clickData.itemIndex));
-    }
-  };
+  // // 체크박스 설정
+  // view.onCellClicked = (grid, clickData) => {
+  //   if (clickData.cellType === 'data') {
+  //     grid.checkItem(clickData.itemIndex, !grid.isCheckedItem(clickData.itemIndex));
+  //   }
+  // };
 
   view.onCellEditable = (grid, index) => {
     if (!gridUtil.isCreatedRow(grid, index.dataRow) && ['cntr', 'prmDscExcdStrtYm'].includes(index.column)) {
@@ -447,8 +446,6 @@ const initGrid = defineGrid((data, view) => {
       });
 
       if (result) {
-        console.log(payload.cntrNo);
-        console.log(payload.cntrSn);
         const cntr = payload.cntrNo + payload.cntrSn;
         const { cntrNo, cntrSn } = payload;
 

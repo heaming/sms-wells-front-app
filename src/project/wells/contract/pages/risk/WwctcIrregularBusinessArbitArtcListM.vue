@@ -49,13 +49,11 @@
         <kw-search-item
           :label="$t('MSG_TXT_POSIT')"
         >
+          <!-- 직위 직급구분코드 공통코드 사용 (2: 총괄단장, 4: 지역단장: 5:BM, 7:지점장) -->
           <kw-select
             v-model="searchParams.dangMngtPrtnrNo"
             first-option="all"
-            :options="codes.PSTN_DV_CD.filter((v) => v.codeId === '2'
-              || v.codeId === '4'
-              || v.codeId === '5'
-              || v.codeId === '7')"
+            :options="codes.PSTN_DV_CD.filter((v) => ['2', '4', '5', '7'].includes(v.codeId))"
           />
         </kw-search-item>
       </kw-search-row>
@@ -287,7 +285,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'dangOjPrtnrNm', header: t('MSG_TXT_EMPL_NM'), width: '129', styleName: 'text-left' },
     { fieldName: 'dangOjPrtnrNo', header: t('MSG_TXT_EPNO'), width: '129' },
     { fieldName: 'dangOjPrtnrPstnDvNm', header: t('MSG_TXT_CRLV'), width: '129', styleName: 'text-left' },
-    { fieldName: 'dangOcStrtmm', header: t('MSG_TXT_YEAR_OCCURNCE'), width: '129', styleName: 'text-left' },
+    { fieldName: 'dangOcStrtmm', header: t('MSG_TXT_YEAR_OCCURNCE'), width: '129', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
     { fieldName: 'dangArbitOgNm', header: t('MSG_TXT_ACTN_DPT'), width: '306', styleName: 'text-center' },
     { fieldName: 'dangChkNm', header: t('MSG_TXT_CHRGS'), width: '306', styleName: 'text-left' },
     { fieldName: 'dangArbitCdNm', header: t('MSG_TXT_ACTN_ITM'), width: '306', styleName: 'text-left' },

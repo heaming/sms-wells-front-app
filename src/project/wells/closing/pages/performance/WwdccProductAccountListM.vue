@@ -49,7 +49,7 @@
             first-option-value="ALL"
           />
           <kw-select
-            v-if="searchParams.sellTpCd === '2'"
+            v-else-if="searchParams.sellTpCd === '2'"
             v-model="searchParams.sellTpDtlCd"
             :options="codes.SELL_TP_DTL_CD.filter(v => v.userDfn02 === '2')"
             first-option="all"
@@ -65,7 +65,7 @@
           <kw-select
             v-else-if="searchParams.sellTpCd === '4'"
             v-model="searchParams.sellTpDtlCd"
-            :options="codes.SELL_TP_DTL_CD.filter(v => v.userDfn02 === 'ALL')"
+            :options="codes.SELL_TP_DTL_CD.filter(v => v.codeId === 'ALL')"
             first-option="all"
             first-option-value="ALL"
           />
@@ -185,7 +185,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { codeUtil, gridUtil, defineGrid, getComponentType, useDataService } from 'kw-lib';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 import ZwpdProductClassificationSelect from '~sms-common/product/pages/standard/components/ZwpdProductClassificationSelect.vue';
 
@@ -282,6 +282,13 @@ async function onClickDetailExportView() {
     exportData: response.data,
   });
 }
+
+watch(() => searchParams.value.sellTpCd, async (val) => {
+  if (!isEmpty(val)) {
+    console.log('val:', val);
+    searchParams.value.sellTpDtlCd = 'ALL';
+  }
+});
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------

@@ -1,0 +1,158 @@
+<!----
+****************************************************************************************************
+* 프로그램 개요
+****************************************************************************************************
+1. 모듈 : CTA
+2. 프로그램 ID : fragment
+3. 작성자 : SAVEMEGOAT
+4. 작성일 : 2023-06-12
+****************************************************************************************************
+* 프로그램 설명
+****************************************************************************************************
+- 결제하기
+- 결제금액을 결재 방식 별로 게시
+- 0201:개별수납(신용카드) 의 결제 관계가 있는 경우, 신용카드 정보 입력 화면 노출 및 승인 요청
+- 0102(계좌자동이체) 의 결제 관계가 있는 경우, 계좌자동이체 정보 입력 화면 노출 및 승인 요청?
+- 0203(카드자동이체) 의 결제 관계가 있는 경우, 카드자동이체 정보 입력 화면 노출 및 승인 요청?
+- 개별수납(가상계좌) 의 결제 관계가 있는 경우, 가상계좌 생성 발급 화면 노
+****************************************************************************************************
+--->
+<template>
+  <wwcta-contract-settlement-agree-item
+    v-if="stlm"
+    ref="topRef"
+    :title="'가상계좌발급'"
+    default-opened
+    hide-expand-icon
+  >
+    <kw-item-section class="pt20 gap-lg">
+      <kw-select
+        v-model="selectedBnkCd"
+        label="납부은행"
+        :options="banks"
+      />
+      <kw-btn
+        stretch
+        secondary
+        label="가상계좌발급"
+        @click="onClickIssue"
+      />
+      <kw-item
+        v-if="issuedAccountInfo"
+      >
+        <kw-item-section>
+          <kw-item-label
+            font="body"
+            font-weight="500"
+          >
+            입금 계좌정보
+          </kw-item-label>
+          <kw-form class="mt20">
+            <kw-form-item
+              label="은행"
+            >
+              <p>{{ getCodeName(banks, issuedAccountInfo.bnkCd) }}</p>
+            </kw-form-item>
+            <kw-form-item label="가상계좌번호">
+              <p>123467890-1234567980</p>
+            </kw-form-item>
+            <kw-form-item label="예금주">
+              <p>(주)교원</p>
+            </kw-form-item>
+            <kw-form-item label="입금액">
+              <p>{{ stlm.stlmAmt }}원</p>
+            </kw-form-item>
+            <kw-form-item label="납부마감일시">
+              <p>{{ issuedAccountInfo.expireDate }}</p>
+            </kw-form-item>
+          </kw-form>
+        </kw-item-section>
+      </kw-item>
+    </kw-item-section>
+  </wwcta-contract-settlement-agree-item>
+</template>
+
+<script setup>
+import WwctaContractSettlementAgreeItem
+  from '~sms-wells/contract/components/ordermgmt/WwctaContractSettlementAgreeItem.vue';
+import { alert, notify, useDataService } from 'kw-lib';
+import dayjs from 'dayjs';
+
+const props = defineProps({
+  stlm: {
+    type: Object,
+    default: undefined,
+  },
+});
+const emit = defineEmits(['approved']);
+
+const exposed = {};
+defineExpose(exposed);
+
+const dataService = useDataService();
+
+const stlmBas = computed(() => (props.stlm ?? {}));
+const banks = ref([]);
+const selectedBnkCd = ref();
+const issuedAccountInfo = ref();
+
+function getStlmUpdateInfo() {
+  const { cntrStlmId, dpTpCd, cntrNo } = stlmBas.value;
+  if (!cntrStlmId) { throw Error('데이터가 이상합니다. 관리자에게 연락바랍니다.'); }
+  return ({
+    cntrStlmId,
+    dpTpCd,
+    cntrNo,
+    bnkCd: issuedAccountInfo.value.bnkCd,
+  });
+}
+
+async function onClickIssue() {
+  if (!selectedBnkCd.value) {
+    alert('납부은행을 선택해주세요.');
+    return;
+  }
+  await nextTick();
+  notify('개발 예정');
+  issuedAccountInfo.value = {
+    bnkCd: selectedBnkCd.value,
+    expireDate: dayjs().add(3, 'd').format('YYYY-MM-DD(ddd) HH:mm'),
+  };
+  emit('approved', getStlmUpdateInfo());
+}
+
+async function fetchBanks() {
+  const { data } = await dataService.get('/sms/common/common/codes/finance-code/bank-codes');
+  banks.value = data;
+}
+
+await fetchBanks();
+
+/* utils */
+function getCodeName(codeArr, codeId) {
+  if (!Array.isArray(codeArr)) { return ''; }
+  return codeArr.find((code) => code.codeId === codeId)?.codeName ?? '';
+}
+
+/* expose */
+const topRef = ref();
+
+function scrollTo(ref) {
+  const el = ref.value.$el;
+  if (el) { el.scrollIntoView(true); }
+}
+
+async function validate() {
+  if (!props.stlm) { return true; }
+  const valid = !!issuedAccountInfo.value?.bnkCd;
+  if (!valid) {
+    notify('가상계좌를 발급해주세요.');
+    scrollTo(topRef);
+  }
+  return valid;
+}
+
+exposed.ref = topRef;
+exposed.validate = validate;
+
+</script>

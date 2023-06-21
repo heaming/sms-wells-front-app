@@ -27,6 +27,7 @@
           <kw-date-range-picker
             v-model:from="searchParams.rcpStartDt"
             v-model:to="searchParams.rcpEndDt"
+            :label="t('MSG_TXT_RCPDT')"
             rules="date_range_required"
             required
           />
@@ -239,12 +240,12 @@ const pageInfoSecond = ref({
 let cachedParams;
 
 async function fetchData() {
+  grdMainRef2.value.getData().clearRows();
+
   cachedParams = { ...cachedParams, ...pageInfo.value };
 
   const res = await dataService.get('/sms/wells/withdrawal/idvrve/bill-deposits/paging', { params: cachedParams });
   const { list: pages, pageInfo: pagingResult } = res.data;
-
-  console.log(pages);
 
   pageInfo.value = pagingResult;
 
@@ -264,8 +265,6 @@ async function fetchData() {
 async function onClickSearch() {
   pageInfo.value.pageIndex = 1;
 
-  grdMainRef2.value.getData().clearRows();
-
   cachedParams = cloneDeep(searchParams.value);
 
   await fetchData();
@@ -277,7 +276,6 @@ async function onClickSelectCntr() {
     // componentProps: { rveCd: searchParams.value.rveCd, rveNm: searchParams.value.rveNm },
   });
   if (result) {
-    console.log(payload);
     searchParams.value.cntrNo = payload.cntrNo;
     searchParams.value.cntrSn = payload.cntrSn;
     searchParams.value.cntr = payload.cntrNo + payload.cntrSn;
@@ -344,8 +342,6 @@ async function removeData(params) {
 
   const allValues = gridUtil.getAllRowValues(view);
   const data = view.getDataSource();
-  console.log(allValues);
-  console.log(params);
 
   allValues.forEach((param) => {
     if ((param.cntrNo === params.cntrNo) && (param.itgDpNo === params.itgDpNo)) {
@@ -402,7 +398,6 @@ async function onClickExcelSubDownload() {
 async function onClickSave() {
   const view = grdMainRef2.value.getView();
   const changedRows = gridUtil.getAllRowValues(view);
-  console.log(changedRows);
 
   if (await gridUtil.alertIfIsNotModified(view)) { return; }
 
@@ -414,8 +409,6 @@ async function onClickSave() {
     saveMainReq: changedRows[0],
     SaveMainDtlReq: changedRows,
   };
-
-  // console.log(changedRows);
 
   await dataService.post('/sms/wells/withdrawal/idvrve/bill-deposits/electronic', cachedParam);
 
@@ -532,6 +525,7 @@ const initGrid = defineGrid((data, view) => {
 
   view.checkBar.visible = true;
   view.rowIndicator.visible = true;
+  view.checkBar.showAll = false;
 
   view.onItemChecked = (grid, itemIndex) => {
     const checkState = grid.isCheckedItem(itemIndex);

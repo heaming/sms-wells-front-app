@@ -73,7 +73,7 @@
     <kw-grid
       ref="grdMainRef"
       name="grdPage"
-      :visible-rows="5"
+      :visible-rows="10"
       :page-size="pageInfo.pageSize - 1"
       :total-count="pageInfo.totalCount"
       @init="initGrid1"
@@ -247,7 +247,6 @@ async function fetchData() {
   const res = await dataService.get('/sms/wells/withdrawal/idvrve/bill-deposits/electronic/paging', { params: cachedParams });
   const { list: pages, pageInfo: pagingResult } = res.data;
 
-  console.log(pages);
   pageInfo.value = pagingResult;
 
   const view = grdMainRef.value.getView();
@@ -278,7 +277,6 @@ async function fetchSubData() {
   const res = await dataService.get('/sms/wells/withdrawal/idvrve/bill-deposits/electronic-detail/paging', { params: cachedSubParams });
   const { list: pages, pageInfo: pagingResult } = res.data;
 
-  console.log(pages);
   pageInfoSecond.value = pagingResult;
 
   const view = grdMainRef3.value.getView();
@@ -314,7 +312,6 @@ async function onClickDealingPartner() {
   });
 
   if (result) {
-    console.log(payload);
     searchParams.value.bzrno = payload.crpBzrno;
     searchParams.value.dlpnrNm = payload.crpDlpnrNm;
   }
@@ -336,8 +333,8 @@ async function onClickCreate() {
 
   if (!await gridUtil.validate(view2)) { return; }
 
-  console.log(searchParams.value.dlpnrNm);
-  console.log(checkItem);
+  // console.log(searchParams.value.dlpnrNm);
+  // console.log(checkItem);
 
   if (!await confirm(t('MSG_TXT_MTR') + t('MSG_ALT_CREATED'))) { return; }
 
@@ -368,7 +365,7 @@ async function onClickCreate() {
 async function onGridAdd() {
   const view = grdMainRef2.value.getView();
 
-  console.log(props.sellBzsBzrno);
+  // console.log(props.sellBzsBzrno);
 
   if (!isEmpty(props.itgDpNo)) {
     gridUtil.insertRowAndFocus(view, 0, {
@@ -390,13 +387,13 @@ async function onGridAdd() {
 
 // 저장버튼
 async function onClickSave() {
-  const view2 = grdMainRef2.value.getView();
+  // const view2 = grdMainRef2.value.getView();
   const view = grdMainRef3.value.getView();
-  const changedRows2 = gridUtil.getChangedRowValues(view2);
+  // const changedRows2 = gridUtil.getChangedRowValues(view2);
   const changedRows = gridUtil.getChangedRowValues(view);
 
-  console.log(changedRows2);
-  console.log(changedRows);
+  // console.log(changedRows2);
+  // console.log(changedRows);
 
   if (await gridUtil.alertIfIsNotModified(view)) { return; }
 
@@ -417,8 +414,6 @@ async function onClickSave() {
     saveMainReq: changedRows[0],
     SaveMainDtlReq: changedRows,
   };
-
-  console.log(changedRows);
 
   await dataService.post('/sms/wells/withdrawal/idvrve/bill-deposits/electronic', cachedParam);
 
@@ -460,9 +455,9 @@ async function onKeyDownSelect() {
 }
 
 async function initProps() {
-  console.log(props.itgDpNo);
-  console.log(props.cntrNo);
-  console.log(props.bzrno);
+  // console.log(props.itgDpNo);
+  // console.log(props.cntrNo);
+  // console.log(props.bzrno);
   if (!isEmpty(props.itgDpNo)) {
     params.value.itgDpNo = props.itgDpNo;
     params.value.cntrNo = props.cntrNo;
@@ -536,11 +531,11 @@ const initGrid1 = defineGrid((data, view) => {
   view.rowIndicator.visible = true;
 
   // 체크박스 설정
-  view.onCellClicked = (grid, clickData) => {
-    if (clickData.cellType === 'data') {
-      grid.checkItem(clickData.itemIndex, !grid.isCheckedItem(clickData.itemIndex));
-    }
-  };
+  // view.onCellClicked = (grid, clickData) => {
+  //   if (clickData.cellType === 'data') {
+  //     grid.checkItem(clickData.itemIndex, !grid.isCheckedItem(clickData.itemIndex));
+  //   }
+  // };
 
   view.onScrollToBottom = async (g) => {
     if (pageInfo.value.pageIndex * pageInfo.value.pageSize <= g.getItemCount()) {

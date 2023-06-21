@@ -3,7 +3,7 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : WDA
-2. 프로그램 ID : WwwdbIntegrationDepositNumberInquiryP - 통합입금번호조회
+2. 프로그램 ID : WwwdbIntegrationDepositNumberP  - 통합입금번호조회
 3. 작성자 : heungjun.lee
 4. 작성일 : 2023.03.31
 ****************************************************************************************************
@@ -54,10 +54,10 @@
         <kw-form-item
           :label="t('MSG_TXT_DP_TP')"
         >
-          <kw-option-group
+          <kw-select
             v-model="searchParams.dpTpCd"
-            :options="DP_TP_CD"
-            type="radio"
+            :options="codes.DP_TP_CD.filter(({codeId}) => ['0101','0104','0201'].includes(codeId))"
+            first-option="all"
           />
         </kw-form-item>
       </kw-search-row>
@@ -102,7 +102,7 @@
         </kw-search-item>
       </kw-search-row>
     </kw-search>
-    <kw-action-bar class="mt30">
+    <kw-action-top>
       <template #left>
         <kw-paging-info
           v-model:page-index="pageInfo.pageIndex"
@@ -121,7 +121,7 @@
         @click="onClickExcelDownload"
       />
       <!-- label="엑셀 다운로드" -->
-    </kw-action-bar>
+    </kw-action-top>
     <kw-grid
       ref="grdMainRef"
       name="grdMain"
@@ -166,16 +166,14 @@ const popupRef = ref();
 
 const grdMainRef = ref(getComponentType('KwGrid'));
 
-const DP_TP_CD = codes.DP_TP_CD.filter((e) => ['0101', '0104', '0201'].includes(e.codeId));
-
-console.log(DP_TP_CD);
+// const DP_TP_CD = codes.DP_TP_CD.filter((e) => ['0101', '0104', '0201'].includes(e.codeId));
 
 const searchParams = ref({
   rveCd: '', // 수납코드
   rveNm: '',
   dpStartDtm: now.format('YYYYMM01'),
   dpEndDtm: now.format('YYYYMMDD'),
-  dpTpCd: '0101',
+  dpTpCd: '',
   acnoEncr: '', // 계좌번호
   sellPrtnrNo: '', // 판매자번호
   crcdnoEncr: '', // 카드번호
@@ -194,9 +192,7 @@ async function onClickSelectRveCd() {
   const { result, payload } = await modal({ component: 'ZwwdyDivisionReceiveCodeRegP',
     componentProps: { rveCd: searchParams.value.rveCd, rveNm: searchParams.value.rveNm },
   });
-  console.log(payload);
   if (result) {
-    console.log(payload);
     searchParams.value.rveCd = payload.rveCd;
     searchParams.value.rveNm = payload.rveNm;
   }
@@ -210,8 +206,6 @@ async function fetchData() {
   const res = await dataService.get('/sms/wells/withdrawal/idvrve/integration-deposit-number/paging', { params: cachedParams });
   const { list: pages, pageInfo: pagingResult } = res.data;
   pageInfo.value = pagingResult;
-
-  console.log(pages);
 
   const view = grdMainRef.value.getView();
 
@@ -236,8 +230,8 @@ async function onClickSearch() {
 
 // 파트너 검색 팝업 호출
 async function onClickSearchPrtnrNoPopup() {
-  console.log(searchParams.value.sellPrtnrNo);
-  console.log(userInfo.ogTpCd);
+  // console.log(searchParams.value.sellPrtnrNo);
+  // console.log(userInfo.ogTpCd);
 
   const { result, payload } = await modal({
     component: 'ZwogzPartnerListP',
@@ -266,8 +260,6 @@ async function onClickExcelDownload() {
 
 // 그리드 더블클릭 이벤트
 const onSelect = async (data) => {
-  console.log(data);
-
   if (!data || data.length === 0) {
     await alert(t('MSG_ALT_NOT_SEL_ITEM')); // 선택한 행이없음
     return;
@@ -287,7 +279,7 @@ const onSelect = async (data) => {
 };
 
 onMounted(async () => {
-  console.log(props.sumAmt);
+  // console.log(props.sumAmt);
 });
 
 // -------------------------------------------------------------------------------------------------
@@ -444,6 +436,7 @@ const initGrid = defineGrid((data, view) => {
 
   data.setFields(fields);
   view.setColumns(columns);
+  view.setFixedOptions({ colCount: 5 });
 
   view.onScrollToBottom = async (g) => {
     if (pageInfo.value.pageIndex * pageInfo.value.pageSize <= g.getItemCount()) {
