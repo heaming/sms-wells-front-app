@@ -18,10 +18,12 @@
       one-row
       :cols="3"
       @search="onClickSearch"
-      @reset="onClickReset"
     >
       <kw-search-row>
-        <kw-search-item :label="$t('MSG_TXT_BASE_YM')">
+        <kw-search-item
+          :label="$t('MSG_TXT_BASE_YM')"
+          required
+        >
           <kw-date-picker
             v-model="searchParams.baseYm"
             type="month"
@@ -71,9 +73,10 @@
 
       <kw-grid
         ref="grdMainRef"
+        name="grdMain"
         :page-size="pageInfo.pageSize"
         :total-count="pageInfo.totalCount"
-        @init="initGrid"
+        @init="initGrdMain"
       />
       <kw-pagination
         v-model:page-index="pageInfo.pageIndex"
@@ -95,11 +98,16 @@ import { codeUtil, useMeta, useGlobal, useDataService, getComponentType, gridUti
 import dayjs from 'dayjs';
 import { cloneDeep } from 'lodash-es';
 
-const { getConfig } = useMeta();
-const { alert } = useGlobal();
 const { t } = useI18n();
-
+const { alert } = useGlobal();
+const { getConfig } = useMeta();
+const { currentRoute } = useRouter();
 const dataService = useDataService();
+
+// -------------------------------------------------------------------------------------------------
+// Function & Event
+// -------------------------------------------------------------------------------------------------
+
 const grdMainRef = ref(getComponentType('KwGrid'));
 
 let cachedParams;
@@ -121,32 +129,18 @@ let gridData;
 let fieldsObj;
 let tmpFields = [];
 
-// -------------------------------------------------------------------------------------------------
-// Function & Event
-// -------------------------------------------------------------------------------------------------
 const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
   'USE_YN',
   'CMN_PART_DV_CD',
 );
 
-// 초기화
-function searchConditionReset() {
-  searchParams.value.baseYm = dayjs().format('YYYYMM');
-  searchParams.value.useYn = 'Y';
-  searchParams.value.matUtlzDvCd = '';
-}
-
-function onClickReset() {
-  searchConditionReset();
-}
-
 // 창고조회
 async function getWareHouseList() {
   const result = await dataService.get(
     '/sms/wells/service/as-material-item-grade-state/ware-houses',
     { params: {
-      baseYm: searchParams.value.baseYm,
+      baseYm: cachedParams.baseYm,
     } },
   );
   if (result.data.length > 0) {
@@ -188,16 +182,17 @@ async function onClickSearch() {
   if (searchBaseYm > currentMonth) {
     // 기준년월 > 현재년월일 경우 메시지 처리, 현재 월까지만 조회 가능합니다
     await alert(t('MSG_ALT_INQR_CRTL_MM_PSB'));
-  } else {
-    pageInfo.value.pageIndex = 1;
-    // 조회버튼 클릭 시에만 총 건수 조회하도록
-    pageInfo.value.needTotalCount = true;
-    cachedParams = cloneDeep(searchParams.value);
-    tmpFields = [];
-    // 창고조회
-    await getWareHouseList();
-    await fetchData();
+    return;
   }
+
+  pageInfo.value.pageIndex = 1;
+  // 조회버튼 클릭 시에만 총 건수 조회하도록
+  pageInfo.value.needTotalCount = true;
+  cachedParams = cloneDeep(searchParams.value);
+  tmpFields = [];
+  // 창고조회
+  await getWareHouseList();
+  await fetchData();
 }
 
 // 엑셀 다운로드
@@ -206,7 +201,7 @@ async function onClickExcelDownload() {
   const res = await dataService.get('/sms/wells/service/as-material-item-grade-state/excel-download', { params: cachedParams });
 
   gridUtil.exportView(view, {
-    fileName: 'asMaterialItemGradePsList',
+    fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
     exportData: res.data,
   });
@@ -243,8 +238,8 @@ fieldsObj = {
     gridView.setColumnLayout([...layoutColumns]);
   },
   // 리스트에 담겨진 항목중 {fieldName : "" }  만  가져옴
-  getColumnNameList(ObjList) {
-    return ObjList.map((obj) => ({ fieldName: obj.fieldName }));
+  getColumnNameList(objList) {
+    return objList.map((obj) => ({ fieldName: obj.fieldName }));
   },
   // 리스트에 담겨진 항목 중 fieldName 배열로 가져옴
   getColumnNameArr(objList) {
@@ -257,7 +252,7 @@ fieldsObj = {
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
 
-const initGrid = defineGrid((data, view) => {
+const initGrdMain = defineGrid((data, view) => {
   const fields = [
     ...fieldsObj.getColumnNameList(fieldsObj.defaultFields),
   ];
