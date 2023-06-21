@@ -99,6 +99,7 @@ async function resetData() {
 }
 
 async function insertCallbackRows(view, rtn, pdRelTpCd) {
+  console.log('rtn', rtn);
   if (rtn.result) {
     if (Array.isArray(rtn.payload.checkedRows) && rtn.payload.checkedRows.length > 1) {
       const data = view.getDataSource();
@@ -114,7 +115,8 @@ async function insertCallbackRows(view, rtn, pdRelTpCd) {
       const row = Array.isArray(rtn.payload) ? rtn.payload[0].checkedRows[0] : rtn.payload.checkedRows[0];
       row[pdConst.PD_REL_TP_CD] = pdRelTpCd;
       row[pdConst.REL_OJ_PD_CD] = row.pdCd;
-      console.log('row', row);
+      // DEF_3623 row.sapPdctSclsrtStrcVal = row.sapMatCd;
+
       const okRows = await getCheckAndNotExistRows(view, [row]);
       if (okRows && okRows.length) {
         await gridUtil.insertRowAndFocus(view, 0, okRows[0]);
@@ -243,7 +245,8 @@ const columns = [
   { fieldName: 'pdRelTpCd', header: t('MSG_TXT_RELATION_CLSF'), width: '106', styleName: 'text-center', options: codes.PDCT_REL_DV_CD }, /* 관계구분 */
   { fieldName: 'pdClsfNm', header: t('MSG_TXT_CLSF'), width: '176', styleName: 'text-left' }, /* 분류 */
   { fieldName: 'pdNm', header: t('MSG_TIT_MATERIAL_NM'), width: '382', styleName: 'text-left' }, /* 교재/자재명 */
-  { fieldName: 'sapPdctSclsrtStrcVal', header: t('MSG_TXT_MATI_CD'), width: '121' }, /* 자재코드 교재/제재코드 */
+  // { fieldName: 'sapPdctSclsrtStrcVal', header: t('MSG_TXT_MATI_CD'), width: '121' }, /* 자재코드 교재/제재코드 */
+  { fieldName: 'sapMatCd', header: t('MSG_TXT_MATI_CD'), width: '121' }, /* 자재코드 교재/제재코드 */
   { fieldName: 'modelNo', header: t('MSG_TXT_PD_MODEL_NO'), width: '152', styleName: 'text-center' }, /* 모델No */
   { fieldName: 'pdAbbrNm', header: t('MSG_TXT_ABBR'), width: '226', styleName: 'text-left' }, /* 약어 */
   { fieldName: 'ostrCnrCd', header: t('MSG_TIT_SHIPPING_CENTER'), width: '214', styleName: 'text-left' }, /* 출고센터 */
