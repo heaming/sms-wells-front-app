@@ -348,12 +348,12 @@ async function onClickReset() {
   searchParams.value.cntrNo = ''; // 계약번호
   searchParams.value.cntrSn = ''; // 계약일련번호
 
-  isSearchCstKnmVisible.value = true;
+  isSearchCstKnmVisible.value = false;
   isSearchBzrnoVisible.value = false;
   isSearchMpnoVisible.value = false;
   isSearchCntrCstNoVisible.value = false;
   isSearchSfkValVisible.value = false;
-  isSearchCntrDtlNoVisible.value = false;
+  isSearchCntrDtlNoVisible.value = true;
 }
 
 // 고객번호 검색 팝업조회
