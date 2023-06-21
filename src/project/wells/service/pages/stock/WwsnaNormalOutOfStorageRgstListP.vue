@@ -387,7 +387,6 @@ async function getItmOstrAk() {
 }
 
 onMounted(async () => {
-  await stckStdGbFetchData();
   await getItmOstrAk();
 });
 // -------------------------------------------------------------------------------------------------
@@ -407,13 +406,13 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'cfrmCnt', header: t('MSG_TXT_OSTR_FREQ'), width: '100', styleName: 'text-center' },
     { fieldName: 'itemLoc', header: t('MSG_TXT_ITM_LOC'), width: '150' },
     { fieldName: 'itmGdCd', header: t('MSG_TXT_GD'), width: '100', styleName: 'text-center' },
-    { fieldName: 'qty', header: t('MSG_TXT_OSTR_WARE_STOC'), width: '100', styleName: 'text-center' },
-    { fieldName: 'reqStckQty', header: t('MSG_TXT_STR_WARE_STOC'), width: '100', styleName: 'text-center' },
-    { fieldName: 'avgOut', header: t('MSG_TXT_CNTR_AV_OSTR_QTY'), width: '100', styleName: 'text-center' },
-    { fieldName: 'ostrAkQty', header: t('MSG_TXT_RQST_QTY'), width: '100', styleName: 'text-center' }, // 신청수량
-    { fieldName: 'ostrCnfmQty', header: t('MSG_TXT_CNFM_QTY'), width: '100', styleName: 'text-center' }, // 확정수량
+    { fieldName: 'qty', header: t('MSG_TXT_OSTR_WARE_STOC'), width: '100', styleName: 'text-right' },
+    { fieldName: 'reqStckQty', header: t('MSG_TXT_STR_WARE_STOC'), width: '100', styleName: 'text-right' },
+    { fieldName: 'avgOut', header: t('MSG_TXT_CNTR_AV_OSTR_QTY'), width: '100', styleName: 'text-right' },
+    { fieldName: 'ostrAkQty', header: t('MSG_TXT_RQST_QTY'), width: '100', styleName: 'text-right' }, // 신청수량
+    { fieldName: 'ostrCnfmQty', header: t('MSG_TXT_CNFM_QTY'), width: '100', styleName: 'text-right' }, // 확정수량
     { fieldName: 'strHopDt', header: t('MSG_TXT_STR_HOP_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' }, // 입고희망일자
-    { fieldName: 'ostrAggQty', header: t('MSG_TXT_OSTR_AGG'), width: '100', styleName: 'text-center' }, // 출고누계
+    { fieldName: 'ostrAggQty', header: t('MSG_TXT_OSTR_AGG'), width: '100', styleName: 'text-right' }, // 출고누계
     { fieldName: 'dummyQty',
       header: t('MSG_TXT_OSTR_QTY'),
       editable: true,
@@ -425,7 +424,7 @@ const initGrdMain = defineGrid((data, view) => {
         maxLength: 12,
       },
       width: '100',
-      styleName: 'text-center',
+      styleName: 'text-right',
     },
     { fieldName: 'rmkCn', // 비고
       header: t('MSG_TXT_NOTE'),
@@ -437,7 +436,7 @@ const initGrdMain = defineGrid((data, view) => {
       },
       editable: true },
     { fieldName: 'mgtUntNm', header: t('TXT_MSG_MNGT_UNIT_CD'), width: '100', styleName: 'text-center' },
-    { fieldName: 'boxUnitQty', header: t('MSG_TXT_BOX_QTY'), width: '100', styleName: 'text-center' },
+    { fieldName: 'boxUnitQty', header: t('MSG_TXT_BOX_QTY'), width: '100', styleName: 'text-right' },
     { fieldName: 'rectOstrDt', header: t('MSG_TXT_RECT_OSTR_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' },
   ];
   const gridField = columns.map((v) => ({ fieldName: v.fieldName }));
