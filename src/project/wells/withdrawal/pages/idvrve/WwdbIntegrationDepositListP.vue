@@ -296,8 +296,8 @@ async function initProps() {
   searchParams.value.rveNm = rveNm;
 
   // console.log(itgDpNo);
-  console.log(rveCd);
-  console.log(rveNm);
+  // console.log(rveCd);
+  // console.log(rveNm);
   // await onClickSearch();
   // }
 }

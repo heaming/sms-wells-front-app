@@ -194,7 +194,6 @@ async function onClickSearchUser() {
   const { result, payload } = await modal({ component: 'ZwcsaCustomerListP' });
 
   if (result) {
-    console.log(payload);
     giroPlrcv.value.cstFnm = payload.name;
     giroPlrcv.value.cstNo = payload.cstNo;
   }
@@ -205,11 +204,7 @@ let cachedParams;
 async function fetchGiroInfo() {
   cachedParams = cloneDeep(giroPlrcvProps.value);
 
-  console.log(cachedParams);
-
   const res = await dataService.get('/sms/wells/withdrawal/idvrve/giro-placereceived', { params: cachedParams });
-
-  console.log(res.data);
 
   if (!isEmpty(res.data)) {
     giroPlrcv.value = res.data;
@@ -267,9 +262,7 @@ async function onClickSave() {
   if (!saveParam.giroPlrcvAdrId) {
     notify(t('MSG_ALT_ENTR_DTL_ADR'));
     return;
-  }console.log(saveParam.giroPlrcvAdrId);
-
-  console.log(saveParam);
+  }
 
   await dataService.post('/sms/wells/withdrawal/idvrve/giro-placereceived', saveParam);
   ok();

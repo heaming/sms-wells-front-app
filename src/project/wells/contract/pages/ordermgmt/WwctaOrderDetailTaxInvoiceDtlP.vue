@@ -230,11 +230,17 @@ async function onClickSave() {
 
   if (!await confirm(t('MSG_ALT_WANT_SAVE'))) { return; }
 
+  let returnMsg = '';
   cachedParams = cloneDeep(fieldParams.value);
 
-  await dataService.post('/sms/wells/contract/contract-info/tax-Invoices', cachedParams);
-  await alert(t('MSG_ALT_SAVE_DATA'));
+  const res = await dataService.post('/sms/wells/contract/contract-info/tax-Invoices', cachedParams);
+  if (!isEmpty(res.data)) {
+    returnMsg = res.data;
+  } else {
+    returnMsg = t('MSG_ALT_SAVE_DATA');
+  }
 
+  await alert(returnMsg);
   fetchData();
 }
 
