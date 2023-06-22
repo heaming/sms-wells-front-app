@@ -230,7 +230,7 @@
 
 import dayjs from 'dayjs';
 import { codeUtil, defineGrid, getComponentType, gridUtil, modal, notify, useDataService, useMeta, confirm, alert } from 'kw-lib';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, isEmpty } from 'lodash-es';
 
 const dataService = useDataService();
 const now = dayjs();
@@ -396,6 +396,15 @@ async function onClickReset() {
 }
 
 async function onClickCreate() {
+  const view = grdMainRef.value.getView();
+  const view2 = grdSubRef.value.getView();
+  const checkRows = gridUtil.getAllRowValues(view2);
+
+  if (!isEmpty(checkRows[0].dpDtm)) {
+    await alert('이미 생성 된 입금내역이 존재합니다.');
+    return;
+  }
+
   const lifAlncDvNm = codes.LIF_ALNC_DV_CD.filter((data) => data.codeId === searchParams.value.lifAlncDvCd);
 
   if (!await confirm(t('MSG_ALT_IS_MUTU_DP_MM_CREATE', [
@@ -409,7 +418,6 @@ async function onClickCreate() {
     return;
   }
 
-  const view = grdSubRef.value.getView();
   const amtSum = gridUtil.getCellValue(view, 0, 'amtSum');
   const {
     result,
@@ -467,7 +475,7 @@ async function onClickExcelUpload() {
   // if (result && payload.status === 'S') {
   if (result) {
     notify(t('MSG_ALT_SAVE_DATA'));
-    await fetchData();
+    await onClickSearch();
   }
 }
 
