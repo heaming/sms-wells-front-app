@@ -36,8 +36,9 @@
       <kw-search-item :label="$t('MSG_TXT_ASSIGNER_EP_NO')">
         <kw-input
           v-model.trim="searchParams.ichrPrtnrNo"
-          rules="numeric"
-          maxlength="10"
+          :regex="/^[0-9]*$/i"
+          rules="numeric|max:7"
+          maxlength="7"
         />
       </kw-search-item>
 
