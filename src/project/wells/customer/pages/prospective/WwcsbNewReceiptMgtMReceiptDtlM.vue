@@ -178,7 +178,7 @@
               <p>{{ assignInfo?.sppDuedt }}</p>
             </kw-form-item>
             <!-- 매출일 -->
-            <kw-form-item :label="$t('MSG_TXT_DUEDT')">
+            <kw-form-item :label="$t('MSG_TXT_DT_OF_SALE')">
               <p>{{ assignInfo?.cntrPdStrtdt }}</p>
             </kw-form-item>
           </kw-form-row>
@@ -234,6 +234,7 @@ const props = defineProps({
   pspcCstCnslId: { type: String, default: null },
   jobType: { type: String, default: 'RECV' }, // RECV
   fromUi: { type: String, default: null },
+  cntrNo: { type: String, default: null },
 });
 
 const { notify } = useGlobal(); // , confirm
@@ -298,10 +299,10 @@ async function onClickSave() {
 }
 
 async function fetchData() {
-  const { pspcCstCnslId } = props;
+  const { pspcCstCnslId, cntrNo } = props;
   currentPspcCstCnslId.value = pspcCstCnslId;
 
-  const res = await dataService.get(`${baseUrl}/assign/${currentPspcCstCnslId.value}`);
+  const res = await dataService.get(`${baseUrl}/assign/${currentPspcCstCnslId.value}/${cntrNo}`);
   assignInfo.value = res.data;
   assignInfo.value.showFstRgstDtm = dayjs(assignInfo?.value?.fstRgstDtm).format('YYYY-MM-DD');
 }
