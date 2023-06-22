@@ -143,7 +143,7 @@ import pdConst from '~sms-common/product/constants/pdConst';
 import ZwpdProductClassificationSelect from '~sms-common/product/pages/standard/components/ZwpdProductClassificationSelect.vue';
 import { setGridDateFromTo, getAlreadyItems } from '~sms-common/product/utils/pdUtil';
 
-const { notify, modal } = useGlobal();
+const { alert, notify, modal } = useGlobal();
 const router = useRouter();
 const { t } = useI18n();
 const dataService = useDataService();
@@ -248,7 +248,7 @@ async function checkDuplication() {
     const dupCodes = dupData.data.split(',', -1);
     const { pdNm } = createdRows.find((item) => item.pdCd === dupCodes[0]);
     // 은(는) 이미 DB에 등록되어 있습니다.
-    notify(t('MSG_ALT_EXIST_IN_DB', [pdNm]));
+    await alert(t('MSG_ALT_EXIST_IN_DB', [pdNm]));
     return true;
   }
   return false;

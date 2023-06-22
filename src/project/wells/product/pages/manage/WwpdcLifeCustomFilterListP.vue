@@ -117,7 +117,7 @@ const props = defineProps({
   partPdNm: { type: String, default: '' },
 });
 
-const { notify, modal } = useGlobal();
+const { alert, notify, modal } = useGlobal();
 const { t } = useI18n();
 const router = useRouter();
 const dataService = useDataService();
@@ -220,7 +220,7 @@ async function checkDuplication() {
       dupItem += `/${chPdctPdNm}`;
     }
     // {제품명/기기종류/기기유형/가격구분} 은(는) 이미 DB에 등록되어 있습니다.
-    notify(t('MSG_ALT_EXIST_IN_DB', [dupItem]));
+    await alert(t('MSG_ALT_EXIST_IN_DB', [dupItem]));
     return true;
   }
   return false;

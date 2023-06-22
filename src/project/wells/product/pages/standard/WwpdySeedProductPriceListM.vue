@@ -144,7 +144,7 @@ import { cloneDeep, isEmpty } from 'lodash-es';
 import pdConst from '~sms-common/product/constants/pdConst';
 import { getCodeNames, getAlreadyItems, setGridDateFromTo } from '~sms-common/product/utils/pdUtil';
 
-const { notify, modal } = useGlobal();
+const { alert, notify, modal } = useGlobal();
 const router = useRouter();
 const { t } = useI18n();
 const dataService = useDataService();
@@ -281,7 +281,7 @@ async function checkDuplication() {
       dupItem += `/${getCodeNames(codes, rglrSppPrcDvCd, 'RGLR_SPP_PRC_DV_CD')}`;
     }
     // {제품명/기기종류/기기유형/가격구분} 은(는) 이미 DB에 등록되어 있습니다.
-    notify(t('MSG_ALT_EXIST_IN_DB', [dupItem]));
+    await alert(t('MSG_ALT_EXIST_IN_DB', [dupItem]));
     return true;
   }
   return false;

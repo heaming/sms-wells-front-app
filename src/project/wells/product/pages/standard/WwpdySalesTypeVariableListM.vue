@@ -118,7 +118,7 @@ import { cloneDeep, isEmpty } from 'lodash-es';
 import pdConst from '~sms-common/product/constants/pdConst';
 import { getCodeNames, getAlreadyItems } from '~sms-common/product/utils/pdUtil';
 
-const { notify } = useGlobal();
+const { alert, notify } = useGlobal();
 const router = useRouter();
 const { t } = useI18n();
 const dataService = useDataService();
@@ -219,7 +219,7 @@ async function checkDuplication() {
       dupItem += `/${getCodeNames(variableCodes.value, rgltnVarbId)}`;
     }
     // 은(는) 이미 DB에 등록되어 있습니다.
-    notify(t('MSG_ALT_EXIST_IN_DB', [dupItem]));
+    await alert(t('MSG_ALT_EXIST_IN_DB', [dupItem]));
     return true;
   }
   return false;
