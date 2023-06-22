@@ -266,8 +266,9 @@ const initgrdAssign = defineGrid((data, view) => {
   view.onCellDblClicked = async (g, clickData) => {
     if (clickData.cellType === 'data') {
       const pspcCstCnslId = g.getValue(clickData.itemIndex, 'pspcCstCnslId');
+      const cntrNo = g.getValue(clickData.itemIndex, 'cntrNo');
       const targetUrl = '/customer/wwcsb-new-receipt-mgt/wwcsb-new-receipt-mgt-m-Receipt-dtl';
-      await router.push({ path: targetUrl, query: { pspcCstCnslId, jobType: 'ASGN', fromUi: 'ASGN' } });
+      await router.push({ path: targetUrl, query: { pspcCstCnslId, jobType: 'ASGN', fromUi: 'ASGN', cntrNo } });
     }
   };
 });
