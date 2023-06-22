@@ -194,7 +194,7 @@
           </kw-form-row>
           <div class="row justify-end items-center pt8">
             <div class="item">
-              <slot v-if="isEmpty(assignInfo?.value?.ichrPrtnrNo)">
+              <slot v-if="currentJobType === 'ASGN'">
                 <kw-btn
                   :label="$t('MSG_BTN_CANCEL')"
                   class="ml8"
