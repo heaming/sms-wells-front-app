@@ -16,7 +16,7 @@
 <template>
   <wwcta-contract-settlement-agree-item
     ref="addressRef"
-    title="배송정보확인"
+    title="설치정보확인"
     hide-expand-icon
     expand-icon-toggle
     default-opened

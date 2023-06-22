@@ -39,6 +39,7 @@
   </wwcta-contract-settlement-agree-item>
   <wwcta-contract-settlement-agree-item
     title="주문상품정보"
+    hide-expand-icon
     expand-icon-toggle
     default-opened
   >
@@ -48,31 +49,17 @@
     >
       <kw-form
         class="kw-bc--bg-box pa16"
-        dense
         align-content="right"
+        dense
       >
-        <kw-form-item label="의무기간">
-          <p>
-            {{ `${product.stplPtrm}개월` }}
-          </p>
-        </kw-form-item>
-        <kw-form-item label="등록비">
-          <p>
-            {{ `${stringUtil.getNumberWithComma(product.cntrAmt)}원` }}
-          </p>
-        </kw-form-item>
-        <!-- <kw-form-item label="방문주기">
-          <p>
-            {{ `${product.svPrd}개월` }}
-          </p>
-        </kw-form-item> -->
-        <kw-form-item label="월 렌탈료">
-          <p>
-            {{ stringUtil.getNumberWithComma(product.sellAmt) + '원' }}
-          </p>
-        </kw-form-item>
-        <kw-form-item label="프로모션">
-          <p>-</p>
+        <kw-form-item
+          v-for="(productInfo) in productInfos"
+          :key="`product-info-${productInfo.label}`"
+          :label="productInfo.label"
+        >
+          <span class="text-dense text-weight-regular">
+            {{ productInfo.value }}
+          </span>
         </kw-form-item>
       </kw-form>
     </kw-expansion-item>
@@ -90,6 +77,40 @@ const props = defineProps({
     type: Object,
     required: true,
   },
+});
+const productInfos = computed(() => {
+  const infos = [];
+  if (!props.product) {
+    return infos;
+  }
+  /* TODO!!!
+     렌탈: 의무사용기간/등록비/방문주기/월 렌탈료/프로모션
+     멤버십: 제품명/방문주기/멤버십 회비
+     정기배송: 상품명/정상가/할인가
+     일시불: 상품금액/정상가/할인가
+     홈케어: 추가정보1/추가정보2/브랜드 or 제조사 */
+  const {
+    sellTpDtlCd,
+    cntrPtrm,
+  } = props.product;
+  switch (sellTpDtlCd) {
+    case '11':
+    case '13':
+      infos.push({ label: '의무기간', value: `${cntrPtrm}개월` });
+    // eslint-disable-next-line no-fallthrough
+    case '12': /* 홈케어 */
+      infos.push({ label: '추가정보1', value: '' });
+      infos.push({ label: '추가정보2', value: '' });
+      infos.push({ label: '브랜드', value: '' });
+      break;
+    case '21':
+    case '22':
+    case '23':
+    case '24':
+    case '25':
+      infos.push({ label: '의무기간', value: `${cntrPtrm}개월` });
+      break;
+  }
 });
 
 </script>
