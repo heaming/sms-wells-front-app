@@ -172,7 +172,7 @@
                   <kw-chip
                     class="ml8"
                     color="primary"
-                    label="엔지니어"
+                    :label="data.psicDatas.rolDvNm"
                     square
                     text-color="primary"
                   />
@@ -823,7 +823,7 @@ async function getTimeTables() {
     data.value.pmShowVar = data.value.pmAlloCnt;
   }
 
-  clickedBtn.value = '0';
+  clickedBtn.value = '';
 
   schedules.value = data.value.days;
   scheduleInfo.value.weekCnt = schedules.value.length / scheduleInfo.value.dayCnt;
@@ -964,6 +964,10 @@ async function onClickCalendar($event, weekIdx, dayIdx) {
   if (enable === 'Y') {
     searchParams.value.sellDate = selectedDay;
     await getTimeTables();
+    document.querySelectorAll('tr.calendar-date > td > span').forEach((element) => {
+      element.classList.remove('calendar-selected-date');
+    });
+    $event.target.classList.toggle('calendar-selected-date');
     document.querySelectorAll('tr.calendar-date > td').forEach((element) => {
       element.classList.remove('active');
     });
