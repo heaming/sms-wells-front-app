@@ -106,7 +106,7 @@
 import { codeUtil, gridUtil, useGlobal, useDataService, getComponentType, defineGrid } from 'kw-lib';
 import { isEmpty } from 'lodash-es';
 import pdConst from '~sms-common/product/constants/pdConst';
-import { getGridRowCount } from '~/modules/sms-common/product/utils/pdUtil';
+import { getCodeNames, getAlreadyItems, getGridRowCount } from '~sms-common/product/utils/pdUtil';
 
 const props = defineProps({
   svPdCd: { type: String, required: true },
@@ -176,14 +176,61 @@ async function onClickRemoveRows() {
   grdRowCount.value = getGridRowCount(view);
 }
 
+async function checkDuplication() {
+  const view = grdMainRef.value.getView();
+  // if (view) return false;
+  const changedRows = gridUtil.getChangedRowValues(view);
+  const alreadyItems = getAlreadyItems(view, changedRows, 'vstDvCd', 'prdMmVal', 'chPdctPdCd');
+  if (alreadyItems.length > 1) {
+    // {방문구분/월구분/계절필터명}이(가) 중복됩니다.
+    let dupItem = alreadyItems[0].vstDvCd;
+    if (alreadyItems[0].vstDvCd) {
+      dupItem += `/${getCodeNames(codes, alreadyItems[0].vstDvCd, 'VST_DV_CD')}`;
+    }
+    if (alreadyItems[0].prdMmVal) {
+      dupItem += `/${getCodeNames(codes, alreadyItems[0].prdMmVal, 'MM_CD')}`;
+    }
+    if (alreadyItems[0].chPdctPdNm) {
+      dupItem += `/${alreadyItems[0].chPdctPdNm}`;
+    }
+    notify(t('MSG_ALT_DUP_NCELL', [dupItem]));
+    return true;
+  }
+
+  const createdRows = gridUtil.getCreatedRowValues(view);
+  if (createdRows.length === 0) {
+    return false;
+  }
+
+  const { data: dupData } = await dataService.post('/sms/wells/product/bs-works/life-filters/duplication-check', createdRows);
+  if (dupData.data) {
+    const dupCodes = dupData.data.split(',', -1);
+    const { vstDvCd, prdMmVal, chPdctPdNm } = createdRows
+      .find((item) => item.vstDvCd === dupCodes[0]
+        && item.prdMmVal === dupCodes[1]
+        && item.chPdctPdCd === dupCodes[2]);
+    let dupItem = '';
+    if (vstDvCd) {
+      dupItem += `/${getCodeNames(codes, vstDvCd, 'VST_DV_CD')}`;
+    }
+    if (prdMmVal) {
+      dupItem += `/${getCodeNames(codes, prdMmVal, 'MM_CD')}`;
+    }
+    if (chPdctPdNm) {
+      dupItem += `/${chPdctPdNm}`;
+    }
+    // {제품명/기기종류/기기유형/가격구분} 은(는) 이미 DB에 등록되어 있습니다.
+    notify(t('MSG_ALT_EXIST_IN_DB', [dupItem]));
+    return true;
+  }
+  return false;
+}
+
 async function onClickSave() {
   const view = grdMainRef.value.getView();
-  if (await gridUtil.alertIfIsNotModified(view)) {
-    return;
-  }
-  if (!(await gridUtil.validate(view, { isChangedOnly: false }))) {
-    return;
-  }
+  if (await gridUtil.alertIfIsNotModified(view)) return;
+  if (!(await gridUtil.validate(view, { isChangedOnly: false }))) return;
+  if (await checkDuplication()) { return; } // 중복 검사
 
   const { svPdCd, pdctPdCd, partPdCd } = props;
   const subList = { svPdCd, pdctPdCd, partPdCd, bases: gridUtil.getAllRowValues(view) };
