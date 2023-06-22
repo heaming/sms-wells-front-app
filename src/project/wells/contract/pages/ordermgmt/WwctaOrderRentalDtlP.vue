@@ -385,7 +385,7 @@
         >
           <!-- 상품코드 -->
           <kw-input
-            v-model="frmMainData.pdCd"
+            v-model="frmMainData.basePdCd"
             placeholder=""
             readonly
           />
@@ -398,6 +398,7 @@
           <!-- 수량 -->
           <kw-input
             v-model="frmMainData.pdQty"
+            align="right"
             placeholder=""
             readonly
           />
@@ -1754,7 +1755,7 @@ const frmMainData = ref({
   istRdadr: '', // 설치자 주소(상세주소)
   pdClsfNm: '', // 상품 분류
   pdTpNm: '', // 상품유형
-  pdCd: '', // 상품코드
+  basePdCd: '', // 상품코드
   pdNm: '', // 상품명
   pdQty: '', // 수량
   cntrAmt: '', // 렌탈 등록비
@@ -1988,7 +1989,7 @@ async function fetchData() {
     // -------------------------------------------------------------------------------------------------
     frmMainData.value.pdClsfNm = pages[0].pdClsfNm; // 상품 분류
     frmMainData.value.pdTpNm = pages[0].pdTpNm; // 상품유형
-    frmMainData.value.pdCd = pages[0].pdCd; // 상품코드
+    frmMainData.value.basePdCd = pages[0].basePdCd; // 상품코드
     frmMainData.value.pdNm = pages[0].pdNm; // 상품명
     frmMainData.value.pdQty = pages[0].pdQty; // 수량
     frmMainData.value.cntrAmt = stringUtil.getNumberWithComma(Number(pages[0].cntrAmt), 0); // 렌탈 등록비
