@@ -296,7 +296,7 @@ const grd3MainRef = ref(getComponentType('KwGrid'));
 const totalCount = ref(0);
 const searchParams = ref({
 
-  perfYm: now.format('YYYYMM'),
+  perfYm: now.add(-1, 'month').format('YYYYMM'),
   no: '',
   prPerfYm: props.perfYm,
   prpartnerNo: props.partnerNo,
