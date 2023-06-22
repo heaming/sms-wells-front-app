@@ -210,11 +210,11 @@ ${step4.cntrt.sexDvNm || ''}` }}
           </kw-form-item>
         </kw-form-row>
         <kw-form-row>
-          <kw-form-item label="지국명">
+          <kw-form-item label="지점명">
             <p>{{ step4.prtnr?.dgr3LevlOgNm }}</p>
           </kw-form-item>
-          <kw-form-item label="지국장명">
-            <p>{{ step4.prtnr?.hooPrtnrNm }}</p>
+          <kw-form-item label="지점장명">
+            <p>{{ step4.prtnr?.dgr3LevlDgPrtnrNm }}</p>
           </kw-form-item>
         </kw-form-row>
       </kw-form>
