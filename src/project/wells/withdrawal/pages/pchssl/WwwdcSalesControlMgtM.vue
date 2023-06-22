@@ -381,6 +381,9 @@ async function onClickSave() {
 /**
  *  TODO: 23.06 기준 설계서 수정 (방학면제 버튼에 따른 컬럼 추가).
  *  컬럼 추가 -> 버튼에 따른 Editable 처리인지, 그리드 컬럼 자체가 바뀌는것인지 문의.
+ *
+ *  고객관련 매출정보에 할인적용이나 기타할인적용시 매출을 조정하는 화면.
+ *  방학면제 - 방학관련 해당서비스 사용불가능한경우 할인적용하는 것.
 */
 const initGrid = defineGrid((data, view) => {
   const fields = [
@@ -399,9 +402,9 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'slCtrDscTpCd' }, /* 할인 */
 
     { fieldName: 'canAfOjYn' }, /* 취소후적용 */
-    { fieldName: 'slCtrAmt' }, /* 조정금액 */
-    { fieldName: 'slCtrWoExmpAmt' }, /* 전액면제금액 */
-    { fieldName: 'slCtrPtrmExmpAmt' }, /* 조회기간면제금액 */
+    { fieldName: 'slCtrAmt', dataType: 'number' }, /* 조정금액 */
+    { fieldName: 'slCtrWoExmpAmt', dataType: 'number' }, /* 전액면제금액 */
+    { fieldName: 'slCtrPtrmExmpAmt', dataType: 'number' }, /* 조회기간면제금액 */
     { fieldName: 'slCtrRmkCn' }, /* 조정사유 */
     { fieldName: 'slCtrPrcsdt' }, /* 등록일자 */
     { fieldName: 'usrNm' }, /* 등록자 */
@@ -514,9 +517,9 @@ const initGrid = defineGrid((data, view) => {
       options: codes.SL_CTR_TP_CD,
     },
     { fieldName: 'canAfOjYn', header: t('MSG_TXT_CAN_AFT_APY'), width: '100', editor: { type: 'dropdown' }, editable: true, options: [{ codeId: 'Y', codeName: 'Y' }, { codeId: 'N', codeName: 'N' }] },
-    { fieldName: 'slCtrAmt', header: t('MSG_TXT_CTR_AMT'), width: '100', styleName: 'text-right', editable: true },
-    { fieldName: 'slCtrWoExmpAmt', header: t('MSG_TXT_FULL_EXMP_AMT'), width: '100', styleName: 'text-right', editable: true },
-    { fieldName: 'slCtrPtrmExmpAmt', header: t('MSG_TXT_INQR_PTRM_EXMP_AMT'), width: '140', styleName: 'text-right', editable: true },
+    { fieldName: 'slCtrAmt', header: t('MSG_TXT_CTR_AMT'), width: '100', styleName: 'text-right', numberFormat: '#,##0', editable: true },
+    { fieldName: 'slCtrWoExmpAmt', header: t('MSG_TXT_FULL_EXMP_AMT'), width: '100', styleName: 'text-right', numberFormat: '#,##0', editable: true },
+    { fieldName: 'slCtrPtrmExmpAmt', header: t('MSG_TXT_INQR_PTRM_EXMP_AMT'), width: '140', styleName: 'text-right', numberFormat: '#,##0', editable: true },
     {
       fieldName: 'slCtrRmkCn',
       header: {

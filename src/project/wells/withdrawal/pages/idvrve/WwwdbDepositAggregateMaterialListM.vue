@@ -137,7 +137,7 @@ const totalParams = {
 async function fetchData() {
   cachedParams = { ...cachedParams, ...pageInfo };
   const res = await dataService.get(`${apiUrl}/paging`, { params: cachedParams });
-  const res2 = await dataService.get(`${apiUrl}/total`, { params: searchParams });
+  const res2 = await dataService.get(`${apiUrl}/total`, { params: cachedParams });
   const { list: pages, pageInfo: pagingResult } = res.data;
   totalParams.value = res2.data;
   pageInfo.value = pagingResult;
@@ -171,6 +171,14 @@ async function onClickExcelDownload() {
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
 /* 조회용 가데이터 2023.02 */
+/**
+ * TODO: 입금유형에 따라 판매유형에 입금금액을 분류하여 집계하는 화면입니다.
+ *
+ * 조회조건
+ * 업무구분 - 입금 : 입금일자 // 실적 : 수납일자 기준
+ * 기준년월 - 입금/수납일자 기준적용
+ *
+ */
 
 const initGrid = defineGrid((data, view) => {
   const fields = [
