@@ -436,11 +436,11 @@ async function searchTemplateFile(data) {
   let fileName;
 
   if (data === '30') {
-    fileName = 'FOM_WDA_00001';
+    fileName = 'FOM_WDA_00011'; // 웰스 399
   } else if (data === '41') {
-    fileName = 'FOM_WDA_00002';
+    fileName = 'FOM_WDA_00012'; // 포인트 플러스
   } else {
-    fileName = 'FOM_WDA_00003';
+    fileName = 'FOM_WDA_00013'; // 플래너 상조
   }
   return fileName;
 }
