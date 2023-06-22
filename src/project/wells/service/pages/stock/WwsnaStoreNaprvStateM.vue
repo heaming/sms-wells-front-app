@@ -202,13 +202,13 @@ const initGrid = defineGrid((data, view) => {
 
   // dbclick row
   view.onCellDblClicked = async (grid, clickData) => {
-    if (isEmpty(grid.getValue(clickData.dataRow('strWareNo'))) || isEmpty(grid.getValue(clickData.dataRow('itmPdCd')))) {
+    if (isEmpty(grid.getValue(clickData.itemIndex, 'strWareNo')) || isEmpty(grid.getValue(clickData.itemIndex, 'itmPdCd'))) {
       return;
     }
 
     const { result } = await modal({
       component: 'WwsnaStoreNaprvStateDtlP',
-      componentProps: { strWareNo: grid.getValue(clickData.dataRow, 'strWareNo'), itmPdCd: grid.getValue(clickData.dataRow, 'itmPdCd') },
+      componentProps: { strWareNo: grid.getValue(clickData.itemIndex, 'strWareNo'), itmPdCd: grid.getValue(clickData.itemIndex, 'itmPdCd') },
     });
 
     if (result) await fetchData();

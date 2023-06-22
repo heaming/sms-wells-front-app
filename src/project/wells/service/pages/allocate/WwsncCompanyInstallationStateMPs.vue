@@ -19,13 +19,6 @@
     @search="onClickSearch"
   >
     <kw-search-row>
-      <!-- <kw-search-item
-        label="관리년월"
-      >
-        <kw-date-picker
-          type="month"
-        />
-      </kw-search-item> -->
       <kw-search-item
         :label="t('MSG_TXT_MGT_TYP')"
       >
