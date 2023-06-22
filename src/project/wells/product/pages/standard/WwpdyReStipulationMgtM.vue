@@ -227,7 +227,9 @@ async function checkDuplicationByPk() {
   let dupPdNm = '';
   // #1. 신규 입력항목들 사이에 중복값 체크.
   const view = grdMainRef.value.getView();
-  const createdRows = gridUtil.getCreatedRowValues(view);
+  // const createdRows = gridUtil.getCreatedRowValues(view);
+  const createdRows = gridUtil.getChangedRowValues(view);
+
   if (createdRows.length === 0) return await false;
 
   for (let i = 0; i < createdRows.length; i += 1) {
