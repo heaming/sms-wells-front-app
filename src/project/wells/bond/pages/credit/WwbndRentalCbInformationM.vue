@@ -453,12 +453,12 @@ const initContractMain = defineGrid((data, view) => {
 
   const columns = [
     { fieldName: 'baseNm', header: t('MSG_TXT_BASE_PITM'), width: '100', styleName: 'text-center' },
-    { fieldName: 'crtlTot1', header: t('MSG_TXT_CURRENT'), width: '100', styleName: 'text-right' },
-    { fieldName: 'crtlTot2', header: t('MSG_TXT_3MON_BF'), width: '100', styleName: 'text-right' },
-    { fieldName: 'crtlTot3', header: t('MSG_TXT_6MON_BF'), width: '100', styleName: 'text-right' },
-    { fieldName: 'crtlTot4', header: t('MSG_TXT_1YEAR_BF'), width: '100', styleName: 'text-right' },
-    { fieldName: 'crtlTot5', header: t('MSG_TXT_2YEAR_BF'), width: '100', styleName: 'text-right' },
-    { fieldName: 'crtlTot6', header: t('MSG_TXT_3YEAR_BF'), width: '100', styleName: 'text-right' },
+    { fieldName: 'crtlTot1', header: t('MSG_TXT_CURRENT'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'crtlTot2', header: t('MSG_TXT_3MON_BF'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'crtlTot3', header: t('MSG_TXT_6MON_BF'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'crtlTot4', header: t('MSG_TXT_1YEAR_BF'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'crtlTot5', header: t('MSG_TXT_2YEAR_BF'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'crtlTot6', header: t('MSG_TXT_3YEAR_BF'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
   ];
 
   data.setFields(fields);
@@ -479,12 +479,12 @@ const initPaymentMain = defineGrid((data, view) => {
 
   const columns = [
     { fieldName: 'baseNm', header: t('MSG_TXT_BTE_PS'), width: '100', styleName: 'text-center' },
-    { fieldName: 'crtlTot1', header: t('MSG_TXT_RECENT_10DAY'), width: '100', styleName: 'text-right' },
-    { fieldName: 'crtlTot2', header: t('MSG_TXT_RECENT_30DAY'), width: '100', styleName: 'text-right' },
-    { fieldName: 'crtlTot3', header: t('MSG_TXT_RECENT_60DAY'), width: '100', styleName: 'text-right' },
-    { fieldName: 'crtlTot4', header: t('MSG_TXT_RECENT_90DAY'), width: '100', styleName: 'text-right' },
-    { fieldName: 'crtlTot5', header: t('MSG_TXT_RECENT_183DAY'), width: '100', styleName: 'text-right' },
-    { fieldName: 'crtlTot6', header: t('MSG_TXT_RECENT_365DAY'), width: '100.', styleName: 'text-right' },
+    { fieldName: 'crtlTot1', header: t('MSG_TXT_RECENT_10DAY'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'crtlTot2', header: t('MSG_TXT_RECENT_30DAY'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'crtlTot3', header: t('MSG_TXT_RECENT_60DAY'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'crtlTot4', header: t('MSG_TXT_RECENT_90DAY'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'crtlTot5', header: t('MSG_TXT_RECENT_183DAY'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'crtlTot6', header: t('MSG_TXT_RECENT_365DAY'), width: '100.', styleName: 'text-right', numberFormat: '#,##0' },
   ];
 
   data.setFields(fields);
@@ -505,12 +505,12 @@ const initRecentContractMain = defineGrid((data, view) => {
 
   const columns = [
     { fieldName: 'baseNm', header: t('MSG_TXT_BTE_PS'), width: '100', styleName: 'text-center' },
-    { fieldName: 'crtlTot1', header: t('MSG_TXT_CURRENT'), width: '100', styleName: 'text-right' },
-    { fieldName: 'crtlTot2', header: t('MSG_TXT_3MON_BF'), width: '100', styleName: 'text-right' },
-    { fieldName: 'crtlTot3', header: t('MSG_TXT_6MON_BF'), width: '100', styleName: 'text-right' },
-    { fieldName: 'crtlTot4', header: t('MSG_TXT_1YEAR_BF'), width: '100', styleName: 'text-right' },
-    { fieldName: 'crtlTot5', header: t('MSG_TXT_2YEAR_BF'), width: '100', styleName: 'text-right' },
-    { fieldName: 'crtlTot6', header: t('MSG_TXT_3YEAR_BF'), width: '100', styleName: 'text-right' },
+    { fieldName: 'crtlTot1', header: t('MSG_TXT_CURRENT'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'crtlTot2', header: t('MSG_TXT_3MON_BF'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'crtlTot3', header: t('MSG_TXT_6MON_BF'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'crtlTot4', header: t('MSG_TXT_1YEAR_BF'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'crtlTot5', header: t('MSG_TXT_2YEAR_BF'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'crtlTot6', header: t('MSG_TXT_3YEAR_BF'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
   ];
 
   data.setFields(fields);
@@ -539,12 +539,12 @@ const initEtcMain = defineGrid((data, view) => {
       width: '140',
       styleName: 'text-center' },
     { fieldName: 'ptrmPs', header: t('MSG_TXT_BTE_PS'), width: '100', styleName: 'text-center' },
-    { fieldName: 'crtlTot1', header: t('MSG_TXT_RECENT_10DAY'), width: '100', styleName: 'text-right' },
-    { fieldName: 'crtlTot2', header: t('MSG_TXT_RECENT_30DAY'), width: '100', styleName: 'text-right' },
-    { fieldName: 'crtlTot3', header: t('MSG_TXT_RECENT_60DAY'), width: '100 ', styleName: 'text-right' },
-    { fieldName: 'crtlTot4', header: t('MSG_TXT_RECENT_90DAY'), width: '100', styleName: 'text-right' },
-    { fieldName: 'crtlTot5', header: t('MSG_TXT_RECENT_183DAY'), width: '100', styleName: 'text-right' },
-    { fieldName: 'crtlTot6', header: t('MSG_TXT_RECENT_365DAY'), width: '100', styleName: 'text-right' },
+    { fieldName: 'crtlTot1', header: t('MSG_TXT_RECENT_10DAY'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'crtlTot2', header: t('MSG_TXT_RECENT_30DAY'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'crtlTot3', header: t('MSG_TXT_RECENT_60DAY'), width: '100 ', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'crtlTot4', header: t('MSG_TXT_RECENT_90DAY'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'crtlTot5', header: t('MSG_TXT_RECENT_183DAY'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'crtlTot6', header: t('MSG_TXT_RECENT_365DAY'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
   ];
 
   data.setFields(fields);
@@ -569,8 +569,8 @@ const initDelinquentMain = defineGrid((data, view) => {
     { fieldName: 'crtlTot2', header: t('MSG_TXT_OC_BUR_NM'), width: '200', styleName: 'text-center' },
     { fieldName: 'crtlTot3', header: t('MSG_TXT_OC_D'), width: '200', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'crtlTot4', header: t('MSG_TXT_RGST_DT'), width: '200', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'crtlTot5', header: t('MSG_TXT_DLQ_AMT'), width: '200', styleName: 'text-right' },
-    { fieldName: 'crtlTot6', header: t('MSG_TXT_BLAM'), width: '200', styleName: 'text-right' },
+    { fieldName: 'crtlTot5', header: t('MSG_TXT_DLQ_AMT'), width: '200', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'crtlTot6', header: t('MSG_TXT_BLAM'), width: '200', styleName: 'text-right', numberFormat: '#,##0' },
   ];
 
   data.setFields(fields);
