@@ -277,7 +277,9 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'ostrOjWareNm' },
     { fieldName: 'strOjWareNo' },
     { fieldName: 'ostrAkSn' },
-    { fieldName: 'itmPdCd' }];
+    { fieldName: 'itmPdCd' },
+    { fieldName: 'itmOstrNo' },
+  ];
 
   data.setFields(fields);
   view.setColumns(columns);
@@ -288,6 +290,7 @@ const initGrdMain = defineGrid((data, view) => {
     const {
       ostrAkNo,
       ostrAkSn,
+      itmOstrNo,
     } = gridUtil.getRowValue(g, dataRow);
     console.log(g, column, dataRow, v);
 
@@ -297,7 +300,8 @@ const initGrdMain = defineGrid((data, view) => {
         componentProps: {
           ostrAkNo,
           ostrAkSn,
-          page: '정상출고관리',
+          itmOstrNo,
+          page: 'WwsnaNormalOutOfStorageMgtM',
         },
       });
 
