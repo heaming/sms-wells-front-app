@@ -3,13 +3,13 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : SNC
-2. 프로그램 ID : WwsncCompanyInstallationStateAllM(회사설치(8888코드)현황(전체))
+2. 프로그램 ID : WwsncCompanyInstallationStateAllM(회사설치 현황(전체))
 3. 작성자 : heymi.cho
 4. 작성일 : 2023.05.22
 ****************************************************************************************************
 * 프로그램 설명
 ****************************************************************************************************
-- 회사설치 (8888코드) 현황 (전체) (http://localhost:3000/#/service/wwsnc-company-installation-state)
+- 회사설치 현황 (전체) (http://localhost:3000/#/service/wwsnc-company-installation-state)
 ****************************************************************************************************
 --->
 
@@ -49,7 +49,8 @@
         icon="download_on"
         dense
         secondary
-        label="엑셀다운로드"
+        :label="t('MSG_BTN_EXCEL_DOWN')"
+        :disable="pageInfo.totalCount === 0"
         @click="onClickExcelDownload"
       />
     </kw-action-top>
@@ -77,12 +78,16 @@ import { defineGrid, getComponentType, gridUtil, useDataService, useMeta, codeUt
 import dayjs from 'dayjs';
 import { cloneDeep } from 'lodash-es';
 
-// const { t } = useI18n();
+const { t } = useI18n();
 const now = dayjs();
 const dataService = useDataService();
 const { getConfig } = useMeta();
 const gridAllRef = ref(getComponentType('KwGrid'));
 const { currentRoute } = useRouter();
+
+// -------------------------------------------------------------------------------------------------
+// Function & Event
+// -------------------------------------------------------------------------------------------------
 let cachedParams;
 
 /*
@@ -110,12 +115,8 @@ const pageInfo = ref({
 const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
   'COPN_DV_CD',
-  'REFRI',
+  'REFRI_DV_CD',
 );
-
-// -------------------------------------------------------------------------------------------------
-// Function & Event
-// -------------------------------------------------------------------------------------------------
 
 async function fetchData() {
   const res = await dataService.get('/sms/wells/service/company-ist-state/all/paging', { params: { ...cachedParams, ...pageInfo.value } });
