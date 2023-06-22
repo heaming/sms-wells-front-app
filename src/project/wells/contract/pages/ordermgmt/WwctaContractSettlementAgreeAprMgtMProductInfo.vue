@@ -32,7 +32,7 @@
       <kw-form-item label="최종결제금액">
         <p>{{ `${stringUtil.getNumberWithComma(product.fnlAmt || 0)}원` }}</p>
       </kw-form-item>
-      <kw-form-item label="계약번호">
+      <kw-form-item label="계약상세번호">
         <p>{{ `${product.cntrNo}${product.cntrSn ? '-' + product.cntrSn : ''}` }}</p>
       </kw-form-item>
     </kw-form>
