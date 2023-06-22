@@ -75,7 +75,6 @@
                 v-if="isCompleteLoad"
                 :label="$t('MSG_BTN_MOD')"
                 class="ml8"
-                primary
                 @click="onClickModify"
               />
             </div>
