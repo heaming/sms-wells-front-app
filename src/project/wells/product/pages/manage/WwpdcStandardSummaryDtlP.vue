@@ -105,7 +105,7 @@
         <!-- 통화명 -->
         <kw-form-item :label="$t('MSG_TXT_CUR_NAME')">
           <p>
-            {{ pdInfo.crncyDvCd }}
+            {{ getCodeNames(codes, pdInfo.crncyDvCd, 'CRNCY_DV_CD') }}
           </p>
         </kw-form-item>
       </kw-form-row>
@@ -184,6 +184,7 @@ const codes = await codeUtil.getMultiCodes(
   'SV_IST_PCSV_DV_CD',
   'BASE_PD_REL_DV_CD',
   'PD_PDCT_REL_DV_CD',
+  'CRNCY_DV_CD',
 );
 
 async function initGridRows() {

@@ -75,7 +75,7 @@
         <!-- 통화명 -->
         <kw-form-item :label="$t('MSG_TXT_CUR_NAME')">
           <p>
-            {{ pdInfo.crncyDvCd }}
+            {{ getCodeNames(codes, pdInfo.crncyDvCd, 'CRNCY_DV_CD') }}
           </p>
         </kw-form-item>
       </kw-form-row>
@@ -127,6 +127,7 @@ const codes = await codeUtil.getMultiCodes(
   'SELL_TP_CD',
   'STPL_PRD_CD',
   'RENTAL_DSC_DV_CD',
+  'CRNCY_DV_CD',
 );
 
 async function fetchData() {
@@ -210,13 +211,13 @@ async function initGrid(data, view) {
     // 판매유형
     { fieldName: 'baseSellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '90', styleName: 'text-center', options: codes.SELL_TP_CD },
     // LV.1(SVC명)
-    { fieldName: 'svPdNm', header: t('MSG_TXT_PD_FEE_LV1'), width: '180' },
+    { fieldName: 'svPdNm', header: t('MSG_TXT_PD_FEE_LV1'), width: '150' },
     // LV.2(약정주기)
-    { fieldName: 'stplPrdCd', header: t('MSG_TXT_PD_COM_PERI_LV2'), width: '110', styleName: 'text-center', options: codes.STPL_PRD_CD },
+    { fieldName: 'stplPrdCd', header: t('MSG_TXT_PD_COM_PERI_LV2'), width: '100', styleName: 'text-center', options: codes.STPL_PRD_CD },
     // (랜탈)할인구분
     { fieldName: 'rentalDscDvCd', header: t('MSG_TXT_PD_DC_CLASS'), width: '80', styleName: 'text-center', options: codes.RENTAL_DSC_DV_CD },
     // 최종가격
-    { fieldName: 'fnlVal', header: t('MSG_TXT_PD_FNL_PRC'), width: '80', styleName: 'text-right', numberFormat: '#,##0.##', dataType: 'number' },
+    { fieldName: 'fnlVal', header: t('MSG_TXT_PD_FNL_PRC'), width: '120', styleName: 'text-right', numberFormat: '#,##0.##', dataType: 'number' },
   ];
 
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
