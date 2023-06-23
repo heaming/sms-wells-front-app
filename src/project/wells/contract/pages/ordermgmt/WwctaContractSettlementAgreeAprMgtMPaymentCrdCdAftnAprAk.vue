@@ -37,10 +37,11 @@
         ref="frmRef"
         class="pt8 column gap-lg"
       >
-        <kw-date-picker
+        <kw-input
           v-model="approvalRequest.mpyBsdt"
           label="이체일자"
           rules="required"
+          disable
         />
         <kw-input
           v-model="approvalRequest.crcdnoEncr"
@@ -113,7 +114,7 @@ const stlmBas = computed(() => (props.stlm ?? {}));
 
 const approvalRequest = ref({
   stlmAmt: stlmBas.value.stlmAmt, /* TODO: 추후에 확인 필요 */
-  mpyBsdt: '', /* 납부기준일자 */
+  mpyBsdt: '21', /* 납부기준일자 TODO: 나중에 옵션 가져올것 */
   crcdnoEncr: '', /* 카드번호 */
   owrKnm: '', /* 카드주 */
   cardExpdtYm: '', /* 유효기한 */
