@@ -21,18 +21,18 @@
       <kw-search-row>
         <kw-search-item :label="$t('MSG_TXT_OG_LEVL')">
           <zwog-level-select
+            v-model:og-levl-dv-cd1="searchParams.ogLevlDvCd1"
             v-model:og-levl-dv-cd2="searchParams.ogLevlDvCd2"
-            v-model:og-levl-dv-cd3="searchParams.ogLevlDvCd3"
             :og-tp-cd="searchParams.ogTpCd"
             :base-ym="searchParams.baseYm"
-            :start-level="2"
-            :end-level="3"
+            :start-level="1"
+            :end-level="2"
           />
         </kw-search-item>
         <kw-search-item :label="t('MSG_TXT_WK_GRP')">
           <kw-select
             v-model="searchParams.wkGrpCd"
-            :options="codes.EGER_WK_GRP_CD"
+            :options="codes.WK_GRP_CD"
             :label="t('MSG_TXT_BZ_DV')"
             first-option="all"
           />
@@ -141,7 +141,7 @@ import ZwogLevelSelect from '~sms-common/organization/components/ZwogLevelSelect
 import ZwogPartnerSearch from '~sms-common/organization/components/ZwogPartnerSearch.vue';
 import { getPhoneNumber } from '~sms-common/organization/utils/ogUtil';
 import dayjs from 'dayjs';
-import { isEmpty, replace } from 'lodash-es';
+import { isEmpty } from 'lodash-es';
 
 const { t } = useI18n();
 const { notify } = useGlobal();
@@ -159,14 +159,14 @@ const pageInfo = ref({
 
 const codes = await codeUtil.getMultiCodes(
   'EGER_RSB_CD', // 직책
-  'EGER_WK_GRP_CD', // 작업그룹
+  'WK_GRP_CD', // 작업그룹
   'WKCR_CD', // 조
 );
 
 const searchParams = ref({
   ogTpCd: 'W06',
+  ogLevlDvCd1: undefined,
   ogLevlDvCd2: undefined,
-  ogLevlDvCd3: undefined,
   wkGrpCd: undefined,
   rsbDvCd: undefined,
   prtnrNo: undefined,
@@ -192,14 +192,8 @@ async function fetchData() {
 
   const view = grdMainRef.value.getView();
   const data = view.getDataSource();
-
   data.checkRowStates(false);
-  if (list.length > 0) {
-    list.forEach((obj) => {
-      obj.cralLocaraTno = `${replace(obj.cralLocaraTno, null, ' ')}-${replace(obj.mexnoEncr, null, ' ')}-${replace(obj.cralIdvTno, null, '')}`;
-    });
-    view.getDataSource().addRows(list);
-  }
+  view.getDataSource().addRows(list);
   data.checkRowStates(true);
 }
 
@@ -285,14 +279,17 @@ async function onClickAllSave() {
 async function onClickSave() {
   const view = grdMainRef.value.getView();
   if (await gridUtil.alertIfIsNotModified(view)) { return; }
-  if (!await gridUtil.validate(view)) { return; }
 
   const changeRows = gridUtil.getChangedRowValues(view);
+
+  if (changeRows > 0) {
+    if (!await gridUtil.validate(view)) { return; }
+  }
 
   // eslint-disable-next-line no-restricted-syntax
   for (const item of changeRows) {
     if (isEmpty(item.vlStrtDt) || isEmpty(item.vlEnddt)) {
-      notify(t('MSG_ALT_CHK_REQ_DT'));
+      notify(t('MSG_TXT_APY_DT_CONF'));
       return;
     }
     /* 임시주석
@@ -330,7 +327,7 @@ watch(() => saveParams.value.chk, async (newVal) => {
     dataSource.checkRowStates(false);
     view.getDataSource().setRows(changeRows);
     view.checkAll(true);
-    dataSource.checkRowStates(false);
+    dataSource.checkRowStates(true);
   } else {
     await onClickSearch();
   }
@@ -351,7 +348,7 @@ const initGrdMain = defineGrid((data, view) => {
       width: '144',
       styleName: 'text-center',
       rules: 'required',
-      options: codes.EGER_WK_GRP_CD,
+      options: codes.WK_GRP_CD,
       editor: {
         type: 'dropdown',
       },
@@ -399,7 +396,7 @@ const initGrdMain = defineGrid((data, view) => {
       width: '156',
       styleName: 'text-center',
       editor: {
-        maxLength: 14,
+        type: 'telephone',
       },
     },
     { fieldName: 'mexnoEncr', visible: false },
@@ -416,9 +413,10 @@ const initGrdMain = defineGrid((data, view) => {
   view.editOptions.editable = true;
 
   view.onCellEditable = (grid, index) => {
-    if (!gridUtil.isCreatedRow(grid, index.dataRow) && ['dgr1LevlOgNm', 'dgr2LevlOgNm', 'prtnrNo', 'prtnrKnm', 'egerRsbCd', 'cntrDt'].includes(index.column)) {
-      return false;
+    if (['wkGrpCd', 'wkcrCd', 'vlStrtDt', 'vlEnddt', 'cralLocaraTno'].includes(index.column)) {
+      return true;
     }
+    return false;
   };
 
   view.onScrollToBottom = async (g) => {
@@ -434,16 +432,17 @@ const initGrdMain = defineGrid((data, view) => {
     }
   };
 
-  view.onValidate = async (g, index) => {
-    const { cralLocaraTno } = g.getValues(index.dataRow);
-    if (cralLocaraTno.replaceAll('-', '').length > 0) {
-      if (cralLocaraTno.replaceAll('-', '').length !== 11) {
-        const vw = grdMainRef.value.getView();
-        gridUtil.focusCellInput(vw, index.dataRow, 'cralLocaraTno');
-        return t('MSG_ALT_TEL_NO_IN');
-      }
-    }
-  };
+  // view.onValidate = async (g, index) => {
+  //   const { cralLocaraTno } = g.getValues(index.dataRow);
+  //   if (cralLocaraTno.replaceAll('-', '').length > 0) {
+  //     if (cralLocaraTno.replaceAll('-', '').length !== 11) {
+  //       // const dataView = grdMainRef.value.getView();
+  //       gridUtil.focusCellInput(view, index.dataRow, 'cralLocaraTno');
+  //       view.setFoucs();
+  //       return t('MSG_ALT_TEL_NO_IN');
+  //     }
+  //   }
+  // };
 });
 
 </script>
