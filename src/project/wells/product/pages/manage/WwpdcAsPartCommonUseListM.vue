@@ -93,6 +93,7 @@
             @click-icon="onClickProduct()"
           />
         </kw-search-item>
+        <!-- 자재코드 -->
         <kw-search-item :label="$t('MSG_TXT_MATI_CD')">
           <kw-input
             v-model.trim="searchParams.sapMatCd"
@@ -243,7 +244,7 @@ async function onClickSapMaterial() {
   const { result, payload } = await modal({
     component: 'ZwpdcMaterialsCodeListP',
     componentProps: {
-      searchType: 'sapMatCd',
+      searchType: pdConst.PD_SEARCH_PRODUCT,
       selectType: pdConst.PD_SEARCH_SINGLE,
       searchValue: searchParams.value.sapMatCd,
     },
