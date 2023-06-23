@@ -15,6 +15,7 @@
 --->
 <template>
   <kw-search
+    ref="frmMainRef"
     :cols="4"
     @search="onClickSearch"
   >
@@ -212,6 +213,7 @@
           dense
           type="radio"
           :options="selectCodes.WELLS_CST_LIST_DV"
+          @change="onChangeDv"
         />
       </li>
     </ul>
@@ -277,10 +279,13 @@ const searchParams = ref({
   schOjBlamEnd: '',
   schCstDv: '',
   schCpsnRsgYn: '',
-  schDv: '',
+  schDv: '99',
   schCstNoYn: 'N',
+  dv1: '',
+  dv2: '',
 });
 
+const frmMainRef = ref(getComponentType('KwForm'));
 const customerParams = ref({});
 const totalCount = ref(0);
 
@@ -425,6 +430,23 @@ async function onClickSearch() {
 
   cachedParams = cloneDeep(searchParams.value);
   await fetchCustomers();
+}
+
+// TODO: 구분 라디오 선택
+async function onChangeDv() {
+  if (searchParams.value.schClctamNo === '') {
+    searchParams.value.dv1 = searchParams.value.schDv;
+    if (searchParams.value.dv1 !== searchParams.value.dv2) {
+      if (!await frmMainRef.value.validate()) {
+        searchParams.value.schDv = '99';
+        searchParams.value.dv2 = '99';
+      } else {
+        await onClickSearch();
+      }
+    }
+  } else {
+    await onClickSearch();
+  }
 }
 
 async function fetchBaseYmData() {
