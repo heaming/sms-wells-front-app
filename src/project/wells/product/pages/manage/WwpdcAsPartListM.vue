@@ -272,7 +272,7 @@ async function onClickSearch() {
 }
 
 async function onClickExcelUpload() {
-  notify('기능 확인 중... TBD');
+  // notify('기능 확인 중... TBD');
   file.value = null;
   attachFileRef.value.reset();
   attachFileRef.value.pickFiles();
