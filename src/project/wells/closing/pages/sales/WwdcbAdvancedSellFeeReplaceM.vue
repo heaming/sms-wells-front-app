@@ -101,6 +101,9 @@
           <kw-checkbox
             v-model="searchParams.feeChk"
             :label="$t('MSG_TXT_DTL')"
+            :false-value="'N'"
+            :true-value="'Y'"
+            @update:model-value="onClickChkboxDetail"
           />
           <kw-separator
             v-if="searchParams.feeChk === 'Y'"
@@ -145,7 +148,7 @@
         <kw-btn
           primary
           dense
-          :label="$t('MSG_TXT_SLP_CRE')"
+          :label="$t('MSG_BTN_CNTN_CREATE')"
           :disable="totalCount === 0 || searchParams.baseYm !== lastMonth"
           @click="onClickSlipCreate"
         />
@@ -320,14 +323,18 @@ async function onClickSlipCreate() {
   });
 }
 
-watch(() => searchParams.value.feeChk, async (val) => {
+async function onClickChkboxDetail() {
+  const val = searchParams.value.feeChk;
   searchParams.value.feeCd = 'ALL';
+  if (searchParams.value.searchGubun !== '2') return;
+
+  const view = grdMainRef.value.getView();
   if (val === 'Y') {
-    // TODO: 수수료체크시 grid 수수료구분 visible false 처리
+    view.columnByName('feeNm').visible = true;
   } else {
-    // TODO: 수수료 미체크시 grid 수수료구분 visible 처리
+    view.columnByName('feeNm').visible = false;
   }
-}, { immediate: true });
+}
 
 watch(() => searchParams.value.searchGubun, async (val) => {
   if (val === '3') {
@@ -445,7 +452,7 @@ const initGridDtl = defineGrid((data, view) => {
     { fieldName: 'cntrPdEnddt', header: t('MSG_TXT_CNTR_PD_ENDDT'), width: '120', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'csRplcYm', header: t('MSG_TXT_CS_RPLC_YM'), width: '120', styleName: 'text-center' },
     { fieldName: 'csRplcAmt', header: t('MSG_TXT_CS_RPLC_AMT'), width: '120', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'feeNm', header: t('MSG_TXT_FEE_DV'), width: '120', styleName: 'text-center' },
+    { fieldName: 'feeNm', header: t('MSG_TXT_FEE_DV'), width: '120', styleName: 'text-center', visible: false },
     { fieldName: 'dpSlipTrsNo', header: t('MSG_TXT_DP_SLIP_TRS_NO'), width: '120', styleName: 'text-center' },
     { fieldName: 'sapSlpno', header: t('MSG_TXT_FEE_SLPNO'), width: '120', styleName: 'text-center' },
     { fieldName: 'ttrmCsAmt', header: t('MSG_TXT_TTRM_CS_AMT'), width: '120', styleName: 'text-right', numberFormat: '#,##0' },
