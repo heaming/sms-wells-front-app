@@ -37,10 +37,11 @@
         ref="frmRef"
         class="pt8 column gap-lg"
       >
-        <kw-date-picker
+        <kw-input
           v-model="approvalRequest.mpyBsdt"
           label="이체일자"
           rules="required"
+          disable
         />
         <kw-select
           v-model="approvalRequest.bnkCd"
@@ -129,7 +130,7 @@ await fetchBanks();
 
 const approvalRequest = ref({
   stlmAmt: stlmBas.value.stlmAmt, /* TODO: 추후에 확인 필요 */
-  mpyBsdt: '', /* 납부기준일자 */
+  mpyBsdt: '21', /* 납부기준일자 */
   acnoEncr: '', /* 계좌번호 */
   owrKnm: '', /* 소유자 한글명 */
 });
