@@ -148,7 +148,7 @@
         <kw-btn
           primary
           dense
-          :label="$t('MSG_TXT_SLP_CRE')"
+          :label="$t('MSG_BTN_CNTN_CREATE')"
           :disable="totalCount === 0 || searchParams.baseYm !== lastMonth"
           @click="onClickSlipCreate"
         />
