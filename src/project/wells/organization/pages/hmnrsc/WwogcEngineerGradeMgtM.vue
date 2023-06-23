@@ -27,17 +27,17 @@
         </kw-search-item>
         <kw-search-item :label="$t('MSG_TXT_OG_LEVL')">
           <zwog-level-select
+            v-model:og-levl-dv-cd1="searchParams.ogLevlDvCd1"
             v-model:og-levl-dv-cd2="searchParams.ogLevlDvCd2"
-            v-model:og-levl-dv-cd3="searchParams.ogLevlDvCd3"
             :og-tp-cd="searchParams.ogTpCd"
             :base-ym="searchParams.baseYm"
-            :start-level="2"
-            :end-level="3"
+            :start-level="1"
+            :end-level="2"
           />
         </kw-search-item>
         <kw-search-item :label="t('MSG_TXT_ROLE_1')">
           <kw-select
-            v-model="searchParams.egerEvlGdCd"
+            v-model="searchParams.prtnrGdCd"
             :options="codes.EGER_EVL_GD_CD"
             first-option="all"
           />
@@ -126,13 +126,14 @@ const codes = await codeUtil.getMultiCodes(
   'OG_TP_CD',
   'EGER_EVL_GD_CD',
   'ROL_DV_CD',
+  'RSB_DV_CD',
 );
 
 const searchParams = ref({
   ogTpCd: 'W06',
+  ogLevlDvCd1: undefined,
   ogLevlDvCd2: undefined,
-  ogLevlDvCd3: undefined,
-  egerEvlGdCd: undefined,
+  prtnrGdCd: undefined,
   searchYm: dayjs().format('YYYYMM'),
   baseYm: dayjs().format('YYYYMM'),
   chk: 'N',
@@ -148,13 +149,7 @@ async function fetchData() {
   pageInfo.value = pagingResult;
 
   const view = grdMainRef.value.getView();
-  const data = view.getDataSource();
-
-  data.checkRowStates(false);
-  if (list.length > 0) {
-    view.getDataSource().addRows(list);
-  }
-  data.checkRowStates(true);
+  view.getDataSource().addRows(list);
 }
 
 // 조회
@@ -224,16 +219,12 @@ async function onClickExcelUpload() {
 const initGrdMain = defineGrid((data, view) => {
   const columns = [
 
-    { fieldName: 'dgr2LevlOgNm', header: t('MSG_TXT_BLG'), width: '152', styleName: 'text-center' },
+    { fieldName: 'dgr1LevlOgNm', header: t('MSG_TXT_BLG'), width: '152', styleName: 'text-center' },
     { fieldName: 'prtnrNo', header: t('MSG_TXT_EPNO'), width: '110', styleName: 'text-center' },
     { fieldName: 'prtnrKnm',
       header: t('MSG_TXT_EMPL_NM'),
       width: '166',
       styleName: 'text-center',
-      displayCallback(grid, index) {
-        const values = grid.getValues(index.itemIndex);
-        return `${values.prtnrKnm}(${values.prtnrNo})`;
-      },
     },
     { fieldName: 'rolDvCd', header: t('MSG_TXT_RSB'), width: '106', styleName: 'text-center', options: codes.ROL_DV_CD },
     { fieldName: 'egerEvlGdCd', header: t('MSG_TXT_ROLE_1'), width: '106', styleName: 'text-center', options: codes.EGER_EVL_GD_CD },
@@ -281,9 +272,10 @@ const initGrdMain = defineGrid((data, view) => {
   view.editOptions.editable = true;
 
   view.onCellEditable = (grid, index) => {
-    if (!gridUtil.isCreatedRow(grid, index.dataRow) && ['dgr2LevlOgNm', 'prtnrNo', 'prtnrKnm', 'rolDvCd', 'egerEvlGdCd', 'cntrDt'].includes(index.column)) {
-      return false;
+    if (['prtnrGdCd', 'apyStrtDt', 'apyEnddt', 'rmkCn'].includes(index.column)) {
+      return true;
     }
+    return false;
   };
 
   view.onScrollToBottom = async (g) => {
