@@ -133,22 +133,20 @@
           </kw-form-row>
           <kw-form-row>
             <!-- 비고 -->
-            <kw-form-item :label="$t('MSG_TXT_NOTE')">
-              <slot v-if="currentJobType === 'ASGN'">
-                <kw-form-item :label="$t('MSG_TXT_NOTE')">
-                  <kw-input
-                    v-model="assignInfo.cnslMoCn"
-                    type="textarea"
-                    :rows="3"
-                    counter
-                    maxlength="200"
-                  />
-                </kw-form-item>
-              </slot>
-              <slot v-else>
-                <p>{{ assignInfo.cnslMoCn }}</p>
-              </slot>
-            </kw-form-item>
+            <slot v-if="currentJobType === 'ASGN'">
+              <kw-form-item :label="$t('MSG_TXT_NOTE')">
+                <kw-input
+                  v-model="assignInfo.cnslMoCn"
+                  type="textarea"
+                  :rows="3"
+                  counter
+                  maxlength="200"
+                />
+              </kw-form-item>
+            </slot>
+            <slot v-else>
+              <p>{{ assignInfo.cnslMoCn }}</p>
+            </slot>
           </kw-form-row>
         </kw-form>
 
@@ -287,6 +285,7 @@ async function onClickSave() {
   assignInfo.value.pspcCstCnslIds = [currentPspcCstCnslId.value];
 
   await dataService.put(`${baseUrl}/contact`, assignInfo.value);
+  notify('저장을 완료하였습니다');
 
   await router.close(0, true);
   const targetPage = currentJobType.value === 'RECV' ? '/customer/wwcsb-new-receipt-mgt' : '/customer/wwcsb-new-receipt-mgt';

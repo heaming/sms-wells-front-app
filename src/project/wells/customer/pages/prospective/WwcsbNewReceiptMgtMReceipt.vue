@@ -72,11 +72,6 @@
         :label="$t('MSG_BTN_EXCEL_DOWN')"
         @click="onClickExcelDownload"
       />
-      <kw-separator
-        vertical
-        inset
-        spaced
-      />
     </kw-action-top>
     <kw-grid
       ref="grdReceiptRef"
