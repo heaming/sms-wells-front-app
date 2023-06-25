@@ -149,7 +149,7 @@
           />
           <!-- 빌딩코드 -->
           <kw-input
-            v-model="warehouseInfo.bldCd"
+            v-model="warehouseInfo.bldCdNm"
             :label="$t('MSG_TXT_DSN_ADR')"
             readonly
             :placeholder="$t('MSG_TXT_SELT')"
@@ -222,7 +222,7 @@ import dayjs from 'dayjs';
 import { isEmpty } from 'lodash-es';
 
 const { t } = useI18n();
-const { alert, modal, notify } = useGlobal();
+const { modal, notify } = useGlobal();
 const { ok, cancel: onClickCancel } = useModal();
 const dataService = useDataService();
 
@@ -260,6 +260,7 @@ const initialWarehouseInfo = {
   wareNm: '', // 창고명
   bldNm: '', // 빌딩명
   bldCd: '', // 빌딩코드
+  bldCdNm: '', // 빌딩명(빌딩코드)
   ogTpCd: '', // 조직유형코드
   hgrWareNo: '', // 상위창고번호
   hgrWareNm: '', // 상위창고명
@@ -280,6 +281,8 @@ const initialWarehouseInfo = {
   dgr2LevlOgCd: '', // 2차레벨조직코드
   dgr2LevlOgNm: '', // 2차레벨조직명
   dgr2LevlOgCdNm: '', // 2차레벨조직코드 + 조직명
+  dgr1LevlOgId: '', // 1차레벨조직ID
+  dgr2LevlOgId: '', // 2차레벨조직ID
 };
 
 const warehouseInfo = ref(initialWarehouseInfo);
@@ -391,6 +394,8 @@ async function onClickOpenHumanResourcesPopup() {
     warehouseInfo.value.dgr1LevlOgNm = payload[0].dgr1LevlOgNm;
     warehouseInfo.value.dgr2LevlOgCd = payload[0].dgr2LevlOgCd;
     warehouseInfo.value.dgr2LevlOgNm = payload[0].dgr2LevlOgNm;
+    warehouseInfo.value.dgr1LevlOgId = payload[0].dgr1LevlOgId;
+    warehouseInfo.value.dgr2LevlOgId = payload[0].dgr2LevlOgId;
     warehouseInfo.value.bldNm = payload[0].bldNm ?? '';
     warehouseInfo.value.wareNm = getWareNm(payload[0]);
     warehouseInfo.value.dgr1LevlOgCdNm = payload[0].dgr1LevlOgCd ? `[${payload[0].dgr1LevlOgCd}] ${payload[0].dgr1LevlOgNm}` : '-';
@@ -402,7 +407,23 @@ async function onClickOpenHumanResourcesPopup() {
 
 async function onClickOpenBuildingPopup() {
   // TODO: 빌딩정보조회 팝업 호출 (화면ID채번 필요)
-  await alert('개발중인 기능입니다.');
+  const { result: isChanged, payload } = await modal({
+    component: 'WsnaBuildingInformationListP',
+    componentProps: {
+      dgr1LevlOgId: warehouseInfo.value.dgr1LevlOgId,
+      dgr2LevlOgId: warehouseInfo.value.dgr2LevlOgId,
+    },
+  });
+
+  if (isChanged) {
+    warehouseInfo.value.bldCd = payload[0].bldCd;
+    warehouseInfo.value.bldCdNm = payload[0].bldCdNm;
+    warehouseInfo.value.wareAdrId = payload[0].adrId;
+    warehouseInfo.value.rnadr = payload[0].rnadr;
+    warehouseInfo.value.rdadr = payload[0].rdadr;
+    warehouseInfo.value.rdadr = payload[0].rdadr;
+    warehouseInfo.value.newAdrZip = payload[0].newAdrZip;
+  }
 }
 
 async function fetchData() {
