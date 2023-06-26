@@ -52,6 +52,7 @@
         :pd-tp-cd="pdConst.PD_TP_CD_COMPOSITION"
         :is-first-title="true"
         :is-reg-check-page="props.isRegCheckPage"
+        is-auto-group-title
       />
     </kw-tab-panel>
     <kw-tab-panel :name="pdConst.COMPOSITION_STEP_REL_PROD.name">
