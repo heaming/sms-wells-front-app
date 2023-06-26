@@ -168,6 +168,10 @@ const props = defineProps({
     type: String,
     default: '',
   },
+  wareDvCd: {
+    type: String,
+    default: '',
+  },
 });
 
 console.log(props);
