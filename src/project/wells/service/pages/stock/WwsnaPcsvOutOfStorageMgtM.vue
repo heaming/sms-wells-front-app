@@ -30,8 +30,8 @@
           <kw-select
             v-model="searchParams.pdCd"
             :options="products"
-            option-value="svpdPdCd"
-            option-label="svpdNmKor"
+            option-value="pdCd"
+            option-label="pdNm"
             first-option="select"
             first-option-value=""
             placeholder="선택"
@@ -185,6 +185,7 @@ const dataService = useDataService();
 const { notify } = useGlobal();
 const { t } = useI18n();
 const now = dayjs();
+const { currentRoute } = useRouter();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -302,7 +303,7 @@ async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
   const res = await dataService.get(`${baseUrl}/excel-download`, { params: cachedParams });
   await gridUtil.exportView(view, {
-    fileName: 'pcsvOutOfStorageMgt',
+    fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
     exportData: res.data,
   });
@@ -311,7 +312,7 @@ async function onClickExcelDownload2() {
   const view2 = grdMainRef2.value.getView();
   const res = await dataService.get(`${baseUrl}/excel-download`, { params: cachedParams });
   gridUtil.exportView(view2, {
-    fileName: 'pcsvInvoice',
+    fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
     exportData: res.data,
   });
@@ -327,10 +328,20 @@ async function onClickSave() {
   const view = grdMainRef.value.getView();
   const chkRows = gridUtil.getCheckedRowValues(view);
 
-  console.log(chkRows);
   if (chkRows.length === 0) {
     notify(t('MSG_ALT_NOT_SEL_ITEM'));
   } else if (await gridUtil.validate(view, { isCheckedOnly: true })) {
+    /* 저장시 출고확정 순번조회 */
+    const checkParams = { pdCd: chkRows[0].pdCd, svBizDclsfCd: chkRows[0].svBizDclsfCd };
+    const res = await dataService.get(`${baseUrl}/ivc-prntsn`, { params: checkParams });
+    const ivcPrntSn = res.data;
+    /* 저장시 상품 그룹 코드 및 출고확정 순번 설정 */
+    chkRows.forEach((obj) => {
+      obj.pdGrpCd = products.value?.find((item) => item.pdCd === obj.pdCd)?.pdGrpCd;
+      obj.ivcPrntSn = ivcPrntSn;
+    });
+    console.log(chkRows);
+
     const response = await dataService.post(`${baseUrl}`, chkRows);
     console.log(response);
     notify(t('MSG_ALT_SAVE_DATA'));
@@ -387,18 +398,19 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'asLctCd' },
     { fieldName: 'asPhnCd' },
     { fieldName: 'asCausCd' },
+    { fieldName: 'ogTpCd' },
   ];
 
   const columns = [
-    { fieldName: 'cntrRcpFshDtm', header: t('MSG_TXT_CNTR_DATE'), width: '100', styleName: 'text-center', dataType: 'date', datetimeFormat: 'yyyy-MM-dd' },
+    { fieldName: 'cntrRcpFshDtm', header: t('MSG_TXT_CNTR_DATE'), width: '100', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'svBizDclsfCd', header: t('MSG_TXT_TASK_TYPE_CD'), width: '90', styleName: 'text-center' },
     { fieldName: 'svBizDclsfNm', header: t('MSG_TXT_TASK_TYPE'), width: '80', styleName: 'text-center' },
     { fieldName: 'wkPrgsStatNm', header: t('MSG_TXT_WK_STS'), width: '80', styleName: 'text-center' },
-    { fieldName: 'vstFshDt', header: t('MSG_TXT_OSTR_CNFM_YM'), width: '100', styleName: 'text-center', dataType: 'date', datetimeFormat: 'YYYY-MM' },
+    { fieldName: 'vstFshDt', header: t('MSG_TXT_OSTR_CNFM_YM'), width: '100', styleName: 'text-center' },
     { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '130', styleName: 'text-center' },
     { fieldName: 'rcgvpKnm', header: t('MSG_TXT_CST_NM'), width: '100', styleName: 'text-center' },
     { fieldName: 'basePdCd', header: t('MSG_TXT_ITM_CD'), width: '120', styleName: 'text-center' },
-    { fieldName: 'basePdNm', header: t('MSG_TXT_ITM_NM'), width: '120', styleName: 'text-center' },
+    { fieldName: 'basePdNm', header: t('MSG_TXT_ITM_NM'), width: '120', styleName: 'text-left' },
     { fieldName: 'cralIdvTno',
       header: t('MSG_TXT_MPNO'),
       width: '100',
@@ -428,10 +440,10 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'rnadr', header: t('MSG_TXT_ADDR'), width: '350', styleName: 'text-center' },
     { fieldName: 'rdadr', header: t('MSG_TXT_ADDR_DTL'), width: '100', styleName: 'text-center' },
     { fieldName: 'pdCd', header: t('MSG_TXT_ITM_CD'), width: '100', styleName: 'text-center' },
-    { fieldName: 'pdNm', header: t('MSG_TXT_ITM_NM'), width: '100', styleName: 'text-center' },
-    { fieldName: 'useQty', header: t('MSG_TXT_ITM_NM'), width: '100', styleName: 'text-center' },
-    { fieldName: 'reqdDt', header: t('MSG_TXT_DEM_DT'), width: '100', styleName: 'text-center', dataType: 'date', datetimeFormat: 'yyyy-MM-dd' },
-    { fieldName: 'rsgFshDt', header: t('MSG_TXT_CANC_DT'), width: '100', styleName: 'text-center', dataType: 'date', datetimeFormat: 'yyyy-MM-dd' },
+    { fieldName: 'pdNm', header: t('MSG_TXT_ITM_NM'), width: '100', styleName: 'text-left' },
+    { fieldName: 'useQty', header: t('MSG_TXT_ITM_NM'), width: '100', styleName: 'text-right' },
+    { fieldName: 'reqdDt', header: t('MSG_TXT_DEM_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'rsgFshDt', header: t('MSG_TXT_CANC_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'cstSvAsnNo', header: t('MSG_TXT_ASGN_NO'), width: '100', styleName: 'text-center' },
   ];
   data.setFields(fields);
