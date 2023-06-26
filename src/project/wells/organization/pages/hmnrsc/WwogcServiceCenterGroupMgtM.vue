@@ -42,7 +42,7 @@
         >
           <kw-select
             v-model="searchParams.rsbDvCd"
-            :options="codes.EGER_RSB_CD"
+            :options="codes.RSB_DV_CD.filter((v)=> v.prtsCodeId === 'W06')"
             :label="t('MSG_TXT_BZ_DV')"
             first-option="all"
           />
@@ -158,7 +158,7 @@ const pageInfo = ref({
 });
 
 const codes = await codeUtil.getMultiCodes(
-  'EGER_RSB_CD', // 직책
+  'RSB_DV_CD', // 직책
   'WK_GRP_CD', // 작업그룹
   'WKCR_CD', // 조
 );
@@ -354,11 +354,11 @@ const initGrdMain = defineGrid((data, view) => {
       },
     },
     {
-      fieldName: 'egerRsbCd',
+      fieldName: 'rsbDvCd',
       header: t('MSG_TXT_RSB'),
       width: '110',
       styleName: 'text-center',
-      options: codes.EGER_RSB_CD,
+      options: codes.RSB_DV_CD,
       editor: {
         type: 'dropdown',
       } },
