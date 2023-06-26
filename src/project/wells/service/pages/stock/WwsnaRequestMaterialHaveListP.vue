@@ -278,14 +278,14 @@ onMounted(async () => {
 
 const initGrdMain = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'ogNm' },
+    { fieldName: 'wareNm' },
     { fieldName: 'wareNo' },
     { fieldName: 'qty' },
 
   ];
 
   const columns = [
-    { fieldName: 'ogNm', header: t('MSG_TXT_WARE_NM'), width: '30', styleName: 'text-left' },
+    { fieldName: 'wareNm', header: t('MSG_TXT_WARE_NM'), width: '30', styleName: 'text-left' },
     { fieldName: 'wareNo', header: t('MSG_TXT_WARE_CD'), width: '30', styleName: 'text-center' },
     { fieldName: 'qty', header: t('MSG_TXT_STOC'), width: '20', styleName: 'text-right' },
 
