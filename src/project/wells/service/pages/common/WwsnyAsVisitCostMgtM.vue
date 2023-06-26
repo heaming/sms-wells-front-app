@@ -98,7 +98,7 @@
             {{ $t('MSG_TXT_MAT_DV') }}
           </p>
           <kw-field
-            :model-value="[]"
+            v-model="searchParams.apyMtrChk"
           >
             <template #default="{ field }">
               <!-- TODO: 현재적용자재 -->
@@ -151,6 +151,7 @@ let cachedParams;
 const searchParams = ref({
   pdGrpCd: '',
   pdCd: '',
+  apyMtrChk: 'N',
 });
 const pageInfo = ref({
   totalCount: 0,
@@ -180,6 +181,7 @@ async function fetchData() {
 async function onClickSearch() {
   pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
+  console.log(searchParams.value);
   await fetchData();
 }
 

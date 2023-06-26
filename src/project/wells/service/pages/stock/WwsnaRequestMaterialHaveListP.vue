@@ -199,6 +199,7 @@ const searchParams = ref({
   strOjWareNm: props.strOjWareNm,
   strOjWareNo: props.strOjWareNo,
   ostrQty: props.ostrQty,
+  wareDvCd: props.wareDvCd,
   wareClsfCd: '11',
 
 });
