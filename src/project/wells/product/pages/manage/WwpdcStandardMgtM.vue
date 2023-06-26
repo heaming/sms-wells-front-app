@@ -90,6 +90,7 @@
               v-model:init-data="prevStepData"
               :pd-tp-cd="pdConst.PD_TP_CD_STANDARD"
               :pd-grp-dv-cd="pdConst.PD_PRP_GRP_DV_CD_MANUAL"
+              @open-popup="openPopup"
             />
           </kw-step-panel>
           <kw-step-panel :name="pdConst.STANDARD_STEP_PRICE.name">
@@ -194,7 +195,7 @@ const props = defineProps({
 const router = useRouter();
 const { t } = useI18n();
 const dataService = useDataService();
-const { notify, confirm } = useGlobal();
+const { modal, notify, confirm } = useGlobal();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -517,6 +518,23 @@ async function onUpdateBasicValue(field) {
   if (field.colNm === 'sellTpCd') {
     // 판매유형
     setSellDetailTypeCodes(field.initValue, true);
+  }
+}
+
+// 메타 속성 팝업 호출
+async function openPopup(field) {
+  // 매출인식분류코드
+  if (field.colNm === 'slRcogClsfCd') {
+    const rtn = await modal({
+      // ZwwdcSalesRecognitionBaseMgtP
+      component: field.sourcInfCn,
+      // componentProps: searchParams,
+    });
+    if (rtn && rtn.payload && rtn.result) {
+      // console.log('EwpdcStandardMgtM - openPopup : ', rtn);
+      field.initValue = rtn.payload.slRcogClsfCd;
+      field.initName = rtn.payload.slRcogClsfCd;
+    }
   }
 }
 

@@ -181,7 +181,7 @@ async function checkDuplication() {
   // if (view) return false;
   const changedRows = gridUtil.getChangedRowValues(view);
   const alreadyItems = getAlreadyItems(view, changedRows, 'vstDvCd', 'prdMmVal', 'chPdctPdCd');
-  if (alreadyItems.length > 1) {
+  if (alreadyItems.length > 0) {
     // {방문구분/월구분/계절필터명}이(가) 중복됩니다.
     let dupItem = alreadyItems[0].vstDvCd;
     if (alreadyItems[0].vstDvCd) {
@@ -267,6 +267,9 @@ const initGrid = defineGrid((data, view) => {
       styleName: 'text-center',
       rules: 'required',
       editor: { type: 'list' },
+      styleCallback(grid, dataCell) {
+        return { editable: dataCell.item.rowState === 'created' };
+      },
       options: codes.VST_DV_CD },
     // 월구분
     { fieldName: 'prdMmVal',
@@ -276,24 +279,37 @@ const initGrid = defineGrid((data, view) => {
       styleName: 'text-center',
       rules: 'required',
       editor: { type: 'list' },
+      styleCallback(grid, dataCell) {
+        return { editable: dataCell.item.rowState === 'created' };
+      },
       options: codes.MM_CD },
     // 계절필터코드
     { fieldName: 'chPdctPdCd',
       header: t('MSG_TXT_SE_FILTER_CD'),
       width: '120',
       rules: 'required',
-      styleName: 'text-left rg-button-icon--search',
       editor: { maxLength: 10 },
       button: 'action',
+      styleName: 'text-center rg-button-icon--search',
+      styleCallback(grid, dataCell) {
+        return dataCell.item.rowState === 'created'
+          ? { editable: true }
+          : { editable: false, styleName: 'text-center rg-button-hide' };
+      },
     },
     // 계절필터명
     { fieldName: 'chPdctPdNm',
       header: t('MSG_TXT_SE_FILTER_NM'),
       width: '120',
       rules: 'required',
-      styleName: 'text-left rg-button-icon--search',
       editor: { maxLength: 256 },
       button: 'action',
+      styleName: 'text-center rg-button-icon--search',
+      styleCallback(grid, dataCell) {
+        return dataCell.item.rowState === 'created'
+          ? { editable: true }
+          : { editable: false, styleName: 'text-center rg-button-hide' };
+      },
     },
     // 필터공용코드
     { fieldName: 'filtCmuCdv', header: t('MSG_TXT_FLTER_PUB_CD'), width: '140', styleName: 'text-center', editor: { maxLength: 10 } },
@@ -349,4 +365,8 @@ const initGrid = defineGrid((data, view) => {
   };
 });
 </script>
-<style scoped></style>
+<style>
+.rg-button-hide .rg-button-action {
+  display: none !important;
+}
+</style>

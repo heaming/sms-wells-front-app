@@ -15,6 +15,7 @@
 --->
 <template>
   <kw-search
+    ref="frmMainRef"
     :cols="4"
     @search="onClickSearch"
   >
@@ -24,7 +25,7 @@
         required
       >
         <kw-input
-          v-model="searchParams.schClctamPsic"
+          v-model="searchParams.schClctamNm"
           :label="$t('MSG_TXT_CLCTAM_PSIC')"
           clearable
           icon="search"
@@ -266,6 +267,7 @@
           dense
           type="radio"
           :options="selectCodes.WELLS_CNTR_LIST_DV"
+          @change="onChangeDv"
         />
       </li>
     </ul>
@@ -316,6 +318,7 @@ const grdMainRef = ref(getComponentType('KwGrid'));
 let cachedParams;
 const searchParams = ref({
   schClctamNo: '',
+  schClctamNm: '',
   schCstNm: '',
   schDlqMcntStrt: '',
   schDlqMcntEnd: '',
@@ -338,10 +341,13 @@ const searchParams = ref({
   schBilDv: '',
   schCstThmDp: '01',
   schAuthRsgYn: '',
-  schDv: '',
+  schDv: '99',
   schCstNoYn: 'N',
+  dv1: '',
+  dv2: '',
 });
 
+const frmMainRef = ref(getComponentType('KwForm'));
 const customerParams = ref({});
 const totalCount = ref(0);
 
@@ -391,11 +397,11 @@ const onClickClctamPsic = async () => {
   const { result, payload } = await modal({
     component: 'ZwbnyCollectorListP',
     componentProps: {
-      clctamPrtnrNm: searchParams.value.schClctamPsic,
+      clctamPrtnrNm: searchParams.value.schClctamNm,
     },
   });
   if (result) {
-    searchParams.value.schClctamPsic = payload.prtnrKnm;
+    searchParams.value.schClctamNm = payload.prtnrKnm;
     searchParams.value.schClctamNo = payload.prtnrNo;
   }
 };
@@ -442,6 +448,23 @@ async function onClickSearch() {
 
   cachedParams = cloneDeep(searchParams.value);
   await fetchContracts();
+}
+
+// TODO: 구분 라디오 선택
+async function onChangeDv() {
+  if (searchParams.value.schClctamNm === '') {
+    searchParams.value.dv1 = searchParams.value.schDv;
+    if (searchParams.value.dv1 !== searchParams.value.dv2) {
+      if (!await frmMainRef.value.validate()) {
+        searchParams.value.schDv = '99';
+        searchParams.value.dv2 = '99';
+      } else {
+        await onClickSearch();
+      }
+    }
+  } else {
+    await onClickSearch();
+  }
 }
 
 async function fetchBaseYmData() {

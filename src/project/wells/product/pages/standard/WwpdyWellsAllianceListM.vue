@@ -260,7 +260,7 @@ async function checkDuplication() {
   const view = grdMainRef.value.getView();
   const changedRows = gridUtil.getChangedRowValues(view);
   const alreadyItems = getAlreadyItems(view, changedRows, 'pdCd', 'svPdCd', 'stplPrdCd');
-  if (alreadyItems.length > 1) {
+  if (alreadyItems.length > 0) {
     // {상품명/서비스명/약정개월}이(가) 중복됩니다.
     let dupItem = alreadyItems[0].pdNm;
     if (alreadyItems[0].svPdNm) {
@@ -273,15 +273,14 @@ async function checkDuplication() {
     return true;
   }
 
-  const createdRows = gridUtil.getCreatedRowValues(view);
-  if (createdRows.length === 0) {
+  if (changedRows.length === 0) {
     return false;
   }
 
-  const { data: dupData } = await dataService.post('/sms/wells/product/alliances/duplication-check', createdRows);
+  const { data: dupData } = await dataService.post('/sms/wells/product/alliances/duplication-check', changedRows);
   if (dupData.data) {
     const dupCodes = dupData.data.split(',', -1);
-    const { pdNm, svPdNm, stplPrdCd } = createdRows.find((item) => item.pdCd === dupCodes[0]
+    const { pdNm, svPdNm, stplPrdCd } = changedRows.find((item) => item.pdCd === dupCodes[0]
         && ((isEmpty(item.svPdCd) && isEmpty(dupCodes[1])) || item.svPdCd === dupCodes[1])
         && ((isEmpty(item.stplPrdCd) && isEmpty(dupCodes[2])) || item.stplPrdCd === dupCodes[2]));
     let dupItem = pdNm;

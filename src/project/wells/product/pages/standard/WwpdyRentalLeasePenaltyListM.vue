@@ -237,16 +237,16 @@ async function onClickAdd() {
 
 async function checkDuplication() {
   const view = grdMainRef.value.getView();
-  const createdRows = gridUtil.getCreatedRowValues(view);
+  const changedRows = gridUtil.getChangedRowValues(view);
 
-  if (createdRows.length === 0) {
+  if (changedRows.length === 0) {
     return false;
   }
 
-  const { data: dupData } = await dataService.post('/sms/wells/product/cancel-charges/duplication-check', createdRows);
+  const { data: dupData } = await dataService.post('/sms/wells/product/cancel-charges/duplication-check', changedRows);
   if (dupData.data) {
     const dupCodes = dupData.data.split(',', -1);
-    const { pdNm } = createdRows.find((item) => item.pdCd === dupCodes[0]);
+    const { pdNm } = changedRows.find((item) => item.pdCd === dupCodes[0]);
     // 은(는) 이미 DB에 등록되어 있습니다.
     await alert(t('MSG_ALT_EXIST_IN_DB', [pdNm]));
     return true;

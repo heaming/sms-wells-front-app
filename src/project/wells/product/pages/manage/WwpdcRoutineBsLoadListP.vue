@@ -15,7 +15,10 @@
 --->
 <template>
   <kw-popup size="3xl">
-    <kw-search @search="onClickSearch">
+    <kw-search
+      one-row
+      @search="onClickSearch"
+    >
       <kw-search-row>
         <!-- 서비스 선택 -->
         <kw-search-item

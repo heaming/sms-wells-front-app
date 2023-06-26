@@ -23,7 +23,7 @@
         </h3>
         <kw-input
           v-model="pdFilter"
-          @keydown.enter="getPds"
+          @keydown.enter="setFilter"
         />
         <div class="scoped-search-box__action">
           <kw-btn
@@ -40,7 +40,7 @@
             filled
             color="secondary"
             text-color="bg-white"
-            @click="getPds"
+            @click="setFilter"
           />
         </div>
       </div>
@@ -57,7 +57,8 @@
           item-padding="16px 0"
         >
           <kw-expansion-item
-            v-for="clsf in classfiedPds"
+            v-for="clsf in filteredClsfPds"
+            :ref="(vm) => clsfItemRefs[clsf.pdClsfId] = vm"
             :key="`product-type-${clsf.pdClsfId}`"
             padding-target="header"
             expansion-icon-align="center"
@@ -373,7 +374,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { stringUtil, useDataService, useGlobal } from 'kw-lib';
+import { alert, stringUtil, useDataService, useGlobal } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 
 const { t } = useI18n();
@@ -387,7 +388,9 @@ const props = defineProps({
 const { cntrNo: pCntrNo, step2 } = toRefs(props.contract);
 const ogStep2 = ref({});
 const pdFilter = ref('');
+const cachedPdFilter = ref('');
 const classfiedPds = ref([]);
+const filteredClsfPds = ref([]);
 const isItem = {
   spay: (i) => i.sellTpCd === '1',
   rntl: (i) => i.sellTpCd === '2',
@@ -396,12 +399,17 @@ const isItem = {
   welsf: (i) => i.lclsfVal === '05001003',
   hcf: (i) => i.lclsfVal === '01003001',
 };
+
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
+
 async function getProducts(cntrNo) {
   const pds = await dataService.get('sms/wells/contract/contracts/reg-products', { params: { cntrNo, pdFilter: pdFilter.value } });
   classfiedPds.value = pds.data.pdClsf;
+  pdFilter.value = '';
+  cachedPdFilter.value = '';
+  filteredClsfPds.value = classfiedPds.value;
   if (classfiedPds.value.length === 0) {
     await alert('판매 가능한 상품이 없습니다.');
   }
@@ -442,9 +450,10 @@ async function getPdSels(pd) {
   });
   return sels.data;
 }
+
 async function resetFilter() {
   pdFilter.value = '';
-  await getProducts();
+  await getProducts(props.contract.cntrNo);
 }
 
 function resetCntrSn() {
@@ -473,8 +482,6 @@ function onClickDelete(pd) {
 }
 
 async function onClickDeviceChahge(pd) {
-  console.log(props.contract);
-
   await modal({
     component: 'WwctaMachineChangeCustomerDtlP',
     componentProps: {
@@ -523,8 +530,38 @@ async function getCntrInfo(cntrNo) {
     });
   });
   pCntrNo.value = step2.value.bas.cntrNo;
-  console.log(step2.value);
   ogStep2.value = cloneDeep(step2.value);
+}
+
+const clsfItemRefs = reactive({});
+
+function setFilter() {
+  cachedPdFilter.value = pdFilter.value?.trim() || '';
+  Object.values(clsfItemRefs).forEach((vm) => {
+    vm?.show();
+  });
+  if (!Array.isArray(classfiedPds.value)) { return []; }
+  let clsfPds = classfiedPds.value;
+  if (!cachedPdFilter.value) {
+    filteredClsfPds.value = clsfPds;
+    return;
+  }
+  clsfPds = clsfPds.reduce((filtered, clsf) => {
+    const filteredPds = clsf.products
+      .filter((pd) => pd.pdNm.includes(cachedPdFilter.value));
+    if (filteredPds.length > 0) {
+      filtered.push({
+        ...clsf,
+        products: filteredPds,
+      });
+    }
+    return filtered;
+  }, []);
+  if (clsfPds.length === 0) {
+    notify('검색 조건에 맞는 상품이 없습니다.');
+    filteredClsfPds.value = classfiedPds.value;
+  }
+  filteredClsfPds.value = clsfPds;
 }
 
 async function isChangedStep() {

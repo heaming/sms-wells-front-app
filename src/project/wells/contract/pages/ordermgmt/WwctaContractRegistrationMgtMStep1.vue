@@ -162,7 +162,6 @@ ${step1.cntrt.sexDvNm}` }}
             </kw-form-item>
             <kw-form-item
               label="본인인증여부"
-              hint="s"
             >
               <p
                 v-if="step1.cntrt.cikVal"

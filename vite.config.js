@@ -23,6 +23,7 @@ export default defineConfig({
           .substr(0, 6);
         return `assets/[name].${hash}.js`;
       },
+      assetFileNames: () => 'assets/[name][extname]',
     },
   },
 });
