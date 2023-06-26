@@ -172,10 +172,6 @@ const props = defineProps({
     type: String,
     default: '',
   },
-  wareDtlDvCd: {
-    type: String,
-    default: '',
-  },
 });
 
 console.log(props);
@@ -204,7 +200,6 @@ const searchParams = ref({
   strOjWareNo: props.strOjWareNo,
   ostrQty: props.ostrQty,
   wareDvCd: props.wareDvCd,
-  wareDtlDvCd: props.wareDtlDvCd,
   wareClsfCd: '11',
 
 });
