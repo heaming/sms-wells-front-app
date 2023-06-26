@@ -604,7 +604,7 @@ const initGrdMain = defineGrid((data, view) => {
   view.onCellDblClicked = async (g, { column, dataRow }, v) => {
     // TODO: componentProps 와 함께 추가
     const {
-      itmPdCd, svpdNmKor, strWareNo, strWareNm, ostrAkQty, strWareDvCd, strWareDtlDvCd,
+      itmPdCd, svpdNmKor, strWareNo, strWareNm, ostrAkQty, strWareDvCd,
     } = gridUtil.getRowValue(g, dataRow);
     console.log(g, column, dataRow, v);
 
@@ -618,7 +618,6 @@ const initGrdMain = defineGrid((data, view) => {
         strOjWareNm: strWareNm,
         ostrQty: ostrAkQty,
         wareDvCd: strWareDvCd,
-        wareDtlDvCd: strWareDtlDvCd,
       },
     });
 
