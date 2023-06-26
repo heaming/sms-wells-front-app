@@ -119,21 +119,21 @@
           spaced
         />
         <kw-btn
-          label="추가"
+          :label="$t('MSG_BTN_ADD')"
           dense
           grid-action
           :disable="isReadonly || isRoot"
           @click="onClickMenuAdd"
         />
         <kw-btn
-          label="저장"
+          :label="$t('MSG_BTN_SAVE')"
           grid-action
           dense
           :disable="isReadonly || isRoot"
           @click="onClickSave"
         />
         <kw-btn
-          label="상세정보"
+          :label="$t('MSG_TXT_DTL_INFO')"
           grid-action
           dense
           :disable="isReadonly || isRoot"
@@ -145,7 +145,7 @@
           spaced
         />
         <kw-btn
-          label="서비스규정 보기"
+          :label="$t('MSG_BTN_SV_RUL_BRWS')"
           primary
           dense
           @click="onClickDetail"
@@ -179,6 +179,10 @@ import { cloneDeep } from 'lodash-es';
 const { modal, confirm, notify } = useGlobal();
 const { t } = useI18n();
 const dataService = useDataService();
+
+// -------------------------------------------------------------------------------------------------
+// Function & Event
+// -------------------------------------------------------------------------------------------------
 const rsbDvCd = ref();
 const codes = await codeUtil.getMultiCodes(
   'RSB_DV_CD',
@@ -208,10 +212,6 @@ const threeDepth = ref([]);
 
 const isTwoDepth = ref(true);
 const isThreeDepth = ref(true);
-
-// -------------------------------------------------------------------------------------------------
-// Function & Event
-// -------------------------------------------------------------------------------------------------
 
 async function fetchData() {
   const cachedParams = { ...searchParams.value };
@@ -484,6 +484,7 @@ async function onClickSave() {
         const result3 = twoSvEducMnalId.substring(0, 8);
         obj.svEducMnalId = (result3 + newexpsrOdr).padEnd(14, '0');
         obj.hgrSvEducMnalId = twoSvEducMnalId;
+        obj.expsrOdr = newexpsrOdr;
         threeExpsrOdr += 1;
       }
       threeSvEducMnalId = obj.svEducMnalId;
@@ -500,6 +501,7 @@ async function onClickSave() {
         const result4 = threeSvEducMnalId.substring(0, 10);
         obj.svEducMnalId = (result4 + newexpsrOdr).padEnd(14, '0');
         obj.hgrSvEducMnalId = threeSvEducMnalId;
+        obj.expsrOdr = newexpsrOdr;
         fourExpsrOdr += 1;
       }
       fourSvEducMnalId = obj.svEducMnalId;
@@ -515,6 +517,7 @@ async function onClickSave() {
         const result5 = fourSvEducMnalId.substring(0, 12);
         obj.svEducMnalId = (result5 + newexpsrOdr).padEnd(14, '0');
         obj.hgrSvEducMnalId = fourSvEducMnalId;
+        obj.expsrOdr = newexpsrOdr;
         fiveExpsrOdr += 1;
       }
     }
@@ -528,7 +531,7 @@ async function onClickSave() {
   } else if (lastSearchDepth === 'threeDepth') {
     hgrSvEducMnalId = treeList[1].svEducMnalId.substring(0, 10);
   }
-  console.log('saveData', saveData);
+
   const dataParams = {
     hgrSvEducMnalId,
     treeList,

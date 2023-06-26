@@ -1,0 +1,195 @@
+<template>
+  <kw-page>
+    <kw-search
+      :cols="2"
+    >
+      <kw-search-row>
+        <kw-search-item
+          :label="$t('TXT_MSG_PD_HCLSF_ID')"
+          required
+        >
+          <kw-select
+            v-model="searchParams.oneDepth"
+            :options="oneDepth"
+            :label="$t('MSG_TXT_INQR_DV')"
+            first-option="select"
+            rules="required"
+            @change="twoDepthChange"
+          />
+        </kw-search-item>
+        <kw-search-item
+          :label="$t('MSG_TXT_PD_MCLSF_ID')"
+          required
+        >
+          <kw-select
+            v-model="searchParams.twoDepth"
+            :label="$t('MSG_TXT_PD_MCLSF_ID')"
+            :options="twoDepth"
+            first-option="select"
+            rules="required"
+            :disable="isTwoDepth"
+            @change="threeDepthChange"
+          />
+        </kw-search-item>
+      </kw-search-row>
+      <kw-search-row>
+        <kw-search-item
+          :label="$t('TXT_MSG_PD_LCLSF_ID')"
+          required
+        >
+          <kw-select
+            v-model="searchParams.threeDepth"
+            :options="threeDepth"
+            first-option="select"
+            rules="required"
+            :disable="isThreeDepth"
+          />
+        </kw-search-item>
+        <kw-search-item
+          :label="$t('MSG_TXT_FST_RGST_DT')"
+          required
+        >
+          <kw-select
+            :model-value="[]"
+            :label="$t('MSG_TXT_FST_RGST_DT')"
+            :options="['']"
+          />
+        </kw-search-item>
+      </kw-search-row>
+      <div class="row justify-end items-center pt20">
+        <kw-btn
+          :label="$t('MSG_BTN_SMAP')"
+          default
+          @click="onClickDetail"
+        />
+      </div>
+    </kw-search>
+    <div class="result-area">
+      <ul class="kw-notification">
+        <li>
+          미리보기 화면에 표시가 되지 않는경우는 PDF다운로드를 실행 하세요.
+        </li>
+      </ul>
+      <h3 class="inline-block">
+        개정(변경)내용
+      </h3>
+      <p class="inline-block kw-font-pt14 pl50">
+        22년 10월 신규등록 (상품기획팀)
+      </p>
+      <h3>옵션영역</h3>
+      <div class="grid-blank" />
+    </div>
+  </kw-page>
+</template>
+<script setup>
+// -------------------------------------------------------------------------------------------------
+// Import & Declaration
+// -------------------------------------------------------------------------------------------------
+import { useDataService, useGlobal } from 'kw-lib';
+
+const { modal } = useGlobal();
+const dataService = useDataService();
+// -------------------------------------------------------------------------------------------------
+// Function & Event
+// -------------------------------------------------------------------------------------------------
+const searchParams = ref({
+  oneDepth: '',
+  twoDepth: '',
+  threeDepth: '',
+});
+
+const oneDepth = ref([]);
+const twoDepth = ref([]);
+const threeDepth = ref([]);
+
+const isTwoDepth = ref(true);
+const isThreeDepth = ref(true);
+
+let treeDatas = [];
+async function fetchData() {
+  const cachedParams = { ...searchParams.value };
+  return await dataService.get('/sms/wells/competence/business/rulebase', { params: cachedParams });
+}
+
+async function init() {
+  const res = await fetchData();
+  treeDatas = res.data;
+  console.log(treeDatas);
+  isTwoDepth.value = true;
+  isThreeDepth.value = true;
+  twoDepth.value = [];
+  threeDepth.value = [];
+  searchParams.value.oneDepth = '';
+  searchParams.value.twoDepth = '';
+  searchParams.value.threeDepth = '';
+
+  treeDatas.forEach((obj) => {
+    if (obj.inqrLvTcnt === 1) {
+      const addData = { codeId: '', codeName: '', prtsCodeId: '' };
+      addData.codeId = obj.bznsSpptMnalId;
+      addData.codeName = obj.bznsSpptMnalNm;
+      oneDepth.value.push(addData);
+    }
+  });
+}
+
+function twoDepthChange() {
+  isTwoDepth.value = false;
+  const depthData = [];
+  searchParams.value.twoDepth = '';
+  searchParams.value.threeDepth = '';
+  if (searchParams.value.oneDepth === '') {
+    isTwoDepth.value = true;
+    isThreeDepth.value = true;
+    twoDepth.value = [];
+    threeDepth.value = [];
+  }
+  treeDatas.forEach((obj) => {
+    if (obj.inqrLvTcnt === 2 && obj.hgrBznsSpptMnalId === searchParams.value.oneDepth) {
+      const addData = { codeId: '', codeName: '', prtsCodeId: '' };
+      addData.codeId = obj.bznsSpptMnalId;
+      addData.codeName = obj.bznsSpptMnalNm;
+      depthData.push(addData);
+    }
+  });
+  twoDepth.value = depthData;
+}
+
+function threeDepthChange() {
+  isThreeDepth.value = false;
+  const depthData = [];
+  searchParams.value.threeDepth = '';
+  if (searchParams.value.twoDepth === '') {
+    isThreeDepth.value = true;
+    threeDepth.value = [];
+  }
+  treeDatas.forEach((obj) => {
+    if (obj.inqrLvTcnt === 3 && obj.hgrBznsSpptMnalId === searchParams.value.twoDepth) {
+      const addData = { codeId: '', codeName: '', prtsCodeId: '' };
+      addData.codeId = obj.bznsSpptMnalId;
+      addData.codeName = obj.bznsSpptMnalNm;
+      depthData.push(addData);
+    }
+  });
+  threeDepth.value = depthData;
+}
+
+async function onClickDetail() {
+  const { result, payload } = await modal({
+    component: 'WwpsfRuleBaseInquirylistP',
+    componentProps: {
+
+    },
+  });
+
+  if (result) {
+    console.log('payload', payload);
+    alert(payload.apnFileDocId);
+  }
+}
+
+onMounted(() => {
+  init();
+});
+
+</script>
