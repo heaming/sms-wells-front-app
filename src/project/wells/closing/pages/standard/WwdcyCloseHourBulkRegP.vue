@@ -407,8 +407,8 @@ async function onClickSave() {
 const closeDivideCodes = ref({ clBizTpCd: [] });
 codes.CL_BIZ_TP_CD.forEach((data) => {
   if (store.getters['meta/getUserInfo'].tenantId === clConst.TENANT_ID_WELLS && (data.codeId === '11'
-        || data.codeId === '21' || data.codeId === '30')) {
-    closeDivideCodes.value.clBizTpCd.push({ codeId: data.codeId, codeName: data.codeName });
+        || data.codeId === '21')) {
+    closeDivideCodes.value.clBizTpCd = [{ codeId: '11', codeName: '주문시간마감(일반)' }, { codeId: '21', codeName: '주문시간마감(아웃소싱)' }];
   }
 });
 </script>
