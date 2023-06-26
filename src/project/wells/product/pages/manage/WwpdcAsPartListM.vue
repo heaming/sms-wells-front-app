@@ -106,14 +106,6 @@
             @change="fetchData"
           />
         </template>
-
-        <kw-file
-          v-show="false"
-          ref="attachFileRef"
-          v-model="file"
-          accept=".xlsx, .xls, .csv"
-          @update:model-value="doUpload"
-        />
         <kw-btn
           v-permission:create
           icon="upload_on"
@@ -172,7 +164,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService, useMeta, gridUtil, codeUtil, useGlobal, getComponentType, defineGrid, http } from 'kw-lib';
+import { useDataService, useMeta, gridUtil, codeUtil, useGlobal, getComponentType, defineGrid } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import ZwpdProductClassificationSelect from '~sms-common/product/pages/standard/components/ZwpdProductClassificationSelect.vue';
 import pdConst from '~sms-common/product/constants/pdConst';
@@ -184,9 +176,6 @@ const { getConfig } = useMeta();
 const route = useRoute();
 const router = useRouter();
 const { currentRoute } = useRouter();
-
-const attachFileRef = ref();
-const file = ref(null);
 
 const grdMainRef = ref(getComponentType('KwGrid'));
 
@@ -230,7 +219,8 @@ async function onClickSapMaterial() {
   const { result, payload } = await modal({
     component: 'ZwpdcMaterialsCodeListP',
     componentProps: {
-      searchType: 'sapMatCd',
+      // searchType: 'sapMatCd',
+      searchType: pdConst.PD_SEARCH_CODE,
       selectType: 'SINGLE',
       searchValue: searchParams.value.sapMatCd,
     },
@@ -272,41 +262,26 @@ async function onClickSearch() {
 }
 
 async function onClickExcelUpload() {
-  notify('기능 확인 중... TBD');
-  file.value = null;
-  attachFileRef.value.reset();
-  attachFileRef.value.pickFiles();
-}
+  const apiUrl = '/sms/wells/product/as-parts/excel-upload';
+  const templateId = 'FOM_PD_ASPART_BLK_RGST';
 
-// Excel Upload 관련 Mehotd 시작
-async function doUpload() {
-  if (file.value === null || file.value === undefined) {
-    return;
-  }
-
-  // WAS단으로 넘겨 DRM 해제 및 유효성 체크 후 저장.
-  const formData = new FormData();
-  formData.append('file', file.value.nativeFile);
-
-  const response = await http.post(`${baseUrl}/excel-upload`, formData, {
-    headers: { 'Content-Type': 'multipart/form-data' },
+  const { payload } = await modal({
+    component: 'ZwcmzExcelUploadP',
+    componentProps: { apiUrl, templateId },
   });
 
-  const { status, errorInfo } = response.data;
-  console.debug(status, errorInfo);
-  console.table(errorInfo);
-
-  if (pdConst.EXCEL_UPLOAD_SUCCESS !== status && errorInfo.length > 0) {
-    await modal({
-      component: 'ZwcmzExcelUploadErrorP',
-      componentProps: { errorInfo },
-    });
-  } else {
-    notify(t('MSG_ALT_COMPLETE_EXCEL_UPLOAD'));
-    await onClickSearch();
+  if (payload) {
+    if (payload.status === pdConst.EXCEL_UPLOAD_SUCCESS) {
+      notify(t('MSG_ALT_COMPLETE_EXCEL_UPLOAD'));
+      await onClickSearch();
+    } else {
+      await modal({
+        component: 'ZwcmzExcelUploadErrorP',
+        componentProps: { errorInfo: payload.errorInfo },
+      });
+    }
   }
 }
-// Excel Upload 관련 Mehotd 종료
 
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
@@ -411,8 +386,8 @@ const initGrdMain = defineGrid((data, view) => {
   view.setColumns(columns);
   view.rowIndicator.visible = true;
   view.checkBar.visible = true;
-  view.checkBar.showAll = false;
-  view.checkBar.exclusive = true;
+  // view.checkBar.showAll = false;
+  // view.checkBar.exclusive = true;
   // view.displayOptions.selectionStyle = 'singleRow';
 
   view.onCellItemClicked = async (g, { column, itemIndex }) => {

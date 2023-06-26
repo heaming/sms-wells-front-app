@@ -770,6 +770,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'rntlAmt', dataType: 'number' },
     { fieldName: 'pdAmt', dataType: 'number' },
     { fieldName: 'stplPtrm', dataType: 'number' },
+    { fieldName: 'cntrPtrm', dataType: 'number' },
     { fieldName: 'dscAmt', dataType: 'number' },
   ];
   const columns = [
@@ -788,6 +789,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'rntlAmt', header: t('MSG_TXT_MM_RTLFE'), width: 100, styleName: 'text-right' },
     { fieldName: 'pdAmt', header: t('MSG_TXT_PRDT_AMT'), width: 100, styleName: 'text-right' },
     { fieldName: 'stplPtrm', header: t('MSG_TXT_CONTRACT_PERI'), width: 100, styleName: 'text-right' },
+    { fieldName: 'cntrPtrm', header: t('MSG_TXT_CNTR_PTRM'), width: 100, styleName: 'text-right' },
     { fieldName: 'dscAmt', header: t('MSG_TXT_DSC_AMT'), width: 100, styleName: 'text-right' },
   ];
   data.setFields(fields);
