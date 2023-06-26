@@ -418,11 +418,11 @@ async function onClickOpenBuildingPopup() {
   if (isChanged) {
     warehouseInfo.value.bldCd = payload[0].bldCd;
     warehouseInfo.value.bldCdNm = payload[0].bldCdNm;
-    warehouseInfo.value.wareAdrId = payload[0].adrId;
-    warehouseInfo.value.rnadr = payload[0].rnadr;
-    warehouseInfo.value.rdadr = payload[0].rdadr;
-    warehouseInfo.value.rdadr = payload[0].rdadr;
-    warehouseInfo.value.newAdrZip = payload[0].newAdrZip;
+    // warehouseInfo.value.wareAdrId = payload[0].adrId;
+    // warehouseInfo.value.rnadr = payload[0].rnadr;
+    // warehouseInfo.value.rdadr = payload[0].rdadr;
+    // warehouseInfo.value.rdadr = payload[0].rdadr;
+    // warehouseInfo.value.newAdrZip = payload[0].newAdrZip;
   }
 }
 
