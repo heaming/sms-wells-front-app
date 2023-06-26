@@ -408,7 +408,7 @@ async function onClickOpenHumanResourcesPopup() {
 async function onClickOpenBuildingPopup() {
   // TODO: 빌딩정보조회 팝업 호출 (화면ID채번 필요)
   const { result: isChanged, payload } = await modal({
-    component: 'WsnaBuildingInformationListP',
+    component: 'WsnaBuildingsListP',
     componentProps: {
       dgr1LevlOgId: warehouseInfo.value.dgr1LevlOgId,
       dgr2LevlOgId: warehouseInfo.value.dgr2LevlOgId,
