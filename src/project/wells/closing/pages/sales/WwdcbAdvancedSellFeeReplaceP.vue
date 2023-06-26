@@ -19,7 +19,7 @@
     <kw-form :cols="1">
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_COB_CD')">
-          <p>{{ info.kwGrpCoCd }}</p>
+          <p>{{ info.kwGrpCoCd + "(" + info.kwGrpCoNm + ")" }}</p>
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
@@ -42,7 +42,7 @@
           <kw-input
             v-model="info.piaSellFeeSmry"
             :maxlength="4000"
-            :readonly="info.piaSellFeeSmry !== ''"
+            :readonly="info.dpSlpno !== null"
           />
         </kw-form-item>
       </kw-form-row>
@@ -52,6 +52,7 @@
       <kw-btn
         primary
         :label="$t('MSG_BTN_SLIP_CRT')"
+        :disable="info.dpSlpno !== null"
         @click="onSlipCreate()"
       />
     </template>
@@ -73,18 +74,14 @@ const store = useStore();
 const companyCode = ref([{ codeId: store.getters['meta/getUserInfo'].companyCode, codeName: store.getters['meta/getUserInfo'].companyName }]);
 const info = ref({});
 
-const saveParams = ref({
-  piaSellFeeSmry: '',
-  kwGrpCoCd: companyCode.value[0].codeId,
-});
-
 async function fetchData() {
   const res = await dataService.get('/sms/wells/closing/advanced-fee-replace/info-pop', { params: { kwGrpCoCd: companyCode.value[0].codeId } });
   info.value = res.data;
+  info.value.kwGrpCoNm = companyCode.value[0].codeName;
 }
 
 async function onSlipCreate() {
-  await dataService.post('/sms/wells/closing/advanced-fee-replace/slip-create', { ...saveParams });
+  await dataService.put('/sms/edu/closing/advanced-fee-replace/slip-create', info.value);
 }
 
 onMounted(async () => {
