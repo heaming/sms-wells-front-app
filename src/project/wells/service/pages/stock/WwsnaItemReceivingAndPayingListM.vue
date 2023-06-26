@@ -212,7 +212,7 @@ searchParams.value.edStrDt = dayjs().format('YYYYMMDD');
 
 let cachedParams;
 async function fetchData() {
-  const res = await dataService.get('/sms/wells/service/receipts-and-payments/paging', { params: { ...cachedParams, ...pageInfo.value, timeout: 80000 } });
+  const res = await dataService.get('/sms/wells/service/receipts-and-payments/paging', { params: { ...cachedParams, ...pageInfo.value } });
   const { list: payments, pageInfo: pagingResult } = res.data;
 
   pageInfo.value = pagingResult;

@@ -172,7 +172,7 @@
                   <kw-chip
                     class="ml8"
                     color="primary"
-                    label="엔지니어"
+                    :label="data.psicDatas.rolDvNm"
                     square
                     text-color="primary"
                   />
@@ -295,6 +295,7 @@
           </ul>
         </div>
       </div>
+      <!--------------------------------------------------------------------------------------------->
       <ul v-if="data.sidingYn === 'Y' ">
         <kw-separator />
         <li v-if="data.lcst09 === '03'">
@@ -329,7 +330,7 @@
         </li>
       </ul>
       <ul
-        v-else-if="selectedDay === nextDay && (toInteger(currentTime) < 800 ||
+        v-else-if="data.sellDate === nextDay && (toInteger(currentTime) < 800 ||
           toInteger(currentTime) > 1800)"
       >
         <kw-separator />
@@ -367,17 +368,6 @@
           </font>(방문시간 예약접수가 필요한 경우 다른 날짜를 선택해 주세요.)
         </li>
       </ul>
-      <!--      <ul
-        v-else-if="data.disableDays.find((item) =>
-          item.disableFuldays.replace(/-/g, '') === selectedDay) !== undefined"
-      >
-        <li>
-          <font size="4px">
-            [접수불가]<br><br>해당 날짜는 방문예약이 마감되었습니다.
-          </font>
-        </li>
-      </ul>-->
-      <!--################################-->
       <ul v-else>
         <li
           v-if="data.psicDatas.rstrCndtUseYn === 'Y' && data.psicDatas.vstPos ===
@@ -385,11 +375,6 @@
         >
           <h3>
             시간선택
-            <!--            <ul class="kw-notification">
-              <li>
-                *()접수가능 건수
-              </li>
-            </ul>-->
             <div class="kw-notification">
               *()접수가능 건수
             </div>
@@ -430,7 +415,6 @@
                 09:00 ~ 12:50
               </p>
             </div>
-            <!--------------------------------------------------->
             <div
               :class="{ 'col select': clickedBtn === '1', 'col default': clickedBtn === '0' || clickedBtn === '', }"
               @click="onClickPm"
@@ -445,7 +429,7 @@
           </div>
         </li>
       </ul>
-
+      <!--------------------------------------------------------------------------------------------->
       <div
         v-if="data.psicDatas.udsnUseYn === 'Y' && // 미지정사용여부
           data.psicDatas.vstPos=== '방문가능' &&
@@ -462,7 +446,6 @@
           <h3>대기접수</h3>
         </div>
       </div>
-
       <div
         v-if="data.sidingYn !== 'Y' &&
           data.svDvCd !== '4' &&
@@ -658,6 +641,7 @@ async function getTimeTables() {
   // enableDays.value = [];
   disableDays.value = [];
   // timeConstMsg.value = [];
+  clickedBtn.value = '';
   data.value.sellTime = '';
 
   // console.log(JSON.stringify(data.value));
@@ -839,7 +823,7 @@ async function getTimeTables() {
     data.value.pmShowVar = data.value.pmAlloCnt;
   }
 
-  clickedBtn.value = '0';
+  clickedBtn.value = '';
 
   schedules.value = data.value.days;
   scheduleInfo.value.weekCnt = schedules.value.length / scheduleInfo.value.dayCnt;
@@ -980,6 +964,10 @@ async function onClickCalendar($event, weekIdx, dayIdx) {
   if (enable === 'Y') {
     searchParams.value.sellDate = selectedDay;
     await getTimeTables();
+    document.querySelectorAll('tr.calendar-date > td > span').forEach((element) => {
+      element.classList.remove('calendar-selected-date');
+    });
+    $event.target.classList.toggle('calendar-selected-date');
     document.querySelectorAll('tr.calendar-date > td').forEach((element) => {
       element.classList.remove('active');
     });

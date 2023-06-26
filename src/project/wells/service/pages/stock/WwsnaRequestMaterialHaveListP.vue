@@ -168,6 +168,10 @@ const props = defineProps({
     type: String,
     default: '',
   },
+  wareDvCd: {
+    type: String,
+    default: '',
+  },
 });
 
 console.log(props);
@@ -195,6 +199,7 @@ const searchParams = ref({
   strOjWareNm: props.strOjWareNm,
   strOjWareNo: props.strOjWareNo,
   ostrQty: props.ostrQty,
+  wareDvCd: props.wareDvCd,
   wareClsfCd: '11',
 
 });

@@ -18,16 +18,6 @@
     :title="$t('MSG_TXT_DTL_IZ')"
   >
     <kw-action-top>
-      <template #left>
-        <kw-paging-info
-          v-model:page-index="pageInfo.pageIndex"
-          v-model:page-size="pageInfo.pageSize"
-          :total-count="pageInfo.totalCount"
-          :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
-          @change="fetchData"
-        />
-        <span class="ml8">(단위: 원)</span>
-      </template>
       <kw-btn
         v-permission:delete
         grid-action
@@ -72,34 +62,21 @@
       :total-count="pageInfo.totalCount"
       @init="initBusinessToBusinessBoDetailList"
     />
-    <template #action>
-      <kw-btn
-        negative
-        :label="$t('MSG_BTN_CANCEL')"
-        @click="cancel"
-      />
-      <kw-btn
-        primary
-        :label="$t('MSG_BTN_CONFIRM')"
-        @click="onClickConfirm"
-      />
-    </template>
   </kw-popup>
 </template>
 <script setup>
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, defineGrid, getComponentType, gridUtil, useDataService, useMeta, useModal, useGlobal } from 'kw-lib';
+import { defineGrid, getComponentType, gridUtil, useDataService, useMeta, useGlobal } from 'kw-lib';
 import pdConst from '~sms-common/product/constants/pdConst';
 import { isEmpty } from 'lodash-es';
 
 const { t } = useI18n();
-const { cancel, ok } = useModal();
 const dataService = useDataService();
 const { getConfig } = useMeta();
 const { currentRoute } = useRouter();
-const { modal, notify, alert } = useGlobal();
+const { modal, notify } = useGlobal();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -108,10 +85,6 @@ const grdBusinessToBusinessBoLDetailist = ref(getComponentType('KwGrid'));
 const props = defineProps({
   opptId: { type: String, default: '' }, // 부모창에서 넘어온 기회ID
 });
-
-const codes = await codeUtil.getMultiCodes(
-  'COD_PAGE_SIZE_OPTIONS',
-);
 
 const pageInfo = ref({
   totalCount: 0,
@@ -171,15 +144,6 @@ async function onClickExcelDownload() {
     timePostfix: true,
     exportData: res.data,
   });
-}
-
-async function onClickConfirm() {
-  const view = grdBusinessToBusinessBoLDetailist.value.getView();
-  if (gridUtil.isModified(view)) {
-    alert(t('MSG_ALT_CHG_CNTN_AFTER_SAVE'));
-    return;
-  }
-  ok();
 }
 
 onMounted(async () => {

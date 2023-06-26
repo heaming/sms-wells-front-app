@@ -61,6 +61,7 @@
             v-model="searchParams.cstNm"
             icon="search"
             clearable
+            maxlength="30"
             @click-icon="onClickCustomer"
           />
         </kw-search-item>
@@ -71,6 +72,8 @@
             v-model="searchParams.cstNo"
             icon="search"
             clearable
+            regex="num"
+            :maxlength="10"
             @click-icon="onClickCustomer"
           />
         </kw-search-item>

@@ -325,9 +325,6 @@ async function onClickSave() {
   if (await gridUtil.alertIfIsNotModified(view)) { return; }
   if (!await gridUtil.validate(view)) { return; }
   const modifedData = gridUtil.getChangedRowValues(view);
-  modifedData.forEach((item) => {
-    item.mngtYm = searchParams.value.baseYm;
-  });
 
   const res = await dataService.post('/sms/wells/service/as-material-item-grades', modifedData);
   const { processCount } = res.data;
@@ -364,6 +361,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'itmMngtGdCd' },
     { fieldName: 'ctrItmMngtGdCd' },
     { fieldName: 'rmkCn' },
+    { fieldName: 'mngtYm' },
   ];
 
   const columns = [

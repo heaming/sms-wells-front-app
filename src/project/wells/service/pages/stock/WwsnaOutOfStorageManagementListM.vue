@@ -323,7 +323,7 @@ const initGrdMain = defineGrid((data, view) => {
         // await popupUtil.open(`/popup#/service/wwsna-normal-out-of-storage-rgst-list?ostrAkNo=${ostrAkNo}ostrAkTpCd=${ostrTpCd}&ostrOjWareNo=${ostrWareNo}&ostrDt=${ostrDt}&strOjWareNo=${strWareNo}&itmOstrNo=${itmOstrNo}`, { width: 1800, height: 1000 }, false);
         const { result } = await modal({
           component: 'WwsnaNormalOutOfStorageRgstListP',
-          componentProps: { ostrAkNo, ostrAkSn, page: '출고관리' },
+          componentProps: { ostrAkNo, ostrAkSn, itmOstrNo, page: 'WwsnaOutOfStorageManagementListM' },
         });
 
         if (result) {

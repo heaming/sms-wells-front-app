@@ -170,7 +170,7 @@ const props = defineProps({
 
 const { t } = useI18n();
 const dataService = useDataService();
-const { confirm, notify, modal } = useGlobal();
+const { confirm, notify, modal, alert } = useGlobal();
 const router = useRouter();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -294,7 +294,7 @@ async function duplicationCheck(validationType, sourceData) {
 
   if (res.data !== 'N') {
     // 다른 교재/제품에서 이미 사용 중인 SAP자재코드입니다. (사용 교재/제품코드: {0}/{1}) - 교재명/자재코드
-    notify(t('MSG_ALT_EXIST_SAP_MAT_CD', [res.data, validationParams.sapMatCd]));
+    await alert(t('MSG_ALT_EXIST_SAP_MAT_CD', [res.data, validationParams.sapMatCd]));
     return false;
   }
   return true;

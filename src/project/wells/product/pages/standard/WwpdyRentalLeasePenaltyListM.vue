@@ -143,7 +143,7 @@ import pdConst from '~sms-common/product/constants/pdConst';
 import ZwpdProductClassificationSelect from '~sms-common/product/pages/standard/components/ZwpdProductClassificationSelect.vue';
 import { setGridDateFromTo, getAlreadyItems } from '~sms-common/product/utils/pdUtil';
 
-const { notify, modal } = useGlobal();
+const { alert, notify, modal } = useGlobal();
 const router = useRouter();
 const { t } = useI18n();
 const dataService = useDataService();
@@ -237,18 +237,18 @@ async function onClickAdd() {
 
 async function checkDuplication() {
   const view = grdMainRef.value.getView();
-  const createdRows = gridUtil.getCreatedRowValues(view);
+  const changedRows = gridUtil.getChangedRowValues(view);
 
-  if (createdRows.length === 0) {
+  if (changedRows.length === 0) {
     return false;
   }
 
-  const { data: dupData } = await dataService.post('/sms/wells/product/cancel-charges/duplication-check', createdRows);
+  const { data: dupData } = await dataService.post('/sms/wells/product/cancel-charges/duplication-check', changedRows);
   if (dupData.data) {
     const dupCodes = dupData.data.split(',', -1);
-    const { pdNm } = createdRows.find((item) => item.pdCd === dupCodes[0]);
+    const { pdNm } = changedRows.find((item) => item.pdCd === dupCodes[0]);
     // 은(는) 이미 DB에 등록되어 있습니다.
-    notify(t('MSG_ALT_EXIST_IN_DB', [pdNm]));
+    await alert(t('MSG_ALT_EXIST_IN_DB', [pdNm]));
     return true;
   }
   return false;

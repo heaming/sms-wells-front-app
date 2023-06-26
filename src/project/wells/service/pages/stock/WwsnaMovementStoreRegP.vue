@@ -309,6 +309,12 @@ async function fetchData() {
   view.resetCurrent();
 
   view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
+
+  view.checkAll(true);
+  const checkedRows = gridUtil.getCheckedRowValues(view);
+  if (checkedRows.length === 0) {
+    view.checkAll(false);
+  }
 }
 
 async function onCheckedStckNoStdGb() {
@@ -402,6 +408,10 @@ async function onClickSave() {
   console.log('onClickSave~~~~~~~~~~~~~~~~~~~~~~~~~');
   const view = grdMainRef.value.getView();
   const rows = view.getCheckedItems();
+  if (await rows.length === 0) {
+    notify(t('MSG_ALT_NOT_SELECT_MV'));
+    return false;
+  }
 
   // 등록하시겠습니까?
   if (await confirm(t('MSG_ALT_RGST'))) {

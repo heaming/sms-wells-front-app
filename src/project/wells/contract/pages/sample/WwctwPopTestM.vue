@@ -181,5 +181,16 @@ const pops = [
       cntrSn: '1',
     },
   },
+  {
+    pname: 'WwctaVirtualAccountDocumentMailForwardingP',
+    title: '가상계좌 메일발송 W-SS-U-0092P17',
+    param: {
+      mailAddr: 'rhldwkdgo@naver.com', /* 메일주소 */
+      vacBnkNm: '신한은행', /* 가상계좌은행명 */
+      vacNo: '123-12-12345', /* 가상계좌번호 */
+      vacGbn: 'S', /* 가상계좌구분. 셰틀뱅크(S),KICC(K) */
+      custNm: '김고객', /* 고객명 */
+    },
+  },
 ];
 </script>

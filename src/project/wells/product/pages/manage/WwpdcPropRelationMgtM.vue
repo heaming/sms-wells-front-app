@@ -37,6 +37,7 @@
     <kw-btn
       v-permission:delete
       grid-action
+      :disable="totalCount === 0"
       :label="$t('MSG_BTN_DEL')"
       @click="onClickRemove"
     />
@@ -76,16 +77,10 @@ const props = defineProps({
   initData: { type: Object, default: null },
 });
 
-// const { getConfig } = useMeta();
-// const pageInfo = ref({
-//   totalCount: 0,
-//   pageIndex: 1,
-//   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
-// });
-
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
+const totalCount = ref(0);
 const searchParams = ref({
   pdRelTpCd: '',
   searchValue: '',
@@ -93,6 +88,13 @@ const searchParams = ref({
 
 const codes = await codeUtil.getMultiCodes('PDCT_REL_DV_CD');
 const initLoadData = ref([]);
+
+async function checkGrdDataCount() {
+  const view = grdMainRef.value.getView();
+  const rowValues = gridUtil.getAllRowValues(view, false);
+  console.log('totalCount.value', totalCount.value);
+  totalCount.value = rowValues.length;
+}
 
 async function resetData() {
   // TODO Grid 에서 초기화버튼 기능을 어떻게 정의할지 확인필요.
@@ -122,6 +124,7 @@ async function insertCallbackRows(view, rtn, pdRelTpCd) {
         await gridUtil.insertRowAndFocus(view, 0, okRows[0]);
       }
     }
+    await checkGrdDataCount();
   }
 }
 
@@ -210,6 +213,8 @@ async function onClickRemove() {
 
   const dataProvider = view.getDataSource();
   dataProvider.removeRows(chkRows.map((v) => v.dataRow));
+
+  await checkGrdDataCount();
 }
 
 async function validateProps() {
@@ -246,7 +251,7 @@ const columns = [
   { fieldName: 'pdClsfNm', header: t('MSG_TXT_CLSF'), width: '176', styleName: 'text-left' }, /* 분류 */
   { fieldName: 'pdNm', header: t('MSG_TIT_MATERIAL_NM'), width: '382', styleName: 'text-left' }, /* 교재/자재명 */
   // { fieldName: 'sapPdctSclsrtStrcVal', header: t('MSG_TXT_MATI_CD'), width: '121' }, /* 자재코드 교재/제재코드 */
-  { fieldName: 'sapMatCd', header: t('MSG_TXT_MATI_CD'), width: '121' }, /* 자재코드 교재/제재코드 */
+  { fieldName: 'sapMatCd', header: t('MSG_TXT_MATI_CD'), width: '121', styleName: 'text-center' }, /* 자재코드 교재/제재코드 */
   { fieldName: 'modelNo', header: t('MSG_TXT_PD_MODEL_NO'), width: '152', styleName: 'text-center' }, /* 모델No */
   { fieldName: 'pdAbbrNm', header: t('MSG_TXT_ABBR'), width: '226', styleName: 'text-left' }, /* 약어 */
   { fieldName: 'ostrCnrCd', header: t('MSG_TIT_SHIPPING_CENTER'), width: '214', styleName: 'text-left' }, /* 출고센터 */
@@ -302,6 +307,8 @@ async function setData(newInitData) {
 
     const grd1DataProvider = grdMainRef.value.getView().getDataSource();
     grd1DataProvider.fillJsonData(initLoadData.value, { fillMode: 'set' });
+
+    await checkGrdDataCount();
   }
 }
 

@@ -106,7 +106,7 @@
 import { codeUtil, gridUtil, useGlobal, useDataService, getComponentType, defineGrid } from 'kw-lib';
 import { isEmpty } from 'lodash-es';
 import pdConst from '~sms-common/product/constants/pdConst';
-import { getGridRowCount } from '~/modules/sms-common/product/utils/pdUtil';
+import { getCodeNames, getAlreadyItems, getGridRowCount } from '~sms-common/product/utils/pdUtil';
 
 const props = defineProps({
   svPdCd: { type: String, required: true },
@@ -117,7 +117,7 @@ const props = defineProps({
   partPdNm: { type: String, default: '' },
 });
 
-const { notify, modal } = useGlobal();
+const { alert, notify, modal } = useGlobal();
 const { t } = useI18n();
 const router = useRouter();
 const dataService = useDataService();
@@ -176,14 +176,61 @@ async function onClickRemoveRows() {
   grdRowCount.value = getGridRowCount(view);
 }
 
+async function checkDuplication() {
+  const view = grdMainRef.value.getView();
+  // if (view) return false;
+  const changedRows = gridUtil.getChangedRowValues(view);
+  const alreadyItems = getAlreadyItems(view, changedRows, 'vstDvCd', 'prdMmVal', 'chPdctPdCd');
+  if (alreadyItems.length > 0) {
+    // {방문구분/월구분/계절필터명}이(가) 중복됩니다.
+    let dupItem = alreadyItems[0].vstDvCd;
+    if (alreadyItems[0].vstDvCd) {
+      dupItem += `/${getCodeNames(codes, alreadyItems[0].vstDvCd, 'VST_DV_CD')}`;
+    }
+    if (alreadyItems[0].prdMmVal) {
+      dupItem += `/${getCodeNames(codes, alreadyItems[0].prdMmVal, 'MM_CD')}`;
+    }
+    if (alreadyItems[0].chPdctPdNm) {
+      dupItem += `/${alreadyItems[0].chPdctPdNm}`;
+    }
+    notify(t('MSG_ALT_DUP_NCELL', [dupItem]));
+    return true;
+  }
+
+  const createdRows = gridUtil.getCreatedRowValues(view);
+  if (createdRows.length === 0) {
+    return false;
+  }
+
+  const { data: dupData } = await dataService.post('/sms/wells/product/bs-works/life-filters/duplication-check', createdRows);
+  if (dupData.data) {
+    const dupCodes = dupData.data.split(',', -1);
+    const { vstDvCd, prdMmVal, chPdctPdNm } = createdRows
+      .find((item) => item.vstDvCd === dupCodes[0]
+        && item.prdMmVal === dupCodes[1]
+        && item.chPdctPdCd === dupCodes[2]);
+    let dupItem = '';
+    if (vstDvCd) {
+      dupItem += `/${getCodeNames(codes, vstDvCd, 'VST_DV_CD')}`;
+    }
+    if (prdMmVal) {
+      dupItem += `/${getCodeNames(codes, prdMmVal, 'MM_CD')}`;
+    }
+    if (chPdctPdNm) {
+      dupItem += `/${chPdctPdNm}`;
+    }
+    // {제품명/기기종류/기기유형/가격구분} 은(는) 이미 DB에 등록되어 있습니다.
+    await alert(t('MSG_ALT_EXIST_IN_DB', [dupItem]));
+    return true;
+  }
+  return false;
+}
+
 async function onClickSave() {
   const view = grdMainRef.value.getView();
-  if (await gridUtil.alertIfIsNotModified(view)) {
-    return;
-  }
-  if (!(await gridUtil.validate(view, { isChangedOnly: false }))) {
-    return;
-  }
+  if (await gridUtil.alertIfIsNotModified(view)) return;
+  if (!(await gridUtil.validate(view, { isChangedOnly: false }))) return;
+  if (await checkDuplication()) { return; } // 중복 검사
 
   const { svPdCd, pdctPdCd, partPdCd } = props;
   const subList = { svPdCd, pdctPdCd, partPdCd, bases: gridUtil.getAllRowValues(view) };
@@ -220,6 +267,9 @@ const initGrid = defineGrid((data, view) => {
       styleName: 'text-center',
       rules: 'required',
       editor: { type: 'list' },
+      styleCallback(grid, dataCell) {
+        return { editable: dataCell.item.rowState === 'created' };
+      },
       options: codes.VST_DV_CD },
     // 월구분
     { fieldName: 'prdMmVal',
@@ -229,24 +279,37 @@ const initGrid = defineGrid((data, view) => {
       styleName: 'text-center',
       rules: 'required',
       editor: { type: 'list' },
+      styleCallback(grid, dataCell) {
+        return { editable: dataCell.item.rowState === 'created' };
+      },
       options: codes.MM_CD },
     // 계절필터코드
     { fieldName: 'chPdctPdCd',
       header: t('MSG_TXT_SE_FILTER_CD'),
       width: '120',
       rules: 'required',
-      styleName: 'text-left rg-button-icon--search',
       editor: { maxLength: 10 },
       button: 'action',
+      styleName: 'text-center rg-button-icon--search',
+      styleCallback(grid, dataCell) {
+        return dataCell.item.rowState === 'created'
+          ? { editable: true }
+          : { editable: false, styleName: 'text-center rg-button-hide' };
+      },
     },
     // 계절필터명
     { fieldName: 'chPdctPdNm',
       header: t('MSG_TXT_SE_FILTER_NM'),
       width: '120',
       rules: 'required',
-      styleName: 'text-left rg-button-icon--search',
       editor: { maxLength: 256 },
       button: 'action',
+      styleName: 'text-center rg-button-icon--search',
+      styleCallback(grid, dataCell) {
+        return dataCell.item.rowState === 'created'
+          ? { editable: true }
+          : { editable: false, styleName: 'text-center rg-button-hide' };
+      },
     },
     // 필터공용코드
     { fieldName: 'filtCmuCdv', header: t('MSG_TXT_FLTER_PUB_CD'), width: '140', styleName: 'text-center', editor: { maxLength: 10 } },
@@ -302,4 +365,8 @@ const initGrid = defineGrid((data, view) => {
   };
 });
 </script>
-<style scoped></style>
+<style>
+.rg-button-hide .rg-button-action {
+  display: none !important;
+}
+</style>

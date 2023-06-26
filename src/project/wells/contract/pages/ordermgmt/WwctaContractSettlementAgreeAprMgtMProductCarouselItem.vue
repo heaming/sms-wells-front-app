@@ -18,7 +18,7 @@
     <kw-item-section>
       <kw-carousel
         ref="carouselRef"
-        v-model="currSlide"
+        v-model="currSlideName"
         class="scoped-carousel"
         infinite
         keep-alive
@@ -40,6 +40,21 @@
               @click="carouselRef.previous()"
             />
             <kw-btn
+              v-if="false"
+              :label="'1/1'"
+              underline
+              @click="onClickCounter"
+            />
+            <kw-select
+              v-if="false"
+              ref="nightElfSelect"
+              v-model="currSlideName"
+              class="hidden"
+              :options="slides"
+              option-label="pdNm"
+              option-value="name"
+            /><!--TODO: 메뉴를 쓰라는데 어째쓰까-->
+            <kw-btn
               borderless
               class="h16"
               icon="arrow_right"
@@ -49,10 +64,10 @@
           </kw-carousel-control>
         </template>
         <kw-carousel-slide
-          v-for="( dtl ) in dtls"
-          :key="`slide-${dtl.cntrSn}`"
+          v-for="( {name, index, data: dtl} ) in slides"
+          :key="`slide-${index}`"
           class="scoped-carousel-slide"
-          :name="getSlideName(dtl)"
+          :name="name"
         >
           <kw-list
             class="scoped-divider-list"
@@ -111,11 +126,27 @@ function getSlideName(dtl) {
 }
 
 const dtls = ref(props.contract?.dtls ?? []);
-const currSlide = ref(getSlideName(dtls.value[0]));
+const slides = computed(() => dtls.value.map((dtl, index) => ({
+  name: getSlideName(dtl),
+  index,
+  pdNm: dtl.pdNm,
+  data: dtl,
+})));
+
+const currSlideName = ref(slides.value[0]?.name);
+const currSlide = computed(() => slides.value.find((slide) => slide.name === currSlideName.value));
+
+function setSlideOf(dtl) {
+  currSlideName.value = slides.value.find((slide) => slide.data.cntrSn === dtl.cntrSn)?.name;
+}
+function isCurrSlideOf(dtl) {
+  const { data: currDtl } = currSlide.value;
+  return currDtl.cntrSn === dtl.cntrSn;
+}
 
 watch(() => props.contract, (value) => {
   dtls.value = value.dtls;
-  currSlide.value = getSlideName(dtls.value[0]);
+  setSlideOf(dtls.value[0]);
 });
 
 const addressUpdateRefs = ref({});
@@ -132,11 +163,10 @@ function scrollTo(ref) {
 
 async function validateDtl(dtl) {
   const { cntrSn } = dtl;
-  const slideName = getSlideName(dtl);
   const adrRef = addressUpdateRefs.value[`${ADDRESS_REF_PREFIX}${cntrSn}`];
   if (!adrRef) {
     notify('확인하지 않은 계약 상품이 있습니다.');
-    currSlide.value = slideName;
+    setSlideOf(dtl);
     scrollTo(carouselRef.value);
     return false;
   }
@@ -148,8 +178,8 @@ async function validateDtl(dtl) {
 
   const adrValid = await adrRef.validate();
   if (!adrValid) {
-    if (currSlide.value !== slideName) {
-      currSlide.value = slideName;
+    if (isCurrSlideOf(dtl)) {
+      setSlideOf(dtl);
       scrollRef.value = adrRef.invalidRef;
     } else {
       scrollTo(adrRef.invalidRef);
@@ -169,8 +199,8 @@ async function validateDtl(dtl) {
 
   const paymentValid = await paymentRef.validate();
   if (!paymentValid) {
-    if (currSlide.value !== slideName) {
-      currSlide.value = slideName;
+    if (isCurrSlideOf(dtl)) {
+      setSlideOf(dtl);
       scrollRef.value = paymentRef.invalidRef;
     } else {
       scrollTo(adrRef.invalidRef);
@@ -234,6 +264,12 @@ async function getRequestData() {
 
 exposed.validate = validate;
 exposed.getRequestData = getRequestData;
+
+const nightElfSelect = ref(null);
+function onClickCounter() {
+  nightElfSelect.value.onPopup(true); /* todo does not work... */
+}
+
 </script>
 
 <style lang="scss" scoped>
