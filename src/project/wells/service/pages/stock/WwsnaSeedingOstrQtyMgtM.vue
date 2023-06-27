@@ -182,7 +182,7 @@ async function onClickSearch() {
 // 엑셀 업로드
 async function onClickExcelUpload() {
   const apiUrl = '/sms/wells/service/seeding-out-of-storage-qtys/excel-upload';
-  const templateId = 'FOM_AS_CSMB_UPLOAD';
+  const templateId = 'FOM_SDING_OSTR_QTY_UPLOAD';
   const { result } = await modal({
     component: 'ZwcmzExcelUploadP',
     componentProps: { apiUrl, templateId },
