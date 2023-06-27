@@ -50,9 +50,11 @@
           required
         >
           <kw-select
-            :model-value="[]"
+            v-model="searchParams.fnlMdfcDt"
+            first-option="select"
+            rules="required"
             :label="$t('MSG_TXT_FST_RGST_DT')"
-            :options="['']"
+            :options="fnlMdfcDts"
           />
         </kw-search-item>
       </kw-search-row>
@@ -96,11 +98,13 @@ const searchParams = ref({
   oneDepth: '',
   twoDepth: '',
   threeDepth: '',
+  fnlMdfcDt: '',
 });
 
 const oneDepth = ref([]);
 const twoDepth = ref([]);
 const threeDepth = ref([]);
+const fnlMdfcDts = ref([]);
 
 const isTwoDepth = ref(true);
 const isThreeDepth = ref(true);
@@ -134,11 +138,12 @@ async function init() {
 }
 
 function twoDepthChange() {
+  console.log('twoDepthChange', searchParams.value.oneDepth);
   isTwoDepth.value = false;
   const depthData = [];
-  searchParams.value.twoDepth = '';
-  searchParams.value.threeDepth = '';
   if (searchParams.value.oneDepth === '') {
+    searchParams.value.twoDepth = '';
+    searchParams.value.threeDepth = '';
     isTwoDepth.value = true;
     isThreeDepth.value = true;
     twoDepth.value = [];
@@ -156,10 +161,11 @@ function twoDepthChange() {
 }
 
 function threeDepthChange() {
+  console.log('threeDepthChange', searchParams.value.twoDepth);
   isThreeDepth.value = false;
   const depthData = [];
-  searchParams.value.threeDepth = '';
   if (searchParams.value.twoDepth === '') {
+    searchParams.value.threeDepth = '';
     isThreeDepth.value = true;
     threeDepth.value = [];
   }
@@ -183,8 +189,33 @@ async function onClickDetail() {
   });
 
   if (result) {
-    console.log('payload', payload);
-    alert(payload.apnFileDocId);
+    const { orgPath } = payload;
+    const orgPaths = orgPath.split('.');
+
+    searchParams.value.oneDepth = '';
+    searchParams.value.twoDepth = '';
+    searchParams.value.threeDepth = '';
+    const depthData = [];
+
+    treeDatas.forEach((obj) => {
+      if (obj.inqrLvTcnt === 1 && orgPaths[2].includes(obj.bznsSpptMnalId)) {
+        searchParams.value.oneDepth = obj.bznsSpptMnalId;
+      }
+      if (obj.inqrLvTcnt === 2 && orgPaths[3].includes(obj.bznsSpptMnalId)) {
+        searchParams.value.twoDepth = obj.bznsSpptMnalId;
+      }
+      if (obj.inqrLvTcnt === 3 && orgPaths[4].includes(obj.bznsSpptMnalId)) {
+        searchParams.value.threeDepth = obj.bznsSpptMnalId;
+      }
+    });
+
+    const addData = { codeId: '', codeName: '', prtsCodeId: '' };
+    addData.codeId = payload.bznsSpptMnalId;
+    addData.codeName = `${payload.fnlMdfcUsrNm} ${payload.fnlMdfcDt}`;
+    depthData.push(addData);
+
+    searchParams.value.fnlMdfcDt = payload.bznsSpptMnalId;
+    fnlMdfcDts.value = depthData;
   }
 }
 

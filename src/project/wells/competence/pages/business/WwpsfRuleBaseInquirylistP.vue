@@ -38,7 +38,10 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService, useModal } from 'kw-lib';
+import { useDataService, useModal, useMeta } from 'kw-lib';
+
+const { getUserInfo } = useMeta();
+const userInfo = getUserInfo();
 
 const { ok } = useModal();
 const dataService = useDataService();
@@ -50,8 +53,13 @@ let treeData = ref([]);
 
 const grdTreeRef = ref({});
 async function fetchData() {
-  const cachedParams = {};
-  return await dataService.get('/sms/wells/competence/business/rulebase', { params: cachedParams });
+  const cachedParams = {
+    ogTpCd: userInfo.ogTpCd,
+    rsbDvCd: userInfo.baseRleCd,
+  };
+  console.log('userInfo', userInfo);
+
+  return await dataService.get('/sms/wells/competence/business/rulebase/user', { params: cachedParams });
 }
 
 function expandAll() {
@@ -102,6 +110,8 @@ const initTreeGrid = async (data, view) => {
     { fieldName: 'apnFileDocId', visible: false },
     { fieldName: 'mnalRghRelId', visible: false },
     { fieldName: 'orgPath', visible: false },
+    { fieldName: 'fnlMdfcUsrNm', visible: false },
+    { fieldName: 'fnlMdfcDt', visible: false },
   ];
   data.setFields(treeColumns.map((item) => ({ fieldName: item.fieldName })));
   view.setColumns(treeColumns);

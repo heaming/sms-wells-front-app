@@ -163,10 +163,6 @@ ogTpCd.value = codes.OG_TP_CD.filter((v) => ['W01', 'W02', 'E01'].includes(v.cod
 rsbDvCdP.value = codes.RSB_DV_CD.filter((v) => ['W0101', 'W0102', 'W0103', 'W0104', 'W0105'].includes(v.codeId));
 rsbDvCdM.value = codes.RSB_DV_CD.filter((v) => ['W0201', 'W0202', 'W0203', 'W0204', 'W0205'].includes(v.codeId));
 
-const testYn = ref();
-
-const isRsbDvCds = computed(() => testYn.value === 'N');
-
 const props = defineProps({
   bznsSpptMnalId: {
     type: String,
@@ -236,6 +232,8 @@ const frmMainData = ref({
   inqrLvTcnt: props.inqrLvTcnt,
   expsrOdr: props.expsrOdr,
 });
+
+const isRsbDvCds = computed(() => frmMainData.value.bznsSpptMnalMpblDvCd === '2');
 
 const rsbDvCd = computed(() => {
   if (frmMainData.value.ogTpCd === 'W01') {
