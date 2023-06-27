@@ -156,6 +156,7 @@
           :label="$t('MSG_BTN_SEND')"
           primary
           dense
+          :disable="isNotActivated"
           @click="onClickSend"
         />
       </kw-action-top>
@@ -193,6 +194,7 @@ const { getConfig } = useMeta();
 
 const grdResultRef = ref(getComponentType('kw-grid'));
 const grdDetailRef = ref(getComponentType('kw-grid'));
+const isNotActivated = ref(false);
 const pageDetailInfo = ref({
   totalCount: 0,
   pageIndex: 1,
@@ -347,6 +349,14 @@ const onClickSend = async () => {
   await dataService.post(`${baseUrl}/send`, cachedParams);
   notify(t('MSG_ALT_FOSTER_SEND_SUCCESS'));
 };
+
+watch(() => searchParams.value.baseYm, async (baseYm) => {
+  if (baseYm !== now.format('YYYYMM')) {
+    isNotActivated.value = true;
+  } else {
+    isNotActivated.value = false;
+  }
+});
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
