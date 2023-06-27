@@ -74,7 +74,16 @@ const movePages = [
         btnName: '타임테이블 일정선택(AS접수)',
         type: 'modal',
         call: 'WmsncTimeTableSchdChoP',
-        props: {},
+        props: {
+          cntrNo: 'W20234900014',
+          cntrSn: '1',
+          chnlDvCd: 'M',
+          sellDate: '',
+          svDvCd: '3',
+          svBizDclsfCd: '3110',
+          ordDt: '',
+          ordSeq: '',
+        },
       }],
   },
   // eslint-disable-next-line max-len

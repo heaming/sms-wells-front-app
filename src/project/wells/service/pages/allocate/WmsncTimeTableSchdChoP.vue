@@ -14,23 +14,26 @@
 ****************************************************************************************************
 -->
 <template>
-  <kw-popup :title="'타임테이블 일정선택'">
+  <kw-popup>
     <div class="px20 pt20">
       <div class="row full-width justify-center items-center">
         <kw-btn
-          icon="arrow_left_24"
-          class="kw-font-pt24"
           borderless
+          class="kw-font-pt24"
+          icon="arrow_left_24"
+          @click="onClickPrevMonth"
         />
         <p class="text-weight-bold mx20 row justify-between kw-font-pt18 w106">
-          <span>2023년</span>
-          <span>01월</span>
+          <span>{{ searchParams.baseYm.substring(0, 4) }}{{ $t('MSG_TXT_YEAR' /*년*/)
+          }}&nbsp;</span>
+          <span>{{ searchParams.baseYm.substring(4) }}{{ $t('MSG_TXT_MON' /*월*/) }}</span>
         </p>
 
         <kw-btn
-          icon="arrow_right_24"
-          class="kw-font-pt24"
           borderless
+          class="kw-font-pt24"
+          icon="arrow_right_24"
+          @click="onClickNextMonth"
         />
       </div>
       <div class="row full-width justify-center items-center">
@@ -61,17 +64,35 @@
 
           <tr class="calendar-days">
             <th class="kw-fc--accent">
-              일
+              {{ $t('MSG_TXT_SUN' /*일*/) }}
             </th>
-            <th>월</th>
-            <th>화</th>
-            <th>수</th>
-            <th>목</th>
-            <th>금</th>
-            <th>토</th>
+            <th>{{ $t('MSG_TXT_MON' /*월*/) }}</th>
+            <th>{{ $t('MSG_TXT_TUE_ABB'/*화*/) }}</th>
+            <th>{{ $t('MSG_TXT_WED_ABB'/*수*/) }}</th>
+            <th>{{ $t('MSG_TXT_THU_ABB'/*목*/) }}</th>
+            <th>{{ $t('MSG_TXT_FRI_ABB'/*금*/) }}</th>
+            <th>{{ $t('MSG_TXT_SAT_ABB'/*토*/) }}</th>
           </tr>
+          <tr
+            v-for="weekIdx of scheduleInfo.weekCnt"
+            :key="weekIdx"
+            class="calendar-date"
+          >
+            <td
+              v-for="dayIdx of scheduleInfo.dayCnt"
+              :key="weekIdx * 0 + dayIdx"
+              :class="{ 'calendar-inactive-date': /*비활성화*/ isOpacity(getDayCnt(weekIdx, dayIdx)),
+                        'calendar-current-date': /*오늘*/isToday(getDayCnt(weekIdx, dayIdx)),
+                        '': /*휴일*/isHoliday(getDayCnt(weekIdx, dayIdx)),
+              }"
+              :data-date="getYmdText(getDayCnt(weekIdx, dayIdx))"
 
-          <tr class="calendar-date">
+              @click="onClickCalendar($event, weekIdx, dayIdx)"
+            >
+              <span>{{ getDayText(getDayCnt(weekIdx, dayIdx)) }}</span>
+            </td>
+          </tr>
+          <!--          <tr class="calendar-date">
             <td>
               <span>1</span>
             </td>
@@ -91,12 +112,11 @@
               <span>6</span>
             </td>
             <td>
-              <!-- 비활성화 시 class: calendar-inactive-date 추가 -->
+              &lt;!&ndash; 비활성화 시 class: calendar-inactive-date 추가 &ndash;&gt;
               <span class="calendar-inactive-date">7</span>
-              <!-- // 비활성화 시 class: calendar-inactive-date 추가 -->
+              &lt;!&ndash; // 비활성화 시 class: calendar-inactive-date 추가 &ndash;&gt;
             </td>
           </tr>
-
           <tr class="calendar-date">
             <td>
               <span class="calendar-inactive-date">8</span>
@@ -105,9 +125,9 @@
               <span>9</span>
             </td>
             <td>
-              <!-- 오늘 날짜 class: calendar-current-date 추가 -->
+              &lt;!&ndash; 오늘 날짜 class: calendar-current-date 추가 &ndash;&gt;
               <span class="calendar-current-date">10</span>
-              <!-- // 오늘 날짜 class: calendar-current-date 추가 -->
+              &lt;!&ndash; // 오늘 날짜 class: calendar-current-date 추가 &ndash;&gt;
             </td>
             <td>
               <span class="calendar-inactive-date">11</span>
@@ -136,9 +156,9 @@
               <span>18</span>
             </td>
             <td>
-              <!-- 선택된 날짜 class: calendar-selected-date 추가 -->
+              &lt;!&ndash; 선택된 날짜 class: calendar-selected-date 추가 &ndash;&gt;
               <span class="calendar-selected-date">19</span>
-              <!-- 선택된 날짜 class: calendar-selected-date 추가 -->
+              &lt;!&ndash; 선택된 날짜 class: calendar-selected-date 추가 &ndash;&gt;
             </td>
             <td>
               <span>20</span>
@@ -192,28 +212,175 @@
             <td>
               <span class="calendar-inactive-date">4</span>
             </td>
-          </tr>
+          </tr>-->
         </table>
       </div>
     </div>
 
     <template #action>
       <kw-btn
-        negative
         label="취소"
+        negative
+        @click="onClickCancel"
       />
       <kw-btn
-        primary
         label="다음"
+        primary
       />
     </template>
   </kw-popup>
 </template>
 
 <script setup>
+// -------------------------------------------------------------------------------------------------
+// Import & Declaration
+// -------------------------------------------------------------------------------------------------
+import dayjs from 'dayjs';
+import { cloneDeep, toInteger } from 'lodash-es';
+import { notify, useDataService, useModal } from 'kw-lib';
+
+// eslint-disable-next-line no-unused-vars
+const { t } = useI18n();
+// eslint-disable-next-line no-unused-vars
+const { ok, cancel } = useModal();
+const dataService = useDataService();
+const DATE_FORMAT_YM = 'YYYYMM';
+const DATE_FORMAT_YMD = 'YYYYMMDD';
+const props = defineProps({
+  baseYm: { type: String, default: dayjs().format('YYYYMM') },
+  cntrNo: { type: String, default: '' },
+  cntrSn: { type: String, default: '' },
+  chnlDvCd: { type: String, default: '' },
+  sellDate: { type: String, default: '' },
+  svDvCd: { type: String, default: '' },
+  svBizDclsfCd: { type: String, default: '' },
+  prtnrNo: { type: String, default: '' },
+  ordDt: { type: String, default: '' },
+  ordSeq: { type: String, default: '' },
+});
+// -------------------------------------------------------------------------------------------------
+// Function & Event
+// -------------------------------------------------------------------------------------------------
+const searchParams = ref({});
+new Map(Object.entries(props)).forEach((item, field) => {
+  searchParams.value[field] = item;
+});
+
+const data = ref({
+  svBizDclsfCd: '',
+  chnlDvCd: '',
+  svDvCd: '',
+  cntrNo: '',
+  cntrSn: '',
+  sellDate: '',
+  sellTime: '',
+  curDateTimeString: '',
+  wrkDt: '',
+  dataStatCd: '',
+  basePdCd: '',
+  lcst09: '',
+  newAdrZip: '',
+  userId: '',
+  rcpOgTpCd: '',
+  sowDay: '',
+  sidingYn: '',
+  spayYn: '',
+  offDays: [],
+  sidingDays: [],
+  disableDays: [],
+  days: [],
+  seq: '',
+  cstSvAsnNo: '',
+  prtnrNo: '',
+  ogTpCd: '',
+});
+
+const schedules = ref([]);
+const scheduleInfo = ref({
+  weekCnt: 0,
+  dayCnt: 7,
+});
+function getCurrentDate() {
+  return dayjs(`${searchParams.value.baseYm}01`).format(DATE_FORMAT_YM);
+}
+function disableAllTheseDays(inDate, isNotifyMessage) {
+  const isFind = data.value.disableDays.find((item) => item.disableFuldays.replace(/-/g, '')
+    === inDate);
+  if (isFind) {
+    const message = isFind.tcMsg;
+    if (isNotifyMessage) notify(message, message);
+    return 'N';
+  }
+  return 'Y';
+}
+function getYmdText(dayCnt) {
+  return schedules.value[dayCnt - 1]?.baseY
+    .concat(schedules.value[dayCnt - 1]?.baseMm)
+    .concat(schedules.value[dayCnt - 1]?.baseD);
+}
+function getDayCnt(weekIdx, dayIdx) {
+  return ((weekIdx - 1) * scheduleInfo.value.dayCnt) + dayIdx;
+}
+function getDayText(dayCnt) {
+  return toInteger(schedules.value[dayCnt - 1]?.baseD);
+}
+function isToday(dayCnt) {
+  if (!schedules.value[dayCnt - 1]) return false;
+  const { baseY, baseMm, baseD } = schedules.value[dayCnt - 1];
+  return `${baseY}${baseMm}${baseD}` === dayjs().format(DATE_FORMAT_YMD);
+}
+function isEnable(dayCnt, isNotifyMessage) {
+  const pointedDate = getYmdText(dayCnt).replace(/-/g, '');
+  return disableAllTheseDays(pointedDate, isNotifyMessage);
+}
+
+function isHoliday(dayCnt) {
+  return schedules.value[dayCnt - 1]?.dfYn === 'Y' || schedules.value[dayCnt - 1]?.phldYn === 'Y';
+}
+
+function isOpacity(dayCnt) {
+  const enable = isEnable(dayCnt, false);
+  if (enable === 'N') {
+    return true;
+  }
+  return !(schedules.value[dayCnt - 1]?.baseMm === searchParams.value.baseYm.substring(4));
+}
+
+let cachedParams;
+async function getTimeTables() {
+  cachedParams = cloneDeep(searchParams.value);
+  const res = await dataService.get('/sms/wells/service/time-tables/schd-cho', {
+    params:
+      {
+        ...cachedParams,
+      },
+  });
+  data.value = res.data;
+  schedules.value = data.value.days;
+  scheduleInfo.value.weekCnt = schedules.value.length / scheduleInfo.value.dayCnt;
+}
+async function onClickPrevMonth() {
+  const currentDate = getCurrentDate();
+  if (dayjs().diff(currentDate, 'month') > 5) return;
+  searchParams.value.baseYm = dayjs(getCurrentDate()).subtract(1, 'month').format(DATE_FORMAT_YM);
+  await getTimeTables();
+}
+async function onClickNextMonth() {
+  searchParams.value.baseYm = dayjs(getCurrentDate()).add(1, 'month').format(DATE_FORMAT_YM);
+  await getTimeTables();
+}
+async function onClickCalendar($event, weekIdx, dayIdx) {
+  console.log($event, weekIdx, dayIdx);
+}
+async function onClickCancel() {
+  cancel();
+}
+onMounted(async () => {
+  await getTimeTables();
+});
 </script>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 .calendar {
   width: 100%;
   margin-top: 20px;
