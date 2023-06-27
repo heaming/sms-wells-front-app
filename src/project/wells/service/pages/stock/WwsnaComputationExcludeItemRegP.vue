@@ -126,7 +126,7 @@
         :label="$t('MSG_BTN_LSTMM_DTA_TF')"
         primary
         dense
-        :disable="isTransfer"
+        :disable="isSearch"
         @click="onClickTransfer"
       />
     </kw-action-top>
@@ -244,8 +244,6 @@ async function fetchData() {
 }
 
 const isSearch = ref(true);
-const isTransfer = computed(() => (isSearch.value ? isSearch.value : pageInfo.totalCount === 0));
-
 async function onClickSearch() {
   pageInfo.value.pageIndex = 1;
   // 조회버튼 클릭 시에만 총 건수 조회하도록
@@ -359,10 +357,13 @@ async function onClickTransfer() {
     return;
   }
 
-  await dataService.post('/sms/wells/service/computation-exclude-items/item-transfers', cachedParams);
-  notify(t('MSG_ALT_TRNS_FIN'));
-  pageInfo.value.needTotalCount = true;
-  await fetchData();
+  res = await dataService.post('/sms/wells/service/computation-exclude-items/item-transfers', cachedParams);
+  const { processCount } = res.data;
+  if (processCount > 0) {
+    notify(t('MSG_ALT_TRNS_FIN'));
+    pageInfo.value.needTotalCount = true;
+    await fetchData();
+  }
 }
 
 // 엑셀다운로드
