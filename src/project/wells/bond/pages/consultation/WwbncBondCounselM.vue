@@ -429,16 +429,19 @@ async function onClickBncCallBack() {
     line-height: 1.43;
   }
 
+  // rev:230628 css 변경
+
   .call-center-popup {
     position: absolute;
     width: 810px;
     padding: 16px 30px 20px;
     border: 1px solid $secondary;
-    bottom: 104px;
-    right: 0;
+    bottom: 103px;
+    right: 40px;
     background: $bg-white;
   }
 
+  // // rev:230628 css 변경
   .outgoing-call-box {
     position: absolute;
     left: 92px;
