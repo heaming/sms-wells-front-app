@@ -266,7 +266,7 @@ async function onClickAllSave() {
       obj.mexnoEncr = getPhoneNumber(tel, 2);
       obj.cralIdvTno = getPhoneNumber(tel, 3);
     }
-    obj.vlStrtDt = saveParams.value.rfltAplyDt;
+    obj.vlStrtdt = saveParams.value.rfltAplyDt;
     obj.vlEnddt = saveParams.value.rfltEnddt;
   });
 
@@ -288,7 +288,7 @@ async function onClickSave() {
 
   // eslint-disable-next-line no-restricted-syntax
   for (const item of changeRows) {
-    if (isEmpty(item.vlStrtDt) || isEmpty(item.vlEnddt)) {
+    if (isEmpty(item.vlStrtdt) || isEmpty(item.vlEnddt)) {
       notify(t('MSG_TXT_APY_DT_CONF'));
       return;
     }
@@ -299,7 +299,7 @@ async function onClickSave() {
       return;
     }
     */
-    if (item.vlStrtDt > item.vlEnddt) {
+    if (item.vlStrtdt > item.vlEnddt) {
       notify(t('MSG_TXT_APY_DT_CONF'));
       return;
     }
@@ -373,7 +373,7 @@ const initGrdMain = defineGrid((data, view) => {
         type: 'dropdown',
       } },
     { fieldName: 'cntrDt', header: t('MSG_TXT_ENTCO_DT'), width: '130', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'vlStrtDt',
+    { fieldName: 'vlStrtdt',
       header: t('MSG_TXT_APPLY_DT'),
       width: '130',
       styleName: 'text-center',
@@ -413,7 +413,7 @@ const initGrdMain = defineGrid((data, view) => {
   view.editOptions.editable = true;
 
   view.onCellEditable = (grid, index) => {
-    if (['wkGrpCd', 'wkcrCd', 'vlStrtDt', 'vlEnddt', 'cralLocaraTno'].includes(index.column)) {
+    if (['wkGrpCd', 'wkcrCd', 'vlStrtdt', 'vlEnddt', 'cralLocaraTno'].includes(index.column)) {
       return true;
     }
     return false;
