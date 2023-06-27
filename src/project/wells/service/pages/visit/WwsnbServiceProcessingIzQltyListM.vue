@@ -1,3 +1,17 @@
+<!----
+ ****************************************************************************************************
+ * 프로그램 개요
+ ****************************************************************************************************
+ 1. 모듈 : SNB (방문관리)
+ 2. 프로그램 ID : WwsnbServiceProcessingIzQltyListM - 서비스처리 내역(품질)
+ 3. 작성자 : hyewon.kim
+ 4. 작성일 : 2023.06.22
+ ****************************************************************************************************
+ * 프로그램 설명
+ ****************************************************************************************************
+ - 서비스처리 내역(품질) (http://localhost:3000/#/service/wwsnb-service-processing-iz-qlty-list)
+ ****************************************************************************************************
+--->
 <template>
   <kw-page>
     <kw-search
@@ -158,7 +172,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, defineGrid, getComponentType, gridUtil, useDataService, useMeta } from 'kw-lib';
+import { codeUtil, defineGrid, getComponentType, gridUtil, useDataService, useMeta, popupUtil } from 'kw-lib';
 import { cloneDeep, isEmpty, toNumber } from 'lodash-es';
 import dayjs from 'dayjs';
 
@@ -166,7 +180,6 @@ const { t } = useI18n();
 const { getConfig } = useMeta();
 const { currentRoute } = useRouter();
 
-const router = useRouter();
 const dataService = useDataService();
 
 const serviceTypes = [
@@ -289,7 +302,7 @@ async function onClickExcelDownload() {
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
-    exportData: res.data.list,
+    exportData: res.data,
   });
 }
 
@@ -323,7 +336,7 @@ const initGrdMain = defineGrid((data, view) => {
       width: 150,
       styleName: 'text-center',
       displayCallback: (grid, index) => {
-        const { cralLocaraTno, mexnoEncr, cralIdvTno } = gridUtil.getRowValue(view, index.dataRow);
+        const { cralLocaraTno, mexnoEncr, cralIdvTno } = grid.getValues(index.dataRow);
         return getPhoneNo(cralLocaraTno, mexnoEncr, cralIdvTno);
       },
     }, // 전화번호
@@ -362,7 +375,7 @@ const initGrdMain = defineGrid((data, view) => {
       width: '145',
       styleName: 'text-center',
       displayCallback: (grid, index) => {
-        const { contactCralLocaraTno, contactMexnoEncr, contactCralIdvTno } = gridUtil.getRowValue(view, index.dataRow);
+        const { contactCralLocaraTno, contactMexnoEncr, contactCralIdvTno } = grid.getValues(index.dataRow);
         return getPhoneNo(contactCralLocaraTno, contactMexnoEncr, contactCralIdvTno);
       },
     }, // 연락처(핸드폰)
@@ -383,7 +396,7 @@ const initGrdMain = defineGrid((data, view) => {
       width: '145',
       styleName: 'text-right',
       displayCallback: (grid, index) => {
-        const { wkLdtm } = gridUtil.getRowValue(view, index.dataRow);
+        const { wkLdtm } = grid.getValues(index.dataRow);
         return getTime(wkLdtm);
       },
     }, // 소요시간
@@ -533,16 +546,12 @@ const initGrdMain = defineGrid((data, view) => {
   view.rowIndicator.visible = true;
 
   view.onCellItemClicked = async (grid, { column, itemIndex }) => {
-    const cntrNo = grid.getValue(itemIndex, 'cntrNoSn');
+    const { cntrNo, cntrSn } = grid.getValues(itemIndex);
 
-    if (column === 'cntrNo') {
-      // TODO: W-SV-U-0072M01 개인별 서비스 현황 화면 새 탭으로 호출
-      router.push({
-        path: '/service/wwsnc-responsible-area-code-mgt',
-        query: {
-          cntrNo,
-        },
-      });
+    if (column === 'cntrNoSn') {
+      console.log('개인별 서비스 현황 화면', cntrNo, cntrSn);
+      // TODO: W-SV-U-0072M01 개인별 서비스 현황 화면 새창으로 열기
+      await popupUtil.open(`#/service/wwsnb-service-processing-iz-qlty-list?cntrNo=${cntrNo}&cntrSn=${cntrSn}`, { width: 2000, height: 1100 }, false);
     }
   };
 });
