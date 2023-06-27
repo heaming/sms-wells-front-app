@@ -1090,7 +1090,7 @@ async function onClickSave() {
     asIstOjNo: data.value.inflwChnl + data.value.svDvCd + data.value.wrkDt + data.value.seq,
     svBizHclsfCd: searchParams.value.svDvCd,
     rcpdt: data.value.wrkDt,
-    dtaStatCd: searchParams.value.dataStatCd,
+    mtrStatCd: searchParams.value.dataStatCd,
     svBizDclsfCd: searchParams.value.svBizDclsfCd,
     urgtYn: 'N',
     vstRqdt: searchParams.value.sellDate,
@@ -1107,8 +1107,19 @@ async function onClickSave() {
     userId: data.value.userId, // 로그인한 사용자
     rcpOgTpCd: data.value.rcpOgTpCd, // 로그인한 사용자 조직유형
     cstSvAsnNo: data.value.cstSvAsnNo,
-
   };
+
+  // @김동엽 부장님
+  // 김동엽 부장님 파라미터 =>    수정 요청
+  // SV_DV_CD                     SV_BIZ_HCLSF_CD  svBizHclsfCd
+  // WRK_DT                       RCPDT                        rcpdt
+  // SEQ                          AS_IST_OJ_NO         asIstOjNo
+  // DATA_STAT_CD                 MTR_STAT_CD          mtrStatCd
+  // SELL_DATE                    VST_RQDT                 vstRqdt
+  // SELL_TIME                    VST_AK_HH               vstAkHh
+  // SMS_YN                       SMS_FW_YN               smsFwYn
+  // EGER_MEMO                    CNSL_MO_CN            cnslMoCn
+
   console.log(sendData);
   await dataService.post('/sms/wells/service/installation-works', sendData);
   notify(t('MSG_ALT_SAVE_DATA'));
