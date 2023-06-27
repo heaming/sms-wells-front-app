@@ -158,7 +158,7 @@ import pdConst from '~sms-common/product/constants/pdConst';
 import ZwpdProductClassificationSelect from '~sms-common/product/pages/standard/components/ZwpdProductClassificationSelect.vue';
 import { getCodeNames, getAlreadyItems, setGridDateFromTo } from '~sms-common/product/utils/pdUtil';
 
-const { notify, modal } = useGlobal();
+const { alert, notify, modal } = useGlobal();
 const router = useRouter();
 const { t } = useI18n();
 const dataService = useDataService();
@@ -260,7 +260,7 @@ async function checkDuplication() {
   const view = grdMainRef.value.getView();
   const changedRows = gridUtil.getChangedRowValues(view);
   const alreadyItems = getAlreadyItems(view, changedRows, 'pdCd', 'svPdCd', 'stplPrdCd');
-  if (alreadyItems.length > 1) {
+  if (alreadyItems.length > 0) {
     // {상품명/서비스명/약정개월}이(가) 중복됩니다.
     let dupItem = alreadyItems[0].pdNm;
     if (alreadyItems[0].svPdNm) {
@@ -273,15 +273,14 @@ async function checkDuplication() {
     return true;
   }
 
-  const createdRows = gridUtil.getCreatedRowValues(view);
-  if (createdRows.length === 0) {
+  if (changedRows.length === 0) {
     return false;
   }
 
-  const { data: dupData } = await dataService.post('/sms/wells/product/alliances/duplication-check', createdRows);
+  const { data: dupData } = await dataService.post('/sms/wells/product/alliances/duplication-check', changedRows);
   if (dupData.data) {
     const dupCodes = dupData.data.split(',', -1);
-    const { pdNm, svPdNm, stplPrdCd } = createdRows.find((item) => item.pdCd === dupCodes[0]
+    const { pdNm, svPdNm, stplPrdCd } = changedRows.find((item) => item.pdCd === dupCodes[0]
         && ((isEmpty(item.svPdCd) && isEmpty(dupCodes[1])) || item.svPdCd === dupCodes[1])
         && ((isEmpty(item.stplPrdCd) && isEmpty(dupCodes[2])) || item.stplPrdCd === dupCodes[2]));
     let dupItem = pdNm;
@@ -292,7 +291,7 @@ async function checkDuplication() {
       dupItem += `/${getCodeNames(codes, stplPrdCd, 'STPL_PRD_CD')}`;
     }
     // 은(는) 이미 DB에 등록되어 있습니다.
-    notify(t('MSG_ALT_EXIST_IN_DB', [dupItem]));
+    await alert(t('MSG_ALT_EXIST_IN_DB', [dupItem]));
     return true;
   }
   return false;
@@ -314,7 +313,7 @@ async function checkValidation() {
     const contrMonth = stplPrdCd ? getCodeNames(codes, stplPrdCd, 'STPL_PRD_CD') : nonLabel;
     // {0}의 가격정보를 확인하여 주십시오. {(서비스코드 : 없음, 약정개월 : 없음)}가격정보는 존재하지 않습니다.
     const svcAddInfo = `(${t('MSG_TXT_SVC_CODE')} : ${svPdNm ?? nonLabel}, ${t('MSG_TXT_STPL_MCNT')} : ${contrMonth})`;
-    notify(t('MSG_ALT_PDPRC_NOT_EXISTED', [pdNm, svcAddInfo]));
+    await alert(t('MSG_ALT_PDPRC_NOT_EXISTED', [pdNm, svcAddInfo]));
     return false;
   }
   return true;

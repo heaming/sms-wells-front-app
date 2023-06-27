@@ -182,7 +182,6 @@ import CrdcdExpSelect
 import { warn } from 'vue';
 
 const props = defineProps({
-  contract: { type: Object, default: undefined },
   cntrCstInfo: { type: Object, default: undefined },
   crdcdStlms: {
     type: Array,
@@ -317,35 +316,16 @@ function getStlmsUpdateInfo() {
 }
 
 async function requestApproval() {
-  return new Promise((resolve) => {
-    console.log(props.crdcdStlms[0].stlmRels);
-
-    const dataParams = {
-      cardExpdtYm: approvalRequest.value.cardExpdtYm,
-      crcdnoEncr: approvalRequest.value.crcdnoEncr,
-      istmMcn: approvalRequest.value.istmMcn,
-      owrKnm: approvalRequest.value.owrKnm,
-      stlmAmt: approvalRequest.value.stlmAmt,
-      cntrNo: stlmBas.value.cntrNo,
-      stlmRels: props.crdcdStlms[0].stlmRels,
-    };
-
-    console.log(dataParams);
-
-    // 수납요청 데이터 생성 및 카드승인..
-    const res = dataService.post('/sms/wells/contract/contracts/settlements/credit-card-spay', dataParams);
-    console.log(res);
-
-    // const testResponse = {
-    //   data: {
-    //     aprno: 'test123456789', /* 승인번호, 저장은 안하지만 와야함. */
-    //     cdcoCd: '02', /* 카드사 코드 */
-    //     fnitAprRsCd: 'Y', /* 금융기관승인결과코드 */
-    //     fnitAprFshDtm: undefined, /* 금융기관승인완료일시 */
-    //   },
-    // };
-    setTimeout(() => resolve(res), 100);
-  });
+  const dataParams = {
+    cardExpdtYm: approvalRequest.value.cardExpdtYm,
+    crcdnoEncr: approvalRequest.value.crcdnoEncr,
+    istmMcn: approvalRequest.value.istmMcn,
+    owrKnm: approvalRequest.value.owrKnm,
+    stlmAmt: approvalRequest.value.stlmAmt,
+    cntrNo: stlmBas.value.cntrNo,
+    stlmRels: props.crdcdStlms[0].stlmRels,
+  };
+  return await dataService.post('/sms/wells/contract/contracts/settlements/credit-card-spay', dataParams);
 }
 
 async function onClickApproval() {

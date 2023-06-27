@@ -37,11 +37,11 @@
             icon="search"
             clearable
             :label="t('MSG_TXT_CLNT_NM')"
+            :readonly="isCheckReadonly"
             @click-icon="onClickDealingPartner"
             @keydown="onKeyDownSelect"
             @clear="onClearSelect"
           />
-          <!-- :readonly="true" -->
         </kw-search-item>
       </kw-search-row>
     </kw-search>
@@ -238,7 +238,7 @@ const params = ref({ itgDpNo: '', cntrNo: '', bzrno: '' });
 
 const itgDpNo = ref();
 const cntrNo = ref();
-
+const isCheckReadonly = ref(true);
 let cachedParams;
 
 async function fetchData() {
@@ -465,7 +465,7 @@ async function initProps() {
     searchParams.value.dlpnrNm = props.mconBzsNm;
     itgDpNo.value = props.itgDpNo;
     cntrNo.value = props.cntrNo;
-
+    isCheckReadonly.value = true;
     await onClickSearch();
     await onClickSubSearch();
     await onGridAdd();
@@ -475,6 +475,7 @@ async function initProps() {
       billRcpDt: now.format('YYYYMMDD'), // 접수일자
       billExprDt: now.format('99991231'), // 만기일
     });
+    isCheckReadonly.value = false;
   }
 }
 

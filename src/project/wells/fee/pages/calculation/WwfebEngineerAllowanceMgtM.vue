@@ -492,10 +492,11 @@ async function onClickExcelUpload() {
 // 번호 검색 아이콘 클릭 이벤트
 async function onClickSearchNo() {
   const { result, payload } = await modal({
-    component: 'ZwogzPartnerListP',
+    component: 'ZwogzMonthPartnerListP',
     componentProps: {
       ogTpCd: 'W06',
       prtnrNo: searchParams.value.prtnrNo,
+      baseYm: searchParams.value.perfYm,
     },
   });
 

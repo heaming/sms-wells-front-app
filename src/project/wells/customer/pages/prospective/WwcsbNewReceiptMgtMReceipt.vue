@@ -72,11 +72,6 @@
         :label="$t('MSG_BTN_EXCEL_DOWN')"
         @click="onClickExcelDownload"
       />
-      <kw-separator
-        vertical
-        inset
-        spaced
-      />
     </kw-action-top>
     <kw-grid
       ref="grdReceiptRef"
@@ -117,7 +112,7 @@ const codes = await codeUtil.getMultiCodes('COD_PAGE_SIZE_OPTIONS');
 
 // t('MSG_TXT_EDU_HOME_PAGE')
 const RECEIPT_TYPE_CODE = [
-  { codeId: '40', codeName: t('MSG_TXT_CUBIC_CC') }, /* 큐빅CC */
+  { codeId: '40', codeName: t('MSG_TXT_SERVICE_CENTER') }, /* 고객센터 */
   { codeId: '20', codeName: t('MSG_TXT_HMPG') }, /* 홈페이지 */
 ];
 
@@ -223,7 +218,7 @@ const initgrdReceipt = defineGrid((data, view) => {
     { fieldName: 'ichrPrtnrNo', header: t('MSG_TXT_ASSIGNER_EP_NO'), width: '120', styleName: 'text-center' }, /* 배정담당자 사번 */
     { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_NO'), width: '130', styleName: 'text-center' }, /* 계약번호 */
     { fieldName: 'fstRgstDtm', header: t('MSG_TXT_CRT_D'), width: '114', styleName: 'text-center', datetimeFormat: 'date' }, /* 생성일 */
-    { fieldName: 'col17', header: t('MSG_TXT_DUEDT'), width: '114', styleName: 'text-center' }, /* 예정일 */
+    { fieldName: 'sppDuedt', header: t('MSG_TXT_DUEDT'), width: '114', styleName: 'text-center' }, /* 예정일 */
     { fieldName: 'cntrPdStrtdt', header: t('MSG_TXT_DT_OF_SALE'), width: '114', styleName: 'text-center' }, /* 매출일 */
     { fieldName: 'pdNm', header: t('MSG_TXT_GOODS_NM'), width: '143', styleName: 'text-left' }, /* 제품명 */
     { fieldName: 'newAdrZip', header: t('MSG_TXT_ZIP'), width: '77', styleName: 'text-center' }, /* 우편번호 */
@@ -252,8 +247,9 @@ const initgrdReceipt = defineGrid((data, view) => {
   view.onCellDblClicked = async (g, clickData) => {
     if (clickData.cellType === 'data') {
       const pspcCstCnslId = g.getValue(clickData.itemIndex, 'pspcCstCnslId');
+      const cntrNo = g.getValue(clickData.itemIndex, 'cntrNo');
       const targetUrl = '/customer/wwcsb-new-receipt-mgt/wwcsb-new-receipt-mgt-m-Receipt-dtl';
-      await router.push({ path: targetUrl, query: { pspcCstCnslId, fromUi: 'RECV' } });
+      await router.push({ path: targetUrl, query: { pspcCstCnslId, fromUi: 'RECV', cntrNo } });
     }
   };
 

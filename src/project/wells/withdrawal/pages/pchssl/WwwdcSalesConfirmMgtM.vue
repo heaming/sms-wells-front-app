@@ -178,7 +178,7 @@ const { confirm, alert, notify } = useGlobal();
 const searchParams = ref({
   cntrNo: '',
   cntrSn: '',
-  cellTpCd: '', // 업무구분 1~7 (기본:일시불)
+  cellTpCd: '1', // 업무구분 1~7 (기본:일시불)
   dgr1LevlOgId: '', // 조직레벨LV1
   dgr2LevlOgId: '', // 조직레벨LV2
   // dgr3LevlOgId: '', // 설계서상x
@@ -286,6 +286,13 @@ async function onClickSalesRecognize() {
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
+/**
+ * TODO: EDU와 동작구성 흡사.
+ * 매출인식 재인식/인식시키는 화면 (매출확정 상태변경 화면 - 렌탈 신규/철거 집계현황 미완성)
+ * ※
+ * - cellTpCd - 230623 기준 조회되는 데이터 없어서 미기입시 데이터값 확인가능.
+ * - ogTpCd - 조직레벨 코드 임시적으로 넣음. 설계서 변경에 따라 알맞는 값 기입 요청. ( 설계서상 설명없음.)
+*/
 
 const initGrid = defineGrid((data, view) => {
   const fields = [
@@ -346,7 +353,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'ostrDtm', header: t('MSG_TXT_OSTR_DT'), width: '100', styleName: 'text-center' }, // 출고일자
     { fieldName: 'istDtm', header: t('MSG_TXT_IST_DT'), width: '100', styleName: 'text-center' }, // 설치일자
     { fieldName: 'svDt', header: t('MSG_TXT_SV_DT'), width: '100', styleName: 'text-center' }, // 서비스일자
-    { fieldName: 'cntrCanDtm', header: t('MSG_TXT_CNTR_CAN_DT'), width: '100', styleName: 'text-center' }, // 계약취소일자
+    { fieldName: 'cntrCanDtm', header: t('MSG_TXT_CNTR_CAN_DTM'), width: '100', styleName: 'text-center' }, // 계약취소일자 -> 계약취소일시
     { fieldName: 'slRcogDt', header: t('MSG_TXT_SL_RCOG_DT'), width: '100', styleName: 'text-center' }, // 매출인식일자 -> 매출인식일
     { fieldName: 'fnlMdfcDtm', header: t('MSG_TXT_CH_DT'), width: '100', styleName: 'text-center' }, // 변경일자
     { fieldName: 'fnlMdfcUsrId', header: t('MSG_TXT_MDFR'), width: '104' }, // 변경자

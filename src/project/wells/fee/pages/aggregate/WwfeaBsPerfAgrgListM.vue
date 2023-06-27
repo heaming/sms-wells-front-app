@@ -183,9 +183,10 @@ async function onClickExcelDownload() {
 // 번호 팝업 호출
 async function openPartnerPopup() {
   const { result, payload } = await modal({
-    component: 'ZwogzPartnerListP',
+    component: 'ZwogzMonthPartnerListP',
     componentProps: {
       prtnrNo: searchParams.value.prtnrNo,
+      baseYm: searchParams.value.perfYm,
     },
   });
 

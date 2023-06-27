@@ -129,6 +129,7 @@
           primary
           dense
           :label="$t('MSG_BTN_CNTN_CREATE')"
+          :disable="isNotActivated"
           @click="onClickCreate"
         />
       </kw-action-top>
@@ -153,6 +154,7 @@
         <kw-btn
           :label="$t('MSG_BTN_SAVE')"
           grid-action
+          :disable="isNotActivated"
           @click="onClickSave"
         />
         <kw-separator
@@ -219,6 +221,7 @@ const filteredCodes = ref({ CLCTAM_DV_CD: codes.CLCTAM_DV_CD.filter((obj) => (ob
 
 const grdMainRef = ref(getComponentType('KwGrid'));
 const grdSubRef = ref(getComponentType('KwGrid'));
+const isNotActivated = ref(false);
 const totalCount = ref(0);
 const pageInfo = ref({
   totalCount: 0,
@@ -404,6 +407,13 @@ watch(() => searchParams.value.phoneNumber, async () => {
     canFeasibleSearch.value.popSearchComplate = false;
   } else {
     canFeasibleSearch.value.type3 = false;
+  }
+});
+watch(() => searchParams.value.baseYm, async (baseYm) => {
+  if (baseYm !== defaultDate) {
+    isNotActivated.value = true;
+  } else {
+    isNotActivated.value = false;
   }
 });
 
@@ -600,7 +610,11 @@ const initGrdSub = defineGrid((data, view) => {
   view.layoutByColumn('lwmTpCd').summaryUserSpans = { colspan: 5 };
 
   view.onCellClicked = () => {
-    view.editOptions.editable = true;
+    if (cachedParams.baseYm !== defaultDate) {
+      view.editOptions.editable = false;
+    } else {
+      view.editOptions.editable = true;
+    }
   };
 });
 </script>

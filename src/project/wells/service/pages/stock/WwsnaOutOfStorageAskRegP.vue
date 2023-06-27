@@ -95,7 +95,7 @@
     <kw-action-top>
       <template #left>
         <kw-paging-info
-          :total-count="pageInfo.totalCount"
+          :total-count="totalCount"
         />
       </template>
       <kw-btn
@@ -125,7 +125,7 @@
         dense
         secondary
         :label="$t('MSG_BTN_EXCEL_DOWN')"
-        :disable="pageInfo.totalCount === 0"
+        :disable="totalCount === 0"
         @click="onClickExcelDownload"
       />
       <kw-separator
@@ -144,7 +144,6 @@
 
     <kw-grid
       ref="grdMainRef"
-      :visible-rows="pageInfo.pageSize"
       @init="initGrdMain"
     />
   </kw-popup>
@@ -154,7 +153,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, getComponentType, gridUtil, useDataService, useMeta, useGlobal, defineGrid, useModal } from 'kw-lib';
+import { codeUtil, getComponentType, gridUtil, useDataService, useGlobal, defineGrid, useModal } from 'kw-lib';
 import { isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 import useSnCode from '~sms-wells/service/composables/useSnCode';
@@ -163,7 +162,6 @@ const { t } = useI18n();
 const dataService = useDataService();
 const { ok } = useModal();
 
-const { getConfig } = useMeta();
 const { modal, notify } = useGlobal();
 const { getMonthWarehouse } = useSnCode();
 const store = useStore();
@@ -205,6 +203,7 @@ const isHopDt = ref(false); // 입고희망일자
 
 const warehouses = ref([]);
 const ostrOjWares = ref([]);
+const totalCount = ref(0);
 
 const searchParams = ref({
   strOjWareNo: '', // 출고요청창고번호
@@ -222,13 +221,6 @@ const loginUserParams = ref({
   apyYm: dayjs().format('YYYYMM'),
   userId: store.getters['meta/getUserInfo'].employeeIDNumber,
 
-});
-
-const pageInfo = ref({
-  totalCount: 0,
-  pageIndex: 1,
-  pageSize: 10,
-  pageSize2: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
 });
 
 const codes = await codeUtil.getMultiCodes(
@@ -369,13 +361,13 @@ async function fetchOstrAkDataItem() {
   ostrOjWares.value = [{ codeId: res.data.ostrOjWareNo, codeName: res.data.ostrOjWareNm }];
   searchParams.value = res.data;
 
-  const res1 = await dataService.get('/sms/wells/service/out-of-storage-asks/out-of-storage-items/paging', { params: searchParams.value, ...pageInfo.value });
-  const { list: outOfStorages, pageInfo: pagingResult } = res1.data;
-  pageInfo.value = pagingResult;
+  const res1 = await dataService.get('/sms/wells/service/out-of-storage-asks/out-of-storage-items', { params: searchParams.value });
+  const outOfStorages = res1.data;
+
+  totalCount.value = res1.data.length;
 
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(outOfStorages);
-  view.resetCurrent();
 }
 
 async function onClickExcelDownload() {
@@ -419,7 +411,6 @@ async function onClickDelete() {
 
 let params;
 async function onClickSave() {
-  debugger;
   const view = grdMainRef.value.getView();
   const checkedRows = gridUtil.getCheckedRowValues(view);
   if (checkedRows.length === 0) {

@@ -21,7 +21,7 @@
   <wwcta-contract-settlement-agree-item
     v-if="stlm"
     ref="topRef"
-    :title="'잔금할부(자동이체)확인/승인'"
+    :title="'자동이체 확인/승인'"
     default-opened
     hide-expand-icon
   >
@@ -43,20 +43,26 @@
           rules="required"
           disable
         />
+        <kw-select
+          v-model="approvalRequest.bnkCd"
+          label="은행"
+          :options="banks"
+          rules="required"
+        />
         <kw-input
-          v-model="approvalRequest.crcdnoEncr"
-          label="카드번호"
-          mask="####-####-####-####"
-          unmasked-value
-          rules="min:14|required"
+          v-model="approvalRequest.acnoEncr"
+          label="계좌번호"
+          rules="required"
         />
         <kw-input
           v-model="approvalRequest.owrKnm"
-          label="카드주"
+          label="예금주"
           rules="required"
         />
-        <crdcd-exp-select
-          v-model="approvalRequest.cardExpdtYm"
+        <kw-input
+          :model-value="cntrCstInfo.cstKnm"
+          label="계약자명"
+          readonly
         />
         <kw-input
           v-if="isCooperation"
@@ -90,8 +96,7 @@
 <script setup>
 import WwctaContractSettlementAgreeItem
   from '~sms-wells/contract/components/ordermgmt/WwctaContractSettlementAgreeItem.vue';
-import CrdcdExpSelect from '~sms-wells/contract/components/ordermgmt/WctaCrdcdExpSelect.vue';
-import { confirm, getComponentType, notify } from 'kw-lib';
+import { confirm, getComponentType, notify, useDataService } from 'kw-lib';
 
 const props = defineProps({
   cntrCstInfo: { type: Object, default: undefined },
@@ -103,6 +108,8 @@ const props = defineProps({
 
 const emit = defineEmits(['approved']);
 
+const dataService = useDataService();
+
 const exposed = {};
 defineExpose(exposed);
 
@@ -112,12 +119,20 @@ const isCooperation = computed(() => props.cntrCstInfo.copnDvCd === '2' /* sorry
 
 const stlmBas = computed(() => (props.stlm ?? {}));
 
+const banks = ref([]);
+
+async function fetchBanks() {
+  const { data } = await dataService.get('/sms/common/common/codes/finance-code/bank-codes');
+  banks.value = data;
+}
+
+await fetchBanks();
+
 const approvalRequest = ref({
   stlmAmt: stlmBas.value.stlmAmt, /* TODO: 추후에 확인 필요 */
-  mpyBsdt: '21', /* 납부기준일자 TODO: 나중에 옵션 가져올것 */
-  crcdnoEncr: '', /* 카드번호 */
-  owrKnm: '', /* 카드주 */
-  cardExpdtYm: '', /* 유효기한 */
+  mpyBsdt: '21', /* 납부기준일자 */
+  acnoEncr: '', /* 계좌번호 */
+  owrKnm: '', /* 소유자 한글명 */
 });
 
 const approvalResponse = ref({
@@ -132,9 +147,8 @@ function getStlmUpdateInfo() {
   if (!cntrStlmId) { throw Error('데이터가 이상합니다. 관리자에게 연락바랍니다.'); }
   const {
     mpyBsdt,
-    crcdnoEncr,
+    acnoEncr,
     owrKnm,
-    cardExpdtYm,
   } = approvalRequest.value;
   const {
     aprno,
@@ -147,9 +161,8 @@ function getStlmUpdateInfo() {
     dpTpCd,
     cntrNo,
     mpyBsdt,
-    crcdnoEncr,
+    acnoEncr,
     owrKnm,
-    cardExpdtYm,
     aprno,
     cdcoCd,
     fnitAprRsCd,

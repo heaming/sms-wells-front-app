@@ -120,6 +120,7 @@
         :disable="!isSelected"
         @click="onClickDelete"
       />
+      <!-- :disable="(props.page !== pageProps.remove) || (pageInfo.totalCount === 0)" -->
       <kw-separator
         spaced
         vertical
@@ -143,6 +144,7 @@
         primary
         dense
         :label="$t('MSG_TXT_DTRM')"
+        :disable="props.page !== pageProps.confirm"
         @click="onClickConfirm"
       />
       <!-- //확정 -->
@@ -150,6 +152,7 @@
         primary
         dense
         :label="$t('MSG_TXT_CNFM_PRNT')"
+        :disable="props.page !== pageProps.confirm"
         @click="onClickConfirmAfterMove"
       />
     </kw-action-top>
@@ -176,7 +179,7 @@
 // -------------------------------------------------------------------------------------------------
 import { codeUtil, useDataService, getComponentType, useMeta, defineGrid, useGlobal, gridUtil, useModal } from 'kw-lib';
 import dayjs from 'dayjs';
-import { cloneDeep } from 'lodash-es';
+// import { cloneDeep } from 'lodash-es';
 // import { cloneDeep, isEmpty } from 'lodash-es';
 
 const { getConfig } = useMeta();
@@ -188,9 +191,8 @@ const dataService = useDataService();
 
 const baseURI = '/sms/wells/service/normal-outofstorages';
 const detailURI = `${baseURI}/detail`;
+const removeURI = `${baseURI}/detail-remove`;
 const standardURI = `${baseURI}/standard-ware`;
-// const stdWareUri = '/sms/wells/service/normal-outofstorages/standard-ware';
-// const pathUri = `${baseURI}/monthly-warehouse`;
 const itmOstrAkUri = `${baseURI}/itm-ostr-ak`;
 const grdMainRef = ref(getComponentType('KwGrid'));
 // -------------------------------------------------------------------------------------------------
@@ -205,11 +207,20 @@ const props = defineProps({
     type: String,
     default: '',
   },
+  itmOstrNo: {
+    type: String,
+    default: '',
+  },
   page: {
     type: String,
     default: '',
   },
 });
+
+const pageProps = {
+  confirm: 'WwsnaNormalOutOfStorageMgtM',
+  remove: 'WwsnaOutOfStorageManagementListM',
+};
 
 const codes = ref(await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
@@ -222,7 +233,7 @@ const codes = ref(await codeUtil.getMultiCodes(
 ));
 
 const searchParams = ref({});
-let cachedParams;
+// let cachedParams;
 
 const pageInfo = ref({
   totalCount: 0,
@@ -231,7 +242,13 @@ const pageInfo = ref({
 });
 
 async function fetchData() {
-  const res = await dataService.get(detailURI, { params: { ...cachedParams, ...pageInfo.value } });
+  const fetchURI = ref('');
+  fetchURI.value = detailURI;
+  if (props.page === pageProps.remove) {
+    fetchURI.value = removeURI;
+  }
+
+  const res = await dataService.get(fetchURI.value, { params: { ...searchParams.value, ...pageInfo.value } });
   const { list: searchData, pageInfo: pagingResult } = res.data;
 
   pageInfo.value = pagingResult;
@@ -240,13 +257,6 @@ async function fetchData() {
   const datasSource = view.getDataSource();
   datasSource.setRows(searchData);
   view.resetCurrent();
-}
-
-async function onClickSearch() {
-  pageInfo.value.pageIndex = 1;
-  cachedParams = cloneDeep(searchParams.value);
-  await fetchData();
-  const view = grdMainRef.value.getView();
   view.checkAll(true);
   const checkedRows = gridUtil.getCheckedRowValues(view);
   if (checkedRows.length === 0) {
@@ -254,20 +264,26 @@ async function onClickSearch() {
   }
 }
 
+async function onClickSearch() {
+  pageInfo.value.pageIndex = 1;
+  // cachedParams = cloneDeep(searchParams.value);
+  await fetchData();
+  // const view = grdMainRef.value.getView();
+  // view.checkAll(true);
+  // const checkedRows = gridUtil.getCheckedRowValues(view);
+  // if (checkedRows.length === 0) {
+  //   view.checkAll(false);
+  // }
+}
+
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
-  const res = await dataService.get(`${detailURI}/excel-download`, { params: cachedParams });
+  const res = await dataService.get(`${detailURI}/excel-download`, { params: searchParams.value });
   await gridUtil.exportView(view, {
     fileName: 'NomalOutOfStorageRgstListP',
     timePostfix: true,
     exportData: res.data,
   });
-}
-
-async function onClickDelete() {
-  if (await confirm(t('MSG_ALT_WANT_DEL'))) {
-    console.log(t('MSG_ALT_WANT_DEL'));
-  }
 }
 
 function getSaveParams() {
@@ -280,15 +296,31 @@ function getSaveParams() {
   return checkedValues.value;
 }
 
-async function onClickConfirm() {
-  if (await confirm(t('MSG_ALT_WANT_DTRM'))) {
-    const view = grdMainRef.value.getView();
-    const checkedRows = gridUtil.getCheckedRowValues(view);
+async function onClickDelete() {
+  const view = grdMainRef.value.getView();
+  const checkedRows = gridUtil.getCheckedRowValues(view);
+  if (await checkedRows.length === 0) {
+    notify(t('MSG_ALT_NOT_SELECT_NOR_OSTR'));
+    return false;
+  }
 
-    if (await checkedRows.length === 0) {
-      notify(t('MSG_ALT_NO_APPY_OBJ_DT'));
-      return false;
-    } if (await gridUtil.validate(view, { isCheckedOnly: true })) {
+  if (await confirm(t('MSG_ALT_WANT_DEL'))) {
+    console.log(t('MSG_ALT_WANT_DEL'));
+    const saveParams = getSaveParams();
+    await dataService.delete(detailURI, saveParams);
+  }
+}
+
+async function onClickConfirm() {
+  const view = grdMainRef.value.getView();
+  const checkedRows = gridUtil.getCheckedRowValues(view);
+  if (await checkedRows.length === 0) {
+    notify(t('MSG_ALT_NOT_SELECT_NOR_OSTR'));
+    return false;
+  }
+
+  if (await confirm(t('MSG_ALT_WANT_DTRM'))) {
+    if (await gridUtil.validate(view, { isCheckedOnly: true })) {
       // 변경된 data가 있는지 체크
       if (await gridUtil.alertIfIsNotModified(view)) { return; }
       // validate :: view.onValidate 호출
@@ -338,8 +370,11 @@ async function setSearchParams(res) {
   searchParams.value.strOjWareNm = res.data.strOjWareNm;
   searchParams.value.ostrAkRgstDt = res.data.ostrAkRgstDt;
   searchParams.value.itmPdCd = res.data.itmPdCd;
+  searchParams.value.itmOstrNo = res.data.itmOstrNo;
+  searchParams.value.ostrSn = res.data.ostrSn;
+  searchParams.value.ostrTpCd = res.data.ostrTpCd;
 
-  // searchParams.value.stckStdGb = '';
+  searchParams.value.stckStdGb = '';
   searchParams.value.stckNoStdGb = 'N';
   searchParams.value.rgstDt = dayjs().format('YYYYMMDD');
   searchParams.value.apyYm = dayjs().format('YYYYMM');
@@ -381,13 +416,12 @@ async function getItmOstrAk() {
   const res = await dataService.get(itmOstrAkUri, { params: ostrAkParams });
 
   await setSearchParams(res);
-
   await stckStdGbFetchData();
-  await onClickSearch();
 }
 
 onMounted(async () => {
   await getItmOstrAk();
+  await onClickSearch();
 });
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
@@ -459,6 +493,8 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'ostrCnfmCd' },
     { fieldName: 'ostrWareDvCd' },
     { fieldName: 'strWareDvCd' },
+    { fieldName: 'ostrWareDtlDvCd' },
+    { fieldName: 'strWareDtlDvCd' },
     { fieldName: 'strWareNm' },
     { fieldName: 'ostrWareNm' },
     { fieldName: 'outQty' }, // 출고수량
@@ -567,7 +603,9 @@ const initGrdMain = defineGrid((data, view) => {
 
   view.onCellDblClicked = async (g, { column, dataRow }, v) => {
     // TODO: componentProps 와 함께 추가
-    const { itmPdCd, svpdNmKor, strWareNo, strWareNm, ostrAkQty } = gridUtil.getRowValue(g, dataRow);
+    const {
+      itmPdCd, svpdNmKor, strWareNo, strWareNm, ostrAkQty, strWareDvCd,
+    } = gridUtil.getRowValue(g, dataRow);
     console.log(g, column, dataRow, v);
 
     const { result, payload } = await modal({
@@ -579,6 +617,7 @@ const initGrdMain = defineGrid((data, view) => {
         strOjWareNo: strWareNo,
         strOjWareNm: strWareNm,
         ostrQty: ostrAkQty,
+        wareDvCd: strWareDvCd,
       },
     });
 

@@ -230,7 +230,7 @@
 
 import dayjs from 'dayjs';
 import { codeUtil, defineGrid, getComponentType, gridUtil, modal, notify, useDataService, useMeta, confirm, alert } from 'kw-lib';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, isEmpty } from 'lodash-es';
 
 const dataService = useDataService();
 const now = dayjs();
@@ -269,8 +269,8 @@ const searchParams = ref({
   lifAlncDvCd: '30', // 제휴코드
 });
 
-const dpBlam = ref(0);
-const dpDtm = ref();
+// const dpBlam = ref(0);
+// const dpDtm = ref();
 
 let cachedParams;
 
@@ -301,8 +301,8 @@ async function fetchSubData() {
   data.checkRowStates(false);
   data.setRows(pages);
 
-  data.setValue(0, 'dpBlam', dpBlam.value);
-  data.setValue(0, 'dpDtm', dpDtm.value);
+  // data.setValue(0, 'dpBlam', dpBlam.value);
+  // data.setValue(0, 'dpDtm', dpDtm.value);
 
   view.resetCurrent();
 }
@@ -386,16 +386,25 @@ async function onClickSearch() {
 // }
 
 async function onClickReset() {
-  const view = grdSubRef.value.getView();
-  const data = view.getDataSource();
-  data.setValue(0, 'dpBlam', 0);
-  data.setValue(0, 'dpDtm', '');
+  // const view = grdSubRef.value.getView();
+  // const data = view.getDataSource();
+  // data.setValue(0, 'dpBlam', 0);
+  // data.setValue(0, 'dpDtm', '');
   searchParams.value.itgDpNo = '';
-  dpBlam.value = 0;
-  dpDtm.value = '';
+  // dpBlam.value = 0;
+  // dpDtm.value = '';
 }
 
 async function onClickCreate() {
+  // const view = grdMainRef.value.getView();
+  const view2 = grdSubRef.value.getView();
+  const checkRows = gridUtil.getAllRowValues(view2);
+
+  if (!isEmpty(checkRows[0].dpDtm)) {
+    await alert('이미 생성 된 입금내역이 존재합니다.');
+    return;
+  }
+
   const lifAlncDvNm = codes.LIF_ALNC_DV_CD.filter((data) => data.codeId === searchParams.value.lifAlncDvCd);
 
   if (!await confirm(t('MSG_ALT_IS_MUTU_DP_MM_CREATE', [
@@ -409,8 +418,8 @@ async function onClickCreate() {
     return;
   }
 
-  const view = grdSubRef.value.getView();
-  const amtSum = gridUtil.getCellValue(view, 0, 'amtSum');
+  const { amtSum } = view2.getValues(0);
+
   const {
     result,
   } = await modal({
@@ -422,7 +431,7 @@ async function onClickCreate() {
 
   if (result) {
     notify(t('MSG_ALT_CRT_FSH'));
-    await fetchData();
+    await onClickSearch();
   }
 }
 
@@ -436,11 +445,11 @@ async function searchTemplateFile(data) {
   let fileName;
 
   if (data === '30') {
-    fileName = 'FOM_WDA_00001';
+    fileName = 'FOM_WDA_00011'; // 웰스 399
   } else if (data === '41') {
-    fileName = 'FOM_WDA_00002';
+    fileName = 'FOM_WDA_00012'; // 포인트 플러스
   } else {
-    fileName = 'FOM_WDA_00003';
+    fileName = 'FOM_WDA_00013'; // 플래너 상조
   }
   return fileName;
 }
@@ -467,7 +476,7 @@ async function onClickExcelUpload() {
   // if (result && payload.status === 'S') {
   if (result) {
     notify(t('MSG_ALT_SAVE_DATA'));
-    await fetchData();
+    await onClickSearch();
   }
 }
 
@@ -650,26 +659,26 @@ const initGrid2 = defineGrid((data, view) => {
 
   const columns = [
     { fieldName: 'countLif',
-      header: t('MSG_TXT_OJ_CT') + t('MSG_TXT_CT_CASE'),
+      header: `${t('MSG_TXT_OJ_CT')}(건)`,
       // header: '대상건수(건)',
       width: '300',
       styleName: 'text-right',
       numberFormat: '#,##0' },
     { fieldName: 'amtSum',
-      header: t('MSG_TXT_ANYTHING_AMT_WON', [t('MSG_TXT_OJ_AMT')]),
+      header: `${t('MSG_TXT_OJ_AMT')}(원)`,
       // header: '대상금액(원)',
       width: '386',
       styleName: 'text-right',
       numberFormat: '#,##0' },
     { fieldName: 'dpDtm',
-      datetimeformat: 'date',
-      header: t('MSG_TXT_ITG_DP_D'),
 
+      header: t('MSG_TXT_ITG_DP_D'),
+      datetimeFormat: 'date',
       // header: '통합입금일',
       width: '300',
       styleName: 'text-center' },
     { fieldName: 'dpBlam',
-      header: t('MSG_TXT_ANYTHING_AMT_WON', [t('MSG_TXT_ITG_DP_BLAM')]),
+      header: `${t('MSG_TXT_ITG_DP_BLAM')}원`,
       // header: '통합입금잔액(원)',
       width: '386',
       styleName: 'text-right',

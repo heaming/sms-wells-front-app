@@ -25,7 +25,6 @@
     :cntr-cst-info="contractor"
     :crdcd-stlms="crdcdStlms"
     :mileage-stlms="mileageStlms"
-    :contract="contract"
     @approved="onApprovedSpayStlms"
   />
   <card-automatic-transfer-approval
@@ -33,6 +32,12 @@
     :cntr-cst-info="contractor"
     :stlm="crdCdAftnStlm"
     @approved="onApprovedCrdCdAftnStlms"
+  />
+  <account-automatic-transfer-approval
+    ref="acAftnRef"
+    :cntr-cst-info="contractor"
+    :stlm="acAftnStlm"
+    @approved="onApprovedAcAftnStlms"
   />
   <virtual-account-issue
     ref="vacIssueRef"
@@ -50,6 +55,8 @@ import { warn } from 'vue';
 import SinglePaymentApproval from './WwctaContractSettlementAgreeAprMgtMPaymentSpayAprAk.vue';
 import CardAutomaticTransferApproval
   from './WwctaContractSettlementAgreeAprMgtMPaymentCrdCdAftnAprAk.vue';
+import AccountAutomaticTransferApproval
+  from './WwctaContractSettlementAgreeAprMgtMPaymentAcAftnAprAk.vue';
 import VirtualAccountIssue from './WwctaContractSettlementAgreeAprMgtMPaymentVacIssue.vue';
 import CashSalesReceipt from './WwctaContractSettlementAgreeAprMgtMPaymentCashSalesReceipt.vue';
 
@@ -84,8 +91,8 @@ const MILEAGE_DP_TP_CDS = [
   '0803', /* K멤버스 캐시 */
 ]; /* 아마 06*, 07*, 08* 다 될거 같아. */
 
-const CARD_AUTOMATIC_TRANSFER_DP_TP_CD = '0102';
-// const ACCOUNT_AUTOMATIC_TRANSFER_DP_TP_CD = '0102'; 에듀 계좌 자동이체 없음.
+const CARD_AUTOMATIC_TRANSFER_DP_TP_CD = '0203';
+const ACCOUNT_AUTOMATIC_TRANSFER_DP_TP_CD = '0102';
 const VIRTUAL_ACCOUNT_ISSUE_DP_TP_CD = '0101';
 
 /* rearrange base data */
@@ -137,6 +144,15 @@ function onApprovedCrdCdAftnStlms(stlmUpdateInfo) {
   crdCdAftnStlmsUpdateInfo.value = [stlmUpdateInfo];
 }
 
+const acAftnStlm = computed(() => Object.values(stlmInfo.value)
+  .find((stlm) => ACCOUNT_AUTOMATIC_TRANSFER_DP_TP_CD === stlm.dpTpCd));
+
+const acAftnStlmsUpdateInfo = ref([]);
+
+function onApprovedAcAftnStlms(stlmUpdateInfo) {
+  acAftnStlmsUpdateInfo.value = [stlmUpdateInfo];
+}
+
 /* virtual account */
 const vacStlm = computed(() => Object.values(stlmInfo.value)
   .find((stlm) => VIRTUAL_ACCOUNT_ISSUE_DP_TP_CD === stlm.dpTpCd));
@@ -174,6 +190,7 @@ const cashSalesReceiptInfo = ref(getDefaultReceiptInfo(props.contractor));
 /* expose */
 const spayRef = ref();
 const cardAftnRef = ref();
+const acAftnRef = ref();
 const vacIssueRef = ref();
 const cashRef = ref();
 
