@@ -144,7 +144,7 @@
           :label="$t('MSG_BTN_DTRM')"
           secondary
           dense
-          :disable="isNotActivated"
+          :disable="isNotActivated || assignConfirmed"
           @click="onClickConfirm"
         />
         <kw-btn
@@ -162,7 +162,7 @@
           primary
           dense
           :label="$t('MSG_BTN_CNTN_CREATE')"
-          :disable="isNotActivated"
+          :disable="isNotActivated || assignConfirmed"
           @click="onClickCreate"
         />
       </kw-action-top>
@@ -187,7 +187,7 @@
         <kw-btn
           grid-action
           :label="$t('MSG_BTN_SAVE')"
-          :disable="isNotActivated"
+          :disable="isNotActivated || assignConfirmed"
           @click="onClickSave"
         />
         <kw-separator
@@ -254,6 +254,7 @@ const kwSearchRef = ref(getComponentType('KwSearch'));
 const grdMainRef = ref(getComponentType('KwGrid'));
 const grdSubRef = ref(getComponentType('KwGrid'));
 const isNotActivated = ref(false);
+const assignConfirmed = ref(false);
 const totalCount = ref(0);
 const pageInfo = ref({
   totalCount: 0,
@@ -305,7 +306,7 @@ async function hasAssignConfirmed() {
   const hasAssignConfirmedParams = cloneDeep(searchParams.value);
   hasAssignConfirmedParams.tfBizDvCd = '05';
   const response = await dataService.get('/sms/common/bond/collector-changes/has-collector-assing', { params: hasAssignConfirmedParams });
-  isNotActivated.value = response.data;
+  assignConfirmed.value = response.data;
 }
 
 async function fetchData() {
@@ -479,6 +480,16 @@ watch(() => searchParams.value.phoneNumber, async () => {
 watch(() => searchParams.value.clctamPrtnrNm, async (clctamPrtnrNm) => {
   if (!clctamPrtnrNm) {
     searchParams.value.clctamPrtnrNo = '';
+  }
+});
+watch(() => searchParams.value.baseYm, async (baseYm) => {
+  const view = grdSubRef.value.getView();
+  if (baseYm !== defaultDate) {
+    view.editOptions.editable = false;
+    isNotActivated.value = true;
+  } else {
+    view.editOptions.editable = true;
+    isNotActivated.value = false;
   }
 });
 // -------------------------------------------------------------------------------------------------
@@ -685,7 +696,15 @@ const initGrdSub = defineGrid((data, view) => {
     { fieldName: 'changeClctamPrtnrKnm' }, // 항목 수정여부 해당 값이 true라면 저장 할 수 없음
   ];
   const columns = [
-    { fieldName: 'clctamPrtnrKnm', header: t('MSG_TXT_PIC_NM'), width: '98', styleName: 'text-center, rg-button-icon--search', button: 'action' },
+    { fieldName: 'clctamPrtnrKnm',
+      header: t('MSG_TXT_PIC_NM'),
+      width: '98',
+      styleName: 'text-center, rg-button-icon--search',
+      button: 'action',
+      buttonVisibleCallback() {
+        return (cachedParams.baseYm === defaultDate);
+      },
+    },
     { fieldName: 'lstmmClctamDvCd', header: t('MSG_TXT_LSTMM_ICHR_CLCTAM_DV'), width: '130', styleName: 'text-center', editable: false },
     { fieldName: 'bfClctamPrtnrKnm', header: t('MSG_TXT_LSTMM_PSIC'), width: '90', styleName: 'text-center', editable: false },
     { fieldName: 'cntrNo',
