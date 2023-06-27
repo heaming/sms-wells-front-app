@@ -119,6 +119,7 @@
                           <td
                             v-for="dayIdx of scheduleInfo.dayCnt"
                             :key="weekIdx * 0 + dayIdx"
+                            style="cursor: pointer;"
                             :data-date="getYmdText(getDayCnt(weekIdx, dayIdx))"
                             :class="{ 'day old': /*비활성화*/ isOpacity(getDayCnt(weekIdx, dayIdx)),
                                       'day today': /*오늘*/isToday(getDayCnt(weekIdx, dayIdx)),
@@ -937,7 +938,7 @@ async function onClickCalendar($event, weekIdx, dayIdx) {
     && selectedDay === dayjs().format('YYYYMMDD'))
     || (searchParams.value.chnlDvCd === 'K' && searchParams.value.svDvCd === '4'
     && selectedDay === dayjs().format('YYYYMMDD'))) {
-    notify('당일날짜는 선택불가 합니다');
+    notify('웰스, 매니저, KSS 홈케어는 당일날짜 선택불가 합니다');
     return;
   }
 

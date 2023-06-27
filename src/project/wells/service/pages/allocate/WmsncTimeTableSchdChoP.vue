@@ -21,6 +21,9 @@
           borderless
           class="kw-font-pt24"
           icon="arrow_left_24"
+          :v-show="
+            (data.chnlDvCd !== 'S' && data.svDvCd !== '3') ||
+              (data.svBizDclsfCd === '4130' || data.svDvCd === '3' /*3:A/S*/) "
           @click="onClickPrevMonth"
         />
         <p class="text-weight-bold mx20 row justify-between kw-font-pt18 w106">
@@ -28,11 +31,13 @@
           }}&nbsp;</span>
           <span>{{ searchParams.baseYm.substring(4) }}{{ $t('MSG_TXT_MON' /*월*/) }}</span>
         </p>
-
         <kw-btn
           borderless
           class="kw-font-pt24"
           icon="arrow_right_24"
+          :v-show="
+            (data.chnlDvCd !== 'S' && data.svDvCd !== '3') ||
+              (data.svBizDclsfCd === '4130' /*4130:환경점검*/ || data.svDvCd === '3' ) "
           @click="onClickNextMonth"
         />
       </div>
@@ -81,140 +86,29 @@
             <td
               v-for="dayIdx of scheduleInfo.dayCnt"
               :key="weekIdx * 0 + dayIdx"
-              :class="{ 'calendar-inactive-date': /*비활성화*/ isOpacity(getDayCnt(weekIdx, dayIdx)),
-                        'calendar-current-date': /*오늘*/isToday(getDayCnt(weekIdx, dayIdx)),
-                        '': /*휴일*/isHoliday(getDayCnt(weekIdx, dayIdx)),
-              }"
               :data-date="getYmdText(getDayCnt(weekIdx, dayIdx))"
 
               @click="onClickCalendar($event, weekIdx, dayIdx)"
             >
-              <span>{{ getDayText(getDayCnt(weekIdx, dayIdx)) }}</span>
+              <span
+                style="cursor: pointer;"
+                :class="{ 'calendar-inactive-date': /*비활성화*/ isOpacity(getDayCnt(weekIdx, dayIdx)),
+                          'calendar-current-date': /*오늘*/isToday(getDayCnt(weekIdx, dayIdx)),
+                }"
+              >{{ getDayText(getDayCnt(weekIdx, dayIdx)) }}</span><br>
+              <!--<span
+                :class="{'calendar-info-mark calendar-info-mark&#45;&#45;blue' :
+                getSumCnt(getDayCnt(weekIdx, dayIdx)) > 0}"
+              >{{ getSumCnt(getDayCnt(weekIdx, dayIdx)) }}</span>-->
             </td>
           </tr>
-          <!--          <tr class="calendar-date">
-            <td>
-              <span>1</span>
-            </td>
-            <td>
-              <span>2</span>
-            </td>
-            <td>
-              <span>3</span>
-            </td>
-            <td>
-              <span>4</span>
-            </td>
-            <td>
-              <span>5</span>
-            </td>
-            <td>
-              <span>6</span>
-            </td>
-            <td>
-              &lt;!&ndash; 비활성화 시 class: calendar-inactive-date 추가 &ndash;&gt;
-              <span class="calendar-inactive-date">7</span>
-              &lt;!&ndash; // 비활성화 시 class: calendar-inactive-date 추가 &ndash;&gt;
-            </td>
-          </tr>
-          <tr class="calendar-date">
-            <td>
-              <span class="calendar-inactive-date">8</span>
-            </td>
-            <td>
-              <span>9</span>
-            </td>
-            <td>
-              &lt;!&ndash; 오늘 날짜 class: calendar-current-date 추가 &ndash;&gt;
-              <span class="calendar-current-date">10</span>
-              &lt;!&ndash; // 오늘 날짜 class: calendar-current-date 추가 &ndash;&gt;
-            </td>
-            <td>
-              <span class="calendar-inactive-date">11</span>
-            </td>
-            <td>
-              <span class="calendar-inactive-date">12</span>
-            </td>
-            <td>
-              <span class="calendar-inactive-date">13</span>
-            </td>
-            <td>
-              <span class="calendar-inactive-date">14</span>
-            </td>
-          </tr>
-          <tr class="calendar-date">
-            <td>
-              <span class="calendar-inactive-date">15</span>
-            </td>
-            <td>
-              <span>16</span>
-            </td>
-            <td>
-              <span>17</span>
-            </td>
-            <td>
-              <span>18</span>
-            </td>
-            <td>
-              &lt;!&ndash; 선택된 날짜 class: calendar-selected-date 추가 &ndash;&gt;
-              <span class="calendar-selected-date">19</span>
-              &lt;!&ndash; 선택된 날짜 class: calendar-selected-date 추가 &ndash;&gt;
-            </td>
-            <td>
-              <span>20</span>
-            </td>
-            <td>
-              <span class="calendar-inactive-date">21</span>
-            </td>
-          </tr>
-          <tr class="calendar-date">
-            <td>
-              <span class="calendar-inactive-date">22</span>
-            </td>
-            <td>
-              <span class="calendar-inactive-date">23</span>
-            </td>
-            <td>
-              <span class="calendar-inactive-date">24</span>
-            </td>
-            <td>
-              <span>25</span>
-            </td>
-            <td>
-              <span>26</span>
-            </td>
-            <td>
-              <span>27</span>
-            </td>
-            <td>
-              <span class="calendar-inactive-date">28</span>
-            </td>
-          </tr>
-          <tr class="calendar-date">
-            <td>
-              <span class="calendar-inactive-date">29</span>
-            </td>
-            <td>
-              <span>30</span>
-            </td>
-            <td>
-              <span>31</span>
-            </td>
-            <td>
-              <span class="calendar-inactive-date">1</span>
-            </td>
-            <td>
-              <span class="calendar-inactive-date">2</span>
-            </td>
-            <td>
-              <span class="calendar-inactive-date">3</span>
-            </td>
-            <td>
-              <span class="calendar-inactive-date">4</span>
-            </td>
-          </tr>-->
         </table>
       </div>
+      <!--      <div
+        class="row full-width justify-center items-center"
+      >
+        {{ data.sidingYn === 'Y' ? "모종 / 배정" : "" }}
+      </div>-->
     </div>
 
     <template #action>
@@ -224,8 +118,16 @@
         @click="onClickCancel"
       />
       <kw-btn
+        v-show="isShowButton()"
         label="다음"
         primary
+        @click="next()"
+      />
+      <kw-btn
+        v-show="!isShowButton()"
+        label="선택"
+        primary
+        @click="ok(data.sellDate)"
       />
     </template>
   </kw-popup>
@@ -285,7 +187,6 @@ const data = ref({
   sowDay: '',
   sidingYn: '',
   spayYn: '',
-  offDays: [],
   sidingDays: [],
   disableDays: [],
   days: [],
@@ -302,6 +203,18 @@ const scheduleInfo = ref({
 });
 function getCurrentDate() {
   return dayjs(`${searchParams.value.baseYm}01`).format(DATE_FORMAT_YM);
+}
+function enableAllTheseDays(inDate, isNotifyMessage) {
+  // 모종 가능할 일자 중에
+  if (data.value.sidingDays.find((item) => item.ablDays.replace(/-/g, '') === inDate)) {
+    // 엔지니어 배정 불가능한 날짜이면
+    if (data.value.disableDays.find((item) => item.disableFuldays.replace(/-/g, '') === inDate)) {
+      if (isNotifyMessage) notify('접수제한');
+      return 'N';
+    }
+    return 'Y';
+  }
+  return 'N';
 }
 function disableAllTheseDays(inDate, isNotifyMessage) {
   const isFind = data.value.disableDays.find((item) => item.disableFuldays.replace(/-/g, '')
@@ -322,7 +235,7 @@ function getDayCnt(weekIdx, dayIdx) {
   return ((weekIdx - 1) * scheduleInfo.value.dayCnt) + dayIdx;
 }
 function getDayText(dayCnt) {
-  return toInteger(schedules.value[dayCnt - 1]?.baseD);
+  return `${toInteger(schedules.value[dayCnt - 1]?.baseD)}`;
 }
 function isToday(dayCnt) {
   if (!schedules.value[dayCnt - 1]) return false;
@@ -331,13 +244,21 @@ function isToday(dayCnt) {
 }
 function isEnable(dayCnt, isNotifyMessage) {
   const pointedDate = getYmdText(dayCnt).replace(/-/g, '');
+  if (data.value.sidingYn === 'Y') {
+    return enableAllTheseDays(pointedDate, isNotifyMessage);
+  }
   return disableAllTheseDays(pointedDate, isNotifyMessage);
 }
-
-function isHoliday(dayCnt) {
-  return schedules.value[dayCnt - 1]?.dfYn === 'Y' || schedules.value[dayCnt - 1]?.phldYn === 'Y';
+// eslint-disable-next-line no-unused-vars
+function getSumCnt(dayCnt) {
+  const pointedDate = getYmdText(dayCnt).replace(/-/g, '');
+  const isFind = data.value.sidingDays.find((item) => item.ablDays.replace(/-/g, '')
+    === pointedDate);
+  if (isFind) {
+    return isFind.sumCnt;
+  }
+  return 0;
 }
-
 function isOpacity(dayCnt) {
   const enable = isEnable(dayCnt, false);
   if (enable === 'N') {
@@ -349,13 +270,31 @@ function isOpacity(dayCnt) {
 let cachedParams;
 async function getTimeTables() {
   cachedParams = cloneDeep(searchParams.value);
-  const res = await dataService.get('/sms/wells/service/time-tables/schd-cho', {
-    params:
-      {
-        ...cachedParams,
-      },
-  });
+  const res = await dataService.get('/sms/wells/service/time-tables/schd-cho', { params: { ...cachedParams } });
   data.value = res.data;
+
+  //------------------------------------------------------------------------------------------------
+  // data.value.sidingYn = 'Y';
+  // data.value.sidingDays = [
+  //   { ablDays: '2023-06-17', sumCnt: '5', w3th: '20230617', sowDay: '20230617' },
+  //   { ablDays: '2023-06-19', sumCnt: '5', w3th: '20230619', sowDay: '20230619' },
+  //   { ablDays: '2023-06-20', sumCnt: '5', w3th: '20230620', sowDay: '20230620' },
+  //   { ablDays: '2023-06-22', sumCnt: '5', w3th: '20230622', sowDay: '20230622' },
+  //   { ablDays: '2023-06-23', sumCnt: '5', w3th: '20230623', sowDay: '20230623' },
+  //   { ablDays: '2023-06-24', sumCnt: '5', w3th: '20230624', sowDay: '20230624' },
+  //   { ablDays: '2023-06-29', sumCnt: '5', w3th: '20230627', sowDay: '20230627' },
+  // ];
+  // data.value.disableDays = [{ disableDays: null,
+  //   disableFuldays: '2023-06-29',
+  //   tcMsg:
+  // '법정휴무일 또는 회사휴무' }];
+  // data.value.disableDays = [];
+
+  // data.value.sidingYn = 'Y';
+  // data.value.chnlDvCd = 'M';
+  // data.value.svDvCd = '2';
+
+  //------------------------------------------------------------------------------------------------
   schedules.value = data.value.days;
   scheduleInfo.value.weekCnt = schedules.value.length / scheduleInfo.value.dayCnt;
 }
@@ -370,11 +309,82 @@ async function onClickNextMonth() {
   await getTimeTables();
 }
 async function onClickCalendar($event, weekIdx, dayIdx) {
-  console.log($event, weekIdx, dayIdx);
+  const dayCnt = getDayCnt(weekIdx, dayIdx);
+  const selectedDay = getYmdText(dayCnt);
+
+  if (data.value.chnlDvCd === 'M') {
+  // 매니저
+    if (toInteger(selectedDay) <= toInteger(dayjs().format('YYYYMMDD'))) {
+      notify('날짜를 익일이후로 선택하여 주십시오');
+      return;
+    }
+    if (data.value.disableDays) {
+      const isFind = data.value.disableDays.find((item) => item.disableFuldays.replace(/-/g, '')
+      === selectedDay);
+      if (isFind) {
+        notify(isFind.tcMsg);
+        return;
+      }
+    }
+  } else {
+  // 매니저가 아니면
+
+    if (toInteger(selectedDay) < toInteger(dayjs().format('YYYYMMDD'))) {
+      notify('날짜를 오늘이후로 선택하여 주십시오');
+      return;
+    }
+
+    if (data.value.chnlDvCd === 'S'
+      && data.value.svBizDclsfCd !== '4130' /* 4130:환경점검 */
+      && data.value.svDvCd !== '3' /* 3:A/S */
+      && toInteger(dayjs().format('MM')) !== toInteger(dayjs(selectedDay).format('MM'))
+    ) {
+      notify('익월 선택이 불가합니다.');
+      return;
+    }
+
+    if (data.value.disableDays) {
+      const isFind = data.value.disableDays.find((item) => item.disableFuldays.replace(/-/g, '')
+      === selectedDay);
+      if (isFind) {
+        notify(isFind.tcMsg);
+        return;
+      }
+    }
+  }
+
+  data.value.sellDate = selectedDay;
+
+  document.querySelectorAll('tr.calendar-date > td > span').forEach((element) => {
+    element.classList.remove('calendar-selected-date');
+  });
+  $event.target.classList.toggle('calendar-selected-date');
 }
 async function onClickCancel() {
   cancel();
 }
+function isShowButton() {
+  // true: 타임테이블 시간 선택으로 이동
+  // false: 부모창에게 값 전달
+  if (data.value.chnlDvCd === 'M') {
+    return true; // 다음
+  }
+  if (data.value.sidingYn === 'Y') {
+    if (data.value.svDvCd === '2') {
+      return false; // 선택
+    }
+    return true; // 다음
+  }
+  if (data.value.chnlDvCd === 'S' || data.value.chnlDvCd === 'B') {
+    return false;// 선택
+  }
+  return true; // 다음
+}
+
+function next() {
+  notify('타임테이블 시간선택 이동');
+}
+
 onMounted(async () => {
   await getTimeTables();
 });
