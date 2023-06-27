@@ -111,6 +111,7 @@ const codes = await codeUtil.getMultiCodes('PSTN_DV_CD');
 
 const props = defineProps({
   pspcCstCnslId: { type: String, required: true, default: null },
+  ichrPrtnrNo: { type: String, required: false, default: null },
 });
 
 const searchParams = ref({
@@ -131,15 +132,14 @@ async function onClickSave() {
   if (!await obsMainRef.value.validate()) { return; }
   // if (await obsMainRef.value.alertIfIsNotModified()) { return; }
 
-  // if (isEmpty(searchParams.value.prtnrNo)) {
-  //   // {0} 을(를) 입력해주세요.
-  //   notify(t('MSG_ALT_CHK_NCSR', [t('MSG_TXT_EPNO')]));
-  //   return false;
-  // }
-
   if (isEmpty(prtnrNoInfo.value) || prtnrNoInfo.value.prtnrNo !== searchParams.value.prtnrNo) {
     notify(t('MSG_ALT_VALUE_CHANGED_BE_RESEARCH'));
     isDisableSave.value = true;
+    return false;
+  }
+  // 기존과 동일한 배정담당자 일경우 Blocking
+  if (props.ichrPrtnrNo === prtnrNoInfo.value.prtnrNo) {
+    notify(t('MSG_ALT_SAME_ASSIGNER')); // 기존과 동일한 배정담당자입니다
     return false;
   }
 

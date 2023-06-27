@@ -170,16 +170,34 @@ async function onClickExcelDownload() {
   });
 }
 
+// eslint-disable-next-line no-unused-vars
 function ogAsnStatCdStyleCallback(grid, dataCell) {
+  // const ret = {};
+  // const ichrPrtnrNo = grid.getValue(dataCell.index.itemIndex, 'ichrPrtnrNo');
+  // if (isEmpty(ichrPrtnrNo)) {
+  //   ret.renderer = { type: 'button', editable: false };
+  //   ret.editable = false;
+  //   ret.styleName = 'btnshow';
+  // } else {
+  //   ret.styleName = 'btnhide';
+  // }
+  // return ret;
+
+  // 230627 기존 등록된 사용자가 있어도 update 가능.
+  // const ret = {};
+  // ret.renderer = { type: 'button', editable: false };
+  // return ret;
+
   const ret = {};
   const ichrPrtnrNo = grid.getValue(dataCell.index.itemIndex, 'ichrPrtnrNo');
-
   if (isEmpty(ichrPrtnrNo)) {
     ret.renderer = { type: 'button', editable: false };
     ret.editable = false;
     ret.styleName = 'btnshow';
   } else {
-    ret.styleName = 'btnhide';
+    // ret.styleName = 'btnhide';
+    ret.renderer = { type: 'button', editable: false };
+    ret.styleName = 'rg-button-link text-center';
   }
   return ret;
 }
@@ -257,7 +275,7 @@ const initgrdReceipt = defineGrid((data, view) => {
   view.onCellItemClicked = async (g, { column, dataRow, itemIndex }) => {
     const rowData = gridUtil.getRowValue(g, dataRow);
     if (column === 'ichrPrtnrNm') {
-      const componentProps = { pspcCstCnslId: rowData?.pspcCstCnslId, jobType: 'RECV' };
+      const componentProps = { pspcCstCnslId: rowData?.pspcCstCnslId, jobType: 'RECV', ichrPrtnrNo: rowData?.ichrPrtnrNo };
       const { result, payload } = await modal({ component: 'WwcsbManualAssignModP', componentProps });
       if (result && payload) await fetchData();
     }

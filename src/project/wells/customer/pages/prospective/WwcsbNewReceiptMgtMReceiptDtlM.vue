@@ -70,17 +70,18 @@
           <kw-form-row>
             <!-- 휴대전화번호 -->
             <kw-form-item :label="$t('MSG_TXT_MPNO')">
-              <p>{{ assignInfo.wireTelNo }}</p>
+              <p>{{ assignInfo.phNo }}</p>
             </kw-form-item>
             <!-- 전화번호 -->
             <kw-form-item :label="$t('MSG_TXT_TEL_NO')">
-              <p>{{ assignInfo.phNo }}</p>
+              <p>{{ assignInfo.wireTelNo }}</p>
             </kw-form-item>
           </kw-form-row>
           <kw-form-row>
             <!-- 컨택요청일 -->
             <kw-form-item :label="$t('MSG_TXT_CONTACT_REQ_DT')">
-              <p>{{ assignInfo.contactDate }}</p>
+              <!-- <p>{{ assignInfo.cnslPsbStrtDtm }}</p> -->
+              <p>{{ assignInfo.contactDate }} {{ assignInfo.contactTime }}</p>
             </kw-form-item>
             <!-- 요청내용 -->
             <kw-form-item :label="$t('MSG_TXT_REQ_CN')">
@@ -304,6 +305,7 @@ async function fetchData() {
   const res = await dataService.get(`${baseUrl}/assign/${currentPspcCstCnslId.value}/${cntrNo}`);
   assignInfo.value = res.data;
   assignInfo.value.showFstRgstDtm = dayjs(assignInfo?.value?.fstRgstDtm).format('YYYY-MM-DD');
+  // assignInfo.value.cnslPsbStrtDtm = dayjs(assignInfo?.value?.cnslPsbStrtDtm).format('YYYY-MM-DD hh:mm:ss');
 }
 
 async function initProps() {
