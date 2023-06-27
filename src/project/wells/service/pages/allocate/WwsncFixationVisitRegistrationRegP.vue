@@ -23,6 +23,7 @@
     >
       <kw-search-row>
         <kw-search-item :label="$t('계약번호')">
+          <!-- 기존 코드
           <kw-input
             v-model="searchParams.cntrDtlNo"
             icon="search"
@@ -30,6 +31,21 @@
             clearable
             @click-icon="onClickSearchContract"
           />
+          -->
+          <!-- 계약파트 컴포넌트 변경(2023.06.27 KJ) -->
+          <zctz-contract-detail-number
+            ref="contractNumberRef"
+            v-model:cntr-no="searchParams.cntrNo"
+            v-model:cntr-sn="searchParams.cntrSn"
+            disable-popup
+          >
+            <template #append>
+              <kw-icon
+                name="search"
+                @click="onClickSearchContract"
+              />
+            </template>
+          </zctz-contract-detail-number>
         </kw-search-item>
       </kw-search-row>
     </kw-search>
@@ -230,8 +246,9 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, useModal, useGlobal, useDataService, stringUtil } from 'kw-lib';
+import { codeUtil, stringUtil, useDataService, useGlobal, useModal } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
+import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
 
 const { t } = useI18n();
 const { confirm, notify, modal, alert } = useGlobal();
