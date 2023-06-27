@@ -165,7 +165,7 @@ async function onClickSearchNo() {
 // 행추가
 async function onClickAddRow() {
   const view = grdMainRef.value.getView();
-  gridUtil.insertRowAndFocus(view, 0, { prtnrNo: '' }, false);
+  gridUtil.insertRowAndFocus(view, 0, {});
 }
 
 // 파트너의 BS처리율 조회
@@ -218,21 +218,27 @@ const initGridMain = defineGrid((data, view) => {
     { fieldName: 'baseYm', header: t('MSG_TXT_BASE_YM'), width: '98', editable: false, visible: false },
     { fieldName: 'ogTpCd', header: t('MSG_TXT_OG_TP'), width: '98', editable: false, visible: false },
     { fieldName: 'prtnrNo',
-      header: { text: t('MSG_TXT_SEQUENCE_NUMBER') },
+      header: t('MSG_TXT_SEQUENCE_NUMBER'),
       width: '133',
-      styleName: 'text-left, rg-button-icon--search',
-      editor: { type: 'text' },
-      button: 'action',
+      styleName: 'text-center rg-button-icon--search',
       rules: 'required',
+      button: 'action',
+      renderer: {
+        type: 'icon',
+      },
+      editor: {
+        inputCharacters: ['0-9'],
+        maxLength: 10,
+      },
+      buttonVisibleCallback(grid, index) {
+        return gridUtil.isCreatedRow(grid, index.dataRow);
+      },
       styleCallback(grid, dataCell) {
         const rowState = gridUtil.getRowState(grid, dataCell.index.dataRow);
         if (rowState === 'created') {
-          return { editable: true, styleName: 'text-left, rg-button-icon--search' };
+          return { editable: true };
         }
-        return { editable: false, styleName: 'text-center' };
-      },
-      buttonVisibleCallback(grid, index) {
-        return grid.getDataSource().getRowState(index.dataRow) === 'created';
+        return { editable: false, renderer: { type: 'text' } };
       },
     },
     { fieldName: 'ogCd', header: t('MSG_TXT_BLG'), width: '98', styleName: 'text-center', editable: false },
@@ -247,10 +253,12 @@ const initGridMain = defineGrid((data, view) => {
       styleName: 'text-right',
       dataType: 'number',
       numberFormat: '#,##0',
+      editable: true,
       editor: {
         type: 'number',
         maxLength: 22,
       },
+      /*
       styleCallback(grid, dataCell) {
         // 값이 있으면 edit 가능, 아니면 불가
         const colData = gridUtil.getRowValue(grid, dataCell.index.dataRow);
@@ -259,6 +267,7 @@ const initGridMain = defineGrid((data, view) => {
         }
         return { editable: false };
       },
+      */
     },
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
