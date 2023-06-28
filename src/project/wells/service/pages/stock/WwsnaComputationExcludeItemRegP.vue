@@ -31,6 +31,7 @@
             type="month"
             :label="t('MSG_TXT_INQR_YM')"
             rules="required"
+            :disable="true"
           />
         </kw-search-item>
         <kw-search-item
@@ -169,13 +170,36 @@ const dataService = useDataService();
 const popupRef = ref();
 const grdMainRef = ref(getComponentType('KwGrid'));
 
+const props = defineProps({
+  inqrYm: {
+    type: String,
+    required: true,
+  },
+  itmKndCd: {
+    type: String,
+    default: '',
+  },
+  itmPdCds: {
+    type: Array,
+    default: () => [],
+  },
+  strtSapCd: {
+    type: String,
+    default: '',
+  },
+  endSapCd: {
+    type: String,
+    default: '',
+  },
+});
+
 let cachedParams;
 const searchParams = ref({
-  inqrYm: dayjs().format('YYYYMM'), // 기준년월
-  itmKndCd: '',
-  itmPdCds: [],
-  strtSapCd: '',
-  endSapCd: '',
+  inqrYm: props.inqrYm, // 기준년월
+  itmKndCd: props.itmKndCd,
+  itmPdCds: props.itmPdCds,
+  strtSapCd: props.strtSapCd,
+  endSapCd: props.endSapCd,
 });
 
 const pageInfo = ref({
@@ -204,8 +228,13 @@ const optionsAllItmPdCd = ref();
 // 품목조회
 const getProducts = async () => {
   const result = await dataService.get('/sms/wells/service/computation-exclude-items/products');
-  optionsItmPdCd.value = result.data;
   optionsAllItmPdCd.value = result.data;
+  const { itmKndCd } = searchParams.value;
+  if (isEmpty(itmKndCd)) {
+    optionsItmPdCd.value = optionsAllItmPdCd.value;
+    return;
+  }
+  optionsItmPdCd.value = optionsAllItmPdCd.value.filter((v) => itmKndCd === v.itmKndCd);
 };
 
 await Promise.all([
@@ -222,11 +251,12 @@ function onChangeItmKndCd() {
   searchParams.value.itmPdCds = [];
   const { itmKndCd } = searchParams.value;
 
-  if (itmKndCd !== '') {
-    optionsItmPdCd.value = optionsAllItmPdCd.value.filter((v) => itmKndCd === v.itmKndCd);
-  } else {
+  if (isEmpty(itmKndCd)) {
     optionsItmPdCd.value = optionsAllItmPdCd.value;
+    return;
   }
+
+  optionsItmPdCd.value = optionsAllItmPdCd.value.filter((v) => itmKndCd === v.itmKndCd);
 }
 
 // 조회
