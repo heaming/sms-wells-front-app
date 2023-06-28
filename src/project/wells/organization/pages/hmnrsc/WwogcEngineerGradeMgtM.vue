@@ -127,6 +127,7 @@ const codes = await codeUtil.getMultiCodes(
   'ROL_DV_CD',
   'RSB_DV_CD',
   'PRTNR_GD_CD',
+  'EGER_EVL_GD_CD',
 );
 
 const searchParams = ref({
@@ -235,7 +236,7 @@ const initGrdMain = defineGrid((data, view) => {
       width: '166',
       styleName: 'text-center',
       rules: 'required',
-      options: codes.PRTNR_GD_CD,
+      options: codes.EGER_EVL_GD_CD,
       editor: {
         type: 'dropdown',
       },
