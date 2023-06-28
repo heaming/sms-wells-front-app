@@ -75,10 +75,15 @@
         >
           <kw-input
             v-model="searchParams.no"
-            :label="$t('MSG_TXT_SEQUENCE_NUMBER')"
             icon="search"
             clearable
             :on-click-icon="onClickSearchNo"
+            :placeholder="$t('MSG_TXT_SEQUENCE_NUMBER')"
+          />
+          <kw-input
+            v-model="searchParams.prtnrKnm"
+            :placeholder="$t('MSG_TXT_EMPL_NM')"
+            readonly
           />
         </kw-search-item>
       </kw-search-row>
@@ -192,12 +197,15 @@ const sessionUserInfo = getUserInfo();
 const filterRsbDvCd = codes.RSB_DV_CD.filter((v) => ['W0205', 'W0204'].includes(v.codeId));
 const searchParams = ref({
 
-  perfYm: now.format('YYYYMM'),
+  perfYm: now.add(-1, 'month').format('YYYYMM'),
   schOrdr: '01',
   rsbTp: '',
   rsbTpTxt: '',
   no: '',
-  blgCd: '',
+  prtnrKnm: '',
+  ogLevl1: '',
+  ogLevl2: '',
+  ogLevl3: '',
   statTitle: t('MSG_TXT_PRGS_STE'),
   ogTp: 'W02',
   feeSchdTpCd: '',
@@ -216,6 +224,7 @@ const saveInfo = ref({
   perfYm: '',
   ogTp: 'W02',
   appKey: '',
+  unitCd: '',
 });
 
 let cachedParams;
@@ -598,12 +607,18 @@ async function onClickW217P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
  *  Event - 품의작성 클릭 ※TBD
  */
 async function onClickW219P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
+  const { rsbTp } = searchParams.value;
   const response = await dataService.get('/sms/wells/fee/organization-fees/dsbCnst', searchParams.value); /* 품의진행상태 조회 */
   const resData = response.data;
   approval.value.appKey = `FEAM${dayjs().format('YYYYMMDDHHmmss')}`; /* 18자리 appKey 생성 */
   const params = approval.value;
   saveInfo.value.appKey = approval.value.appKey;
   saveInfo.value.perfYm = searchParams.value.perfYm;
+  if (rsbTp === 'W205') {
+    saveInfo.value.unitCd = 'W101';
+  } else if (rsbTp === 'W204') {
+    saveInfo.value.unitCd = 'W102';
+  }
 
   if (resData.dsbCnstYn === 'Y') {
     await notify(t('MSG_ALT_PMT_BEEN_APRV')); /* 결재가 승인 되었습니다 > NEXT STEP */
@@ -692,19 +707,24 @@ async function onClickExcelDownload() {
   });
 }
 
-// 번호 검색 아이콘 클릭 이벤트
+/*
+ *  Event - 번호 검색 아이콘 클릭 이벤트
+ */
 async function onClickSearchNo() {
   const { result, payload } = await modal({
-    component: 'ZwogzPartnerListP',
+    component: 'ZwogzMonthPartnerListP',
     componentProps: {
+      baseYm: searchParams.value.perfYm,
       prtnrNo: searchParams.value.no,
       ogTpCd: 'W02',
+      prtnrKnm: undefined,
     },
   });
 
   if (result) {
     if (!isEmpty(payload)) {
       searchParams.value.no = payload.prtnrNo;
+      searchParams.value.prtnrKnm = payload.prtnrKnm;
     }
   }
 }

@@ -74,6 +74,12 @@
             icon="search"
             clearable
             :on-click-icon="onClickSearchNo"
+            :placeholder="$t('MSG_TXT_SEQUENCE_NUMBER')"
+          />
+          <kw-input
+            v-model="searchParams.prtnrKnm"
+            :placeholder="$t('MSG_TXT_EMPL_NM')"
+            readonly
           />
         </kw-search-item>
       </kw-search-row>
@@ -190,6 +196,7 @@ const searchParams = ref({
   ogLevl2: '',
   ogLevl3: '',
   prtnrNo: '',
+  prtnrKnm: '',
   feeDsbYn: '',
   prPerfYm: '',
   prOgTp: '',
@@ -226,18 +233,24 @@ async function onClickSearch() {
   await fetchData(uri);
 }
 
-// 번호 검색 아이콘 클릭 이벤트
+/*
+ *  Event - 번호 검색 아이콘 클릭 이벤트
+ */
 async function onClickSearchNo() {
   const { result, payload } = await modal({
-    component: 'ZwogzPartnerListP',
+    component: 'ZwogzMonthPartnerListP',
     componentProps: {
+      baseYm: searchParams.value.perfYm,
       prtnrNo: searchParams.value.prtnrNo,
+      ogTpCd: searchParams.value.ogTp,
+      prtnrKnm: undefined,
     },
   });
 
   if (result) {
     if (!isEmpty(payload)) {
       searchParams.value.prtnrNo = payload.prtnrNo;
+      searchParams.value.prtnrKnm = payload.prtnrKnm;
     }
   }
 }
