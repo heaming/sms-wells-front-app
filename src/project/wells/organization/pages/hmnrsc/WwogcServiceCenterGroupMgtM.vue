@@ -271,7 +271,7 @@ async function onClickAllSave() {
   await dataService.post('/sms/wells/partner-engineer/joe-management', checkedRows);
 
   notify(t('MSG_ALT_SAVE_DATA'));
-  await fetchData();
+  await onClickSearch();
 }
 
 // 저장
@@ -280,7 +280,6 @@ async function onClickSave() {
   if (await gridUtil.alertIfIsNotModified(view)) { return; }
 
   const changeRows = gridUtil.getChangedRowValues(view);
-  console.log(changeRows);
 
   if (changeRows > 0) {
     if (!await gridUtil.validate(view)) { return; }
@@ -317,7 +316,7 @@ async function onClickSave() {
   await dataService.post('/sms/wells/partner-engineer/joe-management', changeRows);
 
   notify(t('MSG_ALT_SAVE_DATA'));
-  await fetchData();
+  await onClickSearch();
 }
 
 watch(() => saveParams.value.chk, async (newVal) => {

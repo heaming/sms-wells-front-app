@@ -152,7 +152,7 @@ async function fetchData() {
   const view = grdMainRef.value.getView();
   const data = view.getDataSource();
   data.checkRowStates(false);
-  view.getDataSource().addRows(list);
+  data.addRows(list);
   data.checkRowStates(true);
 }
 
@@ -197,7 +197,8 @@ async function onClickSave() {
   }
   await dataService.post('/sms/wells/partner-engineer/engineer-grade', changedRows);
   notify(t('MSG_ALT_SAVE_DATA'));
-  await fetchData();
+  // await fetchData();
+  await onClickSearch();
 }
 
 // 엑셀업로드
@@ -213,7 +214,7 @@ async function onClickExcelUpload() {
 
   if (payload.status === 'S') {
     notify(t('MSG_ALT_SAVE_DATA'));
-    await fetchData();
+    await onClickSearch();
   }
 }
 
