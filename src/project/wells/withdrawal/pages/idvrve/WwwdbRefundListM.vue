@@ -285,7 +285,6 @@ function initGrid(data, view) {
       direction: 'horizontal',
       items: ['cshRfndFnitNm', 'cshRfndAcnoEncr', 'cardRfndFnitNm', 'cardRfndCrcdnoEncr'],
     },
-
   ]);
 }
 </script>
