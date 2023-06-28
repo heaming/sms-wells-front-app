@@ -65,10 +65,18 @@
           >
             <kw-input
               v-model="searchParams.schPdCdStrt"
+              maxlength="10"
+              clearable
+              icon="search"
+              @click-icon="onClickSearchPdCdPopup('S')"
             />
             <span>~</span>
             <kw-input
               v-model="searchParams.schPdCdEnd"
+              maxlength="10"
+              clearable
+              icon="search"
+              @click-icon="onClickSearchPdCdPopup('E')"
             />
           </kw-search-item>
           <kw-search-item
@@ -140,10 +148,18 @@
           >
             <kw-input
               v-model="searchParams.schPdCdStrt"
+              maxlength="10"
+              clearable
+              icon="search"
+              @click-icon="onClickSearchPdCdPopup('S')"
             />
             <span>~</span>
             <kw-input
               v-model="searchParams.schPdCdEnd"
+              maxlength="10"
+              clearable
+              icon="search"
+              @click-icon="onClickSearchPdCdPopup('E')"
             />
           </kw-search-item>
           <kw-search-item
@@ -215,10 +231,18 @@
           >
             <kw-input
               v-model="searchParams.schPdCdStrt"
+              maxlength="10"
+              clearable
+              icon="search"
+              @click-icon="onClickSearchPdCdPopup('S')"
             />
             <span>~</span>
             <kw-input
               v-model="searchParams.schPdCdEnd"
+              maxlength="10"
+              clearable
+              icon="search"
+              @click-icon="onClickSearchPdCdPopup('E')"
             />
           </kw-search-item>
           <kw-search-item
@@ -281,10 +305,18 @@
           >
             <kw-input
               v-model="searchParams.schPdCdStrt"
+              maxlength="10"
+              clearable
+              icon="search"
+              @click-icon="onClickSearchPdCdPopup('S')"
             />
             <span>~</span>
             <kw-input
               v-model="searchParams.schPdCdEnd"
+              maxlength="10"
+              clearable
+              icon="search"
+              @click-icon="onClickSearchPdCdPopup('E')"
             />
           </kw-search-item>
           <kw-search-item
@@ -378,6 +410,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { useGlobal, getComponentType, gridUtil, useDataService, defineGrid } from 'kw-lib';
+import pdConst from '~sms-common/product/constants/pdConst';
 import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
 
@@ -417,6 +450,7 @@ const searchParams = ref({
   schRcpDtStrt: '',
   schRcpDtEnd: '',
   schPerfYm: '',
+  pdCd: '',
 });
 let cachedParams;
 
@@ -458,6 +492,31 @@ async function onChangeBizDv() {
     await initSearchParams(false, false, true, false, true, false, '', '', strtDt, endDt, '');
   } else if (schDv === '04') {
     initSearchParams(false, false, false, true, false, true, '', '', '', '', baseYm);
+  }
+}
+
+/*
+ *  Event - 상품코드 검색 아이콘 클릭 이벤트
+ */
+async function onClickSearchPdCdPopup(arg) {
+  if (arg === 'S') {
+    searchParams.value.pdCd = searchParams.value.schPdCdStrt;
+  } else {
+    searchParams.value.pdCd = searchParams.value.schPdCdEnd;
+  }
+  const searchPopupParams = {
+    searchType: pdConst.PD_SEARCH_CODE,
+    searchValue: searchParams.value.pdCd,
+    selectType: pdConst.PD_SEARCH_SINGLE,
+  };
+  const rtn = await modal({
+    component: 'ZwpdcStandardListP',
+    componentProps: searchPopupParams,
+  });
+  if (arg === 'S') {
+    searchParams.value.schPdCdStrt = rtn.payload?.[0]?.pdCd;
+  } else {
+    searchParams.value.schPdCdEnd = rtn.payload?.[0]?.pdCd;
   }
 }
 

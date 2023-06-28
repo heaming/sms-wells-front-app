@@ -40,8 +40,14 @@
             :label="$t('MSG_TXT_SEQUENCE_NUMBER')"
             icon="search"
             clearable
-            :on-click-icon="onClickSearchNo"
             rules="required"
+            :on-click-icon="onClickSearchNo"
+            :placeholder="$t('MSG_TXT_SEQUENCE_NUMBER')"
+          />
+          <kw-input
+            v-model="searchParams.prtnrKnm"
+            :placeholder="$t('MSG_TXT_EMPL_NM')"
+            readonly
           />
         </kw-search-item>
       </kw-search-row>
@@ -299,8 +305,9 @@ const grd3MainRef = ref(getComponentType('KwGrid'));
 const totalCount = ref(0);
 const searchParams = ref({
 
-  perfYm: now.format('YYYYMM'),
+  perfYm: now.add(-1, 'month').format('YYYYMM'),
   no: '',
+  prtnrKnm: '',
   prPerfYm: props.perfYm,
   prpartnerNo: props.partnerNo,
 
@@ -340,15 +347,20 @@ let cachedParams;
  */
 async function onClickSearchNo() {
   const { result, payload } = await modal({
-    component: 'ZwogzPartnerListP',
+    component: 'ZwogzMonthPartnerListP',
     componentProps: {
+      baseYm: searchParams.value.perfYm,
       prtnrNo: searchParams.value.no,
       ogTpCd: 'W01',
+      prtnrKnm: undefined,
     },
   });
 
   if (result) {
-    searchParams.value.no = payload.prtnrNo;
+    if (!isEmpty(payload)) {
+      searchParams.value.no = payload.prtnrNo;
+      searchParams.value.prtnrKnm = payload.prtnrKnm;
+    }
   }
 }
 
