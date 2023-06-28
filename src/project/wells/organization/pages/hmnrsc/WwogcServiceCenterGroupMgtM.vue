@@ -199,9 +199,6 @@ async function fetchData() {
 
 // 조회
 async function onClickSearch() {
-  if (grdMainRef.value) {
-    grdMainRef.value.getData().clearRows();
-  }
   pageInfo.value.pageIndex = 1;
   saveParams.value.chk = false;
   await fetchData();
@@ -431,18 +428,6 @@ const initGrdMain = defineGrid((data, view) => {
       grid.setValue(index.dataRow, 'wkGrpCdNm', editResult.text);
     }
   };
-
-  // view.onValidate = async (g, index) => {
-  //   const { cralLocaraTno } = g.getValues(index.dataRow);
-  //   if (cralLocaraTno.replaceAll('-', '').length > 0) {
-  //     if (cralLocaraTno.replaceAll('-', '').length !== 11) {
-  //       // const dataView = grdMainRef.value.getView();
-  //       gridUtil.focusCellInput(view, index.dataRow, 'cralLocaraTno');
-  //       view.setFoucs();
-  //       return t('MSG_ALT_TEL_NO_IN');
-  //     }
-  //   }
-  // };
 });
 
 </script>
