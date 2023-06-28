@@ -184,12 +184,14 @@ async function onClickSearch() {
 async function onClickExcelUpload() {
   const apiUrl = '/sms/wells/service/seeding-out-of-storage-qtys/excel-upload';
   const templateId = 'FOM_SDING_OSTR_QTY_UPLOAD';
-  const { result } = await modal({
+  const { result, payload } = await modal({
     component: 'ZwcmzExcelUploadP',
     componentProps: { apiUrl, templateId },
   });
-  if (result.status === 'S') {
-    notify(t('MSG_ALT_SAVE_DATA'));
+
+  if (result && payload.status === 'S') {
+    // 엑셀 업로드가 완료 되었습니다.
+    notify(t('MSG_ALT_EXCEL_ULD_FSH'));
     pageInfo.value.needTotalCount = true;
     await fetchData();
   }
@@ -245,7 +247,7 @@ const initGrdMain = defineGrid((data, view) => {
       fieldName: 'limQty',
       header: t('MSG_TXT_QTY'),
       width: '150',
-      rules: 'required|min_value:1|max_value:999999999999',
+      rules: 'required|min_value:1|max_value:1000000000000',
       styleName: 'text-right',
       editor: {
         type: 'number',
