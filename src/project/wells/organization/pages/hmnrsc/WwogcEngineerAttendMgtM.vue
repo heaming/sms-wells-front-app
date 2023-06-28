@@ -22,8 +22,8 @@
       <kw-search-row>
         <kw-search-item :label="$t('MSG_TXT_OG_LEVL')">
           <zwog-level-select
-            v-model:og-levl-dv-cd2="searchParams.ogLevlDvCd1"
-            v-model:og-levl-dv-cd3="searchParams.ogLevlDvCd2"
+            v-model:og-levl-dv-cd1="searchParams.ogLevlDvCd1"
+            v-model:og-levl-dv-cd2="searchParams.ogLevlDvCd2"
             :og-tp-cd="searchParams.ogTpCd"
             :last-og-id="searchParams.ogId"
             :base-ym="searchParams.baseYm"
