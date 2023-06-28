@@ -125,7 +125,7 @@
       <kw-grid
         ref="grdMainRef"
         name="grdMain"
-        :visible-rows="pageInfo.pageSize - 1"
+        :visible-rows="(pageInfo.pageSize > 0) ? pageInfo.pageSize - 1 : pageInfo.pageSize"
         @init="initGrdMain"
       />
     </div>
@@ -193,12 +193,13 @@ async function fetchData() {
   const view = grdMainRef.value.getView();
   const data = view.getDataSource();
   data.checkRowStates(false);
-  view.getDataSource().addRows(list);
+  data.addRows(list);
   data.checkRowStates(true);
 }
 
 // 조회
 async function onClickSearch() {
+  grdMainRef.value.getData().clearRows();
   pageInfo.value.pageIndex = 1;
   saveParams.value.chk = false;
   await fetchData();
@@ -268,8 +269,9 @@ async function onClickAllSave() {
   });
 
   await dataService.post('/sms/wells/partner-engineer/joe-management', checkedRows);
+
   notify(t('MSG_ALT_SAVE_DATA'));
-  await onClickSearch();
+  await fetchData();
 }
 
 // 저장
@@ -278,6 +280,7 @@ async function onClickSave() {
   if (await gridUtil.alertIfIsNotModified(view)) { return; }
 
   const changeRows = gridUtil.getChangedRowValues(view);
+  console.log(changeRows);
 
   if (changeRows > 0) {
     if (!await gridUtil.validate(view)) { return; }
@@ -312,8 +315,9 @@ async function onClickSave() {
   });
 
   await dataService.post('/sms/wells/partner-engineer/joe-management', changeRows);
+
   notify(t('MSG_ALT_SAVE_DATA'));
-  await onClickSearch();
+  await fetchData();
 }
 
 watch(() => saveParams.value.chk, async (newVal) => {
