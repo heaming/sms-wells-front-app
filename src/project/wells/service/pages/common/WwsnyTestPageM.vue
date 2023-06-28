@@ -67,9 +67,25 @@ const router = useRouter();
 // -------------------------------------------------------------------------------------------------
 const movePages = [
   // eslint-disable-next-line max-len
-  // { pageId: '1', pageName: 'W-MP-U-0186P01', btns: [
-  // { btnName: '타임테이블 일정선택 매니저 AS 신청하는 타임테이블 캘린더',
-  // type: 'modal', call: 'WmsncTimeTableDateChoiceListP', props: {} }] },
+  { pageId: '1',
+    pageName: 'W-MP-U-0186P01',
+    btns: [
+      {
+        btnName: '타임테이블 일정선택(AS접수)',
+        type: 'modal',
+        call: 'WmsncTimeTableSchdChoP',
+        props: {
+          cntrNo: 'W20234900014',
+          cntrSn: '1',
+          chnlDvCd: 'M',
+          sellDate: '',
+          svDvCd: '3',
+          svBizDclsfCd: '3110',
+          ordDt: '',
+          ordSeq: '',
+        },
+      }],
+  },
   // eslint-disable-next-line max-len
   // { pageId: '2', pageName: 'W-MP-U-0187P01', btns: [
   // { btnName: '타임테이블 시간선택 매니저 AS 신청하는 타임테이블 시간 선택',

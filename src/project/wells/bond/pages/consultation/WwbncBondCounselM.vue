@@ -48,139 +48,138 @@
         <zwbnc-bond-counsel-m-promise-customer />
       </kw-tab-panel>
     </kw-tab-panels>
-  </kw-page>
-  <div class="call-center">
-    <div class="call-center-inner">
-      <div class="row">
-        <div class="column mr60">
-          <p class="call-center-text">
-            홍길동(123456)
-          </p>
-          <kw-option-group
-            :model-value="'02-111-1111'"
-            type="radio"
-            :options="['02-111-1111', '010-2222-2222', '010-222-2222']"
-            class="call-center-radio"
-          />
-        </div>
-        <div class="column mr60">
-          <p class="call-center-text">
-            아웃
-          </p>
-          <p class="call-center-text mt24">
-            010-2222-2222
-          </p>
-        </div>
-        <div class="column mr60">
-          <p class="call-center-text">
-            CTI 로그인 필요
-          </p>
-          <p class="call-center-text mt24">
-            경과시간 00:00:00
-          </p>
-        </div>
-        <div class="column relative-position">
-          <div class="row justify-end">
-            <!-- 비활성화 시 kw-btn 안에 disable 추가 -->
-            <kw-btn
-              label="교육"
-              dense
-              class="call-center-small-btn"
-              disable
+    <div class="call-center">
+      <div class="call-center-inner">
+        <div class="row">
+          <div class="column mr60">
+            <p class="call-center-text">
+              홍길동(123456)
+            </p>
+            <kw-option-group
+              :model-value="'02-111-1111'"
+              type="radio"
+              :options="['02-111-1111', '010-2222-2222', '010-222-2222']"
+              class="call-center-radio"
             />
-            <kw-btn
-              label="업무공지"
-              dense
-              class="call-center-small-btn ml4"
-            />
-            <kw-btn
-              label="자료검색"
-              dense
-              class="call-center-small-btn ml4"
-            />
-            <kw-btn
-              label="휴식"
-              dense
-              class="call-center-small-btn ml4"
-            />
-            <kw-btn
-              label="식사"
-              dense
-              class="call-center-small-btn ml4"
-            />
-            <!-- // 비활성화 시 kw-btn 안에 disable 추가 -->
           </div>
-          <div class="row mt8">
-            <!-- 비활성화 시 kw-btn 안에 disable 추가 -->
-            <kw-btn
-              label="끊기"
-              icon="cellphone_off"
-              dense
-              class="call-center-icon-btn"
-              disable
-            />
-            <kw-separator
-              spaced
-              vertical
-              inset
-              class="mx20 my3"
-            />
-            <kw-btn
-              label="대기"
-              icon="pause"
-              dense
-              class="call-center-icon-btn"
-            />
-            <kw-separator
-              spaced
-              vertical
-              inset
-              class="mx20 my3"
-            />
-            <kw-btn
-              label="휴식"
-              icon="break"
-              dense
-              class="call-center-icon-btn"
-            />
-            <kw-separator
-              spaced
-              vertical
-              inset
-              class="mx20 my3"
-            />
-            <kw-btn
-              label="걸기"
-              icon="cellphone"
-              dense
-              class="call-center-icon-btn"
-            />
-            <kw-separator
-              spaced
-              vertical
-              inset
-              class="mx20 my3"
-            />
-            <kw-btn
-              label="보류"
-              icon="holding"
-              dense
-              class="call-center-icon-btn"
-            />
-            <kw-separator
-              spaced
-              vertical
-              inset
-              class="mx20 my3"
-            />
-            <kw-btn
-              label="해제"
-              icon="release"
-              dense
-              class="call-center-icon-btn call-center-icon-btn--active"
-            />
-            <!-- // 비활성화 시 kw-btn 안에 disable 추가 -->
+          <div class="column mr60">
+            <p class="call-center-text">
+              아웃
+            </p>
+            <p class="call-center-text mt24">
+              010-2222-2222
+            </p>
           </div>
+          <div class="column mr60">
+            <p class="call-center-text">
+              CTI 로그인 필요
+            </p>
+            <p class="call-center-text mt24">
+              경과시간 00:00:00
+            </p>
+          </div>
+          <div class="column relative-position">
+            <div class="row justify-end">
+              <!-- 비활성화 시 kw-btn 안에 disable 추가 -->
+              <kw-btn
+                label="교육"
+                dense
+                class="call-center-small-btn"
+                disable
+              />
+              <kw-btn
+                label="업무공지"
+                dense
+                class="call-center-small-btn ml4"
+              />
+              <kw-btn
+                label="자료검색"
+                dense
+                class="call-center-small-btn ml4"
+              />
+              <kw-btn
+                label="휴식"
+                dense
+                class="call-center-small-btn ml4"
+              />
+              <kw-btn
+                label="식사"
+                dense
+                class="call-center-small-btn ml4"
+              />
+            <!-- // 비활성화 시 kw-btn 안에 disable 추가 -->
+            </div>
+            <div class="row mt8">
+              <!-- 비활성화 시 kw-btn 안에 disable 추가 -->
+              <kw-btn
+                label="끊기"
+                icon="cellphone_off"
+                dense
+                class="call-center-icon-btn"
+                disable
+              />
+              <kw-separator
+                spaced
+                vertical
+                inset
+                class="mx20 my3"
+              />
+              <kw-btn
+                label="대기"
+                icon="pause"
+                dense
+                class="call-center-icon-btn"
+              />
+              <kw-separator
+                spaced
+                vertical
+                inset
+                class="mx20 my3"
+              />
+              <kw-btn
+                label="휴식"
+                icon="break"
+                dense
+                class="call-center-icon-btn"
+              />
+              <kw-separator
+                spaced
+                vertical
+                inset
+                class="mx20 my3"
+              />
+              <kw-btn
+                label="걸기"
+                icon="cellphone"
+                dense
+                class="call-center-icon-btn"
+              />
+              <kw-separator
+                spaced
+                vertical
+                inset
+                class="mx20 my3"
+              />
+              <kw-btn
+                label="보류"
+                icon="holding"
+                dense
+                class="call-center-icon-btn"
+              />
+              <kw-separator
+                spaced
+                vertical
+                inset
+                class="mx20 my3"
+              />
+              <kw-btn
+                label="해제"
+                icon="release"
+                dense
+                class="call-center-icon-btn call-center-icon-btn--active"
+              />
+            <!-- // 비활성화 시 kw-btn 안에 disable 추가 -->
+            </div>
           <!--  [걸기]버튼 클릭 시 팝업 -->
           <!-- <div class="outgoing-call-box">
               <kw-btn
@@ -204,20 +203,21 @@
               />
             </div> -->
           <!-- // [걸기]버튼 클릭 시 팝업 -->
+          </div>
+        </div>
+        <div class="row">
+          <kw-btn
+            outlined
+            dense
+            label="콜백 (0)"
+            border-color="bg-white"
+            class="call-center-btn"
+            @click="onClickBncCallBack"
+          />
         </div>
       </div>
-      <div class="row">
-        <kw-btn
-          outlined
-          dense
-          label="콜백 (0)"
-          border-color="bg-white"
-          class="call-center-btn"
-          @click="onClickBncCallBack"
-        />
-      </div>
     </div>
-  </div>
+  </kw-page>
 </template>
 <script setup>
 // -------------------------------------------------------------------------------------------------
@@ -429,16 +429,19 @@ async function onClickBncCallBack() {
     line-height: 1.43;
   }
 
+  // rev:230628 css 변경
+
   .call-center-popup {
     position: absolute;
     width: 810px;
     padding: 16px 30px 20px;
     border: 1px solid $secondary;
-    bottom: 104px;
-    right: 0;
+    bottom: 103px;
+    right: 40px;
     background: $bg-white;
   }
 
+  // // rev:230628 css 변경
   .outgoing-call-box {
     position: absolute;
     left: 92px;

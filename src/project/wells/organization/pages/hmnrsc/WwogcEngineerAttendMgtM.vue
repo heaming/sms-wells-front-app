@@ -22,11 +22,13 @@
       <kw-search-row>
         <kw-search-item :label="$t('MSG_TXT_OG_LEVL')">
           <zwog-level-select
-            v-model:og-levl-dv-cd2="searchParams.ogLevlDvCd2"
-            v-model:og-levl-dv-cd3="searchParams.ogLevlDvCd3"
+            v-model:og-levl-dv-cd2="searchParams.ogLevlDvCd1"
+            v-model:og-levl-dv-cd3="searchParams.ogLevlDvCd2"
             :og-tp-cd="searchParams.ogTpCd"
-            :start-level="2"
-            :end-level="3"
+            :last-og-id="searchParams.ogId"
+            :base-ym="searchParams.baseYm"
+            :start-level="1"
+            :end-level="2"
           />
         </kw-search-item>
         <kw-search-item :label="$t('MSG_TXT_BASE_D')">
@@ -87,6 +89,9 @@ const searchParams = ref({
   baseYm: dayjs().format('YYYYMM'),
   baseDt: now,
   ogTpCd: 'W06',
+  ogLevlDvCd1: undefined,
+  ogLevlDvCd2: undefined,
+  ogId: undefined,
 });
 
 const pageInfo = ref({
@@ -159,8 +164,8 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'egerWrkStatNm', header: t('MSG_TXT_WRK_STAT'), styleName: 'text-center', editable: false },
     { fieldName: 'rmkCn', header: t('MSG_TXT_RMK_ARTC'), width: '146', styleName: 'text-center', editable: false },
     { fieldName: 'vcnInfo', header: t('MSG_TXT_VCN_INFO'), width: '107', renderer: { type: 'button', hideWhenEmpty: false }, displayCallback: () => t('MSG_TXT_VCN_INFO') },
-    { fieldName: 'vcnStrtDt', header: t('MSG_TXT_STRT_DATE'), width: '178', styleName: 'text-center', editable: false },
-    { fieldName: 'vcnEndDt', header: t('MSG_TXT_END_DT'), width: '178', styleName: 'text-center', editable: false },
+    { fieldName: 'vcnStrtDt', header: t('MSG_TXT_STRT_DATE'), width: '178', styleName: 'text-center', editable: false, datetimeFormat: 'date' },
+    { fieldName: 'vcnEndDt', header: t('MSG_TXT_END_DT'), width: '178', styleName: 'text-center', editable: false, datetimeFormat: 'date' },
     { fieldName: 'bizAgntPrtnrNo', header: t('MSG_TXT_EPNO'), width: '128', styleName: 'text-center', editable: false },
     { fieldName: 'agntPrtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '100', styleName: 'text-center', editable: false },
     { fieldName: 'pcpPrtnrNo', header: t('MSG_TXT_EPNO'), width: '120', styleName: 'text-center', editable: false },

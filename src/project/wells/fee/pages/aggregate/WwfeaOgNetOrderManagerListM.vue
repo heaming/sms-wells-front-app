@@ -98,7 +98,7 @@
               v-model:from="searchParams.schDtStrt"
               v-model:to="searchParams.schDtEnd"
               :label="$t('MSG_TXT_DT')"
-              rules="date_range_required|date_range_months:1"
+              @change="onChangeDt"
             />
           </kw-search-item>
           <kw-search-item
@@ -108,7 +108,6 @@
               v-model:from="searchParams.schCancDtStrt"
               v-model:to="searchParams.schCancDtEnd"
               :label="$t('MSG_TXT_CANC_DT')"
-              rules="date_range_months:1"
             />
           </kw-search-item>
           <kw-search-item
@@ -116,10 +115,18 @@
           >
             <kw-input
               v-model="searchParams.schPdCdStrt"
+              maxlength="10"
+              clearable
+              icon="search"
+              @click-icon="onClickSearchPdCdPopup('S')"
             />
             <span>~</span>
             <kw-input
               v-model="searchParams.schPdCdEnd"
+              maxlength="10"
+              clearable
+              icon="search"
+              @click-icon="onClickSearchPdCdPopup('E')"
             />
           </kw-search-item>
         </kw-search-row>
@@ -135,15 +142,15 @@
               v-model="searchParams.schPkgCdEnd"
             />
           </kw-search-item>
-          <kw-search-item
-            :label="$t('MSG_TXT_BLG')"
-          >
-            <kw-input
-              v-model="searchParams.schBlgStrt"
-            />
-            <span>~</span>
-            <kw-input
-              v-model="searchParams.schBlgEnd"
+          <kw-search-item :label="t('MSG_TXT_OG_LEVL')">
+            <zwog-level-select
+              v-model:og-levl-dv-cd1="searchParams.ogLevl1"
+              v-model:og-levl-dv-cd2="searchParams.ogLevl2"
+              v-model:og-levl-dv-cd3="searchParams.ogLevl3"
+              :og-tp-cd="searchParams.ogTp"
+              :base-ym="searchParams.schPerfYm"
+              :start-level="1"
+              :end-level="3"
             />
           </kw-search-item>
           <kw-search-item
@@ -151,6 +158,15 @@
           >
             <kw-input
               v-model="searchParams.schPrtnrNo"
+              icon="search"
+              clearable
+              :on-click-icon="onClickSearchNo"
+              :placeholder="$t('MSG_TXT_SEQUENCE_NUMBER')"
+            />
+            <kw-input
+              v-model="searchParams.prtnrKnm"
+              :placeholder="$t('MSG_TXT_EMPL_NM')"
+              readonly
             />
           </kw-search-item>
         </kw-search-row>
@@ -209,15 +225,15 @@
               :options="customCodes.rsbDvCd"
             />
           </kw-search-item>
-          <kw-search-item
-            :label="$t('MSG_TXT_BLG')"
-          >
-            <kw-input
-              v-model="searchParams.schBlgStrt"
-            />
-            <span>~</span>
-            <kw-input
-              v-model="searchParams.schBlgEnd"
+          <kw-search-item :label="t('MSG_TXT_OG_LEVL')">
+            <zwog-level-select
+              v-model:og-levl-dv-cd1="searchParams.ogLevl1"
+              v-model:og-levl-dv-cd2="searchParams.ogLevl2"
+              v-model:og-levl-dv-cd3="searchParams.ogLevl3"
+              :og-tp-cd="searchParams.ogTp"
+              :base-ym="searchParams.schPerfYm"
+              :start-level="1"
+              :end-level="3"
             />
           </kw-search-item>
           <kw-search-item
@@ -225,6 +241,15 @@
           >
             <kw-input
               v-model="searchParams.schPrtnrNo"
+              icon="search"
+              clearable
+              :on-click-icon="onClickSearchNo"
+              :placeholder="$t('MSG_TXT_SEQUENCE_NUMBER')"
+            />
+            <kw-input
+              v-model="searchParams.prtnrKnm"
+              :placeholder="$t('MSG_TXT_EMPL_NM')"
+              readonly
             />
           </kw-search-item>
         </kw-search-row>
@@ -327,8 +352,10 @@
 // -------------------------------------------------------------------------------------------------
 import dayjs from 'dayjs';
 
+import pdConst from '~sms-common/product/constants/pdConst';
+import ZwogLevelSelect from '~sms-common/organization/components/ZwogLevelSelect.vue';
 import { useDataService, getComponentType, useGlobal, gridUtil, defineGrid } from 'kw-lib';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, isEmpty } from 'lodash-es';
 
 const { t } = useI18n();
 const { modal } = useGlobal();
@@ -372,11 +399,15 @@ const searchParams = ref({
   schPdCdEnd: '',
   schPkgCdStrt: '',
   schPkgCdEnd: '',
-  schBlgStrt: '',
-  schBlgEnd: '',
+  ogLevl1: '',
+  ogLevl2: '',
+  ogLevl3: '',
   schPrtnrNo: '',
-  schPerfYm: '',
+  schPerfYm: now.add(-1, 'month').format('YYYYMM'),
   schRsbDv: '01',
+  prtnrKnm: '',
+  ogTp: 'W02',
+  pdCd: '',
 });
 
 let cachedParams;
@@ -406,6 +437,28 @@ async function initSearchParams() {
 }
 
 /*
+ *  Event - 번호 검색 아이콘 클릭 이벤트
+ */
+async function onClickSearchNo() {
+  const { result, payload } = await modal({
+    component: 'ZwogzMonthPartnerListP',
+    componentProps: {
+      baseYm: searchParams.value.schPerfYm,
+      prtnrNo: searchParams.value.schPrtnrNo,
+      ogTpCd: 'W02',
+      prtnrKnm: undefined,
+    },
+  });
+
+  if (result) {
+    if (!isEmpty(payload)) {
+      searchParams.value.schPrtnrNo = payload.prtnrNo;
+      searchParams.value.prtnrKnm = payload.prtnrKnm;
+    }
+  }
+}
+
+/*
  *  Event - 조회조건 선택에 따른 검색조건 및 그리드 변경
  */
 
@@ -424,6 +477,42 @@ async function onChangeInqrDv() {
     isGrid1Visile.value = false;
     isGrid2Visile.value = true;
     initSearchParams();
+  }
+}
+
+/*
+ *  Event - 상품코드 검색 아이콘 클릭 이벤트
+ */
+async function onClickSearchPdCdPopup(arg) {
+  if (arg === 'S') {
+    searchParams.value.pdCd = searchParams.value.schPdCdStrt;
+  } else {
+    searchParams.value.pdCd = searchParams.value.schPdCdEnd;
+  }
+  const searchPopupParams = {
+    searchType: pdConst.PD_SEARCH_CODE,
+    searchValue: searchParams.value.pdCd,
+    selectType: pdConst.PD_SEARCH_SINGLE,
+  };
+  const rtn = await modal({
+    component: 'ZwpdcStandardListP',
+    componentProps: searchPopupParams,
+  });
+  if (arg === 'S') {
+    searchParams.value.schPdCdStrt = rtn.payload?.[0]?.pdCd;
+  } else {
+    searchParams.value.schPdCdEnd = rtn.payload?.[0]?.pdCd;
+  }
+}
+
+/*
+ *  Event - 일자 선택에 따른 실적년월 적용
+ */
+
+async function onChangeDt() {
+  const { schInqrDv, schDtStrt } = searchParams.value;
+  if (schInqrDv === '01') {
+    searchParams.value.schPerfYm = schDtStrt.substring(0, 6);
   }
 }
 
@@ -534,6 +623,7 @@ const initGrd1Main = defineGrid((data, view) => {
     { fieldName: 'col39' },
     { fieldName: 'col40' },
     { fieldName: 'col41' },
+    { fieldName: 'col42' },
   ];
 
   const columns = [
@@ -562,22 +652,23 @@ const initGrd1Main = defineGrid((data, view) => {
     { fieldName: 'col23', header: t('MSG_TXT_HCR_MSH_Y3'), width: '141.2', styleName: 'text-' },
     { fieldName: 'col24', header: t('MSG_TXT_FXAM_YN'), width: '83.5', styleName: 'text-' },
     { fieldName: 'col25', header: t('MSG_TXT_FNN_LEASE'), width: '83.5', styleName: 'text-' },
-    { fieldName: 'col26', header: t('MSG_TXT_PD_ACC_CNT'), width: '83.5', styleName: 'text-right' },
-    { fieldName: 'col27', header: t('MSG_TXT_RECOMMITMENT'), width: '113.2', styleName: 'text-' },
-    { fieldName: 'col28', header: t('MSG_TXT_CNTR_DATE'), width: '113.2', styleName: 'text-center' },
-    { fieldName: 'col29', header: t('MSG_TXT_SL_DT'), width: '113.2', styleName: 'text-center' },
-    { fieldName: 'col30', header: t('MSG_TXT_CANC_DT'), width: '113.2', styleName: 'text-center' },
-    { fieldName: 'col31', header: t('MSG_TXT_BRMGR'), width: '113', styleName: 'text-center' },
-    { fieldName: 'col32', header: t('MSG_TXT_BRMGR'), width: '100', styleName: 'text-' },
-    { fieldName: 'col33', header: t('MSG_TXT_RTLFE'), width: '104.3', styleName: 'text-right' },
-    { fieldName: 'col34', header: t('MSG_TXT_PMOT_NO'), width: '104.3', styleName: 'text-right' },
-    { fieldName: 'col35', header: t('MSG_TXT_PKG_SN'), width: '135.1', styleName: 'text-' },
-    { fieldName: 'col36', header: t('MSG_TXT_MCHN') + t('MSG_TXT_CST_CD'), width: '113' },
-    { fieldName: 'col37', header: t('MSG_TXT_MCHN') + t('MSG_TXT_PRDT_CODE'), width: '113' },
-    { fieldName: 'col38', header: t('MSG_TXT_MCHN') + t('MSG_TXT_PRDT_CODE'), width: '113' },
-    { fieldName: 'col39', header: t('MSG_TXT_MCHN') + t('MSG_TXT_PRDT_CODE'), width: '113' },
-    { fieldName: 'col40', header: t('MSG_TXT_MCHN') + t('MSG_TXT_PRDT_CODE'), width: '113' },
+    { fieldName: 'col26', header: t('MSG_TXT_ELHM_ACKMT_CT'), width: '83.5', styleName: 'text-right' },
+    { fieldName: 'col27', header: t('MSG_TXT_NW_SELL_CT'), width: '83.5', styleName: 'text-right' },
+    { fieldName: 'col28', header: `BS${t('MSG_TXT_OBJ')}`, width: '83.5', styleName: 'text-right' },
+    { fieldName: 'col29', header: t('MSG_TXT_RECOMMITMENT'), width: '113.2', styleName: 'text-' },
+    { fieldName: 'col30', header: t('MSG_TXT_CNTR_DATE'), width: '113.2', styleName: 'text-center' },
+    { fieldName: 'col31', header: t('MSG_TXT_SL_DT'), width: '113.2', styleName: 'text-center' },
+    { fieldName: 'col32', header: t('MSG_TXT_CANC_DT'), width: '113.2', styleName: 'text-center' },
+    { fieldName: 'col33', header: t('MSG_TXT_DEM_DT'), width: '113.2', styleName: 'text-center' },
+    { fieldName: 'col34', header: t('MSG_TXT_BRMGR_NO'), width: '113', styleName: 'text-center' },
+    { fieldName: 'col35', header: t('MSG_TXT_BRMGR_FNM'), width: '100', styleName: 'text-' },
+    { fieldName: 'col36', header: t('MSG_TXT_RTLFE'), width: '104.3', styleName: 'text-right' },
+    { fieldName: 'col37', header: t('MSG_TXT_PMOT_NO'), width: '104.3', styleName: 'text-right' },
+    { fieldName: 'col38', header: t('MSG_TXT_PKG_PD_NO'), width: '135.1', styleName: 'text-' },
+    { fieldName: 'col39', header: t('MSG_TXT_PKG_SN'), width: '135.1', styleName: 'text-' },
+    { fieldName: 'col40', header: t('MSG_TXT_MCHN') + t('MSG_TXT_CST_CD'), width: '113' },
     { fieldName: 'col41', header: t('MSG_TXT_MCHN') + t('MSG_TXT_PRDT_CODE'), width: '113' },
+    { fieldName: 'col42', header: t('MSG_TXT_PERF_EXCD') + t('MSG_TXT_RGST_YN'), width: '113' },
 
   ];
 
@@ -622,12 +713,12 @@ const initGrd2Main = defineGrid((data, view) => {
     { fieldName: 'col5', header: t('MSG_TXT_ELHM'), width: '120', styleName: 'text-center' },
     { fieldName: 'col6', header: t('MSG_TXT_ELHM') + t('MSG_TXT_EXCP'), width: '120', styleName: 'text-center' },
     { fieldName: 'col7', header: t('MSG_TXT_ETC'), width: '120', styleName: 'text-center' },
-    { fieldName: 'col8', header: t('MSG_TXT_PRDT_NM'), width: '120', styleName: 'text-center' },
+    { fieldName: 'col8', header: t('MSG_TXT_NPAID'), width: '120', styleName: 'text-center' },
     { fieldName: 'col9', header: t('MSG_TXT_AGG'), width: '120', styleName: 'text-center' },
     { fieldName: 'col10', header: t('MSG_TXT_ELHM'), width: '120', styleName: 'text-center' },
     { fieldName: 'col11', header: t('MSG_TXT_ELHM') + t('MSG_TXT_EXCP'), width: '120', styleName: 'text-center' },
     { fieldName: 'col12', header: t('MSG_TXT_ETC'), width: '120', styleName: 'text-center' },
-    { fieldName: 'col13', header: t('MSG_TXT_PRDT_NM'), width: '120', styleName: 'text-center' },
+    { fieldName: 'col13', header: t('MSG_TXT_NPAID'), width: '120', styleName: 'text-center' },
     { fieldName: 'col14', header: t('MSG_TXT_AGG'), width: '120', styleName: 'text-center' },
     { fieldName: 'col15', header: t('MSG_TXT_PD_ACC_CNT'), width: '120', styleName: 'text-center' },
     { fieldName: 'col16', header: t('MSG_TXT_RENTAL') + t('MSG_TXT_PD_STD_FEE'), width: '120', styleName: 'text-center' },
