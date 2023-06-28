@@ -35,6 +35,8 @@
             first-option="select"
             first-option-value=""
             placeholder="선택"
+            rules="required"
+            :label="$t('MSG_TXT_ITM_NM')"
             @change="fetchIvcPrntSns"
           />
         </kw-search-item>
@@ -80,9 +82,9 @@
         >
           <kw-input
             v-model="searchParams.selCnt"
-            type="number"
             :maxlength="3"
             rules="numeric"
+            :label="$t('MSG_TXT_SEL_LIMIT_CNT')"
             clearable
           />
         </kw-search-item>
@@ -296,11 +298,6 @@ async function fetchData() {
   view.resetCurrent();
 }
 async function onClickSearch() {
-  /* 품목 필수 선택 */
-  if (searchParams.value.pdCd === '') {
-    notify(t('MSG_ALT_IS_SELCT', [t('MSG_TXT_ITM_NM')]));
-    return;
-  }
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
 }
