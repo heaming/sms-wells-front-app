@@ -3,7 +3,7 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : WDA
-2. 프로그램 ID : WwwdbRefundPresentStateM - 환불현황 (K-W-WD-U-0183M01)
+2. 프로그램 ID : WwwdbRefundListM - 환불현황 (K-W-WD-U-0183M01)
 3. 작성자 : jungsu.kim
 4. 작성일 : 2023.05.16
 ****************************************************************************************************
@@ -162,17 +162,11 @@ async function onClickReportView() {
 }
 
 async function fetchData() {
-  console.log(cachedParams);
-  console.log(pageInfo.value);
   cachedParams = { ...cachedParams, ...pageInfo.value };
-
-  const url = '/sms/wells/withdrawal/idvrve/refund-present-state/paging';
-  // const url = '/sms/common/withdrawal/idvrve/fee-aggregate/card-transfer/paging';
+  const url = '/sms/wells/withdrawal/idvrve/refund-list/paging';
 
   const res = await dataService.get(url, { params: cachedParams });
-  console.log(res);
   const { list: pages, pageInfo: pagingResult } = res.data;
-  console.log(pagingResult);
 
   pageInfo.value = pagingResult;
 
@@ -197,7 +191,7 @@ async function onClickExcelDownload() {
   const view2 = grdMainRef.value.getView();
 
   /* 백단(서비스) 엑셀 다운로드 */
-  const res = await dataService.get('/sms/wells/withdrawal/idvrve/refund-present-state/excel-download', { params: cachedParams });
+  const res = await dataService.get('/sms/wells/withdrawal/idvrve/refund-list/excel-download', { params: cachedParams });
 
   await gridUtil.exportView(view2, {
     fileName: currentRoute.value.meta.menuName,
