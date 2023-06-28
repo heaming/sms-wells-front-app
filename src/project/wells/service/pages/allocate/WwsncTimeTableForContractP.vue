@@ -701,63 +701,63 @@ async function getTimeTables() {
   // };
   // data.value.psicDatas.rsbDvCd = '0';
   // data.value.arrAm = [
-  //   { time: '09:00', cnt: '1', ablYn: 'N' },
-  //   { time: '09:10', cnt: '0', ablYn: 'N' },
-  //   { time: '09:20', cnt: '0', ablYn: 'N' },
-  //   { time: '09:30', cnt: '0', ablYn: 'N' },
-  //   { time: '09:40', cnt: '0', ablYn: 'N' },
-  //   { time: '09:50', cnt: '0', ablYn: 'N' },
-  //   { time: '10:00', cnt: '0', ablYn: 'N' },
-  //   { time: '10:10', cnt: '0', ablYn: 'N' },
-  //   { time: '10:20', cnt: '0', ablYn: 'N' },
-  //   { time: '10:30', cnt: '0', ablYn: 'N' },
-  //   { time: '10:40', cnt: '0', ablYn: 'N' },
-  //   { time: '10:50', cnt: '0', ablYn: 'N' },
-  //   { time: '11:00', cnt: '0', ablYn: 'N' },
-  //   { time: '11:10', cnt: '0', ablYn: 'N' },
-  //   { time: '11:20', cnt: '0', ablYn: 'N' },
-  //   { time: '11:30', cnt: '0', ablYn: 'N' },
-  //   { time: '11:40', cnt: '0', ablYn: 'N' },
-  //   { time: '11:50', cnt: '0', ablYn: 'N' },
-  //   { time: '12:00', cnt: '1', ablYn: 'N' },
-  //   { time: '12:10', cnt: '0', ablYn: 'N' },
-  //   { time: '12:20', cnt: '0', ablYn: 'N' },
-  //   { time: '12:30', cnt: '0', ablYn: 'N' },
-  //   { time: '12:40', cnt: '0', ablYn: 'N' },
-  //   { time: '12:50', cnt: '0', ablYn: 'N' },
-  //   { time: '13:00', cnt: '0', ablYn: 'N' },
-  //   { time: '13:10', cnt: '0', ablYn: 'N' },
-  //   { time: '13:20', cnt: '0', ablYn: 'N' },
-  //   { time: '13:30', cnt: '0', ablYn: 'N' },
-  //   { time: '13:40', cnt: '0', ablYn: 'N' },
-  //   { time: '13:50', cnt: '0', ablYn: 'N' },
+  //   { time: '09:00', cnt: '1', enableYn: 'N' },
+  //   { time: '09:10', cnt: '0', enableYn: 'N' },
+  //   { time: '09:20', cnt: '0', enableYn: 'N' },
+  //   { time: '09:30', cnt: '0', enableYn: 'N' },
+  //   { time: '09:40', cnt: '0', enableYn: 'N' },
+  //   { time: '09:50', cnt: '0', enableYn: 'N' },
+  //   { time: '10:00', cnt: '0', enableYn: 'N' },
+  //   { time: '10:10', cnt: '0', enableYn: 'N' },
+  //   { time: '10:20', cnt: '0', enableYn: 'N' },
+  //   { time: '10:30', cnt: '0', enableYn: 'N' },
+  //   { time: '10:40', cnt: '0', enableYn: 'N' },
+  //   { time: '10:50', cnt: '0', enableYn: 'N' },
+  //   { time: '11:00', cnt: '0', enableYn: 'N' },
+  //   { time: '11:10', cnt: '0', enableYn: 'N' },
+  //   { time: '11:20', cnt: '0', enableYn: 'N' },
+  //   { time: '11:30', cnt: '0', enableYn: 'N' },
+  //   { time: '11:40', cnt: '0', enableYn: 'N' },
+  //   { time: '11:50', cnt: '0', enableYn: 'N' },
+  //   { time: '12:00', cnt: '1', enableYn: 'N' },
+  //   { time: '12:10', cnt: '0', enableYn: 'N' },
+  //   { time: '12:20', cnt: '0', enableYn: 'N' },
+  //   { time: '12:30', cnt: '0', enableYn: 'N' },
+  //   { time: '12:40', cnt: '0', enableYn: 'N' },
+  //   { time: '12:50', cnt: '0', enableYn: 'N' },
+  //   { time: '13:00', cnt: '0', enableYn: 'N' },
+  //   { time: '13:10', cnt: '0', enableYn: 'N' },
+  //   { time: '13:20', cnt: '0', enableYn: 'N' },
+  //   { time: '13:30', cnt: '0', enableYn: 'N' },
+  //   { time: '13:40', cnt: '0', enableYn: 'N' },
+  //   { time: '13:50', cnt: '0', enableYn: 'N' },
   // ];
   // data.value.arrPm1 = [
-  //   { time: '14:00', cnt: '0', ablYn: 'N' },
-  //   { time: '14:10', cnt: '0', ablYn: 'N' },
-  //   { time: '14:20', cnt: '0', ablYn: 'N' },
-  //   { time: '14:30', cnt: '0', ablYn: 'N' },
-  //   { time: '14:40', cnt: '1', ablYn: 'N' },
-  //   { time: '14:50', cnt: '0', ablYn: 'N' },
-  //   { time: '15:00', cnt: '0', ablYn: 'N' },
-  //   { time: '15:10', cnt: '0', ablYn: 'N' },
-  //   { time: '15:20', cnt: '0', ablYn: 'N' },
-  //   { time: '15:30', cnt: '0', ablYn: 'N' },
-  //   { time: '15:40', cnt: '0', ablYn: 'N' },
-  //   { time: '15:50', cnt: '0', ablYn: 'N' },
-  //   { time: '16:00', cnt: '0', ablYn: 'N' },
-  //   { time: '16:10', cnt: '0', ablYn: 'N' },
-  //   { time: '16:20', cnt: '0', ablYn: 'N' },
-  //   { time: '16:30', cnt: '0', ablYn: 'N' },
-  //   { time: '16:40', cnt: '3', ablYn: 'N' },
-  //   { time: '16:50', cnt: '0', ablYn: 'N' },
-  //   { time: '17:00', cnt: '0', ablYn: 'N' },
-  //   { time: '17:10', cnt: '0', ablYn: 'N' },
-  //   { time: '17:20', cnt: '0', ablYn: 'N' },
-  //   { time: '17:30', cnt: '0', ablYn: 'N' },
-  //   { time: '17:40', cnt: '0', ablYn: 'N' },
-  //   { time: '17:50', cnt: '0', ablYn: 'N' }];
-  // data.value.arrPm2 = [{ time: '18:00', cnt: '1', ablYn: 'N' }];
+  //   { time: '14:00', cnt: '0', enableYn: 'N' },
+  //   { time: '14:10', cnt: '0', enableYn: 'N' },
+  //   { time: '14:20', cnt: '0', enableYn: 'N' },
+  //   { time: '14:30', cnt: '0', enableYn: 'N' },
+  //   { time: '14:40', cnt: '1', enableYn: 'N' },
+  //   { time: '14:50', cnt: '0', enableYn: 'N' },
+  //   { time: '15:00', cnt: '0', enableYn: 'N' },
+  //   { time: '15:10', cnt: '0', enableYn: 'N' },
+  //   { time: '15:20', cnt: '0', enableYn: 'N' },
+  //   { time: '15:30', cnt: '0', enableYn: 'N' },
+  //   { time: '15:40', cnt: '0', enableYn: 'N' },
+  //   { time: '15:50', cnt: '0', enableYn: 'N' },
+  //   { time: '16:00', cnt: '0', enableYn: 'N' },
+  //   { time: '16:10', cnt: '0', enableYn: 'N' },
+  //   { time: '16:20', cnt: '0', enableYn: 'N' },
+  //   { time: '16:30', cnt: '0', enableYn: 'N' },
+  //   { time: '16:40', cnt: '3', enableYn: 'N' },
+  //   { time: '16:50', cnt: '0', enableYn: 'N' },
+  //   { time: '17:00', cnt: '0', enableYn: 'N' },
+  //   { time: '17:10', cnt: '0', enableYn: 'N' },
+  //   { time: '17:20', cnt: '0', enableYn: 'N' },
+  //   { time: '17:30', cnt: '0', enableYn: 'N' },
+  //   { time: '17:40', cnt: '0', enableYn: 'N' },
+  //   { time: '17:50', cnt: '0', enableYn: 'N' }];
+  // data.value.arrPm2 = [{ time: '18:00', cnt: '1', enableYn: 'N' }];
   // data.value.psicDatas.rstrCndtUseYn = 'N';
   // data.value.psicDatas.udsnUseYn = 'Y';
   // data.value.psicDatas.vstPos = '방문가능';
@@ -1075,17 +1075,6 @@ async function onClickSave() {
     }
   }
 
-  // 의미없음
-  // if (data.value.chnlDvCd === 'C') {
-  //   parent.callback($("#seldate").val(), $("#seltime").val() + '00', $("#hp").val(), $("#sj_hp").val());
-  //   window.close();
-  // } else if (data.value.chnlDvCd === 'W' || data.value.chnlDvCd === 'P') {
-  //   location.href = '${returnurl}?SEL_DATE=' + $("#seldate").val() + '&SEL_TIME=' + $("#seltime").val();
-  // } else {
-  //  if (data.value.svDvCd === '4') {
-  //  }
-  // }
-
   const sendData = {
     inChnlDvCd: data.value.chnlDvCd,
     asIstOjNo: data.value.inflwChnl + data.value.svDvCd + data.value.wrkDt + data.value.seq,
@@ -1110,18 +1099,6 @@ async function onClickSave() {
     cstSvAsnNo: data.value.cstSvAsnNo,
   };
 
-  // @김동엽 부장님
-  // 김동엽 부장님 파라미터 =>    수정 요청
-  // SV_DV_CD                     SV_BIZ_HCLSF_CD  svBizHclsfCd
-  // WRK_DT                       RCPDT                        rcpdt
-  // SEQ                          AS_IST_OJ_NO         asIstOjNo
-  // DATA_STAT_CD                 MTR_STAT_CD          mtrStatCd
-  // SELL_DATE                    VST_RQDT                 vstRqdt
-  // SELL_TIME                    VST_AK_HH               vstAkHh
-  // SMS_YN                       SMS_FW_YN               smsFwYn
-  // EGER_MEMO                    CNSL_MO_CN            cnslMoCn
-
-  console.log(sendData);
   await dataService.post('/sms/wells/service/installation-works', sendData);
   notify(t('MSG_ALT_SAVE_DATA'));
   ok(sendData);
@@ -1268,130 +1245,4 @@ h3 {
     }
   }
 }
-
-// ::v-deep(.kw-date) {
-//   &.reservation-datepicker {
-//     padding: 26px 0;
-
-//     .datepicker.datepicker-inline {
-//       table {
-//         width: 100%;
-
-//         // thead 공통
-//         thead {
-//           tr:nth-child(2) {
-//             th.prev {
-//               width: 100%;
-//               height: 100%;
-//               color: transparent;
-//               display: inline-block;
-//               background: url(node_modules/kw-lib/src/assets/icons/arrow_left.svg) center no-repeat;
-//               background-size: 16px 16px;
-//             }
-
-//             th.next {
-//               width: 100%;
-//               height: 100%;
-//               color: transparent;
-//               display: inline-block;
-//               background: url(node_modules/kw-lib/src/assets/icons/arrow_right.svg) center no-repeat;
-//               background-size: 16px 16px;
-//             }
-
-//             th.datepicker-switch {
-//               width: auto;
-//               font-size: 18px;
-//               height: 26px;
-//               font-weight: 500;
-//               line-height: 1.33;
-//             }
-//           }
-
-//           tr:nth-child(3) {
-//             .dow {
-//               font-size: 12px;
-//               font-weight: normal;
-//               line-height: 1.67;
-
-//               &:is(:first-child) {
-//                 color: $error;
-//               }
-//             }
-//           }
-//         }
-
-//         tr td.day {
-//           &.old,
-//           &.new {
-//             opacity: 0.3;
-//           }
-
-//           &.sunday {
-//             color: $error;
-
-//             &.old,
-//             &.new {
-//               color: $error;
-//             }
-//           }
-
-//           &.saturday {
-//             color: $black1 !important;
-//           }
-//         }
-//       }
-
-//       table tr td.active.active,
-//       table tr td span.active.active,
-//       table tr td.active.disabled.active,
-//       table tr td span.active.disabled.active,
-//       table tr td.active.disabled:active,
-//       table tr td span.active.disabled:active,
-//       table tr td.active.disabled:hover.active,
-//       table tr td span.active.disabled:hover.active,
-//       table tr td.active.disabled:hover:active,
-//       table tr td span.active.disabled:hover:active,
-//       table tr td.active:active,
-//       table tr td span.active:active,
-//       table tr td.active:hover.active,
-//       table tr td span.active:hover.active,
-//       table tr td.active:hover:active,
-//       table tr td span.active:hover:active {
-//         background-color: $primary;
-//         color: $bg-white;
-//         text-shadow: none;
-//       }
-
-//       .datepicker-days {
-//         width: 100%;
-//         display: flex;
-//         justify-content: center;
-
-//         table {
-//           margin: -12px;
-//           border-spacing: 12px 4px;
-//           table-layout: fixed;
-
-//           thead {
-//             tr:nth-child(3) {
-//               margin-top: -4px;
-//             }
-//           }
-
-//           tbody {
-//             margin-top: -4px;
-
-//             tr td {
-//               position: relative;
-//               border-radius: 100%;
-//               font-size: 14px;
-//               font-weight: normal;
-//               line-height: 1.43;
-//             }
-//           }
-//         }
-//       }
-//     }
-//   }
-// }
 </style>
