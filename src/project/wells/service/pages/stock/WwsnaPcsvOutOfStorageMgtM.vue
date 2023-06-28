@@ -212,7 +212,7 @@ const searchParams = ref({
   wkWareNo: '100002', /* 교원파주물류센터 */
   svBizDclsfCd: '1112', /* 배송출고  */
   pdCd: '',
-  selCnt: '10', /* 조회 제한건수  */
+  selCnt: '', /* 조회 제한건수  */
   ivcPrntSn: '', /* 출고확정 순번 */
 });
 let cachedParams;
@@ -296,6 +296,11 @@ async function fetchData() {
   view.resetCurrent();
 }
 async function onClickSearch() {
+  /* 품목 필수 선택 */
+  if (searchParams.value.pdCd === '') {
+    notify(t('MSG_ALT_IS_SELCT', [t('MSG_TXT_ITM_NM')]));
+    return;
+  }
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
 }
@@ -399,6 +404,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'asPhnCd' },
     { fieldName: 'asCausCd' },
     { fieldName: 'ogTpCd' },
+    { fieldName: 'wareMngtPrtnrNo' },
   ];
 
   const columns = [
@@ -406,8 +412,19 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'svBizDclsfCd', header: t('MSG_TXT_TASK_TYPE_CD'), width: '90', styleName: 'text-center' },
     { fieldName: 'svBizDclsfNm', header: t('MSG_TXT_TASK_TYPE'), width: '80', styleName: 'text-center' },
     { fieldName: 'wkPrgsStatNm', header: t('MSG_TXT_WK_STS'), width: '80', styleName: 'text-center' },
-    { fieldName: 'vstFshDt', header: t('MSG_TXT_OSTR_CNFM_YM'), width: '100', styleName: 'text-center' },
-    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '130', styleName: 'text-center' },
+    { fieldName: 'vstFshDt', header: t('MSG_TXT_OSTR_CNFM_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' },
+    {
+      fieldName: 'cntrNo',
+      header: t('MSG_TXT_CNTR_DTL_NO'),
+      width: '140',
+      styleName: 'text-center',
+      displayCallback(grid, index) {
+        const { cntrNo, cntrSn } = grid.getValues(index.itemIndex);
+        if (!isEmpty(cntrNo)) {
+          return `${cntrNo}-${cntrSn}`;
+        }
+      },
+    },
     { fieldName: 'rcgvpKnm', header: t('MSG_TXT_CST_NM'), width: '100', styleName: 'text-center' },
     { fieldName: 'basePdCd', header: t('MSG_TXT_ITM_CD'), width: '120', styleName: 'text-center' },
     { fieldName: 'basePdNm', header: t('MSG_TXT_ITM_NM'), width: '120', styleName: 'text-left' },
