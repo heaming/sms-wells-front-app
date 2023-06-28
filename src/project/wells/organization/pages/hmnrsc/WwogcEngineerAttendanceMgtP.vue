@@ -226,12 +226,16 @@ const initGrid = defineGrid((data, view) => {
   view.rowIndicator.visible = true;
 
   view.setColumnLayout([
-    'egerWrkStatCd',
-    'vcnStrtDt',
-    'vcnEndDt',
-    'rmkCn',
-    'bizAgntPrtnrNo',
-    'prtnrKnm',
+    {
+      header: t('MSG_TXT_VCN'),
+      direction: 'horizontal',
+      items: ['egerWrkStatCd', 'vcnStrtDt', 'vcnEndDt', 'rmkCn'],
+    },
+    {
+      header: t('MSG_TXT_BIZ_AGNT_PRTNR'),
+      direction: 'horizontal',
+      items: ['bizAgntPrtnrNo', 'prtnrKnm'],
+    },
 
   ]);
 
