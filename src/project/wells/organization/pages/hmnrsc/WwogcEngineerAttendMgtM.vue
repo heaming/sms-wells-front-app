@@ -3,7 +3,7 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : OGC
-2. 프로그램 ID : WwogcEngineerAttendanceMgtM - 엔지니어 출근 관리
+2. 프로그램 ID : WwogcEngineerAttendMgtM - 엔지니어 출근 관리
 3. 작성자 : 김동석
 4. 작성일 : 2023-05-10
 ****************************************************************************************************
@@ -45,6 +45,18 @@
           <kw-paging-info :total-count="pageInfo.totalCount" />
         </template>
         <kw-btn
+          v-permission:update
+          grid-action
+          :label="$t('MSG_BTN_SAVE')"
+          :disable="pageInfo.totalCount === 0"
+          @click="onClickSave"
+        />
+        <kw-separator
+          vertical
+          inset
+          spaced
+        />
+        <kw-btn
           icon="download_on"
           dense
           secondary
@@ -53,7 +65,6 @@
           @click="onClickExcelDownload"
         />
       </kw-action-top>
-
       <kw-grid
         ref="grdMainRef"
         name="grdMain"
@@ -68,21 +79,20 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useMeta, useDataService, getComponentType, gridUtil, useGlobal, defineGrid } from 'kw-lib';
+import { codeUtil, useMeta, useDataService, getComponentType, gridUtil, useGlobal, defineGrid } from 'kw-lib';
 import dayjs from 'dayjs';
 import ZwogLevelSelect from '~sms-common/organization/components/ZwogLevelSelect.vue';
 import { SMS_WELLS_URI } from '~sms-wells/organization/constants/ogConst';
 
 const { getConfig } = useMeta();
 const dataService = useDataService();
-const { modal } = useGlobal();
+const { modal, notify, alert } = useGlobal();
 const { currentRoute } = useRouter();
-
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 const { t } = useI18n();
-// const codes = await codeUtil.getMultiCodes('EGER_WRK_STAT_CD', 'OG_TP_CD');
+const codes = await codeUtil.getMultiCodes('EGER_WRK_STAT_CD', 'OG_TP_CD');
 const grdMainRef = ref(getComponentType('KwGrid'));
 const now = dayjs().format('YYYYMMDD');
 const searchParams = ref({
@@ -126,18 +136,19 @@ async function onClickExcelDownload() {
 }
 
 // 행 저장
-// async function onClickSave() {
-//   const view = grdMainRef.value.getView();
-//   if (await gridUtil.alertIfIsNotModified(view)) { return; }
-//   if (!await gridUtil.validate(view)) { return; }
+async function onClickSave() {
+  const view = grdMainRef.value.getView();
+  if (await gridUtil.alertIfIsNotModified(view)) { return; }
+  if (!await gridUtil.validate(view)) { return; }
 
-//   const changedRows = gridUtil.getChangedRowValues(view);
-//   const { prtnrNo } = changedRows[0];
+  const changedRows = gridUtil.getChangedRowValues(view);
+  const { prtnrNo } = changedRows[0];
 
-//   await dataService.post(`${SMS_WELLS_URI}/partner-engineer/${prtnrNo}`, changedRows);
-//   await notify(t('MSG_ALT_SAVE_DATA'));
-//   await onClickSearch();
-// }
+  console.log(changedRows);
+  await dataService.post(`${SMS_WELLS_URI}/partner-engineer/${prtnrNo}`, changedRows);
+  await notify(t('MSG_ALT_SAVE_DATA'));
+  await onClickSearch();
+}
 
 // function editableCallback() {
 //   if (searchParams.value.baseDt < now) {
@@ -161,12 +172,12 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'bizAgntYn', header: t('MSG_TXT_BIZ_AGNT'), width: '106', styleName: 'text-center', editable: false },
     { fieldName: 'wrkDt', header: t('MSG_TXT_WRK_DT'), width: '130', styleName: 'text-center', editable: false, datetimeFormat: 'date' },
     { fieldName: 'wrkNm', header: t('MSG_TXT_WRK_DOW'), width: '106', styleName: 'text-center', editable: false },
-    { fieldName: 'egerWrkStatNm', header: t('MSG_TXT_WRK_STAT'), styleName: 'text-center', editable: false },
-    { fieldName: 'rmkCn', header: t('MSG_TXT_RMK_ARTC'), width: '146', styleName: 'text-center', editable: false },
+    { fieldName: 'egerWrkStatCd', header: t('MSG_TXT_WRK_STAT'), options: codes.EGER_WRK_STAT_CD, editor: { type: 'dropdown' } },
+    { fieldName: 'rmkCn', header: t('MSG_TXT_RMK_ARTC'), width: '146', styleName: 'text-center', editable: true, editor: { type: 'text', maxLength: 3500 } },
     { fieldName: 'vcnInfo', header: t('MSG_TXT_VCN_INFO'), width: '107', renderer: { type: 'button', hideWhenEmpty: false }, displayCallback: () => t('MSG_TXT_VCN_INFO') },
     { fieldName: 'vcnStrtDt', header: t('MSG_TXT_STRT_DATE'), width: '178', styleName: 'text-center', editable: false, datetimeFormat: 'date' },
     { fieldName: 'vcnEndDt', header: t('MSG_TXT_END_DT'), width: '178', styleName: 'text-center', editable: false, datetimeFormat: 'date' },
-    { fieldName: 'bizAgntPrtnrNo', header: t('MSG_TXT_EPNO'), width: '128', styleName: 'text-center', editable: false },
+    { fieldName: 'bizAgntPrtnrNo', header: t('MSG_TXT_EPNO'), width: '128', styleName: 'text-left', editable: false },
     { fieldName: 'agntPrtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '100', styleName: 'text-center', editable: false },
     { fieldName: 'pcpPrtnrNo', header: t('MSG_TXT_EPNO'), width: '120', styleName: 'text-center', editable: false },
     { fieldName: 'pcpPrtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '100', styleName: 'text-center', editable: false },
@@ -195,7 +206,7 @@ const initGrid = defineGrid((data, view) => {
     'bizAgntYn',
     'wrkDt',
     'wrkNm',
-    'egerWrkStatNm',
+    'egerWrkStatCd',
     'rmkCn',
     'vcnInfo',
     {
@@ -224,35 +235,46 @@ const initGrid = defineGrid((data, view) => {
     }
   };
 
-  view.onCellButtonClicked = async (grid, { dataRow, column }) => {
-    // 파트너조회
-    if (column === 'bizAgntPrtnrNo') {
-      const { bizAgntPrtnrNo } = gridUtil.getRowValue(grid, dataRow);
-      const { result, payload } = await modal({
-        component: 'ZwogzPartnerListP',
-        componentProps: { prtnrNo: bizAgntPrtnrNo, ogTpCd: 'W06' },
-      });
-      if (result) {
-        data.setValue(dataRow, 'bizAgntPrtnrNo', payload.prtnrNo);
-        data.setValue(dataRow, 'agntPrtnrKnm', payload.prtnrKnm);
-      }
-    }
-  };
+  // view.onCellButtonClicked = async (grid, { dataRow, column }) => {
+  //   // 파트너조회
+  //   if (column === 'bizAgntPrtnrNo') {
+  //     const { bizAgntPrtnrNo } = gridUtil.getRowValue(grid, dataRow);
+  //     const { result, payload } = await modal({
+  //       component: 'ZwogzPartnerListP',
+  //       componentProps: { prtnrNo: bizAgntPrtnrNo, ogTpCd: 'W06' },
+  //     });
+  //     if (result) {
+  //       data.setValue(dataRow, 'bizAgntPrtnrNo', payload.prtnrNo);
+  //       data.setValue(dataRow, 'agntPrtnrKnm', payload.prtnrKnm);
+  //     }
+  //   }
+  // };
 
   view.onCellItemClicked = async (g, { column, dataRow }) => {
     // 휴가정보
     if (column === 'vcnInfo') {
-      await alert(t('준비 중 입니다.'));
       const { prtnrNo } = gridUtil.getRowValue(g, dataRow);
-      console.log(prtnrNo);
-      // const { result } = await modal({
-      //   component: 'WwogcEngineerAttendanceMgtP',
-      //   componentProps: { prtnrNo, ogTpCd: 'W06' },
-      // });
+      const { rolDvNm } = gridUtil.getRowValue(g, dataRow);
+      const { prtnrKnm } = gridUtil.getRowValue(g, dataRow);
+      const { wkGrpNm } = gridUtil.getRowValue(g, dataRow);
 
-      // if (result) {
-      //   await fetchData();
-      // }
+      const { result } = await modal({
+        component: 'WwogcEngineerAttendanceMgtP',
+        componentProps: { prtnrNo, ogTpCd: 'W06', rolDvNm, prtnrKnm, wkGrpNm },
+      });
+
+      if (result) {
+        await fetchData();
+      }
+    }
+  };
+
+  view.onCellEdited = (grid, itemIndex, dataRow, field) => {
+    const { egerWrkStatCd } = grid.getValues(itemIndex, field);
+    if (egerWrkStatCd !== '000' && egerWrkStatCd !== '990') {
+      grid.setValue(itemIndex, 'egerWrkStatCd', '000');
+
+      alert(t('MSG_TXT_VCN_INFO_REG'));
     }
   };
 });
