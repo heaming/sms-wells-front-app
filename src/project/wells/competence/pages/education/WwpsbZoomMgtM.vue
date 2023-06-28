@@ -537,15 +537,13 @@ async function onClickSave() {
     treeList,
   };
 
-  const response = await dataService.post('/sms/wells/competence/zoom-counsel/zooms', dataParams);
-  if (response.data) {
-    notify(t('MSG_ALT_SAVE_DATA'));
-    await init();
-    if (searchParams.value.oneDepth !== '') {
-      onClickSearch();
-    }
-    selectedRowValue.value = null;
+  await dataService.post('/sms/wells/competence/zoom-counsel/zooms', dataParams);
+  notify(t('MSG_ALT_SAVE_DATA'));
+  await init();
+  if (searchParams.value.oneDepth !== '') {
+    onClickSearch();
   }
+  selectedRowValue.value = null;
 }
 
 async function insertChildRow(rowValue) {
