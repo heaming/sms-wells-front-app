@@ -124,9 +124,9 @@ const pageInfo = ref({
 
 const codes = await codeUtil.getMultiCodes(
   'OG_TP_CD',
-  'EGER_EVL_GD_CD',
   'ROL_DV_CD',
   'RSB_DV_CD',
+  'PRTNR_GD_CD',
 );
 
 const searchParams = ref({
@@ -226,8 +226,8 @@ const initGrdMain = defineGrid((data, view) => {
       width: '166',
       styleName: 'text-center',
     },
-    { fieldName: 'rolDvCd', header: t('MSG_TXT_RSB'), width: '106', styleName: 'text-center', options: codes.ROL_DV_CD },
-    { fieldName: 'egerEvlGdCd', header: t('MSG_TXT_ROLE_1'), width: '106', styleName: 'text-center', options: codes.EGER_EVL_GD_CD },
+    { fieldName: 'rsbDvCd', header: t('MSG_TXT_RSB'), width: '106', styleName: 'text-center', options: codes.RSB_DV_CD },
+    { fieldName: 'rolDvCd', header: t('MSG_TXT_ROLE_1'), width: '106', styleName: 'text-center', options: codes.ROL_DV_CD },
     { fieldName: 'cntrDt', header: t('MSG_TXT_ENTCO_DT'), width: '130', styleName: 'text-center', datetimeFormat: 'date' },
     {
       fieldName: 'prtnrGdCd',
@@ -235,7 +235,7 @@ const initGrdMain = defineGrid((data, view) => {
       width: '166',
       styleName: 'text-center',
       rules: 'required',
-      options: codes.EGER_EVL_GD_CD,
+      options: codes.PRTNR_GD_CD,
       editor: {
         type: 'dropdown',
       },
