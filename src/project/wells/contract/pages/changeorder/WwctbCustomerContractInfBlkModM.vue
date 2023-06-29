@@ -995,11 +995,9 @@ const initPartnerGrid = defineGrid((data, view) => {
     { fieldName: 'cntrCstNo', header: t('MSG_TXT_CST_NO'), width: '110', styleName: 'text-center' }, // 고객번호
     { fieldName: 'slDt', header: t('MSG_TXT_SL_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd' }, // 매출일자
     { fieldName: 'sellPrtnrNo', header: t('MSG_TXT_EPNO'), width: '110', styleName: 'text-center' }, // 사번
-    { fieldName: 'ogCd', header: t('MSG_TXT_OG_CD'), width: '100', styleName: 'text-center' }, // 조직코드
     { fieldName: 'dgr3LevlDgPrtnrNo', header: t('MSG_TXT_BRMGR'), width: '100', styleName: 'text-center' }, // 지점장
     { fieldName: 'dgr2LevlDgPrtnrNo', header: t('MSG_TXT_REG_DIR'), width: '100', styleName: 'text-center' }, // 지역단장
     { fieldName: 'dgr1LevlDgPrtnrNo', header: t('MSG_TXT_GNLR_LEDR'), width: '100', styleName: 'text-center' }, // 총괄단장
-    { fieldName: 'curOgCd', header: t('MSG_TXT_OG_CD'), width: '100', styleName: 'text-center' }, // 조직코드
     { fieldName: 'curDgr3LevlDgPrtnrNo', header: t('MSG_TXT_BRMGR'), width: '100', styleName: 'text-center' }, // 지점장
     { fieldName: 'curDgr2LevlDgPrtnrNo', header: t('MSG_TXT_REG_DIR'), width: '100', styleName: 'text-center' }, // 지역단장
     { fieldName: 'curDgr1LevlDgPrtnrNo', header: t('MSG_TXT_GNLR_LEDR'), width: '100', styleName: 'text-center' }, // 총괄단장
@@ -1018,12 +1016,12 @@ const initPartnerGrid = defineGrid((data, view) => {
     {
       header: `${t('MSG_TXT_CNTRCT')} ${t('MSG_TXT_MST')}`, // 계약 마스터
       direction: 'horizontal',
-      items: ['ogCd', 'dgr3LevlDgPrtnrNo', 'dgr2LevlDgPrtnrNo', 'dgr1LevlDgPrtnrNo'],
+      items: ['dgr3LevlDgPrtnrNo', 'dgr2LevlDgPrtnrNo', 'dgr1LevlDgPrtnrNo'],
     },
     {
       header: `${t('MSG_TXT_AGN')} ${t('MSG_TXT_MST')}`, // 대리인 마스터
       direction: 'horizontal',
-      items: ['curOgCd', 'curDgr3LevlDgPrtnrNo', 'curDgr2LevlDgPrtnrNo', 'curDgr1LevlDgPrtnrNo'],
+      items: ['curDgr3LevlDgPrtnrNo', 'curDgr2LevlDgPrtnrNo', 'curDgr1LevlDgPrtnrNo'],
     },
     'chEpNo',
   ]);
