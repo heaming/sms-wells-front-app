@@ -105,7 +105,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'rveDt', header: t('MSG_TXT_RVE_DT'), width: '171', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'perfDt', header: t('MSG_TXT_PERF_DT'), width: '171', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'sellTpNm', header: t('MSG_TXT_TASK_DIV'), width: '171', styleName: 'text-center' },
-    { fieldName: 'rveNm', header: t('MSG_TXT_RVE_NM'), width: '171', styleName: 'text-left' },
+    { fieldName: 'rveNm', header: t('MSG_TXT_RVE_NM'), width: '171', styleName: 'text-center' },
     { fieldName: 'dpDvNm', header: t('MSG_TXT_DP_DV'), width: '171', styleName: 'text-center' },
     { fieldName: 'dpTpNm', header: t('MSG_TXT_DP_TP'), width: '171', styleName: 'text-center' },
     { fieldName: 'rveAmt', header: t('MSG_TXT_PROCS_AMT_WON'), width: '182', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
@@ -129,7 +129,7 @@ const initSingleGrid = defineGrid((data, view) => {
     { fieldName: 'rveDt', header: t('MSG_TXT_RVE_DT'), width: '200', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'perfDt', header: t('MSG_TXT_PERF_DT'), width: '200', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'dpDvNm', header: t('MSG_TXT_DP_DV'), width: '200', styleName: 'text-center' },
-    { fieldName: 'rveDvNm', header: t('MSG_TXT_DP_KND'), width: '200', styleName: 'text-left' },
+    { fieldName: 'rveDvNm', header: t('MSG_TXT_DP_KND'), width: '200', styleName: 'text-center' },
     { fieldName: 'dpTpNm', header: t('MSG_TXT_DP_TP'), width: '200', styleName: 'text-center' },
     { fieldName: 'rveAmt', header: t('MSG_TXT_PROCS_AMT_WON'), width: '242', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
   ];

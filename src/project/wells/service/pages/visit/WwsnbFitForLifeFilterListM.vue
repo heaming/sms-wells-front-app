@@ -84,13 +84,13 @@
       />
 
       <div class="button-set--bottom">
-        <div class="button-set--bottom-left">
+        <!-- <div class="button-set--bottom-left">
           <kw-btn
             secondary
             :label="$t('MSG_TXT_PREV')"
             @click="onClickBack"
           />
-        </div><!--이전-->
+        </div>이전 -->
         <div class="button-set--bottom-right">
           <kw-btn
             primary
@@ -197,9 +197,9 @@ async function saveFilter(cntrNo, cntrSn, vstPromDt, partPdCdBefore, partPdCdAft
   });
 }
 
-function onClickBack() {
-  window.history.back();
-}
+// function onClickBack() {
+//   window.history.back();
+// }
 
 async function onClickSave() {
   if (await obsMainRef.value.alertIfIsNotModified()) return;
