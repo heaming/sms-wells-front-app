@@ -166,7 +166,7 @@ async function onClickSearch() {
 
 async function getSaveParams() {
   const checkedValues = ref(gridUtil.getCheckedRowValues(grdMainRef.value.getView()));
-  const wareNo = searchParams.value.asnExcdDvCd === '0' ? '300000' : searchParams.value.serviceCenter;
+  const wareNo = searchParams.value.asnExcdDvCd === '0' ? '300000' : searchParams.value.wareNo;
   const { asnExcdDvCd } = searchParams.value;
   checkedValues.value = checkedValues.value.map((v) => ({ ...v, asnExcdDvCd, strWareNo: wareNo }));
 
