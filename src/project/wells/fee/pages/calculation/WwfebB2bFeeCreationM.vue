@@ -89,7 +89,7 @@
       <!-- STEPER -->
       <zwfey-fee-step
         ref="stepNaviRef"
-        :key="searchParams.perfYm"
+        :key="searchParams.perfYm+searchParams.feeTcntDvCd"
         v-model:base-ym="searchParams.perfYm"
         v-model:fee-schd-tp-cd="searchParams.feeSchdTpCd"
         v-model:fee-tcnt-dv-cd="searchParams.feeTcntDvCd"
