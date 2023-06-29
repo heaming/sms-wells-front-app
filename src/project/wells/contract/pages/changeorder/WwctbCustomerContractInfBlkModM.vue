@@ -938,6 +938,7 @@ const initCustomerGrid = defineGrid((data, view) => {
 
   view.rowIndicator.visible = true;
   view.checkBar.visible = true;
+  view.setFixedOptions({ colCount: 8 });
 
   // multi row header setting
   view.setColumnLayout([
@@ -1009,6 +1010,7 @@ const initPartnerGrid = defineGrid((data, view) => {
 
   view.rowIndicator.visible = true;
   view.checkBar.visible = true;
+  view.setFixedOptions({ colCount: 7 });
 
   // multi row header setting
   view.setColumnLayout([
