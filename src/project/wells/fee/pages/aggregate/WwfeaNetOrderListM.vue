@@ -156,10 +156,15 @@
           >
             <kw-input
               v-model="searchParams.prtnrNo"
-              :label="$t('MSG_TXT_SEQUENCE_NUMBER')"
               icon="search"
               clearable
               :on-click-icon="onClickSearchNo"
+              :placeholder="$t('MSG_TXT_SEQUENCE_NUMBER')"
+            />
+            <kw-input
+              v-model="searchParams.prtnrKnm"
+              :placeholder="$t('MSG_TXT_EMPL_NM')"
+              readonly
             />
           </kw-search-item>
         </kw-search-row>
@@ -181,24 +186,22 @@
           </kw-search-item>
           <kw-search-item
             :label="$t('MSG_TXT_ORDR')"
-            required
           >
             <kw-option-group
               v-model="searchParams.tcntDvCd"
               :label="$t('MSG_TXT_ORDR')"
-              rules="required"
               type="radio"
               :options="customCodes.div1Cd"
             />
           </kw-search-item>
           <kw-search-item
-            :label="$t('MSG_TXT_PERF_YM')"
+            :label="$t('MSG_TXT_FEE_YM')"
           >
             <kw-date-picker
               v-model="searchParams.perfYm"
               rules="required"
               type="month"
-              :label="$t('MSG_TXT_PERF_YM')"
+              :label="$t('MSG_TXT_FEE_YM')"
             />
           </kw-search-item>
         </kw-search-row>
@@ -247,12 +250,10 @@
           </kw-search-item>
           <kw-search-item
             :label="$t('MSG_TXT_ORDR')"
-            required
           >
             <kw-option-group
               v-model="searchParams.tcntDvCd"
               :label="$t('MSG_TXT_ORDR')"
-              rules="required"
               type="radio"
               :options="customCodes.div1Cd"
             />
@@ -272,13 +273,13 @@
             />
           </kw-search-item>
           <kw-search-item
-            :label="$t('MSG_TXT_PERF_YM')"
+            :label="$t('MSG_TXT_FEE_YM')"
           >
             <kw-date-picker
               v-model="searchParams.perfYm"
               rules="required"
               type="month"
-              :label="$t('MSG_TXT_PERF_YM')"
+              :label="$t('MSG_TXT_FEE_YM')"
             />
           </kw-search-item>
         </kw-search-row>
@@ -288,18 +289,39 @@
       <kw-action-top>
         <template #left>
           <kw-paging-info
-            :total-count="totalCount"
+            v-if="isSelectVisile4"
+            :total-count="totalCount1"
           />
-          <span class="ml8">{{ $t('MSG_TXT_UNIT_COLON_WON') }}</span>
+          <kw-paging-info
+            v-if="isSelectVisile2"
+            :total-count="totalCount2"
+          />
+          <span
+            v-if="isSelectVisile4"
+            class="ml8"
+          >{{ $t('MSG_TXT_UNIT_COLON_WON') }}</span>
+          <span
+            v-if="isSelectVisile2"
+            class="ml8"
+          >{{ $t('MSG_TXT_MSG_TXT_UNIT_CASE') }}</span>
         </template>
-
         <kw-btn
+          v-if="isSelectVisile4"
           dense
           secondary
           icon="download_on"
           :label="$t('MSG_BTN_EXCEL_DOWN')"
-          :disable="!isExcelDown"
+          :disable="!isExcelDown1"
           @click="onClickExcelDownload"
+        />
+        <kw-btn
+          v-if="isSelectVisile2"
+          dense
+          secondary
+          icon="download_on"
+          :label="$t('MSG_BTN_EXCEL_DOWN')"
+          :disable="!isExcelDown2"
+          @click="onClickExcel2Download"
         />
         <kw-separator
           v-if="isSelectVisile4"
@@ -363,7 +385,8 @@ const { modal } = useGlobal();
 const dataService = useDataService();
 const { t } = useI18n();
 const { currentRoute } = useRouter();
-const isExcelDown = ref(false);
+const isExcelDown1 = ref(false);
+const isExcelDown2 = ref(false);
 const isReg = ref(false);
 const isConfirm = ref(false);
 // -------------------------------------------------------------------------------------------------
@@ -379,7 +402,8 @@ const isGrid2Visile = ref(false);
 const now = dayjs();
 const grdMain1Ref = ref(getComponentType('KwGrid'));
 const grdMain2Ref = ref(getComponentType('KwGrid'));
-const totalCount = ref(0);
+const totalCount1 = ref(0);
+const totalCount2 = ref(0);
 const customCodes = {
   div1Cd: [{ codeId: '01', codeName: '1차' }, { codeId: '02', codeName: '2차' }],
   div2Cd: [{ codeId: '01', codeName: '상세' }, { codeId: '02', codeName: '집계' }],
@@ -408,6 +432,7 @@ const searchParams = ref({
   ogLevl2: '',
   ogLevl3: '',
   prtnrNo: '',
+  prtnrKnm: '',
   perfYm: now.add(-1, 'month').format('YYYYMM'),
   pdCd: '',
 });
@@ -442,6 +467,8 @@ async function onChangedDvcd() {
     isSelectVisile2.value = true;
     isSelectVisile3.value = false;
     isSelectVisile4.value = false;
+    isExcelDown1.value = false;
+    isExcelDown2.value = false;
   }
 }
 
@@ -454,18 +481,27 @@ async function onClickExcelDownload() {
   });
 }
 
+async function onClickExcel2Download() {
+  const view = grdMain2Ref.value.getView();
+
+  await gridUtil.exportView(view, {
+    fileName: currentRoute.value.meta.menuName,
+    timePostfix: true,
+  });
+}
+
 async function fetchData(apiUrl) {
   const response = await dataService.get(`/sms/wells/fee/monthly-net/${apiUrl}`, { params: cachedParams });
   const netOrders = response.data;
-  totalCount.value = netOrders.length;
-  if (totalCount.value > 0) {
-    isExcelDown.value = true;
-  } else {
-    isExcelDown.value = false;
-  }
   if (apiUrl === 'fees') {
     const view = grdMain2Ref.value.getView();
     view.getDataSource().setRows(netOrders);
+    totalCount2.value = netOrders.length;
+    if (totalCount2.value > 0) {
+      isExcelDown2.value = true;
+    } else {
+      isExcelDown2.value = false;
+    }
   } else if (apiUrl === 'confirmChk') {
     info.value = netOrders;
     if (info.value.cnfmChk === 'Y') {
@@ -481,6 +517,12 @@ async function fetchData(apiUrl) {
   } else {
     const view = grdMain1Ref.value.getView();
     view.getDataSource().setRows(netOrders);
+    totalCount1.value = netOrders.length;
+    if (totalCount1.value > 0) {
+      isExcelDown1.value = true;
+    } else {
+      isExcelDown1.value = false;
+    }
   }
 }
 
@@ -522,19 +564,24 @@ async function onClickSearchPdCdPopup(arg) {
   }
 }
 
-// 번호 검색 아이콘 클릭 이벤트
+/*
+ *  Event - 번호 검색 아이콘 클릭 이벤트
+ */
 async function onClickSearchNo() {
   const { result, payload } = await modal({
-    component: 'ZwogzPartnerListP',
+    component: 'ZwogzMonthPartnerListP',
     componentProps: {
+      baseYm: searchParams.value.perfYm,
       prtnrNo: searchParams.value.prtnrNo,
       ogTpCd: searchParams.value.ogDvCd,
+      prtnrKnm: undefined,
     },
   });
 
   if (result) {
     if (!isEmpty(payload)) {
       searchParams.value.prtnrNo = payload.prtnrNo;
+      searchParams.value.prtnrKnm = payload.prtnrKnm;
     }
   }
 }
@@ -578,7 +625,7 @@ async function openNtorConfirmPopup() {
 }
 
 onMounted(async () => {
-  await onClickSearch();
+  await fetchData('confirmChk');
 });
 
 // -------------------------------------------------------------------------------------------------
@@ -618,13 +665,13 @@ const initGrd1Main = defineGrid((data, view) => {
     { fieldName: 'prdtNm', header: t('MSG_TXT_PRDT_NM'), width: '120', styleName: 'text-center' },
     { fieldName: 'prdtCd', header: t('MSG_TXT_PRDT_CODE'), width: '120', styleName: 'text-center' },
     { fieldName: 'pkgCd', header: t('MSG_TXT_PKG_CD'), width: '120', styleName: 'text-center' },
-    { fieldName: 'istm', header: t('MSG_TXT_ISTM'), width: '120', styleName: 'text-center' },
-    { fieldName: 'stplMcnt', header: t('MSG_TXT_STPL_MCNT'), width: '120', styleName: 'text-center' },
-    { fieldName: 'cntrDate', header: t('MSG_TXT_CNTR_DATE'), width: '120', styleName: 'text-center' },
+    { fieldName: 'istm', header: t('MSG_TXT_ISTM'), width: '120', styleName: 'text-right' },
+    { fieldName: 'stplMcnt', header: t('MSG_TXT_STPL_MCNT'), width: '120', styleName: 'text-right' },
+    { fieldName: 'cntrDate', header: t('MSG_TXT_CNTR_DATE'), width: '120', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'slDt', header: t('MSG_TXT_SL_DT'), width: '120', styleName: 'text-center' },
     { fieldName: 'canDt', header: t('MSG_TXT_CANC_DT'), width: '120', styleName: 'text-center' },
     { fieldName: 'demDt', header: t('MSG_TXT_DEM_DT'), width: '120', styleName: 'text-center' },
-    { fieldName: 'rtlfe', header: t('MSG_TXT_RTLFE'), width: '120', styleName: 'text-center' },
+    { fieldName: 'rtlfe', header: t('MSG_TXT_RTLFE'), width: '120', styleName: 'text-right', numberFormat: '#,##0' },
   ];
 
   data.setFields(fields);

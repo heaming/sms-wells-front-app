@@ -141,7 +141,7 @@
                     dense
                     borderless
                     label="더보기"
-                    class="kw-fc--black3 kw-font-pt14 self-start mt2"
+                    class="kw-fc--black3 kw-font-pt14 self-start mt9"
                     @click="showAllAdrs = !showAllAdrs"
                   />
                 </div>

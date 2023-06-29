@@ -90,6 +90,7 @@
               v-model:init-data="prevStepData"
               :pd-tp-cd="pdConst.PD_TP_CD_STANDARD"
               :pd-grp-dv-cd="pdConst.PD_PRP_GRP_DV_CD_MANUAL"
+              @open-popup="openPopup"
             />
           </kw-step-panel>
           <kw-step-panel :name="pdConst.STANDARD_STEP_PRICE.name">
@@ -176,6 +177,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { useDataService, codeUtil, useGlobal } from 'kw-lib';
+import dayjs from 'dayjs';
 import { isEmpty, cloneDeep } from 'lodash-es';
 import pdConst from '~sms-common/product/constants/pdConst';
 import { pdMergeBy, pdRemoveBy } from '~sms-common/product/utils/pdUtil';
@@ -194,11 +196,12 @@ const props = defineProps({
 const router = useRouter();
 const { t } = useI18n();
 const dataService = useDataService();
-const { notify, confirm } = useGlobal();
+const { modal, notify, confirm } = useGlobal();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
+const now = dayjs();
 const bas = pdConst.TBL_PD_BAS;
 const dtl = pdConst.TBL_PD_DTL;
 const ecom = pdConst.TBL_PD_ECOM_PRP_DTL;
@@ -492,9 +495,8 @@ async function onClickSave(tempSaveYn) {
   if (isTempSaveBtn.value) {
     // 임시저장
     if (rtn.data?.data?.pdCd !== currentPdCd.value) {
-      currentPdCd.value = rtn.data?.data?.pdCd;
-      isCreate.value = isEmpty(currentPdCd.value);
-      await router.push({ path: '/product/zwpdc-sale-product-list/wwpdc-standard-mgt', query: { pdCd: currentPdCd.value }, state: { stateParam: { newRegYn: 'N', reloadYn: 'N', copyPdCd: '' } } });
+      const newPdCd = rtn.data?.data?.pdCd;
+      await router.push({ path: '/product/zwpdc-sale-product-list/wwpdc-standard-mgt', query: { pdCd: newPdCd }, state: { stateParam: { newRegYn: 'N', reloadYn: 'N', copyPdCd: '' } } });
     } else {
       await fetchProduct();
     }
@@ -512,11 +514,40 @@ async function setSellDetailTypeCodes(sellTpCd, isReset = false) {
   }
 }
 
+// 매출인식분류코드
+async function fetechSaleRecognitionClassification(slRcogClsfCd) {
+  if (slRcogClsfCd) {
+    const res = await dataService.get(`/sms/wells/product/standards/recogn-class/${slRcogClsfCd}`);
+    return res.data?.slRcogClsfNm;
+  }
+}
+
 // 메타 속성값 수정시 호출
 async function onUpdateBasicValue(field) {
   if (field.colNm === 'sellTpCd') {
     // 판매유형
     setSellDetailTypeCodes(field.initValue, true);
+  }
+}
+
+// 메타 속성 팝업 호출
+async function openPopup(field) {
+  const searchParams = {
+    apyStrtdt: now.format('YYYYMMDD'),
+    apyEnddt: now.format('YYYYMMDD'),
+  };
+  // 매출인식분류코드
+  if (field.colNm === 'slRcogClsfCd') {
+    const rtn = await modal({
+      // ZwwdcSalesRecognitionBaseMgtP
+      component: field.sourcInfCn,
+      componentProps: searchParams,
+    });
+    if (rtn && rtn.payload && rtn.result) {
+      // console.log('EwpdcStandardMgtM - openPopup : ', rtn);
+      field.initValue = rtn.payload.slRcogClsfCd;
+      field.initName = rtn.payload.slRcogClsfNm;
+    }
   }
 }
 
@@ -540,8 +571,13 @@ async function resetData() {
 
 async function setMountData() {
   // 판매 상세 유형 초기값 설정
-  const mgtNameFields = await cmpStepRefs.value[0]?.value.getNameFields();
-  await setSellDetailTypeCodes(mgtNameFields.sellTpCd?.initValue);
+  const baseAttrFields = await cmpStepRefs.value[0]?.value.getNameFields();
+  await setSellDetailTypeCodes(baseAttrFields.sellTpCd?.initValue);
+  const mangeAttrFields = await cmpStepRefs.value[2]?.value.getNameFields();
+  mangeAttrFields.slRcogClsfCd.readonly = true;
+  mangeAttrFields.slRcogClsfCd.initName = await fetechSaleRecognitionClassification(
+    mangeAttrFields.slRcogClsfCd?.initValue,
+  );
 }
 
 // 초기화 버튼

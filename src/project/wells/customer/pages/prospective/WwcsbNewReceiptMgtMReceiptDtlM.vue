@@ -70,17 +70,18 @@
           <kw-form-row>
             <!-- 휴대전화번호 -->
             <kw-form-item :label="$t('MSG_TXT_MPNO')">
-              <p>{{ assignInfo.wireTelNo }}</p>
+              <p>{{ assignInfo.phNo }}</p>
             </kw-form-item>
             <!-- 전화번호 -->
             <kw-form-item :label="$t('MSG_TXT_TEL_NO')">
-              <p>{{ assignInfo.phNo }}</p>
+              <p>{{ assignInfo.wireTelNo }}</p>
             </kw-form-item>
           </kw-form-row>
           <kw-form-row>
             <!-- 컨택요청일 -->
             <kw-form-item :label="$t('MSG_TXT_CONTACT_REQ_DT')">
-              <p>{{ assignInfo.contactDate }}</p>
+              <!-- <p>{{ assignInfo.cnslPsbStrtDtm }}</p> -->
+              <p>{{ assignInfo.contactDate }} {{ assignInfo.contactTime }}</p>
             </kw-form-item>
             <!-- 요청내용 -->
             <kw-form-item :label="$t('MSG_TXT_REQ_CN')">
@@ -133,22 +134,20 @@
           </kw-form-row>
           <kw-form-row>
             <!-- 비고 -->
-            <kw-form-item :label="$t('MSG_TXT_NOTE')">
-              <slot v-if="currentJobType === 'ASGN'">
-                <kw-form-item :label="$t('MSG_TXT_NOTE')">
-                  <kw-input
-                    v-model="assignInfo.cnslMoCn"
-                    type="textarea"
-                    :rows="3"
-                    counter
-                    maxlength="200"
-                  />
-                </kw-form-item>
-              </slot>
-              <slot v-else>
-                <p>{{ assignInfo.cnslMoCn }}</p>
-              </slot>
-            </kw-form-item>
+            <slot v-if="currentJobType === 'ASGN'">
+              <kw-form-item :label="$t('MSG_TXT_NOTE')">
+                <kw-input
+                  v-model="assignInfo.cnslMoCn"
+                  type="textarea"
+                  :rows="3"
+                  counter
+                  maxlength="200"
+                />
+              </kw-form-item>
+            </slot>
+            <slot v-else>
+              <p>{{ assignInfo.cnslMoCn }}</p>
+            </slot>
           </kw-form-row>
         </kw-form>
 
@@ -178,7 +177,7 @@
               <p>{{ assignInfo?.sppDuedt }}</p>
             </kw-form-item>
             <!-- 매출일 -->
-            <kw-form-item :label="$t('MSG_TXT_DUEDT')">
+            <kw-form-item :label="$t('MSG_TXT_DT_OF_SALE')">
               <p>{{ assignInfo?.cntrPdStrtdt }}</p>
             </kw-form-item>
           </kw-form-row>
@@ -194,7 +193,7 @@
           </kw-form-row>
           <div class="row justify-end items-center pt8">
             <div class="item">
-              <slot v-if="isEmpty(assignInfo?.value?.ichrPrtnrNo)">
+              <slot v-if="currentJobType === 'ASGN'">
                 <kw-btn
                   :label="$t('MSG_BTN_CANCEL')"
                   class="ml8"
@@ -234,6 +233,7 @@ const props = defineProps({
   pspcCstCnslId: { type: String, default: null },
   jobType: { type: String, default: 'RECV' }, // RECV
   fromUi: { type: String, default: null },
+  cntrNo: { type: String, default: null },
 });
 
 const { notify } = useGlobal(); // , confirm
@@ -286,6 +286,7 @@ async function onClickSave() {
   assignInfo.value.pspcCstCnslIds = [currentPspcCstCnslId.value];
 
   await dataService.put(`${baseUrl}/contact`, assignInfo.value);
+  notify('저장을 완료하였습니다');
 
   await router.close(0, true);
   const targetPage = currentJobType.value === 'RECV' ? '/customer/wwcsb-new-receipt-mgt' : '/customer/wwcsb-new-receipt-mgt';
@@ -298,12 +299,13 @@ async function onClickSave() {
 }
 
 async function fetchData() {
-  const { pspcCstCnslId } = props;
+  const { pspcCstCnslId, cntrNo } = props;
   currentPspcCstCnslId.value = pspcCstCnslId;
 
-  const res = await dataService.get(`${baseUrl}/assign/${currentPspcCstCnslId.value}`);
+  const res = await dataService.get(`${baseUrl}/assign/${currentPspcCstCnslId.value}/${cntrNo}`);
   assignInfo.value = res.data;
   assignInfo.value.showFstRgstDtm = dayjs(assignInfo?.value?.fstRgstDtm).format('YYYY-MM-DD');
+  // assignInfo.value.cnslPsbStrtDtm = dayjs(assignInfo?.value?.cnslPsbStrtDtm).format('YYYY-MM-DD hh:mm:ss');
 }
 
 async function initProps() {

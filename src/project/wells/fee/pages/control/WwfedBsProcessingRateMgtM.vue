@@ -43,11 +43,12 @@
       </kw-search-row>
     </kw-search>
     <div class="result-area">
+      <h3 class="kw-font-pt18">
+        {{ $t("MSG_TXT_TRGT_INFO") }}
+      </h3>
       <kw-action-top class="mb20">
         <template #left>
-          <h3 class="kw-font-pt18">
-            {{ $t("MSG_TXT_TRGT_INFO") }}
-          </h3>
+          <kw-paging-info :total-count="totalCount" />
         </template>
 
         <kw-btn
@@ -146,10 +147,11 @@ async function onClickExcelDownload() {
 // 번호 검색 아이콘 클릭 이벤트
 async function onClickSearchNo() {
   const { result, payload } = await modal({
-    component: 'ZwogzPartnerListP',
+    component: 'ZwogzMonthPartnerListP',
     componentProps: {
       ogTpCd: 'W02',
       prtnrNo: searchParams.value.prtnrNo,
+      baseYm: searchParams.value.perfYm,
     },
   });
 
@@ -163,7 +165,7 @@ async function onClickSearchNo() {
 // 행추가
 async function onClickAddRow() {
   const view = grdMainRef.value.getView();
-  gridUtil.insertRowAndFocus(view, 0, { prtnrNo: '' });
+  gridUtil.insertRowAndFocus(view, 0, {});
 }
 
 // 파트너의 BS처리율 조회
@@ -216,35 +218,47 @@ const initGridMain = defineGrid((data, view) => {
     { fieldName: 'baseYm', header: t('MSG_TXT_BASE_YM'), width: '98', editable: false, visible: false },
     { fieldName: 'ogTpCd', header: t('MSG_TXT_OG_TP'), width: '98', editable: false, visible: false },
     { fieldName: 'prtnrNo',
-      header: { text: t('MSG_TXT_SEQUENCE_NUMBER') },
+      header: t('MSG_TXT_SEQUENCE_NUMBER'),
       width: '133',
-      editor: { type: 'text' },
+      styleName: 'text-center rg-button-icon--search',
+      rules: 'required',
       button: 'action',
+      renderer: {
+        type: 'icon',
+      },
+      editor: {
+        inputCharacters: ['0-9'],
+        maxLength: 10,
+      },
+      buttonVisibleCallback(grid, index) {
+        return gridUtil.isCreatedRow(grid, index.dataRow);
+      },
       styleCallback(grid, dataCell) {
         const rowState = gridUtil.getRowState(grid, dataCell.index.dataRow);
         if (rowState === 'created') {
-          return { rules: 'required', editable: true, styleName: 'text-left, rg-button-icon--search' };
+          return { editable: true };
         }
-        return { editable: false, styleName: 'text-center' };
-      },
-      buttonVisibleCallback(grid, index) {
-        return grid.getDataSource().getRowState(index.dataRow) === 'created';
+        return { editable: false, renderer: { type: 'text' } };
       },
     },
     { fieldName: 'ogCd', header: t('MSG_TXT_BLG'), width: '98', styleName: 'text-center', editable: false },
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '127', styleName: 'text-center', editable: false },
     { fieldName: 'rsbDvNm', header: t('MSG_TXT_RSB'), width: '151', styleName: 'text-center', editable: false },
-    { fieldName: 'sv01999901', header: t('MSG_TXT_ASGN') + t('MSG_TXT_COUNT'), width: '98', styleName: 'text-right', editable: false },
-    { fieldName: 'totSvCnt', header: t('MSG_TXT_FHS_CT'), width: '106', styleName: 'text-right', editable: false },
-    { fieldName: 'sv01999909', header: `${t('MSG_TXT_PROCS_RT')}(%)`, width: '210', styleName: 'text-right', editable: false },
+    { fieldName: 'sv01999901', header: t('MSG_TXT_ASGN') + t('MSG_TXT_COUNT'), width: '98', styleName: 'text-right', editable: false, dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'totSvCnt', header: t('MSG_TXT_FHS_CT'), width: '106', styleName: 'text-right', editable: false, dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'sv01999909', header: `${t('MSG_TXT_PROCS_RT')}(%)`, width: '210', styleName: 'text-right', editable: false, dataType: 'number', numberFormat: '#,##0' },
     { fieldName: 'sv01999910',
       header: `${t('MSG_TXT_PROCS_RT')}(%) ${t('MSG_TXT_MOD')}`,
       width: '98',
       styleName: 'text-right',
+      dataType: 'number',
+      numberFormat: '#,##0',
+      editable: true,
       editor: {
         type: 'number',
         maxLength: 22,
       },
+      /*
       styleCallback(grid, dataCell) {
         // 값이 있으면 edit 가능, 아니면 불가
         const colData = gridUtil.getRowValue(grid, dataCell.index.dataRow);
@@ -253,6 +267,7 @@ const initGridMain = defineGrid((data, view) => {
         }
         return { editable: false };
       },
+      */
     },
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
@@ -267,8 +282,9 @@ const initGridMain = defineGrid((data, view) => {
     if (column === 'prtnrNo') {
       const { prtnrNo } = gridUtil.getRowValue(grid, dataRow);
       const { result, payload } = await modal({
-        component: 'ZwogzPartnerListP',
+        component: 'ZwogzMonthPartnerListP',
         componentProps: {
+          baseYm: searchParams.value.perfYm,
           ogTpCd: 'W02',
           prtnrNo,
         },

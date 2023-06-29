@@ -36,8 +36,9 @@
       <kw-search-item :label="$t('MSG_TXT_ASSIGNER_EP_NO')">
         <kw-input
           v-model.trim="searchParams.ichrPrtnrNo"
-          rules="numeric"
-          maxlength="10"
+          :regex="/^[0-9]*$/i"
+          rules="numeric|max:7"
+          maxlength="7"
         />
       </kw-search-item>
 
@@ -266,8 +267,9 @@ const initgrdAssign = defineGrid((data, view) => {
   view.onCellDblClicked = async (g, clickData) => {
     if (clickData.cellType === 'data') {
       const pspcCstCnslId = g.getValue(clickData.itemIndex, 'pspcCstCnslId');
+      const cntrNo = g.getValue(clickData.itemIndex, 'cntrNo');
       const targetUrl = '/customer/wwcsb-new-receipt-mgt/wwcsb-new-receipt-mgt-m-Receipt-dtl';
-      await router.push({ path: targetUrl, query: { pspcCstCnslId, jobType: 'ASGN', fromUi: 'ASGN' } });
+      await router.push({ path: targetUrl, query: { pspcCstCnslId, jobType: 'ASGN', fromUi: 'ASGN', cntrNo } });
     }
   };
 });

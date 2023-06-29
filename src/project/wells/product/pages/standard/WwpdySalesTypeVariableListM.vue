@@ -118,7 +118,7 @@ import { cloneDeep, isEmpty } from 'lodash-es';
 import pdConst from '~sms-common/product/constants/pdConst';
 import { getCodeNames, getAlreadyItems } from '~sms-common/product/utils/pdUtil';
 
-const { notify } = useGlobal();
+const { alert, notify } = useGlobal();
 const router = useRouter();
 const { t } = useI18n();
 const dataService = useDataService();
@@ -185,7 +185,7 @@ async function checkDuplication() {
   const view = grdMainRef.value.getView();
   const changedRows = gridUtil.getChangedRowValues(view);
   const alreadyItems = getAlreadyItems(view, changedRows, 'sellTpCd', 'choFxnDvCd', 'rgltnVarbNm');
-  if (alreadyItems.length > 1) {
+  if (alreadyItems.length > 0) {
     // {판매유형/변수구분/변수명}이(가) 중복됩니다.
     let dupItem = getCodeNames(codes, alreadyItems[0].sellTpCd, 'SELL_TP_CD');
     if (alreadyItems[0].choFxnDvCd) {
@@ -219,7 +219,7 @@ async function checkDuplication() {
       dupItem += `/${getCodeNames(variableCodes.value, rgltnVarbId)}`;
     }
     // 은(는) 이미 DB에 등록되어 있습니다.
-    notify(t('MSG_ALT_EXIST_IN_DB', [dupItem]));
+    await alert(t('MSG_ALT_EXIST_IN_DB', [dupItem]));
     return true;
   }
   return false;
@@ -251,18 +251,19 @@ async function onClickExcelDownload() {
 async function fetchVariables() {
   if (isEmpty(variableCodes.value.length)) {
     const res = await dataService.get('/sms/common/product/meta-properties', { params: { pdPrcTpCd: pdConst.PD_PRC_TP_CD_ALL } });
+    console.log(res);
     if (isEmpty(res.data)) {
       return;
     }
-    console.log('WwpdySalesTypeVariableListM - fetchVariables - res : ', res);
-    variableCodes.value = res.data.map(({ pdPrpMetaId, uiLblCdv }) => ({
-      codeId: pdPrpMetaId, codeName: t(uiLblCdv) })) ?? [];
-    // const view = grdMainRef.value?.getView();
-    // if (view && variableCodes.value.length) {
-    //   const rgltnVarbId = view.columnByName('rgltnVarbId');
-    //   rgltnVarbId.labels = variableCodes.value.map((item) => (item.codeId));
-    //   rgltnVarbId.values = variableCodes.value.map((item) => (item.codeId));
-    // }
+    // console.log('WwpdySalesTypeVariableListM - fetchVariables - res : ', res);
+    variableCodes.value = res.data?.map(({ pdPrpMetaId, uiLblCdv }) => ({
+      codeId: pdPrpMetaId, codeName: uiLblCdv ? t(uiLblCdv) : uiLblCdv })) ?? [];
+    const view = grdMainRef.value?.getView();
+    if (view && variableCodes.value.length) {
+      const rgltnVarbId = view.columnByName('rgltnVarbId');
+      rgltnVarbId.labels = variableCodes.value.map((item) => (item.codeId));
+      rgltnVarbId.values = variableCodes.value.map((item) => (item.codeId));
+    }
   }
 }
 
@@ -285,7 +286,11 @@ const initGrdMain = defineGrid((data, view) => {
       placeHolder: t('MSG_TXT_SELT'),
       editor: { type: 'list' },
       rules: 'required',
-      options: codes.SELL_TP_CD },
+      options: codes.SELL_TP_CD,
+      styleCallback(grid, dataCell) {
+        return { editable: dataCell.item.rowState === 'created' };
+      },
+    },
     // 변수구분
     { fieldName: 'choFxnDvCd',
       header: t('MSG_TXT_VAL_GUBUN'),
@@ -294,7 +299,11 @@ const initGrdMain = defineGrid((data, view) => {
       placeHolder: t('MSG_TXT_SELT'),
       editor: { type: 'list' },
       rules: 'required',
-      options: codes.CHO_FXN_DV_CD },
+      options: codes.CHO_FXN_DV_CD,
+      styleCallback(grid, dataCell) {
+        return { editable: dataCell.item.rowState === 'created' };
+      },
+    },
     // 변수명
     { fieldName: 'rgltnVarbNm',
       header: t('MSG_TXT_VARB_NM'),
@@ -302,13 +311,9 @@ const initGrdMain = defineGrid((data, view) => {
       editor: { type: 'list' },
       rules: 'required',
       options: variableCodes.value,
-      // displayCallback(grid, index) {
-      //   const { rgltnVarbId } = grid.getValues(index.itemIndex);
-      //   if (rgltnVarbNm && (rgltnVarbNm.indexOf('MSG_TXT') > -1 || rgltnVarbNm.indexOf('TXT_MSG') > -1)) {
-      //     return t(rgltnVarbNm);
-      //   }
-      //   return rgltnVarbNm;
-      // },
+      styleCallback(grid, dataCell) {
+        return { editable: dataCell.item.rowState === 'created' };
+      },
     },
     // 변수ID
     { fieldName: 'rgltnVarbId',

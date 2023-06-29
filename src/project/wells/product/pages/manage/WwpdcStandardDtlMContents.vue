@@ -112,6 +112,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
+import { useDataService } from 'kw-lib';
 import pdConst from '~sms-common/product/constants/pdConst';
 import ZwpdcPropGroupsDtl from '~sms-common/product/pages/manage/components/ZwpdcPropGroupsDtl.vue';
 import ZwpdcProdChangeHist from '~sms-common/product/pages/manage/components/ZwpdcProdChangeHist.vue';
@@ -133,6 +134,7 @@ const props = defineProps({
 });
 
 const router = useRouter();
+const dataService = useDataService();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -176,6 +178,23 @@ async function onClickUpdate() {
   await router.push({ path: '/product/zwpdc-sale-product-list/wwpdc-standard-mgt', query: { pdCd }, state: { stateParam: { newRegYn: 'N', reloadYn: 'Y', copyPdCd: '' } } });
 }
 
+// 매출인식분류코드
+async function fetechSaleRecognitionClassification(slRcogClsfCd) {
+  if (slRcogClsfCd) {
+    const res = await dataService.get(`/sms/wells/product/standards/recogn-class/${slRcogClsfCd}`);
+    return res.data?.slRcogClsfNm;
+  }
+}
+
+async function setMountData() {
+  const mangeAttrFields = await cmpStepRefs.value[2]?.value.getNameFields();
+  if (mangeAttrFields.slRcogClsfCd) {
+    mangeAttrFields.slRcogClsfCd.initName = await fetechSaleRecognitionClassification(
+      mangeAttrFields.slRcogClsfCd?.initValue,
+    );
+  }
+}
+
 async function initProps() {
   const { pdCd, initData } = props;
   currentPdCd.value = pdCd;
@@ -184,12 +203,17 @@ async function initProps() {
 
 await initProps();
 
+onMounted(async () => {
+  await setMountData();
+});
+
 watch(() => props.pdCd, (pdCd) => {
   currentPdCd.value = pdCd;
   selectedTab.value = pdConst.STANDARD_STEP_BASIC.name;
 });
 watch(() => props.initData, (initData) => {
   currentInitData.value = initData;
+  setMountData();
 }, { deep: true });
 
 </script>

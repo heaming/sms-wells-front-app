@@ -171,7 +171,7 @@
           :colspan="2"
         >
           <kw-input
-            v-model="searchParams.fromogCd"
+            v-model="searchParams.fromOgCd"
             :placeholder="t('A000000')"
             :maxlength="10"
           />
@@ -309,7 +309,7 @@ const searchParams = ref({
   pdNm: '',
   cstrGbn: '2',
   fntGbn: '',
-  fromogCd: '',
+  fromOgCd: '',
   toOgCd: '',
   prtnrNo: '',
   incentiveGbn: '',

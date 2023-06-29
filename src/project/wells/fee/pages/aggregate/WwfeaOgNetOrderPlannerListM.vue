@@ -47,10 +47,18 @@
         >
           <kw-input
             v-model="searchParams.schPdCdStrt"
+            maxlength="10"
+            clearable
+            icon="search"
+            @click-icon="onClickSearchPdCdPopup('S')"
           />
           <span>~</span>
           <kw-input
             v-model="searchParams.schPdCdEnd"
+            maxlength="10"
+            clearable
+            icon="search"
+            @click-icon="onClickSearchPdCdPopup('E')"
           />
         </kw-search-item>
       </kw-search-row>
@@ -166,6 +174,7 @@
 // -------------------------------------------------------------------------------------------------
 import dayjs from 'dayjs';
 
+import pdConst from '~sms-common/product/constants/pdConst';
 import { useDataService, getComponentType, useGlobal, gridUtil, defineGrid } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 
@@ -204,6 +213,7 @@ const searchParams = ref({
   schRsvDtStrt: '',
   schRsvDtEnd: '',
   perfYm: '',
+  pdCd: '',
 });
 let cachedParams;
 
@@ -243,6 +253,31 @@ async function onClickExcelDownload() {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
   });
+}
+
+/*
+ *  Event - 상품코드 검색 아이콘 클릭 이벤트
+ */
+async function onClickSearchPdCdPopup(arg) {
+  if (arg === 'S') {
+    searchParams.value.pdCd = searchParams.value.schPdCdStrt;
+  } else {
+    searchParams.value.pdCd = searchParams.value.schPdCdEnd;
+  }
+  const searchPopupParams = {
+    searchType: pdConst.PD_SEARCH_CODE,
+    searchValue: searchParams.value.pdCd,
+    selectType: pdConst.PD_SEARCH_SINGLE,
+  };
+  const rtn = await modal({
+    component: 'ZwpdcStandardListP',
+    componentProps: searchPopupParams,
+  });
+  if (arg === 'S') {
+    searchParams.value.schPdCdStrt = rtn.payload?.[0]?.pdCd;
+  } else {
+    searchParams.value.schPdCdEnd = rtn.payload?.[0]?.pdCd;
+  }
 }
 
 /*

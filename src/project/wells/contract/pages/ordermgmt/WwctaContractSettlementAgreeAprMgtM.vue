@@ -50,7 +50,7 @@
 </template>
 
 <script setup>
-import { useDataService } from 'kw-lib';
+import { alert, useDataService } from 'kw-lib';
 import Agrees from './WwctaContractSettlementAgreeAprMgtMAgrees.vue';
 import PartnerInfo from './WwctaContractSettlementAgreeAprMgtMPartnerInfo.vue';
 import ProductCarouselItem from './WwctaContractSettlementAgreeAprMgtMProductCarouselItem.vue';
@@ -77,7 +77,6 @@ async function fetchContract() {
     cntrNo: props.cntrNo,
   });
   contract.value = response.data;
-  console.log(contract.value);
 }
 
 function onConfirmAgrees(agreedInfos) {

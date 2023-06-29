@@ -182,7 +182,6 @@ import CrdcdExpSelect
 import { warn } from 'vue';
 
 const props = defineProps({
-  contract: { type: Object, default: undefined },
   cntrCstInfo: { type: Object, default: undefined },
   crdcdStlms: {
     type: Array,
@@ -223,6 +222,7 @@ const isCooperation = computed(() => props.cntrCstInfo.copnDvCd === '2' /* sorry
 const stlmBas = computed(() => (props.crdcdStlms?.[0] ?? {}));
 
 const approvalRequest = ref({
+  cntrStlmId: stlmBas.value.cntrStlmId,
   stlmAmt: stlmBas.value.stlmAmt,
   istmMcn: 1, /* 할부 개월 수 */
   crcdnoEncr: '', /* 카드번호 */
@@ -231,7 +231,7 @@ const approvalRequest = ref({
 });
 
 const approvalResponse = ref({
-  aprno: undefined, /* 승인번호, 저장은 안하지만 와야함. */
+  aprNo: undefined, /* 승인번호, 저장은 안하지만 와야함. */
   cdcoCd: undefined, /* 카드사 코드 */
   fnitAprRsCd: undefined, /* 금융기관승인결과코드 */
   fnitAprFshDtm: undefined, /* 금융기관승인완료일시 */
@@ -282,7 +282,7 @@ function getCrdCdStlmUpdateInfo() {
     cardExpdtYm,
   } = approvalRequest.value;
   const {
-    aprno,
+    aprNo,
     cdcoCd,
     fnitAprRsCd,
     fnitAprFshDtm,
@@ -294,7 +294,7 @@ function getCrdCdStlmUpdateInfo() {
     crcdnoEncr,
     owrKnm,
     cardExpdtYm,
-    aprno,
+    aprNo,
     cdcoCd,
     fnitAprRsCd,
     fnitAprFshDtm,
@@ -316,45 +316,17 @@ function getStlmsUpdateInfo() {
   ];
 }
 
+let cachedRequestParams;
 async function requestApproval() {
-  return new Promise((resolve) => {
-    console.log(props.crdcdStlms[0].stlmRels);
-
-    const dataParams = {
-      cardExpdtYm: approvalRequest.value.cardExpdtYm,
-      crcdnoEncr: approvalRequest.value.crcdnoEncr,
-      istmMcn: approvalRequest.value.istmMcn,
-      owrKnm: approvalRequest.value.owrKnm,
-      stlmAmt: approvalRequest.value.stlmAmt,
-      cntrNo: stlmBas.value.cntrNo,
-      stlmRels: props.crdcdStlms[0].stlmRels,
-    };
-
-    console.log(dataParams);
-
-    // 수납요청 데이터 생성 및 카드승인..
-    const res = dataService.post('/sms/wells/contract/contracts/settlements/credit-card-spay', dataParams);
-    console.log(res);
-
-    // const testResponse = {
-    //   data: {
-    //     aprno: 'test123456789', /* 승인번호, 저장은 안하지만 와야함. */
-    //     cdcoCd: '02', /* 카드사 코드 */
-    //     fnitAprRsCd: 'Y', /* 금융기관승인결과코드 */
-    //     fnitAprFshDtm: undefined, /* 금융기관승인완료일시 */
-    //   },
-    // };
-    setTimeout(() => resolve(res), 100);
-  });
+  cachedRequestParams = { ...approvalRequest.value };
+  const { data } = await dataService.post('/sms/wells/contract/contracts/settlements/credit-card-spay', cachedRequestParams);
+  approvalResponse.value = data[0];
 }
 
 async function onClickApproval() {
   if (!await frmRef.value.validate()) { return; }
   if (!await confirm('카드승인 요청을 하시겠습니까?')) { return; }
-  const response = await requestApproval();
-  console.log(response.data.data[0]);
-  approvalResponse.value = response.data.data[0];
-  // approvalResponse.value.aprNo = 'TEMP012345';
+  await requestApproval();
   emit('approved', getStlmsUpdateInfo());
 }
 
