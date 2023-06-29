@@ -293,12 +293,14 @@ async function onClickDelete() {
   }
 
   const deletedRows = await gridUtil.confirmDeleteCheckedRows(view);
-  const res = await dataService.delete('/sms/wells/service/computation-exclude-items', { data: [...deletedRows] });
-  const { processCount } = res.data;
-  if (processCount > 0) {
-    notify(t('MSG_ALT_DELETED'));
-    pageInfo.value.needTotalCount = true;
-    await fetchData();
+  if (!isEmpty(deletedRows)) {
+    const res = await dataService.delete('/sms/wells/service/computation-exclude-items', { data: [...deletedRows] });
+    const { processCount } = res.data;
+    if (processCount > 0) {
+      notify(t('MSG_ALT_DELETED'));
+      pageInfo.value.needTotalCount = true;
+      await fetchData();
+    }
   }
 }
 
