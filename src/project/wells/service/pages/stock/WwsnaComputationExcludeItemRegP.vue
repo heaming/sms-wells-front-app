@@ -23,13 +23,13 @@
     >
       <kw-search-row>
         <kw-search-item
-          :label="t('MSG_TXT_INQR_YM')"
+          :label="t('MSG_TXT_MGT_YNM')"
           required
         >
           <kw-date-picker
             v-model="searchParams.inqrYm"
             type="month"
-            :label="t('MSG_TXT_INQR_YM')"
+            :label="t('MSG_TXT_MGT_YNM')"
             rules="required"
             :disable="true"
           />
