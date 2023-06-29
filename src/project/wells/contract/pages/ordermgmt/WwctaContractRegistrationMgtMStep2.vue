@@ -315,6 +315,7 @@
                         :options="item.sellDscTpCds"
                         first-option=""
                         first-option-value=""
+                        first-option-label="일반"
                         placeholder="렌탈할인유형"
                         @change="getPdAmts(item)"
                       />
