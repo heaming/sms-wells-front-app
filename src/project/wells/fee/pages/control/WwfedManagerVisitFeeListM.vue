@@ -34,8 +34,7 @@
         >
           <kw-select
             v-model="searchParams.inqrDv"
-            :options="[t('MSG_TXT_MANAGEMENT_DEPARTMENT'), t('MSG_TXT_RGNL_GRP')
-                       , t('MSG_TXT_BRANCH'), t('MSG_TXT_INDV')]"
+            :options="inqrDv"
             rules="required"
           />
         </kw-search-item>
@@ -97,24 +96,55 @@
 // -------------------------------------------------------------------------------------------------
 import { defineGrid, getComponentType, gridUtil, useDataService } from 'kw-lib';
 import dayjs from 'dayjs';
+import { isEmpty } from 'lodash-es';
 import ZwogLevelSelect from '~sms-common/organization/components/ZwogLevelSelect.vue';
 
 const dataService = useDataService();
 const { t } = useI18n();
 const { currentRoute } = useRouter();
+
+// M조직 수수료 개인상세 조회에서 router 호출
+const props = defineProps({
+  perfYm: { // 실적년월
+    type: String,
+    default: dayjs().subtract(1, 'month').format('YYYYMM'),
+  },
+  prtnrNo: { // 파트너번호
+    type: String,
+    default: '',
+  },
+  ogLv1Id: { // 1조직레벨(지점장일 경우만)
+    type: String,
+    default: '',
+  },
+  ogLv2Id: { // 2조직레벨(지점장일 경우만)
+    type: String,
+    default: '',
+  },
+  ogLv3Id: { // 3조직레벨(지점장일 경우만)
+    type: String,
+    default: '',
+  },
+});
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // ------------------------------------------------------------------------------------------------
 const totalCount = ref(0);
 const grdVisitFeeRef = ref(getComponentType('KwGrid'));
+const inqrDv = [
+  { codeId: '01', codeName: t('MSG_TXT_MANAGEMENT_DEPARTMENT') },
+  { codeId: '02', codeName: t('MSG_TXT_RGNL_GRP') },
+  { codeId: '03', codeName: t('MSG_TXT_BRANCH') },
+  { codeId: '04', codeName: t('MSG_TXT_INDV') },
+];
 const searchParams = ref({
-  baseYm: dayjs().subtract(1, 'month').format('YYYYMM'),
-  inqrDv: t('MSG_TXT_MANAGEMENT_DEPARTMENT'),
+  baseYm: props.perfYm,
+  inqrDv: '01',
   ogTpCd: 'W02',
-  ogLevlDvCd1: '',
-  ogLevlDvCd2: '',
-  ogLevlDvCd3: '',
-  no: '',
+  ogLevlDvCd1: props.ogLv1Id,
+  ogLevlDvCd2: props.ogLv2Id,
+  ogLevlDvCd3: props.ogLv3Id,
+  no: props.prtnrNo,
 });
 
 async function fetchData() {
@@ -139,6 +169,15 @@ async function onClickExcelDownload() {
     exportData: response.data,
   });
 }
+
+onMounted(() => {
+  // M조직 수수료 개인상세 조회에서 탭으로 띄울 경우, 바로 조회함.
+  if (!isEmpty(searchParams.value.no)) {
+    if (!isEmpty(searchParams.value.ogLevlDvCd3)) searchParams.value.inqrDv = '03'; // 3조직레벨이 있으면 지점 기준 조회
+    else searchParams.value.inqrDv = '04'; // 없으면 개인 기준 조회
+    onClickSearch();
+  }
+});
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid

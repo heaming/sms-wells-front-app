@@ -150,7 +150,7 @@ const searchParams = ref({
   cntrSn: '',
 });
 
-const possibleDay = codes.AUTO_FNT_FTD_ACD.map((v) => v.codeId).join(','); // 가능한 이체일 추후에 수정
+// const possibleDay = codes.AUTO_FNT_FTD_ACD.map((v) => v.codeId).join(','); // 가능한 이체일 추후에 수정
 
 async function onClickAddRow() {
   const view = grdMainRef.value.getView();
@@ -177,6 +177,9 @@ async function fetchData() {
   const res = await dataService.get('/sms/wells/withdrawal/bilfnt/designation-wdrw-csts', { params: { ...cachedParams, ...pageInfo.value } });
   const { list: person, pageInfo: pageResult } = res.data;
 
+  person.forEach((v) => {
+    v.cntr = `${v.cntrNo}-${v.cntrSn}`;
+  });
   // const person = res.data.list.map((v) => ({ ...v, cntr: v.cntr.replace(tenantCd, '') }));
   // const pageResult = res.data.pageInfo;
   pageInfo.value = pageResult;
@@ -203,6 +206,9 @@ async function onClickRemove() {
   // const checkedRows = gridUtil.getCheckedRowValues(view);
   const deletedRows = await gridUtil.confirmDeleteCheckedRows(view);
 
+  if (!deletedRows.length > 0) {
+    return;
+  }
   const data = deletedRows.filter((v) => v.rowState === 'none').map((v) => ({
     cntr: v.cntr,
     cntrNo: v.cntrNo,
@@ -278,9 +284,13 @@ const initGrid = defineGrid((data, view) => {
       // },
       rules: 'required',
       styleCallback: (grid, dataCell) => {
-        const rowState = gridUtil.getCellValue(view, dataCell.index.itemIndex, 'rowState');
+        const { rowState, sellTpCd } = gridUtil.getRowValue(grid, dataCell.index.itemIndex);
+
         if (rowState !== 'created') {
           return { styleName: 'rg-button-hide' };
+        }
+        if (!isEmpty(sellTpCd)) {
+          return { styleName: 'rg-button-hide', editable: false };
         }
       },
       // eslint-disable-next-line no-unused-vars
@@ -309,15 +319,17 @@ const initGrid = defineGrid((data, view) => {
     },
     { fieldName: 'dsnWdrwFntD',
       header: t('MSG_TXT_FNT_DT'),
+      options: codes.AUTO_FNT_FTD_ACD,
       width: '120',
       styleName: 'text-center',
       editor: {
-        type: 'number',
+        type: 'dropdown',
         maxLength: 2,
       },
       numberFormat: '#,##0',
-      rules: `required||one_of:${possibleDay}`, // 정규일이 바뀔수도 있기 때문에 추후에 수정
-      customMessages: { one_of: t('MSG_ALT_FTD_CHECK', [possibleDay]) },
+      rules: 'required', // 정규일이 바뀔수도 있기 때문에 추후에 수정
+      // rules: `required||one_of:${possibleDay}`, // 정규일이 바뀔수도 있기 때문에 추후에 수정
+      // customMessages: { one_of: t('MSG_ALT_FTD_CHECK', [possibleDay]) },
 
     },
     { fieldName: 'fntYn',
@@ -329,17 +341,17 @@ const initGrid = defineGrid((data, view) => {
 
       options: codes.DSN_WDRW_FNT_DV_CD,
     },
-    { fieldName: 'dpAmt',
-      header: t('MSG_TXT_DP_AMT'),
-      width: '120',
-      styleName: 'text-right',
-      editor: {
-        type: 'number',
+    // { fieldName: 'dpAmt',
+    //   header: t('MSG_TXT_DP_AMT'),
+    //   width: '120',
+    //   styleName: 'text-right',
+    //   editor: {
+    //     type: 'number',
 
-      },
-      numberFormat: '#,##0',
-      editable: false,
-    },
+    //   },
+    //   numberFormat: '#,##0',
+    //   editable: false,
+    // },
     // 잔액
     { fieldName: 'ucAmt',
       label: t('MSG_TXT_BLAM'),
@@ -358,14 +370,14 @@ const initGrid = defineGrid((data, view) => {
       //   return dsnWdrwAmt - dpAmt;
       // },
     },
-    { fieldName: 'dsnWdrwFntPrdCd',
-      header: t('MSG_TXT_FNT_PRD'),
-      width: '80',
-      styleName: 'text-center',
-      editor: { type: 'list' },
-      options: codes.DSN_WDRW_FNT_PRD_CD,
-      rules: 'required',
-    },
+    // { fieldName: 'dsnWdrwFntPrdCd',
+    //   header: t('MSG_TXT_FNT_PRD'),
+    //   width: '80',
+    //   styleName: 'text-center',
+    //   editor: { type: 'list' },
+    //   options: codes.DSN_WDRW_FNT_PRD_CD,
+    //   rules: 'required',
+    // },
 
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_RGST_PSIC'), width: '100', styleName: 'text-center', editable: false },
     { fieldName: 'fstRgstUsrId', header: t('MSG_TXT_RGST_NO'), width: '100', styleName: 'text-center', editable: false },
@@ -413,11 +425,11 @@ const initGrid = defineGrid((data, view) => {
     }
   };
 
-  view.onCellClicked = (grid, clickData) => {
-    if (clickData.cellType === 'data') {
-      grid.checkItem(clickData.itemIndex, !grid.isCheckedItem(clickData.itemIndex));
-    }
-  };
+  // view.onCellClicked = (grid, clickData) => {
+  //   if (clickData.cellType === 'data') {
+  //     grid.checkItem(clickData.itemIndex, !grid.isCheckedItem(clickData.itemIndex));
+  //   }
+  // };
 });
 
 </script>

@@ -266,7 +266,13 @@
           v-model="searchParams.schDv"
           dense
           type="radio"
-          :options="selectCodes.WELLS_CNTR_LIST_DV"
+          :options="[
+            { codeId: '99', codeName:t('MSG_TXT_ALL') },
+            { codeId: '01', codeName:t('MSG_TXT_DLQ_BLAM_EXCD') , disable:isRadioDisable },
+            { codeId: '02', codeName:t('MSG_TXT_TOT_DP_AMT_EXCD') , disable:isRadioDisable },
+            { codeId: '03', codeName:t('MSG_TXT_OJ_BLAM_EXCD'), disable:isRadioDisable },
+            { codeId: '04', codeName:t('MSG_TXT_DLQ_MCNT_EXCD') , disable:isRadioDisable }
+          ]"
           @change="onChangeDv"
         />
       </li>
@@ -297,6 +303,8 @@ const { currentRoute } = useRouter();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
+const isRadioDisable = ref(true);
+
 const selectCodes = ref({
   DLQ_MCNT: await getDlqMcnt(),
   FNT_DT: await getFntDt(),
@@ -359,6 +367,8 @@ async function fetchContracts() {
 
   const gridView = grdMainRef.value.getView();
   gridView.getDataSource().setRows(contracts);
+
+  isRadioDisable.value = false;
 }
 
 /** 계약리스트 엑셀다운로드 */

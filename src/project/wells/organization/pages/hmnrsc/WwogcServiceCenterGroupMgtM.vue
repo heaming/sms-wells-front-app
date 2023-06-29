@@ -42,7 +42,7 @@
         >
           <kw-select
             v-model="searchParams.rsbDvCd"
-            :options="codes.EGER_RSB_CD"
+            :options="codes.RSB_DV_CD.filter((v)=> v.prtsCodeId === 'W06')"
             :label="t('MSG_TXT_BZ_DV')"
             first-option="all"
           />
@@ -125,7 +125,7 @@
       <kw-grid
         ref="grdMainRef"
         name="grdMain"
-        :visible-rows="pageInfo.pageSize - 1"
+        :visible-rows="(pageInfo.pageSize > 0) ? pageInfo.pageSize - 1 : pageInfo.pageSize"
         @init="initGrdMain"
       />
     </div>
@@ -158,7 +158,7 @@ const pageInfo = ref({
 });
 
 const codes = await codeUtil.getMultiCodes(
-  'EGER_RSB_CD', // 직책
+  'RSB_DV_CD', // 직책
   'WK_GRP_CD', // 작업그룹
   'WKCR_CD', // 조
 );
@@ -193,15 +193,13 @@ async function fetchData() {
   const view = grdMainRef.value.getView();
   const data = view.getDataSource();
   data.checkRowStates(false);
-  view.getDataSource().addRows(list);
+  data.addRows(list);
   data.checkRowStates(true);
 }
 
 // 조회
 async function onClickSearch() {
-  if (grdMainRef.value) {
-    grdMainRef.value.getData().clearRows();
-  }
+  grdMainRef.value.getData().clearRows();
   pageInfo.value.pageIndex = 1;
   saveParams.value.chk = false;
   await fetchData();
@@ -266,11 +264,12 @@ async function onClickAllSave() {
       obj.mexnoEncr = getPhoneNumber(tel, 2);
       obj.cralIdvTno = getPhoneNumber(tel, 3);
     }
-    obj.vlStrtDt = saveParams.value.rfltAplyDt;
+    obj.vlStrtdt = saveParams.value.rfltAplyDt;
     obj.vlEnddt = saveParams.value.rfltEnddt;
   });
 
   await dataService.post('/sms/wells/partner-engineer/joe-management', checkedRows);
+
   notify(t('MSG_ALT_SAVE_DATA'));
   await onClickSearch();
 }
@@ -288,7 +287,7 @@ async function onClickSave() {
 
   // eslint-disable-next-line no-restricted-syntax
   for (const item of changeRows) {
-    if (isEmpty(item.vlStrtDt) || isEmpty(item.vlEnddt)) {
+    if (isEmpty(item.vlStrtdt) || isEmpty(item.vlEnddt)) {
       notify(t('MSG_TXT_APY_DT_CONF'));
       return;
     }
@@ -299,7 +298,7 @@ async function onClickSave() {
       return;
     }
     */
-    if (item.vlStrtDt > item.vlEnddt) {
+    if (item.vlStrtdt > item.vlEnddt) {
       notify(t('MSG_TXT_APY_DT_CONF'));
       return;
     }
@@ -315,6 +314,7 @@ async function onClickSave() {
   });
 
   await dataService.post('/sms/wells/partner-engineer/joe-management', changeRows);
+
   notify(t('MSG_ALT_SAVE_DATA'));
   await onClickSearch();
 }
@@ -354,11 +354,11 @@ const initGrdMain = defineGrid((data, view) => {
       },
     },
     {
-      fieldName: 'egerRsbCd',
+      fieldName: 'rsbDvCd',
       header: t('MSG_TXT_RSB'),
       width: '110',
       styleName: 'text-center',
-      options: codes.EGER_RSB_CD,
+      options: codes.RSB_DV_CD,
       editor: {
         type: 'dropdown',
       } },
@@ -373,7 +373,7 @@ const initGrdMain = defineGrid((data, view) => {
         type: 'dropdown',
       } },
     { fieldName: 'cntrDt', header: t('MSG_TXT_ENTCO_DT'), width: '130', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'vlStrtDt',
+    { fieldName: 'vlStrtdt',
       header: t('MSG_TXT_APPLY_DT'),
       width: '130',
       styleName: 'text-center',
@@ -413,7 +413,7 @@ const initGrdMain = defineGrid((data, view) => {
   view.editOptions.editable = true;
 
   view.onCellEditable = (grid, index) => {
-    if (['wkGrpCd', 'wkcrCd', 'vlStrtDt', 'vlEnddt', 'cralLocaraTno'].includes(index.column)) {
+    if (['wkGrpCd', 'wkcrCd', 'vlStrtdt', 'vlEnddt', 'cralLocaraTno'].includes(index.column)) {
       return true;
     }
     return false;
@@ -431,18 +431,6 @@ const initGrdMain = defineGrid((data, view) => {
       grid.setValue(index.dataRow, 'wkGrpCdNm', editResult.text);
     }
   };
-
-  // view.onValidate = async (g, index) => {
-  //   const { cralLocaraTno } = g.getValues(index.dataRow);
-  //   if (cralLocaraTno.replaceAll('-', '').length > 0) {
-  //     if (cralLocaraTno.replaceAll('-', '').length !== 11) {
-  //       // const dataView = grdMainRef.value.getView();
-  //       gridUtil.focusCellInput(view, index.dataRow, 'cralLocaraTno');
-  //       view.setFoucs();
-  //       return t('MSG_ALT_TEL_NO_IN');
-  //     }
-  //   }
-  // };
 });
 
 </script>

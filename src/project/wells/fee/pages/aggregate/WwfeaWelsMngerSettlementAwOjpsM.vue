@@ -188,7 +188,7 @@ const opngCd = [
 ];
 
 const searchParams = ref({
-  baseYm: now.add(-1, 'month').startOf('M').format('YYYYMM'),
+  baseYm: now.add(-1, 'month').format('YYYYMM'),
   tcntDvCd: '01',
   prtnrNo: '',
   prtnrKnm: '',
@@ -202,7 +202,7 @@ const info = ref({
   feeCnfmYn: '',
 });
 
-const bfMonth = now.add(-1, 'month').startOf('M').format('YYYYMM');
+const bfMonth = now.add(-1, 'month').format('YYYYMM');
 
 let cachedParams;
 
@@ -233,13 +233,17 @@ async function onClickSearch() {
   await fetchData('etc');
 }
 
-// 번호 검색 아이콘 클릭 이벤트
+/*
+ *  Event - 번호 검색 아이콘 클릭 이벤트
+ */
 async function onClickSearchNo() {
   const { result, payload } = await modal({
-    component: 'ZwogzPartnerListP',
+    component: 'ZwogzMonthPartnerListP',
     componentProps: {
+      baseYm: searchParams.value.baseYm,
       prtnrNo: searchParams.value.prtnrNo,
       ogTpCd: 'W02',
+      prtnrKnm: undefined,
     },
   });
 

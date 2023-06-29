@@ -19,6 +19,7 @@
       @search="onClickSearch"
     >
       <kw-search-row>
+        <!-- 기준년월 -->
         <kw-search-item
           :label="$t('MSG_TXT_BASE_YM')"
         >
@@ -27,7 +28,8 @@
             type="month"
           />
         </kw-search-item>
-
+        <!-- //기준년월 -->
+        <!-- 배정년월 -->
         <kw-search-item
           :label="$t('MSG_TXT_ASN_YM')"
         >
@@ -36,7 +38,8 @@
             type="month"
           />
         </kw-search-item>
-
+        <!-- //배정년월 -->
+        <!-- 회차 -->
         <kw-search-item
           :label="$t('MSG_TXT_ORDERSELECT_TITLE')"
         >
@@ -44,47 +47,60 @@
             v-model="searchParams.cnt"
           />
         </kw-search-item>
+        <!-- //회차 -->
+        <!-- 출고창고 -->
         <kw-search-item
           :label="$t('MSG_TXT_OSTR_WARE')"
         >
           <kw-select
             v-model="searchParams.ostrWare"
-            :options="codes.STR_TP_CD"
+            :options="codes.OSTR_TP_CD"
           />
         </kw-search-item>
+        <!-- //출고창고 -->
       </kw-search-row>
       <kw-search-row>
+        <!-- 품목종류 -->
         <kw-search-item
           :label="$t('MSG_TXT_ITM_KND')"
         >
           <kw-select
-            v-model="searchParams.strWare"
-            :options="codes.STR_TP_CD"
+            v-model="searchParams.itmKndCd"
+            first-option="all"
+            :options="codes.ITM_KND_CD"
           />
         </kw-search-item>
+        <!-- //품목종류 -->
+        <!-- 품목코드 -->
         <kw-search-item
           :label="$t('MSG_TXT_ITM_CD')"
         >
           <kw-input
-            v-model="searchParams.itmCd"
+            v-model="searchParams.itmCdSt"
           />
           <span>~</span>
-          <kw-input />
+          <kw-input
+            v-model="searchParams.itmCdEd"
+          />
         </kw-search-item>
+        <!-- //품목코드 -->
+        <!-- 입고창고 -->
         <kw-search-item
           :label="$t('MSG_TXT_STR_WARE')"
           :colspan="2"
         >
           <kw-select
-            v-model="searchParams.wareDvCd"
-            :options="codes.WARE_DV_CD"
+            v-model="searchParams.wareDtlDvCd"
+            first-option="all"
+            :options="codes.WARE_DTL_DV_CD"
             class="w150"
           />
           <kw-select
-            v-model="searchParams.wareDtlDvCd"
+            v-model="searchParams.ostrWare"
             :options="codes.WARE_DTL_DV_CD"
           />
         </kw-search-item>
+        <!-- //입고창고 -->
       </kw-search-row>
     </kw-search>
 
@@ -99,6 +115,7 @@
             @change="fetchData"
           />
         </template>
+        <!-- 엑셀다운로드 -->
         <kw-btn
           icon="download_on"
           dense
@@ -107,26 +124,32 @@
           :disable="pageInfo.totalCount === 0"
           @click="onClickExcelDownload"
         />
+        <!-- //엑셀다운로드 -->
         <kw-separator
           spaced
           vertical
           inset
         />
+        <!-- 창고갱신 -->
         <kw-btn
           dense
           secondary
           :label="$t('MSG_TXT_WARE_RNW')"
+          @click="onClickRenewalWareHouse"
         />
+        <!-- //창고갱신 -->
         <kw-separator
           spaced
           vertical
           inset
         />
+        <!-- 확정전저장 -->
         <kw-btn
           primary
           dense
           label="확정전저장"
         />
+        <!-- //확정전저장 -->
       </kw-action-top>
       <kw-grid
         ref="grdMainRef"
@@ -158,6 +181,7 @@ const { currentRoute } = useRouter();
 
 const dataService = useDataService();
 const baseURI = '/sms/wells/service/qom-asn/independence-warehouse';
+const renewalURI = '/sms/wells/service/qom-asn/warehouse-renewals';
 const excelURI = `${baseURI}/excel-download`;
 const grdMainRef = ref(getComponentType('KwGrid'));
 // -------------------------------------------------------------------------------------------------
@@ -167,7 +191,7 @@ const codes = await codeUtil.getMultiCodes(
   'ITM_KND_CD',
   'WARE_DV_CD',
   'WARE_DTL_DV_CD',
-  'STR_TP_CD',
+  'OSTR_TP_CD',
   'COD_PAGE_SIZE_OPTIONS',
 );
 
@@ -175,18 +199,17 @@ let cachedParams;
 const searchParams = ref({
   asnOjYm: '',
   apyYm: '',
-  cnt: '',
-  wareDvCd: '',
+  cnt: '1',
   wareDtlDvCd: '',
   ostrWare: '',
   strWare: '',
-  itmCdStart: '',
-  itmCdEnd: '',
-  strTpCd: '',
+  itmCdSt: '',
+  itmCdEd: '',
+  itmKndCd: '',
 });
 
 searchParams.value.asnOjYm = dayjs().format('YYYYMM');
-searchParams.value.apyYm = dayjs().format('YYYYMMDD');
+searchParams.value.apyYm = dayjs().format('YYYYMM');
 
 const pageInfo = ref({
   totalCount: 0,
@@ -211,6 +234,13 @@ async function onClickSearch() {
   await fetchData();
 }
 
+async function onClickRenewalWareHouse() {
+  console.log(`searchParams.value : ${searchParams.value}`);
+  const renewalParam = cloneDeep(searchParams.value);
+  const res = await dataService.put(renewalURI, renewalParam);
+  console.log(res);
+}
+
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
   const res = await dataService.get(excelURI, { params: cachedParams });
@@ -220,6 +250,10 @@ async function onClickExcelDownload() {
     exportData: res.data,
   });
 }
+onMounted(async () => {
+
+});
+
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------

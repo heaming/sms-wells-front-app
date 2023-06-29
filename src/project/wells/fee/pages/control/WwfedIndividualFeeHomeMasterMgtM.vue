@@ -33,15 +33,18 @@
         </kw-search-item>
         <kw-search-item
           :label="$t('MSG_TXT_SEQUENCE_NUMBER')"
-          required
         >
           <kw-input
             v-model="searchParams.no"
-            :label="$t('MSG_TXT_SEQUENCE_NUMBER')"
             icon="search"
             clearable
-            rules="required"
             :on-click-icon="onClickSearchNo"
+            :placeholder="$t('MSG_TXT_SEQUENCE_NUMBER')"
+          />
+          <kw-input
+            v-model="searchParams.prtnrKnm"
+            :placeholder="$t('MSG_TXT_EMPL_NM')"
+            readonly
           />
         </kw-search-item>
       </kw-search-row>
@@ -448,6 +451,7 @@ const searchParams = ref({
 
   perfYm: now.format('YYYYMM'),
   no: '',
+  prtnrKnm: '',
 
 });
 const info1 = ref({
@@ -513,16 +517,19 @@ let cachedParams;
  */
 async function onClickSearchNo() {
   const { result, payload } = await modal({
-    component: 'ZwogzPartnerListP',
+    component: 'ZwogzMonthPartnerListP',
     componentProps: {
+      baseYm: searchParams.value.perfYm,
       prtnrNo: searchParams.value.no,
       ogTpCd: 'W03',
+      prtnrKnm: undefined,
     },
   });
 
   if (result) {
     if (!isEmpty(payload)) {
       searchParams.value.no = payload.prtnrNo;
+      searchParams.value.prtnrKnm = payload.prtnrKnm;
     }
   }
 }

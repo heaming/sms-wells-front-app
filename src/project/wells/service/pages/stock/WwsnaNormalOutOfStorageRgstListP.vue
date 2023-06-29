@@ -493,6 +493,8 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'ostrCnfmCd' },
     { fieldName: 'ostrWareDvCd' },
     { fieldName: 'strWareDvCd' },
+    { fieldName: 'ostrWareDtlDvCd' },
+    { fieldName: 'strWareDtlDvCd' },
     { fieldName: 'strWareNm' },
     { fieldName: 'ostrWareNm' },
     { fieldName: 'outQty' }, // 출고수량
@@ -601,7 +603,9 @@ const initGrdMain = defineGrid((data, view) => {
 
   view.onCellDblClicked = async (g, { column, dataRow }, v) => {
     // TODO: componentProps 와 함께 추가
-    const { itmPdCd, svpdNmKor, strWareNo, strWareNm, ostrAkQty } = gridUtil.getRowValue(g, dataRow);
+    const {
+      itmPdCd, svpdNmKor, strWareNo, strWareNm, ostrAkQty, strWareDvCd,
+    } = gridUtil.getRowValue(g, dataRow);
     console.log(g, column, dataRow, v);
 
     const { result, payload } = await modal({
@@ -613,6 +617,7 @@ const initGrdMain = defineGrid((data, view) => {
         strOjWareNo: strWareNo,
         strOjWareNm: strWareNm,
         ostrQty: ostrAkQty,
+        wareDvCd: strWareDvCd,
       },
     });
 

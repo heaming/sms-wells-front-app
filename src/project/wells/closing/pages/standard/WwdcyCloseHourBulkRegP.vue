@@ -281,7 +281,7 @@ const { ok } = useModal();
 const { t } = useI18n();
 const { notify } = useGlobal();
 const dataService = useDataService();
-const { getters } = useStore();
+// const { getters } = useStore();
 const store = useStore();
 const { modal } = useGlobal();
 // -------------------------------------------------------------------------------------------------
@@ -289,7 +289,7 @@ const { modal } = useGlobal();
 // -------------------------------------------------------------------------------------------------
 const frmMainRef = ref();
 const isRtnrNo = ref(true);
-const userInfo = getters['meta/getUserInfo'];
+// const userInfo = getters['meta/getUserInfo'];
 const codes = await codeUtil.getMultiCodes(
   'CL_BIZ_TP_CD', // [마감업무유형코드],
   'KW_GRP_CO_CD',
@@ -395,7 +395,7 @@ async function onClickSave() {
   if (!await frmMainRef.value.validate()) { return; }
   const { clPsicNo } = frmMainData.value;
   // 담당자구분이 담당자이면 파트너 번호로
-  frmMainData.value.clPsicNo = isEmpty(clPsicNo) ? userInfo.prtnrNo : clPsicNo;
+  frmMainData.value.clPsicNo = isEmpty(clPsicNo) ? frmMainData.value.prtnrNo : clPsicNo;
   const data = cloneDeep(frmMainData.value);
 
   const res = await dataService.post('/sms/wells/closing/standard', data);
@@ -407,8 +407,8 @@ async function onClickSave() {
 const closeDivideCodes = ref({ clBizTpCd: [] });
 codes.CL_BIZ_TP_CD.forEach((data) => {
   if (store.getters['meta/getUserInfo'].tenantId === clConst.TENANT_ID_WELLS && (data.codeId === '11'
-        || data.codeId === '21' || data.codeId === '30')) {
-    closeDivideCodes.value.clBizTpCd.push({ codeId: data.codeId, codeName: data.codeName });
+        || data.codeId === '21')) {
+    closeDivideCodes.value.clBizTpCd = [{ codeId: '11', codeName: '주문시간마감(일반)' }, { codeId: '21', codeName: '주문시간마감(아웃소싱)' }];
   }
 });
 </script>
