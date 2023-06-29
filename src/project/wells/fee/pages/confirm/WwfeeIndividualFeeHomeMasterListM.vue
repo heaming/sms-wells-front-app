@@ -437,21 +437,24 @@ const initGrd1Main = defineGrid((data, view) => {
 const initGrd2Main = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'item1' },
-    { fieldName: 'amt1', dataType: 'number' },
+    { fieldName: 'fval1', dataType: 'number' },
     { fieldName: 'item2' },
-    { fieldName: 'amt2', dataType: 'number' },
+    { fieldName: 'fval2', dataType: 'number' },
     { fieldName: 'item3' },
-    { fieldName: 'amt3', dataType: 'number' },
-
+    { fieldName: 'fval3', dataType: 'number' },
+    { fieldName: 'item4' },
+    { fieldName: 'fval4', dataType: 'number' },
   ];
 
   const columns = [
-    { fieldName: 'item1', header: t('MSG_TXT_ITEM'), width: '194', styleName: 'text-left', footer: { text: '합계', styleName: 'text-center' } },
-    { fieldName: 'amt1', header: t('MSG_TXT_AMT'), width: '203', styleName: 'text-right', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
-    { fieldName: 'item2', header: t('MSG_TXT_ITEM'), width: '194', styleName: 'text-left', footer: { text: '합계', styleName: 'text-center' } },
-    { fieldName: 'amt2', header: t('MSG_TXT_AMT'), width: '203', styleName: 'text-right', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
-    { fieldName: 'item3', header: t('MSG_TXT_ITEM'), width: '194', styleName: 'text-left', footer: { text: '합계', styleName: 'text-center' } },
-    { fieldName: 'amt3', header: t('MSG_TXT_AMT'), width: '203', styleName: 'text-right', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
+    { fieldName: 'item1', header: t('MSG_TXT_ITEM'), width: '194', styleName: 'text-left', footer: { text: '판매합계', styleName: 'text-left' } },
+    { fieldName: 'fval1', header: t('MSG_TXT_AMT'), width: '203', styleName: 'text-right', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
+    { fieldName: 'item2', header: t('MSG_TXT_ITEM'), width: '194', styleName: 'text-left', footer: { text: '서비스합계', styleName: 'text-left' } },
+    { fieldName: 'fval2', header: t('MSG_TXT_AMT'), width: '203', styleName: 'text-right', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
+    { fieldName: 'item3', header: t('MSG_TXT_ITEM'), width: '194', styleName: 'text-left', footer: { text: '기타합계', styleName: 'text-left' } },
+    { fieldName: 'fval3', header: t('MSG_TXT_AMT'), width: '203', styleName: 'text-right', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
+    { fieldName: 'item4', header: t('MSG_TXT_ITEM'), width: '194', styleName: 'text-left', footer: { text: '조직합계', styleName: 'text-left' } },
+    { fieldName: 'fval4', header: t('MSG_TXT_AMT'), width: '203', styleName: 'text-right', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
 
   ];
 
@@ -467,19 +470,28 @@ const initGrd2Main = defineGrid((data, view) => {
   view.setColumnLayout([
 
     {
-      header: t('MSG_TXT_PD_SALE_FEE'), // colspan title
+      header: t('MSG_TXT_SELL'), // colspan title
       direction: 'horizontal', // merge type
-      items: ['item1', 'amt1'],
+      items: ['item1', 'fval1'],
+      hideChildHeaders: true,
     },
     {
-      header: t('MSG_TXT_SERVICE') + t('MSG_TXT_FEE'),
+      header: t('MSG_TXT_SERVICE'),
       direction: 'horizontal',
-      items: ['item2', 'amt2'],
+      items: ['item2', 'fval2'],
+      hideChildHeaders: true,
+    },
+    {
+      header: t('MSG_TXT_ETC'),
+      direction: 'horizontal',
+      items: ['item3', 'fval3'],
+      hideChildHeaders: true,
     },
     {
       header: t('MSG_TXT_OG') + t('MSG_TXT_FEE'),
       direction: 'horizontal',
-      items: ['item3', 'amt3'],
+      items: ['item4', 'fval4'],
+      hideChildHeaders: true,
     },
 
   ]);
