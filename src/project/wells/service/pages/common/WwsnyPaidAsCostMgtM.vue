@@ -406,6 +406,7 @@ const initGrdMain = defineGrid((data, view) => {
   view.onGetEditValue = (grd, idx, editResult) => {
     if (idx.fieldName === 'csmrUprcAmt' || idx.fieldName === 'tcfeeAmt') {
       grd.checkItem(idx.itemIndex, true);
+
       if (idx.fieldName === 'csmrUprcAmt') {
         grd.setValue(idx.dataRow, 'csmrUprcAmt', editResult.value);
       } else if (idx.fieldName === 'tcfeeAmt') {
@@ -413,7 +414,6 @@ const initGrdMain = defineGrid((data, view) => {
       }
 
       const { csmrUprcAmt, tcfeeAmt } = grd.getValues(idx.dataRow);
-
       grd.setValue(idx.dataRow, 'sumAmt', csmrUprcAmt + tcfeeAmt);
     }
   };
