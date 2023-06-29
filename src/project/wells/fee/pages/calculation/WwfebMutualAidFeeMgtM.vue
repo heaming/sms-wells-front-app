@@ -27,7 +27,6 @@
             type="month"
           />
         </kw-search-item>
-
         <kw-search-item
           :label="$t('MSG_TXT_DIV')"
         >
@@ -38,8 +37,7 @@
                        {codeId: 'B', codeName: t('MSG_TXT_OG')}]"
           />
         </kw-search-item>
-
-        <kw-form-item
+        <kw-search-item
           :label="$t('MSG_TXT_CNTR_DATE')"
         >
           <kw-date-range-picker
@@ -48,7 +46,7 @@
             type="date"
             :label="$t('MSG_TXT_CNTR_DATE')"
           />
-        </kw-form-item>
+        </kw-search-item>
       </kw-search-row>
       <kw-search-row>
         <kw-search-item
@@ -129,7 +127,6 @@ const grdDataA = computed(() => grdRefA.value?.getData());
 const grdRefB = ref(getComponentType('KwGrid'));
 const grdDataB = computed(() => grdRefB.value?.getData());
 const totalCount = ref(0);
-
 let cachedParams;
 const searchParams = ref({
   type: 'A',

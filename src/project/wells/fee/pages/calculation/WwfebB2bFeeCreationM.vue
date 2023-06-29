@@ -18,31 +18,15 @@
       <kw-search-row>
         <kw-search-item
           :label="t('MSG_TXT_DIV')"
-          required
         >
           <kw-option-group
             v-model="searchParams.type"
             type="radio"
-            rules="required"
             :label="t('MSG_TXT_DIV')"
             :options="[{codeId: 'A', codeName: t('MSG_TXT_FEE_PERF')},
                        {codeId: 'B', codeName: t('MSG_TXT_DFLT_FEE')}]"
           />
         </kw-search-item>
-        <kw-search-item
-          v-if="searchParams.type === 'A'"
-          :label="t('MSG_TXT_RCP_YM')"
-          required
-        >
-          <kw-date-range-picker
-            v-model:from="searchParams.strtYm"
-            v-model:to="searchParams.endYm"
-            type="month"
-            rules="date_range_required|date_range_months:3"
-            :label="t('MSG_TXT_RCP_YM')"
-          />
-        </kw-search-item>
-
         <kw-search-item
           :label="t('MSG_TXT_PERF_YM')"
           required
@@ -54,10 +38,33 @@
             rules="required"
           />
         </kw-search-item>
+        <!-- 차수 -->
+        <kw-search-item
+          :label="$t('MSG_TXT_ORDR')"
+        >
+          <kw-option-group
+            v-model="searchParams.feeTcntDvCd"
+            type="radio"
+            :options="codes.FEE_TCNT_DV_CD"
+            first-option="all"
+          />
+        </kw-search-item>
       </kw-search-row>
       <kw-search-row
         v-if="searchParams.type === 'A'"
       >
+        <kw-search-item
+          :label="t('MSG_TXT_RCP_YM')"
+          required
+        >
+          <kw-date-range-picker
+            v-model:from="searchParams.strtYm"
+            v-model:to="searchParams.endYm"
+            type="month"
+            rules="date_range_required|date_range_months:3"
+            :label="t('MSG_TXT_RCP_YM')"
+          />
+        </kw-search-item>
         <kw-search-item
           :label="t('MSG_TXT_CANCEL_YM')"
         >
@@ -146,7 +153,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { defineGrid, gridUtil, getComponentType, useDataService, useGlobal, stringUtil } from 'kw-lib';
+import { defineGrid, gridUtil, getComponentType, useDataService, useGlobal, stringUtil, codeUtil } from 'kw-lib';
 import dayjs from 'dayjs';
 import { cloneDeep } from 'lodash-es';
 import ZwfeyFeeStep from '~sms-common/fee/pages/schedule/ZwfeyFeeStep.vue';
@@ -166,7 +173,9 @@ const grdDataB = computed(() => grdRefB.value?.getData());
 const totalCount = ref(0);
 const grdType = ref('A');
 const stepNaviRef = ref();
-
+const codes = await codeUtil.getMultiCodes(
+  'FEE_TCNT_DV_CD',
+);
 let cachedParams;
 const searchParams = ref({
   type: 'A',
@@ -176,7 +185,7 @@ const searchParams = ref({
   cancelStrtYm: '',
   cancelEndYm: '',
   feeSchdTpCd: '401', // 신채널(B2B)
-  feeTcntDvCd: '02', // 2차수
+  feeTcntDvCd: '', // 2차수
   coCd: '2000', //  @TODO 세션 coCd[session.getCompanyCode()] 관련해서 업무별로 말이 다달라서 하드코딩함 -_-;
 });
 
@@ -236,6 +245,7 @@ async function onClickCreate() {
     component: 'WwfebB2bFeeCreationRegP',
     componentProps: {
       perfYm: searchParams.value.perfYm,
+      feeTcntDvCd: searchParams.value.feeTcntDvCd,
     },
   });
   if (isChanged) {
@@ -257,6 +267,7 @@ async function onClickAggregate() {
     component: 'WwfebB2bFeeCreationAggregateP',
     componentProps: {
       perfYm: searchParams.value.perfYm,
+      feeTcntDvCd: searchParams.value.feeTcntDvCd,
     },
   });
   if (isChanged) {
@@ -321,6 +332,7 @@ const initGridDetail = defineGrid((data, view) => {
 const initGridBase = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'baseYm', visible: false },
+    { fieldName: 'feeTcntDvCd', visible: false },
     { fieldName: 'coCd', visible: false },
     { fieldName: 'coCdNm', header: t('MSG_TXT_CORP_NAME'), width: '127' },
     { fieldName: 'ogCd', header: t('MSG_TXT_BLG'), width: '98' },
@@ -340,6 +352,7 @@ const initGridBase = defineGrid((data, view) => {
   ];
   const fields = [
     { fieldName: 'baseYm' },
+    { fieldName: 'feeTcntDvCd' },
     { fieldName: 'coCd' },
     { fieldName: 'coCdNm' },
     { fieldName: 'ogCd' },
