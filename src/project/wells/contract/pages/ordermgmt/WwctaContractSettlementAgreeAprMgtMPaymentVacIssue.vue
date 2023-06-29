@@ -29,7 +29,7 @@
       <kw-select
         v-model="selectedBnkCd"
         label="납부은행"
-        :options="banks"
+        :options="codes[BANKS]"
       />
       <kw-btn
         stretch
@@ -51,7 +51,7 @@
             <kw-form-item
               label="은행"
             >
-              <p>{{ getCodeName(banks, issuedAccountInfo.bnkCd) }}</p>
+              <p>{{ getCodeName(BANKS, issuedAccountInfo.bnkCd) }}</p>
             </kw-form-item>
             <kw-form-item label="가상계좌번호">
               <p>123467890-1234567980</p>
@@ -77,6 +77,9 @@ import WwctaContractSettlementAgreeItem
   from '~sms-wells/contract/components/ordermgmt/WwctaContractSettlementAgreeItem.vue';
 import { alert, notify, useDataService } from 'kw-lib';
 import dayjs from 'dayjs';
+import { CtCodeUtil } from '~sms-common/contract/util';
+
+const BANKS = 'banks';
 
 const props = defineProps({
   stlm: {
@@ -90,9 +93,8 @@ const exposed = {};
 defineExpose(exposed);
 
 const dataService = useDataService();
-
+const { codes, addCode, getCodeName } = await CtCodeUtil('COD_YN');
 const stlmBas = computed(() => (props.stlm ?? {}));
-const banks = ref([]);
 const selectedBnkCd = ref();
 const issuedAccountInfo = ref();
 
@@ -123,16 +125,10 @@ async function onClickIssue() {
 
 async function fetchBanks() {
   const { data } = await dataService.get('/sms/common/common/codes/finance-code/bank-codes');
-  banks.value = data;
+  addCode(BANKS, data);
 }
 
 await fetchBanks();
-
-/* utils */
-function getCodeName(codeArr, codeId) {
-  if (!Array.isArray(codeArr)) { return ''; }
-  return codeArr.find((code) => code.codeId === codeId)?.codeName ?? '';
-}
 
 /* expose */
 const topRef = ref();

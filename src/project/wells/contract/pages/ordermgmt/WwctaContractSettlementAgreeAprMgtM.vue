@@ -51,6 +51,7 @@
 
 <script setup>
 import { alert, useDataService } from 'kw-lib';
+import { decryptEncryptedParam } from '~sms-common/contract/util';
 import Agrees from './WwctaContractSettlementAgreeAprMgtMAgrees.vue';
 import PartnerInfo from './WwctaContractSettlementAgreeAprMgtMPartnerInfo.vue';
 import ProductCarouselItem from './WwctaContractSettlementAgreeAprMgtMProductCarouselItem.vue';
@@ -59,11 +60,26 @@ const dataService = useDataService();
 
 const props = defineProps({
   cntrNo: { type: String, default: undefined },
+  encryptedParam: { type: String, default: undefined },
 });
+
+let decrypted;
+
+try {
+  decrypted = decryptEncryptedParam(props.encryptedParam);
+} catch (e) {
+  alert('주소에 문제가 있습니다.').then(() => {
+    window.close();
+  });
+}
+
+const params = {
+  cntrNo: props.cntrNo ?? decrypted.cntrNo,
+};
 
 const contract = ref({}); /* in */
 const stlmsUpdateRequestBody = reactive({
-  cntrNo: props.cntrNo,
+  cntrNo: params.cntrNo,
   agIzs: undefined,
   stlmBases: undefined,
   cssrInfos: undefined,
@@ -74,7 +90,7 @@ const agreed = ref(false);
 
 async function fetchContract() {
   const response = await dataService.post('/sms/wells/contract/contracts/settlements/contract', {
-    cntrNo: props.cntrNo,
+    cntrNo: params.cntrNo,
   });
   contract.value = response.data;
 }
