@@ -322,7 +322,7 @@ onMounted(async () => {
 const initGrdMain = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'sapMatCd' }, // SAP코드
-    { fieldName: 'pdCd' }, // 품목코드
+    { fieldName: 'useMatPdCd' }, // 품목코드
     { fieldName: 'pdNm' }, // 상품명
     { fieldName: 'apyStrtdt' }, // 적용시작일
     { fieldName: 'apyEnddt' }, // 적용종료일
@@ -333,12 +333,11 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'sumAmt', dataType: 'number' }, // 합계(소비자가+기술료)
     { fieldName: 'izSn' }, // 내역일련번호
     { fieldName: 'basePdCd' }, // 사용자재상품코드
-    { fieldName: 'useMatPdCd' },
   ];
 
   const columns = [
     { fieldName: 'sapMatCd', header: t('MSG_TXT_SAP_CD'), width: '200', styleName: 'text-center', editable: false }, // SAP코드
-    { fieldName: 'pdCd', header: t('MSG_TXT_ITM_CD'), width: '150', styleName: 'text-center', editable: false }, // 품목코드
+    { fieldName: 'useMatPdCd', header: t('MSG_TXT_ITM_CD'), width: '150', styleName: 'text-center', editable: false }, // 품목코드
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '350', styleName: 'text-center', editable: false }, // 상품명
     { fieldName: 'apyStrtdt', header: t('MSG_TXT_APY_STRT_DAY'), width: '150', styleName: 'text-center', datetimeFormat: 'date', editable: false }, // 적용시작일
     { fieldName: 'apyEnddt', header: t('MSG_TXT_APY_END_DAY'), width: '150', styleName: 'text-center', datetimeFormat: 'date', editable: false }, // 적용종료일
@@ -383,13 +382,10 @@ const initGrdMain = defineGrid((data, view) => {
       width: '200',
       styleName: 'text-center',
       editable: false,
-      displayCallback(grid, index) {
-        const { csmrUprcAmt, tcfeeAmt } = grid.getValues(index.itemIndex);
-
-        if (!isEmpty(csmrUprcAmt) && !isEmpty(tcfeeAmt)) { return parseInt(csmrUprcAmt, 10) + parseInt(tcfeeAmt, 10); }
-        if (!isEmpty(csmrUprcAmt)) { return parseInt(csmrUprcAmt, 10); }
-        if (!isEmpty(tcfeeAmt)) { return parseInt(tcfeeAmt, 10); }
-      },
+      // displayCallback(grid, index, val) {
+      //   const { csmrUprcAmt, tcfeeAmt } = grid.getValues(index.itemIndex);
+      //   if (csmrUprcAmt + tcfeeAmt) { return val; }
+      // },
     }, // 합계(소비자가+기술료)
   ];
 
@@ -404,6 +400,21 @@ const initGrdMain = defineGrid((data, view) => {
     if ((isEmpty(izSn) || isEmpty(basePdCd) || isEmpty(useMatPdCd))
     && ['csmrUprcAmt', 'whlsUprcAmt', 'insiUprcAmt', 'tcfeeAmt', 'apyStrtdt', 'apyEnddt'].includes(itemIndex.column)) {
       return false;
+    }
+  };
+
+  view.onGetEditValue = (grd, idx, editResult) => {
+    if (idx.fieldName === 'csmrUprcAmt' || idx.fieldName === 'tcfeeAmt') {
+      grd.checkItem(idx.itemIndex, true);
+      if (idx.fieldName === 'csmrUprcAmt') {
+        grd.setValue(idx.dataRow, 'csmrUprcAmt', editResult.value);
+      } else if (idx.fieldName === 'tcfeeAmt') {
+        grd.setValue(idx.dataRow, 'tcfeeAmt', editResult.value);
+      }
+
+      const { csmrUprcAmt, tcfeeAmt } = grd.getValues(idx.dataRow);
+
+      grd.setValue(idx.dataRow, 'sumAmt', csmrUprcAmt + tcfeeAmt);
     }
   };
 
