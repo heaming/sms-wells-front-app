@@ -25,6 +25,7 @@
           v-model="searchParams.clctamPrtnrNo"
           :label="$t('MSG_TXT_CLCTAM_ICHR_EMPNO')"
           regex="num"
+          :maxlength="10"
         />
       </kw-search-item>
       <kw-search-item
@@ -34,6 +35,7 @@
           v-model="searchParams.cstKnm"
           icon="search"
           regex="alpha_hangul"
+          maxlength="30"
           clearable
           :label="$t('MSG_TXT_CST_NM')"
           @change="onChangeCstKnm"
@@ -106,7 +108,10 @@
       <kw-search-item
         :label="$t('MSG_TXT_ADDR')"
       >
-        <kw-input v-model="searchParams.adr" />
+        <kw-input
+          v-model="searchParams.adr"
+          maxlength="180"
+        />
       </kw-search-item>
     </kw-search-row>
   </kw-search>
