@@ -263,7 +263,16 @@ const initGrid = defineGrid((data, view) => {
       header: t('MSG_TXT_PRNT'),
       // header: '출력',
       width: '130',
-      renderer: { type: 'button' } },
+      renderer: { type: 'button' },
+
+      displayCallback(grid, index) {
+        const { giroOcrPrntDt } = grid.getValues(index.itemIndex);
+        if (giroOcrPrntDt != null) {
+          return '재출력';
+        }
+        return '출력';
+      },
+    },
     { fieldName: 'giroOcrRead',
       header: t('MSG_TXT_ONE_BRWS'),
       // header: '한장씩 보기',
@@ -286,6 +295,9 @@ const initGrid = defineGrid((data, view) => {
     const cwpSeq = g.getValue(dataRow, 'giroOcrPblSeqn');
 
     if (column === 'giroOcrPrnt') {
+      openReportPopup('/BIZ0000003.ozr', '/BIZ0000003.odi', JSON.stringify({ cwwDte, cwpSeq }));
+    }
+    if (column === 'giroOcrRead') {
       openReportPopup('/BIZ0000003.ozr', '/BIZ0000003.odi', JSON.stringify({ cwwDte, cwpSeq }));
     }
 
