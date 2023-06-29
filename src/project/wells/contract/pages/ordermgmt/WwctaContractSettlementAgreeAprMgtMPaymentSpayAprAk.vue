@@ -69,7 +69,7 @@
                       font-weight="400"
                     >
                       <div class="ellipsis">
-                        {{ getCodeName(codes.DP_TP_CD, dpTpCd) }}
+                        {{ getCodeName('DP_TP_CD', dpTpCd) }}
                       </div>
                       <div
                         class="not-flexible"
@@ -174,12 +174,12 @@
 </template>
 
 <script setup>
-import { codeUtil, confirm, getComponentType, notify, stringUtil, useDataService } from 'kw-lib';
+import { confirm, getComponentType, notify, stringUtil, useDataService } from 'kw-lib';
 import WwctaContractSettlementAgreeItem
   from '~sms-wells/contract/components/ordermgmt/WwctaContractSettlementAgreeItem.vue';
-import CrdcdExpSelect
-  from '~sms-wells/contract/components/ordermgmt/WctaCrdcdExpSelect.vue';
+import CrdcdExpSelect from '~sms-wells/contract/components/ordermgmt/WctaCrdcdExpSelect.vue';
 import { warn } from 'vue';
+import { CtCodeUtil } from '~sms-common/contract/util';
 
 const props = defineProps({
   cntrCstInfo: { type: Object, default: undefined },
@@ -204,15 +204,19 @@ const emit = defineEmits(['approved']);
 const exposed = {};
 defineExpose(exposed);
 
-const codes = await codeUtil.getMultiCodes(
-  'DP_TP_CD',
-  'ISTM_MCNT_CD',
-);
+const DP_TP_CD = 'DP_TP_CD';
+const ISTM_MCNT_CD = 'ISTM_MCNT_CD';
 const MERGED_CREDIT_CARD_SPAY_CD = '02';
-codes.DP_TP_CD.push({
+
+const { codes, getCodeName, addCodeItem } = await CtCodeUtil(
+  DP_TP_CD,
+  ISTM_MCNT_CD,
+);
+
+addCodeItem(DP_TP_CD, {
   codeId: MERGED_CREDIT_CARD_SPAY_CD,
   codeName: '신용카드',
-}); /* sorry for dirty. */
+});/* sorry for dirty. */
 
 const frmRef = ref(getComponentType('KwForm'));
 
@@ -267,11 +271,6 @@ const spayStlmAmts = computed(() => {
 const spayStlmTotalAmt = computed(() => spayStlmAmts.value.reduce((acc, { stlmAmt }) => (acc + stlmAmt), 0));
 
 /* 결제 금액 계산 end */
-
-function getCodeName(codeArr, codeId) {
-  if (!Array.isArray(codeArr)) { return ''; }
-  return codeArr.find((code) => code.codeId === codeId)?.codeName ?? '';
-}
 
 function getCrdCdStlmUpdateInfo() {
   const { cntrStlmId, dpTpCd, cntrNo } = stlmBas.value;

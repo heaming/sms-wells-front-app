@@ -58,11 +58,28 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService } from 'kw-lib';
+import { decryptEncryptedParam } from '~sms-common/contract/util';
+import { alert, useDataService } from 'kw-lib';
 
 const props = defineProps({
-  cntrNo: { type: String, required: true }, /* E20220069885, E20220069885 */
+  cntrNo: { type: String, default: undefined }, /* E20220069885, E20220069885 */
+  encryptedParam: { type: String, default: undefined },
 });
+
+let decrypted;
+
+try {
+  decrypted = decryptEncryptedParam(props.encryptedParam);
+} catch (e) {
+  alert('주소에 문제가 있습니다.').then(() => {
+    window.close();
+  });
+}
+
+const params = {
+  cntrNo: props.cntrNo ?? decrypted.cntrNo,
+};
+
 const dataService = useDataService();
 const router = useRouter();
 
@@ -77,9 +94,7 @@ const authInfo = reactive({
 function next() {
   router.push({
     path: '/wwcta-contract-settlement-agree-apr-mgt',
-    query: {
-      cntrNo: props.cntrNo,
-    },
+    query: props,
   });
 }
 
@@ -87,7 +102,7 @@ async function onClickConfirm() {
   if (!await frmRef.value.validate()) { return; }
 
   const response = await dataService.post('/sms/wells/contract/contracts/settlements/login', {
-    cntrNo: props.cntrNo,
+    cntrNo: params.cntrNo,
     ...authInfo,
   });
   if (response.data.valid) {
@@ -98,7 +113,7 @@ async function onClickConfirm() {
 async function fetchBasicContractInfo() {
   try {
     const { data } = await dataService.get('/sms/wells/contract/contracts/settlements/basic-info', {
-      params: { cntrNo: props.cntrNo },
+      params: { cntrNo: params.cntrNo },
     });
 
     basicInfo.value = data;
