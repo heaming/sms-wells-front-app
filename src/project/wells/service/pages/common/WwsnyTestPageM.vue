@@ -167,6 +167,19 @@ const movePages = [
   // { pageId: '15', pageName: 'W-MT-U-0187P01',
   // btns: [{ btnName: '타임테이블 시간선택',
   // type: 'modal', call: 'WtsncTimeTableHourChoiceListP', props: {} }] },
+
+  {
+    pageId: '8',
+    pageName: 'W-SV-U-0296P01',
+    btns: [
+      {
+        btnName: '산출 제외품목 등록 팝업',
+        type: 'modal',
+        call: 'WwsnaComputationExcludeItemRegP',
+      },
+    ],
+  },
+
 ];
 
 async function onClickMovePage(call, props, type) {
