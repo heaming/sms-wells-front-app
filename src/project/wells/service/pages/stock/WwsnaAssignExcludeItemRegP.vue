@@ -26,8 +26,9 @@
           :label="t('MSG_TXT_EXLD_TP')"
         >
           <kw-select
-            :model-value="searchParams.asnExcdDvCd"
+            v-model="searchParams.asnExcdDvCd"
             :options="codes.ASN_EXCD_DV_CD"
+            @change="onChangeAsnExcdDvCd"
           />
         </kw-search-item>
         <!-- //제외유형 -->
@@ -36,8 +37,8 @@
           :label="t('MSG_TXT_EXLD_ITM')"
         >
           <kw-select
-            :model-value="searchParams.itmKndCd"
-            :options="codes.ITM_KND_CD"
+            v-model="searchParams.itmKndCd"
+            :options="itmKndCdFilter"
             first-option="all"
           />
         </kw-search-item>
@@ -45,8 +46,10 @@
         <!-- 영업센터 -->
         <kw-search-item :label="t('MSG_TXT_BSNS_CNTR')">
           <kw-select
-            :model-value="searchParams.serviceCenter"
-            :options="codes.WARE_DV_CD"
+            v-model="searchParams.wareNo"
+            :options="warehouseFilter"
+            :disable="searchParams.asnExcdDvCd !== '3'"
+            first-option="all"
           />
         </kw-search-item>
         <!-- //영업센터 -->
@@ -111,20 +114,22 @@ const grdMainRef = ref(getComponentType('KwGrid'));
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
-const codes = ref(await codeUtil.getMultiCodes(
+const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
   'ASN_EXCD_DV_CD',
   'ITM_KND_CD',
   'WARE_DV_CD',
   'WARE_DTL_DV_CD',
-));
+);
 
+const itmKndCdFilter = codes.ITM_KND_CD.filter((v) => ['4', '5', '6'].includes(v.codeId));
+const warehouseFilter = ref([]);
 const searchParams = ref({
-  baseYm: dayjs().format('YYYYMMDD'),
+  baseYm: dayjs().format('YYYYMM'),
   itmPdCd: '',
   itmKndCd: '',
   asnExcdDvCd: '0',
-  serviceCenter: '',
+  wareNo: '',
 });
 let cachedParams;
 
@@ -134,8 +139,14 @@ const pageInfo = ref({
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
 });
 
+async function onChangeAsnExcdDvCd(v) {
+  console.log(`v: ${v}`);
+  searchParams.value.wareNo = '';
+}
+
 async function fetchData() {
   console.log(baseURI, cachedParams);
+  console.log(`cachedParams.itmKndCd: ${cachedParams.itmKndCd}`);
   const res = await dataService.get(baseURI, { params: { ...cachedParams, ...pageInfo.value } });
   const { list: searchData, pageInfo: pagingResult } = res.data;
 
@@ -176,8 +187,12 @@ async function onClickSave() {
 }
 
 onMounted(async () => {
-  searchParams.value.asnExcdDvCd = '0';
-  await fetchData();
+  console.log('onMounted~~~~~~~~~~~~~~~~~~~~~~');
+  console.log(`searchParams.value.baseYm : ${searchParams.value.baseYm}`);
+  const res = await dataService.get(`${baseURI}/warehouse`, { params: searchParams.value });
+  warehouseFilter.value = res.data;
+  // await fetchData();
+  await onClickSearch();
 });
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
@@ -187,8 +202,18 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'sapMaptCd', header: t('MSG_TXT_SAP_CD'), width: '124', styleName: 'text-center' },
     { fieldName: 'itmPdCd', header: t('MSG_TXT_ITM_CD'), width: '180', styleName: 'text-center' },
     { fieldName: 'itmPdNm', header: t('MSG_TXT_ITM_NM'), width: '380' },
-    { fieldName: 'itmKndcd', header: t('MSG_TXT_ITM_DV'), width: '160' },
-    { fieldName: 'knd', header: t('MSG_TXT_DIV'), width: '180', styleName: 'text-center' },
+    { fieldName: 'itmKndcd',
+      header: t('MSG_TXT_ITM_DV'),
+      options: codes.ITM_KND_CD,
+      editable: false,
+      width: '160',
+    },
+    { fieldName: 'asnExcdDvCd',
+      header: t('MSG_TXT_DIV'),
+      options: codes.ASN_EXCD_DV_CD,
+      editable: false,
+      width: '180',
+      styleName: 'text-center' },
     { fieldName: 'strWareNo', header: t('MSG_TXT_CENTER_CD'), width: '190', styleName: 'text-center' },
   ];
   const fields = columns.map((v) => ({ fieldName: v.fieldName }));
