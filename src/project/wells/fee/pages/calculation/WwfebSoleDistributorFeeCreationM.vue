@@ -46,7 +46,6 @@
             v-model="searchParams.feeTcntDvCd"
             type="radio"
             :options="codes.FEE_TCNT_DV_CD"
-            first-option="all"
           />
         </kw-search-item>
       </kw-search-row>
@@ -185,7 +184,7 @@ const searchParams = ref({
   cancelStrtYm: '',
   cancelEndYm: '',
   feeSchdTpCd: '501', // 신채널(총판)
-  feeTcntDvCd: '', // 2차수
+  feeTcntDvCd: '02', // 2차수
   coCd: '2000', //  @TODO 세션 coCd[session.getCompanyCode()] 관련해서 업무별로 말이 다달라서 하드코딩함 -_-;
 });
 
