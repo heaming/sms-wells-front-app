@@ -27,7 +27,6 @@
             type="month"
           />
         </kw-search-item>
-
         <kw-search-item
           :label="$t('MSG_TXT_DIV')"
         >
@@ -38,8 +37,7 @@
                        {codeId: 'B', codeName: t('MSG_TXT_OG')}]"
           />
         </kw-search-item>
-
-        <kw-form-item
+        <kw-search-item
           :label="$t('MSG_TXT_CNTR_DATE')"
         >
           <kw-date-range-picker
@@ -48,7 +46,7 @@
             type="date"
             :label="$t('MSG_TXT_CNTR_DATE')"
           />
-        </kw-form-item>
+        </kw-search-item>
       </kw-search-row>
       <kw-search-row>
         <kw-search-item
@@ -129,7 +127,6 @@ const grdDataA = computed(() => grdRefA.value?.getData());
 const grdRefB = ref(getComponentType('KwGrid'));
 const grdDataB = computed(() => grdRefB.value?.getData());
 const totalCount = ref(0);
-
 let cachedParams;
 const searchParams = ref({
   type: 'A',
@@ -204,14 +201,14 @@ const initGrdMainA = defineGrid((data, view) => {
     { fieldName: 'rcpdt', header: t('MSG_TXT_RCP_D'), width: '110.8', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'cntrDt', header: `${t('MSG_TXT_CNTRCT_DT')} ${t('MSG_TXT_1ST_WTHDRWL_DT')}`, width: '162.4', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'canDt', header: t('MSG_TXT_CAN_D'), width: '110.8', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'sellFee', header: t('MSG_TXT_SELLER_FEE'), width: '156.6', styleName: 'text-right' },
-    { fieldName: 'totDsbOjDvCd', header: t('MSG_TXT_TOTAL_PYMNT_TRGT'), width: '112.3', styleName: 'text-right' },
-    { fieldName: 'lifCntrOcTn', header: t('MSG_TXT_ORDERSELECT_TITLE'), width: '81.1', styleName: 'text-right' },
-    { fieldName: 'slOcAcuAmt', header: t('MSG_TXT_CUMULATIVE_SALES'), width: '156.6', styleName: 'text-right' },
-    { fieldName: 'dpAcuAmt', header: t('MSG_TXT_ACU_DP'), width: '156.6', styleName: 'text-right' },
-    { fieldName: 'flpymTn', header: t('MSG_TXT_FULL_PYMNT_RD'), width: '81.1', styleName: 'text-right' },
-    { fieldName: 'preAmtSum', header: t('MSG_TXT_BASE_PYMNT'), width: '126.7', styleName: 'text-right' },
-    { fieldName: 'curAmt', header: t('MSG_TXT_THM_DSB'), width: '126.7', styleName: 'text-right' },
+    { fieldName: 'sellFee', header: t('MSG_TXT_SELLER_FEE'), width: '156.6', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'totDsbOjDvCd', header: t('MSG_TXT_TOTAL_PYMNT_TRGT'), width: '112.3', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'lifCntrOcTn', header: t('MSG_TXT_ORDERSELECT_TITLE'), width: '81.1', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'slOcAcuAmt', header: t('MSG_TXT_CUMULATIVE_SALES'), width: '156.6', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'dpAcuAmt', header: t('MSG_TXT_ACU_DP'), width: '156.6', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'flpymTn', header: t('MSG_TXT_FULL_PYMNT_RD'), width: '81.1', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'preAmtSum', header: t('MSG_TXT_BASE_PYMNT'), width: '126.7', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'curAmt', header: t('MSG_TXT_THM_DSB'), width: '126.7', styleName: 'text-right', dataType: 'number' },
     { fieldName: 'cnfmYn', header: t('MSG_TXT_LIFE_CNFRMD'), width: '126.7', styleName: 'text-center' },
     { fieldName: 'feeDsbYm', header: t('MSG_TXT_FEE_PYMNT_MNTH'), width: '186', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
     { fieldName: 'feeRedfYm', header: t('MSG_TXT_FEE_BCK_MNTH'), width: '186', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
@@ -234,7 +231,7 @@ const initGrdMainB = defineGrid((data, view) => {
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '110.8', styleName: 'text-left' },
     { fieldName: 'cdCntn', header: t('MSG_TXT_RSB'), width: '110.8', styleName: 'text-center' },
     { fieldName: 'brchCt', header: t('MSG_TXT_COUNT'), width: '110.8', styleName: 'text-center' },
-    { fieldName: 'brchAmt', header: t('MSG_TXT_AMT'), width: '126.7', styleName: 'text-right' },
+    { fieldName: 'brchAmt', header: t('MSG_TXT_AMT'), width: '126.7', styleName: 'text-right', dataType: 'number' },
     { fieldName: 'feeDsbYm', header: t('MSG_TXT_FEE_PYMNT_MNTH'), width: '186', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
     { fieldName: 'feeRedfYm', header: t('MSG_TXT_FEE_BCK_MNTH'), width: '186', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
   ];
