@@ -5,7 +5,7 @@
 1. 모듈 : 고객 - 가망고객관리(CSB)
 2. 프로그램 ID : WwcsbNewReceiptMgtMReceipt.vue - 신규접수 배정관리 - 접수조회(TAB) (W-CU-U-0030M01)
 3. 작성자 : junho.bae
-4. 작성일 : 2022.AA.BB
+4. 작성일 : 2023.07.01
 ****************************************************************************************************
 * 프로그램 설명
 ****************************************************************************************************
@@ -110,7 +110,6 @@ const router = useRouter();
 const baseUrl = '/sms/wells/customer/receipts';
 const codes = await codeUtil.getMultiCodes('COD_PAGE_SIZE_OPTIONS');
 
-// t('MSG_TXT_EDU_HOME_PAGE')
 const RECEIPT_TYPE_CODE = [
   { codeId: '40', codeName: t('MSG_TXT_SERVICE_CENTER') }, /* 고객센터 */
   { codeId: '20', codeName: t('MSG_TXT_HMPG') }, /* 홈페이지 */
@@ -243,7 +242,6 @@ const initgrdReceipt = defineGrid((data, view) => {
     { fieldName: 'custAdr', header: t('MSG_TXT_ADDR'), width: '275', styleName: 'text-left' }, /* 주소 */
 
     // 등록/수정일
-    // { fieldName: 'fstRgstDtm', header: t('MSG_TXT_RGST_DT'), },
     { fieldName: 'fstRgstUsrNm', header: t('MSG_TXT_RGST_USR'), width: '80', styleName: 'text-center', editable: false },
     { fieldName: 'fstRgstUsrId', header: 'RGST_ID', width: '50', visible: false },
     { fieldName: 'fnlMdfcDtm', header: t('MSG_TXT_FNL_MDFC_D'), width: '110', styleName: 'text-center', datetimeFormat: 'date', editable: false },

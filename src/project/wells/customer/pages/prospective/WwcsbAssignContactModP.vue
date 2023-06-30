@@ -5,7 +5,7 @@
 1. 모듈 : PDY
 2. 프로그램 ID : WwcsbAssignContactModP - 배정컨택 (W-CU-U-0030P01)
 3. 작성자 : junho.bae
-4. 작성일 : 2022.AA.BB
+4. 작성일 : 2023.07.01
 ****************************************************************************************************
 * 프로그램 설명
 ****************************************************************************************************
@@ -77,7 +77,7 @@ import { useDataService, useGlobal, useModal, codeUtil } from 'kw-lib';
 
 const { notify } = useGlobal();
 const { t } = useI18n();
-const { ok, cancel } = useModal(); //
+const { ok, cancel } = useModal();
 
 const dataService = useDataService();
 const obsMainRef = ref();
@@ -88,8 +88,6 @@ const frmMainRef = ref();
 // -------------------------------------------------------------------------------------------------
 const baseUrl = '/sms/wells/customer/receipts';
 const props = defineProps({
-  // pdClsfId: { type: String, required: false, default: '' },
-  // pdTpCd: { type: String, required: false, default: '' },
   pspcCstCnslIds: { type: Object, required: true },
 });
 
