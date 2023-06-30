@@ -56,5 +56,10 @@
     "~collaboration",
     "~common",
     "~sms-common"
+  ],
+  "bundleDependencies": [
+    "~collaboration",
+    "~common",
+    "~sms-common"
   ]
 }
