@@ -401,9 +401,11 @@ async function onClickTfConfirm() {
 
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
+  const { data } = await dataService.get('/sms/wells/service/before-service-period-customer/excel-download', { params: cachedParams });
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
+    exportData: data,
   });
 }
 
