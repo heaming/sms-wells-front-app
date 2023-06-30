@@ -21,12 +21,14 @@
       <kw-search-row>
         <kw-search-item
           :label="$t('MSG_TXT_MGT_YNM')"
+          required
         >
           <!--관리년월-->
           <kw-date-picker
             v-model="searchParams.mngtYm"
             type="month"
             rules="required"
+            :label="$t('MSG_TXT_MGT_YNM')"
           />
         </kw-search-item>
         <kw-search-item
@@ -178,10 +180,11 @@ const pageInfo = ref({
   totalCount: 0,
   pageIndex: 1,
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
+  needTotalCount: true,
 });
 
 async function fetchData() {
-  const { data: { list, pageInfo: pageInfoObj } } = await dataService.get('sms/wells/service/wells-manager-incharge-excd/paging', { params: { ...cachedParams, ...pageInfo.value } });
+  const { data: { list, pageInfo: pageInfoObj } } = await dataService.get('/sms/wells/service/wells-manager-incharge-excd/paging', { params: { ...cachedParams, ...pageInfo.value } });
 
   list.forEach((row) => {
     if (row.cralLocaraTno && row.mexnoEncr && row.cralIdvTno) { row.mobileTno = `${row.cralLocaraTno}-${row.mexnoEncr}-${row.cralIdvTno}`; }
@@ -202,15 +205,19 @@ async function onClickSearch() {
     ? 'Y' : 'N';
   searchParams.value.exceptFixYn = exceptSearchOptions.value.some((options) => options === '3')
     ? 'Y' : 'N';
+  pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
 }
 
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
+  const { data } = await dataService.get('/sms/wells/service/wells-manager-incharge-excd/excel-download', { params: cachedParams });
+
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
+    exportData: data,
   });
 }
 
@@ -292,9 +299,9 @@ async function initGrdMain(data, view) {
   const columns = [
     { fieldName: 'dgr1LevlOgCd', header: t('MSG_TXT_MANAGEMENT_DEPARTMENT'), styleName: 'text-center', width: '90' }, // 총괄단
     { fieldName: 'ogCd', header: t('MSG_TXT_RGNL_GRP'), styleName: 'text-center', width: '90' }, // 지역단
-    { fieldName: 'ogTp', header: t('MSG_TXT_ZIP_PSIC'), styleName: 'text-left', width: '120' }, // 우편번호 담당자
+    { fieldName: 'ogTp', header: t('MSG_TXT_ZIP_PSIC'), styleName: 'text-center', width: '120' }, // 우편번호 담당자
     { fieldName: 'cntr', header: t('MSG_TXT_CNTR_NO'), styleName: 'text-center', width: '150' }, // 계약번호
-    { fieldName: 'rcgvpKnm', header: t('MSG_TXT_CST_NM'), styleName: 'text-left', width: '100' }, // 고객명
+    { fieldName: 'rcgvpKnm', header: t('MSG_TXT_CST_NM'), styleName: 'text-center', width: '100' }, // 고객명
     { fieldName: 'cstGdCd',
       header: t('MSG_TXT_CST_GRD'),
       styleName: 'text-center',
@@ -340,7 +347,7 @@ async function initGrdMain(data, view) {
     { fieldName: 'emd', header: t('MSG_TXT_EMD'), styleName: 'text-left', width: '200' }, // 읍명동
     { fieldName: 'dgr2LevlOgCd', header: t('MSG_TXT_RGNL_GRP'), styleName: 'text-center', width: '90' }, // 지역단
     { fieldName: 'dgr3LevlOgCd', header: t('MSG_TXT_BRANCH'), styleName: 'text-center', width: '90' }, // 지점
-    { fieldName: 'prtnrKnm', header: t('MSG_TXT_PIC'), styleName: 'text-left', width: '80' }, // 담당자
+    { fieldName: 'prtnrKnm', header: t('MSG_TXT_PIC'), styleName: 'text-center', width: '80' }, // 담당자
     { fieldName: 'mngerRglvlDvCd',
       header: t('MSG_TXT_RGLVL'),
       styleName: 'text-center',
@@ -349,7 +356,7 @@ async function initGrdMain(data, view) {
       editor: {
         type: 'dropdown',
       } }, // 급지
-    { fieldName: 'clsfCdSrnPrntCn', header: t('MSG_TXT_TASK_TYPE'), styleName: 'text-left', width: '100' }, // 업무유형
+    { fieldName: 'clsfCdSrnPrntCn', header: t('MSG_TXT_TASK_TYPE'), styleName: 'text-center', width: '100' }, // 업무유형
     { fieldName: 'egerWk', header: t('MSG_TXT_CPSN_ASGN'), styleName: 'text-center', width: '80' }, // 강제배정
     { fieldName: 'fix', header: t('MSG_TXT_FXN'), styleName: 'text-center', width: '50' }, // 고정
     { fieldName: 'chRsonCn', header: t('MSG_TXT_FXN_RGST_RSON'), styleName: 'text-left', width: '200' }, // 고정등록 사유
@@ -359,6 +366,10 @@ async function initGrdMain(data, view) {
   view.setColumns(columns);
   view.checkBar.visible = false; // create checkbox column
   view.rowIndicator.visible = true; // create number indicator column
+
+  view.setFixedOptions({
+    colCount: 5,
+  });
 
   await onClickSearch();
 }
