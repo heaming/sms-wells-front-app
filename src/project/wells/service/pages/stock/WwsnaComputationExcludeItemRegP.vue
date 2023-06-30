@@ -23,14 +23,15 @@
     >
       <kw-search-row>
         <kw-search-item
-          :label="t('MSG_TXT_INQR_YM')"
+          :label="t('MSG_TXT_MGT_YNM')"
           required
         >
           <kw-date-picker
             v-model="searchParams.inqrYm"
             type="month"
-            :label="t('MSG_TXT_INQR_YM')"
+            :label="t('MSG_TXT_MGT_YNM')"
             rules="required"
+            :disable="isInqrYm"
           />
         </kw-search-item>
         <kw-search-item
@@ -126,7 +127,7 @@
         :label="$t('MSG_BTN_LSTMM_DTA_TF')"
         primary
         dense
-        :disable="isTransfer"
+        :disable="isSearch"
         @click="onClickTransfer"
       />
     </kw-action-top>
@@ -169,9 +170,20 @@ const dataService = useDataService();
 const popupRef = ref();
 const grdMainRef = ref(getComponentType('KwGrid'));
 
+const props = defineProps({
+  inqrYm: {
+    type: String,
+    default: '',
+  },
+  products: {
+    type: Array,
+    default: () => [],
+  },
+});
+
 let cachedParams;
 const searchParams = ref({
-  inqrYm: dayjs().format('YYYYMM'), // 기준년월
+  inqrYm: isEmpty(props.inqrYm) ? dayjs().format('YYYYMM') : props.inqrYm, // 기준년월
   itmKndCd: '',
   itmPdCds: [],
   strtSapCd: '',
@@ -200,17 +212,24 @@ function itmKndCdFilter() {
 
 const optionsItmPdCd = ref();
 const optionsAllItmPdCd = ref();
-
-// 품목조회
-const getProducts = async () => {
+const isInqrYm = ref(true);
+async function initData() {
+  if (isEmpty(props.inqrYm)) {
+    isInqrYm.value = false;
+  }
+  if (!isEmpty(props.products)) {
+    optionsAllItmPdCd.value = props.products;
+    optionsItmPdCd.value = optionsAllItmPdCd.value;
+    return;
+  }
   const result = await dataService.get('/sms/wells/service/computation-exclude-items/products');
-  optionsItmPdCd.value = result.data;
   optionsAllItmPdCd.value = result.data;
-};
+  optionsItmPdCd.value = optionsAllItmPdCd.value;
+}
 
 await Promise.all([
   itmKndCdFilter(),
-  getProducts(),
+  initData(),
 ]);
 
 const userInfo = getters['meta/getUserInfo'];
@@ -222,11 +241,12 @@ function onChangeItmKndCd() {
   searchParams.value.itmPdCds = [];
   const { itmKndCd } = searchParams.value;
 
-  if (itmKndCd !== '') {
-    optionsItmPdCd.value = optionsAllItmPdCd.value.filter((v) => itmKndCd === v.itmKndCd);
-  } else {
+  if (isEmpty(itmKndCd)) {
     optionsItmPdCd.value = optionsAllItmPdCd.value;
+    return;
   }
+
+  optionsItmPdCd.value = optionsAllItmPdCd.value.filter((v) => itmKndCd === v.itmKndCd);
 }
 
 // 조회
@@ -244,8 +264,6 @@ async function fetchData() {
 }
 
 const isSearch = ref(true);
-const isTransfer = computed(() => (isSearch.value ? isSearch.value : pageInfo.totalCount === 0));
-
 async function onClickSearch() {
   pageInfo.value.pageIndex = 1;
   // 조회버튼 클릭 시에만 총 건수 조회하도록
@@ -265,12 +283,14 @@ async function onClickDelete() {
   }
 
   const deletedRows = await gridUtil.confirmDeleteCheckedRows(view);
-  const res = await dataService.delete('/sms/wells/service/computation-exclude-items', { data: [...deletedRows] });
-  const { processCount } = res.data;
-  if (processCount > 0) {
-    notify(t('MSG_ALT_DELETED'));
-    pageInfo.value.needTotalCount = true;
-    await fetchData();
+  if (!isEmpty(deletedRows)) {
+    const res = await dataService.delete('/sms/wells/service/computation-exclude-items', { data: [...deletedRows] });
+    const { processCount } = res.data;
+    if (processCount > 0) {
+      notify(t('MSG_ALT_DELETED'));
+      pageInfo.value.needTotalCount = true;
+      await fetchData();
+    }
   }
 }
 
@@ -292,6 +312,29 @@ function getRowData(rowData) {
     itmKndCd: rowData.itmKnd };
 }
 
+// 중복 체크
+async function checkDuplication(itmPdCd) {
+  const view = grdMainRef.value.getView();
+  const gridList = gridUtil.getAllRowValues(view, false);
+  const duplicates = gridList.filter((item) => {
+    if (itmPdCd === item.itmPdCd) {
+      return true;
+    }
+    return false;
+  });
+
+  if (duplicates.length > 0) {
+    return 'Y';
+  }
+  if (pageInfo.value.totalCount > 0) {
+    const validRes = await dataService.get('/sms/wells/service/computation-exclude-items/duplication-check', {
+      params: { mngtYm: cachedParams.inqrYm, itmPdCd } });
+    return validRes.data;
+  }
+
+  return 'N';
+}
+
 async function openItemBasePopup(row) {
   const searchItmKndCd = isEmpty(cachedParams.itmKndCd) ? '6' : cachedParams.itmKndCd;
   const { result, payload } = await modal({
@@ -302,12 +345,21 @@ async function openItemBasePopup(row) {
   if (result) {
     const view = grdMainRef.value.getView();
     const rowData = payload?.[0] || {};
-    const { itmKnd } = rowData;
+    const { itmPdCd, itmKnd } = rowData;
     if (itmKnd !== '5' && itmKnd !== '6') {
       // 품목 종류가 필터, A/S자재인 품목만 선택 가능 합니다.
       await alert(t('MSG_ALT_CHO_ITM_KND_FILT_AS_MAT'));
       return;
     }
+
+    // 제외 품목 중복체크
+    const validYn = await checkDuplication(itmPdCd);
+    if (validYn === 'Y') {
+      // {0} 은(는) 이미 등록된 제외 품목입니다.
+      await alert(`${itmPdCd} ${t('MSG_ALT_EXIST_RGST_EXCD_ITM')}`);
+      return;
+    }
+
     view.setValues(row, getRowData(rowData), true);
   }
 }
@@ -359,10 +411,13 @@ async function onClickTransfer() {
     return;
   }
 
-  await dataService.post('/sms/wells/service/computation-exclude-items/item-transfers', cachedParams);
-  notify(t('MSG_ALT_TRNS_FIN'));
-  pageInfo.value.needTotalCount = true;
-  await fetchData();
+  res = await dataService.post('/sms/wells/service/computation-exclude-items/item-transfers', cachedParams);
+  const { processCount } = res.data;
+  if (processCount > 0) {
+    notify(t('MSG_ALT_TRNS_FIN'));
+    pageInfo.value.needTotalCount = true;
+    await fetchData();
+  }
 }
 
 // 엑셀다운로드
@@ -391,7 +446,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'deptNm' },
     { fieldName: 'usrNm' },
     { fieldName: 'mngtYm' },
-    { fieldName: 'cmptExcdSn' },
+    { fieldName: 'cmptExcdSn', dataType: 'number' },
     { fieldName: 'itmKndCd' },
 
   ];

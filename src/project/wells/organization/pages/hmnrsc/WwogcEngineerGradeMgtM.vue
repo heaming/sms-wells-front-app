@@ -124,9 +124,10 @@ const pageInfo = ref({
 
 const codes = await codeUtil.getMultiCodes(
   'OG_TP_CD',
-  'EGER_EVL_GD_CD',
   'ROL_DV_CD',
   'RSB_DV_CD',
+  'PRTNR_GD_CD',
+  'EGER_EVL_GD_CD',
 );
 
 const searchParams = ref({
@@ -149,7 +150,10 @@ async function fetchData() {
   pageInfo.value = pagingResult;
 
   const view = grdMainRef.value.getView();
-  view.getDataSource().addRows(list);
+  const data = view.getDataSource();
+  data.checkRowStates(false);
+  data.addRows(list);
+  data.checkRowStates(true);
 }
 
 // 조회
@@ -193,6 +197,7 @@ async function onClickSave() {
   }
   await dataService.post('/sms/wells/partner-engineer/engineer-grade', changedRows);
   notify(t('MSG_ALT_SAVE_DATA'));
+  // await fetchData();
   await onClickSearch();
 }
 
@@ -226,8 +231,8 @@ const initGrdMain = defineGrid((data, view) => {
       width: '166',
       styleName: 'text-center',
     },
-    { fieldName: 'rolDvCd', header: t('MSG_TXT_RSB'), width: '106', styleName: 'text-center', options: codes.ROL_DV_CD },
-    { fieldName: 'egerEvlGdCd', header: t('MSG_TXT_ROLE_1'), width: '106', styleName: 'text-center', options: codes.EGER_EVL_GD_CD },
+    { fieldName: 'rsbDvCd', header: t('MSG_TXT_RSB'), width: '106', styleName: 'text-center', options: codes.RSB_DV_CD },
+    { fieldName: 'rolDvCd', header: t('MSG_TXT_ROLE_1'), width: '106', styleName: 'text-center', options: codes.ROL_DV_CD },
     { fieldName: 'cntrDt', header: t('MSG_TXT_ENTCO_DT'), width: '130', styleName: 'text-center', datetimeFormat: 'date' },
     {
       fieldName: 'prtnrGdCd',

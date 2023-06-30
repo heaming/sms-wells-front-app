@@ -402,7 +402,7 @@ const initGrid = defineGrid((data, view) => {
 
   // region event callbacks for popup
   view.onCellDblClicked = () => {
-    openManagementPopup('VIEW');
+    openManagementPopup('UPDATE');
   };
   onClickSearch();
 });

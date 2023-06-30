@@ -32,15 +32,18 @@
         </kw-search-item>
         <kw-search-item
           :label="$t('MSG_TXT_SEQUENCE_NUMBER')"
-          required
         >
           <kw-input
             v-model="searchParams.no"
-            :label="$t('MSG_TXT_SEQUENCE_NUMBER')"
             icon="search"
             clearable
-            rules="required"
             :on-click-icon="onClickSearchNo"
+            :placeholder="$t('MSG_TXT_SEQUENCE_NUMBER')"
+          />
+          <kw-input
+            v-model="searchParams.prtnrKnm"
+            :placeholder="$t('MSG_TXT_EMPL_NM')"
+            readonly
           />
         </kw-search-item>
       </kw-search-row>
@@ -52,6 +55,7 @@
         class="mt20"
         dense
         align-content="right"
+        :cols="4"
       >
         <kw-form-row>
           <kw-form-item
@@ -61,36 +65,74 @@
             <p>{{ info1.emplNm }}</p>
           </kw-form-item>
           <kw-form-item
-            :label="t('MSG_TXT_BLG')"
-            align-content="center"
+            :label="t('MSG_TXT_MANAGEMENT_DEPARTMENT')"
+            align-content="left"
           >
-            <p>{{ info1.blg }}</p>
+            <p>{{ info1.mngDpt }}</p>
           </kw-form-item>
+          <kw-form-item
+            :label="t('MSG_TXT_RGNL_GRP')"
+            align-content="left"
+          >
+            <p>{{ info1.rgnlGrp }}</p>
+          </kw-form-item>
+          <kw-form-item
+            :label="t('MSG_TXT_BRANCH')"
+            align-content="left"
+          >
+            <p>{{ info1.branch }}</p>
+          </kw-form-item>
+        </kw-form-row>
+        <kw-form-row>
           <kw-form-item
             :label="t('MSG_TXT_RSB')"
             align-content="left"
           >
             <p>{{ info1.rsb }}</p>
           </kw-form-item>
-        </kw-form-row>
-        <kw-form-row>
           <kw-form-item
-            :label="t('MSG_TXT_METG')"
-            align-content="right"
-          >
-            <p>{{ info1.metg }}</p>
-          </kw-form-item>
-          <kw-form-item
-            :label="t('MSG_TXT_WELS_MNGER')"
+            :label="t('MSG_TXT_RGS')+t('MSG_TXT_BASE_MM')"
             align-content="center"
           >
-            <p>{{ info1.welsMnger }}</p>
+            <p>{{ stringUtil.getDateFormat(info1.rgsBaseMm) }}</p>
           </kw-form-item>
+          <kw-form-item
+            :label="t('MSG_TXT_PRFMT_MON')"
+            align-content="center"
+          >
+            <p>{{ stringUtil.getDateFormat(info1.prfmtMon) }}</p>
+          </kw-form-item>
+          <kw-form-item
+            :label="t('MSG_TXT_BIZ_CLTN_MON')"
+            align-content="center"
+          >
+            <p>{{ stringUtil.getDateFormat(info1.bizCltnMon) }}</p>
+          </kw-form-item>
+        </kw-form-row>
+        <kw-form-row>
           <kw-form-item
             :label="t('MSG_TXT_QLF')"
             align-content="left"
           >
             <p>{{ info1.qlf }}</p>
+          </kw-form-item>
+          <kw-form-item
+            :label="t('MSG_TXT_OPNG_MM')"
+            align-content="center"
+          >
+            <p>{{ info1.opngMm }}</p>
+          </kw-form-item>
+          <kw-form-item
+            :label="t('MSG_TXT_OPNG_NMN')"
+            align-content="center"
+          >
+            <p>{{ info1.opngNmm }}</p>
+          </kw-form-item>
+          <kw-form-item
+            :label="t('MSG_TXT_MANAGER')+t('MSG_TXT_CLTN_MM')"
+            align-content="center"
+          >
+            <p>{{ info1.mngCltnMm }}</p>
           </kw-form-item>
         </kw-form-row>
       </kw-form>
@@ -101,67 +143,14 @@
         <template #left>
           <h3>{{ t('MSG_TXT_BAS_IZ') }}</h3>
         </template>
-        <span class="ml8">{{ $t('MSG_TXT_UNIT_COLON_WON') }}</span>
+        <span class="ml8">{{ $t('MSG_TXT_UNIT_WON') }}</span>
       </kw-action-top>
-      <kw-form
-        dense
-        align-content="right"
-        :cols="4"
-      >
-        <kw-form-row>
-          <kw-form-item :label="t('MSG_TXT_ELHM')+t('MSG_TXT_RENTAL')">
-            <p>{{ stringUtil.getNumberWithComma(info1.elhmRental) }}</p>
-          </kw-form-item>
-          <kw-form-item :label="t('MSG_TXT_ELHM')+t('MSG_TXT_SNGL_PMNT')">
-            <p>{{ stringUtil.getNumberWithComma(info1.elhmSnglPmnt) }}</p>
-          </kw-form-item>
-          <kw-form-item :label="t('MSG_TXT_ELHM')+t('MSG_TXT_FXAM')">
-            <p>{{ stringUtil.getNumberWithComma(info1.elhmFxam) }}</p>
-          </kw-form-item>
-          <kw-form-item :label="t('MSG_TXT_ELHM')+t('MSG_TXT_EXCP')+t('MSG_TXT_SNGL_PMNT')">
-            <p>{{ stringUtil.getNumberWithComma(info1.elhmExcpSnglPmnt) }}</p>
-          </kw-form-item>
-        </kw-form-row>
-        <kw-form-row>
-          <kw-form-item :label="t('MSG_TXT_ELHM')+t('MSG_TXT_EXCP')+t('MSG_TXT_FXAM')">
-            <p>{{ stringUtil.getNumberWithComma(info1.elhmExcpFxam) }}</p>
-          </kw-form-item>
-          <kw-form-item :label="t('MSG_TXT_INDV')+t('MSG_TXT_COUNT')">
-            <p>{{ stringUtil.getNumberWithComma(info1.indvCount) }}</p>
-          </kw-form-item>
-          <kw-form-item :label="t('MSG_TXT_OG')+t('MSG_TXT_ELHM')+t('MSG_TXT_RENTAL')">
-            <p>{{ stringUtil.getNumberWithComma(info1.ogElhmRental) }}</p>
-          </kw-form-item>
-          <kw-form-item :label="t('MSG_TXT_OG')+t('MSG_TXT_ELHM')+t('MSG_TXT_SNGL_PMNT')">
-            <p>{{ stringUtil.getNumberWithComma(info1.ogElhmSnglPmnt) }}</p>
-          </kw-form-item>
-        </kw-form-row>
-        <kw-form-row>
-          <kw-form-item :label="t('MSG_TXT_OG')+t('MSG_TXT_ELHM')+t('MSG_TXT_EXCP')+t('MSG_TXT_SNGL_PMNT')">
-            <p>{{ stringUtil.getNumberWithComma(info1.ogElhmExcpSnglPmnt) }}</p>
-          </kw-form-item>
-          <kw-form-item :label="t('MSG_TXT_OG')+t('MSG_TXT_COUNT')">
-            <p>{{ stringUtil.getNumberWithComma(info1.ogCount) }}</p>
-          </kw-form-item>
-          <kw-form-item :label="t('MSG_TXT_OG')+t('MSG_TXT_NEW')+t('MSG_TXT_SELL')">
-            <p>{{ stringUtil.getNumberWithComma(info1.ogNewSell) }}</p>
-          </kw-form-item>
-          <kw-form-item :label="t('MSG_TXT_INDV')+t('MSG_TXT_NEW')+t('MSG_TXT_SELL')">
-            <p>{{ stringUtil.getNumberWithComma(info1.indvNewSell) }}</p>
-          </kw-form-item>
-        </kw-form-row>
-        <kw-form-row>
-          <kw-form-item :label="'BS'+t('MSG_TXT_PD_ACC_CNT')">
-            <p>{{ stringUtil.getNumberWithComma(info1.bsPdAccCnt) }}</p>
-          </kw-form-item>
-          <kw-form-item :label="'W1'+t('MSG_TXT_COUNT')">
-            <p>{{ stringUtil.getNumberWithComma(info1.w1Count) }}</p>
-          </kw-form-item>
-          <kw-form-item :label="'W2'+t('MSG_TXT_COUNT')">
-            <p>{{ stringUtil.getNumberWithComma(info1.w2Count) }}</p>
-          </kw-form-item>
-        </kw-form-row>
-      </kw-form>
+      <kw-grid
+        ref="grd1MainRef"
+        name="grd1Main"
+        :visible-rows="5"
+        @init="initGrd1Main"
+      />
 
       <kw-separator />
 
@@ -171,21 +160,41 @@
             BS{{ t('MSG_TXT_IZ') }}
           </h3>
         </template>
-        <span class="ml8">({{ $t('MSG_TXT_UNIT') }}) : ({{ $t('MSG_TXT_CUR_WON') }})</span>
+        <span class="ml8">{{ $t('MSG_TXT_UNIT_WON') }}</span>
       </kw-action-top>
       <kw-grid
-        ref="grd1MainRef"
-        name="grd1Main"
+        ref="grd2MainRef"
+        name="grd2Main"
         :visible-rows="10"
-        @init="initGrd1Main"
+        @init="initGrd2Main"
       />
+      <ul class="grid-fix-footer">
+        <li class="grid-fix-footer__item">
+          <span class="grid-fix-footer__label">{{ $t('MSG_TXT_MGT') }}</span>
+          <p class="grid-fix-footer__data text-left">
+            {{ info1.mgtCnt }}
+          </p>
+        </li>
+        <li class="grid-fix-footer__item">
+          <span class="grid-fix-footer__label">{{ $t('MSG_TXT_VST') }}</span>
+          <p class="grid-fix-footer__data text-left">
+            {{ info1.vstCnt }}
+          </p>
+        </li>
+        <li class="grid-fix-footer__item">
+          <span class="grid-fix-footer__label">{{ $t('MSG_TXT_PROCS_RT') }}</span>
+          <p class="grid-fix-footer__data text-left">
+            {{ info1.procsRt }}%
+          </p>
+        </li>
+      </ul>
       <kw-action-top class="mb20 mt30">
         <template #left>
           <h3>
             {{ t('MSG_TXT_TOT_SUM') }}
           </h3>
         </template>
-        <span class="ml8">({{ $t('MSG_TXT_UNIT') }}) : ({{ $t('MSG_TXT_CUR_WON') }})</span>
+        <span class="ml8">{{ $t('MSG_TXT_UNIT_WON') }}</span>
       </kw-action-top>
       <kw-form
         dense
@@ -211,7 +220,7 @@
           <h3>
             {{ t('MSG_TXT_FEE_IZ') }}
           </h3>
-          <span class="ml8">({{ $t('MSG_TXT_UNIT') }}) : ({{ $t('MSG_TXT_CUR_WON') }})</span>
+          <span class="ml8">{{ $t('MSG_TXT_UNIT_WON') }}</span>
         </template>
         <kw-btn
           dense
@@ -220,146 +229,19 @@
           @click="openFeeControlPopup"
         />
       </kw-action-top>
-      <kw-form
-        dense
-        align-content="right"
-        :cols="4"
-      >
-        <kw-form-row>
-          <kw-form-item
-            :label="t('MSG_TXT_HOME_CARE')"
-          >
-            <p>{{ stringUtil.getNumberWithComma(info4.sd49) }}</p>
-          </kw-form-item>
-          <kw-form-item
-            :label="t('MSG_TXT_LIVE_PAKG')"
-          >
-            <p>{{ stringUtil.getNumberWithComma(info4.sd43) }}</p>
-          </kw-form-item>
-          <kw-form-item
-            :label="t('MSG_TXT_ELHM_PRPN')"
-          >
-            <p>{{ stringUtil.getNumberWithComma(info4.sd26) }}</p>
-          </kw-form-item>
-          <kw-form-item
-            :label="t('MSG_TXT_ELHM_EXCP_PRPN')"
-          >
-            <p>{{ stringUtil.getNumberWithComma(info4.sd29) }}</p>
-          </kw-form-item>
-        </kw-form-row>
-        <kw-form-row>
-          <kw-form-item
-            :label="t('MSG_TXT_ELHM_METG')"
-          >
-            <p>{{ stringUtil.getNumberWithComma(info4.md62) }}</p>
-          </kw-form-item>
-          <kw-form-item
-            :label="t('MSG_TXT_SPAY_METG')"
-          >
-            <p>{{ stringUtil.getNumberWithComma(info4.md63) }}</p>
-          </kw-form-item>
-          <kw-form-item
-            :label="t('MSG_TXT_ELHM_EXCP_METG')"
-          >
-            <p>{{ stringUtil.getNumberWithComma(info4.md95) }}</p>
-          </kw-form-item>
-          <kw-form-item :label="t('MSG_TXT_SAL_INTV')">
-            <p>{{ stringUtil.getNumberWithComma(info4.sd17) }}</p>
-          </kw-form-item>
-        </kw-form-row>
-        <kw-form-row>
-          <kw-form-item :label="t('MSG_TXT_EDUC')">
-            <p>{{ stringUtil.getNumberWithComma(info4.sd50) }}</p>
-          </kw-form-item>
-          <kw-form-item :label="t('MSG_TXT_STMNT')">
-            <p>{{ stringUtil.getNumberWithComma(info4.sd48) }}</p>
-          </kw-form-item>
-          <kw-form-item :label="t('MSG_TXT_MCHN_CH')">
-            <p>{{ stringUtil.getNumberWithComma(info4.sd04) }}</p>
-          </kw-form-item>
-          <kw-form-item :label="'BS'+t('MSG_TXT_MGT')">
-            <p>{{ stringUtil.getNumberWithComma(info4.sd15) }}</p>
-          </kw-form-item>
-        </kw-form-row>
-        <kw-form-row>
-          <kw-form-item :label="t('MSG_TXT_RGLVL')">
-            <p>{{ stringUtil.getNumberWithComma(info4.sd23) }}</p>
-          </kw-form-item>
-          <kw-form-item :label="t('MSG_TXT_SAL_ICEN_RETR')">
-            <p>{{ stringUtil.getNumberWithComma(info4.sd42) }}</p>
-          </kw-form-item>
-          <kw-form-item :label="t('MSG_TXT_ELHM')+t('MSG_TXT_OG')+t('MSG_TXT_PRPN')">
-            <p>{{ stringUtil.getNumberWithComma(info4.sd31) }}</p>
-          </kw-form-item>
-          <kw-form-item :label="t('MSG_TXT_ELHM')+t('MSG_TXT_EXCP')+t('MSG_TXT_OG')+t('MSG_TXT_PRPN')">
-            <p>{{ stringUtil.getNumberWithComma(info4.sd34) }}</p>
-          </kw-form-item>
-        </kw-form-row>
-        <kw-form-row>
-          <kw-form-item :label="t('MSG_TXT_OG')+t('MSG_TXT_SELL')+t('MSG_TXT_ENRG')">
-            <p>{{ stringUtil.getNumberWithComma(info4.sd11) }}</p>
-          </kw-form-item>
-          <kw-form-item :label="t('MSG_TXT_NEW')+t('MSG_TXT_SELL')">
-            <p>{{ stringUtil.getNumberWithComma(info4.sd08) }}</p>
-          </kw-form-item>
-          <kw-form-item :label="t('MSG_TXT_OG')+t('MSG_TXT_MGT')">
-            <p>{{ stringUtil.getNumberWithComma(info4.sd22) }}</p>
-          </kw-form-item>
-          <kw-form-item :label="t('MSG_TXT_OG')+t('MSG_TXT_EJT')+'1'">
-            <p>{{ stringUtil.getNumberWithComma(info4.sd13) }}</p>
-          </kw-form-item>
-        </kw-form-row>
-        <kw-form-row>
-          <kw-form-item :label="t('MSG_TXT_OG')+t('MSG_TXT_EJT')+'2'">
-            <p>{{ stringUtil.getNumberWithComma(info4.sd09) }}</p>
-          </kw-form-item>
-          <kw-form-item :label="t('MSG_TXT_NB')+t('MSG_TXT_BRANCH')">
-            <p>{{ stringUtil.getNumberWithComma(info4.sd36) }}</p>
-          </kw-form-item>
-          <kw-form-item :label="t('MSG_TXT_MUTU')+t('MSG_TXT_OG')">
-            <p>{{ stringUtil.getNumberWithComma(info4.sd12) }}</p>
-          </kw-form-item>
-          <kw-form-item :label="t('MSG_TXT_MEMBERSHIP')">
-            <p>{{ stringUtil.getNumberWithComma(info4.sd05) }}</p>
-          </kw-form-item>
-        </kw-form-row>
-        <kw-form-row>
-          <kw-form-item :label="t('MSG_TXT_ADSB')">
-            <p>{{ stringUtil.getNumberWithComma(info4.sd14) }}</p>
-          </kw-form-item>
-          <kw-form-item :label="t('MSG_TXT_ETC_SPPT')">
-            <p>{{ stringUtil.getNumberWithComma(info4.sd39) }}</p>
-          </kw-form-item>
-          <kw-form-item :label="'WM'+t('MSG_TXT_CMNC')">
-            <p>{{ stringUtil.getNumberWithComma(info4.sd18) }}</p>
-          </kw-form-item>
-          <kw-form-item :label="'WM'+t('MSG_TXT_ETC')">
-            <p>{{ stringUtil.getNumberWithComma(info4.sd19) }}</p>
-          </kw-form-item>
-        </kw-form-row>
-        <kw-form-row>
-          <kw-form-item :label="t('MSG_TXT_PRR_VST')">
-            <p>{{ stringUtil.getNumberWithComma(info4.sd40) }}</p>
-          </kw-form-item>
-          <kw-form-item :label="t('MSG_TXT_UNIFORM')">
-            <p>{{ stringUtil.getNumberWithComma(info4.sd16) }}</p>
-          </kw-form-item>
-          <kw-form-item :label="t('MSG_TXT_MAT_HODT')">
-            <p>{{ stringUtil.getNumberWithComma(info4.sd10) }}</p>
-          </kw-form-item>
-          <kw-form-item :label="t('MSG_TXT_ADD')+t('MSG_TXT_ENRG')">
-            <p>{{ stringUtil.getNumberWithComma(info4.sd06) }}</p>
-          </kw-form-item>
-        </kw-form-row>
-      </kw-form>
-
+      <kw-grid
+        ref="grd3MainRef"
+        name="grd3Main"
+        :visible-rows="9"
+        @init="initGrd3Main"
+      />
       <kw-separator />
       <kw-action-top class="mb20">
         <template #left>
           <h3>
             {{ t('MSG_TXT_DDTN_IZ') }}
           </h3>
-          <span class="ml8">({{ $t('MSG_TXT_UNIT') }}) : ({{ $t('MSG_TXT_CUR_WON') }})</span>
+          <span class="ml8">{{ $t('MSG_TXT_UNIT_WON') }}</span>
         </template>
         <kw-btn
           dense
@@ -387,34 +269,34 @@
           <kw-form-item
             :label="t('MSG_TXT_RDS')"
           >
-            <p>{{ stringUtil.getNumberWithComma(info5.rds) }}</p>
+            <p>{{ stringUtil.getNumberWithComma(info2.rds) }}</p>
           </kw-form-item>
           <kw-form-item
             :label="t('MSG_TXT_ERNTX')"
           >
-            <p>{{ stringUtil.getNumberWithComma(info5.erntx) }}</p>
+            <p>{{ stringUtil.getNumberWithComma(info2.erntx) }}</p>
           </kw-form-item>
           <kw-form-item
             :label="t('MSG_TXT_RSDNTX')"
           >
-            <p>{{ stringUtil.getNumberWithComma(info5.rsdntx) }}</p>
+            <p>{{ stringUtil.getNumberWithComma(info2.rsdntx) }}</p>
           </kw-form-item>
         </kw-form-row>
         <kw-form-row>
           <kw-form-item
             :label="t('MSG_TXT_HIR_INSR')"
           >
-            <p>{{ stringUtil.getNumberWithComma(info5.hirInsr) }}</p>
+            <p>{{ stringUtil.getNumberWithComma(info2.hirInsr) }}</p>
           </kw-form-item>
           <kw-form-item
             :label="t('MSG_TXT_BU_DDTN')"
           >
-            <p>{{ stringUtil.getNumberWithComma(info5.buDdtn) }}</p>
+            <p>{{ stringUtil.getNumberWithComma(info2.buDdtn) }}</p>
           </kw-form-item>
           <kw-form-item
             :label="t('MSG_TXT_PNPYAM')"
           >
-            <p>{{ stringUtil.getNumberWithComma(info5.pnpyam) }}</p>
+            <p>{{ stringUtil.getNumberWithComma(info2.pnpyam) }}</p>
           </kw-form-item>
         </kw-form-row>
       </kw-form>
@@ -426,13 +308,13 @@
             {{ t('MSG_TXT_CTR_IZ') }}
           </h3>
         </template>
-        <span class="ml8">({{ $t('MSG_TXT_UNIT') }}) : ({{ $t('MSG_TXT_CUR_WON') }})</span>
+        <span class="ml8">{{ $t('MSG_TXT_UNIT_WON') }}</span>
       </kw-action-top>
       <kw-grid
-        ref="grd2MainRef"
-        name="grd2Main"
+        ref="grd4MainRef"
+        name="grd4Main"
         :visible-rows="3"
-        @init="initGrd2Main"
+        @init="initGrd4Main"
       />
     </div>
   </kw-page>
@@ -455,77 +337,39 @@ const dataService = useDataService();
 const now = dayjs();
 const grd1MainRef = ref(getComponentType('KwGrid'));
 const grd2MainRef = ref(getComponentType('KwGrid'));
+const grd3MainRef = ref(getComponentType('KwGrid'));
+const grd4MainRef = ref(getComponentType('KwGrid'));
 const totalCount = ref(0);
 const searchParams = ref({
 
-  perfYm: now.format('YYYYMM'),
+  perfYm: now.add(-1, 'month').format('YYYYMM'),
   no: '',
+  prtnrKnm: '',
 
 });
 
 const info1 = ref({
   emplNm: '',
-  blg: '',
+  mngDpt: '',
+  rgnlGrp: '',
+  branch: '',
   rsb: '',
-  metg: '',
-  welsMnger: '',
+  rgsBaseMm: '',
+  prfmtMon: '',
+  bizCltnMon: '',
   qlf: '',
-  elhmRental: '',
-  elhmSnglPmnt: '',
-  elhmFxam: '',
-  elhmExcpSnglPmnt: '',
-  elhmExcpFxam: '',
-  indvCount: '',
-  ogElhmRental: '',
-  ogElhmSnglPmnt: '',
-  ogElhmExcpSnglPmnt: '',
-  ogCount: '',
-  ogNewSell: '',
-  indvNewSell: '',
-  bsPdAccCnt: '',
-  w1Count: '',
-  w2Count: '',
+  opngMm: '',
+  opngNmm: '',
+  mngCltnMm: '',
+  mgtCnt: '',
+  vstCnt: '',
+  procsRt: '',
   intbsSum: '',
   ddtnSum: '',
   aclDsbAmt: '',
 });
 
-const info4 = ref({
-  sd04: '',
-  sd05: '',
-  sd06: '',
-  sd08: '',
-  sd09: '',
-  sd10: '',
-  sd11: '',
-  sd12: '',
-  sd13: '',
-  sd14: '',
-  sd15: '',
-  sd16: '',
-  sd17: '',
-  sd18: '',
-  sd19: '',
-  sd22: '',
-  sd23: '',
-  sd26: '',
-  sd29: '',
-  sd31: '',
-  sd34: '',
-  sd36: '',
-  sd39: '',
-  sd40: '',
-  sd42: '',
-  sd43: '',
-  sd48: '',
-  sd49: '',
-  sd50: '',
-  md62: '',
-  md63: '',
-  md95: '',
-});
-
-const info5 = ref({
+const info2 = ref({
   rds: '',
   erntx: '',
   rsdntx: '',
@@ -541,22 +385,25 @@ let cachedParams;
  */
 async function onClickSearchNo() {
   const { result, payload } = await modal({
-    component: 'ZwogzPartnerListP',
+    component: 'ZwogzMonthPartnerListP',
     componentProps: {
+      baseYm: searchParams.value.perfYm,
       prtnrNo: searchParams.value.no,
       ogTpCd: 'W02',
+      prtnrKnm: undefined,
     },
   });
 
   if (result) {
     if (!isEmpty(payload)) {
       searchParams.value.no = payload.prtnrNo;
+      searchParams.value.prtnrKnm = payload.prtnrKnm;
     }
   }
 }
 
 /*
- *  Event - 수수료조정 버튼 클릭  ※현재 팝업화면 없음
+ *  Event - 수수료조정 버튼 클릭  ※팝업화면 삭제됨
  */
 async function openFeeControlPopup() {
   const param = {
@@ -605,15 +452,19 @@ async function fetchData(type) {
   totalCount.value = resData.length;
   if (type === 'entrepreneur') {
     info1.value = resData;
+  } else if (type === 'base-info') {
+    const baseView = grd1MainRef.value.getView();
+    baseView.getDataSource().setRows(resData);
   } else if (type === 'before-services') {
-    const bsView = grd1MainRef.value.getView();
+    const bsView = grd2MainRef.value.getView();
     bsView.getDataSource().setRows(resData);
   } else if (type === 'fee') {
-    info4.value = resData;
+    const feeView = grd3MainRef.value.getView();
+    feeView.getDataSource().setRows(resData);
   } else if (type === 'deduction') {
-    info5.value = resData;
+    info2.value = resData;
   } else if (type === 'control') {
-    const controlView = grd2MainRef.value.getView();
+    const controlView = grd4MainRef.value.getView();
     controlView.getDataSource().setRows(resData);
   }
 }
@@ -621,6 +472,7 @@ async function fetchData(type) {
 async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
   await fetchData('entrepreneur');
+  await fetchData('base-info');
   await fetchData('before-services');
   await fetchData('fee');
   await fetchData('deduction');
@@ -632,6 +484,64 @@ async function onClickSearch() {
 // -------------------------------------------------------------------------------------------------
 const initGrd1Main = defineGrid((data, view) => {
   const fields = [
+    { fieldName: 'item1' },
+    { fieldName: 'fval1', dataType: 'number' },
+    { fieldName: 'item2' },
+    { fieldName: 'fval2', dataType: 'number' },
+    { fieldName: 'item3' },
+    { fieldName: 'fval3', dataType: 'number' },
+    { fieldName: 'item4' },
+    { fieldName: 'fval4', dataType: 'number' },
+  ];
+
+  const columns = [
+    { fieldName: 'item1', width: '132', styleName: 'text-right' },
+    { fieldName: 'fval1', width: '132', styleName: 'text-right' },
+    { fieldName: 'item2', width: '132', styleName: 'text-right' },
+    { fieldName: 'fval2', width: '132', styleName: 'text-right' },
+    { fieldName: 'item3', width: '132', styleName: 'text-right' },
+    { fieldName: 'fval3', width: '132', styleName: 'text-right' },
+    { fieldName: 'item4', width: '132', styleName: 'text-right' },
+    { fieldName: 'fval4', width: '132', styleName: 'text-right' },
+  ];
+
+  // multi row header setting
+  view.setColumnLayout([
+    {
+      header: t('MSG_TXT_INDV_PERF'), // colspan title
+      direction: 'horizontal', // merge type
+      items: ['item1', 'fval1'],
+      hideChildHeaders: true,
+    },
+    {
+      header: t('MSG_TXT_OG_PERF'), // colspan title
+      direction: 'horizontal', // merge type
+      items: ['item2', 'fval2'],
+      hideChildHeaders: true,
+    },
+    {
+      header: `BS${t('MSG_TXT_PERF')}`, // colspan title
+      direction: 'horizontal', // merge type
+      items: ['item3', 'fval3'],
+      hideChildHeaders: true,
+    },
+    {
+      header: t('MSG_TXT_ETC'), // colspan title
+      direction: 'horizontal', // merge type
+      items: ['item4', 'fval4'],
+      hideChildHeaders: true,
+    },
+  ]);
+
+  data.setFields(fields);
+  view.setColumns(columns);
+
+  view.checkBar.visible = false;
+  view.rowIndicator.visible = true;
+});
+
+const initGrd2Main = defineGrid((data, view) => {
+  const fields = [
     { fieldName: 'cdNm' },
     { fieldName: 'cnt1', dataType: 'number' },
     { fieldName: 'cnt2', dataType: 'number' },
@@ -640,42 +550,24 @@ const initGrd1Main = defineGrid((data, view) => {
     { fieldName: 'cnt4', dataType: 'number' },
     { fieldName: 'amt2', dataType: 'number' },
     { fieldName: 'sumAmt', dataType: 'number' },
-    { fieldName: 'cntRat', dataType: 'number' },
   ];
+
   const columns = [
-    { fieldName: 'cdNm', header: t('MSG_TXT_PDGRP'), styleName: 'text-center', width: '232', footer: { text: '계', styleName: 'text-center' } },
-    { fieldName: 'cnt1', header: t('MSG_TXT_MGT'), styleName: 'text-right', width: '172', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
-    { fieldName: 'cnt2', header: t('MSG_TXT_VST'), styleName: 'text-right', width: '172', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
-    { fieldName: 'amt1', header: t('MSG_TXT_AMT'), styleName: 'text-right', width: '172', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
-    { fieldName: 'cnt3', header: t('MSG_TXT_MGT'), styleName: 'text-right', width: '172', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
-    { fieldName: 'cnt4', header: t('MSG_TXT_VST'), styleName: 'text-right', width: '172', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
-    { fieldName: 'amt2', header: t('MSG_TXT_AMT'), styleName: 'text-right', width: '172', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
-    { fieldName: 'sumAmt', header: t('MSG_TXT_SUM'), styleName: 'text-right', width: '172', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
-    { fieldName: 'cntRat',
-      header: t('MSG_TXT_PROCS_RT'),
-      styleName: 'text-right',
-      width: '109',
-      suffix: '%',
-      footer: {
-        numberFormat: '#,##0',
-        styleName: 'text-right',
-        valueCallback(grid) {
-          let sum = 0;
-          const prod = grid.getDataSource();
-          const cnt = prod.getRowCount();
-
-          for (let i = 0; i < cnt; i += 1) {
-            sum += prod.getValue(i, 'cntRat');
-          }
-
-          return `${sum / cnt}%`;
-        },
-      },
-    },
+    { fieldName: 'cdNm', header: t('MSG_TXT_PRDT'), width: '140', footer: { text: '합계', styleName: 'text-center' } },
+    { fieldName: 'cnt1', header: t('MSG_TXT_MGT'), width: '90', styleName: 'text-right', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
+    { fieldName: 'cnt2', header: t('MSG_TXT_VST'), width: '90', styleName: 'text-right', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
+    { fieldName: 'amt1', header: t('MSG_TXT_AMT'), width: '90', styleName: 'text-right', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
+    { fieldName: 'cnt3', header: t('MSG_TXT_MGT'), width: '90', styleName: 'text-right', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
+    { fieldName: 'cnt4', header: t('MSG_TXT_VST'), width: '90', styleName: 'text-right', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
+    { fieldName: 'amt2', header: t('MSG_TXT_AMT'), width: '90', styleName: 'text-right', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
+    { fieldName: 'sumAmt', header: t('MSG_TXT_SUM'), width: '114', styleName: 'text-right', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
   ];
 
   data.setFields(fields);
   view.setColumns(columns);
+
+  view.checkBar.visible = false;
+  view.rowIndicator.visible = true;
   view.setFooters({ visible: true, items: [{ height: 30 }] });
 
   // multi row header setting
@@ -692,11 +584,68 @@ const initGrd1Main = defineGrid((data, view) => {
       items: ['cnt3', 'cnt4', 'amt2'],
     },
     'sumAmt',
-    'cntRat',
   ]);
 });
 
-const initGrd2Main = defineGrid((data, view) => {
+const initGrd3Main = defineGrid((data, view) => {
+  const fields = [
+    { fieldName: 'item1' },
+    { fieldName: 'fval1', dataType: 'number' },
+    { fieldName: 'item2' },
+    { fieldName: 'fval2', dataType: 'number' },
+    { fieldName: 'item3' },
+    { fieldName: 'fval3', dataType: 'number' },
+    { fieldName: 'item4' },
+    { fieldName: 'fval4', dataType: 'number' },
+  ];
+
+  const columns = [
+    { fieldName: 'item1', width: '132', styleName: 'text-right' },
+    { fieldName: 'fval1', width: '132', styleName: 'text-right' },
+    { fieldName: 'item2', width: '132', styleName: 'text-right' },
+    { fieldName: 'fval2', width: '132', styleName: 'text-right' },
+    { fieldName: 'item3', width: '132', styleName: 'text-right' },
+    { fieldName: 'fval3', width: '132', styleName: 'text-right' },
+    { fieldName: 'item4', width: '132', styleName: 'text-right' },
+    { fieldName: 'fval4', width: '132', styleName: 'text-right' },
+  ];
+
+  // multi row header setting
+  view.setColumnLayout([
+    {
+      header: t('MSG_TXT_PRSNL_FEE'), // colspan title
+      direction: 'horizontal', // merge type
+      items: ['item1', 'fval1'],
+      hideChildHeaders: true,
+    },
+    {
+      header: t('MSG_TXT_ORGNSTN_FEE'), // colspan title
+      direction: 'horizontal', // merge type
+      items: ['item2', 'fval2'],
+      hideChildHeaders: true,
+    },
+    {
+      header: `BS${t('MSG_TXT_FEE')}`, // colspan title
+      direction: 'horizontal', // merge type
+      items: ['item3', 'fval3'],
+      hideChildHeaders: true,
+    },
+    {
+      header: t('MSG_TXT_ETC'), // colspan title
+      direction: 'horizontal', // merge type
+      items: ['item4', 'fval4'],
+      hideChildHeaders: true,
+    },
+  ]);
+
+  data.setFields(fields);
+  view.setColumns(columns);
+
+  view.checkBar.visible = false;
+  view.rowIndicator.visible = true;
+});
+
+const initGrd4Main = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'div' },
     { fieldName: 'item' },
@@ -723,4 +672,5 @@ const initGrd2Main = defineGrid((data, view) => {
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
 });
+
 </script>

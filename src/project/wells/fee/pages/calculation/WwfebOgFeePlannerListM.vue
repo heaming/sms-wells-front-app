@@ -32,6 +32,17 @@
           />
         </kw-search-item>
         <kw-search-item
+          :label="$t('MSG_TXT_ORDR')"
+          required
+        >
+          <kw-option-group
+            v-model="searchParams.schOrdr"
+            :label="$t('MSG_TXT_ORDR')"
+            type="radio"
+            :options="codes.FEE_TCNT_DV_CD"
+          />
+        </kw-search-item>
+        <kw-search-item
           :label="$t('MSG_TXT_RSB_TP')"
           required
         >
@@ -44,16 +55,6 @@
             first-option-value=""
             :first-option-label="$t('MSG_TXT_ALL')"
             @change="onChangedRsbTp"
-          />
-        </kw-search-item>
-        <kw-search-item
-          :label="$t('MSG_TXT_SEQUENCE_NUMBER')"
-        >
-          <kw-input
-            v-model="searchParams.no"
-            icon="search"
-            clearable
-            :on-click-icon="onClickSearchNo"
           />
         </kw-search-item>
       </kw-search-row>
@@ -69,6 +70,22 @@
             :end-level="3"
           />
         </kw-search-item>
+        <kw-search-item
+          :label="$t('MSG_TXT_SEQUENCE_NUMBER')"
+        >
+          <kw-input
+            v-model="searchParams.no"
+            icon="search"
+            clearable
+            :on-click-icon="onClickSearchNo"
+            :placeholder="$t('MSG_TXT_SEQUENCE_NUMBER')"
+          />
+          <kw-input
+            v-model="searchParams.prtnrKnm"
+            :placeholder="$t('MSG_TXT_EMPL_NM')"
+            readonly
+          />
+        </kw-search-item>
       </kw-search-row>
     </kw-search>
     <div class="result-area">
@@ -76,7 +93,7 @@
       <!-- STEPER -->
       <zwfey-fee-step
         ref="stepNaviRef"
-        :key="searchParams.perfYm+searchParams.feeSchdTpCd"
+        :key="searchParams.perfYm+searchParams.feeSchdTpCd+searchParams.schOrdr"
         v-model:base-ym="searchParams.perfYm"
         v-model:fee-schd-tp-cd="searchParams.feeSchdTpCd"
         v-model:fee-tcnt-dv-cd="searchParams.feeTcntDvCd"
@@ -168,15 +185,18 @@ const stepNaviRef = ref();
 const { getUserInfo } = useMeta();
 const sessionUserInfo = getUserInfo();
 const codes = await codeUtil.getMultiCodes(
+  'FEE_TCNT_DV_CD', // 수수료차수구분코드
   'RSB_DV_CD',
 );
 const filterRsbDvCd = codes.RSB_DV_CD.filter((v) => ['W0105', 'W0104'].includes(v.codeId));
 const searchParams = ref({
 
-  perfYm: now.format('YYYYMM'),
+  perfYm: now.add(-1, 'month').format('YYYYMM'),
+  schOrdr: '01',
   rsbTp: '',
   rsbTpTxt: '',
   no: '',
+  prtnrKnm: '',
   ogLevl1: '',
   ogLevl2: '',
   ogLevl3: '',
@@ -199,23 +219,29 @@ const saveInfo = ref({
   perfYm: '',
   ogTp: 'W01',
   appKey: '',
+  unitCd: '',
 });
 
 let cachedParams;
 
-// 번호 검색 아이콘 클릭 이벤트
+/*
+ *  Event - 번호 검색 아이콘 클릭 이벤트
+ */
 async function onClickSearchNo() {
   const { result, payload } = await modal({
-    component: 'ZwogzPartnerListP',
+    component: 'ZwogzMonthPartnerListP',
     componentProps: {
+      baseYm: searchParams.value.perfYm,
       prtnrNo: searchParams.value.no,
       ogTpCd: 'W01',
+      prtnrKnm: undefined,
     },
   });
 
   if (result) {
     if (!isEmpty(payload)) {
       searchParams.value.no = payload.prtnrNo;
+      searchParams.value.prtnrKnm = payload.prtnrKnm;
     }
   }
 }
@@ -610,13 +636,18 @@ async function onClickW116P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
  *  Event - 품의작성 클릭 ※TBD
  */
 async function onClickW118P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
+  const { rsbTp } = searchParams.value;
   const response = await dataService.get('/sms/wells/fee/organization-fees/dsbCnst', searchParams.value); /* 품의진행상태 조회 */
   const resData = response.data;
   approval.value.appKey = `FEAM${dayjs().format('YYYYMMDDHHmmss')}`; /* 18자리 appKey 생성 */
   const params = approval.value;
   saveInfo.value.appKey = approval.value.appKey;
   saveInfo.value.perfYm = searchParams.value.perfYm;
-
+  if (rsbTp === 'W105') {
+    saveInfo.value.unitCd = 'W101';
+  } else if (rsbTp === 'W104') {
+    saveInfo.value.unitCd = 'W102';
+  }
   if (resData.dsbCnstYn === 'Y') {
     await notify(t('MSG_ALT_PMT_BEEN_APRV')); /* 결재가 승인 되었습니다 > NEXT STEP */
     await dataService.put(`/sms/common/fee/schedules/steps/${feeSchdId}/status/levels`, null, { params: { feeSchdLvCd, feeSchdLvStatCd } });

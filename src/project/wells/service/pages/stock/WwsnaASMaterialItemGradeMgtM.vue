@@ -164,7 +164,7 @@
 
 import { codeUtil, useMeta, useGlobal, useDataService, getComponentType, gridUtil, defineGrid } from 'kw-lib';
 import dayjs from 'dayjs';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, isEmpty } from 'lodash-es';
 
 const { t } = useI18n();
 const { getConfig } = useMeta();
@@ -249,6 +249,12 @@ await Promise.all([
 
 // 기준년월이 변경되었을 때 창고번호 재조회
 function onChangeBaseYm() {
+  const searchBaseYm = searchParams.value.baseYm;
+  if (isEmpty(searchBaseYm)) {
+    searchParams.value.wareNo = '';
+    optionsWareNo.value = [];
+    return;
+  }
   onChangeWareHouse();
 }
 

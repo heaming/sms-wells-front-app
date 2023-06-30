@@ -456,9 +456,8 @@ async function onClickSave(tempSaveYn) {
   if (isTempSaveBtn.value) {
     // 임시저장
     if (rtn.data?.data?.pdCd !== currentPdCd.value) {
-      currentPdCd.value = rtn.data?.data?.pdCd;
-      isCreate.value = isEmpty(currentPdCd.value);
-      await router.push({ path: '/product/zwpdc-sale-product-list/wwpdc-composition-mgt', query: { pdCd: currentPdCd.value }, state: { stateParam: { newRegYn: 'N', reloadYn: 'N', copyPdCd: '' } } });
+      const newPdCd = rtn.data?.data?.pdCd;
+      await router.push({ path: '/product/zwpdc-sale-product-list/wwpdc-composition-mgt', query: { pdCd: newPdCd }, state: { stateParam: { newRegYn: 'N', reloadYn: 'N', copyPdCd: '' } } });
     } else {
       await fetchProduct();
     }

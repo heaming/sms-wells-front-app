@@ -69,7 +69,7 @@
                       font-weight="400"
                     >
                       <div class="ellipsis">
-                        {{ getCodeName(codes.DP_TP_CD, dpTpCd) }}
+                        {{ getCodeName('DP_TP_CD', dpTpCd) }}
                       </div>
                       <div
                         class="not-flexible"
@@ -174,12 +174,12 @@
 </template>
 
 <script setup>
-import { codeUtil, confirm, getComponentType, notify, stringUtil, useDataService } from 'kw-lib';
+import { confirm, getComponentType, notify, stringUtil, useDataService } from 'kw-lib';
 import WwctaContractSettlementAgreeItem
   from '~sms-wells/contract/components/ordermgmt/WwctaContractSettlementAgreeItem.vue';
-import CrdcdExpSelect
-  from '~sms-wells/contract/components/ordermgmt/WctaCrdcdExpSelect.vue';
+import CrdcdExpSelect from '~sms-wells/contract/components/ordermgmt/WctaCrdcdExpSelect.vue';
 import { warn } from 'vue';
+import { CtCodeUtil } from '~sms-common/contract/util';
 
 const props = defineProps({
   cntrCstInfo: { type: Object, default: undefined },
@@ -204,15 +204,19 @@ const emit = defineEmits(['approved']);
 const exposed = {};
 defineExpose(exposed);
 
-const codes = await codeUtil.getMultiCodes(
-  'DP_TP_CD',
-  'ISTM_MCNT_CD',
-);
+const DP_TP_CD = 'DP_TP_CD';
+const ISTM_MCNT_CD = 'ISTM_MCNT_CD';
 const MERGED_CREDIT_CARD_SPAY_CD = '02';
-codes.DP_TP_CD.push({
+
+const { codes, getCodeName, addCodeItem } = await CtCodeUtil(
+  DP_TP_CD,
+  ISTM_MCNT_CD,
+);
+
+addCodeItem(DP_TP_CD, {
   codeId: MERGED_CREDIT_CARD_SPAY_CD,
   codeName: '신용카드',
-}); /* sorry for dirty. */
+});/* sorry for dirty. */
 
 const frmRef = ref(getComponentType('KwForm'));
 
@@ -222,6 +226,7 @@ const isCooperation = computed(() => props.cntrCstInfo.copnDvCd === '2' /* sorry
 const stlmBas = computed(() => (props.crdcdStlms?.[0] ?? {}));
 
 const approvalRequest = ref({
+  cntrStlmId: stlmBas.value.cntrStlmId,
   stlmAmt: stlmBas.value.stlmAmt,
   istmMcn: 1, /* 할부 개월 수 */
   crcdnoEncr: '', /* 카드번호 */
@@ -230,7 +235,7 @@ const approvalRequest = ref({
 });
 
 const approvalResponse = ref({
-  aprno: undefined, /* 승인번호, 저장은 안하지만 와야함. */
+  aprNo: undefined, /* 승인번호, 저장은 안하지만 와야함. */
   cdcoCd: undefined, /* 카드사 코드 */
   fnitAprRsCd: undefined, /* 금융기관승인결과코드 */
   fnitAprFshDtm: undefined, /* 금융기관승인완료일시 */
@@ -267,11 +272,6 @@ const spayStlmTotalAmt = computed(() => spayStlmAmts.value.reduce((acc, { stlmAm
 
 /* 결제 금액 계산 end */
 
-function getCodeName(codeArr, codeId) {
-  if (!Array.isArray(codeArr)) { return ''; }
-  return codeArr.find((code) => code.codeId === codeId)?.codeName ?? '';
-}
-
 function getCrdCdStlmUpdateInfo() {
   const { cntrStlmId, dpTpCd, cntrNo } = stlmBas.value;
   if (!cntrStlmId) { throw Error('데이터가 이상합니다. 관리자에게 연락바랍니다.'); }
@@ -281,7 +281,7 @@ function getCrdCdStlmUpdateInfo() {
     cardExpdtYm,
   } = approvalRequest.value;
   const {
-    aprno,
+    aprNo,
     cdcoCd,
     fnitAprRsCd,
     fnitAprFshDtm,
@@ -293,7 +293,7 @@ function getCrdCdStlmUpdateInfo() {
     crcdnoEncr,
     owrKnm,
     cardExpdtYm,
-    aprno,
+    aprNo,
     cdcoCd,
     fnitAprRsCd,
     fnitAprFshDtm,
@@ -315,26 +315,17 @@ function getStlmsUpdateInfo() {
   ];
 }
 
+let cachedRequestParams;
 async function requestApproval() {
-  const dataParams = {
-    cardExpdtYm: approvalRequest.value.cardExpdtYm,
-    crcdnoEncr: approvalRequest.value.crcdnoEncr,
-    istmMcn: approvalRequest.value.istmMcn,
-    owrKnm: approvalRequest.value.owrKnm,
-    stlmAmt: approvalRequest.value.stlmAmt,
-    cntrNo: stlmBas.value.cntrNo,
-    stlmRels: props.crdcdStlms[0].stlmRels,
-  };
-  return await dataService.post('/sms/wells/contract/contracts/settlements/credit-card-spay', dataParams);
+  cachedRequestParams = { ...approvalRequest.value };
+  const { data } = await dataService.post('/sms/wells/contract/contracts/settlements/credit-card-spay', cachedRequestParams);
+  approvalResponse.value = data[0];
 }
 
 async function onClickApproval() {
   if (!await frmRef.value.validate()) { return; }
   if (!await confirm('카드승인 요청을 하시겠습니까?')) { return; }
-  const response = await requestApproval();
-  console.log(response.data.data[0]);
-  approvalResponse.value = response.data.data[0];
-  // approvalResponse.value.aprNo = 'TEMP012345';
+  await requestApproval();
   emit('approved', getStlmsUpdateInfo());
 }
 

@@ -80,6 +80,7 @@
         <kw-btn
           dense
           primary
+          secondary
           :label="$t('MSG_BTN_GD_SAVE')"
           @click="onClickListSave"
         />

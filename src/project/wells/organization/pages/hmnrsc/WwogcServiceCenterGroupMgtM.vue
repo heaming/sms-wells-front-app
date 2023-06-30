@@ -125,7 +125,7 @@
       <kw-grid
         ref="grdMainRef"
         name="grdMain"
-        :visible-rows="pageInfo.pageSize - 1"
+        :visible-rows="(pageInfo.pageSize > 0) ? pageInfo.pageSize - 1 : pageInfo.pageSize"
         @init="initGrdMain"
       />
     </div>
@@ -193,15 +193,13 @@ async function fetchData() {
   const view = grdMainRef.value.getView();
   const data = view.getDataSource();
   data.checkRowStates(false);
-  view.getDataSource().addRows(list);
+  data.addRows(list);
   data.checkRowStates(true);
 }
 
 // 조회
 async function onClickSearch() {
-  if (grdMainRef.value) {
-    grdMainRef.value.getData().clearRows();
-  }
+  grdMainRef.value.getData().clearRows();
   pageInfo.value.pageIndex = 1;
   saveParams.value.chk = false;
   await fetchData();
@@ -271,6 +269,7 @@ async function onClickAllSave() {
   });
 
   await dataService.post('/sms/wells/partner-engineer/joe-management', checkedRows);
+
   notify(t('MSG_ALT_SAVE_DATA'));
   await onClickSearch();
 }
@@ -315,6 +314,7 @@ async function onClickSave() {
   });
 
   await dataService.post('/sms/wells/partner-engineer/joe-management', changeRows);
+
   notify(t('MSG_ALT_SAVE_DATA'));
   await onClickSearch();
 }
@@ -431,18 +431,6 @@ const initGrdMain = defineGrid((data, view) => {
       grid.setValue(index.dataRow, 'wkGrpCdNm', editResult.text);
     }
   };
-
-  // view.onValidate = async (g, index) => {
-  //   const { cralLocaraTno } = g.getValues(index.dataRow);
-  //   if (cralLocaraTno.replaceAll('-', '').length > 0) {
-  //     if (cralLocaraTno.replaceAll('-', '').length !== 11) {
-  //       // const dataView = grdMainRef.value.getView();
-  //       gridUtil.focusCellInput(view, index.dataRow, 'cralLocaraTno');
-  //       view.setFoucs();
-  //       return t('MSG_ALT_TEL_NO_IN');
-  //     }
-  //   }
-  // };
 });
 
 </script>
