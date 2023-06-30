@@ -3,7 +3,7 @@
  * 프로그램 개요
  ****************************************************************************************************
  1. 모듈 : SNC
- 2. 프로그램 ID : WwsncManagementCustomerRglvlMgtM - 관리고객 급지관리
+ 2. 프로그램 ID : [W-SV-U-0040M01] WwsncManagementCustomerRglvlMgtM - 관리고객 급지관리
  3. 작성자 : YeongJoong Kim
  4. 작성일 : 2023.05.30
  ****************************************************************************************************
@@ -16,6 +16,7 @@
   <kw-page>
     <kw-search
       :cols="4"
+      :modified-targets="['grdMain']"
       @search="onClickSearch"
     >
       <kw-search-row>
@@ -232,8 +233,8 @@
       </kw-action-top>
       <kw-grid
         ref="grdMainRef"
-        :page-size="pageInfo.pageSize"
-        :total-count="pageInfo.totalCount"
+        name="grdMain"
+        :visible-rows="pageInfo.pageSize"
         @init="initGrdMain"
       />
       <kw-pagination
@@ -532,9 +533,11 @@ async function onClickSave() {
 
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
+  const { data } = await dataService.get('/sms/wells/service/manage-customer-rglvl/excel-download', { params: cachedParams });
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
+    exportData: data,
   });
 }
 
