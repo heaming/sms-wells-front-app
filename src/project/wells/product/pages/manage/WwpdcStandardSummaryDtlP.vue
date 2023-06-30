@@ -259,6 +259,10 @@ await initProps();
 //-------------------------------------------------------------------------------------------------
 async function initMaterialGrid(data, view) {
   const columns = [
+    // 적용시작일자
+    { fieldName: 'vlStrtDtm', header: t('MSG_TXT_APY_STRTDT'), width: '100', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date' },
+    // 적용종료일자
+    { fieldName: 'vlEndDtm', header: t('MSG_TXT_APY_ENDDT'), width: '100', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date' },
     // 교재/자재 분류
     { fieldName: 'pdClsfNm', header: t('MSG_TXT_PD_BOK_MTR_TYPE'), width: '201' },
     // 교재/자재명
@@ -278,6 +282,10 @@ async function initMaterialGrid(data, view) {
 
 async function initServiceGrid(data, view) {
   const columns = [
+    // 적용시작일자
+    { fieldName: 'vlStrtDtm', header: t('MSG_TXT_APY_STRTDT'), width: '100', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date' },
+    // 적용종료일자
+    { fieldName: 'vlEndDtm', header: t('MSG_TXT_APY_ENDDT'), width: '100', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date' },
     // 서비스 분류
     { fieldName: 'pdClsfNm', header: t('MSG_TXT_SVC_CATG'), width: '201' },
     // 서비스명
@@ -325,6 +333,10 @@ async function initServiceGrid(data, view) {
 }
 async function initStandardGrid(data, view) {
   const columns = [
+    // 적용시작일자
+    { fieldName: 'vlStrtDtm', header: t('MSG_TXT_APY_STRTDT'), width: '100', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date' },
+    // 적용종료일자
+    { fieldName: 'vlEndDtm', header: t('MSG_TXT_APY_ENDDT'), width: '100', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date' },
     // 기준상품 분류
     { fieldName: 'pdClsfNm', header: t('MSG_TXT_PD_STD_TYPE'), width: '201' },
     // 기준상품명
@@ -346,6 +358,10 @@ async function initStandardGrid(data, view) {
 
 async function initChangePrdGrid(data, view) {
   const columns = [
+    // 적용시작일자
+    { fieldName: 'vlStrtDtm', header: t('MSG_TXT_APY_STRTDT'), width: '100', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date' },
+    // 적용종료일자
+    { fieldName: 'vlEndDtm', header: t('MSG_TXT_APY_ENDDT'), width: '100', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date' },
     // 제품분류
     { fieldName: 'pdClsfNm', header: t('MSG_TXT_PRDT_CLSF'), width: '201' },
     // 제품명

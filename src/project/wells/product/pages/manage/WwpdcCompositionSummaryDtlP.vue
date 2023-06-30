@@ -171,16 +171,20 @@ await initProps();
 //-------------------------------------------------------------------------------------------------
 async function initStandardGrid(data, view) {
   const columns = [
+    // 적용시작일자
+    { fieldName: 'vlStrtDtm', header: t('MSG_TXT_APY_STRTDT'), width: '100', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date' },
+    // 적용종료일자
+    { fieldName: 'vlEndDtm', header: t('MSG_TXT_APY_ENDDT'), width: '100', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date' },
     // 기준상품 분류
-    { fieldName: 'pdClsfNm', header: t('MSG_TXT_PD_STD_TYPE'), width: '201' },
+    { fieldName: 'pdClsfNm', header: t('MSG_TXT_PD_STD_TYPE'), width: '140' },
     // 기준상품명
-    { fieldName: 'pdNm', header: t('MSG_TXT_PD_STD_NAME'), width: '206' },
+    { fieldName: 'pdNm', header: t('MSG_TXT_PD_STD_NAME'), width: '150' },
     // 기준상품코드
-    { fieldName: 'pdCd', header: t('MSG_TXT_PD_STD_CODE'), width: '120', styleName: 'text-center' },
+    { fieldName: 'pdCd', header: t('MSG_TXT_PD_STD_CODE'), width: '100', styleName: 'text-center' },
     // 연결상품
     { fieldName: 'stdRelProducts',
       header: t('MSG_TXT_REL_PRDT'),
-      width: '287',
+      width: '220',
       styleName: 'multiline',
       displayCallback(grid, index) {
         const { stdRelProducts } = grid.getValues(index.itemIndex);

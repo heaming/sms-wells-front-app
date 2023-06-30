@@ -160,6 +160,10 @@ async function initMaterialGrid(data, view) {
     { fieldName: 'pdRelTpCd', header: t('MSG_TXT_RELATION_CLSF'), width: '85', styleName: 'text-center', options: codes.PD_PDCT_REL_DV_CD },
     // 상태
     { fieldName: 'tempSaveYn', header: t('MSG_TXT_STT'), width: '80', styleName: 'text-center', options: props.codes?.PD_TEMP_SAVE_CD },
+    // 적용시작일자
+    { fieldName: 'vlStrtDtm', header: t('MSG_TXT_APY_STRTDT'), width: '100', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date' },
+    // 적용종료일자
+    { fieldName: 'vlEndDtm', header: t('MSG_TXT_APY_ENDDT'), width: '100', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date' },
     // 교재/자재 분류
     { fieldName: 'pdClsfNm', header: t('MSG_TXT_PD_BOK_MTR_TYPE'), width: '170' },
     // 교재/자재명
@@ -205,6 +209,10 @@ async function initServiceGrid(data, view) {
     { fieldName: 'mndtSvYn', header: t('MSG_TXT_NCSR_YN'), width: '85', styleName: 'text-center' },
     // 상태
     { fieldName: 'tempSaveYn', header: t('MSG_TXT_STT'), width: '80', styleName: 'text-center', options: props.codes?.PD_TEMP_SAVE_CD },
+    // 적용시작일자
+    { fieldName: 'vlStrtDtm', header: t('MSG_TXT_APY_STRTDT'), width: '100', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date' },
+    // 적용종료일자
+    { fieldName: 'vlEndDtm', header: t('MSG_TXT_APY_ENDDT'), width: '100', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date' },
     // 서비스 분류
     { fieldName: 'pdClsfNm', header: t('MSG_TXT_SVC_CATG'), width: '170' },
     // 서비스명
@@ -256,6 +264,10 @@ async function initStandardGrid(data, view) {
     { fieldName: 'pdRelTpCd', header: t('MSG_TXT_RELATION_CLSF'), width: '85', styleName: 'text-center', options: codes.BASE_PD_REL_DV_CD },
     // 상태
     { fieldName: 'tempSaveYn', header: t('MSG_TXT_STT'), width: '80', styleName: 'text-center', options: props.codes?.PD_TEMP_SAVE_CD },
+    // 적용시작일자
+    { fieldName: 'vlStrtDtm', header: t('MSG_TXT_APY_STRTDT'), width: '100', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date' },
+    // 적용종료일자
+    { fieldName: 'vlEndDtm', header: t('MSG_TXT_APY_ENDDT'), width: '100', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date' },
     // 기준상품 분류
     { fieldName: 'pdClsfNm', header: t('MSG_TXT_PD_STD_TYPE'), width: '170' },
     // 기준상품명
@@ -279,6 +291,10 @@ async function initStandardGrid(data, view) {
 
 async function initChangePrdGrid(data, view) {
   const columns = [
+    // 적용시작일자
+    { fieldName: 'vlStrtDtm', header: t('MSG_TXT_APY_STRTDT'), width: '100', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date' },
+    // 적용종료일자
+    { fieldName: 'vlEndDtm', header: t('MSG_TXT_APY_ENDDT'), width: '100', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date' },
     // 기준상품 분류
     { fieldName: 'pdClsfNm', header: t('MSG_TXT_PD_STD_TYPE'), width: '170' },
     // 기준상품명
