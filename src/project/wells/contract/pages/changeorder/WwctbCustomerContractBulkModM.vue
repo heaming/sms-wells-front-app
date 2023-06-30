@@ -3,7 +3,7 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : CTB
-2. 프로그램 ID : WwctbCustomerContractInfBlkModM - wells 고객기준(자동이체, 설치정보)/판매자 일괄변경 처리
+2. 프로그램 ID : WwctbCustomerContractBulkModM - wells 고객기준(자동이체, 설치정보)/판매자 일괄변경 처리
 3. 작성자 : hyeonjong.ra
 4. 작성일 : 2023.06.27
 ****************************************************************************************************
@@ -69,7 +69,7 @@
           <kw-input
             v-model="searchParams.cntrCstNo"
             icon="search"
-            :regex="/^[0-9]*$/i"
+            regex="num"
             maxlength="10"
             clearable
             @click-icon="onClickCstSearch"
@@ -95,7 +95,7 @@
           <kw-input
             v-model="searchParams.prtnrNo"
             icon="search"
-            :regex="/^[0-9]*$/i"
+            regex="num"
             maxlength="10"
             clearable
             @click-icon="onClickPrtnrSearch"
@@ -124,7 +124,7 @@
         >
           <kw-input
             v-model="searchParams.cardAccNo"
-            :regex="/^[0-9]*$/i"
+            regex="num"
             maxlength="20"
           />
         </kw-search-item>
@@ -136,7 +136,7 @@
             v-model="searchParams.ogCd"
             icon="search"
             clearable
-            :regex="/^[A-Z0-9]*$/i"
+            regex="alpha_num"
             maxlength="10"
             @click-icon="onClickOgCdSearch"
           />
@@ -179,6 +179,7 @@
           >
             <kw-input
               v-model="fieldParams.istNm"
+              maxlength="20"
             />
           </kw-form-item>
         </kw-form-row>
@@ -236,7 +237,7 @@
             <kw-input
               v-model="fieldParams.prtnrNo"
               icon="search"
-              :regex="/^[0-9]*$/i"
+              regex="num"
               maxlength="10"
               clearable
               @click-icon="onClickPlnnrSearch"
@@ -381,6 +382,8 @@
             />
             <kw-input
               v-model="fieldParams.accNo"
+              regex="num"
+              maxlength="20"
               :rules="fieldParams.evidTpCd === '3' ? '' : 'required'"
               :label="$t('MSG_TXT_BNK') + '/' + $t('MSG_TXT_AC_NO')"
               :readonly="fieldParams.evidTpCd === '3'"
@@ -395,6 +398,7 @@
           >
             <kw-input
               v-model="fieldParams.holder"
+              maxlength="20"
               :rules="fieldParams.evidTpCd === '3' ? '' : 'required'"
               :label="$t('MSG_TXT_ACHLDR')"
               :readonly="fieldParams.evidTpCd === '3'"
@@ -429,7 +433,7 @@
           >
             <kw-input
               v-model="fieldParams.cstDrmNo"
-              :regex="/^[0-9]*$/i"
+              regex="num"
               maxlength="10"
               placeholder="생년월일(YYYYMMDD) 또는 사업자 번호"
               :rules="fieldParams.evidTpCd === '3' ? '' : 'required'"
@@ -452,7 +456,7 @@
               v-model="fieldParams.cstDrmNo"
               rules="required"
               :label="$t('MSG_TXT_CST_DRM_NO')"
-              :regex="/^[0-9]*$/i"
+              regex="num"
               maxlength="10"
               placeholder="생년월일(YYYYMMDD) 또는 사업자 번호"
             />
@@ -466,6 +470,7 @@
           >
             <kw-input
               v-model="fieldParams.holder"
+              maxlength="20"
               rules="required"
               :label="$t('MSG_TXT_CARD_STOCK')"
             />
@@ -498,25 +503,25 @@
           >
             <kw-input
               v-model="fieldParams.cardNo1"
-              :regex="/^[0-9]*$/i"
+              regex="num"
               maxlength="4"
               align="center"
             />
             <kw-input
               v-model="fieldParams.cardNo2"
-              :regex="/^[0-9]*$/i"
+              regex="num"
               maxlength="4"
               align="center"
             />
             <kw-input
               v-model="fieldParams.cardNo3"
-              :regex="/^[0-9]*$/i"
+              regex="num"
               maxlength="4"
               align="center"
             />
             <kw-input
               v-model="fieldParams.cardNo4"
-              :regex="/^[0-9]*$/i"
+              regex="num"
               maxlength="4"
               align="center"
             />
@@ -763,11 +768,7 @@ async function onChangePrcCd() {
 
 // 이체일자변경 체크값 변경 감시
 watch(() => fieldParams.value.fntDtChChk, (val) => {
-  if (val === 'Y') {
-    fieldParams.value.evidTpCd = '4';
-  } else {
-    fieldParams.value.evidTpCd = '';
-  }
+  fieldParams.value.evidTpCd = val === 'Y' ? '4' : '';
 
   initFieldParams('fntDtChChk');
 });
@@ -776,11 +777,8 @@ watch(() => fieldParams.value.fntDtChChk, (val) => {
 watch(() => fieldParams.value.evidTpCd, (val) => {
   // 증빙원본 선택시, 그리드에서 증빙원본 조회버튼을 보여준다.
   const view = grdCustomerRef.value.getView();
-  if (val === '3') {
-    view.columnByName('evidOcyInqr').visible = true;
-  } else {
-    view.columnByName('evidOcyInqr').visible = false;
-  }
+
+  view.columnByName('evidOcyInqr').visible = val === '3';
 });
 
 // -------------------------------------------------------------------------------------------------
@@ -838,7 +836,7 @@ const initCustomerGrid = defineGrid((data, view) => {
     { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_NO'), width: '130', styleName: 'text-center' }, // 계약번호
     { fieldName: 'cntrSn', header: t('MSG_TXT_SERIAL_NUMBER'), width: '78', styleName: 'text-center' }, // 일련번호
     { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '100', styleName: 'text-center' }, // 고객명
-    { fieldName: 'cntrCnfmDtm', header: t('MSG_TXT_RCPDT'), width: '100', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd' }, // 접수일자
+    { fieldName: 'cntrCnfmDtm', header: t('MSG_TXT_RCPDT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' }, // 접수일자
     { fieldName: 'cntrCstNo', header: t('MSG_TXT_CST_NO'), width: '110', styleName: 'text-center' }, // 고객번호
     { fieldName: 'txinvPblOjYn',
       header: t('MSG_TXT_TXINV'), // 세금계산서
@@ -992,9 +990,9 @@ const initPartnerGrid = defineGrid((data, view) => {
     { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_NO'), width: '130', styleName: 'text-center' }, // 계약번호
     { fieldName: 'cntrSn', header: t('MSG_TXT_SERIAL_NUMBER'), width: '78', styleName: 'text-center' }, // 일련번호
     { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '100', styleName: 'text-center' }, // 고객명
-    { fieldName: 'cntrCnfmDtm', header: t('MSG_TXT_RCPDT'), width: '100', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd' }, // 접수일자
+    { fieldName: 'cntrCnfmDtm', header: t('MSG_TXT_RCPDT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' }, // 접수일자
     { fieldName: 'cntrCstNo', header: t('MSG_TXT_CST_NO'), width: '110', styleName: 'text-center' }, // 고객번호
-    { fieldName: 'slDt', header: t('MSG_TXT_SL_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd' }, // 매출일자
+    { fieldName: 'slDt', header: t('MSG_TXT_SL_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' }, // 매출일자
     { fieldName: 'sellPrtnrNo', header: t('MSG_TXT_EPNO'), width: '110', styleName: 'text-center' }, // 사번
     { fieldName: 'dgr3LevlDgPrtnrNo', header: t('MSG_TXT_BRMGR'), width: '100', styleName: 'text-center' }, // 지점장
     { fieldName: 'dgr2LevlDgPrtnrNo', header: t('MSG_TXT_REG_DIR'), width: '100', styleName: 'text-center' }, // 지역단장
