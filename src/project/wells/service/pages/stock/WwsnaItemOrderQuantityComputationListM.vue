@@ -281,7 +281,7 @@ async function onClickSearch() {
 
 // 산출 제외품목 등록 팝업 호출
 async function openExcludeItemP() {
-  const { inqrYm } = searchParams.value;
+  const { inqrYm } = cachedParams;
   if (isEmpty(inqrYm)) {
     // {0}은(는) 필수 항목입니다.
     await alert(`${t('MSG_TXT_MGT_YNM')} ${t('MSG_ALT_NCELL_REQUIRED_ITEM')}`);
@@ -289,7 +289,7 @@ async function openExcludeItemP() {
   }
   await modal({
     component: 'WwsnaComputationExcludeItemRegP',
-    componentProps: { ...searchParams.value },
+    componentProps: { ...cachedParams, products: optionsAllItmPdCd.value },
   });
 
   pageInfo.value.needTotalCount = true;
