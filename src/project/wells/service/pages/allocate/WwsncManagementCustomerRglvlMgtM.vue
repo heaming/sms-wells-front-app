@@ -16,7 +16,7 @@
   <kw-page>
     <kw-search
       :cols="4"
-      :modified-targets="['grdMainRef']"
+      :modified-targets="['grdMain']"
       @search="onClickSearch"
     >
       <kw-search-row>
@@ -233,6 +233,7 @@
       </kw-action-top>
       <kw-grid
         ref="grdMainRef"
+        name="grdMain"
         :page-size="pageInfo.pageSize"
         :total-count="pageInfo.totalCount"
         @init="initGrdMain"
