@@ -303,33 +303,27 @@
       </kw-form-row>
     </kw-form>
     <template #action>
+      <!-- 삭제 -->
+      <kw-btn
+        v-if="screenMode === 'UPDATE'"
+        v-permission:delete
+        :label="$t('MSG_BTN_DEL')"
+        @click="onClickDelete"
+      />
       <!-- 취소 -->
       <kw-btn
+        v-if="screenMode !== 'VIEW'"
         negative
-        :label="screenMode === 'VIEW' ? $t('MSG_BTN_CLOSE') : $t('MSG_BTN_CANCEL')"
+        :label="$t('MSG_BTN_CANCEL')"
         @click="onClickCancel"
       />
-      <!-- 수정 -->
-      <kw-btn
-        v-if="screenMode === 'VIEW' && tommorow <= feeStandard.apyStrtdt"
-        primary
-        :label="$t('MSG_BTN_MOD')"
-        @click="onClickChangeUpdate"
-      />
-      <!-- 추가 -->
+      <!-- 추가(저장) -->
       <kw-btn
         v-if="screenMode === 'CREATE'"
         v-permission:create
         primary
-        :label="$t('MSG_BTN_ADD')"
+        :label="$t('MSG_BTN_SAVE')"
         @click="onClickCreate"
-      />
-      <!-- 삭제 -->
-      <kw-btn
-        v-if="screenMode === 'VIEW' && tommorow <= feeStandard.apyStrtdt"
-        v-permission:delete
-        :label="$t('MSG_BTN_DEL')"
-        @click="onClickDelete"
       />
       <!-- 저장 -->
       <kw-btn
@@ -414,13 +408,9 @@ async function onClickCancel() {
   await cancel();
 }
 
-async function onClickChangeUpdate() {
-  screenMode.value = 'UPDATE';
-}
-
 async function onClickCreate() {
-  if (await frmRef.value.alertIfIsNotModified()) { return; }
   if (!await frmRef.value.validate()) { return; }
+  if (await frmRef.value.alertIfIsNotModified()) { return; }
   if (!await confirm(t('MSG_ALT_CREATED'))) { // 생성하시겠습니까?
     return;
   }
@@ -455,6 +445,9 @@ async function initFeeStandard() {
   screenMode.value = cloneDeep(props.mode);
   if (screenMode.value !== 'CREATE') {
     feeStandard.value = props.modelValue;
+    if (tommorow >= feeStandard.value.apyStrtdt) {
+      screenMode.value = 'VIEW';
+    }
   } else {
     feeStandard.value = { ...defaultFeeStandard };
     if (props.modelValue) {
