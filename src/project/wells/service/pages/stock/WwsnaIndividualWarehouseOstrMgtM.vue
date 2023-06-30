@@ -362,7 +362,7 @@ async function onClickModal() {
 onMounted(async () => {
   await fetchDefaultData();
   cachedParams = cloneDeep(searchParams.value);
-  await fetchData();
+  // await fetchData();
 });
 
 // -------------------------------------------------------------------------------------------------
