@@ -185,7 +185,7 @@ const obsMainRef = ref();
 const subTitle = ref();
 
 async function getSaveData() {
-  const subList = { isModifiedProp: false, isOnlyFileModified: false };
+  const subList = { isModifiedProp: false, isOnlyFileModified: false, isModifiedRelation: false };
   await Promise.all(cmpStepRefs.value.map(async (item, idx) => {
     const isModified = await item.value.isModifiedProps();
     const saveData = item.value?.getSaveData ? await item.value.getSaveData() : null;
@@ -197,6 +197,10 @@ async function getSaveData() {
       if (await isModified && idx === 0) {
         subList.isModifiedProp = true;
         subList.isOnlyFileModified = await item.value.isOnlyFileModified();
+      }
+      // 연결상품 수정여부
+      if (await isModified && idx === (pdConst.W_SERVICE_STEP_FILTER.step - 1)) {
+        subList.isModifiedRelation = true;
       }
       if (saveData[bas]) {
         if (subList[bas]?.cols) {

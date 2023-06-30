@@ -68,7 +68,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { useGlobal, gridUtil, stringUtil, getComponentType } from 'kw-lib';
-import { cloneDeep, isEmpty } from 'lodash-es';
+import { cloneDeep, isEmpty, uniqBy } from 'lodash-es';
 import pdConst from '~sms-common/product/constants/pdConst';
 import ZwpdcPropMeta from '~sms-common/product/pages/manage/components/ZwpdcPropMeta.vue';
 import { setGridDateFromTo, getGridRowCount, setPdGridRows, getGridRowsToSavePdProps, getPropInfosToGridRows, getPdMetaToGridInfos, pdMergeBy, isDuplicateGridRows } from '~sms-common/product/utils/pdUtil';
@@ -193,11 +193,15 @@ async function initGridRows() {
 
   const products = currentInitData.value?.[pdConst.RELATION_PRODUCTS];
   if (await products) {
-    const services = products
-      ?.filter((svcItem) => svcItem[pdConst.PD_REL_TP_CD] === pdConst.PD_REL_TP_CD_P_TO_S);
-    currentCodes.value.svPdCd = services?.map(({ pdNm, pdCd }) => ({
-      codeId: pdCd, codeName: pdNm,
-    }));
+    const relServices = products
+      ?.filter((svcItem) => svcItem[pdConst.PD_REL_TP_CD] === pdConst.PD_REL_TP_CD_P_TO_S)?.map(({ pdNm, pdCd }) => ({
+        codeId: pdCd, codeName: pdNm,
+      }));
+    const services = uniqBy(relServices, 'codeId');
+    if (services && services.length) {
+      currentCodes.value.svPdCd = services;
+    }
+
     // console.log('currentCodes.value.svPdCd : ', currentCodes.value.svPdCd);
     const nameFields = await priceStdRef.value.getNameFields();
     if (nameFields.svPdCd) {

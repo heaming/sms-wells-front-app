@@ -54,10 +54,11 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
+import dayjs from 'dayjs';
 import { gridUtil, stringUtil, useGlobal, getComponentType } from 'kw-lib';
 import { isEmpty } from 'lodash-es';
 import pdConst from '~sms-common/product/constants/pdConst';
-import { getAlreadyItems, getGridRowCount, setPdGridRows } from '~sms-common/product/utils/pdUtil';
+import { onCellEditRelProdPeriod, getGridRowCount, setPdGridRows, getOverPeriodByRelProd } from '~sms-common/product/utils/pdUtil';
 
 /* eslint-disable no-use-before-define */
 defineExpose({
@@ -117,64 +118,97 @@ async function isModifiedProps() {
 }
 
 async function validateProps() {
-  return true;
+  let isValid = true;
+  const view = grdChangePrdRef.value?.getView();
+
+  // 필수값 체크
+  isValid = await gridUtil.validate(view, {
+    isChangedOnly: false,
+  });
+
+  // 적용일자 중복 체크
+  if (isValid) isValid = await isOverPeriodCheck(view);
+
+  return isValid;
+}
+
+async function isOverPeriodCheck(view) {
+  let isValid = true;
+  const rowValues = gridUtil.getAllRowValues(view);
+  if (rowValues.length < 1) {
+    return isValid;
+  }
+  let dupItem;
+  await Promise.all(rowValues.map(async (item1) => {
+    if (isValid) {
+      dupItem = (await getOverPeriodByRelProd(view, item1));
+      if (dupItem) {
+        isValid = false;
+      }
+    }
+  }));
+  if (!isValid) {
+    notify(t('MSG_ALT_EXIST_DUP_RANGE_PD', [dupItem]));
+  }
+  return isValid;
 }
 
 async function insertCallbackRows(view, rtn, pdRelTpCd) {
-  if (rtn.result) {
-    if (Array.isArray(rtn.payload) && rtn.payload.length > 1) {
-      const data = view.getDataSource();
-      const rows = rtn.payload.map((item) => ({
-        ...item,
-        [pdConst.REL_PD_ID]: stringUtil.getUid('REL_TMP'),
-        [pdConst.REL_OJ_PD_CD]: item.pdCd,
-        [pdConst.PD_REL_TP_CD]: pdRelTpCd }));
-      const okRows = await getCheckAndNotExistRows(view, rows);
-      if (okRows && okRows.length) {
-        await data.insertRows(0, okRows);
-        await gridUtil.focusCellInput(view, 0);
-      }
-    } else {
-      const row = Array.isArray(rtn.payload) ? rtn.payload[0] : rtn.payload;
-      row[pdConst.REL_PD_ID] = stringUtil.getUid('REL_TMP');
-      row[pdConst.PD_REL_TP_CD] = pdRelTpCd;
-      row[pdConst.REL_OJ_PD_CD] = row.pdCd;
-      const okRows = await getCheckAndNotExistRows(view, [row]);
-      if (okRows && okRows.length) {
-        await gridUtil.insertRowAndFocus(view, 0, okRows[0]);
-      }
-    }
+  if (isEmpty(rtn) || !rtn.result || isEmpty(rtn.payload) || rtn.payload.length < 1) {
+    return;
   }
-}
+  const currentTime = dayjs().format('YYYYMMDDHHmmss');
+  const data = view.getDataSource();
+  const insertRows = Array.isArray(rtn.payload) ? rtn.payload : [rtn.payload];
 
-async function getCheckAndNotExistRows(view, rows) {
-  const alreadyItems = getAlreadyItems(view, rows, 'pdCd');
-  if (rows.length === alreadyItems.length) {
-    // 이미 등록된 {상품} 입니다.
-    notify(t('MSG_ALT_ALREADY_RGST', [t('MSG_TXT_PRDT')]));
-    return [];
-  }
-  if (alreadyItems.length > 0) {
-    if (alreadyItems.length === 1) {
-      // 이미 등록된 {pdCd}은(는) 제외 합니다.
-      notify(t('MSG_ALT_ALREADY_RGST_CUT', [`# ${`# ${alreadyItems[0].pdNm} #`} #`]));
-    } else {
-      // 이미 등록된 {pdCd} 외 {0} 건 은(는) 제외 합니다.
-      notify(t('MSG_ALT_ALREADY_RGST_CUT', [t('MSG_TXT_EXID_CNT', [`# ${`# ${alreadyItems[0].pdNm} #`} #`, alreadyItems.length - 1])]));
-    }
-    const alreadyPdCds = alreadyItems.reduce((rtns, item) => { rtns.push(item.pdCd); return rtns; }, []);
-    return rows.reduce((rtns, item) => {
-      if (!alreadyPdCds.includes(item.pdCd)) {
-        rtns.push(item);
+  let lastRow = 0;
+  insertRows.forEach((row) => {
+    row[pdConst.REL_PD_ID] = stringUtil.getUid('REL_TMP');
+    row[pdConst.PD_REL_TP_CD] = pdRelTpCd;
+    row[pdConst.REL_OJ_PD_CD] = row.pdCd;
+    const rowValues = gridUtil.getAllRowValues(view);
+    let isValid = false;
+    const alreadyPdCdRows = rowValues.filter((item) => item.pdCd === row.pdCd);
+    if (alreadyPdCdRows && alreadyPdCdRows.length) {
+      const lastVlEndDtm = alreadyPdCdRows.reduce((maxDt, item) => {
+        maxDt = Number(item.vlEndDtm) > maxDt ? Number(item.vlEndDtm) : maxDt;
+        return maxDt;
+      }, 0);
+      if (currentTime > lastVlEndDtm) {
+        isValid = true;
       }
-      return rtns;
-    }, []);
-  }
-  return rows;
+      lastRow = alreadyPdCdRows[0].dataRow;
+    } else {
+      isValid = true;
+      lastRow = 0;
+    }
+    if (isValid) {
+      row.vlStrtDtm = currentTime;
+      row.vlEndDtm = 99991231235959;
+    }
+    data.insertRow(lastRow, row);
+  });
+  await gridUtil.focusCellInput(view, lastRow);
 }
 
 async function deleteCheckedRows(view) {
-  await gridUtil.confirmDeleteCheckedRows(view);
+  const checkedRows = view.getCheckedRows();
+  const removeCreateRows = [];
+  checkedRows.forEach((row) => {
+    const item = gridUtil.getRowValue(view, row);
+    if (item.rowState === 'created') {
+      removeCreateRows.push(row);
+    } else {
+      const endSetTime = dayjs().subtract(1, 'second').format('YYYYMMDDHHmmss');
+      console.log('endSetTime : ', endSetTime, row);
+      view.setValue(row, 'vlEndDtm', endSetTime);
+    }
+  });
+  if (removeCreateRows.length) {
+    view.getDataSource().removeRows(removeCreateRows);
+  }
+  view.setAllCheck(false, true);
+  view.clearCurrent();
 }
 
 async function onClickProductSchPopup() {
@@ -230,16 +264,38 @@ onMounted(async () => {
 //-------------------------------------------------------------------------------------------------
 async function initChangePrdGrid(data, view) {
   const columns = [
+    // 적용시작일자
+    { fieldName: 'vlStrtDtm',
+      header: t('MSG_TXT_APY_STRTDT'),
+      width: '190',
+      editor: { type: 'date' },
+      dataType: 'datetime',
+      datetimeFormat: 'datetime',
+      styleName: 'text-center',
+      rules: 'required',
+      editable: true,
+    },
+    // 적용종료일자
+    { fieldName: 'vlEndDtm',
+      header: t('MSG_TXT_APY_ENDDT'),
+      width: '190',
+      editor: { type: 'date' },
+      dataType: 'datetime',
+      datetimeFormat: 'datetime',
+      styleName: 'text-center',
+      rules: 'required',
+      editable: true,
+    },
     // 기준상품 분류
-    { fieldName: 'pdClsfNm', header: t('MSG_TXT_PD_STD_TYPE'), width: '170' },
+    { fieldName: 'pdClsfNm', header: t('MSG_TXT_PD_STD_TYPE'), width: '170', editable: false },
     // 기준상품명
-    { fieldName: 'pdNm', header: t('MSG_TXT_PD_STD_NAME'), width: '200' },
+    { fieldName: 'pdNm', header: t('MSG_TXT_PD_STD_NAME'), width: '200', editable: false },
     // 기준상품코드
-    { fieldName: 'pdCd', header: t('MSG_TXT_PD_STD_CODE'), width: '120', styleName: 'text-center' },
+    { fieldName: 'pdCd', header: t('MSG_TXT_PD_STD_CODE'), width: '120', styleName: 'text-center', editable: false },
     // 판매유형
-    { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '140', styleName: 'text-center', options: props.codes?.SELL_TP_CD },
+    { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '140', styleName: 'text-center', options: props.codes?.SELL_TP_CD, editable: false },
     // 판매기간
-    { fieldName: 'sellDurtion', header: t('MSG_TXT_PRDT_SLE_PRD'), width: '180', styleName: 'text-center' },
+    { fieldName: 'sellDurtion', header: t('MSG_TXT_PRDT_SLE_PRD'), width: '180', styleName: 'text-center', editable: false },
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   fields.push({ fieldName: pdConst.REL_PD_ID });
@@ -250,6 +306,10 @@ async function initChangePrdGrid(data, view) {
 
   view.checkBar.visible = true;
   view.rowIndicator.visible = true;
+  view.editOptions.editable = true;
+  view.onCellEdited = async (grid, itemIndex, row, fieldIndex) => {
+    await onCellEditRelProdPeriod(view, grid, itemIndex, row, fieldIndex);
+  };
 }
 
 </script>
