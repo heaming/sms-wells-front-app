@@ -5,18 +5,12 @@
 1. 모듈 : 상품 - 상품운영관리(PDC)
 2. 프로그램 ID : WwpdcMaterialMgtM - 교재/자재 등록/변경
 3. 작성자 : junho.bae
-4. 작성일 : 2022.AA.BB
+4. 작성일 : 2023.07.01
 ****************************************************************************************************
 * 프로그램 설명
 ****************************************************************************************************
 - 상품 >> 교재/자재 등록/변경 프로그램 (Outer Frame Page)
 ****************************************************************************************************
--TODO :
-const materialMainPage = '/product/zwpdc-material-list';
-// const page = ref({
-//   reg: '/product/zwpdc-material-list/wwpdc-material-mgt', // 교재/자재 등록 UI
-//   detail: '/product/zwpdc-material-list/wwpdc-material-dtl', // 교재/자재 상세보기 UI
-// });
 --->
 <template>
   <kw-page>
@@ -165,24 +159,18 @@ const materialMainPage = '/product/zwpdc-material-list';
             />
           </div>
           <div class="button-set--bottom-right">
-            <!-- 삭제 -->
             <kw-btn
               v-if="currentPdCd"
               v-permission:delete
               :label="$t('MSG_BTN_DEL')"
               @click="onClickRemove"
             />
-            <!--
-              취소
-              v-if="!isEmpty(currentPdCd)"
-            -->
             <kw-btn
               v-show="!isTempSaveBtn"
               :label="$t('MSG_BTN_CANCEL')"
               class="ml8"
               @click="onClickCancel"
             />
-            <!-- 초기화 currentStep.step === 1 && isCreate -->
             <kw-btn
               v-show="isShowInitBtn"
               :label="$t('MSG_BTN_INTL')"
@@ -371,23 +359,6 @@ async function fetchData() {
   }
 }
 
-// 중복체크 메소드 - 확장성 위해 'validationType' 추가.
-// async function duplicationCheck(validationType, sourceData) {
-//   const validationParams = {};
-//   validationParams.validationType = validationType;
-//   validationParams.pdCd = sourceData[bas].pdCd;
-//   validationParams.sapMatCd = sourceData[bas].sapMatCd;
-
-//   const res = await dataService.get(`${baseUrl}/check-validation`, { params: validationParams });
-
-//   if (res.data !== 'N') {
-//     // 다른 교재/제품에서 이미 사용 중인 SAP자재코드입니다. (사용 교재/제품코드: {0}/{1}) - 교재명/자재코드
-//     notify(t('MSG_ALT_EXIST_SAP_MAT_CD', [res.data, validationParams.sapMatCd]));
-//     return false;
-//   }
-//   return true;
-// }
-
 async function onClickSave(tempSaveYn) {
   if (!(isTempSaveBtn.value && tempSaveYn === 'N')) {
     let modifiedOk = false;
@@ -471,25 +442,12 @@ async function onClickCancel() {
     }
   }));
 
-  // MSG_ALT_HIS_TAB_MOD - 변경사항이 있습니다. 취소하시겠습니까?
+  // 변경사항이 있습니다. 취소하시겠습니까?
   if (modifiedOk && await confirm(t('MSG_ALT_DO_CANCEL_DISCARD_CHANGE'))) {
     await pageMove(pdConst.MATERIAL_LIST_PAGE, true, router, { isSearch: false });
   }
   if (!modifiedOk) await pageMove(pdConst.MATERIAL_LIST_PAGE, true, router, { isSearch: false });
 }
-
-// async function setInitCondition() {
-//   const { pdCd, tempSaveYn } = props;
-//   currentPdCd.value = pdCd;
-//   isCreate.value = isEmpty(currentPdCd.value);
-//   isTempSaveBtn.value = tempSaveYn !== 'N';
-
-//   if (currentPdCd.value) await fetchData();
-// }
-
-// onMounted(async () => {
-//   await setInitCondition();
-// });
 
 async function initProps() {
   const { pdCd } = props;
@@ -510,7 +468,6 @@ async function popupCallback(payload) {
     if (isEmpty(prevStepData.value[bas])) {
       prevStepData.value = await getSaveData();
     }
-
     prevStepData.value[bas].sapMatCd = payload.sapMatCd ?? '';
     prevStepData.value[bas].modelNo = payload.modelNo ?? '';
     prevStepData.value[bas].sapPdctSclsrtStrcVal = payload.sapPdctSclsrtStrcVal ?? '';
@@ -523,7 +480,6 @@ async function popupCallback(payload) {
 }
 
 async function openPopup(field) {
-  console.log('Open Popup : ', field.colNm, field.sourcInfCn);
   const { payload } = await modal({
     component: field.sourcInfCn,
     componentProps: {

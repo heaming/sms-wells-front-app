@@ -5,7 +5,7 @@
 1. 모듈 : PDY
 2. 프로그램 ID : WwpdyReStipulationMgtM - 재약정 기준정보 관리 (W-PD-U-0045M01)
 3. 작성자 : junho.bae
-4. 작성일 : 2022.AA.BB
+4. 작성일 : 2023.07.01
 ****************************************************************************************************
 * 프로그램 설명
 ****************************************************************************************************
@@ -128,7 +128,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { codeUtil, defineGrid, getComponentType, gridUtil, useDataService, useGlobal, useMeta } from 'kw-lib';
-import { cloneDeep, isEmpty } from 'lodash-es'; // groupBy
+import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 import pdConst from '~sms-common/product/constants/pdConst';
 
@@ -180,8 +180,6 @@ async function onClickProduct() {
       return false;
     }
     searchParams.value.pdCd = payload[0].pdCd;
-    // g.setValue(itemIndex, 'pdCd', payload[0].pdCd);
-    // g.setValue(itemIndex, 'pdNm', payload[0].pdNm);
   }
 }
 
