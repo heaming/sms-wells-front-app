@@ -35,7 +35,10 @@
             v-model="searchParams.searchParam2"
           />
         </kw-search-item>
-        <kw-search-item :label="$t('MSG_TXT_PRD')">
+        <kw-search-item
+          :label="$t('MSG_TXT_PRD')"
+          required
+        >
           <!--기간-->
           <kw-date-range-picker
             v-model:from="searchParams.fromDate"
@@ -151,7 +154,7 @@ const pageInfo = ref({
 });
 
 async function fetchData() {
-  const { data: { list, pageInfo: pageInfoObj } } = await dataService.get('sms/wells/service/wells-service-cfdc/paging', { params: { ...cachedParams, ...pageInfo.value } });
+  const { data: { list, pageInfo: pageInfoObj } } = await dataService.get('/sms/wells/service/wells-service-cfdc/paging', { params: { ...cachedParams, ...pageInfo.value } });
 
   list.forEach((row) => {
     if (row.cralLocaraTno && row.mexnoEncr && row.cralIdvTno) { row.mobileTno = `${row.cralLocaraTno}-${row.mexnoEncr}-${row.cralIdvTno}`; }
@@ -173,6 +176,7 @@ async function onClickSearch() {
     searchParams.value.searchParam4 = numbers.length > 2 ? numbers[2] : '';
   }
 
+  pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
 }
@@ -185,9 +189,11 @@ function onChangeSearchType() {
 
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
+  const { data } = await dataService.get('/sms/wells/service/wells-service-cfdc/excel-download', { params: cachedParams });
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
+    exportData: data,
   });
 }
 
