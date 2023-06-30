@@ -31,7 +31,7 @@
             type="month"
             :label="t('MSG_TXT_MGT_YNM')"
             rules="required"
-            :disable="true"
+            :disable="isInqrYm"
           />
         </kw-search-item>
         <kw-search-item
@@ -173,33 +173,21 @@ const grdMainRef = ref(getComponentType('KwGrid'));
 const props = defineProps({
   inqrYm: {
     type: String,
-    required: true,
-  },
-  itmKndCd: {
-    type: String,
     default: '',
   },
-  itmPdCds: {
+  products: {
     type: Array,
     default: () => [],
-  },
-  strtSapCd: {
-    type: String,
-    default: '',
-  },
-  endSapCd: {
-    type: String,
-    default: '',
   },
 });
 
 let cachedParams;
 const searchParams = ref({
-  inqrYm: props.inqrYm, // 기준년월
-  itmKndCd: props.itmKndCd,
-  itmPdCds: props.itmPdCds,
-  strtSapCd: props.strtSapCd,
-  endSapCd: props.endSapCd,
+  inqrYm: isEmpty(props.inqrYm) ? dayjs().format('YYYYMM') : props.inqrYm, // 기준년월
+  itmKndCd: '',
+  itmPdCds: [],
+  strtSapCd: '',
+  endSapCd: '',
 });
 
 const pageInfo = ref({
@@ -224,22 +212,24 @@ function itmKndCdFilter() {
 
 const optionsItmPdCd = ref();
 const optionsAllItmPdCd = ref();
-
-// 품목조회
-const getProducts = async () => {
-  const result = await dataService.get('/sms/wells/service/computation-exclude-items/products');
-  optionsAllItmPdCd.value = result.data;
-  const { itmKndCd } = searchParams.value;
-  if (isEmpty(itmKndCd)) {
+const isInqrYm = ref(true);
+async function initData() {
+  if (isEmpty(props.inqrYm)) {
+    isInqrYm.value = false;
+  }
+  if (!isEmpty(props.products)) {
+    optionsAllItmPdCd.value = props.products;
     optionsItmPdCd.value = optionsAllItmPdCd.value;
     return;
   }
-  optionsItmPdCd.value = optionsAllItmPdCd.value.filter((v) => itmKndCd === v.itmKndCd);
-};
+  const result = await dataService.get('/sms/wells/service/computation-exclude-items/products');
+  optionsAllItmPdCd.value = result.data;
+  optionsItmPdCd.value = optionsAllItmPdCd.value;
+}
 
 await Promise.all([
   itmKndCdFilter(),
-  getProducts(),
+  initData(),
 ]);
 
 const userInfo = getters['meta/getUserInfo'];
