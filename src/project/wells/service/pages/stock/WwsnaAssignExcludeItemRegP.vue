@@ -181,6 +181,10 @@ async function onClickSave() {
     console.log(`saveParams : ${saveParams}`);
     const res = await dataService.put(baseURI, saveParams);
     console.log(`res:${res}`);
+    if (res.data > 0) {
+      notify(t('MSG_ALT_RTRN_SCS'));
+      fetchData();
+    }
   } else {
     notify(t('MSG_ALT_SAV_SEL_DATA'));
   }
@@ -216,10 +220,13 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-center' },
     { fieldName: 'strWareNo', header: t('MSG_TXT_CENTER_CD'), width: '190', styleName: 'text-center' },
   ];
+
   const fields = columns.map((v) => ({ fieldName: v.fieldName }));
+  fields.push({ fieldName: 'chk', dataType: 'text', booleanFormat: 'N:Y' });
 
   data.setFields(fields);
   view.setColumns(columns);
+  view.checkBar.fieldName = 'chk';
   view.checkBar.visible = true;
   view.rowIndicator.visible = true;
 });
