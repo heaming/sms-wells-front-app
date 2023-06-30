@@ -5,7 +5,7 @@
 1. 모듈 : 고객 - 가망고객관리(CSB)
 2. 프로그램 ID : WwcsbNewReceiptMgtMAssign.vue - 신규접수 배정관리 - 배정조회(TAB) (W-CU-U-0030M02)
 3. 작성자 : junho.bae
-4. 작성일 : 2022.AA.BB
+4. 작성일 : 2023.07.01
 ****************************************************************************************************
 * 프로그램 설명
 ****************************************************************************************************
@@ -36,8 +36,9 @@
       <kw-search-item :label="$t('MSG_TXT_ASSIGNER_EP_NO')">
         <kw-input
           v-model.trim="searchParams.ichrPrtnrNo"
-          rules="numeric"
-          maxlength="10"
+          :regex="/^[0-9]*$/i"
+          rules="numeric|max:7"
+          maxlength="7"
         />
       </kw-search-item>
 
@@ -120,7 +121,6 @@ const route = useRoute();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
-// 접수/배정 조회 하나로 조회할지 분기칠지 고민!!!!
 const baseUrl = '/sms/wells/customer/receipts/assign';
 const codes = await codeUtil.getMultiCodes('COD_PAGE_SIZE_OPTIONS');
 
@@ -192,7 +192,6 @@ async function onClickAssignContact() {
     component: 'WwcsbAssignContactModP', /* 배정컨텍 팝업 */
     componentProps: { jobType: 'ASGN', pspcCstCnslIds },
   });
-
   if (result && payload === 'T') await fetchData();
 }
 
@@ -236,7 +235,6 @@ const initgrdAssign = defineGrid((data, view) => {
     { fieldName: 'newAdrZip', header: t('MSG_TXT_ZIP'), width: '77', styleName: 'text-center' }, /* 우편번호 */
     { fieldName: 'custAdr', header: t('MSG_TXT_ADDR'), width: '275', styleName: 'text-left' }, /* 주소 */
     // 등록/수정일
-    // { fieldName: 'fstRgstDtm', header: t('MSG_TXT_RGST_DT'), width: '110', datetimeFormat: 'date', editable: false },
     { fieldName: 'fstRgstUsrNm', header: t('MSG_TXT_RGST_USR'), width: '80', styleName: 'text-center', editable: false },
     { fieldName: 'fstRgstUsrId', header: 'RGST_ID', width: '50', visible: false },
     { fieldName: 'fnlMdfcDtm', header: t('MSG_TXT_FNL_MDFC_D'), width: '110', styleName: 'text-center', datetimeFormat: 'date', editable: false },
@@ -255,19 +253,12 @@ const initgrdAssign = defineGrid((data, view) => {
   view.editOptions.editable = false;
   view.checkBar.visible = true;
 
-  // view.onCellItemClicked = async (g, { column, dataRow }) => {
-  //   if (['fstRgstUsrNm', 'fnlMdfcUsrNm'].includes(column)) {
-  //     const { fstRgstUsrId, fnlMdfcUsrId } = gridUtil.getRowValue(g, dataRow);
-  //     const userId = column === 'fstRgstUsrNm' ? fstRgstUsrId : fnlMdfcUsrId;
-  //     await modal({ component: 'ZwcmzUserDtlP', componentProps: { userId } });
-  //   }
-  // };
-
   view.onCellDblClicked = async (g, clickData) => {
     if (clickData.cellType === 'data') {
       const pspcCstCnslId = g.getValue(clickData.itemIndex, 'pspcCstCnslId');
+      const cntrNo = g.getValue(clickData.itemIndex, 'cntrNo');
       const targetUrl = '/customer/wwcsb-new-receipt-mgt/wwcsb-new-receipt-mgt-m-Receipt-dtl';
-      await router.push({ path: targetUrl, query: { pspcCstCnslId, jobType: 'ASGN', fromUi: 'ASGN' } });
+      await router.push({ path: targetUrl, query: { pspcCstCnslId, jobType: 'ASGN', fromUi: 'ASGN', cntrNo } });
     }
   };
 });

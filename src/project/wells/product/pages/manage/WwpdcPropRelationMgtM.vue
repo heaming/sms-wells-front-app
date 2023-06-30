@@ -5,7 +5,7 @@
 1. 모듈 : 상품 - 상품운영관리(PDC)
 2. 프로그램 ID : WwpdcPropRelationMgtM - 교재/자재 - 연결상품TAB (W-PD-U-0031M01)
 3. 작성자 : junho.bae
-4. 작성일 : 2022.AA.BB
+4. 작성일 : 2023.07.01
 ****************************************************************************************************
 * 프로그램 설명
 ****************************************************************************************************
@@ -37,6 +37,7 @@
     <kw-btn
       v-permission:delete
       grid-action
+      :disable="totalCount === 0"
       :label="$t('MSG_BTN_DEL')"
       @click="onClickRemove"
     />
@@ -76,16 +77,10 @@ const props = defineProps({
   initData: { type: Object, default: null },
 });
 
-// const { getConfig } = useMeta();
-// const pageInfo = ref({
-//   totalCount: 0,
-//   pageIndex: 1,
-//   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
-// });
-
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
+const totalCount = ref(0);
 const searchParams = ref({
   pdRelTpCd: '',
   searchValue: '',
@@ -93,6 +88,13 @@ const searchParams = ref({
 
 const codes = await codeUtil.getMultiCodes('PDCT_REL_DV_CD');
 const initLoadData = ref([]);
+
+async function checkGrdDataCount() {
+  const view = grdMainRef.value.getView();
+  const rowValues = gridUtil.getAllRowValues(view, false);
+  console.log('totalCount.value', totalCount.value);
+  totalCount.value = rowValues.length;
+}
 
 async function resetData() {
   // TODO Grid 에서 초기화버튼 기능을 어떻게 정의할지 확인필요.
@@ -122,6 +124,7 @@ async function insertCallbackRows(view, rtn, pdRelTpCd) {
         await gridUtil.insertRowAndFocus(view, 0, okRows[0]);
       }
     }
+    await checkGrdDataCount();
   }
 }
 
@@ -210,6 +213,8 @@ async function onClickRemove() {
 
   const dataProvider = view.getDataSource();
   dataProvider.removeRows(chkRows.map((v) => v.dataRow));
+
+  await checkGrdDataCount();
 }
 
 async function validateProps() {
@@ -302,6 +307,8 @@ async function setData(newInitData) {
 
     const grd1DataProvider = grdMainRef.value.getView().getDataSource();
     grd1DataProvider.fillJsonData(initLoadData.value, { fillMode: 'set' });
+
+    await checkGrdDataCount();
   }
 }
 

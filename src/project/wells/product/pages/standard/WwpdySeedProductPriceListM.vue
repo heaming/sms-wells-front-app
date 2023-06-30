@@ -138,13 +138,13 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService, useMeta, gridUtil, useGlobal, codeUtil, getComponentType, defineGrid } from 'kw-lib';
+import { useDataService, useMeta, gridUtil, stringUtil, useGlobal, codeUtil, getComponentType, defineGrid } from 'kw-lib';
 import dayjs from 'dayjs';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import pdConst from '~sms-common/product/constants/pdConst';
-import { getCodeNames, getAlreadyItems, setGridDateFromTo } from '~sms-common/product/utils/pdUtil';
+import { getCodeNames, getDuplicatedItems, setGridDateFromTo } from '~sms-common/product/utils/pdUtil';
 
-const { notify, modal } = useGlobal();
+const { alert, notify, modal } = useGlobal();
 const router = useRouter();
 const { t } = useI18n();
 const dataService = useDataService();
@@ -231,7 +231,7 @@ async function onClickAdd() {
   await gridUtil.insertRowAndFocus(view, 0, {
     apyStrtdt: now.format('YYYYMMDD'),
     apyEnddt: '99991231',
-    pdPrcTcnt: 1,
+    pdPrcTcnt: null,
     useYn: 'Y',
   });
   pageInfo.value.totalCount += 1;
@@ -240,36 +240,58 @@ async function onClickAdd() {
 async function checkDuplication() {
   const view = grdMainRef.value.getView();
   const changedRows = gridUtil.getChangedRowValues(view);
-  const alreadyItems = getAlreadyItems(view, changedRows, 'pdctPdCd', 'rglrSppMchnKndCd', 'rglrSppMchnTpCd', 'rglrSppPrcDvCd');
-  if (alreadyItems.length > 1) {
-    // {제품명/기기종류/기기유형/가격구분}이(가) 중복됩니다.
-    let dupItem = alreadyItems[0].pdctPdNm;
-    if (alreadyItems[0].rglrSppMchnKndCd) {
-      dupItem += `/${getCodeNames(codes, alreadyItems[0].rglrSppMchnKndCd, 'RGLR_SPP_MCHN_KND_CD')}`;
-    }
-    if (alreadyItems[0].rglrSppMchnTpCd) {
-      dupItem += `/${getCodeNames(codes, alreadyItems[0].rglrSppMchnTpCd, 'RGLR_SPP_MCHN_TP_CD')}`;
-    }
-    if (alreadyItems[0].rglrSppPrcDvCd) {
-      dupItem += `/${getCodeNames(codes, alreadyItems[0].rglrSppPrcDvCd, 'RGLR_SPP_PRC_DV_CD')}`;
-    }
-    notify(t('MSG_ALT_DUP_NCELL', [dupItem]));
-    return true;
-  }
-
-  const createdRows = gridUtil.getCreatedRowValues(view);
-  if (createdRows.length === 0) {
+  if (changedRows.length === 0) {
     return false;
   }
 
-  const { data: dupData } = await dataService.post('/sms/wells/product/seedling-price/duplication-check', createdRows);
+  let isOverDuration = false;
+  changedRows.forEach((item1) => {
+    if (!isOverDuration) {
+      const duplicatedItems = getDuplicatedItems(view, item1, 'pdctPdCd', 'rglrSppMchnKndCd', 'rglrSppMchnTpCd', 'rglrSppPrcDvCd', 'basePdCd');
+      duplicatedItems.forEach((item2) => {
+        const sourceStartDt = item1.apyStrtdt;
+        const sourceEnddt = item1.apyEnddt;
+        const targetStartDt = item2.apyStrtdt;
+        const targetEnddt = item2.apyEnddt;
+        if (targetEnddt >= sourceStartDt && targetStartDt <= sourceEnddt) {
+          console.log(`${sourceStartDt}-${sourceEnddt} : ${targetStartDt}-${targetEnddt}`);
+          isOverDuration = true;
+          // {제품명/기기종류/기기유형/가격구분/[2021.01.01 ~ 2021.12.31]}이(가) 중복됩니다.
+          let dupItem = item1.pdctPdNm;
+          if (item1.rglrSppMchnKndCd) {
+            dupItem += `/${getCodeNames(codes, item1.rglrSppMchnKndCd, 'RGLR_SPP_MCHN_KND_CD')}`;
+          }
+          if (item1.rglrSppMchnTpCd) {
+            dupItem += `/${getCodeNames(codes, item1.rglrSppMchnTpCd, 'RGLR_SPP_MCHN_TP_CD')}`;
+          }
+          if (item1.rglrSppPrcDvCd) {
+            dupItem += `/${getCodeNames(codes, item1.rglrSppPrcDvCd, 'RGLR_SPP_PRC_DV_CD')}`;
+          }
+          if (item1.basePdCd) {
+            dupItem += `/${item1.basePdNm}`;
+          }
+          dupItem += `/[${stringUtil.getDateFormat(sourceStartDt)} ~ ${stringUtil.getDateFormat(sourceEnddt)}]`;
+          notify(t('MSG_ALT_DUP_NCELL', [dupItem]));
+        }
+      });
+    }
+  });
+
+  if (isOverDuration) {
+    return true;
+  }
+
+  const { data: dupData } = await dataService.post('/sms/wells/product/seedling-price/duplication-check', changedRows);
   if (dupData.data) {
     const dupCodes = dupData.data.split(',', -1);
-    const { pdctPdNm, rglrSppMchnKndCd, rglrSppMchnTpCd, rglrSppPrcDvCd } = createdRows
+    const { pdctPdNm, rglrSppMchnKndCd, rglrSppMchnTpCd, rglrSppPrcDvCd, apyStrtdt, apyEnddt, basePdNm } = changedRows
       .find((item) => item.pdctPdCd === dupCodes[0]
         && item.rglrSppMchnKndCd === dupCodes[1]
         && item.rglrSppMchnTpCd === dupCodes[2]
-        && item.rglrSppPrcDvCd === dupCodes[3]);
+        && item.rglrSppPrcDvCd === dupCodes[3]
+        && item.apyStrtdt === dupCodes[4]
+        && item.apyEnddt === dupCodes[5]
+        && item.basePdCd === dupCodes[6]);
     let dupItem = pdctPdNm;
     if (rglrSppMchnKndCd) {
       dupItem += `/${getCodeNames(codes, rglrSppMchnKndCd, 'RGLR_SPP_MCHN_KND_CD')}`;
@@ -280,8 +302,12 @@ async function checkDuplication() {
     if (rglrSppPrcDvCd) {
       dupItem += `/${getCodeNames(codes, rglrSppPrcDvCd, 'RGLR_SPP_PRC_DV_CD')}`;
     }
-    // {제품명/기기종류/기기유형/가격구분} 은(는) 이미 DB에 등록되어 있습니다.
-    notify(t('MSG_ALT_EXIST_IN_DB', [dupItem]));
+    if (basePdNm) {
+      dupItem += `/${basePdNm}`;
+    }
+    dupItem += `/[${stringUtil.getDateFormat(apyStrtdt)} ~ ${stringUtil.getDateFormat(apyEnddt)}]`;
+    // {제품명/기기종류/기기유형/가격구분/[2023.01.01~2023.12.31]} 은(는) 이미 DB에 등록되어 있습니다.
+    await alert(t('MSG_ALT_EXIST_IN_DB', [dupItem]));
     return true;
   }
   return false;
@@ -331,10 +357,15 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'pdctPdNm',
       header: t('MSG_TXT_GOODS_NM'),
       width: '207',
-      styleName: 'text-left rg-button-icon--search',
-      button: 'action',
       editor: { maxLength: 100 },
       rules: 'required',
+      button: 'action',
+      styleName: 'text-center rg-button-icon--search',
+      styleCallback(grid, dataCell) {
+        return dataCell.item.rowState === 'created'
+          ? { editable: true }
+          : { editable: false, styleName: 'text-center rg-button-hide' };
+      },
     },
 
     // 기기종류
@@ -345,6 +376,9 @@ const initGrdMain = defineGrid((data, view) => {
       placeHolder: t('MSG_TXT_SELT'),
       editor: { type: 'list' },
       rules: 'required',
+      styleCallback(grid, dataCell) {
+        return { editable: dataCell.item.rowState === 'created' };
+      },
       options: codes.RGLR_SPP_MCHN_KND_CD,
     },
     // 기기유형
@@ -355,6 +389,9 @@ const initGrdMain = defineGrid((data, view) => {
       placeHolder: t('MSG_TXT_SELT'),
       editor: { type: 'list' },
       rules: 'required',
+      styleCallback(grid, dataCell) {
+        return { editable: dataCell.item.rowState === 'created' };
+      },
       options: codes.RGLR_SPP_MCHN_TP_CD,
     },
     // 가격구분
@@ -365,7 +402,29 @@ const initGrdMain = defineGrid((data, view) => {
       placeHolder: t('MSG_TXT_SELT'),
       editor: { type: 'list' },
       rules: 'required',
+      styleCallback(grid, dataCell) {
+        return { editable: dataCell.item.rowState === 'created' };
+      },
       options: codes.RGLR_SPP_PRC_DV_CD,
+    },
+    // 상품코드
+    {
+      fieldName: 'basePdCd',
+      header: t('MSG_TXT_PRDT_CODE'),
+      width: '160',
+      styleName: 'text-center',
+      editable: false,
+      rules: 'required',
+    },
+    // 상품명
+    {
+      fieldName: 'basePdNm',
+      header: t('MSG_TXT_PRDT_NM'),
+      width: '207',
+      styleName: 'text-left rg-button-icon--search',
+      button: 'action',
+      editor: { maxLength: 100 },
+      rules: 'required',
     },
     // 수량
     { fieldName: 'sdingQty',
@@ -424,6 +483,7 @@ const initGrdMain = defineGrid((data, view) => {
       editor: { type: 'date' },
       dataType: 'date',
       styleName: 'text-center',
+      rules: 'required',
     },
     // 종료일
     { fieldName: 'apyEnddt',
@@ -432,8 +492,8 @@ const initGrdMain = defineGrid((data, view) => {
       editor: { type: 'date' },
       dataType: 'date',
       styleName: 'text-center',
+      rules: 'required',
     },
-
     // 상품분류
     { fieldName: 'pdClsfNm',
       header: t('MSG_TXT_PRDT_CATE'),
@@ -473,6 +533,11 @@ const initGrdMain = defineGrid((data, view) => {
       data.setValue(itemIndex, 'pdClsfNm', null);
       data.setValue(itemIndex, 'pdTpDtlCd', null);
     }
+
+    // 상품 초기화
+    if (grid.getColumn(fieldIndex).fieldName === 'basePdNm' && isEmpty(grid.getValue(itemIndex, 'basePdNm'))) {
+      data.setValue(itemIndex, 'basePdCd', null);
+    }
   };
 
   view.onCellButtonClicked = async (grid, { column, itemIndex }) => {
@@ -485,16 +550,34 @@ const initGrdMain = defineGrid((data, view) => {
           selectType: pdConst.PD_SEARCH_SINGLE,
           searchLvl: 3 },
       });
-      if (payload && payload.checkedRows) {
-        console.log('payload : ', payload);
-        const row = Array.isArray(payload.checkedRows) ? payload.checkedRows[0] : payload.checkedRows;
+
+      if (payload) {
+        const row = Array.isArray(payload?.checkedRows) ? payload.checkedRows[0] : payload;
         data.setValue(itemIndex, 'pdctPdNm', row.pdNm);
         data.setValue(itemIndex, 'pdctPdCd', row.pdCd);
         data.setValue(itemIndex, 'pdClsfNm', row.pdClsfNm);
         data.setValue(itemIndex, 'pdTpDtlCd', row.pdTpDtlCd);
       }
     }
+    if (column === 'basePdNm') {
+      const pdNm = grid.getValue(itemIndex, 'basePdNm');
+      const { payload } = await modal({
+        component: 'ZwpdcStandardListP',
+        componentProps: { searchType: pdConst.PD_SEARCH_NAME,
+          searchValue: pdNm,
+          sellTpCd: '6' },
+      });
+      if (payload) {
+        const row = Array.isArray(payload) ? payload[0] : payload;
+        data.setValue(itemIndex, 'basePdNm', row.pdNm);
+        data.setValue(itemIndex, 'basePdCd', row.pdCd);
+      }
+    }
   };
 });
 </script>
-<style scoped></style>
+<style>
+.rg-button-hide .rg-button-action {
+  display: none !important;
+}
+</style>

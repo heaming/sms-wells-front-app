@@ -3,7 +3,7 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : OGC
-2. 프로그램 ID : WwogcEngineerAttendanceMgtM - 엔지니어 출근 관리
+2. 프로그램 ID : WwogcEngineerAttendMgtM - 엔지니어 출근 관리
 3. 작성자 : 김동석
 4. 작성일 : 2023-05-10
 ****************************************************************************************************
@@ -22,11 +22,13 @@
       <kw-search-row>
         <kw-search-item :label="$t('MSG_TXT_OG_LEVL')">
           <zwog-level-select
+            v-model:og-levl-dv-cd1="searchParams.ogLevlDvCd1"
             v-model:og-levl-dv-cd2="searchParams.ogLevlDvCd2"
-            v-model:og-levl-dv-cd3="searchParams.ogLevlDvCd3"
             :og-tp-cd="searchParams.ogTpCd"
-            :start-level="2"
-            :end-level="3"
+            :last-og-id="searchParams.ogId"
+            :base-ym="searchParams.baseYm"
+            :start-level="1"
+            :end-level="2"
           />
         </kw-search-item>
         <kw-search-item :label="$t('MSG_TXT_BASE_D')">
@@ -63,7 +65,6 @@
           @click="onClickExcelDownload"
         />
       </kw-action-top>
-
       <kw-grid
         ref="grdMainRef"
         name="grdMain"
@@ -85,9 +86,8 @@ import { SMS_WELLS_URI } from '~sms-wells/organization/constants/ogConst';
 
 const { getConfig } = useMeta();
 const dataService = useDataService();
-const { modal, notify } = useGlobal();
+const { modal, notify, alert } = useGlobal();
 const { currentRoute } = useRouter();
-
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -99,6 +99,9 @@ const searchParams = ref({
   baseYm: dayjs().format('YYYYMM'),
   baseDt: now,
   ogTpCd: 'W06',
+  ogLevlDvCd1: undefined,
+  ogLevlDvCd2: undefined,
+  ogId: undefined,
 });
 
 const pageInfo = ref({
@@ -141,6 +144,7 @@ async function onClickSave() {
   const changedRows = gridUtil.getChangedRowValues(view);
   const { prtnrNo } = changedRows[0];
 
+  console.log(changedRows);
   await dataService.post(`${SMS_WELLS_URI}/partner-engineer/${prtnrNo}`, changedRows);
   await notify(t('MSG_ALT_SAVE_DATA'));
   await onClickSearch();
@@ -170,9 +174,10 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'wrkNm', header: t('MSG_TXT_WRK_DOW'), width: '106', styleName: 'text-center', editable: false },
     { fieldName: 'egerWrkStatCd', header: t('MSG_TXT_WRK_STAT'), options: codes.EGER_WRK_STAT_CD, editor: { type: 'dropdown' } },
     { fieldName: 'rmkCn', header: t('MSG_TXT_RMK_ARTC'), width: '146', styleName: 'text-center', editable: true, editor: { type: 'text', maxLength: 3500 } },
-    { fieldName: 'dnlStrtdt', header: t('MSG_TXT_STRT_DT'), width: '178', styleName: 'text-center', editor: { type: 'btdate' }, editable: true, datetimeFormat: 'date' },
-    { fieldName: 'dnlEnddt', header: t('MSG_TXT_END_DT'), width: '178', styleName: 'text-center', editor: { type: 'btdate' }, editable: true, datetimeFormat: 'date' },
-    { fieldName: 'bizAgntPrtnrNo', header: t('MSG_TXT_EPNO'), width: '128', styleName: 'text-left, rg-button-icon--search', editor: { type: 'text' }, editable: true, button: 'action' },
+    { fieldName: 'vcnInfo', header: t('MSG_TXT_VCN_INFO'), width: '107', renderer: { type: 'button', hideWhenEmpty: false }, displayCallback: () => t('MSG_TXT_VCN_INFO') },
+    { fieldName: 'vcnStrtDt', header: t('MSG_TXT_STRT_DATE'), width: '178', styleName: 'text-center', editable: false, datetimeFormat: 'date' },
+    { fieldName: 'vcnEndDt', header: t('MSG_TXT_END_DT'), width: '178', styleName: 'text-center', editable: false, datetimeFormat: 'date' },
+    { fieldName: 'bizAgntPrtnrNo', header: t('MSG_TXT_EPNO'), width: '128', styleName: 'text-left', editable: false },
     { fieldName: 'agntPrtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '100', styleName: 'text-center', editable: false },
     { fieldName: 'pcpPrtnrNo', header: t('MSG_TXT_EPNO'), width: '120', styleName: 'text-center', editable: false },
     { fieldName: 'pcpPrtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '100', styleName: 'text-center', editable: false },
@@ -203,10 +208,11 @@ const initGrid = defineGrid((data, view) => {
     'wrkNm',
     'egerWrkStatCd',
     'rmkCn',
+    'vcnInfo',
     {
       header: t('MSG_TXT_VCN_USE_PTRM'),
       direction: 'horizontal',
-      items: ['dnlStrtdt', 'dnlEnddt'],
+      items: ['vcnStrtDt', 'vcnEndDt'],
     },
     {
       header: t('MSG_TXT_BIZ_AGNT_PRTNR'),
@@ -228,17 +234,47 @@ const initGrid = defineGrid((data, view) => {
       view.getDataSource().addRows(res.data.list);
     }
   };
-  view.onCellButtonClicked = async (grid, { dataRow, column }) => {
-    if (column === 'bizAgntPrtnrNo') {
-      const { bizAgntPrtnrNo } = gridUtil.getRowValue(grid, dataRow);
-      const { result, payload } = await modal({
-        component: 'ZwogzPartnerListP',
-        componentProps: { prtnrNo: bizAgntPrtnrNo, ogTpCd: 'W06' },
+
+  // view.onCellButtonClicked = async (grid, { dataRow, column }) => {
+  //   // 파트너조회
+  //   if (column === 'bizAgntPrtnrNo') {
+  //     const { bizAgntPrtnrNo } = gridUtil.getRowValue(grid, dataRow);
+  //     const { result, payload } = await modal({
+  //       component: 'ZwogzPartnerListP',
+  //       componentProps: { prtnrNo: bizAgntPrtnrNo, ogTpCd: 'W06' },
+  //     });
+  //     if (result) {
+  //       data.setValue(dataRow, 'bizAgntPrtnrNo', payload.prtnrNo);
+  //       data.setValue(dataRow, 'agntPrtnrKnm', payload.prtnrKnm);
+  //     }
+  //   }
+  // };
+
+  view.onCellItemClicked = async (g, { column, dataRow }) => {
+    // 휴가정보
+    if (column === 'vcnInfo') {
+      const { prtnrNo } = gridUtil.getRowValue(g, dataRow);
+      const { rolDvNm } = gridUtil.getRowValue(g, dataRow);
+      const { prtnrKnm } = gridUtil.getRowValue(g, dataRow);
+      const { wkGrpNm } = gridUtil.getRowValue(g, dataRow);
+
+      const { result } = await modal({
+        component: 'WwogcEngineerAttendanceMgtP',
+        componentProps: { prtnrNo, ogTpCd: 'W06', rolDvNm, prtnrKnm, wkGrpNm },
       });
+
       if (result) {
-        data.setValue(dataRow, 'bizAgntPrtnrNo', payload.prtnrNo);
-        data.setValue(dataRow, 'agntPrtnrKnm', payload.prtnrKnm);
+        await fetchData();
       }
+    }
+  };
+
+  view.onCellEdited = (grid, itemIndex, dataRow, field) => {
+    const { egerWrkStatCd } = grid.getValues(itemIndex, field);
+    if (egerWrkStatCd !== '000' && egerWrkStatCd !== '990') {
+      grid.setValue(itemIndex, 'egerWrkStatCd', '000');
+
+      alert(t('MSG_TXT_VCN_INFO_REG'));
     }
   };
 });

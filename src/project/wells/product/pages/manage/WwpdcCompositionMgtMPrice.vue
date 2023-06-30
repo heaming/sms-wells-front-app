@@ -256,8 +256,8 @@ async function onClickAdd() {
       item.basePdCd = item.pdCd;
       item.baseSellTpCd = item.sellTpCd;
       item.sellChnlCd = addChannelId.value;
-      item.vlStrtDtm = vlStrtDtm.value;
-      item.vlEndDtm = vlEndDtm.value;
+      item.vlStrtDtm = item.vlStrtDtm ? item.vlStrtDtm.substr(0, 8) : vlStrtDtm.value;
+      item.vlEndDtm = item.vlEndDtm ? item.vlEndDtm.substr(0, 8) : vlEndDtm.value;
       item.pdCd = '';
       item.verSn = '';
       item.pdPrcId = '';
@@ -421,7 +421,7 @@ async function initGrid(data, view) {
     // 기준상품 분류
     { fieldName: 'basePdClsfNm', header: t('MSG_TXT_PD_STD_TYPE'), width: '171', editable: false },
     // 기준상품명
-    { fieldName: 'basePdNm', header: t('MSG_TXT_PD_STD_NAME'), width: '126', editable: false },
+    { fieldName: 'basePdNm', header: t('MSG_TXT_PD_STD_NAME'), width: '176', editable: false },
     // 기준상품코드
     { fieldName: 'basePdCd', header: t('MSG_TXT_PD_STD_CODE'), width: '115', styleName: 'text-center', editable: false },
     // 판매유형

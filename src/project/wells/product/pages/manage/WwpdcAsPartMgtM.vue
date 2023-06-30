@@ -5,19 +5,12 @@
 1. 모듈 : 상품 - 상품운영관리(PDC)
 2. 프로그램 ID : WwpdcAsPartMgtM - AS부품 등록/변경
 3. 작성자 : junho.bae
-4. 작성일 : 2022.AA.BB
+4. 작성일 : 2023.07.01
 ****************************************************************************************************
 * 프로그램 설명
 ****************************************************************************************************
 - 상품 >> AS부품 등록/변경 프로그램 (Outer Frame Page)
 ****************************************************************************************************
-- '교재/자재' 와 달리 '관리속성' 미사용.
--TODO :
-// const page = ref({
-//   reg: '/product/zwpdc-as-part-list/wwpdc-as-part-mgt', // AS부품 등록 UI
-//   detail: '/product/zwpdc-as-part-list/wwpdc-as-part-dtl', // AS부품 상세보기 UI
-// });
-// const exceptPrpGrpCd = ref('');
 --->
 <template>
   <kw-page>
@@ -170,7 +163,7 @@ const props = defineProps({
 
 const { t } = useI18n();
 const dataService = useDataService();
-const { confirm, notify, modal } = useGlobal();
+const { confirm, notify, modal, alert } = useGlobal();
 const router = useRouter();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -283,7 +276,6 @@ async function fetchData() {
   }
 }
 
-// 중복체크 메소드 - 확장성 위해 'validationType' 추가.
 async function duplicationCheck(validationType, sourceData) {
   const validationParams = {};
   validationParams.validationType = validationType;
@@ -294,7 +286,7 @@ async function duplicationCheck(validationType, sourceData) {
 
   if (res.data !== 'N') {
     // 다른 교재/제품에서 이미 사용 중인 SAP자재코드입니다. (사용 교재/제품코드: {0}/{1}) - 교재명/자재코드
-    notify(t('MSG_ALT_EXIST_SAP_MAT_CD', [res.data, validationParams.sapMatCd]));
+    await alert(t('MSG_ALT_EXIST_SAP_MAT_CD', [res.data, validationParams.sapMatCd]));
     return false;
   }
   return true;
@@ -416,7 +408,6 @@ async function popupCallback(payload) {
 }
 
 async function openPopup(field) {
-  console.log('Open Popup : ', field.colNm, field.sourcInfCn);
   const { payload } = await modal({
     component: field.sourcInfCn,
     componentProps: {

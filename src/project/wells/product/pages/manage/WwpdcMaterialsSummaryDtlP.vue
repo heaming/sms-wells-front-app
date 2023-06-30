@@ -5,7 +5,7 @@
 1. 모듈 : PDY
 2. 프로그램 ID : WwpdcMaterialsSummaryDtlP - 교재/자재 관리 -요약조회 (W-PD-U-0032P01)
 3. 작성자 : junho.bae
-4. 작성일 : 2022.AA.BB
+4. 작성일 : 2023.07.01
 ****************************************************************************************************
 * 프로그램 설명
 ****************************************************************************************************
@@ -14,15 +14,6 @@
 --->
 <template>
   <kw-popup size="lg">
-    <!--
-    <kw-chip
-      :label="pdBas.sellYn === 'Y' ? $t('MSG_TXT_PD_SELLING') : $t('MSG_TXT_PD_NOT_SELLING') "
-      color="primary"
-      outline
-      class="ml0 mb8 pb2 pt1 px8 mt0"
-    />
-     -->
-
     <h2 class="h2-small">
       {{ pdBas.pdNm }}({{ pdBas.pdCd }})
       <p>
@@ -44,7 +35,7 @@
       dense
     >
       <kw-form-row>
-        <!-- 제품분류 ex. 대분류 > 중분류-->
+        <!-- 제품분류 -->
         <kw-form-item :label="$t('MSG_TXT_PRDT_CLSF')">
           <p>{{ pdBas.pdClsfNm }} </p>
         </kw-form-item>
@@ -67,7 +58,6 @@
     </kw-form>
 
     <kw-separator />
-    <!-- Grid Area -->
     <h3>{{ grd3rdTit.codeName ?? t('MSG_TXT_REP_PROD') }}</h3>
     <kw-grid
       ref="grd3rdRef"
@@ -136,7 +126,6 @@ async function fetchData() {
   pdBas.value = res.data[pdConst.TBL_PD_BAS];
   pdRel.value = res.data[pdConst.TBL_PD_REL];
   PdEcomPrpDtl.value = res.data[pdConst.TBL_PD_ECOM_PRP_DTL];
-  debugger;
   // 관리속성 - 판매제품
   PDCT.value = PdEcomPrpDtl.value.find((element) => element.pdExtsPrpGrpCd === 'PDCT');
   pdColoNm.value = PDCT.value?.pdPrpVal02 ?? '';
@@ -145,70 +134,12 @@ async function fetchData() {
 function showRowCnt(rowCnt) {
   if (rowCnt === 0) {
     return 1;
-  } if (rowCnt > 0 && rowCnt <= 3) {
+  }
+  if (rowCnt > 0 && rowCnt <= 3) {
     return rowCnt;
   }
   return 3;
 }
-
-onMounted(async () => {
-  await fetchData(props.pdCd);
-  // eslint-disable-next-line no-use-before-define
-  await setData();
-});
-
-// -------------------------------------------------------------------------------------------------
-// Initialize Grid
-// -------------------------------------------------------------------------------------------------
-const columns = [
-  { fieldName: 'pdRelTpCd', header: t('MSG_TXT_RELATION_CLSF'), width: '106', styleName: 'text-center', options: codes.PDCT_REL_DV_CD }, /* 관계구분 */
-  { fieldName: 'pdClsfNm', header: t('MSG_TXT_CLSF'), width: '176', styleName: 'text-left' }, /* 분류 */
-  { fieldName: 'pdNm', header: t('MSG_TIT_MATERIAL_NM'), width: '382', styleName: 'text-left' }, /* 교재/자재명 */
-  // { fieldName: 'sapPdctSclsrtStrcVal', header: t('MSG_TXT_MATI_CD'), width: '121' }, /* 자재코드 교재/제재코드 */
-  { fieldName: 'sapMatCd', header: t('MSG_TXT_MATI_CD'), width: '121' }, /* 자재코드 교재/제재코드 */
-  { fieldName: 'modelNo', header: t('MSG_TXT_PD_MODEL_NO'), width: '152', styleName: 'text-center' }, /* 모델No */
-  { fieldName: 'pdAbbrNm', header: t('MSG_TXT_ABBR'), width: '226', styleName: 'text-left', visible: false }, /* 약어 */
-  { fieldName: 'ostrCnrCd', header: t('MSG_TIT_SHIPPING_CENTER'), width: '214', styleName: 'text-left', visible: false }, /* 출고센터 */
-  { fieldName: 'pdTpCd', header: t('MSG_TIT_PRDT_TYPE'), width: '214', visible: false }, /* 상품종류 */
-  { fieldName: 'ojPdCd', header: t('MSG_TIT_TARGET_PRDT_CD'), width: '214', visible: false }, /* 대상상품코드 */
-  { fieldName: 'fstRgstDtm', header: t('MSG_TXT_RGST_DTM'), width: '110', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date', visible: false }, /* 등록일 */
-  { fieldName: 'fstRgstUsrNm', header: t('MSG_TXT_RGST_USR'), width: '80', styleName: 'rg-button-link text-center', renderer: { type: 'button' }, preventCellItemFocus: true, visible: false }, /* 등록자 */
-  { fieldName: 'fnlMdfcDtm', header: t('MSG_TXT_FNL_MDFC_D'), width: '110', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date', visible: false }, /* 최종수정일 */
-  { fieldName: 'fnlMdfcUsrNm', header: t('MSG_TXT_FNL_MDFC_USR'), width: '80', styleName: 'rg-button-link text-center', renderer: { type: 'button' }, preventCellItemFocus: true, visible: false }, /* 최종수정자 */
-  //   NameTag Parameter
-  { fieldName: 'fstRgstUsrId', header: 'RGST_ID', width: '50', visible: false },
-  { fieldName: 'fnlMdfcUsrId', header: 'MDFC_ID', width: '50', visible: false },
-];
-
-const initGrd1st = defineGrid((data, view) => {
-  const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }))
-    .filter((visible) => visible);
-  data.setFields(fields);
-  view.setColumns(columns);
-  view.rowIndicator.visible = false;
-  view.checkBar.visible = false;
-  // view.displayOptions.selectionStyle = 'singleRow';
-});
-
-const initGrd2nd = defineGrid((data, view) => {
-  const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }))
-    .filter((visible) => visible);
-  data.setFields(fields);
-  view.setColumns(columns);
-  view.rowIndicator.visible = false;
-  view.checkBar.visible = false;
-  // view.displayOptions.selectionStyle = 'singleRow';
-});
-
-const initGrd3rd = defineGrid((data, view) => {
-  const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }))
-    .filter((visible) => visible);
-  data.setFields(fields);
-  view.setColumns(columns);
-  view.rowIndicator.visible = false;
-  view.checkBar.visible = false;
-  // view.displayOptions.selectionStyle = 'singleRow';
-});
 
 async function setData() {
   // Grid Header Binding
@@ -233,6 +164,59 @@ async function setData() {
   visibleRowCnt2.value = showRowCnt(grd2ndRef.value.getView().getItemCount());
   visibleRowCnt3.value = showRowCnt(grd3rdRef.value.getView().getItemCount());
 }
+
+onMounted(async () => {
+  await fetchData(props.pdCd);
+  await setData();
+});
+
+// -------------------------------------------------------------------------------------------------
+// Initialize Grid
+// -------------------------------------------------------------------------------------------------
+const columns = [
+  { fieldName: 'pdRelTpCd', header: t('MSG_TXT_RELATION_CLSF'), width: '106', styleName: 'text-center', options: codes.PDCT_REL_DV_CD }, /* 관계구분 */
+  { fieldName: 'pdClsfNm', header: t('MSG_TXT_CLSF'), width: '176', styleName: 'text-left' }, /* 분류 */
+  { fieldName: 'pdNm', header: t('MSG_TIT_MATERIAL_NM'), width: '382', styleName: 'text-left' }, /* 교재/자재명 */
+  { fieldName: 'sapMatCd', header: t('MSG_TXT_MATI_CD'), width: '121' }, /* 자재코드 교재/제재코드 */
+  { fieldName: 'modelNo', header: t('MSG_TXT_PD_MODEL_NO'), width: '152', styleName: 'text-center' }, /* 모델No */
+  { fieldName: 'pdAbbrNm', header: t('MSG_TXT_ABBR'), width: '226', styleName: 'text-left', visible: false }, /* 약어 */
+  { fieldName: 'ostrCnrCd', header: t('MSG_TIT_SHIPPING_CENTER'), width: '214', styleName: 'text-left', visible: false }, /* 출고센터 */
+  { fieldName: 'pdTpCd', header: t('MSG_TIT_PRDT_TYPE'), width: '214', visible: false }, /* 상품종류 */
+  { fieldName: 'ojPdCd', header: t('MSG_TIT_TARGET_PRDT_CD'), width: '214', visible: false }, /* 대상상품코드 */
+  { fieldName: 'fstRgstDtm', header: t('MSG_TXT_RGST_DTM'), width: '110', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date', visible: false }, /* 등록일 */
+  { fieldName: 'fstRgstUsrNm', header: t('MSG_TXT_RGST_USR'), width: '80', styleName: 'rg-button-link text-center', renderer: { type: 'button' }, preventCellItemFocus: true, visible: false }, /* 등록자 */
+  { fieldName: 'fnlMdfcDtm', header: t('MSG_TXT_FNL_MDFC_D'), width: '110', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date', visible: false }, /* 최종수정일 */
+  { fieldName: 'fnlMdfcUsrNm', header: t('MSG_TXT_FNL_MDFC_USR'), width: '80', styleName: 'rg-button-link text-center', renderer: { type: 'button' }, preventCellItemFocus: true, visible: false }, /* 최종수정자 */
+  { fieldName: 'fstRgstUsrId', header: 'RGST_ID', width: '50', visible: false },
+  { fieldName: 'fnlMdfcUsrId', header: 'MDFC_ID', width: '50', visible: false },
+];
+
+const initGrd1st = defineGrid((data, view) => {
+  const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }))
+    .filter((visible) => visible);
+  data.setFields(fields);
+  view.setColumns(columns);
+  view.rowIndicator.visible = false;
+  view.checkBar.visible = false;
+});
+
+const initGrd2nd = defineGrid((data, view) => {
+  const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }))
+    .filter((visible) => visible);
+  data.setFields(fields);
+  view.setColumns(columns);
+  view.rowIndicator.visible = false;
+  view.checkBar.visible = false;
+});
+
+const initGrd3rd = defineGrid((data, view) => {
+  const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }))
+    .filter((visible) => visible);
+  data.setFields(fields);
+  view.setColumns(columns);
+  view.rowIndicator.visible = false;
+  view.checkBar.visible = false;
+});
 
 </script>
 

@@ -164,7 +164,7 @@
 
 import { codeUtil, useMeta, useGlobal, useDataService, getComponentType, gridUtil, defineGrid } from 'kw-lib';
 import dayjs from 'dayjs';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, isEmpty } from 'lodash-es';
 
 const { t } = useI18n();
 const { getConfig } = useMeta();
@@ -249,6 +249,12 @@ await Promise.all([
 
 // 기준년월이 변경되었을 때 창고번호 재조회
 function onChangeBaseYm() {
+  const searchBaseYm = searchParams.value.baseYm;
+  if (isEmpty(searchBaseYm)) {
+    searchParams.value.wareNo = '';
+    optionsWareNo.value = [];
+    return;
+  }
   onChangeWareHouse();
 }
 
@@ -325,9 +331,6 @@ async function onClickSave() {
   if (await gridUtil.alertIfIsNotModified(view)) { return; }
   if (!await gridUtil.validate(view)) { return; }
   const modifedData = gridUtil.getChangedRowValues(view);
-  modifedData.forEach((item) => {
-    item.mngtYm = searchParams.value.baseYm;
-  });
 
   const res = await dataService.post('/sms/wells/service/as-material-item-grades', modifedData);
   const { processCount } = res.data;
@@ -364,6 +367,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'itmMngtGdCd' },
     { fieldName: 'ctrItmMngtGdCd' },
     { fieldName: 'rmkCn' },
+    { fieldName: 'mngtYm' },
   ];
 
   const columns = [

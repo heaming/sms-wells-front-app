@@ -5,7 +5,7 @@
 1. 모듈 : 고객 - 가망고객관리(CSB)
 2. 프로그램 ID : WwcsbNewReceiptMgtMReceipt.vue - 신규접수 배정관리 - 접수조회(TAB) (W-CU-U-0030M01)
 3. 작성자 : junho.bae
-4. 작성일 : 2022.AA.BB
+4. 작성일 : 2023.07.01
 ****************************************************************************************************
 * 프로그램 설명
 ****************************************************************************************************
@@ -72,11 +72,6 @@
         :label="$t('MSG_BTN_EXCEL_DOWN')"
         @click="onClickExcelDownload"
       />
-      <kw-separator
-        vertical
-        inset
-        spaced
-      />
     </kw-action-top>
     <kw-grid
       ref="grdReceiptRef"
@@ -115,9 +110,8 @@ const router = useRouter();
 const baseUrl = '/sms/wells/customer/receipts';
 const codes = await codeUtil.getMultiCodes('COD_PAGE_SIZE_OPTIONS');
 
-// t('MSG_TXT_EDU_HOME_PAGE')
 const RECEIPT_TYPE_CODE = [
-  { codeId: '40', codeName: t('MSG_TXT_CUBIC_CC') }, /* 큐빅CC */
+  { codeId: '40', codeName: t('MSG_TXT_SERVICE_CENTER') }, /* 고객센터 */
   { codeId: '20', codeName: t('MSG_TXT_HMPG') }, /* 홈페이지 */
 ];
 
@@ -175,16 +169,34 @@ async function onClickExcelDownload() {
   });
 }
 
+// eslint-disable-next-line no-unused-vars
 function ogAsnStatCdStyleCallback(grid, dataCell) {
+  // const ret = {};
+  // const ichrPrtnrNo = grid.getValue(dataCell.index.itemIndex, 'ichrPrtnrNo');
+  // if (isEmpty(ichrPrtnrNo)) {
+  //   ret.renderer = { type: 'button', editable: false };
+  //   ret.editable = false;
+  //   ret.styleName = 'btnshow';
+  // } else {
+  //   ret.styleName = 'btnhide';
+  // }
+  // return ret;
+
+  // 230627 기존 등록된 사용자가 있어도 update 가능.
+  // const ret = {};
+  // ret.renderer = { type: 'button', editable: false };
+  // return ret;
+
   const ret = {};
   const ichrPrtnrNo = grid.getValue(dataCell.index.itemIndex, 'ichrPrtnrNo');
-
   if (isEmpty(ichrPrtnrNo)) {
     ret.renderer = { type: 'button', editable: false };
     ret.editable = false;
     ret.styleName = 'btnshow';
   } else {
-    ret.styleName = 'btnhide';
+    // ret.styleName = 'btnhide';
+    ret.renderer = { type: 'button', editable: false };
+    ret.styleName = 'rg-button-link text-center';
   }
   return ret;
 }
@@ -223,14 +235,13 @@ const initgrdReceipt = defineGrid((data, view) => {
     { fieldName: 'ichrPrtnrNo', header: t('MSG_TXT_ASSIGNER_EP_NO'), width: '120', styleName: 'text-center' }, /* 배정담당자 사번 */
     { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_NO'), width: '130', styleName: 'text-center' }, /* 계약번호 */
     { fieldName: 'fstRgstDtm', header: t('MSG_TXT_CRT_D'), width: '114', styleName: 'text-center', datetimeFormat: 'date' }, /* 생성일 */
-    { fieldName: 'col17', header: t('MSG_TXT_DUEDT'), width: '114', styleName: 'text-center' }, /* 예정일 */
+    { fieldName: 'sppDuedt', header: t('MSG_TXT_DUEDT'), width: '114', styleName: 'text-center' }, /* 예정일 */
     { fieldName: 'cntrPdStrtdt', header: t('MSG_TXT_DT_OF_SALE'), width: '114', styleName: 'text-center' }, /* 매출일 */
     { fieldName: 'pdNm', header: t('MSG_TXT_GOODS_NM'), width: '143', styleName: 'text-left' }, /* 제품명 */
     { fieldName: 'newAdrZip', header: t('MSG_TXT_ZIP'), width: '77', styleName: 'text-center' }, /* 우편번호 */
     { fieldName: 'custAdr', header: t('MSG_TXT_ADDR'), width: '275', styleName: 'text-left' }, /* 주소 */
 
     // 등록/수정일
-    // { fieldName: 'fstRgstDtm', header: t('MSG_TXT_RGST_DT'), },
     { fieldName: 'fstRgstUsrNm', header: t('MSG_TXT_RGST_USR'), width: '80', styleName: 'text-center', editable: false },
     { fieldName: 'fstRgstUsrId', header: 'RGST_ID', width: '50', visible: false },
     { fieldName: 'fnlMdfcDtm', header: t('MSG_TXT_FNL_MDFC_D'), width: '110', styleName: 'text-center', datetimeFormat: 'date', editable: false },
@@ -252,8 +263,9 @@ const initgrdReceipt = defineGrid((data, view) => {
   view.onCellDblClicked = async (g, clickData) => {
     if (clickData.cellType === 'data') {
       const pspcCstCnslId = g.getValue(clickData.itemIndex, 'pspcCstCnslId');
+      const cntrNo = g.getValue(clickData.itemIndex, 'cntrNo');
       const targetUrl = '/customer/wwcsb-new-receipt-mgt/wwcsb-new-receipt-mgt-m-Receipt-dtl';
-      await router.push({ path: targetUrl, query: { pspcCstCnslId, fromUi: 'RECV' } });
+      await router.push({ path: targetUrl, query: { pspcCstCnslId, fromUi: 'RECV', cntrNo } });
     }
   };
 
@@ -261,7 +273,7 @@ const initgrdReceipt = defineGrid((data, view) => {
   view.onCellItemClicked = async (g, { column, dataRow, itemIndex }) => {
     const rowData = gridUtil.getRowValue(g, dataRow);
     if (column === 'ichrPrtnrNm') {
-      const componentProps = { pspcCstCnslId: rowData?.pspcCstCnslId, jobType: 'RECV' };
+      const componentProps = { pspcCstCnslId: rowData?.pspcCstCnslId, jobType: 'RECV', ichrPrtnrNo: rowData?.ichrPrtnrNo };
       const { result, payload } = await modal({ component: 'WwcsbManualAssignModP', componentProps });
       if (result && payload) await fetchData();
     }

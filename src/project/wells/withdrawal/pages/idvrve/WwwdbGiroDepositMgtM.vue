@@ -433,11 +433,8 @@ async function onClickExcelUpload() {
 let createParam;
 // 생성버튼
 async function onClickCreate() {
-  // notify(t('MSG_ALT_DEVELOPING'));
   if (await confirm('입금등록을 진행하시겠습니까?')) {
     createParam = cloneDeep(searchParams.value);
-
-    // console.log(createParam);
 
     await dataService.post('/sms/wells/withdrawal/idvrve/giro-deposits/create', createParam);
 

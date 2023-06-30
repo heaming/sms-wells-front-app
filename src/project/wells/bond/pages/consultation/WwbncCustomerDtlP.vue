@@ -444,7 +444,7 @@
                   </p>
                 </kw-form-item>
                 <kw-form-item
-                  :label="$t('MSG_TXT_CLCTAM_ICHR')"
+                  :label="$t('MSG_TXT_CLCTAM_PSIC')"
                 >
                   <p>
                     {{ customer.prtnrNm }}
@@ -870,8 +870,7 @@
               </kw-form-row>
             </kw-form>
             <kw-list
-              separator
-              item-padding="20px 0"
+              item-padding="16px 0"
               class="mt20"
             >
               <kw-expansion-item
@@ -883,7 +882,7 @@
                 <template #header>
                   <kw-item-section>
                     <kw-item-label>
-                      <span class="text-bold kw-font-pt18">{{ $t('MSG_TXT_PROM_RGST') }}</span>
+                      <span class="text-bold kw-font-pt16">{{ $t('MSG_TXT_PROM_RGST') }}</span>
                     </kw-item-label>
                   </kw-item-section>
                 </template>
@@ -957,7 +956,7 @@
             <kw-input
               v-model="customer.cnslCn"
               type="textarea"
-              :rows="10"
+              :rows="7"
               :placeholder="$t('MSG_TXT_CNSL_IN')"
               class="mt12"
             />

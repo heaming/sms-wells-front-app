@@ -5,7 +5,7 @@
 1. 모듈 : PDY
 2. 프로그램 ID : WwpdyReStipulationMgtM - 재약정 기준정보 관리 (W-PD-U-0045M01)
 3. 작성자 : junho.bae
-4. 작성일 : 2022.AA.BB
+4. 작성일 : 2023.07.01
 ****************************************************************************************************
 * 프로그램 설명
 ****************************************************************************************************
@@ -128,13 +128,13 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { codeUtil, defineGrid, getComponentType, gridUtil, useDataService, useGlobal, useMeta } from 'kw-lib';
-import { cloneDeep, isEmpty } from 'lodash-es'; // groupBy
+import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 import pdConst from '~sms-common/product/constants/pdConst';
 
 const dataService = useDataService();
 const { t } = useI18n();
-const { notify, modal } = useGlobal();
+const { notify, modal, alert } = useGlobal();
 const { getConfig } = useMeta();
 const grdMainRef = ref(getComponentType('KwGrid'));
 const { currentRoute } = useRouter();
@@ -180,8 +180,6 @@ async function onClickProduct() {
       return false;
     }
     searchParams.value.pdCd = payload[0].pdCd;
-    // g.setValue(itemIndex, 'pdCd', payload[0].pdCd);
-    // g.setValue(itemIndex, 'pdNm', payload[0].pdNm);
   }
 }
 
@@ -228,14 +226,14 @@ async function checkDuplicationByPk() {
   // #1. 신규 입력항목들 사이에 중복값 체크.
   const view = grdMainRef.value.getView();
   // const createdRows = gridUtil.getCreatedRowValues(view);
-  const createdRows = gridUtil.getChangedRowValues(view);
+  const insUpdRows = gridUtil.getChangedRowValues(view, false);
 
-  if (createdRows.length === 0) return await false;
+  if (insUpdRows.length === 0) return await false;
 
-  for (let i = 0; i < createdRows.length; i += 1) {
-    const baseRow = createdRows[i];
-    for (let j = 1; j < createdRows.length; j += 1) {
-      const targetRow = createdRows[j];
+  for (let i = 0; i < insUpdRows.length; i += 1) {
+    const baseRow = insUpdRows[i];
+    for (let j = 1; j < insUpdRows.length; j += 1) {
+      const targetRow = insUpdRows[j];
 
       if (i !== j
       && baseRow.pdCd === targetRow.pdCd
@@ -280,25 +278,12 @@ async function checkDuplicationByPk() {
     return await true;
   }
 
-  // NEW VERSION (bRow: BaseRow, tRow: TargetRow)
-  // const result = groupBy(createdRows, (v) => v.pdCd + v.rstlBaseTpCd + v.rstlMcn + v.stplTn + v.rstlSellChnlDvCd);
-  // const dups = Object.keys(result);
-  // dups.forEach((v, idx) => {
-  //   console.log(idx, result[v]);
-  //   const temp = result[v];
-  //   const invails = temp.filter((base, idx1) => temp.findIndex(
-  //     (target) => Number(base.apyStrtdt.replaceAll('-', '')) <= Number(target.apyStrtdt.replaceAll('-', ''))
-  //         || Number(base.apyEnddt.replaceAll('-', '')) >= Number(target.apyEnddt.replaceAll('-', '')),
-  //   ) === idx1);
-  //   console.log(invails);
-  // });
-
   // #2. 신규 입력항목들이 DB에 기입력되어 있는지 체크.
-  const { data: checkedData } = await dataService.post(`${baseUrl}/duplication-check`, createdRows);
+  const { data: checkedData } = await dataService.post(`${baseUrl}/duplication-check`, insUpdRows);
   console.debug('checkedData', checkedData);
   if (checkedData.dupliYn === 'Y') {
     // 은(는) 이미 DB에 등록되어 있습니다.
-    notify(t('MSG_ALT_EXIST_IN_DB', [checkedData.pdNm]));
+    await alert(t('MSG_ALT_EXIST_IN_DB', [checkedData.pdNm]));
     return await true;
   }
   return await false;

@@ -66,6 +66,12 @@
             icon="search"
             clearable
             :on-click-icon="onClickSearchNo"
+            :placeholder="$t('MSG_TXT_SEQUENCE_NUMBER')"
+          />
+          <kw-input
+            v-model="searchParams.prtnrKnm"
+            :placeholder="$t('MSG_TXT_EMPL_NM')"
+            readonly
           />
         </kw-search-item>
       </kw-search-row>
@@ -166,12 +172,13 @@ const codes = await codeUtil.getMultiCodes(
 const filterRsbDvCd = codes.RSB_DV_CD.filter((v) => ['W0302', 'W0301'].includes(v.codeId));
 const searchParams = ref({
 
-  perfYm: now.format('YYYYMM'),
+  perfYm: now.add(-1, 'month').format('YYYYMM'),
   rsbTp: '',
   rsbTpTxt: '',
   ogLevl2: '',
   ogLevl3: '',
   no: '',
+  prtnrKnm: '',
   ogTp: 'W03',
   statTitle: t('MSG_TXT_PRGS_STE'),
   feeSchdTpCd: '301',
@@ -185,54 +192,35 @@ const approval = ref({
   empno: sessionUserInfo.userId, /* 결재자 사번 */
   formId: '2023000024', /* 홈마스터 조직 품의결재 폼ID */
   appKey: '', /* 업무단에서 해당 결재를 확인할 KEY */
-  perfYm: '202305',
-  tax_std_tam: '1000',
-  act1_amt1: '1100',
-  act1_amt2: '1200',
-  act1_amt3: '1300',
-  act1_amt4: '1400',
-  sbsum1: '5900',
-  act2_amt1: '2100',
-  act2_amt2: '2200',
-  act2_amt3: '2300',
-  sbsum2: '6600',
-  act3_amt1: '3100',
-  act3_amt2: '3200',
-  act3_amt3: '3300',
-  sbsum3: '9600',
-  act4_amt1: '4100',
-  act4_amt2: '4200',
-  act4_amt3: '4300',
-  act4_amt4: '4400',
-  sbsum4: '17000',
-  txstdSumAmt: '21100',
-  acpySumAmt: '4100',
-  baseAmt: '1000000',
-  ddtnAmt: '510000',
-  calAmt: '490000',
 });
 
 const saveInfo = ref({
   perfYm: '',
   ogTp: 'W03',
   appKey: '',
+  unitCd: 'W301',
 });
 
 let cachedParams;
 
-// 번호 검색 아이콘 클릭 이벤트
+/*
+ *  Event - 번호 검색 아이콘 클릭 이벤트
+ */
 async function onClickSearchNo() {
   const { result, payload } = await modal({
-    component: 'ZwogzPartnerListP',
+    component: 'ZwogzMonthPartnerListP',
     componentProps: {
+      baseYm: searchParams.value.perfYm,
       prtnrNo: searchParams.value.no,
       ogTpCd: 'W03',
+      prtnrKnm: undefined,
     },
   });
 
   if (result) {
     if (!isEmpty(payload)) {
       searchParams.value.no = payload.prtnrNo;
+      searchParams.value.prtnrKnm = payload.prtnrKnm;
     }
   }
 }

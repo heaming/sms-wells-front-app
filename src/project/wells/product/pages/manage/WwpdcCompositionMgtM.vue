@@ -29,7 +29,7 @@
           <kw-step
             :header-nav="!isTempSaveBtn || passedStep >= pdConst.COMPOSITION_STEP_BASIC.step"
             :name="pdConst.COMPOSITION_STEP_BASIC.name"
-            :title="$t('MSG_TXT_BAS_ATTR_REG')"
+            :title="$t('MSG_TXT_PROP_REG')"
             :prefix="pdConst.COMPOSITION_STEP_BASIC.step"
             :done="currentStep.step > pdConst.COMPOSITION_STEP_BASIC.step"
             :sub-text="subTitle"
@@ -63,6 +63,7 @@
               v-model:pd-cd="currentPdCd"
               v-model:init-data="prevStepData"
               :pd-tp-cd="pdConst.PD_TP_CD_COMPOSITION"
+              is-auto-group-title
             />
           </kw-step-panel>
           <kw-step-panel :name="pdConst.COMPOSITION_STEP_REL_PROD.name">
@@ -213,7 +214,10 @@ const codes = await codeUtil.getMultiCodes(
 );
 
 async function getSaveData() {
-  const subList = { isModifiedProp: false, isOnlyFileModified: false, isModifiedPrice: false };
+  const subList = { isModifiedProp: false,
+    isOnlyFileModified: false,
+    isModifiedPrice: false,
+    isModifiedRelation: false };
   await Promise.all(cmpStepRefs.value.map(async (item, idx) => {
     const saveData = await item.value.getSaveData();
     const isModified = await item.value.isModifiedProps();
@@ -229,6 +233,10 @@ async function getSaveData() {
       // 가격 수정여부
       if (await isModified && idx === (pdConst.COMPOSITION_STEP_PRICE.step - 1)) {
         subList.isModifiedPrice = true;
+      }
+      // 연결상품 수정여부
+      if (await isModified && idx === (pdConst.COMPOSITION_STEP_REL_PROD.step - 1)) {
+        subList.isModifiedRelation = true;
       }
       if (saveData[bas]) {
         if (subList[bas]?.cols) {
@@ -455,9 +463,8 @@ async function onClickSave(tempSaveYn) {
   if (isTempSaveBtn.value) {
     // 임시저장
     if (rtn.data?.data?.pdCd !== currentPdCd.value) {
-      currentPdCd.value = rtn.data?.data?.pdCd;
-      isCreate.value = isEmpty(currentPdCd.value);
-      await router.push({ path: '/product/zwpdc-sale-product-list/wwpdc-composition-mgt', query: { pdCd: currentPdCd.value }, state: { stateParam: { newRegYn: 'N', reloadYn: 'N', copyPdCd: '' } } });
+      const newPdCd = rtn.data?.data?.pdCd;
+      await router.push({ path: '/product/zwpdc-sale-product-list/wwpdc-composition-mgt', query: { pdCd: newPdCd }, state: { stateParam: { newRegYn: 'N', reloadYn: 'N', copyPdCd: '' } } });
     } else {
       await fetchProduct();
     }

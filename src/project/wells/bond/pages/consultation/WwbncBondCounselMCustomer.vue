@@ -15,6 +15,7 @@
 --->
 <template>
   <kw-search
+    ref="frmMainRef"
     :cols="4"
     @search="onClickSearch"
   >
@@ -211,7 +212,14 @@
           v-model="searchParams.schDv"
           dense
           type="radio"
-          :options="selectCodes.WELLS_CST_LIST_DV"
+          :options="[
+            { codeId: '99', codeName:t('MSG_TXT_ALL') },
+            { codeId: '01', codeName:t('MSG_TXT_DLQ_BLAM_EXCD') , disable:isRadioDisable },
+            { codeId: '02', codeName:t('MSG_TXT_TOT_DP_AMT_EXCD') , disable:isRadioDisable },
+            { codeId: '03', codeName:t('MSG_TXT_OJ_BLAM_EXCD'), disable:isRadioDisable },
+            { codeId: '04', codeName:t('MSG_TXT_DLQ_MCNT_EXCD') , disable:isRadioDisable }
+          ]"
+          @change="onChangeDv"
         />
       </li>
     </ul>
@@ -240,6 +248,8 @@ const { currentRoute } = useRouter();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
+const isRadioDisable = ref(true);
+
 const codes = await codeUtil.getMultiCodes(
   'CST_SE_APY_DV_CD',
 );
@@ -277,10 +287,13 @@ const searchParams = ref({
   schOjBlamEnd: '',
   schCstDv: '',
   schCpsnRsgYn: '',
-  schDv: '',
+  schDv: '99',
   schCstNoYn: 'N',
+  dv1: '',
+  dv2: '',
 });
 
+const frmMainRef = ref(getComponentType('KwForm'));
 const customerParams = ref({});
 const totalCount = ref(0);
 
@@ -292,6 +305,8 @@ async function fetchCustomers() {
 
   const gridView = grdMainRef.value.getView();
   gridView.getDataSource().setRows(customers);
+
+  isRadioDisable.value = false;
 }
 
 /** 고객리스트 엑셀다운로드 */
@@ -425,6 +440,23 @@ async function onClickSearch() {
 
   cachedParams = cloneDeep(searchParams.value);
   await fetchCustomers();
+}
+
+// TODO: 구분 라디오 선택
+async function onChangeDv() {
+  if (searchParams.value.schClctamNo === '') {
+    searchParams.value.dv1 = searchParams.value.schDv;
+    if (searchParams.value.dv1 !== searchParams.value.dv2) {
+      if (!await frmMainRef.value.validate()) {
+        searchParams.value.schDv = '99';
+        searchParams.value.dv2 = '99';
+      } else {
+        await onClickSearch();
+      }
+    }
+  } else {
+    await onClickSearch();
+  }
 }
 
 async function fetchBaseYmData() {

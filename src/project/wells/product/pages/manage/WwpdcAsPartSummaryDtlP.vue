@@ -5,7 +5,7 @@
 1. 모듈 : PDY
 2. 프로그램 ID : WwpdcAsPartSummaryDtlP - AS부품 관리 -요약조회 (W-PD-U-0042P01)
 3. 작성자 : junho.bae
-4. 작성일 : 2022.AA.BB
+4. 작성일 : 2023.07.01
 ****************************************************************************************************
 * 프로그램 설명
 ****************************************************************************************************
@@ -32,7 +32,7 @@
       dense
     >
       <kw-form-row>
-        <!-- 제품분류 ex. 대분류 > 중분류-->
+        <!-- 제품분류 -->
         <kw-form-item :label="$t('MSG_TXT_PRDT_CLSF')">
           <p>{{ pdBas.pdClsfNm }} </p>
         </kw-form-item>
@@ -82,8 +82,6 @@ const baseUrl = '/sms/wells/product/as-parts';
 
 const pdBas = ref({}); // 상품기본
 const PdEcomPrpDtl = ref([]); // 상품각사속성상세
-// const PDCT = ref({}); // 관리속성 - 학습관리
-// const pdColoNm = ref(''); // 모델색상
 
 const PART = ref({}); // 관리속성 - 학습관리
 const asMatCd = ref(''); // PART- 품목코드
