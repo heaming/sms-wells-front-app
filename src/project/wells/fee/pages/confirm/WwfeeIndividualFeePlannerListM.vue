@@ -160,6 +160,7 @@
         :visible-rows="2"
         @init="initGrd1Main"
       />
+      <kw-separator />
       <kw-action-top class="mt30">
         <template #left>
           <h3>{{ t('MSG_TXT_FEE_IZ') }}</h3>
@@ -175,9 +176,10 @@
       <kw-grid
         ref="grd2MainRef"
         name="grd2Main"
-        :visible-rows="5"
+        :visible-rows="7"
         @init="initGrd2Main"
       />
+      <kw-separator />
       <kw-action-top class="mt30">
         <template #left>
           <h3>{{ t('MSG_TXT_DDTN_IZ') }}</h3>
@@ -477,49 +479,21 @@ if (!isEmpty(prPerfYm) && !isEmpty(prpartnerNo)) {
 // -------------------------------------------------------------------------------------------------
 const initGrd1Main = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'div' },
-    { fieldName: 'elhmAckmtCt' },
-    { fieldName: 'bfsvcAckmtCt' },
-    { fieldName: 'chng' },
-    { fieldName: 'fhsCt' },
-    { fieldName: 'metgPrscD' },
-
-  ];
-
-  const columns = [
-    { fieldName: 'div', header: t('MSG_TXT_DIV'), width: '100', styleName: 'text-center' },
-    { fieldName: 'elhmAckmtCt', header: t('MSG_TXT_ELHM') + t('MSG_TXT_EXCP'), width: '150', styleName: 'text-right' },
-    { fieldName: 'bfsvcAckmtCt', header: t('MSG_TXT_ELHM'), width: '150', styleName: 'text-right' },
-    { fieldName: 'chng', header: t('MSG_TXT_CHNG'), width: '150', styleName: 'text-right' },
-    { fieldName: 'fhsCt', header: t('MSG_TXT_MUTU'), width: '150', styleName: 'text-right' },
-    { fieldName: 'metgPrscD', header: t('MSG_TXT_METG_PRSC_D'), width: '150', styleName: 'text-right' },
-
-  ];
-
-  data.setFields(fields);
-  view.setColumns(columns);
-
-  view.checkBar.visible = false;
-  view.rowIndicator.visible = false;
-});
-const initGrd2Main = defineGrid((data, view) => {
-  const fields = [
     { fieldName: 'item1' },
-    { fieldName: 'amt1', dataType: 'number' },
+    { fieldName: 'fval1', dataType: 'number' },
     { fieldName: 'item2' },
-    { fieldName: 'amt2', dataType: 'number' },
+    { fieldName: 'fval2', dataType: 'number' },
     { fieldName: 'item3' },
-    { fieldName: 'amt3', dataType: 'number' },
-
+    { fieldName: 'fval3', dataType: 'number' },
   ];
 
   const columns = [
-    { fieldName: 'item1', header: t('MSG_TXT_ITEM'), width: '194', styleName: 'text-left', footer: { text: '합계', styleName: 'text-center' } },
-    { fieldName: 'amt1', header: t('MSG_TXT_AMT'), width: '203', styleName: 'text-right', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
-    { fieldName: 'item2', header: t('MSG_TXT_ITEM'), width: '194', styleName: 'text-left', footer: { text: '합계', styleName: 'text-center' } },
-    { fieldName: 'amt2', header: t('MSG_TXT_AMT'), width: '203', styleName: 'text-right', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
-    { fieldName: 'item3', header: t('MSG_TXT_ITEM'), width: '194', styleName: 'text-left', footer: { text: '합계', styleName: 'text-center' } },
-    { fieldName: 'amt3', header: t('MSG_TXT_AMT'), width: '203', styleName: 'text-right', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
+    { fieldName: 'item1', header: t('MSG_TXT_ITEM'), width: '194', styleName: 'text-left', footer: { text: '개인합계', styleName: 'text-left' } },
+    { fieldName: 'fval1', header: t('MSG_TXT_AMT'), width: '203', styleName: 'text-right', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
+    { fieldName: 'item2', header: t('MSG_TXT_ITEM'), width: '194', styleName: 'text-left', footer: { text: '조직합계', styleName: 'text-left' } },
+    { fieldName: 'fval2', header: t('MSG_TXT_AMT'), width: '203', styleName: 'text-right', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
+    { fieldName: 'item3', header: t('MSG_TXT_ITEM'), width: '194', styleName: 'text-left', footer: { text: '기타합계', styleName: 'text-left' } },
+    { fieldName: 'fval3', header: t('MSG_TXT_AMT'), width: '203', styleName: 'text-right', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
 
   ];
 
@@ -537,17 +511,73 @@ const initGrd2Main = defineGrid((data, view) => {
     {
       header: t('MSG_TXT_INDV') + t('MSG_TXT_FEE'), // colspan title
       direction: 'horizontal', // merge type
-      items: ['item1', 'amt1'],
+      items: ['item1', 'fval1'],
+      hideChildHeaders: true,
     },
     {
       header: t('MSG_TXT_OG') + t('MSG_TXT_FEE'),
       direction: 'horizontal',
-      items: ['item2', 'amt2'],
+      items: ['item2', 'fval2'],
+      hideChildHeaders: true,
     },
     {
       header: t('MSG_TXT_ETC') + t('MSG_TXT_FEE'),
       direction: 'horizontal',
-      items: ['item3', 'amt3'],
+      items: ['item3', 'fval3'],
+      hideChildHeaders: true,
+    },
+
+  ]);
+});
+
+const initGrd2Main = defineGrid((data, view) => {
+  const fields = [
+    { fieldName: 'item1' },
+    { fieldName: 'fval1', dataType: 'number' },
+    { fieldName: 'item2' },
+    { fieldName: 'fval2', dataType: 'number' },
+    { fieldName: 'item3' },
+    { fieldName: 'fval3', dataType: 'number' },
+  ];
+
+  const columns = [
+    { fieldName: 'item1', header: t('MSG_TXT_ITEM'), width: '194', styleName: 'text-left', footer: { text: '개인합계', styleName: 'text-left' } },
+    { fieldName: 'fval1', header: t('MSG_TXT_AMT'), width: '203', styleName: 'text-right', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
+    { fieldName: 'item2', header: t('MSG_TXT_ITEM'), width: '194', styleName: 'text-left', footer: { text: '조직합계', styleName: 'text-left' } },
+    { fieldName: 'fval2', header: t('MSG_TXT_AMT'), width: '203', styleName: 'text-right', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
+    { fieldName: 'item3', header: t('MSG_TXT_ITEM'), width: '194', styleName: 'text-left', footer: { text: '기타합계', styleName: 'text-left' } },
+    { fieldName: 'fval3', header: t('MSG_TXT_AMT'), width: '203', styleName: 'text-right', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
+
+  ];
+
+  data.setFields(fields);
+  view.setColumns(columns);
+
+  view.checkBar.visible = false;
+  view.rowIndicator.visible = false;
+
+  view.setFooters({ visible: true, items: [{ height: 30 }] });
+
+  // multi row header setting
+  view.setColumnLayout([
+
+    {
+      header: t('MSG_TXT_INDV') + t('MSG_TXT_FEE'), // colspan title
+      direction: 'horizontal', // merge type
+      items: ['item1', 'fval1'],
+      hideChildHeaders: true,
+    },
+    {
+      header: t('MSG_TXT_OG') + t('MSG_TXT_FEE'),
+      direction: 'horizontal',
+      items: ['item2', 'fval2'],
+      hideChildHeaders: true,
+    },
+    {
+      header: t('MSG_TXT_ETC') + t('MSG_TXT_FEE'),
+      direction: 'horizontal',
+      items: ['item3', 'fval3'],
+      hideChildHeaders: true,
     },
 
   ]);
