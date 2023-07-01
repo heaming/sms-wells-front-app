@@ -16,13 +16,12 @@
   <kw-page>
     <kw-action-top class="mb20">
       <template #left>
-        <h3 class="mb20">
+        <h3>
           {{ t('MSG_TXT_ELSG_VST_CH') }}
         </h3>
       </template>
       <kw-btn
         :label="t('MSG_BTN_CH')"
-        class="ml8"
         @click="onClickChange()"
       />
     </kw-action-top>
@@ -35,7 +34,6 @@
       </template>
       <kw-btn
         :label="t('MSG_BTN_BIZTALK_SEND')"
-        class="ml8"
         @click="onClickAlarmSend"
       />
     </kw-action-top>
