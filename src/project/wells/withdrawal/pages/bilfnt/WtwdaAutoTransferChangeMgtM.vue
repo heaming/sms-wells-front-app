@@ -14,101 +14,67 @@
 --->
 <template>
   <kw-page>
-    <div class="border-box">
-      <h3 class="mb20">
-        {{ t('MSG_TXT_ELSG_VST_CH') }}
-      </h3>
-      <kw-field-wrap>
-        <kw-input
-          class="kw-grow"
-          readonly
-          :placeholder="visitCocnMshCh"
-        />
-        <kw-btn
-          :label="t('MSG_BTN_CNTN_COPY')"
-          class="ml8"
-
-          @click="onClickUrlCopy(1)"
-        />
-        <kw-btn
-          :label="t('MSG_BTN_CH')"
-          class="ml8"
-          @click="onClickChange()"
-        />
-      </kw-field-wrap>
-    </div>
-    <div class="border-box mt20">
-      <h3 class="mb20">
-        {{ t('MSG_TXT_ELSG_LDSTC_CH') }}
-      </h3>
-      <kw-field-wrap>
-        <kw-input
-          class="kw-grow"
-          readonly
-          :placeholder="elsgLdstcCh"
-        />
-        <kw-btn
-          :label="t('MSG_BTN_CNTN_COPY')"
-          class="ml8"
-          @click="onClickUrlCopy(2)"
-        />
-        <!-- <kw-btn
-          :label="t('MSG_BTN_CH')"
-          class="ml8"
-          @click="onClickChange(2)"
-        /> -->
-      </kw-field-wrap>
-
-      <kw-separator />
-
-      <kw-form
-        ref="formRef"
-        :cols="2"
-      >
-        <kw-form-row>
-          <kw-form-item
+    <kw-action-top class="mb20">
+      <template #left>
+        <h3>
+          {{ t('MSG_TXT_ELSG_VST_CH') }}
+        </h3>
+      </template>
+      <kw-btn
+        :label="t('MSG_BTN_CH')"
+        @click="onClickChange()"
+      />
+    </kw-action-top>
+    <kw-separator />
+    <kw-action-top class="mb20">
+      <template #left>
+        <h3>
+          {{ t('MSG_TXT_ELSG_LDSTC_CH') }}
+        </h3>
+      </template>
+      <kw-btn
+        :label="t('MSG_BTN_BIZTALK_SEND')"
+        @click="onClickAlarmSend"
+      />
+    </kw-action-top>
+    <kw-form :cols="2">
+      <kw-form-row>
+        <kw-form-item
+          :label="t('MSG_TXT_NOTAK_RCV_CST_NAME')"
+          required
+        >
+          <kw-input
+            v-model="inputParams.cstNm"
+            :regex="/^[A-Z가-힣ㄱ-ㅎ]*$/i"
             :label="t('MSG_TXT_NOTAK_RCV_CST_NAME')"
-            required
-          >
-            <kw-input
-              v-model="inputParams.cstNm"
-              :regex="/^[A-Z가-힣ㄱ-ㅎ]*$/i"
-              :label="t('MSG_TXT_NOTAK_RCV_CST_NAME')"
-              maxlength="15"
-              :placeholder="t('MSG_TXT_INP')"
-              rules="required"
-            />
-          </kw-form-item>
-          <kw-form-item
-            :label="t('MSG_TXT_NOTAK_RCV_CST_NO')"
-            required
-          >
-            <kw-input
-              v-model:tel-no0="inputParams.cralLocaraTno"
-              v-model:tel-no1="inputParams.mexnoGbencr"
-              v-model:tel-no2="inputParams.cralIdvTno"
-              :label="$t('MSG_TXT_NOTAK_RCV_CST_NO')"
-              mask="telephone"
-              :rules="'required|telephone'"
-            />
-            <!-- <kw-input
+            maxlength="15"
+            :placeholder="t('MSG_TXT_INP')"
+            rules="required"
+          />
+        </kw-form-item>
+        <kw-form-item
+          :label="t('MSG_TXT_NOTAK_RCV_CST_NO')"
+          required
+        >
+          <kw-input
+            v-model:tel-no0="inputParams.cralLocaraTno"
+            v-model:tel-no1="inputParams.mexnoGbencr"
+            v-model:tel-no2="inputParams.cralIdvTno"
+            :label="$t('MSG_TXT_NOTAK_RCV_CST_NO')"
+            mask="telephone"
+            :rules="'required|telephone'"
+          />
+          <!-- <kw-input
               v-model="inputParams.phone"
               maxlength="11"
               placeholder="01012345678"
             /> -->
-            <kw-btn
-              :label="t('MSG_BTN_BIZTALK_SEND')"
-              class="ml8"
-              @click="onClickAlarmSend"
-            />
-          </kw-form-item>
-        </kw-form-row>
-      </kw-form>
-
-      <ul class="kw-notification mt20">
-        <li>{{ t('MSG_TXT_NOTAK_FW_CAN_IMP') }}</li>
-      </ul>
-    </div>
+        </kw-form-item>
+      </kw-form-row>
+    </kw-form>
+    <ul class="kw-notification mt20">
+      <li>{{ t('MSG_TXT_NOTAK_FW_CAN_IMP') }}</li>
+    </ul>
   </kw-page>
 </template>
 
@@ -129,6 +95,7 @@ const dataService = useDataService();
 const { notify } = useGlobal();
 
 const { getters } = useStore();
+// eslint-disable-next-line no-unused-vars
 const { userId } = getters['meta/getUserInfo'];
 
 const now = dayjs();
@@ -150,17 +117,9 @@ const akChdt = now.format('YYYYMMDD');
 
 const strDomain = window.location.host;
 
-const visitCocnMshCh = `${strDomain}/tablet/#/withdrawal/ztwda-auto-transfer-payment-change?vstYn=Y&chRqrDvCd=2&aftnThpChYn=N&clctamMngtYn=N&cntrChPrtnrNo=${userId}&akChdt=${akChdt}`; // 방문
-const elsgLdstcCh = `${strDomain}/tablet/#/withdrawal/ztwda-auto-transfer-payment-change?vstYn=N&chRqrDvCd=1&aftnThpChYn=N&clctamMngtYn=N&cntrChPrtnrNo=${userId}&akChdt=${akChdt}`; // 원거리
-
-async function onClickUrlCopy(no) {
-  if (no === 1) {
-    navigator.clipboard.writeText(visitCocnMshCh);
-  } else {
-    navigator.clipboard.writeText(elsgLdstcCh);
-  }
-  notify(t('MSG_ALT_COPY_DATA'));
-}
+const visitCocnMshCh = `${strDomain}/tablet/#/ns/ztwda-auto-transfer-payment-change?vstYn=Y&chRqrDvCd=2&aftnThpChYn=N&clctamMngtYn=N&akChdt=${akChdt}`; // 방문
+// eslint-disable-next-line no-unused-vars
+const elsgLdstcCh = `${strDomain}/tablet/#/ns/ztwda-auto-transfer-payment-change?vstYn=N&chRqrDvCd=1&aftnThpChYn=N&clctamMngtYn=N&akChdt=${akChdt}`; // 원거리
 
 async function onClickChange() {
   const query = {
@@ -168,7 +127,6 @@ async function onClickChange() {
     chRqrDvCd: '2',
     aftnThpChYn: 'N',
     clctamMngtYn: 'N',
-    cntrChPrtnrNo: userId,
     akChdt,
   };
   const url = visitCocnMshCh;
@@ -180,30 +138,34 @@ async function onClickChange() {
 
 // 알림톡 발송
 async function onClickAlarmSend() {
+  const deviceScreen = '/#/ns/ztwda-auto-transfer-payment-change?';
+  const nsUrl = '/anonymous/login?redirectUrl=';
+
+  const params = {
+    vstYn: 'Y',
+    chRqrDvCd: '2',
+    aftnThpChYn: 'N',
+    clctamMngtYn: 'N',
+    akChdt,
+  };
+
+  const query = deviceScreen + new URLSearchParams(params);
+
+  const nsFullUrl = encodeURIComponent(query);
   // chRqrDvCd 방문 : '2' (교원) / 원거리 : '1' (고객)
   if (!await formRef.value.validate()) { return; }
-  inputParams.value = { ...inputParams.value, url: elsgLdstcCh };
+  inputParams.value = { ...inputParams.value,
+    nsUrl,
+    nsFullUrl,
+  };
   await dataService.post('sms/common/withdrawal/bilfnt/auto-transfer-change/notification-talk-send', inputParams.value);
 
   notify(t('MSG_ALT_BIZTALK_SEND_SUCCESS'));
-
-  // const query = {
-  //   vstYn: 'N',
-  //   chRqrDvCd: '1',
-  //   cntrChPrtnrNo: userId,
-  //   aftnThpChYn: 'N',
-  //   clctamMngtYn: 'N',
-  //   akChdt,
-  // };
-  // const url = elsgLdstcCh;
-
-  // const path = url.slice(url.indexOf('#') + 1);
-  // await router.push({ path, query });
 }
 
 onMounted(async () => {
   if (!window.opener) {
-    const path = '/tablet/#/withdrawal/wtwda-auto-transfer-change-mgt';
+    const path = '/tablet/#/ns/wtwda-auto-transfer-change-mgt';
     const size = {
       width: 1138,
       height: 712,
