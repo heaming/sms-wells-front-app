@@ -31,7 +31,7 @@
       class="mt30"
       cols="2"
       :modified-targets="['grdPopFifth']"
-      @search="onSearch"
+      @search="onClickSearch"
     >
       <kw-search-row>
         <kw-search-item
@@ -46,6 +46,7 @@
             :end-level="2"
             first-option="all"
             rules="required"
+            @update="onChangeBuildingCode"
           />
         </kw-search-item>
 
@@ -69,7 +70,7 @@
           <kw-option-group
             v-model="searchParams.pstnDvCd"
             type="radio"
-            :options="codes.PSTN_DV_CD"
+            :options="position"
           />
         </kw-search-item>
 
@@ -102,12 +103,6 @@
         />
         <span class="ml8">{{ t('MSG_TXT_UNIT_WON') }}</span>
       </template>
-      <kw-btn
-        primary
-        dense
-        :label="$t('MSG_TXT_OJPS_SPMT')"
-        @click="onClickObjectPersonAdd"
-      />
     </kw-action-top>
     <kw-grid
       ref="grdSubRef"
@@ -132,12 +127,6 @@
         />
         <span class="ml8">{{ t('MSG_TXT_UNIT_WON') }}</span>
       </template>
-      <kw-btn
-        primary
-        dense
-        :label="t('MSG_TXT_OJPS_EXCD')"
-        @click="onClickObjectPersonDel"
-      />
     </kw-action-top>
     <kw-grid
       ref="grdThirdRef"
@@ -161,10 +150,9 @@
 // -------------------------------------------------------------------------------------------------
 // Initialize Component
 // -------------------------------------------------------------------------------------------------
-import { defineGrid, getComponentType, gridUtil, useDataService, useGlobal, useModal, codeUtil } from 'kw-lib';
-import { cloneDeep } from 'lodash-es';
+import { defineGrid, getComponentType, useDataService, useGlobal, useModal } from 'kw-lib';
+import { cloneDeep, isEmpty } from 'lodash-es';
 import ZwogLevelSelect from '~sms-common/organization/components/ZwogLevelSelect.vue';
-import dayjs from 'dayjs';
 
 const { t } = useI18n();
 
@@ -176,41 +164,29 @@ const { getters } = useStore();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
-
 const grdMainRef = ref(getComponentType('KwGrid'));
 const grdSubRef = ref(getComponentType('KwGrid'));
 const grdThirdRef = ref(getComponentType('KwGrid'));
 let cachedParams;
-let mainParams;
 const subTotalCount = ref(0);
 const thirdTotalCount = ref(0);
-const userInfo = getters['meta/getUserInfo'];
-const { ogTpCd } = userInfo;
+
+const { ogTpCd } = getters['meta/getUserInfo'];
+let pdstOpt;
 
 const searchParams = ref({
-  baseYm: dayjs().format('YYYYMM'),
-  ogTpCd,
   bldCd: '',
-  ogLevlDvCd2: '',
-  pstnDvCd: '',
-  dstOjpsNm: '',
+  dgr2LevlOgId: '',
+  rsbDvCd: ogTpCd === 'W01' ? 'W0104' : 'W0204',
+  objectPerson: '',
 });
+
 const props = defineProps({
-  params: {
+  cachedParams: {
     type: Object,
     required: true,
   },
 });
-
-async function fetchData() {
-  mainParams.baseYm = cloneDeep(props.value);
-  const view = grdMainRef.value.getView();
-  view.getDataSource().setRows(mainParams);
-}
-
-const codes = await codeUtil.getMultiCodes(
-  'PSTN_DV_CD',
-);
 
 async function subject() {
   const view = grdSubRef.value.getView();
@@ -232,16 +208,19 @@ async function marketableSecuritiesExcd() {
   view.resetCurrent();
 }
 
-const buildingCodes = ref([]);
-async function buildingCode() {
-  const res = await dataService.get('/sms/wells/closing/expense/operating-cost/marketable-securities/code');
-  buildingCodes.value = res.data;
+async function fetchData() {
+  const sumParams = cloneDeep(searchParams.value);
+  cachedParams = props.cachedParams;
+  cachedParams.rsbDvCd = sumParams.rsbDvCd;
+  cachedParams.dgr2LevlOgId = sumParams.dgr2LevlOgId;
+  debugger;
+  await subject();
+  await marketableSecuritiesExcd();
 }
 
 async function onClickSearchPartner() {
-  /* TODO: 임직원 검색 컴포넌트 개발 시, 변경 될 수 있음 */
   const { result, payload } = await modal({
-    // component: 'ZwcmzSingleSelectUserListP',
+
     component: 'ZwogzPartnerListP',
     componentProps: {
       prtnrNo: searchParams.value.prtnrNo,
@@ -252,62 +231,63 @@ async function onClickSearchPartner() {
   }
 }
 
-async function onSearch() {
+const buildingCodes = ref([]);
+async function ogLevlDvCd0() {
   cachedParams = cloneDeep(searchParams.value);
+  debugger;
+
+  if (isEmpty(cachedParams)) {
+    return;
+  }
+
+  const res = await dataService.get('/sms/wells/closing/expense/operating-cost/marketable-securities-excd/code', cachedParams);
+  res.data.forEach((data) => {
+    buildingCodes.value.push({ codeId: data.bldCd, codeName: data.bldNm });
+  });
+}
+
+watch(() => searchParams.value.dgr2LevlOgId, async (newVal) => {
+  console.log('>>>>> newVal: ', newVal);
+  ogLevlDvCd0();
+});
+
+async function onClickSearch() {
+  cachedParams = cloneDeep(searchParams.value);
+  const sumParams = cloneDeep(searchParams.value);
+
+  if (isEmpty(sumParams.subPrtnrNo)) {
+    sumParams.subOgTpCd = props.cachedParams.mainOgTpCd;
+    sumParams.subPrtnrNo = props.cachedParams.mainPrtnrNo;
+  }
+
+  cachedParams = props.cachedParams;
+  cachedParams.rsbDvCd = sumParams.rsbDvCd;
+  cachedParams.subOgTpCd = sumParams.subOgTpCd;
+  cachedParams.subPrtnrNo = sumParams.subPrtnrNo;
+
   await subject();
   await marketableSecuritiesExcd();
 }
 
-async function onClickObjectPersonAdd() {
-  // 대상자 추가
-  const view = grdSubRef.value.getView();
-  const checkedRows = gridUtil.getCheckedRowValues(view);
-
-  if (checkedRows.length === 0) {
-    await notify(t('MSG_ALT_NOT_SEL_ITEM'));
-    return;
-  }
-
-  checkedRows.forEach((obj) => {
-    // 등록금액 + [대상자 조회결과 grid]의 금액합산 > 정산대상금액 인 경우
-    const adjustObject = 0;
-    if (obj.total > adjustObject) {
-      view.setValue(searchParams.value.objectPerson);
-    }
-  });
-}
-
-async function onClickObjectPersonDel() {
-  // 대상자 제외
-  const view = grdThirdRef.value.getView();
-  const checkedRows = gridUtil.getCheckedRowValues(view);
-
-  if (checkedRows === 0) {
-    await notify(t('MSG_ALT_NOT_SEL_ITEM'));
-  }
-}
-
 async function onClickSave() {
   // 저장
-  const view = grdMainRef.value.getView();
-  const checkedRows = gridUtil.getCheckedRowValues(view);
-
-  if (checkedRows.length === 0) {
-    notify(t('MSG_ALT_NOT_SEL_ITEM'));
-    return;
-  } if (checkedRows.length > 1) {
-    notify(t('MSG_ALT_PRGS_OK'));
-  }
+  const view = grdThirdRef.value.getView();
+  const subTotal = thirdTotalCount.value;
   if (!await confirm(t('MSG_ALT_WANT_SAVE'))) { return; }
-  notify(t('MSG_ALT_SAVE_DATA'));
-  ok();
 
-  /* TODO. 뒷단 완료되면 다시 살릴꺼
-  await dataService.post('/sms/wells/expense/operating-cost/withholding-Tax-scr', { params: checkedRows });
+  const thirdList = [];
+  for (let i = 0; i < subTotal; i += 1) {
+    view.setValue(i, 'pdstOpt', pdstOpt);
+    thirdList.push(view.getValues(i));
+  }
+
+  const data = thirdList;
+
+  await dataService.post('/sms/wells/expense/operating-cost/withholding-Tax-scr', data);
   await notify(t('MSG_ALT_SAVE_DATA'));
   ok();
-  */
 }
+
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
@@ -315,9 +295,9 @@ const initGrdMain = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'authDate', header: t('MSG_TXT_USE_DTM'), width: '230', styleName: 'text-center' }, // 사용일시
     { fieldName: 'mrcNm', header: t('MSG_TXT_MRC'), width: '230', styleName: 'text-left' }, // 가맹점
-    { fieldName: 'adjCnfmAmt', header: t('MSG_TXT_ADJ_OJ_AMT'), width: '200', styleName: 'text-right' }, // 정산대상금액
-    { fieldName: 'dstAmt', header: t('RGST_AMT'), width: '200', styleName: 'text-right' }, // 등록금액
-    { fieldName: 'amt', header: t('MSG_TXT_UNRG_AMT'), width: '201', styleName: 'text-right' }, // 미등록금액
+    { fieldName: 'adjCnfmAmt', header: t('MSG_TXT_ADJ_OJ_AMT'), width: '200', styleName: 'text-right', dataType: 'number' }, // 정산대상금액
+    { fieldName: 'dstAmt', header: t('MSG_TXT_RGST_AMT'), width: '200', styleName: 'text-right', dataType: 'number' }, // 등록금액
+    { fieldName: 'amt', header: t('MSG_TXT_UNRG_AMT'), width: '201', styleName: 'text-right', dataType: 'number' }, // 미등록금액
   ];
 
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
@@ -330,14 +310,22 @@ const initGrdMain = defineGrid((data, view) => {
 
 const initGrdSub = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'dgr2LevlOgNm', header: t('MSG_TXT_MANAGEMENT_DEPARTMENT'), width: '92', styleName: 'text-left' }, // 총괄단
-    { fieldName: 'ogNm', header: t('MSG_TXT_RGNL_GRP'), width: '123', styleName: 'text-left' }, // 지역단
-    { fieldName: 'bldNm', header: t('MSG_TXT_BLD_NM'), width: '195', styleName: 'text-left' }, // 빌딩명
-    { fieldName: 'dstOjOgTpCd', header: t('MSG_TXT_EMPL_NM'), width: '83', styleName: 'text-left' }, // 성명
-    { fieldName: 'dstOjpsNm', header: t('MSG_TXT_BLD_NM'), width: '195', styleName: 'text-left' }, // 빌딩명
-    { fieldName: 'signrPrtnrNo', header: t('MSG_TXT_RSB'), width: '105', styleName: 'text-left' }, // 직책
-    { fieldName: 'pstnDvCd', header: t('MSG_TXT_PERF'), width: '85', styleName: 'text-center' }, // 실적
-    { fieldName: 'useAmt',
+    { fieldName: 'dgr2LevlOgId', visible: false }, // (hidden)2차레벨조직ID-지역단
+    { fieldName: 'ogTpCd', visible: false }, // (hidden)2차레벨조직유형코드-지역단
+    { fieldName: 'dgr3LevlDgPrtnrNo', visible: false }, // (hidden)2차레벨대표파트너번호-지역단
+    { fieldName: 'ogId', visible: false }, // (hidden)정산조직ID
+    { fieldName: 'dstOjOgTpCd', visible: false }, // (hidden)배분대상조직유형코드
+    { fieldName: 'bldCd', visible: false }, // (hidden)빌딩코드
+    { fieldName: 'adjOgId', visible: false },
+    { fieldName: 'dgr1LevlOgNm', header: t('MSG_TXT_MANAGEMENT_DEPARTMENT'), width: '96', styleName: 'text-left', editable: false }, // 총괄단
+    { fieldName: 'dgr2LevlOgNm', header: t('MSG_TXT_RGNL_GRP'), width: '117', styleName: 'text-left', editable: false }, // 지역단
+    { fieldName: 'bldNm', header: t('MSG_TXT_BLD_NM'), width: '195', styleName: 'text-left', editable: false }, // 빌딩명
+    { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '83', styleName: 'text-left', editable: false }, // 성명
+    { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '85', styleName: 'text-center', editable: false }, // 번호
+    { fieldName: 'rsbDvNm', header: t('MSG_TXT_RSB'), width: '105', styleName: 'text-left', editable: false }, // 직책
+    { fieldName: 'perfVal', header: t('MSG_TXT_PERF'), width: '85', styleName: 'text-center', editable: false, dataType: 'number' }, // 실적
+    {
+      fieldName: 'useAmt',
       header: {
         text: t('MSG_TXT_AMT'),
         styleName: 'essential',
@@ -347,25 +335,56 @@ const initGrdSub = defineGrid((data, view) => {
       dataType: 'number',
     }, // 금액
   ];
+
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   data.setFields(fields);
   view.setColumns(columns);
 
   view.checkBar.visible = true;
   view.rowIndicator.visible = true;
+  view.editOptions.editable = true;
+
+  /*
+  view.onCellEdited = (grid, itemIndex, row, fieldIndex) => {
+    grid.commit();
+    grid.commitEditor();
+    const columnName = grid.getColumn(fieldIndex).fieldName;
+    // const codeName = grid.getDisplayValues(itemIndex);
+    const gridValue = grid.getEditValue();
+    console.log(row);
+
+    if (columnName === 'dstAmt') {
+      pdstOpt = '03';
+      if (gridValue < 9) {
+        alert('십원 이상으로만 입력이 가능합니다.');
+        grid.setValue(itemIndex, 'dstAmt', 0);
+      } else {
+        const dstWhtxLength = gridValue.length;
+        const dstWhtx = gridValue.substring(0, dstWhtxLength - 1);
+        grid.setValue(itemIndex, 'dstAmt', `${dstWhtx}0`);
+      }
+    }
+  };
+  */
 });
 
 const initGrdThird = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'dgr2LevlOgNm', header: t('MSG_TXT_PERF'), width: '91', styleName: 'text-left' }, // 총괄단
-    { fieldName: 'ogNm', header: t('MSG_TXT_RGNL_GRP'), width: '102', styleName: 'text-left' }, // 지역단
+    { fieldName: 'opcsAdjNo', visible: false }, /* (hidden)운영비정산번호 */
+    { fieldName: 'adjOgId', visible: false }, /* (hidden)정산조직ID */
+    { fieldName: 'ogTpCd', visible: false }, /* (hidden)조직유형코드 */
+    { fieldName: 'adjPrtnrNo', visible: false }, /* (hidden)정산파트너번호 */
+    { fieldName: 'bldCd', visible: false }, /* (hidden)빌딩코드 */
+    { fieldName: 'dgr1LevlOgNm', header: t('MSG_TXT_MANAGEMENT_DEPARTMENT'), width: '100', styleName: 'text-left' }, // 총괄단
+    { fieldName: 'dgr2LevlOgNm', header: t('MSG_TXT_RGNL_GRP'), width: '101', styleName: 'text-left' }, // 지역단
     { fieldName: 'bldNm', header: t('MSG_TXT_BLD_NM'), width: '164', styleName: 'text-left' }, // 빌딩명
-    { fieldName: 'dstOjpsNm', header: t('MSG_TXT_RSB'), width: '83', styleName: 'text-left' }, // 성명
-    { fieldName: 'signrPrtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '85', styleName: 'text-center' }, // 번호
-    { fieldName: 'pstnDvCd', header: t('MSG_TXT_EMPL_NM'), width: '105', styleName: 'text-left' }, // 직책
-    { fieldName: 'adjCnfmAmt', header: t('MSG_TXT_OPCS_ADJ_AMT'), width: '169', styleName: 'text-right' }, // 운영비 정산금액
-    { fieldName: 'dstWhtx', header: t('MSG_TXT_WHTX'), width: '178', styleName: 'text-right' }, // 원천세
+    { fieldName: 'dstOjpsNm', header: t('MSG_TXT_EMPL_NM'), width: '83', styleName: 'text-left' }, // 성명
+    { fieldName: 'dstOjPrtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '85', styleName: 'text-center' }, // 번호
+    { fieldName: 'rsbDvNm', header: t('MSG_TXT_RSB'), width: '105', styleName: 'text-left' }, // 직책
+    { fieldName: 'dstAmt', header: t('MSG_TXT_OPCS_ADJ_AMT'), width: '169', styleName: 'text-right', dataType: 'number' }, // 운영비 정산금액
+    { fieldName: 'dstWhtx', header: t('MSG_TXT_WHTX'), width: '178', styleName: 'text-right', dataType: 'number' }, // 원천세
   ];
+
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   data.setFields(fields);
   view.setColumns(columns);
@@ -374,8 +393,24 @@ const initGrdThird = defineGrid((data, view) => {
   view.rowIndicator.visible = true;
 });
 
+const position = ref();
 onMounted(async () => {
-  await buildingCode();
+  if (getters['meta/getUserInfo'].ogTpCd === 'W01') {
+    position.value = [{ codeId: 'W0104', codeName: '지점장' }, { codeId: 'W0105', codeName: '프리매니저' }];
+  } else if (getters['meta/getUserInfo'].ogTpCd === 'W02') {
+    position.value = [{ codeId: 'W0204', codeName: '센터장' }, { codeId: 'W0205', codeName: '프리매니저' }];
+  }
+  debugger;
+  const addValue = {};
+  addValue.adjCnfmAmt = props.cachedParams.domTrdAmt;
+  addValue.crcdnoEncr = props.cachedParams.crcdnoEncr;
+  addValue.mrcNm = props.cachedParams.mrcNm;
+  addValue.cardAprno = props.cachedParams.cardAprno;
+  addValue.authDate = props.cachedParams.authDate;
+
+  // crcdnoEncr, mrcNm, cardAprno, domTrdAmt
+  grdMainRef.value.getView().getDataSource().addRow(addValue);
+
   await fetchData();
 });
 </script>
