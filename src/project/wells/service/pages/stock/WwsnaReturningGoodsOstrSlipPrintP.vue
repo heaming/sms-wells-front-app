@@ -25,8 +25,6 @@
           <kw-select
             v-model="searchParams.wareNo"
             :options="codes.SV_CNR_CD"
-            option-label="codeName"
-            option-value="codeId"
             first-option="all"
             disable
           />
@@ -34,6 +32,7 @@
       </kw-form-row>
       <kw-form-item
         :label="$t('MSG_TXT_OSTR_D')"
+        :rules="required"
       >
         <kw-date-picker
           v-model="searchParams.ostrDt"
@@ -44,6 +43,7 @@
       <kw-form-row>
         <kw-form-item
           :label="$t('MSG_TXT_OVIV_FOM')"
+          :rules="required"
         >
           <kw-select
             v-model="searchParams.ovivFomCd"
