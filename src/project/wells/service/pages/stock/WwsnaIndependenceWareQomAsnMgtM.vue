@@ -180,8 +180,11 @@ const { t } = useI18n();
 const { currentRoute } = useRouter();
 
 const dataService = useDataService();
-const baseURI = '/sms/wells/service/qom-asn/independence-warehouse';
-const renewalURI = '/sms/wells/service/qom-asn/warehouse-renewals';
+const qomURI = '/sms/wells/service/qom-asn';
+const baseURI = `${qomURI}/independence-warehouse`;
+const qomAfterURI = `${qomURI}/independence-warehouse-after`;
+const countURI = `${qomURI}/count`;
+const renewalURI = `${qomURI}/warehouse-renewals`;
 const excelURI = `${baseURI}/excel-download`;
 const grdMainRef = ref(getComponentType('KwGrid'));
 // -------------------------------------------------------------------------------------------------
@@ -229,9 +232,30 @@ async function fetchData() {
   view.resetCurrent();
 }
 
+async function getQomAsnAfter() {
+  const res = await dataService.get(qomAfterURI, { params: { ...cachedParams, ...pageInfo.value } });
+  const { list: searchData, pageInfo: pagingResult } = res.data;
+
+  pageInfo.value = pagingResult;
+
+  const view = grdMainRef.value.getView();
+  const datasSource = view.getDataSource();
+  datasSource.setRows(searchData);
+  view.resetCurrent();
+}
+
+async function getCountFetch() {
+  return await dataService.get(countURI, { params: { ...cachedParams, ...pageInfo.value } });
+}
+
 async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
-  await fetchData();
+  const res = await getCountFetch();
+  if (res.data > 0) {
+    await getQomAsnAfter();
+  } else {
+    await fetchData();
+  }
 }
 
 async function onClickRenewalWareHouse() {
