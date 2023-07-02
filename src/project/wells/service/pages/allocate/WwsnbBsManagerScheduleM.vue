@@ -32,7 +32,7 @@
           />
         </kw-search-item>
         <!-- 담당자 -->
-        <kw-form-item :label="$t('담당자')">
+        <kw-form-item :label="$t('MSG_TXT_PIC')">
           <kw-input
             v-model.trim="searchParams.fxnPrtnrKnm"
             icon="search"
@@ -147,7 +147,7 @@ async function fetchData2() {
 
 async function onClickSearch() {
   if (!searchParams.value.fxnPrtnrNo) {
-    notify(t('MSG_ALT_NCELL_REQUIRED_VAL', [t('MSG_TXT_VST_CNFM_D')]));
+    notify(t('MSG_ALT_NCELL_REQUIRED_VAL', [t('MSG_TXT_PIC')]));
     return;
   }
   pageInfo.value.pageIndex = 1;
