@@ -163,7 +163,7 @@ async function onClickSave() {
     return;
   }
 
-  await dataService.post('/sms/wells/contract/changeorder/changes/partners', fieldParams.value);
+  await dataService.put('/sms/wells/contract/changeorder/changes/partners', fieldParams.value);
   ok();
   notify(t('MSG_ALT_SAVE_DATA'));
 }
