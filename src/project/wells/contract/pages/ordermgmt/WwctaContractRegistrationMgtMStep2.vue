@@ -135,7 +135,9 @@
         :items="step2.dtls"
         item-key="id"
       >
-        <template #item="{item}">
+        <template
+          #item="{item}"
+        >
           <kw-expansion-item
             style="width: 100%;"
             expand-icon-class="hidden"
@@ -159,7 +161,14 @@
                 class="scoped-item__section-main"
               >
                 <div class="scoped-item__main">
+                  <kw-select
+                    v-if="isItem.rgSusc(item)"
+                    v-model="item.pkg"
+                    class="w350"
+                    :options="item.pkgs"
+                  />
                   <kw-item-label
+                    v-else
                     class="scoped-item__product-name"
                   >
                     {{ item.pdNm }} {{ item.pdCd }}
@@ -276,7 +285,7 @@
                     </div>
                   </template>
                   <template
-                    v-if="isItem.rntl(item)"
+                    v-else-if="isItem.rntl(item)"
                   >
                     <div class="scoped-item__field-row mb10">
                       <kw-select
@@ -313,9 +322,6 @@
                         v-if="item.sellDscTpCds"
                         v-model="item.sellDscTpCd"
                         :options="item.sellDscTpCds"
-                        first-option=""
-                        first-option-value=""
-                        first-option-label="일반"
                         placeholder="렌탈할인유형"
                         @change="getPdAmts(item)"
                       />
@@ -361,6 +367,22 @@
                       </div>
                     </div>
                   </template>
+
+                  <div
+                    v-if="isItem.rgSusc(item)"
+                    class="product-right-area"
+                  >
+                    <kw-separator class="dashed-line my20" />
+                    <!-- 반복시작 -->
+                    <div class="row items-center justify-between pb8">
+                      <p
+                        class="kw-fc--black1 text-weight-medium product-left"
+                        style="width: calc(100% - 44px);"
+                      >
+                        비타민 다채 6개 {{ item.aa }}
+                      </p>
+                    </div>
+                  </div>
                 </kw-item-section>
               </kw-item>
             </template>
@@ -399,6 +421,7 @@ const isItem = {
   crpCntr: () => step2.value.bas?.cntrTpCd === '02',
   welsf: (i) => i.lclsfVal === '05001003',
   hcf: (i) => i.lclsfVal === '01003001',
+  rgSusc: (i) => i.cntrRelDtlCd === '216',
 };
 
 // -------------------------------------------------------------------------------------------------
@@ -474,6 +497,19 @@ async function onClickProduct(pd) {
     npd[col] = sels[col];
   });
   step2.value.dtls.push(npd);
+
+  // 웰스팜추가 가능한 모종조회, list 없으면 push 안하고 있으면 idx 0 표시 push
+  if (['05001003', '01003001'].includes(npd.lclsfVal)) {
+    // 정기배송 상품 조회 CASE1: 웰스팜/홈카페 상품을 선택하여 정기배송 패키지가 자동추가되는 경우
+    const pkgs = await dataService.get('sms/wells/contract/contracts/welsf-hcf-pkgs', { params: { pdCd: npd.pdCd } });
+    if (pkgs.data && pkgs.data.length > 0) {
+      const p = pkgs.data[0];
+      p.pkgs = pkgs.data;
+      p.cntrRelDtlCd = '216';
+      step2.value.dtls.push(p);
+    }
+  }
+
   resetCntrSn();
 }
 
@@ -798,4 +834,40 @@ onMounted(async () => {
     }
   }
 }
+
+.dashed-line {
+  border-top: 1px dashed #ddd;
+  height: 0;
+  background: none;
+}
+
+// rev:230623 수정 및 추가
+::v-deep(.kw-form) {
+  &:not(.kw-form--dense) {
+    .kw-form-row {
+      min-height: 40px !important;
+      padding: 0 !important;
+    }
+  }
+}
+
+.scoped-child-select {
+  margin-top: 8px !important;
+  display: flex;
+  column-gap: 8px;
+  align-content: center;
+
+  &::before {
+    content: "";
+    display: inline-block;
+    align-self: center;
+    margin: 6px 6px 6px 0;
+    width: 10px;
+    height: 10px;
+    border-left: 2px solid #ccc;
+    border-bottom: 2px solid #ccc;
+  }
+}
+
+// //rev:230623 수정 및 추가
 </style>
