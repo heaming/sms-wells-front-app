@@ -21,7 +21,6 @@
       <!-- row1 소속구분 -->
       <kw-search-item
         :label="$t('MSG_TXT_BLG')+$t('MSG_TXT_DIV')"
-        hint="고정값"
       >
         <kw-select
           v-model="searchParams.ogCd"
@@ -51,7 +50,6 @@
       <!-- row1 판매구분 -->
       <kw-search-item
         :label="$t('MSG_TXT_SLS_CAT')"
-        hint="OG_TP_CD<br>설계: 전체, E, T, L, 직원, 회사"
       >
         <kw-select
           v-model="searchParams.sellOgTpCd"
@@ -138,7 +136,6 @@
       <!-- row3 판매세부 -->
       <kw-search-item
         :label="$t('MSG_TXT_SELL')+$t('MSG_TXT_DET')"
-        hint="SELL_TP_DTL_CD<br/>설계: 전체, 렌탈, 리스"
       >
         <kw-select
           v-model="searchParams.sellTpDtlCd"
@@ -152,7 +149,6 @@
       <!-- row4 상조취소 -->
       <kw-search-item
         :label="$t('MSG_TXT_MUTU')+$t('MSG_TXT_CANCEL')"
-        hint="17 값 고정"
       >
         <kw-select
           v-model="searchParams.alncmpCd"
@@ -173,7 +169,6 @@
       <!-- row4 취소유형 -->
       <kw-search-item
         :label="$t('MSG_TXT_CNCL_TP')"
-        hint="RGLR_SPP_STAT_CH_RSON_CD<br/>정기배송상태변경사유코드?"
       >
         <kw-select
           v-model="searchParams.cntrStatChRsonCd"

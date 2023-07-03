@@ -21,7 +21,6 @@
       <!-- row1 소속구분 -->
       <kw-search-item
         :label="$t('MSG_TXT_BLG')+$t('MSG_TXT_DIV')"
-        hint="고정값"
       >
         <kw-select
           v-model="searchParams.ogCd"
@@ -51,7 +50,6 @@
       <!-- row1 판매구분 -->
       <kw-search-item
         :label="$t('MSG_TXT_SLS_CAT')"
-        hint="OG_TP_CD<br>설계: 전체, EDU, TM, Wells, 직원판매, 직원구매, 회사판매"
       >
         <kw-select
           v-model="searchParams.sellOgTpCd"
@@ -320,12 +318,12 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'ogCd', header: t('MSG_TXT_BRCH_CD'), width: '120', styleName: 'text-center' }, // [지점코드]
     { fieldName: 'hooPrtnrNo', header: t('MSG_TXT_BRNCH_MNGR_NO'), width: '120', styleName: 'text-center' }, // [지점장사번]
     { fieldName: 'cntrCstKnm', header: t('MSG_TXT_CST_NM'), width: '120', styleName: 'text-center' }, // [고객명]
-    { fieldName: 'copnDvNm', header: t('MSG_TXT_CST_DV'), width: '120', styleName: 'text-center' }, // [고객구분]
-    { fieldName: 'zip', header: t('MSG_TXT_ZIP'), width: '120', styleName: 'text-center' }, // [우편번호]
+    { fieldName: 'copnDvNm', header: t('MSG_TXT_CST_DV'), width: '110', styleName: 'text-center' }, // [고객구분]
+    { fieldName: 'zip', header: t('MSG_TXT_ZIP'), width: '110', styleName: 'text-center' }, // [우편번호]
     { fieldName: 'adr', header: t('MSG_TXT_ADDR'), width: '270' }, // [주소]
     { fieldName: 'dtlAdr', header: t('MSG_TXT_DETAIL_ADDR'), width: '230' }, // [상세주소]
-    { fieldName: 'pdHclsfNm', header: t('TXT_MSG_PD_HCLSF_ID'), width: '120', styleName: 'text-center' }, // [대분류]
-    { fieldName: 'pdMclsfNm', header: t('MSG_TXT_PD_MCLSF_ID'), width: '120', styleName: 'text-center' }, // [중분류]
+    { fieldName: 'pdHclsfNm', header: t('TXT_MSG_PD_HCLSF_ID'), width: '140', styleName: 'text-center' }, // [대분류]
+    { fieldName: 'pdMclsfNm', header: t('MSG_TXT_PD_MCLSF_ID'), width: '140', styleName: 'text-center' }, // [중분류]
     { fieldName: 'basePdCd', header: t('MSG_TXT_PRDT_CODE'), width: '120', styleName: 'text-center' }, // [상품코드]
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '300' }, // [상품명]
     { fieldName: 'txinvPblOjYn', header: t('MSG_TXT_PRDT_NM') + t('MSG_TXT_YN'), width: '120', styleName: 'text-center' }, // [세금계산서여부]
@@ -333,9 +331,9 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'istDt', header: t('MSG_TXT_IST_DT'), width: '120', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd' }, // [설치일자]
     { fieldName: 'rsgAplcDt', header: t('MSG_TXT_CANC_RQDT'), width: '120', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd' }, // [취소요청일자]
     { fieldName: 'rsgFshDt', header: t('MSG_TXT_CANC_DT'), width: '120', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd' }, // [취소일자]
-    { fieldName: 'pdUseDc', header: t('MSG_TXT_USE_DAY'), width: '120', styleName: 'text-center' }, // [사용일수]
-    { fieldName: 'cntrStatChRsonCd', header: t('MSG_TXT_CNCL_TP'), width: '120', styleName: 'text-center' }, // [취소유형]
-    { fieldName: 'cntrStatChRsonNm', header: t('MSG_TXT_CNCL_TP') + t('MSG_TXT_NM'), width: '200', styleName: 'text-center' }, // [취소유형명]
+    { fieldName: 'pdUseDc', header: t('MSG_TXT_USE_DAY'), width: '110', styleName: 'text-center' }, // [사용일수]
+    { fieldName: 'cntrStatChRsonCd', header: t('MSG_TXT_CNCL_TP'), width: '110', styleName: 'text-center' }, // [취소유형]
+    { fieldName: 'cntrStatChRsonNm', header: t('MSG_TXT_CNCL_TP') + t('MSG_TXT_NM'), width: '250', styleName: 'text-center' }, // [취소유형명]
     { fieldName: 'afCntrNoSn',
       header: t('MSG_TXT_AFTER') + t('MSG_TXT_PTY_CD'),
       width: '150',

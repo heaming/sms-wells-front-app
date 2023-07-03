@@ -21,7 +21,6 @@
       <!-- row1 소속구분 -->
       <kw-search-item
         :label="$t('MSG_TXT_BLG')+$t('MSG_TXT_DIV')"
-        hint="고정값"
       >
         <kw-select
           v-model="searchParams.ogCd"
@@ -219,7 +218,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'ogNm', header: t('MSG_TXT_BLG') + t('MSG_TXT_DIV'), width: '160', styleName: 'text-center' }, // [소속구분]
     { fieldName: 'prtnrNo', header: t('MSG_TXT_RGST_PSIC') + t('MSG_TXT_EPNO'), width: '120', styleName: 'text-center' }, // [등록담당자 사번]
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_RGST_PSIC_NM'), width: '120', styleName: 'text-center' }, // [등록담당자 명]
-    { fieldName: 'cntrStatChRsonNm', header: t('MSG_TXT_CAN_RSON'), width: '150' }, // [취소사유]
+    { fieldName: 'cntrStatChRsonNm', header: t('MSG_TXT_CAN_RSON'), width: '250' }, // [취소사유]
     { fieldName: 'ojDtlCntrNoSn',
       header: `${t('MSG_TXT_WELSF')} ${t('MSG_TXT_CNTR_DTL_NO')}`,
       width: '150',
