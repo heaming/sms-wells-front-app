@@ -282,9 +282,10 @@ const onChangeItmKndCd = async () => {
   // const paramItmKndCd = searchParams.value.itmKndCd;
   // const itmKndCd = cloneDeep(searchParams.value.itmKndCd);
   // const res = await dataService.get(`/sms/wells/service/individual-ware-ostrs/${itmKndCd}`);
+  searchParams.value.itmKndCdD = '';
   const res = await dataService.get(`${baseURI}/filter-items`, { params: searchParams.value });
   itemKndCdD.value = res.data;
-  searchParams.value.itmKndCdD = itemKndCdD.value[0].codeId;
+  // searchParams.value.itmKndCdD = itemKndCdD.value[0].codeId;
 };
 
 watch(() => searchParams.value.itmKndCd, (val) => {
