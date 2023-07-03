@@ -56,23 +56,27 @@
       </kw-search-row>
       <kw-search-row>
         <kw-search-item
-          v-show="!isCompStatus"
+          v-if="!isCompStatus"
           :colspan="2"
           :label="$t('MSG_TXT_CNTR_DATE')"
         >
           <kw-date-range-picker
             v-model:from="searchParams.startDt"
             v-model:to="searchParams.endDt"
+            :label="$t('MSG_TXT_CNTR_DATE')"
+            rules="date_range_required"
           />
         </kw-search-item>
         <kw-search-item
-          v-show="isCompStatus"
+          v-if="isCompStatus"
           :colspan="2"
           :label="$t('MSG_TXT_OSTR_CNFM_DT')"
           class="w315"
         >
           <kw-date-picker
             v-model="searchParams.vstFshDt"
+            :label="$t('MSG_TXT_OSTR_CNFM_DT')"
+            rules="required"
             @change="fetchIvcPrntSns"
           />
         </kw-search-item>
@@ -89,7 +93,7 @@
           />
         </kw-search-item>
         <kw-search-item
-          v-show="isCompStatus"
+          v-if="isCompStatus"
           :label="$t('MSG_TXT_OSTR_CNFM_SEQ')"
         >
           <kw-select
@@ -97,6 +101,8 @@
             :options="ivcPrntSns"
             first-option="select"
             first-option-value=""
+            rules="required"
+            :label="$t('MSG_TXT_OSTR_CNFM_SEQ')"
           />
         </kw-search-item>
         <kw-search-item :label="$t('MSG_TXT_STOC_QTY')">
@@ -407,13 +413,13 @@ const initGrdMain = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'cntrRcpFshDtm', header: t('MSG_TXT_CNTR_DATE'), width: '100', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'svBizDclsfCd', header: t('MSG_TXT_TASK_TYPE_CD'), width: '90', styleName: 'text-center' },
-    { fieldName: 'svBizDclsfNm', header: t('MSG_TXT_TASK_TYPE'), width: '80', styleName: 'text-center' },
+    { fieldName: 'svBizDclsfNm', header: t('MSG_TXT_TASK_TYPE'), width: '110', styleName: 'text-center' },
     { fieldName: 'wkPrgsStatNm', header: t('MSG_TXT_WK_STS'), width: '80', styleName: 'text-center' },
     { fieldName: 'vstFshDt', header: t('MSG_TXT_OSTR_CNFM_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' },
     {
       fieldName: 'cntrNo',
       header: t('MSG_TXT_CNTR_DTL_NO'),
-      width: '140',
+      width: '150',
       styleName: 'text-center',
       displayCallback(grid, index) {
         const { cntrNo, cntrSn } = grid.getValues(index.itemIndex);
@@ -424,10 +430,10 @@ const initGrdMain = defineGrid((data, view) => {
     },
     { fieldName: 'rcgvpKnm', header: t('MSG_TXT_CST_NM'), width: '100', styleName: 'text-center' },
     { fieldName: 'basePdCd', header: t('MSG_TXT_ITM_CD'), width: '120', styleName: 'text-center' },
-    { fieldName: 'basePdNm', header: t('MSG_TXT_ITM_NM'), width: '120', styleName: 'text-left' },
+    { fieldName: 'basePdNm', header: t('MSG_TXT_ITM_NM'), width: '300', styleName: 'text-left' },
     { fieldName: 'cralIdvTno',
       header: t('MSG_TXT_MPNO'),
-      width: '100',
+      width: '150',
       styleName: 'text-center',
       displayCallback(grid, index, value) {
         // 휴대전화번호 3-4-4 형식으로 표시
@@ -440,7 +446,7 @@ const initGrdMain = defineGrid((data, view) => {
     {
       fieldName: 'idvTno',
       header: t('MSG_TXT_TEL_NO'),
-      width: '100',
+      width: '150',
       styleName: 'text-center',
       displayCallback(grid, index, value) {
         // 휴대전화번호 3-4-4 형식으로 표시
@@ -451,14 +457,14 @@ const initGrdMain = defineGrid((data, view) => {
       },
     },
     { fieldName: 'newAdrZip', header: t('MSG_TXT_ZIP'), width: '80', styleName: 'text-center' },
-    { fieldName: 'rnadr', header: t('MSG_TXT_ADDR'), width: '350', styleName: 'text-center' },
-    { fieldName: 'rdadr', header: t('MSG_TXT_ADDR_DTL'), width: '100', styleName: 'text-center' },
-    { fieldName: 'pdCd', header: t('MSG_TXT_ITM_CD'), width: '100', styleName: 'text-center' },
-    { fieldName: 'pdNm', header: t('MSG_TXT_ITM_NM'), width: '100', styleName: 'text-left' },
-    { fieldName: 'useQty', header: t('MSG_TXT_ITM_NM'), width: '100', styleName: 'text-right' },
-    { fieldName: 'reqdDt', header: t('MSG_TXT_DEM_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'rsgFshDt', header: t('MSG_TXT_CANC_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'cstSvAsnNo', header: t('MSG_TXT_ASGN_NO'), width: '100', styleName: 'text-center' },
+    { fieldName: 'rnadr', header: t('MSG_TXT_ADDR'), width: '380', styleName: 'text-left' },
+    { fieldName: 'rdadr', header: t('MSG_TXT_ADDR_DTL'), width: '380', styleName: 'text-left' },
+    { fieldName: 'pdCd', header: t('MSG_TXT_ITM_CD'), width: '150', styleName: 'text-center' },
+    { fieldName: 'pdNm', header: t('MSG_TXT_ITM_NM'), width: '230', styleName: 'text-left' },
+    { fieldName: 'useQty', header: t('MSG_TXT_QTY'), width: '90', styleName: 'text-right' },
+    { fieldName: 'reqdDt', header: t('MSG_TXT_DEM_DT'), width: '130', styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'rsgFshDt', header: t('MSG_TXT_CANC_DT'), width: '130', styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'cstSvAsnNo', header: t('MSG_TXT_ASGN_NO'), width: '200', styleName: 'text-center' },
   ];
   data.setFields(fields);
   view.setColumns(columns);
