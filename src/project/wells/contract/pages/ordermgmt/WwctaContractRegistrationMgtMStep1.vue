@@ -156,20 +156,20 @@
               :label="$t('MSG_TXT_CNTRT')"
             >
               <p>
-                {{ `${step1.cntrt.cstKnm} / ${stringUtil.getDateFormat(step1.cntrt.bryyMmdd)} /
-${step1.cntrt.sexDvNm}` }}
+                {{ `${step1.cntrt?.cstKnm} / ${stringUtil.getDateFormat(step1.cntrt?.bryyMmdd)} /
+${step1.cntrt?.sexDvNm}` }}
               </p>
             </kw-form-item>
             <kw-form-item
               label="본인인증여부"
             >
               <p
-                v-if="step1.cntrt.cikVal"
+                v-if="step1.cntrt?.cikVal"
               >
                 본인인증완료
               </p>
               <p
-                v-if="!step1.cntrt.cikVal"
+                v-if="!step1.cntrt?.cikVal"
               >
                 <kw-btn
                   dense
@@ -183,13 +183,13 @@ ${step1.cntrt.sexDvNm}` }}
             <kw-form-item
               :label="$t('MSG_TXT_CST_NO')"
             >
-              <p>{{ step1.cntrt.cstNo }}</p>
+              <p>{{ step1.cntrt?.cstNo }}</p>
             </kw-form-item>
             <kw-form-item
               :label="$t('MSG_TXT_MPNO')"
             >
               <p>
-                {{ step1.cntrt.cralLocaraTno }}-{{ step1.cntrt.mexnoEncr }}-{{ step1.cntrt.cralIdvTno }}
+                {{ step1.cntrt?.cralLocaraTno }}-{{ step1.cntrt?.mexnoEncr }}-{{ step1.cntrt?.cralIdvTno }}
               </p>
             </kw-form-item>
           </kw-form-row>
@@ -198,9 +198,9 @@ ${step1.cntrt.sexDvNm}` }}
               :label="$t('MSG_TXT_ADDR')"
             >
               <p>
-                {{ step1.cntrt.zip }}<br>
-                {{ step1.cntrt.adr }}<br>
-                {{ step1.cntrt.adrDtl }}
+                {{ step1.cntrt?.zip }}<br>
+                {{ step1.cntrt?.adr }}<br>
+                {{ step1.cntrt?.adrDtl }}
               </p>
             </kw-form-item>
           </kw-form-row>
@@ -212,19 +212,19 @@ ${step1.cntrt.sexDvNm}` }}
             <kw-form-item
               :label="$t('MSG_TXT_CNTRT')"
             >
-              <p>{{ step1.cntrt.cstKnm }}</p>
+              <p>{{ step1.cntrt?.cstKnm }}</p>
             </kw-form-item>
             <kw-form-item
               :label="$t('MSG_TXT_CRNO')"
             >
-              <p>{{ step1.cntrt.bzrno }}</p>
+              <p>{{ step1.cntrt?.bzrno }}</p>
             </kw-form-item>
           </kw-form-row>
           <kw-form-row>
             <kw-form-item
               :label="$t('MSG_TXT_CST_NO')"
             >
-              <p>{{ step1.cntrt.cstNo }}</p>
+              <p>{{ step1.cntrt?.cstNo }}</p>
             </kw-form-item>
           </kw-form-row>
           <kw-form-row>
@@ -232,14 +232,14 @@ ${step1.cntrt.sexDvNm}` }}
               :label="$t('MSG_TXT_MPNO')"
             >
               <p>
-                {{ step1.cntrt.cralLocaraTno }}-{{ step1.cntrt.mexnoEncr }}-{{ step1.cntrt.cralIdvTno }}
+                {{ step1.cntrt?.cralLocaraTno }}-{{ step1.cntrt?.mexnoEncr }}-{{ step1.cntrt?.cralIdvTno }}
               </p>
             </kw-form-item>
             <kw-form-item
               :label="$t('MSG_TXT_TEL_NO')"
             >
               <p>
-                {{ step1.cntrt.locaraTno }}-{{ step1.cntrt.exnoEncr }}-{{ step1.cntrt.idvTno }}
+                {{ step1.cntrt?.locaraTno }}-{{ step1.cntrt?.exnoEncr }}-{{ step1.cntrt?.idvTno }}
               </p>
             </kw-form-item>
           </kw-form-row>
@@ -248,9 +248,9 @@ ${step1.cntrt.sexDvNm}` }}
               :label="$t('MSG_TXT_ADDR')"
             >
               <p>
-                {{ step1.cntrt.zip }}<br>
-                {{ step1.cntrt.adr }}<br>
-                {{ step1.cntrt.adrDtl }}
+                {{ step1.cntrt?.zip }}<br>
+                {{ step1.cntrt?.adr }}<br>
+                {{ step1.cntrt?.adrDtl }}
               </p>
             </kw-form-item>
           </kw-form-row>
