@@ -150,7 +150,7 @@
 // -------------------------------------------------------------------------------------------------
 import { useDataService, useGlobal } from 'kw-lib';
 import { isEmpty, cloneDeep } from 'lodash-es';
-import { pdMergeBy, pageMove } from '~sms-common/product/utils/pdUtil';
+import { pdMergeBy, pageMove, getCopyProductInfo } from '~sms-common/product/utils/pdUtil';
 import pdConst from '~sms-common/product/constants/pdConst';
 
 import ZwpdcPropGroupsMgt from '~sms-common/product/pages/manage/components/ZwpdcPropGroupsMgt.vue'; /* 속성 등록/수정 */
@@ -275,6 +275,10 @@ async function fetchData() {
     prevStepData.value = initData;
     subTitle.value = initData[bas].pdCd ? `${initData[bas].pdNm} (${initData[bas].pdCd})` : initData[bas].pdNm;
     await init();
+  } else if (currentCopyPdCd.value) {
+    const res = await dataService.get(`${baseUrl}/${currentCopyPdCd.value}`);
+    prevStepData.value = await getCopyProductInfo(res.data);
+    isTempSaveBtn.value = 'Y';
   }
 }
 
