@@ -224,6 +224,7 @@ async function fetchData() {
   frmMainData.value.reqdDt = res.data.reqdDt;
   frmMainData.value.finalPerfRt = res.data.finalPerfRt;
   frmMainData.value.recapDutyPtrmN = res.data.recapDutyPtrmN;
+  frmMainData.value.pdNm = res.data.pdNm;
 
   if (!isNull(res.data.recapDutyPtrmN)) {
     frmMainData.value.recapDutyPtrmNTxt = `${res.data.recapDutyPtrmN}${t('MSG_TXT_MCNT')}`;
@@ -265,6 +266,7 @@ async function onClickConfirm() {
   returnData.value.pdCd = frmMainData.value.pdCd;
   returnData.value.resultDvCheck = frmMainData.value.resultDvCheck;
   returnData.value.clnYn = frmMainData.value.clnYn;
+  returnData.value.pdNm = frmMainData.value.pdNm;
 
   ok(returnData.value);
 }
