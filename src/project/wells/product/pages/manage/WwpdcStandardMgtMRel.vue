@@ -52,7 +52,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, isEqual } from 'lodash-es';
 import { pdMergeBy } from '~sms-common/product/utils/pdUtil';
 import pdConst from '~sms-common/product/constants/pdConst';
 import WwpdcStandardMgtMRelPrd from './WwpdcStandardMgtMRelPrd.vue';
@@ -162,5 +162,9 @@ async function initProps() {
 await initProps();
 
 watch(() => props.pdCd, (pdCd) => { currentPdCd.value = pdCd; });
-watch(() => props.initData, (initData) => { currentInitData.value = cloneDeep(initData); }, { deep: true });
+watch(() => props.initData, (initData) => {
+  if (!isEqual(currentInitData.value, initData)) {
+    currentInitData.value = cloneDeep(initData);
+  }
+}, { deep: true });
 </script>

@@ -159,7 +159,7 @@
 import { useDataService, codeUtil, useGlobal } from 'kw-lib';
 import { isEmpty, cloneDeep } from 'lodash-es';
 import pdConst from '~sms-common/product/constants/pdConst';
-import { pdMergeBy, pdRemoveBy } from '~sms-common/product/utils/pdUtil';
+import { pdMergeBy, pdRemoveBy, getCopyProductInfo } from '~sms-common/product/utils/pdUtil';
 import ZwpdcPropGroupsMgt from '~sms-common/product/pages/manage/components/ZwpdcPropGroupsMgt.vue';
 import WwpdcCompositionMgtMPrice from './WwpdcCompositionMgtMPrice.vue';
 import WwpdcCompositionMgtMRel from './WwpdcCompositionMgtMRel.vue';
@@ -186,7 +186,6 @@ const ecom = pdConst.TBL_PD_ECOM_PRP_DTL;
 const prcd = pdConst.TBL_PD_PRC_DTL;
 const prcfd = pdConst.TBL_PD_PRC_FNL_DTL;
 const rel = pdConst.TBL_PD_REL;
-const prumd = pdConst.TBL_PD_DSC_PRUM_DTL;
 
 const isTempSaveBtn = ref(true);
 const regSteps = ref([pdConst.COMPOSITION_STEP_BASIC, pdConst.COMPOSITION_STEP_REL_PROD,
@@ -380,22 +379,17 @@ async function init() {
 
 async function fetchProduct() {
   if (currentPdCd.value) {
-    const initData = {};
     const res = await dataService.get(`/sms/wells/product/compositions/${currentPdCd.value}`);
-    console.log('WwpdcCompositionMgtM - fetchProduct - res.data', res.data);
-    initData[bas] = res.data[bas];
-    initData[dtl] = res.data[dtl];
-    initData[ecom] = res.data[ecom];
-    initData[prcd] = res.data[prcd];
-    initData[prcfd] = res.data[prcfd];
-    initData[rel] = res.data[rel];
-    initData[prumd] = res.data[prumd];
-    initData[pdConst.RELATION_PRODUCTS] = res.data[pdConst.RELATION_PRODUCTS];
-    isTempSaveBtn.value = initData[bas].tempSaveYn === 'Y';
-    prevStepData.value = initData;
-    subTitle.value = initData[bas].pdCd ? `${initData[bas].pdNm} (${initData[bas].pdCd})` : initData[bas].pdNm;
-    await init();
+    // console.log('WwpdcCompositionMgtM - fetchProduct - res.data', res.data);
+    prevStepData.value = res.data;
+    isTempSaveBtn.value = prevStepData.value[bas].tempSaveYn === 'Y';
+  } else if (currentCopyPdCd.value) {
+    const res = await dataService.get(`/sms/wells/product/compositions/${currentCopyPdCd.value}`);
+    prevStepData.value = await getCopyProductInfo(res.data);
+    isTempSaveBtn.value = 'Y';
   }
+  subTitle.value = prevStepData.value[bas].pdCd ? `${prevStepData.value[bas].pdNm} (${prevStepData.value[bas].pdCd})` : prevStepData.value[bas].pdNm;
+  await init();
 }
 
 async function onClickSave(tempSaveYn) {
@@ -501,7 +495,7 @@ async function initProps() {
   currentNewRegYn.value = newRegYn;
   currentReloadYn.value = reloadYn;
   currentCopyPdCd.value = copyPdCd;
-  if (currentPdCd.value) {
+  if (currentPdCd.value || currentCopyPdCd.value) {
     await fetchProduct();
   } else {
     isTempSaveBtn.value = true;
@@ -542,14 +536,14 @@ watch(() => props, async ({ pdCd, newRegYn, reloadYn, copyPdCd }) => {
     }
   } else if (copyPdCd && currentCopyPdCd.value !== copyPdCd) {
     // 복사
-    if (copyPdCd) {
-      await resetData();
-      // TODO
-    }
     currentPdCd.value = '';
     currentNewRegYn.value = 'N';
     currentReloadYn.value = 'N';
     currentCopyPdCd.value = copyPdCd;
+    if (copyPdCd) {
+      await resetData();
+      await fetchProduct();
+    }
   }
 }, { deep: true });
 

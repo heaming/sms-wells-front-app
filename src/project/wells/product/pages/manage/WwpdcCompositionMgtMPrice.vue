@@ -94,7 +94,7 @@
 // -------------------------------------------------------------------------------------------------
 import { codeUtil, useGlobal, getComponentType, gridUtil, stringUtil, useDataService } from 'kw-lib';
 import dayjs from 'dayjs';
-import { cloneDeep, isEmpty, omit } from 'lodash-es';
+import { cloneDeep, isEmpty, omit, isEqual } from 'lodash-es';
 import pdConst from '~sms-common/product/constants/pdConst';
 import { getGridRowCount, setGridDateFromTo, getGridRowsToSavePdProps, getPdMetaToCodeNames, getPdMetaToGridInfos, getPropInfosToGridRows, pdMergeBy, setPdGridRows } from '~sms-common/product/utils/pdUtil';
 
@@ -408,7 +408,12 @@ async function initProps() {
 await initProps();
 
 watch(() => props.pdCd, (val) => { currentPdCd.value = val; });
-watch(() => props.initData, (val) => { currentInitData.value = cloneDeep(val); resetInitData(); }, { deep: true });
+watch(() => props.initData, (val) => {
+  if (!isEqual(currentInitData.value, val)) {
+    currentInitData.value = cloneDeep(val);
+    resetInitData();
+  }
+}, { deep: true });
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid

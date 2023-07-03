@@ -77,7 +77,7 @@
 // -------------------------------------------------------------------------------------------------
 import dayjs from 'dayjs';
 import { gridUtil, stringUtil, codeUtil, getComponentType, useGlobal } from 'kw-lib';
-import { cloneDeep, isEmpty } from 'lodash-es';
+import { cloneDeep, isEmpty, isEqual } from 'lodash-es';
 import { getGridRowCount, setPdGridRows, onCellEditRelProdPeriod, getOverPeriodByRelProd } from '~/modules/sms-common/product/utils/pdUtil';
 import pdConst from '~sms-common/product/constants/pdConst';
 
@@ -297,6 +297,8 @@ async function initGridRows() {
     const materialRows = products.filter((item) => item[pdConst.PD_REL_TP_CD] === pdConst.PD_REL_TP_CD_PD_TO_FL);
     await setPdGridRows(materialView, materialRows, pdConst.REL_PD_ID, [], true);
     grdRowCount.value = getGridRowCount(materialView);
+  } else {
+    materialView.getDataSource().clearRows();
   }
 }
 
@@ -309,7 +311,12 @@ async function initProps() {
 await initProps();
 
 watch(() => props.pdCd, (pdCd) => { currentPdCd.value = pdCd; });
-watch(() => props.initData, (initData) => { currentInitData.value = initData; initGridRows(); }, { deep: true });
+watch(() => props.initData, (initData) => {
+  if (!isEqual(currentInitData.value, initData)) {
+    currentInitData.value = initData;
+    initGridRows();
+  }
+}, { deep: true });
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid

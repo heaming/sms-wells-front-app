@@ -58,7 +58,7 @@
 // -------------------------------------------------------------------------------------------------
 import dayjs from 'dayjs';
 import { gridUtil, stringUtil, useGlobal, getComponentType } from 'kw-lib';
-import { isEmpty, cloneDeep } from 'lodash-es';
+import { isEmpty, cloneDeep, isEqual } from 'lodash-es';
 import { getGridRowCount, setPdGridRows, onCellEditRelProdPeriod, getOverPeriodByRelProd } from '~/modules/sms-common/product/utils/pdUtil';
 import pdConst from '~sms-common/product/constants/pdConst';
 
@@ -275,8 +275,10 @@ await initProps();
 
 watch(() => props.pdCd, (pdCd) => { currentPdCd.value = pdCd; });
 watch(() => props.initData, (initData) => {
-  currentInitData.value = cloneDeep(initData);
-  initGridRows();
+  if (!isEqual(currentInitData.value, initData)) {
+    currentInitData.value = cloneDeep(initData);
+    initGridRows();
+  }
 }, { deep: true });
 
 onMounted(async () => {
