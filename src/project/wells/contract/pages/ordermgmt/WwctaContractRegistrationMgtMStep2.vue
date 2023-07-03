@@ -209,6 +209,7 @@
                     @click="onClickOnePlusOne(item)"
                   />
                   <kw-btn
+                    v-if="item.sellTpDtlCd != '62'"
                     borderless
                     icon="close_24"
                     style="font-size: 24px;"
@@ -374,14 +375,19 @@
                   >
                     <kw-separator class="dashed-line my20" />
                     <!-- 반복시작 -->
-                    <div class="row items-center justify-between pb8">
-                      <p
-                        class="kw-fc--black1 text-weight-medium product-left"
-                        style="width: calc(100% - 44px);"
-                      >
-                        비타민 다채 6개 {{ item.aa }}
-                      </p>
-                    </div>
+                    <template
+                      v-for="(sdingCapsl, i) in item.sdingCapsls"
+                      :key="i"
+                    >
+                      <div class="row items-center justify-between pb8">
+                        <p
+                          class="kw-fc--black1 text-weight-medium product-left"
+                          style="width: calc(100% - 44px);"
+                        >
+                          {{ sdingCapsl.partPdNm + ' ' + sdingCapsl.partUseQty + '개' }}
+                        </p>
+                      </div>
+                    </template>
                   </div>
                 </kw-item-section>
               </kw-item>
@@ -499,22 +505,26 @@ async function onClickProduct(pd) {
   step2.value.dtls.push(npd);
 
   // 웰스팜추가 가능한 모종조회, list 없으면 push 안하고 있으면 idx 0 표시 push
-  if (['05001003', '01003001'].includes(npd.lclsfVal)) {
+  if (isItem.welsf(npd) || isItem.hcf(npd)) {
     // 정기배송 상품 조회 CASE1: 웰스팜/홈카페 상품을 선택하여 정기배송 패키지가 자동추가되는 경우
     const pkgs = await dataService.get('sms/wells/contract/contracts/welsf-hcf-pkgs', { params: { pdCd: npd.pdCd } });
     if (pkgs.data && pkgs.data.length > 0) {
       const p = pkgs.data[0];
       p.pkgs = pkgs.data;
+      debugger;
       p.cntrRelDtlCd = '216';
       step2.value.dtls.push(p);
     }
   }
-
   resetCntrSn();
 }
 
 function onClickDelete(pd) {
-  step2.value.dtls = step2.value.dtls.filter((spd) => pd.cntrSn !== spd.cntrSn);
+  if (isItem.welsf(pd) || isItem.hcf(pd)) {
+    step2.value.dtls = step2.value.dtls.filter((spd) => pd.cntrSn !== spd.cntrSn || (pd.cntrSn + 1) !== spd.cntrSn);
+  } else {
+    step2.value.dtls = step2.value.dtls.filter((spd) => pd.cntrSn !== spd.cntrSn);
+  }
   resetCntrSn();
 }
 
