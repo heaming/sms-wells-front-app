@@ -375,7 +375,6 @@ const initGrdMain = defineGrid((data, view) => {
     }, // 전화번호
     { fieldName: 'newAdrZip', header: t('MSG_TXT_ZIP'), width: '100', styleName: 'text-center' }, // 우편번호
     { fieldName: 'radr', header: t('MSG_TXT_ADDR'), width: '145', styleName: 'text-center' }, // 주소
-    { fieldName: 'chkPrdCd', header: t('MSG_TXT_VST_PRD_TYPE'), width: '145', styleName: 'text-center' }, // 방문주기타입
     { fieldName: 'cntrCnfmDtm', header: t('MSG_TXT_CNTR_DATE'), width: '145', styleName: 'text-center', dataType: 'datetime', datetimeFormat: 'date' }, // 계약일자
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '145' }, // 상품명
     { fieldName: 'pdGrpCd', header: t('MSG_TXT_PDGRP'), width: '145', styleName: 'text-center', autoFilter: false }, // 상품군코드
@@ -506,7 +505,6 @@ const initGrdMain = defineGrid((data, view) => {
     'cralTno',
     'newAdrZip',
     'radr',
-    'chkPrdCd',
     'cntrCnfmDtm',
     'pdNm',
     'pdGrpNm',
