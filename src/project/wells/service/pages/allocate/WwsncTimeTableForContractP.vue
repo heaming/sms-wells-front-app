@@ -17,29 +17,18 @@
   <kw-popup
     size="xl"
   >
-    <!-- To. 개발  window popup width size: 940px  -->
-    <h1>엔지니어 Time table</h1>
-    <!--      <p>{{ data.sellDate }}</p>-->
-    <!--      <p>{{ data.sellTime }}</p>-->
-    <!--      <p>{{ data.cntrNo }}</p>-->
-    <!--    <p>
-      {{ (data.chnlDvCd === 'K' || data.chnlDvCd === 'P'|| data.chnlDvCd === 'W')
-        && data.psicDatas.vstPos === '해당일 방문불가' }}
-    </p>-->
-    <!--    <p>{{ data.chnlDvCd }}</p>-->
-    <!--    <p>{{ data.psicDatas.vstPos }}</p>
-    <p>{{ data.sellDate }}</p>-->
+    <h1>{{ $t('MSG_TIT_EGER_TIME_TABLE') /*엔지니어 Time table*/ }}</h1>
     <div class="normal-area normal-area--button-set-bottom pt30 mt15 w940">
       <p class="kw-font--14">
-        서비스 방문 희망일자를 선택하세요
+        {{ $t('MSG_TXT_CHO_SV_VST_HOP_DT') /*서비스 방문 희망일자를 선택하세요*/ }}
       </p>
       <div class="row items-center q-gutter-sm">
         <div class="col">
           <h3 class="mt30">
-            날짜선택
+            {{ $t('MSG_TXT_CHO_DT') /*날짜선택*/ }}
             <ul class="kw-notification">
               <li>
-                방문요일 : {{ data.psicDatas.vstDowVal }}
+                {{ $t('MSG_TXT_VST_DOW') /*방문요일*/ }} : {{ data.psicDatas.vstDowVal }}
               </li>
             </ul>
           </h3>
@@ -75,9 +64,9 @@
                             colspan="5"
                             class="datepicker-switch"
                           >
-                            {{ searchParams.baseYm.substring(0, 4) }}{{ $t('MSG_TXT_YEAR' /*년*/)
+                            {{ searchParams.baseYm.substring(0, 4) + $t('MSG_TXT_YEAR' /*년*/)
                             }}&nbsp;
-                            {{ searchParams.baseYm.substring(4) }}{{ $t('MSG_TXT_MON' /*월*/) }}
+                            {{ searchParams.baseYm.substring(4) + $t('MSG_TXT_MON' /*월*/) }}
                           </th>
                           <th
                             class="next"
@@ -132,14 +121,14 @@
                           </td>
                         </tr>
                       </tbody>
-                      <tfoot>
+                      <!--                      <tfoot>
                         <tr>
                           <th
                             colspan="7"
                             class="today"
                             style="display: none;"
                           >
-                            오늘
+                            {{ $t('MSG_TXT_TODAY') /*오늘*/ }}
                           </th>
                         </tr><tr>
                           <th
@@ -147,10 +136,10 @@
                             class="clear"
                             style="display: none;"
                           >
-                            삭제
+                            {{ $t('MSG_BTN_DEL') /*삭제*/ }}
                           </th>
                         </tr>
-                      </tfoot>
+                      </tfoot>-->
                     </table>
                   </div>
                 </div>
@@ -161,7 +150,7 @@
         </div>
         <div class="col">
           <h3 class="mt30">
-            엔지니어 정보
+            {{ $t('MSG_TXT_EGER') /*엔지니어*/ }} {{ $t('MSG_TXT_INF') /*정보*/ }}
           </h3>
           <div class="border-box pa30 mt20">
             <div class="row">
@@ -226,7 +215,7 @@
                   <kw-chip
                     class="ml8"
                     color="primary"
-                    label="매니저"
+                    :label="$t('MSG_TXT_MANAGER')"
                     square
                     text-color="primary"
                   />
@@ -252,7 +241,7 @@
       <div class="row kw-bc--bg-white mt30">
         <div class="col-3">
           <h3 class="mt0">
-            지역등급
+            {{ $t('MSG_TXT_LOCARA_GD') /*지역등급*/ }}
           </h3>
           <div class="row items-center h76 mt20 text-center">
             <h1 class="col">
@@ -266,7 +255,7 @@
         />
         <div class="col">
           <h3 class="mt0">
-            접수현황
+            {{ $t('MSG_TXT_RCP_PS') /*접수현황*/ }}
           </h3>
           <ul class="kw-state-list kw-state-list--second-line pt20 px0 pb0">
             <li class="kw-state-list__item">
@@ -301,32 +290,39 @@
         <kw-separator />
         <li v-if="data.lcst09 === '03'">
           <font size="4px">
-            선택하신 모종 배송일자는 {{ dayjs(data.sellDate).format('YYYY년 MM월 DD일') }} 입니다. <br>
+            <!--            선택하신 모종 배송일자는 {{ dayjs(data.sellDate).format('YYYY년 MM월 DD일') }} 입니다. <br>
             배송시간은 방문 전 웰스매니저가 별도 연락드릴 예정입니다.<br>
             파종 예정일은 {{ dayjs(data.sowDay).format('YYYY년 MM월 DD일') }} 로
             파종 전 취소 시 별도의 위약금 없이 전액 환불 되며, 파종 후 취소 시 환불이 불가합니다. <br>
             모종 취소에 대한 자세한 사항은 고객센터(1588-4113)로 문의 주시기 바랍니다.<br>
-            감사합니다.
+            감사합니다.-->
+            {{ $t('MSG_TXT_TIMETABLE_SIDING_SPP_DT_GUD1', [dayjs(data.sellDate).format('YYYY년 MM월 DD일'),
+                                                           dayjs(data.sowDay).format('YYYY년 MM월 DD일')]) }}
           </font>
         </li>
         <li v-else-if="data.lcst09 === '02'">
           <font size="4px">
-            선택하신 모종 배송일자는 {{ dayjs(data.sellDate).format('YYYY년 MM월 DD일') }} 입니다. <br>
+            <!--            선택하신 모종 배송일자는 {{ dayjs(data.sellDate).format('YYYY년 MM월 DD일') }} 입니다. <br>
             배송시간은 방문 전 웰스매니저가 별도 연락드릴 예정입니다.<br>
             파종 예정일은 {{ dayjs(data.sowDay).format('YYYY년 MM월 DD일') }}로 파종 전 취소 시 별도의 위약금 없이 전액 환불 되며,
             파종 후 취소 시 환불이 불가합니다. <br>
             모종 취소에 대한 자세한 사항은 고객센터(1588-4113)로 문의 주시기 바랍니다.<br>
-            감사합니다.
+            감사합니다.-->
+
+            {{ $t('MSG_TXT_TIMETABLE_SIDING_SPP_DT_GUD2', [dayjs(data.sellDate).format('YYYY년 MM월 DD일'),
+                                                           dayjs(data.sowDay).format('YYYY년 MM월 DD일')]) }}
           </font>
         </li>
         <li v-else>
           <font size="4px">
-            선택하신 모종 배송일자는 {{ dayjs(data.sellDate).format('YYYY년 MM월 DD일') }} 입니다. <br>
+            <!--            선택하신 모종 배송일자는 {{ dayjs(data.sellDate).format('YYYY년 MM월 DD일') }} 입니다. <br>
             배송시간은 방문 전 웰스매니저가 별도 연락드릴 예정입니다.<br>
             모종 발송일은 {{ dayjs(data.sowDay).format('YYYY년 MM월 DD일') }} 입니다. <br>
             모종 발송 후 취소 시 환불이 불가합니다. <br>
             모종 취소에 대한 자세한 사항은 고객센터(1588-4113)로 문의 주시기 바랍니다.<br>
-            감사합니다.
+            감사합니다.-->
+            {{ $t('MSG_TXT_TIMETABLE_SIDING_SPP_DT_GUD3', [dayjs(data.sellDate).format('YYYY년 MM월 DD일'),
+                                                           dayjs(data.sowDay).format('YYYY년 MM월 DD일')]) }}
           </font>
         </li>
       </ul>
@@ -338,7 +334,7 @@
         <li>
           <kw-separator />
           <font size="4px">
-            [접수마감]<br>내일 접수는 마감되었습니다.  <br> 익일이후 날짜에 방문예약 바랍니다.
+            [{{ $t('MSG_BTN_RECEIPT') + $t('MSG_TXT_DDLN') /*접수마감*/ }}]<br>내일 접수는 마감되었습니다.<br> 익일이후 날짜에 방문예약 바랍니다.
           </font>
         </li>
       </ul>
@@ -375,9 +371,9 @@
             '방문가능' "
         >
           <h3>
-            시간선택
+            {{ $t('MSG_TXT_TIME') + $t('MSG_TXT_SELT') /*시간선택*/ }}
             <div class="kw-notification">
-              *()접수가능 건수
+              *() {{ $t('MSG_TXT_RCP_PSB') /*접수가능*/ + ' ' + $t('MSG_TXT_COUNT') /*건수*/ }}
             </div>
           </h3>
           <div class="row justify-between items-center mt20">
@@ -386,22 +382,16 @@
             </p>
             <ul class="reservation-state">
               <li class="kw-font--14">
-                예약가능
+                {{ $t('MSG_TXT_AVBL_ON') /*예약가능*/ }}
               </li>
               <li class="kw-font--14">
-                선택
+                {{ $t('MSG_BTN_SELT') /*선택*/ }}
               </li>
               <li class="kw-font--14">
-                예약완료
+                {{ $t('MSG_BTN_RSV') /*예약*/ + $t('MSG_BTN_COMP') /*완료*/ }}
               </li>
             </ul>
           </div>
-          <!--
-            div.col
-            - 선택 : select 클래스 추가
-            - 예약가능: default(클래스 추가 없음)
-            - 예약완료: disable 클래스 추가
-          -->
           <div
             class="row reservation-select q-gutter-x-sm"
           >
@@ -410,7 +400,7 @@
               @click="onClickAm"
             >
               <h3>
-                오전 <span class="ml4">({{ data.amShowVar }})</span>
+                {{ $t('MSG_TXT_AM') /*오전*/ }} <span class="ml4">({{ data.amShowVar }})</span>
               </h3>
               <p class="mt4">
                 09:00 ~ 12:50
@@ -421,7 +411,7 @@
               @click="onClickPm"
             >
               <h3>
-                오후 <span class="ml4">({{ data.pmShowVar }})</span>
+                {{ $t('MSG_TXT_PM') /*오후*/ }} <span class="ml4">({{ data.pmShowVar }})</span>
               </h3>
               <p class="mt4">
                 14:00 ~ 17:50
@@ -444,7 +434,7 @@
           }"
           @click="onClickWait"
         >
-          <h3>대기접수</h3>
+          <h3>{{ $t('MSG_TXT_PENDING') + $t('MSG_BTN_RECEIPT') /*대기접수*/ }}</h3>
         </div>
       </div>
       <div
@@ -454,7 +444,10 @@
         "
       >
         <kw-separator />
-        <h3>엔지니어 전달메모</h3>
+        <h3>
+          {{ $t('MSG_TXT_EGER') + ' ' + $t('MSG_BTN_TRMS') + $t('MSG_TXT_MEMO') /*엔지니어 전달 메모
+        */ }}
+        </h3>
         <kw-input
           v-model.trim="data.egerMemo"
           class="mt20 mb18"
@@ -469,13 +462,13 @@
 
       <div class="button-set--bottom row justify-center">
         <kw-btn
-          label="취소"
+          :label="$t('MSG_BTN_CANCEL')"
           negative
           @click="onClickCancel"
         />
         <kw-btn
           class="ml8"
-          label="저장"
+          :label="$t('MSG_BTN_SAVE')"
           primary
           :disable="(data.chnlDvCd === 'K' || data.chnlDvCd === 'P'|| data.chnlDvCd === 'W') &&
             data.psicDatas.vstPos
@@ -490,9 +483,9 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { notify, useDataService, useModal, alert } from 'kw-lib';
+import { notify, useDataService, useModal/* , alert */ } from 'kw-lib';
 import dayjs from 'dayjs';
-// eslint-disable-next-line no-unused-vars
+
 import { cloneDeep, toInteger } from 'lodash-es';
 
 const dataService = useDataService();
@@ -547,7 +540,7 @@ const scheduleInfo = ref({
   weekCnt: 0,
   dayCnt: 7,
 });
-
+let cachedParams;
 const clickedBtn = ref(''); // 0:오전, 1:오후
 
 // const enableDays = ref([]);
@@ -628,8 +621,6 @@ function getCurrentDate() {
   return dayjs(`${searchParams.value.baseYm}01`).format(DATE_FORMAT_YM);
 }
 
-// eslint-disable-next-line no-unused-vars
-let cachedParams;
 async function getTimeTables() {
   cachedParams = cloneDeep(searchParams.value);
   const res = await dataService.get('/sms/wells/service/time-tables/sales', { params:
@@ -840,21 +831,19 @@ function isHoliday(dayCnt) {
   return schedules.value[dayCnt - 1]?.dfYn === 'Y' || schedules.value[dayCnt - 1]?.phldYn === 'Y';
 }
 
-//---------------------------------------------------
 function enableAllTheseDays(inDate, isNotifyMessage) {
   // 모종 가능할 일자 중에
   if (data.value.sidingDays.find((item) => item.ablDays.replace(/-/g, '') === inDate)) {
     // 엔지니어 배정 불가능한 날짜이면
     if (data.value.disableDays.find((item) => item.disableFuldays.replace(/-/g, '') === inDate)) {
-      if (isNotifyMessage) notify('접수제한');
+      if (isNotifyMessage) notify(`${t('MSG_BTN_RECEIPT' /* 접수 */)}${t('MSG_TXT_LIMIT' /* 제한 */)}`); // 접수제한;
       return 'N';
     }
     return 'Y';
   }
   return 'N';
 }
-//---------------------------------------------------
-// eslint-disable-next-line no-unused-vars
+
 function homecareAllTheseDays(inDate, isNotifyMessage) {
   const today = dayjs().format('YYYYMMDD');
   const twoMonth = dayjs(`${today.substr(0, 6)}01`).add(4, 'month').format('YYYYMMDD');
@@ -867,13 +856,13 @@ function homecareAllTheseDays(inDate, isNotifyMessage) {
   }
 
   if (inDate >= twoMonth) {
-    if (isNotifyMessage) notify('2개월 접수제한');
+    if (isNotifyMessage) notify(`2${t('MSG_TXT_MCNT'/* 개월 */)} ${t('MSG_BTN_RECEIPT' /* 접수 */)}${t('MSG_TXT_LIMIT' /* 제한 */)}`);
+    // 2개월 접수제한
     return 'N';
   }
   return 'Y';
 }
-//---------------------------------------------------
-// eslint-disable-next-line no-unused-vars
+
 function disableAllTheseDays(inDate, isNotifyMessage) {
   const today = dayjs().format('YYYYMMDD');
   const twoMonth = dayjs(`${today.substr(0, 6)}01`).add(4, 'month').format('YYYYMMDD');
@@ -885,13 +874,12 @@ function disableAllTheseDays(inDate, isNotifyMessage) {
     return 'N';
   }
   if (inDate > twoMonth) {
-    if (isNotifyMessage) notify('2개월 접수제한');
+    if (isNotifyMessage) notify(`2${t('MSG_TXT_MCNT'/* 개월 */)} ${t('MSG_BTN_RECEIPT' /* 접수 */)}${t('MSG_TXT_LIMIT' /* 제한 */)}`);
     return 'N';
   }
   return 'Y';
 }
-//---------------------------------------------------
-// eslint-disable-next-line no-unused-vars
+
 function isEnable(dayCnt, isNotifyMessage) {
   // console.group('isEnable');
   const pointedDate = getYmdText(dayCnt).replace(/-/g, '');
@@ -906,7 +894,6 @@ function isEnable(dayCnt, isNotifyMessage) {
   return disableAllTheseDays(pointedDate, isNotifyMessage);
 }
 
-// eslint-disable-next-line no-unused-vars
 function isOpacity(dayCnt) {
   const enable = isEnable(dayCnt, false);
   if (enable === 'N') {
@@ -1011,6 +998,7 @@ async function onClickAm() {
   }
   data.value.sellTime = time;
 }
+
 async function onClickPm() {
   clickedBtn.value = '1';
   let time = '';
@@ -1028,6 +1016,7 @@ async function onClickPm() {
   }
   data.value.sellTime = time;
 }
+
 async function onClickWait() {
   clickedBtn.value = '1';
   data.value.sellTime = '0200';
@@ -1044,7 +1033,7 @@ async function onClickSave() {
   }
 
   if (data.value.sellTime === '') {
-    alert('시간을 선택해주세요');
+    notify(`${t('MSG_ALT_IS_SELCT', [t('MSG_TXT_TIME')])}` /* 시간을 선택해주세요 */);
     return;
   }
 
@@ -1055,7 +1044,7 @@ async function onClickSave() {
       && data.value.sellTime !== '0200'
       && data.value.sellTime !== '0300'
       && data.value.sellTime !== '0400') {
-      alert('현재 이후시간을 선택하여 주세요!');
+      notify('현재 이후시간을 선택하여 주세요!');
       return;
     }
   }
@@ -1065,12 +1054,12 @@ async function onClickSave() {
   ) {
     if (data.value.sellTime === '0100'
       && parseInt(dayjs().format('HHmm'), 10) > 1200) {
-      alert('미배정 오전 시간을 배정할 수 없습니다.');
+      notify('미배정 오전 시간을 배정할 수 없습니다.');
       return;
     }
     if (data.value.sellTime === '0200'
       && parseInt(dayjs().format('HHmm'), 10) > 1600) {
-      alert('미배정 오후1 시간을 배정할 수 없습니다.');
+      notify('미배정 오후1 시간을 배정할 수 없습니다.');
       return;
     }
   }
