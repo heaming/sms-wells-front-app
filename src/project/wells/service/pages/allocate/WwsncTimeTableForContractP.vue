@@ -28,7 +28,7 @@
             {{ $t('MSG_TXT_CHO_DT') /*날짜선택*/ }}
             <ul class="kw-notification">
               <li>
-                {{ $t('MSG_TXT_VST_DOW') /*방문요일*/ }} : {{ data.psicDatas.vstDowVal }}
+                {{ $t('MSG_TXT_VST_DOW') /*방문요일*/ }} : {{ data.psics.vstDowVal }}
               </li>
             </ul>
           </h3>
@@ -157,24 +157,24 @@
               <div class="col">
                 <div class="row items-center">
                   <h3>
-                    {{ data.psicDatas.prtnrKnm }}
+                    {{ data.psics.prtnrKnm }}
                   </h3>
                   <kw-chip
                     class="ml8"
                     color="primary"
-                    :label="data.psicDatas.rolDvNm"
+                    :label="data.psics.rolDvNm"
                     square
                     text-color="primary"
                   />
                 </div>
                 <div class="column mt12">
                   <p class="kw-font--14">
-                    {{ data.psicDatas.ogNm }}
+                    {{ data.psics.ogNm }}
                   </p>
                   <div class="row items-center">
                     <p class="kw-font--14">
-                      {{ data.psicDatas.cralLocaraTno }}-{{ data.psicDatas.mexnoEncr }}-{{
-                        data.psicDatas.cralIdvTno }}
+                      {{ data.psics.cralLocaraTno }}-{{ data.psics.mexnoEncr }}-{{
+                        data.psics.cralIdvTno }}
                     </p>
                     <!--                    <kw-btn
                       borderless
@@ -185,8 +185,8 @@
                   </div>
                   <div class="row items-center">
                     <p class="kw-font--14">
-                      {{ data.psicDatas.locaraTno }}-{{ data.psicDatas.exnoEncr }}-{{
-                        data.psicDatas.idvTno }}
+                      {{ data.psics.locaraTno }}-{{ data.psics.exnoEncr }}-{{
+                        data.psics.idvTno }}
                     </p>
                     <!--                    <kw-btn
                       borderless
@@ -210,7 +210,7 @@
               <div class="col">
                 <div class="row items-center">
                   <h3>
-                    {{ data.psicDatas.prtnrKnm2 }}
+                    {{ data.psics.prtnrKnm2 }}
                   </h3>
                   <kw-chip
                     class="ml8"
@@ -223,7 +223,7 @@
                 <div class="column mt12">
                   <div class="row items-center">
                     <p class="kw-font--14">
-                      {{ data.psicDatas.sjHp1 }}-{{ data.psicDatas.sjHp2 }}-{{ data.psicDatas.sjHp3 }}
+                      {{ data.psics.sjHp1 }}-{{ data.psics.sjHp2 }}-{{ data.psics.sjHp3 }}
                     </p>
                     <!-- <kw-btn
                     icon="sms_24"
@@ -245,7 +245,7 @@
           </h3>
           <div class="row items-center h76 mt20 text-center">
             <h1 class="col">
-              {{ data.psicDatas.degNm }}
+              {{ data.psics.degNm }}
             </h1>
           </div>
         </div>
@@ -263,7 +263,7 @@
                 설치
               </p>
               <p class="kw-state-list__num">
-                {{ data.psicDatas.instCnt }}
+                {{ data.psics.instCnt }}
               </p>
             </li>
             <li class="kw-state-list__item">
@@ -271,7 +271,7 @@
                 A/S
               </p>
               <p class="kw-state-list__num">
-                {{ data.psicDatas.asCnt }}
+                {{ data.psics.asCnt }}
               </p>
             </li>
             <li class="kw-state-list__item">
@@ -279,7 +279,7 @@
                 B/S
               </p>
               <p class="kw-state-list__num">
-                {{ data.psicDatas.bsCnt }}
+                {{ data.psics.bsCnt }}
               </p>
             </li>
           </ul>
@@ -340,7 +340,7 @@
       </ul>
       <ul
         v-else-if="(data.chnlDvCd === 'K' || data.chnlDvCd === 'P'|| data.chnlDvCd === 'W') &&
-          data.psicDatas.vstPos
+          data.psics.vstPos
           === '해당일 방문불가' "
       >
         <kw-separator />
@@ -351,7 +351,7 @@
         </li>
       </ul>
       <ul
-        v-else-if="data.psicDatas.rsbDvCd === 'W0103' // 직책(AC025_EMP_OR) = 10 센터장, 직책(RSB_DV_CD) = W0103 센터장
+        v-else-if="data.psics.rsbDvCd === 'W0103' // 직책(AC025_EMP_OR) = 10 센터장, 직책(RSB_DV_CD) = W0103 센터장
         "
       >
         <kw-separator />
@@ -367,7 +367,7 @@
       </ul>
       <ul v-else>
         <li
-          v-if="data.psicDatas.rstrCndtUseYn === 'Y' && data.psicDatas.vstPos ===
+          v-if="data.psics.rstrCndtUseYn === 'Y' && data.psics.vstPos ===
             '방문가능' "
         >
           <h3>
@@ -422,9 +422,9 @@
       </ul>
       <!--------------------------------------------------------------------------------------------->
       <div
-        v-if="data.psicDatas.udsnUseYn === 'Y' && // 미지정사용여부
-          data.psicDatas.vstPos=== '방문가능' &&
-          data.psicDatas.rsbDvCd === 'W0103' // 직책(AC025_EMP_OR) = 10 센터장, 직책(RSB_DV_CD) = W0103 센터장
+        v-if="data.psics.udsnUseYn === 'Y' && // 미지정사용여부
+          data.psics.vstPos=== '방문가능' &&
+          data.psics.rsbDvCd === 'W0103' // 직책(AC025_EMP_OR) = 10 센터장, 직책(RSB_DV_CD) = W0103 센터장
         "
         class="row reservation-select q-gutter-x-sm"
       >
@@ -455,7 +455,7 @@
           maxlength="500"
           type="textarea"
           :disable="(data.chnlDvCd === 'K' || data.chnlDvCd === 'P'|| data.chnlDvCd === 'W') &&
-            data.psicDatas.vstPos
+            data.psics.vstPos
             === '해당일 방문불가'"
         />
       </div>
@@ -471,7 +471,7 @@
           :label="$t('MSG_BTN_SAVE')"
           primary
           :disable="(data.chnlDvCd === 'K' || data.chnlDvCd === 'P'|| data.chnlDvCd === 'W') &&
-            data.psicDatas.vstPos
+            data.psics.vstPos
             === '해당일 방문불가'"
           @click="onClickSave"
         />
@@ -595,7 +595,7 @@ const data = ref({
   offDays: [],
   sidingDays: [],
   disableDays: [],
-  psicDatas: [],
+  psics: [],
   days: [],
   arrSm: [],
   arrAm: [],
@@ -657,7 +657,7 @@ async function getTimeTables() {
   //   { disableFuldays: '2023-06-23', tcMsg: '111법정휴무일 또는 회사휴무' },
   //   { disableFuldays: '2023-06-29', tcMsg: '222법정휴무일 또는 회사휴무' },
   // ];
-  // data.value.psicDatas = {
+  // data.value.psics = {
   //   prtnrNo: '36870',
   //   sellDate: '20230616',
   //   iscgubNm: '2급 중',
@@ -690,7 +690,7 @@ async function getTimeTables() {
   //   cralIdvTno: '0110',
   //   twrkCnt: '1',
   // };
-  // data.value.psicDatas.rsbDvCd = '0';
+  // data.value.psics.rsbDvCd = '0';
   // data.value.arrAm = [
   //   { time: '09:00', cnt: '1', enableYn: 'N' },
   //   { time: '09:10', cnt: '0', enableYn: 'N' },
@@ -749,10 +749,10 @@ async function getTimeTables() {
   //   { time: '17:40', cnt: '0', enableYn: 'N' },
   //   { time: '17:50', cnt: '0', enableYn: 'N' }];
   // data.value.arrPm2 = [{ time: '18:00', cnt: '1', enableYn: 'N' }];
-  // data.value.psicDatas.rstrCndtUseYn = 'N';
-  // data.value.psicDatas.udsnUseYn = 'Y';
-  // data.value.psicDatas.vstPos = '방문가능';
-  // data.value.psicDatas.rsbDvCd = '10';
+  // data.value.psics.rstrCndtUseYn = 'N';
+  // data.value.psics.udsnUseYn = 'Y';
+  // data.value.psics.vstPos = '방문가능';
+  // data.value.psics.rsbDvCd = '10';
 
   // test
   //---------------------------------------------------------------
@@ -785,8 +785,8 @@ async function getTimeTables() {
   data.value.totalMaxAbleCnt = 0; // total_max_able_cnt
   data.value.amShowVar = 0; // am_show_var
   data.value.pmShowVar = 0; // pm_show_var
-  const amAbleCnt = toInteger(data.value.psicDatas.amWrkCnt);
-  const pmAbleCnt = toInteger(data.value.psicDatas.pmWrkCnt);
+  const amAbleCnt = toInteger(data.value.psics.amWrkCnt);
+  const pmAbleCnt = toInteger(data.value.psics.pmWrkCnt);
 
   data.value.arrAm.forEach((item) => {
     data.value.amWrkCnt += toInteger(item.cnt);
@@ -987,11 +987,11 @@ async function onClickAm() {
   clickedBtn.value = '0';
   let time = '';
   if (data.value.totalMaxAbleCnt > 0 && data.value.amAlloCnt > 0
-                && data.value.amAlloCnt >= toInteger(data.value.psicDatas.tWrkCnt)) {
+                && data.value.amAlloCnt >= toInteger(data.value.psics.tWrkCnt)) {
     time = '0910';
   } else if (data.value.totalMaxAbleCnt > 0 && data.value.amAlloCnt > 0
-                && data.value.totalAbleCnt >= toInteger(data.value.psicDatas.tWrkCnt)
-                && data.value.totalAbleCnt === toInteger(data.value.psicDatas.tWrkCnt)) {
+                && data.value.totalAbleCnt >= toInteger(data.value.psics.tWrkCnt)
+                && data.value.totalAbleCnt === toInteger(data.value.psics.tWrkCnt)) {
     time = '0910';
   } else {
     time = '';
@@ -1004,12 +1004,12 @@ async function onClickPm() {
   let time = '';
   if (data.value.totalMaxAbleCnt > 0
       && data.value.pmAlloCnt > 0
-      && data.value.pmAlloCnt >= toInteger(data.value.psicDatas.tWrkCnt)) {
+      && data.value.pmAlloCnt >= toInteger(data.value.psics.tWrkCnt)) {
     time = '1410';
   } else if (data.value.totalMaxAbleCnt > 0
             && data.value.pmAlloCnt > 0
-            && data.value.totalAbleCnt >= toInteger(data.value.psicDatas.tWrkCnt)
-            && data.value.totalAbleCnt === toInteger(data.value.psicDatas.tWrkCnt)) {
+            && data.value.totalAbleCnt >= toInteger(data.value.psics.tWrkCnt)
+            && data.value.totalAbleCnt === toInteger(data.value.psics.tWrkCnt)) {
     time = '1410';
   } else {
     time = '';
