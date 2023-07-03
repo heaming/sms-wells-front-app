@@ -307,8 +307,10 @@ async function onClickObjectSearch() {
       notify('추가 할 대상이 없습니다.'); /* 추후에 메시지 바뀔 예정이라 추후 채번 예정 */
       return;
     }
-
     grdLinkRef.value.getData().clearRows();
+
+    pageInfo.value.totalCount = res.data.length;
+    pageInfo.value.pageIndex = 1;
 
     const objectRes = res.data;
     const view = grdLinkRef.value.getView();
@@ -359,8 +361,6 @@ async function onClickPrintCreate() {
     wkDt: searchParams.value.wkDt,
     giroOcrPblOjStrtdt: searchParams.value.giroOcrPblDtm,
   };
-
-  // console.log(paramData);
 
   await dataService.post('/sms/wells/withdrawal/idvrve/giro-ocr-forwardings/print', paramData);
 

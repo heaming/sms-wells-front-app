@@ -96,6 +96,10 @@ async function initStandardGrid(data, view) {
   const columns = [
     // 상태
     { fieldName: 'tempSaveYn', header: t('MSG_TXT_STT'), width: '105', styleName: 'text-center', options: props.codes?.PD_TEMP_SAVE_CD },
+    // 적용시작일자
+    { fieldName: 'vlStrtDtm', header: t('MSG_TXT_APY_STRTDT'), width: '100', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date' },
+    // 적용종료일자
+    { fieldName: 'vlEndDtm', header: t('MSG_TXT_APY_ENDDT'), width: '100', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date' },
     // 기준상품 분류
     { fieldName: 'pdClsfNm', header: t('MSG_TXT_PD_STD_TYPE'), width: '271' },
     // 기준상품명

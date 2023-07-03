@@ -3,7 +3,7 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : SNB
-2. 프로그램 ID : [W-SV-U-0081M01] WwsnbFalseVisitRegistrationListM - 허위방문 등록현황
+2. 프로그램 ID : [W-SV-U-0003M01] WwsnbFalseVisitRegistrationListM - 허위방문 등록현황
 3. 작성자 : yeongjoong.kim
 4. 작성일 : 2023.06.22
 ****************************************************************************************************
@@ -20,7 +20,10 @@
       @search="onClickSearch"
     >
       <kw-search-row>
-        <kw-search-item :label="$t('MSG_TXT_REG_PERIOD')">
+        <kw-search-item
+          :label="$t('MSG_TXT_REG_PERIOD')"
+          required
+        >
           <kw-date-range-picker
             v-model:from="searchParams.fromDate"
             v-model:to="searchParams.toDate"
@@ -100,7 +103,7 @@ const pageInfo = ref({
 });
 
 async function fetchData() {
-  const { data: { list, pageInfo: pageInfoObj } } = await dataService.get('sms/wells/service/false-visit/paging', { params: { ...cachedParams, ...pageInfo.value } });
+  const { data: { list, pageInfo: pageInfoObj } } = await dataService.get('/sms/wells/service/false-visit/paging', { params: { ...cachedParams, ...pageInfo.value } });
 
   list.forEach((row) => {
     if (row.cralLocaraTno && row.mexnoEncr && row.cralIdvTno) { row.mobileTno = `${row.cralLocaraTno}-${row.mexnoEncr}-${row.cralIdvTno}`; }
@@ -121,15 +124,19 @@ async function onClickSearch() {
     searchParams.value.searchParam4 = numbers.length > 2 ? numbers[2] : '';
   }
 
+  pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
 }
 
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
+  const { data } = await dataService.get('/sms/wells/service/false-visit/excel-download', { params: cachedParams });
+
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
+    exportData: data,
   });
 }
 // -------------------------------------------------------------------------------------------------

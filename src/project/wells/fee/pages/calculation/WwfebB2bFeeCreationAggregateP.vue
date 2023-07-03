@@ -60,6 +60,10 @@ const props = defineProps({
     type: String,
     default: '',
   },
+  feeTcntDvCd: {
+    type: String,
+    default: '02',
+  },
 });
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -68,6 +72,7 @@ const popupRef = ref();
 const dataService = useDataService();
 const regData = ref({
   perfYm: props.perfYm,
+  feeTcntDvCd: props.feeTcntDvCd, // default 2차수
 });
 // 취소
 async function onClickCancel() {
@@ -77,7 +82,7 @@ async function onClickCancel() {
 async function onClickCreate() {
   if (!await popupRef.value.validate()) { return; }
 
-  await dataService.post('/sms/wells/fee/b2b/aggregate', { perfYm: regData.value.perfYm });
+  await dataService.post('/sms/wells/fee/b2b/aggregate', { perfYm: regData.value.perfYm, feeTcntDvCd: regData.value.feeTcntDvCd });
   notify(t('MSG_ALT_AGRG_FSH')); // 집계되었습니다.
   ok(true);
 }

@@ -146,14 +146,6 @@ const codes = await codeUtil.getMultiCodes(
 
 const grdMainRef = ref();
 
-async function onClickExcelDownload() {
-  const view = grdMainRef.value.getView();
-  await gridUtil.exportView(view, {
-    fileName: currentRoute.value.meta.menuName,
-    timePostfix: true,
-  });
-}
-
 let cachedParams;
 const searchParams = ref({
   asnOjYm: now.format('YYYYMM'),
@@ -172,7 +164,7 @@ const pageInfo = ref({
 });
 
 async function fetchData() {
-  const { data: { list, pageInfo: pageInfoObj } } = await dataService.get('sms/wells/service/finish-location/paging', { params: { ...cachedParams, ...pageInfo.value } });
+  const { data: { list, pageInfo: pageInfoObj } } = await dataService.get('/sms/wells/service/finish-location/paging', { params: { ...cachedParams, ...pageInfo.value } });
 
   list.forEach((row) => {
     if (row.cralLocaraTno && row.mexnoEncr && row.cralIdvTno) { row.mobileTno = `${row.cralLocaraTno}-${row.mexnoEncr}-${row.cralIdvTno}`; }
@@ -191,6 +183,7 @@ async function onClickSearch() {
     searchParams.value.ogTpCd = ogTpCd;
     searchParams.value.prtnrNo = prtnrNo;
   }
+  pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
 }
@@ -199,6 +192,16 @@ function onChangeMngtDvCd() {
   searchParams.value.partner = {};
   searchParams.value.ogTpCd = '';
   searchParams.value.prtnrNo = '';
+}
+
+async function onClickExcelDownload() {
+  const view = grdMainRef.value.getView();
+  const { data } = await dataService.get('/sms/wells/service/finish-location/excel-download', { params: cachedParams });
+  await gridUtil.exportView(view, {
+    fileName: currentRoute.value.meta.menuName,
+    timePostfix: true,
+    exportData: data,
+  });
 }
 
 // -------------------------------------------------------------------------------------------------

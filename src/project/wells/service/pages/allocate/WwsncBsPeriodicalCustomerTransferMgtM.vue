@@ -3,7 +3,7 @@
  * 프로그램 개요
  ****************************************************************************************************
  1. 모듈 : SNC
- 2. 프로그램 ID : WwsncBsPeriodicalCustomerTransferMgtM - 정기BS 고객이관 관리
+ 2. 프로그램 ID : [W-SV-U-0291M01] WwsncBsPeriodicalCustomerTransferMgtM - 정기B/S 고객이관 관리
  3. 작성자 : YeongJoong Kim
  4. 작성일 : 2023.05.17
  ****************************************************************************************************
@@ -215,8 +215,7 @@
       <kw-grid
         ref="grdMainRef"
         name="grdMain"
-        :page-size="pageInfo.pageSize"
-        :total-count="pageInfo.totalCount"
+        :visible-rows="pageInfo.pageSize"
         @init="initGrdMain"
       />
       <kw-pagination
@@ -401,9 +400,11 @@ async function onClickTfConfirm() {
 
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
+  const { data } = await dataService.get('/sms/wells/service/before-service-period-customer/excel-download', { params: cachedParams });
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
+    exportData: data,
   });
 }
 

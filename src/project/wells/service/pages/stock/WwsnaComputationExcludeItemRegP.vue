@@ -23,14 +23,15 @@
     >
       <kw-search-row>
         <kw-search-item
-          :label="t('MSG_TXT_INQR_YM')"
+          :label="t('MSG_TXT_MGT_YNM')"
           required
         >
           <kw-date-picker
             v-model="searchParams.inqrYm"
             type="month"
-            :label="t('MSG_TXT_INQR_YM')"
+            :label="t('MSG_TXT_MGT_YNM')"
             rules="required"
+            :disable="isInqrYm"
           />
         </kw-search-item>
         <kw-search-item
@@ -169,9 +170,20 @@ const dataService = useDataService();
 const popupRef = ref();
 const grdMainRef = ref(getComponentType('KwGrid'));
 
+const props = defineProps({
+  inqrYm: {
+    type: String,
+    default: '',
+  },
+  products: {
+    type: Array,
+    default: () => [],
+  },
+});
+
 let cachedParams;
 const searchParams = ref({
-  inqrYm: dayjs().format('YYYYMM'), // 기준년월
+  inqrYm: isEmpty(props.inqrYm) ? dayjs().format('YYYYMM') : props.inqrYm, // 기준년월
   itmKndCd: '',
   itmPdCds: [],
   strtSapCd: '',
@@ -200,17 +212,24 @@ function itmKndCdFilter() {
 
 const optionsItmPdCd = ref();
 const optionsAllItmPdCd = ref();
-
-// 품목조회
-const getProducts = async () => {
+const isInqrYm = ref(true);
+async function initData() {
+  if (isEmpty(props.inqrYm)) {
+    isInqrYm.value = false;
+  }
+  if (!isEmpty(props.products)) {
+    optionsAllItmPdCd.value = props.products;
+    optionsItmPdCd.value = optionsAllItmPdCd.value;
+    return;
+  }
   const result = await dataService.get('/sms/wells/service/computation-exclude-items/products');
-  optionsItmPdCd.value = result.data;
   optionsAllItmPdCd.value = result.data;
-};
+  optionsItmPdCd.value = optionsAllItmPdCd.value;
+}
 
 await Promise.all([
   itmKndCdFilter(),
-  getProducts(),
+  initData(),
 ]);
 
 const userInfo = getters['meta/getUserInfo'];
@@ -222,11 +241,12 @@ function onChangeItmKndCd() {
   searchParams.value.itmPdCds = [];
   const { itmKndCd } = searchParams.value;
 
-  if (itmKndCd !== '') {
-    optionsItmPdCd.value = optionsAllItmPdCd.value.filter((v) => itmKndCd === v.itmKndCd);
-  } else {
+  if (isEmpty(itmKndCd)) {
     optionsItmPdCd.value = optionsAllItmPdCd.value;
+    return;
   }
+
+  optionsItmPdCd.value = optionsAllItmPdCd.value.filter((v) => itmKndCd === v.itmKndCd);
 }
 
 // 조회
@@ -263,12 +283,14 @@ async function onClickDelete() {
   }
 
   const deletedRows = await gridUtil.confirmDeleteCheckedRows(view);
-  const res = await dataService.delete('/sms/wells/service/computation-exclude-items', { data: [...deletedRows] });
-  const { processCount } = res.data;
-  if (processCount > 0) {
-    notify(t('MSG_ALT_DELETED'));
-    pageInfo.value.needTotalCount = true;
-    await fetchData();
+  if (!isEmpty(deletedRows)) {
+    const res = await dataService.delete('/sms/wells/service/computation-exclude-items', { data: [...deletedRows] });
+    const { processCount } = res.data;
+    if (processCount > 0) {
+      notify(t('MSG_ALT_DELETED'));
+      pageInfo.value.needTotalCount = true;
+      await fetchData();
+    }
   }
 }
 

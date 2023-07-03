@@ -5,7 +5,7 @@
 1. 모듈 : 상품 - 상품운영관리(PDC)
 2. 프로그램 ID : WwpdcAsPartListM - 교재/자재 목록 (W-PD-U-0040M01)
 3. 작성자 : junho.bae
-4. 작성일 : 2022.AA.BB
+4. 작성일 : 2023.07.01
 ****************************************************************************************************
 * 프로그램 설명
 ****************************************************************************************************
@@ -58,14 +58,6 @@
             search-lvl="3"
           />
         </kw-search-item>
-        <!-- AS자재번호 -->
-        <!--
-        <kw-search-item :label="$t('TXT_MSG_AS_MAT_CD')">
-          <kw-input
-            v-model.trim="searchParams.asMatCd"
-          />
-        </kw-search-item>
-         -->
         <!-- 자재코드 -->
         <kw-search-item :label="$t('MSG_TXT_MATI_CD')">
           <kw-input
@@ -195,11 +187,6 @@ const page = ref({
   detail: '/product/wwpdc-as-part-list/wwpdc-as-part-dtl', // 교재/자재 상세보기 UI
 });
 
-const props = defineProps({
-  test: { type: String, default: '' },
-  state: { type: String, default: '' },
-});
-
 let cachedParams;
 const searchParams = ref({
   pdTpCd: pdConst.PD_TP_CD_MATERIAL,
@@ -219,7 +206,6 @@ async function onClickSapMaterial() {
   const { result, payload } = await modal({
     component: 'ZwpdcMaterialsCodeListP',
     componentProps: {
-      // searchType: 'sapMatCd',
       searchType: pdConst.PD_SEARCH_CODE,
       selectType: 'SINGLE',
       searchValue: searchParams.value.sapMatCd,
@@ -342,17 +328,17 @@ const sapItemCdToValidation = async (val) => {
   return errors[0] || true;
 };
 
-watch(() => props.state, async (state) => {
-  console.log('props state', state);
-}, { immediate: true });
+// watch(() => props.state, async (state) => {
+//   console.log('props state', state);
+// }, { immediate: true });
 
-watch(() => props.test, async (newValue) => {
-  console.log('props test', newValue);
-}, { immediate: true });
+// watch(() => props.test, async (newValue) => {
+//   console.log('props test', newValue);
+// }, { immediate: true });
 
-watch(() => route.state, async (state) => {
-  console.log('route state', state);
-}, { immediate: true });
+// watch(() => route.state, async (state) => {
+//   console.log('route state', state);
+// }, { immediate: true });
 
 watch(() => route.query, async (query) => {
   console.log('route query', query);
@@ -386,18 +372,6 @@ const initGrdMain = defineGrid((data, view) => {
   view.setColumns(columns);
   view.rowIndicator.visible = true;
   view.checkBar.visible = true;
-  // view.checkBar.showAll = false;
-  // view.checkBar.exclusive = true;
-  // view.displayOptions.selectionStyle = 'singleRow';
-
-  view.onCellItemClicked = async (g, { column, itemIndex }) => {
-    if (['fstRgstUsrNm', 'fnlMdfcUsrNm'].includes(column)) {
-      // NameTag Link
-      const { fstRgstUsrId, fnlMdfcUsrId } = gridUtil.getRowValue(g, itemIndex);
-      const userId = column === 'fstRgstUsrNm' ? fstRgstUsrId : fnlMdfcUsrId;
-      await modal({ component: 'ZwcmzUserDtlP', componentProps: { userId } });
-    }
-  };
 
   view.onCellDblClicked = async (g, clickData) => {
     if (clickData.cellType === 'data') {

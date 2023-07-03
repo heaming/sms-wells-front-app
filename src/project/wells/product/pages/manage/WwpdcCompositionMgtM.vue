@@ -214,7 +214,10 @@ const codes = await codeUtil.getMultiCodes(
 );
 
 async function getSaveData() {
-  const subList = { isModifiedProp: false, isOnlyFileModified: false, isModifiedPrice: false };
+  const subList = { isModifiedProp: false,
+    isOnlyFileModified: false,
+    isModifiedPrice: false,
+    isModifiedRelation: false };
   await Promise.all(cmpStepRefs.value.map(async (item, idx) => {
     const saveData = await item.value.getSaveData();
     const isModified = await item.value.isModifiedProps();
@@ -230,6 +233,10 @@ async function getSaveData() {
       // 가격 수정여부
       if (await isModified && idx === (pdConst.COMPOSITION_STEP_PRICE.step - 1)) {
         subList.isModifiedPrice = true;
+      }
+      // 연결상품 수정여부
+      if (await isModified && idx === (pdConst.COMPOSITION_STEP_REL_PROD.step - 1)) {
+        subList.isModifiedRelation = true;
       }
       if (saveData[bas]) {
         if (subList[bas]?.cols) {

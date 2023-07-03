@@ -5,16 +5,12 @@
 1. 모듈 : 상품 - 상품운영관리(PDC)
 2. 프로그램 ID : WwpdcMaterialDtlM - 교재/자재 상세조회 ( W-PD-U-0031M07 )
 3. 작성자 : junho.bae
-4. 작성일 : 2022.AA.BB
+4. 작성일 : 2023.07.01
 ****************************************************************************************************
 * 프로그램 설명
 ****************************************************************************************************
 - 상품 교재/자재 상세조회 프로그램 (Outer Frame W-PD-U-0031M07 - M10)
 ****************************************************************************************************
-const page = ref({
-  modify: '/product/zwpdc-material-list/wwpdc-material-mgt', // 등록/수정 UI
-});
-const materialMainPage = '/product/zwpdc-material-list';
 --->
 <template>
   <kw-page>
@@ -187,16 +183,6 @@ watch(() => route.query, async (query) => {
     currentPdCd.value = query.pdCd;
     await fetchData(query.pdCd);
   }
-}, { immediate: true });
-
-watch(() => route.query, async (query) => {
-  /*
-    #1. (관리) => 상세 => 수정 => 저장
-    #2. (관리) => 상세 => 수정 => 취소
-    상기 경우 관리(*ListM) 화면으로 Forward
-  */
-  console.log('wwMDtlm', query);
-  // if (isEmpty(query)) await pageMove(pdConst.MATERIAL_LIST_PAGE, true, router, { isSearch: false });
 }, { immediate: true });
 
 onMounted(async () => {

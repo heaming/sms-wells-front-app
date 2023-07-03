@@ -101,7 +101,10 @@
 import WwctaContractSettlementAgreeItem
   from '~sms-wells/contract/components/ordermgmt/WwctaContractSettlementAgreeItem.vue';
 
-import { alert, codeUtil } from 'kw-lib';
+import { alert } from 'kw-lib';
+import { CtCodeUtil } from '~sms-common/contract/util';
+
+const AG_ATC_DV_CD = 'AG_ATC_DV_CD';
 
 const props = defineProps({
   agrees: { type: Array, default: undefined },
@@ -109,25 +112,17 @@ const props = defineProps({
 
 const emit = defineEmits(['confirm']);
 
-const codes = await codeUtil.getMultiCodes(
-  'AG_ATC_DV_CD',
-  'AG_STAT_CD',
-);
+const { getCodeName } = await CtCodeUtil(AG_ATC_DV_CD);
 
 const AG_STAT_CD_AG = '01';
 const AG_STAT_CD_REJ = '02';
 const AG_STAT_CD_UNDEF = '03';
 
-function getCodeName(codeArr, codeId) {
-  if (!Array.isArray(codeArr)) { return ''; }
-  return codeArr.find((code) => code.codeId === codeId)?.codeName ?? '';
-}
-
 function initialize(agrees) {
   return agrees.map((item) => ({
     ...item,
     required: item.mndtYn === 'Y',
-    name: getCodeName(codes.AG_ATC_DV_CD, item.agAtcDvCd),
+    name: getCodeName(AG_ATC_DV_CD, item.agAtcDvCd),
   }));
 }
 

@@ -16,7 +16,7 @@
   <kw-page>
     <div class="pa20">
       <h3>{{ t('MSG_TXT_ELSG_VST_CH') }}</h3>
-      <div class="mt20 row">
+      <!-- <div class="mt20 row">
         <kw-input
           :placeholder="visitCocnMshCh"
           grow
@@ -28,7 +28,7 @@
           border-color="black-btn-line ml8"
           @click="onClickUrlCopy(1)"
         />
-      </div>
+      </div> -->
       <div class="mt20">
         <kw-btn
           :label="t('MSG_BTN_CH')"
@@ -49,7 +49,7 @@
     >
       <div class="pa20">
         <h3>{{ t('MSG_TXT_ELSG_LDSTC_CH') }}</h3>
-        <div class="mt20 row">
+        <!-- <div class="mt20 row">
           <kw-input
             :placeholder="elsgLdstcCh"
             grow
@@ -61,7 +61,7 @@
             border-color="black-btn-line ml8"
             @click="onClickUrlCopy(2)"
           />
-        </div>
+        </div> -->
         <h4>{{ t('MSG_TXT_NOTAK_RCV_CST_NAME') }}</h4>
         <kw-input
           v-model.trim="inputParams.cstNm"
@@ -125,6 +125,7 @@ const dataService = useDataService();
 const { alert, notify } = useGlobal();
 
 const { getters } = useStore();
+// eslint-disable-next-line no-unused-vars
 const { userId } = getters['meta/getUserInfo'];
 
 const now = dayjs();
@@ -146,17 +147,9 @@ const inputParams = ref({
 
 const strDomain = window.location.host;
 
-const visitCocnMshCh = `${strDomain}/mobile/#/withdrawal/zmwda-auto-transfer-payment-change?vstYn=Y&chRqrDvCd=2&aftnThpChYn=N&clctamMngtYn=N&cntrChPrtnrNo=${userId}&akChdt=${akChdt}`;
-const elsgLdstcCh = `${strDomain}/mobile/#/withdrawal/zmwda-auto-transfer-payment-change?vstYn=N&chRqrDvCd=1&aftnThpChYn=N&clctamMngtYn=N&cntrChPrtnrNo=${userId}&akChdt=${akChdt}`;
-
-async function onClickUrlCopy(no) {
-  if (no === 1) {
-    navigator.clipboard.writeText(visitCocnMshCh);
-  } else {
-    navigator.clipboard.writeText(elsgLdstcCh);
-  }
-  notify(t('MSG_ALT_COPY_DATA'));
-}
+const visitCocnMshCh = `${strDomain}/mobile/#/ns/zmwda-auto-transfer-payment-change?vstYn=Y&chRqrDvCd=2&aftnThpChYn=N&clctamMngtYn=N&akChdt=${akChdt}`;
+// eslint-disable-next-line no-unused-vars
+const elsgLdstcCh = `${strDomain}/mobile/#/ns/zmwda-auto-transfer-payment-change?vstYn=N&chRqrDvCd=1&aftnThpChYn=N&clctamMngtYn=N&akChdt=${akChdt}`;
 
 async function onClickChange() {
   const url = visitCocnMshCh;
@@ -165,7 +158,6 @@ async function onClickChange() {
     chRqrDvCd: '2',
     aftnThpChYn: 'N',
     clctamMngtYn: 'N',
-    cntrChPrtnrNo: userId,
     akChdt,
   };
   const path = url.slice(url.indexOf('#') + 1);
@@ -175,30 +167,34 @@ async function onClickChange() {
 
 // 알림톡 발송
 async function onClickAlarmSend() {
+  const deviceScreen = '/#/ns/zmwda-auto-transfer-payment-change?';
+  const nsUrl = '/anonymous/login?redirectUrl=';
+
+  const params = {
+    vstYn: 'Y',
+    chRqrDvCd: '2',
+    aftnThpChYn: 'N',
+    clctamMngtYn: 'N',
+    akChdt,
+  };
+
+  const query = deviceScreen + new URLSearchParams(params);
+
+  const nsFullUrl = encodeURIComponent(query);
   // chRqrDvCd 방문 : '2' (교원) / 원거리 : '1' (고객)
   if (!await formRef.value.validate()) { return; }
-  inputParams.value = { ...inputParams.value, url: elsgLdstcCh };
+  inputParams.value = { ...inputParams.value,
+    nsUrl,
+    nsFullUrl,
+  };
   await dataService.post('sms/common/withdrawal/bilfnt/auto-transfer-change/notification-talk-send', inputParams.value);
 
   notify(t('MSG_ALT_BIZTALK_SEND_SUCCESS'));
-  // const url = visitCocnMshCh;
-
-  // const query = {
-  //   vstYn: 'N',
-  //   chRqrDvCd: '1',
-  //   cntrChPrtnrNo: userId,
-  //   aftnThpChYn: 'N',
-  //   clctamMngtYn: 'N',
-  //   akChdt,
-  // };
-  // const path = url.slice(url.indexOf('#') + 1);
-
-  // await router.push({ path, query });
 }
 
 onMounted(async () => {
   if (!window.opener) {
-    const path = '/mobile/#/withdrawal/wmwda-auto-transfer-change-mgt';
+    const path = '/mobile/#/ns/wmwda-auto-transfer-change-mgt';
     const size = {
       width: 390,
       height: 844,

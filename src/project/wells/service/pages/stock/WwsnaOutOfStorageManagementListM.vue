@@ -125,7 +125,7 @@ const grdMainRef = ref(getComponentType('KwGrid'));
 const dataService = useDataService();
 
 const { t } = useI18n();
-const { alert, modal } = useGlobal();
+const { modal } = useGlobal();
 const { getConfig } = useMeta();
 const { currentRoute } = useRouter();
 const { getMonthWarehouse } = useSnCode();
@@ -316,7 +316,8 @@ const initGrdMain = defineGrid((data, view) => {
 
     if (column === 'txtNote') {
       if (ostrTpCd === '217') {
-        alert('현재 단위 테스트 대상이 아닙니다.(개발중)');
+        // alert('현재 단위 테스트 대상이 아닙니다.(개발중)');
+        await popupUtil.open(`/popup#/service/wwsna-etc-out-of-storage-reg?ostrTpCd=${ostrTpCd}&ostrWareNo=${ostrWareNo}&bilDept=${strWareNo}&ostrDt=${ostrDt}&itmOstrNo=${itmOstrNo}`, { width: 1800, height: 1000 }, false);
         return;
       } if (['221', '222', '223'].includes(ostrTpCd)) {
         // eslint-disable-next-line max-len
@@ -330,9 +331,6 @@ const initGrdMain = defineGrid((data, view) => {
           await fetchData();
         }
 
-        return;
-      } if (ostrTpCd === '217') {
-        alert('현재 단위 테스트 대상이 아닙니다.(개발중)');
         return;
       } if (['212', '261', '262'].includes(ostrTpCd)) {
         // eslint-disable-next-line max-len
