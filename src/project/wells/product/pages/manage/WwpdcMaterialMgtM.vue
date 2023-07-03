@@ -214,7 +214,7 @@
 // -------------------------------------------------------------------------------------------------
 import { useDataService, useGlobal } from 'kw-lib';
 import { isEmpty, cloneDeep } from 'lodash-es';
-import { pdMergeBy, pageMove } from '~sms-common/product/utils/pdUtil';
+import { pdMergeBy, pageMove, getCopyProductInfo } from '~sms-common/product/utils/pdUtil';
 import pdConst from '~sms-common/product/constants/pdConst';
 
 import ZwpdcPropGroupsMgt from '~sms-common/product/pages/manage/components/ZwpdcPropGroupsMgt.vue'; /* 속성 등록/수정 */
@@ -224,7 +224,10 @@ import WwpdcPropRelationDtl from './WwpdcPropRelationDtlM.vue'; /* 연결상품 
 
 const props = defineProps({
   pdCd: { type: String, default: null },
+  newRegYn: { type: String, default: null },
+  reloadYn: { type: String, default: null },
   tempSaveYn: { type: String, default: 'Y' },
+  copyPdCd: { type: String, default: null },
 });
 
 const { t } = useI18n();
@@ -256,6 +259,9 @@ const rel = pdConst.TBL_PD_REL;
 
 const prevStepData = ref({});
 const currentPdCd = ref();
+const currentNewRegYn = ref();
+const currentReloadYn = ref();
+const currentCopyPdCd = ref();
 const isTempSaveBtn = ref(true);
 const isCreate = ref(false);
 
@@ -264,22 +270,15 @@ const exceptPrpGrpCd = ref('PART');
 const isShowInitBtn = ref(false);
 const subTitle = ref();
 
-async function onClickReset() {
-  await cmpStepRefs.value.forEach((item) => {
-    item.value.resetData();
-  });
-  passedStep.value = 0;
-}
-
 async function onClickRemove() {
   if (await confirm(t('MSG_ALT_WANT_DEL_WCC'))) {
     await dataService.delete(`${baseUrl}/${currentPdCd.value}`);
-    await pageMove(pdConst.MATERIAL_LIST_PAGE, true, router, { isSearch: true });
+    await pageMove(pdConst.MATERIAL_LIST_PAGE, true, router, { isSearch: true }, { searchYn: 'Y' });
   }
 }
 
 async function getSaveData(tempSaveYn) {
-  const subList = { isModifiedProp: false, isOnlyFileModified: false };
+  const subList = { isModifiedProp: false, isOnlyFileModified: false, isModifiedRelation: false };
   // eslint-disable-next-line no-unused-vars
   await Promise.all(cmpStepRefs.value.map(async (item, idx) => {
     const isModified = await item.value.isModifiedProps();
@@ -293,6 +292,11 @@ async function getSaveData(tempSaveYn) {
       } else if (idx === 2 && isModified) {
         subList.isOnlyFileModified = false;
       }
+    }
+
+    // 연결상품 수정여부 (0: 기본, 1: 연결, 2:관리)
+    if (await isModified && idx === 1) {
+      subList.isModifiedRelation = true;
     }
 
     if (await saveData) {
@@ -356,7 +360,39 @@ async function fetchData() {
     prevStepData.value = initData;
     subTitle.value = initData[bas].pdCd ? `${initData[bas].pdNm} (${initData[bas].pdCd})` : initData[bas].pdNm;
     await init();
+  } else if (currentCopyPdCd.value) {
+    const res = await dataService.get(`${baseUrl}/${currentCopyPdCd.value}`);
+    prevStepData.value = await getCopyProductInfo(res.data);
+    isTempSaveBtn.value = 'Y';
   }
+}
+
+// 초기화
+async function resetData() {
+  if (isEmpty(currentPdCd.value)) {
+    isCreate.value = true;
+    passedStep.value = 0;
+    isTempSaveBtn.value = true;
+    subTitle.value = '';
+  } else {
+    isCreate.value = false;
+  }
+  currentStep.value = cloneDeep(pdConst.W_MATERIAL_STEP_BASIC);
+  prevStepData.value = {};
+  await Promise.all(cmpStepRefs.value.map(async (item) => {
+    if (item.value?.resetData) await item.value?.resetData();
+    if (item.value?.init) await item.value?.init();
+  }));
+}
+
+async function onClickReset() {
+  // await cmpStepRefs.value.forEach((item) => {
+  //   item.value.resetData();
+  // });
+  // passedStep.value = 0;
+
+  await resetData();
+  await fetchData();
 }
 
 async function onClickSave(tempSaveYn) {
@@ -401,12 +437,12 @@ async function onClickSave(tempSaveYn) {
 
   // 6. fetchData Or pageMove
   notify(t('MSG_ALT_SAVE_DATA'));
-  if (tempSaveYn === 'Y') {
+  if (tempSaveYn === 'N') {
+    await pageMove(pdConst.MATERIAL_LIST_PAGE, true, router, { isSearch: true }, { newRegYn: 'N', reloadYn: 'N', copyPdCd: '' });
+  } else {
     currentPdCd.value = rtn.data?.data?.pdCd;
     isCreate.value = isEmpty(currentPdCd.value);
     await fetchData();
-  } else {
-    await pageMove(pdConst.MATERIAL_LIST_PAGE, true, router, { isSearch: true });
   }
 }
 
@@ -450,8 +486,11 @@ async function onClickCancel() {
 }
 
 async function initProps() {
-  const { pdCd } = props;
+  const { pdCd, newRegYn, reloadYn, copyPdCd } = props;
   currentPdCd.value = pdCd;
+  currentNewRegYn.value = newRegYn;
+  currentReloadYn.value = reloadYn;
+  currentCopyPdCd.value = copyPdCd;
   passedStep.value = 0;
   if (currentPdCd.value) {
     await fetchData();
@@ -496,6 +535,47 @@ async function openPopup(field) {
 
 watch(() => props.pdCd, (val) => { currentPdCd.value = val; });
 watch(() => props.tempSaveYn, (val) => { isTempSaveBtn.value = val !== 'Y'; });
+
+watch(() => props, async ({ pdCd, newRegYn, reloadYn, copyPdCd }) => {
+  console.log(` - watch - pdCd: ${pdCd} newRegYn: ${newRegYn} reloadYn: ${reloadYn} copyPdCd: ${copyPdCd}`);
+  if (pdCd && currentPdCd.value !== pdCd) {
+    // 상품코드 변경
+    currentPdCd.value = pdCd;
+    currentNewRegYn.value = 'N';
+    currentReloadYn.value = 'N';
+    currentCopyPdCd.value = '';
+    await resetData();
+    await fetchData();
+  } else if (newRegYn && currentNewRegYn.value !== newRegYn) {
+    // 신규등록
+    currentPdCd.value = '';
+    currentNewRegYn.value = newRegYn;
+    currentReloadYn.value = 'N';
+    currentCopyPdCd.value = '';
+    if (newRegYn === 'Y') {
+      await resetData();
+    }
+  } else if (reloadYn && currentReloadYn.value !== reloadYn && reloadYn === 'Y') {
+    // Reload
+    currentNewRegYn.value = 'N';
+    currentReloadYn.value = reloadYn;
+    currentCopyPdCd.value = '';
+    if (reloadYn === 'Y') {
+      await resetData();
+      await fetchData();
+    }
+  } else if (copyPdCd && currentCopyPdCd.value !== copyPdCd) {
+    // 복사
+    if (copyPdCd) {
+      await resetData();
+      // TODO
+    }
+    currentPdCd.value = '';
+    currentNewRegYn.value = 'N';
+    currentReloadYn.value = 'N';
+    currentCopyPdCd.value = copyPdCd;
+  }
+}, { deep: true });
 
 </script>
 <style lang="scss" scoped></style>

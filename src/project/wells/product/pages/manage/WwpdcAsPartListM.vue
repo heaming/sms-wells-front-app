@@ -119,6 +119,13 @@
           inset
         />
         <kw-btn
+          :label="$t('MSG_BTN_CNTN_COPY')"
+          grid-action
+          dense
+          :disable="pageInfo.totalCount === 0"
+          @click="onClickCopy"
+        />
+        <kw-btn
           grid-action
           :disable="pageInfo.totalCount === 0"
           :label="$t('MSG_BTN_SUMMARY_SRCH')"
@@ -165,7 +172,7 @@ const { notify, modal } = useGlobal();
 const { t } = useI18n();
 const dataService = useDataService();
 const { getConfig } = useMeta();
-const route = useRoute();
+// const route = useRoute();
 const router = useRouter();
 const { currentRoute } = useRouter();
 
@@ -175,6 +182,10 @@ const pageInfo = ref({
   totalCount: 0,
   pageIndex: 1,
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
+});
+
+const props = defineProps({
+  searchYn: { type: String, default: null },
 });
 
 // -------------------------------------------------------------------------------------------------
@@ -280,8 +291,27 @@ async function onClickExcelDownload() {
   });
 }
 
+async function onClickCopy() {
+  const view = grdMainRef.value.getView();
+  const checkedRows = cloneDeep(gridUtil.getCheckedRowValues(view));
+  if (checkedRows.length < 1) {
+    notify(t('MSG_ALT_NOT_SEL_ITEM'));
+    return;
+  }
+  if (checkedRows.length !== 1) {
+    notify(t('MSG_ALT_SELT_ONE_ITEM'));
+    return;
+  }
+  const targetPdCd = checkedRows[0].pdCd;
+  debugger;
+  const regStateParams = { pdCd: '', newRegYn: 'Y', reloadYn: 'N', copyPdCd: targetPdCd };
+  await router.push({ path: page.value.reg, query: { copyPdCd: targetPdCd }, state: { stateParam: regStateParams } });
+}
+
 async function onClickAdd() {
-  await router.push({ path: page.value.reg, query: { fromUi: 'Reg' } });
+  // await router.push({ path: page.value.reg, query: { fromUi: 'Reg' } });
+  const regStateParams = { pdCd: '', newRegYn: 'Y', reloadYn: 'N', copyPdCd: '' };
+  await router.push({ path: page.value.reg, query: { fromUi: 'Reg' }, state: { stateParam: regStateParams } });
 }
 
 async function onClickSummarySearch() {
@@ -301,9 +331,15 @@ async function onClickSummarySearch() {
   }
 }
 
-async function oprenRegDetailPopup(pdCd, tempSaveYn) {
+async function openProductPopup(pdCd, tempSaveYn) {
   const targetUrl = tempSaveYn === 'Y' ? page.value.reg : page.value.detail;
-  await router.push({ path: targetUrl, query: { pdCd, tempSaveYn, fromUi: 'ASPART' } });
+  // await router.push({ path: targetUrl, query: { pdCd, tempSaveYn, fromUi: 'ASPART' } });
+  if ((tempSaveYn ?? 'Y') === 'Y') {
+    const updateStateParams = { newRegYn: 'N', reloadYn: 'N', copyPdCd: '' };
+    await router.push({ path: targetUrl, query: { pdCd, tempSaveYn, fromUi: 'ASPART' }, state: { stateParam: updateStateParams } });
+  } else {
+    await router.push({ path: targetUrl, query: { pdCd, tempSaveYn, fromUi: 'ASPART' }, state: { reloadYn: 'Y' } });
+  }
 }
 
 const sapItemCdFromValidation = async (val) => {
@@ -328,23 +364,15 @@ const sapItemCdToValidation = async (val) => {
   return errors[0] || true;
 };
 
-// watch(() => props.state, async (state) => {
-//   console.log('props state', state);
+// watch(() => route.query, async (query) => {
+//   console.log('route query', query);
+//   // eslint-disable-next-line no-use-before-define
+//   if (query.isSearch) onClickSearch();
 // }, { immediate: true });
 
-// watch(() => props.test, async (newValue) => {
-//   console.log('props test', newValue);
-// }, { immediate: true });
-
-// watch(() => route.state, async (state) => {
-//   console.log('route state', state);
-// }, { immediate: true });
-
-watch(() => route.query, async (query) => {
-  console.log('route query', query);
-  // eslint-disable-next-line no-use-before-define
-  if (query.isSearch) onClickSearch();
-}, { immediate: true });
+watch(() => props, ({ searchYn }) => {
+  if (searchYn === 'Y') onClickSearch();
+}, { deep: true });
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
@@ -378,7 +406,7 @@ const initGrdMain = defineGrid((data, view) => {
       // [reg & detail] Link
       const pdCd = g.getValue(clickData.dataRow, 'pdCd');
       const tempSaveYn = g.getValue(clickData.dataRow, 'tempSaveYn');
-      oprenRegDetailPopup(pdCd, tempSaveYn);
+      openProductPopup(pdCd, tempSaveYn);
     }
   };
 });

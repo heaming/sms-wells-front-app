@@ -97,6 +97,7 @@ import { pageMove } from '~sms-common/product/utils/pdUtil';
 const props = defineProps({
   pdCd: { type: String, default: null },
   tempSaveYn: { type: String, default: 'Y' },
+  reloadYn: { type: String, default: null },
 });
 
 const route = useRoute();
@@ -119,7 +120,8 @@ const obsMainRef = ref();
 async function onClickModify() {
   const { pdCd, tempSaveYn } = props;
   const query = { pdCd, tempSaveYn, isSearch: true, fromUi: 'Dtl' };
-  await pageMove(pdConst.ASPART_MNGT_PAGE, true, router, query);
+  const stateParam = { newRegYn: 'N', reloadYn: 'Y', copyPdCd: '' };
+  await pageMove(pdConst.ASPART_MNGT_PAGE, true, router, query, stateParam);
 }
 
 async function fetchData(forcePdCd) {
