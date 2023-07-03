@@ -168,7 +168,7 @@ async function insertCallbackRows(view, rtn, pdRelTpCd) {
     row[pdConst.REL_OJ_PD_CD] = row.pdCd;
     const rowValues = gridUtil.getAllRowValues(view);
     let isValid = false;
-    const alreadyPdCdRows = rowValues.filter((item) => item.pdCd === row.pdCd);
+    const alreadyPdCdRows = rowValues.filter((item) => item[pdConst.REL_OJ_PD_CD] === row[pdConst.REL_OJ_PD_CD]);
     if (alreadyPdCdRows && alreadyPdCdRows.length) {
       const lastVlEndDtm = alreadyPdCdRows.reduce((maxDt, item) => {
         maxDt = Number(item.vlEndDtm) > maxDt ? Number(item.vlEndDtm) : maxDt;
@@ -194,19 +194,24 @@ async function insertCallbackRows(view, rtn, pdRelTpCd) {
 async function deleteCheckedRows(view) {
   const checkedRows = view.getCheckedRows();
   const removeCreateRows = [];
-  checkedRows.forEach((row) => {
+  let isDbDataRemove = false;
+  await Promise.all(checkedRows.map(async (row) => {
     const item = gridUtil.getRowValue(view, row);
     if (item.rowState === 'created') {
       removeCreateRows.push(row);
     } else {
-      const endSetTime = dayjs().subtract(1, 'second').format('YYYYMMDDHHmmss');
-      console.log('endSetTime : ', endSetTime, row);
-      view.setValue(row, 'vlEndDtm', endSetTime);
+      isDbDataRemove = true;
+      // const endSetTime = dayjs().subtract(1, 'second').format('YYYYMMDDHHmmss');
+      // view.setValue(row, 'vlEndDtm', endSetTime);
     }
-  });
+  }));
   if (removeCreateRows.length) {
     view.getDataSource().removeRows(removeCreateRows);
   }
+  if (isDbDataRemove) {
+    notify(t('MSG_ALT_PD_REL_NO_REMOVE'));
+  }
+
   view.setAllCheck(false, true);
   view.clearCurrent();
 }
@@ -252,12 +257,12 @@ async function initProps() {
 
 await initProps();
 
-watch(() => props.pdCd, (pdCd) => { currentPdCd.value = pdCd; });
-watch(() => props.initData, (initData) => { currentInitData.value = initData; initGridRows(); }, { deep: true });
-
-onMounted(async () => {
+onActivated(async () => {
   await initGridRows();
 });
+
+watch(() => props.pdCd, (pdCd) => { currentPdCd.value = pdCd; });
+watch(() => props.initData, (initData) => { currentInitData.value = initData; initGridRows(); }, { deep: true });
 
 //-------------------------------------------------------------------------------------------------
 // Initialize Grid
@@ -310,6 +315,9 @@ async function initChangePrdGrid(data, view) {
   view.onCellEdited = async (grid, itemIndex, row, fieldIndex) => {
     await onCellEditRelProdPeriod(view, grid, itemIndex, row, fieldIndex);
   };
+
+  await initGridRows();
+  await init();
 }
 
 </script>

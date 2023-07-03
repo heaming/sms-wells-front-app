@@ -140,6 +140,10 @@ async function initProps() {
 
 await initProps();
 
+onActivated(async () => {
+  await initGridRows();
+});
+
 watch(() => props.pdCd, (pdCd) => { currentPdCd.value = pdCd; });
 watch(() => props.initData, (initData) => { currentInitData.value = initData; initGridRows(); }, { deep: true });
 
