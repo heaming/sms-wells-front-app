@@ -597,11 +597,11 @@ const data = ref({
   disableDays: [],
   psics: [],
   days: [],
-  arrSm: [],
-  arrAm: [],
-  arrPm1: [],
-  arrPm2: [],
-  arrNt: [],
+  smTimes: [],
+  amTimes: [],
+  pmTimes1: [],
+  pmTimes2: [],
+  ntTimes: [],
   amWrkCnt: 0,
   pmWrkCnt: 0,
   amAlloCnt: 0,
@@ -691,7 +691,7 @@ async function getTimeTables() {
   //   twrkCnt: '1',
   // };
   // data.value.psics.rsbDvCd = '0';
-  // data.value.arrAm = [
+  // data.value.amTimes = [
   //   { time: '09:00', cnt: '1', enableYn: 'N' },
   //   { time: '09:10', cnt: '0', enableYn: 'N' },
   //   { time: '09:20', cnt: '0', enableYn: 'N' },
@@ -723,7 +723,7 @@ async function getTimeTables() {
   //   { time: '13:40', cnt: '0', enableYn: 'N' },
   //   { time: '13:50', cnt: '0', enableYn: 'N' },
   // ];
-  // data.value.arrPm1 = [
+  // data.value.pmTimes1 = [
   //   { time: '14:00', cnt: '0', enableYn: 'N' },
   //   { time: '14:10', cnt: '0', enableYn: 'N' },
   //   { time: '14:20', cnt: '0', enableYn: 'N' },
@@ -748,7 +748,7 @@ async function getTimeTables() {
   //   { time: '17:30', cnt: '0', enableYn: 'N' },
   //   { time: '17:40', cnt: '0', enableYn: 'N' },
   //   { time: '17:50', cnt: '0', enableYn: 'N' }];
-  // data.value.arrPm2 = [{ time: '18:00', cnt: '1', enableYn: 'N' }];
+  // data.value.pmTimes2 = [{ time: '18:00', cnt: '1', enableYn: 'N' }];
   // data.value.psics.rstrCndtUseYn = 'N';
   // data.value.psics.udsnUseYn = 'Y';
   // data.value.psics.vstPos = '방문가능';
@@ -788,10 +788,10 @@ async function getTimeTables() {
   const amAbleCnt = toInteger(data.value.psics.amWrkCnt);
   const pmAbleCnt = toInteger(data.value.psics.pmWrkCnt);
 
-  data.value.arrAm.forEach((item) => {
+  data.value.amTimes.forEach((item) => {
     data.value.amWrkCnt += toInteger(item.cnt);
   });
-  data.value.arrPm1.forEach((item) => {
+  data.value.pmTimes1.forEach((item) => {
     data.value.pmWrkCnt += toInteger(item.cnt);
   });
 

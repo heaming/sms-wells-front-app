@@ -108,7 +108,7 @@ const movePages = [
         call: 'WwsncTimeTableForContractP',
         props: {
           sellDate: '20230616',
-          baseYm: '202306',
+          baseYm: '202307',
           chnlDvCd: 'K',
           svDvCd: '1',
           svBizDclsfCd: '1110',
