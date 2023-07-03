@@ -48,6 +48,7 @@
             :label="$t('MSG_TXT_LOOKUP_PERIOD')"
             rules="required|date_range_months:1"
             :to-disable="isOstrDt"
+            @change="onChangePeriod"
           />
         </kw-search-item>
       </kw-search-row>
@@ -135,6 +136,7 @@
           dense
           :label="`${t('MSG_TXT_DP_DT')}${t('MSG_TXT_CH')}`"
           :disable="pageInfo.totalCount === 0"
+          @click="onClickSave"
         />
         <kw-separator
           spaced
@@ -183,12 +185,13 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 
-import { codeUtil, useMeta, useDataService, getComponentType, gridUtil, defineGrid } from 'kw-lib';
+import { codeUtil, useMeta, useGlobal, useDataService, getComponentType, gridUtil, defineGrid } from 'kw-lib';
 import dayjs from 'dayjs';
 import { cloneDeep } from 'lodash-es';
 
 const { t } = useI18n();
 const { getConfig } = useMeta();
+const { notify } = useGlobal();
 const { currentRoute } = useRouter();
 
 const dataService = useDataService();
@@ -261,6 +264,15 @@ function onChangeDtTpCd() {
   }
 }
 
+// 시작일자 변경 시
+function onChangePeriod() {
+  const { dtTpCd, strtDt } = searchParams.value;
+  // 일자유형이 출고일자인 경우 시작일자 = 종료일자
+  if (dtTpCd === '4') {
+    searchParams.value.endDt = strtDt;
+  }
+}
+
 // 조회
 async function fetchData() {
   const res = await dataService.get('/sms/wells/service/seed-release-schedules/paging', { params: { ...cachedParams, ...pageInfo.value } });
@@ -276,11 +288,30 @@ async function fetchData() {
 }
 
 async function onClickSearch() {
+  const { strtDt } = searchParams.value;
+  searchParams.value.dayOfWeek = dayjs(strtDt).format('d');
+
   pageInfo.value.pageIndex = 1;
   // 조회버튼 클릭 시에만 총 건수 조회하도록
   pageInfo.value.needTotalCount = true;
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
+}
+
+// 저장
+async function onClickSave() {
+  const view = grdMainRef.value.getView();
+
+  if (await gridUtil.alertIfIsNotModified(view)) { return; }
+  if (!await gridUtil.validate(view)) { return; }
+  const modifedData = gridUtil.getChangedRowValues(view);
+
+  const res = await dataService.put('/sms/wells/service/seed-release-schedules', modifedData);
+  const { processCount } = res.data;
+  if (processCount > 0) {
+    notify(t('MSG_ALT_SAVE_DATA'));
+    await fetchData();
+  }
 }
 
 // 엑셀 다운로드
@@ -394,9 +425,11 @@ const initGrid = defineGrid((data, view) => {
   view.editOptions.editable = true;
 
   view.onCellEditable = (grid, index) => {
+    const refriDvCd = gridUtil.getCellValue(view, index.dataRow, 'refriDvCd');
+    const ostrYn = gridUtil.getCellValue(view, index.dataRow, 'ostrYn');
+
     // 유/무상 구분이 유상인 경우만 입금일자 입력 가능
-    // index.row
-    if (index.column === 'dpDt') {
+    if (refriDvCd === '2' && ostrYn === 'N' && index.column === 'dpDt') {
       return true;
     }
 
