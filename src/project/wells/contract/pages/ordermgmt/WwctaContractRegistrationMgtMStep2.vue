@@ -166,6 +166,7 @@
                     v-model="item.pkg"
                     class="w350"
                     :options="item.pkgs"
+                    @update:model-value="onChangePkgs(item)"
                   />
                   <kw-item-label
                     v-else
@@ -196,6 +197,7 @@
                 <div class="row justify-end w170 px10">
                   <kw-btn
                     v-if="isItem.rntl(item)"
+                    :disable="item.oneplusoneYn"
                     label="기기변경"
                     class="mr8"
                     dense
@@ -324,7 +326,9 @@
                         v-model="item.sellDscTpCd"
                         :options="item.sellDscTpCds"
                         placeholder="렌탈할인유형"
-                        @change="getPdAmts(item)"
+                        :readonly="!!item.isRentalDiscountFixed"
+                        @change="
+                          getPdAmts(item)"
                       />
                       <kw-select
                         v-if="item.svPdCds"
@@ -365,6 +369,62 @@
                           :options="item.sellDscrCds"
                           placeholder="렌탈법인할인율"
                         />
+                      </div>
+                    </div>
+                  </template>
+
+                  <template
+                    v-if="item.oneplusoneYn"
+                  >
+                    <div
+                      class="scoped-item-right-area"
+                    >
+                      <kw-separator class="dashed-line my20" />
+                      <div class="row items-center justify-between">
+                        <div
+                          class="row"
+                          style="width: calc(100% - 45px);"
+                        >
+                          <kw-chip
+                            label="1+1"
+                            color="primary"
+                            outline
+                            class="ma2"
+                          />
+                          <ul
+                            class="scoped-item-price-list kw-grow"
+                            style="max-width: calc(100% - 45px);"
+                          >
+                            <li
+                              class="scoped-item-price-item kw-grow"
+                              style="max-width: calc(100% - 255px);"
+                            >
+                              <span
+                                class="kw-fc--black1 ml8 "
+                                style="overflow: hidden;
+                                      text-overflow: ellipsis;
+                                      white-space: nowrap;"
+                              >{{ item.oneplusonePdNm }}</span>
+                            </li>
+
+                            <li class="scoped-item-price-item">
+                              <p class="kw-font-pt14 kw-fc--black3">
+                                계약번호
+
+                                <span class="kw-fc--black1 ml8">
+                                  {{ item.oneplusoneCntrNo }}-{{ item.oneplusoneCntrSn }}</span>
+                              </p>
+                            </li>
+                          </ul>
+
+                          <kw-btn
+                            borderless
+                            icon="close_24"
+                            style="font-size: 24px;"
+                            class="w24"
+                            @click="onClickDeleteOneplusone(item)"
+                          />
+                        </div>
                       </div>
                     </div>
                   </template>
@@ -510,9 +570,11 @@ async function onClickProduct(pd) {
     const pkgs = await dataService.get('sms/wells/contract/contracts/welsf-hcf-pkgs', { params: { pdCd: npd.pdCd } });
     if (pkgs.data && pkgs.data.length > 0) {
       const p = pkgs.data[0];
+      pkgs.data.forEach((pkg) => {
+        pkg.cntrRelDtlCd = '216';
+      });
       p.pkgs = pkgs.data;
-      debugger;
-      p.cntrRelDtlCd = '216';
+      p.pkg = p.codeId;
       step2.value.dtls.push(p);
     }
   }
@@ -521,7 +583,7 @@ async function onClickProduct(pd) {
 
 function onClickDelete(pd) {
   if (isItem.welsf(pd) || isItem.hcf(pd)) {
-    step2.value.dtls = step2.value.dtls.filter((spd) => pd.cntrSn !== spd.cntrSn || (pd.cntrSn + 1) !== spd.cntrSn);
+    step2.value.dtls = step2.value.dtls.filter((spd) => pd.cntrSn !== spd.cntrSn && (pd.cntrSn + 1) !== spd.cntrSn);
   } else {
     step2.value.dtls = step2.value.dtls.filter((spd) => pd.cntrSn !== spd.cntrSn);
   }
@@ -558,10 +620,37 @@ async function onClickDeviceChahge(pd) {
 }
 
 async function onClickOnePlusOne(pd) {
-  await modal({
+  const res = await modal({
     component: 'WwctaOnePlusOneContractListP',
-    componentProps: { cntrNo: pd.cntrNo },
+    componentProps: { baseDtlCntrNo: step2.value.bas.cntrNo },
   });
+
+  if (res.result && res.payload) {
+    pd.oneplusoneYn = res.result;
+    pd.oneplusoneCntrNo = res.payload.cntrNo;
+    pd.oneplusoneCntrSn = res.payload.cntrSn;
+    pd.oneplusonePdNm = res.payload.pdNm;
+    pd.sellDscTpCd = '03';
+    pd.isRentalDiscountFixed = true;
+  }
+}
+
+function onClickDeleteOneplusone(pd) {
+  pd.sellDscDvCd = '';
+  pd.isRentalDiscountFixed = false;
+  pd.oneplusoneCntrNo = '';
+  pd.oneplusoneCntrSn = '';
+  pd.oneplusonePdNm = '';
+  pd.oneplusoneYn = false;
+}
+
+async function onChangePkgs(dtl) {
+  const { pkg, pkgs, cntrSn } = dtl;
+  const pp = pkgs.find((p) => p.codeId === pkg);
+  pp.pkgs = pkgs;
+  pp.pkg = pp.codeId;
+  step2.value.dtls[step2.value.dtls.findIndex((d) => d.cntrSn === cntrSn)] = pp;
+  resetCntrSn();
 }
 
 async function getCntrInfo(cntrNo) {
@@ -842,6 +931,40 @@ onMounted(async () => {
       border-left: 1px solid #ccc;
       border-bottom: 1px solid #ccc;
     }
+  }
+
+  &-price-list {
+    display: flex;
+    flex-wrap: wrap;
+    max-width: calc(100% - 122px);
+    gap: 4px 25px;
+  }
+
+  &-price-item {
+    display: flex;
+    align-items: center;
+    position: relative;
+
+    &:last-child::after {
+      display: none;
+    }
+
+    &::after {
+      content: "";
+      display: block;
+      position: absolute;
+      width: 1px;
+      height: 16px;
+      background-color: #ddd;
+      top: 50%;
+      right: -12px;
+      transform: translateY(-50%);
+    }
+  }
+
+  &-right-area {
+    padding-left: 68px;
+    width: 100%;
   }
 }
 
