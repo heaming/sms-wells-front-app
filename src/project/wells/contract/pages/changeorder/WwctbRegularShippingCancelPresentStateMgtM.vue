@@ -21,7 +21,6 @@
       <!-- row1 소속구분 -->
       <kw-search-item
         :label="$t('MSG_TXT_BLG')+$t('MSG_TXT_DIV')"
-        hint="고정값"
       >
         <kw-select
           v-model="searchParams.ogCd"
@@ -39,12 +38,12 @@
         <kw-date-range-picker
           v-model:from="searchParams.cancelFromDt"
           v-model:to="searchParams.cancelToDt"
+          rules="date_range_months:3"
         />
       </kw-search-item>
       <!-- row1 판매구분 -->
       <kw-search-item
         :label="$t('MSG_TXT_SLS_CAT')"
-        hint="OG_TP_CD<br>설계: 전체, EDU, TMR, 웰스, 직원판매, 직원구매, 회사"
       >
         <kw-select
           v-model="searchParams.sellOgTpCd"
@@ -78,11 +77,10 @@
       <!-- row2 취소유형 -->
       <kw-search-item
         :label="$t('MSG_TXT_CNCL_TP')"
-        hint="CMN_STAT_CH_RSON_CD"
       >
         <kw-select
           v-model="searchParams.cntrStatChRsonCd"
-          :options="codes.CMN_STAT_CH_RSON_CD"
+          :options="codes.RGLR_SPP_STAT_CH_RSON_CD"
           first-option="all"
         />
       </kw-search-item>
@@ -158,7 +156,7 @@ const searchParams = ref({
 
 const codes = await codeUtil.getMultiCodes(
   'OG_TP_CD',
-  'CMN_STAT_CH_RSON_CD', // RENTAL_MSH_CAN_TP_ACD?
+  'RGLR_SPP_STAT_CH_RSON_CD',
 );
 
 const totalCount = ref(0);
@@ -220,7 +218,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'ogNm', header: t('MSG_TXT_BLG') + t('MSG_TXT_DIV'), width: '160', styleName: 'text-center' }, // [소속구분]
     { fieldName: 'prtnrNo', header: t('MSG_TXT_RGST_PSIC') + t('MSG_TXT_EPNO'), width: '120', styleName: 'text-center' }, // [등록담당자 사번]
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_RGST_PSIC_NM'), width: '120', styleName: 'text-center' }, // [등록담당자 명]
-    { fieldName: 'cntrStatChRsonNm', header: t('MSG_TXT_CAN_RSON'), width: '150' }, // [취소사유]
+    { fieldName: 'cntrStatChRsonNm', header: t('MSG_TXT_CAN_RSON'), width: '250' }, // [취소사유]
     { fieldName: 'ojDtlCntrNoSn',
       header: `${t('MSG_TXT_WELSF')} ${t('MSG_TXT_CNTR_DTL_NO')}`,
       width: '150',

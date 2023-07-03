@@ -21,7 +21,6 @@
       <!-- row1 소속구분 -->
       <kw-search-item
         :label="$t('MSG_TXT_BLG')+$t('MSG_TXT_DIV')"
-        hint="고정값"
       >
         <kw-select
           v-model="searchParams.ogCd"
@@ -45,12 +44,12 @@
         <kw-date-range-picker
           v-model:from="searchParams.cancelFromDt"
           v-model:to="searchParams.cancelToDt"
+          rules="date_range_months:3"
         />
       </kw-search-item>
       <!-- row1 판매구분 -->
       <kw-search-item
         :label="$t('MSG_TXT_SLS_CAT')"
-        hint="OG_TP_CD<br>설계: 전체, EDU, TM, Wells, 직원판매, 직원구매, 회사판매"
       >
         <kw-select
           v-model="searchParams.sellOgTpCd"
@@ -103,11 +102,10 @@
       <!-- row2 판매유형 -->
       <kw-search-item
         :label="$t('MSG_TXT_SEL_TYPE')"
-        hint="SELL_TP_CD<br/>설계: 전체, 멤버십, 홈케어"
       >
         <kw-select
-          v-model="searchParams.sellTpCd"
-          :options="codes.SELL_TP_CD"
+          v-model="searchParams.sellTpDtlCd"
+          :options="codes.SELL_TP_DTL_CD.filter((v) => ['31','32','33','34'].includes(v.codeId))"
           first-option="all"
         />
       </kw-search-item>
@@ -137,7 +135,6 @@
       <!-- row3 취소유형 -->
       <kw-search-item
         :label="$t('MSG_TXT_CNCL_TP')"
-        hint="CMN_STAT_CH_RSON_CD"
       >
         <kw-select
           v-model="searchParams.cntrStatChRsonCd"
@@ -197,7 +194,7 @@ import dayjs from 'dayjs';
 const { t } = useI18n();
 const { getConfig } = useMeta();
 const { currentRoute } = useRouter();
-const { modal, notify } = useGlobal();
+const { modal } = useGlobal();
 const dataService = useDataService();
 const grdMainMembership = ref(getComponentType('KwGrid'));
 const now = dayjs();
@@ -211,7 +208,7 @@ const searchParams = ref({
   pdHclsfId: '',
   pdMclsfId: '',
   basePdCd: '', // 상품코드
-  sellTpCd: '', // 판매유형
+  sellTpDtlCd: '', // 판매유형
   rgstUsrEpNo: '', // 등록담당[사번]
   cntrNo: '', // 계약번호
   cntrSn: '', // 계약일련번호
@@ -222,8 +219,8 @@ const searchParams = ref({
 const codes = await codeUtil.getMultiCodes(
   'OG_TP_CD',
   'COPN_DV_CD',
-  'SELL_TP_CD',
-  'RGLR_SPP_STAT_CH_RSON_CD',
+  'SELL_TP_DTL_CD',
+  'CMN_STAT_CH_RSON_CD',
 );
 
 const totalCount = ref(0);
@@ -321,12 +318,12 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'ogCd', header: t('MSG_TXT_BRCH_CD'), width: '120', styleName: 'text-center' }, // [지점코드]
     { fieldName: 'hooPrtnrNo', header: t('MSG_TXT_BRNCH_MNGR_NO'), width: '120', styleName: 'text-center' }, // [지점장사번]
     { fieldName: 'cntrCstKnm', header: t('MSG_TXT_CST_NM'), width: '120', styleName: 'text-center' }, // [고객명]
-    { fieldName: 'copnDvNm', header: t('MSG_TXT_CST_DV'), width: '120', styleName: 'text-center' }, // [고객구분]
-    { fieldName: 'zip', header: t('MSG_TXT_ZIP'), width: '120', styleName: 'text-center' }, // [우편번호]
+    { fieldName: 'copnDvNm', header: t('MSG_TXT_CST_DV'), width: '110', styleName: 'text-center' }, // [고객구분]
+    { fieldName: 'zip', header: t('MSG_TXT_ZIP'), width: '110', styleName: 'text-center' }, // [우편번호]
     { fieldName: 'adr', header: t('MSG_TXT_ADDR'), width: '270' }, // [주소]
     { fieldName: 'dtlAdr', header: t('MSG_TXT_DETAIL_ADDR'), width: '230' }, // [상세주소]
-    { fieldName: 'pdHclsfNm', header: t('TXT_MSG_PD_HCLSF_ID'), width: '120', styleName: 'text-center' }, // [대분류]
-    { fieldName: 'pdMclsfNm', header: t('MSG_TXT_PD_MCLSF_ID'), width: '120', styleName: 'text-center' }, // [중분류]
+    { fieldName: 'pdHclsfNm', header: t('TXT_MSG_PD_HCLSF_ID'), width: '140', styleName: 'text-center' }, // [대분류]
+    { fieldName: 'pdMclsfNm', header: t('MSG_TXT_PD_MCLSF_ID'), width: '140', styleName: 'text-center' }, // [중분류]
     { fieldName: 'basePdCd', header: t('MSG_TXT_PRDT_CODE'), width: '120', styleName: 'text-center' }, // [상품코드]
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '300' }, // [상품명]
     { fieldName: 'txinvPblOjYn', header: t('MSG_TXT_PRDT_NM') + t('MSG_TXT_YN'), width: '120', styleName: 'text-center' }, // [세금계산서여부]
@@ -334,9 +331,9 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'istDt', header: t('MSG_TXT_IST_DT'), width: '120', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd' }, // [설치일자]
     { fieldName: 'rsgAplcDt', header: t('MSG_TXT_CANC_RQDT'), width: '120', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd' }, // [취소요청일자]
     { fieldName: 'rsgFshDt', header: t('MSG_TXT_CANC_DT'), width: '120', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd' }, // [취소일자]
-    { fieldName: 'pdUseDc', header: t('MSG_TXT_USE_DAY'), width: '120', styleName: 'text-center' }, // [사용일수]
-    { fieldName: 'cntrStatChRsonCd', header: t('MSG_TXT_CNCL_TP'), width: '120', styleName: 'text-center' }, // [취소유형]
-    { fieldName: 'cntrStatChRsonNm', header: t('MSG_TXT_CNCL_TP') + t('MSG_TXT_NM'), width: '200', styleName: 'text-center' }, // [취소유형명]
+    { fieldName: 'pdUseDc', header: t('MSG_TXT_USE_DAY'), width: '110', styleName: 'text-center' }, // [사용일수]
+    { fieldName: 'cntrStatChRsonCd', header: t('MSG_TXT_CNCL_TP'), width: '110', styleName: 'text-center' }, // [취소유형]
+    { fieldName: 'cntrStatChRsonNm', header: t('MSG_TXT_CNCL_TP') + t('MSG_TXT_NM'), width: '250', styleName: 'text-center' }, // [취소유형명]
     { fieldName: 'afCntrNoSn',
       header: t('MSG_TXT_AFTER') + t('MSG_TXT_PTY_CD'),
       width: '150',
@@ -377,19 +374,6 @@ const initGrid = defineGrid((data, view) => {
         },
       });
     }
-  };
-
-  view.onCellDblClicked = async (g, { dataRow }) => {
-    notify('TODO : 상세페이지 호출(W-SS-U-신규IDP02 정기구매 취소 수정 팝업)');
-    console.log(g, dataRow);
-    /*
-    const { result } = await modal({
-      component: '',
-      componentProps: { cntrNo: g.getValue(dataRow, 'cntrNo'), cntrSn: g.getValue(dataRow, 'cntrSn') },
-    });
-
-    if (result) await fetchData();
-    */
   };
 });
 
