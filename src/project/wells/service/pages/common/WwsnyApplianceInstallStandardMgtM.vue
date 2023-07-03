@@ -1,11 +1,19 @@
+<!----
+ ****************************************************************************************************
+ * 프로그램 개요
+ ****************************************************************************************************
+1. 모듈 : SNY
+2. 프로그램 ID : WwsnyApplianceInstallStandardMgtM(K-W-SV-U-0303M01) - 환경가전 설치기준 관리
+3. 작성자 : jaehunlee
+4. 작성일 : 2023.06.24
+ ****************************************************************************************************
+ * 프로그램 설명
+ ****************************************************************************************************
+- 환경가전 설치기준 관리 (http://localhost:3000/#/service/wwsny-appliance-install-standard-mgt)
+ ****************************************************************************************************
+--->
 <template>
   <kw-page>
-    <template #header>
-      <kw-page-header
-        :options="['홈', '서비스', '기준정보현황 ', '환경가전 설치기준 관리']"
-      />
-    </template>
-    <!-- rev:230420 kw-search 안에 one-row추가 -->
     <kw-search
       one-row
       @reset="onClickReset"
@@ -13,7 +21,7 @@
     >
       <kw-search-row>
         <kw-search-item
-          label="1차분류"
+          :label="$t('MSG_TXT_DGR1_CLSF')"
         >
           <kw-select
             v-model="searchParams.dgr1ClsfCd"
@@ -21,7 +29,7 @@
           />
         </kw-search-item>
         <kw-search-item
-          label="2차분류"
+          :label="$t('MSG_TXT_DGR2_CLSF')"
         >
           <kw-select
             v-model="searchParams.dgr2ClsfCd"
@@ -39,18 +47,22 @@
           @click="onClickSave"
         />
       </kw-action-top>
-      <h3>원수</h3>
+      <h3>{{ $t('MSG_TXT_SRC_WATER') }}</h3>
 
       <kw-form :cols="2">
         <kw-form-row>
-          <kw-form-item label="설치원칙">
+          <kw-form-item
+            :label="$t('MSG_TXT_IST_PRNCP')"
+          >
             <kw-input
               v-model="baseCnData.baseCn11"
               type="textarea"
               row="3"
             />
           </kw-form-item>
-          <kw-form-item label="지하수">
+          <kw-form-item
+            :label="$t('MSG_TXT_GRND_WATER')"
+          >
             <kw-input
               v-model="baseCnData.baseCn12"
               type="textarea"
@@ -59,7 +71,9 @@
           </kw-form-item>
         </kw-form-row>
         <kw-form-row>
-          <kw-form-item label="녹물">
+          <kw-form-item
+            :label="$t('MSG_TXT_RUST')"
+          >
             <kw-input
               v-model="baseCnData.baseCn13"
               type="textarea"
@@ -69,18 +83,22 @@
         </kw-form-row>
       </kw-form>
       <kw-separator />
-      <h3>설치조건</h3>
+      <h3>{{ $t('MSG_TXT_IST_CNDT') }}</h3>
 
       <kw-form :cols="2">
         <kw-form-row>
-          <kw-form-item label="최소 기준(유량/수압)">
+          <kw-form-item
+            :label="$t('MSG_TXT_MIN_BASE_OLQ_WPRS')"
+          >
             <kw-input
               v-model="baseCnData.baseCn21"
               type="textarea"
               row="3"
             />
           </kw-form-item>
-          <kw-form-item label="최소 기준 미달 시">
+          <kw-form-item
+            :label="$t('MSG_TXT_MIN_BASE_SRTFL_H')"
+          >
             <kw-input
               v-model="baseCnData.baseCn22"
               type="textarea"
@@ -89,14 +107,18 @@
           </kw-form-item>
         </kw-form-row>
         <kw-form-row>
-          <kw-form-item label="최대 기준(수압)">
+          <kw-form-item
+            :label="$t('MSG_TXT_MAX_BASE_WPRS')"
+          >
             <kw-input
               v-model="baseCnData.baseCn23"
               type="textarea"
               row="3"
             />
           </kw-form-item>
-          <kw-form-item label="감압밸브">
+          <kw-form-item
+            :label="$t('MSG_TXT_PRES_RELIEF_VALVE')"
+          >
             <kw-input
               v-model="baseCnData.baseCn24"
               type="textarea"
@@ -105,7 +127,9 @@
           </kw-form-item>
         </kw-form-row>
         <kw-form-row>
-          <kw-form-item label="변동수압">
+          <kw-form-item
+            :label="$t('MSG_TXT_CHG_WPRS')"
+          >
             <kw-input
               v-model="baseCnData.baseCn25"
               type="textarea"
@@ -117,11 +141,13 @@
 
       <kw-separator />
 
-      <h3>최대거리</h3>
+      <h3>{{ $t('MSG_TXT_MAX_DSTN') }}</h3>
 
       <kw-form :cols="2">
         <kw-form-row>
-          <kw-form-item label="길이(원수->제품)">
+          <kw-form-item
+            :label="$t('MSG_TXT_LNTH')"
+          >
             <kw-input
               v-model="baseCnData.baseCn31"
               type="textarea"
@@ -133,18 +159,22 @@
 
       <kw-separator />
 
-      <h3>환경</h3>
+      <h3>{{ $t('MSG_TXT_ENVR') }}</h3>
 
       <kw-form :cols="2">
         <kw-form-row>
-          <kw-form-item label="동파">
+          <kw-form-item
+            :label="$t('MSG_TXT_FREEZE_BURST')"
+          >
             <kw-input
               v-model="baseCnData.baseCn41"
               type="textarea"
               row="3"
             />
           </kw-form-item>
-          <kw-form-item label="업종">
+          <kw-form-item
+            :label="$t('MSG_TXT_BZ_ITM')"
+          >
             <kw-input
               v-model="baseCnData.baseCn42"
               type="textarea"
@@ -153,14 +183,18 @@
           </kw-form-item>
         </kw-form-row>
         <kw-form-row>
-          <kw-form-item label="도서산간 지역">
+          <kw-form-item
+            :label="$t('MSG_TXT_AN_ILD_MNT_AREA')"
+          >
             <kw-input
               v-model="baseCnData.baseCn43"
               type="textarea"
               row="3"
             />
           </kw-form-item>
-          <kw-form-item label="기타">
+          <kw-form-item
+            :label="$t('MSG_TXT_ETC')"
+          >
             <kw-input
               v-model="baseCnData.baseCn44"
               type="textarea"
@@ -171,11 +205,13 @@
       </kw-form>
       <kw-separator />
 
-      <h3>설치지원</h3>
+      <h3>{{ $t('MSG_TXT_IST_SPPT') }}</h3>
 
       <kw-form :cols="2">
         <kw-form-row>
-          <kw-form-item label="설치지원">
+          <kw-form-item
+            :label="$t('MSG_TXT_IST_SPPT')"
+          >
             <kw-input
               v-model="baseCnData.baseCn51"
               type="textarea"
@@ -192,7 +228,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, useDataService, useModal, useGlobal } from 'kw-lib';
+import { codeUtil, useDataService, useGlobal } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 
 const codes = await codeUtil.getMultiCodes(
@@ -201,12 +237,11 @@ const codes = await codeUtil.getMultiCodes(
 );
 
 const { t } = useI18n();
-const { ok } = useModal();
-const { confirm, notify } = useGlobal();
-
+const { notify } = useGlobal();
 const dataService = useDataService();
-let cachedParams;
-
+/*
+ *  Search Parameter
+ */
 const searchParams = ref({
   dgr1ClsfCd: '',
   dgr2ClsfCd: '',
@@ -234,13 +269,15 @@ const baseCnData = ref({
   baseCn44: '',
   baseCn51: '',
 });
+
+const saveData = [];
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
-
+let cachedParams;
 async function fetchData() {
-  const res = await dataService.get('/sms/wells/service/install-standard/searching', { params: { ...cachedParams } });
-  console.log(cachedParams);
+  const res = await dataService.get('/sms/wells/service/install-standard', { params: { ...cachedParams } });
+  // console.log(cachedParams);
   baseCnData.value = res.data;
 }
 
@@ -288,10 +325,109 @@ watch(() => searchParams.value.dgr1ClsfCd, (val) => {
 });
 
 async function onClickSave() {
-  if (!await confirm(t('MSG_ALT_WANT_SAVE'))) { return; }
-  await dataService.post('/sms/wells/service/install-standard', baseCnData.value);
-  ok();
-  await notify(t('MSG_ALT_SAVE_DATA'));
+  saveData.push({
+    dgr1ClsfCd: searchParams.value.dgr1ClsfCd,
+    dgr2ClsfCd: searchParams.value.dgr2ClsfCd,
+    baseCn: baseCnData.value.baseCn11,
+    hclsfCd: '1',
+    lclsfCd: '11',
+  });
+  saveData.push({
+    dgr1ClsfCd: searchParams.value.dgr1ClsfCd,
+    dgr2ClsfCd: searchParams.value.dgr2ClsfCd,
+    baseCn: baseCnData.value.baseCn12,
+    hclsfCd: '1',
+    lclsfCd: '12',
+  });
+  saveData.push({
+    dgr1ClsfCd: searchParams.value.dgr1ClsfCd,
+    dgr2ClsfCd: searchParams.value.dgr2ClsfCd,
+    baseCn: baseCnData.value.baseCn13,
+    hclsfCd: '1',
+    lclsfCd: '13',
+  });
+  saveData.push({
+    dgr1ClsfCd: searchParams.value.dgr1ClsfCd,
+    dgr2ClsfCd: searchParams.value.dgr2ClsfCd,
+    baseCn: baseCnData.value.baseCn21,
+    hclsfCd: '2',
+    lclsfCd: '21',
+  });
+  saveData.push({
+    dgr1ClsfCd: searchParams.value.dgr1ClsfCd,
+    dgr2ClsfCd: searchParams.value.dgr2ClsfCd,
+    baseCn: baseCnData.value.baseCn22,
+    hclsfCd: '2',
+    lclsfCd: '22',
+  });
+  saveData.push({
+    dgr1ClsfCd: searchParams.value.dgr1ClsfCd,
+    dgr2ClsfCd: searchParams.value.dgr2ClsfCd,
+    baseCn: baseCnData.value.baseCn23,
+    hclsfCd: '2',
+    lclsfCd: '23',
+  });
+  saveData.push({
+    dgr1ClsfCd: searchParams.value.dgr1ClsfCd,
+    dgr2ClsfCd: searchParams.value.dgr2ClsfCd,
+    baseCn: baseCnData.value.baseCn24,
+    hclsfCd: '2',
+    lclsfCd: '24',
+  });
+  saveData.push({
+    dgr1ClsfCd: searchParams.value.dgr1ClsfCd,
+    dgr2ClsfCd: searchParams.value.dgr2ClsfCd,
+    baseCn: baseCnData.value.baseCn25,
+    hclsfCd: '2',
+    lclsfCd: '25',
+  });
+  saveData.push({
+    dgr1ClsfCd: searchParams.value.dgr1ClsfCd,
+    dgr2ClsfCd: searchParams.value.dgr2ClsfCd,
+    baseCn: baseCnData.value.baseCn31,
+    hclsfCd: '3',
+    lclsfCd: '31',
+  });
+  saveData.push({
+    dgr1ClsfCd: searchParams.value.dgr1ClsfCd,
+    dgr2ClsfCd: searchParams.value.dgr2ClsfCd,
+    baseCn: baseCnData.value.baseCn41,
+    hclsfCd: '4',
+    lclsfCd: '41',
+  });
+  saveData.push({
+    dgr1ClsfCd: searchParams.value.dgr1ClsfCd,
+    dgr2ClsfCd: searchParams.value.dgr2ClsfCd,
+    baseCn: baseCnData.value.baseCn42,
+    hclsfCd: '4',
+    lclsfCd: '42',
+  });
+  saveData.push({
+    dgr1ClsfCd: searchParams.value.dgr1ClsfCd,
+    dgr2ClsfCd: searchParams.value.dgr2ClsfCd,
+    baseCn: baseCnData.value.baseCn43,
+    hclsfCd: '4',
+    lclsfCd: '43',
+  });
+  saveData.push({
+    dgr1ClsfCd: searchParams.value.dgr1ClsfCd,
+    dgr2ClsfCd: searchParams.value.dgr2ClsfCd,
+    baseCn: baseCnData.value.baseCn44,
+    hclsfCd: '4',
+    lclsfCd: '44',
+  });
+  saveData.push({
+    dgr1ClsfCd: searchParams.value.dgr1ClsfCd,
+    dgr2ClsfCd: searchParams.value.dgr2ClsfCd,
+    baseCn: baseCnData.value.baseCn51,
+    hclsfCd: '5',
+    lclsfCd: '51',
+  });
+
+  // console.log(saveData);
+  await dataService.post('/sms/wells/service/install-standard', saveData);
+  notify(t('MSG_ALT_SAVE_DATA'));
+  await fetchData();
 }
 
 </script>
