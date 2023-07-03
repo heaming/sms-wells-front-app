@@ -178,7 +178,7 @@ const searchParams = ref({
 });
 
 async function fetchData() {
-  const apiParam = searchParams.value.searchGubun === '1' ? 'product' : 'contract';
+  const apiParam = searchParams.value.searchGubun === '1' ? 'by-product' : 'by-contract';
 
   const res = await dataService.get(`/sms/wells/closing/normal-account/${apiParam}/lists`, { params: { ...cachedParams } });
   const lists = res.data;
