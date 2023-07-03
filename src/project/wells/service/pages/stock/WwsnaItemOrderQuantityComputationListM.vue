@@ -230,6 +230,7 @@ function setTmpFields() {
     };
 
     if (idx > 3) {
+      field.header = `${field.header} ${t('MSG_TXT_ET_NED_QT')}`;
       tmpFields2.push(field);
       return;
     }
