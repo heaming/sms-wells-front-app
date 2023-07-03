@@ -45,6 +45,7 @@
         <kw-date-range-picker
           v-model:from="searchParams.cancelFromDt"
           v-model:to="searchParams.cancelToDt"
+          rules="date_range_months:3"
         />
       </kw-search-item>
       <!-- row1 판매구분 -->
@@ -103,11 +104,10 @@
       <!-- row2 판매유형 -->
       <kw-search-item
         :label="$t('MSG_TXT_SEL_TYPE')"
-        hint="SELL_TP_CD<br/>설계: 전체, 멤버십, 홈케어"
       >
         <kw-select
-          v-model="searchParams.sellTpCd"
-          :options="codes.SELL_TP_CD"
+          v-model="searchParams.sellTpDtlCd"
+          :options="codes.SELL_TP_DTL_CD.filter((v) => ['31','32','33','34'].includes(v.codeId))"
           first-option="all"
         />
       </kw-search-item>
@@ -137,7 +137,6 @@
       <!-- row3 취소유형 -->
       <kw-search-item
         :label="$t('MSG_TXT_CNCL_TP')"
-        hint="CMN_STAT_CH_RSON_CD"
       >
         <kw-select
           v-model="searchParams.cntrStatChRsonCd"
@@ -211,7 +210,7 @@ const searchParams = ref({
   pdHclsfId: '',
   pdMclsfId: '',
   basePdCd: '', // 상품코드
-  sellTpCd: '', // 판매유형
+  sellTpDtlCd: '', // 판매유형
   rgstUsrEpNo: '', // 등록담당[사번]
   cntrNo: '', // 계약번호
   cntrSn: '', // 계약일련번호
@@ -222,8 +221,8 @@ const searchParams = ref({
 const codes = await codeUtil.getMultiCodes(
   'OG_TP_CD',
   'COPN_DV_CD',
-  'SELL_TP_CD',
-  'RGLR_SPP_STAT_CH_RSON_CD',
+  'SELL_TP_DTL_CD',
+  'CMN_STAT_CH_RSON_CD',
 );
 
 const totalCount = ref(0);
