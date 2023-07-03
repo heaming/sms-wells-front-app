@@ -87,7 +87,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { useDataService, codeUtil } from 'kw-lib';
-import { isEmpty, merge, cloneDeep } from 'lodash-es';
+import { isEmpty, merge, cloneDeep, isEqual } from 'lodash-es';
 import pdConst from '~sms-common/product/constants/pdConst';
 import { pdMergeBy, getPdMetaToCodeNames } from '~sms-common/product/utils/pdUtil';
 import WwpdcStandardMgtMPriceStd from './WwpdcStandardMgtMPriceStd.vue';
@@ -315,6 +315,10 @@ async function fetchData() {
 await initProps();
 
 watch(() => props.pdCd, (pdCd) => { currentPdCd.value = pdCd; });
-watch(() => props.initData, (initData) => { currentInitData.value = cloneDeep(initData); }, { deep: true });
+watch(() => props.initData, (initData) => {
+  if (!isEqual(currentInitData.value, initData)) {
+    currentInitData.value = cloneDeep(initData);
+  }
+}, { deep: true });
 watch(() => props.codes, (codes) => { currentCodes.value = cloneDeep(codes); }, { deep: true });
 </script>

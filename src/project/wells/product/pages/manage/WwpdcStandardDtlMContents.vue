@@ -112,6 +112,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
+import { isEqual } from 'lodash-es';
 import { useDataService } from 'kw-lib';
 import pdConst from '~sms-common/product/constants/pdConst';
 import ZwpdcPropGroupsDtl from '~sms-common/product/pages/manage/components/ZwpdcPropGroupsDtl.vue';
@@ -212,8 +213,10 @@ watch(() => props.pdCd, (pdCd) => {
   selectedTab.value = pdConst.STANDARD_STEP_BASIC.name;
 });
 watch(() => props.initData, (initData) => {
-  currentInitData.value = initData;
-  setMountData();
+  if (!isEqual(currentInitData.value, initData)) {
+    currentInitData.value = initData;
+    setMountData();
+  }
 }, { deep: true });
 
 </script>
