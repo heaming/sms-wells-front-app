@@ -57,6 +57,8 @@
           <kw-select
             v-model="searchParams.rfndDsbDvCdCshBltf"
             :options="customCodes.RFND_DSB_DV_CD_CSH_BLTF"
+            first-option="all"
+            first-option-value="ALL"
           />
         </kw-search-item>
         <!-- 계약상세번호 -->
@@ -87,7 +89,7 @@
           <kw-input
             v-model="searchParams.bzrno"
             maxlength="10"
-            type="number"
+            mask="###-##-#####"
           />
         </kw-search-item>
       </kw-search-row>
@@ -229,7 +231,7 @@ const searchParams = ref({
   // endDay: undefined, // 접수일자 종료일
   rfndStatCd: '01', // 환불상태
   rveDvCd: '01', // 입금유형
-  rfndDsbDvCdCshBltf: undefined, // 처리구분
+  rfndDsbDvCdCshBltf: 'ALL', // 처리구분
   cntrNo: '', // 계약번호
   cntrSn: '', // 계약일련번호
   cstNo: undefined, // 고객번호

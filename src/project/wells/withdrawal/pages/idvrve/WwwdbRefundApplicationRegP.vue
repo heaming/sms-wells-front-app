@@ -88,7 +88,7 @@
           <kw-input
             v-model="searchParams.bzrno"
             maxlength="10"
-            type="number"
+            mask="###-##-#####"
           />
         </kw-search-item>
       </kw-search-row>
@@ -175,14 +175,14 @@
             <kw-form-item
               :label="t('MSG_TXT_SUBSC_AMT')"
             >
-              <p>{{ Number(refundPossibleAmount.orderCntrAmt).toLocaleString() }}</p>
+              <p>{{ stringUtil.getNumberWithComma(toInteger(refundPossibleAmount.orderCntrAmt)) }}</p>
             </kw-form-item>
           </kw-form-row>
           <kw-form-row>
             <kw-form-item
               :label="t('MSG_TXT_CRP_UC_AMT')"
             >
-              <p>{{ Number(refundPossibleAmount.orderCrpUcAmt).toLocaleString() }}</p>
+              <p>{{ stringUtil.getNumberWithComma(toInteger(refundPossibleAmount.orderCrpUcAmt)) }}</p>
             </kw-form-item>
           </kw-form-row>
           <kw-form-row>
@@ -190,8 +190,8 @@
               :label="t('MSG_TXT_MM_ISTM_AMT')"
             >
               <p>
-                {{ Number(refundPossibleAmount.orderMmIstmAmt).toLocaleString() }}
-                ({{ Number(refundPossibleAmount.orderIstmMcn).toLocaleString() }})
+                {{ stringUtil.getNumberWithComma(toInteger(refundPossibleAmount.orderMmIstmAmt)) }}
+                {{ '('+stringUtil.getNumberWithComma(toInteger(refundPossibleAmount.orderIstmMcn))+')' }}
               </p>
             </kw-form-item>
           </kw-form-row>
@@ -199,7 +199,7 @@
             <kw-form-item
               :label="t('MSG_TXT_CRTL_NMN_N')"
             >
-              <p>{{ Number(refundPossibleAmount.orderBilNo).toLocaleString() }}</p>
+              <p>{{ stringUtil.getNumberWithComma(toInteger(refundPossibleAmount.orderBilNo)) }}</p>
             </kw-form-item>
           </kw-form-row>
           <kw-form-row>
@@ -207,8 +207,8 @@
               :label="t('MSG_BTN_DLQ_INF')"
             >
               <p>
-                {{ Number(refundPossibleAmount.orderDlqMcn).toLocaleString() }}
-                ({{ Number(refundPossibleAmount.orderDlqBilAmt).toLocaleString() }})
+                {{ stringUtil.getNumberWithComma(toInteger(refundPossibleAmount.orderDlqMcn)) }}
+                {{ '('+stringUtil.getNumberWithComma(toInteger(refundPossibleAmount.orderDlqBilAmt))+')' }}
               </p>
             </kw-form-item>
           </kw-form-row>
@@ -228,7 +228,7 @@
             <kw-form-item
               :label="t('MSG_TXT_SUBSC') + '/' + t('MSG_TXT_TK_AMT_TXT')"
             >
-              <p>{{ refundPossibleAmount.depositSubscTkAmt }}</p>
+              <p>{{ stringUtil.getNumberWithComma(toInteger(refundPossibleAmount.depositSubscTkAmt)) }}</p>
             </kw-form-item>
           </kw-form-row>
           <kw-form-row>
@@ -236,7 +236,7 @@
             <kw-form-item
               :label="t('MSG_TXT_CRP_UC_AMT')"
             >
-              <p>{{ refundPossibleAmount.depositCrpUcAmt }}</p>
+              <p>{{ stringUtil.getNumberWithComma(toInteger(refundPossibleAmount.depositCrpUcAmt)) }}</p>
             </kw-form-item>
           </kw-form-row>
           <kw-form-row>
@@ -244,7 +244,7 @@
             <kw-form-item
               :label="t('MSG_TXT_ISTM_AMT')"
             >
-              <p>{{ refundPossibleAmount.depositIstmAmt }}</p>
+              <p>{{ stringUtil.getNumberWithComma(toInteger(refundPossibleAmount.depositIstmAmt)) }}</p>
             </kw-form-item>
           </kw-form-row>
           <kw-form-row>
@@ -252,7 +252,7 @@
             <kw-form-item
               :label="t('MSG_TXT_PRPD_AMT')"
             >
-              <p>{{ refundPossibleAmount.depositPrpdAmt }}</p>
+              <p>{{ stringUtil.getNumberWithComma(toInteger(refundPossibleAmount.depositPrpdAmt)) }}</p>
             </kw-form-item>
           </kw-form-row>
           <kw-form-row>
@@ -260,7 +260,7 @@
             <kw-form-item
               :label="t('MSG_TXT_DEPOSIT_AMT')"
             >
-              <p>{{ refundPossibleAmount.depositDpAmt }}</p>
+              <p>{{ stringUtil.getNumberWithComma(toInteger(refundPossibleAmount.depositDpAmt)) }}</p>
             </kw-form-item>
           </kw-form-row>
         </kw-form>
@@ -277,31 +277,31 @@
           <kw-form-row>
             <!-- 청약/인수금액 -->
             <kw-form-item :label="t('MSG_TXT_SUBSC') + '/' + t('MSG_TXT_TK_AMT_TXT')">
-              <p>{{ refundPossibleAmount.refundSubscTkAmt }}</p>
+              <p>{{ stringUtil.getNumberWithComma(toInteger(refundPossibleAmount.refundSubscTkAmt)) }}</p>
             </kw-form-item>
           </kw-form-row>
           <kw-form-row>
             <!-- 법인미수금액 -->
             <kw-form-item :label="t('MSG_TXT_CRP_UC_AMT')">
-              <p>{{ refundPossibleAmount.refundCrpUcAmt }}</p>
+              <p>{{ stringUtil.getNumberWithComma(toInteger(refundPossibleAmount.refundCrpUcAmt)) }}</p>
             </kw-form-item>
           </kw-form-row>
           <kw-form-row>
             <!-- 할부금액 -->
             <kw-form-item :label="t('MSG_TXT_ISTM_AMT')">
-              <p>{{ refundPossibleAmount.refundIstmAmt }}</p>
+              <p>{{ stringUtil.getNumberWithComma(toInteger(refundPossibleAmount.refundIstmAmt)) }}</p>
             </kw-form-item>
           </kw-form-row>
           <kw-form-row>
             <!-- 선수금액 -->
             <kw-form-item :label="t('MSG_TXT_PRPD_AMT')">
-              <p>{{ refundPossibleAmount.refundPrpdAmt }}</p>
+              <p>{{ stringUtil.getNumberWithComma(toInteger(refundPossibleAmount.refundPrpdAmt)) }}</p>
             </kw-form-item>
           </kw-form-row>
           <kw-form-row>
             <!-- 환불가능금액 -->
             <kw-form-item :label="t('MSG_TXT_REFUND_AMT')">
-              <p>{{ refundPossibleAmount.refundRfndPsbAmt }}</p>
+              <p>{{ stringUtil.getNumberWithComma(toInteger(refundPossibleAmount.refundRfndPsbAmt)) }}</p>
             </kw-form-item>
           </kw-form-row>
         </kw-form>
@@ -417,8 +417,6 @@
               v-if="item.rfndDsbDvCd === '02'"
               v-model="item.cardRfndFnitCd"
               :options="cardLists"
-              option-label="fnitNm"
-              option-value="fnitCd"
               rules="required"
               :label="t('MSG_TXT_CDCO') + '/' + t('MSG_TXT_CARD_NO')"
             />
@@ -466,8 +464,6 @@
               v-if="item.rfndDsbDvCd === '01'"
               v-model="item.cshRfndFnitCd"
               :options="bankLists"
-              option-label="fnitNm"
-              option-value="fnitCd"
               :label="t('MSG_TXT_BNK_NM')"
               rules="required"
             />
@@ -481,7 +477,8 @@
             <kw-input
               v-if="item.rfndDsbDvCd === '01'"
               v-model="item.cshRfndAcnoEncr"
-              type="number"
+              maxlength="20"
+              mask="####################"
               rules="required"
               :label="t('MSG_TXT_AC_NO')"
             />
@@ -560,7 +557,8 @@
             <kw-input
               v-if="item.rfndDsbDvCd === '03'"
               v-model="item.bltfBfVacNoEncr"
-              type="number"
+              maxlength="20"
+              mask="####################"
             />
           </kw-form-item>
           <!-- 전금후 가상계좌 -->
@@ -571,7 +569,8 @@
             <kw-input
               v-if="item.rfndDsbDvCd === '03'"
               v-model="item.bltfAfVacNoEncr"
-              type="number"
+              maxlength="20"
+              mask="####################"
             />
           </kw-form-item>
         </kw-form-row>
@@ -609,8 +608,10 @@
             <kw-input
               v-if="item.rfndDsbDvCd === '01'"
               v-model="item.rfndAkAmt"
-              type="number"
-              rules="required"
+              mask="number"
+              maxlength="10"
+              align="right"
+              rules="required|max:10"
               :label="t('MSG_TXT_RFND') + ' ' + t('MSG_TXT_APLC_AMT')+ '(' + t('MSG_TXT_CUR_WON') +')'"
               @update:model-value="onRefundReceiptTotalAmount"
             />
@@ -623,7 +624,10 @@
             <kw-input
               v-if="item.rfndDsbDvCd === '03'"
               v-model="item.rfndAkAmt"
-              type="number"
+              mask="number"
+              maxlength="10"
+              align="right"
+              rules="required|max:10"
               @update:model-value="onRefundReceiptTotalAmount"
             />
           </kw-form-item>
@@ -691,8 +695,6 @@
                 && item.cshRfndDvCd === '03'"
               v-model="item.cardRfndFnitCd"
               :options="cardLists"
-              option-label="fnitNm"
-              option-value="fnitCd"
               rules="required"
               :label="t('MSG_TXT_CDCO') + '/' + t('MSG_TXT_CARD_NO')"
             />
@@ -919,8 +921,8 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useMeta, codeUtil, defineGrid, getComponentType, gridUtil, useGlobal, useDataService, useModal } from 'kw-lib';
-import { cloneDeep, isEmpty } from 'lodash-es';
+import { useMeta, codeUtil, defineGrid, getComponentType, gridUtil, useGlobal, useDataService, useModal, stringUtil } from 'kw-lib';
+import { cloneDeep, isEmpty, toInteger } from 'lodash-es';
 import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
 import ZwcmFileAttacher from '~common/components/ZwcmFileAttacher.vue';
 import dayjs from 'dayjs';
@@ -1122,9 +1124,19 @@ const refundPossibleAmount = ref({
 
 // 은행, 카드사 조회
 async function bankCard() {
-  const bank = await dataService.get('/sms/wells/withdrawal/idvrve/refund-applications/reg/bank');
+  const commonApiUrl = '/sms/common/common/codes/finance-code';
+
+  const searchBankParams = {
+    fnitFeeTpCd: '1',
+    vncoDvCd: '003',
+  };
+  const bank = await dataService.get(`${commonApiUrl}/bank-codes`, { params: searchBankParams });
   bankLists.value = bank.data;
-  const card = await dataService.get('/sms/wells/withdrawal/idvrve/refund-applications/reg/card');
+  const searchCardParams = {
+    fnitFeeTpCd: '2',
+    vncoDvCd: '003',
+  };
+  const card = await dataService.get(`${commonApiUrl}/bureau-codes`, { params: searchCardParams });
   cardLists.value = card.data;
 }
 
