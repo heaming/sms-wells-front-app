@@ -48,6 +48,7 @@
             v-model="searchParams.rveDvCd"
             :options="codes.RVE_DV_CD.filter((v) => v.codeId === '01' || v.codeId === '98')"
             type="radio"
+            :disable="true"
           />
         </kw-search-item>
       </kw-search-row>
