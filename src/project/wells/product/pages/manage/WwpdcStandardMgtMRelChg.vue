@@ -197,7 +197,7 @@ async function deleteCheckedRows(view) {
   let isDbDataRemove = false;
   await Promise.all(checkedRows.map(async (row) => {
     const item = gridUtil.getRowValue(view, row);
-    if (item.rowState === 'created') {
+    if (item.rowState === 'created' || isEmpty(item[pdConst.REL_PD_ID]) || item[pdConst.REL_PD_ID].startsWith('REL_TMP')) {
       removeCreateRows.push(row);
     } else {
       isDbDataRemove = true;
