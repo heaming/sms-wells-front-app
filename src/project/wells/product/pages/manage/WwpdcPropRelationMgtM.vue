@@ -247,7 +247,7 @@ async function onClickRemove() {
 
   checkedRows.forEach((row) => {
     const item = gridUtil.getRowValue(view, row);
-    if (item.rowState === 'created') {
+    if (item.rowState === 'created' || isEmpty(item[pdConst.REL_PD_ID]) || item[pdConst.REL_PD_ID].startsWith('REL_TMP')) {
       removeCreateRows.push(row);
     } else {
       // const endSetTime = dayjs().subtract(1, 'second').format('YYYYMMDDHHmmss');

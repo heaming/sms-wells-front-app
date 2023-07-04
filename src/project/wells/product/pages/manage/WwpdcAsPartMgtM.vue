@@ -279,6 +279,9 @@ async function fetchData() {
     const res = await dataService.get(`${baseUrl}/${currentCopyPdCd.value}`);
     prevStepData.value = await getCopyProductInfo(res.data);
     isTempSaveBtn.value = 'Y';
+    // 품목코드 및 AS자재번호는 삭제처리.
+    prevStepData.value[ecom][0].pdPrpVal01 = null;
+    prevStepData.value[ecom][0].pdPrpVal31 = null;
   }
 }
 
