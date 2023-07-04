@@ -102,7 +102,7 @@
       v-if="isGrdDepositItemizationSheetVisible"
       ref="grdDepositItemizationSheet"
       name="grdDepositItemizationSheet"
-      :visible-rows="1"
+      :visible-rows="5"
       @init="initGrdDepositItemizationSheet"
     />
     <!-- 거래명세서 -->
@@ -110,7 +110,7 @@
       v-if="isGrdTradeSpecificationSheetVisible"
       ref="grdTradeSpecificationSheet"
       name="grdTradeSpecificationSheet"
-      :visible-rows="1"
+      :visible-rows="5"
       @init="initGrdTradeSpecificationSheet"
     />
     <!-- 카드매출전표 -->
@@ -118,7 +118,7 @@
       v-if="isGrdCardSalesSlipVisible"
       ref="grdCardSalesSlipSheet"
       name="grdCardSalesSlipSheet"
-      :visible-rows="1"
+      :visible-rows="5"
       @init="initGrdCardSalesSlip"
     />
     <!-- 계약사항 -->
@@ -126,7 +126,7 @@
       v-if="isGrdContractArticlesVisible"
       ref="grdContractArticlesSheet"
       name="grdContractArticlesSheet"
-      :visible-rows="1"
+      :visible-rows="5"
       @init="initGrdContractArticles"
     />
   </kw-popup>
