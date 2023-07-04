@@ -10,6 +10,7 @@
 * 프로그램 설명
 ****************************************************************************************************
 - 정기배송 취소현황
+- TODO : 더블클릭 이벤트
 ****************************************************************************************************
 --->
 <template>
@@ -118,7 +119,7 @@
 
     <kw-grid
       ref="grdMainRegular"
-      :visible-rows="getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')"
+      :visible-rows="totalCount>pageSize?pageSize:totalCount"
       @init="initGrid"
     />
   </div>
@@ -159,6 +160,7 @@ const codes = await codeUtil.getMultiCodes(
   'RGLR_SPP_STAT_CH_RSON_CD',
 );
 
+const pageSize = ref(Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')));
 const totalCount = ref(0);
 let cachedParams;
 
