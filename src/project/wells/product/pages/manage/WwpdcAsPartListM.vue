@@ -303,7 +303,6 @@ async function onClickCopy() {
     return;
   }
   const targetPdCd = checkedRows[0].pdCd;
-  debugger;
   const regStateParams = { pdCd: '', newRegYn: 'Y', reloadYn: 'N', copyPdCd: targetPdCd };
   await router.push({ path: page.value.reg, query: { copyPdCd: targetPdCd }, state: { stateParam: regStateParams } });
 }
@@ -369,6 +368,12 @@ const sapItemCdToValidation = async (val) => {
 //   // eslint-disable-next-line no-use-before-define
 //   if (query.isSearch) onClickSearch();
 // }, { immediate: true });
+
+onActivated(async () => {
+  if (props.searchYn === 'Y') {
+    await onClickSearch();
+  }
+});
 
 watch(() => props, ({ searchYn }) => {
   if (searchYn === 'Y') onClickSearch();

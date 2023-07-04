@@ -492,7 +492,8 @@ async function initProps() {
   currentReloadYn.value = reloadYn;
   currentCopyPdCd.value = copyPdCd;
   passedStep.value = 0;
-  if (currentPdCd.value) {
+
+  if (currentPdCd.value || currentCopyPdCd.value) {
     await fetchData();
   } else {
     isTempSaveBtn.value = true;
