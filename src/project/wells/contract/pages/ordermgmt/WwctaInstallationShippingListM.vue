@@ -21,7 +21,9 @@
       <kw-search-row>
         <kw-search-item
           :label="t('MSG_TXT_CNTR_PTRM')"
+          :colspan="2"
         >
+          <!-- 설치기간 -->
           <kw-date-range-picker
             v-model:from="searchParams.cntrCnfmDtFr"
             v-model:to="searchParams.cntrCnfmDtTo"
@@ -39,6 +41,7 @@
           <kw-option-group
             v-model="searchParams.istPcsvDvCd"
             type="radio"
+            :disable="true"
             :options="codes.IST_PCSV_DV_CD"
           />
         </kw-search-item>
@@ -997,5 +1000,50 @@ async function onClickDelverInqr(sppOrdNo, pcsvBzsCd) {
 <style lang="scss">
 .contractNumber {
   cursor: pointer;
+}
+
+.kw-card {
+  width: calc((100% - 80px) / 4);
+}
+
+::v-deep(.kw-card.q-card) {
+  display: flex;
+  flex-direction: column;
+}
+
+.card-text {
+  margin-bottom: 20px;
+
+  li {
+    p {
+      min-width: 72px;
+    }
+
+    span {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
+}
+
+.button-wrap {
+  align-self: flex-end;
+  width: 100%;
+  display: flex;
+  column-gap: 6px;
+
+  ::v-deep(.kw-btn) {
+    padding: 8px 0;
+    min-height: 40px;
+    font-size: 14px;
+    font-weight: normal;
+    letter-spacing: normal;
+    color: #555;
+  }
+}
+
+.mt-auto {
+  margin-top: auto !important;
 }
 </style>
