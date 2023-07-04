@@ -464,7 +464,7 @@ async function initProps() {
   isCreate.value = isEmpty(currentPdCd.value);
   isTempSaveBtn.value = tempSaveYn !== 'N';
 
-  if (currentPdCd.value) await fetchData();
+  if (currentPdCd.value || currentCopyPdCd.value) await fetchData();
 }
 
 onMounted(async () => {
