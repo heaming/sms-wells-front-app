@@ -182,14 +182,18 @@ async function onClickExcelDownload() {
  *  Event - 반품출고전표출력 팝업창
  */
 async function onClickPrintSlipPopup() {
-  console.log(cachedParams.svCnrCd);
-  await modal({
+  console.log(codes.SV_CNR_CD);
+  const { result } = await modal({
     component: 'WwsnaReturningGoodsOstrSlipPrintP',
     componentProps: { mgtStrNo: cachedParams.svCnrCd },
   });
+
+  if (result) {
+    await fetchData();
+  }
 }
 // -------------------------------------------------------------------------------------------------
-// Initialize Grid
+// Initialize Gri
 // -------------------------------------------------------------------------------------------------
 const initGrid = defineGrid((data, view) => {
   const columns = [
