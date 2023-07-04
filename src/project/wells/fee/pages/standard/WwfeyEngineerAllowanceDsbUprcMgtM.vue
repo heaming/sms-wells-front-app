@@ -57,7 +57,7 @@
         >
           <kw-checkbox
             v-model="searchParams.currentlyApplyDataYn"
-            :label="$t('MSG_TXT_CRTL_APY_MTR')"
+            :label="$t('MSG_TXT_INC')"
           />
         </kw-search-item>
         <kw-search-item />
