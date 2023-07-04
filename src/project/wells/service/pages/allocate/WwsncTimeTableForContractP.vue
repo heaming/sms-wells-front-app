@@ -623,7 +623,7 @@ function getCurrentDate() {
 
 async function getTimeTables() {
   cachedParams = cloneDeep(searchParams.value);
-  const res = await dataService.get('/sms/wells/service/time-tables/sales', { params:
+  const res = await dataService.get('/sms/wells/service/time-tables/time-assign', { params:
    { ...cachedParams,
    } });
 

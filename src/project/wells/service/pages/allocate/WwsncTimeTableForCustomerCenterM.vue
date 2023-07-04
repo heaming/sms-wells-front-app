@@ -3,7 +3,7 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : [WSNC] allocate(배정관리)
-2. 프로그램 ID : WwsncTimeTableForCubicCCM - 타임테이블 조회(CubicCC)
+2. 프로그램 ID : WwsncTimeTableForCustomerCenterM - 타임테이블 조회(CustomerCenter)
 3. 작성자 : gs.piit122 김동엽
 4. 작성일 : 2023-07-03
 ****************************************************************************************************
@@ -618,7 +618,7 @@ function getCurrentDate() {
 
 async function getTimeTables() {
   cachedParams = cloneDeep(searchParams.value);
-  const res = await dataService.get('/sms/wells/service/time-tables/sales', { params:
+  const res = await dataService.get('/sms/wells/service/time-tables/time-assign', { params:
    { ...cachedParams,
    } });
 
