@@ -443,6 +443,13 @@ async function onClickSellerChange(item) {
 async function onClickDelReq(item) {
   item.inDv = '40'; // 입력구분
   item.aprvDv = '20'; // 승인구분
+  const compDate = now.add('-1', 'month').format('YYYYMMDD');
+
+  if (compDate > item.cntrCnfmDt) {
+    alert(t('MSG_ALT_ONLY_CAN_DEL_THM_ORD'));
+    return;
+  }
+
   if (await confirm(t('MSG_ALT_CNTR_DEL_AK_CONFIRM', [item.cntrDtlNo]))) {
     changeContract(item, '', '1');
   }
