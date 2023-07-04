@@ -14,7 +14,7 @@
 --->
 <template>
   <kw-popup
-    size="sm"
+    size="xl"
   >
     <kw-form
       :cols="1"
@@ -38,7 +38,7 @@
         <kw-form-item
           :label="$t('MSG_TXT_BND_ALRPY')"
         >
-          <p>{{ stringUtil.getNumberWithComma(detailInf.slBndAlrpyAmt) }}</p>
+          <p>{{ stringUtil.getNumberWithComma(detailInf.slBndAlrpyAmt) }}원</p>
         </kw-form-item>
       </kw-form-row>
     </kw-form>
@@ -125,10 +125,10 @@ const initGrdDetail = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '120', styleName: 'text-center', options: codes.SELL_TP_CD, editable: false },
     { fieldName: 'sellTpDtlCd', header: t('MSG_TXT_SELL_TP_DTL'), width: '120', styleName: 'text-center', options: codes.SELL_TP_DTL_CD, editable: false },
-    { fieldName: 'dgCstId', header: t('MSG_TXT_DG_CST_CD'), width: '120', styleName: 'text-center', editable: false },
+    { fieldName: 'dgCstId', header: t('MSG_TXT_RPRS_CUST_NO'), width: '120', styleName: 'text-center', editable: false },
     { fieldName: 'dgCstNm', header: t('MSG_TXT_DG_CST_CD_NM'), width: '120', styleName: 'text-center', editable: false },
-    { fieldName: 'slBndAlrpyAmt', header: t('MSG_TXT_ALRPY_AMT'), width: '150', styleName: 'text-right', dataType: 'number', editable: false },
-    { fieldName: 'bktxt', header: t('MSG_TXT_SMRY'), width: '379', styleName: 'text-left' },
+    { fieldName: 'slBndAlrpyAmt', header: t('MSG_TXT_ALRPY_AMT') + t('MSG_TXT_WON'), width: '150', styleName: 'text-right', dataType: 'number', editable: false },
+    { fieldName: 'bktxt', header: t('MSG_TXT_SMRY'), width: '300', styleName: 'text-left' },
     { fieldName: 'budat', width: '100', visible: false },
     { fieldName: 'kwGrpCoCd', width: '100', visible: false },
   ];

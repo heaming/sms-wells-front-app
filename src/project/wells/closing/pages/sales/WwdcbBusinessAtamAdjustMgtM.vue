@@ -61,7 +61,8 @@
         >
           <kw-input
             v-model="searchParams.sapAlrpySlpno"
-            :maxlength="14"
+            :maxlength="15"
+            regex="alpha_num"
           />
         </kw-search-item>
         <kw-search-item
@@ -99,6 +100,7 @@
           inset
         />
         <kw-btn
+          :disable="searchParams.searchGubun==='2'"
           secondary
           dense
           :label="$t('MSG_BTN_SLIP_INTLZ')"
@@ -110,7 +112,7 @@
           inset
         />
         <kw-btn
-          :disable="!isShowGrd"
+          :disable="searchParams.searchGubun==='2'"
           primary
           dense
           :label="$t('MSG_BTN_SLIP_CRT')"
@@ -178,21 +180,17 @@ const searchParams = ref({
   sapPdDvCd: 'ALL',
 });
 
-async function onSelectSearchGubun() {
+let cachedParams;
+async function fetchData() {
   const { searchGubun } = searchParams.value;
   if (searchGubun === '1') { // 집계
     isShowGrd.value = true;
   } else if (searchGubun === '2') { // 상세
     isShowGrd.value = false;
   }
-}
-
-let cachedParams;
-async function fetchData() {
   cachedParams = cloneDeep(searchParams.value);
   console.log(searchParams.value);
 
-  const { searchGubun } = searchParams.value;
   let res;
   console.log('searchGubun:', searchGubun);
   if (searchGubun === '1') { // 집계
@@ -228,22 +226,13 @@ async function onClickExportView() {
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
+    exportData: gridUtil.getAllRowValues(view),
   });
 }
 
 // 전표 초기화 버튼 클릭
 async function onClickSlipIntlz() {
-  let view;
-  if (isShowGrd.value === true) {
-    view = grdTotalRef.value.getView();
-  } else if (isShowGrd.value === false) {
-    view = grdDetailRef.value.getView();
-  }
-  const chkDataRows = gridUtil.getCheckedRowValues(view);
-  if (chkDataRows.length === 0) {
-    notify(t('MSG_ALT_NOT_SEL_ITEM'));
-    return;
-  }
+  const view = grdTotalRef.value.getView();
 
   const result = gridUtil.getCurrentRowValue(view);
   const { sapAlrpySlpno } = result;
@@ -358,7 +347,7 @@ const initGrdDetail = defineGrid((data, view) => {
     { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '120', styleName: 'text-center', options: codes.SELL_TP_CD },
     { fieldName: 'sellTpDtlCd', header: t('MSG_TXT_SELL_TP_DTL'), width: '120', styleName: 'text-center', options: codes.SELL_TP_DTL_CD },
     { fieldName: 'sapPdDvNm', header: t('MSG_TXT_SAP_PD_DV_CD_NM'), width: '170', styleName: 'text-center' },
-    { fieldName: 'dgCstId', header: t('MSG_TXT_DG_CST_CD'), width: '120', styleName: 'text-center' },
+    { fieldName: 'dgCstId', header: t('MSG_TXT_RPRS_CUST_NO'), width: '120', styleName: 'text-center' },
     { fieldName: 'baseYm', header: t('MSG_TXT_BASE_YM'), width: '100', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
     { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '120', styleName: 'text-center' },
     { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '80' },
