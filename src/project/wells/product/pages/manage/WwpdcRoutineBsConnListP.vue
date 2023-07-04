@@ -362,19 +362,19 @@ async function onClickSave() {
   if (bases.length) {
     bases.forEach((base) => {
       // 서비스 주기
-      const servicePeriod = Number(base.svPrdMmN);
+      const servicePeriod = Number(base.svPrdMmN ?? 0);
       // 시작월
-      const startMonth = Number(base.svStrtmmN);
+      const startMonth = Number(base.svStrtmmN ?? 0);
       // 반복횟수
-      const repeatCount = Number(base.svTms);
+      const repeatCount = Number(base.svTms ?? 0);
       // 제외월
       const exceptMonths = split(base.excdMmVal, ',').reduce((rtns, mon) => { if (Number(mon)) rtns.push(Number(mon)); return rtns; }, []);
       // 설치월
-      const installMonth = Number(base.istMm);
+      const installMonth = Number(base.istMm ?? 0);
       // 작업연도
-      const workYear = Number(base.strtWkYVal);
+      const workYear = Number(base.strtWkYVal ?? 0);
       // 총약정개월
-      const totStplMcn = Number(base.totStplMcn);
+      const totStplMcn = Number(base.totStplMcn ?? 0);
       if (startMonth) {
         // 시작월이 있는 경우
         for (let i = 1; i <= (repeatCount + exceptMonths.length); i += 1) {
