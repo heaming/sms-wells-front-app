@@ -27,7 +27,7 @@
             :options="svcCode"
             first-option="all"
             option-label="ogNm"
-            option-value="ogCd"
+            option-value="ogId"
             @update:model-value="onUpdateSvcCode1"
           />
         </kw-search-item>
@@ -39,6 +39,8 @@
             v-model="searchVal.ichrPrtnrNo"
             first-option="all"
             :options="engineers1"
+            option-label="prtnrNm"
+            option-value="prtnrNo"
           />
         </kw-search-item>
         <kw-search-item
@@ -94,12 +96,12 @@
           />
         </template>
 
-        <kw-btn
+        <!-- <kw-btn
           icon="print"
           secondary
           dense
           :label="$t('MSG_BTN_PRTG')"
-        />
+        /> -->
         <kw-btn
           icon="download_on"
           dense
@@ -130,7 +132,7 @@
           :placeholder="$t('MSG_TXT_ANY_SELT',[$t('MSG_TXT_BLG')])"
           :options="svcCode"
           option-label="ogNm"
-          option-value="ogCd"
+          option-value="ogId"
           @update:model-value="onUpdateSvcCode2"
         />
         <kw-select
@@ -138,6 +140,8 @@
           dense
           :placeholder="$t('MSG_TXT_ANY_SELT',[$t('MSG_TXT_EMPL_NM')])"
           :options="engineers2"
+          option-label="prtnrNm"
+          option-value="prtnrNo"
           @update:model-value="onUpdateEngineers2"
         />
         <kw-btn
@@ -150,7 +154,8 @@
       <kw-grid
         ref="grdMainRef"
         name="grdMain"
-        :visible-rows="pageInfo.pageSize"
+        :page-size="pageInfo.pageSize"
+        :total-count="pageInfo.totalCount"
         @init="initGrdMain"
       />
       <kw-pagination
@@ -176,22 +181,16 @@ import {
   useGlobal,
 } from 'kw-lib';
 import dayjs from 'dayjs';
-import smsCommon from '~sms-wells/service/composables/useSnCode';
 import { cloneDeep, replace } from 'lodash-es';
 
 const { t } = useI18n();
 const { getConfig } = useMeta();
-const { router, currentRoute } = useRouter();
+const { currentRoute } = useRouter();
 const grdMainRef = ref(getComponentType('KwGrid'));
 const dataService = useDataService();
 
 const {
-  getServiceCenterOrgs,
-  getWorkingEngineers,
-} = smsCommon();
-
-const {
-  // modal,
+  modal,
   notify,
 } = useGlobal();
 
@@ -199,17 +198,11 @@ const {
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 const now = dayjs();
-const engineers = ref();
-const engineers1 = ref();
-const engineers2 = ref();
+
+const engineers1 = ref([]);
+const engineers2 = ref([]);
 /* 공통코드 가져오기 */
-/* TODO:svCode, wrkEng에 ogCd로 조회중인데, ogId로 바뀌어야되는듯. */
-/* TODO: wrkEng에서 ogId값이 없음. -> 추가되면 ogId로 변경 */
-const svcCode = await getServiceCenterOrgs();
-const wrkEng = ((await getWorkingEngineers('G_ONLY_ENG')).G_ONLY_ENG).map((v) => ({ codeId: v.codeId, codeName: v.codeNm1, ogCd: v.ogCd }));
-engineers.value = wrkEng;
-engineers1.value = engineers.value;
-engineers2.value = engineers.value;
+const svcCode = (await dataService.get('/sms/wells/service/organizations/service-center')).data;
 
 /* 조회조건 */
 const searchVal = ref({
@@ -275,7 +268,6 @@ async function onClickExcelDownload() {
     'dtmChRsonDtlCn',
     'tno',
     'mpno',
-    'mtrStatNm',
     'wkPrgsDvNm',
     'vstCnfmDtm',
     'asnDtm',
@@ -288,7 +280,7 @@ async function onClickExcelDownload() {
     {
       header: t('MSG_TXT_PSIC_AF_TF'), // colspan title
       direction: 'horizontal', // merge type
-      items: ['afchBlgNm', 'afchEmpno', 'afchFnm'],
+      items: ['afchBlgCd', 'afchEmpno', 'afchFnm'],
     },
     {
       header: t('MSG_TXT_TF_REQ_INF'), // colspan title
@@ -307,28 +299,45 @@ async function onClickExcelDownload() {
 
 function onClickTransfetHistoryInquiry() {
   // TODO: 이관이력조회팝업(W-SV-U-0019P01) 개발전. 개발 후 수정.
-  router.push({
-    path: '/service/wwsnc-responsible-area-code-mgt',
-    // query: {
-    //   value: 'value1'
-    // },
+  const view = grdMainRef.value.getView();
+  const chkRows = gridUtil.getCheckedRowValues(view);
+
+  if (chkRows.length === 0) {
+    notify(t('MSG_ALT_NOT_SEL_ITEM'));
+    return;
+  }
+  if (chkRows.length > 1) {
+    notify(t('MSG_ALT_MDFC_SEL'));
+    return;
+  }
+  modal({
+    component: 'WwsncTransferHistoryListP',
+    componentProps: { cstSvAsnNo: chkRows[0].cstSvAsnNo },
   });
 }
 
-function setEngineers1() {
+async function fetchEngineers(params) {
+  return await dataService.get('/sms/wells/service/organizations/engineer', params);
+}
+const engineers = (await fetchEngineers({ params: { dgr1LevlOgId: '' } })).data;
+
+async function setEngineers1() {
   if (searchVal.value.svCnrOgId === '') {
-    engineers1.value = engineers.value;
+    engineers1.value = [];
     return;
   }
-  engineers1.value = wrkEng.filter((v) => v.ogCd === searchVal.value.svCnrOgId);
+  const res = await fetchEngineers({ params: { dgr1LevlOgId: searchVal.value.svCnrOgId } });
+  debugger;
+  engineers1.value = res.data;
 }
 
-function setEngineers2() {
+async function setEngineers2() {
   if (updateParams.value.svCnrOgId === '') {
-    engineers2.value = engineers.value;
+    engineers2.value = [];
     return;
   }
-  engineers2.value = wrkEng.filter((v) => v.ogCd === updateParams.value.svCnrOgId);
+  const res = await fetchEngineers({ params: { dgr1LevlOgId: updateParams.value.svCnrOgId } });
+  engineers2.value = res.data;
 }
 
 async function onUpdateSvcCode1() {
@@ -344,7 +353,7 @@ async function onUpdateSvcCode2() {
   const chkRows = gridUtil.getCheckedRowValues(view);
 
   chkRows.forEach((v) => {
-    view.setValue(v.dataRow, 'afchBlgNm', updateParams.value.svCnrOgId);
+    view.setValue(v.dataRow, 'afchBlgCd', updateParams.value.svCnrOgId);
   });
 }
 
@@ -403,39 +412,46 @@ async function onClickPsicTransfer() {
   const view = grdMainRef.value.getView();
   const chkRows = gridUtil.getCheckedRowValues(view);
   let flag = true;
-
+  debugger;
   if (chkRows.length === 0) {
     notify(t('MSG_ALT_NOT_SEL_ITEM'));
     return;
   }
-
-  chkRows.forEach((v) => {
-    if (v.rowState === 'none') {
-      if (!updateParams.value.ichrPrtnrNo || !updateParams.value.svCnrOgId) {
-        notify(t('MSG_ALT_IS_SELCT', [t('MSG_TXT_BLG')]));
-        flag = false;
-        return false;
+  if (await gridUtil.validate(view, { isCheckedOnly: true })) {
+    chkRows.forEach((v) => {
+      if (v.rowState === 'none') {
+        if (!updateParams.value.ichrPrtnrNo || !updateParams.value.svCnrOgId) {
+          notify(t('MSG_ALT_IS_SELCT', [t('MSG_TXT_BLG')]));
+          flag = false;
+          return false;
+        }
       }
-    }
-  });
+    });
 
-  if (flag) {
-    await dataService.post('/sms/wells/service/as-transfers', chkRows);
-    notify(t('MSG_ALT_SAVE_DATA'));
-    await fetchData();
+    if (flag) {
+      await dataService.post('/sms/wells/service/as-transfers', chkRows);
+      notify(t('MSG_ALT_SAVE_DATA'));
+      await fetchData();
+    }
   }
 }
 
 function setAfchEmpno(grid, row, field) {
   const itemIndex = grid.getItemIndex(row);
 
-  const { afchFnm } = grid.getValues(itemIndex);
+  const { afchFnm, afchBlgCd } = grid.getValues(itemIndex);
 
   const changedFieldName = grid.getDataSource().getOrgFieldName(field);
 
   if (changedFieldName === 'afchFnm') {
     // 이름 바뀌면, 그 앞 필드 번호 부분 매핑. optionValue 가져와서 넣어줌?
     grid.setValue(itemIndex, 'afchEmpno', afchFnm);
+  }
+  if (changedFieldName === 'afchBlgCd') {
+    const center = svcCode.filter((v) => v.ogId === afchBlgCd);
+    grid.setValue(itemIndex, 'afchOgTpCd', center[0].ogTpCd);
+    grid.setValue(itemIndex, 'afchFnm', '');
+    grid.setValue(itemIndex, 'afchEmpno', '');
   }
 }
 
@@ -448,20 +464,20 @@ const initGrdMain = defineGrid((data, view) => {
   const lookupTreeSubCodes = { id: 'lookupTreeSubCodes', levels: 2, tags: [], keys: [], values: [] };
 
   svcCode.forEach((codeObj) => {
-    lookupTreeMainCodes.keys.push(codeObj.ogCd);
+    lookupTreeMainCodes.keys.push(codeObj.ogId);
     lookupTreeMainCodes.values.push(codeObj.ogNm);
   });
-
-  engineers.value.forEach((codeObj) => {
-    lookupTreeSubCodes.tags.push(codeObj.codeId);
-    lookupTreeSubCodes.keys.push([codeObj.ogCd, codeObj.codeId]);
-    lookupTreeSubCodes.values.push(codeObj.codeName);
+  engineers.forEach((codeObj) => {
+    lookupTreeSubCodes.tags.push(codeObj.prtnrNo);
+    lookupTreeSubCodes.keys.push([codeObj.ogId, codeObj.prtnrNo]);
+    lookupTreeSubCodes.values.push(codeObj.prtnrNm);
   });
   view.addLookupSource(lookupTreeSubCodes);
 
   const fields = [
     { fieldName: 'cstSvAsnNo' },
     { fieldName: 'cntrNo' },
+    { fieldName: 'cntrSn' },
     { fieldName: 'rcgvpKnm' },
     { fieldName: 'sellTpNm' },
     { fieldName: 'sapMatCd' },
@@ -481,7 +497,6 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'dtmChRsonDtlCn' },
     { fieldName: 'tno' },
     { fieldName: 'mpno' },
-    { fieldName: 'mtrStatNm' },
     { fieldName: 'wkPrgsDvNm' },
     { fieldName: 'vstCnfmDtm' },
     { fieldName: 'asnDtm' },
@@ -490,11 +505,13 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'bfchEmpno' },
     { fieldName: 'bfchFnm' },
     { fieldName: 'afchBlgCd' },
-    { fieldName: 'afchBlgNm' },
+    { fieldName: 'afchOgTpCd' },
     { fieldName: 'afchEmpno' },
     { fieldName: 'afchFnm' },
     { fieldName: 'afchBlgCdOrigin' },
     { fieldName: 'afchEmpnoOrigin' },
+    { fieldName: 'afchFnmOrigin' },
+    { fieldName: 'afchOgTpCdOrigin' },
     { fieldName: 'tfDt' },
     { fieldName: 'tfRsonNm' },
     { fieldName: 'tfBlgNm' },
@@ -568,9 +585,9 @@ const initGrdMain = defineGrid((data, view) => {
       header: t('MSG_TXT_CTPV_CTCTY_NM'),
       width: '250',
       displayCallback: (grid, index) => {
-        const ctpvNm = gridUtil.getCellValue(grid, index.dataRow, 'ctpvNm');
-        const ctctyNm = (gridUtil.getCellValue(grid, index.dataRow, 'ctctyNm'));
-        const amtdNm = (gridUtil.getCellValue(grid, index.dataRow, 'amtdNm'));
+        const ctpvNm = grid.getValue(index.itemIndex, 'ctpvNm');
+        const ctctyNm = grid.getValue(index.itemIndex, 'ctctyNm');
+        const amtdNm = grid.getValue(index.itemIndex, 'amtdNm');
         const tot = `${replace(ctpvNm, null, ' ')} ${replace(ctctyNm, null, ' ')} ${replace(amtdNm, null, ' ')}`;
 
         return tot;
@@ -623,12 +640,6 @@ const initGrdMain = defineGrid((data, view) => {
       width: '150',
     },
     {
-      fieldName: 'mtrStatNm',
-      header: t('MSG_TXT_WK_STS'),
-      width: '100',
-      styleName: 'text-center',
-    },
-    {
       fieldName: 'wkPrgsDvNm',
       header: t('MSG_TXT_PRGS_DV'),
       width: '100',
@@ -639,14 +650,14 @@ const initGrdMain = defineGrid((data, view) => {
       header: t('MSG_TXT_VST_CNFM_DT'),
       width: '150',
       styleName: 'text-center',
-      displayCallback: (grid, index, v) => `${v.substring(0, 4)}-${v.substring(4, 6)}-${v.substring(6, 8)} ${v.substring(8, 10)}:${v.substring(10, 12)}`,
+      datetimeFormat: 'datetime',
     },
     {
       fieldName: 'asnDtm',
       header: t('MSG_TXT_ASN_DT'),
       width: '150',
       styleName: 'text-center',
-      datetimeFormat: 'date',
+      datetimeFormat: 'datetime',
     },
     {
       fieldName: 'rcst',
@@ -670,7 +681,7 @@ const initGrdMain = defineGrid((data, view) => {
       width: '100',
     },
     {
-      fieldName: 'afchBlgNm',
+      fieldName: 'afchBlgCd',
       header: t('MSG_TXT_BLG'),
       width: '150',
       lookupDisplay: true,
@@ -692,14 +703,14 @@ const initGrdMain = defineGrid((data, view) => {
       width: '100',
       lookupDisplay: true,
       lookupSourceId: 'lookupTreeSubCodes',
-      lookupKeyFields: ['afchBlgNm', 'afchFnm'],
+      lookupKeyFields: ['afchBlgCd', 'afchFnm'],
       editor: { type: 'dropdown' },
       editable: true,
       rules: 'required',
       // styleCallback: (grid, dataCell) => {
-      //   const afchBlgNm = gridUtil.getCellValue(grid, dataCell.index.itemIndex, 'afchBlgNm');
-      //   const { ogCd } = svcCode.filter((v) => v.ogNm === afchBlgNm)[0];
-      //   const afchFnm = wrkEng.filter((v) => v.ogCd === ogCd);
+      //   const afchBlgCd = gridUtil.getCellValue(grid, dataCell.index.itemIndex, 'afchBlgCd');
+      //   const { ogId } = svcCode.filter((v) => v.ogNm === afchBlgCd)[0];
+      //   const afchFnm = wrkEng.filter((v) => v.ogId === ogId);
 
       // eslint-disable-next-line max-len
       //   return { editor: { type: 'list', labels: afchFnm.map((v) => v.codeName), values: afchFnm.map((v) => v.codeId) }, editable: true };
@@ -710,6 +721,7 @@ const initGrdMain = defineGrid((data, view) => {
       header: t('MSG_TXT_TF_DT'),
       width: '150',
       styleName: 'text-center ',
+      datetimeFormat: 'date',
     },
     {
       fieldName: 'tfRsonNm',
@@ -749,7 +761,6 @@ const initGrdMain = defineGrid((data, view) => {
     'dtmChRsonDtlCn',
     'tno',
     'mpno',
-    'mtrStatNm',
     'wkPrgsDvNm',
     'vstCnfmDtm',
     'asnDtm',
@@ -762,7 +773,7 @@ const initGrdMain = defineGrid((data, view) => {
     {
       header: t('MSG_TXT_PSIC_AF_TF'), // colspan title
       direction: 'horizontal', // merge type
-      items: ['afchBlgNm', 'afchEmpno', 'afchFnm'],
+      items: ['afchBlgCd', 'afchEmpno', 'afchFnm'],
     },
     {
       header: t('MSG_TXT_TF_REQ_INF'), // colspan title
