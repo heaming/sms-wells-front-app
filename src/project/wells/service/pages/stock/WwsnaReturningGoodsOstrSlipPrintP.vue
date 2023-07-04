@@ -32,7 +32,7 @@
       </kw-form-row>
       <kw-form-item
         :label="$t('MSG_TXT_OSTR_D')"
-        :rules="required"
+        required
       >
         <kw-date-picker
           v-model="searchParams.ostrDt"
@@ -43,7 +43,7 @@
       <kw-form-row>
         <kw-form-item
           :label="$t('MSG_TXT_OVIV_FOM')"
-          :rules="required"
+          required
         >
           <kw-select
             v-model="searchParams.ovivFomCd"
