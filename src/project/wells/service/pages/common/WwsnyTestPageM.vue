@@ -148,6 +148,31 @@ movePages.push({
     },
   ],
 });
+movePages.push({
+  pageName: 'W-SV-U-0063M01',
+  btns: [
+    {
+      btnName: '타임테이블 K멤버스/홈페이지',
+      type: 'router',
+      call: 'wwsnc-time-table-for-kmembers',
+      props: {
+        sellDate: '20230616',
+        baseYm: '202307',
+        chnlDvCd: 'K',
+        svDvCd: '1',
+        svBizDclsfCd: '1110',
+        cntrNo: 'W20230001513',
+        cntrSn: '1',
+        dataStatCd: '1',
+        userId: '1738565',
+        inflwChnl: '3',
+        returnUrl: 'http://www.naver.com',
+        seq: '1',
+        wrkDt: '20230609',
+      },
+    },
+  ],
+});
 // eslint-disable-next-line max-len
 // { pageId: '6', pageName: 'W-MP-U-0190M01',
 // btns: [{ btnName: '타임테이블 조회(홈페이지_웰스팜)',

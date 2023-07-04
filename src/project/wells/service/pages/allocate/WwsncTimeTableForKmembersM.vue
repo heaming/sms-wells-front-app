@@ -3,20 +3,21 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : [WSNC] allocate(배정관리)
-2. 프로그램 ID : WwsncTimeTableForCubicCCM - 타임테이블 조회(CubicCC)
+2. 프로그램 ID : WwsncTimeTableForKmembersM - 타임테이블 K멤버스/홈페이지
 3. 작성자 : gs.piit122 김동엽
-4. 작성일 : 2023-07-03
+4. 작성일 : 2023-07-04
 ****************************************************************************************************
 * 프로그램 설명
 ****************************************************************************************************
-- W-SV-U-0034M01
-- 고객센터 A/S 접수 시 방문할 일자 및 시간을 선택한다.
+- W-SV-U-0063M01
+- K멤버스 설치 및 Wells 홈페이지 A/S 접수 시 방문할 일자 및 시간을 선택한다.
 ****************************************************************************************************
 -->
 <template>
   <kw-page>
+    <!-- To. 개발  window popup width size: 940px  -->
     <h1>{{ $t('MSG_TIT_EGER_TIME_TABLE') /*엔지니어 Time table*/ }}</h1>
-    <div class="normal-area normal-area--button-set-bottom pt30 mt15 w940">
+    <div class="normal-area normal-area--button-set-bottom pt30 mt15 w860">
       <p class="kw-font--14">
         {{ $t('MSG_TXT_CHO_SV_VST_HOP_DT') /*서비스 방문 희망일자를 선택하세요*/ }}
       </p>
@@ -158,11 +159,11 @@
                     {{ data.psic.prtnrKnm }}
                   </h3>
                   <kw-chip
-                    class="ml8"
-                    color="primary"
                     :label="data.psic.rolDvNm"
+                    color="primary"
                     square
                     text-color="primary"
+                    class="ml8"
                   />
                 </div>
                 <div class="column mt12">
@@ -175,10 +176,10 @@
                         data.psic.cralIdvTno }}
                     </p>
                     <!--                    <kw-btn
-                      borderless
-                      class="ml4"
                       icon="sms_24"
+                      borderless
                       style="font-size: 24px;"
+                      class="ml4"
                     />-->
                   </div>
                   <div class="row items-center">
@@ -187,18 +188,18 @@
                         data.psic.idvTno }}
                     </p>
                     <!--                    <kw-btn
-                      borderless
-                      class="ml4"
                       icon="sms_24"
+                      borderless
                       style="font-size: 24px;"
+                      class="ml4"
                     />-->
                   </div>
                 </div>
               </div>
               <kw-avatar size="60px">
                 <img
-                  alt="profile"
                   src="node_modules/kw-lib/src/assets/images/example_profile.png"
+                  alt="profile"
                 >
               </kw-avatar>
             </div>
@@ -211,11 +212,11 @@
                     {{ data.psic.prtnrKnm2 }}
                   </h3>
                   <kw-chip
-                    class="ml8"
+                    label="매니저"
                     color="primary"
-                    :label="$t('MSG_TXT_MANAGER')"
                     square
                     text-color="primary"
+                    class="ml8"
                   />
                 </div>
                 <div class="column mt12">
@@ -223,7 +224,7 @@
                     <p class="kw-font--14">
                       {{ data.psic.sjHp1 }}-{{ data.psic.sjHp2 }}-{{ data.psic.sjHp3 }}
                     </p>
-                    <!-- <kw-btn
+                  <!-- <kw-btn
                     icon="sms_24"
                     borderless
                     style="font-size: 24px;"
@@ -248,8 +249,8 @@
           </div>
         </div>
         <kw-separator
-          spaced="20px"
           vertical
+          spaced="20px"
         />
         <div class="col">
           <h3 class="mt0">
@@ -274,7 +275,7 @@
             </li>
             <li class="kw-state-list__item">
               <p class="kw-state-list__top">
-                B/S
+                A/S
               </p>
               <p class="kw-state-list__num">
                 {{ data.psic.bsCnt }}
@@ -1228,4 +1229,5 @@ h3 {
     }
   }
 }
+
 </style>
