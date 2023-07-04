@@ -3,665 +3,198 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : CTB
-2. 프로그램 ID : WwctbContractChangeMgtM - 계약변경
-3. 작성자 : gs.rahul.n
-4. 작성일 : 2023.04.25
+2. 프로그램 ID : WwctbContractChangeMgtM - 계약변경관리
+3. 작성자 : gs.piit165
+4. 작성일 : 2023.06.30
 ****************************************************************************************************
 * 프로그램 설명
 ****************************************************************************************************
-- 계약변경
+- [W-SS-U-0101M01] 계약변경관리
 ****************************************************************************************************
 --->
-<template>
-  <kw-page>
-    <div
-      class="normal-area normal-area--button-set-bottom"
-    >
-      <div class="stepper-layout-tweak-wrapper">
-        <kw-stepper
-          v-model="currentStepName"
-          heading-text
-        >
-          <kw-step
-            v-for="(step, index) in steps"
-            :key="`step-${index}`"
-            v-bind="step"
-            :prefix="index + 1"
-          />
-          <kw-step-panel :name="steps[0].name">
-            <kw-scroll-area visible>
-              <div class="pr40">
-                <!-- 이쯤에서 컴포넌트 분리하면 됩니다.-->
-                <kw-search :cols="3">
-                  <kw-search-row>
-                    <kw-search-item
-                      :label="$t('MSG_TXT_CONTR_TYPE')"
-                      required
-                    >
-                      <kw-select
-                        :model-value="[]"
-                        :options="['A', 'B', 'C', 'D']"
-                        rules="required"
-                      />
-                    </kw-search-item>
-                    <kw-search-item
-                      :label="$t('MSG_TXT_CONTRACTOR_TYPE')"
-                      required
-                    >
-                      <kw-select
-                        :model-value="[]"
-                        :options="['A', 'B', 'C', 'D']"
-                        rules="required"
-                      />
-                    </kw-search-item>
-                    <kw-search-item :label="$t('MSG_TXT_NAME')">
-                      <kw-input />
-                    </kw-search-item>
-                  </kw-search-row>
-                  <kw-search-row>
-                    <kw-search-item
-                      :label="$t('MSG_TXT_MPNO')"
-                      required
-                    >
-                      <zwcm-telephone-number rules="required" />
-                    </kw-search-item>
-                    <kw-search-item
-                      :label="$t('MSG_TXT_BIRTH_DATE')"
-                      required
-                    >
-                      <kw-date-picker rule="required" />
-                    </kw-search-item>
-                    <kw-search-item
-                      :label="$t('MSG_TXT_GEND_DIV')"
-                      required
-                    >
-                      <kw-option-group
-                        :model-value="'남'"
-                        type="radio"
-                        :options="['남', '여']"
-                        rules="required"
-                      />
-                    </kw-search-item>
-                  </kw-search-row>
-                  <kw-search-row>
-                    <kw-search-item :label="$t('MSG_TXT_CNTR_DV')">
-                      <kw-field :model-value="[]">
-                        <template #default="{ field }">
-                          <kw-checkbox
-                            v-bind="field"
-                            :label="$t('MSG_TXT_SEA_ONLY_PEXT_CNTR')"
-                            val=""
-                          />
-                        </template>
-                      </kw-field>
-                    </kw-search-item>
-                  </kw-search-row>
-                </kw-search>
-                <h3>
-                  {{ t('MSG_TXT_CONTR_INFO_INDIV') }}
-                </h3>
-                <kw-form
-                  :cols="2"
-                  dense
-                >
-                  <kw-form-row>
-                    <kw-form-item :label="$t('MSG_TXT_CNTRT')">
-                      <p>김엄마 / 1988-03-03 / 여</p>
-                    </kw-form-item>
-                    <kw-form-item
-                      :label="$t('MSG_TXT_IDENT_VERF')"
-                      hint="s"
-                    >
-                      <p>{{ t('MSG_TXT_IDENT_VERF_COMPL') }}</p>
-                    </kw-form-item>
-                  </kw-form-row>
-                  <kw-form-row>
-                    <kw-form-item :label="$t('MSG_TXT_CST_NO')">
-                      <p>123456789</p>
-                    </kw-form-item>
-                    <kw-form-item
-                      :label="$t('MSG_TXT_REF_MIL')"
-                      hint="a"
-                    >
-                      <p>1,000,000</p>
-                    </kw-form-item>
-                  </kw-form-row>
-                  <kw-form-row>
-                    <kw-form-item
-                      :label="$t('MSG_TXT_K_MON')"
-                      hint="a"
-                    >
-                      <p>1,000,000</p>
-                    </kw-form-item>
-                    <kw-form-item
-                      :label="$t('MSG_TXT_K_MALL_CASH')"
-                      hint="a"
-                    >
-                      <p>1,000,000</p>
-                    </kw-form-item>
-                  </kw-form-row>
-                  <kw-form-row>
-                    <kw-form-item :label="$t('MSG_TXT_MPNO')">
-                      <p>
-                        010-1234-1234
-                      </p>
-                    </kw-form-item>
-                    <kw-form-item :label="$t('MSG_TXT_ADDR')">
-                      <p>
-                        06617 (주소코드 : 23456789)<br>
-                        서울 서초구 서초대로 385 진흥 아파트 D동 1301
-                      </p>
-                    </kw-form-item>
-                  </kw-form-row>
-                </kw-form>
-                <kw-separator />
-                <h3>학습자</h3>
-                <kw-action-top>
-                  <template #left>
-                    <kw-paging-info :total-count="1" />
-                  </template>
-                  <kw-btn
-                    :label="$t('MSG_BTN_MOD')"
-                    secondary
-                    dense
-                  />
-                  <kw-btn
-                    :label="$t('MSG_BTN_ADD_LEARNER')"
-                    secondary
-                    dense
-                  />
-                </kw-action-top>
-                <kw-list
-                  separator
-                  item-padding="20px 0"
-                >
-                  <kw-expansion-item
-                    group="list-group"
-                    padding-target="header"
-                    expansion-icon-align="center"
-                    expand-icon-class="kw-font-pt24"
-                  >
-                    <template #header>
-                      <kw-item-section>
-                        <kw-item-label class="row items-center">
-                          <kw-radio
-                            label="김첫째 / 1988-03-03 / 여"
-                            val=""
-                          />
-                          <kw-chip
-                            :label="$t('MSG_TXT_CHILD')"
-                            square
-                            color="primary"
-                            text-color="primary"
-                            class="ml8"
-                          />
-                        </kw-item-label>
-                      </kw-item-section>
-                    </template>
-                    <div class="kw-bc--bg-box px40 py20">
-                      <kw-form
-                        :cols="2"
-                      >
-                        <kw-form-row>
-                          <kw-form-item :label="$t('MSG_TXT_GENDER')">
-                            <p class="text-bold">
-                              여
-                            </p>
-                          </kw-form-item>
-                          <kw-form-item :label="$t('MSG_TXT_AGE_YR')">
-                            <p class="text-bold">
-                              10
-                            </p>
-                          </kw-form-item>
-                        </kw-form-row>
-                        <kw-form-row>
-                          <kw-form-item :label="$t('MSG_TXT_CST_NO')">
-                            <p class="text-bold">
-                              123456789
-                            </p>
-                          </kw-form-item>
-                          <kw-form-item :label="$t('MSG_TXT_CLASS')">
-                            <p class="text-bold">
-                              3
-                            </p>
-                          </kw-form-item>
-                        </kw-form-row>
-                        <kw-form-row>
-                          <kw-form-item :label="$t('MSG_TXT_HUND_PT_MEM_INFO')">
-                            <kw-input />
-                          </kw-form-item>
-                          <kw-form-item :label="$t('MSG_TXT_MPNO')">
-                            <p class="text-bold">
-                              010-1234-1234
-                            </p>
-                          </kw-form-item>
-                        </kw-form-row>
-                        <kw-form-row>
-                          <kw-form-item :label="$t('MSG_TXT_ADDR')">
-                            <p class="text-bold">
-                              06617 (주소코드 : 23456789)<br>
-                              서울 서초구 서초대로 385 진흥 아파트 D동1301
-                            </p>
-                          </kw-form-item>
-                        </kw-form-row>
-                      </kw-form>
-                    </div>
-                  </kw-expansion-item>
-                  <kw-expansion-item
-                    group="list-group"
-                    padding-target="header"
-                    expansion-icon-align="center"
-                    expand-icon-class="kw-font-pt24"
-                  >
-                    <template #header>
-                      <kw-item-section>
-                        <kw-item-label class="row items-center">
-                          <kw-radio
-                            label="김둘째 / 1988-03-03 / 여"
-                            val=""
-                          />
-                          <kw-chip
-                            :label="$t('MSG_TXT_CHILD')"
-                            square
-                            color="primary"
-                            text-color="primary"
-                            class="ml8"
-                          />
-                        </kw-item-label>
-                      </kw-item-section>
-                    </template>
-                    <div class="kw-bc--bg-box px40 py20">
-                      <kw-form
-                        :cols="2"
-                      >
-                        <kw-form-row>
-                          <kw-form-item :label="$t('MSG_TXT_GENDER')">
-                            <p class="text-bold">
-                              여
-                            </p>
-                          </kw-form-item>
-                          <kw-form-item :label="$t('MSG_TXT_AGE_YR')">
-                            <p class="text-bold">
-                              10
-                            </p>
-                          </kw-form-item>
-                        </kw-form-row>
-                        <kw-form-row>
-                          <kw-form-item :label="$t('MSG_TXT_CST_NO')">
-                            <p class="text-bold">
-                              123456789
-                            </p>
-                          </kw-form-item>
-                          <kw-form-item :label="$t('MSG_TXT_CLASS')">
-                            <p class="text-bold">
-                              3
-                            </p>
-                          </kw-form-item>
-                        </kw-form-row>
-                        <kw-form-row>
-                          <kw-form-item :label="$t('MSG_TXT_HUND_PT_MEM_INFO')">
-                            <kw-input />
-                          </kw-form-item>
-                          <kw-form-item :label="$t('MSG_TXT_MPNO')">
-                            <p class="text-bold">
-                              010-1234-1234
-                            </p>
-                          </kw-form-item>
-                        </kw-form-row>
-                        <kw-form-row>
-                          <kw-form-item :label="$t('MSG_TXT_ADDR')">
-                            <p class="text-bold">
-                              06617 (주소코드 : 23456789)<br>
-                              서울 서초구 서초대로 385 진흥 아파트 D동1301
-                            </p>
-                          </kw-form-item>
-                        </kw-form-row>
-                      </kw-form>
-                    </div>
-                  </kw-expansion-item>
-                </kw-list>
-              </div>
-            </kw-scroll-area>
-          </kw-step-panel>
-          <kw-step-panel :name="steps[1].name">
-            <kw-scroll-area visible>
-              <div class="pr40">
-                <kw-search :cols="3">
-                  <kw-search-row>
-                    <kw-search-item
-                      :label="$t('MSG_TXT_CONTR_TYPE')"
-                      required
-                    >
-                      <kw-select
-                        :model-value="[]"
-                        :options="['A', 'B', 'C', 'D']"
-                        rules="required"
-                      />
-                    </kw-search-item>
-                    <kw-search-item
-                      :label="$t('MSG_TXT_CONTRACTOR_TYPE')"
-                      required
-                    >
-                      <kw-select
-                        :model-value="[]"
-                        :options="['A', 'B', 'C', 'D']"
-                        rules="required"
-                      />
-                    </kw-search-item>
-                    <kw-search-item :label="$t('MSG_TXT_NAME')">
-                      <kw-input />
-                    </kw-search-item>
-                  </kw-search-row>
-                  <kw-search-row>
-                    <kw-search-item
-                      :label="$t('MSG_TXT_MPNO')"
-                      required
-                    >
-                      <zwcm-telephone-number rules="required" />
-                    </kw-search-item>
-                    <kw-search-item
-                      :label="$t('MSG_TXT_BIRTH_DATE')"
-                      required
-                    >
-                      <kw-date-picker rule="required" />
-                    </kw-search-item>
-                    <kw-search-item
-                      :label="$t('MSG_TXT_GEND_DIV')"
-                      required
-                    >
-                      <kw-option-group
-                        :model-value="'남'"
-                        type="radio"
-                        :options="['남', '여']"
-                        rules="required"
-                      />
-                    </kw-search-item>
-                  </kw-search-row>
-                  <kw-search-row>
-                    <kw-search-item :label="$t('MSG_TXT_CNTR_DV')">
-                      <kw-field :model-value="[]">
-                        <template #default="{ field }">
-                          <kw-checkbox
-                            v-bind="field"
-                            :label="$t('MSG_TXT_SEA_ONLY_PEXT_CNTR')"
-                            val=""
-                          />
-                        </template>
-                      </kw-field>
-                    </kw-search-item>
-                  </kw-search-row>
-                </kw-search>
-                <h3>{{ t('MSG_TXT_CONTR_INFO_INDIV') }}</h3>
-                <kw-form
-                  :cols="2"
-                  dense
-                >
-                  <kw-form-row>
-                    <kw-form-item :label="$t('MSG_TXT_CNTRT')">
-                      <p>김엄마 / 1988-03-03 / 여</p>
-                    </kw-form-item>
-                    <kw-form-item
-                      :label="$t('MSG_TXT_IDENT_VERF')"
-                      hint="s"
-                    >
-                      <p>본인인증완료</p>
-                    </kw-form-item>
-                  </kw-form-row>
-                  <kw-form-row>
-                    <kw-form-item :label="$t('MSG_TXT_CST_NO')">
-                      <p>123456789</p>
-                    </kw-form-item>
-                    <kw-form-item
-                      :label="$t('MSG_TXT_REF_MIL')"
-                      hint="a"
-                    >
-                      <p>1,000,000</p>
-                    </kw-form-item>
-                  </kw-form-row>
-                  <kw-form-row>
-                    <kw-form-item
-                      :label="$t('MSG_TXT_K_MON')"
-                      hint="a"
-                    >
-                      <p>1,000,000</p>
-                    </kw-form-item>
-                    <kw-form-item
-                      :label="$t('MSG_TXT_K_MALL_CASH')"
-                      hint="a"
-                    >
-                      <p>1,000,000</p>
-                    </kw-form-item>
-                  </kw-form-row>
-                  <kw-form-row>
-                    <kw-form-item :label="$t('MSG_TXT_MPNO')">
-                      <p>
-                        010-1234-1234
-                      </p>
-                    </kw-form-item>
-                    <kw-form-item :label="$t('MSG_TXT_ADDR')">
-                      <p>
-                        06617 (주소코드 : 23456789)<br>
-                        서울 서초구 서초대로 385 진흥 아파트 D동 1301
-                      </p>
-                    </kw-form-item>
-                  </kw-form-row>
-                </kw-form>
-                <kw-separator />
-                <h3>{{ t('MSG_TXT_LRNR') }}</h3>
-                <kw-action-top>
-                  <template #left>
-                    <kw-paging-info :total-count="1" />
-                  </template>
-                  <kw-btn
-                    :label="$t('MSG_BTN_MOD')"
-                    secondary
-                    dense
-                  />
-                  <kw-btn
-                    :label="$t('MSG_BTN_ADD_LEARNER')"
-                    secondary
-                    dense
-                  />
-                </kw-action-top>
-                <kw-list
-                  v-model:selected="selectedStudent"
-                  class="student-list"
-                  :items="students"
-                  item-key="cstNo"
-                  radio
-                  separator
-                  expansion
-                  item-padding="20px 0"
-                  padding-target="header"
-                >
-                  <template #item="{ item }">
-                    <kw-item-section>
-                      <kw-item-label
-                        class="row items-center text-black2"
-                        font-weight="400"
-                      >
-                        {{ `${item.name} / ${item.birth} / ${item.gender}` }}
-                        <kw-chip
-                          :label="$t('MSG_TXT_CHILD')"
-                          square
-                          color="primary"
-                          text-color="primary"
-                          class="ml8"
-                        />
-                      </kw-item-label>
-                    </kw-item-section>
-                  </template>
-                  <template #expansion>
-                    <div class="kw-bc--bg-box px40 py20">
-                      <kw-form
-                        :cols="2"
-                      >
-                        <kw-form-row>
-                          <kw-form-item :label="$t('MSG_TXT_GENDER')">
-                            <p class="text-bold">
-                              여
-                            </p>
-                          </kw-form-item>
-                          <kw-form-item :label="$t('MSG_TXT_AGE_YR')">
-                            <p class="text-bold">
-                              10
-                            </p>
-                          </kw-form-item>
-                        </kw-form-row>
-                        <kw-form-row>
-                          <kw-form-item :label="$t('MSG_TXT_CST_NO')">
-                            <p class="text-bold">
-                              123456789
-                            </p>
-                          </kw-form-item>
-                          <kw-form-item :label="$t('MSG_TXT_CLASS')">
-                            <p class="text-bold">
-                              3
-                            </p>
-                          </kw-form-item>
-                        </kw-form-row>
-                        <kw-form-row>
-                          <kw-form-item :label="$t('MSG_TXT_HUND_PT_MEM_INFO')">
-                            <kw-input />
-                          </kw-form-item>
-                          <kw-form-item :label="$t('MSG_TXT_MPNO')">
-                            <p class="text-bold">
-                              010-1234-1234
-                            </p>
-                          </kw-form-item>
-                        </kw-form-row>
-                        <kw-form-row>
-                          <kw-form-item :label="$t('MSG_TXT_ADDR')">
-                            <p class="text-bold">
-                              06617 (주소코드 : 23456789)<br>
-                              서울 서초구 서초대로 385 진흥 아파트 D동1301
-                            </p>
-                          </kw-form-item>
-                        </kw-form-row>
-                      </kw-form>
-                    </div>
-                  </template>
-                </kw-list>
-              </div>
-            </kw-scroll-area>
-          </kw-step-panel>
-        </kw-stepper>
-        <kw-separator
-          spaced="0"
-          vertical
-        />
-        <div class="not-flexible">
-          <kw-scroll-area
-            visible
-            width="350px"
-          >
-            <div class="px40">
-              <h2 class="pt5">
-                <div class="row items-center">
-                  E2022-1234567
-                  <kw-chip
-                    :label="$t('MSG_TXT_TEMP_SAVE')"
-                    color="placeholder"
-                    outline
-                    class="ml8"
-                  />
-                </div>
-              </h2>
-              <kw-list
-                class="like-vertical-stepper"
-                separator
-              >
-                <kw-expansion-item
-                  v-for="(step, index) in steps"
-                  :ref="(el) => sideStepRefs[step.name] = el"
-                  :key="`side-item-${index}`"
-                  :default-opened="index === 0"
-                  class="like-vertical-stepper__step"
-                  header-class="h24"
-                  :class="{
-                    'like-vertical-stepper__step--active': step.name === currentStepName,
-                    'like-vertical-stepper__step--checked': step.done,
-                  }"
-                  expand-icon="none"
-                >
-                  <template #header>
-                    <kw-item-section
-                      side
-                      class="pr4"
-                    >
-                      <kw-avatar
-                        size="20px"
-                        class="like-vertical-stepper__step-icon"
-                        :icon="step.done ? 'checked_stepper' : undefined"
-                      >
-                        {{ step.done ? undefined : index + 1 }}
-                      </kw-avatar>
-                    </kw-item-section>
-                    <kw-item-section>
-                      <kw-item-label>
-                        {{ step?.title || '' }}
-                      </kw-item-label>
-                    </kw-item-section>
-                  </template>
-                  <div class="like-vertical-stepper__step-content">
-                    <ul class="card-text">
-                      <li>
-                        <p>{{ t('MSG_TXT_CONTR_TYPE') }}</p>
-                        <span>
-                          {{ t('MSG_TXT_INDV') }}
-                        </span>
-                      </li>
-                      <li>
-                        <p>{{ t('MSG_TXT_CNTRT') }}</p>
-                        <span>김엄마</span>
-                      </li>
-                      <li>
-                        <p>{{ t('MSG_TXT_LRNR') }}</p>
-                        <span>이둘째</span>
-                      </li>
-                    </ul>
-                  </div>
-                </kw-expansion-item>
-              </kw-list>
-              <div class="contract-summary">
-                <div class="card-text">
-                  <ul class="card-text card-text--bigger card-text--between">
-                    <li>
-                      <p>
-                        {{ t('MSG_TXT_PRDT_AMT') }}
-                      </p>
-                      <span>0 원</span>
-                    </li>
-                  </ul>
-                  <kw-separator class="my16" />
-                  <ul class="card-text card-text--bigger card-text--between">
-                    <li class="pt0">
-                      <p>총 상품금액</p>
-                      <span class="text-bold kw-font-pt20">0 원</span>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-          </kw-scroll-area>
-        </div>
-      </div>
 
-      <div class="button-set--bottom">
-        <div class="button-set--bottom-right">
-          <kw-btn
-            :label="$t('MSG_BTN_TEMP_SAVE')"
-            class="ml8"
-            @click="currentStepName = steps[0].name"
+<template>
+  <!-- rev:230531 페이지 원복 -->
+  <kw-page>
+    <kw-search
+      ref="searchMainRef"
+      :cols="3"
+      @search="onClickSearch"
+    >
+      <kw-search-row>
+        <kw-search-item
+          :label="t('MSG_TXT_RCPDT')"
+          required
+        >
+          <kw-date-range-picker
+            v-model:from="fieldParams.cntrCnfmDtmFr"
+            v-model:to="fieldParams.cntrCnfmDtmTo"
+            :label="$t('MSG_TXT_RCPDT')"
+            rules="date_range_required"
           />
-          <kw-btn
-            :label="$t('MSG_BTN_NEXT')"
-            class="ml8"
-            primary
-            @click="next"
+        </kw-search-item>
+
+        <kw-search-item
+          :label="t('MSG_TXT_PRDT_GUBUN')"
+        >
+          <kw-select
+            v-model="fieldParams.sellTpCd"
+            :options="filterdCodes.sellTpCd"
+            first-option="all"
           />
-        </div>
+        </kw-search-item>
+
+        <kw-search-item
+          :label="t('MSG_TXT_CNTOR_NM')"
+        >
+          <kw-input
+            v-model="fieldParams.cstKnm"
+            maxlength="10"
+          />
+        </kw-search-item>
+      </kw-search-row>
+      <kw-search-row>
+        <kw-search-item
+          :label="t('MSG_TXT_CNTR_NO')"
+        >
+          <zctz-contract-detail-number
+            v-model:cntr-no="fieldParams.cntrNo"
+            v-model:cntr-sn="fieldParams.cntrSn"
+            :name="t('MSG_TXT_CNTR_NO')"
+          />
+        </kw-search-item>
+      </kw-search-row>
+    </kw-search>
+
+    <div class="result-area">
+      <kw-action-top>
+        <template #left>
+          <!-- <kw-paging-info
+            v-model:page-index="pageInfo.pageIndex"
+            v-model:page-size="pageInfo.pageSize"
+            :total-count="pageInfo.totalCount"
+            :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
+            @change="onClickSearch"
+          /> -->
+          <kw-paging-info
+            :total-count="pageInfo.totalCount"
+          />
+        </template>
+      </kw-action-top>
+      <div class="row q-gutter-sm">
+        <kw-card
+          v-for="(item, idx) of resultList"
+          :key="idx"
+        >
+          <div class="row items-center justify-between">
+            <p class="kw-font--14 kw-fc--black2">
+              {{ item.sellTpDtlNm }}
+            </p>
+            <kw-chip
+              :label="item.copnDvNm"
+              color="primary"
+              outline
+            />
+          </div>
+
+          <h3 class="mt20 mb12">
+            {{ `${item.cstKnm} (${getBzrnoFormat(item.copnDvCd, item.bryyBzrno)})` }}
+          </h3>
+          <ul class="card-text">
+            <li>
+              <!-- 계약번호 -->
+              <p>{{ $t('MSG_TXT_CNTR_NO') }}</p>
+              <span> {{ item.cntrDtlNo }} </span>
+            </li>
+            <li>
+              <!-- 접수일자 -->
+              <p>{{ $t('MSG_TXT_RCPDT') }}</p>
+              <span>{{ stringUtil.getDateFormat(item.cntrCnfmDt) }}</span>
+            </li>
+            <li>
+              <!-- 제품명 -->
+              <p>{{ $t('MSG_TXT_GOODS_NM') }}</p>
+              <span>{{ item.pdNm }}</span>
+            </li>
+            <li>
+              <!-- 용도/주기 -->
+              <p> {{ `${$t('MSG_TXT_USWY')}/${$t('MSG_TXT_CYCL')}` }}</p>
+              <span> {{ getUswyCyclFormat(item.svPdTpNm, item.svPrd, item.svPtrmUnitNm) }} </span>
+            </li>
+            <li>
+              <!-- 렌탈료 / 기간, 판매금액,  멤버십회비(MSG_TXT_MEM_DUES) -->
+              <p>{{ getRentalMsg(item.sellTpCd) }}</p>
+              <span>{{ getRentalAmt(item) }}</span>
+            </li>
+            <div v-if="item.sellTpCd ==='2'">
+              <li>
+                <!-- 할인유형 -->
+                <p>{{ t('MSG_TXT_DISC_CODE') }}</p>
+                <span>{{ getDscTp(item) }}</span>
+              </li>
+              <li>
+                <!-- 프로모션 -->
+                <p>{{ t('MSG_TXT_PMOT') }}</p>
+                <span>{{ item.fgptInfo }}</span>
+              </li>
+            </div>
+            <li v-if="item.mclsfRefPdClsfVal === '06003' || item.mclsfRefPdClsfVal === '06005'">
+              <!-- 구분, 제조사 -->
+              <p>{{ getGubunMsg(item.mclsfRefPdClsfVal) }}</p>
+              <span>{{ getGubunNm(item) }}</span>
+            </li>
+            <li>
+              <!-- 설치일, 방문일 -->
+              <p>{{ getIstDtMsg(item.hclsfRefPdClsfVal) }}</p>
+              <span> {{ isEmpty(item.istDt) ? '-' : stringUtil.getDateFormat(item.istDt) }} </span>
+            </li>
+          </ul>
+
+          <kw-separator
+            spaced="20px"
+            class="mt-auto"
+          />
+          <div class="button-wrap">
+            <!-- 고객정보 변경-->
+            <kw-btn
+              secondary
+              :label="`${t('MSG_TXT_CST_INF')} ${t('MSG_TXT_CH')}`"
+              padding="10px"
+              @click="onClickCstChange(item)"
+            />
+            <!-- 계약유형 변경-->
+            <kw-btn
+              v-if="item.sellTpCd === '2'"
+              secondary
+              :label="`${t('MSG_TXT_CONTR_TYPE')} ${t('MSG_TXT_CH')}`"
+              padding="10px"
+              @click="onClickCntrTpChange(item)"
+            />
+            <!-- 판매자 변경-->
+            <kw-btn
+              v-if="ogTpCd === 'HR1'"
+              secondary
+              :label="`${t('MSG_TXT_SELLER_PERSON')} ${t('MSG_TXT_CH')}`"
+              padding="10px"
+              @click="onClickSellerChange(item)"
+            />
+            <!-- 삭제요청-->
+            <kw-btn
+              v-if="item.sellTpCd === '2' && isEmpty(item.istDt)"
+              secondary
+              :label="$t('MSG_TXT_DEL_REQ')"
+              padding="10px"
+              @click="onClickDelReq(item)"
+            />
+          </div>
+        </kw-card>
       </div>
+      <kw-pagination
+        v-model:page-index="pageInfo.pageIndex"
+        v-model:page-size="pageInfo.pageSize"
+        :total-count="pageInfo.totalCount"
+        @change="fetchData"
+      />
     </div>
   </kw-page>
 </template>
@@ -670,145 +203,296 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-const { t } = useI18n();
-const sideStepRefs = reactive({});
+import { getComponentType, codeUtil, useDataService, stringUtil, useGlobal, modal } from 'kw-lib';
+import { cloneDeep, isEmpty } from 'lodash-es';
+import dayjs from 'dayjs';
+import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
 
-const steps = ref([
-  { name: 'contractor', title: '계약자정보입력', done: false },
-  { name: 'selectProduct', title: '상품선택', done: false },
-  { name: 'delivery', title: '배송 및 결재 정보 등록', done: false },
-  { name: 'confirm', title: '작성정보 확인', done: false },
-]);
-const currentStepName = ref('contractor');
-const currentStep = computed(() => steps.value.find((step) => step.name === currentStepName.value));
-watch(currentStepName, (value) => {
-  sideStepRefs[value].show();
+const { t } = useI18n();
+const { alert, confirm } = useGlobal();
+const { getters } = useStore();
+const { ogTpCd } = getters['meta/getUserInfo'];
+const dataService = useDataService();
+const now = dayjs();
+const codes = await codeUtil.getMultiCodes(
+  'SELL_TP_CD',
+  'COD_PAGE_SIZE_OPTIONS',
+);
+const searchMainRef = ref(getComponentType('KwSearch'));
+
+// -------------------------------------------------------------------------------------------------
+// Function & Event
+// -------------------------------------------------------------------------------------------------
+
+let cachedParams;
+
+const resultList = ref({});
+const pageInfo = ref({
+  totalCount: 0,
+  pageIndex: 1,
+  pageSize: 8,
 });
 
-/* 패널 내로 분리해주세요. */
-const selectedStudent = ref(null);
-const students = ref([
-  { cstNo: 1234856789, name: '김첫째', gender: '여', birth: '1988-03-03', grade: 3 },
-  { cstNo: 1234856790, name: '김둘째', gender: '남', birth: '1988-03-03', grade: 3 },
-]);
+const fieldParams = ref({
+  cntrNo: '', // 계약번호
+  cntrSn: '', // 계약일련번호
+  sellTpCd: '', // 판매유형코드
+  cstKnm: '', // 계약자명
+  cntrCnfmDtmFr: now.startOf('month').format('YYYYMMDD'), // 계약시작접수일자
+  cntrCnfmDtmTo: now.format('YYYYMMDD'), // 계약종료접수일자
+});
 
-function next() {
-  currentStep.value.done = true;
-  const currentStepIndex = steps.value.findIndex((step) => step.name === currentStepName.value);
-  if (currentStepIndex === steps.value.length - 1) { return; }
-  const nextStep = steps.value[currentStepIndex + 1];
-  currentStepName.value = nextStep.name;
-  sideStepRefs[nextStep.name].show(); /* 명시적으로 열어주는 것도 좋을 듯 합니다. */
+const filterdCodes = ref({
+  sellTpCd: codes.SELL_TP_CD.filter((code) => code.codeId <= '3'),
+});
+
+async function fetchData() {
+  if (isEmpty(cachedParams)) return;
+
+  if (!await searchMainRef.value.validate()) {
+    pageInfo.value.totalCount = 0;
+    return;
+  }
+
+  const res = await dataService.get('/sms/wells/contract/changeorder/changes', { params: { ...cachedParams, ...pageInfo.value } });
+  const { list: details, pageInfo: pagingResult } = res.data;
+
+  pageInfo.value = pagingResult;
+  resultList.value = details;
 }
+
+async function onClickSearch() {
+  pageInfo.value.pageIndex = 1;
+  cachedParams = cloneDeep(fieldParams.value);
+  await fetchData();
+}
+
+// getBzrnoFormat: 생일, 사업자 번호 구분처리
+function getBzrnoFormat(copnDvCd, bryyBzrno) {
+  let msg = bryyBzrno;
+  switch (copnDvCd) {
+    case '2':
+      msg = `${bryyBzrno.substr(0, 3)}-${bryyBzrno.substr(3, 2)}-${bryyBzrno.substr(5, 5)}`;
+      break;
+    default:
+      msg = stringUtil.getDateFormat(bryyBzrno);
+      break;
+  }
+  return msg;
+}
+
+// getUswyCyclFormat: 용도/주기 표기 처리
+function getUswyCyclFormat(svPdTpNm, svPrd, svPtrmUnitNm) {
+  let useWyMsg = '';
+  let cycleMsg = '';
+  if (!isEmpty(svPdTpNm)) {
+    useWyMsg += svPdTpNm;
+  }
+  if (!isEmpty(svPrd)) {
+    cycleMsg += svPrd;
+  }
+  if (!isEmpty(svPtrmUnitNm)) {
+    cycleMsg += svPtrmUnitNm;
+  }
+  return `${useWyMsg} / ${cycleMsg}`;
+}
+
+// getRentalMsg: 판매유형에 따라 금액 종류 분기처리
+function getRentalMsg(sellTpCd) {
+  let msg = '';
+  switch (sellTpCd) {
+    case '1': // 판매금액
+      msg = t('MSG_TXT_SALE_PRICE');
+      break;
+    case '2': // 렌탈료
+      msg = `${t('MSG_TXT_RTLFE')}/${t('MSG_TXT_PRD')}`;
+      break;
+    case '3': // 멤버십회비
+      msg = t('MSG_TXT_MEM_DUES');
+      break;
+    default:
+      break;
+  }
+  return msg;
+}
+
+// getRentalAmt: 판매유형에 따라 금액 표기 분기처리
+function getRentalAmt(item) {
+  let msg = '';
+  const rentalAmt1 = stringUtil.getNumberWithComma(item.rentalAmt1);
+  switch (item.sellTpCd) {
+    case '2': // 렌탈
+      msg = `${rentalAmt1}${t('MSG_TXT_CUR_WON')} / ${item.cntrPtrm1}${t('MSG_TXT_MCNT')}`; // 렌탈금액 원 렌탈개월
+      break;
+    default:
+      msg = `${rentalAmt1}${t('MSG_TXT_CUR_WON')}`;
+      break;
+  }
+  return msg;
+}
+
+// getDscTp: 할인유형 값
+function getDscTp(item) {
+  let msg = item.sellDscDvNm;
+  if (!isEmpty(item.sellDscrNm)) {
+    msg += ` -${item.sellDscrNm}`;
+  }
+  if (!isEmpty(item.sellDscTpNm)) {
+    msg += ` / ${item.sellDscTpNm}`;
+  }
+  if (!isEmpty(item.alncmpNm)) {
+    msg += ` / ${item.alncmpNm}`;
+  }
+  return msg;
+}
+
+// getGubunMsg: 구분, 제조사 라벨
+function getGubunMsg(mclsfRefPdClsfVal) {
+  let msg = '';
+  switch (mclsfRefPdClsfVal) {
+    case '06003': // 구분
+      msg = t('MSG_TXT_DIV');
+      break;
+    case '06005': // 제조사
+      msg = t('MSG_TXT_MAKER');
+      break;
+    default:
+      break;
+  }
+  return msg;
+}
+
+// getGubunNm: 구분, 제조사 명
+function getGubunNm(item) {
+  let msg = '';
+  const { mclsfRefPdClsfVal } = item;
+  switch (mclsfRefPdClsfVal) {
+    case '06003': // 구분
+      msg = item.hcrDvNm;
+      break;
+    case '06005': // 제조사
+      msg = item.bdtMnftNm;
+      break;
+    default:
+      break;
+  }
+  return msg;
+}
+
+// getIstDtMsg: 설치일, 방문일 라벨값
+function getIstDtMsg(hclsfRefPdClsfVal) {
+  let msg = '';
+  switch (hclsfRefPdClsfVal) {
+    case '06': // 설치일
+      msg = t('MSG_TXT_INST_DT');
+      break;
+    default: // 방문일
+      msg = t('MSG_TXT_VISIT_DATE');
+      break;
+  }
+  return msg;
+}
+
+async function changeContract(item, popNm, gubun) {
+  const { alncmpCd } = item;
+
+  if (alncmpCd === '70') {
+    alert(t('MSG_ALT_CANT_CONTR_TYPE_WHEN_MUTU_ALNC'));
+  }
+
+  const checkRes = await dataService.get('/sms/wells/contract/changeorder/changes/pre-checks', { params: { ...item } });
+  const { warnMsg } = checkRes.data;
+
+  if (!isEmpty(warnMsg)) {
+    alert(warnMsg);
+  }
+
+  if (!isEmpty(gubun)) {
+    const res = await dataService.post('/sms/wells/contract/changeorder/changes/cancel-asks', item);
+    if (res.data.processCount > 0) {
+      alert(t('MSG_ALT_CNTR_DEL_AK'));
+    }
+  } else {
+    await modal({
+      component: popNm,
+      componentProps: { cntrNo: item.cntrNo, cntrSn: item.cntrSn }, // 팝업 화면에 보낼 파라미터
+    });
+  }
+}
+
+// onClickCstChange: 고객정보변경
+function onClickCstChange(item) {
+  item.inDv = '10';
+  // changeContract(item);
+  alert('계약유형변경 페이지 완료 시 추가 예정');
+}
+
+// onClickCntrTpChange: 계약유형변경
+async function onClickCntrTpChange(item) {
+  item.inDv = '20';
+  changeContract(item, 'WwctbCustomerModP');
+}
+
+// onClickSellerChange: 판매자 변경
+async function onClickSellerChange(item) {
+  item.inDv = '30';
+  changeContract(item, 'WwctbPartnerModP');
+}
+
+// onClickDelReq: 삭제요청
+async function onClickDelReq(item) {
+  item.inDv = '40'; // 입력구분
+  item.aprvDv = '20'; // 승인구분
+  if (await confirm(t('MSG_ALT_CNTR_DEL_AK_CONFIRM', [item.cntrDtlNo]))) {
+    changeContract(item, '', '1');
+  }
+}
+
 </script>
 
-<style lang="scss" scoped>
-@import "kw-lib/src/css/mixins";
-
-.normal-area--button-set-bottom {
-  max-height: calc(100vh - 222px);
-  min-height: 715px;
+<style scoped lang="scss">
+.kw-card {
+  width: calc((100% - 80px) / 4);
 }
 
-.stepper-layout-tweak-wrapper {
-  position: relative;
-  padding-top: calc(74px + 30px);
+::v-deep(.kw-card.q-card) {
   display: flex;
-  flex-flow: row nowrap;
-  height: calc(74px + 30px + 520px);
+  flex-direction: column;
+}
 
-  :deep(.kw-stepper) {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-  }
+.card-text {
+  margin-bottom: 20px;
 
-  :deep(.kw-stepper__panels) {
-    flex: auto;
+  li {
+    p {
+      min-width: 72px;
+    }
+
+    span {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
   }
 }
 
-.like-vertical-stepper {
-  $block: &;
+.button-wrap {
+  align-self: flex-end;
+  width: 100%;
+  display: flex;
+  column-gap: 6px;
 
-  padding-top: 8px;
-
-  &.kw-list.q-list--separator {
-    // :deep(> .q-expansion-item:last-child.q-item-type) {
-    //   border-bottom: none; // remove last separator
-    // }
-  }
-
-  &__step {
-    color: $black3;
-    padding: 12px 0;
-
-    &--active {
-      @include typo("body");
-
-      color: $secondary;
-
-      #{$block}__step-icon.kw-avatar {
-        &::after {
-          display: none;
-        }
-
-        background: $secondary;
-        color: $bg-white;
-      }
-    }
-
-    // checked is stronger then active
-    &--checked {
-      #{$block}__step-icon.kw-avatar {
-        &::after {
-          display: none;
-        }
-
-        background: $line-bg;
-        color: $black3;
-      }
-    }
-
-    &--summary {
-      border-top: none !important; /* remove separator */
-      padding: 20px;
-      background: rgb(47 138 243 / 10%);
-    }
-  }
-
-  &__step-icon.kw-avatar {
-    &::after {
-      content: "";
-      border: 1px solid $line-stroke;
-      position: absolute;
-      inset: 0;
-      border-radius: 50%;
-    }
-
-    :deep(.q-avatar__content) {
-      @include typo("dense");
-
-      line-height: 1.4;
-    }
-  }
-
-  &__step-content {
-    background: $bg-box;
-    margin-top: 12px;
-    padding: 12px 20px;
+  ::v-deep(.kw-btn) {
+    padding: 8px 0;
+    min-height: 40px;
+    font-size: 14px;
+    font-weight: normal;
+    letter-spacing: normal;
+    color: #555;
   }
 }
 
-.contract-summary {
-  padding: 20px;
-  background: rgb(47 138 243 / 10%);
-}
-
-.student-list.kw-list {
-  // :deep(.kw-item__section.q-item__section--side) {
-  //   padding-right: 8px;
-  // }
+.mt-auto {
+  margin-top: auto !important;
 }
 </style>
