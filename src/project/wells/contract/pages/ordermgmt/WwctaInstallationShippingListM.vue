@@ -833,7 +833,7 @@ async function callKiwiTimeAssign(dataList, prdDiv) {
 // }
 
 // 설치/배송 취소
-async function cancelKiwiTimeAssign(dataList) {
+async function cancelKiwiTimeAssign(dataList, prdDivParam) {
   const idNumber = sessionUserInfo.employeeIDNumber;
   if (dataList.lcCanyn === 'Y') {
     alert(t('MSG_ALT_ALRDY_CANC_ORD'));
@@ -876,6 +876,7 @@ async function cancelKiwiTimeAssign(dataList) {
     basePdCd: '', // 상품코드
     svBizDclsfCd: '', // 서비스업무세분류코드
     mnftCoId: dataList.mnftCoId, // 제조사(LCJEJO)
+    prdDiv: prdDivParam, // 접수구분
   });
 
   if (dataList.kaetc1 === '8') {
@@ -888,7 +889,7 @@ async function cancelKiwiTimeAssign(dataList) {
   }
   const res = await dataService.post('/sms/wells/contract/contracts/installation-shippings', saveParams.value); // 체크
   if (!isEmpty(res)) {
-    alert(t('MSG_ALT_SPP_SUCCESS'));
+    alert(t('MSG_ALT_WAS_CNCL'));
     fetchData();
   }
 }
@@ -947,7 +948,7 @@ async function checkKiwiTimeAssign(dataList, prdDiv) {
       if (prdDiv !== '3') {
         callKiwiTimeAssign(dataList);
       } else {
-        cancelKiwiTimeAssign(dataList);
+        cancelKiwiTimeAssign(dataList, prdDivParam);
       }
     }
   }
