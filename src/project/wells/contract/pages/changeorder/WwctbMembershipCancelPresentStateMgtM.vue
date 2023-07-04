@@ -175,7 +175,7 @@
 
     <kw-grid
       ref="grdMainMembership"
-      :visible-rows="getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')"
+      :visible-rows="totalCount>pageSize?pageSize:totalCount"
       @init="initGrid"
     />
   </div>
@@ -223,6 +223,7 @@ const codes = await codeUtil.getMultiCodes(
   'CMN_STAT_CH_RSON_CD',
 );
 
+const pageSize = ref(Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')));
 const totalCount = ref(0);
 let cachedParams;
 
@@ -311,7 +312,6 @@ const initGrid = defineGrid((data, view) => {
       renderer: { type: 'button', hideWhenEmpty: false },
       displayCallback: (g, { itemIndex }) => `${g.getValue(itemIndex, 'cntrNo')}-${g.getValue(itemIndex, 'cntrSn')}`,
     }, // [계약상세번호]
-    { fieldName: 'seq', header: t('MSG_TXT_SERIAL_NUMBER'), width: '100', styleName: 'text-center', displayCallback: () => '?' }, // [일련번호]
     { fieldName: 'ogTpNm', header: t('MSG_TXT_SLS_CAT'), width: '150', styleName: 'text-center' }, // [판매구분]
     { fieldName: 'prtnrNo', header: t('MSG_TXT_SELLER_ID'), width: '100', styleName: 'text-center' }, // [판매자사번]
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_SELL_NM'), width: '120', styleName: 'text-center' }, // [판매자명]

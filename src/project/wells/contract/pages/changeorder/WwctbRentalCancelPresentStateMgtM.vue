@@ -10,6 +10,7 @@
 * 프로그램 설명
 ****************************************************************************************************
 - 렌탈 취소현황
+- TODO : 더블클릭 이벤트/ 철거배정
 ****************************************************************************************************
 --->
 <template>
@@ -219,7 +220,7 @@
 
     <kw-grid
       ref="grdMainRental"
-      :visible-rows="getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')"
+      :visible-rows="totalCount>pageSize?pageSize:totalCount"
       @init="initGrid"
     />
 
@@ -282,6 +283,7 @@ const codes = await codeUtil.getMultiCodes(
 );
 
 const totalCount = ref(0);
+const pageSize = ref(Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')));
 let cachedParams;
 
 // -------------------------------------------------------------------------------------------------
