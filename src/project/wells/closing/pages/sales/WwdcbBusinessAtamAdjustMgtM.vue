@@ -233,13 +233,20 @@ async function onClickExportView() {
 // 전표 초기화 버튼 클릭
 async function onClickSlipIntlz() {
   const view = grdTotalRef.value.getView();
-
-  const result = gridUtil.getCurrentRowValue(view);
-  const { sapAlrpySlpno } = result;
-  const res = await modal({
-    component: 'WwdcbSlipModP',
-    componentProps: { sapAlrpySlpno },
-  });
+  let res;
+  const chkDataRows = gridUtil.getCheckedRowValues(view);
+  if (chkDataRows.length === 0) {
+    res = await modal({
+      component: 'WwdcbSlipModP',
+    });
+  } else {
+    const result = gridUtil.getCurrentRowValue(view);
+    const { sapAlrpySlpno } = result;
+    res = await modal({
+      component: 'WwdcbSlipModP',
+      componentProps: { sapAlrpySlpno },
+    });
+  }
 
   // 리턴값을 체크한 후 재조회
   if (res.result) fetchData();
@@ -286,7 +293,7 @@ const initGrdTotal = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '120', styleName: 'text-center', options: codes.SELL_TP_CD },
     { fieldName: 'sellTpDtlCd', header: t('MSG_TXT_SELL_TP_DTL'), width: '120', styleName: 'text-center', options: codes.SELL_TP_DTL_CD },
-    { fieldName: 'dgCstId', header: t('MSG_TXT_DG_CST_CD'), width: '120', styleName: 'text-center' },
+    { fieldName: 'dgCstId', header: t('MSG_TXT_RPRS_CUST_NO'), width: '120', styleName: 'text-center' },
     { fieldName: 'sapPdDvNm', header: t('MSG_TXT_SAP_PD_DV_CD_NM'), width: '170', styleName: 'text-center' },
     { fieldName: 'baseYm', header: t('MSG_TXT_BASE_YM'), width: '100', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
     { fieldName: 'slBndAlrpyAmt',
