@@ -22,38 +22,50 @@
         <!-- 기준년월 -->
         <kw-search-item
           :label="$t('MSG_TXT_BASE_YM')"
+          required
         >
           <kw-date-picker
             v-model="searchParams.baseYm"
             type="month"
+            rules="required"
+            :label="$t('MSG_TXT_BASE_YM')"
             @change="onChangeBaseYm"
           />
         </kw-search-item>
         <!-- 배정년월 -->
         <kw-search-item
           :label="$t('MSG_TXT_ASN_YM')"
+          required
         >
           <kw-date-picker
             v-model="searchParams.asnOjYm"
             type="month"
+            :label="$t('MSG_TXT_BASE_YM')"
+            rules="required"
           />
         </kw-search-item>
         <!-- 회차 -->
         <kw-search-item
           :label="$t('MSG_TXT_ORDERSELECT_TITLE')"
+          required
         >
           <kw-input
             v-model="searchParams.asnTnN"
+            :label="$t('MSG_TXT_ORDERSELECT_TITLE')"
             type="Number"
+            rules="required"
           />
         </kw-search-item>
         <!-- 출고창고 -->
         <kw-search-item
           :label="$t('MSG_TXT_OSTR_WARE')"
+          required
         >
           <kw-select
             v-model="searchParams.ostrOjWareNo"
             :options="logistics"
+            :label="$t('MSG_TXT_OSTR_WARE')"
+            rules="required"
           />
         </kw-search-item>
       </kw-search-row>
@@ -189,7 +201,7 @@
 // -------------------------------------------------------------------------------------------------
 import { codeUtil, useDataService, getComponentType, useMeta, defineGrid, gridUtil, useGlobal } from 'kw-lib';
 import dayjs from 'dayjs';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, isEmpty } from 'lodash-es';
 import ZwcmWareHouseSearch from '~sms-common/service/components/ZwsnzWareHouseSearch.vue';
 
 const { getConfig } = useMeta();
@@ -297,7 +309,22 @@ async function fetchData() {
   view.resetCurrent();
 }
 
+// function searchValidation() {
+//   // 배정회차 null체크
+//   let chk = false;
+//   if (isEmpty(searchParams.value.asnTnN)) {
+//     chk = true;
+
+//     return chk;
+//   }
+//   return chk;
+// }
+
 async function onClickSearch() {
+  // if (searchValidation()) {
+  //   return;
+  // }
+
   pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
   console.log(`codes : ${codes}`);
@@ -314,36 +341,73 @@ async function onClickExcelDownload() {
   });
 }
 
+function saveValidation(rows) {
+  let chk = false;
+  rows.forEach((v) => {
+    // 출고수량 0 or null 체크
+    if (isEmpty(v.outQty) || v.outQty === 0) {
+      notify(t('MSG_ALT_OSTR_QTY_ZERO_BE_BIG'));
+      chk = true;
+      return chk;
+    }
+
+    // 상위창고 재고수량이 부족합니다.
+    if (v.outQty > v.pitmStocAGdQty) {
+      notify(t('MSG_ALT_OSTR_QTY_EXCEEDS_INVEN_QTY'));
+      chk = true;
+      return chk;
+    }
+
+    // 확정일자체크 : 이미 입고확인이 완료되어 수정,삭제가 불가능합니다.
+  });
+  return chk;
+}
 async function onClickSave() {
   // TODO: 물류서비스 I/F가 완료되면 update/insert check
+
   const view = grdMainRef.value.getView();
   const chkRows = gridUtil.getCheckedRowValues(view);
   console.log(`view : ${view}`);
   console.log(`chkrows : ${chkRows}`);
-  if (chkRows.length === 0) {
-    notify(t('MSG_ALT_CHK_MIN_SELT', [1, t('MSG_TIT_ROW')]));
 
-    return false;
+  if (saveValidation(chkRows)) {
+    return;
   }
 
-  const addParams = [];
-  addParams.push(chkRows.map((v, i) => {
+  if (chkRows.length === 0) {
+    notify(t('MSG_ALT_CHK_MIN_SELT', [1, t('MSG_TIT_ROW')]));
+    return;
+  }
+
+  if (chkRows.length > 0) {
+    return;
+  }
+
+  const addParams = ref([]);
+  chkRows.forEach((v, i) => {
     const addValueParams = {};
     addValueParams.ostrAkNo = '';
     addValueParams.ostrAkSn = i + 1;
-    addValueParams.strWareNo = v.strWareNo;
-    addValueParams.ostrWareNo = v.ostrOjWareNo;
+    addValueParams.ostrAkTpCd = '360';
+    addValueParams.strOjWareNo = v.strWareNo;
+    addValueParams.ostrOjWareNo = cachedParams.ostrOjWareNo;
+    addValueParams.ostrAkRgstDt = '';
+    addValueParams.strHopDt = '';
     addValueParams.itmPdCd = v.itemCd;
     addValueParams.mngtUnitCd = v.mgtUnt;
     addValueParams.itmGdCd = v.matGdCd;
     addValueParams.ostrAkQty = v.outQty;
     addValueParams.rmkCn = v.rmks;
-    return addValueParams;
-  }));
+    addValueParams.dtaDlYn = 'N';
+    addParams.value.push(addValueParams);
+  });
 
-  const res = await dataService.post(`${baseURI}`, { params: addParams });
+  const res = await dataService.post(`${baseURI}`, addParams.value);
   console.log(`res :  ${res}`);
-  notify(t('MSG_ALT_SAVE_DATA'));
+  if (res.data.processCount > 0) {
+    notify(t('MSG_ALT_SAVE_DATA'));
+    await fetchData();
+  }
 }
 
 onMounted(async () => {
@@ -363,15 +427,15 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'pdAbbrNm', header: t('MSG_TXT_ITM_NM'), width: '230', styleName: 'text-left' },
     { fieldName: 'mgtUntNm', header: t('MSG_TXT_MNGT_UNIT'), width: '80', styleName: 'text-center' },
     { fieldName: 'matGdCd', header: t('MSG_TXT_GD'), width: '80', styleName: 'text-center' },
-    { fieldName: 'pitmStocAGdQty', header: t('MSG_TXT_HGR_STOC'), width: '100', styleName: 'text-right' },
-    { fieldName: 'boxQty', header: t('MSG_TXT_UNIT_QTY'), width: '130', styleName: 'text-right' },
-    { fieldName: 'crtlStocQty', header: t('MSG_TXT_STOC_QTY'), width: '100', styleName: 'text-right' },
-    { fieldName: 'thwkExpQty', header: t('MSG_TXT_NED_QTY'), width: '100', styleName: 'text-right' },
-    { fieldName: 'cfrmQty', header: t('MSG_TXT_QTY'), width: '84', styleName: 'text-right' },
-    { fieldName: 'boxQty1', header: t('MSG_TXT_BOX'), width: '84', styleName: 'text-right' },
-    { fieldName: 'accQty', header: t('MSG_TXT_AGGS'), width: '84', styleName: 'text-right' },
-    { fieldName: 'accBoxQty', header: t('MSG_TXT_BOX'), width: '84', styleName: 'text-right' },
-    { fieldName: 'outBoxQty', header: t('MSG_TXT_FILT_BOX_QTY'), width: '130', styleName: 'text-right' },
+    { fieldName: 'pitmStocAGdQty', header: t('MSG_TXT_HGR_STOC'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'boxQty', header: t('MSG_TXT_UNIT_QTY'), width: '130', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'crtlStocQty', header: t('MSG_TXT_STOC_QTY'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'thwkExpQty', header: t('MSG_TXT_NED_QTY'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'cnfmQty', header: t('MSG_TXT_QTY'), width: '84', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'boxQty1', header: t('MSG_TXT_BOX'), width: '84', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'accQty', header: t('MSG_TXT_AGGS'), width: '84', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'accBoxQty', header: t('MSG_TXT_BOX'), width: '84', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'outBoxQty', header: t('MSG_TXT_FILT_BOX_QTY'), width: '130', styleName: 'text-right', numberFormat: '#,##0' },
     { fieldName: 'outQty',
       header: t('MSG_TXT_OSTR_QTY'),
       editor: {
@@ -380,6 +444,7 @@ const initGrdMain = defineGrid((data, view) => {
       editable: true,
       width: '110',
       styleName: 'text-right',
+      numberFormat: '#,##0',
     },
     { fieldName: 'rmks',
       header: t('MSG_TXT_NOTE'),
@@ -389,27 +454,45 @@ const initGrdMain = defineGrid((data, view) => {
       editable: true,
       width: '240',
       styleName: 'text-left' },
-
-    { fieldName: 'rectOstrDt', header: t('MSG_TXT_NOTE'), width: '0', visible: false, styleName: 'text-right' },
-    { fieldName: 'rectOstrTpCd', header: t('MSG_TXT_NOTE'), width: '0', visible: false, styleName: 'text-right' },
-    { fieldName: 'mgtUnt', header: t('MSG_TXT_NOTE'), width: '0', visible: false, styleName: 'text-right' },
   ];
-  const fields = columns.map((v) => ({ fieldName: v.fieldName }));
-
+  // const fields = columns.map((v) => ({ fieldName: v.fieldName }));
+  const fields = [
+    { fieldName: 'strWareNo' },
+    { fieldName: 'wareNm' },
+    { fieldName: 'sapMatCd' },
+    { fieldName: 'itemCd' },
+    { fieldName: 'pdAbbrNm' },
+    { fieldName: 'mgtUntNm' },
+    { fieldName: 'matGdCd' },
+    { fieldName: 'pitmStocAGdQty', dataType: 'number' },
+    { fieldName: 'boxQty', dataType: 'number' },
+    { fieldName: 'crtlStocQty', dataType: 'number' },
+    { fieldName: 'thwkExpQty', dataType: 'number' },
+    { fieldName: 'cnfmQty', dataType: 'number' },
+    { fieldName: 'boxQty1', dataType: 'number' },
+    { fieldName: 'accQty', dataType: 'number' },
+    { fieldName: 'accBoxQty', dataType: 'number' },
+    { fieldName: 'outBoxQty', dataType: 'number' },
+    { fieldName: 'outQty', dataType: 'number' },
+    { fieldName: 'rmks' },
+    { fieldName: 'rectOstrDt' },
+    { fieldName: 'rectOstrTpCd' },
+    { fieldName: 'mgtUnt' },
+  ];
   view.setColumnLayout([
     'strWareNo', 'wareNm', 'sapMatCd', 'itemCd', 'pdAbbrNm', 'mgtUntNm', 'matGdCd', 'pitmStocAGdQty',
     'boxQty', 'crtlStocQty', 'thwkExpQty',
     {
       header: t('MSG_TXT_QOM_ASN_CNFM'), // 물량배정확정 // colspan title
       direction: 'horizontal', // merge type
-      items: ['cfrmQty', 'boxQty1'],
+      items: ['cnfmQty', 'boxQty1'],
     },
     {
       header: t('MSG_TXT_QOM_ASN_OSTR'), // 물량배정출고
       direction: 'horizontal',
       items: ['accQty', 'accBoxQty'],
     },
-    'outBoxQty', 'outQty', 'rmks', 'rectOstrDt', 'rectOstrTpCd',
+    'outBoxQty', 'outQty', 'rmks',
   ]);
 
   data.setFields(fields);
