@@ -407,6 +407,11 @@ async function initProps() {
 
 await initProps();
 
+onActivated(async () => {
+  // TODO 스텝 이동시, 그리드 로우 사라지는 현상
+  await initGridRows();
+});
+
 watch(() => props.pdCd, (val) => { currentPdCd.value = val; });
 watch(() => props.initData, (val) => {
   if (!isEqual(currentInitData.value, val)) {
