@@ -15,7 +15,6 @@
 <template>
   <kw-popup
     size="2xl"
-    title="카카오톡 발송 내역"
   >
     <kw-grid
       ref="grdMainRef"
@@ -43,7 +42,7 @@ import { cloneDeep } from 'lodash-es';
 const dataService = useDataService();
 const { t } = useI18n();
 const props = defineProps({
-  mtPr: { type: String, required: true, default: '' },
+  cntrDtlNo: { type: String, required: true, default: '' },
   concDiv: { type: String, required: false, default: '' },
 });
 const { cancel } = useModal();
@@ -51,8 +50,8 @@ const { cancel } = useModal();
 // @todo: update to 0 on api integration
 let cachedParams;
 const searchParams = ref({
-  mtPr: props.mtPr,
-  concDiv: props.concDiv,
+  cntrDtlNo: props.cntrDtlNo, // 계약상세번호
+  concDiv: props.concDiv, // 계약구분
   // concDiv: 'Wells18182',
   // concDiv: tempCodeList,
 });

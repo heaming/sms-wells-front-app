@@ -48,6 +48,7 @@
 
 import WwctbRentalCancelPresentStateMgtM from './WwctbRentalCancelPresentStateMgtM.vue';
 import WwctbRegularShippingCancelPresentStateMgtM from './WwctbRegularShippingCancelPresentStateMgtM.vue';
+import WwctbSinglePaymentCancelPresentStateMgtM from './WwctbSinglePaymentCancelPresentStateMgtM.vue';
 import WwctbMembershipCancelPresentStateMgtM from './WwctbMembershipCancelPresentStateMgtM.vue';
 
 const { t } = useI18n();
@@ -62,6 +63,11 @@ const tabs = [
     name: 'regularShipping',
     label: `${t('MSG_TXT_REG_DLVR')} ${t('MSG_TXT_CANCEL_STATE')}`,
     panel: WwctbRegularShippingCancelPresentStateMgtM,
+  },
+  {
+    name: 'single',
+    label: `${t('MSG_TIT_SPAY')} ${t('MSG_TXT_CANCEL_STATE')}`,
+    panel: WwctbSinglePaymentCancelPresentStateMgtM,
   },
   {
     name: 'membership',

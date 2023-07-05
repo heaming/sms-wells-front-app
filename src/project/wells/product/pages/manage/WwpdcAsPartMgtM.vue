@@ -150,7 +150,7 @@
 // -------------------------------------------------------------------------------------------------
 import { useDataService, useGlobal } from 'kw-lib';
 import { isEmpty, cloneDeep } from 'lodash-es';
-import { pdMergeBy, pageMove } from '~sms-common/product/utils/pdUtil';
+import { pdMergeBy, pageMove, getCopyProductInfo } from '~sms-common/product/utils/pdUtil';
 import pdConst from '~sms-common/product/constants/pdConst';
 
 import ZwpdcPropGroupsMgt from '~sms-common/product/pages/manage/components/ZwpdcPropGroupsMgt.vue'; /* 속성 등록/수정 */
@@ -158,7 +158,10 @@ import ZwpdcPropGroupsDtl from '~sms-common/product/pages/manage/components/Zwpd
 
 const props = defineProps({
   pdCd: { type: String, default: null },
+  newRegYn: { type: String, default: null },
+  reloadYn: { type: String, default: null },
   tempSaveYn: { type: String, default: 'Y' },
+  copyPdCd: { type: String, default: null },
 });
 
 const { t } = useI18n();
@@ -188,6 +191,9 @@ const rel = pdConst.TBL_PD_REL;
 
 const prevStepData = ref({});
 const currentPdCd = ref();
+const currentNewRegYn = ref();
+const currentReloadYn = ref();
+const currentCopyPdCd = ref();
 const isTempSaveBtn = ref(true);
 const isCreate = ref(false);
 const isShowInitBtn = ref(false);
@@ -195,25 +201,15 @@ const isShowInitBtn = ref(false);
 const selectedTab = ref('attribute');
 const subTitle = ref();
 
-watch(() => props.pdCd, (val) => { currentPdCd.value = val; });
-watch(() => props.tempSaveYn, (val) => { isTempSaveBtn.value = val !== 'Y'; });
-
-async function onClickReset() {
-  await cmpStepRefs.value.forEach((item) => {
-    item.value.resetData();
-  });
-  passedStep.value = 0;
-}
-
 async function onClickRemove() {
   if (await confirm(t('MSG_ALT_WANT_DEL_WCC'))) {
     await dataService.delete(`${baseUrl}/${currentPdCd.value}`);
-    await pageMove(pdConst.ASPART_LIST_PAGE, true, router, { isSearch: true });
+    await pageMove(pdConst.ASPART_LIST_PAGE, true, router, { isSearch: true }, { searchYn: 'Y' });
   }
 }
 
 async function getSaveData(tempSaveYn) {
-  const subList = { isModifiedProp: false, isOnlyFileModified: false };
+  const subList = { isModifiedProp: false, isOnlyFileModified: false, isModifiedRelation: false };
   await Promise.all(cmpStepRefs.value.map(async (item, idx) => {
     const isModified = await item.value.isModifiedProps();
     const saveData = item.value?.getSaveData ? await item.value.getSaveData() : null;
@@ -225,6 +221,12 @@ async function getSaveData(tempSaveYn) {
         subList.isModifiedProp = true;
         subList.isOnlyFileModified = item.value?.isOnlyFileModified ? await item.value?.isOnlyFileModified() : false;
       }
+
+      // 연결상품 수정여부 (0: 기본)
+      if (await isModified && idx === 0) {
+        subList.isModifiedRelation = true;
+      }
+
       if (saveData[bas]) {
         if (subList[bas]?.cols) saveData[bas].cols += subList[bas].cols;
         subList[bas] = pdMergeBy(subList[bas], saveData[bas]);
@@ -273,7 +275,42 @@ async function fetchData() {
     prevStepData.value = initData;
     subTitle.value = initData[bas].pdCd ? `${initData[bas].pdNm} (${initData[bas].pdCd})` : initData[bas].pdNm;
     await init();
+  } else if (currentCopyPdCd.value) {
+    const res = await dataService.get(`${baseUrl}/${currentCopyPdCd.value}`);
+    prevStepData.value = await getCopyProductInfo(res.data);
+    isTempSaveBtn.value = 'Y';
+    // 품목코드 및 AS자재번호는 삭제처리.
+    prevStepData.value[ecom][0].pdPrpVal01 = null;
+    prevStepData.value[ecom][0].pdPrpVal31 = null;
   }
+}
+
+// 초기화
+async function resetData() {
+  if (isEmpty(currentPdCd.value)) {
+    isCreate.value = true;
+    passedStep.value = 0;
+    isTempSaveBtn.value = true;
+    subTitle.value = '';
+  } else {
+    isCreate.value = false;
+  }
+  currentStep.value = cloneDeep(pdConst.W_MATERIAL_STEP_BASIC);
+  prevStepData.value = {};
+  await Promise.all(cmpStepRefs.value.map(async (item) => {
+    if (item.value?.resetData) await item.value?.resetData();
+    if (item.value?.init) await item.value?.init();
+  }));
+}
+
+async function onClickReset() {
+  // await cmpStepRefs.value.forEach((item) => {
+  //   item.value.resetData();
+  // });
+  // passedStep.value = 0;
+
+  await resetData();
+  await fetchData();
 }
 
 async function duplicationCheck(validationType, sourceData) {
@@ -334,14 +371,58 @@ async function onClickSave(tempSaveYn) {
 
   // 6. 생성 이후 Step 설정
   notify(t('MSG_ALT_SAVE_DATA'));
-  if (tempSaveYn === 'Y') {
+  if (tempSaveYn === 'N') {
+    await pageMove(pdConst.ASPART_LIST_PAGE, true, router, { isSearch: true }, { newRegYn: 'N', reloadYn: 'N', copyPdCd: '' });
+  } else {
     currentPdCd.value = rtn.data?.data?.pdCd;
     isCreate.value = isEmpty(currentPdCd.value);
     await fetchData();
-  } else {
-    await pageMove(pdConst.ASPART_LIST_PAGE, true, router, { isSearch: true });
   }
 }
+
+watch(() => props.pdCd, (val) => { currentPdCd.value = val; });
+watch(() => props.tempSaveYn, (val) => { isTempSaveBtn.value = val !== 'Y'; });
+
+watch(() => props, async ({ pdCd, newRegYn, reloadYn, copyPdCd }) => {
+  console.log(` - watch - pdCd: ${pdCd} newRegYn: ${newRegYn} reloadYn: ${reloadYn} copyPdCd: ${copyPdCd}`);
+  if (pdCd && currentPdCd.value !== pdCd) {
+    // 상품코드 변경
+    currentPdCd.value = pdCd;
+    currentNewRegYn.value = 'N';
+    currentReloadYn.value = 'N';
+    currentCopyPdCd.value = '';
+    await resetData();
+    await fetchData();
+  } else if (newRegYn && currentNewRegYn.value !== newRegYn) {
+    // 신규등록
+    currentPdCd.value = '';
+    currentNewRegYn.value = newRegYn;
+    currentReloadYn.value = 'N';
+    currentCopyPdCd.value = '';
+    if (newRegYn === 'Y') {
+      await resetData();
+    }
+  } else if (reloadYn && currentReloadYn.value !== reloadYn && reloadYn === 'Y') {
+    // Reload
+    currentNewRegYn.value = 'N';
+    currentReloadYn.value = reloadYn;
+    currentCopyPdCd.value = '';
+    if (reloadYn === 'Y') {
+      await resetData();
+      await fetchData();
+    }
+  } else if (copyPdCd && currentCopyPdCd.value !== copyPdCd) {
+    // 복사
+    if (copyPdCd) {
+      await resetData();
+      // TODO
+    }
+    currentPdCd.value = '';
+    currentNewRegYn.value = 'N';
+    currentReloadYn.value = 'N';
+    currentCopyPdCd.value = copyPdCd;
+  }
+}, { deep: true });
 
 async function onClickNextStep() {
   const currentStepIndex = currentStep.value.step - 1;
@@ -377,13 +458,16 @@ async function onClickCancel() {
 }
 
 async function initProps() {
-  const { pdCd, tempSaveYn } = props;
+  const { pdCd, newRegYn, reloadYn, copyPdCd, tempSaveYn } = props;
   currentPdCd.value = pdCd;
+  currentNewRegYn.value = newRegYn;
+  currentReloadYn.value = reloadYn;
+  currentCopyPdCd.value = copyPdCd;
   passedStep.value = 0;
   isCreate.value = isEmpty(currentPdCd.value);
   isTempSaveBtn.value = tempSaveYn !== 'N';
 
-  if (currentPdCd.value) await fetchData();
+  if (currentPdCd.value || currentCopyPdCd.value) await fetchData();
 }
 
 onMounted(async () => {

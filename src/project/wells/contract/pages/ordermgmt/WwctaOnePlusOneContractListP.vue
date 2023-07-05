@@ -49,7 +49,7 @@ const { t } = useI18n();
 const { ok, cancel: onClickClose } = useModal();
 const totalCount = ref(0);
 const props = defineProps({
-  cntrNo: { type: String },
+  baseDtlCntrNo: { type: String, default: '' },
 });
 const grdMainRef = ref(getComponentType('KwGrid'));
 
@@ -57,6 +57,7 @@ const grdMainRef = ref(getComponentType('KwGrid'));
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 async function fetchData() {
+  console.log(props);
   const res = await dataService.get('/sms/wells/contract/contracts/oneplusone-contracts', { params: props });
   const cntrs = res.data;
   totalCount.value = cntrs.length;
@@ -103,7 +104,7 @@ const initGrid = defineGrid((data, view) => {
   view.setColumns(columns);
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
-  view.onCellClicked = async (grid, { dataRow, cellType }) => {
+  view.onCellDblClicked = async (grid, { dataRow, cellType }) => {
     const row = gridUtil.getRowValue(grid, dataRow);
     if (cellType === 'data') {
       if (await isAvailableOneplusone(row)) {

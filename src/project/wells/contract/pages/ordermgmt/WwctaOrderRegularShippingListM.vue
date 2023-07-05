@@ -510,7 +510,7 @@ const initGridRglrDlvrContractList = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_NO'), width: '180', styleName: 'rg-button-link text-center', renderer: { type: 'button' }, preventCellItemFocus: true }, // 계약번호
+    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '180', styleName: 'rg-button-link text-center', renderer: { type: 'button' }, preventCellItemFocus: true }, // 계약상세번호
     { fieldName: 'ordrInfoView', header: t('MSG_TXT_ODER_INF_VIEW'), width: '130', styleName: 'text-center', renderer: { type: 'button', hideWhenEmpty: false }, displayCallback: () => t('MSG_TXT_ODER_INF_VIEW') }, // 주문정보 보기
     { fieldName: 'dgr3LevlDgPrtnrNo', header: t('MSG_TXT_BRMGR_EPNO'), width: '138', styleName: 'text-center' }, // 파트너정보-지점장 사번
     { fieldName: 'dgr3LevlDgPrtnrNm', header: t('MSG_TXT_BRMGR_FNM'), width: '138', styleName: 'text-center' }, // 파트너정보-지점장명

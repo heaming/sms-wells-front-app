@@ -3,20 +3,18 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : [WSNC] allocate(배정관리)
-2. 프로그램 ID : WwsncTimeTableForContractP - 타임테이블 조회(판매)
+2. 프로그램 ID : WwsncTimeTableForCustomerCenterM - 타임테이블 조회(CustomerCenter)
 3. 작성자 : gs.piit122 김동엽
-4. 작성일 : 2023-06-06
+4. 작성일 : 2023-07-03
 ****************************************************************************************************
 * 프로그램 설명
 ****************************************************************************************************
-- W-SV-U-0062M01
-- 판매 설치 접수 시 방문할 일자 및 시간을 선택한다.
+- W-SV-U-0034M01
+- 고객센터 A/S 접수 시 방문할 일자 및 시간을 선택한다.
 ****************************************************************************************************
 -->
 <template>
-  <kw-popup
-    size="xl"
-  >
+  <kw-page>
     <h1>{{ $t('MSG_TIT_EGER_TIME_TABLE') /*엔지니어 Time table*/ }}</h1>
     <div class="normal-area normal-area--button-set-bottom pt30 mt15 w940">
       <p class="kw-font--14">
@@ -260,7 +258,7 @@
           <ul class="kw-state-list kw-state-list--second-line pt20 px0 pb0">
             <li class="kw-state-list__item">
               <p class="kw-state-list__top">
-                설치
+                {{ $t('MSG_BTN_INSTL') /*설치*/ }}
               </p>
               <p class="kw-state-list__num">
                 {{ data.psic.instCnt }}
@@ -285,7 +283,7 @@
           </ul>
         </div>
       </div>
-      <!--------------------------------------------------------------------------------------------->
+      <kw-separator />
       <ul v-if="data.sidingYn === 'Y' ">
         <kw-separator />
         <li v-if="data.lcst09 === '03'">
@@ -372,9 +370,9 @@
         >
           <h3>
             {{ $t('MSG_TXT_TIME') + $t('MSG_TXT_SELT') /*시간선택*/ }}
-            <div class="kw-notification">
-              *() {{ $t('MSG_TXT_RCP_PSB') /*접수가능*/ + ' ' + $t('MSG_TXT_COUNT') /*건수*/ }}
-            </div>
+            <ul class="kw-notification">
+              <li>*() {{ $t('MSG_TXT_RCP_PSB') /*접수가능*/ + ' ' + $t('MSG_TXT_COUNT') /*건수*/ }}</li>
+            </ul>
           </h3>
           <div class="row justify-between items-center mt20">
             <p class="kw-font--14">
@@ -420,7 +418,6 @@
           </div>
         </li>
       </ul>
-      <!--------------------------------------------------------------------------------------------->
       <div
         v-if="data.psic.udsnUseYn === 'Y' && // 미지정사용여부
           data.psic.vstPos=== '방문가능' &&
@@ -459,7 +456,6 @@
             === '해당일 방문불가'"
         />
       </div>
-
       <div class="button-set--bottom row justify-center">
         <kw-btn
           :label="$t('MSG_BTN_CANCEL')"
@@ -477,7 +473,7 @@
         />
       </div>
     </div>
-  </kw-popup>
+  </kw-page>
 </template>
 <script setup>
 // -------------------------------------------------------------------------------------------------
@@ -497,7 +493,6 @@ const DATE_FORMAT_YMD = 'YYYYMMDD';
 
 const props = defineProps({
   baseYm: { type: String, default: '' },
-  // userId: { type: String, default: '' },
   chnlDvCd: { type: String, default: '' },
   inflwChnl: { type: String, default: '' },
   svDvCd: { type: String, default: '' },
@@ -1080,7 +1075,6 @@ async function onClickSave() {
     ichrPrtnrNo: data.value.prtnrNo, // 엔지니어 파트너번호
     cntrNo: searchParams.value.cntrNo,
     cntrSn: searchParams.value.cntrSn,
-    // #####################################################
     inflwChnl: searchParams.value.inflwChnl,
     pdGdCd: 'A',
     userId: data.value.userId, // 로그인한 사용자

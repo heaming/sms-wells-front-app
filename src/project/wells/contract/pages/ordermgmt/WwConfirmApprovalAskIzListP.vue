@@ -139,7 +139,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'cntrAprAkDvCdNm', header: t('MSG_TXT_APR_REQ_CAT'), width: '301', styleName: 'text-center' },
     { fieldName: 'cntrAprFwDvNm', header: t('MSG_TXT_RQST'), width: '78', styleName: 'text-center' },
     { fieldName: 'rqrNm', header: t('MSG_TXT_PIC'), width: '236', styleName: 'text-left' },
-    { fieldName: 'sendDttm', header: t('MSG_TXT_SEND_DTM'), width: '236', styleName: 'text-center' },
+    { fieldName: 'sendDttm', header: t('MSG_TXT_SEND_DTM'), width: '236', styleName: 'text-center', datetimeFormat: 'datetime' },
     { fieldName: 'aprvYn', header: t('MSG_TXT_APPR_STS'), width: '78', styleName: 'text-center' },
     { fieldName: 'aprvNm', header: t('MSG_TXT_APPROVER'), width: '78', styleName: 'text-center' },
     { fieldName: 'aprvDttm', header: t('MSG_TXT_APPR_DTM'), width: '236', styleName: 'text-center', datetimeFormat: 'datetime' },
@@ -154,7 +154,7 @@ const initGrdMain = defineGrid((data, view) => {
 
 const initSubGrid = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'cntrNo' },
+    { fieldName: 'cntrDtlNo' },
     { fieldName: 'cstKnm' },
     { fieldName: 'cstGdNm' },
     { fieldName: 'rcgvpKnm' },
@@ -168,7 +168,7 @@ const initSubGrid = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_NO'), width: '147', styleName: 'text-center' },
+    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '147', styleName: 'text-center' },
     { fieldName: 'cstKnm', header: t('MSG_TXT_CNTR_CST_NM'), width: '135', styleName: 'text-center' },
     { fieldName: 'cstGdNm', header: t('MSG_TXT_CST_GRD'), width: '94', styleName: 'text-center' },
     { fieldName: 'rcgvpKnm', header: t('MSG_TXT_INST_CST_NM'), width: '135', styleName: 'text-center' },

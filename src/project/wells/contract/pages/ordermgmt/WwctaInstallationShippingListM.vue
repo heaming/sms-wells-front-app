@@ -21,7 +21,9 @@
       <kw-search-row>
         <kw-search-item
           :label="t('MSG_TXT_CNTR_PTRM')"
+          :colspan="2"
         >
+          <!-- 설치기간 -->
           <kw-date-range-picker
             v-model:from="searchParams.cntrCnfmDtFr"
             v-model:to="searchParams.cntrCnfmDtTo"
@@ -31,6 +33,7 @@
         <kw-search-item :label="t('MSG_TXT_CNTOR_NM')">
           <kw-input
             v-model="searchParams.cstKnm"
+            maxlength="10"
           />
           <!-- rev:230503 돋보기 아이콘 추가 -->
         </kw-search-item>
@@ -39,6 +42,7 @@
           <kw-option-group
             v-model="searchParams.istPcsvDvCd"
             type="radio"
+            :disable="true"
             :options="codes.IST_PCSV_DV_CD"
           />
         </kw-search-item>
@@ -149,7 +153,7 @@
           </ul>
           <kw-separator spaced="20px" />
           <ul class="card-text">
-            <li v-show="item.istPcsvTpCdDiv !== '2' && item.istPcsvTpCdDiv !== '4' && item.kaetc1 !== '7'">
+            <li v-show="item.istPcsvSellTpCd !== '2' && item.istPcsvSellTpCd !== '4' && item.kaetc1 !== '7'">
               <!-- 설치예정일시 -->
               <p class="w90">
                 {{ $t('MSG_TXT_INSTL_EXP_DT') }}
@@ -203,7 +207,7 @@
                 <span>{{ setDateFormat(item.sppDuedt) }}</span>
               </li>
             </div>
-            <div v-show="item.istPcsvTpCdDiv !== '2' && item.istBzsCd !== 'S' && item.kaetc1 !== '7'">
+            <div v-show="item.istPcsvSellTpCd !== '2' && item.istBzsCd !== 'S' && item.kaetc1 !== '7'">
               <li>
                 <!-- 엔지니어 -->
                 <p class="w90">
@@ -236,7 +240,7 @@
                 <span>{{ item.wkCanMoCn }}</span>
               </li>
             </div>
-            <div v-show="item.istPcsvTpCdDiv === '2'">
+            <div v-show="item.istPcsvSellTpCd === '2'">
               <li>
                 <!-- 배송요청일시 -->
                 <p class="w90">
@@ -252,7 +256,7 @@
                 <span>{{ setDateFormat(item.wkApcteDt, item.wkAcpteHh) }}</span>
               </li>
             </div>
-            <div v-show="item.istPcsvTpCdDiv === '1' && item.kaetc1 === '7'">
+            <div v-show="item.istPcsvSellTpCd === '1' && item.kaetc1 === '7'">
               <li>
                 <!-- 배송요청일 -->
                 <p class="w90">
@@ -285,19 +289,19 @@
             />
             <!-- 접수 -->
             <kw-btn
-              v-show="(item.acpgStat === '1' || item.acpgStat === '9') && item.istPcsvTpCdDiv === '1'"
+              v-show="(item.acpgStat === '1' || item.acpgStat === '9') && item.istPcsvSellTpCd === '1'"
               :label="t('MSG_BTN_RECEIPT')"
               @click="onClickReceipt(item)"
             />
             <!-- 재접수 -->
             <kw-btn
-              v-show="item.kaetc1 === '7' && item.acpgStat === '2' && item.istPcsvTpCdDiv === '1'"
+              v-show="item.kaetc1 === '7' && item.acpgStat === '2' && item.istPcsvSellTpCd === '1'"
               :label="t('MSG_BTN_RE_REG')"
               @click="onClickReRegistration(item)"
             />
             <!-- 배정취소 -->
             <kw-btn
-              v-show="(item.acpgStat === '1' || item.acpgStat === '9') && item.istPcsvTpCdDiv === '1'"
+              v-show="(item.acpgStat === '1' || item.acpgStat === '9') && item.istPcsvSellTpCd === '1'"
               :label="t('MSG_BTN_CNCL_ASGMT')"
               @click="onClickCnclAsgmt(item)"
             />
@@ -545,7 +549,7 @@ function workGroupCode(code) {
 }
 
 function getInstallStatus() {
-  let istPcsvTpCdDiv = ''; /* REQ_SET_DIV */
+  let istPcsvSellTpCd = ''; /* REQ_SET_DIV */
   let cttRsCd = ''; /* LCCCDE */
   let istDt = ''; /* LCSETD */
   let wkPrgsStatCd = ''; /* AC221_PROC_STUS */
@@ -558,7 +562,7 @@ function getInstallStatus() {
   let sellTpCd = ''; /* ORDRTYPE */
 
   installationList.value.forEach((element) => {
-    istPcsvTpCdDiv = element.istPcsvTpCdDiv;
+    istPcsvSellTpCd = element.istPcsvSellTpCd;
     cttRsCd = element.cttRsCd;
     istDt = element.istDt;
     wkPrgsStatCd = element.wkPrgsStatCd;
@@ -569,10 +573,6 @@ function getInstallStatus() {
     hasKiwiOrd = element.hasKiwiOrd;
     sellTpCd = element.sellTpCd;
     lcCanyn = element.lcCanyn;
-
-    element.msg = t('MSG_TXT_NOT_ASN');
-    element.cr = 'orange';
-    element.acpgStat = '1';
 
     if (kaetc1 === '8' && sellTpCd === '1' && cttRsCd === '91') {
       element.cr = 'red';
@@ -585,7 +585,11 @@ function getInstallStatus() {
       }
     }
     if (!hasKiwiOrd) {
-      if (istPcsvTpCdDiv === '4') {
+      element.msg = t('MSG_TXT_NOT_ASN');
+      element.cr = 'orange';
+      element.acpgStat = '1';
+
+      if (istPcsvSellTpCd === '4') {
         if (cttRsCd === '99') {
           element.msg = t('MSG_TXT_SB');
           element.cr = 'red';
@@ -600,7 +604,7 @@ function getInstallStatus() {
           element.acpgStat = '2';
         }
       }
-      if (istPcsvTpCdDiv === '1' && kaetc1 === '7') {
+      if (istPcsvSellTpCd === '1' && kaetc1 === '7') {
         if (!isEmpty(istDt)) {
           element.msg = t('MSG_TXT_INST_COMP');
           element.cr = 'cyan';
@@ -611,22 +615,24 @@ function getInstallStatus() {
           element.acpgStat = '2';
         }
       }
-    } else if (wkPrgsStatCd === '00' && isEmpty(wkAcpteStatCd)) {
-      element.msg = `${t('MSG_TXT_INSTALLATION')}${t('MSG_TXT_ASGN')}`;
-      element.cr = 'blue';
-      element.acpgStat = '2';
-    } else if (wkPrgsStatCd < 20 && wkAcpteStatCd === 'Y') {
-      element.msg = t('MSG_TXT_ACPTE');
-      element.cr = 'cyan';
-      element.acpgStat = '3';
-    } else if (wkPrgsStatCd === '20' && retrTrgtYn !== 'Y') {
-      element.msg = t('MSG_TXT_INST_COMP');
-      element.cr = 'cyan';
-      element.acpgStat = '4';
-    } else {
-      element.msg = t('MSG_TXT_SB');
-      element.cr = 'red';
-      element.acpgStat = '9';
+    } else if (hasKiwiOrd) {
+      if (wkPrgsStatCd === '00' && isEmpty(wkAcpteStatCd)) {
+        element.msg = `${t('MSG_TXT_INSTALLATION')}${t('MSG_TXT_ASGN')}`;
+        element.cr = 'blue';
+        element.acpgStat = '2';
+      } else if (wkPrgsStatCd < 20 && wkAcpteStatCd === 'Y') {
+        element.msg = t('MSG_TXT_ACPTE');
+        element.cr = 'cyan';
+        element.acpgStat = '3';
+      } else if (wkPrgsStatCd === '20' && retrTrgtYn !== 'Y') {
+        element.msg = t('MSG_TXT_INST_COMP');
+        element.cr = 'cyan';
+        element.acpgStat = '4';
+      } else {
+        element.msg = t('MSG_TXT_SB');
+        element.cr = 'red';
+        element.acpgStat = '9';
+      }
     }
   });
 }
@@ -646,8 +652,9 @@ async function fetchData() {
     isDelivery.value = true;
   } else {
     isDelivery.value = false;
-    getInstallStatus();
+    // getInstallStatus();
   }
+  getInstallStatus();
 }
 
 async function onClickSearch() {
@@ -826,7 +833,7 @@ async function callKiwiTimeAssign(dataList, prdDiv) {
 // }
 
 // 설치/배송 취소
-async function cancelKiwiTimeAssign(dataList) {
+async function cancelKiwiTimeAssign(dataList, prdDivParam) {
   const idNumber = sessionUserInfo.employeeIDNumber;
   if (dataList.lcCanyn === 'Y') {
     alert(t('MSG_ALT_ALRDY_CANC_ORD'));
@@ -869,6 +876,7 @@ async function cancelKiwiTimeAssign(dataList) {
     basePdCd: '', // 상품코드
     svBizDclsfCd: '', // 서비스업무세분류코드
     mnftCoId: dataList.mnftCoId, // 제조사(LCJEJO)
+    prdDiv: prdDivParam, // 접수구분
   });
 
   if (dataList.kaetc1 === '8') {
@@ -881,7 +889,7 @@ async function cancelKiwiTimeAssign(dataList) {
   }
   const res = await dataService.post('/sms/wells/contract/contracts/installation-shippings', saveParams.value); // 체크
   if (!isEmpty(res)) {
-    alert(t('MSG_ALT_SPP_SUCCESS'));
+    alert(t('MSG_ALT_WAS_CNCL'));
     fetchData();
   }
 }
@@ -892,8 +900,6 @@ async function checkKiwiTimeAssign(dataList, prdDiv) {
   let asIstOjNoParam = '';
   let acpgDivParam = '';
   const prdDivParam = prdDiv;
-
-  console.log(dataList);
 
   if (dataList.lcCanyn !== 'Y') {
     if (dataList.kaetc1 === '7') {
@@ -913,7 +919,6 @@ async function checkKiwiTimeAssign(dataList, prdDiv) {
       workDtParam = dataList.rcpdt;
       asIstOjNoParam = dataList.asIstOjNo;
     }
-
     const saveParams = ref({
       cntrNo: dataList.cntrNo,
       cntrSn: dataList.cntrSn,
@@ -943,7 +948,7 @@ async function checkKiwiTimeAssign(dataList, prdDiv) {
       if (prdDiv !== '3') {
         callKiwiTimeAssign(dataList);
       } else {
-        cancelKiwiTimeAssign(dataList);
+        cancelKiwiTimeAssign(dataList, prdDivParam);
       }
     }
   }
@@ -997,5 +1002,50 @@ async function onClickDelverInqr(sppOrdNo, pcsvBzsCd) {
 <style lang="scss">
 .contractNumber {
   cursor: pointer;
+}
+
+.kw-card {
+  width: calc((100% - 80px) / 4);
+}
+
+::v-deep(.kw-card.q-card) {
+  display: flex;
+  flex-direction: column;
+}
+
+.card-text {
+  margin-bottom: 20px;
+
+  li {
+    p {
+      min-width: 72px;
+    }
+
+    span {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
+}
+
+.button-wrap {
+  align-self: flex-end;
+  width: 100%;
+  display: flex;
+  column-gap: 6px;
+
+  ::v-deep(.kw-btn) {
+    padding: 8px 0;
+    min-height: 40px;
+    font-size: 14px;
+    font-weight: normal;
+    letter-spacing: normal;
+    color: #555;
+  }
+}
+
+.mt-auto {
+  margin-top: auto !important;
 }
 </style>

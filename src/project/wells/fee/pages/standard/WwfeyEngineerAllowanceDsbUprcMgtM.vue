@@ -57,7 +57,7 @@
         >
           <kw-checkbox
             v-model="searchParams.currentlyApplyDataYn"
-            :label="$t('MSG_TXT_CRTL_APY_MTR')"
+            :label="$t('MSG_TXT_INC')"
           />
         </kw-search-item>
         <kw-search-item />
@@ -73,8 +73,7 @@
         </template>
 
         <kw-btn
-          dense
-          secondary
+          grid-action
           icon="download_on"
           :label="$t('MSG_BTN_EXCEL_DOWN')"
           :disable="totalCount.value === 0"

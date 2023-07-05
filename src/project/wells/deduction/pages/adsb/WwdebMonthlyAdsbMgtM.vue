@@ -344,7 +344,7 @@ async function onClickAdsbObjAndAmtCreate() {
   const result = await modal({
     component: 'ZwdebAdsbObjectAndAmtBulkCreateP',
     componentProps: {
-      ogTpCd: 'W',
+      ogTpCd: userInfo.ogTpCd,
     },
   });
   if (result) {

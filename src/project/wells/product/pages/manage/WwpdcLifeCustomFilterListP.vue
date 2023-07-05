@@ -119,7 +119,6 @@ const props = defineProps({
 
 const { alert, notify, modal } = useGlobal();
 const { t } = useI18n();
-const router = useRouter();
 const dataService = useDataService();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -140,11 +139,11 @@ async function onClickAdd() {
 }
 
 async function onClickExcelDownload() {
-  const { svPdCd, pdctPdCd, partPdCd } = props;
+  const { svPdNm, pdctPdNm, partPdNm, svPdCd, pdctPdCd, partPdCd } = props;
   const view = grdMainRef.value.getView();
   const res = await dataService.get('/sms/wells/product/bs-works/life-filters', { params: { svPdCd, pdctPdCd, partPdCd } });
   await gridUtil.exportView(view, {
-    fileName: router.currentRoute.value.meta.menuName,
+    fileName: `${svPdNm}_${pdctPdNm}_${partPdNm}_`,
     timePostfix: true,
     exportData: res.data,
   });

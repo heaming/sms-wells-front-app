@@ -192,5 +192,13 @@ const pops = [
       custNm: '김고객', /* 고객명 */
     },
   },
+  {
+    pname: 'WwctbPartnerModP',
+    title: '판매자 변경 W-SS-U-0101P02',
+    param: {
+      cntrNo: 'W20234900033',
+      cntrSn: '1',
+    },
+  },
 ];
 </script>

@@ -46,22 +46,29 @@
             @change="onChangeInqrDv"
           />
         </kw-search-item>
-        <kw-search-item :label="$t('MSG_TXT_SEL_CHNL')">
+        <kw-search-item
+          :label="$t('MSG_TXT_SEL_CHNL')"
+          required
+        >
           <kw-select
             v-if="searchParams.inqrDv === '1'"
             v-model="searchParams.sellChnl"
+            :label="$t('MSG_TXT_SEL_CHNL')"
             :disable="false"
             :options="codes.SELL_CHNL_DTL_CD"
             multiple
+            rules="required"
           />
           <kw-select
             v-if="searchParams.inqrDv === '2'"
             v-model="searchParams.sellChnl"
+            :label="$t('MSG_TXT_SEL_CHNL')"
             :model-value="'ALL'"
             :disable="true"
             :options="codes.SELL_CHNL_DTL_CD"
             first-option="all"
             first-option-value="ALL"
+            rules="required"
           />
         </kw-search-item>
       </kw-search-row>
@@ -71,13 +78,71 @@
           :colspan="2"
           required
         >
-          <kw-option-group
+          <kw-select
             v-model="searchParams.sellTpCd"
-            type="checkbox"
-            rules="required"
-            :options="selectSellTpCd.options"
+            :options="codes.SELL_TP_CD"
+            first-option="all"
+            first-option-value="ALL"
+          />
+
+          <kw-select
+            v-if="searchParams.sellTpCd === '1'"
+            v-model="searchParams.sellTpDtlCd"
+            :options="codes.SELL_TP_DTL_CD.filter(v => v.userDfn02 === '1')"
+            first-option="all"
+            first-option-value="ALL"
+          />
+          <kw-select
+            v-else-if="searchParams.sellTpCd === '2'"
+            v-model="searchParams.sellTpDtlCd"
+            :options="codes.SELL_TP_DTL_CD.filter(v => v.userDfn02 === '2')"
+            first-option="all"
+            first-option-value="ALL"
+          />
+          <kw-select
+            v-else-if="searchParams.sellTpCd === '3'"
+            v-model="searchParams.sellTpDtlCd"
+            :options="codes.SELL_TP_DTL_CD.filter(v => v.userDfn02 === '3')"
+            first-option="all"
+            first-option-value="ALL"
+          />
+          <kw-select
+            v-else-if="searchParams.sellTpCd === '4'"
+            v-model="searchParams.sellTpDtlCd"
+            :options="codes.SELL_TP_DTL_CD.filter(v => v.codeId === 'ALL')"
+            first-option="all"
+            first-option-value="ALL"
+          />
+          <kw-select
+            v-else-if="searchParams.sellTpCd === '5'"
+            v-model="searchParams.sellTpDtlCd"
+            :options="codes.SELL_TP_DTL_CD.filter(v => v.codeId === 'ALL')"
+            first-option="all"
+            first-option-value="ALL"
+          />
+          <kw-select
+            v-else-if="searchParams.sellTpCd === '9'"
+            v-model="searchParams.sellTpDtlCd"
+            :options="codes.SELL_TP_DTL_CD.filter(v => v.codeId === 'ALL')"
+            first-option="all"
+            first-option-value="ALL"
+          />
+          <kw-select
+            v-else-if="searchParams.sellTpCd === '6'"
+            v-model="searchParams.sellTpDtlCd"
+            :options="codes.SELL_TP_DTL_CD.filter(v => v.userDfn02 === '6')"
+            first-option="all"
+            first-option-value="ALL"
+          />
+          <kw-select
+            v-else-if="searchParams.sellTpCd === 'ALL'"
+            v-model="searchParams.sellTpDtlCd"
+            :options="codes.SELL_TP_DTL_CD.filter(v => v.codeId === 'ALL')"
+            first-option="all"
+            first-option-value="ALL"
           />
         </kw-search-item>
+
         <kw-search-item :label="$t('MSG_TXT_CNTR_DTL_NO')">
           <zctz-contract-detail-number
             v-model:cntr-no="searchParams.cntrNo"
@@ -142,17 +207,13 @@ const selectInqrDv = { // 조회구분
   options: [{ codeId: '1', codeName: '판매채널별' }, { codeId: '2', codeName: '상품군별' }],
 };
 
-const selectSellTpCd = { // 판매유형
-  options: [{ codeId: '1', codeName: '일시불' }, { codeId: '2', codeName: '렌탈' }, { codeId: '3', codeName: '멤버십' }, { codeId: '4', codeName: '금융리스' },
-    { codeId: '5', codeName: '홈케어' }, { codeId: '6', codeName: '정기배송(모종)' }],
-};
-
 const searchParams = ref({
   perfYm: now.format('YYYYMM'), // 실적년월
   copnDvCd: 'ALL', // 개인/법인구분
   inqrDv: '1', // 조회구분
   sellChnl: [], // 판매채널
-  sellTpCd: ['1'], // 판매유형
+  sellTpCd: 'ALL', // 판매유형
+  sellTpDtlCd: 'ALL', // 판매유형상세
   cntrNo: '', // 계약번호
   cntrSn: '', // 계약상세번호
 });
@@ -194,6 +255,7 @@ async function onClickExportView() {
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
+    exportData: gridUtil.getAllRowValues(view),
   });
 }
 // -------------------------------------------------------------------------------------------------
@@ -204,7 +266,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'sellTpCd',
       header: t('MSG_TXT_SEL_TYPE'),
       width: '100',
-      styleName: 'text-left',
+      styleName: 'text-center',
       groupFooter: {
         valueCallback(grid, column, groupFooterIndex, group) {
           return `${group.groupValue} ${t('MSG_TXT_SBSUM')}`;
@@ -215,8 +277,8 @@ const initGrdMain = defineGrid((data, view) => {
         text: t('MSG_TXT_SUM'),
         styleName: 'text-center',
       } },
-    { fieldName: 'sellTpDtlCd', header: t('MSG_TXT_SELL_TP_DTL'), width: '100', styleName: 'text-left' },
-    { fieldName: 'sellInflwChnlDtlCd', header: t('MSG_TXT_SEL_CHNL'), width: '80', styleName: 'text-left' },
+    { fieldName: 'sellTpDtlCd', header: t('MSG_TXT_SELL_TP_DTL'), width: '100', styleName: 'text-center' },
+    { fieldName: 'sellInflwChnlDtlCd', header: t('MSG_TXT_SEL_CHNL'), width: '80', styleName: 'text-center' },
     { fieldName: 'pdClsfNm', header: t('MSG_TXT_PDGRP'), width: '100', styleName: 'text-left', visible: false },
     { fieldName: 'totAccN',
       header: t('MSG_TXT_TOT_ACC_N'),

@@ -129,6 +129,7 @@ import WwpdcPropRelationDtl from './WwpdcPropRelationDtlM.vue';
 const props = defineProps({
   pdCd: { type: String, default: null },
   tempSaveYn: { type: String, default: 'Y' },
+  reloadYn: { type: String, default: null },
 });
 
 const { t } = useI18n();
@@ -152,7 +153,8 @@ const isCompleteLoad = ref(false);
 async function onClickModify() {
   const { pdCd, tempSaveYn } = props;
   const query = { pdCd, tempSaveYn, isSearch: true, fromUi: 'Dtl' };
-  await pageMove(pdConst.MATERIAL_MNGT_PAGE_W, true, router, query);
+  const stateParam = { newRegYn: 'N', reloadYn: 'Y', copyPdCd: '' };
+  await pageMove(pdConst.MATERIAL_MNGT_PAGE_W, true, router, query, stateParam);
 }
 
 async function fetchData(forcePdCd) {

@@ -30,7 +30,7 @@
           <kw-select
             v-model="searchParams.pdGbn"
             first-option="all"
-            :options="codes.PDGRP_ACD"
+            :options="pdgrpCd"
           />
         </kw-search-item>
       </kw-search-row>
@@ -100,9 +100,15 @@ const pageInfo = ref({
 });
 
 const codes = await codeUtil.getMultiCodes(
-  'PDGRP_ACD',
   'COD_PAGE_SIZE_OPTIONS',
 );
+
+const pdgrpCd = ref([
+  { codeId: '1', codeName: t('MSG_TXT_WRFR') },
+  { codeId: '2', codeName: t('MSG_TXT_PUF') },
+  { codeId: '3', codeName: t('MSG_TXT_BDT') },
+  { codeId: '4', codeName: t('MSG_TXT_ETC') },
+]);
 
 let cachedParams;
 
@@ -170,7 +176,7 @@ const initGridSoleDistributorCanCntrList = defineGrid((data, view) => {
       },
     },
     { fieldName: 'istRnadr', header: `${t('MSG_TXT_INSTR')} ${t('MSG_TXT_ADDR')}`, width: '432' },
-    { fieldName: 'pdMclsfRnm', header: t('MSG_TXT_DIV'), width: '96', styleName: 'text-center' },
+    { fieldName: 'pdMclsfRnm', header: t('MSG_TXT_DIV'), width: '96', styleName: 'text-center', options: pdgrpCd.value },
     { fieldName: 'pdAbbrNm', header: t('MSG_TXT_PRDT_NM'), width: '202' },
     { fieldName: 'istDt', header: t('MSG_TXT_IST_DT'), width: '132', styleName: 'text-center' },
     { fieldName: 'canDt', header: t('MSG_TXT_CANC_DT'), width: '132', styleName: 'text-center' },

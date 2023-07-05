@@ -10,6 +10,7 @@
 * 프로그램 설명
 ****************************************************************************************************
 - 렌탈 취소현황
+- TODO : 더블클릭 이벤트/ 철거배정
 ****************************************************************************************************
 --->
 <template>
@@ -21,7 +22,6 @@
       <!-- row1 소속구분 -->
       <kw-search-item
         :label="$t('MSG_TXT_BLG')+$t('MSG_TXT_DIV')"
-        hint="고정값"
       >
         <kw-select
           v-model="searchParams.ogCd"
@@ -45,13 +45,12 @@
         <kw-date-range-picker
           v-model:from="searchParams.cancelFromDt"
           v-model:to="searchParams.cancelToDt"
-          :rules="!isEmpty(searchParams.cancelFromDt)&&!isEmpty(searchParams.cancelToDt)?'date_range_months:1':''"
+          rules="date_range_months:3"
         />
       </kw-search-item>
       <!-- row1 판매구분 -->
       <kw-search-item
         :label="$t('MSG_TXT_SLS_CAT')"
-        hint="OG_TP_CD<br>설계: 전체, E, T, L, 직원, 회사"
       >
         <kw-select
           v-model="searchParams.sellOgTpCd"
@@ -129,22 +128,19 @@
       <!-- row3 판매유형 -->
       <kw-search-item
         :label="$t('MSG_TXT_SEL_TYPE')"
-        hint="SELL_TP_CD<br/>설계: 전체, 렌탈, 정기구매"
       >
         <kw-select
           v-model="searchParams.sellTpCd"
-          :options="codes.SELL_TP_CD"
-          first-option="all"
+          :options="codes.SELL_TP_CD.filter((v) => ['2'].includes(v.codeId))"
         />
       </kw-search-item>
       <!-- row3 판매세부 -->
       <kw-search-item
         :label="$t('MSG_TXT_SELL')+$t('MSG_TXT_DET')"
-        hint="SELL_TP_DTL_CD<br/>설계: 전체, 렌탈, 리스"
       >
         <kw-select
           v-model="searchParams.sellTpDtlCd"
-          :options="codes.SELL_TP_DTL_CD"
+          :options="codes.SELL_TP_DTL_CD.filter((v) => ['21','22','23','24','25','26'].includes(v.codeId))"
           first-option="all"
         />
       </kw-search-item>
@@ -154,7 +150,6 @@
       <!-- row4 상조취소 -->
       <kw-search-item
         :label="$t('MSG_TXT_MUTU')+$t('MSG_TXT_CANCEL')"
-        hint="17 값 고정"
       >
         <kw-select
           v-model="searchParams.alncmpCd"
@@ -175,11 +170,10 @@
       <!-- row4 취소유형 -->
       <kw-search-item
         :label="$t('MSG_TXT_CNCL_TP')"
-        hint="RGLR_SPP_STAT_CH_RSON_CD<br/>정기배송상태변경사유코드?"
       >
         <kw-select
           v-model="searchParams.cntrStatChRsonCd"
-          :options="codes.RGLR_SPP_STAT_CH_RSON_CD"
+          :options="codes.CMN_STAT_CH_RSON_CD"
           first-option="all"
         />
       </kw-search-item>
@@ -226,7 +220,7 @@
 
     <kw-grid
       ref="grdMainRental"
-      :visible-rows="getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')"
+      :visible-rows="totalCount>pageSize?pageSize:totalCount"
       @init="initGrid"
     />
 
@@ -247,20 +241,22 @@ import { cloneDeep, isEmpty } from 'lodash-es';
 // import { getCodeNames } from '~sms-common/product/utils/pdUtil';
 import pdConst from '~sms-common/product/constants/pdConst';
 import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
+import dayjs from 'dayjs';
 
 const { t } = useI18n();
 const { getConfig } = useMeta();
 const { currentRoute } = useRouter();
 const { modal, notify } = useGlobal();
 const dataService = useDataService();
+const now = dayjs();
 const grdMainRental = ref(getComponentType('KwGrid'));
 const grdMainRentalD = ref(getComponentType('KwGrid'));
 
 const searchParams = ref({
   ogCd: '', // 소속구분
   dtDiv: '1', // 날짜검색구분
-  cancelFromDt: '', // 시작일
-  cancelToDt: '', // 종료일
+  cancelFromDt: now.format('YYYYMMDD'), // 시작일
+  cancelToDt: now.format('YYYYMMDD'), // 종료일
   cntrNo: '', // 계약번호
   cntrSn: '', // 계약일련번호
   sellOgTpCd: '', // 판매구분
@@ -270,7 +266,7 @@ const searchParams = ref({
   clctamPrtnrN0: '', // 집금담당[사번]
   printDiv: '', // 출력구분
   copnDvCd: '', // 계약구분
-  sellTpCd: '', // 판매유형
+  sellTpCd: '2', // 판매유형
   sellTpDtlCd: '', // 판매세부
   alncmpCd: '', // 상조취소
   cntrStatChRsonCd: '', // 취소유형
@@ -283,10 +279,11 @@ const codes = await codeUtil.getMultiCodes(
   'COPN_DV_CD',
   'SELL_TP_CD',
   'SELL_TP_DTL_CD',
-  'RGLR_SPP_STAT_CH_RSON_CD',
+  'CMN_STAT_CH_RSON_CD',
 );
 
 const totalCount = ref(0);
+const pageSize = ref(Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')));
 let cachedParams;
 
 // -------------------------------------------------------------------------------------------------
@@ -737,5 +734,4 @@ const initGrid = defineGrid((data, view) => {
     */
   };
 });
-
 </script>

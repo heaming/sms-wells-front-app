@@ -20,6 +20,7 @@
     <!-- 계약 정보 -->
     <h3>{{ t('MSG_TXT_CNTR_INF') }}</h3>
     <kw-form
+      ref="frmCntrRef"
       :cols="2"
     >
       <kw-form-row>
@@ -28,13 +29,14 @@
           required
           :label="$t('MSG_TXT_CNTR_DTL_NO')"
         >
-          <kw-input
-            v-model="contractInfo.cntrNoSn"
-            :name="$t('MSG_TXT_CNTR_DTL_NO')"
-            icon="search"
-            @click-icon="onClickSearchContractNumber"
+          <zctz-contract-detail-number
+            ref="contractNumberRef"
+            v-model:cntr-no="contractInfo.cntrNo"
+            v-model:cntr-sn="contractInfo.cntrSn"
+            :label="$t('MSG_TXT_CNTR_DTL_NO')"
+            rules="required"
+            @selected="onClickSelectCntrno"
           />
-          <!-- rules="required" -->
         </kw-form-item>
         <!-- 고객명 -->
         <kw-form-item
@@ -82,28 +84,40 @@
       <kw-form-row>
         <!-- 처리일자 -->
         <kw-form-item
+          required
           :label="$t('MSG_TXT_PRCSDT')"
         >
           <kw-date-picker
             v-model="saveParams.rfndFshDt"
+            :label="$t('MSG_TXT_PRCSDT')"
+            rules="required"
           />
         </kw-form-item>
         <!-- 실적일자 -->
         <kw-form-item
+          required
           :label="$t('MSG_TXT_PERF_DT')"
         >
           <kw-date-picker
             v-model="saveParams.rfndPerfDt"
+            :label="$t('MSG_TXT_PERF_DT')"
+            rules="required"
           />
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
         <!-- 금액 -->
         <kw-form-item
+          required
           :label="$t('MSG_TXT_AMT')"
         >
           <kw-input
             v-model="saveParams.pyAmt"
+            mask="number"
+            maxlength="10"
+            align="right"
+            rules="required|max:10"
+            :label="$t('MSG_TXT_AMT')"
           />
           <kw-btn
             :label="$t('MSG_TXT_ETC_ATAM') + t('MSG_TXT_RGS')"
@@ -113,22 +127,28 @@
         </kw-form-item>
         <!-- 환불구분 -->
         <kw-form-item
+          required
           :label="$t('MSG_TXT_CLSF_REFUND')"
         >
           <kw-select
             v-model="saveParams.rfndDvCd"
             :options="codes.RFND_DV_CD"
+            :label="$t('MSG_TXT_CLSF_REFUND')"
+            rules="required"
           />
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
         <!-- 입금종류 -->
         <kw-form-item
+          required
           :label="$t('MSG_TXT_DP_KND')"
         >
           <kw-select
             v-model="saveParams.rfndDpKndCd"
             :options="codes.RFND_DP_KND_CD"
+            :label="$t('MSG_TXT_DP_KND')"
+            rules="required"
           />
         </kw-form-item>
         <!-- 지급구분 -->
@@ -139,7 +159,8 @@
           <kw-select
             v-model="paymentCategory"
             :options="customCodes.paymentCategory"
-            required
+            :label="$t('MSG_TXT_DSB_DV')"
+            rules="required"
             @update:model-value="onDisbursementDivideChange"
           />
         </kw-form-item>
@@ -155,8 +176,6 @@
             :rules="paymentCategory === '02' ? 'required' : null"
             :readonly="paymentCategory === '01'"
             :options="cardLists"
-            option-label="fnitNm"
-            option-value="fnitCd"
             class="w130"
             :label="$t('MSG_TXT_CARD_NO')"
           />
@@ -291,10 +310,13 @@
       <kw-form-row>
         <!-- 실지급액 -->
         <kw-form-item
+          required
           :label="$t('MSG_TXT_CARD_DDTN_RT')"
         >
           <kw-input
             v-model="saveParams.rfndDsbAmt"
+            :label="$t('MSG_TXT_CARD_DDTN_RT')"
+            rules="required"
           />
         </kw-form-item>
         <!-- 지연일수 -->
@@ -317,11 +339,14 @@
         </kw-form-item>
         <!-- 손료존재 -->
         <kw-form-item
+          required
           :label="$t('MSG_TXT_RNTF_EXST')"
         >
           <kw-select
             v-model="saveParams.rfndRntfExstYn"
             :options="customCodes.rfndRntfExstYn"
+            :label="$t('MSG_TXT_RNTF_EXST')"
+            rules="required"
           />
         </kw-form-item>
       </kw-form-row>
@@ -335,15 +360,19 @@
             v-model="saveParams.rfndDsbDvCd"
             :options="codes.RFND_DSB_DV_CD"
             :label="$t('MSG_TXT_PAY_TYPE')"
+            rules="required"
           />
         </kw-form-item>
         <!-- 환불유형 -->
         <kw-form-item
+          required
           :label="$t('MSG_TXT_REFUND_TYP')"
         >
           <kw-select
             v-model="saveParams.rfndRsonCd"
             :options="codes.RFND_RSON_CD"
+            :label="$t('MSG_TXT_REFUND_TYP')"
+            rules="required"
           />
         </kw-form-item>
       </kw-form-row>
@@ -356,8 +385,6 @@
           <kw-select
             v-model="saveParams.cshRfndFnitCd"
             :options="bankLists"
-            option-label="fnitNm"
-            option-value="fnitCd"
             :rules="paymentCategory === '01' ? 'required' : null"
             :readonly="paymentCategory === '02'"
             :label="$t('MSG_TXT_BNK_DV')"
@@ -447,8 +474,8 @@
 // eslint-disable-next-line no-unused-vars
 import { codeUtil, useDataService, getComponentType, useModal, useGlobal } from 'kw-lib';
 import dayjs from 'dayjs';
+import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
 
-const { modal } = useGlobal();
 const dataService = useDataService();
 const { t } = useI18n();
 const { ok } = useModal();
@@ -460,6 +487,7 @@ const { companyCode, employeeIDNumber } = userInfo;
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 const frmMainRef = ref(getComponentType('KwForm'));
+const frmCntrRef = ref(getComponentType('KwForm'));
 const now = dayjs();
 const codes = await codeUtil.getMultiCodes(
   'RFND_DV_CD', // 환불구분
@@ -559,26 +587,30 @@ async function fetchData() {
 
 // 카드사, 은행 목록
 async function cardBank() {
-  const card = await dataService.get('/sms/wells/withdrawal/idvrve/consumables-refunds/card');
-  cardLists.value = card.data;
-  cardLists.value.unshift({ fnitNm: '선택', fnitCd: 'choice' });
+  const commonApiUrl = '/sms/common/common/codes/finance-code';
 
-  const bank = await dataService.get('/sms/wells/withdrawal/idvrve/consumables-refunds/bank');
+  const searchBankParams = {
+    fnitFeeTpCd: '1',
+    vncoDvCd: '003',
+  };
+  const bank = await dataService.get(`${commonApiUrl}/bank-codes`, { params: searchBankParams });
   bankLists.value = bank.data;
+
+  const searchCardParams = {
+    fnitFeeTpCd: '2',
+    vncoDvCd: '003',
+  };
+  const card = await dataService.get(`${commonApiUrl}/bureau-codes`, { params: searchCardParams });
+  cardLists.value = card.data;
 }
 
-// 계약상세번호 조회
-async function onClickSearchContractNumber() {
-  const { result, payload } = await modal({
-    component: 'WwctaContractNumberListP',
-  });
-  if (result) {
-    saveParams.value.cntrNo = payload.cntrNo;
-    saveParams.value.cntrSn = payload.cntrSn;
-    contractInfo.value.cntrNo = payload.cntrNo;
-    contractInfo.value.cntrSn = payload.cntrSn;
-    contractInfo.value.cntrNoSn = `${payload.cntrNo}-${payload.cntrSn}`;
-  }
+// 계약상세번호 조회// 검색조건 : 계약상세번호
+async function onClickSelectCntrno(cntrNo, cntrSn) {
+  saveParams.value.cntrNo = cntrNo;
+  saveParams.value.cntrSn = cntrSn;
+  contractInfo.value.cntrNo = cntrNo;
+  contractInfo.value.cntrSn = cntrSn;
+  contractInfo.value.cntrNoSn = `${cntrNo}-${cntrSn}`;
   await fetchData();
 }
 
@@ -593,6 +625,7 @@ async function onDisbursementDivideChange() {
   saveParams.value.cshRfndFnitCd = '';
   saveParams.value.cshRfndAcnoEncr = '';
   saveParams.value.cshRfndAcownNm = '';
+  frmMainRef.value.init();
 }
 
 onMounted(async () => {
@@ -601,7 +634,9 @@ onMounted(async () => {
 
 // 등록
 async function onClickSave() {
+  if (!await frmCntrRef.value.validate()) { return; }
   if (await frmMainRef.value.alertIfIsNotModified()) { return; }
+  if (!await frmMainRef.value.validate()) { return; }
 
   const data = saveParams.value;
 

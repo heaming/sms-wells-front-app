@@ -54,6 +54,7 @@ const props = defineProps({
   pdTpCd: { type: String, required: true },
   pdCd: { type: String, default: null },
   initData: { type: Object, default: null },
+  codes: { type: Object, default: null },
 });
 
 // -------------------------------------------------------------------------------------------------
@@ -71,10 +72,18 @@ async function validateProps() {
   return validOk;
 }
 
+const currentCodes = ref({});
+
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
 const columns = [
+  // 상태
+  { fieldName: 'tempSaveYn', header: t('MSG_TXT_STT'), width: '85', styleName: 'text-center', options: currentCodes.value.PD_TEMP_SAVE_CD },
+  // 적용시작일자
+  { fieldName: 'vlStrtDtm', header: t('MSG_TXT_APY_STRTDT'), width: '100', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date' },
+  // 적용종료일자
+  { fieldName: 'vlEndDtm', header: t('MSG_TXT_APY_ENDDT'), width: '100', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date' },
   { fieldName: 'pdRelTpCd', header: t('MSG_TXT_RELATION_CLSF'), width: '106', styleName: 'text-center', options: codes.PDCT_REL_DV_CD }, /* 관계구분 */
   { fieldName: 'pdClsfNm', header: t('MSG_TXT_CLSF'), width: '176', styleName: 'text-left' }, /* 분류 */
   { fieldName: 'pdNm', header: t('MSG_TIT_MATERIAL_NM'), width: '382', styleName: 'text-left' }, /* 교재/자재명 */
@@ -136,6 +145,8 @@ async function setData() {
   grd1DataProvider.fillJsonData(relData.filter((v) => v.pdRelTpCd === '14'), { fillMode: 'set' });
   grd2DataProvider.fillJsonData(relData.filter((v) => v.pdRelTpCd === '13'), { fillMode: 'set' });
   grd3DataProvider.fillJsonData(relData.filter((v) => v.pdRelTpCd === '06'), { fillMode: 'set' });
+
+  currentCodes.value = props?.value?.codes;
 }
 
 onMounted(async () => {

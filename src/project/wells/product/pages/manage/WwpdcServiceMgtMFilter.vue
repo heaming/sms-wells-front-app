@@ -174,21 +174,26 @@ async function onClickRemoveRows() {
   const view = grdMainRef.value.getView();
   const checkedRows = view.getCheckedRows();
   const removeCreateRows = [];
-  checkedRows.forEach((row) => {
+  let isDbDataRemove = false;
+  await Promise.all(checkedRows.map(async (row) => {
     const item = gridUtil.getRowValue(view, row);
-    if (item.rowState === 'created') {
+    if (item.rowState === 'created' || isEmpty(item[pdConst.REL_PD_ID]) || item[pdConst.REL_PD_ID].startsWith('REL_TMP')) {
       removeCreateRows.push(row);
     } else {
-      const endSetTime = dayjs().subtract(1, 'second').format('YYYYMMDDHHmmss');
-      view.setValue(row, 'vlEndDtm', endSetTime);
+      isDbDataRemove = true;
+      // const endSetTime = dayjs().subtract(1, 'second').format('YYYYMMDDHHmmss');
+      // view.setValue(row, 'vlEndDtm', endSetTime);
     }
-  });
+  }));
   if (removeCreateRows.length) {
     view.getDataSource().removeRows(removeCreateRows);
   }
+  if (isDbDataRemove) {
+    notify(t('MSG_ALT_PD_REL_NO_REMOVE'));
+  }
+
   view.setAllCheck(false, true);
   view.clearCurrent();
-  grdRowCount.value = getGridRowCount(view);
 }
 
 async function onClickBsConnect() {
@@ -265,7 +270,7 @@ async function onClickMaterialSchPopup() {
     row[pdConst.REL_OJ_PD_CD] = row.pdCd;
     const rowValues = gridUtil.getAllRowValues(view);
     let isValid = false;
-    const alreadyPdCdRows = rowValues.filter((item) => item.pdCd === row.pdCd);
+    const alreadyPdCdRows = rowValues.filter((item) => item[pdConst.REL_OJ_PD_CD] === row[pdConst.REL_OJ_PD_CD]);
     if (alreadyPdCdRows && alreadyPdCdRows.length) {
       const lastVlEndDtm = alreadyPdCdRows.reduce((maxDt, item) => {
         maxDt = Number(item.vlEndDtm) > maxDt ? Number(item.vlEndDtm) : maxDt;
@@ -309,6 +314,10 @@ async function initProps() {
 }
 
 await initProps();
+
+onActivated(async () => {
+  await initGridRows();
+});
 
 watch(() => props.pdCd, (pdCd) => { currentPdCd.value = pdCd; });
 watch(() => props.initData, (initData) => {
