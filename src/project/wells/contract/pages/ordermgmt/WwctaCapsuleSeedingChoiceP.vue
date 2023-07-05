@@ -166,6 +166,9 @@ async function onClickConfirm() {
   const payload = selectedProducts.value.map((product) => ({
     pdCd: product.pdCd,
     pdNm: product.pdNm,
+    pdRelId: product.pdRelId,
+    pdRelTpCd: product.pdRelTpCd,
+    prc: product.prc,
     count: product.count,
   }));
   ok(payload);

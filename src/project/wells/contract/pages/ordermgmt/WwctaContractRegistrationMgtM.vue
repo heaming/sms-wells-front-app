@@ -288,11 +288,11 @@ const smr = ref({
   stlmTpNm: computed(() => codes.STLM_TP_CD.find((c) => c.codeId === contract.value.step3.stlmTpCd)?.codeName),
   stlmMthNm: computed(() => codes.DP_TP_CD.find((c) => c.codeId === contract.value.step3.cntramDpTpCd)?.codeName),
   pdCntrAmt: computed(() => stringUtil.getNumberWithComma(
-    Number(contract.value.step2.dtls?.reduce((acc, cur) => Number(acc) + Number(cur.cntrAmt), 0)) || 0,
+    Number(contract.value.step2.dtls?.reduce((acc, cur) => Number(acc) + Number(cur.cntrAmt || 0), 0)) || 0,
   )),
   pdAmt: computed(() => stringUtil.getNumberWithComma(
     // dtl.sellAmt 판매금액(수량xfnlAmt)의 합
-    Number(contract.value.step2.dtls?.reduce((acc, cur) => Number(acc) + Number(cur.fnlAmt), 0)) || 0,
+    Number(contract.value.step2.dtls?.reduce((acc, cur) => Number(acc) + Number(cur.fnlAmt || 0), 0)) || 0,
   )),
 });
 const isReadOnly = ref(false);
