@@ -60,7 +60,7 @@
           secondary
           icon="download_on"
           :label="$t('MSG_BTN_EXCEL_DOWN')"
-          :disable="totalCount.value === 0"
+          :disable="!isExcelDown"
           @click="onClickExcelDownload"
         />
       </kw-action-top>
@@ -94,6 +94,7 @@ const { currentRoute } = useRouter();
 const now = dayjs();
 const grdMainRef = ref(getComponentType('KwGrid'));
 const totalCount = ref(0);
+const isExcelDown = ref(false);
 const codes = await codeUtil.getMultiCodes(
   'OG_TP_CD',
 );
@@ -119,6 +120,9 @@ async function fetchData() {
   const response = await dataService.get('/sms/wells/fee/fee-base-amounts', { params: cachedParams });
   const feeAmounts = response.data;
   totalCount.value = feeAmounts.length;
+  if (totalCount.value > 0) {
+    isExcelDown.value = true;
+  }
 
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(feeAmounts);
