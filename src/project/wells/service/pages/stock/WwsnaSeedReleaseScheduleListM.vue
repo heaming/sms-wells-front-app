@@ -160,6 +160,7 @@
           dense
           :label="`${t('MSG_TXT_OSTR_CNFM_DT')} ${t('MSG_TXT_SAVE')}`"
           :disable="pageInfo.totalCount === 0"
+          @click="onClickOstrCnfmSave"
         />
       </kw-action-top>
       <kw-grid
@@ -187,11 +188,11 @@
 
 import { codeUtil, useMeta, useGlobal, useDataService, getComponentType, gridUtil, defineGrid } from 'kw-lib';
 import dayjs from 'dayjs';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, isEmpty } from 'lodash-es';
 
 const { t } = useI18n();
 const { getConfig } = useMeta();
-const { notify } = useGlobal();
+const { notify, alert } = useGlobal();
 const { currentRoute } = useRouter();
 
 const dataService = useDataService();
@@ -259,7 +260,7 @@ const isOstrDt = computed(() => searchParams.value?.dtTpCd === '4');
 function onChangeDtTpCd() {
   const { dtTpCd, strtDt } = searchParams.value;
   // 일자유형이 출고일자인 경우 시작일자 = 종료일자
-  if (dtTpCd === '4') {
+  if (dtTpCd === '4' && isEmpty(strtDt)) {
     searchParams.value.endDt = strtDt;
   }
 }
@@ -268,7 +269,7 @@ function onChangeDtTpCd() {
 function onChangePeriod() {
   const { dtTpCd, strtDt } = searchParams.value;
   // 일자유형이 출고일자인 경우 시작일자 = 종료일자
-  if (dtTpCd === '4') {
+  if (dtTpCd === '4' && isEmpty(strtDt)) {
     searchParams.value.endDt = strtDt;
   }
 }
@@ -310,6 +311,47 @@ async function onClickSave() {
   const { processCount } = res.data;
   if (processCount > 0) {
     notify(t('MSG_ALT_SAVE_DATA'));
+    pageInfo.value.needTotalCount = true;
+    await fetchData();
+  }
+}
+
+// 출고확정일 저장
+async function onClickOstrCnfmSave() {
+  const view = grdMainRef.value.getView();
+  const checkRows = gridUtil.getCheckedRowValues(view);
+
+  const ostrCnfmList = checkRows.filter((e) => {
+    const { ostrYn } = e;
+    return ostrYn === 'Y';
+  });
+
+  if (ostrCnfmList.length > 0) {
+    // 이미 출고 작업이 완료되어 저장할 수 없습니다.
+    await alert(t('MSG_ALT_ARDY_OSTR_WK_FSH_CANT_SAVE'));
+    return;
+  }
+
+  const dpDtList = checkRows.filter((e) => {
+    const { refriDvCd, dpDt } = e;
+    return refriDvCd === '2' && isEmpty(dpDt);
+  });
+
+  if (dpDtList.length > 0) {
+    // 유상서비스의 입금일자를 확인 부탁드립니다.
+    await alert(t('MSG_ALT_RECAP_SV_DP_DT_CONF'));
+    return;
+  }
+
+  checkRows.forEach((item) => {
+    item.ostrCnfmDt = ostrCnfmDt.value;
+  });
+
+  const res = await dataService.post('/sms/wells/service/seed-release-schedules', checkRows);
+  const { processCount } = res.data;
+  if (processCount > 0) {
+    notify(t('MSG_ALT_SAVE_DATA'));
+    pageInfo.value.needTotalCount = true;
     await fetchData();
   }
 }
@@ -343,7 +385,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'mchnModel', dataType: 'text' },
     { fieldName: 'mchnCstNo', dataType: 'text' },
     { fieldName: 'mchnCstNm', dataType: 'text' },
-    { fieldName: 'crtlPkg', dataType: 'text' },
+    { fieldName: 'ctrlPkg', dataType: 'text' },
     { fieldName: 'shipPkg', dataType: 'text' },
     { fieldName: 'sding1', dataType: 'text' },
     { fieldName: 'qty1', dataType: 'number' },
@@ -374,7 +416,26 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'cntrSn', dataType: 'text' },
     { fieldName: 'svBizHclsfCd', dataType: 'text' },
     { fieldName: 'svBizDclsfCd', dataType: 'text' },
-    { fieldName: 'sppPlanSn', dataType: 'text' },
+    { fieldName: 'sppPlanSn', dataType: 'number' },
+    { fieldName: 'sdingPdCd1', dataType: 'text' },
+    { fieldName: 'sowDt1', dataType: 'text' },
+    { fieldName: 'sdingPdCd2', dataType: 'text' },
+    { fieldName: 'sowDt2', dataType: 'text' },
+    { fieldName: 'sdingPdCd3', dataType: 'text' },
+    { fieldName: 'sowDt3', dataType: 'text' },
+    { fieldName: 'sdingPdCd4', dataType: 'text' },
+    { fieldName: 'sowDt4', dataType: 'text' },
+    { fieldName: 'sdingPdCd5', dataType: 'text' },
+    { fieldName: 'sowDt5', dataType: 'text' },
+    { fieldName: 'sdingPkgPdCd', dataType: 'text' },
+    { fieldName: 'mngrDvCd', dataType: 'text' },
+    { fieldName: 'dpEpttNm', dataType: 'text' },
+    { fieldName: 'ogTpCd', dataType: 'text' },
+    { fieldName: 'prtnrNo', dataType: 'text' },
+    { fieldName: 'recapCsAmt', dataType: 'number' },
+    { fieldName: 'sppDvCd', dataType: 'text' },
+    { fieldName: 'sdingMcnrPdCd', dataType: 'text' },
+    { fieldName: 'cstSvAsnNo', dataType: 'text' },
   ];
 
   const columns = [
@@ -383,13 +444,13 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'refriDiv', header: t('MSG_TXT_REFRI'), width: '90', styleName: 'text-center' },
     { fieldName: 'shipDiv', header: t('TXT_MSG_SPP_DV_CD'), width: '90', styleName: 'text-center' },
     { fieldName: 'receiptDiv', header: t('MSG_TXT_RCP_DV'), styleName: 'text-center', width: '90' },
-    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_NO'), styleName: 'text-center', width: '146' },
-    { fieldName: 'cstNm', header: t('MSG_TXT_CST_NM'), styleName: 'text-center', width: '90' },
+    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_NO'), width: '146', styleName: 'rg-button-link text-center', renderer: { type: 'button' }, preventCellItemFocus: true },
+    { fieldName: 'cstNm', header: t('MSG_TXT_CST_NM'), styleName: 'text-left', width: '90' },
     { fieldName: 'sppOrdNo', header: `${t('MSG_TXT_DLVRY')}${t('MSG_TXT_SEQUENCE_NUMBER')}`, styleName: 'text-center', width: '154' },
     { fieldName: 'mchnModel', header: `${t('MSG_TXT_MCHN')}${t('MSG_TXT_MODEL')}`, styleName: 'text-left', width: '220' },
     { fieldName: 'mchnCstNo', header: `${t('MSG_TXT_MCHN')}${t('MSG_TXT_CST_NO')}`, styleName: 'text-center', width: '150' },
     { fieldName: 'mchnCstNm', header: `${t('MSG_TXT_MCHN')}${t('MSG_TXT_CST_NM')}`, styleName: 'text-center', width: '100' },
-    { fieldName: 'crtlPkg', header: `${t('MSG_TXT_CURRENT')}${t('MSG_TXT_PKG')}`, styleName: 'text-left', width: '150' },
+    { fieldName: 'ctrlPkg', header: `${t('MSG_TXT_CURRENT')}${t('MSG_TXT_PKG')}`, styleName: 'text-left', width: '150' },
     { fieldName: 'shipPkg', header: `${t('MSG_TXT_DLVRY')}${t('MSG_TXT_PKG')}`, width: '150', styleName: 'text-left' },
     { fieldName: 'sding1', header: `${t('MSG_TXT_SDING')}1`, styleName: 'text-left', width: '120' },
     { fieldName: 'qty1', header: `${t('MSG_TXT_QTY')}1`, width: '50', styleName: 'text-right' },
@@ -402,13 +463,21 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'sding5', header: `${t('MSG_TXT_SDING')}5`, styleName: 'text-left', width: '120' },
     { fieldName: 'qty5', header: `${t('MSG_TXT_QTY')}5`, width: '50', styleName: 'text-right' },
     { fieldName: 'todayCnl', header: t('MSG_TXT_TOD_CAN'), width: '90', styleName: 'text-center' },
-    { fieldName: 'mchnDemDt', header: `${t('MSG_TXT_MCHN')}${t('MSG_TXT_DEM_DT')}`, styleName: 'text-center', width: '90', datetimeFormat: 'date' },
-    { fieldName: 'receiptDt', header: t('MSG_TXT_RCPDT'), styleName: 'text-center', width: '100', datetimeFormat: 'date' },
-    { fieldName: 'vstDt', header: t('MSG_TXT_VST_DT'), styleName: 'text-center', width: '100', datetimeFormat: 'date' },
-    { fieldName: 'ostrScheDt', header: `${t('MSG_TXT_OSTR')}${t('MSG_TXT_SCHD_DT')}`, styleName: 'text-center', width: '100', datetimeFormat: 'date' },
-    { fieldName: 'bsFshDt', header: `${t('MSG_TXT_BS')}${t('MSG_TXT_FSH_DT')}`, styleName: 'text-center', width: '100', datetimeFormat: 'date' },
-    { fieldName: 'dpDt', header: t('MSG_TXT_DP_DT'), styleName: 'text-center', width: '100', datetimeFormat: 'date' },
-    { fieldName: 'ostrCnfmDt', header: `${t('MSG_TXT_OSTR')}${t('MSG_TXT_CNFM_DT')}`, styleName: 'text-center', width: '100', datetimeFormat: 'date' },
+    { fieldName: 'mchnDemDt', header: `${t('MSG_TXT_MCHN')}${t('MSG_TXT_DEM_DT')}`, styleName: 'text-center', width: '120', datetimeFormat: 'date' },
+    { fieldName: 'receiptDt', header: t('MSG_TXT_RCPDT'), styleName: 'text-center', width: '120', datetimeFormat: 'date' },
+    { fieldName: 'vstDt', header: t('MSG_TXT_VST_DT'), styleName: 'text-center', width: '120', datetimeFormat: 'date' },
+    { fieldName: 'ostrScheDt', header: `${t('MSG_TXT_OSTR')}${t('MSG_TXT_SCHD_DT')}`, styleName: 'text-center', width: '120', datetimeFormat: 'date' },
+    { fieldName: 'bsFshDt', header: `${t('MSG_TXT_BS')}${t('MSG_TXT_FSH_DT')}`, styleName: 'text-center', width: '120', datetimeFormat: 'date' },
+    { fieldName: 'dpDt',
+      header: t('MSG_TXT_DP_DT'),
+      styleName: 'text-center',
+      width: '130',
+      datetimeFormat: 'date',
+      rules: 'required',
+      editor: {
+        type: 'btdate',
+      } },
+    { fieldName: 'ostrCnfmDt', header: `${t('MSG_TXT_OSTR')}${t('MSG_TXT_CNFM_DT')}`, styleName: 'text-center', width: '120', datetimeFormat: 'date' },
     { fieldName: 'sdingRcgWareNm', header: t('MSG_TXT_SDING_RCG_WARE'), styleName: 'text-left', width: '181' },
     { fieldName: 'vstCenter', header: `${t('MSG_TXT_VST')}${t('MSG_TXT_CENTER_DIVISION')}`, styleName: 'text-left', width: '150' },
     { fieldName: 'vstIchr', header: `${t('MSG_TXT_VST')}${t('MSG_TXT_ICHR')}`, styleName: 'text-center', width: '100' },
@@ -420,20 +489,27 @@ const initGrid = defineGrid((data, view) => {
 
   data.setFields(fields);
   view.setColumns(columns);
-  view.checkBar.visible = false;
+  view.checkBar.visible = true;
   view.rowIndicator.visible = true;
   view.editOptions.editable = true;
 
   view.onCellEditable = (grid, index) => {
-    const refriDvCd = gridUtil.getCellValue(view, index.dataRow, 'refriDvCd');
-    const ostrYn = gridUtil.getCellValue(view, index.dataRow, 'ostrYn');
+    const dpYn = gridUtil.getCellValue(view, index.dataRow, 'dpYn');
 
     // 유/무상 구분이 유상인 경우만 입금일자 입력 가능
-    if (refriDvCd === '2' && ostrYn === 'N' && index.column === 'dpDt') {
+    if (dpYn === 'R' && index.column === 'dpDt') {
       return true;
     }
 
     return false;
+  };
+  view.onCellItemClicked = async (g, { column, itemIndex }) => {
+    if (column === 'cntrNo') {
+      const cntrNo = g.getValue(itemIndex, 'cntrNo');
+      console.log(cntrNo);
+      // TO-DO await popupUtil.open(`#/service/wwsnb-individual-service-ps-mgt?cntrNo=${cntrNo}`);
+      alert('개인별 서비스 현황 화면(W-SV-U-0072M01) 탭으로 호출');
+    }
   };
 });
 
