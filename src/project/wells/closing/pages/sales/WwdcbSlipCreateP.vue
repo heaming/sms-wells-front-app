@@ -53,7 +53,7 @@
     <template #action>
       <kw-btn
         primary
-        :label="$t('MSG_BTN_SLIP_CRT')"
+        :label="$t('MSG_BTN_CNTN_CREATE')"
         @click="onSlipCreate()"
       />
     </template>
