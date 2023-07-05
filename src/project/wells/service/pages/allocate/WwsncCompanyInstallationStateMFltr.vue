@@ -3,18 +3,18 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : SNC
-2. 프로그램 ID : WwsncCompanyInstallationStateFltrM(회사설치(8888코드)현황 (필터))
+2. 프로그램 ID : WwsncCompanyInstallationStateMFltr(회사설치 현황 (필터))
 3. 작성자 : heymi.cho
 4. 작성일 : 2023.05.22
 ****************************************************************************************************
 * 프로그램 설명
 ****************************************************************************************************
-- 회사설치 (8888코드) 현황(필터) (http://localhost:3000/#/service/wwsnc-as-charge-transfer-mgt)
+- 회사설치 현황 (필터) (http://localhost:3000/#/service/wwsnc-company-installation-state)
 ****************************************************************************************************
 --->
 <template>
   <kw-search
-    :cols="4"
+    :cols="3"
     one-row
     @search="onClickSearch"
   >
@@ -43,13 +43,15 @@
           :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
           @change="fetchData"
         />
-        <span class="ml8">(단위:원)</span>
+        <span class="ml8">
+          {{ t('MSG_TXT_UNIT_WON') }}
+        </span>
       </template>
       <kw-btn
         icon="download_on"
         dense
         secondary
-        label="엑셀다운로드"
+        :label="t('MSG_BTN_EXCEL_DOWN')"
         @click="onClickExcelDownload"
       />
     </kw-action-top>
@@ -73,15 +75,20 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { defineGrid, getComponentType, gridUtil, useDataService, useMeta, codeUtil } from 'kw-lib';
+import { getCodeNames } from '~/modules/sms-common/product/utils/pdUtil';
 import dayjs from 'dayjs';
 import { cloneDeep } from 'lodash-es';
 
-// const { t } = useI18n();
+const { t } = useI18n();
 const now = dayjs();
 const dataService = useDataService();
 const { getConfig } = useMeta();
-const gridFltrRef = ref(getComponentType(`${this}.KwGrid`));
+const gridFltrRef = ref(getComponentType('KwGrid'));
 const { currentRoute } = useRouter();
+
+// -------------------------------------------------------------------------------------------------
+// Function & Event
+// -------------------------------------------------------------------------------------------------
 let cachedParams;
 
 /*
@@ -89,9 +96,7 @@ let cachedParams;
  */
 const searchParams = ref({
   mgtYnm: now.format('YYYYMM'), // 관리년월
-  mgtTyp: '', // 관리유형
-  istDtFrom: `${now.format('YYYYMM')}01`,
-  istDtTo: now.format('YYYYMMDD'),
+  itmKndCd: ['5'], // 품목코드(부자재 6)
 });
 
 /*
@@ -108,14 +113,11 @@ const pageInfo = ref({
  */
 const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
+  'ITM_KND_CD',
 );
 
-// -------------------------------------------------------------------------------------------------
-// Function & Event
-// -------------------------------------------------------------------------------------------------
-
 async function fetchData() {
-  const res = await dataService.get('', { params: { ...cachedParams, ...pageInfo.value } });
+  const res = await dataService.get('/sms/wells/service/company-ist-state/filter/paging', { params: { ...cachedParams, ...pageInfo.value } });
   const { list: totalState, pageInfo: pagingResult } = res.data;
   pageInfo.value = gridFltrRef.value.getView();
 
@@ -141,7 +143,7 @@ async function onClickSearch() {
 async function onClickExcelDownload() {
   const view = gridFltrRef.value.getView();
 
-  const response = await dataService.get('', { params: cachedParams });
+  const response = await dataService.get('/sms/wells/service/company-ist-state/filter/excel-download', { params: cachedParams });
 
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
@@ -155,28 +157,33 @@ async function onClickExcelDownload() {
 // -------------------------------------------------------------------------------------------------
 const initGrid = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'cntrNo' },
-    { fieldName: 'dept' },
-    { fieldName: 'deptNm' },
-    { fieldName: 'costCnr' },
-    { fieldName: 'hdq' },
-    { fieldName: 'col6' },
-    { fieldName: 'col7' },
-    { fieldName: 'col8' },
-    { fieldName: 'col9' },
+    { fieldName: 'itmKndCd' },
+    { fieldName: 'sapMatCd' },
+    { fieldName: 'itmPdCd' },
+    { fieldName: 'itmPdNm' },
+    { fieldName: 'useQtySum' },
+    { fieldName: 'pdctUprc' }, // 실제원가
+    { fieldName: 'pdctUprcSum' },
+    { fieldName: 'csmrUprcAmt' }, // 소비자가
+    { fieldName: 'csmrUprcAmtSum' }, // 소비자가합계
   ];
 
   const columns = [
-    { fieldName: 'cntrNo', header: '구분', width: '160', styleName: 'text-center' },
-    { fieldName: 'dept', header: 'SAP코드', width: '90', styleName: 'text-center' },
-    { fieldName: 'deptNm', header: '품목코드', width: '130', styleName: 'text-center' },
-    { fieldName: 'costCnr', header: '품목명', width: '150', styleName: 'text-center' },
-    { fieldName: 'hdq', header: '수량', width: '200' },
-    { fieldName: 'col6', header: '실제원가', width: '110', styleName: 'text-center' },
-    { fieldName: 'col7', header: '원가합계', width: '130', styleName: 'text-center' },
-    { fieldName: 'col8', header: '소비자가', width: '110', styleName: 'text-right' },
-    { fieldName: 'col9', header: '소비자합계', width: '100', styleName: 'text-right' },
-
+    { fieldName: 'itmKndCd',
+      header: t('MSG_TXT_DIV'),
+      width: '100',
+      styleName: 'text-center',
+      // eslint-disable-next-line max-len
+      displayCallback: (grid, index) => getCodeNames(codes.ITM_KND_CD, grid.getValue(index.itemIndex, 'itmKndCd')),
+    },
+    { fieldName: 'sapMatCd', header: t('MSG_TXT_SAPCD'), width: '130', styleName: 'text-center' },
+    { fieldName: 'itmPdCd', header: t('MSG_TXT_ITM_CD'), width: '150', styleName: 'text-center' },
+    { fieldName: 'itmPdNm', header: t('MSG_TXT_ITM_NM'), width: '270', styleName: 'text-center' },
+    { fieldName: 'useQtySum', header: t('MSG_TXT_QTY'), width: '90' },
+    { fieldName: 'pdctUprc', header: t('MSG_TXT_ACTUAL_COST'), width: '100', styleName: 'text-center' },
+    { fieldName: 'pdctUprcSum', header: t('MSG_TXT_COST') + t('MSG_TXT_SUM_AMT'), width: '120', styleName: 'text-center' },
+    { fieldName: 'csmrUprcAmt', header: t('MSG_TXT_CSPRC'), width: '120', styleName: 'text-center' },
+    { fieldName: 'csmrUprcAmtSum', header: t('MSG_TXT_CSPRC') + t('MSG_TXT_SUM_AMT'), width: '140', styleName: 'text-center' },
   ];
 
   data.setFields(fields);

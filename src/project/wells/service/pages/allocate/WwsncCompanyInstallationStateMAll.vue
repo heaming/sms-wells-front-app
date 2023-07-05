@@ -15,7 +15,7 @@
 
 <template>
   <kw-search
-    :cols="2"
+    :cols="3"
     one-row
     @search="onClickSearch"
   >
@@ -28,7 +28,7 @@
         <kw-date-picker
           v-model="searchParams.mgtYnm"
           type="month"
-          rules="required"
+          :rules="required"
         />
       </kw-search-item>
     </kw-search-row>
@@ -75,6 +75,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { defineGrid, getComponentType, gridUtil, useDataService, useMeta, codeUtil } from 'kw-lib';
+import { getCodeNames } from '~/modules/sms-common/product/utils/pdUtil';
 import dayjs from 'dayjs';
 import { cloneDeep } from 'lodash-es';
 
@@ -95,9 +96,6 @@ let cachedParams;
  */
 const searchParams = ref({
   mgtYnm: now.format('YYYYMM'), // 관리년월
-  mgtTyp: '', // 관리유형
-  istDtFrom: `${now.format('YYYYMM')}01`,
-  istDtTo: now.format('YYYYMMDD'),
 });
 
 /*
@@ -115,7 +113,8 @@ const pageInfo = ref({
 const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
   'COPN_DV_CD',
-  'REFRI_DV_CD',
+  'REFRI_DV_CD', // 유무상
+  'SV_BIZ_DCLSF_CD', // 서비스업무세분류콪ㄷ드
 );
 
 async function fetchData() {
@@ -151,7 +150,7 @@ async function onClickSearch() {
 async function onClickExcelDownload() {
   const view = gridAllRef.value.getView();
 
-  const response = await dataService.get('', { params: cachedParams });
+  const response = await dataService.get('/sms/wells/service/company-ist-state/all/excel-download', { params: cachedParams });
 
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
@@ -165,61 +164,78 @@ async function onClickExcelDownload() {
 // -------------------------------------------------------------------------------------------------
 const initGrid = defineGrid((data, view) => {
   const fields = [
+    { fieldName: 'cntrNoSn' }, // 계약번호
     { fieldName: 'cntrNo' },
-    { fieldName: 'deptCd' },
-    { fieldName: 'deptNm1' },
-    { fieldName: 'csnrCd' },
-    // { fieldName: 'hdq' },
-    { fieldName: 'custNm' },
-    { fieldName: 'copnDvCd' },
-    { fieldName: 'pdCd' },
-    { fieldName: 'pdNm' },
-    { fieldName: 'svBizMclsfCd' },
-    { fieldName: 'svBizDclsfCd' },
-    { fieldName: 'svBizDclsfNm' },
-    { fieldName: 'sapMatCd' },
-    { fieldName: 'partPdCd' },
-    { fieldName: 'partPdNm' },
-    { fieldName: 'useQty' },
-    { fieldName: 'pdctUprc' },
-    { fieldName: 'pdctUprcSum' },
-    { fieldName: 'csmrUprcAmt' },
-    { fieldName: 'csmrUprcAmtSum' },
-    { fieldName: 'refriDvCd' },
-    { fieldName: 'wrkPrtnrClsfCd' },
-    { fieldName: 'wrkPrtnrNo' },
-    { fieldName: 'wrkPrtnrKnm' },
-    { fieldName: 'wrkOgNm' },
-    { fieldName: 'cstAdr' },
+    { fieldName: 'cntrSn' },
+    { fieldName: 'ogId' }, // 부서
+    { fieldName: 'ogNm' }, // 부서명
+    { fieldName: 'cscnCd' }, // 코스트센터
+    { fieldName: 'deptNm1' }, // 본부
+    { fieldName: 'rcgvpKnm' }, // 고객명
+    { fieldName: 'svcTpNm' }, // 관리유형
+    { fieldName: 'fnlPdCd' }, // 상품코드
+    { fieldName: 'basePdNm' }, // 상품명
+    { fieldName: 'svBizHclsfCd' }, // 작업유형
+    { fieldName: 'svBizDclsfCd' }, // 작업유형상세
+    { fieldName: 'svBizDclsfNm' }, // 작업유형명
+    { fieldName: 'sapMatCd' }, // SAP코드
+    { fieldName: 'itmPdCd' }, // 품목코드
+    { fieldName: 'itmPdNm' }, // 부품명
+    { fieldName: 'useQty' }, // 사용수량
+    { fieldName: 'pdctUprc' }, // 실제원가
+    { fieldName: 'pdctUprcSum' }, // 원가합계
+    { fieldName: 'csmrUprcAmt' }, // 소비자가
+    { fieldName: 'csmrUprcAmtSum' }, // 소비자가합계
+    // { fieldName: 'refriDvCd' }, // 작업구분
+    // { fieldName: 'wrkPrtnrClsfCd' }, // 유무상구분
+    { fieldName: 'prtnrClsfCd' }, // 작업자구분
+    { fieldName: 'ichrPrtnrNo' }, // 작업자사번
+    { fieldName: 'prtnrKnm' }, // 작업자성명
+    { fieldName: 'prtnrOgNm' }, // 작업자소속
+    { fieldName: 'cstAdr' }, // 고객주소
   ];
 
   const columns = [
-    { fieldName: 'cntrNo', header: '계약번호', width: '160', styleName: 'text-center' },
-    { fieldName: 'deptCd', header: '부서', width: '90', styleName: 'text-center' },
-    { fieldName: 'deptNm1', header: '부서명', width: '130', styleName: 'text-center' },
-    { fieldName: 'csnrCd', header: '코스트센터', width: '150', styleName: 'text-center' },
-    // { fieldName: 'hdq', header: '본부', width: '200' },
-    { fieldName: 'custNm', header: '고객명', width: '110', styleName: 'text-center' },
-    { fieldName: 'copnDvCd', header: '관리유형', width: '130', styleName: 'text-center' },
-    { fieldName: 'pdCd', header: '상품코드', width: '110', styleName: 'text-right' },
-    { fieldName: 'pdNm', header: '상품명', width: '100', styleName: 'text-right' },
-    { fieldName: 'svBizMclsfCd', header: '작업유형', width: '110', styleName: 'text-center' },
-    { fieldName: 'svBizDclsfCd', header: '작업유형상세', width: '100', styleName: 'text-center' },
-    { fieldName: 'svBizDclsfNm', header: '작업유형명', width: '105', styleName: 'text-center' },
-    { fieldName: 'sapMatCd', header: 'SAP코드', width: '130', styleName: 'text-center' },
-    { fieldName: 'partPdCd', header: '품목코드', width: '110', styleName: 'text-right' },
-    { fieldName: 'partPdNm', header: '부품명', width: '100', styleName: 'text-right' },
-    { fieldName: 'useQty', header: '사용수량', width: '110', styleName: 'text-center' },
-    { fieldName: 'pdctUprc', header: '실제원가(원)', width: '100', styleName: 'text-center' },
-    { fieldName: 'pdctUprcSum', header: '원가합계금액', width: '105', styleName: 'text-center' },
-    { fieldName: 'csmrUprcAmt', header: '소비자가(원)', width: '105', styleName: 'text-center' },
-    { fieldName: 'csmrUprcAmtSum', header: '소비자가\n합계금액', width: '130', styleName: 'text-center' },
-    { fieldName: 'refriDvCd', header: '유무상', width: '100', styleName: 'text-right' },
-    { fieldName: 'wrkPrtnrClsfCd', header: '작업자 구분', width: '110', styleName: 'text-center' },
-    { fieldName: 'wrkPrtnrNo', header: '작업자 사번', width: '100', styleName: 'text-center' },
-    { fieldName: 'wrkPrtnrKnm', header: '작업자 성명', width: '105', styleName: 'text-center' },
-    { fieldName: 'wrkOgNm', header: '작업자 소속', width: '100', styleName: 'text-center' },
-    { fieldName: 'cstAdr', header: '고객 주소 상세', width: '105', styleName: 'text-center' },
+    { fieldName: 'cntrNoSn',
+      header: t('MSG_TXT_CNTR_DTL_NO'),
+      width: '160',
+      styleName: 'text-center',
+      // eslint-disable-next-line max-len
+      displayCallback: (grid, index) => (`${gridUtil.getCellValue(grid, index.dataRow, 'cntrNo')}-${gridUtil.getCellValue(grid, index.dataRow, 'cntrSn')}`),
+    },
+    { fieldName: 'cntrNo', visible: false },
+    { fieldName: 'cntrSn', visible: false },
+    { fieldName: 'ogId', header: t('MSG_TXT_DEPT'), width: '90', styleName: 'text-center' },
+    { fieldName: 'ogNm', header: t('MSG_TXT_DEPT_NM'), width: '130', styleName: 'text-center' },
+    { fieldName: 'cscnCd', header: t('MSG_TXT_COST_CNR'), width: '150', styleName: 'text-center' },
+    { fieldName: 'deptNm1', header: t('MSG_TXT_HDQ'), width: '200' },
+    { fieldName: 'rcgvpKnm', header: t('MSG_TXT_CST_NM'), width: '110', styleName: 'text-center' },
+    { fieldName: 'svcTpNm', header: t('MSG_TXT_MGT_TYP'), width: '130', styleName: 'text-center' },
+    { fieldName: 'fnlPdCd', header: t('MSG_TXT_PRDT_CODE'), width: '110', styleName: 'text-right' },
+    { fieldName: 'basePdNm', header: t('MSG_TXT_PRDT_NM'), width: '100', styleName: 'text-right' },
+    { fieldName: 'svBizHclsfCd', header: t('MSG_TXT_WORK_TYPE'), width: '110', styleName: 'text-center' },
+    { fieldName: 'svBizDclsfCd', header: t('MSG_TXT_WORK_TYPE') + t('MSG_TXT_DTL'), width: '100', styleName: 'text-center' },
+    { fieldName: 'svBizDclsfNm',
+      header: t('MSG_TXT_WORK_TYPE') + t('MSG_TXT_NM'),
+      width: '105',
+      styleName: 'text-center',
+      displayCallback: (grid, index) => getCodeNames(codes.SV_BIZ_DCLSF_CD, grid.getValue(index.itemIndex, 'svBizDclsfCd')),
+    },
+    { fieldName: 'sapMatCd', header: t('MSG_TXT_SAPCD'), width: '130', styleName: 'text-center' },
+    { fieldName: 'itmPdCd', header: t('MSG_TXT_ITM_CD'), width: '110', styleName: 'text-right' },
+    { fieldName: 'itmPdNm', header: t('MSG_TXT_FLT_AND_PART_NM'), width: '100', styleName: 'text-right' },
+    { fieldName: 'useQty', header: t('MSG_TXT_USE') + t('MSG_TXT_QTY'), width: '110', styleName: 'text-center' },
+    { fieldName: 'pdctUprc', header: t('MSG_TXT_ACTUAL_COST'), width: '100', styleName: 'text-center' },
+    { fieldName: 'pdctUprcSum', header: t('MSG_TXT_COST') + t('MSG_TXT_SUM_AMT'), width: '105', styleName: 'text-center' },
+    { fieldName: 'csmrUprcAmt', header: t('MSG_TXT_CSPRC'), width: '105', styleName: 'text-center' },
+    { fieldName: 'csmrUprcAmtSum', header: t('MSG_TXT_CSPRC') + t('MSG_TXT_SUM_AMT'), width: '130', styleName: 'text-center' },
+    // { fieldName: 'refriDvCd', header: t('MSG_TXT_RECAP_OR_FREE'), width: '100', styleName: 'text-right' },
+    // eslint-disable-next-line max-len
+    // { fieldName: 'prtnrClsfCd', header: t('MSG_TXT_WKP') + t('MSG_TXT_DIV'), width: '110', styleName: 'text-center' },
+    { fieldName: 'ichrPrtnrNo', header: t('MSG_TXT_WKP') + t('MSG_TXT_EPNO'), width: '100', styleName: 'text-center' },
+    { fieldName: 'prtnrKnm', header: t('MSG_TXT_WKP') + t('MSG_TXT_EMPL_NM'), width: '105', styleName: 'text-center' },
+    { fieldName: 'prtnrOgNm', header: t('MSG_TXT_WKP') + t('MSG_TXT_BLG'), width: '100', styleName: 'text-center' },
+    { fieldName: 'cstAdr', header: t('MSG_TXT_CST_ADR'), width: '105', styleName: 'text-center' },
   ];
 
   data.setFields(fields);
