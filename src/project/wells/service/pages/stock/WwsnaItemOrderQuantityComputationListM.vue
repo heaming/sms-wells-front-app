@@ -83,6 +83,7 @@
             v-model:page-size="pageInfo.pageSize"
             :total-count="pageInfo.totalCount"
             :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
+            @change="fetchData"
           />
           <span class="ml8">({{ t('MSG_TXT_UNIT') }} : EA)</span>
         </template>
@@ -230,6 +231,7 @@ function setTmpFields() {
     };
 
     if (idx > 3) {
+      field.header = `${field.header} ${t('MSG_TXT_ET_NED_QT')}`;
       tmpFields2.push(field);
       return;
     }
