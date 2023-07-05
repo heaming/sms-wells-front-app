@@ -60,9 +60,28 @@
                        {codeId: '599', codeName: '599'}]"
           />
         </kw-search-item>
+        <kw-search-item
+          v-if="searchParams.type === 'A'"
+          :label="$t('MSG_TXT_SEQUENCE_NUMBER')"
+        >
+          <zwog-partner-search
+            v-model:prtnr-no="searchParams.sellPrtnrNo"
+          />
+        </kw-search-item>
+        <kw-search-item
+          :label="$t('MSG_TXT_CLASFCTN_FEE')"
+        >
+          <kw-option-group
+            v-model="searchParams.clasfctnFee"
+            type="radio"
+            :options="[{codeId: '0', codeName: $t('MSG_TXT_FEE')},
+                       {codeId: '1', codeName: $t('MSG_TXT_REDF')},
+                       {codeId: '2', codeName: $t('MSG_TXT_DLQ')},
+                       {codeId: '3', codeName: $t('MSG_TXT_ADSB')}]"
+          />
+        </kw-search-item>
       </kw-search-row>
     </kw-search>
-
     <div class="result-area">
       <kw-action-top>
         <template #left>
@@ -90,6 +109,13 @@
           :disable="(totalCount === 0)"
           @click="onClickCreate"
         />
+        <kw-btn
+          :label="$t('MSG_BTN_REDF_FEE_CRT')"
+          primary
+          dense
+          :disable="(totalCount === 0)"
+          @click="onClickReCreate"
+        />
       </kw-action-top>
       <kw-grid
         v-if="grdType === 'A'"
@@ -108,9 +134,10 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { defineGrid, useGlobal, useDataService, getComponentType, gridUtil } from 'kw-lib';
+import { defineGrid, useGlobal, useDataService, getComponentType, gridUtil, codeUtil } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
+import ZwogPartnerSearch from '~sms-common/organization/components/ZwogPartnerSearch.vue';
 
 const dataService = useDataService();
 const now = dayjs();
@@ -121,6 +148,9 @@ const { currentRoute } = useRouter();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
+const codes = await codeUtil.getMultiCodes(
+  'RSB_DV_CD',
+);
 const grdType = ref('A');
 const grdRefA = ref(getComponentType('KwGrid'));
 const grdDataA = computed(() => grdRefA.value?.getData());
@@ -134,6 +164,8 @@ const searchParams = ref({
   strtDt: '',
   endDt: '',
   pdCd: '',
+  sellPrtnrNo: '',
+  clasfctnFee: '0', // (0:수수료, 1:되물림, 2:연체, 3:재지급)
 });
 // 데이터 조회
 async function fetchData() {
@@ -181,6 +213,27 @@ async function onClickCreate() {
     fetchData();
   }
 }
+
+// 되물림 수수료 생성 버튼
+async function onClickReCreate() {
+  const view = grdType.value === 'A' ? grdRefA.value.getView() : grdRefB.value.getView();
+  const allRows = gridUtil.getAllRowValues(view, false);
+
+  if (allRows.some((row) => row.cnfmYn === 'Y')) {
+    // 이미 확정되어 수수료 생성이 불가합니다.
+    await alert(t('MSG_ALT_BF_CNFM_CONF_FEE'));
+    return;
+  }
+  const { result: isChanged } = await modal({
+    component: 'WwfebMutualAidFeeRedpRegP',
+    componentProps: {
+      baseYm: searchParams.value.baseYm,
+    },
+  });
+  if (isChanged) {
+    fetchData();
+  }
+}
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
@@ -191,7 +244,7 @@ const initGrdMainA = defineGrid((data, view) => {
     { fieldName: 'ogCd', header: t('MSG_TXT_BLG'), width: '110.8', styleName: 'text-left' },
     { fieldName: 'PrtnrNo', header: t('MSG_TXT_SELLER_NO'), width: '110.8', styleName: 'text-left' },
     { fieldName: 'PrtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '110.8', styleName: 'text-left' },
-    { fieldName: 'cdCntn', header: t('MSG_TXT_RSB'), width: '110.8', styleName: 'text-center' },
+    { fieldName: 'rsbDvCd', header: t('MSG_TXT_RSB'), width: '110.8', styleName: 'text-center', options: codes.RSB_DV_CD },
     { fieldName: 'brmgrPrtnrNo', header: t('MSG_TXT_BRMGR_NO'), width: '110.8', styleName: 'text-left' },
     { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_NO'), width: '137.6', styleName: 'text-center' },
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '230.7', styleName: 'text-left' },
@@ -209,7 +262,7 @@ const initGrdMainA = defineGrid((data, view) => {
     { fieldName: 'flpymTn', header: t('MSG_TXT_FULL_PYMNT_RD'), width: '81.1', styleName: 'text-right', dataType: 'number' },
     { fieldName: 'preAmtSum', header: t('MSG_TXT_BASE_PYMNT'), width: '126.7', styleName: 'text-right', dataType: 'number' },
     { fieldName: 'curAmt', header: t('MSG_TXT_THM_DSB'), width: '126.7', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'cnfmYn', header: t('MSG_TXT_LIFE_CNFRMD'), width: '126.7', styleName: 'text-center' },
+    { fieldName: 'etCnfmDvNm', header: t('MSG_TXT_LIFE_CNFRMD'), width: '126.7', styleName: 'text-center' },
     { fieldName: 'feeDsbYm', header: t('MSG_TXT_FEE_PYMNT_MNTH'), width: '186', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
     { fieldName: 'feeRedfYm', header: t('MSG_TXT_FEE_BCK_MNTH'), width: '186', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
   ];
@@ -229,8 +282,8 @@ const initGrdMainB = defineGrid((data, view) => {
     { fieldName: 'ogCd', header: t('MSG_TXT_BLG'), width: '110.8', styleName: 'text-left' },
     { fieldName: 'brmgrPrtnrNo', header: t('MSG_TXT_BRMGR_NO'), width: '110.8', styleName: 'text-left' },
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '110.8', styleName: 'text-left' },
-    { fieldName: 'cdCntn', header: t('MSG_TXT_RSB'), width: '110.8', styleName: 'text-center' },
-    { fieldName: 'brchCt', header: t('MSG_TXT_COUNT'), width: '110.8', styleName: 'text-center' },
+    { fieldName: 'rsbDvCd', header: t('MSG_TXT_RSB'), width: '110.8', styleName: 'text-center', options: codes.RSB_DV_CD },
+    { fieldName: 'brchCt', header: t('MSG_TXT_COUNT'), width: '110.8', styleName: 'text-right', dataType: 'number' },
     { fieldName: 'brchAmt', header: t('MSG_TXT_AMT'), width: '126.7', styleName: 'text-right', dataType: 'number' },
     { fieldName: 'feeDsbYm', header: t('MSG_TXT_FEE_PYMNT_MNTH'), width: '186', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
     { fieldName: 'feeRedfYm', header: t('MSG_TXT_FEE_BCK_MNTH'), width: '186', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
