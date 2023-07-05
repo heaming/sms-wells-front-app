@@ -172,7 +172,7 @@
                     v-else
                     class="scoped-item__product-name"
                   >
-                    {{ item.pdNm }} {{ item.pdCd }}
+                    {{ item.pdNm }}
                   </kw-item-label>
                   <div class="scoped-item__chips">
                     <kw-chip
@@ -213,7 +213,7 @@
                   />
                   <kw-btn
                     v-if="isItem.sltrRgSusc(item)"
-                    label="모종기기선택"
+                    label="기기선택"
                     class="mr10"
                     dense
                     @click="onClickSelSdingMchn(item)"
@@ -501,10 +501,13 @@
                   </template>
 
                   <div
-                    v-if="isItem.rgSusc(item)"
+                    v-if="isItem.sltrRgSusc(item) || isItem.rgSusc(item)"
                     class="product-right-area"
                   >
-                    <kw-separator class="dashed-line my20" />
+                    <kw-separator
+                      v-if="isArray(item.sdingCapsls) && item.sdingCapsls.length > 0"
+                      class="dashed-line my20"
+                    />
                     <!-- 반복시작 -->
                     <template
                       v-for="(sdingCapsl, i) in item.sdingCapsls"
@@ -515,7 +518,7 @@
                           class="kw-fc--black1 text-weight-medium product-left"
                           style="width: calc(100% - 44px);"
                         >
-                          {{ sdingCapsl.partPdNm + ' ' + sdingCapsl.partUseQty + '개' }}
+                          {{ sdingCapsl.partPdNm + ' ' + sdingCapsl.itmQty + '개' }}
                         </p>
                       </div>
                     </template>
@@ -535,7 +538,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { alert, stringUtil, useDataService, useGlobal } from 'kw-lib';
-import { cloneDeep, isEmpty } from 'lodash-es';
+import { cloneDeep, isArray, isEmpty } from 'lodash-es';
 
 const { t } = useI18n();
 const dataService = useDataService();
@@ -558,8 +561,8 @@ const isItem = {
   crpCntr: () => step2.value.bas?.cntrTpCd === '02',
   welsf: (i) => i.lclsfVal === '05001003',
   hcf: (i) => i.lclsfVal === '01003001',
-  rgSusc: (i) => i.cntrRelDtlCd === '216', // 정기배송
   sltrRgSusc: (i) => i.cntrRelDtlCd === '214', // 단독정기배송
+  rgSusc: (i) => i.cntrRelDtlCd === '216', // 정기배송
 };
 
 // -------------------------------------------------------------------------------------------------
@@ -650,11 +653,15 @@ async function onClickProduct(pd) {
       step2.value.dtls.push(p);
     }
   }
+  // 단독정기배송
+  if (npd.sellTpCd === '6') {
+    npd.cntrRelDtlCd = '214';
+  }
   resetCntrSn();
 }
 
 function onClickDelete(pd) {
-  if (pd.sellTpDtlCd === '62') return;
+  if (isItem.rgSusc(pd) && pd.sellTpDtlCd === '62') return;
   if (isItem.welsf(pd) || isItem.hcf(pd)) {
     step2.value.dtls = step2.value.dtls.filter((spd) => pd.cntrSn !== spd.cntrSn && (pd.cntrSn + 1) !== spd.cntrSn);
   } else {
@@ -731,13 +738,37 @@ function onClickDeleteOneplusone(pd) {
   pd.oneplusoneYn = false;
 }
 
+async function onClickSelSdingMchn(dtl) {
+  const res = await modal({
+    component: 'WwctaSeedingMachineChoiceP',
+    componentProps: {
+      cntrCstNo: step2.value.bas.cntrCstNo,
+      rglrSppMchnTpCd: dtl.rglrSppMchnTpCd,
+    },
+  });
+  if (res.result && res.payload) {
+    dtl.sdingMchn = res.payload;
+  }
+}
 async function onClickSelSdingCapsl(dtl) {
   const res = await modal({
     component: 'WwctaCapsuleSeedingChoiceP',
-    componentProps: { basePdCd: dtl.pdCd },
+    componentProps: {
+      basePdCd: dtl.pdCd,
+      rglrSppMchnTpCd: dtl.rglrSppMchnTpCd,
+      rglrSppPrcDvCd: dtl.rglrSppPrcDvCd,
+    },
   });
   if (res.result && res.payload) {
-    console.log(res);
+    dtl.sdingCapsls = res.payload.map((p) => ({
+      partPdNm: p.pdNm,
+      partPdCd: p.pdCd,
+      pdRelId: p.pdRelId,
+      pdRelTpCd: p.pdRelTpCd,
+      itmQty: p.count,
+      amt: p.prc * p.count,
+    }));
+    dtl.fnlAmt = dtl.sdingCapsls.reduce((acc, cur) => Number(acc) + Number(cur.amt), 0);
   }
 }
 
@@ -746,7 +777,6 @@ async function onChangePkgs(dtl) {
   const pp = pkgs.find((p) => p.codeId === pkg);
   pp.pkgs = cloneDeep(pkgs);
   pp.pkg = pp.codeId;
-  pp.pdQty = 1;
   step2.value.dtls[step2.value.dtls.findIndex((d) => d.cntrSn === cntrSn)] = pp;
   resetCntrSn();
 }
