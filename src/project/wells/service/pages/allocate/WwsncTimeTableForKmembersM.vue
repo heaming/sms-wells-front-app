@@ -501,7 +501,7 @@ const props = defineProps({
   svBizDclsfCd: { type: String, default: '' },
   basePdCd: { type: String, default: '' },
   wrkDt: { type: String, default: '' },
-  dataStatCd: { type: String, default: '' },
+  mtrStatCd: { type: String, default: '' },
   returnUrl: { type: String, default: '' },
   mkCo: { type: String, default: '' },
   cntrNo: { type: String, default: '' },
@@ -519,7 +519,7 @@ const props = defineProps({
 // if (props.inflwChnl === '') alert('inflwChnl');
 // if (props.basePdCd === '') alert('basePdCd');
 // if (props.wrkDt === '') alert('wrkDt');
-// if (props.dataStatCd === '') alert('dataStatCd');
+// if (props.mtrStatCd === '') alert('mtrStatCd');
 // if (props.returnUrl === '') alert('returnUrl');
 // if (props.mkCo === '') alert('mkCo');
 // if (props.cntrNo === '') alert('cntrNo');
@@ -553,7 +553,7 @@ const searchParams = ref({
   inflwChnl: props.inflwChnl,
   basePdCd: props.basePdCd,
   wrkDt: props.wrkDt,
-  dataStatCd: props.dataStatCd,
+  mtrStatCd: props.mtrStatCd,
   returnUrl: props.returnUrl,
   mkCo: props.mkCo,
   cntrNo: props.cntrNo,
@@ -577,7 +577,7 @@ const data = ref({
   sellTime: '',
   curDateTimeString: '',
   wrkDt: '',
-  dataStatCd: '',
+  mtrStatCd: '',
   basePdCd: '',
   lcst09: '',
   newAdrZip: '',
@@ -1065,7 +1065,7 @@ async function onClickSave() {
     asIstOjNo: data.value.inflwChnl + data.value.svDvCd + data.value.wrkDt + data.value.seq,
     svBizHclsfCd: searchParams.value.svDvCd,
     rcpdt: data.value.wrkDt,
-    mtrStatCd: searchParams.value.dataStatCd,
+    mtrStatCd: searchParams.value.mtrStatCd,
     svBizDclsfCd: searchParams.value.svBizDclsfCd,
     urgtYn: 'N',
     vstRqdt: searchParams.value.sellDate,
