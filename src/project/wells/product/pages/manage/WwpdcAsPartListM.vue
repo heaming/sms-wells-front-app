@@ -49,7 +49,7 @@
           :label="$t('MSG_TIT_AS_PART_CLASSIFICATION')"
         >
           <zwpd-product-classification-select
-            ref="productSelRef"
+            ref="classfySelRef"
             v-model:product1-level="searchParams.prdtCateHigh"
             v-model:product2-level="searchParams.prdtCateMid"
             v-model:product3-level="searchParams.prdtCateLow"
@@ -129,7 +129,7 @@
           grid-action
           :disable="pageInfo.totalCount === 0"
           :label="$t('MSG_BTN_SUMMARY_SRCH')"
-          @click="onClickSummarySearch"
+          @click="onClickSummaryDtl"
         />
         <kw-separator
           spaced
@@ -168,34 +168,34 @@ import { cloneDeep, isEmpty } from 'lodash-es';
 import ZwpdProductClassificationSelect from '~sms-common/product/pages/standard/components/ZwpdProductClassificationSelect.vue';
 import pdConst from '~sms-common/product/constants/pdConst';
 
+const props = defineProps({
+  searchYn: { type: String, default: null },
+});
+
 const { notify, modal } = useGlobal();
 const { t } = useI18n();
 const dataService = useDataService();
 const { getConfig } = useMeta();
-// const route = useRoute();
 const router = useRouter();
 const { currentRoute } = useRouter();
-
-const grdMainRef = ref(getComponentType('KwGrid'));
-
-const pageInfo = ref({
-  totalCount: 0,
-  pageIndex: 1,
-  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
-});
-
-const props = defineProps({
-  searchYn: { type: String, default: null },
-});
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 const baseUrl = '/sms/wells/product/as-parts';
-const codes = await codeUtil.getMultiCodes('PD_TP_CD', 'PD_TEMP_SAVE_CD', 'COD_YN', 'COD_PAGE_SIZE_OPTIONS');
+const grdMainRef = ref(getComponentType('KwGrid'));
+const classfySelRef = ref();
+const currentSearchYn = ref();
+
 const page = ref({
-  reg: '/product/wwpdc-as-part-list/wwpdc-as-part-mgt', // 교재/자재 등록 UI
-  detail: '/product/wwpdc-as-part-list/wwpdc-as-part-dtl', // 교재/자재 상세보기 UI
+  reg: '/product/wwpdc-as-part-list/wwpdc-as-part-mgt',
+  detail: '/product/wwpdc-as-part-list/wwpdc-as-part-dtl',
+});
+
+const pageInfo = ref({
+  totalCount: 0,
+  pageIndex: 1,
+  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
 });
 
 let cachedParams;
@@ -208,9 +208,11 @@ const searchParams = ref({
   prdtCateLow: '',
   asMatCd: '',
   sapMatCd: '',
-  sapItemCdFrom: '', // 품목코드
-  sapItemCdTo: '', // 품목코드
+  sapItemCdFrom: '',
+  sapItemCdTo: '',
 });
+
+const codes = await codeUtil.getMultiCodes('PD_TP_CD', 'PD_TEMP_SAVE_CD', 'COD_YN', 'COD_PAGE_SIZE_OPTIONS');
 
 // 자재코드 조회팝업(sapMatCd)
 async function onClickSapMaterial() {
@@ -256,15 +258,16 @@ async function onClickSearch() {
   pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
+  currentSearchYn.value = 'N';
 }
 
 async function onClickExcelUpload() {
-  const apiUrl = '/sms/wells/product/as-parts/excel-upload';
-  const templateId = 'FOM_PD_ASPART_BLK_RGST';
-
   const { payload } = await modal({
     component: 'ZwcmzExcelUploadP',
-    componentProps: { apiUrl, templateId },
+    componentProps: {
+      apiUrl: `${baseUrl}/excel-upload`,
+      templateId: 'FOM_PD_ASPART_BLK_RGST',
+    },
   });
 
   if (payload) {
@@ -291,6 +294,20 @@ async function onClickExcelDownload() {
   });
 }
 
+async function onClickAdd() {
+  const regStateParams = { pdCd: '', newRegYn: 'Y', reloadYn: 'N', copyPdCd: '' };
+  await router.push({ path: page.value.reg, query: { fromUi: 'Reg' }, state: { stateParam: regStateParams } });
+}
+
+async function openProductPopup(pdCd, tempSaveYn) {
+  if ((tempSaveYn ?? 'Y') === 'Y') {
+    const updateStateParams = { newRegYn: 'N', reloadYn: 'N', copyPdCd: '' };
+    await router.push({ path: page.value.reg, query: { pdCd, tempSaveYn, fromUi: 'ASPART' }, state: { stateParam: updateStateParams } });
+  } else {
+    await router.push({ path: page.value.detail, query: { pdCd, tempSaveYn, fromUi: 'ASPART' }, state: { reloadYn: 'Y' } });
+  }
+}
+
 async function onClickCopy() {
   const view = grdMainRef.value.getView();
   const checkedRows = cloneDeep(gridUtil.getCheckedRowValues(view));
@@ -307,38 +324,21 @@ async function onClickCopy() {
   await router.push({ path: page.value.reg, query: { copyPdCd: targetPdCd }, state: { stateParam: regStateParams } });
 }
 
-async function onClickAdd() {
-  // await router.push({ path: page.value.reg, query: { fromUi: 'Reg' } });
-  const regStateParams = { pdCd: '', newRegYn: 'Y', reloadYn: 'N', copyPdCd: '' };
-  await router.push({ path: page.value.reg, query: { fromUi: 'Reg' }, state: { stateParam: regStateParams } });
-}
-
-async function onClickSummarySearch() {
+async function onClickSummaryDtl() {
   const view = grdMainRef.value.getView();
-
-  if (view.getCheckedRows().length === 0) {
+  const checkedRows = gridUtil.getCheckedRowValues(view);
+  if (isEmpty(checkedRows) || checkedRows.length < 1) {
     notify(t('MSG_ALT_SELECT_ONE_ROW', [t('MSG_BTN_SUMMARY_SRCH')]));
-  } else if (view.getCheckedRows().length > 1) {
+    return;
+  }
+  if (checkedRows.length > 1) {
     notify(t('MSG_ALT_SELT_ONE_ITEM'));
-  } else {
-    const checkedRow = gridUtil.getCheckedRowValues(view);
-
-    await modal({
-      component: 'WwpdcAsPartSummaryDtlP',
-      componentProps: { pdCd: checkedRow[0].pdCd },
-    });
+    return;
   }
-}
-
-async function openProductPopup(pdCd, tempSaveYn) {
-  const targetUrl = tempSaveYn === 'Y' ? page.value.reg : page.value.detail;
-  // await router.push({ path: targetUrl, query: { pdCd, tempSaveYn, fromUi: 'ASPART' } });
-  if ((tempSaveYn ?? 'Y') === 'Y') {
-    const updateStateParams = { newRegYn: 'N', reloadYn: 'N', copyPdCd: '' };
-    await router.push({ path: targetUrl, query: { pdCd, tempSaveYn, fromUi: 'ASPART' }, state: { stateParam: updateStateParams } });
-  } else {
-    await router.push({ path: targetUrl, query: { pdCd, tempSaveYn, fromUi: 'ASPART' }, state: { reloadYn: 'Y' } });
-  }
+  await modal({
+    component: 'WwpdcAsPartSummaryDtlP',
+    componentProps: { pdCd: checkedRows[0].pdCd },
+  });
 }
 
 const sapItemCdFromValidation = async (val) => {
@@ -363,16 +363,8 @@ const sapItemCdToValidation = async (val) => {
   return errors[0] || true;
 };
 
-// watch(() => route.query, async (query) => {
-//   console.log('route query', query);
-//   // eslint-disable-next-line no-use-before-define
-//   if (query.isSearch) onClickSearch();
-// }, { immediate: true });
-
 onActivated(async () => {
-  if (props.searchYn === 'Y') {
-    await onClickSearch();
-  }
+  if (props.searchYn === 'Y') await onClickSearch();
 });
 
 watch(() => props, ({ searchYn }) => {
