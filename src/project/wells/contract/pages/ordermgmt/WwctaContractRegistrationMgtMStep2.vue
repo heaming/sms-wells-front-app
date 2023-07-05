@@ -201,17 +201,32 @@
                     label="기기변경"
                     class="mr8"
                     dense
-                    @click="onClickDeviceChahge(item)"
+                    @click="onClickDeviceChange(item)"
                   />
                   <kw-btn
                     v-if="isItem.rntl(item)"
+                    :disable="item.deviceChangeYn"
                     label="1+1"
                     class="mr10"
                     dense
                     @click="onClickOnePlusOne(item)"
                   />
                   <kw-btn
-                    v-if="item.sellTpDtlCd != '62'"
+                    v-if="isItem.sltrRgSusc(item)"
+                    label="모종기기선택"
+                    class="mr10"
+                    dense
+                    @click="onClickSelSdingMchn(item)"
+                  />
+                  <kw-btn
+                    v-if="isItem.rgSusc(item)"
+                    :disable="item.pdctUprcUseYn !== 'Y'"
+                    :label="(item.sellTpDtlCd == '62' ? '모종' : '캡슐') + '선택'"
+                    class="mr10"
+                    dense
+                    @click="onClickSelSdingCapsl(item)"
+                  />
+                  <kw-btn
                     borderless
                     icon="close_24"
                     style="font-size: 24px;"
@@ -429,6 +444,62 @@
                     </div>
                   </template>
 
+                  <template
+                    v-if="item.deviceChangeYn"
+                  >
+                    <div
+                      class="scoped-item-right-area"
+                    >
+                      <kw-separator class="dashed-line my20" />
+                      <div class="row items-center justify-between">
+                        <div
+                          class="row"
+                          style="width: calc(100% - 45px);"
+                        >
+                          <kw-chip
+                            label="기기변경"
+                            color="primary"
+                            outline
+                            class="ma2"
+                          />
+                          <ul
+                            class="scoped-item-price-list kw-grow"
+                            style="max-width: calc(100% - 45px);"
+                          >
+                            <li
+                              class="scoped-item-price-item kw-grow"
+                              style="max-width: calc(100% - 255px);"
+                            >
+                              <span
+                                class="kw-fc--black1 ml8 "
+                                style="overflow: hidden;
+                                      text-overflow: ellipsis;
+                                      white-space: nowrap;"
+                              >{{ item.deviceChangePdNm }}</span>
+                            </li>
+
+                            <li class="scoped-item-price-item">
+                              <p class="kw-font-pt14 kw-fc--black3">
+                                계약번호
+
+                                <span class="kw-fc--black1 ml8">
+                                  {{ item.deviceChangeCntrNo }}-{{ item.deviceChangeCntrSn }}</span>
+                              </p>
+                            </li>
+                          </ul>
+
+                          <kw-btn
+                            borderless
+                            icon="close_24"
+                            style="font-size: 24px;"
+                            class="w24"
+                            @click="onClickDeleteDeviceChange(item)"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </template>
+
                   <div
                     v-if="isItem.rgSusc(item)"
                     class="product-right-area"
@@ -487,7 +558,8 @@ const isItem = {
   crpCntr: () => step2.value.bas?.cntrTpCd === '02',
   welsf: (i) => i.lclsfVal === '05001003',
   hcf: (i) => i.lclsfVal === '01003001',
-  rgSusc: (i) => i.cntrRelDtlCd === '216',
+  rgSusc: (i) => i.cntrRelDtlCd === '216', // 정기배송
+  sltrRgSusc: (i) => i.cntrRelDtlCd === '214', // 단독정기배송
 };
 
 // -------------------------------------------------------------------------------------------------
@@ -573,7 +645,7 @@ async function onClickProduct(pd) {
       pkgs.data.forEach((pkg) => {
         pkg.cntrRelDtlCd = '216';
       });
-      p.pkgs = pkgs.data;
+      p.pkgs = cloneDeep(pkgs.data);
       p.pkg = p.codeId;
       step2.value.dtls.push(p);
     }
@@ -582,6 +654,7 @@ async function onClickProduct(pd) {
 }
 
 function onClickDelete(pd) {
+  if (pd.sellTpDtlCd === '62') return;
   if (isItem.welsf(pd) || isItem.hcf(pd)) {
     step2.value.dtls = step2.value.dtls.filter((spd) => pd.cntrSn !== spd.cntrSn && (pd.cntrSn + 1) !== spd.cntrSn);
   } else {
@@ -590,8 +663,8 @@ function onClickDelete(pd) {
   resetCntrSn();
 }
 
-async function onClickDeviceChahge(pd) {
-  await modal({
+async function onClickDeviceChange(pd) {
+  const res = await modal({
     component: 'WwctaMachineChangeCustomerDtlP',
     componentProps: {
       baseCntrNo: pd.cntrNo,
@@ -607,6 +680,13 @@ async function onClickDeviceChahge(pd) {
     },
   });
 
+  if (res.result && res.payload) {
+    pd.deviceChangeYn = res.result;
+    pd.deviceChangeCntrNo = res.payload.cntrNo;
+    pd.deviceChangeCntrSn = res.payload.cntrSn;
+    pd.deviceChangePdNm = res.payload.pdNm;
+  }
+
   // baseCntrNo: { type: String, default: '' }, // 현재 진행중인 계약번호
   // baseCntrSn: { type: String, default: '' }, // 현재 진행중인 계약일련번호
   // cstNo: { type: String, required: true, default: '' }, // 계약자 고객번호
@@ -617,6 +697,13 @@ async function onClickDeviceChahge(pd) {
   // sellTpCd: { type: String, required: true, default: '' }, // 판매유형코드
   // alncmpCd: { type: String, default: '' }, // 제휴사코드
   // rgstMdfcDv: { type: String, required: true, default: '' }, // 등록/수정여부(1.등록, 2.수정)
+}
+
+function onClickDeleteDeviceChange(pd) {
+  pd.deviceChangeYn = false;
+  pd.deviceChangeCntrNo = '';
+  pd.deviceChangeCntrSn = '';
+  pd.deviceChangePdNm = '';
 }
 
 async function onClickOnePlusOne(pd) {
@@ -644,11 +731,22 @@ function onClickDeleteOneplusone(pd) {
   pd.oneplusoneYn = false;
 }
 
+async function onClickSelSdingCapsl(dtl) {
+  const res = await modal({
+    component: 'WwctaCapsuleSeedingChoiceP',
+    componentProps: { basePdCd: dtl.pdCd },
+  });
+  if (res.result && res.payload) {
+    console.log(res);
+  }
+}
+
 async function onChangePkgs(dtl) {
   const { pkg, pkgs, cntrSn } = dtl;
   const pp = pkgs.find((p) => p.codeId === pkg);
-  pp.pkgs = pkgs;
+  pp.pkgs = cloneDeep(pkgs);
   pp.pkg = pp.codeId;
+  pp.pdQty = 1;
   step2.value.dtls[step2.value.dtls.findIndex((d) => d.cntrSn === cntrSn)] = pp;
   resetCntrSn();
 }
@@ -667,6 +765,7 @@ async function getCntrInfo(cntrNo) {
   });
   pCntrNo.value = step2.value.bas.cntrNo;
   ogStep2.value = cloneDeep(step2.value);
+  console.log(step2.value);
 }
 
 const clsfItemRefs = reactive({});
