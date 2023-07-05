@@ -79,7 +79,7 @@
 import { useGlobal, useDataService, getComponentType, defineGrid, gridUtil, codeUtil } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 
-const { modal, notify } = useGlobal();
+const { modal, notify, alert } = useGlobal();
 const { t } = useI18n();
 const dataService = useDataService();
 
@@ -104,7 +104,7 @@ const emits = defineEmits([
 async function adjustObject() {
   // 유가증권 제외
   const res = await dataService.get('/sms/wells/closing/expense/marketable-securities-exclude/adjust-object', { params: cachedParams });
-  debugger;
+
   mainTotalCount.value = res.data.length;
   const view = grdMainRef.value.getView();
 
@@ -116,7 +116,7 @@ async function adjustObject() {
 
 async function withholdingTaxAdjustList() {
   const res = await dataService.get('/sms/wells/closing/expense/marketable-securities-exclude/withholding-tax-adjust', { params: cachedParams });
-  debugger;
+
   subTotalCount.value = res.data.length;
   const view = grdSubRef.value.getView();
   view.getDataSource().setRows(res.data);
@@ -145,13 +145,13 @@ async function onClickSave() {
   let count = 0;
   let checkedCount = 0;
   checkedRows.forEach((checkedRow) => {
-    if (checkedRow.opcsAdjExcdYn !== 'N') {
+    if (checkedRow.opcsAdjExcdYn !== '정산' && checkedRow.opcsAdjExcdYn !== 'N') {
       count += 1;
     }
     checkedCount += 1;
   });
   debugger;
-  if (count > 1) {
+  if (count > 0) {
     alert('정상제외여부가 "정산"이어야 가능 합니다.');
     return;
   }
@@ -166,17 +166,19 @@ async function onClickSave() {
   let cardAprno;
   const sortRows = checkedRows.sort((t1, t2) => (t1.cardAprno < t2.cardAprno ? -1 : 1));
   for (let i = 0; i < sortRows.length; i += 1) {
-    cardAprno = sortRows[i].cardAprno;
     domTrdAmtTotal = 0;
+    cardAprno = sortRows[i].cardAprno;
+    domTrdAmtTotal = Number(sortRows[i].domTrdAmt1);
 
     for (let j = i + 1; j < sortRows.length; j += 1) {
       if (cardAprno === sortRows[j].cardAprno) {
-        domTrdAmtTotal += sortRows[j].domTrdAmt;
+        domTrdAmtTotal += Number(sortRows[j].domTrdAmt1);
       } else {
-        i = j;
+        i = (j - 1);
+        break;
       }
     }
-    if (domTrdAmtTotal > 0) {
+    if (domTrdAmtTotal !== 0) {
       updateTotal += 1;
     }
   }
@@ -186,7 +188,8 @@ async function onClickSave() {
     return;
   }
 
-  await dataService.post('/sms/wells/closing/expense/marketable-securities-exclude', checkedRows);
+  const data = checkedRows;
+  await dataService.put('/sms/wells/closing/expense/marketable-securities-exclude', data);
   notify(t('MSG_ALT_SAVE_DATA'));
   fetchData();
 }
@@ -198,7 +201,9 @@ const initGrdMain = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'opcsCardUseIzId', visible: false }, // 운영비카드사용내역ID
     { fieldName: 'dgr1LevlOgId', visible: false }, // 총괄단 ID
+    { fieldName: 'dgr2LevlOgId', visible: false }, // 지역단 ID
     { fieldName: 'adjOgId', visible: false },
+    { fieldName: 'domTrdAmt1', visible: false },
     { fieldName: 'useDtm', header: t('MSG_TXT_USE_DTM'), width: '174', styleName: 'text-center', editable: false }, // 사용일시
     { fieldName: 'dgr1LevlOgNm', header: t('MSG_TXT_MANAGEMENT_DEPARTMENT'), width: '71', styleName: 'text-left', editable: false }, // 총괄단
     { fieldName: 'crcdnoEncr', header: t('MSG_TXT_CARD_NO'), width: '172', styleName: 'text-center', editable: false }, // 카드번호
@@ -206,7 +211,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'mrcTobzNm', header: t('MSG_TXT_MRC'), width: '122', styleName: 'text-left', editable: false }, // 가맹점 업종명
     { fieldName: 'mrcAdrCn', header: t('MSG_TXT_MRC'), width: '122', styleName: 'text-left', editable: false }, // 가맹점 주소
     { fieldName: 'cardAprno', header: t('MSG_TXT_APR_NO'), width: '101', styleName: 'text-center', editable: false }, // 승인번호
-    { fieldName: 'domTrdAmt', header: t('MSG_TXT_USE_AMT'), width: '101', styleName: 'text-right', editable: false }, // 사용금액
+    { fieldName: 'domTrdAmt', header: t('MSG_TXT_USE_AMT'), width: '101', styleName: 'text-right', editable: false, dataType: 'number' }, // 사용금액
     { fieldName: 'opcsAdjExcdYn',
       header: t('MSG_TXT_ADJ_EXCD_YN'),
       editable: true,
@@ -293,7 +298,7 @@ const initGrdMain = defineGrid((data, view) => {
   ]);
 
   view.onCellItemClicked = async (g, { column, itemIndex }) => {
-    const { useDtm, mrcNm, cardAprno, domTrdAmt, opcsCardUseIzId, adjOgId } = g.getValues(itemIndex);
+    const { useDtm, mrcNm, cardAprno, domTrdAmt, opcsCardUseIzId, adjOgId, dgr1LevlOgId } = g.getValues(itemIndex);
     //     사용일시, 카드번호, 가맹점, 승인번호, 사용금액, 원천세정산번호   TODO 넘길 param
     cachedParams.useDtm = useDtm;
     cachedParams.mrcNm = mrcNm;
@@ -301,7 +306,9 @@ const initGrdMain = defineGrid((data, view) => {
     cachedParams.domTrdAmt = domTrdAmt;
     cachedParams.opcsCardUseIzId = opcsCardUseIzId;
     cachedParams.adjOgId = adjOgId;// 총괄단 아이디
+    cachedParams.dgr1LevlOgId = dgr1LevlOgId;
 
+    console.log(itemIndex);
     if (column === 'opcsAdjBtn') {
       await modal({
         component: 'WwdcdMarketableSecuritiesExcdMgtP',
