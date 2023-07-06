@@ -91,6 +91,7 @@
         >
           <zwog-partner-search
             v-model:prtnr-no="searchParams.prtnrNo"
+            v-model:prtnr-knm="searchParams.prtnrNm"
           />
         </kw-search-item>
       </kw-search-row>
