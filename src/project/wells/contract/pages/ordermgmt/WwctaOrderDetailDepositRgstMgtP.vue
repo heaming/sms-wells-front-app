@@ -58,13 +58,13 @@
         <kw-form-item
           :label="$t('MSG_TXT_AK_AMT')"
         >
-          <p>70,000(현금 : 35,000, 카드 : 35,000)</p>
+          <p />
         </kw-form-item>
         <!-- 대사금액(원) -->
         <kw-form-item
           :label="$t('MSG_TXT_CPRCNF_AMT_WON')"
         >
-          <p>0(현금 : 0, 카드 : 0)</p>
+          <p />
         </kw-form-item>
       </kw-form-row>
     </kw-form>
