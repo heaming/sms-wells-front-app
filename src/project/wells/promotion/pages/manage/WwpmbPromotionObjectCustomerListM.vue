@@ -162,7 +162,7 @@ let cachedParams;
 const searchParams = ref({
   cntrNo: '',
   cntrSn: null,
-  vlStrtDtm: '',
+  vlStrtDtm: now.format('YYYYMMDD'),
   vlEndDtm: now.format('YYYYMMDD'),
   pmotOjSpcDscDvCd: '',
 });
