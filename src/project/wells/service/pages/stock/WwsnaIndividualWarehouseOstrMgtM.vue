@@ -334,9 +334,27 @@ async function onClickSave() {
   const chkRows = gridUtil.getCheckedRowValues(view);
   if (chkRows.length === 0) {
     notify(t('MSG_ALT_NO_CHG_CNTN'));
-
     return false;
   }
+
+  const addParams = [];
+  addParams.push(chkRows.map((v, i) => {
+    const addValueParams = {};
+    addValueParams.ostrAkNo = '';
+    addValueParams.ostrAkSn = i + 1;
+    addValueParams.strWareNo = v.strWareNo;
+    addValueParams.ostrWareNo = v.ostrOjWareNo;
+    addValueParams.itmPdCd = v.itemCd;
+    addValueParams.mngtUnitCd = v.mgtUnt;
+    addValueParams.itmGdCd = v.matGdCd;
+    addValueParams.ostrAkQty = v.outQty;
+    addValueParams.rmkCn = v.rmks;
+    return addValueParams;
+  }));
+
+  const res = await dataService.post(`${baseURI}`, { params: addParams });
+  console.log(`res :  ${res}`);
+  notify(t('MSG_ALT_SAVE_DATA'));
 }
 
 async function onClickModal() {
