@@ -44,13 +44,10 @@
           :label="$t('MSG_TXT_SEQUENCE_NUMBER')"
           required
         >
-          <kw-input
-            v-model="searchParams.sellPrtnrNo"
+          <zwog-partner-search
+            v-model:prtnr-no="searchParams.sellPrtnrNo"
             :label="$t('MSG_TXT_SEQUENCE_NUMBER')"
-            rules="required"
-            icon="search"
-            clearable
-            @click-icon="onClickSearchPrtnrNoPopup"
+            required
           />
         </kw-search-item>
       </kw-search-row>
@@ -156,9 +153,10 @@
 import { getComponentType, defineGrid, useGlobal, useDataService, codeUtil, stringUtil } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
+import ZwogPartnerSearch from '~sms-common/organization/components/ZwogPartnerSearch.vue';
 
 const now = dayjs();
-const { modal, notify } = useGlobal();
+const { notify } = useGlobal();
 const { t } = useI18n();
 const dataService = useDataService();
 // -------------------------------------------------------------------------------------------------
@@ -202,20 +200,6 @@ async function fetchData() {
 async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
-}
-
-// 파트너 검색 팝업
-async function onClickSearchPrtnrNoPopup() {
-  const { result, payload } = await modal({
-    component: 'ZwogzPartnerListP',
-    componentProps: {
-      prtnrNo: searchParams.value.sellPrtnrNo,
-      ogTpCd: 'W03', // 홈마스터
-    },
-  });
-  if (result) {
-    searchParams.value.sellPrtnrNo = payload.prtnrNo;
-  }
 }
 
 // 실적내역 예상실적 계산버튼 클릭
