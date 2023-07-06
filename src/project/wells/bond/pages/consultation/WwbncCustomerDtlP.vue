@@ -1282,6 +1282,7 @@ const initGrdMain = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'mpyBsdt' },
     { fieldName: 'sellTpCd' },
+    { fieldName: 'sellTpNm' },
     { fieldName: 'prdf' },
     { fieldName: 'pdNm' },
     { fieldName: 'cntrNo' },
@@ -1331,7 +1332,8 @@ const initGrdMain = defineGrid((data, view) => {
 
   const columns = [
     { fieldName: 'mpyBsdt', header: t('MSG_TXT_FNT'), width: '60', styleName: 'text-center', headerSummaries: { text: '합계', styleName: 'text-center' } },
-    { fieldName: 'sellTpCd', header: t('MSG_TXT_TASK_DIV'), width: '80', styleName: 'text-center' },
+    { fieldName: 'sellTpCd', header: t('MSG_TXT_TASK_DIV'), width: '80', styleName: 'text-center', visible: false },
+    { fieldName: 'sellTpNm', header: t('MSG_TXT_TASK_DIV'), width: '80', styleName: 'text-center' },
     { fieldName: 'prdf', header: t('MSG_TXT_PRD_GRP'), width: '100', styleName: 'text-center' },
     { fieldName: 'pdNm', header: t('MSG_TXT_GOODS_NM'), width: '300', styleName: 'text-center' },
     { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_NO'), width: '100', styleName: 'text-center', visible: false },
