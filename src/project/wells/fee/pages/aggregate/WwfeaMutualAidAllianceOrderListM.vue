@@ -89,13 +89,9 @@
         <kw-search-item
           :label="$t('MSG_TXT_SEQUENCE_NUMBER')"
         >
-          <kw-input
-            v-model="searchParams.prtnrNm"
-            icon="search"
-            clearable
-            :label="$t('MSG_TXT_SEQUENCE_NUMBER')"
-            @click-icon="onClickSeachItem"
-            @clear="onClearSearchItem"
+          <zwog-partner-search
+            v-model:prtnr-no="searchParams.prtnrNo"
+            v-model:prtnr-knm="searchParams.prtnrNm"
           />
         </kw-search-item>
       </kw-search-row>
@@ -132,14 +128,14 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { getComponentType, defineGrid, gridUtil, useDataService, useGlobal } from 'kw-lib';
+import { getComponentType, defineGrid, gridUtil, useDataService } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
 import ZwogLevelSelect from '~sms-common/organization/components/ZwogLevelSelect.vue';
+import ZwogPartnerSearch from '~sms-common/organization/components/ZwogPartnerSearch.vue';
 
 const now = dayjs();
 const { t } = useI18n();
-const { modal } = useGlobal();
 const { currentRoute } = useRouter();
 const { getters } = useStore();
 const dataService = useDataService();
@@ -187,25 +183,6 @@ async function onClickExcelDownload() {
     timePostfix: true,
   });
 }
-// 조회조건 돋보기 관련
-async function onClickSeachItem() {
-  const { result, payload } = await modal({
-    component: 'ZwcmzSingleSelectUserListP',
-    componentProps: {
-      searchEmplCond: '3',
-      searchCodEmplText: searchParams.value.prtnrNm,
-    },
-  });
-  if (result) {
-    searchParams.value.prtnrNo = payload.employeeIDNumber;
-    searchParams.value.prtnrNm = payload.userName;
-  }
-}
-async function onClearSearchItem() {
-  searchParams.value.prtnrNo = '';
-  searchParams.value.prtnrNm = '';
-}
-
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
