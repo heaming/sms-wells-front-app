@@ -320,6 +320,11 @@ async function onClickSave() {
 async function onClickOstrCnfmSave() {
   const view = grdMainRef.value.getView();
   const checkRows = gridUtil.getCheckedRowValues(view);
+  if (isEmpty(checkRows)) {
+    // 선택된 데이터가 없습니다.
+    alert(t('MSG_ALT_NO_CHECK_DATA'));
+    return;
+  }
 
   const ostrCnfmList = checkRows.filter((e) => {
     const { ostrYn } = e;
