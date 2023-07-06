@@ -956,7 +956,7 @@
             <kw-input
               v-model="customer.cnslCn"
               type="textarea"
-              :rows="7"
+              :rows="9"
               :placeholder="$t('MSG_TXT_CNSL_IN')"
               class="mt12"
             />
