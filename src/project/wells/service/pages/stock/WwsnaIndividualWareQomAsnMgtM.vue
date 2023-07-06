@@ -49,7 +49,7 @@
         >
           <kw-select
             v-model="searchParams.ostrWare"
-            :options="codes.STR_TP_CD"
+            :options="logistics"
           />
         </kw-search-item>
       </kw-search-row>
@@ -163,6 +163,7 @@ const { currentRoute } = useRouter();
 const dataService = useDataService();
 const baseURI = '/sms/wells/service/qom-asn/individual-warehouse';
 const excelURI = `${baseURI}/excel-download`;
+const logisticURI = '/sms/wells/service/individual-ware-ostrs/logistic';
 const grdMainRef = ref(getComponentType('KwGrid'));
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -198,6 +199,19 @@ const pageInfo = ref({
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
 });
 
+const logisticParams = ref({
+  apyYm: dayjs().format('YYYYMM'),
+});
+
+const logistics = ref();
+
+async function fetchDefaultData() {
+  const res = await dataService.get(logisticURI, { params: logisticParams.value });
+  logistics.value = res.data;
+  console.log(logistics.value);
+  searchParams.value.ostrWare = logistics.value[0].codeId;
+}
+
 async function fetchData() {
   const res = await dataService.get(baseURI, { params: { ...cachedParams, ...pageInfo.value } });
   const { list: searchData, pageInfo: pagingResult } = res.data;
@@ -224,6 +238,13 @@ async function onClickExcelDownload() {
     exportData: res.data,
   });
 }
+
+onMounted(async () => {
+  await fetchDefaultData();
+  // cachedParams = cloneDeep(searchParams.value);
+  // await fetchData();
+});
+
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
