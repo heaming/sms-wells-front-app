@@ -59,18 +59,19 @@
         >
           <kw-select
             v-model="searchParams.itmKnd"
-            :options="codes.ITM_KND"
+            :options="codes.ITM_KND_CD"
+            first-option="all"
           />
         </kw-search-item>
         <kw-search-item
           :label="$t('MSG_TXT_ITM_CD')"
         >
           <kw-input
-            v-model="searchParams.itmCdStart"
+            v-model="searchParams.itmCdSt"
           />
           <span>~</span>
           <kw-input
-            v-model="searchParams.itmCdEnd"
+            v-model="searchParams.itmCdEd"
           />
         </kw-search-item>
         <kw-search-item
@@ -178,18 +179,18 @@ let cachedParams;
 const searchParams = ref({
   asnOjYm: '',
   apyYm: '',
-  cnt: '',
+  cnt: '1',
   wareDvCd: '',
   wareDtlDvCd: '',
   ostrWare: '',
   strWare: '',
-  itmCdStart: '',
-  itmCdEnd: '',
+  itmCdSt: '',
+  itmCdEd: '',
   strTpCd: '',
 });
 
 searchParams.value.asnOjYm = dayjs().format('YYYYMM');
-searchParams.value.apyYm = dayjs().format('YYYYMMDD');
+searchParams.value.apyYm = dayjs().format('YYYYMM');
 
 const pageInfo = ref({
   totalCount: 0,
