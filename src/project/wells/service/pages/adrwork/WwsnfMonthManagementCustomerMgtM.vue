@@ -74,8 +74,7 @@ const { confirm, notify } = useGlobal();
 const { t } = useI18n();
 
 const dataService = useDataService();
-const now = dayjs();
-const minDate = now.format('YYYY-MM-DD');
+const minDate = dayjs().format('YYYY-MM-DD');
 
 /*
  *  Search Parameter
