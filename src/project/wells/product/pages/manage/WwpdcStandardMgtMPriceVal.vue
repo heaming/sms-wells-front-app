@@ -80,7 +80,6 @@
   </kw-action-top>
   <kw-grid
     ref="grdMainRef"
-    name="grdMgtPrcValMain"
     :visible-rows="5"
     @init="initGrid"
   />
