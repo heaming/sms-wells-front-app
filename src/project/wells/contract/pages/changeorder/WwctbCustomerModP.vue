@@ -294,6 +294,11 @@ async function fetchData() {
   fieldParams.value.istCralTno = `${fieldParams.value.istCralLocaraTno}${fieldParams.value.istMexnoEncr}${fieldParams.value.istCralIdvTno}`;
   fieldParams.value.cntrCopnCralTno = `${fieldParams.value.cntrCopnLocaraTno}${fieldParams.value.cntrCopnExnoEncr}${fieldParams.value.cntrCopnIdvTno}`;
 
+  if (isEmpty(res.data)) {
+    alert(t('MSG_ALT_CST_INF_NOT_EXST'));
+    cancel();
+    return;
+  }
   fieldParams.value.check = false;
 }
 
