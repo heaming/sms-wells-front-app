@@ -157,8 +157,8 @@
       <kw-action-top class="mt30">
         <template #left>
           <h3>{{ t('MSG_TXT_EST_FEE_DTL') }}</h3>
-          <span class="ml8">{{ t('MSG_TXT_UNIT_WON') }} </span>
         </template>
+        <span class="kw-fc--black3 text-weight-regular"> {{ t('MSG_TXT_UNIT_WON') }}</span>
       </kw-action-top>
       <table class="kw-table--normal">
         <colgroup>
@@ -265,8 +265,8 @@
       <kw-action-top class="mt30">
         <template #left>
           <h3>{{ t('MSG_TXT_SAL_HIST') }}</h3>
-          <span class="ml8">{{ t('MSG_TXT_UNIT_WON') }} </span>
         </template>
+        <span class="kw-fc--black3 text-weight-regular"> {{ t('MSG_TXT_UNIT_WON') }}</span>
       </kw-action-top>
       <kw-grid
         ref="grdSalesRef"
