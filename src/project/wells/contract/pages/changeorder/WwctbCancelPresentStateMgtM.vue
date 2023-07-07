@@ -3,7 +3,7 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : CTB
-2. 프로그램 ID : WwctbCancelPresentStateMgtM - 취소현황
+2. 프로그램 ID : WwctbCancelPresentStateListM - 취소현황
 3. 작성자 : younuk.choi
 4. 작성일 : 2023.06.28
 ****************************************************************************************************
@@ -46,10 +46,10 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 
-import WwctbRentalCancelPresentStateMgtM from './WwctbRentalCancelPresentStateMgtM.vue';
-import WwctbRegularShippingCancelPresentStateMgtM from './WwctbRegularShippingCancelPresentStateMgtM.vue';
-import WwctbSinglePaymentCancelPresentStateMgtM from './WwctbSinglePaymentCancelPresentStateMgtM.vue';
-import WwctbMembershipCancelPresentStateMgtM from './WwctbMembershipCancelPresentStateMgtM.vue';
+import WwctbRentalCancelPresentStateListM from './WwctbRentalCancelPresentStateListM.vue';
+import WwctbRegularShippingCancelPresentStateListM from './WwctbRegularShippingCancelPresentStateListM.vue';
+import WwctbSinglePaymentCancelPresentStateListM from './WwctbSinglePaymentCancelPresentStateListM.vue';
+import WwctbMembershipCancelPresentStateListM from './WwctbMembershipCancelPresentStateListM.vue';
 
 const { t } = useI18n();
 
@@ -57,22 +57,22 @@ const tabs = [
   {
     name: 'rental',
     label: `${t('MSG_TXT_RENTAL')} ${t('MSG_TXT_CANCEL_STATE')}`,
-    panel: WwctbRentalCancelPresentStateMgtM,
+    panel: WwctbRentalCancelPresentStateListM,
   },
   {
     name: 'regularShipping',
     label: `${t('MSG_TXT_REG_DLVR')} ${t('MSG_TXT_CANCEL_STATE')}`,
-    panel: WwctbRegularShippingCancelPresentStateMgtM,
+    panel: WwctbRegularShippingCancelPresentStateListM,
   },
   {
     name: 'single',
     label: `${t('MSG_TIT_SPAY')} ${t('MSG_TXT_CANCEL_STATE')}`,
-    panel: WwctbSinglePaymentCancelPresentStateMgtM,
+    panel: WwctbSinglePaymentCancelPresentStateListM,
   },
   {
     name: 'membership',
     label: `${t('MSG_TXT_MEMBERSHIP')} ${t('MSG_TXT_CANCEL_STATE')}`,
-    panel: WwctbMembershipCancelPresentStateMgtM,
+    panel: WwctbMembershipCancelPresentStateListM,
   },
 ];
 
