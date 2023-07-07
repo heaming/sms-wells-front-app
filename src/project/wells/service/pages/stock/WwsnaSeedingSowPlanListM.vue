@@ -17,7 +17,7 @@
     <kw-search @search="onClickSearch">
       <kw-search-row>
         <kw-search-item
-          :label="t('MSG_TXT_VST_EXP_DT')"
+          :label="$t('MSG_TXT_VST_EXP_DT')"
           rules="required"
         >
           <kw-date-range-picker
@@ -34,6 +34,7 @@
             type="text"
             :label="$t('MSG_TXT_CNTR_DTL_NO')"
             rules="alpha_num"
+            :placeholder="$t('MSG_TXT_CNTR_NO')"
           />
         </kw-search-item>
       </kw-search-row>
