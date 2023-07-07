@@ -29,6 +29,7 @@
   <kw-grid
     ref="grdMainRef"
     :visible-rows="10"
+    :need-context-menu="false"
     @init="initGrid"
   />
 </template>

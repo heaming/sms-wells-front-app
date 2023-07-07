@@ -84,7 +84,7 @@
   <!-- 가격 -->
   <kw-grid
     ref="grdMainRef"
-    name="grdMgtPrcMain"
+    :need-context-menu="false"
     @init="initGrid"
   />
 </template>
