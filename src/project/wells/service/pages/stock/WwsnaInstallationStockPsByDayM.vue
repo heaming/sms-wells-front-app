@@ -174,23 +174,23 @@ const productList = ref([]);
 const selectedProductByItmKnd = ref([]);
 
 async function getProductList() {
-  const response = await dataService.get('/sms/wells/service/product-list/by-itmkndcd', { params: { itmKndCd: '4' } });
+  cachedParams = cloneDeep(searchParams);
+  const response = await dataService.get('/sms/wells/service/product-list/by-itmkndcd', { params: { itmKndCd: searchParams.value.itmKndCd } });
   productList.value = response.data;
-  selectedProductByItmKnd.value = cloneDeep(productList.value);
 }
+
+onBeforeMount(async () => {
+  searchParams.value.itmKndCd = '4';
+});
 
 onMounted(async () => {
   getProductList();
-  searchParams.value.itmKndCd = '4';
-  // selectedProductByItmKnd.value.map((v) => {
-  //   console.log(v.codeName);
-  //   v.codeName = `${v.codeId} ${v.codeName}`;
-  //   return v;
-  // });
+  selectedProductByItmKnd.value = cloneDeep(productList.value);
+  selectedProductByItmKnd.value = selectedProductByItmKnd.value.map((v) => ({ codeId: v.codeId, codeName: `${v.codeId} - ${v.codeName}` }));
+  console.log(selectedProductByItmKnd.value);
 });
 
 const onChangeItmKnd = (val) => {
-  // console.log(val);
   if (val.length < 1) {
     selectedProductByItmKnd.value = cloneDeep(productList.value);
   } else {
