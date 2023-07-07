@@ -49,7 +49,7 @@
         >
           <kw-input
             v-model="fieldParams.cstKnm"
-            maxlength="10"
+            maxlength="30"
           />
         </kw-search-item>
       </kw-search-row>
@@ -394,12 +394,6 @@ function getIstDtMsg(hclsfRefPdClsfVal) {
 }
 
 async function changeContract(item, popNm, gubun) {
-  const { alncmpCd } = item;
-
-  if (alncmpCd === '70') {
-    alert(t('MSG_ALT_CANT_CONTR_TYPE_WHEN_MUTU_ALNC'));
-  }
-
   const checkRes = await dataService.get('/sms/wells/contract/changeorder/changes/pre-checks', { params: { ...item } });
   const { warnMsg } = checkRes.data;
 
@@ -415,7 +409,11 @@ async function changeContract(item, popNm, gubun) {
   } else {
     await modal({
       component: popNm,
-      componentProps: { cntrNo: item.cntrNo, cntrSn: item.cntrSn }, // 팝업 화면에 보낼 파라미터
+      componentProps: { cntrNo: item.cntrNo,
+        cntrSn: item.cntrSn,
+        copnDvCd: item.copnDvCd,
+        cttRsCd: item.cttRsCd,
+        istDt: item.istDt }, // 팝업 화면에 보낼 파라미터
     });
   }
 }
@@ -423,14 +421,18 @@ async function changeContract(item, popNm, gubun) {
 // onClickCstChange: 고객정보변경
 function onClickCstChange(item) {
   item.inDv = '10';
-  // changeContract(item);
-  alert('계약유형변경 페이지 완료 시 추가 예정');
+  changeContract(item, 'WwctbCustomerModP');
 }
 
 // onClickCntrTpChange: 계약유형변경
 async function onClickCntrTpChange(item) {
   item.inDv = '20';
-  changeContract(item, 'WwctbCustomerModP');
+  const { alncmpCd } = item;
+  if (alncmpCd === '70') {
+    alert(t('MSG_ALT_CANT_CONTR_TYPE_WHEN_MUTU_ALNC'));
+    return;
+  }
+  alert('계약유형변경 페이지 완료 시 추가 예정');
 }
 
 // onClickSellerChange: 판매자 변경

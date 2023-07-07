@@ -156,6 +156,7 @@
               v-model:telNo2="fieldParams.istCralIdvTno"
               :label="$t('MSG_TXT_MPNO')"
               :rules="!hasIstDt ? 'required|telephone' : ''"
+              :disable="hasIstDt"
               mask="telephone"
             />
           </kw-form-item>
@@ -179,6 +180,7 @@
               v-model:add2="fieldParams.istRdadr"
               :label="t('MSG_TXT_ADDR')"
               :required="!hasIstDt ? true : false"
+              :disable="hasIstDt"
             />
           </kw-form-item>
         </kw-form-row>
@@ -220,7 +222,7 @@ import ZwcmPostCode from '~common/components/ZwcmPostCode.vue';
 
 const { t } = useI18n();
 const { cancel, ok } = useModal();
-const { notify, confirm } = useGlobal();
+const { notify, confirm, alert } = useGlobal();
 const dataService = useDataService();
 
 const obsMainRef = ref();
@@ -298,12 +300,12 @@ async function fetchData() {
 async function onClickSave() {
   if (await obsMainRef.value.alertIfIsNotModified()) { return; }
   if (!await obsMainRef.value.validate()) { return; }
-  if (!await confirm(t('MSG_ALT_WANT_SAVE'))) { return; }
 
   if (!isEmpty(props.cttRsCd)) {
     alert(t('MSG_ALT_INST_ADDR_CHG_BEFORE_CTT'));
     return;
   }
+  if (!await confirm(t('MSG_ALT_WANT_SAVE'))) { return; }
 
   const res = await dataService.post('/sms/wells/contract/changeorder/changes/customers', fieldParams.value);
   console.log(res);

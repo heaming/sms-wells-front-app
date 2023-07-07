@@ -33,9 +33,8 @@
         <kw-search-item :label="t('MSG_TXT_CNTOR_NM')">
           <kw-input
             v-model="searchParams.cstKnm"
-            maxlength="10"
+            maxlength="30"
           />
-          <!-- rev:230503 돋보기 아이콘 추가 -->
         </kw-search-item>
 
         <kw-search-item :label="t('MSG_TXT_DIV')">
