@@ -160,11 +160,107 @@
           <span class="ml8">{{ t('MSG_TXT_UNIT_WON') }} </span>
         </template>
       </kw-action-top>
-      <kw-grid
-        ref="grdEstimatedRef"
-        :visible-rows="1"
-        @init="initGrdEstimatedFeeDtl"
-      />
+      <table class="kw-table--normal">
+        <colgroup>
+          <col style="width: 12%;">
+          <col style="width: 11%;">
+          <col style="width: 11%;">
+          <col style="width: 11%;">
+          <col style="width: 11%;">
+          <col style="width: 11%;">
+          <col style="width: 11%;">
+          <col style="width: 11%;">
+          <col style="width: 11%;">
+        </colgroup>
+        <tbody>
+          <!-- 개인수수료 -->
+          <tr>
+            <th rowspan="2">
+              {{ t('MSG_TXT_PRSNL_FEE') }}
+            </th>
+            <th>{{ t('MSG_TXT_ELHM_PRPN') }}</th>
+            <th>{{ t('MSG_TXT_ELHM_EXCP_PRPN') }}</th>
+            <th>{{ t('MSG_TXT_SAL_INTV') }}</th>
+            <th>{{ t('MSG_TXT_METG') }}</th>
+            <th>{{ t('MSG_TXT_STMNT') }}</th>
+            <th>{{ t('MSG_TXT_MUTU') }}</th>
+            <th />
+            <th>{{ t('MSG_TXT_AGG') }}</th>
+          </tr>
+          <tr>
+            <td class="text-right">
+              333
+            </td>
+            <td class="text-right">
+              333
+            </td>
+            <td class="text-right">
+              333
+            </td>
+            <td class="text-right">
+              333
+            </td>
+            <td class="text-right">
+              333
+            </td>
+            <td class="text-right">
+              333
+            </td>
+            <td />
+            <td class="text-right">
+              333
+            </td>
+          </tr>
+          <!-- 조직수수료 -->
+          <tr>
+            <th rowspan="2">
+              {{ t('MSG_TXT_ORGNSTN_FEE') }}
+            </th>
+            <th>{{ t('MSG_TXT_ELHM_OG_PRPN') }}</th>
+            <th>{{ t('MSG_TXT_ELHM_OG_EXCP_PRPN') }}</th>
+            <th>{{ t('MSG_TXT_OG_SELL_ENCRG') }}</th>
+            <th>{{ t('MSG_TXT_OG_EJT') }}1</th>
+            <th>{{ t('MSG_TXT_OG_EJT') }}2</th>
+            <th>{{ t('MSG_TXT_NB_BRCH') }}</th>
+            <th>{{ t('MSG_TXT_PRFMT_FEE') }}</th>
+            <th>{{ t('MSG_TXT_AGG') }}</th>
+          </tr>
+          <tr>
+            <td class="text-right">
+              333
+            </td>
+            <td class="text-right">
+              333
+            </td>
+            <td class="text-right">
+              333
+            </td>
+            <td class="text-right">
+              333
+            </td>
+            <td class="text-right">
+              333
+            </td>
+            <td class="text-right">
+              333
+            </td>
+            <td class="text-right">
+              333
+            </td>
+            <td class="text-right">
+              333
+            </td>
+          </tr>
+          <tr>
+            <td class="sum-head">
+              {{ t('MSG_TXT_SUM') }}
+            </td>
+            <td class="sum-head">
+              333
+            </td>
+          </tr>
+        </tbody>
+      </table>
       <!-- 판매내역 -->
       <kw-action-top class="mt30">
         <template #left>
@@ -301,99 +397,6 @@ const initGrdPerformanceDtl = defineGrid((data, view) => {
   ]);
 });
 
-const initGrdEstimatedFeeDtl = defineGrid((data, view) => {
-  const columns = [
-    { fieldName: 'div',
-      header: t('MSG_TXT_DIV'),
-      width: '218',
-      footer: {
-        text: t('MSG_TXT_SUM'),
-        styleName: 'text-center',
-      },
-    },
-    { fieldName: 'amtSumElhmPrpn',
-      header: t('MSG_TXT_ELHM_PRPN'),
-      styleName: 'text-right',
-      width: '135',
-      dataType: 'number',
-      footer: {
-        expression: 'sum',
-        numberFormat: '#,##0',
-        valueCallback(grid) {
-          let sum = 0;
-          const prod = grid.getDataSource();
-          const cnt = prod.getRowCount();
-          for (let i = 0; i < cnt; i += 1) {
-            sum += prod.getValue(i, 'amtSumElhmPrpn');
-            sum += prod.getValue(i, 'amtSumElhmExcpPrpn');
-            sum += prod.getValue(i, 'amtSumSalIntv');
-            sum += prod.getValue(i, 'amtSumStmnt');
-            sum += prod.getValue(i, 'amtSumMutu');
-          }
-          return sum;
-        },
-      },
-    },
-    { fieldName: 'amtSumElhmExcpPrpn', header: t('MSG_TXT_ELHM_EXCP_PRPN'), styleName: 'text-right', width: '135', dataType: 'number' },
-    { fieldName: 'amtSumSalIntv', header: t('MSG_TXT_SAL_INTV'), styleName: 'text-right', width: '135', dataType: 'number' },
-    { fieldName: 'amtMetg', header: t('MSG_TXT_METG'), styleName: 'text-right', width: '135', dataType: 'number' },
-    { fieldName: 'amtSumStmnt', header: t('MSG_TXT_STMNT'), styleName: 'text-right', width: '135', dataType: 'number' },
-    { fieldName: 'amtSumMutu', header: t('MSG_TXT_MUTU'), styleName: 'text-right', width: '135', dataType: 'number' },
-    { fieldName: 'amtSumOgElhmPrpn',
-      header: t('MSG_TXT_ELHM_OG_PRPN'),
-      styleName: 'text-right',
-      width: '165',
-      dataType: 'number',
-      footer: {
-        expression: 'sum',
-        numberFormat: '#,##0',
-        valueCallback(grid) {
-          let sum = 0;
-          const prod = grid.getDataSource();
-          const cnt = prod.getRowCount();
-          for (let i = 0; i < cnt; i += 1) {
-            sum += prod.getValue(i, 'amtSumOgElhmPrpn');
-            sum += prod.getValue(i, 'amtSumOgElhmExcpPrpn');
-            sum += prod.getValue(i, 'amtSumOgSalIntv');
-            sum += prod.getValue(i, 'amtOgEjt1');
-            sum += prod.getValue(i, 'amtOgEjt2');
-            sum += prod.getValue(i, 'amtNbBrch');
-            sum += prod.getValue(i, 'amtPrfmtFee');
-          }
-          return sum;
-        },
-      },
-    },
-    { fieldName: 'amtSumOgElhmExcpPrpn', header: t('MSG_TXT_ELHM_OG_EXCP_PRPN'), styleName: 'text-right', width: '165', dataType: 'number' },
-    { fieldName: 'amtSumOgSalIntv', header: t('MSG_TXT_OG_SELL_ENCRG'), styleName: 'text-right', width: '166', dataType: 'number' },
-    { fieldName: 'amtOgEjt1', header: `${t('MSG_TXT_OG_EJT')}1`, styleName: 'text-right', dataType: 'number', width: '157' },
-    { fieldName: 'amtOgEjt2', header: `${t('MSG_TXT_OG_EJT')}2`, styleName: 'text-right', dataType: 'number', width: '157' },
-    { fieldName: 'amtNbBrch', header: t('MSG_TXT_NB_BRCH'), styleName: 'text-right', dataType: 'number', width: '157' },
-    { fieldName: 'amtPrfmtFee', header: t('MSG_TXT_PRFMT_FEE'), styleName: 'text-right', dataType: 'number', width: '157' },
-  ];
-  const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
-  data.setFields(fields);
-  view.setColumns(columns);
-  view.checkBar.visible = false;
-  view.rowIndicator.visible = false;
-  view.setColumnLayout([
-    'div',
-    {
-      header: t('MSG_TXT_PRSNL_FEE'),
-      direction: 'horizontal',
-      items: ['amtSumElhmPrpn', 'amtSumElhmExcpPrpn', 'amtMetg', 'amtSumSalIntv', 'amtSumStmnt', 'amtSumMutu'],
-    },
-    {
-      header: t('MSG_TXT_ORGNSTN_FEE'),
-      direction: 'horizontal',
-      items: ['amtSumOgElhmPrpn', 'amtSumOgElhmExcpPrpn', 'amtSumOgSalIntv', 'amtOgEjt1', 'amtOgEjt2', 'amtNbBrch', 'amtPrfmtFee'],
-    },
-  ]);
-  view.layoutByColumn('amtSumElhmPrpn').footerUserSpans = [{ colspan: 6 }];
-  view.layoutByColumn('amtSumOgElhmPrpn').footerUserSpans = [{ colspan: 7 }];
-  view.setFooters({ visible: true, items: [{ height: 40 }] });
-});
-
 const initGrdSalesHist = defineGrid((data, view) => {
   const columns = [
     {
@@ -462,3 +465,9 @@ const initGrdSalesHist = defineGrid((data, view) => {
   view.layoutByColumn('msgTxtEmplNm').summaryUserSpans = [{ colspan: 9 }];
 });
 </script>
+
+<style scoped lang="scss">
+.sum-head {
+  background: antiquewhite;
+}
+</style>
