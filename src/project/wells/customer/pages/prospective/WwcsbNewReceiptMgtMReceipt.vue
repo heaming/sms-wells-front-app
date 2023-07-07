@@ -76,6 +76,7 @@
     <kw-grid
       ref="grdReceiptRef"
       name="grdReceipt"
+      :need-context-menu="false"
       :page-size="pageInfo.pageSize"
       :total-count="pageInfo.totalCount"
       @init="initgrdReceipt"

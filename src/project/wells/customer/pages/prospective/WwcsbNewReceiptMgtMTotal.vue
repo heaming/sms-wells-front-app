@@ -65,6 +65,7 @@
     <kw-grid
       ref="grdTotalRef"
       name="grdTotal"
+      :need-context-menu="false"
       total-count="100"
       @init="initgrdTotal"
     />
