@@ -320,6 +320,11 @@ async function onClickSave() {
 async function onClickOstrCnfmSave() {
   const view = grdMainRef.value.getView();
   const checkRows = gridUtil.getCheckedRowValues(view);
+  if (isEmpty(checkRows)) {
+    // 선택된 데이터가 없습니다.
+    alert(t('MSG_ALT_NO_CHECK_DATA'));
+    return;
+  }
 
   const ostrCnfmList = checkRows.filter((e) => {
     const { ostrYn } = e;
@@ -379,11 +384,11 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'refriDiv', dataType: 'text' },
     { fieldName: 'shipDiv', dataType: 'text' },
     { fieldName: 'receiptDiv', dataType: 'text' },
-    { fieldName: 'cntrNo', dataType: 'text' },
+    { fieldName: 'cntrDtlNo', dataType: 'text' },
     { fieldName: 'cstNm', dataType: 'text' },
     { fieldName: 'sppOrdNo', dataType: 'text' },
     { fieldName: 'mchnModel', dataType: 'text' },
-    { fieldName: 'mchnCstNo', dataType: 'text' },
+    { fieldName: 'mchnCstDtlNo', dataType: 'text' },
     { fieldName: 'mchnCstNm', dataType: 'text' },
     { fieldName: 'ctrlPkg', dataType: 'text' },
     { fieldName: 'shipPkg', dataType: 'text' },
@@ -436,6 +441,8 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'sppDvCd', dataType: 'text' },
     { fieldName: 'sdingMcnrPdCd', dataType: 'text' },
     { fieldName: 'cstSvAsnNo', dataType: 'text' },
+    { fieldName: 'mchnCstNo', dataType: 'text' },
+    { fieldName: 'cntrNo', dataType: 'text' },
   ];
 
   const columns = [
@@ -444,11 +451,11 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'refriDiv', header: t('MSG_TXT_REFRI'), width: '90', styleName: 'text-center' },
     { fieldName: 'shipDiv', header: t('TXT_MSG_SPP_DV_CD'), width: '90', styleName: 'text-center' },
     { fieldName: 'receiptDiv', header: t('MSG_TXT_RCP_DV'), styleName: 'text-center', width: '90' },
-    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_NO'), width: '146', styleName: 'rg-button-link text-center', renderer: { type: 'button' }, preventCellItemFocus: true },
+    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '146', styleName: 'rg-button-link text-center', renderer: { type: 'button' }, preventCellItemFocus: true },
     { fieldName: 'cstNm', header: t('MSG_TXT_CST_NM'), styleName: 'text-left', width: '90' },
     { fieldName: 'sppOrdNo', header: `${t('MSG_TXT_DLVRY')}${t('MSG_TXT_SEQUENCE_NUMBER')}`, styleName: 'text-center', width: '154' },
     { fieldName: 'mchnModel', header: `${t('MSG_TXT_MCHN')}${t('MSG_TXT_MODEL')}`, styleName: 'text-left', width: '220' },
-    { fieldName: 'mchnCstNo', header: `${t('MSG_TXT_MCHN')}${t('MSG_TXT_CST_NO')}`, styleName: 'text-center', width: '150' },
+    { fieldName: 'mchnCstDtlNo', header: `${t('MSG_TXT_MCHN')}${t('MSG_TXT_CNTR_DTL_NO')}`, styleName: 'text-center', width: '150' },
     { fieldName: 'mchnCstNm', header: `${t('MSG_TXT_MCHN')}${t('MSG_TXT_CST_NM')}`, styleName: 'text-center', width: '100' },
     { fieldName: 'ctrlPkg', header: `${t('MSG_TXT_CURRENT')}${t('MSG_TXT_PKG')}`, styleName: 'text-left', width: '150' },
     { fieldName: 'shipPkg', header: `${t('MSG_TXT_DLVRY')}${t('MSG_TXT_PKG')}`, width: '150', styleName: 'text-left' },
@@ -504,10 +511,11 @@ const initGrid = defineGrid((data, view) => {
     return false;
   };
   view.onCellItemClicked = async (g, { column, itemIndex }) => {
-    if (column === 'cntrNo') {
+    if (column === 'cntrDtlNo') {
       const cntrNo = g.getValue(itemIndex, 'cntrNo');
-      console.log(cntrNo);
-      // TO-DO await popupUtil.open(`#/service/wwsnb-individual-service-ps-mgt?cntrNo=${cntrNo}`);
+      const cntrSn = g.getValue(itemIndex, 'cntrSn');
+      console.log(cntrNo + cntrSn);
+      // TO-DO await popupUtil.open(`#/service/wwsnb-individual-service-ps-mgt?cntrNo=${cntrNo}&cntrSn=${cntrSn}`);
       alert('개인별 서비스 현황 화면(W-SV-U-0072M01) 탭으로 호출');
     }
   };

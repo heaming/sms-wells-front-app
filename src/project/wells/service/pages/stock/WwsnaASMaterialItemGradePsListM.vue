@@ -39,7 +39,7 @@
             first-option="all"
           />
         </kw-search-item>
-        <kw-search-item :label="t('MSG_TXT_MAT_DV')">
+        <kw-search-item :label="$t('MSG_TXT_MAT_DV')">
           <kw-select
             v-model="searchParams.matUtlzDvCd"
             :options="codes.CMN_PART_DV_CD"
