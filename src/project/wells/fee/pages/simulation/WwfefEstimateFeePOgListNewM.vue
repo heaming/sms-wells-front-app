@@ -102,7 +102,7 @@
           >
             <p>{{ baseInfo?.amtEstSalFee ? stringUtil.getNumberWithComma(baseInfo?.amtEstSalFee) : '' }}</p>
           </kw-form-item>
-          <!-- 예상상조수수료 -->
+          <!-- 예상조직수수료 -->
           <kw-form-item
             :label="$t('MSG_TXT_EXP_MUT_AID_FEE')"
             align-content="right"

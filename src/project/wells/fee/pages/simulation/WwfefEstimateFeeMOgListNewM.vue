@@ -195,11 +195,142 @@
           <span class="ml8">{{ t('MSG_TXT_UNIT_WON') }} </span>
         </template>
       </kw-action-top>
-      <kw-grid
+      <!--
+        <kw-grid
         ref="grdDstRef"
         :visible-rows="1"
         @init="initGridDstDtl"
-      />
+        />
+      -->
+      <table class="kw-table--normal">
+        <colgroup>
+          <col style="width: 12%;">
+          <col style="width: 11%;">
+          <col style="width: 11%;">
+          <col style="width: 11%;">
+          <col style="width: 11%;">
+          <col style="width: 11%;">
+          <col style="width: 11%;">
+          <col style="width: 11%;">
+          <col style="width: 11%;">
+        </colgroup>
+        <tbody>
+          <tr>
+            <th rowspan="2">
+              예상판매수수료
+            </th>
+            <th>가전비례</th>
+            <th>가전외비례</th>
+            <th>가전장려</th>
+            <th>미팅</th>
+            <th>교육</th>
+            <th>정착</th>
+            <th>기기변경</th>
+            <th>계</th>
+          </tr>
+          <tr>
+            <td class="text-right">
+              33333
+            </td>
+            <td class="text-right">
+              333
+            </td>
+            <td class="text-right">
+              333
+            </td>
+            <td class="text-right">
+              333
+            </td>
+            <td class="text-right">
+              333
+            </td>
+            <td class="text-right">
+              333
+            </td>
+            <td class="text-right">
+              333
+            </td>
+            <td class="text-right">
+              333
+            </td>
+          </tr>
+          <tr>
+            <th rowspan="2">
+              예상BS수수료
+            </th>
+            <th>BS관리</th>
+            <th>BS장려</th>
+            <th>급지</th>
+            <th colspan="4" />
+            <th>계</th>
+          </tr>
+          <tr>
+            <td class="text-right">
+              33333
+            </td>
+            <td class="text-right">
+              333
+            </td>
+            <td class="text-right">
+              333
+            </td>
+            <td colspan="4" />
+            <td class="text-right">
+              333
+            </td>
+          </tr>
+          <tr>
+            <th rowspan="2">
+              예상조직수수료
+            </th>
+            <th>가전조직비례</th>
+            <th>가전외조직비례</th>
+            <th>조직 판매장려</th>
+            <th>순증관리</th>
+            <th>조직배출1</th>
+            <th>조직배출2</th>
+            <th>신설지점</th>
+            <th>계</th>
+          </tr>
+          <tr>
+            <td class="text-right">
+              33333
+            </td>
+            <td class="text-right">
+              333
+            </td>
+            <td class="text-right">
+              333
+            </td>
+            <td class="text-right">
+              333
+            </td>
+            <td class="text-right">
+              333
+            </td>
+            <td class="text-right">
+              333
+            </td>
+            <td class="text-right">
+              333
+            </td>
+            <td class="text-right">
+              333
+            </td>
+          </tr>
+          <tr>
+            <th class="sumhead">
+              합계
+            </th>
+            <th
+              class="sumhead text-right"
+              colspan="8"
+            >
+              32112212
+            </th>
+          </tr>
+        </tbody>
+      </table>
       <!-- 판매내역 -->
       <kw-action-top class="mt30">
         <template #left>
@@ -445,128 +576,6 @@ const initGridOgBs = defineGrid((data, view) => {
   view.editOptions.columnEditableFirst = true;
 });
 
-const initGridDstDtl = defineGrid((data, view) => {
-  const columns = [
-    { fieldName: 'amtElhmPrpn',
-      header: t('MSG_TXT_ELHM_PRPN'),
-      styleName: 'text-right',
-      width: '157',
-      dataType: 'number',
-      footer: {
-        expression: 'sum',
-        numberFormat: '#,##0',
-        valueCallback(grid) {
-          let sum = 0;
-          const prod = grid.getDataSource();
-          const cnt = prod.getRowCount();
-          for (let i = 0; i < cnt; i += 1) {
-            sum += prod.getValue(i, 'amtElhmPrpn');
-            sum += prod.getValue(i, 'amtElhmExcpPrpn');
-            sum += prod.getValue(i, 'amtElhmEnrg');
-            sum += prod.getValue(i, 'amtMetg');
-            sum += prod.getValue(i, 'amtEduc');
-            sum += prod.getValue(i, 'amtStmnt');
-            sum += prod.getValue(i, 'amtMchnCh');
-            sum += prod.getValue(i, 'amtEstSalComm');
-          }
-          return sum;
-        },
-      },
-    },
-    { fieldName: 'amtElhmExcpPrpn', header: t('MSG_TXT_ELHM_EXCP_PRPN'), styleName: 'text-right', width: '157', dataType: 'number' },
-    { fieldName: 'amtElhmEnrg', header: t('MSG_TXT_ELHM_ENRG'), styleName: 'text-right', width: '157', dataType: 'number' },
-    { fieldName: 'amtMetg', header: t('MSG_TXT_METG'), styleName: 'text-right', width: '157', dataType: 'number' },
-    { fieldName: 'amtEduc', header: t('MSG_TXT_EDUC'), styleName: 'text-right', width: '157', dataType: 'number' },
-    { fieldName: 'amtStmnt', header: t('MSG_TXT_STMNT'), styleName: 'text-right', width: '157', dataType: 'number' },
-    { fieldName: 'amtMchnCh', header: t('MSG_TXT_MCHN_CH'), styleName: 'text-right', width: '157', dataType: 'number' },
-    { fieldName: 'amtEstSalComm', header: t('MSG_TXT_AGG'), styleName: 'text-right', dataType: 'number', width: '157' },
-    { fieldName: 'amtBsMgmt',
-      header: t('MSG_TXT_BS_MGMT'),
-      styleName: 'text-right',
-      dataType: 'number',
-      width: '157',
-      footer: {
-        expression: 'sum',
-        numberFormat: '#,##0',
-        valueCallback(grid) {
-          let sum = 0;
-          const prod = grid.getDataSource();
-          const cnt = prod.getRowCount();
-          for (let i = 0; i < cnt; i += 1) {
-            sum += prod.getValue(i, 'amtBsMgmt');
-            sum += prod.getValue(i, 'amtBsEnrg');
-            sum += prod.getValue(i, 'amtRglvl');
-            sum += prod.getValue(i, 'amtEstBsFee');
-          }
-          return sum;
-        },
-      },
-    },
-    { fieldName: 'amtBsEnrg', header: t('MSG_TXT_BS_ENRG'), styleName: 'text-right', dataType: 'number', width: '157' },
-    { fieldName: 'amtRglvl', header: t('MSG_TXT_RGLVL'), styleName: 'text-right', dataType: 'number', width: '157' },
-    { fieldName: 'amtEstBsFee', header: t('MSG_TXT_AGG'), styleName: 'text-right', dataType: 'number', width: '157' },
-    { fieldName: 'amtElhmOgPrpn',
-      header: t('MSG_TXT_ELHM_OG_PRPN'),
-      styleName: 'text-right',
-      dataType: 'number',
-      width: '157',
-      footer: {
-        expression: 'sum',
-        numberFormat: '#,##0',
-        valueCallback(grid) {
-          let sum = 0;
-          const prod = grid.getDataSource();
-          const cnt = prod.getRowCount();
-          for (let i = 0; i < cnt; i += 1) {
-            sum += prod.getValue(i, 'amtElhmOgPrpn');
-            sum += prod.getValue(i, 'amtElhmOgExcpPrpn');
-            sum += prod.getValue(i, 'amtOgSellEncrg');
-            sum += prod.getValue(i, 'amtNincMgt');
-            sum += prod.getValue(i, 'amtOgEjt1');
-            sum += prod.getValue(i, 'amtOgEjt2');
-            sum += prod.getValue(i, 'amtNbBrch');
-            sum += prod.getValue(i, 'amtEstOgFee');
-          }
-          return sum;
-        },
-      },
-    },
-    { fieldName: 'amtElhmOgExcpPrpn', header: t('MSG_TXT_ELHM_OG_EXCP_PRPN'), styleName: 'text-right', dataType: 'number', width: '157' },
-    { fieldName: 'amtOgSellEncrg', header: t('MSG_TXT_OG_SELL_ENCRG'), styleName: 'text-right', dataType: 'number', width: '157' },
-    { fieldName: 'amtNincMgt', header: t('MSG_TXT_NINC_MGT'), styleName: 'text-right', dataType: 'number', width: '157' },
-    { fieldName: 'amtOgEjt1', header: `${t('MSG_TXT_OG_EJT')}1`, styleName: 'text-right', dataType: 'number', width: '157' },
-    { fieldName: 'amtOgEjt2', header: `${t('MSG_TXT_OG_EJT')}2`, styleName: 'text-right', dataType: 'number', width: '157' },
-    { fieldName: 'amtNbBrch', header: t('MSG_TXT_NB_BRCH'), styleName: 'text-right', dataType: 'number', width: '157' },
-    { fieldName: 'amtEstOgFee', header: t('MSG_TXT_AGG'), styleName: 'text-right', dataType: 'number', width: '157' },
-  ];
-  const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
-  data.setFields(fields);
-  view.setColumns(columns);
-  view.checkBar.visible = false;
-  view.rowIndicator.visible = false;
-  view.setColumnLayout([
-    {
-      header: t('MSG_TXT_EST_SAL_COMM'),
-      direction: 'horizontal',
-      items: ['amtElhmPrpn', 'amtElhmExcpPrpn', 'amtElhmEnrg', 'amtMetg', 'amtEduc', 'amtStmnt', 'amtMchnCh', 'amtEstSalComm'],
-    },
-    {
-      header: t('MSG_TXT_EST_BS_FEE'),
-      direction: 'horizontal',
-      items: ['amtBsMgmt', 'amtBsEnrg', 'amtRglvl', 'amtEstBsFee'],
-    },
-    {
-      header: t('MSG_TXT_EST_OG_FEE'),
-      direction: 'horizontal',
-      items: ['amtElhmOgPrpn', 'amtElhmOgExcpPrpn', 'amtOgSellEncrg', 'amtNincMgt', 'amtOgEjt1', 'amtOgEjt2', 'amtNbBrch', 'amtEstOgFee'],
-    },
-  ]);
-  view.layoutByColumn('amtElhmPrpn').footerUserSpans = [{ colspan: 8 }];
-  view.layoutByColumn('amtBsMgmt').footerUserSpans = [{ colspan: 4 }];
-  view.layoutByColumn('amtElhmOgPrpn').footerUserSpans = [{ colspan: 8 }];
-  view.setFooters({ visible: true, items: [{ height: 40 }] });
-});
-
 const initGridSalesHist = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'msgTxtEmplNm', header: t('MSG_TXT_EMPL_NM'), width: '93', styleName: 'text-center' },
@@ -589,3 +598,9 @@ const initGridSalesHist = defineGrid((data, view) => {
   view.rowIndicator.visible = true;
 });
 </script>
+
+<style scoped lang="scss">
+.sumhead {
+  background: antiquewhite;
+}
+</style>
