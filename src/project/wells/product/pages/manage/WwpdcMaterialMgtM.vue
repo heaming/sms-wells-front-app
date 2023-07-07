@@ -95,8 +95,6 @@
               <wwpdc-material-dtl-m-contents
                 v-model:pd-cd="currentPdCd"
                 v-model:init-data="prevStepData"
-                :pd-tp-cd="pdConst.PD_TP_CD_MATERIAL"
-                :is-first-title="true"
                 :is-history-tab="false"
                 :is-update-btn="false"
                 :codes="codes"

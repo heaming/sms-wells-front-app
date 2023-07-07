@@ -85,7 +85,7 @@ const props = defineProps({
   initData: { type: Object, default: null },
   isHistoryTab: { type: Boolean, default: true },
   isUpdateBtn: { type: Boolean, default: true },
-  codes: { type: Object, default: null },
+  // codes: { type: Object, default: null },
   isRegCheckPage: { type: Boolean, default: false }, /* 화면이 등록정보확인(true)인지, 상세조회인지(false)인지 여부  */
 });
 

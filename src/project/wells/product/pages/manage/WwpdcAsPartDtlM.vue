@@ -33,10 +33,6 @@
         ref="cmpRef"
         v-model:pd-cd="currentPdCd"
         v-model:init-data="currentInitData"
-        :pd-tp-cd="pdConst.PD_TP_CD_MATERIAL"
-        :pd-grp-dv-cd="pdConst.PD_PRP_GRP_DV_CD_BASIC"
-        :pd-tp-dtl-cd="pdConst.PD_TP_DTL_CD_AS_PART"
-        :codes="codes"
       />
     </div>
   </kw-page>
@@ -45,7 +41,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService, stringUtil, codeUtil } from 'kw-lib';
+import { useDataService, stringUtil } from 'kw-lib'; // codeUtil
 import { cloneDeep } from 'lodash-es';
 import pdConst from '~sms-common/product/constants/pdConst';
 import WwpdcAsPartDtlMContents from './WwpdcAsPartDtlMContents.vue';
@@ -66,7 +62,7 @@ const cmpRef = ref();
 const currentPdCd = ref();
 const pdBas = ref({});
 const currentInitData = ref({});
-const codes = await codeUtil.getMultiCodes('PD_TEMP_SAVE_CD');
+// const codes = await codeUtil.getMultiCodes('PD_TEMP_SAVE_CD');
 
 async function fetchProduct() {
   if (currentPdCd.value) {
