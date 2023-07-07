@@ -1,39 +1,33 @@
+<!----
+****************************************************************************************************
+* 프로그램 개요
+****************************************************************************************************
+1. 모듈 : CMA
+2. 프로그램 ID : W-SS-U-0085M01 - wells 렌탈/일시불 접수자료 업로드 관리
+3. 작성자 : 박주형
+4. 작성일 : 2023.07.04
+****************************************************************************************************
+* 프로그램 설명
+****************************************************************************************************
+- 대량 업로드 구현
+****************************************************************************************************
+--->
 <template>
   <kw-page>
-    <kw-tabs v-model="selectedTab">
-      <kw-tab
-        name="rental"
-        :label="$t('MSG_TXT_RECP_RENT')"
-      />
-      <kw-tab
-        name="snglPayment"
-        :label="$t('MSG_TXT_INSTALL')"
-      />
-      <kw-tab
-        name="location"
-        :label="$t('MSG_TXT_RECP_LMP_SUM_PMT')"
-      />
-    </kw-tabs>
-    <kw-tab-panels v-model="selectedTab">
-      <kw-tab-panel name="rental">
-        <wwcta-receipt-bulk-upload-m-rental />
-      </kw-tab-panel>
-      <kw-tab-panel name="snglPayment">
-        <wwcta-receipt-bulk-upload-m-single-payment />
-      </kw-tab-panel>
-      <kw-tab-panel name="location">
-        <wwcta-receipt-bulk-upload-m-install-location />
-      </kw-tab-panel>
-    </kw-tab-panels>
+    <div class="normal-area pb30">
+      <rental />
+
+      <h3>일시불 접수자료 업로드</h3>
+
+      <prospect-customer />
+
+      <h3>설치처 변경 접수자료 업로드</h3>
+    </div>
   </kw-page>
 </template>
 <script setup>
-// -------------------------------------------------------------------------------------------------
-// Import & Declaration
-// -------------------------------------------------------------------------------------------------
-import WwctaReceiptBulkUploadMRental from './WwctaReceiptBulkUploadMRental.vue';
-import WwctaReceiptBulkUploadMInstallLocation from './WwctaReceiptBulkUploadMInstallLocation.vue';
-import WwctaReceiptBulkUploadMSinglePayment from './WwctaReceiptBulkUploadMSinglePayment.vue';
-
-const selectedTab = ref('rental');
+import Rental
+  from '~sms-wells/contract/pages/ordermgmt/WwctaReceiptBulkUploadMRental.vue';
+import ProspectCustomer
+  from '~sms-wells/contract/pages/ordermgmt/WwctaReceiptBulkUploadMProspectCustomer.vue';
 </script>
