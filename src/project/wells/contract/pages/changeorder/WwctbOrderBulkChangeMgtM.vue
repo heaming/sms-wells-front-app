@@ -16,7 +16,7 @@
     </kw-tabs>
     <kw-tab-panels v-model="selectedTab">
       <kw-tab-panel name="rental">
-        <wwctb-order-bulk-change-mgt-m-rental />
+        <wwctb-rental-bulk-change-mgt-m />
       </kw-tab-panel>
       <kw-tab-panel name="membership">
         <wwctb-order-bulk-change-mgt-m-membership />
@@ -31,7 +31,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import WwctbOrderBulkChangeMgtMRental from './WwctbOrderBulkChangeMgtMRental.vue';
+import WwctbRentalBulkChangeMgtM from './WwctbRentalBulkChangeMgtM.vue';
 import WwctbOrderBulkChangeMgtMMembership from './WwctbOrderBulkChangeMgtMMembership.vue';
 import WwctbSinglePaymentBulkChangeMgtM from './WwctbSinglePaymentBulkChangeMgtM.vue';
 
