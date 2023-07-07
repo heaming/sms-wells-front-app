@@ -59,6 +59,7 @@
             v-model="sendInfo.publishDate"
             rules="required"
             :name="$t('MSG_TXT_PBL_DT')"
+            :min-date="minDate"
           /><!-- 발행일자 -->
         </kw-form-item>
 
@@ -196,10 +197,12 @@
 import { useDataService, useMeta, codeUtil, alert } from 'kw-lib';
 import ZwcmTelephoneNumber from '~common/components/ZwcmTelephoneNumber.vue';
 import ZwcmEmailAddress from '~common/components/ZwcmEmailAddress.vue';
+import dayjs from 'dayjs';
 
 const dataService = useDataService();
 const { getConfig } = useMeta();
 const { t } = useI18n();
+const now = dayjs();
 
 const props = defineProps({
   cntrNo: { type: String, required: true },
@@ -208,11 +211,11 @@ const props = defineProps({
   nm: { type: String, required: true },
 });
 
-console.log(props);
-
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
+const minDate = ref(now.format('YYYY-MM-DD'));
+
 const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
 );
@@ -246,63 +249,6 @@ const telNos = ref({
 });
 
 const frmMainRef = ref();
-
-async function onClickPrint() {
-  if (!await frmMainRef.value.validate()) { return; }
-
-  alert('출력물 출력 적용 예정');
-  // const { cntrNo, cntrSn, prtnrKnm, nm } = props;
-  // const { etcSelect, publishDate } = sendInfo.value;
-  // const data = {
-  //   cntrNo,
-  //   cntrSn,
-  //   prtnrKnm,
-  //   nm,
-  //   etcSelect,
-  //   publishDate,
-  // };
-  // await dataService.post('/sms/wells/service/wells-service-cfdc/report', data);
-}
-
-async function onClickSendKakao() {
-  if (!await frmMainRef.value.validate()) { return; }
-
-  alert('카카오 발송 적용 예정');
-  // const { cntrNo, cntrSn, prtnrKnm, nm } = props;
-  // const { etcSelect, publishDate, callingNumber } = sendInfo.value;
-  // const { telNo1, telNo2, telNo3 } = telNos.value;
-  // const data = {
-  //   cntrNo,
-  //   cntrSn,
-  //   prtnrKnm,
-  //   nm,
-  //   etcSelect,
-  //   publishDate,
-  //   callingNumber: callingNumber.replaceAll('-', ''),
-  //   receivingNumber: telNo1 + telNo2 + telNo3,
-  // };
-  // await dataService.post('/sms/wells/service/wells-service-cfdc/kakao', data);
-}
-
-async function onClickSendEmail() {
-  if (!await frmMainRef.value.validate()) { return; }
-
-  alert('이메일 발송 적용 예정');
-
-  // const { cntrNo, cntrSn, prtnrKnm, nm } = props;
-  // const { etcSelect, publishDate, caller, receiver } = sendInfo.value;
-  // const data = {
-  //   cntrNo,
-  //   cntrSn,
-  //   prtnrKnm,
-  //   nm,
-  //   etcSelect,
-  //   publishDate,
-  //   caller,
-  //   receiver,
-  // };
-  // await dataService.post('/sms/wells/service/wells-service-cfdc/email', data);
-}
 
 const pageInfo = ref({
   totalCount: 0,
@@ -358,6 +304,68 @@ async function onClickRefresh() {
   pageInfo.value.pageIndex = 1;
 
   await fetchData();
+}
+
+async function onClickPrint() {
+  if (!await frmMainRef.value.validate()) { return; }
+
+  await alert('출력물 출력 적용 예정');
+  // const { cntrNo, cntrSn, prtnrKnm, nm } = props;
+  // const { etcSelect, publishDate } = sendInfo.value;
+  // const data = {
+  //   cntrNo,
+  //   cntrSn,
+  //   prtnrKnm,
+  //   nm,
+  //   etcSelect,
+  //   publishDatetime: `${publishDate}000000`,
+  // };
+  // await dataService.post('/sms/wells/service/wells-service-cfdc/report', data);
+  // frmMainRef.value.init();
+}
+
+async function onClickSendKakao() {
+  if (!await frmMainRef.value.validate()) { return; }
+
+  const { cntrNo, cntrSn, prtnrKnm, nm } = props;
+  const { etcSelect, publishDate, callingNumber } = sendInfo.value;
+  const { telNo1, telNo2, telNo3 } = telNos.value;
+  const data = {
+    cntrNo,
+    cntrSn,
+    prtnrKnm,
+    nm,
+    etcSelect,
+    publishDatetime: `${publishDate}000000`,
+    callingNumber: callingNumber.replaceAll('-', ''),
+    receivingNumber: telNo1 + telNo2 + telNo3,
+  };
+
+  await dataService.post('/sms/wells/service/wells-service-cfdc/kakao', data);
+  await alert(t('MSG_ALT_BIZTALK_SEND_SUCCESS'));
+  frmMainRef.value.init();
+}
+
+async function onClickSendEmail() {
+  if (!await frmMainRef.value.validate()) { return; }
+
+  const { cntrNo, cntrSn, prtnrKnm, nm } = props;
+  const { etcSelect, publishDate, caller, receiver } = sendInfo.value;
+  const data = {
+    cntrNo,
+    cntrSn,
+    prtnrKnm,
+    nm,
+    etcSelect,
+    publishDatetime: `${publishDate}000000`,
+    caller,
+    receiver,
+  };
+  await dataService.post('/sms/wells/service/wells-service-cfdc/email', data);
+
+  await alert(t('MSG_ALT_EML_FW_FSH'));
+  await fetchData();
+  frmMainRef.value.init();
 }
 
 watch(() => sendInfo.value.sendType, async (newVal, oldVal) => {
