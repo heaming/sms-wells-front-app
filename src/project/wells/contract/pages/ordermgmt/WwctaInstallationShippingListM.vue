@@ -279,6 +279,7 @@
               </li>
             </div>
           </ul>
+          <kw-separator spaced="20px" />
           <kw-card-actions class="mt20">
             <!-- 기타배송조회 -->
             <kw-btn
@@ -300,7 +301,7 @@
             />
             <!-- 배정취소 -->
             <kw-btn
-              v-show="(item.acpgStat === '1' || item.acpgStat === '9') && item.istPcsvSellTpCd === '1'"
+              v-show="item.acpgStat === '2' && item.istPcsvSellTpCd === '1'"
               :label="t('MSG_BTN_CNCL_ASGMT')"
               @click="onClickCnclAsgmt(item)"
             />
@@ -704,6 +705,11 @@ async function callKiwiTimeAssign(dataList, prdDiv) {
   let sellTpCd = '';
   let kaetc1 = '';
 
+  if (dataList.profile !== 'prd') {
+    alert('처리되었습니다.(개발환경에선 처리 안됨)');
+    return;
+  }
+
   if (dataList.lcCanyn !== 'Y') {
     if (dataList.acpgStat === '1' || dataList.acpgStat === '9') {
       acpgDiv = '1';
@@ -735,8 +741,7 @@ async function callKiwiTimeAssign(dataList, prdDiv) {
         alert(t('MSG_ALT_SPP_WRN'));
         return;
       }
-      // if () 개발환경 /// 분기처리
-      // alert('처리되었습니다.(개발환경에선 처리 안됨)');
+
       const res = await dataService.post('/sms/wells/contract/contracts/installation-shippings', saveParams.value); // 체크
       if (!isEmpty(res)) {
         alert(t('MSG_ALT_SPP_SUCCESS'));
@@ -768,7 +773,7 @@ async function callKiwiTimeAssign(dataList, prdDiv) {
         component: 'WwsncTimeTableSellListP',
         componentProps: {
           sellDate: dataList.rcpdt, // 판매일자
-          baseYm: dataList.rcpdt.substr(0, 6), // 달력 초기 월
+          baseYm: isEmpty(dataList.rcpdt) ? now.format('YYYYMM') : dataList.rcpdt.substr(0, 6), // 달력 초기 월
           chnlDvCd: dataList.inChnlDvCd, // W: 웰스, K: KSS, C: CubicCC, P: K-MEMBERS, I || E: 엔지니어, M: 매니저
           svDvCd: svDvCdParam, // 1:설치, 2:BS, 3:AS, 4:홈케어
           svBizDclsfCd: svBizDclsfCdParam, // 판매인 경우 1110(신규설치) fix
@@ -863,6 +868,12 @@ async function cancelKiwiTimeAssign(dataList, prdDivParam) {
     }
     return;
   }
+
+  if (dataList.profile !== 'prd') {
+    alert('처리되었습니다.(개발환경에선 처리 안됨)');
+    return;
+  }
+
   const saveParams = ref({
     cntrNo: dataList.cntrNo,
     cntrSn: dataList.cntrSn,
@@ -899,6 +910,11 @@ async function checkKiwiTimeAssign(dataList, prdDiv) {
   let asIstOjNoParam = '';
   let acpgDivParam = '';
   const prdDivParam = prdDiv;
+
+  if (dataList.profile !== 'prd') {
+    alert('처리되었습니다.(개발환경에선 처리 안됨)');
+    return;
+  }
 
   if (dataList.lcCanyn !== 'Y') {
     if (dataList.kaetc1 === '7') {
