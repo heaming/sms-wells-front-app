@@ -799,8 +799,10 @@ const initCustomerGrid = defineGrid((data, view) => {
     { fieldName: 'emadr' }, // [이메일]이메일주소
     { fieldName: 'atmtStat' }, // [자동이체정보-상태]
     { fieldName: 'mpyBsdt' }, // [자동이체정보-이체일] 납부기준일자
+    { fieldName: 'aftnInfFntDvCd' }, // 자동이체정보-이체구분코드
+    { fieldName: 'aftnInfFntDvNm' }, // [자동이체정보-이체구분] 이체구분명
     { fieldName: 'dpTpCd' }, // 입금유형코드
-    { fieldName: 'dpTpNm' }, // [자동이체정보-이체구분] 입금유형명
+    { fieldName: 'dpTpNm' }, // 입금유형명
     { fieldName: 'bnkCdcoCd' }, // 은행/카드사코드
     { fieldName: 'bnkCdcoNm' }, // [자동이체정보-카드사/은행] 은행/카드사명
     { fieldName: 'acnoCrcdno' }, // [자동이체정보-카드/계좌번호]
@@ -849,7 +851,7 @@ const initCustomerGrid = defineGrid((data, view) => {
     { fieldName: 'emadr', header: t('MSG_TXT_EMAIL'), width: '210' }, // 이메일
     { fieldName: 'atmtStat', header: t('MSG_TXT_STT'), width: '96', styleName: 'text-center' }, // 상태
     { fieldName: 'mpyBsdt', header: t('MSG_TXT_FTD'), width: '96', styleName: 'text-center' }, // 이체일
-    { fieldName: 'dpTpNm', header: t('MSG_TXT_FNT_DV'), width: '120', styleName: 'text-center' }, // 이체구분
+    { fieldName: 'aftnInfFntDvNm', header: t('MSG_TXT_FNT_DV'), width: '120', styleName: 'text-center' }, // 이체구분
     { fieldName: 'bnkCdcoNm', header: `${t('MSG_TXT_CDCO')}/${t('MSG_TXT_BNK')}`, width: '120', styleName: 'text-center' }, // 카드사/은행
     { fieldName: 'acnoCrcdno', header: t('MSG_TXT_CARD_ACNO'), width: '182', styleName: 'text-center' }, // 카드/계좌번호
     { fieldName: 'isBndl',
@@ -944,7 +946,7 @@ const initCustomerGrid = defineGrid((data, view) => {
     {
       header: `${t('MSG_TXT_AUTO_FNT')} ${t('MSG_TXT_INF')}`, // 자동이체 정보
       direction: 'horizontal',
-      items: ['atmtStat', 'mpyBsdt', 'dpTpNm', 'bnkCdcoNm', 'acnoCrcdno', 'isBndl', 'evidOcyInqr', 'resign'],
+      items: ['atmtStat', 'mpyBsdt', 'aftnInfFntDvNm', 'bnkCdcoNm', 'acnoCrcdno', 'isBndl', 'evidOcyInqr', 'resign'],
     },
     {
       header: t('MSG_TXT_INSTR_INFO'), // 설치자 정보
