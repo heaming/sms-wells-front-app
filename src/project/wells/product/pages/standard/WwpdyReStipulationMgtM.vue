@@ -109,6 +109,7 @@
       <kw-grid
         ref="grdMainRef"
         name="grdMain"
+        :need-context-menu="false"
         :page-size="pageInfo.pageSize"
         :total-count="pageInfo.totalCount"
         @init="initGrdMain"

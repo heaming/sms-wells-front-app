@@ -16,6 +16,7 @@
   <h3>{{ grd3rdTit.codeName }}</h3>
   <kw-grid
     ref="grd3rdRef"
+    :need-context-menu="false"
     :visible-rows="visibleRowCnt"
     @init="initGrd3rd"
   />
@@ -23,6 +24,7 @@
   <h3>{{ grd2ndTit.codeName }}</h3>
   <kw-grid
     ref="grd2ndRef"
+    :need-context-menu="false"
     :visible-rows="visibleRowCnt"
     @init="initGrd2nd"
   />
@@ -30,6 +32,7 @@
   <h3>{{ grd1stTit.codeName }}</h3>
   <kw-grid
     ref="grd1stRef"
+    :need-context-menu="false"
     :visible-rows="visibleRowCnt"
     @init="initGrd1st"
   />
