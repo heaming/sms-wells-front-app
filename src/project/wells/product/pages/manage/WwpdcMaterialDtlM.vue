@@ -33,8 +33,6 @@
         ref="cmpRef"
         v-model:pd-cd="currentPdCd"
         v-model:init-data="prevStepData"
-        :pd-tp-cd="pdConst.PD_TP_CD_MATERIAL"
-        :codes="codes"
       />
     </div>
   </kw-page>

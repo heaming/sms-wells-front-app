@@ -58,13 +58,8 @@
               <wwpdc-as-part-dtl-m-contents
                 v-model:pd-cd="currentPdCd"
                 v-model:init-data="prevStepData"
-                :pd-tp-cd="pdConst.PD_TP_CD_MATERIAL"
-                :pd-grp-dv-cd="pdConst.PD_PRP_GRP_DV_CD_BASIC"
-                :pd-tp-dtl-cd="pdConst.PD_TP_DTL_CD_AS_PART"
-                :is-first-title="true"
                 :is-history-tab="false"
                 :is-update-btn="false"
-                :codes="codes"
                 is-reg-check-page
               />
             </kw-step-panel>
@@ -137,7 +132,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService, useGlobal, codeUtil } from 'kw-lib';
+import { useDataService, useGlobal } from 'kw-lib';
 import { isEmpty, cloneDeep } from 'lodash-es';
 import { pdMergeBy, pageMove, getCopyProductInfo } from '~sms-common/product/utils/pdUtil';
 import pdConst from '~sms-common/product/constants/pdConst';
@@ -177,7 +172,6 @@ const currentNewRegYn = ref();
 const currentReloadYn = ref();
 const currentCopyPdCd = ref();
 const isCreate = ref(false);
-const codes = await codeUtil.getMultiCodes('PD_TEMP_SAVE_CD');
 const obsMainRef = ref();
 const subTitle = ref();
 
