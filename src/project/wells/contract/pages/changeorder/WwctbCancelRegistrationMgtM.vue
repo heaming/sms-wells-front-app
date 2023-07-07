@@ -343,7 +343,7 @@ const grdMainView = computed(() => grdMain.value?.getView());
 const searchParams = ref({
   cntrNo: '', // 계약번호
   cntrSn: '', // 계약일련번호
-  cstNo: '040621938', // 고객번호
+  cstNo: '', // 고객번호
   dm: '', // 조회년월
 });
 
