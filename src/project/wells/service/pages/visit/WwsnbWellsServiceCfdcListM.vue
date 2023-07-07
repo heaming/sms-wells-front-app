@@ -107,7 +107,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService, useMeta, codeUtil, gridUtil, alert } from 'kw-lib';
+import { useDataService, useMeta, codeUtil, gridUtil, alert, useGlobal } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
 
@@ -116,6 +116,7 @@ const now = dayjs();
 const { getConfig } = useMeta();
 const dataService = useDataService();
 const { currentRoute } = useRouter();
+const { modal } = useGlobal();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -202,9 +203,14 @@ async function onClickSendServiceCfdc() {
   const checkedRows = gridUtil.getCheckedRowValues(view);
   if (checkedRows.length === 0) {
     alert(t('MSG_ALT_NOT_SEL_ITEM'));
+    return;
   }
 
-  alert(t('W-SV-U-0081P01 웰스 서비스확인서발송 팝업 호출'));
+  const { cntrNo, cntrSn, prtnrKnm, nm } = checkedRows[0];
+  await modal({
+    component: 'WwsnbWellsServiceCfdcListP',
+    componentProps: { cntrNo, cntrSn, prtnrKnm, nm },
+  });
 }
 
 // -------------------------------------------------------------------------------------------------
@@ -263,6 +269,7 @@ async function initGrdMain(data, view) {
   view.setColumns(columns);
 
   view.checkBar.visible = true;
+  view.checkBar.exclusive = true;
   view.rowIndicator.visible = true;
   view.editOptions.editable = true;
 
