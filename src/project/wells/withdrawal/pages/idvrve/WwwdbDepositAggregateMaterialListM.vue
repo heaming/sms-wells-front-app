@@ -17,6 +17,7 @@
     <kw-search
       one-row
       :cols="3"
+      :modified-targets="['grdMain']"
       @search="onClickSearch"
     >
       <kw-search-row>
@@ -58,7 +59,13 @@
     <div class="result-area">
       <kw-action-top>
         <template #left>
-          <kw-paging-info :total-count="pageInfo.totalCount" />
+          <kw-paging-info
+            v-model:page-index="pageInfo.pageIndex"
+            v-model:page-size="pageInfo.pageSize"
+            :total-count="pageInfo.totalCount"
+            :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
+            @change="fetchData"
+          />
           <span class="ml8">{{ t('MSG_TXT_UNIT_COLON_WON') }}</span>
         </template>
         <!-- 엑셀다운로드 -->
@@ -67,13 +74,17 @@
           dense
           secondary
           :label="$t('MSG_TXT_EXCEL_DOWNLOAD')"
+          :disable="pageInfo.totalCount === 0"
           @click="onClickExcelDownload"
         />
       </kw-action-top>
 
       <kw-grid
         ref="grdMainRef"
-        :visible-rows="10"
+        name="grdMain"
+        :visible-rows="12"
+        :page-size="pageInfo.pageSize"
+        :total-count="pageInfo.totalCount"
         @init="initGrid"
       />
       <kw-pagination
@@ -152,7 +163,10 @@ async function fetchData() {
 }
 
 async function onClickSearch() {
+  pageInfo.value.pageIndex = 1;
+
   cachedParams = cloneDeep(searchParams.value);
+
   await fetchData();
 }
 
