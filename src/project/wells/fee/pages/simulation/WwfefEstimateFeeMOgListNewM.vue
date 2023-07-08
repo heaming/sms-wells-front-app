@@ -195,13 +195,6 @@
           <span class="ml8">{{ t('MSG_TXT_UNIT_WON') }} </span>
         </template>
       </kw-action-top>
-      <!--
-        <kw-grid
-        ref="grdDstRef"
-        :visible-rows="1"
-        @init="initGridDstDtl"
-        />
-      -->
       <table class="kw-table--normal">
         <colgroup>
           <col style="width: 12%;">
@@ -215,22 +208,23 @@
           <col style="width: 11%;">
         </colgroup>
         <tbody>
+          <!-- 예상판매수수료-->
           <tr>
             <th rowspan="2">
-              예상판매수수료
+              {{ t('MSG_TXT_EST_SAL_COMM') }}
             </th>
-            <th>가전비례</th>
-            <th>가전외비례</th>
-            <th>가전장려</th>
-            <th>미팅</th>
-            <th>교육</th>
-            <th>정착</th>
-            <th>기기변경</th>
-            <th>계</th>
+            <th>{{ t('MSG_TXT_ELHM_PRPN') }}</th>
+            <th>{{ t('MSG_TXT_ELHM_EXCP_PRPN') }}</th>
+            <th>{{ t('MSG_TXT_ELHM_ENRG') }}</th>
+            <th>{{ t('MSG_TXT_METG') }}</th>
+            <th>{{ t('MSG_TXT_EDUC') }}</th>
+            <th>{{ t('MSG_TXT_STMNT') }}</th>
+            <th>{{ t('MSG_TXT_MCHN_CH') }}</th>
+            <th>{{ t('MSG_TXT_AGG') }}</th>
           </tr>
           <tr>
             <td class="text-right">
-              33333
+              333
             </td>
             <td class="text-right">
               333
@@ -254,19 +248,20 @@
               333
             </td>
           </tr>
+          <!-- 예상BS수수료 -->
           <tr>
             <th rowspan="2">
-              예상BS수수료
+              {{ t('MSG_TXT_EST_BS_FEE') }}
             </th>
-            <th>BS관리</th>
-            <th>BS장려</th>
-            <th>급지</th>
+            <th>{{ t('MSG_TXT_BS_MGMT') }}</th>
+            <th>{{ t('MSG_TXT_BS_ENRG') }}</th>
+            <th>{{ t('MSG_TXT_RGLVL') }}</th>
             <th colspan="4" />
-            <th>계</th>
+            <th>{{ t('MSG_TXT_AGG') }}</th>
           </tr>
           <tr>
             <td class="text-right">
-              33333
+              333
             </td>
             <td class="text-right">
               333
@@ -279,22 +274,23 @@
               333
             </td>
           </tr>
+          <!-- 예상조직수수료 -->
           <tr>
             <th rowspan="2">
-              예상조직수수료
+              {{ t('MSG_TXT_EST_OG_FEE') }}
             </th>
-            <th>가전조직비례</th>
-            <th>가전외조직비례</th>
-            <th>조직 판매장려</th>
-            <th>순증관리</th>
-            <th>조직배출1</th>
-            <th>조직배출2</th>
-            <th>신설지점</th>
-            <th>계</th>
+            <th>{{ t('MSG_TXT_ELHM_OG_PRPN') }}</th>
+            <th>{{ t('MSG_TXT_ELHM_OG_EXCP_PRPN') }}</th>
+            <th>{{ t('MSG_TXT_OG_SELL_ENCRG') }}</th>
+            <th>{{ t('MSG_TXT_NINC_MGT') }}</th>
+            <th>{{ t('MSG_TXT_OG_EJT') }}1</th>
+            <th>{{ t('MSG_TXT_OG_EJT') }}2</th>
+            <th>{{ t('MSG_TXT_NB_BRCH') }}</th>
+            <th>{{ t('MSG_TXT_AGG') }}</th>
           </tr>
           <tr>
             <td class="text-right">
-              33333
+              333
             </td>
             <td class="text-right">
               333
@@ -319,15 +315,12 @@
             </td>
           </tr>
           <tr>
-            <th class="sumhead">
-              합계
-            </th>
-            <th
-              class="sumhead text-right"
-              colspan="8"
-            >
-              32112212
-            </th>
+            <td class="sum-head">
+              {{ t('MSG_TXT_SUM') }}
+            </td>
+            <td class="sum-head">
+              333
+            </td>
           </tr>
         </tbody>
       </table>
@@ -335,8 +328,8 @@
       <kw-action-top class="mt30">
         <template #left>
           <h3>{{ t('MSG_TXT_SAL_HIST') }}</h3>
-          <span class="ml8">{{ t('MSG_TXT_UNIT_WON') }} </span>
         </template>
+        <span class="kw-fc--black3 text-weight-regular"> {{ t('MSG_TXT_UNIT_WON') }}</span>
       </kw-action-top>
       <kw-grid
         ref="grdSalesRef"
@@ -600,7 +593,7 @@ const initGridSalesHist = defineGrid((data, view) => {
 </script>
 
 <style scoped lang="scss">
-.sumhead {
+.sum-head {
   background: antiquewhite;
 }
 </style>
