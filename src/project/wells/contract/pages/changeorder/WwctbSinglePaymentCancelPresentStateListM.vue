@@ -104,8 +104,10 @@
     <kw-action-top>
       <template #left>
         <kw-paging-info
-          :total-count="totalCount"
-          @update:page-size="onChangePageSize"
+          v-model:page-size="pageInfo.pageSize"
+          :total-count="pageInfo.totalCount"
+          :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
+          @change:model-value="(v)=>{pageInfo.pageSize=v;}"
         />
         <!--
           v-model:page-size="pageSize"
@@ -116,14 +118,15 @@
         dense
         negative
         :label="$t('MSG_TXT_DOC')+' '+$t('MSG_BTN_PRINT')"
-        :disable="!totalCount"
+        :disable="!pageInfo.totalCount"
         @click="onClickPrint"
       />
     </kw-action-top>
 
     <kw-grid
       ref="grdMainSPay"
-      :visible-rows="totalCount>pageSize?pageSize:totalCount"
+      :page-size="pageInfo.pageSize"
+      :total-count="pageInfo.totalCount"
       @init="initGrid"
     />
   </div>
@@ -133,7 +136,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { defineGrid, getComponentType, useDataService, useGlobal, useMeta } from 'kw-lib';
+import { codeUtil, defineGrid, getComponentType, useDataService, useGlobal, useMeta } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
 import dayjs from 'dayjs';
@@ -161,8 +164,14 @@ const searchParams = ref({
   reqdDiv: '', // 철거구분
 });
 
-const pageSize = ref(Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')));
-const totalCount = ref(0);
+const codes = await codeUtil.getMultiCodes(
+  'COD_PAGE_SIZE_OPTIONS',
+);
+
+const pageInfo = ref({
+  totalCount: 0,
+  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
+});
 let cachedParams;
 
 // -------------------------------------------------------------------------------------------------
@@ -173,7 +182,7 @@ async function fetchData() {
 
   const res = await dataService.get('/sms/wells/contract/changeorder/single-payment-cancels', { params: { ...cachedParams } });
 
-  totalCount.value = res.data.length;
+  pageInfo.value.totalCount = res.data.length;
   const view = grdMainSPay.value.getView();
   view.getDataSource().setRows(res.data);
 }
@@ -186,10 +195,6 @@ async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
 
   await fetchData();
-}
-
-async function onChangePageSize(pageSize2) {
-  pageSize.value = pageSize2;
 }
 
 // -------------------------------------------------------------------------------------------------
