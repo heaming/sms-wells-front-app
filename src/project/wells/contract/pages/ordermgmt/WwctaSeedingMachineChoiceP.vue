@@ -15,7 +15,7 @@
 --->
 <template>
   <kw-popup
-    size="md"
+    size="mg"
   >
     <kw-option-group
       v-model="selected"
