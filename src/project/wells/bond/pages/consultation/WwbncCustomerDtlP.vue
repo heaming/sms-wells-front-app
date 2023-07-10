@@ -730,6 +730,7 @@
               type="textarea"
               :rows="3"
               :placeholder="$t('MSG_TXT_UNUITM_IN')"
+              maxlength="600"
             />
             <div class="row justify-end full-size mt12">
               <kw-btn
@@ -945,6 +946,7 @@
                           :label="$t('MSG_TXT_PROM_AMT')"
                           dense
                           rules="required"
+                          maxlength="20"
                         />
                       </kw-form-item>
                     </kw-form-row>
