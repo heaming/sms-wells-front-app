@@ -21,8 +21,13 @@
       <kw-form-row>
         <kw-form-item
           :label="$t('MSG_TXT_PERF_YM')"
+          :required="isEmpty(props.perfYm)"
         >
+          <p v-if="!isEmpty(props.perfYm)">
+            {{ regData?.perfYm ? stringUtil.getDateFormat(regData?.perfYm).substring(0,7) : '' }}
+          </p>
           <kw-date-picker
+            v-if="isEmpty(props.perfYm)"
             v-model="regData.perfYm"
             rules="required"
             type="month"
@@ -49,7 +54,8 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useModal, useDataService, useGlobal } from 'kw-lib';
+import { useModal, useDataService, useGlobal, stringUtil } from 'kw-lib';
+import { isEmpty } from 'lodash-es';
 
 const { cancel, ok } = useModal();
 const { notify } = useGlobal();
