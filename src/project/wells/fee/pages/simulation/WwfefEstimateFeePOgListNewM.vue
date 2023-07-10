@@ -102,12 +102,12 @@
           >
             <p>{{ baseInfo?.amtEstSalFee ? stringUtil.getNumberWithComma(baseInfo?.amtEstSalFee) : '' }}</p>
           </kw-form-item>
-          <!-- 예상조직수수료 -->
+          <!-- 예상상조수수료 -->
           <kw-form-item
             :label="$t('MSG_TXT_EXP_MUT_AID_FEE')"
             align-content="right"
           >
-            <p>{{ baseInfo?.amtMutAidFee ? stringUtil.getNumberWithComma(baseInfo?.amtMutAidFee) : '' }}</p>
+            <p>예상상조수수료</p>
           </kw-form-item>
           <!-- 예상수수료합계 -->
           <kw-form-item
@@ -117,13 +117,15 @@
             <p>{{ baseInfo?.amtFeeSum ? stringUtil.getNumberWithComma(baseInfo?.amtFeeSum) : '' }}</p>
           </kw-form-item>
         </kw-form-row>
-        <kw-form-row>
-          <!-- 예상상조수수료 -->
+        <kw-form-row
+          v-if="useOg"
+        >
+          <!-- 예상조직수수료 -->
           <kw-form-item
-            :label="$t('MSG_TXT_EXP_MUT_AID_FEE')"
+            :label="$t('MSG_TXT_EST_OG_FEE')"
             align-content="right"
           >
-            <p>예상상조수수료</p>
+            <p>{{ baseInfo?.amtMutAidFee ? stringUtil.getNumberWithComma(baseInfo?.amtMutAidFee) : '' }}</p>
           </kw-form-item>
         </kw-form-row>
       </kw-form>
@@ -150,7 +152,7 @@
       </kw-action-top>
       <kw-grid
         ref="grdPerformanceRef"
-        :visible-rows="4"
+        :visible-rows="useOg ? 4 : 2"
         @init="initGrdPerformanceDtl"
       />
       <!-- 예상수수료 내역 -->
@@ -189,74 +191,78 @@
           </tr>
           <tr>
             <td class="text-right">
-              333
+              0
             </td>
             <td class="text-right">
-              333
+              0
             </td>
             <td class="text-right">
-              333
+              0
             </td>
             <td class="text-right">
-              333
+              0
             </td>
             <td class="text-right">
-              333
+              0
             </td>
             <td class="text-right">
-              333
+              0
             </td>
             <td />
             <td class="text-right">
-              333
+              0
             </td>
           </tr>
           <!-- 조직수수료 -->
-          <tr>
-            <th rowspan="2">
-              {{ t('MSG_TXT_ORGNSTN_FEE') }}
-            </th>
-            <th>{{ t('MSG_TXT_ELHM_OG_PRPN') }}</th>
-            <th>{{ t('MSG_TXT_ELHM_OG_EXCP_PRPN') }}</th>
-            <th>{{ t('MSG_TXT_OG_SELL_ENCRG') }}</th>
-            <th>{{ t('MSG_TXT_OG_EJT') }}1</th>
-            <th>{{ t('MSG_TXT_OG_EJT') }}2</th>
-            <th>{{ t('MSG_TXT_NB_BRCH') }}</th>
-            <th>{{ t('MSG_TXT_PRFMT_FEE') }}</th>
-            <th>{{ t('MSG_TXT_AGG') }}</th>
-          </tr>
-          <tr>
-            <td class="text-right">
-              333
-            </td>
-            <td class="text-right">
-              333
-            </td>
-            <td class="text-right">
-              333
-            </td>
-            <td class="text-right">
-              333
-            </td>
-            <td class="text-right">
-              333
-            </td>
-            <td class="text-right">
-              333
-            </td>
-            <td class="text-right">
-              333
-            </td>
-            <td class="text-right">
-              333
-            </td>
-          </tr>
+          <template
+            v-if="useOg"
+          >
+            <tr>
+              <th rowspan="2">
+                {{ t('MSG_TXT_ORGNSTN_FEE') }}
+              </th>
+              <th>{{ t('MSG_TXT_ELHM_OG_PRPN') }}</th>
+              <th>{{ t('MSG_TXT_ELHM_OG_EXCP_PRPN') }}</th>
+              <th>{{ t('MSG_TXT_OG_SELL_ENCRG') }}</th>
+              <th>{{ t('MSG_TXT_OG_EJT') }}1</th>
+              <th>{{ t('MSG_TXT_OG_EJT') }}2</th>
+              <th>{{ t('MSG_TXT_NB_BRCH') }}</th>
+              <th>{{ t('MSG_TXT_PRFMT_FEE') }}</th>
+              <th>{{ t('MSG_TXT_AGG') }}</th>
+            </tr>
+            <tr>
+              <td class="text-right">
+                0
+              </td>
+              <td class="text-right">
+                0
+              </td>
+              <td class="text-right">
+                0
+              </td>
+              <td class="text-right">
+                0
+              </td>
+              <td class="text-right">
+                0
+              </td>
+              <td class="text-right">
+                0
+              </td>
+              <td class="text-right">
+                0
+              </td>
+              <td class="text-right">
+                0
+              </td>
+            </tr>
+          </template>
           <tr>
             <td class="sum-head">
               {{ t('MSG_TXT_SUM') }}
             </td>
             <td class="sum-head">
-              333
+              0
             </td>
           </tr>
         </tbody>
@@ -292,6 +298,7 @@ const dataService = useDataService();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
+const useOg = ref(true);
 const grdMtRef = ref(getComponentType('KwGrid'));
 const grdPerformanceRef = ref(getComponentType('KwGrid'));
 const grdEstimatedRef = ref(getComponentType('KwGrid'));
@@ -318,8 +325,9 @@ const baseInfo = ref({
   ogCd: '',
   rsbDvCd: '',
   amtEstSalFee: 0,
-  amtMutAidFee: 0,
+  amtEstOgFee: 0,
   amtFeeSum: 0,
+  amtMutAidFee: 0,
 });
 
 // 데이터 조회

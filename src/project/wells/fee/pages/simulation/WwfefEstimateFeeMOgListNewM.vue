@@ -168,7 +168,7 @@
       />
       <!-- 조직BS내역 -->
       <template
-        v-if="true"
+        v-if="useOg"
       >
         <kw-action-top class="mt30">
           <template #left>
@@ -192,8 +192,8 @@
       <kw-action-top class="mt30">
         <template #left>
           <h3>{{ t('MSG_TXT_EST_FEE_DTL') }}</h3>
-          <span class="ml8">{{ t('MSG_TXT_UNIT_WON') }} </span>
         </template>
+        <span class="kw-fc--black3 text-weight-regular"> {{ t('MSG_TXT_UNIT_WON') }}</span>
       </kw-action-top>
       <table class="kw-table--normal">
         <colgroup>
@@ -224,28 +224,28 @@
           </tr>
           <tr>
             <td class="text-right">
-              333
+              0
             </td>
             <td class="text-right">
-              333
+              0
             </td>
             <td class="text-right">
-              333
+              0
             </td>
             <td class="text-right">
-              333
+              0
             </td>
             <td class="text-right">
-              333
+              0
             </td>
             <td class="text-right">
-              333
+              0
             </td>
             <td class="text-right">
-              333
+              0
             </td>
             <td class="text-right">
-              333
+              0
             </td>
           </tr>
           <!-- 예상BS수수료 -->
@@ -261,65 +261,69 @@
           </tr>
           <tr>
             <td class="text-right">
-              333
+              0
             </td>
             <td class="text-right">
-              333
+              0
             </td>
             <td class="text-right">
-              333
+              0
             </td>
             <td colspan="4" />
             <td class="text-right">
-              333
+              0
             </td>
           </tr>
           <!-- 예상조직수수료 -->
-          <tr>
-            <th rowspan="2">
-              {{ t('MSG_TXT_EST_OG_FEE') }}
-            </th>
-            <th>{{ t('MSG_TXT_ELHM_OG_PRPN') }}</th>
-            <th>{{ t('MSG_TXT_ELHM_OG_EXCP_PRPN') }}</th>
-            <th>{{ t('MSG_TXT_OG_SELL_ENCRG') }}</th>
-            <th>{{ t('MSG_TXT_NINC_MGT') }}</th>
-            <th>{{ t('MSG_TXT_OG_EJT') }}1</th>
-            <th>{{ t('MSG_TXT_OG_EJT') }}2</th>
-            <th>{{ t('MSG_TXT_NB_BRCH') }}</th>
-            <th>{{ t('MSG_TXT_AGG') }}</th>
-          </tr>
-          <tr>
-            <td class="text-right">
-              333
-            </td>
-            <td class="text-right">
-              333
-            </td>
-            <td class="text-right">
-              333
-            </td>
-            <td class="text-right">
-              333
-            </td>
-            <td class="text-right">
-              333
-            </td>
-            <td class="text-right">
-              333
-            </td>
-            <td class="text-right">
-              333
-            </td>
-            <td class="text-right">
-              333
-            </td>
-          </tr>
+          <template
+            v-if="useOg"
+          >
+            <tr>
+              <th rowspan="2">
+                {{ t('MSG_TXT_EST_OG_FEE') }}
+              </th>
+              <th>{{ t('MSG_TXT_ELHM_OG_PRPN') }}</th>
+              <th>{{ t('MSG_TXT_ELHM_OG_EXCP_PRPN') }}</th>
+              <th>{{ t('MSG_TXT_OG_SELL_ENCRG') }}</th>
+              <th>{{ t('MSG_TXT_NINC_MGT') }}</th>
+              <th>{{ t('MSG_TXT_OG_EJT') }}1</th>
+              <th>{{ t('MSG_TXT_OG_EJT') }}2</th>
+              <th>{{ t('MSG_TXT_NB_BRCH') }}</th>
+              <th>{{ t('MSG_TXT_AGG') }}</th>
+            </tr>
+            <tr>
+              <td class="text-right">
+                0
+              </td>
+              <td class="text-right">
+                0
+              </td>
+              <td class="text-right">
+                0
+              </td>
+              <td class="text-right">
+                0
+              </td>
+              <td class="text-right">
+                0
+              </td>
+              <td class="text-right">
+                0
+              </td>
+              <td class="text-right">
+                0
+              </td>
+              <td class="text-right">
+                0
+              </td>
+            </tr>
+          </template>
           <tr>
             <td class="sum-head">
               {{ t('MSG_TXT_SUM') }}
             </td>
             <td class="sum-head">
-              333
+              0
             </td>
           </tr>
         </tbody>
@@ -356,7 +360,7 @@ const dataService = useDataService();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
-const useOg = ref(false);
+const useOg = ref(true);
 const codes = await codeUtil.getMultiCodes(
   'RSB_DV_CD',
   'CNTRW_TP_CD',
