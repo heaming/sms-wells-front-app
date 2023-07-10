@@ -103,7 +103,10 @@
     <kw-action-top>
       <template #left>
         <kw-paging-info
-          :total-count="totalCount"
+          v-model:page-size="pageInfo.pageSize"
+          :total-count="pageInfo.totalCount"
+          :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
+          @change:model-value="(v)=>{pageInfo.pageSize=v;}"
         />
         <span class="ml6">{{ t('MSG_TXT_UNIT_WON_MCN') }}</span>
       </template>
@@ -112,14 +115,15 @@
         dense
         secondary
         :label="$t('MSG_TXT_EXCEL_DOWNLOAD')"
-        :disable="!totalCount"
+        :disable="!pageInfo.totalCount"
         @click="onClickExcelDownload"
       />
     </kw-action-top>
 
     <kw-grid
       ref="grdMainRegular"
-      :visible-rows="totalCount>pageSize?pageSize:totalCount"
+      :page-size="pageInfo.pageSize"
+      :total-count="pageInfo.totalCount"
       @init="initGrid"
     />
   </div>
@@ -156,12 +160,15 @@ const searchParams = ref({
 });
 
 const codes = await codeUtil.getMultiCodes(
+  'COD_PAGE_SIZE_OPTIONS',
   'OG_TP_CD',
   'RGLR_SPP_STAT_CH_RSON_CD',
 );
 
-const pageSize = ref(Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')));
-const totalCount = ref(0);
+const pageInfo = ref({
+  totalCount: 0,
+  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
+});
 let cachedParams;
 
 // -------------------------------------------------------------------------------------------------
@@ -173,7 +180,7 @@ async function fetchData() {
 
   const res = await dataService.get('/sms/wells/contract/changeorder/regular-shipping-cancels', { params: { ...cachedParams } });
 
-  totalCount.value = res.data.length;
+  pageInfo.value.totalCount = res.data.length;
   const view = grdMainRegular.value.getView();
   view.getDataSource().setRows(res.data);
 }

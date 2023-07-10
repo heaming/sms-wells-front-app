@@ -507,7 +507,6 @@ const emits = defineEmits([
   'removedetail',
 ]);
 const cancelDetail = ref(props.childDetail);
-
 const searchDetail = ref({});
 const isChageCanCtr = ref(false);
 
