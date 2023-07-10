@@ -320,10 +320,13 @@ async function fetchData() {
 const prtnrOgTpOptions = ref([]);
 
 async function onClickSearch() {
+  if (!searchParams.value.executiveGroup) {
+    await alert(t('MSG_ALT_NOT_FOUND_OG_INF')); // 조직정보를 찾을 수 없습니다.
+    return;
+  }
   if (searchParams.value.branchOffice === 'ALL' || !searchParams.value.branchOffice) {
     searchParams.value.branchOfficeCd = 'ALL';
   } else {
-    console.log(searchParams.value.branchOffice);
     const { ogCd } = prtnrOgTpOptions.value.find((option) => searchParams.value.branchOffice === option.ogId);
     searchParams.value.branchOfficeCd = ogCd;
   }
@@ -346,6 +349,10 @@ async function getOrganizationInfo() {
   const userInfo = getters['meta/getUserInfo'];
   const ogId = userInfo.ogId === 'test' ? 'OGO200800000185' : userInfo.ogId;
   const { data: { dgr1LevlOgId, dgr2LevlOgId } } = await dataService.get(`/sms/wells/service/manage-customer-rglvl/organization-info/${ogId}`);
+  if (!dgr1LevlOgId) {
+    await alert(t('MSG_ALT_NOT_FOUND_OG_INF')); // 조직정보를 찾을 수 없습니다.
+    return;
+  }
 
   executiveGroup.value = dgr1LevlOgId;
   localGroup.value = dgr2LevlOgId;
