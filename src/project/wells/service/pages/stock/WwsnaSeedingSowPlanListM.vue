@@ -33,7 +33,7 @@
             v-model="searchParams.cntrDtlNo"
             type="text"
             :label="$t('MSG_TXT_CNTR_DTL_NO')"
-            rules="alpha_num"
+            rules="alpha_num|max:12"
             :placeholder="$t('MSG_TXT_CNTR_NO')"
           />
         </kw-search-item>
