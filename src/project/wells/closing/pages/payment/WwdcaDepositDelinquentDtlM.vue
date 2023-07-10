@@ -53,7 +53,6 @@
                 :options="codes.SELL_TP_CD"
                 rules="required"
                 first-option="all"
-                first-option-value="ALL"
                 @change="onChangeSellTpCd"
               />
               <kw-select
@@ -246,7 +245,7 @@ const searchParams = ref({
   perfYm: now.format('YYYYMM'), // 실적년월
   dlqDv: 'ALL', // 연체구분
   dlqMcnt: ['0'], // 연체개월
-  sellTpCd: 'ALL', // 판매유형
+  sellTpCd: '', // 판매유형
   sellTpDtlCd: 'ALL', // 판매유형상세
   ogTp: 'ALL', // 조직유형
   inqrDv: '1', // 조회구분
