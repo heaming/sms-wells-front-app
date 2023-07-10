@@ -269,7 +269,7 @@ async function onClickConfirm() {
   returnData.value.pdNm = frmMainData.value.pdNm; // [상품명]
   returnData.value.clnYn = frmMainData.value.clnYn; // [회수여부]
   returnData.value.resultDvCheck = frmMainData.value.resultDvCheck; // [결과구분CHECK]
-  returnData.value.rentalNmnN = frmMainData.value.rentalNmnN; // [상품명]
+  returnData.value.rentalNmnN = frmMainData.value.rentalNmnN; // [렌탈차월]
 
   ok(returnData.value);
 }
