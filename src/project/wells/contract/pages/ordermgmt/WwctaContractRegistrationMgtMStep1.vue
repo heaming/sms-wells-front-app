@@ -17,7 +17,10 @@
     visible
     scroll-style="padding-right: 40px;"
   >
-    <ul class="kw-state-list kw-state-list--second-line col pt20">
+    <ul
+      v-if="!isExistCntr"
+      class="kw-state-list kw-state-list--second-line col pt20"
+    >
       <li class="kw-state-list__item">
         <p class="kw-state-list__top">
           재약정대상
