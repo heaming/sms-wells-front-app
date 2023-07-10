@@ -61,13 +61,15 @@
           <kw-input
             v-model="searchParams.strtSapCd"
             :label="$t('MSG_TXT_STRT_SAP_CD')"
-            rules="numeric"
+            rules="numeric|max:18"
+            @change="onChangeStrtSapCd"
           />
           <span>~</span>
           <kw-input
             v-model="searchParams.endSapCd"
             :label="$t('MSG_TXT_END_SAP_CD')"
-            rules="numeric"
+            rules="numeric|max:18"
+            @change="onChangeEndSapCd"
           />
         </kw-search-item>
       </kw-search-row>
@@ -247,6 +249,24 @@ function onChangeItmKndCd() {
   }
 
   optionsItmPdCd.value = optionsAllItmPdCd.value.filter((v) => itmKndCd === v.itmKndCd);
+}
+
+function onChangeStrtSapCd() {
+  const { strtSapCd, endSapCd } = searchParams.value;
+
+  if (!isEmpty(strtSapCd) && !isEmpty(endSapCd) && strtSapCd > endSapCd) {
+    searchParams.value.strtSapCd = strtSapCd;
+    searchParams.value.endSapCd = strtSapCd;
+  }
+}
+
+function onChangeEndSapCd() {
+  const { strtSapCd, endSapCd } = searchParams.value;
+
+  if (!isEmpty(strtSapCd) && !isEmpty(endSapCd) && strtSapCd > endSapCd) {
+    searchParams.value.strtSapCd = endSapCd;
+    searchParams.value.endSapCd = endSapCd;
+  }
 }
 
 // 조회

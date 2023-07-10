@@ -95,7 +95,7 @@
             v-model="searchParams.itmPdCd"
             type="text"
             :label="$t('MSG_TXT_ITM_CD')"
-            rules="alpha_num"
+            rules="alpha_num|max:10"
           />
         </kw-search-item>
         <kw-search-item :label="t('MSG_TXT_MAT_DV')">
