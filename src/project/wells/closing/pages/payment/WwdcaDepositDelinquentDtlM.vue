@@ -43,24 +43,6 @@
                 type="month"
               />
             </kw-search-item>
-            <kw-search-item :label="$t('MSG_TXT_DLQ_DV') + '(' + $t('MSG_TXT_LSTMM') + ')'">
-              <kw-select
-                v-model="searchParams.dlqDv"
-                :options="selectDlqDv.options"
-                first-option="all"
-                first-option-value="ALL"
-              />
-            </kw-search-item>
-            <kw-search-item :label="$t('MSG_TXT_DLQ_MCNT') + '(' + $t('MSG_TXT_LSTMM') + ')'">
-              <kw-select
-                v-model="searchParams.dlqMcnt"
-                :disable="searchParams.dlqDv === 'ALL' || searchParams.dlqDv === '1'"
-                :options="selectDlqMcnt.options"
-                multiple
-              />
-            </kw-search-item>
-          </kw-search-row>
-          <kw-search-row>
             <kw-search-item
               :label="$t('MSG_TXT_SEL_TYPE')"
               required
@@ -69,16 +51,26 @@
                 v-model="searchParams.sellTpCd"
                 :label="$t('MSG_TXT_SEL_TYPE')"
                 :options="codes.SELL_TP_CD"
-                multiple
                 rules="required"
-              />
-            </kw-search-item>
-            <kw-search-item :label="$t('MSG_TXT_OG_TP')">
-              <kw-select
-                v-model="searchParams.ogTp"
                 first-option="all"
                 first-option-value="ALL"
-                :options="ogTpCd"
+                @change="onChangeSellTpCd"
+              />
+              <kw-select
+                v-if="searchParams.sellTpCd === '1' || searchParams.sellTpCd === '2'
+                  || searchParams.sellTpCd === '3' || searchParams.sellTpCd === '6'"
+                v-model="searchParams.sellTpDtlCd"
+                :options="codes.SELL_TP_DTL_CD.filter(v => v.userDfn02 === searchParams.sellTpCd)"
+                first-option="all"
+                first-option-value="ALL"
+              />
+              <kw-select
+                v-else
+                v-model="searchParams.sellTpDtlCd"
+                :readonly="true"
+                :options="codes.SELL_TP_DTL_CD"
+                first-option="all"
+                first-option-value="ALL"
               />
             </kw-search-item>
             <kw-search-item :label="$t('MSG_TXT_INQR_DV')">
@@ -90,6 +82,32 @@
             </kw-search-item>
           </kw-search-row>
           <kw-search-row>
+            <kw-search-item :label="$t('MSG_TXT_DLQ_DV') + '(' + $t('MSG_TXT_LSTMM') + ')'">
+              <kw-select
+                v-model="searchParams.dlqDv"
+                :options="selectDlqDv.options"
+                first-option="all"
+                first-option-value="ALL"
+              />
+            </kw-search-item>
+            <kw-search-item :label="$t('MSG_TXT_DLQ_MCNT') + '(' + $t('MSG_TXT_LSTMM') + ')'">
+              <kw-option-group
+                v-model="searchParams.dlqMcnt"
+                :disable="searchParams.dlqDv === 'ALL' || searchParams.dlqDv === '1'"
+                :options="selectDlqMcnt.options"
+                type="checkbox"
+              />
+            </kw-search-item>
+          </kw-search-row>
+          <kw-search-row>
+            <kw-search-item :label="$t('MSG_TXT_OG_TP')">
+              <kw-select
+                v-model="searchParams.ogTp"
+                first-option="all"
+                first-option-value="ALL"
+                :options="ogTpCd"
+              />
+            </kw-search-item>
             <kw-search-item
               :label="$t('MSG_TXT_OG_LEVL')"
               :colspan="2"
@@ -104,6 +122,8 @@
                 :base-ym="searchParams.perfYm"
               />
             </kw-search-item>
+          </kw-search-row>
+          <kw-search-row>
             <kw-form-item :label="$t('MSG_TXT_SEQUENCE_NUMBER')">
               <kw-input
                 v-model="searchParams.prtnrNo"
@@ -114,8 +134,6 @@
                 @click-icon="onClickSearchPntnrNo"
               />
             </kw-form-item>
-          </kw-search-row>
-          <kw-search-row>
             <kw-search-item :label="$t('MSG_TXT_INDV_CRP_DV')">
               <kw-select
                 v-model="searchParams.copnDvCd"
@@ -130,6 +148,8 @@
                 v-model:cntr-sn="searchParams.cntrSn"
               />
             </kw-search-item>
+          </kw-search-row>
+          <kw-search-row>
             <kw-search-item :label="$t('MSG_TXT_CST_NO')">
               <kw-input
                 v-model="searchParams.cntrCstNo"
@@ -226,7 +246,8 @@ const searchParams = ref({
   perfYm: now.format('YYYYMM'), // 실적년월
   dlqDv: 'ALL', // 연체구분
   dlqMcnt: ['0'], // 연체개월
-  sellTpCd: [], // 판매유형
+  sellTpCd: 'ALL', // 판매유형
+  sellTpDtlCd: 'ALL', // 판매유형상세
   ogTp: 'ALL', // 조직유형
   inqrDv: '1', // 조회구분
   dgr1LevlOgCd: '',
@@ -311,6 +332,10 @@ async function onClickExportView() {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
   });
+}
+
+function onChangeSellTpCd() {
+  searchParams.value.sellTpDtlCd = 'ALL';
 }
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
