@@ -195,26 +195,26 @@
           </tr>
           <tr>
             <td class="text-right">
-              0
+              {{ stringUtil.getNumberWithComma(estimate.prsnlFeeElhmPrpn) }}
             </td>
             <td class="text-right">
-              0
+              {{ stringUtil.getNumberWithComma(estimate.prsnlFeeElhmExcpPrpn) }}
             </td>
             <td class="text-right">
-              0
+              {{ stringUtil.getNumberWithComma(estimate.prsnlFeeSalIntv) }}
             </td>
             <td class="text-right">
-              0
+              {{ stringUtil.getNumberWithComma(estimate.prsnlFeeMetg) }}
             </td>
             <td class="text-right">
-              0
+              {{ stringUtil.getNumberWithComma(estimate.prsnlFeeStmnt) }}
             </td>
             <td class="text-right">
-              0
+              {{ stringUtil.getNumberWithComma(estimate.prsnlFeeMutu) }}
             </td>
             <td />
             <td class="text-right">
-              0
+              {{ stringUtil.getNumberWithComma(estimate.prsnlFeeAgg) }}
             </td>
           </tr>
           <!-- 조직수수료 -->
@@ -236,28 +236,28 @@
             </tr>
             <tr>
               <td class="text-right">
-                0
+                {{ stringUtil.getNumberWithComma(estimate.orgnstnFeeElhmOgPrpn) }}
               </td>
               <td class="text-right">
-                0
+                {{ stringUtil.getNumberWithComma(estimate.orgnstnFeeElhmOgExcpPrpn) }}
               </td>
               <td class="text-right">
-                0
+                {{ stringUtil.getNumberWithComma(estimate.orgnstnFeeOgSellEncrg) }}
               </td>
               <td class="text-right">
-                0
+                {{ stringUtil.getNumberWithComma(estimate.orgnstnFeeOgEjt1) }}
               </td>
               <td class="text-right">
-                0
+                {{ stringUtil.getNumberWithComma(estimate.orgnstnFeeOgEjt2) }}
               </td>
               <td class="text-right">
-                0
+                {{ stringUtil.getNumberWithComma(estimate.orgnstnFeeNbBrch) }}
               </td>
               <td class="text-right">
-                0
+                {{ stringUtil.getNumberWithComma(estimate.orgnstnFeePrfmtFee) }}
               </td>
               <td class="text-right">
-                0
+                {{ stringUtil.getNumberWithComma(estimate.orgnstnFeeAgg) }}
               </td>
             </tr>
           </template>
@@ -266,7 +266,7 @@
               {{ t('MSG_TXT_SUM') }}
             </td>
             <td class="sum-head">
-              0
+              {{ stringUtil.getNumberWithComma(estimate.allSum) }}
             </td>
           </tr>
         </tbody>
