@@ -215,7 +215,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService, stringUtil, useModal, useGlobal } from 'kw-lib';
+import { useDataService, stringUtil, useModal, useGlobal, getComponentType } from 'kw-lib';
 import { isEmpty } from 'lodash-es';
 
 import ZwcmPostCode from '~common/components/ZwcmPostCode.vue';
@@ -225,7 +225,7 @@ const { cancel, ok } = useModal();
 const { notify, confirm, alert } = useGlobal();
 const dataService = useDataService();
 
-const obsMainRef = ref();
+const obsMainRef = ref(getComponentType('KwObserver'));
 
 const props = defineProps({
   cntrNo: {
@@ -299,6 +299,7 @@ async function fetchData() {
     cancel();
     return;
   }
+  obsMainRef.value.init();
   fieldParams.value.check = false;
 }
 
@@ -312,8 +313,7 @@ async function onClickSave() {
   }
   if (!await confirm(t('MSG_ALT_WANT_SAVE'))) { return; }
 
-  const res = await dataService.post('/sms/wells/contract/changeorder/changes/customers', fieldParams.value);
-  console.log(res);
+  await dataService.post('/sms/wells/contract/changeorder/changes/customers', fieldParams.value);
   ok();
   notify(t('MSG_ALT_SAVE_DATA'));
 }
