@@ -19,115 +19,27 @@
       @search="onClickSearch"
     >
       <div
-        v-if="isSelectVisile"
-      >
-        <kw-search-row>
-          <kw-search-item
-            :label="$t('MSG_TXT_ORDR')"
-            required
-          >
-            <kw-option-group
-              v-model="searchParams.schTcnt"
-              :label="$t('MSG_TXT_ORDR')"
-              rules="required"
-              type="radio"
-              :options="[$t('MSG_TXT_1ST'), $t('MSG_TXT_2ND')]"
-              @change="onChangeBizDv"
-            />
-          </kw-search-item>
-          <kw-search-item
-            :label="$t('MSG_TXT_DIV')"
-            required
-          >
-            <kw-select
-              v-model="searchParams.schDv"
-              :label="$t('MSG_TXT_DIV')"
-              :options="customCodes.divCd"
-              rules="required"
-              @change="onChangeBizDv"
-            />
-          </kw-search-item>
-          <kw-search-item
-            :label="$t('MSG_TXT_PDCT_TP')"
-            required
-          >
-            <kw-select
-              v-model="searchParams.schPdctTp"
-              :label="$t('MSG_TXT_PDCT_TP')"
-              :options="customCodes.pdctTpCd"
-              rules="required"
-            />
-          </kw-search-item>
-        </kw-search-row>
-        <kw-search-row>
-          <kw-search-item
-            :label="$t('MSG_TXT_PRDT_CODE')"
-          >
-            <kw-input
-              v-model="searchParams.schPdCdStrt"
-              maxlength="10"
-              clearable
-              icon="search"
-              @click-icon="onClickSearchPdCdPopup('S')"
-            />
-            <span>~</span>
-            <kw-input
-              v-model="searchParams.schPdCdEnd"
-              maxlength="10"
-              clearable
-              icon="search"
-              @click-icon="onClickSearchPdCdPopup('E')"
-            />
-          </kw-search-item>
-          <kw-search-item
-            :label="$t('MSG_TXT_SL_DT')"
-            required
-          >
-            <kw-date-range-picker
-              v-model:from="searchParams.schSlDtStrt"
-              v-model:to="searchParams.schSlDtEnd"
-              :label="$t('MSG_TXT_SL_DT')"
-              rules="date_range_required|date_range_months:1"
-            />
-          </kw-search-item>
-          <kw-search-item
-            :label="$t('MSG_TXT_RCPDT')"
-          >
-            <kw-date-range-picker
-              v-model:from="searchParams.schRcpDtStrt"
-              v-model:to="searchParams.schRcpDtEnd"
-              :label="$t('MSG_TXT_RCPDT')"
-            />
-          </kw-search-item>
-        </kw-search-row>
-      </div>
-      <div
         v-if="isSelectVisile1"
       >
         <kw-search-row>
           <kw-search-item
-            :label="$t('MSG_TXT_ORDR')"
-            required
-          >
-            <kw-option-group
-              v-model="searchParams.schTcnt"
-              :label="$t('MSG_TXT_ORDR')"
-              rules="required"
-              type="radio"
-              :options="[$t('MSG_TXT_1ST'), $t('MSG_TXT_2ND')]"
-              @change="onChangeBizDv"
-            />
-          </kw-search-item>
-          <kw-search-item
             :label="$t('MSG_TXT_DIV')"
             required
           >
             <kw-select
-              v-model="searchParams.schDv"
+              v-model="searchParams.schDiv"
               :label="$t('MSG_TXT_DIV')"
               :options="customCodes.divCd"
               rules="required"
-              @change="onChangeBizDv"
+              @change="onChangeInqrDv"
+            />
+          </kw-search-item>
+          <kw-search-item
+            :label="$t('MSG_TXT_FEE_PERF')+$t('MSG_TXT_TYPE')"
+          >
+            <kw-select
+              v-model="searchParams.schFeePerf"
+              :options="customCodes.feePerfCd"
             />
           </kw-search-item>
           <kw-search-item
@@ -139,6 +51,37 @@
               :label="$t('MSG_TXT_PDCT_TP')"
               :options="customCodes.pdctTpCd"
               rules="required"
+            />
+          </kw-search-item>
+        </kw-search-row>
+        <kw-search-row>
+          <kw-search-item
+            :label="$t('MSG_TXT_SEL_TYPE')"
+          >
+            <kw-select
+              v-model="searchParams.schSelType"
+              :label="$t('MSG_TXT_SEL_TYPE')"
+              :options="customCodes.selTpCd"
+            />
+          </kw-search-item>
+          <kw-search-item
+            :label="$t('MSG_TXT_DT')"
+            required
+          >
+            <kw-date-range-picker
+              v-model:from="searchParams.schDtStrt"
+              v-model:to="searchParams.schDtEnd"
+              :label="$t('MSG_TXT_DT')"
+              @change="onChangeDt"
+            />
+          </kw-search-item>
+          <kw-search-item
+            :label="$t('MSG_TXT_CANC_DT')"
+          >
+            <kw-date-range-picker
+              v-model:from="searchParams.schCancDtStrt"
+              v-model:to="searchParams.schCancDtEnd"
+              :label="$t('MSG_TXT_CANC_DT')"
             />
           </kw-search-item>
         </kw-search-row>
@@ -163,23 +106,43 @@
             />
           </kw-search-item>
           <kw-search-item
-            :label="$t('MSG_TXT_RCPDT')"
-            required
+            :label="$t('MSG_TXT_PKG_CD')"
           >
-            <kw-date-range-picker
-              v-model:from="searchParams.schRcpDtStrt"
-              v-model:to="searchParams.schRcpDtEnd"
-              :label="$t('MSG_TXT_RCPDT')"
-              rules="date_range_required|date_range_months:1"
+            <kw-input
+              v-model="searchParams.schPkgCdStrt"
+            />
+            <span>~</span>
+            <kw-input
+              v-model="searchParams.schPkgCdEnd"
             />
           </kw-search-item>
+          <kw-search-item :label="t('MSG_TXT_OG_LEVL')">
+            <zwog-level-select
+              v-model:og-levl-dv-cd1="searchParams.ogLevl1"
+              v-model:og-levl-dv-cd2="searchParams.ogLevl2"
+              v-model:og-levl-dv-cd3="searchParams.ogLevl3"
+              :og-tp-cd="searchParams.ogTp"
+              :base-ym="searchParams.schPerfYm"
+              :start-level="1"
+              :end-level="3"
+            />
+          </kw-search-item>
+        </kw-search-row>
+        <kw-search-row>
           <kw-search-item
-            :label="$t('MSG_TXT_SL_DT')"
+            :label="$t('MSG_TXT_SEQUENCE_NUMBER')"
           >
-            <kw-date-range-picker
-              v-model:from="searchParams.schSlDtStrt"
-              v-model:to="searchParams.schSlDtEnd"
-              :label="$t('MSG_TXT_SL_DT')"
+            <kw-input
+              v-model="searchParams.schPrtnrNo"
+              icon="search"
+              clearable
+              :on-click-icon="onClickSearchNo"
+              :placeholder="$t('MSG_TXT_SEQUENCE_NUMBER')"
+            />
+            <kw-input
+              v-model="searchParams.prtnrKnm"
+              :placeholder="$t('MSG_TXT_EMPL_NM')"
+              readonly
             />
           </kw-search-item>
         </kw-search-row>
@@ -189,171 +152,75 @@
       >
         <kw-search-row>
           <kw-search-item
-            :label="$t('MSG_TXT_ORDR')"
-            required
-          >
-            <kw-option-group
-              v-model="searchParams.schTcnt"
-              :label="$t('MSG_TXT_ORDR')"
-              rules="required"
-              type="radio"
-              :options="[$t('MSG_TXT_1ST'), $t('MSG_TXT_2ND')]"
-              @change="onChangeBizDv"
-            />
-          </kw-search-item>
-          <kw-search-item
             :label="$t('MSG_TXT_DIV')"
             required
           >
             <kw-select
-              v-model="searchParams.schDv"
+              v-model="searchParams.schDiv"
               :label="$t('MSG_TXT_DIV')"
               :options="customCodes.divCd"
               rules="required"
-              @change="onChangeBizDv"
+              @change="onChangeInqrDv"
             />
           </kw-search-item>
-          <kw-search-item
-            :label="$t('MSG_TXT_PDCT_TP')"
-            required
-          >
-            <kw-select
-              v-model="searchParams.schPdctTp"
-              :label="$t('MSG_TXT_PDCT_TP')"
-              :options="customCodes.pdctTpCd"
-              rules="required"
-            />
-          </kw-search-item>
-        </kw-search-row>
-        <kw-search-row>
-          <kw-search-item
-            :label="$t('MSG_TXT_PRDT_CODE')"
-          >
-            <kw-input
-              v-model="searchParams.schPdCdStrt"
-              maxlength="10"
-              clearable
-              icon="search"
-              @click-icon="onClickSearchPdCdPopup('S')"
-            />
-            <span>~</span>
-            <kw-input
-              v-model="searchParams.schPdCdEnd"
-              maxlength="10"
-              clearable
-              icon="search"
-              @click-icon="onClickSearchPdCdPopup('E')"
-            />
-          </kw-search-item>
-          <kw-search-item
-            :label="$t('MSG_TXT_RCPDT')"
-            required
-          >
-            <kw-date-range-picker
-              v-model:from="searchParams.schRcpDtStrt"
-              v-model:to="searchParams.schRcpDtEnd"
-              :label="$t('MSG_TXT_RCPDT')"
-              rules="date_range_required|date_range_months:1"
-            />
-          </kw-search-item>
-        </kw-search-row>
-      </div>
-      <div
-        v-if="isSelectVisile3"
-      >
-        <kw-search-row>
           <kw-search-item
             :label="$t('MSG_TXT_ORDR')"
             required
           >
             <kw-option-group
-              v-model="searchParams.schTcnt"
+              v-model="searchParams.schOrdr"
               :label="$t('MSG_TXT_ORDR')"
               rules="required"
               type="radio"
-              :options="[$t('MSG_TXT_1ST'), $t('MSG_TXT_2ND')]"
-              @change="onChangeBizDv"
+              :options="customCodes.tcntCd"
             />
           </kw-search-item>
           <kw-search-item
-            :label="$t('MSG_TXT_DIV')"
-            required
-          >
-            <kw-select
-              v-model="searchParams.schDv"
-              :label="$t('MSG_TXT_DIV')"
-              :options="customCodes.divCd"
-              rules="required"
-              @change="onChangeBizDv"
-            />
-          </kw-search-item>
-          <kw-search-item
-            :label="$t('MSG_TXT_PDCT_TP')"
-            required
-          >
-            <kw-select
-              v-model="searchParams.schPdctTp"
-              :label="$t('MSG_TXT_PDCT_TP')"
-              :options="customCodes.pdctTpCd"
-              rules="required"
-            />
-          </kw-search-item>
-        </kw-search-row>
-        <kw-search-row>
-          <kw-search-item
-            :label="$t('MSG_TXT_PRDT_CODE')"
-          >
-            <kw-input
-              v-model="searchParams.schPdCdStrt"
-              maxlength="10"
-              clearable
-              icon="search"
-              @click-icon="onClickSearchPdCdPopup('S')"
-            />
-            <span>~</span>
-            <kw-input
-              v-model="searchParams.schPdCdEnd"
-              maxlength="10"
-              clearable
-              icon="search"
-              @click-icon="onClickSearchPdCdPopup('E')"
-            />
-          </kw-search-item>
-          <kw-search-item
-            :label="$t('MSG_TXT_PERF_YM')"
+            :label="$t('MSG_TXT_FEE_YM')"
             required
           >
             <kw-date-picker
               v-model="searchParams.schPerfYm"
-              :label="$t('MSG_TXT_PERF_YM')"
+              :label="$t('MSG_TXT_FEE_YM')"
               type="month"
               rules="required"
             />
           </kw-search-item>
-          <kw-search-item
-            :label="$t('MSG_TXT_RCPDT')"
-          >
-            <kw-date-range-picker
-              v-model:from="searchParams.schRcpDtStrt"
-              v-model:to="searchParams.schRcpDtEnd"
-              :label="$t('MSG_TXT_RCPDT')"
-            />
-          </kw-search-item>
         </kw-search-row>
         <kw-search-row>
+          <kw-search-item :label="t('MSG_TXT_OG_LEVL')">
+            <zwog-level-select
+              v-model:og-levl-dv-cd1="searchParams.ogLevl1"
+              v-model:og-levl-dv-cd2="searchParams.ogLevl2"
+              v-model:og-levl-dv-cd3="searchParams.ogLevl3"
+              :og-tp-cd="searchParams.ogTp"
+              :base-ym="searchParams.schPerfYm"
+              :start-level="1"
+              :end-level="3"
+            />
+          </kw-search-item>
           <kw-search-item
-            :label="$t('MSG_TXT_SL_DT')"
+            :label="$t('MSG_TXT_SEQUENCE_NUMBER')"
           >
-            <kw-date-range-picker
-              v-model:from="searchParams.schSlDtStrt"
-              v-model:to="searchParams.schSlDtEnd"
-              :label="$t('MSG_TXT_SL_DT')"
+            <kw-input
+              v-model="searchParams.schPrtnrNo"
+              icon="search"
+              clearable
+              :on-click-icon="onClickSearchNo"
+              :placeholder="$t('MSG_TXT_SEQUENCE_NUMBER')"
+            />
+            <kw-input
+              v-model="searchParams.prtnrKnm"
+              :placeholder="$t('MSG_TXT_EMPL_NM')"
+              readonly
             />
           </kw-search-item>
         </kw-search-row>
       </div>
     </kw-search>
-    <div class="result-area">
+    <div
+      class="result-area"
+    >
       <kw-action-top>
         <template #left>
           <kw-paging-info
@@ -366,7 +233,7 @@
           secondary
           icon="download_on"
           :label="$t('MSG_BTN_EXCEL_DOWN')"
-          :disable="totalCount.value === 0"
+          :disable="!isExcelDown"
           @click="onClickExcelDownload"
         />
         <kw-separator
@@ -378,26 +245,35 @@
           :label="$t('MSG_BTN_FEE_PERF_CRT')"
           primary
           dense
+          secondary
           @click="openFeePerfCrtPopup"
         />
         <kw-btn
           :label="$t('MSG_BTN_FEE_PERF_DTRM')"
           primary
           dense
+          secondary
           @click="openFeePerfCnfmPopup"
+        />
+        <kw-btn
+          :label="$t('MSG_BTN_FEE_PERF_DTRM_CAN')"
+          primary
+          dense
+          secondary
+          @click="openFeePerfCnfmCanPopup"
         />
       </kw-action-top>
 
       <kw-grid
-        v-if="isGridVisile"
-        ref="grdMainRef"
+        v-if="isSelectVisile1"
+        ref="grd1MainRef"
         name="grd1Main"
         :visible-rows="10"
-        @init="initGrdMain"
+        @init="initGrd1Main"
       />
       <kw-grid
-        v-if="isGrid2Visile"
-        ref="grdMainRef"
+        v-if="isSelectVisile2"
+        ref="grd2MainRef"
         name="grd2Main"
         :visible-rows="10"
         @init="initGrd2Main"
@@ -409,90 +285,126 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useGlobal, getComponentType, gridUtil, useDataService, defineGrid } from 'kw-lib';
-import pdConst from '~sms-common/product/constants/pdConst';
-import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
 
-const { modal } = useGlobal();
-
-const dataService = useDataService();
+import pdConst from '~sms-common/product/constants/pdConst';
+import ZwogLevelSelect from '~sms-common/organization/components/ZwogLevelSelect.vue';
+import { useDataService, getComponentType, useGlobal, gridUtil, defineGrid } from 'kw-lib';
+import { cloneDeep, isEmpty } from 'lodash-es';
 
 const { t } = useI18n();
+const { modal } = useGlobal();
+const dataService = useDataService();
 const { currentRoute } = useRouter();
+
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 
 const now = dayjs();
-const grdMainRef = ref(getComponentType('KwGrid'));
+const grd1MainRef = ref(getComponentType('KwGrid'));
+const grd2MainRef = ref(getComponentType('KwGrid'));
 const totalCount = ref(0);
-const isSelectVisile = ref(true);
-const isSelectVisile1 = ref(false);
-const isSelectVisile2 = ref(false);
-const isSelectVisile3 = ref(false);
-const isGridVisile = ref(true);
-const isGrid2Visile = ref(false);
 const customCodes = {
   divCd: [{ codeId: '01', codeName: '매출' }, { codeId: '02', codeName: '접수' }, { codeId: '03', codeName: '예약' }, { codeId: '04', codeName: '수수료 실적 집계 대상' }],
-  pdctTpCd: [{ codeId: '01', codeName: '전체' }, { codeId: '02', codeName: '환경가전' }, { codeId: '03', codeName: '환경가전외' }, { codeId: '04', codeName: '홈케어' }, { codeId: '05', codeName: '정기구매' }],
+  feePerfCd: [{ codeId: '00', codeName: '전체' }, { codeId: 'EH', codeName: '가전' }, { codeId: 'EX', codeName: '가전외' }, { codeId: 'ET', codeName: '기타' }, { codeId: 'UP', codeName: '미지급' }],
+  pdctTpCd: [{ codeId: '00', codeName: '전체' }, { codeId: 'A', codeName: '환경' }, { codeId: 'B', codeName: '웰스팜' }, { codeId: 'C', codeName: 'BH' }, { codeId: 'D', codeName: '캡슐' }, { codeId: 'E', codeName: '홈케어' }, { codeId: 'F', codeName: '소모품' }, { codeId: 'F', codeName: '부속품' }],
   tcntCd: [{ codeId: '01', codeName: '1차' }, { codeId: '02', codeName: '2차' }],
+  selTpCd: [{ codeId: '0', codeName: '전체' }, { codeId: '2', codeName: '렌탈/리스' }, { codeId: '1', codeName: '일시불' }, { codeId: '6', codeName: '정기배송' }, { codeId: '7', codeName: '재약정' }, { codeId: '3', codeName: '홈케어멤버십' }],
+  rsbDvCd: [{ codeId: '00', codeName: '전체' }, { codeId: '15', codeName: '홈마스터' }, { codeId: '7', codeName: '지점장이상' }],
 };
-const searchParams = ref({
+const isSelectVisile1 = ref(true);
+const isSelectVisile2 = ref(false);
+const isExcelDown = ref(false);
 
-  schTcnt: t('MSG_TXT_1ST'),
-  schDv: '01',
-  schPdctTp: '01',
+const searchParams = ref({
+  schOrdr: '01',
+  schDiv: '02',
+  schFeePerf: '00',
+  schPdctTp: '00',
+  schSelType: '0',
+  schDtStrt: now.add(-1, 'month').startOf('month').format('YYYYMMDD'),
+  schDtEnd: now.add(-1, 'month').endOf('month').format('YYYYMMDD'),
+  schCancDtStrt: '',
+  schCancDtEnd: '',
   schPdCdStrt: '',
   schPdCdEnd: '',
-  schSlDtStrt: now.add(-1, 'month').startOf('month').format('YYYYMMDD'),
-  schSlDtEnd: now.add(-1, 'month').endOf('month').format('YYYYMMDD'),
-  schRcpDtStrt: '',
-  schRcpDtEnd: '',
-  schPerfYm: '',
+  schPkgCdStrt: '',
+  schPkgCdEnd: '',
+  ogLevl1: '',
+  ogLevl2: '',
+  ogLevl3: '',
+  schPrtnrNo: '',
+  schPerfYm: now.add(-1, 'month').format('YYYYMM'),
+  schRsbDv: '00',
+  prtnrKnm: '',
+  ogTp: 'W03',
   pdCd: '',
 });
+
 let cachedParams;
 
 /*
  *  Event - 조회조건 선택에 변경 param init
  */
-async function initSearchParams(b1, b2, b3, b4, b5, b6, dt1, dt2, dt3, dt4, dt5) {
-  isSelectVisile.value = b1;
-  isSelectVisile1.value = b2;
-  isSelectVisile2.value = b3;
-  isSelectVisile3.value = b4;
-  isGridVisile.value = b5;
-  isGrid2Visile.value = b6;
-  searchParams.value.schSlDtStrt = dt1;
-  searchParams.value.schSlDtEnd = dt2;
-  searchParams.value.schRcpDtStrt = dt3;
-  searchParams.value.schRcpDtEnd = dt4;
-  searchParams.value.schPerfYm = dt5;
+async function initSearchParams() {
+  totalCount.value = 0;
+  isExcelDown.value = false;
+  searchParams.value.schOrdr = '01';
+  searchParams.value.schFeePerf = '00';
+  searchParams.value.schPdctTp = '00';
+  searchParams.value.schSelType = '0';
+  searchParams.value.schDtStrt = now.add(-1, 'month').startOf('month').format('YYYYMMDD');
+  searchParams.value.schDtEnd = now.add(-1, 'month').endOf('month').format('YYYYMMDD');
+  searchParams.value.schCancDtStrt = '';
+  searchParams.value.schCancDtEnd = '';
   searchParams.value.schPdCdStrt = '';
   searchParams.value.schPdCdEnd = '';
-  searchParams.value.schPdctTp = '01';
+  searchParams.value.schPkgCdStrt = '';
+  searchParams.value.schPkgCdEnd = '';
+  searchParams.value.schBlgStrt = '';
+  searchParams.value.schBlgEnd = '';
+  searchParams.value.schPrtnrNo = '';
+  searchParams.value.schPerfYm = now.add(-1, 'month').format('YYYYMM');
+  searchParams.value.schRsbDv = '00';
+}
+
+/*
+ *  Event - 번호 검색 아이콘 클릭 이벤트
+ */
+async function onClickSearchNo() {
+  const { result, payload } = await modal({
+    component: 'ZwogzMonthPartnerListP',
+    componentProps: {
+      baseYm: searchParams.value.schPerfYm,
+      prtnrNo: searchParams.value.schPrtnrNo,
+      ogTpCd: 'W03',
+      prtnrKnm: undefined,
+    },
+  });
+
+  if (result) {
+    if (!isEmpty(payload)) {
+      searchParams.value.schPrtnrNo = payload.prtnrNo;
+      searchParams.value.prtnrKnm = payload.prtnrKnm;
+    }
+  }
 }
 
 /*
  *  Event - 조회조건 선택에 따른 검색조건 및 그리드 변경
  */
 
-async function onChangeBizDv() {
-  const { schDv } = searchParams.value;
-  const strtDt = now.add(-1, 'month').startOf('month').format('YYYYMMDD');
-  const endDt = now.add(-1, 'month').endOf('month').format('YYYYMMDD');
-  const baseYm = now.add(-1, 'month').format('YYYYMM');
-
-  if (schDv === '01') {
-    initSearchParams(true, false, false, false, true, false, strtDt, endDt, '', '', '');
-  } else if (schDv === '02') {
-    await initSearchParams(false, true, false, false, true, false, '', '', strtDt, endDt, '');
-  } else if (schDv === '03') {
-    await initSearchParams(false, false, true, false, true, false, '', '', strtDt, endDt, '');
-  } else if (schDv === '04') {
-    initSearchParams(false, false, false, true, false, true, '', '', '', '', baseYm);
+async function onChangeInqrDv() {
+  const { schDiv } = searchParams.value;
+  if (schDiv === '04') {
+    isSelectVisile1.value = false;
+    isSelectVisile2.value = true;
+  } else {
+    isSelectVisile1.value = true;
+    isSelectVisile2.value = false;
   }
+  initSearchParams();
 }
 
 /*
@@ -518,6 +430,15 @@ async function onClickSearchPdCdPopup(arg) {
   } else {
     searchParams.value.schPdCdEnd = rtn.payload?.[0]?.pdCd;
   }
+}
+
+/*
+ *  Event - 일자 선택에 따른 실적년월 적용
+ */
+
+async function onChangeDt() {
+  const { schDtStrt } = searchParams.value;
+  searchParams.value.schPerfYm = schDtStrt.substring(0, 6);
 }
 
 /*
@@ -551,10 +472,22 @@ async function openFeePerfCnfmPopup() {
 }
 
 /*
- *  Event - 엑셀 다운로드 버튼 클릭
+ *  Event - 수수료 실적 확정 취소 버튼 클릭 (CR/CO)
  */
+async function openFeePerfCnfmCanPopup() {
+  const param = {
+    perfYm: now.add(-1, 'month').format('YYYYMM'),
+    ogTp: 'W03',
+    dv: 'CO',
+  };
+  await modal({
+    component: 'WwfeaOgNetOrderPerfAgrgRegP',
+    componentProps: param,
+  });
+}
+
 async function onClickExcelDownload() {
-  const view = grdMainRef.value.getView();
+  const view = grd1MainRef.value.getView();
 
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
@@ -562,113 +495,133 @@ async function onClickExcelDownload() {
   });
 }
 
-async function fetchData() {
-  const { schDv } = searchParams.value;
-  let uri = '';
-  if (schDv === '01' || schDv === '02' || schDv === '03') {
-    uri = 's';
-  } else if (schDv === '04') {
-    uri = '-sell-fees';
+async function fetchData(uri) {
+  const response = await dataService.get(`/sms/wells/fee/organization-netorders/${uri}`, { params: cachedParams });
+  const resData = response.data;
+  totalCount.value = resData.length;
+  if (totalCount.value > 0) {
+    isExcelDown.value = true;
   }
-  const response = await dataService.get(`/sms/wells/fee/organization-netorders/hmst${uri}`, { params: cachedParams });
-  const hmstFees = response.data;
-  totalCount.value = hmstFees.length;
-  const view = grdMainRef.value.getView();
-  view.getDataSource().setRows(hmstFees);
+  if (uri === 'hmsts') {
+    const mngerView = grd1MainRef.value.getView();
+    mngerView.getDataSource().setRows(resData);
+  } else if (uri === 'hmst-fees') {
+    const feeView = grd2MainRef.value.getView();
+    feeView.getDataSource().setRows(resData);
+  }
 }
 
 async function onClickSearch() {
+  const { schDiv } = searchParams.value;
+  let uri = '';
+
+  if (schDiv === '04') {
+    uri = 'hmst-fees';
+  } else {
+    uri = 'hmsts';
+  }
   cachedParams = cloneDeep(searchParams.value);
-  await fetchData();
+  await fetchData(uri);
 }
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
-const initGrdMain = defineGrid((data, view) => {
+
+const initGrd1Main = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'col1' },
-    { fieldName: 'col2' },
-    { fieldName: 'col3' },
-    { fieldName: 'col4' },
-    { fieldName: 'col5' },
-    { fieldName: 'col6' },
-    { fieldName: 'col7' },
-    { fieldName: 'col8' },
-    { fieldName: 'col9' },
-    { fieldName: 'col10' },
-    { fieldName: 'col11' },
-    { fieldName: 'col12' },
-    { fieldName: 'col13' },
-    { fieldName: 'col14' },
-    { fieldName: 'col15' },
-    { fieldName: 'col16' },
-    { fieldName: 'col17' },
-    { fieldName: 'col18' },
-    { fieldName: 'col19' },
-    { fieldName: 'col20' },
-    { fieldName: 'col21' },
-    { fieldName: 'col22' },
-    { fieldName: 'col23' },
-    { fieldName: 'col24' },
-    { fieldName: 'col25' },
-    { fieldName: 'col26' },
-    { fieldName: 'col27' },
-    { fieldName: 'col28' },
-    { fieldName: 'col29' },
-    { fieldName: 'col30' },
-    { fieldName: 'col31' },
-    { fieldName: 'col32' },
-    { fieldName: 'col33' },
-    { fieldName: 'col34' },
-    { fieldName: 'col35' },
-    { fieldName: 'col36' },
-    { fieldName: 'col37' },
-    { fieldName: 'col38' },
-    { fieldName: 'col39' },
+    { fieldName: 'og2Lv' },
+    { fieldName: 'og3Lv' },
+    { fieldName: 'sequenceNumber' },
+    { fieldName: 'emplNm' },
+    { fieldName: 'selType' },
+    { fieldName: 'pdctTp' },
+    { fieldName: 'prcTp' },
+    { fieldName: 'chdvcTp' },
+    { fieldName: 'fee' },
+    { fieldName: 'cntrDtlNo' },
+    { fieldName: 'cstDv' },
+    { fieldName: 'prdtNm' },
+    { fieldName: 'prdtCode' },
+    { fieldName: 'pdDcClass' },
+    { fieldName: 'discCode' },
+    { fieldName: 'dscSyst' },
+    { fieldName: 'combiDv' },
+    { fieldName: 'istm' },
+    { fieldName: 'stplMcnt' },
+    { fieldName: 'mngtPrd' },
+    { fieldName: 'pdAccRslt' },
+    { fieldName: 'basePrc', dataType: 'number' },
+    { fieldName: 'homeCare' },
+    { fieldName: 'hcrMshY3' },
+    { fieldName: 'fxamYn' },
+    { fieldName: 'fnnLease' },
+    { fieldName: 'elhmAckmtCt' },
+    { fieldName: 'nwSellCt' },
+    { fieldName: 'obj' },
+    { fieldName: 'recommitment' },
+    { fieldName: 'cntrDate' },
+    { fieldName: 'slDt' },
+    { fieldName: 'cancDt' },
+    { fieldName: 'demDt' },
+    { fieldName: 'brmgrNo' },
+    { fieldName: 'brmgrFnm' },
+    { fieldName: 'rtlfe', dataType: 'number' },
+    { fieldName: 'pmotNo' },
+    { fieldName: 'pkgPdNo' },
+    { fieldName: 'pkgSn' },
+    { fieldName: 'mchnPrtnr' },
+    { fieldName: 'mchnPd' },
+    { fieldName: 'perfExcd' },
   ];
 
   const columns = [
-    { fieldName: 'col1', header: t('MSG_TXT_RGNL_GRP'), width: '98' },
-    { fieldName: 'col2', header: t('MSG_TXT_BRANCH'), width: '98', styleName: 'text-center' },
-    { fieldName: 'col3', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '112', styleName: 'text-center' },
-    { fieldName: 'col4', header: t('MSG_TXT_EMPL_NM'), width: '72' },
-    { fieldName: 'col5', header: t('MSG_TXT_SEL_TYPE'), width: '110' },
-    { fieldName: 'col6', header: t('MSG_TXT_PDCT_TP'), width: '110' },
-    { fieldName: 'col7', header: t('MSG_TXT_PRC_TP'), width: '110', styleName: 'text-right' },
-    { fieldName: 'col8', header: t('MSG_TXT_CHDVC_TP'), width: '110', styleName: 'text-right' },
-    { fieldName: 'col9', header: t('MSG_TXT_CNTR_DTL_NO'), width: '188', styleName: 'text-center' },
-    { fieldName: 'col10', header: t('MSG_TXT_CST_DV'), width: '83' },
-    { fieldName: 'col11', header: t('MSG_TXT_PRDT_NM'), width: '226' },
-    { fieldName: 'col12', header: t('MSG_TXT_PRDT_CODE'), width: '83', styleName: 'text-center' },
-    { fieldName: 'col13', header: t('MSG_TXT_USWY'), width: '83', styleName: 'text-right' },
-    { fieldName: 'col14', header: t('MSG_TXT_PD_DC_CLASS'), width: '83', styleName: 'text-right' },
-    { fieldName: 'col15', header: t('MSG_TXT_DISC_CODE'), width: '83', styleName: 'text-right' },
-    { fieldName: 'col16', header: t('MSG_TXT_DSC_SYST '), width: '83', styleName: 'text-right' },
-    { fieldName: 'col17', header: t('MSG_TXT_COMBI_DV'), width: '83', styleName: 'text-right' },
-    { fieldName: 'col18', header: t('MSG_TXT_DP_PERF'), width: '141', styleName: 'text-right' },
-    { fieldName: 'col19', header: t('MSG_TXT_ISTM'), width: '83', styleName: 'text-right' },
-    { fieldName: 'col20', header: t('MSG_TXT_DSC'), width: '83', styleName: 'text-right' },
-    { fieldName: 'col21', header: t('MSG_TXT_STPL_MCNT'), width: '83', styleName: 'text-right' },
-    { fieldName: 'col22', header: t('MSG_TXT_MNGT_PRD'), width: '83', styleName: 'text-right' },
-    { fieldName: 'col23', header: t('MSG_TXT_PD_ACC_RSLT'), width: '141', styleName: 'text-right' },
-    { fieldName: 'col24', header: t('MSG_TXT_BASE_PRC'), width: '123', styleName: 'text-right' },
-    { fieldName: 'col25', header: t('MSG_TXT_HOME_CARE'), width: '83', styleName: 'text-right' },
-    { fieldName: 'col26', header: `${t('MSG_TXT_HOME_CARE')}3${t('MSG_TXT_YEAR')}`, width: '141' },
-    { fieldName: 'col27', header: t('MSG_TXT_FXAM_YN'), width: '83' },
-    { fieldName: 'col28', header: t('MSG_TXT_FNN_LEASE'), width: '83' },
-    { fieldName: 'col29', header: t('MSG_TXT_PD_ACC_CNT'), width: '83', styleName: 'text-right' },
-    { fieldName: 'col30', header: t('MSG_TXT_RECOMMITMENT'), width: '113' },
-    { fieldName: 'col31', header: t('MSG_TXT_CNTR_DATE'), width: '113', styleName: 'text-center' },
-    { fieldName: 'col32', header: t('MSG_TXT_SL_DT'), width: '113', styleName: 'text-center' },
-    { fieldName: 'col33', header: t('MSG_TXT_CANC_DT'), width: '113', styleName: 'text-center' },
-    { fieldName: 'col34', header: t('MSG_TXT_BRMGR'), width: '113', styleName: 'text-center' },
-    { fieldName: 'col35', header: t('MSG_TXT_BRMGR'), width: '100' },
-    { fieldName: 'col36', header: t('MSG_TXT_RTLFE'), width: '104', styleName: 'text-right' },
-    { fieldName: 'col37', header: t('MSG_TXT_PMOT_NO'), width: '104', styleName: 'text-right' },
-    { fieldName: 'col38', header: t('MSG_TXT_PKG_SN'), width: '135' },
-    { fieldName: 'col39', header: t('MSG_TXT_FEE_PERF_MM'), width: '113', styleName: 'text-center' },
+    { fieldName: 'og2Lv', header: t('MSG_TXT_RGNL_GRP'), width: '120', styleName: 'text-center' },
+    { fieldName: 'og3Lv', header: t('MSG_TXT_BRANCH'), width: '120', styleName: 'text-center' },
+    { fieldName: 'sequenceNumber', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '98' },
+    { fieldName: 'emplNm', header: t('MSG_TXT_EMPL_NM'), width: '98' },
+    { fieldName: 'selType', header: t('MSG_TXT_SEL_TYPE'), width: '111.9', styleName: 'text-center' },
+    { fieldName: 'pdctTp', header: t('MSG_TXT_PDCT_TP'), width: '72', styleName: 'text-center' },
+    { fieldName: 'prcTp', header: t('MSG_TXT_PRC_TP'), width: '110' },
+    { fieldName: 'chdvcTp', header: t('MSG_TXT_CHDVC_TP'), width: '110' },
+    { fieldName: 'fee', header: t('MSG_TXT_FEE') + t('MSG_TXT_PERF') + t('MSG_TXT_TYPE'), width: '110' },
+    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '110' },
+    { fieldName: 'cstDv', header: t('MSG_TXT_CST_DV'), width: '188', styleName: 'text-center' },
+    { fieldName: 'prdtNm', header: t('MSG_TXT_PRDT_NM'), width: '226.5', styleName: 'text-center' },
+    { fieldName: 'prdtCode', header: t('MSG_TXT_PRDT_CODE'), width: '83.5', styleName: 'text-center' },
+    { fieldName: 'pdDcClass', header: t('MSG_TXT_PD_DC_CLASS'), width: '83.5', styleName: 'text-center' },
+    { fieldName: 'discCode', header: t('MSG_TXT_DISC_CODE'), width: '83.5', styleName: 'text-center' },
+    { fieldName: 'dscSyst', header: t('MSG_TXT_DSC_SYST'), width: '83.5', styleName: 'text-right' },
+    { fieldName: 'combiDv', header: t('MSG_TXT_COMBI_DV'), width: '83.5', styleName: 'text-center' },
+    { fieldName: 'istm', header: t('MSG_TXT_ISTM'), width: '83.5', styleName: 'text-right' },
+    { fieldName: 'stplMcnt', header: t('MSG_TXT_STPL_MCNT'), width: '84', styleName: 'text-right' },
+    { fieldName: 'mngtPrd', header: t('MSG_TXT_MNGT_PRD'), width: '84', styleName: 'text-right' },
+    { fieldName: 'pdAccRslt', header: t('MSG_TXT_PD_ACC_RSLT'), width: '142', styleName: 'text-right' },
+    { fieldName: 'basePrc', header: t('MSG_TXT_BASE_PRC'), width: '123.8', styleName: 'text-right', numberFormat: '#,###,##0' },
+    { fieldName: 'homeCare', header: t('MSG_TXT_HOME_CARE'), width: '83.5', styleName: 'text-right' },
+    { fieldName: 'hcrMshY3', header: t('MSG_TXT_HCR_MSH_Y3'), width: '141.2', styleName: 'text-center' },
+    { fieldName: 'fxamYn', header: t('MSG_TXT_FXAM_YN'), width: '83.5', styleName: 'text-center' },
+    { fieldName: 'fnnLease', header: t('MSG_TXT_FNN_LEASE'), width: '83.5', styleName: 'text-center' },
+    { fieldName: 'elhmAckmtCt', header: t('MSG_TXT_ELHM_ACKMT_CT'), width: '83.5', styleName: 'text-right' },
+    { fieldName: 'nwSellCt', header: t('MSG_TXT_NW_SELL_CT'), width: '83.5', styleName: 'text-right' },
+    { fieldName: 'obj', header: `BS${t('MSG_TXT_OBJ')}`, width: '83.5', styleName: 'text-right' },
+    { fieldName: 'recommitment', header: t('MSG_TXT_RECOMMITMENT'), width: '113.2', styleName: 'text-center' },
+    { fieldName: 'cntrDate', header: t('MSG_TXT_CNTR_DATE'), width: '113.2', styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'slDt', header: t('MSG_TXT_SL_DT'), width: '113.2', styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'cancDt', header: t('MSG_TXT_CANC_DT'), width: '113.2', styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'demDt', header: t('MSG_TXT_DEM_DT'), width: '113.2', styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'brmgrNo', header: t('MSG_TXT_BRMGR_NO'), width: '113', styleName: 'text-center' },
+    { fieldName: 'brmgrFnm', header: t('MSG_TXT_BRMGR_FNM'), width: '100', styleName: 'text-center' },
+    { fieldName: 'rtlfe', header: t('MSG_TXT_RTLFE'), width: '104.3', styleName: 'text-right', numberFormat: '#,###,##0' },
+    { fieldName: 'pmotNo', header: t('MSG_TXT_PMOT_NO'), width: '104.3', styleName: 'text-right' },
+    { fieldName: 'pkgPdNo', header: t('MSG_TXT_PKG_PD_NO'), width: '135.1', styleName: 'text-center' },
+    { fieldName: 'pkgSn', header: t('MSG_TXT_PKG_SN'), width: '135.1', styleName: 'text-center' },
+    { fieldName: 'mchnPrtnr', header: t('MSG_TXT_MCHN') + t('MSG_TXT_CST_CD'), width: '113', styleName: 'text-center' },
+    { fieldName: 'mchnPd', header: t('MSG_TXT_MCHN') + t('MSG_TXT_PRDT_CODE'), width: '113', styleName: 'text-center' },
+    { fieldName: 'perfExcd', header: t('MSG_TXT_PERF_EXCD') + t('MSG_TXT_RGST_YN'), width: '113', styleName: 'text-center' },
+
   ];
+
   data.setFields(fields);
   view.setColumns(columns);
 
@@ -678,43 +631,44 @@ const initGrdMain = defineGrid((data, view) => {
 
 const initGrd2Main = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'og2Nm' },
-    { fieldName: 'og3Nm' },
+    { fieldName: 'og2Lv' },
+    { fieldName: 'og3Lv' },
     { fieldName: 'prtnrNo' },
     { fieldName: 'prtnrKnm' },
-    { fieldName: 'cntrNo' },
-    { fieldName: 'rcpDt' },
+    { fieldName: 'cntrDtlNo' },
+    { fieldName: 'rcpdt' },
     { fieldName: 'slDt' },
     { fieldName: 'canDt' },
-    { fieldName: 'prdtyp' },
+    { fieldName: 'feePdctTpCd' },
     { fieldName: 'pdCd' },
-    { fieldName: 'prdgrp' },
+    { fieldName: 'feePerfTpCd' },
     { fieldName: 'pdNm' },
     { fieldName: 'ackmtPerfCt' },
     { fieldName: 'mchnChTpCd' },
   ];
 
   const columns = [
-    { fieldName: 'og2Nm', header: t('MSG_TXT_RGNL_GRP'), width: '98' },
-    { fieldName: 'og3Nm', header: t('MSG_TXT_BRANCH'), width: '98' },
-    { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '111.9', styleName: 'text-center' },
-    { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '72', styleName: 'text-center' },
-    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '110' },
-    { fieldName: 'rcpDt', header: t('MSG_TXT_RCPDT'), width: '110' },
-    { fieldName: 'slDt', header: t('MSG_TXT_SL_DT'), width: '110' },
-    { fieldName: 'canDt', header: t('MSG_TXT_CANC_DT'), width: '188', styleName: 'text-center' },
-    { fieldName: 'prdtyp', header: t('MSG_TXT_PDCT_TP'), width: '83.5' },
-    { fieldName: 'pdCd', header: t('MSG_TXT_PRDT_CODE'), width: '226.5', styleName: 'text-' },
-    { fieldName: 'prdgrp', header: t('MSG_TXT_PD_GRP'), width: '83.5', styleName: 'text-center' },
-    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '110.9', styleName: 'text-' },
-    { fieldName: 'ackmtPerfCt', header: t('MSG_TXT_PD_ACC_CNT'), width: '83.5', styleName: 'text-' },
-    { fieldName: 'mchnChTpCd', header: t('MSG_TXT_CHDVC_TP'), width: '83.5', styleName: 'text-right' },
+    { fieldName: 'og2Lv', header: t('MSG_TXT_RGNL_GRP'), width: '120', styleName: 'text-center' },
+    { fieldName: 'og3Lv', header: t('MSG_TXT_BRANCH'), width: '120', styleName: 'text-center' },
+    { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '120', styleName: 'text-center' },
+    { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '120', styleName: 'text-center' },
+    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '120', styleName: 'text-center' },
+    { fieldName: 'rcpdt', header: t('MSG_TXT_RCPDT'), width: '120', styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'slDt', header: t('MSG_TXT_SL_DT'), width: '120', styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'canDt', header: t('MSG_TXT_CANC_DT'), width: '120', styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'feePdctTpCd', header: t('MSG_TXT_PDCT_TP'), width: '120', styleName: 'text-center' },
+    { fieldName: 'pdCd', header: t('MSG_TXT_PRDT_CODE'), width: '120', styleName: 'text-center' },
+    { fieldName: 'feePerfTpCd', header: t('MSG_TXT_PD_GRP'), width: '120', styleName: 'text-center' },
+    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '120', styleName: 'text-center' },
+    { fieldName: 'ackmtPerfCt', header: t('MSG_TXT_PD_ACC_CNT'), width: '120', styleName: 'text-center' },
+    { fieldName: 'mchnChTpCd', header: t('MSG_TXT_CHDVC_TP'), width: '120', styleName: 'text-center' },
+
   ];
+
   data.setFields(fields);
   view.setColumns(columns);
-
-  view.checkBar.visible = false;
-  view.rowIndicator.visible = true;
+  view.checkBar.visible = false; // create checkbox column
+  view.rowIndicator.visible = true; // create number indicator column
 });
 
 </script>

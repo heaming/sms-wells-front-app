@@ -34,6 +34,17 @@
             />
           </kw-search-item>
           <kw-search-item
+            :label="$t('MSG_TXT_ORDR')"
+          >
+            <kw-option-group
+              v-model="searchParams.tcntDvCd"
+              :label="$t('MSG_TXT_ORDR')"
+              type="radio"
+              :options="customCodes.div1Cd"
+              @change="onChangedOrdr"
+            />
+          </kw-search-item>
+          <kw-search-item
             :label="$t('MSG_TXT_DIV')"
             required
           >
@@ -149,8 +160,6 @@
               :end-level="3"
             />
           </kw-search-item>
-        </kw-search-row>
-        <kw-search-row>
           <kw-search-item
             :label="$t('MSG_TXT_SEQUENCE_NUMBER')"
           >
@@ -237,6 +246,17 @@
             />
           </kw-search-item>
           <kw-search-item
+            :label="$t('MSG_TXT_ORDR')"
+          >
+            <kw-option-group
+              v-model="searchParams.tcntDvCd"
+              :label="$t('MSG_TXT_ORDR')"
+              type="radio"
+              :options="customCodes.div1Cd"
+              @change="onChangedOrdr"
+            />
+          </kw-search-item>
+          <kw-search-item
             :label="$t('MSG_TXT_DIV')"
             required
           >
@@ -246,16 +266,6 @@
               :options="customCodes.div4Cd"
               rules="required"
               @change="onChangedDvcd"
-            />
-          </kw-search-item>
-          <kw-search-item
-            :label="$t('MSG_TXT_ORDR')"
-          >
-            <kw-option-group
-              v-model="searchParams.tcntDvCd"
-              :label="$t('MSG_TXT_ORDR')"
-              type="radio"
-              :options="customCodes.div1Cd"
             />
           </kw-search-item>
         </kw-search-row>
@@ -541,6 +551,14 @@ async function onClickSearch() {
   }
 }
 
+/*
+ *  Event - 회차 선택시 집계버튼 사용여부 조회※
+ */
+async function onChangedOrdr() {
+  cachedParams = cloneDeep(searchParams.value);
+  await fetchData('confirmChk');
+}
+
 // 상품코드 검색 아이콘 클릭 이벤트
 async function onClickSearchPdCdPopup(arg) {
   if (arg === 'S') {
@@ -625,6 +643,7 @@ async function openNtorConfirmPopup() {
 }
 
 onMounted(async () => {
+  cachedParams = cloneDeep(searchParams.value);
   await fetchData('confirmChk');
 });
 
@@ -650,7 +669,7 @@ const initGrd1Main = defineGrid((data, view) => {
     { fieldName: 'slDt' },
     { fieldName: 'canDt' },
     { fieldName: 'demDt' },
-    { fieldName: 'rtlfe' },
+    { fieldName: 'rtlfe', dataType: 'number' },
   ];
 
   const columns = [
@@ -668,9 +687,9 @@ const initGrd1Main = defineGrid((data, view) => {
     { fieldName: 'istm', header: t('MSG_TXT_ISTM'), width: '120', styleName: 'text-right' },
     { fieldName: 'stplMcnt', header: t('MSG_TXT_STPL_MCNT'), width: '120', styleName: 'text-right' },
     { fieldName: 'cntrDate', header: t('MSG_TXT_CNTR_DATE'), width: '120', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'slDt', header: t('MSG_TXT_SL_DT'), width: '120', styleName: 'text-center' },
-    { fieldName: 'canDt', header: t('MSG_TXT_CANC_DT'), width: '120', styleName: 'text-center' },
-    { fieldName: 'demDt', header: t('MSG_TXT_DEM_DT'), width: '120', styleName: 'text-center' },
+    { fieldName: 'slDt', header: t('MSG_TXT_SL_DT'), width: '120', styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'canDt', header: t('MSG_TXT_CANC_DT'), width: '120', styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'demDt', header: t('MSG_TXT_DEM_DT'), width: '120', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'rtlfe', header: t('MSG_TXT_RTLFE'), width: '120', styleName: 'text-right', numberFormat: '#,##0' },
   ];
 
