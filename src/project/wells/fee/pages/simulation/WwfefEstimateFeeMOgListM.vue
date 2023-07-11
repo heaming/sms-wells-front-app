@@ -26,7 +26,7 @@
             :label="$t('MSG_TXT_PERF_YM')"
             rules="required"
             type="month"
-          />~
+          />
         </kw-search-item>
         <kw-search-item
           :label="$t('MSG_TXT_PERF_INQR')"
