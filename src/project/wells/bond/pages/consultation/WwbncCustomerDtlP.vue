@@ -945,6 +945,7 @@
                           v-model="customer.promAmt"
                           :label="$t('MSG_TXT_PROM_AMT')"
                           dense
+                          regex="num"
                           rules="required"
                           maxlength="20"
                         />
