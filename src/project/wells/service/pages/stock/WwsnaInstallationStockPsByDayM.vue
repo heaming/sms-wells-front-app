@@ -123,7 +123,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { codeUtil, getComponentType, gridUtil, useDataService, defineGrid, useGlobal } from 'kw-lib';
-import { cloneDeep, isEmpty } from 'lodash-es';
+import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
 import 'dayjs/locale/ko';
 
@@ -308,22 +308,22 @@ const initGrid = defineGrid((data, view) => {
   getDateColumnsFields(cachedParams.baseDt);
 
   const fields = [
-    { fieldName: 'col1' },
-    { fieldName: 'col2' },
-    { fieldName: 'col3' },
-    { fieldName: 'col4' },
+    { fieldName: 'ogNm' },
+    { fieldName: 'strSum' },
+    { fieldName: 'prvMngSum' },
+    { fieldName: 'stockTotal' },
     ...stockDateFields,
-    { fieldName: 'col5' },
+    { fieldName: 'istTotal' },
     ...installDateFields,
   ];
 
   const columns = [
-    { fieldName: 'col1', header: t('MSG_TXT_DIV'), width: '247' },
-    { fieldName: 'col2', header: t('MSG_TXT_CENTER_DIVISION'), width: '100', styleName: 'text-right' },
-    { fieldName: 'col3', header: t('MSG_TXT_EGER'), width: '100', styleName: 'text-right' },
-    { fieldName: 'col4', header: t('MSG_TXT_SUM'), width: '100', styleName: 'text-right' },
+    { fieldName: 'ogNm', header: t('MSG_TXT_DIV'), width: '247' },
+    { fieldName: 'strSum', header: t('MSG_TXT_CENTER_DIVISION'), width: '100', styleName: 'text-right' },
+    { fieldName: 'prvMngSum', header: t('MSG_TXT_EGER'), width: '100', styleName: 'text-right' },
+    { fieldName: 'stockTotal', header: t('MSG_TXT_SUM'), width: '100', styleName: 'text-right' },
     ...stockDateColumns,
-    { fieldName: 'col5', header: t('MSG_TXT_AGG'), width: '100', styleName: 'text-right' },
+    { fieldName: 'istTotal', header: t('MSG_TXT_AGG'), width: '100', styleName: 'text-right' },
     ...installDateColumns,
   ];
 
@@ -333,18 +333,18 @@ const initGrid = defineGrid((data, view) => {
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
   view.setColumnLayout([
-    'col1',
+    'ogNm',
     {
       header: t('MSG_TXT_CURRENT') + t('MSG_TXT_STOC'), // colspan title
       direction: 'horizontal', // merge type
-      items: ['col2', 'col3', 'col4'],
+      items: ['strSum', 'prvMngSum', 'stockTotal'],
     },
     {
       header: t('MSG_TXT_STOC') + t('MSG_TXT_PS'), // colspan title
       direction: 'horizontal', // merge type
       items: stockDateItems,
     },
-    'col5',
+    'istTotal',
     {
       header: t('MSG_BTN_CNTCT_ASSGNMNT') + t('MSG_TXT_PS'), // colspan title
       direction: 'horizontal', // merge type
@@ -353,37 +353,9 @@ const initGrid = defineGrid((data, view) => {
   ]);
   view.setFixedOptions({ colCount: 1 });
 
-  data.setRows([
-    { col1: '서대구지점', col2: '0', col3: '0', col4: '0', col5: '0', col6: '0', col7: '0', col8: '0', col9: '0', col10: '0', col11: '0', col12: '0', col13: '0' },
-    { col1: '서대구지점', col2: '0', col3: '0', col4: '0', col5: '0', col6: '0', col7: '0', col8: '0', col9: '0', col10: '0', col11: '0', col12: '0', col13: '0' },
-    { col1: '서대구지점', col2: '0', col3: '0', col4: '0', col5: '0', col6: '0', col7: '0', col8: '0', col9: '0', col10: '0', col11: '0', col12: '0', col13: '0' },
-    { col1: '서대구지점', col2: '0', col3: '0', col4: '0', col5: '0', col6: '0', col7: '0', col8: '0', col9: '0', col10: '0', col11: '0', col12: '0', col13: '0' },
-    { col1: '서대구지점', col2: '0', col3: '0', col4: '0', col5: '0', col6: '0', col7: '0', col8: '0', col9: '0', col10: '0', col11: '0', col12: '0', col13: '0' },
-    { col1: '서대구지점', col2: '0', col3: '0', col4: '0', col5: '0', col6: '0', col7: '0', col8: '0', col9: '0', col10: '0', col11: '0', col12: '0', col13: '0' },
-    { col1: '서대구지점', col2: '0', col3: '0', col4: '0', col5: '0', col6: '0', col7: '0', col8: '0', col9: '0', col10: '0', col11: '0', col12: '0', col13: '0' },
-    { col1: '서대구지점', col2: '0', col3: '0', col4: '0', col5: '0', col6: '0', col7: '0', col8: '0', col9: '0', col10: '0', col11: '0', col12: '0', col13: '0' },
-    { col1: '서대구지점', col2: '0', col3: '0', col4: '0', col5: '0', col6: '0', col7: '0', col8: '0', col9: '0', col10: '0', col11: '0', col12: '0', col13: '0' },
-    { col1: '서대구지점', col2: '0', col3: '0', col4: '0', col5: '0', col6: '0', col7: '0', col8: '0', col9: '0', col10: '0', col11: '0', col12: '0', col13: '0' },
-
-  ]);
-
-  // data.setFields(fields);
-  // view.setColumns(columns);
-  // view.rowIndicator.visible = true;
-
-  // dbclick row
-  view.onCellDblClicked = async (grid, clickData) => {
-    if (isEmpty(grid.getValue(clickData.itemIndex, 'strWareNo')) || isEmpty(grid.getValue(clickData.itemIndex, 'itmPdCd'))) {
-      return;
-    }
-
-    const { result } = await modal({
-      component: 'WwsnaStoreNaprvStateDtlP',
-      componentProps: { strWareNo: grid.getValue(clickData.itemIndex, 'strWareNo'), itmPdCd: grid.getValue(clickData.itemIndex, 'itmPdCd') },
-    });
-
-    if (result) await fetchData();
-  };
+  data.setFields(fields);
+  view.setColumns(columns);
+  view.rowIndicator.visible = true;
 });
 
 </script>
