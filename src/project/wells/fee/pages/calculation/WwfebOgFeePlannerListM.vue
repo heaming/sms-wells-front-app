@@ -50,10 +50,7 @@
             v-model="searchParams.rsbTp"
             :label="$t('MSG_TXT_RSB_TP')"
             type="radio"
-            :options="filterRsbDvCd"
-            first-option
-            first-option-value=""
-            :first-option-label="$t('MSG_TXT_ALL')"
+            :options="customCodes.rsbDvCd"
             @change="onChangedRsbTp"
           />
         </kw-search-item>
@@ -186,9 +183,10 @@ const { getUserInfo } = useMeta();
 const sessionUserInfo = getUserInfo();
 const codes = await codeUtil.getMultiCodes(
   'FEE_TCNT_DV_CD', // 수수료차수구분코드
-  'RSB_DV_CD',
 );
-const filterRsbDvCd = codes.RSB_DV_CD.filter((v) => ['W0105', 'W0104'].includes(v.codeId));
+const customCodes = {
+  rsbDvCd: [{ codeId: '', codeName: '전체' }, { codeId: 'W0105', codeName: '플래너' }, { codeId: 'W0104', codeName: '지점장' }],
+};
 const searchParams = ref({
 
   perfYm: now.add(-1, 'month').format('YYYYMM'),
@@ -256,6 +254,7 @@ async function initData() {
   totalCount.value = 0;
   searchParams.value.statTitle = t('MSG_TXT_PRGS_STE');
   stepNaviRef.value.initProps();
+  isExcelDown.value = false;
 }
 
 /*
@@ -690,9 +689,7 @@ async function onClickW120P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
  *         done[Boolean]: 이전단계로 되돌림 플레그
  */
 async function onclickStep(params) {
-  if (totalCount.value === 0) {
-    alert(t('MSG_ALT_USE_DT_SRCH_AF'));
-  } else if (params.done) {
+  if (params.done) {
     await onClickRetry(params.feeSchdId, params.code, '02');
   } else if (params.code === 'W0101') { // 미팅참석 집계
     await onClickW101P(params.feeSchdId, params.code, '03');
@@ -780,13 +777,13 @@ const initGrd1Main = defineGrid((data, view) => {
     { fieldName: 'nJagyuk1', header: `M+1${t('MSG_TXT_TOPMR_PLAR')}`, width: '128.4', styleName: 'text-' },
     { fieldName: 'is11edu', header: t('MSG_TXT_PLAR_SRTUP'), width: '124.6', styleName: 'text-center' },
     { fieldName: 'is17edu', header: t('MSG_TXT_TOPMR') + t('MSG_TXT_PRTIC'), width: '114.8', styleName: 'text-center' },
-    { fieldName: 'cntrDt', header: t('MSG_TXT_RGS') + t('MSG_TXT_BASE_MM'), width: '122.7', styleName: 'text-center' },
-    { fieldName: 'fstCntrDt', header: t('MSG_TXT_FST') + t('MSG_TXT_BIZ_RGST_MM'), width: '122.7', styleName: 'text-center' },
-    { fieldName: 'rcntrDt', header: t('MSG_TXT_RETR') + t('MSG_TXT_MON'), width: '97.3', styleName: 'text-center' },
-    { fieldName: 'fnlCltnDt', header: t('MSG_TXT_FNL_CLTN_MM'), width: '122.7', styleName: 'text-center' },
-    { fieldName: 'cltnDt', header: t('MSG_TXT_BIZ_CLTN_MON'), width: '122.7', styleName: 'text-center' },
-    { fieldName: 'akstym', header: t('MSG_TXT_PRFMT_MON'), width: '122.7', styleName: 'text-center' },
-    { fieldName: 'lcecaymd', header: t('MSG_TXT_WELS_MNGER') + t('MSG_TXT_OPNG_DT'), width: '132.8', styleName: 'text-center' },
+    { fieldName: 'cntrDt', header: t('MSG_TXT_RGS') + t('MSG_TXT_BASE_MM'), width: '122.7', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
+    { fieldName: 'fstCntrDt', header: t('MSG_TXT_FST') + t('MSG_TXT_BIZ_RGST_MM'), width: '122.7', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
+    { fieldName: 'rcntrDt', header: t('MSG_TXT_RETR') + t('MSG_TXT_MON'), width: '97.3', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
+    { fieldName: 'fnlCltnDt', header: t('MSG_TXT_FNL_CLTN_MM'), width: '122.7', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
+    { fieldName: 'cltnDt', header: t('MSG_TXT_BIZ_CLTN_MON'), width: '122.7', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
+    { fieldName: 'akstym', header: t('MSG_TXT_PRFMT_MON'), width: '122.7', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
+    { fieldName: 'lcecaymd', header: t('MSG_TXT_WELS_MNGER') + t('MSG_TXT_OPNG_DT'), width: '132.8', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'bAksd05', header: t('MSG_TXT_STMNT') + t('MSG_TXT_FEE'), width: '122.7', styleName: 'text-right' },
     { fieldName: 'akcda0', header: t('MSG_TXT_ELHM') + t('MSG_TXT_PERF'), width: '136.8', styleName: 'text-right' },
     { fieldName: 'akcda1', header: t('MSG_TXT_ELHM') + t('MSG_TXT_EXCP') + t('MSG_TXT_PERF'), width: '136.8', styleName: 'text-right' },
@@ -859,6 +856,7 @@ const initGrd2Main = defineGrid((data, view) => {
     { fieldName: 'fnlCltnDt' },
     { fieldName: 'cltnDt' },
     { fieldName: 'gadcnt' },
+    { fieldName: 'runcnt' },
     { fieldName: 'is17edu' },
     { fieldName: 'akdriy' },
     { fieldName: 'akstym' },
@@ -885,10 +883,11 @@ const initGrd2Main = defineGrid((data, view) => {
     { fieldName: 'aksd11' },
     { fieldName: 'aksd12' },
     { fieldName: 'aksd13' },
-    { fieldName: 'bAksd05' },
+    { fieldName: 'aksd05' },
     { fieldName: 'aksd16' },
     { fieldName: 'aksd17' },
     { fieldName: 'aksd15' },
+    { fieldName: 'aksd18' },
     { fieldName: 'aksd20' },
     { fieldName: 'aksd21' },
     { fieldName: 'aksd22' },
@@ -904,15 +903,16 @@ const initGrd2Main = defineGrid((data, view) => {
     { fieldName: 'rsbDvCd', header: t('MSG_TXT_RSB'), width: '88.7' },
     { fieldName: 'jagyuk', header: t('MSG_TXT_FEE') + t('MSG_TXT_MON'), width: '88.7', styleName: 'text-right' },
     { fieldName: 'nJagyuk1', header: 'M+1', width: '110.6', styleName: 'text-center' },
-    { fieldName: 'cntrDt', header: t('MSG_TXT_RGS') + t('MSG_TXT_BASE_MM'), width: '128.4', styleName: 'text-' },
-    { fieldName: 'fstCntrDt', header: t('MSG_TXT_FST') + t('MSG_TXT_BIZ_RGST_MM'), width: '124.6', styleName: 'text-center' },
-    { fieldName: 'fnlCltnDt', header: t('MSG_TXT_FNL_CLTN_MM'), width: '114.8', styleName: 'text-center' },
-    { fieldName: 'cltnDt', header: t('MSG_TXT_BIZ_CLTN_MON'), width: '122.7', styleName: 'text-center' },
-    { fieldName: 'gadcnt', header: t('MSG_TXT_ACL_ACTI_PPL'), width: '122.7', styleName: 'text-center' },
+    { fieldName: 'cntrDt', header: t('MSG_TXT_RGS') + t('MSG_TXT_BASE_MM'), width: '128.4', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
+    { fieldName: 'fstCntrDt', header: t('MSG_TXT_FST') + t('MSG_TXT_BIZ_RGST_MM'), width: '124.6', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
+    { fieldName: 'fnlCltnDt', header: t('MSG_TXT_FNL_CLTN_MM'), width: '114.8', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
+    { fieldName: 'cltnDt', header: t('MSG_TXT_BIZ_CLTN_MON'), width: '122.7', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
+    { fieldName: 'gadcnt', header: t('MSG_TXT_ACL_ACTI_PPL'), width: '122.7', styleName: 'text-right' },
+    { fieldName: 'runcnt', header: t('MSG_TXT_OPTN_PPL'), width: '122.7', styleName: 'text-right' },
     { fieldName: 'is17edu', header: t('MSG_TXT_TOPMR') + t('MSG_TXT_PRTIC'), width: '97.3', styleName: 'text-center' },
     { fieldName: 'akdriy', header: t('MSG_TXT_PRFMT_MON'), width: '122.7', styleName: 'text-center' },
-    { fieldName: 'akstym', header: t('MSG_TXT_TOPMR') + t('MSG_TXT_UPGR_DT'), width: '122.7', styleName: 'text-center' },
-    { fieldName: 'lcecaymd', header: t('MSG_TXT_WELS_MNGER') + t('MSG_TXT_OPNG_DT'), width: '122.7', styleName: 'text-center' },
+    { fieldName: 'akstym', header: t('MSG_TXT_TOPMR') + t('MSG_TXT_UPGR_DT'), width: '122.7', styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'lcecaymd', header: t('MSG_TXT_WELS_MNGER') + t('MSG_TXT_OPNG_DT'), width: '122.7', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'akcda0', header: t('MSG_TXT_ELHM') + t('MSG_TXT_PERF'), width: '132.8', styleName: 'text-center' },
     { fieldName: 'akcda1', header: t('MSG_TXT_ELHM') + t('MSG_TXT_EXCP') + t('MSG_TXT_PERF'), width: '122.7', styleName: 'text-right' },
     { fieldName: 'akcda2', header: t('MSG_TXT_CHNG'), width: '136.8', styleName: 'text-right' },
@@ -935,10 +935,11 @@ const initGrd2Main = defineGrid((data, view) => {
     { fieldName: 'aksd11', header: t('MSG_TXT_ELHM') + t('MSG_TXT_OG') + t('MSG_TXT_PRPN'), width: '122.7', styleName: 'text-right' },
     { fieldName: 'aksd12', header: t('MSG_TXT_ELHM') + t('MSG_TXT_OG') + t('MSG_TXT_EXCP') + t('MSG_TXT_PRPN'), width: '122.7', styleName: 'text-right' },
     { fieldName: 'aksd13', header: t('MSG_TXT_OG') + t('MSG_TXT_SELL') + t('MSG_TXT_ENRG'), width: '122.7', styleName: 'text-right' },
-    { fieldName: 'bAksd05', header: t('MSG_TXT_STMNT') + t('MSG_TXT_FEE'), width: '122.7', styleName: 'text-right' },
-    { fieldName: 'aksd16', header: t('MSG_TXT_OG') + t('MSG_TXT_EJT'), width: '122.7', styleName: 'text-right' },
-    { fieldName: 'aksd17', header: t('MSG_TXT_OG') + t('MSG_TXT_EJT'), width: '122.7', styleName: 'text-right' },
+    { fieldName: 'aksd05', header: t('MSG_TXT_STMNT') + t('MSG_TXT_FEE'), width: '122.7', styleName: 'text-right' },
+    { fieldName: 'aksd16', header: `${t('MSG_TXT_OG') + t('MSG_TXT_EJT')}1`, width: '122.7', styleName: 'text-right' },
+    { fieldName: 'aksd17', header: `${t('MSG_TXT_OG') + t('MSG_TXT_EJT')}2`, width: '122.7', styleName: 'text-right' },
     { fieldName: 'aksd15', header: t('MSG_TXT_NB') + t('MSG_TXT_BRANCH'), width: '122.7', styleName: 'text-right' },
+    { fieldName: 'aksd18', header: t('MSG_TXT_PRFMT_FEE'), width: '122.7', styleName: 'text-right' },
     { fieldName: 'aksd20', header: t('MSG_TXT_ADSB'), width: '122.7', styleName: 'text-right' },
     { fieldName: 'aksd21', header: t('MSG_TXT_INDV') + t('MSG_TXT_MUTU') + t('MSG_TXT_FEE'), width: '122.7', styleName: 'text-right' },
     { fieldName: 'aksd22', header: t('MSG_TXT_BRANCH') + t('MSG_TXT_MUTU') + t('MSG_TXT_FEE'), width: '122.7', styleName: 'text-right' },
@@ -960,7 +961,7 @@ const initGrd2Main = defineGrid((data, view) => {
       direction: 'horizontal',
       items: ['jagyuk', 'nJagyuk1'],
     },
-    'cntrDt', 'fstCntrDt', 'fnlCltnDt', 'cltnDt', 'gadcnt', 'is17edu', 'akdriy', 'akstym', 'lcecaymd',
+    'cntrDt', 'fstCntrDt', 'fnlCltnDt', 'cltnDt', 'gadcnt', 'runcnt', 'is17edu', 'akdriy', 'akstym', 'lcecaymd',
     {
       header: t('MSG_TXT_INDV_PERF'),
       direction: 'horizontal',
@@ -982,7 +983,7 @@ const initGrd2Main = defineGrid((data, view) => {
       direction: 'horizontal',
       items: ['akcda3', 'akcda4'],
     },
-    'akdeq5', 'ec5amt', 'mproduct', 'aksd23', 'aksd24', 'aksd25', 'aksd01', 'aksd02', 'aksd03', 'aksd11', 'aksd12', 'aksd13', 'bAksd05', 'aksd16', 'aksd17', 'aksd15', 'aksd20', 'aksd21', 'aksd22', 'aksd30', 'aksd99',
+    'akdeq5', 'ec5amt', 'mproduct', 'aksd23', 'aksd24', 'aksd25', 'aksd01', 'aksd02', 'aksd03', 'aksd11', 'aksd12', 'aksd13', 'aksd05', 'aksd16', 'aksd17', 'aksd15', 'aksd18', 'aksd20', 'aksd21', 'aksd22', 'aksd30', 'aksd99',
 
   ]);
 });
@@ -1005,6 +1006,7 @@ const initGrd3Main = defineGrid((data, view) => {
     { fieldName: 'cltnDt' },
     { fieldName: 'lcecaymd' },
     { fieldName: 'gadcnt' },
+    { fieldName: 'runcnt' },
     { fieldName: 'akstym' },
     { fieldName: 'akdriy' },
     { fieldName: 'bAksd05' },
@@ -1054,15 +1056,16 @@ const initGrd3Main = defineGrid((data, view) => {
     { fieldName: 'nJagyuk1', header: 'M+1', width: '128.4', styleName: 'text-' },
     { fieldName: 'is11edu', header: t('MSG_TXT_PLAR_SRTUP'), width: '124.6', styleName: 'text-center' },
     { fieldName: 'is17edu', header: t('MSG_TXT_TOPMR') + t('MSG_TXT_PRTIC'), width: '114.8', styleName: 'text-center' },
-    { fieldName: 'cntrDt', header: t('MSG_TXT_RGS') + t('MSG_TXT_BASE_MM'), width: '122.7', styleName: 'text-center' },
-    { fieldName: 'fstCntrDt', header: t('MSG_TXT_FST') + t('MSG_TXT_BIZ_RGST_MM'), width: '122.7', styleName: 'text-center' },
-    { fieldName: 'rcntrDt', header: t('MSG_TXT_RETR') + t('MSG_TXT_MON'), width: '97.3', styleName: 'text-center' },
-    { fieldName: 'fnlCltnDt', header: t('MSG_TXT_FNL_CLTN_MM'), width: '122.7', styleName: 'text-center' },
-    { fieldName: 'cltnDt', header: t('MSG_TXT_BIZ_CLTN_MON'), width: '122.7', styleName: 'text-center' },
-    { fieldName: 'lcecaymd', header: t('MSG_TXT_WELS_MNGER') + t('MSG_TXT_OPNG_DT'), width: '122.7', styleName: 'text-center' },
-    { fieldName: 'gadcnt', header: t('MSG_TXT_ACL_ACTI_PPL'), width: '132.8', styleName: 'text-center' },
-    { fieldName: 'akstym', header: t('MSG_TXT_UPGR_MON'), width: '122.7', styleName: 'text-right' },
-    { fieldName: 'akdriy', header: t('MSG_TXT_PRFMT_MON'), width: '136.8', styleName: 'text-right' },
+    { fieldName: 'cntrDt', header: t('MSG_TXT_RGS') + t('MSG_TXT_BASE_MM'), width: '122.7', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
+    { fieldName: 'fstCntrDt', header: t('MSG_TXT_FST') + t('MSG_TXT_BIZ_RGST_MM'), width: '122.7', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
+    { fieldName: 'rcntrDt', header: t('MSG_TXT_RETR') + t('MSG_TXT_MON'), width: '97.3', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
+    { fieldName: 'fnlCltnDt', header: t('MSG_TXT_FNL_CLTN_MM'), width: '122.7', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
+    { fieldName: 'cltnDt', header: t('MSG_TXT_BIZ_CLTN_MON'), width: '122.7', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
+    { fieldName: 'lcecaymd', header: t('MSG_TXT_WELS_MNGER') + t('MSG_TXT_OPNG_DT'), width: '122.7', styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'gadcnt', header: t('MSG_TXT_ACL_ACTI_PPL'), width: '132.8', styleName: 'text-right' },
+    { fieldName: 'runcnt', header: t('MSG_TXT_OPTN_PPL'), width: '122.7', styleName: 'text-right' },
+    { fieldName: 'akstym', header: t('MSG_TXT_UPGR_MON'), width: '122.7', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
+    { fieldName: 'akdriy', header: t('MSG_TXT_PRFMT_MON'), width: '136.8', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
     { fieldName: 'bAksd05', header: t('MSG_TXT_STMNT') + t('MSG_TXT_FEE'), width: '136.8', styleName: 'text-right' },
     { fieldName: 'akcda0', header: t('MSG_TXT_ELHM') + t('MSG_TXT_PERF'), width: '136.8', styleName: 'text-right' },
     { fieldName: 'akcda1', header: t('MSG_TXT_ELHM') + t('MSG_TXT_EXCP') + t('MSG_TXT_PERF'), width: '136.8', styleName: 'text-right' },
@@ -1113,7 +1116,7 @@ const initGrd3Main = defineGrid((data, view) => {
       direction: 'horizontal',
       items: ['jagyuk', 'nJagyuk1'],
     },
-    'is11edu', 'is17edu', 'cntrDt', 'fstCntrDt', 'rcntrDt', 'fnlCltnDt', 'cltnDt', 'lcecaymd', 'gadcnt', 'akstym', 'akdriy', 'bAksd05',
+    'is11edu', 'is17edu', 'cntrDt', 'fstCntrDt', 'rcntrDt', 'fnlCltnDt', 'cltnDt', 'lcecaymd', 'gadcnt', 'runcnt', 'akstym', 'akdriy', 'bAksd05',
     {
       header: t('MSG_TXT_INDV_PERF'),
       direction: 'horizontal',
