@@ -10,6 +10,7 @@
 * 프로그램 설명
 ****************************************************************************************************
 - 23.04.18 퍼블 최신화
+- 23.07.11 스케치, 설계 변경요청건 반영
 ****************************************************************************************************
 --->
 <template>
@@ -25,7 +26,7 @@
             :label="$t('MSG_TXT_PERF_YM')"
             rules="required"
             type="month"
-          />
+          />~
         </kw-search-item>
         <kw-search-item
           :label="$t('MSG_TXT_PERF_INQR')"
@@ -44,13 +45,10 @@
           :label="$t('MSG_TXT_SEQUENCE_NUMBER')"
           required
         >
-          <kw-input
-            v-model="searchParams.sellPrtnrNo"
+          <zwog-partner-search
+            v-model:prtnr-no="searchParams.sellPrtnrNo"
             :label="$t('MSG_TXT_SEQUENCE_NUMBER')"
-            rules="required"
-            icon="search"
-            clearable
-            @click-icon="onClickSearchPrtnrNoPopup"
+            required
           />
         </kw-search-item>
       </kw-search-row>
@@ -81,9 +79,33 @@
           </kw-form-item>
         </kw-form-row>
         <kw-form-row>
+          <!-- 개시차월 -->
+          <kw-form-item
+            :label="$t('MSG_TXT_OPNG_NMN')"
+            align-content="left"
+          >
+            <p>{{ baseInfo?.startYm ? stringUtil.getNumberWithComma(baseInfo?.startYm) : '' }}</p>
+          </kw-form-item>
+          <!-- 승진차월 -->
+          <kw-form-item
+            :label="$t('MSG_TXT_PRFMT_NMN')"
+            align-content="left"
+          >
+            <p>{{ baseInfo?.prfmtYm ? stringUtil.getNumberWithComma(baseInfo?.prfmtYm) : '' }}</p>
+          </kw-form-item>
           <!-- 예상판매수수료 -->
           <kw-form-item :label="$t('MSG_TXT_EST_SAL_COMM')">
             <p>{{ baseInfo?.amtEstSalFee ? stringUtil.getNumberWithComma(baseInfo?.amtEstSalFee) : '' }}</p>
+          </kw-form-item>
+        </kw-form-row>
+        <kw-form-row>
+          <!-- 예상조직수수료 -->
+          <kw-form-item
+            v-if="useOg"
+            :label="$t('MSG_TXT_EST_OG_FEE')"
+            align-content="right"
+          >
+            <p>{{ baseInfo?.amtEstOgFee ? stringUtil.getNumberWithComma(baseInfo?.amtEstOgFee) : '' }}</p>
           </kw-form-item>
           <!-- 예상bs수수료 -->
           <kw-form-item
@@ -100,25 +122,23 @@
             <p>{{ baseInfo?.amtFeeSum ? stringUtil.getNumberWithComma(baseInfo?.amtFeeSum) : '' }}</p>
           </kw-form-item>
         </kw-form-row>
-        <kw-form-row>
-          <!-- 개시차월 -->
-          <kw-form-item
-            :label="$t('MSG_TXT_OPNG_NMN')"
-            align-content="left"
-          >
-            <p>{{ baseInfo?.ojDsbYm ? stringUtil.getDateFormat(baseInfo?.ojDsbYm).substr(0,7) : '' }}</p>
-          </kw-form-item>
-        </kw-form-row>
       </kw-form>
       <kw-separator />
+      <!-- 미팅 및 교육내역 -->
+      <h3>{{ t('MSG_TXT_METG_EDUC_IZ') }}</h3>
+      <kw-grid
+        ref="grdMtRef"
+        :visible-rows="1"
+        @init="initGridMt"
+      />
       <!-- 실적내역 -->
-      <h3>{{ t('MSG_TXT_PERF_DETAIL') }}</h3>
-      <kw-action-top>
+      <kw-action-top class="mt30">
         <template #left>
-          <span> {{ t('MSG_TXT_UNIT_WON') }}</span>
+          <h3>{{ t('MSG_TXT_PERF_DETAIL') }}</h3>
+          <span class="ml8">{{ t('MSG_TXT_UNIT_WON') }} </span>
         </template>
         <kw-btn
-          :label="$t('MSG_TXT_CALCULATE')"
+          :label="$t('MSG_BTN_EXP_PERF_RFLT')"
           dense
           primary
           @click="onClickCalculateDetail"
@@ -126,18 +146,17 @@
       </kw-action-top>
       <kw-grid
         ref="grdDetailRef"
-        :visible-rows="2"
+        :visible-rows="useOg ? 4 : 2"
         @init="initGridDetail"
       />
-      <kw-separator />
       <!-- BS내역 -->
-      <h3>{{ t('MSG_TXT_BS_IZ') }}</h3>
-      <kw-action-top>
+      <kw-action-top class="mt30">
         <template #left>
-          <span> {{ t('MSG_TXT_UNIT_WON') }}</span>
+          <h3>{{ t('MSG_TXT_BS_IZ') }}</h3>
+          <span class="ml8">{{ t('MSG_TXT_MSG_TXT_UNIT_CASE') }} </span>
         </template>
         <kw-btn
-          :label="$t('MSG_TXT_CALCULATE')"
+          :label="$t('MSG_BTN_EXP_PERF_RFLT')"
           dense
           primary
           @click="onClickCalculateBs"
@@ -148,22 +167,170 @@
         :visible-rows="3"
         @init="initGridBs"
       />
-      <kw-separator />
+      <!-- 조직BS내역 -->
+      <template
+        v-if="useOg"
+      >
+        <kw-action-top class="mt30">
+          <template #left>
+            <h3>{{ t('MSG_TXT_OG_BS_IZ') }}</h3>
+            <span class="ml8">{{ t('MSG_TXT_MSG_TXT_UNIT_CASE') }} </span>
+          </template>
+          <kw-btn
+            :label="$t('MSG_BTN_EXP_PERF_RFLT')"
+            dense
+            primary
+            @click="onClickCalculateOgBs"
+          />
+        </kw-action-top>
+        <kw-grid
+          ref="grdOgBsRef"
+          :visible-rows="1"
+          @init="initGridOgBs"
+        />
+      </template>
       <!-- 예상수수료 내역 -->
-      <kw-action-top>
+      <kw-action-top class="mt30">
         <template #left>
           <h3>{{ t('MSG_TXT_EST_FEE_DTL') }}</h3>
         </template>
         <span class="kw-fc--black3 text-weight-regular"> {{ t('MSG_TXT_UNIT_WON') }}</span>
       </kw-action-top>
-      <kw-grid
-        ref="grdDstRef"
-        :visible-rows="1"
-        @init="initGridDstDtl"
-      />
-      <kw-separator />
+      <table class="kw-table--normal">
+        <colgroup>
+          <col style="width: 12%;">
+          <col style="width: 11%;">
+          <col style="width: 11%;">
+          <col style="width: 11%;">
+          <col style="width: 11%;">
+          <col style="width: 11%;">
+          <col style="width: 11%;">
+          <col style="width: 11%;">
+          <col style="width: 11%;">
+        </colgroup>
+        <tbody>
+          <!-- 예상판매수수료-->
+          <tr>
+            <th rowspan="2">
+              {{ t('MSG_TXT_EST_SAL_COMM') }}
+            </th>
+            <th>{{ t('MSG_TXT_ELHM_PRPN') }}</th>
+            <th>{{ t('MSG_TXT_ELHM_EXCP_PRPN') }}</th>
+            <th>{{ t('MSG_TXT_ELHM_ENRG') }}</th>
+            <th>{{ t('MSG_TXT_METG') }}</th>
+            <th>{{ t('MSG_TXT_EDUC') }}</th>
+            <th>{{ t('MSG_TXT_STMNT') }}</th>
+            <th>{{ t('MSG_TXT_MCHN_CH') }}</th>
+            <th>{{ t('MSG_TXT_AGG') }}</th>
+          </tr>
+          <tr>
+            <td class="text-right">
+              {{ stringUtil.getNumberWithComma(estimate.estSalCommElhmPrpn) }}
+            </td>
+            <td class="text-right">
+              {{ stringUtil.getNumberWithComma(estimate.estSalCommElhmExcpPrpn) }}
+            </td>
+            <td class="text-right">
+              {{ stringUtil.getNumberWithComma(estimate.estSalCommElhmEnrg) }}
+            </td>
+            <td class="text-right">
+              {{ stringUtil.getNumberWithComma(estimate.estSalCommMetg) }}
+            </td>
+            <td class="text-right">
+              {{ stringUtil.getNumberWithComma(estimate.estSalCommEduc) }}
+            </td>
+            <td class="text-right">
+              {{ stringUtil.getNumberWithComma(estimate.estSalCommStmnt) }}
+            </td>
+            <td class="text-right">
+              {{ stringUtil.getNumberWithComma(estimate.estSalCommMchnCh) }}
+            </td>
+            <td class="text-right">
+              {{ stringUtil.getNumberWithComma(estimate.estSalCommAgg) }}
+            </td>
+          </tr>
+          <!-- 예상BS수수료 -->
+          <tr>
+            <th rowspan="2">
+              {{ t('MSG_TXT_EST_BS_FEE') }}
+            </th>
+            <th>{{ t('MSG_TXT_BS_MGMT') }}</th>
+            <th>{{ t('MSG_TXT_BS_ENRG') }}</th>
+            <th>{{ t('MSG_TXT_RGLVL') }}</th>
+            <th colspan="4" />
+            <th>{{ t('MSG_TXT_AGG') }}</th>
+          </tr>
+          <tr>
+            <td class="text-right">
+              {{ stringUtil.getNumberWithComma(estimate.estBsFeeBsMgmt) }}
+            </td>
+            <td class="text-right">
+              {{ stringUtil.getNumberWithComma(estimate.estBsFeeBsEnrg) }}
+            </td>
+            <td class="text-right">
+              {{ stringUtil.getNumberWithComma(estimate.estBsFeeRglvl) }}
+            </td>
+            <td colspan="4" />
+            <td class="text-right">
+              {{ stringUtil.getNumberWithComma(estimate.estBsFeeAgg) }}
+            </td>
+          </tr>
+          <!-- 예상조직수수료 -->
+          <template
+            v-if="useOg"
+          >
+            <tr>
+              <th rowspan="2">
+                {{ t('MSG_TXT_EST_OG_FEE') }}
+              </th>
+              <th>{{ t('MSG_TXT_ELHM_OG_PRPN') }}</th>
+              <th>{{ t('MSG_TXT_ELHM_OG_EXCP_PRPN') }}</th>
+              <th>{{ t('MSG_TXT_OG_SELL_ENCRG') }}</th>
+              <th>{{ t('MSG_TXT_NINC_MGT') }}</th>
+              <th>{{ t('MSG_TXT_OG_EJT') }}1</th>
+              <th>{{ t('MSG_TXT_OG_EJT') }}2</th>
+              <th>{{ t('MSG_TXT_NB_BRCH') }}</th>
+              <th>{{ t('MSG_TXT_AGG') }}</th>
+            </tr>
+            <tr>
+              <td class="text-right">
+                {{ stringUtil.getNumberWithComma(estimate.estOgFeeElhmOgPrpn) }}
+              </td>
+              <td class="text-right">
+                {{ stringUtil.getNumberWithComma(estimate.estOgFeeElhmOgExcpPrpn) }}
+              </td>
+              <td class="text-right">
+                {{ stringUtil.getNumberWithComma(estimate.estOgFeeOgSellEncrg) }}
+              </td>
+              <td class="text-right">
+                {{ stringUtil.getNumberWithComma(estimate.estOgFeeNincMgt) }}
+              </td>
+              <td class="text-right">
+                {{ stringUtil.getNumberWithComma(estimate.estOgFeeOgEjt1) }}
+              </td>
+              <td class="text-right">
+                {{ stringUtil.getNumberWithComma(estimate.estOgFeeOgEjt2) }}
+              </td>
+              <td class="text-right">
+                {{ stringUtil.getNumberWithComma(estimate.estOgFeeNbBrch) }}
+              </td>
+              <td class="text-right">
+                {{ stringUtil.getNumberWithComma(estimate.estOgFeeAgg) }}
+              </td>
+            </tr>
+          </template>
+          <tr>
+            <td class="sum-head">
+              {{ t('MSG_TXT_SUM') }}
+            </td>
+            <td class="sum-head">
+              {{ stringUtil.getNumberWithComma(estimate.allSum) }}
+            </td>
+          </tr>
+        </tbody>
+      </table>
       <!-- 판매내역 -->
-      <kw-action-top>
+      <kw-action-top class="mt30">
         <template #left>
           <h3>{{ t('MSG_TXT_SAL_HIST') }}</h3>
         </template>
@@ -183,30 +350,60 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { defineGrid, useDataService, useGlobal, getComponentType, codeUtil, stringUtil } from 'kw-lib';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, reduce, divide } from 'lodash-es';
 import dayjs from 'dayjs';
+import ZwogPartnerSearch from '~sms-common/organization/components/ZwogPartnerSearch.vue';
 
 const now = dayjs();
-const { modal, notify } = useGlobal();
+const { notify } = useGlobal();
 const { t } = useI18n();
 const dataService = useDataService();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
+const useOg = ref(true);
 const codes = await codeUtil.getMultiCodes(
   'RSB_DV_CD',
   'CNTRW_TP_CD',
   'CNTR_TP_CD',
 );
 
+const grdMtRef = ref(getComponentType('KwGrid'));
 const grdDetailRef = ref(getComponentType('KwGrid'));
 const grdBsRef = ref(getComponentType('KwGrid'));
-const grdDstRef = ref(getComponentType('KwGrid'));
+const grdOgBsRef = ref(getComponentType('KwGrid'));
 const grdSalesRef = ref(getComponentType('KwGrid'));
+
+const grdMtData = computed(() => grdMtRef.value?.getData());
 const grdDetailData = computed(() => grdDetailRef.value?.getData());
 const grdBsData = computed(() => grdBsRef.value?.getData());
-const grdDstData = computed(() => grdDstRef.value?.getData());
+const grdOgBsData = computed(() => grdOgBsRef.value?.getData());
 const grdSalesData = computed(() => grdSalesRef.value?.getData());
+
+// 예상수수료 @todo 2차
+const estimate = ref({
+  estSalCommElhmPrpn: 0,
+  estSalCommElhmExcpPrpn: 0,
+  estSalCommElhmEnrg: 0,
+  estSalCommMetg: 0,
+  estSalCommEduc: 0,
+  estSalCommStmnt: 0,
+  estSalCommMchnCh: 0,
+  estSalCommAgg: 0,
+  estBsFeeBsMgmt: 0,
+  estBsFeeBsEnrg: 0,
+  estBsFeeRglvl: 0,
+  estBsFeeAgg: 0,
+  estOgFeeElhmOgPrpn: 0,
+  estOgFeeElhmOgExcpPrpn: 0,
+  estOgFeeOgSellEncrg: 0,
+  estOgFeeNincMgt: 0,
+  estOgFeeOgEjt1: 0,
+  estOgFeeOgEjt2: 0,
+  estOgFeeNbBrch: 0,
+  estOgFeeAgg: 0,
+  allSum: 0,
+});
 
 let cachedParams;
 const searchParams = ref({
@@ -218,50 +415,74 @@ const baseInfo = ref({
   prtnrKnm: '',
   ogCd: '',
   rsbDvCd: '',
+  startYm: '',
+  prfmtYm: '',
   amtEstSalFee: 0,
+  amtEstOgFee: 0,
   amtEstBsFee: 0,
   amtFeeSum: 0,
-  ojDsbYm: '',
 });
 // 데이터 조회
 async function fetchData() {
   const { data } = await dataService.get('/sms/wells/fee/estimate/m-og', { params: { ...cachedParams } });
   baseInfo.value = data.base;
+  grdMtData.value.setRows([data.meeting]);
   grdDetailData.value.setRows(data.performances);
+  data.bses.forEach((item) => {
+    if (item.type === 'B') {
+      const allSum = data.bses.find((x) => x.type === 'A').prdSum;
+      item.procRate = divide(item.prdSum / (allSum === 0 ? 1 : allSum)) * 100;
+    }
+  });
   grdBsData.value.setRows(data.bses);
-  grdDstData.value.setRows(data.estimates);
+  grdOgBsData.value.setRows(data.ogBses);
   grdSalesData.value.setRows(data.sales);
+
+  // @todo 예상수수료 계산로직 정의후 아래항목도 변경되야됨
+  estimate.value = data.estimate;
+  estimate.value.allSum = reduce(data.estimate, (acc, n) => acc + n, 0);
 }
 // 조회버튼
 async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
 }
-// 파트너 검색 팝업
-async function onClickSearchPrtnrNoPopup() {
-  const { result, payload } = await modal({
-    component: 'ZwogzPartnerListP',
-    componentProps: {
-      prtnrNo: searchParams.value.sellPrtnrNo,
-      ogTpCd: 'W02', // M조직
-    },
-  });
-  if (result) {
-    searchParams.value.sellPrtnrNo = payload.prtnrNo;
-  }
-}
 // 실적내역 계산버튼 클릭
 async function onClickCalculateDetail() {
-  notify('수수료 계산 API 개발후 진행');
+  notify('수수료 계산 API 개발후 진행[2차예정]');
 }
 
 // BS내역 계산버튼 클릭
 async function onClickCalculateBs() {
-  notify('수수료 계산 API 개발후 진행');
+  notify('수수료 계산 API 개발후 진행[2차예정]');
+}
+
+// 조직bs내역 계산버튼 클릭
+async function onClickCalculateOgBs() {
+  notify('수수료 계산 API 개발후 진행[2차예정]');
 }
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
+const initGridMt = defineGrid((data, view) => {
+  const columns = [
+    { fieldName: 'preSrtup', header: t('MSG_TXT_PRE_SRTUP'), width: '112', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
+    { fieldName: 'srtup', header: t('MSG_TXT_SRTUP'), width: '120', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
+    { fieldName: 'metgPrscD', header: t('MSG_TXT_METG_PRSC_D'), width: '107', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'cmpfEduc', header: t('MSG_TXT_CMPF_EDUC'), width: '112', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
+    { fieldName: 'stmnt1', header: `${t('MSG_TXT_STMNT')}1`, width: '112', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
+    { fieldName: 'stmnt2', header: `${t('MSG_TXT_STMNT')}2`, width: '112', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
+    { fieldName: 'stmnt345', header: `${t('MSG_TXT_STMNT')}345`, width: '112', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
+    { fieldName: 'brmgrOnline', header: t('MSG_TXT_BRMGR_ONLINE'), width: '112', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
+  ];
+  const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
+  data.setFields(fields);
+  view.setColumns(columns);
+  view.checkBar.visible = false;
+  view.rowIndicator.visible = false;
+  view.sortingOptions.enabled = false;
+});
+
 const initGridDetail = defineGrid((data, view) => {
   const columns = [
     {
@@ -270,126 +491,15 @@ const initGridDetail = defineGrid((data, view) => {
       width: '220',
       styleName: 'text-left',
       displayCallback(grid, index, value) {
-        const title = { A: t('MSG_TXT_PERF_PS'), B: t('MSG_TXT_PRJTD_PERF') };
+        const title = { A: t('MSG_TXT_INDV_PERF'), B: t('MSG_TXT_INDV_PRJTD_PERF'), C: t('MSG_TXT_OG_PERF'), D: t('MSG_TXT_OG_PRJTD_PERF') };
         return title[value];
       },
     },
-    { fieldName: 'elhmAckmtCt', header: t('MSG_TXT_ELHM_ACKMT_CT'), width: '171', dataType: 'number', styleName: 'text-right' },
-    { fieldName: 'spayIstm', header: t('MSG_TXT_LUMP_SUM_INST'), width: '172', dataType: 'number', styleName: 'text-right' },
-    { fieldName: 'baseRtlfe', header: t('MSG_TXT_BASE_RTLFE'), width: '172', dataType: 'number', styleName: 'text-right' },
-    { fieldName: 'bfsvcAckmtCt', header: t('MSG_TXT_BFSVC_ACKMT_CT'), width: '172', dataType: 'number', styleName: 'text-right' },
-    {
-      fieldName: 'plarSrtup',
-      header: t('MSG_TXT_PLAR_SRTUP'),
-      width: '172',
-      styleName: 'text-center',
-      options: ['Y', 'N'].map((v) => ({ codeId: v, codeName: v })),
-      styleCallback(grid, dataCell) {
-        if (grid.getValue(dataCell.index.itemIndex, 'type') === 'B') {
-          return {
-            editable: false,
-            renderer: { type: 'radio' },
-          };
-        }
-        return { renderer: { type: 'text' } };
-      },
-    },
-    {
-      fieldName: 'topmrPlarStmnt',
-      header: t('MSG_TXT_TOPMR_PLAR_STMNT'),
-      width: '172',
-      styleName: 'text-center',
-      options: ['Y', 'N'].map((v) => ({ codeId: v, codeName: v })),
-      styleCallback(grid, dataCell) {
-        if (grid.getValue(dataCell.index.itemIndex, 'type') === 'B') {
-          return {
-            editable: false,
-            renderer: { type: 'radio' },
-          };
-        }
-        return { renderer: { type: 'text' } };
-      },
-    },
-    {
-      fieldName: 'plarPrtic',
-      header: t('MSG_TXT_PLAR_PRTIC'),
-      width: '172',
-      styleName: 'text-center',
-      options: ['Y', 'N'].map((v) => ({ codeId: v, codeName: v })),
-      styleCallback(grid, dataCell) {
-        if (grid.getValue(dataCell.index.itemIndex, 'type') === 'B') {
-          return {
-            editable: false,
-            renderer: { type: 'radio' },
-          };
-        }
-        return { renderer: { type: 'text' } };
-      },
-    },
-    {
-      fieldName: 'managerSrtup',
-      header: t('MSG_TXT_MANAGER_SRTUP'),
-      width: '171',
-      styleName: 'text-center',
-      options: ['Y', 'N'].map((v) => ({ codeId: v, codeName: v })),
-      styleCallback(grid, dataCell) {
-        if (grid.getValue(dataCell.index.itemIndex, 'type') === 'B') {
-          return {
-            editable: false,
-            renderer: { type: 'radio' },
-          };
-        }
-        return { renderer: { type: 'text' } };
-      },
-    },
-    {
-      fieldName: 'managerStmnt',
-      header: t('MSG_TXT_MANAGER_STMNT'),
-      width: '172',
-      styleName: 'text-center',
-      options: ['Y', 'N'].map((v) => ({ codeId: v, codeName: v })),
-      styleCallback(grid, dataCell) {
-        if (grid.getValue(dataCell.index.itemIndex, 'type') === 'B') {
-          return {
-            editable: false,
-            renderer: { type: 'radio' },
-          };
-        }
-        return { renderer: { type: 'text' } };
-      },
-    },
-    {
-      fieldName: 'cmpfEduc',
-      header: t('MSG_TXT_CMPF_EDUC'),
-      width: '172',
-      styleName: 'text-center',
-      options: ['Y', 'N'].map((v) => ({ codeId: v, codeName: v })),
-      styleCallback(grid, dataCell) {
-        if (grid.getValue(dataCell.index.itemIndex, 'type') === 'B') {
-          return {
-            editable: false,
-            renderer: { type: 'radio' },
-          };
-        }
-        return { renderer: { type: 'text' } };
-      },
-    },
-    {
-      fieldName: 'metgPrscDc',
-      header: t('MSG_TXT_METG_PRSC_DC'),
-      width: '172',
-      styleName: 'text-right',
-      options: ['Y', 'N'].map((v) => ({ codeId: v, codeName: v })),
-      styleCallback(grid, dataCell) {
-        if (grid.getValue(dataCell.index.itemIndex, 'type') === 'B') {
-          return {
-            editable: false,
-            renderer: { type: 'radio' },
-          };
-        }
-        return { renderer: { type: 'text' } };
-      },
-    },
+    { fieldName: 'elhmAckmtCt', header: t('MSG_TXT_ELHM_ACKMT_CT'), width: '171', dataType: 'number', styleName: 'text-right', editable: true },
+    { fieldName: 'rentalBasePrc', header: t('MSG_TXT_RENTAL_BASE_PRC'), width: '172', dataType: 'number', styleName: 'text-right', editable: true },
+    { fieldName: 'snglPmntBasePrc', header: t('MSG_TXT_SNGL_PMNT_BASE_PRC'), width: '172', dataType: 'number', styleName: 'text-right', editable: true },
+    { fieldName: 'elhmExcpAckmtPerf', header: t('MSG_TXT_ELHM_EXCP_ACKMT_PERF'), width: '172', dataType: 'number', styleName: 'text-right', editable: true },
+    { fieldName: 'ninc', header: t('MSG_TXT_NINC'), width: '172', dataType: 'number', styleName: 'text-right', editable: true },
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   data.setFields(fields);
@@ -397,8 +507,9 @@ const initGridDetail = defineGrid((data, view) => {
   view.checkBar.visible = false;
   view.rowIndicator.visible = false;
   view.editOptions.columnEditableFirst = true;
+  view.sortingOptions.enabled = false;
   view.onCellEditable = (grid, index) => {
-    if (grid.getValue(index.itemIndex, 'type') === 'A') {
+    if (['A', 'C'].includes(grid.getValue(index.itemIndex, 'type'))) {
       return false;
     }
   };
@@ -411,50 +522,31 @@ const initGridBs = defineGrid((data, view) => {
       styleName: 'text-center',
       width: '120',
       displayCallback(grid, index, value) {
-        const title = { A: t('MSG_TXT_ASGN_CT'), B: t('MSG_TXT_FHS_CT') };
+        const title = { A: t('MSG_TXT_ASGN_CT'), B: t('MSG_TXT_FHS_CT'), C: t('MSG_TXT_ET_FHS_CT') };
         return title[value];
       },
     },
-    { fieldName: 'wrfr01', header: `${t('MSG_TXT_WRFR')} 1`, styleName: 'text-right', dataType: 'number', width: '109' },
-    { fieldName: 'wrfr02', header: `${t('MSG_TXT_WRFR')} 2`, styleName: 'text-right', dataType: 'number', width: '109' },
-    { fieldName: 'wrfr03', header: `${t('MSG_TXT_WRFR')} 3`, styleName: 'text-right', dataType: 'number', width: '109' },
-    { fieldName: 'wrfr04', header: `${t('MSG_TXT_WRFR')} 4`, styleName: 'text-right', dataType: 'number', width: '109' },
-    { fieldName: 'unWrfr', header: t('MSG_TXT_UN_WRFR'), styleName: 'text-right', dataType: 'number', width: '109' },
-    { fieldName: 'puf01', header: `${t('MSG_TXT_PUF')} 1`, styleName: 'text-right', dataType: 'number', width: '109' },
-    { fieldName: 'puf02', header: `${t('MSG_TXT_PUF')} 2`, styleName: 'text-right', dataType: 'number', width: '109' },
-    { fieldName: 'otscEtc', header: t('MSG_TXT_ETC_ITEMS_1'), styleName: 'text-right', dataType: 'number', width: '204' },
-    { fieldName: 'bdtEtc', header: t('MSG_TXT_ETC_ITEMS_2'), styleName: 'text-right', dataType: 'number', width: '115' },
-    { fieldName: 'etcFxamDsb', header: t('MSG_TXT_ETC_FXAM_DSB'), styleName: 'text-right', dataType: 'number', width: '129' },
-    { fieldName: 'sum', header: t('MSG_TXT_SUM'), styleName: 'text-right', width: '129', dataType: 'number' },
-    { fieldName: 'procRate', header: t('MSG_TXT_BS_PROC_RATE'), styleName: 'text-right', width: '106' },
-    { fieldName: 'w1', header: t('W1'), styleName: 'text-right', dataType: 'number', width: '109' },
-    { fieldName: 'w2', header: t('W2'), styleName: 'text-right', dataType: 'number', width: '109' },
+    { fieldName: 'wrfr01', header: `${t('MSG_TXT_WRFR')} 1`, styleName: 'text-right', dataType: 'number', width: '109', editable: true },
+    { fieldName: 'wrfr02', header: `${t('MSG_TXT_WRFR')} 2`, styleName: 'text-right', dataType: 'number', width: '109', editable: true },
+    { fieldName: 'wrfr03', header: `${t('MSG_TXT_WRFR')} 3`, styleName: 'text-right', dataType: 'number', width: '109', editable: true },
+    { fieldName: 'wrfr04', header: `${t('MSG_TXT_WRFR')} 4`, styleName: 'text-right', dataType: 'number', width: '109', editable: true },
+    { fieldName: 'unWrfr', header: t('MSG_TXT_UN_WRFR'), styleName: 'text-right', dataType: 'number', width: '109', editable: true },
+    { fieldName: 'puf01', header: `${t('MSG_TXT_PUF')} 1`, styleName: 'text-right', dataType: 'number', width: '109', editable: true },
+    { fieldName: 'puf02', header: `${t('MSG_TXT_PUF')} 2`, styleName: 'text-right', dataType: 'number', width: '109', editable: true },
+    { fieldName: 'otscEtc', header: t('MSG_TXT_ETC_ITEMS_1'), styleName: 'text-right', dataType: 'number', width: '204', editable: true },
+    { fieldName: 'bdtEtc', header: t('MSG_TXT_ETC_ITEMS_2'), styleName: 'text-right', dataType: 'number', width: '115', editable: true },
+    { fieldName: 'prdSum', header: t('MSG_TXT_SUM'), styleName: 'text-right', width: '129', dataType: 'number' },
+    { fieldName: 'procRate', header: t('MSG_TXT_BS_PROC_RATE'), styleName: 'text-right', width: '106', dataType: 'number' },
+    { fieldName: 'w1', header: t('W1'), styleName: 'text-right', dataType: 'number', width: '109', editable: true },
+    { fieldName: 'w2', header: t('W2'), styleName: 'text-right', dataType: 'number', width: '109', editable: true },
   ];
-  const fields = [
-    { fieldName: 'type' },
-    { fieldName: 'wrfr01', dataType: 'number' },
-    { fieldName: 'wrfr02', dataType: 'number' },
-    { fieldName: 'wrfr03', dataType: 'number' },
-    { fieldName: 'wrfr04', dataType: 'number' },
-    { fieldName: 'unWrfr', dataType: 'number' },
-    { fieldName: 'puf01', dataType: 'number' },
-    { fieldName: 'puf02', dataType: 'number' },
-    { fieldName: 'otscEtc', dataType: 'number' },
-    { fieldName: 'bdtEtc', dataType: 'number' },
-    { fieldName: 'etcFxamDsb', dataType: 'number' },
-    { fieldName: 'sum',
-      dataType: 'number',
-      valueExpression: "values['wrfr01'] + values['wrfr02'] + values['wrfr03'] + values['wrfr04'] + values['unWrfr'] + values['puf01'] + values['puf02'] + values['otscEtc'] + values['bdtEtc'] + values['etcFxamDsb']",
-    },
-    { fieldName: 'procRate' },
-    { fieldName: 'w1' },
-    { fieldName: 'w2' },
-  ];
+  const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   data.setFields(fields);
   view.setColumns(columns);
   view.checkBar.visible = false;
   view.rowIndicator.visible = false;
-  view.editOptions.editable = true;
+  view.editOptions.columnEditableFirst = true;
+  view.sortingOptions.enabled = false;
   view.onCellEditable = (grid, index) => {
     if (['A', 'B'].includes(grid.getValue(index.itemIndex, 'type'))) {
       return false;
@@ -465,7 +557,7 @@ const initGridBs = defineGrid((data, view) => {
     {
       header: t('MSG_TXT_PRD_GRP'),
       direction: 'horizontal',
-      items: ['wrfr01', 'wrfr02', 'wrfr03', 'wrfr04', 'unWrfr', 'puf01', 'puf02', 'otscEtc', 'bdtEtc', 'etcFxamDsb', 'sum'],
+      items: ['wrfr01', 'wrfr02', 'wrfr03', 'wrfr04', 'unWrfr', 'puf01', 'puf02', 'otscEtc', 'bdtEtc', 'prdSum'],
     },
     'procRate',
     {
@@ -476,117 +568,102 @@ const initGridBs = defineGrid((data, view) => {
   ]);
 });
 
-const initGridDstDtl = defineGrid((data, view) => {
+const initGridOgBs = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'type',
       header: t('MSG_TXT_DIV'),
       styleName: 'text-center',
-      width: '145',
+      width: '120',
       displayCallback() {
-        return t('MSG_TXT_EST_FEE');
-      },
-      footer: {
-        text: t('MSG_TXT_SUM'),
-        styleName: 'text-center',
+        return t('MSG_TXT_TOT_CT');
       },
     },
-    { fieldName: 'amtSumElhmPrpn',
-      header: t('MSG_TXT_ELHM_PRPN'),
-      styleName: 'text-right',
-      width: '157',
-      dataType: 'number',
-      footer: {
-        expression: 'sum',
-        numberFormat: '#,##0',
-        valueCallback(grid) {
-          let sum = 0;
-          const prod = grid.getDataSource();
-          const cnt = prod.getRowCount();
-          for (let i = 0; i < cnt; i += 1) {
-            sum += prod.getValue(i, 'amtSumElhmPrpn');
-            sum += prod.getValue(i, 'amtSumElhmMetg');
-            sum += prod.getValue(i, 'amtSumElhmExcpPrpn');
-            sum += prod.getValue(i, 'amtSumElhmExcpMetg');
-            sum += prod.getValue(i, 'amtEdu');
-            sum += prod.getValue(i, 'amtSumStmnt');
-          }
-          return sum;
-        },
-      },
-    },
-    { fieldName: 'amtSumElhmMetg', header: t('MSG_TXT_ELHM_METG'), styleName: 'text-right', dataType: 'number', width: '157' },
-    { fieldName: 'amtSumElhmExcpPrpn', header: t('MSG_TXT_ELHM_EXCP_PRPN'), styleName: 'text-right', dataType: 'number', width: '157' },
-    { fieldName: 'amtSumElhmExcpMetg', header: t('MSG_TXT_ELHM_EXCP_METG'), styleName: 'text-right', dataType: 'number', width: '157' },
-    { fieldName: 'amtSumSalIntv', header: t('MSG_TXT_SAL_INTV'), styleName: 'text-right', dataType: 'number', width: '157' },
-    { fieldName: 'amtEdu', header: t('MSG_TXT_EDUC'), styleName: 'text-right', dataType: 'number', width: '157' },
-    { fieldName: 'amtSumStmnt', header: t('MSG_TXT_STMNT'), styleName: 'text-right', dataType: 'number', width: '160' },
-    {
-      fieldName: 'amtBsMgmt',
-      header: t('MSG_TXT_BS_MGMT'),
-      styleName: 'text-right',
-      dataType: 'number',
-      width: '151',
-      footer: {
-        expression: 'sum',
-        numberFormat: '#,##0',
-        valueCallback(grid) {
-          let sum = 0;
-          const prod = grid.getDataSource();
-          const cnt = prod.getRowCount();
-          for (let i = 0; i < cnt; i += 1) {
-            sum += prod.getValue(i, 'amtBsMgmt');
-            sum += prod.getValue(i, 'amtRglvl');
-          }
-          return sum;
-        },
-      },
-    },
-    { fieldName: 'amtRglvl', header: t('MSG_TXT_RGLVL'), styleName: 'text-right', dataType: 'number', width: '151' },
+    { fieldName: 'asgnCt', header: t('MSG_TXT_ASGN_CT'), width: '112', styleName: 'text-right', dataType: 'number', editable: false },
+    { fieldName: 'fhsCt', header: t('MSG_TXT_FHS_CT'), width: '112', styleName: 'text-right', dataType: 'number', editable: false },
+    { fieldName: 'procsRt', header: t('MSG_TXT_PROCS_RT'), width: '112', styleName: 'text-right', dataType: 'number', editable: false },
+    { fieldName: 'etFhsCt', header: t('MSG_TXT_ET_FHS_CT'), width: '112', styleName: 'text-right', dataType: 'number', editable: true },
+    { fieldName: 'etProcsRt', header: `${t('MSG_TXT_ET_PROCS_RT')}(%)`, width: '112', styleName: 'text-right', dataType: 'number', editable: false },
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   data.setFields(fields);
   view.setColumns(columns);
   view.checkBar.visible = false;
   view.rowIndicator.visible = false;
-  view.setColumnLayout([
-    'type',
-    {
-      header: t('MSG_TXT_EST_SAL_COMM'),
-      direction: 'horizontal',
-      items: ['amtSumElhmPrpn', 'amtSumElhmMetg', 'amtSumElhmExcpPrpn', 'amtSumElhmExcpMetg', 'amtSumSalIntv', 'amtEdu', 'amtSumStmnt'],
-    },
-    {
-      header: t('MSG_TXT_EST_BS_FEE'),
-      direction: 'horizontal',
-      items: ['amtBsMgmt', 'amtRglvl'],
-    },
-  ]);
-  view.layoutByColumn('amtSumElhmPrpn').footerUserSpans = [{ colspan: 7 }];
-  view.layoutByColumn('amtBsMgmt').footerUserSpans = [{ colspan: 2 }];
-  view.setFooters({ visible: true, items: [{ height: 40 }] });
+  view.editOptions.columnEditableFirst = true;
+  view.sortingOptions.enabled = false;
 });
 
 const initGridSalesHist = defineGrid((data, view) => {
   const columns = [
+    {
+      fieldName: 'prtnrKnm',
+      header: t('MSG_TXT_EMPL_NM'),
+      width: '93',
+      styleName: 'text-center',
+      headerSummary: {
+        styleName: 'text-center',
+        text: t('MSG_TXT_SUM'),
+      },
+    },
+    { fieldName: 'prtnrNo', header: t('MSG_TXT_PRTNR_NO'), width: '93', styleName: 'text-center' },
     { fieldName: 'cntrRcpFshDtm', header: t('MSG_TXT_RCPDT'), width: '112', styleName: 'text-center', datetimeFormat: 'datetime' },
     { fieldName: 'cntrCnfmDtm', header: t('MSG_TXT_SL_DT'), width: '120', styleName: 'text-center', datetimeFormat: 'datetime' },
+    { fieldName: 'cntrCanDtm', header: t('MSG_TXT_CANC_DT'), width: '120', styleName: 'text-center', datetimeFormat: 'datetime' },
     { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '155', styleName: 'text-center' },
-    { fieldName: 'cstKnm', header: t('MSG_TXT_CNTRT'), width: '93', styleName: 'text-left' },
-    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '187', styleName: 'text-left' },
-    { fieldName: 'cntrwTpCd', header: t('MSG_TXT_PRDT_GUBUN'), width: '101', styleName: 'text-left', options: codes.CNTRW_TP_CD },
-    { fieldName: 'cntrTpCd', header: t('MSG_TXT_CONTR_TYPE'), width: '96', styleName: 'text-left', options: codes.CNTR_TP_CD },
-    { fieldName: 'pdAccCnt', header: t('MSG_TXT_PD_ACC_CNT'), width: '91', styleName: 'text-right' },
-    { fieldName: 'bfsvcAckmtCt', header: t('MSG_TXT_BFSVC_ACKMT_CT'), width: '107', styleName: 'text-right' },
-    { fieldName: 'amtElhmRental', header: t('MSG_TXT_ELHM_RENTAL'), width: '108', styleName: 'text-right' },
-    { fieldName: 'amtElhmSpay', header: t('MSG_TXT_ELHM_SPAY'), width: '112', styleName: 'text-right' },
-    { fieldName: 'elhmExcpSpay', header: t('MSG_TXT_ELHM_EXCP_SPAY'), width: '118', styleName: 'text-right' },
-    { fieldName: 'etc', header: t('MSG_TXT_ETC'), width: '111', styleName: 'text-right' },
+    { fieldName: 'pdNm', header: t('MSG_TXT_PD_IZ'), width: '187', styleName: 'text-left' },
+    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '155', styleName: 'text-center' },
+    { fieldName: 'mchnChTpCd', header: t('MSG_TXT_CHDVC_TP'), width: '91', styleName: 'text-right' },
+    {
+      fieldName: 'amtElhmBasePrc',
+      header: t('MSG_TXT_ELHM_BASE_PRC'),
+      width: '112',
+      styleName: 'text-right',
+      dataType: 'number',
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+      },
+    },
+    {
+      fieldName: 'elhmAckmtCt',
+      header: t('MSG_TXT_ELHM_ACKMT_CT'),
+      width: '112',
+      styleName: 'text-right',
+      dataType: 'number',
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+      },
+    },
+    {
+      fieldName: 'elhmExcpAckmtCt',
+      header: t('MSG_TXT_ELHM_EXCP_ACKMT_CT'),
+      width: '112',
+      styleName: 'text-right',
+      dataType: 'number',
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+      },
+    },
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   data.setFields(fields);
   view.setColumns(columns);
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
+  view.setHeaderSummaries({
+    visible: true,
+    items: [
+      { height: 40 },
+    ],
+  });
+  view.layoutByColumn('prtnrKnm').summaryUserSpans = [{ colspan: 9 }];
 });
-
 </script>
+
+<style scoped lang="scss">
+.sum-head {
+  background: antiquewhite;
+}
+</style>
