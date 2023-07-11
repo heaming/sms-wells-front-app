@@ -578,7 +578,7 @@ async function fetchCustomerData() {
       }
     }
   } else {
-    notify(t('MSG_ALT_RGST_CST_NTHNG'));
+    notify(t('MSG_ALT_NO_INFO_SRCH'));
     setCustomerData(null);
   }
 }
