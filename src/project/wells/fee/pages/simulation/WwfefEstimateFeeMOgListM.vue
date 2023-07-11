@@ -380,6 +380,24 @@ const grdBsData = computed(() => grdBsRef.value?.getData());
 const grdOgBsData = computed(() => grdOgBsRef.value?.getData());
 const grdSalesData = computed(() => grdSalesRef.value?.getData());
 
+let cachedParams;
+const searchParams = ref({
+  perfYm: now.format('YYYYMM'),
+  perType: '00',
+  sellPrtnrNo: '',
+});
+const baseInfo = ref({
+  prtnrKnm: '',
+  ogCd: '',
+  rsbDvCd: '',
+  startYm: '',
+  prfmtYm: '',
+  amtEstSalFee: 0,
+  amtEstOgFee: 0,
+  amtEstBsFee: 0,
+  amtFeeSum: 0,
+});
+
 // 예상수수료 @todo 2차
 const estimate = ref({
   estSalCommElhmPrpn: 0,
@@ -405,23 +423,6 @@ const estimate = ref({
   allSum: 0,
 });
 
-let cachedParams;
-const searchParams = ref({
-  perfYm: now.format('YYYYMM'),
-  perType: '00',
-  sellPrtnrNo: '',
-});
-const baseInfo = ref({
-  prtnrKnm: '',
-  ogCd: '',
-  rsbDvCd: '',
-  startYm: '',
-  prfmtYm: '',
-  amtEstSalFee: 0,
-  amtEstOgFee: 0,
-  amtEstBsFee: 0,
-  amtFeeSum: 0,
-});
 // 데이터 조회
 async function fetchData() {
   const { data } = await dataService.get('/sms/wells/fee/estimate/m-og', { params: { ...cachedParams } });
@@ -442,7 +443,10 @@ async function fetchData() {
 
   // @todo 예상수수료 계산로직 정의후 아래항목도 변경되야됨
   estimate.value = data.estimate;
-  estimate.value.allSum = reduce(data.estimate, (acc, n) => acc + n, 0);
+  estimate.value.estSalCommAgg = reduce(data.estimate, (result, value, key) => (key.indexOf('estSalComm') > -1 ? result + value : result), 0);
+  estimate.value.estBsFeeAgg = reduce(data.estimate, (result, value, key) => (key.indexOf('estBsFee') > -1 ? result + value : result), 0);
+  estimate.value.estOgFeeAgg = reduce(data.estimate, (result, value, key) => (key.indexOf('estOgFee') > -1 ? result + value : result), 0);
+  estimate.value.allSum = estimate.value.estSalCommAgg + estimate.value.estBsFeeAgg + estimate.value.estOgFeeAgg;
 }
 // 조회버튼
 async function onClickSearch() {

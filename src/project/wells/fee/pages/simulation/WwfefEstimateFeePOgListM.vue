@@ -367,7 +367,9 @@ async function fetchData() {
 
   // @todo 예상수수료 계산로직 정의후 아래항목도 변경되야됨
   estimate.value = data.estimate;
-  estimate.value.allSum = reduce(data.estimate, (acc, n) => acc + n, 0);
+  estimate.value.prsnlFeeAgg = reduce(data.estimate, (result, value, key) => (key.indexOf('prsnlFee') > -1 ? result + value : result), 0);
+  estimate.value.orgnstnFeeAgg = reduce(data.estimate, (result, value, key) => (key.indexOf('orgnstnFee') > -1 ? result + value : result), 0);
+  estimate.value.allSum = estimate.value.prsnlFeeAgg + estimate.value.orgnstnFeeAgg;
 }
 // 조회버튼
 async function onClickSearch() {
