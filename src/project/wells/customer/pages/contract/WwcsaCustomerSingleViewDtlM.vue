@@ -63,6 +63,7 @@
       </kw-search-row>
     </kw-search>
     <div
+      v-if="!isEmpty(customerInfo?.cstNo)"
       class="normal-area normal-area--two-column"
     >
       <div class="normal-area--first-column">
