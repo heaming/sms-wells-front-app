@@ -244,7 +244,7 @@ const ogTpCd = codes.OG_TP_CD.filter((v) => ['W01', 'W02'].includes(v.codeId));
 const searchParams = ref({
   perfYm: now.format('YYYYMM'), // 실적년월
   dlqDv: 'ALL', // 연체구분
-  dlqMcnt: ['0'], // 연체개월
+  dlqMcnt: [], // 연체개월
   sellTpCd: '', // 판매유형
   sellTpDtlCd: 'ALL', // 판매유형상세
   ogTp: 'ALL', // 조직유형
