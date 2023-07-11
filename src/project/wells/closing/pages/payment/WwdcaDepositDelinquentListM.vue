@@ -344,11 +344,23 @@ const initGrdMain = defineGrid((data, view) => {
       dataType: 'number',
       numberFormat: '#,##0.##',
       groupFooter: {
+        valueCallback(grid, column, groupFooterIndex, group) {
+          const thmNwDpRtSum = (grid.getGroupSummary(group, 'thmNwDpAmt').sum / grid.getGroupSummary(group, 'fnlAmt').sum) * 100;
+          return Number.isNaN(thmNwDpRtSum) ? 0 : thmNwDpRtSum;
+        },
         numberFormat: '#,##0.##',
-        expression: 'sum',
-        styleName: 'text-right',
       },
-      footer: { expression: 'sum', numberFormat: '#,##0.##', styleName: 'text-right' } },
+      footer: { expression: 'sum',
+        numberFormat: '#,##0.##',
+        styleName: 'text-right',
+        valueCallback(grid) {
+          const thmNwDpAmtSum = grid.getSummary('thmNwDpAmt', 'sum');
+          const fnlAmtSum = grid.getSummary('fnlAmt', 'sum');
+
+          const rtSum = (thmNwDpAmtSum / fnlAmtSum) * 100;
+
+          return Number.isNaN(rtSum) ? 0 : rtSum;
+        } } },
     { fieldName: 'nomUcAmt',
       header: t('MSG_TXT_UC_AMT'),
       width: '120',
@@ -504,6 +516,8 @@ const initGrdMain = defineGrid((data, view) => {
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   data.setFields(fields);
   view.setColumns(columns);
+  view.setRowGroup({ expandedAdornments: 'footer', collapsedAdornments: 'footer' });
+  // view.setOptions({ summaryMode: 'aggregate' });
 
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
@@ -532,6 +546,7 @@ const initGrdMain = defineGrid((data, view) => {
     },
     'bilAgg', 'dpAgg', 'dlqRtSum',
   ]);
+
   view.groupBy(['sellTpCd']);
   view.setFooters({ visible: true, items: [{ height: 40 }] });
   view.layoutByColumn('sellTpCd').groupFooterUserSpans = [{ colspan: 3 }];
