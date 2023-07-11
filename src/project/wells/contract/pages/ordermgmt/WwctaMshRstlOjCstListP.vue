@@ -76,12 +76,11 @@
           :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
           @change="fetchPage"
         />
-        <span class="ml8">{{ $t('MSG_TXT_UNIT_WON') }}</span>
       </template>
     </kw-action-top>
     <kw-grid
       ref="grdRef"
-      :visible-rows="10"
+      :visible-rows="5"
       visible="true"
       @init="initGrd"
     />
@@ -89,7 +88,7 @@
       v-model:page-index="pageInfo.pageIndex"
       v-model:page-size="pageInfo.pageSize"
       :total-count="pageInfo.totalCount"
-      @change="onChangePageInfo"
+      @change="fetchPage"
     />
     <template #action>
       <kw-btn
@@ -105,15 +104,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import useGridDataModel from '~sms-common/contract/composable/useGridDataModel';
-import {
-  codeUtil,
-  defineGrid,
-  getComponentType,
-  gridUtil,
-  useDataService,
-  useMeta,
-  useModal,
-} from 'kw-lib';
+import { codeUtil, defineGrid, getComponentType, gridUtil, useDataService, useMeta, useModal } from 'kw-lib';
 
 const props = defineProps({
   cntrTpCd: { type: String, required: true },
@@ -148,6 +139,7 @@ codes.CNTR_TP_CD = [
 // -------------------------------------------------------------------------------------------------
 const grdRef = ref(getComponentType('KwGrid'));
 const grdData = computed(() => grdRef.value?.getData());
+const grdView = computed(() => grdRef.value?.getView());
 
 const pageInfo = ref({
   totalCount: 0,
@@ -179,6 +171,7 @@ async function fetchPage(pageIndex = pageInfo.value.pageIndex, pageSize = pageIn
 
   pageInfo.value = response.data.pageInfo;
   grdData.value.setRows(response.data.list);
+  grdView.value.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
 async function onSearch() {
@@ -198,7 +191,6 @@ onMounted(async () => {
   searchParams.copnDvCd = props.copnDvCd;
 
   console.log(searchParams);
-  onSearch();
 });
 
 const initGrd = defineGrid((data, view) => {
@@ -207,17 +199,17 @@ const initGrd = defineGrid((data, view) => {
     cntrDtlStatCd: { displaying: false },
     copnDvCd: {
       label: t('MSG_TXT_CNTRT_TP') /* 계약자유형' */,
-      width: '104',
+      width: 80,
       options: codes.COPN_DV_CD,
     },
-    cntrCstNo: { label: t('MSG_TXT_CST_NO') /* 고객번호' */, width: '131', classes: 'text-center' },
+    cntrCstNo: { label: t('MSG_TXT_CST_NO') /* 고객번호' */, width: 100, classes: 'text-center' },
     cntrNo: { displaying: false },
     cntrSn: { displaying: false },
     cntrNoSn: {
       label: t('MSG_TXT_CNTR_NO'), /* 계약번호 */
       valueExpression: 'values["cntrNo"] + "-" + values["cntrSn"]',
       classes: 'text-center',
-      width: '131',
+      width: 150,
     },
     cstKnm: { label: t('MSG_TXT_CST_NM') /* 고객명' */, width: '99', classes: 'text-center' },
     sexDvCd: { label: t('MSG_TXT_GENDER') /* 성별' */, width: '67', options: codes.SEX_DV_CD },
@@ -227,7 +219,7 @@ const initGrd = defineGrid((data, view) => {
     cralIdvTno: { displaying: false },
     cntrtTno: {
       label: `${t('MSG_TXT_CNTRT')} ${t('MSG_TXT_MPNO')}` /* 계약자 휴대전화번호' */,
-      width: 131,
+      width: 130,
       valueCallback: (gridBase, rowId, fieldName, fields, values) => {
         const tno1 = values[fields.indexOf('cralLocaraTno')];
         const tno2 = values[fields.indexOf('mexnoEncr')];
@@ -236,11 +228,11 @@ const initGrd = defineGrid((data, view) => {
       },
       classes: 'text-center',
     },
-    pdNm: { label: t('MSG_TXT_PRDT_NM') /* 상품명' */, width: '235', classes: 'text-left' },
+    pdNm: { label: t('MSG_TXT_PRDT_NM') /* 상품명' */, width: 240, classes: 'text-left' },
     stplPtrm: {
       label: t('MSG_TXT_CNTR_PTRM') /* 계약기간' */,
       type: Number,
-      width: '99',
+      width: 80,
       classes: 'text-right',
     },
     dlqYn: { label: t('MSG_TXT_DLQ') /* 연체 */, width: '68', classes: 'text-center' },
@@ -259,5 +251,6 @@ const initGrd = defineGrid((data, view) => {
   };
 });
 
-fetchPage();
+onSearch();
+// fetchPage();
 </script>
