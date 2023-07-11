@@ -3,7 +3,7 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : CTB
-2. 프로그램 ID : WwctbRentalCancelPresentStateMgtM - 렌탈 취소현황
+2. 프로그램 ID : WwctbRentalCancelPresentStateListM - 취소현황 > 렌탈
 3. 작성자 : younuk.choi
 4. 작성일 : 2023.06.28
 ****************************************************************************************************
@@ -196,7 +196,10 @@
     <kw-action-top>
       <template #left>
         <kw-paging-info
-          :total-count="totalCount"
+          v-model:page-size="pageInfo.pageSize"
+          :total-count="pageInfo.totalCount"
+          :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
+          @change:model-value="(v)=>{pageInfo.pageSize=v;}"
         />
         <span class="ml6">{{ t('MSG_TXT_UNIT_COLON_WON') }}</span>
       </template>
@@ -205,7 +208,7 @@
         dense
         secondary
         :label="$t('MSG_TXT_DTL')+' '+$t('MSG_TXT_EXCEL_DOWNLOAD')"
-        :disable="!totalCount"
+        :disable="!pageInfo.totalCount"
         @click="onClickExcelDownload('D')"
       />
       <kw-btn
@@ -213,14 +216,15 @@
         dense
         secondary
         :label="$t('MSG_TXT_AGRG')+' '+$t('MSG_TXT_EXCEL_DOWNLOAD')"
-        :disable="!totalCount"
+        :disable="!pageInfo.totalCount"
         @click="onClickExcelDownload('A')"
       />
     </kw-action-top>
 
     <kw-grid
       ref="grdMainRental"
-      :visible-rows="totalCount>pageSize?pageSize:totalCount"
+      :page-size="pageInfo.pageSize"
+      :total-count="pageInfo.totalCount"
       @init="initGrid"
     />
 
@@ -274,6 +278,7 @@ const searchParams = ref({
 });
 
 const codes = await codeUtil.getMultiCodes(
+  'COD_PAGE_SIZE_OPTIONS',
   'OG_TP_CD',
   'PD_GD_CD',
   'COPN_DV_CD',
@@ -282,8 +287,10 @@ const codes = await codeUtil.getMultiCodes(
   'CMN_STAT_CH_RSON_CD',
 );
 
-const totalCount = ref(0);
-const pageSize = ref(Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')));
+const pageInfo = ref({
+  totalCount: 0,
+  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
+});
 let cachedParams;
 
 // -------------------------------------------------------------------------------------------------
@@ -295,7 +302,7 @@ async function fetchData() {
 
   const res = await dataService.get('/sms/wells/contract/changeorder/rental-cancels', { params: { ...cachedParams } });
 
-  totalCount.value = res.data.length;
+  pageInfo.value.totalCount = res.data.length;
   const view = grdMainRental.value.getView();
   view.getDataSource().setRows(res.data);
 
@@ -359,7 +366,7 @@ const initGrid = defineGrid((data, view) => {
       footer: {
         styleName: 'text-right',
         valueCallback() {
-          return `${t('MSG_TXT_TOT_SUM')}(${totalCount.value})`;
+          return `${t('MSG_TXT_TOT_SUM')}(${pageInfo.value.totalCount})`;
         } },
     },
     { fieldName: 'ogNm', header: t('MSG_TXT_BLG') + t('MSG_TXT_DIV'), width: '160', styleName: 'text-center' }, // [소속구분]

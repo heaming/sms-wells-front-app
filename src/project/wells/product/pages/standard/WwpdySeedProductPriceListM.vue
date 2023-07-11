@@ -233,6 +233,10 @@ async function onClickAdd() {
     apyEnddt: '99991231',
     pdPrcTcnt: null,
     useYn: 'Y',
+    sellAmt: 0,
+    splAmt: 0,
+    vat: 0,
+    asSellAmt: 0,
   });
   pageInfo.value.totalCount += 1;
 }
@@ -291,7 +295,7 @@ async function checkDuplication() {
         && item.rglrSppPrcDvCd === dupCodes[3]
         && item.apyStrtdt === dupCodes[4]
         && item.apyEnddt === dupCodes[5]
-        && item.basePdCd === dupCodes[6]);
+        && ((isEmpty(item.basePdCd) && isEmpty(dupCodes[6])) || item.basePdCd === dupCodes[6]));
     let dupItem = pdctPdNm;
     if (rglrSppMchnKndCd) {
       dupItem += `/${getCodeNames(codes, rglrSppMchnKndCd, 'RGLR_SPP_MCHN_KND_CD')}`;
@@ -414,7 +418,6 @@ const initGrdMain = defineGrid((data, view) => {
       width: '160',
       styleName: 'text-center',
       editable: false,
-      rules: 'required',
     },
     // 상품명
     {
@@ -424,7 +427,6 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-left rg-button-icon--search',
       button: 'action',
       editor: { maxLength: 100 },
-      rules: 'required',
     },
     // 수량
     { fieldName: 'sdingQty',
@@ -432,7 +434,9 @@ const initGrdMain = defineGrid((data, view) => {
       width: '80',
       styleName: 'text-right',
       editor: { type: 'number', editFormat: '#,##0', maxLength: 12, positiveOnly: true },
-      dataType: 'number' },
+      dataType: 'number',
+      rules: 'required',
+    },
     // 가격차수
     { fieldName: 'pdPrcTcnt',
       header: t('MSG_TXT_PRC_SEQ'),

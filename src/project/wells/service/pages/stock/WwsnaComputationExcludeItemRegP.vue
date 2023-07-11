@@ -23,31 +23,31 @@
     >
       <kw-search-row>
         <kw-search-item
-          :label="t('MSG_TXT_MGT_YNM')"
+          :label="$t('MSG_TXT_MGT_YNM')"
           required
         >
           <kw-date-picker
             v-model="searchParams.inqrYm"
             type="month"
-            :label="t('MSG_TXT_MGT_YNM')"
+            :label="$t('MSG_TXT_MGT_YNM')"
             rules="required"
             :disable="isInqrYm"
           />
         </kw-search-item>
         <kw-search-item
-          :label="t('MSG_TXT_ITM_DV')"
+          :label="$t('MSG_TXT_ITM_DV')"
         >
           <kw-select
             v-model="searchParams.itmKndCd"
             :options="filterCodes.itmKndCd"
-            :label="t('MSG_TXT_ITM_DV')"
+            :label="$t('MSG_TXT_ITM_DV')"
             first-option="all"
             @change="onChangeItmKndCd"
           />
           <kw-select
             v-model="searchParams.itmPdCds"
             :options="optionsItmPdCd"
-            :label="t('MSG_TXT_ITM_DV')"
+            :label="$t('MSG_TXT_ITM_DV')"
             option-value="pdCd"
             option-label="pdNm"
             :multiple="true"
@@ -56,18 +56,20 @@
       </kw-search-row>
       <kw-search-row>
         <kw-search-item
-          :label="t('MSG_TXT_SAPCD')"
+          :label="$t('MSG_TXT_SAPCD')"
         >
           <kw-input
             v-model="searchParams.strtSapCd"
-            :label="t('MSG_TXT_STRT_SAP_CD')"
-            rules="numeric"
+            :label="$t('MSG_TXT_STRT_SAP_CD')"
+            rules="numeric|max:18"
+            @change="onChangeStrtSapCd"
           />
           <span>~</span>
           <kw-input
             v-model="searchParams.endSapCd"
-            :label="t('MSG_TXT_END_SAP_CD')"
-            rules="numeric"
+            :label="$t('MSG_TXT_END_SAP_CD')"
+            rules="numeric|max:18"
+            @change="onChangeEndSapCd"
           />
         </kw-search-item>
       </kw-search-row>
@@ -83,7 +85,7 @@
         />
       </template>
       <kw-btn
-        :label="t('MSG_BTN_DEL')"
+        :label="$t('MSG_BTN_DEL')"
         grid-action
         :disable="isSearch"
         @click="onClickDelete"
@@ -94,13 +96,13 @@
         inset
       />
       <kw-btn
-        :label="t('MSG_BTN_ROW_ADD')"
+        :label="$t('MSG_BTN_ROW_ADD')"
         grid-action
         :disable="isSearch"
         @click="onClickAdd"
       />
       <kw-btn
-        :label="t('MSG_BTN_SAVE')"
+        :label="$t('MSG_BTN_SAVE')"
         grid-action
         :disable="isSearch"
         @click="onClickSave"
@@ -247,6 +249,24 @@ function onChangeItmKndCd() {
   }
 
   optionsItmPdCd.value = optionsAllItmPdCd.value.filter((v) => itmKndCd === v.itmKndCd);
+}
+
+function onChangeStrtSapCd() {
+  const { strtSapCd, endSapCd } = searchParams.value;
+
+  if (!isEmpty(strtSapCd) && !isEmpty(endSapCd) && strtSapCd > endSapCd) {
+    searchParams.value.strtSapCd = strtSapCd;
+    searchParams.value.endSapCd = strtSapCd;
+  }
+}
+
+function onChangeEndSapCd() {
+  const { strtSapCd, endSapCd } = searchParams.value;
+
+  if (!isEmpty(strtSapCd) && !isEmpty(endSapCd) && strtSapCd > endSapCd) {
+    searchParams.value.strtSapCd = endSapCd;
+    searchParams.value.endSapCd = endSapCd;
+  }
 }
 
 // 조회

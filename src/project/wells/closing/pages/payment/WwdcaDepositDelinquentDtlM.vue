@@ -43,24 +43,6 @@
                 type="month"
               />
             </kw-search-item>
-            <kw-search-item :label="$t('MSG_TXT_DLQ_DV') + '(' + $t('MSG_TXT_LSTMM') + ')'">
-              <kw-select
-                v-model="searchParams.dlqDv"
-                :options="selectDlqDv.options"
-                first-option="all"
-                first-option-value="ALL"
-              />
-            </kw-search-item>
-            <kw-search-item :label="$t('MSG_TXT_DLQ_MCNT') + '(' + $t('MSG_TXT_LSTMM') + ')'">
-              <kw-select
-                v-model="searchParams.dlqMcnt"
-                :disable="searchParams.dlqDv === 'ALL' || searchParams.dlqDv === '1'"
-                :options="selectDlqMcnt.options"
-                multiple
-              />
-            </kw-search-item>
-          </kw-search-row>
-          <kw-search-row>
             <kw-search-item
               :label="$t('MSG_TXT_SEL_TYPE')"
               required
@@ -69,16 +51,25 @@
                 v-model="searchParams.sellTpCd"
                 :label="$t('MSG_TXT_SEL_TYPE')"
                 :options="codes.SELL_TP_CD"
-                multiple
                 rules="required"
+                first-option="all"
+                @change="onChangeSellTpCd"
               />
-            </kw-search-item>
-            <kw-search-item :label="$t('MSG_TXT_OG_TP')">
               <kw-select
-                v-model="searchParams.ogTp"
+                v-if="searchParams.sellTpCd === '1' || searchParams.sellTpCd === '2'
+                  || searchParams.sellTpCd === '3' || searchParams.sellTpCd === '6'"
+                v-model="searchParams.sellTpDtlCd"
+                :options="codes.SELL_TP_DTL_CD.filter(v => v.userDfn02 === searchParams.sellTpCd)"
                 first-option="all"
                 first-option-value="ALL"
-                :options="ogTpCd"
+              />
+              <kw-select
+                v-else
+                v-model="searchParams.sellTpDtlCd"
+                :readonly="true"
+                :options="codes.SELL_TP_DTL_CD"
+                first-option="all"
+                first-option-value="ALL"
               />
             </kw-search-item>
             <kw-search-item :label="$t('MSG_TXT_INQR_DV')">
@@ -90,6 +81,32 @@
             </kw-search-item>
           </kw-search-row>
           <kw-search-row>
+            <kw-search-item :label="$t('MSG_TXT_DLQ_DV') + '(' + $t('MSG_TXT_LSTMM') + ')'">
+              <kw-select
+                v-model="searchParams.dlqDv"
+                :options="selectDlqDv.options"
+                first-option="all"
+                first-option-value="ALL"
+              />
+            </kw-search-item>
+            <kw-search-item :label="$t('MSG_TXT_DLQ_MCNT') + '(' + $t('MSG_TXT_LSTMM') + ')'">
+              <kw-option-group
+                v-model="searchParams.dlqMcnt"
+                :disable="searchParams.dlqDv === 'ALL' || searchParams.dlqDv === '1'"
+                :options="selectDlqMcnt.options"
+                type="checkbox"
+              />
+            </kw-search-item>
+          </kw-search-row>
+          <kw-search-row>
+            <kw-search-item :label="$t('MSG_TXT_OG_TP')">
+              <kw-select
+                v-model="searchParams.ogTp"
+                first-option="all"
+                first-option-value="ALL"
+                :options="ogTpCd"
+              />
+            </kw-search-item>
             <kw-search-item
               :label="$t('MSG_TXT_OG_LEVL')"
               :colspan="2"
@@ -104,6 +121,8 @@
                 :base-ym="searchParams.perfYm"
               />
             </kw-search-item>
+          </kw-search-row>
+          <kw-search-row>
             <kw-form-item :label="$t('MSG_TXT_SEQUENCE_NUMBER')">
               <kw-input
                 v-model="searchParams.prtnrNo"
@@ -114,8 +133,6 @@
                 @click-icon="onClickSearchPntnrNo"
               />
             </kw-form-item>
-          </kw-search-row>
-          <kw-search-row>
             <kw-search-item :label="$t('MSG_TXT_INDV_CRP_DV')">
               <kw-select
                 v-model="searchParams.copnDvCd"
@@ -130,6 +147,8 @@
                 v-model:cntr-sn="searchParams.cntrSn"
               />
             </kw-search-item>
+          </kw-search-row>
+          <kw-search-row>
             <kw-search-item :label="$t('MSG_TXT_CST_NO')">
               <kw-input
                 v-model="searchParams.cntrCstNo"
@@ -225,8 +244,9 @@ const ogTpCd = codes.OG_TP_CD.filter((v) => ['W01', 'W02'].includes(v.codeId));
 const searchParams = ref({
   perfYm: now.format('YYYYMM'), // 실적년월
   dlqDv: 'ALL', // 연체구분
-  dlqMcnt: ['0'], // 연체개월
-  sellTpCd: [], // 판매유형
+  dlqMcnt: [], // 연체개월
+  sellTpCd: '', // 판매유형
+  sellTpDtlCd: 'ALL', // 판매유형상세
   ogTp: 'ALL', // 조직유형
   inqrDv: '1', // 조회구분
   dgr1LevlOgCd: '',
@@ -311,6 +331,10 @@ async function onClickExportView() {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
   });
+}
+
+function onChangeSellTpCd() {
+  searchParams.value.sellTpDtlCd = 'ALL';
 }
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
@@ -404,11 +428,23 @@ const initGrdMain = defineGrid((data, view) => {
       dataType: 'number',
       numberFormat: '#,##0.##',
       groupFooter: {
+        valueCallback(grid, column, groupFooterIndex, group) {
+          const thmNwDpRtSum = (grid.getGroupSummary(group, 'thmNwDpAmt').sum / grid.getGroupSummary(group, 'thmNwUcAmt').sum) * 100;
+          return Number.isNaN(thmNwDpRtSum) ? 0 : thmNwDpRtSum;
+        },
         numberFormat: '#,##0.##',
-        expression: 'sum',
-        styleName: 'text-right',
       },
-      footer: { expression: 'sum', numberFormat: '#,##0.##', styleName: 'text-right' } },
+      footer: { expression: 'sum',
+        numberFormat: '#,##0.##',
+        styleName: 'text-right',
+        valueCallback(grid) {
+          const thmNwDpAmtSum = grid.getSummary('thmNwDpAmt', 'sum');
+          const thmNwUcAmtSum = grid.getSummary('thmNwUcAmt', 'sum');
+
+          const rtSum = (thmNwDpAmtSum / thmNwUcAmtSum) * 100;
+
+          return Number.isNaN(rtSum) ? 0 : rtSum;
+        } } },
     { fieldName: 'nomUcAmt',
       header: t('MSG_TXT_UC_AMT'),
       width: '110',
@@ -560,6 +596,7 @@ const initGrdMain = defineGrid((data, view) => {
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   data.setFields(fields);
   view.setColumns(columns);
+  view.setRowGroup({ expandedAdornments: 'footer', collapsedAdornments: 'footer' });
   view.checkBar.visible = false; // create checkbox column
   view.rowIndicator.visible = true; // create number indicator column
 

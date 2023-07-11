@@ -49,7 +49,7 @@
         >
           <kw-select
             v-model="searchParams.ostrWare"
-            :options="codes.STR_TP_CD"
+            :options="logistics"
           />
         </kw-search-item>
       </kw-search-row>
@@ -59,18 +59,19 @@
         >
           <kw-select
             v-model="searchParams.itmKnd"
-            :options="codes.ITM_KND"
+            :options="codes.ITM_KND_CD"
+            first-option="all"
           />
         </kw-search-item>
         <kw-search-item
           :label="$t('MSG_TXT_ITM_CD')"
         >
           <kw-input
-            v-model="searchParams.itmCdStart"
+            v-model="searchParams.itmCdSt"
           />
           <span>~</span>
           <kw-input
-            v-model="searchParams.itmCdEnd"
+            v-model="searchParams.itmCdEd"
           />
         </kw-search-item>
         <kw-search-item
@@ -162,6 +163,7 @@ const { currentRoute } = useRouter();
 const dataService = useDataService();
 const baseURI = '/sms/wells/service/qom-asn/individual-warehouse';
 const excelURI = `${baseURI}/excel-download`;
+const logisticURI = '/sms/wells/service/individual-ware-ostrs/logistic';
 const grdMainRef = ref(getComponentType('KwGrid'));
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -178,24 +180,37 @@ let cachedParams;
 const searchParams = ref({
   asnOjYm: '',
   apyYm: '',
-  cnt: '',
+  cnt: '1',
   wareDvCd: '',
   wareDtlDvCd: '',
   ostrWare: '',
   strWare: '',
-  itmCdStart: '',
-  itmCdEnd: '',
+  itmCdSt: '',
+  itmCdEd: '',
   strTpCd: '',
 });
 
 searchParams.value.asnOjYm = dayjs().format('YYYYMM');
-searchParams.value.apyYm = dayjs().format('YYYYMMDD');
+searchParams.value.apyYm = dayjs().format('YYYYMM');
 
 const pageInfo = ref({
   totalCount: 0,
   pageIndex: 1,
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
 });
+
+const logisticParams = ref({
+  apyYm: dayjs().format('YYYYMM'),
+});
+
+const logistics = ref();
+
+async function fetchDefaultData() {
+  const res = await dataService.get(logisticURI, { params: logisticParams.value });
+  logistics.value = res.data;
+  console.log(logistics.value);
+  searchParams.value.ostrWare = logistics.value[0].codeId;
+}
 
 async function fetchData() {
   const res = await dataService.get(baseURI, { params: { ...cachedParams, ...pageInfo.value } });
@@ -223,6 +238,13 @@ async function onClickExcelDownload() {
     exportData: res.data,
   });
 }
+
+onMounted(async () => {
+  await fetchDefaultData();
+  // cachedParams = cloneDeep(searchParams.value);
+  // await fetchData();
+});
+
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------

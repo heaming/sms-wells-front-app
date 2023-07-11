@@ -169,8 +169,8 @@ const frmMainData = ref({
   clnYn: '', // 회수여부
   finalPerfRtTxt: '', // 최종실적율(+단위)
   recapDutyPtrmNTxt: '', // 의무기간 수(+단위)
-  // 사용안함
   rentalNmnN: '', // 렌탈차월
+  // 사용안함
   rerntPsbDt: '', // 재렌탈가능일
   stplDutyStrtDt: '', // 약정의무시작일
   stplDutyEndDt: '', // 약정의무종료일
@@ -194,8 +194,10 @@ const returnData = ref({
   ptyCopnDvCd: '', // 상대법인격구분코드
   workFlag: '', // 기기변경유형
   pdCd: '', // 기변상품코드
-  resultDvCheck: '', // 결과구분CHECK
+  pdNm: '', // 상품명
   clnYn: '', // 회수여부
+  resultDvCheck: '', // 결과구분CHECK
+  rentalNmnN: '', // 렌탈차월
 });
 
 let cachedParams;
@@ -225,6 +227,7 @@ async function fetchData() {
   frmMainData.value.finalPerfRt = res.data.finalPerfRt;
   frmMainData.value.recapDutyPtrmN = res.data.recapDutyPtrmN;
   frmMainData.value.pdNm = res.data.pdNm;
+  frmMainData.value.rentalNmnN = res.data.rentalNmnN;
 
   if (!isNull(res.data.recapDutyPtrmN)) {
     frmMainData.value.recapDutyPtrmNTxt = `${res.data.recapDutyPtrmN}${t('MSG_TXT_MCNT')}`;
@@ -234,7 +237,6 @@ async function fetchData() {
   }
 
   // 사용안함
-  frmMainData.value.rentalNmnN = res.data.rentalNmnN;
   frmMainData.value.rerntPsbDt = res.data.rerntPsbDt;
   frmMainData.value.stplDutyStrtDt = res.data.stplDutyStrtDt;
   frmMainData.value.stplDutyEndDt = res.data.stplDutyEndDt;
@@ -252,21 +254,22 @@ async function onClickSearch() {
 async function onClickConfirm() {
   returnData.value = {};
 
-  returnData.value.cntrNo = frmMainData.value.cntrNo;
-  returnData.value.cntrSn = frmMainData.value.cntrSn;
-  returnData.value.cstKnm = frmMainData.value.cstKnm;
-  returnData.value.sellTpCd = frmMainData.value.sellTpCd;
-  returnData.value.istDt = frmMainData.value.istDt;
-  returnData.value.finalPerfRt = frmMainData.value.finalPerfRt;
-  returnData.value.recapDutyPtrmN = frmMainData.value.recapDutyPtrmN;
-  returnData.value.reqdDt = frmMainData.value.reqdDt;
-  returnData.value.adr = frmMainData.value.adr;
-  returnData.value.ptyCopnDvCd = frmMainData.value.ptyCopnDvCd;
-  returnData.value.workFlag = frmMainData.value.workFlag;
-  returnData.value.pdCd = frmMainData.value.pdCd;
-  returnData.value.resultDvCheck = frmMainData.value.resultDvCheck;
-  returnData.value.clnYn = frmMainData.value.clnYn;
-  returnData.value.pdNm = frmMainData.value.pdNm;
+  returnData.value.cntrNo = frmMainData.value.cntrNo; // [계약번호]
+  returnData.value.cntrSn = frmMainData.value.cntrSn; // [계약일련번호]
+  returnData.value.cstKnm = frmMainData.value.cstKnm; // [계약고객명]
+  returnData.value.sellTpCd = frmMainData.value.sellTpCd; // [판매유형코드]
+  returnData.value.istDt = frmMainData.value.istDt; // [설치일자]
+  returnData.value.finalPerfRt = frmMainData.value.finalPerfRt; // [최종실적율]
+  returnData.value.recapDutyPtrmN = frmMainData.value.recapDutyPtrmN; // [의무기간 수(월)]
+  returnData.value.reqdDt = frmMainData.value.reqdDt; // [취소일자(철거일자)]
+  returnData.value.adr = frmMainData.value.adr; // [주소 (기본주소+상세주소)]
+  returnData.value.ptyCopnDvCd = frmMainData.value.ptyCopnDvCd; // [상대법인격구분코드]
+  returnData.value.workFlag = frmMainData.value.workFlag; // [기기변경유형]
+  returnData.value.pdCd = frmMainData.value.pdCd; // [기변상품코드]
+  returnData.value.pdNm = frmMainData.value.pdNm; // [상품명]
+  returnData.value.clnYn = frmMainData.value.clnYn; // [회수여부]
+  returnData.value.resultDvCheck = frmMainData.value.resultDvCheck; // [결과구분CHECK]
+  returnData.value.rentalNmnN = frmMainData.value.rentalNmnN; // [렌탈차월]
 
   ok(returnData.value);
 }

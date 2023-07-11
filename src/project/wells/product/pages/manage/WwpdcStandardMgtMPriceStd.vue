@@ -58,8 +58,8 @@
   </kw-action-top>
   <kw-grid
     ref="grdMainRef"
-    name="grdMgtPrcStdMain"
     :visible-rows="5"
+    :need-context-menu="false"
     @init="initGrid"
   />
 </template>

@@ -13,105 +13,28 @@
 ****************************************************************************************************
 --->
 <template>
-  <kw-page>
-    <kw-observer ref="obsMainRef">
-      <div class="normal-area normal-area--button-set-bottom">
-        <div class="kw-stepper-headingtext">
-          <h2 class="h2-small">
-            {{ pdBas.pdNm }}({{ pdBas.pdCd }})
-            <p>
-              <span>{{ $t('MSG_TXT_RGST_DT') }} {{ stringUtil.getDateFormat(pdBas.fstRgstDtm) }}
-                /  {{ pdBas.fstRgstUsrNm }}</span>
-              <span>
-                {{ $t('MSG_TXT_L_UPDATED') }} {{ stringUtil.getDateFormat(pdBas.fnlMdfcDtm) }}
-                / {{ pdBas.fnlMdfcUsrNm }}</span>
-            </p>
-          </h2>
-
-          <kw-tab-panels
-            model-value="contents"
-            class="mt20"
-          >
-            <kw-tab-panel name="contents">
-              <kw-tabs v-model="selectedTab">
-                <!-- 기준속성 -->
-                <kw-tab
-                  name="attribute"
-                  :label="$t('MSG_TXT_BAS_ATTR')"
-                />
-                <!-- 연결상품 (Wells 특화) -->
-                <kw-tab
-                  name="relation"
-                  :label="t('MSG_TXT_REL_PRDT')"
-                />
-                <!-- 확장속성 -->
-                <kw-tab
-                  name="attributeExtr"
-                  :label="$t('MSG_TXT_MGT_ATTR')"
-                />
-                <!-- 변경이력 -->
-                <kw-tab
-                  name="hist"
-                  :label="$t('MSG_TXT_REVS_HIST')"
-                />
-              </kw-tabs>
-              <!-- Tab panels Start -->
-              <kw-tab-panels :model-value="selectedTab">
-                <!-- 기준속성 -->
-                <kw-tab-panel name="attribute">
-                  <zwpdc-prop-groups-dtl
-                    v-model:pd-cd="currentPdCd"
-                    v-model:init-data="prevStepData"
-                    :pd-tp-cd="pdConst.PD_TP_CD_MATERIAL"
-                    :pd-grp-dv-cd="pdConst.PD_PRP_GRP_DV_CD_BASIC"
-                    :is-first-title="true"
-                    :pd-tp-dtl-cd="pdTpDtlCd"
-                  />
-                </kw-tab-panel>
-                <!-- 연결상품 (Wells 특화) -->
-                <kw-tab-panel
-                  name="relation"
-                >
-                  <wwpdc-prop-relation-dtl
-                    v-model:pd-cd="currentPdCd"
-                    v-model:init-data="prevStepData"
-                    :pd-tp-cd="pdConst.PD_TP_CD_MATERIAL"
-                  />
-                </kw-tab-panel>
-                <!-- 확장속성 -->
-                <kw-tab-panel name="attributeExtr">
-                  <zwpdc-prop-groups-dtl
-                    v-model:pd-cd="currentPdCd"
-                    v-model:init-data="prevStepData"
-                    :pd-tp-cd="pdConst.PD_TP_CD_MATERIAL"
-                    :pd-grp-dv-cd="pdConst.PD_PRP_GRP_DV_CD_MANUAL"
-                    :is-first-title="true"
-                  />
-                </kw-tab-panel>
-                <!-- 변경이력 -->
-                <kw-tab-panel name="hist">
-                  <zwpdc-prod-change-hist
-                    v-model:pd-cd="currentPdCd"
-                    :pd-tp-cd="pdConst.PD_TP_CD_MATERIAL"
-                  />
-                </kw-tab-panel>
-              </kw-tab-panels>
-            </kw-tab-panel>
-          </kw-tab-panels>
-          <div class="button-set--bottom">
-            <div class="button-set--bottom-right">
-              <kw-btn
-                v-if="isCompleteLoad"
-                :label="$t('MSG_BTN_MOD')"
-                class="ml8"
-
-                @click="onClickModify"
-              />
-            </div>
-          </div>
-        </div>
+  <kw-page ignore-on-modified>
+    <div class="normal-area normal-area--button-set-bottom">
+      <div class="kw-stepper-headingtext">
+        <h2 class="h2-small">
+          {{ pdBas.pdNm }}({{ pdBas.pdCd }})
+          <p>
+            <!-- 등록일 -->
+            <span>{{ $t('MSG_TXT_RGST_DT') }} {{ stringUtil.getDateFormat(pdBas.fstRgstDtm) }}
+              /  {{ pdBas.fstRgstUsrNm }}</span>
+            <!-- 최종수정일  -->
+            <span>
+              {{ $t('MSG_TXT_L_UPDATED') }} {{ stringUtil.getDateFormat(pdBas.fnlMdfcDtm) }}
+              / {{ pdBas.fnlMdfcUsrNm }}</span>
+          </p>
+        </h2>
       </div>
-    </kw-observer>
+      <wwpdc-material-dtl-m-contents
+        ref="cmpRef"
+        v-model:pd-cd="currentPdCd"
+        v-model:init-data="prevStepData"
+      />
+    </div>
   </kw-page>
 </template>
 <script setup>
@@ -119,12 +42,9 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { useDataService, stringUtil } from 'kw-lib';
-import { isEmpty } from 'lodash-es';
+import { cloneDeep } from 'lodash-es';
 import pdConst from '~sms-common/product/constants/pdConst';
-import ZwpdcPropGroupsDtl from '~sms-common/product/pages/manage/components/ZwpdcPropGroupsDtl.vue';
-import ZwpdcProdChangeHist from '~sms-common/product/pages/manage/components/ZwpdcProdChangeHist.vue';
-import { pageMove } from '~sms-common/product/utils/pdUtil';
-import WwpdcPropRelationDtl from './WwpdcPropRelationDtlM.vue';
+import WwpdcMaterialDtlMContents from './WwpdcMaterialDtlMContents.vue';
 
 const props = defineProps({
   pdCd: { type: String, default: null },
@@ -132,64 +52,47 @@ const props = defineProps({
   reloadYn: { type: String, default: null },
 });
 
-const { t } = useI18n();
-const route = useRoute();
-const router = useRouter();
 const dataService = useDataService();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 const baseUrl = '/sms/wells/product/materials';
 
-const pdTpDtlCd = ref(pdConst.PD_TP_DTL_CD_MATERIAL);
-const selectedTab = ref('attribute');
-
+const cmpRef = ref();
 const pdBas = ref({});
 const prevStepData = ref({});
 const currentPdCd = ref();
-const obsMainRef = ref();
-const isCompleteLoad = ref(false);
 
-async function onClickModify() {
-  const { pdCd, tempSaveYn } = props;
-  const query = { pdCd, tempSaveYn, isSearch: true, fromUi: 'Dtl' };
-  const stateParam = { newRegYn: 'N', reloadYn: 'Y', copyPdCd: '' };
-  await pageMove(pdConst.MATERIAL_MNGT_PAGE_W, true, router, query, stateParam);
-}
-
-async function fetchData(forcePdCd) {
-  const { pdCd } = props;
-  currentPdCd.value = isEmpty(forcePdCd) ? pdCd : forcePdCd;
-  const res = await dataService.get(`${baseUrl}/${currentPdCd.value}`);
-
-  pdBas.value = res.data[pdConst.TBL_PD_BAS];
-  prevStepData.value[pdConst.TBL_PD_BAS] = res.data[pdConst.TBL_PD_BAS];
-  prevStepData.value[pdConst.TBL_PD_DTL] = res.data[pdConst.TBL_PD_DTL];
-  prevStepData.value[pdConst.TBL_PD_ECOM_PRP_DTL] = res.data[pdConst.TBL_PD_ECOM_PRP_DTL];
-  prevStepData.value[pdConst.TBL_PD_REL] = res.data[pdConst.TBL_PD_REL];
-  isCompleteLoad.value = true;
+async function fetchProduct() {
+  if (currentPdCd.value) {
+    const res = await dataService.get(`${baseUrl}/${currentPdCd.value}`);
+    pdBas.value = res.data[pdConst.TBL_PD_BAS];
+    prevStepData.value = cloneDeep(res.data);
+  }
 }
 
 async function initProps() {
   const { pdCd } = props;
   currentPdCd.value = pdCd;
-  if (isEmpty(currentPdCd.value)) {
-    await router.close();
-  } else {
-    await fetchData();
-  }
+  await fetchProduct();
 }
-
-watch(() => route.query, async (query) => {
-  if (currentPdCd.value && currentPdCd.value !== query.pdCd) {
-    currentPdCd.value = query.pdCd;
-    await fetchData(query.pdCd);
-  }
-}, { immediate: true });
 
 onMounted(async () => {
   await initProps();
 });
+
+watch(() => props, async ({ pdCd, reloadYn }) => {
+  console.log(` WwpdcServiceDtlM - watch - pdCd: ${pdCd} reloadYn: ${reloadYn}`);
+  if (pdCd && currentPdCd.value !== pdCd) {
+    currentPdCd.value = pdCd;
+    await cmpRef.value?.resetData();
+    await fetchProduct();
+  } else if (reloadYn && reloadYn === 'Y') {
+    // Reload
+    await cmpRef.value?.resetData();
+    await fetchProduct();
+  }
+}, { deep: true });
 
 </script>
 <style scoped></style>

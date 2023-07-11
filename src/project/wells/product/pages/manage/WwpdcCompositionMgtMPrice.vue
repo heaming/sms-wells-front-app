@@ -84,7 +84,7 @@
   <!-- 가격 -->
   <kw-grid
     ref="grdMainRef"
-    name="grdMgtPrcMain"
+    :need-context-menu="false"
     @init="initGrid"
   />
 </template>
@@ -368,6 +368,8 @@ async function initGridRows() {
     });
     // console.log('WwpdcCompositionMgtMPrice - initGridRows - rows : ', rows);
     await setPdGridRows(view, rows, pdConst.PRC_FNL_ROW_ID, defaultFields.value, true);
+  } else {
+    view.getDataSource().clearRows();
   }
   gridRowCount.value = getGridRowCount(view);
 }

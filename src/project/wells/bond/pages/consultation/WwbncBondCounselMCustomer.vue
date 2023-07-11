@@ -27,7 +27,8 @@
         <kw-input
           v-model="searchParams.schClctamNo"
           :label="$t('MSG_TXT_CLCTAM_ICHR_EMPNO')"
-          :regex="/^[0-9]*$/i"
+          regex="num"
+          :maxlength="10"
           rules="required"
         />
       </kw-search-item>
@@ -38,7 +39,8 @@
           v-model="searchParams.schCstNo"
           icon="search"
           clearable
-          :regex="/^[0-9]*$/i"
+          :maxlength="10"
+          regex="num"
           @click-icon="onClickSelectCustomer"
           @change="onChangeCstNo"
         />
@@ -60,6 +62,7 @@
         <kw-input
           v-model="searchParams.schCstNm"
           icon="search"
+          :maxlength="30"
           clearable
           @click-icon="onClickSelectCustomer"
           @change="onChangeCstNo"
@@ -73,6 +76,7 @@
         <kw-input
           v-model="searchParams.schClctamPsic"
           icon="search"
+          :maxlength="30"
           clearable
           @click-icon="onClickClctamPsic"
         />
@@ -83,6 +87,8 @@
         <kw-input
           v-model="searchParams.schSfK"
           icon="search"
+          regex="num"
+          :maxlength="13"
           @click-icon="onClickSelectCustomer"
         />
       </kw-search-item>
@@ -311,11 +317,14 @@ async function fetchCustomers() {
 
 /** 고객리스트 엑셀다운로드 */
 async function onClickExcelDownload() {
+  const res = await dataService.get('/sms/wells/bond/bond-counsel/customers', { params: cachedParams });
   const view = grdMainRef.value.getView();
+
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
-
+    checkBar: 'hidden',
+    exportData: res.data,
   });
 }
 

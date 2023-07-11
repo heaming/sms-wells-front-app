@@ -23,6 +23,7 @@
           <kw-form-item :label="$t('관리년월')">
             <kw-date-picker
               v-model="searchParams.mngtYm"
+              :min-date="minDate"
               type="month"
             />
           </kw-form-item>
@@ -73,6 +74,7 @@ const { confirm, notify } = useGlobal();
 const { t } = useI18n();
 
 const dataService = useDataService();
+const minDate = dayjs().format('YYYY-MM-DD');
 
 /*
  *  Search Parameter
@@ -112,11 +114,7 @@ async function onClickCreate() {
  *  Event - 삭제 버튼 클릭
  */
 async function onClickDelete() {
-  if (true) {
-    await alert('배치 개발 중입니다.');
-    return;
-  }
-  if (!await confirm(t('MSG_ALT_DEL'))) { return; }
+  if (!await confirm(t('MSG_ALT_WANT_DEL'))) { return; }
   await dataService.delete('/sms/wells/service/month-management', { data: searchParams.value });
   await notify(t('MSG_ALT_DELETED'));
 }

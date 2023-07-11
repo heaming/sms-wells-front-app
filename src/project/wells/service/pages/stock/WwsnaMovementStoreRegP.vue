@@ -171,7 +171,7 @@ import dayjs from 'dayjs';
 import { cloneDeep } from 'lodash-es';
 
 const { getConfig } = useMeta();
-const { alert, confirm, notify, modal } = useGlobal();
+const { confirm, notify, modal } = useGlobal();
 const { t } = useI18n();
 const { ok } = useModal();
 
@@ -484,8 +484,14 @@ async function onClickRemove() {
 }
 
 // TODO: W-SV-U-0169P02 - 네임텍 출력 개발 진행 후 반영 예정
-function onClickNameTagPrint() {
-  alert('페이지가 존재하지 않습니다.(개발중)');
+async function onClickNameTagPrint() {
+  const { result: isChanged } = await modal({
+    component: 'WwsnaNameTagPrintSortMgtP',
+  });
+
+  if (isChanged) {
+    await fetchData();
+  }
 }
 
 const popupRef = ref();

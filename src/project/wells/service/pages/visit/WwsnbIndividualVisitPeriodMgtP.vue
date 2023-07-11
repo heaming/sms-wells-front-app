@@ -367,7 +367,9 @@ async function getCustomerVisitPeriod() {
   view2.getDataSource().setRows(periodRes.data);
   view2.resetCurrent();
 }
-getCustomerVisitPeriod();
+onMounted(async () => {
+  await getCustomerVisitPeriod();
+});
 
 /*
  *  Event - B/S 배정 버튼 클릭

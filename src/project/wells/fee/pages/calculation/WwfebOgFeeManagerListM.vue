@@ -662,9 +662,7 @@ async function onClickW221P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
  *         done[Boolean]: 이전단계로 되돌림 플레그
  */
 async function onclickStep(params) {
-  if (totalCount.value === 0) {
-    alert(t('MSG_ALT_USE_DT_SRCH_AF'));
-  } else if (params.done) {
+  if (params.done) {
     await onClickRetry(params.feeSchdId, params.code, '02');
   } else if (params.code === 'W0201') { // 미팅참석 집계
     await onClickW201P(params.feeSchdId, params.code, '03');

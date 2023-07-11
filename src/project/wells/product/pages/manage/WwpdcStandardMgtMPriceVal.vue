@@ -80,8 +80,8 @@
   </kw-action-top>
   <kw-grid
     ref="grdMainRef"
-    name="grdMgtPrcValMain"
     :visible-rows="5"
+    :need-context-menu="false"
     @init="initGrid"
   />
 </template>
@@ -338,6 +338,9 @@ async function fetchSelVarData() {
   const res = await dataService.get('/sms/common/product/type-variables', { params: { sellTpCd, choFxnDvCd: pdConst.CHO_FXN_DV_CD_CHOICE } });
   // console.log('selectionVariables.value : ', selectionVariables.value);
   selectionVariables.value = res.data;
+  if (selectionVariables.value && selectionVariables.value.length) {
+    selectionVariables.value.forEach((item) => { item.codeName = t(item.codeName); });
+  }
 }
 
 async function resetVisibleChannelColumns() {

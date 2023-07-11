@@ -515,7 +515,7 @@ const adrs = ref([]);
 const adrsVal = ref('');
 const obsAdrRef = ref();
 const dtlSn = ref(1);
-const showAllAdrs = false;
+const showAllAdrs = ref(false);
 const isPsbBlkApy = ref(true);
 // -------------------------------------------------------------------------------------------------
 // Function & Event

@@ -17,60 +17,62 @@
     <kw-search @search="onClickSearch">
       <kw-search-row>
         <kw-search-item
-          :label="t('MSG_TXT_MGT_YNM')"
+          :label="$t('MSG_TXT_MGT_YNM')"
           required
         >
           <kw-date-picker
             v-model="searchParams.inqrYm"
             type="month"
-            :label="t('MSG_TXT_MGT_YNM')"
+            :label="$t('MSG_TXT_MGT_YNM')"
             rules="required"
           />
         </kw-search-item>
         <kw-search-item
-          :label="t('MSG_TXT_ITM_DV')"
+          :label="$t('MSG_TXT_ITM_DV')"
         >
           <kw-select
             v-model="searchParams.itmKndCd"
             :options="filterCodes.itmKndCd"
-            :label="t('MSG_TXT_ITM_DV')"
+            :label="$t('MSG_TXT_ITM_DV')"
             first-option="all"
             @change="onChangeItmKndCd"
           />
           <kw-select
             v-model="searchParams.itmPdCds"
             :options="optionsItmPdCd"
-            :label="t('MSG_TXT_ITM_NM')"
+            :label="$t('MSG_TXT_ITM_NM')"
             option-value="pdCd"
             option-label="pdNm"
             :multiple="true"
           />
         </kw-search-item>
         <kw-search-item
-          :label="t('MSG_TXT_ITM_CD')"
+          :label="$t('MSG_TXT_ITM_CD')"
         >
           <kw-input
             v-model="searchParams.itmPdCd"
             type="text"
             :label="$t('MSG_TXT_ITM_CD')"
-            rules="alpha_num"
+            rules="alpha_num|max:10"
           />
         </kw-search-item>
       </kw-search-row>
       <kw-search-row>
         <kw-search-item
-          :label="t('MSG_TXT_SAPCD')"
+          :label="$t('MSG_TXT_SAPCD')"
         >
           <kw-input
             v-model="searchParams.strtSapCd"
-            :label="t('MSG_TXT_STRT_SAP_CD')"
-            rules="numeric"
+            :label="$t('MSG_TXT_STRT_SAP_CD')"
+            rules="numeric|max:18"
+            @change="onChangeStrtSapCd"
           />
           <span>~</span>
           <kw-input
             v-model="searchParams.endSapCd"
-            :label="t('MSG_TXT_END_SAP_CD')"
-            rules="numeric"
+            :label="$t('MSG_TXT_END_SAP_CD')"
+            rules="numeric|max:18"
+            @change="onChangeEndSapCd"
           />
         </kw-search-item>
       </kw-search-row>
@@ -83,8 +85,9 @@
             v-model:page-size="pageInfo.pageSize"
             :total-count="pageInfo.totalCount"
             :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
+            @change="fetchData"
           />
-          <span class="ml8">({{ t('MSG_TXT_UNIT') }} : EA)</span>
+          <span class="ml8">({{ $t('MSG_TXT_UNIT') }} : EA)</span>
         </template>
         <kw-btn
           :label="$t('MSG_TXT_EXCEL_DOWNLOAD')"
@@ -201,6 +204,24 @@ function onChangeItmKndCd() {
   optionsItmPdCd.value = optionsAllItmPdCd.value.filter((v) => itmKndCd === v.itmKndCd);
 }
 
+function onChangeStrtSapCd() {
+  const { strtSapCd, endSapCd } = searchParams.value;
+
+  if (!isEmpty(strtSapCd) && !isEmpty(endSapCd) && strtSapCd > endSapCd) {
+    searchParams.value.strtSapCd = strtSapCd;
+    searchParams.value.endSapCd = strtSapCd;
+  }
+}
+
+function onChangeEndSapCd() {
+  const { strtSapCd, endSapCd } = searchParams.value;
+
+  if (!isEmpty(strtSapCd) && !isEmpty(endSapCd) && strtSapCd > endSapCd) {
+    searchParams.value.strtSapCd = endSapCd;
+    searchParams.value.endSapCd = endSapCd;
+  }
+}
+
 let gridView;
 let gridData;
 let fieldsObj;
@@ -230,6 +251,7 @@ function setTmpFields() {
     };
 
     if (idx > 3) {
+      field.header = `${field.header} ${t('MSG_TXT_ET_NED_QT')}`;
       tmpFields2.push(field);
       return;
     }

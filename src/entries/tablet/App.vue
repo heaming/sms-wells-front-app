@@ -1,8 +1,9 @@
 <template>
   <tablet-layout>
     <template #default>
-      <tablet-left-drawer />
-      <tablet-stack-view />
+      <tablet-left-drawer v-if="!isPopup" />
+      <tablet-stack-view v-if="!isPopup" />
+      <web-router-view v-if="isPopup" />
     </template>
     <template #unauthenticated>
       <tablet-fallback-login
@@ -16,8 +17,14 @@
 <script setup>
 import {
   useSession,
-  TabletLayout, TabletLeftDrawer, TabletStackView, TabletFallbackLogin,
+  TabletLayout, TabletLeftDrawer, TabletStackView, TabletFallbackLogin, WebRouterView,
 } from 'kw-lib';
+
+const route = useRouter();
+const isPopup = computed(() => {
+  if (route.currentRoute.meta?.menuUid) return false;
+  return true;
+});
 
 const {
   isReady,

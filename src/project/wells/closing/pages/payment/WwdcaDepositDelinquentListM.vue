@@ -56,6 +56,7 @@
             :label="$t('MSG_TXT_SEL_CHNL')"
             :disable="false"
             :options="codes.SELL_CHNL_DTL_CD"
+            first-option="all"
             multiple
             rules="required"
           />
@@ -81,63 +82,24 @@
           <kw-select
             v-model="searchParams.sellTpCd"
             :options="codes.SELL_TP_CD"
+            rules="required"
             first-option="all"
-            first-option-value="ALL"
+            @change="onChangeSellTpCd"
           />
 
           <kw-select
-            v-if="searchParams.sellTpCd === '1'"
+            v-if="searchParams.sellTpCd === '1' || searchParams.sellTpCd === '2'
+              || searchParams.sellTpCd === '3' || searchParams.sellTpCd === '6'"
             v-model="searchParams.sellTpDtlCd"
-            :options="codes.SELL_TP_DTL_CD.filter(v => v.userDfn02 === '1')"
+            :options="codes.SELL_TP_DTL_CD.filter(v => v.userDfn02 === searchParams.sellTpCd)"
             first-option="all"
             first-option-value="ALL"
           />
           <kw-select
-            v-else-if="searchParams.sellTpCd === '2'"
+            v-else
             v-model="searchParams.sellTpDtlCd"
-            :options="codes.SELL_TP_DTL_CD.filter(v => v.userDfn02 === '2')"
-            first-option="all"
-            first-option-value="ALL"
-          />
-          <kw-select
-            v-else-if="searchParams.sellTpCd === '3'"
-            v-model="searchParams.sellTpDtlCd"
-            :options="codes.SELL_TP_DTL_CD.filter(v => v.userDfn02 === '3')"
-            first-option="all"
-            first-option-value="ALL"
-          />
-          <kw-select
-            v-else-if="searchParams.sellTpCd === '4'"
-            v-model="searchParams.sellTpDtlCd"
-            :options="codes.SELL_TP_DTL_CD.filter(v => v.codeId === 'ALL')"
-            first-option="all"
-            first-option-value="ALL"
-          />
-          <kw-select
-            v-else-if="searchParams.sellTpCd === '5'"
-            v-model="searchParams.sellTpDtlCd"
-            :options="codes.SELL_TP_DTL_CD.filter(v => v.codeId === 'ALL')"
-            first-option="all"
-            first-option-value="ALL"
-          />
-          <kw-select
-            v-else-if="searchParams.sellTpCd === '9'"
-            v-model="searchParams.sellTpDtlCd"
-            :options="codes.SELL_TP_DTL_CD.filter(v => v.codeId === 'ALL')"
-            first-option="all"
-            first-option-value="ALL"
-          />
-          <kw-select
-            v-else-if="searchParams.sellTpCd === '6'"
-            v-model="searchParams.sellTpDtlCd"
-            :options="codes.SELL_TP_DTL_CD.filter(v => v.userDfn02 === '6')"
-            first-option="all"
-            first-option-value="ALL"
-          />
-          <kw-select
-            v-else-if="searchParams.sellTpCd === 'ALL'"
-            v-model="searchParams.sellTpDtlCd"
-            :options="codes.SELL_TP_DTL_CD.filter(v => v.codeId === 'ALL')"
+            :readonly="true"
+            :options="codes.SELL_TP_DTL_CD"
             first-option="all"
             first-option-value="ALL"
           />
@@ -211,7 +173,7 @@ const searchParams = ref({
   perfYm: now.format('YYYYMM'), // 실적년월
   copnDvCd: 'ALL', // 개인/법인구분
   inqrDv: '1', // 조회구분
-  sellChnl: [], // 판매채널
+  sellChnl: [''], // 판매채널
   sellTpCd: 'ALL', // 판매유형
   sellTpDtlCd: 'ALL', // 판매유형상세
   cntrNo: '', // 계약번호
@@ -257,6 +219,10 @@ async function onClickExportView() {
     timePostfix: true,
     exportData: gridUtil.getAllRowValues(view),
   });
+}
+
+function onChangeSellTpCd() {
+  searchParams.value.sellTpDtlCd = 'ALL';
 }
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
@@ -344,11 +310,23 @@ const initGrdMain = defineGrid((data, view) => {
       dataType: 'number',
       numberFormat: '#,##0.##',
       groupFooter: {
+        valueCallback(grid, column, groupFooterIndex, group) {
+          const thmNwDpRtSum = (grid.getGroupSummary(group, 'thmNwDpAmt').sum / grid.getGroupSummary(group, 'fnlAmt').sum) * 100;
+          return Number.isNaN(thmNwDpRtSum) ? 0 : thmNwDpRtSum;
+        },
         numberFormat: '#,##0.##',
-        expression: 'sum',
-        styleName: 'text-right',
       },
-      footer: { expression: 'sum', numberFormat: '#,##0.##', styleName: 'text-right' } },
+      footer: { expression: 'sum',
+        numberFormat: '#,##0.##',
+        styleName: 'text-right',
+        valueCallback(grid) {
+          const thmNwDpAmtSum = grid.getSummary('thmNwDpAmt', 'sum');
+          const fnlAmtSum = grid.getSummary('fnlAmt', 'sum');
+
+          const rtSum = (thmNwDpAmtSum / fnlAmtSum) * 100;
+
+          return Number.isNaN(rtSum) ? 0 : rtSum;
+        } } },
     { fieldName: 'nomUcAmt',
       header: t('MSG_TXT_UC_AMT'),
       width: '120',
@@ -504,6 +482,8 @@ const initGrdMain = defineGrid((data, view) => {
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   data.setFields(fields);
   view.setColumns(columns);
+  view.setRowGroup({ expandedAdornments: 'footer', collapsedAdornments: 'footer' });
+  // view.setOptions({ summaryMode: 'aggregate' });
 
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
@@ -532,6 +512,7 @@ const initGrdMain = defineGrid((data, view) => {
     },
     'bilAgg', 'dpAgg', 'dlqRtSum',
   ]);
+
   view.groupBy(['sellTpCd']);
   view.setFooters({ visible: true, items: [{ height: 40 }] });
   view.layoutByColumn('sellTpCd').groupFooterUserSpans = [{ colspan: 3 }];

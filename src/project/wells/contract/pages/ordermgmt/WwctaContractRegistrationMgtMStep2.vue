@@ -162,7 +162,7 @@
               >
                 <div class="scoped-item__main">
                   <kw-select
-                    v-if="isItem.rgSusc(item)"
+                    v-if="isItem.rglrSpp(item)"
                     v-model="item.pkg"
                     class="w350"
                     :options="item.pkgs"
@@ -172,7 +172,7 @@
                     v-else
                     class="scoped-item__product-name"
                   >
-                    {{ item.pdNm }} {{ item.pdCd }}
+                    {{ item.pdNm }}
                   </kw-item-label>
                   <div class="scoped-item__chips">
                     <kw-chip
@@ -197,7 +197,7 @@
                 <div class="row justify-end w170 px10">
                   <kw-btn
                     v-if="isItem.rntl(item)"
-                    :disable="item.oneplusoneYn"
+                    :disable="item.opo?.opoYn"
                     label="기기변경"
                     class="mr8"
                     dense
@@ -205,21 +205,21 @@
                   />
                   <kw-btn
                     v-if="isItem.rntl(item)"
-                    :disable="item.deviceChangeYn"
+                    :disable="item.mchnCh?.mchnChYn"
                     label="1+1"
                     class="mr10"
                     dense
                     @click="onClickOnePlusOne(item)"
                   />
                   <kw-btn
-                    v-if="isItem.sltrRgSusc(item)"
-                    label="모종기기선택"
+                    v-if="isItem.sltrRglrSpp(item)"
+                    label="기기선택"
                     class="mr10"
                     dense
                     @click="onClickSelSdingMchn(item)"
                   />
                   <kw-btn
-                    v-if="isItem.rgSusc(item)"
+                    v-if="isItem.rglrSpp(item)"
                     :disable="item.pdctUprcUseYn !== 'Y'"
                     :label="(item.sellTpDtlCd == '62' ? '모종' : '캡슐') + '선택'"
                     class="mr10"
@@ -389,122 +389,173 @@
                   </template>
 
                   <template
-                    v-if="item.oneplusoneYn"
+                    v-if="item.opo?.opoYn"
                   >
-                    <div
-                      class="scoped-item-right-area"
-                    >
-                      <kw-separator class="dashed-line my20" />
-                      <div class="row items-center justify-between">
-                        <div
-                          class="row"
-                          style="width: calc(100% - 45px);"
+                    <div class="row items-center justify-between mt10">
+                      <div
+                        class="row"
+                        style="width: calc(100% - 45px);"
+                      >
+                        <kw-chip
+                          label="1+1"
+                          color="primary"
+                          outline
+                          class="ma2"
+                        />
+                        <ul
+                          class="scoped-item-price-list kw-grow"
+                          style="max-width: calc(100% - 45px);"
                         >
-                          <kw-chip
-                            label="1+1"
-                            color="primary"
-                            outline
-                            class="ma2"
-                          />
-                          <ul
-                            class="scoped-item-price-list kw-grow"
-                            style="max-width: calc(100% - 45px);"
+                          <li
+                            class="scoped-item-price-item kw-grow"
+                            style="max-width: calc(100% - 215px);"
                           >
-                            <li
-                              class="scoped-item-price-item kw-grow"
-                              style="max-width: calc(100% - 255px);"
-                            >
-                              <span
-                                class="kw-fc--black1 ml8 "
-                                style="overflow: hidden;
+                            <span
+                              class="kw-fc--black1 ml8 "
+                              style="overflow: hidden;
                                       text-overflow: ellipsis;
                                       white-space: nowrap;"
-                              >{{ item.oneplusonePdNm }}</span>
-                            </li>
-
-                            <li class="scoped-item-price-item">
-                              <p class="kw-font-pt14 kw-fc--black3">
-                                계약번호
-
-                                <span class="kw-fc--black1 ml8">
-                                  {{ item.oneplusoneCntrNo }}-{{ item.oneplusoneCntrSn }}</span>
-                              </p>
-                            </li>
-                          </ul>
-
-                          <kw-btn
-                            borderless
-                            icon="close_24"
-                            style="font-size: 24px;"
-                            class="w24"
-                            @click="onClickDeleteOneplusone(item)"
-                          />
-                        </div>
+                            >{{ item.opo?.pdNm }}
+                              <kw-tooltip show-when-ellipsised>
+                                {{ item.opo?.pdNm }}
+                              </kw-tooltip>
+                            </span>
+                          </li>
+                          <li class="scoped-item-price-item">
+                            <p class="kw-font-pt14 kw-fc--black3">
+                              계약번호
+                            </p>
+                            <span class="kw-fc--black1 ml8">
+                              {{ item.opo?.ojCntrNo }}-{{ item.opo?.ojCntrSn }}</span>
+                          </li>
+                        </ul>
                       </div>
+                      <kw-btn
+                        borderless
+                        icon="close_24"
+                        style="font-size: 24px;"
+                        class="w24"
+                        @click="onClickDeleteOneplusone(item)"
+                      />
                     </div>
                   </template>
 
                   <template
-                    v-if="item.deviceChangeYn"
+                    v-if="item.mchnCh?.mchnChYn"
                   >
-                    <div
-                      class="scoped-item-right-area"
-                    >
-                      <kw-separator class="dashed-line my20" />
-                      <div class="row items-center justify-between">
-                        <div
-                          class="row"
-                          style="width: calc(100% - 45px);"
+                    <div class="row items-center justify-between mt10">
+                      <div
+                        class="row"
+                        style="width: calc(100% - 45px);"
+                      >
+                        <kw-chip
+                          label="변경"
+                          color="primary"
+                          outline
+                          class="ma2"
+                        />
+                        <ul
+                          class="scoped-item-price-list kw-grow"
+                          style="max-width: calc(100% - 45px);"
                         >
-                          <kw-chip
-                            label="기기변경"
-                            color="primary"
-                            outline
-                            class="ma2"
-                          />
-                          <ul
-                            class="scoped-item-price-list kw-grow"
-                            style="max-width: calc(100% - 45px);"
+                          <li
+                            class="scoped-item-price-item kw-grow"
+                            style="max-width: calc(100% - 215px);"
                           >
-                            <li
-                              class="scoped-item-price-item kw-grow"
-                              style="max-width: calc(100% - 255px);"
-                            >
-                              <span
-                                class="kw-fc--black1 ml8 "
-                                style="overflow: hidden;
+                            <span
+                              class="kw-fc--black1 ml8 "
+                              style="overflow: hidden;
                                       text-overflow: ellipsis;
                                       white-space: nowrap;"
-                              >{{ item.deviceChangePdNm }}</span>
-                            </li>
-
-                            <li class="scoped-item-price-item">
-                              <p class="kw-font-pt14 kw-fc--black3">
-                                계약번호
-
-                                <span class="kw-fc--black1 ml8">
-                                  {{ item.deviceChangeCntrNo }}-{{ item.deviceChangeCntrSn }}</span>
-                              </p>
-                            </li>
-                          </ul>
-
-                          <kw-btn
-                            borderless
-                            icon="close_24"
-                            style="font-size: 24px;"
-                            class="w24"
-                            @click="onClickDeleteDeviceChange(item)"
-                          />
-                        </div>
+                            >
+                              {{ item.mchnCh?.pdNm }}
+                              <kw-tooltip show-when-ellipsised>
+                                {{ item.mchnCh?.pdNm }}
+                              </kw-tooltip>
+                            </span>
+                          </li>
+                          <li class="scoped-item-price-item">
+                            <p class="kw-font-pt14 kw-fc--black3">
+                              계약번호
+                            </p>
+                            <span class="kw-fc--black1 ml8">
+                              {{ item.mchnCh?.ojCntrNo }}-{{ item.mchnCh?.ojCntrSn }}
+                            </span>
+                          </li>
+                        </ul>
                       </div>
+                      <kw-btn
+                        borderless
+                        icon="close_24"
+                        style="font-size: 24px;"
+                        class="w24"
+                        @click="onClickDeleteDeviceChange(item)"
+                      />
+                    </div>
+                  </template>
+
+                  <template
+                    v-if="item.sltrRglrSppMchn?.rglrSppMchnYn"
+                  >
+                    <div class="row items-center justify-between mt10">
+                      <div
+                        class="row"
+                        style="width: calc(100% - 45px);"
+                      >
+                        <kw-chip
+                          label="기기"
+                          color="primary"
+                          outline
+                          class="ma2"
+                        />
+                        <ul
+                          class="scoped-item-price-list kw-grow"
+                          style="max-width: calc(100% - 45px);"
+                        >
+                          <li
+                            class="scoped-item-price-item kw-grow"
+                            style="max-width: calc(100% - 215px);"
+                          >
+                            <span
+                              class="kw-fc--black1 ml8 "
+                              style="overflow: hidden;
+                                      text-overflow: ellipsis;
+                                      white-space: nowrap;"
+                            >
+                              {{ item.sltrRglrSppMchn?.pdNm }}
+                              <kw-tooltip show-when-ellipsised>
+                                {{ item.sltrRglrSppMchn?.pdNm }}
+                              </kw-tooltip>
+                            </span>
+                          </li>
+                          <li class="scoped-item-price-item">
+                            <p class="kw-font-pt14 kw-fc--black3">
+                              계약번호
+                            </p>
+                            <span class="kw-fc--black1 ml8">
+                              {{ item.sltrRglrSppMchn?.ojCntrNo }}-{{ item.sltrRglrSppMchn?.ojCntrSn }}
+                            </span>
+                          </li>
+                        </ul>
+                      </div>
+                      <kw-btn
+                        borderless
+                        icon="close_24"
+                        style="font-size: 24px;"
+                        class="w24"
+                        @click="onClickDeleteRglrSppDevice(item)"
+                      />
                     </div>
                   </template>
 
                   <div
-                    v-if="isItem.rgSusc(item)"
+                    v-if="isItem.sltrRglrSpp(item) || isItem.rglrSpp(item)"
                     class="product-right-area"
                   >
-                    <kw-separator class="dashed-line my20" />
+                    <kw-separator
+                      v-if="isArray(item.sdingCapsls) && item.sdingCapsls.length > 0"
+                      class="dashed-line my20"
+                    />
                     <!-- 반복시작 -->
                     <template
                       v-for="(sdingCapsl, i) in item.sdingCapsls"
@@ -515,7 +566,7 @@
                           class="kw-fc--black1 text-weight-medium product-left"
                           style="width: calc(100% - 44px);"
                         >
-                          {{ sdingCapsl.partPdNm + ' ' + sdingCapsl.partUseQty + '개' }}
+                          {{ sdingCapsl.partPdNm + ' ' + sdingCapsl.itmQty + '개' }}
                         </p>
                       </div>
                     </template>
@@ -535,7 +586,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { alert, stringUtil, useDataService, useGlobal } from 'kw-lib';
-import { cloneDeep, isEmpty } from 'lodash-es';
+import { cloneDeep, isArray, isEmpty } from 'lodash-es';
 
 const { t } = useI18n();
 const dataService = useDataService();
@@ -558,8 +609,8 @@ const isItem = {
   crpCntr: () => step2.value.bas?.cntrTpCd === '02',
   welsf: (i) => i.lclsfVal === '05001003',
   hcf: (i) => i.lclsfVal === '01003001',
-  rgSusc: (i) => i.cntrRelDtlCd === '216', // 정기배송
-  sltrRgSusc: (i) => i.cntrRelDtlCd === '214', // 단독정기배송
+  sltrRglrSpp: (i) => i.cntrRelDtlCd === '214', // 단독정기배송
+  rglrSpp: (i) => i.cntrRelDtlCd === '216', // 정기배송
 };
 
 // -------------------------------------------------------------------------------------------------
@@ -650,17 +701,46 @@ async function onClickProduct(pd) {
       step2.value.dtls.push(p);
     }
   }
+  // 단독정기배송
+  if (npd.sellTpCd === '6') {
+    npd.cntrRelDtlCd = '214';
+  }
   resetCntrSn();
 }
 
 function onClickDelete(pd) {
-  if (pd.sellTpDtlCd === '62') return;
+  if (isItem.rglrSpp(pd) && pd.sellTpDtlCd === '62') return;
   if (isItem.welsf(pd) || isItem.hcf(pd)) {
     step2.value.dtls = step2.value.dtls.filter((spd) => pd.cntrSn !== spd.cntrSn && (pd.cntrSn + 1) !== spd.cntrSn);
   } else {
     step2.value.dtls = step2.value.dtls.filter((spd) => pd.cntrSn !== spd.cntrSn);
   }
   resetCntrSn();
+}
+
+async function onClickOnePlusOne(pd) {
+  const res = await modal({
+    component: 'WwctaOnePlusOneContractListP',
+    componentProps: { baseDtlCntrNo: step2.value.bas.cntrNo },
+  });
+  if (res.result && res.payload) {
+    pd.opo = {
+      opoYn: res.result,
+      ojCntrNo: res.payload.cntrNo,
+      ojCntrSn: res.payload.cntrSn,
+      pdNm: res.payload.pdNm,
+    };
+    pd.cntrRelDtlCd = '215';
+    pd.sellDscTpCd = '03';
+    pd.rentalDiscountFixed = true;
+  }
+}
+
+function onClickDeleteOneplusone(pd) {
+  pd.cntrRelDtlCd = '';
+  pd.sellDscTpCd = '';
+  pd.isRentalDiscountFixed = false;
+  pd.opo = {};
 }
 
 async function onClickDeviceChange(pd) {
@@ -679,65 +759,66 @@ async function onClickDeviceChange(pd) {
       rgstMdfcDv: '1', // FIXME: 등록, 수정 구분 필요
     },
   });
-
   if (res.result && res.payload) {
-    pd.deviceChangeYn = res.result;
-    pd.deviceChangeCntrNo = res.payload.cntrNo;
-    pd.deviceChangeCntrSn = res.payload.cntrSn;
-    pd.deviceChangePdNm = res.payload.pdNm;
+    pd.mchnCh = {
+      mchnChYn: res.result,
+      ojCntrNo: res.payload.cntrNo,
+      ojCntrSn: res.payload.cntrSn,
+      pdNm: res.payload.pdNm,
+      mchnChTpCd: res.payload.workFlag,
+      pasgMcn: res.payload.rentalNmnN,
+      mchnCpsApyr: res.payload.finalPerfRt,
+      mchnClnOjYn: res.payload.clnYn,
+      ojCntrMmBaseDvCd: res.payload.resultDvCheck,
+    };
   }
-
-  // baseCntrNo: { type: String, default: '' }, // 현재 진행중인 계약번호
-  // baseCntrSn: { type: String, default: '' }, // 현재 진행중인 계약일련번호
-  // cstNo: { type: String, required: true, default: '' }, // 계약자 고객번호
-  // indvCrpDv: { type: String, required: true, default: '' }, // 법인격구분코드(1.개인, 2.법인)
-  // pdCd: { type: String, required: true, default: '' }, // 기준상품코드
-  // dscDv: { type: String, default: '' }, // 할인적용유형코드
-  // dscTp: { type: String, default: '' }, // 할인적용상세코드
-  // sellTpCd: { type: String, required: true, default: '' }, // 판매유형코드
-  // alncmpCd: { type: String, default: '' }, // 제휴사코드
-  // rgstMdfcDv: { type: String, required: true, default: '' }, // 등록/수정여부(1.등록, 2.수정)
 }
 
 function onClickDeleteDeviceChange(pd) {
-  pd.deviceChangeYn = false;
-  pd.deviceChangeCntrNo = '';
-  pd.deviceChangeCntrSn = '';
-  pd.deviceChangePdNm = '';
+  pd.mchnCh = {};
 }
 
-async function onClickOnePlusOne(pd) {
+async function onClickSelSdingMchn(dtl) {
   const res = await modal({
-    component: 'WwctaOnePlusOneContractListP',
-    componentProps: { baseDtlCntrNo: step2.value.bas.cntrNo },
+    component: 'WwctaSeedingMachineChoiceP',
+    componentProps: {
+      cntrCstNo: step2.value.bas.cntrCstNo,
+      rglrSppMchnTpCd: dtl.rglrSppMchnTpCd,
+    },
   });
-
   if (res.result && res.payload) {
-    pd.oneplusoneYn = res.result;
-    pd.oneplusoneCntrNo = res.payload.cntrNo;
-    pd.oneplusoneCntrSn = res.payload.cntrSn;
-    pd.oneplusonePdNm = res.payload.pdNm;
-    pd.sellDscTpCd = '03';
-    pd.isRentalDiscountFixed = true;
+    dtl.sltrRglrSppMchn = {
+      rglrSppMchnYn: res.result,
+      ojCntrNo: res.payload.cntrNo,
+      ojCntrSn: res.payload.cntrSn,
+      pdNm: res.payload.pdNm,
+    };
   }
 }
 
-function onClickDeleteOneplusone(pd) {
-  pd.sellDscDvCd = '';
-  pd.isRentalDiscountFixed = false;
-  pd.oneplusoneCntrNo = '';
-  pd.oneplusoneCntrSn = '';
-  pd.oneplusonePdNm = '';
-  pd.oneplusoneYn = false;
+function onClickDeleteRglrSppDevice(pd) {
+  pd.sltrRglrSppMchn = {};
 }
 
 async function onClickSelSdingCapsl(dtl) {
   const res = await modal({
     component: 'WwctaCapsuleSeedingChoiceP',
-    componentProps: { basePdCd: dtl.pdCd },
+    componentProps: {
+      basePdCd: dtl.pdCd,
+      rglrSppMchnTpCd: dtl.rglrSppMchnTpCd,
+      rglrSppPrcDvCd: dtl.rglrSppPrcDvCd,
+    },
   });
   if (res.result && res.payload) {
-    console.log(res);
+    dtl.sdingCapsls = res.payload.map((p) => ({
+      partPdNm: p.pdNm,
+      partPdCd: p.pdCd,
+      pdRelId: p.pdRelId,
+      pdRelTpCd: p.pdRelTpCd,
+      itmQty: p.count,
+      amt: p.prc * p.count,
+    }));
+    dtl.fnlAmt = dtl.sdingCapsls.reduce((acc, cur) => Number(acc) + Number(cur.amt), 0);
   }
 }
 
@@ -746,7 +827,6 @@ async function onChangePkgs(dtl) {
   const pp = pkgs.find((p) => p.codeId === pkg);
   pp.pkgs = cloneDeep(pkgs);
   pp.pkg = pp.codeId;
-  pp.pdQty = 1;
   step2.value.dtls[step2.value.dtls.findIndex((d) => d.cntrSn === cntrSn)] = pp;
   resetCntrSn();
 }
@@ -810,6 +890,10 @@ async function isValidStep() {
   }
   if (step2.value.dtls.find((dtl) => (Number.isNaN(dtl.fnlAmt) || dtl.fnlAmt <= 0))) {
     await alert('상품 금액을 확인해주세요.');
+    return false;
+  }
+  if (step2.value.dtls.find((dtl) => dtl.cntrRelDtlCd === '214' && (!dtl.sltrRglrSppMchn || !dtl.sltrRglrSppMchn.rglrSppMchnYn))) {
+    await alert('정기배송 대상 기기를 선택해주세요.');
     return false;
   }
   return true;

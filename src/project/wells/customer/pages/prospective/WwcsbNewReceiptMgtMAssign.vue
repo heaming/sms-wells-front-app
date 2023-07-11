@@ -90,6 +90,7 @@
     <kw-grid
       ref="grdAssignRef"
       name="grdAssign"
+      :need-context-menu="false"
       :page-size="pageInfo.pageSize"
       :total-count="pageInfo.totalCount"
       @init="initgrdAssign"

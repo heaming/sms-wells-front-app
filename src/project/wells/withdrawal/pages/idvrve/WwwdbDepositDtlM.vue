@@ -48,6 +48,7 @@
             v-model="searchParams.dpMesCd"
             first-option="all"
             :options="dpMesCdCode"
+            @change="onChangeDpTpCd"
           />
           <kw-select
             v-if="searchParams.dpMesCd !== '03'"
@@ -59,7 +60,7 @@
             v-if="searchParams.dpMesCd !== '03'"
             v-model="searchParams.vncoDvCd"
             first-option="all"
-            :options="codes.VNCO_DV_CD"
+            :options="vncoDvCd"
           />
           <!-- v-if="searchParams.dpMesCd === '02'" -->
         </kw-search-item>
@@ -142,6 +143,7 @@
             :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
             @change="fetchData"
           />
+          <!-- :visible="10" -->
           <!-- (단위:원) -->
           <span class="ml8">{{ t('MSG_TXT_UNIT_COLON_WON') }}</span>
         </template>
@@ -162,6 +164,7 @@
         name="grdMain"
         :page-size="pageInfo.pageSize"
         :total-count="pageInfo.totalCount"
+        :visible-rows="10"
         @init="initGrid"
       />
 
@@ -214,7 +217,8 @@ const pageInfo = ref({
 const sellTpCdCode = codes.SELL_TP_CD.filter((e) => ['1', '2', '3', '6'].includes(e.codeId));
 const dpDvCdCode = codes.DP_DV_CD.filter((e) => ['1', '2'].includes(e.codeId));
 const dpMesCdCode = codes.DP_MES_CD.filter((e) => ['01', '02', '03'].includes(e.codeId));
-const dpTpCdCode = codes.DP_TP_CD.filter((e) => ['0101', '0103', '0104'].includes(e.codeId));
+let dpTpCdCode;
+let vncoDvCd;
 
 let cachedParams;
 
@@ -234,6 +238,23 @@ const searchParams = ref({
   stFstRgstUsrId: '', // 입력담당자 사번 시작
   enFstRgstUsrId: '', // 입력담당자 사번 끝
 });
+
+async function onChangeDpTpCd() {
+  if (searchParams.value.dpMesCd === '01') {
+    dpTpCdCode = codes.DP_TP_CD.filter((e) => ['0101', '0102', '0103', '0104'].includes(e.codeId));
+    vncoDvCd = codes.VNCO_DV_CD.filter((e) => ['002', '003', '001'].includes(e.codeId));
+  } else if (searchParams.value.dpMesCd === '02') {
+    dpTpCdCode = codes.DP_TP_CD.filter((e) => ['0201', '0202', '0203', '0204'].includes(e.codeId));
+    // vncoDvCd = codes.VNCO_DV_CD.filter((e) => ['002', '003', '001'].includes(e.codeId));
+    vncoDvCd = [];
+  } else {
+    dpTpCdCode = [];
+    vncoDvCd = [];
+  }
+
+  searchParams.value.dpTpCd = '';
+  searchParams.value.vncoDvCd = '';
+}
 
 async function fetchData() {
   cachedParams = { ...cachedParams, ...pageInfo.value };
@@ -287,8 +308,8 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'rveCd' }, /* 수납코드 */
     { fieldName: 'sellTpCd' }, /* 판매유형 */
     { fieldName: 'dpDvCd' }, /* 입금구분 */
-    { fieldName: 'dpDt' }, /* 입금일자 */
-    { fieldName: 'perfDt' }, /* 실적일자 */
+    { fieldName: 'dpDt', dataType: 'date' }, /* 입금일자 */
+    { fieldName: 'perfDt', dataType: 'date' }, /* 실적일자 */
     { fieldName: 'dpAmt', dataType: 'number' }, /* 입금액 */
     { fieldName: 'fnitNm' }, /* 카드구분 */
     { fieldName: 'crcdnoEncr' }, /* 카드번호 */
@@ -296,7 +317,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'crdcdAprno' }, /* 신용카드승인번호 */
     { fieldName: 'crcdonrNm' }, /* 신용카드주명 */
     { fieldName: 'dpCprcnfNo' }, /* 대사번호 */
-    { fieldName: 'cntrCanDtm' }, /* 취소일자 */
+    { fieldName: 'cntrCanDtm', dataType: 'date' }, /* 취소일자 */
     { fieldName: 'rgstKnm' }, /* 입력담당자 */
     { fieldName: 'fstRgstUsrId' }, /* 번호-최초등록사용자ID */
     { fieldName: 'clctamPrtnrNm' }, /* 집금담당자 */
@@ -313,17 +334,18 @@ const initGrid = defineGrid((data, view) => {
 
     { fieldName: 'dpNo',
       header: t('MSG_TXT_DP_NO'), // 입금번호
-      width: '75',
+      width: '100',
       styleName: 'text-center' },
 
     { fieldName: 'cstNo',
       header: t('MSG_TXT_CST_NO'), // 고객번호
-      width: '75',
+      width: '100',
       styleName: 'text-center' },
 
     { fieldName: 'cstKnm',
       header: t('MSG_TXT_CST_NM'), // 고객명
-      width: '90' },
+      width: '120',
+      styleName: 'text-center' },
 
     { fieldName: 'ogCd',
       header: t('MSG_TXT_BRCH_CD'), // 지점코드
@@ -360,6 +382,7 @@ const initGrid = defineGrid((data, view) => {
     },
 
     { fieldName: 'dpDt',
+      datetimeFormat: 'date',
       header: t('MSG_TXT_DP_DT'), // 입금일자
       width: '120',
       styleName: 'text-center' },
@@ -367,6 +390,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'perfDt',
       header: t('MSG_TXT_PERF_DT'), // 실적일자
       width: '120',
+      datetimeFormat: 'date',
       styleName: 'text-center' },
 
     { fieldName: 'dpAmt',
@@ -382,7 +406,7 @@ const initGrid = defineGrid((data, view) => {
 
     { fieldName: 'crcdnoEncr',
       header: t('MSG_TXT_CARD_NO'), // 카드번호
-      width: '150',
+      width: '190',
       styleName: 'text-center',
       displayCallback(grid, index, value) {
         return !isEmpty(value) ? `${value.substring(0, 4)}-${value.substring(4, 8)}-${value.substring(8, 12)}-●●●●` : value;
@@ -401,7 +425,8 @@ const initGrid = defineGrid((data, view) => {
 
     { fieldName: 'crcdonrNm',
       header: t('MSG_TXT_CDONR_NM'), // 카드주명
-      width: '90' },
+      width: '90',
+      styleName: 'text-center' },
 
     { fieldName: 'dpCprcnfNo',
       header: t('MSG_TXT_CPRCNF_NO'), // 대사번호
@@ -411,6 +436,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'cntrCanDtm',
       header: t('MSG_TXT_CANC_DT'), // 취소일자
       width: '120',
+      datetimeFormat: 'date',
       styleName: 'text-center' },
 
     { fieldName: 'rgstKnm',

@@ -50,6 +50,7 @@
   <kw-grid
     ref="grdMainRef"
     name="grdMainMgt"
+    :need-context-menu="false"
     @init="initGrdMain"
   />
 </template>

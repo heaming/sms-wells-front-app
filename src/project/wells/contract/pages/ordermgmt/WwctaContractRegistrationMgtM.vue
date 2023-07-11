@@ -280,6 +280,7 @@ const contract = ref({
   step2: {},
   step3: {},
   step4: {},
+  isReadonly: false,
 });
 const smr = ref({
   cntrTpNm: computed(() => codes.CNTR_TP_CD.find((c) => c.codeId === contract.value.step1.bas?.cntrTpCd)?.codeName),
@@ -288,11 +289,11 @@ const smr = ref({
   stlmTpNm: computed(() => codes.STLM_TP_CD.find((c) => c.codeId === contract.value.step3.stlmTpCd)?.codeName),
   stlmMthNm: computed(() => codes.DP_TP_CD.find((c) => c.codeId === contract.value.step3.cntramDpTpCd)?.codeName),
   pdCntrAmt: computed(() => stringUtil.getNumberWithComma(
-    Number(contract.value.step2.dtls?.reduce((acc, cur) => Number(acc) + Number(cur.cntrAmt), 0)) || 0,
+    Number(contract.value.step2.dtls?.reduce((acc, cur) => Number(acc) + Number(cur.cntrAmt || 0), 0)) || 0,
   )),
   pdAmt: computed(() => stringUtil.getNumberWithComma(
     // dtl.sellAmt 판매금액(수량xfnlAmt)의 합
-    Number(contract.value.step2.dtls?.reduce((acc, cur) => Number(acc) + Number(cur.fnlAmt), 0)) || 0,
+    Number(contract.value.step2.dtls?.reduce((acc, cur) => Number(acc) + Number(cur.fnlAmt || 0), 0)) || 0,
   )),
 });
 const isReadOnly = ref(false);
@@ -320,12 +321,12 @@ function showStep(step) {
   });
   currentStepName.value = `step${step}`;
 }
-async function getCntrInfo(step, cntrNo, getExistCntr) {
+async function getCntrInfo(step, cntrNo) {
   if (step === 2) {
     // step2일 때 상품 조회
     await panelsRefs[currentStepName.value].getProducts(cntrNo);
   }
-  await panelsRefs[currentStepName.value].getCntrInfo(cntrNo, getExistCntr);
+  await panelsRefs[currentStepName.value].getCntrInfo(cntrNo, contract.value.isReadonly);
 }
 
 async function getExistedCntr() {
@@ -345,7 +346,8 @@ async function getExistedCntr() {
   if (step >= 2) contract.value.step2 = smrs.data.step2;
   if (step >= 3) contract.value.step3 = smrs.data.step3;
   if (step >= 4) contract.value.step4 = smrs.data.step4;
-  await getCntrInfo(step, cntrNo, true);
+  contract.value.isReadonly = true;
+  await getCntrInfo(step, cntrNo);
 }
 
 async function onClickPrevious() {
@@ -402,6 +404,8 @@ async function eventStipulation(cntrNo, cntrSn) {
 }
 
 async function eventMembership() {
+  debugger;
+  console.log(1);
   // 멤버십계약
 }
 

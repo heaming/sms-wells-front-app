@@ -18,22 +18,27 @@
       <div class="pc-popup__content">
         <ul class="pc-link-list visual-control">
           <li class="pc-link-list__item">
-            <a href="#a" class="pc-link-list__inner">
+            <a href="javacript:;" onclick="onClickPopup(0)" class="pc-link-list__inner">
               <p class="pc-link-list__text">해약파트너 가지급금 세부 내역 조회</p>
             </a>
           </li>
           <li class="pc-link-list__item">
-            <a href="#a" class="pc-link-list__inner">
+            <a href="javacript:;" onclick="onClickPopup(1)" class="pc-link-list__inner">
               <p class="pc-link-list__text">사실확인원</p>
             </a>
           </li>
           <li class="pc-link-list__item">
-            <a href="#a" class="pc-link-list__inner">
+            <a href="javacript:;" onclick="onClickPopup(2)" class="pc-link-list__inner">
+              <p class="pc-link-list__text">사실확인원(화상교사)</p>
+            </a>
+          </li>
+          <li class="pc-link-list__item">
+            <a href="javacript:;" onclick="onClickPopup(3)" class="pc-link-list__inner">
               <p class="pc-link-list__text">원천징수영수증</p>
             </a>
           </li>
           <li class="pc-link-list__item">
-            <a href="#a" class="pc-link-list__inner">
+            <a href="javacript:;" onclick="onClickPopup(4)" class="pc-link-list__inner">
               <p class="pc-link-list__text">해약파트너 RDS 세부 내역 조회</p>
             </a>
           </li>
@@ -42,5 +47,25 @@
       <!-- // 팝업 컨텐츠 -->
     </div>
     <script src="/resources/jquery.min.js" type="text/javascript"></script>
+    <script>
+      function onClickPopup(index) {
+        var url = '';
+        if (index == 0) {
+          url = '';
+        } else if (index == 1) {
+          url = '/anonymous/login?redirectUrl=%2F%23%2Fns%2Fzwogz-fact-check-certificate-dtl';
+        } else if (index == 2) {
+          url = '/anonymous/login?redirectUrl=%2F%23%2Fns%2Fewogc-fact-check-certificate-dtl';
+        } else if (index == 3) {
+          url = '/anonymous/login?redirectUrl=%2F%23%2Fns%2Fzwogz-tax-collect-receipt-dtl';
+        } else if (index == 4) {
+          url = '';
+        }
+        if (url.length > 0) {
+          window.open(url, 'newWinn', '_blank');
+          close();
+        }
+      }
+    </script>
   </body>
 </html>

@@ -107,7 +107,20 @@
             </kw-form-item>
             <!-- 배정담당자 -->
             <kw-form-item :label="$t('MSG_TXT_ASSIGN_MANAGER')">
-              <p>{{ assignInfo.ichrPrtnrNm }}</p>
+              <slot v-if="isShowManualAssignBtn">
+                <!-- 수동배정버튼 -->
+                <p>
+                  <kw-btn
+                    secondary
+                    :label="$t('MSG_BTN_MANUAL_ASSIGN')"
+                    padding="10px"
+                    @click="onClickManualAssign"
+                  />
+                </p>
+              </slot>
+              <slot v-else>
+                <p>{{ assignInfo.ichrPrtnrNm }}</p>
+              </slot>
             </kw-form-item>
           </kw-form-row>
           <kw-form-row>
@@ -233,7 +246,7 @@ const props = defineProps({
   cntrNo: { type: String, default: null },
 });
 
-const { notify } = useGlobal();
+const { notify, modal } = useGlobal();
 const { t } = useI18n();
 const route = useRoute();
 const router = useRouter();
@@ -250,6 +263,7 @@ const currentPspcCstCnslId = ref('');
 const currentJobType = ref('');
 const currentFromUi = ref(''); // 호출한 화면만 refresh하기 위한 변수값
 const assignInfo = ref({});
+const isShowManualAssignBtn = ref(false);
 
 async function onClickConfirm() {
   await router.close(0, false);
@@ -308,6 +322,17 @@ async function fetchData() {
   const res = await dataService.get(`${baseUrl}/assign/${currentPspcCstCnslId.value}/${cntrNo}`);
   assignInfo.value = res.data;
   assignInfo.value.showFstRgstDtm = dayjs(assignInfo?.value?.fstRgstDtm).format('YYYY-MM-DD');
+  // 수동배정 Btn [Show|Hide]
+  isShowManualAssignBtn.value = currentJobType.value === 'RECV' && isEmpty(assignInfo.value.ichrPrtnrNo);
+}
+
+async function onClickManualAssign() {
+  const componentProps = { pspcCstCnslId: assignInfo.value?.pspcCstCnslId, jobType: 'RECV', ichrPrtnrNo: assignInfo.value?.ichrPrtnrNo };
+  console.log('componentProps', componentProps);
+  const { result, payload } = await modal({ component: 'WwcsbManualAssignModP', componentProps });
+  if (result && payload) {
+    await fetchData();
+  }
 }
 
 async function initProps() {

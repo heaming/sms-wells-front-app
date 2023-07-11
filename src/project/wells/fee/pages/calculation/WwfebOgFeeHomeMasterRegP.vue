@@ -34,9 +34,13 @@ async function onClickCreate() {
       <kw-form-row>
         <kw-form-item
           :label="$t('MSG_TXT_PERF_YM')"
-          required
+          :required="isEmpty(props.perfYm)"
         >
+          <p v-if="!isEmpty(props.perfYm)">
+            {{ regData?.perfYm ? stringUtil.getDateFormat(regData?.perfYm).substring(0,7) : '' }}
+          </p>
           <kw-date-picker
+            v-if="isEmpty(props.perfYm)"
             v-model="regData.perfYm"
             rules="required"
             type="month"
@@ -47,9 +51,13 @@ async function onClickCreate() {
       <kw-form-row>
         <kw-form-item
           :label="$t('MSG_TXT_RSB_TP')"
-          required
+          :required="isEmpty(props.feeCalcUnitTpCd)"
         >
+          <p v-if="!isEmpty(props.feeCalcUnitTpCd)">
+            {{ codes.FEE_CALC_UNIT_TP_CD.find((v) => v.codeId === regData?.feeCalcUnitTpCd)?.codeName }}
+          </p>
           <kw-select
+            v-if="isEmpty(props.feeCalcUnitTpCd)"
             v-model="regData.feeCalcUnitTpCd"
             :options="codes.FEE_CALC_UNIT_TP_CD.filter((v) => v.userDfn03 === 'W03')"
             rules="required"
@@ -77,7 +85,8 @@ async function onClickCreate() {
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useModal, useDataService, useGlobal, codeUtil } from 'kw-lib';
+import { useModal, useDataService, useGlobal, codeUtil, stringUtil } from 'kw-lib';
+import { isEmpty } from 'lodash-es';
 
 const { cancel, ok } = useModal();
 const { notify } = useGlobal();
@@ -85,6 +94,10 @@ const { notify } = useGlobal();
 const { t } = useI18n();
 const props = defineProps({
   perfYm: {
+    type: String,
+    default: '',
+  },
+  feeCalcUnitTpCd: {
     type: String,
     default: '',
   },
@@ -102,7 +115,7 @@ const codes = await codeUtil.getMultiCodes(
 const popupRef = ref();
 const dataService = useDataService();
 const regData = ref({
-  feeCalcUnitTpCd: '301',
+  feeCalcUnitTpCd: props.feeCalcUnitTpCd,
   feeTcntDvCd: props.feeTcntDvCd, // default 2차수
   perfYm: props.perfYm,
 });

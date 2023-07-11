@@ -28,8 +28,8 @@
   </kw-action-top>
   <kw-grid
     ref="grdMainRef"
-    name="grdMgtPrcFeeMain"
     :visible-rows="10"
+    :need-context-menu="false"
     @init="initGrid"
   />
 </template>

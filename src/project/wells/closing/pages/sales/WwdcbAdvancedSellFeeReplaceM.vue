@@ -39,7 +39,7 @@
             v-model="searchParams.baseYm"
             type="year"
             rules="required"
-            :label="$t('MSG_TXT_BASE_YM')"
+            :label="$t('MSG_TXT_BASE_YEAR')"
           />
           <kw-date-picker
             v-else
@@ -63,6 +63,38 @@
 
       <kw-search-row>
         <kw-search-item
+          :label="$t('MSG_TXT_SEL_TYPE')"
+        >
+          <kw-select
+            v-model="searchParams.sellTpCd"
+            first-option="all"
+            first-option-value="ALL"
+            :options="codes.SELL_TP_CD"
+          />
+          <kw-select
+            v-model="searchParams.sellTpDtlCd"
+            first-option="all"
+            first-option-value="ALL"
+            :options="codes.SELL_TP_DTL_CD"
+          />
+        </kw-search-item>
+        <kw-search-item
+          :label="$t('MSG_TXT_PRDT_CATE')"
+          :colspan="2"
+        >
+          <zwpd-product-classification-select
+            v-model:product1-level="searchParams.pdHclsfId"
+            v-model:product2-level="searchParams.pdMclsfId"
+            v-model:pd-tp-cd="searchParams.pdTpCd"
+            :search-lvl="'2'"
+            first-option="all"
+            first-option-value="ALL"
+          />
+        </kw-search-item>
+      </kw-search-row>
+
+      <kw-search-row>
+        <kw-search-item
           :label="$t('MSG_TXT_PIA_TARGET_YN')"
         >
           <kw-select
@@ -73,16 +105,6 @@
           />
         </kw-search-item>
         <kw-search-item
-          :label="$t('MSG_TXT_DG_CST_CD_NM')"
-        >
-          <kw-select
-            v-model="searchParams.dgCstId"
-            first-option="all"
-            first-option-value="ALL"
-            :options="customerCode"
-          />
-        </kw-search-item>
-        <kw-search-item
           :label="$t('MSG_TXT_CNTR_DTL_NO')"
         >
           <zctz-contract-detail-number
@@ -90,12 +112,8 @@
             v-model:cntr-sn="searchParams.cntrSn"
           />
         </kw-search-item>
-      </kw-search-row>
-
-      <kw-search-row
-        v-if="searchParams.searchGubun === '2'"
-      >
         <kw-search-item
+          v-if="searchParams.searchGubun === '2'"
           :label="$t('MSG_TXT_FEE_DV')"
         >
           <kw-checkbox
@@ -184,8 +202,9 @@
 // -------------------------------------------------------------------------------------------------
 import { getComponentType, codeUtil, useDataService, defineGrid, gridUtil, useGlobal } from 'kw-lib';
 import dayjs from 'dayjs';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, isEmpty } from 'lodash-es';
 import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
+import ZwpdProductClassificationSelect from '~sms-common/product/pages/standard/components/ZwpdProductClassificationSelect.vue';
 import { getFeeSearchGubunCodes, textToNumberFormatter, getPiaCsYnCodes } from '~sms-common/closing/utils/clUtil';
 
 const { t } = useI18n();
@@ -206,18 +225,19 @@ const lastMonth = ref(now.subtract(1, 'month').format('YYYYMM'));
 const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
   'OG_TP_CD',
+  'SELL_TP_CD',
+  'SELL_TP_DTL_CD',
 );
 
 const searchGubunCode = await getFeeSearchGubunCodes();
 const piaCsYnCode = await getPiaCsYnCodes();
 
-async function getCodes(apiParam) {
-  const res = await dataService.get(`/sms/wells/closing/advanced-fee-replace/${apiParam}`);
+async function getCodes() {
+  const res = await dataService.get('/sms/wells/closing/advanced-fee-replace/fee-gubun-code');
   return res.data;
 }
 
-const customerCode = await getCodes('customer-code');
-const feeGubunCode = await getCodes('fee-gubun-code');
+const feeGubunCode = await getCodes();
 
 let cachedParams;
 
@@ -225,8 +245,11 @@ const searchParams = ref({
   searchGubun: '1',
   baseYm: now.subtract(1, 'month').format('YYYYMM'),
   ogTpCd: 'ALL',
+  sellTpCd: 'ALL',
+  sellTpDtlCd: 'ALL',
+  pdHclsfId: 'ALL',
+  pdMclsfId: 'ALL',
   piaCsYn: 'ALL',
-  dgCstId: 'ALL',
   cntrNo: '',
   cntrSn: '',
   feeChk: 'N',
@@ -344,43 +367,36 @@ watch(() => searchParams.value.searchGubun, async (val) => {
   }
 }, { immediate: true });
 
+watch(() => searchParams.value.sellTpCd, async (val) => {
+  if (!isEmpty(val)) {
+    searchParams.value.sellTpDtlCd = 'ALL';
+  }
+});
+
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
 const initGrid = defineGrid((data, view) => {
-  const fields = [
-    { fieldName: 'ogTpCd' },
-    { fieldName: 'dgCstId' },
-    { fieldName: 'dgCstNm' },
-    { fieldName: 'baseYm' },
-    { fieldName: 'slAmt', dataType: 'number' },
-    { fieldName: 'feeOcAmt', dataType: 'number' },
-    { fieldName: 'feeOcYm' },
-    { fieldName: 'piaCsYn' },
-    { fieldName: 'piaSellFeeCrdovrResAmt', dataType: 'number' },
-    { fieldName: 'piaFeeOcAmt', dataType: 'number' },
-    { fieldName: 'csRplcAmt', dataType: 'number' },
-    { fieldName: 'csRplcAmtCancBlam', dataType: 'number' },
-    { fieldName: 'ttrmCsAmt', dataType: 'number' },
-    { fieldName: 'piaFeeEotBlam', dataType: 'number' },
-  ];
-
   const columns = [
     { fieldName: 'ogTpCd', header: t('MSG_TXT_OG_TP'), width: '140', styleName: 'text-center', options: codes.OG_TP_CD },
-    { fieldName: 'dgCstId', header: t('MSG_TXT_RPRS_CUST_NO'), width: '140', styleName: 'text-center' },
-    { fieldName: 'dgCstNm', header: t('MSG_TXT_DG_CST_CD_NM'), width: '120', styleName: 'text-center' },
+    { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '120', styleName: 'text-center', options: codes.SELL_TP_CD },
+    { fieldName: 'sellTpDtlCd', header: t('MSG_TXT_SELL_TP_DTL'), width: '150', styleName: 'text-center', options: codes.SELL_TP_DTL_CD },
+    { fieldName: 'pdHclsfNm', header: t('MSG_TXT_PD_HCLSF_NM'), width: '150', styleName: 'text-center' },
+    { fieldName: 'pdMclsfNm', header: t('MSG_TXT_PD_MCLSF_NM'), width: '150', styleName: 'text-center' },
     { fieldName: 'baseYm', header: t('MSG_TXT_BASE_YM'), width: '120', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
-    { fieldName: 'slAmt', header: t('MSG_TXT_SL_AMT'), width: '120', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'feeOcAmt', header: `①${t('MSG_TXT_FEE_OC_AMT')}`, width: '140', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'slAmt', header: t('MSG_TXT_SL_AMT'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
+    { fieldName: 'feeOcAmt', header: `①${t('MSG_TXT_FEE_OC_AMT')}`, width: '140', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
     { fieldName: 'feeOcYm', header: t('MSG_TXT_FEE_OC_YM'), width: '120', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
     { fieldName: 'piaCsYn', header: t('MSG_TXT_PIA_TARGET_YN'), width: '120', styleName: 'text-center', options: piaCsYnCode },
-    { fieldName: 'piaSellFeeCrdovrResAmt', header: `②${t('MSG_TXT_PIA_SELL_FEE_CRDOVR_BLAM')}`, width: '140', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'piaFeeOcAmt', header: `③${t('MSG_TXT_FEE_OC_AMT_THIS_MONTH')}`, width: '140', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'csRplcAmt', header: `④${t('MSG_TXT_CS_RPLC_AMT2')}`, width: '140', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'csRplcAmtCancBlam', header: `⑤${t('MSG_TXT_CS_RPLC_AMT_CANC_BLAM')}`, width: '140', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'ttrmCsAmt', header: `⑥${t('MSG_TXT_TTRM_CS_AMT')}`, width: '140', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'piaFeeEotBlam', header: `${t('MSG_TXT_PIA_FEE_EOT_BLAM')}(②+③-⑥)`, width: '140', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'piaSellFeeCrdovrResAmt', header: `②${t('MSG_TXT_PIA_SELL_FEE_CRDOVR_BLAM')}`, width: '140', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
+    { fieldName: 'piaFeeOcAmt', header: `③${t('MSG_TXT_FEE_OC_AMT_THIS_MONTH')}`, width: '140', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
+    { fieldName: 'csRplcAmt', header: `④${t('MSG_TXT_CS_RPLC_AMT2')}`, width: '140', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
+    { fieldName: 'csRplcAmtCancBlam', header: `⑤${t('MSG_TXT_CS_RPLC_AMT_CANC_BLAM')}`, width: '140', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
+    { fieldName: 'ttrmCsAmt', header: `⑥${t('MSG_TXT_TTRM_CS_AMT')}`, width: '140', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
+    { fieldName: 'piaFeeEotBlam', header: `${t('MSG_TXT_PIA_FEE_EOT_BLAM')}(②+③-⑥)`, width: '140', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
   ];
+
+  const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
 
   data.setFields(fields);
   view.setColumns(columns);
@@ -397,9 +413,9 @@ const initGrid = defineGrid((data, view) => {
   });
 
   view.layoutByColumn('ogTpCd').summaryUserSpans = [
-    { colspan: 4 },
-    { colspan: 4 },
-    { colspan: 4 },
+    { colspan: 6 },
+    { colspan: 6 },
+    { colspan: 6 },
   ];
 
   view.columnByName('ogTpCd').setHeaderSummaries([
@@ -410,57 +426,37 @@ const initGrid = defineGrid((data, view) => {
 });
 
 const initGridDtl = defineGrid((data, view) => {
-  const fields = [
-    { fieldName: 'ogTpCd' },
-    { fieldName: 'dgCstId' },
-    { fieldName: 'dgCstNm' },
-    { fieldName: 'baseYm' },
-    { fieldName: 'cntrNo' },
-    { fieldName: 'feeOcAmt', dataType: 'number' },
-    { fieldName: 'piaCsYn' },
-    { fieldName: 'feeOcYm' },
-    { fieldName: 'piaFeeOcAmt', dataType: 'number' },
-    { fieldName: 'slRcogDt' },
-    { fieldName: 'stplTn' },
-    { fieldName: 'slAmt', dataType: 'number' },
-    { fieldName: 'cntrPdEnddt' },
-    { fieldName: 'csRplcYm' },
-    { fieldName: 'csRplcAmt', dataType: 'number' },
-    { fieldName: 'feeNm' },
-    { fieldName: 'dpSlipTrsNo' },
-    { fieldName: 'sapSlpno' },
-    { fieldName: 'ttrmCsAmt', dataType: 'number' },
-    { fieldName: 'csRplcAggAmt', dataType: 'number' },
-    { fieldName: 'piaFeeEotBlam', dataType: 'number' },
-    { fieldName: 'fnlMdfcDtm' },
-    { fieldName: 'usrNm' },
-  ];
-
   const columns = [
     { fieldName: 'ogTpCd', header: t('MSG_TXT_OG_TP'), width: '120', styleName: 'text-center', options: codes.OG_TP_CD },
-    { fieldName: 'dgCstId', header: t('MSG_TXT_RPRS_CUST_NO'), width: '120', styleName: 'text-center' },
-    { fieldName: 'dgCstNm', header: t('MSG_TXT_DG_CST_CD_NM'), width: '120', styleName: 'text-center' },
+    { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '120', styleName: 'text-center', options: codes.SELL_TP_CD },
+    { fieldName: 'sellTpDtlCd', header: t('MSG_TXT_SELL_TP_DTL'), width: '150', styleName: 'text-center', options: codes.SELL_TP_DTL_CD },
+    { fieldName: 'pdHclsfNm', header: t('MSG_TXT_PD_HCLSF_NM'), width: '150', styleName: 'text-center' },
+    { fieldName: 'pdMclsfNm', header: t('MSG_TXT_PD_MCLSF_NM'), width: '150', styleName: 'text-center' },
     { fieldName: 'baseYm', header: t('MSG_TXT_BASE_YM'), width: '120', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
     { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '120', styleName: 'text-center' },
-    { fieldName: 'feeOcAmt', header: t('MSG_TXT_FEE_OC_AMT'), width: '120', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'pdCd', header: t('MSG_TXT_PRDT_CODE'), width: '150', styleName: 'text-center' },
+    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '150', styleName: 'text-center' },
+    { fieldName: 'feeOcAmt', header: t('MSG_TXT_FEE_OC_AMT'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
     { fieldName: 'piaCsYn', header: t('MSG_TXT_PIA_TARGET_YN'), width: '120', styleName: 'text-center', options: piaCsYnCode },
     { fieldName: 'feeOcYm', header: t('MSG_TXT_FEE_OC_YM'), width: '120', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
-    { fieldName: 'piaFeeOcAmt', header: t('MSG_TXT_PIA_FEE_OC_AMT'), width: '120', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'piaFeeOcAmt', header: t('MSG_TXT_PIA_FEE_OC_AMT'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
     { fieldName: 'slRcogDt', header: t('MSG_TXT_SL_DT'), width: '120', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'stplTn', header: t('MSG_TXT_STPL_CNTS'), width: '120', styleName: 'text-center' },
-    { fieldName: 'slAmt', header: t('MSG_TXT_SL_AMT'), width: '140', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'slAmt', header: t('MSG_TXT_SL_AMT'), width: '140', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
     { fieldName: 'cntrPdEnddt', header: t('MSG_TXT_CNTR_PD_ENDDT'), width: '120', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'csRplcYm', header: t('MSG_TXT_CS_RPLC_YM'), width: '120', styleName: 'text-center' },
-    { fieldName: 'csRplcAmt', header: t('MSG_TXT_CS_RPLC_AMT'), width: '120', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'csRplcAmt', header: t('MSG_TXT_CS_RPLC_AMT'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
     { fieldName: 'feeNm', header: t('MSG_TXT_FEE_DV'), width: '120', styleName: 'text-center', visible: false },
     { fieldName: 'dpSlipTrsNo', header: t('MSG_TXT_DP_SLIP_TRS_NO'), width: '120', styleName: 'text-center' },
     { fieldName: 'sapSlpno', header: t('MSG_TXT_FEE_SLPNO'), width: '120', styleName: 'text-center' },
-    { fieldName: 'ttrmCsAmt', header: t('MSG_TXT_TTRM_CS_AMT'), width: '120', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'csRplcAggAmt', header: t('MSG_TXT_CS_RPLC_AGG_AMT'), width: '120', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'piaFeeEotBlam', header: t('MSG_TXT_PIA_FEE_EOT_BLAM'), width: '120', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'ttrmCsAmt', header: t('MSG_TXT_TTRM_CS_AMT'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
+    { fieldName: 'csRplcAggAmt', header: t('MSG_TXT_CS_RPLC_AGG_AMT'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
+    { fieldName: 'piaFeeEotBlam', header: t('MSG_TXT_PIA_FEE_EOT_BLAM'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
     { fieldName: 'fnlMdfcDtm', header: t('MSG_TXT_PRCSDT'), width: '120', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'usrNm', header: t('MSG_TXT_PCP'), width: '120', styleName: 'text-center' },
   ];
+
+  const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
 
   data.setFields(fields);
   view.setColumns(columns);
@@ -477,9 +473,9 @@ const initGridDtl = defineGrid((data, view) => {
   });
 
   view.layoutByColumn('ogTpCd').summaryUserSpans = [
-    { colspan: 5 },
-    { colspan: 5 },
-    { colspan: 5 },
+    { colspan: 6 },
+    { colspan: 6 },
+    { colspan: 6 },
   ];
 
   view.columnByName('ogTpCd').setHeaderSummaries([
@@ -514,49 +510,31 @@ const initGridDtl = defineGrid((data, view) => {
 });
 
 const initGridRtDtl = defineGrid((data, view) => {
-  const fields = [
-    { fieldName: 'dgCstId' },
-    { fieldName: 'dgCstNm' },
-    { fieldName: 'baseYm' },
-    { fieldName: 'piaSellFeeCrdovrBlam', dataType: 'number' },
-    { fieldName: 'piaFeeOcAmt', dataType: 'number' },
-    { fieldName: 'csRplcAmt1', dataType: 'number' },
-    { fieldName: 'csRplcAmt2', dataType: 'number' },
-    { fieldName: 'csRplcAmt3', dataType: 'number' },
-    { fieldName: 'csRplcAmt4', dataType: 'number' },
-    { fieldName: 'csRplcAmt5', dataType: 'number' },
-    { fieldName: 'csRplcAmt6', dataType: 'number' },
-    { fieldName: 'csRplcAmt7', dataType: 'number' },
-    { fieldName: 'csRplcAmt8', dataType: 'number' },
-    { fieldName: 'csRplcAmt9', dataType: 'number' },
-    { fieldName: 'csRplcAmt10', dataType: 'number' },
-    { fieldName: 'csRplcAmt11', dataType: 'number' },
-    { fieldName: 'csRplcAmt12', dataType: 'number' },
-    { fieldName: 'csRplcAmtTot', dataType: 'number' },
-    { fieldName: 'piaFeeEotBlam', dataType: 'number' },
+  const columns = [
+    { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '120', styleName: 'text-center', options: codes.SELL_TP_CD },
+    { fieldName: 'sellTpDtlCd', header: t('MSG_TXT_SELL_TP_DTL'), width: '150', styleName: 'text-center', options: codes.SELL_TP_DTL_CD },
+    { fieldName: 'pdHclsfNm', header: t('MSG_TXT_PD_HCLSF_NM'), width: '150', styleName: 'text-center' },
+    { fieldName: 'pdMclsfNm', header: t('MSG_TXT_PD_MCLSF_NM'), width: '150', styleName: 'text-center' },
+    { fieldName: 'baseYm', header: t('MSG_TXT_BASE_YM'), width: '120', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
+    { fieldName: 'piaSellFeeCrdovrResAmt', header: t('MSG_TXT_PIA_SELL_FEE_CRDOVR_BLAM'), width: '170', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
+    { fieldName: 'piaFeeOcAmt', header: t('MSG_TXT_PIA_FEE_OC_AMT'), width: '170', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
+    { fieldName: 'csRplcAmt1', header: `1${t('MSG_TXT_MON')}`, width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
+    { fieldName: 'csRplcAmt2', header: `2${t('MSG_TXT_MON')}`, width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
+    { fieldName: 'csRplcAmt3', header: `3${t('MSG_TXT_MON')}`, width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
+    { fieldName: 'csRplcAmt4', header: `4${t('MSG_TXT_MON')}`, width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
+    { fieldName: 'csRplcAmt5', header: `5${t('MSG_TXT_MON')}`, width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
+    { fieldName: 'csRplcAmt6', header: `6${t('MSG_TXT_MON')}`, width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
+    { fieldName: 'csRplcAmt7', header: `7${t('MSG_TXT_MON')}`, width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
+    { fieldName: 'csRplcAmt8', header: `8${t('MSG_TXT_MON')}`, width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
+    { fieldName: 'csRplcAmt9', header: `9${t('MSG_TXT_MON')}`, width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
+    { fieldName: 'csRplcAmt10', header: `10${t('MSG_TXT_MON')}`, width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
+    { fieldName: 'csRplcAmt11', header: `11${t('MSG_TXT_MON')}`, width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
+    { fieldName: 'csRplcAmt12', header: `12${t('MSG_TXT_MON')}`, width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
+    { fieldName: 'csRplcAmtTot', header: t('MSG_TXT_CS_RPLC_AMT_SUM'), width: '170', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
+    { fieldName: 'piaFeeEotBlam', header: t('MSG_TXT_PIA_FEE_EOT_BLAM'), width: '170', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
   ];
 
-  const columns = [
-    { fieldName: 'dgCstId', header: t('MSG_TXT_RPRS_CUST_NO'), width: '120', styleName: 'text-center' },
-    { fieldName: 'dgCstNm', header: t('MSG_TXT_DG_CST_CD_NM'), width: '120', styleName: 'text-center' },
-    { fieldName: 'baseYm', header: t('MSG_TXT_BASE_YM'), width: '120', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
-    { fieldName: 'piaSellFeeCrdovrBlam', header: t('MSG_TXT_PIA_SELL_FEE_CRDOVR_BLAM'), width: '170', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'piaFeeOcAmt', header: t('MSG_TXT_PIA_FEE_OC_AMT'), width: '170', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'csRplcAmt1', header: `1${t('MSG_TXT_MON')}`, width: '120', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'csRplcAmt2', header: `2${t('MSG_TXT_MON')}`, width: '120', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'csRplcAmt3', header: `3${t('MSG_TXT_MON')}`, width: '120', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'csRplcAmt4', header: `4${t('MSG_TXT_MON')}`, width: '120', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'csRplcAmt5', header: `5${t('MSG_TXT_MON')}`, width: '120', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'csRplcAmt6', header: `6${t('MSG_TXT_MON')}`, width: '120', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'csRplcAmt7', header: `7${t('MSG_TXT_MON')}`, width: '120', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'csRplcAmt8', header: `8${t('MSG_TXT_MON')}`, width: '120', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'csRplcAmt9', header: `9${t('MSG_TXT_MON')}`, width: '120', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'csRplcAmt10', header: `10${t('MSG_TXT_MON')}`, width: '120', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'csRplcAmt11', header: `11${t('MSG_TXT_MON')}`, width: '120', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'csRplcAmt12', header: `12${t('MSG_TXT_MON')}`, width: '120', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'csRplcAmtTot', header: t('MSG_TXT_CS_RPLC_AMT_SUM'), width: '170', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'piaFeeEotBlam', header: t('MSG_TXT_PIA_FEE_EOT_BLAM'), width: '170', styleName: 'text-right', numberFormat: '#,##0' },
-  ];
+  const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
 
   data.setFields(fields);
   view.setColumns(columns);
@@ -564,10 +542,10 @@ const initGridRtDtl = defineGrid((data, view) => {
   view.rowIndicator.visible = true;
 
   view.setFooters({ visible: true, items: [{ height: 40 }] });
-  view.layoutByColumn('dgCstId').footerUserSpans = [{ colspan: 3 }];
-  view.columnByName('dgCstId').setFooters({ text: t('MSG_TXT_SUM'), styleName: 'text-center' });
+  view.layoutByColumn('sellTpCd').footerUserSpans = [{ colspan: 5 }];
+  view.columnByName('sellTpCd').setFooters({ text: t('MSG_TXT_SUM'), styleName: 'text-center' });
 
-  view.columnByName('piaSellFeeCrdovrBlam').setFooters({ numberFormat: '#,##0', expression: 'sum', styleName: 'text-right' });
+  view.columnByName('piaSellFeeCrdovrResAmt').setFooters({ numberFormat: '#,##0', expression: 'sum', styleName: 'text-right' });
   view.columnByName('piaFeeOcAmt').setFooters({ numberFormat: '#,##0', expression: 'sum', styleName: 'text-right' });
   view.columnByName('csRplcAmtTot').setFooters({ numberFormat: '#,##0', expression: 'sum', styleName: 'text-right' });
   view.columnByName('piaFeeEotBlam').setFooters({ numberFormat: '#,##0', expression: 'sum', styleName: 'text-right' });
@@ -577,15 +555,18 @@ const initGridRtDtl = defineGrid((data, view) => {
   }
 
   view.setColumnLayout([
-    'dgCstId',
-    'dgCstNm',
+    'sellTpCd',
+    'sellTpDtlCd',
+    'pdHclsfNm',
+    'pdMclsfNm',
     'baseYm',
-    'piaSellFeeCrdovrBlam',
+    'piaSellFeeCrdovrResAmt',
     'piaFeeOcAmt',
     {
       header: t('MSG_TXT_CS_RPLC_AMT'),
       direction: 'horizontal',
-      items: ['csRplcAmt1',
+      items: [
+        'csRplcAmt1',
         'csRplcAmt2',
         'csRplcAmt3',
         'csRplcAmt4',
@@ -596,7 +577,8 @@ const initGridRtDtl = defineGrid((data, view) => {
         'csRplcAmt9',
         'csRplcAmt10',
         'csRplcAmt11',
-        'csRplcAmt12'],
+        'csRplcAmt12',
+      ],
     },
     'csRplcAmtTot',
     'piaFeeEotBlam',

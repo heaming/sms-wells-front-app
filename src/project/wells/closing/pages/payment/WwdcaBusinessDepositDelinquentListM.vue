@@ -110,6 +110,8 @@ const { getConfig } = useMeta();
 const { alert } = useGlobal();
 const dataService = useDataService();
 const { currentRoute } = useRouter();
+const { getters } = useStore();
+const userInfo = getters['meta/getUserInfo'];
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -122,7 +124,7 @@ const codes = await codeUtil.getMultiCodes(
 const searchParams = ref({
   baseYm: now.format('YYYYMM'), // 기준년월
   ogTp: 'W01', // 조직유형
-  dgr1LevlOgCd: '',
+  dgr1LevlOgCd: userInfo.ogId,
   dgr2LevlOgCd: '',
   dgr3LevlOgCd: '',
 });
