@@ -1,7 +1,7 @@
 <template>
   <tablet-layout>
     <template #default>
-      <tablet-left-drawer />
+      <tablet-left-drawer v-if="!isPopup" />
       <tablet-stack-view v-if="!isPopup" />
       <web-router-view v-if="isPopup" />
     </template>
@@ -17,7 +17,7 @@
 <script setup>
 import {
   useSession,
-  TabletLayout, TabletLeftDrawer, TabletStackView, TabletFallbackLogin,
+  TabletLayout, TabletLeftDrawer, TabletStackView, TabletFallbackLogin, WebRouterView,
 } from 'kw-lib';
 
 const route = useRouter();
