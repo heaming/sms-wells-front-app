@@ -82,14 +82,14 @@
           <!-- 개시차월 -->
           <kw-form-item
             :label="$t('MSG_TXT_OPNG_NMN')"
-            align-content="left"
+            align-content="right"
           >
             <p>{{ baseInfo?.startYm ? stringUtil.getNumberWithComma(baseInfo?.startYm) : '' }}</p>
           </kw-form-item>
           <!-- 승진차월 -->
           <kw-form-item
             :label="$t('MSG_TXT_PRFMT_NMN')"
-            align-content="left"
+            align-content="right"
           >
             <p>{{ baseInfo?.prfmtYm ? stringUtil.getNumberWithComma(baseInfo?.prfmtYm) : '' }}</p>
           </kw-form-item>
@@ -101,7 +101,7 @@
         <kw-form-row>
           <!-- 예상조직수수료 -->
           <kw-form-item
-            v-if="useOg"
+            v-if="userDvCd === 'OG'"
             :label="$t('MSG_TXT_EST_OG_FEE')"
             align-content="right"
           >
@@ -146,7 +146,7 @@
       </kw-action-top>
       <kw-grid
         ref="grdDetailRef"
-        :visible-rows="useOg ? 4 : 2"
+        :visible-rows="userDvCd === 'OG' ? 4 : 2"
         @init="initGridDetail"
       />
       <!-- BS내역 -->
@@ -169,7 +169,7 @@
       />
       <!-- 조직BS내역 -->
       <template
-        v-if="useOg"
+        v-if="userDvCd === 'OG'"
       >
         <kw-action-top class="mt30">
           <template #left>
@@ -277,7 +277,7 @@
           </tr>
           <!-- 예상조직수수료 -->
           <template
-            v-if="useOg"
+            v-if="userDvCd === 'OG'"
           >
             <tr>
               <th rowspan="2">
@@ -350,7 +350,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { defineGrid, useDataService, useGlobal, getComponentType, codeUtil, stringUtil } from 'kw-lib';
-import { cloneDeep, reduce, divide } from 'lodash-es';
+import { cloneDeep, divide, reduce } from 'lodash-es';
 import dayjs from 'dayjs';
 import ZwogPartnerSearch from '~sms-common/organization/components/ZwogPartnerSearch.vue';
 
@@ -361,7 +361,7 @@ const dataService = useDataService();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
-const useOg = ref(true);
+const userDvCd = ref('OG');
 const codes = await codeUtil.getMultiCodes(
   'RSB_DV_CD',
   'CNTRW_TP_CD',
@@ -425,6 +425,8 @@ const baseInfo = ref({
 // 데이터 조회
 async function fetchData() {
   const { data } = await dataService.get('/sms/wells/fee/estimate/m-og', { params: { ...cachedParams } });
+  userDvCd.value = data.userDvCd;
+  await nextTick();
   baseInfo.value = data.base;
   grdMtData.value.setRows([data.meeting]);
   grdDetailData.value.setRows(data.performances);
@@ -435,7 +437,7 @@ async function fetchData() {
     }
   });
   grdBsData.value.setRows(data.bses);
-  grdOgBsData.value.setRows(data.ogBses);
+  if (userDvCd.value === 'OG') grdOgBsData.value.setRows(data.ogBses);
   grdSalesData.value.setRows(data.sales);
 
   // @todo 예상수수료 계산로직 정의후 아래항목도 변경되야됨
