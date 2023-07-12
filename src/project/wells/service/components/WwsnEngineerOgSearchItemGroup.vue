@@ -15,7 +15,7 @@
 <template>
   <kw-search-item
     v-if="useOgLevel > '0'"
-    :label="$t('MSG_TXT_CENTER_DIVISION')"
+    :label="$t('MSG_TXT_SV_CNR')"
     :required="dgr1LevlOgRequired"
   >
     <kw-select
