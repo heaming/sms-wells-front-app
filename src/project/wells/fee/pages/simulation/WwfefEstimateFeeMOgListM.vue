@@ -429,6 +429,7 @@ async function fetchData() {
   userDvCd.value = data.userDvCd;
   await nextTick();
   baseInfo.value = data.base;
+  baseInfo.value.amtFeeSum = reduce(data.base, (result, value, key) => (key.indexOf('amt') > -1 ? result + value : result), 0);
   grdMtData.value.setRows([data.meeting]);
   grdDetailData.value.setRows(data.performances);
   data.bses.forEach((item) => {
