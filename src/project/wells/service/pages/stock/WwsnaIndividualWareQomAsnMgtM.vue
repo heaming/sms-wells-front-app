@@ -151,7 +151,6 @@
           dense
           secondary
           :label="$t('MSG_TXT_WARE_RNW')"
-          :disable="isSearch"
           @click="onClickWareRenewal"
         />
       </kw-action-top>
@@ -183,7 +182,7 @@ import dayjs from 'dayjs';
 
 const { t } = useI18n();
 const { getConfig } = useMeta();
-const { notify, confirm } = useGlobal();
+const { notify, confirm, alert } = useGlobal();
 const { currentRoute } = useRouter();
 
 const dataService = useDataService();
@@ -294,7 +293,6 @@ async function fetchData() {
   }
 }
 
-const isSearch = ref(true);
 async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
 
@@ -309,7 +307,7 @@ async function onClickSearch() {
     }
 
     // 데이터 생성
-    res = await dataService.post('/sms/wells/service/qom-asn/individual-ware', cachedParams, { timeout: 200000 });
+    res = await dataService.post('/sms/wells/service/qom-asn/individual-ware', cachedParams, { timeout: 300000 });
     const { processCount } = res.data;
     if (processCount > 0) {
       // 생성되었습니다.
@@ -320,7 +318,6 @@ async function onClickSearch() {
   pageInfo.value.pageIndex = 1;
   // 조회버튼 클릭 시에만 총 건수 조회하도록
   pageInfo.value.needTotalCount = true;
-  isSearch.value = false;
   await fetchData();
 }
 
@@ -338,12 +335,28 @@ async function onClickExcelDownload() {
 
 // 창고갱신
 async function onClickWareRenewal() {
-  const res = await dataService.put('/sms/wells/service/qom-asn/ware-renewal', cachedParams);
+  const { asnOjYm, apyYm } = searchParams.value;
+
+  if (isEmpty(apyYm)) {
+    // {0}은(는) 필수 항목입니다.
+    await alert(`${t('MSG_TXT_BASE_YM')}${t('MSG_ALT_NCELL_REQUIRED_ITEM')}`);
+    return;
+  }
+  if (isEmpty(asnOjYm)) {
+    // {0}은(는) 필수 항목입니다.
+    await alert(`${t('MSG_TXT_ASN_YM')}${t('MSG_ALT_NCELL_REQUIRED_ITEM')}`);
+    return;
+  }
+
+  const res = await dataService.put('/sms/wells/service/qom-asn/ware-renewal', searchParams.value, { timeout: 300000 });
   const { processCount } = res.data;
   if (processCount > 0) {
     // 창고 갱신이 완료되었습니다.
     notify(t('MSG_ALT_WARE_RNW_FSH'));
+    return;
   }
+  // 이미 처리되었습니다.
+  notify(t('MSG_ALT_ALRDY_PROCS_FSH'));
 }
 
 // -------------------------------------------------------------------------------------------------
