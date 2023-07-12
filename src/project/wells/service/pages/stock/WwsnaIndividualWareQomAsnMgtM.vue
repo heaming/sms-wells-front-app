@@ -307,7 +307,7 @@ async function onClickSearch() {
     }
 
     // 데이터 생성
-    res = await dataService.post('/sms/wells/service/qom-asn/individual-ware', cachedParams, { timeout: 300000 });
+    res = await dataService.post('/sms/wells/service/qom-asn/individual-ware', cachedParams, { timeout: 3000000 });
     const { processCount } = res.data;
     if (processCount > 0) {
       // 생성되었습니다.
