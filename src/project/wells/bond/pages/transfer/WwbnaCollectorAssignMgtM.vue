@@ -210,7 +210,8 @@
       <kw-grid
         ref="grdSubRef"
         name="grdSub"
-        :visible-rows="pageInfo.visibleRowNumber"
+        :page-size="pageInfo.pageSize"
+        :total-count="pageInfo.totalCount"
         @init="initGrdSub"
       />
       <kw-pagination
@@ -230,7 +231,7 @@
 import { useGlobal, codeUtil, getComponentType, router, useMeta, useDataService, defineGrid, gridUtil } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
-import { getBzHdqDvcd, getGridVisibleRowNumber } from '~sms-common/bond/utils/bnUtil';
+import { getBzHdqDvcd } from '~sms-common/bond/utils/bnUtil';
 import { chkInputSearchComplete, openSearchUserCommonPopup, isCustomerCommon, openSearchClctamPsicCommonPopup, fetchPartnerNoCommon } from '~sms-common/bond/pages/transfer/utils/bnaTransferUtils';
 
 const { t } = useI18n();
@@ -264,7 +265,6 @@ const pageInfo = ref({
   pageIndex: 1,
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
   needTotalCount: true,
-  visibleRowNumber: getGridVisibleRowNumber(),
 });
 
 const defaultDate = dayjs().format('YYYYMM');
