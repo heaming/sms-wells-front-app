@@ -190,7 +190,7 @@ import { getGridVisibleRowNumber } from '~sms-common/bond/utils/bnUtil';
 
 const dataService = useDataService();
 const router = useRouter();
-const { modal, notify } = useGlobal();
+const { modal, notify, alert } = useGlobal();
 const { t } = useI18n();
 const { getters } = useStore();
 const { getConfig } = useMeta();
@@ -344,13 +344,13 @@ const onClickSend = async () => {
   const view = grdDetailRef.value.getView();
   const dataRows = await gridUtil.getAllRowValues(view);
   if (dataRows.length > 0) {
-    notify(t('MSG_ALT_NO_SRCH_DATA')); return;
+    notify(t('MSG_ALT_NO_SRCH_DATA'));
+  } else if (cachedParams.baseYm !== now.format('YYYYMM')) {
+    notify(t('MSG_ALT_THM_DTA_SEND_ONLY'));
+  } else {
+    await dataService.post(`${baseUrl}/send`, cachedParams);
+    await alert(t('MSG_ALT_FOSTER_SEND_SUCCESS'));
   }
-  if (cachedParams.baseYm !== now.format('YYYYMM')) {
-    notify(t('MSG_ALT_THM_DTA_SEND_ONLY')); return;
-  }
-  await dataService.post(`${baseUrl}/send`, cachedParams);
-  notify(t('MSG_ALT_FOSTER_SEND_SUCCESS'));
 };
 
 watch(() => searchParams.value.baseYm, async (baseYm) => {
