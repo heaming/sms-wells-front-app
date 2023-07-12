@@ -166,13 +166,13 @@ async function fetchData() {
 
 async function onChange() {
   if (fieldParam.value.gubun === 'A') {
-    fieldParam.value.cralLocaraTno = props.cralTno.substr(0, 3);
-    fieldParam.value.mexnoEncr = props.cralTno.substr(3, 4);
-    fieldParam.value.cralIdvTno = props.cralTno.substr(7, 4);
+    fieldParam.value.cralLocaraTno = props.cralTno.split('-')[0];
+    fieldParam.value.mexnoEncr = props.cralTno.split('-')[1];
+    fieldParam.value.cralIdvTno = props.cralTno.split('-')[2];
   } else {
-    fieldParam.value.cralLocaraTno = props.rcgvpTno.substr(0, 3);
-    fieldParam.value.mexnoEncr = props.rcgvpTno.substr(3, 4);
-    fieldParam.value.cralIdvTno = props.rcgvpTno.substr(7, 4);
+    fieldParam.value.cralLocaraTno = props.rcgvpTno.split('-')[0];
+    fieldParam.value.mexnoEncr = props.rcgvpTno.split('-')[1];
+    fieldParam.value.cralIdvTno = props.rcgvpTno.split('-')[2];
   }
 }
 
