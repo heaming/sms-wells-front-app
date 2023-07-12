@@ -306,8 +306,12 @@ async function onClickSearch() {
       return;
     }
 
+    // 데이터 조회
+    res = await dataService.get('/sms/wells/service/qom-asn/individual-wares', { params: { ...cachedParams }, timeout: 3000000 });
+    const qomAsnList = res.data;
+
     // 데이터 생성
-    res = await dataService.post('/sms/wells/service/qom-asn/individual-ware', cachedParams, { timeout: 3000000 });
+    res = await dataService.post('/sms/wells/service/qom-asn/individual-wares', qomAsnList, { timeout: 3000000 });
     const { processCount } = res.data;
     if (processCount > 0) {
       // 생성되었습니다.
