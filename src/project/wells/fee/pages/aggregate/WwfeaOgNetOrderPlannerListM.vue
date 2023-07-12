@@ -346,11 +346,13 @@
           @click="onClickExcelDownload"
         />
         <kw-separator
+          v-if="isPerfVisile"
           vertical
           inset
           spaced
         />
         <kw-btn
+          v-if="isPerfVisile"
           :label="$t('MSG_BTN_FEE_PERF_CRT')"
           primary
           dense
@@ -358,6 +360,7 @@
           @click="openFeePerfCrtPopup"
         />
         <kw-btn
+          v-if="isPerfVisile"
           :label="$t('MSG_BTN_FEE_PERF_DTRM')"
           primary
           dense
@@ -365,6 +368,7 @@
           @click="openFeePerfCnfmPopup"
         />
         <kw-btn
+          v-if="isPerfVisile"
           :label="$t('MSG_BTN_FEE_PERF_DTRM_CAN')"
           primary
           dense
@@ -435,6 +439,7 @@ const isSelectVisile1 = ref(true);
 const isSelectVisile2 = ref(false);
 const isSelectVisile3 = ref(false);
 const isExcelDown = ref(false);
+const isPerfVisile = ref(false);
 
 const searchParams = ref({
   schInqrDv: '01',
@@ -522,16 +527,19 @@ async function onChangeInqrDv() {
       isSelectVisile1.value = false;
       isSelectVisile2.value = true;
       isSelectVisile3.value = false;
+      isPerfVisile.value = true;
     } else {
       isSelectVisile1.value = true;
       isSelectVisile2.value = false;
       isSelectVisile3.value = false;
+      isPerfVisile.value = false;
     }
     initSearchParams();
   } else if (schInqrDv === '02') {
     isSelectVisile1.value = false;
     isSelectVisile2.value = false;
     isSelectVisile3.value = true;
+    isPerfVisile.value = true;
     initSearchParams();
   }
 }
