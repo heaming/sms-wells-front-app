@@ -67,6 +67,7 @@
             :on-click-icon="openSearchClctamPsicPopup"
             :on-keydown-no-click="true"
             regex="alpha_hangul"
+            maxlength="25"
             @keydown.enter="fetchPartnerNo"
           />
         </kw-search-item>
@@ -90,6 +91,7 @@
             icon="search"
             :on-click-icon="openSearchUserPopup"
             :on-keydown-no-click="true"
+            maxlength="10"
             @keydown.enter="isCustomer($event, 'type1')"
           />
         </kw-search-item>
@@ -103,6 +105,7 @@
             :on-click-icon="openSearchUserPopup"
             :on-keydown-no-click="true"
             regex="alpha_hangul"
+            maxlength="25"
             @keydown.enter="isCustomer($event, 'type2')"
           />
         </kw-search-item>
