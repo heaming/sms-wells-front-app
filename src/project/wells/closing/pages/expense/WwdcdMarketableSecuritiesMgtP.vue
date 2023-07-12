@@ -254,6 +254,15 @@ async function fetchData() {
   cachedParams.rsbDvCd = sumParams.rsbDvCd;
   cachedParams.dgr1LevlOgId = sumParams.dgr1LevlOgId;
 
+  if (!isEmpty(props.cachedParams.dgr3LevlOgId)) {
+    cachedParams.mainDgr3LevlOgId = props.cachedParams.dgr3LevlOgId;
+  } else if (!isEmpty(props.cachedParams.dgr2LevlOgId)) {
+    cachedParams.mainDgr2LevlOgId = props.cachedParams.dgr2LevlOgId;
+  } else if (!isEmpty(props.cachedParams.dgr1LevlOgId)) {
+    cachedParams.mainDgr1LevlOgId = props.cachedParams.dgr1LevlOgId;
+  }
+  cachedParams.dgr2LevlOgId = '';
+
   await ogLevlDvCd0();
   await subject();
   await marketableSecuritiesExcd();
