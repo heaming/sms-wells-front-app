@@ -310,6 +310,11 @@ async function onClickSearch() {
     res = await dataService.get('/sms/wells/service/qom-asn/individual-wares', { params: { ...cachedParams }, timeout: 3000000 });
     const qomAsnList = res.data;
 
+    if (isEmpty(qomAsnList)) {
+      // 적용 대상 데이터가 없습니다.
+      await alert(t('MSG_ALT_NO_APPY_OBJ_DT'));
+      return;
+    }
     // 데이터 생성
     res = await dataService.post('/sms/wells/service/qom-asn/individual-wares', qomAsnList, { timeout: 3000000 });
     const { processCount } = res.data;
