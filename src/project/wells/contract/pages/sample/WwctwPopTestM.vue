@@ -200,5 +200,15 @@ const pops = [
       cntrSn: '1',
     },
   },
+  {
+    pname: 'WwctaVirtualAccountMessageForwardingP',
+    title: '주문상세페이지 내부 팝업_가상계좌 메세지 보내기 W-SS-U-0092P15',
+    param: {
+      cntrNo: 'W20155005919',
+      cntrSn: '1',
+      cralTno: '01012345678',
+      rcgvpTno: '01087654321',
+    },
+  },
 ];
 </script>
