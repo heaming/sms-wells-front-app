@@ -56,7 +56,7 @@
               v-model="fieldParams.cstKnm"
               :label="t('MSG_TXT_CST_NM')"
               rules="required|"
-              maxlength="15"
+              maxlength="30"
             />
           </kw-form-item>
         </kw-form-row>
@@ -105,7 +105,7 @@ const now = dayjs();
 
 const { t } = useI18n();
 const { cancel } = useModal();
-const { alert, notify } = useGlobal();
+const { alert, notify, confirm } = useGlobal();
 
 const obsMainRef = ref(getComponentType('KwObserver'));
 
@@ -155,6 +155,7 @@ async function fetchCstNm() {
   if (!isEmpty(res.data)) {
     fieldParams.value.cstKnm = res.data;
   }
+  obsMainRef.value.init();
 }
 
 async function onClickSendEmail() {
@@ -175,8 +176,11 @@ async function onClickSendEmail() {
     alert(t('MSG_ALT_INVAILD_FW_DV'));
     return;
   }
+
+  if (!await confirm(t('MSG_ALT_WANT_SEND'))) { return; }
+
   await dataService.post('/sms/wells/contract/contracts/order-details/documentary-evidence-mails', cachedFieldParams);
-  notify(t('MSG_ALT_SAVE_DATA'));
+  notify(t('MSG_ALT_EML_FW_FSH'));
 }
 
 onMounted(async () => {
