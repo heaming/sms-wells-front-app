@@ -404,7 +404,7 @@ async function onClickServiceSchPopup() {
 
   const materialCds = gridUtil.getAllRowValues(grdMaterialRef.value.getView())
     ?.reduce((rtn, item) => { rtn.push({ codeId: item.pdCd, codeName: item.pdNm }); return rtn; }, []);
-  const filteredMaterialCds = materialCds.length ? uniqBy(materialCds, 'codeId') : null;
+  const filteredMaterialCds = materialCds.length ? uniqBy(materialCds, 'codeId') : [];
   const rtn = await modal({
     component: 'ZwpdcServiceSimpleListP',
     componentProps: { ...searchParams.value, relationCds: filteredMaterialCds },
