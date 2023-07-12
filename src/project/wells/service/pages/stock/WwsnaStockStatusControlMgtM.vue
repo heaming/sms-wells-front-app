@@ -179,6 +179,8 @@ const codes = await codeUtil.getMultiCodes(
   'CTR_RSON_CD', // 상태조정사유
 );
 
+console.log(codes.ITM_GD_CTR_TP_CD);
+
 const PD_ITM_KND_CD = '4';
 const products = ref([]);
 const filterWareNo = ref([]);
@@ -190,7 +192,7 @@ const searchParams = ref({
   ogNm: '',
   itmGdCtrTpCd: '',
   itmGdCtrRsonCd: '',
-  stFromYmd: dayjs().format('YYYYMMDD'),
+  stFromYmd: dayjs().set('date', 1).format('YYYYMMDD'),
   edToYmd: dayjs().format('YYYYMMDD'),
 
 });
@@ -210,28 +212,24 @@ codes.WARE_DV_CD.forEach((e) => {
   }
 });
 
-function initGridFilterClean() {
-  gridFilterWareNo.value = [];
+async function fetchAllItmPdCd(params) {
+  return await dataService.get('/sms/wells/service/stock-status-control/product', params);
 }
+// async function fetchItmPdCd(params) {
+//   return await dataService.get(`/sms/wells/service/stock-status-control/product/${params}`);
+// }
 
-async function onChangeWareNm(wareDvCd) {
-  debugger;
-  initGridFilterClean();
-  const res = await dataService.get('/sms/wells/service/stock-status-control/stocks', { params: { wareDvCd } });
-  gridFilterWareNo.value = res.data;
+const gItmPdCd = (await fetchAllItmPdCd({ params: { itmKnd: '' } })).data;
 
-  const wareNm = grdMainRef.value.getView().columnByField('wareNm');
-  wareNm.labels = gridFilterWareNo.value.map((v) => v.codeName);
-  wareNm.values = gridFilterWareNo.value.map((v) => v.codeId);
-}
+console.log(gItmPdCd);
 
 function setItemPdCdCellStyle() {
-  const itmPdCd = grdMainRef.value.getView().columnByField('itmPdCd');
+  const itmPdNm = grdMainRef.value.getView().columnByField('itmPdNm');
 
-  itmPdCd.editable = true;
-  itmPdCd.editor = { type: 'list' };
-  itmPdCd.labels = products.value.map((v) => v.codeName);
-  itmPdCd.values = products.value.map((v) => v.codeId);
+  itmPdNm.editable = true;
+  itmPdNm.editor = { type: 'list' };
+  itmPdNm.labels = products.value.map((v) => v.codeName);
+  itmPdNm.values = products.value.map((v) => v.codeId);
 }
 
 function setWareNoCellStyle() {
@@ -242,8 +240,19 @@ function setWareNoCellStyle() {
   wareNm.values = filterWareNo.value.map((v) => v.codeId);
 }
 
+// async function fetchGroupedProducts() {
+//   return await dataService.get('/psm/wells/service/bs-materials/products');
+// }
+
+// const res = await fetchGroupedProducts();
+
+async function fetchItmPdCd(params) {
+  return await dataService.get('/sms/wells/service/stock-status-control/product', params);
+}
+
 const onChangeItmKnd = async () => {
-  const res = await dataService.get(`/sms/wells/service/stock-status-control/product/${searchParams.value.itmKnd}`);
+  const res = await fetchItmPdCd({ params: { itmKnd: searchParams.value.itmKnd } });
+  // await dataService.get(`/sms/wells/service/stock-status-control/product/${searchParams.value.itmKnd}`);
   products.value = res.data;
   console.log(products.value);
   // console.log(filterItems);
@@ -333,6 +342,20 @@ async function onClickAddRow() {
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
 const initGrdMain = defineGrid((data, view) => {
+  // /* lookupTree 세팅 */
+  // const lookupTreeMainCodes = { id: 'lookupTreeMainCodes', levels: 1, keys: [], values: [] };
+  // const lookupTreeSubCodes = { id: 'lookupTreeSubCodes', levels: 2, tags: [], keys: [], values: [] };
+
+  // codes.ITM_KND_CD.forEach((codeObj) => {
+  //   lookupTreeMainCodes.keys.push(codeObj.codeId);
+  //   lookupTreeMainCodes.values.push(codeObj.codeName);
+  // });
+
+  // gItmPdCd.forEach((codeObj) => {
+  //   lookupTreeSubCodes.tags.push(codeObj.codeId);
+  //   lookupTreeSubCodes.keys.push([codeObj.codeId, codeObj.itmKnd]);
+  //   lookupTreeSubCodes.values.push(codeObj.codeName);
+  // });
   const fields = [
     { fieldName: 'wareNo' }, // 창고번호
     { fieldName: 'wareDvCd' }, // 창고구분코드
@@ -374,8 +397,6 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-center',
       width: '150',
       options: filterCodes.value.filterWareDvCd,
-      editor: { type: 'list' },
-      editable: true,
     },
     { fieldName: 'wareNm',
       header: {
@@ -392,6 +413,17 @@ const initGrdMain = defineGrid((data, view) => {
       header: t('MSG_TXT_MGMT_DEPT'),
       width: '150',
     },
+    { fieldName: 'itemKnd',
+      header: '품목종류',
+      styleName: 'text-center',
+      width: '150',
+      options: codes.ITM_KND_CD,
+      // lookupDisplay: true,
+      // values: lookupTreeMainCodes.keys,
+      // labels: lookupTreeMainCodes.values,
+      editor: { type: 'list' },
+      editable: true,
+    },
     { fieldName: 'itmGdCtrTpNm',
       header: t('MSG_TXT_STAT_CTR_TP'),
       styleName: 'text-center',
@@ -402,24 +434,31 @@ const initGrdMain = defineGrid((data, view) => {
     },
     { fieldName: 'ctrWkDt', header: '상태조정작업일 ', styleName: 'text-center', width: '150', datetimeFormat: 'date' },
     { fieldName: 'statCtrApyDt', header: '조정적용일자', styleName: 'text-center', width: '150', datetimeFormat: 'date' },
-    { fieldName: 'itemKnd',
-      header: '품목종류',
-      styleName: 'text-center',
-      width: '150',
-      options: codes.ITM_KND_CD,
-      editor: { type: 'list' },
-      editable: true,
-    },
     { fieldName: 'sapCd', header: 'SAP코드', styleName: 'text-center', width: '150' },
     { fieldName: 'itmPdCd',
       header: '품목코드',
       styleName: 'text-center',
       width: '150',
-      options: products.value,
+    },
+    { fieldName: 'itmPdNm',
+      header: '품목명',
+      styleName: 'text-center',
+      width: '200',
+      options: gItmPdCd.value,
+      // lookupDisplay: true,
+      // lookupSourceId: 'lookupTreeSubCodes',
+      // lookupKeyFields: ['itemKnd', 'itmPdNm'],
       editor: { type: 'list' },
       editable: true,
+      // styleCallback: (grid, dataCell) => {
+      //   const gridItemKnd = grid.getValue(dataCell.index.itemIndex, 'itemKnd');
+      //   const gridItmPdCd = gItmPdCd.value
+      //     .filter((v) => v.itmKnd === gridItemKnd)
+      //     .map((v) => v.codeName)
+      //     .reduce((a, v) => (a.includes(v) ? a : [...a, v]), []);
+      //   return { editor: { type: 'list', labels: gridItmPdCd, values: gridItmPdCd } };
+      // },
     },
-    { fieldName: 'itmPdNm', header: '품목명', styleName: 'text-center', width: '200' },
     { fieldName: 'bfctNomStocAGdQty', header: 'A등급', styleName: 'text-right', width: '99' },
     { fieldName: 'bfctNomStocEGdQty', header: 'E등급', styleName: 'text-right', width: '99' },
     { fieldName: 'bfctNomStocRGdQty', header: 'R등급', styleName: 'text-right', width: '99' },
@@ -434,10 +473,10 @@ const initGrdMain = defineGrid((data, view) => {
     'wareDvCd',
     'wareNm',
     'ogNm',
+    'itemKnd',
     'itmGdCtrTpNm',
     'ctrWkDt',
     'statCtrApyDt',
-    'itemKnd',
     'sapCd',
     'itmPdCd',
     'itmPdNm',
@@ -466,21 +505,23 @@ const initGrdMain = defineGrid((data, view) => {
     console.log(wareDvCd);
     console.log(itemKnd);
     console.log(itmPdNm);
+    console.log(row);
+    console.log(field);
 
-    const changedFieldName = grid.getDataSource().getOrgFieldName(field);
+    // const changedFieldName = grid.getDataSource().getOrgFieldName(field);
 
-    const checkedValue = gridUtil.getRowValue(view, row);
-    console.log(checkedValue);
-    debugger;
-    if (changedFieldName === 'wareDvCd') {
-      const gridWareDvCd = wareDvCd;
-      console.log(gridWareDvCd);
-      onChangeWareNm(gridWareDvCd);
-    }
+    // const checkedValue = gridUtil.getRowValue(view, row);
+    // console.log(checkedValue);
+    // debugger;
+    // if (changedFieldName === 'wareDvCd') {
+    //   const gridWareDvCd = wareDvCd;
+    //   console.log(gridWareDvCd);
+    //   onChangeWareNm(gridWareDvCd);
+    // }
   };
 
   view.onCellEditable = (grid, index) => {
-    if (!gridUtil.isCreatedRow(grid, index.dataRow) && ['wareDvCd', 'wareNm', 'itmGdCtrTpNm', 'itemKnd'].includes(index.column)) {
+    if (!gridUtil.isCreatedRow(grid, index.dataRow) && ['wareNm', 'itmGdCtrTpNm'].includes(index.column)) {
       return false;
     }
   };
