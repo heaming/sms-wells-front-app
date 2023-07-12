@@ -142,7 +142,10 @@
           <kw-form-row>
             <kw-form-item :label="$t('MSG_TXT_CONTACT')">
               <p v-if="!isEmpty(customerInfo?.cstNo)">
-                {{ customerInfo?.mpno }} / {{ customerInfo?.hpno }}
+                {{ customerInfo?.mpno }}
+                <span v-if="isTelFormat(customerInfo?.hpno) || isHpFormat(customerInfo?.hpno)">
+                  / {{ customerInfo?.hpno }}
+                </span>
               </p>
             </kw-form-item>
           </kw-form-row>
@@ -653,6 +656,24 @@ async function onClickContractDetailPop(dataInfo) {
 
 async function onClickServiceHistory() {
   await alert('개인별 서비스현황 화면 개발중');
+}
+
+function isTelFormat(tel) {
+  if (isEmpty(tel)) {
+    return false;
+  }
+  tel = tel.replaceAll('-', '');
+  const telRule = /^(070|02|0[3-9]{1}[0-9]{1})[0-9]{3,4}[0-9]{4}$/;
+  return telRule.test(tel);
+}
+
+function isHpFormat(hp) {
+  if (isEmpty(hp)) {
+    return false;
+  }
+  hp = hp.replaceAll('-', '');
+  const hpRule = /^(01[016789]{1})[0-9]{3,4}[0-9]{4}$/;
+  return hpRule.test(hp);
 }
 
 // -------------------------------------------------------------------------------------------------
