@@ -3,13 +3,14 @@
  * 프로그램 개요
  ***************************************************************************************************
  1. 모듈 : 일자별 설치재고 현황
- 2. 프로그램 ID : K-W-SV-U-0116M01
+ 2. 프로그램 ID : WwsnaInstallationStockPsByDayM
  3. 작성자 : heymi.cho
  4. 작성일 : 2023.07.05
  ***************************************************************************************************
  * 프로그램 설명
  ***************************************************************************************************
- - 입고 미승인 현황 (http://localhost:3000/#/service/wwsna-installation-stock-ps-by-day)
+ - 일자별 설치재고 현황 (http://localhost:3000/#/service/wwsna-installation-stock-ps-by-day)
+ - K-W-SV-U-0116M01
  ***************************************************************************************************
 -->
 
@@ -27,6 +28,7 @@
         >
           <kw-date-picker
             v-model="searchParams.baseDt"
+            :label="$t('MSG_TXT_BASE_DT')"
             :rules="required"
             type="date"
           />
@@ -47,6 +49,7 @@
         >
           <kw-select
             v-model="searchParams.itmKndCd"
+            :label="$t('MSG_TXT_ITM_DV')"
             :options="codes.ITM_KND_CD"
             first-option="all"
             disable
@@ -66,6 +69,7 @@
         >
           <kw-input
             v-model="searchParams.pdCd"
+            :label="$t('MSG_TXT_ITM_CD')"
           />
         </kw-search-item>
       </kw-search-row>
