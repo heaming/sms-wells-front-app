@@ -352,7 +352,7 @@ const initGrdMain = defineGrid((data, view) => {
     // 제품코드
     { fieldName: 'pdctPdCd',
       header: t('MSG_TXT_PROD_CD'),
-      width: '160',
+      width: '120',
       styleName: 'text-center',
       editable: false,
       rules: 'required',
@@ -360,22 +360,22 @@ const initGrdMain = defineGrid((data, view) => {
     // 제품명
     { fieldName: 'pdctPdNm',
       header: t('MSG_TXT_GOODS_NM'),
-      width: '207',
+      width: '200',
       editor: { maxLength: 100 },
       rules: 'required',
       button: 'action',
-      styleName: 'text-center rg-button-icon--search',
+      styleName: 'rg-button-icon--search',
       styleCallback(grid, dataCell) {
         return dataCell.item.rowState === 'created'
           ? { editable: true }
-          : { editable: false, styleName: 'text-center rg-button-hide' };
+          : { editable: false, styleName: 'text-left rg-button-hide' };
       },
     },
 
     // 기기종류
     { fieldName: 'rglrSppMchnKndCd',
       header: t('MSG_TXT_MCHN_KND'),
-      width: '130',
+      width: '110',
       styleName: 'text-center',
       placeHolder: t('MSG_TXT_SELT'),
       editor: { type: 'list' },
@@ -388,7 +388,7 @@ const initGrdMain = defineGrid((data, view) => {
     // 기기유형
     { fieldName: 'rglrSppMchnTpCd',
       header: t('MSG_TXT_UNIT_TYPE'),
-      width: '130',
+      width: '110',
       styleName: 'text-center',
       placeHolder: t('MSG_TXT_SELT'),
       editor: { type: 'list' },
@@ -401,7 +401,7 @@ const initGrdMain = defineGrid((data, view) => {
     // 가격구분
     { fieldName: 'rglrSppPrcDvCd',
       header: t('MSG_TXT_PRC_TYPE'),
-      width: '130',
+      width: '110',
       styleName: 'text-center',
       placeHolder: t('MSG_TXT_SELT'),
       editor: { type: 'list' },
@@ -415,7 +415,7 @@ const initGrdMain = defineGrid((data, view) => {
     {
       fieldName: 'basePdCd',
       header: t('MSG_TXT_PRDT_CODE'),
-      width: '160',
+      width: '120',
       styleName: 'text-center',
       editable: false,
     },
@@ -423,7 +423,7 @@ const initGrdMain = defineGrid((data, view) => {
     {
       fieldName: 'basePdNm',
       header: t('MSG_TXT_PRDT_NM'),
-      width: '207',
+      width: '200',
       styleName: 'text-left rg-button-icon--search',
       button: 'action',
       editor: { maxLength: 100 },
@@ -501,7 +501,7 @@ const initGrdMain = defineGrid((data, view) => {
     // 상품분류
     { fieldName: 'pdClsfNm',
       header: t('MSG_TXT_PRDT_CATE'),
-      width: '130',
+      width: '250',
       editable: false,
     },
     // 상품유형
