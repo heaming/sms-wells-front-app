@@ -69,6 +69,7 @@
         dense
         secondary
         :label="$t('MSG_BTN_EMAIL_SEND')"
+        @click="onClickEmailSend"
       />
       <kw-separator
         spaced
@@ -136,12 +137,12 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { defineGrid, getComponentType, useDataService, useGlobal } from 'kw-lib';
+import { defineGrid, getComponentType, useDataService, useGlobal, gridUtil } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 
 const dataService = useDataService();
 const { t } = useI18n();
-const { notify } = useGlobal();
+const { modal, notify } = useGlobal();
 const props = defineProps({
   cntrNo: { type: String, required: false, default: '' },
   cntrSn: { type: String, required: false, default: '' },
@@ -344,6 +345,35 @@ async function onClickSearch() {
   } else if (searchParams.value.cntrDvCd === '2') {
     await fetchCtnrLstData(); // 계약목록
   }
+}
+
+// 메일발송
+async function onClickEmailSend() {
+  // await alert('메일발송 팝업은 개발예정입니다.');
+  const view = grdContracts.value.getView();
+  const checkedItems = view.getCheckedItems();
+  const cntrList = [];
+
+  if (checkedItems.length === 0) {
+    notify(t('MSG_ALT_BEFORE_SELECT_IT', [t('MSG_TXT_ITEM')]));
+  } else {
+    const cntrs = gridUtil.getCheckedRowValues(view);
+    cntrs.forEach((row) => {
+      cntrList.push({
+        cntrNoFull: row.cntrDtlNo,
+      });
+    });
+  }
+
+  const searchPopupParams = {
+    docDvCd: searchParams.value.docDvCd, // 증빙서류종류
+    cntrList,
+  };
+
+  await modal({
+    component: 'WwctaDocumentaryEvidenceMailForwardingP', // 증빙서류 메일발송
+    componentProps: searchPopupParams,
+  });
 }
 
 onMounted(async () => {
