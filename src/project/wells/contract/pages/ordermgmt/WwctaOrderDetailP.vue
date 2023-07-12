@@ -301,7 +301,7 @@ import WwctaOrderDetailCollectingAmountContactListP from './WwctaOrderDetailColl
 
 const dataService = useDataService();
 // const { t } = useI18n();
-const { alert, modal } = useGlobal();
+const { modal } = useGlobal();
 const optionList = ref([]);
 const props = defineProps({
   cntrNo: { type: String, required: true, default: '' },
@@ -515,7 +515,18 @@ async function onSelectCntrctPdList() {
 
 // 가상계좌확인서
 async function onClickVtAcCfdc() {
-  await alert('가상계좌확인서 팝업은 개발예정입니다.');
+  const searchPopupParams = {
+    mailAddr: '', /* 메일주소 */
+    vacBnkNm: frmMainData.value.vacBnkNm, /* 가상계좌은행명 */
+    vacNo: frmMainData.value.vacInfo.split(' ')[0], /* 가상계좌번호 */
+    vacGbn: frmMainData.value.vacVncoDvCd, /* 가상계좌구분. 셰틀뱅크(S),KICC(K) */
+    custNm: frmMainData.value.cstKnm, /* 고객명 */
+  };
+
+  await modal({
+    component: 'WwctaVirtualAccountDocumentMailForwardingP', // 가상계좌 메일발송
+    componentProps: searchPopupParams,
+  });
 }
 
 // 문자발송
