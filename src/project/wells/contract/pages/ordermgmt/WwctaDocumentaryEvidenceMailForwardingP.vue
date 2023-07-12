@@ -148,8 +148,8 @@ async function fetchCstNm() {
     fieldParams.value.cstGubun = '1';
   }
 
-  const cntrNoParam = paramList.cntrNoFull.split('-')[0];
-  const cntrSnParam = paramList.cntrNoFull.split('-')[1];
+  const cntrNoParam = paramList.cntrDtlNo.split('-')[0];
+  const cntrSnParam = paramList.cntrDtlNo.split('-')[1];
 
   const res = await dataService.get('/sms/wells/contract/contracts/order-details/documentary-evidence-mails', { params: { cntrNo: cntrNoParam, cntrSn: cntrSnParam } });
   if (!isEmpty(res.data)) {
@@ -167,12 +167,12 @@ async function onClickSendEmail() {
 
   // 리스트 체크
   if (isEmpty(fieldParams.value.cstList)) {
-    alert('주문리스트는 1건 이상이어야 합니다.');
+    alert(t('MSG_ALT_INVAILD_ORD_LIST'));
     return;
   }
   // 발송구분 체크
   if (isEmpty(docDvCd) || (docDvCd !== '1' && docDvCd !== '2' && docDvCd !== '3' && docDvCd !== '4')) {
-    alert('발송구분이 없습니다.');
+    alert(t('MSG_ALT_INVAILD_FW_DV'));
     return;
   }
   await dataService.post('/sms/wells/contract/contracts/order-details/documentary-evidence-mails', cachedFieldParams);
