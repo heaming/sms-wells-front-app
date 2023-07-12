@@ -259,7 +259,16 @@ async function fetchData() {
   cachedParams = props.cachedParams;
   cachedParams.rsbDvCd = sumParams.rsbDvCd;
   cachedParams.dgr1LevlOgId = sumParams.dgr1LevlOgId;
-  debugger;
+
+  if (!isEmpty(props.cachedParams.dgr3LevlOgId)) {
+    cachedParams.mainDgr3LevlOgId = props.cachedParams.dgr3LevlOgId;
+  } else if (!isEmpty(props.cachedParams.dgr2LevlOgId)) {
+    cachedParams.mainDgr2LevlOgId = props.cachedParams.dgr2LevlOgId;
+  } else if (!isEmpty(props.cachedParams.dgr1LevlOgId)) {
+    cachedParams.mainDgr1LevlOgId = props.cachedParams.dgr1LevlOgId;
+  }
+  cachedParams.dgr2LevlOgId = '';
+
   await ogLevlDvCd0();
   await subject();
   await marketableSecuritiesExcd();
@@ -706,6 +715,5 @@ onMounted(async () => {
   // crcdnoEncr, mrcNm, cardAprno, domTrdAmt
   grdMainRef.value.getView().getDataSource().addRow(addValue);
   await fetchData();
-  console.log(addValue);
 });
 </script>

@@ -172,10 +172,10 @@ const searchParams = ref({
 //                     + "(TAB)유가증권"의 정산대상 grid에서 정산제외여부='N' 인것의 row개수
 // 미적요 :  "(TAB)유가증권 제외"의 정산대상 grid에서 구매품목 및 사용내역 항목이 빈값인 row개수
 //           + "(TAB)유가증권"의 정산대상 grid에서 구매품목 및 사용내역 항목이 빈값인 row개수
+let opcsAdjExcdYn = 0;
+let usrSmryCn = 0;
 async function isTabData(flag, datas) {
-  console.log('flag', flag);
-  console.log('datas', datas);
-
+  /*
   if (flag === 'basic') {
     const sub = grdSubRef.value.getView();
     const addValue = {};
@@ -223,6 +223,44 @@ async function isTabData(flag, datas) {
       sub.setValue(0, 'aesthetic', usrSmryCn);
     }
   }
+  */
+  debugger;
+  const sub = grdSubRef.value.getView();
+  const addValue = {};
+
+  if (flag === 'basic') {
+    datas.forEach((data) => {
+      if (data.opcsAdjExcdYn === 'N') {
+        opcsAdjExcdYn += 1;
+      } // 정산제외여부
+
+      if (isEmpty(data.usrSmryCn)) {
+        usrSmryCn += 1;
+      } // 구매품목
+    });
+  } else if (flag === 'sel') {
+    datas.forEach((data) => {
+      if (data.opcsAdjExcdYn === 'N') {
+        opcsAdjExcdYn += 1;
+      } // 정산제외여부
+
+      if (isEmpty(data.usrSmryCn)) {
+        usrSmryCn += 1;
+      } // 구매품목
+    });
+  }
+
+  if (isEmpty(sub.getValues(0))) {
+    addValue.operatingExpensesTotal = opcsAdjExcdYn;
+    addValue.aesthetic = usrSmryCn;
+    sub.getDataSource().addRow(addValue);
+
+    sub.setValue(0, 'operatingExpensesTotal', 0);
+    sub.setValue(0, 'aesthetic', 0);
+  } else {
+    sub.setValue(0, 'operatingExpensesTotal', opcsAdjExcdYn);
+    sub.setValue(0, 'aesthetic', usrSmryCn);
+  }
 }
 
 async function fetchAmountData() {
@@ -245,13 +283,8 @@ async function fetchAmountData() {
     view.getDataSource().setRows(mainData);
     view.resetCurrent();
 
-    const tab = selectedTab.value;
-    if (tab === 'basic') {
-      debugger;
-      await tabRefs.basic.setData(cachedParams);
-    } else if (tab === 'sel') {
-      await tabRefs.sel.setData(cachedParams);
-    }
+    await tabRefs.basic.setData(cachedParams);
+    await tabRefs.sel.setData(cachedParams);
   } else {
     view.getDataSource().setRows(mainData);
     view.resetCurrent();
@@ -293,6 +326,8 @@ async function fetchData() {
 }
 
 async function onClickSearch() {
+  opcsAdjExcdYn = 0;
+  usrSmryCn = 0;
   fetchData();
 }
 
@@ -338,8 +373,8 @@ const initGrdMain = defineGrid((data, view) => {
 const initGrdSub = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'opcsCardId', visible: false },
-    { fieldName: 'operatingExpensesTotal', header: t('MSG_TXT_OPCS_TOT_USE_CT'), width: '477', styleName: 'text-center' }, // 운영비 총 사용 건수
-    { fieldName: 'aesthetic', header: t('MSG_TXT_AES'), width: '450', styleName: 'text-center' }, // 미적요
+    { fieldName: 'operatingExpensesTotal', header: t('MSG_TXT_OPCS_TOT_USE_CT'), width: '477', styleName: 'text-center', dataType: 'number' }, // 운영비 총 사용 건수
+    { fieldName: 'aesthetic', header: t('MSG_TXT_AES'), width: '450', styleName: 'text-center', dataType: 'number' }, // 미적요
     { fieldName: 'opcsWhtxCfdcApnFileId',
       header: t('MSG_TXT_MSCR_WHTX_CFDC_APN_FILE'),
       width: '300',
