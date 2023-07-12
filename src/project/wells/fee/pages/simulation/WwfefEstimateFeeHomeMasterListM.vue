@@ -119,8 +119,7 @@
         :visible-rows="2"
         @init="initGrdPerfDtl"
       />
-      <kw-separator />
-      <kw-action-top>
+      <kw-action-top class="mt30">
         <template #left>
           <span class="accent">{{ $t('MSG_TXT_EST_FEE_DTL') }}</span>
         </template>
@@ -131,8 +130,7 @@
         :visible-rows="1"
         @init="initGrdEstFeeDtl"
       />
-      <kw-separator />
-      <kw-action-top>
+      <kw-action-top class="mt30">
         <template #left>
           <span class="accent">{{ $t('MSG_TXT_SAL_HIST') }}</span>
         </template>
@@ -151,7 +149,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { getComponentType, defineGrid, useGlobal, useDataService, codeUtil, stringUtil } from 'kw-lib';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, reduce } from 'lodash-es';
 import dayjs from 'dayjs';
 import ZwogPartnerSearch from '~sms-common/organization/components/ZwogPartnerSearch.vue';
 
@@ -186,12 +184,14 @@ const baseInfo = ref({
   rsbDvCd: '',
   amtEstSalFee: 0,
   amtEstSerFee: 0,
+  amtFeeSum: 0,
 });
 
 // 데이터 조회
 async function fetchData() {
   const { data } = await dataService.get('/sms/wells/fee/estimate/home', { params: { ...cachedParams } });
   baseInfo.value = data.base;
+  baseInfo.value.amtFeeSum = reduce(data.base, (result, value, key) => (key.indexOf('amt') > -1 ? result + value : result), 0);
   grdPerfDtlData.value.setRows(data.performances);
   grdEstFeeDtlData.value.setRows(data.estimates);
   grdSaleHistData.value.setRows(data.sales);
@@ -266,31 +266,12 @@ const initGrdPerfDtl = defineGrid((data, view) => {
   view.checkBar.visible = false;
   view.rowIndicator.visible = false;
   view.editOptions.columnEditableFirst = true;
+  view.sortingOptions.enabled = false;
   view.onCellEditable = (grid, index) => {
     if (grid.getValue(index.itemIndex, 'type') === 'A') {
       return false;
     }
   };
-  // data.setRows([
-  //   {
-  //     type: 'A',
-  //     elhmAckmtCt: 12,
-  //     amtSpayHcr: 12345670,
-  //     allProcCt: 12,
-  //     elhmProcCt: 12,
-  //     nwcmrEducYn: 'N',
-  //     acpnEducYn: 'N',
-  //   },
-  //   {
-  //     type: 'B',
-  //     elhmAckmtCt: 12,
-  //     amtSpayHcr: 12345670,
-  //     allProcCt: 12,
-  //     elhmProcCt: 12,
-  //     nwcmrEducYn: 'N',
-  //     acpnEducYn: 'N',
-  //   },
-  // ]);
 });
 
 const initGrdEstFeeDtl = defineGrid((data, view) => {
@@ -365,7 +346,7 @@ const initGrdEstFeeDtl = defineGrid((data, view) => {
   view.setColumns(columns);
   view.checkBar.visible = false; // create checkbox column
   view.rowIndicator.visible = false; // create number indicator column
-
+  view.sortingOptions.enabled = false;
   // multi row header setting
   view.setColumnLayout([
     'type',
@@ -383,19 +364,6 @@ const initGrdEstFeeDtl = defineGrid((data, view) => {
   view.layoutByColumn('amtEstSalPrpn').footerUserSpans = [{ colspan: 3 }];
   view.layoutByColumn('amtEstSvcScene').footerUserSpans = [{ colspan: 5 }];
   view.setFooters({ visible: true, items: [{ height: 40 }] });
-  // data.setRows([
-  //   {
-  //     type: null,
-  //     amtEstSalPrpn: 1222,
-  //     amtEstSalEarlySttlmnt: 1222,
-  //     amtEstSalEnrg: 1222,
-  //     amtEstSvcScene: 1222,
-  //     amtEstSvcActi1: 1222,
-  //     amtEstSvcActi2: 1222,
-  //     amtEstSvcAcml: 1222,
-  //     amtEstSvcEdu: 1222,
-  //   },
-  // ]);
 });
 
 const initGrdSaleHist = defineGrid((data, view) => {

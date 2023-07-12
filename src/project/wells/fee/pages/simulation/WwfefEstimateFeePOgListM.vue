@@ -111,10 +111,19 @@
             :label="$t('MSG_TXT_EXP_MUT_AID_FEE')"
             align-content="right"
           >
-            <p>{{ baseInfo?.amtMutAidFee ? stringUtil.getNumberWithComma(baseInfo?.amtEsamtMutAidFeetSalFee) : '' }}</p>
+            <p>{{ baseInfo?.amtMutAidFee ? stringUtil.getNumberWithComma(baseInfo?.amtMutAidFee) : '' }}</p>
+          </kw-form-item>
+          <!-- 예상조직수수료 -->
+          <kw-form-item
+            v-if="userDvCd === 'OG'"
+            :label="$t('MSG_TXT_EST_OG_FEE')"
+            align-content="right"
+          >
+            <p>{{ baseInfo?.amtEstOgFee ? stringUtil.getNumberWithComma(baseInfo?.amtEstOgFee) : '' }}</p>
           </kw-form-item>
           <!-- 예상수수료합계 -->
           <kw-form-item
+            v-if="userDvCd !== 'OG'"
             :label="$t('MSG_TXT_TOT_EST_FEE')"
             align-content="right"
           >
@@ -124,12 +133,11 @@
         <kw-form-row
           v-if="userDvCd === 'OG'"
         >
-          <!-- 예상조직수수료 -->
           <kw-form-item
-            :label="$t('MSG_TXT_EST_OG_FEE')"
+            :label="$t('MSG_TXT_TOT_EST_FEE')"
             align-content="right"
           >
-            <p>{{ baseInfo?.amtEstOgFee ? stringUtil.getNumberWithComma(baseInfo?.amtEstOgFee) : '' }}</p>
+            <p>{{ baseInfo?.amtFeeSum ? stringUtil.getNumberWithComma(baseInfo?.amtFeeSum) : '' }}</p>
           </kw-form-item>
         </kw-form-row>
       </kw-form>
@@ -331,8 +339,8 @@ const baseInfo = ref({
   prfmtYm: '',
   amtEstSalFee: 0,
   amtMutAidFee: 0,
-  amtFeeSum: 0,
   amtEstOgFee: 0,
+  amtFeeSum: 0,
 });
 
 // 예상수수료 @todo 2차
@@ -361,6 +369,7 @@ async function fetchData() {
   userDvCd.value = data.userDvCd;
   await nextTick();
   baseInfo.value = data.base;
+  baseInfo.value.amtFeeSum = reduce(data.base, (result, value, key) => (key.indexOf('amt') > -1 ? result + value : result), 0);
   grdMtData.value.setRows([data.meeting]);
   grdPerformanceData.value.setRows(data.performances);
   grdSalesData.value.setRows(data.sales);
