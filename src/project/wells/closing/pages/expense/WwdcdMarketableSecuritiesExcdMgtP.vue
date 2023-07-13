@@ -255,24 +255,21 @@ async function marketableSecuritiesExcd() {
   view.resetCurrent();
 }
 
+let reqParams;
 async function fetchData() {
-  debugger;
   const sumParams = cloneDeep(searchParams.value);
-  cachedParams = props.cachedParams;
-  cachedParams.rsbDvCd = sumParams.rsbDvCd;
-  cachedParams.dgr1LevlOgId = sumParams.dgr1LevlOgId;
+  reqParams = props.cachedParams;
+  reqParams.rsbDvCd = sumParams.rsbDvCd;
 
   if (!isEmpty(props.cachedParams.dgr3LevlOgId)) {
-    cachedParams.mainDgr3LevlOgId = props.cachedParams.dgr3LevlOgId;
+    reqParams.mainDgr3LevlOgId = props.cachedParams.dgr3LevlOgId;
   } else if (!isEmpty(props.cachedParams.dgr2LevlOgId)) {
-    cachedParams.mainDgr2LevlOgId = props.cachedParams.dgr2LevlOgId;
+    reqParams.mainDgr2LevlOgId = props.cachedParams.dgr2LevlOgId;
   } else if (!isEmpty(props.cachedParams.dgr1LevlOgId)) {
-    cachedParams.mainDgr1LevlOgId = props.cachedParams.dgr1LevlOgId;
+    reqParams.mainDgr1LevlOgId = props.cachedParams.dgr1LevlOgId;
   }
-  cachedParams.dgr2LevlOgId = '';
-  cachedParams.subOgTpCd = '';
-  cachedParams.subPrtnrNo = '';
 
+  cachedParams = cloneDeep(reqParams);
   await ogLevlDvCd0();
   await subject();
   await marketableSecuritiesExcd();
@@ -282,10 +279,12 @@ async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
   const sumParams = cloneDeep(searchParams.value);
 
+  /* TODO.입력된 값이 없으면 부모창에서 가져온 배분대상조직유형코드, 배분대상파트너번호
   if (isEmpty(sumParams.subPrtnrNo)) {
     sumParams.subOgTpCd = props.cachedParams.mainOgTpCd;
     sumParams.subPrtnrNo = props.cachedParams.mainPrtnrNo;
   }
+  */
 
   cachedParams = props.cachedParams;
   cachedParams.rsbDvCd = sumParams.rsbDvCd;

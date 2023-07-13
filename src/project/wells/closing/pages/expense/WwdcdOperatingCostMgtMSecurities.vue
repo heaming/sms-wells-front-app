@@ -177,11 +177,9 @@ async function onClickSave() {
   if (await gridUtil.alertIfIsNotModified(view)) { return; }
   if (!await gridUtil.validate(view)) { return; }
 
-  let checkedCount = 0;
   const dataRows = [];
   checkedRows.forEach((checkedRow) => {
     if (checkedRow.opcsAdjExcdYn === 'Y') {
-      checkedCount += 1;
       dataRows.push(checkedRow);
     }
   });
@@ -193,13 +191,9 @@ async function onClickSave() {
   }
   */
 
-  if (checkedCount === 1) {
-    alert('2개 이상이어야 가능합니다.');
-    return;
-  }
-
   let updateTotal = 0;
   let domTrdAmtTotal = 0;
+  let checkedCount = 0;
   let cardAprno;
   if (dataRows.length > 1) {
     const sortRows = dataRows.sort((t1, t2) => (t1.cardAprno < t2.cardAprno ? -1 : 1));
@@ -211,8 +205,13 @@ async function onClickSave() {
       for (let j = i + 1; j < sortRows.length; j += 1) {
         if (cardAprno === sortRows[j].cardAprno) {
           domTrdAmtTotal += sortRows[j].domTrdAmt1;
+          checkedCount += 1;
         } else {
           i = j;
+          if (checkedCount === 1) {
+            alert('2개 이상이어야 가능합니다.');
+            break;
+          }
         }
       }
       if (domTrdAmtTotal > 0) {
