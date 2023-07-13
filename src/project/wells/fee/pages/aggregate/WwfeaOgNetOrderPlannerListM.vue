@@ -708,7 +708,7 @@ const initGrd1Main = defineGrid((data, view) => {
     { fieldName: 'rtlfe', dataType: 'number' },
     { fieldName: 'stplMcnt' },
     { fieldName: 'mngtPrd' },
-    { fieldName: 'pdAccRslt' },
+    { fieldName: 'pdAccRslt', dataType: 'number' },
     { fieldName: 'pmotNo' },
     { fieldName: 'pkgSn' },
     { fieldName: 'pkgNo' },
@@ -753,15 +753,15 @@ const initGrd1Main = defineGrid((data, view) => {
     { fieldName: 'rtlfe', header: t('MSG_TXT_RTLFE'), width: '104.3', styleName: 'text-right', numberFormat: '#,###,##0' },
     { fieldName: 'stplMcnt', header: t('MSG_TXT_STPL_MCNT'), width: '84', styleName: 'text-right' },
     { fieldName: 'mngtPrd', header: t('MSG_TXT_MNGT_PRD'), width: '84', styleName: 'text-right' },
-    { fieldName: 'pdAccRslt', header: `${t('MSG_TXT_PD_ACC_RSLT')}(P)`, width: '142', styleName: 'text-right' },
+    { fieldName: 'pdAccRslt', header: `${t('MSG_TXT_PD_ACC_RSLT')}(P)`, width: '142', numberFormat: '#,###,##0', styleName: 'text-right' },
     { fieldName: 'pmotNo', header: t('MSG_TXT_PMOT_NO'), width: '104.3', styleName: 'text-right' },
     { fieldName: 'pkgSn', header: t('MSG_TXT_PKG_SN'), width: '135.1', styleName: 'text-center' },
     { fieldName: 'pkgNo', header: t('MSG_TXT_PKG') + t('MSG_TXT_SEQUENCE_NUMBER'), width: '113', styleName: 'text-center' },
     { fieldName: 'ntorMm', header: t('MSG_TXT_NTOR_MM'), width: '113', styleName: 'text-center' },
     { fieldName: 'mchnPd', header: t('MSG_TXT_MCHN') + t('MSG_TXT_CODE'), width: '113', styleName: 'text-center' },
     { fieldName: 'perfExcd', header: t('MSG_TXT_PERF_EXCD') + t('MSG_TXT_RGST_YN'), width: '113', styleName: 'text-center' },
-    { fieldName: 'bizRgstMm', header: t('MSG_TXT_BIZ_RGST_MM') + t('MSG_TXT_RGST_YN'), width: '113', styleName: 'text-center' },
-    { fieldName: 'bizRgstNm', header: t('MSG_TXT_BIZ_RGST_NM') + t('MSG_TXT_RGST_YN'), width: '113', styleName: 'text-center' },
+    { fieldName: 'bizRgstMm', header: t('MSG_TXT_BIZ_RGST_MM'), width: '113', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
+    { fieldName: 'bizRgstNm', header: t('MSG_TXT_BIZ_RGST_NM'), width: '113', styleName: 'text-right' },
 
   ];
 
@@ -806,8 +806,8 @@ const initGrd2Main = defineGrid((data, view) => {
     { fieldName: 'pdCd', header: t('MSG_TXT_PRDT_CODE'), width: '120', styleName: 'text-center' },
     { fieldName: 'feePerfTpCd', header: t('MSG_TXT_PD_GRP'), width: '120', styleName: 'text-center' },
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '120', styleName: 'text-center' },
-    { fieldName: 'ackmtPerfCt', header: t('MSG_TXT_PD_ACC_CNT'), width: '120', styleName: 'text-center' },
-    { fieldName: 'bfsvcPrdCd', header: `BS${t('MSG_TXT_CYCL')}`, width: '120', styleName: 'text-center' },
+    { fieldName: 'ackmtPerfCt', header: t('MSG_TXT_PD_ACC_CNT'), width: '120', styleName: 'text-right' },
+    { fieldName: 'bfsvcPrdCd', header: `BS${t('MSG_TXT_CYCL')}`, width: '120', styleName: 'text-right' },
     { fieldName: 'mchnChTpCd', header: t('MSG_TXT_CHDVC_TP'), width: '120', styleName: 'text-center' },
 
   ];

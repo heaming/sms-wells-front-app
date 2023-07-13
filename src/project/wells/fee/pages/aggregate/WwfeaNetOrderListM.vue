@@ -435,6 +435,7 @@ const searchParams = ref({
   prtnrKnm: '',
   perfYm: now.add(-1, 'month').format('YYYYMM'),
   pdCd: '',
+  tcntDvTxt: '1차',
 });
 
 const info = ref({
@@ -548,6 +549,12 @@ async function onChangedDvcd() {
  *  Event - 회차 선택시 집계버튼 사용여부 조회※
  */
 async function onChangedOrdr() {
+  const { tcntDvCd } = searchParams.value;
+  if (tcntDvCd === '01') {
+    searchParams.value.tcntDvTxt = '1차';
+  } else if (tcntDvCd === '02') {
+    searchParams.value.tcntDvTxt = '2차';
+  }
   cachedParams = cloneDeep(searchParams.value);
   await fetchData('confirmChk');
 }
@@ -604,6 +611,7 @@ async function openNtorAgrgPopup() {
   const param = {
     perfYm: now.add(-1, 'month').format('YYYY-MM'),
     tcntDvCd: searchParams.value.tcntDvCd,
+    tcntDvTxt: searchParams.value.tcntDvTxt,
   };
 
   const { result: isChanged } = await modal({
@@ -623,6 +631,7 @@ async function openNtorConfirmPopup() {
   const param = {
     perfYm: now.add(-1, 'month').format('YYYY-MM'),
     tcntDvCd: searchParams.value.tcntDvCd,
+    tcntDvTxt: searchParams.value.tcntDvTxt,
   };
 
   const { result: isChanged } = await modal({
