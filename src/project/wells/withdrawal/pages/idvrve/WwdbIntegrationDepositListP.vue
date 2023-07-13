@@ -99,7 +99,7 @@
         </kw-search-item>
       </kw-search-row>
     </kw-search>
-    <ul class="kw-notification">
+    <ul class="kw-font-pt14 mt20 ml10 mb20">
       <li>
         <ul>
           <li>
