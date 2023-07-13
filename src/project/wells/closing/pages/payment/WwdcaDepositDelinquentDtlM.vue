@@ -19,7 +19,7 @@
     >
       <kw-tab
         name="mainTab"
-        :label="$t('MSG_TIT_DP_DLQ_DTL')"
+        :label="$t('MSG_TIT_PS_INQR')"
       />
       <kw-tab
         name="detailTab"
@@ -484,12 +484,25 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-right',
       dataType: 'number',
       numberFormat: '#,##0.##',
+
       groupFooter: {
+        valueCallback(grid, column, groupFooterIndex, group) {
+          const nomDpAmtRtSum = (grid.getGroupSummary(group, 'nomDpAmt').sum / grid.getGroupSummary(group, 'nomUcAmt').sum) * 100;
+          return Number.isNaN(nomDpAmtRtSum) ? 0 : nomDpAmtRtSum;
+        },
         numberFormat: '#,##0.##',
-        expression: 'sum',
-        styleName: 'text-right',
       },
-      footer: { expression: 'sum', numberFormat: '#,##0.##', styleName: 'text-right' } },
+      footer: { expression: 'sum',
+        numberFormat: '#,##0.##',
+        styleName: 'text-right',
+        valueCallback(grid) {
+          const nomDpAmtSum = grid.getSummary('nomDpAmt', 'sum');
+          const nomUcAmtSum = grid.getSummary('nomUcAmt', 'sum');
+
+          const rtSum = (nomDpAmtSum / nomUcAmtSum) * 100;
+
+          return Number.isNaN(rtSum) ? 0 : rtSum;
+        } } },
     { fieldName: 'dlqAmt',
       header: t('MSG_TXT_DLQ_AMT'),
       width: '110',
