@@ -141,7 +141,7 @@ async function onClickExcelUpload() {
   const { result, payload } = await modal({
     component: 'ZctzExcelUploadP',
     componentProps: {
-      columns: gridDataModel.columns,
+      columns: gridDataModel.dataModelObject,
       templateDocId: 'FOM_PROMISING_CUSTOMER_BATCH_UPLOAD',
       headerRows: 1,
       validationBtn: false,
@@ -262,8 +262,8 @@ const initGrd = defineGrid((data, view) => {
         return alncmpDgPrtnrMapngCd?.userDfn02 || '';
       },
     },
-    rgstCost: { label: t('등록비'), type: Number, width: 146 },
-    chgMcn: { label: t('변동개월'), type: Number, width: 146 },
+    cntrAmt: { label: t('등록비'), type: Number, width: 146 },
+    cntrPtrm: { label: t('변동개월'), type: Number, width: 146 },
     svPdCd: { label: t('서비스상품코드'), width: 146, classes: 'text-center' }, /* 상품코드 긁어올까.. */
     rentalDscDvCd: { label: t('렌탈할인구분코드'), width: 146, options: codes.RENTAL_DSC_DV_CD },
     rentalDscTpCd: { label: t('렌탈할인유형코드'), width: 146, options: codes.RENTAL_DSC_TP_CD },
@@ -278,8 +278,8 @@ const initGrd = defineGrid((data, view) => {
     cnslMoCn: {
       valueCallback: (gridBase, rowId, fieldName, fields, values) => {
         const memo = {};
-        memo['등록비'] = values[fields.indexOf('rgstCost')];
-        memo['변동개월'] = values[fields.indexOf('chgMcn')];
+        memo['등록비'] = values[fields.indexOf('cntrAmt')];
+        memo['변동개월'] = values[fields.indexOf('cntrPtrm')];
         memo['서비스상품코드'] = values[fields.indexOf('svPdCd')];
         memo['렌탈할인구분코드'] = values[fields.indexOf('rentalDscDvCd')];
         memo['렌탈할인유형코드'] = values[fields.indexOf('rentalDscTpCd')];
