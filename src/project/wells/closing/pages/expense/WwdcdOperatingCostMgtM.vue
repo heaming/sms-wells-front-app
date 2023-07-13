@@ -224,7 +224,7 @@ async function isTabData(flag, datas) {
     }
   }
   */
-  debugger;
+
   const sub = grdSubRef.value.getView();
   const addValue = {};
 
