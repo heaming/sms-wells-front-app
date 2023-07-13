@@ -381,7 +381,10 @@
           :label="$t('MSG_TXT_CAN_EXP_DT')"
           required
         >
-          <kw-date-picker rules="required" />
+          <kw-date-picker
+            :label="$t('MSG_TXT_CAN_EXP_DT')"
+            rules="required"
+          />
         </kw-search-item>
       </kw-search-row>
     </kw-search>
@@ -394,19 +397,34 @@
         <kw-form-item
           :label="$t('MSG_TXT_RES_RTLFE')"
         >
-          <kw-input />
+          <kw-input
+            v-model="frmMainData.resRtlfeBorAmt"
+            align="right"
+            placeholder=""
+            readonly
+          />
         </kw-form-item>
         <!-- 등록비할인 -->
         <kw-form-item
           :label="$t('MSG_TXT_RGST_COST_DSC')"
         >
-          <kw-input />
+          <kw-input
+            v-model="frmMainData.rgstCostDscBorAmt"
+            align="right"
+            placeholder=""
+            readonly
+          />
         </kw-form-item>
         <!-- 할인금액 -->
         <kw-form-item
           :label="$t('MSG_TXT_DSC_AMT')"
         >
-          <kw-input />
+          <kw-input
+            v-model="frmMainData.rentalDscBorAmt"
+            align="right"
+            placeholder=""
+            readonly
+          />
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
@@ -414,19 +432,34 @@
         <kw-form-item
           :label="$t('MSG_TXT_CSMB_CS')"
         >
-          <kw-input />
+          <kw-input
+            v-model="frmMainData.csmbCostBorAmt"
+            align="right"
+            placeholder=""
+            readonly
+          />
         </kw-form-item>
         <!-- 재약정 -->
         <kw-form-item
           :label="$t('MSG_TXT_RSTL')"
         >
-          <kw-input />
+          <kw-input
+            v-model="frmMainData.rstlBorAmt"
+            align="right"
+            placeholder=""
+            readonly
+          />
         </kw-form-item>
         <!-- 사용포인트 -->
         <kw-form-item
           :label="$t('MSG_TXT_USE_P')"
         >
-          <kw-input />
+          <kw-input
+            v-model="frmMainData.pBorAmt"
+            align="right"
+            placeholder=""
+            readonly
+          />
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
@@ -434,13 +467,23 @@
         <kw-form-item
           :label="$t('MSG_TXT_CCAM_REQD_CS')"
         >
-          <kw-input />
+          <kw-input
+            v-model="frmMainData.reqdCsBorAmt"
+            align="right"
+            placeholder=""
+            readonly
+          />
         </kw-form-item>
         <!-- 위약금총액 -->
         <kw-form-item
           :label="$t('MSG_TXT_CCAM_TOT_AMT')"
         >
-          <kw-input />
+          <kw-input
+            v-model="frmMainData.borAmt"
+            align="right"
+            placeholder=""
+            readonly
+          />
         </kw-form-item>
       </kw-form-row>
     </kw-form>
@@ -505,14 +548,14 @@ const frmMainData = ref({
   // thmUcBlam: '', // 미수금
 
   // 3.위약금예상-
-  resRtlfeBorAmt: '', // 잔여렌탈료
-  rgstCostDscBorAmt: '', // 등록비할인
-  rentalDscBorAmt: '', // 할인금액
-  csmbCostBorAmt: '', // 소모품비
-  rstlBorAmt: '', // 재약정
-  pBorAmt: '', // 사용포인트
-  reqdCsBorAmt: '', // 위약금철거비
-  borAmt: '', // 위약금총액
+  resRtlfeBorAmt: '0', // 잔여렌탈료
+  rgstCostDscBorAmt: '0', // 등록비할인
+  rentalDscBorAmt: '0', // 할인금액
+  csmbCostBorAmt: '0', // 소모품비
+  rstlBorAmt: '0', // 재약정
+  pBorAmt: '0', // 사용포인트
+  reqdCsBorAmt: '0', // 위약금철거비
+  borAmt: '0', // 위약금총액
 });
 
 // -------------------------------------------------------------------------------------------------

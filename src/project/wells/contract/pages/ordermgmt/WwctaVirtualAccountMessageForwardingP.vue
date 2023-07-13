@@ -83,7 +83,7 @@ import ZwcmTelephoneNumber from '~common/components/ZwcmTelephoneNumber.vue';
 import { cloneDeep, isEmpty } from 'lodash-es';
 
 const { confirm, alert, notify } = useGlobal();
-const { cancel } = useModal();
+const { cancel, ok } = useModal();
 const { t } = useI18n();
 const dataService = useDataService();
 
@@ -147,6 +147,7 @@ async function onClickSend() {
   const param = cloneDeep(fieldParam.value);
 
   await dataService.post('/sms/wells/contract/contracts/order-details/virtual-account-message', param);
+  ok();
   notify(t('MSG_ALT_SEND'));
 }
 
@@ -159,17 +160,19 @@ async function fetchData() {
   fieldParam.value.template = res.data.template; // 템플릿
   fieldParam.value.vacNo = res.data.vacNo; // 가상계좌번호
   fieldParam.value.vacBnkNm = res.data.vacBnkNm; // 가상계좌은행명
+
+  obsMainRef.value.init();
 }
 
 async function onChange() {
   if (fieldParam.value.gubun === 'A') {
-    fieldParam.value.cralLocaraTno = props.cralTno.substr(0, 3);
-    fieldParam.value.mexnoEncr = props.cralTno.substr(3, 4);
-    fieldParam.value.cralIdvTno = props.cralTno.substr(7, 4);
+    fieldParam.value.cralLocaraTno = props.cralTno.split('-')[0];
+    fieldParam.value.mexnoEncr = props.cralTno.split('-')[1];
+    fieldParam.value.cralIdvTno = props.cralTno.split('-')[2];
   } else {
-    fieldParam.value.cralLocaraTno = props.rcgvpTno.substr(0, 3);
-    fieldParam.value.mexnoEncr = props.rcgvpTno.substr(3, 4);
-    fieldParam.value.cralIdvTno = props.rcgvpTno.substr(7, 4);
+    fieldParam.value.cralLocaraTno = props.rcgvpTno.split('-')[0];
+    fieldParam.value.mexnoEncr = props.rcgvpTno.split('-')[1];
+    fieldParam.value.cralIdvTno = props.rcgvpTno.split('-')[2];
   }
 }
 

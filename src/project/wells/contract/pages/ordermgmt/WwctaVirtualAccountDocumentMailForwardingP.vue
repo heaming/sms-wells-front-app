@@ -49,10 +49,11 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { useModal, useGlobal, useDataService, notify } from 'kw-lib';
+import { isEmpty } from 'lodash-es';
 import ZwcmEmailAddress from '~common/components/ZwcmEmailAddress.vue';
 
 const { cancel, ok } = useModal();
-const { confirm } = useGlobal();
+const { confirm, alert } = useGlobal();
 const dataService = useDataService();
 const { t } = useI18n();
 
@@ -85,6 +86,11 @@ const props = defineProps({
 const mailAddr = ref('');
 
 async function onClickSend() {
+  if (isEmpty(mailAddr.value)) {
+    await alert(t('MSG_TXT_ENTR_EMAIL'));
+    return;
+  }
+
   // [{0}]님에게 메일을 발송하겠습니까?[{1}]
   if (await confirm(t('MSG_ALT_EML_FW_CONF', [props.custNm, mailAddr.value]))) {
     const params = {
@@ -101,7 +107,9 @@ async function onClickSend() {
 }
 
 onMounted(async () => {
-  mailAddr.value = props.mailAddr;
+  if (!isEmpty(props.mailAddr)) {
+    mailAddr.value = props.mailAddr;
+  }
 });
 
 </script>

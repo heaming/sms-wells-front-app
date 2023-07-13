@@ -67,6 +67,7 @@
             :on-click-icon="openSearchClctamPsicPopup"
             :on-keydown-no-click="true"
             regex="alpha_hangul"
+            maxlength="25"
             @keydown.enter="fetchPartnerNo"
           />
         </kw-search-item>
@@ -90,6 +91,7 @@
             icon="search"
             :on-click-icon="openSearchUserPopup"
             :on-keydown-no-click="true"
+            maxlength="10"
             @keydown.enter="isCustomer($event, 'type1')"
           />
         </kw-search-item>
@@ -103,6 +105,7 @@
             :on-click-icon="openSearchUserPopup"
             :on-keydown-no-click="true"
             regex="alpha_hangul"
+            maxlength="25"
             @keydown.enter="isCustomer($event, 'type2')"
           />
         </kw-search-item>
@@ -207,7 +210,8 @@
       <kw-grid
         ref="grdSubRef"
         name="grdSub"
-        :visible-rows="pageInfo.visibleRowNumber"
+        :page-size="pageInfo.pageSize"
+        :total-count="pageInfo.totalCount"
         @init="initGrdSub"
       />
       <kw-pagination
@@ -227,7 +231,7 @@
 import { useGlobal, codeUtil, getComponentType, router, useMeta, useDataService, defineGrid, gridUtil } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
-import { getBzHdqDvcd, getGridVisibleRowNumber } from '~sms-common/bond/utils/bnUtil';
+import { getBzHdqDvcd } from '~sms-common/bond/utils/bnUtil';
 import { chkInputSearchComplete, openSearchUserCommonPopup, isCustomerCommon, openSearchClctamPsicCommonPopup, fetchPartnerNoCommon } from '~sms-common/bond/pages/transfer/utils/bnaTransferUtils';
 
 const { t } = useI18n();
@@ -261,7 +265,6 @@ const pageInfo = ref({
   pageIndex: 1,
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
   needTotalCount: true,
-  visibleRowNumber: getGridVisibleRowNumber(),
 });
 
 const defaultDate = dayjs().format('YYYYMM');

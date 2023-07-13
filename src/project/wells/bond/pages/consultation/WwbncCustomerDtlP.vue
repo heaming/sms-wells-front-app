@@ -70,6 +70,7 @@
                     dense
                     icon="sms"
                     class="ml8"
+                    @click="onClickMessageSend"
                   />
                   <kw-btn
                     :label="$t('MSG_BTN_TEL_REJ')"
@@ -104,6 +105,7 @@
                     secondary
                     class="kw-font-caption py2"
                     style="min-height: 20px;"
+                    @click="onClickBurdenNotice"
                   />
                   <kw-btn
                     :label="$t('MSG_BTN_CNTRT_INF_CH')"
@@ -111,6 +113,7 @@
                     secondary
                     class="kw-font-caption py2 ml4"
                     style="min-height: 20px;"
+                    @click="onClickContractorInformationChange"
                   />
                   <kw-btn
                     :label="$t('MSG_BTN_ISTLC_INF_CH')"
@@ -118,6 +121,7 @@
                     secondary
                     class="kw-font-caption py2 ml4"
                     style="min-height: 20px;"
+                    @click="onClickContractDetail"
                   />
                   <kw-btn
                     :label="$t('MSG_BTN_VST_RGST')"
@@ -183,6 +187,7 @@
                     icon="sms"
                     class="ml8"
                     style="font-size: 16px;"
+                    @click="onClickMessageSend"
                   />
                   <kw-btn
                     :label="$t('MSG_BTN_TEL_REJ')"
@@ -267,6 +272,7 @@
                     secondary
                     class="kw-font-caption py2"
                     style="min-height: 20px;"
+                    @click="onClickFundTransferResult"
                   />
                   <kw-btn
                     :label="$t('MSG_BTN_BIL_EXCD_RGST')"
@@ -274,6 +280,7 @@
                     secondary
                     class="kw-font-caption py2 ml4"
                     style="min-height: 20px;"
+                    @click="onClickBillingExcdRgst"
                   />
                   <kw-btn
                     :label="$t('MSG_BTN_CST_CARD_PRNT')"
@@ -336,6 +343,7 @@
                     icon="sms"
                     class="ml8"
                     style="font-size: 16px;"
+                    @click="onClickMessageSend"
                   />
                 </kw-form-item>
                 <kw-form-item
@@ -372,6 +380,7 @@
                     icon="sms"
                     class="ml8"
                     style="font-size: 16px;"
+                    @click="onClickMessageSend"
                   />
                 </kw-form-item>
                 <kw-form-item
@@ -464,6 +473,7 @@
                     secondary
                     class="kw-font-caption py2 ml12"
                     style="min-height: 20px;"
+                    @click="onClickCbInformationAsk"
                   />
                 </kw-form-item>
                 <kw-form-item
@@ -505,6 +515,7 @@
                     secondary
                     class="kw-font-caption py2 ml4"
                     style="min-height: 20px;"
+                    @click="onClickDepositRegistration"
                   />
                 </kw-form-item>
               </kw-form-row>
@@ -552,6 +563,7 @@
                     secondary
                     class="kw-font-caption py2"
                     style="min-height: 20px;"
+                    @click="onClickTaxInvoice"
                   />
                 </kw-form-item>
               </kw-form-row>
@@ -945,6 +957,7 @@
                           v-model="customer.promAmt"
                           :label="$t('MSG_TXT_PROM_AMT')"
                           dense
+                          regex="num"
                           rules="required"
                           maxlength="20"
                         />
@@ -991,7 +1004,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { defineGrid, codeUtil, getComponentType, useDataService, gridUtil, useGlobal, confirm, popupUtil } from 'kw-lib';
+import { defineGrid, codeUtil, getComponentType, useDataService, useMeta, gridUtil, useGlobal, confirm, popupUtil } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 import { getCnslTp } from '~sms-common/bond/utils/bnUtil';
 
@@ -1006,7 +1019,8 @@ import WwbncCustomerDtlPCounselHistory from './WwbncCustomerDtlPCounselHistory.v
 const { t } = useI18n();
 const dataService = useDataService();
 const { modal } = useGlobal();
-
+const sessionMeta = useMeta();
+const userInfo = sessionMeta.getUserInfo();
 const obsTabRef = ref();
 
 // -------------------------------------------------------------------------------------------------
@@ -1157,16 +1171,98 @@ async function onClickCnslRgstReset() {
   customer.value.cnslCn = '';
 }
 
-// TODO: 고객카드 출력 팝업
-async function onClickCustomerCardPrint() {
-  // TODO:고객번호, 고객명, 계약번호, 계약일련번호, 채권업무구분코드 전달필요
-  const { cstNo } = '016568225';
+// TODO: 세금계산서
+async function onClickTaxInvoice() {
+  await popupUtil.open('/popup/#/contract/zwcta-tax-invoice-mgt', { width: 1292, height: 1100 }, false);
+}
+
+// TODO: 입금등록
+async function onClickDepositRegistration() {
   await modal({
-    component: 'ZwbncCustomerCardP',
-    componentProps: { cstNo },
+    component: 'ZwwdbDepositRegP',
+    componentProps: customer.value,
   });
 }
 
+// TODO: CB정보 조회요청
+async function onClickCbInformationAsk() {
+  await modal({
+    component: 'ZwbncCreditBureauInformationP',
+    componentProps: customer.value,
+  });
+}
+
+// TODO: 청구제외등록
+async function onClickBillingExcdRgst() {
+  await modal({
+    component: 'ZwwdaBillingExcdRgstP',
+    componentProps: customer.value,
+  });
+}
+
+// TODO: 이체결과
+async function onClickFundTransferResult() {
+  await popupUtil.open('/popup/#/withdrawal/zwwda-create-itemization-mgt', { width: 1292, height: 1100 }, false);
+}
+
+// TODO: 배달처정보변경
+async function onClickContractDetail() {
+  await modal({
+    component: 'EwctaShippingAddressChangeMgtP',
+    componentProps: customer.value,
+  });
+}
+
+// TODO: 계약자정보변경
+async function onClickContractorInformationChange() {
+  await popupUtil.open('/popup/#/customer/zwcsa-customer-mgt/zwcsa-indv-customer-reg', { width: 1292, height: 1100 }, false);
+}
+
+// TODO: 부담통보
+async function onClickBurdenNotice() {
+  if (userInfo.tenantCd === 'E') {
+    await modal({
+      component: 'ZwdeeBurdenDeductionP',
+      componentProps: {
+        prtnrNo: '1744420', // 파트너번호 1703923 1759447  1579443 1725480 1760303  1763833 1754151
+        ogTpCd: 'E01',
+        perfYm: '202211', // 실적년월  201701 202209 202302 202304
+      },
+    });
+  }
+  if (userInfo.tenantCd === 'W') {
+    await modal({
+      component: 'ZwdeeBurdenDeductionP',
+      componentProps: {
+        prtnrNo: '1555464', // 파트너번호 1703923 1759447  1579443 1725480 1760303  1763833 1754151
+        ogTpCd: 'W02',
+        perfYm: '202304', // 실적년월  201701 202209 202302 202304
+      },
+    });
+  }
+}
+
+// TODO: 문자발송
+async function onClickMessageSend() {
+  await modal({
+    component: 'ZwbncMessageSendP',
+    componentProps: {
+      listType: 'customer',
+      dataList: customer.value,
+      cntrType: 'i',
+    },
+  });
+}
+
+// TODO: 고객카드 출력 팝업
+async function onClickCustomerCardPrint() {
+  await modal({
+    component: 'ZwbncCustomerCardP',
+    componentProps: customer.value,
+  });
+}
+
+// TODO: 전화거부
 async function onClickTelephoneRej() {
   await modal({
     component: 'ZwbncCounselTelephoneRejMgtP',
@@ -1174,6 +1270,7 @@ async function onClickTelephoneRej() {
   });
 }
 
+// TODO: 서비스 상세
 async function onClickService() {
   await modal({
     component: 'WwbncServiceDtlP',
@@ -1181,6 +1278,7 @@ async function onClickService() {
   });
 }
 
+// TODO: 법조치등록
 async function onClickLawMeasure() {
   const { result: isChanged } = await modal({
     component: 'ZwbncLawMeasureMgtP',
@@ -1216,11 +1314,9 @@ async function onClickVisit() {
 
 // TODO: 소장 생성 팝업
 async function onClickPetitionCreate() {
-  // TODO:고객번호, 고객명, 계약번호, 계약일련번호, 채권업무구분코드 전달필요
-  const { cstNo } = '016568225';
   await modal({
     component: 'ZwbncPetitionCreateP',
-    componentProps: { cstNo },
+    componentProps: customer.value,
   });
 }
 

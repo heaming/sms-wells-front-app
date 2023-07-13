@@ -16,6 +16,8 @@
   <kw-popup
     size="md"
     :title="$t('MSG_TXT_QUOT')+' '+$t('MSG_TXT_PSH_SEND')"
+    :ignore-on-modified="sendYn"
+    no-action
   >
     <kw-form :cols="1">
       <kw-form-row>
@@ -76,6 +78,7 @@
     <div class="row justify-end mt20">
       <!--발송-->
       <kw-btn
+        v-permission:update
         :label="$t('MSG_BTN_SEND')"
         secondary
         dense
@@ -111,7 +114,6 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { defineGrid, getComponentType, gridUtil, useDataService, useMeta, useGlobal, confirm, useModal } from 'kw-lib';
-import dayjs from 'dayjs';
 import ZwcmTelephoneNumber from '~common/components/ZwcmTelephoneNumber.vue';
 import ZwcmEmailAddress from '~common/components/ZwcmEmailAddress.vue';
 import { isEmpty } from 'lodash-es';
@@ -125,6 +127,8 @@ const { cancel, ok } = useModal();
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 const grdQuoteSendList = ref(getComponentType('KwGrid'));
+
+const sendYn = ref(false);
 
 // 발송유형코드
 const fwTpCds = ref([
@@ -185,6 +189,10 @@ async function onClickSend() {
     return;
   }
   const res = await dataService.get('/sms/wells/contract/contracts/quote-sends/inf', { params: props });
+  if (res.data === '') {
+    notify(t('MSG_ALT_RGST_CST_NTHNG'));
+    return;
+  }
   if (!await confirm(t('MSG_ALT_WANT_SEND_MESSAGE', [res.data.cntrCstNm,
     searchParams.value.fwTpCd === '01' ? t('MSG_TXT_NOTAK') : t('MSG_BTN_EMAIL_SEND'),
     searchParams.value.fwTpCd === '01' ? t('MSG_TXT_RECP_NO') : t('MSG_TXT_RCVR_EML'),
@@ -195,6 +203,7 @@ async function onClickSend() {
   await dataService.post('/sms/wells/contract/contracts/quote-sends', optionList.value);
 
   notify(t('MSG_ALT_SAVE_DATA'));
+  sendYn.value = true;
   await fetchData();
 }
 
@@ -234,10 +243,7 @@ const initQuoteSendList = defineGrid((data, view) => {
       width: '133',
       styleName: 'text-center',
       dataType: 'date',
-      displayCallback(grid, index, value) {
-        const strDate = value ?? '';
-        return dayjs(strDate.substr(0, 8)).format('YYYY-MM-DD');
-      } }, // 발송일
+      datetimeFormat: 'date' }, // 발송일
   ];
   data.setFields(fields);
   view.setColumns(columns);

@@ -359,11 +359,16 @@ import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContra
 
 const dataService = useDataService();
 const { t } = useI18n();
+const { getters } = useStore();
 const { confirm, modal, notify } = useGlobal();
 const { currentRoute } = useRouter();
 
 let cachedParams;
 const now = dayjs();
+const loginInfo = ref({
+  userId: '', // 로그인 UserId(sessionUserId)
+});
+
 const searchParams = ref({
   cntrDv: 'A', // 계약구분
   cntrRcpStrtdt: now.startOf('month').format('YYYYMMDD'), // 작성일자-시작일자
@@ -610,6 +615,19 @@ async function fetchMstData() {
     pageInfo.value.totalMstCount = view.getItemCount();
     view.resetCurrent();
     view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
+
+    if (loginInfo.value.userId === '36544'
+     || loginInfo.value.userId === '36805'
+     || loginInfo.value.userId === '36909'
+     || loginInfo.value.userId === '000303227366') {
+      view.columnByName('cstSignCn').visible = false; // 서명
+      view.columnByName('ocyCntrwBrws').visible = false; // 원본 계약서출력
+    } else {
+      view.columnByName('cstSignCn').visible = true; // 서명
+      view.columnByName('ocyCntrwBrws').visible = true; // 원본 계약서출력
+    }
+    // 삭제원복 컬럼 Hide
+    view.columnByName('dlRstr').visible = false;
   } else if (searchParams.value.cntrDv === 'R') {
     console.log(res.data.searchRePromConcListResList);
     if (res.data.searchRePromConcListResList.length === 0) {
@@ -772,10 +790,11 @@ async function onClickExcelDownload() {
   }
 }
 
-// 계약서 메일발송버튼 클릭 이벤트
+// 계약서 메일발송 버튼 클릭 이벤트
 async function onClickCntrwMlFw() {
   let view;
   let paramCntrNo;
+  let searchPopupParams = {};
 
   switch (searchParams.value.cntrDv) {
     case 'A': // 신규/변경
@@ -809,13 +828,23 @@ async function onClickCntrwMlFw() {
 
     if (['A', 'N', 'U'].includes(searchParams.value.cntrDv)) {
       paramCntrNo = String(cntrs[0].cntrDtlNo).split('-')[0];
-    } else if (searchParams.value.cntrDv === 'R' || searchParams.value.cntrDv === 'S') {
+      searchPopupParams = {
+        cntrNm: cntrs[0].cstKnm,
+        cntrNo: paramCntrNo,
+      };
+    } else if (searchParams.value.cntrDv === 'R') {
       paramCntrNo = cntrs[0].cntrNo;
+      // 추가 파라미터(재약정시  cndcId:RP002)
+      searchPopupParams = {
+        cntrNm: cntrs[0].cstKnm,
+        cntrNo: paramCntrNo,
+        cndcId: 'RP002',
+      };
     }
 
     const res = await modal({
       component: 'WwctaContractDocumentMailForwardingP',
-      componentProps: { cntrNm: cntrs[0].cstKnm, cntrNo: paramCntrNo },
+      componentProps: searchPopupParams,
     });
 
     // 리턴값을 체크한 후 재조회
@@ -823,11 +852,13 @@ async function onClickCntrwMlFw() {
   }
 }
 
-// 알림톡 발송버튼 클릭 이벤트
+// 알림톡 발송 버튼 클릭 이벤트
 async function onClickNotakfW() {
   let view;
-  let paramCntrNo;
   let res;
+  let arrCstKnm = '';
+  let rowCnt = 0;
+  const saveData = [];
 
   switch (searchParams.value.cntrDv) {
     case 'A': // 신규/변경
@@ -845,40 +876,64 @@ async function onClickNotakfW() {
       break;
   }
 
-  const row = view.getCheckedItems();
-  if (row.length === 0) {
+  const checkedItems = view.getCheckedItems();
+  if (checkedItems.length === 0) {
     notify(t('MSG_ALT_BEFORE_SELECT_IT', [t('MSG_TXT_ITEM')]));
-  } else if (row.length > 1) {
-    notify(t('MSG_ALT_SELT_ONE_ITEM'));
   } else {
     const cntrs = gridUtil.getCheckedRowValues(view);
-    // 확정인 계약에 한해서만 가능, 계약진행상태코드 == 60 (확정)
-    if (['A', 'N', 'U'].includes(searchParams.value.cntrDv)
-      && cntrs[0].cntrPrgsStatCd !== '60') {
-      notify(t('MSG_ALT_CNTR_PRGS_STAT_CD_NOT_CNFM')); // 계약진행상태가 확정이 아닙니다.
-      return;
-    }
+    cntrs.forEach((row) => {
+      // 확정인 계약에 한해서만 가능, 계약진행상태코드 == 60 (확정)
+      if (['A', 'N', 'U'].includes(searchParams.value.cntrDv)
+        && row.cntrPrgsStatCd !== '60') {
+        notify(t('MSG_ALT_CNTR_PRGS_STAT_CD_NOT_CNFM')); // 계약진행상태가 확정이 아닙니다.
+        return;
+      }
 
-    if (searchParams.value.cntrDv === 'A') { // 신규/변경
-      paramCntrNo = String(cntrs[0].cntrDtlNo).split('-')[0];
-    } else if (searchParams.value.cntrDv === 'R') { // 재약정
-      paramCntrNo = cntrs[0].cntrNo;
-    }
+      // 신규/변경일 경우
+      if (['A', 'N', 'U'].includes(searchParams.value.cntrDv)) {
+        saveData.push({
+          cntrNo: String(row.cntrDtlNo).split('-')[0],
+          cntrSn: String(row.cntrDtlNo).split('-')[1],
+          cntrDv: searchParams.value.cntrDv,
+        });
+      } else if (searchParams.value.cntrDv === 'R') { // 재약정
+        saveData.push({
+          cntrNo: row.cntrNo,
+          cntrSn: row.cntrSn,
+          cntrDv: searchParams.value.cntrDv,
+          stplRcpDt: row.stplRcpDt,
+          stplPtrm: row.stplPtrm,
+        });
+      }
 
-    searchDtlParams.value.cntrNo = paramCntrNo;
-    searchDtlParams.value.cntrwTpCd = cntrs[0].cntrwTpCd;
-    searchDtlParams.value.cntrPrgsStatCd = cntrs[0].cntrPrgsStatCd;
+      // 알림톡 발송 대상 고객명을 조합
+      if (rowCnt === 0) {
+        arrCstKnm = row.cstKnm;
+      } else {
+        arrCstKnm += `,${row.cstKnm}`;
+      }
 
-    if (await confirm(t('MSG_ALT_CNFM_NOTAK_FW', [cntrs[0].cstKnm]))) {
-      cachedParams = cloneDeep(searchDtlParams.value);
-      res = await dataService.get('/sms/wells/contract/contracts/managements/notification-talk-forwarding', { params: cachedParams });
+      // eslint-disable-next-line no-plusplus
+      rowCnt++;
+    });
 
-      if (res.data >= 1) {
-        await notify(t('MSG_ALT_PROCS_FSH')); // {0} 처리 되었습니다.
+    console.log(saveData);
+    if (isEmpty(arrCstKnm)) return;
+    if (await confirm(t('MSG_ALT_CNFM_NOTAK_FW', [arrCstKnm]))) {
+      res = await dataService.put('/sms/wells/contract/contracts/managements/notification-talk-forwarding', saveData);
+      if (res.data.processCount > 0) {
+        await notify(t('MSG_ALT_BIZTALK_SEND_SUCCESS')); // 알림톡이 발송되었습니다.
+      } else {
+        await notify(t('MSG_ALT_BIZTALK_ERR')); // 알림톡 전송중 에러가 발생했습니다.
       }
     }
   }
 }
+
+onMounted(async () => {
+  const { userId: sessionUserId } = getters['meta/getUserInfo'];
+  loginInfo.value.userId = sessionUserId;
+});
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
@@ -907,8 +962,14 @@ const initGrdMstList = defineGrid((data, view) => {
     { fieldName: 'fstRgstDtm' }, // 작성일시
     { fieldName: 'cntrRcpFshDtm' }, // 접수일시
     { fieldName: 'cntrCanDtm' }, // 삭제(취소)일시
+    { fieldName: 'cntrCanUsrId' }, // 계약취소자
+    { fieldName: 'dlRstr' }, // 삭제원복
+    { fieldName: 'cnFm' }, // 확정
     { fieldName: 'rqsIz' }, // 요청내역
-    { fieldName: 'cntrwBrws' }, // 계약서 보기
+    { fieldName: 'cntrwBrws' }, // 계약서출력
+    { fieldName: 'cntrAprCn' }, // 확정승인요청건수
+    { fieldName: 'cstSignCn' }, // 고객서명내용
+    { fieldName: 'ocyCntrwBrws' }, // 원본 계약서출력
     { fieldName: 'emilSndgYn' }, // 계약서 발송여부
     { fieldName: 'emilSndgDt' }, // 계약서 발송일자
     { fieldName: 'notakFwDt' }, // 알림톡 발송일자
@@ -925,11 +986,16 @@ const initGrdMstList = defineGrid((data, view) => {
       renderer: { type: 'button', hideWhenEmpty: false },
       displayCallback(grid, index) {
         const { cntrPrgsStatCd } = grid.getValues(index.itemIndex);
-        if (cntrPrgsStatCd === '60') { // 확정승인
-          return t('MSG_TXT_CNFM_APR');
-        }
+        const { cntrAprCn } = grid.getValues(index.itemIndex);
+        return cntrPrgsStatCd < '60' && cntrAprCn > 0 ? t('MSG_TXT_CNFM_APR') : ''; // 계약진행상태코드(결제완료)
       },
-    },
+      styleCallback(grid, dataCell) {
+        const { cntrPrgsStatCd } = grid.getValues(dataCell.index.itemIndex);
+        const { cntrAprCn } = grid.getValues(dataCell.index.itemIndex);
+        const retrunValue = cntrPrgsStatCd < '60' && cntrAprCn > 0 ? grid.getValue(dataCell.index.itemIndex, 'cntrPrgsStatCd') : 0;
+        return retrunValue !== 0 ? { renderer: { type: 'button', hideWhenEmpty: false } } : { renderer: { type: 'text', styleName: 'text-center' } };
+      },
+    }, // 확정승인
     { fieldName: 'dgr2LevlOgNm', header: t('MSG_TXT_RGNL_GRP'), width: '127', styleName: 'text-center' }, // 지역단
     { fieldName: 'dgr3LevlOgNm', header: t('MSG_TXT_BRANCH'), width: '127', styleName: 'text-center' }, // 지점
     { fieldName: 'rgstDvNm', header: t('MSG_TXT_CNTR_DV'), width: '127', styleName: 'text-center' }, // 계약구분
@@ -944,8 +1010,89 @@ const initGrdMstList = defineGrid((data, view) => {
     { fieldName: 'fstRgstDtm', header: t('MSG_TXT_DRAT_DTM'), width: '160', styleName: 'text-center', datetimeFormat: 'datetime' }, // 작성일시
     { fieldName: 'cntrRcpFshDtm', header: t('MSG_TXT_RCP_DTM'), width: '160', styleName: 'text-center', datetimeFormat: 'datetime' }, // 접수일시
     { fieldName: 'cntrCanDtm', header: t('MSG_TXT_DEL_CAN_DTM'), width: '160', styleName: 'text-center', datetimeFormat: 'datetime' }, // 삭제(취소)일시
-    { fieldName: 'rqsIz', header: t('MSG_TXT_RQS_IZ'), width: '127', styleName: 'text-center', renderer: { type: 'button', hideWhenEmpty: false }, displayCallback: () => t('MSG_TXT_RQS_IZ') }, // 요청내역
-    { fieldName: 'cntrwBrws', header: t('MSG_TXT_CNTRW_BRWS'), width: '130', styleName: 'rg-button-icon--x', renderer: { type: 'button', hideWhenEmpty: false }, displayCallback: () => t('MSG_TXT_CNTRW_BRWS') }, // 계약서 보기
+    { fieldName: 'cntrCanUsrId', header: t('MSG_TXT_DEL') + t('MSG_TXT_CNCSR'), width: '160', styleName: 'text-center', datetimeFormat: 'datetime' }, // 계약취소자
+    { fieldName: 'dlRstr',
+      header: t('MSG_TXT_DL_RSTR'),
+      width: '127',
+      styleName: 'text-center',
+      renderer: { type: 'button', hideWhenEmpty: false },
+      displayCallback(grid, index) {
+        const { cntrPrgsStatCd } = grid.getValues(index.itemIndex);
+        const { cntrwTpCd } = grid.getValues(index.itemIndex);
+        const { rgstDv } = grid.getValues(index.itemIndex);
+        return cntrPrgsStatCd >= '90' && cntrPrgsStatCd !== '98'
+            && (cntrwTpCd === '3' || cntrwTpCd === '8') && rgstDv === '1' ? t('MSG_TXT_DL_RSTR') : ''; // 계약진행상태코드(확정)
+      },
+      styleCallback(grid, dataCell) {
+        const { cntrPrgsStatCd } = grid.getValues(dataCell.index.itemIndex);
+        const { cntrwTpCd } = grid.getValues(dataCell.index.itemIndex);
+        const { rgstDv } = grid.getValues(dataCell.index.itemIndex);
+        const retrunValue = cntrPrgsStatCd >= '90' && cntrPrgsStatCd !== '98'
+            && (cntrwTpCd === '3' || cntrwTpCd === '8') && rgstDv === '1' ? cntrPrgsStatCd : 0;
+        return retrunValue !== 0 ? { renderer: { type: 'button', hideWhenEmpty: false } } : { renderer: { type: 'text', styleName: 'text-center' } };
+      },
+    }, // 삭제원복
+    { fieldName: 'cnfm',
+      header: t('MSG_TXT_DTRM'),
+      width: '70',
+      styleName: 'text-center',
+      renderer: { type: 'button', hideWhenEmpty: false },
+      displayCallback(grid, index) {
+        const { cntrPrgsStatCd } = grid.getValues(index.itemIndex);
+        return cntrPrgsStatCd < '60' ? t('MSG_TXT_DTRM') : ''; // 계약진행상태코드(확정)
+      },
+      styleCallback(grid, dataCell) {
+        const { cntrPrgsStatCd } = grid.getValues(dataCell.index.itemIndex);
+        const retrunValue = cntrPrgsStatCd < '60' ? cntrPrgsStatCd : 0;
+        return retrunValue !== 0 ? { renderer: { type: 'button', hideWhenEmpty: false } } : { renderer: { type: 'text', styleName: 'text-center' } };
+      },
+    }, // 확정
+    { fieldName: 'rqsIz',
+      header: t('MSG_TXT_RQS_IZ'),
+      width: '127',
+      styleName: 'text-center',
+      renderer: { type: 'button', hideWhenEmpty: false },
+      displayCallback(grid, index) {
+        const { cntrAprCn } = grid.getValues(index.itemIndex);
+        return cntrAprCn > 0 ? t('MSG_TXT_RQS_IZ') : ''; // 확정승인요청건수
+      },
+      styleCallback(grid, dataCell) {
+        const { cntrAprCn } = grid.getValues(dataCell.index.itemIndex);
+        const retrunValue = cntrAprCn > 0 ? cntrAprCn : 0;
+        return retrunValue !== 0 ? { renderer: { type: 'button', hideWhenEmpty: false } } : { renderer: { type: 'text', styleName: 'text-center' } };
+      },
+    }, // 요청내역
+    { fieldName: 'cntrwBrws',
+      header: t('MSG_TXT_CNTRW_PRNT'),
+      width: '130',
+      styleName: 'rg-button-icon--x',
+      renderer: { type: 'button', hideWhenEmpty: false },
+      displayCallback(grid, index) {
+        const { cntrPrgsStatCd } = grid.getValues(index.itemIndex);
+        return ['50', '60'].includes(cntrPrgsStatCd) ? t('MSG_TXT_CNTRW_BRWS') : ''; // 계약진행상태코드(결제완료/확정)
+      },
+      styleCallback(grid, dataCell) {
+        const { cntrPrgsStatCd } = grid.getValues(dataCell.index.itemIndex);
+        const retrunValue = ['50', '60'].includes(grid.getValue(dataCell.index.itemIndex, 'cntrPrgsStatCd')) ? cntrPrgsStatCd : 0;
+        return retrunValue !== 0 ? { renderer: { type: 'button', hideWhenEmpty: false } } : { renderer: { type: 'text', styleName: 'text-center' } };
+      },
+    }, // 계약서출력
+    { fieldName: 'cstSignCn', header: t('MSG_TXT_SIGN'), width: '127', styleName: 'text-center' }, // 고객서명내용
+    { fieldName: 'ocyCntrwBrws',
+      header: t('MSG_TXT_OCY_CNTRW_BRWS'),
+      width: '130',
+      styleName: 'rg-button-icon--x',
+      renderer: { type: 'button', hideWhenEmpty: false },
+      displayCallback(grid, index) {
+        const { cntrPrgsStatCd } = grid.getValues(index.itemIndex);
+        return ['50', '60'].includes(cntrPrgsStatCd) ? t('MSG_TXT_PRNT') : ''; // 계약진행상태코드(결제완료/확정)
+      },
+      styleCallback(grid, dataCell) {
+        const { cntrPrgsStatCd } = grid.getValues(dataCell.index.itemIndex);
+        const retrunValue = ['50', '60'].includes(grid.getValue(dataCell.index.itemIndex, 'cntrPrgsStatCd')) ? cntrPrgsStatCd : 0;
+        return retrunValue !== 0 ? { renderer: { type: 'button', hideWhenEmpty: false } } : { renderer: { type: 'text', styleName: 'text-center' } };
+      },
+    }, // 원본 계약서출력
     { fieldName: 'emilSndgYn', header: `${t('MSG_TXT_CNTRW')} ${t('MSG_TXT_FW_YN')}`, width: '127', styleName: 'text-center' }, // 계약서 발송여부
     { fieldName: 'emilSndgDt', header: `${t('MSG_TXT_CNTRW')} ${t('MSG_TXT_FW_DT')}`, width: '127', styleName: 'text-center', datetimeFormat: 'date' }, // 계약서 발송일자
     { fieldName: 'notakFwDt', header: t('MSG_TXT_NOTAK_FW_DT'), width: '127', styleName: 'text-center', datetimeFormat: 'date' }, // 알림톡 발송일자
@@ -994,10 +1141,28 @@ const initGrdMstList = defineGrid((data, view) => {
           console.log(res.data.processCount);
           if (res.data.processCount === 0) {
             await notify(t('MSG_ALT_CNFM_APR_PROCS_FSH')); // 확정 승인 처리가 완료 되었습니다.
+            if (await confirm(t('MSG_ALT_CNFM_ORD'))) { // 주문을 확정하시겠습니까?
+              res = await dataService.put('/sms/wells/contract/contracts/managements/confirm', searchCnfmAprvParams.value.cntrNo);
+            }
           }
         }
       } else {
         console.log(res.data.processCount);
+      }
+    } else if (['cnfm'].includes(column)) { // 확정버튼 클릭
+      const rows = gridUtil.getAllRowValues(view);
+      rows.forEach((row) => {
+        row.cntrNo = paramCntrNo; // 계약번호
+        row.cntrSn = paramCntrSn; // 계약일련번호
+        row.cnfmMsgYn = ''; // 확정승인메세지
+      });
+
+      res = await dataService.put('/sms/wells/contract/contracts/managements/confirm-approval', rows);
+      console.log(res.data.processCount);
+      if (res.data.processCount === 0) {
+        if (await confirm(t('MSG_ALT_CNFM_ORD'))) { // 주문을 확정하시겠습니까?
+          res = await dataService.put('/sms/wells/contract/contracts/managements/confirm', searchCnfmAprvParams.value.cntrNo);
+        }
       }
     } else if (['rqsIz'].includes(column)) { // 요청내역 버튼 클릭
       // const { fstRgstUsrId, fnlMdfcUsrId } = gridUtil.getRowValue(g, itemIndex);
@@ -1136,7 +1301,7 @@ const initGrdMstRstlList = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_NO'), width: '176', styleName: 'rg-button-link text-center', renderer: { type: 'button' }, preventCellItemFocus: true }, // 계약번호
+    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_NO'), width: '176', styleName: 'text-center' }, // 계약번호
     { fieldName: 'cntrSn', header: t('MSG_TXT_CNTR_SN'), width: '127', styleName: 'text-center' }, // 계약일련번호
     { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '127', styleName: 'text-center' }, // 고객명
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT'), width: '163', styleName: 'text-center' }, // 상품
@@ -1153,11 +1318,11 @@ const initGrdMstRstlList = defineGrid((data, view) => {
     { fieldName: 'rentalTn', header: t('MSG_TXT_RSTL_J_NMN'), width: '148', styleName: 'text-right' }, // 재약정 가입차월
     { fieldName: 'stplCnfmDt', header: t('MSG_TXT_STPL_CNFM_DT'), width: '127', styleName: 'text-center', datetimeFormat: 'date' }, // 약정확정일자
     { fieldName: 'stplCanDt', header: t('MSG_TXT_STPL_CANC_DT'), width: '127', styleName: 'text-center', datetimeFormat: 'date' }, // 약정취소일자
-    { fieldName: 'reqdDt', header: t('MSG_TXT_DEM_DTM'), width: '127', styleName: 'text-center', datetimeFormat: 'date' }, // 철거일자
+    { fieldName: 'reqdDt', header: t('MSG_TXT_DEM_DT'), width: '127', styleName: 'text-center', datetimeFormat: 'date' }, // 철거일자
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_SELLER_PERSON'), width: '127', styleName: 'text-center' }, // 판매자
     { fieldName: 'rcpPrtnrNo', header: t('MSG_TXT_PTNR_NO'), width: '127', styleName: 'text-center' }, // 판매자 사번
     { fieldName: 'ogCd', header: t('MSG_TXT_PTNR_BRCH_CD'), width: '127', styleName: 'text-center' }, // 판매자 지점코드
-    { fieldName: 'notakFwIz', header: t('MSG_TXT_NOTAK_FW_IZ'), width: '147', styleName: 'rg-button-link text-center', renderer: { type: 'button' }, preventCellItemFocus: true }, // 알림톡 발송내역
+    { fieldName: 'notakFwIz', header: t('MSG_TXT_NOTAK_FW_IZ'), width: '127', styleName: 'text-center', renderer: { type: 'button', hideWhenEmpty: false }, displayCallback: () => t('MSG_TXT_NOTAK_FW_IZ') }, // 알림톡 발송내역
     { fieldName: 'talkRcvYn', header: t('MSG_TXT_NOTAK_RCV_YN'), width: '127', styleName: 'text-center' }, // 알림톡 수신여부
     { fieldName: 'notakFwDt', header: t('MSG_TXT_NOTAK_FW_DT'), width: '127', styleName: 'text-center', datetimeFormat: 'date' }, // 알림톡 발송일자
     { fieldName: 'basePdCd', header: t('MSG_TXT_PRDT_CODE'), width: '127', styleName: 'text-center' }, // 상품코드
@@ -1169,10 +1334,10 @@ const initGrdMstRstlList = defineGrid((data, view) => {
   view.checkBar.visible = true;
   view.rowIndicator.visible = true;
   // view.displayOptions.selectionStyle = 'singleRow';
-  view.onCellItemClicked = async (g, { column, itemIndex }) => {
-    console.log('itemIndex', itemIndex);
-    if (['notakFwIz'].includes(column)) {
-      await modal({ component: 'WwKakaotalkSendListP', componentProps: { mtPr: '407', concDiv: 'R' } }); // 카카오톡 발송 내역 조회
+  view.onCellItemClicked = async (g, { column, dataRow }) => {
+    const paramCntrDtlNo = `${gridUtil.getCellValue(g, dataRow, 'cntrNo')}-${gridUtil.getCellValue(g, dataRow, 'cntrSn')}`;
+    if (['notakFwIz'].includes(column)) { // 알림톡 발송 내역 버튼 클릭
+      await modal({ component: 'WwKakaotalkSendListP', componentProps: { cntrDtlNo: paramCntrDtlNo, concDiv: searchParams.cntrDv } }); // 카카오톡 발송 내역 조회
     }
   };
 

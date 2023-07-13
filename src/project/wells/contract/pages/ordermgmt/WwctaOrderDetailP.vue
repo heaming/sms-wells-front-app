@@ -301,7 +301,7 @@ import WwctaOrderDetailCollectingAmountContactListP from './WwctaOrderDetailColl
 
 const dataService = useDataService();
 // const { t } = useI18n();
-const { alert } = useGlobal();
+const { modal } = useGlobal();
 const optionList = ref([]);
 const props = defineProps({
   cntrNo: { type: String, required: true, default: '' },
@@ -343,6 +343,7 @@ const frmMainData = ref({
   sfkVal: '', // 세이프키
   vacBnkNm: '', // 가상계좌은행명
   vacInfo: '', // 가상계좌
+  vacVncoDvCd: '', // 가상계좌VAN사구분코드
   cntrtAdr: '', // 계약자 주소
   rcgvpKnm: '', // 설치(배송정보) 고객명
   istCralLocaraTno: '', // 설치자 휴대지역전화번호
@@ -432,10 +433,11 @@ async function fetchDataCustomerBase() {
     frmMainData.value.sfkVal = res.data[0].sfkVal; // 세이프키
     if (!isEmpty(res.data[0].vacInfo)) {
       // console.log(res.data[0].vacInfo.length + isVacInfo.value);
-      if (res.data[0].vacInfo.length > 2) {
+      if (res.data[0].vacInfo.length > 3) {
         isVacInfo.value = true;
-        frmMainData.value.vacBnkNm = res.data[0].vacInfo.split('$')[0];
-        frmMainData.value.vacInfo = `${res.data[0].vacInfo.split('$')[1]} ${res.data[0].vacInfo.split('$')[2]}`;
+        frmMainData.value.vacBnkNm = res.data[0].vacInfo.split('$')[0]; // 가상계좌은행명
+        frmMainData.value.vacInfo = `${res.data[0].vacInfo.split('$')[1]} ${res.data[0].vacInfo.split('$')[2]}`; // 가상계좌(가상계좌번호+입금일)
+        frmMainData.value.vacVncoDvCd = res.data[0].vacInfo.split('$')[3]; // 가상계좌VAN사구분코드
       }
     } // 가상계좌
     frmMainData.value.cntrtAdr = res.data[0].cntrtAdr; // 계약자 주소
@@ -513,17 +515,50 @@ async function onSelectCntrctPdList() {
 
 // 가상계좌확인서
 async function onClickVtAcCfdc() {
-  await alert('가상계좌확인서 팝업은 개발예정입니다.');
+  const searchPopupParams = {
+    mailAddr: '', /* 메일주소 */
+    vacBnkNm: frmMainData.value.vacBnkNm, /* 가상계좌은행명 */
+    vacNo: frmMainData.value.vacInfo.split(' ')[0], /* 가상계좌번호 */
+    vacGbn: frmMainData.value.vacVncoDvCd, /* 가상계좌구분. 셰틀뱅크(S),KICC(K) */
+    custNm: frmMainData.value.cstKnm, /* 고객명 */
+  };
+
+  await modal({
+    component: 'WwctaVirtualAccountDocumentMailForwardingP', // 가상계좌 메일발송
+    componentProps: searchPopupParams,
+  });
 }
 
 // 문자발송
 async function onClickCharFw() {
-  await alert('문자발송 팝업은 개발예정입니다.');
+  // await alert('문자발송 팝업은 개발예정입니다.');
+  const searchPopupParams = {
+    cntrNo: frmMainData.value.cntrDtlNo.split('-')[0],
+    cntrSn: frmMainData.value.cntrDtlNo.split('-')[1],
+    cralTno: frmMainData.value.cralTno,
+    rcgvpTno: frmMainData.value.rcgvpTno,
+  };
+
+  await modal({
+    component: 'WwctaVirtualAccountMessageForwardingP', // 문자발송
+    componentProps: searchPopupParams,
+  });
 }
 
 // 메일발송
 async function onClickEmailSend() {
-  await alert('메일발송 팝업은 개발예정입니다.');
+  // await alert('메일발송 팝업은 개발예정입니다.');
+  const searchPopupParams = {
+    vacBnkNm: frmMainData.value.vacBnkNm, // 은행명
+    vacNo: frmMainData.value.vacInfo.split(' ')[0], // 가상계좌번호
+    vacGbn: frmMainData.value.vacVncoDvCd, // 가상계좌구분
+    custNm: frmMainData.value.cstKnm, // 고객명
+  };
+
+  await modal({
+    component: 'WwctaVirtualAccountDocumentMailForwardingP', // 메일발송
+    componentProps: searchPopupParams,
+  });
 }
 
 onMounted(async () => {

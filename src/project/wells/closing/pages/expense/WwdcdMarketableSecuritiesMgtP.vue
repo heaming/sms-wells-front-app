@@ -229,6 +229,7 @@ async function subject() {
 }
 
 async function marketableSecuritiesExcd() {
+  debugger;
   const view = grdThirdRef.value.getView();
   const res = await dataService.get('/sms/wells/closing/expense/operating-cost/marketable-securities/final-withholding-tax-settlement', { params: cachedParams });
 
@@ -253,6 +254,17 @@ async function fetchData() {
   cachedParams = props.cachedParams;
   cachedParams.rsbDvCd = sumParams.rsbDvCd;
   cachedParams.dgr1LevlOgId = sumParams.dgr1LevlOgId;
+
+  if (!isEmpty(props.cachedParams.dgr3LevlOgId)) {
+    cachedParams.mainDgr3LevlOgId = props.cachedParams.dgr3LevlOgId;
+  } else if (!isEmpty(props.cachedParams.dgr2LevlOgId)) {
+    cachedParams.mainDgr2LevlOgId = props.cachedParams.dgr2LevlOgId;
+  } else if (!isEmpty(props.cachedParams.dgr1LevlOgId)) {
+    cachedParams.mainDgr1LevlOgId = props.cachedParams.dgr1LevlOgId;
+  }
+  cachedParams.dgr2LevlOgId = '';
+  cachedParams.subOgTpCd = '';
+  cachedParams.subPrtnrNo = '';
 
   await ogLevlDvCd0();
   await subject();
@@ -470,6 +482,8 @@ const initGrdSub = defineGrid((data, view) => {
     { fieldName: 'bldCd', visible: false }, // (hidden)빌딩코드
     { fieldName: 'adjOgId', visible: false },
     { fieldName: 'pstnDvCd', visible: false },
+    { fieldName: 'dgrLevlOgId', visible: false }, /* (hidden)1차레벨조직ID-총괄단 */
+    { fieldName: 'dgrLevlDgPrtnrNo', visible: false }, /* (hidden)1차레벨대표파트너번호-총괄단 */
     //
     { fieldName: 'dstWhtx', visible: false }, // 원천세
     { fieldName: 'erntx', visible: false }, // 소득세
