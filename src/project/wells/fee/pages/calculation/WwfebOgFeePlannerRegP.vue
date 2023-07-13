@@ -68,6 +68,24 @@ async function onClickCreate() {
           />
         </kw-form-item>
       </kw-form-row>
+      <kw-form-row>
+        <kw-form-item
+          :label="$t('MSG_TXT_ORDR')"
+          :required="isEmpty(props.feeTcntDvCd)"
+        >
+          <p v-if="!isEmpty(props.feeTcntDvCd)">
+            {{ codes.FEE_TCNT_DV_CD.find((v) => v.codeId === regData?.feeTcntDvCd)?.codeName }}
+          </p>
+          <kw-select
+            v-if="isEmpty(props.feeTcntDvCd)"
+            v-model="regData.feeTcntDvCd"
+            :options="codes.FEE_TCNT_DV_CD"
+            rules="required"
+            first-option="select"
+            :label="$t('MSG_TXT_ORDR')"
+          />
+        </kw-form-item>
+      </kw-form-row>
     </kw-form>
     <template #action>
       <kw-btn
@@ -105,7 +123,7 @@ const props = defineProps({
   },
   feeTcntDvCd: {
     type: String,
-    default: '02',
+    default: '',
   },
 });
 // -------------------------------------------------------------------------------------------------
@@ -113,6 +131,7 @@ const props = defineProps({
 // -------------------------------------------------------------------------------------------------
 const codes = await codeUtil.getMultiCodes(
   'FEE_CALC_UNIT_TP_CD',
+  'FEE_TCNT_DV_CD',
 );
 const popupRef = ref();
 const dataService = useDataService();
