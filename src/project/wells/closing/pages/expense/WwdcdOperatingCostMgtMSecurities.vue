@@ -177,11 +177,9 @@ async function onClickSave() {
   if (await gridUtil.alertIfIsNotModified(view)) { return; }
   if (!await gridUtil.validate(view)) { return; }
 
-  let checkedCount = 0;
   const dataRows = [];
   checkedRows.forEach((checkedRow) => {
     if (checkedRow.opcsAdjExcdYn === 'Y') {
-      checkedCount += 1;
       dataRows.push(checkedRow);
     }
   });
@@ -193,13 +191,9 @@ async function onClickSave() {
   }
   */
 
-  if (checkedCount === 1) {
-    alert('2개 이상이어야 가능합니다.');
-    return;
-  }
-
   let updateTotal = 0;
   let domTrdAmtTotal = 0;
+  let checkedCount = 0;
   let cardAprno;
   if (dataRows.length > 1) {
     const sortRows = dataRows.sort((t1, t2) => (t1.cardAprno < t2.cardAprno ? -1 : 1));
@@ -211,8 +205,13 @@ async function onClickSave() {
       for (let j = i + 1; j < sortRows.length; j += 1) {
         if (cardAprno === sortRows[j].cardAprno) {
           domTrdAmtTotal += sortRows[j].domTrdAmt1;
+          checkedCount += 1;
         } else {
           i = j;
+          if (checkedCount === 1) {
+            alert('2개 이상이어야 가능합니다.');
+            break;
+          }
         }
       }
       if (domTrdAmtTotal > 0) {
@@ -364,7 +363,7 @@ const initGrdFourth = defineGrid((data, view) => {
     { fieldName: 'erntx', visible: false }, // 소득세
     { fieldName: 'rsdntx', visible: false }, // 주민세
     { fieldName: 'dgr1LevlOgNm', header: t('MSG_TXT_MANAGEMENT_DEPARTMENT'), width: '149', styleName: 'text-left' }, /* 총괄단 */
-    { fieldName: 'dgr2LevlOgNm', header: t('MSG_TXT_CENTER_DIVISION'), width: '206', styleName: 'text-left' }, /* 지역단 */
+    { fieldName: 'dgr2LevlOgNm', header: t('MSG_TXT_RGNL_GRP'), width: '206', styleName: 'text-left' }, /* 지역단 */
     { fieldName: 'dstOjpsNm', header: t('MSG_TXT_EMPL_NM'), width: '198', styleName: 'text-left' }, /* 성명 */
     { fieldName: 'dstOjPrtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '218', styleName: 'text-center' }, /* 번호 */
     { fieldName: 'rsbDvNm', header: t('MSG_TXT_RSB'), width: '219', styleName: 'text-left' }, /* 직책 */

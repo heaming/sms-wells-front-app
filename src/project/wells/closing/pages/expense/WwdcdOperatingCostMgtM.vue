@@ -131,7 +131,7 @@
 // -------------------------------------------------------------------------------------------------
 // Initialize Component (Tab)
 // -------------------------------------------------------------------------------------------------
-import { useDataService, getComponentType, defineGrid } from 'kw-lib';
+import { useDataService, getComponentType, defineGrid, useGlobal } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 import ZwogLevelSelect from '~sms-common/organization/components/ZwogLevelSelect.vue';
@@ -149,7 +149,7 @@ const { t } = useI18n();
 const tabRefs = reactive({});
 const selectedLinkId = ref(null);
 const { getters } = useStore();
-
+const { alert } = useGlobal();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
