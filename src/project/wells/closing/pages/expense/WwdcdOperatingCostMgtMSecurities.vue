@@ -121,6 +121,7 @@ const emits = defineEmits([
 
 async function adjustObject() {
   // 유가증권
+  debugger;
   const res = await dataService.get('/sms/wells/closing/expense/marketable-securities/adjust-object', { params: cachedParams });
 
   mainTotalCount.value = res.data.length;
@@ -176,21 +177,23 @@ async function onClickSave() {
   if (await gridUtil.alertIfIsNotModified(view)) { return; }
   if (!await gridUtil.validate(view)) { return; }
 
-  let count = 0;
   let checkedCount = 0;
+  const dataRows = [];
   checkedRows.forEach((checkedRow) => {
-    if (checkedRow.opcsAdjExcdYn !== '정산' && checkedRow.opcsAdjExcdYn !== 'N') {
-      count += 1;
+    if (checkedRow.opcsAdjExcdYn === 'Y') {
+      checkedCount += 1;
+      dataRows.push(checkedRow);
     }
-    checkedCount += 1;
   });
 
+  /*
   if (count > 0) {
     alert('정상제외여부가 "정산"이어야 가능 합니다.');
     return;
   }
+  */
 
-  if (checkedCount <= 1) {
+  if (checkedCount === 1) {
     alert('2개 이상이어야 가능합니다.');
     return;
   }
@@ -198,27 +201,29 @@ async function onClickSave() {
   let updateTotal = 0;
   let domTrdAmtTotal = 0;
   let cardAprno;
-  const sortRows = checkedRows.sort((t1, t2) => (t1.cardAprno < t2.cardAprno ? -1 : 1));
-  for (let i = 0; i < sortRows.length; i += 1) {
-    cardAprno = sortRows[i].cardAprno;
-    domTrdAmtTotal = sortRows[i].domTrdAmt1;
-    domTrdAmtTotal = 0;
+  if (dataRows.length > 1) {
+    const sortRows = dataRows.sort((t1, t2) => (t1.cardAprno < t2.cardAprno ? -1 : 1));
+    for (let i = 0; i < sortRows.length; i += 1) {
+      cardAprno = sortRows[i].cardAprno;
+      domTrdAmtTotal = sortRows[i].domTrdAmt1;
+      domTrdAmtTotal = 0;
 
-    for (let j = i + 1; j < sortRows.length; j += 1) {
-      if (cardAprno === sortRows[j].cardAprno) {
-        domTrdAmtTotal += sortRows[j].domTrdAmt1;
-      } else {
-        i = j;
+      for (let j = i + 1; j < sortRows.length; j += 1) {
+        if (cardAprno === sortRows[j].cardAprno) {
+          domTrdAmtTotal += sortRows[j].domTrdAmt1;
+        } else {
+          i = j;
+        }
+      }
+      if (domTrdAmtTotal > 0) {
+        updateTotal += 1;
       }
     }
-    if (domTrdAmtTotal > 0) {
-      updateTotal += 1;
-    }
-  }
 
-  if (updateTotal > 0) {
-    alert('승인번호가 모두 동일하여야 하며 사용금액 합계가 0 이 되어야 합니다.');
-    return;
+    if (updateTotal > 0) {
+      alert('승인번호가 모두 동일하여야 하며 사용금액 합계가 0 이 되어야 합니다.');
+      return;
+    }
   }
 
   const data = checkedRows;
@@ -236,6 +241,7 @@ const initGrdThird = defineGrid((data, view) => {
     { fieldName: 'dgr1LevlOgId', visible: false }, // 총괄단 ID
     { fieldName: 'adjOgId', visible: false },
     { fieldName: 'domTrdAmt1', visible: false }, // 계산용 사용금액
+    { fieldName: 'opcsAdjNo', visible: false }, // 운영비정산번호
     { fieldName: 'useDtm', header: t('MSG_TXT_USE_DTM'), width: '174', styleName: 'text-center', editable: false }, // 사용일시
     { fieldName: 'dgr1LevlOgNm', header: t('MSG_TXT_MANAGEMENT_DEPARTMENT'), width: '79', styleName: 'text-center', editable: false }, // 총괄단
     { fieldName: 'crcdnoEncr', header: t('MSG_TXT_CARD_NO'), width: '159', styleName: 'text-center', editable: false }, // 카드번호
@@ -318,7 +324,8 @@ const initGrdThird = defineGrid((data, view) => {
   view.editOptions.editable = true;
 
   view.onCellItemClicked = async (g, { column, itemIndex }) => {
-    const { useDtm, mrcNm, cardAprno, domTrdAmt, opcsCardUseIzId, adjOgId, dgr1LevlOgId } = g.getValues(itemIndex);
+    const { useDtm, mrcNm, cardAprno, domTrdAmt,
+      opcsCardUseIzId, adjOgId, dgr1LevlOgId, opcsAdjNo } = g.getValues(itemIndex);
     //     사용일시, 카드번호, 가맹점, 승인번호, 사용금액, 원천세정산번호   TODO 넘길 param
     cachedParams.authDate = useDtm;
     cachedParams.mrcNm = mrcNm;
@@ -327,6 +334,7 @@ const initGrdThird = defineGrid((data, view) => {
     cachedParams.opcsCardUseIzId = opcsCardUseIzId;
     cachedParams.adjOgId = adjOgId;// 총괄단 아이디
     cachedParams.dgr1LevlOgId = dgr1LevlOgId;
+    cachedParams.opcsAdjNo = opcsAdjNo;
     debugger;
     if (column === 'opcsAdjBtn') {
       await modal({

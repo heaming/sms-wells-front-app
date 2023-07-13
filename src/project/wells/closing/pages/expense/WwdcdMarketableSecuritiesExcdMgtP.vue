@@ -225,6 +225,7 @@ watch(() => searchParams.value.dgr2LevlOgId, async (newVal) => {
 });
 
 async function subject() {
+  debugger;
   const view = grdSubRef.value.getView();
   const res = await dataService.get('/sms/wells/closing/expense/operating-cost/marketable-securities-excd/subject', { params: cachedParams });
 
@@ -255,6 +256,7 @@ async function marketableSecuritiesExcd() {
 }
 
 async function fetchData() {
+  debugger;
   const sumParams = cloneDeep(searchParams.value);
   cachedParams = props.cachedParams;
   cachedParams.rsbDvCd = sumParams.rsbDvCd;
@@ -268,6 +270,8 @@ async function fetchData() {
     cachedParams.mainDgr1LevlOgId = props.cachedParams.dgr1LevlOgId;
   }
   cachedParams.dgr2LevlOgId = '';
+  cachedParams.subOgTpCd = '';
+  cachedParams.subPrtnrNo = '';
 
   await ogLevlDvCd0();
   await subject();
@@ -591,6 +595,9 @@ const initGrdSub = defineGrid((data, view) => {
     { fieldName: 'bldCd', visible: false }, // (hidden)빌딩코드
     { fieldName: 'adjOgId', visible: false },
     { fieldName: 'pstnDvCd', visible: false },
+    { fieldName: 'dgrLevlOgId', visible: false }, /* (hidden)1차레벨조직ID-총괄단 */
+    { fieldName: 'dgrLevlDgPrtnrNo', visible: false }, /* (hidden)1차레벨대표파트너번호-총괄단 */
+
     //
     { fieldName: 'dstWhtx', visible: false }, // 원천세
     { fieldName: 'erntx', visible: false }, // 소득세
