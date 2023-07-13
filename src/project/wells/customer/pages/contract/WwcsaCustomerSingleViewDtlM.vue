@@ -90,14 +90,14 @@
             </p>
             <kw-chip
               v-if="!isEmpty(customerInfo?.cstGdCd)"
-              :label="customerInfo?.cstGdCd"
+              :label="customerInfo?.cstGdNm"
               square
               color="primary"
               text-color="primary"
               class="ml12"
             />
             <p class="kw-font--14 kw-fc--black3 ml8">
-              {{ customerInfo?.copnDvCd }}
+              {{ customerInfo?.copnDvNm }}
             </p>
             <kw-separator
               v-if="!isEmpty(customerInfo?.copnDvCd)"
@@ -114,7 +114,7 @@
               vertical
               class="my10 mx8"
             />
-            <span>{{ customerInfo?.sexDvCd }}</span>
+            <span>{{ customerInfo?.sexDvNm }}</span>
           </template>
           <kw-btn
             v-if="!isEmpty(customerInfo?.cstNo)"
@@ -164,6 +164,7 @@
           borderless
           :label="$t('MSG_TXT_PY_PS')"
           class="button-arrow text-weight-medium"
+          @click="onClickPaymentStatus"
         />
         <h4
           v-else
@@ -472,10 +473,13 @@ const searchParams = ref({
 const customerInfo = ref({
   cstNo: '',
   copnDvCd: '',
+  copnDvNm: '',
   cstGdCd: '',
+  cstGdNm: '',
   cstNm: '',
   bryyMmdd: '',
   sexDvCd: '',
+  sexDvNm: '',
   zip: '',
   basAdr: '',
   dtlAdr: '',
@@ -501,10 +505,13 @@ function initData() {
   customerInfo.value = {
     cstNo: '',
     copnDvCd: '',
+    copnDvNm: '',
     cstGdCd: '',
+    cstGdNm: '',
     cstNm: '',
     bryyMmdd: '',
     sexDvCd: '',
+    sexDvNm: '',
     zip: '',
     basAdr: '',
     dtlAdr: '',
@@ -652,6 +659,14 @@ async function onClickContractDetailPop(dataInfo) {
       copnDvCd: '1',
     },
   });
+}
+
+function onClickPaymentStatus() {
+  router.push(
+    {
+      path: '/withdrawal/zwwda-create-itemization-mgt',
+    },
+  );
 }
 
 async function onClickServiceHistory() {
