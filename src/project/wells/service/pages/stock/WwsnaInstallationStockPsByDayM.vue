@@ -29,7 +29,7 @@
           <kw-date-picker
             v-model="searchParams.baseDt"
             :label="$t('MSG_TXT_BASE_DT')"
-            :rules="required"
+            rules="required"
             type="date"
           />
         </kw-search-item>
@@ -188,7 +188,7 @@ onBeforeMount(async () => {
 });
 
 onMounted(async () => {
-  getProductList();
+  await getProductList();
   selectedProductByItmKnd.value = cloneDeep(productList.value);
   selectedProductByItmKnd.value = selectedProductByItmKnd.value.map((v) => ({ codeId: v.codeId, codeName: `${v.codeId} - ${v.codeName}` }));
   console.log(selectedProductByItmKnd.value);
@@ -202,6 +202,58 @@ const onChangeItmKnd = (val) => {
   }
 };
 
+let stockDateColumns = [];
+let stockDateFields = [];
+let stockDateItems = [];
+let installDateColumns = [];
+let installDateFields = [];
+let installDateItems = [];
+
+/*
+ * 동적 컬럼, 필드 생성 (일자별)
+ */
+const getDateColumnsFields = (searchDt) => {
+  stockDateColumns = [];
+  stockDateFields = [];
+  stockDateItems = [];
+  installDateColumns = [];
+  installDateFields = [];
+  installDateItems = [];
+
+  const baseDt = searchDt ? dayjs(searchDt).locale('ko') : now.locale('ko');
+
+  for (let i = 0; i < 15; i += 1) {
+    const stockDateColumn = {
+      fieldName: `stockdate${i + 1}`,
+      header: baseDt.add(i, 'day').format('MM/DD(ddd)'),
+      width: '100',
+      styleName: 'text-right',
+    };
+
+    const stockDateField = {
+      fieldName: `stockdate${i + 1}`,
+    };
+
+    const installDateColumn = {
+      fieldName: `installdate${i + 1}`,
+      header: baseDt.add(i, 'day').format('MM/DD(ddd)'),
+      width: '100',
+      styleName: 'text-right',
+    };
+
+    const installDateField = {
+      fieldName: `installdate${i + 1}`,
+    };
+
+    stockDateColumns.push(stockDateColumn);
+    stockDateFields.push(stockDateField);
+    stockDateItems.push(`stockdate${i + 1}`);
+    installDateColumns.push(installDateColumn);
+    installDateFields.push(installDateField);
+    installDateItems.push(`installdate${i + 1}`);
+  }
+};
+
 async function fetchData() {
   // eslint-disable-next-line max-len
   const res = await dataService.get('/sms/wells/service/installation-stock-by-day/paging', { params: { ...cachedParams, ...pageInfo.value } });
@@ -210,9 +262,40 @@ async function fetchData() {
   pageInfo.value = pagingResult;
 
   const view = grdMainRef.value.getView();
+
+  getDateColumnsFields(cachedParams.baseDt);
+  const columns = [
+    { fieldName: 'ogNm', header: t('MSG_TXT_DIV'), width: '247' },
+    { fieldName: 'strSum', header: t('MSG_TXT_CENTER_DIVISION'), width: '100', styleName: 'text-right' },
+    { fieldName: 'prvMngSum', header: t('MSG_TXT_EGER'), width: '100', styleName: 'text-right' },
+    { fieldName: 'stockTotal', header: t('MSG_TXT_SUM'), width: '100', styleName: 'text-right' },
+    ...stockDateColumns,
+    { fieldName: 'istTotal', header: t('MSG_TXT_AGG'), width: '100', styleName: 'text-right' },
+    ...installDateColumns,
+  ];
+
+  view.setColumns(columns);
   view.getDataSource().setRows(state);
+  view.setColumnLayout([
+    'ogNm',
+    {
+      header: t('MSG_TXT_CURRENT') + t('MSG_TXT_STOC'), // colspan title
+      direction: 'horizontal', // merge type
+      items: ['strSum', 'prvMngSum', 'stockTotal'],
+    },
+    {
+      header: t('MSG_TXT_STOC') + t('MSG_TXT_PS'), // colspan title
+      direction: 'horizontal', // merge type
+      items: stockDateItems,
+    },
+    'istTotal',
+    {
+      header: t('MSG_BTN_CNTCT_ASSGNMNT') + t('MSG_TXT_PS'), // colspan title
+      direction: 'horizontal', // merge type
+      items: installDateItems,
+    },
+  ]);
   view.resetCurrent();
-  await gridUtil.reset(view);
 }
 
 /*
@@ -255,58 +338,6 @@ async function onClickCntctPopup() {
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
-let stockDateColumns = [];
-let stockDateFields = [];
-let stockDateItems = [];
-let installDateColumns = [];
-let installDateFields = [];
-let installDateItems = [];
-
-/*
- * 동적 컬럼, 필드 생성 (일자별)
- */
-const getDateColumnsFields = (searchDt) => {
-  stockDateColumns = [];
-  stockDateFields = [];
-  stockDateItems = [];
-  installDateColumns = [];
-  installDateFields = [];
-  installDateItems = [];
-
-  const baseDt = searchDt ? dayjs(searchDt).locale('ko') : now.locale('ko');
-
-  for (let i = 0; i < 15; i += 1) {
-    const stockDateColumn = {
-      fieldName: `stockDate${i}`,
-      header: baseDt.add(i, 'day').format('MM/DD(ddd)'),
-      width: '100',
-      styleName: 'text-right',
-    };
-
-    const stockDateField = {
-      fieldName: `stockDate${i}`,
-    };
-
-    const installDateColumn = {
-      fieldName: `installDate${i}`,
-      header: baseDt.add(i, 'day').format('MM/DD(ddd)'),
-      width: '100',
-      styleName: 'text-right',
-    };
-
-    const installDateField = {
-      fieldName: `installDate${i}`,
-    };
-
-    stockDateColumns.push(stockDateColumn);
-    stockDateFields.push(stockDateField);
-    stockDateItems.push(`stockDate${i}`);
-    installDateColumns.push(installDateColumn);
-    installDateFields.push(installDateField);
-    installDateItems.push(`installDate${i}`);
-  }
-};
-
 const initGrid = defineGrid((data, view) => {
   cachedParams = cloneDeep(searchParams.value);
   getDateColumnsFields(cachedParams.baseDt);
