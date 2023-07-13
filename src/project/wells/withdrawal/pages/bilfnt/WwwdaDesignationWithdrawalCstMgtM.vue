@@ -232,11 +232,15 @@ async function onClickSave() {
   const view = grdMainRef.value.getView();
   if (await gridUtil.alertIfIsNotModified(view)) { return; }
   if (!await gridUtil.validate(view)) { return; }
+  const arr = gridUtil.getChangedRowValues(view);
+  if (arr.some((v) => v.dsnWdrwAmt < 0)) {
+    notify(t('MSG_ALT_AMT_MINUS_ERR')); // 금액을 -로 지정할 수 없습니다.
+    return;
+  }
 
   const data = getSaveParams();
   await dataService.post('/sms/wells/withdrawal/bilfnt/designation-wdrw-csts', data);
   notify(t('MSG_ALT_SAVE_DATA'));
-
   await onClickSearch();
 }
 
