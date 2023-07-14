@@ -29,6 +29,7 @@
             v-model="searchParams.cntrTpCd"
             :label="$t('MSG_TXT_CONTR_TYPE')"
             :options="codes.CNTR_TP_CD"
+            :disable="!!props.cntrTpCd"
             rules="required"
           />
         </kw-search-item>
