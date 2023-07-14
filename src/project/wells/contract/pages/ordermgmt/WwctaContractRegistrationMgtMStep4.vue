@@ -413,67 +413,85 @@ ${step4.cntrt.sexDvNm || ''}` }}
             dense
             class="mt20"
           >
-            <kw-form-row>
-              <kw-form-item
-                label="설치장소"
-              >
-                <p>
-                  {{ codes.IST_PLC_TP_CD.find((code) => code.codeId === item.wellsDtl.istPlcTpCd)?.codeName }}
-                </p>
-              </kw-form-item>
-              <kw-form-item
-                label="가구 구성원 수"
-              >
-                <p>
-                  {{ codes.FMMB_N.find((code) => code.codeId === item.wellsDtl.fmmbN)?.codeName }}
-                </p>
-              </kw-form-item>
-            </kw-form-row>
-            <kw-form-row>
-              <kw-form-item
-                label="전압"
-              >
-                <p>
-                  {{ codes.USE_ELECT_TP_CD.find((code) => code.codeId === item.wellsDtl.useElectTpCd)?.codeName }}
-                </p>
-              </kw-form-item>
-              <kw-form-item
-                label="수압"
-              >
-                <p>
-                  {{ codes.WPRS_ITST_TP_CD.find((code) => code.codeId === item.wellsDtl.wprsItstTpCd)?.codeName }}
-                </p>
-              </kw-form-item>
-            </kw-form-row>
-            <kw-form-row>
-              <kw-form-item
-                label="수질"
-              >
-                <p>
-                  {{ codes.SRCWT_TP_CD.find((code) => code.codeId === item.wellsDtl.srcwtTpCd)?.codeName }}
-                </p>
-              </kw-form-item>
-            </kw-form-row>
-            <kw-form-row>
-              <kw-form-item
-                label="요청사항"
-                :colspan="2"
-              >
-                <p>
-                  {{ item.wellsDtl.istAkArtcMoCn }}
-                </p>
-              </kw-form-item>
-            </kw-form-row>
-            <kw-form-row>
-              <kw-form-item
-                label="참고사항"
-                :colspan="2"
-              >
-                <p>
-                  {{ "" }}
-                </p>
-              </kw-form-item>
-            </kw-form-row>
+            <template
+              v-if="item.sellTpCd === '1' || item.sellTpCd === '2'"
+            >
+              <kw-form-row>
+                <kw-form-item
+                  label="설치장소"
+                >
+                  <p>
+                    {{ codes.IST_PLC_TP_CD.find((code) => code.codeId === item.wellsDtl.istPlcTpCd)?.codeName }}
+                  </p>
+                </kw-form-item>
+                <kw-form-item
+                  label="가구 구성원 수"
+                >
+                  <p>
+                    {{ codes.FMMB_N.find((code) => code.codeId === item.wellsDtl.fmmbN)?.codeName }}
+                  </p>
+                </kw-form-item>
+              </kw-form-row>
+              <kw-form-row>
+                <kw-form-item
+                  label="전압"
+                >
+                  <p>
+                    {{ codes.USE_ELECT_TP_CD.find((code) => code.codeId === item.wellsDtl.useElectTpCd)?.codeName }}
+                  </p>
+                </kw-form-item>
+                <kw-form-item
+                  label="수압"
+                >
+                  <p>
+                    {{ codes.WPRS_ITST_TP_CD.find((code) => code.codeId === item.wellsDtl.wprsItstTpCd)?.codeName }}
+                  </p>
+                </kw-form-item>
+              </kw-form-row>
+              <kw-form-row>
+                <kw-form-item
+                  label="수질"
+                >
+                  <p>
+                    {{ codes.SRCWT_TP_CD.find((code) => code.codeId === item.wellsDtl.srcwtTpCd)?.codeName }}
+                  </p>
+                </kw-form-item>
+              </kw-form-row>
+              <kw-form-row>
+                <kw-form-item
+                  label="요청사항"
+                  :colspan="2"
+                >
+                  <p>
+                    {{ item.wellsDtl.istAkArtcMoCn }}
+                  </p>
+                </kw-form-item>
+              </kw-form-row>
+              <kw-form-row>
+                <kw-form-item
+                  label="참고사항"
+                  :colspan="2"
+                >
+                  <p>
+                    {{ "" }}
+                  </p>
+                </kw-form-item>
+              </kw-form-row>
+            </template>
+            <template
+              v-else
+            >
+              <kw-form-row>
+                <kw-form-item
+                  label="요청사항"
+                  :colspan="2"
+                >
+                  <p>
+                    {{ item.wellsDtl.istAkArtcMoCn }}
+                  </p>
+                </kw-form-item>
+              </kw-form-row>
+            </template>
           </kw-form>
         </template>
       </template>
