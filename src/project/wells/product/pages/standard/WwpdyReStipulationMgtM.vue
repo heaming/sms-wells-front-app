@@ -156,6 +156,7 @@ const codes = await codeUtil.getMultiCodes(
   'RSTL_SELL_CHNL_DV_CD', // (상품구분)
   'COD_PAGE_SIZE_OPTIONS', // 전체, 영업부, SalesTM
 );
+codes.COD_YN = [{ codeId: 'Y', codeName: 'Y' }, { codeId: 'N', codeName: 'N' }];
 
 let cachedParams;
 const searchParams = ref({
@@ -204,6 +205,10 @@ async function onClickAdd() {
   gridUtil.insertRowAndFocus(view, 0, {
     apyStrtdt: dayjs().format('YYYY-MM-DD'),
     apyEnddt: '9999-12-31',
+    ackmtAmt: '0',
+    ackmtCt: '0',
+    feeAckmtBaseAmt: '0',
+    feeFxamYn: 'Y',
   });
   view.setColumnProperty('pdCd', 'styleName', 'btnshow');
   view.setColumnProperty('pdNm', 'styleName', 'btnshow');
@@ -235,6 +240,8 @@ async function checkDuplicationByPk() {
     const baseRow = insUpdRows[i];
     for (let j = 1; j < insUpdRows.length; j += 1) {
       const targetRow = insUpdRows[j];
+
+      console.log(i, j, baseRow, targetRow);
 
       if (i !== j
       && baseRow.pdCd === targetRow.pdCd
@@ -384,6 +391,11 @@ C4    OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
 const initGrdMain = defineGrid((data, view) => {
+  const numberEditor3 = { type: 'number', positiveOnly: true, editFormat: '#,##0', maxLength: 3 };
+  const numberEditor5 = { type: 'number', positiveOnly: true, editFormat: '#,##0', maxLength: 5 };
+  const numberEditor20 = { type: 'number', positiveOnly: true, editFormat: '#,##0', maxLength: 10 };
+  const numberForamt = '#,##0';
+  // , rules: 'required', dataType: 'number', numberFormat: '#,##0'
   const columns = [
     /* 상품코드 */
     { fieldName: 'pdCd',
@@ -409,17 +421,24 @@ const initGrdMain = defineGrid((data, view) => {
           : { styleName: 'text-left btnhide', editable: false };
       },
     },
-    { fieldName: 'rstlBaseTpCd', header: t('MSG_TXT_STPL_TYPE'), width: '80', styleName: 'text-center', rules: 'required', options: codes.RSTL_BASE_TP_CD, editor: { type: 'dropdown', rules: 'required' } }, /* 약정유형 */
-    { fieldName: 'rstlMcn', header: t('MSG_TXT_STPL_MONTHS'), width: '80', styleName: 'text-right', rules: 'max_value:999', editor: { inputCharacters: '0-9', maxLength: 3 } }, /* 약정개월수 */
-    { fieldName: 'stplTn', header: t('MSG_TXT_STPL_CNTS'), width: '80', styleName: 'text-center', rules: 'required|max_value:999', editor: { inputCharacters: '0-9', maxLength: 3 } }, /* 약정회차 */
-    { fieldName: 'rstlSellChnlDvCd', header: t('MSG_TXT_CHNL_DV'), width: '80', styleName: 'text-center', rules: 'required', options: codes.RSTL_SELL_CHNL_DV_CD, editor: { type: 'dropdown', rules: 'required' } }, /* 채널구분 */
-    { fieldName: 'apyStrtdt', header: t('MSG_TXT_APY_STRT_DAY'), width: '120', styleName: 'text-center', rules: 'required', dataType: 'date', datetimeFormat: 'date', editor: { type: 'date', datetimeFormat: 'date' } }, /* 적용 시작일 */
-    { fieldName: 'apyEnddt', header: t('MSG_TXT_APY_END_DAY'), width: '120', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date', editor: { type: 'date', datetimeFormat: 'date' } }, /* 적용 종료일 */
-    { fieldName: 'stplDscAmt', header: t('MSG_TXT_STPL_SALE_AMT'), width: '100', styleName: 'text-right', rules: 'max_value:9999999999999999999', editor: { inputCharacters: '0-9', maxLength: 20 } }, /* 약정할인액 */
-    { fieldName: 'minRentalAmt', header: t('MSG_TXT_LENTAL_PEE_MIN'), width: '100', styleName: 'text-right', rules: 'max_value:9999999999999999999', editor: { inputCharacters: '0-9', maxLength: 20 } }, /* 렌탈료하한 */
-    { fieldName: 'rcpStrtMcn', header: t('MSG_TXT_RCPT_STRT_MONTHS'), width: '100', styleName: 'text-right', rules: 'max_value:999', editor: { inputCharacters: '0-9', maxLength: 3 } }, /* 접수시작차월 */
-    { fieldName: 'rcpEndMcn', header: t('MSG_TIT_RCPT_END_MONTHS'), width: '100', styleName: 'text-right', rules: 'max_value:999', editor: { inputCharacters: '0-9', maxLength: 3 } }, /* 접수종료차월 */
-    { fieldName: 'rstlDutyMcn', header: t('MSG_TXT_DUTY_PTRM'), width: '80', styleName: 'text-right', rules: 'max_value:999', editor: { inputCharacters: '0-9', maxLength: 3 } }, /* 의무기간 */
+    { fieldName: 'rstlBaseTpCd', header: t('MSG_TXT_STPL_TYPE', null, '약정유형'), width: '80', styleName: 'text-center', rules: 'required', options: codes.RSTL_BASE_TP_CD, editor: { type: 'dropdown', rules: 'required' } },
+    { fieldName: 'rstlMcn', header: t('MSG_TXT_STPL_MONTHS', null, '약정개월수'), width: '80', styleName: 'text-right', editor: numberEditor3 },
+    { fieldName: 'stplTn', header: t('MSG_TXT_STPL_CNTS', null, '약정회차'), width: '80', styleName: 'text-center', rules: 'required|max_value:999', editor: { inputCharacters: '0-9', maxLength: 3 } },
+    { fieldName: 'rstlSellChnlDvCd', header: t('MSG_TXT_CHNL_DV', null, '채널구분'), width: '80', styleName: 'text-center', rules: 'required', options: codes.RSTL_SELL_CHNL_DV_CD, editor: { type: 'dropdown', rules: 'required' } },
+    { fieldName: 'apyStrtdt', header: t('MSG_TXT_APY_STRT_DAY', null, '적용 시작일'), width: '120', styleName: 'text-center', rules: 'required', dataType: 'date', datetimeFormat: 'date', editor: { type: 'date', datetimeFormat: 'date' } },
+    { fieldName: 'apyEnddt', header: t('MSG_TXT_APY_END_DAY', null, '적용 종료일'), width: '120', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date', editor: { type: 'date', datetimeFormat: 'date' } },
+    { fieldName: 'stplDscAmt', header: t('MSG_TXT_STPL_SALE_AMT', null, '약정할인액'), width: '100', styleName: 'text-right', editor: numberEditor20, dataType: 'number', numberFormat: numberForamt },
+    { fieldName: 'minRentalAmt', header: t('MSG_TXT_LENTAL_PEE_MIN', null, '렌탈료하한'), width: '100', styleName: 'text-right', editor: numberEditor20, dataType: 'number', numberFormat: numberForamt },
+    { fieldName: 'rcpStrtMcn', header: t('MSG_TXT_RCPT_STRT_MONTHS', null, '접수시작차월'), width: '100', styleName: 'text-right', editor: numberEditor3 },
+    { fieldName: 'rcpEndMcn', header: t('MSG_TIT_RCPT_END_MONTHS', null, '접수종료차월'), width: '100', styleName: 'text-right', editor: numberEditor3 },
+    { fieldName: 'rstlDutyMcn', header: t('MSG_TXT_DUTY_PTRM', null, '의무기간'), width: '80', styleName: 'text-right', editor: numberEditor3 },
+
+    { fieldName: 'ackmtCt', header: t('MSG_TXT_PD_ACC_CNT', null, '인정건수'), width: '100', styleName: 'text-right', editor: numberEditor5, dataType: 'number', numberFormat: numberForamt },
+    { fieldName: 'ackmtAmt', header: t('MSG_TXT_PD_ACC_RSLT', null, '인정실적'), width: '100', styleName: 'text-right', editor: numberEditor20, dataType: 'number', numberFormat: numberForamt },
+    { fieldName: 'feeAckmtBaseAmt', header: t('MSG_TXT_PD_STD_FEE', null, '기준수수료'), width: '100', styleName: 'text-right', editor: numberEditor20, dataType: 'number', numberFormat: numberForamt },
+    { fieldName: 'feeFxamYn', header: t('MSG_TXT_FXAM_YN', null, '정액여부'), width: '90', options: codes.COD_YN, editor: { type: 'dropdown' }, styleName: 'text-center' },
+    { fieldName: 'rid', header: 'row식별값', visible: false },
+
     // 등록/수정일
     { fieldName: 'fstRgstDtm', header: t('MSG_TXT_RGST_DT'), width: '110', styleName: 'text-center', datetimeFormat: 'date', editable: false },
     { fieldName: 'fstRgstUsrNm', header: t('MSG_TXT_RGST_USR'), width: '80', styleName: 'text-center', editable: false },
