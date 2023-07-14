@@ -33,6 +33,11 @@
             :maxlength="10"
             @click-icon="onClickSelectPdCd()"
           />
+          <kw-input
+            v-model="searchParams.basePdNm"
+            placeholder=""
+            readonly
+          />
         </kw-search-item>
         <!-- 적용기간 -->
         <kw-search-item
@@ -146,6 +151,7 @@ const pageInfo = ref({
 let cachedParams;
 const searchParams = ref({
   basePdCd: '',
+  basePdNm: '',
   apyStrtYm: '',
   apyEndYm: '',
 });
@@ -154,7 +160,7 @@ const searchParams = ref({
 async function onClickSelectPdCd() {
   const searchPopupParams = {
     searchType: pdConst.PD_SEARCH_CODE,
-    searchValue: searchParams.value.pdCd,
+    searchValue: searchParams.value.basePdCd,
     selectType: '',
   };
   const returnPdInfo = await modal({
@@ -162,7 +168,8 @@ async function onClickSelectPdCd() {
     componentProps: searchPopupParams,
   });
   if (returnPdInfo.result) {
-    searchParams.value.pdCd = returnPdInfo.payload?.[0].pdCd;
+    searchParams.value.basePdCd = returnPdInfo.payload?.[0].pdCd;
+    searchParams.value.basePdNm = returnPdInfo.payload?.[0].pdNm;
   }
 }
 
