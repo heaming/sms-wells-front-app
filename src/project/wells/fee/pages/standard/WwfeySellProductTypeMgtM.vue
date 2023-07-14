@@ -199,7 +199,7 @@ async function onClickRowAdd() {
     apyStrtYm: '',
     apyEndYm: '',
   };
-  const dataRow = view.getDataSource().addRow(defaultRow);
+  const dataRow = view.getDataSource().insertRow(0, defaultRow);
   gridUtil.focusCellInput(view, dataRow, 'basePdCd');
 }
 
