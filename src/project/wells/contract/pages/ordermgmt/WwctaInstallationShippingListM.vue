@@ -22,11 +22,13 @@
         <kw-search-item
           :label="t('MSG_TXT_CNTR_PTRM')"
           :colspan="2"
+          required
         >
           <!-- 설치기간 -->
           <kw-date-range-picker
             v-model:from="searchParams.cntrCnfmDtFr"
             v-model:to="searchParams.cntrCnfmDtTo"
+            rules="date_range_required"
           />
         </kw-search-item>
 
