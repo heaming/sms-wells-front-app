@@ -123,7 +123,13 @@ ${step4.cntrt.sexDvNm || ''}` }}
       >
         <kw-form-row>
           <kw-form-item label="고객결제방법선택">
+            <p
+              v-if="isReadonly"
+            >
+              {{ codes.CST_STLM_IN_MTH_CD.find((code) => code.codeId === step4.bas?.cstStlmInMthCd)?.codeName }}
+            </p>
             <kw-option-group
+              v-else
               :model-value="step4.bas?.cstStlmInMthCd"
               type="radio"
               :options="codes.CST_STLM_IN_MTH_CD"
@@ -632,6 +638,7 @@ const cntrTpIs = ref({
   rstl: computed(() => step4.value.bas?.cntrTpCd === '08'), // 재약정
   quot: computed(() => step4.value.bas?.cntrTpCd === '09'), // 견적서
 });
+const isReadonly = computed(() => step4.value.bas?.cntrPrgsStatCd > 20);
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------

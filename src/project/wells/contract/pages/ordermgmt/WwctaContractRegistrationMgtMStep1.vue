@@ -340,7 +340,7 @@ const props = defineProps({
   contract: { type: String, required: true },
   onChildMounted: { type: Function, required: true },
 });
-const { cntrNo: pCntrNo, step1, isReadonly } = toRefs(props.contract);
+const { cntrNo: pCntrNo, step1 } = toRefs(props.contract);
 const ogStep1 = ref({});
 const codes = await codeUtil.getMultiCodes(
   'CNTR_TP_CD',
@@ -375,7 +375,7 @@ const dashboardCounts = ref({
   membershipCnt: 0,
 });
 const mshCntr = ref({}); /* 멤버십 원계약 저장 객체 */
-
+const isReadonly = computed(() => !!step1.value.bas?.cntrPrgsStatCd);
 const emits = defineEmits([
   'membership',
   'restipulation',
