@@ -25,7 +25,7 @@
         class="mt20"
       >
         <template
-          v-if="cntrTpIs.indv || cntrTpIs.ensm || cntrTpIs.msh"
+          v-if="cntrTpIs.indv || cntrTpIs.ensm || (cntrTpIs.msh && step4.bas.copnDvCd === '1')"
         >
           <kw-form-row>
             <kw-form-item
@@ -63,7 +63,7 @@ ${step4.cntrt.sexDvNm || ''}` }}
           </kw-form-row>
         </template>
         <template
-          v-else-if="cntrTpIs.crp"
+          v-else-if="cntrTpIs.crp || (cntrTpIs.msh && step4.bas.copnDvCd === '2')"
         >
           <kw-form-row>
             <kw-form-item
