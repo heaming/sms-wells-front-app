@@ -189,8 +189,8 @@ const initGrd = defineGrid((data, view) => {
       },
     },
     cntrAmt: { label: t('등록비'), type: Number, width: 146 },
-    cntrPtrm: { label: t('계약기간'), type: Number, width: 146 },
-    svPdCd: { label: t('서비스상품코드'), width: 146, classes: 'text-center' }, /* 상품코드 긁어올까.. */
+    cntrPtrm: { label: t('계약기간'), type: Number, width: 146, required: true },
+    svPdCd: { label: t('서비스상품코드'), width: 146, classes: 'text-center', required: true }, /* 상품코드 긁어올까.. */
     stplPtrm: { label: t('약정기간'), type: Number, width: 146 },
     rentalDscTpCd: { label: t('렌탈할인유형코드'), width: 146, options: codes.RENTAL_DSC_TP_CD },
     rentalDscDvCd: { label: t('렌탈할인구분코드'), width: 146, options: codes.RENTAL_DSC_DV_CD },
@@ -273,6 +273,12 @@ const initGrd = defineGrid((data, view) => {
     svVlStrtDtm: { displaying: false },
     svVlEndDtm: { displaying: false },
     svPdQty: { displaying: false, type: Number },
+    pdPrcFnlDtlId: { displaying: false },
+    verSn: { displaying: false, type: Number },
+    fxamFxrtDvCd: { displaying: false },
+    ctrVal: { displaying: false, type: Number },
+    fnlVal: { displaying: false, type: Number },
+    pdPrcId: { displaying: false },
   });
 
   view.rowIndicator.visible = true;
