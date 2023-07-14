@@ -707,10 +707,10 @@ async function callKiwiTimeAssign(dataList, prdDiv) {
   let sellTpCd = '';
   let kaetc1 = '';
 
-  if (dataList.profile !== 'prd') {
-    alert('처리되었습니다.(개발환경에선 처리 안됨)');
-    return;
-  }
+  // if (dataList.profile !== 'prd') {
+  //   alert('처리되었습니다.(개발환경에선 처리 안됨)');
+  //   return;
+  // }
 
   if (dataList.lcCanyn !== 'Y') {
     if (dataList.acpgStat === '1' || dataList.acpgStat === '9') {
@@ -772,17 +772,16 @@ async function callKiwiTimeAssign(dataList, prdDiv) {
         svBizDclsfCdParam = '1110';
       }
       const { result } = await modal({
-        component: 'WwsncTimeTableSellListP',
+        component: 'WwsncTimeTableForContractP',
         componentProps: {
           sellDate: dataList.rcpdt, // 판매일자
-          baseYm: isEmpty(dataList.rcpdt) ? now.format('YYYYMM') : dataList.rcpdt.substr(0, 6), // 달력 초기 월
+          baseYm: now.format('YYYYMM'), // 달력 초기 월
           chnlDvCd: dataList.inChnlDvCd, // W: 웰스, K: KSS, C: CubicCC, P: K-MEMBERS, I || E: 엔지니어, M: 매니저
           svDvCd: svDvCdParam, // 1:설치, 2:BS, 3:AS, 4:홈케어
           svBizDclsfCd: svBizDclsfCdParam, // 판매인 경우 1110(신규설치) fix
           cntrNo: dataList.cntrNo,
           cntrSn: dataList.cntrSn,
           dataStatCd: prdDiv, // 1: 신규, 2: 수정, 3: 삭제
-          userId: sessionUserInfo.employeeIDNumber,
         },
       });
 
@@ -871,10 +870,10 @@ async function cancelKiwiTimeAssign(dataList, prdDivParam) {
     return;
   }
 
-  if (dataList.profile !== 'prd') {
-    alert('처리되었습니다.(개발환경에선 처리 안됨)');
-    return;
-  }
+  // if (dataList.profile !== 'prd') {
+  //   alert('처리되었습니다.(개발환경에선 처리 안됨)');
+  //   return;
+  // }
 
   const saveParams = ref({
     cntrNo: dataList.cntrNo,
@@ -913,10 +912,10 @@ async function checkKiwiTimeAssign(dataList, prdDiv) {
   let acpgDivParam = '';
   const prdDivParam = prdDiv;
 
-  if (dataList.profile !== 'prd') {
-    alert('처리되었습니다.(개발환경에선 처리 안됨)');
-    return;
-  }
+  // if (dataList.profile !== 'prd') {
+  //   alert('처리되었습니다.(개발환경에선 처리 안됨)');
+  //   return;
+  // }
 
   if (dataList.lcCanyn !== 'Y') {
     if (dataList.kaetc1 === '7') {
