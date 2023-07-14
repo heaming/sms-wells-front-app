@@ -189,8 +189,6 @@ onMounted(async () => {
   searchParams.prtnrNo = props.prtnrNo;
   searchParams.ogTpCd = props.ogTpCd;
   searchParams.copnDvCd = props.copnDvCd;
-
-  console.log(searchParams);
 });
 
 const initGrd = defineGrid((data, view) => {
@@ -242,10 +240,8 @@ const initGrd = defineGrid((data, view) => {
   view.rowIndicator.visible = true;
 
   view.onCellDblClicked = (g, clickData) => {
-    console.log(clickData);
     if (clickData.cellType === 'data') {
       const currentRowData = gridUtil.getCurrentRowValue(view);
-      console.log(currentRowData);
       return ok(currentRowData);
     }
   };
