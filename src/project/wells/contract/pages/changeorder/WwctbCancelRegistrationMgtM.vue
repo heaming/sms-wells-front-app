@@ -343,7 +343,6 @@ const grdMainView = computed(() => grdMain.value?.getView());
 const searchParams = ref({
   cntrNo: '', // 계약번호
   cntrSn: '', // 계약일련번호
-  cstNo: '', // 고객번호
   dm: '', // 조회년월
 });
 
@@ -489,7 +488,7 @@ async function fetchData() {
   const res = await dataService.get('/sms/wells/contract/changeorder/cancel-base-infos', { params: { ...cachedParams.value } });
 
   totalCount.value = res.data.length;
-  grdMainView.value.getDataSource().setRows(res.data);
+  grdMainView.value.getDataSource().setRows(res.data.map((obj) => ({ ...obj, bulkApplyYN: 'N' })));
   grdMainView.value.getDataSource().checkRowStates(false);
 }
 
@@ -571,9 +570,8 @@ function initGrid(data, view) {
     { fieldName: 'sellTpCd', visible: false },
     { fieldName: 'cntrNo', visible: false },
     { fieldName: 'cntrSn', visible: false },
-    { fieldName: 'isAdded', width: '50' },
-    { fieldName: 'bulkApplyYN', visible: false },
-
+    { fieldName: 'isAdded', width: '30' },
+    { fieldName: 'bulkApplyYN', width: '30' },
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
 

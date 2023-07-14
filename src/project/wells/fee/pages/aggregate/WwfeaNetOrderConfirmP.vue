@@ -26,6 +26,13 @@
           <p>{{ data.baseYm }}</p>
         </kw-form-item>
       </kw-form-row>
+      <kw-form-row>
+        <kw-form-item
+          :label="$t('MSG_TXT_DIV')"
+        >
+          <p>{{ data.tcntDvTxt }}</p>
+        </kw-form-item>
+      </kw-form-row>
     </kw-form>
     <template #action>
       <kw-btn
@@ -62,12 +69,17 @@ const props = defineProps({
     type: String,
     default: '',
   },
+  tcntDvTxt: {
+    type: String,
+    default: '',
+  },
 });
 
 const data = ref({
   baseYm: props.perfYm,
   perfYm: props.perfYm.replaceAll(/[^0-9]/g, ''),
   tcntDvCd: props.tcntDvCd,
+  tcntDvTxt: props.tcntDvTxt,
 });
 
 // -------------------------------------------------------------------------------------------------

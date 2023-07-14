@@ -28,6 +28,7 @@
           v-model="searchParams.schClctamNm"
           :label="$t('MSG_TXT_CLCTAM_PSIC')"
           clearable
+          :maxlength="30"
           icon="search"
           rules="required"
           @click-icon="onClickClctamPsic"
@@ -40,6 +41,7 @@
           v-model="searchParams.schCstNm"
           clearable
           icon="search"
+          :maxlength="30"
           @click-icon="onClickSelectCustomer"
         />
       </kw-search-item>
@@ -75,7 +77,10 @@
       <kw-search-item
         :label="$t('MSG_TXT_CNTR_NO')"
       >
-        <kw-input v-model="searchParams.schCntrNo" />
+        <kw-input
+          v-model="searchParams.schCntrNo"
+          :maxlength="14"
+        />
       </kw-search-item>
       <kw-search-item
         :label="$t('MSG_TXT_CST_NO')"
@@ -83,6 +88,8 @@
         <kw-input
           v-model="searchParams.schCstNo"
           icon="search"
+          :maxlength="10"
+          regex="num"
           clearable
           @click-icon="onClickSelectCustomer"
         />
@@ -127,6 +134,8 @@
         <kw-input
           v-model="searchParams.schSfK"
           icon="search"
+          regex="num"
+          :maxlength="13"
           @click-icon="onClickSelectCustomer"
         />
       </kw-search-item>
@@ -373,11 +382,14 @@ async function fetchContracts() {
 
 /** 계약리스트 엑셀다운로드 */
 async function onClickExcelDownload() {
+  const res = await dataService.get('/sms/wells/bond/bond-counsel/contracts', { params: cachedParams });
   const view = grdMainRef.value.getView();
+
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
-
+    checkBar: 'hidden',
+    exportData: res.data,
   });
 }
 

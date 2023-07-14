@@ -65,7 +65,7 @@
             maxlength="10"
             icon="search"
             clearable
-            rules="required"
+            rules="required|numeric"
             :label="$t('MSG_TXT_PRTNR_NUMBER')"
             @click-icon="onClickSearchPartner"
           />
@@ -269,7 +269,6 @@ async function fetchData2() {
   const res = await dataService.get('/sms/wells/deduction/redf/estimate-amounts/presentState', { params: { ...cachedParams } });
 
   const redfes = res.data;
-
   const view = grdMainRef.value.getView();
   const dataSource = view.getDataSource();
 
@@ -298,6 +297,7 @@ async function onClickSearch() {
   grdThirdRef.value.getData().clearRows();
   pageInfo.value.pageIndex = 1;
   pageInfo.value.totalCount = 0;
+  grdThirdExcelChk.value = false;
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
   await fetchData2();
@@ -386,20 +386,20 @@ async function onKeyDownSelectCustomer() {
 const initGrid = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'perfDv' }, // 실적 구분
-    { fieldName: 'indvElhmPerf', dataType: 'number' }, // 개인 가전 실적(가전 기준가)
-    { fieldName: 'indvElhmExcpPerf', dataType: 'number' }, // 개인 가전외 실적(가전외 기준가)
-    { fieldName: 'brchElhmPerf', dataType: 'number' }, // 지점 가전 실적(가전 기준가)
-    { fieldName: 'brchElhmExcpPerf', dataType: 'number' }, // 지점 가전외 실적(가전외 기준가)
+    { fieldName: 'indvElhmPerf', dataType: 'number' }, // 개인 가전 실적
+    { fieldName: 'indvElhmExcpPerf', dataType: 'number' }, // 개인 가전외 실적
+    { fieldName: 'brchElhmPerf', dataType: 'number' }, // 지점 가전 실적
+    { fieldName: 'brchElhmExcpPerf', dataType: 'number' }, // 지점 가전외 실적
     { fieldName: 'mnger', dataType: 'number' }, // 매니저
     { fieldName: 'plar', dataType: 'number' }, // 플래너
     { fieldName: 'indvAckmtCt', dataType: 'number' }, // 개인 인정건수
     { fieldName: 'brchAckmtCt', dataType: 'number' }, // 지점 인정건수
     { fieldName: 'brchNwSellCt', dataType: 'number' }, // 신규판매건수
 
-    // { fieldName: 'indvElhmPerf', dataType: 'number' }, // 개인 가전 실적(가전 기준가)
-    // { fieldName: 'indvElhmExcpPerf', dataType: 'number' }, // 개인 가전외 실적(가전외 기준가)
-    // { fieldName: 'brchElhmPerf', dataType: 'number' }, // 지점 가전 실적(가전 기준가)
-    // { fieldName: 'brchElhmExcpPerf', dataType: 'number' }, // 지점 가전외 실적(가전외 기준가)
+    { fieldName: 'indvElhmBaseAmt', dataType: 'number' }, // 개인 가전기준가
+    { fieldName: 'indvElhmExcpBaseAmt', dataType: 'number' }, // 개인 가전외기준가
+    { fieldName: 'brchElhmBaseAmt', dataType: 'number' }, // 지점 가전기준가
+    { fieldName: 'brchElhmExcpBaseAmt', dataType: 'number' }, // 지점 가전외기준가
 
   ];
 
@@ -452,12 +452,12 @@ const initGrid = defineGrid((data, view) => {
       width: '120',
       styleName: 'text-right',
       numberFormat: '#,##0' },
-    { fieldName: 'indvElhmPerf',
+    { fieldName: 'indvElhmBaseAmt',
       header: t('MSG_TXT_ELHM_BASE_PRC'), // 가전 기준가
       width: '120',
       styleName: 'text-right',
       numberFormat: '#,##0' },
-    { fieldName: 'indvElhmExcpPerf',
+    { fieldName: 'indvElhmExcpBaseAmt',
       header: t('MSG_TXT_ELHM_EXCP_BASE_PRC'), // 가전외 기준가
       width: '120',
       styleName: 'text-right',
@@ -469,12 +469,12 @@ const initGrid = defineGrid((data, view) => {
       width: '120',
       styleName: 'text-right',
       numberFormat: '#,##0' },
-    { fieldName: 'brchElhmPerf',
+    { fieldName: 'brchElhmBaseAmt',
       header: t('MSG_TXT_ELHM_BASE_PRC'), // 가전 기준가
       width: '120',
       styleName: 'text-right',
       numberFormat: '#,##0' },
-    { fieldName: 'brchElhmExcpPerf',
+    { fieldName: 'brchElhmExcpBaseAmt',
       header: t('MSG_TXT_ELHM_EXCP_BASE_PRC'), // 가전외 기준가
       width: '120',
       styleName: 'text-right',
@@ -517,12 +517,12 @@ const initGrid = defineGrid((data, view) => {
     {
       header: t('MSG_TXT_INDV_PERF'), // 개인실적
       direction: 'horizontal',
-      items: ['indvAckmtCt', 'indvElhmPerf', 'indvElhmExcpPerf'],
+      items: ['indvAckmtCt', 'indvElhmBaseAmt', 'indvElhmExcpBaseAmt'],
     },
     {
       header: t('MSG_TXT_BRCH_PERF'), // 지점실적
       direction: 'horizontal',
-      items: ['brchAckmtCt', 'brchElhmPerf', 'brchElhmExcpPerf', 'brchNwSellCt'],
+      items: ['brchAckmtCt', 'brchElhmBaseAmt', 'brchElhmExcpBaseAmt', 'brchNwSellCt'],
     },
     {
       header: t('MSG_TXT_BRCH_ACTI'), // 지점실활동(명)
@@ -540,11 +540,13 @@ const initGrid = defineGrid((data, view) => {
       pageInfo.value.pageIndex = 1;
       pageInfo.value.totalCount = 0;
       view.setColumnLayout(ogTpCdP);
+      grdThirdExcelChk.value = false;
     } else if (val === '7') { // M조직
       grdMainRef.value.getData().clearRows();
       pageInfo.value.pageIndex = 1;
       pageInfo.value.totalCount = 0;
       view.setColumnLayout(ogTpCdM);
+      grdThirdExcelChk.value = false;
     }
   });
 });
@@ -687,11 +689,13 @@ const initGrid2 = defineGrid((data, view) => {
       pageInfo.value.pageIndex = 1;
       pageInfo.value.totalCount = 0;
       view.setColumnLayout(ogTpCdP);
+      grdThirdExcelChk.value = false;
     } else if (val === '7') { // M조직
       grdSecondRef.value.getData().clearRows();
       pageInfo.value.pageIndex = 1;
       pageInfo.value.totalCount = 0;
       view.setColumnLayout(ogTpCdM);
+      grdThirdExcelChk.value = false;
     }
   });
 
@@ -719,11 +723,11 @@ const initGrid3 = defineGrid((data, view) => {
     { fieldName: 'elhmExcpOgPrpn', dataType: 'number' }, // 가전 외 조직비례
     { fieldName: 'ogSellEncrg', dataType: 'number' }, // 조직판매 장려
     { fieldName: 'redfEtSum', dataType: 'number' }, // 합계
-    { fieldName: 'col12' },
-    { fieldName: 'col13' },
-    { fieldName: 'col14' },
-    { fieldName: 'col15' },
-    { fieldName: 'col16' },
+    { fieldName: 'indvElhmPrpnMetg', dataType: 'number' }, // 가전비례+미팅
+    { fieldName: 'indvElhmExcpPrpnMetg', dataType: 'number' }, // 가전외비례+미팅
+    { fieldName: 'educ', dataType: 'number' }, // 교육
+    { fieldName: 'nwSell', dataType: 'number' }, // 신규판매
+    { fieldName: 'ogMngt', dataType: 'number' }, // 조직관리
   ];
 
   const columns = [
@@ -785,27 +789,27 @@ const initGrid3 = defineGrid((data, view) => {
       numberFormat: '#,##0' },
 
     /* M조직 */
-    { fieldName: 'col12',
+    { fieldName: 'indvElhmPrpnMetg',
       header: t('MSG_TXT_ELHM_PRPN_METG'), // 가전비례+미팅
       width: '150',
       styleName: 'text-right',
       numberFormat: '#,##0' },
-    { fieldName: 'col13',
+    { fieldName: 'indvElhmExcpPrpnMetg',
       header: t('MSG_TXT_ELHM_EXCP_PRPN_METG'), // 가전외비례+미팅
       width: '150',
       styleName: 'text-right',
       numberFormat: '#,##0' },
-    { fieldName: 'col14',
+    { fieldName: 'educ',
       header: t('MSG_TXT_EDUC'), // 교육
       width: '150',
       styleName: 'text-right',
       numberFormat: '#,##0' },
-    { fieldName: 'col15',
+    { fieldName: 'nwSell',
       header: t('MSG_TXT_NW_SELL'), // 신규판매
       width: '150',
       styleName: 'text-right',
       numberFormat: '#,##0' },
-    { fieldName: 'col16',
+    { fieldName: 'ogMngt',
       header: t('MSG_TXT_OG_MNGT'), // 조직관리
       width: '150',
       styleName: 'text-right',
@@ -838,12 +842,12 @@ const initGrid3 = defineGrid((data, view) => {
     {
       header: t('MSG_TXT_PRSNL_FEE'), // 개인수수료
       direction: 'horizontal',
-      items: ['col12', 'col13', 'indvSellEncrg', 'col14', 'indvSettle', 'indvMchnCh'],
+      items: ['indvElhmPrpnMetg', 'indvElhmExcpPrpnMetg', 'indvSellEncrg', 'educ', 'indvSettle', 'indvMchnCh'],
     },
     {
       header: t('MSG_TXT_BRCH_FEE'), // 지점수수료
       direction: 'horizontal',
-      items: ['elhmOgPrpn', 'elhmExcpOgPrpn', 'ogSellEncrg', 'col15', 'col16'],
+      items: ['elhmOgPrpn', 'elhmExcpOgPrpn', 'ogSellEncrg', 'nwSell', 'ogMngt'],
     },
     'redfEtSum',
   ];
@@ -857,11 +861,13 @@ const initGrid3 = defineGrid((data, view) => {
       pageInfo.value.pageIndex = 1;
       pageInfo.value.totalCount = 0;
       view.setColumnLayout(ogTpCdP);
+      grdThirdExcelChk.value = false;
     } else if (val === '7') { // M조직
       grdThirdRef.value.getData().clearRows();
       pageInfo.value.pageIndex = 1;
       pageInfo.value.totalCount = 0;
       view.setColumnLayout(ogTpCdM);
+      grdThirdExcelChk.value = false;
     }
   });
 });

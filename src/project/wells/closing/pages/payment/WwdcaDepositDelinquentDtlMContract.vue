@@ -14,7 +14,7 @@
 ---->
 <template>
   <kw-search
-    :cols="4"
+    :cols="3"
     @search="onClickSearch"
   >
     <kw-search-row>
@@ -29,22 +29,6 @@
           type="month"
         />
       </kw-search-item>
-      <kw-search-item :label="$t('MSG_TXT_DLQ_DV') + '(' + $t('MSG_TXT_LSTMM') + ')'">
-        <kw-select
-          v-model="searchParams.dlqDv"
-          :options="selectDlqDv.options"
-          first-option="all"
-          first-option-value="ALL"
-        />
-      </kw-search-item>
-      <kw-search-item :label="$t('MSG_TXT_DLQ_MCNT') + '(' + $t('MSG_TXT_LSTMM') + ')'">
-        <kw-select
-          v-model="searchParams.dlqMcnt"
-          :disable="searchParams.dlqDv === 'ALL' || searchParams.dlqDv === '1'"
-          :options="selectDlqMcnt.options"
-          multiple
-        />
-      </kw-search-item>
       <kw-search-item
         :label="$t('MSG_TXT_SEL_TYPE')"
         required
@@ -53,8 +37,33 @@
           v-model="searchParams.sellTpCd"
           :label="$t('MSG_TXT_SEL_TYPE')"
           :options="codes.SELL_TP_CD"
-          multiple
           rules="required"
+          first-option="all"
+          @change="onChangeSellTpCd"
+        />
+        <kw-select
+          v-if="searchParams.sellTpCd === '1' || searchParams.sellTpCd === '2'
+            || searchParams.sellTpCd === '3' || searchParams.sellTpCd === '6'"
+          v-model="searchParams.sellTpDtlCd"
+          :options="codes.SELL_TP_DTL_CD.filter(v => v.userDfn02 === searchParams.sellTpCd)"
+          first-option="all"
+          first-option-value="ALL"
+        />
+        <kw-select
+          v-else
+          v-model="searchParams.sellTpDtlCd"
+          :readonly="true"
+          :options="codes.SELL_TP_DTL_CD"
+          first-option="all"
+          first-option-value="ALL"
+        />
+      </kw-search-item>
+      <kw-search-item :label="$t('MSG_TXT_INDV_CRP_DV')">
+        <kw-select
+          v-model="searchParams.copnDvCd"
+          :options="codes.COPN_DV_CD"
+          first-option="all"
+          first-option-value="ALL"
         />
       </kw-search-item>
     </kw-search-row>
@@ -81,6 +90,26 @@
           :base-ym="searchParams.perfYm"
         />
       </kw-search-item>
+    </kw-search-row>
+    <kw-search-row>
+      <kw-search-item :label="$t('MSG_TXT_DLQ_DV') + '(' + $t('MSG_TXT_LSTMM') + ')'">
+        <kw-select
+          v-model="searchParams.dlqDv"
+          :options="selectDlqDv.options"
+          first-option="all"
+          first-option-value="ALL"
+        />
+      </kw-search-item>
+      <kw-search-item :label="$t('MSG_TXT_DLQ_MCNT') + '(' + $t('MSG_TXT_LSTMM') + ')'">
+        <kw-option-group
+          v-model="searchParams.dlqMcnt"
+          :disable="searchParams.dlqDv === 'ALL' || searchParams.dlqDv === '1'"
+          :options="selectDlqMcnt.options"
+          type="checkbox"
+        />
+      </kw-search-item>
+    </kw-search-row>
+    <kw-search-row>
       <kw-search-item :label="$t('MSG_TXT_SEQUENCE_NUMBER')">
         <kw-input
           v-model="searchParams.prtnrNo"
@@ -91,16 +120,7 @@
           @click-icon="onClickSearchPntnrNo"
         />
       </kw-search-item>
-    </kw-search-row>
-    <kw-search-row>
-      <kw-search-item :label="$t('MSG_TXT_INDV_CRP_DV')">
-        <kw-select
-          v-model="searchParams.copnDvCd"
-          :options="codes.COPN_DV_CD"
-          first-option="all"
-          first-option-value="ALL"
-        />
-      </kw-search-item>
+
       <kw-search-item :label="$t('MSG_TXT_CNTR_DTL_NO')">
         <zctz-contract-detail-number
           v-model:cntr-no="searchParams.cntrNo"
@@ -202,8 +222,9 @@ const ogTpCd = codes.OG_TP_CD.filter((v) => ['W01', 'W02'].includes(v.codeId));
 const searchParams = ref({
   perfYm: now.format('YYYYMM'), // 실적년월
   dlqDv: 'ALL', // 연체구분
-  dlqMcnt: ['0'], // 연체개월
-  sellTpCd: [], // 판매유형
+  dlqMcnt: [], // 연체개월
+  sellTpCd: '', // 판매유형
+  sellTpDtlCd: 'ALL', // 판매유형상세
   ogTp: 'ALL', // 조직유형
   dgr1LevlOgCd: '',
   dgr2LevlOgCd: '',
@@ -284,6 +305,9 @@ async function onClickSearchCustomer() {
   }
 }
 
+function onChangeSellTpCd() {
+  searchParams.value.sellTpDtlCd = 'ALL';
+}
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------

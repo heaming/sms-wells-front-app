@@ -17,7 +17,10 @@
     visible
     scroll-style="padding-right: 40px;"
   >
-    <ul class="kw-state-list kw-state-list--second-line col pt20">
+    <ul
+      v-if="!isReadonly"
+      class="kw-state-list kw-state-list--second-line col pt20"
+    >
       <li class="kw-state-list__item">
         <p class="kw-state-list__top">
           재약정대상
@@ -47,7 +50,7 @@
     </ul>
     <kw-search
       :cols="3"
-      :disable="isExistCntr"
+      :disable="isReadonly"
       @search="onClickSearchCntrtInfo"
       @reset="onClickReset"
     >
@@ -61,7 +64,7 @@
             :label="$t('MSG_TXT_CONTR_TYPE')"
             :options="cntrTpCdOptions"
             rules="required"
-            :disable="isExistCntr"
+            :disable="isReadonly"
             @change="onChangeCntrtTpCd"
           />
         </kw-search-item>
@@ -74,7 +77,7 @@
             :label="$t('MSG_TXT_CNTRT_TP')"
             :options="codes.COPN_DV_CD"
             rules="required"
-            :disable="cntrTpIs.indv || cntrTpIs.crp || cntrTpIs.ensm || isExistCntr"
+            :disable="cntrTpIs.indv || cntrTpIs.crp || cntrTpIs.ensm || isReadonly"
           />
         </kw-search-item>
         <kw-search-item
@@ -87,7 +90,7 @@
             :label="$t('MSG_TXT_CRP_NM')"
             maxlength="50"
             rules="required"
-            :disable="isExistCntr"
+            :disable="isReadonly"
           />
         </kw-search-item>
         <kw-search-item
@@ -100,7 +103,7 @@
             :label="$t('MSG_TXT_NAME')"
             maxlength="50"
             rules="required"
-            :disable="isExistCntr"
+            :disable="isReadonly"
           />
         </kw-search-item>
       </kw-search-row>
@@ -117,7 +120,7 @@
             :label="$t('MSG_TXT_CRNO')"
             rules="required"
             maxlength="10"
-            :disable="isExistCntr"
+            :disable="isReadonly"
           />
         </kw-search-item>
         <kw-search-item
@@ -133,7 +136,7 @@
             mask="telephone"
             :unmasked-value="false"
             rules="required"
-            :disable="isExistCntr"
+            :disable="isReadonly"
           />
         </kw-search-item>
       </kw-search-row>
@@ -337,7 +340,7 @@ const props = defineProps({
   contract: { type: String, required: true },
   onChildMounted: { type: Function, required: true },
 });
-const { cntrNo: pCntrNo, step1 } = toRefs(props.contract);
+const { cntrNo: pCntrNo, step1, isReadonly } = toRefs(props.contract);
 const ogStep1 = ref({});
 const codes = await codeUtil.getMultiCodes(
   'CNTR_TP_CD',
@@ -376,7 +379,6 @@ const emits = defineEmits([
   'membership',
   'restipulation',
 ]);
-const isExistCntr = ref(false);
 
 /**
  * TODO 제휴파트너 로직 추가
@@ -432,7 +434,7 @@ async function getCntrInfo(cntrNo, getExistCntr) {
     cntrNo,
     step: 1,
   } });
-  isExistCntr.value = getExistCntr;
+  isReadonly.value = getExistCntr;
   await afterGetCntrInfo(cntr);
 }
 
@@ -474,8 +476,8 @@ async function onClickSelfAuth() {
 async function onClickSearchCntrtInfo() {
   if (cntrTpIs.value.indv) {
     // 개인
-    const isExistCntrt = await dataService.get('sms/wells/contract/contracts/is-exist-cntrt-info', { params: searchParams.value });
-    if (!isExistCntrt.data) {
+    const isReadonlyt = await dataService.get('sms/wells/contract/contracts/is-exist-cntrt-info', { params: searchParams.value });
+    if (!isReadonlyt.data) {
       // 조회된 고객이 없다면
       step1.value.cntrt = ref({});
       if (await confirm(t('MSG_ALT_NO_CST_REG'))) {
@@ -522,8 +524,8 @@ async function onClickSearchCntrtInfo() {
     await getCntrInfoByCst(cstNo.data);
   } else if (cntrTpIs.value.crp) {
     // 법인
-    const isExistCntrt = await dataService.get('sms/wells/contract/contracts/is-exist-cntrt-info', { params: searchParams.value });
-    if (!isExistCntrt.data) {
+    const isReadonlyt = await dataService.get('sms/wells/contract/contracts/is-exist-cntrt-info', { params: searchParams.value });
+    if (!isReadonlyt.data) {
       // 조회된 고객이 없다면
       step1.value.cntrt = ref({});
       if (await confirm(t('MSG_ALT_NO_CST_REG'))) {

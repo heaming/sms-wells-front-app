@@ -21,12 +21,35 @@
       <kw-form-row>
         <kw-form-item
           :label="$t('MSG_TXT_PERF_YM')"
+          :required="isEmpty(props.perfYm)"
         >
+          <p v-if="!isEmpty(props.perfYm)">
+            {{ regData?.perfYm ? stringUtil.getDateFormat(regData?.perfYm).substring(0,7) : '' }}
+          </p>
           <kw-date-picker
+            v-if="isEmpty(props.perfYm)"
             v-model="regData.perfYm"
             rules="required"
             type="month"
             :label="$t('MSG_TXT_PERF_YM')"
+          />
+        </kw-form-item>
+      </kw-form-row>
+      <kw-form-row>
+        <kw-form-item
+          :label="$t('MSG_TXT_ORDR')"
+          :required="isEmpty(props.feeTcntDvCd)"
+        >
+          <p v-if="!isEmpty(props.feeTcntDvCd)">
+            {{ codes.FEE_TCNT_DV_CD.find((v) => v.codeId === regData?.feeTcntDvCd)?.codeName }}
+          </p>
+          <kw-select
+            v-if="isEmpty(props.feeTcntDvCd)"
+            v-model="regData.feeTcntDvCd"
+            :options="codes.FEE_TCNT_DV_CD"
+            rules="required"
+            first-option="select"
+            :label="$t('MSG_TXT_ORDR')"
           />
         </kw-form-item>
       </kw-form-row>
@@ -49,7 +72,8 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useModal, useDataService, useGlobal } from 'kw-lib';
+import { useModal, useDataService, useGlobal, stringUtil, codeUtil } from 'kw-lib';
+import { isEmpty } from 'lodash-es';
 
 const { cancel, ok } = useModal();
 const { notify } = useGlobal();
@@ -62,18 +86,21 @@ const props = defineProps({
   },
   feeTcntDvCd: {
     type: String,
-    default: '02',
+    default: '',
   },
 });
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
+const codes = await codeUtil.getMultiCodes(
+  'FEE_TCNT_DV_CD',
+);
 const popupRef = ref();
 const dataService = useDataService();
 const regData = ref({
-  feeCalcUnitTpCd: '401', // B2B 수수료
-  feeTcntDvCd: props.feeTcntDvCd, // defulat 2차수
   perfYm: props.perfYm,
+  feeTcntDvCd: props.feeTcntDvCd,
+  feeCalcUnitTpCd: '401', // B2B 수수료
 });
 // 취소
 async function onClickCancel() {

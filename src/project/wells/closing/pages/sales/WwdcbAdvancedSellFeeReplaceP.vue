@@ -81,7 +81,7 @@ async function fetchData() {
 }
 
 async function onSlipCreate() {
-  await dataService.put('/sms/edu/closing/advanced-fee-replace/slip-create', info.value);
+  await dataService.put('/sms/wells/closing/advanced-fee-replace/slip-create', info.value);
 }
 
 onMounted(async () => {

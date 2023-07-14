@@ -56,7 +56,7 @@
               v-model="fieldParams.cstKnm"
               :label="t('MSG_TXT_CST_NM')"
               rules="required|"
-              maxlength="15"
+              maxlength="30"
             />
           </kw-form-item>
         </kw-form-row>
@@ -105,7 +105,7 @@ const now = dayjs();
 
 const { t } = useI18n();
 const { cancel } = useModal();
-const { alert, notify } = useGlobal();
+const { alert, notify, confirm } = useGlobal();
 
 const obsMainRef = ref(getComponentType('KwObserver'));
 
@@ -139,22 +139,29 @@ async function fetchCstNm() {
   let paramList = [];
 
   if (isEmpty(props.cntrList)) {
-    paramList = props.cstList[0];
-    fieldParams.value.cstList = props.cstList;
+    paramList = props.cstList;
     fieldParams.value.cstGubun = '2';
   } else {
-    paramList = props.cntrList[0];
-    fieldParams.value.cstList = props.cntrList;
+    paramList = props.cntrList;
     fieldParams.value.cstGubun = '1';
   }
 
-  const cntrNoParam = paramList.cntrNoFull.split('-')[0];
-  const cntrSnParam = paramList.cntrNoFull.split('-')[1];
+  paramList.forEach((row) => {
+    fieldParams.value.cstList.push({
+      cntrDtlNo: row.cntrNoFull,
+      cntrNo: row.cntrNoFull.split('-')[0],
+      cntrSn: row.cntrNoFull.split('-')[1],
+    });
+  });
+
+  const cntrNoParam = fieldParams.value.cstList[0].cntrNo;
+  const cntrSnParam = fieldParams.value.cstList[0].cntrSn;
 
   const res = await dataService.get('/sms/wells/contract/contracts/order-details/documentary-evidence-mails', { params: { cntrNo: cntrNoParam, cntrSn: cntrSnParam } });
   if (!isEmpty(res.data)) {
     fieldParams.value.cstKnm = res.data;
   }
+  obsMainRef.value.init();
 }
 
 async function onClickSendEmail() {
@@ -167,16 +174,19 @@ async function onClickSendEmail() {
 
   // 리스트 체크
   if (isEmpty(fieldParams.value.cstList)) {
-    alert('주문리스트는 1건 이상이어야 합니다.');
+    alert(t('MSG_ALT_INVAILD_ORD_LIST'));
     return;
   }
   // 발송구분 체크
   if (isEmpty(docDvCd) || (docDvCd !== '1' && docDvCd !== '2' && docDvCd !== '3' && docDvCd !== '4')) {
-    alert('발송구분이 없습니다.');
+    alert(t('MSG_ALT_INVAILD_FW_DV'));
     return;
   }
+
+  if (!await confirm(t('MSG_ALT_WANT_SEND'))) { return; }
+
   await dataService.post('/sms/wells/contract/contracts/order-details/documentary-evidence-mails', cachedFieldParams);
-  notify(t('MSG_ALT_SAVE_DATA'));
+  notify(t('MSG_ALT_EML_FW_FSH'));
 }
 
 onMounted(async () => {

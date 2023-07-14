@@ -290,10 +290,6 @@ const initGridTalk = defineGrid((data, view) => {
   view.rowIndicator.visible = true;
   view.editOptions.editable = true;
 
-  view.onCellEdited = (grid, itemIndex) => {
-    grid.checkItem(itemIndex, true);
-  };
-
   view.onCellButtonClicked = async (grid, { dataRow, column, itemIndex }) => {
     const { cstNo } = grid.getValues(itemIndex);
     if (column === 'cstNo') {

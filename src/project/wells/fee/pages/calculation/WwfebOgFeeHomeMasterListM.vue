@@ -15,7 +15,6 @@
 <template>
   <kw-page>
     <kw-search
-      :cols="2"
       @search="onClickSearch"
     >
       <kw-search-row>
@@ -26,23 +25,32 @@
           <kw-date-picker
             v-model="searchParams.perfYm"
             :label="$t('MSG_TXT_PERF_YM')"
+            :max-date="maxDate"
             type="month"
             rules="required"
             @change="onChangedPerfYm"
           />
         </kw-search-item>
         <kw-search-item
-          :label="$t('MSG_TXT_RSB_DV')"
+          :label="$t('MSG_TXT_ORDR')"
+          required
+        >
+          <kw-option-group
+            v-model="searchParams.schOrdr"
+            :label="$t('MSG_TXT_ORDR')"
+            type="radio"
+            :options="codes.FEE_TCNT_DV_CD"
+          />
+        </kw-search-item>
+        <kw-search-item
+          :label="$t('MSG_TXT_RSB_TP')"
           required
         >
           <kw-option-group
             v-model="searchParams.rsbTp"
-            :label="$t('MSG_TXT_RSB_DV')"
+            :label="$t('MSG_TXT_RSB_TP')"
             type="radio"
-            :options="filterRsbDvCd"
-            first-option
-            first-option-value=""
-            :first-option-label="$t('MSG_TXT_ALL')"
+            :options="customCodes.rsbDvCd"
             @change="onChangedRsbDv"
           />
         </kw-search-item>
@@ -50,11 +58,12 @@
       <kw-search-row>
         <kw-search-item :label="t('MSG_TXT_OG_LEVL')">
           <zwog-level-select
+            v-model:og-levl-dv-cd1="searchParams.ogLevl1"
             v-model:og-levl-dv-cd2="searchParams.ogLevl2"
             v-model:og-levl-dv-cd3="searchParams.ogLevl3"
             :og-tp-cd="searchParams.ogTp"
             :base-ym="searchParams.perfYm"
-            :start-level="2"
+            :start-level="1"
             :end-level="3"
           />
         </kw-search-item>
@@ -167,17 +176,20 @@ const grdMainRef = ref(getComponentType('KwGrid'));
 const totalCount = ref(0);
 const stepNaviRef = ref();
 const codes = await codeUtil.getMultiCodes(
-  'RSB_DV_CD',
+  'FEE_TCNT_DV_CD', // 수수료차수구분코드
 );
-const filterRsbDvCd = codes.RSB_DV_CD.filter((v) => ['W0302', 'W0301'].includes(v.codeId));
+const customCodes = {
+  rsbDvCd: [{ codeId: 'W0302', codeName: '홈마스터' }, { codeId: 'W0301', codeName: '지점장' }],
+};
 const searchParams = ref({
 
   perfYm: now.add(-1, 'month').format('YYYYMM'),
-  rsbTp: '',
+  schOrdr: '01',
+  rsbTp: 'W0302',
   rsbTpTxt: '',
+  no: '',
   ogLevl2: '',
   ogLevl3: '',
-  no: '',
   prtnrKnm: '',
   ogTp: 'W03',
   statTitle: t('MSG_TXT_PRGS_STE'),
@@ -612,9 +624,7 @@ async function onClickW318P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
  *         done[Boolean]: 이전단계로 되돌림 플레그
  */
 async function onclickStep(params) {
-  if (totalCount.value === 0) {
-    alert(t('MSG_ALT_USE_DT_SRCH_AF'));
-  } else if (params.done) {
+  if (params.done) {
     await onClickRetry(params.feeSchdId, params.code, '02');
   } else if (params.code === 'W0301') { // 수수료 생성
     await onClickW301P(params.feeSchdId, params.code, '03');
@@ -692,7 +702,7 @@ const initGrd1Main = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'dgr1LevlOgNm', header: t('MSG_TXT_RGNL_GRP'), width: '119.9', styleName: 'text-center' },
+    { fieldName: 'dgr1LevlOgNm', header: t('MSG_TXT_BUSINESS_DIVISION'), width: '119.9', styleName: 'text-center' },
     { fieldName: 'dgr2LevlOgNm', header: t('MSG_TXT_BRANCH'), width: '119.9', styleName: 'text-center' },
     { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '119.9', styleName: 'text-left' },
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '119.9', styleName: 'text-left' },
@@ -834,7 +844,7 @@ const initGrd2Main = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'dgr1LevlOgNm', header: t('MSG_TXT_RGNL_GRP'), width: '119.9', styleName: 'text-center' },
+    { fieldName: 'dgr1LevlOgNm', header: t('MSG_TXT_BUSINESS_DIVISION'), width: '119.9', styleName: 'text-center' },
     { fieldName: 'dgr2LevlOgNm', header: t('MSG_TXT_BRANCH'), width: '119.9', styleName: 'text-center' },
     { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '119.9', styleName: 'text-left' },
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '119.9', styleName: 'text-left' },

@@ -149,8 +149,6 @@
               :end-level="3"
             />
           </kw-search-item>
-        </kw-search-row>
-        <kw-search-row>
           <kw-search-item
             :label="$t('MSG_TXT_SEQUENCE_NUMBER')"
           >
@@ -256,6 +254,7 @@
               :label="$t('MSG_TXT_ORDR')"
               type="radio"
               :options="customCodes.div1Cd"
+              @change="onChangedOrdr"
             />
           </kw-search-item>
         </kw-search-row>
@@ -324,13 +323,13 @@
           @click="onClickExcel2Download"
         />
         <kw-separator
-          v-if="isSelectVisile4"
+          v-if="isPerfVisile"
           vertical
           inset
           spaced
         />
         <kw-btn
-          v-if="isSelectVisile4"
+          v-if="isPerfVisile"
           :label="$t('MSG_BTN_HDQ_PERF')+$t('MSG_BTN_AGRG')"
           secondary
           dense
@@ -338,13 +337,13 @@
           @click="openNtorAgrgPopup"
         />
         <kw-separator
-          v-if="isSelectVisile4"
+          v-if="isPerfVisile"
           vertical
           inset
           spaced
         />
         <kw-btn
-          v-if="isSelectVisile4"
+          v-if="isPerfVisile"
           :label="$t('MSG_BTN_HDQ_PERF')+$t('MSG_BTN_DTRM')"
           secondary
           dense
@@ -399,6 +398,7 @@ const isSelectVisile3 = ref(false);
 const isSelectVisile4 = ref(true);
 const isGrid1Visile = ref(true);
 const isGrid2Visile = ref(false);
+const isPerfVisile = ref(false);
 const now = dayjs();
 const grdMain1Ref = ref(getComponentType('KwGrid'));
 const grdMain2Ref = ref(getComponentType('KwGrid'));
@@ -435,6 +435,7 @@ const searchParams = ref({
   prtnrKnm: '',
   perfYm: now.add(-1, 'month').format('YYYYMM'),
   pdCd: '',
+  tcntDvTxt: '1차',
 });
 
 const info = ref({
@@ -442,35 +443,6 @@ const info = ref({
 });
 
 let cachedParams;
-
-/*
- *  Event - 조회구분 선택 시 하단 그리드 변경※
- */
-async function onChangedDvcd() {
-  const { schDvCd, schDv } = searchParams.value;
-  if (schDvCd === '01') { /* 상세선택 */
-    if (schDv === '04') {
-      isSelectVisile.value = false;
-      isSelectVisile3.value = true;
-    } else {
-      isSelectVisile.value = true;
-      isSelectVisile3.value = false;
-    }
-    isSelectVisile2.value = false;
-    isSelectVisile4.value = true;
-    isGrid1Visile.value = true;
-    isGrid2Visile.value = false;
-  } else if (schDvCd === '02') { /* 집계선택 */
-    isGrid1Visile.value = false;
-    isGrid2Visile.value = true;
-    isSelectVisile.value = false;
-    isSelectVisile2.value = true;
-    isSelectVisile3.value = false;
-    isSelectVisile4.value = false;
-    isExcelDown1.value = false;
-    isExcelDown2.value = false;
-  }
-}
 
 async function onClickExcelDownload() {
   const view = grdMain1Ref.value.getView();
@@ -541,6 +513,52 @@ async function onClickSearch() {
   }
 }
 
+/*
+ *  Event - 조회구분 선택 시 하단 그리드 변경※
+ */
+async function onChangedDvcd() {
+  const { schDvCd, schDv } = searchParams.value;
+  if (schDvCd === '01') { /* 상세선택 */
+    if (schDv === '04') {
+      isSelectVisile.value = false;
+      isSelectVisile3.value = true;
+      isPerfVisile.value = true;
+    } else {
+      isSelectVisile.value = true;
+      isSelectVisile3.value = false;
+      isPerfVisile.value = false;
+    }
+    isSelectVisile4.value = true;
+    isSelectVisile2.value = false;
+    isGrid1Visile.value = true;
+    isGrid2Visile.value = false;
+  } else if (schDvCd === '02') { /* 집계선택 */
+    isGrid1Visile.value = false;
+    isGrid2Visile.value = true;
+    isSelectVisile.value = false;
+    isSelectVisile2.value = true;
+    isSelectVisile3.value = false;
+    isSelectVisile4.value = false;
+    isPerfVisile.value = false;
+    isExcelDown1.value = false;
+    isExcelDown2.value = false;
+  }
+}
+
+/*
+ *  Event - 회차 선택시 집계버튼 사용여부 조회※
+ */
+async function onChangedOrdr() {
+  const { tcntDvCd } = searchParams.value;
+  if (tcntDvCd === '01') {
+    searchParams.value.tcntDvTxt = '1차';
+  } else if (tcntDvCd === '02') {
+    searchParams.value.tcntDvTxt = '2차';
+  }
+  cachedParams = cloneDeep(searchParams.value);
+  await fetchData('confirmChk');
+}
+
 // 상품코드 검색 아이콘 클릭 이벤트
 async function onClickSearchPdCdPopup(arg) {
   if (arg === 'S') {
@@ -593,6 +611,7 @@ async function openNtorAgrgPopup() {
   const param = {
     perfYm: now.add(-1, 'month').format('YYYY-MM'),
     tcntDvCd: searchParams.value.tcntDvCd,
+    tcntDvTxt: searchParams.value.tcntDvTxt,
   };
 
   const { result: isChanged } = await modal({
@@ -612,6 +631,7 @@ async function openNtorConfirmPopup() {
   const param = {
     perfYm: now.add(-1, 'month').format('YYYY-MM'),
     tcntDvCd: searchParams.value.tcntDvCd,
+    tcntDvTxt: searchParams.value.tcntDvTxt,
   };
 
   const { result: isChanged } = await modal({
@@ -625,6 +645,7 @@ async function openNtorConfirmPopup() {
 }
 
 onMounted(async () => {
+  cachedParams = cloneDeep(searchParams.value);
   await fetchData('confirmChk');
 });
 
@@ -650,7 +671,7 @@ const initGrd1Main = defineGrid((data, view) => {
     { fieldName: 'slDt' },
     { fieldName: 'canDt' },
     { fieldName: 'demDt' },
-    { fieldName: 'rtlfe' },
+    { fieldName: 'rtlfe', dataType: 'number' },
   ];
 
   const columns = [
@@ -668,9 +689,9 @@ const initGrd1Main = defineGrid((data, view) => {
     { fieldName: 'istm', header: t('MSG_TXT_ISTM'), width: '120', styleName: 'text-right' },
     { fieldName: 'stplMcnt', header: t('MSG_TXT_STPL_MCNT'), width: '120', styleName: 'text-right' },
     { fieldName: 'cntrDate', header: t('MSG_TXT_CNTR_DATE'), width: '120', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'slDt', header: t('MSG_TXT_SL_DT'), width: '120', styleName: 'text-center' },
-    { fieldName: 'canDt', header: t('MSG_TXT_CANC_DT'), width: '120', styleName: 'text-center' },
-    { fieldName: 'demDt', header: t('MSG_TXT_DEM_DT'), width: '120', styleName: 'text-center' },
+    { fieldName: 'slDt', header: t('MSG_TXT_SL_DT'), width: '120', styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'canDt', header: t('MSG_TXT_CANC_DT'), width: '120', styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'demDt', header: t('MSG_TXT_DEM_DT'), width: '120', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'rtlfe', header: t('MSG_TXT_RTLFE'), width: '120', styleName: 'text-right', numberFormat: '#,##0' },
   ];
 

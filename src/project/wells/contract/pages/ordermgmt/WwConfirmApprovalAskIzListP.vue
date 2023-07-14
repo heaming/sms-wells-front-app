@@ -51,13 +51,6 @@
         @init="initSubGrid"
       />
     </div>
-    <template #action>
-      <kw-btn
-        negative
-        :label="$t('MSG_BTN_CLOSE')"
-        @click="onClickCancel"
-      />
-    </template>
   </kw-popup>
 </template>
 
@@ -65,10 +58,9 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService, getComponentType, defineGrid, useModal } from 'kw-lib';
+import { useDataService, getComponentType, defineGrid } from 'kw-lib';
 
 const { t } = useI18n();
-const { cancel: onClickCancel } = useModal();
 const dataService = useDataService();
 
 const grdMainRef = ref(getComponentType('KwGrid'));

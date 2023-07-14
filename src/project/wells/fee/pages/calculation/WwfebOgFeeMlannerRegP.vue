@@ -34,9 +34,13 @@ async function onClickCreate() {
       <kw-form-row>
         <kw-form-item
           :label="$t('MSG_TXT_PERF_YM')"
-          required
+          :required="isEmpty(props.perfYm)"
         >
+          <p v-if="!isEmpty(props.perfYm)">
+            {{ regData?.perfYm ? stringUtil.getDateFormat(regData?.perfYm).substring(0,7) : '' }}
+          </p>
           <kw-date-picker
+            v-if="isEmpty(props.perfYm)"
             v-model="regData.perfYm"
             rules="required"
             type="month"
@@ -47,14 +51,36 @@ async function onClickCreate() {
       <kw-form-row>
         <kw-form-item
           :label="$t('MSG_TXT_RSB_TP')"
-          required
+          :required="isEmpty(props.feeCalcUnitTpCd)"
         >
+          <p v-if="!isEmpty(props.feeCalcUnitTpCd)">
+            {{ codes.FEE_CALC_UNIT_TP_CD.find((v) => v.codeId === regData?.feeCalcUnitTpCd)?.codeName }}
+          </p>
           <kw-select
+            v-if="isEmpty(props.feeCalcUnitTpCd)"
             v-model="regData.feeCalcUnitTpCd"
             :options="codes.FEE_CALC_UNIT_TP_CD.filter((v) => v.userDfn03 === 'W02')"
             rules="required"
             first-option="select"
             :label="$t('MSG_TXT_RSB_TP')"
+          />
+        </kw-form-item>
+      </kw-form-row>
+      <kw-form-row>
+        <kw-form-item
+          :label="$t('MSG_TXT_ORDR')"
+          :required="isEmpty(props.feeTcntDvCd)"
+        >
+          <p v-if="!isEmpty(props.feeTcntDvCd)">
+            {{ codes.FEE_TCNT_DV_CD.find((v) => v.codeId === regData?.feeTcntDvCd)?.codeName }}
+          </p>
+          <kw-select
+            v-if="isEmpty(props.feeTcntDvCd)"
+            v-model="regData.feeTcntDvCd"
+            :options="codes.FEE_TCNT_DV_CD"
+            rules="required"
+            first-option="select"
+            :label="$t('MSG_TXT_ORDR')"
           />
         </kw-form-item>
       </kw-form-row>
@@ -77,7 +103,8 @@ async function onClickCreate() {
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useModal, useDataService, useGlobal, codeUtil } from 'kw-lib';
+import { useModal, useDataService, useGlobal, codeUtil, stringUtil } from 'kw-lib';
+import { isEmpty } from 'lodash-es';
 
 const { cancel, ok } = useModal();
 const { notify } = useGlobal();
@@ -88,9 +115,13 @@ const props = defineProps({
     type: String,
     default: '',
   },
+  feeCalcUnitTpCd: {
+    type: String,
+    default: '',
+  },
   feeTcntDvCd: {
     type: String,
-    default: '02',
+    default: '',
   },
 });
 // -------------------------------------------------------------------------------------------------
@@ -98,13 +129,14 @@ const props = defineProps({
 // -------------------------------------------------------------------------------------------------
 const codes = await codeUtil.getMultiCodes(
   'FEE_CALC_UNIT_TP_CD',
+  'FEE_TCNT_DV_CD',
 );
 const popupRef = ref();
 const dataService = useDataService();
 const regData = ref({
-  feeCalcUnitTpCd: '201',
-  feeTcntDvCd: props.feeTcntDvCd, // default 02차수
   perfYm: props.perfYm,
+  feeCalcUnitTpCd: props.feeCalcUnitTpCd,
+  feeTcntDvCd: props.feeTcntDvCd,
 });
 // 취소
 async function onClickCancel() {

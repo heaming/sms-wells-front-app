@@ -31,6 +31,7 @@
             :label="$t('MSG_TXT_ALRPY_SLIP_NO')"
             rules="required"
             :maxlength="14"
+            regex="alpha_num"
           />
         </kw-search-item>
       </kw-search-row>

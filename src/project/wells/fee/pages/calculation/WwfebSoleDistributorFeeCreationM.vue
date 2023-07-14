@@ -27,6 +27,16 @@
                        {codeId: 'B', codeName: t('MSG_TXT_DFLT_FEE')}]"
           />
         </kw-search-item>
+        <!-- 차수 -->
+        <kw-search-item
+          :label="$t('MSG_TXT_ORDR')"
+        >
+          <kw-option-group
+            v-model="searchParams.feeTcntDvCd"
+            type="radio"
+            :options="codes.FEE_TCNT_DV_CD"
+          />
+        </kw-search-item>
         <kw-search-item
           :label="t('MSG_TXT_PERF_YM')"
           required
@@ -36,16 +46,6 @@
             :label="t('MSG_TXT_PERF_YM')"
             type="month"
             rules="required"
-          />
-        </kw-search-item>
-        <!-- 차수 -->
-        <kw-search-item
-          :label="$t('MSG_TXT_ORDR')"
-        >
-          <kw-option-group
-            v-model="searchParams.feeTcntDvCd"
-            type="radio"
-            :options="codes.FEE_TCNT_DV_CD"
           />
         </kw-search-item>
       </kw-search-row>

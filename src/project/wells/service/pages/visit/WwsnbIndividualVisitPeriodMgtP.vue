@@ -87,7 +87,7 @@
             :options="codes.SELL_TP_CD"
           />
         </kw-form-item>
-        <kw-form-item :label="$t('방문주기')">
+        <kw-form-item :label="$t('서비스주기')">
           <kw-select
             v-model="customerInfo.chkPrdCd"
             readonly
@@ -179,10 +179,11 @@
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
-        <kw-form-item :label="$t('배정일자')">
+        <kw-form-item :label="$t('배정년월')">
           <kw-date-picker
-            v-model="processParam.asnOjYmd"
-            @change="onChangeAsnOjYmd"
+            v-model="processParam.asnOjYm"
+            type="month"
+            @change="onChangeAsnOjYm"
           />
         </kw-form-item>
         <kw-form-item :label="$t('이월대상')">
@@ -277,7 +278,7 @@ const processParam = ref({
   baseYmd: '',
   vstNmnN: '',
   periodDeleteYmd: '',
-  asnOjYmd: '',
+  asnOjYm: '',
   carriedForwardYmd: '',
   rqstRsn: '',
 });
@@ -375,9 +376,9 @@ onMounted(async () => {
  *  Event - B/S 배정 버튼 클릭
  */
 async function onClickBSAssign() {
-  // 배정일자
-  if (processParam.value.asnOjYmd === '') {
-    await alert(t('MSG_ALT_NCELL_REQUIRED_ITEM', [t('배정일자')]));
+  // 배정년월
+  if (processParam.value.asnOjYm === '') {
+    await alert(t('MSG_ALT_NCELL_REQUIRED_ITEM', [t('배정년월')]));
     return;
   }
 
@@ -395,9 +396,9 @@ async function onClickBSAssign() {
  *  Event - B/S 배정 이월 버튼 클릭
  */
 async function onClickBsCarriedForward() {
-  // 배정일자
-  if (processParam.value.asnOjYmd === '') {
-    await alert(t('MSG_ALT_NCELL_REQUIRED_ITEM', [t('배정일자')]));
+  // 배정년월
+  if (processParam.value.asnOjYm === '') {
+    await alert(t('MSG_ALT_NCELL_REQUIRED_ITEM', [t('배정년월')]));
     return;
   }
 
@@ -421,9 +422,9 @@ async function onClickBsCarriedForward() {
  *  Event - B/S 배정 삭제 버튼 클릭
  */
 async function onClickBSDelete() {
-  // 배정일자
-  if (processParam.value.asnOjYmd === '') {
-    await alert(t('MSG_ALT_NCELL_REQUIRED_ITEM', [t('배정일자')]));
+  // 배정년월
+  if (processParam.value.asnOjYm === '') {
+    await alert(t('MSG_ALT_NCELL_REQUIRED_ITEM', [t('배정년월')]));
     return;
   }
 
@@ -453,9 +454,9 @@ async function onClickBSForceAssign() {
     return;
   }
 
-  // 배정일자
-  if (processParam.value.asnOjYmd === '') {
-    await alert(t('MSG_ALT_NCELL_REQUIRED_ITEM', [t('배정일자')]));
+  // 배정년월
+  if (processParam.value.asnOjYm === '') {
+    await alert(t('MSG_ALT_NCELL_REQUIRED_ITEM', [t('배정년월')]));
     return;
   }
 
@@ -510,11 +511,11 @@ async function onClickVisitPeriodRegen() {
 }
 
 /*
- * Event - 배정일자 변경
+ * Event - 배정년월 변경
  */
-async function onChangeAsnOjYmd() {
-  // 배정일자 변경 시 이월대상에 자동 세팅
-  processParam.value.carriedForwardYmd = processParam.value.asnOjYmd;
+async function onChangeAsnOjYm() {
+  // 배정년월 변경 시 이월대상에 자동 세팅
+  processParam.value.carriedForwardYmd = `${processParam.value.asnOjYm}01`;
 }
 
 // -------------------------------------------------------------------------------------------------
@@ -534,8 +535,8 @@ const initGrid1 = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'vstNmnN', header: '방문', width: '100', styleName: 'text-center' },
-    { fieldName: 'istNmnN', header: '설치', width: '100', styleName: 'text-center' },
+    { fieldName: 'vstNmnN', header: '서비스차월', width: '100', styleName: 'text-center' },
+    { fieldName: 'istNmnN', header: '설치차월', width: '100', styleName: 'text-center' },
     { fieldName: 'vstDuedt', header: '예정일자', datetimeFormat: 'date', width: '100', styleName: 'text-center' },
     { fieldName: 'svBizDclsfCd', header: '작업구분', width: '100', styleName: 'text-left' },
     {
@@ -550,7 +551,7 @@ const initGrid1 = defineGrid((data, view) => {
         return value;
       },
     },
-    { fieldName: 'pdNm', header: '필터명', width: '167', styleName: 'text-left' },
+    { fieldName: 'pdNm', header: '품목명', width: '167', styleName: 'text-left' },
 
   ];
 
@@ -577,17 +578,17 @@ const initGrid2 = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'vstNmnN' },
     { fieldName: 'bfsvcWkDvCd' },
-    { fieldName: 'col3' },
+    { fieldName: 'filtChngLvCd' },
     { fieldName: 'pdNm' },
     { fieldName: 'partUseQty' },
     { fieldName: 'vstDvCd' },
   ];
 
   const columns = [
-    { fieldName: 'vstNmnN', header: '방문차월', width: '100', styleName: 'text-center' },
+    { fieldName: 'vstNmnN', header: '서비스차월', width: '100', styleName: 'text-center' },
     { fieldName: 'bfsvcWkDvCd', header: '작업구분', width: '100', styleName: 'text-left' },
-    { fieldName: 'col3', header: '단계', width: '100', styleName: 'text-center' },
-    { fieldName: 'pdNm', header: '필터명', width: '250', styleName: 'text-left' },
+    { fieldName: 'filtChngLvCd', header: '단계', width: '100', styleName: 'text-center' },
+    { fieldName: 'pdNm', header: '품목명', width: '250', styleName: 'text-left' },
     { fieldName: 'partUseQty', header: '수량', width: '116', styleName: 'text-right' },
     { fieldName: 'vstDvCd', header: '방문구분', width: '116', options: codes.VST_DV_CD, styleName: 'text-left' },
   ];
@@ -597,19 +598,6 @@ const initGrid2 = defineGrid((data, view) => {
 
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
-
-  data.setRows([
-    { vstNmnN: '3차월', bfsvcWkDvCd: '정기점검', col3: '1단계', pdNm: '복합프리 <PK2 42000-1', partUseQty: '0', vstDvCd: '10' },
-    { vstNmnN: '3차월', bfsvcWkDvCd: '정기점검', col3: '1단계', pdNm: '복합프리 <PK2 42000-1', partUseQty: '1', vstDvCd: '11' },
-    { vstNmnN: '3차월', bfsvcWkDvCd: '정기점검', col3: '1단계', pdNm: '복합프리 <PK2 42000-1', partUseQty: '1', vstDvCd: '20' },
-    { vstNmnN: '3차월', bfsvcWkDvCd: '정기점검', col3: '1단계', pdNm: '복합프리 <PK2 42000-1', partUseQty: '1', vstDvCd: 'A' },
-    { vstNmnN: '3차월', bfsvcWkDvCd: '정기점검', col3: '1단계', pdNm: '복합프리 <PK2 42000-1', partUseQty: '1', vstDvCd: 'A' },
-    { vstNmnN: '3차월', bfsvcWkDvCd: '정기점검', col3: '1단계', pdNm: '복합프리 <PK2 42000-1', partUseQty: '1', vstDvCd: 'A' },
-    { vstNmnN: '3차월', bfsvcWkDvCd: '정기점검', col3: '1단계', pdNm: '복합프리 <PK2 42000-1', partUseQty: '1', vstDvCd: 'A' },
-    { vstNmnN: '3차월', bfsvcWkDvCd: '정기점검', col3: '1단계', pdNm: '복합프리 <PK2 42000-1', partUseQty: '1', vstDvCd: 'A' },
-    { vstNmnN: '3차월', bfsvcWkDvCd: '정기점검', col3: '1단계', pdNm: '복합프리 <PK2 42000-1', partUseQty: '1', vstDvCd: 'A' },
-    { vstNmnN: '3차월', bfsvcWkDvCd: '정기점검', col3: '1단계', pdNm: '복합프리 <PK2 42000-1', partUseQty: '1', vstDvCd: 'A' },
-  ]);
 });
 
 </script>

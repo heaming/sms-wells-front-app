@@ -66,7 +66,12 @@
   <div class="result-area">
     <kw-action-top>
       <template #left>
-        <kw-paging-info :total-count="totalCount" />
+        <kw-paging-info
+          v-model:page-size="pageInfo.pageSize"
+          :total-count="pageInfo.totalCount"
+          :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
+          @change:model-value="(v)=>{pageeInfo.pageSize=v;}"
+        />
         <!-- (단위: 원, 건, 개월) -->
         <span class="ml8">({{ $t('MSG_TXT_UNIT') }}:
           {{ $t('MSG_TXT_CUR_WON') }}, {{ $t('MSG_TXT_CNT') }}, {{ $t('MSG_TXT_MCNT') }})
@@ -82,7 +87,8 @@
     </kw-action-top>
     <kw-grid
       ref="grdMainRefRental"
-      :visible-rows="10"
+      :page-size="pageInfo.pageSize"
+      :total-count="pageInfo.totalCount"
       @init="initGrdRental"
     />
   </div>
@@ -91,16 +97,18 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, defineGrid, getComponentType, useDataService, notify } from 'kw-lib';
+import { codeUtil, defineGrid, getComponentType, useDataService, useMeta, notify } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
 
 const { t } = useI18n();
 const dataService = useDataService();
+const { getConfig } = useMeta();
 const grdMainRefRental = ref(getComponentType('KwGrid'));
 const grdMainRentalView = computed(() => grdMainRefRental.value?.getView());
 
 const codes = await codeUtil.getMultiCodes(
+  'COD_PAGE_SIZE_OPTIONS',
   'CNTR_CH_TP_CD', // 계약변경유형코드
 );
 codes.CNTR_CH_TP_CD = codes.CNTR_CH_TP_CD.filter((v) => v.codeId.indexOf('6') === 0 || v.codeId === '711');
@@ -112,7 +120,12 @@ const searchParams = ref({
   cntrNo: '', // 계약번호
   cntrSn: '', // 계약일련번호
 });
-const totalCount = ref(0);
+
+const pageInfo = ref({
+  totalCount: 0,
+  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
+});
+
 let cachedParams;
 
 const gridLayout = ref({
@@ -156,9 +169,9 @@ async function fetchData() {
   if (isEmpty(cachedParams)) return;
 
   const res = await dataService.get('/sms/wells/contract/changeorder/rental-bulk-change', { params: { ...cachedParams } });
-  totalCount.value = res.data.length;
-
+  pageInfo.value.totalCount = res.data.length;
   const view = grdMainRefRental.value.getView();
+
   view.getDataSource().setRows(res.data);
   view.resetCurrent();
 

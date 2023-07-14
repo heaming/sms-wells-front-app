@@ -349,7 +349,7 @@
       <!-- 다건 정보 입력 -->
       <kw-form-item :label="$t('MSG_TXT_MULTI')+' '+$t('MSG_TXT_INF')+' '+$t('MSG_TXT_INP')">
         <kw-checkbox
-          v-model="searchDetail.bulkApplyYN"
+          v-model="cancelDetail.bulkApplyYN"
           :label="$t('MSG_TXT_CANCEL_BULK_APPLY')"
           :false-value="N"
           :true-value="Y"
