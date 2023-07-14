@@ -49,8 +49,8 @@
 // -------------------------------------------------------------------------------------------------
 import { defineGrid, getComponentType, gridUtil, modal, notify, useDataService } from 'kw-lib';
 import useGridDataModel from '~sms-common/contract/composable/useGridDataModel';
-import dayjs from 'dayjs';
-import { CtCodeUtil } from '~sms-common/contract/util';
+import { CtCodeUtil, validateBryyMmddWithCopnCdCd, validatePdCd } from '~sms-common/contract/util';
+import { validateTel1, validateTel2, validateTel3 } from '~sms-common/contract/util/CtValidateUtil';
 
 const { t } = useI18n();
 const dataService = useDataService();
@@ -64,10 +64,10 @@ const pageInfo = ref({
   totalCount: 0,
 });
 const visibleRows = computed(() => Math.min(Math.max(pageInfo.value.totalCount, 1), 5));
+const uploaded = ref(false);
 let gridDataModel;
 
-const { codes } = await CtCodeUtil(
-  'USE_YN',
+const { codes, getCode } = await CtCodeUtil(
   'ALNCMP_DG_PRTNR_MAPNG_CD',
   'COPN_DV_CD',
   'SEX_DV_CD',
@@ -81,6 +81,7 @@ const { codes } = await CtCodeUtil(
 );
 
 async function onClickConfirm() {
+  uploaded.value = true;
   const rows = gridUtil.getAllRowValues(grdView.value);
   await dataService.post('/sms/wells/contract/bulk-upload/single-payments', rows);
   notify('저장되었습니다.'); /* todo msg */
@@ -113,6 +114,7 @@ async function validate(row) {
 
 async function onClickExcelUpload() {
   grdData.value.clearRows();
+  uploaded.value = false;
   const { result, payload } = await modal({
     component: 'ZctzExcelUploadP',
     componentProps: {
@@ -135,22 +137,12 @@ async function onClickExcelUpload() {
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
 const initGrd = defineGrid((data, view) => {
-  function validateBirth(val, options) {
-    const { values } = options;
-    if (values.copnDvCd === '1') {
-      const valid = dayjs(val, 'YYYYMMDD', true)
-        .isValid();
-      return valid || '생년월일을 다시 입력해주세요.';
-    }
-    return true;
-  }
-
   gridDataModel = useGridDataModel(view, {
     basePdCd: {
       label: t('기준상품코드'),
       width: 133,
       required: true,
-      rules: 'alpha_num|max:10',
+      rules: validatePdCd,
       classes: 'text-center',
     },
     hcrDvCd: {
@@ -168,8 +160,7 @@ const initGrd = defineGrid((data, view) => {
       displaying: false,
       valueCallback: (gridBase, rowId, fieldName, fields, values) => {
         const alncmpDgPrtnrMapngCdId = values[fields.indexOf('alncmpDgPrtnrMapngCd')];
-        const alncmpDgPrtnrMapngCd = codes.ALNCMP_DG_PRTNR_MAPNG_CD
-          .find((code) => code.codeId === alncmpDgPrtnrMapngCdId);
+        const alncmpDgPrtnrMapngCd = getCode('ALNCMP_DG_PRTNR_MAPNG_CD', alncmpDgPrtnrMapngCdId);
         return alncmpDgPrtnrMapngCd?.prtsCodeId || '';
       },
     },
@@ -177,8 +168,7 @@ const initGrd = defineGrid((data, view) => {
       displaying: false,
       valueCallback: (gridBase, rowId, fieldName, fields, values) => {
         const alncmpDgPrtnrMapngCdId = values[fields.indexOf('alncmpDgPrtnrMapngCd')];
-        const alncmpDgPrtnrMapngCd = codes.ALNCMP_DG_PRTNR_MAPNG_CD
-          .find((code) => code.codeId === alncmpDgPrtnrMapngCdId);
+        const alncmpDgPrtnrMapngCd = getCode('ALNCMP_DG_PRTNR_MAPNG_CD', alncmpDgPrtnrMapngCdId);
         return alncmpDgPrtnrMapngCd?.userDfn02 || '';
       },
     },
@@ -194,43 +184,48 @@ const initGrd = defineGrid((data, view) => {
       label: t('MSG_TXT_BIRTH_DATE'),
       width: 128,
       classes: 'text-center',
-      rules: validateBirth,
+      rules: validateBryyMmddWithCopnCdCd,
     },
     sexDvCd: { label: t('MSG_TXT_GENDER_MF'), width: 128, options: codes.SEX_DV_CD },
     cralLocaraTno: {
       label: `${t('휴대')}1`,
       width: 128,
       classes: 'text-center',
-      rules: 'numeric|length:3',
+      rules: validateTel1,
     },
     mexnoEncr: {
       label: `${t('휴대')}2`,
       width: 128,
       classes: 'text-center',
-      rules: 'numeric|min:3|max:4',
+      rules: validateTel2,
     },
     cralIdvTno: {
       label: `${t('휴대')}3`,
       width: 128,
       classes: 'text-center',
-      rules: 'numeric|length:4',
+      rules: validateTel3,
     },
     locaraTno: {
       label: `${t('전화')}1`,
       width: 128,
       classes: 'text-center',
-      rules: 'numeric|length:3',
+      rules: validateTel1,
     },
     exnoEncr: {
       label: `${t('전화')}2`,
       width: 128,
       classes: 'text-center',
-      rules: 'numeric|min:3|max:4',
+      rules: validateTel2,
     },
-    idvTno: { label: `${t('전화')}3`, width: 128, classes: 'text-center', rules: 'numeric|length:4' },
+    idvTno: {
+      label: `${t('전화')}3`,
+      width: 128,
+      classes: 'text-center',
+      rules: validateTel3,
+    },
     zip: { label: t('MSG_TXT_ZIP'), width: 128, classes: 'text-center' },
-    adr1: { label: t('MSG_TXT_ADDR'), width: 275, classes: 'text-left', required: true },
-    adr2: { label: t('MSG_TXT_ADDR'), width: 275, classes: 'text-left', required: true },
+    adr1: { label: `${t('MSG_TXT_ADDR')}1`, width: 275, classes: 'text-left', required: true },
+    adr2: { label: `${t('MSG_TXT_ADDR')}2`, width: 275, classes: 'text-left' },
     istDt: { label: t('설치일자'), width: 146, datetimeFormat: 'date' },
     bfsvcBzsDvCd: { label: t('BS업체구분코드'), width: 146, options: codes.BFSVC_BZS_DV_CD },
     splyBzsDvCd: { label: t('조달업체구분코드'), width: 146, options: codes.SPLY_BZS_DV_CD },
