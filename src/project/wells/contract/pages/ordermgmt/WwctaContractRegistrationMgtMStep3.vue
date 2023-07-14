@@ -189,7 +189,6 @@
                   v-model:addKey="item.adrpc.adrId"
                   v-model:adrDvCd="item.adrpc.adrDvCd"
                   class="kw-grow"
-                  readonly
                 />
               </kw-form-item>
             </kw-form-row>

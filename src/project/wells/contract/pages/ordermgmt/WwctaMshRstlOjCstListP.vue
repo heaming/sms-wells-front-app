@@ -29,6 +29,7 @@
             v-model="searchParams.cntrTpCd"
             :label="$t('MSG_TXT_CONTR_TYPE')"
             :options="codes.CNTR_TP_CD"
+            :disable="!!props.cntrTpCd"
             rules="required"
           />
         </kw-search-item>
@@ -189,6 +190,7 @@ onMounted(async () => {
   searchParams.prtnrNo = props.prtnrNo;
   searchParams.ogTpCd = props.ogTpCd;
   searchParams.copnDvCd = props.copnDvCd;
+  await onSearch();
 });
 
 const initGrd = defineGrid((data, view) => {
@@ -246,7 +248,4 @@ const initGrd = defineGrid((data, view) => {
     }
   };
 });
-
-onSearch();
-// fetchPage();
 </script>
