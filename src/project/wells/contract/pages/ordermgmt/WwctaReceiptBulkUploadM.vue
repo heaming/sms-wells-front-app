@@ -17,7 +17,7 @@
     <div class="normal-area pb30">
       <rental />
 
-      <h3>일시불 접수자료 업로드</h3>
+      <spay />
 
       <prospect-customer />
 
@@ -28,6 +28,8 @@
 <script setup>
 import Rental
   from '~sms-wells/contract/pages/ordermgmt/WwctaReceiptBulkUploadMRental.vue';
+import Spay
+  from '~sms-wells/contract/pages/ordermgmt/WwctaReceiptBulkUploadMSinglePayment.vue';
 import ProspectCustomer
   from '~sms-wells/contract/pages/ordermgmt/WwctaReceiptBulkUploadMProspectCustomer.vue';
 </script>
