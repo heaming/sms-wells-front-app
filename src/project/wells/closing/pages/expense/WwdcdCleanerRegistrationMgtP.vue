@@ -44,6 +44,7 @@
             :label="$t('MSG_TXT_APPL_USER')"
             rules="required"
             :disable="isDisableAplcnsNm"
+            :maxlength="16"
           />
         </kw-form-item>
         <kw-form-item
@@ -88,6 +89,7 @@
             v-model="saveParams.clinrNm"
             :label="$t('MSG_TXT_CLINR_FNM')"
             rules="required"
+            :maxlength="16"
           />
         </kw-form-item>
         <kw-form-item
