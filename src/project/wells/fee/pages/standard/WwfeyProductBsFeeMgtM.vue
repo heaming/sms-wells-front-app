@@ -3,26 +3,26 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : FEY
-2. 프로그램 ID : WwfeySellProductTypeMgtM - 판매상품별 제품유형
+2. 프로그램 ID : WwfeyProductBsFeeMgtM - 상품별 BS 수수료 기준정보
 3. 작성자 : MJ
 4. 작성일 : 2023.07.13
 ****************************************************************************************************
 * 프로그램 설명
 ****************************************************************************************************
-- 판매상품별 제품유형 W-CO-U-0166M01
+- 상품별 BS 수수료 기준정보 W-CO-U-0001M01
 ****************************************************************************************************
 --->
 <template>
   <kw-page>
     <kw-search
-      one-row
-      :cols="2"
+      :cols="3"
       @search="onClickSearch"
     >
       <kw-search-row>
-        <!-- 상품코드 -->
+        <!-- 제품코드 -->
         <kw-search-item
-          :label="$t('MSG_TXT_PRDT_CODE')"
+          :label="$t('MSG_TXT_PROD_CD')"
+          required
         >
           <kw-input
             v-model="searchParams.basePdCd"
@@ -31,6 +31,7 @@
             icon="search"
             dense
             :maxlength="10"
+            rules="required"
             @click-icon="onClickSelectPdCd()"
             @update:model-value="onUpdatePdCd()"
           />
@@ -40,6 +41,25 @@
             readonly
           />
         </kw-search-item>
+        <!-- 방문개월 -->
+        <kw-search-item
+          :label="$t('MSG_TXT_VISIT_MN')"
+        >
+          <kw-input
+            v-model="searchParams.vstMcn"
+          />
+        </kw-search-item>
+        <!-- 서비스구분 -->
+        <kw-search-item
+          :label="$t('MSG_TXT_SV_DV')"
+        >
+          <kw-select
+            v-model="searchParams.svFeeDvCd"
+            :options="codes.SV_FEE_DV_CD"
+          />
+        </kw-search-item>
+      </kw-search-row>
+      <kw-search-row>
         <!-- 적용기간 -->
         <kw-search-item
           :label="$t('MSG_TXT_ACEPT_PERIOD')"
@@ -50,9 +70,16 @@
             type="month"
           />
         </kw-search-item>
+        <kw-search-item
+          :label="$t('MSG_TXT_BS_PD_GRP')"
+        >
+          <kw-select
+            v-model="searchParams.hcrDvCd"
+            :options="codes.HCR_DV_CD"
+          />
+        </kw-search-item>
       </kw-search-row>
     </kw-search>
-
     <div class="result-area">
       <kw-action-top>
         <template #left>
@@ -63,6 +90,7 @@
             :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
             @change="fetchPage"
           />
+          <span class="ml8">{{ t('MSG_TXT_UNIT_COLON_WON') }}</span>
         </template>
         <kw-btn
           :label="$t('MSG_BTN_DEL')"
@@ -70,9 +98,9 @@
           @click="onClickRowDelete"
         />
         <kw-separator
+          spaced
           vertical
           inset
-          spaced
         />
         <kw-btn
           :label="$t('MSG_BTN_ROW_ADD')"
@@ -85,16 +113,9 @@
           @click="onClickSave"
         />
         <kw-separator
+          spaced
           vertical
           inset
-          spaced
-        />
-        <kw-btn
-          icon="upload_on"
-          dense
-          secondary
-          :label="$t('MSG_TXT_EXCEL_UPLOAD')"
-          @click="onClickExcelUpload"
         />
         <kw-btn
           icon="download_on"
@@ -119,7 +140,6 @@
     </div>
   </kw-page>
 </template>
-
 <script setup>
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
@@ -141,6 +161,10 @@ const grdData = computed(() => grdRef.value?.getData());
 const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
   'FEE_PDCT_TP_CD',
+  'SV_FEE_DV_CD',
+  'SV_FEE_PD_DV_CD',
+  'HCR_DV_CD',
+  'COD_YN',
 );
 const pageInfo = ref({
   totalCount: 0,
@@ -153,8 +177,11 @@ let cachedParams;
 const searchParams = ref({
   basePdCd: '',
   basePdNm: '',
+  vstMcn: '',
+  svFeeDvCd: '',
   apyStrtYm: '',
   apyEndYm: '',
+  hcrDvCd: '',
 });
 
 // 상품코드 검색아이콘 클릭
@@ -173,13 +200,15 @@ async function onClickSelectPdCd() {
     searchParams.value.basePdNm = returnPdInfo.payload?.[0].pdNm;
   }
 }
+
 async function onUpdatePdCd() {
   searchParams.value.basePdNm = '';
 }
+
 // 데이터 조회
 async function fetchPage() {
   // @todo
-  const res = await dataService.get('/sms/wells/fee/sell-product-type/pages', { params: { ...cachedParams, ...pageInfo.value } });
+  const res = await dataService.get('/sms/wells/fee/product-bs-fee/pages', { params: { ...cachedParams, ...pageInfo.value } });
   const { list: pages, pageInfo: pagingResult } = res.data;
   grdData.value.setRows(pages);
   pageInfo.value = pagingResult;
@@ -204,8 +233,15 @@ async function onClickRowAdd() {
   const view = grdRef.value.getView();
   const defaultRow = {
     basePdCd: '',
-    feePdctTpCd1: '',
-    feePdctTpCd2: '',
+    basePdNm: '',
+    vstMcn: 0,
+    svFeeDvCd: '',
+    hcrDvCd: '',
+    baseChTcnt: 0,
+    svFeePdDvCd: '',
+    svFeeBaseAmt: 0,
+    feeFxamYn: 'N',
+    hcrFeeBaseAmt: 0,
     apyStrtYm: '',
     apyEndYm: '',
   };
@@ -220,38 +256,15 @@ async function onClickSave() {
   if (!await gridUtil.validate(view)) { return; }
 
   const allRows = gridUtil.getChangedRowValues(view, true);
-  await dataService.post('/sms/wells/fee/sell-product-type', allRows);
+  await dataService.post('/sms/wells/fee/product-bs-fee', allRows);
   notify(t('MSG_ALT_SAVE_DATA'));
   await fetchPage();
-}
-
-// 엑셀업로드
-async function onClickExcelUpload() {
-  // @todo
-  const apiUrl = '/sms/wells/fee/sell-product-type/excel-upload';
-  const templateId = 'FOM_FEY_0166';
-  const { result, payload } = await modal({
-    component: 'ZwcmzExcelUploadP',
-    componentProps: { apiUrl, templateId },
-  });
-  if (result) {
-    const { status, errorInfo } = payload;
-    if (status === 'S') {
-      notify(t('MSG_ALT_SAVE_DATA'));
-      await fetchPage();
-    } else if (status === 'E' && errorInfo.length > 0) {
-      await modal({
-        component: 'ZwcmzExcelUploadErrorP',
-        componentProps: { errorInfo },
-      });
-    }
-  }
 }
 
 // 엑셀 다운로드 버튼
 async function onClickExcelDownload() {
   // @todo
-  const res = await dataService.get('/sms/wells/fee/sell-product-type', { params: cachedParams });
+  const res = await dataService.get('/sms/wells/fee/product-bs-fee', { params: cachedParams });
   const view = grdRef.value.getView();
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
@@ -270,7 +283,7 @@ const initGrd = defineGrid((data, view) => {
     language: 'ko',
     todayHighlight: true,
   };
-
+  // @todo BS상품그룹컬럼 맵핑
   const columns = [
     {
       fieldName: 'basePdCd',
@@ -283,15 +296,22 @@ const initGrd = defineGrid((data, view) => {
         return g.getDataSource().getRowState(index.dataRow) === 'created';
       },
     },
-    { fieldName: 'basePdNm', header: t('MSG_TXT_PRDT_NM'), width: '180', rules: 'required' },
-    { fieldName: 'feePdctTpCd1', header: `${t('MSG_TXT_PDCT_TP')}(M)`, width: '120', styleName: 'text-center', editor: { type: 'list' }, options: codes.FEE_PDCT_TP_CD, rules: 'required', editable: true },
-    { fieldName: 'feePdctTpCd2', header: `${t('MSG_TXT_PDCT_TP')}(P)`, width: '120', styleName: 'text-center', editor: { type: 'list' }, options: codes.FEE_PDCT_TP_CD, rules: 'required', editable: true },
-    { fieldName: 'apyStrtYm', header: t('MSG_TXT_APY_STRT_YM'), width: '130', styleName: 'text-center', editor: { type: 'btdate', datetimeFormat: 'yyyy-MM', btOptions: btOpt }, datetimeFormat: 'yyyy-MM', rules: 'required', editable: true },
-    { fieldName: 'apyEndYm', header: t('MSG_TXT_APY_END_YM'), width: '130', styleName: 'text-center', editor: { type: 'btdate', datetimeFormat: 'yyyy-MM', btOptions: btOpt }, datetimeFormat: 'yyyy-MM', rules: 'required', editable: true },
-    { fieldName: 'fstRgstDtm', header: t('MSG_TXT_RGST_DT'), width: '130', styleName: 'text-center', datetimeFormat: 'datetime' },
-    { fieldName: 'fstRgstUsrId', header: t('MSG_TXT_FST_RGST_USR'), width: '130', styleName: 'text-center' },
-    { fieldName: 'fnlMdfcDtm', header: t('MSG_TXT_MDFC_DT'), width: '130', styleName: 'text-center', datetimeFormat: 'datetime' },
-    { fieldName: 'fnlMdfcUsrId', header: t('MSG_TXT_MDFC_USR'), width: '130', styleName: 'text-center' },
+    { fieldName: 'basePdNm', header: t('TXT_MSG_MAT_PD_NM'), width: '150', styleName: 'text-left' },
+    { fieldName: 'vstMcn', header: t('MSG_TXT_VISIT_MN'), width: '100', styleName: 'text-right', dataType: 'number', rules: 'required', editable: true },
+    { fieldName: 'svFeeDvCd', header: t('MSG_TXT_SV_DV'), width: '120', styleName: 'text-center', options: codes.SV_FEE_DV_CD, editor: { type: 'list' }, editable: true, rules: 'required' },
+    { fieldName: 'hcrDvCd', header: `${t('MSG_TXT_PRDT_GUBUN')}1`, width: '100', styleName: 'text-center', options: codes.HCR_DV_CD, editor: { type: 'list' }, editable: true, rules: 'required' }, /* 홈케어구분코드 */
+    { fieldName: 'svFeePdDvCd', header: `${t('MSG_TXT_PRDT_GUBUN')}2`, width: '100', styleName: 'text-center', options: codes.SV_FEE_PD_DV_CD, editor: { type: 'list' }, editable: true, rules: 'required' }, /* 서비스수수료상품구분코드 */
+    { fieldName: 'col', header: t('MSG_TXT_BS_PD_GRP'), width: '120', styleName: 'text-center' },
+    { fieldName: 'baseChTcnt', header: t('MSG_TXT_ORDR'), width: '100', styleName: 'text-right', dataType: 'number', editable: true, rules: 'required' },
+    { fieldName: 'svFeeBaseAmt', header: `${t('TXT_MSG_FEE_AMT')} (${t('MSG_TXT_FXAM')}/${t('MSG_TXT_HMST')})`, width: '150', styleName: 'text-right', dataType: 'number', editable: true }, /* 서비스수수료기준금액 */
+    { fieldName: 'feeFxamYn', header: t('MSG_TXT_FXAM_YN'), width: '100', styleName: 'text-center', options: codes.COD_YN, editor: { type: 'list' }, editable: true },
+    { fieldName: 'hcrFeeBaseAmt', header: `${t('MSG_TXT_FXAM_FEE')} (${t('MSG_TXT_HMST')})`, width: '150', styleName: 'text-right', dataType: 'number', editable: true }, /* 홈케어수수료기준금액 */
+    { fieldName: 'apyStrtYm', header: t('MSG_TXT_APY_STRT_YM'), width: '120', styleName: 'text-center', editable: true, editor: { type: 'btdate', datetimeFormat: 'yyyy-MM', btOptions: btOpt }, datetimeFormat: 'yyyy-MM' },
+    { fieldName: 'apyEndYm', header: t('MSG_TXT_APY_END_YM'), width: '120', styleName: 'text-center', editable: true, editor: { type: 'btdate', datetimeFormat: 'yyyy-MM', btOptions: btOpt }, datetimeFormat: 'yyyy-MM' },
+    { fieldName: 'fstRgstDtm', header: t('MSG_TXT_RGST_DT'), width: '100', styleName: 'text-center' },
+    { fieldName: 'fstRgstUsrId', header: t('MSG_TXT_FST_RGST_USR'), width: '100', styleName: 'text-center' },
+    { fieldName: 'fnlMdfcDtm', header: t('MSG_TXT_MDFC_DT'), width: '100', styleName: 'text-center' },
+    { fieldName: 'fnlMdfcUsrId', header: t('MSG_TXT_MDFC_USR'), width: '100', styleName: 'text-center' },
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   data.setFields(fields);
@@ -300,10 +320,10 @@ const initGrd = defineGrid((data, view) => {
   view.rowIndicator.visible = true;
   view.editOptions.columnEditableFirst = true;
   view.onCellEditable = (grid, index) => {
-    if (gridUtil.isCreatedRow(grid, index.dataRow) && ['basePdCd', 'feePdctTpCd1', 'feePdctTpCd2', 'apyStrtYm', 'apyEndYm'].includes(index.column)) {
+    if (gridUtil.isCreatedRow(grid, index.dataRow) && ['basePdCd', 'vstMcn', 'svFeeDvCd', 'hcrDvCd', 'svFeePdDvCd', 'baseChTcnt', 'svFeeBaseAmt', 'feeFxamYn', 'hcrFeeBaseAmt', 'apyStrtYm', 'apyEndYm'].includes(index.column)) {
       return true;
     }
-    if (gridUtil.isReadRow(grid, index.dataRow) && ['feePdctTpCd1', 'feePdctTpCd2'].includes(index.column)) {
+    if (gridUtil.isReadRow(grid, index.dataRow) && ['svFeePdDvCd', 'svFeeBaseAmt', 'feeFxamYn', 'hcrFeeBaseAmt', 'apyStrtYm', 'apyEndYm'].includes(index.column)) {
       return true;
     }
     return false;
