@@ -16,19 +16,17 @@
   <kw-popup
     size="2xl"
   >
+    <kw-action-top>
+      <template #left>
+        <kw-paging-info :total-count="totalCount" />
+      </template>
+    </kw-action-top>
     <kw-grid
       ref="grdMainRef"
       name="grdMain"
       :visible-rows="10"
       @init="initGrid"
     />
-    <template #action>
-      <kw-btn
-        negative
-        :label="$t('MSG_BTN_CLOSE')"
-        @click="onClickClose"
-      />
-    </template>
   </kw-popup>
 </template>
 
@@ -36,7 +34,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { defineGrid, getComponentType, useDataService, useModal } from 'kw-lib';
+import { defineGrid, getComponentType, useDataService } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 
 const dataService = useDataService();
@@ -45,7 +43,7 @@ const props = defineProps({
   cntrDtlNo: { type: String, required: true, default: '' },
   concDiv: { type: String, required: false, default: '' },
 });
-const { cancel } = useModal();
+const totalCount = ref(0);
 
 // @todo: update to 0 on api integration
 let cachedParams;
@@ -73,16 +71,13 @@ async function fetchData() {
   const view = grdMainRef.value.getView();
   // view.getDataSource().setRows(accounts);
   view.getDataSource().setRows(res.data);
+  totalCount.value = res.data.length;
   view.resetCurrent();
 }
 
 onMounted(async () => {
   await fetchData();
 });
-
-async function onClickClose() {
-  cancel();
-}
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid

@@ -69,6 +69,7 @@
         dense
         secondary
         :label="$t('MSG_BTN_EMAIL_SEND')"
+        :disable="searchParams.cntrDvCd === '1'"
         @click="onClickEmailSend"
       />
       <kw-separator
@@ -350,6 +351,10 @@ async function onClickSearch() {
 
 // 메일발송
 async function onClickEmailSend() {
+  if (searchParams.value.cntrDvCd === '1') {
+    return;
+  }
+
   const view = grdContracts.value.getView();
   const checkedItems = view.getCheckedItems();
   const cntrList = [];
