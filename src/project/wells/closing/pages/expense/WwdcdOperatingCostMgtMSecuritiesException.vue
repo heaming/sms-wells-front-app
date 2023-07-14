@@ -144,43 +144,36 @@ async function onClickSave() {
   if (!await gridUtil.validate(view)) { return; }
 
   const dataRows = [];
+  let updateTotal = 0;
+  let domTrdAmtTotal = 0;
   let checkedCount = 0;
+  let cardAprno;
   checkedRows.forEach((checkedRow) => {
     if (checkedRow.opcsAdjExcdYn === 'Y') {
-      checkedCount += 1;
       dataRows.push(checkedRow);
     }
   });
-  /*
-  if (count > 0) {
-    alert('정상제외여부가 "정산"이어야 가능 합니다.');
-    return;
-  }
-*/
-  if (checkedCount === 1) {
-    alert('2개 이상이어야 가능합니다.');
-    return;
-  }
 
-  let updateTotal = 0;
-  let domTrdAmtTotal = 0;
-  let cardAprno;
-  if (dataRows.length > 1) {
+  if (dataRows.length > 0) {
     const sortRows = dataRows.sort((t1, t2) => (t1.cardAprno < t2.cardAprno ? -1 : 1));
     for (let i = 0; i < sortRows.length; i += 1) {
-      domTrdAmtTotal = 0;
       cardAprno = sortRows[i].cardAprno;
-      domTrdAmtTotal = Number(sortRows[i].domTrdAmt1);
+      domTrdAmtTotal = sortRows[i].domTrdAmt1;
+      domTrdAmtTotal = 0;
 
       for (let j = i + 1; j < sortRows.length; j += 1) {
         if (cardAprno === sortRows[j].cardAprno) {
-          domTrdAmtTotal += Number(sortRows[j].domTrdAmt1);
+          domTrdAmtTotal += sortRows[j].domTrdAmt1;
+          checkedCount += 1;
         } else {
-          i = (j - 1);
-          break;
+          i = j;
+          if (checkedCount === 1) {
+            alert('2개 이상이어야 가능합니다.');
+            break;
+          }
         }
       }
-      if (domTrdAmtTotal !== 0) {
+      if (domTrdAmtTotal > 0) {
         updateTotal += 1;
       }
     }
@@ -251,7 +244,7 @@ const initGrdMain = defineGrid((data, view) => {
     {
       fieldName: 'usrSmryCn',
       header: {
-        text: t('MSG_TXT_PURP'), // 구매품목 및 사용내역
+        text: t('MSG_TXT_PRCHS_ITM_USE_IZ'), // 구매품목 및 사용내역
         styleName: 'essential',
       },
       width: '137',
@@ -260,8 +253,7 @@ const initGrdMain = defineGrid((data, view) => {
     {
       fieldName: 'opcsAdjBtn',
       header: {
-        text: t('MSG_TXT_PRCHS_ITM_USE_IZ'), // 원천세 정산
-        styleName: 'essential',
+        text: t('MSG_TXT_WHTX_ADJ'), // 원천세 정산
       },
       width: '179',
       renderer: {
@@ -271,8 +263,7 @@ const initGrdMain = defineGrid((data, view) => {
     {
       fieldName: 'adjCls',
       header: {
-        text: t('MSG_TXT_WHTX_ADJ'), // 정산여부
-        styleName: 'essential',
+        text: t('MSG_TXT_ADJ_YN'), // 정산여부
       },
       width: '179',
       styleName: 'text-center',
@@ -302,8 +293,9 @@ const initGrdMain = defineGrid((data, view) => {
   ]);
 
   view.onCellItemClicked = async (g, { column, itemIndex }) => {
-    const { useDtm, mrcNm, cardAprno, domTrdAmt, opcsCardUseIzId, adjOgId, dgr1LevlOgId } = g.getValues(itemIndex);
-    //     사용일시, 카드번호, 가맹점, 승인번호, 사용금액, 원천세정산번호   TODO 넘길 param
+    const { useDtm, mrcNm, cardAprno, domTrdAmt, opcsCardUseIzId, adjOgId, dgr1LevlOgId,
+      opcsAdjNo } = g.getValues(itemIndex);
+    //     사용일시, 카드번호, 가맹점, 승인번호, 사용금액, 원천세정산번호, 운영비카드ID   TODO 넘길 param
     cachedParams.useDtm = useDtm;
     cachedParams.mrcNm = mrcNm;
     cachedParams.cardAprno = cardAprno;
@@ -311,6 +303,7 @@ const initGrdMain = defineGrid((data, view) => {
     cachedParams.opcsCardUseIzId = opcsCardUseIzId;
     cachedParams.adjOgId = adjOgId;// 총괄단 아이디
     cachedParams.dgr1LevlOgId = dgr1LevlOgId;
+    cachedParams.opcsAdjNo = opcsAdjNo;
 
     console.log(itemIndex);
     if (column === 'opcsAdjBtn') {
