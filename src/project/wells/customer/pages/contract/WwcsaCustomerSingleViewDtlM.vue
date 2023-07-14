@@ -118,6 +118,7 @@
           </template>
           <kw-btn
             v-if="!isEmpty(customerInfo?.cstNo)"
+            v-permission:create
             primary
             dense
             :label="$t('MSG_TXT_CNTR_WRTE')"

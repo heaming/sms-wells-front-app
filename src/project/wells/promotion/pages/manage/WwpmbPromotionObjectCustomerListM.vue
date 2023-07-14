@@ -92,6 +92,7 @@
           spaced
         />
         <kw-btn
+          v-permission:update
           icon="upload_on"
           dense
           secondary
@@ -99,6 +100,7 @@
           @click="onClickExcelUpload"
         />
         <kw-btn
+          v-permission:download
           icon="download_on"
           dense
           secondary
