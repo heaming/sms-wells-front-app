@@ -808,14 +808,14 @@ const initGrdMain = defineGrid((data, view) => {
         return `${cntrNo}-${cntrSn}`;
       },
     },
-    { fieldName: 'sellTpNm', header: t('MSG_TXT_CNTR_DV'), width: 80 },
+    { fieldName: 'sellTpNm', header: t('MSG_TXT_CNTR_DV'), width: 70 },
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: 200 },
-    { fieldName: 'regAmt', header: t('MSG_TXT_RGST_FEE'), width: 100, styleName: 'text-right' },
-    { fieldName: 'rntlAmt', header: t('MSG_TXT_MM_RTLFE'), width: 100, styleName: 'text-right' },
-    { fieldName: 'pdAmt', header: t('MSG_TXT_PRDT_AMT'), width: 100, styleName: 'text-right' },
-    { fieldName: 'stplPtrm', header: t('MSG_TXT_CONTRACT_PERI'), width: 100, styleName: 'text-right' },
-    { fieldName: 'cntrPtrm', header: t('MSG_TXT_CNTR_PTRM'), width: 100, styleName: 'text-right' },
-    { fieldName: 'dscAmt', header: t('MSG_TXT_DSC_AMT'), width: 100, styleName: 'text-right' },
+    { fieldName: 'regAmt', header: t('MSG_TXT_RGST_FEE'), width: 90, styleName: 'text-right' },
+    { fieldName: 'rntlAmt', header: t('MSG_TXT_MM_RTLFE'), width: 90, styleName: 'text-right' },
+    { fieldName: 'pdAmt', header: t('MSG_TXT_PRDT_AMT'), width: 90, styleName: 'text-right' },
+    { fieldName: 'stplPtrm', header: t('MSG_TXT_CONTRACT_PERI'), width: 90, styleName: 'text-right' },
+    { fieldName: 'cntrPtrm', header: t('MSG_TXT_CNTR_PTRM'), width: 90, styleName: 'text-right' },
+    { fieldName: 'dscAmt', header: t('MSG_TXT_DSC_AMT'), width: 90, styleName: 'text-right' },
   ];
   data.setFields(fields);
   view.setColumns(columns);
