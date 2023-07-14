@@ -145,7 +145,7 @@ const optionsWareNo = ref();
 // 창고 조회
 async function getWareHouse() {
   searchParams.value.wareNo = '';
-  const result = await dataService.get('/sms/wells/service/assign-exclude-items/warehouse');
+  const result = await dataService.get('/sms/wells/service/assign-exclude-items/warehouses');
   optionsWareNo.value = result.data;
 }
 
