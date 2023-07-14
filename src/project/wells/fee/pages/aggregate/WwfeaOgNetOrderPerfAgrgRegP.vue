@@ -19,7 +19,12 @@
     <kw-form :cols="1">
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_PERF_YM')">
-          <p>{{ params.perfYm }}</p>
+          <p>{{ params.perfYm.substring(0,4) }}-{{ params.perfYm.substring(4) }}</p>
+        </kw-form-item>
+      </kw-form-row>
+      <kw-form-row>
+        <kw-form-item :label="$t('MSG_TXT_ORDR')">
+          <p>{{ codes.FEE_TCNT_DV_CD.find((v) => v.codeId === params?.feeTcntDvCd)?.codeName }}</p>
         </kw-form-item>
       </kw-form-row>
     </kw-form>
@@ -41,6 +46,12 @@
         :label="$t('MSG_TXT_DTRM')"
         @click="onClickConfirm"
       />
+      <kw-btn
+        v-if="params.dv==='CC'"
+        primary
+        :label="$t('MSG_TXT_CNFM_CAN')"
+        @click="onClickConfirmCancel"
+      />
     </template>
   </kw-popup>
 </template>
@@ -49,7 +60,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService, useGlobal, useModal } from 'kw-lib';
+import { useDataService, useGlobal, useModal, codeUtil } from 'kw-lib';
 
 const { cancel, ok } = useModal();
 const { t } = useI18n();
@@ -65,7 +76,11 @@ const props = defineProps({
     type: String,
     required: true,
   },
-  dv: { // 생성(CR)/확정(CO) 구분
+  dv: { // 생성(CR)/확정(CO)/확정취소(CC) 구분
+    type: String,
+    required: true,
+  },
+  feeTcntDvCd: { // 수수료차수구분코드
     type: String,
     required: true,
   },
@@ -75,11 +90,16 @@ const params = ref({
   perfYm: props.perfYm,
   ogTp: props.ogTp,
   dv: props.dv,
+  feeTcntDvCd: props.feeTcntDvCd,
 });
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
+const codes = await codeUtil.getMultiCodes(
+  'FEE_TCNT_DV_CD',
+);
+
 async function onClickCancel() {
   cancel();
 }
@@ -93,6 +113,12 @@ async function onClickCreate() {
 async function onClickConfirm() {
   // TODO: 수수료 미생성 시 클릭 : '시상수수료 생성을 진행 후 확정이 가능합니다.' 추가 필요
   if (!await confirm(t('MSG_ALT_DTRM'))) { return; }
+  const response = await dataService.put('/sms/wells/fee/organization-netorders', params.value);
+  ok(response.data);
+}
+
+async function onClickConfirmCancel() {
+  if (!await confirm(t('MSG_ALT_WANT_CANCEL_DTRM'))) { return; }
   const response = await dataService.put('/sms/wells/fee/organization-netorders', params.value);
   ok(response.data);
 }
