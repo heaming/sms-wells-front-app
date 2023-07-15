@@ -21,7 +21,7 @@
 
       <prospect-customer />
 
-      <h3>설치처 변경 접수자료 업로드</h3>
+      <install-location />
     </div>
   </kw-page>
 </template>
@@ -32,4 +32,6 @@ import Spay
   from '~sms-wells/contract/pages/ordermgmt/WwctaReceiptBulkUploadMSinglePayment.vue';
 import ProspectCustomer
   from '~sms-wells/contract/pages/ordermgmt/WwctaReceiptBulkUploadMProspectCustomer.vue';
+import InstallLocation
+  from '~sms-wells/contract/pages/ordermgmt/WwctaReceiptBulkUploadMInstallLocation.vue';
 </script>
