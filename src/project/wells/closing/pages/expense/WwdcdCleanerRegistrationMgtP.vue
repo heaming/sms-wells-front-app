@@ -44,6 +44,7 @@
             :label="$t('MSG_TXT_APPL_USER')"
             rules="required"
             :disable="isDisableAplcnsNm"
+            :maxlength="16"
           />
         </kw-form-item>
         <kw-form-item
@@ -88,6 +89,7 @@
             v-model="saveParams.clinrNm"
             :label="$t('MSG_TXT_CLINR_FNM')"
             rules="required"
+            :maxlength="16"
           />
         </kw-form-item>
         <kw-form-item
@@ -147,6 +149,7 @@
             rules="required"
             :label="$t('MSG_TXT_FEE_DSB_WON')"
             :regex="/^[0-9]*$/i"
+            :maxlength="20"
             @blur="onBlurFixationAmount"
           />
         </kw-form-item>
@@ -181,7 +184,9 @@
             v-model:zipCode="saveParams.zip"
             v-model:add1="saveParams.basAdr"
             v-model:add2="saveParams.dtlAdr"
+            v-model:addKey="saveParams.adrId"
             :label="$t('MSG_TXT_RRGT_ADRR')"
+            class="kw-grow"
             required
           />
         </kw-form-item>

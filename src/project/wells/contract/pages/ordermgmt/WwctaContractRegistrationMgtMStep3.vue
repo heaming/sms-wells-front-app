@@ -189,7 +189,6 @@
                   v-model:addKey="item.adrpc.adrId"
                   v-model:adrDvCd="item.adrpc.adrDvCd"
                   class="kw-grow"
-                  readonly
                 />
               </kw-form-item>
             </kw-form-row>
@@ -287,7 +286,7 @@
             </kw-form-row>
           </template>
           <template
-            v-if="item.sellTpCd !== '1' && item.sellTpCd !== '2'"
+            v-else
           >
             <kw-form-row>
               <kw-form-item

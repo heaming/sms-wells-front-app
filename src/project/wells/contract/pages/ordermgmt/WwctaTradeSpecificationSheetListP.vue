@@ -69,6 +69,7 @@
         dense
         secondary
         :label="$t('MSG_BTN_EMAIL_SEND')"
+        :disable="searchParams.cntrDvCd === '1'"
         @click="onClickEmailSend"
       />
       <kw-separator
@@ -81,6 +82,7 @@
         primary
         dense
         :label="$t('MSG_BTN_PBL_PRNT')"
+        @click="onClickPblPrnt"
       />
     </kw-action-top>
     <!-- 계약목록 -->
@@ -142,7 +144,7 @@ import { cloneDeep } from 'lodash-es';
 
 const dataService = useDataService();
 const { t } = useI18n();
-const { modal, notify } = useGlobal();
+const { alert, modal, notify } = useGlobal();
 const props = defineProps({
   cntrNo: { type: String, required: false, default: '' },
   cntrSn: { type: String, required: false, default: '' },
@@ -349,7 +351,10 @@ async function onClickSearch() {
 
 // 메일발송
 async function onClickEmailSend() {
-  // await alert('메일발송 팝업은 개발예정입니다.');
+  if (searchParams.value.cntrDvCd === '1') {
+    return;
+  }
+
   const view = grdContracts.value.getView();
   const checkedItems = view.getCheckedItems();
   const cntrList = [];
@@ -363,17 +368,22 @@ async function onClickEmailSend() {
         cntrNoFull: row.cntrDtlNo,
       });
     });
+
+    const searchPopupParams = {
+      docDvCd: searchParams.value.docDvCd, // 증빙서류종류
+      cntrList,
+    };
+
+    await modal({
+      component: 'WwctaDocumentaryEvidenceMailForwardingP', // 증빙서류 메일발송
+      componentProps: searchPopupParams,
+    });
   }
+}
 
-  const searchPopupParams = {
-    docDvCd: searchParams.value.docDvCd, // 증빙서류종류
-    cntrList,
-  };
-
-  await modal({
-    component: 'WwctaDocumentaryEvidenceMailForwardingP', // 증빙서류 메일발송
-    componentProps: searchPopupParams,
-  });
+// 발행(출력)
+async function onClickPblPrnt() {
+  await alert('발행(출력) 팝업은 작업예정입니다.');
 }
 
 onMounted(async () => {

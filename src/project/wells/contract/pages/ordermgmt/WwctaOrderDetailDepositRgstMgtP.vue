@@ -49,61 +49,10 @@
         </kw-search-item>
       </kw-search-row>
     </kw-search>
-    <kw-form
-      :cols="2"
-      class="mt30"
-    >
-      <kw-form-row>
-        <!-- 요청금액 -->
-        <kw-form-item
-          :label="$t('MSG_TXT_AK_AMT')"
-        >
-          <p />
-        </kw-form-item>
-        <!-- 대사금액(원) -->
-        <kw-form-item
-          :label="$t('MSG_TXT_CPRCNF_AMT_WON')"
-        >
-          <p />
-        </kw-form-item>
-      </kw-form-row>
-    </kw-form>
-    <kw-separator />
-    <!-- 카드 -->
-    <kw-action-top class="mt30">
-      <template #left>
-        <h3>{{ $t('MSG_TXT_CARD') }}</h3>
-      </template>
-      <span class="kw-fc--black3 text-weight-regular">(단위: 원)</span>
-    </kw-action-top>
-    <kw-grid
-      :visible-rows="3"
-      @init="initGrid"
-    />
-    <!-- 가상계좌 -->
-    <kw-action-top class="mt30">
-      <template #left>
-        <h3>{{ $t('MSG_TXT_VT_AC') }}</h3>
-      </template>
-      <span class="kw-fc--black3 text-weight-regular">(단위: 원)</span>
-    </kw-action-top>
-    <kw-grid
-      :visible-rows="3"
-      @init="initGrid2"
-    />
-
-    <div class="row justify-end mt20">
-      <!-- 대사저장 -->
-      <kw-btn
-        :label="$t('MSG_BTN_CPRCNF_SAVE')"
-        class="px12"
-      />
-    </div>
     <!-- 입금등록내역 -->
     <h3 class="mt20">
       {{ $t('MSG_TXT_DP_RGS_IZ') }}
     </h3>
-
     <kw-action-top>
       <template #left>
         <kw-paging-info
@@ -115,7 +64,7 @@
     <kw-grid
       ref="grdDepositRgstMgtList"
       name="grdDepositRgstMgtList"
-      :visible-rows="1"
+      :visible-rows="5"
       @init="initGrid3"
     />
   </kw-popup>
@@ -183,56 +132,6 @@ async function onClickSearch() {
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
-function initGrid(data, view) {
-  const fields = [
-    { fieldName: 'col1' },
-    { fieldName: 'col2' },
-    { fieldName: 'col3' },
-    { fieldName: 'col4' },
-    { fieldName: 'col5' },
-  ];
-
-  const columns = [
-    { fieldName: 'col1', header: t('MSG_TXT_DEP_DT'), width: '150', styleName: 'text-center' }, // 입금일
-    { fieldName: 'col2', header: t('MSG_TXT_CDCO'), width: '100', styleName: 'text-center' }, // 카드사
-    { fieldName: 'col3', header: t('MSG_TXT_CARD_NO'), width: '180' }, // 카드번호
-    { fieldName: 'col4', header: t('MSG_TXT_CPRCNF_AMT'), width: '80', styleName: 'text-right' }, // 대사금액
-    { fieldName: 'col5', header: t('MSG_TXT_CPRCNF_AMT'), width: '100', styleName: 'text-right' }, // 대사금액
-  ];
-
-  data.setFields(fields);
-  view.setColumns(columns);
-
-  view.checkBar.visible = false;
-  view.rowIndicator.visible = true;
-}
-
-function initGrid2(data, view) {
-  const fields = [
-    { fieldName: 'col1' },
-    { fieldName: 'col2' },
-    { fieldName: 'col3' },
-    { fieldName: 'col4' },
-    { fieldName: 'col5' },
-    { fieldName: 'col6' },
-  ];
-
-  const columns = [
-    { fieldName: 'col1', header: t('MSG_TXT_DEP_DT'), width: '150', styleName: 'text-center' }, // 입금일
-    { fieldName: 'col2', header: t('MSG_TXT_BNK'), width: '100', styleName: 'text-center' }, // 은행
-    { fieldName: 'col3', header: t('MSG_TXT_AC_NO'), width: '180' }, // 계좌번호
-    { fieldName: 'col4', header: t('MSG_TXT_DEPOSIT_AMT'), width: '100', styleName: 'text-right' }, // 입금액
-    { fieldName: 'col5', header: t('MSG_TXT_BLAM'), width: '100', styleName: 'text-right' }, // 잔액
-    { fieldName: 'col6', header: t('MSG_TXT_CPRCNF_AMT'), width: '100', styleName: 'text-right' }, // 대사금액
-  ];
-
-  data.setFields(fields);
-  view.setColumns(columns);
-
-  view.checkBar.visible = false;
-  view.rowIndicator.visible = true;
-}
-
 const initGrid3 = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'rveDt' }, // 수납일

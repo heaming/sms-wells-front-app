@@ -39,7 +39,7 @@
                 v-model:from="searchParams.aplcStartDt"
                 v-model:to="searchParams.aplcEndDt"
                 type="month"
-                rules="required"
+                rules="date_range_required"
                 :label="$t('MSG_TXT_APL_DATE')"
               />
             </kw-search-item>
