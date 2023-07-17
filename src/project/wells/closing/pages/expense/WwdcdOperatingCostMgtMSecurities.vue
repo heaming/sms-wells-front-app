@@ -177,11 +177,9 @@ async function onClickSave() {
   if (await gridUtil.alertIfIsNotModified(view)) { return; }
   if (!await gridUtil.validate(view)) { return; }
 
-  let checkedCount = 0;
   const dataRows = [];
   checkedRows.forEach((checkedRow) => {
     if (checkedRow.opcsAdjExcdYn === 'Y') {
-      checkedCount += 1;
       dataRows.push(checkedRow);
     }
   });
@@ -193,15 +191,11 @@ async function onClickSave() {
   }
   */
 
-  if (checkedCount === 1) {
-    alert('2개 이상이어야 가능합니다.');
-    return;
-  }
-
   let updateTotal = 0;
   let domTrdAmtTotal = 0;
+  let checkedCount = 0;
   let cardAprno;
-  if (dataRows.length > 1) {
+  if (dataRows.length > 0) {
     const sortRows = dataRows.sort((t1, t2) => (t1.cardAprno < t2.cardAprno ? -1 : 1));
     for (let i = 0; i < sortRows.length; i += 1) {
       cardAprno = sortRows[i].cardAprno;
@@ -211,8 +205,13 @@ async function onClickSave() {
       for (let j = i + 1; j < sortRows.length; j += 1) {
         if (cardAprno === sortRows[j].cardAprno) {
           domTrdAmtTotal += sortRows[j].domTrdAmt1;
+          checkedCount += 1;
         } else {
           i = j;
+          if (checkedCount === 1) {
+            alert('2개 이상이어야 가능합니다.');
+            break;
+          }
         }
       }
       if (domTrdAmtTotal > 0) {
@@ -242,6 +241,7 @@ const initGrdThird = defineGrid((data, view) => {
     { fieldName: 'adjOgId', visible: false },
     { fieldName: 'domTrdAmt1', visible: false }, // 계산용 사용금액
     { fieldName: 'opcsAdjNo', visible: false }, // 운영비정산번호
+    { fieldName: 'adjPrtnrNo', visible: false },
     { fieldName: 'useDtm', header: t('MSG_TXT_USE_DTM'), width: '174', styleName: 'text-center', editable: false }, // 사용일시
     { fieldName: 'dgr1LevlOgNm', header: t('MSG_TXT_MANAGEMENT_DEPARTMENT'), width: '79', styleName: 'text-center', editable: false }, // 총괄단
     { fieldName: 'crcdnoEncr', header: t('MSG_TXT_CARD_NO'), width: '159', styleName: 'text-center', editable: false }, // 카드번호
@@ -286,7 +286,7 @@ const initGrdThird = defineGrid((data, view) => {
     {
       fieldName: 'usrSmryCn',
       header: {
-        text: t('MSG_TXT_PURP'), // 구매품목 및 사용내역
+        text: t('MSG_TXT_PRCHS_ITM_USE_IZ'), // 구매품목 및 사용내역
         styleName: 'essential',
       },
       width: '137',
@@ -295,8 +295,7 @@ const initGrdThird = defineGrid((data, view) => {
     {
       fieldName: 'opcsAdjBtn',
       header: {
-        text: t('MSG_TXT_PRCHS_ITM_USE_IZ'), // 원천세 정산
-        styleName: 'essential',
+        text: t('MSG_TXT_WHTX_ADJ'), // 원천세 정산
       },
       width: '179',
       renderer: {
@@ -306,8 +305,7 @@ const initGrdThird = defineGrid((data, view) => {
     {
       fieldName: 'adjCls',
       header: {
-        text: t('MSG_TXT_WHTX_ADJ'), // 정산여부
-        styleName: 'essential',
+        text: t('MSG_TXT_ADJ_YN'), // 정산여부
       },
       width: '179',
       editable: false,
@@ -325,8 +323,8 @@ const initGrdThird = defineGrid((data, view) => {
 
   view.onCellItemClicked = async (g, { column, itemIndex }) => {
     const { useDtm, mrcNm, cardAprno, domTrdAmt,
-      opcsCardUseIzId, adjOgId, dgr1LevlOgId, opcsAdjNo } = g.getValues(itemIndex);
-    //     사용일시, 카드번호, 가맹점, 승인번호, 사용금액, 원천세정산번호   TODO 넘길 param
+      opcsCardUseIzId, adjOgId, dgr1LevlOgId, adjPrtnrNo } = g.getValues(itemIndex);
+    //     사용일시, 카드번호, 가맹점, 승인번호, 사용금액, 원천세정산번호, 운영비카드ID   TODO 넘길 param
     cachedParams.authDate = useDtm;
     cachedParams.mrcNm = mrcNm;
     cachedParams.cardAprno = cardAprno;
@@ -334,7 +332,7 @@ const initGrdThird = defineGrid((data, view) => {
     cachedParams.opcsCardUseIzId = opcsCardUseIzId;
     cachedParams.adjOgId = adjOgId;// 총괄단 아이디
     cachedParams.dgr1LevlOgId = dgr1LevlOgId;
-    cachedParams.opcsAdjNo = opcsAdjNo;
+    cachedParams.adjPrtnrNo = adjPrtnrNo;
     debugger;
     if (column === 'opcsAdjBtn') {
       await modal({
@@ -364,7 +362,7 @@ const initGrdFourth = defineGrid((data, view) => {
     { fieldName: 'erntx', visible: false }, // 소득세
     { fieldName: 'rsdntx', visible: false }, // 주민세
     { fieldName: 'dgr1LevlOgNm', header: t('MSG_TXT_MANAGEMENT_DEPARTMENT'), width: '149', styleName: 'text-left' }, /* 총괄단 */
-    { fieldName: 'dgr2LevlOgNm', header: t('MSG_TXT_CENTER_DIVISION'), width: '206', styleName: 'text-left' }, /* 지역단 */
+    { fieldName: 'dgr2LevlOgNm', header: t('MSG_TXT_RGNL_GRP'), width: '206', styleName: 'text-left' }, /* 지역단 */
     { fieldName: 'dstOjpsNm', header: t('MSG_TXT_EMPL_NM'), width: '198', styleName: 'text-left' }, /* 성명 */
     { fieldName: 'dstOjPrtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '218', styleName: 'text-center' }, /* 번호 */
     { fieldName: 'rsbDvNm', header: t('MSG_TXT_RSB'), width: '219', styleName: 'text-left' }, /* 직책 */

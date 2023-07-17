@@ -301,8 +301,9 @@ async function onClickSearch() {
   const existYn = res.data;
   if (existYn === 'N') {
     const { asnOjYm, cnt } = cachedParams;
-    // {0}회차 물량배정 데이터를 생성하시겠습니까?
-    if (!await confirm(`${asnOjYm.substring(0, 4)}-${asnOjYm.substring(4, 6)} ${cnt}${t('MSG_ALT_QOM_ASN_DTA_CRT')}`)) {
+    // {0} 물량배정 데이터를 생성하시겠습니까?
+    const msg = `${asnOjYm.substring(0, 4)}-${asnOjYm.substring(4, 6)} ${cnt}`;
+    if (!await confirm(`${msg}${t('MSG_TXT_ORDERSELECT_TITLE')} ${t('MSG_TXT_INDV_WARE')}${t('MSG_ALT_QOM_ASN_DTA_CRT')}`)) {
       return;
     }
 
@@ -316,7 +317,7 @@ async function onClickSearch() {
       return;
     }
     // 데이터 생성
-    res = await dataService.post('/sms/wells/service/qom-asn/individual-wares', qomAsnList, { timeout: 3000000 });
+    res = await dataService.post('/sms/wells/service/qom-asn', qomAsnList, { timeout: 3000000 });
     const { processCount } = res.data;
     if (processCount > 0) {
       // 생성되었습니다.
@@ -420,7 +421,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'thwkQty', header: t('MSG_TXT_THWK_EXP'), width: '120', styleName: 'text-right' },
     { fieldName: 'borrQty', header: t('MSG_TXT_BORR_EXP'), width: '120', styleName: 'text-right' },
     { fieldName: 'cnfmQty', header: t('MSG_TXT_CNFM_QTY'), width: '120', styleName: 'text-right' },
-    { fieldName: 'boxQty', header: t('MSG_TXT_BOX_QTY'), width: '120', styleName: 'text-right' },
+    { fieldName: 'boxQty', header: t('MSG_TXT_BOX_KOR_QTY'), width: '120', styleName: 'text-right' },
     { fieldName: 'bldCd', header: t('MSG_TXT_CODE'), width: '66', styleName: 'text-center' },
     { fieldName: 'bldNm', header: t('MSG_TXT_BLD_NM'), width: '130', styleName: 'text-left' },
     { fieldName: 'telNo', header: t('MSG_TXT_TEL_NO'), width: '86', styleName: 'text-center' },

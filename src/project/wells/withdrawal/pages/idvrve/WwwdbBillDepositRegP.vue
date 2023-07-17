@@ -33,15 +33,16 @@
           <!-- label="거래처명" -->
           <kw-input
             v-model="searchParams.dlpnrNm"
-            rules="required"
             icon="search"
             clearable
             :label="t('MSG_TXT_CLNT_NM')"
             :readonly="isCheckReadonly"
+            :rules="validateChk"
             @click-icon="onClickDealingPartner"
             @keydown="onKeyDownSelect"
             @clear="onClearSelect"
           />
+          <!-- :custom-messages="{ required:$t('MSG_ALT_USE_DT_SRCH_AF') }" -->
         </kw-search-item>
       </kw-search-row>
     </kw-search>
@@ -150,7 +151,7 @@
 // -------------------------------------------------------------------------------------------------
 
 import dayjs from 'dayjs';
-import { defineGrid, getComponentType, gridUtil, modal, useDataService, useMeta, alert, confirm, notify, useModal } from 'kw-lib';
+import { defineGrid, getComponentType, gridUtil, modal, useDataService, useMeta, alert, confirm, notify, useModal, validate } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 
 const { getConfig } = useMeta();
@@ -240,6 +241,16 @@ const itgDpNo = ref();
 const cntrNo = ref();
 const isCheckReadonly = ref(true);
 let cachedParams;
+
+const validateChk = computed(() => async (val, options) => {
+  const errors = [];
+
+  errors.push(
+    ...(await validate(searchParams.value.bzrno, 'required', options)).errors,
+  );
+
+  return errors[0] || true;
+});
 
 async function fetchData() {
   cachedParams = { ...cachedParams, ...pageInfo.value };
@@ -502,7 +513,7 @@ const initGrid1 = defineGrid((data, view) => {
       header: t('MSG_TXT_CLNT_NM'),
       // , header: '거래처명'
       width: '280',
-      styleName: 'text-left' },
+      styleName: 'text-center' },
     { fieldName: 'bzrno',
       header: t('MSG_TXT_CRNO'),
       // header: '사업자등록번호',
@@ -515,7 +526,12 @@ const initGrid1 = defineGrid((data, view) => {
       header: t('MSG_TXT_CNTR_DTL_NO'),
       // , header: '계약상세번호'
       width: '250',
-      styleName: 'text-left' },
+      styleName: 'text-center',
+      displayCallback(g, index) {
+        const param = g.getValues(index.itemIndex);
+        return `${param.cntrNo}-${param.cntrSn}`;
+      },
+    },
     { fieldName: 'sellAmt',
       header: t('MSG_TXT_AMT_WON'),
       // , header: '금액(원)'

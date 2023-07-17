@@ -405,7 +405,7 @@ const initGrid = defineGrid((data, view) => {
       width: '120' },
 
     { fieldName: 'crcdnoEncr',
-      header: t('MSG_TXT_CARD_NO'), // 카드번호
+      header: t('MSG_TXT_ACNO_CDNO'), // 계좌번호/카드번호
       width: '190',
       styleName: 'text-center',
       displayCallback(grid, index, value) {

@@ -346,11 +346,13 @@
           @click="onClickExcelDownload"
         />
         <kw-separator
+          v-if="isPerfVisile"
           vertical
           inset
           spaced
         />
         <kw-btn
+          v-if="isPerfVisile"
           :label="$t('MSG_BTN_FEE_PERF_CRT')"
           primary
           dense
@@ -358,6 +360,7 @@
           @click="openFeePerfCrtPopup"
         />
         <kw-btn
+          v-if="isPerfVisile"
           :label="$t('MSG_BTN_FEE_PERF_DTRM')"
           primary
           dense
@@ -365,6 +368,7 @@
           @click="openFeePerfCnfmPopup"
         />
         <kw-btn
+          v-if="isPerfVisile"
           :label="$t('MSG_BTN_FEE_PERF_DTRM_CAN')"
           primary
           dense
@@ -435,6 +439,7 @@ const isSelectVisile1 = ref(true);
 const isSelectVisile2 = ref(false);
 const isSelectVisile3 = ref(false);
 const isExcelDown = ref(false);
+const isPerfVisile = ref(false);
 
 const searchParams = ref({
   schInqrDv: '01',
@@ -522,16 +527,19 @@ async function onChangeInqrDv() {
       isSelectVisile1.value = false;
       isSelectVisile2.value = true;
       isSelectVisile3.value = false;
+      isPerfVisile.value = true;
     } else {
       isSelectVisile1.value = true;
       isSelectVisile2.value = false;
       isSelectVisile3.value = false;
+      isPerfVisile.value = false;
     }
     initSearchParams();
   } else if (schInqrDv === '02') {
     isSelectVisile1.value = false;
     isSelectVisile2.value = false;
     isSelectVisile3.value = true;
+    isPerfVisile.value = true;
     initSearchParams();
   }
 }
@@ -686,7 +694,7 @@ const initGrd1Main = defineGrid((data, view) => {
     { fieldName: 'istm' },
     { fieldName: 'stplMcnt' },
     { fieldName: 'mngtPrd' },
-    { fieldName: 'pdAccRslt' },
+    { fieldName: 'pdAccRslt', dataType: 'number' },
     { fieldName: 'basePrc', dataType: 'number' },
     { fieldName: 'homeCare' },
     { fieldName: 'hcrMshY3' },
@@ -731,7 +739,7 @@ const initGrd1Main = defineGrid((data, view) => {
     { fieldName: 'istm', header: t('MSG_TXT_ISTM'), width: '83.5', styleName: 'text-right' },
     { fieldName: 'stplMcnt', header: t('MSG_TXT_STPL_MCNT'), width: '84', styleName: 'text-right' },
     { fieldName: 'mngtPrd', header: t('MSG_TXT_MNGT_PRD'), width: '84', styleName: 'text-right' },
-    { fieldName: 'pdAccRslt', header: t('MSG_TXT_PD_ACC_RSLT'), width: '142', styleName: 'text-right' },
+    { fieldName: 'pdAccRslt', header: t('MSG_TXT_PD_ACC_RSLT'), width: '142', styleName: 'text-right', numberFormat: '#,###,##0' },
     { fieldName: 'basePrc', header: t('MSG_TXT_BASE_PRC'), width: '123.8', styleName: 'text-right', numberFormat: '#,###,##0' },
     { fieldName: 'homeCare', header: t('MSG_TXT_HOME_CARE'), width: '83.5', styleName: 'text-right' },
     { fieldName: 'hcrMshY3', header: t('MSG_TXT_HCR_MSH_Y3'), width: '141.2', styleName: 'text-center' },

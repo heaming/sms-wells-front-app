@@ -57,7 +57,11 @@ import {
   useDataService,
 } from 'kw-lib';
 import useGridDataModel from '~sms-common/contract/composable/useGridDataModel';
-import dayjs from 'dayjs';
+import {
+  validateBryyMmddWithCopnCdCd,
+  validateBzrnoWithCopnCdCd,
+  validatePdCd,
+} from '~sms-common/contract/util';
 
 const { t } = useI18n();
 const dataService = useDataService();
@@ -71,6 +75,7 @@ const pageInfo = ref({
   totalCount: 0,
 });
 const visibleRows = computed(() => Math.min(Math.max(pageInfo.value.totalCount, 1), 5));
+const uploaded = ref(false);
 let gridDataModel;
 
 const codes = await codeUtil.getMultiCodes(
@@ -88,6 +93,7 @@ const codes = await codeUtil.getMultiCodes(
 );
 
 async function onClickConfirm() {
+  uploaded.value = true;
   const rows = gridUtil.getAllRowValues(grdView.value);
   await dataService.post('/sms/wells/contract/bulk-upload/prospects', rows);
   notify('저장되었습니다.'); /* todo msg */
@@ -138,12 +144,13 @@ async function validate(data) {
 
 async function onClickExcelUpload() {
   grdData.value.clearRows();
+  uploaded.value = false;
   const { result, payload } = await modal({
     component: 'ZctzExcelUploadP',
     componentProps: {
-      columns: gridDataModel.columns,
+      columns: gridDataModel.dataModelObject,
       templateDocId: 'FOM_PROMISING_CUSTOMER_BATCH_UPLOAD',
-      headerRows: 1,
+      headerRows: 2,
       validationBtn: false,
       serverSideValidation: validate,
       serverSideValidateOption: { sideEffect: true },
@@ -160,31 +167,12 @@ async function onClickExcelUpload() {
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
 const initGrd = defineGrid((data, view) => {
-  function validateBirth(val, options) {
-    const { values } = options;
-    if (values.copnDvCd === '1') {
-      const valid = dayjs(val, 'YYYYMMDD', true)
-        .isValid();
-      return valid || '생년월일을 다시 입력해주세요.';
-    }
-    return true;
-  }
-
-  function validateBzrno(val, options) {
-    const { values } = options;
-    if (values.copnDvCd === '2') {
-      const valid = val?.length === 10;
-      return valid || '사업자등록번호는 10자로 입력해주세요.';
-    }
-    return true;
-  }
-
   gridDataModel = useGridDataModel(view, {
     basePdCd: {
       label: t('기준상품코드'),
       width: 133,
       required: true,
-      rules: 'alpha_num|max:10',
+      rules: validatePdCd,
       classes: 'text-center',
     },
     pspcCstInflwDt: {
@@ -200,9 +188,14 @@ const initGrd = defineGrid((data, view) => {
       label: t('MSG_TXT_BIRTH_DATE'),
       width: 128,
       classes: 'text-center',
-      rules: validateBirth,
+      rules: validateBryyMmddWithCopnCdCd,
     },
-    bzrno: { label: t('사업자번호'), width: 128, classes: 'text-center', rules: validateBzrno },
+    bzrno: {
+      label: t('사업자번호'),
+      width: 128,
+      classes: 'text-center',
+      rules: validateBzrnoWithCopnCdCd,
+    },
     sexDvCd: { label: t('MSG_TXT_GENDER_MF'), width: 128, options: codes.SEX_DV_CD },
     cralLocaraTno: {
       label: `${t('휴대')}1`,
@@ -236,8 +229,8 @@ const initGrd = defineGrid((data, view) => {
     },
     idvTno: { label: `${t('전화')}3`, width: 128, classes: 'text-center', rules: 'numeric|length:4' },
     zip: { label: t('MSG_TXT_ZIP'), width: 128, classes: 'text-center' },
-    adr1: { label: t('MSG_TXT_ADDR'), width: 275, classes: 'text-left' },
-    adr2: { label: t('MSG_TXT_ADDR'), width: 275, classes: 'text-left' },
+    adr1: { label: `${t('MSG_TXT_ADDR')}1`, width: 275, classes: 'text-left', required: true },
+    adr2: { label: `${t('MSG_TXT_ADDR')}2`, width: 275, classes: 'text-left' },
     alncmpDgPrtnrMapngCd: {
       label: t('대표파트너번호'),
       width: 146,
@@ -262,8 +255,8 @@ const initGrd = defineGrid((data, view) => {
         return alncmpDgPrtnrMapngCd?.userDfn02 || '';
       },
     },
-    rgstCost: { label: t('등록비'), type: Number, width: 146 },
-    chgMcn: { label: t('변동개월'), type: Number, width: 146 },
+    cntrAmt: { label: t('등록비'), type: Number, width: 146 },
+    cntrPtrm: { label: t('변동개월'), type: Number, width: 146 },
     svPdCd: { label: t('서비스상품코드'), width: 146, classes: 'text-center' }, /* 상품코드 긁어올까.. */
     rentalDscDvCd: { label: t('렌탈할인구분코드'), width: 146, options: codes.RENTAL_DSC_DV_CD },
     rentalDscTpCd: { label: t('렌탈할인유형코드'), width: 146, options: codes.RENTAL_DSC_TP_CD },
@@ -278,8 +271,8 @@ const initGrd = defineGrid((data, view) => {
     cnslMoCn: {
       valueCallback: (gridBase, rowId, fieldName, fields, values) => {
         const memo = {};
-        memo['등록비'] = values[fields.indexOf('rgstCost')];
-        memo['변동개월'] = values[fields.indexOf('chgMcn')];
+        memo['등록비'] = values[fields.indexOf('cntrAmt')];
+        memo['변동개월'] = values[fields.indexOf('cntrPtrm')];
         memo['서비스상품코드'] = values[fields.indexOf('svPdCd')];
         memo['렌탈할인구분코드'] = values[fields.indexOf('rentalDscDvCd')];
         memo['렌탈할인유형코드'] = values[fields.indexOf('rentalDscTpCd')];

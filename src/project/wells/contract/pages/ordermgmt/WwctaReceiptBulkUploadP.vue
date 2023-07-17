@@ -165,6 +165,7 @@
 <script setup>
 import { CtCodeUtil } from '~sms-common/contract/util';
 
+// eslint-disable-next-line no-unused-vars
 const props = defineProps({
   parent: {
     type: String,
@@ -185,8 +186,6 @@ const { codes } = await CtCodeUtil(
   'BFSVC_BZS_DV_CD',
   'SPLY_BZS_DV_CD',
 );
-
-console.log(props.parent);
 
 const userDfn03 = ref('');
 const userDfn03Options = computed(() => {

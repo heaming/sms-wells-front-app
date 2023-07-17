@@ -212,7 +212,7 @@ async function onClickAdd() {
   const view = grdMainRef.value.getView();
 
   await gridUtil.insertRowAndFocus(view, 0, {
-    pdCd: pdNm.value[0].codeId,
+    pdCd: pdNm.value[0]?.codeId,
     apyStrtdt: now.add('1', 'day').format('YYYYMMDD'),
     apyEnddt: '99991231' });
 }
@@ -260,9 +260,6 @@ async function onClickSave() {
   await dataService.post('sms/wells/service/installation-separation-costs', chkRows);
   notify(t('MSG_ALT_SAVE_DATA'));
   await fetchData();
-
-  console.log(!gridUtil.isCreatedRow(view, chkRows));
-  console.log(gridUtil.getRowState(view, chkRows));
 }
 
 onMounted(async () => {

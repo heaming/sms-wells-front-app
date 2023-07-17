@@ -387,6 +387,26 @@
                       </div>
                     </div>
                   </template>
+                  <template
+                    v-else-if="isItem.msh(item)"
+                  >
+                    <div class="scoped-item__field-row mb10">
+                      <kw-select
+                        v-if="item.stplPtrms"
+                        v-model="item.stplPtrm"
+                        :options="item.stplPtrms"
+                        placeholder="약정기간"
+                        @change="getPdAmts(item)"
+                      />
+                      <kw-select
+                        v-if="item.svPdCds"
+                        v-model="item.svPdCd"
+                        :options="item.svPdCds"
+                        placeholder="서비스(용도/방문주기)"
+                        @change="getPdAmts(item)"
+                      />
+                    </div>
+                  </template>
 
                   <template
                     v-if="item.opo?.opoYn"
@@ -602,9 +622,11 @@ const pdFilter = ref('');
 const cachedPdFilter = ref('');
 const classfiedPds = ref([]);
 const filteredClsfPds = ref([]);
+const isMshCntr = computed(() => step2.value.bas?.cntrTpCd === '07');
 const isItem = {
   spay: (i) => i.sellTpCd === '1',
   rntl: (i) => i.sellTpCd === '2',
+  msh: (i) => i.sellTpCd === '3',
   rgsp: (i) => i.sellTpCd === '6',
   crpCntr: () => step2.value.bas?.cntrTpCd === '02',
   welsf: (i) => i.lclsfVal === '05001003',
@@ -642,6 +664,7 @@ async function getPdAmts(pd) {
       sellDscTpCd: pd.sellDscTpCd,
       cntrAmt: pd.cntrAmt,
       cntrPtrm: pd.cntrPtrm,
+      rntlMcn: pd.rntlMcn,
     },
   });
   ['fnlAmt', 'vat', 'sellFee', 'ackmtPerfRt', 'ackmtPerfAmt', 'cvtPerfAmt',
@@ -659,6 +682,7 @@ async function getPdSels(pd) {
       sellInflwChnlDtlCd: step2.value.bas.sellInflwChnlDtlCd,
       pdCd: pd.pdCd,
       sellTpCd: pd.sellTpCd,
+      mshPdCds: pd.mshPdCds,
     },
   });
   return sels.data;
@@ -677,6 +701,12 @@ function resetCntrSn() {
 }
 
 async function onClickProduct(pd) {
+  if (isMshCntr.value && step2.value.dtls.length > 0) {
+    // 멤버십인 경우 상품 1개로 제한
+    await alert('멤버십계약은 1개의 상품만 선택 가능합니다.');
+    return;
+  }
+
   const npd = cloneDeep(pd);
   const sels = await getPdSels(pd);
   ['svPdCds', 'sellDscrCds', 'sellDscDvCds', 'alncmpCntrDrmVals',

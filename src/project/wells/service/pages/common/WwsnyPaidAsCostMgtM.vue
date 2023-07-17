@@ -332,7 +332,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'tcfeeAmt', dataType: 'number' }, // 기술료
     { fieldName: 'sumAmt', dataType: 'number' }, // 합계(소비자가+기술료)
     { fieldName: 'izSn' }, // 내역일련번호
-    { fieldName: 'basePdCd' }, // 사용자재상품코드
+    { fieldName: 'pdctPdCd' }, // 사용자재상품코드
   ];
 
   const columns = [
@@ -396,8 +396,8 @@ const initGrdMain = defineGrid((data, view) => {
   view.rowIndicator.visible = true;
 
   view.onCellEditable = (grid, itemIndex) => {
-    const { izSn, basePdCd, useMatPdCd } = gridUtil.getRowValue(grid, itemIndex.dataRow);
-    if ((isEmpty(izSn) || isEmpty(basePdCd) || isEmpty(useMatPdCd))
+    const { izSn, pdctPdCd, useMatPdCd } = gridUtil.getRowValue(grid, itemIndex.dataRow);
+    if ((isEmpty(izSn) || isEmpty(pdctPdCd) || isEmpty(useMatPdCd))
     && ['csmrUprcAmt', 'whlsUprcAmt', 'insiUprcAmt', 'tcfeeAmt', 'apyStrtdt', 'apyEnddt'].includes(itemIndex.column)) {
       return false;
     }
@@ -419,9 +419,9 @@ const initGrdMain = defineGrid((data, view) => {
   };
 
   view.setCheckableCallback((dataSource, item) => {
-    const { izSn, basePdCd, useMatPdCd } = gridUtil.getRowValue(view, item.dataRow);
+    const { izSn, pdctPdCd, useMatPdCd } = gridUtil.getRowValue(view, item.dataRow);
 
-    if (isEmpty(izSn) || isEmpty(basePdCd) || isEmpty(useMatPdCd)) {
+    if (isEmpty(izSn) || isEmpty(pdctPdCd) || isEmpty(useMatPdCd)) {
       return false;
     }
     return true;

@@ -34,17 +34,6 @@
             />
           </kw-search-item>
           <kw-search-item
-            :label="$t('MSG_TXT_ORDR')"
-          >
-            <kw-option-group
-              v-model="searchParams.tcntDvCd"
-              :label="$t('MSG_TXT_ORDR')"
-              type="radio"
-              :options="customCodes.div1Cd"
-              @change="onChangedOrdr"
-            />
-          </kw-search-item>
-          <kw-search-item
             :label="$t('MSG_TXT_DIV')"
             required
           >
@@ -246,17 +235,6 @@
             />
           </kw-search-item>
           <kw-search-item
-            :label="$t('MSG_TXT_ORDR')"
-          >
-            <kw-option-group
-              v-model="searchParams.tcntDvCd"
-              :label="$t('MSG_TXT_ORDR')"
-              type="radio"
-              :options="customCodes.div1Cd"
-              @change="onChangedOrdr"
-            />
-          </kw-search-item>
-          <kw-search-item
             :label="$t('MSG_TXT_DIV')"
             required
           >
@@ -266,6 +244,17 @@
               :options="customCodes.div4Cd"
               rules="required"
               @change="onChangedDvcd"
+            />
+          </kw-search-item>
+          <kw-search-item
+            :label="$t('MSG_TXT_ORDR')"
+          >
+            <kw-option-group
+              v-model="searchParams.tcntDvCd"
+              :label="$t('MSG_TXT_ORDR')"
+              type="radio"
+              :options="customCodes.div1Cd"
+              @change="onChangedOrdr"
             />
           </kw-search-item>
         </kw-search-row>
@@ -334,13 +323,13 @@
           @click="onClickExcel2Download"
         />
         <kw-separator
-          v-if="isSelectVisile4"
+          v-if="isPerfVisile"
           vertical
           inset
           spaced
         />
         <kw-btn
-          v-if="isSelectVisile4"
+          v-if="isPerfVisile"
           :label="$t('MSG_BTN_HDQ_PERF')+$t('MSG_BTN_AGRG')"
           secondary
           dense
@@ -348,13 +337,13 @@
           @click="openNtorAgrgPopup"
         />
         <kw-separator
-          v-if="isSelectVisile4"
+          v-if="isPerfVisile"
           vertical
           inset
           spaced
         />
         <kw-btn
-          v-if="isSelectVisile4"
+          v-if="isPerfVisile"
           :label="$t('MSG_BTN_HDQ_PERF')+$t('MSG_BTN_DTRM')"
           secondary
           dense
@@ -409,6 +398,7 @@ const isSelectVisile3 = ref(false);
 const isSelectVisile4 = ref(true);
 const isGrid1Visile = ref(true);
 const isGrid2Visile = ref(false);
+const isPerfVisile = ref(false);
 const now = dayjs();
 const grdMain1Ref = ref(getComponentType('KwGrid'));
 const grdMain2Ref = ref(getComponentType('KwGrid'));
@@ -445,6 +435,7 @@ const searchParams = ref({
   prtnrKnm: '',
   perfYm: now.add(-1, 'month').format('YYYYMM'),
   pdCd: '',
+  tcntDvTxt: '1차',
 });
 
 const info = ref({
@@ -452,35 +443,6 @@ const info = ref({
 });
 
 let cachedParams;
-
-/*
- *  Event - 조회구분 선택 시 하단 그리드 변경※
- */
-async function onChangedDvcd() {
-  const { schDvCd, schDv } = searchParams.value;
-  if (schDvCd === '01') { /* 상세선택 */
-    if (schDv === '04') {
-      isSelectVisile.value = false;
-      isSelectVisile3.value = true;
-    } else {
-      isSelectVisile.value = true;
-      isSelectVisile3.value = false;
-    }
-    isSelectVisile2.value = false;
-    isSelectVisile4.value = true;
-    isGrid1Visile.value = true;
-    isGrid2Visile.value = false;
-  } else if (schDvCd === '02') { /* 집계선택 */
-    isGrid1Visile.value = false;
-    isGrid2Visile.value = true;
-    isSelectVisile.value = false;
-    isSelectVisile2.value = true;
-    isSelectVisile3.value = false;
-    isSelectVisile4.value = false;
-    isExcelDown1.value = false;
-    isExcelDown2.value = false;
-  }
-}
 
 async function onClickExcelDownload() {
   const view = grdMain1Ref.value.getView();
@@ -552,9 +514,47 @@ async function onClickSearch() {
 }
 
 /*
+ *  Event - 조회구분 선택 시 하단 그리드 변경※
+ */
+async function onChangedDvcd() {
+  const { schDvCd, schDv } = searchParams.value;
+  if (schDvCd === '01') { /* 상세선택 */
+    if (schDv === '04') {
+      isSelectVisile.value = false;
+      isSelectVisile3.value = true;
+      isPerfVisile.value = true;
+    } else {
+      isSelectVisile.value = true;
+      isSelectVisile3.value = false;
+      isPerfVisile.value = false;
+    }
+    isSelectVisile4.value = true;
+    isSelectVisile2.value = false;
+    isGrid1Visile.value = true;
+    isGrid2Visile.value = false;
+  } else if (schDvCd === '02') { /* 집계선택 */
+    isGrid1Visile.value = false;
+    isGrid2Visile.value = true;
+    isSelectVisile.value = false;
+    isSelectVisile2.value = true;
+    isSelectVisile3.value = false;
+    isSelectVisile4.value = false;
+    isPerfVisile.value = false;
+    isExcelDown1.value = false;
+    isExcelDown2.value = false;
+  }
+}
+
+/*
  *  Event - 회차 선택시 집계버튼 사용여부 조회※
  */
 async function onChangedOrdr() {
+  const { tcntDvCd } = searchParams.value;
+  if (tcntDvCd === '01') {
+    searchParams.value.tcntDvTxt = '1차';
+  } else if (tcntDvCd === '02') {
+    searchParams.value.tcntDvTxt = '2차';
+  }
   cachedParams = cloneDeep(searchParams.value);
   await fetchData('confirmChk');
 }
@@ -611,6 +611,7 @@ async function openNtorAgrgPopup() {
   const param = {
     perfYm: now.add(-1, 'month').format('YYYY-MM'),
     tcntDvCd: searchParams.value.tcntDvCd,
+    tcntDvTxt: searchParams.value.tcntDvTxt,
   };
 
   const { result: isChanged } = await modal({
@@ -630,6 +631,7 @@ async function openNtorConfirmPopup() {
   const param = {
     perfYm: now.add(-1, 'month').format('YYYY-MM'),
     tcntDvCd: searchParams.value.tcntDvCd,
+    tcntDvTxt: searchParams.value.tcntDvTxt,
   };
 
   const { result: isChanged } = await modal({
