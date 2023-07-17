@@ -229,6 +229,9 @@ const initBusinessToBusinessBoDetailList = defineGrid((data, view) => {
       data.setValue(updateRow, 'basePdCd', isEmpty(returnPdInfo.payload?.[0].pdCd) ? '' : returnPdInfo.payload?.[0].pdCd);
       data.setValue(updateRow, 'pdNm', isEmpty(returnPdInfo.payload?.[0].pdNm) ? '' : returnPdInfo.payload?.[0].pdNm);
       data.setValue(updateRow, 'pdClsfNm', !isEmpty(pdClsfNm[1]) ? pdClsfNm[1] : '');
+    } else {
+      data.setValue(updateRow, 'pdNm', '');
+      data.setValue(updateRow, 'pdClsfNm', '');
     }
   };
   view.onCellEdited = async function cellEdited(grid, itemIndex, dataRow, fieldIndex) {
@@ -251,6 +254,9 @@ const initBusinessToBusinessBoDetailList = defineGrid((data, view) => {
         data.setValue(updateRow, 'basePdCd', isEmpty(returnPdInfo.payload?.[0].pdCd) ? '' : returnPdInfo.payload?.[0].pdCd);
         data.setValue(updateRow, 'pdNm', isEmpty(returnPdInfo.payload?.[0].pdNm) ? '' : returnPdInfo.payload?.[0].pdNm);
         data.setValue(updateRow, 'pdClsfNm', !isEmpty(pdClsfNm[1]) ? pdClsfNm[1] : '');
+      } else {
+        data.setValue(updateRow, 'pdNm', '');
+        data.setValue(updateRow, 'pdClsfNm', '');
       }
     }
   };
