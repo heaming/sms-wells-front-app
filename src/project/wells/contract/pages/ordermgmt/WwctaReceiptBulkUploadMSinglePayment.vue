@@ -119,7 +119,7 @@ async function onClickExcelUpload() {
     component: 'ZctzExcelUploadP',
     componentProps: {
       columns: gridDataModel.dataModelObject,
-      templateDocId: 'FOM_PROMISING_CUSTOMER_BATCH_UPLOAD',
+      templateDocId: 'FOM_ONEOFF_CONTRACT_BATCH_UPLOAD',
       headerRows: 2,
       validationBtn: false,
       serverSideValidation: validate,
