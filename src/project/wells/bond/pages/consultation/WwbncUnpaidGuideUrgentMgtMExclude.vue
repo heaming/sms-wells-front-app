@@ -5,18 +5,18 @@
 1. 모듈 : BNA
 2. 프로그램 ID : WwbncUnpaidGuideUrgentMgtMExclude ( W-BN-U-0032M01 ) - 미납요금 안내/촉구 대상 제외관리(탭)
 3. 작성자 : gilyong.han
-4. 작성일 : 2023.03.24
+4. 작성일 : 2023.07.12
 ****************************************************************************************************
 * 프로그램 설명
 ****************************************************************************************************
-- 미납요금 안내서, 촉구서를 생성 및 조회한다.
+- 미납요금 안내서, 촉구서 제외대상을 관리한다.
 ****************************************************************************************************
 --->
 <template>
   <kw-search
     :cols="2"
     one-row
-    :modified-targets="['grdMainExclude']"
+    :modified-targets="['grdExclude']"
     @search="onClickSearch"
   >
     <kw-search-row>
@@ -73,9 +73,9 @@
     </kw-action-top>
 
     <kw-grid
-      ref="grdMainRefExclude"
+      ref="grdExcludeRef"
       :visible-rows="10"
-      name="grdMainExclude"
+      name="grdExclude"
       @init="initGridExclude"
     />
   </div>
@@ -100,7 +100,7 @@ import { cloneDeep } from 'lodash-es';
 const dataService = useDataService();
 const { notify, modal } = useGlobal();
 const { t } = useI18n();
-const grdMainRefExclude = ref(getComponentType('kw-grid'));
+const grdExcludeRef = ref(getComponentType('kw-grid'));
 const totalCount = ref(0);
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -121,7 +121,7 @@ async function fetchData() {
   const { data } = await dataService.get(baseUrl, { params: { ...cachedParams } });
   totalCount.value = data?.length;
 
-  const view = grdMainRefExclude.value.getView();
+  const view = grdExcludeRef.value.getView();
 
   view.getDataSource().setRows(data);
   view.resetCurrent();
@@ -133,7 +133,7 @@ async function onClickSearch() {
 }
 
 const onClickSave = async () => {
-  const view = grdMainRefExclude.value.getView();
+  const view = grdExcludeRef.value.getView();
   if (await gridUtil.alertIfIsNotModified(view)) { return; }
   if (!await gridUtil.validate(view)) { return; }
 
