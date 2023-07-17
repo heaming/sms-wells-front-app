@@ -180,7 +180,7 @@
               {{ $t('MSG_TXT_THM_RTLFE') }}
             </p>
             <span class="current-result-number--blue">
-              {{ `${isEmpty(payments?.thisRentalAmt)?'':stringUtil.getNumberWithComma(payments?.thisRentalAmt)}원` }}
+              {{ `${isEmpty(payments?.thisRentalAmt)?'0':stringUtil.getNumberWithComma(payments?.thisRentalAmt)} 원` }}
             </span>
           </div>
           <kw-separator
@@ -192,7 +192,7 @@
               {{ $t('MSG_TXT_PY_FSH') }}
             </p>
             <span class="current-result-number">
-              {{ `${isEmpty(payments?.pyAmt)?'':stringUtil.getNumberWithComma(payments?.pyAmt)}원` }}
+              {{ `${isEmpty(payments?.pyAmt)?'0':stringUtil.getNumberWithComma(payments?.pyAmt)} 원` }}
             </span>
           </div>
         </div>
@@ -204,9 +204,11 @@
             {{ $t('MSG_TXT_DLQ') }}
           </p>
           <p class="dashboard-solid-box--content">
-            <span>{{ `${$t('MSG_TXT_DLQAM')} ${stringUtil.getNumberWithComma(payments?.dlqAmt)}원` }}</span>
+            <span>{{ `${$t('MSG_TXT_DLQAM')} ${isEmpty(payments?.dlqAmt)
+              ?'0':stringUtil.getNumberWithComma(payments?.dlqAmt)} 원` }}</span>
             <span>{{ `${$t('MSG_TXT_DLQ_TN')} ${payments?.dlqMcn}` }}</span>
-            <span>{{ `${$t('MSG_TXT_FNL_PY')} ${dayjs(payments?.fnlPyDt).format('YYYY-MM-DD')}` }}</span>
+            <span>{{ `${$t('MSG_TXT_FNL_PY')} ${isEmpty(payments?.fnlPyDt)
+              ?'':dayjs(payments?.fnlPyDt).format('YYYY-MM-DD')}` }}</span>
           </p>
         </div>
         <div
@@ -218,7 +220,8 @@
           </p>
           <p class="dashboard-solid-box--content">
             <span>{{ `${$t('MSG_TXT_DLQ_PD_N')} ${payments?.dlqPdCount}` }}</span>
-            <span>{{ `${$t('MSG_TXT_TOT_DLQ_AM')} ${stringUtil.getNumberWithComma(payments?.dlqAmt)}원` }}</span>
+            <span>{{ `${$t('MSG_TXT_TOT_DLQ_AM')} ${isEmpty(payments?.dlqAmt)
+              ?'0':stringUtil.getNumberWithComma(payments?.dlqAmt)} 원` }}</span>
             <span>{{ `${$t('MSG_TXT_DLQ_TN')} ${payments?.dlqMcn}` }}</span>
           </p>
         </div>
@@ -230,8 +233,9 @@
             {{ $t('MSG_TXT_DLQ') }}
           </p>
           <p class="dashboard-solid-box--content">
-            <span>{{ `${$t('MSG_TXT_CNTR_CAN_PD_N')} ${payments?.cancelCount}건` }}</span>
-            <span>{{ `${$t('MSG_TXT_TOT_CCAM')} ${stringUtil.getNumberWithComma(payments?.cancelFeeAmt)}원` }}</span>
+            <span>{{ `${$t('MSG_TXT_CNTR_CAN_PD_N')} ${payments?.cancelCount} 건` }}</span>
+            <span>{{ `${$t('MSG_TXT_TOT_CCAM')} ${isEmpty(payments?.cancelFeeAmt)
+              ?'0':stringUtil.getNumberWithComma(payments?.cancelFeeAmt)} 원` }}</span>
           </p>
         </div>
         <kw-separator />
@@ -377,7 +381,7 @@
                     vertical
                     class="my5 mx20"
                   />
-                  <span>{{ `월 ${stringUtil.getNumberWithComma(product.fnlAmt)}원` }}</span>
+                  <span>{{ `월 ${isEmpty(product.fnlAmt)?'0':stringUtil.getNumberWithComma(product.fnlAmt)} 원` }}</span>
                 </div>
 
                 <kw-separator class="my12" />
