@@ -117,9 +117,9 @@ const akChdt = now.format('YYYYMMDD');
 
 const strDomain = window.location.host;
 
-const visitCocnMshCh = `${strDomain}/tablet/#/ns/ztwda-auto-transfer-payment-change?vstYn=Y&chRqrDvCd=2&aftnThpChYn=N&clctamMngtYn=N&akChdt=${akChdt}`; // 방문
+const visitCocnMshCh = `${strDomain}/tablet/#/withdrawal/ztwda-auto-transfer-payment-change?vstYn=Y&chRqrDvCd=2&aftnThpChYn=N&clctamMngtYn=N&akChdt=${akChdt}`; // 방문
 // eslint-disable-next-line no-unused-vars
-const elsgLdstcCh = `${strDomain}/tablet/#/ns/ztwda-auto-transfer-payment-change?vstYn=N&chRqrDvCd=1&aftnThpChYn=N&clctamMngtYn=N&akChdt=${akChdt}`; // 원거리
+const elsgLdstcCh = `${strDomain}/tablet/#/withdrawal/ztwda-auto-transfer-payment-change?vstYn=N&chRqrDvCd=1&aftnThpChYn=N&clctamMngtYn=N&akChdt=${akChdt}`; // 원거리
 
 async function onClickChange() {
   const query = {
@@ -138,7 +138,7 @@ async function onClickChange() {
 
 // 알림톡 발송
 async function onClickAlarmSend() {
-  const deviceScreen = '/#/ns/ztwda-auto-transfer-payment-change?';
+  const deviceScreen = '/#/withdrawal/ztwda-auto-transfer-payment-change?';
   const nsUrl = '/anonymous/login?redirectUrl=';
 
   const params = {
@@ -165,7 +165,7 @@ async function onClickAlarmSend() {
 
 onMounted(async () => {
   if (!window.opener) {
-    const path = '/tablet/#/ns/wtwda-auto-transfer-change-mgt';
+    const path = '/tablet/#/withdrawal/wtwda-auto-transfer-change-mgt';
     const size = {
       width: 1138,
       height: 712,
