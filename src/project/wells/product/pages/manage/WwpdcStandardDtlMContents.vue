@@ -182,7 +182,7 @@ async function onClickUpdate() {
 // 매출인식분류코드
 async function fetechSaleRecognitionClassification(slRcogClsfCd) {
   if (slRcogClsfCd) {
-    const res = await dataService.get(`/sms/wells/product/standards/recogn-class/${slRcogClsfCd}`);
+    const res = await dataService.get(`/sms/common/product/standards/recogn-class/${slRcogClsfCd}`);
     return res.data?.slRcogClsfNm;
   }
 }
