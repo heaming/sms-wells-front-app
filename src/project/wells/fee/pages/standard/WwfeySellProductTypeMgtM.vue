@@ -303,7 +303,7 @@ const initGrd = defineGrid((data, view) => {
     if (gridUtil.isCreatedRow(grid, index.dataRow) && ['basePdCd', 'feePdctTpCd1', 'feePdctTpCd2', 'apyStrtYm', 'apyEndYm'].includes(index.column)) {
       return true;
     }
-    if (gridUtil.isReadRow(grid, index.dataRow) && ['apyEndYm', 'feePdctTpCd1', 'feePdctTpCd2'].includes(index.column)) {
+    if (!gridUtil.isCreatedRow(grid, index.dataRow) && ['apyEndYm', 'feePdctTpCd1', 'feePdctTpCd2'].includes(index.column)) {
       return true;
     }
     return false;
