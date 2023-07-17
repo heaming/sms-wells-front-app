@@ -122,6 +122,7 @@ async function onClickExcelUpload() {
       templateDocId: 'FOM_ONEOFF_CONTRACT_BATCH_UPLOAD',
       headerRows: 2,
       validationBtn: false,
+      downloadBtn: false,
       serverSideValidation: validate,
       serverSideValidateOption: { sideEffect: true },
     },
@@ -174,7 +175,7 @@ const initGrd = defineGrid((data, view) => {
     },
     spayDscDvCd: { label: t('일시불할인구분코드'), width: 146, options: codes.SPAY_DSC_DV_CD },
     spayDscrCd: { label: t('일시불할인율코드?'), width: 146, options: codes.SPAY_DSCR_CD },
-    sellDscCtrAmt: { label: t('법인특별할인금액'), type: Number, width: 146 }, /* 판매할인조정금액 */
+    sellDscCtrAmt: { label: t('법인특별할인금액'), type: Number, width: 146, required: true }, /* 판매할인조정금액 */
     frisuBfsvcPtrmN: { label: t('무상멤버십기간'), type: Number, width: 146 }, /* 무상BS기간수 */
     svPdCd: { label: t('서비스상품코드'), width: 146, classes: 'text-center' }, /* 상품코드 긁어올까.. */
     copnDvCd: { label: t('개인법인구분'), width: 146, options: codes.COPN_DV_CD, required: true },
