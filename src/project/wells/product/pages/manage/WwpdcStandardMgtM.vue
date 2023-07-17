@@ -519,7 +519,7 @@ async function setSellDetailTypeCodes(sellTpCd, isReset = false) {
 // 매출인식분류코드
 async function fetechSaleRecognitionClassification(slRcogClsfCd) {
   if (slRcogClsfCd) {
-    const res = await dataService.get(`/sms/wells/product/standards/recogn-class/${slRcogClsfCd}`);
+    const res = await dataService.get(`/sms/common/product/standards/recogn-class/${slRcogClsfCd}`);
     return res.data?.slRcogClsfNm;
   }
 }
@@ -542,7 +542,7 @@ async function openPopup(field) {
   if (field.colNm === 'slRcogClsfCd') {
     const rtn = await modal({
       // ZwwdcSalesRecognitionBaseMgtP
-      component: field.sourcInfCn,
+      component: field.sourcInfCn ?? 'ZwwdcSalesRecognitionBaseMgtP',
       componentProps: searchParams,
     });
     if (rtn && rtn.payload && rtn.result) {
@@ -576,10 +576,13 @@ async function setMountData() {
   const baseAttrFields = await cmpStepRefs.value[0]?.value.getNameFields();
   await setSellDetailTypeCodes(baseAttrFields.sellTpCd?.initValue);
   const mangeAttrFields = await cmpStepRefs.value[2]?.value.getNameFields();
-  mangeAttrFields.slRcogClsfCd.readonly = true;
-  mangeAttrFields.slRcogClsfCd.initName = await fetechSaleRecognitionClassification(
-    mangeAttrFields.slRcogClsfCd?.initValue,
-  );
+  // 매출인식분류코드
+  if (mangeAttrFields.slRcogClsfCd) {
+    mangeAttrFields.slRcogClsfCd.readonly = true;
+    mangeAttrFields.slRcogClsfCd.initName = await fetechSaleRecognitionClassification(
+      mangeAttrFields.slRcogClsfCd?.initValue,
+    );
+  }
 }
 
 // 초기화 버튼
