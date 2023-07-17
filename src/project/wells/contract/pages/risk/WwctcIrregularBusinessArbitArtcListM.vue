@@ -90,6 +90,7 @@
             v-model="searchParams.dangOjPrtnrNo"
             icon="search"
             maxlength="10"
+            type="number"
             @click-icon="onClickSearchPartnerId"
           />
         </kw-search-item>
