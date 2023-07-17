@@ -106,7 +106,7 @@
           icon="print"
           dense
           secondary
-          :label="$t('인쇄')"
+          :label="$t('MSG_BTN_PRTG')"
           @click="onClickPrint"
         />
         <kw-btn
@@ -323,7 +323,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'siteAwSvTpCd' },
     { fieldName: 'rpbLocaraCd' },
     { fieldName: 'pdUswyCd' },
-    { fieldName: 'urgtYn' },
+    { fieldName: 'urgtDvCd' },
     { fieldName: 'wellsReqdDt' },
   ];
 
