@@ -3,7 +3,7 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : SNY
-2. 프로그램 ID : WwsnyPaidAsServiceCostMgtM  - 유상A/S 서비스비용 관리
+2. 프로그램 ID : WwsnyPaidAsServiceCostMgtM  - [W-SV-U-0159M01]유상A/S 서비스비용 관리
 3. 작성자 : kyunglyn.lee
 4. 작성일 : 2023.03.08
 ****************************************************************************************************
@@ -219,6 +219,7 @@ const pdGr = ref();
 const onChangeHgrPdCd = async () => {
   const res = await dataService.get('/sms/wells/service/paid-as-costs/filter-products', { params: searchParams.value });
   pdGr.value = res.data;
+  searchParams.value.pdCd = '';
 };
 
 const isHgrPdCd = ref(false);

@@ -187,6 +187,10 @@ async function onClickSend() {
   const view = grdTradeSpcshBlkPwMgtList.value.getView();
 
   const checkRows = gridUtil.getCheckedRowValues(view);
+  if (checkRows.length === 0) {
+    notify(t('MSG_ALT_CHK_ID', [t('MSG_TXT_FW_CN')]));
+    return;
+  }
   await dataService.post('sms/wells/contract/contracts/send-trade-specification-sheets', checkRows);
 
   notify(t('MSG_ALT_SAVE_DATA'));

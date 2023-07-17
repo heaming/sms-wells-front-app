@@ -616,7 +616,7 @@ const initGrid2 = defineGrid((data, view) => {
       header: t('MSG_TXT_RVE_CD'),
       // , header: '수납코드'
       width: '80',
-      styleName: 'text-left',
+      styleName: 'text-center',
       editable: false },
     { fieldName: 'billBndNo',
       header: t('MSG_TXT_BND_NO'),
@@ -628,7 +628,7 @@ const initGrid2 = defineGrid((data, view) => {
       header: t('MSG_TXT_BILL_DV'),
       // , header: '어음구분'
       width: '120',
-      styleName: 'text-left',
+      styleName: 'text-center',
       editable: false },
     { fieldName: 'billRcpDt',
       header: t('MSG_TXT_RCPDT'),
