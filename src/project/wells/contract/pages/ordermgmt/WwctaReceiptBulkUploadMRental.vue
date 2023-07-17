@@ -180,7 +180,7 @@ const initGrd = defineGrid((data, view) => {
     rentalDscTpCd: { label: t('렌탈할인유형코드'), width: 146, options: codes.RENTAL_DSC_TP_CD },
     rentalDscDvCd: { label: t('렌탈할인구분코드'), width: 146, options: codes.RENTAL_DSC_DV_CD },
     rentalCrpDscrCd: { label: t('렌탈법인할인율코드'), width: 146, options: codes.RENTAL_CRP_DSCR_CD },
-    sellDscCtrAmt: { label: t('법인특별할인금액'), type: Number, width: 146 }, /* 판매할인조정금액 */
+    sellDscCtrAmt: { label: t('법인특별할인금액'), type: Number, width: 146, required: true }, /* 판매할인조정금액 */
     cstKnm: { label: t('고객명'), width: 146, classes: 'text-center', required: true },
     bryyMmdd: {
       label: t('MSG_TXT_BIRTH_DATE'),
