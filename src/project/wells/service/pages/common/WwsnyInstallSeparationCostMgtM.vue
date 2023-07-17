@@ -76,6 +76,7 @@
         <kw-btn
           grid-action
           :label="$t('MSG_BTN_ROW_ADD')"
+          :disable="isDisable"
           @click="onClickAdd"
         />
         <kw-separator
@@ -134,7 +135,7 @@ import {
   gridUtil,
   notify,
 } from 'kw-lib';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, isEmpty } from 'lodash-es';
 
 const { t } = useI18n();
 const { getConfig } = useMeta();
@@ -167,6 +168,7 @@ const searchParams = ref({
   pdGr: '',
   apyMtrChk: 'N',
 });
+const isDisable = computed(() => (isEmpty(searchParams.value.pdGr)));
 
 async function onChangePdGr() {
   const res = await dataService.get('/sms/wells/service/installation-separation-costs/filter-products', { params: searchParams.value });
