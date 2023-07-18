@@ -755,14 +755,14 @@ async function onClickOnePlusOne(pd) {
   });
   if (res.result && res.payload) {
     pd.opo = {
-      opoYn: res.result,
+      opoYn: true,
       ojCntrNo: res.payload.cntrNo,
       ojCntrSn: res.payload.cntrSn,
       pdNm: res.payload.pdNm,
     };
     pd.cntrRelDtlCd = '215';
     pd.sellDscTpCd = '03';
-    pd.rentalDiscountFixed = true;
+    pd.isRentalDiscountFixed = true;
   }
 }
 
