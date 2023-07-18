@@ -289,24 +289,26 @@
               :label="t('MSG_BTN_SPP_INQR_ETC')"
               @click="onClickInstallEtc(item)"
             />
-            <!-- 접수 -->
-            <kw-btn
-              v-show="(item.acpgStat === '1' || item.acpgStat === '9') && item.istPcsvSellTpCd === '1'"
-              :label="t('MSG_BTN_RECEIPT')"
-              @click="onClickReceipt(item)"
-            />
-            <!-- 재접수 -->
-            <kw-btn
-              v-show="item.kaetc1 === '7' && item.acpgStat === '2' && item.istPcsvSellTpCd === '1'"
-              :label="t('MSG_BTN_RE_REG')"
-              @click="onClickReRegistration(item)"
-            />
-            <!-- 배정취소 -->
-            <kw-btn
-              v-show="item.acpgStat === '2' && item.istPcsvSellTpCd === '1'"
-              :label="t('MSG_BTN_CNCL_ASGMT')"
-              @click="onClickCnclAsgmt(item)"
-            />
+            <div v-show="item.lcCanyn === 'N'">
+              <!-- 접수 -->
+              <kw-btn
+                v-show="(item.acpgStat === '1' || item.acpgStat === '9') && item.istPcsvSellTpCd === '1'"
+                :label="t('MSG_BTN_RECEIPT')"
+                @click="onClickReceipt(item)"
+              />
+              <!-- 재접수 -->
+              <kw-btn
+                v-show="item.kaetc1 === '7' && item.acpgStat === '2' && item.istPcsvSellTpCd === '1'"
+                :label="t('MSG_BTN_RE_REG')"
+                @click="onClickReRegistration(item)"
+              />
+              <!-- 배정취소 -->
+              <kw-btn
+                v-show="item.acpgStat === '2' && item.istPcsvSellTpCd === '1'"
+                :label="t('MSG_BTN_CNCL_ASGMT')"
+                @click="onClickCnclAsgmt(item)"
+              />
+            </div>
           </kw-card-actions>
         </kw-card>
         <!-- 배송 카드 -->
@@ -776,7 +778,7 @@ async function callKiwiTimeAssign(dataList, prdDiv) {
         componentProps: {
           sellDate: dataList.rcpdt, // 판매일자
           baseYm: now.format('YYYYMM'), // 달력 초기 월
-          chnlDvCd: dataList.inChnlDvCd, // W: 웰스, K: KSS, C: CubicCC, P: K-MEMBERS, I || E: 엔지니어, M: 매니저
+          chnlDvCd: 'K', // W: 웰스, K: KSS, C: CubicCC, P: K-MEMBERS, I || E: 엔지니어, M: 매니저
           svDvCd: svDvCdParam, // 1:설치, 2:BS, 3:AS, 4:홈케어
           svBizDclsfCd: svBizDclsfCdParam, // 판매인 경우 1110(신규설치) fix
           cntrNo: dataList.cntrNo,
