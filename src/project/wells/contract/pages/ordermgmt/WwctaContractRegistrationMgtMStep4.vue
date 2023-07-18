@@ -13,7 +13,9 @@
 ****************************************************************************************************
 --->
 <template>
-  <kw-scroll-area class="h490">
+  <kw-scroll-area
+    visible
+  >
     <div class="pr20">
       <h3 class="mt0">
         계약자정보-{{ codes.CNTR_TP_CD.find((code) => code.codeId === step4.bas?.cntrTpCd)?.codeName }}

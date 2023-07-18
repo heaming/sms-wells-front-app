@@ -15,7 +15,6 @@
 <template>
   <kw-scroll-area
     visible
-    class="h490"
   >
     <template
       v-for="(item, idx) in step3.dtls"
