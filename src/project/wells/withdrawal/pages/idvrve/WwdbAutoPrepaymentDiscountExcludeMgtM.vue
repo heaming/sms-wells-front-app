@@ -115,6 +115,7 @@
       <kw-grid
         ref="grdMainRef"
         name="grdMain"
+        :visible-rows="10"
         :page-size="pageInfo.pageSize"
         :total-count="pageInfo.totalCount"
         @init="initGrid"
@@ -309,7 +310,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'prmDscExcdStrtYm' }, // 선납제외시작월
     { fieldName: 'prmDscExcdEndYm' }, // 선납제외종료월
     { fieldName: 'prmStrtDate' }, // 선납시작일
-    { fieldName: 'slCtrAmt' }, // 조정값
+    { fieldName: 'slCtrAmt', dataType: 'number' }, // 조정값
     { fieldName: 'fstRgstDtm' }, // 등록일시
     { fieldName: 'fstRgstUsrId' }, // 등록자 id
     { fieldName: 'fstRgstUsrNm' }, // 등록자
@@ -401,10 +402,11 @@ const initGrid = defineGrid((data, view) => {
       // , header: '선납시작월'
       width: '100',
       styleName: 'text-center',
+      datetimeFormat: 'YYYY-MM',
       editable: false },
-
     { fieldName: 'slCtrAmt',
       header: t('MSG_TXT_CTR_AMT'),
+      numberFormat: '#,##0',
       // , header: '조정금액'
       width: '100',
       styleName: 'text-right',

@@ -176,6 +176,7 @@
       <kw-grid
         ref="grdMainRef2"
         name="grdMain"
+        visible-rows="5"
         :page-size="pageInfoSecond.pageSize"
         :total-count="pageInfoSecond.totalCount"
         @init="initGrid2"
@@ -386,11 +387,13 @@ async function onClickExcelMainDownload() {
 // 엑셀다운로드
 async function onClickExcelSubDownload() {
   const view = grdMainRef2.value.getView();
-  const res = await dataService.get('/sms/wells/withdrawal/idvrve/bill-deposits/electronic-detail/excel-download', { params: cachedSubParams });
+  // eslint-disable-next-line max-len
+  // const res = await dataService.get('/sms/wells/withdrawal/idvrve/bill-deposits/electronic-detail/excel-download', { params: cachedSubParams });
+  // console.log(res);
   await gridUtil.exportView(view, {
     fileName: `${currentRoute.value.meta.menuName}_전자어음거래 상세현황`,
     timePostfix: true,
-    exportData: res.data,
+    // exportData: res.data,
   });
 }
 
@@ -429,6 +432,8 @@ async function onClickTest() {
 const initGrid = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'cntrNo' }, /* 계약번호 */
+    { fieldName: 'cntrSn' }, /* 계약일련번호 */
+    { fieldName: 'cntrDtlNo' }, /* 계약상세번호 */
     { fieldName: 'mconBzsNm' }, /* 거래처명 */
     { fieldName: 'billRmkCn' }, /* 어음구분 */
     { fieldName: 'billDpAmt', dataType: 'number' }, /* 입금액 */
@@ -446,11 +451,16 @@ const initGrid = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'cntrNo',
-      header: t('MSG_TXT_CNTR_NO'),
-      // , header: '계약번호'
-      width: '125',
-      styleName: 'text-left' },
+    { fieldName: 'cntrDtlNo',
+      header: t('MSG_TXT_CNTR_DTL_NO'),
+      // , header: '계약상세번호'
+      width: '150',
+      styleName: 'text-center',
+      displayCallback(g, index) {
+        const { cntrNo, cntrSn } = g.getValues(index.itemIndex);
+        return `${cntrNo}-${cntrSn}`;
+      },
+    },
     { fieldName: 'mconBzsNm',
       header: '거래처명',
       width: '125',
@@ -459,11 +469,11 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'billRmkCn',
       header: t('MSG_TXT_BILL_DV'),
       // , header: '어음구분'
-      width: '130' },
+      width: '150' },
     { fieldName: 'billDpAmt',
     // , header: '입금액'
       header: t('MSG_TXT_DP_AMT'),
-      width: '143',
+      width: '130',
       styleName: 'text-right',
       numberFormat: '#,##0' },
     { fieldName: 'billRcpDt',
@@ -506,7 +516,7 @@ const initGrid = defineGrid((data, view) => {
       header: t('MSG_TXT_ITG_DP_NO'),
       // , header: '통합입금번호'
       width: '116',
-      styleName: 'text-left' },
+      styleName: 'text-center' },
     { fieldName: 'col3',
       header: t('MSG_TXT_DP_SLIP_NO'),
       // , header: '입금전표번호'
@@ -600,13 +610,13 @@ const initGrid2 = defineGrid((data, view) => {
       header: t('MSG_TXT_ITG_DP_NO'),
       // , header: '통합입금번호'
       width: '126',
-      styleName: 'text-left',
+      styleName: 'text-center',
       editable: false },
     { fieldName: 'rveCd',
       header: t('MSG_TXT_RVE_CD'),
       // , header: '수납코드'
       width: '80',
-      styleName: 'text-left',
+      styleName: 'text-center',
       editable: false },
     { fieldName: 'billBndNo',
       header: t('MSG_TXT_BND_NO'),
@@ -618,7 +628,7 @@ const initGrid2 = defineGrid((data, view) => {
       header: t('MSG_TXT_BILL_DV'),
       // , header: '어음구분'
       width: '120',
-      styleName: 'text-left',
+      styleName: 'text-center',
       editable: false },
     { fieldName: 'billRcpDt',
       header: t('MSG_TXT_RCPDT'),
@@ -638,8 +648,12 @@ const initGrid2 = defineGrid((data, view) => {
       header: t('MSG_TXT_CNTR_DTL_NO'),
       // , header: '계약상세번호'
       width: '120',
-      styleName: 'text-left',
-      editable: false },
+      styleName: 'text-center',
+      editable: false,
+      displayCallback(g, index) {
+        const { cntrNo, cntrSn } = g.getValues(index.itemIndex);
+        return `${cntrNo}-${cntrSn}`;
+      } },
     {
       fieldName: 'billDpAmt',
       header: {

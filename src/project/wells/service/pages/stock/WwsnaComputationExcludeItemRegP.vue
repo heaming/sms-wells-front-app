@@ -296,8 +296,8 @@ async function onClickSearch() {
 // 삭제
 async function onClickDelete() {
   const view = grdMainRef.value.getView();
-  const checkedRows = await gridUtil.getCheckedRowValues(view);
-  if (checkedRows.length === 0) {
+  const checkedRows = gridUtil.getCheckedRowValues(view);
+  if (isEmpty(checkedRows)) {
     notify(t('MSG_ALT_DEL_NO_DATA'));
     return;
   }

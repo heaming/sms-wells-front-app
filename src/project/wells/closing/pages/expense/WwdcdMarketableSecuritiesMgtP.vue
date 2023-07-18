@@ -229,6 +229,7 @@ async function subject() {
 }
 
 async function marketableSecuritiesExcd() {
+  debugger;
   const view = grdThirdRef.value.getView();
   const res = await dataService.get('/sms/wells/closing/expense/operating-cost/marketable-securities/final-withholding-tax-settlement', { params: cachedParams });
 
@@ -248,12 +249,21 @@ async function marketableSecuritiesExcd() {
   mainView.setValue(0, 'amt', unregisteredAmount);
 }
 
+let reqParams;
 async function fetchData() {
   const sumParams = cloneDeep(searchParams.value);
-  cachedParams = props.cachedParams;
-  cachedParams.rsbDvCd = sumParams.rsbDvCd;
-  cachedParams.dgr1LevlOgId = sumParams.dgr1LevlOgId;
+  reqParams = props.cachedParams;
+  reqParams.rsbDvCd = sumParams.rsbDvCd;
 
+  if (!isEmpty(props.cachedParams.dgr3LevlOgId)) {
+    reqParams.mainDgr3LevlOgId = props.cachedParams.dgr3LevlOgId;
+  } else if (!isEmpty(props.cachedParams.dgr2LevlOgId)) {
+    reqParams.mainDgr2LevlOgId = props.cachedParams.dgr2LevlOgId;
+  } else if (!isEmpty(props.cachedParams.dgr1LevlOgId)) {
+    reqParams.mainDgr1LevlOgId = props.cachedParams.dgr1LevlOgId;
+  }
+
+  cachedParams = cloneDeep(reqParams);
   await ogLevlDvCd0();
   await subject();
   await marketableSecuritiesExcd();
@@ -276,10 +286,12 @@ async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
   const sumParams = cloneDeep(searchParams.value);
 
+  /* TODO.입력된 값이 없으면 부모창에서 가져온 배분대상조직유형코드, 배분대상파트너번호
   if (isEmpty(sumParams.subPrtnrNo)) {
     sumParams.subOgTpCd = props.cachedParams.mainOgTpCd;
     sumParams.subPrtnrNo = props.cachedParams.mainPrtnrNo;
   }
+  */
 
   cachedParams = props.cachedParams;
   cachedParams.rsbDvCd = sumParams.rsbDvCd;
@@ -470,6 +482,8 @@ const initGrdSub = defineGrid((data, view) => {
     { fieldName: 'bldCd', visible: false }, // (hidden)빌딩코드
     { fieldName: 'adjOgId', visible: false },
     { fieldName: 'pstnDvCd', visible: false },
+    { fieldName: 'dgrLevlOgId', visible: false }, /* (hidden)1차레벨조직ID-총괄단 */
+    { fieldName: 'dgrLevlDgPrtnrNo', visible: false }, /* (hidden)1차레벨대표파트너번호-총괄단 */
     //
     { fieldName: 'dstWhtx', visible: false }, // 원천세
     { fieldName: 'erntx', visible: false }, // 소득세

@@ -92,15 +92,14 @@ const searchParams = ref({
 });
 
 async function fetchData() {
-  pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
   // eslint-disable-next-line max-len
   const res = await dataService.get('/sms/wells/service/seeding-delivery-list/paging', { params: { ...cachedParams, ...pageInfo.value } });
   const { list: state, pageInfo: pagingResult } = res.data;
 
   pageInfo.value = pagingResult;
+  console.log(pageInfo);
 
-  console.log(res);
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(state);
   view.resetCurrent();

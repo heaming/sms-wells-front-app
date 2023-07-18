@@ -206,6 +206,7 @@ async function onClickBsPerfAgrg() {
     component: 'WwfeaOgNetOrderBsPerfAgrgRegP',
     componentProps: {
       perfYm: searchParams.value.perfYm,
+      feeTcntDvCd: searchParams.value.feeTcntDvCd,
     },
   });
 

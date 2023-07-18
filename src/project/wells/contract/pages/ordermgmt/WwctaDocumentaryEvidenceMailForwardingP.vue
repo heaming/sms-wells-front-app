@@ -139,17 +139,23 @@ async function fetchCstNm() {
   let paramList = [];
 
   if (isEmpty(props.cntrList)) {
-    paramList = props.cstList[0];
-    fieldParams.value.cstList = props.cstList;
+    paramList = props.cstList;
     fieldParams.value.cstGubun = '2';
   } else {
-    paramList = props.cntrList[0];
-    fieldParams.value.cstList = props.cntrList;
+    paramList = props.cntrList;
     fieldParams.value.cstGubun = '1';
   }
 
-  const cntrNoParam = paramList.cntrDtlNo.split('-')[0];
-  const cntrSnParam = paramList.cntrDtlNo.split('-')[1];
+  paramList.forEach((row) => {
+    fieldParams.value.cstList.push({
+      cntrDtlNo: row.cntrNoFull,
+      cntrNo: row.cntrNoFull.split('-')[0],
+      cntrSn: row.cntrNoFull.split('-')[1],
+    });
+  });
+
+  const cntrNoParam = fieldParams.value.cstList[0].cntrNo;
+  const cntrSnParam = fieldParams.value.cstList[0].cntrSn;
 
   const res = await dataService.get('/sms/wells/contract/contracts/order-details/documentary-evidence-mails', { params: { cntrNo: cntrNoParam, cntrSn: cntrSnParam } });
   if (!isEmpty(res.data)) {

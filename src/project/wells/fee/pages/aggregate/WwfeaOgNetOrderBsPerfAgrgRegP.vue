@@ -22,6 +22,11 @@
           <p>{{ params.perfYm.substring(0,4) }}-{{ params.perfYm.substring(4) }}</p>
         </kw-form-item>
       </kw-form-row>
+      <kw-form-row>
+        <kw-form-item :label="$t('MSG_TXT_ORDR')">
+          <p>{{ codes.FEE_TCNT_DV_CD.find((v) => v.codeId === params?.feeTcntDvCd)?.codeName }}</p>
+        </kw-form-item>
+      </kw-form-row>
     </kw-form>
     <template #action>
       <kw-btn
@@ -42,7 +47,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService, useGlobal, useModal } from 'kw-lib';
+import { useDataService, useGlobal, useModal, codeUtil } from 'kw-lib';
 
 const { cancel, ok } = useModal();
 const { t } = useI18n();
@@ -54,15 +59,24 @@ const props = defineProps({
     type: String,
     required: true,
   },
+  feeTcntDvCd: { // 수수료차수구분코드
+    type: String,
+    required: true,
+  },
 });
 
 const params = ref({
   perfYm: props.perfYm,
+  feeTcntDvCd: props.feeTcntDvCd,
 });
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
+const codes = await codeUtil.getMultiCodes(
+  'FEE_TCNT_DV_CD',
+);
+
 async function onClickCancel() {
   cancel();
 }

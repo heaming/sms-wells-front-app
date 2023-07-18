@@ -41,7 +41,6 @@
           v-model:page-index="pageInfo.pageIndex"
           v-model:page-size="pageInfo.pageSize"
           :total-count="pageInfo.totalCount"
-          :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
           @change="fetchData"
         />
         <span class="ml8">(단위: 원)</span>
@@ -67,7 +66,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService, gridUtil, useMeta, getComponentType, defineGrid, codeUtil, useGlobal } from 'kw-lib';
+import { useDataService, gridUtil, useMeta, getComponentType, defineGrid, useGlobal } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
 import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
@@ -77,13 +76,10 @@ const { t } = useI18n();
 const now = dayjs();
 const dataService = useDataService();
 const { getConfig } = useMeta();
-const { notify } = useGlobal();
+const { modal } = useGlobal();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
-const codes = await codeUtil.getMultiCodes(
-  'COD_PAGE_SIZE_OPTIONS',
-);
 
 const searchParams = ref({
   cntrNo: '',
@@ -116,7 +112,13 @@ async function onClickSearch() {
 }
 
 async function onClickOpenChngReg() {
-  notify(t('팝업 준비중 입니다.')); // W-SS-U-0113P02 팝업 확인 필요
+  const { result } = await modal({
+    component: 'WwctbMembershipBulkChangeMgtP',
+    // componentProps: { apiUrl, templateId, extraData },
+  });
+  if (result) {
+    await onClickSearch();
+  }
 }
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
@@ -138,7 +140,7 @@ const initMembershipBilkChangeList = defineGrid((data, view) => {
     { fieldName: 'useyn' },
     { fieldName: 'basePdCd' },
     { fieldName: 'pdNm' },
-    { fieldName: 'fnlAmt' },
+    { fieldName: 'fnlAmt', dataType: 'number' },
     { fieldName: 'stlmTpCd' },
     { fieldName: 'frisuBfsvcPtrmN' },
     { fieldName: 'cntrwTpCd' },
@@ -154,7 +156,7 @@ const initMembershipBilkChangeList = defineGrid((data, view) => {
     { fieldName: 'cttPsicNm' },
     { fieldName: 'hcrDvCd' },
     { fieldName: 'feeFxamYn' },
-    { fieldName: 'feeAckmtBaseAmt' },
+    { fieldName: 'feeAckmtBaseAmt', dataType: 'number' },
     { fieldName: 'sellDscDvCd' },
     { fieldName: 'sellDscrCd' },
     { fieldName: 'grpGbn' },
@@ -184,7 +186,7 @@ const initMembershipBilkChangeList = defineGrid((data, view) => {
     { fieldName: 'basePdCd', header: t('TXT_MSG_PD_CD'), width: '117', styleName: 'text-center' }, // 상품코드
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '224', styleName: 'text-left' }, // 상품명
 
-    { fieldName: 'fnlAmt', header: t('MSG_TXT_MEM_DUES'), width: '117', styleName: 'text-right' }, // 멤버십회비
+    { fieldName: 'fnlAmt', header: t('MSG_TXT_MEM_DUES'), width: '117', numberFormat: '#,##0', styleName: 'text-right' }, // 멤버십회비
     { fieldName: 'stlmTpCd', header: t('MSG_TXT_PY_MTHD'), width: '117', styleName: 'text-center' }, // 납입방법
     { fieldName: 'frisuBfsvcPtrmN', header: t('MSG_TXT_MEM_FEE'), width: '117', styleName: 'text-center' }, // 멤버십무상
     { fieldName: 'cntrwTpCd', header: t('MSG_TXT_MSH_DV'), width: '117', styleName: 'text-center' }, // 멤버십구분
@@ -200,7 +202,7 @@ const initMembershipBilkChangeList = defineGrid((data, view) => {
     { fieldName: 'hcrDvCd', header: t('MSG_TXT_PRDT_GUBUN'), width: '117', styleName: 'text-center' }, // 상품구분
 
     { fieldName: 'feeFxamYn', header: t('MSG_TXT_FXAM_YN'), width: '117', styleName: 'text-center' }, // 정액여부
-    { fieldName: 'feeAckmtBaseAmt', header: t('MSG_TXT_PD_STD_FEE'), width: '117', styleName: 'text-center' }, // 기준수수료
+    { fieldName: 'feeAckmtBaseAmt', header: t('MSG_TXT_PD_STD_FEE'), width: '117', numberFormat: '#,##0', styleName: 'text-center' }, // 기준수수료
     { fieldName: 'sellDscDvCd', header: t('MSG_TXT_PD_DC_CLASS'), width: '117', styleName: 'text-center' }, // 할인구분
     { fieldName: 'sellDscrCd', header: t('TXT_MSG_DSC_TP'), width: '117', styleName: 'text-center' }, // 할인유형
     { fieldName: 'grpGbn', header: t('MSG_TXT_GRP_DV'), width: '117', styleName: 'text-center' }, // 그룹구분

@@ -3,7 +3,7 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : SNY
-2. 프로그램 ID : WwsnyPaidAsServiceCostMgtM  - 유상A/S 서비스비용 관리
+2. 프로그램 ID : WwsnyPaidAsServiceCostMgtM  - [W-SV-U-0159M01]유상A/S 서비스비용 관리
 3. 작성자 : kyunglyn.lee
 4. 작성일 : 2023.03.08
 ****************************************************************************************************
@@ -219,6 +219,7 @@ const pdGr = ref();
 const onChangeHgrPdCd = async () => {
   const res = await dataService.get('/sms/wells/service/paid-as-costs/filter-products', { params: searchParams.value });
   pdGr.value = res.data;
+  searchParams.value.pdCd = '';
 };
 
 const isHgrPdCd = ref(false);
@@ -332,7 +333,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'tcfeeAmt', dataType: 'number' }, // 기술료
     { fieldName: 'sumAmt', dataType: 'number' }, // 합계(소비자가+기술료)
     { fieldName: 'izSn' }, // 내역일련번호
-    { fieldName: 'basePdCd' }, // 사용자재상품코드
+    { fieldName: 'pdctPdCd' }, // 사용자재상품코드
   ];
 
   const columns = [
@@ -346,6 +347,7 @@ const initGrdMain = defineGrid((data, view) => {
       width: '100',
       editor: {
         type: 'number',
+        maxLength: 8,
         inputCharacters: '0-9',
       },
       styleName: 'text-center',
@@ -355,6 +357,7 @@ const initGrdMain = defineGrid((data, view) => {
       width: '100',
       editor: {
         type: 'number',
+        maxLength: 8,
         inputCharacters: '0-9',
       },
       styleName: 'text-center',
@@ -364,6 +367,7 @@ const initGrdMain = defineGrid((data, view) => {
       width: '100',
       editor: {
         type: 'number',
+        maxLength: 8,
         inputCharacters: '0-9',
       },
       styleName: 'text-center',
@@ -373,6 +377,7 @@ const initGrdMain = defineGrid((data, view) => {
       width: '100',
       editor: {
         type: 'number',
+        maxLength: 8,
         inputCharacters: '0-9',
       },
       styleName: 'text-center',
@@ -396,8 +401,8 @@ const initGrdMain = defineGrid((data, view) => {
   view.rowIndicator.visible = true;
 
   view.onCellEditable = (grid, itemIndex) => {
-    const { izSn, basePdCd, useMatPdCd } = gridUtil.getRowValue(grid, itemIndex.dataRow);
-    if ((isEmpty(izSn) || isEmpty(basePdCd) || isEmpty(useMatPdCd))
+    const { izSn, pdctPdCd, useMatPdCd } = gridUtil.getRowValue(grid, itemIndex.dataRow);
+    if ((isEmpty(izSn) || isEmpty(pdctPdCd) || isEmpty(useMatPdCd))
     && ['csmrUprcAmt', 'whlsUprcAmt', 'insiUprcAmt', 'tcfeeAmt', 'apyStrtdt', 'apyEnddt'].includes(itemIndex.column)) {
       return false;
     }
@@ -419,9 +424,9 @@ const initGrdMain = defineGrid((data, view) => {
   };
 
   view.setCheckableCallback((dataSource, item) => {
-    const { izSn, basePdCd, useMatPdCd } = gridUtil.getRowValue(view, item.dataRow);
+    const { izSn, pdctPdCd, useMatPdCd } = gridUtil.getRowValue(view, item.dataRow);
 
-    if (isEmpty(izSn) || isEmpty(basePdCd) || isEmpty(useMatPdCd)) {
+    if (isEmpty(izSn) || isEmpty(pdctPdCd) || isEmpty(useMatPdCd)) {
       return false;
     }
     return true;

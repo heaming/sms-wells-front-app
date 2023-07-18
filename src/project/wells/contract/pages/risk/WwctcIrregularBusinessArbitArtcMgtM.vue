@@ -57,16 +57,22 @@
         <kw-search-item :label="$t('MSG_TXT_RGNL_GRP')">
           <kw-input
             v-model="searchParams.rgrp"
+            maxlength="10"
           />
         </kw-search-item>
         <kw-search-item :label="t('MSG_TXT_BRANCH')">
-          <kw-input v-model="searchParams.brch" />
+          <kw-input
+            v-model="searchParams.brch"
+            maxlength="10"
+          />
         </kw-search-item>
         <kw-search-item :label="$t('MSG_TXT_EMP_SRCH')">
           <kw-input
             v-model="searchParams.dangOjPrtnrNo"
             icon="search_24"
             clearable
+            maxlength="10"
+            type="number"
             @click-icon="onClickOpenPartnerListPopup"
           />
         </kw-search-item>
@@ -342,6 +348,7 @@ const initGrid = defineGrid((data, view) => {
       styleName: 'text-center rg-button-icon--search',
       button: 'action',
       rules: 'required',
+      editor: { inputCharacters: ['0-9'], maxLength: 10 },
       styleCallback(grid, dataCell) {
         return { editable: dataCell.item.rowState === 'created' };
       },
@@ -370,7 +377,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'dgr2LevlDgPrtnrNm', styleName: 'text-center', header: t('MSG_TXT_RGNL_GRP'), width: '129', editable: false }, // 지역단
     { fieldName: 'bznsSpptPrtnrNm', styleName: 'text-center', header: 'BM', width: '129', editable: false }, // BM
     { fieldName: 'dgr3LevlDgPrtnrNm', styleName: 'text-center', header: t('MSG_TXT_BRANCH'), width: '129', editable: false }, // 지점
-    { fieldName: 'dangChkNm', header: t('MSG_TXT_CHRGS'), width: '306', rules: 'required' }, // 부과내역
+    { fieldName: 'dangChkNm', header: t('MSG_TXT_CHRGS'), width: '306', rules: 'required', editor: { maxLength: 200 } }, // 부과내역
     { fieldName: 'dangArbitCd',
       header: t('MSG_TXT_ACTN_ITM'),
       width: '306',
@@ -378,7 +385,7 @@ const initGrid = defineGrid((data, view) => {
       editor: { type: 'list' },
       rules: 'required',
     },
-    { fieldName: 'dangUncvrCt', header: t('MSG_TXT_DUE_TRGT_NO'), width: '129', rules: 'required' },
+    { fieldName: 'dangUncvrCt', header: t('MSG_TXT_DUE_TRGT_NO'), width: '129', rules: 'required', editor: { inputCharacters: ['0-9'], maxLength: 12 } },
     { fieldName: 'dangArbitLvyPc',
       header: t('MSG_TXT_ACTN_TM_PNLTY_PNT'),
       width: '190',

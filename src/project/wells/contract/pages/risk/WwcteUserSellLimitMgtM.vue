@@ -424,6 +424,10 @@ function initGrid(data, view) {
       data.setValue(updateRow, 'pdNm', returnPdInfo.payload?.[0].pdNm);
       data.setValue(updateRow, 'pdMclsfNm', !isEmpty(pdClsfNm[1]) ? pdClsfNm[1] : '');
       data.setValue(updateRow, 'pdLclsfNm', !isEmpty(pdClsfNm[2]) ? pdClsfNm[2] : '');
+    } else {
+      data.setValue(itemIndex, 'pdNm', '');
+      data.setValue(itemIndex, 'pdMclsfNm', '');
+      data.setValue(itemIndex, 'pdLclsfNm', '');
     }
   };
   view.onCellEdited = async (grid, itemIndex, dataRow, fieldIndex) => {
@@ -469,6 +473,10 @@ function initGrid(data, view) {
         data.setValue(updateRow, 'pdNm', returnPdInfo.payload?.[0].pdNm);
         data.setValue(updateRow, 'pdMclsfNm', !isEmpty(pdClsfNm[1]) ? pdClsfNm[1] : '');
         data.setValue(updateRow, 'pdLclsfNm', !isEmpty(pdClsfNm[2]) ? pdClsfNm[2] : '');
+      } else {
+        data.setValue(itemIndex, 'pdNm', '');
+        data.setValue(itemIndex, 'pdMclsfNm', '');
+        data.setValue(itemIndex, 'pdLclsfNm', '');
       }
     }
   };

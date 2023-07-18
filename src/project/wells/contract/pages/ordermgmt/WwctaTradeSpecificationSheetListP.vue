@@ -57,8 +57,18 @@
           />
         </kw-search-item>
       </kw-search-row>
+      <kw-search-row>
+        <kw-search-item
+          :label="t('MSG_TXT_PRD')"
+        >
+          <kw-date-range-picker
+            v-model:from="searchParams.cntrCnfmStrtDt"
+            v-model:to="searchParams.cntrCnfmEndDt"
+            rules="date_range_months:12"
+          />
+        </kw-search-item>
+      </kw-search-row>
     </kw-search>
-
     <kw-action-top>
       <template #left>
         <kw-paging-info :total-count="pageInfo.totalCount1" />
@@ -69,6 +79,7 @@
         dense
         secondary
         :label="$t('MSG_BTN_EMAIL_SEND')"
+        :disable="searchParams.cntrDvCd === '1'"
         @click="onClickEmailSend"
       />
       <kw-separator
@@ -81,6 +92,7 @@
         primary
         dense
         :label="$t('MSG_BTN_PBL_PRNT')"
+        @click="onClickPblPrnt"
       />
     </kw-action-top>
     <!-- 계약목록 -->
@@ -138,11 +150,12 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { defineGrid, getComponentType, useDataService, useGlobal, gridUtil } from 'kw-lib';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, isEmpty } from 'lodash-es';
+import dayjs from 'dayjs';
 
 const dataService = useDataService();
 const { t } = useI18n();
-const { modal, notify } = useGlobal();
+const { alert, modal, notify } = useGlobal();
 const props = defineProps({
   cntrNo: { type: String, required: false, default: '' },
   cntrSn: { type: String, required: false, default: '' },
@@ -150,6 +163,7 @@ const props = defineProps({
 });
 
 let cachedParams;
+const now = dayjs();
 const searchParams = ref({
   docDvCd: '1', // 증빙서류종류(입금내역서)
   cntrDvCd: '1', // 1:계약번호, 2: 고객번호
@@ -158,6 +172,8 @@ const searchParams = ref({
   cntrSn: props.cntrSn, // 계약일련번호
   cntrCstNo: props.cntrCstNo, // 고객번호
   sellTpCd: [], // 구분(판매유형)
+  cntrCnfmStrtDt: now.startOf('year').format('YYYYMMDD'),
+  cntrCnfmEndDt: now.endOf('year').format('YYYYMMDD'),
 });
 
 const pageInfo = ref({
@@ -327,7 +343,7 @@ async function fetchCtnrLstData() {
     return;
   }
 
-  console.log(res.data);
+  // console.log(res.data);
 
   const view = grdContracts.value.getView();
   view.getDataSource().setRows(res.data);
@@ -349,7 +365,10 @@ async function onClickSearch() {
 
 // 메일발송
 async function onClickEmailSend() {
-  // await alert('메일발송 팝업은 개발예정입니다.');
+  if (searchParams.value.cntrDvCd === '1') {
+    return;
+  }
+
   const view = grdContracts.value.getView();
   const checkedItems = view.getCheckedItems();
   const cntrList = [];
@@ -363,17 +382,24 @@ async function onClickEmailSend() {
         cntrNoFull: row.cntrDtlNo,
       });
     });
+
+    const searchPopupParams = {
+      docDvCd: searchParams.value.docDvCd, // 증빙서류종류
+      cntrList,
+      firstDt: searchParams.value.cntrCnfmStrtDt, // 기간(시작일자)
+      lastDt: searchParams.value.cntrCnfmEndDt, // 기간(종료일자)
+    };
+
+    await modal({
+      component: 'WwctaDocumentaryEvidenceMailForwardingP', // 증빙서류 메일발송
+      componentProps: searchPopupParams,
+    });
   }
+}
 
-  const searchPopupParams = {
-    docDvCd: searchParams.value.docDvCd, // 증빙서류종류
-    cntrList,
-  };
-
-  await modal({
-    component: 'WwctaDocumentaryEvidenceMailForwardingP', // 증빙서류 메일발송
-    componentProps: searchPopupParams,
-  });
+// 발행(출력)
+async function onClickPblPrnt() {
+  await alert('발행(출력) 팝업은 작업예정입니다.');
 }
 
 onMounted(async () => {
@@ -430,10 +456,11 @@ const initGrdDepositItemizationSheet = defineGrid((data, view) => {
     { fieldName: 'pymDt' }, // 환불일자
     { fieldName: 'rveDvNm' }, // 유형
     { fieldName: 'rveAmt', dataType: 'number' }, // 금액
+    { fieldName: 'dpTpCd' }, // 입금유형코드
     { fieldName: 'dpTpNm' }, // 구분(입금유형)
     { fieldName: 'cdcoNm' }, // 카드사
     { fieldName: 'crcdno' }, // 카드번호
-    { fieldName: 'cardAprno' }, // 카드승인번호
+    { fieldName: 'crdcdAprno' }, // 카드승인번호
     { fieldName: 'crdcdIstmMcn' }, // 할부개월
   ];
 
@@ -447,8 +474,27 @@ const initGrdDepositItemizationSheet = defineGrid((data, view) => {
     { fieldName: 'rveAmt', header: t('MSG_TXT_AMT'), width: '100', styleName: 'text-right' }, // 금액
     { fieldName: 'dpTpNm', header: t('MSG_TXT_DIV'), width: '100', styleName: 'text-center' }, // 구분
     { fieldName: 'cdcoNm', header: t('MSG_TXT_CDCO'), width: '110', styleName: 'text-center' }, // 카드사
-    { fieldName: 'crcdno', header: t('MSG_TXT_CARD_NO'), width: '188', styleName: 'text-center' }, // 카드번호
-    { fieldName: 'cardAprno', header: t('MSG_TXT_CARD_APR_NO'), width: '165', styleName: 'text-center' }, // 카드승인번호
+    {
+      fieldName: 'crcdno',
+      header: t('MSG_TXT_CARD_NO'),
+      width: '188',
+      styleName: 'text-center',
+      displayCallback(grid, index) {
+        const { crcdno, dpTpCd } = grid.getValues(index.itemIndex);
+        if (dpTpCd === '0201') { // 개별수납(신용카드)
+          return !isEmpty(crcdno) ? `${crcdno.substring(0, 4)}-
+          ${crcdno.substring(4, 8)}-
+          ${crcdno.substring(8, 12)}-
+          ${crcdno.substring(12, 16)}` : '';
+        }
+        if (dpTpCd === '0101') { // 개별수납(가상계좌)
+          return !isEmpty(crcdno) ? `${crcdno.substring(0, 6)}-
+          ${crcdno.substring(6, 8)}-
+          ${crcdno.substring(8, 14)}` : '';
+        }
+      },
+    }, // 카드번호
+    { fieldName: 'crdcdAprno', header: t('MSG_TXT_CARD_APR_NO'), width: '165', styleName: 'text-center' }, // 카드승인번호
     { fieldName: 'crdcdIstmMcn', header: t('MSG_TXT_ISTM_MCNT'), width: '110', styleName: 'text-right' }, // 할부개월
   ];
 
@@ -479,8 +525,8 @@ const initGrdTradeSpecificationSheet = defineGrid((data, view) => {
     { fieldName: 'sellTpNm', header: t('MSG_TXT_TYPE'), width: '131', styleName: 'text-center' }, // 유형
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '131', styleName: 'text-center' }, // 상품명
     { fieldName: 'lcrcnt', header: t('MSG_TXT_NMN'), width: '131', styleName: 'text-center' }, // 차월
-    { fieldName: 'baseYm', header: t('MSG_TXT_YM'), width: '131', styleName: 'text-center' }, // 년월
-    { fieldName: 'lcsleymd', header: `${t('MSG_TXT_SNGL_PMNT')}${t('MSG_TXT_DT_OF_SALE')}`, width: '110', styleName: 'text-center' }, // 일시불매출일
+    { fieldName: 'baseYm', header: t('MSG_TXT_YM'), width: '131', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 년월
+    { fieldName: 'lcsleymd', header: `${t('MSG_TXT_SNGL_PMNT')}${t('MSG_TXT_DT_OF_SALE')}`, width: '110', styleName: 'text-center', datetimeFormat: 'date' }, // 일시불매출일
     { fieldName: 'lcam16', header: t('MSG_TXT_SL'), width: '110', styleName: 'text-right' }, // 매출
     { fieldName: 'w1Iamt', header: t('MSG_TXT_DP'), width: '100', styleName: 'text-right' }, // 입금
     { fieldName: 'lcam36', header: t('MSG_TXT_PRPD_AMT'), width: '110', styleName: 'text-right' }, // 선수금액
@@ -504,7 +550,7 @@ const initGrdCardSalesSlip = defineGrid((data, view) => {
     { fieldName: 'dpcndt' }, // 취소일
     { fieldName: 'cardvndr' }, // 결재카드
     { fieldName: 'dpcdnoFull' }, // 카드번호
-    { fieldName: 'cardAprno' }, // 카드승인번호
+    { fieldName: 'crdcdAprno' }, // 카드승인번호
     { fieldName: 'dpAmt', dataType: 'number' }, // 승인금액
   ];
 
@@ -515,8 +561,20 @@ const initGrdCardSalesSlip = defineGrid((data, view) => {
     { fieldName: 'dpstdt', header: t('MSG_TXT_TRD_DT'), width: '131', styleName: 'text-center', datetimeFormat: 'date' }, // 거래일
     { fieldName: 'dpcndt', header: t('MSG_TXT_CAN_D'), width: '131', styleName: 'text-center', datetimeFormat: 'date' }, // 취소일
     { fieldName: 'cardvndr', header: t('MSG_TXT_APRV_CARD'), width: '110', styleName: 'text-center' }, // 결재카드
-    { fieldName: 'dpcdnoFull', header: t('MSG_TXT_CARD_NO'), width: '188', styleName: 'text-center' }, // 카드번호
-    { fieldName: 'cardAprno', header: t('MSG_TXT_CARD_APR_NO'), width: '188', styleName: 'text-center' }, // 카드승인번호
+    {
+      fieldName: 'dpcdnoFull',
+      header: t('MSG_TXT_CARD_NO'),
+      width: '188',
+      styleName: 'text-center',
+      displayCallback(grid, index) {
+        const { dpcdnoFull } = grid.getValues(index.itemIndex);
+        return !isEmpty(dpcdnoFull) ? `${dpcdnoFull.substring(0, 4)}-
+        ${dpcdnoFull.substring(4, 8)}-
+        ${dpcdnoFull.substring(8, 12)}-
+        ${dpcdnoFull.substring(12, 16)}` : '';
+      },
+    }, // 카드번호
+    { fieldName: 'crdcdAprno', header: t('MSG_TXT_CARD_APR_NO'), width: '188', styleName: 'text-center' }, // 카드승인번호
     { fieldName: 'dpAmt', header: t('MSG_TXT_APRV_AMT'), width: '110', styleName: 'text-right' }, // 승인금액
   ];
 

@@ -22,15 +22,17 @@
       @search="onClickSearch"
     >
       <kw-search-row>
+        <!--업무유형-->
         <kw-search-item
           :label="t('MSG_TXT_TASK_TYPE')"
         >
           <kw-select
-            :v-model="searchParams.sellTpCd"
+            v-model="searchParams.sellTpCd"
             :options="codes.SELL_TP_CD"
             first-option="all"
           />
         </kw-search-item>
+        <!--실적구분-->
         <kw-search-item
           :label="t('MSG_TXT_PERF_DV')"
         >

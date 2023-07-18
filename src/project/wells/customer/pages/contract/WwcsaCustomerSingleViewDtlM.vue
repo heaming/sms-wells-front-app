@@ -90,14 +90,14 @@
             </p>
             <kw-chip
               v-if="!isEmpty(customerInfo?.cstGdCd)"
-              :label="customerInfo?.cstGdCd"
+              :label="customerInfo?.cstGdNm"
               square
               color="primary"
               text-color="primary"
               class="ml12"
             />
             <p class="kw-font--14 kw-fc--black3 ml8">
-              {{ customerInfo?.copnDvCd }}
+              {{ customerInfo?.copnDvNm }}
             </p>
             <kw-separator
               v-if="!isEmpty(customerInfo?.copnDvCd)"
@@ -114,10 +114,11 @@
               vertical
               class="my10 mx8"
             />
-            <span>{{ customerInfo?.sexDvCd }}</span>
+            <span>{{ customerInfo?.sexDvNm }}</span>
           </template>
           <kw-btn
             v-if="!isEmpty(customerInfo?.cstNo)"
+            v-permission:create
             primary
             dense
             :label="$t('MSG_TXT_CNTR_WRTE')"
@@ -142,7 +143,10 @@
           <kw-form-row>
             <kw-form-item :label="$t('MSG_TXT_CONTACT')">
               <p v-if="!isEmpty(customerInfo?.cstNo)">
-                {{ customerInfo?.mpno }} / {{ customerInfo?.hpno }}
+                {{ customerInfo?.mpno }}
+                <span v-if="isTelFormat(customerInfo?.hpno) || isHpFormat(customerInfo?.hpno)">
+                  / {{ customerInfo?.hpno }}
+                </span>
               </p>
             </kw-form-item>
           </kw-form-row>
@@ -155,125 +159,139 @@
 
         <kw-separator />
 
-        <kw-btn
-          v-if="!isEmpty(payments?.thisRentalAmt)"
-          icon-right="arrow_right_24"
-          borderless
-          :label="$t('MSG_TXT_PY_PS')"
-          class="button-arrow text-weight-medium"
-        />
-        <h4
-          v-else
-          class="mb0"
+        <template
+          v-if="Number(payments?.thisRentalAmt) + Number(payments?.pyAmt)
+            + Number(payments?.dlqPdCount) + Number(payments?.cancelCount) > 0"
         >
-          {{ $t('MSG_TXT_PY_PS') }}
-        </h4>
-
-        <div class="current-result mt24">
-          <div class="current-result-item">
-            <p class="current-result-title">
-              {{ $t('MSG_TXT_THM_RTLFE') }}
-            </p>
-            <span class="current-result-number--blue">
-              {{ `${isEmpty(payments?.thisRentalAmt)?'':stringUtil.getNumberWithComma(payments?.thisRentalAmt)}원` }}
-            </span>
-          </div>
-          <kw-separator
-            vertical
-            class="mx0"
+          <kw-btn
+            icon-right="arrow_right_24"
+            borderless
+            :label="$t('MSG_TXT_PY_PS')"
+            class="button-arrow text-weight-medium"
+            @click="onClickPaymentStatus"
           />
-          <div class="current-result-item">
-            <p class="current-result-title">
-              {{ $t('MSG_TXT_PY_FSH') }}
-            </p>
-            <span class="current-result-number">
-              {{ `${isEmpty(payments?.pyAmt)?'':stringUtil.getNumberWithComma(payments?.pyAmt)}원` }}
-            </span>
+          <div class="current-result mt24">
+            <div class="current-result-item">
+              <p class="current-result-title">
+                {{ $t('MSG_TXT_THM_RTLFE') }}
+              </p>
+              <span class="current-result-number--blue">
+                {{ `${stringUtil.getNumberWithComma(payments?.thisRentalAmt)} 원` }}
+              </span>
+            </div>
+            <kw-separator
+              vertical
+              class="mx0"
+            />
+            <div class="current-result-item">
+              <p class="current-result-title">
+                {{ $t('MSG_TXT_PY_FSH') }}
+              </p>
+              <span class="current-result-number">
+                {{ `${stringUtil.getNumberWithComma(payments?.pyAmt)} 원` }}
+              </span>
+            </div>
           </div>
-        </div>
-        <div
-          v-if="Number(payments?.dlqPdCount) === 1"
-          class="dashboard-solid-box dashboard-solid-box--bg-red mt20"
-        >
-          <p class="dashboard-solid-box--title kw-fc--error">
-            {{ $t('MSG_TXT_DLQ') }}
-          </p>
-          <p class="dashboard-solid-box--content">
-            <span>{{ `${$t('MSG_TXT_DLQAM')} ${stringUtil.getNumberWithComma(payments?.dlqAmt)}원` }}</span>
-            <span>{{ `${$t('MSG_TXT_DLQ_TN')} ${payments?.dlqMcn}` }}</span>
-            <span>{{ `${$t('MSG_TXT_FNL_PY')} ${dayjs(payments?.fnlPyDt).format('YYYY-MM-DD')}` }}</span>
-          </p>
-        </div>
-        <div
-          v-else-if="Number(payments?.dlqPdCount) > 1"
-          class="dashboard-solid-box dashboard-solid-box--bg-red mt20"
-        >
-          <p class="dashboard-solid-box--title kw-fc--error">
-            {{ $t('MSG_TXT_DLQ') }}
-          </p>
-          <p class="dashboard-solid-box--content">
-            <span>{{ `${$t('MSG_TXT_DLQ_PD_N')} ${payments?.dlqPdCount}` }}</span>
-            <span>{{ `${$t('MSG_TXT_TOT_DLQ_AM')} ${stringUtil.getNumberWithComma(payments?.dlqAmt)}원` }}</span>
-            <span>{{ `${$t('MSG_TXT_DLQ_TN')} ${payments?.dlqMcn}` }}</span>
-          </p>
-        </div>
-        <div
-          v-else-if="Number(payments?.cancelCount) > 0"
-          class="dashboard-solid-box dashboard-solid-box--bg-red mt20"
-        >
-          <p class="dashboard-solid-box--title kw-fc--error">
-            {{ $t('MSG_TXT_DLQ') }}
-          </p>
-          <p class="dashboard-solid-box--content">
-            <span>{{ `${$t('MSG_TXT_CNTR_CAN_PD_N')} ${payments?.cancelCount}건` }}</span>
-            <span>{{ `${$t('MSG_TXT_TOT_CCAM')} ${stringUtil.getNumberWithComma(payments?.cancelFeeAmt)}원` }}</span>
-          </p>
-        </div>
+          <div
+            v-if="Number(payments?.dlqPdCount) === 1"
+            class="dashboard-solid-box dashboard-solid-box--bg-red mt20"
+          >
+            <p class="dashboard-solid-box--title kw-fc--error">
+              {{ $t('MSG_TXT_DLQ') }}
+            </p>
+            <p class="dashboard-solid-box--content">
+              <span>{{ `${$t('MSG_TXT_DLQAM')} ${stringUtil.getNumberWithComma(payments?.dlqAmt)} 원` }}</span>
+              <span>{{ `${$t('MSG_TXT_DLQ_TN')} ${payments?.dlqMcn}` }}</span>
+              <span>{{ `${$t('MSG_TXT_FNL_PY')} ${isEmpty(payments?.fnlPyDt)
+                ?'':dayjs(payments?.fnlPyDt).format('YYYY-MM-DD')}` }}</span>
+            </p>
+          </div>
+          <div
+            v-else-if="Number(payments?.dlqPdCount) > 1"
+            class="dashboard-solid-box dashboard-solid-box--bg-red mt20"
+          >
+            <p class="dashboard-solid-box--title kw-fc--error">
+              {{ $t('MSG_TXT_DLQ') }}
+            </p>
+            <p class="dashboard-solid-box--content">
+              <span>{{ `${$t('MSG_TXT_DLQ_PD_N')} ${payments?.dlqPdCount}` }}</span>
+              <span>{{ `${$t('MSG_TXT_TOT_DLQ_AM')} ${stringUtil.getNumberWithComma(payments?.dlqAmt)} 원` }}</span>
+              <span>{{ `${$t('MSG_TXT_DLQ_TN')} ${payments?.dlqMcn}` }}</span>
+            </p>
+          </div>
+          <div
+            v-else-if="Number(payments?.cancelCount) > 0"
+            class="dashboard-solid-box dashboard-solid-box--bg-red mt20"
+          >
+            <p class="dashboard-solid-box--title kw-fc--error">
+              {{ $t('MSG_TXT_DLQ') }}
+            </p>
+            <p class="dashboard-solid-box--content">
+              <span>{{ `${$t('MSG_TXT_CNTR_CAN_PD_N')} ${payments?.cancelCount} 건` }}</span>
+              <span>{{ `${$t('MSG_TXT_TOT_CCAM')} ${stringUtil.getNumberWithComma(payments?.cancelFeeAmt)} 원` }}</span>
+            </p>
+          </div>
+        </template>
+        <template v-else>
+          <h4 class="mb0">
+            {{ $t('MSG_TXT_PY_PS') }}
+          </h4>
+          <div class="mt24 mb50">
+            <p class="kw-fc--black3 text-center kw-font-pt14">
+              {{ $t('MSG_ALT_NO_PY_IZ') }}
+            </p>
+          </div>
+        </template>
+
         <kw-separator />
 
-        <kw-btn
-          v-if="contracts.length > 0"
-          icon-right="arrow_right_24"
-          borderless
-          :label="$t('MSG_TXT_CNTR_STATE')"
-          class="button-arrow text-weight-medium"
-          @click="onClickContractStatus"
-        />
-        <h4
-          v-else
-          class="mb0"
-        >
-          {{ $t('MSG_TXT_CNTR_STATE') }}
-        </h4>
-
-        <table
-          style="width: 100%;"
-          class="info-table mt20"
-        >
-          <colgroup>
-            <col style="width: 120px; text-align: center;">
-            <col style="width: auto; text-align: left;">
-            <col style="width: 130px; text-align: center;">
-            <col style="width: 115px; text-align: left;">
-          </colgroup>
-          <tbody>
-            <tr
-              v-for="(contract, contractIdx) in contracts"
-              :key="contractIdx"
-            >
-              <td>{{ dayjs(contract.cntrRcpFshDt).format('YYYY-MM-DD') }}</td>
-              <td>
-                <kw-btn
-                  :label="contract.pdNm"
-                  underline
-                  @click="onClickContractDetailPop(contract)"
-                />
-              </td>
-              <td>{{ contract.istCstKnm }}</td>
-              <td>{{ contract.cntrPrgsStatNm }}</td>
-            </tr>
-          </tbody>
-        </table>
+        <template v-if="contracts.length > 0">
+          <kw-btn
+            icon-right="arrow_right_24"
+            borderless
+            :label="$t('MSG_TXT_CNTR_STATE')"
+            class="button-arrow text-weight-medium"
+            @click="onClickContractStatus"
+          />
+          <table
+            style="width: 100%;"
+            class="info-table mt20"
+          >
+            <colgroup>
+              <col style="width: 120px; text-align: center;">
+              <col style="width: auto; text-align: left;">
+              <col style="width: 130px; text-align: center;">
+              <col style="width: 115px; text-align: left;">
+            </colgroup>
+            <tbody>
+              <tr
+                v-for="(contract, contractIdx) in contracts"
+                :key="contractIdx"
+              >
+                <td>{{ dayjs(contract.cntrRcpFshDt).format('YYYY-MM-DD') }}</td>
+                <td>
+                  <kw-btn
+                    :label="contract.pdNm"
+                    underline
+                    @click="onClickContractDetailPop(contract)"
+                  />
+                </td>
+                <td>{{ contract.istCstKnm }}</td>
+                <td>{{ contract.cntrPrgsStatNm }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </template>
+        <template v-else>
+          <h4 class="mb0">
+            {{ $t('MSG_TXT_CNTR_STATE') }}
+          </h4>
+          <div class="mt24 mb50">
+            <p class="kw-fc--black3 text-center kw-font-pt14">
+              {{ $t('MSG_ALT_NO_CNTR_IZ') }}
+            </p>
+          </div>
+        </template>
       </div>
       <kw-separator
         spaced
@@ -289,49 +307,53 @@
           visible
         >
           <div class="q-scroll--inside px40 py30">
-            <kw-btn
-              v-if="services.length > 0"
-              icon-right="arrow_right_24"
-              borderless
-              :label="$t('MSG_TXT_SV_HIST')"
-              class="kw-font--18 text-weight-medium"
-              @click="onClickServiceHistory"
-            />
-            <h3
-              v-else
-              class="mb0"
-            >
-              {{ $t('MSG_TXT_SV_HIST') }}
-            </h3>
-
-            <table
-              style="width: 100%;"
-              class="info-table mt20"
-            >
-              <colgroup>
-                <col style="width: 110px; text-align: center;">
-                <col style="width: 120px; text-align: center;">
-                <col style="width: 70px; text-align: center;">
-                <col style="width: 100px; text-align: left;">
-                <col style="width: auto; text-align: left;">
-              </colgroup>
-              <tbody>
-                <tr
-                  v-for="(service, serviceIdx) in services"
-                  :key="serviceIdx"
-                >
-                  <td>{{ dayjs(service.wkExcnDt).format('YYYY-MM-DD') }}</td>
-                  <td>{{ service.cntrNo }}</td>
-                  <td>{{ service.serviceGb }}</td>
-                  <td>{{ service.pdGrpNm }}</td>
-                  <td
-                    :hint="service.pdNm"
+            <template v-if="services.length > 0">
+              <kw-btn
+                icon-right="arrow_right_24"
+                borderless
+                :label="$t('MSG_TXT_SV_HIST')"
+                class="kw-font--18 text-weight-medium"
+                @click="onClickServiceHistory"
+              />
+              <table
+                style="width: 100%;"
+                class="info-table mt20"
+              >
+                <colgroup>
+                  <col style="width: 110px; text-align: center;">
+                  <col style="width: 120px; text-align: center;">
+                  <col style="width: 70px; text-align: center;">
+                  <col style="width: 100px; text-align: left;">
+                  <col style="width: auto; text-align: left;">
+                </colgroup>
+                <tbody>
+                  <tr
+                    v-for="(service, serviceIdx) in services"
+                    :key="serviceIdx"
                   >
-                    {{ service.partPdNm }}
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+                    <td>{{ dayjs(service.wkExcnDt).format('YYYY-MM-DD') }}</td>
+                    <td>{{ service.cntrNo }}</td>
+                    <td>{{ service.serviceGb }}</td>
+                    <td>{{ service.pdGrpNm }}</td>
+                    <td
+                      :hint="service.pdNm"
+                    >
+                      {{ service.partPdNm }}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </template>
+            <template v-else>
+              <h3 class="mb0">
+                {{ $t('MSG_TXT_SV_HIST') }}
+              </h3>
+              <div class="mt24 mb50">
+                <p class="kw-fc--black3 text-center kw-font-pt14">
+                  {{ $t('MSG_ALT_NO_SV_IZ') }}
+                </p>
+              </div>
+            </template>
 
             <kw-separator />
 
@@ -349,82 +371,96 @@
             <div>
               <!-- active class : 현재 해당 페이지의 정보자 표시 할 때 클래스 추가  -->
               <!-- <div class="border-box mt20 py20 active"> -->
-              <div
-                v-for="(product, productIdx) in products"
-                :key="productIdx"
-                class="border-box mt20 py20"
-              >
-                <div class="row">
-                  <kw-btn
-                    :label="product.pdNm"
-                    underline
-                    class="text-weight-medium"
-                    @click="onClickContractDetailPop(product)"
-                  />
-                  <kw-separator
-                    spaced
-                    vertical
-                    class="my5 mx20"
-                  />
-                  <span>{{ product.sellTpNm }}</span>
-                  <kw-separator
-                    spaced
-                    vertical
-                    class="my5 mx20"
-                  />
-                  <span>{{ `월 ${stringUtil.getNumberWithComma(product.fnlAmt)}원` }}</span>
-                </div>
-
-                <kw-separator class="my12" />
-
-                <kw-form
-                  :cols="2"
-                  dense
+              <template v-if="products.length > 0">
+                <div
+                  v-for="(product, productIdx) in products"
+                  :key="productIdx"
+                  class="border-box mt20 py20"
                 >
-                  <kw-form-row>
-                    <kw-form-item :label="$t('MSG_TXT_INSTR')">
-                      <p>{{ product.rcgvpKnm }}</p>
-                    </kw-form-item>
-                    <kw-form-item :label="$t('MSG_TXT_PIC')">
-                      <p>{{ product.prtnrKnm }}</p>
-                    </kw-form-item>
-                  </kw-form-row>
-                  <kw-form-row>
-                    <kw-form-item
-                      v-if="(product.sellTpCd === '1' || product.sellTpCd === '3') && !isEmpty(product.frisuBfsvcEnddt)"
-                      :label="$t('MSG_TXT_FRISU_MSH')"
-                    >
-                      <p>{{ `${dayjs(product.frisuBfsvcEnddt).format('YYYY-MM-DD')} 만료` }}</p>
-                    </kw-form-item>
-                    <kw-form-item
-                      v-else
-                      :label="$t('MSG_TXT_USE_STPL_PTRM')"
-                    >
-                      <!-- kw-fc--error class : 남은 기간 3 개월 남았을 때 빨간색으로 색으로 바뀜  -->
-                      <p>
-                        <span :class="product.expireSoonYn === 'Y' ? 'kw-fc--error' : ''">
-                          {{ `${product.rentalTn} 차월` }}
-                        </span>
-                        {{ `/ ${product.cntrPtrm} 개월` }}
-                      </p>
-                    </kw-form-item>
-                    <kw-form-item :label="$t('MSG_TXT_BFSVC_PRD')">
-                      {{ `${product.svPrd} 개월` }}
-                    </kw-form-item>
-                  </kw-form-row>
-                  <kw-form-row>
-                    <kw-form-item
-                      :label="$t('MSG_TXT_RECT_BFSVC')"
-                    >
-                      <p>{{ !isEmpty(product.lastBs)?dayjs(product.lastBs).format('YYYY-MM-DD'):'' }}</p>
-                    </kw-form-item>
-                    <kw-form-item
-                      :label="$t('MSG_TXT_NEXT_BFSVC')"
-                    >
-                      <p>{{ !isEmpty(product.nextBs)?dayjs(product.nextBs).format('YYYY-MM-DD'):'' }}</p>
-                    </kw-form-item>
-                  </kw-form-row>
-                </kw-form>
+                  <div class="row">
+                    <kw-btn
+                      :label="product.pdNm"
+                      underline
+                      class="text-weight-medium"
+                      @click="onClickContractDetailPop(product)"
+                    />
+                    <kw-separator
+                      spaced
+                      vertical
+                      class="my5 mx20"
+                    />
+                    <span>{{ product.sellTpNm }}</span>
+                    <kw-separator
+                      spaced
+                      vertical
+                      class="my5 mx20"
+                    />
+                    <span>{{ `월 ${isEmpty(product.fnlAmt)
+                      ?'0':stringUtil.getNumberWithComma(product.fnlAmt)} 원` }}</span>
+                  </div>
+
+                  <kw-separator class="my12" />
+
+                  <kw-form
+                    :cols="2"
+                    dense
+                  >
+                    <kw-form-row>
+                      <kw-form-item :label="$t('MSG_TXT_INSTR')">
+                        <p>{{ product.rcgvpKnm }}</p>
+                      </kw-form-item>
+                      <kw-form-item :label="$t('MSG_TXT_PIC')">
+                        <p>{{ product.prtnrKnm }}</p>
+                      </kw-form-item>
+                    </kw-form-row>
+                    <kw-form-row>
+                      <kw-form-item
+                        v-if="(product.sellTpCd === '1' || product.sellTpCd === '3')
+                          && !isEmpty(product.frisuBfsvcEnddt)"
+                        :label="$t('MSG_TXT_FRISU_MSH')"
+                      >
+                        <p>{{ `${dayjs(product.frisuBfsvcEnddt).format('YYYY-MM-DD')} 만료` }}</p>
+                      </kw-form-item>
+                      <kw-form-item
+                        v-else
+                        :label="$t('MSG_TXT_USE_STPL_PTRM')"
+                      >
+                        <!-- kw-fc--error class : 남은 기간 3 개월 남았을 때 빨간색으로 색으로 바뀜  -->
+                        <p>
+                          <span :class="product.expireSoonYn === 'Y' ? 'kw-fc--error' : ''">
+                            {{ `${product.rentalTn} 차월` }}
+                          </span>
+                          {{ `/ ${product.cntrPtrm} 개월` }}
+                        </p>
+                      </kw-form-item>
+                      <kw-form-item :label="$t('MSG_TXT_BFSVC_PRD')">
+                        {{ `${product.svPrd} 개월` }}
+                      </kw-form-item>
+                    </kw-form-row>
+                    <kw-form-row>
+                      <kw-form-item
+                        :label="$t('MSG_TXT_RECT_BFSVC')"
+                      >
+                        <p>{{ !isEmpty(product.lastBs)?dayjs(product.lastBs).format('YYYY-MM-DD'):'' }}</p>
+                      </kw-form-item>
+                      <kw-form-item
+                        :label="$t('MSG_TXT_NEXT_BFSVC')"
+                      >
+                        <p>{{ !isEmpty(product.nextBs)?dayjs(product.nextBs).format('YYYY-MM-DD'):'' }}</p>
+                      </kw-form-item>
+                    </kw-form-row>
+                  </kw-form>
+                </div>
+              </template>
+              <div
+                v-else
+                class="q-scroll--inside px40 py30"
+              >
+                <div class="mt24 mb50">
+                  <p class="kw-fc--black3 text-center kw-font-pt14">
+                    {{ $t('MSG_ALT_CRTL_HV_PD') }}
+                  </p>
+                </div>
               </div>
             </div>
           </div>
@@ -469,10 +505,13 @@ const searchParams = ref({
 const customerInfo = ref({
   cstNo: '',
   copnDvCd: '',
+  copnDvNm: '',
   cstGdCd: '',
+  cstGdNm: '',
   cstNm: '',
   bryyMmdd: '',
   sexDvCd: '',
+  sexDvNm: '',
   zip: '',
   basAdr: '',
   dtlAdr: '',
@@ -498,10 +537,13 @@ function initData() {
   customerInfo.value = {
     cstNo: '',
     copnDvCd: '',
+    copnDvNm: '',
     cstGdCd: '',
+    cstGdNm: '',
     cstNm: '',
     bryyMmdd: '',
     sexDvCd: '',
+    sexDvNm: '',
     zip: '',
     basAdr: '',
     dtlAdr: '',
@@ -578,7 +620,7 @@ async function fetchCustomerData() {
       }
     }
   } else {
-    notify(t('MSG_ALT_NO_INFO_SRCH'));
+    notify(t('MSG_ALT_CST_INF_NOT_EXST'));
     setCustomerData(null);
   }
 }
@@ -651,8 +693,34 @@ async function onClickContractDetailPop(dataInfo) {
   });
 }
 
+function onClickPaymentStatus() {
+  router.push(
+    {
+      path: '/withdrawal/zwwda-create-itemization-mgt',
+    },
+  );
+}
+
 async function onClickServiceHistory() {
   await alert('개인별 서비스현황 화면 개발중');
+}
+
+function isTelFormat(tel) {
+  if (isEmpty(tel)) {
+    return false;
+  }
+  tel = tel.replaceAll('-', '');
+  const telRule = /^(070|02|0[3-9]{1}[0-9]{1})[0-9]{3,4}[0-9]{4}$/;
+  return telRule.test(tel);
+}
+
+function isHpFormat(hp) {
+  if (isEmpty(hp)) {
+    return false;
+  }
+  hp = hp.replaceAll('-', '');
+  const hpRule = /^(01[016789]{1})[0-9]{3,4}[0-9]{4}$/;
+  return hpRule.test(hp);
 }
 
 // -------------------------------------------------------------------------------------------------

@@ -24,10 +24,12 @@
         <!-- 제외유형 -->
         <kw-search-item
           :label="t('MSG_TXT_EXLD_TP')"
+          required
         >
           <kw-select
             v-model="searchParams.asnExcdDvCd"
             :options="codes.ASN_EXCD_DV_CD"
+            rules="required"
             @change="onChangeAsnExcdDvCd"
           />
         </kw-search-item>
@@ -38,7 +40,7 @@
         >
           <kw-select
             v-model="searchParams.itmKndCd"
-            :options="itmKndCdFilter"
+            :options="filterCodes.itmKndCd"
             first-option="all"
           />
         </kw-search-item>
@@ -47,9 +49,11 @@
         <kw-search-item :label="t('MSG_TXT_BSNS_CNTR')">
           <kw-select
             v-model="searchParams.wareNo"
-            :options="warehouseFilter"
-            :disable="searchParams.asnExcdDvCd !== '3'"
-            first-option="all"
+            :options="optionsWareNo"
+            :disable="searchParams.asnExcdDvCd === '0'"
+            option-value="wareNo"
+            option-label="wareNm"
+            placeholder=""
           />
         </kw-search-item>
         <!-- //영업센터 -->
@@ -89,143 +93,172 @@
   </kw-popup>
 </template>
 <script setup>
+
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import {
-  codeUtil,
-  getComponentType,
-  useDataService,
-  useMeta,
-  defineGrid,
-  gridUtil,
-  useGlobal,
-} from 'kw-lib';
-import dayjs from 'dayjs';
-import { cloneDeep } from 'lodash-es';
+
+import { codeUtil, getComponentType, useDataService, useMeta, defineGrid, gridUtil, useGlobal } from 'kw-lib';
+import { cloneDeep, isEmpty } from 'lodash-es';
 
 const { notify } = useGlobal();
 const { getConfig } = useMeta();
 const { t } = useI18n();
 
 const dataService = useDataService();
-const baseURI = '/sms/wells/service/assign-exclude-items';
-const grdMainRef = ref(getComponentType('KwGrid'));
+
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
+
+const grdMainRef = ref(getComponentType('KwGrid'));
+
 const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
   'ASN_EXCD_DV_CD',
   'ITM_KND_CD',
-  'WARE_DV_CD',
-  'WARE_DTL_DV_CD',
 );
 
-const itmKndCdFilter = codes.ITM_KND_CD.filter((v) => ['4', '5', '6'].includes(v.codeId));
-const warehouseFilter = ref([]);
+let cachedParams;
 const searchParams = ref({
-  baseYm: dayjs().format('YYYYMM'),
-  itmPdCd: '',
-  itmKndCd: '',
   asnExcdDvCd: '0',
+  itmKndCd: '',
   wareNo: '',
 });
-let cachedParams;
 
 const pageInfo = ref({
   totalCount: 0,
   pageIndex: 1,
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
+  needTotalCount: true,
 });
 
-async function onChangeAsnExcdDvCd(v) {
-  console.log(`v: ${v}`);
+const filterCodes = ref({
+  itmKndCd: [],
+});
+
+function itmKndCdFilter() {
+  filterCodes.value.itmKndCd = codes.ITM_KND_CD.filter((v) => ['4', '5', '6'].includes(v.codeId));
+}
+
+const optionsWareNo = ref();
+// 창고 조회
+async function getWareHouse() {
   searchParams.value.wareNo = '';
+  const result = await dataService.get('/sms/wells/service/assign-exclude-items/warehouses');
+  optionsWareNo.value = result.data;
+}
+
+function onChangeAsnExcdDvCd() {
+  searchParams.value.wareNo = '';
+
+  const { asnExcdDvCd } = searchParams.value;
+  if (asnExcdDvCd !== '0' && !isEmpty(optionsWareNo.value)) {
+    searchParams.value.wareNo = optionsWareNo.value[0].wareNo;
+  }
 }
 
 async function fetchData() {
-  console.log(baseURI, cachedParams);
-  console.log(`cachedParams.itmKndCd: ${cachedParams.itmKndCd}`);
-  const res = await dataService.get(baseURI, { params: { ...cachedParams, ...pageInfo.value } });
-  const { list: searchData, pageInfo: pagingResult } = res.data;
-
+  const res = await dataService.get('/sms/wells/service/assign-exclude-items/paging', { params: { ...cachedParams, ...pageInfo.value } });
+  const { list: excludeItem, pageInfo: pagingResult } = res.data;
+  pagingResult.needTotalCount = false;
   pageInfo.value = pagingResult;
 
-  const view = grdMainRef.value.getView();
-  const datasSource = view.getDataSource();
-  datasSource.setRows(searchData);
-  view.resetCurrent();
+  if (grdMainRef.value != null) {
+    const view = grdMainRef.value.getView();
+    view.getDataSource().setRows(excludeItem);
+    view.resetCurrent();
+  }
 }
 
 async function onClickSearch() {
   pageInfo.value.pageIndex = 1;
+  pageInfo.value.needTotalCount = true;
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
 }
 
-async function getSaveParams() {
-  const checkedValues = ref(gridUtil.getCheckedRowValues(grdMainRef.value.getView()));
-  const wareNo = searchParams.value.asnExcdDvCd === '0' ? '300000' : searchParams.value.wareNo;
-  const { asnExcdDvCd } = searchParams.value;
-  checkedValues.value = checkedValues.value.map((v) => ({ ...v, asnExcdDvCd, strWareNo: wareNo }));
-
-  return checkedValues.value;
-}
-
 async function onClickSave() {
-  const saveParams = await getSaveParams();
-  console.log(`saveParams.length :${saveParams.length}`);
-
-  if (saveParams.length > 0) {
-    console.log(`saveParams : ${saveParams}`);
-    const res = await dataService.put(baseURI, saveParams);
-    console.log(`res:${res}`);
-    if (res.data > 0) {
-      notify(t('MSG_ALT_RTRN_SCS'));
-      fetchData();
+  const gridView = grdMainRef.value.getView();
+  // 신규 등록할 데이터
+  const checkedRows = gridUtil.getCheckedRowValues(gridView);
+  const createdRows = checkedRows.filter((item) => {
+    if (item.orgChk === 'N' && item.chk === 'Y') {
+      return true;
     }
-  } else {
-    notify(t('MSG_ALT_SAV_SEL_DATA'));
+    return false;
+  });
+
+  // 삭제할 데이터
+  const allRows = gridUtil.getAllRowValues(gridView);
+  const deletedRows = allRows.filter((item) => {
+    if (item.orgChk === 'Y' && item.chk === 'N') {
+      return true;
+    }
+    return false;
+  });
+
+  if (isEmpty(createdRows) && isEmpty(deletedRows)) {
+    notify(t('MSG_ALT_NO_CHG_CNTN'));
+    return;
+  }
+
+  let count = 0;
+  if (!isEmpty(deletedRows)) {
+    // 삭제처리
+    const res = await dataService.delete('/sms/wells/service/assign-exclude-items', { data: [...deletedRows] });
+    const { processCount } = res.data;
+    count += processCount;
+  }
+
+  if (!isEmpty(createdRows)) {
+    const res = await dataService.post('/sms/wells/service/assign-exclude-items', createdRows);
+    const { processCount } = res.data;
+    count += processCount;
+  }
+
+  if (count > 0) {
+    notify(t('MSG_ALT_SAVE_DATA'));
+    await fetchData();
   }
 }
 
 onMounted(async () => {
-  console.log('onMounted~~~~~~~~~~~~~~~~~~~~~~');
-  console.log(`searchParams.value.baseYm : ${searchParams.value.baseYm}`);
-  const res = await dataService.get(`${baseURI}/warehouse`, { params: searchParams.value });
-  warehouseFilter.value = res.data;
-  // await fetchData();
+  itmKndCdFilter();
+  await getWareHouse();
   await onClickSearch();
 });
+
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
+
 const initGrdMain = defineGrid((data, view) => {
-  const columns = [
-    { fieldName: 'sapMaptCd', header: t('MSG_TXT_SAP_CD'), width: '124', styleName: 'text-center' },
-    { fieldName: 'itmPdCd', header: t('MSG_TXT_ITM_CD'), width: '180', styleName: 'text-center' },
-    { fieldName: 'itmPdNm', header: t('MSG_TXT_ITM_NM'), width: '380' },
-    { fieldName: 'itmKndcd',
-      header: t('MSG_TXT_ITM_DV'),
-      options: codes.ITM_KND_CD,
-      editable: false,
-      width: '160',
-    },
-    { fieldName: 'asnExcdDvCd',
-      header: t('MSG_TXT_DIV'),
-      options: codes.ASN_EXCD_DV_CD,
-      editable: false,
-      width: '180',
-      styleName: 'text-center' },
-    { fieldName: 'strWareNo', header: t('MSG_TXT_CENTER_CD'), width: '190', styleName: 'text-center' },
+  const fields = [
+    { fieldName: 'sapMatCd' },
+    { fieldName: 'itmPdCd' },
+    { fieldName: 'itmPdNm' },
+    { fieldName: 'itmKndCd' },
+    { fieldName: 'itmKndNm' },
+    { fieldName: 'asnExcdDvCd' },
+    { fieldName: 'asnExcdDvNm' },
+    { fieldName: 'strWareNo' },
+    { fieldName: 'chk', dataType: 'text', booleanFormat: 'N:Y' },
+    { fieldName: 'orgChk' },
   ];
 
-  const fields = columns.map((v) => ({ fieldName: v.fieldName }));
-  fields.push({ fieldName: 'chk', dataType: 'text', booleanFormat: 'N:Y' });
+  const columns = [
+    { fieldName: 'sapMatCd', header: t('MSG_TXT_SAP_CD'), width: '180', styleName: 'text-center' },
+    { fieldName: 'itmPdCd', header: t('MSG_TXT_ITM_CD'), width: '124', styleName: 'text-center' },
+    { fieldName: 'itmPdNm', header: t('MSG_TXT_ITM_NM'), width: '380', styleName: 'text-left' },
+    { fieldName: 'itmKndNm', header: t('MSG_TXT_ITM_DV'), width: '80', styleName: 'text-center' },
+    { fieldName: 'asnExcdDvNm', header: t('MSG_TXT_DIV'), width: '80', styleName: 'text-center' },
+    { fieldName: 'strWareNo', header: t('MSG_TXT_CENTER_CD'), width: '100', styleName: 'text-center' },
+  ];
 
   data.setFields(fields);
   view.setColumns(columns);
+
   view.checkBar.fieldName = 'chk';
   view.checkBar.visible = true;
   view.rowIndicator.visible = true;

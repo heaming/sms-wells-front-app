@@ -30,6 +30,7 @@
             first-option-value="ALL"
             :options="codes.SELL_TP_CD "
             rules="required"
+            @change="onChangesellTp"
           />
         </kw-search-item>
         <kw-search-item :label="t('MSG_TXT_DIV')">
@@ -40,6 +41,7 @@
                 v-bind="field"
                 v-model="searchParams.exmpYn"
                 :label="t('MSG_TXT_VAC_EXMP')"
+                :disable="isExmpYnChk"
               />
               <!-- val="방학면제" -->
             </template>
@@ -72,7 +74,7 @@
             v-model="searchParams.ctrTp"
             first-option="all"
             first-option-value="ALL"
-            :options="codes.SL_CTR_MTR_TP_CD"
+            :options="codes.SL_CTR_DSC_TP_CD"
           />
         </kw-search-item>
         <!-- 자료구분 -->
@@ -113,10 +115,11 @@
             v-model="searchParams.userName"
             icon="search"
             clearable
-            :readonly="true"
             @click-icon="onClickSelectUser"
             @clear="onClearSelectUser"
+            @keydown="onKeydownSelectUser"
           />
+          <!-- :readonly="true" -->
         </kw-search-item>
         <!-- 등록일자-->
         <kw-search-item
@@ -229,7 +232,7 @@ const { currentRoute } = useRouter();
 const codes = await codeUtil.getMultiCodes(
   // 'SELL_TP_CD', //  판매유형코드
   // 'SL_CTR_MTR_DV_CD', // 조정자료구분코드 - 위약금x
-  // 'SL_CTR_DSC_TP_CD', // 조정할인유형코드
+  'SL_CTR_DSC_TP_CD', // 조정할인유형코드
   // 'SL_CTR_DV_CD', // 조정구분 - 부과/할인
   // 'SL_CTR_TP_CD', // 매출조정유형코드 - 할인
   // 'SL_CTR_MTR_TP_CD', // 매출조정자료유형코드
@@ -253,9 +256,12 @@ const searchParams = ref({
   ctrDv: 'ALL', // 조정구분
   dsc: 'ALL', // 할인구분
   prtnrNo: '', // 등록자 아이디 -> 파트너 아이디
+  ogTpCd: '',
   slCtrPrcsStrtDt: '', // 등록일자 From
   slCtrPrcsFshDt: '', // 등록일자 To
 });
+
+const isExmpYnChk = ref(true);
 
 const pageInfo = ref({
   totalCount: 0,
@@ -278,7 +284,7 @@ async function fetchData() {
 
   data.checkRowStates(false);
   data.setRows(pages);
-  view.resetCurrent();
+  // view.resetCurrent();
   data.checkRowStates(true);
 }
 
@@ -293,18 +299,26 @@ async function onClickSelectUser() {
     component: 'ZwogzPartnerListP', // Z-OG-U-0050P01
     componentProps: {
       prtnrNo: searchParams.value.prtnrNo,
+      ogTpCd: searchParams.value.ogTpCd,
     },
   });
   if (result) {
     // searchParams.value.claimNm = payload.prtnrKnm;
     // searchParams.value.cardPsrNm = payload.prtnrKnm;
     searchParams.value.prtnrNo = payload.prtnrNo;
+    searchParams.value.userName = payload.prtnrKnm;
     searchParams.value.ogTpCd = payload.ogTpCd;
   }
 }
 async function onClearSelectUser() {
-  searchParams.value.cstNo = '';
-  searchParams.value.cstFnm = '';
+  searchParams.value.prtnrNo = '';
+  searchParams.value.userName = '';
+  searchParams.value.ogTpCd = '';
+}
+async function onKeydownSelectUser() {
+  searchParams.value.prtnrNo = '';
+  // searchParams.value.userName = '';
+  searchParams.value.ogTpCd = '';
 }
 
 async function onClickAdd() {
@@ -363,6 +377,16 @@ async function onClickExcelUpload() {
     await fetchData();
   }
 }
+
+async function onChangesellTp() {
+  if (searchParams.value.sellTp === '2') {
+    isExmpYnChk.value = false;
+  } else {
+    searchParams.value.exmpYn = 'N';
+    isExmpYnChk.value = true;
+  }
+}
+
 async function onClickSave() {
   const view = grdMainRef.value.getView();
   const changedRows = gridUtil.getChangedRowValues(view);
@@ -400,6 +424,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'slCtrDvCd' },
     { fieldName: 'slCtrMtrTpCd' }, /* 조정유형 */
     { fieldName: 'slCtrDscTpCd' }, /* 할인 */
+    { fieldName: 'slCtrTpCd' }, /* 할인 */
 
     { fieldName: 'canAfOjYn' }, /* 취소후적용 */
     { fieldName: 'slCtrAmt', dataType: 'number' }, /* 조정금액 */
@@ -494,7 +519,7 @@ const initGrid = defineGrid((data, view) => {
       options: codes.SL_CTR_DV_CD,
     },
     {
-      fieldName: 'slCtrMtrTpCd',
+      fieldName: 'slCtrDscTpCd',
       header: {
         text: t('MSG_TXT_CTR_TP'),
         styleName: 'essential',
@@ -502,10 +527,10 @@ const initGrid = defineGrid((data, view) => {
       width: '208',
       rules: 'required',
       editor: { type: 'dropdown' },
-      options: codes.SL_CTR_MTR_TP_CD,
+      options: codes.SL_CTR_DSC_TP_CD,
     },
     {
-      fieldName: 'slCtrDscTpCd',
+      fieldName: 'slCtrTpCd',
       header: {
         text: t('MSG_TXT_DSC'),
         styleName: 'essential',
@@ -529,8 +554,8 @@ const initGrid = defineGrid((data, view) => {
       rules: 'required',
       width: '208',
     },
-    { fieldName: 'slCtrPrcsdt', header: t('MSG_TXT_FST_RGST_DT'), width: '100', styleName: 'text-center', editable: false },
-    { fieldName: 'usrNm', header: t('MSG_TXT_RGST_USR'), width: '100', editable: false },
+    { fieldName: 'slCtrPrcsdt', header: t('MSG_TXT_FST_RGST_DT'), width: '100', styleName: 'text-center', editable: false, datetimeFormat: 'date' },
+    { fieldName: 'usrNm', header: t('MSG_TXT_RGST_USR'), width: '100', editable: false, styleName: 'text-center' },
     { fieldName: 'fnlMdfcUsrId', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '100', styleName: 'text-center', editable: false },
   ];
 

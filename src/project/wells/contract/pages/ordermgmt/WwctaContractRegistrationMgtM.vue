@@ -163,7 +163,7 @@
         </div>
       </div>
       <div
-        v-if="!isReadOnly"
+        v-if="!isCnfmCntr"
         class="button-set--bottom"
       >
         <div class="button-set--bottom-left">
@@ -280,7 +280,6 @@ const contract = ref({
   step2: {},
   step3: {},
   step4: {},
-  isReadonly: false,
 });
 const smr = ref({
   cntrTpNm: computed(() => codes.CNTR_TP_CD.find((c) => c.codeId === contract.value.step1.bas?.cntrTpCd)?.codeName),
@@ -296,7 +295,7 @@ const smr = ref({
     Number(contract.value.step2.dtls?.reduce((acc, cur) => Number(acc) + Number(cur.fnlAmt || 0), 0)) || 0,
   )),
 });
-const isReadOnly = ref(false);
+const isCnfmCntr = ref(false);
 const stepsStatus = reactive([false, false, false, false]);
 watch(currentStepName, (value) => {
   console.log(value);
@@ -326,13 +325,13 @@ async function getCntrInfo(step, cntrNo) {
     // step2일 때 상품 조회
     await panelsRefs[currentStepName.value].getProducts(cntrNo);
   }
-  await panelsRefs[currentStepName.value].getCntrInfo(cntrNo, contract.value.isReadonly);
+  await panelsRefs[currentStepName.value].getCntrInfo(cntrNo);
 }
 
 async function getExistedCntr() {
   const { cntrNo, cntrPrgsStatCd } = props;
   if (!cntrNo || !cntrPrgsStatCd) return;
-  isReadOnly.value = props.cntrPrgsStatCd > 20;
+  isCnfmCntr.value = props.cntrPrgsStatCd > 20;
   const step = {
     10: 1,
     12: 2,
@@ -346,7 +345,6 @@ async function getExistedCntr() {
   if (step >= 2) contract.value.step2 = smrs.data.step2;
   if (step >= 3) contract.value.step3 = smrs.data.step3;
   if (step >= 4) contract.value.step4 = smrs.data.step4;
-  contract.value.isReadonly = true;
   await getCntrInfo(step, cntrNo);
 }
 

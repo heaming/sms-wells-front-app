@@ -1,17 +1,3 @@
-<!----
-****************************************************************************************************
-* 프로그램 개요
-****************************************************************************************************
-1. 모듈 : CTA
-2. 프로그램 ID : WwctaReceiptBulkUploadMRental - 대량 접수자료 업로드
-3. 작성자 : gs.nidhi.d
-4. 작성일 : 2023.04.26
-****************************************************************************************************
-* 프로그램 설명
-****************************************************************************************************
-- 대량 접수자료 업로드
-****************************************************************************************************
---->
 <template>
   <h3>렌탈 접수자료 업로드</h3>
   <kw-action-top>
@@ -61,36 +47,93 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { defineGrid, getComponentType, modal } from 'kw-lib';
+import { defineGrid, getComponentType, gridUtil, modal, notify, useDataService } from 'kw-lib';
 import useGridDataModel from '~sms-common/contract/composable/useGridDataModel';
+import {
+  CtCodeUtil,
+  validateBryyMmddWithCopnCdCd,
+  validateBzrnoWithCopnCdCd, validateTel1, validateTel2, validateTel3,
+} from '~sms-common/contract/util';
 
 const { t } = useI18n();
+const dataService = useDataService();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 const grdRef = ref(getComponentType('KwGrid'));
-// const grdView = computed(() => grdRef.value?.getView());
-// const grdData = computed(() => grdRef.value?.getData());
+const grdView = computed(() => grdRef.value?.getView());
+const grdData = computed(() => grdRef.value?.getData());
 const pageInfo = ref({
   totalCount: 0,
 });
 const visibleRows = computed(() => Math.min(Math.max(pageInfo.value.totalCount, 1), 5));
+const uploaded = ref(false);
 let gridDataModel;
-function onClickConfirm() {
+
+const { codes, getCode } = await CtCodeUtil(
+  'ALNCMP_DG_PRTNR_MAPNG_CD',
+  'COPN_DV_CD',
+  'SEX_DV_CD',
+  'RENTAL_DSC_DV_CD',
+  'RENTAL_DSC_TP_CD',
+  'RENTAL_CRP_DSCR_CD',
+  'SPAY_DSC_DV_CD',
+  'SPAY_DSCR_CD',
+  'BFSVC_BZS_DV_CD',
+  'SPLY_BZS_DV_CD',
+  'HCR_DV_CD',
+);
+
+async function onClickConfirm() {
+  uploaded.value = true;
+  const rows = gridUtil.getAllRowValues(grdView.value);
+  await dataService.post('/sms/wells/contract/bulk-upload/rentals', rows);
+  notify('저장되었습니다.'); /* todo msg */
 }
 
 function onClickCheckCode() {
+  modal({
+    component: 'WwctaReceiptBulkUploadP',
+    componentProps: {
+      parent: 'WwctaReceiptBulkUploadMProspectCustomer',
+    },
+  });
+}
+
+async function validate(row) {
+  const {
+    adr1,
+    adr2,
+  } = row;
+  if (!adr1 || !adr2) {
+    throw new Error('주소값은 필수 입니다.');
+  }
+
+  const { data } = await dataService.put('/sms/wells/contract/bulk-upload/rentals/validate', row, {
+    alert: false,
+  });
+
+  return data;
 }
 
 async function onClickExcelUpload() {
+  grdData.value.clearRows();
+  uploaded.value = false;
   const { result, payload } = await modal({
     component: 'ZctzExcelUploadP',
     componentProps: {
-      columns: gridDataModel.columns,
+      columns: gridDataModel.dataModelObject,
+      templateDocId: 'FOM_RENTAL_CONTRACT_BATCH_UPLOAD',
+      headerRows: 2,
+      validationBtn: false,
+      serverSideValidation: validate,
+      serverSideValidateOption: { sideEffect: true },
     },
   });
   if (result) {
-    console.log(payload);
+    const { list } = payload;
+    pageInfo.value.totalCount = list.length || 0;
+    grdData.value.setRows(list);
   }
 }
 
@@ -99,27 +142,140 @@ async function onClickExcelUpload() {
 // -------------------------------------------------------------------------------------------------
 const initGrd = defineGrid((data, view) => {
   gridDataModel = useGridDataModel(view, {
-    col1: { label: t('MSG_TXT_REG_FILE'), width: 133, classes: 'text-center' },
-    col2: { label: t('MSG_TXT_RGST_DT'), width: 146, classes: 'text-center', datetimeFormat: 'date' },
-    col3: { label: t('MSG_TXT_FST_RGST_USR'), width: 146, classes: 'text-center' },
-    col4: { label: t('MSG_TXT_RGR_EMPNO'), width: 146, classes: 'text-center' },
-    col5: { label: t('MSG_TXT_PRDT_CODE'), width: 128, classes: 'text-center' },
-    col6: { label: t('MSG_TXT_PRDT_NM'), width: 290, classes: 'text-left' },
-    col7: { label: t('MSG_TXT_RCP_D'), width: 128, classes: 'text-center', datetimeFormat: 'date' },
-    col8: { label: t('MSG_TXT_CNTOR_NM'), width: 128, classes: 'text-center' },
-    col9: { label: t('MSG_TXT_RGST_FEE'), width: 128, classes: 'text-right' },
-    col10: { label: t('MSG_TXT_VAR_MNTHS'), width: 128, classes: 'text-center' },
-    col11: { label: t('MSG_TXT_STL_DV'), width: 128, classes: 'text-center' },
-    col12: { label: t('MSG_TXT_BIRTH_DATE'), width: 128, classes: 'text-center', datetimeFormat: 'date' },
-    col13: { label: t('MSG_TXT_GENDER_MF'), width: 128, classes: 'text-center' },
-    col14: { label: t('MSG_TXT_MPNO'), width: 128, classes: 'text-center' },
-    col15: { label: t('MSG_TXT_ZIP'), width: 128, classes: 'text-center' },
-    col16: { label: t('MSG_TXT_ADDR'), width: 275, classes: 'text-left' },
-    col17: { label: `${t('MSG_TXT_FGPT')}1`, width: 128, classes: 'text-center' },
-    col18: { label: `${t('MSG_TXT_FGPT')}2`, width: 128, classes: 'text-center' },
-    col19: { label: `${t('MSG_TXT_FGPT')}3`, width: 128, classes: 'text-center' },
-    col20: { label: t('MSG_TXT_SUSC_ORD_NO'), width: 128, classes: 'text-center' },
+    basePdCd: {
+      label: t('기준상품코드'),
+      width: 133,
+      required: true,
+      rules: 'alpha_num|max:10',
+      classes: 'text-center',
+    },
+    copnDvCd: { label: t('개인법인구분'), width: 146, options: codes.COPN_DV_CD, required: true },
+    cstNo: { label: t('고객번호'), width: 146, classes: 'text-center', required: true },
+    alncmpDgPrtnrMapngCd: {
+      label: t('대표파트너번호'),
+      width: 146,
+      options: codes.ALNCMP_DG_PRTNR_MAPNG_CD,
+      required: true,
+    },
+    alncmpCd: {
+      displaying: false,
+      valueCallback: (gridBase, rowId, fieldName, fields, values) => {
+        const alncmpDgPrtnrMapngCdId = values[fields.indexOf('alncmpDgPrtnrMapngCd')];
+        const alncmpDgPrtnrMapngCd = getCode('ALNCMP_DG_PRTNR_MAPNG_CD', alncmpDgPrtnrMapngCdId);
+        return alncmpDgPrtnrMapngCd?.prtsCodeId || '';
+      },
+    },
+    alncmpDgPrtnrOgTpCd: {
+      displaying: false,
+      valueCallback: (gridBase, rowId, fieldName, fields, values) => {
+        const alncmpDgPrtnrMapngCdId = values[fields.indexOf('alncmpDgPrtnrMapngCd')];
+        const alncmpDgPrtnrMapngCd = getCode('ALNCMP_DG_PRTNR_MAPNG_CD', alncmpDgPrtnrMapngCdId);
+        return alncmpDgPrtnrMapngCd?.userDfn02 || '';
+      },
+    },
+    cntrAmt: { label: t('등록비'), type: Number, width: 146 },
+    cntrPtrm: { label: t('계약기간'), type: Number, width: 146, required: true },
+    svPdCd: { label: t('서비스상품코드'), width: 146, classes: 'text-center', required: true }, /* 상품코드 긁어올까.. */
+    stplPtrm: { label: t('약정기간'), type: Number, width: 146 },
+    rentalDscTpCd: { label: t('렌탈할인유형코드'), width: 146, options: codes.RENTAL_DSC_TP_CD },
+    rentalDscDvCd: { label: t('렌탈할인구분코드'), width: 146, options: codes.RENTAL_DSC_DV_CD },
+    rentalCrpDscrCd: { label: t('렌탈법인할인율코드'), width: 146, options: codes.RENTAL_CRP_DSCR_CD },
+    sellDscCtrAmt: { label: t('법인특별할인금액'), type: Number, width: 146, required: true }, /* 판매할인조정금액 */
+    cstKnm: { label: t('고객명'), width: 146, classes: 'text-center', required: true },
+    bryyMmdd: {
+      label: t('MSG_TXT_BIRTH_DATE'),
+      width: 128,
+      classes: 'text-center',
+      rules: validateBryyMmddWithCopnCdCd,
+    },
+    bzrno: {
+      label: t('사업자번호'),
+      width: 128,
+      classes: 'text-center',
+      rules: validateBzrnoWithCopnCdCd,
+    },
+    sexDvCd: { label: t('MSG_TXT_GENDER_MF'), width: 128, options: codes.SEX_DV_CD },
+    cralLocaraTno: {
+      label: `${t('휴대')}1`,
+      width: 128,
+      classes: 'text-center',
+      rules: validateTel1,
+    },
+    mexnoEncr: {
+      label: `${t('휴대')}2`,
+      width: 128,
+      classes: 'text-center',
+      rules: validateTel2,
+    },
+    cralIdvTno: {
+      label: `${t('휴대')}3`,
+      width: 128,
+      classes: 'text-center',
+      rules: validateTel3,
+    },
+    locaraTno: {
+      label: `${t('전화')}1`,
+      width: 128,
+      classes: 'text-center',
+      rules: validateTel1,
+    },
+    exnoEncr: {
+      label: `${t('전화')}2`,
+      width: 128,
+      classes: 'text-center',
+      rules: validateTel2,
+    },
+    idvTno: {
+      label: `${t('전화')}3`,
+      width: 128,
+      classes: 'text-center',
+      rules: validateTel3,
+    },
+    zip: { label: t('MSG_TXT_ZIP'), width: 128, classes: 'text-center' },
+    adr1: { label: `${t('MSG_TXT_ADDR')}1`, width: 275, classes: 'text-left', required: true },
+    adr2: { label: `${t('MSG_TXT_ADDR')}2`, width: 275, classes: 'text-left' },
+    gift1: { label: t('사은품1'), width: 275, classes: 'text-left bg-error' }, /* 안써요. */
+    gift2: { label: t('사은품2'), width: 275, classes: 'text-left bg-error' }, /* 안써요. */
+    alncmpSuscOrdNo: { label: t('구독주문번호'), width: 146 },
+
+    /* 이하 서버 다녀와서 채워지는 정보들 */
+    adrId: { displaying: false },
+    pdHclsfId: { displaying: false },
+    pdMclsfId: { displaying: false },
+    pdLclsfId: { displaying: false },
+    pdDclsfId: { displaying: false },
+    sellTpCd: { displaying: false },
+    sellTpDtlCd: { displaying: false },
+    svPrd: { displaying: false, type: Number },
+    pdBaseAmt: { displaying: false, type: Number },
+    sellAmt: { displaying: false, type: Number },
+    dscAmt: { displaying: false, type: Number },
+    cntramDscAmt: { displaying: false, type: Number },
+    fnlAmt: { displaying: false, type: Number },
+    vat: { displaying: false, type: Number },
+    cntrTam: { displaying: false, type: Number },
+    ackmtPerfRt: { displaying: false, type: Number },
+    ackmtPerfAmt: { displaying: false, type: Number },
+    feeAckmtCt: { displaying: false, type: Number },
+    feeAckmtBaseAmt: { displaying: false, type: Number },
+    sellInflwChnlDtlCd: { displaying: false },
+    pdctPdRelId: { displaying: false },
+    pdctPdCd: { displaying: false },
+    pdctVlStrtDtm: { displaying: false },
+    pdctVlEndDtm: { displaying: false },
+    pdctPdQty: { displaying: false, type: Number },
+    svPdRelId: { displaying: false },
+    svVlStrtDtm: { displaying: false },
+    svVlEndDtm: { displaying: false },
+    svPdQty: { displaying: false, type: Number },
+    pdPrcFnlDtlId: { displaying: false },
+    verSn: { displaying: false, type: Number },
+    fxamFxrtDvCd: { displaying: false },
+    ctrVal: { displaying: false, type: Number },
+    fnlVal: { displaying: false, type: Number },
+    pdPrcId: { displaying: false },
   });
+
   view.rowIndicator.visible = true;
 });
 

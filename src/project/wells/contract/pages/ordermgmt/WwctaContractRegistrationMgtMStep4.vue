@@ -25,7 +25,7 @@
         class="mt20"
       >
         <template
-          v-if="cntrTpIs.indv || cntrTpIs.ensm || cntrTpIs.msh"
+          v-if="cntrTpIs.indv || cntrTpIs.ensm || (cntrTpIs.msh && step4.bas.copnDvCd === '1')"
         >
           <kw-form-row>
             <kw-form-item
@@ -63,7 +63,7 @@ ${step4.cntrt.sexDvNm || ''}` }}
           </kw-form-row>
         </template>
         <template
-          v-else-if="cntrTpIs.crp"
+          v-else-if="cntrTpIs.crp || (cntrTpIs.msh && step4.bas.copnDvCd === '2')"
         >
           <kw-form-row>
             <kw-form-item
@@ -123,7 +123,13 @@ ${step4.cntrt.sexDvNm || ''}` }}
       >
         <kw-form-row>
           <kw-form-item label="고객결제방법선택">
+            <p
+              v-if="isReadonly"
+            >
+              {{ codes.CST_STLM_IN_MTH_CD.find((code) => code.codeId === step4.bas?.cstStlmInMthCd)?.codeName }}
+            </p>
             <kw-option-group
+              v-else
               :model-value="step4.bas?.cstStlmInMthCd"
               type="radio"
               :options="codes.CST_STLM_IN_MTH_CD"
@@ -413,67 +419,85 @@ ${step4.cntrt.sexDvNm || ''}` }}
             dense
             class="mt20"
           >
-            <kw-form-row>
-              <kw-form-item
-                label="설치장소"
-              >
-                <p>
-                  {{ codes.IST_PLC_TP_CD.find((code) => code.codeId === item.wellsDtl.istPlcTpCd)?.codeName }}
-                </p>
-              </kw-form-item>
-              <kw-form-item
-                label="가구 구성원 수"
-              >
-                <p>
-                  {{ codes.FMMB_N.find((code) => code.codeId === item.wellsDtl.fmmbN)?.codeName }}
-                </p>
-              </kw-form-item>
-            </kw-form-row>
-            <kw-form-row>
-              <kw-form-item
-                label="전압"
-              >
-                <p>
-                  {{ codes.USE_ELECT_TP_CD.find((code) => code.codeId === item.wellsDtl.useElectTpCd)?.codeName }}
-                </p>
-              </kw-form-item>
-              <kw-form-item
-                label="수압"
-              >
-                <p>
-                  {{ codes.WPRS_ITST_TP_CD.find((code) => code.codeId === item.wellsDtl.wprsItstTpCd)?.codeName }}
-                </p>
-              </kw-form-item>
-            </kw-form-row>
-            <kw-form-row>
-              <kw-form-item
-                label="수질"
-              >
-                <p>
-                  {{ codes.SRCWT_TP_CD.find((code) => code.codeId === item.wellsDtl.srcwtTpCd)?.codeName }}
-                </p>
-              </kw-form-item>
-            </kw-form-row>
-            <kw-form-row>
-              <kw-form-item
-                label="요청사항"
-                :colspan="2"
-              >
-                <p>
-                  {{ item.wellsDtl.istAkArtcMoCn }}
-                </p>
-              </kw-form-item>
-            </kw-form-row>
-            <kw-form-row>
-              <kw-form-item
-                label="참고사항"
-                :colspan="2"
-              >
-                <p>
-                  {{ "" }}
-                </p>
-              </kw-form-item>
-            </kw-form-row>
+            <template
+              v-if="item.sellTpCd === '1' || item.sellTpCd === '2'"
+            >
+              <kw-form-row>
+                <kw-form-item
+                  label="설치장소"
+                >
+                  <p>
+                    {{ codes.IST_PLC_TP_CD.find((code) => code.codeId === item.wellsDtl.istPlcTpCd)?.codeName }}
+                  </p>
+                </kw-form-item>
+                <kw-form-item
+                  label="가구 구성원 수"
+                >
+                  <p>
+                    {{ codes.FMMB_N.find((code) => code.codeId === item.wellsDtl.fmmbN)?.codeName }}
+                  </p>
+                </kw-form-item>
+              </kw-form-row>
+              <kw-form-row>
+                <kw-form-item
+                  label="전압"
+                >
+                  <p>
+                    {{ codes.USE_ELECT_TP_CD.find((code) => code.codeId === item.wellsDtl.useElectTpCd)?.codeName }}
+                  </p>
+                </kw-form-item>
+                <kw-form-item
+                  label="수압"
+                >
+                  <p>
+                    {{ codes.WPRS_ITST_TP_CD.find((code) => code.codeId === item.wellsDtl.wprsItstTpCd)?.codeName }}
+                  </p>
+                </kw-form-item>
+              </kw-form-row>
+              <kw-form-row>
+                <kw-form-item
+                  label="수질"
+                >
+                  <p>
+                    {{ codes.SRCWT_TP_CD.find((code) => code.codeId === item.wellsDtl.srcwtTpCd)?.codeName }}
+                  </p>
+                </kw-form-item>
+              </kw-form-row>
+              <kw-form-row>
+                <kw-form-item
+                  label="요청사항"
+                  :colspan="2"
+                >
+                  <p>
+                    {{ item.wellsDtl.istAkArtcMoCn }}
+                  </p>
+                </kw-form-item>
+              </kw-form-row>
+              <kw-form-row>
+                <kw-form-item
+                  label="참고사항"
+                  :colspan="2"
+                >
+                  <p>
+                    {{ "" }}
+                  </p>
+                </kw-form-item>
+              </kw-form-row>
+            </template>
+            <template
+              v-else
+            >
+              <kw-form-row>
+                <kw-form-item
+                  label="요청사항"
+                  :colspan="2"
+                >
+                  <p>
+                    {{ item.wellsDtl.istAkArtcMoCn }}
+                  </p>
+                </kw-form-item>
+              </kw-form-row>
+            </template>
           </kw-form>
         </template>
       </template>
@@ -614,6 +638,7 @@ const cntrTpIs = ref({
   rstl: computed(() => step4.value.bas?.cntrTpCd === '08'), // 재약정
   quot: computed(() => step4.value.bas?.cntrTpCd === '09'), // 견적서
 });
+const isReadonly = computed(() => step4.value.bas?.cntrPrgsStatCd > 20);
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -783,14 +808,14 @@ const initGrdMain = defineGrid((data, view) => {
         return `${cntrNo}-${cntrSn}`;
       },
     },
-    { fieldName: 'sellTpNm', header: t('MSG_TXT_CNTR_DV'), width: 80 },
+    { fieldName: 'sellTpNm', header: t('MSG_TXT_CNTR_DV'), width: 70 },
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: 200 },
-    { fieldName: 'regAmt', header: t('MSG_TXT_RGST_FEE'), width: 100, styleName: 'text-right' },
-    { fieldName: 'rntlAmt', header: t('MSG_TXT_MM_RTLFE'), width: 100, styleName: 'text-right' },
-    { fieldName: 'pdAmt', header: t('MSG_TXT_PRDT_AMT'), width: 100, styleName: 'text-right' },
-    { fieldName: 'stplPtrm', header: t('MSG_TXT_CONTRACT_PERI'), width: 100, styleName: 'text-right' },
-    { fieldName: 'cntrPtrm', header: t('MSG_TXT_CNTR_PTRM'), width: 100, styleName: 'text-right' },
-    { fieldName: 'dscAmt', header: t('MSG_TXT_DSC_AMT'), width: 100, styleName: 'text-right' },
+    { fieldName: 'regAmt', header: t('MSG_TXT_RGST_FEE'), width: 90, styleName: 'text-right' },
+    { fieldName: 'rntlAmt', header: t('MSG_TXT_MM_RTLFE'), width: 90, styleName: 'text-right' },
+    { fieldName: 'pdAmt', header: t('MSG_TXT_PRDT_AMT'), width: 90, styleName: 'text-right' },
+    { fieldName: 'stplPtrm', header: t('MSG_TXT_CONTRACT_PERI'), width: 90, styleName: 'text-right' },
+    { fieldName: 'cntrPtrm', header: t('MSG_TXT_CNTR_PTRM'), width: 90, styleName: 'text-right' },
+    { fieldName: 'dscAmt', header: t('MSG_TXT_DSC_AMT'), width: 90, styleName: 'text-right' },
   ];
   data.setFields(fields);
   view.setColumns(columns);

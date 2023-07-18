@@ -76,6 +76,7 @@
         <kw-btn
           grid-action
           :label="$t('MSG_BTN_ROW_ADD')"
+          :disable="isDisable"
           @click="onClickAdd"
         />
         <kw-separator
@@ -134,7 +135,7 @@ import {
   gridUtil,
   notify,
 } from 'kw-lib';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, isEmpty } from 'lodash-es';
 
 const { t } = useI18n();
 const { getConfig } = useMeta();
@@ -167,6 +168,7 @@ const searchParams = ref({
   pdGr: '',
   apyMtrChk: 'N',
 });
+const isDisable = computed(() => (isEmpty(searchParams.value.pdGr)));
 
 async function onChangePdGr() {
   const res = await dataService.get('/sms/wells/service/installation-separation-costs/filter-products', { params: searchParams.value });
@@ -212,7 +214,7 @@ async function onClickAdd() {
   const view = grdMainRef.value.getView();
 
   await gridUtil.insertRowAndFocus(view, 0, {
-    pdCd: pdNm.value[0].codeId,
+    pdCd: pdNm.value[0]?.codeId,
     apyStrtdt: now.add('1', 'day').format('YYYYMMDD'),
     apyEnddt: '99991231' });
 }
@@ -260,9 +262,6 @@ async function onClickSave() {
   await dataService.post('sms/wells/service/installation-separation-costs', chkRows);
   notify(t('MSG_ALT_SAVE_DATA'));
   await fetchData();
-
-  console.log(!gridUtil.isCreatedRow(view, chkRows));
-  console.log(gridUtil.getRowState(view, chkRows));
 }
 
 onMounted(async () => {
@@ -384,6 +383,9 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'rmkCn',
       header: t('MSG_TXT_NOTE'),
       width: '158',
+      editor: {
+        maxLength: 200,
+      },
     }, // 비고
   ];
 

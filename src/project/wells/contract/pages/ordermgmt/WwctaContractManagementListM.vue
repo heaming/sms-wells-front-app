@@ -47,8 +47,11 @@
           />
         </kw-search-item>
         <kw-separator
-          vertical
-          size="10"
+          size="5"
+          spaced
+        />
+        <kw-separator
+          size="5"
           spaced
         />
         <slot v-if="searchParams.cntrDv === 'A' || searchParams.cntrDv === 'N' || searchParams.cntrDv === 'U'">
@@ -58,7 +61,7 @@
           >
             <kw-select
               v-model="searchParams.cntrwTpCd"
-              class="w185"
+              class="w155"
               :options="codes.CNTRW_TP_CD.filter((v)=> v.codeId !== '9')"
               first-option="all"
               first-option-value=""
@@ -66,7 +69,7 @@
             />
             <kw-select
               v-model="searchParams.alncmpCd"
-              class="w185"
+              class="w155"
               :options="[{ codeId: '17', codeName: 'Wells399' },
                          { codeId: '54', codeName: '포인트플러스399' },
                          { codeId: '55', codeName: '포인트플러스599' },
@@ -131,7 +134,8 @@
               v-model:cntr-no="searchParams.cntrNo"
               v-model:cntr-sn="searchParams.cntrSn"
               class="w185"
-              disable-popup="true"
+              icon="search"
+              disable-popup="false"
               :label="$t('MSG_TXT_CNTR_DTL_NO')"
             />
           </kw-search-item>
@@ -173,7 +177,7 @@
               v-model:cntr-no="searchParams.cntrNo"
               v-model:cntr-sn="searchParams.cntrSn"
               class="w185"
-              disable-popup="true"
+              disable-popup
               :label="$t('MSG_TXT_CNTR_DTL_NO')"
             />
           </kw-search-item>
@@ -616,16 +620,9 @@ async function fetchMstData() {
     view.resetCurrent();
     view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 
-    if (loginInfo.value.userId === '36544'
-     || loginInfo.value.userId === '36805'
-     || loginInfo.value.userId === '36909'
-     || loginInfo.value.userId === '000303227366') {
-      view.columnByName('cstSignCn').visible = false; // 서명
-      view.columnByName('ocyCntrwBrws').visible = false; // 원본 계약서출력
-    } else {
-      view.columnByName('cstSignCn').visible = true; // 서명
-      view.columnByName('ocyCntrwBrws').visible = true; // 원본 계약서출력
-    }
+    view.columnByName('cstSignCn').visible = false; // 서명
+    view.columnByName('ocyCntrwBrws').visible = false; // 원본 계약서출력
+
     // 삭제원복 컬럼 Hide
     view.columnByName('dlRstr').visible = false;
   } else if (searchParams.value.cntrDv === 'R') {
@@ -919,7 +916,7 @@ async function onClickNotakfW() {
 
     console.log(saveData);
     if (isEmpty(arrCstKnm)) return;
-    if (await confirm(t('MSG_ALT_CNFM_NOTAK_FW', [arrCstKnm]))) {
+    if (await confirm(t('MSG_ALT_CNFM_NOTAK_FW', [`[${arrCstKnm}]`]))) {
       res = await dataService.put('/sms/wells/contract/contracts/managements/notification-talk-forwarding', saveData);
       if (res.data.processCount > 0) {
         await notify(t('MSG_ALT_BIZTALK_SEND_SUCCESS')); // 알림톡이 발송되었습니다.
@@ -927,6 +924,16 @@ async function onClickNotakfW() {
         await notify(t('MSG_ALT_BIZTALK_ERR')); // 알림톡 전송중 에러가 발생했습니다.
       }
     }
+  }
+}
+
+// 고객번호 팝업조회
+async function onClickSearchCntrCst() {
+  const res = await modal({ component: 'ZwcsaCustomerListP' });
+  if (res.result && res.payload) {
+    // searchParams.cntrCstKnm(res.payload.name);
+    // searchParams.cntrCstNo(res.payload.cstNo);
+    searchParams.value.cntrCstNo = res.payload.cstNo;
   }
 }
 
@@ -1258,7 +1265,7 @@ const initGrdMstList = defineGrid((data, view) => {
 
       await fetchDtlData();
     } else if (['notakFwIz'].includes(column)) { // 알림톡 발송 내역 버튼 클릭
-      await modal({ component: 'WwKakaotalkSendListP', componentProps: { cntrDtlNo: paramCntrDtlNo, concDiv: searchParams.cntrDv } }); // 카카오톡 발송 내역 조회
+      await modal({ component: 'WwKakaotalkSendListP', componentProps: { cntrNo: paramCntrNo, cntrSn: paramCntrSn, concDiv: searchParams.cntrDv } }); // 카카오톡 발송 내역 조회
     }
   };
 

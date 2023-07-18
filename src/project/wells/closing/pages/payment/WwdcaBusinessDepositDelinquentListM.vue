@@ -40,7 +40,7 @@
             v-model:og-levl-dv-cd1="searchParams.dgr1LevlOgCd"
             v-model:og-levl-dv-cd2="searchParams.dgr2LevlOgCd"
             v-model:og-levl-dv-cd3="searchParams.dgr3LevlOgCd"
-            :og-tp-cd="searchParams.ogTp"
+            :og-tp-cd="searchParams.ogTpCd"
             :start-level="1"
             :end-level="3"
             :label="$t('MSG_TXT_OG_LEVL')"
@@ -106,12 +106,11 @@ import ZwogLevelSelect from '~sms-common/organization/components/ZwogLevelSelect
 
 const now = dayjs();
 const { t } = useI18n();
-const { getConfig } = useMeta();
+const { getConfig, getUserInfo } = useMeta();
 const { alert } = useGlobal();
 const dataService = useDataService();
 const { currentRoute } = useRouter();
-const { getters } = useStore();
-const userInfo = getters['meta/getUserInfo'];
+const { ogTpCd } = getUserInfo();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -123,8 +122,8 @@ const codes = await codeUtil.getMultiCodes(
 
 const searchParams = ref({
   baseYm: now.format('YYYYMM'), // 기준년월
-  ogTp: 'W01', // 조직유형
-  dgr1LevlOgCd: userInfo.ogId,
+  ogTpCd, // 조직유형
+  dgr1LevlOgCd: '',
   dgr2LevlOgCd: '',
   dgr3LevlOgCd: '',
 });

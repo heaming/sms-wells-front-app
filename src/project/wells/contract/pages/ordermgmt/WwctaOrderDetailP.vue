@@ -515,12 +515,11 @@ async function onSelectCntrctPdList() {
 
 // 가상계좌확인서
 async function onClickVtAcCfdc() {
-  await alert('가상계좌확인서 팝업은 개발예정입니다.');
+  await alert('가상계좌확인서 팝업은 작업예정입니다.');
 }
 
 // 문자발송
 async function onClickCharFw() {
-  // await alert('문자발송 팝업은 개발예정입니다.');
   const searchPopupParams = {
     cntrNo: frmMainData.value.cntrDtlNo.split('-')[0],
     cntrSn: frmMainData.value.cntrDtlNo.split('-')[1],
@@ -536,7 +535,6 @@ async function onClickCharFw() {
 
 // 메일발송
 async function onClickEmailSend() {
-  // await alert('메일발송 팝업은 개발예정입니다.');
   const searchPopupParams = {
     vacBnkNm: frmMainData.value.vacBnkNm, // 은행명
     vacNo: frmMainData.value.vacInfo.split(' ')[0], // 가상계좌번호
