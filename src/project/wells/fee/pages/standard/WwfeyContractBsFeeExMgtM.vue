@@ -242,15 +242,17 @@ async function onClickRowDelete() {
 async function onClickRowAdd() {
   const view = grdRef.value.getView();
   const defaultRow = {
+    cntrNo: '',
+    cntrSn: '',
     cntrDtlSn: '',
     cntorNm: '',
     basePdCd: '',
     basePdNm: '',
-    vstMcn: '',
+    vstMcn: 0,
     svFeePdDvCd: '00',
     baseChTcnt: '1',
     svFeeBaseAmt: 0,
-    feeFxamYn: 'N',
+    feeFxamYn: 'Y',
     apyStrtYm: '',
     apyEndYm: '999912',
     dtaDlYn: 'N',
@@ -317,6 +319,8 @@ const initGrd = defineGrid((data, view) => {
     todayHighlight: true,
   };
   const columns = [
+    { fieldName: 'cntrNo', visible: false },
+    { fieldName: 'cntrSn', visible: false },
     {
       fieldName: 'cntrDtlSn',
       header: t('MSG_TXT_CNTR_DTL_NO'),
@@ -329,18 +333,8 @@ const initGrd = defineGrid((data, view) => {
       },
     },
     { fieldName: 'cntorNm', header: t('MSG_TXT_CNTOR_NM'), width: '100', styleName: 'text-center', rules: 'required' },
-    {
-      fieldName: 'basePdCd',
-      header: t('MSG_TXT_PRDT_CODE'),
-      width: '140',
-      styleName: 'text-center rg-button-icon--search boxed-icon',
-      button: 'action',
-      rules: 'required',
-      buttonVisibleCallback(g, index) {
-        return g.getDataSource().getRowState(index.dataRow) === 'created';
-      },
-    },
-    { fieldName: 'basePdNm', header: t('MSG_TXT_PRDT_NM'), width: '180', rules: 'required' },
+    { fieldName: 'basePdCd', header: t('MSG_TXT_PRDT_CODE'), width: '140', styleName: 'text-center', rules: 'required' },
+    { fieldName: 'basePdNm', header: t('MSG_TXT_PRDT_NM'), width: '180', styleName: 'text-left', rules: 'required' },
     { fieldName: 'vstMcn', header: t('MSG_TXT_VISIT_MN'), width: '100', styleName: 'text-right', dataType: 'number', rules: 'required', editable: true },
     { fieldName: 'svFeePdDvCd', header: t('MSG_TXT_BS_PD_GRP'), width: '120', styleName: 'text-center', options: codes.SV_FEE_PD_DV_CD, editor: { type: 'list' }, editable: true, rules: 'required' }, /* 서비스수수료상품구분코드 */
     { fieldName: 'baseChTcnt', header: t('MSG_TXT_ORDR'), width: '100', styleName: 'text-right', dataType: 'number', editable: true, rules: 'required' },
@@ -360,10 +354,10 @@ const initGrd = defineGrid((data, view) => {
   view.rowIndicator.visible = true;
   view.editOptions.columnEditableFirst = true;
   view.onCellEditable = (grid, index) => {
-    if (gridUtil.isCreatedRow(grid, index.dataRow) && ['cntrDtlSn', 'cntorNm', 'basePdCd', 'vstMcn', 'svFeeDvCd', 'hcrDvCd1', 'hcrDvCd2', 'svFeePdDvCd', 'baseChTcnt', 'svFeeBaseAmt', 'feeFxamYn', 'hcrFeeBaseAmt', 'apyStrtYm', 'apyEndYm', 'dtaDlYn'].includes(index.column)) {
+    if (gridUtil.isCreatedRow(grid, index.dataRow) && ['cntrDtlSn', 'vstMcn', 'svFeePdDvCd', 'baseChTcnt', 'svFeeBaseAmt', 'feeFxamYn', 'apyStrtYm', 'apyEndYm'].includes(index.column)) {
       return true;
     }
-    if (!gridUtil.isCreatedRow(grid, index.dataRow) && ['svFeePdDvCd', 'svFeeBaseAmt', 'feeFxamYn', 'hcrFeeBaseAmt', 'apyStrtYm', 'apyEndYm'].includes(index.column)) {
+    if (!gridUtil.isCreatedRow(grid, index.dataRow) && ['svFeePdDvCd', 'svFeeBaseAmt', 'feeFxamYn', 'apyStrtYm', 'apyEndYm'].includes(index.column)) {
       return true;
     }
     return false;
@@ -381,21 +375,14 @@ const initGrd = defineGrid((data, view) => {
       if (result) {
         g.setValue(itemIndex, 'cntrDtlSn', `${payload.cntrNo}-${payload.cntrSn}`);
         g.setValue(itemIndex, 'cntorNm', payload.cntrCstKnm);
-      }
-    }
-    // 상품코드 팝업호출
-    if (column === 'basePdCd') {
-      const { result, payload } = await modal({
-        component: 'ZwpdcStandardListP',
-        componentProps: {
-          searchType: pdConst.PD_SEARCH_CODE,
-          searchValue: '',
-          selectType: '',
-        },
-      });
-      if (result) {
-        g.setValue(itemIndex, 'basePdcd', payload?.[0].pdCd);
-        g.setValue(itemIndex, 'basePdNm', payload?.[0].pdNm);
+        g.setValue(itemIndex, 'cntrNo', payload.cntrNo);
+        g.setValue(itemIndex, 'cntrSn', payload.cntrSn);
+        g.setValue(itemIndex, 'basePdCd', payload.pdCd);
+        g.setValue(itemIndex, 'basePdNm', payload.pdNm);
+
+        // 차수 max + 1
+        const res = await dataService.get(`/sms/wells/fee/contract-bs-fee/base-ch-tcnt/${payload.cntrNo}-${payload.cntrSn}`);
+        g.setValue(itemIndex, 'baseChTcnt', res.data);
       }
     }
   };
