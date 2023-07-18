@@ -225,8 +225,8 @@ const grdMainView = computed(() => grdMain.value?.getView());
 const searchParams = ref({
   cntrNo: '', // 계약번호
   cntrSn: '', // 계약일련번호
-  cstNo: '', // 고객번호
-  dm: '', // 조회년월
+  cstNo: '040621938', // 고객번호
+  dm: '202305', // 조회년월
 });
 
 const totalCount = ref(0);
@@ -318,8 +318,12 @@ async function setGridCheckandSelect(row, isCheck) {
       return;
     }
 
+    console.log(idx.value);
     cancelDetailList.value.push(grdMainView.value.getValues(row));
-    if (idx.value < 0) { idx.value = 0; }
+    if (idx.value < 0) {
+      idx.value = 0;
+      panelIdx.value = getPanelIdx(cancelDetailList.value[0].sellTpCd);
+    }
 
   // 삭제
   } else {
@@ -351,7 +355,9 @@ function onClickRegistCancel() {
 
   if (cancelDetailList.value.length === 1 && cancelDetailList.value[0].cancelStatNm === '취소등록') {
     // 하위 초기화
-    initAccordion();
+    idx.value = -1;
+    cancelDetailList.value.splice(0, cancelDetailList.value.length);
+    panelIdx.value = 4;
   }
 
   grdMainView.value.getCheckedRows().forEach((i) => {
@@ -386,10 +392,10 @@ function onClickVirtualAccountView() {
 }
 
 // 취소사항 조회 클릭
-async function onSearchDetail(reqDt, cancelDt) {
+async function onSearchDetail(subParam) {
   const { cntrNo, cntrSn, sellTpCd } = cancelDetailList.value[idx.value];
   const res = await dataService.get('/sms/wells/contract/changeorder/breach-promises', { params: {
-    cntrNo, cntrSn, reqDt, cancelDt, sellTpCd },
+    cntrNo, cntrSn, sellTpCd, ...subParam },
   });
 
   if (isEmpty(res.data)) {
@@ -464,26 +470,28 @@ async function onGetOne(cntrNo, cntrSn) {
   const { dm } = searchParams.value;
   const res = await dataService.get('/sms/wells/contract/changeorder/cancel-infos', { params: { cntrNo, cntrSn, dm } });
 
-  if (cancelDetailList.value.length > 0) {
-    grdMainView.value.getDataSource().getRows().forEach((item, i) => {
-      // console.log(item);
-      if (grdMainView.value.getValue(i, 'disableChk') === 'Y' && grdMainView.value.getValue(i, 'cancelStatNm') !== '취소등록') {
-        grdMainView.value.setValue(i, 'disableChk', 'N');
-      }
-    });
-  }
-
-  // 하위 초기화
-  initAccordion();
-
   if (isEmpty(res.data)) {
     await notify(t('MSG_TXT_NO_DATA_FOUND'));
     return;
   }
 
+  // 그리드 체크 초기화
+  if (cancelDetailList.value.length > 0) {
+    grdMainView.value.getDataSource().getRows().forEach((item, i) => {
+      if (grdMainView.value.getValue(i, 'disableChk') === 'Y' && grdMainView.value.getValue(i, 'cancelStatNm') !== '취소등록') {
+        grdMainView.value.setValue(i, 'disableChk', 'N');
+      }
+    });
+
+    idx.value = -1;
+    cancelDetailList.value.splice(0, cancelDetailList.value.length);
+    panelIdx.value = 4;
+  }
+
   res.data.bulkApplyYN = 'N';
   cancelDetailList.value.push(res.data);
   idx.value = 0;
+  panelIdx.value = getPanelIdx(cancelDetailList.value[0].sellTpCd);
 }
 
 async function onClickSearch() {
@@ -503,6 +511,8 @@ async function onClickSearch() {
 }
 
 watch(idx, (val) => {
+  console.log(`!! watch!! idx.value : ${val}`);
+
   if (!isEmpty(cancelDetailList.value)) {
     panelIdx.value = getPanelIdx(cancelDetailList.value[val].sellTpCd);
     console.log(`!! watch!! panelIdx.value : ${panelIdx.value}`);
@@ -605,7 +615,6 @@ function initGrid(data, view) {
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   /*
-  nomSlAmt
 chgDt
 spmtSlAmt
 nomDscAmt

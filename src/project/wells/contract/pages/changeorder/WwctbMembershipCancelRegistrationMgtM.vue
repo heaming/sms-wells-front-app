@@ -23,7 +23,6 @@
       padding-target="header"
       expansion-icon-align="center"
       expand-icon-class="kw-font-pt24"
-      default-opened
     >
       <template #header>
         <kw-item-section>
@@ -310,10 +309,9 @@
       <!-- 할인공제금액 -->
       <kw-form-item
         :label="$t('MSG_TXT_DSC_DDTN_AMT')"
-        hint="null"
       >
         <kw-input
-          v-model="searchDetail.null"
+          v-model="searchDetail.dscDdctam"
           regex="num"
           maxlength="10"
           align="right"
@@ -322,7 +320,7 @@
       <!-- 필터공제(위약금) -->
       <kw-form-item :label="$t('MSG_TXT_FILT_DDTN')+'('+$t('MSG_TXT_CCAM')+')'">
         <kw-input
-          v-model="searchDetail.borAmt"
+          v-model="searchDetail.filtDdctam"
           regex="num"
           maxlength="10"
           align="right"
@@ -407,29 +405,34 @@
       </kw-form-item>
     </kw-form-row>
   </kw-form>
-  <!--
-  <kw-separator />
-   6. 취소패키지 취소 위약금/일시불 취소 위약금 조회사항
-  <kw-action-top
-    class="mt30"
-  >
-    <template #left>
-      <h3>6. 패키지 취소 위약금/일시불 취소 위약금 조회</h3>
-    </template>
-    <span class="ml8">{{ t('MSG_TXT_UNIT_WON') }}</span>
-  </kw-action-top>
-  <kw-grid
-    ref="grdSubMembership"
-    :visible-rows="5"
-    @init="initGridMembership"
-  />
-  -->
+
   <div
     class="button-set--bottom"
   >
+    <!-- BTN Variation #2 : 취소등록 이후 or 이미 취소가 등록된 버튼 배열-->
+    <div
+      v-if="searchDetail.cancelStatNm === '취소등록'"
+      class="button-set--bottom-right"
+    >
+      <kw-btn
+        :label="$t('MSG_BTN_VAC')+$t('MSG_BTN_IS')"
+        class="ml8"
+        @click="onClickVacIssue"
+      />
+      <kw-btn
+        :label="$t('MSG_TXT_CARD')+$t('MSG_BTN_APPR')"
+        class="ml8"
+        @click="onClickTodo('카드승인')"
+      />
+      <kw-btn
+        :label="$t('MSG_TXT_RFND')+$t('MSG_BTN_RECEIPT')"
+        class="ml8"
+        @click="onClickTodo('환불접수')"
+      />
+    </div>
     <!-- // BTN Variation #1 : 취소등록 이전 버튼 배열  -->
     <div
-      v-if="searchDetail.saveResult !== 'success'"
+      v-else
       class="button-set--bottom-right"
     >
       <kw-btn
@@ -438,42 +441,10 @@
         @click="onClickCancel"
       />
       <kw-btn
-        v-if="saveResult !== 'success'"
         :label="$t('MSG_BTN_SAVE')"
         class="ml8"
         primary
         @click="onClickSave"
-      />
-    </div>
-
-    <!-- BTN Variation #2 : 취소등록 이후 or 이미 취소가 등록된 버튼 배열-->
-    <div
-      v-if="searchDetail.saveResult === 'success'"
-      class="button-set--bottom-right"
-    >
-      <kw-btn
-        label="가상계좌발급"
-        class="ml8"
-      />
-      <kw-btn
-        label="카드승인"
-        class="ml8"
-      />
-      <kw-btn
-        label="철거접수"
-        class="ml8"
-      />
-      <kw-btn
-        label="환불접수"
-        class="ml8"
-      />
-      <kw-btn
-        label="렌탈계약해지확인서 보기"
-        class="ml8"
-      />
-      <kw-btn
-        label="삭제"
-        class="ml8"
       />
     </div>
   </div>
@@ -483,12 +454,13 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, getComponentType, notify, stringUtil } from 'kw-lib';
+import { codeUtil, getComponentType, notify, stringUtil, useGlobal } from 'kw-lib';
 import dayjs from 'dayjs';
 import { isEmpty } from 'lodash';
 
 const { t } = useI18n();
 const frmMainMembership = ref(getComponentType('KwForm'));
+const { modal } = useGlobal();
 const now = dayjs();
 
 const codes = await codeUtil.getMultiCodes(
@@ -513,8 +485,6 @@ const inputDetail = ref({
   cancelDt: '',
 });
 
-const saveResult = ref(props.saveResult);
-
 codes.CCAM_EXMPT_DV_CD.forEach((e) => { e.codeName = `(${e.codeId})${e.codeName}`; });
 codes.CMN_STAT_CH_RSON_CD.forEach((e) => { e.codeName = `(${e.codeId})${e.codeName}`; });
 // -------------------------------------------------------------------------------------------------
@@ -529,7 +499,12 @@ async function onClickSearchCancel() {
     return;
   }
 
-  emits('searchdetail', inputDetail.value.reqDt, inputDetail.value.cancelDt);
+  emits('searchdetail', { reqDt: inputDetail.value.reqDt,
+    cancelDt: inputDetail.value.cancelDt,
+    dscDdctam: searchDetail.dscDdctam,
+    filtDdctam: searchDetail.filtDdctam,
+    slCtrAmt: searchDetail.slCtrAmt,
+  });
 }
 
 function onClickSave() {
@@ -543,6 +518,35 @@ function onClickSave() {
 
 function onClickCancel() {
   emits('removedetail');
+}
+
+async function onCallStlm(pDiv) {
+  let component;
+  if (pDiv === 'Face') component = 'ZwwdbIndvVirtualAccountIssueMgtP';
+  else if (pDiv === 'NonFace') component = 'ZwwdbIndvVirtualAccountNoContactIssueMgtP';
+
+  if (isEmpty(component)) { return; }
+
+  const { result } = await modal({
+    component,
+  });
+
+  if (result) {
+    // console.log(payload)
+  }
+}
+
+async function onClickVacIssue() {
+  const { result, payload } = await modal({
+    component: 'WwctbCancelRegistrationConfirmMgtP',
+  });
+  if (result) {
+    onCallStlm(payload);
+  }
+}
+
+async function onClickTodo(param) {
+  notify(`TODO: ${param} 기능 준비 중`);
 }
 
 // 위약금 내역서 보기

@@ -60,7 +60,6 @@
       padding-target="header"
       expansion-icon-align="center"
       expand-icon-class="kw-font-pt24"
-      default-opened
     >
       <template #header>
         <kw-item-section>
@@ -195,9 +194,8 @@
             <!-- row1 교체일자 -->
             <kw-form-item
               :label="$t('MSG_TXT_CHNG_DT')"
-              hint="null"
             >
-              <p>{{ stringUtil.getDateFormat(searchDetail.null) }}</p>
+              <p>{{ stringUtil.getDateFormat(searchDetail.chgDt) }}</p>
             </kw-form-item>
             <!-- row1 추가매출  -->
             <kw-form-item :label="$t('MSG_TXT_SPMT_SL')">
@@ -630,28 +628,29 @@
       class="button-set--bottom-right"
     >
       <kw-btn
-        label="가상계좌발급"
+        :label="$t('MSG_BTN_VAC')+$t('MSG_BTN_IS')"
         class="ml8"
+        @click="onClickVacIssue"
       />
       <kw-btn
-        label="카드승인"
+        :label="$t('MSG_TXT_CARD')+$t('MSG_BTN_APPR')"
         class="ml8"
+        @click="onClickTodo('카드승인')"
       />
       <kw-btn
-        label="철거접수"
+        :label="$t('MSG_TXT_REQD')+$t('MSG_BTN_RECEIPT')"
         class="ml8"
+        @click="onClickRequidation"
       />
       <kw-btn
-        label="환불접수"
+        :label="$t('MSG_TXT_RFND')+$t('MSG_BTN_RECEIPT')"
         class="ml8"
+        @click="onClickTodo('환불접수')"
       />
       <kw-btn
-        label="렌탈계약해지확인서 보기"
+        :label="$t('MSG_TXT_RENTAL_RSG_CFDG')+$t('MSG_BTN_VIEW')"
         class="ml8"
-      />
-      <kw-btn
-        label="삭제"
-        class="ml8"
+        @click="onClickTodo('렌탈계약해지확인서 보기')"
       />
     </div>
     <!-- // BTN Variation #1 : 취소등록 이전 버튼 배열  -->
@@ -678,12 +677,16 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, getComponentType, notify, stringUtil } from 'kw-lib';
+import { codeUtil, getComponentType, stringUtil, useDataService, useMeta, useGlobal } from 'kw-lib';
 import dayjs from 'dayjs';
 import { isEmpty } from 'lodash';
 
 const { t } = useI18n();
+const { getUserInfo } = useMeta();
+const sessionUserInfo = getUserInfo();
+const dataService = useDataService();
 const frmMainRental = ref(getComponentType('KwForm'));
+const { notify, modal } = useGlobal();
 
 const codes = await codeUtil.getMultiCodes(
   'CCAM_EXMPT_DV_CD', // 위약금면책구분코드
@@ -727,7 +730,7 @@ async function onClickSearchCancel() {
     return;
   }
 
-  emits('searchdetail', inputDetail.value.reqDt, inputDetail.value.cancelDt);
+  emits('searchdetail', { reqDt: inputDetail.value.reqDt, cancelDt: inputDetail.value.cancelDt });
 }
 
 function onClickSave() {
@@ -746,6 +749,60 @@ function onClickCancel() {
 // 취소조정 추가 데이터 입력 여부 설정
 function onChangeCanCtr(val) {
   isChageCanCtr.value = (val !== '0');
+}
+
+async function onCallStlm(pDiv) {
+  let component;
+  if (pDiv === 'Face') component = 'ZwwdbIndvVirtualAccountIssueMgtP';
+  else if (pDiv === 'NonFace') component = 'ZwwdbIndvVirtualAccountNoContactIssueMgtP';
+
+  if (isEmpty(component)) { return; }
+
+  /*
+  대면발급/비대면발급 가상계좌 파라미터
+  const props = defineProps({
+    rveAkNo: { type: String, required: true },
+    kwGrpCoCd: { type: String, required: true },
+  });
+  */
+
+  const { result } = await modal({
+    component,
+  });
+
+  if (result) {
+    // console.log(payload)
+  }
+}
+
+async function onClickVacIssue() {
+  const { result, payload } = await modal({
+    component: 'WwctbCancelRegistrationConfirmMgtP',
+  });
+  if (result) {
+    onCallStlm(payload);
+  }
+}
+
+async function onClickRequidation() {
+  const sendData = {
+    svBizHclsfCd: '9', // 필수, 계약취소
+    rcpdt: '',
+    mtrStatCd: '2', // 필수, 1: 신규, 2: 수정, 3: 삭제
+    svBizDclsfCd: '1111', // 1111 설치+철거
+    urgtYn: 'N',
+    cntrNo: searchDetail.cntrNo, // 필수  계약번호
+    cntrSn: searchDetail.cntrSn, // 다건 배열 cntrSn
+    inflwChnl: '3', // 필수 1: CubicCC, 3: KSS
+    pdGdCd: 'A', // 상품등급
+    userId: sessionUserInfo.userId, // 로그인한 사용자
+  };
+
+  await dataService.post('/sms/wells/service/installation-works', sendData);
+}
+
+async function onClickTodo(param) {
+  notify(`TODO: ${param} 기능 준비 중`);
 }
 
 // 위약금 내역서 보기
