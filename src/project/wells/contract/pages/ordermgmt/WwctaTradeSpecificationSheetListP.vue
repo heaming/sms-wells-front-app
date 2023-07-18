@@ -605,7 +605,7 @@ const initGrdContractArticles = defineGrid((data, view) => {
     { fieldName: 'lcsetymd', header: t('MSG_TXT_INST_DT'), width: '131', styleName: 'text-center', datetimeFormat: 'date' }, // 설치일
     { fieldName: 'lcamt1', header: t('MSG_TXT_RTLFE'), width: '110', styleName: 'text-right' }, // 렌탈료
     { fieldName: 'lcduty', header: t('MSG_TXT_STPL_PTRM_MM'), width: '110', styleName: 'text-right' }, // 약정기간(월)
-    { fieldName: 'lcrcnt', header: t('MSG_TXT_USE_NMN'), width: '100', styleName: 'text-center' }, // 사용차월
+    { fieldName: 'lcrcnt', header: t('MSG_TXT_USE_NMN'), width: '100', styleName: 'text-right' }, // 사용차월
     { fieldName: 'rcgvpAdr', header: t('MSG_TXT_INST_ADDR'), width: '110', styleName: 'text-center' }, // 설치주소
   ];
 

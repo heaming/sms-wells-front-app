@@ -346,6 +346,7 @@ const initGridMembershipContractorList = defineGrid((data, view) => {
 
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
+  view.setFixedOptions({ colCount: 4 }); // 열고정(계약구분)
 
   view.onCellItemClicked = async (g, { column, dataRow }) => {
     const paramCntrDtlNo = gridUtil.getCellValue(g, dataRow, 'cntrDtlNo');
