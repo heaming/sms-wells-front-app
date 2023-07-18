@@ -404,6 +404,7 @@ const initGridMembershipContractNoList = defineGrid((data, view) => {
   view.setColumns(columns);
   view.checkBar.visible = true; // create checkbox column
   view.rowIndicator.visible = true; // create number indicator column
+  view.setFixedOptions({ colCount: 5 }); // 열고정(설치자명)
 
   view.onCellItemClicked = async (g, { column, dataRow }) => {
     const paramCntrDtlNo = gridUtil.getCellValue(g, dataRow, 'cntrDtlNo');
