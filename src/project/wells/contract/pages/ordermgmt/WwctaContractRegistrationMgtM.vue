@@ -310,6 +310,12 @@ function onChildMounted(step) {
     stepsStatus[step - 1] = true;
   }, 1);
 }
+
+async function isClosingTime() {
+  const isClosing = await dataService.get('sms/wells/contract/business-hours/is-business-closed-hours');
+  return isClosing.data;
+}
+
 function showStep(step) {
   [0, 1, 2].forEach((n) => {
     if (n < step - 1) {
@@ -320,6 +326,7 @@ function showStep(step) {
   });
   currentStepName.value = `step${step}`;
 }
+
 async function getCntrInfo(step, cntrNo) {
   if (step === 2) {
     // step2일 때 상품 조회
@@ -407,10 +414,17 @@ async function eventMembership() {
   // 멤버십계약
 }
 
-watch(stepsStatus, () => {
+watch(stepsStatus, async () => {
   // child 화면까지 완료되면 onMounted의 역할을 할 함수 수행
   if (stepsStatus.every((s) => s)) {
-    getExistedCntr();
+    await getExistedCntr();
+  }
+});
+
+onMounted(async () => {
+  if (!props.cntrNo && await isClosingTime()) {
+    await alert('계약작성시간 마감으로 계약이 불가합니다');
+    await router.push({ path: '/' });
   }
 });
 </script>
