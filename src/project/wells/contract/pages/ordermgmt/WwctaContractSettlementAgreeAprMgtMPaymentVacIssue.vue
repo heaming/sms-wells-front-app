@@ -38,7 +38,7 @@
         @click="onClickIssue"
       />
       <kw-item
-        v-if="issuedAccountInfo"
+        v-if="issuedAccountInfo?.acnoEncr"
       >
         <kw-item-section>
           <kw-item-label
@@ -51,19 +51,19 @@
             <kw-form-item
               label="은행"
             >
-              <p>{{ getCodeName(BANKS, issuedAccountInfo.bnkCd) }}</p>
+              <p>{{ getCodeName(BANKS, selectedBnkCd) }}</p>
             </kw-form-item>
             <kw-form-item label="가상계좌번호">
-              <p>123467890-1234567980</p>
+              <p>{{ issuedAccountInfo.acnoEncr }}</p>
             </kw-form-item>
             <kw-form-item label="예금주">
-              <p>(주)교원</p>
+              <p>{{ issuedAccountInfo.owrKnm }}</p>
             </kw-form-item>
             <kw-form-item label="입금액">
-              <p>{{ stlm.stlmAmt }}원</p>
+              <p>{{ stringUtil.getNumberWithComma(issuedAccountInfo.stlmAmt) }}원</p>
             </kw-form-item>
             <kw-form-item label="납부마감일시">
-              <p>{{ issuedAccountInfo.expireDate }}</p>
+              <p>{{ stringUtil.getDateFormat(issuedAccountInfo.fnitAprFshDtm) }}</p>
             </kw-form-item>
           </kw-form>
         </kw-item-section>
@@ -75,8 +75,7 @@
 <script setup>
 import WwctaContractSettlementAgreeItem
   from '~sms-wells/contract/components/ordermgmt/WwctaContractSettlementAgreeItem.vue';
-import { alert, notify, useDataService } from 'kw-lib';
-import dayjs from 'dayjs';
+import { alert, notify, useDataService, stringUtil, confirm } from 'kw-lib';
 import { CtCodeUtil } from '~sms-common/contract/util';
 
 const BANKS = 'banks';
@@ -96,16 +95,32 @@ const dataService = useDataService();
 const { codes, addCode, getCodeName } = await CtCodeUtil('COD_YN');
 const stlmBas = computed(() => (props.stlm ?? {}));
 const selectedBnkCd = ref();
-const issuedAccountInfo = ref();
+const issuedAccountInfo = ref({
+  acnoEncr: undefined,
+  owrKnm: undefined,
+  fnitAprFshDtm: '',
+  vncoDvCd: undefined,
+  stlmAmt: '',
+});
 
 function getStlmUpdateInfo() {
   const { cntrStlmId, dpTpCd, cntrNo } = stlmBas.value;
   if (!cntrStlmId) { throw Error('데이터가 이상합니다. 관리자에게 연락바랍니다.'); }
+  const {
+    acnoEncr,
+    owrKnm,
+    fnitAprFshDtm,
+    vncoDvCd,
+  } = issuedAccountInfo.value;
   return ({
     cntrStlmId,
     dpTpCd,
     cntrNo,
-    bnkCd: issuedAccountInfo.value.bnkCd,
+    bnkCd: selectedBnkCd.value,
+    acnoEncr,
+    owrKnm,
+    fnitAprFshDtm,
+    vncoDvCd,
   });
 }
 
@@ -114,12 +129,17 @@ async function onClickIssue() {
     alert('납부은행을 선택해주세요.');
     return;
   }
-  await nextTick();
-  notify('개발 예정');
-  issuedAccountInfo.value = {
+  if (!await confirm('가상계좌 발급 요청을 하시겠습니까?')) { return; }
+  const { data } = await dataService.post('/sms/wells/contract/contracts/settlements/virtual-account', {
+    cntrStlmId: stlmBas.value.cntrStlmId,
     bnkCd: selectedBnkCd.value,
-    expireDate: dayjs().add(3, 'd').format('YYYY-MM-DD(ddd) HH:mm'),
-  };
+  });
+  issuedAccountInfo.value = data;
+
+  /* {
+    bnkCd: selectedBnkCd.value,
+      expireDate: dayjs().add(3, 'd').format('YYYY-MM-DD(ddd) HH:mm'),
+  }; */
   emit('approved', getStlmUpdateInfo());
 }
 
@@ -140,7 +160,7 @@ function scrollTo(ref) {
 
 async function validate() {
   if (!props.stlm) { return true; }
-  const valid = !!issuedAccountInfo.value?.bnkCd;
+  const valid = !!issuedAccountInfo.value?.acnoEncr;
   if (!valid) {
     notify('가상계좌를 발급해주세요.');
     scrollTo(topRef);
