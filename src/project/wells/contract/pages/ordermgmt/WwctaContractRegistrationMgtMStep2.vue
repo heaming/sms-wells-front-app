@@ -220,7 +220,7 @@
                   />
                   <kw-btn
                     v-if="isItem.rglrSpp(item)"
-                    :disable="item.pdctUprcUseYn !== 'Y'"
+                    :disable="item.pdChoLmYn !== 'Y'"
                     :label="(item.sellTpDtlCd == '62' ? '모종' : '캡슐') + '선택'"
                     class="mr10"
                     dense
