@@ -33,6 +33,7 @@
       dense
       primary
       label="등록"
+      :disable="uploaded || !pageInfo.totalCount"
       @click="onClickConfirm"
     />
   </kw-action-top>
@@ -144,6 +145,7 @@ async function validate(data) {
 
 async function onClickExcelUpload() {
   grdData.value.clearRows();
+  pageInfo.value.totalCount = 0;
   uploaded.value = false;
   const { result, payload } = await modal({
     component: 'ZctzExcelUploadP',
