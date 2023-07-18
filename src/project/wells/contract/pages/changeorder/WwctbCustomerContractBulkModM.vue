@@ -1089,6 +1089,7 @@ const initCustomerGrid = defineGrid((data, view) => {
       header: `${t('MSG_TXT_AUTO_FNT')} ${t('MSG_TXT_INF')}`, // 자동이체 정보
       direction: 'horizontal',
       items: ['atmtStat', 'mpyBsdt', 'aftnInfFntDvNm', 'bnkCdcoNm', 'acnoCrcdno', 'isBndl', 'evidOcyInqr', 'resign'],
+      visible: false,
     },
     {
       header: t('MSG_TXT_INSTR_INFO'), // 설치자 정보
