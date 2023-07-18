@@ -493,6 +493,7 @@ const initGridTradeSpcshBlkPrntList = defineGrid((data, view) => {
       if ((!isEmpty(res.data))) {
         data.setValue(updateRow, 'sellTpCd', res.data.sellTpCd);
         data.setValue(updateRow, 'cstNm', res.data.cstKnm);
+        data.setValue(updateRow, 'cstNo', res.data.cstNo);
         data.setValue(updateRow, 'cntrNo', cntrNo);
         data.setValue(updateRow, 'cntrSn', cntrSn);
         data.setValue(updateRow, 'cntrDtlNo', `${cntrNo}-${cntrSn}`);
