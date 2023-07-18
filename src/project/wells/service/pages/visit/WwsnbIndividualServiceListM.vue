@@ -604,23 +604,38 @@ async function onClickCstSearch() {
     searchParams.value.cntrSn = payload.cntrSn ?? '';
   }
 }
-async function onClickVisitPeriodSearch() {
-  notify('개인별방문주기조회(K-W-SV-U-0167P01)팝업');
-  // await modal({ component: '' });
-}
-async function onClickVisitPeriodCreate() {
-  await modal({ component: 'WwsnbIndividualVisitPeriodMgtP' });
-}
-async function onClickSearchSidding() {
-  notify('모종배송내역 팝업(W-SV-U-0213P01)');
-  // await modal({ component: '' });
-}
 
 /* 개인별 서비스현황 조회 */
 async function getIndividualServicePs() {
   const res = await dataService.get('sms/wells/service/individual-service-ps', { params: searchParams.value });
   individualParams.value = res.data;
 }
+
+async function onClickVisitPeriodSearch() {
+  await modal({
+    component: 'WwsnbIndividualVisitPeriodInqrListP',
+    componentProps: {
+      cntrNo: searchParams.value.cntrNo,
+      cntrSn: searchParams.value.cntrSn,
+      pdNm: individualParams.value.pdNm,
+      vstPrdNm: individualParams.value.vstPrdNm,
+    },
+  });
+}
+async function onClickVisitPeriodCreate() {
+  await modal({
+    component: 'WwsnbIndividualVisitPeriodMgtP',
+    componentProps: {
+      cntrNo: searchParams.value.cntrNo,
+      cntrSn: searchParams.value.cntrSn,
+    },
+  });
+}
+async function onClickSearchSidding() {
+  notify('모종배송내역 팝업(W-SV-U-0213P01)');
+  // await modal({ component: '' });
+}
+
 /* 가구화 조회 */
 async function getHousehold() {
   const res = await dataService.get('sms/wells/service/individual-service-ps/household', { params: searchParams.value });
