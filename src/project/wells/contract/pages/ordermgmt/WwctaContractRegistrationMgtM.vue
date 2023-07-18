@@ -359,7 +359,7 @@ async function onClickPrevious() {
 async function onClickTempSave() {
   if (await panelsRefs[currentStepName.value].isChangedStep()) {
     if (await panelsRefs[currentStepName.value].isValidStep()) {
-      await panelsRefs[currentStepName.value].saveStep();
+      await panelsRefs[currentStepName.value].saveStep(true);
     }
   } else {
     await alert(t('MSG_ALT_NO_CHG_CNTN'));
