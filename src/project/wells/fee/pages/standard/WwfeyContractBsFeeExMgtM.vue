@@ -381,7 +381,7 @@ const initGrd = defineGrid((data, view) => {
         g.setValue(itemIndex, 'basePdNm', payload.pdNm);
 
         // 차수 max + 1
-        const res = await dataService.get(`/sms/wells/fee/contract-bs-fee/base-ch-tcnt/${payload.cntrNo}-${payload.cntrSn}`);
+        const res = await dataService.get(`/sms/wells/fee/contract-bs-fee/next-order/${payload.cntrNo}-${payload.cntrSn}`);
         g.setValue(itemIndex, 'baseChTcnt', res.data);
       }
     }
