@@ -13,53 +13,91 @@
 ****************************************************************************************************
 --->
 <template>
-  <kw-action-top class="mt10" />
+  <kw-action-top class="mt20">
+    <span class="kw-fc--black3 text-weight-regular">{{ t('MSG_TXT_UNIT_WON') }}</span>
+  </kw-action-top>
   <kw-form
     dense
     class="kw-form--small"
   >
     <kw-form-row>
       <kw-form-item :label="$t('MSG_TXT_CCAM_TOT_AMT')">
-        <p>{{ stringUtil.getNumberWithComma(breachOfPromise.ccamTam) }}</p>
+        <p>
+          {{ breachOfPromise.eotBorAmt }}
+        </p>
       </kw-form-item>
-      <kw-form-item :label="$t('MSG_TXT_ACU_DP')">
-        <p>{{ stringUtil.getNumberWithComma(breachOfPromise.acuDp) }}</p>
-      </kw-form-item>
-      <kw-form-item :label="$t('MSG_TXT_RNTF_AMT')">
-        <p>{{ stringUtil.getNumberWithComma(breachOfPromise.rentalRntf) }}</p>
-      </kw-form-item>
-    </kw-form-row>
-    <kw-form-row>
       <kw-form-item :label="$t('MSG_TXT_BOR_DP')">
-        <p>{{ stringUtil.getNumberWithComma(breachOfPromise.borDp) }}</p>
+        <p>
+          {{ breachOfPromise.dpCcamSumAmt }}
+        </p>
       </kw-form-item>
-      <kw-form-item :label="$t('MSG_TXT_BND_NPD')">
-        <p>{{ stringUtil.getNumberWithComma(breachOfPromise.bndNpd) }}</p>
-      </kw-form-item>
-      <kw-form-item :label="$t('MSG_TXT_CSMB_CS')">
-        <p>{{ stringUtil.getNumberWithComma(breachOfPromise.csmbCs) }}</p>
-      </kw-form-item>
-    </kw-form-row>
-    <kw-form-row>
       <kw-form-item :label="$t('MSG_TXT_BOR_BLAM')">
-        <p>{{ stringUtil.getNumberWithComma(breachOfPromise.borBlam) }}</p>
-      </kw-form-item>
-      <kw-form-item :label="$t('MSG_TXT_RGST_COST_DSC')">
-        <p>{{ stringUtil.getNumberWithComma(breachOfPromise.rgstCsDsc) }}</p>
-      </kw-form-item>
-      <kw-form-item :label="$t('MSG_TXT_REQD_CS')">
-        <p>{{ stringUtil.getNumberWithComma(breachOfPromise.reqdCs) }}</p>
+        <p>
+          {{ breachOfPromise.borBlam }}
+        </p>
       </kw-form-item>
     </kw-form-row>
     <kw-form-row>
       <kw-form-item :label="$t('MSG_TXT_SL_OC')">
-        <p>{{ stringUtil.getNumberWithComma(breachOfPromise.slAmt) }}</p>
+        <p>
+          {{ breachOfPromise.thmSlSumAmt }}
+        </p>
       </kw-form-item>
-      <kw-form-item :label="$t('MSG_TXT_UCAM')">
-        <p>{{ stringUtil.getNumberWithComma(breachOfPromise.ucAmt) }}</p>
+      <kw-form-item :label="$t('MSG_TXT_ACU_DP')">
+        <p>
+          {{ breachOfPromise.ucAmt }}
+        </p>
       </kw-form-item>
-      <kw-form-item :label="$t('MSG_TXT_LSFE')">
-        <p>{{ stringUtil.getNumberWithComma(breachOfPromise.lsfe) }}</p>
+      <kw-form-item :label="$t('MSG_TXT_BND_NPD')">
+        <p>
+          {{ breachOfPromise.rsgBorAmt }}
+        </p>
+      </kw-form-item>
+    </kw-form-row>
+    <kw-form-row>
+      <kw-form-item :label="$t('MSG_TXT_RSG_CCAM')">
+        <p>
+          {{ breachOfPromise.rgstCostDscBorAmt }}
+        </p>
+      </kw-form-item>
+      <kw-form-item :label="$t('MSG_TXT_RGST_COST_DSC')">
+        <p>
+          {{ breachOfPromise.rentalDscBorAmt }}
+        </p>
+      </kw-form-item>
+      <kw-form-item :label="$t('MSG_TXT_RENTAL_DSC')">
+        <p>
+          {{ breachOfPromise.csmbCostBorAmt }}
+        </p>
+      </kw-form-item>
+    </kw-form-row>
+    <kw-form-row>
+      <kw-form-item :label="$t('MSG_TXT_CSMB_CS')">
+        <p>
+          {{ breachOfPromise.pBorAmt }}
+        </p>
+      </kw-form-item>
+      <kw-form-item :label="$t('MSG_TXT_P_USE')">
+        <p>
+          {{ breachOfPromise.reqdCsBorAmt }}
+        </p>
+      </kw-form-item>
+      <kw-form-item :label="$t('MSG_TXT_REQD_CS_AMT')">
+        <p>
+          {{ breachOfPromise.lsRntf }}
+        </p>
+      </kw-form-item>
+    </kw-form-row>
+    <kw-form-row>
+      <kw-form-item :label="$t('TXT_MSG_LOST_RNTF')">
+        <p>
+          {{ breachOfPromise.rstlBorAmt }}
+        </p>
+      </kw-form-item>
+      <kw-form-item :label="$t('MSG_TXT_RSTL_CCAM')">
+        <p>
+          {{ breachOfPromise.acuDpAmt }}
+        </p>
       </kw-form-item>
     </kw-form-row>
   </kw-form>
@@ -72,6 +110,7 @@
 import { useDataService, stringUtil } from 'kw-lib';
 
 const dataService = useDataService();
+const { t } = useI18n();
 
 const props = defineProps({
   selectedGridRow: {
@@ -83,42 +122,27 @@ const props = defineProps({
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
-const paramData = ref({
-  sellTpNm: '',
-  sellTpCd: '',
-  pdNm: '',
-  bndCntrRefId: '',
-  bndCntrRefSn: '',
-  cstKnm: '',
-  memberNm: '',
-  prtnrKnm: '',
-  mmIstmAmt: '',
-  disAmt: '',
-  purMmIntamAmt: '',
-  dlqBlam: '',
-  thmBlam: '',
-  mpyBsdt: '',
-  dlqMcn: '',
-});
-
-const breachOfPromise = ref({
-  ccamTam: '',
-  acuDp: '',
-  rentalRntf: '',
-  borDp: '',
-  bndNpd: '',
-  csmbCs: '',
-  borBlam: '',
-  rgstCsDsc: '',
-  reqdCs: '',
-  slAmt: '',
-  ucAmt: '',
-  lsfe: '',
-});
+const paramData = ref({});
+const breachOfPromise = ref({});
 
 async function fetchData() {
-  const res = await dataService.get(`/sms/wells/bond/same-customer-contracts/${paramData.value.bndCntrRefId}/breach-of-promise`);
+  const res = await dataService.get('/sms/wells/bond/same-customer-contracts/breach-of-promise', { params: paramData.value });
   breachOfPromise.value = res.data;
+
+  breachOfPromise.value.eotBorAmt = stringUtil.getNumberWithComma(breachOfPromise.value.eotBorAmt);
+  breachOfPromise.value.dpCcamSumAmt = stringUtil.getNumberWithComma(breachOfPromise.value.dpCcamSumAmt);
+  breachOfPromise.value.borBlam = stringUtil.getNumberWithComma(breachOfPromise.value.borBlam);
+  breachOfPromise.value.thmSlSumAmt = stringUtil.getNumberWithComma(breachOfPromise.value.thmSlSumAmt);
+  breachOfPromise.value.ucAmt = stringUtil.getNumberWithComma(breachOfPromise.value.ucAmt);
+  breachOfPromise.value.rsgBorAmt = stringUtil.getNumberWithComma(breachOfPromise.value.rsgBorAmt);
+  breachOfPromise.value.rgstCostDscBorAmt = stringUtil.getNumberWithComma(breachOfPromise.value.rgstCostDscBorAmt);
+  breachOfPromise.value.rentalDscBorAmt = stringUtil.getNumberWithComma(breachOfPromise.value.rentalDscBorAmt);
+  breachOfPromise.value.csmbCostBorAmt = stringUtil.getNumberWithComma(breachOfPromise.value.csmbCostBorAmt);
+  breachOfPromise.value.pBorAmt = stringUtil.getNumberWithComma(breachOfPromise.value.pBorAmt);
+  breachOfPromise.value.reqdCsBorAmt = stringUtil.getNumberWithComma(breachOfPromise.value.reqdCsBorAmt);
+  breachOfPromise.value.lsRntf = stringUtil.getNumberWithComma(breachOfPromise.value.lsRntf);
+  breachOfPromise.value.rstlBorAmt = stringUtil.getNumberWithComma(breachOfPromise.value.rstlBorAmt);
+  breachOfPromise.value.acuDpAmt = stringUtil.getNumberWithComma(breachOfPromise.value.acuDpAmt);
 }
 
 watch(() => props.selectedGridRow, async (obj) => {
@@ -127,4 +151,5 @@ watch(() => props.selectedGridRow, async (obj) => {
     await fetchData();
   }
 });
+
 </script>
