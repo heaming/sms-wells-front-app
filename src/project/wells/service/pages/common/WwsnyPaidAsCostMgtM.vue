@@ -347,6 +347,7 @@ const initGrdMain = defineGrid((data, view) => {
       width: '100',
       editor: {
         type: 'number',
+        maxLength: 8,
         inputCharacters: '0-9',
       },
       styleName: 'text-center',
@@ -356,6 +357,7 @@ const initGrdMain = defineGrid((data, view) => {
       width: '100',
       editor: {
         type: 'number',
+        maxLength: 8,
         inputCharacters: '0-9',
       },
       styleName: 'text-center',
@@ -365,6 +367,7 @@ const initGrdMain = defineGrid((data, view) => {
       width: '100',
       editor: {
         type: 'number',
+        maxLength: 8,
         inputCharacters: '0-9',
       },
       styleName: 'text-center',
@@ -374,6 +377,7 @@ const initGrdMain = defineGrid((data, view) => {
       width: '100',
       editor: {
         type: 'number',
+        maxLength: 8,
         inputCharacters: '0-9',
       },
       styleName: 'text-center',
