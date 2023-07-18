@@ -115,11 +115,12 @@
         <span class="ml6">{{ t('MSG_TXT_UNIT_WON_MCN') }}</span>
       </template>
       <kw-btn
+        icon="report"
         dense
-        negative
-        :label="$t('MSG_TXT_DOC')+' '+$t('MSG_BTN_PRINT')"
+        secondary
+        :label="$t('MSG_BTN_RPT_BRWS')"
         :disable="!pageInfo.totalCount"
-        @click="onClickPrint"
+        @click="onClickReport"
       />
     </kw-action-top>
 
@@ -187,7 +188,7 @@ async function fetchData() {
   view.getDataSource().setRows(res.data);
 }
 
-async function onClickPrint() {
+async function onClickReport() {
   notify('TODO :  OZ리포트 팝업으로 호출');
 }
 

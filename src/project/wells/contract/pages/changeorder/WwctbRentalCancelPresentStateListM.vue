@@ -10,7 +10,7 @@
 * 프로그램 설명
 ****************************************************************************************************
 - 렌탈 취소현황
-- TODO : 더블클릭 이벤트/ 철거배정
+- TODO : 순수이탈조회 조건 확인/리포트
 ****************************************************************************************************
 --->
 <template>
@@ -19,155 +19,79 @@
     @search="onClickSearch"
   >
     <kw-search-row>
-      <!-- row1 소속구분 -->
-      <kw-search-item
-        :label="$t('MSG_TXT_BLG')+$t('MSG_TXT_DIV')"
-      >
-        <kw-select
-          v-model="searchParams.ogCd"
-          :options="[{ codeId: '70079', codeName: '아웃바운드운영팀'},
-                     { codeId: '75049', codeName: 'Wells신채널영업부문'},
-                     { codeId: '70710', codeName: '채권관리팀'}]"
-          first-option="all"
-        />
-      </kw-search-item>
-      <!-- row1 취소요청기간  -->
-      <kw-search-item
-        :label="$t('MSG_TXT_CANCEL')+$t('MSG_TXT_AK')+$t('MSG_TXT_PRD')"
-        colspan="2"
-      >
-        <kw-select
-          v-model="searchParams.dtDiv"
-          class="w180"
-          :options="[{ codeId: '1', codeName: '취소요청년월'},
-                     { codeId: '2', codeName: '취소년월'}]"
-        />
-        <kw-date-range-picker
-          v-model:from="searchParams.cancelFromDt"
-          v-model:to="searchParams.cancelToDt"
-          rules="date_range_months:3"
-        />
-      </kw-search-item>
-      <!-- row1 판매구분 -->
-      <kw-search-item
-        :label="$t('MSG_TXT_SLS_CAT')"
-      >
-        <kw-select
-          v-model="searchParams.sellOgTpCd"
-          :options="codes.OG_TP_CD"
-          first-option="all"
-        />
-      </kw-search-item>
-    </kw-search-row>
-
-    <kw-search-row>
-      <!-- row2 상품코드 -->
-      <kw-search-item
-        :label="$t('MSG_TXT_PRDT_CODE')"
-      >
-        <kw-input
-          v-model="searchParams.basePdCd"
-          icon="search"
-          @click-icon="onClickSearchPd"
-        />
-      </kw-search-item>
-      <!-- row2 상품등급 -->
-      <kw-search-item
-        :label="$t('MSG_TXT_PD_GRD')"
-      >
-        <kw-select
-          v-model="searchParams.pdGdCd"
-          :options="codes.PD_GD_CD?.filter((v) => ['E', 'R']?.includes(v.codeId))"
-          first-option="all"
-        />
-      </kw-search-item>
-      <!-- row2 등록담당 -->
-      <kw-search-item
-        :label="$t('MSG_TXT_RGST_PSIC')+$t('MSG_TXT_EPNO')"
-      >
-        <kw-input
-          v-model="searchParams.rgstUsrEpNo"
-          maxlength="10"
-          regex="num"
-        />
-      </kw-search-item>
-      <!-- row2 집금담당 -->
-      <kw-search-item
-        :label="$t('MSG_TXT_CLCTAM_ICHR')"
-      >
-        <kw-input
-          v-model="searchParams.clctamPrtnrNo"
-          maxlength="10"
-          regex="num"
-        />
-      </kw-search-item>
-    </kw-search-row>
-
-    <kw-search-row>
-      <!-- row3 출력구분 -->
-      <kw-search-item
-        :label="$t('MSG_TXT_PRNT_DV')"
-      >
-        <kw-select
-          v-model="searchParams.printDiv"
-          :options="[{ codeId: '1', codeName: '위약'},
-                     { codeId: '2', codeName: '분실'}]"
-          first-option="all"
-        />
-      </kw-search-item>
-      <!-- row3 계약구분 -->
-      <kw-search-item
-        :label="$t('MSG_TXT_CNTR_DV')"
-      >
-        <kw-select
-          v-model="searchParams.copnDvCd"
-          :options="codes.COPN_DV_CD"
-          first-option="all"
-        />
-      </kw-search-item>
-      <!-- row3 판매유형 -->
-      <kw-search-item
-        :label="$t('MSG_TXT_SEL_TYPE')"
-      >
-        <kw-select
+      <!-- row1 업무구분 -->
+      <kw-search-item :label="$t('MSG_TXT_TASK_DIV')">
+        <kw-option-group
           v-model="searchParams.sellTpCd"
+          type="radio"
           :options="codes.SELL_TP_CD.filter((v) => ['2'].includes(v.codeId))"
         />
       </kw-search-item>
-      <!-- row3 판매세부 -->
-      <kw-search-item
-        :label="$t('MSG_TXT_SELL')+$t('MSG_TXT_DET')"
-      >
+      <!-- row1 판매유형 -->
+      <kw-search-item :label="$t('MSG_TXT_SEL_TYPE')">
         <kw-select
           v-model="searchParams.sellTpDtlCd"
           :options="codes.SELL_TP_DTL_CD.filter((v) => ['21','22','23','24','25','26'].includes(v.codeId))"
           first-option="all"
         />
       </kw-search-item>
+      <!-- row1 취소일  -->
+      <kw-search-item
+        :label="$t('MSG_TXT_CAN_D')"
+        colspan="2"
+      >
+        <kw-date-range-picker
+          v-model:from="searchParams.cancelFromDt"
+          v-model:to="searchParams.cancelToDt"
+          rules="date_range_months:3"
+        />
+      </kw-search-item>
     </kw-search-row>
 
     <kw-search-row>
-      <!-- row4 상조취소 -->
-      <kw-search-item
-        :label="$t('MSG_TXT_MUTU')+$t('MSG_TXT_CANCEL')"
-      >
-        <kw-select
-          v-model="searchParams.alncmpCd"
-          :options="[{ codeId: '17', codeName: '상조'}]"
-          first-option="all"
+      <!-- row2 담당자 사번 -->
+      <kw-search-item :label="$t('MSG_TXT_PSIC_EMPNO')">
+        <kw-input
+          v-model="searchParams.rgstUsrEpNo"
+          maxlength="10"
+          regex="num"
         />
       </kw-search-item>
-      <!-- row4 계약상세번호 -->
+      <!-- row2 상품구분 -->
       <kw-search-item
-        :label="$t('MSG_TXT_CNTR_DTL_NO')"
+        :label="$t('MSG_TXT_PRDT_GUBUN')"
+        colspan="2"
       >
-        <zctz-contract-detail-number
-          v-model:cntr-no="searchParams.cntrNo"
-          v-model:cntr-sn="searchParams.cntrSn"
-          :select-only-validation="false"
+        <zwpd-product-classification-select
+          ref="productSelRef"
+          v-model:product1-level="searchParams.pdHclsfId"
+          v-model:product2-level="searchParams.pdMclsfId"
+          product1-first-option="all"
+          :product1-first-option-label="$t('TXT_MSG_PD_HCLSF_ID') + ' ' + $t('MSG_TXT_ALL')"
+          product2-first-option="all"
+          :product2-first-option-label="$t('MSG_TXT_PD_MCLSF_ID') + ' ' + $t('MSG_TXT_ALL')"
+          search-lvl="2"
+        />
+        <kw-checkbox
+          v-model="searchParams.onlySprYN"
+          class="pl10"
+          :label="$t('MSG_TXT_SEARCH_PURE_SPR_ONLY')"
+          :false-value="N"
+          :true-value="Y"
         />
       </kw-search-item>
-      <!-- row4 취소유형 -->
+      <!-- row2 상품코드 -->
+      <kw-search-item :label="$t('MSG_TXT_PRDT_CODE')">
+        <kw-input
+          v-model="searchParams.basePdCd"
+          icon="search"
+          @click-icon="onClickSearchPd"
+        />
+      </kw-search-item>
+    </kw-search-row>
+
+    <kw-search-row>
+      <!-- row3 취소유형 -->
       <kw-search-item
         :label="$t('MSG_TXT_CNCL_TP')"
       >
@@ -177,16 +101,36 @@
           first-option="all"
         />
       </kw-search-item>
-      <!-- row4 철거구분 -->
+      <!-- row3 고객구분 -->
       <kw-search-item
-        :label="$t('MSG_TXT_REQD')+$t('MSG_TXT_DIV')"
+        :label="$t('MSG_TXT_CST_DV')"
       >
         <kw-select
-          v-model="searchParams.reqdDiv"
-          :options="[{ codeId: 'NA', codeName: t('MSG_TXT_REQD')+' '+t('MSG_TXT_NOT_ASN')},
-                     { codeId: 'CA', codeName: t('MSG_TXT_REQD')+' '+t('MSG_TXT_ASGN')+t('MSG_TXT_COMPLETE')},
-                     { codeId: 'CC', codeName: t('MSG_TXT_REQD')+' '+t('MSG_TXT_COMPLETE')}]"
+          v-model="searchParams.copnDvCd"
+          :options="codes.COPN_DV_CD"
           first-option="all"
+        />
+      </kw-search-item>
+      <!-- row3 계약일자  -->
+      <kw-search-item
+        :label="$t('MSG_TXT_CNTR_DATE')"
+        colspan="2"
+      >
+        <kw-date-range-picker
+          v-model:from="searchParams.cntrFromDt"
+          v-model:to="searchParams.cntrToDt"
+        />
+      </kw-search-item>
+    </kw-search-row>
+    <kw-search-row>
+      <!-- row4 설치일자  -->
+      <kw-search-item
+        :label="$t('MSG_TXT_IST_DT')"
+        colspan="4"
+      >
+        <kw-date-range-picker
+          v-model:from="searchParams.installFromDt"
+          v-model:to="searchParams.installToDt"
         />
       </kw-search-item>
     </kw-search-row>
@@ -203,21 +147,27 @@
         />
         <span class="ml6">{{ t('MSG_TXT_UNIT_COLON_WON') }}</span>
       </template>
+
       <kw-btn
         icon="download_on"
         dense
         secondary
-        :label="$t('MSG_TXT_DTL')+' '+$t('MSG_TXT_EXCEL_DOWNLOAD')"
+        :label="$t('MSG_TXT_EXCEL_DOWNLOAD')"
         :disable="!pageInfo.totalCount"
-        @click="onClickExcelDownload('D')"
+        @click="onClickExcelDownload"
+      />
+      <kw-separator
+        spaced
+        vertical
+        inset
       />
       <kw-btn
-        icon="download_on"
+        icon="report"
         dense
         secondary
-        :label="$t('MSG_TXT_AGRG')+' '+$t('MSG_TXT_EXCEL_DOWNLOAD')"
+        :label="$t('MSG_BTN_RPT_BRWS')"
         :disable="!pageInfo.totalCount"
-        @click="onClickExcelDownload('A')"
+        @click="onClickReport"
       />
     </kw-action-top>
 
@@ -225,12 +175,6 @@
       ref="grdMainRental"
       :page-size="pageInfo.pageSize"
       :total-count="pageInfo.totalCount"
-      @init="initGrid"
-    />
-
-    <kw-grid
-      v-show="false"
-      ref="grdMainRentalD"
       @init="initGrid"
     />
   </div>
@@ -242,9 +186,8 @@
 // -------------------------------------------------------------------------------------------------
 import { codeUtil, defineGrid, getComponentType, gridUtil, useDataService, useGlobal, useMeta } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
-// import { getCodeNames } from '~sms-common/product/utils/pdUtil';
 import pdConst from '~sms-common/product/constants/pdConst';
-import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
+import ZwpdProductClassificationSelect from '~sms-common/product/pages/standard/components/ZwpdProductClassificationSelect.vue';
 import dayjs from 'dayjs';
 
 const { t } = useI18n();
@@ -254,33 +197,27 @@ const { modal, notify } = useGlobal();
 const dataService = useDataService();
 const now = dayjs();
 const grdMainRental = ref(getComponentType('KwGrid'));
-const grdMainRentalD = ref(getComponentType('KwGrid'));
 
 const searchParams = ref({
-  ogCd: '', // 소속구분
-  dtDiv: '1', // 날짜검색구분
-  cancelFromDt: now.format('YYYYMMDD'), // 시작일
-  cancelToDt: now.format('YYYYMMDD'), // 종료일
-  cntrNo: '', // 계약번호
-  cntrSn: '', // 계약일련번호
-  sellOgTpCd: '', // 판매구분
-  basePdCd: '', // 상품코드
-  pdGdCd: '', // 상품등급
-  rgstUsrEpNo: '', // 등록담당[사번]
-  clctamPrtnrN0: '', // 집금담당[사번]
-  printDiv: '', // 출력구분
-  copnDvCd: '', // 계약구분
   sellTpCd: '2', // 판매유형
   sellTpDtlCd: '', // 판매세부
-  alncmpCd: '', // 상조취소
+  cancelFromDt: now.startOf('month').format('YYYYMMDD'), // 시작일
+  cancelToDt: now.format('YYYYMMDD'), // 종료일
+  rgstUsrEpNo: '', // 등록담당[사번]
+  pdHclsfId: '', // 상품대분류
+  pdMclsfId: '', // 상품중분류
+  onlySprYN: 'N', // 순수이탈만조회
+  basePdCd: '', // 상품코드
   cntrStatChRsonCd: '', // 취소유형
-  reqdDiv: '', // 철거구분
+  copnDvCd: '', // 고객구분
+  cntrFromDt: '', // 시작일
+  cntrToDt: '', // 종료일
+  installFromDt: '', // 시작일
+  installToDt: '', // 종료일
 });
 
 const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
-  'OG_TP_CD',
-  'PD_GD_CD',
   'COPN_DV_CD',
   'SELL_TP_CD',
   'SELL_TP_DTL_CD',
@@ -309,10 +246,6 @@ async function fetchData() {
   view.groupPanel.visible = false;
   view.groupBy(['prtnrNo']);
   view.rowGroup.expandedAdornments = 'footer';
-
-  const view2 = grdMainRentalD.value.getView();
-  view2.getDataSource().setRows(res.data);
-  view2.setFooters({ visible: false });
 }
 
 // 상품코드 검색아이콘 클릭
@@ -333,14 +266,16 @@ async function onClickSearchPd() {
   }
 }
 
-async function onClickExcelDownload(pDiv) {
-  // 'D' : 상세 엑셀다운로드 : 조회된 그리드의 집계내역을 제외
-  // 'A' : 집계 엑셀다운로드 : 조회된 그리드의 집계내역을 포함
-  const view = (pDiv === 'D') ? grdMainRentalD.value.getView() : grdMainRental.value.getView();
+async function onClickExcelDownload() {
+  const view = grdMainRental.value.getView();
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
   });
+}
+
+async function onClickReport() {
+  notify('TODO :  OZ리포트 팝업으로 호출');
 }
 
 async function onClickSearch() {
@@ -354,391 +289,56 @@ async function onClickSearch() {
 // -------------------------------------------------------------------------------------------------
 const initGrid = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'seq',
-      header: 'SEQ',
-      width: '110',
-      styleName: 'text-center',
-      groupFooter: { text: t('MSG_TXT_AGG'),
-        styleName: 'text-center',
-        valueCallback(g, c, i, group) {
-          return `계(${group.count - 1})`;
-        } },
-      footer: {
-        styleName: 'text-right',
-        valueCallback() {
-          return `${t('MSG_TXT_TOT_SUM')}(${pageInfo.value.totalCount})`;
-        } },
-    },
-    { fieldName: 'ogNm', header: t('MSG_TXT_BLG') + t('MSG_TXT_DIV'), width: '160', styleName: 'text-center' }, // [소속구분]
-    { fieldName: 'prtnrNo',
-      header: t('MSG_TXT_RGST_PSIC') + t('MSG_TXT_EPNO'),
-      width: '120',
-      styleName: 'text-center',
-      groupFooter: { styleName: 'text-center',
-        valueCallback(g, c, i, group) {
-          return group.groupValue;
-        } },
-    }, // [등록담당자 사번]
-    { fieldName: 'prtnrKnm',
-      header: t('MSG_TXT_RGST_PSIC_NM'),
-      width: '120',
-      styleName: 'text-center',
-      groupFooter: { styleName: 'text-center',
-        valueCallback(g, c, i, group) {
-          return gridUtil.find(g, (v) => v.prtnrNo === group.groupValue).prtnrKnm;
-        } },
-    }, // [등록담당자 명]
+    { fieldName: 'sellTpNm', header: t('MSG_TXT_TASK_DIV'), width: '120', styleName: 'text-center' }, // [업무구분]
+    { fieldName: 'sellTpDtlNm', header: t('MSG_TXT_SEL_TYPE'), width: '120', styleName: 'text-center' }, // [판매유형]
     { fieldName: 'cntrNoSn',
       header: t('MSG_TXT_CNTR_DTL_NO'),
       width: '150',
-      styleName: 'text-center rg-button-link',
-      renderer: { type: 'button', hideWhenEmpty: false },
+      styleName: 'text-center',
       displayCallback: (g, i) => `${g.getValue(i.itemIndex, 'cntrNo')}-${g.getValue(i.itemIndex, 'cntrSn')}`,
     }, // [계약상세번호]
-    { fieldName: 'cntrCstKnm', header: t('MSG_TXT_CNTOR_NM'), width: '150', styleName: 'text-center' }, // [계약자명]
-    //------------------------------------------------------------------------------------------
-    { fieldName: 'sapMatCd', header: `SAP${t('MSG_TXT_ITM_CD')}`, width: '180', styleName: 'text-center' }, // [SAP품목코드]
-    { fieldName: 'mPdCd', header: t('MSG_TXT_RVPY_CD'), width: '150', styleName: 'text-center' }, // [수불코드]
-    { fieldName: 'pdCd', header: t('MSG_TXT_PRDT_CODE'), width: '150', styleName: 'text-center' }, // [상품코드]
+    { fieldName: 'cntrCstKnm', header: t('MSG_TXT_CST_NM'), width: '120', styleName: 'text-center' }, // [고객명]
+    { fieldName: 'copnDvNm', header: t('MSG_TXT_CST_DV'), width: '120', styleName: 'text-center' }, // [고객구분]
+    { fieldName: 'bzrno', header: t('MSG_TXT_ENTRP_NO'), width: '120', styleName: 'text-center' }, // [사업자번호]
+    { fieldName: 'txinvPblOjYn', header: t('MSG_TXT_BILL') + t('MSG_TXT_PBL') + t('MSG_TXT_YN2'), width: '120', styleName: 'text-center' }, // [계산서 발행유무]
+    { fieldName: 'cstNo', header: t('MSG_TXT_CST_NO'), width: '120', styleName: 'text-center' }, // [고객번호]
+    { fieldName: 'ogCd', header: t('MSG_TXT_BRCH_CD'), width: '120', styleName: 'text-center' }, // [지점코드]
+    { fieldName: 'pdHclsfNm', header: t('TXT_MSG_PD_HCLSF_ID'), width: '140', styleName: 'text-center' }, // [상품유형1]
+    { fieldName: 'pdMclsfNm', header: t('MSG_TXT_PD_MCLSF_ID'), width: '150', styleName: 'text-center' }, // [상품유형2]
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '300' }, // [상품명]
-    //------------------------------------------------------------------------------------------
-    { fieldName: 'istDt', header: t('MSG_TXT_INST_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd' }, // [설치일]
-    { fieldName: 'canDt', header: t('MSG_TXT_CAN_D'), width: '100', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd' }, // [취소일]
-    { fieldName: 'pdUseDc', header: t('MSG_TXT_USE') + t('MSG_TXT_D'), width: '100', styleName: 'text-center' }, // [사용일]
-    { fieldName: 'pdGdCd', header: t('MSG_TXT_PD_GRD'), width: '100', styleName: 'text-center' }, // [상품등급]
-    //------------------------------------------------------------------------------------------
-    { fieldName: 'reqdAkDt', header: t('MSG_TXT_REQD_RQ_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd' }, // [철거요청일]
-    { fieldName: 'reqdDt', header: t('MSG_TXT_REQD_FSH_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd' }, // [철거완료일]
-    { fieldName: 'reqdIchrNm', header: t('MSG_TXT_REQD_PSIC_NM'), width: '150', styleName: 'text-center' }, // [철거담당자]
-    { fieldName: 'reqdAsn',
-      header: t('MSG_TXT_REQD') + t('MSG_TXT_ASGN'),
-      width: '120',
-      renderer: { type: 'button', hideWhenEmpty: false },
-      displayCallback: () => t('MSG_TXT_REQD') + t('MSG_TXT_ASGN'),
-    }, // [철거배정]
-    //------------------------------------------------------------------------------------------
-    { fieldName: 'rgstCostAmt',
-      header: t('MSG_TXT_SL_AMT'),
-      width: '100',
-      styleName: 'text-right',
-      dataType: 'number',
-      groupFooter: {
-        numberFormat: '#,##0',
-        expression: 'sum',
-        styleName: 'text-right',
-      },
-      footer: {
-        numberFormat: '#,##0',
-        styleName: 'text-right',
-        valueCallback(g, c) {
-          return gridUtil.getSumValue(g, c.fieldName);
-        } },
-    }, // [매출금액]
-    { fieldName: 'rgstCostRfndAmt',
-      header: t('MSG_TXT_RTRN_AMT'),
-      width: '120',
-      styleName: 'text-right',
-      dataType: 'number',
-      groupFooter: {
-        numberFormat: '#,##0',
-        expression: 'sum',
-        styleName: 'text-right',
-      },
-      footer: {
-        numberFormat: '#,##0',
-        styleName: 'text-right',
-        valueCallback(g, c) {
-          return gridUtil.getSumValue(g, c.fieldName);
-        } },
-    }, // [반환금액]
-    //------------------------------------------------------------------------------------------
-    { fieldName: 'slAmt',
-      header: t('MSG_TXT_SL_AMT'),
-      width: '120',
-      styleName: 'text-right',
-      dataType: 'number',
-      groupFooter: {
-        numberFormat: '#,##0',
-        expression: 'sum',
-        styleName: 'text-right',
-      },
-      footer: {
-        numberFormat: '#,##0',
-        styleName: 'text-right',
-        valueCallback(g, c) {
-          return gridUtil.getSumValue(g, c.fieldName);
-        } },
-    }, // [매출금액]
-    { fieldName: 'slCtrAmt',
-      header: t('MSG_TXT_SL_CTR'),
-      width: '120',
-      styleName: 'text-right',
-      dataType: 'number',
-      groupFooter: {
-        numberFormat: '#,##0',
-        expression: 'sum',
-        styleName: 'text-right',
-      },
-      footer: {
-        numberFormat: '#,##0',
-        styleName: 'text-right',
-        valueCallback(g, c) {
-          return gridUtil.getSumValue(g, c.fieldName);
-        } },
-    }, // [매출조정]
-    { fieldName: 'slAggAmt',
-      header: t('MSG_TXT_SL_AGG_AMT'),
-      width: '120',
-      styleName: 'text-right',
-      dataType: 'number',
-      groupFooter: {
-        numberFormat: '#,##0',
-        expression: 'sum',
-        styleName: 'text-right',
-      },
-      footer: {
-        numberFormat: '#,##0',
-        styleName: 'text-right',
-        valueCallback(g, c) {
-          return gridUtil.getSumValue(g, c.fieldName);
-        } },
-    }, // [매출누계]
-    //------------------------------------------------------------------------------------------
-    { fieldName: 'dpTotAmt',
-      header: t('MSG_TXT_DP_TAM'),
-      width: '120',
-      styleName: 'text-right',
-      dataType: 'number',
-      groupFooter: {
-        numberFormat: '#,##0',
-        expression: 'sum',
-        styleName: 'text-right',
-      },
-      footer: {
-        numberFormat: '#,##0',
-        styleName: 'text-right',
-        valueCallback(g, c) {
-          return gridUtil.getSumValue(g, c.fieldName);
-        } },
-    }, // [입금총액]
-    { fieldName: 'slDpAggAmt',
-      header: t('MSG_TXT_SL_DP_AMT'),
-      width: '120',
-      styleName: 'text-right',
-      dataType: 'number',
-      groupFooter: {
-        numberFormat: '#,##0',
-        expression: 'sum',
-        styleName: 'text-right',
-      },
-      footer: {
-        numberFormat: '#,##0',
-        styleName: 'text-right',
-        valueCallback(g, c) {
-          return gridUtil.getSumValue(g, c.fieldName);
-        } },
-    }, // [매출입금]
-    { fieldName: 'totPrpdAmt',
-      header: t('MSG_TXT_PRPD_AMT'),
-      width: '120',
-      styleName: 'text-right',
-      dataType: 'number',
-      groupFooter: {
-        numberFormat: '#,##0',
-        expression: 'sum',
-        styleName: 'text-right',
-      },
-      footer: {
-        numberFormat: '#,##0',
-        styleName: 'text-right',
-        valueCallback(g, c) {
-          return gridUtil.getSumValue(g, c.fieldName);
-        } },
-    }, // [선수금액]
-    //------------------------------------------------------------------------------------------
-    { fieldName: 'ucBlamAmt',
-      header: t('MSG_TXT_UC_BLAM'),
-      width: '120',
-      styleName: 'text-right',
-      dataType: 'number',
-      groupFooter: {
-        numberFormat: '#,##0',
-        expression: 'sum',
-        styleName: 'text-right',
-      },
-      footer: {
-        numberFormat: '#,##0',
-        styleName: 'text-right',
-        valueCallback(g, c) {
-          return gridUtil.getSumValue(g, c.fieldName);
-        } },
-    }, // [미수잔액]
-    { fieldName: 'csmbCostBorAmt',
-      header: t('MSG_TXT_CSMB'),
-      width: '120',
-      styleName: 'text-right',
-      dataType: 'number',
-      groupFooter: {
-        numberFormat: '#,##0',
-        expression: 'sum',
-        styleName: 'text-right',
-      },
-      footer: {
-        numberFormat: '#,##0',
-        styleName: 'text-right',
-        valueCallback(g, c) {
-          return gridUtil.getSumValue(g, c.fieldName);
-        } },
-    }, // [소모품]
-    { fieldName: 'reqdCsBorAmt',
-      header: t('MSG_TXT_REQD_CS'),
-      width: '120',
-      styleName: 'text-right',
-      dataType: 'number',
-      groupFooter: {
-        numberFormat: '#,##0',
-        expression: 'sum',
-        styleName: 'text-right',
-      },
-      footer: {
-        numberFormat: '#,##0',
-        styleName: 'text-right',
-        valueCallback(g, c) {
-          return gridUtil.getSumValue(g, c.fieldName);
-        } },
-    }, // [철거비]
-    { fieldName: 'borAmt',
-      header: t('MSG_TXT_BOR_BLAM'),
-      width: '120',
-      styleName: 'text-right',
-      dataType: 'number',
-      groupFooter: {
-        numberFormat: '#,##0',
-        expression: 'sum',
-        styleName: 'text-right',
-      },
-      footer: {
-        numberFormat: '#,##0',
-        styleName: 'text-right',
-        valueCallback(g, c) {
-          return gridUtil.getSumValue(g, c.fieldName);
-        } },
-    }, // [위약잔액]
-    { fieldName: 'lsRntf',
-      header: t('MSG_TXT_PD_LENT_LOST_LOG'),
-      width: '120',
-      styleName: 'text-right',
-      dataType: 'number',
-      groupFooter: {
-        numberFormat: '#,##0',
-        expression: 'sum',
-        styleName: 'text-right',
-      },
-      footer: {
-        numberFormat: '#,##0',
-        styleName: 'text-right',
-        valueCallback(g, c) {
-          return gridUtil.getSumValue(g, c.fieldName);
-        } },
-    }, // [분실손료]
-    { fieldName: 'totRfndAmt',
-      header: t('MSG_TXT_RFND_AMT'),
-      width: '120',
-      styleName: 'text-right',
-      dataType: 'number',
-      groupFooter: {
-        numberFormat: '#,##0',
-        expression: 'sum',
-        styleName: 'text-right',
-      },
-      footer: {
-        numberFormat: '#,##0',
-        styleName: 'text-right',
-        valueCallback(g, c) {
-          return gridUtil.getSumValue(g, c.fieldName);
-        } },
-    }, // [환불금액]
-    //------------------------------------------------------------------------------------------
-    { fieldName: 'clctamPrtnrKnm', header: t('MSG_TXT_CLCTAM_PRTNR'), width: '120', styleName: 'text-center' }, // [집금자]
-    //------------------------------------------------------------------------------------------
+    { fieldName: 'stplPtrm', header: t('MSG_TXT_DUTY_STPL'), width: '100', styleName: 'text-right', dataType: 'number' }, // [의무약정]
+    { fieldName: 'cntrCnfmDtm', header: t('MSG_TXT_CNTR_DATE'), width: '100', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd' }, // [계약일자]
+    { fieldName: 'istDt', header: t('MSG_TXT_IST_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd' }, // [설치일자]
+    { fieldName: 'rsgAplcDt', header: t('MSG_TXT_CANC_RQDT'), width: '100', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd' }, // [요청일자]
+    { fieldName: 'rsgFshDt', header: t('MSG_TXT_CANC_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd' }, // [취소일자]
+    { fieldName: 'canDtInDt', header: t('MSG_TXT_CANC_DT') + t('MSG_TXT_IN_D'), width: '100', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd' }, // [취소일자입력일]
+    { fieldName: 'cntrStatChRsonCd', header: t('MSG_TXT_CNCL_TP'), width: '100', styleName: 'text-center' }, // [취소유형]
+    { fieldName: 'cntrStatChRsonNm', header: t('MSG_TXT_CNCL_TP') + t('MSG_TXT_NM'), width: '250', styleName: 'text-center' }, // [취소유형명]
+    { fieldName: 'ichrPrtnrNo', header: t('MSG_TXT_CNT_PER'), width: '120', styleName: 'text-center' }, // [담당자사번]
+    { fieldName: 'ichrPrtnrNm', header: t('MSG_TXT_PIC_NM'), width: '120', styleName: 'text-center' }, // [담당자명]
+    { fieldName: 'reqdDt', header: t('철거일자'), width: '120', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd' }, // [철거일자]
+    { fieldName: 'pdUseDc', header: t('MSG_TXT_USE_DAY'), width: '100', styleName: 'text-right', dataType: 'number' }, // [사용일]
+    { fieldName: 'prgsNmnN', header: t('MSG_TXT_USE_NMN'), width: '100', styleName: 'text-right', dataType: 'number' }, // [사용차월]
+    { fieldName: 'rsonNm', header: t('MSG_TXT_CANCEL') + t('MSG_TXT_CNTN'), width: '250' }, // [취소내용]
+    { fieldName: 'slAmt', header: t('MSG_TXT_SL_AMT'), width: '100', styleName: 'text-right', dataType: 'number' }, // [매출금액]
+    { fieldName: 'slCtrAmt', header: t('MSG_TXT_SL_CTR'), width: '100', styleName: 'text-right', dataType: 'number' }, // [매출조정]
+    { fieldName: 'totPrpdAmt', header: t('MSG_TXT_PRPD_AMT'), width: '100', styleName: 'text-right', dataType: 'number' }, // [선수금액]
+    { fieldName: 'csmbCostBorAmt', header: t('MSG_TXT_CSMB_CS'), width: '100', styleName: 'text-right', dataType: 'number' }, // [소모품비]
+    { fieldName: 'reqdCsBorAmt', header: t('MSG_TXT_REQD_CS'), width: '100', styleName: 'text-right', dataType: 'number' }, // [철거비]
+    { fieldName: 'borAmt', header: t('MSG_TXT_CCAM'), width: '100', styleName: 'text-right', dataType: 'number' }, // [위약금]
+    { fieldName: 'lsRntf', header: t('MSG_TXT_PD_LENT_LOST_LOG'), width: '100', styleName: 'text-right', dataType: 'number' }, // [분실손료]
+    { fieldName: 'totRfndAmt', header: t('MSG_TXT_RFND_TOT_AMT'), width: '100', styleName: 'text-right', dataType: 'number' }, // [환불총액]
+    { fieldName: 'exCentrNoSn', header: t('MSG_BTN_PREV') + t('MSG_TXT_CNTR_DTL_NO'), width: '120', styleName: 'text-center' }, // [이전계약상세번호]
+    { fieldName: 'bizSpptPrtnrNo', header: t('MSG_TXT_MNGER_EPNO'), width: '120', styleName: 'text-center' }, // [매니저사번]
+    { fieldName: 'bizSpptPrtnrNm', header: t('MSG_TXT_MNGER_NM'), width: '120', styleName: 'text-center' }, // [매니저명]
     { fieldName: 'cntrNo', visible: false },
     { fieldName: 'cntrSn', visible: false },
-    { fieldName: 'ogCd', visible: false },
+
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
 
   data.setFields(fields);
   view.setColumns(columns);
-  view.setFixedOptions({ colCount: 6 });
-  view.setFooters({ visible: true, items: [{ height: 40 }] });
   view.rowIndicator.visible = true;
-
-  view.setColumnLayout([
-    'seq', 'ogNm', 'prtnrNo', 'prtnrKnm', 'cntrNoSn', 'cntrCstKnm', // single
-    {
-      header: t('MSG_TXT_PRDT'), // colspan title
-      direction: 'horizontal', // merge type
-      items: ['sapMatCd', 'mPdCd', 'pdCd', 'pdNm'],
-    },
-    {
-      header: t('MSG_TXT_CANCEL') + t('MSG_TXT_IZ'),
-      direction: 'horizontal',
-      items: ['istDt', 'canDt', 'pdUseDc', 'pdGdCd'],
-    },
-    {
-      header: t('MSG_TXT_REQD') + t('MSG_TXT_IZ'),
-      direction: 'horizontal',
-      items: ['reqdAkDt', 'reqdDt', 'reqdIchrNm', 'reqdAsn'],
-    },
-    {
-      header: t('MSG_TXT_REG_FEE'),
-      direction: 'horizontal',
-      items: ['rgstCostAmt', 'rgstCostRfndAmt'],
-    },
-    {
-      header: t('MSG_TXT_SL_IZ'),
-      direction: 'horizontal',
-      items: ['slAmt', 'slCtrAmt', 'slAggAmt'],
-    },
-    {
-      header: t('MSG_TXT_DP_IZ'),
-      direction: 'horizontal',
-      items: ['dpTotAmt', 'slDpAggAmt', 'totPrpdAmt'],
-    },
-    {
-      header: t('MSG_TXT_RFND') + t('MSG_TXT_IZ'),
-      direction: 'horizontal',
-      items: ['ucBlamAmt', 'csmbCostBorAmt', 'reqdCsBorAmt', 'borAmt', 'lsRntf', 'totRfndAmt'],
-    },
-    'clctamPrtnrKnm',
-  ]);
-
-  view.onCellItemClicked = async (g, { column, itemIndex }) => {
-    // 계약상세번호 클릭 - 팝업
-    if (column === 'cntrNoSn') {
-      await modal({
-        component: 'WwctaOrderDetailP',
-        componentProps: {
-          cntrNo: g.getValue(itemIndex, 'cntrNo'),
-          cntrSn: g.getValue(itemIndex, 'cntrSn'),
-        },
-      });
-    } else if (column === 'reqdAsn') {
-      notify('TODO : 키위에서 불러오는 서비스 기사 배정 타임 테이블 팝업을 불러 옵니다');
-    }
-  };
-
-  view.onCellDblClicked = async (g, { dataRow }) => {
-    notify('TODO : 렌탈 취소 등록/수정(W-SS-U-신규IDP01)을 호출');
-    console.log(g, dataRow);
-    /*
-    const { result } = await modal({
-      component: '',
-      componentProps: { cntrNo: g.getValue(dataRow, 'cntrNo'), cntrSn: g.getValue(dataRow, 'cntrSn') },
-    });
-
-    if (result) await fetchData();
-    */
-  };
 });
 </script>
