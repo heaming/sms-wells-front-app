@@ -383,6 +383,9 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'rmkCn',
       header: t('MSG_TXT_NOTE'),
       width: '158',
+      editor: {
+        maxLength: 200,
+      },
     }, // 비고
   ];
 
