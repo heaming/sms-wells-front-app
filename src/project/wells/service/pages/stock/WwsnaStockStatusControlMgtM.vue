@@ -559,7 +559,6 @@ const initGrdMain = defineGrid((data, view) => {
       editor: { type: 'list' },
       editable: true,
       // styleCallback: (grid, dataCell) => setClctamOpt(grid, dataCell),
-      options: gItmPdCd.value,
       styleCallback: async (grid, dataCell) => {
         const gridItemKnd = grid.getValue(dataCell.index.itemIndex, 'itemKnd');
         console.log(gridItemKnd);
