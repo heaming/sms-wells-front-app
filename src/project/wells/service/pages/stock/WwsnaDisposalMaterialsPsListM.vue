@@ -28,6 +28,7 @@
             type="month"
             rules="required"
             :label="$t('MSG_TXT_BASE_YM')"
+            @change="getWareHouses"
           />
         </kw-search-item>
         <kw-search-item :label="$t('MSG_TXT_SV_CNR')">
