@@ -119,7 +119,8 @@ const totalCount = ref(0);
 async function fetchData() {
   const res = await dataService.get('/sms/wells/service/disposal-materials-state', { params: { ...cachedParams } });
   const dpMats = res.data;
-  totalCount.value = res.data.length;
+  const wareNos = dpMats.map((v) => v.wareNo);
+  totalCount.value = wareNos.filter((v, i) => wareNos.indexOf(v) === i).length;
 
   if (grdMainRef.value != null) {
     const view = grdMainRef.value.getView();
@@ -133,14 +134,14 @@ async function onClickSearch() {
 }
 
 // 엑셀 다운로드
-function onClickExcelDownload() {
+async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
-  const exportData = gridUtil.getAllRowValues(view);
+  const res = await dataService.get('/sms/wells/service/disposal-materials-state', { params: { ...cachedParams } });
 
   gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
-    exportData,
+    exportData: res.data,
   });
 }
 
@@ -165,6 +166,7 @@ function getQtyFooter(column, gubunCd) {
 const initGrdMain = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'wareNm' },
+    { fieldName: 'wareNo' },
     { fieldName: 'gubun' },
     { fieldName: 'gubunCd' },
     { fieldName: 'd01Qty', dataType: 'number' },
@@ -210,9 +212,6 @@ const initGrdMain = defineGrid((data, view) => {
         criteria: 'value',
       },
       footers: [
-        { text: t('MSG_TXT_SUM'), styleName: 'text-center' },
-        { text: t('MSG_TXT_SUM'), styleName: 'text-center' },
-        { text: t('MSG_TXT_SUM'), styleName: 'text-center' },
         { text: t('MSG_TXT_SUM'), styleName: 'text-center' },
       ] },
     { fieldName: 'gubun',
@@ -933,50 +932,8 @@ const initGrdMain = defineGrid((data, view) => {
       ] },
   ];
 
-  const layout = [
-    { name: 'group0',
-      header: { visible: false },
-      direction: 'horizontal',
-      items: [{ column: 'wareNm', footerUserSpans: [{ rowspan: 4 }] }],
-    },
-    'gubun',
-    'd01Qty',
-    'd02Qty',
-    'd03Qty',
-    'd04Qty',
-    'd05Qty',
-    'd06Qty',
-    'd07Qty',
-    'd08Qty',
-    'd09Qty',
-    'd10Qty',
-    'd11Qty',
-    'd12Qty',
-    'd13Qty',
-    'd14Qty',
-    'd15Qty',
-    'd16Qty',
-    'd17Qty',
-    'd18Qty',
-    'd19Qty',
-    'd20Qty',
-    'd21Qty',
-    'd22Qty',
-    'd23Qty',
-    'd24Qty',
-    'd25Qty',
-    'd26Qty',
-    'd27Qty',
-    'd28Qty',
-    'd29Qty',
-    'd30Qty',
-    'd31Qty',
-    'totQty',
-  ];
-
   data.setFields(fields);
   view.setColumns(columns);
-  view.setColumnLayout(layout);
 
   view.setFooters({
     visible: true,
