@@ -91,11 +91,12 @@ const pageInfo = ref({
   pageIndex: 1,
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
 });
-
 async function fetchData() {
   const res = await dataService.get('/sms/wells/contract/business-to-business/business-opportunities/details', { params: { opptId: props.opptId } });
   const view = grdBusinessToBusinessBoLDetailist.value.getView();
-
+  for (let i = 0; i < res.data.length; i += 1) {
+    res.data[i].basePdCdCheck = res.data[i].basePdCd;
+  }
   const dataSource = view.getDataSource();
   dataSource.setRows(res.data);
   pageInfo.value.totalCount = view.getItemCount();
@@ -112,6 +113,12 @@ async function onClickSave() {
   if (!await gridUtil.validate(view)) { return; }
 
   const changedRows = gridUtil.getChangedRowValues(view);
+  for (let i = 0; i < changedRows.length; i += 1) {
+    if (changedRows[i].basePdCd !== changedRows[i].basePdCdCheck) {
+      notify(t('MSG_ALT_BE_CHECK_IT', [t('MSG_TXT_PRDT_CODE')]));
+      return;
+    }
+  }
   await dataService.post('/sms/wells/contract/business-to-business/business-opportunities/details', changedRows);
 
   notify(t('MSG_ALT_SAVE_DATA'));
@@ -159,6 +166,7 @@ const initBusinessToBusinessBoDetailList = defineGrid((data, view) => {
     { fieldName: 'pdClsfNm' },
     { fieldName: 'pdNm' },
     { fieldName: 'basePdCd' },
+    { fieldName: 'basePdCdCheck' },
     { fieldName: 'pdQty', dataType: 'number' },
     { fieldName: 'fnlAmt', dataType: 'number' },
     { fieldName: 'unuitmCn' },
@@ -227,6 +235,7 @@ const initBusinessToBusinessBoDetailList = defineGrid((data, view) => {
     if (returnPdInfo.result) {
       const pdClsfNm = returnPdInfo.payload?.[0].pdClsfNm.split('>');
       data.setValue(updateRow, 'basePdCd', isEmpty(returnPdInfo.payload?.[0].pdCd) ? '' : returnPdInfo.payload?.[0].pdCd);
+      data.setValue(updateRow, 'basePdCdCheck', isEmpty(returnPdInfo.payload?.[0].pdCd) ? '' : returnPdInfo.payload?.[0].pdCd);
       data.setValue(updateRow, 'pdNm', isEmpty(returnPdInfo.payload?.[0].pdNm) ? '' : returnPdInfo.payload?.[0].pdNm);
       data.setValue(updateRow, 'pdClsfNm', !isEmpty(pdClsfNm[1]) ? pdClsfNm[1] : '');
     } else {
@@ -252,6 +261,7 @@ const initBusinessToBusinessBoDetailList = defineGrid((data, view) => {
       if (returnPdInfo.result) {
         const pdClsfNm = returnPdInfo.payload?.[0].pdClsfNm.split('>');
         data.setValue(updateRow, 'basePdCd', isEmpty(returnPdInfo.payload?.[0].pdCd) ? '' : returnPdInfo.payload?.[0].pdCd);
+        data.setValue(updateRow, 'basePdCdCheck', isEmpty(returnPdInfo.payload?.[0].pdCd) ? '' : returnPdInfo.payload?.[0].pdCd);
         data.setValue(updateRow, 'pdNm', isEmpty(returnPdInfo.payload?.[0].pdNm) ? '' : returnPdInfo.payload?.[0].pdNm);
         data.setValue(updateRow, 'pdClsfNm', !isEmpty(pdClsfNm[1]) ? pdClsfNm[1] : '');
       } else {
