@@ -980,19 +980,19 @@ async function checkKiwiTimeAssign(dataList, prdDiv) {
 
 // 접수(설치)
 async function onClickReceipt(dataList) {
-  if (await confirm(t('MSG_ALT_WANT', ['MSG_TXT_RCP']))) { return; }
+  if (!await confirm(t('MSG_ALT_WANT', [t('MSG_TXT_RCP')]))) { return; }
   checkKiwiTimeAssign(dataList, '1');
 }
 
 // 재접수(설치)
 async function onClickReRegistration(dataList) {
-  if (await confirm(t('MSG_ALT_WANT', ['MSG_TXT_RE_REG']))) { return; }
+  if (!await confirm(t('MSG_ALT_WANT', [t('MSG_TXT_RE_REG')]))) { return; }
   checkKiwiTimeAssign(dataList, '2');
 }
 
 // 배정취소(설치)
 async function onClickCnclAsgmt(dataList) {
-  if (await confirm(t('MSG_ALT_WANT', ['MSG_TXT_CNCL_ASGMT']))) { return; }
+  if (!await confirm(t('MSG_ALT_WANT', [t('MSG_TXT_CNCL_ASGMT')]))) { return; }
   checkKiwiTimeAssign(dataList, '3');
 }
 
