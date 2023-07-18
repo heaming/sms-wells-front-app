@@ -54,6 +54,7 @@
           <kw-select
             v-model="searchParams.svFeeDvCd"
             :options="codes.SV_FEE_DV_CD"
+            first-option="all"
           />
         </kw-search-item>
       </kw-search-row>
@@ -74,6 +75,7 @@
           <kw-select
             v-model="searchParams.svFeePdDvCd"
             :options="codes.SV_FEE_PD_DV_CD"
+            first-option="all"
           />
         </kw-search-item>
       </kw-search-row>
