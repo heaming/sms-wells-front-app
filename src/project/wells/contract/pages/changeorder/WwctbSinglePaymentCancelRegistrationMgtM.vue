@@ -60,7 +60,6 @@
       padding-target="header"
       expansion-icon-align="center"
       expand-icon-class="kw-font-pt24"
-      default-opened
     >
       <template #header>
         <kw-item-section>
@@ -236,28 +235,19 @@
       class="button-set--bottom-right"
     >
       <kw-btn
-        label="가상계좌발급"
+        :label="$t('MSG_BTN_VAC')+$t('MSG_BTN_IS')"
         class="ml8"
+        @click="onClickVacIssue"
       />
       <kw-btn
-        label="카드승인"
+        :label="$t('MSG_TXT_CARD')+$t('MSG_BTN_APPR')"
         class="ml8"
+        @click="onClickTodo('카드승인')"
       />
       <kw-btn
-        label="철거접수"
+        :label="$t('MSG_TXT_RFND')+$t('MSG_BTN_RECEIPT')"
         class="ml8"
-      />
-      <kw-btn
-        label="환불접수"
-        class="ml8"
-      />
-      <kw-btn
-        label="렌탈계약해지확인서 보기"
-        class="ml8"
-      />
-      <kw-btn
-        label="삭제"
-        class="ml8"
+        @click="onClickTodo('환불접수')"
       />
     </div>
     <!-- // BTN Variation #1 : 취소등록 이전 버튼 배열  -->
@@ -284,11 +274,12 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, getComponentType, stringUtil } from 'kw-lib';
+import { codeUtil, getComponentType, stringUtil, useGlobal } from 'kw-lib';
 import { isEmpty } from 'lodash';
 
 const { t } = useI18n();
 const frmMainSinglePmt = ref(getComponentType('KwForm'));
+const { notify, modal } = useGlobal();
 
 const codes = await codeUtil.getMultiCodes(
   'CMN_STAT_CH_RSON_CD', // 공통상태변경사유코드
@@ -349,6 +340,35 @@ function onChangeTextforSelect(div) {
   } else if (div === 'sel3') {
     searchDetail.sel3 = inputDetail.value.sel3Text;
   }
+}
+
+async function onCallStlm(pDiv) {
+  let component;
+  if (pDiv === 'Face') component = 'ZwwdbIndvVirtualAccountIssueMgtP';
+  else if (pDiv === 'NonFace') component = 'ZwwdbIndvVirtualAccountNoContactIssueMgtP';
+
+  if (isEmpty(component)) { return; }
+
+  const { result } = await modal({
+    component,
+  });
+
+  if (result) {
+    // console.log(payload)
+  }
+}
+
+async function onClickVacIssue() {
+  const { result, payload } = await modal({
+    component: 'WwctbCancelRegistrationConfirmMgtP',
+  });
+  if (result) {
+    onCallStlm(payload);
+  }
+}
+
+async function onClickTodo(param) {
+  notify(`TODO: ${param} 기능 준비 중`);
 }
 
 // -------------------------------------------------------------------------------------------------
