@@ -637,10 +637,11 @@ async function isPartnerStpa() {
   })?.data;
 }
 
-// TODO 계약작성 마감시간 검사 getClosingTimeInfo
 async function isClosingTime() {
-  return false;
+  const isClosing = await dataService.get('sms/wells/contract/business-hours/is-business-closed-hours');
+  return isClosing.data;
 }
+
 function isChangedStep() {
   if (isEmpty(step1.value.bas.cntrNo)) {
     return true;
@@ -681,11 +682,12 @@ async function saveStep() {
 onMounted(async () => {
   props.onChildMounted(1);
   if (await isPartnerStpa()) {
-    await alert('휴업');
+    await alert('휴업중인 파트너로 계약이 불가합니다');
   } else {
     if (isEmpty(props.cntrNo)) {
       if (await isClosingTime()) {
-        await alert('마감');
+        await alert('계약작성시간 마감으로 계약이 불가합니다');
+        await router.push({ path: '/' });
       }
     }
     const res = await dataService.get('/sms/wells/contract/re-stipulation/customers/counts', { params: { copnDvCd: '1' } });
