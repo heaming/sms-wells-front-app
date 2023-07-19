@@ -128,7 +128,7 @@ const initGrdDetail = defineGrid((data, view) => {
     { fieldName: 'dgCstId', header: t('MSG_TXT_RPRS_CUST_NO'), width: '120', styleName: 'text-center', editable: false },
     { fieldName: 'dgCstNm', header: t('MSG_TXT_DG_CST_CD_NM'), width: '120', styleName: 'text-center', editable: false },
     { fieldName: 'slBndAlrpyAmt', header: t('MSG_TXT_ALRPY_AMT') + t('MSG_TXT_WON'), width: '150', styleName: 'text-right', dataType: 'number', editable: false },
-    { fieldName: 'bktxt', header: t('MSG_TXT_SMRY'), width: '300', styleName: 'text-left' },
+    { fieldName: 'bktxt', header: t('MSG_TXT_SMRY'), width: '300', styleName: 'text-left', editor: { maxLength: 333 } },
     { fieldName: 'budat', width: '100', visible: false },
     { fieldName: 'kwGrpCoCd', width: '100', visible: false },
   ];
