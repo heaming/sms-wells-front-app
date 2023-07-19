@@ -1164,13 +1164,13 @@ const initGrdMstList = defineGrid((data, view) => {
         row.cnfmMsgYn = ''; // 확정승인메세지
       });
 
-      res = await dataService.put('/sms/wells/contract/contracts/managements/confirm-approval', rows);
-      console.log(res.data.processCount);
-      if (res.data.processCount === 0) {
-        if (await confirm(t('MSG_ALT_CNFM_ORD'))) { // 주문을 확정하시겠습니까?
-          res = await dataService.put('/sms/wells/contract/contracts/managements/confirm', searchCnfmAprvParams.value.cntrNo);
-        }
+      // res = await dataService.put('/sms/wells/contract/contracts/managements/confirm-approval', rows);
+      // console.log(res.data.processCount);
+      // if (res.data.processCount === 0) {
+      if (await confirm(t('MSG_ALT_CNFM_ORD'))) { // 주문을 확정하시겠습니까?
+        res = await dataService.put('/sms/wells/contract/contracts/managements/confirm', rows);
       }
+      // }
     } else if (['rqsIz'].includes(column)) { // 요청내역 버튼 클릭
       // const { fstRgstUsrId, fnlMdfcUsrId } = gridUtil.getRowValue(g, itemIndex);
       await modal({ component: 'WwConfirmApprovalAskIzListP', componentProps: { cntrNo: paramCntrNo } }); // 확정 승인 요청 내역
