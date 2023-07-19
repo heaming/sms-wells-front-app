@@ -632,8 +632,13 @@ async function onClickVisitPeriodCreate() {
   });
 }
 async function onClickSearchSidding() {
-  notify('모종배송내역 팝업(W-SV-U-0213P01)');
-  // await modal({ component: '' });
+  await modal({
+    component: 'WwsncSeedingDeliveryListP',
+    componentProps: {
+      cntrNo: searchParams.value.cntrNo,
+      cntrSn: searchParams.value.cntrSn,
+    },
+  });
 }
 
 /* 가구화 조회 */
