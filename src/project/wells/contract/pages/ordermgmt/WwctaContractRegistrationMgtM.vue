@@ -311,10 +311,13 @@ function onChildMounted(step) {
   }, 1);
 }
 
+/*
+  20230719_통합테스트2차_마감접수체크비활성화
 async function isClosingTime() {
   const isClosing = await dataService.get('sms/wells/contract/business-hours/is-business-closed-hours');
   return isClosing.data;
 }
+ */
 
 function showStep(step) {
   [0, 1, 2].forEach((n) => {
@@ -422,10 +425,13 @@ watch(stepsStatus, async () => {
 });
 
 onMounted(async () => {
+  /*
+  20230719_통합테스트2차_마감접수체크비활성화
   if (!props.cntrNo && await isClosingTime()) {
     await alert('계약작성시간 마감으로 계약이 불가합니다');
     await router.close();
   }
+   */
 });
 </script>
 
