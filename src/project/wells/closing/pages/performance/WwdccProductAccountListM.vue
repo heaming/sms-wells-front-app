@@ -29,7 +29,7 @@
             :label="$t('MSG_TXT_BASE_YM')"
             :model-value="searchParams.baseYmTo"
             type="month"
-            rules="required"
+            rules="date_range_required"
           />
         </kw-search-item>
         <kw-search-item :label="$t('MSG_TXT_SEL_TYPE')">
@@ -266,6 +266,7 @@ async function onClickExportView() {
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
+    exportData: gridUtil.getAllRowValues(view),
   });
 }
 
