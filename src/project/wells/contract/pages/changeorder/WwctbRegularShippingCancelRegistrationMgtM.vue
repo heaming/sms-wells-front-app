@@ -379,7 +379,7 @@
           regex="num"
           maxlength="10"
           align="right"
-          :readonly="searchDetail.sel1!=='4'"
+          :readonly="searchDetail.ccamExmptDvCd!=='4'"
         />
         <kw-btn
           :label="$t('MSG_TXT_CCAM_IZ_DOC')+' '+$t('MSG_BTN_VIEW')"
@@ -413,10 +413,9 @@
       <!-- row5 위약면책 -->
       <kw-form-item
         :label="$t('MSG_TXT_BOR')+$t('MSG_TXT_EXEMPTION')"
-        hint="입력되는곳 없음."
       >
         <kw-select
-          v-model="searchDetail.sel1"
+          v-model="searchDetail.ccamExmptDvCd"
           :options="codes.CCAM_EXMPT_DV_CD"
           first-option="select"
         />
@@ -476,11 +475,13 @@
       v-if="searchDetail.cancelStatNm === '취소등록'"
       class="button-set--bottom-right"
     >
+      <!--
       <kw-btn
         :label="$t('MSG_BTN_VAC')+$t('MSG_BTN_IS')"
         class="ml8"
         @click="onClickVacIssue"
       />
+      -->
       <kw-btn
         :label="$t('MSG_TXT_CARD')+$t('MSG_BTN_APPR')"
         class="ml8"
@@ -489,7 +490,7 @@
       <kw-btn
         :label="$t('MSG_TXT_RFND')+$t('MSG_BTN_RECEIPT')"
         class="ml8"
-        @click="onClickTodo('환불접수')"
+        @click="onClickRefund"
       />
     </div>
     <!-- // BTN Variation #1 : 취소등록 이전 버튼 배열  -->
@@ -529,10 +530,6 @@ const codes = await codeUtil.getMultiCodes(
   'CMN_STAT_CH_RSON_CD', // 공통상태변경사유코드
 );
 
-const props = defineProps({
-  childDetail: { type: Object, required: true },
-});
-
 const emits = defineEmits([
   'update:modelValue',
   'searchdetail',
@@ -540,8 +537,12 @@ const emits = defineEmits([
   'removedetail',
 ]);
 
-const isChageCanCtr = ref(false);
+const props = defineProps({
+  childDetail: { type: Object, required: true },
+});
+
 const searchDetail = reactive(props.childDetail);
+const isChageCanCtr = ref(false);
 const inputDetail = ref({
   reqDt: '',
   cancelDt: '',
@@ -552,6 +553,25 @@ codes.CMN_STAT_CH_RSON_CD.forEach((e) => { e.codeName = `(${e.codeId})${e.codeNa
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
+
+// 취소조정 추가 데이터 입력 여부 설정
+function onChangeCanCtr(val) {
+  isChageCanCtr.value = (val !== '0');
+}
+// SELECTBOX 를 선택하기 위한 TEXT 입력 이벤트
+function onChangeTextforSelect(div) {
+  if (div === 'sel1') {
+    searchDetail.ccamExmptDvCd = inputDetail.value.sel1Text;
+  } else if (div === 'sel2') {
+    searchDetail.cntrStatChRsonCd = inputDetail.value.sel2Text;
+  }
+}
+
+// 위약금 내역서 보기
+function onClickCcamView() {
+  // 위약금 내역서 보기 : 해당 계약번호에 대한 '위약금 내역' OZ뷰 팝업을 호출 합니다.
+  notify('TODO : 위약금 내역서 OZ뷰 호출 ');
+}
 
 // 5. 취소사항 > 취소사항 조회 클릭
 async function onClickSearchCancel() {
@@ -582,67 +602,21 @@ function onClickCancel() {
   emits('removedetail');
 }
 
-// 취소조정 추가 데이터 입력 여부 설정
-function onChangeCanCtr(val) {
-  isChageCanCtr.value = (val !== '0');
-}
-
-// 위약금 내역서 보기
-function onClickCcamView() {
-  // 위약금 내역서 보기 : 해당 계약번호에 대한 '위약금 내역' OZ뷰 팝업을 호출 합니다.
-  notify('TODO : 위약금 내역서 OZ뷰 호출 ');
-}
-
-// SELECTBOX 를 선택하기 위한 TEXT 입력 이벤트
-function onChangeTextforSelect(div) {
-  if (div === 'sel1') {
-    searchDetail.sel1 = inputDetail.value.sel1Text;
-  } else if (div === 'sel2') {
-    searchDetail.cntrStatChRsonCd = inputDetail.value.sel2Text;
-  }
-}
-
-async function onCallStlm(pDiv) {
-  let component;
-  if (pDiv === 'Face') component = 'ZwwdbIndvVirtualAccountIssueMgtP';
-  else if (pDiv === 'NonFace') component = 'ZwwdbIndvVirtualAccountNoContactIssueMgtP';
-
-  if (isEmpty(component)) { return; }
-
-  const { result } = await modal({
-    component,
+async function onClickRefund() {
+  const { cntrNo, cntrSn } = searchDetail;
+  await modal({
+    component: 'WwwdbRefundApplicationRegP',
+    componentProps: { cntrNo, cntrSn },
   });
-
-  if (result) {
-    // console.log(payload)
-  }
-}
-
-async function onClickVacIssue() {
-  const { result, payload } = await modal({
-    component: 'WwctbCancelRegistrationConfirmMgtP',
-  });
-  if (result) {
-    onCallStlm(payload);
-  }
 }
 
 async function onClickTodo(param) {
-  notify(`TODO: ${param} 기능 준비 중`);
+  notify(`TODO: ${param} 준비 중`);
 }
-
-watch(props.childDetail, (val) => {
-  console.log(val);
-  Object.assign(searchDetail, val);
-});
 
 watch(searchDetail, (val) => {
   console.log(val);
   emits('update:modelValue', val);
-});
-
-onMounted(async () => {
-  console.log(props.childDetail.cntrNo);
 });
 
 // -------------------------------------------------------------------------------------------------

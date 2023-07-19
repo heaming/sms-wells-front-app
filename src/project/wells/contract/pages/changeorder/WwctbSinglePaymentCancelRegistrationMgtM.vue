@@ -201,7 +201,7 @@
         :label="$t('MSG_TXT_CONSUMPTION')"
       >
         <kw-select
-          v-model="searchDetail.sel3"
+          v-model="searchDetail.csmbCsExmptDvCd"
           :options="codes.CSMB_CS_EXMPT_DV_CD"
           first-option="select"
         />
@@ -234,11 +234,13 @@
       v-if="searchDetail.cancelStatNm === '취소등록'"
       class="button-set--bottom-right"
     >
+      <!--
       <kw-btn
         :label="$t('MSG_BTN_VAC')+$t('MSG_BTN_IS')"
         class="ml8"
         @click="onClickVacIssue"
       />
+      -->
       <kw-btn
         :label="$t('MSG_TXT_CARD')+$t('MSG_BTN_APPR')"
         class="ml8"
@@ -247,7 +249,7 @@
       <kw-btn
         :label="$t('MSG_TXT_RFND')+$t('MSG_BTN_RECEIPT')"
         class="ml8"
-        @click="onClickTodo('환불접수')"
+        @click="onClickRefund"
       />
     </div>
     <!-- // BTN Variation #1 : 취소등록 이전 버튼 배열  -->
@@ -279,16 +281,12 @@ import { isEmpty } from 'lodash';
 
 const { t } = useI18n();
 const frmMainSinglePmt = ref(getComponentType('KwForm'));
-const { notify, modal } = useGlobal();
+const { modal, notify } = useGlobal();
 
 const codes = await codeUtil.getMultiCodes(
   'CMN_STAT_CH_RSON_CD', // 공통상태변경사유코드
   'CSMB_CS_EXMPT_DV_CD', // 소모품비용면책구분코드
 );
-
-const props = defineProps({
-  childDetail: { type: Object, required: true },
-});
 
 const emits = defineEmits([
   'update:modelValue',
@@ -296,6 +294,10 @@ const emits = defineEmits([
   'savedetail',
   'removedetail',
 ]);
+
+const props = defineProps({
+  childDetail: { type: Object, required: true },
+});
 
 const searchDetail = reactive(props.childDetail);
 const inputDetail = ref({
@@ -309,17 +311,22 @@ codes.CSMB_CS_EXMPT_DV_CD.forEach((e) => { e.codeName = `(${e.codeId})${e.codeNa
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 
-// 5. 취소사항 > 취소사항 조회 클릭
-/*
-async function onClickSearchCancel() {
-  if (!await frmMainRental.value.validate()) { return; }
-  if (inputDetail.value.reqDt < dayjs().format('YYYYMMDD')) {
-    notify('요청일자가 현재일자 이전입니다.');
+// SELECTBOX 를 선택하기 위한 TEXT 입력 이벤트
+function onChangeTextforSelect(div) {
+  if (div === 'sel2') {
+    searchDetail.cntrStatChRsonCd = inputDetail.value.sel2Text;
+  } else if (div === 'sel3') {
+    searchDetail.csmbCsExmptDvCd = inputDetail.value.sel3Text;
   }
-
-  emits('searchdetail', inputDetail.value.reqDt, inputDetail.value.cancelDt);
 }
-*/
+
+async function onClickRefund() {
+  const { cntrNo, cntrSn } = searchDetail;
+  await modal({
+    component: 'WwwdbRefundApplicationRegP',
+    componentProps: { cntrNo, cntrSn },
+  });
+}
 
 function onClickSave() {
   searchDetail.rsgAplcDt = inputDetail.reqDt;
@@ -333,43 +340,15 @@ function onClickSave() {
 function onClickCancel() {
   emits('removedetail');
 }
-// SELECTBOX 를 선택하기 위한 TEXT 입력 이벤트
-function onChangeTextforSelect(div) {
-  if (div === 'sel2') {
-    searchDetail.cntrStatChRsonCd = inputDetail.value.sel2Text;
-  } else if (div === 'sel3') {
-    searchDetail.sel3 = inputDetail.value.sel3Text;
-  }
-}
-
-async function onCallStlm(pDiv) {
-  let component;
-  if (pDiv === 'Face') component = 'ZwwdbIndvVirtualAccountIssueMgtP';
-  else if (pDiv === 'NonFace') component = 'ZwwdbIndvVirtualAccountNoContactIssueMgtP';
-
-  if (isEmpty(component)) { return; }
-
-  const { result } = await modal({
-    component,
-  });
-
-  if (result) {
-    // console.log(payload)
-  }
-}
-
-async function onClickVacIssue() {
-  const { result, payload } = await modal({
-    component: 'WwctbCancelRegistrationConfirmMgtP',
-  });
-  if (result) {
-    onCallStlm(payload);
-  }
-}
 
 async function onClickTodo(param) {
   notify(`TODO: ${param} 기능 준비 중`);
 }
+
+watch(searchDetail, (val) => {
+  console.log(val);
+  emits('update:modelValue', val);
+});
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
