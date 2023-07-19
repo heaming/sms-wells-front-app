@@ -387,13 +387,32 @@ async function onClickDetailsExcelDownload() {
   });
 }
 
+async function checkRquest(changedRows) {
+  let isRequest = true;
+  let rowNum = 0;
+  changedRows.forEach((obj) => {
+    const { changeClctamPrtnrKnm } = obj;
+    rowNum += 1;
+    if (changeClctamPrtnrKnm === 'Y') { // 수정 후 검증된 정보 이거나 팝업을 통해 넘어온 값이 아닌 경우 처리 되지 않음
+      isRequest = false;
+      return isRequest;
+    }
+  });
+  if (!isRequest) {
+    notify(t('MSG_ALT_USE_NOT_PROC', [`(${rowNum})${t('MSG_TXT_DTA')}`]));
+  }
+  return isRequest;
+}
+
 async function onClickSave() {
-  // TODO: 미완료 구현 필요
   const view = grdSubRef.value.getView();
   if (await gridUtil.alertIfIsNotModified(view)) { return; }
   if (!await gridUtil.validate(view)) { return; }
 
   const changedRows = gridUtil.getChangedRowValues(view);
+  if (!await checkRquest(changedRows)) {
+    return;
+  }
   await dataService.put('/sms/wells/bond/collector-assigns', changedRows);
 
   notify(t('MSG_ALT_SAVE_DATA'));
