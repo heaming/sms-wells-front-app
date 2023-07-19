@@ -14,7 +14,9 @@
 --->
 <template>
   <kw-page>
-    <kw-search @search="onClickSearch">
+    <kw-search
+      @search="onClickSearch"
+    >
       <kw-search-row>
         <!-- 취소일자 -->
         <kw-search-item
@@ -27,17 +29,17 @@
             rules="date_range_required|date_range_months:1"
           />
         </kw-search-item>
-        <!-- 계약번호 -->
-        <kw-search-item :label="$t('MSG_TXT_CNTR_NO')">
-          <kw-input
-            v-model="searchParams.cntrNo"
+        <!-- 계약상세번호 -->
+        <kw-search-item
+          :label="$t('MSG_TXT_CNTR_DTL_NO')"
+        >
+          <zctz-contract-detail-number
+            v-model:cntr-no="searchParams.cntrNo"
+            v-model:cntr-sn="searchParams.cntrSn"
+            class="w275"
             icon="search"
-            clearable
-            :label="$t('MSG_TXT_CNTR_NO')"
-            :maxlength="12"
-            @keydown="onKeyDownSelectCntrNo"
-            @click-icon="onClickSelectCntrNo"
-            @clear="onClearSelectCntrNo"
+            disable-popup="false"
+            :label="$t('MSG_TXT_CNTR_DTL_NO')"
           />
         </kw-search-item>
         <!-- 상태 -->
@@ -71,13 +73,13 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { defineGrid, getComponentType, useDataService, useGlobal } from 'kw-lib';
+import { defineGrid, getComponentType, useDataService } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
+import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
 
 const dataService = useDataService();
 const { t } = useI18n();
-const { modal } = useGlobal();
 
 let cachedParams;
 const now = dayjs();
@@ -118,18 +120,6 @@ async function onClickSearch() {
   await fetchData();
 }
 
-// 계약번호 팝업조회
-async function onClickSelectCntrNo() {
-  const { result, payload } = await modal({ component: 'WwctaContractNumberListP',
-    // componentProps: { cntrCstNo: searchParams.value.cntrCstNo, cntrCstKnm: searchParams.value.cntrCstKnm },
-  });
-
-  if (result) {
-    searchParams.value.cntrNo = payload.cntrNo;
-    searchParams.value.cntrSn = payload.cntrSn;
-  }
-}
-
 onMounted(async () => {
   // await fetchData();
 });
@@ -140,26 +130,28 @@ onMounted(async () => {
 const initGrid = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'cntrNo' }, // 계약번호
-    { fieldName: 'cstKnm' }, // 고객명
-    { fieldName: 'canAkDt' }, // 취소 요청일자
-    { fieldName: 'canDt' }, // 취소일자
-    { fieldName: 'mlgResAmt' }, // 잔여포인트
-    { fieldName: 'dlvrYn' }, // 전달여부
-    { fieldName: 'procsBsdt' }, // 처리기준일자
+    { fieldName: 'cntrSn' }, // 계약일련번호
+    { fieldName: 'cstKnm' }, // 계약자명
+    { fieldName: 'rsgAplcDt' }, // 취소요청일자
+    { fieldName: 'rsgFshDt' }, // 취소일자
+    { fieldName: 'mlgResAmt', dataType: 'number' }, // 잔여포인트
+    { fieldName: 'procsYn' }, // 전달여부
+    { fieldName: 'kmbrsProcsBsdt' }, // 처리기준일자
     { fieldName: 'trsDt' }, // 전송일자
-    { fieldName: 'cnfmDt' }, // 확정일자
+    { fieldName: 'rcpDt' }, // 확정일자
   ];
 
   const columns = [
     { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_NO'), width: '132', styleName: 'text-center' }, // 계약번호
-    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '96' }, // 고객명
-    { fieldName: 'canAkDt', header: t('MSG_TXT_CANC_RQDT'), width: '132', styleName: 'text-center', datetimeFormat: 'date' }, // 취소 요청일자
-    { fieldName: 'canDt', header: t('MSG_TXT_CANC_DT'), width: '132', styleName: 'text-center', datetimeFormat: 'date' }, // 취소일자
+    { fieldName: 'cntrSn', header: t('MSG_TXT_CNTR_SN'), width: '127', styleName: 'text-center' }, // 계약일련번호
+    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '96', styleName: 'text-center' }, // 계약자명
+    { fieldName: 'rsgAplcDt', header: t('MSG_TXT_CANC_RQDT'), width: '127', styleName: 'text-center', datetimeFormat: 'date' }, // 취소 요청일자
+    { fieldName: 'rsgFshDt', header: t('MSG_TXT_CANC_DT'), width: '127', styleName: 'text-center', datetimeFormat: 'date' }, // 취소일자
     { fieldName: 'mlgResAmt', header: t('MSG_TXT_RES_P'), width: '96', styleName: 'text-right' }, // 잔여포인트
-    { fieldName: 'dlvrYn', header: t('MSG_TXT_DLVR_YN'), width: '96', styleName: 'text-center' }, // 전달여부
-    { fieldName: 'procsBsdt', header: t('MSG_TXT_PROCS_BASE_DT'), width: '132', styleName: 'text-center', datetimeFormat: 'date' }, // 처리기준일자
-    { fieldName: 'trsDt', header: t('MSG_TXT_TRS_DT'), width: '132', styleName: 'text-center', datetimeFormat: 'date' }, // 전송일자
-    { fieldName: 'cnfmDt', header: t('MSG_TXT_CNFM_DT'), width: '132', styleName: 'text-center', datetimeFormat: 'date' }, // 확정일자
+    { fieldName: 'procsYn', header: t('MSG_TXT_DLVR_YN'), width: '76', styleName: 'text-center' }, // 전달여부
+    { fieldName: 'kmbrsProcsBsdt', header: t('MSG_TXT_PROCS_BASE_DT'), width: '127', styleName: 'text-center', datetimeFormat: 'date' }, // 처리기준일자
+    { fieldName: 'trsDt', header: t('MSG_TXT_TRS_DT'), width: '127', styleName: 'text-center', datetimeFormat: 'date' }, // 전송일자
+    { fieldName: 'rcpDt', header: t('MSG_TXT_CNFM_DT'), width: '127', styleName: 'text-center', datetimeFormat: 'date' }, // 확정일자
   ];
 
   data.setFields(fields);

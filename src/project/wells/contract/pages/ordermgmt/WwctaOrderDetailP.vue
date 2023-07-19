@@ -381,6 +381,9 @@ async function fetchDataContractLists() {
   res = await dataService.get('/sms/wells/contract/contracts/order-details/customer-bases/contract-lists', { params: cachedParams });
   // console.log(res.data);
   optionList.value = res.data;
+  if (res.data.length === 1) {
+    frmMainData.value.cntrDtlNo = res.data[0].cntrDtlNo;
+  }
 
   // eslint-disable-next-line no-use-before-define
   await fetchDataCustomerBase();
@@ -513,8 +516,8 @@ async function currentTabFetchData() {
 async function onSelectCntrctPdList() {
   const cntrNo = frmMainData.value.cntrDtlNo.split('-')[0];
   const cntrSn = frmMainData.value.cntrDtlNo.split('-')[1];
-  console.log(cntrNo);
-  console.log(cntrSn);
+  // console.log(cntrNo);
+  // console.log(cntrSn);
   searchParams.value.cntrNo = cntrNo;
   searchParams.value.cntrSn = cntrSn;
 
@@ -557,8 +560,8 @@ async function onClickEmailSend() {
 }
 
 onMounted(async () => {
-  console.log(`sellTpCd : ${props.sellTpCd}`);
-  console.log(`copnDvCd : ${props.copnDvCd}`);
+  // console.log(`sellTpCd : ${props.sellTpCd}`);
+  // console.log(`copnDvCd : ${props.copnDvCd}`);
   await fetchDataContractLists();
 });
 
