@@ -188,6 +188,7 @@
           <component
             :is="detailPanels[panelIdx].panel"
             :ref="(el) => panelsRefs = el"
+            :key="compKey"
             :child-detail="cancelDetailList[idx]"
             @searchdetail="onSearchDetail"
             @savedetail="onSave"
@@ -212,7 +213,7 @@ import WwctbRentalCancelRegistrationMgtM from './WwctbRentalCancelRegistrationMg
 import WwctbRegularShippingCancelRegistrationMgtM from './WwctbRegularShippingCancelRegistrationMgtM.vue';
 import WwctbSinglePaymentCancelRegistrationMgtM from './WwctbSinglePaymentCancelRegistrationMgtM.vue';
 import WwctbMembershipCancelRegistrationMgtM from './WwctbMembershipCancelRegistrationMgtM.vue';
-import WwctbRentalppCancelRegistrationMgtM from './WwctbRentalppCancelRegistrationMgtM.vue';
+import WwctbCancelRegistrationEmptyMgtM from './WwctbCancelRegistrationEmptyMgtM.vue';
 
 const { t } = useI18n();
 const { modal, alert, notify } = useGlobal();
@@ -225,17 +226,15 @@ const grdMainView = computed(() => grdMain.value?.getView());
 const searchParams = ref({
   cntrNo: '', // 계약번호
   cntrSn: '', // 계약일련번호
-  cstNo: '040621938', // 고객번호
-  dm: '202305', // 조회년월
+  cstNo: '', // 고객번호
+  dm: '', // 조회년월
 });
-
 const totalCount = ref(0);
 const cachedParams = ref({});
+const compKey = ref(0);
 const idx = ref(-1);
-const panelIdx = ref(0);
-// const panelIdx = computed(() => getPanelIdx(cancelDetailList.value[idx.value].sellTpCd));
-
 const cancelDetailList = ref([]);
+
 const detailPanels = [
   {
     name: 'rental',
@@ -255,13 +254,34 @@ const detailPanels = [
   },
   {
     name: 'empty',
-    panel: WwctbRentalppCancelRegistrationMgtM,
+    panel: WwctbCancelRegistrationEmptyMgtM,
   },
 ];
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
+function getPanelIdx(val) {
+  switch (val) {
+    case '1': return 2;
+    case '3': return 3;
+    case '6': return 1;
+    default: return 0;
+  }
+}
+// const panelIdx = ref(0);
+const panelIdx = computed(() => getPanelIdx(cancelDetailList.value[idx.value].sellTpCd));
+
+function forceRender() {
+  panelIdx.value = getPanelIdx(cancelDetailList.value[idx.value].sellTpCd);
+  compKey.value += 1;
+}
+
+// 하위 아코디언 초기화
+function initAccordion() {
+  idx.value = -1;
+  cancelDetailList.value.splice(0, cancelDetailList.value.length);
+}
 
 async function fetchData() {
   if (isEmpty(cachedParams.value)) return;
@@ -282,29 +302,15 @@ async function onClickSearchCst() {
   }
 }
 
-async function onClickMoveInit() {
-  panelIdx.value = 4;
-  return true;
-}
-
 // summary > 좌/우 이동 클릭
 async function onClickMove(pDiv) {
-  await onClickMoveInit();
-
   if (pDiv === 'L') {
     idx.value = (idx.value > 0) ? (idx.value - 1) : idx.value;
   } else {
     idx.value = (idx.value < cancelDetailList.value.length) ? (idx.value + 1) : idx.value;
   }
-}
 
-function getPanelIdx(val) {
-  switch (val) {
-    case '1': return 2;
-    case '3': return 3;
-    case '6': return 1;
-    default: return 0;
-  }
+  forceRender();
 }
 
 async function setGridCheckandSelect(row, isCheck) {
@@ -318,7 +324,6 @@ async function setGridCheckandSelect(row, isCheck) {
       return;
     }
 
-    console.log(idx.value);
     cancelDetailList.value.push(grdMainView.value.getValues(row));
     if (idx.value < 0) {
       idx.value = 0;
@@ -340,12 +345,6 @@ async function setGridCheckandSelect(row, isCheck) {
   }
 }
 
-// 하위 아코디언 초기화
-function initAccordion() {
-  idx.value = -1;
-  cancelDetailList.value.splice(0, cancelDetailList.value.length);
-}
-
 // 1. 계약리스트 > 선택건 취소등록 클릭
 function onClickRegistCancel() {
   if (isEmpty(grdMainView.value.getCheckedRows())) {
@@ -354,10 +353,7 @@ function onClickRegistCancel() {
   }
 
   if (cancelDetailList.value.length === 1 && cancelDetailList.value[0].cancelStatNm === '취소등록') {
-    // 하위 초기화
-    idx.value = -1;
-    cancelDetailList.value.splice(0, cancelDetailList.value.length);
-    panelIdx.value = 4;
+    initAccordion();
   }
 
   grdMainView.value.getCheckedRows().forEach((i) => {
@@ -370,6 +366,8 @@ function onClickRegistCancel() {
   });
 
   grdMainView.value.setAllCheck(false);
+
+  forceRender();
 }
 
 // 1. 계약리스트 > 거래명세서 보기 클릭
@@ -414,6 +412,8 @@ async function onDelete() {
   const row = gridUtil.findDataRow(grdMainView.value, (e) => ((e.cntrNo === cntrNo) && (e.cntrSn === cntrSn)));
 
   setGridCheckandSelect(row, false);
+
+  forceRender();
 }
 
 // 저장 클릭
@@ -436,10 +436,14 @@ async function onSave() {
 
     // 일괄 등록 시, 공통으로 적용할 파라미터 셋팅
     cancelDetailList.value.forEach((element) => {
-      element.cntrStatChRsonCd = param.cntrStatChRsonCd;
       element.canCtrAmt = param.canCtrAmt;
       element.slCtrRqrId = param.slCtrRqrId;
       element.slCtrRmkCn = param.slCtrRmkCn;
+      element.cntrStatChRsonCd = param.cntrStatChRsonCd;
+      element.ccamExmptDvCd = param.ccamExmptDvCd;
+      element.csmbCsExmptDvCd = param.csmbCsExmptDvCd;
+      element.reqdCsExmptDvCd = param.reqdCsExmptDvCd;
+      element.reqdAkRcvryDvCd = param.reqdAkRcvryDvCd;
     });
 
     saveList = cancelDetailList.value;
@@ -452,6 +456,8 @@ async function onSave() {
     saveList.push(param);
   }
 
+  console.log(saveList);
+
   // call service
   await dataService.post('/sms/wells/contract/changeorder/cancel-registrations', saveList);
   await notify(t('MSG_ALT_SAVE_DATA'));
@@ -462,11 +468,12 @@ async function onSave() {
   await fetchData();
 }
 
-async function onUpdateValue(param) {
-  console.log(param);
+async function onUpdateValue() {
+  // console.log(param);
+  console.log(cancelDetailList.value);
 }
 
-async function onGetOne(cntrNo, cntrSn) {
+async function getCanceledInfo(cntrNo, cntrSn) {
   const { dm } = searchParams.value;
   const res = await dataService.get('/sms/wells/contract/changeorder/cancel-infos', { params: { cntrNo, cntrSn, dm } });
 
@@ -483,15 +490,14 @@ async function onGetOne(cntrNo, cntrSn) {
       }
     });
 
-    idx.value = -1;
-    cancelDetailList.value.splice(0, cancelDetailList.value.length);
-    panelIdx.value = 4;
+    initAccordion();
   }
 
   res.data.bulkApplyYN = 'N';
   cancelDetailList.value.push(res.data);
   idx.value = 0;
-  panelIdx.value = getPanelIdx(cancelDetailList.value[0].sellTpCd);
+
+  forceRender();
 }
 
 async function onClickSearch() {
@@ -502,10 +508,9 @@ async function onClickSearch() {
     await alert(t('MSG_ALT_SRCH_CNDT_NEED_ONE_AMONG', [`${t('MSG_TXT_CNTR_DTL_NO')}, ${t('MSG_TXT_CST_NO')}`]));
     return false;
   }
-  cachedParams.value = cloneDeep(searchParams.value);
 
-  // 하위 초기화
   initAccordion();
+  cachedParams.value = cloneDeep(searchParams.value);
 
   await fetchData();
 }
@@ -517,20 +522,6 @@ watch(idx, (val) => {
     panelIdx.value = getPanelIdx(cancelDetailList.value[val].sellTpCd);
     console.log(`!! watch!! panelIdx.value : ${panelIdx.value}`);
   }
-});
-
-onMounted(() => {
-  // onClickSearch();
-
-  // const source = ref({ a: '1', b: '2', c: 'c2' });
-  // let target = { a: '3', c: '4', e: 'ee' };
-
-  // target = Object.entries(target).reduce((obj, [key, val]) => {
-  //   obj[key] = source.value[key] ?? val;
-  //   return obj;
-  // }, {});
-
-  // console.log(target);
 });
 
 // -------------------------------------------------------------------------------------------------
@@ -643,7 +634,7 @@ eotPcamBlam
   view.onCellClicked = async (g, clickData) => {
     const { cntrNo, cntrSn, cntrDtlStatCd } = g.getValues(clickData.dataRow);
     if (cntrDtlStatCd.indexOf('3') === 0) {
-      await onGetOne(cntrNo, cntrSn);
+      await getCanceledInfo(cntrNo, cntrSn);
     }
   };
 }

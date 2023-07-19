@@ -336,6 +336,7 @@
     <template #left>
       <h3>5. {{ t('MSG_TXT_CAN_ARTC') }}</h3>
     </template>
+    {{ searchDetail.cntrNo }} / {{ searchDetail.pdNm }}
     <kw-btn
       v-show="searchDetail.cancelStatNm !== '취소등록'"
       :label="$t('MSG_TXT_CAN_ARTC')+' '+$t('MSG_TXT_SRCH')"
@@ -466,7 +467,7 @@
           regex="num"
           maxlength="10"
           align="right"
-          :readonly="searchDetail.sel1!=='4'"
+          :readonly="searchDetail.ccamExmptDvCd!=='4'"
         />
         <kw-btn
           :label="$t('MSG_TXT_CCAM_IZ_DOC')+' '+$t('MSG_BTN_VIEW')"
@@ -491,16 +492,13 @@
         />
       </kw-form-item>
       <!-- 소모품비 -->
-      <kw-form-item
-        :label="$t('MSG_TXT_CSMB_CS')"
-        hint="null"
-      >
+      <kw-form-item :label="$t('MSG_TXT_CSMB_CS')">
         <kw-input
-          v-model="searchDetail.null"
+          v-model="searchDetail.csmbCostBorAmt"
           regex="num"
           maxlength="10"
           align="right"
-          :readonly="searchDetail.sel3!=='4'"
+          :readonly="searchDetail.csmbCsExmptDvCd!=='4'"
         />
       </kw-form-item>
     </kw-form-row>
@@ -510,10 +508,9 @@
       <!-- 위약면책 -->
       <kw-form-item
         :label="$t('MSG_TXT_BOR')+$t('MSG_TXT_EXEMPTION')"
-        hint="입력되는곳 없음."
       >
         <kw-select
-          v-model="searchDetail.sel1"
+          v-model="searchDetail.ccamExmptDvCd"
           :options="codes.CCAM_EXMPT_DV_CD"
           first-option="select"
         />
@@ -541,16 +538,13 @@
         />
       </kw-form-item>
       <!-- 철거 -->
-      <kw-form-item
-        :label="$t('MSG_TXT_REQD')"
-        hint="null"
-      >
+      <kw-form-item :label="$t('MSG_TXT_REQD')">
         <kw-input
-          v-model="searchDetail.null"
+          v-model="searchDetail.reqdCsBorAmt"
           regex="num"
           maxlength="10"
           align="right"
-          :readonly="searchDetail.sel4!=='4'"
+          :readonly="searchDetail.reqdCsExmptDvCd!=='4'"
         />
       </kw-form-item>
     </kw-form-row>
@@ -562,7 +556,7 @@
         colspan="3"
       >
         <kw-select
-          v-model="searchDetail.sel3"
+          v-model="searchDetail.csmbCsExmptDvCd"
           :options="codes.CSMB_CS_EXMPT_DV_CD"
           first-option="select"
         />
@@ -574,7 +568,7 @@
           @update:model-value="onChangeTextforSelect('sel3')"
         />
         <kw-select
-          v-model="searchDetail.sel4"
+          v-model="searchDetail.reqdCsExmptDvCd"
           :options="codes.REQD_CS_EXMPT_DV_CD"
           first-option="select"
         />
@@ -586,7 +580,7 @@
           @update:model-value="onChangeTextforSelect('sel4')"
         />
         <kw-select
-          v-model="searchDetail.sel5"
+          v-model="searchDetail.reqdAkRcvryDvCd"
           :options="codes.REQD_RCVRY_DV_CD"
           first-option="select"
         />
@@ -594,7 +588,7 @@
           :label="$t('MSG_TXT_RECOVERY')"
           secondary
           class="mx12"
-          @click="onClickRecovery"
+          @click="onClickTodo('복구')"
         />
       </kw-form-item>
     </kw-form-row>
@@ -627,11 +621,13 @@
       v-if="searchDetail.cancelStatNm === '취소등록'"
       class="button-set--bottom-right"
     >
+      <!--
       <kw-btn
         :label="$t('MSG_BTN_VAC')+$t('MSG_BTN_IS')"
         class="ml8"
         @click="onClickVacIssue"
       />
+      -->
       <kw-btn
         :label="$t('MSG_TXT_CARD')+$t('MSG_BTN_APPR')"
         class="ml8"
@@ -645,7 +641,7 @@
       <kw-btn
         :label="$t('MSG_TXT_RFND')+$t('MSG_BTN_RECEIPT')"
         class="ml8"
-        @click="onClickTodo('환불접수')"
+        @click="onClickRefund"
       />
       <kw-btn
         :label="$t('MSG_TXT_RENTAL_RSG_CFDG')+$t('MSG_BTN_VIEW')"
@@ -696,10 +692,6 @@ const codes = await codeUtil.getMultiCodes(
   'REQD_RCVRY_DV_CD', // 철거복구구분코드
 );
 
-const props = defineProps({
-  childDetail: { type: Object, required: true },
-});
-
 const emits = defineEmits([
   'update:modelValue',
   'searchdetail',
@@ -707,8 +699,12 @@ const emits = defineEmits([
   'removedetail',
 ]);
 
-const isChageCanCtr = ref(false);
+const props = defineProps({
+  childDetail: { type: Object, required: true },
+});
+
 const searchDetail = reactive(props.childDetail);
+const isChageCanCtr = ref(false);
 const inputDetail = ref({
   reqDt: '',
   cancelDt: '',
@@ -721,6 +717,36 @@ codes.REQD_CS_EXMPT_DV_CD.forEach((e) => { e.codeName = `(${e.codeId})${e.codeNa
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
+
+// SELECTBOX 를 선택하기 위한 TEXT 입력 이벤트
+function onChangeTextforSelect(div) {
+  if (div === 'sel1') {
+    searchDetail.ccamExmptDvCd = inputDetail.value.sel1Text;
+  } else if (div === 'sel2') {
+    searchDetail.cntrStatChRsonCd = inputDetail.value.sel2Text;
+  } else if (div === 'sel3') {
+    searchDetail.csmbCsExmptDvCd = inputDetail.value.sel3Text;
+  } else if (div === 'sel4') {
+    searchDetail.reqdCsExmptDvCd = inputDetail.value.sel4Text;
+  }
+}
+
+// 취소조정 추가 데이터 입력 여부 설정
+function onChangeCanCtr(val) {
+  isChageCanCtr.value = (val !== '0');
+}
+
+// 위약금 내역서 보기
+function onClickCcamView() {
+  // 위약금 내역서 보기 : 해당 계약번호에 대한 '위약금 내역' OZ뷰 팝업을 호출 합니다.
+  notify('TODO : 위약금 내역서 OZ뷰 호출 ');
+}
+
+// 분실손료 계산
+function onClickCalculate() {
+  // 분실손료 : '계산'버튼을 클릭하면 입력란에 계산된 금액이 표시 됩니
+  notify('TODO : 분실손료 계산 ');
+}
 
 // 5. 취소사항 > 취소사항 조회 클릭
 async function onClickSearchCancel() {
@@ -746,11 +772,7 @@ function onClickCancel() {
   emits('removedetail');
 }
 
-// 취소조정 추가 데이터 입력 여부 설정
-function onChangeCanCtr(val) {
-  isChageCanCtr.value = (val !== '0');
-}
-
+/*
 async function onCallStlm(pDiv) {
   let component;
   if (pDiv === 'Face') component = 'ZwwdbIndvVirtualAccountIssueMgtP';
@@ -758,21 +780,10 @@ async function onCallStlm(pDiv) {
 
   if (isEmpty(component)) { return; }
 
-  /*
-  대면발급/비대면발급 가상계좌 파라미터
-  const props = defineProps({
-    rveAkNo: { type: String, required: true },
-    kwGrpCoCd: { type: String, required: true },
-  });
-  */
-
-  const { result } = await modal({
+  await modal({
     component,
+    componentProps: { rveAkNo: '12002023031700000601', kwGrpCoCd: '1200' },
   });
-
-  if (result) {
-    // console.log(payload)
-  }
 }
 
 async function onClickVacIssue() {
@@ -783,6 +794,7 @@ async function onClickVacIssue() {
     onCallStlm(payload);
   }
 }
+*/
 
 async function onClickRequidation() {
   const sendData = {
@@ -801,49 +813,26 @@ async function onClickRequidation() {
   await dataService.post('/sms/wells/service/installation-works', sendData);
 }
 
+async function onClickRefund() {
+  const { cntrNo, cntrSn } = searchDetail;
+  await modal({
+    component: 'WwwdbRefundApplicationRegP',
+    componentProps: { cntrNo, cntrSn },
+  });
+}
+
 async function onClickTodo(param) {
-  notify(`TODO: ${param} 기능 준비 중`);
+  notify(`TODO: ${param} 준비 중`);
 }
 
-// 위약금 내역서 보기
-function onClickCcamView() {
-  // 위약금 내역서 보기 : 해당 계약번호에 대한 '위약금 내역' OZ뷰 팝업을 호출 합니다.
-  notify('TODO : 위약금 내역서 OZ뷰 호출 ');
-}
-
-// 분실손료 계산
-function onClickCalculate() {
-  // 분실손료 : '계산'버튼을 클릭하면 입력란에 계산된 금액이 표시 됩니
-  notify('TODO : 분실손료 계산 ');
-}
-
-// SELECTBOX 를 선택하기 위한 TEXT 입력 이벤트
-function onChangeTextforSelect(div) {
-  if (div === 'sel1') {
-    searchDetail.sel1 = inputDetail.value.sel1Text;
-  } else if (div === 'sel2') {
-    searchDetail.cntrStatChRsonCd = inputDetail.value.sel2Text;
-  } else if (div === 'sel3') {
-    searchDetail.sel3 = inputDetail.value.sel3Text;
-  } else if (div === 'sel4') {
-    searchDetail.sel4 = inputDetail.value.sel4Text;
-  }
-}
-
-function onClickRecovery() {
-  notify('TODO : [복구] 정의 되지 않음 ');
-}
-
+/*
 watch(props.childDetail, (val) => {
   Object.assign(searchDetail, val);
 });
+*/
 
 watch(searchDetail, (val) => {
   emits('update:modelValue', val);
-});
-
-onMounted(async () => {
-  console.log(props.childDetail.cntrNo);
 });
 
 // -------------------------------------------------------------------------------------------------
