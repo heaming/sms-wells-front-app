@@ -61,7 +61,7 @@
             v-model:og-levl-dv-cd1="searchParams.ogLevl1"
             v-model:og-levl-dv-cd2="searchParams.ogLevl2"
             v-model:og-levl-dv-cd3="searchParams.ogLevl3"
-            :og-tp-cd="searchParams.ogTp"
+            :og-tp-cd="searchParams.ogTpCd"
             :base-ym="searchParams.perfYm"
             :start-level="1"
             :end-level="3"
@@ -199,7 +199,7 @@ const searchParams = ref({
   ogLevl2: '',
   ogLevl3: '',
   statTitle: t('MSG_TXT_PRGS_STE'),
-  ogTp: 'W01',
+  ogTpCd: 'W01',
   feeSchdTpCd: '', // 웰스P조직
   feeTcntDvCd: '02',
   coCd: '2000',
@@ -216,7 +216,7 @@ const approval = ref({
 
 const saveInfo = ref({
   perfYm: '',
-  ogTp: 'W01',
+  ogTpCd: 'W01',
   appKey: '',
   unitCd: '',
 });
@@ -480,7 +480,7 @@ async function onClickW106P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
     component: 'ZwfebFeeCreationWhtxRegP',
     componentProps: {
       perfYm: searchParams.value.perfYm,
-      ogTpCd: searchParams.value.ogTp,
+      ogTpCd: searchParams.value.ogTpCd,
       rsbDvCd: searchParams.value.rsbTp,
     },
   });
@@ -624,7 +624,7 @@ async function onClickW116P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
     component: 'ZwfebFeeCreationFntIzRegP',
     componentProps: {
       perfYm: searchParams.value.perfYm,
-      ogTpCd: searchParams.value.ogTp,
+      ogTpCd: searchParams.value.ogTpCd,
       rsbDvCd: searchParams.value.rsbTp,
     },
   });

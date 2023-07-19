@@ -61,7 +61,7 @@
             v-model:og-levl-dv-cd1="searchParams.ogLevl1"
             v-model:og-levl-dv-cd2="searchParams.ogLevl2"
             v-model:og-levl-dv-cd3="searchParams.ogLevl3"
-            :og-tp-cd="searchParams.ogTp"
+            :og-tp-cd="searchParams.ogTpCd"
             :base-ym="searchParams.perfYm"
             :start-level="1"
             :end-level="3"
@@ -191,7 +191,7 @@ const searchParams = ref({
   ogLevl2: '',
   ogLevl3: '',
   prtnrKnm: '',
-  ogTp: 'W03',
+  ogTpCd: 'W03',
   statTitle: t('MSG_TXT_PRGS_STE'),
   feeSchdTpCd: '301',
   feeTcntDvCd: '02',
@@ -209,7 +209,7 @@ const approval = ref({
 
 const saveInfo = ref({
   perfYm: '',
-  ogTp: 'W03',
+  ogTpCd: 'W03',
   appKey: '',
   unitCd: 'W301',
 });
@@ -418,7 +418,7 @@ async function onClickW304P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
     component: 'ZwfebFeeCreationWhtxRegP',
     componentProps: {
       perfYm: searchParams.value.perfYm,
-      ogTpCd: searchParams.value.ogTp,
+      ogTpCd: searchParams.value.ogTpCd,
       rsbDvCd: searchParams.value.rsbTp,
     },
   });
@@ -562,7 +562,7 @@ async function onClickW314P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
     component: 'ZwfebFeeCreationFntIzRegP',
     componentProps: {
       perfYm: searchParams.value.perfYm,
-      ogTpCd: searchParams.value.ogTp,
+      ogTpCd: searchParams.value.ogTpCd,
       rsbDvCd: searchParams.value.rsbTp,
     },
   });
