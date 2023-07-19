@@ -72,7 +72,7 @@
             icon="search_24"
             clearable
             maxlength="10"
-            type="number"
+            regex="num"
             @click-icon="onClickOpenPartnerListPopup"
           />
         </kw-search-item>
