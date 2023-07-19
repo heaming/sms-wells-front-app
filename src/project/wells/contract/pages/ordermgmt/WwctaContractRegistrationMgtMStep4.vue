@@ -13,7 +13,9 @@
 ****************************************************************************************************
 --->
 <template>
-  <kw-scroll-area class="h490">
+  <kw-scroll-area
+    visible
+  >
     <div class="pr20">
       <h3 class="mt0">
         계약자정보-{{ codes.CNTR_TP_CD.find((code) => code.codeId === step4.bas?.cntrTpCd)?.codeName }}
@@ -751,13 +753,14 @@ async function isValidStep() {
   return true;
 }
 
-async function saveStep() {
-  if (isRestipulation.value === true) {
+async function saveStep(isTemp) {
+  if (isRestipulation.value) {
     const savedCntr = await dataService.post('sms/wells/contract/re-stipulation/save-contract', restipulationBasInfo.value);
     console.log(savedCntr);
     return savedCntr?.data?.key;
   }
-  const savedCntr = await dataService.post('sms/wells/contract/contracts/save-cntr-step4', step4.value);
+  const api = isTemp ? 'save-cntr-step4-temp' : 'save-cntr-step4';
+  const savedCntr = await dataService.post(`sms/wells/contract/contracts/${api}`, step4.value);
   notify(t('MSG_ALT_SAVE_DATA'));
   ogStep4.value = cloneDeep(step4.value);
   return savedCntr?.data?.key;

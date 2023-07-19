@@ -46,6 +46,7 @@
             :label="$t('MSG_TXT_CH_RSON')"
             :readonly="saveParams.procsDv===''"
             rules="required"
+            maxlength="1000"
           />
         </kw-form-item>
       </kw-form-row>
@@ -100,6 +101,8 @@
             v-model="saveParams.pdStdFee"
             :label="$t('MSG_TXT_PD_STD_FEE')"
             rules="required"
+            maxlength="20"
+            type="number"
           />
         </kw-form-item>
       </kw-form-row>
@@ -317,6 +320,7 @@ const initMembershipBulkChangeRgsList = defineGrid((data, view) => {
       width: '170',
       styleName: 'text-center rg-button-icon--search',
       rules: 'required',
+      editor: { maxLength: 17 },
       button: 'action' }, // 계약상세번호
     { fieldName: 'cstKnm', header: t('MSG_TXT_CNTOR_NM'), width: '117', styleName: 'text-center', editable: false }, // 계약자명
     { fieldName: 'sellInflwChnlDtlCd', header: t('MSG_TXT_SLS_CAT'), width: '117', styleName: 'text-center', editable: false }, // 판매구분

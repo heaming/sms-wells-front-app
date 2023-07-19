@@ -35,9 +35,9 @@
         keep-alive
       >
         <kw-tab-panel name="object">
-          <!-- <wwbnc-unpaid-guide-urgent-mgt-m-object
+          <wwbnc-unpaid-guide-urgent-mgt-m-object
             :ref="(vm) => tabRefs.object = vm"
-          /> -->
+          />
         </kw-tab-panel>
         />
         <kw-tab-panel name="exclude">
@@ -51,8 +51,8 @@
 </template>
 <script setup>
 import WwbncUnpaidGuideUrgentMgtMExclude from './WwbncUnpaidGuideUrgentMgtMExclude.vue';
-// import WwbncUnpaidGuideUrgentMgtMObject from './WwbncUnpaidGuideUrgentMgtMObject.vue';
+import WwbncUnpaidGuideUrgentMgtMObject from './WwbncUnpaidGuideUrgentMgtMObject.vue';
 
 const tabRefs = reactive({});
-const selectedTab = ref('exclude');
+const selectedTab = ref('object');
 </script>

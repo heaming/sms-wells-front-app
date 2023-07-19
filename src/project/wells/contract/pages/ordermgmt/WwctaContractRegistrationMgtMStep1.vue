@@ -442,12 +442,11 @@ async function afterGetCntrInfo(cntr) {
   }, 10);
 }
 
-async function getCntrInfo(cntrNo, getExistCntr) {
+async function getCntrInfo(cntrNo) {
   const cntr = await dataService.get('sms/wells/contract/contracts/cntr-info', { params: {
     cntrNo,
     step: 1,
   } });
-  isReadonly.value = getExistCntr;
   await afterGetCntrInfo(cntr);
 }
 
@@ -488,8 +487,8 @@ async function onClickSelfAuth() {
 async function onClickSearchCntrtInfo() {
   if (cntrTpIs.value.indv || (cntrTpIs.value.msh && searchParams.value.copnDvCd === '1')) {
     // 개인
-    const isReadonlyt = await dataService.get('sms/wells/contract/contracts/is-exist-cntrt-info', { params: searchParams.value });
-    if (!isReadonlyt.data) {
+    const isExistCntrt = await dataService.get('sms/wells/contract/contracts/is-exist-cntrt-info', { params: searchParams.value });
+    if (!isExistCntrt.data) {
       // 조회된 고객이 없다면
       step1.value.cntrt = ref({});
       if (await confirm(t('MSG_ALT_NO_CST_REG'))) {
@@ -536,8 +535,8 @@ async function onClickSearchCntrtInfo() {
     await getCntrInfoByCst(cstNo.data);
   } else if (cntrTpIs.value.crp || (cntrTpIs.value.msh && searchParams.value.copnDvCd === '2')) {
     // 법인
-    const isReadonlyt = await dataService.get('sms/wells/contract/contracts/is-exist-cntrt-info', { params: searchParams.value });
-    if (!isReadonlyt.data) {
+    const isExistCntrt = await dataService.get('sms/wells/contract/contracts/is-exist-cntrt-info', { params: searchParams.value });
+    if (!isExistCntrt.data) {
       // 조회된 고객이 없다면
       step1.value.cntrt = ref({});
       if (await confirm(t('MSG_ALT_NO_CST_REG'))) {
@@ -638,10 +637,6 @@ async function isPartnerStpa() {
   })?.data;
 }
 
-// TODO 계약작성 마감시간 검사 getClosingTimeInfo
-async function isClosingTime() {
-  return false;
-}
 function isChangedStep() {
   if (isEmpty(step1.value.bas.cntrNo)) {
     return true;
@@ -682,13 +677,8 @@ async function saveStep() {
 onMounted(async () => {
   props.onChildMounted(1);
   if (await isPartnerStpa()) {
-    await alert('휴업');
+    await alert('휴업중인 파트너로 계약이 불가합니다');
   } else {
-    if (isEmpty(props.cntrNo)) {
-      if (await isClosingTime()) {
-        await alert('마감');
-      }
-    }
     const res = await dataService.get('/sms/wells/contract/re-stipulation/customers/counts', { params: { copnDvCd: '1' } });
     const res2 = await dataService.get('/sms/wells/contract/membership/customers/counts', { params: { copnDvCd: '1' } });
     dashboardCounts.value.restipulationCnt = res.data;

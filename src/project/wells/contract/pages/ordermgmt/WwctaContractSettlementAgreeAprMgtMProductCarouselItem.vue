@@ -40,13 +40,14 @@
               @click="carouselRef.previous()"
             />
             <kw-btn
-              v-if="false"
-              :label="'1/1'"
-              underline
+              v-if="true"
+              :label="controlLabel"
+              borderless
+              disable
               @click="onClickCounter"
             />
             <kw-select
-              v-if="false"
+              v-show="false"
               ref="nightElfSelect"
               v-model="currSlideName"
               class="hidden"
@@ -135,6 +136,7 @@ const slides = computed(() => dtls.value.map((dtl, index) => ({
 
 const currSlideName = ref(slides.value[0]?.name);
 const currSlide = computed(() => slides.value.find((slide) => slide.name === currSlideName.value));
+const controlLabel = computed(() => `${currSlide.value.index + 1}/${slides.value.length}`);
 
 function setSlideOf(dtl) {
   currSlideName.value = slides.value.find((slide) => slide.data.cntrSn === dtl.cntrSn)?.name;
@@ -267,6 +269,7 @@ exposed.getRequestData = getRequestData;
 
 const nightElfSelect = ref(null);
 function onClickCounter() {
+  console.log('tset', nightElfSelect.value);
   nightElfSelect.value.onPopup(true); /* todo does not work... */
 }
 

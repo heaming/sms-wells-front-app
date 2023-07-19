@@ -262,14 +262,14 @@ async function checkDuplication() {
   const alreadyItems = getAlreadyItems(view, changedRows, 'pdCd', 'svPdCd', 'stplPrdCd');
   if (alreadyItems.length > 0) {
     // {상품명/서비스명/약정개월}이(가) 중복됩니다.
-    let dupItem = alreadyItems[0].pdNm;
+    let dupMessage = alreadyItems[0].pdNm;
     if (alreadyItems[0].svPdNm) {
-      dupItem += `/${alreadyItems[0].svPdNm}`;
+      dupMessage += `/${alreadyItems[0].svPdNm}`;
     }
     if (alreadyItems[0].stplPrdCd) {
-      dupItem += `/${getCodeNames(codes, alreadyItems[0].stplPrdCd, 'STPL_PRD_CD')}`;
+      dupMessage += `/${getCodeNames(codes, alreadyItems[0].stplPrdCd, 'STPL_PRD_CD')}`;
     }
-    notify(t('MSG_ALT_DUP_NCELL', [dupItem]));
+    notify(t('MSG_ALT_DUP_NCELL', [dupMessage]));
     return true;
   }
 
@@ -280,18 +280,18 @@ async function checkDuplication() {
   const { data: dupData } = await dataService.post('/sms/wells/product/alliances/duplication-check', changedRows);
   if (dupData.data) {
     const dupCodes = dupData.data.split(',', -1);
-    const { pdNm, svPdNm, stplPrdCd } = changedRows.find((item) => item.pdCd === dupCodes[0]
+    const dupItem = changedRows.find((item) => item.pdCd === dupCodes[0]
         && ((isEmpty(item.svPdCd) && isEmpty(dupCodes[1])) || item.svPdCd === dupCodes[1])
         && ((isEmpty(item.stplPrdCd) && isEmpty(dupCodes[2])) || item.stplPrdCd === dupCodes[2]));
-    let dupItem = pdNm;
-    if (svPdNm) {
-      dupItem += `/${svPdNm}`;
+    let dupMessage = dupItem.pdNm;
+    if (dupItem.svPdNm) {
+      dupMessage += `/${dupItem.svPdNm}`;
     }
-    if (stplPrdCd && stplPrdCd !== '00') {
-      dupItem += `/${getCodeNames(codes, stplPrdCd, 'STPL_PRD_CD')}`;
+    if (dupItem.stplPrdCd && dupItem.stplPrdCd !== '00') {
+      dupMessage += `/${getCodeNames(codes, dupItem.stplPrdCd, 'STPL_PRD_CD')}`;
     }
     // 은(는) 이미 DB에 등록되어 있습니다.
-    await alert(t('MSG_ALT_EXIST_IN_DB', [dupItem]));
+    await alert(t('MSG_ALT_EXIST_IN_DB', [dupMessage]));
     return true;
   }
   return false;

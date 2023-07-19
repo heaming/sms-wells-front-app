@@ -270,6 +270,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'prtnrKnm' },
     { fieldName: 'cntrCstKnm' },
     { fieldName: 'istCstKnm' },
+    { fieldName: 'pdCd' },
     { fieldName: 'pdNm' },
   ];
 

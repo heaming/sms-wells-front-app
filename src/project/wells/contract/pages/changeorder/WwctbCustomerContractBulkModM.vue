@@ -40,7 +40,6 @@
             v-model="searchParams.prcDvCd"
             :options="[
               { codeId: '1', codeName: '설치자명 변경' },
-              { codeId: '2', codeName: '자동이체 변경' },
               { codeId: '3', codeName: '세금계산서 변경' },
               { codeId: '4', codeName: '플래너 변경' },
             ]"
@@ -167,6 +166,7 @@
       <!-- 처리구분=설치자명변경(1)일 때 활성화 -->
       <kw-form
         v-if="searchParams.prcDvCd === '1'"
+        ref="frmIstRef"
       >
         <kw-form-row>
           <h3>{{ $t('MSG_TXT_IST_NM') + ' ' + $t('MSG_TXT_CH') }}</h3><!-- 설치자명 변경 -->
@@ -179,6 +179,8 @@
           >
             <kw-input
               v-model="fieldParams.istNm"
+              :rules="searchParams.prcDvCd === '1' ? 'required': ''"
+              :label="$t('MSG_TXT_IST_NM')"
               maxlength="20"
             />
           </kw-form-item>
@@ -189,6 +191,7 @@
             :label="$t('MSG_TXT_MOD')"
             class="ml8"
             primary
+            @click="onClickEditIstNm"
           />
         </div>
       </kw-form>
@@ -196,6 +199,7 @@
       <!-- 처리구분=세금계산서변경(3)일 때 활성화 -->
       <kw-form
         v-if="searchParams.prcDvCd === '3'"
+        ref="frmTxinvRef"
       >
         <kw-form-row>
           <h3>{{ $t('MSG_TXT_TXINV_PBL_YN') + ' ' + $t('MSG_TXT_CH') }}</h3><!-- 세금계산서 발행여부 변경 -->
@@ -208,6 +212,12 @@
           >
             <kw-select
               v-model="fieldParams.pblYn"
+              :options="[
+                { codeId: 'Y', codeName: t('MSG_TXT_PBL'),},
+                { codeId: 'N', codeName: t('MSG_TXT_N_PBL'), },
+              ]"
+              :label="$t('MSG_TXT_TXINV_YN')"
+              :rules="searchParams.prcDvCd === '3' ? 'required': ''"
             />
           </kw-form-item>
         </kw-form-row>
@@ -217,6 +227,7 @@
             :label="$t('MSG_TXT_MOD')"
             class="ml8"
             primary
+            @click="onClickEditTxinvYn"
           />
         </div>
       </kw-form>
@@ -224,6 +235,7 @@
       <!-- 처리구분=플래너변경(4)일 때 활성화 -->
       <kw-form
         v-if="searchParams.prcDvCd === '4'"
+        ref="frmPlnnrRef"
       >
         <kw-form-row>
           <h3>{{ $t('MSG_TXT_PLAR') + ' ' + $t('MSG_TXT_CH') }}</h3><!-- 플래너 변경 -->
@@ -234,18 +246,25 @@
             :label="$t('MSG_TXT_PLAR') + ' ' + $t('MSG_TXT_PRTNR_NO')"
             required
           >
-            <kw-input
-              v-model="fieldParams.prtnrNo"
-              icon="search"
-              regex="num"
-              maxlength="10"
-              clearable
-              @click-icon="onClickPlnnrSearch"
-            />
-            <kw-input
-              v-model="fieldParams.prtnrKnm"
-              readonly
-            />
+            <kw-field-wrap>
+              <kw-input
+                v-model="fieldParams.prtnrNo"
+                icon="search"
+                regex="num"
+                maxlength="10"
+                :rules="searchParams.prcDvCd === '4' ? 'required': ''"
+                :label="$t('MSG_TXT_PLAR') + ' ' + $t('MSG_TXT_PRTNR_NO')"
+                clearable
+                @click-icon="onClickPlnnrSearch"
+              />
+              <kw-input
+                v-model="fieldParams.prtnrKnm"
+                :rules="searchParams.prcDvCd === '4' ? 'required': ''"
+                :label="$t('MSG_TXT_PLAR') + ' ' + $t('MSG_TXT_PRTNR_NO')"
+                maxlength="20"
+                readonly
+              />
+            </kw-field-wrap>
           </kw-form-item>
         </kw-form-row>
         <div class="row justify-end items-center">
@@ -254,6 +273,7 @@
             :label="$t('MSG_TXT_MOD')"
             class="ml8"
             primary
+            @click="onClickEditPlnnr"
           />
         </div>
       </kw-form>
@@ -562,7 +582,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, useGlobal, defineGrid, useDataService, getComponentType } from 'kw-lib';
+import { codeUtil, useGlobal, defineGrid, useDataService, getComponentType, gridUtil, notify, confirm } from 'kw-lib';
 import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
 import dayjs from 'dayjs';
 import { cloneDeep, isEmpty } from 'lodash-es';
@@ -578,6 +598,10 @@ const grdCustomerRef = ref(getComponentType('KwGrid'));
 const grdPartnerRef = ref(getComponentType('KwGrid'));
 const now = dayjs();
 const totalCount = ref(0);
+
+const frmIstRef = ref();
+const frmTxinvRef = ref();
+const frmPlnnrRef = ref();
 
 const codes = await codeUtil.getMultiCodes(
   'SELL_TP_CD', // 판매유형코드
@@ -625,6 +649,8 @@ const fieldParams = ref({
   cardNo3: '', // 카드번호3
   cardNo4: '', // 카드번호4
   validTerm: '', // 카드 유효기간
+  contractList: [], // 게약자 정보 리스트 (계약(일련)번호, 고객번호)
+  prcDvCd: '', // 처리구분코드. 설치자명 변경(1), 자동이체 변경(2), 세금계산서 변경(3), 플래너 변경(4)
 });
 
 function initFieldParams(gubun) {
@@ -653,6 +679,16 @@ function initFieldParams(gubun) {
   if (gubun === 'evidTpCd') { return; }
 
   fieldParams.value.evidTpCd = ''; // 증빙유형. IDS(1), 첨부파일(2), 증빙원본(3), 계좌(4)
+
+  if (!isEmpty(frmIstRef.value)) {
+    frmIstRef.value.init();
+  }
+  if (!isEmpty(frmPlnnrRef.value)) {
+    frmPlnnrRef.value.init();
+  }
+  if (!isEmpty(frmPlnnrRef.value)) {
+    frmPlnnrRef.value.init();
+  }
 }
 
 // 이체구분 콤보값 변경 이벤트
@@ -703,6 +739,7 @@ async function onClickPlnnrSearch() {
   if (result) {
     fieldParams.value.prtnrNo = payload.prtnrNo;
     fieldParams.value.prtnrKnm = payload.prtnrKnm;
+    fieldParams.value.ogTpCd = payload.ogTpCd;
   }
 }
 
@@ -764,6 +801,111 @@ async function onClickSearch() {
 // 처리구분 콤보값 변경 이벤트
 async function onChangePrcCd() {
   initFieldParams();
+}
+
+// 설치자명 변경 클릭 이벤트
+async function onClickEditIstNm() {
+  if (!await frmIstRef.value.validate()) { return; }
+
+  fieldParams.value.prcDvCd = searchParams.value.prcDvCd;
+
+  const checkedList = gridUtil.getCheckedRowValues(grdCustomerRef.value.getView());
+  const cntrList = [];
+
+  if (isEmpty(checkedList)) {
+    alert(t('MSG_ALT_NO_CHECK_DATA'));
+    return;
+  }
+
+  if (!await confirm(t('MSG_ALT_WANT_SAVE'))) { return; }
+
+  checkedList.forEach((e) => {
+    cntrList.push({
+      cntrCstNo: e.cntrCstNo,
+      cntrNo: e.cntrNo,
+      cntrSn: e.cntrSn,
+      istKnm: e.istKnm,
+    });
+  });
+  fieldParams.value.contractList = cntrList;
+
+  const res = await dataService.put('/sms/wells/contract/changeorder/change-contract-infos', fieldParams.value);
+  notify(t('MSG_ALT_SAVED_CNT', [res.data.processCount]));
+  fetchData();
+}
+
+// 세금계산서 발행대상여부 수정버튼 클릭 이벤트
+async function onClickEditTxinvYn() {
+  if (!await frmTxinvRef.value.validate()) { return; }
+
+  fieldParams.value.prcDvCd = searchParams.value.prcDvCd;
+
+  const checkedList = gridUtil.getCheckedRowValues(grdCustomerRef.value.getView());
+  const cntrList = [];
+
+  if (isEmpty(checkedList)) {
+    alert(t('MSG_ALT_NO_CHECK_DATA'));
+    return;
+  }
+
+  if (!await confirm(t('MSG_ALT_WANT_SAVE'))) { return; }
+
+  checkedList.forEach((e) => {
+    cntrList.push({
+      cntrCstNo: e.cntrCstNo,
+      cntrNo: e.cntrNo,
+      cntrSn: e.cntrSn,
+      txinvPblOjYn: e.txinvPblOjYn,
+    });
+  });
+  fieldParams.value.contractList = cntrList;
+
+  const res = await dataService.put('/sms/wells/contract/changeorder/change-contract-infos', fieldParams.value);
+  notify(t('MSG_ALT_SAVED_CNT', [res.data.processCount]));
+  fetchData();
+}
+
+// 플래너 변경 수정버튼 클릭 이벤트
+async function onClickEditPlnnr() {
+  let checkPlnner = 'Y';
+  if (!await frmPlnnrRef.value.validate()) { return; }
+
+  fieldParams.value.prcDvCd = searchParams.value.prcDvCd;
+
+  const checkedList = gridUtil.getCheckedRowValues(grdPartnerRef.value.getView());
+  const cntrList = [];
+
+  if (isEmpty(checkedList)) {
+    alert(t('MSG_ALT_NO_CHECK_DATA'));
+    return;
+  }
+
+  checkedList.forEach((e) => {
+    if (fieldParams.value.ogTpCd === 'HR1' && e.sellTpCd === '2') {
+      checkPlnner = 'N';
+      return;
+    }
+    cntrList.push({
+      cntrCstNo: e.cntrCstNo,
+      cntrNo: e.cntrNo,
+      cntrSn: e.cntrSn,
+      sellPrtnrNo: e.sellPrtnrNo,
+      prtnrKnm: e.prtnrKnm,
+    });
+  });
+
+  if (checkPlnner === 'N') {
+    alert(t('MSG_ALT_CHECK_PLNNER'));
+    return;
+  }
+
+  if (!await confirm(t('MSG_ALT_WANT_SAVE'))) { return; }
+
+  fieldParams.value.contractList = cntrList;
+
+  const res = await dataService.put('/sms/wells/contract/changeorder/change-contract-infos', fieldParams.value);
+  notify(t('MSG_ALT_SAVED_CNT', [res.data.processCount]));
+  fetchData();
 }
 
 // 이체일자변경 체크값 변경 감시
@@ -947,6 +1089,7 @@ const initCustomerGrid = defineGrid((data, view) => {
       header: `${t('MSG_TXT_AUTO_FNT')} ${t('MSG_TXT_INF')}`, // 자동이체 정보
       direction: 'horizontal',
       items: ['atmtStat', 'mpyBsdt', 'aftnInfFntDvNm', 'bnkCdcoNm', 'acnoCrcdno', 'isBndl', 'evidOcyInqr', 'resign'],
+      visible: false,
     },
     {
       header: t('MSG_TXT_INSTR_INFO'), // 설치자 정보

@@ -117,7 +117,7 @@ async function onClickOpenChngReg() {
     // componentProps: { apiUrl, templateId, extraData },
   });
   if (result) {
-    await fetchData();
+    await onClickSearch();
   }
 }
 // -------------------------------------------------------------------------------------------------

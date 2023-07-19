@@ -289,24 +289,26 @@
               :label="t('MSG_BTN_SPP_INQR_ETC')"
               @click="onClickInstallEtc(item)"
             />
-            <!-- 접수 -->
-            <kw-btn
-              v-show="(item.acpgStat === '1' || item.acpgStat === '9') && item.istPcsvSellTpCd === '1'"
-              :label="t('MSG_BTN_RECEIPT')"
-              @click="onClickReceipt(item)"
-            />
-            <!-- 재접수 -->
-            <kw-btn
-              v-show="item.kaetc1 === '7' && item.acpgStat === '2' && item.istPcsvSellTpCd === '1'"
-              :label="t('MSG_BTN_RE_REG')"
-              @click="onClickReRegistration(item)"
-            />
-            <!-- 배정취소 -->
-            <kw-btn
-              v-show="item.acpgStat === '2' && item.istPcsvSellTpCd === '1'"
-              :label="t('MSG_BTN_CNCL_ASGMT')"
-              @click="onClickCnclAsgmt(item)"
-            />
+            <div v-show="item.lcCanyn === 'N'">
+              <!-- 접수 -->
+              <kw-btn
+                v-show="(item.acpgStat === '1' || item.acpgStat === '9') && item.istPcsvSellTpCd === '1'"
+                :label="t('MSG_BTN_RECEIPT')"
+                @click="onClickReceipt(item)"
+              />
+              <!-- 재접수 -->
+              <kw-btn
+                v-show="item.kaetc1 === '7' && item.acpgStat === '2' && item.istPcsvSellTpCd === '1'"
+                :label="t('MSG_BTN_RE_REG')"
+                @click="onClickReRegistration(item)"
+              />
+              <!-- 배정취소 -->
+              <kw-btn
+                v-show="item.acpgStat === '2' && item.istPcsvSellTpCd === '1'"
+                :label="t('MSG_BTN_CNCL_ASGMT')"
+                @click="onClickCnclAsgmt(item)"
+              />
+            </div>
           </kw-card-actions>
         </kw-card>
         <!-- 배송 카드 -->
@@ -736,6 +738,9 @@ async function callKiwiTimeAssign(dataList, prdDiv) {
       istPcsvDvCd: searchParams.value.istPcsvDvCd, // 설치택배구분
       mnftCoId: dataList.mnftCoId, // 제조사(LCJEJO)
       svBizDclsfCd: '', // 서비스업무세분류코드
+      inChnlDvCd: dataList.inChnlDvCd, // 입력채널구분코드
+      svBizHclsfCd: dataList.svBizHclsfCd, // 서비스세분류코드
+      prdDiv, // 배정구분코드
     });
 
     if (dataList.basePdCd === 'WP02120086') { /* AS-IS: 4129 (렌탈) */
@@ -776,12 +781,12 @@ async function callKiwiTimeAssign(dataList, prdDiv) {
         componentProps: {
           sellDate: dataList.rcpdt, // 판매일자
           baseYm: now.format('YYYYMM'), // 달력 초기 월
-          chnlDvCd: dataList.inChnlDvCd, // W: 웰스, K: KSS, C: CubicCC, P: K-MEMBERS, I || E: 엔지니어, M: 매니저
+          chnlDvCd: 'K', // W: 웰스, K: KSS, C: CubicCC, P: K-MEMBERS, I || E: 엔지니어, M: 매니저
           svDvCd: svDvCdParam, // 1:설치, 2:BS, 3:AS, 4:홈케어
           svBizDclsfCd: svBizDclsfCdParam, // 판매인 경우 1110(신규설치) fix
           cntrNo: dataList.cntrNo,
           cntrSn: dataList.cntrSn,
-          dataStatCd: prdDiv, // 1: 신규, 2: 수정, 3: 삭제
+          mtrStatCd: prdDiv, // 1: 신규, 2: 수정, 3: 삭제
         },
       });
 
@@ -888,6 +893,9 @@ async function cancelKiwiTimeAssign(dataList, prdDivParam) {
     svBizDclsfCd: '', // 서비스업무세분류코드
     mnftCoId: dataList.mnftCoId, // 제조사(LCJEJO)
     prdDiv: prdDivParam, // 접수구분
+    inChnlDvCd: dataList.inChnlDvCd, // 입력채널구분코드
+    svBizHclsfCd: dataList.svBizHclsfCd, // 서비스세분류코드
+    mtrStatCd: prdDivParam, // 배정구분코드
   });
 
   if (dataList.kaetc1 === '8') {
@@ -972,16 +980,19 @@ async function checkKiwiTimeAssign(dataList, prdDiv) {
 
 // 접수(설치)
 async function onClickReceipt(dataList) {
+  if (!await confirm(t('MSG_ALT_WANT', [t('MSG_TXT_RCP')]))) { return; }
   checkKiwiTimeAssign(dataList, '1');
 }
 
 // 재접수(설치)
 async function onClickReRegistration(dataList) {
+  if (!await confirm(t('MSG_ALT_WANT', [t('MSG_TXT_RE_REG')]))) { return; }
   checkKiwiTimeAssign(dataList, '2');
 }
 
 // 배정취소(설치)
 async function onClickCnclAsgmt(dataList) {
+  if (!await confirm(t('MSG_ALT_WANT', [t('MSG_TXT_CNCL_ASGMT')]))) { return; }
   checkKiwiTimeAssign(dataList, '3');
 }
 

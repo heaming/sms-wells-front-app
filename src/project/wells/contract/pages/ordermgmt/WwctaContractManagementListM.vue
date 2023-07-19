@@ -620,16 +620,9 @@ async function fetchMstData() {
     view.resetCurrent();
     view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 
-    if (loginInfo.value.userId === '36544'
-     || loginInfo.value.userId === '36805'
-     || loginInfo.value.userId === '36909'
-     || loginInfo.value.userId === '000303227366') {
-      view.columnByName('cstSignCn').visible = false; // 서명
-      view.columnByName('ocyCntrwBrws').visible = false; // 원본 계약서출력
-    } else {
-      view.columnByName('cstSignCn').visible = true; // 서명
-      view.columnByName('ocyCntrwBrws').visible = true; // 원본 계약서출력
-    }
+    view.columnByName('cstSignCn').visible = false; // 서명
+    view.columnByName('ocyCntrwBrws').visible = false; // 원본 계약서출력
+
     // 삭제원복 컬럼 Hide
     view.columnByName('dlRstr').visible = false;
   } else if (searchParams.value.cntrDv === 'R') {
@@ -1171,13 +1164,13 @@ const initGrdMstList = defineGrid((data, view) => {
         row.cnfmMsgYn = ''; // 확정승인메세지
       });
 
-      res = await dataService.put('/sms/wells/contract/contracts/managements/confirm-approval', rows);
-      console.log(res.data.processCount);
-      if (res.data.processCount === 0) {
-        if (await confirm(t('MSG_ALT_CNFM_ORD'))) { // 주문을 확정하시겠습니까?
-          res = await dataService.put('/sms/wells/contract/contracts/managements/confirm', searchCnfmAprvParams.value.cntrNo);
-        }
+      // res = await dataService.put('/sms/wells/contract/contracts/managements/confirm-approval', rows);
+      // console.log(res.data.processCount);
+      // if (res.data.processCount === 0) {
+      if (await confirm(t('MSG_ALT_CNFM_ORD'))) { // 주문을 확정하시겠습니까?
+        res = await dataService.put('/sms/wells/contract/contracts/managements/confirm', rows);
       }
+      // }
     } else if (['rqsIz'].includes(column)) { // 요청내역 버튼 클릭
       // const { fstRgstUsrId, fnlMdfcUsrId } = gridUtil.getRowValue(g, itemIndex);
       await modal({ component: 'WwConfirmApprovalAskIzListP', componentProps: { cntrNo: paramCntrNo } }); // 확정 승인 요청 내역
@@ -1272,7 +1265,7 @@ const initGrdMstList = defineGrid((data, view) => {
 
       await fetchDtlData();
     } else if (['notakFwIz'].includes(column)) { // 알림톡 발송 내역 버튼 클릭
-      await modal({ component: 'WwKakaotalkSendListP', componentProps: { cntrDtlNo: paramCntrDtlNo, concDiv: searchParams.cntrDv } }); // 카카오톡 발송 내역 조회
+      await modal({ component: 'WwKakaotalkSendListP', componentProps: { cntrNo: paramCntrNo, cntrSn: paramCntrSn, concDiv: searchParams.cntrDv } }); // 카카오톡 발송 내역 조회
     }
   };
 

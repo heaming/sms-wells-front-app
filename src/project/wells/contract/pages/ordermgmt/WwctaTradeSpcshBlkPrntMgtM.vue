@@ -133,7 +133,7 @@
 // -------------------------------------------------------------------------------------------------
 import { codeUtil, useDataService, gridUtil, getComponentType, useGlobal, defineGrid, useMeta } from 'kw-lib';
 import dayjs from 'dayjs';
-import { cloneDeep, isEmpty } from 'lodash-es';
+import { cloneDeep, isEmpty, trim } from 'lodash-es';
 import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
 
 const dataService = useDataService();
@@ -250,7 +250,7 @@ async function onClickSave() {
     }
     const row = gridUtil.findDataRow(view, (e) => (e.spectxGrpNo === changedRows[i].spectxGrpNo)
     && (e.cntrDtlNo === changedRows[i].cntrDtlNo));
-    if (row !== i) {
+    if (row !== changedRows[i].dataRow) {
       notify(t('MSG_ALT_DUP_NCELL', [t('MSG_TXT_CNTR_DTL_NO')]));
       return;
     }
@@ -278,14 +278,10 @@ async function onClickRemove() {
 
   const deletedRows = await gridUtil.confirmDeleteCheckedRows(view);
 
-  // rowState 삭제상태 none 으로 나와 임시 set
-  for (let i = 0; i < deletedRows.length; i += 1) {
-    deletedRows[i].rowState = 'deleted';
-  }
-
   if (deletedRows.length > 0) {
     await dataService.delete('sms/wells/contract/contracts/trade-specification-sheets', { data: deletedRows });
     await fetchData();
+    notify(t('MSG_ALT_DELETED'));
   }
 }
 
@@ -402,13 +398,14 @@ const initGridTradeSpcshBlkPrntList = defineGrid((data, view) => {
           if ((!isEmpty(res.data))) {
             data.setValue(dataRow, 'sellTpCd', res.data.sellTpCd);
             data.setValue(dataRow, 'cstNm', res.data.cstKnm);
+            data.setValue(dataRow, 'cstNo', res.data.cstNo);
             data.setValue(dataRow, 'cntrNo', cntrNo);
             data.setValue(dataRow, 'cntrSn', cntrSn);
             data.setValue(dataRow, 'cntrDtlNo', `${cntrNo}-${cntrSn}`);
             for (let i = 0; i < rows.length; i += 1) {
               const row = gridUtil.findDataRow(view, (e) => e.spectxGrpNo === spectxGrpNo
               && (e.emadr !== res.data.emadr)); // 같은 그룹번호의 이메일, 팩스번호 동일하게 셋팅
-              data.setValue(row, 'emadr', res.data.emadr);
+              data.setValue(row, 'emadr', trim(res.data.emadr));
             }
           }
         }
@@ -497,13 +494,14 @@ const initGridTradeSpcshBlkPrntList = defineGrid((data, view) => {
       if ((!isEmpty(res.data))) {
         data.setValue(updateRow, 'sellTpCd', res.data.sellTpCd);
         data.setValue(updateRow, 'cstNm', res.data.cstKnm);
+        data.setValue(updateRow, 'cstNo', res.data.cstNo);
         data.setValue(updateRow, 'cntrNo', cntrNo);
         data.setValue(updateRow, 'cntrSn', cntrSn);
         data.setValue(updateRow, 'cntrDtlNo', `${cntrNo}-${cntrSn}`);
         for (let i = 0; i < rows.length; i += 1) {
           const row = gridUtil.findDataRow(view, (e) => e.spectxGrpNo === spectxGrpNo
               && (e.emadr !== res.data.emadr)); // 같은 그룹번호의 이메일, 팩스번호 동일하게 셋팅
-          data.setValue(row, 'emadr', res.data.emadr);
+          data.setValue(row, 'emadr', trim(res.data.emadr));
         }
       }
       data.setValue(updateRow, 'cntrNo', payload.cntrNo);

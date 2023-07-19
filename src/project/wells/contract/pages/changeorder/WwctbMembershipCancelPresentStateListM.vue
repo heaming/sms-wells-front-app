@@ -65,28 +65,16 @@
         :label="$t('MSG_TXT_PRDT_CATE')"
         colspan="2"
       >
-        <!-- 상품분류(대분류) 선택 -->
-        <kw-select
-          v-model="searchParams.pdHclsfId"
-          :placeholder="$t('TXT_MSG_PD_HCLSF_ID') + ' ' + $t('MSG_TXT_SELT')"
-          :options="filteredHighClasses"
-          option-value="pdClsfId"
-          option-label="pdClsfNm"
-          first-option="all"
-          :first-option-label="$t('TXT_MSG_PD_HCLSF_ID') + ' ' + $t('MSG_TXT_SELT')"
-          first-option-value=""
-          @update:model-value="onUpdateHighClasses"
-        />
-        <!-- 상품분류(중분류) 선택 -->
-        <kw-select
-          v-model="searchParams.pdMclsfId"
-          :placeholder="$t('MSG_TXT_PD_MCLSF_ID') + ' ' + $t('MSG_TXT_SELT')"
-          :options="filteredMiddleClasses"
-          option-value="pdClsfId"
-          option-label="pdClsfNm"
-          first-option="all"
-          :first-option-label="$t('MSG_TXT_PD_MCLSF_ID') + ' ' + $t('MSG_TXT_SELT')"
-          first-option-value=""
+        <!-- 상품분류 선택 -->
+        <zwpd-product-classification-select
+          ref="productSelRef"
+          v-model:product1-level="searchParams.pdHclsfId"
+          v-model:product2-level="searchParams.pdMclsfId"
+          product1-first-option="all"
+          :product1-first-option-label="$t('TXT_MSG_PD_HCLSF_ID') + ' ' + $t('MSG_TXT_SELT')"
+          product2-first-option="all"
+          :product2-first-option-label="$t('MSG_TXT_PD_MCLSF_ID') + ' ' + $t('MSG_TXT_SELT')"
+          search-lvl="2"
         />
       </kw-search-item>
       <!-- row2 상품코드 -->
@@ -192,6 +180,7 @@
 import { codeUtil, defineGrid, getComponentType, gridUtil, useDataService, useGlobal, useMeta } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import pdConst from '~sms-common/product/constants/pdConst';
+import ZwpdProductClassificationSelect from '~sms-common/product/pages/standard/components/ZwpdProductClassificationSelect.vue';
 import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
 import dayjs from 'dayjs';
 
@@ -234,38 +223,9 @@ const pageInfo = ref({
 });
 let cachedParams;
 
-// 상품분류코드 조회
-const codesHighClasses = ref([]);
-const codesMiddleClasses = ref([]);
-
-const filteredHighClasses = ref([]); // 필터링된 대분류 코드
-const filteredMiddleClasses = ref([]); // 필터링된 중분류 코드
-
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
-
-async function getPdClassesInfos() {
-  let res = [];
-  res = await dataService.get('/sms/wells/contract/product/high-classes'); // 상품대분류 조회
-  codesHighClasses.value = res.data;
-  res = await dataService.get('/sms/wells/contract/product/middle-classes'); // 상품중분류 조회
-  codesMiddleClasses.value = res.data;
-
-  // 상품대분류 코드 초기화
-  filteredHighClasses.value = codesHighClasses.value;
-}
-getPdClassesInfos();
-
-// 상품대분류 변경 이벤트
-async function onUpdateHighClasses(selectedValues) {
-  // 선택한 상품중분류 초기화
-  searchParams.value.pdMclsfId = '';
-
-  // 상품중분류 코드 필터링. 선택한 상품대분류의 하위 상품중분류으로 필터링
-  filteredMiddleClasses.value = codesMiddleClasses.value.filter((v) => selectedValues.includes(v.hgrPdClsfId));
-}
-
 async function fetchData() {
   if (isEmpty(cachedParams)) return;
 

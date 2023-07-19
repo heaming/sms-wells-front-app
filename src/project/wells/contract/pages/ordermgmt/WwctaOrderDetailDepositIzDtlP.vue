@@ -30,12 +30,12 @@
       :label="$t('MSG_BTN_PRM')"
       @click="onClickPrepayment"
     />
-    <!-- 상세 -->
+    <!-- 입금상세정보 -->
     <kw-btn
       dense
       secondary
-      :label="$t('MSG_BTN_DTL')"
-      @click="onClickDetail"
+      :label="$t('MSG_BTN_DP_DTL_INF')"
+      @click="onClickDpDtlInf"
     />
   </kw-action-top>
   <kw-form
@@ -285,7 +285,7 @@ import { cloneDeep, isEmpty } from 'lodash-es';
 
 const dataService = useDataService();
 const { t } = useI18n();
-const { notify, modal } = useGlobal();
+const { alert, notify, modal } = useGlobal();
 const props = defineProps({
   cntrNo: { type: String, required: true, default: '' },
   cntrSn: { type: String, required: true, default: '' },
@@ -377,8 +377,8 @@ async function onClickPrepayment() {
   });
 }
 
-// 상세버튼 팝업 호출
-async function onClickDetail() {
+// 입금상세정보버튼 팝업 호출
+async function onClickDpDtlInf() {
   const searchPopupParams = {
     cntrNo: searchParams.value.cntrNo,
     cntrSn: searchParams.value.cntrSn,
@@ -389,6 +389,11 @@ async function onClickDetail() {
     component: 'WwctaTradeSpecificationSheetListP', // 거래명세서 목록 조회
     componentProps: searchPopupParams,
   });
+}
+
+// 상세조회버튼 팝업 호출
+async function onClickLendingLimit() {
+  await alert('여신한도 상세조회는 개발예정입니다.');
 }
 
 // wells 주문 상세(판매내역)
