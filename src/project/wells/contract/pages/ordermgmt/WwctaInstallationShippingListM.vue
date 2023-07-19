@@ -481,7 +481,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 /* import { codeUtil, defineGrid, gridUtil, useDataService, useGlobal, useModal } from 'kw-lib'; */
-import { codeUtil, useDataService, stringUtil, modal, useGlobal, useMeta } from 'kw-lib';
+import { codeUtil, useDataService, stringUtil, modal, useGlobal, useMeta, notify } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
 import dayjs from 'dayjs';
@@ -751,7 +751,7 @@ async function callKiwiTimeAssign(dataList, prdDiv) {
 
       const res = await dataService.post('/sms/wells/contract/contracts/installation-shippings', saveParams.value); // 체크
       if (!isEmpty(res)) {
-        alert(t('MSG_ALT_SPP_SUCCESS'));
+        notify(t('MSG_ALT_SPP_SUCCESS'));
         fetchData();
       }
     } else {
@@ -791,7 +791,7 @@ async function callKiwiTimeAssign(dataList, prdDiv) {
       });
 
       if (result) {
-        console.log(result);
+        fetchData();
       }
     }
   }
@@ -870,7 +870,7 @@ async function cancelKiwiTimeAssign(dataList, prdDivParam) {
     });
     const res = await dataService.post('/sms/wells/contract/contracts/installation-shippings/due-date-cancel', saveCheckParams.value); // 취소
     if (!isEmpty(res)) {
-      alert(t('MSG_ALT_SPP_CAN_EXP_DT_CANCEL'));
+      notify(t('MSG_ALT_SPP_CAN_EXP_DT_CANCEL'));
     }
     return;
   }
@@ -908,7 +908,7 @@ async function cancelKiwiTimeAssign(dataList, prdDivParam) {
   }
   const res = await dataService.post('/sms/wells/contract/contracts/installation-shippings', saveParams.value); // 체크
   if (!isEmpty(res)) {
-    alert(t('MSG_ALT_WAS_CNCL'));
+    notify(t('MSG_ALT_WAS_CNCL'));
     fetchData();
   }
 }
@@ -970,9 +970,9 @@ async function checkKiwiTimeAssign(dataList, prdDiv) {
     const res = await dataService.post('/sms/wells/contract/contracts/installation-shippings/checks', saveParams.value); // 체크
     if (!isEmpty(res)) {
       if (prdDiv !== '3') {
-        callKiwiTimeAssign(dataList);
+        callKiwiTimeAssign(dataList, prdDiv);
       } else {
-        cancelKiwiTimeAssign(dataList, prdDivParam);
+        cancelKiwiTimeAssign(dataList, prdDiv);
       }
     }
   }
