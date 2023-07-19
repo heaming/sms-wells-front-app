@@ -1151,6 +1151,8 @@ const initGrdMstList = defineGrid((data, view) => {
               console.log(res.data.processCount);
               if (res.data.processCount === 0) {
                 await notify(t('MSG_ALT_CNFM_COMPLETE')); // 확정 완료했습니다.
+                // 재조회 호출
+                await fetchMstData();
               }
             }
           }
@@ -1174,6 +1176,8 @@ const initGrdMstList = defineGrid((data, view) => {
           console.log(res.data.processCount);
           if (res.data.processCount === 0) {
             await notify(t('MSG_ALT_CNFM_COMPLETE')); // 확정 완료했습니다.
+            // 재조회 호출
+            await fetchMstData();
           }
         }
       } else {

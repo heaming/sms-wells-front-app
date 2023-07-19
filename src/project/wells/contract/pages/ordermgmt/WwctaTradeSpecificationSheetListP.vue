@@ -427,7 +427,7 @@ const initGrdContracts = defineGrid((data, view) => {
 
   const columns = [
     { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '131', styleName: 'text-center' }, // 계약번호
-    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '131', styleName: 'text-center' }, // 상품명
+    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '200', styleName: 'text-center' }, // 상품명
     { fieldName: 'cntrDt', header: t('MSG_TXT_CNTRCT_DT'), width: '131', styleName: 'text-center', datetimeFormat: 'date' }, // 계약일
     { fieldName: 'canDt', header: t('MSG_TXT_CAN_D'), width: '131', styleName: 'text-center', datetimeFormat: 'date' }, // 취소일
     { fieldName: 'sellTpNm', header: t('MSG_TXT_TYPE'), width: '131', styleName: 'text-left' }, // 구분(유형)
@@ -515,15 +515,15 @@ const initGrdTradeSpecificationSheet = defineGrid((data, view) => {
     { fieldName: 'baseYm' }, // 년월
     { fieldName: 'lcsleymd' }, // 일시불매출일
     { fieldName: 'lcam16', dataType: 'number' }, // 매출
-    { fieldName: 'w1Iamt' }, // 입금
-    { fieldName: 'lcam36' }, // 선수금액
-    { fieldName: 'lcdamt' }, // 연체금액
+    { fieldName: 'w1Iamt', dataType: 'number' }, // 입금
+    { fieldName: 'lcam36', dataType: 'number' }, // 선수금액
+    { fieldName: 'lcdamt', dataType: 'number' }, // 연체금액
   ];
 
   const columns = [
     { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '131', styleName: 'text-center' }, // 계약번호
     { fieldName: 'sellTpNm', header: t('MSG_TXT_TYPE'), width: '131', styleName: 'text-center' }, // 유형
-    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '131', styleName: 'text-center' }, // 상품명
+    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '200', styleName: 'text-center' }, // 상품명
     { fieldName: 'lcrcnt', header: t('MSG_TXT_NMN'), width: '131', styleName: 'text-center' }, // 차월
     { fieldName: 'baseYm', header: t('MSG_TXT_YM'), width: '131', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 년월
     { fieldName: 'lcsleymd', header: `${t('MSG_TXT_SNGL_PMNT')}${t('MSG_TXT_DT_OF_SALE')}`, width: '110', styleName: 'text-center', datetimeFormat: 'date' }, // 일시불매출일
@@ -557,7 +557,7 @@ const initGrdCardSalesSlip = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '131', styleName: 'text-center' }, // 계약번호
     { fieldName: 'istmMcn', header: t('MSG_TXT_ISTM_MCNT'), width: '110', styleName: 'text-right' }, // 할부개월
-    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '131', styleName: 'text-center' }, // 상품명
+    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '200', styleName: 'text-center' }, // 상품명
     { fieldName: 'dpstdt', header: t('MSG_TXT_TRD_DT'), width: '131', styleName: 'text-center', datetimeFormat: 'date' }, // 거래일
     { fieldName: 'dpcndt', header: t('MSG_TXT_CAN_D'), width: '131', styleName: 'text-center', datetimeFormat: 'date' }, // 취소일
     { fieldName: 'cardvndr', header: t('MSG_TXT_APRV_CARD'), width: '110', styleName: 'text-center' }, // 결재카드
@@ -600,7 +600,7 @@ const initGrdContractArticles = defineGrid((data, view) => {
 
   const columns = [
     { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '131', styleName: 'text-center' }, // 계약번호
-    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '131', styleName: 'text-center' }, // 상품명
+    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '200', styleName: 'text-center' }, // 상품명
     { fieldName: 'pdMclsfNm', header: t('MSG_TXT_PDCT'), width: '131', styleName: 'text-center' }, // 제품
     { fieldName: 'lcsetymd', header: t('MSG_TXT_INST_DT'), width: '131', styleName: 'text-center', datetimeFormat: 'date' }, // 설치일
     { fieldName: 'lcamt1', header: t('MSG_TXT_RTLFE'), width: '110', styleName: 'text-right' }, // 렌탈료
