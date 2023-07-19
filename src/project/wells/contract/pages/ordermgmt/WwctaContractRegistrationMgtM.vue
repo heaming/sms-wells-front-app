@@ -424,7 +424,7 @@ watch(stepsStatus, async () => {
 onMounted(async () => {
   if (!props.cntrNo && await isClosingTime()) {
     await alert('계약작성시간 마감으로 계약이 불가합니다');
-    await router.push({ path: '/' });
+    await router.close();
   }
 });
 </script>
