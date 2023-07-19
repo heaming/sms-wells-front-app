@@ -179,22 +179,15 @@
         <kw-form cols="4">
           <kw-form-row>
             <!-- row1 정상매출 -->
-            <kw-form-item
-              :label="$t('MSG_TXT_NOM_SL')"
-            >
+            <kw-form-item :label="$t('MSG_TXT_NOM_SL')">
               <p>{{ stringUtil.getNumberWithComma(searchDetail.nomSlAmt??'') }}</p>
             </kw-form-item>
             <!-- row1 렌탈일수 -->
-            <kw-form-item
-              :label="$t('MSG_TXT_RENTAL_DC')"
-              hint="사용일수"
-            >
-              <p>{{ searchDetail.useDays }}</p>
+            <kw-form-item :label="$t('MSG_TXT_RENTAL_DC')">
+              <p>{{ searchDetail.rentalDc }}</p>
             </kw-form-item>
             <!-- row1 교체일자 -->
-            <kw-form-item
-              :label="$t('MSG_TXT_CHNG_DT')"
-            >
+            <kw-form-item :label="$t('MSG_TXT_CHNG_DT')">
               <p>{{ stringUtil.getDateFormat(searchDetail.chgDt) }}</p>
             </kw-form-item>
             <!-- row1 추가매출  -->
@@ -216,7 +209,6 @@
                 regex="num"
                 maxlength="10"
                 align="right"
-                @update:model-value="onChangeCanCtr"
               />
             </kw-form-item>
             <!--row2 부가서비스  -->
@@ -229,8 +221,8 @@
             </kw-form-item>
           </kw-form-row>
 
-          <kw-separator v-if="isChageCanCtr" />
-          <kw-form-row v-if="isChageCanCtr">
+          <kw-separator v-if="searchDetail.canCtrAmt > 0" />
+          <kw-form-row v-if="searchDetail.canCtrAmt > 0">
             <!-- row2-1 조정요청자사번 -->
             <kw-form-item :label="$t('MSG_TXT_CTR')+$t('MSG_TXT_REQ_USER')+$t('MSG_TXT_EPNO')">
               <kw-input
@@ -336,7 +328,6 @@
     <template #left>
       <h3>5. {{ t('MSG_TXT_CAN_ARTC') }}</h3>
     </template>
-    {{ searchDetail.cntrNo }} / {{ searchDetail.pdNm }}
     <kw-btn
       v-show="searchDetail.cancelStatNm !== '취소등록'"
       :label="$t('MSG_TXT_CAN_ARTC')+' '+$t('MSG_TXT_SRCH')"
@@ -435,7 +426,10 @@
         <p>{{ stringUtil.getNumberWithComma(searchDetail.resRtlfeBorAmt??'') }}</p>
       </kw-form-item>
       <!-- row5 원위약-등록비 -->
-      <kw-form-item :label="$t('MSG_TXT_CUR_WON')+$t('MSG_TXT_BOR')+'-'+$t('MSG_TXT_RGST_FEE')">
+      <kw-form-item
+        :label="$t('MSG_TXT_CUR_WON')+$t('MSG_TXT_BOR')+'-'+$t('MSG_TXT_RGST_FEE')"
+        hint="등록비할인위약금액"
+      >
         <p>{{ stringUtil.getNumberWithComma(searchDetail.rgstCostDscBorAmt??'') }}</p>
       </kw-form-item>
       <!-- row5 원위약-할인금액 -->
@@ -494,7 +488,7 @@
       <!-- 소모품비 -->
       <kw-form-item :label="$t('MSG_TXT_CSMB_CS')">
         <kw-input
-          v-model="searchDetail.csmbCostBorAmt"
+          v-model="searchDetail.csmbCostBorAmt2"
           regex="num"
           maxlength="10"
           align="right"
@@ -540,7 +534,7 @@
       <!-- 철거 -->
       <kw-form-item :label="$t('MSG_TXT_REQD')">
         <kw-input
-          v-model="searchDetail.reqdCsBorAmt"
+          v-model="searchDetail.reqdCsBorAmt2"
           regex="num"
           maxlength="10"
           align="right"
@@ -704,7 +698,6 @@ const props = defineProps({
 });
 
 const searchDetail = reactive(props.childDetail);
-const isChageCanCtr = ref(false);
 const inputDetail = ref({
   reqDt: '',
   cancelDt: '',
@@ -729,11 +722,6 @@ function onChangeTextforSelect(div) {
   } else if (div === 'sel4') {
     searchDetail.reqdCsExmptDvCd = inputDetail.value.sel4Text;
   }
-}
-
-// 취소조정 추가 데이터 입력 여부 설정
-function onChangeCanCtr(val) {
-  isChageCanCtr.value = (val !== '0');
 }
 
 // 위약금 내역서 보기
@@ -765,6 +753,11 @@ function onClickSave() {
     searchDetail.slCtrRqrId = '';
     searchDetail.slCtrRmkCn = '';
   }
+
+  if (searchDetail.ccamExmptDvCd !== '4') searchDetail.borAmt = 0;
+  if (searchDetail.csmbCsExmptDvCd !== '4') searchDetail.csmbCostBorAmt2 = 0;
+  if (searchDetail.reqdCsExmptDvCd !== '4') searchDetail.reqdCsBorAmt2 = 0;
+
   emits('savedetail');
 }
 
