@@ -77,7 +77,7 @@
           readonly
         />
         <kw-input
-          :model-value="approvalResponse.aprno"
+          :model-value="approvalResponse.aprNo"
           label="승인번호"
           readonly
         />
@@ -85,7 +85,7 @@
           stretch
           secondary
           border-color="black-btn-line"
-          :disable="!!approvalResponse.aprno"
+          :disable="!!approvalResponse.aprNo"
           label="승인"
           @click="onClickApproval"
         />
@@ -137,7 +137,7 @@ const approvalRequest = ref({
 });
 
 const approvalResponse = ref({
-  aprno: undefined, /* 승인번호, 저장은 안하지만 와야함. */
+  aprNo: undefined, /* 승인번호, 저장은 안하지만 와야함. */
   cdcoCd: undefined, /* 카드사 코드 */
   fnitAprRsCd: undefined, /* 금융기관승인결과코드 */
   fnitAprFshDtm: undefined, /* 금융기관승인완료일시 */
@@ -152,7 +152,7 @@ function getStlmUpdateInfo() {
     owrKnm,
   } = approvalRequest.value;
   const {
-    aprno,
+    aprNo,
     cdcoCd,
     fnitAprRsCd,
     fnitAprFshDtm,
@@ -164,7 +164,7 @@ function getStlmUpdateInfo() {
     mpyBsdt,
     acnoEncr,
     owrKnm,
-    aprno,
+    aprNo,
     cdcoCd,
     fnitAprRsCd,
     fnitAprFshDtm,
@@ -175,7 +175,7 @@ async function requestApproval() {
   return new Promise((resolve) => {
     const testResponse = {
       data: {
-        aprno: 'test123456789',
+        aprNo: 'test123456789',
         cdcoCd: '',
         fnitAprRsCd: 'Y',
       },
