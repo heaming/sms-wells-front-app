@@ -604,8 +604,8 @@ const restipulationBasInfo = ref({});
 const { t } = useI18n();
 const grdMainRef = ref(getComponentType('KwGrid'));
 const grdStlmRef = ref(getComponentType('KwGrid'));
-const countGrdMain = ref(0);
-const countGrdStlm = ref(0);
+const countGrdMain = ref(1);
+const countGrdStlm = ref(1);
 const codes = await codeUtil.getMultiCodes(
   'CNTR_TP_CD',
   'CST_STLM_IN_MTH_CD',
@@ -649,8 +649,8 @@ function setGrid() {
   const viewStlm = grdStlmRef.value.getView();
   viewMain.getDataSource().setRows(step4.value.cntrDtls);
   viewStlm.getDataSource().setRows(step4.value.stlmDtls);
-  countGrdMain.value = step4.value.cntrDtls.length;
-  countGrdStlm.value = step4.value.stlmDtls.length;
+  countGrdMain.value = Math.max(step4.value.cntrDtls.length, 1);
+  countGrdStlm.value = Math.max(step4.value.stlmDtls.length, 1);
 }
 async function getCntrInfo(cntrNo) {
   const cntr = await dataService.get('sms/wells/contract/contracts/cntr-info', { params: { cntrNo, step: 4 } });
