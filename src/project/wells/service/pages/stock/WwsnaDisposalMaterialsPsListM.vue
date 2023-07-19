@@ -207,7 +207,7 @@ const initGrdMain = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'wareNm',
       header: t('MSG_TXT_SV_CNR'),
-      width: '120',
+      width: '110',
       styleName: 'text-center',
       mergeRule: {
         criteria: 'value',
@@ -232,18 +232,22 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-right',
       footers: [
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d01Qty', 'KIT');
           } },
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d01Qty', 'WTHOL_VLV');
           } },
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d01Qty', 'WATER_COND_MAT');
           } },
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d01Qty', 'SBSUM');
           } },
@@ -255,18 +259,22 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-right',
       footers: [
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d02Qty', 'KIT');
           } },
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d02Qty', 'WTHOL_VLV');
           } },
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d02Qty', 'WATER_COND_MAT');
           } },
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d02Qty', 'SBSUM');
           } },
@@ -277,18 +285,22 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-right',
       footers: [
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d03Qty', 'KIT');
           } },
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d03Qty', 'WTHOL_VLV');
           } },
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d03Qty', 'WATER_COND_MAT');
           } },
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d03Qty', 'SBSUM');
           } },
@@ -299,18 +311,22 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-right',
       footers: [
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d04Qty', 'KIT');
           } },
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d04Qty', 'WTHOL_VLV');
           } },
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d04Qty', 'WATER_COND_MAT');
           } },
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d04Qty', 'SBSUM');
           } },
@@ -321,18 +337,22 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-right',
       footers: [
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d05Qty', 'KIT');
           } },
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d05Qty', 'WTHOL_VLV');
           } },
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d05Qty', 'WATER_COND_MAT');
           } },
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d05Qty', 'SBSUM');
           } },
@@ -343,18 +363,22 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-right',
       footers: [
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d06Qty', 'KIT');
           } },
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d06Qty', 'WTHOL_VLV');
           } },
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d06Qty', 'WATER_COND_MAT');
           } },
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d06Qty', 'SBSUM');
           } },
@@ -365,18 +389,22 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-right',
       footers: [
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d07Qty', 'KIT');
           } },
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d07Qty', 'WTHOL_VLV');
           } },
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d07Qty', 'WATER_COND_MAT');
           } },
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d07Qty', 'SBSUM');
           } },
@@ -387,18 +415,22 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-right',
       footers: [
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d08Qty', 'KIT');
           } },
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d08Qty', 'WTHOL_VLV');
           } },
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d08Qty', 'WATER_COND_MAT');
           } },
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d08Qty', 'SBSUM');
           } },
@@ -409,18 +441,22 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-right',
       footers: [
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d09Qty', 'KIT');
           } },
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d09Qty', 'WTHOL_VLV');
           } },
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d09Qty', 'WATER_COND_MAT');
           } },
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d09Qty', 'SBSUM');
           } },
@@ -431,18 +467,22 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-right',
       footers: [
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d10Qty', 'KIT');
           } },
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d10Qty', 'WTHOL_VLV');
           } },
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d10Qty', 'WATER_COND_MAT');
           } },
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d10Qty', 'SBSUM');
           } },
@@ -453,18 +493,22 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-right',
       footers: [
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d11Qty', 'KIT');
           } },
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d11Qty', 'WTHOL_VLV');
           } },
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d11Qty', 'WATER_COND_MAT');
           } },
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d11Qty', 'SBSUM');
           } },
@@ -475,18 +519,22 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-right',
       footers: [
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d12Qty', 'KIT');
           } },
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d12Qty', 'WTHOL_VLV');
           } },
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d12Qty', 'WATER_COND_MAT');
           } },
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d12Qty', 'SBSUM');
           } },
@@ -497,18 +545,22 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-right',
       footers: [
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d13Qty', 'KIT');
           } },
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d13Qty', 'WTHOL_VLV');
           } },
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d13Qty', 'WATER_COND_MAT');
           } },
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d13Qty', 'SBSUM');
           } },
@@ -519,18 +571,22 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-right',
       footers: [
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d14Qty', 'KIT');
           } },
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d14Qty', 'WTHOL_VLV');
           } },
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d14Qty', 'WATER_COND_MAT');
           } },
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d14Qty', 'SBSUM');
           } },
@@ -541,18 +597,22 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-right',
       footers: [
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d15Qty', 'KIT');
           } },
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d15Qty', 'WTHOL_VLV');
           } },
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d15Qty', 'WATER_COND_MAT');
           } },
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d15Qty', 'SBSUM');
           } },
@@ -563,18 +623,22 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-right',
       footers: [
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d16Qty', 'KIT');
           } },
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d16Qty', 'WTHOL_VLV');
           } },
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d16Qty', 'WATER_COND_MAT');
           } },
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d16Qty', 'SBSUM');
           } },
@@ -585,18 +649,22 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-right',
       footers: [
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d17Qty', 'KIT');
           } },
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d17Qty', 'WTHOL_VLV');
           } },
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d17Qty', 'WATER_COND_MAT');
           } },
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d17Qty', 'SBSUM');
           } },
@@ -607,18 +675,22 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-right',
       footers: [
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d18Qty', 'KIT');
           } },
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d18Qty', 'WTHOL_VLV');
           } },
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d18Qty', 'WATER_COND_MAT');
           } },
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d18Qty', 'SBSUM');
           } },
@@ -629,18 +701,22 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-right',
       footers: [
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d19Qty', 'KIT');
           } },
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d19Qty', 'WTHOL_VLV');
           } },
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d19Qty', 'WATER_COND_MAT');
           } },
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d19Qty', 'SBSUM');
           } },
@@ -651,18 +727,22 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-right',
       footers: [
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d20Qty', 'KIT');
           } },
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d20Qty', 'WTHOL_VLV');
           } },
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d20Qty', 'WATER_COND_MAT');
           } },
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d20Qty', 'SBSUM');
           } },
@@ -673,18 +753,22 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-right',
       footers: [
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d21Qty', 'KIT');
           } },
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d21Qty', 'WTHOL_VLV');
           } },
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d21Qty', 'WATER_COND_MAT');
           } },
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d21Qty', 'SBSUM');
           } },
@@ -695,18 +779,22 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-right',
       footers: [
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d22Qty', 'KIT');
           } },
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d22Qty', 'WTHOL_VLV');
           } },
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d22Qty', 'WATER_COND_MAT');
           } },
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d22Qty', 'SBSUM');
           } },
@@ -717,18 +805,22 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-right',
       footers: [
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d23Qty', 'KIT');
           } },
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d23Qty', 'WTHOL_VLV');
           } },
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d23Qty', 'WATER_COND_MAT');
           } },
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d23Qty', 'SBSUM');
           } },
@@ -739,18 +831,22 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-right',
       footers: [
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d24Qty', 'KIT');
           } },
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d24Qty', 'WTHOL_VLV');
           } },
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d24Qty', 'WATER_COND_MAT');
           } },
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d24Qty', 'SBSUM');
           } },
@@ -761,18 +857,22 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-right',
       footers: [
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d25Qty', 'KIT');
           } },
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d25Qty', 'WTHOL_VLV');
           } },
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d25Qty', 'WATER_COND_MAT');
           } },
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d25Qty', 'SBSUM');
           } },
@@ -783,18 +883,22 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-right',
       footers: [
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d26Qty', 'KIT');
           } },
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d26Qty', 'WTHOL_VLV');
           } },
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d26Qty', 'WATER_COND_MAT');
           } },
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d26Qty', 'SBSUM');
           } },
@@ -805,18 +909,22 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-right',
       footers: [
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d27Qty', 'KIT');
           } },
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d27Qty', 'WTHOL_VLV');
           } },
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d27Qty', 'WATER_COND_MAT');
           } },
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d27Qty', 'SBSUM');
           } },
@@ -827,18 +935,22 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-right',
       footers: [
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d28Qty', 'KIT');
           } },
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d28Qty', 'WTHOL_VLV');
           } },
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d28Qty', 'WATER_COND_MAT');
           } },
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d28Qty', 'SBSUM');
           } },
@@ -849,18 +961,22 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-right',
       footers: [
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d29Qty', 'KIT');
           } },
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d29Qty', 'WTHOL_VLV');
           } },
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d29Qty', 'WATER_COND_MAT');
           } },
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d29Qty', 'SBSUM');
           } },
@@ -871,18 +987,22 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-right',
       footers: [
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d30Qty', 'KIT');
           } },
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d30Qty', 'WTHOL_VLV');
           } },
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d30Qty', 'WATER_COND_MAT');
           } },
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d30Qty', 'SBSUM');
           } },
@@ -893,18 +1013,22 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-right',
       footers: [
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d31Qty', 'KIT');
           } },
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d31Qty', 'WTHOL_VLV');
           } },
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d31Qty', 'WATER_COND_MAT');
           } },
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('d31Qty', 'SBSUM');
           } },
@@ -915,18 +1039,22 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-right',
       footers: [
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('totQty', 'KIT');
           } },
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('totQty', 'WTHOL_VLV');
           } },
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('totQty', 'WATER_COND_MAT');
           } },
         { styleName: 'text-right',
+          numberFormat: '#,##0',
           valueCallback() {
             return getQtyFooter('totQty', 'SBSUM');
           } },
