@@ -398,6 +398,7 @@ const initGridTradeSpcshBlkPrntList = defineGrid((data, view) => {
           if ((!isEmpty(res.data))) {
             data.setValue(dataRow, 'sellTpCd', res.data.sellTpCd);
             data.setValue(dataRow, 'cstNm', res.data.cstKnm);
+            data.setValue(dataRow, 'cstNo', res.data.cstNo);
             data.setValue(dataRow, 'cntrNo', cntrNo);
             data.setValue(dataRow, 'cntrSn', cntrSn);
             data.setValue(dataRow, 'cntrDtlNo', `${cntrNo}-${cntrSn}`);
@@ -493,6 +494,7 @@ const initGridTradeSpcshBlkPrntList = defineGrid((data, view) => {
       if ((!isEmpty(res.data))) {
         data.setValue(updateRow, 'sellTpCd', res.data.sellTpCd);
         data.setValue(updateRow, 'cstNm', res.data.cstKnm);
+        data.setValue(updateRow, 'cstNo', res.data.cstNo);
         data.setValue(updateRow, 'cntrNo', cntrNo);
         data.setValue(updateRow, 'cntrSn', cntrSn);
         data.setValue(updateRow, 'cntrDtlNo', `${cntrNo}-${cntrSn}`);
