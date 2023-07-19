@@ -165,12 +165,12 @@
         <kw-form cols="4">
           <kw-form-row>
             <!-- row1 진행차월 -->
-            <kw-form-item :label="$t('MSG_TXT_PRGS_NMN')+'_'">
-              <p>{{ stringUtil.getNumberWithComma(searchDetail.nomSlAmt??'') }}</p>
+            <kw-form-item :label="$t('MSG_TXT_PRGS_NMN')">
+              <p>{{ stringUtil.getNumberWithComma(searchDetail.rentalTn??'') }}</p>
             </kw-form-item>
             <!-- row1 배송차월 -->
-            <kw-form-item :label="$t('MSG_TXT_DLVRY')+$t('MSG_TXT_NMN')+'_'">
-              <p>{{ searchDetail.rentalDc }}</p>
+            <kw-form-item :label="$t('MSG_TXT_DLVRY')+$t('MSG_TXT_NMN')">
+              <p>{{ searchDetail.sppNmnN }}</p>
             </kw-form-item>
             <!-- row1 정상매출 -->
             <kw-form-item :label="$t('MSG_TXT_NOM_SL')">
@@ -190,7 +190,6 @@
                 regex="num"
                 maxlength="10"
                 align="right"
-                @update:model-value="onChangeCanCtr"
               />
             </kw-form-item>
             <!-- row2 추가매출 -->
@@ -207,8 +206,8 @@
             </kw-form-item>
           </kw-form-row>
 
-          <kw-separator v-if="isChageCanCtr" />
-          <kw-form-row v-if="isChageCanCtr">
+          <kw-separator v-if="searchDetail.canCtrAmt > 0" />
+          <kw-form-row v-if="searchDetail.canCtrAmt > 0">
             <!-- row2-1 조정요청자사번 -->
             <kw-form-item :label="$t('MSG_TXT_CTR')+$t('MSG_TXT_REQ_USER')+$t('MSG_TXT_EPNO')">
               <kw-input
@@ -223,7 +222,7 @@
               colspan="3"
             >
               <kw-input
-                v-model="searchDetail.ctrReson"
+                v-model="searchDetail.slCtrRmkCn"
                 maxlength="1000"
               />
             </kw-form-item>
@@ -233,7 +232,7 @@
           <kw-form-row>
             <!-- row3 매출금액 -->
             <kw-form-item :label="$t('MSG_TXT_SL_AMT')">
-              <p>{{ stringUtil.getNumberWithComma(searchDetail.thmSlSumAmt??'') }}</p>
+              <p>{{ stringUtil.getNumberWithComma(searchDetail.slSumAmt??'') }}</p>
             </kw-form-item>
             <!-- row3 매출VAT -->
             <kw-form-item :label="$t('MSG_TXT_SL_VAT')">
@@ -253,7 +252,7 @@
           <kw-form-row>
             <!-- row4 조정누계 -->
             <kw-form-item :label="$t('MSG_TXT_CTR_AGG_AMT')">
-              <p>{{ stringUtil.getNumberWithComma(searchDetail.thmPaiamAmt??'') }}</p>
+              <p>{{ stringUtil.getNumberWithComma(searchDetail.ctrAggAmt??'') }}</p>
             </kw-form-item>
           </kw-form-row>
 
@@ -261,7 +260,7 @@
           <kw-form-row>
             <!-- row5 연체가산금 -->
             <kw-form-item :label="$t('MSG_TXT_DLQ_ADAMT')">
-              <p>{{ stringUtil.getNumberWithComma(searchDetail.btdDlqAddAmt??'') }}</p>
+              <p>{{ stringUtil.getNumberWithComma(searchDetail.eotDlqAddAmt??'') }}</p>
             </kw-form-item>
             <!-- row5 入 / 出 -->
             <kw-form-item
@@ -274,7 +273,10 @@
               </p>
             </kw-form-item>
             <!-- row5 가산금조정 -->
-            <kw-form-item :label="$t('MSG_TXT_ADD_AM')+$t('MSG_TXT_CTR')">
+            <kw-form-item
+              :label="$t('MSG_TXT_ADD_AM')+$t('MSG_TXT_CTR')"
+              hint="null"
+            >
               <kw-input
                 v-model="searchDetail.null"
                 regex="num"
@@ -542,7 +544,6 @@ const props = defineProps({
 });
 
 const searchDetail = reactive(props.childDetail);
-const isChageCanCtr = ref(false);
 const inputDetail = ref({
   reqDt: '',
   cancelDt: '',
@@ -554,10 +555,6 @@ codes.CMN_STAT_CH_RSON_CD.forEach((e) => { e.codeName = `(${e.codeId})${e.codeNa
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 
-// 취소조정 추가 데이터 입력 여부 설정
-function onChangeCanCtr(val) {
-  isChageCanCtr.value = (val !== '0');
-}
 // SELECTBOX 를 선택하기 위한 TEXT 입력 이벤트
 function onChangeTextforSelect(div) {
   if (div === 'sel1') {
@@ -595,6 +592,8 @@ function onClickSave() {
     searchDetail.slCtrRqrId = '';
     searchDetail.slCtrRmkCn = '';
   }
+  if (searchDetail.ccamExmptDvCd !== '4') searchDetail.borAmt = 0;
+
   emits('savedetail');
 }
 

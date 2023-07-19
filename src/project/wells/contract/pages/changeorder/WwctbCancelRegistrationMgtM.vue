@@ -152,7 +152,7 @@
                 vertical
                 class="mx12 my8"
               />
-              <span class="kw-font-pt18 text-weight-medium">{{ cancelDetailList[idx].pdNm }} {{ panelIdx }}</span>
+              <span class="kw-font-pt18 text-weight-medium">{{ cancelDetailList[idx].pdNm }}</span>
             </div>
             <div class="row items-center">
               <kw-btn
@@ -272,13 +272,14 @@ function getPanelIdx(val) {
 // const panelIdx = ref(0);
 const panelIdx = computed(() => getPanelIdx(cancelDetailList.value[idx.value].sellTpCd));
 
+// 하위 component 강제 rendering
 function forceRender() {
   panelIdx.value = getPanelIdx(cancelDetailList.value[idx.value].sellTpCd);
   compKey.value += 1;
 }
 
 // 하위 아코디언 초기화
-function initAccordion() {
+function initComponent() {
   idx.value = -1;
   cancelDetailList.value.splice(0, cancelDetailList.value.length);
 }
@@ -313,6 +314,7 @@ async function onClickMove(pDiv) {
   forceRender();
 }
 
+// cancelDetailList 변경
 async function setGridCheckandSelect(row, isCheck) {
   grdMainView.value.setValue(row, 'disableChk', isCheck ? 'Y' : 'N');
   grdMainView.value.setCheckable(row, !isCheck);
@@ -325,23 +327,15 @@ async function setGridCheckandSelect(row, isCheck) {
     }
 
     cancelDetailList.value.push(grdMainView.value.getValues(row));
-    if (idx.value < 0) {
-      idx.value = 0;
-      panelIdx.value = getPanelIdx(cancelDetailList.value[0].sellTpCd);
-    }
+    if (idx.value < 0) { idx.value = 0; }
 
   // 삭제
   } else {
     const targetIdx = cloneDeep(idx.value);
-    const isLast = ((targetIdx + 1) === cancelDetailList.value.length);
-    if (isLast) {
+    if ((targetIdx + 1) === cancelDetailList.value.length) {
       await onClickMove('L');
-      cancelDetailList.value.splice(targetIdx, 1);
-    } else {
-      await onClickMove('R');
-      cancelDetailList.value.splice(targetIdx, 1);
-      idx.value += -1;
     }
+    cancelDetailList.value.splice(targetIdx, 1);
   }
 }
 
@@ -353,7 +347,7 @@ function onClickRegistCancel() {
   }
 
   if (cancelDetailList.value.length === 1 && cancelDetailList.value[0].cancelStatNm === '취소등록') {
-    initAccordion();
+    initComponent();
   }
 
   grdMainView.value.getCheckedRows().forEach((i) => {
@@ -389,7 +383,7 @@ function onClickVirtualAccountView() {
   notify('TODO : 거래명세서 OZ뷰 호출 ');
 }
 
-// 취소사항 조회 클릭
+// 5. 취소사항 > 취소사항 조회 클릭
 async function onSearchDetail(subParam) {
   const { cntrNo, cntrSn, sellTpCd } = cancelDetailList.value[idx.value];
   const res = await dataService.get('/sms/wells/contract/changeorder/breach-promises', { params: {
@@ -403,6 +397,7 @@ async function onSearchDetail(subParam) {
 
   res.data.isSearch = 'Y';
   res.data.slCtrRqrId = sessionUserInfo.userId; // 조정자 사번 셋팅
+  res.data.rsgAplcDt = subParam.reqDt;
   Object.assign(cancelDetailList.value[idx.value], res.data);
 }
 
@@ -444,6 +439,12 @@ async function onSave() {
       element.csmbCsExmptDvCd = param.csmbCsExmptDvCd;
       element.reqdCsExmptDvCd = param.reqdCsExmptDvCd;
       element.reqdAkRcvryDvCd = param.reqdAkRcvryDvCd;
+      element.borAmt = param.borAmt;
+      element.csmbCostBorAmt2 = param.csmbCostBorAmt2;
+      element.reqdCsBorAmt2 = param.reqdCsBorAmt2;
+      element.dscDdctam = param.dscDdctam;
+
+      element.filtDdctam = param.filtDdctam;
     });
 
     saveList = cancelDetailList.value;
@@ -456,14 +457,12 @@ async function onSave() {
     saveList.push(param);
   }
 
-  console.log(saveList);
-
   // call service
   await dataService.post('/sms/wells/contract/changeorder/cancel-registrations', saveList);
   await notify(t('MSG_ALT_SAVE_DATA'));
 
   // 하위 초기화
-  initAccordion();
+  initComponent();
 
   await fetchData();
 }
@@ -490,7 +489,7 @@ async function getCanceledInfo(cntrNo, cntrSn) {
       }
     });
 
-    initAccordion();
+    initComponent();
   }
 
   res.data.bulkApplyYN = 'N';
@@ -509,20 +508,11 @@ async function onClickSearch() {
     return false;
   }
 
-  initAccordion();
+  initComponent();
   cachedParams.value = cloneDeep(searchParams.value);
 
   await fetchData();
 }
-
-watch(idx, (val) => {
-  console.log(`!! watch!! idx.value : ${val}`);
-
-  if (!isEmpty(cancelDetailList.value)) {
-    panelIdx.value = getPanelIdx(cancelDetailList.value[val].sellTpCd);
-    console.log(`!! watch!! panelIdx.value : ${panelIdx.value}`);
-  }
-});
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
@@ -543,12 +533,17 @@ function initGrid(data, view) {
     { fieldName: 'cntrCstNo', header: t('MSG_TXT_CST_NO'), width: '88', styleName: 'text-center' }, // [고객번호]
     { fieldName: 'cntrCstKnm', header: t('MSG_TXT_CST_NM'), width: '100', styleName: 'text-center' }, // [고객명]
     { fieldName: 'eotUcAmt', header: t('MSG_TXT_NPD_AMT'), width: '88', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '270' }, // [상품명]
+    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '350' }, // [상품명]
+    { fieldName: 'cntrNo', visible: false },
+    { fieldName: 'cntrSn', visible: false },
+    { fieldName: 'sellTpCd', visible: false },
+    { fieldName: 'sellTpDtlCd', visible: false },
+    { fieldName: 'cntrDtlStatCd', visible: false },
+    { fieldName: 'basePdCd', visible: false }, // [상품코드]
     { fieldName: 'cntrGbn', visible: false },
+    { fieldName: 'ogCd', visible: false }, // [소속]
     { fieldName: 'hooPrtnrNm', visible: false }, // [본부장명]
     { fieldName: 'hooPrtnrNo', visible: false }, // [본부장사번]
-    { fieldName: 'ogCd', visible: false }, // [소속]
-    { fieldName: 'basePdCd', visible: false }, // [상품코드]
     { fieldName: 'stplPtrm', visible: false }, // [의무기간]
     { fieldName: 'cntrPdStrtdt', visible: false }, // [매출년월 - 설치일자생성 시 들어감]
     { fieldName: 'cntrAmt', visible: false }, // [등록비]
@@ -586,14 +581,8 @@ function initGrid(data, view) {
     { fieldName: 'machineNm', visible: false }, // []
     { fieldName: 'lsnt', visible: false }, // [분실손료]
     { fieldName: 'sellAmt', visible: false },
-    { fieldName: 'sellTpCd', visible: false },
-    { fieldName: 'cntrNo', visible: false },
-    { fieldName: 'cntrSn', visible: false },
-    { fieldName: 'sellTpDtlCd', visible: false },
-    { fieldName: 'sellTpDtlNm', visible: false },
     { fieldName: 'pkgYn', visible: false },
     { fieldName: 'cntrRcpDt', visible: false },
-    { fieldName: 'cntrDtlStatCd', visible: false },
     { fieldName: 'cntrPdEnddt', visible: false },
     { fieldName: 'rentalTn', visible: false },
     { fieldName: 'sppTn', visible: false },

@@ -18,7 +18,7 @@
     separator
     item-padding="20px 0"
   >
-    <!-- 3. 판매정보 --------------------------------------------------------------------------->
+    <!-- 2. 판매정보 --------------------------------------------------------------------------->
     <kw-expansion-item
       padding-target="header"
       expansion-icon-align="center"
@@ -27,7 +27,7 @@
       <template #header>
         <kw-item-section>
           <kw-item-label>
-            <span class="text-weight-medium kw-font-pt18">3. {{ t('MSG_TXT_SELL_INF') }}</span>
+            <span class="text-weight-medium kw-font-pt18">2. {{ t('MSG_TXT_SELL_INF') }}</span>
           </kw-item-label>
         </kw-item-section>
       </template>
@@ -66,6 +66,80 @@
               hint="null"
             >
               <p>{{ stringUtil.getNumberWithComma(searchDetail.null??'') }}</p>
+            </kw-form-item>
+          </kw-form-row>
+        </kw-form>
+      </div>
+    </kw-expansion-item>
+
+    <!-- 3. 계약상품 --------------------------------------------------------------------------->
+    <kw-expansion-item
+      padding-target="header"
+      expansion-icon-align="center"
+      expand-icon-class="kw-font-pt24"
+    >
+      <template #header>
+        <kw-item-section>
+          <kw-item-label>
+            <span class="text-weight-medium kw-font-pt18">3. {{ t('MSG_TXT_CNTR_PD') }}</span>
+          </kw-item-label>
+        </kw-item-section>
+      </template>
+      <div class="pb20">
+        <kw-form
+          cols="4"
+        >
+          <kw-form-row>
+            <!--상품코드-->
+            <kw-form-item :label="$t('TXT_MSG_PD_CD')">
+              <p>{{ searchDetail.basePdCd }}</p>
+            </kw-form-item>
+            <!--상품명-->
+            <kw-form-item :label="$t('MSG_TXT_PRDT_NM')">
+              <p>{{ searchDetail.pdNm }}</p>
+            </kw-form-item>
+            <!--BS주기-->
+            <kw-form-item :label="$t('MSG_TXT_BS_CYC')">
+              <p>{{ searchDetail.svPrd }}</p>
+            </kw-form-item>
+            <!--용도구분-->
+            <kw-form-item :label="$t('MSG_TXT_USWY_DV')">
+              <p>{{ stringUtil.getDateFormat(searchDetail.svPdTpNm) }}</p>
+            </kw-form-item>
+          </kw-form-row>
+
+          <kw-separator />
+          <kw-form-row>
+            <!--가입유형-->
+            <kw-form-item :label="$t('MSG_TXT_J_TP')">
+              <p>{{ searchDetail.stlmTpNm }}</p>
+            </kw-form-item>
+            <!--멤버십월회비-->
+            <kw-form-item
+              :label="$t('MSG_TXT_MEMBERSHIP')+t('MSG_TXT_MM_SSPCS')"
+              hint="null"
+            >
+              <p>{{ stringUtil.getNumberWithComma(searchDetail.null??'') }}</p>
+            </kw-form-item>
+            <!--할인금액-->
+            <kw-form-item :label="$t('MSG_TXT_RNTL_TOTAL')">
+              <p>{{ stringUtil.getNumberWithComma(searchDetail.dscAmt??'') }}</p>
+            </kw-form-item>
+          </kw-form-row>
+
+          <kw-separator />
+          <kw-form-row>
+            <!--계약일자 -->
+            <kw-form-item :label="$t('MSG_TXT_CNTR_DATE')">
+              <p> {{ stringUtil.getDateFormat(searchDetail.cntrRcpDt) }}</p>
+            </kw-form-item>
+            <!--확정일자-->
+            <kw-form-item :label="$t('MSG_TXT_RENTAL')+' DC'">
+              <p>{{ stringUtil.getDateFormat(searchDetail.cntrCnfmDt) }}</p>
+            </kw-form-item>
+            <!--가입일자-->
+            <kw-form-item :label="$t('MSG_TXT_J_DT')">
+              <p>{{ stringUtil.getDateFormat(searchDetail.cntrPdStrtdt) }}</p>
             </kw-form-item>
           </kw-form-row>
         </kw-form>
@@ -324,7 +398,7 @@
           regex="num"
           maxlength="10"
           align="right"
-          readonly
+          :readonly="searchDetail.ccamExmptDvCd!=='4'"
         />
         <kw-btn
           :label="$t('MSG_TXT_CCAM_IZ_DOC')+' '+$t('MSG_BTN_VIEW')"
@@ -458,7 +532,6 @@
 // -------------------------------------------------------------------------------------------------
 import { codeUtil, getComponentType, notify, stringUtil, useGlobal } from 'kw-lib';
 import dayjs from 'dayjs';
-import { isEmpty } from 'lodash';
 
 const { t } = useI18n();
 const frmMainMembership = ref(getComponentType('KwForm'));
@@ -525,10 +598,8 @@ async function onClickSearchCancel() {
 
 function onClickSave() {
   searchDetail.rsgAplcDt = inputDetail.reqDt;
-  if (isEmpty(searchDetail.canCtrAmt)) {
-    searchDetail.slCtrRqrId = '';
-    searchDetail.slCtrRmkCn = '';
-  }
+  if (searchDetail.ccamExmptDvCd !== '4') searchDetail.filtDdctam = 0;
+
   emits('savedetail');
 }
 
