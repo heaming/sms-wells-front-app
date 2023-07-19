@@ -705,6 +705,7 @@ async function onClickAssignContact(item) {
       cntrSn: installationOrderTargetCntrSns.join(','),
       dataStatCd: '1', // 1: 신규, 2: 수정, 3: 삭제
       userId: item.sellPrtnrNo,
+      mtrStatCd: '1',
     },
   });
 
