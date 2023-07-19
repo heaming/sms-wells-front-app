@@ -82,7 +82,6 @@
       <kw-grid
         ref="grdMainRef"
         name="grdMain"
-        :visible-rows="20"
         :page-size="pageInfo.pageSize"
         :total-count="pageInfo.totalCount"
         @init="initGrid"
@@ -143,6 +142,7 @@ const totalParams = ref({});
 // filtPer: 0,
 // tot: 0,
 // };
+
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -177,7 +177,7 @@ async function onClickExcelDownload() {
   const res = await dataService.get(`${apiUrl}/excel-download`, { params: cachedParams });
 
   await gridUtil.exportView(view, {
-    fileName: currentRoute.value.meta.menuName, // 법인 계좌 정보 관리 엑셀
+    fileName: currentRoute.value.meta.menuName, // 입금
     timePostfix: true,
     exportData: res.data,
   });
