@@ -683,6 +683,15 @@ async function onClickApprovalConfirm(item) {
 
 async function onClickAssignContact(item) {
   console.log(item);
+
+  const response = await dataService.get(`/sms/wells/contract/contracts/contract-lists/${item.cntrNo}/installation-order-targets`);
+  const installationOrderTargetCntrSns = response.data || [];
+
+  if (installationOrderTargetCntrSns.length === 0) {
+    alert(t('MSG_ALT_NO_IST_TG')); /* '설치 오더 대상 상품이 없습니다.' */
+    return;
+  }
+
   // 설치오더 시작
   const res = await modal({
     component: 'WwsncTimeTableForContractP',
@@ -693,7 +702,7 @@ async function onClickAssignContact(item) {
       svDvCd: '1', // 1:설치, 2:BS, 3:AS, 4:홈케어
       svBizDclsfCd: '1110', // 판매인 경우 1110(신규설치) fix
       cntrNo: item.cntrNo,
-      cntrSn: Number(item.cntrSn),
+      cntrSn: installationOrderTargetCntrSns.join(','),
       dataStatCd: '1', // 1: 신규, 2: 수정, 3: 삭제
       userId: item.sellPrtnrNo,
     },
