@@ -267,6 +267,7 @@ async function fetchData() {
     itemBase = res.data;
     view = grdMainRef2.value.getView();
   } else {
+    console.log(cachedParams);
     const res = await dataService.get('/sms/wells/service/item-base-informations/out-of', { params: cachedParams });
     itemBase = res.data;
     view = grdMainRef.value.getView();
@@ -380,11 +381,11 @@ const initGrdMain2 = defineGrid((data, view) => {
     { fieldName: 'itmPdCd' },
     { fieldName: 'itmPdNm' },
     { fieldName: 'itmPdAbbr1' },
-    { fieldName: 'lgstQty' },
-    { fieldName: 'centerQty' },
-    { fieldName: 'myCenterQty' },
-    { fieldName: 'indiStckQty' },
-    { fieldName: 'lQty' },
+    { fieldName: 'lgstQty', dataType: 'number' },
+    { fieldName: 'centerQty', dataType: 'number' },
+    { fieldName: 'myCenterQty', dataType: 'number' },
+    { fieldName: 'indiStckQty', dataType: 'number' },
+    { fieldName: 'lQty', dataType: 'number' },
     { fieldName: 'itmKnd' },
     { fieldName: 'itmKndNm' },
     { fieldName: 'delUnt' },
