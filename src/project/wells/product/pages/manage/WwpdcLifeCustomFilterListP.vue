@@ -236,7 +236,6 @@ async function onClickSave() {
   console.log('WwpdcLifeCustomFilterListP - onClickSave - subList : ', subList);
   await dataService.put('/sms/wells/product/bs-works/life-filters', subList);
   notify(t('MSG_ALT_SAVE_DATA'));
-  gridUtil.reset(view);
   await fetchData();
 }
 

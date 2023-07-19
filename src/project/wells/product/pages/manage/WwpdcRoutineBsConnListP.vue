@@ -410,7 +410,6 @@ async function onClickSave() {
   await dataService.put('/sms/wells/product/bs-works', subList);
 
   notify(t('MSG_ALT_SAVE_DATA'));
-  gridUtil.reset(view);
   await fetchData();
 }
 
