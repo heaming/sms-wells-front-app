@@ -207,7 +207,7 @@ const initGrdMain = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'wareNm',
       header: t('MSG_TXT_SV_CNR'),
-      width: '110',
+      width: '100',
       styleName: 'text-center',
       mergeRule: {
         criteria: 'value',
