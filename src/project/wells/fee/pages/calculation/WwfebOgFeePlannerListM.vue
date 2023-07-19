@@ -203,6 +203,7 @@ const searchParams = ref({
   feeSchdTpCd: '', // 웰스P조직
   feeTcntDvCd: '02',
   coCd: '2000',
+  unitCd: '',
 
 });
 
@@ -274,11 +275,13 @@ async function onChangedRsbTp() {
     isGrid2Visile.value = false;
     isGrid3Visile.value = false;
     searchParams.value.feeSchdTpCd = '101';
+    searchParams.value.unitCd = 'W101';
   } else if (rsbTp === 'W0104') {
     isGrid1Visile.value = false;
     isGrid2Visile.value = true;
     isGrid3Visile.value = false;
     searchParams.value.feeSchdTpCd = '102';
+    searchParams.value.unitCd = 'W102';
   } else {
     isGrid1Visile.value = false;
     isGrid2Visile.value = false;
@@ -635,18 +638,15 @@ async function onClickW116P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
  *  Event - 품의작성 클릭 ※TBD
  */
 async function onClickW118P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
-  const { rsbTp } = searchParams.value;
-  const response = await dataService.get('/sms/wells/fee/organization-fees/dsbCnst', searchParams.value); /* 품의진행상태 조회 */
+  const { formId } = approval.value;
+  const { unitCd } = searchParams.value;
+  const response = await dataService.get('/sms/common/fee/fee-approval/dsb-cnst-status', searchParams.value); /* 품의진행상태 조회 */
   const resData = response.data;
-  approval.value.appKey = `FEAM${dayjs().format('YYYYMMDDHHmmss')}`; /* 18자리 appKey 생성 */
+  approval.value.appKey = formId + unitCd + dayjs().format('YYYYMMDDHHmmss'); /* 10자리 + 4자리 + 14자리 = 28 appKey 생성 */
   const params = approval.value;
   saveInfo.value.appKey = approval.value.appKey;
   saveInfo.value.perfYm = searchParams.value.perfYm;
-  if (rsbTp === 'W105') {
-    saveInfo.value.unitCd = 'W101';
-  } else if (rsbTp === 'W104') {
-    saveInfo.value.unitCd = 'W102';
-  }
+  saveInfo.value.unitCd = unitCd;
   if (resData.dsbCnstYn === 'Y') {
     await notify(t('MSG_ALT_PMT_BEEN_APRV')); /* 결재가 승인 되었습니다 > NEXT STEP */
     await dataService.put(`/sms/common/fee/schedules/steps/${feeSchdId}/status/levels`, null, { params: { feeSchdLvCd, feeSchdLvStatCd } });
@@ -655,13 +655,11 @@ async function onClickW118P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
     await notify(t('MSG_ALT_CHK_IN_PRGS')); /* 결재가 진행중입니다 */
   } else if (resData.dsbCnstYn === 'P') { /* 이전 품의 반송, 회수 등의 이유로 재결재 */
     if (await confirm(t('MSG_ALT_PROC_TO_CHK'))) { /* 결재를 진행하시겠습니까? > Kportal popup */
+      await dataService.post('/sms/common/fee/fee-approval/dsb-cnst-update', saveInfo.value); /* 이전 품의결재 이력 최종여부 N 수정 */
       await openApprovalPopup(params); /* Kportal popup */
-      await dataService.post('/sms/wells/fee/organization-fees/dsbCnst-udpate', saveInfo.value); /* 이전 품의결재 이력 최종여부 N 수정 */
-      await dataService.post('/sms/wells/fee/organization-fees/dsbCnst-save', saveInfo.value); /* 신규 품의결재 이력 저장 */
     }
   } else if (await confirm(t('MSG_ALT_PROC_TO_CHK'))) { /* 결재를 진행하시겠습니까? > Kportal popup */
     await openApprovalPopup(params); /* Kportal popup */
-    await dataService.post('/sms/wells/fee/organization-fees/dsbCnst-save', saveInfo.value); /* 신규 품의결재 이력 저장 */
   }
 }
 
