@@ -56,7 +56,8 @@
           <kw-select
             v-model="searchParams.cnclTp"
             :options="cnclTp"
-            first-option-label="전체"
+            first-option
+            :first-option-label="$t('MSG_TXT_ALL')"
           />
         </kw-search-item>
 
@@ -68,7 +69,8 @@
           <kw-select
             v-model="searchParams.sellTp"
             :options="sellTp"
-            first-option-label="전체"
+            first-option
+            :first-option-label="$t('MSG_TXT_ALL')"
           />
         </kw-search-item>
 
@@ -100,7 +102,7 @@
         </kw-search-item>
       </kw-search-row>
       <kw-search-row>
-        <kw-search-item label="번호">
+        <kw-search-item :label="$t('MSG_TXT_SEQUENCE_NUMBER')">
           <kw-input />
         </kw-search-item>
       </kw-search-row>
