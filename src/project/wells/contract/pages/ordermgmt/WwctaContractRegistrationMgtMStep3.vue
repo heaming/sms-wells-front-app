@@ -15,7 +15,6 @@
 <template>
   <kw-scroll-area
     visible
-    class="h490"
   >
     <template
       v-for="(item, idx) in step3.dtls"
@@ -362,7 +361,16 @@
                 </kw-form-item>
               </kw-form-row>
               <kw-form-row>
-                <kw-form-item label="계약금(가상계좌)">
+                <kw-form-item label="계약금결제유형">
+                  <kw-option-group
+                    v-model="item.dpTpCdIdrv"
+                    type="radio"
+                    :options="codes.DP_TP_CD_IDRV"
+                  />
+                </kw-form-item>
+              </kw-form-row>
+              <kw-form-row>
+                <kw-form-item label="계약금">
                   <kw-input
                     v-model="item.cntrAmt"
                     :min="Number(item.sellAmt) / 10"

@@ -588,6 +588,8 @@ async function openFeePerfCrtPopup() {
     perfYm: now.add(-1, 'month').format('YYYYMM'),
     ogTp: 'W01',
     dv: 'CR',
+    feeTcntDvCd: searchParams.value.schOrdr,
+    perfAgrgCrtDvCd: '101',
   };
   await modal({
     component: 'WwfeaOgNetOrderPerfAgrgRegP',
@@ -603,6 +605,8 @@ async function openFeePerfCnfmPopup() {
     perfYm: now.add(-1, 'month').format('YYYYMM'),
     ogTp: 'W01',
     dv: 'CO',
+    feeTcntDvCd: searchParams.value.schOrdr,
+    perfAgrgCrtDvCd: '101',
   };
   await modal({
     component: 'WwfeaOgNetOrderPerfAgrgRegP',
@@ -617,7 +621,9 @@ async function openFeePerfCnfmCanPopup() {
   const param = {
     perfYm: now.add(-1, 'month').format('YYYYMM'),
     ogTp: 'W01',
-    dv: 'CO',
+    dv: 'CC',
+    feeTcntDvCd: searchParams.value.schOrdr,
+    perfAgrgCrtDvCd: '101',
   };
   await modal({
     component: 'WwfeaOgNetOrderPerfAgrgRegP',

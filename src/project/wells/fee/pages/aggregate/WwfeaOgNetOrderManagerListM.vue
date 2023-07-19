@@ -47,8 +47,6 @@
               @change="onChangeInqrDv"
             />
           </kw-search-item>
-        </kw-search-row>
-        <kw-search-row>
           <kw-search-item
             :label="$t('MSG_TXT_FEE_PERF')+$t('MSG_TXT_TYPE')"
           >
@@ -57,6 +55,8 @@
               :options="customCodes.feePerfCd"
             />
           </kw-search-item>
+        </kw-search-row>
+        <kw-search-row>
           <kw-search-item
             :label="$t('MSG_TXT_PDCT_TP')"
             required
@@ -77,8 +77,6 @@
               :options="customCodes.selTpCd"
             />
           </kw-search-item>
-        </kw-search-row>
-        <kw-search-row>
           <kw-search-item
             :label="$t('MSG_TXT_DT')"
             required
@@ -90,6 +88,8 @@
               @change="onChangeDt"
             />
           </kw-search-item>
+        </kw-search-row>
+        <kw-search-row>
           <kw-search-item
             :label="$t('MSG_TXT_CANC_DT')"
           >
@@ -118,8 +118,6 @@
               @click-icon="onClickSearchPdCdPopup('E')"
             />
           </kw-search-item>
-        </kw-search-row>
-        <kw-search-row>
           <kw-search-item
             :label="$t('MSG_TXT_PKG_CD')"
           >
@@ -131,6 +129,8 @@
               v-model="searchParams.schPkgCdEnd"
             />
           </kw-search-item>
+        </kw-search-row>
+        <kw-search-row>
           <kw-search-item :label="t('MSG_TXT_OG_LEVL')">
             <zwog-level-select
               v-model:og-levl-dv-cd1="searchParams.ogLevl1"
@@ -588,6 +588,8 @@ async function openFeePerfCrtPopup() {
     perfYm: now.add(-1, 'month').format('YYYYMM'),
     ogTp: 'W02',
     dv: 'CR',
+    feeTcntDvCd: searchParams.value.schOrdr,
+    perfAgrgCrtDvCd: '201',
   };
   await modal({
     component: 'WwfeaOgNetOrderPerfAgrgRegP',
@@ -603,6 +605,8 @@ async function openFeePerfCnfmPopup() {
     perfYm: now.add(-1, 'month').format('YYYYMM'),
     ogTp: 'W02',
     dv: 'CO',
+    feeTcntDvCd: searchParams.value.schOrdr,
+    perfAgrgCrtDvCd: '201',
   };
   await modal({
     component: 'WwfeaOgNetOrderPerfAgrgRegP',
@@ -617,7 +621,9 @@ async function openFeePerfCnfmCanPopup() {
   const param = {
     perfYm: now.add(-1, 'month').format('YYYYMM'),
     ogTp: 'W02',
-    dv: 'CO',
+    dv: 'CC',
+    feeTcntDvCd: searchParams.value.schOrdr,
+    perfAgrgCrtDvCd: '201',
   };
   await modal({
     component: 'WwfeaOgNetOrderPerfAgrgRegP',
@@ -720,15 +726,15 @@ const initGrd1Main = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'blg', header: t('MSG_TXT_BLG'), width: '98' },
-    { fieldName: 'sequenceNumber', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '98' },
-    { fieldName: 'emplNm', header: t('MSG_TXT_EMPL_NM'), width: '98' },
+    { fieldName: 'blg', header: t('MSG_TXT_BLG'), width: '98', styleName: 'text-center' },
+    { fieldName: 'sequenceNumber', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '98', styleName: 'text-center' },
+    { fieldName: 'emplNm', header: t('MSG_TXT_EMPL_NM'), width: '98', styleName: 'text-center' },
     { fieldName: 'selType', header: t('MSG_TXT_SEL_TYPE'), width: '111.9', styleName: 'text-center' },
     { fieldName: 'pdctTp', header: t('MSG_TXT_PDCT_TP'), width: '72', styleName: 'text-center' },
-    { fieldName: 'prcTp', header: t('MSG_TXT_PRC_TP'), width: '110' },
-    { fieldName: 'chdvcTp', header: t('MSG_TXT_CHDVC_TP'), width: '110' },
-    { fieldName: 'fee', header: t('MSG_TXT_FEE') + t('MSG_TXT_PERF') + t('MSG_TXT_TYPE'), width: '110' },
-    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '110' },
+    { fieldName: 'prcTp', header: t('MSG_TXT_PRC_TP'), width: '110', styleName: 'text-center' },
+    { fieldName: 'chdvcTp', header: t('MSG_TXT_CHDVC_TP'), width: '110', styleName: 'text-center' },
+    { fieldName: 'fee', header: t('MSG_TXT_FEE') + t('MSG_TXT_PERF') + t('MSG_TXT_TYPE'), width: '110', styleName: 'text-center' },
+    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '110', styleName: 'text-center' },
     { fieldName: 'cstDv', header: t('MSG_TXT_CST_DV'), width: '188', styleName: 'text-center' },
     { fieldName: 'prdtNm', header: t('MSG_TXT_PRDT_NM'), width: '226.5', styleName: 'text-center' },
     { fieldName: 'prdtCode', header: t('MSG_TXT_PRDT_CODE'), width: '83.5', styleName: 'text-center' },

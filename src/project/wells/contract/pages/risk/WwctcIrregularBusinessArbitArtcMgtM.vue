@@ -57,16 +57,22 @@
         <kw-search-item :label="$t('MSG_TXT_RGNL_GRP')">
           <kw-input
             v-model="searchParams.rgrp"
+            maxlength="10"
           />
         </kw-search-item>
         <kw-search-item :label="t('MSG_TXT_BRANCH')">
-          <kw-input v-model="searchParams.brch" />
+          <kw-input
+            v-model="searchParams.brch"
+            maxlength="10"
+          />
         </kw-search-item>
         <kw-search-item :label="$t('MSG_TXT_EMP_SRCH')">
           <kw-input
             v-model="searchParams.dangOjPrtnrNo"
             icon="search_24"
             clearable
+            maxlength="10"
+            type="number"
             @click-icon="onClickOpenPartnerListPopup"
           />
         </kw-search-item>
@@ -246,6 +252,12 @@ async function onClickSave() {
   if (!await gridUtil.validate(view)) { return; }
 
   const changedRows = gridUtil.getChangedRowValues(view);
+  for (let i = 0; i < changedRows.length; i += 1) {
+    if (isEmpty(changedRows[i].dangOjPrtnrNoCheck) && changedRows[i].rowState === 'created') {
+      notify(t('MSG_ALT_EMPL_NO_NOT_REG'));
+      return;
+    }
+  }
   await dataService.post('/sms/wells/contract/risk-audits/irregular-sales-actions/managerial-tasks', changedRows);
 
   notify(t('MSG_ALT_SAVE_DATA'));
@@ -280,7 +292,6 @@ async function onGroupFind(dataRow) {
     });
     const resData = res.data;
     if ((!isEmpty(resData))) {
-      console.log(resData);
       view.setValue(dataRow, 'dangOjPrtnrNm', resData.prtnrKnm);
       view.setValue(dataRow, 'dangOjOgId', resData.ogCd);
       view.setValue(dataRow, 'dangOjPstnDvCd', resData.pstnDvCd);
@@ -291,6 +302,20 @@ async function onGroupFind(dataRow) {
       view.setValue(dataRow, 'bznsSpptPrtnrNo', resData.bizSpptPrtnrNo);
       view.setValue(dataRow, 'bznsSpptPrtnrNm', resData.bizSpptPrtnrNm);
       view.setValue(dataRow, 'ogTpCd', resData.ogTpCd);
+      view.setValue(dataRow, 'dangOjPrtnrNoCheck', resData.prtnrNo);
+    } else {
+      notify(t('MSG_ALT_NO_INFO_SRCH'));
+      view.setValue(dataRow, 'dangOjPrtnrNm', '');
+      view.setValue(dataRow, 'dangOjOgId', '');
+      view.setValue(dataRow, 'dangOjPstnDvCd', '');
+      view.setValue(dataRow, 'dgr1LevlDgPrtnrNo', '');
+      view.setValue(dataRow, 'dgr1LevlDgPrtnrNm', '');
+      view.setValue(dataRow, 'dgr2LevlDgPrtnrNo', '');
+      view.setValue(dataRow, 'dgr2LevlDgPrtnrNm', '');
+      view.setValue(dataRow, 'bznsSpptPrtnrNo', '');
+      view.setValue(dataRow, 'bznsSpptPrtnrNm', '');
+      view.setValue(dataRow, 'ogTpCd', '');
+      view.setValue(dataRow, 'dangOjPrtnrNoCheck', '');
     }
   }
 }
@@ -332,7 +357,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'fstRgstUsrId' },
     { fieldName: 'fstRgstDt' },
     { fieldName: 'ogTpCd' },
-
+    { fieldName: 'dangOjPrtnrNoCheck' },
   ];
 
   const columns = [
@@ -342,6 +367,7 @@ const initGrid = defineGrid((data, view) => {
       styleName: 'text-center rg-button-icon--search',
       button: 'action',
       rules: 'required',
+      editor: { inputCharacters: ['0-9'], maxLength: 10 },
       styleCallback(grid, dataCell) {
         return { editable: dataCell.item.rowState === 'created' };
       },
@@ -370,7 +396,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'dgr2LevlDgPrtnrNm', styleName: 'text-center', header: t('MSG_TXT_RGNL_GRP'), width: '129', editable: false }, // 지역단
     { fieldName: 'bznsSpptPrtnrNm', styleName: 'text-center', header: 'BM', width: '129', editable: false }, // BM
     { fieldName: 'dgr3LevlDgPrtnrNm', styleName: 'text-center', header: t('MSG_TXT_BRANCH'), width: '129', editable: false }, // 지점
-    { fieldName: 'dangChkNm', header: t('MSG_TXT_CHRGS'), width: '306', rules: 'required' }, // 부과내역
+    { fieldName: 'dangChkNm', header: t('MSG_TXT_CHRGS'), width: '306', rules: 'required', editor: { maxLength: 200 } }, // 부과내역
     { fieldName: 'dangArbitCd',
       header: t('MSG_TXT_ACTN_ITM'),
       width: '306',
@@ -378,7 +404,7 @@ const initGrid = defineGrid((data, view) => {
       editor: { type: 'list' },
       rules: 'required',
     },
-    { fieldName: 'dangUncvrCt', header: t('MSG_TXT_DUE_TRGT_NO'), width: '129', rules: 'required' },
+    { fieldName: 'dangUncvrCt', header: t('MSG_TXT_DUE_TRGT_NO'), width: '129', rules: 'required', editor: { inputCharacters: ['0-9'], maxLength: 12 } },
     { fieldName: 'dangArbitLvyPc',
       header: t('MSG_TXT_ACTN_TM_PNLTY_PNT'),
       width: '190',
@@ -450,15 +476,17 @@ const initGrid = defineGrid((data, view) => {
       notify(t('MSG_ALT_ACCESS_WHEN_REG_MODE'));
       return;
     }
-    const { payload } = await modal({
+    const { result, payload } = await modal({
       component: 'ZwogzPartnerListP',
       componentProps: {
         prtnrNo: g.getValues(itemIndex).dangOjPrtnrNo,
       },
     });
-    if (!isEmpty(payload)) {
+    if (result) {
       data.setValue(updateRow, 'dangOjPrtnrNo', payload.prtnrNo);
       data.setValue(updateRow, 'dangOcStrtmm', now.format('YYYYMM'));
+      onGroupFind(itemIndex);
+    } else {
       onGroupFind(itemIndex);
     }
   };
@@ -473,19 +501,21 @@ const initGrid = defineGrid((data, view) => {
         notify(t('MSG_ALT_ACCESS_WHEN_REG_MODE'));
         return;
       }
-      const { payload } = await modal({
+      const { result, payload } = await modal({
         component: 'ZwogzPartnerListP',
         componentProps: {
           prtnrNo: grid.getValues(itemIndex).dangOjPrtnrNo,
         },
       });
-      if (!isEmpty(payload)) {
+      if (result) {
         data.setValue(updateRow, 'dangOjPrtnrNo', payload.prtnrNo);
         const dateParam = grid.getValue(updateRow, 1);
         if (isEmpty(dateParam)) {
           grid.commit();
           data.setValue(updateRow, 'dangOcStrtmm', now.format('YYYYMM'));
         }
+        onGroupFind(itemIndex);
+      } else {
         onGroupFind(itemIndex);
       }
     }

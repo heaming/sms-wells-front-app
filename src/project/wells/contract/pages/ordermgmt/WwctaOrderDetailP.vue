@@ -284,6 +284,13 @@
         />
       </kw-tab-panel>
     </kw-tab-panels>
+    <template #action>
+      <kw-btn
+        :label="$t('MSG_BTN_CLOSE')"
+        primary
+        @click="onClickClose"
+      />
+    </template>
   </kw-popup>
 </template>
 
@@ -291,7 +298,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService, useGlobal, stringUtil } from 'kw-lib';
+import { useDataService, useGlobal, useModal, stringUtil } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import WwctaOrderDetailManagementInfDtlP from './WwctaOrderDetailManagementInfDtlP.vue';
 import WwctaOrderDetailDepositIzDtlP from './WwctaOrderDetailDepositIzDtlP.vue';
@@ -301,6 +308,7 @@ import WwctaOrderDetailCollectingAmountContactListP from './WwctaOrderDetailColl
 
 const dataService = useDataService();
 // const { t } = useI18n();
+const { cancel: onClickClose } = useModal();
 const { alert, modal } = useGlobal();
 const optionList = ref([]);
 const props = defineProps({

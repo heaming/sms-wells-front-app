@@ -33,6 +33,7 @@
       dense
       primary
       label="등록"
+      :disable="uploaded || !pageInfo.totalCount"
       @click="onClickConfirm"
     />
   </kw-action-top>
@@ -118,12 +119,13 @@ async function validate(row) {
 
 async function onClickExcelUpload() {
   grdData.value.clearRows();
+  pageInfo.value.totalCount = 0;
   uploaded.value = false;
   const { result, payload } = await modal({
     component: 'ZctzExcelUploadP',
     componentProps: {
       columns: gridDataModel.dataModelObject,
-      templateDocId: 'FOM_PROMISING_CUSTOMER_BATCH_UPLOAD',
+      templateDocId: 'FOM_RENTAL_CONTRACT_BATCH_UPLOAD',
       headerRows: 2,
       validationBtn: false,
       serverSideValidation: validate,

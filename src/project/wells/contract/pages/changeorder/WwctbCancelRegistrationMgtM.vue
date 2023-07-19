@@ -11,10 +11,6 @@
 ****************************************************************************************************
 - 취소등록
 - TODO : OZ 레포트 (거래명세서 보기)
-
-040621938
-040535842
-031005523
 ****************************************************************************************************
 --->
 <template>
@@ -56,7 +52,7 @@
               v-model="searchParams.dm"
               :label="$t('MSG_TXT_INQR_YM')"
               type="month"
-              required
+              rules="required"
             />
           </kw-search-item>
         </kw-search-row>
@@ -156,7 +152,7 @@
                 vertical
                 class="mx12 my8"
               />
-              <span class="kw-font-pt18 text-weight-medium">{{ cancelDetailList[idx].pdNm }}</span>
+              <span class="kw-font-pt18 text-weight-medium">{{ cancelDetailList[idx].pdNm }} {{ panelIdx }}</span>
             </div>
             <div class="row items-center">
               <kw-btn
@@ -189,131 +185,15 @@
           </div>
           <kw-separator class="mt20 mb0" />
 
-          <kw-list
-            separator
-            item-padding="20px 0"
-          >
-            <!-- 2. 계약자 정보 --------------------------------------------------------------------------->
-            <kw-expansion-item
-              padding-target="header"
-              expansion-icon-align="center"
-              expand-icon-class="kw-font-pt24"
-            >
-              <template #header>
-                <kw-item-section>
-                  <kw-item-label>
-                    <span class="text-weight-medium kw-font-pt18">2. {{ t('MSG_TXT_CNTRT_INF') }}</span>
-                  </kw-item-label>
-                </kw-item-section>
-              </template>
-              <div class="pb20">
-                <kw-form cols="4">
-                  <kw-form-row>
-                    <kw-form-item :label="$t('MSG_TXT_CST_NM')">
-                      <p>{{ cancelDetailList[idx].cntrCstKnm }}</p>
-                    </kw-form-item>
-                    <kw-form-item :label="$t('MSG_TXT_SLS_CAT')">
-                      <p>{{ cancelDetailList[idx].cntrGbn }}</p>
-                    </kw-form-item>
-                    <kw-form-item :label="$t('MSG_TXT_GNR_MNG')">
-                      <p>{{ cancelDetailList[idx].hooPrtnrNm }}({{ cancelDetailList[idx].hooPrtnrNo }})</p>
-                    </kw-form-item>
-                    <kw-form-item :label="$t('MSG_TXT_BLG')">
-                      <p>{{ cancelDetailList[idx].ogCd }}</p>
-                    </kw-form-item>
-                  </kw-form-row>
-                </kw-form>
-              </div>
-            </kw-expansion-item>
-
-            <!-- 3. 계약상품 --------------------------------------------------------------------------->
-            <kw-expansion-item
-              padding-target="header"
-              expansion-icon-align="center"
-              expand-icon-class="kw-font-pt24"
-            >
-              <template #header>
-                <kw-item-section>
-                  <kw-item-label>
-                    <span class="text-weight-medium kw-font-pt18">3. {{ t('MSG_TXT_CNTR_PD') }}</span>
-                  </kw-item-label>
-                </kw-item-section>
-              </template>
-              <div class="pb20">
-                <kw-form
-                  cols="4"
-                >
-                  <kw-form-row>
-                    <kw-form-item :label="$t('MSG_TXT_PD_INF')">
-                      <p>{{ cancelDetailList[idx].basePdCd }}</p>
-                    </kw-form-item>
-                    <kw-form-item :label="$t('MSG_TXT_DUTY')">
-                      <p>{{ cancelDetailList[idx].stplPtrm }}</p>
-                    </kw-form-item>
-                    <kw-form-item :label="$t('MSG_TXT_CNTR_DATE')">
-                      <p>{{ stringUtil.getDateFormat(cancelDetailList[idx].cntrCnfmDt) }}</p>
-                    </kw-form-item>
-                    <kw-form-item :label="$t('MSG_TXT_SL_DT')">
-                      <p>{{ stringUtil.getDateFormat(cancelDetailList[idx].cntrPdStrtdt) }}</p>
-                    </kw-form-item>
-                  </kw-form-row>
-                  <kw-separator />
-                  <kw-form-row>
-                    <kw-form-item :label="$t('MSG_TXT_REG_FEE')">
-                      <p>{{ stringUtil.getNumberWithComma(cancelDetailList[idx].cntrAmt??'') }}</p>
-                    </kw-form-item>
-                    <kw-form-item :label="$t('MSG_TXT_RGST_COST_DSC')">
-                      <p>{{ stringUtil.getNumberWithComma(cancelDetailList[idx].cntramDscAmt??'') }}</p>
-                    </kw-form-item>
-                    <kw-form-item :label="$t('MSG_TXT_RNTL_TOTAL')">
-                      <p>{{ stringUtil.getNumberWithComma(cancelDetailList[idx].cntrTam??'') }}</p>
-                    </kw-form-item>
-                    <kw-form-item :label="$t('MSG_TXT_NOM')+$t('MSG_TXT_RTLFE')">
-                      <p>({{ stringUtil.getNumberWithComma(cancelDetailList[idx].pdBaseAmt??'') }})</p>
-                    </kw-form-item>
-                  </kw-form-row>
-                  <kw-separator />
-                  <kw-form-row>
-                    <kw-form-item :label="$t('MSG_TXT_RENTAL')+$t('MSG_TXT_MCNT')+'/'+$t('MSG_TXT_AMT')">
-                      <p>
-                        {{ cancelDetailList[idx].cntrPtrm }}개월 /
-                        {{ stringUtil.getNumberWithComma(cancelDetailList[idx].fnlAmt??'') }}
-                      </p>
-                    </kw-form-item>
-                    <kw-form-item :label="$t('MSG_TXT_RENTAL')+' DC'">
-                      <p>{{ stringUtil.getNumberWithComma(cancelDetailList[idx].dscAmt??'') }}</p>
-                    </kw-form-item>
-                  </kw-form-row>
-                  <kw-separator />
-                  <kw-form-row>
-                    <kw-form-item :label="$t('MSG_TXT_RSTL')+$t('MSG_TXT_MCNT')">
-                      <p>{{ cancelDetailList[idx].rstlPtrm }}</p>
-                    </kw-form-item>
-                    <kw-form-item :label="$t('MSG_TXT_RSTL')+$t('MSG_TXT_DSC')">
-                      <p>{{ stringUtil.getNumberWithComma(cancelDetailList[idx].stplDscAmt??'') }}</p>
-                    </kw-form-item>
-                    <kw-form-item :label="$t('MSG_TXT_RSTL')+$t('MSG_TXT_PRD')">
-                      <p>
-                        {{ stringUtil.getDateFormat(cancelDetailList[idx].stplStrtdt) }}
-                        ~
-                        {{ stringUtil.getDateFormat(cancelDetailList[idx].stplEnddt) }}
-                      </p>
-                    </kw-form-item>
-                    <kw-form-item :label="$t('MSG_TXT_CNTRCT_AMT')">
-                      <p>{{ stringUtil.getNumberWithComma(cancelDetailList[idx].cntrTam??'') }}</p>
-                    </kw-form-item>
-                  </kw-form-row>
-                </kw-form>
-              </div>
-            </kw-expansion-item>
-          </kw-list>
-
           <component
             :is="detailPanels[panelIdx].panel"
-            ref="detailPanel"
+            :ref="(el) => panelsRefs = el"
+            :key="compKey"
             :child-detail="cancelDetailList[idx]"
+            @searchdetail="onSearchDetail"
             @savedetail="onSave"
             @removedetail="onDelete"
+            @update:model-value="onUpdateValue"
           />
         </slot>
       </div>
@@ -325,7 +205,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { getComponentType, gridUtil, stringUtil, useDataService, useGlobal } from 'kw-lib';
+import { getComponentType, gridUtil, stringUtil, useDataService, useGlobal, useMeta } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
 
@@ -333,27 +213,28 @@ import WwctbRentalCancelRegistrationMgtM from './WwctbRentalCancelRegistrationMg
 import WwctbRegularShippingCancelRegistrationMgtM from './WwctbRegularShippingCancelRegistrationMgtM.vue';
 import WwctbSinglePaymentCancelRegistrationMgtM from './WwctbSinglePaymentCancelRegistrationMgtM.vue';
 import WwctbMembershipCancelRegistrationMgtM from './WwctbMembershipCancelRegistrationMgtM.vue';
+import WwctbCancelRegistrationEmptyMgtM from './WwctbCancelRegistrationEmptyMgtM.vue';
 
 const { t } = useI18n();
 const { modal, alert, notify } = useGlobal();
 const dataService = useDataService();
+const { getUserInfo } = useMeta();
+const sessionUserInfo = getUserInfo();
 const grdMain = ref(getComponentType('KwGrid'));
 const grdMainView = computed(() => grdMain.value?.getView());
 
 const searchParams = ref({
   cntrNo: '', // 계약번호
   cntrSn: '', // 계약일련번호
+  cstNo: '', // 고객번호
   dm: '', // 조회년월
 });
-
 const totalCount = ref(0);
 const cachedParams = ref({});
-
-const idx = ref(0);
+const compKey = ref(0);
+const idx = ref(-1);
 const cancelDetailList = ref([]);
 
-const detailPanel = ref(); // 현금영수증 탭
-/// const panelIdx = computed(() => idx.value);
 const detailPanels = [
   {
     name: 'rental',
@@ -371,8 +252,15 @@ const detailPanels = [
     name: 'membership',
     panel: WwctbMembershipCancelRegistrationMgtM,
   },
+  {
+    name: 'empty',
+    panel: WwctbCancelRegistrationEmptyMgtM,
+  },
 ];
 
+// -------------------------------------------------------------------------------------------------
+// Function & Event
+// -------------------------------------------------------------------------------------------------
 function getPanelIdx(val) {
   switch (val) {
     case '1': return 2;
@@ -381,11 +269,30 @@ function getPanelIdx(val) {
     default: return 0;
   }
 }
+// const panelIdx = ref(0);
 const panelIdx = computed(() => getPanelIdx(cancelDetailList.value[idx.value].sellTpCd));
 
-// -------------------------------------------------------------------------------------------------
-// Function & Event
-// -------------------------------------------------------------------------------------------------
+function forceRender() {
+  panelIdx.value = getPanelIdx(cancelDetailList.value[idx.value].sellTpCd);
+  compKey.value += 1;
+}
+
+// 하위 아코디언 초기화
+function initAccordion() {
+  idx.value = -1;
+  cancelDetailList.value.splice(0, cancelDetailList.value.length);
+}
+
+async function fetchData() {
+  if (isEmpty(cachedParams.value)) return;
+
+  const res = await dataService.get('/sms/wells/contract/changeorder/cancel-base-infos', { params: { ...cachedParams.value } });
+
+  totalCount.value = res.data.length;
+  grdMainView.value.getDataSource().setRows(res.data.map((obj) => ({ ...obj, bulkApplyYN: 'N' })));
+  grdMainView.value.getDataSource().checkRowStates(false);
+}
+
 async function onClickSearchCst() {
   const { result, payload } = await modal({
     component: 'ZwcsaCustomerListP',
@@ -395,21 +302,44 @@ async function onClickSearchCst() {
   }
 }
 
-function setGridCheckandSelect(row, isCheck) {
-  grdMainView.value.setValue(row, 'isAdded', isCheck ? 'Y' : '');
+// summary > 좌/우 이동 클릭
+async function onClickMove(pDiv) {
+  if (pDiv === 'L') {
+    idx.value = (idx.value > 0) ? (idx.value - 1) : idx.value;
+  } else {
+    idx.value = (idx.value < cancelDetailList.value.length) ? (idx.value + 1) : idx.value;
+  }
+
+  forceRender();
+}
+
+async function setGridCheckandSelect(row, isCheck) {
+  grdMainView.value.setValue(row, 'disableChk', isCheck ? 'Y' : 'N');
   grdMainView.value.setCheckable(row, !isCheck);
 
+  // 추가
   if (isCheck) {
     if (cancelDetailList.value.findIndex((v) => v.cntrNo === grdMainView.value.getValue(row, 'cntrNo') && v.cntrSn === grdMainView.value.getValue(row, 'cntrSn')) >= 0) {
-      notify(`${grdMainView.value.getValue(row, 'cntrNo')}-${grdMainView.value.getValue(row, 'cntrSn')}은 이미 등록되었습니다.`);
-    } else {
-      cancelDetailList.value.push(grdMainView.value.getValues(row));
+      await notify(`${grdMainView.value.getValue(row, 'cntrNo')}-${grdMainView.value.getValue(row, 'cntrSn')}은 이미 등록되었습니다.`);
+      return;
     }
-  } else {
-    const isLast = ((idx.value + 1) === cancelDetailList.value.length);
-    cancelDetailList.value.splice(idx.value, 1);
 
+    cancelDetailList.value.push(grdMainView.value.getValues(row));
+    if (idx.value < 0) {
+      idx.value = 0;
+      panelIdx.value = getPanelIdx(cancelDetailList.value[0].sellTpCd);
+    }
+
+  // 삭제
+  } else {
+    const targetIdx = cloneDeep(idx.value);
+    const isLast = ((targetIdx + 1) === cancelDetailList.value.length);
     if (isLast) {
+      await onClickMove('L');
+      cancelDetailList.value.splice(targetIdx, 1);
+    } else {
+      await onClickMove('R');
+      cancelDetailList.value.splice(targetIdx, 1);
       idx.value += -1;
     }
   }
@@ -422,8 +352,12 @@ function onClickRegistCancel() {
     return;
   }
 
+  if (cancelDetailList.value.length === 1 && cancelDetailList.value[0].cancelStatNm === '취소등록') {
+    initAccordion();
+  }
+
   grdMainView.value.getCheckedRows().forEach((i) => {
-    if (grdMainView.value.getValue(i, 'isAdded') === 'Y') {
+    if (grdMainView.value.getValue(i, 'disableChk') === 'Y') {
       return true;
     }
 
@@ -432,6 +366,8 @@ function onClickRegistCancel() {
   });
 
   grdMainView.value.setAllCheck(false);
+
+  forceRender();
 }
 
 // 1. 계약리스트 > 거래명세서 보기 클릭
@@ -453,43 +389,115 @@ function onClickVirtualAccountView() {
   notify('TODO : 거래명세서 OZ뷰 호출 ');
 }
 
-// summary > 좌/우 이동 클릭
-function onClickMove(pDiv) {
-  if (pDiv === 'L') {
-    idx.value = (idx.value > 0) ? (idx.value - 1) : idx.value;
-  } else {
-    idx.value = (idx.value < cancelDetailList.value.length) ? (idx.value + 1) : idx.value;
+// 취소사항 조회 클릭
+async function onSearchDetail(subParam) {
+  const { cntrNo, cntrSn, sellTpCd } = cancelDetailList.value[idx.value];
+  const res = await dataService.get('/sms/wells/contract/changeorder/breach-promises', { params: {
+    cntrNo, cntrSn, sellTpCd, ...subParam },
+  });
+
+  if (isEmpty(res.data)) {
+    alert(t('MSG_TXT_NO_DATA_FOUND'));
+    return;
   }
+
+  res.data.isSearch = 'Y';
+  res.data.slCtrRqrId = sessionUserInfo.userId; // 조정자 사번 셋팅
+  Object.assign(cancelDetailList.value[idx.value], res.data);
 }
 
-async function onSave(param) {
-  console.log('onSave');
-
-  // 취소등록 정보 일괄적용 : 같은 판매유형의 취소등록건의 정보를 일괄적용
-  if (param.bulkApplyYN === 'Y') {
-    if (cancelDetailList.value.findIndex((v) => v.sellTpCd !== param.sellTpCd) >= 0) {
-      notify('다른유형 존재');
-    } else {
-      notify('취소등록 정보 일괄적용 : 같은 판매유형의 취소등록건의 정보를 일괄적용하여 처리 합니다.');
-    }
-  }
-}
-
+// 취소 클릭
 async function onDelete() {
   const { cntrNo, cntrSn } = cancelDetailList.value[idx.value];
   const row = gridUtil.findDataRow(grdMainView.value, (e) => ((e.cntrNo === cntrNo) && (e.cntrSn === cntrSn)));
 
   setGridCheckandSelect(row, false);
+
+  forceRender();
 }
 
-async function fetchData() {
-  if (isEmpty(cachedParams.value)) return;
+// 저장 클릭
+async function onSave() {
+  let saveList = [];
+  const param = cancelDetailList.value[idx.value];
 
-  const res = await dataService.get('/sms/wells/contract/changeorder/cancel-base-infos', { params: { ...cachedParams.value } });
+  // 취소등록 정보 일괄적용 : 같은 판매유형의 취소등록건의 정보를 일괄적용
+  if (param.bulkApplyYN === 'Y') {
+    if (cancelDetailList.value.findIndex((v) => v.sellTpCd !== param.sellTpCd) >= 0) {
+      await notify('동일한 판매유형의 상품만 취소 일괄적용이 됩니다.');
+      return;
+    }
 
-  totalCount.value = res.data.length;
-  grdMainView.value.getDataSource().setRows(res.data.map((obj) => ({ ...obj, bulkApplyYN: 'N' })));
-  grdMainView.value.getDataSource().checkRowStates(false);
+    const inValidIdx = cancelDetailList.value.findIndex((v) => v.isSearch !== 'Y');
+    if (inValidIdx >= 0) {
+      await notify(`[${inValidIdx + 1}]번째 - 취소사항 조회를 해주세요.`);
+      return;
+    }
+
+    // 일괄 등록 시, 공통으로 적용할 파라미터 셋팅
+    cancelDetailList.value.forEach((element) => {
+      element.canCtrAmt = param.canCtrAmt;
+      element.slCtrRqrId = param.slCtrRqrId;
+      element.slCtrRmkCn = param.slCtrRmkCn;
+      element.cntrStatChRsonCd = param.cntrStatChRsonCd;
+      element.ccamExmptDvCd = param.ccamExmptDvCd;
+      element.csmbCsExmptDvCd = param.csmbCsExmptDvCd;
+      element.reqdCsExmptDvCd = param.reqdCsExmptDvCd;
+      element.reqdAkRcvryDvCd = param.reqdAkRcvryDvCd;
+    });
+
+    saveList = cancelDetailList.value;
+  } else {
+    if (param.isSearch !== 'Y') {
+      await notify('취소사항 조회를 해주세요.');
+      return;
+    }
+
+    saveList.push(param);
+  }
+
+  console.log(saveList);
+
+  // call service
+  await dataService.post('/sms/wells/contract/changeorder/cancel-registrations', saveList);
+  await notify(t('MSG_ALT_SAVE_DATA'));
+
+  // 하위 초기화
+  initAccordion();
+
+  await fetchData();
+}
+
+async function onUpdateValue() {
+  // console.log(param);
+  console.log(cancelDetailList.value);
+}
+
+async function getCanceledInfo(cntrNo, cntrSn) {
+  const { dm } = searchParams.value;
+  const res = await dataService.get('/sms/wells/contract/changeorder/cancel-infos', { params: { cntrNo, cntrSn, dm } });
+
+  if (isEmpty(res.data)) {
+    await notify(t('MSG_TXT_NO_DATA_FOUND'));
+    return;
+  }
+
+  // 그리드 체크 초기화
+  if (cancelDetailList.value.length > 0) {
+    grdMainView.value.getDataSource().getRows().forEach((item, i) => {
+      if (grdMainView.value.getValue(i, 'disableChk') === 'Y' && grdMainView.value.getValue(i, 'cancelStatNm') !== '취소등록') {
+        grdMainView.value.setValue(i, 'disableChk', 'N');
+      }
+    });
+
+    initAccordion();
+  }
+
+  res.data.bulkApplyYN = 'N';
+  cancelDetailList.value.push(res.data);
+  idx.value = 0;
+
+  forceRender();
 }
 
 async function onClickSearch() {
@@ -500,14 +508,20 @@ async function onClickSearch() {
     await alert(t('MSG_ALT_SRCH_CNDT_NEED_ONE_AMONG', [`${t('MSG_TXT_CNTR_DTL_NO')}, ${t('MSG_TXT_CST_NO')}`]));
     return false;
   }
+
+  initAccordion();
   cachedParams.value = cloneDeep(searchParams.value);
 
   await fetchData();
 }
 
-onMounted(() => {
-  // onClickSearch();
+watch(idx, (val) => {
+  console.log(`!! watch!! idx.value : ${val}`);
 
+  if (!isEmpty(cancelDetailList.value)) {
+    panelIdx.value = getPanelIdx(cancelDetailList.value[val].sellTpCd);
+    console.log(`!! watch!! panelIdx.value : ${panelIdx.value}`);
+  }
 });
 
 // -------------------------------------------------------------------------------------------------
@@ -516,69 +530,113 @@ onMounted(() => {
 
 function initGrid(data, view) {
   const columns = [
-    { fieldName: 'sellTpNm', header: t('MSG_TXT_SEL_TYPE'), width: '100', styleName: 'text-center' }, // [판매유형]
-    { fieldName: 'cntrCnfmDt', header: t('MSG_TXT_CNTRCT_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd' }, // [계약일]
+    { fieldName: 'cancelStatNm', header: t('MSG_TXT_CANCEL') + t('MSG_TXT_STT'), width: '100', styleName: 'text-center' }, // [취소상태]
+    { fieldName: 'sellTpNm', header: t('MSG_TXT_SEL_TYPE'), width: '88', styleName: 'text-center' }, // [판매유형]
+    { fieldName: 'cntrCnfmDt', header: t('MSG_TXT_CNTRCT_DT'), width: '88', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd' }, // [계약일]
     { fieldName: 'cntrNoSn',
       header: t('MSG_TXT_CNTR_DTL_NO'),
       width: '120',
       styleName: 'text-center',
       displayCallback: (g, i) => `${g.getValue(i.itemIndex, 'cntrNo')}-${g.getValue(i.itemIndex, 'cntrSn')}`,
     }, // [계약상세번호]
-    { fieldName: 'copnDvNm', header: t('MSG_TXT_CNTRT_TP'), width: '100', styleName: 'text-center' }, // [계약자유형]
-    { fieldName: 'cntrCstNo', header: t('MSG_TXT_CST_NO'), width: '100', styleName: 'text-center' }, // [고객번호]
-    { fieldName: 'cntrCstKnm', header: t('MSG_TXT_CST_NM'), width: '120', styleName: 'text-center' }, // [고객명]
-    { fieldName: 'npdAmt', header: t('MSG_TXT_NPD_AMT'), width: '100', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'copnDvNm', header: t('MSG_TXT_CNTRT_TP'), width: '88', styleName: 'text-center' }, // [계약자유형]
+    { fieldName: 'cntrCstNo', header: t('MSG_TXT_CST_NO'), width: '88', styleName: 'text-center' }, // [고객번호]
+    { fieldName: 'cntrCstKnm', header: t('MSG_TXT_CST_NM'), width: '100', styleName: 'text-center' }, // [고객명]
+    { fieldName: 'eotUcAmt', header: t('MSG_TXT_NPD_AMT'), width: '88', styleName: 'text-right', dataType: 'number' },
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '270' }, // [상품명]
     { fieldName: 'cntrGbn', visible: false },
-    { fieldName: 'hooPrtnrNm', visible: false },
-    { fieldName: 'hooPrtnrNo', visible: false },
-    { fieldName: 'ogCd', visible: false },
-    { fieldName: 'basePdCd', visible: false },
-    { fieldName: 'stplPtrm', visible: false },
-    { fieldName: 'cntrPdStrtdt', visible: false },
-    { fieldName: 'cntrAmt', visible: false },
-    { fieldName: 'cntramDscAmt', visible: false },
-    { fieldName: 'cntrTam', visible: false },
-    { fieldName: 'pdBaseAmt', visible: false },
-    { fieldName: 'cntrPtrm', visible: false },
-    { fieldName: 'fnlAmt', visible: false },
-    { fieldName: 'dscAmt', visible: false },
-    { fieldName: 'rstlPtrm', visible: false },
-    { fieldName: 'stplDscAmt', visible: false },
-    { fieldName: 'stplStrtdt', visible: false },
-    { fieldName: 'stplEnddt', visible: false },
-    { fieldName: 'nomSlAmt', visible: false },
-    { fieldName: 'rentalDc', visible: false },
-    { fieldName: 'slDc', visible: false },
-    { fieldName: 'chgDt', visible: false },
-    { fieldName: 'spmtSlAmt', visible: false },
-    { fieldName: 'nomDscAmt', visible: false },
-    { fieldName: 'canAtrAmt', visible: false },
-    { fieldName: 'addSrv', visible: false },
-    { fieldName: 'spmtDscAmt', visible: false },
-    { fieldName: 'slCtrAmt', visible: false },
-    { fieldName: 'thmSlSumAmt', visible: false },
-    { fieldName: 'slSumVat', visible: false },
-    { fieldName: 'slAggAmt', visible: false },
-    { fieldName: 'thmPaiamAmt', visible: false },
-    { fieldName: 'thmSrvAmt', visible: false },
-    { fieldName: 'eotPcamBlam', visible: false },
-    { fieldName: 'btdDlqAddAmt', visible: false },
-    { fieldName: 'thmDlqAddDpSumAmt', visible: false },
-    { fieldName: 'thmDlqAddRfndSumAmt', visible: false },
-    { fieldName: 'eotDlqAmt', visible: false },
+    { fieldName: 'hooPrtnrNm', visible: false }, // [본부장명]
+    { fieldName: 'hooPrtnrNo', visible: false }, // [본부장사번]
+    { fieldName: 'ogCd', visible: false }, // [소속]
+    { fieldName: 'basePdCd', visible: false }, // [상품코드]
+    { fieldName: 'stplPtrm', visible: false }, // [의무기간]
+    { fieldName: 'cntrPdStrtdt', visible: false }, // [매출년월 - 설치일자생성 시 들어감]
+    { fieldName: 'cntrAmt', visible: false }, // [등록비]
+    { fieldName: 'cntramDscAmt', visible: false }, // [등록비 할인]
+    { fieldName: 'cntrTam', visible: false }, // [약총액]
+    { fieldName: 'pdBaseAmt', visible: false }, // [정상렌탈료]
+    { fieldName: 'cntrPtrm', visible: false }, // [렌탈개월]
+    { fieldName: 'fnlAmt', visible: false }, // [렌탈금액]
+    { fieldName: 'dscAmt', visible: false }, // [렌탈할인금액]
+    { fieldName: 'rstlPtrm', visible: false }, // [재약정개월]
+    { fieldName: 'stplDscAmt', visible: false }, // [재약정할인금액]
+    { fieldName: 'stplStrtdt', visible: false }, // [재약정기간 FROM]
+    { fieldName: 'stplEnddt', visible: false }, // [재약정기간 TO]
+    { fieldName: 'nomSlAmt', visible: false }, // [정상매출]
+    { fieldName: 'rentalDc', visible: false }, // [렌탈일수]
+    { fieldName: 'slDc', visible: false }, // [매출일수]
+    { fieldName: 'chgDt', visible: false }, // [교체일자]
+    { fieldName: 'spmtSlAmt', visible: false }, // [추가매출]
+    { fieldName: 'nomDscAmt', visible: false }, // [정상할인]
+    { fieldName: 'canAtrAmt', visible: false }, // [취소조정금액]
+    { fieldName: 'addSrv', visible: false }, // [부가서비스]
+    { fieldName: 'spmtDscAmt', visible: false }, // [추가할인]
+    { fieldName: 'slCtrAmt', visible: false }, // [매출조정금액]
+    { fieldName: 'thmSlSumAmt', visible: false }, // [매출금액]
+    { fieldName: 'slSumVat', visible: false }, // [매출VAT]
+    { fieldName: 'slAggAmt', visible: false }, // [매출누계]
+    { fieldName: 'dscAggAmt', visible: false }, // [할인누계]
+    { fieldName: 'ctrAggAmt', visible: false }, // [조정누계금액]
+    { fieldName: 'thmPaiamAmt', visible: false }, // [당월원리금 - 등록때는 없음]
+    { fieldName: 'thmSrvAmt', visible: false }, // [당월서비스 - 등록때는 없음]
+    { fieldName: 'eotPcamBlam', visible: false }, // [매출잔액]
+    { fieldName: 'addAmt', visible: false }, // [정기배송기기 - 추가]
+    { fieldName: 'machineRentalAmt', visible: false }, // [정기배송 기기 렌탈료]
+    { fieldName: 'recoverAmt', visible: false }, // [정기배송기기 원복 ]
+    { fieldName: 'machineNm', visible: false }, // []
+    { fieldName: 'lsnt', visible: false }, // [분실손료]
+    { fieldName: 'sellAmt', visible: false },
     { fieldName: 'sellTpCd', visible: false },
     { fieldName: 'cntrNo', visible: false },
     { fieldName: 'cntrSn', visible: false },
-    { fieldName: 'isAdded', width: '30' },
-    { fieldName: 'bulkApplyYN', width: '30' },
+    { fieldName: 'sellTpDtlCd', visible: false },
+    { fieldName: 'sellTpDtlNm', visible: false },
+    { fieldName: 'pkgYn', visible: false },
+    { fieldName: 'cntrRcpDt', visible: false },
+    { fieldName: 'cntrDtlStatCd', visible: false },
+    { fieldName: 'cntrPdEnddt', visible: false },
+    { fieldName: 'rentalTn', visible: false },
+    { fieldName: 'sppTn', visible: false },
+    { fieldName: 'svPrd', visible: false },
+    { fieldName: 'svPdTpNm', visible: false },
+    { fieldName: 'stlmTpNm', visible: false },
+    { fieldName: 'sppDuedt', visible: false },
+    { fieldName: 'bulkApplyYN', visible: false },
+    { fieldName: 'disableChk', visible: false },
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
+  /*
+chgDt
+spmtSlAmt
+nomDscAmt
+canAtrAmt
+addSrv
+spmtDscAmt
+slCtrAmt
+thmSlSumAmt
+slSumVat
+slAggAmt
+dscAggAmt
+ctrAggAmt
+thmPaiamAmt
+thmSrvAmt
+eotPcamBlam
+쓰이는곳 찾아볼것
+*/
 
   data.setFields(fields);
   view.setColumns(columns);
   view.checkBar.visible = true;
   view.rowIndicator.visible = true;
+  view.setCheckableExpression("(value['disableChk']<>'Y')", true);
+
+  // click button
+  view.onCellClicked = async (g, clickData) => {
+    const { cntrNo, cntrSn, cntrDtlStatCd } = g.getValues(clickData.dataRow);
+    if (cntrDtlStatCd.indexOf('3') === 0) {
+      await getCanceledInfo(cntrNo, cntrSn);
+    }
+  };
 }
 </script>
 

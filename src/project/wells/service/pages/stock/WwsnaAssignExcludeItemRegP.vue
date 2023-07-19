@@ -66,7 +66,7 @@
           v-model:page-size="pageInfo.pageSize"
           :total-count="pageInfo.totalCount"
           :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
-          @change="fetchData(false)"
+          @change="fetchData"
         />
       </template>
       <kw-btn
@@ -88,7 +88,7 @@
       v-model:page-index="pageInfo.pageIndex"
       v-model:page-size="pageInfo.pageSize"
       :total-count="pageInfo.totalCount"
-      @change="fetchData(false)"
+      @change="fetchData"
     />
   </kw-popup>
 </template>
@@ -158,10 +158,7 @@ function onChangeAsnExcdDvCd() {
   }
 }
 
-let isSearch;
-async function fetchData(isSrh) {
-  isSearch = isSrh;
-
+async function fetchData() {
   const res = await dataService.get('/sms/wells/service/assign-exclude-items/paging', { params: { ...cachedParams, ...pageInfo.value } });
   const { list: excludeItem, pageInfo: pagingResult } = res.data;
   pagingResult.needTotalCount = false;
@@ -178,29 +175,51 @@ async function onClickSearch() {
   pageInfo.value.pageIndex = 1;
   pageInfo.value.needTotalCount = true;
   cachedParams = cloneDeep(searchParams.value);
-  await fetchData(true);
+  await fetchData();
 }
 
 async function onClickSave() {
   const gridView = grdMainRef.value.getView();
+  // 신규 등록할 데이터
   const checkedRows = gridUtil.getCheckedRowValues(gridView);
-  if (isEmpty(checkedRows)) {
-    notify(t('MSG_ALT_SAV_SEL_DATA'));
+  const createdRows = checkedRows.filter((item) => {
+    if (item.orgChk === 'N' && item.chk === 'Y') {
+      return true;
+    }
+    return false;
+  });
+
+  // 삭제할 데이터
+  const allRows = gridUtil.getAllRowValues(gridView);
+  const deletedRows = allRows.filter((item) => {
+    if (item.orgChk === 'Y' && item.chk === 'N') {
+      return true;
+    }
+    return false;
+  });
+
+  if (isEmpty(createdRows) && isEmpty(deletedRows)) {
+    notify(t('MSG_ALT_NO_CHG_CNTN'));
     return;
   }
 
-  // 배정제외 품목을 등록하기 전에 조회조건에 해당하는 데이터를 삭제함으로 최초 조회인 경우만 삭제처리함.
-  if (isSearch) {
+  let count = 0;
+  if (!isEmpty(deletedRows)) {
     // 삭제처리
-    await dataService.delete('/sms/wells/service/assign-exclude-items', { data: cachedParams });
+    const res = await dataService.delete('/sms/wells/service/assign-exclude-items', { data: [...deletedRows] });
+    const { processCount } = res.data;
+    count += processCount;
   }
 
-  const res = await dataService.post('/sms/wells/service/assign-exclude-items', checkedRows);
+  if (!isEmpty(createdRows)) {
+    const res = await dataService.post('/sms/wells/service/assign-exclude-items', createdRows);
+    const { processCount } = res.data;
+    count += processCount;
+  }
 
-  const { processCount } = res.data;
-  if (processCount > 0) {
+  if (count > 0) {
     notify(t('MSG_ALT_SAVE_DATA'));
-    await fetchData(false);
+    await fetchData();
   }
 }
 
@@ -225,6 +244,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'asnExcdDvNm' },
     { fieldName: 'strWareNo' },
     { fieldName: 'chk', dataType: 'text', booleanFormat: 'N:Y' },
+    { fieldName: 'orgChk' },
   ];
 
   const columns = [

@@ -36,11 +36,15 @@
           :label="t('MSG_TXT_CNTR_DTL_NO')"
         >
           <!-- label="계약상세번호" -->
-          <kw-input
+          <!-- <kw-input
             v-model="searchParams.cntr"
             icon="search"
             clearable
             @click-icon="onClickSelectCntr"
+          /> -->
+          <zctz-contract-detail-number
+            v-model:cntr-no="searchParams.cntrNo"
+            v-model:cntr-sn="searchParams.cntrSn"
           />
         </kw-search-item>
         <kw-search-item
@@ -136,7 +140,8 @@
 
 import dayjs from 'dayjs';
 import { codeUtil, defineGrid, getComponentType, gridUtil, alert, notify, modal, useDataService, useMeta } from 'kw-lib';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, isEmpty } from 'lodash-es';
+import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
 
 const dataService = useDataService();
 const now = dayjs();
@@ -174,6 +179,8 @@ async function fetchData() {
   const res = await dataService.get('/sms/wells/withdrawal/idvrve/auto-prepayment-discount-exclude/paging', { params: cachedParams });
   const { list: pages, pageInfo: pagingResult } = res.data;
 
+  console.log(res.data);
+
   pageInfo.value = pagingResult;
 
   const view = grdMainRef.value.getView();
@@ -191,8 +198,14 @@ async function onClickSearch() {
 
   pageInfo.value.pageIndex = 1;
 
-  searchParams.value.cntrNo = searchParams.value.cntr.substring(0, 12);
-  searchParams.value.cntrSn = searchParams.value.cntr.substring(12);
+  if ((searchParams.value.prmDscExcdStrtYm > searchParams.value.prmDscExcdEndYm)
+  && (!isEmpty(searchParams.value.prmDscExcdStrtYm) && !isEmpty(searchParams.value.prmDscExcdEndYm))) {
+    await alert(t('제외시작월이 제외종료월보다 클 수 없습니다.')); // TODO: 메시지 자원 변경가능성 있음
+    return;
+  }
+
+  // searchParams.value.cntrNo = searchParams.value.cntr.substring(0, 12);
+  // searchParams.value.cntrSn = searchParams.value.cntr.substring(12);
 
   cachedParams = cloneDeep(searchParams.value);
 
@@ -250,14 +263,6 @@ async function onClickSave() {
 
   const changedRows = gridUtil.getChangedRowValues(view);
 
-  // for (let index = 0; index < changedRows.length; index += 1) {
-  //   if (changedRows[index].prmDscExcdStrtYm > changedRows[index].prmDscExcdEndYm) {
-  //     alert(t('MSG_ALT_ABLE_START_DT_PREC_FINS_DT'));
-  //     // await alert(t('시작일자가 종료일자 보다 클 수 없습니다.'));
-  //     return;
-  //   }
-  // }
-
   await dataService.post('/sms/wells/withdrawal/idvrve/auto-prepayment-discount-exclude', changedRows);
 
   notify(t('MSG_ALT_SAVE_DATA'));
@@ -283,16 +288,16 @@ async function onClickRemove() {
 }
 
 // 계약상세번호 조회
-async function onClickSelectCntr() {
-  const { result, payload } = await modal({ component: 'WwctaContractNumberListP',
-    // componentProps: { cntrNo: searchParams.value.cntrNo },
-  });
-  if (result) {
-    searchParams.value.cntr = payload.cntrNo + payload.cntrSn;
-    searchParams.value.cntrNo = payload.cntrNo;
-    searchParams.value.cntrSn = payload.cntrSn;
-  }
-}
+// async function onClickSelectCntr() {
+//   const { result, payload } = await modal({ component: 'WwctaContractNumberListP',
+//     // componentProps: { cntrNo: searchParams.value.cntrNo },
+//   });
+//   if (result) {
+//     searchParams.value.cntr = payload.cntrNo + payload.cntrSn;
+//     searchParams.value.cntrNo = payload.cntrNo;
+//     searchParams.value.cntrSn = payload.cntrSn;
+//   }
+// }
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
@@ -328,10 +333,17 @@ const initGrid = defineGrid((data, view) => {
         // text: '계약상세번호',
         styleName: 'essential',
       },
-      width: '150',
-      styleName: 'text-left rg-button-icon--search',
+      width: '180',
+      styleName: 'text-center rg-button-icon--search',
       button: 'action',
       editable: false,
+      displayCallback(g, index) {
+        const { cntrNo, cntrSn } = g.getValues(index.itemIndex);
+        if (isEmpty(cntrNo) || isEmpty(cntrSn)) {
+          return '';
+        }
+        return `${cntrNo}-${cntrSn}`;
+      },
       buttonVisibleCallback(grid, index) {
         return grid.getDataSource().getRowState(index.dataRow) === 'created';
       },
@@ -340,7 +352,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'cstKnm',
       header: t('MSG_TXT_CST_NM'),
       width: '100',
-      styleName: 'text-left',
+      styleName: 'text-center',
       editable: false },
     { fieldName: 'sellTpCd',
       header: t('MSG_TXT_SEL_TYPE'),
@@ -359,7 +371,7 @@ const initGrid = defineGrid((data, view) => {
       header: t('MSG_TXT_PRDT_NM'),
       // , header: '상품명'
       width: '200',
-      styleName: 'text-left',
+      styleName: 'text-center',
       editable: false },
     {
       fieldName: 'prmDscExcdStrtYm',
@@ -411,10 +423,10 @@ const initGrid = defineGrid((data, view) => {
       width: '100',
       styleName: 'text-right',
       editable: false },
-    { fieldName: 'fstRgstDtm', header: t('MSG_TXT_RGST_DTM'), width: '150', styleName: 'text-center', editable: false },
+    { fieldName: 'fstRgstDtm', header: t('MSG_TXT_RGST_DTM'), width: '200', styleName: 'text-center', editable: false },
     { fieldName: 'fstRgstUsrNm', header: t('MSG_TXT_FST_RGST_USR'), width: '70', styleName: 'text-left', editable: false },
     { fieldName: 'fstRgstUsrId', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '88', styleName: 'text-center', editable: false },
-    { fieldName: 'fnlMdfcDtm', header: t('MSG_TXT_MDFC_DTM'), width: '150', styleName: 'text-center', editable: false },
+    { fieldName: 'fnlMdfcDtm', header: t('MSG_TXT_MDFC_DTM'), width: '200', styleName: 'text-center', editable: false },
     { fieldName: 'fnlMdfcUsrNm', header: t('MSG_TIT_MDFC_USR'), width: '70', styleName: 'text-left', editable: false },
     { fieldName: 'fnlMdfcUsrId', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '88', styleName: 'text-center', editable: false },
   ];

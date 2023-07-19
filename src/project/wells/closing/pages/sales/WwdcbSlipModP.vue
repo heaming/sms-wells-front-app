@@ -140,7 +140,7 @@ const initGrdDetail = defineGrid((data, view) => {
     { fieldName: 'sellTpDtlCd', header: t('MSG_TXT_SELL_TP_DTL'), width: '120', styleName: 'text-center', options: codes.SELL_TP_DTL_CD },
     { fieldName: 'sapAlrpySlpno', header: t('MSG_TXT_ALRPY_SLIP_NO'), width: '120', styleName: 'text-center' },
     { fieldName: 'slBndAlrpyAmt', header: t('MSG_TXT_BND_ALRPY_AMT'), width: '120', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'bktxt', header: t('MSG_TXT_SMRY'), width: '484', styleName: 'text-left' },
+    { fieldName: 'bktxt', header: t('MSG_TXT_SMRY'), width: '400', styleName: 'text-left' },
 
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));

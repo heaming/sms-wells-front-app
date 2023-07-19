@@ -2,14 +2,14 @@
 ****************************************************************************************************
 * 프로그램 개요
 ****************************************************************************************************
-1. 모듈 : CMA
+1. 모듈 : SNA (재고관리)
 2. 프로그램 ID : WwsnaMaterialsAssignStockMgtM - 물량배정 입고창고관리(W-SV-U-0125M01)
 3. 작성자 : inho.choi
 4. 작성일 : 2023.01.25
 ****************************************************************************************************
 * 프로그램 설명
 ****************************************************************************************************
-- 물량배정 입고창고 정보 조회 (사번/이름/소속/빌딩/상위창고)
+- 물량배정 입고창고 정보 조회 (사번/이름/소속/빌딩/상위창고) (http://localhost:3000/#/service/wwsna-materials-assign-stock-mgt)
 ****************************************************************************************************
 --->
 <template>
@@ -17,14 +17,17 @@
     <kw-search
       :cols="3"
       @search="onClickSearch"
-      @reset="searchDefaultCondition"
     >
       <kw-search-row>
         <!-- 기준년월 -->
-        <kw-search-item :label="$t('MSG_TXT_BASE_YM')">
+        <kw-search-item
+          :label="$t('MSG_TXT_BASE_YM')"
+          required
+        >
           <kw-date-picker
             v-model="searchParams.baseYm"
             type="month"
+            rules="required"
           />
         </kw-search-item>
         <!-- //기준년월 -->
@@ -37,11 +40,13 @@
           v-model:ware-no-d="searchParams.wareNo"
           name="wareSearchGroup"
           :colspan="2"
-          :label1="$t('MSG_TXT_STR_DT')"
-          :label2="$t('MSG_TXT_WARE')"
+          :label1="$t('MSG_TXT_WARE')"
+          :label2="$t('MSG_TXT_WARE_DV')"
           :label3="$t('MSG_TXT_HGR_WARE')"
           :label4="$t('MSG_TXT_WARE')"
           sub-first-option="all"
+          @update:ware-no-m="onChagneWareHgrNo"
+          @update:ware-no-d="onChangeWareNo"
         />
       </kw-search-row>
       <kw-search-row>
@@ -49,7 +54,7 @@
         <kw-search-item :label="$t('MSG_TXT_WARE_DTL_DV')">
           <kw-select
             v-model="searchParams.wareDtlDvCd"
-            :options="codes.WARE_DTL_DV_CD"
+            :options="filterCodes.wareDtlDvCd"
             first-option="all"
           />
         </kw-search-item>
@@ -61,6 +66,7 @@
           <kw-input
             v-model="searchParams.prtnrKnm"
             :disable="searchParams.wareNo.length > 0"
+            rules="max:50"
           />
         </kw-search-item>
         <!-- //담당자명 -->
@@ -71,6 +77,7 @@
           <kw-input
             v-model="searchParams.prtnrNo"
             :disable="searchParams.wareNo.length > 0"
+            rules="numeric|max:10"
           />
         </kw-search-item>
         <!-- //사번 -->
@@ -92,6 +99,7 @@
           grid-action
           :label="$t('MSG_BTN_SAVE')"
           dense
+          :disable="pageInfo.totalCount === 0"
           @click="onClickSave"
         />
         <kw-separator
@@ -134,15 +142,19 @@ import ZwcmWareHouseSearch from '~sms-common/service/components/ZwsnzWareHouseSe
 import dayjs from 'dayjs';
 import { cloneDeep } from 'lodash-es';
 
-const { modal, notify } = useGlobal();
-const dataService = useDataService();
-const { getConfig } = useMeta();
-const baseURI = '/sms/wells/service/materials-assign-stocks';
 const { t } = useI18n();
+const { getConfig } = useMeta();
+const { modal, notify } = useGlobal();
+const { currentRoute } = useRouter();
+
+const dataService = useDataService();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
+
+const grdMainRef = ref(getComponentType('KwGrid'));
+
 const codes = await codeUtil.getMultiCodes(
   'WARE_DTL_DV_CD',
   'COD_PAGE_SIZE_OPTIONS',
@@ -150,55 +162,77 @@ const codes = await codeUtil.getMultiCodes(
 );
 
 const wareDvCd = { WARE_DV_CD: [
-  { codeId: '3', codeName: '영업센터' },
+  { codeId: '3', codeName: t('MSG_TXT_BSNS_CNTR') },
 ] };
 
-codes.WARE_DTL_DV_CD = codes.WARE_DTL_DV_CD.filter((v) => (Number(v.codeId) > 29 && Number(v.codeId) < 40));
-
 let cachedParams;
-
 const searchParams = ref({
   baseYm: dayjs().format('YYYYMM'),
-  ogId: '',
-  prtnrNo: '',
-  prtnrKnm: '',
+  wareDvCd: '3',
   hgrWareNo: '',
   wareNo: '',
-  wareDvCd: '3',
   wareDtlDvCd: '',
+  prtnrNo: '',
+  prtnrKnm: '',
 });
-
-const grdMainRef = ref(getComponentType('KwGrid'));
 
 const pageInfo = ref({
   totalCount: 0,
   pageIndex: 1,
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
+  needTotalCount: true,
 });
 
-async function fetchData() {
-  const res = await dataService.get(baseURI, { params: { ...cachedParams, ...pageInfo.value } });
-  const { list: searchData, pageInfo: pagingResult } = res.data;
+const filterCodes = ref({
+  wareDtlDvCd: [],
+});
 
+function wareDvCdFilter() {
+  filterCodes.value.wareDtlDvCd = codes.WARE_DTL_DV_CD.filter((v) => v.codeId.startsWith('3'));
+}
+
+await Promise.all([
+  wareDvCdFilter(),
+]);
+
+function onChagneWareHgrNo() {
+  searchParams.value.wareNo = '';
+}
+
+function onChangeWareNo() {
+  const { wareNo } = searchParams.value;
+  if (wareNo !== '') {
+    searchParams.value.prtnrKnm = '';
+    searchParams.value.prtnrNo = '';
+  }
+}
+
+async function fetchData() {
+  const res = await dataService.get('/sms/wells/service/materials-assign-stocks/paging', { params: { ...cachedParams, ...pageInfo.value } });
+  const { list: assignStocks, pageInfo: pagingResult } = res.data;
+  pagingResult.needTotalCount = false;
   pageInfo.value = pagingResult;
 
-  const view = grdMainRef.value.getView();
-  const datasSource = view.getDataSource();
-  datasSource.setRows(searchData);
-  view.resetCurrent();
+  if (grdMainRef.value != null) {
+    const view = grdMainRef.value.getView();
+    view.getDataSource().setRows(assignStocks);
+    view.resetCurrent();
+  }
 }
 
 async function onClickSearch() {
   pageInfo.value.pageIndex = 1;
+  pageInfo.value.needTotalCount = true;
+
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
 }
 
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
-  const res = await dataService.get(`${baseURI}/excel-download`, { params: cachedParams });
+  const res = await dataService.get('/sms/wells/service/materials-assign-stocks/excel-download', { params: cachedParams });
   await gridUtil.exportView(view, {
-    fileName: 'qomAsnStrWareMgt',
+    fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
     exportData: res.data,
   });
@@ -206,119 +240,99 @@ async function onClickExcelDownload() {
 
 async function onClickSave() {
   const view = grdMainRef.value.getView();
-  const saveList = gridUtil.getChangedRowValues(view, false)
-    .map((v) => ({ prtnrNo: v.prtnrNo, qomAsnApyYn: v.qomAsnApyYn, ogTpCd: v.ogTpCd }));
+  if (await gridUtil.alertIfIsNotModified(view)) { return; }
+  if (!await gridUtil.validate(view)) { return; }
+  const createdRows = gridUtil.getChangedRowValues(view);
 
-  view.editOptions.editable = false;
-
-  await dataService.post(baseURI, saveList);
+  await dataService.post('/sms/wells/service/materials-assign-stocks', createdRows);
   await fetchData();
 }
 
-function searchDefaultCondition() {
-  searchParams.value.baseYm = dayjs().format('YYYYMM');
-  searchParams.value.ogId = '';
-  searchParams.value.prtnrNo = '';
-  searchParams.value.prtnrKnm = '';
-  searchParams.value.hgrWareNo = '';
-  searchParams.value.wareNo = '';
-  searchParams.value.wareDvCd = '3';
-  searchParams.value.wareDtlDvCd = '';
-}
-
-async function onCellClickedPrtnrNo(_baseYm, _wareNo) {
+async function onCellClickedPrtnrNo(baseYm, wareNo) {
   const { result: isChanged } = await modal({
     component: 'WwsnaWarehouseOrganizationRegP',
     componentProps: {
-      apyYm: _baseYm,
-      wareNo: _wareNo,
+      apyYm: baseYm,
+      wareNo,
     },
   });
 
   if (isChanged) {
     notify(t('MSG_ALT_SAVE_DATA'));
+    pageInfo.value.needTotalCount = true;
     await fetchData();
   }
 }
 
-onMounted(() => {
-  // searchDefaultCondition();
-});
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
 const initGrdMain = defineGrid((data, view) => {
-  const columns = [
-    { fieldName: 'wareDtlDvNm', header: t('MSG_TXT_WARE_DTL_DV'), width: '140', styleName: 'text-left' },
-    { fieldName: 'prtnrNo', header: t('MSG_TXT_EPNO'), width: '80', styleName: 'rg-button-link', renderer: { type: 'button' } },
-    { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '70', styleName: 'text-center' },
-    { fieldName: 'ogNm', header: t('MSG_TXT_BLG'), width: '120', styleName: 'text-center' },
-    { fieldName: 'bldCd', header: t('MSG_TXT_BLD_CD'), width: '70', styleName: 'text-center' },
-    { fieldName: 'hgrWareNm', header: t('MSG_TXT_HGR_WARE'), width: '120', styleName: 'text-left' },
-    { fieldName: 'bldNm', header: t('MSG_TXT_BUILDING'), width: '120', styleName: 'text-left' },
-    { fieldName: 'qomAsnApyYn',
-      header: t('MSG_TXT_QOM_ASN_APY_YN'),
-      width: '70',
-      styleName: 'text-center',
-      editor: { type: 'list' },
-      options: codes.COD_YN,
-      optionValue: 'codeId',
-      optionLabel: 'codeId',
-    },
-    { fieldName: 'didyDvNm', header: t('MSG_TXT_INDP_MNGER_YN'), width: '110', styleName: 'text-center' },
-    { fieldName: 'adrUseYn', header: t('MSG_TXT_DSN_ADR_YN'), width: '70', styleName: 'text-center' },
-    { fieldName: 'newAdrZip', header: t('MSG_TXT_ZIP'), width: '100', styleName: 'text-center' },
-    { fieldName: 'rdadr', header: t('MSG_TXT_ADDR'), width: '200', styleName: 'text-left' },
-  ];
-
-  const gridField = columns.map((v) => ({ fieldName: v.fieldName }));
-  const fields = [...gridField,
+  const fields = [
+    { fieldName: 'prtnrNo' },
+    { fieldName: 'prtnrKnm' },
+    { fieldName: 'ogId' },
     { fieldName: 'ogTpCd' },
+    { fieldName: 'ogNm' },
+    { fieldName: 'bldCd' },
+    { fieldName: 'bldNm' },
+    { fieldName: 'hgrWareNm' },
+    { fieldName: 'qomAsnApyYn' },
+    { fieldName: 'didyDvNm' },
+    { fieldName: 'adrUseYn' },
+    { fieldName: 'adrZip' },
+    { fieldName: 'adr' },
+    { fieldName: 'wareDtlDvNm' },
     { fieldName: 'baseYm' },
     { fieldName: 'wareNo' },
   ];
 
+  const columns = [
+    { fieldName: 'wareDtlDvNm', header: t('MSG_TXT_WARE_DTL_DV'), width: '120', styleName: 'text-center' },
+    { fieldName: 'prtnrNo', header: t('MSG_TXT_EPNO'), width: '80', styleName: 'rg-button-link text-center', renderer: { type: 'button' } },
+    { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '70', styleName: 'text-center' },
+    { fieldName: 'ogNm', header: t('MSG_TXT_BLG'), width: '120', styleName: 'text-center' },
+    { fieldName: 'bldNm', header: t('MSG_TXT_BUILDING'), width: '120', styleName: 'text-left' },
+    { fieldName: 'hgrWareNm', header: t('MSG_TXT_HGR_WARE'), width: '120', styleName: 'text-left' },
+    { fieldName: 'qomAsnApyYn',
+      header: t('MSG_TXT_QOM_ASN_APY_YN'),
+      width: '70',
+      styleName: 'text-center',
+      editor: { type: 'dropdown' },
+      options: codes.COD_YN,
+    },
+    { fieldName: 'bldCd', header: t('MSG_TXT_BLD_CD'), width: '70', styleName: 'text-center' },
+    { fieldName: 'didyDvNm', header: t('MSG_TXT_INDP_MNGER_YN'), width: '110', styleName: 'text-center' },
+    { fieldName: 'adrUseYn', header: t('MSG_TXT_DSN_ADR_YN'), width: '70', styleName: 'text-center' },
+    { fieldName: 'adrZip', header: t('MSG_TXT_ZIP'), width: '100', styleName: 'text-center' },
+    { fieldName: 'adr', header: t('MSG_TXT_ADDR'), width: '200', styleName: 'text-left' },
+  ];
+
   data.setFields(fields);
   view.setColumns(columns);
-  view.checkBar.visible = true;
+
+  view.checkBar.visible = false;
   view.rowIndicator.visible = true;
+  view.editOptions.editable = true;
   view.header.minRowHeight = 47;
 
-  view.onCellItemClicked = (grid, cell, target) => {
-    console.log(grid, cell, target);
-    if (cell.column === 'prtnrNo') {
-      const { baseYm, wareNo } = grid.getValues(grid.getCurrent().itemIndex);
+  view.onCellItemClicked = async (g, { column, itemIndex }) => {
+    if (column === 'prtnrNo') {
+      const baseYm = g.getValue(itemIndex, 'baseYm');
+      const wareNo = g.getValue(itemIndex, 'wareNo');
+
       onCellClickedPrtnrNo(baseYm, wareNo);
     }
   };
 
-  view.onCellClicked = (e, v) => {
-    if (v.column === 'qomAsnApyYn') {
-      view.editOptions.editable = true;
-    } else {
-      view.editOptions.editable = false;
+  view.onCellEditable = (grid, index) => {
+    // 물량배정 적용여부만 수정가능
+    if (index.column === 'qomAsnApyYn') {
+      return true;
     }
-  };
 
-  view.onCellEditable = (e, v) => {
-    if (v.column !== 'qomAsnApyYn') {
-      return false;
-    }
+    return false;
   };
 });
 
-// -------------------------------------------------------------------------------------------------
-// 검색조건 : 창고
-// -------------------------------------------------------------------------------------------------
-watch(() => searchParams.value.wareDvCd, () => {
-  codes.WARE_DTL_DV_CD = codes.WARE_DTL_DV_CD.filter((v) => Number(v.codeId) > 29);
-});
-watch(() => searchParams.value.wareNo, (res) => {
-  if (res !== '') {
-    searchParams.value.prtnrKnm = '';
-    searchParams.value.prtnrNo = '';
-  }
-});
-
-searchDefaultCondition();
 </script>

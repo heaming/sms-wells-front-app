@@ -147,9 +147,9 @@ const inputParams = ref({
 
 const strDomain = window.location.host;
 
-const visitCocnMshCh = `${strDomain}/mobile/#/ns/zmwda-auto-transfer-payment-change?vstYn=Y&chRqrDvCd=2&aftnThpChYn=N&clctamMngtYn=N&akChdt=${akChdt}`;
+const visitCocnMshCh = `${strDomain}/mobile/#/withdrawal/zmwda-auto-transfer-payment-change?vstYn=Y&chRqrDvCd=2&aftnThpChYn=N&clctamMngtYn=N&akChdt=${akChdt}`;
 // eslint-disable-next-line no-unused-vars
-const elsgLdstcCh = `${strDomain}/mobile/#/ns/zmwda-auto-transfer-payment-change?vstYn=N&chRqrDvCd=1&aftnThpChYn=N&clctamMngtYn=N&akChdt=${akChdt}`;
+const elsgLdstcCh = `${strDomain}/mobile/#/withdrawal/zmwda-auto-transfer-payment-change?vstYn=N&chRqrDvCd=1&aftnThpChYn=N&clctamMngtYn=N&akChdt=${akChdt}`;
 
 async function onClickChange() {
   const url = visitCocnMshCh;
@@ -167,7 +167,7 @@ async function onClickChange() {
 
 // 알림톡 발송
 async function onClickAlarmSend() {
-  const deviceScreen = '/#/ns/zmwda-auto-transfer-payment-change?';
+  const deviceScreen = '/#/withdrawal/zmwda-auto-transfer-payment-change?';
   const nsUrl = '/anonymous/login?redirectUrl=';
 
   const params = {
@@ -194,7 +194,7 @@ async function onClickAlarmSend() {
 
 onMounted(async () => {
   if (!window.opener) {
-    const path = '/mobile/#/ns/wmwda-auto-transfer-change-mgt';
+    const path = '/mobile/#/withdrawal/wmwda-auto-transfer-change-mgt';
     const size = {
       width: 390,
       height: 844,
