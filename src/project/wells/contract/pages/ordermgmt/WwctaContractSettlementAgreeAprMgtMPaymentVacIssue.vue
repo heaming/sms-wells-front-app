@@ -35,6 +35,7 @@
         stretch
         secondary
         label="가상계좌발급"
+        :disable="!!issuedAccountInfo.acnoEncr"
         @click="onClickIssue"
       />
       <kw-item

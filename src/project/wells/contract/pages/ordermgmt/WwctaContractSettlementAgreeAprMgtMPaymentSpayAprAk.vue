@@ -69,7 +69,7 @@
                       font-weight="400"
                     >
                       <div class="ellipsis">
-                        {{ getCodeName('DP_TP_CD', dpTpCd) }}
+                        {{ getCodeName(DP_TP_CD, dpTpCd) }}
                       </div>
                       <div
                         class="not-flexible"
@@ -164,6 +164,7 @@
               secondary
               border-color="black-btn-line"
               label="승인"
+              :disable="!!approvalResponse.aprNo"
               @click="onClickApproval"
             />
           </kw-form>
@@ -223,7 +224,6 @@ const frmRef = ref(getComponentType('KwForm'));
 
 const isCooperation = computed(() => props.cntrCstInfo.copnDvCd === '2' /* sorry, haha. */);
 
-/* 여러건이면....? */
 const stlmBas = computed(() => (props.crdcdStlms?.[0] ?? {}));
 
 const approvalRequest = ref({

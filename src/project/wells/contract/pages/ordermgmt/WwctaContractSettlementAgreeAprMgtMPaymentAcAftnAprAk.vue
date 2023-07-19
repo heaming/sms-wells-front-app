@@ -85,6 +85,7 @@
           stretch
           secondary
           border-color="black-btn-line"
+          :disable="!!approvalResponse.aprno"
           label="승인"
           @click="onClickApproval"
         />
