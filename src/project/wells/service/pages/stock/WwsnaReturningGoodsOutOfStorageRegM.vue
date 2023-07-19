@@ -253,6 +253,7 @@ const searchParams = ref({
   strWareNo: '', // 입고창고
   strWareNm: '', // 입고창고명
   itmOstrNo: '', // 품목출고번호
+  strWareDvCd: '',
 });
 
 const pageInfo = ref({
@@ -348,9 +349,10 @@ function setReasonCellStyle() {
 }
 
 function setStrWareNo() {
-  const { codeIdUp, codeNameUp } = warehouses.value.find((v) => v.codeId === searchParams.value.ostrWareNo);
+  const { codeIdUp, codeNameUp, wareDvCdUp } = warehouses.value.find((v) => v.codeId === searchParams.value.ostrWareNo);
   searchParams.value.strWareNo = codeIdUp;
   searchParams.value.strWareNm = codeNameUp;
+  searchParams.value.strWareDvCd = wareDvCdUp;
 }
 
 function onChangeOstrWareNo() {
