@@ -405,9 +405,10 @@ async function changeContract(item, popNm, gubun) {
     const res = await dataService.post('/sms/wells/contract/changeorder/changes/cancel-asks', item);
     if (res.data.processCount > 0) {
       notify(t('MSG_ALT_CNTR_DEL_AK'));
+      fetchData();
     }
   } else {
-    await modal({
+    const { result } = await modal({
       component: popNm,
       componentProps: { cntrNo: item.cntrNo,
         cntrSn: item.cntrSn,
@@ -415,8 +416,10 @@ async function changeContract(item, popNm, gubun) {
         cttRsCd: item.cttRsCd,
         istDt: item.istDt }, // 팝업 화면에 보낼 파라미터
     });
+    if (result) {
+      fetchData();
+    }
   }
-  fetchData();
 }
 
 // onClickCstChange: 고객정보변경
