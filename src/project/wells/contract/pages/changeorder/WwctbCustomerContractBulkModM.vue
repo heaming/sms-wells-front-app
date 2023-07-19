@@ -603,6 +603,8 @@ const frmIstRef = ref();
 const frmTxinvRef = ref();
 const frmPlnnrRef = ref();
 
+let orgPrcDvCd;
+
 const codes = await codeUtil.getMultiCodes(
   'SELL_TP_CD', // 판매유형코드
   'BNK_DV_3_ACD', // 은행구분3앱코드
@@ -689,6 +691,17 @@ function initFieldParams(gubun) {
   if (!isEmpty(frmPlnnrRef.value)) {
     frmPlnnrRef.value.init();
   }
+
+  if (isEmpty(orgPrcDvCd)) {
+    if (searchParams.value.prcDvCd === '4') {
+      totalCount.value = 0;
+    }
+  } else if (
+    ((orgPrcDvCd === '1' || orgPrcDvCd === '3') && searchParams.value.prcDvCd === '4')
+      || (orgPrcDvCd === '4')) {
+    totalCount.value = 0;
+  }
+  orgPrcDvCd = searchParams.value.prcDvCd;
 }
 
 // 이체구분 콤보값 변경 이벤트
