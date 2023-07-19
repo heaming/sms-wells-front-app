@@ -29,6 +29,7 @@
             type="month"
             :label="$t('MSG_TXT_BASE_YM')"
             rules="required"
+            @change="onChangeYm"
           />
         </kw-search-item>
         <!-- //기준년월 -->
@@ -42,7 +43,7 @@
             type="month"
             :label="$t('MSG_TXT_ASN_YM')"
             rules="required"
-            @change="onChangeAsnOjYm"
+            @change="onChangeYm"
           />
         </kw-search-item>
         <!-- //배정년월 -->
@@ -234,7 +235,7 @@ const onChangeOstrWareHouse = async () => {
   const result = await dataService.get(
     '/sms/wells/service/qom-asn/out-of-storage-wares',
     { params: {
-      asnOjYm: searchParams.value.asnOjYm,
+      apyYm: searchParams.value.apyYm,
     } },
   );
   optionsOstrWareNo.value = result.data;
@@ -250,6 +251,7 @@ const onChangeStrWareHouse = async () => {
   const result = await dataService.get(
     '/sms/wells/service/qom-asn/storage-wares',
     { params: {
+      apyYm: searchParams.value.apyYm,
       asnOjYm: searchParams.value.asnOjYm,
       wareDvCd: searchParams.value.wareDvCd,
       wareDtlDvCd: searchParams.value.wareDtlDvCd,
@@ -258,10 +260,10 @@ const onChangeStrWareHouse = async () => {
   optionsStrWareNo.value = result.data;
 };
 
-// 배정년월이 변경되었을 때 창고번호 재조회
-function onChangeAsnOjYm() {
-  const { asnOjYm } = searchParams.value;
-  if (isEmpty(asnOjYm)) {
+// 기준년월, 배정년월이 변경되었을 때 창고번호 재조회
+function onChangeYm() {
+  const { apyYm, asnOjYm } = searchParams.value;
+  if (isEmpty(apyYm)) {
     searchParams.value.strWareNo = '';
     optionsStrWareNo.value = [];
 
@@ -270,6 +272,13 @@ function onChangeAsnOjYm() {
     return;
   }
   onChangeOstrWareHouse();
+
+  if (isEmpty(asnOjYm)) {
+    searchParams.value.strWareNo = '';
+    optionsStrWareNo.value = [];
+    return;
+  }
+
   onChangeStrWareHouse();
 }
 
