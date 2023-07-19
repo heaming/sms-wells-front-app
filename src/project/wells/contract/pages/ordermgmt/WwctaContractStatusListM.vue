@@ -449,7 +449,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, router, useDataService, useGlobal, popupUtil, useMeta, stringUtil } from 'kw-lib';
+import { codeUtil, popupUtil, router, stringUtil, useDataService, useGlobal, useMeta } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 
@@ -700,7 +700,7 @@ async function onClickAssignContact(item) {
       baseYm: now.format('YYYYMM'), // 달력 초기 월
       chnlDvCd: 'K', // W: 웰스, K: KSS, C: CubicCC, P: K-MEMBERS, I || E: 엔지니어, M: 매니저
       svDvCd: '1', // 1:설치, 2:BS, 3:AS, 4:홈케어
-      svBizDclsfCd: '1110', // 판매인 경우 1110(신규설치) fix
+      svBizDclsfCd: installationOrderTargetCntrSns.map(() => '1110').join(','), // 판매인 경우 1110(신규설치) fix
       cntrNo: item.cntrNo,
       cntrSn: installationOrderTargetCntrSns.join(','),
       dataStatCd: '1', // 1: 신규, 2: 수정, 3: 삭제
