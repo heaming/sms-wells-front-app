@@ -364,7 +364,7 @@ import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContra
 const dataService = useDataService();
 const { t } = useI18n();
 const { getters } = useStore();
-const { confirm, modal, notify } = useGlobal();
+const { alert, confirm, modal, notify } = useGlobal();
 const { currentRoute } = useRouter();
 
 let cachedParams;
@@ -1127,12 +1127,10 @@ const initGrdMstList = defineGrid((data, view) => {
       searchCnfmAprvParams.value.cntrSn = paramCntrSn;
       searchCnfmAprvParams.value.cnfmMsgYn = 'Y';
 
-      const rows = gridUtil.getAllRowValues(view);
-      rows.forEach((row) => {
-        row.cntrNo = searchCnfmAprvParams.value.cntrNo; // 계약번호
-        row.cntrSn = searchCnfmAprvParams.value.cntrSn; // 계약일련번호
-        row.cnfmMsgYn = searchCnfmAprvParams.value.cnfmMsgYn; // 확정승인메세지
-      });
+      const rows = [
+        { cntrNo: paramCntrNo, cntrSn: paramCntrSn, cnfmMsgYn: 'Y' },
+      ];
+
       console.log(rows);
       res = await dataService.put('/sms/wells/contract/contracts/managements/confirm-approval', rows);
       if (searchCnfmAprvParams.value.cnfmMsgYn === 'Y') {
@@ -1149,7 +1147,11 @@ const initGrdMstList = defineGrid((data, view) => {
           if (res.data.processCount === 0) {
             await notify(t('MSG_ALT_CNFM_APR_PROCS_FSH')); // 확정 승인 처리가 완료 되었습니다.
             if (await confirm(t('MSG_ALT_CNFM_ORD'))) { // 주문을 확정하시겠습니까?
-              res = await dataService.put('/sms/wells/contract/contracts/managements/confirm', searchCnfmAprvParams.value.cntrNo);
+              res = await dataService.put('/sms/wells/contract/contracts/managements/confirm', rows);
+              console.log(res.data.processCount);
+              if (res.data.processCount === 0) {
+                await notify(t('MSG_ALT_CNFM_COMPLETE')); // 확정 완료했습니다.
+              }
             }
           }
         }
@@ -1157,20 +1159,26 @@ const initGrdMstList = defineGrid((data, view) => {
         console.log(res.data.processCount);
       }
     } else if (['cnfm'].includes(column)) { // 확정버튼 클릭
-      const rows = gridUtil.getAllRowValues(view);
-      rows.forEach((row) => {
-        row.cntrNo = paramCntrNo; // 계약번호
-        row.cntrSn = paramCntrSn; // 계약일련번호
-        row.cnfmMsgYn = ''; // 확정승인메세지
-      });
+      const rows = [
+        { cntrNo: paramCntrNo },
+      ];
 
-      // res = await dataService.put('/sms/wells/contract/contracts/managements/confirm-approval', rows);
-      // console.log(res.data.processCount);
-      // if (res.data.processCount === 0) {
-      if (await confirm(t('MSG_ALT_CNFM_ORD'))) { // 주문을 확정하시겠습니까?
-        res = await dataService.put('/sms/wells/contract/contracts/managements/confirm', rows);
+      // 확정처리 전 계약번호의 계약진행상태코드 조회
+      searchCnfmAprvParams.value.cntrNo = paramCntrNo;
+      cachedParams = cloneDeep(searchCnfmAprvParams.value);
+      res = await dataService.get('/sms/wells/contract/contracts/managements/status', { params: { ...cachedParams } });
+      console.log(res.data[0].cntrPrgsStatCd);
+      if (res.data[0].cntrPrgsStatCd === '50') {
+        if (await confirm(t('MSG_ALT_CNFM_ORD'))) { // 주문을 확정하시겠습니까?
+          res = await dataService.put('/sms/wells/contract/contracts/managements/confirm', rows);
+          console.log(res.data.processCount);
+          if (res.data.processCount === 0) {
+            await notify(t('MSG_ALT_CNFM_COMPLETE')); // 확정 완료했습니다.
+          }
+        }
+      } else {
+        await alert(t('MSG_ALT_STLM_FSH_STAT_CAN_ONLY_APR')); // 결제 완료 상태에서만 승인 할 수 있습니다.
       }
-      // }
     } else if (['rqsIz'].includes(column)) { // 요청내역 버튼 클릭
       // const { fstRgstUsrId, fnlMdfcUsrId } = gridUtil.getRowValue(g, itemIndex);
       await modal({ component: 'WwConfirmApprovalAskIzListP', componentProps: { cntrNo: paramCntrNo } }); // 확정 승인 요청 내역
