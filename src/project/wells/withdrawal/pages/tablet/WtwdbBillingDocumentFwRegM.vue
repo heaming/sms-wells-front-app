@@ -15,9 +15,9 @@
 
 <template>
   <kw-page>
-    <!-- 발송유형 -->
+    <!-- 발송방법 -->
     <h3 class="mb20">
-      {{ t('MSG_TXT_FW_TP') }}
+      {{ t('MSG_TXT_FW_MTH') }}
     </h3>
 
     <kw-form
@@ -25,7 +25,9 @@
       :cols="2"
     >
       <kw-form-row>
-        <kw-form-item>
+        <kw-form-item
+          :label="t('발송 유형')"
+        >
           <kw-btn-toggle
             v-model="sendMainData.bildcFwTpCd"
             :options="codes.BILDC_FW_TP_CD"
@@ -39,7 +41,6 @@
 
       <kw-form-row
         v-if="sendMainData.bildcFwTpCd === 'K'"
-        :cols="2"
       >
         <!-- label="발신번호" -->
         <kw-form-item
@@ -90,6 +91,7 @@
         <kw-form-item
           :label="t('MSG_TXT_DSPTR')"
           required
+          :colspan="2"
         >
           <zwcm-email-address
             v-model="sendMainData.toMail"
@@ -104,6 +106,8 @@
         <!-- label="수신자" -->
         <kw-form-item
           :label="t('MSG_TXT_RECP_USR')"
+          required
+          :colspan="2"
         >
           <zwcm-email-address
             v-model="sendMainData.fromMail"

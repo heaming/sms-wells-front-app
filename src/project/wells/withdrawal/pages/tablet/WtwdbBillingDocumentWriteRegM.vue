@@ -21,8 +21,10 @@
     <h3 class="mb20">
       고객정보
     </h3>
-    <kw-form>
-      <kw-form-row :cols="2">
+    <kw-form
+      :cols="2"
+    >
+      <kw-form-row>
         <kw-form-item
           rules="required"
           required
@@ -60,8 +62,10 @@
       {{ t('MSG_TXT_BIL_IZ') }}
     </h3>
 
-    <kw-form>
-      <kw-form-row :cols="2">
+    <kw-form
+      :cols="2"
+    >
+      <kw-form-row>
         <kw-form-item
           :label="t('MSG_TXT_PRDT_NM')"
           required
@@ -79,13 +83,13 @@
         >
           <zwcm-counter
             v-model="regMainData.pdQty"
-            class="zwcm-counter"
             :label="t('MSG_TXT_QTY')"
             :min="1"
+            placeholder="입력"
           />
         </kw-form-item>
       </kw-form-row>
-      <kw-form-row :cols="2">
+      <kw-form-row>
         <kw-form-item
           required
           :label="t('MSG_TXT_UPRC_TAM')"
