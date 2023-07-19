@@ -27,7 +27,6 @@
         >
           <kw-select
             v-model="searchParams.pdGr"
-            first-option="all"
             :first-option-label="$t('MSG_TXT_ALL')"
             :options="codes.PD_GRP_CD"
           />
@@ -38,7 +37,6 @@
         >
           <kw-select
             v-model="searchParams.pdCd"
-            first-option="all"
             :first-option-label="$t('MSG_TXT_ALL')"
             :options="pdNm"
           />
@@ -165,7 +163,7 @@ const pdNm = ref([]);
 /* 조회조건 */
 const searchParams = ref({
   pdCd: '', /* 상품코드 */
-  pdGr: '',
+  pdGr: '1',
   apyMtrChk: 'N',
 });
 const isDisable = computed(() => (isEmpty(searchParams.value.pdGr)));
