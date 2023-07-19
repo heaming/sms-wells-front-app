@@ -209,7 +209,7 @@ import dayjs from 'dayjs';
 import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
 
 const { t } = useI18n();
-const { alert, confirm } = useGlobal();
+const { alert, confirm, notify } = useGlobal();
 const { getters } = useStore();
 const { ogTpCd } = getters['meta/getUserInfo'];
 const dataService = useDataService();
@@ -404,7 +404,7 @@ async function changeContract(item, popNm, gubun) {
   if (!isEmpty(gubun)) {
     const res = await dataService.post('/sms/wells/contract/changeorder/changes/cancel-asks', item);
     if (res.data.processCount > 0) {
-      alert(t('MSG_ALT_CNTR_DEL_AK'));
+      notify(t('MSG_ALT_CNTR_DEL_AK'));
     }
   } else {
     await modal({
@@ -416,6 +416,7 @@ async function changeContract(item, popNm, gubun) {
         istDt: item.istDt }, // 팝업 화면에 보낼 파라미터
     });
   }
+  fetchData();
 }
 
 // onClickCstChange: 고객정보변경
@@ -445,9 +446,10 @@ async function onClickSellerChange(item) {
 async function onClickDelReq(item) {
   item.inDv = '40'; // 입력구분
   item.aprvDv = '20'; // 승인구분
-  const compDate = now.add('-1', 'month').format('YYYYMMDD');
+  const compDate = now.add('-1', 'month').format('YYYYMM');
+  console.log(item.cntrCnfmDt.substr(0, 6));
 
-  if (compDate > item.cntrCnfmDt) {
+  if (compDate >= item.cntrCnfmDt.substr(0, 6)) {
     alert(t('MSG_ALT_ONLY_CAN_DEL_THM_ORD'));
     return;
   }
