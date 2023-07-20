@@ -728,7 +728,7 @@ function initGrdMain(data, view) {
   ]);
 
   view.onCellItemClicked = async (g, { column, itemIndex }) => {
-    if (column === 'cntrNo') {
+    if (column === 'cntr') {
       const cntrNo = g.getValue(itemIndex, 'cntrNo');
       console.log(cntrNo);
       console.log('개인별 서비스 현황 화면(W-SV-U-0072M01) 탭으로 호출');

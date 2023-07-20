@@ -312,6 +312,10 @@ async function fetchData() {
 
   pageInfo.value = pagingResult;
 
+  list.forEach((row) => {
+    row.cntr = `${row.cntrNo}-${row.cntrSn}`;
+  });
+
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(list);
   view.clearCurrent();
@@ -483,7 +487,12 @@ async function onClickBulkUpdateCurMnthAlctn() {
   const { cnfmPsicPrtnrNo, curMnthAlctnMngerRglvlDvCd } = curMnthAlctn.value;
 
   const { ogCd } = prtnrOgTpOptions.value.find((option) => asnPsicPrtnrOgTpCd === option.ogId);
-  const { prtnrNoNm } = curMnthAlctnPrtnrNoOptions.value.find((option) => asnPsicPrtnrNo === option.prtnrNo);
+  const {
+    prtnrNoNm,
+    brnhId,
+    prtnrNo,
+    ogTpCd,
+  } = curMnthAlctnPrtnrNoOptions.value.find((option) => asnPsicPrtnrNo === option.prtnrNo);
 
   data.beginUpdate();
   checkedRows.forEach((rowValue) => {
@@ -496,6 +505,10 @@ async function onClickBulkUpdateCurMnthAlctn() {
       cnfmPsicPrtnrOgTpCd: ogCd,
       cnfmPsicPrtnrNo,
       curMnthAlctnMngerRglvlDvCd,
+
+      afchIchrBrchOgId: brnhId,
+      afchIchrPrtnrOgTpCd: ogTpCd,
+      afchIchrPrtnrNo: prtnrNo,
     });
   });
   data.endUpdate();
@@ -521,6 +534,14 @@ async function onClickSave() {
     cnfmPsicPrtnrOgTpCd,
     cnfmPsicPrtnrNo,
     curMnthAlctnMngerRglvlDvCd,
+
+    bfchIchrBrchOgId,
+    bfchIchrPrtnrOgTpCd,
+    bfchIchrPrtnrNo,
+
+    afchIchrBrchOgId,
+    afchIchrPrtnrOgTpCd,
+    afchIchrPrtnrNo,
   }) => ({
     cntrNo,
     cntrSn,
@@ -532,7 +553,16 @@ async function onClickSave() {
     asnPsicPrtnrNo,
     cnfmPsicPrtnrOgTpCd,
     cnfmPsicPrtnrNo,
-    curMnthAlctnMngerRglvlDvCd }));
+    curMnthAlctnMngerRglvlDvCd,
+
+    bfchIchrBrchOgId,
+    bfchIchrPrtnrOgTpCd,
+    bfchIchrPrtnrNo,
+
+    afchIchrBrchOgId,
+    afchIchrPrtnrOgTpCd,
+    afchIchrPrtnrNo,
+  }));
 
   await dataService.put('/sms/wells/service/manage-customer-rglvl/partner-info', data);
   await fetchData();
@@ -573,9 +603,13 @@ function initGrdMain(data, view) {
     { fieldName: 'curMnthAlctnDgr2LevlOgCd' }, // 당월배정 - 지역단
     { fieldName: 'curMnthAlctnDgr3LevlOgCd' }, // 당월배정 - 지점
     { fieldName: 'curMnthAlctnPrtnrKnm' }, // 당월배정 - 매니저
+    { fieldName: 'bfchIchrBrchOgId' }, // 당월배정
+    { fieldName: 'bfchIchrPrtnrOgTpCd' }, // 당월배정
+    { fieldName: 'bfchIchrPrtnrNo' }, // 당월배정
     { fieldName: 'curMnthAlctnMngerRglvlDvCd' }, // 당월배정 - 관리기준급지
 
     { fieldName: 'cstSvAsnNo' },
+    { fieldName: 'cntr' }, // 계약번호
 
     // UPDATE DATA
     { fieldName: 'mngtPrtnrOgTpCd' }, // [관리기준] 조직유형코드
@@ -587,10 +621,14 @@ function initGrdMain(data, view) {
     { fieldName: 'cnfmPsicPrtnrOgTpCd' }, // [당월배정] 조직유형코드
     { fieldName: 'cnfmPsicPrtnrNo' }, // [당월배정] 파트너번호
     // { fieldName: 'curMnthAlctnMngerRglvlDvCd' }, // [당월배정] 급지구분코드
+
+    { fieldName: 'afchIchrBrchOgId' }, // 당월배정
+    { fieldName: 'afchIchrPrtnrOgTpCd' }, // 당월배정
+    { fieldName: 'afchIchrPrtnrNo' }, // 당월배정
   ];
 
   const columns = [
-    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_NO'), width: '130', styleName: 'rg-button-link text-center', renderer: { type: 'button' }, preventCellItemFocus: true }, // 계약번호
+    { fieldName: 'cntr', header: t('MSG_TXT_CNTR_NO'), width: '140', styleName: 'rg-button-link text-center', renderer: { type: 'button' }, preventCellItemFocus: true }, // 계약번호
     { fieldName: 'rcgvpKnm', header: t('MSG_TXT_CST_NM'), width: '100', styleName: 'text-center' }, // 고객명
     { fieldName: 'svpdSapCd', header: t('MSG_TXT_SAP_CD'), width: '180', styleName: 'text-center' }, // SAP 코드
     { fieldName: 'pdctPdCd', header: t('MSG_TXT_ITM_CD'), width: '110', styleName: 'text-center' }, // 품목코드
@@ -638,9 +676,10 @@ function initGrdMain(data, view) {
   view.setColumns(columns);
   view.checkBar.visible = true; // create checkbox column
   view.rowIndicator.visible = true; // create number indicator column
+  view.fixedOptions.colCount = 5;
 
   view.setColumnLayout([
-    'cntrNo',
+    'cntr',
     'rcgvpKnm',
     'svpdSapCd',
     'pdctPdCd',
@@ -665,7 +704,7 @@ function initGrdMain(data, view) {
   ]);
 
   view.onCellItemClicked = async (g, { column, itemIndex }) => {
-    if (column === 'cntrNo') {
+    if (column === 'cntr') {
       const cntrNo = g.getValue(itemIndex, 'cntrNo');
       console.log(cntrNo);
       console.log('개인별 서비스 현황 화면(W-SV-U-0072M01) 탭으로 호출');
