@@ -114,6 +114,13 @@ async function init() {
 }
 
 async function getSaveData() {
+  // 미수정시 초기값 그대로 반환.
+  if (!(await isModifiedProps())) {
+    return {
+      [pdConst.RELATION_PRODUCTS]: currentInitData.value[pdConst.RELATION_PRODUCTS],
+    };
+  }
+
   const rowValues = gridUtil.getAllRowValues(grdStandardRef.value.getView());
   const rtnValues = { [pdConst.TBL_PD_REL]: rowValues ?? [] };
   if (rtnValues[pdConst.TBL_PD_REL]) {

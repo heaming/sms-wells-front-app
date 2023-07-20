@@ -184,7 +184,25 @@ const codes = await codeUtil.getMultiCodes('PD_TEMP_SAVE_CD');
 const obsMainRef = ref();
 const subTitle = ref();
 
+// 상품 수정여부 검증
+async function isModifiedCheck() {
+  let modifiedOk = false;
+  await Promise.all(cmpStepRefs.value.map(async (item) => {
+    if (!modifiedOk) {
+      if (await item.value.isModifiedProps()) {
+        modifiedOk = true;
+      }
+    }
+  }));
+  return modifiedOk;
+}
+
 async function getSaveData() {
+  // 데이터가 많아서 수정여부를 체크하여 미수정시, 텝 데이터 수집을 하지않음.
+  if (!(await isModifiedCheck())) {
+    return prevStepData.value;
+  }
+
   const subList = { isModifiedProp: false, isOnlyFileModified: false, isModifiedRelation: false };
   await Promise.all(cmpStepRefs.value.map(async (item, idx) => {
     const isModified = await item.value.isModifiedProps();
@@ -312,16 +330,7 @@ async function onClickSave(tempSaveYn) {
   // 1. Step별 수정여부 확인
   // '임시저장 ==> 저장' 경우를 제외하고 수정여부 체크
   if (!(isTempSaveBtn.value && tempSaveYn === 'N')) {
-    let modifiedOk = false;
-    await Promise.all(cmpStepRefs.value.map(async (item) => {
-      if (!modifiedOk) {
-        if (await item.value.isModifiedProps()) {
-          // console.log('Update Idx : ', idx);
-          modifiedOk = true;
-        }
-      }
-    }));
-    if (!modifiedOk) {
+    if (!(await isModifiedCheck())) {
       notify(t('MSG_ALT_NO_CHG_CNTN'));
       return;
     }
