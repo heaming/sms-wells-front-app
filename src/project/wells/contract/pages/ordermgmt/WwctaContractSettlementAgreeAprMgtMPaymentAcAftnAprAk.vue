@@ -131,7 +131,7 @@ await fetchBanks();
 
 const approvalRequest = ref({
   stlmAmt: stlmBas.value.stlmAmt, /* TODO: 추후에 확인 필요 */
-  mpyBsdt: '21', /* 납부기준일자 */
+  mpyBsdt: '10', /* 납부기준일자 */
   acnoEncr: '', /* 계좌번호 */
   owrKnm: '', /* 소유자 한글명 */
 });

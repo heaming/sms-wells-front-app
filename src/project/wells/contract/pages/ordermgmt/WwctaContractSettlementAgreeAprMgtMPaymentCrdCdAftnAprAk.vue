@@ -115,7 +115,7 @@ const stlmBas = computed(() => (props.stlm ?? {}));
 
 const approvalRequest = ref({
   stlmAmt: stlmBas.value.stlmAmt, /* TODO: 추후에 확인 필요 */
-  mpyBsdt: '21', /* 납부기준일자 TODO: 나중에 옵션 가져올것 */
+  mpyBsdt: '10', /* 납부기준일자 TODO: 나중에 옵션 가져올것 */
   crcdnoEncr: '', /* 카드번호 */
   owrKnm: '', /* 카드주 */
   cardExpdtYm: '', /* 유효기한 */
