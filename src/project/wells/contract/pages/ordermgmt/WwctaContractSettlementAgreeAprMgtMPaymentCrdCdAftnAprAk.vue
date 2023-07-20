@@ -37,11 +37,11 @@
         ref="frmRef"
         class="pt8 column gap-lg"
       >
-        <kw-input
+        <kw-select
           v-model="approvalRequest.mpyBsdt"
           label="이체일자"
           rules="required"
-          disable
+          :options="mpyBsdtOptions"
         />
         <kw-input
           v-model="approvalRequest.crcdnoEncr"
@@ -50,24 +50,20 @@
           unmasked-value
           rules="min:14|required"
         />
-        <kw-input
-          v-model="approvalRequest.owrKnm"
-          label="카드주"
-          rules="required"
-        />
         <crdcd-exp-select
           v-model="approvalRequest.cardExpdtYm"
         />
         <kw-input
-          v-if="isCooperation"
-          :model-value="cntrCstInfo.bzrno"
-          label="사업자번호"
+          v-model="approvalRequest.owrKnm"
+          label="카드주"
+          rules="required"
           readonly
         />
         <kw-input
-          v-else
-          :model-value="cntrCstInfo.bryyMmdd"
-          label="계약자 생년월일"
+          v-model="approvalRequest.copnDvCdDrmVal"
+          label="법인격식별값"
+          rules="required"
+          hint="개인카드의 경우, 생년월일(YYYYMMDD), 법인카드의 경우, 사업자번호 10자리를 입력해주세요."
           readonly
         />
         <kw-input
@@ -92,7 +88,7 @@
 import WwctaContractSettlementAgreeItem
   from '~sms-wells/contract/components/ordermgmt/WwctaContractSettlementAgreeItem.vue';
 import CrdcdExpSelect from '~sms-wells/contract/components/ordermgmt/WctaCrdcdExpSelect.vue';
-import { confirm, getComponentType, notify } from 'kw-lib';
+import { confirm, getComponentType, notify, useDataService } from 'kw-lib';
 
 const props = defineProps({
   cntrCstInfo: { type: Object, default: undefined },
@@ -107,18 +103,33 @@ const emit = defineEmits(['approved']);
 const exposed = {};
 defineExpose(exposed);
 
+const dataService = useDataService();
+
 const frmRef = ref(getComponentType('KwForm'));
 
 const isCooperation = computed(() => props.cntrCstInfo.copnDvCd === '2' /* sorry, haha. */);
 
 const stlmBas = computed(() => (props.stlm ?? {}));
 
+const mpyBsdtOptions = ref([]);
+
+async function fetchRegularFundTransferDayOptions() {
+  if (!stlmBas.value.dpTpCd) { return; }
+  const { data } = await dataService.get(`/sms/wells/contract/contracts/settlements/regular-fund-transfers-day-options/${stlmBas.value.dpTpCd}`);
+  mpyBsdtOptions.value = data.map((day) => ({ codeId: day, codeName: `${day}일` }));
+}
+
+await fetchRegularFundTransferDayOptions();
+
 const approvalRequest = ref({
   stlmAmt: stlmBas.value.stlmAmt, /* TODO: 추후에 확인 필요 */
   mpyBsdt: '10', /* 납부기준일자 TODO: 나중에 옵션 가져올것 */
   crcdnoEncr: '', /* 카드번호 */
-  owrKnm: '', /* 카드주 */
   cardExpdtYm: '', /* 유효기한 */
+  bryyMmdd: props.cntrCstInfo.bryyMmdd || '',
+  owrKnm: props.cntrCstInfo.cstKnm, /* 카드주 */
+  copnDvCd: props.cntrCstInfo.copnDvCd,
+  copnDvCdDrmVal: isCooperation.value ? props.cntrCstInfo.bzrno : props.cntrCstInfo.bryyMmdd,
 });
 
 const approvalResponse = ref({

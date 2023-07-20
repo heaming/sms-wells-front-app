@@ -37,11 +37,11 @@
         ref="frmRef"
         class="pt8 column gap-lg"
       >
-        <kw-input
+        <kw-select
           v-model="approvalRequest.mpyBsdt"
           label="이체일자"
           rules="required"
-          disable
+          :options="mpyBsdtOptions"
         />
         <kw-select
           v-model="approvalRequest.bnkCd"
@@ -58,22 +58,13 @@
           v-model="approvalRequest.owrKnm"
           label="예금주"
           rules="required"
-        />
-        <kw-input
-          :model-value="cntrCstInfo.cstKnm"
-          label="계약자명"
           readonly
         />
         <kw-input
-          v-if="isCooperation"
-          :model-value="cntrCstInfo.bzrno"
-          label="사업자번호"
-          readonly
-        />
-        <kw-input
-          v-else
-          :model-value="cntrCstInfo.bryyMmdd"
-          label="계약자 생년월일"
+          v-model="approvalRequest.copnDvCdDrmVal"
+          label="법인격식별값"
+          rules="required"
+          hint="개인카드의 경우, 생년월일(YYYYMMDD), 법인카드의 경우, 사업자번호 10자리를 입력해주세요."
           readonly
         />
         <kw-input
@@ -121,6 +112,7 @@ const isCooperation = computed(() => props.cntrCstInfo.copnDvCd === '2' /* sorry
 const stlmBas = computed(() => (props.stlm ?? {}));
 
 const banks = ref([]);
+const mpyBsdtOptions = ref([]);
 
 async function fetchBanks() {
   const { data } = await dataService.get('/sms/common/common/codes/finance-code/bank-codes');
@@ -129,11 +121,21 @@ async function fetchBanks() {
 
 await fetchBanks();
 
+async function fetchRegularFundTransferDayOptions() {
+  if (!stlmBas.value.dpTpCd) { return; }
+  const { data } = await dataService.get(`/sms/wells/contract/contracts/settlements/regular-fund-transfers-day-options/${stlmBas.value.dpTpCd}`);
+  mpyBsdtOptions.value = data;
+}
+
+await fetchRegularFundTransferDayOptions();
+
 const approvalRequest = ref({
   stlmAmt: stlmBas.value.stlmAmt, /* TODO: 추후에 확인 필요 */
   mpyBsdt: '10', /* 납부기준일자 */
   acnoEncr: '', /* 계좌번호 */
-  owrKnm: '', /* 소유자 한글명 */
+  owrKnm: props.cntrCstInfo.cntrCstKnm, /* 소유자 한글명 */
+  copnDvCd: props.cntrCstInfo.copnDvCd,
+  copnDvCdDrmVal: isCooperation.value ? props.cntrCstInfo.bzrno : props.cntrCstInfo.bryyMmdd,
 });
 
 const approvalResponse = ref({
