@@ -1191,7 +1191,10 @@ async function onClickDepositRegistration() {
 async function onClickCbInformationAsk() {
   await modal({
     component: 'ZwbncCreditBureauInformationP',
-    componentProps: customer.value,
+    componentProps: {
+      cstNo: customer.value.cstNo,
+      sfkVal: customer.value.sfk,
+    },
   });
 }
 
