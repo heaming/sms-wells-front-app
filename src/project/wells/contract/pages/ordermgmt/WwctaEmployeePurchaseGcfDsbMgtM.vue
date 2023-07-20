@@ -396,22 +396,130 @@ const initGrid = defineGrid((data, view) => {
   view.checkBar.visible = true;
 
   view.onCellItemClicked = async (g, { column, dataRow }) => {
-    const stYy = searchParams.istDt;
-    const mMGbn = column.substring(5, 3);
+    const stYy = searchParams.value.istDt;
+    let srchGbn = '';
     let colDv = '';
     const empno = g.getValue(dataRow, 'empno');
-    if (mMGbn === 'Pr') {
+
+    if (column === 'cntPre') {
       colDv = dayjs().subtract(1, 'month').format('MM');
-    } else if (mMGbn === 'Cu') {
+    } else if (column === 'cntPreC') {
+      colDv = dayjs().subtract(1, 'month').format('MM');
+      srchGbn = 'cncl';
+    } else if (column === 'cntPreFnl') {
+      colDv = dayjs().subtract(1, 'month').format('MM');
+      srchGbn = 'fnl';
+    } else if (column === 'cntCur') {
       colDv = now.format('MM');
-    } else if (mMGbn === 'To') {
+    } else if (column === 'cntCurC') {
+      colDv = now.format('MM');
+      srchGbn = 'cncl';
+    } else if (column === 'cntCurFnl') {
+      colDv = now.format('MM');
+      srchGbn = 'fnl';
+    } else if (column === 'cnt01') {
+      colDv = '01';
+    } else if (column === 'cnt01C') {
+      colDv = '01';
+      srchGbn = 'cncl';
+    } else if (column === 'cnt01Fnl') {
+      colDv = '01';
+      srchGbn = 'fnl';
+    } else if (column === 'cnt02') {
+      colDv = '02';
+    } else if (column === 'cnt02C') {
+      colDv = '02';
+      srchGbn = 'cncl';
+    } else if (column === 'cnt02Fnl') {
+      colDv = '02';
+      srchGbn = 'fnl';
+    } else if (column === 'cnt03') {
+      colDv = '03';
+    } else if (column === 'cnt03C') {
+      colDv = '03';
+      srchGbn = 'cncl';
+    } else if (column === 'cnt03Fnl') {
+      colDv = '03';
+      srchGbn = 'fnl';
+    } else if (column === 'cnt04') {
+      colDv = '04';
+    } else if (column === 'cnt04C') {
+      colDv = '04';
+      srchGbn = 'cncl';
+    } else if (column === 'cnt04Fnl') {
+      colDv = '04';
+      srchGbn = 'fnl';
+    } else if (column === 'cnt05') {
+      colDv = '05';
+    } else if (column === 'cnt05C') {
+      colDv = '05';
+      srchGbn = 'cncl';
+    } else if (column === 'cnt05Fnl') {
+      colDv = '05';
+      srchGbn = 'fnl';
+    } else if (column === 'cnt06') {
+      colDv = '06';
+    } else if (column === 'cnt06C') {
+      colDv = '06';
+      srchGbn = 'cncl';
+    } else if (column === 'cnt06Fnl') {
+      colDv = '06';
+      srchGbn = 'fnl';
+    } else if (column === 'cnt07') {
+      colDv = '07';
+    } else if (column === 'cnt07C') {
+      colDv = '07';
+      srchGbn = 'cncl';
+    } else if (column === 'cnt07Fnl') {
+      colDv = '07';
+      srchGbn = 'fnl';
+    } else if (column === 'cnt08') {
+      colDv = '08';
+    } else if (column === 'cnt08C') {
+      colDv = '08';
+      srchGbn = 'cncl';
+    } else if (column === 'cnt08Fnl') {
+      colDv = '08';
+      srchGbn = 'fnl';
+    } else if (column === 'cnt09') {
+      colDv = '09';
+    } else if (column === 'cnt09C') {
+      colDv = '09';
+      srchGbn = 'cncl';
+    } else if (column === 'cnt09Fnl') {
+      colDv = '09';
+      srchGbn = 'fnl';
+    } else if (column === 'cnt10') {
+      colDv = '10';
+    } else if (column === 'cnt10C') {
+      colDv = '10';
+      srchGbn = 'cncl';
+    } else if (column === 'cnt10Fnl') {
+      colDv = '10';
+      srchGbn = 'fnl';
+    } else if (column === 'cnt11') {
+      colDv = '11';
+    } else if (column === 'cnt11C') {
+      colDv = '11';
+      srchGbn = 'cncl';
+    } else if (column === 'cnt11Fnl') {
+      colDv = '11';
+      srchGbn = 'fnl';
+    } else if (column === 'cnt12') {
+      colDv = '12';
+    } else if (column === 'cnt12C') {
+      colDv = '12';
+      srchGbn = 'cncl';
+    } else if (column === 'cnt12Fnl') {
+      colDv = '12';
+      srchGbn = 'fnl';
+    } else if (column === 'cntTot') {
       colDv = '';
-    } else {
-      colDv = mMGbn;
     }
+
     await modal({
       component: 'WwctaEmployeePurchaseContractListP',
-      componentProps: { stYy, colDv, empno },
+      componentProps: { stYy, colDv, empno, srchGbn },
     });
   };
 });
