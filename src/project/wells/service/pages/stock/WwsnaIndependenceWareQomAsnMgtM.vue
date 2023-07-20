@@ -29,7 +29,7 @@
             type="month"
             :label="$t('MSG_TXT_BASE_YM')"
             rules="required"
-            @change="onChangeYm"
+            @change="onChangeApyYm"
           />
         </kw-search-item>
         <!-- //기준년월 -->
@@ -43,7 +43,7 @@
             type="month"
             :label="$t('MSG_TXT_ASN_YM')"
             rules="required"
-            @change="onChangeYm"
+            @change="onChangeAsnOjYm"
           />
         </kw-search-item>
         <!-- //배정년월 -->
@@ -260,7 +260,7 @@ const onChangeStrWareHouse = async () => {
 };
 
 // 기준년월, 배정년월이 변경되었을 때 창고번호 재조회
-function onChangeYm() {
+function onChangeApyYm() {
   const { apyYm, asnOjYm } = searchParams.value;
   if (isEmpty(apyYm)) {
     searchParams.value.strWareNo = '';
@@ -272,6 +272,17 @@ function onChangeYm() {
   }
   onChangeOstrWareHouse();
 
+  if (isEmpty(asnOjYm)) {
+    searchParams.value.strWareNo = '';
+    optionsStrWareNo.value = [];
+    return;
+  }
+
+  onChangeStrWareHouse();
+}
+
+function onChangeAsnOjYm() {
+  const { asnOjYm } = searchParams.value;
   if (isEmpty(asnOjYm)) {
     searchParams.value.strWareNo = '';
     optionsStrWareNo.value = [];
