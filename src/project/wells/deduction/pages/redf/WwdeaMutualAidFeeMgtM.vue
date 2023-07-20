@@ -35,9 +35,8 @@
         <kw-search-item :label="$t('MSG_TXT_PROCS_TP')">
           <kw-select
             v-model="searchParams.redfAdsbTpCd"
-            :options="codes.REDF_ADSB_TP_CD"
-            first-option="all"
-            first-option-value="ALL"
+            :label="$t('MSG_TXT_PROCS_TP')"
+            :options="filterAll"
           />
         </kw-search-item>
       </kw-search-row>
@@ -50,18 +49,22 @@
         >
           <kw-option-group
             v-model="searchParams.dvCd"
+            :label="$t('MSG_TXT_DIV')"
             type="radio"
             :options="rleDvCds"
             @change="onChangeDvCd"
           />
         </kw-search-item>
         <!-- 파트너번호 -->
-        <kw-search-item :label="$t('MSG_TXT_PRTNR_NUM')">
+        <kw-search-item
+          :label="$t('MSG_TXT_PRTNR_NUMBER')"
+        >
           <kw-input
             v-model="searchParams.prtnrNo"
-            type="number"
-            icon="search"
+            :label="$t('MSG_TXT_PRTNR_NUMBER')"
+            regex="num"
             :maxlength="10"
+            icon="search"
             clearable
             @click-icon="onClickSearchPartner"
           />
@@ -138,6 +141,23 @@ const { currentRoute } = useRouter(); // 엑셀 다운로드 페이지명
 let cachedParamsTotal;
 let cachedParams;
 
+// 페이징
+const pageInfo = ref({
+  totalCount: 0,
+  pageIndex: 1,
+  // 환경변수에서 기본설정값 받아오는 코드 현재 CFG_CMZ_DEFAULT_PAGE_SIZE 기본값:10
+  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')) - 1,
+  needTotalCount: true,
+});
+
+// -------------------------------------------------------------------------------------------------
+// Function & Event
+// -------------------------------------------------------------------------------------------------
+const grdMainRef = ref(getComponentType('KwGrid'));
+const grdSubRef = ref(getComponentType('KwGrid'));
+const defaultDay = dayjs().subtract(0, 'month').format('YYYYMM');
+const gridVshow = ref(true);
+
 const rleDvCds = ref([
   {
     codeId: '01',
@@ -149,31 +169,23 @@ const rleDvCds = ref([
   },
 ]); // 구분 옵션
 
-// 페이징
-const pageInfo = ref({
-  totalCount: 0,
-  pageIndex: 1,
-  // 환경변수에서 기본설정값 받아오는 코드 현재 CFG_CMZ_DEFAULT_PAGE_SIZE 기본값:10
-  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')) - 1,
-  needTotalCount: true,
-});
+const filterAll = [];
 
 const codes = await codeUtil.getMultiCodes(
   'RLE_DV_CD',
   'REDF_ADSB_TP_CD', // 되물림재지급유형코드
 );
 
-// -------------------------------------------------------------------------------------------------
-// Function & Event
-// -------------------------------------------------------------------------------------------------
-const grdMainRef = ref(getComponentType('KwGrid'));
-const grdSubRef = ref(getComponentType('KwGrid'));
-const defaultDay = dayjs().subtract(0, 'month').format('YYYYMM');
-const gridVshow = ref(true);
+codes.REDF_ADSB_TP_CD.forEach((e) => {
+  if (e.prtsCodeId === '02' && e.userDfn02 != null) {
+    filterAll.push(e);
+  }
+});
+
 const searchParams = ref({
   prtnrNo: '',
   ocYm: defaultDay,
-  redfAdsbTpCd: codes.REDF_ADSB_TP_CD[0].codeId,
+  redfAdsbTpCd: filterAll[0].codeId,
   dvCd: '01',
 });
 
@@ -226,6 +238,9 @@ async function fetchData() {
 async function onClickSearch() {
   grdMainRef.value.getData().clearRows();
   pageInfo.value.pageIndex = 1;
+  pageInfo.value.totalCount = 0;
+  grdSubRef.value.getData().clearRows();
+
   cachedParams = cloneDeep(searchParams.value);
 
   await fetchData();
@@ -270,7 +285,6 @@ async function onClickExcelDownload() {
   });
   // grdMainRef.value.getData().clearRows();
   // onClickSearch();
-  console.log(res);
 }
 
 async function onChangeDvCd() {
@@ -297,7 +311,9 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'prtnrKnm' }, // 판매자명
     { fieldName: 'rsbDvCd' }, // 직급
     { fieldName: 'brmgrPrtnrNo' }, // 지점장
-    { fieldName: 'cntrNoSn' }, // 계약번호
+    { fieldName: 'cntrNo' }, // 계약번호
+    { fieldName: 'cntrSn' }, // 계약일련번호
+    { fieldName: 'cntrNoSn' }, // 계약상세번호
     { fieldName: 'pdNm' }, // 상품명
     { fieldName: 'istDt' }, // 설치일
     { fieldName: 'lifCntrNo' }, // 상조 계약번호
@@ -326,11 +342,18 @@ const initGrid = defineGrid((data, view) => {
     }, // 실적년월
     { fieldName: 'sellDvCd', header: t('MSG_TXT_DIV'), width: '80', styleName: 'text-center' }, // 구분
     { fieldName: 'ogCd', header: t('MSG_TXT_BLG'), width: '100', styleName: 'text-center' }, // 소속
-    { fieldName: 'prtnrNo', header: t('MSG_TXT_PRTNR_NUM'), width: '120', styleName: 'text-center' }, // 파트너번호
+    { fieldName: 'prtnrNo', header: t('MSG_TXT_PRTNR_NUMBER'), width: '120', styleName: 'text-center' }, // 파트너번호
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_SELL_NM'), width: '80', styleName: 'text-center' }, // 판매자명
     { fieldName: 'rsbDvCd', header: t('MSG_TXT_CRLV'), width: '80', styleName: 'text-center' }, // 직급
     { fieldName: 'brmgrPrtnrNo', header: t('MSG_TXT_BRMGR'), width: '150', styleName: 'text-center' }, // 지점장
-    { fieldName: 'cntrNoSn', header: t('MSG_TXT_CNTR_NO'), width: '150', styleName: 'text-center' }, // 계약번호
+    { fieldName: 'cntrNoSn',
+      header: t('MSG_TXT_CNTR_DTL_NO'),
+      width: '150',
+      styleName: 'text-center',
+      displayCallback(grid, index) {
+        const { cntrNo, cntrSn } = grid.getValues(index.itemIndex);
+        return `${cntrNo}-${cntrSn}`;
+      } }, // 계약상세번호
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '150', styleName: 'text-left' }, // 상품명
     { fieldName: 'istDt', header: t('MSG_TXT_INST_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' }, // 설치일
     { fieldName: 'lifCntrNo', header: t('MSG_TXT_MUTU_CNTR_NUM'), width: '120', styleName: 'text-center' }, // 상조 계약번호
@@ -385,7 +408,7 @@ const initGrid2 = defineGrid((data, view) => {
     { fieldName: 'baseYm', header: t('MSG_TXT_MNTH_OCCURENCE'), width: '120', styleName: 'text-center', datetimeFormat: 'YYYY-MM' }, // 발생월
     { fieldName: 'sellDvCd', header: t('MSG_TXT_DIV'), width: '80', styleName: 'text-center' }, // 구분
     { fieldName: 'ogCd', header: t('MSG_TXT_BLG'), width: '80', styleName: 'text-center' }, // 소속
-    { fieldName: 'prtnrNo', header: t('MSG_TXT_PRTNR_NUM'), width: '80', styleName: 'text-center' }, // 파트너번호
+    { fieldName: 'prtnrNo', header: t('MSG_TXT_PRTNR_NUMBER'), width: '80', styleName: 'text-center' }, // 파트너번호
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '80', styleName: 'text-center' }, // 성명
     { fieldName: 'rsbDvCd', header: t('MSG_TXT_CRLV'), width: '80', styleName: 'text-center' }, // 직급
     { fieldName: 'ackmtPerfCt', header: t('MSG_TXT_COUNT'), width: '80', styleName: 'text-center' }, // 건수
