@@ -101,14 +101,16 @@
         <kw-btn
           v-permission:create
           icon="upload_on"
-          grid-action
+          secondary
+          dense
           :label="$t('MSG_BTN_EXCEL_UP')"
           @click="onClickExcelUpload"
         />
         <kw-btn
           v-permission:download
           icon="download_on"
-          grid-action
+          secondary
+          dense
           :disable="pageInfo.totalCount === 0"
           :label="$t('MSG_BTN_EXCEL_DOWN')"
           @click="onClickExcelDownload"
@@ -120,13 +122,14 @@
         />
         <kw-btn
           :label="$t('MSG_BTN_CNTN_COPY')"
-          grid-action
+          secondary
           dense
           :disable="pageInfo.totalCount === 0"
           @click="onClickCopy"
         />
         <kw-btn
-          grid-action
+          dense
+          secondary
           :disable="pageInfo.totalCount === 0"
           :label="$t('MSG_BTN_SUMMARY_SRCH')"
           @click="onClickSummaryDtl"
