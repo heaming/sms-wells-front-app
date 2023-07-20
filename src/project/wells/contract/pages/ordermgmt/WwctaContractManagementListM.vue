@@ -1150,7 +1150,7 @@ const initGrdMstList = defineGrid((data, view) => {
               res = await dataService.put('/sms/wells/contract/contracts/managements/confirm', rows);
               console.log(res.data.processCount);
               if (res.data.processCount === 0) {
-                await notify(t('MSG_ALT_CNFM_COMPLETE')); // 확정 완료했습니다.
+                await notify(t('MSG_ALT_ORD_CNFM')); // 주문이 확정되었습니다.
                 // 재조회 호출
                 await fetchMstData();
               }
@@ -1175,13 +1175,13 @@ const initGrdMstList = defineGrid((data, view) => {
           res = await dataService.put('/sms/wells/contract/contracts/managements/confirm', rows);
           console.log(res.data.processCount);
           if (res.data.processCount === 0) {
-            await notify(t('MSG_ALT_CNFM_COMPLETE')); // 확정 완료했습니다.
+            await notify(t('MSG_ALT_ORD_CNFM')); // 주문이 확정되었습니다.
             // 재조회 호출
             await fetchMstData();
           }
         }
       } else {
-        await alert(t('MSG_ALT_STLM_FSH_STAT_CAN_ONLY_APR')); // 결제 완료 상태에서만 승인 할 수 있습니다.
+        await alert(t('MSG_ALT_STLM_FSH_STAT_ORD_CAN_ONLY_CNFM')); // 결제 완료 상태의 주문만 확정할 수 있습니다.
       }
     } else if (['rqsIz'].includes(column)) { // 요청내역 버튼 클릭
       // const { fstRgstUsrId, fnlMdfcUsrId } = gridUtil.getRowValue(g, itemIndex);
@@ -1276,6 +1276,8 @@ const initGrdMstList = defineGrid((data, view) => {
       searchDtlParams.value.cntrPrgsStatCd = cntrPrgsStatCd;
 
       await fetchDtlData();
+    } else if (['cntrwBrws'].includes(column)) { // 계약서보기 버튼 클릭
+      await alert('계약서보기 팝업은 작업예정입니다.');
     } else if (['notakFwIz'].includes(column)) { // 알림톡 발송 내역 버튼 클릭
       await modal({ component: 'WwKakaotalkSendListP', componentProps: { cntrNo: paramCntrNo, cntrSn: paramCntrSn, concDiv: searchParams.cntrDv } }); // 카카오톡 발송 내역 조회
     }
