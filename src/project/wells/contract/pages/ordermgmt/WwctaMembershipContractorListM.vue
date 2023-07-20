@@ -273,7 +273,12 @@ async function onChangeBryyMmddEntrpNoCbnoryyMmdd() {
 
 // 고객번호 팝업조회
 async function onClickSearchCntrCst() {
-  const res = await modal({ component: 'ZwcsaCustomerListP' });
+  const res = await modal({
+    component: 'ZwcsaCustomerListP',
+    componentProps: {
+      cstNo: searchParams.value.cntrCstNo,
+    },
+  });
   if (res.result && res.payload) {
     // searchParams.cntrCstKnm(res.payload.name);
     // searchParams.cntrCstNo(res.payload.cstNo);
