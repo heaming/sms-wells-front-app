@@ -208,9 +208,9 @@ const initGrid = defineGrid((data, view) => {
     // 계좌번호
     { fieldName: 'acnoEncr', header: t('MSG_TXT_AC_NO'), width: '246', styleName: 'text-left' },
     // 예금주
-    { fieldName: 'dprNm', header: t('MSG_TXT_ACHLDR'), width: '120', styleName: 'text-left' },
+    { fieldName: 'dprNm', header: t('MSG_TXT_ACHLDR'), width: '120', styleName: 'text-center' },
     // 계약구분
-    { fieldName: 'copnDvCd', header: t('MSG_TXT_CNTR_DV'), width: '120', styleName: 'text-left', options: codes.INDV_CRP_CNTR_DV_CD },
+    { fieldName: 'copnDvCd', header: t('MSG_TXT_CNTR_DV'), width: '120', styleName: 'text-center', options: codes.INDV_CRP_CNTR_DV_CD },
     // 차월
     { fieldName: 'nmn', header: t('MSG_TXT_NMN'), width: '120', styleName: 'text-right' },
     // 만료/취소년월
