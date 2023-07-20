@@ -392,10 +392,10 @@ async function onClickBulkUpdate() {
     data.updateRow(rowValue.dataRow, {
       tfAkRsonCd,
       tfOgNm,
-      tfOgId,
       tfOgTpCd,
-      tfPrtnrNo,
+      tfOgId,
       tfPrtnrKnm,
+      tfPrtnrNo,
     });
   });
   data.endUpdate();
@@ -458,18 +458,23 @@ async function onClickTf() {
   const data = checkedRows.map((row) => ({
     baseYm: row.asnOjYm,
     cstSvAsnNo: row.cstSvAsnNo,
+
     tfStatCd: row.tfStatCd,
     tfAkRsonCd: row.tfAkRsonCd,
     tfAkPrtnrOgTpCd: row.tfOgTpCd,
+    tfAkPrtnrOgId: row.tfOgId,
     tfAkPrtnrNo: row.tfPrtnrNo,
+
     bfchIchrBrchOgId: row.bfchIchrBrchOgId,
     bfchMngrDvCd: row.bfchMngrDvCd,
     bfchIchrPrtnrOgTpCd: row.bfchIchrPrtnrOgTpCd,
     bfchIchrPrtnrNo: row.bfchIchrPrtnrNo,
+
     afchIchrBrchOgId: row.afchIchrBrchOgId,
     afchMngrDvCd: row.afchMngrDvCd,
     afchIchrPrtnrOgTpCd: row.afchIchrPrtnrOgTpCd,
     afchIchrPrtnrNo: row.afchIchrPrtnrNo,
+
     mngerRglvlDvCd: row.mngerRglvlDvCd,
   }));
 
@@ -496,18 +501,22 @@ async function onClickTfConfirm() {
   const data = checkedRows.map((row) => ({
     baseYm: row.asnOjYm,
     cstSvAsnNo: row.cstSvAsnNo,
+
     tfStatCd: row.tfStatCd,
     tfAkRsonCd: row.tfAkRsonCd,
     tfAkPrtnrOgTpCd: row.tfOgTpCd,
     tfAkPrtnrNo: row.tfPrtnrNo,
+
     bfchIchrBrchOgId: row.bfchIchrBrchOgId,
     bfchMngrDvCd: row.bfchMngrDvCd,
     bfchIchrPrtnrOgTpCd: row.bfchIchrPrtnrOgTpCd,
     bfchIchrPrtnrNo: row.bfchIchrPrtnrNo,
+
     afchIchrBrchOgId: row.afchIchrBrchOgId,
     afchMngrDvCd: row.afchMngrDvCd,
     afchIchrPrtnrOgTpCd: row.afchIchrPrtnrOgTpCd,
     afchIchrPrtnrNo: row.afchIchrPrtnrNo,
+
     mngerRglvlDvCd: row.mngerRglvlDvCd,
   }));
 
@@ -597,6 +606,7 @@ function initGrdMain(data, view) {
     { fieldName: 'tfAkRsonCd' }, // 담당자 변경
     { fieldName: 'tfOgNm' }, // 담당자 변경
     { fieldName: 'tfOgTpCd' }, // 담당자 변경
+    { fieldName: 'tfOgId' }, // 담당자 변경
     { fieldName: 'tfPrtnrKnm' }, // 담당자 변경
     { fieldName: 'tfPrtnrNo' }, // 담당자 변경
 
