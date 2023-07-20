@@ -176,7 +176,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'stlmTpCd' }, // 대상구분
     { fieldName: 'cntrNo' }, // 계약번호
     { fieldName: 'cntrSn' }, // 계약일련번호
-    { fieldName: 'cntrDtl' }, // 계약상세번호
+    { fieldName: 'cntrDtlNo' }, // 계약상세번호
     { fieldName: 'cstKnm' }, // 고객명
     { fieldName: 'fnlMdfcDtm', dataType: 'date' }, // 처리일자
     { fieldName: 'rfndDsbAmt', dataType: 'number' }, // 금액(원)
@@ -191,7 +191,7 @@ const initGrdMain = defineGrid((data, view) => {
 
   const columns = [
     { fieldName: 'stlmTpCd', header: t('MSG_TXT_CONT_CLASS'), width: '120', styleName: 'text-center', options: codes.STLM_TP_CD }, // 대상구분
-    { fieldName: 'cntrDtl', header: t('MSG_TXT_CNTR_DTL'), width: '150', styleName: 'text-center' }, // 계약상세
+    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL'), width: '150', styleName: 'text-center' }, // 계약상세
     { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '90', styleName: 'text-center' }, // 고객명
     { fieldName: 'fnlMdfcDtm', header: t('MSG_TXT_PRCSDT'), width: '120', styleName: 'text-center', datetimeFormat: 'date' }, // 처리일자
     { fieldName: 'rfndDsbAmt', header: t('MSG_TXT_AMT_WON'), width: '120', styleName: 'text-right' }, // 금액(원)
