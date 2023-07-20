@@ -424,6 +424,15 @@ watch(stepsStatus, async () => {
   }
 });
 
+watch(props, () => {
+  const { cntrNo, cntrPrgsStatCd } = props;
+  if (stepsStatus.every((s) => s)) {
+    if (cntrNo && cntrPrgsStatCd) {
+      getExistedCntr();
+    }
+  }
+});
+
 onMounted(async () => {
   /*
   20230719_통합테스트2차_마감접수체크비활성화

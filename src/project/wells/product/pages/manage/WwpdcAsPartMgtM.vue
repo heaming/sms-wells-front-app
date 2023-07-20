@@ -355,7 +355,8 @@ async function onClickSave(tempSaveYn) {
 
   if (tempSaveYn === 'N') {
     // 목록으로 이동
-    await pageMove(pdConst.ASPART_LIST_PAGE, true, router, { isSearch: true }, { newRegYn: 'N', reloadYn: 'N', copyPdCd: '' });
+    await pageMove(pdConst.ASPART_LIST_PAGE, true, router, { isSearch: true }, { newRegYn: 'N', reloadYn: 'N', copyPdCd: '', searchYn: 'Y' });
+    return;
   }
   if (isTempSaveBtn.value) {
     // 임시저장

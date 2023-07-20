@@ -46,6 +46,7 @@
         :label="$t('MSG_TXT_MPNO')"
       >
         <kw-input
+          v-model="searchParams.cellphone"
           v-model:tel-no0="searchParams.cntrCralLocaraTno"
           v-model:tel-no1="searchParams.cntrMexnoEncr"
           v-model:tel-no2="searchParams.cntrCralIdvTno"
@@ -152,6 +153,21 @@ const dataService = useDataService();
 const { currentRoute } = useRouter();
 const { alert } = useGlobal();
 
+const props = defineProps({
+  cellphone: {
+    type: String,
+    default: null,
+  },
+  searchYn: {
+    type: String,
+    default: 'N',
+  },
+});
+
+const emit = defineEmits([
+  'update:searchYn',
+]);
+
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -161,6 +177,7 @@ const searchParams = reactive({});
 const totalCount = ref(0);
 const subModuleCodes = ref([]);
 const customerParams = ref({});
+const windowKey = ref('');
 
 const codes = await codeUtil.getMultiCodes(
   'BND_CLCTN_PRP_DV_CD',
@@ -182,6 +199,22 @@ async function fetchData() {
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(customers);
 }
+
+async function setCellphone(val) {
+  searchParams.cntrCralLocaraTno = val?.split('-')[0];
+  searchParams.cntrMexnoEncr = val?.split('-')[1];
+  searchParams.cntrCralIdvTno = val?.split('-')[2];
+
+  await fetchData();
+  emit('update:searchYn', 'N');
+}
+
+watch(() => props.searchYn, async () => {
+  if (props.searchYn === 'Y') {
+    searchParams.cellphone = props.cellphone;
+    await setCellphone(searchParams.cellphone);
+  }
+}, { immediate: true });
 
 async function onClickSearch() {
   const notEmpty = Object.values(searchParams).some((val) => !isEmpty(val));
@@ -271,7 +304,7 @@ const initGrid = defineGrid((data, view) => {
       fieldName: 'cntrNoSn',
       header: t('MSG_TXT_CNTR_DTL_NO'),
       styleName: 'text-center',
-      width: '100',
+      width: '150',
 
       displayCallback(grid, index) {
         const { cntrNo, cntrSn } = grid.getValues(index.itemIndex);
@@ -289,7 +322,7 @@ const initGrid = defineGrid((data, view) => {
       fieldName: 'cntrTelNo',
       header: t('MSG_TXT_TEL_NO'),
       styleName: 'text-center',
-      width: '100',
+      width: '140',
 
       displayCallback(grid, index) {
         const { cntrLocaraTno: no1, cntrExnoEncr: no2, cntrIdvTno: no3 } = grid.getValues(index.itemIndex);
@@ -302,7 +335,7 @@ const initGrid = defineGrid((data, view) => {
       fieldName: 'cntrMpNo',
       header: t('MSG_TXT_MPNO'),
       styleName: 'text-center',
-      width: '100',
+      width: '140',
 
       displayCallback(grid, index) {
         const { cntrCralLocaraTno: no1, cntrMexnoEncr: no2, cntrCralIdvTno: no3 } = grid.getValues(index.itemIndex);
@@ -317,7 +350,7 @@ const initGrid = defineGrid((data, view) => {
       fieldName: 'istTelNo',
       header: t('MSG_TXT_IST_TNO'),
       styleName: 'text-center',
-      width: '100',
+      width: '140',
 
       displayCallback(grid, index) {
         const { istLocaraTno: no1, istExnoEncr: no2, istIdvTno: no3 } = grid.getValues(index.itemIndex);
@@ -330,7 +363,7 @@ const initGrid = defineGrid((data, view) => {
       fieldName: 'istMpNo',
       header: t('MSG_TXT_IST_MPNO'),
       styleName: 'text-center',
-      width: '100',
+      width: '140',
 
       displayCallback(grid, index) {
         const { istCralLocaraTno: no1, istMexnoEncr: no2, istCralIdvTno: no3 } = grid.getValues(index.itemIndex);
@@ -364,12 +397,12 @@ const initGrid = defineGrid((data, view) => {
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
 
-  view.onCellDblClicked = async (g, clickData) => {
-    if (clickData.cellType === 'data') {
-      const { cstNo, cntrNo, cntrSn } = gridUtil.getRowValue(g, clickData.itemIndex);
-      if (cstNo) {
-        await popupUtil.open(`/popup/#/wwbnc-customer-dtl?cstNo=${cstNo}&cntrNo=${cntrNo}&cntrSn=${cntrSn}`, { width: 2000, height: 1100 }, false);
-      }
+  view.onCellDblClicked = async (g, { dataRow }) => {
+    const { cstNo, cntrNo, cntrSn } = gridUtil.getRowValue(g, dataRow);
+
+    windowKey.value = `WwbncBondCounselMCustomerSearch_${cstNo}`;
+    if (cstNo) {
+      await popupUtil.open(`/popup/#/wwbnc-customer-dtl?cstNo=${cstNo}&cntrNo=${cntrNo}&cntrSn=${cntrSn}`, { width: 2000, height: 1100 }, { cstNo, cntrNo, cntrSn }, windowKey.value);
     }
   };
 });

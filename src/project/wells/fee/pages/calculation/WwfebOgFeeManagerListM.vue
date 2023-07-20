@@ -36,7 +36,7 @@
           required
         >
           <kw-option-group
-            v-model="searchParams.schOrdr"
+            v-model="searchParams.schOrdrCd"
             :label="$t('MSG_TXT_ORDR')"
             type="radio"
             :options="codes.FEE_TCNT_DV_CD"
@@ -47,7 +47,7 @@
           required
         >
           <kw-option-group
-            v-model="searchParams.rsbTp"
+            v-model="searchParams.rsbTpCd"
             :label="$t('MSG_TXT_RSB_TP')"
             type="radio"
             :options="filterRsbDvCd"
@@ -61,9 +61,9 @@
       <kw-search-row>
         <kw-search-item :label="t('MSG_TXT_OG_LEVL')">
           <zwog-level-select
-            v-model:og-levl-dv-cd1="searchParams.ogLevl1"
-            v-model:og-levl-dv-cd2="searchParams.ogLevl2"
-            v-model:og-levl-dv-cd3="searchParams.ogLevl3"
+            v-model:og-levl-dv-cd1="searchParams.ogLevl1Id"
+            v-model:og-levl-dv-cd2="searchParams.ogLevl2Id"
+            v-model:og-levl-dv-cd3="searchParams.ogLevl3Id"
             :og-tp-cd="searchParams.ogTpCd"
             :base-ym="searchParams.perfYm"
             :start-level="1"
@@ -74,7 +74,7 @@
           :label="$t('MSG_TXT_SEQUENCE_NUMBER')"
         >
           <kw-input
-            v-model="searchParams.no"
+            v-model="searchParams.prtnrNo"
             icon="search"
             clearable
             :on-click-icon="onClickSearchNo"
@@ -89,14 +89,14 @@
       </kw-search-row>
     </kw-search>
     <div class="result-area">
-      <h3>{{ searchParams.statTitle }}</h3>
+      <h3>{{ searchParams.statTitleText }}</h3>
       <!-- STEPER -->
       <zwfey-fee-step
         ref="stepNaviRef"
-        :key="searchParams.perfYm+searchParams.feeSchdTpCd+searchParams.schOrdr"
+        :key="searchParams.perfYm+searchParams.feeSchdTpCd+searchParams.schOrdrCd"
         v-model:base-ym="searchParams.perfYm"
         v-model:fee-schd-tp-cd="searchParams.feeSchdTpCd"
-        v-model:fee-tcnt-dv-cd="searchParams.schOrdr"
+        v-model:fee-tcnt-dv-cd="searchParams.schOrdrCd"
         v-model:co-cd="searchParams.coCd"
         @click-step="onclickStep"
       />
@@ -189,7 +189,7 @@ const totalCount = ref(0);
 const codes = await codeUtil.getMultiCodes(
   'FEE_TCNT_DV_CD', // 수수료차수구분코드
   'RSB_DV_CD',
-
+  'QLF_DV_CD',
 );
 
 const { getUserInfo } = useMeta();
@@ -198,15 +198,15 @@ const filterRsbDvCd = codes.RSB_DV_CD.filter((v) => ['W0205', 'W0204'].includes(
 const searchParams = ref({
 
   perfYm: now.add(-1, 'month').format('YYYYMM'),
-  schOrdr: '01',
-  rsbTp: '',
+  schOrdrCd: '01',
+  rsbTpCd: '',
   rsbTpTxt: '',
-  no: '',
+  prtnrNo: '',
   prtnrKnm: '',
-  ogLevl1: '',
-  ogLevl2: '',
-  ogLevl3: '',
-  statTitle: t('MSG_TXT_PRGS_STE'),
+  ogLevl1Id: '',
+  ogLevl2Id: '',
+  ogLevl3Id: '',
+  statTitleText: t('MSG_TXT_PRGS_STE'),
   ogTpCd: 'W02',
   feeSchdTpCd: '',
   coCd: '2000',
@@ -253,14 +253,14 @@ async function onChangedPerfYm() {
  *  Event - 직책유형 선택 시 하단 그리드 변경※
  */
 async function onChangedRsbTp() {
-  const { rsbTp } = searchParams.value;
-  if (rsbTp === 'W0205') {
+  const { rsbTpCd } = searchParams.value;
+  if (rsbTpCd === 'W0205') {
     isGrid1Visile.value = true;
     isGrid2Visile.value = false;
     isGrid3Visile.value = false;
     searchParams.value.feeSchdTpCd = '201';
     searchParams.value.unitCd = 'W101';
-  } else if (rsbTp === 'W0204') {
+  } else if (rsbTpCd === 'W0204') {
     isGrid1Visile.value = false;
     isGrid2Visile.value = true;
     isGrid3Visile.value = false;
@@ -279,16 +279,15 @@ async function onChangedRsbTp() {
  *  Event - 조회 후 상단 title 변경
  */
 async function setTitle() {
-  const { perfYm } = searchParams.value;
-  const { rsbTp } = searchParams.value;
+  const { perfYm, rsbTpCd } = searchParams.value;
   searchParams.value.statTitle = `${perfYm.substring(0, 4) + t('MSG_TXT_YEAR')} ${perfYm.substring(4, 6)}${t('MSG_TXT_MON')}`;
-  if (rsbTp !== '') {
-    const { codeName } = codes.RSB_DV_CD.find((v) => v.codeId === rsbTp);
+  if (rsbTpCd !== '') {
+    const { codeName } = codes.RSB_DV_CD.find((v) => v.codeId === rsbTpCd);
     searchParams.value.rsbTpTxt = codeName;
-    searchParams.value.statTitle += ` ${codeName} ${t('MSG_TXT_PRGS_STE')}`;
+    searchParams.value.statTitleText += ` ${codeName} ${t('MSG_TXT_PRGS_STE')}`;
   } else {
     searchParams.value.rsbTpTxt = '';
-    searchParams.value.statTitle += ` ${t('MSG_TXT_PRGS_STE')}`;
+    searchParams.value.statTitleText += ` ${t('MSG_TXT_PRGS_STE')}`;
   }
 }
 
@@ -298,7 +297,7 @@ async function setTitle() {
 
 async function fetchData() {
   let uri = '';
-  const prtnrNo = searchParams.value.no;
+  const { prtnrNo } = searchParams.value;
   stepNaviRef.value.initProps();
 
   if (isGrid2Visile.value === true) {
@@ -356,24 +355,18 @@ async function onClickRetry(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
  *  Event - 미팅집계 클릭 ※
  */
 async function onClickW201P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
-  const { schOrdr } = searchParams.value;
-  const { codeName } = codes.FEE_TCNT_DV_CD.find((v) => v.codeId === searchParams.value.schOrdr);
-  const { perfYm } = searchParams.value;
+  const { schOrdrCd, perfYm, rsbTpCd } = searchParams.value;
+  const { codeName } = codes.FEE_TCNT_DV_CD.find((v) => v.codeId === searchParams.value.schOrdrCd);
   if (searchParams.value.rsbTp === '') {
     await alert(t('MSG_ALT_SELECT_RSB_TP'));
   } else {
-    if (schOrdr === '01') {
-      searchParams.value.schOrdrTxt = '1차';
-    } else {
-      searchParams.value.schOrdrTxt = '2차';
-    }
     const param = {
       ogTpCd: 'W02',
       ogTpCdTxt: 'M추진단',
       perfYm: `${perfYm.substring(0, 4)}-${perfYm.substring(4, 6)}`,
-      feeTcntDvCd: searchParams.value.schOrdr,
+      feeTcntDvCd: schOrdrCd,
       feeTcntDvCdTxt: codeName,
-      rsbTpCd: searchParams.value.rsbTp,
+      rsbTpCd,
     };
     const { result: isChanged } = await modal({
       component: 'ZwfeaFeeMeetingAttendanceRegP',
@@ -404,33 +397,39 @@ async function onClickW202P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
  *  Event - 기타지원 업로드 클릭 ※업무개발에서 별도개발
  */
 async function onClickW205P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
-  await dataService.put(`/sms/common/fee/schedules/steps/${feeSchdId}/status/levels`, null, { params: { feeSchdLvCd, feeSchdLvStatCd } });
-  fetchData();
+  const { result: isUploadSuccess, payload } = await modal({
+    component: 'ZwfezXlsUpP',
+    componentProps: {
+      formatId: 'FOM_FEZ_0023',
+      baseYm: searchParams.value.perfYm,
+      ogTpCd: 'W02',
+      type: searchParams.value.rsbTp,
+    },
+  });
+  if (isUploadSuccess) {
+    notify(t('MSG_ALT_SAVED_CNT', [payload.count]));
+    await dataService.put(`/sms/common/fee/schedules/steps/${feeSchdId}/status/levels`, null, { params: { feeSchdLvCd, feeSchdLvStatCd } });
+    fetchData();
+  }
 }
 
 /*
  *  Event - 세금공제 클릭 ※
  */
 async function onClickW206P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
-  const { schOrdr } = searchParams.value;
-  const { codeName } = codes.FEE_TCNT_DV_CD.find((v) => v.codeId === searchParams.value.schOrdr);
-  const { perfYm } = searchParams.value;
-  if (searchParams.value.rsbTp === '') {
+  const { schOrdrCd, perfYm, rsbTpCd, rsbTpTxt } = searchParams.value;
+  const { codeName } = codes.FEE_TCNT_DV_CD.find((v) => v.codeId === schOrdrCd);
+  if (rsbTpCd === '') {
     await alert(t('MSG_ALT_SELECT_RSB_TP'));
   } else {
-    if (schOrdr === '01') {
-      searchParams.value.schOrdrTxt = '1차';
-    } else {
-      searchParams.value.schOrdrTxt = '2차';
-    }
     const param = {
       ogTpCd: 'W02',
       ogTpCdTxt: 'M추진단',
       ddtnYm: `${perfYm.substring(0, 4)}-${perfYm.substring(4, 6)}`,
-      feeTcntDvCd: searchParams.value.schOrdr,
+      feeTcntDvCd: schOrdrCd,
       feeTcntDvCdTxt: codeName,
-      rsbTpCd: searchParams.value.rsbTp,
-      rsbTpCdTxt: searchParams.value.rsbTpTxt,
+      rsbTpCd,
+      rsbTpCdTxt: rsbTpTxt,
     };
     const { result: isChanged } = await modal({
       component: 'ZwfecFeeTaxDeductionRegP',
@@ -447,12 +446,13 @@ async function onClickW206P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
  *  Event - 원천세등록 클릭
  */
 async function onClickW207P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
+  const { ogTpCd, perfYm, rsbTpCd } = searchParams.value;
   const { result: isUploadSuccess } = await modal({
     component: 'ZwfebFeeCreationWhtxRegP',
     componentProps: {
-      perfYm: searchParams.value.perfYm,
-      ogTpCd: searchParams.value.ogTpCd,
-      rsbDvCd: searchParams.value.rsbTp,
+      perfYm,
+      ogTpCd,
+      rsbDvCd: rsbTpCd,
     },
   });
 
@@ -466,24 +466,18 @@ async function onClickW207P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
  *  Event - 고용보험 공제 클릭 ※
  */
 async function onClickW209P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
-  const { schOrdr } = searchParams.value;
-  const { codeName } = codes.FEE_TCNT_DV_CD.find((v) => v.codeId === searchParams.value.schOrdr);
-  const { perfYm } = searchParams.value;
-  if (searchParams.value.rsbTp === '') {
+  const { schOrdrCd, perfYm, rsbTpCd } = searchParams.value;
+  const { codeName } = codes.FEE_TCNT_DV_CD.find((v) => v.codeId === schOrdrCd);
+  if (rsbTpCd === '') {
     await alert(t('MSG_ALT_SELECT_RSB_TP'));
   } else {
-    if (schOrdr === '01') {
-      searchParams.value.schOrdrTxt = '1차';
-    } else {
-      searchParams.value.schOrdrTxt = '2차';
-    }
     const param = {
       ogTpCd: 'W02',
       ogTpCdTxt: 'M추진단',
       ddtnYm: `${perfYm.substring(0, 4)}-${perfYm.substring(4, 6)}`,
-      feeTcntDvCd: searchParams.value.schOrdr,
+      feeTcntDvCd: schOrdrCd,
       feeTcntDvCdTxt: codeName,
-      rsbTpCd: searchParams.value.rsbTp,
+      rsbTpCd,
     };
     const { result: isChanged } = await modal({
       component: 'ZwfecFeeEmpInsuranceRegP',
@@ -500,21 +494,15 @@ async function onClickW209P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
  *  Event - 가지급금 공제 클릭 ※
  */
 async function onClickW210P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
-  const { schOrdr } = searchParams.value;
-  const { perfYm } = searchParams.value;
-  if (searchParams.value.rsbTp === '') {
+  const { schOrdrCd, perfYm, rsbTpCd } = searchParams.value;
+  if (rsbTpCd === '') {
     await alert(t('MSG_ALT_SELECT_RSB_TP'));
   } else {
-    if (schOrdr === '01') {
-      searchParams.value.schOrdrTxt = '1차';
-    } else {
-      searchParams.value.schOrdrTxt = '2차';
-    }
     const param = {
       ogTpCd: 'W02',
       ddtnYm: `${perfYm.substring(0, 4)}-${perfYm.substring(4, 6)}`,
-      feeTcntDvCd: searchParams.value.schOrdr,
-      rsbTpCd: searchParams.value.rsbTp,
+      feeTcntDvCd: schOrdrCd,
+      rsbTpCd,
     };
     const { result: isChanged } = await modal({
       component: 'ZwfecFeePnpyamDeductionRegP',
@@ -531,20 +519,14 @@ async function onClickW210P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
  *  Event - 부담공제 클릭 ※
  */
 async function onClickW214P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
-  const { schOrdr } = searchParams.value;
-  const { perfYm } = searchParams.value;
-  if (searchParams.value.rsbTp === '') {
+  const { perfYm, rsbTpCd } = searchParams.value;
+  if (rsbTpCd === '') {
     await alert(t('MSG_ALT_SELECT_RSB_TP'));
   } else {
-    if (schOrdr === '01') {
-      searchParams.value.schOrdrTxt = '1차';
-    } else {
-      searchParams.value.schOrdrTxt = '2차';
-    }
     const param = {
       ogTpCd: 'W02',
       perfYm: `${perfYm.substring(0, 4)}-${perfYm.substring(4, 6)}`,
-      rsbDvCd: searchParams.value.rsbTp,
+      rsbDvCd: rsbTpCd,
     };
     const { result: isChanged } = await modal({
       component: 'ZwfecFeeBurdenDeductionRegP',
@@ -561,21 +543,15 @@ async function onClickW214P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
  *  Event - 보증예치금 적립 클릭 ※
  */
 async function onClickW216P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
-  const { schOrdr } = searchParams.value;
-  const { perfYm } = searchParams.value;
-  if (searchParams.value.rsbTp === '') {
+  const { perfYm, rsbTpCd } = searchParams.value;
+  if (rsbTpCd === '') {
     await alert(t('MSG_ALT_SELECT_RSB_TP'));
   } else {
-    if (schOrdr === '01') {
-      searchParams.value.schOrdrTxt = '1차';
-    } else {
-      searchParams.value.schOrdrTxt = '2차';
-    }
     const param = {
       ogTpCd: 'W02',
       perfYm: `${perfYm.substring(0, 4)}-${perfYm.substring(4, 6)}`,
       ocYm: `${perfYm.substring(0, 4)}-${perfYm.substring(4, 6)}`,
-      rsbDvCd: searchParams.value.rsbTp,
+      rsbDvCd: rsbTpCd,
     };
     const { result: isChanged } = await modal({
       component: 'ZwfecFeeRdsReservingRegP',
@@ -592,12 +568,13 @@ async function onClickW216P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
  *  Event - 이체자료 생성 클릭
  */
 async function onClickW217P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
+  const { perfYm, rsbTpCd, ogTpCd } = searchParams.value;
   const { result: isUploadSuccess } = await modal({
     component: 'ZwfebFeeCreationFntIzRegP',
     componentProps: {
-      perfYm: searchParams.value.perfYm,
-      ogTpCd: searchParams.value.ogTpCd,
-      rsbDvCd: searchParams.value.rsbTp,
+      perfYm,
+      ogTpCd,
+      rsbDvCd: rsbTpCd,
     },
   });
   if (isUploadSuccess) {
@@ -611,13 +588,13 @@ async function onClickW217P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
  */
 async function onClickW219P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
   const { formId } = approval.value;
-  const { unitCd } = searchParams.value;
+  const { unitCd, perfYm } = searchParams.value;
   const response = await dataService.get('/sms/common/fee/fee-approval/dsb-cnst-status', searchParams.value); /* 품의진행상태 조회 */
   const resData = response.data;
   approval.value.appKey = formId + unitCd + dayjs().format('YYYYMMDDHHmmss'); /* 10자리 + 4자리 + 14자리 = 28 appKey 생성 */
   const params = approval.value;
   saveInfo.value.appKey = approval.value.appKey;
-  saveInfo.value.perfYm = searchParams.value.perfYm;
+  saveInfo.value.perfYm = perfYm;
   saveInfo.value.unitCd = unitCd;
 
   if (resData.dsbCnstYn === 'Y') {
@@ -707,11 +684,12 @@ async function onClickExcelDownload() {
  *  Event - 번호 검색 아이콘 클릭 이벤트
  */
 async function onClickSearchNo() {
+  const { perfYm, prtnrNo } = searchParams.value;
   const { result, payload } = await modal({
     component: 'ZwogzMonthPartnerListP',
     componentProps: {
-      baseYm: searchParams.value.perfYm,
-      prtnrNo: searchParams.value.no,
+      baseYm: perfYm,
+      prtnrNo,
       ogTpCd: 'W02',
       prtnrKnm: undefined,
     },
@@ -719,7 +697,7 @@ async function onClickSearchNo() {
 
   if (result) {
     if (!isEmpty(payload)) {
-      searchParams.value.no = payload.prtnrNo;
+      searchParams.value.prtnrNo = payload.prtnrNo;
       searchParams.value.prtnrKnm = payload.prtnrKnm;
     }
   }
@@ -823,10 +801,10 @@ const initGrd1Main = defineGrid((data, view) => {
     { fieldName: 'ogNm', header: t('MSG_TXT_BLG'), width: '88.7' },
     { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '88.7' },
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '88.7' },
-    { fieldName: 'rsbDvCd', header: t('MSG_TXT_RSB'), width: '88.7', styleName: 'text-right' },
+    { fieldName: 'rsbDvCd', header: t('MSG_TXT_RSB'), width: '88.7', styleName: 'text-right', options: codes.RSB_DV_CD },
     { fieldName: 'akcuil', header: t('MSG_TXT_METG') + t('MSG_TXT_DC'), width: '91.4' },
-    { fieldName: 'akdmi3', header: t('MSG_TXT_FEE') + t('MSG_TXT_MON'), width: '91.4' },
-    { fieldName: 'akdmi32', header: 'M+1', width: '91.4', styleName: 'text-center' },
+    { fieldName: 'akdmi3', header: t('MSG_TXT_FEE') + t('MSG_TXT_MON'), width: '91.4', options: codes.QLF_DV_CD },
+    { fieldName: 'akdmi32', header: 'M+1', width: '91.4', styleName: 'text-center', options: codes.QLF_DV_CD },
     { fieldName: 'edustr', header: t('MSG_TXT_MANAGER'), width: '91.4', styleName: 'text-center' },
     { fieldName: 'edu011', header: t('MSG_TXT_PLAR'), width: '88.7', styleName: 'text-center' },
     { fieldName: 'edu129', header: t('MSG_TXT_CMPF') + t('MSG_TXT_EDUC'), width: '88.7', styleName: 'text-center' },
@@ -1068,10 +1046,10 @@ const initGrd2Main = defineGrid((data, view) => {
     { fieldName: 'ogNm', header: t('MSG_TXT_BLG'), width: '88.7' },
     { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '88.7' },
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '88.7' },
-    { fieldName: 'rsbDvCd', header: t('MSG_TXT_RSB'), width: '88.7', styleName: 'text-right' },
+    { fieldName: 'rsbDvCd', header: t('MSG_TXT_RSB'), width: '88.7', styleName: 'text-right', options: codes.RSB_DV_CD },
     { fieldName: 'akcuil', header: t('MSG_TXT_METG') + t('MSG_TXT_DC'), width: '91.4' },
-    { fieldName: 'akdmi3', header: t('MSG_TXT_FEE') + t('MSG_TXT_MON'), width: '91.4' },
-    { fieldName: 'akdmi32', header: 'M+1', width: '91.4', styleName: 'text-center' },
+    { fieldName: 'akdmi3', header: t('MSG_TXT_FEE') + t('MSG_TXT_MON'), width: '91.4', options: codes.QLF_DV_CD },
+    { fieldName: 'akdmi32', header: 'M+1', width: '91.4', styleName: 'text-center', options: codes.QLF_DV_CD },
     { fieldName: 'edustr', header: t('MSG_TXT_MANAGER'), width: '91.4', styleName: 'text-center' },
     { fieldName: 'edu011', header: t('MSG_TXT_PLAR'), width: '88.7', styleName: 'text-center' },
     { fieldName: 'edu129', header: t('MSG_TXT_CMPF') + t('MSG_TXT_EDUC'), width: '88.7', styleName: 'text-center' },
@@ -1313,10 +1291,10 @@ const initGrd3Main = defineGrid((data, view) => {
     { fieldName: 'ogNm', header: t('MSG_TXT_BLG'), width: '88.7' },
     { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '88.7' },
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '88.7' },
-    { fieldName: 'rsbDvCd', header: t('MSG_TXT_RSB'), width: '88.7', styleName: 'text-right' },
+    { fieldName: 'rsbDvCd', header: t('MSG_TXT_RSB'), width: '88.7', styleName: 'text-right', options: codes.RSB_DV_CD },
     { fieldName: 'akcuil', header: t('MSG_TXT_METG') + t('MSG_TXT_DC'), width: '91.4' },
-    { fieldName: 'akdmi3', header: t('MSG_TXT_FEE') + t('MSG_TXT_MON'), width: '91.4' },
-    { fieldName: 'akdmi32', header: 'M+1', width: '91.4', styleName: 'text-center' },
+    { fieldName: 'akdmi3', header: t('MSG_TXT_FEE') + t('MSG_TXT_MON'), width: '91.4', options: codes.QLF_DV_CD },
+    { fieldName: 'akdmi32', header: 'M+1', width: '91.4', styleName: 'text-center', options: codes.QLF_DV_CD },
     { fieldName: 'edustr', header: t('MSG_TXT_MANAGER'), width: '91.4', styleName: 'text-center' },
     { fieldName: 'edu011', header: t('MSG_TXT_PLAR'), width: '88.7', styleName: 'text-center' },
     { fieldName: 'edu129', header: t('MSG_TXT_CMPF') + t('MSG_TXT_EDUC'), width: '88.7', styleName: 'text-center' },

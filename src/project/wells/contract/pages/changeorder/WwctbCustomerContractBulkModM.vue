@@ -908,7 +908,7 @@ async function onClickEditPlnnr() {
   });
 
   if (checkPlnner === 'N') {
-    alert(t('MSG_ALT_CHECK_PLNNER'));
+    alert(t('MSG_ALT_RENT_LEAS_CANNOT_SEL_HED_OFFICER'));
     return;
   }
 

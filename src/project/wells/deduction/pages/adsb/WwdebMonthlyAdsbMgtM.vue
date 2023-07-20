@@ -53,12 +53,12 @@
             first-option-value="ALL"
           />
         </kw-search-item>
-        <kw-search-item :label="t('MSG_TXT_PRTNR_NUM')">
+        <kw-search-item :label="t('MSG_TXT_PRTNR_NUMBER')">
           <kw-input
             v-model="searchParams.prtnrNo"
             regex="num"
             icon="search"
-            :label="t('MSG_TXT_PRTNR_NUM')"
+            :label="t('MSG_TXT_PRTNR_NUMBER')"
             rules="max:10|numeric"
             @click-icon="onClickSearchPartner"
           />
@@ -448,6 +448,13 @@ function initGrid(data, view) {
     'sumAdsbAmt',
   ]);
 
+  view.onScrollToBottom = async (g) => {
+    if (pageMainInfo.value.pageIndex * pageMainInfo.value.pageSize <= g.getItemCount()) {
+      pageMainInfo.value.pageIndex += 1;
+      await fetchData();
+    }
+  };
+
   // 헤더쪽 합계 행고정, summary
   view.setHeaderSummaries({
     visible: true,
@@ -487,8 +494,15 @@ function initGrid1(data, view) {
       },
     },
     { fieldName: 'perfDt', header: t('MSG_TXT_BLNG_DT'), width: '150', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'cntrNoSn', header: t('MSG_TXT_CNTR_DTL_NO'), width: '207', styleName: 'text-center' },
-    { fieldName: 'prtnrNo', header: t('MSG_TXT_PRTNR_NUM'), width: '150', styleName: 'text-center' },
+    { fieldName: 'cntrNoSn',
+      header: t('MSG_TXT_CNTR_DTL_NO'),
+      width: '207',
+      styleName: 'text-center',
+      displayCallback(grid, index) {
+        const { cntrNo, cntrSn } = grid.getValues(index.itemIndex);
+        return `${cntrNo}-${cntrSn}`;
+      } },
+    { fieldName: 'prtnrNo', header: t('MSG_TXT_PRTNR_NUMBER'), width: '150', styleName: 'text-center' },
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '150', styleName: 'text-center' },
     { fieldName: 'sellPrtnrAdsbAmt',
       header: t('MSG_TXT_ADSB_AMT'),
@@ -499,7 +513,7 @@ function initGrid1(data, view) {
         numberFormat: '#,##0',
         expression: 'sum',
       } },
-    { fieldName: 'brchPrtnrNo', header: t('MSG_TXT_PRTNR_NUM'), width: '150', styleName: 'text-center' },
+    { fieldName: 'brchPrtnrNo', header: t('MSG_TXT_PRTNR_NUMBER'), width: '150', styleName: 'text-center' },
     { fieldName: 'brchPrtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '150', styleName: 'text-center' },
     { fieldName: 'brchAdsbAmt',
       header: t('MSG_TXT_ADSB_AMT'),
@@ -531,6 +545,13 @@ function initGrid1(data, view) {
     },
 
   ]);
+
+  view.onScrollToBottom = async (g) => {
+    if (pageSecondInfo.value.pageIndex * pageSecondInfo.value.pageSize <= g.getItemCount()) {
+      pageSecondInfo.value.pageIndex += 1;
+      await fetchData2();
+    }
+  };
 
   // 헤더쪽 합계 행고정, summary
   view.setHeaderSummaries({

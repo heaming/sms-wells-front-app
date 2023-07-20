@@ -598,6 +598,7 @@ async function onClickModify(paramStatCd, paramCntrNo) {
     query: {
       cntrNo: paramCntrNo,
       cntrPrgsStatCd: paramStatCd,
+      cntrPrtnrNo: '',
     },
   });
 }
