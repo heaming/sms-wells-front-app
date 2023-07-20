@@ -154,6 +154,14 @@ async function init() {
 }
 
 async function getSaveData() {
+  // 미수정시 초기값 그대로 반환.
+  if (!(await isModifiedProps())) {
+    return {
+      [prcd]: currentInitData.value[prcd],
+      [prcfd]: currentInitData.value[prcfd],
+    };
+  }
+
   const subList = {};
   subList[prcd] = [];
   subList[prcfd] = [];

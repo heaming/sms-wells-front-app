@@ -373,7 +373,10 @@ onMounted(async () => {
 });
 
 watch(() => props.pdCd, (val) => { currentPdCd.value = val; });
-watch(() => props.initData, (val) => { currentInitData.value = val; resetInitData(); }, { deep: true });
+watch(() => props.initData, (val) => {
+  currentInitData.value = val;
+  resetInitData();
+}, { deep: true });
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
