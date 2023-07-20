@@ -30,11 +30,13 @@
             rules="required"
             type="month"
             :label="$t('MSG_TXT_ASN_YM')"
+            readonly
           /><!--배정년월-->
         </kw-search-item>
 
         <kw-search-item
           :label="$t('MSG_TXT_BLG')"
+          required
         >
           <!--소속-->
           <kw-select
@@ -42,9 +44,8 @@
             :options="organizationOptions"
             option-value="ogId"
             option-label="ogCdNm"
-            first-option
-            first-option-value="ALL"
-            :first-option-label="$t('MSG_TXT_ALL')"
+            :label="$t('MSG_TXT_BLG')"
+            rules="required"
             @change="onChangeOrganizationId"
           />
         </kw-search-item>
@@ -76,7 +77,7 @@
           <!--이관상태-->
           <kw-select
             v-model="searchParams.transferStatusCode"
-            :options="codes.ASN_TF_STAT_CD"
+            :options="transferStatusCodes"
             first-option
             first-option-value="ALL"
             :first-option-label="$t('MSG_TXT_ALL')"
@@ -202,10 +203,24 @@
         <kw-btn
           dense
           secondary
+          :label="$t('담당자 일괄변경')"
+          @click="onClickBulkUpdate"
+        /><!--담당자 일괄변경-->
+
+        <kw-separator
+          spaced
+          vertical
+          inset
+        />
+
+        <kw-btn
+          dense
+          primary
           :label="$t('MSG_BTN_PSIC_TF')"
           @click="onClickTf"
         /><!--담당자 이관-->
         <kw-btn
+          v-if="isShowTfConfirmBtm"
           dense
           primary
           :label="$t('MSG_TXT_TF_CNFM')"
@@ -235,6 +250,7 @@
 import { useDataService, useMeta, getComponentType, codeUtil, gridUtil, useGlobal } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
+import { RowState } from 'realgrid';
 
 const now = dayjs();
 const dataService = useDataService();
@@ -242,15 +258,20 @@ const { getConfig } = useMeta();
 const { notify, modal, alert } = useGlobal();
 const { t } = useI18n();
 const { currentRoute } = useRouter();
+const { getters } = useStore();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 const codes = await codeUtil.getMultiCodes(
-  'ASN_TF_STAT_CD',
   'COD_PAGE_SIZE_OPTIONS',
   'TF_AK_RSON_CD',
 );
+
+const transferStatusCodes = ref([
+  { codeId: '00', codeName: '배정' },
+  { codeId: '10', codeName: '확정대기' },
+]);
 
 const tfPrtnrKnmRef = ref();
 const tfAkRsonCdRef = ref();
@@ -259,7 +280,7 @@ const grdMainRef = ref(getComponentType('KwGrid'));
 
 const searchParams = ref({
   assignYm: now.format('YYYYMM'),
-  organizationId: 'ALL',
+  organizationId: '',
   partnerNo: 'ALL',
   partnerNoInput: '',
   transferStatusCode: 'ALL',
@@ -284,7 +305,8 @@ async function fetchData() {
     const { locaraTno, exnoEncr, idvTno } = row;
     row.tno = locaraTno ? `${locaraTno}-${exnoEncr}-${idvTno}` : ''; // 전화번호
 
-    const { cralLocaraTno, mexnoEncr, cralIdvTno } = row;
+    const { cralLocaraTno, mexnoEncr, cralIdvTno, cntrNo, cntrSn } = row;
+    row.cntr = `${cntrNo}-${cntrSn}`;
     row.mobileTno = cralLocaraTno ? `${cralLocaraTno}-${mexnoEncr}-${cralIdvTno}` : ''; // 휴대전화번호
   });
 
@@ -302,10 +324,30 @@ async function onClickSearch() {
 const organizationOptions = ref([]);
 
 async function fetchOrganizationOptions() {
-  const { data } = await dataService.get('/sms/wells/service/before-service-period-customer/organizations');
+  const { ogId, ogTpCd } = getters['meta/getUserInfo'];
+  let dgr1LevlOgId;
+  let dgr2LevlOgId;
+  if (ogTpCd === 'W02') {
+    const { data } = await dataService.get(`/sms/wells/service/manage-customer-rglvl/organization-info/${ogId}`);
+    if (!data.dgr1LevlOgId) {
+      await alert(t('MSG_ALT_NOT_FOUND_OG_INF')); // 조직정보를 찾을 수 없습니다.
+      return;
+    }
+    dgr1LevlOgId = data.dgr1LevlOgId;
+    dgr2LevlOgId = data.dgr2LevlOgId;
+  } else if (['W03', 'W06'].includes(ogTpCd)) {
+    searchParams.value.organizationId = ogId;
+  }
+
+  // W02 : 접속자의 지역단 정보의 하위 지점만 출력
+  // W03, W06 : 접속자의 센터 1개
+  const { data } = await dataService.get('/sms/wells/service/before-service-period-customer/organizations', { params: { ogTpCd, ogId, dgr1LevlOgId, dgr2LevlOgId } });
 
   organizationOptions.value = data;
 }
+
+const { baseRleCd } = getters['meta/getUserInfo'];
+const isShowTfConfirmBtm = ref(baseRleCd === '9999');
 
 const partnerOptions = ref([]);
 
@@ -324,12 +366,13 @@ async function onChangeOrganizationId() {
 const updatePartnerObj = ref({
   tfAkRsonCd: '', // 이관사유
   tfOgId: '', // 소속
+  tfOgTpCd: '',
   tfOgNm: '',
   tfPrtnrNo: '', // 성명
   tfPrtnrKnm: '',
 });
 
-async function onClickTf() {
+async function onClickBulkUpdate() {
   if (!await tfPrtnrKnmRef.value.validate() || !await tfAkRsonCdRef.value.validate()) {
     return;
   }
@@ -342,7 +385,7 @@ async function onClickTf() {
   }
   const data = view.getDataSource();
 
-  const { tfOgId, tfPrtnrNo, tfAkRsonCd, tfOgNm, tfPrtnrKnm } = updatePartnerObj.value;
+  const { tfOgTpCd, tfOgId, tfPrtnrNo, tfAkRsonCd, tfOgNm, tfPrtnrKnm } = updatePartnerObj.value;
 
   data.beginUpdate();
   checkedRows.forEach((rowValue) => {
@@ -350,6 +393,7 @@ async function onClickTf() {
       tfAkRsonCd,
       tfOgNm,
       tfOgId,
+      tfOgTpCd,
       tfPrtnrNo,
       tfPrtnrKnm,
     });
@@ -362,6 +406,9 @@ async function onClickTfHistory() {
   const checkedRows = gridUtil.getCheckedRowValues(view);
   if (checkedRows.length === 0) {
     notify(t('MSG_ALT_NOT_SEL_ITEM'));
+    return;
+  } if (checkedRows.length > 1) {
+    notify(t('MSG_ALT_SEL_SNGL_IF_OPN_POPUP'));
     return;
   }
 
@@ -381,6 +428,9 @@ async function onClickClientContactHistory() {
   if (checkedRows.length === 0) {
     notify(t('MSG_ALT_NOT_SEL_ITEM'));
     return;
+  } if (checkedRows.length > 1) {
+    notify(t('MSG_ALT_SEL_SNGL_IF_OPN_POPUP'));
+    return;
   }
 
   const { cstSvAsnNo } = checkedRows[0];
@@ -393,9 +443,77 @@ async function onClickClientContactHistory() {
   });
 }
 
+async function onClickTf() {
+  const view = grdMainRef.value.getView();
+  const checkedRows = gridUtil.getCheckedRowValues(view);
+  if (checkedRows.length === 0) {
+    notify(t('MSG_ALT_NOT_SEL_ITEM'));
+    return;
+  }
+  if (checkedRows.some(({ rowState }) => rowState !== RowState.UPDATED)) {
+    notify(t('MSG_ALT_NOT_EXST_TF_REQ_PSIC')); // 이관요청담당자가 없는 행이 존재합니다.
+    return;
+  }
+
+  const data = checkedRows.map((row) => ({
+    baseYm: row.asnOjYm,
+    cstSvAsnNo: row.cstSvAsnNo,
+    tfStatCd: row.tfStatCd,
+    tfAkRsonCd: row.tfAkRsonCd,
+    tfAkPrtnrOgTpCd: row.tfOgTpCd,
+    tfAkPrtnrNo: row.tfPrtnrNo,
+    bfchIchrBrchOgId: row.bfchIchrBrchOgId,
+    bfchMngrDvCd: row.bfchMngrDvCd,
+    bfchIchrPrtnrOgTpCd: row.bfchIchrPrtnrOgTpCd,
+    bfchIchrPrtnrNo: row.bfchIchrPrtnrNo,
+    afchIchrBrchOgId: row.afchIchrBrchOgId,
+    afchMngrDvCd: row.afchMngrDvCd,
+    afchIchrPrtnrOgTpCd: row.afchIchrPrtnrOgTpCd,
+    afchIchrPrtnrNo: row.afchIchrPrtnrNo,
+    mngerRglvlDvCd: row.mngerRglvlDvCd,
+  }));
+
+  await dataService.post('/sms/wells/service/before-service-period-customer/transfer', data);
+
+  await fetchData();
+}
+
 async function onClickTfConfirm() {
-  console.log('이관 확정');
-  alert('이관 확정 로직 추가 필요');
+  const view = grdMainRef.value.getView();
+  const checkedRows = gridUtil.getCheckedRowValues(view);
+  if (checkedRows.length === 0) {
+    notify(t('MSG_ALT_NOT_SEL_ITEM'));
+    return;
+  }
+  console.log(checkedRows);
+
+  const isExistEmptyData = checkedRows.some((row) => !(row.tfAkRsonCd && row.tfOgTpCd && row.tfPrtnrNo));
+  if (isExistEmptyData) {
+    notify(t('MSG_ALT_NOT_EXST_TF_REQ_PSIC')); // 이관요청담당자가 없는 행이 존재합니다.
+    return;
+  }
+
+  const data = checkedRows.map((row) => ({
+    baseYm: row.asnOjYm,
+    cstSvAsnNo: row.cstSvAsnNo,
+    tfStatCd: row.tfStatCd,
+    tfAkRsonCd: row.tfAkRsonCd,
+    tfAkPrtnrOgTpCd: row.tfOgTpCd,
+    tfAkPrtnrNo: row.tfPrtnrNo,
+    bfchIchrBrchOgId: row.bfchIchrBrchOgId,
+    bfchMngrDvCd: row.bfchMngrDvCd,
+    bfchIchrPrtnrOgTpCd: row.bfchIchrPrtnrOgTpCd,
+    bfchIchrPrtnrNo: row.bfchIchrPrtnrNo,
+    afchIchrBrchOgId: row.afchIchrBrchOgId,
+    afchMngrDvCd: row.afchMngrDvCd,
+    afchIchrPrtnrOgTpCd: row.afchIchrPrtnrOgTpCd,
+    afchIchrPrtnrNo: row.afchIchrPrtnrNo,
+    mngerRglvlDvCd: row.mngerRglvlDvCd,
+  }));
+
+  await dataService.post('/sms/wells/service/before-service-period-customer/transfer-confirm', data);
+
+  await fetchData();
 }
 
 async function onClickExcelDownload() {
@@ -418,6 +536,7 @@ async function onClickIconPrtnrNoSearchPopup() {
   });
 
   if (result) {
+    updatePartnerObj.value.tfOgTpCd = payload[0].ogTpCd;
     updatePartnerObj.value.tfOgId = payload[0].ogId;
     updatePartnerObj.value.tfOgNm = payload[0].ogNm;
     updatePartnerObj.value.tfPrtnrNo = payload[0].prtnrNo;
@@ -441,6 +560,9 @@ function initGrdMain(data, view) {
     { fieldName: 'pdctPdCd' },
     { fieldName: 'svpdNmAbbr1' },
     { fieldName: 'svBizDclsfCd' },
+    { fieldName: 'mPkg' },
+    { fieldName: 'mCntrNo' },
+    { fieldName: 'mRcgvpKnm' },
     { fieldName: 'ctpvNm' },
     { fieldName: 'ctctyNm' },
     { fieldName: 'emdNm' },
@@ -456,47 +578,61 @@ function initGrdMain(data, view) {
     { fieldName: 'vstCnfmdt' },
     { fieldName: 'vstCnfmHh' },
     { fieldName: 'tfAkRmkCn' },
+
     { fieldName: 'bfchIchrOgNm' },
     { fieldName: 'bfchIchrPrtnrNo' },
     { fieldName: 'bfchIchrPrtnrKnm' },
+    { fieldName: 'bfchIchrBrchOgId' },
+    { fieldName: 'bfchMngrDvCd' },
+    { fieldName: 'bfchIchrPrtnrOgTpCd' },
+
     { fieldName: 'afchIchrOgNm' },
     { fieldName: 'afchIchrPrtnrNo' },
     { fieldName: 'afchIchrPrtnrKnm' },
+    { fieldName: 'afchIchrBrchOgId' },
+    { fieldName: 'afchMngrDvCd' },
+    { fieldName: 'afchIchrPrtnrOgTpCd' },
+
     { fieldName: 'tfRqdt' }, // 담당자 변경
     { fieldName: 'tfAkRsonCd' }, // 담당자 변경
     { fieldName: 'tfOgNm' }, // 담당자 변경
+    { fieldName: 'tfOgTpCd' }, // 담당자 변경
     { fieldName: 'tfPrtnrKnm' }, // 담당자 변경
+    { fieldName: 'tfPrtnrNo' }, // 담당자 변경
+
     { fieldName: 'tfFnCnfmdt' },
     { fieldName: 'tfFnOgNm' },
     { fieldName: 'tfFnPrtnrKnm' },
+    { fieldName: 'mngerRglvlDvCd' },
 
     { fieldName: 'cstSvAsnNo' },
 
     // 조작된 데이터
+    { fieldName: 'cntr' }, // 계약번호
     { fieldName: 'tno' }, // 전화번호
     { fieldName: 'mobileTno' }, // 휴대전화번호
   ];
 
   const columns = [
-    { fieldName: 'tfStatCd', header: t('MSG_TXT_TF_STAT'), width: '100', styleName: 'text-center' }, // 이관상태
-    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_NO'), width: '150', styleName: 'rg-button-link text-center', renderer: { type: 'button' }, preventCellItemFocus: true }, // 계약번호
+    { fieldName: 'tfStatCd', header: t('MSG_TXT_TF_STAT'), width: '100', styleName: 'text-center', options: transferStatusCodes.value }, // 이관상태
+    { fieldName: 'cntr', header: t('MSG_TXT_CNTR_NO'), width: '150', styleName: 'rg-button-link text-center', renderer: { type: 'button' }, preventCellItemFocus: true }, // 계약번호
     { fieldName: 'rcgvpKnm', header: t('MSG_TXT_CST_NM'), width: '100', styleName: 'text-center' }, // 고객명
     { fieldName: 'assign', header: t('MSG_TXT_CPSN_FXN'), width: '100', styleName: 'text-center' }, // 강제/고정
     { fieldName: 'svpdSapCd', header: t('MSG_TXT_SAP_CD'), width: '150', styleName: 'text-center' }, // SAP코드
     { fieldName: 'pdctPdCd', header: t('MSG_TXT_ITM_CD'), width: '150', styleName: 'text-center' }, // 품목코드
     { fieldName: 'svpdNmAbbr1', header: t('MSG_TXT_PRDT_NM'), width: '200', styleName: 'text-left' }, // 상품명
     { fieldName: 'svBizDclsfCd', header: t('MSG_TXT_TASK_TYPE'), width: '100', styleName: 'text-center' }, // 업무유형
-    // { fieldName: 'col9', header: '모종패키지', width: '150' },
-    // { fieldName: 'col10', header: '모종고객번호', width: '150' },
-    // { fieldName: 'col11', header: '모종고객명', width: '104' },
+    { fieldName: 'mPkg', header: t('모종패키지'), width: '150' }, // 모종패키지
+    { fieldName: 'mCntrNo', header: t('모종고객번호'), width: '150' }, // 모종고객번호
+    { fieldName: 'mRcgvpKnm', header: t('모종고객명'), width: '100' }, // 모종고객명
     { fieldName: 'ctpvNm', header: t('MSG_TXT_CTPV_NM'), width: '104' }, // 시도명
     { fieldName: 'ctctyNm', header: t('MSG_TXT_CTCTY_NM'), width: '104' }, // 시군구명
     { fieldName: 'emdNm', header: t('MSG_TXT_AMTD_NM'), width: '104' }, // 행정동명
     { fieldName: 'istNmnN', header: t('MSG_TXT_INST_OVER'), width: '104', styleName: 'text-right', dataType: 'number' }, // 설치차월수
-    { fieldName: 'tno', header: t('MSG_TXT_TEL_NO'), width: '104', styleName: 'text-center' }, // 전화번호
-    { fieldName: 'mobileTno', header: t('MSG_TXT_MPNO'), width: '104', styleName: 'text-center' }, // 휴대전화번호
-    { fieldName: 'newAdrZip', header: t('MSG_TXT_ZIP'), width: '104' }, // 우편번호
-    { fieldName: 'rnadr', header: t('MSG_TXT_ADDR'), width: '104' }, // 주소
+    { fieldName: 'tno', header: t('MSG_TXT_TEL_NO'), width: '120', styleName: 'text-center' }, // 전화번호
+    { fieldName: 'mobileTno', header: t('MSG_TXT_MPNO'), width: '120', styleName: 'text-center' }, // 휴대전화번호
+    { fieldName: 'newAdrZip', header: t('MSG_TXT_ZIP'), width: '100', styleName: 'text-center' }, // 우편번호
+    { fieldName: 'rnadr', header: t('MSG_TXT_ADDR'), width: '350' }, // 주소
     { fieldName: 'vstCnfmdt', header: t('MSG_TXT_VST_DT'), width: '104', datetimeFormat: 'yyyy-MM-dd', styleName: 'text-center' }, // 방문일자
     { fieldName: 'vstCnfmHh',
       header: t('MSG_TXT_VST_TM'),
@@ -543,12 +679,12 @@ function initGrdMain(data, view) {
   data.setFields(fields);
   view.setColumns(columns);
   view.checkBar.visible = true; // create checkbox column
-  view.checkBar.exclusive = true;
+  // view.checkBar.exclusive = true;
   view.rowIndicator.visible = true; // create number indicator column
 
   view.setColumnLayout([
     'tfStatCd',
-    'cntrNo',
+    'cntr',
     'rcgvpKnm',
     'assign',
     'svpdSapCd',
