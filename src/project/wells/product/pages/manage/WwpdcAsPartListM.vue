@@ -169,8 +169,8 @@
 // -------------------------------------------------------------------------------------------------
 import { useDataService, useMeta, gridUtil, codeUtil, useGlobal, getComponentType, defineGrid } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
-import ZwpdProductClassificationSelect from '~sms-common/product/pages/standard/components/ZwpdProductClassificationSelect.vue';
 import pdConst from '~sms-common/product/constants/pdConst';
+import ZwpdProductClassificationSelect from '~sms-common/product/pages/standard/components/ZwpdyClassification.vue';
 
 const props = defineProps({
   searchYn: { type: String, default: null },
