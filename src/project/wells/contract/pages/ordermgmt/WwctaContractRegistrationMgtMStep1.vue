@@ -529,7 +529,7 @@ async function onClickSearchCntrtInfo() {
     // 파트너와 계약자 모두 본인
     const cstNo = await dataService.get('sms/wells/contract/contracts/prtnr-cst-no', { params: { prtnrNo } });
     if (!cstNo.data) {
-      await alert('파트너의 고객번호가 존재하지 않습니다.');
+      await alert('임직원/파트너의 고객번호가 존재하지 않습니다.');
       return;
     }
     await getCntrInfoByCst(cstNo.data);
