@@ -330,7 +330,7 @@ async function requestApproval() {
   cachedRequestParams = { ...approvalRequest.value };
   cachedRequestParams.fnitCd = await getFinancialCode(cachedRequestParams.crcdnoEncr);
   const { data } = await dataService.post('/sms/wells/contract/contracts/settlements/credit-card-spay', cachedRequestParams);
-  approvalResponse.value = data[0];
+  approvalResponse.value = data;
 }
 
 async function onClickApproval() {
