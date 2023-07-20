@@ -36,7 +36,7 @@
           required
         >
           <kw-option-group
-            v-model="searchParams.schOrdrCd"
+            v-model="searchParams.feeTcntDvCd"
             :label="$t('MSG_TXT_ORDR')"
             type="radio"
             :options="codes.FEE_TCNT_DV_CD"
@@ -93,10 +93,10 @@
       <!-- STEPER -->
       <zwfey-fee-step
         ref="stepNaviRef"
-        :key="searchParams.perfYm+searchParams.feeSchdTpCd+searchParams.schOrdrCd"
+        :key="searchParams.perfYm+searchParams.feeSchdTpCd+searchParams.feeTcntDvCd"
         v-model:base-ym="searchParams.perfYm"
         v-model:fee-schd-tp-cd="searchParams.feeSchdTpCd"
-        v-model:fee-tcnt-dv-cd="searchParams.schOrdrCd"
+        v-model:fee-tcnt-dv-cd="searchParams.feeTcntDvCd"
         v-model:co-cd="searchParams.coCd"
         @click-step="onclickStep"
       />
@@ -198,7 +198,7 @@ const filterRsbDvCd = codes.RSB_DV_CD.filter((v) => ['W0205', 'W0204'].includes(
 const searchParams = ref({
 
   perfYm: now.add(-1, 'month').format('YYYYMM'),
-  schOrdrCd: '01',
+  feeTcntDvCd: '01',
   rsbTpCd: '',
   rsbTpTxt: '',
   prtnrNo: '',
@@ -355,8 +355,8 @@ async function onClickRetry(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
  *  Event - 미팅집계 클릭 ※
  */
 async function onClickW201P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
-  const { schOrdrCd, perfYm, rsbTpCd } = searchParams.value;
-  const { codeName } = codes.FEE_TCNT_DV_CD.find((v) => v.codeId === searchParams.value.schOrdrCd);
+  const { feeTcntDvCd, perfYm, rsbTpCd } = searchParams.value;
+  const { codeName } = codes.FEE_TCNT_DV_CD.find((v) => v.codeId === searchParams.value.feeTcntDvCd);
   if (searchParams.value.rsbTp === '') {
     await alert(t('MSG_ALT_SELECT_RSB_TP'));
   } else {
@@ -364,7 +364,7 @@ async function onClickW201P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
       ogTpCd: 'W02',
       ogTpCdTxt: 'M추진단',
       perfYm: `${perfYm.substring(0, 4)}-${perfYm.substring(4, 6)}`,
-      feeTcntDvCd: schOrdrCd,
+      feeTcntDvCd,
       feeTcntDvCdTxt: codeName,
       rsbTpCd,
     };
@@ -417,8 +417,8 @@ async function onClickW205P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
  *  Event - 세금공제 클릭 ※
  */
 async function onClickW206P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
-  const { schOrdrCd, perfYm, rsbTpCd, rsbTpTxt } = searchParams.value;
-  const { codeName } = codes.FEE_TCNT_DV_CD.find((v) => v.codeId === schOrdrCd);
+  const { feeTcntDvCd, perfYm, rsbTpCd, rsbTpTxt } = searchParams.value;
+  const { codeName } = codes.FEE_TCNT_DV_CD.find((v) => v.codeId === feeTcntDvCd);
   if (rsbTpCd === '') {
     await alert(t('MSG_ALT_SELECT_RSB_TP'));
   } else {
@@ -426,7 +426,7 @@ async function onClickW206P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
       ogTpCd: 'W02',
       ogTpCdTxt: 'M추진단',
       ddtnYm: `${perfYm.substring(0, 4)}-${perfYm.substring(4, 6)}`,
-      feeTcntDvCd: schOrdrCd,
+      feeTcntDvCd,
       feeTcntDvCdTxt: codeName,
       rsbTpCd,
       rsbTpCdTxt: rsbTpTxt,
@@ -466,8 +466,8 @@ async function onClickW207P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
  *  Event - 고용보험 공제 클릭 ※
  */
 async function onClickW209P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
-  const { schOrdrCd, perfYm, rsbTpCd } = searchParams.value;
-  const { codeName } = codes.FEE_TCNT_DV_CD.find((v) => v.codeId === schOrdrCd);
+  const { feeTcntDvCd, perfYm, rsbTpCd } = searchParams.value;
+  const { codeName } = codes.FEE_TCNT_DV_CD.find((v) => v.codeId === feeTcntDvCd);
   if (rsbTpCd === '') {
     await alert(t('MSG_ALT_SELECT_RSB_TP'));
   } else {
@@ -475,7 +475,7 @@ async function onClickW209P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
       ogTpCd: 'W02',
       ogTpCdTxt: 'M추진단',
       ddtnYm: `${perfYm.substring(0, 4)}-${perfYm.substring(4, 6)}`,
-      feeTcntDvCd: schOrdrCd,
+      feeTcntDvCd,
       feeTcntDvCdTxt: codeName,
       rsbTpCd,
     };
@@ -494,14 +494,14 @@ async function onClickW209P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
  *  Event - 가지급금 공제 클릭 ※
  */
 async function onClickW210P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
-  const { schOrdrCd, perfYm, rsbTpCd } = searchParams.value;
+  const { feeTcntDvCd, perfYm, rsbTpCd } = searchParams.value;
   if (rsbTpCd === '') {
     await alert(t('MSG_ALT_SELECT_RSB_TP'));
   } else {
     const param = {
       ogTpCd: 'W02',
       ddtnYm: `${perfYm.substring(0, 4)}-${perfYm.substring(4, 6)}`,
-      feeTcntDvCd: schOrdrCd,
+      feeTcntDvCd,
       rsbTpCd,
     };
     const { result: isChanged } = await modal({

@@ -36,7 +36,7 @@
           required
         >
           <kw-option-group
-            v-model="searchParams.schOrdrCd"
+            v-model="searchParams.feeTcntDvCd"
             :label="$t('MSG_TXT_ORDR')"
             type="radio"
             :options="codes.FEE_TCNT_DV_CD"
@@ -96,7 +96,7 @@
       <!-- STEPER -->
       <zwfey-fee-step
         ref="stepNaviRef"
-        :key="searchParams.perfYm+searchParams.schOrdrCd"
+        :key="searchParams.perfYm+searchParams.feeTcntDvCd"
         v-model:base-ym="searchParams.perfYm"
         v-model:fee-schd-tp-cd="searchParams.feeSchdTpCd"
         v-model:fee-tcnt-dv-cd="searchParams.feeTcntDvCd"
@@ -185,7 +185,7 @@ const filterRsbDvCd = codes.RSB_DV_CD.filter((v) => ['W0302', 'W0301'].includes(
 const searchParams = ref({
 
   perfYm: now.add(-1, 'month').format('YYYYMM'),
-  schOrdrCd: '01',
+  feeTcntDvCd: '01',
   rsbTpCd: '',
   rsbTpTxt: '',
   prtnrNo: '',
@@ -195,7 +195,6 @@ const searchParams = ref({
   ogTpCd: 'W03',
   statTitleText: t('MSG_TXT_PRGS_STE'),
   feeSchdTpCd: '301',
-  feeTcntDvCd: '02',
   coCd: '2000',
   unitCd: 'W301',
 
@@ -393,8 +392,8 @@ async function onClickW302P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
  *  Event - 세금공제 클릭 ※
  */
 async function onClickW303P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
-  const { schOrdrCd, perfYm, rsbTpCd, rsbTpTxt } = searchParams.value;
-  const { codeName } = codes.FEE_TCNT_DV_CD.find((v) => v.codeId === schOrdrCd);
+  const { feeTcntDvCd, perfYm, rsbTpCd, rsbTpTxt } = searchParams.value;
+  const { codeName } = codes.FEE_TCNT_DV_CD.find((v) => v.codeId === feeTcntDvCd);
   if (rsbTpCd === '') {
     await alert(t('MSG_ALT_SELECT_RSB_TP'));
   } else {
@@ -402,7 +401,7 @@ async function onClickW303P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
       ogTpCd: 'W03',
       ogTpCdTxt: '홈마스터',
       ddtnYm: `${perfYm.substring(0, 4)}-${perfYm.substring(4, 6)}`,
-      feeTcntDvCd: schOrdrCd,
+      feeTcntDvCd,
       feeTcntDvCdTxt: codeName,
       rsbTpCd,
       rsbTpCdTxt: rsbTpTxt,
@@ -441,8 +440,8 @@ async function onClickW304P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
  *  Event - 고용보험 공제 클릭 ※
  */
 async function onClickW306P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
-  const { schOrdrCd, perfYm, rsbTpCd } = searchParams.value;
-  const { codeName } = codes.FEE_TCNT_DV_CD.find((v) => v.codeId === schOrdrCd);
+  const { feeTcntDvCd, perfYm, rsbTpCd } = searchParams.value;
+  const { codeName } = codes.FEE_TCNT_DV_CD.find((v) => v.codeId === feeTcntDvCd);
   if (searchParams.value.rsbTp === '') {
     await alert(t('MSG_ALT_SELECT_RSB_TP'));
   } else {
@@ -450,7 +449,7 @@ async function onClickW306P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
       ogTpCd: 'W03',
       ogTpCdTxt: '홈마스터',
       ddtnYm: `${perfYm.substring(0, 4)}-${perfYm.substring(4, 6)}`,
-      feeTcntDvCd: schOrdrCd,
+      feeTcntDvCd,
       feeTcntDvCdTxt: codeName,
       rsbTpCd,
     };
@@ -469,14 +468,14 @@ async function onClickW306P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
  *  Event - 가지급금 공제 클릭 ※
  */
 async function onClickW307P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
-  const { schOrdrCd, perfYm, rsbTpCd } = searchParams.value;
+  const { feeTcntDvCd, perfYm, rsbTpCd } = searchParams.value;
   if (searchParams.value.rsbTpCd === '') {
     await alert(t('MSG_ALT_SELECT_RSB_TP'));
   } else {
     const param = {
       ogTpCd: 'W03',
       ddtnYm: `${perfYm.substring(0, 4)}-${perfYm.substring(4, 6)}`,
-      feeTcntDvCd: schOrdrCd,
+      feeTcntDvCd,
       rsbTpCd,
     };
     const { result: isChanged } = await modal({
