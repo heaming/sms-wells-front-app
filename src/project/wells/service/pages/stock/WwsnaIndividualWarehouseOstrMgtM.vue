@@ -534,6 +534,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'itmKndCd' },
     { fieldName: 'rmkCn' },
     { fieldName: 'asnTnN' },
+    { fieldName: 'wareDvCd' },
     { fieldName: 'chk', dataType: 'text', booleanFormat: 'N:Y' },
   ];
 
@@ -543,7 +544,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'itmPdCd', header: t('MSG_TXT_ITM_CD'), width: '150', styleName: 'text-center' },
     { fieldName: 'pdAbbrNm', header: t('MSG_TXT_ITM_NM'), width: '230', styleName: 'text-left' },
     { fieldName: 'partUseQty', header: t('MSG_TXT_FILT_NED_QTY'), width: '106', styleName: 'text-right' },
-    { fieldName: 'under20per', header: t('MSG_TXT_ASN_QTY_CPR_STOC_QTY_STG'), width: '130', styleName: 'text-right' },
+    { fieldName: 'under20per', header: t('MSG_TXT_ASN_QTY_CPR_STOC_QTY_STG'), width: '100', styleName: 'text-right' },
     { fieldName: 'hgrCrtlStocQty', header: t('MSG_TXT_CNR_STOC'), width: '110', styleName: 'text-right' },
     { fieldName: 'totOutQty', header: t('MSG_TXT_TOT_OSTR'), width: '100', styleName: 'text-right' },
     { fieldName: 'mngtUnitNm', header: t('MSG_TXT_MNGT_UNIT'), width: '106', styleName: 'text-center' },
