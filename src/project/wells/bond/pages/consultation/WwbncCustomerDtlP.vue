@@ -1063,6 +1063,9 @@ const selectedGridRow = ref(null);
 const visitRef = ref();
 const lawMeasureRef = ref();
 
+popupUtil.registerCloseEvent();
+popupUtil.registerWindowKeyEvent();
+
 watch(selectedGridRow, (newValue) => {
   if (!newValue) {
     const view = grdMainRef.value.getView();

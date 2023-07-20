@@ -42,7 +42,10 @@
         <wwbnc-bond-counsel-m-contract />
       </kw-tab-panel>
       <kw-tab-panel name="tab3">
-        <wwbnc-bond-counsel-m-customer-search />
+        <wwbnc-bond-counsel-m-customer-search
+          v-model:cellphone="params.cellphone"
+          v-model:search-yn="params.searchYn"
+        />
       </kw-tab-panel>
       <kw-tab-panel name="tab4">
         <zwbnc-bond-counsel-m-promise-customer />
@@ -234,12 +237,13 @@ import WwbncBondCounselMContract from './WwbncBondCounselMContract.vue';
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 const selectedTab = ref('tab1');
+const params = ref({});
 
 const searchParams = ref({
-  callbackData0101: '1111',
-  callbackData0102: '2222',
-  callbackData0103: '2222',
-  queueId: '2222',
+  callbackData0101: '4833',
+  callbackData0102: '4886',
+  callbackData0103: '4939',
+  queueId: '4833',
 });
 
 // TODO: 콜백 조회 팝업
@@ -255,8 +259,9 @@ async function onClickBncCallBack() {
   });
 
   if (result) {
-    searchParams.value.callbackData0101 = payload.callbackData0101;
-    searchParams.value.callbackData0102 = payload.callbackData0102;
+    selectedTab.value = 'tab3';
+    params.value.cellphone = payload.telNo;
+    params.value.searchYn = 'Y';
   }
 }
 </script>
