@@ -26,30 +26,11 @@
         class="mb20"
         @change="fetchData"
       />
+
       <kw-form
         ref="frmMainRef"
       >
-        <!-- label="발신자" -->
-        <kw-form-item
-          v-if="sendMainData.bildcFwTpCd !== 'K'"
-          :label="t('MSG_TXT_DSPTR')"
-          required
-        />
         <!-- label="발신번호" -->
-        <!-- <kw-form-item
-          v-if="sendMainData.bildcFwTpCd === 'K'"
-          :label="t('MSG_TXT_DSPH_NO')"
-          required
-        /> -->
-        <!-- ref="testRef" -->
-        <!-- <zwcm-telephone-number
-          v-if="sendMainData.bildcFwTpCd === 'K'"
-          v-model:tel-no1="telNos.telNo1"
-          v-model:tel-no2="telNos.telNo2"
-          v-model:tel-no3="telNos.telNo3"
-          required
-          class="mb20"
-        /> -->
         <kw-input
           v-if="sendMainData.bildcFwTpCd === 'K'"
           v-model="sendMainData.destInfo"
@@ -59,41 +40,9 @@
           :label="t('MSG_TXT_DSPH_NO')"
           required
           clearable
-        />
-
-        <zwcm-email-address
-          v-if="sendMainData.bildcFwTpCd !== 'K'"
-          v-model="sendMainData.toMail"
-          required
-          readonly
           class="mb20"
         />
-        <!-- </kw-form>
-
-      <kw-form
-        ref="frmMainRef"
-        class="mb20"
-      > -->
-        <!-- label="수신자" -->
-        <kw-form-item
-          v-if="sendMainData.bildcFwTpCd !== 'K'"
-          :label="t('MSG_TXT_RECP_USR')"
-          required
-        />
         <!-- label="수신번호" -->
-        <!-- <kw-form-item
-          v-if="sendMainData.bildcFwTpCd === 'K'"
-          :label="t('MSG_TXT_RECP_NO')"
-          required
-        /> -->
-        <!-- ref="testRef" -->
-        <!-- <zwcm-telephone-number
-          v-if="sendMainData.bildcFwTpCd === 'K'"
-          v-model:tel-no1="telNos2.telNo1"
-          v-model:tel-no2="telNos2.telNo2"
-          v-model:tel-no3="telNos2.telNo3"
-          required
-        /> -->
         <kw-input
           v-if="sendMainData.bildcFwTpCd === 'K'"
           v-model="sendMainData.callback"
@@ -103,20 +52,45 @@
           :label="t('MSG_TXT_RECP_NO')"
           required
           clearable
+          class="mb20"
         />
+
+        <!-- <kw-form-item
+        v-if="sendMainData.bildcFwTpCd !== 'K'"
+        :label="t('MSG_TXT_DSPTR')"
+        required
+        /> -->
+
+        <!-- label="발신자" -->
+        <zwcm-email-address
+          v-if="sendMainData.bildcFwTpCd !== 'K'"
+          v-model="sendMainData.toMail"
+          :label="t('MSG_TXT_DSPTR')"
+          required
+          readonly
+          class="mb20"
+        />
+
+        <!-- <kw-form-item
+        v-if="sendMainData.bildcFwTpCd !== 'K'"
+        :label="t('MSG_TXT_RECP_USR')"
+        required
+        /> -->
+
+        <!-- label="수신자" -->
         <zwcm-email-address
           v-if="sendMainData.bildcFwTpCd !== 'K'"
           v-model="sendMainData.fromMail"
+          :label="t('MSG_TXT_RECP_USR')"
           required
           class="mb20"
         />
       </kw-form>
     </div>
+    <!-- //rev:230608 카카오 알림톡일경우 -->
     <kw-separator
       divider
-      size="30px"
     />
-    <!-- spaced="20" -->
     <div class="pa20">
       <h3>{{ t('MSG_TXT_DSPH_IZ') }}</h3>
       <!-- <h3>발신 내역</h3> -->
@@ -175,6 +149,7 @@
 </template>
 
 <script setup>
+
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
@@ -188,6 +163,7 @@ const { getters } = useStore();
 const dataService = useDataService();
 const { t } = useI18n();
 const userInfo = getters['meta/getUserInfo'];
+
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -245,18 +221,6 @@ const sendMainData = ref({
 
 const items = ref([]);
 
-// const telNos = ref({
-//   telNo1: '',
-//   telNo2: '',
-//   telNo3: '',
-// });
-
-// const telNos2 = ref({
-//   telNo1: '',
-//   telNo2: '',
-//   telNo3: '',
-// });
-
 // 취소 버튼 클릭
 async function onClickCancell() {
   await router.push(
@@ -296,30 +260,6 @@ async function onClickSend() {
   if (await frmMainRef.value.alertIfIsNotModified()) { return; }
 
   if (!await confirm(t('MSG_ALT_WANT_SEND'))) { return; }
-
-  // sendMainData.value.destInfo = telNos.value.telNo1 + telNos.value.telNo2 + telNos.value.telNo3;
-  // sendMainData.value.callback = telNos2.value.telNo1 + telNos2.value.telNo2 + telNos2.value.telNo3;
-
-  // if (sendMainData.value.bildcFwTpCd === 'K') {
-  //   if (!telNos.value.telNo1 || !telNos.value.telNo2 || !telNos.value.telNo3) {
-  //     await alert(t('MSG_ALT_NCELL_REQUIRED_ITEM', [t('MSG_TXT_DSPH_NO')]));
-  //     return;
-  //   }
-
-  //   if (!telNos2.value.telNo1 || !telNos2.value.telNo2 || !telNos2.value.telNo3) {
-  //     await alert(t('MSG_ALT_NCELL_REQUIRED_ITEM', [t('MSG_TXT_RECP_NO')]));
-  //     return;
-  //   }
-  // } else {
-  //   if (!sendMainData.value.toMail) {
-  //     await alert(t('MSG_ALT_NCELL_REQUIRED_ITEM', [t('MSG_TXT_DSPTR_EML')]));
-  //     return;
-  //   }
-  //   if (!sendMainData.value.fromMail) {
-  //     await alert(t('MSG_ALT_NCELL_REQUIRED_ITEM', [t('MSG_TXT_RCVR_EML')]));
-  //     return;
-  //   }
-  // }
 
   paramData = cloneDeep(sendMainData.value);
 
