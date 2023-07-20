@@ -614,12 +614,13 @@
       v-if="searchDetail.cancelStatNm === '취소등록'"
       class="button-set--bottom-right"
     >
+      <!--
       <kw-btn
         :label="$t('MSG_BTN_VAC')+$t('MSG_BTN_IS')"
         class="ml8"
         @click="onClickVacIssue"
       />
-
+-->
       <kw-btn
         :label="$t('MSG_TXT_CARD')+$t('MSG_BTN_APPR')"
         class="ml8"
@@ -759,7 +760,7 @@ function onClickSave() {
 function onClickCancel() {
   emits('removedetail');
 }
-
+/*
 async function onCallStlm(pDiv) {
   let component;
   if (pDiv === 'Face') component = 'ZwwdbIndvVirtualAccountIssueMgtP';
@@ -788,7 +789,7 @@ async function onClickVacIssue() {
     onCallStlm(payload);
   }
 }
-
+*/
 async function onClickRequidation() {
   const res = await modal({
     component: 'WwsncTimeTableForContractP',
