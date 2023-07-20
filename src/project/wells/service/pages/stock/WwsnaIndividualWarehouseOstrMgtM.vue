@@ -220,17 +220,19 @@
       <ul class="filter-box mb12">
         <li class="filter-box__item">
           <p class="filter-box__item-label">
-            구분
+            {{ t('MSG_TXT_DIV') }}
           </p>
           <kw-field
-            :model-value="[]"
+            :model-value="['N']"
           >
             <template #default="{ field }">
-              <!-- TODO: 추후 로직구성 -->
               <kw-checkbox
                 v-bind="field"
-                label="미출고수량제외"
-                val="미출고수량제외"
+                v-model="searchParams.ndlvQtyYn"
+                :label="$t('MSG_TXT_NDLV_QTY_EXCD')"
+                :true-value="'Y'"
+                :false-value="'N'"
+                @update:model-value="onChangeNdlvQty"
               />
             </template>
           </kw-field>
@@ -292,7 +294,7 @@ const searchParams = ref({
   itmKndCd: '',
   itmPdCds: [],
   totOutQty: '',
-  ostrDt: '',
+  ostrDt: dayjs().format('YYYYMMDD'),
   wareDvCd: '3',
   wareDtlDvCd: '31',
   hgrDvCd: '30',
@@ -301,6 +303,7 @@ const searchParams = ref({
   itmPdCd: '',
   strtSapCd: '',
   endSapCd: '',
+  ndlvQtyYn: 'N',
 });
 
 const pageInfo = ref({
@@ -455,6 +458,8 @@ await Promise.all([
   getProducts(),
 ]);
 
+const allOstrItms = ref([]);
+
 // 조회
 async function fetchData() {
   const res = await dataService.get('/sms/wells/service/individual-ware-ostrs/paging', { params: { ...cachedParams, ...pageInfo.value } });
@@ -462,6 +467,7 @@ async function fetchData() {
   // fetch시에는 총 건수 조회하지 않도록 변경
   pagingResult.needTotalCount = false;
   pageInfo.value = pagingResult;
+  allOstrItms.value = ostrItms;
 
   if (grdMainRef.value != null) {
     const view = grdMainRef.value.getView();
@@ -494,6 +500,22 @@ async function openAssignExcludeItemP() {
     component: 'WwsnaAssignExcludeItemRegP',
     componentProps: {},
   });
+}
+
+// 미출고 수량제외 필터링
+function onChangeNdlvQty() {
+  const { ndlvQtyYn } = searchParams.value;
+
+  const view = grdMainRef.value.getView();
+  // 필터링 해제
+  if (ndlvQtyYn === 'N') {
+    view.getDataSource().setRows(allOstrItms.value);
+    return;
+  }
+
+  // 필터링
+  const filterRows = gridUtil.filter(view, (e) => e.outQty > 0 && e.totOutQty < 15);
+  view.getDataSource().setRows(filterRows);
 }
 
 // -------------------------------------------------------------------------------------------------
