@@ -110,6 +110,7 @@
           <kw-date-picker
             v-model="searchParams.ostrDt"
             type="date"
+            :min-date="minDate"
           />
         </kw-search-item>
       </kw-search-row>
@@ -241,9 +242,8 @@
       </ul>
       <kw-grid
         ref="grdMainRef"
-        v-model:page-index="pageInfo.pageIndex"
-        v-model:page-size="pageInfo.pageSize"
         name="grdMain"
+        :page-size="pageInfo.pageSize"
         :total-count="pageInfo.totalCount"
         @init="initGrdMain"
       />
@@ -286,16 +286,19 @@ const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
 );
 
+const now = dayjs();
+const minDate = now.format('YYYY-MM-DD');
+
 let cachedParams;
 const searchParams = ref({
-  apyYm: dayjs().format('YYYYMM'),
-  asnOjYm: dayjs().format('YYYYMM'),
+  apyYm: now.format('YYYYMM'),
+  asnOjYm: now.format('YYYYMM'),
   cnt: '1',
   ostrWareNo: '100002',
   itmKndCd: '',
   itmPdCds: [],
   totOutQty: '',
-  ostrDt: dayjs().format('YYYYMMDD'),
+  ostrDt: now.format('YYYYMMDD'),
   wareDvCd: '3',
   wareDtlDvCd: '31',
   hgrDvCd: '30',
@@ -319,7 +322,7 @@ const filterCodes = ref({
   itmKndCd: [],
 });
 
-function wareDvCdFilter() {
+function codeFilter() {
   filterCodes.value.wareDvCd = codes.WARE_DV_CD.filter((v) => ['3'].includes(v.codeId));
   filterCodes.value.itmKndCd = codes.ITM_KND_CD.filter((v) => ['4', '5', '6'].includes(v.codeId));
 }
@@ -454,7 +457,7 @@ function onChangeEndSapCd() {
 }
 
 await Promise.all([
-  wareDvCdFilter(),
+  codeFilter(),
   onChangeOstrWareHouse(),
   getProducts(),
 ]);
@@ -608,7 +611,7 @@ const initGrdMain = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'wareNm', header: t('MSG_TXT_STR_WARE'), width: '160', styleName: 'text-left' },
+    { fieldName: 'wareNm', header: t('MSG_TXT_STR_WARE'), width: '160', styleName: 'text-center' },
     { fieldName: 'sapMatCd', header: t('MSG_TXT_SAP_CD'), width: '150', styleName: 'text-center' },
     { fieldName: 'itmPdCd', header: t('MSG_TXT_ITM_CD'), width: '150', styleName: 'text-center' },
     { fieldName: 'pdAbbrNm', header: t('MSG_TXT_ITM_NM'), width: '230', styleName: 'text-left' },
@@ -672,7 +675,7 @@ const initGrdMain = defineGrid((data, view) => {
       direction: 'horizontal',
       items: ['aclOstrQty', 'aclOstrBoxQty'],
     },
-    'logisticFilterQty', 'outQty', 'rmkCn',
+    'outBoxQty', 'outQty', 'rmkCn',
   ]);
 
   view.checkBar.visible = true;

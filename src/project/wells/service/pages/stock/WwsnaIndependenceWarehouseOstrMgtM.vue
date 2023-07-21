@@ -2,14 +2,14 @@
 ****************************************************************************************************
 * 프로그램 개요
 ****************************************************************************************************
-1. 모듈 : CMA
+1. 모듈 : SNA (재고관리)
 2. 프로그램 ID : WwsnaIndependenceWarehouseOstrMgtM - 독립창고출고관리(W-SV-U-0193M01)
 3. 작성자 : inho.choi
 4. 작성일 : 2023.03.21
 ****************************************************************************************************
 * 프로그램 설명
 ****************************************************************************************************
-관리자가 물류센터로 독립창고에 물량을 일괄요청하는 화면
+관리자가 물류센터로 독립창고에 물량을 일괄요청하는 화면 (http://localhost:3000/#/service/wwsna-independence-warehouse-ostr-mgt)
 ****************************************************************************************************
 --->
 <template>
@@ -25,11 +25,10 @@
           required
         >
           <kw-date-picker
-            v-model="searchParams.baseYm"
+            v-model="searchParams.apyYm"
             type="month"
             rules="required"
-            :label="$t('MSG_TXT_BASE_YM')"
-            @change="onChangeBaseYm"
+            @change="onChangeApyYm"
           />
         </kw-search-item>
         <!-- 배정년월 -->
@@ -40,8 +39,8 @@
           <kw-date-picker
             v-model="searchParams.asnOjYm"
             type="month"
-            :label="$t('MSG_TXT_BASE_YM')"
             rules="required"
+            @change="onChangeData"
           />
         </kw-search-item>
         <!-- 회차 -->
@@ -50,10 +49,9 @@
           required
         >
           <kw-input
-            v-model="searchParams.asnTnN"
-            :label="$t('MSG_TXT_ORDERSELECT_TITLE')"
-            type="Number"
-            rules="required"
+            v-model="searchParams.cnt"
+            rules="required|numeric|min_value:1|max_value:999999999999"
+            @change="onChangeData"
           />
         </kw-search-item>
         <!-- 출고창고 -->
@@ -62,10 +60,12 @@
           required
         >
           <kw-select
-            v-model="searchParams.ostrOjWareNo"
-            :options="logistics"
-            :label="$t('MSG_TXT_OSTR_WARE')"
+            v-model="searchParams.ostrWareNo"
+            :options="optionsOstrWareNo"
+            option-value="wareNo"
+            option-label="wareNm"
             rules="required"
+            @change="onChangeData"
           />
         </kw-search-item>
       </kw-search-row>
@@ -77,15 +77,19 @@
         >
           <kw-select
             v-model="searchParams.itmKndCd"
-            :options="filterCodes.filterItmKndCd"
+            :options="filterCodes.itmKndCd"
             first-option="all"
             class="w150"
             @change="onChangeItmKndCd"
           />
           <kw-select
-            v-model="searchParams.itmKndCdD"
-            :options="itemKndCdD"
+            v-model="searchParams.itmPdCds"
+            :options="optionsItmPdCd"
+            :label="$t('MSG_TXT_ITM_DV')"
+            option-value="pdCd"
+            option-label="pdNm"
             first-option="all"
+            :multiple="true"
           />
         </kw-search-item>
         <!-- 출고일자 -->
@@ -94,37 +98,43 @@
         >
           <kw-date-picker
             v-model="searchParams.ostrDt"
-            type="month"
+            type="date"
+            :min-date="minDate"
           />
         </kw-search-item>
       </kw-search-row>
       <kw-search-row>
         <!-- 입고창고 -->
-        <ZwcmWareHouseSearch
-          v-model:start-ym="searchParams.baseYmd"
-          v-model:end-ym="searchParams.baseYmd"
-          v-model:options-ware-dv-cd="ostrWareDvCd"
-          v-model:ware-dv-cd="searchParams.ostrWareDvCd"
-          v-model:ware-no-m="searchParams.ostrWareNoM"
-          v-model:ware-no-d="searchParams.ostrWareNoD"
-          sub-first-option="all"
+        <kw-search-item
+          :label="$t('MSG_TXT_STR_WARE')"
           :colspan="2"
-          :label1="$t('MSG_TXT_STR_DT')"
-          :label2="$t('MSG_TXT_STR_WARE')"
-          :label3="$t('MSG_TXT_HGR_WARE')"
-          :label4="$t('MSG_TXT_WARE')"
-        />
+          required
+        >
+          <kw-select
+            v-model="searchParams.wareDtlDvCd"
+            :options="filterCodes.wareDtlDvCd"
+            :label="$t('MSG_TXT_STR_WARE')"
+            rules="required"
+          />
+          <kw-select
+            v-model="searchParams.strWareNo"
+            :options="optionsStrWareNo"
+            option-value="wareNo"
+            option-label="wareNm"
+            :label="$t('MSG_TXT_STR_WARE')"
+            first-option="select"
+            rules="required"
+          />
+        </kw-search-item>
         <!-- 품목코드 -->
         <kw-search-item
           :label="$t('TXT_MSG_AS_ITM_CD')"
-          :colspan="2"
         >
           <kw-input
-            v-model="searchParams.itmPdCdFrom"
-          />
-          <span>~</span>
-          <kw-input
-            v-model="searchParams.itmPdCdTo"
+            v-model="searchParams.itmPdCd"
+            type="text"
+            :label="$t('MSG_TXT_ITM_CD')"
+            rules="alpha_num|max:10"
           />
         </kw-search-item>
       </kw-search-row>
@@ -135,11 +145,17 @@
           :colspan="2"
         >
           <kw-input
-            v-model="searchParams.sapMatCdFrom"
+            v-model="searchParams.strtSapCd"
+            :label="$t('MSG_TXT_STRT_SAP_CD')"
+            rules="numeric|max:18"
+            @change="onChangeStrtSapCd"
           />
           <span>~</span>
           <kw-input
-            v-model="searchParams.sapMatCdTo"
+            v-model="searchParams.endSapCd"
+            :label="$t('MSG_TXT_END_SAP_CD')"
+            rules="numeric|max:18"
+            @change="onChangeEndSapCd"
           />
         </kw-search-item>
       </kw-search-row>
@@ -202,328 +218,355 @@
 import { codeUtil, useDataService, getComponentType, useMeta, defineGrid, gridUtil, useGlobal } from 'kw-lib';
 import dayjs from 'dayjs';
 import { cloneDeep, isEmpty } from 'lodash-es';
-import ZwcmWareHouseSearch from '~sms-common/service/components/ZwsnzWareHouseSearch.vue';
 
-const { getConfig } = useMeta();
 const { t } = useI18n();
-const { notify } = useGlobal();
+const { getConfig } = useMeta();
+const { notify, alert } = useGlobal();
+const { currentRoute } = useRouter();
 
 const dataService = useDataService();
-const grdMainRef = ref(getComponentType('KwGrid'));
 
-const baseURI = '/sms/wells/service/independence-ware-ostrs';
-const individualURI = '/sms/wells/service/individual-ware-ostrs';
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
-const codes = ref(await codeUtil.getMultiCodes(
+
+const grdMainRef = ref(getComponentType('KwGrid'));
+
+const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
   'ITM_KND_CD',
-  'WARE_DV_CD',
-  'MNGT_UNIT_CD',
-));
-
-// 품목구분 필터링
-const filterCodes = ref({
-  filterItmKndCd: [],
-});
-filterCodes.value.filterItmKndCd = codes.value.ITM_KND_CD.filter(
-  ({ codeId }) => ['4', '5', '6'].includes(codeId),
+  'WARE_DTL_DV_CD',
 );
 
-console.log(dayjs().format('YYYYMMDD'));
+const now = dayjs();
+const minDate = now.format('YYYY-MM-DD');
 
 let cachedParams;
 const searchParams = ref({
-  baseYm: '',
-  baseYmd: '',
-  asnOjYm: '',
+  apyYm: now.format('YYYYMM'),
+  asnOjYm: now.format('YYYYMM'),
+  cnt: '1',
+  ostrWareNo: '100002',
   itmKndCd: '',
-  asnTnN: '1',
-  ostrOjWareNo: '',
-  ostrWareDvCd: '3',
-  ostrWareNoM: '',
-  ostrWareNoD: '',
-  ostrDt: '',
-  itmKndCdD: '',
-  sapMatCdFrom: '',
-  sapMatCdTo: '',
-  itmPdCdFrom: '',
-  itmPdCdTo: '',
+  itmPdCds: [],
+  ostrDt: now.format('YYYYMMDD'),
+  wareDvCd: '3',
+  wareDtlDvCd: '32',
+  strWareNo: '',
+  itmPdCd: '',
+  strtSapCd: '',
+  endSapCd: '',
 });
-
-searchParams.value.baseYm = dayjs().format('YYYYMM');
-searchParams.value.baseYmd = dayjs().format('YYYYMMDD');
-searchParams.value.asnOjYm = dayjs().format('YYYYMM');
-searchParams.value.ostrDt = dayjs().format('YYYYMMDD');
 
 const pageInfo = ref({
   totalCount: 0,
   pageIndex: 1,
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
+  needTotalCount: true,
 });
 
-const ostrWareDvCd = { WARE_DV_CD: [
-  { codeId: '2', codeName: '서비스센터' },
-  { codeId: '3', codeName: '영업센터' },
-] };
+// 품목구분 필터링
+const filterCodes = ref({
+  wareDtlDvCd: [],
+  itmKndCd: [],
+});
 
-codes.value.WARE_DV_CD = codes.value.WARE_DV_CD.filter(
-  ({ codeId }) => ['2', '3'].includes(codeId),
-);
+function codeFilter() {
+  filterCodes.value.wareDtlDvCd = codes.WARE_DTL_DV_CD.filter((v) => ['32'].includes(v.codeId));
+  filterCodes.value.itmKndCd = codes.ITM_KND_CD.filter((v) => ['4', '5', '6'].includes(v.codeId));
+}
 
-const itemKndCdD = ref();
-const onChangeItmKndCd = async () => {
-  const res = await dataService.get(`${individualURI}/filter-items`, { params: searchParams.value });
-  itemKndCdD.value = res.data;
-  searchParams.value.itmKndCdD = itemKndCdD.value[0].codeId;
+// 입고창고 조회
+const optionsStrWareNo = ref();
+
+async function onChangeHgrStrWareNo() {
+  searchParams.value.strWareNo = '';
+  const result = await dataService.get('/sms/wells/service/independence-ware-ostrs/storage-wares', { params: { ...searchParams.value } });
+  optionsStrWareNo.value = result.data;
+}
+
+const optionsOstrWareNo = ref();
+// 출고창고 조회
+const onChangeOstrWareHouse = async () => {
+  searchParams.value.ostrWareNo = '';
+  const result = await dataService.get(
+    '/sms/wells/service/independence-ware-ostrs/out-of-storage-wares',
+    { params: {
+      apyYm: searchParams.value.apyYm,
+    } },
+  );
+  optionsOstrWareNo.value = result.data;
+  if (!isEmpty(result.data)) {
+    searchParams.value.ostrWareNo = result.data[0].wareNo;
+    const { asnOjYm, cnt, ostrWareNo } = searchParams.value;
+    if (!isEmpty(asnOjYm) && !isEmpty(cnt) && !isEmpty(ostrWareNo)) {
+      onChangeHgrStrWareNo();
+    }
+  }
 };
 
-// 기준년월이 변경되었을때
-function onChangeBaseYm() {
-  searchParams.value.baseYmd = `${searchParams.value.baseYm}01`;
+function onChangeApyYm() {
+  const { apyYm, asnOjYm, cnt, ostrWareNo } = searchParams.value;
+  if (isEmpty(apyYm)) {
+    searchParams.value.ostrWareNo = '';
+    optionsOstrWareNo.value = [];
+
+    searchParams.value.strWareNo = '';
+    optionsStrWareNo.value = [];
+
+    return;
+  }
+  onChangeOstrWareHouse();
+
+  if (isEmpty(asnOjYm) || isEmpty(cnt) || isEmpty(ostrWareNo)) {
+    searchParams.value.strWareNo = '';
+    optionsStrWareNo.value = [];
+  }
 }
 
-const logisticParams = ref({
-  apyYm: dayjs().format('YYYYMM'),
-});
+// 입고창고조회 관련 데이터 변경 시
+function onChangeData() {
+  const { apyYm, asnOjYm, cnt, ostrWareNo } = searchParams.value;
 
-const logistics = ref();
+  if (isEmpty(apyYm) || isEmpty(asnOjYm) || isEmpty(cnt) || isEmpty(ostrWareNo)) {
+    searchParams.value.strWareNo = '';
+    optionsStrWareNo.value = [];
 
-async function fetchDefaultData() {
-  const res = await dataService.get(`${individualURI}/logistic`, { params: logisticParams.value });
-  logistics.value = res.data;
-  console.log(logistics.value);
-  searchParams.value.ostrOjWareNo = logistics.value[0].codeId;
+    return;
+  }
+
+  onChangeHgrStrWareNo();
 }
 
+const optionsItmPdCd = ref();
+const optionsAllItmPdCd = ref();
+
+// 품목조회
+const getProducts = async () => {
+  const result = await dataService.get('/sms/wells/service/independence-ware-ostrs/products');
+  optionsItmPdCd.value = result.data;
+  optionsAllItmPdCd.value = result.data;
+};
+
+// 품목종류 변경 시 품목 필터링
+function onChangeItmKndCd() {
+  // 품목코드 클리어
+  searchParams.value.itmPdCds = [];
+  const { itmKndCd } = searchParams.value;
+
+  if (isEmpty(itmKndCd)) {
+    optionsItmPdCd.value = optionsAllItmPdCd.value;
+    return;
+  }
+
+  optionsItmPdCd.value = optionsAllItmPdCd.value.filter((v) => itmKndCd === v.itmKndCd);
+}
+
+function onChangeStrtSapCd() {
+  const { strtSapCd, endSapCd } = searchParams.value;
+
+  if (!isEmpty(strtSapCd) && !isEmpty(endSapCd) && strtSapCd > endSapCd) {
+    searchParams.value.strtSapCd = strtSapCd;
+    searchParams.value.endSapCd = strtSapCd;
+  }
+}
+
+function onChangeEndSapCd() {
+  const { strtSapCd, endSapCd } = searchParams.value;
+
+  if (!isEmpty(strtSapCd) && !isEmpty(endSapCd) && strtSapCd > endSapCd) {
+    searchParams.value.strtSapCd = endSapCd;
+    searchParams.value.endSapCd = endSapCd;
+  }
+}
+
+await Promise.all([
+  codeFilter(),
+  onChangeOstrWareHouse(),
+  getProducts(),
+]);
+
+// 조회
 async function fetchData() {
-  const res = await dataService.get(baseURI, { params: { ...cachedParams, ...pageInfo.value } });
-  const { list: searchData, pageInfo: pagingResult } = res.data;
-
+  const res = await dataService.get('/sms/wells/service/independence-ware-ostrs/paging', { params: { ...cachedParams, ...pageInfo.value } });
+  const { list: ostrItms, pageInfo: pagingResult } = res.data;
+  // fetch시에는 총 건수 조회하지 않도록 변경
+  pagingResult.needTotalCount = false;
   pageInfo.value = pagingResult;
 
-  const view = grdMainRef.value.getView();
-  const datasSource = view.getDataSource();
-  datasSource.setRows(searchData);
-  view.resetCurrent();
+  if (grdMainRef.value != null) {
+    const view = grdMainRef.value.getView();
+    view.getDataSource().setRows(ostrItms);
+  }
 }
 
-// function searchValidation() {
-//   // 배정회차 null체크
-//   let chk = false;
-//   if (isEmpty(searchParams.value.asnTnN)) {
-//     chk = true;
-
-//     return chk;
-//   }
-//   return chk;
-// }
-
 async function onClickSearch() {
-  // if (searchValidation()) {
-  //   return;
-  // }
-
-  pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
-  console.log(`codes : ${codes}`);
+  pageInfo.value.pageIndex = 1;
+  // 조회버튼 클릭 시에만 총 건수 조회하도록
+  pageInfo.value.needTotalCount = true;
   await fetchData();
 }
 
+// 엑셀 다운로드
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
-  const res = await dataService.get(`${baseURI}/excel-download`, { params: cachedParams });
-  await gridUtil.exportView(view, {
-    fileName: 'independenceWarehouseOstrMgtM',
+  const res = await dataService.get('/sms/wells/service/independence-ware-ostrs/excel-download', { params: cachedParams });
+
+  gridUtil.exportView(view, {
+    fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
     exportData: res.data,
   });
 }
 
-function saveValidation(rows) {
-  let chk = false;
-  rows.forEach((v) => {
-    // 출고수량 0 or null 체크
-    if (isEmpty(v.outQty) || v.outQty === 0) {
-      notify(t('MSG_ALT_OSTR_QTY_ZERO_BE_BIG'));
-      chk = true;
-      return chk;
-    }
-
-    // 상위창고 재고수량이 부족합니다.
-    if (v.outQty > v.pitmStocAGdQty) {
-      notify(t('MSG_ALT_OSTR_QTY_EXCEEDS_INVEN_QTY'));
-      chk = true;
-      return chk;
-    }
-
-    // 확정일자체크 : 이미 입고확인이 완료되어 수정,삭제가 불가능합니다.
-  });
-  return chk;
-}
+// 저장
 async function onClickSave() {
-  // TODO: 물류서비스 I/F가 완료되면 update/insert check
-
   const view = grdMainRef.value.getView();
-  const chkRows = gridUtil.getCheckedRowValues(view);
-  console.log(`view : ${view}`);
-  console.log(`chkrows : ${chkRows}`);
+  if (await gridUtil.alertIfIsNotModified(view)) { return; }
+  if (!await gridUtil.validate(view)) { return; }
 
-  if (saveValidation(chkRows)) {
+  // 출고일자
+  const { ostrDt } = searchParams.value;
+
+  if (isEmpty(ostrDt)) {
+    // 출고일자를 선택해주세요
+    await alert(t('MSG_ALT_INP_RLS_NOT_DY'));
     return;
   }
 
-  if (chkRows.length === 0) {
-    notify(t('MSG_ALT_CHK_MIN_SELT', [1, t('MSG_TIT_ROW')]));
-    return;
-  }
-
-  if (chkRows.length > 0) {
-    return;
-  }
-
-  const addParams = ref([]);
-  chkRows.forEach((v, i) => {
-    const addValueParams = {};
-    addValueParams.ostrAkNo = '';
-    addValueParams.ostrAkSn = i + 1;
-    addValueParams.ostrAkTpCd = '360';
-    addValueParams.strOjWareNo = v.strWareNo;
-    addValueParams.ostrOjWareNo = cachedParams.ostrOjWareNo;
-    addValueParams.ostrAkRgstDt = '';
-    addValueParams.strHopDt = '';
-    addValueParams.itmPdCd = v.itemCd;
-    addValueParams.mngtUnitCd = v.mgtUnt;
-    addValueParams.itmGdCd = v.matGdCd;
-    addValueParams.ostrAkQty = v.outQty;
-    addValueParams.rmkCn = v.rmks;
-    addValueParams.dtaDlYn = 'N';
-    addParams.value.push(addValueParams);
+  const modifedData = gridUtil.getChangedRowValues(view);
+  let validWareNm = '';
+  let validItmPdCd = '';
+  modifedData.forEach((item) => {
+    const { outQty, logisticStocQty, wareNm, itmPdCd } = item;
+    // 출고수량 > 상위재고
+    if (outQty > logisticStocQty) {
+      validWareNm = wareNm;
+      validItmPdCd = itmPdCd;
+      return false;
+    }
+    item.ostrDt = ostrDt;
   });
 
-  const res = await dataService.post(`${baseURI}`, addParams.value);
-  console.log(`res :  ${res}`);
-  if (res.data.processCount > 0) {
+  if (!isEmpty(validWareNm) && !isEmpty(validItmPdCd)) {
+    const msg = `${validWareNm} ${t('MSG_TXT_WARE')} ${validItmPdCd} ${t('MSG_TXT_OF_ITM')}`;
+    // {0} 상위창고 재고수량이 부족합니다.
+    await alert(`${msg} ${t('MSG_ALT_HGR_WARE_STOC_STG')}`);
+    return;
+  }
+
+  const res = await dataService.post('/sms/wells/service/independence-ware-ostrs', modifedData);
+  const { processCount } = res.data;
+  if (processCount > 0) {
     notify(t('MSG_ALT_SAVE_DATA'));
     await fetchData();
   }
 }
 
-onMounted(async () => {
-  await fetchDefaultData();
-  // cachedParams = cloneDeep(searchParams.value);
-  // await fetchData();
-});
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
 const initGrdMain = defineGrid((data, view) => {
+  const fields = [
+    { fieldName: 'wareNm' },
+    { fieldName: 'sapMatCd' },
+    { fieldName: 'itmPdCd' },
+    { fieldName: 'pdAbbrNm' },
+    { fieldName: 'mngtUnit' },
+    { fieldName: 'mngtUnitNm' },
+    { fieldName: 'matGdCd' },
+    { fieldName: 'logisticStocQty', dataType: 'number' },
+    { fieldName: 'boxUnitQty', dataType: 'number' },
+    { fieldName: 'crtlStocQty', dataType: 'number' },
+    { fieldName: 'useQty', dataType: 'number' },
+    { fieldName: 'cnfmQty', dataType: 'number' },
+    { fieldName: 'cnfmBoxQty', dataType: 'number' },
+    { fieldName: 'mcbyAcuOstrQty', dataType: 'number' },
+    { fieldName: 'mcbyAcuOstrBoxQty', dataType: 'number' },
+    { fieldName: 'filterBoxQty', dataType: 'number' },
+    { fieldName: 'outQty', dataType: 'number' },
+    { fieldName: 'outBoxQty', dataType: 'number' },
+    { fieldName: 'itmQomAsnNo' },
+    { fieldName: 'asnOjYm' },
+    { fieldName: 'ostrWareNo' },
+    { fieldName: 'strWareNo' },
+    { fieldName: 'wareMngtPrtnrNo' },
+    { fieldName: 'ogTpCd' },
+    { fieldName: 'itmKndCd' },
+    { fieldName: 'rmkCn' },
+    { fieldName: 'asnTnN' },
+    { fieldName: 'wareDvCd' },
+    { fieldName: 'ostrAkNo' },
+    { fieldName: 'ostrAkSn' },
+    { fieldName: 'ostrDt' },
+    { fieldName: 'chk', dataType: 'text', booleanFormat: 'N:Y' },
+  ];
+
   const columns = [
     { fieldName: 'strWareNo', header: t('MSG_TXT_WARE'), width: '100', styleName: 'text-center' },
     { fieldName: 'wareNm', header: t('MSG_TXT_WARE_NM'), width: '210', styleName: 'text-left' },
     { fieldName: 'sapMatCd', header: t('MSG_TXT_SAP_CD'), width: '130', styleName: 'text-center' },
-    { fieldName: 'itemCd', header: t('MSG_TXT_ITM_CD'), width: '150', styleName: 'text-center' },
+    { fieldName: 'itmPdCd', header: t('MSG_TXT_ITM_CD'), width: '150', styleName: 'text-center' },
     { fieldName: 'pdAbbrNm', header: t('MSG_TXT_ITM_NM'), width: '230', styleName: 'text-left' },
-    { fieldName: 'mgtUntNm', header: t('MSG_TXT_MNGT_UNIT'), width: '80', styleName: 'text-center' },
+    { fieldName: 'mngtUnitNm', header: t('MSG_TXT_MNGT_UNIT'), width: '80', styleName: 'text-center' },
     { fieldName: 'matGdCd', header: t('MSG_TXT_GD'), width: '80', styleName: 'text-center' },
-    { fieldName: 'pitmStocAGdQty', header: t('MSG_TXT_HGR_STOC'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'boxQty', header: t('MSG_TXT_UNIT_QTY'), width: '130', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'crtlStocQty', header: t('MSG_TXT_STOC_QTY'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'thwkExpQty', header: t('MSG_TXT_NED_QTY'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'cnfmQty', header: t('MSG_TXT_QTY'), width: '84', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'boxQty1', header: t('MSG_TXT_BOX'), width: '84', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'accQty', header: t('MSG_TXT_AGGS'), width: '84', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'accBoxQty', header: t('MSG_TXT_BOX'), width: '84', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'outBoxQty', header: t('MSG_TXT_FILT_BOX_QTY'), width: '130', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'logisticStocQty', header: t('MSG_TXT_HGR_STOC'), width: '100', styleName: 'text-right' },
+    { fieldName: 'boxUnitQty', header: t('MSG_TXT_UNIT_QTY'), width: '130', styleName: 'text-right' },
+    { fieldName: 'crtlStocQty', header: t('MSG_TXT_STOC_QTY'), width: '100', styleName: 'text-right' },
+    { fieldName: 'useQty', header: t('MSG_TXT_NED_QTY'), width: '100', styleName: 'text-right' },
+    { fieldName: 'cnfmQty', header: t('MSG_TXT_QTY'), width: '84', styleName: 'text-right' },
+    { fieldName: 'cnfmBoxQty', header: t('MSG_TXT_BOX'), width: '84', styleName: 'text-right' },
+    { fieldName: 'mcbyAcuOstrQty', header: t('MSG_TXT_AGGS'), width: '84', styleName: 'text-right' },
+    { fieldName: 'mcbyAcuOstrBoxQty', header: t('MSG_TXT_BOX'), width: '84', styleName: 'text-right' },
+    { fieldName: 'outBoxQty', header: t('MSG_TXT_FILT_BOX_QTY'), width: '130', styleName: 'text-right' },
     { fieldName: 'outQty',
       header: t('MSG_TXT_OSTR_QTY'),
-      editor: {
-        type: 'input',
-      },
-      editable: true,
-      width: '110',
+      rules: 'required|min_value:1|max_value:999999999999',
       styleName: 'text-right',
-      numberFormat: '#,##0',
-    },
-    { fieldName: 'rmks',
-      header: t('MSG_TXT_NOTE'),
       editor: {
-        type: 'input',
-      },
-      editable: true,
-      width: '240',
-      styleName: 'text-left' },
+        type: 'number',
+        editable: true },
+    },
+    { fieldName: 'rmkCn',
+      header: t('MSG_TXT_NOTE'),
+      styleName: 'text-left',
+      rules: 'max:4000',
+      editor: {
+        type: 'text',
+        editable: true },
+    },
   ];
-  // const fields = columns.map((v) => ({ fieldName: v.fieldName }));
-  const fields = [
-    { fieldName: 'strWareNo' },
-    { fieldName: 'wareNm' },
-    { fieldName: 'sapMatCd' },
-    { fieldName: 'itemCd' },
-    { fieldName: 'pdAbbrNm' },
-    { fieldName: 'mgtUntNm' },
-    { fieldName: 'matGdCd' },
-    { fieldName: 'pitmStocAGdQty', dataType: 'number' },
-    { fieldName: 'boxQty', dataType: 'number' },
-    { fieldName: 'crtlStocQty', dataType: 'number' },
-    { fieldName: 'thwkExpQty', dataType: 'number' },
-    { fieldName: 'cnfmQty', dataType: 'number' },
-    { fieldName: 'boxQty1', dataType: 'number' },
-    { fieldName: 'accQty', dataType: 'number' },
-    { fieldName: 'accBoxQty', dataType: 'number' },
-    { fieldName: 'outBoxQty', dataType: 'number' },
-    { fieldName: 'outQty', dataType: 'number' },
-    { fieldName: 'rmks' },
-    { fieldName: 'rectOstrDt' },
-    { fieldName: 'rectOstrTpCd' },
-    { fieldName: 'mgtUnt' },
-  ];
+
   view.setColumnLayout([
-    'strWareNo', 'wareNm', 'sapMatCd', 'itemCd', 'pdAbbrNm', 'mgtUntNm', 'matGdCd', 'pitmStocAGdQty',
-    'boxQty', 'crtlStocQty', 'thwkExpQty',
+    'strWareNo', 'wareNm', 'sapMatCd', 'itmPdCd', 'pdAbbrNm', 'mngtUnitNm', 'matGdCd', 'logisticStocQty',
+    'boxUnitQty', 'crtlStocQty', 'useQty',
     {
       header: t('MSG_TXT_QOM_ASN_CNFM'), // 물량배정확정 // colspan title
       direction: 'horizontal', // merge type
-      items: ['cnfmQty', 'boxQty1'],
+      items: ['cnfmQty', 'cnfmBoxQty'],
     },
     {
       header: t('MSG_TXT_QOM_ASN_OSTR'), // 물량배정출고
       direction: 'horizontal',
-      items: ['accQty', 'accBoxQty'],
+      items: ['mcbyAcuOstrQty', 'mcbyAcuOstrBoxQty'],
     },
-    'outBoxQty', 'outQty', 'rmks',
+    'outBoxQty', 'outQty', 'rmkCn',
   ]);
 
   data.setFields(fields);
   view.setColumns(columns);
   view.checkBar.visible = true;
   view.rowIndicator.visible = true;
+  view.editOptions.editable = true;
 
-  const editFields = ['outQty', 'rmks'];
-  view.onCellEditable = (grid, clickData) => {
-    if (!editFields.includes(clickData.column)) {
-      return false;
+  view.onCellEditable = (grid, index) => {
+    // 출고수량, 비고만 입력 가능
+    if (['outQty', 'rmkCn'].includes(index.column)) {
+      return true;
     }
-  };
 
-  view.onCellClicked = (grid, clickData) => {
-    if (editFields.includes(clickData.column)) {
-      view.editOptions.editable = true;
-    } else {
-      view.editOptions.editable = false;
-    }
-  };
-
-  // checkbox auto checked
-  view.onEditChange = (grid, index, value) => {
-    const oldvalue = gridUtil.getOrigCellValue(grid, index.itemIndex, index.fieldName);
-
-    if (value !== oldvalue) {
-      view.checkRow(index.itemIndex, true);
-    } else {
-      view.checkRow(index.itemIndex, false);
-    }
+    return false;
   };
 });
 </script>
