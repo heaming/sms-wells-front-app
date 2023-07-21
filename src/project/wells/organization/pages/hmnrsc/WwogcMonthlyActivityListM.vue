@@ -128,8 +128,9 @@ import ZwogLevelSelect from '~sms-common/organization/components/ZwogLevelSelect
 import { cloneDeep } from 'lodash-es';
 
 const { t } = useI18n();
-const { getConfig } = useMeta();
+const { getConfig, getUserInfo } = useMeta();
 const { currentRoute } = useRouter();
+const { wkOjOgTpCd, ogTpCd } = getUserInfo();
 const now = dayjs().format('YYYYMM');
 const dataService = useDataService();
 let cacheParams;
@@ -160,7 +161,7 @@ const grdMainRef = ref(getComponentType('KwGrid'));
 // -------------------------------------------------------------------------------------------------
 const searchParams = ref({
   baseYm: now,
-  ogTpCd: 'W01',
+  ogTpCd: wkOjOgTpCd === null ? ogTpCd : wkOjOgTpCd,
   rsbDvCd: 'S',
   ogLevlDvCd1: undefined,
   ogLevlDvCd2: undefined,
