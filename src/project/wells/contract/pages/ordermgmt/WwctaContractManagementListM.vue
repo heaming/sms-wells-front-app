@@ -144,7 +144,7 @@
             :label="$t('MSG_TXT_CST_NM')"
           >
             <kw-input
-              v-model="searchParams.cstNm"
+              v-model="searchParams.cstKnm"
               class="w185"
               clearable
               :maxlength="100"
@@ -939,6 +939,7 @@ async function onClickSearchCntrCst() {
     // searchParams.cntrCstKnm(res.payload.name);
     // searchParams.cntrCstNo(res.payload.cstNo);
     searchParams.value.cntrCstNo = res.payload.cstNo;
+    searchParams.value.cstKnm = res.payload.name;
   }
 }
 

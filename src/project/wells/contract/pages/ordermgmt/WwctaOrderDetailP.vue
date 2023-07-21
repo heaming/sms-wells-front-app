@@ -330,7 +330,7 @@ const searchParams = ref({
 });
 
 const frmMainData = ref({
-  cntrDtlNo: '', // 계약상세번호
+  cntrDtlNo: `${props.cntrNo}-${props.cntrSn}`, // 계약상세번호
   pdNm: '', // 상품명
   cstKnm: '', // 고객명
   cntrCstNo: '', // 고객번호
@@ -381,9 +381,6 @@ async function fetchDataContractLists() {
   res = await dataService.get('/sms/wells/contract/contracts/order-details/customer-bases/contract-lists', { params: cachedParams });
   // console.log(res.data);
   optionList.value = res.data;
-  if (res.data.length === 1) {
-    frmMainData.value.cntrDtlNo = res.data[0].cntrDtlNo;
-  }
 
   // eslint-disable-next-line no-use-before-define
   await fetchDataCustomerBase();

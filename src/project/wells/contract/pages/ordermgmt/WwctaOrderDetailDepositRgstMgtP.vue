@@ -91,7 +91,7 @@ let cachedParams;
 const searchParams = ref({
   cntrNo: props.cntrNo,
   cntrSn: props.cntrSn,
-  rveDtFr: now.format('YYYYMMDD'), // 입금일자(시작)
+  rveDtFr: now.add('-7', 'day').format('YYYYMMDD'), // 입금일자(시작)
   rveDtTo: now.format('YYYYMMDD'), // 입금일자(종료)
 });
 

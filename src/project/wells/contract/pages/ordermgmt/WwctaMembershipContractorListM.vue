@@ -283,6 +283,7 @@ async function onClickSearchCntrCst() {
     // searchParams.cntrCstKnm(res.payload.name);
     // searchParams.cntrCstNo(res.payload.cstNo);
     searchParams.value.cntrCstNo = res.payload.cstNo;
+    searchParams.value.cstKnm = res.payload.name;
   }
 }
 
