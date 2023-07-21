@@ -591,7 +591,7 @@ async function onClickW219P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
   const { unitCd, perfYm } = searchParams.value;
   const response = await dataService.get('/sms/common/fee/fee-approval/dsb-cnst-status', searchParams.value); /* 품의진행상태 조회 */
   const resData = response.data;
-  approval.value.appKey = formId + unitCd + dayjs().format('YYYYMMDDHHmmss'); /* 10자리 + 4자리 + 14자리 = 28 appKey 생성 */
+  approval.value.appKey = `${formId}_${unitCd}_${dayjs().format('YYYYMMDDHHmmss')}`; /* 10자리 +_+ 4자리 +_+ 14자리 = 30 appKey 생성 */
   const params = approval.value;
   saveInfo.value.appKey = approval.value.appKey;
   saveInfo.value.perfYm = perfYm;
