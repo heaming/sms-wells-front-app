@@ -196,6 +196,7 @@
           grid-action
           :label="$t('MSG_TXT_SAVE')"
           :disable="pageInfo.totalCount === 0"
+          @click="onClickSave"
         />
         <kw-separator
           spaced
@@ -268,7 +269,7 @@ import { isEmpty, cloneDeep } from 'lodash-es';
 
 const { t } = useI18n();
 const { getConfig } = useMeta();
-const { modal } = useGlobal();
+const { modal, alert, notify } = useGlobal();
 const { currentRoute } = useRouter();
 
 const dataService = useDataService();
@@ -518,6 +519,50 @@ function onChangeNdlvQty() {
   view.getDataSource().setRows(filterRows);
 }
 
+// 저장
+async function onClickSave() {
+  const view = grdMainRef.value.getView();
+  if (await gridUtil.alertIfIsNotModified(view)) { return; }
+  if (!await gridUtil.validate(view)) { return; }
+
+  // 출고일자
+  const { ostrDt } = searchParams.value;
+
+  if (isEmpty(ostrDt)) {
+    // 출고일자를 선택해주세요
+    await alert(t('MSG_ALT_INP_RLS_NOT_DY'));
+    return;
+  }
+
+  const modifedData = gridUtil.getChangedRowValues(view);
+  let validWareNm = '';
+  let validItmPdCd = '';
+  modifedData.forEach((item) => {
+    const { outQty, logisticStocQty, wareNm, itmPdCd } = item;
+    // 출고수량 > 상위재고
+    if (outQty > logisticStocQty) {
+      validWareNm = wareNm;
+      validItmPdCd = itmPdCd;
+      return false;
+    }
+    item.ostrDt = ostrDt;
+  });
+
+  if (!isEmpty(validWareNm) && !isEmpty(validItmPdCd)) {
+    const msg = `${validWareNm} ${t('MSG_TXT_WARE')} ${validItmPdCd} ${t('MSG_TXT_OF_ITM')}`;
+    // {0} 상위창고 재고수량이 부족합니다.
+    await alert(`${msg} ${t('MSG_ALT_HGR_WARE_STOC_STG')}`);
+    return;
+  }
+
+  const res = await dataService.post('/sms/wells/service/individual-ware-ostrs', modifedData);
+  const { processCount } = res.data;
+  if (processCount > 0) {
+    notify(t('MSG_ALT_SAVE_DATA'));
+    await fetchData();
+  }
+}
+
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
@@ -557,6 +602,9 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'rmkCn' },
     { fieldName: 'asnTnN' },
     { fieldName: 'wareDvCd' },
+    { fieldName: 'ostrAkNo' },
+    { fieldName: 'ostrAkSn' },
+    { fieldName: 'ostrDt' },
     { fieldName: 'chk', dataType: 'text', booleanFormat: 'N:Y' },
   ];
 
@@ -628,7 +676,6 @@ const initGrdMain = defineGrid((data, view) => {
     'logisticFilterQty', 'outQty', 'rmkCn',
   ]);
 
-  view.checkBar.fieldName = 'chk';
   view.checkBar.visible = true;
   view.rowIndicator.visible = true;
   view.editOptions.editable = true;
