@@ -538,6 +538,8 @@ const initGrdMain = defineGrid((data, view) => {
     },
   ];
 
+  data.setFields(fields);
+  view.setColumns(columns);
   view.setColumnLayout([
     'strWareNo', 'wareNm', 'sapMatCd', 'itmPdCd', 'pdAbbrNm', 'mngtUnitNm', 'matGdCd', 'logisticStocQty',
     'boxUnitQty', 'crtlStocQty', 'useQty',
@@ -554,8 +556,6 @@ const initGrdMain = defineGrid((data, view) => {
     'outBoxQty', 'outQty', 'rmkCn',
   ]);
 
-  data.setFields(fields);
-  view.setColumns(columns);
   view.checkBar.visible = true;
   view.rowIndicator.visible = true;
   view.editOptions.editable = true;
@@ -570,5 +570,3 @@ const initGrdMain = defineGrid((data, view) => {
   };
 });
 </script>
-<style scoped>
-</style>
