@@ -114,7 +114,7 @@
             v-model="searchParams.wareDtlDvCd"
             :options="filterCodes.wareDtlDvCd"
             :label="$t('MSG_TXT_STR_WARE')"
-            class="w150"
+            class="w180"
             rules="required"
           />
           <kw-select
