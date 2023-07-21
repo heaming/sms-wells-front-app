@@ -181,7 +181,7 @@
               v-if="item.numprds > 1"
               class="kw-font-pt18 kw-fc--primary"
             >
-              {{ item.sellTpNm }} 외 {{ item.numprds }}건
+              {{ item.sellTpNm }} 외 {{ item.numprds-1 }}건
             </p>
             <p
               v-else
@@ -406,7 +406,9 @@
               inset
               spaced="0px"
             />
+            <!--설치배정 -->
             <kw-btn
+              v-if="item.installYn ==='Y'"
               :label="$t('MSG_BTN_CNTCT_ASSGNMNT')"
               padding="12px"
               @click="onClickAssignContact(item)"
