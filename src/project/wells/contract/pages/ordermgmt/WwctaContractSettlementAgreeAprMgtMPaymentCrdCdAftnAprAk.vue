@@ -122,8 +122,8 @@ async function fetchRegularFundTransferDayOptions() {
 await fetchRegularFundTransferDayOptions();
 
 const approvalRequest = ref({
-  stlmAmt: stlmBas.value.stlmAmt, /* TODO: 추후에 확인 필요 */
-  mpyBsdt: '10', /* 납부기준일자 TODO: 나중에 옵션 가져올것 */
+  stlmAmt: stlmBas.value.stlmAmt,
+  mpyBsdt: mpyBsdtOptions.value[0]?.codeId, /* 납부기준일자
   crcdnoEncr: '', /* 카드번호 */
   cardExpdtYm: '', /* 유효기한 */
   bryyMmdd: props.cntrCstInfo.bryyMmdd || '',
