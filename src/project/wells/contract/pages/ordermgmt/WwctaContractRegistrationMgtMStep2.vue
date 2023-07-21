@@ -631,8 +631,9 @@ const isItem = {
   crpCntr: () => step2.value.bas?.cntrTpCd === '02',
   welsf: (i) => i.lclsfVal === '05001003',
   hcf: (i) => i.lclsfVal === '01003001',
-  sltrRglrSpp: (i) => i.cntrRelDtlCd === '214', // 단독정기배송
   rglrSpp: (i) => i.cntrRelDtlCd === '216', // 정기배송
+  sltrRglrSpp: (i) => i.cntrRelDtlCd === '214' && i.sellTpDtlCd !== '61', // 단독정기배송
+  sltrRglrSppExcdMchn: (i) => i.cntrRelDtlCd === '216' && i.sellTpDtlCd === '61', // 단독정기배송(홍삼 등 기기 필요 X)
 };
 
 // -------------------------------------------------------------------------------------------------
