@@ -305,6 +305,7 @@ async function onChangeCstNo() {
 // 파트너번호 변경
 async function onChangePrtnrNo() {
   searchParams.value.prtnrNoYn = 'N';
+  searchParams.value.clctamPrtnrNo = 'N';
 }
 
 // 저장
@@ -446,7 +447,7 @@ const initExpectedGrid = defineGrid((data, view) => {
     { fieldName: 'clctamYn', header: t('MSG_TXT_CLCTAM_PSIC_YN'), width: '100', styleName: 'text-center' },
     { fieldName: 'rveAmt', header: t('MSG_TXT_DEPOSIT_AMT'), width: '110', styleName: 'text-right', dataType: 'number' },
     { fieldName: 'authRsgExcdRqrPrtnrNo', header: t('MSG_TXT_THM_EXCD_EMPNO'), width: '100', styleName: 'text-center' },
-    { fieldName: 'rqrBaseYm', header: t('MSG_TXT_FST_EXCD_MM'), width: '100', styleName: 'text-center' },
+    { fieldName: 'rqrBaseYm', header: t('MSG_TXT_FST_EXCD_MM'), width: '100', styleName: 'text-center', datetimeFormat: 'YYYY-MM' },
     { fieldName: 'acuRveAmt', header: t('MSG_TXT_ACU_DP_AMOUNT'), width: '110', styleName: 'text-right', dataType: 'number' },
     { fieldName: 'bryyMmdd', header: t('MSG_TXT_BIRTH_DATE'), width: '100', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'cntrTpNm', header: t('MSG_TXT_CNTR_DV'), width: '100', styleName: 'text-center' },
