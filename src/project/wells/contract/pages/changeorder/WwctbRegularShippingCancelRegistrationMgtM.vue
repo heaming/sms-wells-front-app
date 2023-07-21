@@ -212,7 +212,6 @@
             <kw-form-item :label="$t('MSG_TXT_CTR')+$t('MSG_TXT_REQ_USER')+$t('MSG_TXT_EPNO')">
               <kw-input
                 v-model="searchDetail.slCtrRqrId"
-                regex="num"
                 maxlength="10"
               />
             </kw-form-item>

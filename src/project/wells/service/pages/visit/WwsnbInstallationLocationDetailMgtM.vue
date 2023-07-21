@@ -127,7 +127,7 @@
           :label="$t('MSG_TXT_CNTR_DTL_NO')"
         >
           <kw-input
-            v-model="searchParams.cntrNo"
+            v-model="searchParams.cntrDtlNo"
             :maxlength="14"
             class="w200"
           />
@@ -209,7 +209,7 @@ import {
   useGlobal,
 } from 'kw-lib';
 
-import { cloneDeep, replace } from 'lodash-es';
+import { cloneDeep, replace, split } from 'lodash-es';
 import dayjs from 'dayjs';
 // import smsCommon from '~sms-wells/service/composables/useSnCode';
 // import ZwcmMultiSelect from '@/modules/common/components/ZwcmMultiSelect.vue';
@@ -230,13 +230,11 @@ const { currentRoute } = useRouter();
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 
-// const svcCode = (await dataService.get('/sms/wells/service/installation-locations/centers')).data;
 const svcCode = (await dataService.get('/sms/wells/service/organizations/service-center')).data;
 
 const engineers = ref([]);
 const products = ref([]);
-// 기획서 기준
-// const wrkEng = (await getWorkingEngineers('G_ONLY_ENG')).G_ONLY_ENG;
+
 const prd = (await dataService.get('/sms/wells/service/installation-locations/products')).data;
 products.value = prd;
 // engineers.value = eng.map((v) => ({ codeId: v.prtnrNo, codeName: v.prtnrKnm }));
@@ -264,7 +262,9 @@ const searchParams = ref({
   istDtFrom: now.subtract(7, 'days').format('YYYYMMDD'),
   istDtTo: now.format('YYYYMMDD'),
   cstNm: '',
+  cntrDtlNo: '',
   cntrNo: '',
+  cntrSn: '',
   egerId: '',
   rgsnYn: 'N',
   pdGrpCd: '',
@@ -298,16 +298,18 @@ async function fetchData() {
   const res = await dataService.get('/sms/wells/service/installation-locations/paging', { params: { ...cachedParams, ...pageInfo.value } });
   const { list: locations, pageInfo: pagingResult } = res.data;
   pageInfo.value = pagingResult;
-  console.log(res.data);
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(locations);
   view.resetCurrent();
 }
 
 async function onClickSearch() {
+  const splited = split(searchParams.value.cntrdtlNo, '-');
+  searchParams.value.cntrNo = splited[0];
+  searchParams.value.cntrSn = splited[1];
   pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
-
+  debugger;
   await fetchData();
 }
 
@@ -328,13 +330,13 @@ async function setEngineers() {
   if (searchParams.value.ogId === '') {
     engineers.value = [];
   } else {
-    const eng = (await dataService.get('/sms/wells/service/installation-locations/engineers', { params: { ogId: searchParams.value.ogId } })).data;
+    const eng = (await dataService.get('/sms/wells/service/organizations/engineer', { params: { dgr1LevlOgId: searchParams.value.ogId } })).data;
     if (searchParams.value.rgsnYn === 'Y') {
-      const wrkEngByOdId = eng.filter((v) => v.cltnDt === '').map((v) => ({ codeId: v.prtnrNo, codeName: v.prtnrKnm }));
-      engineers.value = wrkEngByOdId.map((v) => ({ codeId: v.prtnrNo, codeName: v.prtnrKnm }));
+      const wrkEngByOdId = eng.filter((v) => v.cltnDt === null || v.cltnDt === '');
+      engineers.value = wrkEngByOdId.map((v) => ({ codeId: v.prtnrNo, codeName: v.prtnrNm }));
       return;
     }
-    engineers.value = eng.map((v) => ({ codeId: v.prtnrNo, codeName: v.prtnrKnm }));
+    engineers.value = eng.map((v) => ({ codeId: v.prtnrNo, codeName: v.prtnrNm }));
   }
 }
 
@@ -357,7 +359,6 @@ async function onUpdateRgsnYn() {
 }
 
 async function onUpdatePdGrpCd() {
-  console.log(prd);
   searchParams.value.pdCd = '';
   setProducts();
 }
@@ -373,7 +374,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'cntrSn' },
     { fieldName: 'custNm' },
     { fieldName: 'sellTpNm' },
-    { fieldName: 'basePdCd' },
+    { fieldName: 'pdctPdCd' },
     { fieldName: 'sapMapCd' },
     { fieldName: 'pdNm' },
     { fieldName: 'locaraTno' },
@@ -433,7 +434,7 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-center',
     },
     {
-      fieldName: 'basePdCd',
+      fieldName: 'pdctPdCd',
       header: t('MSG_TXT_ITM_CD'),
       width: '150',
       styleName: 'text-center',
@@ -514,7 +515,7 @@ const initGrdMain = defineGrid((data, view) => {
     'custNm',
     'sellTpNm',
     'sapMapCd',
-    'basePdCd',
+    'pdctPdCd',
     'pdNm',
     'telNo',
     'cralTelNo',

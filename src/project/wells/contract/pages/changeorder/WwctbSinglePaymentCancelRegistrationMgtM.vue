@@ -277,7 +277,6 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { codeUtil, getComponentType, stringUtil, useGlobal } from 'kw-lib';
-import { isEmpty } from 'lodash';
 
 const { t } = useI18n();
 const frmMainSinglePmt = ref(getComponentType('KwForm'));
@@ -330,10 +329,6 @@ async function onClickRefund() {
 
 function onClickSave() {
   searchDetail.rsgAplcDt = inputDetail.reqDt;
-  if (isEmpty(searchDetail.canCtrAmt)) {
-    searchDetail.slCtrRqrId = '';
-    searchDetail.slCtrRmkCn = '';
-  }
   emits('savedetail');
 }
 

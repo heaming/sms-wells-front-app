@@ -227,7 +227,6 @@
             <kw-form-item :label="$t('MSG_TXT_CTR')+$t('MSG_TXT_REQ_USER')+$t('MSG_TXT_EPNO')">
               <kw-input
                 v-model="searchDetail.slCtrRqrId"
-                regex="num"
                 maxlength="10"
               />
             </kw-form-item>
@@ -621,7 +620,7 @@
         class="ml8"
         @click="onClickVacIssue"
       />
-      -->
+-->
       <kw-btn
         :label="$t('MSG_TXT_CARD')+$t('MSG_BTN_APPR')"
         class="ml8"
@@ -667,14 +666,11 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, getComponentType, stringUtil, useDataService, useMeta, useGlobal } from 'kw-lib';
+import { codeUtil, getComponentType, stringUtil, useGlobal } from 'kw-lib';
 import dayjs from 'dayjs';
 import { isEmpty } from 'lodash';
 
 const { t } = useI18n();
-const { getUserInfo } = useMeta();
-const sessionUserInfo = getUserInfo();
-const dataService = useDataService();
 const frmMainRental = ref(getComponentType('KwForm'));
 const { notify, modal } = useGlobal();
 
@@ -764,7 +760,6 @@ function onClickSave() {
 function onClickCancel() {
   emits('removedetail');
 }
-
 /*
 async function onCallStlm(pDiv) {
   let component;
@@ -780,30 +775,39 @@ async function onCallStlm(pDiv) {
 }
 
 async function onClickVacIssue() {
+  const btns = [{ label: '대면발급', returnText: 'Face' },
+    { label: '비대면발급', returnText: 'NonFace' }];
+
   const { result, payload } = await modal({
-    component: 'WwctbCancelRegistrationConfirmMgtP',
+    component: 'ZwctaComfirmMgmtP',
+    componentProps: { contents: '가상계좌 발급 방법을 선택하여 주세요.',
+      isCancel: true,
+      isOk: false,
+      btns },
   });
   if (result) {
     onCallStlm(payload);
   }
 }
 */
-
 async function onClickRequidation() {
-  const sendData = {
-    svBizHclsfCd: '9', // 필수, 계약취소
-    rcpdt: '',
-    mtrStatCd: '2', // 필수, 1: 신규, 2: 수정, 3: 삭제
-    svBizDclsfCd: '1111', // 1111 설치+철거
-    urgtYn: 'N',
-    cntrNo: searchDetail.cntrNo, // 필수  계약번호
-    cntrSn: searchDetail.cntrSn, // 다건 배열 cntrSn
-    inflwChnl: '3', // 필수 1: CubicCC, 3: KSS
-    pdGdCd: 'A', // 상품등급
-    userId: sessionUserInfo.userId, // 로그인한 사용자
-  };
+  const res = await modal({
+    component: 'WwsncTimeTableForContractP',
+    componentProps: {
+      sellDate: searchDetail.cntrCnfmDt, // // 판매일자
+      baseYm: dayjs().format('YYYYMM'), // 달력 초기 월
+      chnlDvCd: 'K', // W: 웰스, K: KSS, C: CubicCC, P: K-MEMBERS, I || E: 엔지니어, M: 매니저
+      svDvCd: '1', // 1:설치, 2:BS, 3:AS, 4:홈케어
+      svBizDclsfCd: '3420',
+      cntrNo: searchDetail.cntrNo,
+      cntrSn: searchDetail.cntrSn,
+      dataStatCd: '1', // 1: 신규, 2: 수정, 3: 삭제
+      userId: searchDetail.sellPrtnrNo,
+      mtrStatCd: '1',
+    },
+  });
 
-  await dataService.post('/sms/wells/service/installation-works', sendData);
+  console.log(res);
 }
 
 async function onClickRefund() {

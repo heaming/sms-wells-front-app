@@ -25,12 +25,13 @@
           :label="$t('MSG_TXT_OSTR_TP')"
           required
         >
+          <!-- :readonly="hasProps()" -->
           <kw-select
             v-model="searchParams.ostrTpCd"
             :label="$t('MSG_TXT_OSTR_TP')"
             :options="ostrTpCds"
             rules="required"
-            :readonly="hasProps()"
+            :readonly="true"
             @change="onChangeOstrTp"
           />
         </kw-search-item>
@@ -237,7 +238,7 @@ const codes = await codeUtil.getMultiCodes(
 const pdGdCds = codes.PD_GD_CD.filter((v) => ['A', 'B', 'E', 'R', 'X'].includes(v.codeId));
 
 function isReturingCode(codeId) {
-  return codeId === DISUSE || codeId === RETURN_INSIDE || codeId === RETURN_OUTSIDE;
+  return codeId === RETURN_INSIDE;
 }
 const ostrTpCds = codes.OSTR_TP_CD.filter((v) => isReturingCode(v.codeId));
 

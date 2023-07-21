@@ -1059,13 +1059,16 @@ async function onClickSave() {
     }
   }
 
-  const sendData = {
-    inChnlDvCd: data.value.chnlDvCd,
-    asIstOjNo: data.value.inflwChnl + data.value.svDvCd + data.value.wrkDt + data.value.seq,
+  const sendDataBase = {
+    //-------------------------------------------------
+    // inChnlDvCd: data.value.chnlDvCd,
+    inChnlDvCd: searchParams.value.inflwChnl,
+    asIstOjNo: '',
+    // cstSvAsnNo: data.value.cstSvAsnNo,
+    //-------------------------------------------------
     svBizHclsfCd: searchParams.value.svDvCd,
     rcpdt: data.value.wrkDt,
     mtrStatCd: searchParams.value.mtrStatCd,
-    svBizDclsfCd: searchParams.value.svBizDclsfCd,
     urgtYn: 'N',
     vstRqdt: searchParams.value.sellDate,
     vstAkHh: data.value.sellTime,
@@ -1073,18 +1076,34 @@ async function onClickSave() {
     cnslMoCn: data.value.egerMemo,
     ogTpCd: data.value.ogTpCd, // 엔지니어 조직유형
     ichrPrtnrNo: data.value.prtnrNo, // 엔지니어 파트너번호
-    cntrNo: searchParams.value.cntrNo,
-    cntrSn: searchParams.value.cntrSn,
-    inflwChnl: searchParams.value.inflwChnl,
     pdGdCd: 'A',
     userId: data.value.userId, // 로그인한 사용자
     rcpOgTpCd: data.value.rcpOgTpCd, // 로그인한 사용자 조직유형
-    cstSvAsnNo: data.value.cstSvAsnNo,
+    cntrNo: searchParams.value.cntrNo,
   };
+  const sendDatas = [];
 
-  await dataService.post('/sms/wells/service/installation-works', sendData);
+  if (searchParams.value.cntrSn.includes(',') && searchParams.value.svBizDclsfCd.includes(',')) {
+    const cntrSns = searchParams.value.cntrSn.split(',');
+    const svBizDclsfCds = searchParams.value.svBizDclsfCd.split(',');
+
+    const cloneObj = (obj) => JSON.parse(JSON.stringify(obj));
+
+    cntrSns.forEach((item, idx) => {
+      const sendData = cloneObj(sendDataBase);
+      sendData.cntrSn = cntrSns[idx];
+      sendData.svBizDclsfCd = svBizDclsfCds[idx];
+      sendDatas.push(sendData);
+    });
+  } else {
+    sendDataBase.cntrSn = searchParams.value.cntrSn;
+    sendDataBase.svBizDclsfCd = searchParams.value.svBizDclsfCd;
+    sendDatas.push(sendDataBase);
+  }
+  console.log(sendDatas);
+  await dataService.post('/sms/wells/service/installation-works', sendDatas);
   notify(t('MSG_ALT_SAVE_DATA'));
-  ok(sendData);
+  ok(sendDataBase);
 }
 
 onMounted(async () => {

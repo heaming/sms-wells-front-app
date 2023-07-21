@@ -309,15 +309,15 @@ const initGrd = defineGrid((data, view) => {
       },
     },
     { fieldName: 'basePdNm', header: t('TXT_MSG_MAT_PD_NM'), width: '150', styleName: 'text-left' },
-    { fieldName: 'vstMcn', header: t('MSG_TXT_VISIT_MN'), width: '100', styleName: 'text-right', dataType: 'number', rules: 'required', editable: true },
+    { fieldName: 'vstMcn', header: t('MSG_TXT_VISIT_MN'), width: '100', styleName: 'text-right', dataType: 'number', rules: 'required', editable: true, editor: { type: 'number', numberFormat: '#,##0', maxLength: 22 } },
     { fieldName: 'svFeeDvCd', header: t('MSG_TXT_SV_DV'), width: '120', styleName: 'text-center', options: codes.SV_FEE_DV_CD, editor: { type: 'list' }, editable: true, rules: 'required' },
     { fieldName: 'hcrDvCd1', header: `${t('MSG_TXT_PRDT_GUBUN')}1`, width: '100', styleName: 'text-center', editable: true, editor: { maxLength: 2, textCase: 'upper' } }, /* 홈케어구분코드1 */
     { fieldName: 'hcrDvCd2', header: `${t('MSG_TXT_PRDT_GUBUN')}2`, width: '100', styleName: 'text-center', editable: true, editor: { maxLength: 2, textCase: 'upper' } }, /* 홈케어구분코드2 */
     { fieldName: 'svFeePdDvCd', header: t('MSG_TXT_BS_PD_GRP'), width: '120', styleName: 'text-center', options: codes.SV_FEE_PD_DV_CD, editor: { type: 'list' }, editable: true, rules: 'required' }, /* 서비스수수료상품구분코드 */
-    { fieldName: 'baseChTcnt', header: t('MSG_TXT_ORDR'), width: '100', styleName: 'text-right', dataType: 'number', editable: true, rules: 'required' },
-    { fieldName: 'svFeeBaseAmt', header: `${t('TXT_MSG_FEE_AMT')} (${t('MSG_TXT_FXAM')}/${t('MSG_TXT_HMST')})`, width: '150', styleName: 'text-right', dataType: 'number', editable: true }, /* 서비스수수료기준금액 */
+    { fieldName: 'baseChTcnt', header: t('MSG_TXT_ORDR'), width: '100', styleName: 'text-right', dataType: 'number', editable: true, rules: 'required', editor: { type: 'number', numberFormat: '#,##0', maxLength: 22 } },
+    { fieldName: 'svFeeBaseAmt', header: `${t('TXT_MSG_FEE_AMT')} (${t('MSG_TXT_FXAM')}/${t('MSG_TXT_HMST')})`, width: '150', styleName: 'text-right', dataType: 'number', editable: true, editor: { type: 'number', numberFormat: '#,##0', maxLength: 22 } }, /* 서비스수수료기준금액 */
     { fieldName: 'feeFxamYn', header: t('MSG_TXT_FXAM_YN'), width: '100', styleName: 'text-center', options: codes.COD_YN, editor: { type: 'list' }, editable: true },
-    { fieldName: 'hcrFeeBaseAmt', header: `${t('MSG_TXT_FXAM_FEE')} (${t('MSG_TXT_HMST')})`, width: '150', styleName: 'text-right', dataType: 'number', editable: true }, /* 홈케어수수료기준금액 */
+    { fieldName: 'hcrFeeBaseAmt', header: `${t('MSG_TXT_FXAM_FEE')} (${t('MSG_TXT_HMST')})`, width: '150', styleName: 'text-right', dataType: 'number', editable: true, editor: { type: 'number', numberFormat: '#,##0', maxLength: 22 } }, /* 홈케어수수료기준금액 */
     { fieldName: 'apyStrtYm', header: t('MSG_TXT_APY_STRT_YM'), width: '120', styleName: 'text-center', editable: true, editor: { type: 'btdate', datetimeFormat: 'yyyy-MM', btOptions: btOpt }, datetimeFormat: 'yyyy-MM' },
     { fieldName: 'apyEndYm', header: t('MSG_TXT_APY_END_YM'), width: '120', styleName: 'text-center', editable: true, editor: { type: 'btdate', datetimeFormat: 'yyyy-MM', btOptions: btOpt }, datetimeFormat: 'yyyy-MM' },
     { fieldName: 'fstRgstDtm', header: t('MSG_TXT_RGST_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'datetime' },

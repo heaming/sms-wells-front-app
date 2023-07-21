@@ -398,6 +398,7 @@ async function onSearchDetail(subParam) {
   res.data.isSearch = 'Y';
   res.data.slCtrRqrId = sessionUserInfo.userId; // 조정자 사번 셋팅
   res.data.rsgAplcDt = subParam.reqDt;
+  res.data.lsnt = cancelDetailList.value[idx.value].lsnt;
   Object.assign(cancelDetailList.value[idx.value], res.data);
 }
 
@@ -590,6 +591,7 @@ function initGrid(data, view) {
     { fieldName: 'svPdTpNm', visible: false },
     { fieldName: 'stlmTpNm', visible: false },
     { fieldName: 'sppDuedt', visible: false },
+    { fieldName: 'sellPrtnrNo', visible: false },
     { fieldName: 'bulkApplyYN', visible: false },
     { fieldName: 'disableChk', visible: false },
   ];
