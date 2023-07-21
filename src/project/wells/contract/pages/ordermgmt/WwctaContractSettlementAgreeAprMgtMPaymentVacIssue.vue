@@ -30,6 +30,7 @@
         v-model="selectedBnkCd"
         label="납부은행"
         :options="codes[BANKS]"
+        @change="clearIssuedAccountInfo"
       />
       <kw-btn
         stretch
@@ -95,33 +96,29 @@ defineExpose(exposed);
 const dataService = useDataService();
 const { codes, addCode, getCodeName } = await CtCodeUtil('COD_YN');
 const stlmBas = computed(() => (props.stlm ?? {}));
-const selectedBnkCd = ref();
+
+const selectedBnkCd = ref(stlmBas.value.bnkCd);
+
 const issuedAccountInfo = ref({
-  acnoEncr: undefined,
-  owrKnm: undefined,
-  fnitAprFshDtm: '',
-  vncoDvCd: undefined,
-  stlmAmt: '',
+  bnkCd: stlmBas.value.bnkCd,
+  acnoEncr: stlmBas.value.acnoEncr,
+  owrKnm: stlmBas.value.owrKnm,
+  fnitAprFshDtm: stlmBas.value.fnitAprFshDtm,
+  vncoDvCd: stlmBas.value.vncoDvCd,
+  stlmAmt: stlmBas.value.stlmAmt,
 });
+
+function clearIssuedAccountInfo() {
+  issuedAccountInfo.value = {};
+}
 
 function getStlmUpdateInfo() {
   const { cntrStlmId, dpTpCd, cntrNo } = stlmBas.value;
   if (!cntrStlmId) { throw Error('데이터가 이상합니다. 관리자에게 연락바랍니다.'); }
-  const {
-    acnoEncr,
-    owrKnm,
-    fnitAprFshDtm,
-    vncoDvCd,
-  } = issuedAccountInfo.value;
   return ({
     cntrStlmId,
     dpTpCd,
     cntrNo,
-    bnkCd: selectedBnkCd.value,
-    acnoEncr,
-    owrKnm,
-    fnitAprFshDtm,
-    vncoDvCd,
   });
 }
 
@@ -136,11 +133,7 @@ async function onClickIssue() {
     bnkCd: selectedBnkCd.value,
   });
   issuedAccountInfo.value = data;
-
-  /* {
-    bnkCd: selectedBnkCd.value,
-      expireDate: dayjs().add(3, 'd').format('YYYY-MM-DD(ddd) HH:mm'),
-  }; */
+  issuedAccountInfo.value.bnkCd = selectedBnkCd.value;
   emit('approved', getStlmUpdateInfo());
 }
 
