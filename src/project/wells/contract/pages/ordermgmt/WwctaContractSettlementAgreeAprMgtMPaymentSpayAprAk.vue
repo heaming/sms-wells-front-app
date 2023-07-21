@@ -121,6 +121,7 @@
                 readonly
               />
               <kw-select
+                v-if="!alreadyDone"
                 v-model="approvalRequest.istmMcn"
                 label="할부"
                 :options="codes.ISTM_MCNT_CD"
@@ -133,28 +134,27 @@
               mask="####-####-####-####"
               unmasked-value
               rules="required|min:14"
-            />
-            <kw-input
-              v-model="approvalRequest.owrKnm"
-              label="카드주"
-              rules="required"
+              :readonly="approved"
             />
             <crdcd-exp-select
               v-model="approvalRequest.cardExpdtYm"
+              :readonly="approved"
             />
             <kw-input
-              v-if="isCooperation"
-              :model-value="cntrCstInfo.bzrno"
-              label="사업자번호"
+              v-model="approvalRequest.owrKnm"
+              label="계약자"
+              rules="required"
               readonly
             />
             <kw-input
-              v-else
-              :model-value="cntrCstInfo.bryyMmdd"
-              label="계약자 생년월일"
+              v-model="approvalRequest.copnDvCdDrmVal"
+              :label="isCooperation ? '사업자번호' : '생년월일'"
+              rules="required"
+              hint="개인카드의 경우, 생년월일(YYYYMMDD), 법인카드의 경우, 사업자번호 10자리를 입력해주세요."
               readonly
             />
             <kw-input
+              v-if="!alreadyDone"
               :model-value="approvalResponse.aprNo"
               label="승인번호"
               readonly
@@ -163,8 +163,8 @@
               stretch
               secondary
               border-color="black-btn-line"
-              label="승인"
-              :disable="!!approvalResponse.aprNo"
+              :label="approved ? '승인되었습니다' : '승인'"
+              :disable="approved"
               @click="onClickApproval"
             />
           </kw-form>
@@ -221,27 +221,26 @@ addCodeItem(DP_TP_CD, {
 });/* sorry for dirty. */
 
 const frmRef = ref(getComponentType('KwForm'));
-
 const isCooperation = computed(() => props.cntrCstInfo.copnDvCd === '2' /* sorry, haha. */);
-
 const stlmBas = computed(() => (props.crdcdStlms?.[0] ?? {}));
 
 const approvalRequest = ref({
   cntrStlmId: stlmBas.value.cntrStlmId,
   stlmAmt: stlmBas.value.stlmAmt,
   istmMcn: 1, /* 할부 개월 수 */
-  crcdnoEncr: '', /* 카드번호 */
-  owrKnm: '', /* 카드주 */
-  cardExpdtYm: '', /* 유효기한 */
+  crcdnoEncr: stlmBas.value.crcdnoEncr || '', /* 카드번호 */
+  owrKnm: props.cntrCstInfo.cstKnm, /* 카드주 */
+  copnDvCdDrmVal: isCooperation.value ? props.cntrCstInfo.bzrno : props.cntrCstInfo.bryyMmdd,
+  cardExpdtYm: stlmBas.value.cardExpdtYm || '', /* 유효기한 */
   fnitCd: '',
 });
-
 const approvalResponse = ref({
-  aprNo: undefined, /* 승인번호, 저장은 안하지만 와야함. */
-  cdcoCd: undefined, /* 카드사 코드 */
-  fnitAprRsCd: undefined, /* 금융기관승인결과코드 */
-  fnitAprFshDtm: undefined, /* 금융기관승인완료일시 */
+  aprNo: stlmBas.value.fnitAprRsCd === 'Y' ? stlmBas.value.aprNo : undefined,
+  fnitAprRsCd: stlmBas.value.fnitAprRsCd, /* 금융기관승인결과코드 */
 });
+
+const alreadyDone = (stlmBas.value.fnitAprRsCd === 'Y');
+const approved = ref(alreadyDone);
 
 /* 결제 금액 계산 */
 const crdcdStlmAmt = computed(() => {
@@ -281,7 +280,6 @@ function getCrdCdStlmUpdateInfo() {
     crcdnoEncr,
     owrKnm,
     cardExpdtYm,
-    fnitCd,
   } = approvalRequest.value;
   const {
     aprNo,
@@ -296,7 +294,6 @@ function getCrdCdStlmUpdateInfo() {
     owrKnm,
     cardExpdtYm,
     aprNo,
-    cdcoCd: fnitCd,
     fnitAprRsCd,
     fnitAprFshDtm,
   });
@@ -338,6 +335,7 @@ async function onClickApproval() {
   if (!await confirm('카드승인 요청을 하시겠습니까?')) { return; }
   await requestApproval();
   emit('approved', getStlmsUpdateInfo());
+  approved.value = true;
 }
 
 /* exposed */
@@ -352,7 +350,7 @@ async function validate() {
   if (!approvalRequest.value.stlmAmt) {
     return true;
   }
-  const valid = approvalResponse.value?.aprNo !== '';
+  const valid = approved.value;
   if (!valid) {
     notify('카드 승인 요청을 해주세요.');
     scrollTo(topRef);
