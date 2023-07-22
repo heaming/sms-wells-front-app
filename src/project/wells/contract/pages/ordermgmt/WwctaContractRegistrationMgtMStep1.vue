@@ -541,7 +541,13 @@ async function onClickSearchCntrtInfo() {
       step1.value.cntrt = ref({});
       if (await confirm(t('MSG_ALT_NO_CST_REG'))) {
         // 법인: 법인고객 등록 화면으로 이동
-        await router.push({ path: '/customer/zwcsa-customer-mgt/zwcsa-corporate-customer-reg' });
+        await router.push({
+          path: '/contract/wwcta-contract-registration-mgt/zwcsa-corporate-customer-reg',
+          query: {
+            bzrno: searchParams.value.bzrno,
+            dlpnrNm: searchParams.value.cstKnm,
+          },
+        });
       }
     } else {
       // 조회된 고객이 있다면, 계약자: 공통고객 조회 팝업, 학습자: 학습자용 고객 조회 팝업 호출
