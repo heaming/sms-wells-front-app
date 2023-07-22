@@ -213,6 +213,7 @@
               <kw-input
                 v-model="searchDetail.slCtrRqrId"
                 maxlength="10"
+                regex="num"
               />
             </kw-form-item>
             <!-- row2-1 조정사유 -->
@@ -318,7 +319,7 @@
         required
       >
         <kw-date-picker
-          v-model="inputDetail.reqDt"
+          v-model="searchDetail.rsgAplcDt"
           :label="$t('MSG_TXT_AK_DT')"
           rules="required"
         />
@@ -329,13 +330,16 @@
         required
       >
         <kw-date-picker
-          v-model="inputDetail.cancelDt"
+          v-model="searchDetail.rsgFshDt"
           :label="$t('MSG_TXT_CANC_DT')"
           rules="required"
         />
       </kw-form-item>
       <!-- row1 사용일수 -->
-      <kw-form-item :label="$t('MSG_TXT_USE_DAY')">
+      <kw-form-item
+        :label="$t('MSG_TXT_USE_DAY')"
+        hint="렌탈조회시 사용일수 없음."
+      >
         <p>{{ stringUtil.getNumberWithComma(searchDetail.useDays??'') }} DAY</p>
       </kw-form-item>
     </kw-form-row>
@@ -572,8 +576,8 @@ function onClickCcamView() {
 async function onClickSearchCancel() {
   if (!await frmMainRegularSp.value.validate()) { return; }
 
-  emits('searchdetail', { reqDt: inputDetail.value.reqDt,
-    cancelDt: inputDetail.value.cancelDt,
+  emits('searchdetail', { reqDt: searchDetail.rsgAplcDt,
+    cancelDt: searchDetail.rsgFshDt,
     dscDdctam: searchDetail.dscDdctam ?? 0,
     filtDdctam: searchDetail.filtDdctam ?? 0,
     slCtrAmt: searchDetail.slCtrAmt ?? 0,
@@ -581,7 +585,6 @@ async function onClickSearchCancel() {
 }
 
 function onClickSave() {
-  searchDetail.rsgAplcDt = inputDetail.reqDt;
   if (isEmpty(searchDetail.canCtrAmt)) {
     searchDetail.slCtrRqrId = '';
     searchDetail.slCtrRmkCn = '';

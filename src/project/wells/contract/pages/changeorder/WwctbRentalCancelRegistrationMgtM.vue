@@ -75,7 +75,7 @@
           <kw-form-row>
             <!--상품정보-->
             <kw-form-item :label="$t('MSG_TXT_PD_INF')">
-              <p>{{ searchDetail.basePdCd }}</p>
+              <p>{{ searchDetail.pdCd }}</p>
             </kw-form-item>
             <!--의무-->
             <kw-form-item :label="$t('MSG_TXT_DUTY')">
@@ -228,6 +228,7 @@
               <kw-input
                 v-model="searchDetail.slCtrRqrId"
                 maxlength="10"
+                regex="num"
               />
             </kw-form-item>
             <!-- row2-1 조정사유 -->
@@ -346,7 +347,7 @@
         required
       >
         <kw-date-picker
-          v-model="inputDetail.reqDt"
+          v-model="searchDetail.rsgAplcDt"
           :label="$t('MSG_TXT_AK_DT')"
           rules="required"
         />
@@ -357,7 +358,7 @@
         required
       >
         <kw-date-picker
-          v-model="inputDetail.cancelDt"
+          v-model="searchDetail.rsgFshDt"
           :label="$t('MSG_TXT_CANC_DT')"
           rules="required"
         />
@@ -736,11 +737,10 @@ function onClickCalculate() {
 async function onClickSearchCancel() {
   if (!await frmMainRental.value.validate()) { return; }
 
-  emits('searchdetail', { reqDt: inputDetail.value.reqDt, cancelDt: inputDetail.value.cancelDt });
+  emits('searchdetail', { reqDt: searchDetail.rsgAplcDt, cancelDt: searchDetail.rsgFshDt });
 }
 
 function onClickSave() {
-  searchDetail.rsgAplcDt = inputDetail.reqDt;
   if (isEmpty(searchDetail.canCtrAmt)) {
     searchDetail.slCtrRqrId = '';
     searchDetail.slCtrRmkCn = '';
