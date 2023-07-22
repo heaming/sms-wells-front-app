@@ -51,7 +51,7 @@
 
 <script setup>
 import { alert, useDataService } from 'kw-lib';
-import { decryptEncryptedParam } from '~sms-common/contract/util';
+import { decryptEncryptedParam, postMessage } from '~sms-common/contract/util';
 import Agrees from './WwctaContractSettlementAgreeAprMgtMAgrees.vue';
 import PartnerInfo from './WwctaContractSettlementAgreeAprMgtMPartnerInfo.vue';
 import ProductCarouselItem from './WwctaContractSettlementAgreeAprMgtMProductCarouselItem.vue';
@@ -107,16 +107,20 @@ async function onSettlementConfirmed() {
   stlmsUpdateRequestBody.adrpcs = reqData.adrpcs;
   const res = await dataService.post('/sms/wells/contract/contracts/settlements/confirm', stlmsUpdateRequestBody);
 
-  console.log(res);
-
   if (res.data.result === true) {
     await alert('계약이 확정되었습니다');
+
+    postMessage('confirmed');
 
     window.close();
   }
 }
 
 await fetchContract();
+
+onMounted(() => {
+  window.addEventListener('beforeunload', () => postMessage('forceClosed', false));
+});
 </script>
 
 <style scoped lang="scss">
