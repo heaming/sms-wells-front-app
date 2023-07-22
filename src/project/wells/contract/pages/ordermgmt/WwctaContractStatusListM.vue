@@ -272,14 +272,14 @@
           </span>
 
           <kw-slider
-            v-model="item.cntrPrgsStatCd"
-            markers="false"
-            min="0"
-            max="60"
+            :model-value="Number(item.cntrPrgsStatCd)"
+            :markers="false"
+            :min="0"
+            :max="60"
             track-size="7px"
             thumb-size="0px"
-            step="0"
-            v-bind="bindingProps"
+            readonly
+            :step="0"
           />
 
           <!-- 임시저장 -->
@@ -661,7 +661,11 @@ async function onClickF2fPayment(item) {
     const hash = `#${routePath}/?${routeParams.toString()}`;
     const url = `/mobile${hash}`;
 
-    popupUtil.open(url, { width: 360, height: 740 });
+    const { result, payload } = await popupUtil.open(url, { width: 360, height: 740 });
+
+    if (result || payload === 'forceClosed') {
+      await onClickSearch();
+    }
   }
 }
 
