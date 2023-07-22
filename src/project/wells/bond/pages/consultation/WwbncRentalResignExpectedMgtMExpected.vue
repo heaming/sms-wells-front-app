@@ -201,6 +201,7 @@ const totalCount = ref(0);
 const isLastDate = ref(false);
 const { getters } = useStore();
 const { roles } = getters['meta/getUserInfo'];
+console.log(JSON.stringify(roles));
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -387,8 +388,8 @@ async function onClickFinalConfirm() {
 
 const isExpectedConfirm = computed(() => searchParams.value.authRsgCd === '02');
 const isfinalConfirm = computed(() => searchParams.value.authRsgCd === '03');
-// TODO: 룰 추가 예정 ( 현재 시스템 룰 적용 )
-const isPsic = computed(() => roles.some((v) => ['ROL_00010'].includes(v.roleId)));
+// TODO: 룰 추가 예정 ( 현재 시스템 룰, 집금담당자 적용 )
+const isPsic = computed(() => roles.some((v) => ['ROL_00010', 'ROL_G7010'].includes(v.roleId)));
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
