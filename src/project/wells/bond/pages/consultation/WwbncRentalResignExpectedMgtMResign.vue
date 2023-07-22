@@ -122,6 +122,7 @@ const grdResignRef = ref(getComponentType('KwGrid'));
 const totalCount = ref(0);
 const { getters } = useStore();
 const { roles } = getters['meta/getUserInfo'];
+console.log(JSON.stringify(roles));
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -181,7 +182,7 @@ const onClickPrtnrKnm = async () => {
 // 파트너번호 변경
 async function onChangePrtnrNo() {
   searchParams.value.prtnrNoYn = 'N';
-  searchParams.value.clctamPrtnrNo = 'N';
+  searchParams.value.clctamPrtnrNo = '';
 }
 
 const { currentRoute } = useRouter();
@@ -223,8 +224,8 @@ async function onClickFinalConfirm() {
 
   await onClickSearch();
 }
-// TODO: 룰 추가 예정 ( 현재 시스템 룰 적용 )
-const isPsic = computed(() => roles.some((v) => ['ROL_00010'].includes(v.roleId)));
+// TODO: 룰 추가 예정 ( 현재 시스템 룰, 집금담당자 적용 )
+const isPsic = computed(() => roles.some((v) => ['ROL_00010', 'ROL_G7010'].includes(v.roleId)));
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
