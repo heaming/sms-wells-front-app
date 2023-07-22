@@ -11,6 +11,7 @@
       :label="$t('MSG_TXT_ANYTHING_EXPDT_YM', [t('MSG_TXT_MON')])"
       :options="codes.MM_CD"
       rules="required"
+      :readonly="readonly"
       @update:model-value="onUpdateModelValue"
     />
     <!-- 유효기간(년도) -->
@@ -20,6 +21,7 @@
       :label="$t('MSG_TXT_ANYTHING_EXPDT_YM', [t('MSG_TXT_Y')])"
       :options="yearList"
       rules="required"
+      :readonly="readonly"
       @update:model-value="onUpdateModelValue"
     />
   </kw-field-wrap>
@@ -31,6 +33,7 @@ import dayjs from 'dayjs';
 
 const props = defineProps({
   modelValue: { type: String, default: undefined },
+  readonly: Boolean,
 });
 const { t } = useI18n();
 const emit = defineEmits(['update:model-value']);
@@ -50,7 +53,7 @@ watch(() => props.modelValue, (value) => {
   const month = value.substring(4, 6);
   yy.value = year;
   mm.value = month;
-});
+}, { immediate: true });
 
 function onUpdateModelValue() {
   if (!mm.value || !yy.value) {

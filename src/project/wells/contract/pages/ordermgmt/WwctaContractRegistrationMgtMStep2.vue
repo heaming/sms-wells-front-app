@@ -631,8 +631,9 @@ const isItem = {
   crpCntr: () => step2.value.bas?.cntrTpCd === '02',
   welsf: (i) => i.lclsfVal === '05001003',
   hcf: (i) => i.lclsfVal === '01003001',
-  sltrRglrSpp: (i) => i.cntrRelDtlCd === '214', // 단독정기배송
   rglrSpp: (i) => i.cntrRelDtlCd === '216', // 정기배송
+  sltrRglrSpp: (i) => i.cntrRelDtlCd === '214' && i.sellTpDtlCd !== '61', // 단독정기배송
+  sltrRglrSppExcdMchn: (i) => i.sellTpDtlCd === '61', // 단독정기배송(홍삼 등 기기 필요 X)
 };
 
 // -------------------------------------------------------------------------------------------------
@@ -731,8 +732,8 @@ async function onClickProduct(pd) {
       step2.value.dtls.push(p);
     }
   }
-  // 단독정기배송
-  if (npd.sellTpCd === '6') {
+  // 단독정기배송이면서 61(홍삼 등)이 아닌 경우 계약관계상세코드 214 세팅
+  if (npd.sellTpCd === '6' && npd.sellTpDtlCd !== '61') {
     npd.cntrRelDtlCd = '214';
   }
   resetCntrSn();
@@ -914,15 +915,16 @@ async function isChangedStep() {
 }
 
 async function isValidStep() {
-  if (step2.value.dtls.length === 0) {
+  const { dtls } = step2.value;
+  if (dtls.length === 0) {
     await alert('상품을 선택해주세요.');
     return false;
   }
-  if (step2.value.dtls.find((dtl) => (Number.isNaN(dtl.fnlAmt) || dtl.fnlAmt <= 0))) {
+  if (dtls.find((d) => (Number.isNaN(d.fnlAmt) || d.fnlAmt <= 0))) {
     await alert('상품 금액을 확인해주세요.');
     return false;
   }
-  if (step2.value.dtls.find((dtl) => dtl.cntrRelDtlCd === '214' && (!dtl.sltrRglrSppMchn || !dtl.sltrRglrSppMchn.rglrSppMchnYn))) {
+  if (dtls.find((d) => isItem.sltrRglrSpp(d) && (!d.sltrRglrSppMchn || !d.sltrRglrSppMchn.rglrSppMchnYn))) {
     await alert('정기배송 대상 기기를 선택해주세요.');
     return false;
   }

@@ -40,27 +40,28 @@
       >
         <kw-tab-panel name="expected">
           <Wwbnc-rental-resign-expected-mgt-m-expected
-            :ref="(vm) => tabRefs.object = vm"
+            :ref="(vm) => tabRefs.expected = vm"
           />
         </kw-tab-panel>
-        <!-- />
+        />
         <kw-tab-panel name="confirm">
-          <wwbnc-unpaid-guide-urgent-mgt-m-exclude
-            :ref="(vm) => tabRefs.exclude = vm"
+          <Wwbnc-rental-resign-expected-mgt-m-confirm
+            :ref="(vm) => tabRefs.confirm = vm"
           />
         </kw-tab-panel>
         <kw-tab-panel name="resign">
-          <wwbnc-unpaid-guide-urgent-mgt-m-exclude
-            :ref="(vm) => tabRefs.exclude = vm"
+          <Wwbnc-rental-resign-expected-mgt-m-resign
+            :ref="(vm) => tabRefs.resign = vm"
           />
-        </kw-tab-panel> -->
+        </kw-tab-panel>
       </kw-tab-panels>
     </kw-observer>
   </kw-page>
 </template>
 <script setup>
 import WwbncRentalResignExpectedMgtMExpected from './WwbncRentalResignExpectedMgtMExpected.vue';
-// import WwbncUnpaidGuideUrgentMgtMObject from './WwbncUnpaidGuideUrgentMgtMObject.vue';
+import WwbncRentalResignExpectedMgtMConfirm from './WwbncRentalResignExpectedMgtMConfirm.vue';
+import WwbncRentalResignExpectedMgtMResign from './WwbncRentalResignExpectedMgtMResign.vue';
 
 const tabRefs = reactive({});
 const selectedTab = ref('expected');

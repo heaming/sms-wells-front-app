@@ -84,13 +84,12 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 
-import { codeUtil, useMeta, useGlobal, useDataService, getComponentType, gridUtil, defineGrid } from 'kw-lib';
+import { codeUtil, useMeta, useDataService, getComponentType, gridUtil, defineGrid, popupUtil } from 'kw-lib';
 import dayjs from 'dayjs';
 import { cloneDeep } from 'lodash-es';
 
 const { t } = useI18n();
 const { getConfig } = useMeta();
-const { alert } = useGlobal();
 const { currentRoute } = useRouter();
 
 const dataService = useDataService();
@@ -212,9 +211,7 @@ const initGrid = defineGrid((data, view) => {
     if (column === 'baseCntrDtlNo') {
       const cntrNo = g.getValue(itemIndex, 'cntrNo');
       const cntrSn = g.getValue(itemIndex, 'cntrSn');
-      console.log(cntrNo + cntrSn);
-      // TO-DO await popupUtil.open(`#/service/wwsnb-individual-service-ps-mgt?cntrNo=${cntrNo}&cntrSn=${cntrSn}`);
-      alert('개인별 서비스 현황 화면(W-SV-U-0072M01) 탭으로 호출');
+      await popupUtil.open(`#/service/wwsnb-individual-service-list?cntrNo=${cntrNo}&cntrSn=${cntrSn}`, { width: 2000, height: 1100 }, false);
     }
   };
 });

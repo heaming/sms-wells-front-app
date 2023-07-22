@@ -135,13 +135,11 @@ import ZwogLevelSelect from '~sms-common/organization/components/ZwogLevelSelect
 import ZwogPartnerSearch from '~sms-common/organization/components/ZwogPartnerSearch.vue';
 import { SMS_WELLS_URI } from '~sms-wells/organization/constants/ogConst';
 
-const { getConfig } = useMeta();
+const { getConfig, getUserInfo } = useMeta();
 const dataService = useDataService();
 const { modal, notify } = useGlobal();
 const { currentRoute } = useRouter();
-const { getters } = useStore();
-const userInfo = getters['meta/getUserInfo'];
-const { ogTpCd } = userInfo;
+const { wkOjOgTpCd, ogTpCd } = getUserInfo();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -153,7 +151,7 @@ const searchParams = ref({
   baseYm: dayjs().format('YYYYMM'),
   mngtYm: now,
   mOgYn: 'N',
-  ogTpCd,
+  ogTpCd: wkOjOgTpCd === null ? ogTpCd : wkOjOgTpCd,
   ogLevlDvCd1: undefined,
   ogLevlDvCd2: undefined,
   ogLevlDvCd3: undefined,

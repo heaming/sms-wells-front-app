@@ -519,7 +519,6 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { codeUtil, getComponentType, stringUtil, useGlobal } from 'kw-lib';
-import dayjs from 'dayjs';
 import { isEmpty } from 'lodash';
 
 const { t } = useI18n();
@@ -572,10 +571,6 @@ function onClickCcamView() {
 // 5. 취소사항 > 취소사항 조회 클릭
 async function onClickSearchCancel() {
   if (!await frmMainRegularSp.value.validate()) { return; }
-  if (inputDetail.value.reqDt < dayjs().format('YYYYMMDD')) {
-    await notify('요청일자가 현재일자 이전입니다.');
-    return;
-  }
 
   emits('searchdetail', { reqDt: inputDetail.value.reqDt,
     cancelDt: inputDetail.value.cancelDt,

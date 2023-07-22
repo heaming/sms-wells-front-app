@@ -457,6 +457,36 @@ async function fetchDataCustomerBase() {
       frmMainData.value.rcgvpTno = isEmpty(istCralLocaraTno) && isEmpty(istMexnoEncr) && isEmpty(istCralIdvTno) ? '' : `${istCralLocaraTno}-${istMexnoEncr}-${istCralIdvTno}`; // 설치(배송정보) 휴대전화번호
     }
     frmMainData.value.rcgvpAdr = res.data[0].rcgvpAdr; // 설치(배송정보) 주소
+  } else {
+    frmMainData.value.pdNm = ''; // 상품명
+    frmMainData.value.cstKnm = ''; // 고객명
+    frmMainData.value.cntrCstNo = ''; // 고객번호
+    frmMainData.value.cntrNo = ''; // 계약번호
+    frmMainData.value.cntrSn = ''; // 계약일련번호
+    frmMainData.value.cstNo2 = ''; // 생년월일(개인법인에 따라 생년월일 또는 사업자등록번호 표시)
+    frmMainData.value.cntrCralLocaraTno = ''; // 계약자 휴대지역전화번호
+    frmMainData.value.cntrMexnoEncr = ''; // 계약자 휴대전화국번호암호화
+    frmMainData.value.cralTno = ''; // 계약자 휴대개별전화번호
+    frmMainData.value.cstGd = ''; // 고객등급
+    frmMainData.value.sexDvNm = ''; // 성별
+    frmMainData.value.cdcoNm = ''; // 은행/카드 회사명
+    frmMainData.value.aftnInfo = ''; // 자동이체(계좌/카드자동이체를 표시)
+    frmMainData.value.dpTpCd = ''; // 입금유형코드
+    frmMainData.value.acnoEncr = ''; // 계좌번호
+    frmMainData.value.crcdnoEncr = ''; // 카드번호
+    isAftnInfo.value = false;
+    frmMainData.value.sfkVal = ''; // 세이프키
+    isVacInfo.value = false; // 가상계좌 표시여부
+    frmMainData.value.vacBnkNm = ''; // 가상계좌은행명
+    frmMainData.value.vacInfo = ''; // 가상계좌
+    frmMainData.value.vacVncoDvCd = ''; // 가상계좌VAN사구분코드
+    frmMainData.value.cntrtAdr = ''; // 계약자 주소
+    frmMainData.value.rcgvpKnm = ''; // 설치(배송정보) 고객명
+    frmMainData.value.istCralLocaraTno = ''; // 설치자 휴대지역전화번호
+    frmMainData.value.istMexnoEncr = ''; // 설치자 휴대전화국번호암호화
+    frmMainData.value.istCralIdvTno = ''; // 설치자 휴대개별전화번호
+    frmMainData.value.rcgvpTno = ''; // 설치(배송정보) 휴대전화번호
+    frmMainData.value.rcgvpAdr = ''; // 설치(배송정보) 주소
   }
 }
 

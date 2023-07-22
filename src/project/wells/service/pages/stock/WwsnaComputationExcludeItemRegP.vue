@@ -343,7 +343,7 @@ async function checkDuplication(itmPdCd) {
     return false;
   });
 
-  if (duplicates.length > 0) {
+  if (!isEmpty(duplicates)) {
     return 'Y';
   }
   if (pageInfo.value.totalCount > 0) {

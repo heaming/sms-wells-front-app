@@ -376,7 +376,7 @@ import dayjs from 'dayjs';
 
 import ZwogLevelSelect from '~sms-common/organization/components/ZwogLevelSelect.vue';
 import pdConst from '~sms-common/product/constants/pdConst';
-import { useDataService, getComponentType, useGlobal, gridUtil, defineGrid } from 'kw-lib';
+import { useDataService, getComponentType, useGlobal, gridUtil, defineGrid, codeUtil } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 
 // const { t } = useI18n();
@@ -404,12 +404,19 @@ const grdMain1Ref = ref(getComponentType('KwGrid'));
 const grdMain2Ref = ref(getComponentType('KwGrid'));
 const totalCount1 = ref(0);
 const totalCount2 = ref(0);
+const codes = await codeUtil.getMultiCodes(
+  'SELL_TP_CD', // 수수료차수구분코드
+  'COPN_DV_CD',
+  'OG_TP_CD',
+  'FEE_PDCT_TP_CD',
+);
+
 const customCodes = {
   div1Cd: [{ codeId: '01', codeName: '1차' }, { codeId: '02', codeName: '2차' }],
   div2Cd: [{ codeId: '01', codeName: '상세' }, { codeId: '02', codeName: '집계' }],
   div3Cd: [{ codeId: 'W02', codeName: 'M추진단' }, { codeId: 'W01', codeName: 'P추진단' }, { codeId: 'W03', codeName: '홈마스터' }, { codeId: 'W04', codeName: 'B2B' }, { codeId: 'W05', codeName: '총판' }, { codeId: 'W06', codeName: '기타' }],
   div4Cd: [{ codeId: '01', codeName: '접수' }, { codeId: '02', codeName: '예약' }, { codeId: '03', codeName: '매출' }, { codeId: '04', codeName: '수수료 실적 집계 대상' }],
-  div5Cd: [{ codeId: '01', codeName: '환경' }, { codeId: '02', codeName: '환경외' }, { codeId: '03', codeName: '웰스팜' }, { codeId: '04', codeName: '홈케어' }, { codeId: '05', codeName: '캡슐' }, { codeId: '06', codeName: '기타' }],
+  div5Cd: [{ codeId: 'A', codeName: '환경' }, { codeId: 'B', codeName: '웰스팜' }, { codeId: 'C', codeName: 'BH' }, { codeId: 'D', codeName: '캡슐' }, { codeId: 'E', codeName: '홈케어' }, { codeId: 'F', codeName: '소모품' }, { codeId: 'G', codeName: '부속품' }],
   div6Cd: [{ codeId: '2', codeName: '렌탈/리스' }, { codeId: '1', codeName: '일시불' }, { codeId: '6', codeName: '정기배송' }, { codeId: '7', codeName: '재약정' }, { codeId: '3', codeName: '홈케어멤버십' }],
 };
 
@@ -463,7 +470,7 @@ async function onClickExcel2Download() {
 }
 
 async function fetchData(apiUrl) {
-  const response = await dataService.get(`/sms/wells/fee/monthly-net/${apiUrl}`, { params: cachedParams });
+  const response = await dataService.get(`/sms/wells/fee/monthly-net/${apiUrl}`, { params: { ...cachedParams }, timeout: 5000000 });
   const netOrders = response.data;
   if (apiUrl === 'fees') {
     const view = grdMain2Ref.value.getView();
@@ -658,7 +665,7 @@ const initGrd1Main = defineGrid((data, view) => {
     { fieldName: 'blg' },
     { fieldName: 'prtnrNo' },
     { fieldName: 'prtnrKnm' },
-    { fieldName: 'selType' },
+    { fieldName: 'sellTpCd' },
     { fieldName: 'pdctTp' },
     { fieldName: 'cntrDtlNo' },
     { fieldName: 'cstDv' },
@@ -675,14 +682,14 @@ const initGrd1Main = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'sellOg', header: t('MSG_TXT_SELL_OG'), width: '120', styleName: 'text-center' },
+    { fieldName: 'sellOg', header: t('MSG_TXT_SELL_OG'), width: '120', styleName: 'text-center', options: codes.OG_TP_CD },
     { fieldName: 'blg', header: t('MSG_TXT_BLG'), width: '120', styleName: 'text-center' },
     { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '120', styleName: 'text-center' },
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '120', styleName: 'text-center' },
-    { fieldName: 'selType', header: t('MSG_TXT_SEL_TYPE'), width: '120', styleName: 'text-center' },
-    { fieldName: 'pdctTp', header: t('MSG_TXT_PDCT_TP'), width: '120', styleName: 'text-center' },
+    { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '120', styleName: 'text-center', options: codes.SELL_TP_CD },
+    { fieldName: 'pdctTp', header: t('MSG_TXT_PDCT_TP'), width: '120', styleName: 'text-center', options: codes.FEE_PDCT_TP_CD },
     { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '120', styleName: 'text-center' },
-    { fieldName: 'cstDv', header: t('MSG_TXT_CST_DV'), width: '120', styleName: 'text-center' },
+    { fieldName: 'cstDv', header: t('MSG_TXT_CST_DV'), width: '120', styleName: 'text-center', options: codes.COPN_DV_CD },
     { fieldName: 'prdtNm', header: t('MSG_TXT_PRDT_NM'), width: '120', styleName: 'text-center' },
     { fieldName: 'prdtCd', header: t('MSG_TXT_PRDT_CODE'), width: '120', styleName: 'text-center' },
     { fieldName: 'pkgCd', header: t('MSG_TXT_PKG_CD'), width: '120', styleName: 'text-center' },
