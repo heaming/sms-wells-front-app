@@ -223,8 +223,8 @@ async function onClickFinalConfirm() {
 
   await onClickSearch();
 }
-// TODO: 룰 추가 예정 ( 현재 시스템 룰 적용 )
-const isPsic = computed(() => roles.some((v) => ['ROL_00010'].includes(v.roleId)));
+// TODO: 룰 추가 예정 ( 현재 시스템 룰, 집금담당자 적용 )
+const isPsic = computed(() => roles.some((v) => ['ROL_00010', 'ROL_G7010'].includes(v.roleId)));
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
