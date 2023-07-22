@@ -181,7 +181,7 @@ const onClickPrtnrKnm = async () => {
 // 파트너번호 변경
 async function onChangePrtnrNo() {
   searchParams.value.prtnrNoYn = 'N';
-  searchParams.value.clctamPrtnrNo = 'N';
+  searchParams.value.clctamPrtnrNo = '';
 }
 
 const { currentRoute } = useRouter();
