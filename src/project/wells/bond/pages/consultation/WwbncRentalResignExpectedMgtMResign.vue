@@ -122,6 +122,7 @@ const grdResignRef = ref(getComponentType('KwGrid'));
 const totalCount = ref(0);
 const { getters } = useStore();
 const { roles } = getters['meta/getUserInfo'];
+console.log(JSON.stringify(roles));
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
