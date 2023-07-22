@@ -76,8 +76,9 @@ import { SMS_WELLS_URI } from '~sms-wells/organization/constants/ogConst';
 const grdMainRef = ref(getComponentType('KwGrid'));
 const { modal, notify } = useGlobal();
 const dataService = useDataService();
-const { getConfig } = useMeta();
+const { getConfig, getUserInfo } = useMeta();
 const { t } = useI18n();
+const { wkOjOgTpCd } = getUserInfo();
 
 const now = dayjs().format('YYYYMM');
 
@@ -244,7 +245,9 @@ const initGrid = defineGrid((data, view) => {
     if (column === 'bizAgntPrtnrNo') {
       const { result, payload } = await modal({
         component: 'ZwogzPartnerListP',
-        componentProps: { ogTpCd: 'W06' },
+        componentProps: {
+          ogTpCd: wkOjOgTpCd === null ? 'W06' : wkOjOgTpCd,
+        },
       });
       if (result) {
         data.setValue(dataRow, 'bizAgntPrtnrNo', payload.prtnrNo);

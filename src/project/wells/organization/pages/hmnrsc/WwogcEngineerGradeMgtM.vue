@@ -4,7 +4,7 @@
 ****************************************************************************************************
 1. 모듈 : OGC
 2. 프로그램 ID : WwogcEngineerGradeMgtM - 서비스센터 등급관리
-3. 작성자 : g
+3. 작성자 : 한용희
 4. 작성일 : 2023-05-08
 ****************************************************************************************************
 * 프로그램 설명
@@ -104,7 +104,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService, defineGrid, getComponentType, codeUtil, gridUtil, useGlobal } from 'kw-lib';
+import { useDataService, defineGrid, getComponentType, codeUtil, gridUtil, useGlobal, useMeta } from 'kw-lib';
 import ZwogLevelSelect from '~sms-common/organization/components/ZwogLevelSelect.vue';
 import dayjs from 'dayjs';
 
@@ -112,6 +112,9 @@ const { t } = useI18n();
 const dataService = useDataService();
 const { notify, modal } = useGlobal();
 const { currentRoute } = useRouter();
+const { getUserInfo } = useMeta();
+const { wkOjOgTpCd, ogTpCd } = getUserInfo();
+
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -131,7 +134,7 @@ const codes = await codeUtil.getMultiCodes(
 );
 
 const searchParams = ref({
-  ogTpCd: 'W06',
+  ogTpCd: wkOjOgTpCd === null ? ogTpCd : wkOjOgTpCd,
   ogLevlDvCd1: undefined,
   ogLevlDvCd2: undefined,
   prtnrGdCd: undefined,

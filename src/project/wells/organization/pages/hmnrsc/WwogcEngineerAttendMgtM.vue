@@ -84,10 +84,12 @@ import dayjs from 'dayjs';
 import ZwogLevelSelect from '~sms-common/organization/components/ZwogLevelSelect.vue';
 import { SMS_WELLS_URI } from '~sms-wells/organization/constants/ogConst';
 
-const { getConfig } = useMeta();
+const { getConfig, getUserInfo } = useMeta();
 const dataService = useDataService();
 const { modal, notify, alert } = useGlobal();
 const { currentRoute } = useRouter();
+const { wkOjOgTpCd, ogTpCd } = getUserInfo();
+
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -98,7 +100,7 @@ const now = dayjs().format('YYYYMMDD');
 const searchParams = ref({
   baseYm: dayjs().format('YYYYMM'),
   baseDt: now,
-  ogTpCd: 'W06',
+  ogTpCd: wkOjOgTpCd === null ? ogTpCd : wkOjOgTpCd,
   ogLevlDvCd1: undefined,
   ogLevlDvCd2: undefined,
   ogId: undefined,
