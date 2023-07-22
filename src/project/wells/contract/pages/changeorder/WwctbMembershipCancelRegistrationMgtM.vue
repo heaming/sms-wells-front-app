@@ -92,7 +92,7 @@
           <kw-form-row>
             <!--상품코드-->
             <kw-form-item :label="$t('TXT_MSG_PD_CD')">
-              <p>{{ searchDetail.basePdCd }}</p>
+              <p>{{ searchDetail.pdCd }}</p>
             </kw-form-item>
             <!--상품명-->
             <kw-form-item :label="$t('MSG_TXT_PRDT_NM')">
@@ -104,7 +104,7 @@
             </kw-form-item>
             <!--용도구분-->
             <kw-form-item :label="$t('MSG_TXT_USWY_DV')">
-              <p>{{ stringUtil.getDateFormat(searchDetail.svPdTpNm) }}</p>
+              <p>{{ searchDetail.svPdTpNm }}</p>
             </kw-form-item>
           </kw-form-row>
 
@@ -277,7 +277,7 @@
         required
       >
         <kw-date-picker
-          v-model="inputDetail.reqDt"
+          v-model="searchDetail.rsgAplcDt"
           :label="$t('MSG_TXT_AK_DT')"
           rules="required"
         />
@@ -288,7 +288,7 @@
         required
       >
         <kw-date-picker
-          v-model="inputDetail.cancelDt"
+          v-model="searchDetail.rsgFshDt"
           :label="$t('MSG_TXT_CANC_DT')"
           rules="required"
         />
@@ -398,7 +398,6 @@
           regex="num"
           maxlength="10"
           align="right"
-          :readonly="searchDetail.ccamExmptDvCd!=='4'"
         />
         <kw-btn
           :label="$t('MSG_TXT_CCAM_IZ_DOC')+' '+$t('MSG_BTN_VIEW')"
@@ -456,6 +455,7 @@
         <kw-input
           v-model="searchDetail.slCtrRqrId"
           maxlength="10"
+          regex="num"
         />
       </kw-form-item>
       <!-- row2-1 조정사유 -->
@@ -583,8 +583,8 @@ function onClickCcamView() {
 async function onClickSearchCancel() {
   if (!await frmMainMembership.value.validate()) { return; }
 
-  emits('searchdetail', { reqDt: inputDetail.value.reqDt,
-    cancelDt: inputDetail.value.cancelDt,
+  emits('searchdetail', { reqDt: searchDetail.rsgAplcDt,
+    cancelDt: searchDetail.rsgFshDt,
     dscDdctam: searchDetail.dscDdctam,
     filtDdctam: searchDetail.filtDdctam,
     slCtrAmt: searchDetail.slCtrAmt,
@@ -592,9 +592,6 @@ async function onClickSearchCancel() {
 }
 
 function onClickSave() {
-  searchDetail.rsgAplcDt = inputDetail.reqDt;
-  if (searchDetail.ccamExmptDvCd !== '4') searchDetail.filtDdctam = 0;
-
   emits('savedetail');
 }
 

@@ -75,7 +75,7 @@
           <kw-form-row>
             <!--상품코드-->
             <kw-form-item :label="$t('TXT_MSG_PD_CD')">
-              <p>{{ searchDetail.basePdCd }}</p>
+              <p>{{ searchDetail.pdCd }}</p>
             </kw-form-item>
             <!--상품명-->
             <kw-form-item :label="$t('MSG_TXT_PRDT_NM')">
@@ -165,8 +165,9 @@
         :label="$t('MSG_TXT_AK_DT')"
       >
         <kw-date-picker
-          v-model="searchDetail.reqDt"
+          v-model="searchDetail.rsgAplcDt"
           :label="$t('MSG_TXT_AK_DT')"
+          rules="required"
         />
       </kw-form-item>
       <!-- row1 취소일자 -->
@@ -174,8 +175,9 @@
         :label="$t('MSG_TXT_CANC_DT')"
       >
         <kw-date-picker
-          v-model="searchDetail.cancelDt"
+          v-model="searchDetail.rsgFshDt"
           :label="$t('MSG_TXT_CANC_DT')"
+          rules="required"
         />
       </kw-form-item>
       <!-- 취소유형 -->
@@ -328,7 +330,6 @@ async function onClickRefund() {
 }
 
 function onClickSave() {
-  searchDetail.rsgAplcDt = inputDetail.reqDt;
   emits('savedetail');
 }
 

@@ -396,7 +396,7 @@ async function onSearchDetail(subParam) {
   }
 
   res.data.isSearch = 'Y';
-  res.data.slCtrRqrId = sessionUserInfo.userId; // 조정자 사번 셋팅
+  res.data.slCtrRqrId = sessionUserInfo.employeeIDNumber; // 조정자 사번 셋팅
   res.data.rsgAplcDt = subParam.reqDt;
   res.data.lsnt = cancelDetailList.value[idx.value].lsnt;
   Object.assign(cancelDetailList.value[idx.value], res.data);
@@ -444,8 +444,9 @@ async function onSave() {
       element.csmbCostBorAmt2 = param.csmbCostBorAmt2;
       element.reqdCsBorAmt2 = param.reqdCsBorAmt2;
       element.dscDdctam = param.dscDdctam;
-
       element.filtDdctam = param.filtDdctam;
+      element.rsgAplcDt = param.rsgAplcDt;
+      element.rsgFshDt = param.rsgFshDt;
     });
 
     saveList = cancelDetailList.value;
