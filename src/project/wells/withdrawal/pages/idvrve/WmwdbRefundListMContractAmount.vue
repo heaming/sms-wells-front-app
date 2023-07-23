@@ -50,9 +50,10 @@
         >
           <!-- wells 계약서유형코드 1.일시불(환경가전), 2.일시불(BH), 3.렌탈, 4.멤버십, 5.홈케어서비, 6.모종일시불, 7.정기배송, 8.장기할부, 9.리스 -->
           <kw-select
-            v-model="searchParams.txinvChDvCd"
+            v-model="searchParams.cntrwTpCd"
             :options="codes.CNTRW_TP_CD.filter(v => v.codeId==='3' || v.codeId ==='5')"
             first-option="all"
+            first-option-value="ALL"
           />
         </kw-search-item>
       </kw-search-row>
@@ -110,6 +111,7 @@
         :visible-rows="pageInfo.pageSize - 1"
         @init="initGrdMain2"
       />
+
       <kw-action-top class="mt30">
         <template #left>
           <!-- 집계현황 -->
@@ -288,7 +290,6 @@ const { t } = useI18n();
 const { notify } = useGlobal();
 const dataService = useDataService();
 
-let cachedParams;
 const { currentRoute } = useRouter();
 
 const pageInfo = ref({
@@ -296,17 +297,13 @@ const pageInfo = ref({
   pageIndex: 1,
   pageSize: 10, // Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
 });
-
-// -------------------------------------------------------------------------------------------------
-// Function & Event
-// -------------------------------------------------------------------------------------------------
-
 const grdMainRef2 = ref(getComponentType('KwGrid'));
 const now = dayjs();
-
+const apiUrl = '/sms/wells/withdrawal/idvrve/contract-refunds';
 const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS', // 페이징 옵션
   'CNTRW_TP_CD', // 업무구분
+  'SELL_TP_DTL_CD', // 판매유형상세코드'
 );
 
 const aggregationStatus = ref({
@@ -331,14 +328,23 @@ const searchParams = ref({
   endDay: now.format('YYYYMMDD'), // 처리일자.종료일
   perfDtStartDay: now.format('YYYYMM01'), // 실적일자.시작일
   perfDtEndDay: now.format('YYYYMMDD'), // 실적일자.종료일
-  txinvChDvCd: '', // 업무구분
+  cntrwTpCd: 'ALL', // 업무구분
   prntDv: '', // 출력구분. table column 확인필요.
 });
+
+let cachedParams;
+let summaryParams;
+// -------------------------------------------------------------------------------------------------
+// Function & Event
+// -------------------------------------------------------------------------------------------------
 
 async function fetchData() {
   cachedParams = { ...cachedParams, ...pageInfo.value };
 
-  const response = await dataService.get('/sms/wells/withdrawal/idvrve/contract-refunds/paging', { params: cachedParams });
+  const response = await dataService.get(`${apiUrl}/paging`, { params: cachedParams });
+  const headerSummary = await dataService.get(`${apiUrl}/summary`, { params: cachedParams });
+  summaryParams = headerSummary.data;
+  console.log(summaryParams);
   const { list: refundCases, pageInfo: pagingResult } = response.data;
   pageInfo.value = pagingResult;
 
@@ -351,7 +357,7 @@ async function fetchData() {
 }
 async function fetchData2() {
   // aggregationStatus.value = []; // 집계 현황 초기화
-  const response = await dataService.get('/sms/wells/withdrawal/idvrve/contract-refunds/aggregate', { params: searchParams.value });
+  const response = await dataService.get(`${apiUrl}/aggregate`, { params: searchParams.value });
   Object.assign(aggregationStatus.value, response.data);
   // console.log('contrct aggregationStatus.value', aggregationStatus.value);
   // 테이블 변경으로 아직 확인되지 않은 값들에 대한 인식을 위해 삭제하지 않고 주석 처리 했습니다.
@@ -390,12 +396,12 @@ async function onClickSearch() {
 
 async function onClickReportView() {
   // TODO: OZ REPORT 개발중..
-  notify('개발중');
+  await notify(t('MSG_ALT_DEVELOPING'));
   // await openReportPopup('/eformsample.ozr', '/eformsample.odi', JSON.stringify({ param1: 'test1', param2: 'test2'}));
 }
 
 async function onClickExcelDownload() {
-  const response = await dataService.get('/sms/wells/withdrawal/idvrve/contract-refunds/excel-download', { params: cachedParams });
+  const response = await dataService.get(`${apiUrl}/excel-download`, { params: cachedParams });
   const view = grdMainRef2.value.getView();
 
   await gridUtil.exportView(view, {
@@ -410,14 +416,16 @@ async function onClickExcelDownload() {
 
 const initGrdMain2 = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'cntrNoSn' }, // 계약상세번호
+    { fieldName: 'cntrNo' },
+    { fieldName: 'cntrSn' },
+    { fieldName: 'cntrDtlNo' }, // 계약상세번호
     { fieldName: 'cstKnm' }, // 고객명
-    { fieldName: 'fnlMdfcDtm', dataType: 'date' }, // 처리일자
-    { fieldName: 'perfDt', dataType: 'date' }, // 실적일자
+    { fieldName: 'rfndRveDt', dataType: 'date' }, // 처리일자
+    { fieldName: 'rfndPerfDt', dataType: 'date' }, // 실적일자
     { fieldName: 'cntrwTpCd' }, // 업무구분
-    { fieldName: 'tmp1' }, // 확인필요.출력구분
+    { fieldName: 'tmp1' }, // 출력구분 - ※조회조건 확인필요.
     { fieldName: 'sellAmt', dataType: 'number' }, // 판매금액
-    { fieldName: 'tmp2', dataType: 'number' }, // 확인필요.지급금액
+    { fieldName: 'dsbAmt', dataType: 'number' }, // 지급금액
     { fieldName: 'rfndDsbAmt', dataType: 'number' }, // 환불금액
     { fieldName: 'rfndDsbPspInt', dataType: 'number' }, // 지연이자
     { fieldName: 'cardRfndFee', dataType: 'number' }, // 카드수수료
@@ -429,21 +437,94 @@ const initGrdMain2 = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'cntrNoSn', header: t('MSG_TXT_CNTR_DTL_NO'), width: '130', styleName: 'text-left' }, // 계약상세번호
-    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '80', styleName: 'text-left' }, // 고객명
-    { fieldName: 'fnlMdfcDtm', header: t('MSG_TXT_PRCSDT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' }, // 처리일자
-    { fieldName: 'perfDt', header: t('MSG_TXT_PERF_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' }, // 실적일자
+    { fieldName: 'cntrDtlNo',
+      header: t('MSG_TXT_CNTR_DTL_NO'),
+      width: '130',
+      styleName: 'text-center',
+      headerSummary: {
+        text: t('MSG_TXT_SUM'),
+        styleName: 'text-center',
+      },
+    }, // 계약상세번호
+    { fieldName: 'cstKnm',
+      header: t('MSG_TXT_CST_NM'),
+      width: '80',
+      styleName: 'text-center',
+      headerSummary: {
+        styleName: 'text-right',
+        numberFormat: '#,###',
+        valueCallback() {
+          return `총 ${Number(summaryParams.cntCstKnm)}건`;
+        },
+      },
+    }, // 고객명
+    { fieldName: 'rfndRveDt', header: t('MSG_TXT_PRCSDT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' }, // 처리일자
+    { fieldName: 'rfndPerfDt', header: t('MSG_TXT_PERF_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' }, // 실적일자
     { fieldName: 'cntrwTpCd', header: t('MSG_TXT_TASK_DIV'), width: '100', styleName: 'text-center', options: codes.CNTRW_TP_CD }, // 업무구분
     { fieldName: 'tmp1', header: t('MSG_TXT_PRNT_DV'), width: '100', styleName: 'text-center', options: codes.CNTRW_TP_CD }, // 확인필요.출력구분
-    { fieldName: 'sellAmt', header: t('MSG_TXT_SALE_PRICE'), width: '100', styleName: 'text-right' }, // 판매금액
-    { fieldName: 'tmp2', header: t('MSG_TXT_DSB_AMT'), width: '100', styleName: 'text-right' }, // 확인필요.지급금액
-    { fieldName: 'rfndDsbAmt', header: t('MSG_TXT_RFND_AMT'), width: '100', styleName: 'text-right' }, // 환불금액
-    { fieldName: 'rfndDsbPspInt', header: t('MSG_TXT_PSP_INT'), width: '100', styleName: 'text-right' }, // 지연이자
-    { fieldName: 'cardRfndFee', header: t('MSG_TXT_CARD_FEE'), width: '100', styleName: 'text-right' }, // 카드수수료
-    { fieldName: 'cshCardRfndFnitCd', header: t('MSG_TXT_BNK_CDCO'), width: '104', styleName: 'text-left' }, // 은행/카드사
+    { fieldName: 'sellAmt',
+      header: t('MSG_TXT_SALE_PRICE'),
+      width: '100',
+      styleName: 'text-right',
+      headerSummary: {
+        styleName: 'text-right',
+        numberFormat: '#,###',
+        valueCallback() {
+          return Number(summaryParams.totSellAmt);
+        },
+      },
+    }, // 판매금액
+    { fieldName: 'dsbAmt',
+      header: t('MSG_TXT_DSB_AMT'),
+      width: '100',
+      styleName: 'text-right',
+      headerSummary: {
+        styleName: 'text-right',
+        numberFormat: '#,###',
+        valueCallback() {
+          return Number(summaryParams.totDsbAmt);
+        },
+      },
+    }, // 지급금액
+    { fieldName: 'rfndDsbAmt',
+      header: t('MSG_TXT_RFND_AMT'),
+      width: '100',
+      styleName: 'text-right',
+      headerSummary: {
+        styleName: 'text-right',
+        numberFormat: '#,###',
+        valueCallback() {
+          return Number(summaryParams.totRfndDsbAmt);
+        },
+      } }, // 환불금액
+    { fieldName: 'rfndDsbPspInt',
+      header: t('MSG_TXT_PSP_INT'),
+      width: '100',
+      styleName: 'text-right',
+      headerSummary: {
+        styleName: 'text-right',
+        numberFormat: '#,###',
+        valueCallback() {
+          return Number(summaryParams.totRfndDsbPspInt);
+        },
+      },
+    }, // 지연이자
+    { fieldName: 'cardRfndFee',
+      header: t('MSG_TXT_CARD_FEE'),
+      width: '100',
+      styleName: 'text-right',
+      headerSummary: {
+        styleName: 'text-right',
+        numberFormat: '#,###',
+        valueCallback() {
+          return Number(summaryParams.totCardRfndFee);
+        },
+      },
+    }, // 카드수수료
+    { fieldName: 'cshCardRfndFnitCd', header: t('MSG_TXT_BNK_CDCO'), width: '104', styleName: 'text-center' }, // 은행/카드사
     { fieldName: 'cshCardRfndAcnoCrcdnoEncr', header: t('MSG_TXT_AC_CDNO'), width: '180', styleName: 'text-left' }, // 계좌/카드번호
-    { fieldName: 'cshRfndAcownNm', header: t('MSG_TXT_ACHLDR'), width: '100', styleName: 'text-left' }, // 예금주
-    { fieldName: 'istmMcn', header: t('MSG_TXT_ISTM_MCNT'), width: '100', styleName: 'text-left' }, // 할부개월
+    { fieldName: 'cshRfndAcownNm', header: t('MSG_TXT_ACHLDR'), width: '100', styleName: 'text-center' }, // 예금주
+    { fieldName: 'istmMcn', header: t('MSG_TXT_ISTM_MCNT'), width: '100', styleName: 'text-center' }, // 할부개월
     { fieldName: 'cardRfndCrdcdAprno', header: t('MSG_TXT_APR_NO'), width: '104', styleName: 'text-center' }, // 승인번호
   ];
 
@@ -452,11 +533,22 @@ const initGrdMain2 = defineGrid((data, view) => {
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
 
+  view.layoutByColumn('cntrDtlNo').summaryUserSpans = [{ colspan: 1 }];
+  view.setHeaderSummaries({
+    visible: true,
+    items: [
+      {
+        // styleName: 'blue-column', //  개별 css 스타일 적용 필요시
+        height: 40,
+      },
+    ],
+  });
+  // view.layoutByColumn('cntrDltNo').summaryUserSpans = [{ colspan: 1 }];
   view.setColumnLayout([
-    'cntrNoSn',
+    'cntrDtlNo',
     'cstKnm',
-    'fnlMdfcDtm',
-    'perfDt',
+    'rfndRveDt',
+    'rfndPerfDt',
     'cntrwTpCd',
     'tmp1',
     'sellAmt',
@@ -464,9 +556,8 @@ const initGrdMain2 = defineGrid((data, view) => {
       // 환불 내역
       header: t('MSG_TXT_RFND_IZ'),
       direction: 'horizontal',
-      items: ['tmp2', 'rfndDsbAmt', 'rfndDsbPspInt', 'cardRfndFee', 'cshCardRfndFnitCd', 'cshCardRfndAcnoCrcdnoEncr', 'cshRfndAcownNm', 'istmMcn', 'cardRfndCrdcdAprno'],
+      items: ['dsbAmt', 'rfndDsbAmt', 'rfndDsbPspInt', 'cardRfndFee', 'cshCardRfndFnitCd', 'cshCardRfndAcnoCrcdnoEncr', 'cshRfndAcownNm', 'istmMcn', 'cardRfndCrdcdAprno'],
     },
-
   ]);
 
   // data.setRows([
