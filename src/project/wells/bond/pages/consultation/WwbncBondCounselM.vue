@@ -276,6 +276,7 @@ async function onClickBncCallBack() {
   width: 100%;
   bottom: 0;
   min-width: 1480px;
+  z-index: 10;
 
   &-inner {
     display: flex;
