@@ -678,8 +678,10 @@ async function getPdAmts(pd) {
 }
 
 async function getPdSels(pd) {
+  debugger;
   const sels = await dataService.get('sms/wells/contract/contracts/product-selects', {
     params: {
+      copnDvCd: step2.value.bas.copnDvCd,
       sellInflwChnlDtlCd: step2.value.bas.sellInflwChnlDtlCd,
       pdCd: pd.pdCd,
       sellTpCd: pd.sellTpCd,
