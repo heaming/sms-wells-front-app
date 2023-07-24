@@ -42,7 +42,7 @@
     <kw-action-top class="mb20">
       <template #left>
         <!-- 선납사항(회차) -->
-        <h3>{{ $t('MSG_TXT_PRM_ARTC')+'('+$t('MSG_TXT_ORDERSELECT_TITLE')+')' }}</h3>
+        <h3>{{ $t('MSG_TXT_PRM_ARTC')+'('+frmMainData.prmTn+$t('MSG_TXT_ORDERSELECT_TITLE')+')' }}</h3>
       </template>
       <span class="kw-fc--black3 text-weight-regular">(단위:원)</span>
     </kw-action-top>
@@ -98,7 +98,7 @@
           :label="$t('MSG_TXT_DSC_TOT_AMT')+'('+$t('MSG_TXT_PRM_PTRM_BASE')+')'"
         >
           <kw-input
-            v-model="frmMainData.dscAmt"
+            v-model="frmMainData.prmDscAmt"
             align="right"
             placeholder=""
             readonly
@@ -121,7 +121,7 @@
     <kw-action-top class="mb20">
       <template #left>
         <!-- 매출사항(차월) -->
-        <h3>{{ $t('MSG_TXT_SL_ARTC')+'('+$t('MSG_TXT_NMN')+')' }}</h3>
+        <h3>{{ $t('MSG_TXT_SL_ARTC')+'('+frmMainData.rentalTn+$t('MSG_TXT_NMN')+')' }}</h3>
       </template>
       <span class="kw-fc--black3 text-weight-regular">(단위:원)</span>
     </kw-action-top>
@@ -519,25 +519,29 @@ const searchParams = ref({
 
 const frmMainData = ref({
   // 1.선납사항(회차)-
+  prmTn: '', // 선납회차
   prmMcn: '', // 선납개월수
+  prmDscr: '', // 선납할인율
+  rentalAmt: '', // 월렌탈료(렌탈금액)
+  rentalDscAmt: '', // 할인금액(렌탈할인금액)
   prmStrtYymm: '', // 선납기간-시작년월
   prmEndYymm: '', // 선납기간-종료년월
-  rentalAmt: '', // 월렌탈료
-  rentalDscAmt: '', // 할인금액
-  dscAmt: '', // 할인 총 금액(선납기간기준)
+  prmDscAmt: '', // 할인 총 금액(선납기간기준)
   totPrmAmt: '', // 선납예상총금액
 
   // 2.매출사항(차월)-
-  nomSlAmt: '', // 정상매출
+  rentalTn: '', // 렌탈회차
+  nomSlAmt: '', // 정상매출금액
   rentalDc: '', // 렌탈일수
+  slDc: '', // 매출일수
   rplmDt: '', // 교체일자
-  spmtSlAmt: '', // 추가매출
-  nomDscAmt: '', // 정상할인
-  spmtDscAmt: '', // 추가할인
-  slCtrAmt: '', // 매출조정
-  thmSlSumAmt: '', // 매출금액
-  slSumVat: '', // 매출VAT
-  slAggAmt: '', // 매출누계
+  spmtSlAmt: '', // 추가매출금액
+  nomDscAmt: '', // 정상할인금액
+  spmtDscAmt: '', // 추가할인금액
+  slCtrAmt: '', // 매출조정금액
+  thmSlSumAmt: '', // 당월매출합계금액
+  slSumVat: '', // 매출합계부가가치세
+  slAggAmt: '', // 매출누계금액
   dscAggAmt: '', // 할인누계
   ctrAggAmt: '', // 조정누계
   thmUcBlam: '', // 매출잔액
@@ -575,26 +579,29 @@ async function fetchData() {
 
   if (res.data.length > 0) {
     // 1.선납사항(회차)-
+    frmMainData.value.prmTn = res.data[0].prmTn; // 선납회차
     frmMainData.value.prmMcn = res.data[0].prmMcn; // 선납개월수
     frmMainData.value.prmStrtYymm = res.data[0].prmStrtYymm; // 선납기간-시작년월
     frmMainData.value.prmEndYymm = res.data[0].prmEndYymm; // 선납기간-종료년월
-    frmMainData.value.rentalAmt = `${stringUtil.getNumberWithComma(Number(res.data[0].rentalAmt), 0)}/${stringUtil.getNumberWithComma(Number(res.data[0].rentalDscAmt), 0)}`; // 월렌탈료/할인금액
-    frmMainData.value.dscAmt = stringUtil.getNumberWithComma(Number(res.data[0].dscAmt), 0); // 할인 총 금액(선납기간기준)
+    frmMainData.value.rentalAmt = `${stringUtil.getNumberWithComma(Number(res.data[0].rentalAmt), 0)}/${stringUtil.getNumberWithComma(Number(res.data[0].rentalDscAmt), 0)}`; // 월렌탈료/렌탈할인금액
+    frmMainData.value.prmDscAmt = stringUtil.getNumberWithComma(Number(res.data[0].prmDscAmt), 0); // 할인 총 금액(선납기간기준)
     frmMainData.value.totPrmAmt = stringUtil.getNumberWithComma(Number(res.data[0].totPrmAmt), 0); // 선납예상총금액
 
     // 2.매출사항(차월)-
-    frmMainData.value.nomSlAmt = stringUtil.getNumberWithComma(Number(res.data[0].nomSlAmt), 0); // 정상매출
+    frmMainData.value.rentalTn = res.data[0].rentalTn; // 렌탈회차
+    frmMainData.value.nomSlAmt = stringUtil.getNumberWithComma(Number(res.data[0].nomSlAmt), 0); // 정상매출금액
     frmMainData.value.rentalDc = res.data[0].rentalDc; // 렌탈일수
+    frmMainData.value.slDc = res.data[0].slDc; // 매출일수
     frmMainData.value.rplmDt = res.data[0].rplmDt; // 교체일자
-    frmMainData.value.spmtSlAmt = stringUtil.getNumberWithComma(Number(res.data[0].spmtSlAmt), 0); // 추가매출
-    frmMainData.value.nomDscAmt = stringUtil.getNumberWithComma(Number(res.data[0].nomDscAmt), 0); // 정상할인
+    frmMainData.value.spmtSlAmt = stringUtil.getNumberWithComma(Number(res.data[0].spmtSlAmt), 0); // 추가매출금액
+    frmMainData.value.nomDscAmt = stringUtil.getNumberWithComma(Number(res.data[0].nomDscAmt), 0); // 정상할인금액
     // 취소조정
     // 부가서비스
-    frmMainData.value.spmtDscAmt = stringUtil.getNumberWithComma(Number(res.data[0].spmtDscAmt), 0); // 추가할인
-    frmMainData.value.slCtrAmt = stringUtil.getNumberWithComma(Number(res.data[0].slCtrAmt), 0); // 매출조정
-    frmMainData.value.thmSlSumAmt = stringUtil.getNumberWithComma(Number(res.data[0].thmSlSumAmt), 0); // 매출금액
-    frmMainData.value.slSumVat = stringUtil.getNumberWithComma(Number(res.data[0].slSumVat), 0); // 매출VAT
-    frmMainData.value.slAggAmt = stringUtil.getNumberWithComma(Number(res.data[0].slAggAmt), 0); // 매출누계
+    frmMainData.value.spmtDscAmt = stringUtil.getNumberWithComma(Number(res.data[0].spmtDscAmt), 0); // 추가할인금액
+    frmMainData.value.slCtrAmt = stringUtil.getNumberWithComma(Number(res.data[0].slCtrAmt), 0); // 매출조정금액
+    frmMainData.value.thmSlSumAmt = stringUtil.getNumberWithComma(Number(res.data[0].thmSlSumAmt), 0); // 당월매출합계금액
+    frmMainData.value.slSumVat = stringUtil.getNumberWithComma(Number(res.data[0].slSumVat), 0); // 매출합계부가가치세
+    frmMainData.value.slAggAmt = stringUtil.getNumberWithComma(Number(res.data[0].slAggAmt), 0); // 매출누계금액
     frmMainData.value.dscAggAmt = stringUtil.getNumberWithComma(Number(res.data[0].dscAggAmt), 0); // 할인누계
     frmMainData.value.ctrAggAmt = stringUtil.getNumberWithComma(Number(res.data[0].ctrAggAmt), 0); // 조정누계
     frmMainData.value.thmUcBlam = stringUtil.getNumberWithComma(Number(res.data[0].thmUcBlam), 0); // 매출잔액
