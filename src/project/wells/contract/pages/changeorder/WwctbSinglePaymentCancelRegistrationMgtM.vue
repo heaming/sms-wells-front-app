@@ -75,7 +75,7 @@
           <kw-form-row>
             <!--상품코드-->
             <kw-form-item :label="$t('TXT_MSG_PD_CD')">
-              <p>{{ searchDetail.pdCd }}</p>
+              <p>{{ searchDetail.basePdCd }}</p>
             </kw-form-item>
             <!--상품명-->
             <kw-form-item :label="$t('MSG_TXT_PRDT_NM')">
@@ -189,7 +189,7 @@
         />
         <kw-input
           v-model="inputDetail.sel2Text"
-          class="w100"
+          class="w80"
           regex="num"
           maxlength="2"
           @update:model-value="onChangeTextforSelect('sel2')"
@@ -209,7 +209,7 @@
         />
         <kw-input
           v-model="inputDetail.sel3Text"
-          class="w100"
+          class="w80"
           regex="num"
           maxlength="2"
           @update:model-value="onChangeTextforSelect('sel3')"

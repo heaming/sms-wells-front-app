@@ -75,7 +75,7 @@
           <kw-form-row>
             <!--상품정보-->
             <kw-form-item :label="$t('MSG_TXT_PD_INF')">
-              <p>{{ searchDetail.pdCd }}</p>
+              <p>{{ searchDetail.basePdCd }}</p>
             </kw-form-item>
             <!--의무-->
             <kw-form-item :label="$t('MSG_TXT_DUTY')">
@@ -95,7 +95,7 @@
           <kw-form-row>
             <!--등록비용-->
             <kw-form-item :label="$t('MSG_TXT_REG_FEE')">
-              <p>{{ stringUtil.getNumberWithComma(searchDetail.cntrAmt??'') }}</p>
+              <p>{{ stringUtil.getNumberWithComma(searchDetail.rentalRgstCost??'') }}</p>
             </kw-form-item>
             <!--등록비할인-->
             <kw-form-item :label="$t('MSG_TXT_RGST_COST_DSC')">
@@ -510,7 +510,7 @@
         />
         <kw-input
           v-model="inputDetail.sel1Text"
-          class="w100"
+          class="w80"
           regex="num"
           maxlength="2"
           @update:model-value="onChangeTextforSelect('sel1')"
@@ -525,7 +525,7 @@
         />
         <kw-input
           v-model="inputDetail.sel2Text"
-          class="w100"
+          class="w80"
           regex="num"
           maxlength="2"
           @update:model-value="onChangeTextforSelect('sel2')"
@@ -556,7 +556,7 @@
         />
         <kw-input
           v-model="inputDetail.sel3Text"
-          class="w100"
+          class="w80"
           regex="num"
           maxlength="2"
           @update:model-value="onChangeTextforSelect('sel3')"
@@ -568,7 +568,7 @@
         />
         <kw-input
           v-model="inputDetail.sel4Text"
-          class="w100"
+          class="w80"
           regex="num"
           maxlength="2"
           @update:model-value="onChangeTextforSelect('sel4')"
