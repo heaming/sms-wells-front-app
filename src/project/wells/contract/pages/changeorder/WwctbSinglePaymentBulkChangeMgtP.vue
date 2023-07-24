@@ -57,7 +57,7 @@
           v-if="saveParams.procsDv==='701'"
           :label="$t('MSG_TXT_COMP_D')"
           required
-          hint="KIWI철거일자와 같은날짜로 변경가능합니다."
+          :hint="$t('MSG_TXT_KIWI_DEM_DT_SAME_CH')"
         >
           <kw-date-picker
             v-model="saveParams.compD"
@@ -240,15 +240,9 @@
         </kw-form-item>
       </kw-form-row>
     </kw-form>
-
     <kw-action-top>
       <template #left>
         <kw-paging-info :total-count="pageInfo.totalCount" />
-        <ul class="kw-notification ml10">
-          <li>
-            주문번호 뒷번호, 7자리가 아니여도 앞에 0을 입력하지 않습니다.
-          </li>
-        </ul>
       </template>
       <!-- 삭제 -->
       <kw-btn
