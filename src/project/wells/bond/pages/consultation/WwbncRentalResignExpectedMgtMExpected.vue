@@ -340,49 +340,64 @@ async function onClickSave() {
 }
 
 // 엑셀 업로드
+// TODO: 설계 전
 async function onClickExcelUpload() {
-  const apiUrl = `${baseUrl}/excel-upload`;
-  const templateId = 'T';
-  const {
-    payload,
-  } = await modal({
-    component: 'ZwcmzExcelUploadP',
-    componentProps: {
-      apiUrl,
-      templateId,
-    },
-  });
-  if (payload.status === 'S') {
-    notify(t('MSG_ALT_SAVE_DATA'));
-    await onClickSearch();
-  }
+  await alert('설계중');
+  // const apiUrl = `${baseUrl}/excel-upload`;
+  // const templateId = 'T';
+  // const {
+  //   payload,
+  // } = await modal({
+  //   component: 'ZwcmzExcelUploadP',
+  //   componentProps: {
+  //     apiUrl,
+  //     templateId,
+  //   },
+  // });
+  // if (payload.status === 'S') {
+  //   notify(t('MSG_ALT_SAVE_DATA'));
+  //   await onClickSearch();
+  // }
 }
 
 // 예정생성
 async function onClickExpectedCreate() {
   if (!await confirm(t('MSG_ALT_EXP_CRT'))) { return; }
-  await dataService.post(baseUrl, { baseDt: searchParams.value.baseDt });
+  const params = {
+    baseDt: searchParams.value.baseDt,
+  };
+  await dataService.post(baseUrl, params);
   notify(t('예정생성 완료되었습니다.'));
   await onClickSearch();
 }
-// 예정확정`
+// 예정확정
 async function onClickExpectedConfirm() {
   if (!await confirm(t('MSG_ALT_EXP_CNFM'))) { return; }
-  await dataService.put(`${baseUrl}/confirm`, { baseDt: searchParams.value.baseDt, confirmDvCd: '01' });
-  notify(t('MSG_ALT_COMPLETE_EXP_CNFM'));
+  const params = {
+    baseDt: searchParams.value.baseDt,
+    confirmDvCd: '01',
+  };
+  await dataService.put(`${baseUrl}/confirm`, params);
+  notify(t('MSG_ALT_COMPLETE_EXP_CREATE'));
   await onClickSearch();
 }
 // 취소자료 등록
+// TODO: 설계 전
 async function onClickCancelRgst() {
-  if (!await confirm(t('MSG_ALT_RGST_CAN_MTR'))) { return; }
-  await dataService.put(`${baseUrl}/cancel`, { });
-  notify(t('MSG_ALT_COMPLETE_CAN_MTR'));
-  await onClickSearch();
+  await alert('설계중');
+  // if (!await confirm(t('MSG_ALT_RGST_CAN_MTR'))) { return; }
+  // await dataService.put(`${baseUrl}/cancel`, { });
+  // notify(t('MSG_ALT_COMPLETE_CAN_MTR'));
+  // await onClickSearch();
 }
 // 최종확정
 async function onClickFinalConfirm() {
   if (!await confirm(t('MSG_ALT_FNL_CNFM'))) { return; }
-  await dataService.put(`${baseUrl}/confirm`, { baseDt: searchParams.value.baseDt, confirmDvCd: '02' });
+  const params = {
+    baseDt: searchParams.value.baseDt,
+    confirmDvCd: '02',
+  };
+  await dataService.put(`${baseUrl}/confirm`, params);
   notify(t('MSG_ALT_COMPLETE_FNL_CNFM'));
   await onClickSearch();
 }
@@ -421,6 +436,7 @@ const initExpectedGrid = defineGrid((data, view) => {
         }
         if (excdYn === 'N') {
           ret.editable = true;
+          grid.setValue(dataCell.index.itemIndex, 'authRsgExcdRsonCd', '');
         }
         return ret;
       } },
@@ -436,7 +452,7 @@ const initExpectedGrid = defineGrid((data, view) => {
     { fieldName: 'rentalRgstCostBorAmt', header: t('MSG_TXT_BOR_RGST_CS'), width: '110', styleName: 'text-right', dataType: 'number' },
     { fieldName: 'dscCsBorAmt', header: t('MSG_TXT_BOR_DSC_AMT'), width: '110', styleName: 'text-right', dataType: 'number' },
     { fieldName: 'rstlBorAmt', header: t('MSG_TXT_BOR_RSTL'), width: '110', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'pBorAmt', header: t('MSG_TXT_BOR_P'), width: '110', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'pointBorAmt', header: t('MSG_TXT_BOR_P'), width: '110', styleName: 'text-right', dataType: 'number' },
     { fieldName: 'csmbCsBorAmt', header: t('MSG_TXT_CSMB_CS'), width: '110', styleName: 'text-right', dataType: 'number' },
     { fieldName: 'reqdCsBorAmt', header: t('MSG_TXT_REQD_CS'), width: '110', styleName: 'text-right', dataType: 'number' },
     { fieldName: 'lsRntf', header: t('MSG_TXT_PD_LENT_LOST_LOG'), width: '110', styleName: 'text-right', dataType: 'number' },

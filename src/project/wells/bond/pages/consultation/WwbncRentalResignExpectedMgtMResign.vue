@@ -265,19 +265,6 @@ const initResignGrid = defineGrid((data, view) => {
 
   view.checkBar.visible = true;
   view.rowIndicator.visible = true;
-
-  data.setRows([
-    { authRsgSts: '해지예정', cntrNoSn: '2022-1234567-01', cstKnm: '최희향', basePdCd: '615', pdNm: '활력슬림쏙(12박스)', prtnrKnm: '양재희', sellPrtnrNo: '2127297', ogCd: 'G915100', slDt: '20220303', sellAmt: '119700', dlqMcn: '3', ucAmt: '80370', dlqAmt: '80180', totRveAmt: '398810', clctamPrtnrNm: '이연재', clctamPrtnrNo: '111111', errCn: '에러내용' },
-    { authRsgSts: '해지예정', cntrNoSn: '2022-1234567-01', cstKnm: '최희향', basePdCd: '615', pdNm: '활력슬림쏙(12박스)', prtnrKnm: '양재희', sellPrtnrNo: '2127297', ogCd: 'G915100', slDt: '20220303', sellAmt: '119700', dlqMcn: '3', ucAmt: '80370', dlqAmt: '80180', totRveAmt: '398810', clctamPrtnrNm: '이연재', clctamPrtnrNo: '111111', errCn: '에러내용' },
-    { authRsgSts: '해지예정', cntrNoSn: '2022-1234567-01', cstKnm: '최희향', basePdCd: '615', pdNm: '활력슬림쏙(12박스)', prtnrKnm: '양재희', sellPrtnrNo: '2127297', ogCd: 'G915100', slDt: '20220303', sellAmt: '119700', dlqMcn: '3', ucAmt: '80370', dlqAmt: '80180', totRveAmt: '398810', clctamPrtnrNm: '이연재', clctamPrtnrNo: '111111', errCn: '에러내용' },
-    { authRsgSts: '해지예정', cntrNoSn: '2022-1234567-01', cstKnm: '최희향', basePdCd: '615', pdNm: '활력슬림쏙(12박스)', prtnrKnm: '양재희', sellPrtnrNo: '2127297', ogCd: 'G915100', slDt: '20220303', sellAmt: '119700', dlqMcn: '3', ucAmt: '80370', dlqAmt: '80180', totRveAmt: '398810', clctamPrtnrNm: '이연재', clctamPrtnrNo: '111111', errCn: '에러내용' },
-    { authRsgSts: '해지예정', cntrNoSn: '2022-1234567-01', cstKnm: '최희향', basePdCd: '615', pdNm: '활력슬림쏙(12박스)', prtnrKnm: '양재희', sellPrtnrNo: '2127297', ogCd: 'G915100', slDt: '20220303', sellAmt: '119700', dlqMcn: '3', ucAmt: '80370', dlqAmt: '80180', totRveAmt: '398810', clctamPrtnrNm: '이연재', clctamPrtnrNo: '111111', errCn: '에러내용' },
-    { authRsgSts: '해지예정', cntrNoSn: '2022-1234567-01', cstKnm: '최희향', basePdCd: '615', pdNm: '활력슬림쏙(12박스)', prtnrKnm: '양재희', sellPrtnrNo: '2127297', ogCd: 'G915100', slDt: '20220303', sellAmt: '119700', dlqMcn: '3', ucAmt: '80370', dlqAmt: '80180', totRveAmt: '398810', clctamPrtnrNm: '이연재', clctamPrtnrNo: '111111', errCn: '에러내용' },
-    { authRsgSts: '해지예정', cntrNoSn: '2022-1234567-01', cstKnm: '최희향', basePdCd: '615', pdNm: '활력슬림쏙(12박스)', prtnrKnm: '양재희', sellPrtnrNo: '2127297', ogCd: 'G915100', slDt: '20220303', sellAmt: '119700', dlqMcn: '3', ucAmt: '80370', dlqAmt: '80180', totRveAmt: '398810', clctamPrtnrNm: '이연재', clctamPrtnrNo: '111111', errCn: '에러내용' },
-    { authRsgSts: '해지예정', cntrNoSn: '2022-1234567-01', cstKnm: '최희향', basePdCd: '615', pdNm: '활력슬림쏙(12박스)', prtnrKnm: '양재희', sellPrtnrNo: '2127297', ogCd: 'G915100', slDt: '20220303', sellAmt: '119700', dlqMcn: '3', ucAmt: '80370', dlqAmt: '80180', totRveAmt: '398810', clctamPrtnrNm: '이연재', clctamPrtnrNo: '111111', errCn: '에러내용' },
-    { authRsgSts: '해지예정', cntrNoSn: '2022-1234567-01', cstKnm: '최희향', basePdCd: '615', pdNm: '활력슬림쏙(12박스)', prtnrKnm: '양재희', sellPrtnrNo: '2127297', ogCd: 'G915100', slDt: '20220303', sellAmt: '119700', dlqMcn: '3', ucAmt: '80370', dlqAmt: '80180', totRveAmt: '398810', clctamPrtnrNm: '이연재', clctamPrtnrNo: '111111', errCn: '에러내용' },
-    { authRsgSts: '해지예정', cntrNoSn: '2022-1234567-01', cstKnm: '최희향', basePdCd: '615', pdNm: '활력슬림쏙(12박스)', prtnrKnm: '양재희', sellPrtnrNo: '2127297', ogCd: 'G915100', slDt: '20220303', sellAmt: '119700', dlqMcn: '3', ucAmt: '80370', dlqAmt: '80180', totRveAmt: '398810', clctamPrtnrNm: '이연재', clctamPrtnrNo: '111111', errCn: '에러내용' },
-  ]);
 });
 </script>
 
