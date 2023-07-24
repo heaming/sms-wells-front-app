@@ -172,6 +172,7 @@ const isGrid2Visile = ref(false);
 const isGrid3Visile = ref(true);
 const isExcelDown = ref(false);
 const { currentRoute } = useRouter();
+const router = useRouter();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -403,7 +404,7 @@ async function onClickW101P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
       rsbTpCd,
     };
     const { result: isChanged } = await modal({
-      component: 'ZwfeaFeeMeetingAttendanceRegP',
+      component: 'WwfeaFeeMeetingAttendanceRegP',
       componentProps: param,
     });
     if (isChanged) {
@@ -649,9 +650,16 @@ async function onClickW118P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
 /*
  *  Event - 전표생성 클릭 ※TBD
  */
-async function onClickW119P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
-  await dataService.put(`/sms/common/fee/schedules/steps/${feeSchdId}/status/levels`, null, { params: { feeSchdLvCd, feeSchdLvStatCd } });
-  fetchData();
+async function onClickW119P() {
+  const { perfYm, ogTpCd, rsbTpCd } = searchParams.value;
+  router.push({
+    path: '/fee/zwfee-fee-slip-publication-list',
+    query: {
+      baseYm: perfYm,
+      ogTpCd,
+      rsbDvCd: rsbTpCd,
+    },
+  });
 }
 
 /*
@@ -659,8 +667,14 @@ async function onClickW119P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
 */
 
 async function onClickW120P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
-  await dataService.put(`/sms/common/fee/schedules/steps/${feeSchdId}/status/levels`, null, { params: { feeSchdLvCd, feeSchdLvStatCd } });
-  fetchData();
+  const { result: isUploadSuccess } = await modal({
+    component: 'WwfebAdvancePaymentFeeConfirmP',
+    componentProps: { feeSchdId },
+  });
+  if (isUploadSuccess) {
+    await dataService.put(`/sms/common/fee/schedules/steps/${feeSchdId}/status/levels`, null, { params: { feeSchdLvCd, feeSchdLvStatCd } });
+    fetchData();
+  }
 }
 
 /**
@@ -695,7 +709,7 @@ async function onclickStep(params) {
   } else if (params.code === 'W0118') { // 품의작성
     await onClickW118P(params.feeSchdId, params.code, '03');
   } else if (params.code === 'W0119') { // 전표생성
-    await onClickW119P(params.feeSchdId, params.code, '03');
+    await onClickW119P();
   } else if (params.code === 'W0120') { // 선급판매 수수료 확정
     await onClickW120P(params.feeSchdId, params.code, '03');
   }

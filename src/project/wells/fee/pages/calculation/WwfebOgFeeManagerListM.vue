@@ -176,6 +176,7 @@ const isGrid1Visile = ref(false);
 const isGrid2Visile = ref(false);
 const isGrid3Visile = ref(true);
 const { currentRoute } = useRouter();
+const router = useRouter();
 const isExcelDown = ref(false);
 const stepNaviRef = ref();
 // -------------------------------------------------------------------------------------------------
@@ -280,7 +281,7 @@ async function onChangedRsbTp() {
  */
 async function setTitle() {
   const { perfYm, rsbTpCd } = searchParams.value;
-  searchParams.value.statTitle = `${perfYm.substring(0, 4) + t('MSG_TXT_YEAR')} ${perfYm.substring(4, 6)}${t('MSG_TXT_MON')}`;
+  searchParams.value.statTitleText = `${perfYm.substring(0, 4) + t('MSG_TXT_YEAR')} ${perfYm.substring(4, 6)}${t('MSG_TXT_MON')}`;
   if (rsbTpCd !== '') {
     const { codeName } = codes.RSB_DV_CD.find((v) => v.codeId === rsbTpCd);
     searchParams.value.rsbTpTxt = codeName;
@@ -369,7 +370,7 @@ async function onClickW201P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
       rsbTpCd,
     };
     const { result: isChanged } = await modal({
-      component: 'ZwfeaFeeMeetingAttendanceRegP',
+      component: 'WwfeaFeeMeetingAttendanceRegP',
       componentProps: param,
     });
     if (isChanged) {
@@ -616,9 +617,16 @@ async function onClickW219P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
 /*
  *  Event - 전표생성 클릭 ※TBD
  */
-async function onClickW220P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
-  await dataService.put(`/sms/common/fee/schedules/steps/${feeSchdId}/status/levels`, null, { params: { feeSchdLvCd, feeSchdLvStatCd } });
-  fetchData();
+async function onClickW220P() {
+  const { perfYm, ogTpCd, rsbTpCd } = searchParams.value;
+  router.push({
+    path: '/fee/zwfee-fee-slip-publication-list',
+    query: {
+      baseYm: perfYm,
+      ogTpCd,
+      rsbDvCd: rsbTpCd,
+    },
+  });
 }
 
 /*
@@ -626,8 +634,14 @@ async function onClickW220P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
 */
 
 async function onClickW221P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
-  await dataService.put(`/sms/common/fee/schedules/steps/${feeSchdId}/status/levels`, null, { params: { feeSchdLvCd, feeSchdLvStatCd } });
-  fetchData();
+  const { result: isUploadSuccess } = await modal({
+    component: 'WwfebAdvancePaymentFeeConfirmP',
+    componentProps: { feeSchdId },
+  });
+  if (isUploadSuccess) {
+    await dataService.put(`/sms/common/fee/schedules/steps/${feeSchdId}/status/levels`, null, { params: { feeSchdLvCd, feeSchdLvStatCd } });
+    fetchData();
+  }
 }
 
 /**
@@ -662,7 +676,7 @@ async function onclickStep(params) {
   } else if (params.code === 'W0219') { // 품의작성
     await onClickW219P(params.feeSchdId, params.code, '03');
   } else if (params.code === 'W0220') { // 전표생성
-    await onClickW220P(params.feeSchdId, params.code, '03');
+    await onClickW220P();
   } else if (params.code === 'W0221') { // 선급판매 수수료 확정
     await onClickW221P(params.feeSchdId, params.code, '03');
   }
