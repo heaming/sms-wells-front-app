@@ -75,7 +75,7 @@
           v-model:add2="updateAddressInfo.adrDtl"
           v-model:addKey="updateAddressInfo.adrId"
           v-model:bldMngtNo="updateAddressInfo.bldMngtNo"
-          v-model:adrDvCd="updateAddressInfo.adrDvCd"
+          v-model:adrDvCd="weirdAdrDvCd"
           readonly
           label="주소"
           required
@@ -137,8 +137,8 @@ const cntrCstAddressInfo = computed(() => {
     cralLocaraTno: contractCustomerInfo.cralLocaraTno,
     mexnoEncr: contractCustomerInfo.mexnoEncr,
     cralIdvTno: contractCustomerInfo.cralIdvTno,
-    adrDvCd: '', /* 고객 관계 DVO 에 있는지 확인 할 것 */
-    bldMngtNo: '', /* 빌딩관리번호란다. */
+    adrDvCd: undefined, /* 고객 관계 DVO 에 있는지 확인 할 것 */
+    bldMngtNo: undefined, /* 빌딩관리번호란다. */
     adr: contractCustomerInfo.adr,
     adrDtl: contractCustomerInfo.adrDtl,
     adrId: contractCustomerInfo.adrId,
@@ -241,5 +241,12 @@ exposed.getUpdateShippingAddressInfo = getUpdateShippingAddressInfo;
 
 onActivated(() => {
   emit('activated', invalidRef.value);
+});
+
+const weirdAdrDvCd = computed({
+  get: () => Number(updateAddressInfo.value.adrDvCd),
+  set: (val) => {
+    updateAddressInfo.value.adrDvCd = String(val);
+  },
 });
 </script>
