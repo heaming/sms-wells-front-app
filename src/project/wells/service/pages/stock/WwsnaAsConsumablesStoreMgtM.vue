@@ -228,6 +228,7 @@ async function onClickDeleteRow() {
     const result = await dataService.delete('/sms/wells/service/as-consumables-stores', { data: checkedRows });
     if (result.data > 0) {
       notify(t('MSG_ALT_SAVE_COMP'));
+      await fetchData();
     } else {
       notify(t('MSG_ALT_PROC_FAIL'));
     }
@@ -246,11 +247,11 @@ const onClickExcelUpload = async () => {
   const templateId = 'FOM_AS_CSMB_UPLOAD';
   console.log(cachedParams);
   const extraData = cachedParams;
-  const { result } = await modal({
+  const { result, payload } = await modal({
     component: 'ZwcmzExcelUploadP',
     componentProps: { apiUrl, templateId, extraData },
   });
-  if (result.status === 'S') {
+  if (result && payload.status === 'S') {
     notify(t('MSG_ALT_SAVE_DATA'));
     await fetchData();
   }
