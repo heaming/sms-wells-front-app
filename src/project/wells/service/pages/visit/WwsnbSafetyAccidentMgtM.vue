@@ -16,18 +16,39 @@
   <kw-page>
     <kw-search
       :modified-targets="['grdMain']"
+      cols="4"
       @search="onClickSearch"
     >
       <kw-search-row>
-        <!-- A/S방문일 -->
         <kw-search-item
-          :label="$t('MSG_TXT_AS_RCP_DT')"
+          :label="$t('MSG_TXT_INQR_DV')"
+          colspan="2"
         >
-          <kw-date-range-picker
-            v-model:from="searchParams.vstDtFrom"
-            v-model:to="searchParams.vstDtTo"
-            rules="date_range_required"
+          <kw-select
+            v-model="searchParams.searchOption"
+            class="w150"
+            :options="searchOptions"
           />
+          <kw-date-range-picker
+            v-model:from="searchParams.searchDtFrom"
+            v-model:to="searchParams.searchDtTo"
+          />
+          <kw-field
+            v-if="searchParams.searchOption === '2'"
+            v-model="searchParams.fshDtYn"
+            class="w75"
+          >
+            <template
+              v-if="searchParams.searchOption === '2'"
+              #default="{ field }"
+            >
+              <kw-checkbox
+                v-bind="field"
+                :label="$t('MSG_TXT_FSH_EXCD')"
+                val=""
+              />
+            </template>
+          </kw-field>
         </kw-search-item>
         <!-- 제목 -->
         <kw-search-item
@@ -75,8 +96,6 @@
             v-model="searchParams.cntrDtlNo"
           />
         </kw-search-item>
-      </kw-search-row>
-      <kw-search-row>
         <!-- 보상진행 -->
         <kw-search-item
           :label="$t('MSG_TXT_CPS_PRGS')"
@@ -87,6 +106,8 @@
             first-option="all"
           />
         </kw-search-item>
+      </kw-search-row>
+      <kw-search-row>
         <!-- 귀책구분 -->
         <kw-search-item
           :label="$t('MSG_TXT_IMPTA_DV')"
@@ -107,18 +128,18 @@
           />
         </kw-search-item>
       </kw-search-row>
-      <kw-search-row>
-        <!-- 등록일자 -->
-        <kw-search-item
+      <!-- <kw-search-row> -->
+      <!-- 등록일자 -->
+      <!-- <kw-search-item
           :label="$t('MSG_TXT_FST_RGST_DT')"
         >
           <kw-date-range-picker
             v-model:from="searchParams.rgstDtmFrom"
             v-model:to="searchParams.rgstDtmTo"
           />
-        </kw-search-item>
-        <!-- 완료일자 -->
-        <kw-search-item
+        </kw-search-item> -->
+      <!-- 완료일자 -->
+      <!-- <kw-search-item
           :label="$t('MSG_TXT_FSH_DT')"
           :colspan="2"
         >
@@ -137,8 +158,8 @@
               />
             </template>
           </kw-field>
-        </kw-search-item>
-      </kw-search-row>
+        </kw-search-item> -->
+      <!-- </kw-search-row> -->
     </kw-search>
     <div class="result-area">
       <kw-action-top>
@@ -230,10 +251,7 @@ import { cloneDeep } from 'lodash-es';
 
 const { getConfig } = useMeta();
 const dataService = useDataService();
-const {
-  modal,
-  alert,
-} = useGlobal();
+const { modal, alert, notify } = useGlobal();
 const grdMainRef = ref(getComponentType('KwGrid'));
 const { t } = useI18n();
 const { currentRoute } = useRouter();
@@ -250,6 +268,10 @@ const codes = await codeUtil.getMultiCodes(
   'CPS_PRGS_CD',
   'IMPTA_RSON_CD',
 );
+const searchOptions = [
+  { codeId: '1', codeName: t('MSG_TXT_FST_RGST_DT') }, // 등록일자
+  { codeId: '2', codeName: t('MSG_TXT_FSH_DT') }, // 완료일자
+];
 const svcCode = (await dataService.get('/sms/wells/service/organizations/service-center')).data;
 
 const searchParams = ref({
@@ -270,6 +292,7 @@ const searchParams = ref({
   fshDtYn: 'N',
   totCpsAmt: '',
   device: 'W',
+  searchOption: '1',
 });
 let cachedParams;
 
@@ -307,12 +330,30 @@ async function onClickAgreementPrint() {
 }
 
 async function onClickAccidentReportPrint() {
-  await alert('사고경위서개발전');
+  const view = grdMainRef.value.getView();
+  const chkRows = gridUtil.getCheckedRowValues(view);
+  if (chkRows.length === 0) {
+    notify(t('MSG_ALT_NOT_SEL_ITEM'));
+    return;
+  }
+  const acdnRcpId = (chkRows.length === 0 ? '' : chkRows[0].acdnRcpId);
+  await modal({
+    component: 'WwsnbSafetyAccidentReportP',
+    componentProps: {
+      acdnRcpId,
+    },
+  });
 }
 
 async function onClickRegist() {
+  const view = grdMainRef.value.getView();
+  const chkRows = gridUtil.getCheckedRowValues(view);
+  const acdnRcpId = (chkRows.length === 0 ? '' : chkRows[0].acdnRcpId);
   await modal({
     component: 'WwsnbSafetyAccidentRegP',
+    componentProps: {
+      acdnRcpId,
+    },
   });
   onClickSearch();
 }
@@ -338,7 +379,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'istAdr' },
     { fieldName: 'istDtlAdr' },
     { fieldName: 'istReferAdr' },
-    { fieldName: 'slDt' }, // 매출일시
+    { fieldName: 'istDt' }, // 설치일시
     { fieldName: 'acdnDtm' }, // 사고일시
     { fieldName: 'fstRgstUsrId' }, // 등록자
     { fieldName: 'fstRgstDtm' },
@@ -349,7 +390,6 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'fnlMdfcDtm' }, // 수정일자
     { fieldName: 'rptrNm' }, // 보고자명
     { fieldName: 'svCnrNm' },
-    { fieldName: 'brchNm' },
     { fieldName: 'imptaRsonNm' },
     { fieldName: 'cpsPrgsNm' },
     { fieldName: 'totCpsAmt', dataType: 'number' },
@@ -437,8 +477,8 @@ const initGrdMain = defineGrid((data, view) => {
       width: '200',
     },
     {
-      fieldName: 'slDt',
-      header: t('MSG_TXT_DT_OF_SALE'),
+      fieldName: 'istDt',
+      header: t('MSG_TXT_IST_DT'),
       width: '100',
       datetimeFormat: 'date',
     },
@@ -461,7 +501,7 @@ const initGrdMain = defineGrid((data, view) => {
       fieldName: 'fstRgstDtm',
       header: t('MSG_TXT_RGST_DTM'),
       width: '150',
-      datetimeFormat: 'datetime',
+      datetimeFormat: 'date',
     },
     {
       fieldName: 'rcpMoCn',
@@ -487,7 +527,7 @@ const initGrdMain = defineGrid((data, view) => {
       fieldName: 'fnlMdfcDtm',
       header: t('MSG_TXT_MDFC_DATE'),
       width: '150',
-      datetimeFormat: 'datetime',
+      datetimeFormat: 'date',
     },
     {
       fieldName: 'rptrNm',
@@ -498,11 +538,6 @@ const initGrdMain = defineGrid((data, view) => {
     {
       fieldName: 'svCnrNm',
       header: t('MSG_TXT_CNT_NM'),
-      width: '100',
-    },
-    {
-      fieldName: 'brchNm',
-      header: t('MSG_TXT_BRCH_NM'),
       width: '100',
     },
     {
@@ -542,6 +577,7 @@ const initGrdMain = defineGrid((data, view) => {
     'finishYn',
     'agrDocRcvYn',
     'rcpdt',
+    'acdnDtm',
     'pdNm',
     'cstNm',
     'cntrNo',
@@ -550,23 +586,21 @@ const initGrdMain = defineGrid((data, view) => {
     'mpno',
     'istAdr',
     'istDtlAdr',
-    'istReferAdr',
-    'slDt',
-    'acdnDtm',
+    'istDt',
+    'svCnrNm',
     'fstRgstUsrId',
+    'fstRgstDtm',
+    'fnlMdfcDtm',
     'rcpMoCn',
     'acdnCausCn',
     'cstDmdCn',
-    'acdnRsCn',
-    'fnlMdfcDtm',
     'rptrNm',
-    'svCnrNm',
-    'brchNm',
     'imptaRsonNm',
     'cpsPrgsNm',
     'totCpsAmt',
     'kwCpsAmt',
     'insrcoCpsAmt',
+    'acdnRsCn',
   ];
 
   data.setFields(fields);
@@ -574,17 +608,14 @@ const initGrdMain = defineGrid((data, view) => {
   view.setColumnLayout(columnLayout);
 
   view.checkBar.visible = true; // create checkbox column
+  view.checkBar.exclusive = true; // 한 행만 체크 가능.
   view.rowIndicator.visible = true; // create number indicator column
 
   /* TODO : 연결페이지 개발전. 개발완료 시 변경. */
-  view.onCellItemClicked = (/* grid, index */) => {
-    alert('연결페이지 개발 전입니다.');
-    // router.push({
-    //   path: '/service/wwsnc-responsible-area-code-mgt',
-    //   // query: {
-    //   //   value: 'value1'
-    //   // },
-    // });
+  view.onCellItemClicked = async (/* grid, index */) => {
+    await modal({
+      component: 'WwsnbIndividualServiceListM',
+    });
   };
 });
 </script>
