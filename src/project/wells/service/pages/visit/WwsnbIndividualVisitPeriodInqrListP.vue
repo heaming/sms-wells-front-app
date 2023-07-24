@@ -137,7 +137,7 @@ async function fetchData() {
   view.resetCurrent();
 }
 async function fetchData2() {
-  const res = await dataService.get('/sms/wells/service/individual-visit-prd-inqr/management-csts', { params: { ...customerParam.value } });
+  const res = await dataService.get(`${baseUrl}/management-csts`, { params: { ...customerParam.value } });
   const list = res.data;
 
   totalCountForManagement.value.totalCount = list.length;
@@ -210,33 +210,27 @@ const initGrid1 = defineGrid((data, view) => {
 const initGrid2 = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'mngtYm' },
-    { fieldName: 'fxnPrtnrDvCd' },
+    { fieldName: 'mngrDvNm' },
     { fieldName: 'ogTpCd' },
-    { fieldName: 'fxnPrtnrNo' },
-    { fieldName: 'fxnPrtnrNm' },
+    { fieldName: 'prtnrNo' },
+    { fieldName: 'prtnrKnm' },
     { fieldName: 'mngerRglvlDvCd' },
-    { fieldName: 'chkPrdCd' },
+    { fieldName: 'vstPrdNm' },
     { fieldName: 'svHshdNo' },
-    { fieldName: 'exHsHdYn' },
-    { fieldName: 'hshdExcdCnfmYn' },
-    { fieldName: 'hshdExcdCd' },
-
   ];
-
   const columns = [
     { fieldName: 'mngtYm', header: t('MSG_TXT_MGT_YNM'), width: '100', styleName: 'text-center' },
-    { fieldName: 'fxnPrtnrDvCd', header: t('MSG_TXT_DIV'), width: '80', styleName: 'text-left' },
+    { fieldName: 'mngrDvNm', header: t('MSG_TXT_DIV'), width: '80', styleName: 'text-center' },
     { fieldName: 'ogTpCd', header: t('MSG_TXT_BLG'), width: '80', styleName: 'text-center' },
-    { fieldName: 'fxnPrtnrNo', header: t('MSG_TXT_EPNO'), width: '100', styleName: 'text-center' },
-    { fieldName: 'fxnPrtnrNm', header: t('MSG_TXT_EMPL_NM'), width: '100', styleName: 'text-center' },
+    { fieldName: 'prtnrNo', header: t('MSG_TXT_EPNO'), width: '100', styleName: 'text-center' },
+    { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '100', styleName: 'text-center' },
     { fieldName: 'mngerRglvlDvCd', header: t('MSG_TXT_RGLVL'), width: '80', styleName: 'text-center' },
-    { fieldName: 'chkPrdCd', header: t('MSG_TXT_SVC_BETWEEN'), width: '80', styleName: 'text-center' },
+    { fieldName: 'vstPrdNm', header: t('MSG_TXT_SVC_BETWEEN'), width: '80', styleName: 'text-center' },
     { fieldName: 'svHshdNo', header: t('MSG_TXT_HSHD_CD'), width: '100', styleName: 'text-center' },
   ];
 
   data.setFields(fields);
   view.setColumns(columns);
-
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
 });
