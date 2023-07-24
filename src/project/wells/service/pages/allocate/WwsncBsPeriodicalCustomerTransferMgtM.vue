@@ -505,6 +505,7 @@ async function onClickTfConfirm() {
     tfStatCd: row.tfStatCd,
     tfAkRsonCd: row.tfAkRsonCd,
     tfAkPrtnrOgTpCd: row.tfOgTpCd,
+    tfAkPrtnrOgId: row.tfOgId,
     tfAkPrtnrNo: row.tfPrtnrNo,
 
     bfchIchrBrchOgId: row.bfchIchrBrchOgId,
@@ -610,9 +611,9 @@ function initGrdMain(data, view) {
     { fieldName: 'tfPrtnrKnm' }, // 담당자 변경
     { fieldName: 'tfPrtnrNo' }, // 담당자 변경
 
-    { fieldName: 'tfFnCnfmdt' },
-    { fieldName: 'tfFnOgNm' },
-    { fieldName: 'tfFnPrtnrKnm' },
+    // { fieldName: 'tfFnCnfmdt' },
+    // { fieldName: 'tfFnOgNm' },
+    // { fieldName: 'tfFnPrtnrKnm' },
     { fieldName: 'mngerRglvlDvCd' },
 
     { fieldName: 'cstSvAsnNo' },
@@ -681,9 +682,10 @@ function initGrdMain(data, view) {
     { fieldName: 'tfPrtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '104', styleName: 'text-center' }, // 성명
 
     // 이관확정정보
-    { fieldName: 'tfFnCnfmdt', header: t('MSG_TXT_TF_DT'), width: '104', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd' }, // 이관일자
-    { fieldName: 'tfFnOgNm', header: t('MSG_TXT_BLG'), width: '104', styleName: 'text-center' }, // 소속
-    { fieldName: 'tfFnPrtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '104', styleName: 'text-center' }, // 성명
+    // { fieldName: 'tfFnCnfmdt', header: t('MSG_TXT_TF_DT')
+    // , width: '104', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd' }, // 이관일자
+    // { fieldName: 'tfFnOgNm', header: t('MSG_TXT_BLG'), width: '104', styleName: 'text-center' }, // 소속
+    // { fieldName: 'tfFnPrtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '104', styleName: 'text-center' }, // 성명
   ];
 
   data.setFields(fields);
@@ -730,11 +732,11 @@ function initGrdMain(data, view) {
       direction: 'horizontal',
       items: ['tfRqdt', 'tfAkRsonCd', 'tfOgNm', 'tfPrtnrKnm'],
     }, // 이관요청정보
-    {
-      header: t('MSG_TXT_TF_CNFM_INF'),
-      direction: 'horizontal',
-      items: ['tfFnCnfmdt', 'tfFnOgNm', 'tfFnPrtnrKnm'],
-    }, // 이관확정정보
+    // {
+    //   header: t('MSG_TXT_TF_CNFM_INF'),
+    //   direction: 'horizontal',
+    //   items: ['tfFnCnfmdt', 'tfFnOgNm', 'tfFnPrtnrKnm'],
+    // }, // 이관확정정보
   ]);
 
   view.onCellItemClicked = async (g, { column, itemIndex }) => {
