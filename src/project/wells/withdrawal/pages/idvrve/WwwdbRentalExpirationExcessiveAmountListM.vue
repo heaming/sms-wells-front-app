@@ -36,7 +36,7 @@
           :label="t('MSG_TXT_CNTR_DV')"
         >
           <kw-select
-            :model-value="searchParams.copnDvCd"
+            v-model="searchParams.copnDvCd"
             :options="codes.INDV_CRP_CNTR_DV_CD"
             first-option="all"
             first-option-value="ALL"
@@ -94,6 +94,12 @@
         :visible-rows="10"
         @init="initGrid"
       />
+      <kw-pagination
+        v-model:page-index="pageInfo.pageIndex"
+        v-model:page-size="pageInfo.pageSize"
+        :total-count="pageInfo.totalCount"
+        @change="fetchData"
+      />
     </div>
   </kw-page>
 </template>
@@ -102,7 +108,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { defineGrid, getComponentType, gridUtil, codeUtil, useDataService } from 'kw-lib'; // useMeta
+import { defineGrid, getComponentType, gridUtil, codeUtil, useDataService, useMeta } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es'; // isEmpty
 import dayjs from 'dayjs';
 
@@ -111,7 +117,7 @@ const defaultMonth = dayjs().subtract(0, 'month').format('YYYYMM');
 const grdMainRef = ref(getComponentType('KwGrid'));
 const dataService = useDataService();
 const { currentRoute } = useRouter();
-// const { getConfig } = useMeta();
+const { getConfig } = useMeta();
 const apiUrl = '/sms/wells/withdrawal/idvrve/rental-exn-examt';
 
 const codes = await codeUtil.getMultiCodes(
@@ -130,7 +136,7 @@ const searchParams = ref({
 const pageInfo = ref({
   totalCount: 0,
   pageIndex: 1,
-  // pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
+  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
 });
 let cachedParams;
 // -------------------------------------------------------------------------------------------------
@@ -138,6 +144,7 @@ let cachedParams;
 // -------------------------------------------------------------------------------------------------
 
 async function fetchData() {
+  cachedParams = { ...cachedParams, ...pageInfo.value };
   const res = await dataService.get(`${apiUrl}/paging`, { params: { ...cachedParams } });
   const { list: pages, pageInfo: pagingResult } = res.data;
 
@@ -238,15 +245,15 @@ const initGrid = defineGrid((data, view) => {
   });
 
   // 스크롤 아래까지 갈시 추가 sorting
-  view.onScrollToBottom = async (item) => {
-    if (pageInfo.value.pageIndex * pageInfo.value.pageSize <= item.getItemCount()) {
-      pageInfo.value.pageIndex += 1;
-      await fetchData();
-    }
-  };
+  // view.onScrollToBottom = async (item) => {
+  //   if (pageInfo.value.pageIndex * pageInfo.value.pageSize <= item.getItemCount()) {
+  //     pageInfo.value.pageIndex += 1;
+  //     await fetchData();
+  //   }
+  // };
 
   view.layoutByColumn('cntrNo').summaryUserSpans = [{ colspan: 3 }];
-  view.layoutByColumn('fnitCd').summaryUserSpans = [{ colspan: 7 }];
+  // view.layoutByColumn('fnitCd').summaryUserSpans = [{ colspan: 7 }];
 
   // data.setRows([
   //   // 예시데이터
