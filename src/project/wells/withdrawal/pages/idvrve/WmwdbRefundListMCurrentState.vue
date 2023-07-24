@@ -55,9 +55,13 @@
           first-option-value="ALL"
         >
           <kw-select
-            :model-value="[]"
-            :options="['일괄생성제외', '멤버십환불', '기변자동전금']"
+            v-model="searchParams.blkCrtDv"
+            first-option="all"
+            first-option-value="ALL"
+            :options="customCodes.BLK_CRT_DV"
           />
+          <!-- :model-value="['01','02','03']" -->
+          <!-- :options="['일괄생성제외', '멤버십환불', '기변자동전금']" -->
         </kw-search-item>
         <!-- 귀속환불구분 -->
         <kw-search-item
@@ -82,13 +86,16 @@
           />
         </kw-search-item>
         <!-- 판매유형상세 -->
+        <!-- 23.07.21 일반, 금융리스, '장기할부'-->
         <kw-search-item :label="t('MSG_TXT_SELL_TP_DTL')">
           <kw-select
-            :model-value="[]"
+            v-model="searchParams.sellTpDtlCd"
             first-option="all"
             first-option-value="ALL"
-            :options="['일반', '금융리스', '장기할부']"
+            :options="codes.SELL_TP_DTL_CD.filter((v) => v.codeId === '11' || v.codeId === '22' || v.codeId ==='25')"
           />
+          <!-- :model-value="[]" -->
+          <!-- :options="['일반', '금융리스', '장기할부']" -->
         </kw-search-item>
       </kw-search-row>
       <kw-search-row>
@@ -106,7 +113,6 @@
         <kw-search-item
           :label="t('MSG_TXT_P_DV')"
         >
-          <!-- 전체, 포인트만, 포인트 제외 중 택1 이것도 사용자 정의로 만들어야할듯.. -->
           <kw-select
             v-model="searchParams.dpMesCd"
             first-option="all"
@@ -265,12 +271,13 @@ const codes = await codeUtil.getMultiCodes(
   'RFND_DSB_DV_CD', // 귀속환불구분
   'SELL_TP_CD', // 판매유형
   'RVE_DV_CD', // 입금유형
-  'SELL_TP_DTL_CD',
+  'SELL_TP_DTL_CD', // 판매유형상세
 );
 
 const customCodes = {
+  BLK_CRT_DV: [{ codeId: '-', codeName: '일괄생성제외' }, { codeId: '-', codeName: '멤버쉽환불' }, { codeId: '-', codeName: '기변자동전금' }],
   RVE_DV_CD: [{ codeId: '-', codeName: '일반' }, { codeId: '09', codeName: '대손이관' }],
-  DP_MES_CD: [{ codeId: '07', codeName: '포인트만' }, { codeId: '-', codeName: '포인트 제외' }],
+  DP_MES_CD: [{ codeId: '06', codeName: '포인트만' }, { codeId: '-', codeName: '포인트 제외' }],
 };
 
 const searchParams = ref({
@@ -281,9 +288,11 @@ const searchParams = ref({
   // 일괄생성구분 은 설계자가 테이블 컬럼 매핑하지 못함. 알 수 없음이라고 작성되어 있음.
   rfndDsbDvCd: 'ALL', // 귀속환불구분
   sellTpCd: '2', // 판매유형
+  sellTpDtlCd: 'ALL', // 판매유형상세
   // 판매유형상세 은 설계자가 테이블 컬럼 매핑하지 못함. 알 수 없음이라고 작성되어 있음.
   rveDvCd: '-', // 대손구분
   dpMesCd: 'ALL', // 포인트구분
+  blkCrtDv: 'ALL', // 일괄생성구분
 });
 
 let cachedParams;
@@ -409,7 +418,7 @@ const initGrdMain1 = defineGrid((data, view) => {
     { fieldName: 'cardRfndCrcdnoEncr' }, // 카드번호
     { fieldName: 'cshRfndAcownNm' }, // 예금주, 현금 예금주
     { fieldName: 'cardRfndCrdcdAprno' }, // 카드 결제자
-    { fieldName: 'tmp1' }, // 판매유형
+    { fieldName: 'sellTpDtlCd' }, // 판매유형상세
     { fieldName: 'rveDvCd' }, // 입금유형
     { fieldName: 'cstNo' }, // 전금고객번호
     { fieldName: 'tmp2' }, // 전금고객명
@@ -479,7 +488,7 @@ const initGrdMain1 = defineGrid((data, view) => {
         }
       },
     },
-    { fieldName: 'tmp1', header: t('MSG_TXT_SEL_TYPE'), width: '100', styleName: 'text-center', options: codes.SELL_TP_CD },
+    { fieldName: 'sellTpDtlCd', header: t('MSG_TXT_SEL_TYPE'), width: '100', styleName: 'text-center', options: codes.SELL_TP_DTL_CD },
     { fieldName: 'rveDvCd', header: t('MSG_TXT_DP_TP'), width: '100', options: codes.RVE_DV_CD },
     { fieldName: 'cstNo', header: t('MSG_TXT_BLTF_CST_NO'), width: '180' },
     { fieldName: 'tmp2', header: t('MSG_TXT_BLTF_CST_NM'), width: '150' },
@@ -503,7 +512,7 @@ const initGrdMain1 = defineGrid((data, view) => {
     { // 전금내역 : 판매유형, 입금유형, 전금고객번호, 전금고객명
       header: t('MSG_TXT_BLTF_IZ'),
       direction: 'horizontal',
-      items: ['tmp1', 'rveDvCd', 'cstNo', 'tmp2'],
+      items: ['sellTpDtlCd', 'rveDvCd', 'cstNo', 'tmp2'],
     },
 
   ]);
