@@ -34,16 +34,16 @@
           v-model="cstKnm"
           label="대상자명"
           rules="required"
+          :readonly="!changeTarget"
           :validate-on-value-update="false"
-          :disable="!changeTarget"
         />
         <kw-select
           v-model="cssrIsDvCd"
           label="인증방법"
-          :options="codes.CSSR_IS_DV_CD"
-          :disable="!changeTarget"
-          :validate-on-value-update="false"
           rules="required"
+          :readonly="!changeTarget"
+          :options="codes.CSSR_IS_DV_CD"
+          :validate-on-value-update="false"
           @change="onChangeCssrIsDvCd"
         />
         <kw-input
@@ -52,27 +52,27 @@
           label="카드번호"
           mask="####-####-####-####"
           unmasked-value
-          :validate-on-value-update="false"
           rules="required|min:14"
           :readonly="!changeTarget"
+          :validate-on-value-update="false"
         />
         <kw-input
           v-if="cssrIsDvCd === '3'"
           v-model="cssrIsNo"
           label="사업자번호"
-          :maxlength="10"
-          :validate-on-value-update="false"
           rules="required|length:10"
+          :maxlength="10"
           :readonly="!changeTarget"
+          :validate-on-value-update="false"
         />
         <kw-input
           v-if="cssrIsDvCd === '4'"
           v-model="cssrIsNo"
           label="휴대전화번호"
-          unmasked-value
           mask="###-####-####"
-          :validate-on-value-update="false"
+          unmasked-value
           :readonly="!changeTarget"
+          :validate-on-value-update="false"
         />
       </kw-form>
     </kw-item-section>
