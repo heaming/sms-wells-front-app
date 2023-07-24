@@ -240,8 +240,10 @@
         </kw-form-item>
       </kw-form-row>
     </kw-form>
-
     <kw-action-top>
+      <template #left>
+        <kw-paging-info :total-count="pageInfo.totalCount" />
+      </template>
       <!-- 삭제 -->
       <kw-btn
         v-permission:delete
