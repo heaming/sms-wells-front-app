@@ -444,6 +444,7 @@ async function onSave() {
       element.csmbCostBorAmt2 = param.csmbCostBorAmt2;
       element.reqdCsBorAmt2 = param.reqdCsBorAmt2;
       element.dscDdctam = param.dscDdctam;
+
       element.filtDdctam = param.filtDdctam;
       element.rsgAplcDt = param.rsgAplcDt;
       element.rsgFshDt = param.rsgFshDt;
@@ -470,11 +471,10 @@ async function onSave() {
 }
 
 async function onUpdateValue() {
-  // console.log(param);
-  console.log(cancelDetailList.value);
+  console.log(cancelDetailList.value[idx.value]);
 }
 
-async function getCanceledInfo(cntrNo, cntrSn) {
+async function getCanceledInfo(cntrNo, cntrSn, row) {
   const { dm } = searchParams.value;
   const res = await dataService.get('/sms/wells/contract/changeorder/cancel-infos', { params: { cntrNo, cntrSn, dm } });
 
@@ -494,9 +494,13 @@ async function getCanceledInfo(cntrNo, cntrSn) {
     initComponent();
   }
 
-  res.data.bulkApplyYN = 'N';
-  cancelDetailList.value.push(res.data);
+  // set grid data
+  cancelDetailList.value.push(grdMainView.value.getValues(row));
+
+  // set searched data
   idx.value = 0;
+  res.data.bulkApplyYN = 'N';
+  Object.assign(cancelDetailList.value[idx.value], res.data);
 
   forceRender();
 }
@@ -548,7 +552,8 @@ function initGrid(data, view) {
     { fieldName: 'hooPrtnrNo', visible: false }, // [본부장사번]
     { fieldName: 'stplPtrm', visible: false }, // [의무기간]
     { fieldName: 'cntrPdStrtdt', visible: false }, // [매출년월 - 설치일자생성 시 들어감]
-    { fieldName: 'cntrAmt', visible: false }, // [등록비]
+    { fieldName: 'cntrAmt', visible: false }, // [계약금액]
+    { fieldName: 'rentalRgstCost', visible: false }, // [렌탈 등록비]
     { fieldName: 'cntramDscAmt', visible: false }, // [등록비 할인]
     { fieldName: 'cntrTam', visible: false }, // [약총액]
     { fieldName: 'pdBaseAmt', visible: false }, // [정상렌탈료]
@@ -565,8 +570,6 @@ function initGrid(data, view) {
     { fieldName: 'chgDt', visible: false }, // [교체일자]
     { fieldName: 'spmtSlAmt', visible: false }, // [추가매출]
     { fieldName: 'nomDscAmt', visible: false }, // [정상할인]
-    { fieldName: 'canAtrAmt', visible: false }, // [취소조정금액]
-    { fieldName: 'addSrv', visible: false }, // [부가서비스]
     { fieldName: 'spmtDscAmt', visible: false }, // [추가할인]
     { fieldName: 'slCtrAmt', visible: false }, // [매출조정금액]
     { fieldName: 'thmSlSumAmt', visible: false }, // [매출금액]
@@ -597,24 +600,6 @@ function initGrid(data, view) {
     { fieldName: 'disableChk', visible: false },
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
-  /*
-chgDt
-spmtSlAmt
-nomDscAmt
-canAtrAmt
-addSrv
-spmtDscAmt
-slCtrAmt
-thmSlSumAmt
-slSumVat
-slAggAmt
-dscAggAmt
-ctrAggAmt
-thmPaiamAmt
-thmSrvAmt
-eotPcamBlam
-쓰이는곳 찾아볼것
-*/
 
   data.setFields(fields);
   view.setColumns(columns);
@@ -626,7 +611,7 @@ eotPcamBlam
   view.onCellClicked = async (g, clickData) => {
     const { cntrNo, cntrSn, cntrDtlStatCd } = g.getValues(clickData.dataRow);
     if (cntrDtlStatCd.indexOf('3') === 0) {
-      await getCanceledInfo(cntrNo, cntrSn);
+      await getCanceledInfo(cntrNo, cntrSn, clickData.dataRow);
     }
   };
 }

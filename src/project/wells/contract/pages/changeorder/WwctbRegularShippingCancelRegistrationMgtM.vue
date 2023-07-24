@@ -426,7 +426,7 @@
         />
         <kw-input
           v-model="inputDetail.sel1Text"
-          class="w100"
+          class="w80"
           regex="num"
           maxlength="2"
           @update:model-value="onChangeTextforSelect('sel1')"
@@ -441,7 +441,7 @@
         />
         <kw-input
           v-model="inputDetail.sel2Text"
-          class="w100"
+          class="w80"
           regex="num"
           maxlength="2"
           @update:model-value="onChangeTextforSelect('sel2')"
