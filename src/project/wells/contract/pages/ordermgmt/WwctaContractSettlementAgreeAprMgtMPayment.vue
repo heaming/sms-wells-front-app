@@ -45,6 +45,7 @@
     @approved="onIssuedVirtualAccount"
   />
   <cash-sales-receipt
+    v-if="cashSalesReceiptInfo"
     ref="cashRef"
     v-model="cashSalesReceiptInfo"
   />
@@ -167,8 +168,13 @@ function onIssuedVirtualAccount(stlmUpdateInfo) {
 // const cashSalesStlmRels = computed(() => stlmRels.value
 //   .filter((rel) => VIRTUAL_ACCOUNT_ISSUE_DP_TP_CD === rel.dpTpCd));
 
-function getDefaultReceiptInfo(cntrCstInfo) {
+function getDefaultReceiptInfo(vacStlmId, cntrCstInfo) {
+  if (!vacStlmId) {
+    return;
+  }
   const normalized = {
+    /* 결재 기반으로 생성이 되지 않습니다. 계약 결제 관계 기반으로 생성 될 예정이나, back office 에서 처리할 것입니다. */
+    cntrStlmId: vacStlmId,
     cstKnm: '',
     cssrIsDvCd: '',
     cssrIsNo: '',
@@ -185,7 +191,7 @@ function getDefaultReceiptInfo(cntrCstInfo) {
   return normalized;
 }
 
-const cashSalesReceiptInfo = ref(getDefaultReceiptInfo(props.contractor));
+const cashSalesReceiptInfo = ref(getDefaultReceiptInfo(vacStlm.value?.cntrStlmId, props.contractor));
 
 /* expose */
 const spayRef = ref();

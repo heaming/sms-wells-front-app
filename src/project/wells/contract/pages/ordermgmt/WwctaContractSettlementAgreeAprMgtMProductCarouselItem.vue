@@ -258,9 +258,13 @@ async function getRequestData() {
       }
       return adrRef.getUpdateShippingAddressInfo();
     });
+  const cssrIss = Object.values(paymentsInfoUpdateRefs.value)
+    .filter((paymentRef) => (paymentRef && paymentRef.cashSalesReceiptInfo))
+    .map((paymentRef) => paymentRef.cashSalesReceiptInfo);
   return {
     stlmBases,
     adrpcs,
+    cssrIss,
   };
 }
 
