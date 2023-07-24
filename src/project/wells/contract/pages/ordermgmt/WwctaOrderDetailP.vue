@@ -26,7 +26,7 @@
           <p>{{ frmMainData.cntrDtlNo }}</p>
         </kw-form-item>
         <!-- 계약상품리스트 -->
-        <slot v-if="props.sellTpCd !== '6'">
+        <slot v-if="frmMainData.sellTpCd !== '6'">
           <kw-form-item :label="$t('MSG_TXT_CNTRCT_PD_LIST')">
             <kw-select
               v-model="frmMainData.cntrDtlNo"
@@ -331,6 +331,7 @@ const searchParams = ref({
 
 const frmMainData = ref({
   cntrDtlNo: `${props.cntrNo}-${props.cntrSn}`, // 계약상세번호
+  sellTpCd: props.sellTpCd, // 판매유형코드
   pdNm: '', // 상품명
   cstKnm: '', // 고객명
   cntrCstNo: '', // 고객번호
@@ -379,7 +380,7 @@ async function fetchDataContractLists() {
   cachedParams = cloneDeep(searchParams.value);
   console.log(cachedParams);
   res = await dataService.get('/sms/wells/contract/contracts/order-details/customer-bases/contract-lists', { params: cachedParams });
-  // console.log(res.data);
+  console.log(res.data);
   optionList.value = res.data;
 
   // eslint-disable-next-line no-use-before-define
@@ -397,6 +398,7 @@ async function fetchDataCustomerBase() {
   isVacInfo.value = false;
   if (res.data.length > 0) {
     frmMainData.value.cntrDtlNo = res.data[0].cntrDtlNo; // 계약상세번호
+    frmMainData.value.sellTpCd = res.data[0].sellTpCd; // 판매유형코드
     frmMainData.value.pdNm = res.data[0].pdNm; // 상품명
     frmMainData.value.cstKnm = res.data[0].cstKnm; // 고객명
     frmMainData.value.cntrCstNo = res.data[0].cntrCstNo; // 고객번호
@@ -501,14 +503,14 @@ async function currentTabFetchData() {
       await tabSellInfoRef.value.setDatas(
         searchParams.value.cntrNo,
         searchParams.value.cntrSn,
-        props.sellTpCd,
+        frmMainData.value.sellTpCd,
       );
       break;
     case 'dpIz': // 입금내역
       await tabDpIzRef.value.setDatas(
         searchParams.value.cntrNo,
         searchParams.value.cntrSn,
-        props.sellTpCd,
+        frmMainData.value.sellTpCd,
         props.cntrCstNo,
       );
       break;
@@ -547,6 +549,11 @@ async function onSelectCntrctPdList() {
   // console.log(cntrSn);
   searchParams.value.cntrNo = cntrNo;
   searchParams.value.cntrSn = cntrSn;
+
+  const returnOpt = optionList.value.filter((v) => v.cntrDtlNo === frmMainData.value.cntrDtlNo);
+  if (!isEmpty(returnOpt[0].sellTpCd)) {
+    frmMainData.value.sellTpCd = returnOpt[0].sellTpCd;
+  }
 
   await currentTabFetchData();
 }
