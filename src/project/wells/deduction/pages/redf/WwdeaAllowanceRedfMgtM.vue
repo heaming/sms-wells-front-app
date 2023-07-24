@@ -193,6 +193,17 @@
         <kw-btn
           primary
           dense
+          :label="t('수당/연체 되물림(팝업) 테스트')"
+          @click="onClickTest"
+        />
+        <kw-separator
+          vertical
+          inset
+          spaced
+        />
+        <kw-btn
+          primary
+          dense
           :label="t('MSG_BTN_REDF_OJ_ALL_CRT')"
           @click="onClickRedfObjectCreate('all')"
         />
@@ -232,7 +243,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import dayjs from 'dayjs';
-import { codeUtil, getComponentType, gridUtil, useDataService, router, useMeta, modal, alert } from 'kw-lib';
+import { codeUtil, getComponentType, gridUtil, useDataService, router, useMeta, modal } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 
 // -------------------------------------------------------------------------------------------------
@@ -394,6 +405,23 @@ async function onClickExcelDownload() {
   });
 }
 
+/* TODO: 어느 화면에서 호출하는지 없어서 우선 수당(실적) 되물림 관리 화면에 붙여놓음
+* 이규병 파트장님 요청 ( 테스트용 )
+*/
+async function onClickTest() {
+  // const { result, payload } =
+  await modal({
+    component: 'WwdeaAllowanceDelinquentRedemptionFeeListP',
+    componentProps: {
+      prtnrNo: '1331699',
+    //   ogTpCd: userInfo.ogTpCd,
+    },
+  });
+  // if (result) {
+  //   searchParams.value.prtnrNo = payload.prtnrNo;
+  // }
+}
+
 /* 되물림 대상(실적) 생성 */
 async function onClickRedfObjectCreate(param) {
   await modal({
@@ -409,8 +437,7 @@ async function onClickPageMove(routerType) {
   pageUrl = '';
   // '/fee/zwded-pnpyam-reg',
   if (routerType === 'SLS') {
-    await alert(t('현재 미개발된 화면으로 이동 불가합니다.'));
-    return;
+    pageUrl = '/fee/wwdea-partner-redf-object-agrg-list';
   } if (routerType === 'B2B') {
     pageUrl = '/fee/wwdea-sole-distributor-mgt';
   } else if (routerType === 'HM') {
