@@ -70,9 +70,8 @@ import { cloneDeep, isEmpty } from 'lodash-es';
 import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
 
 const { t } = useI18n();
-const { alert } = useGlobal();
+const { alert, modal } = useGlobal();
 const dataService = useDataService();
-
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -120,7 +119,13 @@ async function onClickSearch() {
 
 // 일괄변경 등록 버튼 클릭
 async function onClickBatchChangeReg() {
-  console.log('일괄변경 등록 버튼 클릭');
+  const { result } = await modal({
+    component: 'WwctbSinglePaymentBulkChangeMgtP',
+    // componentProps: { apiUrl, templateId, extraData },
+  });
+  if (result) {
+    await onClickSearch();
+  }
 }
 
 // -------------------------------------------------------------------------------------------------
