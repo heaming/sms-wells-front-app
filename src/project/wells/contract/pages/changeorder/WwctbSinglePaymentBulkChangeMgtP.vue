@@ -69,12 +69,10 @@
         <kw-form-item
           v-if="saveParams.procsDv==='702'"
           :label="$t('MSG_TXT_CANC_DT')"
-          required
         >
           <kw-date-picker
             v-model="saveParams.cancDt"
             :label="$t('MSG_TXT_CANC_DT')"
-            rules="required"
           />
         </kw-form-item>
         <!-- 컨택코드 -->
