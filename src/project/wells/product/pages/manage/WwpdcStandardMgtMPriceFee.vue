@@ -173,12 +173,12 @@ async function initGridRows() {
       defaultFields.value,
     ));
     rows?.map((row) => {
-      row[pdConst.PRC_FNL_ROW_ID] = row[pdConst.PRC_FNL_ROW_ID] ?? row.pdPrcFnlDtlId;
       row[pdConst.PRC_STD_ROW_ID] = row[pdConst.PRC_STD_ROW_ID] ?? row.pdPrcDtlId;
       const stdRow = stdRows?.find((item) => (row[pdConst.PRC_STD_ROW_ID]
                                                 && item[pdConst.PRC_STD_ROW_ID] === row[pdConst.PRC_STD_ROW_ID])
                                             || (row.pdPrcDtlId && item.pdPrcDtlId === row.pdPrcDtlId));
       row = pdMergeBy(row, stdRow);
+      row[pdConst.PRC_FNL_ROW_ID] = row[pdConst.PRC_FNL_ROW_ID] ?? row.pdPrcFnlDtlId;
       if (isEmpty(row[pdConst.PRC_STD_ROW_ID])) row[pdConst.PRC_STD_ROW_ID] = row.pdPrcDtlId;
       // console.log('WwpdcStandardMgtMPriceFee - initGridRows - row : ', row);
       row.sellTpCd = currentInitData.value[pdConst.TBL_PD_BAS]?.sellTpCd;
@@ -225,7 +225,7 @@ async function initProps() {
 
 await initProps();
 
-onMounted(async () => {
+onActivated(async () => {
   // TODO 탭사용시 그리드 사라짐 문제로 아래 코드 임시조치
   grdMainRef.value.getView().displayOptions.rowHeight = -1;
 });
