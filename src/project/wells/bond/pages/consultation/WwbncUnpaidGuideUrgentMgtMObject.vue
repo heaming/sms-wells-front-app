@@ -148,19 +148,21 @@
       </kw-search-item>
       <kw-search-item
         :label="t('MSG_TXT_WK_DT')"
+        :required="!isState"
       >
         <kw-date-picker
           v-model="searchParams.wkDt"
           :label="t('MSG_TXT_WK_DT')"
-          rules="required"
+          :rules="!isState ? 'required' : ''"
         />
       </kw-search-item>
       <kw-search-item
         :label="t('MSG_TXT_PY_TMLM')"
+        :required="!isState"
       >
         <kw-date-picker
           v-model="searchParams.pyTmlmDt"
-          rules="required"
+          :rules="!isState ? 'required' : ''"
           :label="t('MSG_TXT_PY_TMLM')"
         />
       </kw-search-item>
@@ -471,13 +473,13 @@ const initObjectGrid = defineGrid((data, view) => {
     { fieldName: 'pdgrpNm', header: t('MSG_TXT_PRD_GRP'), width: '110', styleName: 'text-center' },
     { fieldName: 'pdNm', header: t('MSG_TXT_GOODS_NM'), width: '130', styleName: 'text-center' },
     { fieldName: 'fnlPyDate', header: t('MSG_TXT_RECT_PY_D'), width: '120', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'bnkCd', header: t('MSG_TXT_VT_AC_BNK'), width: '110' },
-    { fieldName: 'bnkNm', header: t('MSG_TXT_VAC_BNK_NM'), width: '110' },
+    { fieldName: 'bnkCd', header: t('MSG_TXT_VT_AC_BNK'), width: '110', styleName: 'text-center' },
+    { fieldName: 'bnkNm', header: t('MSG_TXT_VAC_BNK_NM'), width: '110', styleName: 'text-center' },
     { fieldName: 'vacNo', header: t('MSG_TXT_VT_AC_NO'), width: '120', styleName: 'text-center' },
-    { fieldName: 'achldrNm', header: t('MSG_TXT_ACHLDR'), width: '110' },
+    { fieldName: 'achldrNm', header: t('MSG_TXT_ACHLDR'), width: '110', styleName: 'text-center' },
     { fieldName: 'pyTmlmDt', header: t('MSG_TXT_PY_TMLM'), width: '120', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'wkDt', header: t('MSG_TXT_WK_OR_CNFM_DT'), width: '120', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'clctamPrtnrNm', header: t('MSG_TXT_CLCTAM_PSIC'), width: '110' },
+    { fieldName: 'clctamPrtnrNm', header: t('MSG_TXT_CLCTAM_PSIC'), width: '110', styleName: 'text-center' },
     { fieldName: 'ofrmTnoVal', header: t('MSG_TXT_CLCTAM_ICHR_CTPLC'), width: '120', styleName: 'text-center', editor: { type: 'telephone' } },
 
   ];
