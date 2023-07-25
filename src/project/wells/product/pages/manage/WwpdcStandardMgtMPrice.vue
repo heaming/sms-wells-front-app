@@ -153,6 +153,30 @@ async function init() {
   if (cmpFeeRef.value?.init) await cmpFeeRef.value.init();
 }
 
+async function getInitPriceDefault(prcds, prcfds) {
+  if (!prcds || !prcds.length || !prcfds || !prcfds.length) {
+    return prcfds;
+  }
+  // 저장전 할인적용가격, 최종가 재계산
+  prcfds?.forEach((prcRow) => {
+    // 기본가
+    const basVal = Number(prcds
+      .find((stdRow) => stdRow[pdConst.PRC_STD_ROW_ID] === prcRow[pdConst.PRC_STD_ROW_ID])?.basVal ?? 0);
+      // 조정 전 가격 ( 01: 정액, 02: 정률)
+    if (isEmpty(prcRow.cndtFxamFxrtDvCd) || prcRow.cndtFxamFxrtDvCd === '01') {
+      // 할인적용가격 = 기본가 + 조정가
+      prcRow.prcBefAdj = basVal + Number(prcRow.cndtDscPrumVal ?? 0);
+    } else if (prcRow.cndtFxamFxrtDvCd === '02') {
+      // 할인적용가격 = 기본가 + 조정률
+      const calPrc = Math.round((basVal * Number(prcRow.cndtDscPrumVal ?? 0)) / 100, 2);
+      prcRow.prcBefAdj = Number(basVal) + calPrc;
+    }
+    // 최종가
+    prcRow.fnlVal = Number(prcRow.prcBefAdj ?? 0) + Number(prcRow.ctrVal ?? 0);
+  });
+  return prcfds;
+}
+
 async function getSaveData() {
   // 미수정시 초기값 그대로 반환.
   if (!(await isModifiedProps())) {
@@ -182,22 +206,7 @@ async function getSaveData() {
   subList[prcfd] = pdMergeBy(subList[prcfd], fnls?.[prcfd], pdConst.PRC_FNL_ROW_ID);
   // console.log('WwpdcStandardMgtMPrice - getSaveData - subList[prcfd] : ', subList[prcfd]);
   // 저장전 할인적용가격, 최종가 재계산
-  subList[prcfd]?.forEach((prcRow) => {
-    // 기본가
-    const basVal = Number(subList[prcd]
-      .find((stdRow) => stdRow[pdConst.PRC_STD_ROW_ID] === prcRow[pdConst.PRC_STD_ROW_ID])?.basVal ?? 0);
-      // 조정 전 가격 ( 01: 정액, 02: 정률)
-    if (isEmpty(prcRow.cndtFxamFxrtDvCd) || prcRow.cndtFxamFxrtDvCd === '01') {
-      // 할인적용가격 = 기본가 + 조정가
-      prcRow.prcBefAdj = basVal + Number(prcRow.cndtDscPrumVal ?? 0);
-    } else if (prcRow.cndtFxamFxrtDvCd === '02') {
-      // 할인적용가격 = 기본가 + 조정률
-      const calPrc = Math.round((basVal * Number(prcRow.cndtDscPrumVal ?? 0)) / 100, 2);
-      prcRow.prcBefAdj = Number(basVal) + calPrc;
-    }
-    // 최종가
-    prcRow.fnlVal = Number(prcRow.prcBefAdj ?? 0) + Number(prcRow.ctrVal ?? 0);
-  });
+  subList[prcfd] = await getInitPriceDefault(subList[prcd], subList[prcfd]);
 
   // console.log('WwpdcStandardMgtMPrice - getSaveData - 3 - subList[prcfd] : ', subList[prcfd]);
   const fees = await cmpFeeRef.value?.getSaveData();
@@ -295,7 +304,9 @@ async function validateProps() {
 async function initProps() {
   const { pdCd, initData, codes } = props;
   currentPdCd.value = pdCd;
-  currentInitData.value = cloneDeep(initData);
+  const priceDatas = cloneDeep(initData);
+  priceDatas[prcfd] = await getInitPriceDefault(priceDatas[prcd], priceDatas[prcfd]);
+  currentInitData.value = priceDatas;
   currentCodes.value = cloneDeep(codes);
   await fetchData();
 }
@@ -325,7 +336,9 @@ await initProps();
 watch(() => props.pdCd, (pdCd) => { currentPdCd.value = pdCd; });
 watch(() => props.initData, (initData) => {
   if (!isEqual(currentInitData.value, initData)) {
-    currentInitData.value = cloneDeep(initData);
+    const priceDatas = cloneDeep(initData);
+    priceDatas[prcfd] = getInitPriceDefault(priceDatas[prcd], priceDatas[prcfd]);
+    currentInitData.value = priceDatas;
   }
 }, { deep: true });
 watch(() => props.codes, (codes) => { currentCodes.value = cloneDeep(codes); }, { deep: true });
