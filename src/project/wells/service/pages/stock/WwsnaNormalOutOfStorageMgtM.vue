@@ -15,12 +15,14 @@
 <template>
   <kw-page>
     <kw-search
+      :cols="4"
       @search="onClickSearch"
     >
       <kw-search-row>
         <!-- 출고요청접수 -->
         <kw-search-item
           :label="$t('MSG_TXT_OSTR_AK_RCP')"
+          :colspan="2"
         >
           <kw-select
             v-model="searchParams.ostrOjWareNo"
@@ -81,7 +83,6 @@
         </kw-search-item>
         <!-- 출고요청창고 -->
         <kw-search-item
-          :colspan="1"
           :label="$t('MSG_TXT_OSTR_AK_WARE')"
         >
           <kw-select
