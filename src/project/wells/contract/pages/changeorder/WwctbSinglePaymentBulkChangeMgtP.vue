@@ -442,6 +442,8 @@ async function onClickSave() {
         alert(t('MSG_ALT_INPUT_ITEM1_OR_ITEM2', [t('MSG_TXT_ISTM_FNT'), t('MSG_TXT_MEMBRSHP_TRSFR')]));
         return;
       }
+      alert(t('서비스 확인 중 입니다,'));
+      return;
     } else if (saveParams.value.procsDv === '705') {
       // TODO : AS-IS처리내역, 매핑안됨
       if (isEmpty(saveParams.value.fxamYnCh)) {
@@ -513,6 +515,13 @@ async function onClickSave() {
         alert(t('MSG_ALT_NOT_MODIFY_NO_CRP_UC_AMT', [changedRows[i].cntrDtlNo])); // 법인 미수금이 존재하지 않습니다
       }
       // TODO : 법인미수입금대상 작업 구분(LCST18) = 'B' 이면 이미 변경된 대상으로 수정불가 컬럼 확인 필요
+      alert(t('서비스 확인 중 입니다.'));
+      return;
+    } else if (saveParams.value.procsDv === '711') {
+      if (isEmpty(changedRows[i].modBfsvcBzsDvCd) && isEmpty(changedRows[i].modSplyBzsDvCd)) {
+        alert(t('MSG_ALT_INPUT_ITEM1_OR_ITEM2', [`${t('MSG_TXT_MOD')} ${t('MSG_TXT_CLSF_BS')}`, `${t('MSG_TXT_MOD')} ${t('MSG_TXT_CLSF_BUS')}`]));
+        return;
+      }
     }
   }
 
