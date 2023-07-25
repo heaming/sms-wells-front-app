@@ -357,7 +357,7 @@ searchParams.value.edStrDt = dayjs().format('YYYYMMDD');
 const itemKndCdD = ref();
 
 const onChangeItmKndCd = async () => {
-  const res = await dataService.get('/sms/wells/service/individual-ware-ostrs/filter-items', { params: searchParams.value });
+  const res = await dataService.get('/sms/wells/service/as-consumables-stores/filter-items', { params: searchParams.value });
   itemKndCdD.value = res.data;
 };
 
