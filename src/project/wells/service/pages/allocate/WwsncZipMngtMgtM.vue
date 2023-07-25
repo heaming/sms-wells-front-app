@@ -347,7 +347,7 @@ const initGridMain = defineGrid((data, view) => {
       width: '150',
       styleName: 'text-center',
       options: customCodes.DGR_2_LEVL_OG,
-      optionValue: 'ogCd',
+      optionValue: 'ogId',
       optionLabel: 'ogNm',
       editor: { type: 'list' },
     },
