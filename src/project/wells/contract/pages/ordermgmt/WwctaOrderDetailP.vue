@@ -163,7 +163,7 @@
                 color="placeholder"
                 outline
               />
-              <p class="ml8">
+              <p class="m18">
                 {{ frmMainData.vacInfo }}
               </p>
               <kw-separator
