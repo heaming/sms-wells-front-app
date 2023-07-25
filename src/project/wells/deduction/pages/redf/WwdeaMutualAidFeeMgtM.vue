@@ -352,7 +352,9 @@ const initGrid = defineGrid((data, view) => {
       styleName: 'text-center',
       displayCallback(grid, index) {
         const { cntrNo, cntrSn } = grid.getValues(index.itemIndex);
-        return `${cntrNo}-${cntrSn}`;
+        if (!isEmpty(cntrNo)) {
+          return `${cntrNo}-${cntrSn}`;
+        }
       } }, // 계약상세번호
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '150', styleName: 'text-left' }, // 상품명
     { fieldName: 'istDt', header: t('MSG_TXT_INST_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' }, // 설치일

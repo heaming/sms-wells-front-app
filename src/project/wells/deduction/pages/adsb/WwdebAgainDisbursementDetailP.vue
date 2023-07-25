@@ -69,7 +69,7 @@
 // -------------------------------------------------------------------------------------------------
 import { codeUtil, useMeta, getComponentType, useDataService, gridUtil } from 'kw-lib';
 import {
-  cloneDeep,
+  cloneDeep, isEmpty,
 } from 'lodash-es';
 
 /**
@@ -214,7 +214,9 @@ function initGrid(data, view) {
       styleName: 'text-center ',
       displayCallback(grid, index) {
         const { cntrNo, cntrSn } = grid.getValues(index.itemIndex);
-        return `${cntrNo}-${cntrSn}`;
+        if (!isEmpty(cntrNo)) {
+          return `${cntrNo}-${cntrSn}`;
+        }
       } },
     { fieldName: 'cstKnm',
       header: t('MSG_TXT_CST_NM'), // 고객명
