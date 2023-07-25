@@ -474,6 +474,7 @@
           :label="$t('MSG_TXT_CANCEL_BULK_APPLY')"
           :false-value="N"
           :true-value="Y"
+          :disable="props.sametype==='N'"
         />
       </kw-form-item>
     </kw-form-row>
@@ -551,6 +552,7 @@ const emits = defineEmits([
 
 const props = defineProps({
   childDetail: { type: Object, required: true },
+  sametype: { type: String, required: true },
 });
 const searchDetail = reactive(props.childDetail);
 const inputDetail = ref({
