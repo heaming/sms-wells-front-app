@@ -16,7 +16,6 @@
   <kw-page>
     <kw-search
       @search="onClickSearch"
-      @reset="fetchDefaultData"
     >
       <kw-search-row>
         <!-- 출고요청접수 -->
@@ -144,8 +143,8 @@ const { modal } = useGlobal();
 const { t } = useI18n();
 
 const dataService = useDataService();
-const baseURI = '/sms/wells/service/normal-outofstorages';
-const wareURI = `${baseURI}/warehouses`;
+const baseURI = '/sms/wells/service/normal-out-of-storages';
+const wareURI = `${baseURI}/ware-houses`;
 const grdMainRef = ref(getComponentType('KwGrid'));
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -181,7 +180,7 @@ const pageInfo = ref({
 });
 
 async function fetchData() {
-  const res = await dataService.get(baseURI, { params: { ...cachedParams, ...pageInfo.value } });
+  const res = await dataService.get(`${baseURI}/paging`, { params: { ...cachedParams, ...pageInfo.value } });
   const { list: searchData, pageInfo: pagingResult } = res.data;
 
   pageInfo.value = pagingResult;
