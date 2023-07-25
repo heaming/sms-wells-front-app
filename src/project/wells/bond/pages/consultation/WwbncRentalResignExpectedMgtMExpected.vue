@@ -432,10 +432,10 @@ const initExpectedGrid = defineGrid((data, view) => {
         const ret = {};
         const { excdYn } = grid.getValues(dataCell.index.itemIndex);
         if (excdYn === 'Y') {
-          ret.editable = false;
+          ret.editable = true;
         }
         if (excdYn === 'N') {
-          ret.editable = true;
+          ret.editable = false;
           grid.setValue(dataCell.index.itemIndex, 'authRsgExcdRsonCd', '');
         }
         return ret;
