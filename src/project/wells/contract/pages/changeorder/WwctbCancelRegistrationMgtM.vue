@@ -427,7 +427,7 @@ async function onSave() {
       return;
     }
 
-    const inValidIdx = cancelDetailList.value.findIndex((v) => v.isSearch !== 'Y');
+    const inValidIdx = cancelDetailList.value.findIndex((v) => v.sellTpCd !== '1' && v.isSearch !== 'Y');
     if (inValidIdx >= 0) {
       await notify(`[${inValidIdx + 1}]번째 - 취소사항 조회를 해주세요.`);
       return;
