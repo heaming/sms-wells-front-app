@@ -20,6 +20,7 @@
       <span class="ml8">{{ t('MSG_TXT_UNIT_WON') }}</span>
     </template>
     <kw-btn
+      v-show="onShowSave"
       :label="$t('MSG_BTN_SAVE')"
       grid-action
       dense
@@ -82,7 +83,6 @@ import { cloneDeep } from 'lodash-es';
 const { modal, notify, alert } = useGlobal();
 const { t } = useI18n();
 const dataService = useDataService();
-
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -91,6 +91,7 @@ const grdMainRef = ref(getComponentType('KwGrid'));
 const grdSubRef = ref(getComponentType('KwGrid'));
 const mainTotalCount = ref(0);
 const subTotalCount = ref(0);
+const onShowSave = ref(false);
 
 const codes = await codeUtil.getMultiCodes(
   'COD_YN',
@@ -103,7 +104,6 @@ const emits = defineEmits([
 
 async function adjustObject() {
   // 유가증권 제외
-  debugger;
   const res = await dataService.get('/sms/wells/closing/expense/marketable-securities-exclude/adjust-object', { params: cachedParams });
 
   mainTotalCount.value = res.data.length;
@@ -124,12 +124,29 @@ async function withholdingTaxAdjustList() {
   view.resetCurrent();
 }
 
+async function settlementOfWithholdingTax() {
+  const res = await dataService.get('/sms/wells/closing/expense/marketable-securities-exclude/withholding-tax', { params: cachedParams });
+
+  const view = grdMainRef.value.getView();
+  if (res.data === 'N') {
+    onShowSave.value = false;
+    view.columnByName('opcsAdjBtn').visible = true;
+  } else {
+    onShowSave.value = true;
+    view.columnByName('opcsAdjBtn').visible = true;
+  }
+}
+
 async function fetchData() {
   adjustObject();
   withholdingTaxAdjustList();
+  settlementOfWithholdingTax();
 }
 
 async function setData(paramData) {
+  if (grdMainRef.value?.getView()) gridUtil.reCreateGrid(grdMainRef.value.getView());
+  if (grdSubRef.value?.getView()) gridUtil.reCreateGrid(grdSubRef.value.getView());
+
   cachedParams = cloneDeep(paramData);
   fetchData();
 }

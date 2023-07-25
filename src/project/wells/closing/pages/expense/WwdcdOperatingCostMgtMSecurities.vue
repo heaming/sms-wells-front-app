@@ -19,6 +19,7 @@
       />
     </template>
     <kw-btn
+      v-show="onShowSave"
       dense
       grid-action
       :label="$t('MSG_BTN_SAVE')"
@@ -97,6 +98,7 @@ const mainTotalCount = ref(0);
 const subTotalCount = ref(0);
 const grdThirdRef = ref(getComponentType('KwGrid'));
 const grdFourthRef = ref(getComponentType('KwGrid'));
+const onShowSave = ref(false);
 
 const codes = await codeUtil.getMultiCodes(
   'COD_YN',
@@ -121,7 +123,6 @@ const emits = defineEmits([
 
 async function adjustObject() {
   // 유가증권
-  debugger;
   const res = await dataService.get('/sms/wells/closing/expense/marketable-securities/adjust-object', { params: cachedParams });
 
   mainTotalCount.value = res.data.length;
@@ -141,12 +142,29 @@ async function withholdingTaxAdjustList() {
   view.resetCurrent();
 }
 
+async function settlementOfWithholdingTax() {
+  const res = await dataService.get('/sms/wells/closing/expense/marketable-securities/withholding-tax', { params: cachedParams });
+
+  const view = grdThirdRef.value.getView();
+  if (res.data === 'N') {
+    onShowSave.value = false;
+    view.columnByName('opcsAdjBtn').visible = true;
+  } else {
+    onShowSave.value = true;
+    view.columnByName('opcsAdjBtn').visible = true;
+  }
+}
+
 async function fetchData() {
   adjustObject();
   withholdingTaxAdjustList();
+  settlementOfWithholdingTax();
 }
 
 async function setData(paramData) {
+  if (grdThirdRef.value?.getView()) gridUtil.reCreateGrid(grdThirdRef.value.getView());
+  if (grdFourthRef.value?.getView()) gridUtil.reCreateGrid(grdFourthRef.value.getView());
+
   cachedParams = cloneDeep(paramData);
   fetchData();
 }
@@ -333,7 +351,7 @@ const initGrdThird = defineGrid((data, view) => {
     cachedParams.adjOgId = adjOgId;// 총괄단 아이디
     cachedParams.dgr1LevlOgId = dgr1LevlOgId;
     cachedParams.adjPrtnrNo = adjPrtnrNo;
-    debugger;
+
     if (column === 'opcsAdjBtn') {
       await modal({
         component: 'WwdcdMarketableSecuritiesMgtP',
