@@ -105,6 +105,8 @@ async function onSettlementConfirmed() {
   if (!reqData) { return; }
   stlmsUpdateRequestBody.stlmBases = reqData.stlmBases;
   stlmsUpdateRequestBody.adrpcs = reqData.adrpcs;
+  stlmsUpdateRequestBody.cssrIss = reqData.cssrIss;
+
   const res = await dataService.post('/sms/wells/contract/contracts/settlements/confirm', stlmsUpdateRequestBody);
 
   if (res.data.result === true) {

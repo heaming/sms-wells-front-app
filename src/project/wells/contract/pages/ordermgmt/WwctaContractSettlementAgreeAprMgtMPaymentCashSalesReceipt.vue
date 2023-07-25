@@ -24,28 +24,55 @@
         class="column gap-lg"
       >
         <kw-checkbox
-          :model-value="changeTarget"
+          v-model="changeTarget"
           class="self-start"
           label="대상변경"
           boolean-value
-          @update:model-value="notifyWIP"
+          @update:model-value="onChangeChangeTarget"
         />
         <kw-input
           v-model="cstKnm"
           label="대상자명"
-          :disable="!changeTarget"
+          rules="required"
+          :readonly="!changeTarget"
+          :validate-on-value-update="false"
         />
         <kw-select
           v-model="cssrIsDvCd"
           label="인증방법"
+          rules="required"
+          :readonly="!changeTarget"
           :options="codes.CSSR_IS_DV_CD"
-          :disable="!changeTarget"
+          :validate-on-value-update="false"
+          @change="onChangeCssrIsDvCd"
         />
         <kw-input
-          v-if="cssrIsDvCd"
+          v-if="cssrIsDvCd === '1'"
           v-model="cssrIsNo"
-          label="인증번호"
-          :disable="!changeTarget"
+          label="카드번호"
+          mask="####-####-####-####"
+          unmasked-value
+          rules="required|min:14"
+          :readonly="!changeTarget"
+          :validate-on-value-update="false"
+        />
+        <kw-input
+          v-if="cssrIsDvCd === '3'"
+          v-model="cssrIsNo"
+          label="사업자번호"
+          rules="required|length:10"
+          :maxlength="10"
+          :readonly="!changeTarget"
+          :validate-on-value-update="false"
+        />
+        <kw-input
+          v-if="cssrIsDvCd === '4'"
+          v-model="cssrIsNo"
+          label="휴대전화번호"
+          mask="###-####-####"
+          unmasked-value
+          :readonly="!changeTarget"
+          :validate-on-value-update="false"
         />
       </kw-form>
     </kw-item-section>
@@ -55,7 +82,8 @@
 <script setup>
 import WwctaContractSettlementAgreeItem
   from '~sms-wells/contract/components/ordermgmt/WwctaContractSettlementAgreeItem.vue';
-import { codeUtil, notify } from 'kw-lib';
+import { codeUtil } from 'kw-lib';
+import { cloneDeep } from 'lodash-es';
 
 const props = defineProps({
   modelValue: {
@@ -66,6 +94,7 @@ const props = defineProps({
 });
 
 const exposed = {};
+
 defineExpose(exposed);
 
 const { cstKnm, cssrIsDvCd, cssrIsNo } = toRefs(props.modelValue);
@@ -75,10 +104,25 @@ const codes = await codeUtil.getMultiCodes(
 );
 
 const changeTarget = ref(false);
+const initialValue = cloneDeep(props.modelValue);
 
-/* 삭제예정 */
-function notifyWIP() {
-  notify('협의중');
+function onChangeChangeTarget(val) {
+  if (val === true) {
+    cstKnm.value = '';
+    cssrIsDvCd.value = undefined;
+    cssrIsNo.value = '';
+  }
+  if (val === false) {
+    cstKnm.value = initialValue.cstKnm;
+    cssrIsDvCd.value = initialValue.cssrIsDvCd;
+    cssrIsNo.value = initialValue.cssrIsNo;
+  }
+}
+
+function onChangeCssrIsDvCd() {
+  if (changeTarget.value) {
+    cssrIsNo.value = '';
+  }
 }
 
 function scrollTo(ref) {
