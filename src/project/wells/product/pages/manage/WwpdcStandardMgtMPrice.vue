@@ -180,14 +180,14 @@ async function getSaveData() {
   const fnls = await cmpFnlRef.value?.getSaveData();
   subList[pdConst.REMOVE_ROWS] = pdMergeBy(subList[pdConst.REMOVE_ROWS], fnls[pdConst.REMOVE_ROWS]);
   subList[prcfd] = pdMergeBy(subList[prcfd], fnls?.[prcfd], pdConst.PRC_FNL_ROW_ID);
-
+  // console.log('WwpdcStandardMgtMPrice - getSaveData - subList[prcfd] : ', subList[prcfd]);
   // 저장전 할인적용가격, 최종가 재계산
   subList[prcfd]?.forEach((prcRow) => {
     // 기본가
     const basVal = Number(subList[prcd]
       .find((stdRow) => stdRow[pdConst.PRC_STD_ROW_ID] === prcRow[pdConst.PRC_STD_ROW_ID])?.basVal ?? 0);
       // 조정 전 가격 ( 01: 정액, 02: 정률)
-    if (prcRow.cndtFxamFxrtDvCd === '01') {
+    if (isEmpty(prcRow.cndtFxamFxrtDvCd) || prcRow.cndtFxamFxrtDvCd === '01') {
       // 할인적용가격 = 기본가 + 조정가
       prcRow.prcBefAdj = basVal + Number(prcRow.cndtDscPrumVal ?? 0);
     } else if (prcRow.cndtFxamFxrtDvCd === '02') {
@@ -205,7 +205,7 @@ async function getSaveData() {
   subList[prcfd] = pdMergeBy(subList[prcfd], fees?.[prcfd], pdConst.PRC_FNL_ROW_ID);
   // console.log('WwpdcStandardMgtMPrice - getSaveData - 4 - subList[prcfd] : ', subList[prcfd]);
   // console.log('WwpdcStandardMgtMPrice - getSaveData - REMOVE_ROWS : ', subList[pdConst.REMOVE_ROWS]);
-  // console.log('props.codes : ', props.codes);('WwpdcStandardMgtMPrice - getSaveData - subList : ', subList);
+  // console.log('WwpdcStandardMgtMPrice - getSaveData - subList : ', subList);
   return subList;
 }
 
