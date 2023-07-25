@@ -83,23 +83,11 @@
             :total-count="totalCount"
           />
         </template>
-        <kw-btn
-          grid-action
-          :label="$t('MSG_BTN_SAVE')"
-          @click="onClickSave"
-        /><!--저장-->
         <kw-separator
           vertical
           inset
           spaced
         />
-        <kw-btn
-          icon="print"
-          dense
-          secondary
-          :label="$t('MSG_BTN_PRTG')"
-          @click="onClickPrint"
-        /><!--인쇄-->
         <kw-btn
           icon="download_on"
           dense
@@ -140,7 +128,6 @@ const grdMainRef = ref(getComponentType('KwGrid'));
 const dataService = useDataService();
 const { modal } = useGlobal();
 
-const { notify } = useGlobal();
 const { t } = useI18n();
 const { currentRoute } = useRouter();
 const now = dayjs();
@@ -202,10 +189,6 @@ async function onClickExcelDownload() {
     timePostfix: true,
     exportData: res.data,
   });
-}
-async function onClickPrint() {
-  // TODO : 출력 기능 연결
-  notify('TODO : 출력기능?');
 }
 
 // -------------------------------------------------------------------------------------------------
@@ -285,7 +268,6 @@ const initGrdMain = defineGrid((data, view) => {
   view.rowIndicator.visible = true;
 
   view.onCellItemClicked = async (g, { column, itemIndex }) => {
-    console.log('==========================================================================');
     if (column === 'cntrCstNo') {
       const cntrNo = g.getValue(itemIndex, 'cntrNo');
       const cntrSn = g.getValue(itemIndex, 'cntrSn');
