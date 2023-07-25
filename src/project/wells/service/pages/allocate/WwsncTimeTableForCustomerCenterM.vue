@@ -198,7 +198,8 @@
               <kw-avatar size="60px">
                 <img
                   alt="profile"
-                  src="node_modules/kw-lib/src/assets/images/example_profile.png"
+                  :src="'https://kportal.kyowon.co.kr/myoffice/Common/ezCommon_InterFace.aspx?TYPE=ENGINEER&FILENAME=' +
+                    data.psic.empPic"
                 >
               </kw-avatar>
             </div>
@@ -1062,7 +1063,7 @@ async function onClickSave() {
   const sendDataBase = {
     //-------------------------------------------------
     // inChnlDvCd: data.value.chnlDvCd,
-    inChnlDvCd: searchParams.value.inflwChnl,
+    inChnlDvCd: data.value.inflwChnl,
     asIstOjNo: '',
     // cstSvAsnNo: data.value.cstSvAsnNo,
     //-------------------------------------------------
