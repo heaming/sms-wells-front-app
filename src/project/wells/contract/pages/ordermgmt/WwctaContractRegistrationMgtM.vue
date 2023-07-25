@@ -138,7 +138,7 @@
                   <ul class="card-text card-text--bigger card-text--between">
                     <li>
                       <p>
-                        계약금(일시불)
+                        등록금(계약금)
                       </p>
                       <span class="text-bold kw-font-pt20">
                         {{ smr.pdCntrAmt }}
