@@ -196,7 +196,7 @@ const initGrdMain = defineGrid((data, view) => {
       header: `${t('MSG_TXT_EXCD')}${t('MSG_TXT_QTY')}`,
       width: '80',
       styleName: 'text-right',
-      rules: 'min_value:1|max_value:999999999999',
+      rules: 'min_value:0|max_value:999999999999',
       editor: {
         type: 'number',
         editable: true } },
@@ -204,7 +204,7 @@ const initGrdMain = defineGrid((data, view) => {
       header: `${t('MSG_TXT_ADD')}${t('MSG_TXT_QTY')}`,
       width: '80',
       styleName: 'text-right',
-      rules: 'min_value:1|max_value:999999999999',
+      rules: 'min_value:0|max_value:999999999999',
       editor: {
         type: 'number',
         editable: true } },
