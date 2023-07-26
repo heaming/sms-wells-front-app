@@ -136,6 +136,13 @@
             <kw-form-item :label="$t('MSG_TXT_GENDER')">
               <p>{{ frmMainData.sexDvNm }}</p>
             </kw-form-item>
+            <!-- 세이프키 -->
+            <kw-form-item :label="$t('MSG_TXT_SFK')">
+              <p>{{ frmMainData.sfkVal }}</p>
+            </kw-form-item>
+          </kw-form-row>
+
+          <kw-form-row>
             <!-- 자동이체 -->
             <kw-form-item :label="$t('MSG_TXT_AUTO_FNT')">
               <kw-chip
@@ -151,10 +158,6 @@
           </kw-form-row>
 
           <kw-form-row>
-            <!-- 세이프키 -->
-            <kw-form-item :label="$t('MSG_TXT_SFK')">
-              <p>{{ frmMainData.sfkVal }}</p>
-            </kw-form-item>
             <!-- 가상계좌 -->
             <kw-form-item :label="$t('MSG_TXT_VT_AC')">
               <kw-chip
