@@ -314,11 +314,14 @@ async function fetchData() {
 
 async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
+  const { ostrWareNo } = cachedParams;
 
   // 물량배정 데이터 건수 체크
   let res = await dataService.get('/sms/wells/service/qom-asn/exist-check', { params: { ...cachedParams } });
   const existYn = res.data;
-  if (existYn === 'N') {
+
+  // 출고창고가 파주일 경우만 데이터를 생성
+  if (existYn === 'N' && ostrWareNo === '100002') {
     const { asnOjYm, cnt } = cachedParams;
     // {0} 물량배정 데이터를 생성하시겠습니까?
     const msg = `${asnOjYm.substring(0, 4)}-${asnOjYm.substring(4, 6)} ${cnt}`;
