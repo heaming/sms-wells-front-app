@@ -150,6 +150,7 @@ const pageInfo = ref({
 });
 
 const codes = await codeUtil.getMultiCodes(
+  'COD_PAGE_SIZE_OPTIONS',
   'PMOT_OJ_SPC_DSC_DV_CD',
   'SELL_TP_CD',
 );
