@@ -289,11 +289,20 @@ async function openZwfebFeeHistoryMgtP() {
 }
 
 async function onClickExcelDownload() {
+  let uri = '';
+  cachedParams = cloneDeep(searchParams.value);
+  stepNaviRef.value.initProps();
+
+  if (isGrid2Visile.value === true) {
+    uri = '-brmgr';
+  }
   const view = grdMainRef.value.getView();
+  const response = await dataService.get(`/sms/wells/fee/organization-fees/hmsts${uri}`, { params: cachedParams });
 
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
+    exportData: response.data,
   });
 }
 

@@ -320,7 +320,7 @@
           icon="download_on"
           :label="$t('MSG_BTN_EXCEL_DOWN')"
           :disable="!isExcelDown2"
-          @click="onClickExcel2Download"
+          @click="onClickExcelDownload"
         />
         <kw-separator
           v-if="isPerfVisile"
@@ -451,22 +451,40 @@ const info = ref({
 
 let cachedParams;
 
-async function onClickExcelDownload() {
+async function excelDownload(url) {
   const view = grdMain1Ref.value.getView();
+  const response = await dataService.get(url, { params: cachedParams });
 
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
+    exportData: response.data,
   });
 }
 
-async function onClickExcel2Download() {
+async function excel2Download(url) {
   const view = grdMain2Ref.value.getView();
+  const response = await dataService.get(url, { params: cachedParams });
 
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
+    exportData: response.data,
   });
+}
+
+async function onClickExcelDownload() {
+  const { schDvCd, schDv } = searchParams.value;
+  cachedParams = cloneDeep(searchParams.value);
+  if (schDvCd === '01') { /* 상세선택 */
+    if (schDv === '04') {
+      await excelDownload('/sms/wells/fee/monthly-net/aggreateOrders');
+    } else {
+      await excelDownload('/sms/wells/fee/monthly-net/orders');
+    }
+  } else {
+    await excel2Download('/sms/wells/fee/monthly-net/fees');
+  }
 }
 
 async function fetchData(apiUrl) {

@@ -313,11 +313,19 @@ async function openZwfebFeeHistoryMgtP() {
  *  Event - 엑셀 다운로드 버튼 클릭 ※
  */
 async function onClickExcelDownload() {
+  let uri = '';
+  if (isGrid2Visile.value === true) {
+    uri = '-brmgr';
+  } else if (isGrid3Visile.value === true) {
+    uri = '-total';
+  }
   const view = grdMainRef.value.getView();
+  const response = await dataService.get(`/sms/wells/fee/organization-fees/plars${uri}`, { params: cachedParams });
 
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
+    exportData: response.data,
   });
 }
 
