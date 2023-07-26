@@ -78,6 +78,7 @@ const params = ref({
   perfYm: props.perfYm,
   ogTpCd: props.ogTpCd,
   feeTcntDvCd: props.feeTcntDvCd,
+  perfAgrgCrtDvCd: '',
 });
 
 // -------------------------------------------------------------------------------------------------
@@ -94,7 +95,8 @@ async function onClickCancel() {
 
 async function onClickSave() {
   if (!await confirm(t('MSG_ALT_AGRG'))) { return; }
-  const response = dataService.post('/sms/wells/fee/organization-netorders/bs-aggregates', params.value);
-  ok(response.data);
+  params.value.perfAgrgCrtDvCd = params.value.ogTpCd === 'W02' ? '201' : '301';
+  const response = dataService.post('/sms/wells/fee/bs-fees', params.value);
+  if (response.data === 'S') ok(response.data);
 }
 </script>
