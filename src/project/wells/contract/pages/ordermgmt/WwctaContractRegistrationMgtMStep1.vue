@@ -348,7 +348,7 @@ const codes = await codeUtil.getMultiCodes(
 );
 const cntrTpCdOptions = computed(() => {
   if (ogTpCd === 'HR1') {
-    return codes.CNTR_TP_CD;
+    return codes.CNTR_TP_CD.filter((code) => ['03'].includes(code.codeId));
   }
   return careerLevelCode === '7' ? codes.CNTR_TP_CD.filter((code) => ['01', '02'].includes(code.codeId))
     : codes.CNTR_TP_CD.filter((code) => !['03'].includes(code.codeId));
