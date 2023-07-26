@@ -175,6 +175,12 @@
         </template>
 
         <kw-btn
+          :label="`${t('MSG_TXT_LGST')}${t('MSG_BTN_TRS')}`"
+          dense
+          primary
+          @click="onClickLgstTrs"
+        />
+        <kw-btn
           dense
           grid-action
           :label="$t('MSG_TXT_SAVE')"
@@ -222,7 +228,7 @@ import { cloneDeep, isEmpty } from 'lodash-es';
 
 const { t } = useI18n();
 const { getConfig } = useMeta();
-const { notify, alert } = useGlobal();
+const { notify, alert, confirm } = useGlobal();
 const { currentRoute } = useRouter();
 
 const dataService = useDataService();
@@ -465,11 +471,42 @@ async function onClickSave() {
   }
 }
 
+// 물류전송
+async function onClickLgstTrs() {
+  const { asnOjYm, cnt } = searchParams.value;
+
+  if (isEmpty(asnOjYm)) {
+    // {0}은(는) 필수 항목입니다.
+    await alert(`${t('MSG_TXT_ASN_YM')} ${t('MSG_ALT_NCELL_REQUIRED_ITEM')}`);
+    return;
+  }
+
+  if (isEmpty(cnt)) {
+    // {0}은(는) 필수 항목입니다.
+    await alert(`${t('MSG_TXT_ORDERSELECT_TITLE')} ${t('MSG_ALT_NCELL_REQUIRED_ITEM')}`);
+    return;
+  }
+  // {0} 물량배정 데이터를 물류로 전송하시겠습니까?
+  const msg = `${asnOjYm.substring(0, 4)}-${asnOjYm.substring(4, 6)} ${cnt}`;
+  if (!await confirm(`${msg}${t('MSG_TXT_ORDERSELECT_TITLE')} ${t('MSG_TXT_INDP_WARE')}${t('MSG_ALT_QOM_ASN_LGST_TRS')}`)) {
+    return;
+  }
+  // 물류 전송
+  const res = await dataService.post('/sms/wells/service/independence-ware-ostrs/logistics-transfer', searchParams.value, { timeout: 3000000 });
+  const { processCount } = res.data;
+  if (processCount > 0) {
+    // 전송이 완료되었습니다.
+    notify(t('MSG_ALT_TRS_FSH'));
+    await fetchData();
+  }
+}
+
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
 const initGrdMain = defineGrid((data, view) => {
   const fields = [
+    { fieldName: 'lgstTrsYn' },
     { fieldName: 'wareNm' },
     { fieldName: 'sapMatCd' },
     { fieldName: 'itmPdCd' },
@@ -501,10 +538,13 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'ostrAkNo' },
     { fieldName: 'ostrAkSn' },
     { fieldName: 'ostrDt' },
-    { fieldName: 'chk', dataType: 'text', booleanFormat: 'N:Y' },
+    { fieldName: 'ostrWareDvCd' },
+    { fieldName: 'ostrPrtnrNo' },
+    { fieldName: 'ostrPrtnrOgTpCd' },
   ];
 
   const columns = [
+    { fieldName: 'lgstTrsYn', header: `${t('MSG_TXT_LGST')}${t('MSG_TXT_TRS_YN')}`, width: '100', styleName: 'text-center' },
     { fieldName: 'strWareNo', header: t('MSG_TXT_WARE'), width: '100', styleName: 'text-center' },
     { fieldName: 'wareNm', header: t('MSG_TXT_WARE_NM'), width: '210', styleName: 'text-left' },
     { fieldName: 'sapMatCd', header: t('MSG_TXT_SAP_CD'), width: '130', styleName: 'text-center' },
@@ -542,7 +582,7 @@ const initGrdMain = defineGrid((data, view) => {
   data.setFields(fields);
   view.setColumns(columns);
   view.setColumnLayout([
-    'strWareNo', 'wareNm', 'sapMatCd', 'itmPdCd', 'pdAbbrNm', 'mngtUnitNm', 'matGdCd', 'logisticStocQty',
+    'lgstTrsYn', 'strWareNo', 'wareNm', 'sapMatCd', 'itmPdCd', 'pdAbbrNm', 'mngtUnitNm', 'matGdCd', 'logisticStocQty',
     'boxUnitQty', 'crtlStocQty', 'useQty',
     {
       header: t('MSG_TXT_QOM_ASN_CNFM'), // 물량배정확정 // colspan title
@@ -557,13 +597,16 @@ const initGrdMain = defineGrid((data, view) => {
     'outBoxQty', 'outQty', 'rmkCn',
   ]);
 
-  view.checkBar.visible = true;
+  view.checkBar.visible = false;
   view.rowIndicator.visible = true;
   view.editOptions.editable = true;
 
   view.onCellEditable = (grid, index) => {
-    // 출고수량, 비고만 입력 가능
-    if (['outQty', 'rmkCn'].includes(index.column)) {
+    // 물류전송여부
+    const lgstTrsYn = gridUtil.getCellValue(view, index.dataRow, 'lgstTrsYn');
+
+    // 물류전송이 N인 경우, 출고수량, 비고만 입력 가능
+    if (lgstTrsYn === 'N' && ['outQty', 'rmkCn'].includes(index.column)) {
       return true;
     }
 

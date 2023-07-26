@@ -191,9 +191,11 @@
             @change="fetchData"
           />
         </template>
+
         <kw-btn
           :label="`${t('MSG_TXT_LGST')}${t('MSG_BTN_TRS')}`"
-          grid-action
+          dense
+          primary
           @click="onClickLgstTrs"
         />
         <kw-btn
