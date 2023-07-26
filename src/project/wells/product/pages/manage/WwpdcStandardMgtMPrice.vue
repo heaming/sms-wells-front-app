@@ -153,7 +153,7 @@ async function init() {
   if (cmpFeeRef.value?.init) await cmpFeeRef.value.init();
 }
 
-async function getInitPriceDefault(prcds, prcfds) {
+function getInitPriceDefault(prcds, prcfds) {
   if (!prcds || !prcds.length || !prcfds || !prcfds.length) {
     return prcfds;
   }
@@ -206,7 +206,7 @@ async function getSaveData() {
   subList[prcfd] = pdMergeBy(subList[prcfd], fnls?.[prcfd], pdConst.PRC_FNL_ROW_ID);
   // console.log('WwpdcStandardMgtMPrice - getSaveData - subList[prcfd] : ', subList[prcfd]);
   // 저장전 할인적용가격, 최종가 재계산
-  subList[prcfd] = await getInitPriceDefault(subList[prcd], subList[prcfd]);
+  subList[prcfd] = getInitPriceDefault(subList[prcd], subList[prcfd]);
 
   // console.log('WwpdcStandardMgtMPrice - getSaveData - 3 - subList[prcfd] : ', subList[prcfd]);
   const fees = await cmpFeeRef.value?.getSaveData();
@@ -339,6 +339,7 @@ watch(() => props.initData, (initData) => {
     const priceDatas = cloneDeep(initData);
     priceDatas[prcfd] = getInitPriceDefault(priceDatas[prcd], priceDatas[prcfd]);
     currentInitData.value = priceDatas;
+    console.log('currentInitData.value : ', currentInitData.value);
   }
 }, { deep: true });
 watch(() => props.codes, (codes) => { currentCodes.value = cloneDeep(codes); }, { deep: true });
