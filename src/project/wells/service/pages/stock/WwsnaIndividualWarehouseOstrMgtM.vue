@@ -574,7 +574,7 @@ async function onClickSave() {
 
 // 물류전송
 async function onClickLgstTrs() {
-  const { asnOjYm, cnt } = searchParams.value;
+  const { asnOjYm, cnt, ostrWareNo } = searchParams.value;
 
   if (isEmpty(asnOjYm)) {
     // {0}은(는) 필수 항목입니다.
@@ -587,6 +587,13 @@ async function onClickLgstTrs() {
     await alert(`${t('MSG_TXT_ORDERSELECT_TITLE')} ${t('MSG_ALT_NCELL_REQUIRED_ITEM')}`);
     return;
   }
+
+  if (isEmpty(ostrWareNo)) {
+    // {0}은(는) 필수 항목입니다.
+    await alert(`${t('MSG_TXT_OSTR_WARE')} ${t('MSG_ALT_NCELL_REQUIRED_ITEM')}`);
+    return;
+  }
+
   // {0} 물량배정 데이터를 물류로 전송하시겠습니까?
   const msg = `${asnOjYm.substring(0, 4)}-${asnOjYm.substring(4, 6)} ${cnt}`;
   if (!await confirm(`${msg}${t('MSG_TXT_ORDERSELECT_TITLE')} ${t('MSG_TXT_INDV_WARE')}${t('MSG_ALT_QOM_ASN_LGST_TRS')}`)) {
