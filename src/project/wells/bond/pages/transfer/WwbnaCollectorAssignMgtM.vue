@@ -236,7 +236,7 @@ import { chkInputSearchComplete, openSearchUserCommonPopup, isCustomerCommon, op
 
 const { t } = useI18n();
 const { getConfig } = useMeta();
-const { modal, notify } = useGlobal();
+const { modal, notify, alert } = useGlobal();
 const { getters } = useStore();
 const dataService = useDataService();
 const { currentRoute } = useRouter();
@@ -333,7 +333,7 @@ async function fetchData() {
 async function onClickSearch() {
   const notifyMessage = await chkInputSearchComplete(searchParams, canFeasibleSearch);
   if (notifyMessage) {
-    notify(notifyMessage);
+    await alert(notifyMessage);
     return;
   }
   cachedParams = cloneDeep(searchParams.value);
