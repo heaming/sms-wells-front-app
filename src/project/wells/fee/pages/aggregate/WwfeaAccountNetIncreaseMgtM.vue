@@ -139,7 +139,7 @@
         <kw-btn
           secondary
           dense
-          :label="$t('MSG_TXT_LSTMM') + $t('MSG_BTN_CANCEL') + $t('MSG_TXT_AGRG')"
+          :label="$t('MSG_TXT_ACC_NINC') + $t('MSG_TXT_AGRG')"
           @click="onclickAgrg"
         />
       </kw-action-top>
