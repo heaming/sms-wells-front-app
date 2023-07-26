@@ -145,18 +145,19 @@ const initGridNewCstInfo = defineGrid((data, viewNewCstInfo) => {
   const fields = [
     { fieldName: 'cntrDt' }, // 계약일자
     { fieldName: 'cntrDtlNo' }, // 계약상세번호
+    { fieldName: 'ojDtlCntrNo' }, // 대상상세계약번호
+    { fieldName: 'ojDtlCntrSn' }, // 대상상세계약일련번호
     { fieldName: 'cstKnm' }, // 고객명
     { fieldName: 'basePdCd' }, // 상품코드
     { fieldName: 'pdNm' }, // 상품명
-    { fieldName: 'sellTpCd' }, // 판매유형코드
-    { fieldName: 'sellTpNm' }, // 판매유형코드명
+    { fieldName: 'sellTpDtlNm' }, // 판매유형상세코드명
     { fieldName: 'keepPtrm' }, // 유지기간
-    { fieldName: 'rltdCntrNm' }, // 연관계약명
-    { fieldName: 'rentalNmn' }, // 차월
-    { fieldName: 'fnlVal', dataType: 'number' }, // 현요금
+    { fieldName: 'cntrRelDtlNm' }, // 연관계약명
+    { fieldName: 'rentalTn' }, // 차월
+    { fieldName: 'sellAmt', dataType: 'number' }, // 현요금
     { fieldName: 'dscAmt', dataType: 'number' }, // 할인
-    { fieldName: 'allDscAmt', dataType: 'number' }, // 총할인
-    { fieldName: 'rcvryAmt', dataType: 'number' }, // 원복요금
+    { fieldName: 'dscTam', dataType: 'number' }, // 총할인
+    { fieldName: 'pdBaseAmt', dataType: 'number' }, // 원복요금
     { fieldName: 'mutuYn' }, // 상조유무
   ];
 
@@ -166,14 +167,14 @@ const initGridNewCstInfo = defineGrid((data, viewNewCstInfo) => {
     { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '131', styleName: 'text-left' }, // 고객명
     { fieldName: 'basePdCd', header: t('MSG_TXT_PRDT_CODE'), width: '131', styleName: 'text-center' }, // 상품코드
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '196', styleName: 'text-center' }, // 상품명
-    { fieldName: 'sellTpNm', header: t('MSG_TXT_TYPE'), width: '131', styleName: 'text-center' }, // 판매유형코드명
+    { fieldName: 'sellTpDtlNm', header: t('MSG_TXT_TYPE'), width: '131', styleName: 'text-center' }, // 판매유형코드명
     { fieldName: 'keepPtrm', header: t('MSG_TXT_KEEP_PTRM'), width: '196', styleName: 'text-center' }, // 유지기간
-    { fieldName: 'rltdCntrNm', header: t('MSG_TXT_RLTD_CNTR_NM'), width: '131', styleName: 'text-center' }, // 연관계약명
-    { fieldName: 'rentalNmn', header: t('MSG_TXT_NMN'), width: '74', styleName: 'text-center' }, // 차월
-    { fieldName: 'fnlVal', header: t('MSG_TXT_CRTL_CHRAM'), width: '115', styleName: 'text-center' }, // 현요금
-    { fieldName: 'dscAmt', header: t('MSG_TXT_DSC'), width: '115', styleName: 'text-center' }, // 할인
-    { fieldName: 'allDscAmt', header: t('MSG_TXT_TOT_DSC_AMT'), width: '115', styleName: 'text-center' }, // 총할인
-    { fieldName: 'rcvryAmt', header: t('MSG_TXT_RESTORE_CHRAM'), width: '115', styleName: 'text-center' }, // 원복요금
+    { fieldName: 'cntrRelDtlNm', header: t('MSG_TXT_RLTD_CNTR_NM'), width: '131', styleName: 'text-center' }, // 연관계약명
+    { fieldName: 'rentalTn', header: t('MSG_TXT_NMN'), width: '74', styleName: 'text-right' }, // 차월
+    { fieldName: 'sellAmt', header: t('MSG_TXT_CRTL_CHRAM'), width: '115', styleName: 'text-right' }, // 현요금
+    { fieldName: 'dscAmt', header: t('MSG_TXT_DSC'), width: '115', styleName: 'text-right' }, // 할인
+    { fieldName: 'dscTam', header: t('MSG_TXT_TOT_DSC_AMT'), width: '115', styleName: 'text-right' }, // 총할인
+    { fieldName: 'pdBaseAmt', header: t('MSG_TXT_RESTORE_CHRAM'), width: '115', styleName: 'text-right' }, // 원복요금
     { fieldName: 'mutuYn', header: t('MSG_TXT_MUTU_EYN'), width: '74', styleName: 'text-center' }, // 상조유무
   ];
 
