@@ -27,7 +27,7 @@
   </kw-action-top>
   <kw-grid
     ref="grdMainRef"
-    :visible-rows="5"
+    :visible-rows="10"
     :need-context-menu="false"
     @init="initGrid"
   />
