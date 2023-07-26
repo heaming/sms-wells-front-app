@@ -26,6 +26,7 @@
     :crdcd-stlms="crdcdStlms"
     :mileage-stlms="mileageStlms"
     @approved="onApprovedSpayStlms"
+    @approve-canceled="onApproveCanceledSpayStlms"
   />
   <card-automatic-transfer-approval
     ref="cardAftnRef"
@@ -133,6 +134,10 @@ const spayStlmsUpdateInfo = ref([]);
 
 function onApprovedSpayStlms(stlmsUpdateInfo) {
   spayStlmsUpdateInfo.value = stlmsUpdateInfo;
+}
+
+function onApproveCanceledSpayStlms() {
+  spayStlmsUpdateInfo.value = [];
 }
 
 /* account auto transfer */

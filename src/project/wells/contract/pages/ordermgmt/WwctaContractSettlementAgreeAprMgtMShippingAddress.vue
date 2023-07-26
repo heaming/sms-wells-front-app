@@ -97,6 +97,7 @@ import WwctaContractSettlementAgreeItem
   from '~sms-wells/contract/components/ordermgmt/WwctaContractSettlementAgreeItem.vue';
 import { warn } from 'vue';
 import { notify } from 'kw-lib';
+import { scrollIntoView } from '~sms-common/contract/util';
 
 const props = defineProps({
   adrpc: {
@@ -207,11 +208,6 @@ function onChangeSameValue(val) {
 const frmRef = ref();
 const addressRef = ref();
 
-function scrollTo(ref) {
-  const el = ref.value.$el;
-  if (el) { el.scrollIntoView(true); }
-}
-
 const invalidRef = ref();
 async function validate() {
   if (sameValue.value) {
@@ -219,7 +215,7 @@ async function validate() {
   }
   const valid = await frmRef.value.validate();
   if (!valid) {
-    scrollTo(addressRef);
+    scrollIntoView(addressRef);
     notify('설치 주소를 확인해주세요.');
     invalidRef.value = addressRef.value;
   }
