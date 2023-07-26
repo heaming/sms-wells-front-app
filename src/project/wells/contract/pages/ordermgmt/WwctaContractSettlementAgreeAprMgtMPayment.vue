@@ -211,7 +211,7 @@ async function getInvalidRef() {
   if (vacIssueRef.value.ref && !await vacIssueRef.value.validate()) {
     return vacIssueRef.value.ref;
   }
-  if (cashRef.value.ref && !await cashRef.value.validate()) {
+  if (cashRef.value?.ref && !await cashRef.value.validate()) {
     return cashRef.value.ref;
   }
 }
