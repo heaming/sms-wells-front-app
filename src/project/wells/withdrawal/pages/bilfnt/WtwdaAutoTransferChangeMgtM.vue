@@ -138,7 +138,7 @@ async function onClickChange() {
 
 // 알림톡 발송
 async function onClickAlarmSend() {
-  const deviceScreen = '/#/ns/withdrawal/ztwda-auto-transfer-payment-change?';
+  const deviceScreen = '/#/ns/ztwda-auto-transfer-payment-change?';
   const nsUrl = '/anonymous/login?deviceCheck=Y&redirectUrl=';
 
   const params = {
@@ -151,7 +151,8 @@ async function onClickAlarmSend() {
 
   const query = deviceScreen + new URLSearchParams(params);
 
-  const nsFullUrl = encodeURIComponent(query);
+  const nsFullUrl = query;
+  // const nsFullUrl = encodeURIComponent(query);
   // chRqrDvCd 방문 : '2' (교원) / 원거리 : '1' (고객)
   if (!await formRef.value.validate()) { return; }
   inputParams.value = { ...inputParams.value,
