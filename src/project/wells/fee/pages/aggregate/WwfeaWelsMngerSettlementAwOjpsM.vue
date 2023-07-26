@@ -207,11 +207,14 @@ const bfMonth = now.add(-1, 'month').format('YYYYMM');
 let cachedParams;
 
 async function onClickExcelDownload() {
+  cachedParams = cloneDeep(searchParams.value);
   const view = grdMainRef.value.getView();
+  const response = await dataService.get('/sms/wells/fee/wm-settlement-allowances/wmList', { params: cachedParams });
 
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
+    exportData: response.data,
   });
 }
 
