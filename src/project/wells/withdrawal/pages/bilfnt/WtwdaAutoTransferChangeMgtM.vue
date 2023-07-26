@@ -138,8 +138,8 @@ async function onClickChange() {
 
 // 알림톡 발송
 async function onClickAlarmSend() {
-  const deviceScreen = '/#/withdrawal/ztwda-auto-transfer-payment-change?';
-  const nsUrl = '/anonymous/login?redirectUrl=';
+  const deviceScreen = '/#/ns/withdrawal/ztwda-auto-transfer-payment-change?';
+  const nsUrl = '/anonymous/login?deviceCheck=Y&redirectUrl=';
 
   const params = {
     vstYn: 'Y',
