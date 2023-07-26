@@ -253,6 +253,7 @@ async function fetchData() {
   isLastDate.value = dayjs().add(-2, 'month').format('YYYYMM') > cachedParams.baseDt.substring(0, 6) - 1;
   view.columnByName('excdYn').readOnly = isLastDate.value;
   view.columnByName('authRsgExcdRsonCd').readOnly = isLastDate.value;
+  view.commit();
 }
 
 async function onClickSearch() {
@@ -318,7 +319,7 @@ async function onClickSave() {
   const changedRows = gridUtil.getChangedRowValues(view);
   if (changedRows.every((item) => (
     item.authRsgExpYn === 'Y' && item.authRsgCnfmYn === 'Y')
-    || (item.authRsgExpYn === 'N' && item.authRsgCnfmYn === 'N')
+    || (item.authRsgExpYn === 'Y' && item.authRsgCnfmYn === 'N')
     || (item.authRsgExpYn === 'N' && item.authRsgCnfmYn === 'Y'))) {
     await alert(t('MSG_ALT_NOT_EXP_CNFM_DTA'));
     return false;
@@ -402,6 +403,7 @@ async function onClickFinalConfirm() {
   await onClickSearch();
 }
 
+const isNotExpected = computed(() => searchParams.value.authRsgCd === '01');
 const isExpectedConfirm = computed(() => searchParams.value.authRsgCd === '02');
 const isfinalConfirm = computed(() => searchParams.value.authRsgCd === '03');
 // TODO: 룰 추가 예정 ( 현재 시스템 룰, 집금담당자, 'DUMMY' 적용 )
@@ -425,16 +427,16 @@ const initExpectedGrid = defineGrid((data, view) => {
     { fieldName: 'authRsgExcdRsonCd',
       header: t('MSG_TXT_EXCD_RSON'),
       width: '160',
+      styleName: 'text-center',
       editable: true,
       editor: { type: 'list' },
       options: codes.AUTH_RSG_EXCD_RSON_CD,
       styleCallback: (grid, dataCell) => {
         const ret = {};
         const { excdYn } = grid.getValues(dataCell.index.itemIndex);
-        if (excdYn === 'Y') {
+        if (excdYn === 'Y' && isNotExpected.value && !isLastDate.value) {
           ret.editable = true;
-        }
-        if (excdYn === 'N') {
+        } else {
           ret.editable = false;
           grid.setValue(dataCell.index.itemIndex, 'authRsgExcdRsonCd', '');
         }
