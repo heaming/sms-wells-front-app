@@ -918,7 +918,6 @@ async function checkKiwiTimeAssign(dataList, prdDiv) {
   let workDtParam = '';
   let asIstOjNoParam = '';
   let acpgDivParam = '';
-  const prdDivParam = prdDiv;
 
   // if (dataList.profile !== 'prd') {
   //   alert('처리되었습니다.(개발환경에선 처리 안됨)');
@@ -956,7 +955,7 @@ async function checkKiwiTimeAssign(dataList, prdDiv) {
       istPcsvDvCd: searchParams.value.istPcsvDvCd,
       mnftCoId: dataList.mnftCoId, // 제조사(LCJEJO)
       svBizDclsfCd: '', // 서비스업무세분류코드
-      prdDiv: prdDivParam, // 접수구분
+      prdDiv, // 접수구분
     });
 
     if (dataList.kaetc1 === '8') {
@@ -1061,6 +1060,8 @@ async function onClickDelverInqr(sppOrdNo, pcsvBzsCd) {
   width: 100%;
   display: flex;
   column-gap: 6px;
+  row-gap: 6px;
+  flex-wrap: wrap;
 
   ::v-deep(.kw-btn) {
     padding: 8px 0;
