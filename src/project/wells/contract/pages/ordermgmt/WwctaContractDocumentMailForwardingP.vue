@@ -15,6 +15,8 @@
 <template>
   <kw-popup
     class="kw-popup--md"
+    ignore-on-modified
+    no-action
   >
     <kw-form
       :cols="1"
@@ -52,7 +54,7 @@ import ZwcmEmailAddress from '~common/components/ZwcmEmailAddress.vue';
 
 const { confirm, notify, alert } = useGlobal();
 const { t } = useI18n();
-const { cancel: onClickClose } = useModal();
+const { ok, cancel: onClickClose } = useModal();
 const dataService = useDataService();
 const props = defineProps({
   rcvrInfo: { type: [Object] },
@@ -66,13 +68,21 @@ const params = ref({
 });
 
 async function onClickSend() {
-  if (await confirm(t('MSG_ALT_EML_FW_CONF', [params.value.rcvrInfo[0].cntrNm, params.value.emadr]))) {
+  let rcvrInfoCntrNm = '';
+  const rcvrInfoCnt = Number(params.value.rcvrInfo.length) - 1;
+  if (rcvrInfoCnt > 0) {
+    rcvrInfoCntrNm = `${params.value.rcvrInfo[0].cntrNm}외${rcvrInfoCnt}명`;
+  } else {
+    rcvrInfoCntrNm = params.value.rcvrInfo[0].cntrNm;
+  }
+
+  if (await confirm(t('MSG_ALT_EML_FW_CONF', [rcvrInfoCntrNm, params.value.emadr]))) {
     params.value.rcvrInfo.forEach((n) => {
       n.emadr = params.value.emadr;
     });
     await dataService.post('/sms/wells/contract/contracts/send-emails', params.value.rcvrInfo);
+    ok();
     await notify(t('MSG_ALT_EML_FW_FSH'));
-    onClickClose();
   }
 }
 

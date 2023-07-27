@@ -790,8 +790,7 @@ async function onClickExcelDownload() {
 // 계약서 메일발송 버튼 클릭 이벤트
 async function onClickCntrwMlFw() {
   let view;
-  let paramCntrNo;
-  let searchPopupParams = {};
+  const rcvrInfo = [];
 
   switch (searchParams.value.cntrDv) {
     case 'A': // 신규/변경
@@ -809,39 +808,43 @@ async function onClickCntrwMlFw() {
       break;
   }
 
-  const row = view.getCheckedItems();
-  if (row.length === 0) {
+  const checkedItems = view.getCheckedItems();
+  if (checkedItems.length === 0) {
     notify(t('MSG_ALT_BEFORE_SELECT_IT', [t('MSG_TXT_ITEM')]));
-  } else if (row.length > 1) {
-    notify(t('MSG_ALT_SELT_ONE_ITEM'));
   } else {
     const cntrs = gridUtil.getCheckedRowValues(view);
-    // 확정인 계약에 한해서만 가능, 계약진행상태코드 == 60 (확정)
-    if (['A', 'N', 'U'].includes(searchParams.value.cntrDv)
-      && cntrs[0].cntrPrgsStatCd !== '60') {
-      notify(t('MSG_ALT_CNTR_PRGS_STAT_CD_NOT_CNFM')); // 계약진행상태가 확정이 아닙니다.
-      return;
-    }
+    cntrs.forEach((row) => {
+      // 확정인 계약에 한해서만 가능, 계약진행상태코드 == 60 (확정)
+      if (['A', 'N', 'U'].includes(searchParams.value.cntrDv)
+        && cntrs[0].cntrPrgsStatCd !== '60') {
+        notify(t('MSG_ALT_CNTR_PRGS_STAT_CD_NOT_CNFM')); // 계약진행상태가 확정이 아닙니다.
+        return;
+      }
 
-    if (['A', 'N', 'U'].includes(searchParams.value.cntrDv)) {
-      paramCntrNo = String(cntrs[0].cntrDtlNo).split('-')[0];
-      searchPopupParams = {
-        cntrNm: cntrs[0].cstKnm,
-        cntrNo: paramCntrNo,
-      };
-    } else if (searchParams.value.cntrDv === 'R') {
-      paramCntrNo = cntrs[0].cntrNo;
-      // 추가 파라미터(재약정시  cndcId:RP002)
-      searchPopupParams = {
-        cntrNm: cntrs[0].cstKnm,
-        cntrNo: paramCntrNo,
-        cndcId: 'RP002',
-      };
-    }
+      if (['A', 'N', 'U'].includes(searchParams.value.cntrDv)) {
+        rcvrInfo.push({
+          cntrNo: String(row.cntrDtlNo).split('-')[0],
+          cntrSn: String(row.cntrDtlNo).split('-')[1],
+          cntrNm: row.cstKnm,
+          rstlYn: 'N',
+          emadr: '',
+        });
+      } else if (searchParams.value.cntrDv === 'R') {
+        // 추가 파라미터(재약정시  rstlYn:'Y')
+        rcvrInfo.push({
+          cntrNo: row.cntrNo,
+          cntrSn: row.cntrSn,
+          cntrNm: row.cstKnm,
+          rstlYn: 'Y',
+          emadr: '',
+        });
+      }
+    });
 
+    console.log(rcvrInfo);
     const res = await modal({
       component: 'WwctaContractDocumentMailForwardingP',
-      componentProps: searchPopupParams,
+      componentProps: { rcvrInfo },
     });
 
     // 리턴값을 체크한 후 재조회
@@ -920,6 +923,8 @@ async function onClickNotakfW() {
       res = await dataService.put('/sms/wells/contract/contracts/managements/notification-talk-forwarding', saveData);
       if (res.data.processCount > 0) {
         await notify(t('MSG_ALT_BIZTALK_SEND_SUCCESS')); // 알림톡이 발송되었습니다.
+        // 재조회 호출
+        await fetchMstData();
       } else {
         await notify(t('MSG_ALT_BIZTALK_ERR')); // 알림톡 전송중 에러가 발생했습니다.
       }
