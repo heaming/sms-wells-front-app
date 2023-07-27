@@ -84,6 +84,7 @@ import WwctaContractSettlementAgreeItem
   from '~sms-wells/contract/components/ordermgmt/WwctaContractSettlementAgreeItem.vue';
 import { codeUtil } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
+import { scrollIntoView } from '~sms-common/contract/util';
 
 const props = defineProps({
   modelValue: {
@@ -125,11 +126,6 @@ function onChangeCssrIsDvCd() {
   }
 }
 
-function scrollTo(ref) {
-  const el = ref.value.$el;
-  if (el) { el.scrollIntoView(true); }
-}
-
 const topRef = ref();
 const frmRef = ref();
 
@@ -137,7 +133,7 @@ async function validate() {
   if (!props.modelValue) { return true; }
   if (!changeTarget) { return true; }
   const valid = await frmRef.value.validate();
-  if (!valid) { scrollTo(frmRef); }
+  if (!valid) { scrollIntoView(frmRef); }
   return valid;
 }
 

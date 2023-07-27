@@ -116,7 +116,7 @@
       </kw-action-top>
 
       <kw-grid
-        v-if="searchParams.searchGubun === '1'"
+        v-if="gridControl.gubun === '1'"
         ref="grdMainRef"
         name="grdMain"
         :visible-rows="10"
@@ -177,6 +177,10 @@ const searchParams = ref({
   regDtTo: now.format('YYYYMMDD'),
 });
 
+const gridControl = ref({
+  gubun: searchGubunCode[0].codeId,
+});
+
 async function fetchData() {
   const apiParam = searchParams.value.searchGubun === '1' ? 'by-product' : 'by-contract';
 
@@ -190,6 +194,9 @@ async function fetchData() {
 
 async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
+
+  gridControl.value.gubun = searchParams.value.searchGubun;
+
   await fetchData();
 }
 
@@ -198,6 +205,7 @@ async function onClickExcelDownload() {
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
+    exportData: gridUtil.getAllRowValues(view),
   });
 }
 
@@ -215,7 +223,7 @@ async function onClickSave() {
   const changedRows = gridUtil.getChangedRowValues(view);
 
   await dataService.post('/sms/wells/closing/normal-account', changedRows);
-  await notify(t('MSG_ALT_SAVE_DATA'));
+  notify(t('MSG_ALT_SAVE_DATA'));
 
   await fetchData();
 }

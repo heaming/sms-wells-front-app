@@ -289,11 +289,20 @@ async function openZwfebFeeHistoryMgtP() {
 }
 
 async function onClickExcelDownload() {
+  let uri = '';
+  cachedParams = cloneDeep(searchParams.value);
+  stepNaviRef.value.initProps();
+
+  if (isGrid2Visile.value === true) {
+    uri = '-brmgr';
+  }
   const view = grdMainRef.value.getView();
+  const response = await dataService.get(`/sms/wells/fee/organization-fees/hmsts${uri}`, { params: cachedParams });
 
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
+    exportData: response.data,
   });
 }
 
@@ -567,7 +576,7 @@ async function onClickW316P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
   const { unitCd, perfYm } = searchParams.value;
   const response = await dataService.get('/sms/common/fee/fee-approval/dsb-cnst-status', searchParams.value); /* 품의진행상태 조회 */
   const resData = response.data;
-  approval.value.appKey = `${formId}_${unitCd}_${dayjs().format('YYYYMMDDHHmmss')}`; /* 10자리 +_+ 4자리 +_+ 14자리 = 30 appKey 생성 */
+  approval.value.appKey = `${formId}_${unitCd}_${perfYm}_${dayjs().format('YYYYMMDDHHmmss')}`; /* 10자리 +_+ 4자리 +_+ 6자리 +_+ 14자리 = 36 appKey 생성 */
   const params = approval.value;
   saveInfo.value.appKey = approval.value.appKey;
   saveInfo.value.perfYm = perfYm;
@@ -619,6 +628,35 @@ async function onClickW318P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
   }
 }
 
+/*
+ *  Event - 교육집계 클릭 ※
+ */
+async function onClickW320P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
+  const { feeTcntDvCd, perfYm, rsbTpCd } = searchParams.value;
+  const { codeName } = codes.FEE_TCNT_DV_CD.find((v) => v.codeId === searchParams.value.feeTcntDvCd);
+  if (searchParams.value.rsbTp === '') {
+    await alert(t('MSG_ALT_SELECT_RSB_TP'));
+  } else {
+    const param = {
+      ogTpCd: 'W03',
+      ogTpCdTxt: '홈마스터',
+      perfYmTxt: `${perfYm.substring(0, 4)}-${perfYm.substring(4, 6)}`,
+      perfYm,
+      feeTcntDvCd,
+      feeTcntDvCdTxt: codeName,
+      rsbTpCd,
+    };
+    const { result: isChanged } = await modal({
+      component: 'WwfeaFeeMeetingAttendanceRegP',
+      componentProps: param,
+    });
+    if (isChanged) {
+      await dataService.put(`/sms/common/fee/schedules/steps/${feeSchdId}/status/levels`, null, { params: { feeSchdLvCd, feeSchdLvStatCd } });
+      fetchData();
+    }
+  }
+}
+
 /**
  * Event - 스텝퍼 클릭
  * 버튼 로직 존재시 해당 로직 서술
@@ -652,6 +690,8 @@ async function onclickStep(params) {
     await onClickW317P();
   } else if (params.code === 'W0318') { // 선급판매 수수료 확정
     await onClickW318P(params.feeSchdId, params.code, '03');
+  } else if (params.code === 'W0320') { // 교육집계
+    await onClickW320P(params.feeSchdId, params.code, '03');
   }
 }
 

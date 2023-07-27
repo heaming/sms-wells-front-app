@@ -128,7 +128,7 @@ const { ok } = useModal();
 const dataService = useDataService();
 const grdMainRef = ref(getComponentType('KwGrid'));
 const baseURI = '/sms/wells/service/item-locations';
-const stdWareUri = '/sms/wells/service/normal-outofstorages/standard-ware';
+const stdWareUri = '/sms/wells/service/normal-out-of-storages/standard-ware';
 
 const props = defineProps({
   itmPdCd: {

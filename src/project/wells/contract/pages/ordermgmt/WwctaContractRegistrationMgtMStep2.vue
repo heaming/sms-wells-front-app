@@ -341,9 +341,8 @@
                         v-model="item.sellDscTpCd"
                         :options="item.sellDscTpCds"
                         placeholder="렌탈할인유형"
-                        :readonly="!!item.isRentalDiscountFixed"
-                        @change="
-                          getPdAmts(item)"
+                        :readonly="!!item.rentalDiscountFixed"
+                        @change="getPdAmts(item)"
                       />
                       <kw-select
                         v-if="item.svPdCds"
@@ -680,6 +679,7 @@ async function getPdAmts(pd) {
 async function getPdSels(pd) {
   const sels = await dataService.get('sms/wells/contract/contracts/product-selects', {
     params: {
+      copnDvCd: step2.value.bas.copnDvCd,
       sellInflwChnlDtlCd: step2.value.bas.sellInflwChnlDtlCd,
       pdCd: pd.pdCd,
       sellTpCd: pd.sellTpCd,
@@ -763,14 +763,14 @@ async function onClickOnePlusOne(pd) {
     };
     pd.cntrRelDtlCd = '215';
     pd.sellDscTpCd = '03';
-    pd.isRentalDiscountFixed = true;
+    pd.rentalDiscountFixed = true;
   }
 }
 
 function onClickDeleteOneplusone(pd) {
   pd.cntrRelDtlCd = '';
   pd.sellDscTpCd = '';
-  pd.isRentalDiscountFixed = false;
+  pd.rentalDiscountFixed = false;
   pd.opo = {};
 }
 
@@ -926,6 +926,10 @@ async function isValidStep() {
   }
   if (dtls.find((d) => isItem.sltrRglrSpp(d) && (!d.sltrRglrSppMchn || !d.sltrRglrSppMchn.rglrSppMchnYn))) {
     await alert('정기배송 대상 기기를 선택해주세요.');
+    return false;
+  }
+  if (dtls.find((d) => d.sellDscTpCd === '03' && !d.opo.opoYn)) {
+    await alert('1+1 대상 계약을 선택해주세요.');
     return false;
   }
   return true;

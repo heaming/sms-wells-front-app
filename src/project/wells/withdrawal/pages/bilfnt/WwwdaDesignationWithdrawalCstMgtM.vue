@@ -17,10 +17,21 @@
   <kw-page>
     <kw-search
       one-row
-      :cols="2"
+      :cols="3"
       @search="onClickSearch"
     >
       <kw-search-row>
+        <kw-search-item
+          :label="$t('MSG_TXT_BASE_YM')"
+          required
+        >
+          <kw-date-picker
+            v-model="searchParams.baseYm"
+            type="month"
+            rules="required"
+            :name="$t('MSG_TXT_BASE_YM')"
+          />
+        </kw-search-item>
         <kw-search-item
           :label="$t('MSG_TXT_TASK_TYPE')"
         >
@@ -110,6 +121,7 @@ import { useGlobal, useDataService, codeUtil, gridUtil, defineGrid, getComponent
 // eslint-disable-next-line no-unused-vars
 import { cloneDeep, isEmpty } from 'lodash-es';
 import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
+import dayjs from 'dayjs';
 
 const { notify } = useGlobal();
 const { t } = useI18n();
@@ -122,6 +134,7 @@ const { getters } = useStore();
 const userInfo = getters['meta/getUserInfo'];
 // eslint-disable-next-line no-unused-vars
 const { tenantCd } = userInfo;
+const now = dayjs();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -145,6 +158,7 @@ const pageInfo = ref({
 });
 
 const searchParams = ref({
+  baseYm: now.format('YYYYMM'),
   sellTpCd: 'ALL',
   cntrNo: '',
   cntrSn: '',
@@ -167,7 +181,6 @@ function getSaveParams() {
   const view = grdMainRef.value.getView();
 
   const changedRows = gridUtil.getChangedRowValues(view);
-
   return changedRows.map((v) => ({ ...v,
     ucAmt: v.dsnWdrwAmt - v.dpAmt,
   }));
@@ -213,7 +226,7 @@ async function onClickRemove() {
     cntr: v.cntr,
     cntrNo: v.cntrNo,
     cntrSn: v.cntrSn,
-    dsnWdrwFntD: v.dsnWdrwFntD,
+    fntYm: v.fntYm,
   }));
 
   if (deletedRows.every((v) => v.rowState !== 'none')) {
@@ -225,6 +238,7 @@ async function onClickRemove() {
     return;
   }
   await dataService.delete('/sms/wells/withdrawal/bilfnt/designation-wdrw-csts', { data });
+  notify(t('MSG_ALT_DELETED'));
   await onClickSearch();
 }
 
@@ -267,6 +281,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'cstKnm' }, // 고객명
     { fieldName: 'sellTpCd' }, // 업무유형
     { fieldName: 'dsnWdrwAmt', dataType: 'number' }, // 지정금액
+    { fieldName: 'fntYm' }, // 이체년월
     { fieldName: 'dsnWdrwFntD' }, // 이체일자
     { fieldName: 'fntYn' }, // 이체구분
     { fieldName: 'dpAmt', dataType: 'number' }, // 입금금액
@@ -321,8 +336,25 @@ const initGrid = defineGrid((data, view) => {
       numberFormat: '#,##0',
       rules: 'required',
     },
+    { fieldName: 'fntYm',
+      header: t('MSG_TXT_FNT_YM'),
+      width: '120',
+      styleName: 'text-center',
+      datetimeFormat: 'yyyy-MM',
+      editor: {
+        type: 'btdate',
+        btOptions: {
+          minViewMode: 1,
+        },
+        datetimeFormat: 'yyyy-MM',
+        mask: {
+          placeHolder: '선택',
+        },
+      },
+      rules: 'required',
+    },
     { fieldName: 'dsnWdrwFntD',
-      header: t('MSG_TXT_FNT_DT'),
+      header: t('MSG_TXT_FTD'),
       options: codes.AUTO_FNT_FTD_ACD,
       width: '120',
       styleName: 'text-center',
@@ -397,8 +429,8 @@ const initGrid = defineGrid((data, view) => {
 
   // multi row header setting
 
-  view.onCellEditable = (grid, index) => {
-    if (!gridUtil.isCreatedRow(grid, index.dataRow) && index.column === 'cntr') {
+  view.onCellEditable = (grid, { itemIndex, column }) => {
+    if (!gridUtil.isCreatedRow(grid, itemIndex) && ['cntr', 'fntYm'].includes(column)) {
       return false;
     }
   };

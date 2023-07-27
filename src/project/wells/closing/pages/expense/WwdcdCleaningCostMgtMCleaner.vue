@@ -283,8 +283,8 @@ const initGrdSub = defineGrid((data, view) => {
     { fieldName: 'clinrFxnAmt', header: t('MSG_TXT_FXN_AMT_MM'), width: '182', styleName: 'text-center', dataType: 'number' }, // 고정금(월)
     { fieldName: 'taxDdctam', header: t('MSG_TXT_TAX_DDTN_WON'), width: '182', styleName: 'text-right', dataType: 'number' }, // 세금공제(원)
     { fieldName: 'amt', header: t('MSG_TXT_ACL_DSB_AMT_WON'), width: '182', styleName: 'text-right', dataType: 'number' }, // 실지급액(원)
-    { fieldName: 'wrkStrtdt', header: t('MSG_TXT_WRK_STRT_DT'), width: '182', styleName: 'text-center', dataType: 'date', datetimeFormat: 'datetime' }, // 근무시작일자
-    { fieldName: 'wrkEnddt', header: t('MSG_TXT_WRK_END_DT'), width: '182', styleName: 'text-center', dataType: 'date', datetimeFormat: 'datetime' }, // 근무종료일자
+    { fieldName: 'wrkStrtdt', header: t('MSG_TXT_WRK_STRT_DT'), width: '182', styleName: 'text-center', dataType: 'date', datetimeFormat: 'YYYY-MM-DD' }, // 근무시작일자
+    { fieldName: 'wrkEnddt', header: t('MSG_TXT_WRK_END_DT'), width: '182', styleName: 'text-center', dataType: 'date', datetimeFormat: 'YYYY-MM-DD' }, // 근무종료일자
     { fieldName: 'workStatus', header: t('MSG_TXT_WRK_YN'), width: '182', styleName: 'text-center' }, // 근무여부
     { fieldName: 'rrnoEncr', header: t('MSG_TXT_RRNO'), width: '182', styleName: 'text-center' }, // 주민등록번호
     { fieldName: 'telNum', header: t('MSG_TXT_CONTACT'), width: '182', styleName: 'text-center' }, // 연락처

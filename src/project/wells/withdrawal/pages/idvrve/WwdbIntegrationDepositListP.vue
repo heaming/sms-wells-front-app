@@ -99,16 +99,12 @@
         </kw-search-item>
       </kw-search-row>
     </kw-search>
-    <ul class="kw-font-pt14 mt20 ml10 mb20">
+    <ul class="kw-notification">
       <li>
-        <ul>
-          <li>
-            <span class="kw-fc--primary">
-              {{ t('MSG_TXT_DBL_CLK_DTA_CHO') }}
-            </span>
-          </li>
-          <!-- 더블클릭하면 데이터가 선택되며 팝업창이 닫힙니다. -->
-        </ul>
+        <span class="kw-fc--primary">
+          {{ t('MSG_TXT_DBL_CLK_DTA_CHO') }}
+        </span>
+        <!-- 더블클릭하면 데이터가 선택되며 팝업창이 닫힙니다. -->
       </li>
     </ul>
 

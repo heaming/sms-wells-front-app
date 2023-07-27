@@ -499,13 +499,37 @@ async function openFeePerfCnfmCanPopup() {
   });
 }
 
-async function onClickExcelDownload() {
+async function downloadExcelView1(uri) {
   const view = grd1MainRef.value.getView();
+  const response = await dataService.get(`/sms/wells/fee/organization-netorders/${uri}`, { params: cachedParams });
 
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
+    exportData: response.data,
   });
+}
+
+async function downloadExcelView2(uri) {
+  const view = grd2MainRef.value.getView();
+  const response = await dataService.get(`/sms/wells/fee/organization-netorders/${uri}`, { params: cachedParams });
+
+  await gridUtil.exportView(view, {
+    fileName: currentRoute.value.meta.menuName,
+    timePostfix: true,
+    exportData: response.data,
+  });
+}
+
+async function onClickExcelDownload() {
+  const { schDiv } = searchParams.value;
+  cachedParams = cloneDeep(searchParams.value);
+
+  if (schDiv === '04') {
+    await downloadExcelView1('hmst-fees');
+  } else {
+    await downloadExcelView2('hmsts');
+  }
 }
 
 async function fetchData(uri) {

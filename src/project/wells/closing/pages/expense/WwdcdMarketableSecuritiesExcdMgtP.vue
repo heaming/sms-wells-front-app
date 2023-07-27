@@ -225,7 +225,6 @@ watch(() => searchParams.value.dgr2LevlOgId, async (newVal) => {
 });
 
 async function subject() {
-  debugger;
   const view = grdSubRef.value.getView();
   const res = await dataService.get('/sms/wells/closing/expense/operating-cost/marketable-securities-excd/subject', { params: cachedParams });
 
@@ -305,7 +304,6 @@ async function onClickIcon() {
 
 // 균등대비
 async function onClickEquality() {
-  debugger;
   pdstOpt = '02';
 
   // sub
@@ -455,6 +453,12 @@ async function onClickObjectPersonAdd() {
 
   const mainDstAmt = mainView.getValue(0, 'dstAmt');
   const mainAmt = mainView.getValue(0, 'amt');
+
+  if ((mainAmt - dstAmt) < 0) {
+    alert('대상자 배분금액기 정상대상금액을 초과하였습니다.');
+    return;
+  }
+
   mainView.setValue(0, 'dstAmt', mainDstAmt + dstAmt);
   mainView.setValue(0, 'amt', mainAmt - dstAmt);
 
@@ -655,8 +659,17 @@ const initGrdSub = defineGrid((data, view) => {
   view.onCellEdited = (grid, itemIndex, row, fieldIndex) => {
     grid.commit();
     grid.commitEditor();
+
+    const mainView = grdMainRef.value.getView();
+    const { adjCnfmAmt } = mainView.getValues(0);
+
     const columnName = grid.getColumn(fieldIndex).fieldName;
     if (columnName === 'dstAmt') {
+      if (grid.getValues(itemIndex).dstAmt < adjCnfmAmt) {
+        alert('정산대상금액보다 큰 금액을 입력하셨습니다.');
+        grid.setValue(itemIndex, 'dstAmt', 0);
+        return;
+      }
       pdstOpt = '03';
     }
   };

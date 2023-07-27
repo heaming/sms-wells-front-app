@@ -289,7 +289,7 @@ async function hasPartTransfer() {
 async function onClickSearch() {
   const notifyMessage = await chkInputSearchComplete(searchParams, canFeasibleSearch);
   if (notifyMessage) {
-    notify(notifyMessage);
+    await alert(notifyMessage);
     return;
   }
   if (await hasPartTransfer()) {
@@ -388,6 +388,9 @@ async function onClickCreate() {
     notify(t('MSG_ALT_PA_TF_EXCN'));
   }
   await dataService.post('/sms/wells/bond/part-transfers', cachedParams);
+
+  // TODO: 통테 임시 작업 메시지 정의 필요
+  await alert('파트이관이 완료 되었습니다.');
 }
 
 watch(() => searchParams.value.cstNo, async () => {

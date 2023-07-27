@@ -89,6 +89,7 @@ import WwctaContractSettlementAgreeItem
   from '~sms-wells/contract/components/ordermgmt/WwctaContractSettlementAgreeItem.vue';
 import CrdcdExpSelect from '~sms-wells/contract/components/ordermgmt/WctaCrdcdExpSelect.vue';
 import { confirm, getComponentType, notify, useDataService } from 'kw-lib';
+import { scrollIntoView } from '~sms-common/contract/util';
 
 const props = defineProps({
   cntrCstInfo: { type: Object, default: undefined },
@@ -193,17 +194,12 @@ async function onClickApproval() {
 /* exposed */
 const topRef = ref();
 
-function scrollTo(ref) {
-  const el = ref.value.$el;
-  if (el) { el.scrollIntoView(true); }
-}
-
 async function validate() {
   if (!props.stlm) { return true; }
   const valid = approvalResponse.value?.fnitAprRsCd === 'Y';
   if (!valid) {
     notify('계좌 이체 요청을 해주세요.');
-    scrollTo(topRef);
+    scrollIntoView(topRef);
   }
   return valid;
 }

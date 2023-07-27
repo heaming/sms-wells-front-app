@@ -39,13 +39,17 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { defineGrid, useDataService, getComponentType, useModal } from 'kw-lib';
+import { defineGrid, useDataService, getComponentType, useModal, codeUtil } from 'kw-lib';
 import { onMounted } from 'vue';
 
 const { t } = useI18n();
 const { cancel: onClickCancel } = useModal();
 const dataService = useDataService();
 const gridMainRef = ref(getComponentType('KwGrid'));
+
+const codes = await codeUtil.getMultiCodes(
+  'TF_AK_DV_CD',
+);
 
 /*
  *  Parent Parameter를 가져오기 위한 변수 선언.
@@ -96,9 +100,8 @@ const initGrid = defineGrid((data, view) => {
   ];
 
   const columns = [
-    {
-      fieldName: 'fnlMdfcDtm', header: t('이관일시'), width: '200', styleName: 'text-center' },
-    { fieldName: 'asnTfDvCd', header: t('이관사유'), width: '150', styleName: 'text-center' },
+    { fieldName: 'fnlMdfcDtm', header: t('이관일시'), width: '200', styleName: 'text-center' },
+    { fieldName: 'asnTfDvCd', header: t('이관사유'), width: '150', styleName: 'text-center', options: codes.TF_AK_DV_CD },
     { fieldName: 'bfOgNm', header: t('소속'), width: '150', styleName: 'text-left' },
     { fieldName: 'bfCnfmPsicPrtnrNo', header: t('사번'), width: '100', styleName: 'text-right' },
     { fieldName: 'bfPrtnrKnm', header: t('성명'), width: '100', styleName: 'text-left' },

@@ -91,8 +91,8 @@
           class="mt30"
         >
           <kw-form-row>
-            <!-- 고객명 -->
-            <kw-form-item :label="$t('MSG_TXT_CST_NM')">
+            <!-- 계약자명 -->
+            <kw-form-item :label="$t('MSG_TXT_CNTOR_NM')">
               <p>{{ frmMainData.cstKnm }}</p>
             </kw-form-item>
             <!-- 고객번호 -->
@@ -102,9 +102,9 @@
           </kw-form-row>
 
           <kw-form-row>
-            <!-- 계약번호 -->
-            <kw-form-item :label="$t('MSG_TXT_CNTR_NO')">
-              <p>{{ frmMainData.cntrNo }}</p>
+            <!-- 계약상세번호 -->
+            <kw-form-item :label="$t('MSG_TXT_CNTR_DTL_NO')">
+              <p>{{ frmMainData.cntrDtlNo }}</p>
             </kw-form-item>
             <slot v-if="props.copnDvCd === '1'">
               <!-- 생년월일 -->
@@ -136,6 +136,13 @@
             <kw-form-item :label="$t('MSG_TXT_GENDER')">
               <p>{{ frmMainData.sexDvNm }}</p>
             </kw-form-item>
+            <!-- 세이프키 -->
+            <kw-form-item :label="$t('MSG_TXT_SFK')">
+              <p>{{ frmMainData.sfkVal }}</p>
+            </kw-form-item>
+          </kw-form-row>
+
+          <kw-form-row>
             <!-- 자동이체 -->
             <kw-form-item :label="$t('MSG_TXT_AUTO_FNT')">
               <kw-chip
@@ -151,10 +158,6 @@
           </kw-form-row>
 
           <kw-form-row>
-            <!-- 세이프키 -->
-            <kw-form-item :label="$t('MSG_TXT_SFK')">
-              <p>{{ frmMainData.sfkVal }}</p>
-            </kw-form-item>
             <!-- 가상계좌 -->
             <kw-form-item :label="$t('MSG_TXT_VT_AC')">
               <kw-chip

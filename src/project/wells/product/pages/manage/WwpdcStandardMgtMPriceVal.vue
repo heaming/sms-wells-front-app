@@ -40,6 +40,7 @@
   </kw-form>
   <kw-separator />
   <kw-form
+    v-show="selectionVariables && selectionVariables.length"
     ref="frmVariableRef"
     :cols="2"
     dense
@@ -58,7 +59,7 @@
       </kw-form-item>
     </kw-form-row>
   </kw-form>
-  <kw-separator />
+  <kw-separator v-if="selectionVariables && selectionVariables.length" />
   <kw-action-bottom class="mb30">
     <kw-btn
       v-show="!props.readonly"
@@ -80,7 +81,7 @@
   </kw-action-top>
   <kw-grid
     ref="grdMainRef"
-    :visible-rows="5"
+    :visible-rows="10"
     :need-context-menu="false"
     @init="initGrid"
   />
@@ -256,13 +257,13 @@ async function initGridRows() {
       defaultFields.value,
     ));
     rows?.map((row) => {
-      row[pdConst.PRC_FNL_ROW_ID] = row[pdConst.PRC_FNL_ROW_ID] ?? row.pdPrcFnlDtlId;
       row[pdConst.PRC_STD_ROW_ID] = row[pdConst.PRC_STD_ROW_ID] ?? row.pdPrcDtlId;
       const stdRow = stdRows?.find((item) => (row[pdConst.PRC_STD_ROW_ID]
                                                 && item[pdConst.PRC_STD_ROW_ID] === row[pdConst.PRC_STD_ROW_ID])
                                             || (row.pdPrcDtlId && item.pdPrcDtlId === row.pdPrcDtlId));
       // console.log('const stdRow : ', row);
       row = pdMergeBy(row, stdRow);
+      row[pdConst.PRC_FNL_ROW_ID] = row[pdConst.PRC_FNL_ROW_ID] ?? row.pdPrcFnlDtlId;
       if (isEmpty(row[pdConst.PRC_STD_ROW_ID])) row[pdConst.PRC_STD_ROW_ID] = row.pdPrcDtlId;
       // console.log('WwpdcStandardMgtMPriceVal - initGridRows - row : ', row);
       row.sellTpCd = currentSellTpCd.value;
@@ -297,6 +298,7 @@ async function onClickAdd() {
     if (stdRows && stdRows.length) {
       stdRows.forEach((row, idx) => {
         row.sellChnlCd = addChannelId.value;
+        row[pdConst.PRC_STD_ROW_ID] = row[pdConst.PRC_STD_ROW_ID] ?? row.pdPrcDtlId;
         row[pdConst.PRC_FNL_ROW_ID] = stringUtil.getUid('FNL');
         row[pdConst.PRC_DETAIL_FNL_ID] = '';
         row.pdPrcDtlIdRefVp = row.pdPrcDtlId;
@@ -367,9 +369,9 @@ async function initProps() {
 
 await initProps();
 
-onMounted(async () => {
+onActivated(async () => {
   // TODO 탭사용시 그리드 사라짐 문제로 아래 코드 임시조치
-  grdMainRef.value.getView().displayOptions.rowHeight = -1;
+  await initGridRows();
 });
 
 watch(() => props.pdCd, (val) => { currentPdCd.value = val; });

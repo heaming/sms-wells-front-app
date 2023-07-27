@@ -36,7 +36,7 @@
           :label="$t('MSG_TXT_PERF_YM')"
           hint="실적년월 선택불가"
         >
-          <p>{{ data.perfYm }}</p>
+          <p>{{ data.perfYmTxt }}</p>
         </kw-form-item>
         <!-- 실적년월 -->
       </kw-form-row>
@@ -102,6 +102,10 @@ const props = defineProps({
     type: String,
     default: '',
   },
+  perfYmTxt: {
+    type: String,
+    default: '',
+  },
 });
 
 const data = ref({
@@ -111,6 +115,7 @@ const data = ref({
   feeTcntDvCd: props.feeTcntDvCd,
   feeTcntDvCdTxt: props.feeTcntDvCdTxt,
   rsbTpCd: props.rsbTpCd,
+  perfYmTxt: props.perfYmTxt,
   saveUrl: '',
 });
 // -------------------------------------------------------------------------------------------------

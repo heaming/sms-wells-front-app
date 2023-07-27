@@ -23,6 +23,11 @@
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
+        <kw-form-item :label="$t('MSG_TXT_OG_TP')">
+          <p>{{ codes.OG_TP_CD.find((v) => v.codeId === params?.ogTpCd)?.codeName }}</p>
+        </kw-form-item>
+      </kw-form-row>
+      <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_ORDR')">
           <p>{{ codes.FEE_TCNT_DV_CD.find((v) => v.codeId === params?.feeTcntDvCd)?.codeName }}</p>
         </kw-form-item>
@@ -84,13 +89,18 @@ const props = defineProps({
     type: String,
     required: true,
   },
+  perfAgrgCrtDvCd: { // 실적생성구분코드
+    type: String,
+    required: true,
+  },
 });
 
 const params = ref({
   perfYm: props.perfYm,
-  ogTp: props.ogTp,
+  ogTpCd: props.ogTp,
   dv: props.dv,
   feeTcntDvCd: props.feeTcntDvCd,
+  perfAgrgCrtDvCd: props.perfAgrgCrtDvCd,
 });
 
 // -------------------------------------------------------------------------------------------------
@@ -98,6 +108,7 @@ const params = ref({
 // -------------------------------------------------------------------------------------------------
 const codes = await codeUtil.getMultiCodes(
   'FEE_TCNT_DV_CD',
+  'OG_TP_CD',
 );
 
 async function onClickCancel() {
@@ -107,11 +118,10 @@ async function onClickCancel() {
 async function onClickCreate() {
   if (!await confirm(t('MSG_ALT_CREATED'))) { return; }
   const response = await dataService.post('/sms/wells/fee/organization-netorders/aggregates', params.value);
-  ok(response.data);
+  if (response.data === 'S') ok(response.data);
 }
 
 async function onClickConfirm() {
-  // TODO: 수수료 미생성 시 클릭 : '시상수수료 생성을 진행 후 확정이 가능합니다.' 추가 필요
   if (!await confirm(t('MSG_ALT_DTRM'))) { return; }
   const response = await dataService.put('/sms/wells/fee/organization-netorders', params.value);
   ok(response.data);

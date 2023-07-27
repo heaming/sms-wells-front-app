@@ -290,7 +290,7 @@
             <kw-btn
               :label="$t('MSG_BTN_MOD')"
               padding="12px"
-              @click="onClickModify(item.cntrPrgsStatCd, item.cntrNo)"
+              @click="onClickModify(item.cntrPrgsStatCd, item.cntrNo, item.cntrSn)"
             />
             <kw-separator
               vertical
@@ -311,7 +311,7 @@
             <kw-btn
               :label="$t('MSG_BTN_MOD')"
               padding="12px"
-              @click="onClickModify(item.cntrPrgsStatCd, item.cntrNo)"
+              @click="onClickModify(item.cntrPrgsStatCd, item.cntrNo, item.cntrSn)"
             />
             <kw-separator
               vertical
@@ -343,7 +343,7 @@
             <kw-btn
               :label="$t('MSG_BTN_INQR')"
               padding="12px"
-              @click="onClickModify(item.cntrPrgsStatCd, item.cntrNo)"
+              @click="onClickModify(item.cntrPrgsStatCd, item.cntrNo, item.cntrSn)"
             />
             <kw-separator
               vertical
@@ -364,7 +364,7 @@
             <kw-btn
               :label="$t('MSG_BTN_INQR')"
               padding="12px"
-              @click="onClickModify(item.cntrPrgsStatCd, item.cntrNo)"
+              @click="onClickModify(item.cntrPrgsStatCd, item.cntrNo, item.cntrSn)"
             />
             <kw-separator
               vertical
@@ -399,7 +399,7 @@
             <kw-btn
               :label="$t('MSG_BTN_INQR')"
               padding="12px"
-              @click="onClickModify(item.cntrPrgsStatCd, item.cntrNo)"
+              @click="onClickModify(item.cntrPrgsStatCd, item.cntrNo, item.cntrSn)"
             />
             <kw-separator
               vertical
@@ -416,7 +416,7 @@
             <kw-btn
               :label="$t('MSG_TXT_CNTRCT')+$t('MSG_BTN_CH')"
               padding="12px"
-              @click="onClickModify(item.cntrPrgsStatCd, item.cntrNo)"
+              @click="onClickModify(item.cntrPrgsStatCd, item.cntrNo, item.cntrSn)"
             />
             <!-- TODO : 확정 / 삭제 버튼 노출 조건 확인 : 계약접수완료일시===now
                                삭제/삭제요청 버튼 비노출 조건 문의 : 설치가 완료된 건일 경우
@@ -592,13 +592,14 @@ async function onClickConfirmTarget(paramCntrNo) {
 }
 
 // 수정
-async function onClickModify(paramStatCd, paramCntrNo) {
+async function onClickModify(paramStatCd, paramCntrNo, paramCntrSn) {
   console.log(` onClickModify paramStatCd : ${paramStatCd}, paramCntrNo : ${paramCntrNo}`);
 
   router.replace({
     path: 'wwcta-contract-registration-mgt',
     query: {
       cntrNo: paramCntrNo,
+      cntrSn: paramCntrSn,
       cntrPrgsStatCd: paramStatCd,
       cntrPrtnrNo: '',
     },

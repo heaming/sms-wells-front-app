@@ -187,8 +187,8 @@
 
           <component
             :is="detailPanels[panelIdx].panel"
-            :ref="(el) => panelsRefs = el"
             :key="compKey"
+            :sametype="sameType"
             :child-detail="cancelDetailList[idx]"
             @searchdetail="onSearchDetail"
             @savedetail="onSave"
@@ -216,7 +216,7 @@ import WwctbMembershipCancelRegistrationMgtM from './WwctbMembershipCancelRegist
 import WwctbCancelRegistrationEmptyMgtM from './WwctbCancelRegistrationEmptyMgtM.vue';
 
 const { t } = useI18n();
-const { modal, alert, notify } = useGlobal();
+const { alert, confirm, modal, notify } = useGlobal();
 const dataService = useDataService();
 const { getUserInfo } = useMeta();
 const sessionUserInfo = getUserInfo();
@@ -232,6 +232,7 @@ const searchParams = ref({
 const totalCount = ref(0);
 const cachedParams = ref({});
 const compKey = ref(0);
+const sameType = ref('N');
 const idx = ref(-1);
 const cancelDetailList = ref([]);
 
@@ -274,7 +275,9 @@ const panelIdx = computed(() => getPanelIdx(cancelDetailList.value[idx.value].se
 
 // 하위 component 강제 rendering
 function forceRender() {
-  panelIdx.value = getPanelIdx(cancelDetailList.value[idx.value].sellTpCd);
+  const { sellTpCd } = cancelDetailList.value[idx.value];
+  sameType.value = cancelDetailList.value.every((v) => v.sellTpCd === sellTpCd) ? 'Y' : 'N';
+  panelIdx.value = getPanelIdx(sellTpCd);
   compKey.value += 1;
 }
 
@@ -407,7 +410,7 @@ async function onDelete() {
   const { cntrNo, cntrSn } = cancelDetailList.value[idx.value];
   const row = gridUtil.findDataRow(grdMainView.value, (e) => ((e.cntrNo === cntrNo) && (e.cntrSn === cntrSn)));
 
-  setGridCheckandSelect(row, false);
+  await setGridCheckandSelect(row, false);
 
   forceRender();
 }
@@ -420,34 +423,38 @@ async function onSave() {
   // 취소등록 정보 일괄적용 : 같은 판매유형의 취소등록건의 정보를 일괄적용
   if (param.bulkApplyYN === 'Y') {
     if (cancelDetailList.value.findIndex((v) => v.sellTpCd !== param.sellTpCd) >= 0) {
-      await notify('동일한 판매유형의 상품만 취소 일괄적용이 됩니다.');
+      await notify('판매유형이 모두 같은 경우만 일괄 적용이 가능합니다.');
       return;
     }
 
-    const inValidIdx = cancelDetailList.value.findIndex((v) => v.isSearch !== 'Y');
+    const inValidIdx = cancelDetailList.value.findIndex((v) => v.sellTpCd !== '1' && v.isSearch !== 'Y');
     if (inValidIdx >= 0) {
       await notify(`[${inValidIdx + 1}]번째 - 취소사항 조회를 해주세요.`);
       return;
     }
 
-    // 일괄 등록 시, 공통으로 적용할 파라미터 셋팅
-    cancelDetailList.value.forEach((element) => {
-      element.canCtrAmt = param.canCtrAmt;
-      element.slCtrRqrId = param.slCtrRqrId;
-      element.slCtrRmkCn = param.slCtrRmkCn;
-      element.cntrStatChRsonCd = param.cntrStatChRsonCd;
-      element.ccamExmptDvCd = param.ccamExmptDvCd;
-      element.csmbCsExmptDvCd = param.csmbCsExmptDvCd;
-      element.reqdCsExmptDvCd = param.reqdCsExmptDvCd;
-      element.reqdAkRcvryDvCd = param.reqdAkRcvryDvCd;
-      element.borAmt = param.borAmt;
-      element.csmbCostBorAmt2 = param.csmbCostBorAmt2;
-      element.reqdCsBorAmt2 = param.reqdCsBorAmt2;
-      element.dscDdctam = param.dscDdctam;
+    if (!await confirm(`${param.cntrNo}-${param.cntrSn}포함 총 ${cancelDetailList.value.length - 1}건의 취소를 저장하시겠습니까?`)) return;
 
-      element.filtDdctam = param.filtDdctam;
-      element.rsgAplcDt = param.rsgAplcDt;
-      element.rsgFshDt = param.rsgFshDt;
+    // 일괄 등록 시, 공통으로 적용할 파라미터 셋팅
+    const firstOne = cancelDetailList.value[0];
+    cancelDetailList.value.forEach((element) => {
+      element.canCtrAmt = firstOne.canCtrAmt;
+      element.slCtrRqrId = firstOne.slCtrRqrId;
+      element.slCtrRmkCn = firstOne.slCtrRmkCn;
+      element.cntrStatChRsonCd = firstOne.cntrStatChRsonCd;
+      element.ccamExmptDvCd = firstOne.ccamExmptDvCd;
+      element.csmbCsExmptDvCd = firstOne.csmbCsExmptDvCd;
+      element.reqdCsExmptDvCd = firstOne.reqdCsExmptDvCd;
+      element.reqdAkRcvryDvCd = firstOne.reqdAkRcvryDvCd;
+      element.borAmt = firstOne.borAmt;
+      element.lsnt = firstOne.lsnt;
+      element.csmbCostBorAmt2 = firstOne.csmbCostBorAmt2;
+      element.reqdCsBorAmt2 = firstOne.reqdCsBorAmt2;
+      element.dscDdctam = firstOne.dscDdctam;
+      element.filtDdctam = firstOne.filtDdctam;
+      element.rsgAplcDt = firstOne.rsgAplcDt;
+      element.rsgFshDt = firstOne.rsgFshDt;
+      element.bulkApplyYN = 'Y';
     });
 
     saveList = cancelDetailList.value;
@@ -471,7 +478,7 @@ async function onSave() {
 }
 
 async function onUpdateValue() {
-  console.log(cancelDetailList.value[idx.value]);
+  // console.log(cancelDetailList.value[idx.value]);
 }
 
 async function getCanceledInfo(cntrNo, cntrSn, row) {

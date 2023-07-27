@@ -161,10 +161,12 @@ async function onClickSearch() {
  */
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
+  const response = await dataService.get('/sms/wells/fee/home-master-grades', { params: cachedParams });
 
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
+    exportData: response.data,
   });
 }
 /*

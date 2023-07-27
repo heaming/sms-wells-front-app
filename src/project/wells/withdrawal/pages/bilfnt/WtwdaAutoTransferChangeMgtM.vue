@@ -147,6 +147,7 @@ async function onClickAlarmSend() {
   const query = deviceScreen + new URLSearchParams(params);
 
   const nsFullUrl = query;
+
   // chRqrDvCd 방문 : '2' (교원) / 원거리 : '1' (고객)
   if (!await formRef.value.validate()) { return; }
   inputParams.value = { ...inputParams.value,

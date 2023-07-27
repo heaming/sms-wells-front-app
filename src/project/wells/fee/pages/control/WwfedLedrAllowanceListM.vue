@@ -28,7 +28,16 @@
           />
         </kw-search-item>
         <kw-search-item
-          :label="$t('MSG_TXT_DIV')"
+          :label="$t('MSG_TXT_OG_DV')"
+        >
+          <kw-option-group
+            v-model="searchParams.ogDvCd"
+            type="radio"
+            :options="codes.SELL_OG_DV_ACD"
+          />
+        </kw-search-item>
+        <kw-search-item
+          :label="$t('MSG_TXT_RSB')"
         >
           <kw-option-group
             v-model="searchParams.rsbDvCd"
@@ -38,21 +47,21 @@
             first-option-value=""
           />
         </kw-search-item>
-        <kw-search-item :label="$t('MSG_TXT_INQR_DV')">
-          <kw-option-group
-            v-model="searchParams.inqrDv"
-            type="radio"
-            :options="inqrDv"
-          />
-        </kw-search-item>
       </kw-search-row>
       <kw-search-row>
+        <kw-search-item :label="$t('MSG_TXT_INQR_DV')">
+          <kw-option-group
+            v-model="searchParams.inqrDvCd"
+            type="radio"
+            :options="codes.WELS_MNGR_INQR_DV_CD"
+          />
+        </kw-search-item>
         <kw-search-item
 
           :label="$t('MSG_TXT_SEQUENCE_NUMBER')"
         >
           <kw-input
-            v-model="searchParams.no"
+            v-model="searchParams.prtnrNo"
             icon="search"
             clearable
             :on-click-icon="onClickSearchNo"
@@ -123,29 +132,31 @@ const isGrdSumVisible = ref(false);
 
 const codes = await codeUtil.getMultiCodes(
   'RSB_DV_CD',
+  'SELL_OG_DV_ACD',
+  'WELS_MNGR_INQR_DV_CD',
 );
-const rsbDvCd = codes.RSB_DV_CD.filter((v) => ['W0202', 'W0203'].includes(v.codeId));
-
-// 조회구분
-const inqrDv = [
-  { codeId: 'indv', codeName: t('MSG_TXT_INDV') },
-  { codeId: 'sum', codeName: t('MSG_TXT_SUM') },
-];
+let rsbDvCd;
 
 const searchParams = ref({
   perfYm: dayjs().subtract(1, 'month').format('YYYYMM'),
   rsbDvCd: '',
-  inqrDv: 'indv',
-  no: '',
+  inqrDvCd: '01',
+  ogDvCd: '7',
+  ogTpCd: 'W02',
+  prtnrNo: '',
 });
 
-watch(() => searchParams.value.inqrDv, async (val) => {
-  totalCount.value = 0;
+watch(() => searchParams.value.ogDvCd, async (val) => {
+  if (val === '7') { rsbDvCd = codes.RSB_DV_CD.filter((v) => ['W0202', 'W0203'].includes(v.codeId)); } else { rsbDvCd = codes.RSB_DV_CD.filter((v) => ['W0102', 'W0103'].includes(v.codeId)); }
+  searchParams.value.rsbDvCd = '';
+}, { immediate: true });
 
-  if (val === 'indv') {
+watch(() => searchParams.value.inqrDvCd, async (val) => {
+  totalCount.value = 0;
+  if (val === '01') {
     isGrdIndvVisible.value = true;
     isGrdSumVisible.value = false;
-  } else if (val === 'sum') {
+  } else if (val === '02') {
     isGrdIndvVisible.value = false;
     isGrdSumVisible.value = true;
   }
@@ -165,8 +176,8 @@ watch(() => searchParams.value.perfYm, async (val) => {
 
 async function onClickExcelDownload() {
   let type;
-  if (searchParams.value.inqrDv === 'indv') type = 'indv';
-  else if (searchParams.value.inqrDv === 'sum') type = 'sum';
+  if (searchParams.value.inqrDvCd === '01') type = 'indv';
+  else if (searchParams.value.inqrDvCd === '02') type = 'sum';
   const response = await dataService.get(`/sms/wells/fee/ledr-allowances/${type}`, { params: searchParams.value });
 
   let view;
@@ -199,17 +210,18 @@ async function onClickSearchNo() {
     component: 'ZwogzMonthPartnerListP',
     componentProps: {
       baseYm: searchParams.value.perfYm,
-      prtnrNo: searchParams.value.no,
-      ogTpCd: 'HR1',
+      prtnrNo: searchParams.value.prtnrNo,
+      ogTpCd: searchParams.value.ogTpCd === '7' ? 'W02' : 'W01',
     },
   });
 
   if (result) {
-    searchParams.value.no = payload.prtnrNo;
+    searchParams.value.prtnrNo = payload.prtnrNo;
   }
 }
 
 async function fetchData(type) {
+  searchParams.value.ogTpCd = searchParams.value.ogDvCd === '7' ? 'W02' : 'W01';
   const res = await dataService.get(`/sms/wells/fee/ledr-allowances/${type}`, { params: searchParams.value });
   const leaderAllowances = res.data;
 
@@ -224,8 +236,8 @@ async function fetchData(type) {
 }
 
 async function onClickSearch() {
-  if (searchParams.value.inqrDv === 'indv') await fetchData('indv');
-  else if (searchParams.value.inqrDv === 'sum') await fetchData('sum');
+  if (searchParams.value.inqrDvCd === '01') await fetchData('indv');
+  else if (searchParams.value.inqrDvCd === '02') await fetchData('sum');
 }
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
