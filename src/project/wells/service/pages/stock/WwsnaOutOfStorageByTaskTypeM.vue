@@ -347,9 +347,11 @@ const onChangeMatUtlzDvCd = (val) => {
   // view.activateAllColumnFilters('cmnPartDvCd', false);
   // view.activateAllColumnFilters('trnoverRtOjYn', false);
 
-  if (val.length === 0) {
-    return;
-  }
+  // if (val.length === 0) {
+  //   return;
+  // }
+
+  console.log(val);
 
   view.setColumnFilters('cmnPartDvCd', [{
     name: 'cmnPartFilter', // 중수리 01
@@ -367,20 +369,26 @@ const onChangeMatUtlzDvCd = (val) => {
   }]);
 
   if (val.includes('01')) {
-    view.activateColumnFilters('cmnPartDvCd', ['01'], true);
+    console.log('01');
+    view.activateColumnFilters('cmnPartDvCd', ['cmnPartFilter'], true);
   } else {
+    console.log('01');
     view.activateColumnFilters('cmnPartDvCd', ['cmnPartFilter'], false);
   }
 
   if (val.includes('02')) {
+    console.log('02');
     view.activateColumnFilters('ordnyHvMatYn', ['ordnyHvMatFilter'], true);
   } else {
+    console.log('02');
     view.activateColumnFilters('ordnyHvMatYn', ['ordnyHvMatFilter'], false);
   }
 
   if (val.includes('03')) {
+    console.log('03');
     view.activateColumnFilters('cmnPartDvCd', ['trnoverFilter'], true);
   } else {
+    console.log('03');
     view.activateColumnFilters('cmnPartDvCd', ['trnoverFilter'], false);
   }
 };
