@@ -37,7 +37,7 @@
             v-model="calendarInfo.bndtWrkPsicNo"
             :options="customCodes.SERVICE_CENTER_ENGINEER"
             option-value="prtnrNo"
-            option-label="prtnrNm"
+            option-label="prtnrNoNm"
             :readonly="props.isHolidaySetter()"
           />
         </kw-form-item>
