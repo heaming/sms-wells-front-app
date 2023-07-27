@@ -345,8 +345,8 @@ async function onClickSearch() {
     res = await dataService.post('/sms/wells/service/qom-asn/independence-wares', cachedParams, { timeout: 3000000 });
     const { processCount } = res.data;
     if (processCount === 0) {
-      // 적용 대상 데이터가 없습니다.
-      await alert(t('MSG_ALT_NO_APPY_OBJ_DT'));
+      // 생성할 데이터가 존재하지 않습니다.
+      await alert(t('MSG_ALT_CRT_NO_DATA'));
       return;
     }
     // 생성되었습니다.
@@ -436,8 +436,8 @@ async function onClickRecreation() {
   let res = await dataService.delete('/sms/wells/service/qom-asn', cachedParams, { timeout: 300000 });
   const { processCount } = res.data;
   if (processCount === 0) {
-    // 삭제할 데이터가 없습니다.
-    await alert(t('MSG_ALT_DELETE_NO_DATA'));
+    // 생성할 데이터가 존재하지 않습니다.
+    await alert(t('MSG_ALT_CRT_NO_DATA'));
     return;
   }
   // 데이터 생성
