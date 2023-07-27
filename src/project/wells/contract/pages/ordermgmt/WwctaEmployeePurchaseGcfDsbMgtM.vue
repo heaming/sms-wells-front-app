@@ -99,7 +99,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { defineGrid, getComponentType, useDataService, useGlobal, gridUtil, codeUtil } from 'kw-lib';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 
 const dataService = useDataService();
@@ -186,6 +186,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'cralLocaraTno' }, // 휴대지역전화번호
     { fieldName: 'mexnoEncr' }, // 휴대전화국번호암호화
     { fieldName: 'cralIdvTno' }, // 휴대개별전화번호
+    { fieldName: 'cralTno' }, // 휴대전화번호
     { fieldName: 'rsgnDt' }, // 퇴사일
     { fieldName: 'sellInflwChnlDtlCd' }, // 소속
     { fieldName: 'cntPre' }, // 전월-설치
@@ -236,10 +237,20 @@ const initGrid = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'empNo', header: t('MSG_TXT_EPNO'), width: '112', styleName: 'text-center' }, // 사번
     { fieldName: 'fnm', header: t('MSG_TXT_EMPL_NM'), width: '112', styleName: 'text-left' }, // 성명
-    { fieldName: 'cralLocaraTno', width: '42', styleName: 'text-center' }, // 휴대지역전화번호
-    { fieldName: 'mexnoEncr', width: '43', styleName: 'text-center' }, // 휴대전화국번호암호화
-    { fieldName: 'cralIdvTno', width: '43', styleName: 'text-center' }, // 휴대개별전화번호
-    { fieldName: 'rsgnDt', header: t('MSG_TXT_RSGN_D'), width: '106', styleName: 'text-center' }, // 퇴사일
+    {
+      fieldName: 'cralTno',
+      header: t('MSG_TXT_MPNO'),
+      width: '138',
+      styleName: 'text-center',
+      displayCallback(grid, index) {
+        const { cralLocaraTno: no1, mexnoEncr: no2, cralIdvTno: no3 } = grid.getValues(index.itemIndex);
+        if (!isEmpty(no1) && isEmpty(no2) && !isEmpty(no3)) {
+          return `${no1}--${no3}`;
+        }
+        return isEmpty(no1) && isEmpty(no2) && isEmpty(no3) ? '' : `${no1}-${no2}-${no3}`;
+      },
+    }, // 휴대전화번호
+    { fieldName: 'rsgnDt', header: t('MSG_TXT_RSGN_D'), width: '106', styleName: 'text-center', datetimeFormat: 'date' }, // 퇴사일
     { fieldName: 'sellInflwChnlDtlCd', header: t('MSG_TXT_BLG'), width: '112', styleName: 'text-center' }, // 소속
     { fieldName: 'cntPre', header: t('MSG_TXT_INSTALLATION'), width: '112', styleName: 'text-right rg-button-link', renderer: { type: 'button' } }, // 전월-설치
     { fieldName: 'cntPreC', header: t('MSG_TXT_CANCEL'), width: '111', styleName: 'text-right rg-button-link', renderer: { type: 'button' } }, // 전월-취소
@@ -290,12 +301,7 @@ const initGrid = defineGrid((data, view) => {
   const columnLayout = [
     'empNo',
     'fnm',
-    {
-      header: t('MSG_TXT_MPNO'), // 휴대전화번호
-      direction: 'horizontal',
-      hideChildHeaders: true,
-      items: ['cralLocaraTno', 'mexnoEncr', 'cralIdvTno'],
-    },
+    'cralTno',
     'rsgnDt',
     'sellInflwChnlDtlCd',
     {

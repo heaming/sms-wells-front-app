@@ -167,6 +167,13 @@
               :disable="approved"
               @click="onClickApproval"
             />
+            <kw-btn
+              v-if="approved"
+              stretch
+              negative
+              :label="'승인취소'"
+              @click="onClickApprovalCancel"
+            />
           </kw-form>
         </kw-item-section>
       </kw-item>
@@ -180,7 +187,7 @@ import WwctaContractSettlementAgreeItem
   from '~sms-wells/contract/components/ordermgmt/WwctaContractSettlementAgreeItem.vue';
 import CrdcdExpSelect from '~sms-wells/contract/components/ordermgmt/WctaCrdcdExpSelect.vue';
 import { warn } from 'vue';
-import { CtCodeUtil } from '~sms-common/contract/util';
+import { CtCodeUtil, scrollIntoView } from '~sms-common/contract/util';
 import { aesEnc } from '~common/utils/common';
 
 const props = defineProps({
@@ -201,9 +208,10 @@ const props = defineProps({
 });
 
 const dataService = useDataService();
-const emit = defineEmits(['approved']);
+const emit = defineEmits(['approved', 'approve-canceled']);
 
 const exposed = {};
+
 defineExpose(exposed);
 
 const DP_TP_CD = 'DP_TP_CD';
@@ -227,7 +235,7 @@ const stlmBas = computed(() => (props.crdcdStlms?.[0] ?? {}));
 const approvalRequest = ref({
   cntrStlmId: stlmBas.value.cntrStlmId,
   stlmAmt: stlmBas.value.stlmAmt,
-  istmMcn: 1, /* 할부 개월 수 */
+  istmMcn: '0', /* 할부 개월 수 notify: 일시불 0 임 */
   crcdnoEncr: stlmBas.value.crcdnoEncr || '', /* 카드번호 */
   owrKnm: props.cntrCstInfo.cstKnm, /* 카드주 */
   copnDvCdDrmVal: isCooperation.value ? props.cntrCstInfo.bzrno : props.cntrCstInfo.bryyMmdd,
@@ -314,9 +322,9 @@ function getStlmsUpdateInfo() {
   ];
 }
 
-async function getFinancialCode(crcdno) {
+async function getFinancialCode(cardNumber) {
   const { data } = await dataService.get('/sms/wells/contract/contracts/settlements/finance-code', {
-    params: { encCrcdnoPrefix: aesEnc(crcdno.substring(0, 8)) },
+    params: { encCrcdnoPrefix: aesEnc(cardNumber.substring(0, 8)) },
   });
 
   return data;
@@ -330,6 +338,14 @@ async function requestApproval() {
   approvalResponse.value = data;
 }
 
+let cachedCancelRequestParams;
+async function requestApprovalCancel() {
+  cachedCancelRequestParams = { ...approvalRequest.value };
+  cachedCancelRequestParams.fnitCd = await getFinancialCode(cachedCancelRequestParams.crcdnoEncr);
+  const { data } = await dataService.post('/sms/wells/contract/contracts/settlements/credit-card-cancel', cachedCancelRequestParams);
+  approvalResponse.value = data;
+}
+
 async function onClickApproval() {
   if (!await frmRef.value.validate()) { return; }
   if (!await confirm('카드승인 요청을 하시겠습니까?')) { return; }
@@ -338,13 +354,16 @@ async function onClickApproval() {
   approved.value = true;
 }
 
+async function onClickApprovalCancel() {
+  if (!await confirm('카드승인 취소 요청을 하시겠습니까?')) { return; }
+  await requestApprovalCancel();
+  emit('approve-canceled');
+  approved.value = false;
+  notify('취소되었습니다.');
+}
+
 /* exposed */
 const topRef = ref();
-
-function scrollTo(ref) {
-  const el = ref.value.$el;
-  if (el) { el.scrollIntoView(true); }
-}
 
 async function validate() {
   if (!approvalRequest.value.stlmAmt) {
@@ -353,7 +372,7 @@ async function validate() {
   const valid = approved.value;
   if (!valid) {
     notify('카드 승인 요청을 해주세요.');
-    scrollTo(topRef);
+    scrollIntoView(topRef);
   }
   return valid;
 }

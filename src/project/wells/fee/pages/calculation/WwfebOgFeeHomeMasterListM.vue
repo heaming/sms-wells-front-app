@@ -289,11 +289,20 @@ async function openZwfebFeeHistoryMgtP() {
 }
 
 async function onClickExcelDownload() {
+  let uri = '';
+  cachedParams = cloneDeep(searchParams.value);
+  stepNaviRef.value.initProps();
+
+  if (isGrid2Visile.value === true) {
+    uri = '-brmgr';
+  }
   const view = grdMainRef.value.getView();
+  const response = await dataService.get(`/sms/wells/fee/organization-fees/hmsts${uri}`, { params: cachedParams });
 
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
+    exportData: response.data,
   });
 }
 
@@ -563,11 +572,10 @@ async function onClickW314P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
  *  Event - 품의작성 클릭 ※TBD
  */
 async function onClickW316P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
-  const { formId } = approval.value;
-  const { unitCd, perfYm } = searchParams.value;
+  const { unitCd, perfYm, ogTpCd } = searchParams.value;
   const response = await dataService.get('/sms/common/fee/fee-approval/dsb-cnst-status', searchParams.value); /* 품의진행상태 조회 */
   const resData = response.data;
-  approval.value.appKey = `${formId}_${unitCd}_${perfYm}_${dayjs().format('YYYYMMDDHHmmss')}`; /* 10자리 +_+ 4자리 +_+ 6자리 +_+ 14자리 = 36 appKey 생성 */
+  approval.value.appKey = perfYm + ogTpCd + unitCd + dayjs().format('YYYYMMDDHHmmss'); /* 6자리+3자리+4자리+ 14자리 = 27 appKey 생성 */
   const params = approval.value;
   saveInfo.value.appKey = approval.value.appKey;
   saveInfo.value.perfYm = perfYm;

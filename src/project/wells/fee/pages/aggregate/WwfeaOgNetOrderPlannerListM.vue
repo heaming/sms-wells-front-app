@@ -631,13 +631,50 @@ async function openFeePerfCnfmCanPopup() {
   });
 }
 
-async function onClickExcelDownload() {
+async function downloadExcelView1(uri) {
   const view = grd1MainRef.value.getView();
+  const response = await dataService.get(`/sms/wells/fee/organization-netorders/${uri}`, { params: cachedParams });
 
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
+    exportData: response.data,
   });
+}
+
+async function downloadExcelView2(uri) {
+  const view = grd2MainRef.value.getView();
+  const response = await dataService.get(`/sms/wells/fee/organization-netorders/${uri}`, { params: cachedParams });
+
+  await gridUtil.exportView(view, {
+    fileName: currentRoute.value.meta.menuName,
+    timePostfix: true,
+    exportData: response.data,
+  });
+}
+
+async function downloadExcelView3(uri) {
+  const view = grd3MainRef.value.getView();
+  const response = await dataService.get(`/sms/wells/fee/organization-netorders/${uri}`, { params: cachedParams });
+
+  await gridUtil.exportView(view, {
+    fileName: currentRoute.value.meta.menuName,
+    timePostfix: true,
+    exportData: response.data,
+  });
+}
+
+async function onClickExcelDownload() {
+  const { schInqrDv, schDiv } = searchParams.value;
+  cachedParams = cloneDeep(searchParams.value);
+  if (schInqrDv === '01') {
+    await downloadExcelView1('plars');
+    if (schDiv === '04') {
+      await downloadExcelView2('plar-fees');
+    }
+  } else if (schInqrDv === '02') {
+    await downloadExcelView3('plar-aggregation');
+  }
 }
 
 async function fetchData(uri) {

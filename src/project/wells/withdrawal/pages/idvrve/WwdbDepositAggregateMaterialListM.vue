@@ -148,7 +148,7 @@ const totalParams = ref({});
 // -------------------------------------------------------------------------------------------------
 
 async function fetchData() {
-  cachedParams = { ...cachedParams, ...pageInfo };
+  cachedParams = { ...cachedParams, ...pageInfo.value };
   const res = await dataService.get(`${apiUrl}/paging`, { params: cachedParams });
   const res2 = await dataService.get(`${apiUrl}/total`, { params: cachedParams2 });
   const { list: pages, pageInfo: pagingResult } = res.data;

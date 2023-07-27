@@ -178,7 +178,7 @@ const { ok } = useModal();
 const dataService = useDataService();
 const baseURI = '/sms/wells/service/movement-stores/registration';
 const colsedUri = '/sms/wells/service/movement-stores/strware-monthly-end';
-const stdWareUri = '/sms/wells/service/normal-outofstorages/standard-ware';
+const stdWareUri = '/sms/wells/service/normal-out-of-storages/standard-ware';
 const grdMainRef = ref(getComponentType('KwGrid'));
 const props = defineProps({
   strRgstDt: {
