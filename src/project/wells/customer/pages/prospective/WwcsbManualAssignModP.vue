@@ -15,50 +15,49 @@
 --->
 
 <template>
-  <kw-popup size="1xl">
+  <kw-popup size="md">
     <kw-observer ref="obsMainRef">
       <kw-form
         ref="frmMainRef"
         :cols="1"
       >
         <kw-form-row>
-          <!-- 사번 -->
           <kw-form-item
-            :label="t('MSG_TXT_EPNO')"
+            :label="t('MSG_TXT_EPNO',null,'사번')"
             required
           >
             <kw-input
               v-model.trim:model-value="searchParams.prtnrNo"
-              :label="t('MSG_TXT_EPNO')"
+              :label="t('MSG_TXT_EPNO',null,'사번')"
               maxlength="10"
               rules="required|numeric"
             />
             <kw-btn
-              :label="t('MSG_TXT_SRCH')"
+              :label="t('MSG_TXT_SRCH',null,'조회')"
               secondary
               @click="fetchData"
             />
           </kw-form-item>
         </kw-form-row>
         <kw-form-row>
-          <!-- 이름 -->
-          <kw-form-item :label="t('MSG_TXT_NAME')">
+          <!--  -->
+          <kw-form-item :label="t('MSG_TXT_NAME',null,'이름')">
             <p>{{ prtnrNoInfo?.prtnrNm }}</p>
           </kw-form-item>
         </kw-form-row>
         <kw-form-row>
-          <!-- 휴대전화번호 -->
-          <kw-form-item :label="t('MSG_TXT_MPNO')">
+          <!--  -->
+          <kw-form-item :label="t('MSG_TXT_MPNO',null,'휴대전화번호')">
             <p>{{ prtnrNoInfo?.prtnrHpNo }}</p>
           </kw-form-item>
         </kw-form-row>
         <kw-form-row>
-          <kw-form-item :label="t('MSG_TXT_CRLV')">
+          <kw-form-item :label="t('MSG_TXT_CRLV',null,'직급')">
             <p>{{ getCodeNames(codes.PSTN_DV_CD, prtnrNoInfo?.pstnDvCd) }}</p>
           </kw-form-item>
         </kw-form-row>
         <kw-form-row>
-          <kw-form-item :label="t('MSG_TXT_DEPT_NM')">
+          <kw-form-item :label="t('MSG_TXT_DEPT_NM',null,'부서명')">
             <p>{{ prtnrNoInfo?.ogNm }}</p>
           </kw-form-item>
         </kw-form-row>
@@ -133,13 +132,14 @@ async function onClickSave() {
   // if (await obsMainRef.value.alertIfIsNotModified()) { return; }
 
   if (isEmpty(prtnrNoInfo.value) || prtnrNoInfo.value.prtnrNo !== searchParams.value.prtnrNo) {
+    // 값이 변경되었습니다. 다시 조회하여 주세요.
     notify(t('MSG_ALT_VALUE_CHANGED_BE_RESEARCH'));
     isDisableSave.value = true;
     return false;
   }
   // 기존과 동일한 배정담당자 일경우 Blocking
   if (props.ichrPrtnrNo === prtnrNoInfo.value.prtnrNo) {
-    notify(t('MSG_ALT_SAME_ASSIGNER')); // 기존과 동일한 배정담당자입니다
+    notify(t('MSG_ALT_SAME_ASSIGNER', null, '기존과 동일한 배정담당자입니다'));
     return false;
   }
 
