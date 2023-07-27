@@ -142,8 +142,7 @@
             option-value="wareNo"
             option-label="wareNm"
             :label="$t('MSG_TXT_STR_WARE')"
-            first-option="select"
-            rules="required"
+            first-option="all"
           />
         </kw-search-item>
         <!-- 품목코드 -->
@@ -184,11 +183,7 @@
       <kw-action-top>
         <template #left>
           <kw-paging-info
-            v-model:page-index="pageInfo.pageIndex"
-            v-model:page-size="pageInfo.pageSize"
-            :total-count="pageInfo.totalCount"
-            :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
-            @change="fetchData"
+            :total-count="totalCount"
           />
         </template>
 
@@ -202,7 +197,7 @@
           dense
           grid-action
           :label="$t('MSG_TXT_SAVE')"
-          :disable="pageInfo.totalCount === 0"
+          :disable="totalCount === 0"
           @click="onClickSave"
         />
         <kw-separator
@@ -215,7 +210,7 @@
           dense
           secondary
           :label="$t('MSG_BTN_EXCEL_DOWN')"
-          :disable="pageInfo.totalCount === 0"
+          :disable="totalCount === 0"
           @click="onClickExcelDownload"
         />
         <kw-btn
@@ -249,15 +244,8 @@
       <kw-grid
         ref="grdMainRef"
         name="grdMain"
-        :page-size="pageInfo.pageSize"
-        :total-count="pageInfo.totalCount"
+        :total-count="totalCount"
         @init="initGrdMain"
-      />
-      <kw-pagination
-        v-model:page-index="pageInfo.pageIndex"
-        v-model:page-size="pageInfo.pageSize"
-        :total-count="pageInfo.totalCount"
-        @change="fetchData"
       />
     </div>
   </kw-page>
@@ -269,12 +257,11 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 
-import { defineGrid, codeUtil, useDataService, getComponentType, useMeta, useGlobal, gridUtil } from 'kw-lib';
+import { defineGrid, codeUtil, useDataService, getComponentType, useGlobal, gridUtil } from 'kw-lib';
 import dayjs from 'dayjs';
 import { isEmpty, cloneDeep } from 'lodash-es';
 
 const { t } = useI18n();
-const { getConfig } = useMeta();
 const { modal, alert, notify, confirm } = useGlobal();
 const { currentRoute } = useRouter();
 
@@ -289,7 +276,6 @@ const grdMainRef = ref(getComponentType('KwGrid'));
 const codes = await codeUtil.getMultiCodes(
   'ITM_KND_CD',
   'WARE_DV_CD',
-  'COD_PAGE_SIZE_OPTIONS',
 );
 
 const now = dayjs();
@@ -314,13 +300,6 @@ const searchParams = ref({
   strtSapCd: '',
   endSapCd: '',
   ndlvQtyYn: 'N',
-});
-
-const pageInfo = ref({
-  totalCount: 0,
-  pageIndex: 1,
-  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
-  needTotalCount: true,
 });
 
 const filterCodes = ref({
@@ -469,15 +448,15 @@ await Promise.all([
 ]);
 
 const allOstrItms = ref([]);
+const totalCount = ref(0);
 
 // 조회
 async function fetchData() {
-  const res = await dataService.get('/sms/wells/service/individual-ware-ostrs/paging', { params: { ...cachedParams, ...pageInfo.value } });
-  const { list: ostrItms, pageInfo: pagingResult } = res.data;
-  // fetch시에는 총 건수 조회하지 않도록 변경
-  pagingResult.needTotalCount = false;
-  pageInfo.value = pagingResult;
+  const res = await dataService.get('/sms/wells/service/individual-ware-ostrs', { params: { ...cachedParams } });
+  const ostrItms = res.data;
+
   allOstrItms.value = ostrItms;
+  totalCount.value = ostrItms.length;
 
   if (grdMainRef.value != null) {
     const view = grdMainRef.value.getView();
@@ -487,9 +466,6 @@ async function fetchData() {
 
 async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
-  pageInfo.value.pageIndex = 1;
-  // 조회버튼 클릭 시에만 총 건수 조회하도록
-  pageInfo.value.needTotalCount = true;
   await fetchData();
 }
 

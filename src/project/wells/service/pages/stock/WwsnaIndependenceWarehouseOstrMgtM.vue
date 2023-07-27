@@ -166,11 +166,7 @@
       <kw-action-top>
         <template #left>
           <kw-paging-info
-            v-model:page-index="pageInfo.pageIndex"
-            v-model:page-size="pageInfo.pageSize"
-            :total-count="pageInfo.totalCount"
-            :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
-            @change="fetchData"
+            :total-count="totalCount"
           />
         </template>
 
@@ -184,7 +180,7 @@
           dense
           grid-action
           :label="$t('MSG_TXT_SAVE')"
-          :disable="pageInfo.totalCount === 0"
+          :disable="totalCount === 0"
           @click="onClickSave"
         />
         <kw-separator
@@ -197,7 +193,7 @@
           dense
           secondary
           :label="$t('MSG_BTN_EXCEL_DOWN')"
-          :disable="pageInfo.totalCount === 0"
+          :disable="totalCount === 0"
           @click="onClickExcelDownload"
         />
       </kw-action-top>
@@ -205,15 +201,8 @@
       <kw-grid
         ref="grdMainRef"
         name="grdMain"
-        :page-size="pageInfo.pageSize"
-        :total-count="pageInfo.totalCount"
+        :total-count="totalCount"
         @init="initGrdMain"
-      />
-      <kw-pagination
-        v-model:page-index="pageInfo.pageIndex"
-        v-model:page-size="pageInfo.pageSize"
-        :total-count="pageInfo.totalCount"
-        @change="fetchData"
       />
     </div>
   </kw-page>
@@ -222,12 +211,11 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, useDataService, getComponentType, useMeta, defineGrid, gridUtil, useGlobal } from 'kw-lib';
+import { codeUtil, useDataService, getComponentType, defineGrid, gridUtil, useGlobal } from 'kw-lib';
 import dayjs from 'dayjs';
 import { cloneDeep, isEmpty } from 'lodash-es';
 
 const { t } = useI18n();
-const { getConfig } = useMeta();
 const { notify, alert, confirm } = useGlobal();
 const { currentRoute } = useRouter();
 
@@ -240,7 +228,6 @@ const dataService = useDataService();
 const grdMainRef = ref(getComponentType('KwGrid'));
 
 const codes = await codeUtil.getMultiCodes(
-  'COD_PAGE_SIZE_OPTIONS',
   'ITM_KND_CD',
   'WARE_DTL_DV_CD',
 );
@@ -263,13 +250,6 @@ const searchParams = ref({
   itmPdCd: '',
   strtSapCd: '',
   endSapCd: '',
-});
-
-const pageInfo = ref({
-  totalCount: 0,
-  pageIndex: 1,
-  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
-  needTotalCount: true,
 });
 
 // 품목구분 필터링
@@ -393,13 +373,13 @@ await Promise.all([
   getProducts(),
 ]);
 
+const totalCount = ref(0);
+
 // 조회
 async function fetchData() {
-  const res = await dataService.get('/sms/wells/service/independence-ware-ostrs/paging', { params: { ...cachedParams, ...pageInfo.value } });
-  const { list: ostrItms, pageInfo: pagingResult } = res.data;
-  // fetch시에는 총 건수 조회하지 않도록 변경
-  pagingResult.needTotalCount = false;
-  pageInfo.value = pagingResult;
+  const res = await dataService.get('/sms/wells/service/independence-ware-ostrs', { params: { ...cachedParams } });
+  const ostrItms = res.data;
+  totalCount.value = ostrItms.length;
 
   if (grdMainRef.value != null) {
     const view = grdMainRef.value.getView();
@@ -409,9 +389,7 @@ async function fetchData() {
 
 async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
-  pageInfo.value.pageIndex = 1;
-  // 조회버튼 클릭 시에만 총 건수 조회하도록
-  pageInfo.value.needTotalCount = true;
+
   await fetchData();
 }
 
