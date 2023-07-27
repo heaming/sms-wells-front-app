@@ -343,53 +343,43 @@ const matUtlzOptions = ref([]);
 // const filters = [];
 const onChangeMatUtlzDvCd = (val) => {
   const view = grdMainRef.value.getView();
-  // view.activateAllColumnFilters('ordnyHvMatYn', false);
-  // view.activateAllColumnFilters('cmnPartDvCd', false);
-  // view.activateAllColumnFilters('trnoverRtOjYn', false);
 
-  // if (val.length === 0) {
-  //   return;
-  // }
-
-  console.log(val);
-
-  view.setColumnFilters('cmnPartDvCd', [{
+  const filter1 = [{
     name: 'cmnPartFilter', // 중수리 01
-    criteria: 'value="Y"',
-  }]);
-
-  view.setColumnFilters('ordnyHvMatYn', [{
+    criteria: 'value="01"',
+  }];
+  const filter2 = [{
     name: 'ordnyHvMatFilter', // 기초자재 Y
     criteria: 'value="Y"',
-  }]);
-
-  view.setColumnFilters('trnoverRtOjYn', [{
-    name: 'trnoverFilter', // 회전율 Y
+  }];
+  const filter3 = [{
+    name: 'trnoverFilter', // 회전율
     criteria: 'value="Y"',
-  }]);
+  }];
+
+  view.setColumnFilters('cmnPartDvCd', filter1);
+  view.setColumnFilters('ordnyHvMatYn', filter2);
+  view.setColumnFilters('trnoverRtOjYn', filter3);
 
   if (val.includes('01')) {
-    console.log('01');
+    view.activateColumnFilters('cmnPartDvCd', false);
     view.activateColumnFilters('cmnPartDvCd', ['cmnPartFilter'], true);
   } else {
-    console.log('01');
     view.activateColumnFilters('cmnPartDvCd', ['cmnPartFilter'], false);
   }
 
   if (val.includes('02')) {
-    console.log('02');
+    view.activateAllColumnFilters('ordnyHvMatYn', false);
     view.activateColumnFilters('ordnyHvMatYn', ['ordnyHvMatFilter'], true);
   } else {
-    console.log('02');
     view.activateColumnFilters('ordnyHvMatYn', ['ordnyHvMatFilter'], false);
   }
 
   if (val.includes('03')) {
-    console.log('03');
-    view.activateColumnFilters('cmnPartDvCd', ['trnoverFilter'], true);
+    view.activateColumnFilters('trnoverRtOjYn', false);
+    view.activateColumnFilters('trnoverRtOjYn', ['trnoverFilter'], true);
   } else {
-    console.log('03');
-    view.activateColumnFilters('cmnPartDvCd', ['trnoverFilter'], false);
+    view.activateColumnFilters('trnoverRtOjYn', ['trnoverFilter'], false);
   }
 };
 
@@ -435,9 +425,9 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'typ200934', header: '강서', width: '80', styleName: 'text-center', visible: true, dataType: 'number', numberFormat: '#,##0' },
     { fieldName: 'typ201064', header: '인천공장', width: '80', styleName: 'text-center', visible: true, dataType: 'number', numberFormat: '#,##0' },
     { fieldName: 'typ999999', header: t('MSG_TXT_AGG'), width: '80', styleName: 'text-center', visible: true, dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'ordnyHvMatYn', header: t('MSG_TXT_BTD'), width: '150', styleName: 'text-center', visible: false },
-    { fieldName: 'cmnPartDvCd', header: t('MSG_TXT_MDIM_RPR'), width: '150', styleName: 'text-center', visible: false },
-    { fieldName: 'trnoverRtOjYn', header: t('MSG_TXT_TXT_MSG_TURNR_OJ_YN'), width: '150', styleName: 'text-center', visible: false },
+    { fieldName: 'cmnPartDvCd', header: t('MSG_TXT_MDIM_RPR'), width: '150', styleName: 'text-center', visible: false, autoFilter: false },
+    { fieldName: 'ordnyHvMatYn', header: t('MSG_TXT_BTD'), width: '150', styleName: 'text-center', visible: true, autoFilter: false },
+    { fieldName: 'trnoverRtOjYn', header: t('MSG_TXT_TXT_MSG_TURNR_OJ_YN'), width: '150', styleName: 'text-center', visible: true, autoFilter: false },
   ];
   // eslint-disable-next-line max-len
   const fields = columns.map(({ fieldName, dataType, visible }) => (dataType ? { fieldName, dataType, visible } : { fieldName, visible }));
@@ -446,6 +436,7 @@ const initGrid = defineGrid((data, view) => {
   view.checkBar.visible = true;
   data.setFields(fields);
   view.setColumns(columns);
+  view.filteringOptions.enabled = false;
 });
 
 </script>
