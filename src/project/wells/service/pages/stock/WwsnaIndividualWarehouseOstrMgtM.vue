@@ -188,7 +188,7 @@
         </template>
 
         <kw-btn
-          :label="`${t('MSG_TXT_LGST')}${t('MSG_BTN_TRS')}`"
+          :label="`${t('MSG_TXT_LGST')}${t('MSG_TXT_TF')}`"
           dense
           primary
           @click="onClickLgstTrs"
@@ -212,12 +212,6 @@
           :label="$t('MSG_BTN_EXCEL_DOWN')"
           :disable="totalCount === 0"
           @click="onClickExcelDownload"
-        />
-        <kw-btn
-          dense
-          secondary
-          :label="$t('MSG_TXT_ASGN_EXLD_ITM_RGST')"
-          @click="openAssignExcludeItemP"
         />
       </kw-action-top>
       <ul class="filter-box mb12">
@@ -262,7 +256,7 @@ import dayjs from 'dayjs';
 import { isEmpty, cloneDeep } from 'lodash-es';
 
 const { t } = useI18n();
-const { modal, alert, notify, confirm } = useGlobal();
+const { alert, notify, confirm } = useGlobal();
 const { currentRoute } = useRouter();
 
 const dataService = useDataService();
@@ -481,13 +475,6 @@ async function onClickExcelDownload() {
   });
 }
 
-async function openAssignExcludeItemP() {
-  await modal({
-    component: 'WwsnaAssignExcludeItemRegP',
-    componentProps: {},
-  });
-}
-
 // 미출고 수량제외 필터링
 function onChangeNdlvQty() {
   const { ndlvQtyYn } = searchParams.value;
@@ -548,7 +535,7 @@ async function onClickSave() {
   }
 }
 
-// 물류전송
+// 물류이관
 async function onClickLgstTrs() {
   const { asnOjYm, cnt, ostrWareNo } = searchParams.value;
 
@@ -570,7 +557,7 @@ async function onClickLgstTrs() {
     return;
   }
 
-  // {0} 물량배정 데이터를 물류로 전송하시겠습니까?
+  // {0} 물량배정 데이터를 물류로 이관하시겠습니까?
   const msg = `${asnOjYm.substring(0, 4)}-${asnOjYm.substring(4, 6)} ${cnt}`;
   if (!await confirm(`${msg}${t('MSG_TXT_ORDERSELECT_TITLE')} ${t('MSG_TXT_INDV_WARE')}${t('MSG_ALT_QOM_ASN_LGST_TRS')}`)) {
     return;
@@ -579,8 +566,8 @@ async function onClickLgstTrs() {
   const res = await dataService.post('/sms/wells/service/individual-ware-ostrs/logistics-transfer', searchParams.value, { timeout: 3000000 });
   const { processCount } = res.data;
   if (processCount > 0) {
-    // 전송이 완료되었습니다.
-    notify(t('MSG_ALT_TRS_FSH'));
+    // 이관이 완료되었습니다.
+    notify(t('MSG_ALT_IS_FSH'));
     await fetchData();
   }
 }

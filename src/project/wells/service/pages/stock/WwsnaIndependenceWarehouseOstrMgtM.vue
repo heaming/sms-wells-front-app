@@ -171,7 +171,7 @@
         </template>
 
         <kw-btn
-          :label="`${t('MSG_TXT_LGST')}${t('MSG_BTN_TRS')}`"
+          :label="`${t('MSG_TXT_LGST')}${t('MSG_TXT_TF')}`"
           dense
           primary
           @click="onClickLgstTrs"
@@ -449,7 +449,7 @@ async function onClickSave() {
   }
 }
 
-// 물류전송
+// 물류이관
 async function onClickLgstTrs() {
   const { asnOjYm, cnt, ostrWareNo } = searchParams.value;
 
@@ -470,7 +470,7 @@ async function onClickLgstTrs() {
     await alert(`${t('MSG_TXT_OSTR_WARE')} ${t('MSG_ALT_NCELL_REQUIRED_ITEM')}`);
     return;
   }
-  // {0} 물량배정 데이터를 물류로 전송하시겠습니까?
+  // {0} 물량배정 데이터를 물류로 이관하시겠습니까?
   const msg = `${asnOjYm.substring(0, 4)}-${asnOjYm.substring(4, 6)} ${cnt}`;
   if (!await confirm(`${msg}${t('MSG_TXT_ORDERSELECT_TITLE')} ${t('MSG_TXT_INDP_WARE')}${t('MSG_ALT_QOM_ASN_LGST_TRS')}`)) {
     return;
@@ -479,8 +479,8 @@ async function onClickLgstTrs() {
   const res = await dataService.post('/sms/wells/service/independence-ware-ostrs/logistics-transfer', searchParams.value, { timeout: 3000000 });
   const { processCount } = res.data;
   if (processCount > 0) {
-    // 전송이 완료되었습니다.
-    notify(t('MSG_ALT_TRS_FSH'));
+    // 이관이 완료되었습니다.
+    notify(t('MSG_ALT_IS_FSH'));
     await fetchData();
   }
 }
