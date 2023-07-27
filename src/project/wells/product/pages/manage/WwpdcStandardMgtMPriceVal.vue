@@ -79,6 +79,21 @@
       @click="onClickRemove"
     />
   </kw-action-top>
+  <ul class="filter-box justify-between mb12">
+    <li class="filter-box__item">
+      <p class="filter-box__item-label">
+        <!-- 판매채널 -->
+        {{ $t('MSG_TXT_SEL_CHNL') }}
+      </p>
+      <kw-select
+        dense
+        first-option="all"
+        class="w250"
+        :options="usedChannelCds"
+        @update:model-value="onUpdateSellChannel"
+      />
+    </li>
+  </ul>
   <kw-grid
     ref="grdMainRef"
     :visible-rows="10"
@@ -130,6 +145,7 @@ const currentSellTpCd = ref();
 const usedChannelCds = ref([]);
 const addChannelId = ref();
 const usedChannelRef = ref();
+const sellChannelFilterCond = ref();
 const checkedSelVals = ref([]);
 const selectionVariables = ref([]);
 const removeObjects = ref([]);
@@ -144,6 +160,7 @@ async function resetData() {
   gridRowCount.value = 0;
   frmChannelRef.value.reset();
   frmVariableRef.value.reset();
+  sellChannelFilterCond.value = null;
   grdMainRef.value?.getView().getDataSource().clearRows();
   if (grdMainRef.value?.getView()) gridUtil.reset(grdMainRef.value.getView());
 }
@@ -218,6 +235,7 @@ async function resetInitData() {
   // console.log(' channels : ', channels);
   if (channels) {
     usedChannelCds.value = props.codes?.SELL_CHNL_DTL_CD?.filter((item) => channels.indexOf(item.codeId) > -1);
+    sellChannelFilterCond.value = usedChannelCds.value.map((v) => ({ name: v.codeId, criteria: `value = '${v.codeId}'` }));
   }
   const checkedVals = currentInitData.value?.[prumd]?.reduce((rtn, item) => {
     if (item.pdDscPrumPrpVal01) {
@@ -238,6 +256,11 @@ async function initGridRows() {
   const view = grdMainRef.value?.getView();
   if (isEmpty(view)) {
     return;
+  }
+
+  // 판매채널 필터
+  if (sellChannelFilterCond.value && !view.getColumnFilters('sellChnlCd').length) {
+    view.setColumnFilters('sellChnlCd', sellChannelFilterCond.value, true);
   }
   if (await currentInitData.value[prcfd]) {
     // 기준가 정보
@@ -360,6 +383,12 @@ async function resetVisibleChannelColumns() {
   });
 }
 
+async function onUpdateSellChannel(val) {
+  const view = grdMainRef.value.getView();
+  view.activateAllColumnFilters('sellChnlCd', false);
+  view.activateColumnFilters('sellChnlCd', [val], true);
+}
+
 async function initProps() {
   const { pdCd, initData, metaInfos } = props;
   currentPdCd.value = pdCd;
@@ -406,6 +435,8 @@ async function initGrid(data, view) {
     if (item.fieldName === 'svPdCd') {
       item.styleName = 'text-left';
       item.options = props.codes.svPdCd;
+    } else if (item.fieldName === 'sellChnlCd') {
+      item.autoFilter = false;
     }
     return item;
   });
@@ -420,6 +451,8 @@ async function initGrid(data, view) {
   view.filteringOptions.enabled = false;
 
   view.setFixedOptions({ colCount: 6 });
+
+  view.autoFiltersRefresh('sellChnlCd', false);
 
   // 조정 값 초기화
   view.onCellEdited = async (grid, itemIndex, row, fieldIndex) => {
