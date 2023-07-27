@@ -188,12 +188,6 @@
         </template>
 
         <kw-btn
-          :label="`${t('MSG_TXT_LGST')}${t('MSG_TXT_TF')}`"
-          dense
-          primary
-          @click="onClickLgstTrs"
-        />
-        <kw-btn
           dense
           grid-action
           :label="$t('MSG_TXT_SAVE')"
@@ -212,6 +206,12 @@
           :label="$t('MSG_BTN_EXCEL_DOWN')"
           :disable="totalCount === 0"
           @click="onClickExcelDownload"
+        />
+        <kw-btn
+          :label="`${t('MSG_TXT_LGST')}${t('MSG_TXT_TF')}`"
+          dense
+          primary
+          @click="onClickLgstTrs"
         />
       </kw-action-top>
       <ul class="filter-box mb12">

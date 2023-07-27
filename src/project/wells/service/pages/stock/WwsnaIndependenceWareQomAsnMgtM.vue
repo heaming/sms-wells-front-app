@@ -156,6 +156,18 @@
           @click="onClickWareRenewal"
         />
         <!-- //창고갱신 -->
+        <kw-btn
+          dense
+          secondary
+          :label="$t('MSG_TXT_ASGN_EXLD_ITM_RGST')"
+          @click="openAssignExcludeItemP"
+        />
+        <kw-btn
+          :label="$t('MSG_TXT_RECREATION')"
+          dense
+          primary
+          @click="onClickRecreation"
+        />
       </kw-action-top>
       <kw-grid
         ref="grdMainRef"
@@ -182,7 +194,7 @@ import dayjs from 'dayjs';
 
 const { t } = useI18n();
 const { getConfig } = useMeta();
-const { notify, alert, confirm } = useGlobal();
+const { notify, alert, confirm, modal } = useGlobal();
 const { currentRoute } = useRouter();
 
 const dataService = useDataService();
@@ -383,6 +395,60 @@ async function onClickWareRenewal() {
   }
   // 이미 처리되었습니다.
   notify(t('MSG_ALT_ALRDY_PROCS_FSH'));
+}
+
+// 배정제외품목 등록 팝업
+async function openAssignExcludeItemP() {
+  await modal({
+    component: 'WwsnaAssignExcludeItemRegP',
+    componentProps: {},
+  });
+}
+
+// 재생성
+async function onClickRecreation() {
+  const { asnOjYm, cnt, ostrWareNo } = cachedParams;
+
+  if (isEmpty(asnOjYm)) {
+    // {0}은(는) 필수 항목입니다.
+    await alert(`${t('MSG_TXT_ASN_YM')} ${t('MSG_ALT_NCELL_REQUIRED_ITEM')}`);
+    return;
+  }
+
+  if (isEmpty(cnt)) {
+    // {0}은(는) 필수 항목입니다.
+    await alert(`${t('MSG_TXT_ORDERSELECT_TITLE')} ${t('MSG_ALT_NCELL_REQUIRED_ITEM')}`);
+    return;
+  }
+
+  if (isEmpty(ostrWareNo)) {
+    // {0}은(는) 필수 항목입니다.
+    await alert(`${t('MSG_TXT_OSTR_WARE')} ${t('MSG_ALT_NCELL_REQUIRED_ITEM')}`);
+    return;
+  }
+
+  // {0} 물량배정 데이터를 재생성하시겠습니까?
+  const msg = `${asnOjYm.substring(0, 4)}-${asnOjYm.substring(4, 6)} ${cnt}`;
+  if (!await confirm(`${msg}${t('MSG_TXT_ORDERSELECT_TITLE')} ${t('MSG_TXT_INDP_WARE')}${t('MSG_ALT_QOM_ASN_DTA_RECRT')}`)) {
+    return;
+  }
+
+  let res = await dataService.delete('/sms/wells/service/qom-asn', cachedParams, { timeout: 300000 });
+  const { processCount } = res.data;
+  if (processCount === 0) {
+    // 삭제할 데이터가 없습니다.
+    await alert(t('MSG_ALT_DELETE_NO_DATA'));
+    return;
+  }
+  // 데이터 생성
+  res = await dataService.post('/sms/wells/service/qom-asn/independence-wares', cachedParams, { timeout: 3000000 });
+  // 생성되었습니다.
+  notify(t('MSG_ALT_CREATE'));
+
+  pageInfo.value.pageIndex = 1;
+  // 조회버튼 클릭 시에만 총 건수 조회하도록
+  pageInfo.value.needTotalCount = true;
+  await fetchData();
 }
 
 // -------------------------------------------------------------------------------------------------
