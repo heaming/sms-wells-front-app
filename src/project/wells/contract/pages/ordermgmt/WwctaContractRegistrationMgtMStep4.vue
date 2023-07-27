@@ -310,14 +310,14 @@ ${step4.cntrt.sexDvNm || ''}` }}
                 v-if="item.sellTpCd === '1'"
               >
                 <kw-form-row>
-                  <kw-form-item label="계약금(가상계좌)">
+                  <kw-form-item label="계약금(카드)">
                     <p>
-                      {{ stringUtil.getNumberWithComma(item.cntrAmt || 0) }}
+                      {{ stringUtil.getNumberWithComma(item.cntrAmtCrd || 0) }}
                     </p>
                   </kw-form-item>
-                  <kw-form-item label="상품금액(신용카드)">
+                  <kw-form-item label="계약금(가상계좌)">
                     <p>
-                      {{ stringUtil.getNumberWithComma(item.pdAmt || 0) }}
+                      {{ stringUtil.getNumberWithComma(item.cntrAmtVac || 0) }}
                     </p>
                   </kw-form-item>
                 </kw-form-row>
