@@ -19,22 +19,19 @@
     @search="onClickSearch"
   >
     <kw-search-row>
-      <!-- 접수기간 -->
       <kw-search-item
-        :label="$t('MSG_TIT_RECPETN_DT')"
+        :label="$t('MSG_TIT_RECPETN_DT',null,'접수일')"
         required
       >
         <kw-date-range-picker
           v-model:from="searchParams.recvDtFrom"
           v-model:to="searchParams.recvDtTo"
           class="ml8"
-          :label="$t('MSG_TIT_RECPETN_DT')"
+          :label="$t('MSG_TIT_RECPETN_DT',null,'접수일')"
           rules="date_range_required"
         />
       </kw-search-item>
-
-      <!-- 상품구분 -->
-      <kw-search-item :label="t('MSG_TXT_PRDT_GUBUN')">
+      <kw-search-item :label="t('MSG_TXT_PRDT_GUBUN',null,'상품구분')">
         <kw-select
           v-model="searchParams.prdtType"
           :multiple="true"
@@ -47,7 +44,6 @@
   <div class="result-area">
     <kw-action-top>
       <template #left />
-
       <kw-btn
         v-permission:download
         icon="download_on"
@@ -55,11 +51,6 @@
         :label="$t('MSG_BTN_EXCEL_DOWN')"
         :disable="totalRowCnt === 0"
         @click="onClickExcelDownload"
-      />
-      <kw-separator
-        vertical
-        inset
-        spaced
       />
     </kw-action-top>
     <kw-grid
@@ -146,20 +137,17 @@ onMounted(async () => { });
 // -------------------------------------------------------------------------------------------------
 const initgrdTotal = defineGrid((data, view) => {
   const columns = [
-    /* 상품구분 */
     { fieldName: 'inrtPdDvNm',
-      header: t('MSG_TXT_PRDT_GUBUN'),
+      header: t('MSG_TXT_PRDT_GUBUN', null, '상품구분'),
       width: '130',
-      styleName: 'text-right',
+      styleName: 'text-left',
       headerSummary: {
-        valueCallback() {
-          return t('MSG_TXT_SUM');
-        },
+        text: t('MSG_TXT_SUM'),
+        styleName: 'text-center',
       },
     },
-    /* 접수 */
     { fieldName: 'recvCount',
-      header: t('MSG_TXT_RCP'),
+      header: t('MSG_TXT_RCP', null, '접수'),
       width: '130',
       styleName: 'text-right',
       headerSummary: {
@@ -169,9 +157,8 @@ const initgrdTotal = defineGrid((data, view) => {
         },
       },
     },
-    /* 계약체결 */
     { fieldName: 'cntrCount',
-      header: t('MSG_TXT_CONTRACT_CONCLUSION'),
+      header: t('MSG_TXT_CONTRACT_CONCLUSION', null, '계약체결'),
       width: '130',
       styleName: 'text-right',
       headerSummary: {
