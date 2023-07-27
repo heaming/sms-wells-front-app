@@ -180,7 +180,7 @@ import { useDataService, codeUtil, useGlobal } from 'kw-lib';
 import dayjs from 'dayjs';
 import { isEmpty, cloneDeep } from 'lodash-es';
 import pdConst from '~sms-common/product/constants/pdConst';
-import { pdMergeBy, pdRemoveBy, getCopyProductInfo } from '~sms-common/product/utils/pdUtil';
+import { getCodeNames, pdMergeBy, pdRemoveBy, getCopyProductInfo } from '~sms-common/product/utils/pdUtil';
 import ZwpdcPropGroupsMgt from '~sms-common/product/pages/manage/components/ZwpdcPropGroupsMgt.vue';
 import WwpdcStandardMgtMPrice from './WwpdcStandardMgtMPrice.vue';
 import WwpdcStandardMgtMRel from './WwpdcStandardMgtMRel.vue';
@@ -526,6 +526,31 @@ async function setSellDetailTypeCodes(sellTpCd, isReset = false) {
   }
 }
 
+// 판매채널 변경시, 가격정보에서 사용된 채널은 복구
+async function checkUsedSellChannel(channels) {
+  if (channels && prevStepData.value[prcfd] && prevStepData.value[prcfd].length) {
+    // console.log('mgtNameFields?.avlChnlId.initValue : ', channels);
+    const prcUsedChannels = prevStepData.value[prcfd].reduce((rtn, item) => {
+      if (!rtn.includes(item.sellChnlCd)) {
+        rtn.push(item.sellChnlCd);
+      }
+      return rtn;
+    }, []);
+    const recoveryChannels = [];
+    prcUsedChannels.forEach(async (channel) => {
+      if (!channels.includes(channel)) {
+        recoveryChannels.push(channel);
+      }
+    });
+    if (recoveryChannels.length) {
+      channels.push(...recoveryChannels);
+      const recoveryChannelNames = getCodeNames(codes.SELL_CHNL_DTL_CD, recoveryChannels.join(','));
+      // 가격정보에서 사용중인 다음 채널은 복구 됩니다. {0}
+      notify(t('MSG_ALT_PD_RECOV_CHANNLS', [`[${recoveryChannelNames}]`]));
+    }
+  }
+}
+
 // 매출인식분류코드
 async function fetechSaleRecognitionClassification(slRcogClsfCd) {
   if (slRcogClsfCd) {
@@ -538,7 +563,10 @@ async function fetechSaleRecognitionClassification(slRcogClsfCd) {
 async function onUpdateBasicValue(field) {
   if (field.colNm === 'sellTpCd') {
     // 판매유형
-    setSellDetailTypeCodes(field.initValue, true);
+    await setSellDetailTypeCodes(field.initValue, true);
+  } else if (field.colNm === 'avlChnlId') {
+    // 판매채널
+    await checkUsedSellChannel(field.initValue);
   }
 }
 

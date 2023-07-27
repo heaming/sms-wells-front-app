@@ -189,7 +189,7 @@ const { ok } = useModal();
 
 const dataService = useDataService();
 
-const baseURI = '/sms/wells/service/normal-outofstorages';
+const baseURI = '/sms/wells/service/normal-out-of-storages';
 const detailURI = `${baseURI}/detail`;
 const removeURI = `${baseURI}/detail-remove`;
 const standardURI = `${baseURI}/standard-ware`;

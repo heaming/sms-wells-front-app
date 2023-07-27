@@ -69,9 +69,7 @@
         </kw-item-section>
       </template>
       <div class="pb20">
-        <kw-form
-          cols="4"
-        >
+        <kw-form cols="4">
           <kw-form-row>
             <!--상품정보-->
             <kw-form-item :label="$t('MSG_TXT_PD_INF')">
@@ -602,6 +600,7 @@
           :label="$t('MSG_TXT_CANCEL_BULK_APPLY')"
           :false-value="N"
           :true-value="Y"
+          :disable="props.sametype==='N'"
         />
       </kw-form-item>
     </kw-form-row>
@@ -692,6 +691,7 @@ const emits = defineEmits([
 
 const props = defineProps({
   childDetail: { type: Object, required: true },
+  sametype: { type: String, required: true },
 });
 
 const searchDetail = reactive(props.childDetail);
@@ -787,7 +787,7 @@ async function onClickVacIssue() {
 }
 */
 async function onClickRequidation() {
-  const res = await modal({
+  await modal({
     component: 'WwsncTimeTableForContractP',
     componentProps: {
       sellDate: searchDetail.cntrCnfmDt, // // 판매일자
@@ -802,8 +802,6 @@ async function onClickRequidation() {
       mtrStatCd: '1',
     },
   });
-
-  console.log(res);
 }
 
 async function onClickRefund() {
@@ -817,12 +815,6 @@ async function onClickRefund() {
 async function onClickTodo(param) {
   notify(`TODO: ${param} 준비 중`);
 }
-
-/*
-watch(props.childDetail, (val) => {
-  Object.assign(searchDetail, val);
-});
-*/
 
 watch(searchDetail, (val) => {
   emits('update:modelValue', val);

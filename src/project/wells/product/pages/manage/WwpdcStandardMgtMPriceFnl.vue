@@ -27,7 +27,7 @@
   </kw-action-top>
   <kw-grid
     ref="grdMainRef"
-    :visible-rows="5"
+    :visible-rows="10"
     :need-context-menu="false"
     @init="initGrid"
   />
@@ -223,7 +223,7 @@ await initProps();
 
 onActivated(async () => {
   // TODO 탭사용시 그리드 사라짐 문제로 아래 코드 임시조치
-  grdMainRef.value.getView().displayOptions.rowHeight = -1;
+  await initGridRows();
 });
 
 watch(() => props.pdCd, (val) => { currentPdCd.value = val; });

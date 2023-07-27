@@ -168,7 +168,7 @@
       >
         <div class="button-set--bottom-left">
           <kw-btn
-            v-if="currentStepIndex > 0"
+            v-if="currentStepIndex > 0 && !contract.step4?.isRestipulation"
             :label="$t('MSG_BTN_PREV')"
             @click="onClickPrevious"
           />
@@ -263,6 +263,7 @@ const currentStepIndex = computed(() => steps.findIndex((step) => step.name === 
 // 계약 현황 목록에서 진입한 경우
 const props = defineProps({
   cntrNo: { type: String, required: true },
+  cntrSn: { type: String, required: true },
   cntrPrgsStatCd: { type: String, required: true },
 });
 const codes = await codeUtil.getMultiCodes(
@@ -330,16 +331,16 @@ function showStep(step) {
   currentStepName.value = `step${step}`;
 }
 
-async function getCntrInfo(step, cntrNo) {
+async function getCntrInfo(step, cntrNo, cntrSn) {
   if (step === 2) {
     // step2일 때 상품 조회
     await panelsRefs[currentStepName.value].getProducts(cntrNo);
   }
-  await panelsRefs[currentStepName.value].getCntrInfo(cntrNo);
+  await panelsRefs[currentStepName.value].getCntrInfo(cntrNo, cntrSn);
 }
 
 async function getExistedCntr() {
-  const { cntrNo, cntrPrgsStatCd } = props;
+  const { cntrNo, cntrSn, cntrPrgsStatCd } = props;
   if (!cntrNo || !cntrPrgsStatCd) return;
   isCnfmCntr.value = props.cntrPrgsStatCd > 20;
   const step = {
@@ -355,7 +356,7 @@ async function getExistedCntr() {
   if (step >= 2) contract.value.step2 = smrs.data.step2;
   if (step >= 3) contract.value.step3 = smrs.data.step3;
   if (step >= 4) contract.value.step4 = smrs.data.step4;
-  await getCntrInfo(step, cntrNo);
+  await getCntrInfo(step, cntrNo, cntrSn);
 }
 
 async function onClickPrevious() {
@@ -402,11 +403,9 @@ async function onClickNext() {
 
 async function eventStipulation(cntrNo, cntrSn) {
   // 재약정계약
-  console.log(cntrNo);
   const previousStep = steps[3];
   currentStepName.value = previousStep.name;
   await panelsRefs[currentStepName.value].setRestipulation(true, cntrSn);
-  console.log(currentStepName.value);
 
   await getCntrInfo(3, cntrNo);
 }

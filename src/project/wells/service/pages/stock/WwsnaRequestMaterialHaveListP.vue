@@ -223,7 +223,7 @@ async function fetchInit() {
 let cachedParams;
 async function fetchData() {
   if (searchParams.value.wareClsfCd === '10') {
-    const res = await dataService.get('/sms/wells/service/normal-outofstorages/organization-center/paging', { params: { ...cachedParams, ...pageInfo.value } });
+    const res = await dataService.get('/sms/wells/service/normal-out-of-storages/organization-center/paging', { params: { ...cachedParams, ...pageInfo.value } });
     const { list: centers, pageInfo: pagingResult } = res.data;
 
     pageInfo.value = pagingResult;
@@ -231,7 +231,7 @@ async function fetchData() {
     view.getDataSource().setRows(centers);
     view.resetCurrent();
   } else if (searchParams.value.wareClsfCd === '11') {
-    const res1 = await dataService.get('/sms/wells/service/normal-outofstorages/person-center/paging', { params: { ...cachedParams, ...pageInfo2.value } });
+    const res1 = await dataService.get('/sms/wells/service/normal-out-of-storages/person-center/paging', { params: { ...cachedParams, ...pageInfo2.value } });
     const { list: persons, pageInfo: pagingResult2 } = res1.data;
 
     pageInfo2.value = pagingResult2;

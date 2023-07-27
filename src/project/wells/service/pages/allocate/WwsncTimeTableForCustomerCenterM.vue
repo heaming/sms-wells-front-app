@@ -198,7 +198,8 @@
               <kw-avatar size="60px">
                 <img
                   alt="profile"
-                  src="node_modules/kw-lib/src/assets/images/example_profile.png"
+                  :src="'https://kportal.kyowon.co.kr/myoffice/Common/ezCommon_InterFace.aspx?TYPE=ENGINEER&FILENAME=' +
+                    data.psic.empPic"
                 >
               </kw-avatar>
             </div>
@@ -486,7 +487,7 @@ import { cloneDeep, toInteger } from 'lodash-es';
 
 const dataService = useDataService();
 const { t } = useI18n();
-const { ok, cancel } = useModal();
+const { /* ok, */ cancel } = useModal();
 
 const DATE_FORMAT_YM = 'YYYYMM';
 const DATE_FORMAT_YMD = 'YYYYMMDD';
@@ -1059,51 +1060,19 @@ async function onClickSave() {
     }
   }
 
-  const sendDataBase = {
-    //-------------------------------------------------
-    // inChnlDvCd: data.value.chnlDvCd,
-    inChnlDvCd: searchParams.value.inflwChnl,
-    asIstOjNo: '',
-    // cstSvAsnNo: data.value.cstSvAsnNo,
-    //-------------------------------------------------
-    svBizHclsfCd: searchParams.value.svDvCd,
-    rcpdt: data.value.wrkDt,
-    mtrStatCd: searchParams.value.mtrStatCd,
-    urgtYn: 'N',
-    vstRqdt: searchParams.value.sellDate,
-    vstAkHh: data.value.sellTime,
-    smsFwYn: 'N',
-    cnslMoCn: data.value.egerMemo,
-    ogTpCd: data.value.ogTpCd, // 엔지니어 조직유형
-    ichrPrtnrNo: data.value.prtnrNo, // 엔지니어 파트너번호
-    pdGdCd: 'A',
-    userId: data.value.userId, // 로그인한 사용자
-    rcpOgTpCd: data.value.rcpOgTpCd, // 로그인한 사용자 조직유형
-    cntrNo: searchParams.value.cntrNo,
-  };
-  const sendDatas = [];
-
-  if (searchParams.value.cntrSn.includes(',') && searchParams.value.svBizDclsfCd.includes(',')) {
-    const cntrSns = searchParams.value.cntrSn.split(',');
-    const svBizDclsfCds = searchParams.value.svBizDclsfCd.split(',');
-
-    const cloneObj = (obj) => JSON.parse(JSON.stringify(obj));
-
-    cntrSns.forEach((item, idx) => {
-      const sendData = cloneObj(sendDataBase);
-      sendData.cntrSn = cntrSns[idx];
-      sendData.svBizDclsfCd = svBizDclsfCds[idx];
-      sendDatas.push(sendData);
-    });
-  } else {
-    sendDataBase.cntrSn = searchParams.value.cntrSn;
-    sendDataBase.svBizDclsfCd = searchParams.value.svBizDclsfCd;
-    sendDatas.push(sendDataBase);
-  }
-  console.log(sendDatas);
-  await dataService.post('/sms/wells/service/installation-works', sendDatas);
-  notify(t('MSG_ALT_SAVE_DATA'));
-  ok(sendDataBase);
+  let url = searchParams.value.returnUrl;
+  url += `?svBizHclsfCd=${searchParams.value.svDvCd}`;
+  url += `&rcpdt=${data.value.wrkDt}`;
+  url += `&mtrStatCd=${searchParams.value.mtrStatCd}`;
+  url += `&vstRqdt=${searchParams.value.sellDate}`;
+  url += `&vstAkHh=${data.value.sellTime}`;
+  url += `&cnslMoCn=${data.value.egerMemo}`;
+  url += `&ogTpCd=${data.value.ogTpCd}`;
+  url += `&ichrPrtnrNo=${data.value.prtnrNo}`;
+  url += `&userId=${data.value.userId}`;
+  url += `&rcpOgTpCd=${data.value.rcpOgTpCd}`;
+  url += `&cntrNo=${searchParams.value.cntrNo}`;
+  document.location.href = url;
 }
 
 onMounted(async () => {

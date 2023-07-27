@@ -537,6 +537,14 @@ async function initMaterialGrid(data, view) {
     { fieldName: 'pdCd', header: t('MSG_TXT_PROD_CD'), width: '120', styleName: 'text-center', editable: false },
     // 자재코드
     { fieldName: 'sapMatCd', header: t('MSG_TXT_MATI_CD'), width: '140', styleName: 'text-center', editable: false },
+    // 배송회차
+    { fieldName: 'sppTn',
+      header: t('MSG_TXT_DELIVERY_NUM'),
+      width: '87',
+      styleName: 'text-right',
+      editor: { type: 'number', editFormat: '##0', maxLength: 3, positiveOnly: true, maxLengthExceptComma: true },
+      dataType: 'number',
+    },
     // 제품수량(개)
     { fieldName: 'itmQty',
       header: t('MSG_TXT_PRD_COUNT_EA'),

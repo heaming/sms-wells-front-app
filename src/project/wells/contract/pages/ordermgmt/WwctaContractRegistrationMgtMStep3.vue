@@ -438,6 +438,7 @@
                     v-model="item.dpTpCdIdrv"
                     type="radio"
                     :options="codes.DP_TP_CD_IDRV"
+                    :disable="item.cntrAmt || 0 === 0"
                   />
                 </kw-form-item>
                 <kw-form-item no-label>
