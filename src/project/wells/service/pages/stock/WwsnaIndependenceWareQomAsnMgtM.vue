@@ -329,22 +329,16 @@ async function onClickSearch() {
       return;
     }
 
-    // 데이터 조회
-    res = await dataService.get('/sms/wells/service/qom-asn/independence-wares', { params: { ...cachedParams }, timeout: 3000000 });
-    const qomAsnList = res.data;
-
-    if (isEmpty(qomAsnList)) {
+    // 데이터 생성
+    res = await dataService.post('/sms/wells/service/qom-asn/independence-wares', cachedParams, { timeout: 3000000 });
+    const { processCount } = res.data;
+    if (processCount === 0) {
       // 적용 대상 데이터가 없습니다.
       await alert(t('MSG_ALT_NO_APPY_OBJ_DT'));
       return;
     }
-    // 데이터 생성
-    res = await dataService.post('/sms/wells/service/qom-asn', qomAsnList, { timeout: 3000000 });
-    const { processCount } = res.data;
-    if (processCount > 0) {
-      // 생성되었습니다.
-      notify(t('MSG_ALT_CREATE'));
-    }
+    // 생성되었습니다.
+    notify(t('MSG_ALT_CREATE'));
   }
 
   pageInfo.value.pageIndex = 1;
