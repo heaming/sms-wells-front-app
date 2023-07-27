@@ -83,13 +83,6 @@
           rules="telephone|required"
           class="mt20"
         />
-        <!-- <kw-input
-        v-model="inputParams.phone"
-        placeholder="01012345678"
-        grow
-        class="mt20"
-        maxlength="11"
-      /> -->
         <ul class="kw-notification mt20">
           <li>{{ t('MSG_TXT_NOTAK_FW_CAN_IMP') }}</li>
         </ul>
@@ -171,8 +164,8 @@ async function onClickAlarmSend() {
   const nsUrl = '/anonymous/login?deviceCheck=Y&redirectUrl=';
 
   const params = {
-    vstYn: 'Y',
-    chRqrDvCd: '2',
+    vstYn: 'N',
+    chRqrDvCd: '1',
     aftnThpChYn: 'N',
     clctamMngtYn: 'N',
     akChdt,
@@ -181,7 +174,7 @@ async function onClickAlarmSend() {
   const query = deviceScreen + new URLSearchParams(params);
 
   const nsFullUrl = query;
-  // const nsFullUrl = encodeURIComponent(query);
+
   // chRqrDvCd 방문 : '2' (교원) / 원거리 : '1' (고객)
   if (!await formRef.value.validate()) { return; }
   inputParams.value = { ...inputParams.value,
