@@ -166,6 +166,7 @@
           :label="$t('MSG_TXT_RECREATION')"
           dense
           primary
+          :disable="isSearch"
           @click="onClickRecreation"
         />
       </kw-action-top>
@@ -324,9 +325,11 @@ async function fetchData() {
   }
 }
 
+const isSearch = ref(true);
 async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
   const { ostrWareNo } = cachedParams;
+  isSearch.value = false;
 
   // 물량배정 데이터 건수 체크
   let res = await dataService.get('/sms/wells/service/qom-asn/exist-check', { params: { ...cachedParams } });
@@ -433,7 +436,7 @@ async function onClickRecreation() {
     return;
   }
 
-  let res = await dataService.delete('/sms/wells/service/qom-asn', cachedParams, { timeout: 300000 });
+  let res = await dataService.delete('/sms/wells/service/qom-asn', { data: cachedParams }, { timeout: 300000 });
   const { processCount } = res.data;
   if (processCount === 0) {
     // 생성할 데이터가 존재하지 않습니다.
