@@ -32,6 +32,7 @@
         {{ $t('MSG_TXT_SEL_CHNL') }}
       </p>
       <kw-select
+        v-model="filterChannel"
         dense
         first-option="all"
         class="w250"
@@ -87,6 +88,7 @@ const currentMetaInfos = ref();
 const removeObjects = ref([]);
 const gridRowCount = ref(0);
 const usedChannelCds = ref([]);
+const filterChannel = ref();
 const sellChannelFilterCond = ref();
 
 async function resetData() {
@@ -95,6 +97,7 @@ async function resetData() {
   removeObjects.value = [];
   gridRowCount.value = 0;
   usedChannelCds.value = [];
+  filterChannel.value = null;
   sellChannelFilterCond.value = null;
   grdMainRef.value?.getView().getDataSource().clearRows();
   if (grdMainRef.value?.getView()) gridUtil.reset(grdMainRef.value.getView());
@@ -191,11 +194,10 @@ async function initGridRows() {
   if (channels) {
     usedChannelCds.value = props.codes?.SELL_CHNL_DTL_CD?.filter((item) => channels.indexOf(item.codeId) > -1);
     sellChannelFilterCond.value = usedChannelCds.value.map((v) => ({ name: v.codeId, criteria: `value = '${v.codeId}'` }));
-  }
-
-  // 판매채널 필터
-  if (sellChannelFilterCond.value && !view.getColumnFilters('sellChnlCd').length) {
-    view.setColumnFilters('sellChnlCd', sellChannelFilterCond.value, true);
+    // 판매채널 필터
+    if (sellChannelFilterCond.value) {
+      view.setColumnFilters('sellChnlCd', sellChannelFilterCond.value, true);
+    }
   }
 
   // 선택변수
@@ -249,12 +251,15 @@ async function initGridRows() {
     await setPdGridRows(view, rows, pdConst.PRC_FNL_ROW_ID, defaultFields.value, true);
   }
   gridRowCount.value = getGridRowCount(view);
+  await onUpdateSellChannel();
 }
 
-async function onUpdateSellChannel(val) {
+async function onUpdateSellChannel() {
   const view = grdMainRef.value.getView();
   view.activateAllColumnFilters('sellChnlCd', false);
-  view.activateColumnFilters('sellChnlCd', [val], true);
+  if (filterChannel.value) {
+    view.activateColumnFilters('sellChnlCd', [filterChannel.value], true);
+  }
 }
 
 async function initProps() {
@@ -339,8 +344,6 @@ async function initGrid(data, view) {
   view.filteringOptions.enabled = false;
 
   view.setFixedOptions({ colCount: 6 });
-
-  view.autoFiltersRefresh('sellChnlCd', false);
 
   // 조정 값 초기화
   view.onCellEdited = async (grid, itemIndex, row, fieldIndex) => {
