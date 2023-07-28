@@ -76,7 +76,6 @@
         <ZwcmWareHouseSearch
           v-model:start-ym="searchParams.stStrDt"
           v-model:end-ym="searchParams.edStrDt"
-          v-model:options-ware-dv-cd="ostrWareDvCd"
           v-model:ware-dv-cd="searchParams.ostrWareDvCd"
           v-model:ware-no-m="searchParams.ostrWareNoM"
           v-model:ware-no-d="searchParams.ostrWareNoD"
@@ -121,10 +120,13 @@
             v-model="searchParams.itmKndCd"
             :options="codes.ITM_KND_CD"
             first-option="all"
+            @change="onChangeItmKndCd"
           />
           <kw-select
             v-model="searchParams.itmPdCd"
-            :options="itemKndCdD"
+            :options="optionsItmPdCd"
+            option-value="pdCd"
+            option-label="pdNm"
             first-option="all"
           />
         </kw-search-item>
@@ -148,12 +150,6 @@
             :total-count="totalCount"
           />
         </template>
-        <!-- <kw-btn
-          icon="print"
-          dense
-          secondary
-          :label="$t('MSG_BTN_PRTG')"
-        /> -->
         <kw-btn
           icon="download_on"
           dense
@@ -182,7 +178,7 @@
 // import { codeUtil, getComponentType, useDataService, defineGrid } from 'kw-lib';
 import { codeUtil, getComponentType, defineGrid, useDataService, gridUtil } from 'kw-lib';
 import dayjs from 'dayjs';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, isEmpty } from 'lodash-es';
 import ZwcmWareHouseSearch from '~sms-common/service/components/ZwsnzWareHouseSearch.vue';
 
 const grdMainRef = ref(getComponentType('KwGrid'));
@@ -231,37 +227,40 @@ const codes = await codeUtil.getMultiCodes(
   'WARE_DTL_DV_CD',
 );
 
-// const wareDvCd = codes.WARE_DV_CD.filter((v) => v.codeId !== '1');
 const strTpCd = codes.STR_TP_CD.filter((v) => v.codeId !== '110');
 const strWareDvCd = { WARE_DV_CD: [
   { codeId: '2', codeName: '서비스센터' },
   { codeId: '3', codeName: '영업센터' },
 ] };
 
-console.log(strWareDvCd);
-
 const totalCount = ref(0);
-
-const itemKndCdD = ref();
 
 searchParams.value.stStrDt = dayjs().set('date', 1).format('YYYYMMDD');
 searchParams.value.edStrDt = dayjs().format('YYYYMMDD');
 
-const onChangeItmKndCd = async () => {
-  // const paramItmKndCd = searchParams.value.itmKndCd;
-  // const itmKndCd = cloneDeep(searchParams.value.itmKndCd);
-  // const res = await dataService.get(`/sms/wells/service/individual-ware-ostrs/${itmKndCd}`);
-  const res = await dataService.get('/sms/wells/service/individual-ware-ostrs/filter-items', { params: searchParams.value });
-  itemKndCdD.value = res.data;
-  // searchParams.value.itmPdCd = itemKndCdD.value[0].codeId;
+const optionsItmPdCd = ref();
+const optionsAllItmPdCd = ref();
+
+// 품목조회
+const getProducts = async () => {
+  const result = await dataService.get('/sms/wells/service/out-of-storage-iz-dtls/products');
+  optionsItmPdCd.value = result.data;
+  optionsAllItmPdCd.value = result.data;
 };
 
-watch(() => searchParams.value.itmKndCd, (val) => {
-  if (searchParams.value.itmKndCd !== val) {
-    searchParams.value.itmKndCd = val;
+// 품목종류 변경 시 품목 필터링
+function onChangeItmKndCd() {
+  // 품목코드 클리어
+  searchParams.value.itmPdCds = [];
+  const { itmKndCd } = searchParams.value;
+
+  if (isEmpty(itmKndCd)) {
+    optionsItmPdCd.value = optionsAllItmPdCd.value;
+    return;
   }
-  onChangeItmKndCd();
-});
+
+  optionsItmPdCd.value = optionsAllItmPdCd.value.filter((v) => itmKndCd === v.itmKndCd);
+}
 
 // 입고창고구분이 변경되었을때
 const onChangeStrWareDvCd = async () => {
@@ -390,6 +389,7 @@ function onClickReset() {
 onMounted(async () => {
   await onChangeStrWareDvCd();
   await onChangeOstrWareDvCd();
+  await getProducts();
 });
 
 // -------------------------------------------------------------------------------------------------
