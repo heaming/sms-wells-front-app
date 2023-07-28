@@ -32,7 +32,7 @@
         <kw-search-item :label="t('MSG_TXT_PSTN_DV')">
           <kw-select
             v-model="searchParams.pstnDvCd"
-            :options="filterPstnDvCd"
+            :options="codes.DDTN_RPLC_WELLS_PSTN_DV_CD"
           />
         </kw-search-item>
         <kw-search-item :label="t('MSG_TXT_INQR_BASE')">
@@ -195,7 +195,7 @@ const userInfo = getUserInfo();
 const codes = await codeUtil.getMultiCodes(
   'REDF_OG_TP_CD',
   'DDTN_RPLC_BLNGT_DV_CD',
-  'WELLS_OJ_PSTN_RANK_CD',
+  'DDTN_RPLC_WELLS_PSTN_DV_CD',
 );
 
 const gridTpCd = ref([
@@ -213,16 +213,6 @@ const filterOgTpCd = ref([]);
 codes.REDF_OG_TP_CD.forEach((e) => {
   if (e.codeId.includes('W')) {
     filterOgTpCd.value.push({
-      codeId: e.codeId.trim(),
-      codeName: e.codeName.trim(),
-    });
-  }
-});
-
-const filterPstnDvCd = ref([]);
-codes.WELLS_OJ_PSTN_RANK_CD.forEach((e) => {
-  if (e.codeId !== '99') {
-    filterPstnDvCd.value.push({
       codeId: e.codeId.trim(),
       codeName: e.codeName.trim(),
     });
@@ -247,7 +237,7 @@ let cachedParams;
 
 const searchParams = ref({
   redfAdsbOcYm: currentMonth, // 발생년월
-  pstnDvCd: filterPstnDvCd.value[0].codeId, // 직급구분
+  pstnDvCd: codes.DDTN_RPLC_WELLS_PSTN_DV_CD[0].codeId,
   ogTpCd: 'ALL', // 조직유형
   prtnrNo: '', // 파트너번호
   cltnYn: 'ALL', // 해약여부
