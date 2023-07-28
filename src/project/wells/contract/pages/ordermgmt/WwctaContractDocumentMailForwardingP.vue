@@ -67,6 +67,7 @@ const params = ref({
   emadr: '',
 });
 
+// 발송버튼 클릭 이벤트
 async function onClickSend() {
   let rcvrInfoCntrNm = '';
   const rcvrInfoCnt = Number(params.value.rcvrInfo.length) - 1;
