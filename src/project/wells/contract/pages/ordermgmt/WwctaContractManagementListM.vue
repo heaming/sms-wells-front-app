@@ -822,6 +822,7 @@ async function onClickCntrwMlFw() {
       }
 
       if (['A', 'N', 'U'].includes(searchParams.value.cntrDv)) {
+        // 추가 파라미터(신규/변경시  rstlYn:'N')
         rcvrInfo.push({
           cntrNo: String(row.cntrDtlNo).split('-')[0],
           cntrSn: String(row.cntrDtlNo).split('-')[1],
@@ -893,7 +894,7 @@ async function onClickNotakfW() {
       if (['A', 'N', 'U'].includes(searchParams.value.cntrDv)) {
         saveData.push({
           cntrNo: String(row.cntrDtlNo).split('-')[0],
-          cntrSn: String(row.cntrDtlNo).split('-')[1],
+          cntrSn: String(row.cntrDtlNo).split('-')[1].substr(0, 1),
           cntrDv: searchParams.value.cntrDv,
         });
       } else if (searchParams.value.cntrDv === 'R') { // 재약정
