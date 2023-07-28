@@ -43,6 +43,8 @@
           :label2="$t('MSG_TXT_OSTR_WARE')"
           :label3="$t('MSG_TXT_HGR_WARE')"
           :label4="$t('MSG_TXT_WARE')"
+          @update:ware-dv-cd="onChangeOstrDvCd"
+          @update:ware-no-m="onChagneOstrWareHgrNo"
         />
         <!-- //출고창고 -->
       </kw-search-row>
@@ -70,6 +72,8 @@
           :label2="$t('MSG_TXT_STR_WARE')"
           :label3="$t('MSG_TXT_HGR_WARE')"
           :label4="$t('MSG_TXT_WARE')"
+          @update:ware-dv-cd="onChangeStrDvCd"
+          @update:ware-no-m="onChagneStrWareHgrNo"
         />
         <!-- //입고창고-->
       </kw-search-row>
@@ -219,7 +223,7 @@ const getProducts = async () => {
 // 품목종류 변경 시 품목 필터링
 function onChangeItmKndCd() {
   // 품목코드 클리어
-  searchParams.value.itmPdCds = [];
+  searchParams.value.itmPdCd = '';
   const { itmKndCd } = searchParams.value;
 
   if (isEmpty(itmKndCd)) {
@@ -228,6 +232,24 @@ function onChangeItmKndCd() {
   }
 
   optionsItmPdCd.value = optionsAllItmPdCd.value.filter((v) => itmKndCd === v.itmKndCd);
+}
+
+function onChangeOstrDvCd() {
+  searchParams.value.ostrHgrWareNo = '';
+  searchParams.value.ostrWareNo = '';
+}
+
+function onChagneOstrWareHgrNo() {
+  searchParams.value.ostrWareNo = '';
+}
+
+function onChangeStrDvCd() {
+  searchParams.value.strHgrWareNo = '';
+  searchParams.value.strWareNo = '';
+}
+
+function onChagneStrWareHgrNo() {
+  searchParams.value.strWareNo = '';
 }
 
 async function fetchData() {
@@ -324,24 +346,16 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'sapMatCd', header: t('MSG_TXT_SAP_CD'), width: '150', styleName: 'text-center' },
     { fieldName: 'itmPdCd', header: t('MSG_TXT_ITM_CD'), width: '150', styleName: 'text-center' },
     { fieldName: 'pdAbbrNm', header: t('MSG_TXT_ITM_NM'), width: '300', styleName: 'text-left' },
-    { fieldName: 'ostrTpCd',
-      header: t('MSG_TXT_OSTR_TP'),
-      options: codes.OSTR_TP_CD,
-      editor: { type: 'dropdown' },
-      editable: false,
-      width: '100',
-      styleName: 'text-center' },
+    { fieldName: 'ostrTpCd', header: t('MSG_TXT_OSTR_TP'), options: codes.OSTR_TP_CD, width: '100', styleName: 'text-center' },
     { fieldName: 'mngtUnitNm', header: t('MSG_TXT_MNGT_UNIT'), width: '100', styleName: 'text-center' },
     { fieldName: 'itmGdNm', header: t('MSG_TXT_GD'), width: '100', styleName: 'text-center' },
     { fieldName: 'ostrQty', header: t('MSG_TXT_QTY'), width: '100', styleName: 'text-right' },
     { fieldName: 'boxQty', header: t('MSG_TXT_BOX_KOR_QTY'), width: '100', styleName: 'text-right' },
-    { fieldName: 'llshcs', header: t('MSG_TXT_DIDY_COS'), width: '100', styleName: 'text-center' },
-    { fieldName: 'ostrWareNm', header: t('MSG_TXT_OSTR_WARE'), width: '100', styleName: 'text-center' },
+    { fieldName: 'ostrWareNm', header: t('MSG_TXT_OSTR_WARE'), width: '150', styleName: 'text-left' },
     { fieldName: 'strRgstDt', header: t('MSG_TXT_STR_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'ostrAkDtlNo', header: t('MSG_TXT_OSTR_AK_NO'), width: '100', styleName: 'text-center' },
-    { fieldName: 'ostrDtlNo', header: t('MSG_TXT_OSTR_MNGT_NO'), width: '100', styleName: 'text-center' },
-    { fieldName: 'strDtlNo', header: t('MSG_TXT_STR_MNGT_NO'), width: '100', styleName: 'text-center' },
-    { fieldName: 'rmkCn', header: t('MSG_TXT_NOTE'), width: '100', styleName: 'text-center' },
+    { fieldName: 'ostrAkDtlNo', header: t('MSG_TXT_OSTR_AK_NO'), width: '130', styleName: 'text-center' },
+    { fieldName: 'ostrDtlNo', header: t('MSG_TXT_OSTR_MNGT_NO'), width: '130', styleName: 'text-center' },
+    { fieldName: 'strDtlNo', header: t('MSG_TXT_STR_MNGT_NO'), width: '130', styleName: 'text-center' },
   ];
 
   data.setFields(fields);

@@ -46,6 +46,8 @@
           :label2="$t('MSG_TXT_STR_WARE')"
           :label3="$t('MSG_TXT_WARE')"
           :label4="$t('MSG_TXT_WARE')"
+          @update:ware-dv-cd="onChangeStrDvCd"
+          @update:ware-no-m="onChagneStrWareHgrNo"
         />
         <!-- 입고창고상세구분 -->
         <kw-search-item
@@ -85,6 +87,8 @@
           :label2="$t('MSG_TXT_OSTR_WARE')"
           :label3="$t('MSG_TXT_WARE')"
           :label4="$t('MSG_TXT_WARE')"
+          @update:ware-dv-cd="onChangeOstrDvCd"
+          @update:ware-no-m="onChagneOstrWareHgrNo"
         />
         <!-- 출고창고상세구분 -->
         <kw-search-item
@@ -251,7 +255,7 @@ const getProducts = async () => {
 // 품목종류 변경 시 품목 필터링
 function onChangeItmKndCd() {
   // 품목코드 클리어
-  searchParams.value.itmPdCds = [];
+  searchParams.value.itmPdCd = '';
   const { itmKndCd } = searchParams.value;
 
   if (isEmpty(itmKndCd)) {
@@ -260,6 +264,24 @@ function onChangeItmKndCd() {
   }
 
   optionsItmPdCd.value = optionsAllItmPdCd.value.filter((v) => itmKndCd === v.itmKndCd);
+}
+
+function onChangeOstrDvCd() {
+  searchParams.value.ostrWareNoM = '';
+  searchParams.value.ostrWareNoD = '';
+}
+
+function onChagneOstrWareHgrNo() {
+  searchParams.value.ostrWareNoD = '';
+}
+
+function onChangeStrDvCd() {
+  searchParams.value.strWareNoM = '';
+  searchParams.value.strWareNoD = '';
+}
+
+function onChagneStrWareHgrNo() {
+  searchParams.value.strWareNoD = '';
 }
 
 // 입고창고구분이 변경되었을때
