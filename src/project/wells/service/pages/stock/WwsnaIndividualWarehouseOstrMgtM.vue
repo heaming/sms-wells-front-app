@@ -142,8 +142,7 @@
             option-value="wareNo"
             option-label="wareNm"
             :label="$t('MSG_TXT_STR_WARE')"
-            first-option="select"
-            rules="required"
+            first-option="all"
           />
         </kw-search-item>
         <!-- 품목코드 -->
@@ -184,11 +183,7 @@
       <kw-action-top>
         <template #left>
           <kw-paging-info
-            v-model:page-index="pageInfo.pageIndex"
-            v-model:page-size="pageInfo.pageSize"
-            :total-count="pageInfo.totalCount"
-            :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
-            @change="fetchData"
+            :total-count="totalCount"
           />
         </template>
 
@@ -196,7 +191,7 @@
           dense
           grid-action
           :label="$t('MSG_TXT_SAVE')"
-          :disable="pageInfo.totalCount === 0"
+          :disable="totalCount === 0"
           @click="onClickSave"
         />
         <kw-separator
@@ -209,14 +204,14 @@
           dense
           secondary
           :label="$t('MSG_BTN_EXCEL_DOWN')"
-          :disable="pageInfo.totalCount === 0"
+          :disable="totalCount === 0"
           @click="onClickExcelDownload"
         />
         <kw-btn
+          :label="`${t('MSG_TXT_LGST')}${t('MSG_TXT_TF')}`"
           dense
-          secondary
-          :label="$t('MSG_TXT_ASGN_EXLD_ITM_RGST')"
-          @click="openAssignExcludeItemP"
+          primary
+          @click="onClickLgstTrs"
         />
       </kw-action-top>
       <ul class="filter-box mb12">
@@ -243,15 +238,8 @@
       <kw-grid
         ref="grdMainRef"
         name="grdMain"
-        :page-size="pageInfo.pageSize"
-        :total-count="pageInfo.totalCount"
+        :total-count="totalCount"
         @init="initGrdMain"
-      />
-      <kw-pagination
-        v-model:page-index="pageInfo.pageIndex"
-        v-model:page-size="pageInfo.pageSize"
-        :total-count="pageInfo.totalCount"
-        @change="fetchData"
       />
     </div>
   </kw-page>
@@ -263,13 +251,12 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 
-import { defineGrid, codeUtil, useDataService, getComponentType, useMeta, useGlobal, gridUtil } from 'kw-lib';
+import { defineGrid, codeUtil, useDataService, getComponentType, useGlobal, gridUtil } from 'kw-lib';
 import dayjs from 'dayjs';
 import { isEmpty, cloneDeep } from 'lodash-es';
 
 const { t } = useI18n();
-const { getConfig } = useMeta();
-const { modal, alert, notify } = useGlobal();
+const { alert, notify, confirm } = useGlobal();
 const { currentRoute } = useRouter();
 
 const dataService = useDataService();
@@ -283,7 +270,6 @@ const grdMainRef = ref(getComponentType('KwGrid'));
 const codes = await codeUtil.getMultiCodes(
   'ITM_KND_CD',
   'WARE_DV_CD',
-  'COD_PAGE_SIZE_OPTIONS',
 );
 
 const now = dayjs();
@@ -308,13 +294,6 @@ const searchParams = ref({
   strtSapCd: '',
   endSapCd: '',
   ndlvQtyYn: 'N',
-});
-
-const pageInfo = ref({
-  totalCount: 0,
-  pageIndex: 1,
-  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
-  needTotalCount: true,
 });
 
 const filterCodes = ref({
@@ -463,15 +442,15 @@ await Promise.all([
 ]);
 
 const allOstrItms = ref([]);
+const totalCount = ref(0);
 
 // 조회
 async function fetchData() {
-  const res = await dataService.get('/sms/wells/service/individual-ware-ostrs/paging', { params: { ...cachedParams, ...pageInfo.value } });
-  const { list: ostrItms, pageInfo: pagingResult } = res.data;
-  // fetch시에는 총 건수 조회하지 않도록 변경
-  pagingResult.needTotalCount = false;
-  pageInfo.value = pagingResult;
+  const res = await dataService.get('/sms/wells/service/individual-ware-ostrs', { params: { ...cachedParams } });
+  const ostrItms = res.data;
+
   allOstrItms.value = ostrItms;
+  totalCount.value = ostrItms.length;
 
   if (grdMainRef.value != null) {
     const view = grdMainRef.value.getView();
@@ -481,9 +460,6 @@ async function fetchData() {
 
 async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
-  pageInfo.value.pageIndex = 1;
-  // 조회버튼 클릭 시에만 총 건수 조회하도록
-  pageInfo.value.needTotalCount = true;
   await fetchData();
 }
 
@@ -496,13 +472,6 @@ async function onClickExcelDownload() {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
     exportData: res.data,
-  });
-}
-
-async function openAssignExcludeItemP() {
-  await modal({
-    component: 'WwsnaAssignExcludeItemRegP',
-    componentProps: {},
   });
 }
 
@@ -566,12 +535,50 @@ async function onClickSave() {
   }
 }
 
+// 물류이관
+async function onClickLgstTrs() {
+  const { asnOjYm, cnt, ostrWareNo } = searchParams.value;
+
+  if (isEmpty(asnOjYm)) {
+    // {0}은(는) 필수 항목입니다.
+    await alert(`${t('MSG_TXT_ASN_YM')} ${t('MSG_ALT_NCELL_REQUIRED_ITEM')}`);
+    return;
+  }
+
+  if (isEmpty(cnt)) {
+    // {0}은(는) 필수 항목입니다.
+    await alert(`${t('MSG_TXT_ORDERSELECT_TITLE')} ${t('MSG_ALT_NCELL_REQUIRED_ITEM')}`);
+    return;
+  }
+
+  if (isEmpty(ostrWareNo)) {
+    // {0}은(는) 필수 항목입니다.
+    await alert(`${t('MSG_TXT_OSTR_WARE')} ${t('MSG_ALT_NCELL_REQUIRED_ITEM')}`);
+    return;
+  }
+
+  // {0} 물량배정 데이터를 물류로 이관하시겠습니까?
+  const msg = `${asnOjYm.substring(0, 4)}-${asnOjYm.substring(4, 6)} ${cnt}`;
+  if (!await confirm(`${msg}${t('MSG_TXT_ORDERSELECT_TITLE')} ${t('MSG_TXT_INDV_WARE')}${t('MSG_ALT_QOM_ASN_LGST_TRS')}`)) {
+    return;
+  }
+  // 물류 전송
+  const res = await dataService.post('/sms/wells/service/individual-ware-ostrs/logistics-transfer', searchParams.value, { timeout: 3000000 });
+  const { processCount } = res.data;
+  if (processCount > 0) {
+    // 이관이 완료되었습니다.
+    notify(t('MSG_ALT_IS_FSH'));
+    await fetchData();
+  }
+}
+
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
 
 const initGrdMain = defineGrid((data, view) => {
   const fields = [
+    { fieldName: 'lgstTrsYn' },
     { fieldName: 'wareNm' },
     { fieldName: 'sapMatCd' },
     { fieldName: 'itmPdCd' },
@@ -607,10 +614,13 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'ostrAkNo' },
     { fieldName: 'ostrAkSn' },
     { fieldName: 'ostrDt' },
-    { fieldName: 'chk', dataType: 'text', booleanFormat: 'N:Y' },
+    { fieldName: 'ostrWareDvCd' },
+    { fieldName: 'ostrPrtnrNo' },
+    { fieldName: 'ostrPrtnrOgTpCd' },
   ];
 
   const columns = [
+    { fieldName: 'lgstTrsYn', header: `${t('MSG_TXT_LGST')}${t('MSG_TXT_TRS_YN')}`, width: '100', styleName: 'text-center' },
     { fieldName: 'wareNm', header: t('MSG_TXT_STR_WARE'), width: '160', styleName: 'text-center' },
     { fieldName: 'sapMatCd', header: t('MSG_TXT_SAP_CD'), width: '150', styleName: 'text-center' },
     { fieldName: 'itmPdCd', header: t('MSG_TXT_ITM_CD'), width: '150', styleName: 'text-center' },
@@ -651,6 +661,7 @@ const initGrdMain = defineGrid((data, view) => {
   data.setFields(fields);
   view.setColumns(columns);
   view.setColumnLayout([
+    'lgstTrsYn',
     'wareNm',
     'sapMatCd',
     'itmPdCd',
@@ -678,13 +689,16 @@ const initGrdMain = defineGrid((data, view) => {
     'outBoxQty', 'outQty', 'rmkCn',
   ]);
 
-  view.checkBar.visible = true;
+  view.checkBar.visible = false;
   view.rowIndicator.visible = true;
   view.editOptions.editable = true;
 
   view.onCellEditable = (grid, index) => {
-    // 출고수량, 비고만 입력 가능
-    if (['outQty', 'rmkCn'].includes(index.column)) {
+    // 물류전송여부
+    const lgstTrsYn = gridUtil.getCellValue(view, index.dataRow, 'lgstTrsYn');
+
+    // 물류전송이 N인 경우, 출고수량, 비고만 입력 가능
+    if (lgstTrsYn === 'N' && ['outQty', 'rmkCn'].includes(index.column)) {
       return true;
     }
 

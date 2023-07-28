@@ -495,6 +495,8 @@ async function onClickDelReq(item) {
   width: 100%;
   display: flex;
   column-gap: 6px;
+  row-gap: 6px;
+  flex-wrap: wrap;
 
   ::v-deep(.kw-btn) {
     padding: 8px 0;

@@ -416,40 +416,6 @@ async function openFeeControlPopup() {
   });
 }
 
-/*
- *  Event - 부담공제조정 버튼 클릭
- */
-async function openZwfedFeeBurdenDeductionRegP() {
-  const param = {
-    dsbYm: searchParams.value.perfYm,
-    ogTpCd: 'W03',
-    ogTpCdTxt: '홈마스터',
-    coCd: '2000',
-    coCdTxt: 'WELLS',
-    prtnrNo: searchParams.value.no,
-  };
-  await modal({
-    component: 'ZwfedFeeBurdenDeductionRegP',
-    componentProps: param,
-  });
-}
-
-/*
- *  Event - 가지급금조정 버튼 클릭
- */
-async function openZwfedFeePnpyamDeductionRegP() {
-  const param = {
-    ddtnYm: searchParams.value.perfYm,
-    ogTpCd: 'W03',
-    feeTcntDvCd: '02',
-    rsbDvCd: 'W302',
-  };
-  await modal({
-    component: 'ZwfedFeePnpyamDeductionRegP',
-    componentProps: param,
-  });
-}
-
 async function fetchData(type) {
   const response = await dataService.get(`/sms/wells/fee/individual-fee/home-master/${type}`, { params: cachedParams });
   const resData = response.data;
@@ -475,6 +441,44 @@ async function onClickSearch() {
   await fetchData('control');
 }
 
+/*
+ *  Event - 부담공제조정 버튼 클릭
+ */
+async function openZwfedFeeBurdenDeductionRegP() {
+  const param = {
+    dsbYm: dayjs(searchParams.value.perfYm).format('YYYY-MM'),
+    ogTpCd: 'W03',
+    coCd: '2000',
+    prtnrNo: searchParams.value.no,
+  };
+  const { result: isChanged } = await modal({
+    component: 'ZwfedFeeBurdenDeductionRegP',
+    componentProps: param,
+  });
+  if (isChanged) {
+    onClickSearch();
+  }
+}
+
+/*
+ *  Event - 가지급금조정 버튼 클릭
+ */
+async function openZwfedFeePnpyamDeductionRegP() {
+  const param = {
+    dsbYm: dayjs(searchParams.value.perfYm).format('YYYY-MM'),
+    ogTpCd: 'W03',
+    coCd: '2000',
+    prtnrNo: searchParams.value.no,
+  };
+
+  const { result: isChanged } = await modal({
+    component: 'ZwfedFeePnpyamDeductionRegP',
+    componentProps: param,
+  });
+  if (isChanged) {
+    onClickSearch();
+  }
+}
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------

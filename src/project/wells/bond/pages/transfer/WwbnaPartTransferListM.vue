@@ -75,7 +75,8 @@
             clearable
             :on-keydown-no-click="true"
             maxlength="10"
-            @keydown.enter="isCustomer($event, 'type1')"
+            :rules="validateSearchCstNo"
+            @keydown="isCustomer($event, 'type1')"
           />
         </kw-search-item>
         <kw-search-item
@@ -90,7 +91,8 @@
             :on-keydown-no-click="true"
             regex="alpha_hangul"
             maxlength="25"
-            @keydown.enter="isCustomer($event, 'type2')"
+            :rules="validateSearchCstNo"
+            @keydown="isCustomer($event, 'type2')"
           />
         </kw-search-item>
         <kw-search-item
@@ -100,7 +102,8 @@
             v-model="searchParams.phoneNumber"
             :on-keydown-no-click="true"
             mask="telephone"
-            @keydown.enter="isCustomer($event, 'type3')"
+            :rules="validateSearchCstNo"
+            @keydown="isCustomer($event, 'type3')"
           />
         </kw-search-item>
       </kw-search-row>
@@ -258,10 +261,7 @@ const searchDetailsParams = ref({
 });
 
 const canFeasibleSearch = ref({
-  popSearchComplate: false,
-  type1: false,
-  type2: false,
-  type3: false,
+  searchCustomerComplate: false,
 });
 
 async function fetchData() {
@@ -289,7 +289,7 @@ async function hasPartTransfer() {
 async function onClickSearch() {
   const notifyMessage = await chkInputSearchComplete(searchParams, canFeasibleSearch);
   if (notifyMessage) {
-    notify(notifyMessage);
+    await alert(notifyMessage);
     return;
   }
   if (await hasPartTransfer()) {
@@ -356,14 +356,18 @@ async function openSearchUserPopup() {
 }
 
 async function isCustomer(event, workType = 'type1') {
-  if (!event.target.value) {
-    await openSearchUserCommonPopup(searchParams, canFeasibleSearch);
-    return;
-  }
-  searchParams.value.workType = workType;
-  const notifyMessage = await isCustomerCommon(searchParams, canFeasibleSearch);
-  if (notifyMessage) {
-    notify(notifyMessage);
+  if (event.keyCode === 13) {
+    if (!event.target.value) {
+      await openSearchUserCommonPopup(searchParams, canFeasibleSearch);
+      return;
+    }
+    searchParams.value.workType = workType;
+    const notifyMessage = await isCustomerCommon(searchParams, canFeasibleSearch);
+    if (notifyMessage) {
+      notify(notifyMessage);
+    }
+  } else {
+    canFeasibleSearch.value.searchCustomerComplate = false;
   }
 }
 
@@ -388,29 +392,19 @@ async function onClickCreate() {
     notify(t('MSG_ALT_PA_TF_EXCN'));
   }
   await dataService.post('/sms/wells/bond/part-transfers', cachedParams);
+
+  // TODO: 통테 임시 작업 메시지 정의 필요
+  await alert('파트이관이 완료 되었습니다.');
 }
 
-watch(() => searchParams.value.cstNo, async () => {
-  if (canFeasibleSearch.value.popSearchComplate) {
-    canFeasibleSearch.value.popSearchComplate = false;
-  } else {
-    canFeasibleSearch.value.type1 = false;
+const validateSearchCstNo = async () => {
+  const validaateMessage = await chkInputSearchComplete(searchParams, canFeasibleSearch);
+  if (validaateMessage) {
+    return validaateMessage;
   }
-});
-watch(() => searchParams.value.cstNm, async () => {
-  if (canFeasibleSearch.value.popSearchComplate) {
-    canFeasibleSearch.value.popSearchComplate = false;
-  } else {
-    canFeasibleSearch.value.type2 = false;
-  }
-});
-watch(() => searchParams.value.phoneNumber, async () => {
-  if (canFeasibleSearch.value.popSearchComplate) {
-    canFeasibleSearch.value.popSearchComplate = false;
-  } else {
-    canFeasibleSearch.value.type3 = false;
-  }
-});
+  return true;
+};
+
 watch(() => searchParams.value.baseYm, async (baseYm) => {
   if (baseYm !== defaultDate) {
     isNotActivated.value = true;

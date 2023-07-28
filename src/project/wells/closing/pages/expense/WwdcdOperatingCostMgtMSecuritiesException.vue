@@ -14,9 +14,7 @@
   <h3>{{ t('MSG_TXT_ADJ_OJ') }}</h3>
   <kw-action-top>
     <template #left>
-      <kw-paging-info
-        :total-count="mainTotalCount"
-      />
+      <kw-paging-info :total-count="mainTotalCount" />
       <span class="ml8">{{ t('MSG_TXT_UNIT_WON') }}</span>
     </template>
     <kw-btn
@@ -44,7 +42,7 @@
     ref="grdMainRef"
     name="grdTabMain"
     :visible-rows="5"
-    @init="initGrdMain"
+    @init="initGridMain"
   />
   <kw-separator />
   <h3>
@@ -52,9 +50,7 @@
   </h3>
   <kw-action-top>
     <template #left>
-      <kw-paging-info
-        :total-count="subTotalCount"
-      />
+      <kw-paging-info :total-count="subTotalCount" />
       <span class="ml8">{{ t('MSG_TXT_UNIT_WON') }}</span>
     </template>
     <kw-btn
@@ -70,7 +66,7 @@
     ref="grdSubRef"
     name="grdTabSub"
     :visible-rows="5"
-    @init="initGrdSub"
+    @init="initGridSub"
   />
 </template>
 <script setup>
@@ -160,43 +156,38 @@ async function onClickSave() {
   if (await gridUtil.alertIfIsNotModified(view)) { return; }
   if (!await gridUtil.validate(view)) { return; }
 
-  const dataRows = [];
-  let updateTotal = 0;
-  let domTrdAmtTotal = 0;
-  let checkedCount = 0;
-  let cardAprno;
+  const exceptDatas = []; // 정산제외항목들
   checkedRows.forEach((checkedRow) => {
     if (checkedRow.opcsAdjExcdYn === 'Y') {
-      dataRows.push(checkedRow);
+      exceptDatas.push(checkedRow);
     }
   });
 
-  if (dataRows.length > 0) {
-    const sortRows = dataRows.sort((t1, t2) => (t1.cardAprno < t2.cardAprno ? -1 : 1));
-    for (let i = 0; i < sortRows.length; i += 1) {
-      cardAprno = sortRows[i].cardAprno;
-      domTrdAmtTotal = sortRows[i].domTrdAmt1;
-      domTrdAmtTotal = 0;
+  if (exceptDatas.length >= 2) { // 정산제외할 항목이 두 개 로우 이상일때만 체크로직 시작
+    let isSatisfaction = true; // 정산제외 조건 체크완료 여부. 한 개라도 만족하지 않으면 중단
+    const checkedCarAprnoList = []; // 정산제외 체크 완료한 승인번호 리스트
+    exceptDatas.forEach((data) => {
+      if (isSatisfaction && !checkedCarAprnoList.includes(data.cardAprno)) { // 이전데이터 체크여부가 정상이고이미 진행한 승인번호인지 확인
+        // 승인번호 체크
+        const exceptCarAprnoDatas = exceptDatas.filter((exceptData) => exceptData.cardAprno === data.cardAprno);
+        if (exceptCarAprnoDatas < 2) { // 해당승인번호가 두 건 이상 있는지
+          alert('동일한 승인번호 갯수가 2개 이상이어야 가능합니다.');
+          isSatisfaction = false;
+          return;
+        }
+        // 사용금액 합계 체크
+        const domTrdAmtTotal = exceptCarAprnoDatas
+          .reduce((totalAmt, currentData) => totalAmt + currentData.domTrdAmt, 0);// 사용금액 합계
 
-      for (let j = i + 1; j < sortRows.length; j += 1) {
-        if (cardAprno === sortRows[j].cardAprno) {
-          domTrdAmtTotal += sortRows[j].domTrdAmt1;
-          checkedCount += 1;
+        if (domTrdAmtTotal !== 0) {
+          alert('승인번호가 모두 동일하여야 하며 사용금액 합계가 0 이 되어야 합니다.');
+          isSatisfaction = false;
         } else {
-          i = j;
-          if (checkedCount === 1) {
-            alert('2개 이상이어야 가능합니다.');
-            break;
-          }
+          checkedCarAprnoList.push(data.cardAprno); // 같은 승인번호의 사용금액의 합계가 0이면 체크완료
         }
       }
-      if (domTrdAmtTotal > 0) {
-        updateTotal += 1;
-      }
-    }
-
-    if (updateTotal > 0) {
-      alert('승인번호가 모두 동일하여야 하며 사용금액 합계가 0 이 되어야 합니다.');
+    });
+    if (!isSatisfaction) { // 정산제외 조건 체크완료 여부. 한 개라도 만족하지 않으면 wjwkd 중단
       return;
     }
   }
@@ -210,7 +201,7 @@ async function onClickSave() {
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
-const initGrdMain = defineGrid((data, view) => {
+const initGridMain = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'opcsCardUseIzId', visible: false }, // 운영비카드사용내역ID
     { fieldName: 'dgr1LevlOgId', visible: false }, // 총괄단 ID
@@ -332,7 +323,7 @@ const initGrdMain = defineGrid((data, view) => {
   };
 });
 
-const initGrdSub = defineGrid((data, view) => {
+const initGridSub = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'erntx', visible: false }, // 소득세
     { fieldName: 'rsdntx', visible: false }, // 주민세

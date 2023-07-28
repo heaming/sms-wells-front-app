@@ -327,14 +327,15 @@ async function onClickExcelDownload() {
 // TODO: 팝업창 개발하시면 추가 예정
 async function onClickCntctPopup() {
   const { result } = await modal({
-    component: '',
-    componentProps: {},
+    component: 'WwsnaInstallationAssignSettingP',
+    componentProps: { },
   });
 
   if (result) {
     await fetchData();
   }
 }
+
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------

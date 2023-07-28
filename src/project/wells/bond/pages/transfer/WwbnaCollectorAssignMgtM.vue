@@ -68,6 +68,7 @@
             :on-keydown-no-click="true"
             regex="alpha_hangul"
             maxlength="25"
+            :rules="validateSearchClctamPrtnr"
             @keydown.enter="fetchPartnerNo"
           />
         </kw-search-item>
@@ -92,7 +93,8 @@
             :on-click-icon="openSearchUserPopup"
             :on-keydown-no-click="true"
             maxlength="10"
-            @keydown.enter="isCustomer($event, 'type1')"
+            :rules="validateSearchCstNo"
+            @keydown="isCustomer($event, 'type1')"
           />
         </kw-search-item>
         <kw-search-item
@@ -106,7 +108,8 @@
             :on-keydown-no-click="true"
             regex="alpha_hangul"
             maxlength="25"
-            @keydown.enter="isCustomer($event, 'type2')"
+            :rules="validateSearchCstNo"
+            @keydown="isCustomer($event, 'type2')"
           />
         </kw-search-item>
         <kw-search-item
@@ -116,7 +119,8 @@
             v-model="searchParams.phoneNumber"
             mask="telephone"
             :on-keydown-no-click="true"
-            @keydown.enter="isCustomer($event, 'type3')"
+            :rules="validateSearchCstNo"
+            @keydown="isCustomer($event, 'type3')"
           />
         </kw-search-item>
       </kw-search-row>
@@ -232,7 +236,7 @@ import { useGlobal, codeUtil, getComponentType, router, useMeta, useDataService,
 import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
 import { getBzHdqDvcd } from '~sms-common/bond/utils/bnUtil';
-import { chkInputSearchComplete, openSearchUserCommonPopup, isCustomerCommon, openSearchClctamPsicCommonPopup, fetchPartnerNoCommon } from '~sms-common/bond/pages/transfer/utils/bnaTransferUtils';
+import { chkInputSearchComplete, chkClctamPrtnrSearchComplete, openSearchUserCommonPopup, isCustomerCommon, openSearchClctamPsicCommonPopup, fetchPartnerNoCommon } from '~sms-common/bond/pages/transfer/utils/bnaTransferUtils';
 
 const { t } = useI18n();
 const { getConfig } = useMeta();
@@ -294,10 +298,7 @@ const searchDetailsParams = ref({
   tfBizDvCd: '',
 });
 const canFeasibleSearch = ref({
-  popSearchComplate: false,
-  type1: false,
-  type2: false,
-  type3: false,
+  searchCustomerComplate: false,
 });
 
 const pageMove = ref({
@@ -331,11 +332,6 @@ async function fetchData() {
 }
 
 async function onClickSearch() {
-  const notifyMessage = await chkInputSearchComplete(searchParams, canFeasibleSearch);
-  if (notifyMessage) {
-    notify(notifyMessage);
-    return;
-  }
   cachedParams = cloneDeep(searchParams.value);
   fetchData();
 }
@@ -452,25 +448,29 @@ async function onClickConfirm() {
 }
 
 async function openSearchClctamPsicPopup() {
-  await openSearchClctamPsicCommonPopup(searchParams, canFeasibleSearch);
+  await openSearchClctamPsicCommonPopup(searchParams);
 }
 
 async function fetchPartnerNo() {
-  const notifyMessage = await fetchPartnerNoCommon(searchParams, canFeasibleSearch);
+  const notifyMessage = await fetchPartnerNoCommon(searchParams);
   if (notifyMessage) {
     notify(notifyMessage);
   }
 }
 
 async function isCustomer(event, workType = 'type1') {
-  if (!event.target.value) {
-    await openSearchUserCommonPopup(searchParams, canFeasibleSearch);
-    return;
-  }
-  searchParams.value.workType = workType;
-  const notifyMessage = await isCustomerCommon(searchParams, canFeasibleSearch);
-  if (notifyMessage) {
-    notify(notifyMessage);
+  if (event.keyCode === 13) {
+    if (!event.target.value) {
+      await openSearchUserCommonPopup(searchParams, canFeasibleSearch);
+      return;
+    }
+    searchParams.value.workType = workType;
+    const notifyMessage = await isCustomerCommon(searchParams, canFeasibleSearch);
+    if (notifyMessage) {
+      notify(notifyMessage);
+    }
+  } else {
+    canFeasibleSearch.value.searchCustomerComplate = false;
   }
 }
 
@@ -478,27 +478,22 @@ async function openSearchUserPopup() {
   await openSearchUserCommonPopup(searchParams, canFeasibleSearch.value);
 }
 
-watch(() => searchParams.value.cstNo, async () => {
-  if (canFeasibleSearch.value.popSearchComplate) {
-    canFeasibleSearch.value.popSearchComplate = false;
-  } else {
-    canFeasibleSearch.value.type1 = false;
+const validateSearchCstNo = async () => {
+  const validaateMessage = await chkInputSearchComplete(searchParams, canFeasibleSearch);
+  if (validaateMessage) {
+    return validaateMessage;
   }
-});
-watch(() => searchParams.value.cstNm, async () => {
-  if (canFeasibleSearch.value.popSearchComplate) {
-    canFeasibleSearch.value.popSearchComplate = false;
-  } else {
-    canFeasibleSearch.value.type2 = false;
+  return true;
+};
+
+const validateSearchClctamPrtnr = async () => {
+  const validaateMessage = await chkClctamPrtnrSearchComplete(searchParams);
+  if (validaateMessage) {
+    return validaateMessage;
   }
-});
-watch(() => searchParams.value.phoneNumber, async () => {
-  if (canFeasibleSearch.value.popSearchComplate) {
-    canFeasibleSearch.value.popSearchComplate = false;
-  } else {
-    canFeasibleSearch.value.type3 = false;
-  }
-});
+  return true;
+};
+
 watch(() => searchParams.value.clctamPrtnrNm, async (clctamPrtnrNm) => {
   if (!clctamPrtnrNm) {
     searchParams.value.clctamPrtnrNo = '';

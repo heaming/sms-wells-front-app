@@ -25,9 +25,25 @@
       @click="onClickRemove"
     />
   </kw-action-top>
+  <ul class="filter-box justify-between mb12">
+    <li class="filter-box__item">
+      <p class="filter-box__item-label">
+        <!-- 판매채널 -->
+        {{ $t('MSG_TXT_SEL_CHNL') }}
+      </p>
+      <kw-select
+        v-model="filterChannel"
+        dense
+        first-option="all"
+        class="w250"
+        :options="usedChannelCds"
+        @update:model-value="onUpdateSellChannel"
+      />
+    </li>
+  </ul>
   <kw-grid
     ref="grdMainRef"
-    :visible-rows="5"
+    :visible-rows="10"
     :need-context-menu="false"
     @init="initGrid"
   />
@@ -71,12 +87,18 @@ const currentInitData = ref(null);
 const currentMetaInfos = ref();
 const removeObjects = ref([]);
 const gridRowCount = ref(0);
+const usedChannelCds = ref([]);
+const filterChannel = ref();
+const sellChannelFilterCond = ref();
 
 async function resetData() {
   currentPdCd.value = '';
   currentInitData.value = {};
   removeObjects.value = [];
   gridRowCount.value = 0;
+  usedChannelCds.value = [];
+  filterChannel.value = null;
+  sellChannelFilterCond.value = null;
   grdMainRef.value?.getView().getDataSource().clearRows();
   if (grdMainRef.value?.getView()) gridUtil.reset(grdMainRef.value.getView());
 }
@@ -159,6 +181,25 @@ async function initGridRows() {
     return;
   }
 
+  // 기본 속성에서 등록 채널 목록
+  const channels = currentInitData.value?.[pdConst.TBL_PD_DTL]
+    ?.reduce((rtn, item) => {
+      if (item.avlChnlId) {
+        rtn.push(item.avlChnlId);
+      }
+      return rtn;
+    }, [])
+    ?.join(',');
+  // console.log(' channels : ', channels);
+  if (channels) {
+    usedChannelCds.value = props.codes?.SELL_CHNL_DTL_CD?.filter((item) => channels.indexOf(item.codeId) > -1);
+    sellChannelFilterCond.value = usedChannelCds.value.map((v) => ({ name: v.codeId, criteria: `value = '${v.codeId}'` }));
+    // 판매채널 필터
+    if (sellChannelFilterCond.value) {
+      view.setColumnFilters('sellChnlCd', sellChannelFilterCond.value, true);
+    }
+  }
+
   // 선택변수
   const checkedVals = currentInitData.value?.[prumd]?.reduce((rtn, item) => {
     if (item.pdDscPrumPrpVal01) {
@@ -210,6 +251,15 @@ async function initGridRows() {
     await setPdGridRows(view, rows, pdConst.PRC_FNL_ROW_ID, defaultFields.value, true);
   }
   gridRowCount.value = getGridRowCount(view);
+  await onUpdateSellChannel();
+}
+
+async function onUpdateSellChannel() {
+  const view = grdMainRef.value.getView();
+  view.activateAllColumnFilters('sellChnlCd', false);
+  if (filterChannel.value) {
+    view.activateColumnFilters('sellChnlCd', [filterChannel.value], true);
+  }
 }
 
 async function initProps() {
@@ -223,7 +273,7 @@ await initProps();
 
 onActivated(async () => {
   // TODO 탭사용시 그리드 사라짐 문제로 아래 코드 임시조치
-  grdMainRef.value.getView().displayOptions.rowHeight = -1;
+  await initGridRows();
 });
 
 watch(() => props.pdCd, (val) => { currentPdCd.value = val; });
@@ -279,6 +329,8 @@ async function initGrid(data, view) {
     if (item.fieldName === 'svPdCd') {
       item.styleName = 'text-left';
       item.options = props.codes.svPdCd;
+    } else if (item.fieldName === 'sellChnlCd') {
+      item.autoFilter = false;
     }
     return item;
   });

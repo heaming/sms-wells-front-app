@@ -26,6 +26,7 @@
     :crdcd-stlms="crdcdStlms"
     :mileage-stlms="mileageStlms"
     @approved="onApprovedSpayStlms"
+    @approve-canceled="onApproveCanceledSpayStlms"
   />
   <card-automatic-transfer-approval
     ref="cardAftnRef"
@@ -135,6 +136,10 @@ function onApprovedSpayStlms(stlmsUpdateInfo) {
   spayStlmsUpdateInfo.value = stlmsUpdateInfo;
 }
 
+function onApproveCanceledSpayStlms() {
+  spayStlmsUpdateInfo.value = [];
+}
+
 /* account auto transfer */
 const crdCdAftnStlm = computed(() => Object.values(stlmInfo.value)
   .find((stlm) => CARD_AUTOMATIC_TRANSFER_DP_TP_CD === stlm.dpTpCd));
@@ -211,7 +216,7 @@ async function getInvalidRef() {
   if (vacIssueRef.value.ref && !await vacIssueRef.value.validate()) {
     return vacIssueRef.value.ref;
   }
-  if (cashRef.value.ref && !await cashRef.value.validate()) {
+  if (cashRef.value?.ref && !await cashRef.value.validate()) {
     return cashRef.value.ref;
   }
 }

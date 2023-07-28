@@ -40,6 +40,7 @@
             v-model="searchParams.prcDvCd"
             :options="[
               { codeId: '1', codeName: '설치자명 변경' },
+              { codeId: '2', codeName: '자동이체 변경' },
               { codeId: '3', codeName: '세금계산서 변경' },
               { codeId: '4', codeName: '플래너 변경' },
             ]"
@@ -281,6 +282,7 @@
       <!-- 처리구분=자동이체변경(2)일 때 활성화 -->
       <kw-form
         v-if="searchParams.prcDvCd === '2'"
+        ref="frmCrcdRef"
       >
         <kw-form-row>
           <h3>{{ $t('MSG_TXT_AUTO_FNT') + ' ' + $t('MSG_TXT_APLC_INF') }}</h3><!-- 자동이체 신청 정보 -->
@@ -301,14 +303,12 @@
                 { codeId: 'N', codeName: '보류' },
                 { codeId: 'B', codeName: '보류해제' },
               ]"
-              first-option="select"
-              rules="required"
+              :rules="searchParams.prcDvCd === '2' ? 'required': ''"
               :label="$t('MSG_TXT_FNT_DV')"
-              @change="onChangeFntDvCd"
             />
           </kw-form-item>
 
-          <!-- 증빙(변경)유형 -->
+          <!-- 증빙(변경)유형
           <kw-form-item
             v-if="fieldParams.fntDvCd === '1' || fieldParams.fntDvCd === '2'"
             :label="$t('MSG_TXT_EVID') + '(' + $t('MSG_TXT_CH') + ')' + $t('MSG_TXT_TYPE')"
@@ -344,7 +344,7 @@
               class="w130"
             >
               <template #default="{ field }">
-                <!-- 이체일자변경 -->
+                이체일자변경
                 <kw-checkbox
                   v-model="fieldParams.fntDtChChk"
                   v-bind="field"
@@ -355,13 +355,13 @@
             </kw-field>
           </kw-form-item>
 
-          <!-- 첨부파일 -->
+           첨부파일
           <kw-form-item
             v-if="fieldParams.fntDvCd === '1' && fieldParams.evidTpCd === '2'"
             :label="$t('MSG_TXT_ATTH_FILE')"
           >
             <kw-input />
-            <!-- 파일첨부 -->
+             파일첨부
             <kw-btn
               secondary
               :label="$t('MSG_TXT_FILE_ATTH')"
@@ -380,13 +380,13 @@
             style="color: red; line-height: 40px;"
           >
             ※ 조회결과 그리드에서 증빙원본 버튼을 선택하세요.
-          </p>
+          </p> -->
         </kw-form-row>
 
-        <kw-form-row
+        <!-- <kw-form-row
           v-if="fieldParams.fntDvCd === '1'"
         >
-          <!-- 은행/계좌번호 -->
+           은행/계좌번호
           <kw-form-item
             v-if="fieldParams.fntDvCd === '1' && fieldParams.evidTpCd !== '4'"
             :label="$t('MSG_TXT_BNK') + '/' + $t('MSG_TXT_AC_NO')"
@@ -410,7 +410,7 @@
             />
           </kw-form-item>
 
-          <!-- 예금주 -->
+           예금주
           <kw-form-item
             v-if="fieldParams.fntDvCd === '1' && fieldParams.evidTpCd !== '4'"
             :label="$t('MSG_TXT_ACHLDR')"
@@ -425,7 +425,7 @@
             />
           </kw-form-item>
 
-          <!-- 이체일자 -->
+           이체일자
           <kw-form-item
             v-if="fieldParams.fntDvCd === '1'"
             :label="$t('MSG_TXT_FNT_DT')"
@@ -445,7 +445,7 @@
         <kw-form-row
           v-if="fieldParams.fntDvCd === '1'"
         >
-          <!-- 고객식별번호 -->
+           고객식별번호
           <kw-form-item
             v-if="fieldParams.fntDvCd === '1' && fieldParams.evidTpCd !== '4'"
             :label="$t('MSG_TXT_CST_DRM_NO')"
@@ -466,7 +466,7 @@
         <kw-form-row
           v-if="fieldParams.fntDvCd === '2'"
         >
-          <!-- 고객식별번호 -->
+          고객식별번호
           <kw-form-item
             v-if="fieldParams.fntDvCd === '2' && fieldParams.fntDtChChk === 'N'"
             :label="$t('MSG_TXT_CST_DRM_NO')"
@@ -482,7 +482,7 @@
             />
           </kw-form-item>
 
-          <!-- 카드주 -->
+          카드주
           <kw-form-item
             v-if="fieldParams.fntDvCd === '2' && fieldParams.fntDtChChk === 'N'"
             :label="$t('MSG_TXT_CARD_STOCK')"
@@ -496,7 +496,7 @@
             />
           </kw-form-item>
 
-          <!-- 이체일자 -->
+          이체일자
           <kw-form-item
             v-if="fieldParams.fntDvCd === '2'"
             :label="$t('MSG_TXT_FNT_DT')"
@@ -515,7 +515,7 @@
         <kw-form-row
           v-if="fieldParams.fntDvCd === '2' && fieldParams.fntDtChChk === 'N'"
         >
-          <!-- 카드번호 -->
+          카드번호
           <kw-form-item
             :label="$t('MSG_TXT_CARD_NO')"
             :colspan="2"
@@ -547,7 +547,7 @@
             />
           </kw-form-item>
 
-          <!-- 유효기간 -->
+          유효기간
           <kw-form-item
             :label="$t('MSG_TXT_VALID_PERIOD')"
             required
@@ -559,18 +559,30 @@
               type="month"
             />
           </kw-form-item>
-        </kw-form-row>
+        </kw-form-row> -->
 
-        <div class="row justify-end items-center">
-          <!-- 선택해지 -->
-          <kw-btn
-            :label="$t('MSG_TXT_SELT') + $t('MSG_TXT_EXPIRED')"
-          />
+        <div
+          v-if="(fieldParams.fntDvCd !== '1' && fieldParams.fntDvCd !== '2') && !isEmpty(fieldParams.fntDvCd)"
+          class="row justify-end items-center"
+        >
           <!-- 수정 -->
           <kw-btn
             :label="$t('MSG_TXT_MOD')"
             class="ml8"
             primary
+            @click="onClickCrcdChange"
+          />
+        </div>
+        <div
+          v-if="fieldParams.fntDvCd === '1' || fieldParams.fntDvCd === '2'"
+          class="row justify-end items-center"
+        >
+          <!-- 자동이체납부정보변경 -->
+          <kw-btn
+            :label="$t('MSG_BTN_CRDCD_MPY_INF_CHANGE')"
+            class="ml8"
+            primary
+            @click="onClickCrcdMpyChange"
           />
         </div>
       </kw-form>
@@ -582,7 +594,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, useGlobal, defineGrid, useDataService, getComponentType, gridUtil, notify, confirm } from 'kw-lib';
+import { codeUtil, useGlobal, defineGrid, useDataService, getComponentType, gridUtil, notify, confirm, popupUtil } from 'kw-lib';
 import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
 import dayjs from 'dayjs';
 import { cloneDeep, isEmpty } from 'lodash-es';
@@ -600,6 +612,7 @@ const now = dayjs();
 const totalCount = ref(0);
 
 const frmIstRef = ref();
+const frmCrcdRef = ref();
 const frmTxinvRef = ref();
 const frmPlnnrRef = ref();
 
@@ -685,8 +698,11 @@ function initFieldParams(gubun) {
   if (!isEmpty(frmIstRef.value)) {
     frmIstRef.value.init();
   }
-  if (!isEmpty(frmPlnnrRef.value)) {
-    frmPlnnrRef.value.init();
+  if (!isEmpty(frmCrcdRef.value)) {
+    frmCrcdRef.value.init();
+  }
+  if (!isEmpty(frmTxinvRef.value)) {
+    frmTxinvRef.value.init();
   }
   if (!isEmpty(frmPlnnrRef.value)) {
     frmPlnnrRef.value.init();
@@ -705,14 +721,14 @@ function initFieldParams(gubun) {
 }
 
 // 이체구분 콤보값 변경 이벤트
-async function onChangeFntDvCd() {
-  initFieldParams('fntDvCd');
-}
+// async function onChangeFntDvCd() {
+//   initFieldParams('fntDvCd');
+// }
 
 // 증빙유형 콤보값 변경 이벤트
-async function onChangeEvidTpCd() {
-  initFieldParams('evidTpCd');
-}
+// async function onChangeEvidTpCd() {
+//   initFieldParams('evidTpCd');
+// }
 
 // 고객번호 검색 버튼 클릭
 async function onClickCstSearch() {
@@ -921,6 +937,58 @@ async function onClickEditPlnnr() {
   fetchData();
 }
 
+// 자동이체 수정
+async function onClickCrcdChange() {
+  if (!await frmCrcdRef.value.validate()) { return; }
+
+  fieldParams.value.prcDvCd = searchParams.value.prcDvCd;
+
+  const checkedList = gridUtil.getCheckedRowValues(grdCustomerRef.value.getView());
+  const cntrList = [];
+
+  if (isEmpty(checkedList)) {
+    alert(t('MSG_ALT_NO_CHECK_DATA'));
+    return;
+  }
+
+  if (!await confirm(t('MSG_ALT_WANT_SAVE'))) { return; }
+
+  checkedList.forEach((e) => {
+    cntrList.push({
+      cntrCstNo: e.cntrCstNo,
+      cntrNo: e.cntrNo,
+      cntrSn: e.cntrSn,
+      dpTpCd: e.dpTpCd,
+      sellTpCd: e.sellTpCd,
+      cntrStlmId: e.cntrStlmId,
+      aftnInfFntDvCd: e.aftnInfFntDvCd,
+      copnDvCd: e.copnDvCd,
+    });
+  });
+  fieldParams.value.contractList = cntrList;
+
+  const res = await dataService.put('/sms/wells/contract/changeorder/change-contract-infos', fieldParams.value);
+  notify(t('MSG_ALT_SAVED_CNT', [res.data.processCount]));
+  fetchData();
+}
+
+// 자동이체납부정보변경
+async function onClickCrcdMpyChange() {
+  if (!await frmCrcdRef.value.validate()) { return; }
+
+  const params = {
+    vstYn: '',
+    chRqrDvCd: '',
+    aftnThpChYn: '',
+    clctamMngtYn: '',
+    akChdt: now.format('YYYYMMDD'),
+  };
+
+  const query = `/tablet/#/withdrawal/ztwda-auto-transfer-payment-change?${new URLSearchParams(params)}`;
+
+  await popupUtil.open(query, { width: 1138, height: 712 }, false);
+}
+
 // 이체일자변경 체크값 변경 감시
 watch(() => fieldParams.value.fntDtChChk, (val) => {
   fieldParams.value.evidTpCd = val === 'Y' ? '4' : '';
@@ -942,6 +1010,8 @@ watch(() => fieldParams.value.evidTpCd, (val) => {
 const initCustomerGrid = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'sellPrtnrNo' }, // 판매파트너번호
+    { fieldName: 'copnDvCd' }, // 법인격구분코드
+    { fieldName: 'cntrStlmId' }, // 계약결제ID
     { fieldName: 'prtnrKnm' }, // [이름] 파트너한글명
     { fieldName: 'sellTpCd' }, // 판매유형코드
     { fieldName: 'sellTpNm' }, // [업무구분] 판매유형명
@@ -1028,6 +1098,7 @@ const initCustomerGrid = defineGrid((data, view) => {
     { fieldName: 'resign',
       header: t('MSG_TXT_EXPIRED'), // 해지
       width: '90',
+      visible: false,
       styleName: 'text-center',
       renderer: { type: 'button' },
     },
@@ -1102,7 +1173,6 @@ const initCustomerGrid = defineGrid((data, view) => {
       header: `${t('MSG_TXT_AUTO_FNT')} ${t('MSG_TXT_INF')}`, // 자동이체 정보
       direction: 'horizontal',
       items: ['atmtStat', 'mpyBsdt', 'aftnInfFntDvNm', 'bnkCdcoNm', 'acnoCrcdno', 'isBndl', 'evidOcyInqr', 'resign'],
-      visible: false,
     },
     {
       header: t('MSG_TXT_INSTR_INFO'), // 설치자 정보

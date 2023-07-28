@@ -231,9 +231,6 @@ async function fetchDataFeeSchedule() {
   });
 
   currentStep.value = data.filter((row) => row.stat === 'do').map((c) => c.feeSchdLvCd)[0];
-  console.log('현재 단계 갱신');
-  console.log(data);
-  console.log(currentStep.value);
 }
 
 // stepper 변경시 현재 단계를 재조회

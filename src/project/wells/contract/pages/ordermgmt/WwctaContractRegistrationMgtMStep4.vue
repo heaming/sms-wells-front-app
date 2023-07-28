@@ -310,14 +310,14 @@ ${step4.cntrt.sexDvNm || ''}` }}
                 v-if="item.sellTpCd === '1'"
               >
                 <kw-form-row>
-                  <kw-form-item label="계약금(가상계좌)">
+                  <kw-form-item label="계약금(카드)">
                     <p>
-                      {{ stringUtil.getNumberWithComma(item.cntrAmt || 0) }}
+                      {{ stringUtil.getNumberWithComma(item.cntrAmtCrd || 0) }}
                     </p>
                   </kw-form-item>
-                  <kw-form-item label="상품금액(신용카드)">
+                  <kw-form-item label="계약금(가상계좌)">
                     <p>
-                      {{ stringUtil.getNumberWithComma(item.pdAmt || 0) }}
+                      {{ stringUtil.getNumberWithComma(item.cntrAmtVac || 0) }}
                     </p>
                   </kw-form-item>
                 </kw-form-row>
@@ -504,7 +504,7 @@ ${step4.cntrt.sexDvNm || ''}` }}
         </template>
       </template>
 
-      <template v-if="isRestipulation === true">
+      <template v-if="isRestipulation">
         <h3>재약정</h3>
 
         <kw-form
@@ -538,7 +538,7 @@ ${step4.cntrt.sexDvNm || ''}` }}
             <kw-form-item
               label="약정종료"
             >
-              <p>{{ stringUtil.getDateFormat(restipulationBasInfo.stplEndDt) }}</p>
+              <p>{{ stringUtil.getDateFormat(restipulationBasInfo.stplEnddt) }}</p>
             </kw-form-item>
           </kw-form-row>
           <kw-form-row>
@@ -581,7 +581,7 @@ import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
 
 const dataService = useDataService();
-const { notify } = useGlobal();
+const { notify, alert } = useGlobal();
 const props = defineProps({
   contract: { type: String, required: true },
   onChildMounted: { type: Function, required: true },
@@ -652,34 +652,6 @@ function setGrid() {
   countGrdMain.value = Math.max(step4.value.cntrDtls.length, 1);
   countGrdStlm.value = Math.max(step4.value.stlmDtls.length, 1);
 }
-async function getCntrInfo(cntrNo) {
-  const cntr = await dataService.get('sms/wells/contract/contracts/cntr-info', { params: { cntrNo, step: 4 } });
-  step4.value = cntr.data.step4;
-  pCntrNo.value = step4.value.bas.cntrNo;
-  console.log(step4.value);
-  // 총판채널인 경우 고객센터 이관만 보이도록
-  codes.CST_STLM_IN_MTH_CD = codes.CST_STLM_IN_MTH_CD.filter((code) => (step4.value.bas.cstStlmInMthCd === '30' ? code.codeId === '30' : code.codeId !== '30'));
-  ogStep4.value = cloneDeep(step4.value);
-  setGrid();
-
-  if (isRestipulation.value === true) {
-    const cntrSn = restipulationCntrSn.value;
-    const res = await dataService.get(
-      'sms/wells/contract/re-stipulation/standard-info',
-      { params: { cntrNo, cntrSn } },
-    );
-    console.log(res);
-    restipulationBasInfo.value = cloneDeep(res);
-    restipulationBasInfo.value.cntrSn = cntrSn;
-    console.log(restipulationBasInfo.value.data);
-  }
-}
-
-async function setRestipulation(flag, cntrSn) {
-  isRestipulation.value = flag;
-  restipulationCntrSn.value = cntrSn;
-  console.log(isRestipulation.value);
-}
 
 async function calcRestipulation() {
   const datas = restipulationBasInfo.value.data;
@@ -691,17 +663,11 @@ async function calcRestipulation() {
       restipulationBasInfo.value.minRentalAmt = element.minRentalAmt;
       // 약정요금 재계산
       // 기존요금
-      console.log(step4.value.dtls);
-
       step4.value.dtls.forEach((v) => {
-        console.log(restipulationBasInfo.value.cntrSn);
         if (Number(v.cntrSn) === Number(restipulationBasInfo.value.cntrSn)) {
           const prevRentalAmt = v.fnlAmt;
-          console.log(prevRentalAmt);
           restipulationBasInfo.value.newFnlValue = Number(prevRentalAmt)
             - Number(restipulationBasInfo.value.stplDscAmt);
-          console.log(restipulationBasInfo.value.newFnlValue);
-
           // 최소금액 이하로 떨어지는 경우 로직 보완
           if (Number(restipulationBasInfo.value.newFnlValue) < Number(restipulationBasInfo.value.minRentalAmt)) {
             restipulationBasInfo.value.newFnlValue = restipulationBasInfo.value.minRentalAmt;
@@ -712,9 +678,6 @@ async function calcRestipulation() {
       });
     }
   });
-
-  console.log('다왔다');
-  console.log(restipulationBasInfo.value.newFnlValue);
   if (restipulationBasInfo.value.newFnlValue) {
     const { cntrNo } = step4.value.bas;
     const { cntrSn } = restipulationBasInfo.value;
@@ -722,21 +685,13 @@ async function calcRestipulation() {
       'sms/wells/contract/re-stipulation/contract-info',
       { params: { cntrNo, cntrSn } },
     );
-
-    console.log(res);
     const data = cloneDeep(res.data);
     const stplStrtdt = data.rentalTn >= data.stplPtrm ? now.add(1, 'month').startOf('M').format('YYYYMMDD')
       : dayjs(data.istDt, 'YYYYMMDD').add(Number(data.stplPtrm), 'month').startOf('M').format('YYYYMMDD');
-    const stplEndDt = dayjs(stplStrtdt, 'YYYYMMDD').add(Number(restipulationBasInfo.value.stplPtrm), 'month').endOf('M').format('YYYYMMDD');
-
-    console.log('저장준비');
-    console.log(restipulationBasInfo.value.stplPtrm);
-    console.log(stplStrtdt);
-    console.log(stplEndDt);
-
+    const stplEnddt = dayjs(stplStrtdt, 'YYYYMMDD').add(Number(restipulationBasInfo.value.stplPtrm), 'month').endOf('M').format('YYYYMMDD');
     restipulationBasInfo.value.cntrNo = data.cntrNo;
     restipulationBasInfo.value.stplStrtdt = stplStrtdt;
-    restipulationBasInfo.value.stplEndDt = stplEndDt;
+    restipulationBasInfo.value.stplEnddt = stplEnddt;
     restipulationBasInfo.value.rstlStatCd = '010'; // 접수
     restipulationBasInfo.value.stplRcpDtm = now.format('YYYYMMDDHHmmss');
     restipulationBasInfo.value.rcpOgTpCd = sessionUserId.ogTpCd;
@@ -745,18 +700,69 @@ async function calcRestipulation() {
   }
 }
 
+async function getCntrInfo(cntrNo) {
+  const cntr = await dataService.get('sms/wells/contract/contracts/cntr-info', { params: { cntrNo, step: 4 } });
+  step4.value = cntr.data.step4;
+  pCntrNo.value = step4.value.bas.cntrNo;
+  console.log(step4.value);
+  // 총판채널인 경우 고객센터 이관만 보이도록
+  codes.CST_STLM_IN_MTH_CD = codes.CST_STLM_IN_MTH_CD.filter((code) => (step4.value.bas.cstStlmInMthCd === '30' ? code.codeId === '30' : code.codeId !== '30'));
+  ogStep4.value = cloneDeep(step4.value);
+  setGrid();
+}
+async function getCntrInfoWithRstl(cntrNo, pCntrSn) {
+  const cntr = await dataService.get('sms/wells/contract/contracts/cntr-info', { params: { cntrNo, step: 4 } });
+  step4.value = cntr.data.step4;
+  pCntrNo.value = step4.value.bas.cntrNo;
+  console.log(step4.value);
+  // 총판채널인 경우 고객센터 이관만 보이도록
+  codes.CST_STLM_IN_MTH_CD = codes.CST_STLM_IN_MTH_CD.filter((code) => (step4.value.bas.cstStlmInMthCd === '30' ? code.codeId === '30' : code.codeId !== '30'));
+  ogStep4.value = cloneDeep(step4.value);
+  setGrid();
+  // step1에서 재약정 선택해서 진입하거나, 기존 재약정 계약을 조회하는 경우 재약정 화면 설정
+  const cntrSn = isRestipulation.value ? restipulationCntrSn.value : pCntrSn;
+  const sels = await dataService.get(
+    'sms/wells/contract/re-stipulation/standard-info',
+    { params: { cntrNo, cntrSn } },
+  );
+  restipulationBasInfo.value = cloneDeep(sels);
+  restipulationBasInfo.value.cntrSn = cntrSn;
+  if (pCntrSn) {
+    // 기존 데이터 조회(세팅)
+    const res = await dataService.get(
+      'sms/wells/contract/re-stipulation/contract',
+      { params: { cntrNo, cntrSn } },
+    );
+    console.log(res);
+    restipulationBasInfo.value.stplTpCd = res.data.stplTpCd;
+    calcRestipulation();
+  }
+  step4.value.isRestipulation = true;
+  isRestipulation.value = true;
+}
+
+async function setRestipulation(flag, cntrSn) {
+  isRestipulation.value = flag;
+  restipulationCntrSn.value = cntrSn;
+}
+
 function isChangedStep() {
   return true;
 }
 
 async function isValidStep() {
+  if (step4.value.isRestipulation) {
+    if (!restipulationBasInfo.value.stplTpCd) {
+      await alert('재약정유형을 선택해주세요.');
+      return false;
+    }
+  }
   return true;
 }
 
 async function saveStep(isTemp) {
-  if (isRestipulation.value) {
+  if (step4.value.isRestipulation) {
     const savedCntr = await dataService.post('sms/wells/contract/re-stipulation/save-contract', restipulationBasInfo.value);
-    console.log(savedCntr);
     return savedCntr?.data?.key;
   }
   const api = isTemp ? 'save-cntr-step4-temp' : 'save-cntr-step4';
@@ -776,6 +782,7 @@ function onClickNextDtlSn() {
 
 defineExpose({
   getCntrInfo,
+  getCntrInfoWithRstl,
   isChangedStep,
   isValidStep,
   saveStep,
