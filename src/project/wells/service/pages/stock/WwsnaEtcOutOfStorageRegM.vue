@@ -17,7 +17,7 @@
     <div class="result-area">
       <kw-form
         :cols="3"
-        class="mb68 mt20"
+        class="mb38 mt20"
       >
         <kw-form-row>
           <!-- 출고창고 -->

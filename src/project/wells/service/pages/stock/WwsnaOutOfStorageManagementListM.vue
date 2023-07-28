@@ -22,10 +22,14 @@
         <!-- 출고창고 -->
         <kw-search-item
           :label="$t('MSG_TXT_OSTR_WARE')"
+          required
         >
           <kw-select
             v-model="searchParams.ostrWareNo"
             :options="warehouses"
+            first-option="select"
+            :label="$t('MSG_TXT_OSTR_WARE')"
+            rules="required"
           />
         </kw-search-item>
         <!-- 출고유형 -->
@@ -66,6 +70,8 @@
           :label2="$t('MSG_TXT_STR_WARE')"
           :label3="$t('MSG_TXT_WARE')"
           :label4="$t('MSG_TXT_WARE')"
+          @update:ware-dv-cd="onChangeWareDvCd"
+          @update:ware-no-m="onChagneHgrWareNo"
         />
       </kw-search-row>
     </kw-search>
@@ -115,7 +121,7 @@ import { useGlobal, codeUtil, defineGrid, useDataService, getComponentType, grid
 // TODO: 추후 공통서비스 변경후 적용 예정 (조직창고 , 조직창고에 해당하는 엔지니어조회)
 import ZwcmWareHouseSearch from '~sms-common/service/components/ZwsnzWareHouseSearch.vue';
 import dayjs from 'dayjs';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, isEmpty } from 'lodash-es';
 import useSnCode from '~sms-wells/service/composables/useSnCode';
 import snConst from '~sms-wells/service/constants/snConst';
 // 로그인한 사용자의 창고정보 조회
@@ -167,7 +173,6 @@ const codes = await codeUtil.getMultiCodes(
 const filterOstrTpCd = codes.OSTR_TP_CD.filter((v) => v.codeId !== '211');
 
 // 창고구분코드 필터링
-// const wareDvCd = codes.WARE_DV_CD.filter((v) => v.codeId !== '1');
 const strWareDvCd = { WARE_DV_CD: [
   { codeId: '2', codeName: '서비스센터' },
   { codeId: '3', codeName: '영업센터' },
@@ -175,6 +180,15 @@ const strWareDvCd = { WARE_DV_CD: [
 
 searchParams.value.stOstrDt = dayjs().format('YYYYMMDD');
 searchParams.value.edOstrDt = dayjs().format('YYYYMMDD');
+
+function onChangeWareDvCd() {
+  searchParams.value.ostrWareNoM = '';
+  searchParams.value.ostrWareNoD = '';
+}
+
+function onChagneHgrWareNo() {
+  searchParams.value.ostrWareNoD = '';
+}
 
 let cachedParams;
 async function fetchData() {
@@ -208,7 +222,9 @@ async function fetchDefaultData() {
   const { userId } = wharehouseParams.value;
 
   warehouses.value = await getMonthWarehouse(userId, apyYm);
-  searchParams.value.ostrWareNo = warehouses.value[0].codeId;
+  if (!isEmpty(warehouses.value)) {
+    searchParams.value.ostrWareNo = warehouses.value[0].codeId;
+  }
 }
 
 const divideData = (val) => {

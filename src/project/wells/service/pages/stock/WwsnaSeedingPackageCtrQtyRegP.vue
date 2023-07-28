@@ -49,6 +49,9 @@
     <kw-action-top>
       <template #left>
         <kw-paging-info :total-count="totalCount" />
+        <span class="ml8">
+          ({{ t('MSG_TXT_UNIT') }} : EA)
+        </span>
       </template>
       <kw-btn
         :label="$t('MSG_BTN_SAVE')"
@@ -190,6 +193,7 @@ const initGrdMain = defineGrid((data, view) => {
   ];
 
   const columns = [
+    { fieldName: 'sdingPkgCd', header: t('MSG_TXT_ITM_CD'), width: '100', styleName: 'text-center' },
     { fieldName: 'sdingPkgNm', header: t('MSG_TXT_ITM_NM'), width: '170', styleName: 'text-left' },
     { fieldName: 'ostrQty', header: t('MSG_TXT_OSTR_QTY'), width: '80', styleName: 'text-right' },
     { fieldName: 'excdQty',
