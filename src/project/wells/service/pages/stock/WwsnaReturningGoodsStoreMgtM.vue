@@ -129,6 +129,7 @@
           :label2="$t('MSG_TXT_STR_WARE')"
           :label3="$t('MSG_TXT_WARE')"
           :label4="$t('MSG_TXT_WARE')"
+          @update:ware-no-m="onChagneHgrWareNo"
         />
       </kw-search-row>
     </kw-search>
@@ -270,6 +271,11 @@ const codes = await codeUtil.getMultiCodes(
   'WARE_DV_CD', // 창고구분코드
 );
 
+// 창고구분코드 필터링
+const strWareDvCd = { WARE_DV_CD: [
+  { codeId: '2', codeName: '서비스센터' },
+] };
+
 const pageInfo = ref({
   totalCount: 0,
   pageIndex: 1,
@@ -308,6 +314,10 @@ const baseInfo = ref({
   ostrConfDt: '',
   rtngdProcsTpCd: '',
 });
+
+function onChagneHgrWareNo() {
+  searchParams.value.strWareNoD = '';
+}
 
 function isNotEmpty(obj) {
   return (obj !== undefined && obj !== null && obj !== '');

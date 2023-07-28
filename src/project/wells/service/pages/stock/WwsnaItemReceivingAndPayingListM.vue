@@ -9,7 +9,7 @@
  ****************************************************************************************************
  * 프로그램 설명
  ****************************************************************************************************
- - 반품입고 관리 (http://localhost:3000/#/service/wwsna-item-receiving-and-paying-ps-list)
+ - 품목별 수불현황 (http://localhost:3000/#/service/wwsna-item-receiving-and-paying-ps-list)
  ****************************************************************************************************
 --->
 
@@ -37,7 +37,7 @@
         <ZwcmWareHouseSearch
           v-model:start-ym="searchParams.stStrDt"
           v-model:end-ym="searchParams.edStrDt"
-          v-model:options-ware-dv-cd="strWareDvCd"
+          v-model:options-ware-dv-cd="wareDvCd"
           v-model:ware-dv-cd="searchParams.strWareDvCd"
           v-model:ware-no-m="searchParams.strWareNoM"
           v-model:ware-no-d="searchParams.strWareNoD"
@@ -47,6 +47,8 @@
           :label2="$t('MSG_TXT_STR_WARE')"
           :label3="$t('MSG_TXT_WARE')"
           :label4="$t('MSG_TXT_WARE')"
+          @update:ware-dv-cd="onChangeWareDvCd"
+          @update:ware-no-m="onChagneHgrWareNo"
         />
       </kw-search-row>
       <kw-search-row>
@@ -86,38 +88,42 @@
       </kw-search-row>
       <kw-search-row>
         <!-- 품목코드 -->
-        <kw-form-item
+        <kw-search-item
           :colspan="2"
           :label="$t('MSG_TXT_ITM_CD')"
         >
           <kw-input
             v-model="searchParams.itmPdCdFrom"
           />
-        </kw-form-item>
+        </kw-search-item>
         <!-- SAP코드 -->
-        <kw-form-item
+        <kw-search-item
           :colspan="2"
           :label="$t('MSG_TXT_SAP_CD')"
         >
           <kw-input
             v-model="searchParams.sapMatCdFrom"
+            rules="numeric|max:18"
+            @change="onChangeStrtSapCd"
           />
           <span>~</span>
           <kw-input
             v-model="searchParams.sapMatCdTo"
+            rules="numeric|max:18"
+            @change="onChangeEndSapCd"
           />
-        </kw-form-item>
+        </kw-search-item>
       </kw-search-row>
       <kw-search-row>
         <!-- SAP코드(복수검색) -->
-        <kw-form-item
+        <kw-search-item
           :colspan="2"
           :label="$t('MSG_TXT_SAP_CD_PLUR_SEA')"
         >
           <kw-input
             v-model.trim="searchParams.sapMatDpct"
           />
-        </kw-form-item>
+        </kw-search-item>
       </kw-search-row>
     </kw-search>
     <div class="result-area">
@@ -164,7 +170,7 @@
 // -------------------------------------------------------------------------------------------------
 import { defineGrid, useMeta, codeUtil, useDataService, getComponentType, gridUtil } from 'kw-lib';
 import ZwcmWareHouseSearch from '~sms-common/service/components/ZwsnzWareHouseSearch.vue';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 
 const { currentRoute } = useRouter();
@@ -189,6 +195,11 @@ const codes = await codeUtil.getMultiCodes(
   'ITM_KND_CD', // 품목구분코드
 );
 
+const wareDvCd = { WARE_DV_CD: [
+  { codeId: '2', codeName: '서비스센터' },
+  { codeId: '3', codeName: '영업센터' },
+] };
+
 const searchParams = ref({
   stStrDt: '',
   edStrDt: '',
@@ -209,6 +220,33 @@ const searchParams = ref({
 
 searchParams.value.stStrDt = dayjs().set('date', 1).format('YYYYMMDD');
 searchParams.value.edStrDt = dayjs().format('YYYYMMDD');
+
+function onChangeWareDvCd() {
+  searchParams.value.strWareNoM = '';
+  searchParams.value.strWareNoD = '';
+}
+
+function onChagneHgrWareNo() {
+  searchParams.value.strWareNoD = '';
+}
+
+function onChangeStrtSapCd() {
+  const { sapMatCdFrom, sapMatCdTo } = searchParams.value;
+
+  if (!isEmpty(sapMatCdFrom) && !isEmpty(sapMatCdTo) && sapMatCdFrom > sapMatCdTo) {
+    searchParams.value.sapMatCdFrom = sapMatCdFrom;
+    searchParams.value.sapMatCdTo = sapMatCdFrom;
+  }
+}
+
+function onChangeEndSapCd() {
+  const { sapMatCdFrom, sapMatCdTo } = searchParams.value;
+
+  if (!isEmpty(sapMatCdFrom) && !isEmpty(sapMatCdTo) && sapMatCdFrom > sapMatCdTo) {
+    searchParams.value.sapMatCdFrom = sapMatCdTo;
+    searchParams.value.sapMatCdTo = sapMatCdTo;
+  }
+}
 
 let cachedParams;
 async function fetchData() {
