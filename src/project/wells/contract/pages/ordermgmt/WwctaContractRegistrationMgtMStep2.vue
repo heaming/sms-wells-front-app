@@ -910,6 +910,11 @@ function setFilter() {
   filteredClsfPds.value = clsfPds;
 }
 
+async function confirmProducts() {
+  const res = await dataService.post('sms/wells/contract/contracts/confirm-products', step2.value);
+  console.log(res);
+}
+
 async function isChangedStep() {
   return step2.value.bas.cntrPrgsStatCd < 12 || JSON.stringify(ogStep2.value) !== JSON.stringify(step2.value);
 }
@@ -947,6 +952,7 @@ defineExpose({
   isValidStep,
   saveStep,
   getProducts,
+  confirmProducts,
 });
 onMounted(async () => {
   props.onChildMounted(2);
