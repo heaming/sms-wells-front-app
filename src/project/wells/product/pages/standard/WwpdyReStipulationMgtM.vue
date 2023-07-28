@@ -98,7 +98,6 @@
           spaced
         />
         <kw-btn
-          v-permission:download
           dense
           icon="excel"
           :disable="pageInfo.totalCount === 0"

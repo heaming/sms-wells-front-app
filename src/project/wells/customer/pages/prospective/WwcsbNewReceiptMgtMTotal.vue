@@ -45,7 +45,6 @@
     <kw-action-top>
       <template #left />
       <kw-btn
-        v-permission:download
         icon="download_on"
         dense
         :label="$t('MSG_BTN_EXCEL_DOWN')"
