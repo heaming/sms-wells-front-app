@@ -97,7 +97,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, defineGrid, getComponentType, useDataService, useMeta, notify } from 'kw-lib';
+import { codeUtil, defineGrid, getComponentType, useDataService, useMeta, useGlobal } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
 
@@ -106,6 +106,7 @@ const dataService = useDataService();
 const { getConfig } = useMeta();
 const grdMainRefRental = ref(getComponentType('KwGrid'));
 const grdMainRentalView = computed(() => grdMainRefRental.value?.getView());
+const { modal } = useGlobal();
 
 const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
@@ -160,11 +161,6 @@ function onChangeProcsDv() {
   // grdMainRentalView.value.setColumnLayout(gridLayout.value[val]);
 }
 
-// 일괄변경 등록 버튼 클릭
-async function onClickBatchChangeReg() {
-  notify('TODO:일괄변경 등록 버튼 클릭');
-}
-
 async function fetchData() {
   if (isEmpty(cachedParams)) return;
 
@@ -183,6 +179,17 @@ async function onClickSearch() {
 
   await fetchData();
 }
+// 일괄변경 등록 버튼 클릭
+async function onClickBatchChangeReg() {
+  const { result } = await modal({
+    component: 'WwctbRentalBulkChangeMgtP',
+    // componentProps: { apiUrl, templateId, extraData },
+  });
+  if (result) {
+    await onClickSearch();
+  }
+}
+
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------

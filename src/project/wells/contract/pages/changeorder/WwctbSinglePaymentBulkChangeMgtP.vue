@@ -530,7 +530,7 @@ async function onClickSave() {
   notify(t('MSG_ALT_SAVE_DATA'));
 }
 
-// 초기화버튼 클릭 이벤트
+// 처리구분 변경 이벤트
 async function onProcsDvChange() {
   const view = grdSinglePaymentBulkChangeList.value.getView();
   if (saveParams.value.procsDv === '711') {
