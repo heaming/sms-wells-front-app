@@ -324,23 +324,22 @@ watch(() => searchParams.value.ostrWareDvCd, (val) => {
 
 const onDisableStrChk = async () => {
   const chkStrWareNoD = searchParams.value.strWareNoD;
-  if (chkStrWareNoD === undefined || chkStrWareNoD === null || chkStrWareNoD === '') {
+  if (isEmpty(chkStrWareNoD)) {
     isStrOk.value = false;
-  } else {
-    isStrOk.value = true;
-    searchParams.value.strWareDtlDvCd = '';
+    return;
   }
+  isStrOk.value = true;
+  searchParams.value.strWareDtlDvCd = '';
 };
 
 const onDisableOstrChk = async () => {
   const chkOstrWareNoD = searchParams.value.ostrWareNoD;
-  debugger;
-  if (chkOstrWareNoD === undefined || chkOstrWareNoD === null || chkOstrWareNoD === '') {
+  if (isEmpty(chkOstrWareNoD)) {
     isOstrOk.value = false;
-  } else {
-    isOstrOk.value = true;
-    searchParams.value.ostrWareDtlDvCd = '';
+    return;
   }
+  isOstrOk.value = true;
+  searchParams.value.ostrWareDtlDvCd = '';
 };
 
 watch(() => searchParams.value.strWareNoD, (val) => {
