@@ -56,7 +56,6 @@
             :label="$t('MSG_TXT_SEL_CHNL')"
             :disable="false"
             :options="codes.SELL_CHNL_DTL_CD"
-            first-option="all"
             multiple
             rules="required"
           />
@@ -174,7 +173,7 @@ const searchParams = ref({
   perfYm: now.format('YYYYMM'), // 실적년월
   copnDvCd: 'ALL', // 개인/법인구분
   inqrDv: '1', // 조회구분
-  sellChnl: [''], // 판매채널
+  sellChnl: [], // 판매채널
   sellTpCd: '', // 판매유형
   sellTpDtlCd: 'ALL', // 판매유형상세
   cntrNo: '', // 계약번호
