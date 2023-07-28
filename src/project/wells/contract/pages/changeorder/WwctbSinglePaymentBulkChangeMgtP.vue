@@ -530,7 +530,7 @@ async function onClickSave() {
   notify(t('MSG_ALT_SAVE_DATA'));
 }
 
-// 초기화버튼 클릭 이벤트
+// 처리구분 변경 이벤트
 async function onProcsDvChange() {
   const view = grdSinglePaymentBulkChangeList.value.getView();
   if (saveParams.value.procsDv === '711') {
@@ -630,7 +630,7 @@ const initSinglePaymentBulkChangeList = defineGrid((data, view) => {
       tag: 'bs',
       editor: { type: 'list' },
       options: codes.BFSVC_BZS_DV_CD,
-      placeHolder: t('선택'),
+      placeHolder: t('MSG_TXT_SELT'),
       visible: false }, // 수정 업체BS구분
     { fieldName: 'modSplyBzsDvCd',
       header: `${t('MSG_TXT_MOD')} ${t('MSG_TXT_CLSF_BUS')}`,
@@ -639,7 +639,7 @@ const initSinglePaymentBulkChangeList = defineGrid((data, view) => {
       tag: 'bs',
       editor: { type: 'list' },
       options: codes.SPLY_BZS_DV_CD,
-      placeHolder: t('선택'),
+      placeHolder: t('MSG_TXT_SELT'),
       visible: false }, // 수정 업체구분
   ];
 
