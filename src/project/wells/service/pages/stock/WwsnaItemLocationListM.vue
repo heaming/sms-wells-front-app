@@ -3,7 +3,7 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : SNA (재고관리)
-2. 프로그램 ID : WwsnaItemLocationMgtP(W-SV-U-0137M01) - 품목위치 관리
+2. 프로그램 ID : WwsnaItemLocationListM(W-SV-U-0137M01) - 품목위치 관리
 3. 작성자 : songTaeSung
 4. 작성일 : 2023.07.14
 ****************************************************************************************************
@@ -160,7 +160,7 @@
 // -------------------------------------------------------------------------------------------------
 import { defineGrid, codeUtil, useMeta, useDataService, getComponentType, gridUtil, useGlobal } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
-// import { defineGrid, getComponentType, useMeta, codeUtil, useDataService, gridUtil, useGlobal } from 'kw-lib';
+
 const { t } = useI18n();
 const { getConfig } = useMeta();
 const dataService = useDataService();
@@ -282,23 +282,6 @@ async function onClickGridBulkChange() {
     }
   }
   notify(t('MSG_ALT_ATC_BLK_CH_FSH'));
-
-  // if(!isEmpty(wareTpCd)) {
-
-  // }
-
-  // const data = view.getDataSource();
-  // data.beginUpdate();
-  // checkedRows.forEach((rowValue) => {
-  //   data.updateRow(rowValue.dataRow, {
-  //     wareTpCd,
-  //     itmLctAngleVal: lctAngleCd,
-  //     itmLctCofVal: lctCofCd,
-  //     itmLctFlorNoVal: lctFlorNoCd,
-  //     itmLctMatGrpCd: lctMatGrpCd,
-  //   });
-  // });
-  // data.endUpdate();
 }
 
 async function onClickSave() {
@@ -306,7 +289,6 @@ async function onClickSave() {
 
   const view = grdMainRef.value.getView();
   const checkedRows = gridUtil.getCheckedRowValues(view);
-  // const data = grdMainRef.value.getData();
 
   if (gridUtil.getCheckedRowValues(view).length === 0) {
     notify(t('MSG_ALT_NO_APPY_OBJ_DT'));
