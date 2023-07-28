@@ -262,6 +262,7 @@ const currentStep = computed(() => steps.find((step) => step.name === currentSte
 const currentStepIndex = computed(() => steps.findIndex((step) => step.name === currentStepName.value));
 // 계약 현황 목록에서 진입한 경우
 const props = defineProps({
+  resultDiv: { type: String },
   cntrNo: { type: String, required: true },
   cntrSn: { type: String, required: true },
   cntrPrgsStatCd: { type: String, required: true },
@@ -297,6 +298,7 @@ const smr = ref({
   )),
 });
 const isCnfmCntr = ref(false);
+const isRstlCntr = ref(props.resultDiv === '2');
 const stepsStatus = reactive([false, false, false, false]);
 watch(currentStepName, (value) => {
   console.log(value);
@@ -332,11 +334,17 @@ function showStep(step) {
 }
 
 async function getCntrInfo(step, cntrNo, cntrSn) {
+  debugger;
   if (step === 2) {
     // step2일 때 상품 조회
     await panelsRefs[currentStepName.value].getProducts(cntrNo);
   }
-  await panelsRefs[currentStepName.value].getCntrInfo(cntrNo, cntrSn);
+  if (step === 4 && isRstlCntr.value) {
+    // 재약정 계약 조회
+    await panelsRefs[currentStepName.value].getCntrInfoWithRstl(cntrNo, cntrSn);
+  } else {
+    await panelsRefs[currentStepName.value].getCntrInfo(cntrNo);
+  }
 }
 
 async function getExistedCntr() {
@@ -377,6 +385,11 @@ async function onClickTempSave() {
   }
 }
 
+// eslint-disable-next-line no-unused-vars
+async function onClickPdCnfm() {
+  await panelsRefs[currentStepName.value].confirmProducts();
+}
+
 async function onClickNext() {
   let { cntrNo } = contract.value;
   const nextStep = currentStepIndex.value + 2;
@@ -406,8 +419,8 @@ async function eventStipulation(cntrNo, cntrSn) {
   const previousStep = steps[3];
   currentStepName.value = previousStep.name;
   await panelsRefs[currentStepName.value].setRestipulation(true, cntrSn);
-
-  await getCntrInfo(3, cntrNo);
+  isRstlCntr.value = true;
+  await getCntrInfo(4, cntrNo);
 }
 
 async function eventMembership() {
