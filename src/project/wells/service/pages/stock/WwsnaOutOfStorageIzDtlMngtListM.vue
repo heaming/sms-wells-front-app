@@ -276,7 +276,7 @@ async function onClickSearch() {
 
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
-  const res = await dataService.get('/sms/wells/service/out-of-storage-iz-dtls//excel-download', { params: cachedParams });
+  const res = await dataService.get('/sms/wells/service/out-of-storage-iz-dtls/excel-download', { params: cachedParams });
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
