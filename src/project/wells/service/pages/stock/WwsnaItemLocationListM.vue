@@ -28,12 +28,18 @@
             :options="optionStockList"
             first-option="all"
           />
-          <kw-checkbox
-            v-model="searchParams.stckStdGb"
-            v-bind="field"
-            :label="$t('MSG_TXT_STD_NO_APY')"
-            @update:model-value="onCheckedStckNoStdGb"
-          />
+          <kw-field
+            :model-value="['Y', 'N']"
+          >
+            <template #default="{ field }">
+              <kw-checkbox
+                v-bind="field"
+                v-model="searchParams.stckStdGb"
+                :label="$t('MSG_TXT_STD_NO_APY')"
+                @update:model-value="onCheckedStckNoStdGb"
+              />
+            </template>
+          </kw-field>
         </kw-search-item>
         <!-- 품목종류 -->
         <kw-search-item
@@ -186,7 +192,7 @@ const searchParams = ref({
   itmKnd: '',
   itmPdCdFrom: '',
   itmPdCdTo: '',
-  stckStdGb: 'N',
+  stckStdGb: 'Y',
 
 });
 
@@ -307,13 +313,11 @@ async function onClickSave() {
 // 표준미적용 버튼 클릭시
 async function onCheckedStckNoStdGb() {
   const { wareNo, stckStdGb } = searchParams.value;
-  console.log(wareNo);
-  console.log(stckStdGb);
-
   const res = await dataService.put('/sms/wells/service/item-locations/standard/locations', { stckStdGb, wareNo });
-  console.log(res);
-  notify(t('MSG_ALT_CHG_DATA'));
-  await fetchData();
+  const count = res.data;
+  if (count > 0) {
+    notify(t('MSG_ALT_CHG_DATA'));
+  }
 }
 
 // -------------------------------------------------------------------------------------------------
