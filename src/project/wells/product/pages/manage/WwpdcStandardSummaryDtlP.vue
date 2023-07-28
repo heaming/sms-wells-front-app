@@ -333,6 +333,8 @@ async function initServiceGrid(data, view) {
 }
 async function initStandardGrid(data, view) {
   const columns = [
+    // 관계구분
+    { fieldName: 'pdRelTpCd', header: t('MSG_TXT_RELATION_CLSF'), width: '85', styleName: 'text-center', options: codes.BASE_PD_REL_DV_CD },
     // 적용시작일자
     { fieldName: 'vlStrtDtm', header: t('MSG_TXT_APY_STRTDT'), width: '100', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date' },
     // 적용종료일자
