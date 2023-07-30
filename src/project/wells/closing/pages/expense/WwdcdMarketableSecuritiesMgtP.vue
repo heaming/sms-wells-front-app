@@ -1,7 +1,7 @@
 <!----
 ****************************************************************************************************
 1. 모듈 : DCD
-2. 프로그램 ID : WwdcdMarketableSecuritiesMgtP - 운영비 원천세 정산(유가증권)
+2. 프로그램 ID : WwdcdMarketableSecuritiesMgtP - 운영비 원천세 정산(유가증권) W-CL-U-0082P02
 3. 작성자 : gs.piit172 kim juhyun
 4. 작성일 : 2023.02.09
 ****************************************************************************************************
@@ -169,7 +169,7 @@ import ZwogLevelSelect from '~sms-common/organization/components/ZwogLevelSelect
 const { t } = useI18n();
 
 const dataService = useDataService();
-const { confirm, notify, modal, alert } = useGlobal();
+const { notify, modal, alert } = useGlobal();
 const { ok } = useModal();
 const { getters } = useStore();
 
@@ -184,7 +184,7 @@ const subTotalCount = ref(0);
 const thirdTotalCount = ref(0);
 
 const { ogTpCd } = getters['meta/getUserInfo'];
-let pdstOpt;
+// let pdstOpt;
 
 const props = defineProps({
   cachedParams: {
@@ -360,10 +360,9 @@ async function onClickObjectPersonAdd() {
   // -> 최종 원천세 정산 대상자 grid의 RSDNTX               /*(hidden)주민세*/
   // # 주민세 계산식(원단위 절사처리) = ROUNDDOWN(ROUNDDOWN(DST_AMT*0.03,-1)*0.1,-1)
   // # 원천세 = 소득세 + 주민세 -> 금액이 서로 맞아야 함!!!
-  debugger;
   checkedRows.forEach((subData) => {
     if (mainValue.adjCnfmAmt < subData.dstAmt) {
-      alert('정산금액보다 큼니다.');
+      alert('정산금액보다 큽니다.');
       return;
     }
     subData.adjYn = 'N';
@@ -424,31 +423,55 @@ async function onClickObjectPersonDel() {
 }
 
 async function onClickSave() {
-  // 저장
-  const view = grdThirdRef.value.getView();
-  const thirdTotal = thirdTotalCount.value;
+  const view = grdMainRef.value.getView();
+  const checkedRows = gridUtil.getCheckedRowValues(view);
 
+  view.commit();
+  view.commitEditor();
   if (await gridUtil.alertIfIsNotModified(view)) { return; }
-  if (!await confirm(t('MSG_ALT_WANT_SAVE'))) { return; }
+  if (!await gridUtil.validate(view)) { return; }
 
-  if (thirdTotal === 0) {
-    alert('변경대상이 없습니다.');
-    return;
+  const exceptDatas = []; // 정산제외항목들
+  checkedRows.forEach((checkedRow) => {
+    if (checkedRow.opcsAdjExcdYn === 'Y') {
+      exceptDatas.push(checkedRow);
+    }
+  });
+
+  if (exceptDatas.length >= 2) { // 정산제외할 항목이 두 개 로우 이상일때만 체크로직 시작
+    let isSatisfaction = true; // 정산제외 조건 체크완료 여부. 한 개라도 만족하지 않으면 중단
+    const checkedCarAprnoList = []; // 정산제외 체크 완료한 승인번호 리스트
+    exceptDatas.forEach((data) => {
+      if (isSatisfaction && !checkedCarAprnoList.includes(data.cardAprno)) { // 이전데이터 체크여부가 정상이고이미 진행한 승인번호인지 확인
+        // 승인번호 체크
+        const exceptCarAprnoDatas = exceptDatas.filter((exceptData) => exceptData.cardAprno === data.cardAprno);
+        if (exceptCarAprnoDatas < 2) { // 해당승인번호가 두 건 이상 있는지
+          alert('동일한 승인번호 갯수가 2개 이상이어야 가능합니다.');
+          isSatisfaction = false;
+          return;
+        }
+        // 사용금액 합계 체크
+        const domTrdAmtTotal = exceptCarAprnoDatas
+          .reduce((totalAmt, currentData) => totalAmt + currentData.domTrdAmt, 0);// 사용금액 합계
+
+        if (domTrdAmtTotal !== 0) {
+          alert('승인번호가 모두 동일하여야 하며 사용금액 합계가 0 이 되어야 합니다.');
+          isSatisfaction = false;
+        } else {
+          checkedCarAprnoList.push(data.cardAprno); // 같은 승인번호의 사용금액의 합계가 0이면 체크완료
+        }
+      }
+    });
+    if (!isSatisfaction) { // 정산제외 조건 체크완료 여부. 한 개라도 만족하지 않으면 wjwkd 중단
+      return;
+    }
   }
 
-  const thirdList = [];
-  for (let i = 0; i < thirdTotal; i += 1) {
-    view.setValue(i, 'pdstOpt', pdstOpt);
-    view.setValue(i, 'opcsCardUseIzId', props.cachedParams.opcsCardUseIzId);
-    view.setValue(i, 'baseYm', props.cachedParams.baseYm);
-    thirdList.push(view.getValues(i));
-  }
-  debugger;
-  const data = thirdList;
-
-  await dataService.post('/sms/wells/closing/expense/operating-cost/marketable-securities', data);
-  await notify(t('MSG_ALT_SAVE_DATA'));
+  const data = checkedRows;
+  await dataService.put('/sms/wells/closing/expense/marketable-securities-exclude', data);
+  notify(t('MSG_ALT_SAVE_DATA'));
   ok();
+  fetchData();
 }
 
 // -------------------------------------------------------------------------------------------------
@@ -539,15 +562,6 @@ const initGrdSub = defineGrid((data, view) => {
     }
   };
   */
-
-  view.onCellEdited = (grid, itemIndex, row, fieldIndex) => {
-    grid.commit();
-    grid.commitEditor();
-    const columnName = grid.getColumn(fieldIndex).fieldName;
-    if (columnName === 'dstAmt') {
-      pdstOpt = '03';
-    }
-  };
 });
 
 const initGrdThird = defineGrid((data, view) => {
