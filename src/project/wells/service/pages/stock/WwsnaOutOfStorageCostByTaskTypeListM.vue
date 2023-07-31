@@ -74,6 +74,15 @@
       </kw-search-row>
       <kw-search-row>
         <kw-search-item
+          :label="$t('MSG_TXT_STOC_TYPE')"
+        >
+          <kw-select
+            v-model="searchParams.stocTypeCd"
+            :options="[...codes.MAT_MNGT_DV_CD, {codeId: 'N', codeName: `(${$t('MSG_TXT_NONE')})`, }]"
+            first-option="all"
+          />
+        </kw-search-item>
+        <kw-search-item
           :label="$t('MSG_TXT_ITM_CD')"
           :colspan="2"
         >
@@ -163,6 +172,7 @@ let cachedParams;
 const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
   'COPN_DV_CD',
+  'MAT_MNGT_DV_CD',
   'MAT_UTLZ_DV_CD', // 자재활용구분코드
   'ITM_KND_CD', // AS자재구분앱코드
   'PD_GD_CD', // 상품등급
@@ -193,6 +203,7 @@ const searchParams = ref({
   itmPdCdTo: '',
   pdGdCd: 'A',
   useSel: '',
+  stocTypeCd: '',
 });
 
 async function fetchData() {
@@ -284,98 +295,103 @@ const onChangeMatUtlzDvCd = (val) => {
 
 const initGrid = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'col1', header: t('MSG_TXT_SAP_CD'), width: '120', styleName: 'text-center' },
-    { fieldName: 'col2', header: t('MSG_TXT_ITM_CD'), width: '140', styleName: 'text-center' },
-    { fieldName: 'col3', header: t('MSG_TXT_ITM_NM'), width: '270', styleName: 'text-left' },
-    { fieldName: 'col4',
+    { fieldName: 'sapMatCd', header: t('MSG_TXT_SAP_CD'), width: '120', styleName: 'text-center' },
+    { fieldName: 'itmPdCd', header: t('MSG_TXT_ITM_CD'), width: '140', styleName: 'text-center' },
+    { fieldName: 'pdNm', header: t('MSG_TXT_ITM_NM'), width: '270', styleName: 'text-left' },
+    { fieldName: 'ordnyHvMatYn', header: t('MSG_TXT_BTD_MAT'), width: '120', styleName: 'text-center', visible: false, autoFilter: false },
+    { fieldName: 'cmnPartDvCd', header: t('MSG_TXT_ITM_CD'), width: '140', styleName: 'text-center', visible: false, autoFilter: false },
+    { fieldName: 'trnovrRtOjYn', header: t('MSG_TXT_TURNOVER_TRGT'), width: '270', styleName: 'text-left', visible: false, autoFilter: false },
+    { fieldName: 'istQty',
       header: t('MSG_TXT_INSTALLATION') + t('MSG_TXT_QTY'),
       width: '90',
       styleName: 'text-right',
       dataType: 'number',
-      numberFormat: '#,##0',
+      numberFormat: '###,###,##0',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0',
+        numberFormat: '###,###,##0',
       },
     },
-    { fieldName: 'col5',
+    { fieldName: 'istPdctUprcSum',
       header: t('MSG_TXT_OSTR') + t('MSG_TXT_AMT'),
       width: '130',
       styleName: 'text-right',
       dataType: 'number',
-      numberFormat: '#,##0',
+      numberFormat: '###,###,##0',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0',
+        numberFormat: '###,###,##0',
       },
     },
-    { fieldName: 'col6',
+    { fieldName: 'bsQty',
       header: t('MSG_TXT_BS'),
       width: '90',
       styleName: 'text-right',
       dataType: 'number',
-      numberFormat: '#,##0',
+      numberFormat: '###,###,##0',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0',
+        numberFormat: '###,###,##0',
       },
     },
-    { fieldName: 'col7',
+    { fieldName: 'bsPdctUprcSum',
       header: t('MSG_TXT_OSTR') + t('MSG_TXT_AMT'),
       width: '130',
       styleName: 'text-right',
       dataType: 'number',
-      numberFormat: '#,##0',
+      numberFormat: '###,###,##0',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0',
+        numberFormat: '###,###,##0',
       },
     },
-    { fieldName: 'col8',
+    { fieldName: 'asFreeQty',
       header: t('MSG_TXT_AS_PAY'),
       width: '90',
       styleName: 'text-right',
       dataType: 'number',
-      numberFormat: '#,##0',
+      numberFormat: '###,###,##0',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0',
+        numberFormat: '###,###,##0',
       },
     },
-    { fieldName: 'col9',
+    { fieldName: 'asFreePdctUprcSum',
       header: t('MSG_TXT_OSTR') + t('MSG_TXT_AMT'),
       width: '130',
       styleName: 'text-right',
       dataType: 'number',
-      numberFormat: '#,##0',
+      numberFormat: '###,###,##0',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0',
+        numberFormat: '###,###,##0',
       },
     },
-    { fieldName: 'col10',
+    { fieldName: 'asPayQty',
       header: t('MSG_TXT_AS_FREE'),
       width: '90',
       styleName: 'text-right',
       dataType: 'number',
-      numberFormat: '#,##0',
+      numberFormat: '###,###,##0',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0',
+        numberFormat: '###,###,##0',
       },
     },
-    { fieldName: 'col11',
+    { fieldName: 'asPayPdctUprcSum',
       header: t('MSG_TXT_OSTR') + t('MSG_TXT_AMT'),
       width: '130',
       styleName: 'text-right',
       dataType: 'number',
-      numberFormat: '#,##0',
+      numberFormat: '###,###,##0',
+      display: true,
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0',
+        numberFormat: '###,###,##0',
       },
     },
   ];
+  // eslint-disable-next-line max-len
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
 
   data.setFields(fields);
@@ -385,19 +401,7 @@ const initGrid = defineGrid((data, view) => {
   view.fixedOptions.colCount = 3;
   view.setFooters({ visible: true });
   view.setOptions({ summaryMode: 'aggregate' });
-
-  data.setRows([
-    { col1: '300006924', col2: '10000-100011', col3: '네오나노클린(8인치)<P27,P37.W650,6...', col4: '54', col5: '77922', col6: '1118', col7: '1613374', col8: '1', col9: '1443', col10: '18', col11: '25974' },
-    { col1: '300006924', col2: '10000-100011', col3: '네오나노클린(8인치)<P27,P37.W650,6...', col4: '54', col5: '77922', col6: '1118', col7: '1613374', col8: '1', col9: '1443', col10: '18', col11: '25974' },
-    { col1: '300006924', col2: '10000-100011', col3: '네오나노클린(8인치)<P27,P37.W650,6...', col4: '54', col5: '77922', col6: '1118', col7: '1613374', col8: '1', col9: '1443', col10: '18', col11: '25974' },
-    { col1: '300006924', col2: '10000-100011', col3: '네오나노클린(8인치)<P27,P37.W650,6...', col4: '54', col5: '77922', col6: '1118', col7: '1613374', col8: '1', col9: '1443', col10: '18', col11: '25974' },
-    { col1: '300006924', col2: '10000-100011', col3: '네오나노클린(8인치)<P27,P37.W650,6...', col4: '54', col5: '77922', col6: '1118', col7: '1613374', col8: '1', col9: '1443', col10: '18', col11: '25974' },
-    { col1: '300006924', col2: '10000-100011', col3: '네오나노클린(8인치)<P27,P37.W650,6...', col4: '54', col5: '77922', col6: '1118', col7: '1613374', col8: '1', col9: '1443', col10: '18', col11: '25974' },
-    { col1: '300006924', col2: '10000-100011', col3: '네오나노클린(8인치)<P27,P37.W650,6...', col4: '54', col5: '77922', col6: '1118', col7: '1613374', col8: '1', col9: '1443', col10: '18', col11: '25974' },
-    { col1: '300006924', col2: '10000-100011', col3: '네오나노클린(8인치)<P27,P37.W650,6...', col4: '54', col5: '77922', col6: '1118', col7: '1613374', col8: '1', col9: '1443', col10: '18', col11: '25974' },
-    { col1: '300006924', col2: '10000-100011', col3: '네오나노클린(8인치)<P27,P37.W650,6...', col4: '54', col5: '77922', col6: '1118', col7: '1613374', col8: '1', col9: '1443', col10: '18', col11: '25974' },
-    { col1: '300006924', col2: '10000-100011', col3: '네오나노클린(8인치)<P27,P37.W650,6...', col4: '54', col5: '77922', col6: '1118', col7: '1613374', col8: '1', col9: '1443', col10: '18', col11: '25974' },
-  ]);
+  view.filteringOptions.enabled = false;
 });
 
 </script>
