@@ -20,14 +20,12 @@
     >
       <kw-search-row>
         <kw-search-item
+          :colspan="2"
           :label="$t('MSG_TXT_INQR_DV')"
-          required
         >
           <kw-option-group
             v-model="searchParams.searchGubun"
-            :label="$t('MSG_TXT_INQR_DV')"
             :options="searchGubunCode"
-            rules="required"
           />
         </kw-search-item>
         <kw-search-item
@@ -49,6 +47,9 @@
             :label="$t('MSG_TXT_BASE_YM')"
           />
         </kw-search-item>
+      </kw-search-row>
+
+      <kw-search-row>
         <kw-search-item
           :label="$t('MSG_TXT_OG_TP')"
         >
@@ -59,9 +60,6 @@
             :options="codes.OG_TP_CD"
           />
         </kw-search-item>
-      </kw-search-row>
-
-      <kw-search-row>
         <kw-search-item
           :label="$t('MSG_TXT_SEL_TYPE')"
         >
@@ -389,12 +387,12 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'feeOcAmt', header: `①${t('MSG_TXT_FEE_OC_AMT')}`, width: '140', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
     { fieldName: 'feeOcYm', header: t('MSG_TXT_FEE_OC_YM'), width: '120', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
     { fieldName: 'piaCsYn', header: t('MSG_TXT_PIA_TARGET_YN'), width: '120', styleName: 'text-center', options: piaCsYnCode },
-    { fieldName: 'piaSellFeeCrdovrResAmt', header: `②${t('MSG_TXT_PIA_SELL_FEE_CRDOVR_BLAM')}`, width: '140', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
-    { fieldName: 'piaFeeOcAmt', header: `③${t('MSG_TXT_FEE_OC_AMT_THIS_MONTH')}`, width: '140', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
+    { fieldName: 'piaSellFeeCrdovrResAmt', header: `②${t('MSG_TXT_PIA_SELL_FEE_CRDOVR_BLAM')}`, width: '180', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
+    { fieldName: 'piaFeeOcAmt', header: `③${t('MSG_TXT_FEE_OC_AMT_THIS_MONTH')}`, width: '180', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
     { fieldName: 'csRplcAmt', header: `④${t('MSG_TXT_CS_RPLC_AMT2')}`, width: '140', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
-    { fieldName: 'csRplcAmtCancBlam', header: `⑤${t('MSG_TXT_CS_RPLC_AMT_CANC_BLAM')}`, width: '140', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
-    { fieldName: 'ttrmCsAmt', header: `⑥${t('MSG_TXT_TTRM_CS_AMT')}`, width: '140', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
-    { fieldName: 'piaFeeEotBlam', header: `${t('MSG_TXT_PIA_FEE_EOT_BLAM')}(②+③-⑥)`, width: '140', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
+    { fieldName: 'csRplcAmtCancBlam', header: `⑤${t('MSG_TXT_CS_RPLC_AMT_CANC_BLAM')}`, width: '180', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
+    { fieldName: 'ttrmCsAmt', header: `⑥${t('MSG_TXT_TTRM_CS_AMT')}`, width: '210', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
+    { fieldName: 'piaFeeEotBlam', header: `${t('MSG_TXT_PIA_FEE_EOT_BLAM')}(②+③-⑥)`, width: '220', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
   ];
 
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
@@ -447,12 +445,12 @@ const initGridDtl = defineGrid((data, view) => {
     { fieldName: 'cntrPdEnddt', header: t('MSG_TXT_CNTR_PD_ENDDT'), width: '120', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'csRplcYm', header: t('MSG_TXT_CS_RPLC_YM'), width: '120', styleName: 'text-center' },
     { fieldName: 'csRplcAmt', header: t('MSG_TXT_CS_RPLC_AMT'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
-    { fieldName: 'feeNm', header: t('MSG_TXT_FEE_DV'), width: '120', styleName: 'text-center', visible: false },
-    { fieldName: 'dpSlipTrsNo', header: t('MSG_TXT_DP_SLIP_TRS_NO'), width: '120', styleName: 'text-center' },
-    { fieldName: 'sapSlpno', header: t('MSG_TXT_FEE_SLPNO'), width: '120', styleName: 'text-center' },
-    { fieldName: 'ttrmCsAmt', header: t('MSG_TXT_TTRM_CS_AMT'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
-    { fieldName: 'csRplcAggAmt', header: t('MSG_TXT_CS_RPLC_AGG_AMT'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
-    { fieldName: 'piaFeeEotBlam', header: t('MSG_TXT_PIA_FEE_EOT_BLAM'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
+    { fieldName: 'feeNm', header: t('MSG_TXT_FEE_DV'), width: '180', styleName: 'text-center', visible: false },
+    { fieldName: 'dpSlipTrsNo', header: t('MSG_TXT_DP_SLIP_TRS_NO'), width: '180', styleName: 'text-center' },
+    { fieldName: 'sapSlpno', header: t('MSG_TXT_FEE_SLPNO'), width: '180', styleName: 'text-center' },
+    { fieldName: 'ttrmCsAmt', header: t('MSG_TXT_TTRM_CS_AMT'), width: '200', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
+    { fieldName: 'csRplcAggAmt', header: t('MSG_TXT_CS_RPLC_AGG_AMT'), width: '180', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
+    { fieldName: 'piaFeeEotBlam', header: t('MSG_TXT_PIA_FEE_EOT_BLAM'), width: '180', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
     { fieldName: 'fnlMdfcDtm', header: t('MSG_TXT_PRCSDT'), width: '120', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'usrNm', header: t('MSG_TXT_PCP'), width: '120', styleName: 'text-center' },
   ];
