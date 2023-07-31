@@ -75,7 +75,7 @@
 // -------------------------------------------------------------------------------------------------
 import { defineGrid, codeUtil, useDataService, /* useGlobal, */ useMeta, gridUtil, getComponentType } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
-import { getDeptGubunCodes } from '../../../../../modules/sms-common/closing/utils/clUtil';
+import { getDeptGubunCodes } from '~/modules/sms-common/closing/utils/clUtil';
 
 const { t } = useI18n();
 const dataService = useDataService();
@@ -145,24 +145,6 @@ async function onClickExcelDownload() {
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
 const initGrid = defineGrid((data, view) => {
-  const fields = [
-    { fieldName: 'col1' },
-    { fieldName: 'col2' },
-    { fieldName: 'col3' },
-    { fieldName: 'col4' },
-    { fieldName: 'col5' },
-    { fieldName: 'col6' },
-    { fieldName: 'col7' },
-    { fieldName: 'col8', dataType: 'number' },
-    { fieldName: 'col9' },
-    { fieldName: 'col10' },
-    { fieldName: 'col11' },
-    { fieldName: 'col12' },
-    { fieldName: 'col13' },
-    { fieldName: 'col14' },
-    { fieldName: 'col15' },
-  ];
-
   const columns = [
     { fieldName: 'col1', header: t('MSG_TXT_CNTR_DTL_NO'), width: '146', styleName: 'text-left' },
     { fieldName: 'col2', header: t('MSG_TXT_CHECK_DV_CD'), width: '100', styleName: 'text-center' },
@@ -172,7 +154,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'col6', header: t('MSG_TXT_END_DT'), width: '120', styleName: 'text-center', datetimeFormat: 'date' },
 
     { fieldName: 'col7', header: t('MSG_TXT_DEM_DT'), width: '120', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'col8', header: t('MSG_TXT_MSH_SSPCS_WON'), width: '120', styleName: 'text-right' },
+    { fieldName: 'col8', header: t('MSG_TXT_MSH_SSPCS_WON'), width: '120', styleName: 'text-right', dataType: 'number' },
     { fieldName: 'col9', header: t('MSG_TXT_RENT_PRD_MN'), width: '100', styleName: 'text-right' },
 
     { fieldName: 'col10', header: t('MSG_TXT_RENTAL_NMN'), width: '100', styleName: 'text-right' },
@@ -182,8 +164,9 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'col13', header: t('MSG_TXT_DLQ_MCNT'), width: '100', styleName: 'text-right' },
     { fieldName: 'col14', header: `${t('MSG_TXT_DIV')}02`, width: '100', styleName: 'text-center' },
     { fieldName: 'col15', header: t('MSG_TXT_NOTE'), width: '120', styleName: 'text-left' },
-
   ];
+
+  const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
 
   data.setFields(fields);
   view.setColumns(columns);
