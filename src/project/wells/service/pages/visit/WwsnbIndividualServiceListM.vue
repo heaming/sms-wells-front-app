@@ -9,7 +9,7 @@
  ****************************************************************************************************
  * 프로그램 설명
  ****************************************************************************************************
- - 엔지니어 개인별 서비스 현황 정보를 표출
+ - 엔지니어 개인별 서비스 현황 정보를 표출 (http://localhost:3000/#/service/wwsnb-individual-service-list)
  ****************************************************************************************************
 --->
 <template>
@@ -539,6 +539,11 @@ const { getters } = useStore();
 const userInfo = getters['meta/getUserInfo'];
 const { departmentId } = userInfo;
 
+const props = defineProps({
+  cntrNo: { type: String, required: true, default: '' },
+  cntrSn: { type: String, required: true, default: '' },
+});
+
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -575,8 +580,8 @@ const secondPageInfo = ref({
 
 /* 조회조건 */
 const searchParams = ref({
-  cntrNo: '',
-  cntrSn: '',
+  cntrNo: props.cntrNo ?? '',
+  cntrSn: props.cntrSn ?? '',
   bcNo: '',
   sppIvcNo: '',
   cntrDtlNo: '',
