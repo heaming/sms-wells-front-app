@@ -16,14 +16,14 @@
   <kw-page>
     <kw-search @search="onClickSearch">
       <kw-search-row>
-        <kw-search-item label="출고유형">
+        <kw-search-item :label="$t('MSG_TXT_OSTR_TP')">
           <kw-select
             v-model="searchParams.ostrTpCd"
             first-option="all"
             :options="codes.OSTR_TP_CD"
           />
         </kw-search-item>
-        <kw-search-item label="품목코드">
+        <kw-search-item :label="$t('MSG_TXT_ITM_CD')">
           <kw-input
             v-model="searchParams.itmCdFrom"
             :max-length="50"
@@ -34,7 +34,7 @@
             :max-length="50"
           />
         </kw-search-item>
-        <kw-search-item label="SAP코드">
+        <kw-search-item :label="$t('MSG_TXT_SAPCD')">
           <kw-input
             v-model="searchParams.sapMatCdFrom"
             :max-length="50"
@@ -47,7 +47,7 @@
         </kw-search-item>
       </kw-search-row>
       <kw-search-row>
-        <kw-search-item label="출고일자">
+        <kw-search-item :label="$t('MSG_TXT_OSTR_DT')">
           <kw-date-range-picker
             v-model:from="searchParams.startDt"
             v-model:to="searchParams.endDt"
@@ -56,7 +56,7 @@
           />
         </kw-search-item>
         <kw-search-item
-          label="품목구분"
+          :label="$t('MSG_TXT_ITM_DV')"
           :colspan="2"
         >
           <kw-select
@@ -66,31 +66,32 @@
           />
           <kw-select
             v-model="searchParams.itmPdCd"
-            :options="itmPdCdFilter"
+            :options="itmPdCds"
             first-option="all"
           />
         </kw-search-item>
       </kw-search-row>
       <kw-search-row>
-        <kw-search-item label="등급">
+        <kw-search-item :label="$t('MSG_TXT_GD')">
           <kw-select
             v-model="searchParams.itmGdCd"
             first-option="all"
             :options="codes.PD_GD_CD.filter((v) => ['A', 'B', 'E', 'R', 'X'].includes(v.codeId))"
           />
         </kw-search-item>
-        <kw-search-item label="사용여부">
+        <kw-search-item :label="$t('MSG_TXT_USE_SEL')">
           <kw-select
             v-model="searchParams.useYn"
             first-option="all"
             :options="codes.USE_YN"
           />
         </kw-search-item>
-        <kw-search-item label="자재구분">
+        <kw-search-item :label="$t('MSG_TXT_MAT_DV')">
           <kw-select
             v-model="searchParams.matUtlzDvCd"
             first-option="all"
             :options="codes.MAT_UTLZ_DV_CD.filter((v) => ['01','02'].includes(v.codeId))"
+            @update:model-value="onChangeMatUtlzDvCd"
           />
         </kw-search-item>
       </kw-search-row>
@@ -150,12 +151,6 @@ const codes = await codeUtil.getMultiCodes(
   'USE_YN',
 );
 
-// const customCodes = {
-//   ex: [
-//     { codeId: '1234', codeName: '5678' },
-//   ],
-// };
-
 let cachedParams;
 const searchParams = ref({
   startDt: now.subtract(30, 'day').format('YYYYMMDD'),
@@ -173,75 +168,113 @@ const searchParams = ref({
 
 });
 
-const totalCount = ref(0);
-const itmPdCdFilter = ref();
+let gridView;
+let gridData;
+let logisticsFields;
+let serviceFields;
+let businessFields;
+let fieldsObj;
+let fieldsWidth;
 
+const totalCount = ref(0);
+const initTotalCount = ref(0);
+const itmPdCds = ref();
+
+const svpdBaseColorGbFilter = [{ name: 'svpdBaseColorGbFilter', criteria: "value = 'Y'" }];
+const svpdCommGbFilter = [{ name: 'svpdCommGbFilter', criteria: "value = '01'" }];
+async function onChangeMatUtlzDvCd() {
+  const view = grdMainRef.value.getView();
+  view.activateAllColumnFilters('svpdBaseColorGb', false);
+  view.activateAllColumnFilters('svpdCommGb', false);
+
+  if (searchParams.value.matUtlzDvCd === '01') {
+    view.activateColumnFilters('svpdBaseColorGb', 'svpdBaseColorGbFilter', true);
+    totalCount.value = view.getItemCount(); // 필터된 데이터 건수 표시
+  } else if (searchParams.value.matUtlzDvCd === '02') {
+    view.activateColumnFilters('svpdCommGb', 'svpdCommGbFilter', true);
+    totalCount.value = view.getItemCount(); // 필터된 데이터 건수 표시
+  } else {
+    totalCount.value = initTotalCount.value; // 필터 해제시 초기 데이터 건수 노출
+  }
+}
+// 창고조회
+async function getWareHouseList() {
+  const result = await dataService.get(`${baseUrl}/ware-houses`);
+  if (result.data.length > 0) {
+    const wareHouses = result.data;
+    const wareLogisticsFields = wareHouses.filter((v) => v.wareNo.substring(0, 1) === '1'); // 물류센터
+    const wareServiceFields = wareHouses.filter((v) => v.wareNo.substring(0, 1) === '2'); // 서비스센터
+    const wareBusinessFields = wareHouses.filter((v) => v.wareNo.substring(0, 1) === '3'); // 영업센터
+    fieldsWidth = 80; // 창고 그리드 가로폭 사이즈 설정
+
+    logisticsFields = [];
+    serviceFields = [];
+    businessFields = [];
+
+    logisticsFields.push(...wareLogisticsFields.map((v) => ({
+      fieldName: `ware${v.wareNo}`,
+      header: v.wareNm,
+      width: fieldsWidth,
+      styleName: 'text-right',
+      dataType: 'number',
+      numberFormat: '#,##0',
+      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right text-weight-bold' },
+    })));
+    serviceFields.push(...wareServiceFields.map((v) => ({
+      fieldName: `ware${v.wareNo}`,
+      header: v.wareNm,
+      width: fieldsWidth,
+      styleName: 'text-right',
+      dataType: 'number',
+      numberFormat: '#,##0',
+      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right text-weight-bold' },
+    })));
+    businessFields.push(...wareBusinessFields.map((v) => ({
+      fieldName: `ware${v.wareNo}`,
+      header: v.wareNm,
+      width: fieldsWidth,
+      styleName: 'text-right',
+      dataType: 'number',
+      numberFormat: '#,##0',
+      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right text-weight-bold' },
+    })));
+    // 필드 셋팅
+    fieldsObj.setFields();
+  }
+}
+onMounted(async () => {
+  // 품목구분 : 상품 기본설정
+  searchParams.value.itmKndCd = '4';
+  // 창고조회
+  await getWareHouseList();
+});
 // 품목구분-하위품목 가져오기
 watch(() => searchParams.value.itmKndCd, async () => {
   const { data } = await dataService.get(`${baseUrl}/filter-items`, { params: searchParams.value });
-  itmPdCdFilter.value = data;
+  itmPdCds.value = data;
   searchParams.value.itmPdCd = '';
 });
 async function fetchData() {
   const res = await dataService.get(`${baseUrl}`, { params: cachedParams });
   const list = res.data;
   totalCount.value = list.length;
-  console.log(list);
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(list);
   view.resetCurrent();
-}
 
-let gridView;
-let gridData;
-let logisticsFields = [];
-let serviceFields = [];
-let businessFields = [];
-let fieldsObj;
-let fieldsWidth;
-// 창고조회
-async function getWareHouseList() {
-  const result = await dataService.get(`${baseUrl}/ware-houses`);
-  if (result.data.length > 0) {
-    const wareHouses = result.data;
-    const wareLogistics = wareHouses.filter((v) => v.wareNo.substring(0, 1) === '1'); // 물류센터
-    const wareService = wareHouses.filter((v) => v.wareNo.substring(0, 1) === '2'); // 서비스센터
-    const wareBusiness = wareHouses.filter((v) => v.wareNo.substring(0, 1) === '3'); // 영업센터
-    fieldsWidth = 80; // 창고 그리드 가로폭 사이즈 설정
+  view.activateAllColumnFilters('svpdBaseColorGb', false); // 필터 해제 처리
+  view.activateAllColumnFilters('svpdCommGb', false); // 필터 해제 처리
 
-    logisticsFields.push(...wareLogistics.map((v) => ({
-      fieldName: `ware${v.wareNo}`,
-      header: v.wareNm,
-      width: fieldsWidth,
-      styleName: 'text-right',
-    })));
-    serviceFields.push(...wareService.map((v) => ({
-      fieldName: `ware${v.wareNo}`,
-      header: v.wareNm,
-      width: fieldsWidth,
-      styleName: 'text-right',
-    })));
-    businessFields.push(...wareBusiness.map((v) => ({
-      fieldName: `ware${v.wareNo}`,
-      header: v.wareNm,
-      width: fieldsWidth,
-      styleName: 'text-right',
-    })));
-    // 필드 셋팅
-    fieldsObj.setFields();
-  }
+  initTotalCount.value = totalCount.value; // 초기 데이터 건수
 }
 
 async function onClickSearch() {
+  searchParams.value.matUtlzDvCd = '';
   cachedParams = cloneDeep(searchParams.value);
-  logisticsFields = [];
-  serviceFields = [];
-  businessFields = [];
-  // 창고조회
-  await getWareHouseList();
   await fetchData();
 }
 async function onClickExcelDownload() {
+  cachedParams = cloneDeep(searchParams.value);
   const view = grdMainRef.value.getView();
   const res = await dataService.get(`${baseUrl}/excel-download`, { params: cachedParams });
   await gridUtil.exportView(view, {
@@ -250,6 +283,7 @@ async function onClickExcelDownload() {
     exportData: res.data,
   });
 }
+
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
@@ -258,45 +292,63 @@ fieldsObj = {
 
   // 그리드 공통컬럼
   defaultFields: [
-    { fieldName: 'svpdMgtTypNm', header: '재고유형', width: '106', styleName: 'text-center' },
-    { fieldName: 'sapMatCd', header: t('MSG_TXT_SAP_CD'), width: '100', styleName: 'text-center' },
-    { fieldName: 'itmPdCd', header: t('MSG_TXT_ITM_CD'), width: '178', styleName: 'text-center' },
-    { fieldName: 'pdAbbrNm', header: t('MSG_TXT_ITM_NM'), width: '322', styleName: 'text-left' },
+    { fieldName: 'svpdMgtTypNm', header: t('MSG_TXT_STOC_TYPE'), width: '100', styleName: 'text-center' },
+    { fieldName: 'sapMatCd', header: t('MSG_TXT_SAP_CD'), width: '170', styleName: 'text-center' },
+    { fieldName: 'itmPdCd', header: t('MSG_TXT_ITM_CD'), width: '150', styleName: 'text-center' },
+    { fieldName: 'pdAbbrNm', header: t('MSG_TXT_ITM_NM'), width: '240', styleName: 'text-left' },
+    { fieldName: 'svpdBaseColorGb', styleName: 'text-center', visible: false, autoFilter: false }, /* 필터시 사용 */
+    { fieldName: 'svpdCommGb', styleName: 'text-center', visible: false, autoFilter: false }, /* 필터시 사용 */
   ],
-
+  totalFields: [
+    {
+      fieldName: 'ware999999',
+      header: t('MSG_TXT_AGG'),
+      width: '106',
+      styleName: 'text-right',
+      dataType: 'number',
+      numberFormat: '#,##0',
+      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right text-weight-bold' },
+    },
+  ],
   // 필드 세팅
   setFields() {
     const columns = [...fieldsObj.defaultFields,
       ...logisticsFields,
       ...serviceFields,
-      ...businessFields];
+      ...businessFields,
+      ...fieldsObj.totalFields];
 
     // 헤더 부분 merge
     const layoutColumns = [...fieldsObj.getColumnNameArr(fieldsObj.defaultFields),
       {
         direction: 'horizontal',
-        header: { text: t('물류센터') }, /* 물류센터 */
+        header: { text: t('MSG_TXT_LGST_CNR') }, /* 물류센터 */
         width: fieldsWidth,
         items: [...fieldsObj.getColumnNameArr(logisticsFields)],
       },
       {
         direction: 'horizontal',
-        header: { text: t('서비스센터') }, /* 서비스센터 */
+        header: { text: t('MSG_TXT_SV_CNR') }, /* 서비스센터 */
         width: fieldsWidth,
         items: [...fieldsObj.getColumnNameArr(serviceFields)],
       },
       { direction: 'horizontal',
-        header: { text: t('영업센터') }, /* 영업센터 */
+        header: { text: t('MSG_TXT_BSNS_CNTR') }, /* 영업센터 */
         width: fieldsWidth,
         items: [...fieldsObj.getColumnNameArr(businessFields)],
       },
+      ...fieldsObj.getColumnNameArr(fieldsObj.totalFields),
     ];
-    const fields = columns.map(({ fieldName }) => ({ fieldName }));
+    const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
 
     gridData.setFields(fields);
     gridView.setColumns(columns);
     gridView.setFixedOptions({ colCount: 4, resizable: true });
+    gridView.columnByName('pdAbbrNm').setFooters({ text: t('MSG_TXT_TOT_SUM'), styleName: 'text-left text-weight-bold' });
+    gridView.setColumnFilters('svpdBaseColorGb', svpdBaseColorGbFilter); // 필터 적용
+    gridView.setColumnFilters('svpdCommGb', svpdCommGbFilter); // 필터 적용
     gridView.setColumnLayout([...layoutColumns]);
+    gridView.setFooters({ visible: true, items: [{ height: 30 }] });
   },
   // 리스트에 담겨진 항목중 {fieldName : "" }  만  가져옴
   getColumnNameList(objList) {
@@ -310,18 +362,11 @@ fieldsObj = {
 };
 
 const initGrdMain = defineGrid((data, view) => {
-  const fields = [
-    ...fieldsObj.getColumnNameList(fieldsObj.defaultFields),
-  ];
-
-  const columns = [
-    ...fieldsObj.defaultFields,
-  ];
+  const fields = [];
+  const columns = [];
 
   data.setFields(fields);
   view.setColumns(columns);
-  view.checkBar.visible = false;
-  view.rowIndicator.visible = true;
 
   gridView = view;
   gridData = data;
