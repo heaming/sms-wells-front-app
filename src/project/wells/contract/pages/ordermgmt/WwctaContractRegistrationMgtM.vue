@@ -312,9 +312,10 @@ watch(currentStepName, (value) => {
   console.log(value);
   // sideStepRefs[value].show();
 });
-watch(contract.value.step2.dtls, () => {
+watch(contract, () => {
+  // step2에서 계약관련 변화가 있을 시 상품확정 해제
   isCnfmPds.value = false;
-});
+}, { deep: true });
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -345,7 +346,6 @@ function showStep(step) {
 }
 
 async function getCntrInfo(step, cntrNo, cntrSn) {
-  debugger;
   if (step === 2) {
     // step2일 때 상품 조회
     await panelsRefs[currentStepName.value].getProducts(cntrNo);
@@ -356,6 +356,8 @@ async function getCntrInfo(step, cntrNo, cntrSn) {
   } else {
     await panelsRefs[currentStepName.value].getCntrInfo(cntrNo);
   }
+  // 저장된 계약 재조회될 때 확정여부 true
+  isCnfmPds.value = true;
 }
 
 async function getExistedCntr() {
