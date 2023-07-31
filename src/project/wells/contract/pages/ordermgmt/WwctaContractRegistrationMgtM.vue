@@ -195,8 +195,15 @@
               @click="onClickTempSave"
             />
             <kw-btn
-              v-if="currentStepIndex === 1"
+              v-if="currentStepIndex === 1 && !isCnfmPds"
               :label="$t('상품확정')"
+              class="ml8"
+              primary
+              @click="onClickPdCnfm"
+            />
+            <kw-btn
+              v-if="currentStepIndex === 1 && isCnfmPds"
+              :label="$t('다음')"
               class="ml8"
               primary
               @click="onClickNext"
@@ -299,10 +306,14 @@ const smr = ref({
 });
 const isCnfmCntr = ref(false);
 const isRstlCntr = ref(props.resultDiv === '2');
+const isCnfmPds = ref(false); // step2 상품확정여부
 const stepsStatus = reactive([false, false, false, false]);
 watch(currentStepName, (value) => {
   console.log(value);
   // sideStepRefs[value].show();
+});
+watch(contract.value.step2.dtls, () => {
+  isCnfmPds.value = false;
 });
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -385,9 +396,10 @@ async function onClickTempSave() {
   }
 }
 
-// eslint-disable-next-line no-unused-vars
 async function onClickPdCnfm() {
-  await panelsRefs[currentStepName.value].confirmProducts();
+  if (await panelsRefs[currentStepName.value].confirmProducts()) {
+    isCnfmPds.value = true;
+  }
 }
 
 async function onClickNext() {
