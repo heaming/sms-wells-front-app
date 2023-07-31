@@ -98,7 +98,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { defineGrid, getComponentType, gridUtil, useGlobal, useDataService } from 'kw-lib';
+import { defineGrid, getComponentType, gridUtil, useGlobal, useDataService, codeUtil } from 'kw-lib';
 import dayjs from 'dayjs';
 import { isEmpty } from 'lodash-es';
 
@@ -111,6 +111,9 @@ const { currentRoute } = useRouter();
 // -------------------------------------------------------------------------------------------------
 const grdMainRef = ref(getComponentType('KwGrid'));
 const totalCount = ref(0);
+const codes = await codeUtil.getMultiCodes(
+  'RSB_DV_CD',
+);
 
 const searchParams = ref({
   perfYm: dayjs().subtract(1, 'month').format('YYYYMM'),
@@ -166,15 +169,32 @@ async function onClickSearchNo() {
 async function onClickAddRow() {
   const view = grdMainRef.value.getView();
   gridUtil.insertRowAndFocus(view, 0, {});
+  view.checkItem(0, true);
 }
 
 // 파트너의 BS처리율 조회
-async function searchPartnerBs(prtnrNo) {
+async function searchPartnerBs(prtnrNo, data, dataRow) {
   const params = {
     perfYm: searchParams.value.perfYm,
     prtnrNo,
   };
-  return await dataService.get('/sms/wells/fee/bs-processing-rate', { params });
+  const response = await dataService.get('/sms/wells/fee/bs-processing-rate', { params });
+  const resData = response.data;
+  if (resData.length < 1) {
+    await alert(t('MSG_ALT_NO_INFO_SRCH'));
+    return;
+  }
+
+  data.setValue(dataRow, 'baseYm', resData[dataRow].baseYm);
+  data.setValue(dataRow, 'ogCd', resData[dataRow].ogCd);
+  data.setValue(dataRow, 'ogTpCd', resData[dataRow].ogTpCd);
+  data.setValue(dataRow, 'prtnrKnm', resData[dataRow].prtnrKnm);
+  data.setValue(dataRow, 'prtnrNo', resData[dataRow].prtnrNo);
+  data.setValue(dataRow, 'rsbDvCd', resData[dataRow].rsbDvCd);
+  data.setValue(dataRow, 'sv01999901', resData[dataRow].sv01999901); // 관리건수
+  data.setValue(dataRow, 'totSvCnt', resData[dataRow].totSvCnt); // 완료건수
+  data.setValue(dataRow, 'sv01999909', resData[dataRow].sv01999909); // 비율
+  data.setValue(dataRow, 'sv01999910', resData[dataRow].sv01999910); // 수정비율
 }
 
 // 삭제
@@ -223,9 +243,6 @@ const initGridMain = defineGrid((data, view) => {
       styleName: 'text-center rg-button-icon--search',
       rules: 'required',
       button: 'action',
-      renderer: {
-        type: 'icon',
-      },
       editor: {
         inputCharacters: ['0-9'],
         maxLength: 10,
@@ -243,16 +260,16 @@ const initGridMain = defineGrid((data, view) => {
     },
     { fieldName: 'ogCd', header: t('MSG_TXT_BLG'), width: '98', styleName: 'text-center', editable: false },
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '127', styleName: 'text-center', editable: false },
-    { fieldName: 'rsbDvNm', header: t('MSG_TXT_RSB'), width: '151', styleName: 'text-center', editable: false },
+    { fieldName: 'rsbDvCd', header: t('MSG_TXT_RSB'), width: '151', styleName: 'text-center', editable: false, options: codes.RSB_DV_CD },
     { fieldName: 'sv01999901', header: t('MSG_TXT_ASGN') + t('MSG_TXT_COUNT'), width: '98', styleName: 'text-right', editable: false, dataType: 'number', numberFormat: '#,##0' },
     { fieldName: 'totSvCnt', header: t('MSG_TXT_FHS_CT'), width: '106', styleName: 'text-right', editable: false, dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'sv01999909', header: `${t('MSG_TXT_PROCS_RT')}(%)`, width: '210', styleName: 'text-right', editable: false, dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'sv01999909', header: `${t('MSG_TXT_PROCS_RT')}(%)`, width: '210', styleName: 'text-right', editable: false, dataType: 'number', numberFormat: '#,##0.##' },
     { fieldName: 'sv01999910',
       header: `${t('MSG_TXT_PROCS_RT')}(%) ${t('MSG_TXT_MOD')}`,
       width: '98',
       styleName: 'text-right',
       dataType: 'number',
-      numberFormat: '#,##0',
+      numberFormat: '#,##0.##',
       editable: true,
       editor: {
         type: 'number',
@@ -289,22 +306,8 @@ const initGridMain = defineGrid((data, view) => {
           prtnrNo,
         },
       });
-
       if (result) {
-        const response = await searchPartnerBs(payload.prtnrNo);
-        const resData = response.data;
-        if (resData.length < 1) {
-          await alert(t('MSG_ALT_NO_INFO_SRCH'));
-          return;
-        }
-        data.setValue(dataRow, 'prtnrNo', resData.prtnrNo);
-        data.setValue(dataRow, 'ogCd', resData.ogCd);
-        data.setValue(dataRow, 'prtnrKnm', resData.prtnrKnm);
-        data.setValue(dataRow, 'rsbDvNm', resData.rsbDvNm);
-        data.setValue(dataRow, 'sv01999901', resData.sv01999901);
-        data.setValue(dataRow, 'totSvCnt', resData.totSvCnt);
-        data.setValue(dataRow, 'sv01999909', resData.sv01999909);
-        data.setValue(dataRow, 'sv01999910', resData.sv01999910);
+        await searchPartnerBs(payload.prtnrNo, data, dataRow);
       }
     }
   };
