@@ -80,7 +80,6 @@
         >
           <kw-select
             v-model="searchParams.educCrseId"
-            first-option="all"
             use-input
             option-value="educCrseId"
             option-label="educNm"
@@ -267,9 +266,11 @@ const initEducCrse = async () => {
   if (!isEmpty(result.data)) {
     educCrseList.value = result.data;
     atcLevelOptions.value = educCrseList.value;
+    searchParams.value.educCrseId = atcLevelOptions.value[0].educCrseId;
   } else {
     educCrseList.value = tempEduDv;
     atcLevelOptions.value = educCrseList.value;
+    searchParams.value.educCrseId = atcLevelOptions.value[0].educCrseId;
   }
 };
 
@@ -308,10 +309,10 @@ const changeEducDvCd = async (educCrseId) => {
   const view = grdMainRef.value.getView();
   view.columnByName('topmrPlarStmnt').visible = false;
   view.columnByName('ackmtCt').visible = false;
-  view.columnByName('offlTcnt1').visible = false;
-  view.columnByName('offlTcnt2').visible = false;
-  view.columnByName('offlTcnt3').visible = false;
-  view.columnByName('onlineTcnt').visible = false;
+  view.columnByName('offlTCnt1').visible = false;
+  view.columnByName('offlTCnt2').visible = false;
+  view.columnByName('offlTCnt3').visible = false;
+  view.columnByName('onlineTCnt').visible = false;
   view.columnByName('fnlCpcYn').visible = false;
   view.columnByName('fshBsAcc').visible = false;
 
@@ -322,15 +323,15 @@ const changeEducDvCd = async (educCrseId) => {
       {
         header: t('MSG_TXT_PLAR_PRTIC_EDUC'), // colspan title
         direction: 'horizontal', // merge type
-        items: ['offlTcnt1', 'offlTcnt2', 'offlTcnt3', 'onlineTcnt', 'fnlCpcYn'],
+        items: ['offlTCnt1', 'offlTCnt2', 'offlTCnt3', 'onlineTCnt', 'fnlCpcYn'],
       },
     ]);
     view.columnByName('topmrPlarStmnt').visible = true;
     view.columnByName('ackmtCt').visible = true;
-    view.columnByName('offlTcnt1').visible = true;
-    view.columnByName('offlTcnt2').visible = true;
-    view.columnByName('offlTcnt3').visible = true;
-    view.columnByName('onlineTcnt').visible = true;
+    view.columnByName('offlTCnt1').visible = true;
+    view.columnByName('offlTCnt2').visible = true;
+    view.columnByName('offlTCnt3').visible = true;
+    view.columnByName('onlineTCnt').visible = true;
     view.columnByName('fnlCpcYn').visible = true;
   } else if (searchParams.value.educCrseNo === '128') {
     // multi row header setting
@@ -339,28 +340,30 @@ const changeEducDvCd = async (educCrseId) => {
       {
         header: t('MSG_TXT_WELS_MNGER_CMPF_EDUC'), // colspan title
         direction: 'horizontal', // merge type
-        items: ['offlTcnt1', 'onlineTcnt', 'fnlCpcYn'],
+        items: ['offlTCnt1', 'onlineTCnt', 'fnlCpcYn'],
       },
     ]);
     view.columnByName('ackmtCt').visible = true;
-    view.columnByName('offlTcnt1').visible = true;
-    view.columnByName('offlTcnt2').visible = true;
-    view.columnByName('offlTcnt3').visible = true;
-    view.columnByName('onlineTcnt').visible = true;
+    view.columnByName('offlTCnt1').visible = true;
+    view.columnByName('offlTCnt2').visible = true;
+    view.columnByName('offlTCnt3').visible = true;
+    view.columnByName('onlineTCnt').visible = true;
     view.columnByName('fnlCpcYn').visible = true;
     view.columnByName('fshBsAcc').visible = true;
   } else if (searchParams.value.educCrseNo === '135') {
     view.setColumnLayout([
-      'dgr2LevlOgNm', 'dgr3LevlOgNm', 'ogCd', 'prtnrNo', 'prtnrKnm', 'rsbDvNm', 'onlineTcnt', 'fnlCpcYn',
+      'dgr2LevlOgNm', 'dgr3LevlOgNm', 'ogCd', 'prtnrNo', 'prtnrKnm', 'rsbDvNm', 'onlineTCnt', 'fnlCpcYn',
     ]);
-    view.columnByName('onlineTcnt').visible = true;
+    view.columnByName('onlineTCnt').visible = true;
     view.columnByName('fnlCpcYn').visible = true;
   }
 };
 
-onMounted(() => {
+onMounted(async () => {
   initEducCrse();
+  await changeEducDvCd();
 });
+
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
@@ -374,10 +377,10 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'rsbDvNm' },
     { fieldName: 'topmrPlarStmnt' },
     { fieldName: 'ackmtCt' },
-    { fieldName: 'offlTcnt1' },
-    { fieldName: 'offlTcnt2' },
-    { fieldName: 'offlTcnt3' },
-    { fieldName: 'onlineTcnt' },
+    { fieldName: 'offlTCnt1' },
+    { fieldName: 'offlTCnt2' },
+    { fieldName: 'offlTCnt3' },
+    { fieldName: 'onlineTCnt' },
     { fieldName: 'fnlCpcYn' },
     { fieldName: 'fshBsAcc' },
   ];
@@ -392,10 +395,10 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'topmrPlarStmnt', header: t('MSG_TXT_TOPMR_PLAR_STMNT'), width: '150', styleName: 'text-center', visible: false },
     { fieldName: 'fshBsAcc', header: t('MSG_TXT_FSH_BFSVC_ACC'), width: '150', styleName: 'text-center', visible: false },
     { fieldName: 'ackmtCt', header: t('MSG_TXT_PD_ACC_CNT'), width: '80', styleName: 'text-center', visible: false },
-    { fieldName: 'offlTcnt1', header: t('MSG_TXT_OFFLINE_TCNT', [1]), width: '100', styleName: 'text-center', visible: false },
-    { fieldName: 'offlTcnt2', header: t('MSG_TXT_OFFLINE_TCNT', [2]), width: '100', styleName: 'text-center', visible: false },
-    { fieldName: 'offlTcnt3', header: t('MSG_TXT_OFFLINE_TCNT', [3]), width: '100', styleName: 'text-center', visible: false },
-    { fieldName: 'onlineTcnt', header: t('MSG_TXT_ONLINE_COURSE', [5]), width: '100', styleName: 'text-center', visible: false },
+    { fieldName: 'offlTCnt1', header: t('MSG_TXT_OFFLINE_TCNT', [1]), width: '100', styleName: 'text-center', visible: false },
+    { fieldName: 'offlTCnt2', header: t('MSG_TXT_OFFLINE_TCNT', [2]), width: '100', styleName: 'text-center', visible: false },
+    { fieldName: 'offlTCnt3', header: t('MSG_TXT_OFFLINE_TCNT', [3]), width: '100', styleName: 'text-center', visible: false },
+    { fieldName: 'onlineTCnt', header: t('MSG_TXT_ONLINE_COURSE', [5]), width: '100', styleName: 'text-center', visible: false },
     { fieldName: 'fnlCpcYn', header: t('MSG_TXT_FNL_CPC'), width: '100', styleName: 'text-center', visible: false },
 
   ];

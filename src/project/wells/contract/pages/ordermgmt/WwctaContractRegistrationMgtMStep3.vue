@@ -353,39 +353,25 @@
                   <h3 class="my0">
                     결제금액 : {{ stringUtil.getNumberWithComma(item.sellAmt || 0) }}원
                   </h3>
-                  <ul class="kw-notification pl12">
-                    <li>
-                      결제금액의 10%이상을 계약금으로 설정하셔야 합니다.
-                    </li>
-                  </ul>
                 </kw-form-item>
               </kw-form-row>
               <kw-form-row>
-                <kw-form-item label="계약금결제유형">
-                  <kw-option-group
-                    v-model="item.dpTpCdIdrv"
-                    type="radio"
-                    :options="codes.DP_TP_CD_IDRV"
-                  />
-                </kw-form-item>
-              </kw-form-row>
-              <kw-form-row>
-                <kw-form-item label="계약금">
+                <kw-form-item label="계약금(카드)">
                   <kw-input
-                    v-model="item.cntrAmt"
-                    :min="Number(item.sellAmt) / 10"
+                    v-model="item.cntrAmtCrd"
                     type="number"
                     align="right"
                     maxlength="10"
-                    @blur="onChangeCntram(item)"
+                    @blur="onChangeCntram1(item)"
                   />
                 </kw-form-item>
-                <kw-form-item label="상품금액(신용카드)">
+                <kw-form-item label="계약금(가상계좌)">
                   <kw-input
-                    v-model="item.pdAmt"
+                    v-model="item.cntrAmtVac"
                     type="number"
                     align="right"
                     maxlength="10"
+                    @blur="onChangeCntram2(item)"
                   />
                 </kw-form-item>
               </kw-form-row>
@@ -487,7 +473,7 @@ import { cloneDeep, isEmpty } from 'lodash-es';
 const { getters } = useStore();
 const { ogTpCd } = getters['meta/getUserInfo'];
 const dataService = useDataService();
-const { notify } = useGlobal();
+const { notify, alert } = useGlobal();
 const props = defineProps({
   contract: { type: String, required: true },
   onChildMounted: { type: Function, required: true },
@@ -620,12 +606,20 @@ function onClickNextDtlSn() {
   if (dtlSn.value < step3.value.dtls.length) dtlSn.value += 1;
 }
 
-function onChangeCntram(dtl) {
-  if (dtl.cntrAmt > dtl.sellAmt) {
-    dtl.cntrAmt = Number(dtl.sellAmt) / 10;
+function onChangeCntram1(dtl) {
+  if (Number(dtl.cntrAmtCrd || 0) > Number(dtl.sellAmt || 0)) {
     alert('계약금이 결제금액보다 클 수 없습니다.');
+    dtl.cntrAmtCrd = dtl.sellAmt;
   }
-  dtl.pdAmt = Number(dtl.sellAmt || 0) - Math.max(Number(dtl.cntrAmt || 0), Number(dtl.sellAmt) / 10);
+  dtl.cntrAmtVac = Number(dtl.sellAmt || 0) - Number(dtl.cntrAmtCrd || 0);
+}
+
+function onChangeCntram2(dtl) {
+  if (Number(dtl.cntrAmtVac || 0) > Number(dtl.sellAmt || 0)) {
+    alert('계약금이 결제금액보다 클 수 없습니다.');
+    dtl.cntrAmtVac = dtl.sellAmt;
+  }
+  dtl.cntrAmtCrd = Number(dtl.sellAmt || 0) - Number(dtl.cntrAmtVac || 0);
 }
 
 function onChangeSodbtNftfCntr(v) {

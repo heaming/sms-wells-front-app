@@ -310,14 +310,14 @@ ${step4.cntrt.sexDvNm || ''}` }}
                 v-if="item.sellTpCd === '1'"
               >
                 <kw-form-row>
-                  <kw-form-item label="계약금(가상계좌)">
+                  <kw-form-item label="계약금(카드)">
                     <p>
-                      {{ stringUtil.getNumberWithComma(item.cntrAmt || 0) }}
+                      {{ stringUtil.getNumberWithComma(item.cntrAmtCrd || 0) }}
                     </p>
                   </kw-form-item>
-                  <kw-form-item label="상품금액(신용카드)">
+                  <kw-form-item label="계약금(가상계좌)">
                     <p>
-                      {{ stringUtil.getNumberWithComma(item.pdAmt || 0) }}
+                      {{ stringUtil.getNumberWithComma(item.cntrAmtVac || 0) }}
                     </p>
                   </kw-form-item>
                 </kw-form-row>
@@ -700,7 +700,17 @@ async function calcRestipulation() {
   }
 }
 
-async function getCntrInfo(cntrNo, pCntrSn) {
+async function getCntrInfo(cntrNo) {
+  const cntr = await dataService.get('sms/wells/contract/contracts/cntr-info', { params: { cntrNo, step: 4 } });
+  step4.value = cntr.data.step4;
+  pCntrNo.value = step4.value.bas.cntrNo;
+  console.log(step4.value);
+  // 총판채널인 경우 고객센터 이관만 보이도록
+  codes.CST_STLM_IN_MTH_CD = codes.CST_STLM_IN_MTH_CD.filter((code) => (step4.value.bas.cstStlmInMthCd === '30' ? code.codeId === '30' : code.codeId !== '30'));
+  ogStep4.value = cloneDeep(step4.value);
+  setGrid();
+}
+async function getCntrInfoWithRstl(cntrNo, pCntrSn) {
   const cntr = await dataService.get('sms/wells/contract/contracts/cntr-info', { params: { cntrNo, step: 4 } });
   step4.value = cntr.data.step4;
   pCntrNo.value = step4.value.bas.cntrNo;
@@ -710,27 +720,25 @@ async function getCntrInfo(cntrNo, pCntrSn) {
   ogStep4.value = cloneDeep(step4.value);
   setGrid();
   // step1에서 재약정 선택해서 진입하거나, 기존 재약정 계약을 조회하는 경우 재약정 화면 설정
-  if (isRestipulation.value || pCntrSn) {
-    const cntrSn = isRestipulation.value ? restipulationCntrSn.value : pCntrSn;
-    const sels = await dataService.get(
-      'sms/wells/contract/re-stipulation/standard-info',
+  const cntrSn = isRestipulation.value ? restipulationCntrSn.value : pCntrSn;
+  const sels = await dataService.get(
+    'sms/wells/contract/re-stipulation/standard-info',
+    { params: { cntrNo, cntrSn } },
+  );
+  restipulationBasInfo.value = cloneDeep(sels);
+  restipulationBasInfo.value.cntrSn = cntrSn;
+  if (pCntrSn) {
+    // 기존 데이터 조회(세팅)
+    const res = await dataService.get(
+      'sms/wells/contract/re-stipulation/contract',
       { params: { cntrNo, cntrSn } },
     );
-    restipulationBasInfo.value = cloneDeep(sels);
-    restipulationBasInfo.value.cntrSn = cntrSn;
-    if (pCntrSn) {
-      // 기존 데이터 조회(세팅)
-      const res = await dataService.get(
-        'sms/wells/contract/re-stipulation/contract',
-        { params: { cntrNo, cntrSn } },
-      );
-      console.log(res);
-      restipulationBasInfo.value.stplTpCd = res.data.stplTpCd;
-      calcRestipulation();
-    }
-    step4.value.isRestipulation = true;
-    isRestipulation.value = true;
+    console.log(res);
+    restipulationBasInfo.value.stplTpCd = res.data.stplTpCd;
+    calcRestipulation();
   }
+  step4.value.isRestipulation = true;
+  isRestipulation.value = true;
 }
 
 async function setRestipulation(flag, cntrSn) {
@@ -774,6 +782,7 @@ function onClickNextDtlSn() {
 
 defineExpose({
   getCntrInfo,
+  getCntrInfoWithRstl,
   isChangedStep,
   isValidStep,
   saveStep,

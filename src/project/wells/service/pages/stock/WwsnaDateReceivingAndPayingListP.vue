@@ -119,7 +119,7 @@ async function fetchData() {
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
 
-  const res = await dataService.get('/sms/wells/service/date-receivings/date/excel-download', { params: cachedParams });
+  const res = await dataService.get('/sms/wells/service/receipts-and-payments/date/excel-download', { params: cachedParams });
 
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,

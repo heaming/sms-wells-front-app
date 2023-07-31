@@ -165,7 +165,7 @@
           dense
           secondary
           :label="t('MSG_BTN_BU_DDTN')+t('MSG_BTN_CTR')"
-          @click="openBurdenDeductionControlPopup"
+          @click="openZwfedFeeBurdenDeductionRegP"
         />
         <kw-separator
           spaced
@@ -176,7 +176,7 @@
           dense
           secondary
           :label="t('MSG_BTN_PNPYAM')+t('MSG_BTN_CTR')"
-          @click="openPnpyamControlPopup"
+          @click="openZwfedFeePnpyamDeductionRegP"
         />
       </kw-action-top>
       <kw-form
@@ -302,36 +302,6 @@ async function openFeeControlPopup() {
 }
 
 /*
- *  Event - 부담공제조정 버튼 클릭  ※현재 팝업화면 없음
- */
-async function openBurdenDeductionControlPopup() {
-  const param = {
-    perfYm: searchParams.value.perfYm,
-    no: searchParams.value.no,
-  };
-
-  await modal({
-    component: 'openBurdenDeductionControlPopup',
-    componentProps: param,
-  });
-}
-
-/*
- *  Event - 가지급금조정 버튼 클릭  ※현재 팝업화면 없음
- */
-async function openPnpyamControlPopup() {
-  const param = {
-    perfYm: searchParams.value.perfYm,
-    no: searchParams.value.no,
-  };
-
-  await modal({
-    component: 'openPnpyamControlPopup',
-    componentProps: param,
-  });
-}
-
-/*
  *  Event - 번호 검색 아이콘 클릭 이벤트
  */
 async function onClickSearchNo() {
@@ -380,6 +350,43 @@ async function onClickSearch() {
   await fetchData('fee');
   await fetchData('deduction');
   await fetchData('control');
+}
+
+/*
+ *  Event - 부담공제조정 버튼 클릭
+ */
+async function openZwfedFeeBurdenDeductionRegP() {
+  const param = {
+    dsbYm: dayjs(searchParams.value.perfYm).format('YYYY-MM'),
+    ogTpCd: 'W01',
+    coCd: '2000',
+    prtnrNo: searchParams.value.no,
+  };
+  const { result: isChanged } = await modal({
+    component: 'ZwfedFeeBurdenDeductionRegP',
+    componentProps: param,
+  });
+  if (isChanged) {
+    onClickSearch();
+  }
+}
+/*
+ *  Event - 가지급금조정 버튼 클릭
+ */
+async function openZwfedFeePnpyamDeductionRegP() {
+  const param = {
+    dsbYm: dayjs(searchParams.value.perfYm).format('YYYY-MM'),
+    ogTpCd: 'W01',
+    coCd: '2000',
+    prtnrNo: searchParams.value.no,
+  };
+  const { result: isChanged } = await modal({
+    component: 'ZwfedFeePnpyamDeductionRegP',
+    componentProps: param,
+  });
+  if (isChanged) {
+    onClickSearch();
+  }
 }
 
 // -------------------------------------------------------------------------------------------------

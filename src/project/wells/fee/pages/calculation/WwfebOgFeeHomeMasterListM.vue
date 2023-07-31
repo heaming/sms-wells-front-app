@@ -639,14 +639,14 @@ async function onClickW320P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
     const param = {
       ogTpCd: 'W03',
       ogTpCdTxt: '홈마스터',
-      perfYmTxt: `${perfYm.substring(0, 4)}-${perfYm.substring(4, 6)}`,
       perfYm,
+      perfYmTxt: `${perfYm.substring(0, 4)}-${perfYm.substring(4, 6)}`,
       feeTcntDvCd,
       feeTcntDvCdTxt: codeName,
       rsbTpCd,
     };
     const { result: isChanged } = await modal({
-      component: 'WwfeaFeeMeetingAttendanceRegP',
+      component: 'WwfeaFeeWellsEducationAttendanceRegP',
       componentProps: param,
     });
     if (isChanged) {

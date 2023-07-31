@@ -429,8 +429,9 @@ const initGrdMain = defineGrid((data, view) => {
       numberFormat: '#,##0.##',
       groupFooter: {
         valueCallback(grid, column, groupFooterIndex, group) {
-          const thmNwDpRtSum = (grid.getGroupSummary(group, 'thmNwDpAmt').sum / grid.getGroupSummary(group, 'thmNwUcAmt').sum) * 100;
-          return Number.isNaN(thmNwDpRtSum) ? 0 : thmNwDpRtSum;
+          const thmNwDpRtSum = grid.getGroupSummary(group, 'thmNwUcAmt').sum === 0 ? 0
+            : (grid.getGroupSummary(group, 'thmNwDpAmt').sum / grid.getGroupSummary(group, 'thmNwUcAmt').sum) * 100;
+          return thmNwDpRtSum;
         },
         numberFormat: '#,##0.##',
       },
@@ -438,12 +439,10 @@ const initGrdMain = defineGrid((data, view) => {
         numberFormat: '#,##0.##',
         styleName: 'text-right',
         valueCallback(grid) {
-          const thmNwDpAmtSum = grid.getSummary('thmNwDpAmt', 'sum');
-          const thmNwUcAmtSum = grid.getSummary('thmNwUcAmt', 'sum');
+          const rtSum = grid.getSummary('thmNwUcAmt', 'sum') === 0 ? 0
+            : (grid.getSummary('thmNwDpAmt', 'sum') / grid.getSummary('thmNwUcAmt', 'sum')) * 100;
 
-          const rtSum = (thmNwDpAmtSum / thmNwUcAmtSum) * 100;
-
-          return Number.isNaN(rtSum) ? 0 : rtSum;
+          return rtSum;
         } } },
     { fieldName: 'nomUcAmt',
       header: t('MSG_TXT_UC_AMT'),
@@ -487,8 +486,10 @@ const initGrdMain = defineGrid((data, view) => {
 
       groupFooter: {
         valueCallback(grid, column, groupFooterIndex, group) {
-          const nomDpAmtRtSum = (grid.getGroupSummary(group, 'nomDpAmt').sum / grid.getGroupSummary(group, 'nomUcAmt').sum) * 100;
-          return Number.isNaN(nomDpAmtRtSum) ? 0 : nomDpAmtRtSum;
+          const nomDpAmtRtSum = grid.getGroupSummary(group, 'nomUcAmt').sum === 0 ? 0
+            : (grid.getGroupSummary(group, 'nomDpAmt').sum / grid.getGroupSummary(group, 'nomUcAmt').sum) * 100;
+
+          return nomDpAmtRtSum;
         },
         numberFormat: '#,##0.##',
       },
@@ -496,12 +497,10 @@ const initGrdMain = defineGrid((data, view) => {
         numberFormat: '#,##0.##',
         styleName: 'text-right',
         valueCallback(grid) {
-          const nomDpAmtSum = grid.getSummary('nomDpAmt', 'sum');
-          const nomUcAmtSum = grid.getSummary('nomUcAmt', 'sum');
+          const rtSum = grid.getSummary('nomUcAmt', 'sum') === 0 ? 0
+            : (grid.getSummary('nomDpAmt', 'sum') / grid.getSummary('nomUcAmt', 'sum')) * 100;
 
-          const rtSum = (nomDpAmtSum / nomUcAmtSum) * 100;
-
-          return Number.isNaN(rtSum) ? 0 : rtSum;
+          return rtSum;
         } } },
     { fieldName: 'dlqAmt',
       header: t('MSG_TXT_DLQ_AMT'),
@@ -543,11 +542,23 @@ const initGrdMain = defineGrid((data, view) => {
       dataType: 'number',
       numberFormat: '#,##0.##',
       groupFooter: {
+        valueCallback(grid, column, groupFooterIndex, group) {
+          const rtSum = (grid.getGroupSummary(group, 'thmNwUcAmt').sum + grid.getGroupSummary(group, 'nomUcAmt').sum) === 0 ? 0
+            : ((grid.getGroupSummary(group, 'dlqAmt').sum - grid.getGroupSummary(group, 'dlqDpAmt').sum) / (grid.getGroupSummary(group, 'thmNwUcAmt').sum + grid.getGroupSummary(group, 'nomUcAmt').sum)) * 100;
+
+          return rtSum;
+        },
         numberFormat: '#,##0.##',
-        expression: 'sum',
-        styleName: 'text-right',
       },
-      footer: { expression: 'sum', numberFormat: '#,##0.##', styleName: 'text-right' } },
+      footer: { expression: 'sum',
+        numberFormat: '#,##0.##',
+        styleName: 'text-right',
+        valueCallback(grid) {
+          const rtTotSum = (grid.getSummary('thmNwUcAmt', 'sum') + grid.getSummary('nomUcAmt', 'sum')) === 0 ? 0
+            : ((grid.getSummary('dlqAmt', 'sum') - grid.getSummary('dlqDpAmt', 'sum')) / (grid.getSummary('thmNwUcAmt', 'sum') + grid.getSummary('nomUcAmt', 'sum'))) * 100;
+
+          return rtTotSum;
+        } } },
     { fieldName: 'totDpAmt',
       header: t('MSG_TXT_TOT_DP_AMT'),
       width: '100',
@@ -565,12 +576,25 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-right',
       dataType: 'number',
       numberFormat: '#,##0.##',
+
       groupFooter: {
+        valueCallback(grid, column, groupFooterIndex, group) {
+          const totDpSum = grid.getGroupSummary(group, 'nomUcAmt').sum + grid.getGroupSummary(group, 'thmNwUcAmt').sum === 0 ? 0
+            : ((grid.getGroupSummary(group, 'nomDpAmt').sum + grid.getGroupSummary(group, 'thmNwDpAmt').sum) / (grid.getGroupSummary(group, 'nomUcAmt').sum + grid.getGroupSummary(group, 'thmNwUcAmt').sum)) * 100;
+
+          return Number.isNaN(totDpSum) ? 0 : totDpSum;
+        },
         numberFormat: '#,##0.##',
-        expression: 'sum',
-        styleName: 'text-right',
       },
-      footer: { expression: 'sum', numberFormat: '#,##0.##', styleName: 'text-right' } },
+      footer: { expression: 'sum',
+        numberFormat: '#,##0.##',
+        styleName: 'text-right',
+        valueCallback(grid) {
+          const rtSum = grid.getSummary('nomUcAmt', 'sum') + grid.getSummary('thmNwUcAmt', 'sum') === 0 ? 0
+            : ((grid.getSummary('nomDpAmt', 'sum') + grid.getSummary('thmNwDpAmt', 'sum')) / (grid.getSummary('nomUcAmt', 'sum') + grid.getSummary('thmNwUcAmt', 'sum'))) * 100;
+
+          return Number.isNaN(rtSum) ? 0 : rtSum;
+        } } },
     { fieldName: 'bilAgg',
       header: t('MSG_TXT_BIL_AGG'),
       width: '140',
@@ -600,11 +624,23 @@ const initGrdMain = defineGrid((data, view) => {
       dataType: 'number',
       numberFormat: '#,##0.##',
       groupFooter: {
+        valueCallback(grid, column, groupFooterIndex, group) {
+          const totDpSum = grid.getGroupSummary(group, 'bilAgg').sum === 0 ? 0
+            : ((grid.getGroupSummary(group, 'thmNwDpAmt').sum + grid.getGroupSummary(group, 'nomDpAmt').sum + grid.getGroupSummary(group, 'dlqDpAmt').sum) / (grid.getGroupSummary(group, 'bilAgg').sum)) * 100;
+
+          return Number.isNaN(totDpSum) ? 0 : totDpSum;
+        },
         numberFormat: '#,##0.##',
-        expression: 'sum',
-        styleName: 'text-right',
       },
-      footer: { expression: 'sum', numberFormat: '#,##0.##', styleName: 'text-right' } },
+      footer: { expression: 'sum',
+        numberFormat: '#,##0.##',
+        styleName: 'text-right',
+        valueCallback(grid) {
+          const rtSum = grid.getSummary('bilAgg', 'sum') === 0 ? 0
+            : ((grid.getSummary('thmNwDpAmt', 'sum') + grid.getSummary('nomDpAmt', 'sum') + grid.getSummary('dlqDpAmt', 'sum')) / (grid.getSummary('bilAgg', 'sum'))) * 100;
+
+          return Number.isNaN(rtSum) ? 0 : rtSum;
+        } } },
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   data.setFields(fields);

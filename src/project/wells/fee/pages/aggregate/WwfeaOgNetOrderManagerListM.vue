@@ -27,7 +27,7 @@
             required
           >
             <kw-option-group
-              v-model="searchParams.schInqrDv"
+              v-model="searchParams.inqrDvCd"
               :label="$t('MSG_TXT_INQR_DV')"
               rules="required"
               type="radio"
@@ -40,29 +40,29 @@
             required
           >
             <kw-select
-              v-model="searchParams.schDiv"
+              v-model="searchParams.divCd"
               :label="$t('MSG_TXT_DIV')"
               :options="customCodes.divCd"
               rules="required"
               @change="onChangeInqrDv"
             />
           </kw-search-item>
+        </kw-search-row>
+        <kw-search-row>
           <kw-search-item
             :label="$t('MSG_TXT_FEE_PERF')+$t('MSG_TXT_TYPE')"
           >
             <kw-select
-              v-model="searchParams.schFeePerf"
+              v-model="searchParams.feePerfCd"
               :options="customCodes.feePerfCd"
             />
           </kw-search-item>
-        </kw-search-row>
-        <kw-search-row>
           <kw-search-item
             :label="$t('MSG_TXT_PDCT_TP')"
             required
           >
             <kw-select
-              v-model="searchParams.schPdctTp"
+              v-model="searchParams.pdctTpCd"
               :label="$t('MSG_TXT_PDCT_TP')"
               :options="customCodes.pdctTpCd"
               rules="required"
@@ -72,30 +72,30 @@
             :label="$t('MSG_TXT_SEL_TYPE')"
           >
             <kw-select
-              v-model="searchParams.schSelType"
+              v-model="searchParams.sellTpCd"
               :label="$t('MSG_TXT_SEL_TYPE')"
               :options="customCodes.selTpCd"
-            />
-          </kw-search-item>
-          <kw-search-item
-            :label="$t('MSG_TXT_DT')"
-            required
-          >
-            <kw-date-range-picker
-              v-model:from="searchParams.schDtStrt"
-              v-model:to="searchParams.schDtEnd"
-              :label="$t('MSG_TXT_DT')"
-              @change="onChangeDt"
             />
           </kw-search-item>
         </kw-search-row>
         <kw-search-row>
           <kw-search-item
+            :label="$t('MSG_TXT_DT')"
+            required
+          >
+            <kw-date-range-picker
+              v-model:from="searchParams.strtDt"
+              v-model:to="searchParams.endDt"
+              :label="$t('MSG_TXT_DT')"
+              @change="onChangeDt"
+            />
+          </kw-search-item>
+          <kw-search-item
             :label="$t('MSG_TXT_CANC_DT')"
           >
             <kw-date-range-picker
-              v-model:from="searchParams.schCancDtStrt"
-              v-model:to="searchParams.schCancDtEnd"
+              v-model:from="searchParams.cancStrtDt"
+              v-model:to="searchParams.cancEndDt"
               :label="$t('MSG_TXT_CANC_DT')"
             />
           </kw-search-item>
@@ -103,7 +103,7 @@
             :label="$t('MSG_TXT_PRDT_CODE')"
           >
             <kw-input
-              v-model="searchParams.schPdCdStrt"
+              v-model="searchParams.pdStrtCd"
               maxlength="10"
               clearable
               icon="search"
@@ -111,33 +111,33 @@
             />
             <span>~</span>
             <kw-input
-              v-model="searchParams.schPdCdEnd"
+              v-model="searchParams.pdEndCd"
               maxlength="10"
               clearable
               icon="search"
               @click-icon="onClickSearchPdCdPopup('E')"
             />
           </kw-search-item>
+        </kw-search-row>
+        <kw-search-row>
           <kw-search-item
             :label="$t('MSG_TXT_PKG_CD')"
           >
             <kw-input
-              v-model="searchParams.schPkgCdStrt"
+              v-model="searchParams.pkgStrtCd"
             />
             <span>~</span>
             <kw-input
-              v-model="searchParams.schPkgCdEnd"
+              v-model="searchParams.pkgEndCd"
             />
           </kw-search-item>
-        </kw-search-row>
-        <kw-search-row>
           <kw-search-item :label="t('MSG_TXT_OG_LEVL')">
             <zwog-level-select
-              v-model:og-levl-dv-cd1="searchParams.ogLevl1"
-              v-model:og-levl-dv-cd2="searchParams.ogLevl2"
-              v-model:og-levl-dv-cd3="searchParams.ogLevl3"
-              :og-tp-cd="searchParams.ogTp"
-              :base-ym="searchParams.schPerfYm"
+              v-model:og-levl-dv-cd1="searchParams.og1LevlId"
+              v-model:og-levl-dv-cd2="searchParams.og2LevlId"
+              v-model:og-levl-dv-cd3="searchParams.og3LevlId"
+              :og-tp-cd="searchParams.ogTpCd"
+              :base-ym="searchParams.perfYm"
               :start-level="1"
               :end-level="3"
             />
@@ -146,7 +146,7 @@
             :label="$t('MSG_TXT_SEQUENCE_NUMBER')"
           >
             <kw-input
-              v-model="searchParams.schPrtnrNo"
+              v-model="searchParams.prtnrNo"
               icon="search"
               clearable
               :on-click-icon="onClickSearchNo"
@@ -169,7 +169,7 @@
             required
           >
             <kw-option-group
-              v-model="searchParams.schInqrDv"
+              v-model="searchParams.inqrDvCd"
               :label="$t('MSG_TXT_INQR_DV')"
               rules="required"
               type="radio"
@@ -182,7 +182,7 @@
             required
           >
             <kw-select
-              v-model="searchParams.schDiv"
+              v-model="searchParams.divCd"
               :label="$t('MSG_TXT_DIV')"
               :options="customCodes.divCd"
               rules="required"
@@ -194,7 +194,7 @@
             required
           >
             <kw-option-group
-              v-model="searchParams.schOrdr"
+              v-model="searchParams.feeTcntDvCd"
               :label="$t('MSG_TXT_ORDR')"
               rules="required"
               type="radio"
@@ -208,7 +208,7 @@
             required
           >
             <kw-date-picker
-              v-model="searchParams.schPerfYm"
+              v-model="searchParams.perfYm"
               :label="$t('MSG_TXT_FEE_YM')"
               type="month"
               rules="required"
@@ -216,11 +216,11 @@
           </kw-search-item>
           <kw-search-item :label="t('MSG_TXT_OG_LEVL')">
             <zwog-level-select
-              v-model:og-levl-dv-cd1="searchParams.ogLevl1"
-              v-model:og-levl-dv-cd2="searchParams.ogLevl2"
-              v-model:og-levl-dv-cd3="searchParams.ogLevl3"
-              :og-tp-cd="searchParams.ogTp"
-              :base-ym="searchParams.schPerfYm"
+              v-model:og-levl-dv-cd1="searchParams.og1LevlId"
+              v-model:og-levl-dv-cd2="searchParams.og2LevlId"
+              v-model:og-levl-dv-cd3="searchParams.og3LevlId"
+              :og-tp-cd="searchParams.ogTpCd"
+              :base-ym="searchParams.perfYm"
               :start-level="1"
               :end-level="3"
             />
@@ -229,7 +229,7 @@
             :label="$t('MSG_TXT_SEQUENCE_NUMBER')"
           >
             <kw-input
-              v-model="searchParams.schPrtnrNo"
+              v-model="searchParams.prtnrNo"
               icon="search"
               clearable
               :on-click-icon="onClickSearchNo"
@@ -252,7 +252,7 @@
             required
           >
             <kw-option-group
-              v-model="searchParams.schInqrDv"
+              v-model="searchParams.inqrDvCd"
               :label="$t('MSG_TXT_INQR_DV')"
               rules="required"
               type="radio"
@@ -265,7 +265,7 @@
             required
           >
             <kw-option-group
-              v-model="searchParams.schRsbDv"
+              v-model="searchParams.rsbDvCd"
               :label="$t('MSG_TXT_RSB_DV')"
               rules="required"
               type="radio"
@@ -277,7 +277,7 @@
             required
           >
             <kw-option-group
-              v-model="searchParams.schOrdr"
+              v-model="searchParams.feeTcntDvCd"
               :label="$t('MSG_TXT_ORDR')"
               rules="required"
               type="radio"
@@ -291,7 +291,7 @@
             required
           >
             <kw-date-picker
-              v-model="searchParams.schPerfYm"
+              v-model="searchParams.perfYm"
               :label="$t('MSG_TXT_FEE_YM')"
               type="month"
               rules="required"
@@ -299,11 +299,11 @@
           </kw-search-item>
           <kw-search-item :label="t('MSG_TXT_OG_LEVL')">
             <zwog-level-select
-              v-model:og-levl-dv-cd1="searchParams.ogLevl1"
-              v-model:og-levl-dv-cd2="searchParams.ogLevl2"
-              v-model:og-levl-dv-cd3="searchParams.ogLevl3"
-              :og-tp-cd="searchParams.ogTp"
-              :base-ym="searchParams.schPerfYm"
+              v-model:og-levl-dv-cd1="searchParams.og1LevlId"
+              v-model:og-levl-dv-cd2="searchParams.og2LevlId"
+              v-model:og-levl-dv-cd3="searchParams.og3LevlId"
+              :og-tp-cd="searchParams.ogTpCd"
+              :base-ym="searchParams.perfYm"
               :start-level="1"
               :end-level="3"
             />
@@ -312,7 +312,7 @@
             :label="$t('MSG_TXT_SEQUENCE_NUMBER')"
           >
             <kw-input
-              v-model="searchParams.schPrtnrNo"
+              v-model="searchParams.prtnrNo"
               icon="search"
               clearable
               :on-click-icon="onClickSearchNo"
@@ -454,28 +454,28 @@ const isExcelDown = ref(false);
 const isPerfVisile = ref(false);
 
 const searchParams = ref({
-  schInqrDv: '01',
-  schOrdr: '01',
-  schDiv: '02',
-  schFeePerf: '00',
-  schPdctTp: '00',
-  schSelType: '0',
-  schDtStrt: now.add(-1, 'month').startOf('month').format('YYYYMMDD'),
-  schDtEnd: now.add(-1, 'month').endOf('month').format('YYYYMMDD'),
-  schCancDtStrt: '',
-  schCancDtEnd: '',
-  schPdCdStrt: '',
-  schPdCdEnd: '',
-  schPkgCdStrt: '',
-  schPkgCdEnd: '',
-  ogLevl1: '',
-  ogLevl2: '',
-  ogLevl3: '',
-  schPrtnrNo: '',
-  schPerfYm: now.add(-1, 'month').format('YYYYMM'),
-  schRsbDv: '00',
+  inqrDvCd: '01',
+  feeTcntDvCd: '01',
+  divCd: '02',
+  feePerfCd: '00',
+  pdctTpCd: '00',
+  sellTpCd: '0',
+  strtDt: now.add(-1, 'month').startOf('month').format('YYYYMMDD'),
+  endDt: now.add(-1, 'month').endOf('month').format('YYYYMMDD'),
+  cancStrtDt: '',
+  cancEndDt: '',
+  pdStrtCd: '',
+  pdEndCd: '',
+  pkgStrtCd: '',
+  pkgEndCd: '',
+  og1LevlId: '',
+  og2LevlId: '',
+  og3LevlId: '',
+  prtnrNo: '',
+  perfYm: now.add(-1, 'month').format('YYYYMM'),
+  rsbDvCd: '00',
   prtnrKnm: '',
-  ogTp: 'W02',
+  ogTpCd: 'W02',
   pdCd: '',
 });
 
@@ -487,23 +487,23 @@ let cachedParams;
 async function initSearchParams() {
   totalCount.value = 0;
   isExcelDown.value = false;
-  searchParams.value.schOrdr = '01';
-  searchParams.value.schFeePerf = '00';
-  searchParams.value.schPdctTp = '00';
-  searchParams.value.schSelType = '0';
-  searchParams.value.schDtStrt = now.add(-1, 'month').startOf('month').format('YYYYMMDD');
-  searchParams.value.schDtEnd = now.add(-1, 'month').endOf('month').format('YYYYMMDD');
-  searchParams.value.schCancDtStrt = '';
-  searchParams.value.schCancDtEnd = '';
-  searchParams.value.schPdCdStrt = '';
-  searchParams.value.schPdCdEnd = '';
-  searchParams.value.schPkgCdStrt = '';
-  searchParams.value.schPkgCdEnd = '';
+  searchParams.value.feeTcntDvCd = '01';
+  searchParams.value.feePerfCd = '00';
+  searchParams.value.pdctTpCd = '00';
+  searchParams.value.sellTpCd = '0';
+  searchParams.value.strtDt = now.add(-1, 'month').startOf('month').format('YYYYMMDD');
+  searchParams.value.endDt = now.add(-1, 'month').endOf('month').format('YYYYMMDD');
+  searchParams.value.cancStrtDt = '';
+  searchParams.value.cancEndDt = '';
+  searchParams.value.pdStrtCd = '';
+  searchParams.value.pdEndCd = '';
+  searchParams.value.pkgStrtCd = '';
+  searchParams.value.pkgEndCd = '';
   searchParams.value.schBlgStrt = '';
   searchParams.value.schBlgEnd = '';
-  searchParams.value.schPrtnrNo = '';
-  searchParams.value.schPerfYm = now.add(-1, 'month').format('YYYYMM');
-  searchParams.value.schRsbDv = '00';
+  searchParams.value.prtnrNo = '';
+  searchParams.value.perfYm = now.add(-1, 'month').format('YYYYMM');
+  searchParams.value.rsbDvCd = '00';
 }
 
 /*
@@ -513,8 +513,8 @@ async function onClickSearchNo() {
   const { result, payload } = await modal({
     component: 'ZwogzMonthPartnerListP',
     componentProps: {
-      baseYm: searchParams.value.schPerfYm,
-      prtnrNo: searchParams.value.schPrtnrNo,
+      baseYm: searchParams.value.perfYm,
+      prtnrNo: searchParams.value.prtnrNo,
       ogTpCd: 'W02',
       prtnrKnm: undefined,
     },
@@ -522,7 +522,7 @@ async function onClickSearchNo() {
 
   if (result) {
     if (!isEmpty(payload)) {
-      searchParams.value.schPrtnrNo = payload.prtnrNo;
+      searchParams.value.prtnrNo = payload.prtnrNo;
       searchParams.value.prtnrKnm = payload.prtnrKnm;
     }
   }
@@ -533,9 +533,9 @@ async function onClickSearchNo() {
  */
 
 async function onChangeInqrDv() {
-  const { schInqrDv, schDiv } = searchParams.value;
-  if (schInqrDv === '01') {
-    if (schDiv === '04') {
+  const { inqrDvCd, divCd } = searchParams.value;
+  if (inqrDvCd === '01') {
+    if (divCd === '04') {
       isSelectVisile1.value = false;
       isSelectVisile2.value = true;
       isSelectVisile3.value = false;
@@ -547,7 +547,7 @@ async function onChangeInqrDv() {
       isPerfVisile.value = false;
     }
     initSearchParams();
-  } else if (schInqrDv === '02') {
+  } else if (inqrDvCd === '02') {
     isSelectVisile1.value = false;
     isSelectVisile2.value = false;
     isSelectVisile3.value = true;
@@ -561,9 +561,9 @@ async function onChangeInqrDv() {
  */
 async function onClickSearchPdCdPopup(arg) {
   if (arg === 'S') {
-    searchParams.value.pdCd = searchParams.value.schPdCdStrt;
+    searchParams.value.pdCd = searchParams.value.pdStrtCd;
   } else {
-    searchParams.value.pdCd = searchParams.value.schPdCdEnd;
+    searchParams.value.pdCd = searchParams.value.pdEndCd;
   }
   const searchPopupParams = {
     searchType: pdConst.PD_SEARCH_CODE,
@@ -575,9 +575,9 @@ async function onClickSearchPdCdPopup(arg) {
     componentProps: searchPopupParams,
   });
   if (arg === 'S') {
-    searchParams.value.schPdCdStrt = rtn.payload?.[0]?.pdCd;
+    searchParams.value.pdStrtCd = rtn.payload?.[0]?.pdCd;
   } else {
-    searchParams.value.schPdCdEnd = rtn.payload?.[0]?.pdCd;
+    searchParams.value.pdEndCd = rtn.payload?.[0]?.pdCd;
   }
 }
 
@@ -586,9 +586,9 @@ async function onClickSearchPdCdPopup(arg) {
  */
 
 async function onChangeDt() {
-  const { schInqrDv, schDtStrt } = searchParams.value;
-  if (schInqrDv === '01') {
-    searchParams.value.schPerfYm = schDtStrt.substring(0, 6);
+  const { inqrDvCd, strtDt } = searchParams.value;
+  if (inqrDvCd === '01') {
+    searchParams.value.perfYm = strtDt.substring(0, 6);
   }
 }
 
@@ -600,7 +600,7 @@ async function openFeePerfCrtPopup() {
     perfYm: now.add(-1, 'month').format('YYYYMM'),
     ogTp: 'W02',
     dv: 'CR',
-    feeTcntDvCd: searchParams.value.schOrdr,
+    feeTcntDvCd: searchParams.value.feeTcntDvCd,
     perfAgrgCrtDvCd: '201',
   };
   await modal({
@@ -617,7 +617,7 @@ async function openFeePerfCnfmPopup() {
     perfYm: now.add(-1, 'month').format('YYYYMM'),
     ogTp: 'W02',
     dv: 'CO',
-    feeTcntDvCd: searchParams.value.schOrdr,
+    feeTcntDvCd: searchParams.value.feeTcntDvCd,
     perfAgrgCrtDvCd: '201',
   };
   await modal({
@@ -634,7 +634,7 @@ async function openFeePerfCnfmCanPopup() {
     perfYm: now.add(-1, 'month').format('YYYYMM'),
     ogTp: 'W02',
     dv: 'CC',
-    feeTcntDvCd: searchParams.value.schOrdr,
+    feeTcntDvCd: searchParams.value.feeTcntDvCd,
     perfAgrgCrtDvCd: '201',
   };
   await modal({
@@ -645,7 +645,7 @@ async function openFeePerfCnfmCanPopup() {
 
 async function downloadExcelView1(uri) {
   const view = grd1MainRef.value.getView();
-  const response = await dataService.get(`/sms/wells/fee/organization-netorders/${uri}`, { params: cachedParams });
+  const response = await dataService.get(`/sms/wells/fee/organization-netorders/${uri}`, { params: cachedParams, timeout: 300000 });
 
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
@@ -656,7 +656,7 @@ async function downloadExcelView1(uri) {
 
 async function downloadExcelView2(uri) {
   const view = grd2MainRef.value.getView();
-  const response = await dataService.get(`/sms/wells/fee/organization-netorders/${uri}`, { params: cachedParams });
+  const response = await dataService.get(`/sms/wells/fee/organization-netorders/${uri}`, { params: cachedParams, timeout: 300000 });
 
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
@@ -667,7 +667,7 @@ async function downloadExcelView2(uri) {
 
 async function downloadExcelView3(uri) {
   const view = grd3MainRef.value.getView();
-  const response = await dataService.get(`/sms/wells/fee/organization-netorders/${uri}`, { params: cachedParams });
+  const response = await dataService.get(`/sms/wells/fee/organization-netorders/${uri}`, { params: cachedParams, timeout: 300000 });
 
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
@@ -677,20 +677,20 @@ async function downloadExcelView3(uri) {
 }
 
 async function onClickExcelDownload() {
-  const { schInqrDv, schDiv } = searchParams.value;
+  const { inqrDvCd, divCd } = searchParams.value;
   cachedParams = cloneDeep(searchParams.value);
-  if (schInqrDv === '01') {
+  if (inqrDvCd === '01') {
     await downloadExcelView1('mngers');
-    if (schDiv === '04') {
+    if (divCd === '04') {
       await downloadExcelView2('mnger-fees');
     }
-  } else if (schInqrDv === '02') {
+  } else if (inqrDvCd === '02') {
     await downloadExcelView3('mnger-aggregation');
   }
 }
 
 async function fetchData(uri) {
-  const response = await dataService.get(`/sms/wells/fee/organization-netorders/${uri}`, { params: cachedParams });
+  const response = await dataService.get(`/sms/wells/fee/organization-netorders/${uri}`, { params: cachedParams, timeout: 300000 });
   const resData = response.data;
   totalCount.value = resData.length;
   if (totalCount.value > 0) {
@@ -709,15 +709,15 @@ async function fetchData(uri) {
 }
 
 async function onClickSearch() {
-  const { schInqrDv, schDiv } = searchParams.value;
+  const { inqrDvCd, divCd } = searchParams.value;
   let uri = '';
 
-  if (schInqrDv === '01') {
+  if (inqrDvCd === '01') {
     uri = 'mngers';
-    if (schDiv === '04') {
+    if (divCd === '04') {
       uri = 'mnger-fees';
     }
-  } else if (schInqrDv === '02') {
+  } else if (inqrDvCd === '02') {
     uri = 'mnger-aggregation';
   }
   cachedParams = cloneDeep(searchParams.value);

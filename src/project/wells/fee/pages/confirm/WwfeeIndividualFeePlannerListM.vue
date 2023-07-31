@@ -189,7 +189,7 @@
           secondary
           dense
           :label="t('MSG_BTN_BU_DDTN')"
-          @click="openBurdenDeductionPopup"
+          @click="openZwfedFeeBurdenDeductionRegP"
         />
       </kw-action-top>
       <kw-form
@@ -410,20 +410,25 @@ async function openAgainDisbursementPopup() {
     componentProps: param,
   });
 }
-/*
- *  Event - 부담공제 버튼 클릭  ※현재 팝업화면 없음
- */
-async function openBurdenDeductionPopup() {
-  const param = {
-    perfYm: searchParams.value.perfYm,
-    no: searchParams.value.no,
-  };
 
+/*
+ *  Event - 부담공제조정 버튼 클릭
+ */
+async function openZwfedFeeBurdenDeductionRegP() {
+  const param = {
+    dsbYm: dayjs(searchParams.value.perfYm).format('YYYY-MM'),
+    ogTpCd: 'W01',
+    ogTpCdTxt: 'P조직',
+    coCd: '2000',
+    coCdTxt: 'WELLS',
+    prtnrNo: searchParams.value.no,
+  };
   await modal({
-    component: 'openBurdenDeductionPopup',
+    component: 'ZwfedFeeBurdenDeductionRegP',
     componentProps: param,
   });
 }
+
 /*
  *  Event - 되물림 버튼 클릭  ※현재 팝업화면 없음
  */

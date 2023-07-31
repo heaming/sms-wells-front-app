@@ -14,6 +14,7 @@
 --->
 <template>
   <kw-popup
+    ref="popupRef"
     size="3xl"
     no-action
   >
@@ -147,6 +148,9 @@ const props = defineProps({
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
+
+const popupRef = ref();
+
 const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
   'LCT_ANGLE_CD',
@@ -245,11 +249,10 @@ async function onClickSave() {
   // 등록하시겠습니까?
   if (await confirm(t('MSG_ALT_RGST'))) {
     const res = await dataService.put(baseURI, confirmData.value);
-    if (res.data.processCount) {
+    if (res.data.processCount > 0) {
       ok();
       notify(t('MSG_ALT_SAVE_DTA'));
     } else {
-      console.log(res);
       notify(t('MSG_ALT_SVE_ERR'));
     }
   }
@@ -259,9 +262,8 @@ async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
 
   const response = await dataService.get(baseURI, { params: cachedParams });
-  const { currentRoute } = useRouter();
   await gridUtil.exportView(view, {
-    fileName: currentRoute.value.meta.menuName,
+    fileName: popupRef.value.pageCtxTitle,
     timePostfix: true,
     exportData: response.data,
   });

@@ -862,9 +862,7 @@ async function onChangePkgs(dtl) {
   resetCntrSn();
 }
 
-async function getCntrInfo(cntrNo) {
-  const cntr = await dataService.get('sms/wells/contract/contracts/cntr-info', { params: { cntrNo, step: 2 } });
-  step2.value = cntr.data.step2;
+function castCodeIdNumToStr() {
   step2.value.dtls.forEach((dtl) => {
     ['svPdCd', 'sellDscrCd', 'sellDscDvCd', 'alncmpCntrDrmVal',
       'frisuBfsvcPtrmN', // 일시불
@@ -874,6 +872,12 @@ async function getCntrInfo(cntrNo) {
       if (Number.isInteger(dtl[col])) dtl[col] = String(dtl[col]);
     });
   });
+}
+
+async function getCntrInfo(cntrNo) {
+  const cntr = await dataService.get('sms/wells/contract/contracts/cntr-info', { params: { cntrNo, step: 2 } });
+  step2.value = cntr.data.step2;
+  castCodeIdNumToStr();
   pCntrNo.value = step2.value.bas.cntrNo;
   ogStep2.value = cloneDeep(step2.value);
   console.log(step2.value);
@@ -908,6 +912,17 @@ function setFilter() {
     filteredClsfPds.value = classfiedPds.value;
   }
   filteredClsfPds.value = clsfPds;
+}
+
+async function confirmProducts() {
+  const res = await dataService.post('sms/wells/contract/contracts/confirm-products', step2.value.dtls);
+  console.log(res);
+  if (res.data) {
+    step2.value.dtls = res.data;
+    castCodeIdNumToStr();
+    return true;
+  }
+  return false;
 }
 
 async function isChangedStep() {
@@ -947,6 +962,7 @@ defineExpose({
   isValidStep,
   saveStep,
   getProducts,
+  confirmProducts,
 });
 onMounted(async () => {
   props.onChildMounted(2);
