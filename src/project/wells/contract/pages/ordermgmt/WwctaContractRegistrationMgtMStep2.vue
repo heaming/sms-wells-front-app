@@ -911,8 +911,13 @@ function setFilter() {
 }
 
 async function confirmProducts() {
-  const res = await dataService.post('sms/wells/contract/contracts/confirm-products', step2.value);
+  const res = await dataService.post('sms/wells/contract/contracts/confirm-products', step2.value.dtls);
   console.log(res);
+  if (res.data) {
+    step2.value.dtls = res.data;
+    return true;
+  }
+  return false;
 }
 
 async function isChangedStep() {
