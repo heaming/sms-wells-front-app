@@ -1,3 +1,17 @@
+<!----
+****************************************************************************************************
+* 프로그램 개요
+****************************************************************************************************
+1. 모듈 : SNF
+2. 프로그램 ID : [W-SV-U-0198M01] WwsnfAsEncourageMaterialsMngtListM - AS유형별 권장자재 관리
+3. 작성자 : gs.piit122
+4. 작성일 : 2023.07.31
+****************************************************************************************************
+* 프로그램 설명
+****************************************************************************************************
+-
+****************************************************************************************************
+--->
 <template>
   <kw-page>
     <template #header>
@@ -17,14 +31,21 @@
           <kw-select
             v-model="searchParams.svTpCd"
             :label="$t('MSG_TXT_SV_TP')"
-            :options="codes.SV_TP_CD_BK"
+            :options="codes.SV_DV_CD"
             rules="required"
           />
           <kw-select
-            :options="['전체','B','C']"
+            v-model="searchParams.ogId"
+            :options="servierCenterOrg"
+            first-option="all"
+            option-label="ogNm"
+            option-value="ogId"
           />
           <kw-select
-            :options="['전체','B','C']"
+            v-model="searchParams.prtnrNo"
+            :options="prtNrs"
+            option-label="prtnrNm"
+            option-value="prtnrNo"
           />
         </kw-search-item>
 
@@ -78,8 +99,8 @@
           <kw-paging-info
             v-model:page-index="pageInfo.pageIndex"
             v-model:page-size="pageInfo.pageSize"
-            :total-count="pageInfo.totalCount"
             :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
+            :total-count="pageInfo.totalCount"
             @change="fetchData"
           />
         </template>
@@ -98,9 +119,9 @@
       </kw-action-top>
       <kw-grid
         ref="grdMainRef"
-        name="grdMain"
         :page-size="pageInfo.pageSize"
         :total-count="pageInfo.totalCount"
+        name="grdMain"
         @init="initGrdMain"
       />
       <kw-pagination
@@ -118,18 +139,18 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { codeUtil, useDataService, useMeta, defineGrid, getComponentType } from 'kw-lib';
-import smsCommon from '~sms-wells/service/composables/useSnCode';
 import { cloneDeep } from 'lodash-es';
+import useSnCode from '~sms-wells/service/composables/useSnCode';
 
+const { getServiceCenterOrgs, getServiceCenterPrtnr, getPartMaster } = useSnCode();
 const dataService = useDataService();
 const { t } = useI18n();
 // eslint-disable-next-line no-unused-vars
 const { getConfig } = useMeta();
 
-const { getPartMaster } = smsCommon();
 const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
-  'SV_TP_CD_BK',
+  'SV_DV_CD',
   'PD_GRP_CD',
 );
 
@@ -147,15 +168,25 @@ let cachedParams;
 const searchParams = ref({
   svTpCd: '',
   pdGrpCd: '',
+  ogId: '',
   pdCd: '',
   dateType: '',
   dateValueFromDt: '',
   dateValueToDt: '',
+  prtnrNo: '',
 });
 const productCode = ref();
+const prtNrs = ref();
 watch(() => [searchParams.value.pdGrpCd], async () => {
   const tempVal = await getPartMaster(undefined, searchParams.value.pdGrpCd);
   productCode.value = tempVal.map((v) => ({ codeId: v.cd, codeName: v.codeName }));
+}, { immediate: true });
+
+const servierCenterOrg = await getServiceCenterOrgs();
+
+watch(() => [searchParams.value.ogId], async () => {
+  prtNrs.value = await getServiceCenterPrtnr(searchParams.value.ogId);
+  searchParams.value.prtnrNo = '';
 }, { immediate: true });
 
 async function fetchData() {
@@ -176,13 +207,18 @@ async function onClickSearch() {
 // -------------------------------------------------------------------------------------------------
 const initGrdMain = defineGrid((data, view) => {
   const columns = [
+    { fieldName: 'svBizHclsfNm', header: '서비스유형', width: '100', styleName: 'text-center' },
+    { fieldName: 'ogNm', header: '서비스센터명', width: '150', styleName: 'text-left' },
+    { fieldName: 'prtnrNm', header: '파트너명', width: '150', styleName: 'text-left' },
     { fieldName: 'cntrCstNo', header: '고객번호', width: '150', styleName: 'text-center' },
     { fieldName: 'istllKnm', header: '고객명', width: '150', styleName: 'text-left' },
     { fieldName: 'tel', header: '연락처', width: '150', styleName: 'text-center' },
-    { fieldName: 'pdNm', header: '상품명', width: '150', styleName: 'text-center' },
+    { fieldName: 'pdNm', header: '상품명', width: '200', styleName: 'text-left' },
     { fieldName: 'pdCd', header: '품목코드', width: '150', styleName: 'text-center' },
-    { fieldName: 'adr', header: '주소', width: '300', styleName: 'text-center' },
-    { fieldName: 'cnslMoCn', header: '접수증상', width: '300', styleName: 'text-center' },
+    { fieldName: 'adr', header: '주소', width: '400', styleName: 'text-left' },
+    { fieldName: 'cnslMoCn', header: '접수증상', width: '400', styleName: 'text-left' },
+    { fieldName: 'pdAbbrNm', header: '추천자재', width: '300', styleName: 'text-left' },
+    { fieldName: 'itmPdCd', header: '추천자재코드', width: '150', styleName: 'text-center' },
   ];
   data.setFields(columns.map((item) => ({ fieldName: item.fieldName })));
   view.setColumns(columns);
@@ -191,13 +227,15 @@ const initGrdMain = defineGrid((data, view) => {
   view.checkBar.visible = false;
   view.rowIndicator.visible = false; // create number indicator column
   view.editOptions.editable = false; // Grid Editable On
+  view.rowIndicator.visible = true;
+  view.displayOptions.selectionStyle = 'singleRow';
 });
 
 onMounted(async () => {
   if (window.location.href.includes('localhost')) {
     searchParams.value.svTpCd = '3';
-    searchParams.value.pdGrpCd = '1';
-    searchParams.value.pdCd = 'WM03100816';
+    // searchParams.value.pdGrpCd = '1';
+    // searchParams.value.pdCd = 'WM03100816';
     searchParams.value.dateType = 'vstCnfmdt';
     searchParams.value.dateValueFromDt = '20230701';
     searchParams.value.dateValueToDt = '20230725';
