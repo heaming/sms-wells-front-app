@@ -135,6 +135,14 @@ const props = defineProps({
   dgr2LevlOgReadonly: { type: Boolean, default: false },
   dgr3LevlOgReadonly: { type: Boolean, default: false },
   partnerReadonly: { type: Boolean, default: false },
+
+  // auth
+  authYn: { type: String, default: 'Y' },
+
+  // Select Always Search
+  dgr2LevlOgAlwaysSearch: { type: Boolean, default: true },
+  dgr3LevlOgAlwaysSearch: { type: Boolean, default: true },
+  partnerAlwaysSearch: { type: Boolean, default: true },
 });
 
 // -------------------------------------------------------------------------------------------------
@@ -166,8 +174,8 @@ const dgr2LevlOgs = ref([]);
 const dgr3LevlOgs = ref([]);
 const partners = ref([]);
 
-async function fetchDgr1LevlOgs() {
-  return await dataService.get('/sms/wells/service/organizations/general-division');
+async function fetchDgr1LevlOgs(params) {
+  return await dataService.get('/sms/wells/service/organizations/general-division', params);
 }
 
 async function fetchDgr2LevlOgs(params) {
@@ -184,14 +192,17 @@ async function fetchPartners(params) {
 
 async function getDgr1LevlOgs() {
   if (props.useOgLevel < '1') return;
-  const res = await fetchDgr1LevlOgs();
+  const res = await fetchDgr1LevlOgs({ params: { authYn: props.authYn } });
   dgr1LevlOgs.value = res.data;
 }
 
 async function getDgr2LevlOgs() {
   if (props.useOgLevel < '2') return;
-  if (!isEmpty(selectedDgr1LevlOgId.value)) {
-    const res = await fetchDgr2LevlOgs({ params: { ogId: selectedDgr1LevlOgId.value } });
+  if (!isEmpty(selectedDgr1LevlOgId.value) || props.dgr2LevlOgAlwaysSearch) {
+    const res = await fetchDgr2LevlOgs({ params: {
+      ogId: selectedDgr1LevlOgId.value,
+      authYn: props.authYn,
+    } });
     dgr2LevlOgs.value = res.data;
   } else {
     dgr2LevlOgs.value = [];
@@ -200,8 +211,11 @@ async function getDgr2LevlOgs() {
 
 async function getDgr3LevlOgs() {
   if (props.useOgLevel < '3') return;
-  if (!isEmpty(selectedDgr2LevlOgId.value)) {
-    const res = await fetchDgr3LevlOgs({ params: { ogId: selectedDgr2LevlOgId.value } });
+  if (!isEmpty(selectedDgr2LevlOgId.value) || props.dgr3LevlOgAlwaysSearch) {
+    const res = await fetchDgr3LevlOgs({ params: {
+      ogId: selectedDgr2LevlOgId.value,
+      authYn: props.authYn,
+    } });
     dgr3LevlOgs.value = res.data;
   } else {
     dgr3LevlOgs.value = [];
@@ -214,11 +228,13 @@ async function getPartners() {
     || (props.useOgLevel === '2' && (props.dgr2LevlOgFirstOption === 'all' || !isEmpty(selectedDgr2LevlOgId.value)))
       || (props.useOgLevel === '1' && (props.dgr1LevlOgFirstOption === 'all' || !isEmpty(selectedDgr1LevlOgId.value)))
       || props.useOgLevel === '0'
+      || props.partnerAlwaysSearch
   ) {
     const res = await fetchPartners({ params: {
       dgr1LevlOgId: selectedDgr1LevlOgId.value,
       dgr2LevlOgId: selectedDgr2LevlOgId.value,
       dgr3LevlOgId: selectedDgr3LevlOgId.value,
+      authYn: props.authYn,
     } });
     partners.value = res.data;
   } else {
@@ -285,8 +301,23 @@ watch(() => props.prtnrNo, (newVal) => {
 });
 
 await getDgr1LevlOgs();
+if (props.authYn === 'Y' && dgr1LevlOgs.value.length === 1) {
+  selectedDgr1LevlOgId.value = dgr1LevlOgs.value[0].ogId;
+  emit('update:dgr1LevlOgId', selectedDgr1LevlOgId.value);
+  emit('update:dgr1LevlOg', dgr1LevlOgs.value.find((og) => og.ogId === selectedDgr1LevlOgId.value));
+}
 await getDgr2LevlOgs();
+if (props.authYn === 'Y' && dgr2LevlOgs.value.length === 1) {
+  selectedDgr2LevlOgId.value = dgr2LevlOgs.value[0].ogId;
+  emit('update:dgr2LevlOgId', selectedDgr2LevlOgId.value);
+  emit('update:dgr2LevlOg', dgr2LevlOgs.value.find((og) => og.ogId === selectedDgr2LevlOgId.value));
+}
 await getDgr3LevlOgs();
+if (props.authYn === 'Y' && dgr3LevlOgs.value.length === 1) {
+  selectedDgr3LevlOgId.value = dgr3LevlOgs.value[0].ogId;
+  emit('update:dgr3LevlOgId', selectedDgr3LevlOgId.value);
+  emit('update:dgr3LevlOg', dgr3LevlOgs.value.find((og) => og.ogId === selectedDgr3LevlOgId.value));
+}
 await getPartners();
 
 async function onChangeDgr1LevlOgId(val) {
