@@ -567,11 +567,10 @@ const initGrdMain = defineGrid((data, view) => {
       console.log(`payload : ${payload}`);
 
       if (result) {
-        fetchData();
-        console.log('재검색 하였습니다.');
+        await fetchData();
       }
 
-      stckStdGbFetchData();
+      await stckStdGbFetchData();
     }
   };
 

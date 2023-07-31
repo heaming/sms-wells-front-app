@@ -180,6 +180,7 @@ import {
   codeUtil,
   // useMeta,
 } from 'kw-lib';
+import { RowState } from 'realgrid';
 import {
   cloneDeep,
   isEmpty,
@@ -419,10 +420,18 @@ const initExpectedGrid = defineGrid((data, view) => {
     { fieldName: 'excdYn',
       header: t('MSG_TXT_EXCD'),
       width: '100',
-      styleName: 'text-left',
+      styleName: 'text-center',
       editable: true,
       editor: { type: 'list' },
       options: ynOpt,
+      styleCallback: () => {
+        const ret = {};
+        if (isNotExpected.value && !isLastDate.value) {
+          ret.editable = true;
+        } else {
+          ret.editable = false;
+        }
+      },
     },
     { fieldName: 'authRsgExcdRsonCd',
       header: t('MSG_TXT_EXCD_RSON'),
@@ -434,11 +443,12 @@ const initExpectedGrid = defineGrid((data, view) => {
       styleCallback: (grid, dataCell) => {
         const ret = {};
         const { excdYn } = grid.getValues(dataCell.index.itemIndex);
-        if (excdYn === 'Y' && isNotExpected.value && !isLastDate.value) {
-          ret.editable = true;
-        } else {
+        const rowState = gridUtil.getRowState(grid, dataCell.index.dataRow);
+        if (rowState === RowState.UPDATED && excdYn === 'N' && isNotExpected.value && !isLastDate.value) {
           ret.editable = false;
           grid.setValue(dataCell.index.itemIndex, 'authRsgExcdRsonCd', '');
+        } else {
+          ret.editable = true;
         }
         return ret;
       } },
@@ -495,6 +505,7 @@ const initExpectedGrid = defineGrid((data, view) => {
     { fieldName: 'cntrSn' }, /* 계약일련번호 */
     { fieldName: 'authRsgExpYn' }, /* 직권해지예정여부 */
     { fieldName: 'authRsgCnfmYn' }, /* 직권해지확정여부 */
+    { fieldName: 'rowState' }, /* rowState */
   );
   data.setFields(fields);
   view.setColumns(columns);

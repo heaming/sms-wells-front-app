@@ -1,7 +1,7 @@
 <!----
 ****************************************************************************************************
 1. 모듈 : DCD
-2. 프로그램 ID : WwdcdOperatingCostMgtMSecuritiesException - 운영비 등록관리 - 유가증권 제외
+2. 프로그램 ID : WwdcdOperatingCostMgtMSecuritiesException - 운영비 등록관리 - 유가증권 제외 W-CL-U-0082P02
 3. 작성자 : gs.piit172 kim juhyun
 4. 작성일 : 2023.02.02
 ****************************************************************************************************
@@ -73,12 +73,19 @@
 // -------------------------------------------------------------------------------------------------
 // Initialize Component
 // -------------------------------------------------------------------------------------------------
-import { useGlobal, useDataService, getComponentType, defineGrid, gridUtil, codeUtil } from 'kw-lib';
+import {
+  useGlobal,
+  useDataService,
+  getComponentType,
+  defineGrid,
+  gridUtil,
+  codeUtil,
+} from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 
+const dataService = useDataService();
 const { modal, notify, alert } = useGlobal();
 const { t } = useI18n();
-const dataService = useDataService();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -88,6 +95,7 @@ const grdSubRef = ref(getComponentType('KwGrid'));
 const mainTotalCount = ref(0);
 const subTotalCount = ref(0);
 const onShowSave = ref(false);
+const { currentRoute } = useRouter(); // 엑셀 다운로드 페이지명
 
 const codes = await codeUtil.getMultiCodes(
   'COD_YN',
@@ -104,11 +112,10 @@ async function adjustObject() {
 
   mainTotalCount.value = res.data.length;
   const view = grdMainRef.value.getView();
-
-  emits('tebEvent', 'basic', res.data);
-
   view.getDataSource().setRows(res.data);
   view.resetCurrent();
+  emits('tebEvent', 'basic', res.data);
+  // TODO 정산제외일경우 버튼 미노출
 }
 
 async function withholdingTaxAdjustList() {
@@ -126,7 +133,7 @@ async function settlementOfWithholdingTax() {
   const view = grdMainRef.value.getView();
   if (res.data === 'N') {
     onShowSave.value = false;
-    view.columnByName('opcsAdjBtn').visible = true;
+    view.columnByName('opcsAdjBtn').visible = false;
   } else {
     onShowSave.value = true;
     view.columnByName('opcsAdjBtn').visible = true;
@@ -135,8 +142,8 @@ async function settlementOfWithholdingTax() {
 
 async function fetchData() {
   adjustObject();
-  withholdingTaxAdjustList();
   settlementOfWithholdingTax();
+  withholdingTaxAdjustList();
 }
 
 async function setData(paramData) {
@@ -213,8 +220,8 @@ const initGridMain = defineGrid((data, view) => {
     { fieldName: 'dgr1LevlOgNm', header: t('MSG_TXT_MANAGEMENT_DEPARTMENT'), width: '71', styleName: 'text-left', editable: false }, // 총괄단
     { fieldName: 'crcdnoEncr', header: t('MSG_TXT_CARD_NO'), width: '172', styleName: 'text-center', editable: false }, // 카드번호
     { fieldName: 'mrcNm', header: t('MSG_TXT_MRC'), width: '122', styleName: 'text-left', editable: false }, // 가맹점
-    { fieldName: 'mrcTobzNm', header: t('MSG_TXT_MRC'), width: '122', styleName: 'text-left', editable: false }, // 가맹점 업종명
-    { fieldName: 'mrcAdrCn', header: t('MSG_TXT_MRC'), width: '122', styleName: 'text-left', editable: false }, // 가맹점 주소
+    { fieldName: 'mrcTobzNm', header: t('MSG_TXT_MER_BUS_NA'), width: '122', styleName: 'text-left', editable: false }, // 가맹점 업종명
+    { fieldName: 'mrcAdrCn', header: t('MSG_TXT_MER_ADD'), width: '122', styleName: 'text-left', editable: false }, // 가맹점 주소
     { fieldName: 'cardAprno', header: t('MSG_TXT_APR_NO'), width: '101', styleName: 'text-center', editable: false }, // 승인번호
     { fieldName: 'domTrdAmt', header: t('MSG_TXT_USE_AMT'), width: '101', styleName: 'text-right', editable: false, dataType: 'number' }, // 사용금액
     { fieldName: 'opcsAdjExcdYn',
@@ -327,13 +334,14 @@ const initGridSub = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'erntx', visible: false }, // 소득세
     { fieldName: 'rsdntx', visible: false }, // 주민세
-    { fieldName: 'dgr1LevlOgNm', header: t('MSG_TXT_MANAGEMENT_DEPARTMENT'), width: '149', styleName: 'text-left' }, /* 총괄단 */
+    { fieldName: 'dgr1LevlOgNm', header: t('MSG_TXT_OG_NM'), width: '149', styleName: 'text-left' }, /* 조직명 */
     { fieldName: 'dgr2LevlOgNm', header: t('MSG_TXT_RGNL_GRP'), width: '206', styleName: 'text-left' }, /* 지역단 */
     { fieldName: 'dstOjpsNm', header: t('MSG_TXT_EMPL_NM'), width: '198', styleName: 'text-left' }, /* 성명 */
     { fieldName: 'dstOjPrtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '218', styleName: 'text-center' }, /* 번호 */
     { fieldName: 'rsbDvNm', header: t('MSG_TXT_RSB'), width: '219', styleName: 'text-left' }, /* 직책 */
     { fieldName: 'dstAmt', header: t('MSG_TXT_OPCS_ADJ_AMT'), width: '260', styleName: 'text-right', dataType: 'number' }, /* 운영비 정상금액 */
     { fieldName: 'dstWhtx', header: t('MSG_TXT_WHTX'), width: '246', styleName: 'text-right', dataType: 'number' }, /* 원천세 */
+    { fieldName: 'cardAprno', header: t('MSG_TXT_APR_NO'), width: '246', styleName: 'text-left' }, /* 승인번호 */
   ];
 
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
@@ -342,6 +350,15 @@ const initGridSub = defineGrid((data, view) => {
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
 });
+
+// 엑셀 다운로드 버튼
+async function onClickExcelDownload(type) {
+  const view = type === 'adjustObject' ? grdMainRef.value.getView() : grdSubRef.value.getView();
+  await gridUtil.exportView(view, {
+    fileName: `${currentRoute.value.meta.menuName} ${type === 'adjustObject' ? t('MSG_TXT_ADJ_OJ') : t('MSG_TXT_WHTX_ADJ_IZ')}`,
+    timePostfix: true,
+  });
+}
 
 defineExpose({
   setData,

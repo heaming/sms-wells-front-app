@@ -195,8 +195,15 @@
               @click="onClickTempSave"
             />
             <kw-btn
-              v-if="currentStepIndex === 1"
+              v-if="currentStepIndex === 1 && !isCnfmPds"
               :label="$t('상품확정')"
+              class="ml8"
+              primary
+              @click="onClickPdCnfm"
+            />
+            <kw-btn
+              v-if="currentStepIndex === 1 && isCnfmPds"
+              :label="$t('다음')"
               class="ml8"
               primary
               @click="onClickNext"
@@ -299,11 +306,16 @@ const smr = ref({
 });
 const isCnfmCntr = ref(false);
 const isRstlCntr = ref(props.resultDiv === '2');
+const isCnfmPds = ref(false); // step2 상품확정여부
 const stepsStatus = reactive([false, false, false, false]);
 watch(currentStepName, (value) => {
   console.log(value);
   // sideStepRefs[value].show();
 });
+watch(contract, () => {
+  // step2에서 계약관련 변화가 있을 시 상품확정 해제
+  isCnfmPds.value = false;
+}, { deep: true });
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -334,7 +346,6 @@ function showStep(step) {
 }
 
 async function getCntrInfo(step, cntrNo, cntrSn) {
-  debugger;
   if (step === 2) {
     // step2일 때 상품 조회
     await panelsRefs[currentStepName.value].getProducts(cntrNo);
@@ -345,6 +356,8 @@ async function getCntrInfo(step, cntrNo, cntrSn) {
   } else {
     await panelsRefs[currentStepName.value].getCntrInfo(cntrNo);
   }
+  // 저장된 계약 재조회될 때 확정여부 true
+  isCnfmPds.value = true;
 }
 
 async function getExistedCntr() {
@@ -385,9 +398,10 @@ async function onClickTempSave() {
   }
 }
 
-// eslint-disable-next-line no-unused-vars
 async function onClickPdCnfm() {
-  await panelsRefs[currentStepName.value].confirmProducts();
+  if (await panelsRefs[currentStepName.value].confirmProducts()) {
+    isCnfmPds.value = true;
+  }
 }
 
 async function onClickNext() {
