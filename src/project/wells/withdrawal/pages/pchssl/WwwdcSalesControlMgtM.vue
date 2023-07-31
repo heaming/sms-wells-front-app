@@ -781,7 +781,7 @@ const initGrid1 = defineGrid((data, view) => {
       });
       if (result) {
         // const cntrDtlNo = payload.cntrNo + payload.cntrSn;
-        const { cntrNo, cntrSn, sellTpCd, cntrCstKnm, pdNm } = payload;
+        const { cntrNo, cntrSn, sellTpCd, cntrCstKnm, pdNm, pdCd } = payload;
         console.log(payload);
         view.setValue(itemIndex, 'cntrNo', cntrNo);
         view.setValue(itemIndex, 'cntrSn', cntrSn);
@@ -789,6 +789,7 @@ const initGrid1 = defineGrid((data, view) => {
         view.setValue(itemIndex, 'cntrDtlNo', cntrNo + cntrSn);
         view.setValue(itemIndex, 'cstKnm', cntrCstKnm);
         view.setValue(itemIndex, 'pdNm', pdNm);
+        view.setValue(itemIndex, 'pdCd', pdCd);
       }
     }
   };
@@ -821,6 +822,7 @@ const initGrid2 = defineGrid((data, view) => {
     { fieldName: 'slCtrDvCd' }, /* 조정구분 */
     { fieldName: 'slCtrDscTpCd' }, /* 조정유형 */
     { fieldName: 'slCtrMtrTpCd' }, /* 유형 */
+    { fieldName: 'pdCd' }, /* 상품코드 */
   ];
 
   const columns = [
@@ -1094,7 +1096,7 @@ const initGrid2 = defineGrid((data, view) => {
       });
       if (result) {
         // const cntrDtlNo = payload.cntrNo + payload.cntrSn;
-        const { cntrNo, cntrSn, sellTpCd, cntrCstKnm, pdNm } = payload;
+        const { cntrNo, cntrSn, sellTpCd, cntrCstKnm, pdNm, pdCd } = payload;
         console.log(payload);
         view.setValue(itemIndex, 'cntrNo', cntrNo);
         view.setValue(itemIndex, 'cntrSn', cntrSn);
@@ -1102,6 +1104,7 @@ const initGrid2 = defineGrid((data, view) => {
         view.setValue(itemIndex, 'cntrDtlNo', cntrNo + cntrSn);
         view.setValue(itemIndex, 'cstKnm', cntrCstKnm);
         view.setValue(itemIndex, 'pdNm', pdNm);
+        view.setValue(itemIndex, 'pdCd', pdCd);
       }
     }
   };
