@@ -300,7 +300,7 @@ const initGridTalk = defineGrid((data, view) => {
         },
       });
       if (result) {
-        const { getCstNo } = payload;
+        const { cstNo: getCstNo } = payload;
         data.setValue(dataRow, 'cstNo', getCstNo);
       }
     }
