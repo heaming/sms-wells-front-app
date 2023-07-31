@@ -51,7 +51,7 @@
           <kw-date-range-picker
             v-model:from="searchParams.startDt"
             v-model:to="searchParams.endDt"
-            label="출고일자"
+            :label="$t('MSG_TXT_OSTR_DT')"
             rules="date_range_required"
           />
         </kw-search-item>
