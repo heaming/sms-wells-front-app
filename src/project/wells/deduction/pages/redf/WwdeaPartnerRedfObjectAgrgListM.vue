@@ -83,14 +83,15 @@
 
       <kw-search-row>
         <kw-search-item
-          :label="t('MSG_TXT_PRTNR_NUM')"
+          :label="t('MSG_TXT_PRTNR_NUMBER')"
         >
           <kw-input
             v-model="searchParams.prtnrNo"
             regex="num"
             icon="search"
-            :label="t('MSG_TXT_PRTNR_NUM')"
+            :label="t('MSG_TXT_PRTNR_NUMBER')"
             rules="max:10|numeric"
+            clearable
             @click-icon="onClickSearchPartner"
           />
         </kw-search-item>
