@@ -419,10 +419,18 @@ const initExpectedGrid = defineGrid((data, view) => {
     { fieldName: 'excdYn',
       header: t('MSG_TXT_EXCD'),
       width: '100',
-      styleName: 'text-left',
+      styleName: 'text-center',
       editable: true,
       editor: { type: 'list' },
       options: ynOpt,
+      styleCallback: () => {
+        const ret = {};
+        if (isNotExpected.value && !isLastDate.value) {
+          ret.editable = true;
+        } else {
+          ret.editable = false;
+        }
+      },
     },
     { fieldName: 'authRsgExcdRsonCd',
       header: t('MSG_TXT_EXCD_RSON'),
@@ -439,6 +447,7 @@ const initExpectedGrid = defineGrid((data, view) => {
         } else {
           ret.editable = false;
           grid.setValue(dataCell.index.itemIndex, 'authRsgExcdRsonCd', '');
+          grid.commit();
         }
         return ret;
       } },
