@@ -331,7 +331,7 @@ async function callConfirm(cnfmRows) {
   let res = await dataService.get(`${baseURI}/confirm-count`, { params: { ostrAkSns: checkRows, ostrAkNo: cnfmRows[0].ostrAkNo } });
   if (res.data > 0) {
     // 이미 정상출고 처리된 품목입니다.
-    await alert(t('ALDY_NOR_OSTR_CMP'));
+    await alert(t('MSG_ALT_ALDY_NOR_OSTR_CMP'));
     return;
   }
   res = await dataService.post(detailURI, cnfmRows);
@@ -376,7 +376,7 @@ async function onChangeRgstDt() {
   await onClickSearch();
 }
 
-async function setSearchParams(res) {
+function setSearchParams(res) {
   searchParams.value = cloneDeep(res.data);
   const { stckStdGb, ostrAkRgstDt } = res.data;
 
@@ -394,7 +394,6 @@ async function onclickStandard() {
   const res = await dataService.put(standardURI, { apyYm, stckStdGb, wareNo });
   if (res.data > 0) {
     notify(t('MSG_ALT_CHG_DATA'));
-    await fetchData();
   }
 }
 
@@ -404,7 +403,7 @@ async function getItmOstrAk() {
   if (!isEmpty(ostrAkNo) && !isEmpty(ostrAkSn)) {
     const res = await dataService.get(itmOstrAkUri, { params: { ostrAkNo, ostrAkSn } });
 
-    await setSearchParams(res);
+    setSearchParams(res);
   }
 }
 
