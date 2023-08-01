@@ -302,14 +302,14 @@ const initGrid = defineGrid((data, view) => {
       //   type: 'number',
       // },
       rules: 'required',
+      editor: {
+        maxLength: 20,
+      },
       styleCallback: (grid, dataCell) => {
-        const { rowState, sellTpCd } = gridUtil.getRowValue(grid, dataCell.index.itemIndex);
+        const { rowState } = gridUtil.getRowValue(grid, dataCell.index.itemIndex);
 
         if (rowState !== 'created') {
           return { styleName: 'rg-button-hide' };
-        }
-        if (!isEmpty(sellTpCd)) {
-          return { styleName: 'rg-button-hide', editable: false };
         }
       },
       // eslint-disable-next-line no-unused-vars
@@ -363,10 +363,7 @@ const initGrid = defineGrid((data, view) => {
         maxLength: 2,
       },
       numberFormat: '#,##0',
-      rules: 'required', // 정규일이 바뀔수도 있기 때문에 추후에 수정
-      // rules: `required||one_of:${possibleDay}`, // 정규일이 바뀔수도 있기 때문에 추후에 수정
-      // customMessages: { one_of: t('MSG_ALT_FTD_CHECK', [possibleDay]) },
-
+      rules: 'required',
     },
     { fieldName: 'fntYn',
       header: t('MSG_TXT_FNT_DV'),
@@ -445,7 +442,8 @@ const initGrid = defineGrid((data, view) => {
   view.onCellButtonClicked = async (g, { column, dataRow }) => {
     if (column === 'cntr') {
       const { cntr } = gridUtil.getRowValue(g, dataRow);
-      const cntrNoSn = cntr.replaceAll('-', '');
+
+      const cntrNoSn = !isEmpty(cntr) ? cntr.replaceAll('-', '') : '';
       const { result, payload } = await modal({
         component: 'WwctaContractNumberListP',
         componentProps: { cntrNo: cntrNoSn?.slice(0, 12), cntrSn: cntrNoSn?.slice(12) },
@@ -458,6 +456,17 @@ const initGrid = defineGrid((data, view) => {
         data.setValue(dataRow, 'cstKnm', cstKnm);
         data.setValue(dataRow, 'sellTpCd', sellTpCd);
       }
+    }
+  };
+  // eslint-disable-next-line no-unused-vars
+  view.onEditRowChanged = async (grid, itemIndex, dataRow, field, oldValue, newValue) => {
+    grid.commit();
+    if (field === 'cntr' && !isEmpty(oldValue)) {
+      data.setValue(dataRow, 'cntrNo', '');
+      data.setValue(dataRow, 'cntrSn', '');
+      data.setValue(dataRow, 'cntr', newValue);
+      data.setValue(dataRow, 'cstKnm', '');
+      data.setValue(dataRow, 'sellTpCd', '');
     }
   };
 
