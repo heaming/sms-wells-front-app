@@ -447,16 +447,16 @@ async function openPerformancePopup() {
   }
 }
 /*
- *  Event - 재지급 버튼 클릭  ※현재 팝업화면 없음
+ *  Event - 재지급 버튼 클릭
  */
 async function openAgainDisbursementPopup() {
   const param = {
-    perfYm: searchParams.value.perfYm,
-    no: searchParams.value.no,
+    prtnrNo: searchParams.value.no,
+    ogTpCd: 'W02',
   };
 
   await modal({
-    component: 'openAgainDisbursementPopup',
+    component: 'WwdebAgainDisbursementDetailP',
     componentProps: param,
   });
 }
@@ -480,16 +480,16 @@ async function openZwfedFeeBurdenDeductionRegP() {
 }
 
 /*
- *  Event - 되물림 버튼 클릭  ※현재 팝업화면 없음
+ *  Event - 되물림 버튼 클릭
  */
 async function openRedemptionOfFeePopup() {
   const param = {
-    perfYm: searchParams.value.perfYm,
-    no: searchParams.value.no,
+    prtnrNo: searchParams.value.no,
+    ogTpCd: 'W02',
   };
 
   await modal({
-    component: 'openRedemptionOfFeePopup',
+    component: 'WwdeaAllowanceDelinquentRedemptionFeeListP',
     componentProps: param,
   });
 }

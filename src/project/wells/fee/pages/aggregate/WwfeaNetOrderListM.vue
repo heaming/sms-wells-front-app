@@ -26,7 +26,7 @@
             :label="$t('MSG_TXT_INQR_DV')"
           >
             <kw-option-group
-              v-model="searchParams.schDvCd"
+              v-model="searchParams.dvCd"
               :label="$t('MSG_TXT_INQR_DV')"
               type="radio"
               :options="customCodes.div2Cd"
@@ -38,7 +38,7 @@
             required
           >
             <kw-select
-              v-model="searchParams.schDv"
+              v-model="searchParams.divCd"
               :label="$t('MSG_TXT_DIV')"
               :options="customCodes.div4Cd"
               rules="required"
@@ -64,7 +64,7 @@
             required
           >
             <kw-select
-              v-model="searchParams.pdctTp"
+              v-model="searchParams.pdctTpCd"
               :label="$t('MSG_TXT_PDCT_TP')"
               :options="customCodes.div5Cd"
               first-option
@@ -76,7 +76,7 @@
             :label="$t('MSG_TXT_SEL_TYPE')"
           >
             <kw-select
-              v-model="searchParams.selTp"
+              v-model="searchParams.selTpCd"
               :label="$t('MSG_TXT_SEL_TYPE')"
               :options="customCodes.div6Cd"
               first-option
@@ -91,8 +91,8 @@
             required
           >
             <kw-date-range-picker
-              v-model:from="searchParams.schDtStrt"
-              v-model:to="searchParams.schDtEnd"
+              v-model:from="searchParams.strtDt"
+              v-model:to="searchParams.endDt"
               :label="$t('MSG_TXT_DT')"
               rules="date_range_required|date_range_months:1"
             />
@@ -101,8 +101,8 @@
             :label="$t('MSG_TXT_CANC_DT')"
           >
             <kw-date-range-picker
-              v-model:from="searchParams.schCancDtStrt"
-              v-model:to="searchParams.schCancDtEnd"
+              v-model:from="searchParams.cancStrtDt"
+              v-model:to="searchParams.cancEndDt"
               :label="$t('MSG_TXT_CANC_DT')"
             />
           </kw-search-item>
@@ -110,7 +110,7 @@
             :label="$t('MSG_TXT_PRDT_CODE')"
           >
             <kw-input
-              v-model="searchParams.schPdCdStrt"
+              v-model="searchParams.pdStrtCd"
               maxlength="10"
               clearable
               icon="search"
@@ -118,7 +118,7 @@
             />
             <span>~</span>
             <kw-input
-              v-model="searchParams.schPdCdEnd"
+              v-model="searchParams.pdEndCd"
               maxlength="10"
               clearable
               icon="search"
@@ -131,18 +131,18 @@
             :label="$t('MSG_TXT_PKG_CD')"
           >
             <kw-input
-              v-model="searchParams.schPkgCdStrt"
+              v-model="searchParams.pkgStrtCd"
             />
             <span>~</span>
             <kw-input
-              v-model="searchParams.schPkgdEnd"
+              v-model="searchParams.pkgEndCd"
             />
           </kw-search-item>
           <kw-search-item :label="t('MSG_TXT_OG_LEVL')">
             <zwog-level-select
-              v-model:og-levl-dv-cd1="searchParams.ogLevl1"
-              v-model:og-levl-dv-cd2="searchParams.ogLevl2"
-              v-model:og-levl-dv-cd3="searchParams.ogLevl3"
+              v-model:og-levl-dv-cd1="searchParams.ogLevl1Id"
+              v-model:og-levl-dv-cd2="searchParams.ogLevl2Id"
+              v-model:og-levl-dv-cd3="searchParams.ogLevl3Id"
               :og-tp-cd="searchParams.ogDvCd"
               :base-ym="searchParams.perfYm"
               :start-level="1"
@@ -175,7 +175,7 @@
             :label="$t('MSG_TXT_INQR_DV')"
           >
             <kw-option-group
-              v-model="searchParams.schDvCd"
+              v-model="searchParams.dvCd"
               :label="$t('MSG_TXT_INQR_DV')"
               type="radio"
               :options="customCodes.div2Cd"
@@ -227,7 +227,7 @@
             :label="$t('MSG_TXT_INQR_DV')"
           >
             <kw-option-group
-              v-model="searchParams.schDvCd"
+              v-model="searchParams.dvCd"
               :label="$t('MSG_TXT_INQR_DV')"
               type="radio"
               :options="customCodes.div2Cd"
@@ -239,7 +239,7 @@
             required
           >
             <kw-select
-              v-model="searchParams.schDv"
+              v-model="searchParams.divCd"
               :label="$t('MSG_TXT_DIV')"
               :options="customCodes.div4Cd"
               rules="required"
@@ -421,23 +421,23 @@ const customCodes = {
 };
 
 const searchParams = ref({
-  schDvCd: '01',
+  dvCd: '01',
   tcntDvCd: '01',
   ogDvCd: '',
-  schDv: '01',
-  pdctTp: '',
-  selTp: '',
-  schDtStrt: now.add(-1, 'month').startOf('month').format('YYYYMMDD'),
-  schDtEnd: now.add(-1, 'month').endOf('month').format('YYYYMMDD'),
-  schCancDtStrt: '',
-  schCancDtEnd: '',
-  schPdCdStrt: '',
-  schPdCdEnd: '',
-  schPkgCdStrt: '',
-  schPkgdEnd: '',
-  ogLevl1: '',
-  ogLevl2: '',
-  ogLevl3: '',
+  divCd: '01',
+  pdctTpCd: '',
+  selTpCd: '',
+  strtDt: now.add(-1, 'month').startOf('month').format('YYYYMMDD'),
+  endDt: now.add(-1, 'month').endOf('month').format('YYYYMMDD'),
+  cancStrtDt: '',
+  cancEndDt: '',
+  pdStrtCd: '',
+  pdEndCd: '',
+  pkgStrtCd: '',
+  pkgEndCd: '',
+  ogLevl1Id: '',
+  ogLevl2Id: '',
+  ogLevl3Id: '',
   prtnrNo: '',
   prtnrKnm: '',
   perfYm: now.add(-1, 'month').format('YYYYMM'),
@@ -474,10 +474,10 @@ async function excel2Download(url) {
 }
 
 async function onClickExcelDownload() {
-  const { schDvCd, schDv } = searchParams.value;
+  const { dvCd, divCd } = searchParams.value;
   cachedParams = cloneDeep(searchParams.value);
-  if (schDvCd === '01') { /* 상세선택 */
-    if (schDv === '04') {
+  if (dvCd === '01') { /* 상세선택 */
+    if (divCd === '04') {
       await excelDownload('/sms/wells/fee/monthly-net/aggreateOrders');
     } else {
       await excelDownload('/sms/wells/fee/monthly-net/orders');
@@ -524,11 +524,11 @@ async function fetchData(apiUrl) {
 }
 
 async function onClickSearch() {
-  const { schDvCd, schDv } = searchParams.value;
+  const { dvCd, divCd } = searchParams.value;
   cachedParams = cloneDeep(searchParams.value);
   await fetchData('confirmChk');
-  if (schDvCd === '01') { /* 상세선택 */
-    if (schDv === '04') {
+  if (dvCd === '01') { /* 상세선택 */
+    if (divCd === '04') {
       await fetchData('aggreateOrders');
     } else {
       await fetchData('orders');
@@ -542,9 +542,9 @@ async function onClickSearch() {
  *  Event - 조회구분 선택 시 하단 그리드 변경※
  */
 async function onChangedDvcd() {
-  const { schDvCd, schDv } = searchParams.value;
-  if (schDvCd === '01') { /* 상세선택 */
-    if (schDv === '04') {
+  const { dvCd, divCd } = searchParams.value;
+  if (dvCd === '01') { /* 상세선택 */
+    if (divCd === '04') {
       isSelectVisile.value = false;
       isSelectVisile3.value = true;
       isPerfVisile.value = true;
@@ -557,7 +557,7 @@ async function onChangedDvcd() {
     isSelectVisile2.value = false;
     isGrid1Visile.value = true;
     isGrid2Visile.value = false;
-  } else if (schDvCd === '02') { /* 집계선택 */
+  } else if (dvCd === '02') { /* 집계선택 */
     isGrid1Visile.value = false;
     isGrid2Visile.value = true;
     isSelectVisile.value = false;
@@ -587,9 +587,9 @@ async function onChangedOrdr() {
 // 상품코드 검색 아이콘 클릭 이벤트
 async function onClickSearchPdCdPopup(arg) {
   if (arg === 'S') {
-    searchParams.value.pdCd = searchParams.value.schPdCdStrt;
+    searchParams.value.pdCd = searchParams.value.pdStrtCd;
   } else {
-    searchParams.value.pdCd = searchParams.value.schPdCdEnd;
+    searchParams.value.pdCd = searchParams.value.pdEndCd;
   }
   const searchPopupParams = {
     searchType: pdConst.PD_SEARCH_CODE,
@@ -601,9 +601,9 @@ async function onClickSearchPdCdPopup(arg) {
     componentProps: searchPopupParams,
   });
   if (arg === 'S') {
-    searchParams.value.schPdCdStrt = rtn.payload?.[0]?.pdCd;
+    searchParams.value.pdStrtCd = rtn.payload?.[0]?.pdCd;
   } else {
-    searchParams.value.schPdCdEnd = rtn.payload?.[0]?.pdCd;
+    searchParams.value.pdEndCd = rtn.payload?.[0]?.pdCd;
   }
 }
 

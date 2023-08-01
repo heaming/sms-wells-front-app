@@ -499,8 +499,6 @@ async function initSearchParams() {
   searchParams.value.pdEndCd = '';
   searchParams.value.pkgStrtCd = '';
   searchParams.value.pkgEndCd = '';
-  searchParams.value.schBlgStrt = '';
-  searchParams.value.schBlgEnd = '';
   searchParams.value.prtnrNo = '';
   searchParams.value.perfYm = now.add(-1, 'month').format('YYYYMM');
   searchParams.value.rsbDvCd = '00';
